@@ -1,0 +1,24 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('TFShiftColors','FORMDATA',[
+  'TPF0'#13'TFShiftColors'#12'FShiftColors'#4'Left'#3#182#2#6'Height'#3#141#0#3
+  +'Top'#3#3#1#5'Width'#3#149#1#11'BorderIcons'#11#12'biSystemMenu'#0#11'Border'
+  +'Style'#7#8'bsDialog'#7'Caption'#6#12'Shift colors'#12'ClientHeight'#3#141#0
+  +#11'ClientWidth'#3#149#1#11'Font.Height'#2#244#8'OnCreate'#7#10'FormCreate'#6
+  +'OnHide'#7#8'FormHide'#6'OnShow'#7#8'FormShow'#8'Position'#7#17'poOwnerFormC'
+  +'enter'#10'LCLVersion'#6#6'0.9.30'#0#6'TLabel'#6'Label1'#4'Left'#2#8#6'Heigh'
+  +'t'#2#16#3'Top'#2#10#5'Width'#2#23#7'Caption'#6#3'Hue'#11'ParentColor'#8#0#0
+  +#6'TLabel'#6'Label2'#4'Left'#2#8#6'Height'#2#16#3'Top'#2'0'#5'Width'#2'7'#7
+  +'Caption'#6#10'Saturation'#11'ParentColor'#8#0#0#9'TTrackBar'#12'TrackBar_Hu'
+  +'e'#4'Left'#2'F'#6'Height'#2#30#3'Top'#2#8#5'Width'#3'H'#1#8'OnChange'#7#15
+  +'TrackBar_Change'#8'Position'#2#0#8'TabOrder'#2#0#0#0#9'TTrackBar'#19'TrackB'
+  +'ar_Saturation'#4'Left'#2'F'#6'Height'#2#30#3'Top'#2','#5'Width'#3'H'#1#8'On'
+  +'Change'#7#15'TrackBar_Change'#8'Position'#2#0#8'TabOrder'#2#1#0#0#7'TButton'
+  +#9'Button_OK'#4'Left'#3#136#0#6'Height'#2#22#3'Top'#2'n'#5'Width'#2';'#7'Cap'
+  +'tion'#6#2'OK'#7'Default'#9#7'OnClick'#7#14'Button_OKClick'#8'TabOrder'#2#2#0
+  +#0#7'TButton'#13'Button_Cancel'#4'Left'#3#200#0#6'Height'#2#22#3'Top'#2'n'#5
+  +'Width'#2'H'#6'Cancel'#9#7'Caption'#6#6'Cancel'#11'ModalResult'#2#2#8'TabOrd'
+  +'er'#2#3#0#0#9'TCheckBox'#13'CheckBox_GSBA'#4'Left'#2#8#6'Height'#2#19#3'Top'
+  +#2'P'#5'Width'#3#168#0#7'Caption'#6#27'Corrected hue and lightness'#8'OnChan'
+  +'ge'#7#19'CheckBox_GSBAChange'#8'TabOrder'#2#4#0#0#0
+]);

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XML_DIZ_INFO>
+	<MASTER_PAD_VERSION_INFO>
+		<MASTER_PAD_VERSION>3.11</MASTER_PAD_VERSION>
+		<MASTER_PAD_EDITOR>PADGen 3.1.1.47 http://www.padgen.org</MASTER_PAD_EDITOR>
+		<MASTER_PAD_INFO>Portable Application Description, or PAD for short, is a data set that is used by shareware authors to disseminate information to anyone interested in their software products. To find out more go to http://pad.asp-software.org</MASTER_PAD_INFO>
+	</MASTER_PAD_VERSION_INFO>
+	<Company_Info>
+		<Company_Name>Circular</Company_Name>
+		<Address_1>no adress</Address_1>
+		<Address_2>no adress</Address_2>
+		<City_Town>no adress</City_Town>
+		<State_Province>no adress</State_Province>
+		<Zip_Postal_Code>no adress</Zip_Postal_Code>
+		<Country>France</Country>
+		<Company_WebSite_URL>http://sourceforge.net/projects/lazpaint/</Company_WebSite_URL>
+		<Contact_Info>
+			<Author_First_Name>Circular17</Author_First_Name>
+			<Author_Last_Name></Author_Last_Name>
+			<Author_Email>circular@operamail.com</Author_Email>
+			<Contact_First_Name>Circular17</Contact_First_Name>
+			<Contact_Last_Name></Contact_Last_Name>
+			<Contact_Email>circular@operamail.com</Contact_Email>
+		</Contact_Info>
+		<Support_Info>
+			<Sales_Email>circular@operamail.com</Sales_Email>
+			<Support_Email>circular@operamail.com</Support_Email>
+			<General_Email>circular@operamail.com</General_Email>
+			<Sales_Phone />
+			<Support_Phone />
+			<General_Phone />
+			<Fax_Phone />
+		</Support_Info>
+	</Company_Info>
+	<Program_Info>
+		<Program_Name>LazPaint</Program_Name>
+		<Program_Version>4.8</Program_Version>
+		<Program_Release_Month>08</Program_Release_Month>
+		<Program_Release_Day>19</Program_Release_Day>
+		<Program_Release_Year>2012</Program_Release_Year>
+		<Program_Cost_Dollars />
+		<Program_Cost_Other_Code />
+		<Program_Cost_Other />
+		<Program_Type>Freeware</Program_Type>
+		<Program_Release_Status>New Release</Program_Release_Status>
+		<Program_Install_Support>Install and Uninstall</Program_Install_Support>
+		<Program_OS_Support>Linux,Linux GPL,Linux Open Source,Win7 x32,Win7 x64,WinVista,WinVista x64,WinXP</Program_OS_Support>
+		<Program_Language>English</Program_Language>
+		<Program_Change_Info>Import 3D object, texture mapping tool, selection edition, better shift colors</Program_Change_Info>
+		<Program_Specific_Category>Graphics</Program_Specific_Category>
+		<Program_Category_Class>Graphic Apps::Editors</Program_Category_Class>
+		<Program_System_Requirements />
+		<File_Info>
+			<File_Size_Bytes>1820072</File_Size_Bytes>
+		</File_Info>
+		<Expire_Info>
+			<Has_Expire_Info>N</Has_Expire_Info>
+			<Expire_Count />
+			<Expire_Based_On>Days</Expire_Based_On>
+			<Expire_Other_Info />
+			<Expire_Month />
+			<Expire_Day />
+			<Expire_Year />
+		</Expire_Info>
+	</Program_Info>
+	<Program_Descriptions>
+	  <French>
+	    <Keywords>éditeur graphique image filtres antialiasing transparence</Keywords>
+	    <Char_Desc_45>LazPaint est un éditeur d'images</Char_Desc_45> 
+			<Char_Desc_80>LazPaint est un éditeur d'images avec de nombreux outils et filtres</Char_Desc_80>
+			<Char_Desc_250>LazPaint est un éditeur d'images avec de nombreux outils et filtres, écrit en Lazarus (Free Pascal). Le tracé est réalisé avec antialiasing, y compris pour la sélection. Les couleurs peuvent être ajustées</Char_Desc_250>
+			<Char_Desc_450>LazPaint est un éditeur d'images avec de nombreux outils et filtres, écrit en Lazarus (Free Pascal). Le tracé est réalisé avec antialiasing, y compris pour la sélection. Les couleurs peuvent être ajustées et le logiciel peut lire les fichiers de Paint.NET. Fonctions clés : génération de textures, formes éclairées, ajustement des couleurs, filtres, déformations</Char_Desc_450>
+			<Char_Desc_2000 />
+	  </French>
+	  <English>
+	    <Keywords>editor graphic image filters antialiasing alphablending transparency</Keywords>
+	    <Char_Desc_45>LazPaint is a graphic editor</Char_Desc_45> 
+			<Char_Desc_80>LazPaint is a graphic editor with many tools and filters</Char_Desc_80>
+			<Char_Desc_250>LazPaint is a graphic editor with many tools and filters, written in Lazarus (Free Pascal). The drawing is done with antialiasing, including selection. Colors can be adjusted.</Char_Desc_250>
+			<Char_Desc_450>LazPaint is a graphic editor with many tools and filters, written in Lazarus (Free Pascal). The drawing is done with antialiasing, including selection. Colors can be adjusted and the program can read Paint.NET files. Key features : texture generation, shaded shapes, color adjustment, filters, deformations</Char_Desc_450>
+			<Char_Desc_2000 />
+	  </English>
+    <Spanish>
+      <Keywords>editor graficos imagen filtros antiafilado alphablending transparencia</Keywords>
+      <Char_Desc_45>LazPaint es un editor de gráficos</Char_Desc_45> 
+      <Char_Desc_80>LazPaint es un editor de gráficos con varias herramientas y filtros</Char_Desc_80>
+      <Char_Desc_250>LazPaint es un editor de gráficos con varias herramientas y filtros, escrito en Lazarus (Free Pascal). El dibujo es realizado con antiafilado, incluyendo la selección. Los colores se pueden ajustar.</Char_Desc_250>
+      <Char_Desc_450>LazPaint es un editor de gráficos con varias herramientas y filtros, escrito en Lazarus (Free Pascal). El dibujo es realizado con antiafilado, incluyendo la selección. Los colores se pueden ajustar y el programa puede leer archivos de Paint.NET. Funciones destacadas : generación de texturas, formas sombreadas, ajuste de color, filtros y deformaciones.</Char_Desc_450>
+      <Char_Desc_2000 />
+     </Spanish>
+     <German>
+       <Keywords>Editor Grafik Bild Filter Antialiasing Alphablending Transparenz</Keywords>
+       <Char_Desc_45>LazPaint ist ein Grafikeditor</Char_Desc_45>
+       <Char_Desc_80>LazPaint ist ein Grafikeditor mit vielen Funktionen und Filtern</Char_Desc_80>
+       <Char_Desc_250>LazPaint ist ein Grafikeditor mit vielen Funktionen und Filtern, geschrieben in Lazarus (Free Pascal). Die Darstellung erfolgt mit Antialiasing, inklusive Auswahlmöglichkeit. Farben können angepasst werden.</Char_Desc_250>
+       <Char_Desc_450>LazPaint ist ein Grafikeditor mit vielen Funktionen und Filtern, geschrieben in Lazarus (Free Pascal). Die Darstellung erfolgt mit Antialiasing, inklusive Auswahlmöglichkeit. Farben können angepasst werden. Das Programm kann  Paint.NET- Dateien lesen. Wichtige Merkmale : Generierung von Texturen, schattierte Formen, Farbanpassung, Filter, Verformungen</Char_Desc_450>
+       <Char_Desc_2000 />
+     </German> 
+     <Dutch>
+       <Keywords>editor graphics beeld filters antialiasing alphablending transparantie</Keywords>
+       <Char_Desc_45>LazPaint is een graphics editor</Char_Desc_45>
+       <Char_Desc_80>LazPaint is een graphics editor met vele tools en filters</Char_Desc_80>
+       <Char_Desc_250>LazPaint is een graphics editor met vele tools en filters, geschreven in Lazarus (Free Pascal). Er wordt getekend met antialiasing, inclusief selectie. Kleuren kunnen aangepast worden.</Char_Desc_250>
+       <Char_Desc_450>LazPaint is een graphics editor met vele tools en filters, geschreven in Lazarus (Free Pascal). Er wordt getekend met antialiasing, inclusief selectie. Kleuren kunnen aangepast worden en het programma kan Paint.NET bestanden lezen. Hoofdfuncties: texturegeneratie, vormen met schaduwen, kleuraanpassing, filters, vervormingen.</Char_Desc_450>
+       <Char_Desc_2000 />
+     </Dutch>
+	</Program_Descriptions>
+	<Web_Info>
+		<Application_URLs>
+			<Application_Info_URL>http://sourceforge.net/projects/lazpaint/</Application_Info_URL>
+			<Application_Order_URL>http://sourceforge.net/projects/lazpaint/</Application_Order_URL>
+			<Application_Screenshot_URL>http://lazpaint.svn.sourceforge.net/viewvc/lazpaint/lazpaint/pad/pad_screenshot.png</Application_Screenshot_URL>
+			<Application_Icon_URL>http://lazpaint.svn.sourceforge.net/viewvc/lazpaint/lazpaint/pad/pad_icon.png</Application_Icon_URL>
+			<Application_XML_File_URL>http://lazpaint.svn.sourceforge.net/viewvc/lazpaint/lazpaint/pad/pad_file.xml</Application_XML_File_URL>
+		</Application_URLs>
+		<Download_URLs>
+			<Primary_Download_URL>http://sourceforge.net/projects/lazpaint/files/bin/lazpaint4.8_setup_win32.exe</Primary_Download_URL>
+			<Secondary_Download_URL />
+			<Additional_Download_URL_1 />
+			<Additional_Download_URL_2 />
+		</Download_URLs>
+	</Web_Info>
+	<Permissions>
+		<Distribution_Permissions />
+		<EULA />
+	</Permissions>
+</XML_DIZ_INFO>

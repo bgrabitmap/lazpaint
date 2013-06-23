@@ -1,0 +1,113 @@
+object FAbout: TFAbout
+  Left = 488
+  Height = 299
+  Top = 254
+  Width = 368
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
+  Caption = 'About'
+  ClientHeight = 299
+  ClientWidth = 368
+  Font.Height = -12
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnHide = FormHide
+  OnShow = FormShow
+  Position = poOwnerFormCenter
+  LCLVersion = '0.9.30'
+  object Image_Title: TImage
+    Left = 8
+    Height = 34
+    Top = 8
+    Width = 352
+    Anchors = [akTop, akLeft, akRight]
+  end
+  object Label1: TLabel
+    Left = 8
+    Height = 16
+    Top = 74
+    Width = 46
+    Caption = 'Authors:'
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 8
+    Height = 16
+    Top = 97
+    Width = 63
+    Caption = 'Homepage:'
+    ParentColor = False
+  end
+  object Label3: TLabel
+    Left = 104
+    Height = 16
+    Top = 74
+    Width = 134
+    Caption = 'Circular and FabienWang'
+    ParentColor = False
+  end
+  object LabelUrl: TLabel
+    Cursor = crHandPoint
+    Left = 104
+    Height = 16
+    Top = 97
+    Width = 217
+    Caption = 'http://sourceforge.net/projects/lazpaint/'
+    Font.Color = clBlue
+    Font.Height = -12
+    Font.Style = [fsUnderline]
+    ParentColor = False
+    ParentFont = False
+    OnClick = LabelUrlClick
+  end
+  object Label5: TLabel
+    Left = 8
+    Height = 16
+    Top = 121
+    Width = 76
+    Caption = 'Libraries used:'
+    ParentColor = False
+  end
+  object Label6: TLabel
+    Left = 104
+    Height = 16
+    Top = 121
+    Width = 107
+    Caption = 'BGRABitmap (LGPL)'
+    ParentColor = False
+  end
+  object Label7: TLabel
+    Left = 8
+    Height = 16
+    Top = 50
+    Width = 44
+    Caption = 'Licence:'
+    ParentColor = False
+  end
+  object Label8: TLabel
+    Left = 104
+    Height = 16
+    Top = 50
+    Width = 112
+    Caption = 'Open source (GPLv3)'
+    ParentColor = False
+  end
+  object Memo1: TMemo
+    Left = 7
+    Height = 145
+    Top = 143
+    Width = 353
+    Lines.Strings = (
+      'Memo1'
+    )
+    ReadOnly = True
+    TabOrder = 0
+  end
+  object Timer1: TTimer
+    Enabled = False
+    Interval = 100
+    OnTimer = Timer1Timer
+    left = 288
+    top = 48
+  end
+end

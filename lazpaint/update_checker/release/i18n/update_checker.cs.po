@@ -1,0 +1,52 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Chronos <robie@centrum.cz>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Czech\n"
+
+#: TFRMUPDATE.BTNGET.CAPTION
+msgid "Update"
+msgstr "Aktualizovat"
+
+#: TFRMUPDATE.CAPTION
+msgid "Update Checker"
+msgstr "Kontrola aktualizací"
+
+#: TFRMUPDATE.LABEL1.CAPTION
+msgid "Current version"
+msgstr "Aktuální verze"
+
+#: TFRMUPDATE.LABEL2.CAPTION
+msgid "Available version"
+msgstr "Dostupné verze"
+
+#: TFRMUPDATE.LBLAVAILABLE.CAPTION
+msgid "-"
+msgstr "-"
+
+#: TFRMUPDATE.LBLVERSION.CAPTION
+msgid "You have the latest version!"
+msgstr "Máte nejnovější verzi"
+
+#: uupdate.rserrorwhilecheckingversion
+msgid "Error while checking version"
+msgstr "Chyba při kontrole verze"
+
+#: uupdate.rshowdidyougetthisversion
+msgid "How did you get this version?"
+msgstr "Jak jste získali tuto verzi?"
+
+#: uupdate.rsnewversionavailable
+msgid "New version available"
+msgstr "Dostupná nová verze"
+
+#: uupdate.rsuckcannotworkalone
+msgid "Update Checker cannot work alone!"
+msgstr "Kontrola aktualizací nemůže fungovat samostatně!"
+

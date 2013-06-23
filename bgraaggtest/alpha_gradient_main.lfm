@@ -1,0 +1,14 @@
+object Form1: TForm1
+  Left = 541
+  Height = 389
+  Top = 140
+  Width = 564
+  Caption = 'BGRA Alpha gradient'
+  OnCreate = FormCreate
+  OnMouseDown = FormMouseDown
+  OnMouseMove = FormMouseMove
+  OnMouseUp = FormMouseUp
+  OnPaint = FormPaint
+  Position = poDefaultPosOnly
+  LCLVersion = '0.9.30'
+end

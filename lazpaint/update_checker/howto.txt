@@ -1,0 +1,13 @@
+to compile update_checker project,
+you will need lnet 0.6.6 from svn
+
+
+About lnet
+(
+Created by Almindor
+
+svn checkout http://svn.freepascal.org/svn/fpcprojects/lnet/trunk
+then open lazaruspackage/lnetbase.lpk and compile it.
+open the lazaruspackage/lnetvisual.lpk, compile it and install it and rebuild lazarus
+)
+

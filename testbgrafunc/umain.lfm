@@ -1,0 +1,76 @@
+object FMain: TFMain
+  Left = 452
+  Height = 301
+  Top = 190
+  Width = 650
+  Caption = 'BGRABitmap functions test'
+  ClientHeight = 301
+  ClientWidth = 650
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '0.9.30'
+  object Label_TestName: TLabel
+    Left = 0
+    Height = 40
+    Top = 0
+    Width = 650
+    Align = alTop
+    AutoSize = False
+    Caption = 'Label_TestName'
+    Font.Height = -12
+    Layout = tlCenter
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+  end
+  object PaintBox_Test: TPaintBox
+    Left = 7
+    Height = 228
+    Top = 66
+    Width = 636
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    OnPaint = PaintBox_TestPaint
+  end
+  object Button_Prev: TButton
+    Left = 88
+    Height = 22
+    Top = 37
+    Width = 75
+    Caption = '<< Prev'
+    OnClick = Button_PrevClick
+    TabOrder = 1
+  end
+  object Button_Next: TButton
+    Left = 168
+    Height = 22
+    Top = 37
+    Width = 75
+    Caption = 'Next >>'
+    OnClick = Button_NextClick
+    TabOrder = 2
+  end
+  object Button_First: TButton
+    Left = 7
+    Height = 22
+    Top = 37
+    Width = 75
+    Caption = 'First'
+    OnClick = Button_FirstClick
+    TabOrder = 0
+  end
+  object Button_Last: TButton
+    Left = 248
+    Height = 22
+    Top = 37
+    Width = 75
+    Caption = 'Last'
+    OnClick = Button_LastClick
+    TabOrder = 3
+  end
+  object Timer1: TTimer
+    Interval = 30
+    OnTimer = Timer1Timer
+    left = 449
+    top = 35
+  end
+end

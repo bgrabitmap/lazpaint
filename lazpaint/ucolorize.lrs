@@ -1,0 +1,21 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('TFColorize','FORMDATA',[
+  'TPF0'#10'TFColorize'#9'FColorize'#4'Left'#3#144#1#6'Height'#2'o'#3'Top'#3#188
+  +#0#5'Width'#3#147#1#11'BorderIcons'#11#12'biSystemMenu'#0#11'BorderStyle'#7#8
+  +'bsDialog'#7'Caption'#6#8'Colorize'#12'ClientHeight'#2'o'#11'ClientWidth'#3
+  +#147#1#11'Font.Height'#2#244#8'OnCreate'#7#10'FormCreate'#6'OnHide'#7#8'Form'
+  +'Hide'#6'OnShow'#7#8'FormShow'#8'Position'#7#17'poOwnerFormCenter'#10'LCLVer'
+  +'sion'#6#6'0.9.30'#0#6'TLabel'#6'Label1'#4'Left'#2#8#6'Height'#2#16#3'Top'#2
+  +#10#5'Width'#2#23#7'Caption'#6#3'Hue'#11'ParentColor'#8#0#0#6'TLabel'#6'Labe'
+  +'l2'#4'Left'#2#8#6'Height'#2#16#3'Top'#2'0'#5'Width'#2'5'#7'Caption'#6#9'Col'
+  +'orness'#11'ParentColor'#8#0#0#9'TTrackBar'#12'TrackBar_Hue'#4'Left'#2'E'#6
+  +'Height'#2#30#3'Top'#2#8#5'Width'#3'H'#1#8'OnChange'#7#15'TrackBar_Change'#8
+  +'Position'#2#0#8'TabOrder'#2#0#0#0#9'TTrackBar'#19'TrackBar_Saturation'#4'Le'
+  +'ft'#2'E'#6'Height'#2#30#3'Top'#2','#5'Width'#3'H'#1#8'OnChange'#7#15'TrackB'
+  +'ar_Change'#8'Position'#2#0#8'TabOrder'#2#1#0#0#7'TButton'#9'Button_OK'#4'Le'
+  +'ft'#3#136#0#6'Height'#2#22#3'Top'#2'P'#5'Width'#2';'#7'Caption'#6#2'OK'#7'D'
+  +'efault'#9#7'OnClick'#7#14'Button_OKClick'#8'TabOrder'#2#2#0#0#7'TButton'#13
+  +'Button_Cancel'#4'Left'#3#200#0#6'Height'#2#22#3'Top'#2'P'#5'Width'#2'H'#6'C'
+  +'ancel'#9#7'Caption'#6#6'Cancel'#11'ModalResult'#2#2#8'TabOrder'#2#3#0#0#0
+]);

@@ -1,0 +1,53 @@
+object FRadialBlur: TFRadialBlur
+  Left = 403
+  Height = 73
+  Top = 328
+  Width = 171
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
+  Caption = 'Radial blur'
+  ClientHeight = 73
+  ClientWidth = 171
+  Font.Height = -12
+  OnCreate = FormCreate
+  Position = poOwnerFormCenter
+  LCLVersion = '0.9.30'
+  object Label3: TLabel
+    Left = 18
+    Height = 16
+    Top = 11
+    Width = 42
+    Caption = 'Radius :'
+    ParentColor = False
+  end
+  object Button_OK: TButton
+    Left = 17
+    Height = 22
+    Top = 45
+    Width = 59
+    Caption = 'OK'
+    Default = True
+    OnClick = Button_OKClick
+    TabOrder = 0
+  end
+  object Button_Cancel: TButton
+    Left = 81
+    Height = 22
+    Top = 45
+    Width = 73
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 1
+  end
+  object SpinEdit_Radius: TSpinEdit
+    Left = 78
+    Height = 23
+    Top = 8
+    Width = 79
+    MaxValue = 10000
+    MinValue = 1
+    TabOrder = 2
+    Value = 5
+  end
+end

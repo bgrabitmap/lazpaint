@@ -1,0 +1,26 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('TFCustomBlur','FORMDATA',[
+  'TPF0'#12'TFCustomBlur'#11'FCustomBlur'#4'Left'#3#161#2#6'Height'#3','#1#3'To'
+  +'p'#3#182#0#5'Width'#3#144#1#11'BorderIcons'#11#12'biSystemMenu'#0#11'Border'
+  +'Style'#7#8'bsDialog'#7'Caption'#6#11'Custom blur'#12'ClientHeight'#3','#1#11
+  +'ClientWidth'#3#144#1#11'Font.Height'#2#244#8'OnCreate'#7#10'FormCreate'#9'O'
+  +'nDestroy'#7#11'FormDestroy'#8'Position'#7#17'poOwnerFormCenter'#10'LCLVersi'
+  +'on'#6#6'0.9.30'#0#6'TImage'#6'Image1'#4'Left'#2#8#6'Height'#3#216#0#3'Top'#2
+  +'('#5'Width'#3#128#1#6'Center'#9#12'Proportional'#9#7'Stretch'#9#0#0#7'TButt'
+  +'on'#9'Button_OK'#4'Left'#2'|'#6'Height'#2#22#3'Top'#3#16#1#5'Width'#2';'#7
+  +'Caption'#6#2'OK'#7'Default'#9#7'OnClick'#7#14'Button_OKClick'#8'TabOrder'#2
+  +#0#0#0#7'TButton'#13'Button_Cancel'#4'Left'#3#195#0#6'Height'#2#22#3'Top'#3
+  +#16#1#5'Width'#2'Q'#6'Cancel'#9#7'Caption'#6#6'Cancel'#11'ModalResult'#2#2#8
+  +'TabOrder'#2#1#0#0#7'TButton'#15'Button_LoadMask'#4'Left'#2#8#6'Height'#2#22
+  +#3'Top'#2#6#5'Width'#3#192#0#7'Caption'#6#12'Load mask...'#7'OnClick'#7#20'B'
+  +'utton_LoadMaskClick'#8'TabOrder'#2#2#0#0#7'TButton'#15'Button_EditMask'#4'L'
+  +'eft'#3#208#0#6'Height'#2#22#3'Top'#2#6#5'Width'#3#184#0#7'Caption'#6#12'Edi'
+  +'t mask...'#7'OnClick'#7#20'Button_EditMaskClick'#8'TabOrder'#2#3#0#0#18'TOp'
+  +'enPictureDialog'#18'OpenPictureDialog1'#5'Title'#6#19'Open grayscale file'#6
+  +'Filter'#6#253'Graphic (*.bmp;*.png;*.jpg;*.jpeg)|*.bmp;*.png;*.jpg;*.jpeg;*'
+  +'.BMP;*.PNG;*.JPG;*.JPEG;*.Bmp;*.Png;*.Jpg;*.Jpeg|Bitmaps (*.bmp)|*.bmp;*.BM'
+  +'P;*.Bmp|JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg;*.JPG;*.JPEG;*.Jpg;*.Jpeg|Portable'
+  +' Network Graphic (*.png)|*.png;*.PNG;*.Png'#4'left'#2'0'#3'top'#3#248#0#0#0
+  +#0
+]);

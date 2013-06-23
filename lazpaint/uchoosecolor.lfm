@@ -1,0 +1,19 @@
+object FChooseColor: TFChooseColor
+  Left = 296
+  Height = 198
+  Top = 393
+  Width = 264
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsToolWindow
+  Caption = 'Color'
+  Font.Height = -12
+  FormStyle = fsStayOnTop
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnMouseDown = FormMouseDown
+  OnMouseMove = FormMouseMove
+  OnMouseUp = FormMouseUp
+  OnPaint = FormPaint
+  OnShow = FormShow
+  LCLVersion = '1.0.1.3'
+end

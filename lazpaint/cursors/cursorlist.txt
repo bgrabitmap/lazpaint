@@ -1,0 +1,4 @@
+colorpicker.cur
+crosshair.cur
+floodfill.cur
+rotate.cur

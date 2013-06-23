@@ -1,0 +1,172 @@
+object FToolbox: TFToolbox
+  Left = 964
+  Height = 98
+  Top = 159
+  Width = 141
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsToolWindow
+  Caption = 'Tools'
+  ClientHeight = 98
+  ClientWidth = 141
+  Font.Height = -12
+  FormStyle = fsStayOnTop
+  OnCreate = FormCreate
+  OnShow = FormShow
+  ShowHint = True
+  LCLVersion = '1.0.1.3'
+  object ToolBar1: TToolBar
+    Left = 0
+    Height = 24
+    Top = 0
+    Width = 141
+    AutoSize = True
+    Caption = 'ToolBar1'
+    Images = FMain.ImageList1
+    TabOrder = 0
+    object ToolButton_Hand: TToolButton
+      Left = 1
+      Top = 2
+      Action = FMain.ToolHand
+    end
+    object ToolButton_Pen: TToolButton
+      Left = 24
+      Top = 2
+      Action = FMain.ToolPen
+    end
+    object ToolButton_Eraser: TToolButton
+      Left = 70
+      Top = 2
+      Action = FMain.ToolEraser
+    end
+    object ToolButton_ColorPicker: TToolButton
+      Left = 47
+      Top = 2
+      Action = FMain.ToolColorPicker
+    end
+    object ToolButton_Floodfill: TToolButton
+      Left = 93
+      Top = 2
+      Action = FMain.ToolFloodfill
+    end
+    object ToolButton_Gradient: TToolButton
+      Left = 116
+      Top = 2
+      Action = FMain.ToolGradient
+    end
+  end
+  object ToolBar2: TToolBar
+    Left = 0
+    Height = 24
+    Top = 24
+    Width = 141
+    AutoSize = True
+    Caption = 'ToolBar1'
+    Images = FMain.ImageList1
+    TabOrder = 1
+    object ToolButton_Rect: TToolButton
+      Left = 1
+      Top = 2
+      Action = FMain.ToolRect
+    end
+    object ToolButton_Ellipse: TToolButton
+      Left = 24
+      Top = 2
+      Action = FMain.ToolEllipse
+    end
+    object ToolButton_Spline: TToolButton
+      Left = 70
+      Top = 2
+      Action = FMain.ToolSpline
+    end
+    object ToolButton_Polygon: TToolButton
+      Left = 47
+      Top = 2
+      Action = FMain.ToolPolygon
+    end
+    object ToolButton_Text: TToolButton
+      Left = 93
+      Top = 2
+      Action = FMain.ToolText
+    end
+    object ToolButton_Phong: TToolButton
+      Left = 116
+      Top = 2
+      Action = FMain.ToolPhong
+    end
+  end
+  object ToolBar4: TToolBar
+    Left = 0
+    Height = 24
+    Top = 48
+    Width = 141
+    AutoSize = True
+    Caption = 'ToolBar1'
+    Images = FMain.ImageList1
+    TabOrder = 2
+    object ToolButton_SelectRect: TToolButton
+      Left = 1
+      Top = 2
+      Action = FMain.ToolSelectRect
+    end
+    object ToolButton_SelectEllipse: TToolButton
+      Left = 24
+      Top = 2
+      Action = FMain.ToolSelectEllipse
+    end
+    object ToolButton_SelectPoly: TToolButton
+      Left = 47
+      Top = 2
+      Action = FMain.ToolSelectPoly
+    end
+    object ToolButton_SelectCurve: TToolButton
+      Left = 70
+      Top = 2
+      Action = FMain.ToolSelectCurve
+    end
+    object ToolButton_Deformation: TToolButton
+      Left = 93
+      Top = 2
+      Action = FMain.ToolDeformation
+    end
+    object ToolButton_TextureMapping: TToolButton
+      Left = 116
+      Top = 2
+      Action = FMain.ToolTextureMapping
+    end
+  end
+  object ToolBar5: TToolBar
+    Left = 0
+    Height = 24
+    Top = 72
+    Width = 141
+    AutoSize = True
+    Caption = 'ToolBar1'
+    Images = FMain.ImageList1
+    TabOrder = 3
+    object ToolButton_SelectionPen: TToolButton
+      Left = 1
+      Top = 2
+      Action = FMain.ToolSelectionPen
+    end
+    object ToolButton_RotateSelection: TToolButton
+      Left = 47
+      Top = 2
+      Action = FMain.ToolRotateSelection
+    end
+    object ToolButton_MagicWand: TToolButton
+      Left = 70
+      Top = 2
+      Action = FMain.ToolMagicWand
+    end
+    object ToolButton_MoveSelection: TToolButton
+      Left = 24
+      Top = 2
+      Action = FMain.ToolMoveSelection
+    end
+    object ToolButton_EditDeselect: TToolButton
+      Left = 93
+      Top = 2
+      Action = FMain.EditDeselect
+    end
+  end
+end

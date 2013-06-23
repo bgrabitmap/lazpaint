@@ -1,0 +1,106 @@
+object FLayerStack: TFLayerStack
+  Left = 846
+  Height = 153
+  Top = 269
+  Width = 243
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSizeToolWin
+  Caption = 'Layers'
+  ClientHeight = 153
+  ClientWidth = 243
+  FormStyle = fsStayOnTop
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '1.0.1.3'
+  object BGRALayerStack: TBGRAVirtualScreen
+    Left = 0
+    Height = 126
+    Top = 0
+    Width = 243
+    OnRedraw = BGRALayerStackRedraw
+    Align = alClient
+    Alignment = taLeftJustify
+    Color = clWindow
+    ParentColor = False
+    TabOrder = 0
+    OnMouseDown = BGRALayerStackMouseDown
+    OnMouseMove = BGRALayerStackMouseMove
+    OnMouseUp = BGRALayerStackMouseUp
+  end
+  object Panel1: TPanel
+    Left = 0
+    Height = 27
+    Top = 126
+    Width = 243
+    Align = alBottom
+    ClientHeight = 27
+    ClientWidth = 243
+    TabOrder = 1
+    object ToolBar1: TToolBar
+      Left = 1
+      Height = 25
+      Top = 1
+      Width = 98
+      Align = alLeft
+      Caption = 'ToolBar1'
+      EdgeBorders = []
+      EdgeInner = esNone
+      EdgeOuter = esNone
+      Images = FMain.ImageList1
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 0
+      object ToolZoomLayerStackIn: TToolButton
+        Left = 24
+        Hint = 'Zoom layer stack in'
+        Top = 0
+        Caption = 'Zoom layer stack in'
+        ImageIndex = 6
+        OnClick = ToolZoomLayerStackInClick
+      end
+      object ToolZoomLayerStackOut: TToolButton
+        Left = 47
+        Hint = 'Zoom layer stack out'
+        Top = 0
+        Caption = 'Zoom layer stack out'
+        ImageIndex = 7
+        OnClick = ToolZoomLayerStackOutClick
+      end
+      object ToolButton_AddNewLayer: TToolButton
+        Left = 1
+        Hint = 'Add new layer'
+        Top = 0
+        Caption = 'Add new layer'
+        ImageIndex = 0
+        OnClick = ToolButton_AddNewLayerClick
+      end
+      object ToolButton_RemoveLayer: TToolButton
+        Left = 70
+        Hint = 'Remove layer'
+        Top = 0
+        Caption = 'Remove layer'
+        ImageIndex = 80
+        OnClick = ToolButton_RemoveLayerClick
+      end
+    end
+    object ComboBox_BlendOp: TComboBox
+      Left = 100
+      Height = 23
+      Top = 2
+      Width = 140
+      Anchors = [akTop, akLeft, akRight]
+      Constraints.MaxWidth = 160
+      ItemHeight = 15
+      OnChange = ComboBox_BlendOpChange
+      Style = csDropDownList
+      TabOrder = 1
+    end
+  end
+  object TimerScroll: TTimer
+    Enabled = False
+    Interval = 30
+    OnTimer = TimerScrollTimer
+    left = 134
+    top = 49
+  end
+end

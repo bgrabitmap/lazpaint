@@ -1,0 +1,103 @@
+object FResample: TFResample
+  Left = 479
+  Height = 161
+  Top = 249
+  Width = 211
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
+  Caption = 'Resample'
+  ClientHeight = 161
+  ClientWidth = 211
+  Font.Height = -12
+  OnCreate = FormCreate
+  OnShow = FormShow
+  Position = poOwnerFormCenter
+  LCLVersion = '0.9.30'
+  object Label1: TLabel
+    Left = 10
+    Height = 16
+    Top = 13
+    Width = 45
+    Caption = 'Quality :'
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 38
+    Height = 16
+    Top = 73
+    Width = 39
+    Caption = 'Width :'
+    ParentColor = False
+  end
+  object Label3: TLabel
+    Left = 38
+    Height = 16
+    Top = 100
+    Width = 43
+    Caption = 'Height :'
+    ParentColor = False
+  end
+  object ComboBox_Quality: TComboBox
+    Left = 66
+    Height = 23
+    Top = 10
+    Width = 134
+    ItemHeight = 15
+    Style = csDropDownList
+    TabOrder = 0
+  end
+  object CheckBox_Ratio: TCheckBox
+    Left = 38
+    Height = 19
+    Top = 48
+    Width = 110
+    Caption = 'Keep aspect ratio'
+    Checked = True
+    State = cbChecked
+    TabOrder = 1
+  end
+  object Button_OK: TButton
+    Left = 38
+    Height = 22
+    Top = 134
+    Width = 59
+    Caption = 'OK'
+    Default = True
+    OnClick = Button_OKClick
+    TabOrder = 4
+  end
+  object Button_Cancel: TButton
+    Left = 102
+    Height = 22
+    Top = 134
+    Width = 72
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 5
+  end
+  object SpinEdit_Width: TSpinEdit
+    Left = 94
+    Height = 23
+    Top = 70
+    Width = 79
+    Increment = 10
+    MaxValue = 10000
+    MinValue = 1
+    OnChange = SpinEdit_WidthChange
+    TabOrder = 2
+    Value = 1
+  end
+  object SpinEdit_Height: TSpinEdit
+    Left = 94
+    Height = 23
+    Top = 97
+    Width = 79
+    Increment = 10
+    MaxValue = 10000
+    MinValue = 1
+    OnChange = SpinEdit_HeightChange
+    TabOrder = 3
+    Value = 1
+  end
+end

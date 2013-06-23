@@ -1,0 +1,301 @@
+object FObject3D: TFObject3D
+  Left = 415
+  Height = 300
+  Top = 139
+  Width = 531
+  BorderIcons = [biSystemMenu, biMaximize]
+  Caption = '3D object'
+  ClientHeight = 300
+  ClientWidth = 531
+  Constraints.MinHeight = 300
+  Constraints.MinWidth = 340
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  Position = poScreenCenter
+  LCLVersion = '0.9.31'
+  object BGRAView3D: TBGRAVirtualScreen
+    Left = 0
+    Height = 300
+    Top = 0
+    Width = 354
+    OnRedraw = BGRAView3DRedraw
+    Alignment = taLeftJustify
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    Color = clWhite
+    ParentColor = False
+    TabOrder = 0
+    OnMouseDown = BGRAView3DMouseDown
+    OnMouseMove = BGRAView3DMouseMove
+    OnMouseUp = BGRAView3DMouseUp
+  end
+  object Button_OK: TButton
+    Left = 373
+    Height = 22
+    Top = 270
+    Width = 59
+    Anchors = [akRight, akBottom]
+    Caption = 'OK'
+    Default = True
+    ModalResult = 1
+    TabOrder = 1
+  end
+  object Button_Cancel: TButton
+    Left = 439
+    Height = 22
+    Top = 270
+    Width = 73
+    Anchors = [akRight, akBottom]
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 2
+  end
+  object PageControl1: TPageControl
+    Left = 354
+    Height = 265
+    Top = 0
+    Width = 179
+    ActivePage = Rendering
+    Anchors = [akTop, akRight, akBottom]
+    TabIndex = 0
+    TabOrder = 3
+    object Rendering: TTabSheet
+      Caption = 'Rendering'
+      ClientHeight = 237
+      ClientWidth = 171
+      object CheckBox_TextureInterp: TCheckBox
+        Left = 10
+        Height = 19
+        Top = 216
+        Width = 130
+        Caption = 'Texture interpolation'
+        Checked = True
+        OnChange = CheckBox_TextureInterpChange
+        State = cbChecked
+        TabOrder = 0
+        Visible = False
+      end
+      object BGRAKnob_Zoom: TBGRAKnob
+        Left = 59
+        Height = 45
+        Top = 24
+        Width = 48
+        CurveExponent = 0.20000000298023
+        KnobColor = clBtnShadow
+        LightIntensity = 300
+        PositionColor = clBtnText
+        PositionWidth = 4
+        PositionOpacity = 192
+        PositionMargin = 4
+        PositionType = kptLineSquareCap
+        UsePhongLighting = True
+        MinValue = 30
+        MaxValue = 330
+        Value = 89.9999847412109
+        OnValueChanged = BGRAKnob_ZoomValueChanged
+        StartFromBottom = True
+      end
+      object Label3: TLabel
+        Left = 67
+        Height = 16
+        Top = 8
+        Width = 33
+        Caption = 'Zoom'
+        ParentColor = False
+      end
+      object CheckBox_Biface: TCheckBox
+        Left = 10
+        Height = 19
+        Top = 178
+        Width = 89
+        Caption = '2-sided faces'
+        OnChange = CheckBox_BifaceChange
+        TabOrder = 1
+      end
+      object ComboBox_Normals: TComboBox
+        Left = 10
+        Height = 23
+        Top = 153
+        Width = 143
+        ItemHeight = 15
+        OnChange = ComboBox_NormalsChange
+        Style = csDropDownList
+        TabOrder = 2
+      end
+      object Label4: TLabel
+        Left = 10
+        Height = 16
+        Top = 136
+        Width = 97
+        Caption = 'Lighting normals :'
+        ParentColor = False
+      end
+      object Label8: TLabel
+        Left = 11
+        Height = 16
+        Top = 83
+        Width = 39
+        Caption = 'Width :'
+        ParentColor = False
+      end
+      object Label9: TLabel
+        Left = 11
+        Height = 16
+        Top = 110
+        Width = 43
+        Caption = 'Height :'
+        ParentColor = False
+      end
+      object SpinEdit_Width: TSpinEdit
+        Left = 75
+        Height = 23
+        Top = 80
+        Width = 79
+        Increment = 10
+        MaxValue = 10000
+        MinValue = 1
+        TabOrder = 3
+        Value = 1
+      end
+      object SpinEdit_Height: TSpinEdit
+        Left = 75
+        Height = 23
+        Top = 107
+        Width = 79
+        Increment = 10
+        MaxValue = 10000
+        MinValue = 1
+        TabOrder = 4
+        Value = 1
+      end
+      object CheckBox_Antialiasing: TCheckBox
+        Left = 10
+        Height = 19
+        Top = 197
+        Width = 82
+        Caption = 'Antialiasing'
+        Checked = True
+        OnChange = CheckBox_AntialiasingChange
+        State = cbChecked
+        TabOrder = 5
+      end
+    end
+    object Materials: TTabSheet
+      Caption = 'Materials'
+      ClientHeight = 237
+      ClientWidth = 171
+      object Label2: TLabel
+        Left = 10
+        Height = 16
+        Top = 6
+        Width = 55
+        Caption = 'Materials :'
+        ParentColor = False
+      end
+      object ListBox_Materials: TListBox
+        Left = 4
+        Height = 109
+        Top = 24
+        Width = 158
+        Anchors = [akTop, akLeft, akBottom]
+        ItemHeight = 0
+        OnSelectionChange = ListBox_MaterialsSelectionChange
+        TabOrder = 0
+      end
+      object GroupBox1: TGroupBox
+        Left = 4
+        Height = 96
+        Top = 137
+        Width = 158
+        Anchors = [akLeft, akBottom]
+        Caption = 'Selected material'
+        ClientHeight = 78
+        ClientWidth = 154
+        TabOrder = 1
+        object Label5: TLabel
+          Left = 7
+          Height = 16
+          Top = 6
+          Width = 66
+          Caption = 'Spec. index :'
+          ParentColor = False
+        end
+        object Label6: TLabel
+          Left = 7
+          Height = 16
+          Top = 30
+          Width = 36
+          Caption = 'Color :'
+          ParentColor = False
+        end
+        object Shape_MaterialColor: TShape
+          Left = 79
+          Height = 20
+          Hint = 'Select secondary color'
+          Top = 28
+          Width = 20
+          Enabled = False
+          OnMouseDown = Shape_MaterialColorMouseDown
+        end
+        object SpinEdit_SpecularIndex: TSpinEdit
+          Left = 79
+          Height = 23
+          Top = 3
+          Width = 66
+          Enabled = False
+          Increment = 10
+          MaxValue = 1000
+          OnChange = SpinEdit_SpecularIndexChange
+          TabOrder = 0
+        end
+        object Label7: TLabel
+          Left = 7
+          Height = 16
+          Top = 55
+          Width = 48
+          Caption = 'Opacity :'
+          ParentColor = False
+        end
+        object SpinEdit_ColorOpacity: TSpinEdit
+          Left = 79
+          Height = 23
+          Top = 52
+          Width = 52
+          Increment = 15
+          MaxValue = 255
+          OnChange = SpinEdit_ColorOpacityChange
+          TabOrder = 1
+          Value = 255
+        end
+      end
+    end
+  end
+  object ColorDialog1: TColorDialog
+    Color = clBlack
+    CustomColors.Strings = (
+      'ColorA=000000'
+      'ColorB=000080'
+      'ColorC=008000'
+      'ColorD=008080'
+      'ColorE=800000'
+      'ColorF=800080'
+      'ColorG=808000'
+      'ColorH=808080'
+      'ColorI=C0C0C0'
+      'ColorJ=0000FF'
+      'ColorK=00FF00'
+      'ColorL=00FFFF'
+      'ColorM=FF0000'
+      'ColorN=FF00FF'
+      'ColorO=FFFF00'
+      'ColorP=FFFFFF'
+      'ColorQ=C0DCC0'
+      'ColorR=F0CAA6'
+      'ColorS=F0FBFF'
+      'ColorT=A4A0A0'
+    )
+    left = 40
+    top = 24
+  end
+end

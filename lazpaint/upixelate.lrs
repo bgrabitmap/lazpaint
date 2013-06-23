@@ -1,0 +1,22 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('TFPixelate','FORMDATA',[
+  'TPF0'#10'TFPixelate'#9'FPixelate'#4'Left'#3'_'#2#6'Height'#2'h'#3'Top'#3'9'#1
+  +#5'Width'#3#202#0#11'BorderIcons'#11#12'biSystemMenu'#0#11'BorderStyle'#7#8
+  +'bsDialog'#7'Caption'#6#8'Pixelate'#12'ClientHeight'#2'h'#11'ClientWidth'#3
+  +#202#0#8'OnCreate'#7#10'FormCreate'#9'OnDestroy'#7#11'FormDestroy'#6'OnShow'
+  +#7#8'FormShow'#8'Position'#7#17'poOwnerFormCenter'#10'LCLVersion'#6#6'0.9.30'
+  +#0#6'TLabel'#6'Label3'#4'Left'#2#8#6'Height'#2#16#3'Top'#2#11#5'Width'#2'5'#7
+  +'Caption'#6#12'Pixel size :'#11'ParentColor'#8#0#0#7'TButton'#9'Button_OK'#4
+  +'Left'#2#21#6'Height'#2#22#3'Top'#2'H'#5'Width'#2';'#7'Caption'#6#2'OK'#7'De'
+  +'fault'#9#7'OnClick'#7#14'Button_OKClick'#8'TabOrder'#2#0#0#0#7'TButton'#13
+  +'Button_Cancel'#4'Left'#2'U'#6'Height'#2#22#3'Top'#2'H'#5'Width'#2'I'#6'Canc'
+  +'el'#9#7'Caption'#6#6'Cancel'#11'ModalResult'#2#2#8'TabOrder'#2#1#0#0#9'TSpi'
+  +'nEdit'#18'SpinEdit_PixelSize'#4'Left'#2'X'#6'Height'#2#23#3'Top'#2#8#5'Widt'
+  +'h'#2'O'#8'MaxValue'#3#16''''#8'MinValue'#2#1#8'OnChange'#7#24'SpinEdit_Pixe'
+  +'lSizeChange'#8'TabOrder'#2#2#5'Value'#2#5#0#0#6'TLabel'#6'Label1'#4'Left'#2
+  +#8#6'Height'#2#16#3'Top'#2'+'#5'Width'#2'-'#7'Caption'#6#9'Quality :'#11'Par'
+  +'entColor'#8#0#0#9'TComboBox'#16'ComboBox_Quality'#4'Left'#2'@'#6'Height'#2
+  +#23#3'Top'#2'('#5'Width'#3#129#0#10'ItemHeight'#2#15#8'OnChange'#7#22'ComboB'
+  +'ox_QualityChange'#5'Style'#7#14'csDropDownList'#8'TabOrder'#2#3#0#0#0
+]);

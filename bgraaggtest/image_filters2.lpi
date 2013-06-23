@@ -1,0 +1,268 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="9"/>
+    <PathDelim Value="\"/>
+    <General>
+      <MainUnit Value="0"/>
+      <ResourceType Value="res"/>
+      <UseXPManifest Value="True"/>
+      <Icon Value="0"/>
+      <ActiveWindowIndexAtStart Value="0"/>
+    </General>
+    <i18n>
+      <EnableI18N LFM="False"/>
+    </i18n>
+    <VersionInfo>
+      <StringTable ProductVersion=""/>
+    </VersionInfo>
+    <BuildModes Count="1" Active="Default">
+      <Item1 Name="Default" Default="True"/>
+    </BuildModes>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+      </local>
+    </RunParams>
+    <RequiredPackages Count="3">
+      <Item1>
+        <PackageName Value="etpackage"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="bgrabitmappack"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="LCL"/>
+      </Item3>
+    </RequiredPackages>
+    <Units Count="6">
+      <Unit0>
+        <Filename Value="image_filters2.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="image_filters2"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="30" Y="10"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="image_filters2_main.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="image_filters2_main"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="0"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="148"/>
+        <CursorPos X="76" Y="171"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="D:\lazarus\lcl\graphics.pp"/>
+        <UnitName Value="Graphics"/>
+        <EditorIndex Value="5"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="242"/>
+        <CursorPos X="3" Y="252"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="..\bgrabitmap\bgrabitmaptypes.pas"/>
+        <UnitName Value="BGRABitmapTypes"/>
+        <EditorIndex Value="4"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="62"/>
+        <CursorPos X="59" Y="86"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <UnitName Value="BGRADefaultBitmap"/>
+        <EditorIndex Value="2"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="3330"/>
+        <CursorPos X="33" Y="3333"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="..\bgrabitmap\bgraresample.pas"/>
+        <UnitName Value="BGRAResample"/>
+        <EditorIndex Value="3"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="825"/>
+        <CursorPos X="1" Y="834"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit5>
+    </Units>
+    <JumpHistory Count="30" HistoryIndex="29">
+      <Position1>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="75" Column="1" TopLine="55"/>
+      </Position1>
+      <Position2>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="74" Column="18" TopLine="56"/>
+      </Position2>
+      <Position3>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="68" Column="42" TopLine="57"/>
+      </Position3>
+      <Position4>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="69" Column="42" TopLine="58"/>
+      </Position4>
+      <Position5>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="70" Column="42" TopLine="59"/>
+      </Position5>
+      <Position6>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="71" Column="42" TopLine="60"/>
+      </Position6>
+      <Position7>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="72" Column="42" TopLine="61"/>
+      </Position7>
+      <Position8>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="70" Column="15" TopLine="62"/>
+      </Position8>
+      <Position9>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="71" Column="15" TopLine="63"/>
+      </Position9>
+      <Position10>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="72" Column="15" TopLine="64"/>
+      </Position10>
+      <Position11>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="73" Column="17" TopLine="49"/>
+      </Position11>
+      <Position12>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="78" Column="30" TopLine="65"/>
+      </Position12>
+      <Position13>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="3346" Column="38" TopLine="3342"/>
+      </Position13>
+      <Position14>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="3333" Column="33" TopLine="3330"/>
+      </Position14>
+      <Position15>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="79" Column="1" TopLine="65"/>
+      </Position15>
+      <Position16>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="92" Column="14" TopLine="76"/>
+      </Position16>
+      <Position17>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="91" Column="14" TopLine="75"/>
+      </Position17>
+      <Position18>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="90" Column="14" TopLine="74"/>
+      </Position18>
+      <Position19>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="91" Column="14" TopLine="75"/>
+      </Position19>
+      <Position20>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="73" Column="51" TopLine="73"/>
+      </Position20>
+      <Position21>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="52" Column="28" TopLine="45"/>
+      </Position21>
+      <Position22>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="86" Column="9" TopLine="65"/>
+      </Position22>
+      <Position23>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="95" Column="68" TopLine="67"/>
+      </Position23>
+      <Position24>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="33" Column="76" TopLine="11"/>
+      </Position24>
+      <Position25>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="100" Column="10" TopLine="70"/>
+      </Position25>
+      <Position26>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="33" Column="59" TopLine="15"/>
+      </Position26>
+      <Position27>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="115" Column="1" TopLine="95"/>
+      </Position27>
+      <Position28>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="149" Column="50" TopLine="107"/>
+      </Position28>
+      <Position29>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="160" Column="64" TopLine="137"/>
+      </Position29>
+      <Position30>
+        <Filename Value="image_filters2_main.pas"/>
+        <Caret Line="166" Column="83" TopLine="144"/>
+      </Position30>
+    </JumpHistory>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="9"/>
+    <PathDelim Value="\"/>
+    <Target>
+      <Filename Value="image_filters2"/>
+    </Target>
+    <SearchPaths>
+      <IncludeFiles Value="$(ProjOutDir)"/>
+      <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+    </SearchPaths>
+    <Linking>
+      <Options>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
+      </Options>
+    </Linking>
+    <Other>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="3">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+    </Exceptions>
+  </Debugging>
+</CONFIG>

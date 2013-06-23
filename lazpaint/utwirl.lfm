@@ -1,0 +1,84 @@
+object FTwirl: TFTwirl
+  Left = 631
+  Height = 102
+  Top = 173
+  Width = 169
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
+  Caption = 'Twirl'
+  ClientHeight = 102
+  ClientWidth = 169
+  Font.Height = -12
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  Position = poScreenCenter
+  LCLVersion = '0.9.30'
+  object Button_OK: TButton
+    Left = 15
+    Height = 22
+    Top = 72
+    Width = 59
+    Caption = 'OK'
+    Default = True
+    OnClick = Button_OKClick
+    TabOrder = 0
+  end
+  object Button_Cancel: TButton
+    Left = 81
+    Height = 22
+    Top = 72
+    Width = 73
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 1
+  end
+  object Label2: TLabel
+    Left = 14
+    Height = 16
+    Top = 11
+    Width = 42
+    Caption = 'Radius :'
+    ParentColor = False
+  end
+  object Label3: TLabel
+    Left = 14
+    Height = 16
+    Top = 38
+    Width = 38
+    Caption = 'Angle :'
+    ParentColor = False
+  end
+  object SpinEdit_Radius: TSpinEdit
+    Left = 80
+    Height = 23
+    Top = 8
+    Width = 79
+    Increment = 10
+    MaxValue = 10000
+    MinValue = 1
+    OnChange = SpinEdit_RadiusChange
+    TabOrder = 2
+    Value = 100
+  end
+  object SpinEdit_Angle: TSpinEdit
+    Left = 80
+    Height = 23
+    Top = 35
+    Width = 79
+    Increment = 30
+    MaxValue = 10000
+    MinValue = 1
+    OnChange = SpinEdit_AngleChange
+    TabOrder = 3
+    Value = 360
+  end
+  object Timer1: TTimer
+    Enabled = False
+    Interval = 100
+    OnTimer = Timer1Timer
+    left = 16
+    top = 40
+  end
+end

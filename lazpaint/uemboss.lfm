@@ -1,0 +1,55 @@
+object FEmboss: TFEmboss
+  Left = 491
+  Height = 196
+  Top = 168
+  Width = 172
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
+  Caption = 'Emboss'
+  ClientHeight = 196
+  ClientWidth = 172
+  Font.Height = -12
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  Position = poScreenCenter
+  LCLVersion = '0.9.30'
+  object PaintBox1: TPaintBox
+    Left = 19
+    Height = 120
+    Top = 32
+    Width = 134
+    OnMouseDown = PaintBox1MouseDown
+    OnMouseMove = PaintBox1MouseMove
+    OnMouseUp = PaintBox1MouseUp
+    OnPaint = PaintBox1Paint
+  end
+  object Label3: TLabel
+    Left = 22
+    Height = 16
+    Top = 11
+    Width = 55
+    Caption = 'Direction :'
+    ParentColor = False
+  end
+  object Button_OK: TButton
+    Left = 15
+    Height = 22
+    Top = 168
+    Width = 59
+    Caption = 'OK'
+    Default = True
+    OnClick = Button_OKClick
+    TabOrder = 0
+  end
+  object Button_Cancel: TButton
+    Left = 81
+    Height = 22
+    Top = 168
+    Width = 73
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 1
+  end
+end

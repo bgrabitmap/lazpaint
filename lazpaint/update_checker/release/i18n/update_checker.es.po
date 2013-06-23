@@ -1,0 +1,51 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: lainz <lainz007@hotmail.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: TFRMUPDATE.BTNGET.CAPTION
+msgid "Update"
+msgstr "Actualizar"
+
+#: TFRMUPDATE.CAPTION
+msgid "Update Checker"
+msgstr "Buscador de Actualizaciones"
+
+#: TFRMUPDATE.LABEL1.CAPTION
+msgid "Current version"
+msgstr "Version actual"
+
+#: TFRMUPDATE.LABEL2.CAPTION
+msgid "Available version"
+msgstr "Version disponible"
+
+#: TFRMUPDATE.LBLAVAILABLE.CAPTION
+msgid "-"
+msgstr "-"
+
+#: TFRMUPDATE.LBLVERSION.CAPTION
+msgid "You have the latest version!"
+msgstr "¡Tienes la última versión!"
+
+#: uupdate.rserrorwhilecheckingversion
+msgid "Error while checking version"
+msgstr "Error al chequear versión"
+
+#: uupdate.rshowdidyougetthisversion
+msgid "How did you get this version?"
+msgstr "¿Cómo has obtenido esta versión?"
+
+#: uupdate.rsnewversionavailable
+msgid "New version available"
+msgstr "Nueva versión disponible"
+
+#: uupdate.rsuckcannotworkalone
+msgid "Update Checker cannot work alone!"
+msgstr "¡El Buscador de Actualizaciones no puede trabajar solo!"
+

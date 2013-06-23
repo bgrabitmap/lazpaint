@@ -1,0 +1,218 @@
+object FBlendOp: TFBlendOp
+  Left = 510
+  Height = 345
+  Top = 229
+  Width = 529
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
+  Caption = 'Blend operation'
+  ClientHeight = 345
+  ClientWidth = 529
+  OnCreate = FormCreate
+  OnShow = FormShow
+  Position = poMainFormCenter
+  LCLVersion = '1.0.1.3'
+  object ListBox_PatternUnder: TListBox
+    Left = 8
+    Height = 264
+    Top = 24
+    Width = 98
+    Items.Strings = (
+      'Under'
+      'LeftToRight'
+      'TopToBottom'
+      'Ellipse'
+      'LeftToRight.Red'
+      'TopToBottom.Red'
+      'Ellipse.Red'
+      'LeftToRight.Yellow'
+      'TopToBottom.Yellow'
+      'Ellipse.Yellow'
+      'LeftToRight.Cyan'
+      'TopToBottom.Cyan'
+      'Ellipse.Cyan'
+    )
+    ItemHeight = 80
+    OnDrawItem = ListBox_DrawPatternItem
+    OnSelectionChange = ListBox_PatternSelectionChange
+    Style = lbOwnerDrawFixed
+    TabOrder = 0
+  end
+  object Label_PatternUnder: TLabel
+    Left = 8
+    Height = 16
+    Top = 8
+    Width = 73
+    Caption = 'Pattern under'
+    ParentColor = False
+  end
+  object ListBox_PatternOver: TListBox
+    Left = 108
+    Height = 264
+    Top = 24
+    Width = 98
+    Items.Strings = (
+      'Over'
+      'LeftToRight'
+      'TopToBottom'
+      'Ellipse'
+      'LeftToRight.Red'
+      'TopToBottom.Red'
+      'Ellipse.Red'
+      'LeftToRight.Yellow'
+      'TopToBottom.Yellow'
+      'Ellipse.Yellow'
+      'LeftToRight.Cyan'
+      'TopToBottom.Cyan'
+      'Ellipse.Cyan'
+    )
+    ItemHeight = 80
+    OnDrawItem = ListBox_DrawPatternItem
+    OnSelectionChange = ListBox_PatternSelectionChange
+    Style = lbOwnerDrawFixed
+    TabOrder = 1
+  end
+  object Label_PatternOver: TLabel
+    Left = 108
+    Height = 16
+    Top = 8
+    Width = 65
+    Caption = 'Pattern over'
+    ParentColor = False
+  end
+  object ListBox_BlendSvg: TListBox
+    Left = 223
+    Height = 264
+    Top = 24
+    Width = 98
+    Items.Strings = (
+      'Overlay'
+      'SoftLight'
+      'Lighten'
+      'Screen'
+      'LinearAdd'
+      'ColorDodge'
+      'ColorBurn'
+      'Darken'
+      'Multiply'
+      'HardLight'
+      'LinearDifference'
+    )
+    ItemHeight = 80
+    OnDblClick = ListBox_BlendDblClick
+    OnDrawItem = ListBox_DrawBlendItem
+    OnSelectionChange = ListBox_BlendSelectionChange
+    Style = lbOwnerDrawFixed
+    TabOrder = 2
+  end
+  object Label_SvgOver: TLabel
+    Left = 223
+    Height = 16
+    Top = 8
+    Width = 52
+    Caption = 'Basic SVG'
+    ParentColor = False
+  end
+  object Bevel1: TBevel
+    Left = 214
+    Height = 290
+    Top = 2
+    Width = 2
+  end
+  object ListBox_BlendKrita: TListBox
+    Left = 323
+    Height = 264
+    Top = 24
+    Width = 98
+    Items.Strings = (
+      'LinearSubtractInverse'
+      'LinearExclusion'
+      'LinearSubtract'
+      'Divide'
+    )
+    ItemHeight = 80
+    OnDblClick = ListBox_BlendDblClick
+    OnDrawItem = ListBox_DrawBlendItem
+    OnSelectionChange = ListBox_BlendSelectionChange
+    Style = lbOwnerDrawFixed
+    TabOrder = 3
+  end
+  object Label_KritaOver: TLabel
+    Left = 323
+    Height = 16
+    Top = 8
+    Width = 25
+    Caption = 'Krita'
+    ParentColor = False
+  end
+  object ListBox_BlendOther: TListBox
+    Left = 423
+    Height = 264
+    Top = 24
+    Width = 98
+    Items.Strings = (
+      'DarkOverlay'
+      'Additive'
+      'LinearNegation'
+      'Negation'
+      'NiceGlow'
+      'Reflect'
+      'SubtractInverse'
+      'Glow'
+      'Exclusion'
+      'Difference'
+      'Subtract'
+      'Xor'
+    )
+    ItemHeight = 80
+    OnDblClick = ListBox_BlendDblClick
+    OnDrawItem = ListBox_DrawBlendItem
+    OnSelectionChange = ListBox_BlendSelectionChange
+    Style = lbOwnerDrawFixed
+    TabOrder = 4
+  end
+  object Label_OtherOver: TLabel
+    Left = 423
+    Height = 16
+    Top = 8
+    Width = 31
+    Caption = 'Other'
+    ParentColor = False
+  end
+  object Label_SelectedBlendOp: TLabel
+    Left = 8
+    Height = 16
+    Top = 294
+    Width = 138
+    Caption = 'Selected blend operation :'
+    ParentColor = False
+  end
+  object Label_BlendOpValue: TLabel
+    Left = 152
+    Height = 16
+    Top = 294
+    Width = 4
+    Caption = '.'
+    ParentColor = False
+  end
+  object Button_OK: TButton
+    Left = 192
+    Height = 22
+    Top = 317
+    Width = 59
+    Caption = 'OK'
+    Default = True
+    OnClick = Button_OKClick
+    TabOrder = 5
+  end
+  object Button_Cancel: TButton
+    Left = 256
+    Height = 22
+    Top = 317
+    Width = 76
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 6
+  end
+end

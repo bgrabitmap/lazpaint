@@ -1,0 +1,17 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('TFRadialBlur','FORMDATA',[
+  'TPF0'#12'TFRadialBlur'#11'FRadialBlur'#4'Left'#3#147#1#6'Height'#2'I'#3'Top'
+  +#3'H'#1#5'Width'#3#171#0#11'BorderIcons'#11#12'biSystemMenu'#0#11'BorderStyl'
+  +'e'#7#8'bsDialog'#7'Caption'#6#11'Radial blur'#12'ClientHeight'#2'I'#11'Clie'
+  +'ntWidth'#3#171#0#11'Font.Height'#2#244#8'OnCreate'#7#10'FormCreate'#8'Posit'
+  +'ion'#7#17'poOwnerFormCenter'#10'LCLVersion'#6#6'0.9.30'#0#6'TLabel'#6'Label'
+  +'3'#4'Left'#2#18#6'Height'#2#16#3'Top'#2#11#5'Width'#2'*'#7'Caption'#6#8'Rad'
+  +'ius :'#11'ParentColor'#8#0#0#7'TButton'#9'Button_OK'#4'Left'#2#17#6'Height'
+  +#2#22#3'Top'#2'-'#5'Width'#2';'#7'Caption'#6#2'OK'#7'Default'#9#7'OnClick'#7
+  +#14'Button_OKClick'#8'TabOrder'#2#0#0#0#7'TButton'#13'Button_Cancel'#4'Left'
+  +#2'Q'#6'Height'#2#22#3'Top'#2'-'#5'Width'#2'I'#6'Cancel'#9#7'Caption'#6#6'Ca'
+  +'ncel'#11'ModalResult'#2#2#8'TabOrder'#2#1#0#0#9'TSpinEdit'#15'SpinEdit_Radi'
+  +'us'#4'Left'#2'N'#6'Height'#2#23#3'Top'#2#8#5'Width'#2'O'#8'MaxValue'#3#16
+  +''''#8'MinValue'#2#1#8'TabOrder'#2#2#5'Value'#2#5#0#0#0
+]);

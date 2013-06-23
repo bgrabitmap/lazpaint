@@ -1,0 +1,74 @@
+object FNewImage: TFNewImage
+  Left = 378
+  Height = 107
+  Top = 180
+  Width = 172
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
+  Caption = 'New image'
+  ClientHeight = 107
+  ClientWidth = 172
+  Font.Height = -12
+  OnCreate = FormCreate
+  OnShow = FormShow
+  Position = poOwnerFormCenter
+  LCLVersion = '0.9.30'
+  object Label2: TLabel
+    Left = 16
+    Height = 16
+    Top = 19
+    Width = 39
+    Caption = 'Width :'
+    ParentColor = False
+  end
+  object Label3: TLabel
+    Left = 16
+    Height = 16
+    Top = 46
+    Width = 43
+    Caption = 'Height :'
+    ParentColor = False
+  end
+  object Button_OK: TButton
+    Left = 18
+    Height = 22
+    Top = 80
+    Width = 59
+    Caption = 'OK'
+    Default = True
+    OnClick = Button_OKClick
+    TabOrder = 0
+  end
+  object Button_Cancel: TButton
+    Left = 82
+    Height = 22
+    Top = 80
+    Width = 73
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 1
+  end
+  object SpinEdit_Width: TSpinEdit
+    Left = 80
+    Height = 23
+    Top = 16
+    Width = 79
+    Increment = 10
+    MaxValue = 10000
+    MinValue = 1
+    TabOrder = 2
+    Value = 1
+  end
+  object SpinEdit_Height: TSpinEdit
+    Left = 80
+    Height = 23
+    Top = 43
+    Width = 79
+    Increment = 10
+    MaxValue = 10000
+    MinValue = 1
+    TabOrder = 3
+    Value = 1
+  end
+end

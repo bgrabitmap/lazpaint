@@ -1,0 +1,11 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('TFChooseColor','FORMDATA',[
+  'TPF0'#13'TFChooseColor'#12'FChooseColor'#4'Left'#3'('#1#6'Height'#3#198#0#3
+  +'Top'#3#137#1#5'Width'#3#8#1#11'BorderIcons'#11#12'biSystemMenu'#0#11'Border'
+  +'Style'#7#12'bsToolWindow'#7'Caption'#6#5'Color'#11'Font.Height'#2#244#9'For'
+  +'mStyle'#7#11'fsStayOnTop'#8'OnCreate'#7#10'FormCreate'#9'OnDestroy'#7#11'Fo'
+  +'rmDestroy'#11'OnMouseDown'#7#13'FormMouseDown'#11'OnMouseMove'#7#13'FormMou'
+  +'seMove'#9'OnMouseUp'#7#11'FormMouseUp'#7'OnPaint'#7#9'FormPaint'#6'OnShow'#7
+  +#8'FormShow'#10'LCLVersion'#6#7'1.0.1.3'#0#0
+]);

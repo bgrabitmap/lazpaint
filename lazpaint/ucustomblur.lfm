@@ -1,0 +1,69 @@
+object FCustomBlur: TFCustomBlur
+  Left = 673
+  Height = 300
+  Top = 182
+  Width = 400
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
+  Caption = 'Custom blur'
+  ClientHeight = 300
+  ClientWidth = 400
+  Font.Height = -12
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  Position = poOwnerFormCenter
+  LCLVersion = '0.9.30'
+  object Image1: TImage
+    Left = 8
+    Height = 216
+    Top = 40
+    Width = 384
+    Center = True
+    Proportional = True
+    Stretch = True
+  end
+  object Button_OK: TButton
+    Left = 124
+    Height = 22
+    Top = 272
+    Width = 59
+    Caption = 'OK'
+    Default = True
+    OnClick = Button_OKClick
+    TabOrder = 0
+  end
+  object Button_Cancel: TButton
+    Left = 195
+    Height = 22
+    Top = 272
+    Width = 81
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 1
+  end
+  object Button_LoadMask: TButton
+    Left = 8
+    Height = 22
+    Top = 6
+    Width = 192
+    Caption = 'Load mask...'
+    OnClick = Button_LoadMaskClick
+    TabOrder = 2
+  end
+  object Button_EditMask: TButton
+    Left = 208
+    Height = 22
+    Top = 6
+    Width = 184
+    Caption = 'Edit mask...'
+    OnClick = Button_EditMaskClick
+    TabOrder = 3
+  end
+  object OpenPictureDialog1: TOpenPictureDialog
+    Title = 'Open grayscale file'
+    Filter = 'Graphic (*.bmp;*.png;*.jpg;*.jpeg)|*.bmp;*.png;*.jpg;*.jpeg;*.BMP;*.PNG;*.JPG;*.JPEG;*.Bmp;*.Png;*.Jpg;*.Jpeg|Bitmaps (*.bmp)|*.bmp;*.BMP;*.Bmp|JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg;*.JPG;*.JPEG;*.Jpg;*.Jpeg|Portable Network Graphic (*.png)|*.png;*.PNG;*.Png'
+    left = 48
+    top = 248
+  end
+end

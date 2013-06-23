@@ -1,0 +1,86 @@
+object FMotionBlur: TFMotionBlur
+  Left = 438
+  Height = 228
+  Top = 173
+  Width = 170
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
+  Caption = 'Motion blur'
+  ClientHeight = 228
+  ClientWidth = 170
+  Font.Height = -12
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  Position = poScreenCenter
+  LCLVersion = '0.9.30'
+  object Label3: TLabel
+    Left = 11
+    Height = 16
+    Top = 11
+    Width = 52
+    Caption = 'Distance :'
+    ParentColor = False
+  end
+  object PaintBox1: TPaintBox
+    Left = 19
+    Height = 120
+    Top = 67
+    Width = 134
+    OnMouseDown = PaintBox1MouseDown
+    OnMouseMove = PaintBox1MouseMove
+    OnMouseUp = PaintBox1MouseUp
+    OnPaint = PaintBox1Paint
+  end
+  object Button_OK: TButton
+    Left = 14
+    Height = 22
+    Top = 200
+    Width = 59
+    Caption = 'OK'
+    Default = True
+    OnClick = Button_OKClick
+    TabOrder = 0
+  end
+  object Button_Cancel: TButton
+    Left = 78
+    Height = 22
+    Top = 200
+    Width = 76
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 1
+  end
+  object SpinEdit_Distance: TSpinEdit
+    Left = 76
+    Height = 23
+    Top = 8
+    Width = 79
+    Increment = 3
+    MaxValue = 10000
+    MinValue = 1
+    OnChange = SpinEdit_DistanceChange
+    TabOrder = 2
+    Value = 5
+  end
+  object Checkbox_Oriented: TCheckBox
+    Left = 11
+    Height = 19
+    Top = 32
+    Width = 66
+    Caption = 'Oriented'
+    Checked = True
+    OnChange = Checkbox_OrientedChange
+    State = cbChecked
+    TabOrder = 3
+  end
+  object Timer1: TTimer
+    Enabled = False
+    Interval = 100
+    OnTimer = Timer1Timer
+    left = 115
+    top = 44
+  end
+end

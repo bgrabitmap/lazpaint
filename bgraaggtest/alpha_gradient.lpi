@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="9"/>
+    <PathDelim Value="\"/>
+    <General>
+      <MainUnit Value="0"/>
+      <ResourceType Value="res"/>
+      <UseXPManifest Value="True"/>
+      <Icon Value="0"/>
+      <ActiveWindowIndexAtStart Value="0"/>
+    </General>
+    <i18n>
+      <EnableI18N LFM="False"/>
+    </i18n>
+    <VersionInfo>
+      <StringTable ProductVersion=""/>
+    </VersionInfo>
+    <BuildModes Count="1" Active="Default">
+      <Item1 Name="Default" Default="True"/>
+    </BuildModes>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+      </local>
+    </RunParams>
+    <RequiredPackages Count="2">
+      <Item1>
+        <PackageName Value="bgrabitmappack"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="LCL"/>
+      </Item2>
+    </RequiredPackages>
+    <Units Count="2">
+      <Unit0>
+        <Filename Value="alpha_gradient.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="alpha_gradient"/>
+        <UsageCount Value="20"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="alpha_gradient_main.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="alpha_gradient_main"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="0"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="110"/>
+        <CursorPos X="98" Y="133"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit1>
+    </Units>
+    <JumpHistory Count="12" HistoryIndex="11">
+      <Position1>
+        <Filename Value="alpha_gradient_main.pas"/>
+        <Caret Line="63" Column="24" TopLine="31"/>
+      </Position1>
+      <Position2>
+        <Filename Value="alpha_gradient_main.pas"/>
+        <Caret Line="67" Column="11" TopLine="47"/>
+      </Position2>
+      <Position3>
+        <Filename Value="alpha_gradient_main.pas"/>
+        <Caret Line="68" Column="20" TopLine="45"/>
+      </Position3>
+      <Position4>
+        <Filename Value="alpha_gradient_main.pas"/>
+        <Caret Line="32" Column="26" TopLine="22"/>
+      </Position4>
+      <Position5>
+        <Filename Value="alpha_gradient_main.pas"/>
+        <Caret Line="71" Column="22" TopLine="53"/>
+      </Position5>
+      <Position6>
+        <Filename Value="alpha_gradient_main.pas"/>
+        <Caret Line="84" Column="20" TopLine="57"/>
+      </Position6>
+      <Position7>
+        <Filename Value="alpha_gradient_main.pas"/>
+        <Caret Line="41" Column="57" TopLine="19"/>
+      </Position7>
+      <Position8>
+        <Filename Value="alpha_gradient_main.pas"/>
+        <Caret Line="118" Column="31" TopLine="92"/>
+      </Position8>
+      <Position9>
+        <Filename Value="alpha_gradient_main.pas"/>
+        <Caret Line="56" Column="13" TopLine="38"/>
+      </Position9>
+      <Position10>
+        <Filename Value="alpha_gradient_main.pas"/>
+        <Caret Line="99" Column="84" TopLine="81"/>
+      </Position10>
+      <Position11>
+        <Filename Value="alpha_gradient_main.pas"/>
+        <Caret Line="114" Column="47" TopLine="94"/>
+      </Position11>
+      <Position12>
+        <Filename Value="alpha_gradient_main.pas"/>
+        <Caret Line="34" Column="1" TopLine="22"/>
+      </Position12>
+    </JumpHistory>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="9"/>
+    <PathDelim Value="\"/>
+    <Target>
+      <Filename Value="alpha_gradient"/>
+    </Target>
+    <SearchPaths>
+      <IncludeFiles Value="$(ProjOutDir)"/>
+      <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+    </SearchPaths>
+    <Linking>
+      <Options>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
+      </Options>
+    </Linking>
+    <Other>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="3">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+    </Exceptions>
+  </Debugging>
+</CONFIG>
