@@ -54,9 +54,9 @@
         <Filename Value="umain.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FMain"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="umain"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
@@ -86,10 +86,12 @@
         <Filename Value="utest1.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="utest1"/>
+        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="1" Y="1"/>
+        <CursorPos X="45" Y="2"/>
         <UsageCount Value="194"/>
+        <Loaded Value="True"/>
       </Unit4>
       <Unit5>
         <Filename Value="utest2.pas"/>
@@ -121,10 +123,12 @@
         <Filename Value="utest5.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="utest5"/>
+        <EditorIndex Value="2"/>
         <WindowIndex Value="0"/>
         <TopLine Value="18"/>
         <CursorPos X="1" Y="50"/>
         <UsageCount Value="194"/>
+        <Loaded Value="True"/>
       </Unit8>
       <Unit9>
         <Filename Value="utest6.pas"/>
@@ -139,10 +143,13 @@
         <Filename Value="utest7.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="utest7"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="3"/>
         <WindowIndex Value="0"/>
         <TopLine Value="55"/>
         <CursorPos X="30" Y="73"/>
         <UsageCount Value="194"/>
+        <Loaded Value="True"/>
       </Unit10>
       <Unit11>
         <Filename Value="utest8.pas"/>
@@ -822,15 +829,19 @@
         <UsageCount Value="10"/>
       </Unit93>
     </Units>
-    <JumpHistory Count="1" HistoryIndex="0">
+    <JumpHistory Count="2" HistoryIndex="1">
       <Position1>
         <Filename Value="umain.pas"/>
         <Caret Line="84" Column="23" TopLine="66"/>
       </Position1>
+      <Position2>
+        <Filename Value="utest1.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position2>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
-    <Version Value="9"/>
+    <Version Value="11"/>
     <PathDelim Value="\"/>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>

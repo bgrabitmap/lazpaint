@@ -2,31 +2,30 @@ object FColorIntensity: TFColorIntensity
   Left = 405
   Height = 109
   Top = 187
-  Width = 400
+  Width = 472
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Intensity'
   ClientHeight = 109
-  ClientWidth = 400
+  ClientWidth = 472
   Font.Height = -12
   OnCreate = FormCreate
-  OnHide = FormHide
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '0.9.30'
-  object Label1: TLabel
+  LCLVersion = '1.1'
+  object Label_Multiply: TLabel
     Left = 8
-    Height = 16
+    Height = 15
     Top = 10
-    Width = 45
+    Width = 44
     Caption = 'Multiply'
     ParentColor = False
   end
-  object Label2: TLabel
+  object Label_Shift: TLabel
     Left = 8
-    Height = 16
+    Height = 15
     Top = 48
-    Width = 25
+    Width = 24
     Caption = 'Shift'
     ParentColor = False
   end
@@ -49,17 +48,18 @@ object FColorIntensity: TFColorIntensity
     TabOrder = 1
   end
   object Button_OK: TButton
-    Left = 136
+    Left = 165
     Height = 22
     Top = 80
     Width = 59
     Caption = 'OK'
     Default = True
+    ModalResult = 1
     OnClick = Button_OKClick
     TabOrder = 2
   end
   object Button_Cancel: TButton
-    Left = 200
+    Left = 229
     Height = 22
     Top = 80
     Width = 72
@@ -67,5 +67,31 @@ object FColorIntensity: TFColorIntensity
     Caption = 'Cancel'
     ModalResult = 2
     TabOrder = 3
+  end
+  object FloatSpinEdit_Shift: TFloatSpinEdit
+    Left = 392
+    Height = 23
+    Top = 43
+    Width = 72
+    DecimalPlaces = 3
+    Increment = 1
+    MaxValue = 1
+    MinValue = -1
+    OnChange = FloatSpinEdit_ShiftChange
+    TabOrder = 4
+    Value = 0
+  end
+  object FloatSpinEdit_Factor: TFloatSpinEdit
+    Left = 392
+    Height = 23
+    Top = 7
+    Width = 72
+    DecimalPlaces = 3
+    Increment = 1
+    MaxValue = 2
+    MinValue = -2
+    OnChange = FloatSpinEdit_FactorChange
+    TabOrder = 5
+    Value = 0
   end
 end

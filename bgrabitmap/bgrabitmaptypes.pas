@@ -22,6 +22,17 @@
  ****************************************************************************
 }
 
+{
+ to do :
+   - Canvas2D to do
+   - ZenGL emulation
+   - 3D emulation
+   - box blur
+   - power integer using shr and multiplication for phong
+
+
+}
+
 unit BGRABitmapTypes;
 
 {$mode objfpc}{$H+}
@@ -34,6 +45,9 @@ uses
 type
   //pointer for direct pixel access
   PBGRAPixel = ^TBGRAPixel;
+
+  Int32or64 = {$IFDEF CPU64}Int64{$ELSE}LongInt{$ENDIF};
+  UInt32or64 = {$IFDEF CPU64}UInt64{$ELSE}LongWord{$ENDIF};
 
   //pixel structure
   TBGRAPixel = packed record
@@ -82,7 +96,8 @@ type
 
   TMedianOption = (moNone, moLowSmooth, moMediumSmooth, moHighSmooth);
   TRadialBlurType = (rbNormal, rbDisk, rbCorona, rbPrecise, rbFast);
-  TSplineStyle = (ssInside, ssInsideWithEnds, ssCrossing, ssCrossingWithEnds, ssOutside, ssRoundOutside, ssVertexToSide);
+  TSplineStyle = (ssInside, ssInsideWithEnds, ssCrossing, ssCrossingWithEnds,
+    ssOutside, ssRoundOutside, ssVertexToSide);
   
   //Advanced blending modes
   //see : http://www.brighthub.com/multimedia/photography/articles/18301.aspx
@@ -168,6 +183,7 @@ procedure Normalize3D(var v: TPoint3D); inline;
 
 function BezierCurve(origin, control1, control2, destination: TPointF) : TCubicBezierCurve; overload;
 function BezierCurve(origin, control, destination: TPointF) : TQuadraticBezierCurve; overload;
+function BezierCurve(origin, destination: TPointF) : TQuadraticBezierCurve; overload;
 
 { Useful constants }
 const
@@ -240,6 +256,9 @@ type
   TScanNextPixelFunction = function: TBGRAPixel of object;
   TBGRACustomGradient = class;
 
+  TBGRACustomFillInfo = class;
+  TBGRACustomFontRenderer = class;
+
   { TBGRACustomBitmap }
 
   TBGRACustomBitmap = class(TFPCustomImage,IBGRAScanner) // a bitmap can be used as a scanner
@@ -248,6 +267,8 @@ type
     procedure SetFontAntialias(const AValue: Boolean);
   protected
      { accessors to properies }
+     function GetFontRenderer: TBGRACustomFontRenderer; virtual; abstract;
+     procedure SetFontRenderer(AValue: TBGRACustomFontRenderer); virtual; abstract;
      function GetHeight: integer; virtual; abstract;
      function GetWidth: integer; virtual; abstract;
      function GetDataPtr: PBGRAPixel; virtual; abstract;
@@ -280,12 +301,13 @@ type
      procedure SetClipRect(const AValue: TRect); virtual; abstract;
      function GetFontPixelMetric: TFontPixelMetric; virtual; abstract;
      function LoadAsBmp32(Str: TStream): boolean; virtual; abstract;
+     function LoadFromFileAsBmp32(filename: string): boolean;
 
   public
      Caption:   string;  //user defined caption
 
      //font style
-     FontName:  string;
+     FontName: string;
      FontStyle: TFontStyles;
      FontQuality : TBGRAFontQuality;
      FontOrientation: integer;
@@ -296,6 +318,7 @@ type
      JoinMiterLimit: single;
 
      FillMode:  TFillMode;  //winding or alternate
+     LinearAntialiasing: boolean;
 
      { The resample filter is used when resizing the bitmap, and
        scan interpolation filter is used when the bitmap is used
@@ -327,35 +350,34 @@ type
      procedure Deserialize(AStream: TStream); virtual; abstract;
 
      {Pixel functions}
-     procedure SetPixel(x, y: integer; c: TColor); virtual; abstract; overload;
-     procedure XorPixel(x, y: integer; c: TBGRAPixel); virtual; abstract; overload;
-     procedure SetPixel(x, y: integer; c: TBGRAPixel); virtual; abstract; overload;
-     procedure DrawPixel(x, y: integer; c: TBGRAPixel); virtual; abstract; overload;
-     procedure DrawPixel(x, y: integer; ec: TExpandedPixel); virtual; abstract; overload;
-     procedure FastBlendPixel(x, y: integer; c: TBGRAPixel); virtual; abstract;
-     procedure ErasePixel(x, y: integer; alpha: byte); virtual; abstract;
-     procedure AlphaPixel(x, y: integer; alpha: byte); virtual; abstract;
-     function GetPixel(x, y: integer): TBGRAPixel; virtual; abstract;
+     procedure SetPixel(x, y: int32or64; c: TColor); virtual; abstract; overload;
+     procedure XorPixel(x, y: int32or64; c: TBGRAPixel); virtual; abstract; overload;
+     procedure SetPixel(x, y: int32or64; c: TBGRAPixel); virtual; abstract; overload;
+     procedure DrawPixel(x, y: int32or64; c: TBGRAPixel); virtual; abstract; overload;
+     procedure DrawPixel(x, y: int32or64; ec: TExpandedPixel); virtual; abstract; overload;
+     procedure FastBlendPixel(x, y: int32or64; c: TBGRAPixel); virtual; abstract;
+     procedure ErasePixel(x, y: int32or64; alpha: byte); virtual; abstract;
+     procedure AlphaPixel(x, y: int32or64; alpha: byte); virtual; abstract;
+     function GetPixel(x, y: int32or64): TBGRAPixel; virtual; abstract;
      function GetPixel(x, y: single; AResampleFilter: TResampleFilter = rfLinear): TBGRAPixel; virtual; abstract; overload;
-     function GetPixelCycle(x, y: integer): TBGRAPixel; virtual;
+     function GetPixelCycle(x, y: int32or64): TBGRAPixel; virtual;
      function GetPixelCycle(x, y: single; AResampleFilter: TResampleFilter = rfLinear): TBGRAPixel; virtual; abstract; overload;
      function GetPixelCycle(x, y: single; AResampleFilter: TResampleFilter; repeatX: boolean; repeatY: boolean): TBGRAPixel; virtual; abstract; overload;
 
      {Line primitives}
-     procedure SetHorizLine(x, y, x2: integer; c: TBGRAPixel); virtual; abstract;
-     procedure XorHorizLine(x, y, x2: integer; c: TBGRAPixel); virtual; abstract;
-     procedure DrawHorizLine(x, y, x2: integer; c: TBGRAPixel); virtual; abstract; overload;
-     procedure DrawHorizLine(x, y, x2: integer; ec: TExpandedPixel); virtual; abstract; overload;
-     procedure DrawHorizLine(x, y, x2: integer; texture: IBGRAScanner); virtual; abstract; overload;
-     procedure FastBlendHorizLine(x, y, x2: integer; c: TBGRAPixel); virtual; abstract;
-     procedure AlphaHorizLine(x, y, x2: integer; alpha: byte); virtual; abstract;
-     procedure SetVertLine(x, y, y2: integer; c: TBGRAPixel); virtual; abstract;
-     procedure XorVertLine(x, y, y2: integer; c: TBGRAPixel); virtual; abstract;
-     procedure DrawVertLine(x, y, y2: integer; c: TBGRAPixel); virtual; abstract;
-     procedure AlphaVertLine(x, y, y2: integer; alpha: byte); virtual; abstract;
-     procedure FastBlendVertLine(x, y, y2: integer; c: TBGRAPixel); virtual; abstract;
-     procedure DrawHorizLineDiff(x, y, x2: integer; c, compare: TBGRAPixel;
-       maxDiff: byte); virtual; abstract;
+     procedure SetHorizLine(x, y, x2: int32or64; c: TBGRAPixel); virtual; abstract;
+     procedure XorHorizLine(x, y, x2: int32or64; c: TBGRAPixel); virtual; abstract;
+     procedure DrawHorizLine(x, y, x2: int32or64; c: TBGRAPixel); virtual; abstract; overload;
+     procedure DrawHorizLine(x, y, x2: int32or64; ec: TExpandedPixel); virtual; abstract; overload;
+     procedure DrawHorizLine(x, y, x2: int32or64; texture: IBGRAScanner); virtual; abstract; overload;
+     procedure FastBlendHorizLine(x, y, x2: int32or64; c: TBGRAPixel); virtual; abstract;
+     procedure AlphaHorizLine(x, y, x2: int32or64; alpha: byte); virtual; abstract;
+     procedure SetVertLine(x, y, y2: int32or64; c: TBGRAPixel); virtual; abstract;
+     procedure XorVertLine(x, y, y2: int32or64; c: TBGRAPixel); virtual; abstract;
+     procedure DrawVertLine(x, y, y2: int32or64; c: TBGRAPixel); virtual; abstract;
+     procedure AlphaVertLine(x, y, y2: int32or64; alpha: byte); virtual; abstract;
+     procedure FastBlendVertLine(x, y, y2: int32or64; c: TBGRAPixel); virtual; abstract;
+     procedure DrawHorizLineDiff(x, y, x2: int32or64; c, compare: TBGRAPixel; maxDiff: byte); virtual; abstract;
 
      {Shapes}
      procedure DrawLine(x1, y1, x2, y2: integer; c: TBGRAPixel; DrawLastPixel: boolean); virtual; abstract;
@@ -393,7 +415,9 @@ type
      procedure FillQuadLinearMappingLightness(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; light1,light2,light3,light4: word; TextureInterpolation: Boolean= True); virtual; abstract; overload;
      procedure FillQuadLinearMappingAntialias(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF); virtual; abstract; overload;
      procedure FillQuadPerspectiveMapping(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF); virtual; abstract; overload;
+     procedure FillQuadPerspectiveMapping(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; ACleanBorders: TRect); virtual; abstract; overload;
      procedure FillQuadPerspectiveMappingAntialias(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF); virtual; abstract; overload;
+     procedure FillQuadPerspectiveMappingAntialias(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; ACleanBorders: TRect); virtual; abstract; overload;
 
      procedure FillPolyLinearColor(const points: array of TPointF; AColors: array of TBGRAPixel);  virtual; abstract; overload;
      procedure FillPolyLinearMapping(const points: array of TPointF; texture: IBGRAScanner; texCoords: array of TPointF; TextureInterpolation: Boolean); virtual; abstract; overload;
@@ -407,6 +431,14 @@ type
      procedure FillPolyAntialias(const points: array of TPointF; texture: IBGRAScanner); virtual; abstract;
      procedure ErasePoly(const points: array of TPointF; alpha: byte); virtual; abstract;
      procedure ErasePolyAntialias(const points: array of TPointF; alpha: byte); virtual; abstract;
+
+     procedure FillShape(shape: TBGRACustomFillInfo; c: TBGRAPixel; drawmode: TDrawMode); virtual; abstract;
+     procedure FillShape(shape: TBGRACustomFillInfo; texture: IBGRAScanner; drawmode: TDrawMode); virtual; abstract;
+     procedure FillShapeAntialias(shape: TBGRACustomFillInfo; c: TBGRAPixel); virtual; abstract;
+     procedure FillShapeAntialias(shape: TBGRACustomFillInfo; texture: IBGRAScanner); virtual; abstract;
+     procedure EraseShape(shape: TBGRACustomFillInfo; alpha: byte); virtual; abstract;
+     procedure EraseShapeAntialias(shape: TBGRACustomFillInfo; alpha: byte); virtual; abstract;
+
 
      procedure EllipseAntialias(x, y, rx, ry: single; c: TBGRAPixel; w: single); virtual; abstract;
      procedure EllipseAntialias(x, y, rx, ry: single; texture: IBGRAScanner; w: single); virtual; abstract;
@@ -437,6 +469,7 @@ type
 
      procedure FillRect(r: TRect; c: TColor); virtual; overload;
      procedure FillRect(r: TRect; c: TBGRAPixel; mode: TDrawMode); virtual; overload;
+     procedure FillRect(r: TRect; texture: IBGRAScanner; mode: TDrawMode); virtual; overload;
      procedure FillRect(x, y, x2, y2: integer; c: TColor); virtual; overload;
      procedure FillRect(x, y, x2, y2: integer; c: TBGRAPixel; mode: TDrawMode); virtual; abstract; overload;
      procedure FillRect(x, y, x2, y2: integer; texture: IBGRAScanner; mode: TDrawMode); virtual; abstract;
@@ -546,7 +579,11 @@ type
      function RotateCW: TBGRACustomBitmap; virtual; abstract;
      function RotateCCW: TBGRACustomBitmap; virtual; abstract;
      procedure Negative; virtual; abstract;
+     procedure NegativeRect(ABounds: TRect); virtual; abstract;
      procedure LinearNegative; virtual; abstract;
+     procedure LinearNegativeRect(ABounds: TRect); virtual; abstract;
+     procedure InplaceGrayscale; virtual; abstract;
+     procedure InplaceGrayscale(ABounds: TRect); virtual; abstract;
      procedure ConvertToLinearRGB; virtual; abstract;
      procedure ConvertFromLinearRGB; virtual; abstract;
      procedure SwapRedBlue; virtual; abstract;
@@ -562,23 +599,33 @@ type
      function FilterSmartZoom3(Option: TMedianOption): TBGRACustomBitmap; virtual; abstract;
      function FilterMedian(Option: TMedianOption): TBGRACustomBitmap; virtual; abstract;
      function FilterSmooth: TBGRACustomBitmap; virtual; abstract;
-     function FilterSharpen: TBGRACustomBitmap; virtual; abstract;
+     function FilterSharpen(Amount: single = 1): TBGRACustomBitmap; virtual; abstract;
+     function FilterSharpen(ABounds: TRect; Amount: single = 1): TBGRACustomBitmap; virtual; abstract;
      function FilterContour: TBGRACustomBitmap; virtual; abstract;
+     function FilterPixelate(pixelSize: integer; useResample: boolean; filter: TResampleFilter = rfLinear): TBGRACustomBitmap; virtual; abstract;
      function FilterBlurRadial(radius: integer;
        blurType: TRadialBlurType): TBGRACustomBitmap; virtual; abstract;
-     function FilterPixelate(pixelSize: integer; useResample: boolean; filter: TResampleFilter = rfLinear): TBGRACustomBitmap; virtual; abstract;
+     function FilterBlurRadial(ABounds: TRect; radius: integer;
+       blurType: TRadialBlurType): TBGRACustomBitmap; virtual; abstract;
      function FilterBlurMotion(distance: integer; angle: single;
        oriented: boolean): TBGRACustomBitmap; virtual; abstract;
+     function FilterBlurMotion(ABounds: TRect; distance: integer; angle: single;
+       oriented: boolean): TBGRACustomBitmap; virtual; abstract;
      function FilterCustomBlur(mask: TBGRACustomBitmap): TBGRACustomBitmap; virtual; abstract;
+     function FilterCustomBlur(ABounds: TRect; mask: TBGRACustomBitmap): TBGRACustomBitmap; virtual; abstract;
      function FilterEmboss(angle: single): TBGRACustomBitmap; virtual; abstract;
+     function FilterEmboss(angle: single; ABounds: TRect): TBGRACustomBitmap; virtual; abstract;
      function FilterEmbossHighlight(FillSelection: boolean): TBGRACustomBitmap; virtual; abstract;
      function FilterEmbossHighlight(FillSelection: boolean; BorderColor: TBGRAPixel): TBGRACustomBitmap; virtual; abstract;
      function FilterEmbossHighlight(FillSelection: boolean; BorderColor: TBGRAPixel; var Offset: TPoint): TBGRACustomBitmap; virtual; abstract;
      function FilterGrayscale: TBGRACustomBitmap; virtual; abstract;
+     function FilterGrayscale(ABounds: TRect): TBGRACustomBitmap; virtual; abstract;
      function FilterNormalize(eachChannel: boolean = True): TBGRACustomBitmap; virtual; abstract;
+     function FilterNormalize(ABounds: TRect; eachChannel: boolean = True): TBGRACustomBitmap; virtual; abstract;
      function FilterRotate(origin: TPointF; angle: single): TBGRACustomBitmap; virtual; abstract;
      function FilterSphere: TBGRACustomBitmap; virtual; abstract;
      function FilterTwirl(ACenter: TPoint; ARadius: Single; ATurn: Single=1; AExponent: Single=3): TBGRACustomBitmap; virtual; abstract;
+     function FilterTwirl(ABounds: TRect; ACenter: TPoint; ARadius: Single; ATurn: Single=1; AExponent: Single=3): TBGRACustomBitmap; virtual; abstract;
      function FilterCylinder: TBGRACustomBitmap; virtual; abstract;
      function FilterPlane: TBGRACustomBitmap; virtual; abstract;
 
@@ -609,6 +656,7 @@ type
      property FontAntialias: Boolean read GetFontAntialias write SetFontAntialias; //antialiasing (it's different from TFont antialiasing mode)
      property FontFullHeight: integer read GetFontFullHeight write SetFontFullHeight;
      property FontPixelMetric: TFontPixelMetric read GetFontPixelMetric;
+     property FontRenderer: TBGRACustomFontRenderer read GetFontRenderer write SetFontRenderer;
 
      //interface
      function QueryInterface({$IFDEF FPC_HAS_CONSTREF}constref{$ELSE}const{$ENDIF} IID: TGUID; out Obj): HResult; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
@@ -652,11 +700,65 @@ type
     property Monochrome: boolean read GetMonochrome;
   end;
 
+  { TIntersectionInfo }
+
+  TIntersectionInfo = class
+    interX: single;
+    winding: integer;
+    numSegment: integer;
+    procedure SetValues(AInterX: Single; AWinding, ANumSegment: integer);
+  end;
+  ArrayOfTIntersectionInfo = array of TIntersectionInfo;
+
+  TBGRACustomFillInfo = class
+    public
+      //returns true if the same segment number can be curved
+      function SegmentsCurved: boolean; virtual; abstract;
+
+      //returns integer bounds
+      function GetBounds: TRect; virtual; abstract;
+
+      //compute min-max to be drawn on destination bitmap according to cliprect. Returns false if
+      //there is nothing to draw
+      function ComputeMinMax(out minx,miny,maxx,maxy: integer; bmpDest: TBGRACustomBitmap): boolean; virtual; abstract;
+
+      //check if the point is inside the filling zone
+      function IsPointInside(x,y: single; windingMode: boolean): boolean; virtual; abstract;
+
+      //create an array that will contain computed intersections.
+      //you may augment, in this case, use CreateIntersectionInfo for new items
+      function CreateIntersectionArray: ArrayOfTIntersectionInfo; virtual; abstract;
+      function CreateIntersectionInfo: TIntersectionInfo; virtual; abstract; //creates a single info
+      procedure FreeIntersectionArray(var inter: ArrayOfTIntersectionInfo); virtual; abstract;
+
+      //fill a previously created array of intersections with actual intersections at the current y coordinate.
+      //nbInter gets the number of computed intersections
+      procedure ComputeAndSort(cury: single; var inter: ArrayOfTIntersectionInfo; out nbInter: integer; windingMode: boolean); virtual; abstract;
+  end;
+
+  TBGRACustomFontRenderer = class
+    FontName: string;
+    FontStyle: TFontStyles;
+    FontQuality : TBGRAFontQuality;
+    FontOrientation: integer;
+    FontEmHeight: integer; //negative for full height
+    function GetFontPixelMetric: TFontPixelMetric; virtual; abstract;
+    procedure TextOutAngle(ADest: TBGRACustomBitmap; x, y: single; orientation: integer; s: string; c: TBGRAPixel; align: TAlignment); virtual; abstract;
+    procedure TextOutAngle(ADest: TBGRACustomBitmap; x, y: single; orientation: integer; s: string; texture: IBGRAScanner; align: TAlignment); virtual; abstract;
+    procedure TextOut(ADest: TBGRACustomBitmap; x, y: single; s: string; texture: IBGRAScanner; align: TAlignment); virtual; abstract;
+    procedure TextOut(ADest: TBGRACustomBitmap; x, y: single; s: string; c: TBGRAPixel; align: TAlignment); virtual; abstract;
+    procedure TextRect(ADest: TBGRACustomBitmap; ARect: TRect; x, y: integer; s: string; style: TTextStyle; c: TBGRAPixel); virtual; abstract;
+    procedure TextRect(ADest: TBGRACustomBitmap; ARect: TRect; x, y: integer; s: string; style: TTextStyle; texture: IBGRAScanner); virtual; abstract;
+    function TextSize(s: string): TSize; virtual; abstract;
+  end;
+
 type
   TBGRABitmapAny = class of TBGRACustomBitmap;  //used to create instances of the same type (see NewBitmap)
+  TBGRATextOutImproveReadabilityMode = (irMask, irNormal, irClearTypeRGB, irClearTypeBGR);
 
 var
   BGRABitmapFactory : TBGRABitmapAny;
+  BGRATextOutImproveReadabilityProc : procedure (bmp: TBGRACustomBitmap; AFont: TFont; xf,yf: single; text: string; color: TBGRAPixel; tex: IBGRAScanner; align: TAlignment; mode : TBGRATextOutImproveReadabilityMode);
 
 { Color functions }
 function GetIntensity(c: TExpandedPixel): word; inline;
@@ -665,7 +767,7 @@ function GetLightness(c: TExpandedPixel): word; inline;
 function SetLightness(c: TExpandedPixel; lightness: word): TExpandedPixel;
 function ApplyLightnessFast(color: TBGRAPixel; lightness: word): TBGRAPixel; inline;
 function ApplyIntensityFast(color: TBGRAPixel; lightness: longword): TBGRAPixel;
-function CombineLightness(lightness1,lightness2: integer): integer;
+function CombineLightness(lightness1,lightness2: Int32or64): Int32or64;
 function BGRAToHSLA(c: TBGRAPixel): THSLAPixel;
 function ExpandedToHSLA(ec: TExpandedPixel): THSLAPixel; inline;
 function BGRAToGSBA(c: TBGRAPixel): THSLAPixel;
@@ -752,7 +854,7 @@ function DoesQuadIntersect(pt1,pt2,pt3,pt4: TPointF): boolean;
 function DoesSegmentIntersect(pt1,pt2,pt3,pt4: TPointF): boolean;
 
 { Cyclic functions }
-function PositiveMod(value, cycle: integer): integer; inline;
+function PositiveMod(value, cycle: Int32or64): Int32or64; inline; overload;
 
 { Sin65536 and Cos65536 are fast routines to compute sine and cosine as integer values.
   They use a table to store already computed values. The return value is an integer
@@ -760,13 +862,13 @@ function PositiveMod(value, cycle: integer): integer; inline;
   32768 instead of 1. The input has a period of 65536, so you can supply any integer
   without applying a modulo. }
 procedure PrecalcSin65536; // compute all values now
-function Sin65536(value: word): integer; inline;
-function Cos65536(value: word): integer; inline;
+function Sin65536(value: word): Int32or64; inline;
+function Cos65536(value: word): Int32or64; inline;
 function ByteSqrt(value: byte): byte; inline;
 
 implementation
 
-uses Math, SysUtils;
+uses Math, SysUtils, FPReadBMP;
 
 function StrToBlendOperation(str: string): TBlendOperation;
 var op: TBlendOperation;
@@ -936,10 +1038,28 @@ begin
   result.p2 := destination;
 end;
 
+//straight line
+function BezierCurve(origin, destination: TPointF): TQuadraticBezierCurve;
+begin
+  result.p1 := origin;
+  result.c := (origin+destination)*0.5;
+  result.p2 := destination;
+end;
+
 { Check if a PointF structure is empty or should be treated as a list separator }
 function isEmptyPointF(pt: TPointF): boolean;
 begin
   Result := (pt.x = EmptySingle) and (pt.y = EmptySingle);
+end;
+
+{ TIntersectionInfo }
+
+procedure TIntersectionInfo.SetValues(AInterX: Single; AWinding,
+  ANumSegment: integer);
+begin
+  interX := AInterX;
+  winding := AWinding;
+  numSegment := ANumSegment;
 end;
 
 { TBGRACustomGradient }
@@ -1035,9 +1155,27 @@ begin
     FontQuality := fqSystem;
 end;
 
+function TBGRACustomBitmap.LoadFromFileAsBmp32(filename: string): boolean;
+var stream: TFileStream;
+begin
+  stream := nil;
+  result := false;
+  try
+    stream:= TFileStream.Create(filename,fmOpenRead);
+    result := LoadAsBmp32(stream);
+  except
+    on ex: exception do
+    begin
+    end;
+  end;
+  stream.Free;
+end;
+
 { These declaration make sure that these methods are virtual }
 procedure TBGRACustomBitmap.LoadFromFile(const filename: string);
 begin
+  if CompareText(copy(filename,length(filename)-3,4),'.bmp')=0 then
+    if LoadFromFileAsBmp32(filename) then exit;
   inherited LoadFromFile(filename);
 end;
 
@@ -1079,14 +1217,19 @@ begin
   OldDrawMode := CanvasDrawModeFP;
   CanvasDrawModeFP := dmSet;
   try
-    inherited LoadFromStream(Str, Handler);
+    if Handler is TFPReaderBMP then
+    begin
+      if not LoadAsBmp32(Str) then
+        inherited LoadFromStream(Str, Handler);
+    end else
+      inherited LoadFromStream(Str, Handler);
   finally
     CanvasDrawModeFP := OldDrawMode;
   end;
 end;
 
 { Look for a pixel considering the bitmap is repeated in both directions }
-function TBGRACustomBitmap.GetPixelCycle(x, y: integer): TBGRAPixel;
+function TBGRACustomBitmap.GetPixelCycle(x, y: int32or64): TBGRAPixel;
 begin
   if (Width = 0) or (Height = 0) then
     Result := BGRAPixelTransparent
@@ -1160,6 +1303,12 @@ end;
 procedure TBGRACustomBitmap.FillRect(r: TRect; c: TBGRAPixel; mode: TDrawMode);
 begin
   FillRect(r.Left, r.top, r.right, r.bottom, c, mode);
+end;
+
+procedure TBGRACustomBitmap.FillRect(r: TRect; texture: IBGRAScanner;
+  mode: TDrawMode);
+begin
+  FillRect(r.Left, r.top, r.right, r.bottom, texture, mode);
 end;
 
 procedure TBGRACustomBitmap.FillRect(x, y, x2, y2: integer; c: TColor);
@@ -1596,7 +1745,7 @@ begin
   end;
 end;
 
-function CombineLightness(lightness1,lightness2: integer): integer;
+function CombineLightness(lightness1,lightness2: Int32or64): Int32or64;
 {$ifdef CPUI386} {$asmmode intel} assembler;
   asm
     imul edx
@@ -1993,6 +2142,11 @@ var
   gray:  word;
   cgray: byte;
 begin
+  if c.alpha = 0 then
+  begin
+    result := BGRAPixelTransparent;
+    exit;
+  end;
   //gamma expansion
   ec    := GammaExpansion(c);
   //gray composition
@@ -2530,7 +2684,7 @@ function MapHeight(Color: TBGRAPixel): Single;
 var intval: integer;
 begin
   intval := color.Green shl 16 + color.red shl 8 + color.blue;
-  result := intval/16777215;
+  result := intval*5.960464832810452e-8;
 end;
 
 function MapHeightToBGRA(Height: Single; Alpha: Byte): TBGRAPixel;
@@ -2629,12 +2783,13 @@ function VectLen(v: TPointF): single;
 begin
   result := sqrt(v.x*v.x+v.y*v.y);
 end;
-
+{$OPTIMIZATION OFF}  // Modif J.P  5/2013
 function IntersectLine(line1, line2: TLineDef): TPointF;
 var parallel: boolean;
 begin
   result := IntersectLine(line1,line2,parallel);
 end;
+{$OPTIMIZATION ON}
 
 function IntersectLine(line1, line2: TLineDef; out parallel: boolean): TPointF;
 var divFactor: double;
@@ -2786,7 +2941,7 @@ end;
 {************************** Cyclic functions *******************}
 
 // Get the cyclic value in the range [0..cycle-1]
-function PositiveMod(value, cycle: integer): integer; inline;
+function PositiveMod(value, cycle: Int32or64): Int32or64; inline;
 begin
   result := value mod cycle;
   if result < 0 then //modulo can be negative
@@ -2800,7 +2955,7 @@ var
   sinTab65536: packed array of word;
   byteSqrtTab: packed array of word;
 
-function Sin65536(value: word): integer;
+function Sin65536(value: word): Int32or64;
 var b: integer;
 begin
   //allocate array
@@ -2824,7 +2979,7 @@ begin
   end;
 end;
 
-function Cos65536(value: word): integer;
+function Cos65536(value: word): Int32or64;
 begin
   result := Sin65536(value+16384); //cosine is translated
 end;

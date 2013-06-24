@@ -20,6 +20,7 @@ function ComputeOpenedSpline(const points: array of TPointF; Style: TSplineStyle
 { Compute points to draw an antialiased ellipse }
 function ComputeEllipse(x,y,rx,ry: single; quality: single = 1): ArrayOfTPointF;
 function ComputeArc65536(x, y, rx, ry: single; start65536,end65536: word; quality: single = 1): ArrayOfTPointF;
+function ComputeArcRad(x, y, rx, ry: single; startRad,endRad: single; quality: single = 1): ArrayOfTPointF;
 function ComputeRoundRect(x1,y1,x2,y2,rx,ry: single; quality: single = 1): ArrayOfTPointF; overload;
 function ComputeRoundRect(x1,y1,x2,y2,rx,ry: single; options: TRoundRectangleOptions; quality: single = 1): ArrayOfTPointF; overload;
 
@@ -371,6 +372,12 @@ end;
 function ComputeEllipse(x, y, rx, ry: single; quality: single): ArrayOfTPointF;
 begin
   result := ComputeArc65536(x,y,rx,ry,0,0,quality);
+end;
+
+function ComputeArcRad(x, y, rx, ry: single; startRad, endRad: single;
+  quality: single): ArrayOfTPointF;
+begin
+  result := ComputeArc65536(x,y,rx,ry,round(startRad*32768/Pi) and $ffff,round(endRad*32768/Pi) and $ffff,quality);
 end;
 
 function ComputeRoundRect(x1,y1,x2,y2,rx,ry: single; quality: single): ArrayOfTPointF;

@@ -21,7 +21,10 @@
             c := pscan^;
             inc(pscan);
             if j <> 0 then
-              DrawPixelInlineWithAlphaCheck(pdest, BGRA(c.red, c.green, c.blue,
+              {$ifdef PARAM_LINEARANTIALIASING}
+              FastBlendPixelInline
+              {$else}
+              DrawPixelInlineWithAlphaCheck{$endif}(pdest, BGRA(c.red, c.green, c.blue,
               {$ifdef PARAM_ANTIALIASINGFACTOR}DivByAntialiasPrecision256{$endif}
               (c.alpha * j
               {$ifdef PARAM_ANTIALIASINGFACTOR} ) {$else} +128) shr 8 {$endif}
@@ -36,7 +39,10 @@
             Inc(pdens);
             c := ScanNextPixelProc();
             if j <> 0 then
-              DrawPixelInlineWithAlphaCheck(pdest, BGRA(c.red, c.green, c.blue,
+              {$ifdef PARAM_LINEARANTIALIASING}
+              FastBlendPixelInline
+              {$else}
+              DrawPixelInlineWithAlphaCheck{$endif}(pdest, BGRA(c.red, c.green, c.blue,
               {$ifdef PARAM_ANTIALIASINGFACTOR}DivByAntialiasPrecision256{$endif}
               (c.alpha * j
               {$ifdef PARAM_ANTIALIASINGFACTOR} ) {$else} +128) shr 8 {$endif}
@@ -74,7 +80,11 @@
               (c.alpha * j
               {$ifdef PARAM_ANTIALIASINGFACTOR} ) {$else} +128) shr 8 {$endif}
               ;
+            {$ifdef PARAM_LINEARANTIALIASING}
+            FastBlendPixelInline(pdest, c2);
+            {$else}
             DrawPixelInlineExpandedOrNotWithAlphaCheck(pdest, ec, c2);
+            {$endif}
           end;
           Inc(pdest);
         end;
@@ -82,3 +92,4 @@
     end;
   end
 {$undef PARAM_ANTIALIASINGFACTOR}
+{$undef PARAM_LINEARANTIALIASING}

@@ -1,32 +1,31 @@
 object FColorize: TFColorize
-  Left = 400
-  Height = 111
-  Top = 188
-  Width = 403
+  Left = 476
+  Height = 140
+  Top = 173
+  Width = 489
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Colorize'
-  ClientHeight = 111
-  ClientWidth = 403
+  ClientHeight = 140
+  ClientWidth = 489
   Font.Height = -12
   OnCreate = FormCreate
-  OnHide = FormHide
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '0.9.30'
-  object Label1: TLabel
+  LCLVersion = '1.1'
+  object Label_Hue: TLabel
     Left = 8
-    Height = 16
+    Height = 15
     Top = 10
-    Width = 23
+    Width = 22
     Caption = 'Hue'
     ParentColor = False
   end
-  object Label2: TLabel
+  object Label_Colorness: TLabel
     Left = 8
-    Height = 16
+    Height = 15
     Top = 48
-    Width = 53
+    Width = 52
     Caption = 'Colorness'
     ParentColor = False
   end
@@ -49,23 +48,61 @@ object FColorize: TFColorize
     TabOrder = 1
   end
   object Button_OK: TButton
-    Left = 136
+    Left = 173
     Height = 22
-    Top = 80
+    Top = 109
     Width = 59
+    Anchors = [akLeft, akBottom]
     Caption = 'OK'
     Default = True
+    ModalResult = 1
     OnClick = Button_OKClick
     TabOrder = 2
   end
   object Button_Cancel: TButton
-    Left = 200
+    Left = 237
     Height = 22
-    Top = 80
+    Top = 109
     Width = 72
+    Anchors = [akLeft, akBottom]
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
     TabOrder = 3
+  end
+  object FloatSpinEdit_Hue: TFloatSpinEdit
+    Left = 408
+    Height = 23
+    Top = 7
+    Width = 72
+    DecimalPlaces = 1
+    Increment = 1
+    MaxValue = 360
+    MinValue = 0
+    OnChange = FloatSpinEdit_HueChange
+    TabOrder = 4
+    Value = 0
+  end
+  object FloatSpinEdit_Saturation: TFloatSpinEdit
+    Left = 408
+    Height = 23
+    Top = 43
+    Width = 72
+    DecimalPlaces = 3
+    Increment = 1
+    MaxValue = 1
+    MinValue = 0
+    OnChange = FloatSpinEdit_SaturationChange
+    TabOrder = 5
+    Value = 0
+  end
+  object CheckBox_GSBA: TCheckBox
+    Left = 8
+    Height = 19
+    Top = 80
+    Width = 168
+    Caption = 'Corrected hue and lightness'
+    OnChange = CheckBox_GSBAChange
+    TabOrder = 6
   end
 end

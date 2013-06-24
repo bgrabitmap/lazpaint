@@ -43,6 +43,7 @@ type
      FCompressionProgress: Int64;
      procedure Decompress;
      procedure FreeData;
+     procedure Init;
    public
      CompressionLevel: Tcompressionlevel;
      constructor Create;
@@ -61,7 +62,7 @@ type
      destructor Destroy; override;
      property Width : Integer read FWidth;
      property Height: Integer read FHeight;
-     property Caption : string read FCaption;
+     property Caption : string read FCaption write FCaption;
 
    end;
 
@@ -76,23 +77,12 @@ const maxPartSize = 524288;
 
 constructor TBGRACompressableBitmap.Create;
 begin
-  FUncompressedData := nil;
-  FCompressedDataArray := nil;
-  FWidth := 0;
-  FHeight := 0;
-  FCaption := '';
-  FCompressionProgress := 0;
-  CompressionLevel := clfastest;
+  Init;
 end;
 
 constructor TBGRACompressableBitmap.Create(Source: TBGRABitmap);
 begin
-  FUncompressedData := nil;
-  FCompressedDataArray := nil;
-  FWidth := 0;
-  FHeight := 0;
-  FCaption := '';
-  FCompressionProgress := 0;
+  Init;
   Assign(Source);
 end;
 
@@ -218,7 +208,11 @@ begin
   FHeight := WinReadLongint(AStream);
   setlength(FCaption,WinReadLongint(AStream));
   AStream.Read(FCaption[1],length(FCaption));
-  if (FWidth=0) or (FHeight = 0) then exit;
+  if (FWidth=0) or (FHeight = 0) then
+  begin
+    FUncompressedData := TMemoryStream.Create;
+    exit;
+  end;
 
   FBounds.Left := WinReadLongint(AStream);
   FBounds.Top := WinReadLongint(AStream);
@@ -233,6 +227,9 @@ begin
     FCompressedDataArray[i] := TMemoryStream.Create;
     FCompressedDataArray[i].CopyFrom(AStream,size);
   end;
+
+  if FCompressedDataArray = nil then
+    FUncompressedData := TMemoryStream.Create;
 end;
 
 procedure TBGRACompressableBitmap.Decompress;
@@ -267,6 +264,17 @@ begin
     FCompressedDataArray := nil;
   end;
   if FUncompressedData <> nil then FreeAndNil(FUncompressedData);
+end;
+
+procedure TBGRACompressableBitmap.Init;
+begin
+  FUncompressedData := nil;
+  FCompressedDataArray := nil;
+  FWidth := 0;
+  FHeight := 0;
+  FCaption := '';
+  FCompressionProgress := 0;
+  CompressionLevel := clfastest;
 end;
 
 { Copy a bitmap into this object. As it is copied, you need not

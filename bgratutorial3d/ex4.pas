@@ -35,6 +35,7 @@ type
     lamp,shiny,reflect: IBGRAMaterial3D;
     rotated: IBGRAPart3D;
     rotateCenter: TPoint3D;
+    message: string;
     procedure UseMaterial(materialname: string; face: IBGRAFace3D); override;
   public
     procedure Render; override;
@@ -42,6 +43,8 @@ type
   end;
 
 implementation
+
+uses BGRATextFX;
 
 var
     numObj: integer= 3-1;
@@ -57,6 +60,7 @@ constructor TExample4.Create;
 var obj: IBGRAObject3D;
     r: single;
     i: integer;
+    filename: string;
 begin
   inherited Create;
 
@@ -71,7 +75,16 @@ begin
   lamp := CreateMaterial;
   lamp.LightThroughFactor := 0.05;
 
-  obj := LoadObjectFromFile('obj'+PathDelim+objList[numObj], objList[numObj] <> 'teapot.obj');
+  filename := 'obj'+PathDelim+objList[numObj];
+  if not fileexists(filename) and fileexists('..'+PathDelim+'..'+PathDelim+filename) then
+    filename := '..'+PathDelim+'..'+PathDelim+filename;
+  if not FileExists(filename) then
+    begin
+      message := 'File not found : '+ filename;
+      exit;
+    end;
+
+  obj := LoadObjectFromFile(filename, objList[numObj] <> 'teapot.obj');
 
   if objList[numObj] = 'helico.obj' then
   begin
@@ -176,6 +189,7 @@ begin
 end;
 
 procedure TExample4.Render;
+var fx: TBGRATextEffect;
 begin
   if objList[numObj] = 'teapot.obj' then
     Surface.GradientFill(0,0,Surface.Width,Surface.Height,BGRABlack,BGRA(70,100,100),gtLinear,PointF(0,0),PointF(0,Surface.Height),dmSet) else
@@ -187,6 +201,13 @@ begin
     rotated.Translate(rotateCenter,false);
   end;
   inherited Render;
+  if message <> '' then
+  begin
+    fx := TBGRATextEffect.Create(message,'Arial',20,True);
+    fx.DrawOutline(Surface,Surface.Width div 2,Surface.Height div 2-fx.TextHeight div 2,BGRABlack,taCenter);
+    fx.Draw(Surface,Surface.Width div 2,Surface.Height div 2-fx.TextHeight div 2,BGRAWhite,taCenter);
+    fx.Free;
+  end;
 end;
 
 end.

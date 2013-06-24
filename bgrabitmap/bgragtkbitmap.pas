@@ -143,13 +143,13 @@ begin
   SwapRedBlue;
   
   P := Rect.TopLeft;
-  DpToLP(ACanvas.Handle, @P, 1);
+  DpToLP(ACanvas.Handle, P, 1);
   gdk_pixbuf_render_to_drawable(FPixBuf,
     TGtkDeviceContext(ACanvas.Handle).Drawable,
     TGtkDeviceContext(ACanvas.Handle).GC,
     0,0,
-    TGtkDeviceContext(ACanvas.Handle).Offset.X + P.X,
-    TGtkDeviceContext(ACanvas.Handle).Offset.Y + P.Y,
+    TGtkDeviceContext(ACanvas.Handle).Offset.X + abs(P.X),
+    TGtkDeviceContext(ACanvas.Handle).Offset.Y + abs(P.Y),
     Width,Height,
     GDK_RGB_DITHER_NORMAL,0,0);   
 
@@ -295,12 +295,12 @@ begin
   end;
 
   P := Point(x,y);
-  DpToLP(ACanvas.Handle, @P, 1);
+  DpToLP(CanvasSource.Handle, P, 1);
   gdk_pixbuf_get_from_drawable(FPixBuf,
     TGtkDeviceContext(CanvasSource.Handle).Drawable,
     nil,
-    TGtkDeviceContext(CanvasSource.Handle).Offset.X+P.X,
-    TGtkDeviceContext(CanvasSource.Handle).Offset.Y+P.Y,0,0,Width,Height);
+    TGtkDeviceContext(CanvasSource.Handle).Offset.X+abs(P.X),
+    TGtkDeviceContext(CanvasSource.Handle).Offset.Y+abs(P.Y),0,0,Width,Height);
   SwapRedBlue;
   InvalidateBitmap;
 end;

@@ -1,11 +1,11 @@
-unit utooltext;
+unit UToolText;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, SysUtils, utool, utoolbasic, LCLType, Graphics, BGRABitmap, BGRABitmapTypes, BGRATextFX,
+  Types, Classes, SysUtils, utool, utoolbasic, LCLType, Graphics, BGRABitmap, BGRABitmapTypes, BGRATextFX,
   BGRAGradients;
 
 type
@@ -19,7 +19,7 @@ type
     FAntialias: boolean;
     FMovingText: boolean;
     FEditing: boolean;
-    FBackup: TBGRABitmap;
+    TextRendererFX: TBGRATextEffectFontRenderer;
     TextFX: TBGRATextEffect;
     TextFX_Text: string;
     TextFX_Font: TFont;
@@ -34,6 +34,7 @@ type
       override;
     function EndEdit: TRect;
     function DoToolUpdate(toolDest: TBGRABitmap): TRect; override;
+    function TextSize: TSize;
     procedure UpdateTextFX;
   public
     function ToolKeyDown(key: Word): TRect; override;
@@ -46,7 +47,7 @@ type
 
 implementation
 
-uses types, ugraph, uresourcestrings;
+uses ugraph, uresourcestrings, BGRAText;
 
 { TToolText }
 
@@ -70,6 +71,8 @@ begin
       result := EndEdit;
     end else
       result := EmptyRect;
+    if IsRectEmpty(result) then
+      result := ToolRepaintOnly;
     exit;
   end;
   if not FEditing then
@@ -107,66 +110,105 @@ begin
 end;
 
 function TToolText.DoToolUpdate(toolDest: TBGRABitmap): TRect;
-var h: integer;
+var hPhong: integer;
   currentRect: TRect;
 begin
   ToolUpdateNeeded := false;
   if not FEditing then
   begin
     result := EmptyRect;
+    if Manager.ToolTextPhong <> prevToolTextPhong then
+      result := ToolRepaintOnly;
     exit;
   end;
-  if FBackup = nil then
-  begin
-    Manager.Image.SaveLayerOrSelectionUndo;
-    FBackup := toolDest.Duplicate as TBGRABitmap;
-  end else
-    toolDest.PutImage(0,0,FBackup,dmSet);
+  RestoreBackupDrawingLayer;
 
   UpdateTextFX;
-  currentRect := RectOfs(TextFX.Bounds,FTextPos.X,FTextPos.Y);
-  if Manager.ToolTextShadow then
+  if TextFX <> nil then
   begin
-    TextFX.DrawShadow(toolDest,FTextPos.X+Manager.ToolTextShadowOffset.X,FTextPos.Y+Manager.ToolTextShadowOffset.Y,Manager.ToolTextBlur,BGRABlack);
-    currentRect := RectUnion(currentRect, RectOfs(TextFX.ShadowBounds[Manager.ToolTextBlur],FTextPos.X+Manager.ToolTextShadowOffset.X,FTextPos.Y+Manager.ToolTextShadowOffset.Y) );
-  end;
-  if Manager.ToolTextOutline then
-    TextFX.DrawOutline(toolDest,FTextPos.X,FTextPos.Y,Manager.ToolBackColor);
-
-  shader.LightPosition := Manager.ToolLightPosition;
-  shader.LightPositionZ := Manager.ToolLightAltitude;
-
-  if Manager.ToolTextPhong then
-  begin
-    h := round(Manager.ToolShapeAltitude/100 * TextFX.Height*0.10);
-    if Manager.ToolTexture = nil then
-      currentRect := RectUnion(currentRect, TextFX.DrawShaded(toolDest,FTextPos.X,FTextPos.Y,shader,h,Manager.ToolForeColor) )
-    else
-      currentRect := RectUnion(currentRect, TextFX.DrawShaded(toolDest,FTextPos.X,FTextPos.Y,shader,h,Manager.ToolTexture));
+    hPhong := round(Manager.ToolShapeAltitude/100 * TextFX.TextSize.cy*0.10);
+    currentRect := EmptyRect;
+    if Manager.ToolTextShadow then
+      currentRect := RectUnion(currentRect, TextFX.DrawShadow(toolDest,FTextPos.X+Manager.ToolTextShadowOffset.X,FTextPos.Y+Manager.ToolTextShadowOffset.Y,Manager.ToolTextBlur,BGRABlack,Manager.ToolTextAlign) );
+    if Manager.ToolTextOutline then
+      currentRect := RectUnion(currentRect, TextFX.DrawOutline(toolDest,FTextPos.X,FTextPos.Y,Manager.ToolBackColor,Manager.ToolTextAlign));
+    if Manager.ToolTextPhong then
+    begin
+      if Manager.GetToolTextureAfterAlpha = nil then
+        currentRect := RectUnion(currentRect, TextFX.DrawShaded(toolDest,FTextPos.X,FTextPos.Y,shader,hPhong,Manager.ToolForeColor,Manager.ToolTextAlign) )
+      else
+        currentRect := RectUnion(currentRect, TextFX.DrawShaded(toolDest,FTextPos.X,FTextPos.Y,shader,hPhong,Manager.GetToolTextureAfterAlpha,Manager.ToolTextAlign));
+    end else
+    begin
+      if Manager.GetToolTextureAfterAlpha = nil then
+        currentRect := RectUnion(currentRect, TextFX.Draw(toolDest,FTextPos.X,FTextPos.Y,Manager.ToolForeColor,Manager.ToolTextAlign) )
+      else
+        currentRect := RectUnion(currentRect, TextFX.Draw(toolDest,FTextPos.X,FTextPos.Y,Manager.GetToolTextureAfterAlpha,Manager.ToolTextAlign) );
+    end;
   end else
+  if TextRendererFX <> nil then
   begin
-    if Manager.ToolTexture = nil then
-      TextFX.Draw(toolDest,FTextPos.X,FTextPos.Y,Manager.ToolForeColor)
+    if Manager.GetToolTexture = nil then
+      TextRendererFX.TextOut(toolDest,FTextPos.X,FTextPos.Y,FText,Manager.ToolForeColor,Manager.ToolTextAlign)
     else
-      TextFX.Draw(toolDest,FTextPos.X,FTextPos.Y,Manager.ToolTexture);
-  end;
-
+      TextRendererFX.TextOut(toolDest,FTextPos.X,FTextPos.Y,FText,Manager.GetToolTextureAfterAlpha,Manager.ToolTextAlign);
+    currentRect := rect(0,0,toolDest.Width,toolDest.Height);
+  end else
+    currentRect := EmptyRect;
   result := RectUnion(currentRect,previousRect);
   previousRect := currentRect;
   if IsRectEmpty(result) then result := ToolRepaintOnly; //no text but update carret
 end;
 
-procedure TToolText.UpdateTextFX;
+function TToolText.TextSize: TSize;
 begin
-  if (TextFX = nil) or (FText <> TextFX_Text) or (TextFX_Font = nil) or not TextFX_Font.IsEqual(Manager.ToolTextFont)
-   or (TextFX_Antialias <> FAntialias) then
+  if TextFX <> nil then
+    result := TextFX.TextSize
+  else
+  if TextRendererFX <> nil then
+  begin
+    result := TextRendererFX.TextSize(FText);
+    if result.cy = 0 then result.cy := TextRendererFX.TextSize('Hg').cy;
+  end
+  else
+    result := Size(0,0);
+end;
+
+procedure TToolText.UpdateTextFX;
+var isVectorOutline: boolean;
+begin
+  isVectorOutline:= (Manager.ToolTextOutlineWidth <> TBGRATextEffect.OutlineWidth) and Manager.ToolTextOutline;
+  if not isVectorOutline or Manager.ToolTextPhong then
+  begin
+    if (TextFX = nil) or (FText <> TextFX_Text) or (TextFX_Font = nil) or not TextFX_Font.IsEqual(Manager.ToolTextFont)
+     or (TextFX_Antialias <> FAntialias) then
+    begin
+      FreeAndNil(TextFX);
+      TextFX_Text := FText;
+      TextFX_Antialias:= FAntialias;
+      TextFX_Font.Assign(Manager.ToolTextFont);
+      TextFX := TBGRATextEffect.Create(TextFX_Text,TextFX_Font,TextFX_Antialias);
+    end;
+  end else
   begin
     FreeAndNil(TextFX);
-    TextFX_Text := FText;
-    TextFX_Antialias:= FAntialias;
-    TextFX_Font.Assign(Manager.ToolTextFont);
-    TextFX := TBGRATextEffect.Create(TextFX_Text,TextFX_Font,TextFX_Antialias);
+    if TextRendererFX = nil then TextRendererFX := TBGRATextEffectFontRenderer.Create(shader,false);
+    TextRendererFX.FontQuality := fqFineAntialiasing;
+    TextRendererFX.FontEmHeight := Manager.ToolTextFont.Height * FontEmHeightSign;
+    TextRendererFX.FontName := manager.ToolTextFont.Name;
+    TextRendererFX.FontOrientation := 0;
+    TextRendererFX.FontStyle := manager.ToolTextFont.Style;
+    TextRendererFX.OutlineWidth := Manager.ToolTextOutlineWidth;
+    TextRendererFX.OuterOutlineOnly := True;
+    TextRendererFX.OutlineVisible := manager.ToolTextOutline;
+    TextRendererFX.OutlineColor := Manager.ToolBackColor;
+    TextRendererFX.ShaderActive := Manager.ToolTextPhong;
+    TextRendererFX.ShadowVisible := Manager.ToolTextShadow;
+    TextRendererFX.ShadowOffset := Manager.ToolTextShadowOffset;
+    TextRendererFX.ShadowRadius := Manager.ToolTextBlur;
   end;
+  shader.LightPosition := Manager.ToolLightPosition;
+  shader.LightPositionZ := Manager.ToolLightAltitude;
 end;
 
 function TToolText.EndEdit: TRect;
@@ -179,8 +221,10 @@ begin
       result := ToolUpdate
     else
       result := ToolRepaintOnly; //hide carret
-    FreeAndNil(FBackup);
-    Manager.Image.SaveLayerOrSelectionUndo;
+    if FText <> '' then
+      ValidateAction
+    else
+      CancelAction;
   end;
 end;
 
@@ -191,19 +235,16 @@ begin
   begin
     if FEditing then
     begin
-      if FBackup <> nil then
-      begin
-        GetToolDrawingLayer.PutImage(0,0,FBackup,dmSet);
-        FreeAndNil(FBackup);
-      end;
+      CancelAction;
       FEditing := false;
       result := PreviousRect;
+      if IsRectEmpty(result) then result := ToolRepaintOnly;
       PreviousRect := EmptyRect;
     end;
   end else
-  if key = VK_RETURN then
+  if Key = VK_SPACE then
   begin
-    result := EndEdit;
+    result := ToolKeyPress(' ');
   end else
   if Key = VK_BACK then
   begin
@@ -222,7 +263,22 @@ begin
 end;
 
 function TToolText.ToolKeyPress(key: TUTF8Char): TRect;
+var ty,maxy: integer;
 begin
+  if (key = #13) and FEditing then
+  begin
+    ty := TextSize.cy;
+    maxy := GetToolDrawingLayer.Height;
+    result := EndEdit;
+    FTextPos.Y := FTextPos.Y+ty;
+    if FTextPos.Y < maxy then
+    begin
+      FEditing := true;
+      FMovingText := false;
+      FText := '';
+      UpdateTextFX;
+    end;
+  end else
   if FEditing then
   begin
     FText += key;
@@ -245,17 +301,31 @@ var
   origin: TPointF;
   caretTop,caretBottom: TPointF;
   lightPosition: TPointF;
+  textWidth: integer;
 begin
   if FEditing then
   begin
     origin := BitmapToVirtualScreen(PointF(FTextPos.X,FTextPos.Y));
-    if TextFX <> nil then
+    NicePoint(VirtualScreen,origin);
+    with TextSize do
     begin
-      caretTop := BitmapToVirtualScreen(PointF(FTextPos.X+TextFX.Width,FTextPos.Y));
-      caretBottom := BitmapToVirtualScreen(PointF(FTextPos.X+TextFX.Width,FTextPos.Y+TextFX.Height));
-      NicePoint(VirtualScreen,origin);
-      NiceLine(VirtualScreen,caretTop.X,caretTop.Y,caretBottom.x,caretBottom.y);
+      textWidth := cx;
+      caretTop := PointF(FTextPos.X,FTextPos.Y);
+      caretBottom := PointF(caretTop.X,caretTop.Y+cy);
     end;
+    case Manager.ToolTextAlign of
+    taLeftJustify: begin
+                     caretTop.X += textWidth;
+                     caretBottom.X += textWidth;
+                   end;
+    taCenter: begin
+                caretTop.X += textWidth div 2;
+                caretBottom.X += textWidth div 2;
+              end;
+    end;
+    caretTop := BitmapToVirtualScreen(caretTop);
+    caretBottom := BitmapToVirtualScreen(caretBottom);
+    NiceLine(VirtualScreen,caretTop.X,caretTop.Y,caretBottom.x,caretBottom.y);
   end;
   if Manager.ToolTextPhong then
   begin
@@ -272,7 +342,6 @@ end;
 constructor TToolText.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
-  FBackup := nil;
   FAntialias := true;
   TextFX_Font := TFont.Create;
 
@@ -285,9 +354,9 @@ end;
 destructor TToolText.Destroy;
 begin
   EndEdit;
-  FBackup.Free;
   TextFX.Free;
   TextFX_Font.Free;
+  TextRendererFX.Free;
   shader.Free;
   inherited Destroy;
 end;

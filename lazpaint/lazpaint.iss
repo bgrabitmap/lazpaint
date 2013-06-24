@@ -1,8 +1,8 @@
 #define MyAppName "LazPaint"
 #define MyAppOutputName "lazpaint"
-#define MyInstallerSuffix "_setup_win32"
-#define MyAppVersion "4.8"
-#define MyAppPublisher "Circular & Fabien Wang"
+#define MyInstallerSuffix "_setup_win32_win64"
+#define MyAppVersion "5.6"
+#define MyAppPublisher "Circular, Fabien Wang, Lainz"
 #define MyAppURL "http://sourceforge.net/projects/lazpaint/"
 #define MyAppExeName "lazpaint.exe"
 #define ReleaseDir "release\"
@@ -25,6 +25,7 @@ Compression=lzma2/ultra64
 InternalCompressLevel=ultra
 SolidCompression=yes
 CompressionThreads=2
+ArchitecturesInstallIn64BitMode=x64
 WizardImageFile=lazpaint_setup.bmp
 WizardSmallImageFile=lazpaint_setup_icon.bmp
 WizardImageBackColor=clWhite
@@ -75,20 +76,21 @@ Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"
+Name: "assoc_lzp"; Description: "{cm:AssocFileExtension,{#MyAppName},.lzp}"
+Name: "assoc_ora"; Description: "{cm:AssocFileExtension,{#MyAppName},.ora}"
+Name: "assoc_pdn"; Description: "{cm:AssocFileExtension,{#MyAppName},.pdn}"
 Name: "assoc_bmp"; Description: "{cm:AssocFileExtension,{#MyAppName},.bmp}"
+Name: "assoc_pcx"; Description: "{cm:AssocFileExtension,{#MyAppName},.pcx}"
 Name: "assoc_png"; Description: "{cm:AssocFileExtension,{#MyAppName},.png}"
 Name: "assoc_jpg"; Description: "{cm:AssocFileExtension,{#MyAppName},.jpg}"
-Name: "assoc_pdn"; Description: "{cm:AssocFileExtension,{#MyAppName},.pdn}"
 Name: "assoc_gif"; Description: "{cm:AssocFileExtension,{#MyAppName},.gif}"
-Name: "assoc_ico"; Description: "{cm:AssocFileExtension,{#MyAppName},.ico}"
-Name: "assoc_pcx"; Description: "{cm:AssocFileExtension,{#MyAppName},.pcx}"
+Name: "assoc_ico"; Description: "{cm:AssocFileExtension,{#MyAppName},.ico}"; Flags: unchecked
 
 [Files]
-Source: "{#ReleaseDir}lazpaint.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#ReleaseDir}i18n\*.po"; DestDir: "{app}\i18n"; Flags: ignoreversion
-Source: "update_checker\{#ReleaseDir}update_checker.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "update_checker\{#ReleaseDir}i18n\*.po"; DestDir: "{app}\i18n"; Flags: ignoreversion
-Source: "readme.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#ReleaseDir}lazpaint32.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Flags: ignoreversion; Check: not Is64BitInstallMode
+Source: "{#ReleaseDir}lazpaint_x64.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Flags: ignoreversion; Check: Is64BitInstallMode
+Source: "{#ReleaseDir}i18n\*.po"; DestDir: "{app}\i18n"; Excludes: "i18n\lazpaint_x64.po"; Flags: ignoreversion
+Source: "{#ReleaseDir}readme.txt"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Comment: "A paint program made with Lazarus"
@@ -100,6 +102,16 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Comment
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, "&", "&&")}}"; Flags: nowait postinstall skipifsilent
 
 [Registry]
+Root: HKLM; Subkey: "Software\Classes\LazPaint.AssocFile.lzp"; ValueType: String; ValueData: "LazPaint image"; Flags: uninsdeletekey
+Root: HKLM; Subkey: "Software\Classes\LazPaint.AssocFile.lzp\DefaultIcon"; ValueType: String; ValueData: "{app}\{#MyAppExeName},0"; Flags: uninsdeletekey
+Root: HKLM; Subkey: "Software\Classes\LazPaint.AssocFile.lzp\Shell\Open"; ValueName: Icon; ValueType: String; ValueData: "{app}\{#MyAppExeName}"; Flags: uninsdeletekey
+Root: HKLM; Subkey: "Software\Classes\LazPaint.AssocFile.lzp\Shell\Open\Command"; ValueType: String; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Flags: uninsdeletekey
+
+Root: HKLM; Subkey: "Software\Classes\LazPaint.AssocFile.ora"; ValueType: String; ValueData: "OpenRaster format"; Flags: uninsdeletekey
+Root: HKLM; Subkey: "Software\Classes\LazPaint.AssocFile.ora\DefaultIcon"; ValueType: String; ValueData: "{app}\{#MyAppExeName},0"; Flags: uninsdeletekey
+Root: HKLM; Subkey: "Software\Classes\LazPaint.AssocFile.ora\Shell\Open"; ValueName: Icon; ValueType: String; ValueData: "{app}\{#MyAppExeName}"; Flags: uninsdeletekey
+Root: HKLM; Subkey: "Software\Classes\LazPaint.AssocFile.ora\Shell\Open\Command"; ValueType: String; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Flags: uninsdeletekey
+
 Root: HKLM; Subkey: "Software\Classes\LazPaint.AssocFile.bmp"; ValueType: String; ValueData: "Bitmap"; Flags: uninsdeletekey
 Root: HKLM; Subkey: "Software\Classes\LazPaint.AssocFile.bmp\DefaultIcon"; ValueType: String; ValueData: "{app}\{#MyAppExeName},0"; Flags: uninsdeletekey
 Root: HKLM; Subkey: "Software\Classes\LazPaint.AssocFile.bmp\Shell\Open"; ValueName: Icon; ValueType: String; ValueData: "{app}\{#MyAppExeName}"; Flags: uninsdeletekey
@@ -136,6 +148,8 @@ Root: HKLM; Subkey: "Software\Classes\LazPaint.AssocFile.pcx\Shell\Open"; ValueN
 Root: HKLM; Subkey: "Software\Classes\LazPaint.AssocFile.pcx\Shell\Open\Command"; ValueType: String; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Flags: uninsdeletekey
 
 Root: HKLM; Subkey: "Software\Classes\.bmp"; ValueType: String; ValueData: "LazPaint.AssocFile.bmp"; Flags: uninsdeletevalue uninsdeletekeyifempty; Tasks: assoc_bmp
+Root: HKLM; Subkey: "Software\Classes\.lzp"; ValueType: String; ValueData: "LazPaint.AssocFile.lzp"; Flags: uninsdeletevalue uninsdeletekeyifempty; Tasks: assoc_lzp
+Root: HKLM; Subkey: "Software\Classes\.ora"; ValueType: String; ValueData: "LazPaint.AssocFile.ora"; Flags: uninsdeletevalue uninsdeletekeyifempty; Tasks: assoc_ora
 Root: HKLM; Subkey: "Software\Classes\.png"; ValueType: String; ValueData: "LazPaint.AssocFile.png"; Flags: uninsdeletevalue uninsdeletekeyifempty; Tasks: assoc_png
 Root: HKLM; Subkey: "Software\Classes\.jpg"; ValueType: String; ValueData: "LazPaint.AssocFile.jpg"; Flags: uninsdeletevalue uninsdeletekeyifempty; Tasks: assoc_jpg
 Root: HKLM; Subkey: "Software\Classes\.pdn"; ValueType: String; ValueData: "LazPaint.AssocFile.pdn"; Flags: uninsdeletevalue uninsdeletekeyifempty; Tasks: assoc_pdn
@@ -146,6 +160,8 @@ Root: HKLM; Subkey: "Software\Classes\.pcx"; ValueType: String; ValueData: "LazP
 Root: HKLM; Subkey: "Software\LazPaint"; Flags: uninsdeletekey
 Root: HKLM; Subkey: "Software\LazPaint\Capabilities"; ValueType: String; ValueName: "ApplicationName"; ValueData: "LazPaint"; Flags: uninsdeletekey
 Root: HKLM; Subkey: "Software\LazPaint\Capabilities"; ValueType: String; ValueName: "ApplicationDescription"; ValueData: "This program is designed to draw like with Paint.Net and to experiment this kind of programming with Lazarus."; Flags: uninsdeletekey
+Root: HKLM; Subkey: "Software\LazPaint\Capabilities\FileAssociations"; ValueName: ".lzp"; ValueType: String; ValueData: "LazPaint.AssocFile.lzp"; Flags: uninsdeletekey
+Root: HKLM; Subkey: "Software\LazPaint\Capabilities\FileAssociations"; ValueName: ".ora"; ValueType: String; ValueData: "LazPaint.AssocFile.ora"; Flags: uninsdeletekey
 Root: HKLM; Subkey: "Software\LazPaint\Capabilities\FileAssociations"; ValueName: ".bmp"; ValueType: String; ValueData: "LazPaint.AssocFile.bmp"; Flags: uninsdeletekey
 Root: HKLM; Subkey: "Software\LazPaint\Capabilities\FileAssociations"; ValueName: ".png"; ValueType: String; ValueData: "LazPaint.AssocFile.png"; Flags: uninsdeletekey
 Root: HKLM; Subkey: "Software\LazPaint\Capabilities\FileAssociations"; ValueName: ".jpg"; ValueType: String; ValueData: "LazPaint.AssocFile.jpg"; Flags: uninsdeletekey

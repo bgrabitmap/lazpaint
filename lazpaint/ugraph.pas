@@ -1,4 +1,4 @@
-unit ugraph;
+unit UGraph;
 
 {$mode objfpc}{$H+}
 
@@ -19,16 +19,12 @@ function ComputeAngle(dx,dy: single): single;
 function GetSelectionCenter(bmp: TBGRABitmap): TPointF;
 procedure ComputeSelectionMask(image: TBGRABitmap; destMask: TBGRABitmap);
 procedure SubstractMask(image: TBGRABitmap; mask: TBGRABitmap);
-procedure NicePoint(bmp: TBGRABitmap; x,y: single); overload;
-procedure NicePoint(bmp: TBGRABitmap; ptF: TPointF); overload;
-procedure NiceLine(bmp: TBGRABitmap; x1,y1,x2,y2: single);
+procedure NicePoint(bmp: TBGRABitmap; x,y: single; alpha: byte = 192); overload;
+procedure NicePoint(bmp: TBGRABitmap; ptF: TPointF; alpha: byte = 192); overload;
+procedure NiceLine(bmp: TBGRABitmap; x1,y1,x2,y2: single; alpha: byte = 192);
 procedure NiceText(bmp: TBGRABitmap; x,y: integer; s: string; align: TAlignment = taLeftJustify; valign: TTextLayout = tlTop);
 function ComputeColorCircle(tx,ty: integer; light: word; hueCorrection: boolean = true): TBGRABitmap;
 function ChangeCanvasSize(bmp: TBGRABitmap; newWidth,newHeight: integer; anchor: string; background: TBGRAPixel; repeatImage: boolean; flipMode: boolean = false): TBGRABitmap; overload;
-function ChangeCanvasSize(layeredBmp: TBGRALayeredBitmap; newWidth,newHeight: integer; anchor: string; background: TBGRAPixel; repeatImage: boolean; flipMode: boolean = false): TBGRALayeredBitmap; overload;
-function LoadGif(filename: string): ArrayOfBGRABitmap;
-function LoadIco(filename: string): ArrayOfBGRABitmap;
-procedure FreeMultiImage(var images : ArrayOfBGRABitmap);
 function MakeThumbnail(bmp: TBGRABitmap; width,height: integer): TBGRABitmap;
 
 procedure RenderCloudsOn(bmp: TBGRABitmap; color: TBGRAPixel);
@@ -933,22 +929,22 @@ begin
     end;
 end;
 
-procedure NicePoint(bmp: TBGRABitmap; x, y: single);
+procedure NicePoint(bmp: TBGRABitmap; x, y: single; alpha: byte = 192);
 begin
-    bmp.EllipseAntialias(x,y,4,4,BGRA(0,0,0,192),1);
-    bmp.EllipseAntialias(x,y,3,3,BGRA(255,255,255,192),1);
-    bmp.EllipseAntialias(x,y,2,2,BGRA(0,0,0,192),1);
+    bmp.EllipseAntialias(x,y,4,4,BGRA(0,0,0,alpha),1);
+    bmp.EllipseAntialias(x,y,3,3,BGRA(255,255,255,alpha),1);
+    bmp.EllipseAntialias(x,y,2,2,BGRA(0,0,0,alpha),1);
 end;
 
-procedure NicePoint(bmp: TBGRABitmap; ptF: TPointF);
+procedure NicePoint(bmp: TBGRABitmap; ptF: TPointF; alpha: byte = 192);
 begin
-  NicePoint(bmp,ptF.x,ptF.y);
+  NicePoint(bmp,ptF.x,ptF.y,alpha);
 end;
 
-procedure NiceLine(bmp: TBGRABitmap; x1, y1, x2, y2: single);
+procedure NiceLine(bmp: TBGRABitmap; x1, y1, x2, y2: single; alpha: byte = 192);
 begin
-  bmp.DrawLineAntialias(round(x1), round(y1), round(x2), round(y2),BGRA(0,0,0,192),3,True);
-  bmp.DrawLineAntialias(round(x1), round(y1), round(x2), round(y2),BGRA(255,255,255,192),1,True);
+  bmp.DrawLineAntialias(round(x1), round(y1), round(x2), round(y2),BGRA(0,0,0,alpha),3,True);
+  bmp.DrawLineAntialias(round(x1), round(y1), round(x2), round(y2),BGRA(255,255,255,alpha),1,True);
 end;
 
 procedure NiceText(bmp: TBGRABitmap; x, y: integer; s: string; align: TAlignment; valign: TTextLayout);
@@ -961,13 +957,13 @@ begin
   f.Height := DoScaleY(16,OriginalDPI);
   ofs := DoScaleX(4,OriginalDPI);
   fx := TBGRATextEffect.Create(s,f,true);
-  if valign = tlBottom then y := y-fx.Height else
-  if valign = tlCenter then y := y-fx.Height div 2;
-  if y+fx.Height > bmp.Height then y := bmp.Height-fx.Height;
+  if valign = tlBottom then y := y-fx.TextSize.cy else
+  if valign = tlCenter then y := y-fx.TextSize.cy div 2;
+  if y+fx.TextSize.cy > bmp.Height then y := bmp.Height-fx.TextSize.cy;
   if y < 0 then y := 0;
-  if align = taRightJustify then x := x-fx.Width else
-  if align = taCenter then x := x-fx.Width div 2;
-  if x+fx.Width > bmp.Width then x := bmp.Width-fx.Width;
+  if align = taRightJustify then x := x-fx.TextSize.cx else
+  if align = taCenter then x := x-fx.TextSize.cx div 2;
+  if x+fx.TextSize.cx > bmp.Width then x := bmp.Width-fx.TextSize.cx;
   if x < 0 then x := 0;
   fx.DrawShadow(bmp,x+ofs,y+ofs,ofs,BGRABlack);
   fx.DrawOutline(bmp,x,y,BGRABlack);
@@ -1115,88 +1111,6 @@ begin
        for yb := miny to maxy do
         result.PutImage(origin.x+xb*dx,origin.Y+yb*dy,bmp,dmSet);
    end;
-end;
-
-function ChangeCanvasSize(layeredBmp: TBGRALayeredBitmap; newWidth,
-  newHeight: integer; anchor: string; background: TBGRAPixel;
-  repeatImage: boolean; flipMode: boolean): TBGRALayeredBitmap;
-var i,idx: integer;
-begin
-  result := TBGRALayeredBitmap.Create;
-  for i := 0 to layeredbmp.NbLayers-1 do
-  begin
-    idx := result.AddOwnedLayer(ChangeCanvasSize(layeredbmp.LayerBitmap[i],newwidth,newHeight,anchor,background,repeatImage,flipMode),
-      layeredBmp.LayerOffset[i], layeredBmp.BlendOperation[i],layeredbmp.LayerOpacity[i]);
-    result.LayerName[idx] := layeredbmp.LayerName[i];
-    result.LayerVisible[idx] := layeredbmp.LayerVisible[i];
-  end;
-end;
-
-function LoadGif(filename: string): ArrayOfBGRABitmap;
-var gif: TBGRAAnimatedGif; i: integer;
-begin
-   gif := TBGRAAnimatedGif.Create(UTF8ToSys( filename ));
-   setlength(result,gif.Count);
-   for i := 0 to gif.Count-1 do
-   begin
-     gif.CurrentImage:= i;
-     result[i] := gif.MemBitmap.Duplicate as TBGRABitmap;
-     result[i].Caption:= 'Frame'+IntToStr(i);
-   end;
-   gif.Free;
-end;
-
-function LoadIco(filename: string): ArrayOfBGRABitmap;
-var ico: TIcon; i,resIdx,maxIdx: integer;
-    height,width: word; format:TPixelFormat;
-    maxHeight,maxWidth: word; maxFormat: TPixelFormat;
-begin
-  ico := TIcon.Create;
-  ico.LoadFromFile(UTF8ToSys( filename ));
-  maxIdx := 0;
-  maxHeight := 0;
-  maxWidth := 0;
-  maxFormat := pfDevice;
-  for i := 0 to ico.Count-1 do
-  begin
-    ico.GetDescription(i,format,height,width);
-    if (height > maxHeight) or (width > maxWidth) or
-    ((height = maxHeight) or (width = maxWidth) and (format > maxFormat)) then
-    begin
-      maxIdx := i;
-      maxHeight := height;
-      maxWidth := width;
-      maxFormat := format;
-    end;
-  end;
-  if (maxWidth = 0) or (maxHeight = 0) then result := nil else
-  begin
-    setlength(result,ico.Count);
-    ico.Current := maxIdx;
-    result[0] := TBGRABitmap.Create(maxWidth,maxHeight);
-    result[0].GetImageFromCanvas(ico.Canvas,0,0);
-    result[0].Caption := IntTostr(maxWidth)+'x'+IntToStr(maxHeight)+'x'+IntToStr(PIXELFORMAT_BPP[maxFormat]);
-    resIdx := 1;
-    for i := 0 to ico.Count-1 do
-    if i <> maxIdx then
-    begin
-      ico.Current := i;
-      ico.GetDescription(i,format,height,width);
-      result[resIdx] := TBGRABitmap.Create(width,height);
-      result[resIdx].GetImageFromCanvas(ico.Canvas,0,0);
-      result[resIdx].Caption := IntTostr(width)+'x'+IntToStr(height)+'x'+IntToStr(PIXELFORMAT_BPP[format]);
-      inc(resIdx);
-    end;
-  end;
-  ico.Free;
-end;
-
-procedure FreeMultiImage(var images: ArrayOfBGRABitmap);
-var i: integer;
-begin
-  for i := 0 to high(images) do
-    images[i].Free;
-  images := nil;
 end;
 
 function MakeThumbnail(bmp: TBGRABitmap; width, height: integer): TBGRABitmap;

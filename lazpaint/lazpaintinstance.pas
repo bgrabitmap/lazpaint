@@ -13,7 +13,10 @@ uses
   ucolorintensity, ushiftcolors, ucolorize,
   ucustomblur, umultiimage,
 
-  uimage, utool, uconfig, IniFiles, uresourcestrings;
+  ULoading, uimage, utool, uconfig, IniFiles, uresourcestrings;
+
+const
+  MaxToolPopupShowCount = 2;
 
 type
 
@@ -22,6 +25,11 @@ type
   TLazPaintInstance = class(TLazPaintCustomInstance)
   private
     function GetMainFormVisible: boolean;
+    procedure OnLayeredBitmapLoadStartHandler(AFilename: string);
+    procedure OnLayeredBitmapLoadProgressHandler(APercentage: integer);
+    procedure OnLayeredBitmapLoadedHandler;
+    procedure SelectionInstanceOnRun(AInstance: TLazPaintCustomInstance);
+
   protected
     InColorFromFChooseColor: boolean;
     FMain: TFMain;
@@ -33,7 +41,7 @@ type
     FShiftColors: TFShiftColors;
     FColorize: TFColorize;
     FCustomBlur: TFCustomBlur;
-    FMultiImage: TFMultiImage;
+    FLoading: TFLoading;
     toolboxHidden, choosecolorHidden, layerstackHidden: boolean;
     FGridVisible: boolean;
     FConfig: TLazPaintConfig;
@@ -41,7 +49,11 @@ type
     FToolManager : TToolManager;
     FEmbedded: boolean;
     FDestroying: boolean;
+    FSelectionEditConfig: TStream;
+    FTextureEditConfig: TStream;
 
+    function GetShowSelectionNormal: boolean; override;
+    procedure SetShowSelectionNormal(AValue: boolean); override;
     function GetEmbedded: boolean; override;
     function GetGridVisible: boolean; override;
     procedure SetGridVisible(const AValue: boolean); override;
@@ -54,6 +66,7 @@ type
     function GetToolboxHeight: integer; override;
     function GetToolboxWidth: integer; override;
     function GetTopMostHasFocus: boolean; override;
+    function GetTopMostVisible: boolean; override;
     function GetChooseColorTarget: TColorTarget; override;
     procedure SetChooseColorTarget(const AValue: TColorTarget); override;
     function GetConfig: TLazPaintConfig; override;
@@ -63,6 +76,7 @@ type
     procedure Init(AEmbedded: boolean);
     procedure SetBlackAndWhite(AValue: boolean); override;
     procedure OnStackChanged({%H-}sender: TLazPaintImage; AScrollIntoView: boolean);
+    procedure OnToolPopup({%H-}sender: TToolManager; AMessage: TToolPopupMessage);
 
     function GetLayerWindowHeight: integer; override;
     function GetLayerWindowWidth: integer; override;
@@ -75,6 +89,8 @@ type
     procedure UseConfig(ini: TInifile); override;
     procedure AssignBitmap(bmp: TBGRABitmap); override;
     procedure EditBitmap(var bmp: TBGRABitmap; ConfigStream: TStream = nil; ATitle: String = ''; AOnRun: TLazPaintInstanceEvent = nil; AOnExit: TLazPaintInstanceEvent = nil; ABlackAndWhite: boolean = false); override;
+    procedure EditSelection; override;
+    procedure EditTexture; override;
     function ProcessCommandLine: boolean; override;
     function ProcessCommands(commands: TStringList): boolean; override;
     procedure Show; override;
@@ -86,16 +102,19 @@ type
     function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): boolean; override;
     procedure ColorFromFChooseColor; override;
     procedure ColorToFChooseColor; override;
-    procedure ShowColorIntensityDlg(activeLayer: TBGRABitmap); override;
-    procedure ShowColorLightnessDlg(activeLayer: TBGRABitmap); override;
-    procedure ShowShiftColorsDlg(activeLayer: TBGRABitmap); override;
-    procedure ShowColorizeDlg(activeLayer: TBGRABitmap); override;
-    function ShowRadialBlurDlg(layer:TBGRABitmap; out filteredLayer: TBGRABitmap;blurType:TRadialBlurType):boolean; override;
-    function ShowMotionBlurDlg(layer:TBGRABitmap; out filteredLayer: TBGRABitmap):boolean; override;
-    function ShowCustomBlurDlg(layer:TBGRABitmap; out filteredLayer: TBGRABitmap): boolean; override;
-    function ShowEmbossDlg(layer:TBGRABitmap; out filteredLayer: TBGRABitmap):boolean; override;
-    function ShowPixelateDlg(layer:TBGRABitmap; out filteredLayer: TBGRABitmap):boolean; override;
-    function ShowTwirlDlg(layer:TBGRABitmap; out filteredLayer: TBGRABitmap):boolean; override;
+    procedure ShowColorIntensityDlg; override;
+    procedure ShowColorLightnessDlg; override;
+    procedure ShowShiftColorsDlg; override;
+    procedure ShowColorizeDlg; override;
+    function ShowRadialBlurDlg(AFilterConnector: TObject;blurType:TRadialBlurType):boolean; override;
+    function ShowMotionBlurDlg(AFilterConnector: TObject):boolean; override;
+    function ShowCustomBlurDlg(AFilterConnector: TObject):boolean; override;
+    function ShowEmbossDlg(AFilterConnector: TObject):boolean; override;
+    function ShowPixelateDlg(AFilterConnector: TObject):boolean; override;
+    function ShowTwirlDlg(AFilterConnector: TObject):boolean; override;
+    function ShowPhongFilterDlg(AFilterConnector: TObject): boolean; override;
+    function ShowFunctionFilterDlg(AFilterConnector: TObject): boolean; override;
+    function ShowSharpenDlg(AFilterConnector: TObject):boolean; override;
     procedure HideTopmost; override;
     procedure ShowTopmost; override;
     procedure ShowCanvasSizeDlg; override;
@@ -103,21 +122,19 @@ type
     procedure MoveToolboxTo(X,Y: integer); override;
     procedure MoveChooseColorTo(X,Y: integer); override;
     procedure MoveLayerWindowTo(X,Y: integer); override;
-    function ChooseImage(images: ArrayOfBGRABitmap): TBGRABitmap; override;
     procedure ShowAboutDlg; override;
     function ShowNewImageDlg(out bitmap: TBGRABitmap):boolean; override;
     function ShowResampleDialog:boolean; override;
     property MainFormVisible: boolean read GetMainFormVisible;
     procedure NotifyStackChange; override;
 
-    procedure DoHorizontalFlip(AOption: TFlipOption); override;
-    procedure DoVerticalFlip(AOption: TFlipOption); override;
-    procedure DoRotateCW; override;
-    procedure DoRotateCCW; override;
-    procedure DoSmartZoom3; override;
+    procedure NewLayer; override;
+    procedure NewLayer(ALayer: TBGRABitmap; AName: string); override;
+    procedure DuplicateLayer; override;
+    procedure RemoveLayer; override;
+    procedure MergeLayerOver; override;
     function MakeNewBitmapReplacement(AWidth, AHeight: integer): TBGRABitmap; override;
     procedure ChooseTool(Tool : TPaintToolType); override;
-    procedure PictureSelectionChanged; override;
 
   end;
 
@@ -126,11 +143,135 @@ implementation
 uses Forms, Dialogs, Controls, FileUtil,
 
      uradialblur, umotionblur, uemboss, utwirl,
-     unewimage, uresample, upixelate,
+     unewimage, uresample, upixelate, ufilters,
+     UImageAction, USharpen, UPhongFilter, UFilterFunction,
 
      ugraph, ucommandline, uabout;
 
 { TLazPaintInstance }
+
+constructor TLazPaintInstance.Create;
+begin
+  Init(False);
+end;
+
+constructor TLazPaintInstance.Create(AEmbedded: boolean);
+begin
+  Init(AEmbedded);
+end;
+
+procedure TLazPaintInstance.Init(AEmbedded: boolean);
+begin
+  Title := 'LazPaint ' + LazPaintCurrentVersion;
+  toolboxHidden := false;
+  choosecolorHidden := false;
+  layerstackHidden := false;
+  FEmbedded:= AEmbedded;
+
+  InColorFromFChooseColor := false;
+  FImage := TLazPaintImage.Create;
+  FImage.OnStackChanged:= @OnStackChanged;
+  FToolManager := TToolManager.Create(FImage, nil, BlackAndWhite);
+  FToolManager.OnPopup := @OnToolPopup;
+  UseConfig(TIniFile.Create(''));
+  FSelectionEditConfig := nil;
+  FTextureEditConfig := nil;
+
+  if not AEmbedded then
+    BGRALayers.RegisterLoadingHandler(@OnLayeredBitmapLoadStartHandler,@OnLayeredBitmapLoadProgressHandler,@OnLayeredBitmapLoadedHandler)
+  else
+    FLoading := nil;
+end;
+
+procedure TLazPaintInstance.FormsNeeded;
+begin
+  if FMain <> nil then exit;
+
+  Application.CreateForm(TFMain, FMain);
+  FMain.LazPaintInstance := self;
+  ToolManager.BitmapToVirtualScreen := @FMain.BitmapToVirtualScreen;
+
+  Application.CreateForm(TFToolbox, FToolbox);
+  FToolbox.LazPaintInstance := self;
+
+  //needed to attach to the right instance of FMain
+  FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolHand);
+  FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolPen);
+  FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolColorPicker);
+  FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolEraser);
+  FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolFloodfill);
+  FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolGradient);
+
+  FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolRect);
+  FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolEllipse);
+  FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolPolygon);
+  FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolSpline);
+  FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolText);
+  FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolPhong);
+
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolSelectRect);
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolSelectEllipse);
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolSelectPoly);
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolSelectSpline);
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolDeformation);
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolTextureMapping);
+
+  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolSelectPen);
+  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolMoveSelection);
+  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolRotateSelection);
+  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolMagicWand);
+  FToolbox.AddButton(FToolbox.Toolbar4, FMain.EditDeselect);
+
+  Application.CreateForm(TFLayerStack,FLayerStack);
+  FLayerStack.LazPaintInstance := self;
+
+  FLayerStack.AddButton(FMain.LayerAddNew);
+  FLayerStack.AddButton(FMain.LayerMove);
+  FLayerStack.AddButton(FMain.LayerRotate);
+  FLayerStack.AddButton(FMain.ToolLayerMapping);
+  FLayerStack.AddButton(FMain.LayerHorizontalFlip);
+  FLayerStack.AddButton(FMain.LayerVerticalFlip);
+  FLayerStack.AddButton(FMain.LayerDuplicate);
+  FLayerStack.AddButton(FMain.LayerFromFile);
+  FLayerStack.AddButton(FMain.LayerMergeOver);
+  FLayerStack.AddButton(FMain.LayerRemoveCurrent);
+
+  Application.CreateForm(TFChooseColor, FChooseColor);
+  FChooseColor.LazPaintInstance := self;
+  Application.CreateForm(TFCanvasSize, FCanvasSize);
+  FCanvasSize.LazPaintInstance := self;
+  Application.CreateForm(TFColorIntensity, FColorIntensity);
+  Application.CreateForm(TFShiftColors, FShiftColors);
+  Application.CreateForm(TFColorize, FColorize);
+  Application.CreateForm(TFCustomBlur, FCustomBlur);
+  FCustomBlur.LazPaintInstance := self;
+end;
+
+procedure TLazPaintInstance.UseConfig(ini: TInifile);
+begin
+  FreeAndNil(FConfig);
+  FConfig := TLazPaintConfig.Create(ini);
+
+  ToolManager.ToolForeColor := Config.DefaultToolForeColor;
+  ToolManager.ToolBackColor := Config.DefaultToolBackColor;
+  ToolManager.ToolPenWidth := Config.DefaultToolPenWidth;
+  ToolManager.ToolOptionDrawShape := Config.DefaultToolOptionDrawShape;
+  ToolManager.ToolOptionFillShape := Config.DefaultToolOptionFillShape;
+  ToolManager.ToolOptionCloseShape := Config.DefaultToolOptionCloseShape;
+  ToolManager.ToolTolerance := Config.DefaultToolTolerance;
+  ToolManager.ToolTextShadow := Config.DefaultToolTextShadow;
+  ToolManager.ToolTextOutline := Config.DefaultToolTextOutline;
+  ToolManager.ToolTextPhong := Config.DefaultToolTextPhong;
+  ToolManager.ToolTextFont.Assign(Config.DefaultToolTextFont);
+  ToolManager.ToolTextBlur := Config.DefaultToolTextBlur;
+  ToolManager.ToolTextShadowOffset := Config.DefaultToolTextShadowOffset;
+  ToolManager.ToolLightPosition := Config.DefaultToolLightPosition;
+  ToolManager.ToolLightAltitude := Config.DefaultToolLightAltitude;
+  ToolManager.ToolShapeAltitude := Config.DefaultToolShapeAltitude;
+  ToolManager.ToolShapeBorderSize := Config.DefaultToolShapeBorderSize;
+  ToolManager.ToolShapeType := Config.DefaultToolShapeType;
+  FGridVisible := Config.DefaultGridVisible;
+end;
 
 function TLazPaintInstance.GetConfig: TLazPaintConfig;
 begin
@@ -147,74 +288,6 @@ begin
   Result:= FToolManager;
 end;
 
-procedure TLazPaintInstance.FormsNeeded;
-begin
-  if FMain <> nil then exit;
-
-  Application.CreateForm(TFMain, FMain);
-  FMain.LazPaintInstance := self;
-  ToolManager.BitmapToVirtualScreen := @FMain.BitmapToVirtualScreen;
-  Application.CreateForm(TFToolbox, FToolbox);
-  FToolbox.LazPaintInstance := self;
-  Application.CreateForm(TFLayerStack,FLayerStack);
-  FLayerStack.LazPaintInstance := self;
-
-  //needed to attach to the right instance of FMain
-  FToolbox.ToolButton_ColorPicker.Action := FMain.ToolColorPicker;
-  FToolbox.ToolButton_Deformation.Action := FMain.ToolDeformation;
-  FToolbox.ToolButton_EditDeselect.Action := FMain.EditDeselect;
-  FToolbox.ToolButton_Ellipse.Action := FMain.ToolEllipse;
-  FToolbox.ToolButton_Eraser.Action := FMain.ToolEraser;
-  FToolbox.ToolButton_Floodfill.Action := FMain.ToolFloodfill;
-  FToolbox.ToolButton_Gradient.Action := FMain.ToolGradient;
-  FToolbox.ToolButton_Hand.Action := FMain.ToolHand;
-  FToolbox.ToolButton_MagicWand.Action := FMain.ToolMagicWand;
-  FToolbox.ToolButton_MoveSelection.Action := FMain.ToolMoveSelection;
-  FToolbox.ToolButton_Pen.Action := FMain.ToolPen;
-  FToolbox.ToolButton_Polygon.Action := FMain.ToolPolygon;
-  FToolbox.ToolButton_Rect.Action := FMain.ToolRect;
-  FToolbox.ToolButton_RotateSelection.Action := FMain.ToolRotateSelection;
-  FToolbox.ToolButton_SelectCurve.Action := FMain.ToolSelectCurve;
-  FToolbox.ToolButton_SelectEllipse.Action := FMain.ToolSelectEllipse;
-  FToolbox.ToolButton_SelectionPen.Action := FMain.ToolSelectionPen;
-  FToolbox.ToolButton_SelectPoly.Action := FMain.ToolSelectPoly;
-  FToolbox.ToolButton_SelectRect.Action := FMain.ToolSelectRect;
-  FToolbox.ToolButton_Spline.Action := FMain.ToolSpline;
-  FToolbox.ToolButton_Text.Action := FMain.ToolText;
-  FToolbox.ToolButton_Phong.Action := FMain.ToolPhong;
-  FToolbox.ToolButton_TextureMapping.Action := FMain.ToolTextureMapping;
-
-  Application.CreateForm(TFChooseColor, FChooseColor);
-  FChooseColor.LazPaintInstance := self;
-  Application.CreateForm(TFCanvasSize, FCanvasSize);
-  FCanvasSize.LazPaintInstance := self;
-  Application.CreateForm(TFColorIntensity, FColorIntensity);
-  FColorIntensity.LazPaintInstance := self;
-  Application.CreateForm(TFShiftColors, FShiftColors);
-  FShiftColors.LazPaintInstance := self;
-  Application.CreateForm(TFColorize, FColorize);
-  FColorize.LazPaintInstance := self;
-  Application.CreateForm(TFCustomBlur, FCustomBlur);
-  FCustomBlur.LazPaintInstance := self;
-  Application.CreateForm(TFMultiImage, FMultiImage);
-  FMultiImage.LazPaintInstance := self;
-end;
-
-procedure TLazPaintInstance.Init(AEmbedded: boolean);
-begin
-  Title := 'LazPaint ' + LazPaintCurrentVersion;
-  toolboxHidden := false;
-  choosecolorHidden := false;
-  layerstackHidden := false;
-  FEmbedded:= AEmbedded;
-
-  InColorFromFChooseColor := false;
-  FImage := TLazPaintImage.Create;
-  FImage.OnStackChanged:= @OnStackChanged;
-  FToolManager := TToolManager.Create(FImage, nil, BlackAndWhite);
-  UseConfig(TIniFile.Create(''));
-end;
-
 procedure TLazPaintInstance.SetBlackAndWhite(AValue: boolean);
 begin
   inherited SetBlackAndWhite(AValue);
@@ -226,6 +299,23 @@ procedure TLazPaintInstance.OnStackChanged(sender: TLazPaintImage;
 begin
   if (FLayerStack <> nil) then
     FLayerStack.InvalidateStack(AScrollIntoView);
+end;
+
+procedure TLazPaintInstance.OnToolPopup(sender: TToolManager; AMessage: TToolPopupMessage);
+var messageStr: string;
+    idx: integer;
+begin
+  if Assigned(Config) then
+  begin
+    idx := ord(AMessage);
+    if Config.ToolPopupMessageShownCount(idx) < MaxToolPopupShowCount then
+      Config.SetToolPopupMessageShownCount(idx, Config.ToolPopupMessageShownCount(idx)+1)
+    else
+      exit;
+  end;
+  messageStr := ToolPopupMessageToStr(AMessage);
+  if messageStr <> '' then
+    MessagePopup(messageStr,2000);
 end;
 
 function TLazPaintInstance.GetLayerWindowHeight: integer;
@@ -244,17 +334,47 @@ begin
     result := 0;
 end;
 
-constructor TLazPaintInstance.Create;
-begin
-  Init(False);
-end;
-
 function TLazPaintInstance.GetMainFormVisible: boolean;
 begin
   if FMain <> nil then
     result := FMain.Visible
   else
     result := false;
+end;
+
+procedure TLazPaintInstance.OnLayeredBitmapLoadStartHandler(AFilename: string);
+begin
+  if FLoading = nil then
+  begin
+    FLoading := TFLoading.Create(nil);
+    FLoading.ShowMessage(rsOpening+' ' +AFilename+'...');
+  end;
+end;
+
+procedure TLazPaintInstance.OnLayeredBitmapLoadProgressHandler(
+  APercentage: integer);
+begin
+  if FLoading <> nil then
+    FLoading.ShowMessage(rsLoading+' (' +inttostr(APercentage)+'%)');
+end;
+
+procedure TLazPaintInstance.OnLayeredBitmapLoadedHandler;
+begin
+  if FLoading <> nil then
+  begin
+    FreeAndNil(FLoading);
+  end;
+end;
+
+function TLazPaintInstance.GetShowSelectionNormal: boolean;
+begin
+  if FMain <> nil then result := fmain.ShowSelectionNormal
+    else result := true;
+end;
+
+procedure TLazPaintInstance.SetShowSelectionNormal(AValue: boolean);
+begin
+  if FMain <> nil then fmain.ShowSelectionNormal:= AValue;
 end;
 
 function TLazPaintInstance.GetEmbedded: boolean;
@@ -322,41 +442,12 @@ begin
   Result:= FChooseColor.Width;
 end;
 
-constructor TLazPaintInstance.Create(AEmbedded: boolean);
-begin
-  Init(AEmbedded);
-end;
-
-procedure TLazPaintInstance.UseConfig(ini: TInifile);
-begin
-  FreeAndNil(FConfig);
-  FConfig := TLazPaintConfig.Create(ini);
-
-  ToolManager.ToolForeColor := Config.DefaultToolForeColor;
-  ToolManager.ToolBackColor := Config.DefaultToolBackColor;
-  ToolManager.ToolPenWidth := Config.DefaultToolPenWidth;
-  ToolManager.ToolOptionDrawShape := Config.DefaultToolOptionDrawShape;
-  ToolManager.ToolOptionFillShape := Config.DefaultToolOptionFillShape;
-  ToolManager.ToolOptionCloseShape := Config.DefaultToolOptionCloseShape;
-  ToolManager.ToolTolerance := Config.DefaultToolTolerance;
-  ToolManager.ToolTextShadow := Config.DefaultToolTextShadow;
-  ToolManager.ToolTextOutline := Config.DefaultToolTextOutline;
-  ToolManager.ToolTextPhong := Config.DefaultToolTextPhong;
-  ToolManager.ToolTextFont.Assign(Config.DefaultToolTextFont);
-  ToolManager.ToolTextBlur := Config.DefaultToolTextBlur;
-  ToolManager.ToolTextShadowOffset := Config.DefaultToolTextShadowOffset;
-  ToolManager.ToolLightPosition := Config.DefaultToolLightPosition;
-  ToolManager.ToolLightAltitude := Config.DefaultToolLightAltitude;
-  ToolManager.ToolShapeAltitude := Config.DefaultToolShapeAltitude;
-  ToolManager.ToolShapeBorderSize := Config.DefaultToolShapeBorderSize;
-  ToolManager.ToolShapeType := Config.DefaultToolShapeType;
-  FGridVisible := Config.DefaultGridVisible;
-end;
-
 procedure TLazPaintInstance.AssignBitmap(bmp: TBGRABitmap);
+var imageActions: TimageActions;
 begin
-  FormsNeeded;
-  FMain.SetCurrentBitmap(bmp.Duplicate as TBGRABitmap);
+  imageActions := TImageActions.Create(self);
+  imageActions.SetCurrentBitmap(bmp.Duplicate as TBGRABitmap, False);
+  imageActions.Free;
 end;
 
 procedure TLazPaintInstance.EditBitmap(var bmp: TBGRABitmap; ConfigStream: TStream; ATitle: String; AOnRun: TLazPaintInstanceEvent; AOnExit: TLazPaintInstanceEvent; ABlackAndWhite: boolean);
@@ -376,6 +467,7 @@ begin
       ini.CacheUpdates := True;
       subLaz.UseConfig(ini);
     end;
+    subLaz.FormsNeeded;
     if bmp <> nil then subLaz.AssignBitmap(bmp);
     subLaz.AboutText := AboutText;
     subLaz.EmbeddedImageBackup := bmp;
@@ -400,6 +492,70 @@ begin
   end;
   if FMain <> nil then FMain.Enabled := true;
   subLaz.Free;
+end;
+
+procedure TLazPaintInstance.EditSelection;
+var lSelection,lTemp: TBGRABitmap;
+    LayerAction: TLayerAction;
+begin
+  if not image.CheckNoAction then exit;
+  HideTopmost;
+  try
+    if FSelectionEditConfig = nil then
+      FSelectionEditConfig := TStringStream.Create('[Tool]'+LineEnding+
+        'ForeColor=FFFFFFFF'+LineEnding+
+        'BackColor=000000FF');
+    LayerAction := TLayerAction.Create(Image);
+    LayerAction.QuerySelection;
+    lSelection:= LayerAction.currentSelection.Duplicate as TBGRABitmap;
+    lSelection.LinearAntialiasing := False;
+    lSelection.ConvertFromLinearRGB;
+    EditBitmap(lSelection,FSelectionEditConfig,rsEditSelection,@SelectionInstanceOnRun,nil,True);
+    lSelection.InplaceGrayscale;
+    lTemp := TBGRABitmap.Create(lSelection.Width,lSelection.Height,BGRABlack);
+    lTemp.PutImage(0,0,lSelection,dmDrawWithTransparency);
+    lSelection.Free;
+    lSelection := lTemp;
+    lTemp := nil;
+    lSelection.ConvertToLinearRGB;
+    lSelection.LinearAntialiasing := True;
+    LayerAction.ReplaceCurrentSelection(lSelection);
+    LayerAction.Validate;
+    LayerAction.Free;
+    Image.ImageMayChangeCompletely;
+  except
+    on ex: Exception do
+      ShowMessage(ex.Message);
+  end;
+  ShowTopmost;
+end;
+
+procedure TLazPaintInstance.EditTexture;
+var tex: TBGRABitmap;
+begin
+  HideTopmost;
+  try
+    if FTextureEditConfig = nil then
+      FTextureEditConfig := TStringStream.Create('[General]'+LineEnding+
+        'DefaultImageWidth=256'+LineEnding+
+        'DefaultImageHeight=256'+LineEnding);
+    tex := ToolManager.BorrowToolTexture;
+    try
+      EditBitmap(tex,FTextureEditConfig,rsEditTexture,nil,nil,BlackAndWhite);
+    finally
+      ToolManager.SetToolTexture(tex);
+    end;
+  except
+    on ex: Exception do
+      ShowMessage(ex.Message);
+  end;
+  ShowTopmost;
+end;
+
+procedure TLazPaintInstance.SelectionInstanceOnRun(AInstance: TLazPaintCustomInstance);
+begin
+  AInstance.Config.SetDefaultImageWidth(Image.Width);
+  AInstance.Config.SetDefaultImageHeight(Image.Height);
 end;
 
 function TLazPaintInstance.ProcessCommandLine: boolean;
@@ -489,7 +645,12 @@ begin
   Config.SetDefaultToolShapeAltitude(ToolManager.ToolShapeAltitude);
   Config.SetDefaultToolShapeType(ToolManager.ToolShapeType);
 
-  FreeAndNil(FMultiImage);
+  if FLoading <> nil then
+  begin
+    FreeAndNil(FLoading);
+    BGRALayers.UnregisterLoadingHandler(@OnLayeredBitmapLoadStartHandler,@OnLayeredBitmapLoadProgressHandler,@OnLayeredBitmapLoadedHandler);
+  end;
+  FreeAndNil(FLayerStack);
   FreeAndNil(FCustomBlur);
   FreeAndNil(FColorize);
   FreeAndNil(FShiftColors);
@@ -501,6 +662,8 @@ begin
   FreeAndNil(FMain);
   FreeAndNil(FImage);
   FreeAndNil(FConfig);
+  FreeAndNil(FSelectionEditConfig);
+  FreeAndNil(FTextureEditConfig);
   inherited Destroy;
 end;
 
@@ -552,26 +715,15 @@ procedure TLazPaintInstance.NotifyImageChange(RepaintNow: boolean; ARect: TRect)
 begin
   FormsNeeded;
   Image.ImageMayChange(ARect);
-  If RepaintNow then
-    FMain.PaintPicture
-  else
-  begin
-    FMain.Invalidate;
-    FMain.PaintBox_Picture.Invalidate;
-  end;
+  Image.OnImageChanged.NotifyObservers;
+  If RepaintNow then FMain.Update;
 end;
 
 procedure TLazPaintInstance.NotifyImageChangeCompletely(RepaintNow: boolean);
 begin
   FormsNeeded;
   Image.ImageMayChangeCompletely;
-  If RepaintNow then
-    FMain.PaintPicture
-  else
-  begin
-    FMain.Invalidate;
-    FMain.PaintBox_Picture.Invalidate;
-  end;
+  If RepaintNow then FMain.Update;
 end;
 
 function TLazPaintInstance.TryOpenFile(filename: string): boolean;
@@ -583,8 +735,7 @@ end;
 function TLazPaintInstance.ExecuteFilter(filter: TPictureFilter;
   skipDialog: boolean): boolean;
 begin
-  FormsNeeded;
-  Result:= FMain.ExecuteFilter(filter, skipDialog);
+  Result:= UFilters.ExecuteFilter(self, filter, skipDialog);
 end;
 
 procedure TLazPaintInstance.ColorFromFChooseColor;
@@ -618,10 +769,7 @@ begin
   try
     FCanvasSize.repeatImage := False;
     if FCanvasSize.ShowModal = mrOk then
-    begin
-      Image.Assign(FCanvasSize.canvasSizeResult, true);
-      FMain.PaintPicture;
-    end;
+      Image.Assign(FCanvasSize.canvasSizeResult, true, True);
   except
     on ex:Exception do
       ShowMessage('ShowCanvasSizeDlg: '+ex.Message);
@@ -636,10 +784,7 @@ begin
   try
     FCanvasSize.repeatImage := True;
     if FCanvasSize.ShowModal = mrOk then
-    begin
-      image.Assign(FCanvasSize.canvasSizeResult,true);
-      FMain.PaintPicture;
-    end;
+      image.Assign(FCanvasSize.canvasSizeResult,true,True);
   except
     on ex:Exception do
       ShowMessage('ShowRepeatImageDlg: '+ex.Message);
@@ -670,12 +815,6 @@ begin
   end;
 end;
 
-function TLazPaintInstance.ChooseImage(images: ArrayOfBGRABitmap): TBGRABitmap;
-begin
-  FormsNeeded;
-  Result:= FMultiImage.ShowAndChoose(images);
-end;
-
 procedure TLazPaintInstance.ShowAboutDlg;
 begin
   uabout.ShowAboutDlg(AboutText);
@@ -691,7 +830,9 @@ end;
 function TLazPaintInstance.ShowResampleDialog: boolean;
 begin
   FormsNeeded;
+  HideTopmost;
   Result:= uresample.ShowResampleDialog(self);
+  ShowTopmost;
 end;
 
 procedure TLazPaintInstance.NotifyStackChange;
@@ -699,97 +840,54 @@ begin
   OnStackChanged(image,False);
 end;
 
-procedure TLazPaintInstance.DoHorizontalFlip(AOption: TFlipOption);
-var center: TPointF;
+procedure TLazPaintInstance.NewLayer;
 begin
-  ToolManager.ToolClose;
-  if ((AOption = foAuto) and image.SelectionEmpty) or (AOption = foCurrentLayer) then
-  begin
-    image.ReleaseSelection;
-    image.currentImageLayer.HorizontalFlip;
-    Image.ImageMayChangeCompletely;
-  end else
-  if (AOption = foAuto) or (AOption = foSelection) then
-  begin
-    if not image.SelectionEmpty then
-    begin
-      ChooseTool(ptMoveSelection);
-      center := GetSelectionCenter(image.currentSelection);
-      image.currentSelection.HorizontalFlip;
-      image.SelectionOffset := point(round((center.X-(image.Width/2-0.5))*2),0);
-      PictureSelectionChanged;
-      image.GetDrawingLayer.HorizontalFlip;
-      Image.ImageMayChangeCompletely;
-    end else
+  if not image.SelectionLayerIsEmpty then
+    if MessageDlg(rsTransferSelectionToOtherLayer,mtConfirmation,[mbOk,mbCancel],0) <> mrOk then
       exit;
-  end else
-  if (AOption = foWholePicture) then
+  if image.NbLayers < MaxLayersToAdd then
   begin
-    image.currentLayeredBitmap.HorizontalFlip;
-    Image.ImageMayChangeCompletely;
+    Image.AddNewLayer;
+    if FLayerStack <> nil then FLayerStack.SetLayerStackScrollPos(0,0);
   end;
-  if FMain <> nil then FMain.PaintPicture;
 end;
 
-procedure TLazPaintInstance.DoVerticalFlip(AOption: TFlipOption);
-var center: TPointF;
+procedure TLazPaintInstance.NewLayer(ALayer: TBGRABitmap; AName: string);
 begin
-  ToolManager.ToolClose;
-  if ((AOption = foAuto) and image.SelectionEmpty) or (AOption = foCurrentLayer) then
+  if image.NbLayers < MaxLayersToAdd then
   begin
-    image.ReleaseSelection;
-    image.currentImageLayer.VerticalFlip;
-    Image.ImageMayChangeCompletely;
-  end else
-  if (AOption = foAuto) or (AOption = foSelection) then
-  begin
-    if not image.SelectionEmpty then
-    begin
-      ChooseTool(ptMoveSelection);
-      center := GetSelectionCenter(image.currentSelection);
-      image.currentSelection.VerticalFlip;
-      image.SelectionOffset := point(0,round((center.Y-(image.Height/2-0.5))*2));
-      PictureSelectionChanged;
-      image.GetDrawingLayer.VerticalFlip;
-      Image.ImageMayChangeCompletely;
-    end else
-      exit;
-  end else
-  if (AOption = foWholePicture) then
-  begin
-    image.currentLayeredBitmap.VerticalFlip;
-    Image.ImageMayChangeCompletely;
+    Image.AddNewLayer(ALayer, AName);
+    if FLayerStack <> nil then FLayerStack.SetLayerStackScrollPos(0,0);
   end;
-  if (FMain <> nil) and FMain.Visible then FMain.PaintPicture;
 end;
 
-procedure TLazPaintInstance.DoRotateCW;
+procedure TLazPaintInstance.DuplicateLayer;
 begin
-  image.currentLayeredBitmap.RotateCW;
-  if image.currentSelection <> nil then
-    image.currentSelection := image.currentSelection.RotateCW as TBGRABitmap;
-  if image.GetSelectionLayerIfExists <> nil then
-    image.SetSelectionLayer(image.GetSelectionLayerIfExists.RotateCW as TBGRABitmap,True);
-  image.ImageMayChangeCompletely;
-  if FMain <> nil then FMain.PaintPicture;
+  if image.NbLayers < MaxLayersToAdd then
+  begin
+    Image.DuplicateLayer;
+    if FLayerStack <> nil then FLayerStack.SetLayerStackScrollPosOnItem(Image.currentImageLayerIndex);
+  end;
 end;
 
-procedure TLazPaintInstance.DoRotateCCW;
+procedure TLazPaintInstance.MergeLayerOver;
 begin
-  image.currentLayeredBitmap.RotateCCW;
-  if image.currentSelection <> nil then
-    image.currentSelection := image.currentSelection.RotateCW as TBGRABitmap;
-  if image.GetSelectionLayerIfExists <> nil then
-    image.SetSelectionLayer(image.GetSelectionLayerIfExists.RotateCW as TBGRABitmap,True);
-  image.ImageMayChangeCompletely;
-  if FMain <> nil then FMain.PaintPicture;
+  if (Image.currentImageLayerIndex <> -1) and (image.NbLayers > 1) then
+  begin
+    Image.MergeLayerOver;
+    if FLayerStack <> nil then FLayerStack.SetLayerStackScrollPosOnItem(Image.currentImageLayerIndex);
+  end;
 end;
 
-procedure TLazPaintInstance.DoSmartZoom3;
+procedure TLazPaintInstance.RemoveLayer;
+var idx: integer;
 begin
-  ToolManager.ToolClose;
-  image.ApplySmartZoom3;
-  if FMain <> nil then FMain.PaintPicture;
+  if (Image.currentImageLayerIndex <> -1) and (Image.NbLayers > 1) then
+  begin
+    idx := Image.currentImageLayerIndex;
+    Image.RemoveLayer;
+    if FLayerStack <> nil then FLayerStack.SetLayerStackScrollPosOnItem(Idx);
+  end;
 end;
 
 function TLazPaintInstance.MakeNewBitmapReplacement(AWidth, AHeight: integer): TBGRABitmap;
@@ -801,12 +899,6 @@ procedure TLazPaintInstance.ChooseTool(Tool: TPaintToolType);
 begin
   FormsNeeded;
   FMain.ChooseTool(Tool);
-end;
-
-procedure TLazPaintInstance.PictureSelectionChanged;
-begin
-  FormsNeeded;
-  image.SelectionMayChange;
 end;
 
 function TLazPaintInstance.GetToolboxHeight: integer;
@@ -832,6 +924,17 @@ begin
     result := true;
 end;
 
+function TLazPaintInstance.GetTopMostVisible: boolean;
+begin
+  if FDestroying then
+  begin
+    result := false;
+    exit;
+  end;
+  FormsNeeded;
+  result := FToolBox.Visible or FChooseColor.Visible or FLayerStack.Visible;
+end;
+
 function TLazPaintInstance.GetChooseColorTarget: TColorTarget;
 begin
   Result:= FChooseColor.colorTarget;
@@ -843,121 +946,154 @@ begin
   ColorToFChooseColor;
 end;
 
-procedure TLazPaintInstance.ShowColorIntensityDlg(activeLayer: TBGRABitmap);
+procedure TLazPaintInstance.ShowColorIntensityDlg;
+var oldSelectionNormal: boolean;
 begin
   FormsNeeded;
-  if activeLayer = nil then
-  begin
-    ShowMessage(rsNoActiveLayer);
-    exit;
-  end;
+  HideTopMost;
+  oldSelectionNormal := ShowSelectionNormal;
+  ShowSelectionNormal := true;
   try
-    FColorIntensity.mode := ciIntensity;
-    FColorIntensity.activeLayer := activeLayer;
-    FColorIntensity.ShowModal;
+    FColorIntensity.ShowModal(self,ciIntensity);
   except
     on ex:Exception do
       ShowMessage('ShowColorIntensityDlg: '+ex.Message);
   end;
+  ShowSelectionNormal := oldSelectionNormal;
+  ShowTopMost;
 end;
 
-procedure TLazPaintInstance.ShowColorLightnessDlg(activeLayer: TBGRABitmap);
+procedure TLazPaintInstance.ShowColorLightnessDlg;
+var oldSelectionNormal: boolean;
 begin
   FormsNeeded;
-  if activeLayer = nil then
-  begin
-    ShowMessage(rsNoActiveLayer);
-    exit;
-  end;
+  HideTopMost;
+  oldSelectionNormal := ShowSelectionNormal;
+  ShowSelectionNormal := true;
   try
-    FColorIntensity.mode := ciLightness;
-    FColorIntensity.activeLayer := activeLayer;
-    FColorIntensity.ShowModal;
+    FColorIntensity.ShowModal(self,ciLightness);
   except
     on ex:Exception do
       ShowMessage('ShowColorLightnessDlg: '+ex.Message);
   end;
+  ShowSelectionNormal := oldSelectionNormal;
+  ShowTopMost;
 end;
 
-procedure TLazPaintInstance.ShowShiftColorsDlg(activeLayer: TBGRABitmap);
+procedure TLazPaintInstance.ShowShiftColorsDlg;
+var oldSelectionNormal: boolean;
 begin
   FormsNeeded;
-  if activeLayer = nil then
-  begin
-    ShowMessage(rsNoActiveLayer);
-    exit;
-  end;
+  HideTopMost;
+  oldSelectionNormal := ShowSelectionNormal;
+  ShowSelectionNormal := true;
   try
-    FShiftColors.activeLayer := activeLayer;
-    FShiftColors.ShowModal;
+    FShiftColors.ShowModal(self);
   except
     on ex:Exception do
       ShowMessage('ShowShiftColorsDlg: '+ex.Message);
   end;
+  ShowSelectionNormal := oldSelectionNormal;
+  ShowTopMost;
 end;
 
-procedure TLazPaintInstance.ShowColorizeDlg(activeLayer: TBGRABitmap);
+procedure TLazPaintInstance.ShowColorizeDlg;
+var oldSelectionNormal: boolean;
 begin
   FormsNeeded;
-  if activeLayer = nil then
-  begin
-    ShowMessage(rsNoActiveLayer);
-    exit;
-  end;
+  HideTopMost;
+  oldSelectionNormal := ShowSelectionNormal;
+  ShowSelectionNormal := true;
   try
-    FColorize.activeLayer := activeLayer;
-    FColorize.ShowModal;
+    FColorize.ShowModal(self);
   except
     on ex:Exception do
       ShowMessage('ShowColorizeDlg: '+ex.Message);
   end;
+  ShowSelectionNormal := oldSelectionNormal;
+  ShowTopMost;
 end;
 
-function TLazPaintInstance.ShowRadialBlurDlg(layer: TBGRABitmap; out
-  filteredLayer: TBGRABitmap; blurType: TRadialBlurType): boolean;
+function TLazPaintInstance.ShowRadialBlurDlg(AFilterConnector: TObject; blurType: TRadialBlurType): boolean;
+var oldSelectionNormal: boolean;
 begin
-  FormsNeeded;
-  result := uradialblur.ShowRadialBlurDlg(self,layer,filteredLayer,blurType);
+  oldSelectionNormal := ShowSelectionNormal;
+  ShowSelectionNormal := true;
+  result := uradialblur.ShowRadialBlurDlg(AFilterConnector,blurType);
+  ShowSelectionNormal := oldSelectionNormal;
 end;
 
-function TLazPaintInstance.ShowMotionBlurDlg(layer: TBGRABitmap; out
-  filteredLayer: TBGRABitmap): boolean;
+function TLazPaintInstance.ShowMotionBlurDlg(AFilterConnector: TObject):boolean;
+var oldSelectionNormal: boolean;
 begin
-  FormsNeeded;
-  result := umotionblur.ShowMotionBlurDlg(self,layer,filteredLayer);
+  oldSelectionNormal := ShowSelectionNormal;
+  ShowSelectionNormal := true;
+  result := umotionblur.ShowMotionBlurDlg(AFilterConnector);
+  ShowSelectionNormal := oldSelectionNormal;
 end;
 
-function TLazPaintInstance.ShowCustomBlurDlg(layer: TBGRABitmap; out
-  filteredLayer: TBGRABitmap): boolean;
+function TLazPaintInstance.ShowCustomBlurDlg(AFilterConnector: TObject):boolean;
+var oldSelectionNormal: boolean;
 begin
-  FormsNeeded;
-  try
-    result := FCustomBlur.ShowDlg(layer,filteredLayer);
-  except
-    filteredLayer := nil;
-    result := false;
-  end;
+  oldSelectionNormal := ShowSelectionNormal;
+  ShowSelectionNormal := true;
+  result := FCustomBlur.ShowDlg(AFilterConnector);
+  ShowSelectionNormal := oldSelectionNormal;
 end;
 
-function TLazPaintInstance.ShowEmbossDlg(layer: TBGRABitmap; out
-  filteredLayer: TBGRABitmap): boolean;
+function TLazPaintInstance.ShowEmbossDlg(AFilterConnector: TObject): boolean;
+var oldSelectionNormal: boolean;
 begin
-  FormsNeeded;
-  result := uemboss.ShowEmbossDlg(self,layer,filteredLayer);
+  oldSelectionNormal := ShowSelectionNormal;
+  ShowSelectionNormal := true;
+  result := uemboss.ShowEmbossDlg(AFilterConnector);
+  ShowSelectionNormal := oldSelectionNormal;
 end;
 
-function TLazPaintInstance.ShowPixelateDlg(layer: TBGRABitmap; out
-  filteredLayer: TBGRABitmap): boolean;
+function TLazPaintInstance.ShowPixelateDlg(AFilterConnector: TObject): boolean;
+var oldSelectionNormal: boolean;
 begin
-  FormsNeeded;
-  result := upixelate.ShowPixelateDlg(self,layer,filteredLayer);
+  oldSelectionNormal := ShowSelectionNormal;
+  ShowSelectionNormal := true;
+  result := upixelate.ShowPixelateDlg(AFilterConnector);
+  ShowSelectionNormal := oldSelectionNormal;
 end;
 
-function TLazPaintInstance.ShowTwirlDlg(layer: TBGRABitmap; out
-  filteredLayer: TBGRABitmap): boolean;
+function TLazPaintInstance.ShowTwirlDlg(AFilterConnector: TObject): boolean;
+var oldSelectionNormal: boolean;
 begin
-  FormsNeeded;
-  result := utwirl.ShowTwirlDlg(self,layer,filteredLayer);
+  oldSelectionNormal := ShowSelectionNormal;
+  ShowSelectionNormal := true;
+  result := utwirl.ShowTwirlDlg(AFilterConnector);
+  ShowSelectionNormal := oldSelectionNormal;
+end;
+
+function TLazPaintInstance.ShowPhongFilterDlg(AFilterConnector: TObject): boolean;
+var oldSelectionNormal: boolean;
+begin
+  oldSelectionNormal := ShowSelectionNormal;
+  ShowSelectionNormal := true;
+  result := UPhongFilter.ShowPhongFilterDlg(AFilterConnector);
+  ShowSelectionNormal := oldSelectionNormal;
+end;
+
+function TLazPaintInstance.ShowFunctionFilterDlg(AFilterConnector: TObject
+  ): boolean;
+var oldSelectionNormal: boolean;
+begin
+  oldSelectionNormal := ShowSelectionNormal;
+  ShowSelectionNormal := true;
+  result := UFilterFunction.ShowFilterFunctionDlg(AFilterConnector);
+  ShowSelectionNormal := oldSelectionNormal;
+end;
+
+function TLazPaintInstance.ShowSharpenDlg(AFilterConnector: TObject): boolean;
+var oldSelectionNormal: boolean;
+begin
+  oldSelectionNormal := ShowSelectionNormal;
+  ShowSelectionNormal := true;
+  result := USharpen.ShowSharpenDlg(AFilterConnector,smSharpen);
+  ShowSelectionNormal := oldSelectionNormal;
 end;
 
 end.

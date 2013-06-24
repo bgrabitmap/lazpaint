@@ -15,35 +15,36 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Spin, BGRAVirtualScreen, BGRAButton, BGRABitmap, BGRAScene3D, EpikTimer;
+  Spin, BGRAVirtualScreen, BCButton, BCPanel, BGRABitmap, BGRAScene3D,
+  EpikTimer;
 
 type
 
   { TForm1 }
 
   TForm1 = class(TForm)
-    BGRAButton1: TBGRAButton;
-    BGRAButton2: TBGRAButton;
-    BGRAButton3: TBGRAButton;
-    BGRAButton4: TBGRAButton;
-    BGRAButton5: TBGRAButton;
-    BGRAButton6: TBGRAButton;
-    BGRAButton7: TBGRAButton;
-    BGRAButton8: TBGRAButton;
-    BGRAButton9: TBGRAButton;
+    BCButton1: TBCButton;
+    BCButton2: TBCButton;
+    BCButton3: TBCButton;
+    BCButton4: TBCButton;
+    BCButton5: TBCButton;
+    BCButton6: TBCButton;
+    BCButton7: TBCButton;
+    BCButton8: TBCButton;
+    BCButton9: TBCButton;
     BGRASurface: TBGRAVirtualScreen;
     SpinEdit_AA: TSpinEdit;
     Timer1: TTimer;
-    vsToolbar: TBGRAVirtualScreen;
-    procedure BGRAButton1Click(Sender: TObject);
-    procedure BGRAButton2Click(Sender: TObject);
-    procedure BGRAButton3Click(Sender: TObject);
-    procedure BGRAButton4Click(Sender: TObject);
-    procedure BGRAButton5Click(Sender: TObject);
-    procedure BGRAButton6Click(Sender: TObject);
-    procedure BGRAButton7Click(Sender: TObject);
-    procedure BGRAButton8Click(Sender: TObject);
-    procedure BGRAButton9Click(Sender: TObject);
+    vsToolbar: TBCPanel;
+    procedure BCButton1Click(Sender: TObject);
+    procedure BCButton2Click(Sender: TObject);
+    procedure BCButton3Click(Sender: TObject);
+    procedure BCButton4Click(Sender: TObject);
+    procedure BCButton5Click(Sender: TObject);
+    procedure BCButton6Click(Sender: TObject);
+    procedure BCButton7Click(Sender: TObject);
+    procedure BCButton8Click(Sender: TObject);
+    procedure BCButton9Click(Sender: TObject);
     procedure BGRASurfaceClick(Sender: TObject);
     procedure BGRASurfaceMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -87,7 +88,6 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  StyleButtonsSample(vsToolBar,ssWin7ToolBar);
   scene := nil;
   timer := TEpikTimer.Create(nil);
 end;
@@ -179,35 +179,35 @@ begin
   inBGRASurfaceRedraw := false;
 end;
 
-procedure TForm1.BGRAButton1Click(Sender: TObject);
+procedure TForm1.BCButton1Click(Sender: TObject);
 begin
   FreeAndNil(scene);
   scene := TExample1.Create;
   BGRASurface.DiscardBitmap;
 end;
 
-procedure TForm1.BGRAButton2Click(Sender: TObject);
+procedure TForm1.BCButton2Click(Sender: TObject);
 begin
   FreeAndNil(scene);
   scene := TExample2.Create(e2lNone);
   BGRASurface.DiscardBitmap;
 end;
 
-procedure TForm1.BGRAButton3Click(Sender: TObject);
+procedure TForm1.BCButton3Click(Sender: TObject);
 begin
   FreeAndNil(scene);
   scene := TExample2.Create(e2lLightness);
   BGRASurface.DiscardBitmap;
 end;
 
-procedure TForm1.BGRAButton4Click(Sender: TObject);
+procedure TForm1.BCButton4Click(Sender: TObject);
 begin
   FreeAndNil(scene);
   scene := TExample2.Create(e2lColored);
   BGRASurface.DiscardBitmap;
 end;
 
-procedure TForm1.BGRAButton5Click(Sender: TObject);
+procedure TForm1.BCButton5Click(Sender: TObject);
 begin
   FreeAndNil(scene);
   scene := TExample3.Create;
@@ -216,7 +216,7 @@ begin
   BGRASurface.DiscardBitmap;
 end;
 
-procedure TForm1.BGRAButton6Click(Sender: TObject);
+procedure TForm1.BCButton6Click(Sender: TObject);
 begin
   FreeAndNil(scene);
   scene := TExample3.Create;
@@ -225,7 +225,7 @@ begin
   BGRASurface.DiscardBitmap;
 end;
 
-procedure TForm1.BGRAButton7Click(Sender: TObject);
+procedure TForm1.BCButton7Click(Sender: TObject);
 begin
   FreeAndNil(scene);
   scene := TExample3.Create;
@@ -234,14 +234,14 @@ begin
   BGRASurface.DiscardBitmap;
 end;
 
-procedure TForm1.BGRAButton8Click(Sender: TObject);
+procedure TForm1.BCButton8Click(Sender: TObject);
 begin
   FreeAndNil(scene);
   scene := TExample4.Create;
   BGRASurface.DiscardBitmap;
 end;
 
-procedure TForm1.BGRAButton9Click(Sender: TObject);
+procedure TForm1.BCButton9Click(Sender: TObject);
 begin
   FreeAndNil(scene);
   scene := TExample5.Create;

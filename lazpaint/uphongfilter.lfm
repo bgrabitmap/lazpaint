@@ -1,0 +1,203 @@
+object FPhongFilter: TFPhongFilter
+  Left = 402
+  Height = 191
+  Top = 127
+  Width = 509
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
+  Caption = 'Shaded map'
+  ClientHeight = 191
+  ClientWidth = 509
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object Button_OK: TButton
+    Left = 175
+    Height = 22
+    Top = 162
+    Width = 59
+    Anchors = [akLeft, akBottom]
+    Caption = 'OK'
+    Default = True
+    OnClick = Button_OKClick
+    TabOrder = 0
+  end
+  object Button_Cancel: TButton
+    Left = 241
+    Height = 22
+    Top = 162
+    Width = 73
+    Anchors = [akLeft, akBottom]
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 1
+  end
+  object PaintBox1: TPaintBox
+    Left = 304
+    Height = 128
+    Top = 24
+    Width = 192
+    Color = clBtnFace
+    ParentColor = False
+    OnMouseDown = PaintBox1MouseDown
+    OnMouseMove = PaintBox1MouseMove
+    OnPaint = PaintBox1Paint
+  end
+  object Label_Altitude: TLabel
+    Left = 14
+    Height = 15
+    Top = 132
+    Width = 83
+    Caption = 'Global altitude :'
+    ParentColor = False
+  end
+  object SpinEdit_Altitude: TSpinEdit
+    Left = 128
+    Height = 23
+    Top = 129
+    Width = 72
+    Increment = 10
+    MinValue = 1
+    OnChange = SpinEdit_AltitudeChange
+    TabOrder = 2
+    Value = 10
+  end
+  object GroupBox_Color: TGroupBox
+    Left = 8
+    Height = 106
+    Top = 4
+    Width = 128
+    Caption = 'Color'
+    ClientHeight = 88
+    ClientWidth = 124
+    TabOrder = 3
+    object Radio_UsePenColor: TRadioButton
+      Left = 6
+      Height = 19
+      Top = 23
+      Width = 70
+      Caption = 'Pen color'
+      OnChange = Radio_UseChange
+      TabOrder = 0
+    end
+    object Radio_UseBackColor: TRadioButton
+      Left = 6
+      Height = 19
+      Top = 43
+      Width = 75
+      Caption = 'Back color'
+      OnChange = Radio_UseChange
+      TabOrder = 1
+    end
+    object Radio_UseTexture: TRadioButton
+      Left = 6
+      Height = 19
+      Top = 63
+      Width = 99
+      Caption = 'Current texture'
+      OnChange = Radio_UseChange
+      TabOrder = 2
+    end
+    object Radio_UseKeep: TRadioButton
+      Left = 6
+      Height = 19
+      Top = 2
+      Width = 46
+      Caption = 'Keep'
+      TabOrder = 3
+    end
+  end
+  object Label_LightPosition: TLabel
+    Left = 304
+    Height = 15
+    Top = 4
+    Width = 79
+    Caption = 'Light position :'
+    ParentColor = False
+  end
+  object GroupBox_Color1: TGroupBox
+    Left = 144
+    Height = 118
+    Top = 4
+    Width = 152
+    Caption = 'Altitude map'
+    ClientHeight = 100
+    ClientWidth = 148
+    TabOrder = 4
+    object Radio_MapAlpha: TRadioButton
+      Left = 6
+      Height = 19
+      Top = 38
+      Width = 51
+      Caption = 'Alpha'
+      OnChange = Radio_MapChange
+      TabOrder = 0
+    end
+    object Radio_MapSaturation: TRadioButton
+      Left = 6
+      Height = 19
+      Top = 57
+      Width = 74
+      Caption = 'Saturation'
+      OnChange = Radio_MapChange
+      TabOrder = 1
+    end
+    object Radio_MapRed: TRadioButton
+      Left = 6
+      Height = 19
+      Top = 76
+      Width = 27
+      Caption = 'R'
+      OnChange = Radio_MapChange
+      TabOrder = 2
+    end
+    object Radio_MapLightness: TRadioButton
+      Left = 6
+      Height = 19
+      Top = 2
+      Width = 70
+      Caption = 'Lightness'
+      Checked = True
+      OnChange = Radio_MapChange
+      TabOrder = 3
+      TabStop = True
+    end
+    object Radio_MapGreen: TRadioButton
+      Left = 46
+      Height = 19
+      Top = 76
+      Width = 28
+      Caption = 'G'
+      OnChange = Radio_MapChange
+      TabOrder = 5
+    end
+    object Radio_MapBlue: TRadioButton
+      Left = 86
+      Height = 19
+      Top = 76
+      Width = 27
+      Caption = 'B'
+      OnChange = Radio_MapChange
+      TabOrder = 6
+    end
+    object Radio_MapLinearLightness: TRadioButton
+      Left = 6
+      Height = 19
+      Top = 20
+      Width = 102
+      Caption = 'Linear lightness'
+      OnChange = Radio_MapChange
+      TabOrder = 4
+    end
+  end
+  object Timer1: TTimer
+    Enabled = False
+    Interval = 200
+    OnTimer = Timer1Timer
+    left = 312
+    top = 176
+  end
+end

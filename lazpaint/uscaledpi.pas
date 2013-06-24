@@ -1,4 +1,4 @@
-unit uscaledpi;
+unit UScaleDPI;
 
 {$mode objfpc}{$H+}
 

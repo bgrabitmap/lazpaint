@@ -1,4 +1,4 @@
-unit ulayerstack;
+unit ULayerstack;
 
 {$mode objfpc}{$H+}
 
@@ -7,9 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
   ComCtrls, ExtCtrls, StdCtrls, BGRAVirtualScreen, LazPaintType, BGRABitmap,
-  UVolatileScrollBar, BGRAGradients, BGRABitmapTypes;
-
-const MaxLayersToAdd = 99;
+  UVolatileScrollBar, Types, BGRABitmapTypes, UImageObservation;
 
 type
   TDrawLayerItemResult = record
@@ -25,8 +23,7 @@ type
     Panel1: TPanel;
     TimerScroll: TTimer;
     ToolBar1: TToolBar;
-    ToolButton_AddNewLayer: TToolButton;
-    ToolButton_RemoveLayer: TToolButton;
+    ToolBar2: TToolBar;
     ToolZoomLayerStackIn: TToolButton;
     ToolZoomLayerStackOut: TToolButton;
     procedure BGRALayerStackMouseDown(Sender: TObject; Button: TMouseButton;
@@ -39,9 +36,9 @@ type
     procedure ComboBox_BlendOpChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormHide(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure TimerScrollTimer(Sender: TObject);
-    procedure ToolButton_AddNewLayerClick(Sender: TObject);
-    procedure ToolButton_RemoveLayerClick(Sender: TObject);
     procedure ToolZoomLayerStackInClick(Sender: TObject);
     procedure ToolZoomLayerStackOutClick(Sender: TObject);
     procedure HandleChangeLayerOpacity(X,{%H-}Y: integer);
@@ -59,16 +56,16 @@ type
     AvailableWidth,AvailableHeight: integer;
     changingLayerOpacity: integer;
     VolatileHorzScrollBar, VolatileVertScrollBar: TVolatileScrollBar;
+    ScrollButtonRect: TRect;
     InterruptorWidth,InterruptorHeight: integer;
     interruptors: array of TRect;
     LayerInfo: array of TDrawLayerItemResult;
-    phong: TPhongShading;
     movingItemStart: boolean;
     movingItem: TBGRABitmap;
     movingItemSourceIndex: integer;
     movingItemMousePos,movingItemMouseOrigin,movingItemOrigin: TPoint;
     timerScrollDeltaY: integer;
-    updatingImage: boolean;
+    updatingImageOnly: boolean;
     ScrollStackItemIntoView : boolean;
     procedure ComputeLayout(ABitmap: TBGRABitmap);
     procedure ComputeScrolling(AWithHorzScrollBar,AWithVertScrollBar: boolean);
@@ -76,15 +73,19 @@ type
       layerIndex: integer; ASelected: boolean): TDrawLayerItemResult;
     procedure RedrawLayerStack(Bitmap: TBGRABitmap; Layout: boolean; UpdateItem: Integer);
     procedure UpdateImage;
+    procedure OnImageChangedHandler(AEvent: TLazPaintImageObservationEvent);
   public
     { public declarations }
     LazPaintInstance: TLazPaintCustomInstance;
     procedure InvalidateStack(AScrollIntoView: boolean);
+    procedure SetLayerStackScrollPos(x,y: integer);
+    procedure SetLayerStackScrollPosOnItem(idx: integer);
+    procedure AddButton(AAction: TBasicAction);
   end;
 
 implementation
 
-uses BGRAFillInfo,uscaledpi,uresourcestrings,ublendop;
+uses BGRAFillInfo,uscaledpi,uresourcestrings,ublendop, uimage;
 
 function TFLayerStack.DrawLayerItem(ABitmap: TBGRABitmap; layerPos: TPoint; layerIndex: integer; ASelected: boolean): TDrawLayerItemResult;
 var LayerBmp: TBGRABitmap;
@@ -108,26 +109,26 @@ begin
   result.PreviewPts[2].y -= 0.5;
   result.PreviewPts[3].y -= 0.5;
   ABitmap.FillPolyAntialias(result.PreviewPts,background);
-  layerBmp := LazPaintInstance.Image.currentLayeredBitmap.LayerBitmap[layerIndex];
+  layerBmp := LazPaintInstance.Image.LayerBitmap[layerIndex];
   ABitmap.FillPolyLinearMapping( result.PreviewPts, layerBmp, [pointf(-0.49,-0.49),pointf(layerBmp.Width-0.51,-0.49),
     pointf(layerBmp.Width-0.51,layerBmp.Height-0.51),pointf(-0.49,layerBmp.Height-0.51)],False);
   result.PreviewPts[0].y -= 0.5;
   result.PreviewPts[1].y -= 0.5;
   result.PreviewPts[2].y += 0.5;
   result.PreviewPts[3].y += 0.5;
-  if not LazPaintInstance.Image.currentLayeredBitmap.LayerVisible[LayerIndex] then ABitmap.CustomPenStyle := BGRAPenStyle(LayerRectHeight/8,LayerRectHeight/8);
+  if not LazPaintInstance.Image.LayerVisible[LayerIndex] then ABitmap.CustomPenStyle := BGRAPenStyle(LayerRectHeight/8,LayerRectHeight/8);
   ABitmap.DrawPolygonAntialias( result.PreviewPts, lColor,1);
   ABitmap.PenStyle := psSolid;
   if ASelected then
   begin
     result.NameRect := rect(layerpos.X+round(LayerRectWidth*0.95),layerpos.Y,layerpos.X+StackWidth,layerPos.Y+LayerRectHeight div 2);
-    barwidth := StackWidth-InterruptorWidth-round(LayerRectWidth*1.1);
+    barwidth := StackWidth-InterruptorWidth-Int32or64(round(LayerRectWidth*1.1));
     if barwidth > LayerRectWidth then barwidth := LayerRectWidth;
     result.OpacityBar := rect(layerpos.X+LayerRectWidth,layerpos.Y+LayerRectHeight div 2,layerpos.X+LayerRectWidth+barwidth,layerpos.Y+LayerRectHeight);
     ABitmap.Rectangle(result.OpacityBar.left,(result.OpacityBar.top*3+result.OpacityBar.bottom) div 4,result.OpacityBar.right,
         (result.OpacityBar.top+result.OpacityBar.bottom*3) div 4,lColor,dmSet);
     ABitmap.FillRect(result.OpacityBar.left+1,(result.OpacityBar.top*3+result.OpacityBar.bottom) div 4+1,result.OpacityBar.left+1+
-      round((result.OpacityBar.right-result.OpacityBar.left-2)*LazPaintInstance.Image.currentLayeredBitmap.LayerOpacity[LayerIndex]/255),
+      Int32or64(round((result.OpacityBar.right-result.OpacityBar.left-2)*LazPaintInstance.Image.LayerOpacity[LayerIndex]/255)),
        (result.OpacityBar.top+result.OpacityBar.bottom*3) div 4-1,lColorTransp,dmDrawWithTransparency);
   end
   else
@@ -136,7 +137,7 @@ begin
     result.OpacityBar := EmptyRect;
   end;
   ABitmap.TextOut(result.NameRect.Left,result.NameRect.Top+(result.NameRect.bottom-result.NameRect.top -ABitmap.FontFullHeight) div 2,
-    LazPaintInstance.Image.currentLayeredBitmap.LayerName[layerIndex],lColor);
+    LazPaintInstance.Image.LayerName[layerIndex],lColor);
 end;
 
 { TFLayerStack }
@@ -154,7 +155,6 @@ begin
   background := TBGRABitmap.Create(4,4,ColorToBGRA(ColorToRGB(clWindow)));
   background.FillRect(0,0,2,2,BGRA(0,0,0,64),dmDrawWithTransparency);
   background.FillRect(2,2,4,4,BGRA(0,0,0,64),dmDrawWithTransparency);
-  phong := TPhongShading.Create;
   renaming := false;
   Visible := false;
   movingItemStart := false;
@@ -162,11 +162,20 @@ end;
 
 procedure TFLayerStack.FormDestroy(Sender: TObject);
 begin
-  phong.Free;
   background.Free;
   FreeAndNil(movingItem);
   FreeAndNil(VolatileHorzScrollBar);
   FreeAndNil(VolatileVertScrollBar);
+end;
+
+procedure TFLayerStack.FormHide(Sender: TObject);
+begin
+  LazPaintInstance.Image.OnImageChanged.RemoveObserver(@OnImageChangedHandler);
+end;
+
+procedure TFLayerStack.FormShow(Sender: TObject);
+begin
+  LazPaintInstance.Image.OnImageChanged.AddObserver(@OnImageChangedHandler);
 end;
 
 procedure TFLayerStack.TimerScrollTimer(Sender: TObject);
@@ -179,35 +188,6 @@ begin
   movingItemMouseOrigin.Y -= ScrollPos.Y-prevY;
   TimerScroll.Enabled := False;
   BGRALayerStack.RedrawBitmap;
-end;
-
-procedure TFLayerStack.ToolButton_AddNewLayerClick(Sender: TObject);
-begin
-  if LazPaintInstance.image.NbLayers < MaxLayersToAdd then
-  begin
-    LazPaintInstance.Image.AddNewLayer;
-    ScrollPos.X := 0;
-    ScrollPos.Y := 0;
-    UpdateImage;
-    BGRALayerStack.RedrawBitmap;
-  end;
-end;
-
-procedure TFLayerStack.ToolButton_RemoveLayerClick(Sender: TObject);
-var idx: integer;
-begin
-  if (LazPaintInstance.Image.currentImageLayer <> nil) and (LazPaintInstance.image.NbLayers > 1) then
-  begin
-    idx := LazPaintInstance.Image.currentImageLayerIndex;
-    LazPaintInstance.Image.currentLayeredBitmap.RemoveLayer(idx);
-    if idx >= LazPaintInstance.image.NbLayers then
-      idx := LazPaintInstance.image.NbLayers-1;
-    LazPaintInstance.Image.currentImageLayer := LazPaintInstance.Image.currentLayeredBitmap.LayerBitmap[idx];
-    ScrollPos.X := 0;
-    ScrollPos.Y := (LazPaintInstance.Image.NbLayers-1-Idx)*LayerRectHeight+LayerRectHeight div 2-AvailableHeight div 2;
-    UpdateImage;
-    BGRALayerStack.RedrawBitmap;
-  end;
 end;
 
 procedure TFLayerStack.ToolZoomLayerStackInClick(Sender: TObject);
@@ -240,25 +220,40 @@ begin
     newOpacity := round((X-(OpacityBar.left+1))/(OpacityBar.right-OpacityBar.left-2)*255);
     if newOpacity < 0 then newOpacity:= 0;
     if newOpacity > 255 then newOpacity:= 255;
-    if LazPaintInstance.Image.currentLayeredBitmap.LayerOpacity[changingLayerOpacity] = newOpacity then exit;
-    LazPaintInstance.Image.currentLayeredBitmap.LayerOpacity[changingLayerOpacity] := newOpacity;
+    if LazPaintInstance.Image.LayerOpacity[changingLayerOpacity] = newOpacity then exit;
+    updatingImageOnly := true;
+    LazPaintInstance.Image.LayerOpacity[changingLayerOpacity] := newOpacity;
+    updatingImageOnly := false;
     UpdateLayerStackItem(changingLayerOpacity);
-    UpdateImage;
   end;
 end;
 
 procedure TFLayerStack.HandleSelectLayer(i,x,y: integer);
 begin
-  if i < LazPaintInstance.Image.currentLayeredBitmap.NbLayers then
+  if i < LazPaintInstance.Image.NbLayers then
   begin
-    LazPaintInstance.Image.currentImageLayer := LazPaintInstance.Image.currentLayeredBitmap.LayerBitmap[i];
-    renaming := false;
-    movingItemStart := true;
-    movingItemSourceIndex := i;
-    movingItemMouseOrigin := point(x,y);
-    movingItemMousePos := point(x,y);
-    UpdateImage;
-    BGRALayerStack.RedrawBitmap;
+    if not LazPaintInstance.Image.SelectionLayerIsEmpty and
+        (i <> LazPaintInstance.Image.currentImageLayerIndex) then
+    begin
+      if MessageDlg(rsTransferSelectionToOtherLayer,mtConfirmation,[mbOk,mbCancel],0) = mrOk then
+      begin
+        if LazPaintInstance.Image.SetCurrentImageLayerIndex(i) then
+        begin
+          renaming := false;
+          BGRALayerStack.RedrawBitmap;
+        end;
+      end;
+      exit;
+    end;
+    if LazPaintInstance.Image.SetCurrentImageLayerIndex(i) then
+    begin
+      renaming := false;
+      movingItemStart := true;
+      movingItemSourceIndex := i;
+      movingItemMouseOrigin := point(x,y);
+      movingItemMousePos := point(x,y);
+      BGRALayerStack.RedrawBitmap;
+    end;
   end;
 end;
 
@@ -276,7 +271,7 @@ begin
   if i <> -1 then blendOps.Delete(i);
   i := blendOps.IndexOf(rsNormalBlendOp);
   if i <> -1 then blendOps.Delete(i);
-  with LazPaintInstance.Image.currentLayeredBitmap do
+  with LazPaintInstance.Image do
     for i := 0 to NbLayers-1 do
     begin
       str := BlendOperationStr[BlendOperation[i]];
@@ -331,11 +326,11 @@ begin
   temp := ScaleY(10,OriginalDPI);
   if InterruptorHeight < temp then InterruptorHeight := temp;
   if InterruptorWidth < temp then InterruptorWidth := temp;
-  StackWidth := InterruptorWidth+LayerRectWidth+ABitmap.TextSize('Layer').cx;
+  StackWidth := InterruptorWidth+LayerRectWidth+ABitmap.TextSize('Some layer name').cx;
   StackHeight := LayerRectHeight*LazPaintInstance.Image.NbLayers;
   for i := 0 to LazPaintInstance.Image.NbLayers-1 do
   begin
-    temp := InterruptorWidth+LayerRectWidth+ABitmap.TextSize(LazPaintInstance.Image.currentLayeredBitmap.LayerName[i]).cx;
+    temp := InterruptorWidth+LayerRectWidth+ABitmap.TextSize(LazPaintInstance.Image.LayerName[i]).cx;
     if temp > StackWidth then StackWidth := temp;
   end;
   if ((VolatileHorzScrollBar = nil) or not VolatileHorzScrollBar.ScrollThumbDown) and
@@ -347,6 +342,11 @@ begin
   end;
   Offset := ScrollPos;
   if StackHeight < AvailableHeight then Offset.Y := -(AvailableHeight-StackHeight);
+
+  if (VolatileHorzScrollBar <> nil) and (VolatileVertScrollBar <> nil) then
+    ScrollButtonRect := rect(AvailableWidth,AvailableHeight,AvailableWidth+VolatileScrollBarSize,AvailableHeight+VolatileScrollBarSize)
+  else
+    ScrollButtonRect := EmptyRect;
 end;
 
 procedure TFLayerStack.ComputeScrolling(AWithHorzScrollBar, AWithVertScrollBar: boolean);
@@ -407,12 +407,32 @@ end;
 
 procedure TFLayerStack.InvalidateStack(AScrollIntoView: boolean);
 begin
-  if not updatingImage then
+  if not updatingImageOnly then
   begin
     BGRALayerStack.DiscardBitmap;
     if AScrollIntoView then ScrollStackItemIntoView := true;
     renaming := false;
   end;
+end;
+
+procedure TFLayerStack.SetLayerStackScrollPos(x, y: integer);
+begin
+  ScrollPos := point(X,Y);
+end;
+
+procedure TFLayerStack.SetLayerStackScrollPosOnItem(idx: integer);
+begin
+  ScrollPos.X := 0;
+  ScrollPos.Y := (LazPaintInstance.Image.NbLayers-1-Idx)*LayerRectHeight+LayerRectHeight div 2-AvailableHeight div 2;
+end;
+
+procedure TFLayerStack.AddButton(AAction: TBasicAction);
+var button: TToolButton;
+begin
+  button := TToolButton.Create(ToolBar2);
+  button.Parent := Toolbar2;
+  button.Action := AAction;
+  button.Style := tbsButton;
 end;
 
 procedure TFLayerStack.BGRALayerStackRedraw(Sender: TObject; Bitmap: TBGRABitmap);
@@ -426,6 +446,7 @@ var i: integer;
   lSelected: boolean;
   y: integer;
   clipping: TRect;
+  lColor: TBGRAPixel;
 begin
   if Layout then
   begin
@@ -441,9 +462,9 @@ begin
   begin
     if (i = UpdateItem) or (UpdateItem = -1) then
     begin
-      with LazPaintInstance.Image.currentLayeredBitmap do
+      with LazPaintInstance.Image do
       begin
-        if LayerBitmap[i] = LazPaintInstance.Image.currentImageLayer then
+        if i = currentImageLayerIndex then
         begin
           Bitmap.FillRect(layerPos.X,layerPos.Y,layerPos.X+StackWidth,layerPos.Y+LayerRectHeight,ColorToBGRA(ColorToRGB(clHighlight)),dmSet);
           lSelected:= true;
@@ -460,11 +481,23 @@ begin
 
         if (layerpos.Y+LayerRectHeight > 0) and (layerpos.Y < Bitmap.Height) then
         begin
-          phong.DrawRectangle(Bitmap, interruptors[i],1,-1, ApplyLightnessFast(ColorToBGRA(ColorToRGB(clBtnFace)),16384),False,[]);
-          if LayerVisible[i] then
-            phong.DrawRectangle(Bitmap, rect((interruptors[i].Left*2 + interruptors[i].Right) div 3+1,interruptors[i].top+1,interruptors[i].right+1,interruptors[i].Bottom-1),1,3, ColorToBGRA(ColorToRGB(clBtnFace)),False,[rmoLinearBorder])
+          if lSelected then
+            lColor := ColorToBGRA(ColorToRGB(clHighlightText))
           else
-            phong.DrawRectangle(Bitmap, rect(interruptors[i].left-1,interruptors[i].top+1,(interruptors[i].Left + interruptors[i].Right*2) div 3-1,interruptors[i].Bottom-1),1,3, ColorToBGRA(ColorToRGB(clBtnFace)),False,[rmoLinearBorder]);
+            lColor := ColorToBGRA(ColorToRGB(clWindowText));
+
+          Bitmap.Rectangle(interruptors[i],lColor,dmDrawWithTransparency);
+          if LayerVisible[i] then
+          with interruptors[i] do
+          begin
+            Bitmap.DrawPolyLineAntialias(Bitmap.ComputeBezierSpline([
+
+               BezierCurve(pointF(left+2,top+3),PointF((left+right-1)/2,bottom-3)),
+
+               BezierCurve(PointF((left+right-1)/2,bottom-3),
+                  PointF((left+right-1)/2,(top*2+bottom-1)/3),
+                  PointF(right-2,top-2))]),lColor,1.5);
+          end;
 
           inc(layerPos.X,InterruptorWidth);
           if movingItemStart and (i= movingItemSourceIndex) then
@@ -490,6 +523,8 @@ begin
   if (clipping.right > clipping.left) and (clipping.bottom > clipping.top) then Bitmap.ClipRect := clipping;
   if VolatileHorzScrollBar <> nil then VolatileHorzScrollBar.Draw(Bitmap);
   if VolatileVertScrollBar <> nil then VolatileVertScrollBar.Draw(Bitmap);
+  if not IsRectEmpty(ScrollButtonRect) then
+    Bitmap.FillRect(ScrollButtonRect, ColorToBGRA(ColorToRGB(clBtnFace)), dmSet);
   Bitmap.NoClip;
 
   if Layout then
@@ -512,8 +547,6 @@ begin
     end;
 
     UpdateComboBlendOp;
-    ToolButton_AddNewLayer.Enabled := LazPaintInstance.Image.NbLayers < MaxLayersToAdd;
-    ToolButton_RemoveLayer.Enabled := LazPaintInstance.Image.NbLayers > 1;
   end;
 
   movingItemStart := false;
@@ -521,9 +554,15 @@ end;
 
 procedure TFLayerStack.UpdateImage;
 begin
-  updatingImage := true;
+  updatingImageOnly := true;
   LazPaintInstance.NotifyImageChangeCompletely(True);
-  updatingImage := false;
+  updatingImageOnly := false;
+end;
+
+procedure TFLayerStack.OnImageChangedHandler(
+  AEvent: TLazPaintImageObservationEvent);
+begin
+  if not AEvent.DelayedStackUpdate then InvalidateStack(False);
 end;
 
 procedure TFLayerStack.ComboBox_BlendOpChange(Sender: TObject);
@@ -542,20 +581,22 @@ begin
           blendOp := boTransparent
         else
           blendOp := StrToBlendOperation(itemStr);
-        LazPaintInstance.Image.currentLayeredBitmap.BlendOperation[LazPaintInstance.Image.currentImageLayerIndex] := blendOp;
-        UpdateImage;
+        updatingImageOnly := true;
+        LazPaintInstance.Image.BlendOperation[LazPaintInstance.Image.currentImageLayerIndex] := blendOp;
+        updatingImageOnly := false;
       end else
       begin
         blendOp := boTransparent;
         LazPaintInstance.HideTopmost;
         if LazPaintInstance.Image.currentImageLayerIndex > 0 then
-          tempUnder := LazPaintInstance.Image.currentLayeredBitmap.ComputeFlatImage(0,LazPaintInstance.Image.currentImageLayerIndex-1)
+          tempUnder := LazPaintInstance.Image.ComputeFlatImage(0,LazPaintInstance.Image.currentImageLayerIndex-1)
         else
           tempUnder := TBGRABitmap.Create(1,1);
-        if ublendop.ShowBlendOpDialog(blendOp, tempUnder,LazPaintInstance.Image.currentImageLayer) then
+        if ublendop.ShowBlendOpDialog(blendOp, tempUnder,LazPaintInstance.Image.SelectedImageLayerReadOnly) then
         begin
-          LazPaintInstance.Image.currentLayeredBitmap.BlendOperation[LazPaintInstance.Image.currentImageLayerIndex] := blendOp;
-          UpdateImage;
+          updatingImageOnly := true;
+          LazPaintInstance.Image.BlendOperation[LazPaintInstance.Image.currentImageLayerIndex] := blendOp;
+          updatingImageOnly := false;
           UpdateComboBlendOp;
         end;
         tempUnder.Free;
@@ -570,6 +611,7 @@ procedure TFLayerStack.BGRALayerStackMouseDown(Sender: TObject;
 var i: integer;
   str: string;
 begin
+  if PtInRect(Point(X,Y),ScrollButtonRect) then exit;
   If (Button = mbLeft) then
   begin
     if ((VolatileHorzScrollBar <> nil) and VolatileHorzScrollBar.MouseDown(X,Y)) or
@@ -581,11 +623,12 @@ begin
     for i := 0 to high(interruptors) do
       if PtInRect(Point(x,Y),interruptors[i]) then
       begin
-        if i < LazPaintInstance.Image.currentLayeredBitmap.NbLayers then
+        if i < LazPaintInstance.Image.NbLayers then
         begin
-          LazPaintInstance.Image.currentLayeredBitmap.LayerVisible[i] := not LazPaintInstance.Image.currentLayeredBitmap.LayerVisible[i];
+          updatingImageOnly:= true;
+          LazPaintInstance.Image.LayerVisible[i] := not LazPaintInstance.Image.LayerVisible[i];
+          updatingImageOnly:= false;
           UpdateLayerStackItem(i);
-          UpdateImage;
         end;
         exit;
       end;
@@ -598,17 +641,20 @@ begin
     for i := 0 to high(LayerInfo) do
       if PtInRect(Point(x,Y),LayerInfo[i].NameRect) then
       begin
-        if i < LazPaintInstance.Image.currentLayeredBitmap.NbLayers then
+        if i < LazPaintInstance.Image.NbLayers then
         begin
           if (i <> LazPaintInstance.image.currentImageLayerIndex) and not renaming then
             HandleSelectLayer(i,x,y)
           else
           begin
             renaming := true;
-            str := InputBox(self.Caption,rsEnterLayerName,LazPaintInstance.Image.currentLayeredBitmap.LayerName[i]);
+            str := InputBox(self.Caption,rsEnterLayerName,LazPaintInstance.Image.LayerName[i]);
             if str <> '' then
-              LazPaintInstance.Image.currentLayeredBitmap.LayerName[i] := str;
-            BGRALayerStack.RedrawBitmap;
+            begin
+              if length(str) > MaxLayerNameLength then str := copy(str,1,MaxLayerNameLength);
+              LazPaintInstance.Image.LayerName[i] := str;
+            end;
+            BGRALayerStack.RedrawBitmap; //layer stack width may change
           end;
         end;
         exit;
@@ -617,7 +663,7 @@ begin
       if PtInRect(Point(x,Y),LayerInfo[i].OpacityBar) or PtInRect(Point(x+4,Y),LayerInfo[i].OpacityBar) or
         PtInRect(Point(x-4,Y),LayerInfo[i].OpacityBar) then
       begin
-        if i < LazPaintInstance.Image.currentLayeredBitmap.NbLayers then
+        if i < LazPaintInstance.Image.NbLayers then
         begin
           changingLayerOpacity := i;
           HandleChangeLayerOpacity(X,Y);
@@ -654,6 +700,7 @@ end;
 procedure TFLayerStack.BGRALayerStackMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var destinationIndex: integer;
+  indexF: single;
 begin
   if Button = mbLeft then
   begin
@@ -661,12 +708,17 @@ begin
     if movingItem <> nil then
     begin
       FreeAndNil(movingItem);
-      destinationIndex := LazPaintInstance.Image.currentLayeredBitmap.NbLayers-1 - round((movingItemOrigin.Y+movingItemMousePos.Y-movingItemMouseOrigin.Y)/LayerRectHeight);
+      indexF := LazPaintInstance.Image.NbLayers-1 - (movingItemOrigin.Y+movingItemMousePos.Y-movingItemMouseOrigin.Y)/LayerRectHeight;
+      if indexF < movingItemSourceIndex-1.15 then indexF += 0.15 else
+      if indexF > movingItemSourceIndex+1.15 then indexF -= 0.15;
+      destinationIndex := Int32or64(round(indexF));
       if destinationIndex = -1 then destinationIndex := 0;
-      if destinationIndex = LazPaintInstance.Image.currentLayeredBitmap.NbLayers then destinationIndex := LazPaintInstance.Image.currentLayeredBitmap.NbLayers-1;
-      if (destinationIndex >= 0) and (destinationIndex < LazPaintInstance.Image.currentLayeredBitmap.NbLayers) and (destinationIndex <> movingItemSourceIndex) then
+      if destinationIndex = LazPaintInstance.Image.NbLayers then destinationIndex := LazPaintInstance.Image.NbLayers-1;
+      if (destinationIndex >= 0) and (destinationIndex < LazPaintInstance.Image.NbLayers) and (destinationIndex <> movingItemSourceIndex) then
       begin
-        LazPaintInstance.Image.currentLayeredBitmap.InsertLayer(destinationIndex, movingItemSourceIndex);
+        updatingImageOnly:= true;
+        LazPaintInstance.Image.MoveLayer(movingItemSourceIndex, destinationIndex);
+        updatingImageOnly:= false;
         UpdateImage;
       end;
       BGRALayerStack.RedrawBitmap;

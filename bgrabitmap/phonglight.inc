@@ -1,9 +1,10 @@
+{$i bgrasse.inc}
 var
-  dist2,LdotN,NdotH,lightEnergy,diffuse : single;
+  {%H-}dist2,LdotN,NdotH,lightEnergy,diffuse : single;
 const
   minus_05 = -0.5;
 begin
-  {$IFDEF CPUI386}If UseSSE then
+  {$IFDEF BGRASSE_AVAILABLE}If UseSSE then
   begin
     with Context^ do
     begin

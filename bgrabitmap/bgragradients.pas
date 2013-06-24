@@ -2,6 +2,8 @@ unit BGRAGradients;
 
 {$mode objfpc}{$H+}
 
+{$i bgrasse.inc}
+
 interface
 
 { Here are various functions that draw gradients, shadow and lighting }
@@ -114,7 +116,7 @@ type
     procedure DrawColorNormal(dest: TBGRACustomBitmap; map: TBGRACustomBitmap; mapAltitude: integer; ofsX,ofsY: integer;
                    Color : TBGRAPixel);
 
-    {$ifdef CPUI386}
+    {$ifdef BGRASSE_AVAILABLE}
     procedure DrawMapSSE(dest: TBGRACustomBitmap; map: TBGRACustomBitmap; mapAltitude: integer; ofsX,ofsY: integer;
                    ColorMap : TBGRACustomBitmap);
     procedure DrawScannerSSE(dest: TBGRACustomBitmap; map: TBGRACustomBitmap; mapAltitude: integer; ofsX,ofsY: integer;
@@ -173,7 +175,7 @@ function CreateCyclicPerlinNoiseMap(AWidth, AHeight: integer; HorizontalPeriod: 
 
 implementation
 
-uses Types, SysUtils, BGRATextFX;
+uses GraphType, Types, SysUtils, BGRATextFX; {GraphType unit used by phongdraw.inc}
 
 function TextShadow(AWidth, AHeight: Integer; AText: String;
   AFontHeight: Integer; ATextColor, AShadowColor: TBGRAPixel; AOffSetX,
@@ -374,7 +376,7 @@ Const
 procedure TPhongShading.Draw(dest: TBGRACustomBitmap; map: TBGRACustomBitmap; mapAltitude: integer; ofsX,ofsY: integer;
                              Color : TBGRAPixel);
 begin
-  {$ifdef CPUI386}
+  {$ifdef BGRASSE_AVAILABLE}
     if UseSSE then
       DrawColorSSE(dest,map,mapAltitude,ofsX,ofsY,Color)
     else
@@ -385,7 +387,7 @@ end;
 procedure TPhongShading.Draw(dest: TBGRACustomBitmap; map: TBGRACustomBitmap;
             mapAltitude: integer; ofsX, ofsY: integer; ColorMap: TBGRACustomBitmap);
 begin
-  {$ifdef CPUI386}
+  {$ifdef BGRASSE_AVAILABLE}
     if UseSSE then
       DrawMapSSE(dest,map,mapAltitude,ofsX,ofsY,ColorMap)
     else
@@ -396,7 +398,7 @@ end;
 procedure TPhongShading.DrawScan(dest: TBGRACustomBitmap; map: TBGRACustomBitmap;
   mapAltitude: integer; ofsX, ofsY: integer; ColorScan: IBGRAScanner);
 begin
-  {$ifdef CPUI386}
+  {$ifdef BGRASSE_AVAILABLE}
     if UseSSE then
       DrawScannerSSE(dest,map,mapAltitude,ofsX,ofsY,ColorScan)
     else
@@ -574,7 +576,7 @@ procedure TPhongShading.DrawScannerNormal(dest: TBGRACustomBitmap;
   {$define PARAM_SCANNER}
   {$I phongdraw.inc }
 
-{$ifdef CPUI386}
+{$ifdef BGRASSE_AVAILABLE}
 procedure TPhongShading.DrawMapSSE(dest: TBGRACustomBitmap; map: TBGRACustomBitmap;
   mapAltitude: integer; ofsX, ofsY: integer; ColorMap: TBGRACustomBitmap);
   {$define PARAM_PHONGSSE}

@@ -1,4 +1,4 @@
-unit utoolphong;
+unit UToolPhong;
 
 {$mode objfpc}
 
@@ -17,10 +17,9 @@ type
     shader: TPhongShading;
     function UpdateShape(toolDest: TBGRABitmap): TRect; override;
     function FinishShape({%H-}toolDest: TBGRABitmap): TRect; override;
-    procedure PrepareDrawing(rightBtn: boolean); override;
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;
       rightBtn: boolean): TRect; override;
-    function NeedClearShape: boolean; override;
+    function ShouldFinishShapeWhenFirstMouseUp: boolean; override;
   public
     procedure Render(VirtualScreen: TBGRABitmap;
       BitmapToVirtualScreen: TBitmapToVirtualScreenFunction); override;
@@ -114,8 +113,8 @@ begin
   if h*3 div 2 > shader.LightPositionZ then
      shader.LightPositionZ := h*3 div 2;
 
-  if Manager.ToolTexture <> nil then
-    shader.DrawScan(toolDest,map,h,bounds.left,bounds.top,Manager.ToolTexture)
+  if Manager.GetToolTextureAfterAlpha <> nil then
+    shader.DrawScan(toolDest,map,h,bounds.left,bounds.top,Manager.GetToolTextureAfterAlpha)
   else
     shader.Draw(toolDest,map,h,bounds.left,bounds.top,penColor);
 
@@ -124,21 +123,7 @@ end;
 
 function TToolPhong.FinishShape(toolDest: TBGRABitmap): TRect;
 begin
-  //nothing
-  result := EmptyRect;
-end;
-
-procedure TToolPhong.PrepareDrawing(rightBtn: boolean);
-begin
-   if rightBtn then
-   begin
-     penColor := Manager.ToolBackColor;
-     fillColor := Manager.ToolForeColor;
-   end else
-   begin
-     penColor := Manager.ToolForeColor;
-     fillColor := Manager.ToolBackColor;
-   end;
+  result := UpdateShape(toolDest);
 end;
 
 function TToolPhong.DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;
@@ -147,21 +132,25 @@ begin
   if rightBtn then
   begin
     Manager.ToolLightPosition := pt;
-    result := ToolRepaintOnly;
+    if afterRectDrawing then
+      result := FinishShape(toolDest)
+    else
+      result := ToolRepaintOnly;
     exit;
   end;
   inherited DoToolDown(toolDest,pt,ptF,rightBtn);
 end;
 
-function TToolPhong.NeedClearShape: boolean;
+function TToolPhong.ShouldFinishShapeWhenFirstMouseUp: boolean;
 begin
-  result := true;
+  result := false;
 end;
 
 procedure TToolPhong.Render(VirtualScreen: TBGRABitmap;
   BitmapToVirtualScreen: TBitmapToVirtualScreenFunction);
 var lightPosition: TPointF;
 begin
+  inherited Render(VirtualScreen,BitmapToVirtualScreen);
   lightPosition := BitmapToVirtualScreen(PointF(Manager.ToolLightPosition.X,Manager.ToolLightPosition.Y));
   NicePoint(VirtualScreen, lightPosition.X,lightPosition.Y);
   if lightPosition.Y > virtualScreen.Height/2 then

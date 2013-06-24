@@ -199,7 +199,7 @@ type
     function AddFace(const AVertices: array of IBGRAVertex3D; AColor: TBGRAPixel): IBGRAFace3D;
     function AddFace(const AVertices: array of IBGRAVertex3D; AColors: array of TBGRAPixel): IBGRAFace3D;
     function AddFaceReversed(const AVertices: array of IBGRAVertex3D): IBGRAFace3D;
-    procedure ComputeWithMatrix(const AMatrix: TMatrix3D; const AProjection: TProjection3D);
+    procedure ComputeWithMatrix(constref AMatrix: TMatrix3D; constref AProjection: TProjection3D);
     function GetColor: TBGRAPixel;
     function GetLight: Single;
     function GetTexture: IBGRAScanner;
@@ -1552,7 +1552,7 @@ begin
   FParentLighting:= AValue;
 end;
 
-procedure TBGRAObject3D.ComputeWithMatrix(const AMatrix: TMatrix3D; const AProjection: TProjection3D);
+procedure TBGRAObject3D.ComputeWithMatrix(constref AMatrix: TMatrix3D; constref AProjection: TProjection3D);
 var
   i: Integer;
 begin

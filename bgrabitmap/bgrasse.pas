@@ -2,6 +2,8 @@ unit BGRASSE;
 
 {$mode objfpc}{$H+}
 
+{$i bgrasse.inc}
+
 interface
 
 {begin  //param: eax, edx, ecx  //float: eax ecx edx
@@ -18,7 +20,7 @@ const FLAG_ENABLED_SSE = true;
 
 var UseSSE, UseSSE2, UseSSE3 : boolean;
 
-{$ifdef CPUI386}
+{$ifdef BGRASSE_AVAILABLE}
   {$asmmode intel}
   //SSE rotate singles
   const Shift231 = 1 + 8;
@@ -41,16 +43,16 @@ type
   operator - (const v: TPoint3D_128): TPoint3D_128; inline;
   operator = (const v1,v2: TPoint3D_128): boolean; inline;
   procedure ClearPoint3D_128(out v: TPoint3D_128);
-  {$IFDEF CPUI386}
+  {$IFDEF BGRASSE_AVAILABLE}
   procedure ClearPoint3D_128_AlignedSSE(out v: TPoint3D_128);
   {$ENDIF}
   function IsPoint3D_128_Zero(const v: TPoint3D_128): boolean; inline;
 
 var
-  Add3D_Aligned : procedure (var dest: TPoint3D_128; const src: TPoint3D_128);
+  Add3D_Aligned : procedure (var dest: TPoint3D_128; constref src: TPoint3D_128);
   Normalize3D_128 : procedure (var v: TPoint3D_128);
   VectProduct3D_128 : procedure (const u,v: TPoint3D_128; out w: TPoint3D_128);
-  DotProduct3D_128 : function (const v1,v2: TPoint3D_128): single;
+  DotProduct3D_128 : function (constref v1,v2: TPoint3D_128): single;
 
 const
   Point3D_128_Zero : TPoint3D_128 = (x:0; y:0; z:0; t:0);
@@ -151,17 +153,17 @@ begin
 end;
 {$endif}
 
-{$ifdef CPUI386}
-procedure Add3D_AlignedSSE(var dest: TPoint3D_128; const src: TPoint3D_128); assembler;
+{$ifdef BGRASSE_AVAILABLE}
+procedure Add3D_AlignedSSE(var dest: TPoint3D_128; constref src: TPoint3D_128); assembler;
 asm
-  movaps xmm0, [eax]
-  movups xmm1, [edx]
+  movaps xmm0, [dest]
+  movups xmm1, [src]
   addps xmm0, xmm1
-  movaps [eax], xmm0
+  movaps [dest], xmm0
 end;
 {$endif}
 
-procedure Add3D_NoSSE(var dest: TPoint3D_128; const src: TPoint3D_128);
+procedure Add3D_NoSSE(var dest: TPoint3D_128; constref src: TPoint3D_128);
 {$ifdef CPUI386} assembler;
 asm
   db $d9, $00 //flds [eax]
@@ -225,38 +227,51 @@ begin
 end;
 
 procedure ClearPoint3D_128(out v: TPoint3D_128);
-{$ifdef CPUI386}
-begin
- asm
-   push ebx
-   mov eax,v
-   xor ebx,ebx
-   mov [eax],ebx
-   mov [eax+4],ebx
-   mov [eax+8],ebx
-   pop ebx
- end;
+{$ifdef cpux86_64} assembler;
+asm
+  push rbx
+  mov rax,v
+  xor rbx,rbx
+  mov [rax],rbx
+  mov [rax+8],rbx
+  pop rbx
 end;
 {$else}
-var p: pdword;
-begin
-  p := @v;
-  p^ := 0;
-  inc(p);
-  p^ := 0;
-  inc(p);
-  p^ := 0;
-end;
+  {$ifdef CPUI386} assembler;
+  asm
+    push ebx
+    mov eax,v
+    xor ebx,ebx
+    mov [eax],ebx
+    mov [eax+4],ebx
+    mov [eax+8],ebx
+    pop ebx
+  end;
+  {$else}
+  var p: pdword;
+  begin
+    p := @v;
+    p^ := 0;
+    inc(p);
+    p^ := 0;
+    inc(p);
+    p^ := 0;
+  end;
+  {$endif}
 {$endif}
 
 procedure ClearPoint3D_128_AlignedSSE(out v: TPoint3D_128);
-{$ifdef CPUI386}
-begin
+{$ifdef BGRASSE_AVAILABLE} assembler;
  asm
-   xorps xmm0,xmm0
-   movaps [eax],xmm0
+  xorps xmm0,xmm0
+  {$ifdef cpux86_64}
+  mov rax,v
+  movaps [rax],xmm0
+  {$else}
+  mov eax,v
+  movaps [eax],xmm0
+  {$endif}
  end;
-end;
 {$else}
 var p: pdword;
 begin
@@ -301,8 +316,8 @@ begin
 end;
 {$endif}
 
-{$ifdef CPUI386}
-function DotProduct3D_128_SSE3(const v1,v2: TPoint3D_128): single; assembler;
+{$ifdef BGRASSE_AVAILABLE}
+function DotProduct3D_128_SSE3(constref v1,v2: TPoint3D_128): single; assembler;
 asm
   movups xmm0, [v1]
   movups xmm1, [v2]
@@ -314,7 +329,7 @@ asm
 end;
 {$endif}
 
-function DotProduct3D_128_NoSSE(const v1,v2: TPoint3D_128): single;
+function DotProduct3D_128_NoSSE(constref v1,v2: TPoint3D_128): single;
 begin
   result := v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
 end;
@@ -330,26 +345,25 @@ begin
   v.z *= len;
 end;
 
-{$ifdef CPUI386}
+{$ifdef BGRASSE_AVAILABLE}
 procedure Normalize3D_128_SSE1(var v: TPoint3D_128);
 var len: single;
 begin
   asm
-    mov eax, v
-    movups xmm0, [eax]
-    movaps xmm1, xmm0
-    mulps xmm0, xmm0
+    {$i sseloadv.inc}
+    movaps xmm2, xmm1
+    mulps xmm2, xmm2
 
     //mix1
-    movaps xmm7, xmm0
+    movaps xmm7, xmm2
     shufps xmm7, xmm7, $4e
-    addps xmm0, xmm7
+    addps xmm2, xmm7
     //mix2
-    movaps xmm7, xmm0
+    movaps xmm7, xmm2
     shufps xmm7, xmm7, $11
-    addps xmm0, xmm7
+    addps xmm2, xmm7
 
-    movss len, xmm0
+    movss len, xmm2
   end;
   if (len = 0) then exit;
   if len < 1e-6 then //out of bounds for SSE instruction
@@ -360,28 +374,26 @@ begin
      v.z *= len;
   end else
   asm
-    rsqrtps xmm0, xmm0
-    mulps xmm0, xmm1  //apply
-    mov eax, v
-    movups [eax], xmm0
+    rsqrtps xmm2, xmm2
+    mulps xmm1, xmm2  //apply
+    {$i ssesavev.inc}
   end;
 end;
 {$endif}
 
-{$ifdef CPUI386}
+{$ifdef BGRASSE_AVAILABLE}
 procedure Normalize3D_128_SSE3(var v: TPoint3D_128);
 var len: single;
 begin
   asm
-    mov eax, v
-    movups xmm0, [eax]
-    movaps xmm1, xmm0
-    mulps xmm0, xmm0
+    {$i sseloadv.inc}
+    movaps xmm2, xmm1
+    mulps xmm2, xmm2
 
-    haddps xmm0,xmm0
-    haddps xmm0,xmm0
+    haddps xmm2,xmm2
+    haddps xmm2,xmm2
 
-    movss len, xmm0
+    movss len, xmm2
   end;
   if (len = 0) then exit;
   if len < 1e-6 then //out of bounds for SSE instruction
@@ -392,10 +404,9 @@ begin
      v.z *= len;
   end else
   asm
-    rsqrtps xmm0, xmm0
-    mulps xmm0, xmm1  //apply
-    mov eax, v
-    movups [eax], xmm0
+    rsqrtps xmm2, xmm2
+    mulps xmm1, xmm2  //apply
+    {$i ssesavev.inc}
   end;
 end;
 {$endif}
@@ -403,31 +414,30 @@ end;
 procedure Normalize3D_128_SqLen(var v: TPoint3D_128; out SqLen: single);
 var InvLen: single;
 begin
-  {$ifdef CPUI386}
+  {$ifdef BGRASSE_AVAILABLE}
     if UseSSE then
     begin
       asm
-        mov eax, v
-        movups xmm0, [eax]
-        movaps xmm1, xmm0
-        mulps xmm0, xmm0
+        {$i sseloadv.inc}
+        movaps xmm2, xmm1
+        mulps xmm2, xmm2
       end;
       if UseSSE3 then
       asm
-        haddps xmm0,xmm0
-        haddps xmm0,xmm0
-        movss SqLen, xmm0
+        haddps xmm2,xmm2
+        haddps xmm2,xmm2
+        movss SqLen, xmm2
       end else
       asm
         //mix1
-        movaps xmm7, xmm0
+        movaps xmm7, xmm2
         shufps xmm7, xmm7, $4e
-        addps xmm0, xmm7
+        addps xmm2, xmm7
         //mix2
-        movaps xmm7, xmm0
+        movaps xmm7, xmm2
         shufps xmm7, xmm7, $11
-        addps xmm0, xmm7
-        movss SqLen, xmm0
+        addps xmm2, xmm7
+        movss SqLen, xmm2
       end;
       if SqLen = 0 then exit;
       if SqLen < 1e-6 then //out of bounds for SSE instruction
@@ -438,10 +448,9 @@ begin
          v.z *= InvLen;
       end else
       asm
-        rsqrtps xmm0, xmm0
-        mulps xmm0, xmm1  //apply
-        mov eax, v
-        movups [eax], xmm0
+        rsqrtps xmm2, xmm2
+        mulps xmm1, xmm2  //apply
+        {$i ssesavev.inc}
       end;
     end
     else
@@ -464,16 +473,26 @@ begin
   w.t := 0;
 end;
 
-{$ifdef CPUI386}
-procedure VectProduct3D_128_SSE(const u,v: TPoint3D_128; out w: TPoint3D_128); assembler;
+{$ifdef BGRASSE_AVAILABLE}
+procedure VectProduct3D_128_SSE(constref u,v: TPoint3D_128; out w: TPoint3D_128); assembler;
 asm
-  mov eax, u
-  movups xmm6, [eax]
+  {$ifdef cpux86_64}
+  mov rax,u
+  movups xmm6,[rax]
+  {$else}
+  mov eax,u
+  movups xmm6,[eax]
+  {$endif}
   movaps xmm4, xmm6
   shufps xmm6, xmm6, Shift231
 
-  mov eax, v
-  movups xmm7, [eax]
+  {$ifdef cpux86_64}
+  mov rax,v
+  movups xmm7,[rax]
+  {$else}
+  mov eax,v
+  movups xmm7,[eax]
+  {$endif}
   movaps xmm5,xmm7
   shufps xmm7, xmm7, Shift312
 
@@ -486,8 +505,13 @@ asm
   mulps xmm4,xmm5
   subps xmm3,xmm4
 
+  {$ifdef cpux86_64}
+  mov rax,w
+  movups [rax],xmm3
+  {$else}
   mov eax,w
-  movups [eax], xmm3
+  movups [eax],xmm3
+  {$endif}
 end;
 {$endif}
 
@@ -495,12 +519,12 @@ end;
 
 {$hints off}
 constructor TMemoryBlockAlign128.Create(size: integer);
-{$IFDEF CPUI386}
+{$IFDEF BGRASSE_AVAILABLE}
 var
-  delta: cardinal;
+  delta: PtrUInt;
 begin
   getmem(FContainer, size+15);
-  delta := cardinal(FContainer) and 15;
+  delta := PtrUInt(FContainer) and 15;
   if delta <> 0 then delta := 16-delta;
   FData := pbyte(FContainer)+delta;
 end;
@@ -518,26 +542,37 @@ begin
   inherited Destroy;
 end;
 
-{$ifdef CPUI386}   {$ASMMODE ATT}
+{$ifdef BGRASSE_AVAILABLE}
 function sse3_support : boolean;
 
   var
      _ecx : longint;
 
   begin
+    {$IFDEF CPUI386}
      if cpuid_support then
        begin
           asm
-             pushl %ebx
-             movl $1,%eax
+             push ebx
+             mov eax,1
              cpuid
-             movl %ecx,_ecx
-             popl %ebx
+             mov _ecx,ecx
+             pop ebx
           end;
           sse3_support:=(_ecx and 1)<>0;
        end
      else
        sse3_support:=false;
+    {$ELSE}
+    asm
+       push rbx
+       mov eax,1
+       cpuid
+       mov _ecx,ecx
+       pop rbx
+    end;
+    sse3_support:=(_ecx and 1)<>0;
+    {$ENDIF}
   end;
 {$endif}
 
@@ -545,9 +580,22 @@ initialization
 
   {$ifdef CPUI386}
   UseSSE := is_sse_cpu and FLAG_ENABLED_SSE;
+  {$else}
+    {$ifdef cpux86_64}
+    UseSSE := FLAG_ENABLED_SSE;
+    {$else}
+    UseSSE := false;
+    {$endif}
+  {$endif}
+
+  {$IFDEF BGRASSE_AVAILABLE}
   if UseSSE then
   begin
+    {$ifdef cpux86_64}
+    UseSSE2 := true;
+    {$else}
     UseSSE2 := is_sse2_cpu;
+    {$endif}
     UseSSE3 := sse3_support;
 
     Add3D_Aligned := @Add3D_AlignedSSE;
@@ -564,7 +612,7 @@ initialization
     end;
   end
   else
-  {$endif}
+  {$ENDIF}
   begin
     UseSSE := false;
     UseSSE2 := false;

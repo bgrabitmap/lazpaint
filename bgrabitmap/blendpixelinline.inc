@@ -529,7 +529,9 @@ var aw,bw: word;
 begin
   aw := GammaExpansionTab[a];
   bw := GammaExpansionTab[b];
+  {$HINTS OFF}
   Result := GammaCompressionTab[aw+bw-(longword(aw)*longword(bw) shr 15)];
+  {$HINTS ON}
 end;
 
 procedure ExclusionPixelInline(dest: PBGRAPixel; c: TBGRAPixel); inline;
@@ -561,7 +563,9 @@ end;
 
 function ByteLinearExclusionInline(a, b: byte): byte; inline;
 begin
+  {$HINTS OFF}
   Result := a+b-(a*b shr 7);
+  {$HINTS ON}
 end;
 
 procedure LinearExclusionPixelInline(dest: PBGRAPixel; c: TBGRAPixel); inline;

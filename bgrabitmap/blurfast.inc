@@ -60,20 +60,21 @@ var
 begin
   if radius = 0 then
   begin
-    result := bmp.Duplicate;
+    ADestination.PutImage(0,0,bmp,dmSet);
     exit;
   end;
   bmpWidth := bmp.Width;
   bmpHeight := bmp.Height;
   //create output
-  result := bmp.NewBitmap(bmpWidth,bmpHeight);
+  if (ADestination.Width <> bmp.Width) or (ADestination.Height <> bmp.Height) then
+    raise exception.Create('Dimension mismatch');
   bounds := bmp.GetImageBounds;
-  if (bounds.Right <= bounds.Left) or (bounds.Bottom <= Bounds.Top) then
-    exit;
+  if IsRectEmpty(bounds) then exit;
   bounds.Left   := max(0, bounds.Left - radius);
   bounds.Top    := max(0, bounds.Top - radius);
   bounds.Right  := min(bmp.Width, bounds.Right + radius);
   bounds.Bottom := min(bmp.Height, bounds.Bottom + radius);
+  if not IntersectRect(bounds,bounds,ABounds) then exit;
 
   radiusSquare := sqr((radius+1)*(radius+2) div 2);
   weightShift := 0;
@@ -91,6 +92,7 @@ begin
   //loop through destination bitmap
   for yb := bounds.top to bounds.bottom-1 do
   begin
+    if (ACheckShouldStop <> nil) and ACheckShouldStop() then break;
     //evalute available vertical range
     if yb - radius < 0 then
       ys1 := radius - yb
@@ -113,7 +115,7 @@ begin
     end;
     sumStartIndex := 0;
 
-    pdest := result.scanline[yb]+bounds.left;
+    pdest := ADestination.scanline[yb]+bounds.left;
     for xb := bounds.left to bounds.right-1 do
     begin
       //add vertical rows
@@ -148,5 +150,6 @@ begin
       if sumStartIndex = length(sums) then sumStartIndex := 0;
     end;
   end;
+  ADestination.InvalidateBitmap;
 end;
 

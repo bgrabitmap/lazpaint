@@ -1,0 +1,55 @@
+object FSharpen: TFSharpen
+  Left = 734
+  Height = 72
+  Top = 206
+  Width = 173
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
+  Caption = 'Sharpen/Smooth'
+  ClientHeight = 72
+  ClientWidth = 173
+  OnCreate = FormCreate
+  OnShow = FormShow
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object Label_Amount: TLabel
+    Left = 18
+    Height = 15
+    Top = 11
+    Width = 50
+    Caption = 'Amount :'
+    ParentColor = False
+  end
+  object Button_OK: TButton
+    Left = 17
+    Height = 22
+    Top = 45
+    Width = 59
+    Caption = 'OK'
+    Default = True
+    OnClick = Button_OKClick
+    TabOrder = 0
+  end
+  object Button_Cancel: TButton
+    Left = 81
+    Height = 22
+    Top = 45
+    Width = 73
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 1
+  end
+  object SpinEdit_Amount: TSpinEdit
+    Left = 96
+    Height = 23
+    Top = 8
+    Width = 61
+    Increment = 10
+    MaxValue = 1000
+    MinValue = 1
+    OnChange = SpinEdit_AmountChange
+    TabOrder = 2
+    Value = 100
+  end
+end

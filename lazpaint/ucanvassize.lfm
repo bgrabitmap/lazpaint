@@ -12,28 +12,28 @@ object FCanvasSize: TFCanvasSize
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '0.9.30'
-  object Label2: TLabel
+  LCLVersion = '1.1'
+  object Label_Width: TLabel
     Left = 16
-    Height = 16
+    Height = 15
     Top = 19
-    Width = 39
+    Width = 38
     Caption = 'Width :'
     ParentColor = False
   end
-  object Label3: TLabel
+  object Label_Height: TLabel
     Left = 16
-    Height = 16
+    Height = 15
     Top = 46
-    Width = 43
+    Width = 42
     Caption = 'Height :'
     ParentColor = False
   end
-  object Label1: TLabel
+  object Label_Anchor: TLabel
     Left = 16
-    Height = 16
+    Height = 15
     Top = 80
-    Width = 46
+    Width = 45
     Caption = 'Anchor :'
     ParentColor = False
   end

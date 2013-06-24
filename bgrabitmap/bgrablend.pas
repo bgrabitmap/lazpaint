@@ -384,7 +384,9 @@ var
   p: PByte;
   a1f, a2f, a12, a12m: cardinal;
 begin
+  {$HINTS OFF}
   a12  := 65025 - (not dest^.alpha) * (not c.alpha);
+  {$HINTS ON}
   a12m := a12 shr 1;
 
   a1f := dest^.alpha * (not c.alpha);
@@ -411,7 +413,9 @@ var
   p: PByte;
   a1f, a2f, a12, a12m: cardinal;
 begin
+  {$HINTS OFF}
   a12  := 65025 - (not dest^.alpha) * (not calpha);
+  {$HINTS ON}
   a12m := a12 shr 1;
 
   a1f := dest^.alpha * (not calpha);
@@ -445,7 +449,9 @@ begin
     exit;
   end;
 
+  {$HINTS OFF}
   a12  := 65025 - (not dest^.alpha) * (not c.alpha);
+  {$HINTS ON}
   a12m := a12 shr 1;
 
   a1f := dest^.alpha * (not c.alpha);

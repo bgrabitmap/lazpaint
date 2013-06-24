@@ -69,7 +69,8 @@ type
 
 procedure TWinBitmapTracker.Changed(Sender: TObject);
 begin
-  FUser.AlphaCorrectionNeeded;
+  if FUser <> nil then
+    FUser.AlphaCorrectionNeeded;
   inherited Changed(Sender);
 end;
 

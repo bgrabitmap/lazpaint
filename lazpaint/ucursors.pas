@@ -1,4 +1,4 @@
-unit ucursors;
+unit UCursors;
 
 {$mode objfpc}{$H+}
 

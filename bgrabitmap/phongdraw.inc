@@ -72,8 +72,11 @@ var
   pdest: PBGRAPixel;
   x,y : integer;      // Coordinates of point in height map.
   vS1,vS2: TPoint3D_128; // surface vectors (plane)
+  deltaDown: Int32or64;
+  IsLineUp,IsLineDown: boolean;
 
 begin
+  if map = nil then exit;
   {$ifndef PARAM_SIMPLECOLOR}
     {$ifndef PARAM_SCANNER}
       if (colorMap.Width < map.width) or (colorMap.Height < map.height) then
@@ -105,12 +108,6 @@ begin
   vLS := Point3D_128(LightPosition.X-ofsX,
                   LightPosition.Y-ofsY,
                   LightPositionZ);
-  {$ifdef PARAM_PHONGSSE}
-  asm
-    movups xmm1, vLS
-  end;
-  LightDestFactor4 := Point3D_128(LightDestFactor,LightDestFactor,LightDestFactor,LightDestFactor);
-  {$endif}
 
   //surface vectors
   vS1 := Point3D_128(1,0,0);
@@ -118,11 +115,18 @@ begin
 
   vV := Point3D_128(0,0,1);
 
-
   dist := 0;
   LdotN := 0;
   NnH := 0;
 
+  {$ifdef PARAM_PHONGSSE}
+  LightDestFactor4 := Point3D_128(LightDestFactor,LightDestFactor,LightDestFactor,LightDestFactor);
+  {$endif}
+
+  if map.LineOrder = riloTopToBottom then
+    deltaDown := map.Width*sizeof(TBGRAPixel)
+  else
+    deltaDown := -map.Width*sizeof(TBGRAPixel);
   for y := miny to maxy do
   begin
     //read map values
@@ -137,13 +141,16 @@ begin
         pcolormap := ColorMap.ScanLine[y];
       {$endif}
     {$endif}
+    IsLineUp := y > 0;
+    IsLineDown := y < map.Height-1;
+    mcTop := BGRAPixelTransparent;
+    mcBottom := BGRAPixelTransparent;
     for x := minx to maxx do
     begin
       mcLeft := mc;
       mc := mcRight;
-      inc(pmap);
       if x < map.width-1 then
-        mcRight := pmap^ else
+        mcRight := (pmap+1)^ else
         mcRight := BGRAPixelTransparent;
       if mc.alpha = 0 then
       begin
@@ -155,12 +162,15 @@ begin
           {$endif}
         {$endif}
         inc(pdest);
+        inc(pmap);
         continue;
       end;
 
       //compute surface vectors
-      mcTop := map.GetPixel(x,y-1);
-      mcBottom := map.GetPixel(x,y+1);
+      if IsLineUp then mcTop := pbgrapixel(pbyte(pmap)-deltaDown)^;
+      if IsLineDown then mcBottom := pbgrapixel(pbyte(pmap)+deltaDown)^;
+      inc(pmap);
+
       z := MapHeight(mc)*mapAltitude;
       if mcLeft.alpha = 0 then
       begin
@@ -195,10 +205,16 @@ begin
       if UseSSE3 then
       begin
         {$DEFINE PARAM_USESSE3}
+        asm
+          movups xmm1, vLS
+        end;
         {$i phongdrawsse.inc}
         {$UNDEF PARAM_USESSE3}
       end else
       begin
+        asm
+          movups xmm1, vLS
+        end;
         {$i phongdrawsse.inc}
       end;
       {$else}
@@ -220,16 +236,12 @@ begin
         dist := sqrt(DotProduct3D_128(vD,vD));
 
         NH := DotProduct3D_128(vH,vN);
-        if NH <= 0 then
-          NnH := 0
-        else
-          NnH := exp(SpecularIndex*ln(NH));
       {$endif}
 
       if NH <= 0 then
         NnH := 0
       else
-        NnH := exp(SpecularIndex*ln(NH));
+        NnH := exp(SpecularIndex*ln(NH));  //to be optimized
 
       distfactor := LightSourceIntensity / (dist*LightSourceDistanceFactor + LightSourceDistanceTerm);
 

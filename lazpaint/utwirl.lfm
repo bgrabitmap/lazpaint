@@ -1,24 +1,25 @@
 object FTwirl: TFTwirl
   Left = 631
-  Height = 102
+  Height = 221
   Top = 173
   Width = 169
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Twirl'
-  ClientHeight = 102
+  ClientHeight = 221
   ClientWidth = 169
   Font.Height = -12
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '0.9.30'
+  LCLVersion = '1.1'
   object Button_OK: TButton
     Left = 15
     Height = 22
-    Top = 72
+    Top = 192
     Width = 59
+    Anchors = [akLeft, akBottom]
     Caption = 'OK'
     Default = True
     OnClick = Button_OKClick
@@ -27,26 +28,27 @@ object FTwirl: TFTwirl
   object Button_Cancel: TButton
     Left = 81
     Height = 22
-    Top = 72
+    Top = 192
     Width = 73
+    Anchors = [akLeft, akBottom]
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
     TabOrder = 1
   end
-  object Label2: TLabel
+  object Label_Radius: TLabel
     Left = 14
-    Height = 16
+    Height = 15
     Top = 11
-    Width = 42
+    Width = 41
     Caption = 'Radius :'
     ParentColor = False
   end
-  object Label3: TLabel
+  object Label_Angle: TLabel
     Left = 14
-    Height = 16
+    Height = 15
     Top = 38
-    Width = 38
+    Width = 37
     Caption = 'Angle :'
     ParentColor = False
   end
@@ -74,11 +76,20 @@ object FTwirl: TFTwirl
     TabOrder = 3
     Value = 360
   end
+  object PaintBox1: TPaintBox
+    Left = 10
+    Height = 111
+    Top = 68
+    Width = 148
+    OnMouseDown = PaintBox1MouseDown
+    OnMouseMove = PaintBox1MouseMove
+    OnPaint = PaintBox1Paint
+  end
   object Timer1: TTimer
     Enabled = False
-    Interval = 100
+    Interval = 200
     OnTimer = Timer1Timer
-    left = 16
-    top = 40
+    left = 40
+    top = 8
   end
 end

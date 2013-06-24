@@ -1,4 +1,4 @@
-unit umultiimage;
+unit UMultiImage;
 
 {$mode objfpc}{$H+}
 
@@ -27,7 +27,6 @@ type
     selectedIndex : integer;
   public
     { public declarations }
-    LazPaintInstance: TLazPaintCustomInstance;
     function ShowAndChoose(images: ArrayOfBGRABitmap): TBGRABitmap;
   end; 
 

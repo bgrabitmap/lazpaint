@@ -9,17 +9,16 @@ object FMotionBlur: TFMotionBlur
   ClientHeight = 228
   ClientWidth = 170
   Font.Height = -12
-  OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '0.9.30'
-  object Label3: TLabel
+  LCLVersion = '1.1'
+  object Label_Distance: TLabel
     Left = 11
-    Height = 16
+    Height = 15
     Top = 11
-    Width = 52
+    Width = 51
     Caption = 'Distance :'
     ParentColor = False
   end
@@ -54,10 +53,10 @@ object FMotionBlur: TFMotionBlur
     TabOrder = 1
   end
   object SpinEdit_Distance: TSpinEdit
-    Left = 76
+    Left = 86
     Height = 23
     Top = 8
-    Width = 79
+    Width = 69
     Increment = 3
     MaxValue = 10000
     MinValue = 1
@@ -77,7 +76,6 @@ object FMotionBlur: TFMotionBlur
     TabOrder = 3
   end
   object Timer1: TTimer
-    Enabled = False
     Interval = 100
     OnTimer = Timer1Timer
     left = 115

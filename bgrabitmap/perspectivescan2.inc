@@ -1,10 +1,18 @@
-{$asmmode intel}
+{$i bgrasse.inc}
+
+{$ifdef BGRASSE_AVAILABLE}{$asmmode intel}{$endif}
     {$IFDEF PARAM_USESSE}
       asm
       {$IFDEF PARAM_USESHADER}
-         mov eax, ShaderContext
-         movaps xmm2, [eax+32] //positionInvZ
-         movaps xmm3, [eax+48] //normalInvZ
+         {$IFDEF cpux86_64}
+          mov rax, ShaderContext
+          movaps xmm2, [rax+32] //positionInvZ
+          movaps xmm3, [rax+48] //normalInvZ
+         {$ELSE}
+          mov eax, ShaderContext
+          movaps xmm2, [eax+32] //positionInvZ
+          movaps xmm3, [eax+48] //normalInvZ
+         {$ENDIF}
       {$ENDIF}
       {$IFNDEF PARAM_USESOLIDCOLOR}
          xorps xmm5,xmm5
@@ -26,13 +34,19 @@
              shufps xmm4,xmm4,0     //broadcast
 
            {$IFDEF PARAM_USESHADER}
+             {$ifdef cpux86_64}
+             mov rax, ShaderContext
+             {$else}
              mov eax, ShaderContext
+             {$endif}
 
              mulps xmm2, xmm4       //positionInvZ*zPos (A)
-
              mulps xmm3, xmm4       //normalInvZ*zPos
-
+             {$ifdef cpux86_64}
+             movaps [rax+0], xmm2   //(A) Position
+             {$else}
              movaps [eax+0], xmm2   //(A) Position
+             {$endif}
 
              //normalize
              movaps xmm1, xmm3
@@ -56,7 +70,11 @@
 
              mulps xmm3, xmm1  //apply
 
+             {$ifdef cpux86_64}
+             movaps [rax+16], xmm3  //Normal
+             {$else}
              movaps [eax+16], xmm3  //Normal
+             {$endif}
            {$ENDIF}
 
            {$IFNDEF PARAM_USESOLIDCOLOR}
@@ -141,29 +159,31 @@
 
       {$IFDEF PARAM_USESHADER}
         {$IFDEF PARAM_USESSE}
+           {$ifdef cpux86_64}
            asm
-             mov eax, ShaderContext
-             movaps xmm2, [eax+32] //PositionInvZ
-             movaps xmm1, [eax+64] //PositionStepInvZ
-             movaps xmm3, [eax+48] //NormalInvZ
-             movaps xmm0, [eax+80] //NormalStepInvZ
+             mov rax, ShaderContext
+             movaps xmm2, [rax+32] //PositionInvZ
+             movaps xmm1, [rax+64] //PositionStepInvZ
+             movaps xmm3, [rax+48] //NormalInvZ
+             movaps xmm0, [rax+80] //NormalStepInvZ
              addps xmm2, xmm1
              addps xmm3, xmm0
-             movaps [eax+32], xmm2
-             movaps [eax+48], xmm3
+             movaps [rax+32], xmm2
+             movaps [rax+48], xmm3
            end;
-{asm
-  mov eax, ShaderContext
-  movaps xmm2, [eax+32] //PositionInvZ
-  movaps xmm1, [eax+64] //PositionStepInvZ
-  addps xmm2, xmm1
-  movaps [eax+32], xmm2
-
-  movaps xmm3, [eax+48] //NormalInvZ
-  movaps xmm1, [eax+80] //NormalStepInvZ
-  addps xmm3, xmm1
-  movaps [eax+48], xmm3
-end;}
+           {$else}
+            asm
+              mov eax, ShaderContext
+              movaps xmm2, [eax+32] //PositionInvZ
+              movaps xmm1, [eax+64] //PositionStepInvZ
+              movaps xmm3, [eax+48] //NormalInvZ
+              movaps xmm0, [eax+80] //NormalStepInvZ
+              addps xmm2, xmm1
+              addps xmm3, xmm0
+              movaps [eax+32], xmm2
+              movaps [eax+48], xmm3
+            end;
+           {$endif}
         {$ELSE}
           with ShaderContext^ do
           begin

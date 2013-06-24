@@ -1,4 +1,4 @@
-unit uresample;
+unit UResample;
 
 {$mode objfpc}{$H+}
 
@@ -17,9 +17,9 @@ type
     Button_Cancel: TButton;
     CheckBox_Ratio: TCheckBox;
     ComboBox_Quality: TComboBox;
-    Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
+    Label_Quality: TLabel;
+    Label_Width: TLabel;
+    Label_Height: TLabel;
     SpinEdit_Width: TSpinEdit;
     SpinEdit_Height: TSpinEdit;
     procedure Button_OKClick(Sender: TObject);
@@ -35,7 +35,7 @@ function ShowResampleDialog(Instance: TLazPaintCustomInstance):boolean;
 
 implementation
 
-uses BGRABitmap, BGRABitmapTypes, umac;
+uses BGRABitmap, BGRABitmapTypes, umac, uimage;
 
 { TFResample }
 
@@ -60,6 +60,8 @@ procedure TFResample.FormCreate(Sender: TObject);
 begin
   ScaleDPI(Self,OriginalDPI);
 
+  SpinEdit_Width.MaxValue := MaxImageWidth;
+  SpinEdit_Height.MaxValue := MaxImageHeight;
   CheckOKCancelBtns(Button_OK,Button_Cancel);
   CheckSpinEdit(SpinEdit_Width);
   CheckSpinEdit(SpinEdit_Height);
@@ -108,7 +110,6 @@ begin
     ModalResult := mrCancel
   else
   begin
-    LazPaintInstance.Image.SaveLayerOrSelectionUndo; //just in case
     LazPaintInstance.Config.SetDefaultResampleQuality(ComboBox_Quality.ItemIndex);
     LazPaintInstance.Config.SetDefaultResampleKeepAspectRatio(CheckBox_Ratio.Checked);
     LazPaintInstance.Image.Resample(SpinEdit_Width.Value,SpinEdit_Height.Value,ComboBox_Quality.Text);

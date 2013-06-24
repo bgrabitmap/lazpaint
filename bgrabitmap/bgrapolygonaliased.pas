@@ -2,6 +2,8 @@ unit BGRAPolygonAliased;
 
 {$mode objfpc}{$H+}
 
+{$i bgrasse.inc}
+
 interface
 
 { This unit provides fast aliased polygon routines.
@@ -28,15 +30,15 @@ type
 
   { TPolygonLinearColorGradientInfo }
 
-  TPolygonLinearColorGradientInfo = class(TFillPolyInfo)
+  TPolygonLinearColorGradientInfo = class(TOnePassFillPolyInfo)
   protected
     FColors: array of TColorF;
+    procedure SetIntersectionValues(AInter: TIntersectionInfo; AInterX: Single; AWinding,
+      ANumSegment: integer; dy: single; AData: pointer); override;
   public
     constructor Create(const points: array of TPointF; const Colors: array of TBGRAPixel);
     function CreateSegmentData(numPt,nextPt: integer; x,y: single): pointer; override;
     function CreateIntersectionInfo: TIntersectionInfo; override;
-    procedure ComputeIntersection(cury: single;
-      var inter: ArrayOfTIntersectionInfo; var nbInter: integer); override;
   end;
 
 procedure PolygonLinearColorGradientAliased(bmp: TBGRACustomBitmap; polyInfo: TPolygonLinearColorGradientInfo;
@@ -60,16 +62,16 @@ type
 
   { TPolygonPerspectiveColorGradientInfo }
 
-  TPolygonPerspectiveColorGradientInfo = class(TFillPolyInfo)
+  TPolygonPerspectiveColorGradientInfo = class(TOnePassFillPolyInfo)
   protected
     FColors: array of TColorF;
     FPointsZ: array of single;
+    procedure SetIntersectionValues(AInter: TIntersectionInfo; AInterX: Single; AWinding,
+      ANumSegment: integer; dy: single; AData: pointer); override;
   public
     constructor Create(const points: array of TPointF; const pointsZ: array of single; const Colors: array of TBGRAPixel);
     function CreateSegmentData(numPt,nextPt: integer; x,y: single): pointer; override;
     function CreateIntersectionInfo: TIntersectionInfo; override;
-    procedure ComputeIntersection(cury: single;
-      var inter: ArrayOfTIntersectionInfo; var nbInter: integer); override;
   end;
 
 procedure PolygonPerspectiveColorGradientAliased(bmp: TBGRACustomBitmap; polyInfo: TPolygonPerspectiveColorGradientInfo;
@@ -95,17 +97,17 @@ type
 
   { TPolygonLinearTextureMappingInfo }
 
-  TPolygonLinearTextureMappingInfo = class(TFillPolyInfo)
+  TPolygonLinearTextureMappingInfo = class(TOnePassFillPolyInfo)
   protected
     FTexCoords: array of TPointF;
     FLightnesses: array of Word;
+    procedure SetIntersectionValues(AInter: TIntersectionInfo; AInterX: Single; AWinding,
+      ANumSegment: integer; dy: single; AData: pointer); override;
   public
     constructor Create(const points: array of TPointF; const texCoords: array of TPointF);
     constructor Create(const points: array of TPointF; const texCoords: array of TPointF; const lightnesses: array of word);
     function CreateSegmentData(numPt,nextPt: integer; x,y: single): pointer; override;
     function CreateIntersectionInfo: TIntersectionInfo; override;
-    procedure ComputeIntersection(cury: single;
-      var inter: ArrayOfTIntersectionInfo; var nbInter: integer); override;
   end;
 
 procedure PolygonLinearTextureMappingAliased(bmp: TBGRACustomBitmap; polyInfo: TPolygonLinearTextureMappingInfo;
@@ -139,33 +141,33 @@ type
 
   { TPolygonPerspectiveTextureMappingInfo }
 
-  TPolygonPerspectiveTextureMappingInfo = class(TFillPolyInfo)
+  TPolygonPerspectiveTextureMappingInfo = class(TOnePassFillPolyInfo)
   protected
     FTexCoords: array of TPointF;
     FPointsZ: array of single;
     FLightnesses: array of Word;
+    procedure SetIntersectionValues(AInter: TIntersectionInfo; AInterX: Single; AWinding,
+      ANumSegment: integer; dy: single; AData: pointer); override;
   public
     constructor Create(const points: array of TPointF; const pointsZ: array of single; const texCoords: array of TPointF);
     constructor Create(const points: array of TPointF; const pointsZ: array of single; const texCoords: array of TPointF; const lightnesses: array of word);
     function CreateSegmentData(numPt,nextPt: integer; x,y: single): pointer; override;
     function CreateIntersectionInfo: TIntersectionInfo; override;
-    procedure ComputeIntersection(cury: single;
-      var inter: ArrayOfTIntersectionInfo; var nbInter: integer); override;
   end;
 
   { TPolygonPerspectiveMappingShaderInfo }
 
-  TPolygonPerspectiveMappingShaderInfo = class(TFillPolyInfo)
+  TPolygonPerspectiveMappingShaderInfo = class(TOnePassFillPolyInfo)
   protected
     FTexCoords: array of TPointF;
     FPositions3D, FNormals3D: array of TPoint3D_128;
+    procedure SetIntersectionValues(AInter: TIntersectionInfo; AInterX: Single; AWinding,
+      ANumSegment: integer; dy: single; AData: pointer); override;
   public
     constructor Create(const points: array of TPointF; const points3D: array of TPoint3D; const normals: array of TPoint3D; const texCoords: array of TPointF);
     constructor Create(const points: array of TPointF; const points3D: array of TPoint3D_128; const normals: array of TPoint3D_128; const texCoords: array of TPointF);
     function CreateSegmentData(numPt,nextPt: integer; x,y: single): pointer; override;
     function CreateIntersectionInfo: TIntersectionInfo; override;
-    procedure ComputeIntersection(cury: single;
-      var inter: ArrayOfTIntersectionInfo; var nbInter: integer); override;
   end;
 
   TShaderFunction3D = function (Context: PBasicLightingContext; Color: TBGRAPixel): TBGRAPixel of object;
@@ -198,6 +200,18 @@ implementation
 uses Math, BGRABlend;
 
 { TPolygonPerspectiveColorGradientInfo }
+
+procedure TPolygonPerspectiveColorGradientInfo.SetIntersectionValues(
+  AInter: TIntersectionInfo; AInterX: Single; AWinding, ANumSegment: integer;
+  dy: single; AData: pointer);
+var
+  info: PPerspectiveColorInfo;
+begin
+  AInter.SetValues(AInterX,AWinding,ANumSegment);
+  info := PPerspectiveColorInfo(AData);
+  TPerspectiveColorGradientIntersectionInfo(AInter).coordInvZ := dy*info^.InvZSlope + info^.InvZ;
+  TPerspectiveColorGradientIntersectionInfo(AInter).ColorDivZ := info^.ColorDivZ + info^.ColorSlopesDivZ*dy;
+end;
 
 constructor TPolygonPerspectiveColorGradientInfo.Create(
   const points: array of TPointF; const pointsZ: array of single;
@@ -265,34 +279,18 @@ begin
   Result:= TPerspectiveColorGradientIntersectionInfo.Create;
 end;
 
-procedure TPolygonPerspectiveColorGradientInfo.ComputeIntersection(
-  cury: single; var inter: ArrayOfTIntersectionInfo; var nbInter: integer);
-var
-  j: integer;
-  dy: single;
-  info: PPerspectiveColorInfo;
-begin
-  if length(FSlices)=0 then exit;
-
-  while (cury < FSlices[FCurSlice].y1) and (FCurSlice > 0) do dec(FCurSlice);
-  while (cury > FSlices[FCurSlice].y2) and (FCurSlice < high(FSlices)) do inc(FCurSlice);
-  with FSlices[FCurSlice] do
-  if (cury >= y1) and (cury <= y2) then
-  begin
-    for j := 0 to nbSegments-1 do
-    begin
-      dy := cury - segments[j].y1;
-      inter[nbinter].interX := dy * segments[j].slope + segments[j].x1;
-      inter[nbinter].winding := segments[j].winding;
-      info := PPerspectiveColorInfo(segments[j].data);
-      TPerspectiveColorGradientIntersectionInfo(inter[nbinter]).coordInvZ := dy*info^.InvZSlope + info^.InvZ;
-      TPerspectiveColorGradientIntersectionInfo(inter[nbinter]).ColorDivZ := info^.ColorDivZ + info^.ColorSlopesDivZ*dy;
-      Inc(nbinter);
-    end;
-  end;
-end;
-
 { TPolygonLinearColorGradientInfo }
+
+procedure TPolygonLinearColorGradientInfo.SetIntersectionValues(
+  AInter: TIntersectionInfo; AInterX: Single; AWinding, ANumSegment: integer;
+  dy: single; AData: pointer);
+var
+  info: PLinearColorInfo;
+begin
+  AInter.SetValues(AInterX,AWinding,ANumSegment);
+  info := PLinearColorInfo(AData);
+  TLinearColorGradientIntersectionInfo(AInter).color := info^.Color + info^.ColorSlopes*dy;
+end;
 
 constructor TPolygonLinearColorGradientInfo.Create(
   const points: array of TPointF; const Colors: array of TBGRAPixel);
@@ -344,32 +342,6 @@ begin
   Result:= TLinearColorGradientIntersectionInfo.Create;
 end;
 
-procedure TPolygonLinearColorGradientInfo.ComputeIntersection(cury: single;
-      var inter: ArrayOfTIntersectionInfo; var nbInter: integer);
-var
-  j: integer;
-  dy: single;
-  info: PLinearColorInfo;
-begin
-  if length(FSlices)=0 then exit;
-
-  while (cury < FSlices[FCurSlice].y1) and (FCurSlice > 0) do dec(FCurSlice);
-  while (cury > FSlices[FCurSlice].y2) and (FCurSlice < high(FSlices)) do inc(FCurSlice);
-  with FSlices[FCurSlice] do
-  if (cury >= y1) and (cury <= y2) then
-  begin
-    for j := 0 to nbSegments-1 do
-    begin
-      dy := cury - segments[j].y1;
-      inter[nbinter].interX := dy * segments[j].slope + segments[j].x1;
-      inter[nbinter].winding := segments[j].winding;
-      info := PLinearColorInfo(segments[j].data);
-      TLinearColorGradientIntersectionInfo(inter[nbinter]).color := info^.Color + info^.ColorSlopes*dy;
-      Inc(nbinter);
-    end;
-  end;
-end;
-
 procedure PolygonLinearColorGradientAliased(bmp: TBGRACustomBitmap;
   polyInfo: TPolygonLinearColorGradientInfo; NonZeroWinding: boolean);
 var
@@ -388,14 +360,14 @@ var
     {%H-}cInt: packed record
         r,g,b,a: integer;
        end;
-    {$IFDEF CPUI386} c: TBGRAPixel; {$ENDIF}
+    {$IFDEF BGRASSE_AVAILABLE} c: TBGRAPixel; {$ENDIF}
   begin
     t := ((ix1+0.5)-x1)/(x2-x1);
     colorPos := c1 + (c2-c1)*t;
     colorStep := (c2-c1)*(1/(x2-x1));
     pdest := bmp.ScanLine[yb]+ix1;
 
-    {$IFDEF CPUI386} {$asmmode intel}
+    {$IFDEF BGRASSE_AVAILABLE} {$asmmode intel}
     If UseSSE then
     begin
       asm
@@ -498,6 +470,21 @@ end;
 
 { TPolygonLinearTextureMappingInfo }
 
+procedure TPolygonLinearTextureMappingInfo.SetIntersectionValues(
+  AInter: TIntersectionInfo; AInterX: Single; AWinding, ANumSegment: integer;
+  dy: single; AData: pointer);
+var
+  info: PLinearTextureInfo;
+begin
+  AInter.SetValues(AInterX,AWinding,ANumSegment);
+  info := PLinearTextureInfo(AData);
+  TLinearTextureMappingIntersectionInfo(AInter).texCoord := info^.TexCoord + info^.TexCoordSlopes*dy;
+  if FLightnesses<>nil then
+    TLinearTextureMappingIntersectionInfo(AInter).lightness := round(info^.lightness + info^.lightnessSlope*dy)
+  else
+    TLinearTextureMappingIntersectionInfo(AInter).lightness := 32768;
+end;
+
 constructor TPolygonLinearTextureMappingInfo.Create(const points: array of TPointF;
   const texCoords: array of TPointF);
 var
@@ -586,36 +573,6 @@ begin
   result := TLinearTextureMappingIntersectionInfo.Create;
 end;
 
-procedure TPolygonLinearTextureMappingInfo.ComputeIntersection(cury: single;
-      var inter: ArrayOfTIntersectionInfo; var nbInter: integer);
-var
-  j: integer;
-  dy: single;
-  info: PLinearTextureInfo;
-begin
-  if length(FSlices)=0 then exit;
-
-  while (cury < FSlices[FCurSlice].y1) and (FCurSlice > 0) do dec(FCurSlice);
-  while (cury > FSlices[FCurSlice].y2) and (FCurSlice < high(FSlices)) do inc(FCurSlice);
-  with FSlices[FCurSlice] do
-  if (cury >= y1) and (cury <= y2) then
-  begin
-    for j := 0 to nbSegments-1 do
-    begin
-      dy := cury - segments[j].y1;
-      inter[nbinter].interX := dy * segments[j].slope + segments[j].x1;
-      inter[nbinter].winding := segments[j].winding;
-      info := PLinearTextureInfo(segments[j].data);
-      TLinearTextureMappingIntersectionInfo(inter[nbinter]).texCoord := info^.TexCoord + info^.TexCoordSlopes*dy;
-      if FLightnesses<>nil then
-        TLinearTextureMappingIntersectionInfo(inter[nbinter]).lightness := round(info^.lightness + info^.lightnessSlope*dy)
-      else
-        TLinearTextureMappingIntersectionInfo(inter[nbinter]).lightness := 32768;
-      Inc(nbinter);
-    end;
-  end;
-end;
-
 {$hints off}
 
 procedure PolygonPerspectiveColorGradientAliased(bmp: TBGRACustomBitmap;
@@ -636,7 +593,7 @@ var
     invDx: single;
     z,invZ,InvZStep: single;
     r,g,b,a: integer;
-    {$IFDEF CPUI386}minVal,maxVal: single;
+    {$IFDEF BGRASSE_AVAILABLE}minVal,maxVal: single;
     cInt: packed record
       r,g,b,a: integer;
     end;
@@ -656,7 +613,7 @@ var
     begin
     {$DEFINE PARAM_USEZBUFFER}
       zbufferpos := zbuffer + yb*bmp.Width + ix1;
-      {$IFDEF CPUI386}
+      {$IFDEF BGRASSE_AVAILABLE}
       If UseSSE then
       begin
         {$DEFINE PARAM_USESSE}
@@ -678,7 +635,7 @@ var
     {$UNDEF PARAM_USEZBUFFER}
     end else
     begin
-      {$IFDEF CPUI386}
+      {$IFDEF BGRASSE_AVAILABLE}
       If UseSSE then
       begin
         {$DEFINE PARAM_USESSE}

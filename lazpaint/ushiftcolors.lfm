@@ -1,19 +1,18 @@
 object FShiftColors: TFShiftColors
-  Left = 694
+  Left = 510
   Height = 141
-  Top = 259
-  Width = 405
+  Top = 174
+  Width = 490
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Shift colors'
   ClientHeight = 141
-  ClientWidth = 405
+  ClientWidth = 490
   Font.Height = -12
   OnCreate = FormCreate
-  OnHide = FormHide
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '0.9.30'
+  LCLVersion = '1.0.1.3'
   object Label1: TLabel
     Left = 8
     Height = 16
@@ -49,17 +48,18 @@ object FShiftColors: TFShiftColors
     TabOrder = 1
   end
   object Button_OK: TButton
-    Left = 136
+    Left = 163
     Height = 22
     Top = 110
     Width = 59
     Caption = 'OK'
     Default = True
+    ModalResult = 1
     OnClick = Button_OKClick
     TabOrder = 2
   end
   object Button_Cancel: TButton
-    Left = 200
+    Left = 227
     Height = 22
     Top = 110
     Width = 72
@@ -76,5 +76,31 @@ object FShiftColors: TFShiftColors
     Caption = 'Corrected hue and lightness'
     OnChange = CheckBox_GSBAChange
     TabOrder = 4
+  end
+  object FloatSpinEdit_Saturation: TFloatSpinEdit
+    Left = 408
+    Height = 23
+    Top = 43
+    Width = 72
+    DecimalPlaces = 3
+    Increment = 1
+    MaxValue = 2
+    MinValue = -2
+    OnChange = FloatSpinEdit_SaturationChange
+    TabOrder = 5
+    Value = 0
+  end
+  object FloatSpinEdit_Hue: TFloatSpinEdit
+    Left = 408
+    Height = 23
+    Top = 7
+    Width = 72
+    DecimalPlaces = 1
+    Increment = 1
+    MaxValue = 180
+    MinValue = -180
+    OnChange = FloatSpinEdit_HueChange
+    TabOrder = 6
+    Value = 0
   end
 end

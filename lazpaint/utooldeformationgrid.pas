@@ -1,11 +1,11 @@
-unit utooldeformationgrid;
+unit UToolDeformationGrid;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, Types, Math, SysUtils, utool, BGRABitmapTypes, BGRABitmap;
+  Classes, Types, Math, SysUtils, utool, BGRABitmapTypes, BGRABitmap, UImage;
 
 type
 
@@ -13,20 +13,20 @@ type
 
   TToolDeformationGrid = class(TGenericTool)
   private
-    FPreviousBounds,FCurrentBounds,FMergedBounds: TRect;
+    FCurrentBounds,FMergedBounds: TRect;
     procedure ReleaseGrid;
-    procedure ToolDeformationGridNeeded;
+    function ToolDeformationGridNeeded: boolean;
     procedure ValidateDeformationGrid;
   protected
     deformationGridNbX,deformationGridNbY,deformationGridX,deformationGridY: integer;
     deformationGridMoving: boolean;
     deformationOrigin: TPointF;
-    deformationGridBackup: TBGRABitmap;
+    DoingDeformation: boolean;
     deformationGrid: array of array of TPointF;
     deformationGridTexCoord: array of array of TPointF;
-    function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;
-      rightBtn: boolean): TRect; override;
-    function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): Trect;
+    function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
+      {%H-}rightBtn: boolean): TRect; override;
+    function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): Trect;
       override;
     function GetIsSelectingTool: boolean; override;
   public
@@ -42,34 +42,111 @@ type
 
   TToolTextureMapping = class(TGenericTool)
   private
-    FPreviousBounds,FCurrentBounds,FMergedBounds: TRect;
+    class var FHintShowed: boolean;
+    FCurrentBounds,FMergedBounds: TRect;
+    FAdaptedTexture: TBGRABitmap;
+    FCanReadaptTexture: boolean;
+    FHighQuality: boolean;
     procedure ToolQuadNeeded;
     procedure ValidateQuad;
-    procedure DrawQuad;
+    procedure DrawQuad; virtual;
+    function GetAdaptedTexture: TBGRABitmap;
 
   protected
+    shiftKey,altKey: boolean;
+    snapToPixel: boolean;
+    boundsMode: boolean;
     quadDefined: boolean;
-    quad: array[0..3] of TPointF;
+    quad: array of TPointF;
+    boundsPts: array of TPointF;
     quadMovingIndex: integer;
-    quadMoving: boolean;
-    quadMovingOrigin: TPointF;
-    quadBackup: TBGRABitmap;
-    function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;
-      rightBtn: boolean): TRect; override;
-    function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect;
+    quadMoving,quadMovingBounds: boolean;
+    quadMovingDelta: TPointF;
+    function SnapIfNecessary(ptF: TPointF): TPointF;
+    function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
+      {%H-}rightBtn: boolean): TRect; override;
+    function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect;
       override;
     function GetIsSelectingTool: boolean; override;
+    function GetTexture: TBGRABitmap; virtual;
+    procedure OnTryStop({%H-}sender: TLayerAction); override;
+    function ComputeBoundsPoints: ArrayOfTPointF;
+    procedure PrepareBackground({%H-}toolDest: TBGRABitmap; AFirstTime: boolean); virtual;
+    function DefaultTextureCenter: TPointF; virtual;
+    function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
   public
     constructor Create(AManager: TToolManager); override;
     function ToolKeyDown(key: Word): TRect; override;
+    function ToolKeyUp(key: Word): TRect; override;
     function ToolUp: TRect; override;
     procedure Render(VirtualScreen: TBGRABitmap; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction); override;
     destructor Destroy; override;
   end;
 
+  { TToolLayerMapping }
+
+  TToolLayerMapping = class(TToolTextureMapping)
+  protected
+    FTexture: TBGRABitmap;
+    FDefaultTextureCenter: TPointF;
+    FAlreadyDrawnOnce: boolean;
+    procedure PrepareTexture;
+    procedure PrepareBackground(toolDest: TBGRABitmap; {%H-}AFirstTime: boolean); override;
+    function GetTexture: TBGRABitmap; override;
+    function DefaultTextureCenter: TPointF; override;
+  public
+    destructor Destroy; override;
+  end;
+
 implementation
 
-uses LCLType, ugraph, uscaledpi, LazPaintType, BGRAFillInfo;
+uses LCLType, ugraph, uscaledpi, LazPaintType, BGRAFillInfo, BGRATransform;
+
+{ TToolLayerMapping }
+
+procedure TToolLayerMapping.PrepareTexture;
+var src: TBGRABitmap;
+    bounds: TRect;
+begin
+  if FTexture = nil then
+  begin
+    src := Action.BackupDrawingLayer;
+    bounds := src.GetImageBounds;
+    if IsRectEmpty(bounds) then
+      bounds := rect(0,0,1,1);
+    FTexture := src.GetPart(bounds) as TBGRABitmap;
+    FDefaultTextureCenter := PointF((bounds.Left+bounds.Right)/2-0.5,(bounds.Top+bounds.Bottom)/2-0.5);
+  end;
+end;
+
+procedure TToolLayerMapping.PrepareBackground(toolDest: TBGRABitmap;
+  AFirstTime: boolean);
+begin
+  toolDest.FillTransparent;
+  if not FAlreadyDrawnOnce then
+  begin
+    FAlreadyDrawnOnce := true;
+    Manager.Image.ImageMayChangeCompletely;
+  end;
+end;
+
+function TToolLayerMapping.GetTexture: TBGRABitmap;
+begin
+  PrepareTexture;
+  result := FTexture;
+end;
+
+function TToolLayerMapping.DefaultTextureCenter: TPointF;
+begin
+  PrepareTexture;
+  result := FDefaultTextureCenter;
+end;
+
+destructor TToolLayerMapping.Destroy;
+begin
+  FreeAndNil(FTexture);
+  inherited Destroy;
+end;
 
 { TToolTextureMapping }
 
@@ -77,11 +154,12 @@ procedure TToolTextureMapping.ToolQuadNeeded;
 var
   tx,ty: single;
   ratio,temp: single;
+  center: TPointF;
 begin
-  if not quadDefined and (Manager.ToolTexture <> nil) and (Manager.ToolTexture.Width > 1) and (Manager.ToolTexture.Height > 1) then
+  if not quadDefined and (GetTexture <> nil) and (GetTexture.Width > 0) and (GetTexture.Height > 0) then
   begin
-    tx := Manager.ToolTexture.Width;
-    ty := Manager.ToolTexture.Height;
+    tx := GetTexture.Width;
+    ty := GetTexture.Height;
     ratio := 1;
     if tx > Manager.Image.Width then
       ratio := Manager.Image.Width/tx;
@@ -92,12 +170,14 @@ begin
     end;
     if ratio > 0 then
     begin
-      quad[0] := PointF((Manager.Image.Width-tx*ratio)/2,(Manager.Image.Width-ty*ratio)/2);
-      quad[1] := PointF((Manager.Image.Width+tx*ratio-1)/2,(Manager.Image.Width-ty*ratio)/2);
-      quad[2] := PointF((Manager.Image.Width+tx*ratio-1)/2,(Manager.Image.Width+ty*ratio-1)/2);
-      quad[3] := PointF((Manager.Image.Width-tx*ratio)/2,(Manager.Image.Width+ty*ratio-1)/2);
+      setlength(quad,4);
+      center := DefaultTextureCenter;
+      quad[0] := PointF(round(center.x-tx*ratio/2+0.5)-0.5,round(center.y -ty*ratio/2 + 0.5)-0.5);
+      quad[1] := PointF(quad[0].x + tx*ratio,quad[0].y);
+      quad[2] := PointF(quad[1].x, quad[1].Y + ty*ratio);
+      quad[3] := PointF(quad[0].x, quad[2].y);
       quadDefined:= true;
-      quadBackup := GetToolDrawingLayer.Duplicate as TBGRABitmap;
+      PrepareBackground(GetToolDrawingLayer, True);
       DrawQuad;
     end;
   end;
@@ -107,23 +187,139 @@ procedure TToolTextureMapping.ValidateQuad;
 begin
   if quadDefined then
   begin
-    FreeAndNil(quadBackup);
+    if Manager.Image.Width*Manager.Image.Height <= 786432 then
+    begin
+      PrepareBackground(GetToolDrawingLayer,False);
+      FHighQuality := true;
+      FCanReadaptTexture:= true;
+      DrawQuad;
+      FCanReadaptTexture:= false;
+      FHighQuality := false;
+      Manager.Image.ImageMayChange(FMergedBounds);
+    end;
+    ValidateAction;
     quadDefined := false;
-    Manager.Image.SaveLayerOrSelectionUndo;
+    quad := nil;
   end;
 end;
 
 procedure TToolTextureMapping.DrawQuad;
+const OversampleQuality = 2;
+var previousBounds: TRect;
+  tex: TBGRABitmap;
+  persp: TBGRAPerspectiveScannerTransform;
+  dest: TBGRABitmap;
+  quadHQ: array of TPointF;
+  i: integer;
+
+  function AlmostInt(value: single): boolean;
+  begin
+    result := (value-round(value)) < 1e-6;
+  end;
+
 begin
   if quadDefined then
   begin
-    FPreviousBounds := FCurrentBounds;
-    FCurrentBounds := GetShapeBounds([quad[0],quad[1],quad[2],quad[3]],1);
-    FMergedBounds := RectUnion(FPreviousBounds,FCurrentBounds);
-    GetToolDrawingLayer.FillQuadPerspectiveMappingAntialias(quad[0],quad[1],quad[2],quad[3],Manager.ToolTexture,PointF(0,0),PointF(manager.ToolTexture.Width-1,0),
-      PointF(manager.ToolTexture.Width-1,manager.ToolTexture.Height-1),PointF(0,manager.ToolTexture.Height-1));
-    Manager.Image.ImageMayChange(FMergedBounds);
+    if (quad[1].y = quad[0].y) and (quad[3].x = quad[0].x) and (quad[2].x = quad[1].x) and (quad[3].y = quad[2].y) and
+      AlmostInt(quad[0].x+0.5) and AlmostInt(quad[0].y+0.5) and AlmostInt(quad[2].x+0.5) and AlmostInt(quad[2].y+0.5) and
+      (round(quad[2].x-quad[0].x) = GetTexture.Width) and (round(quad[2].y-quad[0].y) = GetTexture.Height) then
+       FHighQuality := false;
+
+    tex := GetAdaptedTexture;
+    if tex <> nil then
+    begin
+      previousBounds := FCurrentBounds;
+
+      if FHighQuality then
+      begin
+        dest := TBGRABitmap.Create(Manager.Image.Width*OversampleQuality,Manager.Image.Height*OversampleQuality);
+        setlength(quadHQ, length(quad));
+        for i := 0 to high(quad) do quadHQ[i] := (quad[i]+PointF(0.5,0.5))*OversampleQuality - PointF(0.5,0.5);
+      end
+      else
+      begin
+        dest := GetToolDrawingLayer;
+        quadHQ := quad;
+      end;
+
+      if Manager.ToolPerspectiveRepeat then
+      begin
+        FCurrentBounds := rect(0,0,Manager.Image.Width,Manager.Image.Height);
+        persp := TBGRAPerspectiveScannerTransform.Create(tex,[PointF(-0.5,-0.5),PointF(tex.Width-0.5,-0.5),
+          PointF(tex.Width-0.5,tex.Height-0.5),PointF(-0.5,tex.Height-0.5)],quadHQ);
+        persp.IncludeOppositePlane := Manager.ToolPerspectiveTwoPlanes;
+        dest.FillRect(0,0,dest.Width,dest.Height,persp,dmDrawWithTransparency);
+        persp.Free;
+      end else
+      begin
+        FCurrentBounds := GetShapeBounds([quad[0],quad[1],quad[2],quad[3]],1);
+        dest.FillQuadPerspectiveMappingAntialias(quadHQ[0],quadHQ[1],quadHQ[2],quadHQ[3],tex,PointF(-0.5,-0.5),PointF(tex.Width-0.5,-0.5),
+          PointF(tex.Width-0.5,tex.Height-0.5),PointF(-0.5,tex.Height-0.5), rect(0,0,tex.Width,tex.Height));
+      end;
+
+      if FHighQuality then
+      begin
+        BGRAReplace(dest, dest.Resample(dest.Width div OversampleQuality, dest.Height div OversampleQuality,rmSimpleStretch));
+        BGRAReplace(dest, dest.FilterSharpen(96/256));
+        GetToolDrawingLayer.PutImage(0,0,dest,dmDrawWithTransparency);
+        FreeAndNil(dest);
+      end;
+      FMergedBounds := RectUnion(previousBounds,FCurrentBounds);
+      Manager.Image.ImageMayChange(FMergedBounds);
+    end;
   end;
+end;
+
+function TToolTextureMapping.GetAdaptedTexture: TBGRABitmap;
+var tx,ty: integer;
+  precisionFactor: single;
+begin
+  if Manager.ToolPerspectiveRepeat then //cannot optimize size
+  begin
+    result := GetTexture;
+    exit;
+  end;
+
+  if GetTexture = nil then
+  begin
+    result := nil;
+    exit;
+  end else
+  begin
+    if FHighQuality then precisionFactor := 3
+      else precisionFactor:= 1.5;
+    tx := ceil(Max(VectLen(quad[1]-quad[0]),VectLen(quad[2]-quad[3]))*precisionFactor);
+    ty := ceil(Max(VectLen(quad[2]-quad[1]),VectLen(quad[3]-quad[0]))*precisionFactor);
+    if tx < 1 then tx := 1;
+    if ty < 1 then ty := 1;
+    if tx > GetTexture.Width then tx := GetTexture.Width;
+    if ty > GetTexture.Height then ty := GetTexture.Height;
+
+    if (tx = GetTexture.Width) and (ty = GetTexture.Height) then
+    begin
+      result := GetTexture;
+      exit;
+    end;
+
+    if (FAdaptedTexture = nil) or FCanReadaptTexture then
+    begin
+      if (FAdaptedTexture <> nil) and ((FAdaptedTexture.Width <> tx) or (FAdaptedTexture.Height <> ty)) then
+        FreeAndNil(FAdaptedTexture);
+      if FAdaptedTexture = nil then
+      begin
+        GetTexture.ResampleFilter := rfLinear;
+        FAdaptedTexture := GetTexture.Resample(tx,ty,rmFineResample) as TBGRABitmap;
+      end;
+    end;
+    result := FAdaptedTexture;
+    exit;
+  end;
+end;
+
+function TToolTextureMapping.SnapIfNecessary(ptF: TPointF): TPointF;
+begin
+  if not snapToPixel then result := ptF else
+    result := PointF(round(ptF.X),round(ptF.Y));
 end;
 
 function TToolTextureMapping.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
@@ -131,49 +327,135 @@ function TToolTextureMapping.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
 var
   n: Integer;
   curDist,minDist: single;
+  pts: array of TPointF;
 begin
+  if rightBtn then exit;
   ToolQuadNeeded;
   if not quadDefined then exit;
 
+  if boundsMode then
+    pts := boundsPts
+  else
+    pts := quad;
+
   result := EmptyRect;
   minDist := sqr(DoScaleX(10,OriginalDPI));
-  for n := 0 to high(quad) do
+  for n := 0 to high(pts) do
   begin
-    curDist := sqr(ptF.x-quad[n].x)+sqr(ptF.y-quad[n].y);
+    curDist := sqr(ptF.x-pts[n].x)+sqr(ptF.y-pts[n].y);
     if curDist < minDist then
     begin
       minDist := curDist;
       quadMovingIndex := n;
-      quadMovingOrigin := ptF;
+      quadMovingDelta := pts[n]-PtF;
       quadMoving := True;
+      quadMovingBounds  := boundsMode;
     end;
   end;
 
-  if not quadMoving and IsPointInPolygon(quad, ptF, true) then
+  if not quadMoving and IsPointInPolygon(pts, ptF, true) then
   begin
     quadMovingIndex := -1;
-    quadMovingOrigin := ptF;
+    quadMovingDelta := (quad[0]+quad[2])*0.5-ptF;
     quadMoving := true;
+    quadMovingBounds  := boundsMode;
   end;
 
+end;
+
+function NonZero(AValue, ADefault: single): single;
+begin
+  if AValue = 0 then result := ADefault
+  else result := AValue;
 end;
 
 function TToolTextureMapping.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF): TRect;
 var n: integer;
+  delta,prevSize,newSize: TPointF;
+  curBounds: array of TPointF;
+  ratioX,ratioY,ratio: single;
 begin
+  if not FHintShowed then
+  begin
+    Manager.ToolPopup(tpmAltShiftScaleMode);
+    FHintShowed:= true;
+  end;
   result := EmptyRect;
+  Manager.HintReturnValidates;
   if quadMoving then
   begin
     if quadMovingIndex = -1 then
     begin
+      delta := SnapIfNecessary(quadMovingDelta + ptF) - ((quad[0]+quad[2])*0.5);
       for n := 0 to high(quad) do
-        quad[n] += ptF-quadMovingOrigin;
+        quad[n] += delta;
+      if quadMovingBounds then boundsPts := ComputeBoundsPoints;
     end
     else
-      quad[quadMovingIndex] += ptF-quadMovingOrigin;
-    quadMovingOrigin := ptF;
-    toolDest.PutImage(0,0,quadBackup,dmSet);
+    if quadMovingBounds then
+    begin
+      boundsPts[quadMovingIndex] := SnapIfNecessary(quadMovingDelta + ptF);
+      case quadMovingIndex of
+        0:begin
+          boundsPts[1].y := boundsPts[quadMovingIndex].y;
+          boundsPts[3].x := boundsPts[quadMovingIndex].x;
+        end;
+        1:begin
+          boundsPts[0].y := boundsPts[quadMovingIndex].y;
+          boundsPts[2].x := boundsPts[quadMovingIndex].x;
+        end;
+        2:begin
+          boundsPts[3].y := boundsPts[quadMovingIndex].y;
+          boundsPts[1].x := boundsPts[quadMovingIndex].x;
+        end;
+        3:begin
+          boundsPts[2].y := boundsPts[quadMovingIndex].y;
+          boundsPts[0].x := boundsPts[quadMovingIndex].x;
+        end;
+      end;
+      if ShiftKey then
+      begin
+        curBounds := ComputeBoundsPoints;
+        prevSize := curBounds[2]-curBounds[0];
+        newSize := boundsPts[2]-boundsPts[0];
+        if (abs(prevSize.x) > 1e-6) and (abs(prevSize.y) > 1e-6) then
+        begin
+          ratioX := abs(newSize.X/prevSize.X);
+          ratioY := abs(newSize.Y/prevSize.Y);
+          ratio := (ratioX+ratioY)/2;
+          newSize.X := abs(prevSize.X)*ratio*NonZero(Sign(newSize.X),1);
+          newSize.Y := abs(prevSize.Y)*ratio*NonZero(Sign(newSize.Y),1);
+          case quadMovingIndex of
+          0: boundsPts[0] := boundsPts[2]-newSize;
+          1: boundsPts[1] := boundsPts[3]+PointF(newSize.X,-newSize.Y);
+          2: boundsPts[2] := boundsPts[0]+newSize;
+          3: boundsPts[3] := boundsPts[1]+PointF(-newSize.X,newSize.Y);
+          end;
+          case quadMovingIndex of
+            0:begin
+              boundsPts[1].y := boundsPts[quadMovingIndex].y;
+              boundsPts[3].x := boundsPts[quadMovingIndex].x;
+            end;
+            1:begin
+              boundsPts[0].y := boundsPts[quadMovingIndex].y;
+              boundsPts[2].x := boundsPts[quadMovingIndex].x;
+            end;
+            2:begin
+              boundsPts[3].y := boundsPts[quadMovingIndex].y;
+              boundsPts[1].x := boundsPts[quadMovingIndex].x;
+            end;
+            3:begin
+              boundsPts[2].y := boundsPts[quadMovingIndex].y;
+              boundsPts[0].x := boundsPts[quadMovingIndex].x;
+            end;
+          end;
+        end;
+      end;
+    end
+    else
+      quad[quadMovingIndex] := SnapIfNecessary(quadMovingDelta + ptF);
+    PrepareBackground(toolDest,False);
     DrawQuad;
     result := FMergedBounds;
   end;
@@ -184,16 +466,86 @@ begin
   Result:= false;
 end;
 
+function TToolTextureMapping.GetTexture: TBGRABitmap;
+begin
+  result := Manager.GetToolTextureAfterAlpha;
+end;
+
+procedure TToolTextureMapping.OnTryStop(sender: TLayerAction);
+begin
+  //nothing
+end;
+
+function TToolTextureMapping.ComputeBoundsPoints: ArrayOfTPointF;
+var
+  minPt,maxPt: TPointF;
+  i: integer;
+begin
+  if quadDefined then
+  begin
+    minPt := quad[low(quad)];
+    maxPt := quad[low(quad)];
+    for i := 1 to high(quad) do
+    begin
+      if quad[i].x < minPt.X then minPt.x := quad[i].x;
+      if quad[i].x > maxPt.X then maxPt.x := quad[i].x;
+      if quad[i].y < minPt.y then minPt.y := quad[i].y;
+      if quad[i].y > maxPt.y then maxPt.y := quad[i].y;
+    end;
+    result := PointsF([minPt, PointF(maxPt.X,minPt.Y), maxPt, PointF(MinPt.X,MaxPt.Y)]);
+  end else
+    result := nil;
+end;
+
+procedure TToolTextureMapping.PrepareBackground(toolDest: TBGRABitmap;
+  AFirstTime: boolean);
+begin
+  if not AFirstTime then RestoreBackupDrawingLayer;
+end;
+
+function TToolTextureMapping.DefaultTextureCenter: TPointF;
+begin
+  result := PointF(Manager.Image.Width/2,Manager.Image.Height/2);
+end;
+
+function TToolTextureMapping.DoToolUpdate(toolDest: TBGRABitmap): TRect;
+begin
+  if quadDefined then
+  begin
+    PrepareBackground(GetToolDrawingLayer,False);
+    DrawQuad;
+    result := FMergedBounds;
+  end
+    else
+      result := EmptyRect;
+end;
+
 constructor TToolTextureMapping.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
   FCurrentBounds := EmptyRect;
+  FHighQuality:= False;
   ToolQuadNeeded;
 end;
 
 function TToolTextureMapping.ToolKeyDown(key: Word): TRect;
 begin
   result := EmptyRect;
+
+  if key = VK_MENU then
+  begin
+    AltKey := true;
+  end else
+  if Key = VK_SHIFT then
+  begin
+    ShiftKey := true;
+  end
+  else
+  if Key = VK_CONTROL then
+  begin
+    snapToPixel:= true;
+    result := ToolRepaintOnly;
+  end else
   if Key = VK_RETURN then
   begin
     if quadDefined then
@@ -203,48 +555,135 @@ begin
       manager.QueryExitTool;
     end;
   end;
+
+  if not boundsMode and not quadMoving and (AltKey or ShiftKey) then
+  begin
+    boundsMode := true;
+    boundsPts := ComputeBoundsPoints;
+    if IsRectEmpty(result) then
+      result := ToolRepaintOnly;
+  end;
+end;
+
+function TToolTextureMapping.ToolKeyUp(key: Word): TRect;
+begin
+  result := EmptyRect;
+  if Key = VK_CONTROL then
+  begin
+    snapToPixel:= false;
+    result := ToolRepaintOnly;
+  end else
+  if key = VK_MENU then
+  begin
+    AltKey := false
+  end else
+  if Key = VK_SHIFT then
+  begin
+    ShiftKey := false;
+  end;
+
+  if boundsMode and (not AltKey and not ShiftKey) then
+  begin
+    boundsMode := false;
+    if IsRectEmpty(result) then
+      result := ToolRepaintOnly;
+  end;
 end;
 
 function TToolTextureMapping.ToolUp: TRect;
+var prevSize,newSize: TPointF;
+  oldBounds: array of TPointF;
+  i: integer;
+  redraw: boolean;
 begin
-  if quadMoving then quadMoving := false;
-  result := EmptyRect;
+  if quadMoving then
+  begin
+    redraw := not Manager.ToolPerspectiveRepeat;
+    if quadMovingBounds then
+    begin
+      oldBounds := ComputeBoundsPoints;
+      prevSize := oldBounds[2]-oldBounds[0];
+      newSize := boundsPts[2]-boundsPts[0];
+      if (abs(newSize.x) > 1e-6) and (abs(newSize.y) > 1e-6) and
+        (abs(prevSize.x) > 1e-6) and (abs(prevSize.y) > 1e-6) then
+      begin
+        for i := low(quad) to high(quad) do
+        begin
+          quad[i] -= oldBounds[0];
+          quad[i].x *= newSize.X/prevSize.X;
+          quad[i].y *= newSize.Y/prevSize.Y;
+          quad[i] += boundsPts[0];
+        end;
+      end;
+      quadMovingBounds := false;
+      boundsPts := ComputeBoundsPoints;
+      redraw := true;
+    end;
+    if redraw then
+    begin
+      PrepareBackground(GetToolDrawingLayer,False);
+      FCanReadaptTexture:= true;
+      DrawQuad;
+      FCanReadaptTexture:= false;
+      result := FMergedBounds;
+    end else
+      result := ToolRepaintOnly;
+    quadMoving := false;
+  end else
+    result := EmptyRect;
 end;
 
 procedure TToolTextureMapping.Render(VirtualScreen: TBGRABitmap;
   BitmapToVirtualScreen: TBitmapToVirtualScreenFunction);
-var curPt,nextPt: TPointF;
-    n: Integer;
+
+  procedure DrawPoints(pts: array of TPointF; alpha: byte);
+  var curPt,nextPt: TPointF;
+      n: Integer;
+  begin
+    For n := 0 to high(pts) do
+    begin
+      curPt := BitmapToVirtualScreen(pts[n]);
+      nextPt := BitmapToVirtualScreen(pts[(n+1)mod length(pts)]);
+      NiceLine(VirtualScreen, curPt.X,curPt.Y,nextPt.x,nextPt.y,alpha);
+    end;
+    For n := 0 to high(pts) do
+    begin
+      curPt := BitmapToVirtualScreen(pts[n]);
+      NicePoint(VirtualScreen, curPt.X,curPt.Y,alpha);
+    end;
+  end;
+
 begin
   if not quadDefined then exit;
-  For n := 0 to high(quad) do
+  if boundsMode or quadMovingBounds then
   begin
-    curPt := BitmapToVirtualScreen(quad[n]);
-    nextPt := BitmapToVirtualScreen(quad[(n+1)mod length(quad)]);
-    NiceLine(VirtualScreen, curPt.X,curPt.Y,nextPt.x,nextPt.y);
-  end;
-  For n := 0 to high(quad) do
-  begin
-    curPt := BitmapToVirtualScreen(quad[n]);
-    NicePoint(VirtualScreen, curPt.X,curPt.Y);
-  end;
+    DrawPoints(quad,80);
+    DrawPoints(boundsPts,192);
+  end else
+    DrawPoints(quad,192);
 end;
 
 destructor TToolTextureMapping.Destroy;
 begin
   ValidateQuad;
+  FreeAndNil(FAdaptedTexture);
   inherited Destroy;
 end;
 
 { TToolDeformationGrid }
 
-procedure TToolDeformationGrid.ToolDeformationGridNeeded;
+function TToolDeformationGrid.ToolDeformationGridNeeded: boolean;
 var xb,yb: integer;
     layer: TBGRABitmap;
 begin
-  if DeformationGrid = nil then
+  if (DeformationGrid = nil) then
   begin
     layer := GetToolDrawingLayer;
+    if layer = nil then
+    begin
+      result := false;
+      exit;
+    end;
     setlength(DeformationGrid,Manager.ToolDeformationGridNbY,Manager.ToolDeformationGridNbX);
     setlength(DeformationGridTexCoord,Manager.ToolDeformationGridNbY,Manager.ToolDeformationGridNbX);
     for yb := 0 to Manager.ToolDeformationGridNbY-1 do
@@ -255,6 +694,7 @@ begin
         DeformationGrid[yb,xb] :=DeformationGridTexCoord[yb,xb];
       end;
   end;
+  result := true;
 end;
 
 procedure TToolDeformationGrid.BeforeGridSizeChange;
@@ -281,10 +721,10 @@ procedure TToolDeformationGrid.ReleaseGrid;
 var
   xb,yb: Integer;
 begin
-  if deformationGridBackup <> nil then
+  if DoingDeformation then
   begin
-    Manager.Image.SaveLayerOrSelectionUndo;
-    FreeAndNil(deformationGridBackup);
+    ValidateAction;
+    DoingDeformation := false;
     for yb := 0 to Manager.ToolDeformationGridNbY-2 do
       for xb := 0 to Manager.ToolDeformationGridNbX-2 do
         DeformationGridTexCoord[yb,xb] := DeformationGrid[yb,xb];
@@ -293,13 +733,13 @@ end;
 
 procedure TToolDeformationGrid.ValidateDeformationGrid;
 begin
-  if deformationGridBackup <> nil then
+  if DoingDeformation then
   begin
     DeformationGrid := nil;
     DeformationGridTexCoord := nil;
-    FreeAndNil(deformationGridBackup);
+    ValidateAction;
+    DoingDeformation := false;
     Manager.Image.ImageMayChange(FMergedBounds);
-    Manager.Image.SaveLayerOrSelectionUndo;
   end;
 end;
 
@@ -310,7 +750,7 @@ var
   curDist,minDist: single;
 begin
   result := EmptyRect;
-  minDist := sqr(DoScaleX(10,OriginalDPI));
+  minDist := sqr(SelectionMaxPointDistance);
   deformationGridX := 1;
   deformationGridY := 1;
   if DeformationGrid <> nil then
@@ -335,8 +775,9 @@ function TToolDeformationGrid.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF): TRect;
 var xb,yb,NbX,NbY: integer;
     gridDone: array of array of boolean;
-    layer : TBGRABitmap;
+    layer,backupLayer : TBGRABitmap;
     PreviousClipRect: TRect;
+    previousBounds: TRect;
 
   procedure AddToDeformationArea(xi,yi: integer);
   var ptF: TPointF;
@@ -355,6 +796,7 @@ var xb,yb,NbX,NbY: integer;
 
 begin
   result := EmptyRect;
+  Manager.HintReturnValidates;
 
   if not deformationGridMoving then exit;
   if Manager.ToolDeformationGridMoveWithoutDeformation then
@@ -366,20 +808,22 @@ begin
     DeformationGridTexCoord[deformationGridY,deformationGridX] := DeformationGrid[deformationGridY,deformationGridX];
   end else
   begin
+    if not DoingDeformation then
+    begin
+      FCurrentBounds := EmptyRect;
+      DoingDeformation := True;
+    end;
+
     layer := GetToolDrawingLayer;
+    backupLayer := GetBackupLayerIfExists;
     NbX := Manager.ToolDeformationGridNbX;
     NbY := Manager.ToolDeformationGridNbY;
-    if deformationGridBackup = nil then
-    begin
-      deformationGridBackup := layer.Duplicate as TBGRABitmap;
-      FCurrentBounds := EmptyRect;
-    end;
 
     DeformationGrid[deformationGridY,deformationGridX] := PointF(
       DeformationGrid[deformationGridY,deformationGridX].X + ptF.X-deformationOrigin.X,
       DeformationGrid[deformationGridY,deformationGridX].Y + ptF.Y-deformationOrigin.Y);
 
-    FPreviousBounds := FCurrentBounds;
+    previousBounds := FCurrentBounds;
     FCurrentBounds := EmptyRect;
     for yb := 0 to NbY-1 do
      for xb := 0 to NbX-1 do
@@ -395,7 +839,7 @@ begin
          AddToDeformationArea(xb+1,yb+1);
          AddToDeformationArea(xb+1,yb-1);
        end;
-    FMergedBounds := RectUnion(FPreviousBounds,FCurrentBounds);
+    FMergedBounds := RectUnion(previousBounds,FCurrentBounds);
 
     //progressive drawing of deformation zones
     setlength(gridDone,NbY-1,NbX-1);
@@ -403,8 +847,9 @@ begin
       for xb := 0 to NbX-2 do
         gridDone[yb,xb] := false;
 
-    if not IsRectEmpty(FMergedBounds) then
+    if not IsRectEmpty(FMergedBounds) and (backupLayer <>nil) then
     begin
+
       PreviousClipRect := layer.ClipRect;
       layer.ClipRect := FMergedBounds;
       layer.FillRect(0,0,layer.Width,layer.Height,BGRAPixelTransparent,dmSet);
@@ -417,7 +862,7 @@ begin
              (DeformationGrid[yb+1,xb] = DeformationGridTexCoord[yb+1,xb]) then
           begin
             layer.FillPoly([DeformationGrid[yb,xb],DeformationGrid[yb,xb+1],
-                  DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb]],deformationGridBackup,dmDrawWithTransparency);
+                  DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb]],backupLayer,dmDrawWithTransparency);
             gridDone[yb,xb] := true;
           end;
       //drawing zones that are concave
@@ -428,7 +873,7 @@ begin
                 DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb]]) then
           begin
             layer.FillQuadLinearMapping(DeformationGrid[yb,xb],DeformationGrid[yb,xb+1],
-                  DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb],deformationGridBackup,
+                  DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb],backupLayer,
                   DeformationGridTexCoord[yb,xb],DeformationGridTexCoord[yb,xb+1],DeformationGridTexCoord[yb+1,xb+1],
                   DeformationGridTexCoord[yb+1,xb],true);
             gridDone[yb,xb] := true;
@@ -438,7 +883,7 @@ begin
         for xb := 0 to NbX-2 do
           if not gridDone[yb,xb] then
           layer.FillQuadLinearMapping(DeformationGrid[yb,xb],DeformationGrid[yb,xb+1],
-                DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb],deformationGridBackup,
+                DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb],backupLayer,
                 DeformationGridTexCoord[yb,xb],DeformationGridTexCoord[yb,xb+1],DeformationGridTexCoord[yb+1,xb+1],
                 DeformationGridTexCoord[yb+1,xb],true);
 
@@ -448,6 +893,7 @@ begin
   deformationOrigin := ptF;
 
   result := FMergedBounds;
+  if IsRectEmpty(result) then result := ToolRepaintOnly;
 end;
 
 function TToolDeformationGrid.GetIsSelectingTool: boolean;
@@ -460,7 +906,7 @@ begin
   result := EmptyRect;
   if Key = VK_RETURN then
   begin
-    if deformationGridBackup <> nil then
+    if Action <> nil then
     begin
       ValidateDeformationGrid;
       result := EmptyRect;
@@ -480,7 +926,7 @@ var curPt,rightPt,downPt: TPointF;
     xb,yb: Integer;
 
 begin
-  ToolDeformationGridNeeded;
+  if not ToolDeformationGridNeeded then exit;
   for xb := 0 to Manager.ToolDeformationGridNbX-1 do
     for yb := 0 to Manager.ToolDeformationGridNbY-1 do
     begin
@@ -508,6 +954,7 @@ initialization
 
   RegisterTool(ptDeformation, TToolDeformationGrid);
   RegisterTool(ptTextureMapping, TToolTextureMapping);
+  RegisterTool(ptLayerMapping, TToolLayerMapping);
 
 end.
 

@@ -1,4 +1,4 @@
-unit ublendop;
+unit UBlendOp;
 
 {$mode objfpc}{$H+}
 
@@ -188,6 +188,7 @@ begin
       str += ' (' + compatible.CommaText+')';
     compatible.Free;
   end;
+  Label_BlendOpValue.Left := Label_SelectedBlendOp.Left + Label_SelectedBlendOp.Width + ScaleX(8,OriginalDPI);
   Label_BlendOpValue.Caption := str;
 end;
 

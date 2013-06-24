@@ -33,7 +33,7 @@ type
     destructor Destroy; override;
     function MouseDown(X,Y: integer): boolean;
     function MouseMove(X,Y: integer): boolean;
-    function MouseUp(X,Y: integer): boolean;
+    function MouseUp({%H-}X,{%H-}Y: integer): boolean;
     procedure Draw(ADest: TBGRABitmap);
     property ScrollThumbBounds: TRect read GetScrollThumbBounds write SetScrollThumbBounds;
     property ScrollThumbDown: boolean read FScrollThumbDown;

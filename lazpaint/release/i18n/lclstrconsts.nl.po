@@ -1,9 +1,9 @@
-# BigChimp <nowhere@example.com>, 2011.
+# BigChimp <nowhere@example.com>, 2011, 2013.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2011-10-08 14:09+0200\n"
+"PO-Revision-Date: 2013-02-20 16:02+0200\n"
 "Last-Translator: BigChimp <nowhere@example.com>\n"
 "Language-Team: LazPaint\n"
 "Language: nl\n"
@@ -30,10 +30,11 @@ msgid "Unable to find a HTML browser."
 msgstr "Geen HTML browser kunnen vinden."
 
 #: lclstrconsts.hhshelpnohtmlbrowserfoundpleasedefineoneinhelpconfigurehe
-#, fuzzy
 #| msgid "No HTML Browser found.%sPlease define one in Help -> Configure Help -> Viewers"
 msgid "No HTML Browser found.%sPlease define one in Environment -> Options -> Help -> Help Options"
-msgstr "Geen HTML browser gevonden. %sDefinieer deze alstublieft via Help -> Configureer Help -> Viewers"
+msgstr ""
+"Geen HTML browser gevonden.%sDefinieer deze alstublieft via Omgeving -> "
+"Opties -> Help Opties"
 
 #: lclstrconsts.hhshelpthehelpdatabasewasunabletofindfile
 msgid "The help database %s%s%s was unable to find file %s%s%s."
@@ -89,7 +90,7 @@ msgstr "Converteer"
 #: lclstrconsts.ifsvk_delete
 msgctxt "lclstrconsts.ifsvk_delete"
 msgid "Delete"
-msgstr ""
+msgstr "Verwijder"
 
 #: lclstrconsts.ifsvk_down
 msgctxt "lclstrconsts.ifsvk_down"
@@ -129,7 +130,7 @@ msgstr "Home"
 #: lclstrconsts.ifsvk_insert
 msgctxt "lclstrconsts.ifsvk_insert"
 msgid "Insert"
-msgstr ""
+msgstr "Invoegen"
 
 #: lclstrconsts.ifsvk_junja
 msgid "Junja"
@@ -168,7 +169,7 @@ msgstr "Mode wijziging"
 #: lclstrconsts.ifsvk_next
 msgctxt "lclstrconsts.ifsvk_next"
 msgid "Next"
-msgstr ""
+msgstr "Volgende"
 
 #: lclstrconsts.ifsvk_nonconvert
 msgid "Nonconvert"
@@ -193,7 +194,7 @@ msgstr "Druk af"
 #: lclstrconsts.ifsvk_prior
 msgctxt "lclstrconsts.ifsvk_prior"
 msgid "Prior"
-msgstr ""
+msgstr "Vorige"
 
 #: lclstrconsts.ifsvk_rbutton
 msgid "Mouse Button Right"
@@ -248,7 +249,7 @@ msgstr "Omhoog"
 
 #: lclstrconsts.liscannotexecute
 msgid "can not execute %s"
-msgstr ""
+msgstr "kan %s niet uitvoeren"
 
 #: lclstrconsts.lislclresourcesnotfound
 msgctxt "lclstrconsts.lislclresourcesnotfound"
@@ -257,29 +258,28 @@ msgstr "Resource %s is niet gevonden"
 
 #: lclstrconsts.lisprogramfilenotfound
 msgid "program file not found %s"
-msgstr ""
+msgstr "programmabestand %s niet gevonden"
 
 #: lclstrconsts.rs3ddkshadowcolorcaption
 msgid "3D Dark Shadow"
-msgstr ""
+msgstr "3D Donkere Schaduw"
 
 #: lclstrconsts.rs3dlightcolorcaption
 msgid "3D Light"
-msgstr ""
+msgstr "3D Licht"
 
 #: lclstrconsts.rsacontrolcannothaveitselfasparent
-#, fuzzy
 #| msgid "A control can't have itself as parent"
 msgid "A control can't have itself as a parent"
 msgstr "Een control kan niet zijn eigen ouder zijn"
 
 #: lclstrconsts.rsactivebordercolorcaption
 msgid "Active Border"
-msgstr ""
+msgstr "Actieve Rand"
 
 #: lclstrconsts.rsactivecaptioncolorcaption
 msgid "Active Caption"
-msgstr ""
+msgstr "Actieve Titel"
 
 #: lclstrconsts.rsallfiles
 msgid "All files (%s)|%s|%s"
@@ -287,15 +287,15 @@ msgstr "Alle bestanden (%s)|%s|%s"
 
 #: lclstrconsts.rsappworkspacecolorcaption
 msgid "Application Workspace"
-msgstr ""
+msgstr "Applicatie-werkruimte"
 
 #: lclstrconsts.rsaquacolorcaption
 msgid "Aqua"
-msgstr ""
+msgstr "Aqua"
 
 #: lclstrconsts.rsbackgroundcolorcaption
 msgid "Desktop"
-msgstr ""
+msgstr "Bureaublad"
 
 #: lclstrconsts.rsbackward
 msgid "Backward"
@@ -307,7 +307,7 @@ msgstr "Bitmaps"
 
 #: lclstrconsts.rsblackcolorcaption
 msgid "Black"
-msgstr ""
+msgstr "Zwart"
 
 #: lclstrconsts.rsblank
 msgid "Blank"
@@ -315,23 +315,23 @@ msgstr "Spatie"
 
 #: lclstrconsts.rsbluecolorcaption
 msgid "Blue"
-msgstr ""
+msgstr "Blauw"
 
 #: lclstrconsts.rsbtnfacecolorcaption
 msgid "Button Face"
-msgstr ""
+msgstr "Knopvoorgrond"
 
 #: lclstrconsts.rsbtnhighlightcolorcaption
 msgid "Button Highlight"
-msgstr ""
+msgstr "Knop Highlight"
 
 #: lclstrconsts.rsbtnshadowcolorcaption
 msgid "Button Shadow"
-msgstr ""
+msgstr "Knop Schaduw"
 
 #: lclstrconsts.rsbtntextcolorcaption
 msgid "Button Text"
-msgstr ""
+msgstr "Knoptekst"
 
 #: lclstrconsts.rscalculator
 msgid "Calculator"
@@ -534,7 +534,7 @@ msgstr "FixedRows kan niet >= RowCount"
 
 #: lclstrconsts.rsformcolorcaption
 msgid "Form"
-msgstr ""
+msgstr "Formulier"
 
 #: lclstrconsts.rsformstreamingerror
 msgid "Form streaming \"%s\" error: %s"
@@ -643,10 +643,14 @@ msgid "--no-xshm             Disable use of the X Shared Memory Extension."
 msgstr "--no-xshm             Maak geen gebruik van de X Shared Memory Extensie."
 
 #: lclstrconsts.rsgtkoptionsync
-#, fuzzy
 #| msgid "--sync                Call XSynchronize (display, True) after the Xserver connection has been established. This makes debugging X protocol errors easier, because X request buffering will be disabled and X errors will be received immediatey after the protocol request that generated the error has been processed by the X server."
 msgid "--sync                Call XSynchronize (display, True) after the Xserver connection has been established. This makes debugging X protocol errors easier, because X request buffering will be disabled and X errors will be received immediately after the protocol request that generated the error has been processed by the X server."
-msgstr "--sync                Roep XSynchronize (display, True) aan na verbinding met de Xserver. Dit maakt het debuggen van X protocol fouten eenvoudiger, doordat X aanvragen buffering uitstaat en X fouten direct ontvangen worden nadat de aanvraag door de Xserver is behandeld."
+msgstr ""
+"--sync                Roep XSynchronize (display, True) aan na verbinding "
+"met de Xserver. Dit maakt het debuggen van X protocol fouten eenvoudiger, "
+"doordat X aanvragen buffering uitstaat en X fouten direct ontvangen worden "
+"nadat de protocol aanvraag die de fout genereerde door de Xserver is "
+"behandeld."
 
 #: lclstrconsts.rshelpalreadyregistered
 msgid "%s: Already registered"
@@ -726,19 +730,19 @@ msgstr "Help Viewer niet gevonden"
 
 #: lclstrconsts.rshighlightcolorcaption
 msgid "Highlight"
-msgstr ""
+msgstr "Highlight"
 
 #: lclstrconsts.rshighlighttextcolorcaption
 msgid "Highlight Text"
-msgstr ""
+msgstr "Highlight Tekst"
 
 #: lclstrconsts.rshotlightcolorcaption
 msgid "Hot Light"
-msgstr ""
+msgstr "Hot Light"
 
 #: lclstrconsts.rsicns
 msgid "Mac OS X Icon"
-msgstr ""
+msgstr "Mac OS X Icoon"
 
 #: lclstrconsts.rsicon
 msgid "Icon"
@@ -1218,7 +1222,6 @@ msgid "Select a font"
 msgstr "Kies een font"
 
 #: lclstrconsts.rssilvercolorcaption
-#, fuzzy
 msgid "Silver"
 msgstr "Zilver"
 
@@ -1459,33 +1462,32 @@ msgstr "Geen timers beschikbaar"
 
 #: lclstrconsts.sparexpected
 msgid "Wrong token type: %s expected"
-msgstr ""
+msgstr "Verkeerd tokentype: %s verwacht"
 
 #: lclstrconsts.sparinvalidfloat
 msgid "Invalid floating point number: %s"
-msgstr ""
+msgstr "Ongeldig drijvende komma-getal: %s"
 
 #: lclstrconsts.sparinvalidinteger
 msgid "Invalid integer number: %s"
-msgstr ""
+msgstr "Ongeldige geheel getal: %s"
 
 #: lclstrconsts.sparlocinfo
 msgid " (at %d,%d, stream offset %.8x)"
-msgstr ""
+msgstr " (bij %d,%d, stream offset %.8x)"
 
 #: lclstrconsts.sparunterminatedbinvalue
 msgid "Unterminated byte value"
-msgstr ""
+msgstr "Niet-afgesloten bytewaarde"
 
 #: lclstrconsts.sparunterminatedstring
 msgid "Unterminated string"
-msgstr ""
+msgstr "Niet-afgesloten string"
 
 #: lclstrconsts.sparwrongtokensymbol
 msgid "Wrong token symbol: %s expected but %s found"
-msgstr ""
+msgstr "Verkeerd tokensymbool: %s verwacht maar %s gevonden"
 
 #: lclstrconsts.sparwrongtokentype
 msgid "Wrong token type: %s expected but %s found"
-msgstr ""
-
+msgstr "Verkeerd tokentype: %s verwacht maar %s gevonden"

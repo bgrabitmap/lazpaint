@@ -1,4 +1,4 @@
-unit uconfig;
+unit UConfig;
 
 {$mode objfpc}{$H+}
 
@@ -29,6 +29,12 @@ type
 
     function DefaultLangage: string;
     procedure SetDefaultLangage(value: string);
+
+    function LatestVersion: string;
+    procedure SetLatestVersion(value: string);
+    procedure GetUpdatedLanguages(AList: TStringList);
+    procedure SetUpdatedLanguages(AList: TStringList);
+    procedure AddUpdatedLanguage(ALang: string);
 
     //new image config
     function DefaultImageWidth: integer;
@@ -97,6 +103,9 @@ type
     function DefaultToolTextPhong: boolean;
     procedure SetDefaultToolTextPhong(value: boolean);
 
+    function ToolPopupMessageShownCount(index: integer): integer;
+    procedure SetToolPopupMessageShownCount(index: integer; AValue: integer);
+
     function DefaultToolLightPositionX: integer;
     procedure SetDefaultToolLightPositionX(value: integer);
     function DefaultToolLightPositionY: integer;
@@ -119,6 +128,8 @@ type
     procedure SetDefaultPixelateSize(value: integer);
     function DefaultPixelateQuality: string;
     procedure SetDefaultPixelateQuality(value: string);
+    function DefaultSharpenAmount: single;
+    procedure SetDefaultSharpenAmount(value: single);
 
     //motion blur config
     function DefaultBlurMotionAngle: double;
@@ -142,15 +153,65 @@ type
     function DefaultTwirlTurn: double;
     procedure SetDefaultTwirlTurn(value: double);
 
+    //phong filter
+    function DefaultPhongFilterAltitude: integer;
+    procedure SetDefaultPhongFilterAltitude(value: integer);
+
+    //color config
+    function DefaultUseGSBA: boolean;
+    procedure SetDefaultUseGSBA(value: boolean);
+
     property RecentFilesCount : integer read GetRecentFilesCount;
     property RecentFile[Index: Integer]: string read GetRecentFile;
   end;
+
+function GetActualConfig: TIniFile;
+
+var ActualConfigDir : string;
 
 implementation
 
 uses forms, uparse, LCLProc;
 
 const maxRecentFiles = 10;
+
+//returns the config file to use
+function GetActualConfig: TIniFile;
+var
+  PortableConfig: TIniFile;
+  PortableConfigFilename: string;
+  ActualConfigFilename: string;
+  {$IFDEF DARWIN}
+  ConfigPath: string;
+  {$ENDIF}
+begin
+  ActualConfigFilename := '';
+
+  //check if a config file path is defined
+  PortableConfigFilename := ExtractFilePath(Application.ExeName)+'lazpaint.ini';
+  If FileExists(PortableConfigFilename) then
+  begin
+    PortableConfig := TIniFile.Create(PortableConfigFilename);
+    ActualConfigFilename:= PortableConfig.ReadString('General','ConfigFile','');
+    if ActualConfigFilename <> '' then
+      ActualConfigFilename:= ExpandFileName(ExtractFilePath(Application.ExeName)+ActualConfigFilename);
+    PortableConfig.Free;
+  end;
+
+  //otherwise, use default path
+  if ActualConfigFilename = '' then
+  begin
+    CreateDir(GetAppConfigDir(False));
+    ActualConfigFilename := GetAppConfigFile(False,False);
+  end;
+
+  {$IFDEF DARWIN}
+  ConfigPath := ExtractFilePath(ActualConfigFilename);
+  CreateDir(ConfigPath);
+  {$ENDIF}
+  result := TIniFile.Create(ActualConfigFilename,True);
+  ActualConfigDir := ExtractFilePath(ActualConfigFilename);
+end;
 
 { TLazPaintConfig }
 
@@ -267,7 +328,7 @@ end;
 
 function TLazPaintConfig.DefaultLayerWindowVisible: boolean;
 begin
-  result := iniOptions.ReadBool('Window','LayerWindowVisible',false);
+  result := iniOptions.ReadBool('Window','LayerWindowVisible',true);
 end;
 
 procedure TLazPaintConfig.SetDefaultLayerWindowVisible(value: boolean);
@@ -464,6 +525,17 @@ begin
   iniOptions.WriteBool('Tool','TextPhong',value);
 end;
 
+function TLazPaintConfig.ToolPopupMessageShownCount(index: integer): integer;
+begin
+  result := iniOptions.ReadInteger('Popup','ToolPopupMessage' + inttostr(index),0);
+end;
+
+procedure TLazPaintConfig.SetToolPopupMessageShownCount(index: integer;
+  AValue: integer);
+begin
+  iniOptions.WriteInteger('Popup','ToolPopupMessage' + inttostr(index), avalue);
+end;
+
 function TLazPaintConfig.DefaultToolLightPositionX: integer;
 begin
   result := iniOptions.ReadInteger('Tool','LightPositionX',0);
@@ -565,6 +637,16 @@ begin
   iniOptions.WriteString('Filter','PixelateQuality',value);
 end;
 
+function TLazPaintConfig.DefaultSharpenAmount: single;
+begin
+  result := iniOptions.ReadFloat('Filter','SharpenAmount',1);
+end;
+
+procedure TLazPaintConfig.SetDefaultSharpenAmount(value: single);
+begin
+  iniOptions.WriteFloat('Filter','SharpenAmount',value);
+end;
+
 function TLazPaintConfig.DefaultBlurMotionAngle: double;
 begin
   result := iniOptions.ReadFloat('Filter','MotionBlurAngle',0);
@@ -635,6 +717,26 @@ begin
   iniOptions.WriteFloat('Filter','TwirlTurn',value);
 end;
 
+function TLazPaintConfig.DefaultPhongFilterAltitude: integer;
+begin
+  result := iniOptions.ReadInteger('Filter','MapAltitude',10);
+end;
+
+procedure TLazPaintConfig.SetDefaultPhongFilterAltitude(value: integer);
+begin
+  iniOptions.WriteInteger('Filter','MapAltitude',value);
+end;
+
+function TLazPaintConfig.DefaultUseGSBA: boolean;
+begin
+  result := iniOptions.ReadBool('Filter','UseGSBA',True);
+end;
+
+procedure TLazPaintConfig.SetDefaultUseGSBA(value: boolean);
+begin
+  iniOptions.WriteBool('Filter','UseGSBA',value);
+end;
+
 procedure TLazPaintConfig.InitRecentFiles;
 var i: integer;
 begin
@@ -667,6 +769,39 @@ procedure TLazPaintConfig.SetDefaultLangage(value: string);
 begin
   if value = 'auto' then value := '';
   iniOptions.WriteString('General','Language',value);
+end;
+
+function TLazPaintConfig.LatestVersion: string;
+begin
+  result := iniOptions.ReadString('General','LatestOnlineVersion','');
+end;
+
+procedure TLazPaintConfig.SetLatestVersion(value: string);
+begin
+  iniOptions.WriteString('General','LatestOnlineVersion',value);
+end;
+
+procedure TLazPaintConfig.GetUpdatedLanguages(AList: TStringList);
+begin
+  AList.CommaText := iniOptions.ReadString('General','UpdatedLanguages','');
+end;
+
+procedure TLazPaintConfig.SetUpdatedLanguages(AList: TStringList);
+begin
+  iniOptions.WriteString('General','UpdatedLanguages',AList.CommaText)
+end;
+
+procedure TLazPaintConfig.AddUpdatedLanguage(ALang: string);
+var list: TStringList;
+begin
+  list := TStringList.Create;
+  GetUpdatedLanguages(list);
+  if list.IndexOf(ALang)=-1 then
+  begin
+    list.Add(ALang);
+    SetUpdatedLanguages(list);
+  end;
+  list.Free;
 end;
 
 function TLazPaintConfig.ScreenSizeChanged: boolean;

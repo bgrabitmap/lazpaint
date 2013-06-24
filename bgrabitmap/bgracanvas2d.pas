@@ -2,12 +2,13 @@ unit BGRACanvas2D;
 
 { To do :
 
+  text functions -> using BGRAVectorize
+  drawImage(in image, in double sx, in double sy, in double sw, in double sh, in double dx, in double dy, in double dw, in double dh)
+  -> using FillPoly with texture coordinates
   linear gradient any transformation
   clearPath clipping
   createRadialGradient
-  text functions
   globalCompositeOperation
-  drawImage(in image, in double sx, in double sy, in double sw, in double sh, in double dx, in double dy, in double dw, in double dh)
   image data functions
 }
 
@@ -73,6 +74,7 @@ type
     FPixelCenteredCoordinates: boolean;
     FPathPoints: array of TPointF;
     FPathPointCount: integer;
+    function GetCurrentPath: ArrayOfTPointF;
     function GetGlobalAlpha: single;
     function GetHasShadow: boolean;
     function GetHeight: Integer;
@@ -109,7 +111,9 @@ type
     procedure AddPoints(const points: array of TPointF);
     procedure AddPointsRev(const points: array of TPointF);
     function ApplyGlobalAlpha(color: TBGRAPixel): TBGRAPixel;
+    function GetDrawMode: TDrawMode;
   public
+    antialiasing, linearBlend: boolean;
     constructor Create(ASurface: TBGRACustomBitmap);
     destructor Destroy; override;
 
@@ -200,11 +204,13 @@ type
     property shadowOffset: TPointF read GetShadowOffset write SetShadowOffset;
     property shadowBlur: single read GetShadowBlur write SetShadowBlur;
     property hasShadow: boolean read GetHasShadow;
+
+    property currentPath: ArrayOfTPointF read GetCurrentPath;
   end;
 
 implementation
 
-uses Math, BGRAPen, BGRAFillInfo, BGRAPolygon, BGRABlend, FPWriteJPEG, FPWriteBMP, base64;
+uses Types, Math, BGRAPen, BGRAFillInfo, BGRAPolygon, BGRABlend, FPWriteJPEG, FPWriteBMP, base64, BGRAPath;
 
 type
   TColorStop = record
@@ -494,7 +500,10 @@ end;
 
 function TBGRACanvas2D.GetHeight: Integer;
 begin
-  result := Surface.Height;
+  if Assigned(surface) then
+    result := Surface.Height
+  else
+    result := 0;
 end;
 
 function TBGRACanvas2D.GetLineCap: string;
@@ -560,6 +569,14 @@ begin
   result := currentState.globalAlpha/255;
 end;
 
+function TBGRACanvas2D.GetCurrentPath: ArrayOfTPointF;
+var i: integer;
+begin
+  setlength(result, FPathPointCount);
+  for i := 0 to high(result) do
+    result[i] := FPathPoints[i];
+end;
+
 function TBGRACanvas2D.GetHasShadow: boolean;
 begin
   result := (ApplyGlobalAlpha(currentState.shadowColor).alpha <> 0) and
@@ -569,7 +586,10 @@ end;
 
 function TBGRACanvas2D.GetWidth: Integer;
 begin
-  result := Surface.Width;
+  if Assigned(Surface) then
+    result := Surface.Width
+  else
+    result := 0;
 end;
 
 procedure TBGRACanvas2D.SetGlobalAlpha(const AValue: single);
@@ -603,7 +623,7 @@ procedure TBGRACanvas2D.FillPoly(const points: array of TPointF);
 var
   tempScan: TBGRACustomScanner;
 begin
-  if length(points) = 0 then exit;
+  if (length(points) = 0) or (surface = nil) then exit;
   If hasShadow then DrawShadow(points,[]);
   if currentState.clipMask <> nil then
   begin
@@ -611,7 +631,10 @@ begin
       tempScan := TBGRATextureMaskScanner.Create(currentState.clipMask,Point(0,0),currentState.fillTextureProvider.texture,currentState.globalAlpha)
     else
       tempScan := TBGRASolidColorMaskScanner.Create(currentState.clipMask,Point(0,0),ApplyGlobalAlpha(currentState.fillColor));
-    BGRAPolygon.FillPolyAntialiasWithTexture(surface, points, tempScan, true);
+    if self.antialiasing then
+      BGRAPolygon.FillPolyAntialiasWithTexture(surface, points, tempScan, true, linearBlend)
+    else
+      BGRAPolygon.FillPolyAliasedWithTexture(surface, points, tempScan, true, GetDrawMode);
     tempScan.free;
   end else
   begin
@@ -620,13 +643,26 @@ begin
       if currentState.globalAlpha <> 255 then
       begin
         tempScan := TBGRAOpacityScanner.Create(currentState.fillTextureProvider.texture, currentState.globalAlpha);
-        BGRAPolygon.FillPolyAntialiasWithTexture(surface, points, tempScan, true);
+        if self.antialiasing then
+          BGRAPolygon.FillPolyAntialiasWithTexture(surface, points, tempScan, true, linearBlend)
+        else
+          BGRAPolygon.FillPolyAliasedWithTexture(surface, points, tempScan, true, GetDrawMode);
         tempScan.Free;
       end else
-        BGRAPolygon.FillPolyAntialiasWithTexture(surface, points, currentState.fillTextureProvider.texture, true)
+      begin
+        if self.antialiasing then
+          BGRAPolygon.FillPolyAntialiasWithTexture(surface, points, currentState.fillTextureProvider.texture, true, linearBlend)
+        else
+          BGRAPolygon.FillPolyAliasedWithTexture(surface, points, currentState.fillTextureProvider.texture, true, GetDrawMode);
+      end
     end
     else
-      BGRAPolygon.FillPolyAntialias(surface, points, ApplyGlobalAlpha(currentState.fillColor), false, true);
+    begin
+      if self.antialiasing then
+        BGRAPolygon.FillPolyAntialias(surface, points, ApplyGlobalAlpha(currentState.fillColor), false, true, linearBlend)
+      else
+        BGRAPolygon.FillPolyAliased(surface, points, ApplyGlobalAlpha(currentState.fillColor), false, true, GetDrawMode)
+    end
   end;
 end;
 
@@ -638,7 +674,7 @@ var
   contour : array of TPointF;
   texture: IBGRAScanner;
 begin
-  if length(points) = 0 then exit;
+  if (length(points) = 0) or (surface = nil) then exit;
   tempScan := nil;
   tempScan2 := nil;
   multi := TBGRAMultishapeFiller.Create;
@@ -692,6 +728,7 @@ begin
     If hasShadow then DrawShadow(points,[]);
 
   if fillOver then multi.PolygonOrder := poFirstOnTop else multi.PolygonOrder:= poLastOnTop;
+  multi.Antialiasing := self.antialiasing;
   multi.Draw(surface);
   tempScan.free;
   tempScan2.free;
@@ -749,7 +786,7 @@ var
   tempScan: TBGRACustomScanner;
   contour: array of TPointF;
 begin
-  if (length(points)= 0) or (currentState.lineWidth = 0) then exit;
+  if (length(points)= 0) or (currentState.lineWidth = 0) or (surface = nil) then exit;
   contour := ComputeWidePolylinePoints(points,currentState.lineWidth,BGRAPixelTransparent,
       currentState.lineCap,currentState.lineJoin,currentState.lineStyle,[plAutoCycle],miterLimit);
 
@@ -760,7 +797,10 @@ begin
       tempScan := TBGRATextureMaskScanner.Create(currentState.clipMask,Point(0,0),currentState.strokeTextureProvider.texture,currentState.globalAlpha)
     else
       tempScan := TBGRASolidColorMaskScanner.Create(currentState.clipMask,Point(0,0),ApplyGlobalAlpha(currentState.strokeColor));
-    BGRAPolygon.FillPolyAntialiasWithTexture(Surface,contour,tempScan,True);
+    if self.antialiasing then
+      BGRAPolygon.FillPolyAntialiasWithTexture(Surface,contour,tempScan,True, linearBlend)
+    else
+      BGRAPolygon.FillPolyAliasedWithTexture(Surface,contour,tempScan,True,GetDrawMode);
     tempScan.free;
   end else
   begin
@@ -768,9 +808,19 @@ begin
       texture := currentState.strokeTextureProvider.texture else
       texture := nil;
     if texture = nil then
-      BGRAPolygon.FillPolyAntialias(Surface,contour,ApplyGlobalAlpha(currentState.strokeColor),false,True)
+    begin
+      if self.antialiasing then
+        BGRAPolygon.FillPolyAntialias(Surface,contour,ApplyGlobalAlpha(currentState.strokeColor),false,True, linearBlend)
+      else
+        BGRAPolygon.FillPolyAliased(Surface,contour,ApplyGlobalAlpha(currentState.strokeColor),false,True,GetDrawMode)
+    end
     else
-      BGRAPolygon.FillPolyAntialiasWithTexture(Surface,contour,texture,True);
+    begin
+      if self.antialiasing then
+        BGRAPolygon.FillPolyAntialiasWithTexture(Surface,contour,texture,True, linearBlend)
+      else
+        BGRAPolygon.FillPolyAliasedWithTexture(Surface,contour,texture,True,GetDrawMode)
+    end;
   end;
 end;
 
@@ -779,8 +829,31 @@ var ofsPts,ofsPts2: array of TPointF;
     offset: TPointF;
     i: Integer;
     tempBmp,blurred: TBGRACustomBitmap;
+    maxRect: TRect;
+    foundRect: TRect;
+    firstFound: boolean;
+
+    procedure AddPt(const coord: TPointF);
+    var pixRect: TRect;
+    begin
+      if isEmptyPointF(coord) then exit;
+      pixRect := Types.Rect(round(floor(coord.x)),round(floor(coord.y)),round(ceil(coord.x+0.999))+1,round(ceil(coord.y+0.999))+1);
+      if firstFound then
+      begin
+        foundRect := pixRect;
+        firstFound := false
+      end
+      else
+      begin
+        if pixRect.left < foundRect.left then foundRect.left := pixRect.Left;
+        if pixRect.top < foundRect.top then foundRect.top := pixRect.top;
+        if pixRect.right > foundRect.right then foundRect.right := pixRect.right;
+        if pixRect.bottom > foundRect.bottom then foundRect.bottom := pixRect.bottom;
+      end;
+    end;
+
 begin
-  if not hasShadow then exit;
+  if not hasShadow or (surface = nil) then exit;
   offset := PointF(shadowOffsetX,shadowOffsetY);
   setlength(ofsPts, length(points));
   for i := 0 to high(ofsPts) do
@@ -788,7 +861,28 @@ begin
   setlength(ofsPts2, length(points2));
   for i := 0 to high(ofsPts2) do
     ofsPts2[i] := points2[i]+offset;
-  tempBmp := surface.NewBitmap(width,height,BGRAPixelTransparent);
+
+  maxRect := Types.Rect(0,0,width,height);
+  if currentState.clipMask <> nil then
+    foundRect := maxRect
+  else
+  begin
+    firstFound := true;
+    for i := 0 to high(ofsPts) do
+      AddPt(ofsPts[i]);
+    for i := 0 to high(ofsPts2) do
+      AddPt(ofsPts2[i]);
+    if firstFound then exit;
+    InflateRect(foundRect, ceil(shadowBlur),ceil(shadowBlur));
+    if not IntersectRect(foundRect, foundRect,maxRect) then exit;
+    offset := PointF(-foundRect.Left,-foundRect.Top);
+    for i := 0 to high(ofsPts) do
+      ofsPts[i] += offset;
+    for i := 0 to high(ofsPts2) do
+      ofsPts2[i] += offset;
+  end;
+
+  tempBmp := surface.NewBitmap(foundRect.Right-foundRect.Left,foundRect.Bottom-foundRect.Top,BGRAPixelTransparent);
   tempBmp.FillMode := fmWinding;
   tempBmp.FillPolyAntialias(ofsPts, getShadowColor);
   tempBmp.FillPolyAntialias(ofsPts2, getShadowColor);
@@ -803,13 +897,17 @@ begin
   end;
   if currentState.clipMask <> nil then
     tempBmp.ApplyMask(currentState.clipMask);
-  surface.PutImage(0,0,tempBmp,dmDrawWithTransparency,currentState.globalAlpha);
+  surface.PutImage(foundRect.Left,foundRect.Top,tempBmp,GetDrawMode,currentState.globalAlpha);
   tempBmp.Free;
 end;
 
 procedure TBGRACanvas2D.ClearPoly(const points: array of TPointF);
 begin
-  BGRAPolygon.FillPolyAntialias(surface, points, BGRA(0,0,0,255), true, true)
+  if surface = nil then exit;
+  if self.antialiasing then
+    BGRAPolygon.FillPolyAntialias(surface, points, BGRA(0,0,0,255), true, true, linearBlend)
+  else
+    BGRAPolygon.FillPolyAliased(surface, points, BGRA(0,0,0,255), true, true, dmSet);
 end;
 
 function TBGRACanvas2D.ApplyTransform(const points: array of TPointF;
@@ -888,6 +986,11 @@ begin
   result := BGRA(color.red,color.green,color.blue,ApplyOpacity(color.alpha, currentState.globalAlpha));
 end;
 
+function TBGRACanvas2D.GetDrawMode: TDrawMode;
+begin
+  if linearBlend then result := dmLinearBlend else result := dmDrawWithTransparency;
+end;
+
 constructor TBGRACanvas2D.Create(ASurface: TBGRACustomBitmap);
 begin
   FSurface := ASurface;
@@ -895,6 +998,7 @@ begin
   FPathPointCount := 0;
   currentState := TBGRACanvasState2D.Create(AffineMatrixIdentity,nil);
   pixelCenteredCoordinates := false;
+  antialiasing := true;
 end;
 
 destructor TBGRACanvas2D.Destroy;
@@ -916,6 +1020,7 @@ var
   output: TStringStream;
   encode64: TBase64EncodingStream;
 begin
+  if surface = nil then exit;
   stream := TMemoryStream.Create;
   if mimeType='image/jpeg' then
   begin
@@ -1174,9 +1279,9 @@ begin
     for j := 0 to nb-1 do
       pts[j] := FPathPoints[i+j];
     if closed then
-      splinePts := surface.ComputeClosedSpline(pts,style)
+      splinePts := BGRAPath.ComputeClosedSpline(pts,style)
     else
-      splinePts := surface.ComputeOpenedSpline(pts,style);
+      splinePts := BGRAPath.ComputeOpenedSpline(pts,style);
     dec(FPathPointCount,nb);
     AddPoints(splinePts);
   end;
@@ -1215,7 +1320,7 @@ var
   pts : array of TPointF;
 begin
   curve := BezierCurve(GetPenPos,ApplyTransform(PointF(cpx,cpy)),ApplyTransform(PointF(x,y)));
-  pts := Surface.ComputeBezierCurve(curve);
+  pts := BGRAPath.ComputeBezierCurve(curve);
   AddPoints(pts);
 end;
 
@@ -1231,7 +1336,7 @@ var
 begin
   curve := BezierCurve(GetPenPos,ApplyTransform(PointF(cp1x,cp1y)),
     ApplyTransform(PointF(cp2x,cp2y)),ApplyTransform(PointF(x,y)));
-  pts := Surface.ComputeBezierCurve(curve);
+  pts := BGRAPath.ComputeBezierCurve(curve);
   AddPoints(pts);
 end;
 
@@ -1272,9 +1377,9 @@ begin
   if length(pts)=0 then exit;
   transf := ApplyTransform(pts);
   if (pts[0] = pts[high(pts)]) and (length(pts) > 1) then
-    transf := surface.ComputeClosedSpline(slice(transf, length(transf)-1),style)
+    transf := BGRAPath.ComputeClosedSpline(slice(transf, length(transf)-1),style)
   else
-    transf := surface.ComputeOpenedSpline(transf,style);
+    transf := BGRAPath.ComputeOpenedSpline(transf,style);
   AddPoints(transf);
 end;
 
@@ -1291,7 +1396,7 @@ begin
       transf[i]:= transf[i-1];
     transf[0] := GetPenPos;
   end;
-  transf := surface.ComputeOpenedSpline(transf,style);
+  transf := BGRAPath.ComputeOpenedSpline(transf,style);
   AddPoints(transf);
 end;
 
@@ -1323,12 +1428,12 @@ begin
     temp := startAngle;
     startAngle := endAngle;
     endAngle := temp;
-    pts := surface.ComputeArcRad(0,0,rx,ry,startAngle,endAngle);
+    pts := BGRAPath.ComputeArcRad(0,0,rx,ry,startAngle,endAngle);
     pts := ApplyTransform(pts,unitAffine);
     AddPointsRev(pts);
   end else
   begin
-    pts := surface.ComputeArcRad(0,0,rx,ry,startAngle,endAngle);
+    pts := BGRAPath.ComputeArcRad(0,0,rx,ry,startAngle,endAngle);
     pts := ApplyTransform(pts,unitAffine);
     AddPoints(pts);
   end;
@@ -1441,7 +1546,10 @@ begin
   if currentState.clipMask = nil then
     currentState.clipMask := surface.NewBitmap(width,height,BGRAWhite);
   tempBmp := surface.NewBitmap(width,height,BGRABlack);
-  tempBmp.FillPolyAntialias(slice(FPathPoints,FPathPointCount),BGRAWhite);
+  if antialiasing then
+    tempBmp.FillPolyAntialias(slice(FPathPoints,FPathPointCount),BGRAWhite)
+  else
+    tempBmp.FillPoly(slice(FPathPoints,FPathPointCount),BGRAWhite,dmSet);
   currentState.clipMask.BlendImage(0,0,tempBmp,boDarken);
   tempBmp.Free;
 end;
@@ -1450,7 +1558,10 @@ procedure TBGRACanvas2D.unclip;
 begin
   if FPathPointCount = 0 then exit;
   if currentState.clipMask = nil then exit;
-  currentState.clipMask.FillPolyAntialias(slice(FPathPoints,FPathPointCount),BGRAWhite);
+  if antialiasing then
+    currentState.clipMask.FillPolyAntialias(slice(FPathPoints,FPathPointCount),BGRAWhite)
+  else
+    currentState.clipMask.FillPoly(slice(FPathPoints,FPathPointCount),BGRAWhite,dmSet);
   if currentState.clipMask.Equals(BGRAWhite) then
     FreeAndNil(currentState.clipMask);
 end;

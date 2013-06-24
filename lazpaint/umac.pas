@@ -1,4 +1,4 @@
-unit umac;
+unit UMac;
 
 {$mode objfpc}{$H+}
 
@@ -15,6 +15,7 @@ procedure CheckOKCancelBtns(OKBtn     : TControl;
                             CancelBtn : TControl; MoveRight: boolean = true);
 
 procedure CheckSpinEdit(SpinEdit: TSpinEdit);
+procedure CheckFloatSpinEdit(SpinEdit: TFloatSpinEdit);
 
 procedure CheckActions(List: TActionList);
 
@@ -59,6 +60,16 @@ end;
 
 {$hints off}
 procedure CheckSpinEdit(SpinEdit: TSpinEdit);
+begin
+   {$IFDEF DARWIN}
+   SpinEdit.Left := SpinEdit.Left + 3;
+   SpinEdit.Width := SpinEdit.Width - 4;
+   {$ENDIF}
+end;
+{$hints on}
+
+{$hints off}
+procedure CheckFloatSpinEdit(SpinEdit: TFloatSpinEdit);
 begin
    {$IFDEF DARWIN}
    SpinEdit.Left := SpinEdit.Left + 3;

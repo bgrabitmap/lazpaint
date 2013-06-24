@@ -1,4 +1,4 @@
-unit ucanvassize;
+unit UCanvassize;
 
 {$mode objfpc}{$H+}
 
@@ -16,9 +16,9 @@ type
     Button_OK: TButton;
     CheckBox_FlipMode: TCheckBox;
     ComboBox_Anchor: TComboBox;
-    Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
+    Label_Anchor: TLabel;
+    Label_Width: TLabel;
+    Label_Height: TLabel;
     SpinEdit_Height: TSpinEdit;
     SpinEdit_Width: TSpinEdit;
     procedure Button_OKClick(Sender: TObject);
@@ -37,12 +37,29 @@ implementation
 
 uses ugraph, bgrabitmaptypes, umac;
 
+function ChangeLayeredImageCanvasSize(layeredBmp: TLazPaintImage; newWidth,
+  newHeight: integer; anchor: string; background: TBGRAPixel;
+  repeatImage: boolean; flipMode: boolean): TBGRALayeredBitmap;
+var i,idx: integer;
+begin
+  result := TBGRALayeredBitmap.Create;
+  for i := 0 to layeredbmp.NbLayers-1 do
+  begin
+    idx := result.AddOwnedLayer(ChangeCanvasSize(layeredbmp.LayerBitmap[i],newwidth,newHeight,anchor,background,repeatImage,flipMode),
+      layeredBmp.BlendOperation[i],layeredbmp.LayerOpacity[i]);
+    result.LayerName[idx] := layeredbmp.LayerName[i];
+    result.LayerVisible[idx] := layeredbmp.LayerVisible[i];
+  end;
+end;
+
 { TFCanvasSize }
 
 procedure TFCanvasSize.FormCreate(Sender: TObject);
 begin
   ScaleDPI(Self,OriginalDPI);
 
+  SpinEdit_Width.MaxValue := MaxImageWidth;
+  SpinEdit_Height.MaxValue := MaxImageHeight;
   CheckOKCancelBtns(Button_OK,Button_Cancel);
   CheckSpinEdit(SpinEdit_Width);
   CheckSpinEdit(SpinEdit_Height);
@@ -57,18 +74,16 @@ begin
     (SpinEdit_Height.Value = LazPaintInstance.Image.Height) then
     ModalResult := mrCancel else
     begin
-      LazPaintInstance.Image.SaveLayerOrSelectionUndo; //save changes just in case
-
       if ComboBox_Anchor.ItemIndex = -1 then anchor := 'Middle' else
         anchor := ComboBox_Anchor.Items[ComboBox_Anchor.ItemIndex];
 
-      canvasSizeResult.layeredBitmap := ChangeCanvasSize(LazPaintInstance.Image.currentLayeredBitmap,SpinEdit_Width.Value,
+      canvasSizeResult.layeredBitmap := ChangeLayeredImageCanvasSize(LazPaintInstance.Image,SpinEdit_Width.Value,
          SpinEdit_Height.Value,anchor,BGRAPixelTransparent, repeatImage, CheckBox_FlipMode.Checked);
-      if LazPaintInstance.Image.currentSelection <> nil then
-        canvasSizeResult.selection := ChangeCanvasSize(LazPaintInstance.Image.currentSelection,SpinEdit_Width.Value,
+      if LazPaintInstance.Image.SelectionReadonly <> nil then
+        canvasSizeResult.selection := ChangeCanvasSize(LazPaintInstance.Image.SelectionReadonly,SpinEdit_Width.Value,
           SpinEdit_Height.Value,anchor,BGRABlack, repeatImage, CheckBox_FlipMode.Checked);
-      if LazPaintInstance.Image.GetSelectionLayerIfExists <> nil then
-        canvasSizeResult.selectionLayer := ChangeCanvasSize(LazPaintInstance.Image.GetSelectionLayerIfExists,
+      if LazPaintInstance.Image.SelectionLayerReadonly <> nil then
+        canvasSizeResult.selectionLayer := ChangeCanvasSize(LazPaintInstance.Image.SelectionLayerReadonly,
            SpinEdit_Width.Value,SpinEdit_Height.Value,anchor,BGRAPixelTransparent, repeatImage, CheckBox_FlipMode.Checked);
 
       ModalResult := mrOK;

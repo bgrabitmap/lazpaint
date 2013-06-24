@@ -15,5 +15,5 @@ object FChooseColor: TFChooseColor
   OnMouseUp = FormMouseUp
   OnPaint = FormPaint
   OnShow = FormShow
-  LCLVersion = '1.0.1.3'
+  LCLVersion = '1.1'
 end

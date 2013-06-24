@@ -1,3 +1,5 @@
+{$i bgrasse.inc}
+
   var
     //loop variables
     pdest: PBGRAPixel;
@@ -105,7 +107,7 @@
     lightAcc := lightDiff div 2;
   {$ENDIF}
 
-  {$IFDEF CPUI386}
+  {$IFDEF BGRASSE_AVAILABLE}
     if UseSSE then
     begin
       {$DEFINE PARAM_USESSE}

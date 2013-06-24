@@ -1,4 +1,4 @@
-unit unewimage;
+unit UNewimage;
 
 {$mode objfpc}{$H+}
 
@@ -15,8 +15,8 @@ type
   TFNewImage = class(TForm)
     Button_OK: TButton;
     Button_Cancel: TButton;
-    Label2: TLabel;
-    Label3: TLabel;
+    Label_Width: TLabel;
+    Label_Height: TLabel;
     SpinEdit_Height: TSpinEdit;
     SpinEdit_Width: TSpinEdit;
     procedure Button_OKClick(Sender: TObject);
@@ -69,6 +69,8 @@ procedure TFNewImage.FormCreate(Sender: TObject);
 begin
   ScaleDPI(Self,OriginalDPI);
 
+  SpinEdit_Width.MaxValue := MaxImageWidth;
+  SpinEdit_Height.MaxValue := MaxImageHeight;
   CheckOKCancelBtns(Button_OK,Button_Cancel);
   CheckSpinEdit(SpinEdit_Width);
   CheckSpinEdit(SpinEdit_Height);

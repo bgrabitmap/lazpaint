@@ -1,4 +1,4 @@
-unit ucustomblur; 
+unit UCustomblur;
 
 {$mode objfpc}{$H+}
 
@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, ExtCtrls, ExtDlgs,  bgrabitmap, LazPaintType, uscaledpi, uresourcestrings;
+  StdCtrls, ExtCtrls, ExtDlgs,  bgrabitmap, LazPaintType, UScaleDPI,
+  UResourceStrings, UFilterConnector;
 
 type
 
@@ -25,15 +26,17 @@ type
     procedure Button_OKClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure LoadMask(filename: string);
+    procedure UpdatePreview;
   private
     subConfig: TStringStream;
     FLazPaintInstance: TLazPaintCustomInstance;
+    FFilterConnector: TFilterConnector;
     procedure GenerateDefaultMask;
     procedure SetLazPaintInstance(const AValue: TLazPaintCustomInstance);
   public
-    sourceLayer, filteredLayer : TBGRABitmap;
-    function ShowDlg(ALayer:TBGRABitmap; out AFilteredLayer: TBGRABitmap): boolean;
+    function ShowDlg(AFilterConnector: TObject): boolean;
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
   end;
 
@@ -48,7 +51,6 @@ begin
   ScaleDPI(Self,OriginalDPI);
 
   CheckOKCancelBtns(Button_OK,Button_Cancel);
-  filteredLayer := nil;
   subConfig := TStringStream.Create('[Tool]'+LineEnding+
     'ForeColor=FFFFFFFF'+LineEnding+
     'BackColor=000000FF'+LineEnding+
@@ -58,6 +60,11 @@ end;
 procedure TFCustomBlur.FormDestroy(Sender: TObject);
 begin
   subConfig.Free;
+end;
+
+procedure TFCustomBlur.FormShow(Sender: TObject);
+begin
+  UpdatePreview;
 end;
 
 procedure TFCustomBlur.LoadMask(filename: string);
@@ -72,6 +79,18 @@ begin
   grayscale.free;
   Image1.Picture.Assign(bmp);
   bmp.Free;
+end;
+
+procedure TFCustomBlur.UpdatePreview;
+var mask,temp: TBGRABitmap;
+begin
+    mask := TBGRABitmap.Create(Image1.Picture.Width,Image1.Picture.Height);
+    mask.Canvas.Draw(0,0,image1.picture.bitmap);
+    mask.AlphaFill(255);
+    temp := FFilterConnector.BackupLayer.FilterCustomBlur(FFilterConnector.WorkArea, mask) as TBGRABitmap;
+    mask.Free;
+    FFilterConnector.PutImage(temp,False);
+    temp.Free;
 end;
 
 procedure TFCustomBlur.GenerateDefaultMask;
@@ -107,14 +126,17 @@ begin
   end;
 end;
 
-function TFCustomBlur.ShowDlg(ALayer: TBGRABitmap; out AFilteredLayer: TBGRABitmap): boolean;
+function TFCustomBlur.ShowDlg(AFilterConnector: TObject): boolean;
 begin
-  AFilteredLayer := nil;
-  result := false;
-  sourceLayer := ALayer;
-  filteredLayer := nil;
-  result:= (showmodal = mrOk);
-  AFilteredLayer := filteredLayer;
+  FFilterConnector := AFilterConnector as TFilterConnector;
+  try
+    if FFilterConnector.ActiveLayer <> nil then
+      result:= (ShowModal = mrOk)
+    else
+      result := false;
+  finally
+    FFilterConnector := nil;
+  end;
 end;
 
 procedure TFCustomBlur.Button_LoadMaskClick(Sender: TObject);
@@ -125,6 +147,8 @@ begin
     filename := OpenPictureDialog1.FileName;
     LoadMask(filename);
     LazPaintInstance.Config.SetDefaultCustomBlurMask(filename);
+    self.Update;
+    UpdatePreview;
   except
     on ex:Exception do
     begin
@@ -140,27 +164,27 @@ begin
   bgraBmp := TBGRABitmap.Create(Image1.Picture.Width,Image1.Picture.Height);
   bgraBmp.Canvas.Draw(0,0,image1.picture.bitmap);
   bgraBmp.AlphaFill(255);
-  LazPaintInstance.EditBitmap(bgraBmp,subConfig,rsEditMask);
-  BGRAReplace(bgraBmp,bgraBmp.FilterGrayscale);
-  bmpCopy := bgraBmp.MakeBitmapCopy(clBlack);
-  Image1.Picture.Assign(bmpCopy);
-  bmpCopy.Free;
+  try
+    LazPaintInstance.EditBitmap(bgraBmp,subConfig,rsEditMask);
+    bgraBmp.InplaceGrayscale;
+    bmpCopy := bgraBmp.MakeBitmapCopy(clBlack);
+    try
+      Image1.Picture.Assign(bmpCopy);
+    finally
+      bmpCopy.Free;
+    end;
+  except on ex: exception do
+    ShowMessage(ex.Message);
+  end;
   bgraBmp.Free;
+  self.Update;
+  UpdatePreview;
 end;
 
 procedure TFCustomBlur.Button_OKClick(Sender: TObject);
-var mask: TBGRABitmap;
 begin
-    if (sourceLayer <> nil) then
-    begin
-      mask := TBGRABitmap.Create(Image1.Picture.Width,Image1.Picture.Height);
-      mask.Canvas.Draw(0,0,image1.picture.bitmap);
-      mask.AlphaFill(255);
-      filteredLayer := sourceLayer.FilterCustomBlur(mask) as TBGRABitmap;
-      mask.Free;
-      ModalResult := mrOK;
-    end else
-      ModalResult := mrCancel;
+  FFilterConnector.ValidateAction;
+  ModalResult := mrOK;
 end;
 
 initialization

@@ -1,4 +1,4 @@
-unit uclipboard;
+unit UClipboard;
 
 {$mode objfpc}{$H+}
 { $DEFINE DEBUG_CLIPBOARD}

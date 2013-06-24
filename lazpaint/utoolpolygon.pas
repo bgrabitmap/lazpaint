@@ -1,4 +1,4 @@
-unit utoolpolygon;
+unit UToolPolygon;
 
 {$mode objfpc}{$H+}
 
@@ -7,94 +7,112 @@ interface
 uses
   Classes, SysUtils, utool, BGRABitmap, BGRABitmapTypes;
 
+const
+  EasyBezierMinimumDotProduct = 0.5;
+
 type
 
   { TToolGenericPolygon }
 
   TToolGenericPolygon = class(TGenericTool)
+  strict private
+    swapColorKey: boolean;
+    FCurrentBounds: TRect;
+    lastMousePos: TPointF;
+  protected
+    class var HintShowed: boolean;
   protected
     polygonPoints: array of TPointF;
-    polygonBackup: TBGRABitmap;
+    swapedColor : boolean;
     snapToPixel : boolean;
-    swapColor: boolean;
-    function DoUpdatePolygonView(toolDest: TBGRABitmap): TRect; virtual; abstract;
-    function DoValidatePolygon(toolDest: TBGRABitmap): TRect; virtual; abstract;
-    function ValidatePolygon(toolDest: TBGRABitmap): TRect;
+    FAfterHandDrawing: boolean;
+    FHoveredPoint: integer;
+    FMovingPoint: integer;
+    FMovingPointDelta: TPointF;
+    function HandDrawingPolygonView(toolDest: TBGRABitmap): TRect; virtual; abstract;
+    function FinalPolygonView(toolDest: TBGRABitmap): TRect; virtual; abstract;
+    procedure ValidatePolygon(toolDest: TBGRABitmap);
     function UpdatePolygonView(toolDest: TBGRABitmap): TRect;
-    procedure StartPolygon(rightBtn: boolean); virtual; abstract;
+    procedure StartPolygon(rightBtn: boolean); virtual;
     function SnapToPixelEdge: boolean; virtual;
     procedure DoSnap(var ptF: TPointF); virtual;
-  public
-    function GetCurrentPolygonPoints: ArrayOfTPointF;
-    function ToolKeyUp(key: Word): TRect; override;
     function DoToolDown(toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
       rightBtn: boolean): TRect; override;
+    function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect;
+      override;
+    function DoToolUpdate(toolDest: TBGRABitmap): TRect; override;
+    function GetFillColor: TBGRAPixel; virtual;
+    function GetPenColor: TBGRAPixel; virtual;
+    function FinishHandDrawing: TRect;
+    function AddLastClickedPoint: boolean; virtual;
+  public
+    constructor Create(AToolManager: TToolManager); override;
+    function GetCurrentPolygonPoints: ArrayOfTPointF;
+    function ToolKeyUp(key: Word): TRect; override;
     function ToolKeyDown(key: Word): TRect; override;
+    function ToolUp: TRect; override;
     procedure Render(VirtualScreen: TBGRABitmap; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction); override;
     destructor Destroy; override;
+    property PenColor: TBGRAPixel read GetPenColor;
+    property FillColor: TBGRAPixel read GetFillColor;
   end;
 
   { TToolPolygon }
 
   TToolPolygon = class(TToolGenericPolygon)
   protected
-    FPreviousBounds,FCurrentBounds: TRect;
-    penColor: TBGRAPixel;
-    fillColor: TBGRAPixel;
     function SnapToPixelEdge: boolean; override;
     function GetIsSelectingTool: boolean; override;
-    function DoUpdatePolygonView(toolDest: TBGRABitmap): TRect; override;
-    function DoValidatePolygon(toolDest: TBGRABitmap): TRect; override;
-    procedure StartPolygon(rightBtn: boolean); override;
+    function HandDrawingPolygonView(toolDest: TBGRABitmap): TRect; override;
+    function FinalPolygonView(toolDest: TBGRABitmap): TRect; override;
   end;
 
   { TToolGenericSpline }
 
   TToolGenericSpline = class(TToolGenericPolygon)
-    FPreviousBounds,FCurrentBounds: TRect;
+    FCurrentMousePos: TPointF;
     function DoToolMove(toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect; override;
-  protected
-    procedure StartPolygon({%H-}rightBtn: boolean); override;
+    function AddLastClickedPoint: boolean; override;
   end;
 
   { TToolSpline }
 
   TToolSpline = class(TToolGenericSpline)
   protected
-    penColor: TBGRAPixel;
-    fillColor: TBGRAPixel;
     function SnapToPixelEdge: boolean; override;
     function GetIsSelectingTool: boolean; override;
-    function DoUpdatePolygonView(toolDest: TBGRABitmap): TRect; override;
-    function DoValidatePolygon({%H-}toolDest: TBGRABitmap):TRect; override;
-    procedure StartPolygon(rightBtn: boolean); override;
+    function HandDrawingPolygonView(toolDest: TBGRABitmap): TRect; override;
+    function FinalPolygonView({%H-}toolDest: TBGRABitmap):TRect; override;
   end;
 
 implementation
 
-uses Graphics, LCLType, ugraph, Dialogs;
+uses Types, Graphics, LCLType, ugraph, Dialogs, BGRATypewriter, Controls;
 
 { TToolGenericSpline }
 
 function TToolGenericSpline.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF): TRect;
+var inheritedResult: TRect;
 begin
-  FPreviousBounds := FCurrentBounds;
+  inheritedResult := inherited DoToolMove(toolDest,pt,ptF);
   DoSnap(ptF);
-  if length(polygonPoints) > 0 then
+  if not FAfterHandDrawing and (length(polygonPoints) > 0) then
   begin
     setlength(polygonPoints, length(polygonPoints)+1);
     polygonPoints[high(polygonPoints)] := ptF;
-    FCurrentBounds := UpdatePolygonView(toolDest);
+    result := UpdatePolygonView(toolDest);
     setlength(polygonPoints, length(polygonPoints)-1);
-  end else
-    FCurrentBounds := EmptyRect;
-  result := RectUnion(FPreviousBounds,FCurrentBounds);
+  end
+  else
+    result := EmptyRect;
+
+  result := RectUnion(result,inheritedResult);
 end;
 
-procedure TToolGenericSpline.StartPolygon(rightBtn: boolean);
+function TToolGenericSpline.AddLastClickedPoint: boolean;
 begin
-  FCurrentBounds := EmptyRect;
+  Result:=true;
 end;
 
 { TToolSpline }
@@ -109,36 +127,42 @@ begin
   Result:= false;
 end;
 
-function TToolSpline.DoUpdatePolygonView(toolDest: TBGRABitmap): TRect;
+function TToolSpline.HandDrawingPolygonView(toolDest: TBGRABitmap): TRect;
 var
    splinePoints: ArrayOfTPointF;
 begin
   toolDest.JoinStyle := pjsRound;
 
-  if Manager.ToolOptionCloseShape then
+  if Manager.ToolSplineEasyBezier then
   begin
-    splinePoints := toolDest.ComputeClosedSpline(polygonPoints,Manager.ToolSplineStyle);
+    splinePoints := ComputeEasyBezier(polygonPoints,Manager.ToolOptionCloseShape,EasyBezierMinimumDotProduct);
   end else
-   splinePoints := toolDest.ComputeOpenedSpline(polygonPoints,Manager.ToolSplineStyle);
+  begin
+    if Manager.ToolOptionCloseShape then
+    begin
+      splinePoints := toolDest.ComputeClosedSpline(polygonPoints,Manager.ToolSplineStyle);
+    end else
+     splinePoints := toolDest.ComputeOpenedSpline(polygonPoints,Manager.ToolSplineStyle);
+  end;
 
   result := EmptyRect;
   if length(splinePoints) > 2 then
   begin
     if Manager.ToolOptionFillShape then
     begin
-      if not Manager.ToolOptionDrawShape and (Manager.ToolTexture <> nil) then
-        toolDest.FillPolyAntialias(splinePoints, Manager.ToolTexture) else
+      if not Manager.ToolOptionDrawShape and (Manager.GetToolTextureAfterAlpha <> nil) then
+        toolDest.FillPolyAntialias(splinePoints, Manager.GetToolTextureAfterAlpha) else
         toolDest.FillPolyAntialias(splinePoints, fillColor);
       result := GetShapeBounds(splinePoints,1);
     end;
     if Manager.ToolOptionDrawShape then
     begin
-      if not Manager.ToolOptionFillShape and (Manager.ToolTexture <> nil) then
+      if not Manager.ToolOptionFillShape and (Manager.GetToolTextureAfterAlpha <> nil) then
       begin
         if Manager.ToolOptionCloseShape then
-          toolDest.DrawPolygonAntialias(splinePoints,Manager.ToolTexture,Manager.ToolPenWidth)
+          toolDest.DrawPolygonAntialias(splinePoints,Manager.GetToolTextureAfterAlpha,Manager.ToolPenWidth)
         else
-          toolDest.DrawPolylineAntialias(splinePoints,Manager.ToolTexture,Manager.ToolPenWidth);
+          toolDest.DrawPolylineAntialias(splinePoints,Manager.GetToolTextureAfterAlpha,Manager.ToolPenWidth);
       end else
       if Manager.ToolOptionCloseShape then
         toolDest.DrawPolygonAntialias(splinePoints,penColor,Manager.ToolPenWidth)
@@ -151,10 +175,10 @@ begin
   begin
     if Manager.ToolOptionDrawShape then
     begin
-     if not Manager.ToolOptionFillShape and (Manager.ToolTexture <> nil) then
+     if not Manager.ToolOptionFillShape and (Manager.GetToolTextureAfterAlpha <> nil) then
        toolDest.DrawLineAntialias(splinePoints[0].X,splinePoints[0].Y,
              splinePoints[high(splinePoints)].X,splinePoints[high(splinePoints)].Y,
-             Manager.ToolTexture,Manager.ToolPenWidth) else
+             Manager.GetToolTextureAfterAlpha,Manager.ToolPenWidth) else
        toolDest.DrawLineAntialias(splinePoints[0].X,splinePoints[0].Y,
              splinePoints[high(splinePoints)].X,splinePoints[high(splinePoints)].Y,
              penColor,Manager.ToolPenWidth);
@@ -163,23 +187,12 @@ begin
   end;
 end;
 
-function TToolSpline.DoValidatePolygon(toolDest: TBGRABitmap): TRect;
+function TToolSpline.FinalPolygonView(toolDest: TBGRABitmap): TRect;
 begin
-  //nothing
-  result := EmptyRect;
-end;
-
-procedure TToolSpline.StartPolygon(rightBtn: boolean);
-begin
-   if rightBtn then
-   begin
-     penColor := Manager.ToolBackColor;
-     fillColor := Manager.ToolForeColor;
-   end else
-   begin
-     penColor := Manager.ToolForeColor;
-     fillColor := Manager.ToolBackColor;
-   end;
+  if FAfterHandDrawing then
+    result := HandDrawingPolygonView(toolDest)
+  else
+    result := EmptyRect;
 end;
 
 { TToolPolygon }
@@ -194,96 +207,141 @@ begin
   Result:= false;
 end;
 
-function TToolPolygon.DoUpdatePolygonView(toolDest: TBGRABitmap): TRect;
+function TToolPolygon.HandDrawingPolygonView(toolDest: TBGRABitmap): TRect;
 begin
-   FPreviousBounds := FCurrentBounds;
    if Manager.ToolOptionDrawShape then
    begin
-     if not Manager.ToolOptionFillShape and (Manager.ToolTexture <>nil) then
-       toolDest.DrawPolyLineAntialias(polygonPoints,Manager.ToolTexture,Manager.ToolPenWidth) else
+     if not Manager.ToolOptionFillShape and (Manager.GetToolTextureAfterAlpha <>nil) then
+       toolDest.DrawPolyLineAntialias(polygonPoints,Manager.GetToolTextureAfterAlpha,Manager.ToolPenWidth) else
        toolDest.DrawPolyLineAntialias(polygonPoints,penColor,Manager.ToolPenWidth);
-     FCurrentBounds := GetShapeBounds(polygonPoints,Manager.ToolPenWidth);
+     result := GetShapeBounds(polygonPoints,Manager.ToolPenWidth);
    end else
-     FCurrentBounds := EmptyRect;
-   result := RectUnion(FPreviousBounds,FCurrentBounds);
+     result := EmptyRect;
 end;
 
-function TToolPolygon.DoValidatePolygon(toolDest: TBGRABitmap): TRect;
-var mergedBounds: TRect;
+function TToolPolygon.FinalPolygonView(toolDest: TBGRABitmap): TRect;
 begin
-   FPreviousBounds := FCurrentBounds;
-   FCurrentBounds := EmptyRect;
-   toolDest.PutImage(0,0,polygonBackup,dmSet);
    if length(polygonPoints) > 2 then
    begin
      if Manager.ToolOptionFillShape then
      begin
-       if not Manager.ToolOptionDrawShape and (Manager.ToolTexture <> nil) then
-         toolDest.FillPolyAntialias(polygonPoints, Manager.ToolTexture) else
+       if not Manager.ToolOptionDrawShape and (Manager.GetToolTextureAfterAlpha <> nil) then
+         toolDest.FillPolyAntialias(polygonPoints, Manager.GetToolTextureAfterAlpha) else
          toolDest.FillPolyAntialias(polygonPoints, fillColor);
-       FCurrentBounds := GetShapeBounds(polygonPoints,1);
+       result := GetShapeBounds(polygonPoints,1);
      end;
      if Manager.ToolOptionDrawShape then
      begin
-       if not Manager.ToolOptionFillShape and (Manager.ToolTexture <> nil) then
+       if not Manager.ToolOptionFillShape and (Manager.GetToolTextureAfterAlpha <> nil) then
        begin
          if Manager.ToolOptionCloseShape then
-           toolDest.DrawPolygonAntialias(polygonPoints,Manager.ToolTexture,Manager.ToolPenWidth) else
-             toolDest.DrawPolyLineAntialias(polygonPoints,Manager.ToolTexture,Manager.ToolPenWidth);
+           toolDest.DrawPolygonAntialias(polygonPoints,Manager.GetToolTextureAfterAlpha,Manager.ToolPenWidth) else
+             toolDest.DrawPolyLineAntialias(polygonPoints,Manager.GetToolTextureAfterAlpha,Manager.ToolPenWidth);
        end else
        if Manager.ToolOptionCloseShape then
          toolDest.DrawPolygonAntialias(polygonPoints,penColor,Manager.ToolPenWidth) else
            toolDest.DrawPolyLineAntialias(polygonPoints,penColor,Manager.ToolPenWidth);
-       FCurrentBounds := GetShapeBounds(polygonPoints,Manager.ToolPenWidth);
+       result := GetShapeBounds(polygonPoints,Manager.ToolPenWidth);
      end;
    end else
    if length(polygonPoints) = 2 then
    begin
      if Manager.ToolOptionDrawShape then
      begin
-      if not Manager.ToolOptionFillShape and (Manager.ToolTexture <> nil) then
+      if not Manager.ToolOptionFillShape and (Manager.GetToolTextureAfterAlpha <> nil) then
         toolDest.DrawLineAntialias(polygonPoints[0].X,polygonPoints[0].Y,
               polygonPoints[1].X,polygonPoints[1].Y,
-              Manager.ToolTexture,Manager.ToolPenWidth) else
+              Manager.GetToolTextureAfterAlpha,Manager.ToolPenWidth) else
         toolDest.DrawLineAntialias(polygonPoints[0].X,polygonPoints[0].Y,
               polygonPoints[1].X,polygonPoints[1].Y,
               penColor,Manager.ToolPenWidth);
-      FCurrentBounds := GetShapeBounds(polygonPoints,Manager.ToolPenWidth);
+      result := GetShapeBounds(polygonPoints,Manager.ToolPenWidth);
      end;
    end;
-   mergedBounds := RectUnion(FCurrentBounds,FPreviousBounds);
-   Manager.Image.ImageMayChange(mergedBounds);
-   result := mergedBounds;
-end;
-
-procedure TToolPolygon.StartPolygon(rightBtn: boolean);
-begin
-   if rightBtn then
-   begin
-     penColor := Manager.ToolBackColor;
-     fillColor := Manager.ToolForeColor;
-   end else
-   begin
-     penColor := Manager.ToolForeColor;
-     fillColor := Manager.ToolBackColor;
-   end;
-   FCurrentBounds := EmptyRect;
 end;
 
 { TToolGenericPolygon }
 
-function TToolGenericPolygon.ValidatePolygon(toolDest: TBGRABitmap): TRect;
+function TToolGenericPolygon.GetFillColor: TBGRAPixel;
 begin
-  result := DoValidatePolygon(toolDest);
-  setlength(polygonPoints,0);
-  FreeAndNil(polygonBackup);
-  Manager.Image.SaveLayerOrSelectionUndo;
+   if swapedColor then
+     result := Manager.ToolForeColor
+   else
+     result := Manager.ToolBackColor;
+end;
+
+function TToolGenericPolygon.GetPenColor: TBGRAPixel;
+begin
+   if swapedColor then
+     result := Manager.ToolBackColor
+   else
+     result := Manager.ToolForeColor;
+end;
+
+function TToolGenericPolygon.FinishHandDrawing: TRect;
+begin
+  if AddLastClickedPoint then
+  begin
+    setlength(polygonPoints, length(polygonPoints)+1);
+    polygonPoints[high(polygonPoints)] := lastMousePos;
+  end;
+  result := FinalPolygonView(GetToolDrawingLayer);
+  if IsRectEmpty(result) then
+    result := ToolRepaintOnly;
+  FAfterHandDrawing := True;
+end;
+
+function TToolGenericPolygon.AddLastClickedPoint: boolean;
+begin
+  result := false;
+end;
+
+constructor TToolGenericPolygon.Create(AToolManager: TToolManager);
+begin
+  inherited Create(AToolManager);
+  FAfterHandDrawing:= false;
+  polygonPoints := nil;
+  FMovingPoint:= -1;
+end;
+
+procedure TToolGenericPolygon.ValidatePolygon(toolDest: TBGRABitmap);
+var r: TRect;
+begin
+  if not FAfterHandDrawing then
+  begin
+    r := FinalPolygonView(toolDest);
+    setlength(polygonPoints,0);
+    if IsSelectingTool then
+      Manager.Image.SelectionMayChange(r)
+    else
+      Manager.Image.ImageMayChange(r);
+    FAfterHandDrawing:= True;
+  end else
+  begin
+    ValidateAction;
+    FAfterHandDrawing:= false;
+    polygonPoints := nil;
+  end;
 end;
 
 function TToolGenericPolygon.UpdatePolygonView(toolDest: TBGRABitmap): TRect;
+var
+   previousBounds : TRect;
 begin
-  toolDest.PutImage(0,0,polygonBackup,dmSet);
-  result := DoUpdatePolygonView(toolDest);
+  previousBounds := FCurrentBounds;
+  RestoreBackupDrawingLayer;
+  if FAfterHandDrawing then
+    FCurrentBounds := FinalPolygonView(toolDest)
+  else
+    FCurrentBounds := HandDrawingPolygonView(toolDest);
+  result := RectUnion(previousBounds,FCurrentBounds);
+  if IsRectEmpty(result) then result := ToolRepaintOnly;
+end;
+
+procedure TToolGenericPolygon.StartPolygon(rightBtn: boolean);
+begin
+  swapedColor := rightBtn;
+  FCurrentBounds := EmptyRect;
 end;
 
 function TToolGenericPolygon.SnapToPixelEdge: boolean;
@@ -313,7 +371,7 @@ end;
 function TToolGenericPolygon.ToolKeyUp(key: Word): TRect;
 begin
   if key = VK_CONTROL then snapToPixel := false;
-  if key = VK_SHIFT then swapColor := false;
+  if key = VK_SHIFT then swapColorKey := false;
   Result:=EmptyRect;
 end;
 
@@ -321,32 +379,87 @@ function TToolGenericPolygon.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
 begin
    result := EmptyRect;
-   DoSnap(ptF);
+   if not HintShowed then
+   begin
+     Manager.ToolPopup(tpmBackspaceRemoveLastPoint);
+     HintShowed := true;
+   end;
    if length(polygonPoints)=0 then
    begin
+     DoSnap(ptF);
      if not rightBtn then
      begin
-       polygonBackup := toolDest.Duplicate as TBGRABitmap;
-
+       FAfterHandDrawing:= false;
        setlength(polygonPoints,1);
        polygonPoints[0] := ptF;
-       StartPolygon(rightBtn xor swapColor);
+       StartPolygon(rightBtn xor swapColorKey);
 
        result := UpdatePolygonView(toolDest);
      end;
    end else
+   if not FAfterHandDrawing then
    begin
+     DoSnap(ptF);
      if not rightBtn then
      begin
        setlength(polygonPoints, length(polygonPoints)+1);
        polygonPoints[high(polygonPoints)] := ptF;
-
        result := UpdatePolygonView(toolDest);
      end else
      begin
-       result := ValidatePolygon(toolDest);
+       result := FinishHandDrawing;
      end;
+   end else
+   if (FHoveredPoint <> -1) and (FHoveredPoint < length(polygonPoints)) then
+   begin
+     FMovingPoint := FHoveredPoint;
+     FMovingPointDelta := polygonPoints[FMovingPoint]-ptF;
    end;
+end;
+
+function TToolGenericPolygon.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
+  ptF: TPointF): TRect;
+var i: integer;
+   minDist,dist: single;
+   newPos: TPointF;
+begin
+  lastMousePos := ptF;
+  Result:= EmptyRect;
+  if FMovingPoint = -1 then
+  begin
+    Cursor := crDefault;
+    FHoveredPoint := -1;
+    if FAfterHandDrawing then
+    begin
+      minDist:= SelectionMaxPointDistance;
+      for i := 0 to high(polygonPoints) do
+      begin
+        dist := VectLen(polygonPoints[i]-ptF);
+        if dist < minDist then
+        begin
+          FHoveredPoint := i;
+          mindist := dist;
+          Cursor := crSizeAll;
+        end;
+      end;
+    end;
+  end else
+  begin
+    if FMovingPoint >= length(polygonPoints) then
+      FMovingPoint := -1
+    else
+    begin
+      newPos := ptF+FMovingPointDelta;
+      DoSnap(newPos);
+      polygonPoints[FMovingPoint] := newPos;
+      result := UpdatePolygonView(toolDest);
+    end;
+  end;
+end;
+
+function TToolGenericPolygon.DoToolUpdate(toolDest: TBGRABitmap): TRect;
+begin
+  result := UpdatePolygonView(toolDest);
 end;
 
 function TToolGenericPolygon.ToolKeyDown(key: Word): TRect;
@@ -364,45 +477,81 @@ begin
       begin
         polygonPoints := nil;
         result := UpdatePolygonView(GetToolDrawingLayer);
-        FreeAndNil(polygonBackup);
+        CancelAction;
       end;
     end;
   end else
-  if Key=VK_RETURN then
+  if (Key=VK_RETURN) or (Key=VK_ESCAPE) then
   begin
     if length(polygonPoints)<>0 then
-     begin
-       result := ValidatePolygon(GetToolDrawingLayer);
-     end;
+    begin
+      if not FAfterHandDrawing then
+      begin
+        if Key=VK_ESCAPE then
+        begin
+          RestoreBackupDrawingLayer;
+          polygonPoints := nil;
+          result := FCurrentBounds;
+          FCurrentBounds := EmptyRect;
+        end else
+          result := FinishHandDrawing
+      end
+      else
+      begin
+        ValidatePolygon(GetToolDrawingLayer);
+        result := ToolRepaintOnly;
+      end;
+    end;
   end else
   if key = VK_CONTROL then
     snapToPixel := true else
   if key = VK_SHIFT then
-    swapColor := true;
+    swapColorKey := true;
+end;
+
+function TToolGenericPolygon.ToolUp: TRect;
+begin
+  Result:=inherited ToolUp;
+  if FMovingPoint <> -1 then
+  begin
+    FMovingPoint := -1;
+    Cursor := crDefault;
+  end;
 end;
 
 procedure TToolGenericPolygon.Render(VirtualScreen: TBGRABitmap; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction);
 var
    poly: array of TPointF;
    toolPtF, toolPtF2: TPointF;
-   i: integer;
+   i,maxi: integer;
 begin
   poly := GetCurrentPolygonPoints;
   if length(poly) > 0 then
   begin
-    toolPtF := BitmapToVirtualScreen(poly[0]);
-    NicePoint(virtualScreen, toolPtF.X,toolPtF.Y);
-    for i := 0 to high(poly)-1 do
+    if FAfterHandDrawing then maxi := high(poly) else maxi := high(poly)-1;
+    for i := 0 to maxi do
     begin
         toolPtF := BitmapToVirtualScreen(poly[i]);
-        toolPtF2 := BitmapToVirtualScreen(poly[i+1]);
+        toolPtF2 := BitmapToVirtualScreen(poly[(i+1) mod length(poly)]);
         virtualScreen.DrawLineAntialias(round(toolPtF.X),round(toolPtF.Y),
            round(toolPtF2.X),round(toolPtF2.Y),BGRA(255,255,255,192),BGRA(0,0,0,192),FrameDashLength,False);
     end;
-    if length(poly) > 1 then
+    if FAfterHandDrawing then
     begin
-      toolPtF := BitmapToVirtualScreen(poly[high(poly)]);
+      for i := 0 to high(poly) do
+      begin
+        toolPtF := BitmapToVirtualScreen(poly[i]);
+        NicePoint(virtualScreen, toolPtF.X,toolPtF.Y);
+      end;
+    end else
+    begin
+      toolPtF := BitmapToVirtualScreen(poly[0]);
       NicePoint(virtualScreen, toolPtF.X,toolPtF.Y);
+      if length(poly) > 1 then
+      begin
+        toolPtF := BitmapToVirtualScreen(poly[high(poly)]);
+        NicePoint(virtualScreen, toolPtF.X,toolPtF.Y);
+      end;
     end;
   end;
 end;
@@ -411,7 +560,7 @@ destructor TToolGenericPolygon.Destroy;
 begin
   if length(polygonPoints)<>0 then
     ValidatePolygon(GetToolDrawingLayer);
-  FreeAndNil(polygonBackup);
+  inherited Destroy;
 end;
 
 initialization

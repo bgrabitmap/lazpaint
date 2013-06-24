@@ -1,4 +1,4 @@
-unit utwirl;
+unit UTwirl;
 
 {$mode objfpc}
 
@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, Spin, ExtCtrls, BGRABitmap, LazPaintType, uscaledpi;
+  StdCtrls, Spin, ExtCtrls, BGRABitmap, LazPaintType, uscaledpi, ufilterconnector, BGRABitmapTypes;
 
 type
 
@@ -15,8 +15,9 @@ type
   TFTwirl = class(TForm)
     Button_Cancel: TButton;
     Button_OK: TButton;
-    Label2: TLabel;
-    Label3: TLabel;
+    Label_Radius: TLabel;
+    Label_Angle: TLabel;
+    PaintBox1: TPaintBox;
     SpinEdit_Angle: TSpinEdit;
     SpinEdit_Radius: TSpinEdit;
     Timer1: TTimer;
@@ -24,38 +25,42 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure PaintBox1MouseDown(Sender: TObject; {%H-}Button: TMouseButton;
+      {%H-}Shift: TShiftState; X, Y: Integer);
+    procedure PaintBox1MouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
+    procedure PaintBox1Paint(Sender: TObject);
     procedure SpinEdit_AngleChange(Sender: TObject);
     procedure SpinEdit_RadiusChange(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
   private
     { private declarations }
-    backupSource: TBGRABitmap;
+    FInitializing: boolean;
+    FCenter: TPointF;
     procedure PreviewNeeded;
     function ComputeFilteredLayer: TBGRABitmap;
   public
-    { public declarations }
-    LazPaintInstance: TLazPaintCustomInstance;
-    sourceLayer, filteredLayer: TBGRABitmap;
-  end; 
+    FilterConnector: TFilterConnector;
+  end;
 
-function ShowTwirlDlg(Instance: TLazPaintCustomInstance; layer:TBGRABitmap; out filteredLayer: TBGRABitmap):boolean;
+function ShowTwirlDlg(AFilterConnector: TObject):boolean;
 
 implementation
 
-uses umac, BGRABitmapTypes;
+uses umac;
 
-function ShowTwirlDlg(Instance: TLazPaintCustomInstance; layer:TBGRABitmap; out filteredLayer: TBGRABitmap):boolean;
+function ShowTwirlDlg(AFilterConnector: TObject):boolean;
 var
   FTwirl: TFTwirl;
 begin
-  filteredLayer := nil;
   result := false;
   FTwirl:= TFTwirl.create(nil);
-  FTwirl.LazPaintInstance := Instance;
+  FTwirl.FilterConnector := AFilterConnector as TFilterConnector;
   try
-    FTwirl.sourceLayer := layer;
-    result:= (FTwirl.showModal = mrOk);
-    filteredLayer := FTwirl.filteredLayer;
+    if FTwirl.FilterConnector.ActiveLayer <> nil then
+      result:= (FTwirl.showModal = mrOk)
+    else
+      result := false;
   finally
     FTwirl.free;
   end;
@@ -70,77 +75,96 @@ begin
   CheckSpinEdit(SpinEdit_Radius);
   CheckSpinEdit(SpinEdit_Angle);
   CheckOKCancelBtns(Button_OK,Button_Cancel);
-  filteredLayer := nil;
+
+  FCenter := PointF(0.5,0.5);
 end;
 
 procedure TFTwirl.FormDestroy(Sender: TObject);
 begin
-  if backupSource <> nil then
-  begin
-    sourceLayer.PutImage(0,0,backupSource,dmSet);
-    FreeAndNil(backupSource);
-    LazPaintInstance.NotifyImageChangeCompletely(False);
-  end;
 end;
 
 procedure TFTwirl.FormShow(Sender: TObject);
 begin
-  SpinEdit_Radius.Value := round(LazPaintInstance.Config.DefaultTwirlRadius);
-  SpinEdit_Angle.Value := round(LazPaintInstance.Config.DefaultTwirlTurn*360);
+  FInitializing:= true;
+  SpinEdit_Radius.Value := round(FilterConnector.LazPaintInstance.Config.DefaultTwirlRadius);
+  SpinEdit_Angle.Value := round(FilterConnector.LazPaintInstance.Config.DefaultTwirlTurn*360);
+  FInitializing := false;
   PreviewNeeded;
+end;
+
+procedure TFTwirl.PaintBox1MouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  FCenter := PointF(X/PaintBox1.Width,Y/PaintBox1.Height);
+  PaintBox1.Invalidate;
+  PreviewNeeded;
+end;
+
+procedure TFTwirl.PaintBox1MouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+begin
+  if ssLeft in Shift then
+  begin
+    FCenter := PointF(X/PaintBox1.Width,Y/PaintBox1.Height);
+    PaintBox1.Invalidate;
+    PreviewNeeded;
+  end;
+end;
+
+procedure TFTwirl.PaintBox1Paint(Sender: TObject);
+var x,y: integer;
+begin
+  x := round(FCenter.X*PaintBox1.Width);
+  y := round(FCenter.Y*PaintBox1.Height);
+  PaintBox1.Canvas.Brush.Style := bsClear;
+  PaintBox1.Canvas.Pen.Style := psSolid;
+  PaintBox1.Canvas.Pen.Color := clWindowText;
+  PaintBox1.Canvas.Rectangle(0,0,PaintBox1.Width,PaintBox1.Height);
+  PaintBox1.Canvas.Pen.Color := clBlack;
+  PaintBox1.Canvas.Brush.Style := bsSolid;
+  PaintBox1.Canvas.Brush.Color := clWhite;
+  PaintBox1.Canvas.Ellipse(x-3,y-3,x+4,y+4);
 end;
 
 procedure TFTwirl.SpinEdit_AngleChange(Sender: TObject);
 begin
-  PreviewNeeded;
+  if not FInitializing then PreviewNeeded;
 end;
 
 procedure TFTwirl.SpinEdit_RadiusChange(Sender: TObject);
 begin
-  PreviewNeeded;
+  if not FInitializing then PreviewNeeded;
 end;
 
 procedure TFTwirl.Timer1Timer(Sender: TObject);
 var temp: TBGRABitmap;
 begin
   Timer1.Enabled := false;
-  if sourceLayer = nil then exit;
-
   temp := ComputeFilteredLayer;
-  if backupSource = nil then
-    backupSource := sourceLayer.Duplicate as TBGRABitmap;
-  sourceLayer.PutImage(0,0,temp,dmSet);
+  FilterConnector.PutImage(temp,False);
   temp.Free;
-  LazPaintInstance.NotifyImageChangeCompletely(True);
+  Button_OK.Enabled := true;
 end;
 
 procedure TFTwirl.PreviewNeeded;
 begin
   Timer1.Enabled := false;
   Timer1.Enabled := True;
+  Button_OK.Enabled := false;
 end;
 
 function TFTwirl.ComputeFilteredLayer: TBGRABitmap;
-var usedSource: TBGRABitmap;
 begin
-  if backupSource <> nil then
-    usedSource := backupSource
-  else
-    usedSource := sourceLayer;
-  result := usedSource.FilterTwirl(Point(sourceLayer.Width div 2,sourceLayer.Height div 2),
+  result := FilterConnector.BackupLayer.FilterTwirl(FilterConnector.WorkArea, Point(round(FCenter.X*FilterConnector.ActiveLayer.Width),round(FCenter.Y*FilterConnector.ActiveLayer.Height)),
       SpinEdit_Radius.Value,SpinEdit_Angle.Value/360) as TBGRABitmap;
 end;
 
 procedure TFTwirl.Button_OKClick(Sender: TObject);
 begin
-  if sourceLayer <> nil then
-  begin
-    LazPaintInstance.Config.SetDefaultTwirlRadius(SpinEdit_Radius.Value);
-    LazPaintInstance.Config.SetDefaultTwirlTurn(SpinEdit_Angle.Value/360);
-    filteredLayer := ComputeFilteredLayer;
-    ModalResult := mrOK;
-  end else
-    ModalResult := mrCancel;
+  FilterConnector.ValidateAction;
+  FilterConnector.LazPaintInstance.Config.SetDefaultTwirlRadius(SpinEdit_Radius.Value);
+  FilterConnector.LazPaintInstance.Config.SetDefaultTwirlTurn(SpinEdit_Angle.Value/360);
+  ModalResult := mrOK;
 end;
 
 initialization

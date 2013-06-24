@@ -172,6 +172,7 @@ begin
 
   for i := stackNode.ChildNodes.Length-1 downto 0 do
   begin
+    OnLayeredBitmapLoadProgress((stackNode.ChildNodes.Length-i)*100 div stackNode.ChildNodes.Length);
     layerNode:= stackNode.ChildNodes[i];
     if (layerNode.NodeName = 'layer') and Assigned(layerNode.Attributes) then
     begin
@@ -292,8 +293,13 @@ end;
 
 procedure TBGRAOpenRasterDocument.LoadFromFile(const filename: string);
 begin
-  UnzipFromFile(filename);
-  AnalyzeZip;
+  OnLayeredBitmapLoadStart(filename);
+  try
+    UnzipFromFile(filename);
+    AnalyzeZip;
+  finally
+    OnLayeredBitmapLoaded;
+  end;
 end;
 
 procedure TBGRAOpenRasterDocument.SaveToFile(const filename: string);
@@ -587,8 +593,13 @@ end;
 
 procedure TBGRAOpenRasterDocument.LoadFromStream(AStream: TStream);
 begin
-  UnzipFromStream(AStream);
-  AnalyzeZip;
+  OnLayeredBitmapLoadFromStreamStart;
+  try
+    UnzipFromStream(AStream);
+    AnalyzeZip;
+  finally
+    OnLayeredBitmapLoaded;
+  end;
 end;
 
 procedure TBGRAOpenRasterDocument.SetMimeType(AValue: string);

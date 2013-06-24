@@ -1,4 +1,4 @@
-unit uradialblur;
+unit URadialBlur;
 
 {$mode objfpc}{$H+}
 
@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, Spin, ExtCtrls, BGRABitmap, BGRABitmapTypes, LazPaintType, uscaledpi;
+  StdCtrls, Spin, ExtCtrls, BGRABitmap, BGRABitmapTypes, LazPaintType, UScaleDPI,
+  UFilterConnector;
 
 type
 
@@ -18,70 +19,150 @@ type
     Button3: TButton;
     Image1: TImage;
     SpinEdit_Radius: TSpinEdit;
-    Label3: TLabel;
+    Label_Radius: TLabel;
+    Timer1: TTimer;
     procedure Button_OKClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure SpinEdit_RadiusChange(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
   private
-    FlazPaintInstance: TLazPaintCustomInstance;
-    procedure SetlazPaintInstance(const AValue: TLazPaintCustomInstance);
+    FInitializing: boolean;
+    FFilterConnector: TFilterConnector;
+    FThread: TThread;
+    procedure PreviewNeeded;
+    procedure ClearThread;
+    procedure OnBlurDone({%H-}ASender: TThread; AFilteredLayer: TBGRABitmap);
   public
     blurType: TRadialBlurType;
-    sourceLayer, filteredLayer: TBGRABitmap;
-    property LazPaintInstance: TLazPaintCustomInstance read FlazPaintInstance write SetlazPaintInstance;
   end;
 
-function ShowRadialBlurDlg(Instance: TLazPaintCustomInstance; layer:TBGRABitmap; out filteredLayer: TBGRABitmap;blurType:TRadialBlurType):boolean;
+function ShowRadialBlurDlg(AFilterConnector: TObject; blurType:TRadialBlurType):boolean;
 
 implementation
 
-uses umac;
+uses UMac, BGRAFilters, UFilterThread;
 
-{ TFRadialBlur }
-
-function ShowRadialBlurDlg(Instance: TLazPaintCustomInstance; layer:TBGRABitmap; out filteredLayer: TBGRABitmap;blurType:TRadialBlurType):boolean;
+function ShowRadialBlurDlg(AFilterConnector: TObject; blurType:TRadialBlurType):boolean;
 var
   RadialBlur: TFRadialBlur;
 begin
-  filteredLayer := nil;
   result := false;
   RadialBlur:= TFRadialBlur.create(nil);
-  RadialBlur.lazPaintInstance := Instance;
+  RadialBlur.FFilterConnector := AFilterConnector as TFilterConnector;
   try
     RadialBlur.blurType := blurType;
-    RadialBlur.sourceLayer := layer;
     result:= (RadialBlur.ShowModal = mrOk);
-    filteredLayer := RadialBlur.filteredLayer;
   finally
     RadialBlur.free;
   end;
 end;
 
+type
+  { TRadialBlurThread }
+
+  TRadialBlurThread = class(TFilterThread)
+  protected
+    FBlurType: TRadialBlurType;
+    FRadius: integer;
+    function CreateFilterTask: TFilterTask; override;
+  public
+    constructor Create(AConnector: TFilterConnector; ABlurType: TRadialBlurType; ARadius: integer; ASuspended: boolean);
+  end;
+
+{ TRadialBlurThread }
+
+function TRadialBlurThread.CreateFilterTask: TFilterTask;
+begin
+  result := CreateRadialBlurTask(FilterConnector.BackupLayer,FilterConnector.WorkArea, FRadius, FBlurType)
+end;
+
+constructor TRadialBlurThread.Create(AConnector: TFilterConnector;
+  ABlurType: TRadialBlurType; ARadius: integer; ASuspended: boolean);
+begin
+  inherited Create(AConnector, True);
+  FBlurType:= ABlurType;
+  FRadius := ARadius;
+  if not ASuspended then Start;
+end;
+
+{ TFRadialBlur }
+
 procedure TFRadialBlur.Button_OKClick(Sender: TObject);
 begin
-    if sourceLayer <> nil then
-    begin
-      filteredLayer := sourceLayer.FilterBlurRadial(SpinEdit_Radius.Value, blurType) as TBGRABitmap;
-      lazPaintInstance.Config.SetDefaultBlurRadius(SpinEdit_Radius.Value);
-      ModalResult := mrOK;
-    end else
-      ModalResult := mrCancel;
+  FFilterConnector.ValidateAction;
+  FFilterConnector.lazPaintInstance.Config.SetDefaultBlurRadius(SpinEdit_Radius.Value);
+  ModalResult := mrOK;
 end;
 
 procedure TFRadialBlur.FormCreate(Sender: TObject);
 begin
   ScaleDPI(Self,OriginalDPI);
 
+  FThread := nil;
   blurType := rbNormal;
   CheckOKCancelBtns(Button_OK,Button_Cancel);
   CheckSpinEdit(SpinEdit_Radius);
-  filteredLayer := nil;
 end;
 
-procedure TFRadialBlur.SetlazPaintInstance(const AValue: TLazPaintCustomInstance);
+procedure TFRadialBlur.FormDestroy(Sender: TObject);
 begin
-  if FlazPaintInstance=AValue then exit;
-  FlazPaintInstance:=AValue;
-  SpinEdit_Radius.Value := LazPaintInstance.Config.DefaultBlurRadius;
+  ClearThread;
+end;
+
+procedure TFRadialBlur.FormShow(Sender: TObject);
+begin
+  FInitializing := True;
+  SpinEdit_Radius.Value := FFilterConnector.LazPaintInstance.Config.DefaultBlurRadius;
+  FInitializing := False;
+  PreviewNeeded;
+end;
+
+procedure TFRadialBlur.SpinEdit_RadiusChange(Sender: TObject);
+begin
+  if not FInitializing then PreviewNeeded;
+end;
+
+procedure TFRadialBlur.Timer1Timer(Sender: TObject);
+var filteredLayer: TBGRABitmap;
+begin
+  if FThread <> nil then
+  begin
+    Timer1.Enabled:= false;
+    filteredLayer := (FThread as TFilterThread).FilteredLayer;
+    if filteredLayer <> nil then
+      FFilterConnector.PutImage(filteredLayer,False);
+    Timer1.Enabled:= true;
+  end;
+end;
+
+procedure TFRadialBlur.PreviewNeeded;
+var blurThread: TFilterThread;
+begin
+  ClearThread;
+  Button_OK.Enabled := false;
+  blurThread := TRadialBlurThread.Create(FFilterConnector,blurType,SpinEdit_Radius.Value, True);
+  blurThread.OnFilterDone:= @OnBlurDone;
+  FThread := blurThread;
+  FThread.Start;
+end;
+
+procedure TFRadialBlur.ClearThread;
+begin
+  if FThread <> nil then
+  begin
+    FThread.Terminate;
+    FThread := nil; //let the thread free itself
+  end;
+end;
+
+procedure TFRadialBlur.OnBlurDone(ASender: TThread; AFilteredLayer: TBGRABitmap
+  );
+begin
+  FFilterConnector.PutImage(AFilteredLayer,False);
+  Button_OK.Enabled := true;
+  ClearThread;
 end;
 
 initialization

@@ -1,4 +1,4 @@
-unit uresourcestrings;
+unit UResourceStrings;
 
 {$mode objfpc}
 
@@ -8,6 +8,8 @@ uses
   Classes, SysUtils;
 
 resourcestring
+  rsOpening='Opening';
+  rsLoading='Loading';
   rsNoName='noname';
   rsOtherBlendOp='Other...';
   rsNormalBlendOp='Normal';
@@ -28,8 +30,26 @@ resourcestring
   rsCrop='Crop';
   rsMergeSelection='Do you want to merge selection?';
   rsSave='Save';
+  rsNewImage='New image';
+  rsOpen='Open';
+  rsReload='Reload';
+  rsReloadChanged='Bitmap has been modified. Do you really want to reload?';
+  rsConflictingActions = 'Conflicting actions';
+  rsActionInProgress = 'Action in progress';
+  rsTransferSelectionToOtherLayer='Transfer selection to other layer?';
+  rsImageTooBig = 'Image is too big';
+  rsLatestVersion = 'The latest version of LazPaint available online is';
+  rsMustReleaseSelection = 'You must first release the selection';
+  rsMustShowLayer = 'You must first make the layer visible';
+  rsHoldShiftForSquare = 'Hold SHIFT to draw a square or a circle';
+  rsHoldCtrlSnapToPixel = 'Hold CTRL to snap to pixels';
+  rsReturnValides = 'Press ENTER to validate';
+  rsBackspaceRemoveLastPoint = 'Press BACKSPACE to remove last point';
+  rsCtrlRestrictRotation = 'Hold CTRL to restrict rotation angle';
+  rsAltShiftScaleMode = 'Hold ALT or SHIFT to scale';
 
   rsEmptySelection='Selection is empty';
+  rsEmptyLayer='Layer is empty';
   rsKeepEmptySpace='Keep empty space around opaque pixels?';
 
   rsRepeatImage='Repeat image';

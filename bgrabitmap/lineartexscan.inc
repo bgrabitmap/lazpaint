@@ -1,3 +1,5 @@
+{$i bgrasse.inc}
+
   var
     xLen: single;       //horizontal length in pixels
     t: single;          //initial horizontal position in [0..1]
@@ -57,7 +59,7 @@
     lightAcc := lightDiff div 2;
   {$ENDIF}
 
-    {$IFDEF CPUI386}
+    {$IFDEF BGRASSE_AVAILABLE}
     if UseSSE then
     begin
       {$DEFINE PARAM_USESSE}

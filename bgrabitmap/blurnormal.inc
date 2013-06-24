@@ -107,7 +107,7 @@ var
   begin
     //evaluate required bounds taking blur radius into acount
     bounds := bmp.GetImageBounds;
-    if (bounds.Right <= bounds.Left) or (bounds.Bottom <= Bounds.Top) then
+    if IsRectEmpty(bounds) then
     begin
       result := false;
       exit;
@@ -116,6 +116,11 @@ var
     bounds.Top    := max(0, bounds.Top - blurOfs.Y);
     bounds.Right  := min(bmp.Width, bounds.Right + maskWidth - 1 - blurOfs.X);
     bounds.Bottom := min(bmp.Height, bounds.Bottom + maskHeight - 1 - blurOfs.Y);
+    if not IntersectRect(bounds, bounds, ABounds) then
+    begin
+      result := false;
+      exit;
+    end;
 
     //init scanlines
     setlength(curScans, maskHeight);
@@ -156,14 +161,17 @@ var
 begin
   LoadMask;
 
-  Result := bmp.NewBitmap(bmp.Width, bmp.Height);
+  if (ADestination.Width <> bmp.Width) or (ADestination.Height <> bmp.Height) then
+    raise exception.Create('Dimension mismatch');
+
   if not PrepareScan then exit; //nothing to do
 
   bmpWidth := bmp.Width;
   //loop through destination
   for yb := bounds.Top to bounds.Bottom - 1 do
   begin
-    pdest := Result.ScanLine[yb] + bounds.Left;
+    if (ACheckShouldStop <> nil) and ACheckShouldStop() then break;
+    pdest := ADestination.ScanLine[yb] + bounds.Left;
     //compute vertical range
     mindy := max(-blurOfs.Y, -yb);
     maxdy := min(blurMask.Height - 1 - blurOfs.Y, bmp.Height - 1 - yb);
@@ -241,7 +249,7 @@ begin
 
     ShiftScan(yb-blurOfs.Y+maskHeight);
   end;
-  Result.InvalidateBitmap;
+  ADestination.InvalidateBitmap;
 end;
 {$undef PARAM_MASKSHIFT}
 

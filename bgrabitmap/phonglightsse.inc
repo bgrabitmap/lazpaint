@@ -1,12 +1,23 @@
     {$asmmode intel}
     asm
+      {$ifdef cpux86_64}
+      mov rax, Context
+      movaps xmm0,[rax+160] //Context^.vL
+      movaps xmm2,[rax+192] //Context^.vH
+      movaps xmm1,[rax+16] //Context^.Normal
+      {$else}
       mov eax, Context
       movaps xmm0,[eax+160] //Context^.vL
       movaps xmm2,[eax+192] //Context^.vH
       movaps xmm1,[eax+16] //Context^.Normal
+      {$endif}
 
       {$IFDEF PARAM_POINTLIGHT}
+        {$ifdef cpux86_64}
+        movaps xmm6,[rax+0]  //Context^.Position
+        {$else}
         movaps xmm6,[eax+0]  //Context^.Position
+        {$endif}
         subps xmm0,xmm6      //xmm0 = vL
         movaps xmm6, xmm0
         mulps xmm6, xmm6

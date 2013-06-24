@@ -47,14 +47,14 @@ procedure BGRADrawLineAliased(dest: TBGRACustomBitmap; x1, y1, x2, y2: integer; 
 procedure BGRAEraseLineAliased(dest: TBGRACustomBitmap; x1, y1, x2, y2: integer; alpha: byte; DrawLastPixel: boolean);
 
 //antialiased version
-procedure BGRADrawLineAntialias(dest: TBGRACustomBitmap; x1, y1, x2, y2: integer;
-  c: TBGRAPixel; DrawLastPixel: boolean);
+procedure BGRADrawLineAntialias({%H-}dest: TBGRACustomBitmap; x1, y1, x2, y2: integer;
+  c: TBGRAPixel; DrawLastPixel: boolean; LinearBlend : boolean = false);
 procedure BGRAEraseLineAntialias(dest: TBGRACustomBitmap; x1, y1, x2, y2: integer;
   calpha: byte; DrawLastPixel: boolean);
 
 //antialiased version with bicolor dashes (to draw a frame)
 procedure BGRADrawLineAntialias(dest: TBGRACustomBitmap; x1, y1, x2, y2: integer;
-  c1, c2: TBGRAPixel; dashLen: integer; DrawLastPixel: boolean; var DashPos: integer);
+  c1, c2: TBGRAPixel; dashLen: integer; DrawLastPixel: boolean; var DashPos: integer; LinearBlend : boolean = false);
 
 //length added to ensure accepable alpha join (using TBGRAMultishapeFiller is still better)
 function GetAlphaJoinFactor(alpha: byte): single;
@@ -223,17 +223,22 @@ begin
 end;
 
 procedure BGRADrawLineAntialias(dest: TBGRACustomBitmap; x1, y1, x2, y2: integer;
-  c: TBGRAPixel; DrawLastPixel: boolean);
+  c: TBGRAPixel; DrawLastPixel: boolean; LinearBlend : boolean);
 var
   Y, X:  integer;
   DX, DY, SX, SY, E: integer;
   alpha: single;
+  pixelproc: procedure(x,y: int32or64; c: TBGRAPixel) of object;
 begin
+  if LinearBlend then
+    pixelproc := @dest.FastBlendPixel
+  else
+    pixelproc := @dest.DrawPixel;
 
   if (Y1 = Y2) and (X1 = X2) then
   begin
     if DrawLastPixel then
-      dest.DrawPixel(X1, Y1, c);
+      pixelproc(X1, Y1, c);
     Exit;
   end;
 
@@ -269,8 +274,8 @@ begin
     while X <> X2 do
     begin
       alpha := 1 - E / DX;
-      dest.DrawPixel(X, Y, BGRA(c.red, c.green, c.blue, round(c.alpha * sqrt(alpha))));
-      dest.DrawPixel(X, Y + SY, BGRA(c.red, c.green, c.blue,
+      pixelproc(X, Y, BGRA(c.red, c.green, c.blue, round(c.alpha * sqrt(alpha))));
+      pixelproc(X, Y + SY, BGRA(c.red, c.green, c.blue,
         round(c.alpha * sqrt(1 - alpha))));
       Inc(E, DY);
       if E >= DX then
@@ -288,8 +293,8 @@ begin
     while Y <> Y2 do
     begin
       alpha := 1 - E / DY;
-      dest.DrawPixel(X, Y, BGRA(c.red, c.green, c.blue, round(c.alpha * sqrt(alpha))));
-      dest.DrawPixel(X + SX, Y, BGRA(c.red, c.green, c.blue,
+      pixelproc(X, Y, BGRA(c.red, c.green, c.blue, round(c.alpha * sqrt(alpha))));
+      pixelproc(X + SX, Y, BGRA(c.red, c.green, c.blue,
         round(c.alpha * sqrt(1 - alpha))));
       Inc(E, DX);
       if E >= DY then
@@ -301,7 +306,7 @@ begin
     end;
   end;
   if DrawLastPixel then
-    dest.DrawPixel(X2, Y2, c);
+    pixelproc(X2, Y2, c);
 end;
 
 procedure BGRAEraseLineAntialias(dest: TBGRACustomBitmap; x1, y1, x2,
@@ -385,7 +390,7 @@ begin
 end;
 
 procedure BGRADrawLineAntialias(dest: TBGRACustomBitmap; x1, y1, x2, y2: integer;
-  c1, c2: TBGRAPixel; dashLen: integer; DrawLastPixel: boolean; var DashPos: integer);
+  c1, c2: TBGRAPixel; dashLen: integer; DrawLastPixel: boolean; var DashPos: integer; LinearBlend : boolean);
 var
   Y, X:  integer;
   DX, DY, SX, SY, E: integer;
@@ -395,7 +400,7 @@ begin
   if (c1.alpha=0) and (c2.alpha=0) then exit;
   if DashLen <= 0 then
   begin
-    BGRADrawLineAntialias(dest,x1,y1,x2,y2,MergeBGRA(c1,c2),DrawLastPixel);
+    BGRADrawLineAntialias(dest,x1,y1,x2,y2,MergeBGRA(c1,c2),DrawLastPixel,LinearBlend);
     exit;
   end;
 
@@ -591,10 +596,13 @@ var
 
   procedure AddPt(pt: TPointF);
   begin
-    if nbStyled = length(styledPts) then
-      setlength(styledPts,nbStyled*2+4);
-    styledPts[nbStyled] := pt;
-    inc(nbStyled);
+    if (nbStyled = 0) or (pt <> styledPts[nbStyled-1]) then
+    begin
+      if nbStyled = length(styledPts) then
+        setlength(styledPts,nbStyled*2+4);
+      styledPts[nbStyled] := pt;
+      inc(nbStyled);
+    end;
   end;
 
   procedure StartPolygon;

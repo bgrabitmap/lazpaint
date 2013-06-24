@@ -1,22 +1,23 @@
 object FObject3D: TFObject3D
   Left = 415
-  Height = 300
+  Height = 301
   Top = 139
   Width = 531
   BorderIcons = [biSystemMenu, biMaximize]
   Caption = '3D object'
-  ClientHeight = 300
+  ClientHeight = 301
   ClientWidth = 531
   Constraints.MinHeight = 300
   Constraints.MinWidth = 340
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnResize = FormResize
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '0.9.31'
+  LCLVersion = '1.1'
   object BGRAView3D: TBGRAVirtualScreen
     Left = 0
-    Height = 300
+    Height = 301
     Top = 0
     Width = 354
     OnRedraw = BGRAView3DRedraw
@@ -32,7 +33,7 @@ object FObject3D: TFObject3D
   object Button_OK: TButton
     Left = 373
     Height = 22
-    Top = 270
+    Top = 271
     Width = 59
     Anchors = [akRight, akBottom]
     Caption = 'OK'
@@ -43,7 +44,7 @@ object FObject3D: TFObject3D
   object Button_Cancel: TButton
     Left = 439
     Height = 22
-    Top = 270
+    Top = 271
     Width = 73
     Anchors = [akRight, akBottom]
     Cancel = True
@@ -53,16 +54,16 @@ object FObject3D: TFObject3D
   end
   object PageControl1: TPageControl
     Left = 354
-    Height = 265
+    Height = 266
     Top = 0
     Width = 179
-    ActivePage = Rendering
+    ActivePage = Materials
     Anchors = [akTop, akRight, akBottom]
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 3
     object Rendering: TTabSheet
       Caption = 'Rendering'
-      ClientHeight = 237
+      ClientHeight = 238
       ClientWidth = 171
       object CheckBox_TextureInterp: TCheckBox
         Left = 10
@@ -96,11 +97,11 @@ object FObject3D: TFObject3D
         OnValueChanged = BGRAKnob_ZoomValueChanged
         StartFromBottom = True
       end
-      object Label3: TLabel
+      object Label_Zoom: TLabel
         Left = 67
-        Height = 16
+        Height = 15
         Top = 8
-        Width = 33
+        Width = 32
         Caption = 'Zoom'
         ParentColor = False
       end
@@ -123,27 +124,27 @@ object FObject3D: TFObject3D
         Style = csDropDownList
         TabOrder = 2
       end
-      object Label4: TLabel
+      object Label_LightingNormals: TLabel
         Left = 10
-        Height = 16
+        Height = 15
         Top = 136
-        Width = 97
+        Width = 96
         Caption = 'Lighting normals :'
         ParentColor = False
       end
-      object Label8: TLabel
+      object Label_Width: TLabel
         Left = 11
-        Height = 16
+        Height = 15
         Top = 83
-        Width = 39
+        Width = 38
         Caption = 'Width :'
         ParentColor = False
       end
-      object Label9: TLabel
+      object Label_Height: TLabel
         Left = 11
-        Height = 16
+        Height = 15
         Top = 110
-        Width = 43
+        Width = 42
         Caption = 'Height :'
         ParentColor = False
       end
@@ -183,54 +184,52 @@ object FObject3D: TFObject3D
     end
     object Materials: TTabSheet
       Caption = 'Materials'
-      ClientHeight = 237
+      ClientHeight = 238
       ClientWidth = 171
-      object Label2: TLabel
+      object Label_Materials: TLabel
         Left = 10
-        Height = 16
+        Height = 15
         Top = 6
-        Width = 55
+        Width = 54
         Caption = 'Materials :'
         ParentColor = False
       end
       object ListBox_Materials: TListBox
         Left = 4
-        Height = 109
+        Height = 110
         Top = 24
         Width = 158
-        Anchors = [akTop, akLeft, akBottom]
         ItemHeight = 0
         OnSelectionChange = ListBox_MaterialsSelectionChange
         TabOrder = 0
       end
-      object GroupBox1: TGroupBox
+      object GroupBox_SelectedMaterial: TGroupBox
         Left = 4
         Height = 96
-        Top = 137
+        Top = 138
         Width = 158
-        Anchors = [akLeft, akBottom]
         Caption = 'Selected material'
         ClientHeight = 78
         ClientWidth = 154
         TabOrder = 1
-        object Label5: TLabel
+        object Label_SpecularIndex: TLabel
           Left = 7
-          Height = 16
+          Height = 15
           Top = 6
-          Width = 66
+          Width = 65
           Caption = 'Spec. index :'
           ParentColor = False
         end
-        object Label6: TLabel
+        object Label_Color: TLabel
           Left = 7
-          Height = 16
+          Height = 15
           Top = 30
-          Width = 36
+          Width = 35
           Caption = 'Color :'
           ParentColor = False
         end
         object Shape_MaterialColor: TShape
-          Left = 79
+          Left = 90
           Height = 20
           Hint = 'Select secondary color'
           Top = 28
@@ -239,26 +238,26 @@ object FObject3D: TFObject3D
           OnMouseDown = Shape_MaterialColorMouseDown
         end
         object SpinEdit_SpecularIndex: TSpinEdit
-          Left = 79
+          Left = 90
           Height = 23
           Top = 3
-          Width = 66
+          Width = 59
           Enabled = False
           Increment = 10
           MaxValue = 1000
           OnChange = SpinEdit_SpecularIndexChange
           TabOrder = 0
         end
-        object Label7: TLabel
+        object Label_Opacity: TLabel
           Left = 7
-          Height = 16
+          Height = 15
           Top = 55
-          Width = 48
+          Width = 47
           Caption = 'Opacity :'
           ParentColor = False
         end
         object SpinEdit_ColorOpacity: TSpinEdit
-          Left = 79
+          Left = 90
           Height = 23
           Top = 52
           Width = 52

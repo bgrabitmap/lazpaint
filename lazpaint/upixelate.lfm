@@ -9,15 +9,14 @@ object FPixelate: TFPixelate
   ClientHeight = 104
   ClientWidth = 202
   OnCreate = FormCreate
-  OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '0.9.30'
-  object Label3: TLabel
+  LCLVersion = '1.1'
+  object Label_PixelSize: TLabel
     Left = 8
-    Height = 16
+    Height = 15
     Top = 11
-    Width = 53
+    Width = 52
     Caption = 'Pixel size :'
     ParentColor = False
   end
@@ -52,19 +51,19 @@ object FPixelate: TFPixelate
     TabOrder = 2
     Value = 5
   end
-  object Label1: TLabel
+  object Label_Quality: TLabel
     Left = 8
-    Height = 16
+    Height = 15
     Top = 43
-    Width = 45
+    Width = 44
     Caption = 'Quality :'
     ParentColor = False
   end
   object ComboBox_Quality: TComboBox
-    Left = 64
+    Left = 88
     Height = 23
     Top = 40
-    Width = 129
+    Width = 105
     ItemHeight = 15
     OnChange = ComboBox_QualityChange
     Style = csDropDownList

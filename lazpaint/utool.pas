@@ -1,18 +1,28 @@
-unit utool;
+unit UTool;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, SysUtils, Graphics, BGRABitmap, BGRABitmapTypes, uimage, LCLType;
+  Classes, SysUtils, Graphics, BGRABitmap, BGRABitmapTypes, uimage, LCLType, Controls;
 
 type TPaintToolType = (ptHand, ptPen, ptColorPicker, ptEraser,
                    ptRect, ptEllipse, ptPolygon, ptSpline,
                    ptFloodFill, ptGradient, ptPhong,
                    ptSelectPen, ptSelectRect, ptSelectEllipse, ptSelectPoly, ptSelectSpline,
-                   ptMoveSelection, ptRotateSelection, ptMagicWand, ptDeformation, ptTextureMapping,
+                   ptMoveSelection, ptRotateSelection, ptMagicWand, ptDeformation, ptTextureMapping, ptLayerMapping,
                    ptText);
+
+const
+  PaintToolTypeStr : array[TPaintToolType] of string = ('Hand', 'Pen', 'ColorPicker', 'Eraser',
+                   'Rect', 'Ellipse', 'Polygon', 'Spline',
+                   'FloodFill', 'Gradient', 'Phong',
+                   'SelectPen', 'SelectRect', 'SelectEllipse', 'SelectPoly', 'SelectSpline',
+                   'MoveSelection', 'RotateSelection', 'MagicWand', 'Deformation', 'TextureMapping', 'LayerMapping',
+                   'Text');
+
+function StrToPaintToolType(const s: ansistring): TPaintToolType;
 
 const
   ToolRepaintOnly : TRect = (left:-1;top:-1;right:0;bottom:0);
@@ -24,16 +34,25 @@ type
   { TGenericTool }
 
   TGenericTool = class
+  private
+    FAction: TLayerAction;
   protected
     FManager: TToolManager;
+    function GetAction: TLayerAction; virtual;
     function GetIsSelectingTool: boolean; virtual; abstract;
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF; rightBtn: boolean): TRect; virtual;
     function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect; virtual;
     procedure DoToolMoveAfter(pt: TPoint; ptF: TPointF); virtual;
     function DoToolUpdate(toolDest: TBGRABitmap): TRect; virtual;
+    procedure OnTryStop(sender: TLayerAction); virtual;
+    function SelectionMaxPointDistance: single;
   public
     ToolUpdateNeeded: boolean;
+    Cursor: TCursor;
     constructor Create(AManager: TToolManager); virtual;
+    destructor Destroy; override;
+    procedure ValidateAction;
+    procedure CancelAction;
     procedure BeforeGridSizeChange; virtual;
     procedure AfterGridSizeChange(NewNbX,NewNbY: Integer); virtual;
     function ToolUpdate: TRect;
@@ -45,34 +64,63 @@ type
     function ToolKeyPress(key: TUTF8Char): TRect; virtual;
     function ToolUp: TRect; virtual;
     function GetToolDrawingLayer: TBGRABitmap; virtual;
+    procedure RestoreBackupDrawingLayer;
+    function GetBackupLayerIfExists: TBGRABitmap;
     procedure Render(VirtualScreen: TBGRABitmap; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction); virtual;
     property Manager : TToolManager read FManager;
     property IsSelectingTool: boolean read GetIsSelectingTool;
+    property Action : TLayerAction read GetAction;
   end;
 
   TToolClass = class of TGenericTool;
+
+  TToolPopupMessage= (tpmNone,tpmHoldShiftForSquare, tpmHoldCtrlSnapToPixel,
+    tpmReturnValides, tpmBackspaceRemoveLastPoint, tpmCtrlRestrictRotation,
+    tpmAltShiftScaleMode);
+
+  TOnToolChangedHandler = procedure(sender: TToolManager; ANewToolType: TPaintToolType) of object;
+  TOnPopupToolHandler = procedure(sender: TToolManager; APopupMessage: TToolPopupMessage) of object;
 
   { TToolManager }
 
   TToolManager = class
   private
     FShouldExitTool: boolean;
+    FOnToolChangedHandler: TOnToolChangedHandler;
+    FOnPopupToolHandler: TOnPopupToolHandler;
     FImage: TLazPaintImage;
     FCurrentTool : TGenericTool;
-    currentToolType : TPaintToolType;
+    FCurrentToolType : TPaintToolType;
+    FSleepingTool: TGenericTool;
+    FSleepingToolType: TPaintToolType;
     FToolDeformationGridNbX,FToolDeformationGridNbY: integer;
     FToolForeColor, FToolBackColor: TBGRAPixel;
+    FReturnValidatesHintShowed: boolean;
+    FToolTexture: TBGRABitmap;
+    FToolTextureAfterAlpha: TBGRABitmap;
+    FToolTextureOpactiy: byte;
+
+    function GetCursor: TCursor;
     function GetToolBackColor: TBGRAPixel;
     function GetToolForeColor: TBGRAPixel;
+    function GetToolSleeping: boolean;
+    function GetToolTextureOpacity: byte;
     procedure SetControlsVisible(Controls: TList; Visible: Boolean);
+    procedure SetToolTextureOpacity(AValue: byte);
+    procedure ToolCloseAndReopenImmediatly;
   protected
     function CheckExitTool: boolean;
+    procedure NotifyImageOrSelectionChanged(ARect: TRect);
+    function ToolCanBeUsed: boolean;
   public
+    ShownZoom: single;
+
     BitmapToVirtualScreen: TBitmapToVirtualScreenFunction;
     PenWidthControls, EraserControls, ToleranceControls,
     ShapeControls, JoinStyleControls, SplineStyleControls,
     LineCapControls, GradientControls, DeformationControls,
-    TextControls, PhongControls, AltitudeControls: TList;
+    TextControls, PhongControls, AltitudeControls,
+    PerspectiveControls: TList;
 
     BlackAndWhite: boolean;
 
@@ -87,8 +135,9 @@ type
     ToolLineCap: TPenEndCap;
     ToolJoinStyle: TPenJoinStyle;
     ToolSplineStyle: TSplineStyle;
+    ToolSplineEasyBezier: boolean;
     ToolPenStyle: TPenStyle;
-    ToolTexture: TBGRABitmap;
+    ToolPerspectiveRepeat,ToolPerspectiveTwoPlanes: boolean;
     ToolDeformationGridMoveWithoutDeformation: boolean;
     ToolTextOutline,ToolTextShadow,ToolTextPhong: boolean;
     ToolTextFont: TFont;
@@ -99,12 +148,16 @@ type
     ToolShapeAltitude: integer;
     ToolShapeBorderSize: integer;
     ToolShapeType: string;
+    ToolTextOutlineWidth: integer;
+    ToolTextAlign: TAlignment;
 
     constructor Create(AImage: TLazPaintImage; ABitmapToVirtualScreen: TBitmapToVirtualScreenFunction = nil; ABlackAndWhite : boolean = false);
     destructor Destroy; override;
 
     function GetCurrentToolType: TPaintToolType;
     procedure SetCurrentToolType(tool: TPaintToolType);
+    procedure ToolWakeUp;
+    procedure ToolSleep;
 
     function ToolDown(X,Y: single; rightBtn: boolean): boolean; overload;
     function ToolMove(X,Y: single): boolean; overload;
@@ -116,10 +169,12 @@ type
     function ToolKeyUp(key: Word): boolean;
     function ToolKeyPress(key: TUTF8Char): boolean;
     function ToolUp: boolean;
-    procedure ToolClose(ReopenImmediatly: boolean = true);
+    procedure ToolCloseDontReopen;
     procedure ToolOpen;
     function ToolUpdate: boolean;
     function ToolUpdateNeeded: boolean;
+    procedure ToolPopup(AMessage: TToolPopupMessage);
+    procedure HintReturnValidates;
 
     function IsSelectingTool: boolean;
     procedure QueryExitTool;
@@ -134,14 +189,39 @@ type
     property ToolForeColor: TBGRAPixel read GetToolForeColor write FToolForeColor;
     property ToolBackColor: TBGRAPixel read GetToolBackColor write FToolBackColor;
 
-    procedure SetToolDeformationGridSize(NbX,NbY: integer);
+    function SetToolDeformationGridSize(NbX,NbY: integer): boolean;
+    procedure SetToolTexture(ATexture: TBGRABitmap);
+    function GetToolTextureAfterAlpha: TBGRABitmap;
+    function GetToolTexture: TBGRABitmap;
+    function BorrowToolTexture: TBGRABitmap;
+
+    property OnToolChanged: TOnToolChangedHandler read FOnToolChangedHandler write FOnToolChangedHandler;
+    property OnPopup: TOnPopupToolHandler read FOnPopupToolHandler write FOnPopupToolHandler;
+    property Cursor: TCursor read GetCursor;
+    property ToolSleeping: boolean read GetToolSleeping;
+    property ToolTextureOpacity: byte read GetToolTextureOpacity write SetToolTextureOpacity;
    end;
 
 procedure RegisterTool(ATool: TPaintToolType; AClass: TToolClass);
+function ToolPopupMessageToStr(AMessage :TToolPopupMessage): string;
 
 implementation
 
-uses Types, Controls, ugraph, BGRAPolygon;
+uses Types, ugraph, BGRAPolygon, uscaledpi, LazPaintType, UCursors, BGRATextFX, ULoading, uresourcestrings;
+
+function StrToPaintToolType(const s: ansistring): TPaintToolType;
+var pt: TPaintToolType;
+    ls: ansistring;
+begin
+  result := ptHand;
+  ls:= LowerCase(s);
+  for pt := low(TPaintToolType) to high(TPaintToolType) do
+    if ls = LowerCase(PaintToolTypeStr[pt]) then
+    begin
+      result := pt;
+      break;
+    end;
+end;
 
 var
    PaintTools: array[TPaintToolType] of TToolClass;
@@ -151,9 +231,43 @@ begin
   PaintTools[ATool] := AClass;
 end;
 
+function ToolPopupMessageToStr(AMessage: TToolPopupMessage): string;
+begin
+  case AMessage of
+  tpmHoldShiftForSquare: result := rsHoldShiftForSquare;
+  tpmHoldCtrlSnapToPixel: result := rsHoldCtrlSnapToPixel;
+  tpmReturnValides: result := rsReturnValides;
+  tpmBackspaceRemoveLastPoint: result := rsBackspaceRemoveLastPoint;
+  tpmCtrlRestrictRotation: result := rsCtrlRestrictRotation;
+  tpmAltShiftScaleMode: result := rsAltShiftScaleMode;
+  else
+    result := '';
+  end;
+end;
+
+procedure TToolManager.HintReturnValidates;
+begin
+  if not FReturnValidatesHintShowed then
+  begin
+    ToolPopup(tpmReturnValides);
+    FReturnValidatesHintShowed:= true;
+  end;
+end;
+
 { TGenericTool }
 
 {$hints off}
+
+function TGenericTool.GetAction: TLayerAction;
+begin
+  if not Assigned(FAction) then
+  begin
+    FAction := TLayerAction.Create(Manager.Image);
+    FAction.OnTryStop := @OnTryStop;
+  end;
+  result := FAction;
+end;
+
 function TGenericTool.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
 begin
@@ -178,7 +292,31 @@ end;
 
 constructor TGenericTool.Create(AManager: TToolManager);
 begin
+  inherited Create;
   FManager := AManager;
+  FAction := nil;
+  Cursor := crDefault;
+end;
+
+destructor TGenericTool.Destroy;
+begin
+  FAction.Free;
+  inherited Destroy;
+end;
+
+procedure TGenericTool.ValidateAction;
+begin
+  if Assigned(FAction) then
+  begin
+    FAction.Validate;
+    FreeAndNil(FAction);
+  end;
+end;
+
+procedure TGenericTool.CancelAction;
+begin
+  if FAction <> nil then
+    FreeAndNil(FAction);
 end;
 
 procedure TGenericTool.BeforeGridSizeChange;
@@ -193,6 +331,17 @@ begin
   //nothing
 end;
 
+procedure TGenericTool.OnTryStop(sender: TLayerAction);
+begin
+  Manager.ToolCloseAndReopenImmediatly;
+end;
+
+function TGenericTool.SelectionMaxPointDistance: single;
+begin
+  result := DoScaleX(10,OriginalDPI);
+  if Manager.ShownZoom <> 0 then result /= Manager.ShownZoom;
+end;
+
 procedure TGenericTool.AfterGridSizeChange(NewNbX,NewNbY: Integer);
 begin
  //nothing
@@ -201,8 +350,14 @@ end;
 {$hints on}
 
 function TGenericTool.ToolUpdate: TRect;
+var toolDest :TBGRABitmap;
 begin
-  result := DoToolUpdate(GetToolDrawingLayer);
+  toolDest := GetToolDrawingLayer;
+  if toolDest = nil then exit;
+  toolDest.JoinStyle := Manager.ToolJoinStyle;
+  toolDest.LineCap := Manager.ToolLineCap;
+  toolDest.PenStyle := Manager.ToolPenStyle;
+  result := DoToolUpdate(toolDest);
 end;
 
 function TGenericTool.ToolDown(X, Y: single; rightBtn: boolean): TRect;
@@ -279,18 +434,55 @@ end;
 
 function TGenericTool.GetToolDrawingLayer: TBGRABitmap;
 begin
+  if Action = nil then
+  begin
+    result := nil;
+    exit;
+  end;
   if IsSelectingTool then
   begin
-    Manager.Image.QuerySelection;
-    result := Manager.Image.currentSelection;
+    Action.QuerySelection;
+    result := Action.CurrentSelection;
     if result = nil then
       raise exception.Create('Selection not created');
   end
   else
   begin
-    if Manager.Image.SelectionEmpty then Manager.Image.ReleaseSelection;
-    result := Manager.Image.GetDrawingLayer;
+    result := Action.DrawingLayer;
   end;
+end;
+
+procedure TGenericTool.RestoreBackupDrawingLayer;
+var backup: TBGRABitmap;
+begin
+  if Assigned(FAction) then
+  begin
+    if IsSelectingTool then
+    begin
+      backup := Action.BackupSelection;
+      if backup = nil then Action.CurrentSelection.Fill(BGRABlack) else
+        Action.CurrentSelection.PutImage(0,0,backup,dmSet);
+    end
+    else
+    begin
+      backup := Action.BackupDrawingLayer;
+      if backup = nil then Action.DrawingLayer.Fill(BGRAPixelTransparent) else
+        Action.DrawingLayer.PutImage(0,0,backup,dmSet);
+    end;
+  end;
+end;
+
+function TGenericTool.GetBackupLayerIfExists: TBGRABitmap;
+begin
+  if Action = nil then
+  begin
+    result := nil;
+    exit;
+  end;
+  if IsSelectingTool then
+    result := Action.BackupSelection
+  else
+    result := Action.BackupDrawingLayer;
 end;
 
 {$hints off}
@@ -305,7 +497,7 @@ end;
 
 function TToolManager.GetCurrentToolType: TPaintToolType;
 begin
-  result := currentToolType;
+  result := FCurrentToolType;
 end;
 
 procedure TToolManager.SetControlsVisible(Controls: TList; Visible: Boolean);
@@ -322,6 +514,13 @@ begin
   end;
 end;
 
+procedure TToolManager.SetToolTextureOpacity(AValue: byte);
+begin
+  if AValue = FToolTextureOpactiy then exit;
+  FreeAndNil(FToolTextureAfterAlpha);
+  FToolTextureOpactiy := AValue;
+end;
+
 function TToolManager.CheckExitTool: boolean;
 begin
   if FShouldExitTool then
@@ -333,6 +532,22 @@ begin
     result := false;
 end;
 
+procedure TToolManager.NotifyImageOrSelectionChanged(ARect: TRect);
+begin
+  if CurrentTool <> nil then
+  begin
+    if CurrentTool.IsSelectingTool then
+      Image.SelectionMayChange(ARect)
+    else
+      Image.ImageMayChange(ARect);
+  end;
+end;
+
+function TToolManager.ToolCanBeUsed: boolean;
+begin
+  result := (currentTool <> nil) and (CurrentTool.IsSelectingTool or Image.CurrentLayerVisible);
+end;
+
 function TToolManager.GetToolBackColor: TBGRAPixel;
 begin
   if BlackAndWhite then
@@ -341,12 +556,44 @@ begin
     result := FToolBackColor;
 end;
 
+function TToolManager.GetCursor: TCursor;
+var toolCursor: TCursor;
+begin
+  case GetCurrentToolType of
+  ptHand, ptMoveSelection: result := crSizeAll;
+  ptRotateSelection: result := crCustomRotate;
+  ptPen: result := crCustomCrosshair;
+  ptRect,ptEllipse,ptSelectRect,ptSelectEllipse: result := crCustomCrosshair;
+  ptColorPicker: result := crCustomColorPicker;
+  ptFloodFill: result := crCustomFloodfill;
+  ptSelectPen: result := crHandPoint;
+  ptEraser: result := crDefault;
+  else result := crDefault;
+  end;
+
+  if CurrentTool <> nil then
+    toolCursor := CurrentTool.Cursor
+  else
+    toolCursor := crDefault;
+  if toolCursor <> crDefault then result := toolCursor;
+end;
+
 function TToolManager.GetToolForeColor: TBGRAPixel;
 begin
   if BlackAndWhite then
     result := BGRAToGrayscale(FToolForeColor)
   else
     result := FToolForeColor;
+end;
+
+function TToolManager.GetToolSleeping: boolean;
+begin
+  result := FSleepingTool <> nil;
+end;
+
+function TToolManager.GetToolTextureOpacity: byte;
+begin
+  result := FToolTextureOpactiy;
 end;
 
 constructor TToolManager.Create(AImage: TLazPaintImage; ABitmapToVirtualScreen: TBitmapToVirtualScreenFunction; ABlackAndWhite : boolean);
@@ -372,19 +619,27 @@ begin
   ToolPenStyle := psSolid;
   ToolEraserAlpha := 255;
   ToolSplineStyle := ssRoundOutside;
+  ToolSplineEasyBezier := true;
   ToolTextOutline := False;
   ToolTextShadow := true;
   ToolTextFont := TFont.Create;
   ToolTextFont.Height := -13;
   ToolTextFont.Name := 'Arial';
-  ToolTextShadowOffset := Point(5,5);
-  ToolTextBlur := 4;
+  ToolTextAlign := taLeftJustify;
   ToolTextPhong := False;
+  ToolTextBlur := 4;
+  ToolTextShadowOffset := Point(5,5);
+  ToolTextOutlineWidth := TBGRATextEffect.OutlineWidth;
   ToolLightPosition := Point(0,0);
   ToolLightAltitude := 100;
   ToolShapeAltitude := 50;
   ToolShapeBorderSize := 20;
   ToolShapeType := 'Rectangle';
+  ToolPerspectiveRepeat := false;
+  ToolPerspectiveTwoPlanes := false;
+  FToolTextureOpactiy:= 255;
+  FToolTexture := nil;
+  FToolTextureAfterAlpha := nil;
 
   FToolDeformationGridNbX := 5;
   FToolDeformationGridNbY := 5;
@@ -402,8 +657,9 @@ begin
   TextControls := TList.Create;
   PhongControls := TList.Create;
   AltitudeControls := TList.Create;
+  PerspectiveControls := TList.Create;
 
-  currentToolType := ptHand;
+  FCurrentToolType := ptHand;
   FCurrentTool := PaintTools[ptHand].Create(Self);
 end;
 
@@ -423,22 +679,24 @@ begin
   TextControls.Free;
   PhongControls.Free;
   AltitudeControls.Free;
+  PerspectiveControls.Free;
 
-  ToolTexture.Free;
+  FToolTexture.Free;
+  FToolTextureAfterAlpha.Free;
   ToolTextFont.Free;
   inherited Destroy;
 end;
 
 procedure TToolManager.SetCurrentToolType(tool: TPaintToolType);
 var showPenwidth, showShape, showLineCap, showJoinStyle, showSplineStyle, showEraserOption, showTolerance, showGradient, showDeformation,
-    showText, showPhong, showAltitude: boolean;
+    showText, showPhong, showAltitude, showPerspective: boolean;
 begin
-  if tool <> currentToolType then
+  if (tool <> FCurrentToolType) or (FCurrentTool=nil) then
   begin
     FreeAndNil(FCurrentTool);
-    currentToolType:= tool;
-    if PaintTools[currentToolType] <> nil then
-      FCurrentTool := PaintTools[currentToolType].Create(self);
+    FCurrentToolType:= tool;
+    if PaintTools[FCurrentToolType] <> nil then
+      FCurrentTool := PaintTools[FCurrentToolType].Create(self);
   end;
 
   showPenwidth := false;
@@ -453,30 +711,30 @@ begin
   showText := false;
   showPhong := false;
   showAltitude:= false;
+  showPerspective := false;
 
-  case currentToolType of
-  ptRotateSelection:
-    begin
-      Image.SelectionRotateCenter := GetSelectionCenter(Image.currentSelection);
-    end;
+  case FCurrentToolType of
   ptPen,ptSelectPen: showPenwidth := true;
+  ptSelectSpline: showSplineStyle := true;
   ptEraser: begin showPenwidth := true; showEraserOption := true; end;
   ptRect, ptEllipse, ptPolygon, ptSpline:
     begin
       showShape := true;
       showPenwidth := true;
-      showLineCap := currentToolType in[ptPolygon,ptSpline];
-      showJoinStyle:= currentToolType in[ptRect,ptPolygon];
-      showSplineStyle:= currentToolType = ptSpline;
+      showLineCap := FCurrentToolType in[ptPolygon,ptSpline];
+      showJoinStyle:= FCurrentToolType in[ptRect,ptPolygon];
+      showSplineStyle:= FCurrentToolType = ptSpline;
     end;
   ptFloodFill,ptMagicWand: showTolerance := true;
   ptGradient: showGradient := true;
   ptDeformation: showDeformation:= true;
   ptText: begin showText := True; showAltitude := ToolTextPhong; end;
   ptPhong: begin showPhong := true; showAltitude:= true; end;
+  ptTextureMapping,ptLayerMapping: showPerspective := true;
   end;
 
-  if Image.SelectionEmpty then Image.ReleaseSelection;
+  if not IsSelectingTool then
+    Image.ReleaseEmptySelection;
 
   SetControlsVisible(PenWidthControls, showPenwidth);
   SetControlsVisible(SplineStyleControls, showSplineStyle);
@@ -490,29 +748,87 @@ begin
   SetControlsVisible(TextControls, showText);
   SetControlsVisible(PhongControls, showPhong);
   SetControlsVisible(AltitudeControls, showAltitude);
+  SetControlsVisible(PerspectiveControls, showPerspective);
+
+  If Assigned(FOnToolChangedHandler) then FOnToolChangedHandler(self, tool);
+end;
+
+procedure TToolManager.ToolWakeUp;
+begin
+  if FSleepingTool <> nil then
+  begin
+    FreeAndNil(FCurrentTool);
+    FCurrentTool := FSleepingTool;
+    FSleepingTool := nil;
+    FCurrentToolType := FSleepingToolType;
+    SetCurrentToolType(FCurrentToolType);
+  end;
+end;
+
+procedure TToolManager.ToolSleep;
+begin
+  if (FSleepingTool = nil) and (FCurrentToolType <> ptHand) then
+  begin
+    FSleepingTool := FCurrentTool;
+    FSleepingToolType := FCurrentToolType;
+    FCurrentTool := nil;
+    SetCurrentToolType(ptHand);
+  end;
 end;
 
 { tool implementation }
 
-procedure TToolManager.SetToolDeformationGridSize(NbX, NbY: integer);
+function TToolManager.SetToolDeformationGridSize(NbX, NbY: integer): boolean;
 begin
+  result := false;
   if (NbX <> ToolDeformationGridNbX) or (NbY <> ToolDeformationGridNbY) then
   begin
     CurrentTool.BeforeGridSizeChange;
     FToolDeformationGridNbX := NbX;
     FToolDeformationGridNbY := NbY;
     CurrentTool.AfterGridSizeChange(NbX,NbY);
+    result := true;
   end;
+end;
+
+procedure TToolManager.SetToolTexture(ATexture: TBGRABitmap);
+begin
+  if ATexture = FToolTexture then exit;
+  FreeAndNil(FToolTexture);
+  FToolTexture := ATexture;
+  FreeAndNil(FToolTextureAfterAlpha);
+end;
+
+function TToolManager.GetToolTextureAfterAlpha: TBGRABitmap;
+begin
+  if (FToolTextureAfterAlpha = nil) and (FToolTexture <> nil) then
+  begin
+    FToolTextureAfterAlpha := FToolTexture.Duplicate as TBGRABitmap;
+    FToolTextureAfterAlpha.ApplyGlobalOpacity(FToolTextureOpactiy);
+  end;
+  result := FToolTextureAfterAlpha;
+end;
+
+function TToolManager.GetToolTexture: TBGRABitmap;
+begin
+  result := FToolTexture;
+end;
+
+function TToolManager.BorrowToolTexture: TBGRABitmap;
+begin
+  result := FToolTexture;
+  FToolTexture := nil;
+  FreeAndNil(FToolTextureAfterAlpha);
 end;
 
 function TToolManager.ToolDown(X,Y: single; rightBtn: boolean): boolean; overload;
 var changed: TRect;
 begin
-  if currentTool <> nil then
+  if ToolCanBeUsed then
     changed := currentTool.ToolDown(X,Y,rightBtn)
   else
     changed := EmptyRect;
-  Image.ImageMayChange(changed);
+  NotifyImageOrSelectionChanged(changed);
   result := not IsRectEmpty(changed);
   if CheckExitTool then result := true;
 end;
@@ -520,29 +836,29 @@ end;
 function TToolManager.ToolMove(X,Y: single): boolean; overload;
 var changed: TRect;
 begin
-  if currentTool <> nil then
+  if ToolCanBeUsed then
     changed := currentTool.ToolMove(X,Y)
   else
     changed := EmptyRect;
-  Image.ImageMayChange(changed);
+  NotifyImageOrSelectionChanged(changed);
   result := not IsRectEmpty(changed);
   if CheckExitTool then result := true;
 end;
 
 procedure TToolManager.ToolMoveAfter(X, Y: single); overload;
 begin
-  if currentTool <> nil then
+  if ToolCanBeUsed then
     currentTool.ToolMoveAfter(X,Y);
 end;
 
 function TToolManager.ToolKeyDown(key: Word): boolean;
 var changed: TRect;
 begin
-  if currentTool <> nil then
+  if ToolCanBeUsed then
     changed := currentTool.ToolKeyDown(key)
   else
     changed := EmptyRect;
-  Image.ImageMayChange(changed);
+  NotifyImageOrSelectionChanged(changed);
   result := not IsRectEmpty(changed);
   if CheckExitTool then result := true;
 end;
@@ -550,11 +866,11 @@ end;
 function TToolManager.ToolKeyUp(key: Word): boolean;
 var changed: TRect;
 begin
-  if currentTool <> nil then
+  if ToolCanBeUsed then
     changed := currentTool.ToolKeyUp(key)
   else
     changed := EmptyRect;
-  Image.ImageMayChange(changed);
+  NotifyImageOrSelectionChanged(changed);
   result := not IsRectEmpty(changed);
   if CheckExitTool then result := true;
 end;
@@ -562,11 +878,11 @@ end;
 function TToolManager.ToolKeyPress(key: TUTF8Char): boolean;
 var changed: TRect;
 begin
-  if currentTool <> nil then
+  if ToolCanBeUsed then
     changed := currentTool.ToolKeyPress(key)
   else
     changed := EmptyRect;
-  Image.ImageMayChange(changed);
+  NotifyImageOrSelectionChanged(changed);
   result := not IsRectEmpty(changed);
   if CheckExitTool then result := true;
 end;
@@ -574,50 +890,62 @@ end;
 function TToolManager.ToolUp: boolean;
 var changed: TRect;
 begin
-  if currentTool <> nil then
+  if ToolCanBeUsed then
     changed := currentTool.ToolUp
   else
     changed := EmptyRect;
-  Image.ImageMayChange(changed);
+  NotifyImageOrSelectionChanged(changed);
   result := not IsRectEmpty(changed);
   if CheckExitTool then result := true;
 end;
 
-procedure TToolManager.ToolClose(ReopenImmediatly: boolean = true);
+procedure TToolManager.ToolCloseDontReopen;
+begin
+  if CurrentTool <> nil then
+    FreeAndNil(FCurrentTool);
+end;
+
+procedure TToolManager.ToolCloseAndReopenImmediatly;
 begin
   if CurrentTool <> nil then
   begin
     FreeAndNil(FCurrentTool);
-    if ReopenImmediatly then ToolOpen;
+    ToolOpen;
   end;
 end;
 
 procedure TToolManager.ToolOpen;
 begin
-  if (FCurrentTool = nil) and (PaintTools[currentToolType] <> nil) then
-    FCurrentTool := PaintTools[currentToolType].Create(self);
+  if (FCurrentTool = nil) and (PaintTools[FCurrentToolType] <> nil) then
+    FCurrentTool := PaintTools[FCurrentToolType].Create(self);
 end;
 
 function TToolManager.ToolUpdate: boolean;
 var changed: TRect;
 begin
-  if currentTool <> nil then
+  if ToolCanBeUsed then
     changed := currentTool.ToolUpdate
   else
     changed := EmptyRect;
-  Image.ImageMayChange(changed);
+  NotifyImageOrSelectionChanged(changed);
   result := not IsRectEmpty(changed);
   if CheckExitTool then result := true;
 end;
 
 function TToolManager.ToolUpdateNeeded: boolean;
 begin
-  if CurrentTool <> nil then
+  if ToolCanBeUsed then
     result := currentTool.ToolUpdateNeeded
   else
     result := false;
   if CheckExitTool then
     result := true;
+end;
+
+procedure TToolManager.ToolPopup(AMessage: TToolPopupMessage);
+begin
+  if Assigned(FOnPopupToolHandler) then
+    FOnPopupToolHandler(self, AMessage);
 end;
 
 function TToolManager.IsSelectingTool: boolean;
@@ -635,7 +963,7 @@ end;
 
 procedure TToolManager.RenderTool(formBitmap: TBGRABitmap);
 begin
-  if CurrentTool <> nil then
+  if ToolCanBeUsed then
     currentTool.Render(formBitmap,BitmapToVirtualScreen);
 end;
 

@@ -1,4 +1,4 @@
-msgid ""
+﻿msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Project-Id-Version: \n"
@@ -9,42 +9,50 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: tfabout.fabout.caption
-msgctxt "TFABOUT.FABOUT.CAPTION"
+#: tfabout.caption
+msgctxt "tfabout.caption"
 msgid "About"
 msgstr "عنا"
-
-#: tfabout.label1.caption
-msgid "Authors:"
-msgstr "مؤلفون:"
-
-#: tfabout.label2.caption
-msgid "Homepage:"
-msgstr "الصفحة الرئيسة"
-
-#: tfabout.label3.caption
-msgid "Circular and FabienWang"
-msgstr "دائرية وانغ فابيان"
-
-#: tfabout.label5.caption
-msgid "Libraries used:"
-msgstr "المكتبات المستعملة"
-
-#: tfabout.label6.caption
-msgid "BGRABitmap (LGPL)"
-msgstr "BGRABitmap (LGPL)"
-
-#: tfabout.label7.caption
-msgid "Licence:"
-msgstr "الرخصة"
-
-#: tfabout.label8.caption
-msgid "Open source (GPLv3)"
-msgstr "مفتوح المصدر (جي بي ال 3) "
 
 #: tfabout.labelurl.caption
 msgid "http://sourceforge.net/projects/lazpaint/"
 msgstr "http://sourceforge.net/projects/lazpaint/"
+
+#: tfabout.label_authors.caption
+msgctxt "tfabout.label_authors.caption"
+msgid "Authors:"
+msgstr "مؤلفون:"
+
+#: tfabout.label_authorsvalue.caption
+#, fuzzy
+msgctxt "tfabout.label_authorsvalue.caption"
+msgid "Circular help by FabienWang and Lainz"
+msgstr "Circular, FabienWang, Lainz"
+
+#: tfabout.label_homepage.caption
+msgctxt "tfabout.label_homepage.caption"
+msgid "Homepage:"
+msgstr "الصفحة الرئيسة"
+
+#: tfabout.label_libraries.caption
+msgctxt "tfabout.label_libraries.caption"
+msgid "Libraries used:"
+msgstr "المكتبات المستعملة"
+
+#: tfabout.label_librariesvalue.caption
+msgctxt "tfabout.label_librariesvalue.caption"
+msgid "BGRABitmap (LGPL)"
+msgstr "BGRABitmap (LGPL)"
+
+#: tfabout.label_licence.caption
+msgctxt "tfabout.label_licence.caption"
+msgid "Licence:"
+msgstr "الرخصة"
+
+#: tfabout.label_opensource.caption
+msgctxt "tfabout.label_opensource.caption"
+msgid "Open source (GPLv3)"
+msgstr "مفتوح المصدر (جي بي ال 3) "
 
 #: tfblendop.button_cancel.caption
 msgctxt "tfblendop.button_cancel.caption"
@@ -67,7 +75,7 @@ msgstr ""
 #: tfblendop.label_kritaover.caption
 msgctxt "tfblendop.label_kritaover.caption"
 msgid "Krita"
-msgstr ""
+msgstr "Krita"
 
 #: tfblendop.label_otherover.caption
 msgctxt "tfblendop.label_otherover.caption"
@@ -103,28 +111,29 @@ msgctxt "TFCANVASSIZE.BUTTON_OK.CAPTION"
 msgid "OK"
 msgstr "موافق"
 
+#: tfcanvassize.caption
+msgctxt "tfcanvassize.caption"
+msgid "Canvas size"
+msgstr "حجم الصورة"
+
 #: tfcanvassize.checkbox_flipmode.caption
 msgid "Flip mode"
 msgstr "نمط الإستدارة "
 
-#: tfcanvassize.fcanvassize.caption
-msgctxt "TFCANVASSIZE.FCANVASSIZE.CAPTION"
-msgid "Canvas size"
-msgstr "حجم الرسم"
-
-#: tfcanvassize.label1.caption
+#: tfcanvassize.label_anchor.caption
+msgctxt "tfcanvassize.label_anchor.caption"
 msgid "Anchor :"
 msgstr "مرسي :"
 
-#: tfcanvassize.label2.caption
-msgctxt "TFCANVASSIZE.LABEL2.CAPTION"
+#: tfcanvassize.label_height.caption
+msgctxt "tfcanvassize.label_height.caption"
+msgid "Height :"
+msgstr "الطول :"
+
+#: tfcanvassize.label_width.caption
+msgctxt "tfcanvassize.label_width.caption"
 msgid "Width :"
 msgstr "عرض"
-
-#: tfcanvassize.label3.caption
-msgctxt "TFCANVASSIZE.LABEL3.CAPTION"
-msgid "Height :"
-msgstr "ارتفاع"
 
 #: tfchoosecolor.caption
 msgctxt "tfchoosecolor.caption"
@@ -141,16 +150,18 @@ msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
 msgid "OK"
 msgstr "موافق"
 
-#: tfcolorintensity.fcolorintensity.caption
-msgctxt "TFCOLORINTENSITY.FCOLORINTENSITY.CAPTION"
+#: tfcolorintensity.caption
+msgctxt "tfcolorintensity.caption"
 msgid "Intensity"
 msgstr "حدة"
 
-#: tfcolorintensity.label1.caption
+#: tfcolorintensity.label_multiply.caption
+msgctxt "tfcolorintensity.label_multiply.caption"
 msgid "Multiply"
 msgstr "تضاعف"
 
-#: tfcolorintensity.label2.caption
+#: tfcolorintensity.label_shift.caption
+msgctxt "tfcolorintensity.label_shift.caption"
 msgid "Shift"
 msgstr "إزاحة"
 
@@ -164,20 +175,25 @@ msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
 msgid "OK"
 msgstr "موافق"
 
-#: tfcolorize.fcolorize.caption
-msgctxt "TFCOLORIZE.FCOLORIZE.CAPTION"
+#: tfcolorize.caption
+msgctxt "tfcolorize.caption"
 msgid "Colorize"
 msgstr "تلوين"
 
-#: tfcolorize.label1.caption
-msgctxt "TFCOLORIZE.LABEL1.CAPTION"
-msgid "Hue"
-msgstr "تدرج"
+#: tfcolorize.checkbox_gsba.caption
+msgctxt "tfcolorize.checkbox_gsba.caption"
+msgid "Corrected hue and lightness"
+msgstr "تصحيح درجة اللون و الخفة"
 
-#: tfcolorize.label2.caption
-msgctxt "TFCOLORIZE.LABEL2.CAPTION"
+#: tfcolorize.label_colorness.caption
+msgctxt "tfcolorize.label_colorness.caption"
 msgid "Colorness"
 msgstr "الألوان"
+
+#: tfcolorize.label_hue.caption
+msgctxt "tfcolorize.label_hue.caption"
+msgid "Hue"
+msgstr "تدرج"
 
 #: tfcustomblur.button_cancel.caption
 msgctxt "TFCUSTOMBLUR.BUTTON_CANCEL.CAPTION"
@@ -197,8 +213,8 @@ msgctxt "TFCUSTOMBLUR.BUTTON_OK.CAPTION"
 msgid "OK"
 msgstr "موافق"
 
-#: tfcustomblur.fcustomblur.caption
-msgctxt "TFCUSTOMBLUR.FCUSTOMBLUR.CAPTION"
+#: tfcustomblur.caption
+msgctxt "tfcustomblur.caption"
 msgid "Custom blur"
 msgstr "ضبابية مخصصة"
 
@@ -216,48 +232,78 @@ msgctxt "TFEMBOSS.BUTTON_OK.CAPTION"
 msgid "OK"
 msgstr "موافق"
 
-#: tfemboss.femboss.caption
-msgctxt "TFEMBOSS.FEMBOSS.CAPTION"
+#: tfemboss.caption
+msgctxt "tfemboss.caption"
 msgid "Emboss"
 msgstr "زخرف"
 
-#: tfemboss.label3.caption
+#: tfemboss.label_direction.caption
+msgctxt "tfemboss.label_direction.caption"
 msgid "Direction :"
 msgstr "إشراف"
+
+#: tffilterfunction.button_cancel.caption
+msgctxt "tffilterfunction.button_cancel.caption"
+msgid "Cancel"
+msgstr "إلغاء"
+
+#: tffilterfunction.button_ok.caption
+msgctxt "tffilterfunction.button_ok.caption"
+msgid "OK"
+msgstr "موافق"
+
+#: tffilterfunction.caption
+msgid "Apply function"
+msgstr ""
+
+#: tffilterfunction.checkbox_gsba.caption
+msgctxt "tffilterfunction.checkbox_gsba.caption"
+msgid "Corrected hue and lightness"
+msgstr "تصحيح درجة اللون و الخفة"
+
+#: tffilterfunction.label_alphaequals.caption
+msgid "Alpha ="
+msgstr ""
+
+#: tffilterfunction.label_blueequals.caption
+msgid "Blue ="
+msgstr ""
+
+#: tffilterfunction.label_greenequals.caption
+msgid "Green ="
+msgstr ""
+
+#: tffilterfunction.label_hueequals.caption
+msgid "Hue ="
+msgstr ""
+
+#: tffilterfunction.label_lightnessequals.caption
+msgid "Lightness ="
+msgstr ""
+
+#: tffilterfunction.label_redequals.caption
+msgid "Red ="
+msgstr ""
+
+#: tffilterfunction.label_saturationequals.caption
+msgid "Saturation ="
+msgstr ""
+
+#: tffilterfunction.label_variables.caption
+msgid "Variables :"
+msgstr ""
+
+#: tffilterfunction.tabsheet_hsl.caption
+msgid "HSL"
+msgstr ""
+
+#: tffilterfunction.tabsheet_rgb.caption
+msgid "RGB"
+msgstr ""
 
 #: tflayerstack.caption
 msgctxt "tflayerstack.caption"
 msgid "Layers"
-msgstr ""
-
-#: tflayerstack.toolbar1.caption
-msgctxt "tflayerstack.toolbar1.caption"
-msgid "ToolBar1"
-msgstr "شريط الأدوات 1"
-
-#: tflayerstack.toolbutton_addnewlayer.caption
-msgctxt "tflayerstack.toolbutton_addnewlayer.caption"
-msgid "Add new layer"
-msgstr ""
-
-#: tflayerstack.toolbutton_addnewlayer.hint
-msgctxt "tflayerstack.toolbutton_addnewlayer.hint"
-msgid "Add new layer"
-msgstr ""
-
-#: tflayerstack.toolbutton_removelayer.caption
-msgctxt "tflayerstack.toolbutton_removelayer.caption"
-msgid "Remove layer"
-msgstr ""
-
-#: tflayerstack.toolbutton_removelayer.hint
-msgctxt "tflayerstack.toolbutton_removelayer.hint"
-msgid "Remove layer"
-msgstr ""
-
-#: tflayerstack.toolzoomlayerstackin.caption
-msgctxt "tflayerstack.toolzoomlayerstackin.caption"
-msgid "Zoom layer stack in"
 msgstr ""
 
 #: tflayerstack.toolzoomlayerstackin.hint
@@ -265,20 +311,20 @@ msgctxt "tflayerstack.toolzoomlayerstackin.hint"
 msgid "Zoom layer stack in"
 msgstr ""
 
-#: tflayerstack.toolzoomlayerstackout.caption
-msgctxt "tflayerstack.toolzoomlayerstackout.caption"
-msgid "Zoom layer stack out"
-msgstr ""
-
 #: tflayerstack.toolzoomlayerstackout.hint
 msgctxt "tflayerstack.toolzoomlayerstackout.hint"
 msgid "Zoom layer stack out"
 msgstr ""
 
-#: tfmain.bordersize_spinedit.hint
-msgctxt "TFMAIN.BORDERSIZE_SPINEDIT.HINT"
-msgid "Border size"
-msgstr "حجم الإطار"
+#: tfloading.caption
+msgctxt "tfloading.caption"
+msgid "Loading..."
+msgstr ""
+
+#: tfloading.label_loadingstatus.caption
+msgctxt "tfloading.label_loadingstatus.caption"
+msgid "Loading..."
+msgstr ""
 
 #: tfmain.caption
 msgctxt "tfmain.caption"
@@ -301,7 +347,8 @@ msgstr "كثافة"
 msgid "Lightness..."
 msgstr "إضاءة"
 
-#: tfmain.colorshiftcolor.caption
+#: tfmain.colorshiftcolors.caption
+msgctxt "tfmain.colorshiftcolors.caption"
 msgid "Shift colors..."
 msgstr "سحب اللون"
 
@@ -325,30 +372,19 @@ msgstr "قص التحديد"
 msgid "Delete"
 msgstr "حذف"
 
-#: tfmain.editdeselect.caption
-msgctxt "TFMAIN.EDITDESELECT.CAPTION"
-msgid "Deselect"
-msgstr "إلغاء تحديد"
+#: tfmain.editdeleteselection.hint
+msgid "Delete selection"
+msgstr ""
 
 #: tfmain.editdeselect.hint
 msgctxt "TFMAIN.EDITDESELECT.HINT"
 msgid "Deselect"
 msgstr "إلغاء تحديد"
 
-#: tfmain.editinvertselection.caption
-msgctxt "TFMAIN.EDITINVERTSELECTION.CAPTION"
-msgid "Invert selection"
-msgstr "عكس تحديد"
-
 #: tfmain.editinvertselection.hint
 msgctxt "TFMAIN.EDITINVERTSELECTION.HINT"
 msgid "Invert selection"
 msgstr "عكس تحديد"
-
-#: tfmain.editpaste.caption
-msgctxt "TFMAIN.EDITPASTE.CAPTION"
-msgid "Paste"
-msgstr "لصق"
 
 #: tfmain.editpaste.hint
 msgctxt "TFMAIN.EDITPASTE.HINT"
@@ -358,11 +394,6 @@ msgstr "لصق"
 #: tfmain.editpasteasnew.caption
 msgid "Paste as new image"
 msgstr "لصق كاصورة جديدة"
-
-#: tfmain.editredo.caption
-msgctxt "TFMAIN.EDITREDO.CAPTION"
-msgid "Redo"
-msgstr "إعادة"
 
 #: tfmain.editredo.hint
 msgctxt "TFMAIN.EDITREDO.HINT"
@@ -375,7 +406,7 @@ msgstr "تحديد الكل"
 
 #: tfmain.editselection.caption
 msgid "Edit selection..."
-msgstr ""
+msgstr "تحرير التحديد"
 
 #: tfmain.editselectionfit.caption
 msgid "Selection fit"
@@ -406,17 +437,9 @@ msgstr "ثبت"
 msgid "Validate modifications"
 msgstr "ثبت التعديل"
 
-#: tfmain.eraser_label.caption
-msgid "Erase"
-msgstr "محو"
-
-#: tfmain.eraser_spinedit.hint
-msgid "Eraser opacity"
-msgstr "محو الشفافية"
-
 #: tfmain.fileimport3d.caption
 msgid "Import 3D object..."
-msgstr ""
+msgstr "استيراد جسم 3 ابعاد.."
 
 #: tfmain.fileloadselection.caption
 msgid "Load selection..."
@@ -439,15 +462,15 @@ msgctxt "TFMAIN.FILEOPEN.HINT"
 msgid "Open existing file"
 msgstr "فتح ملف موجود"
 
-#: tfmain.filequit.caption
-msgctxt "TFMAIN.FILEQUIT.CAPTION"
-msgid "Quit"
-msgstr "غلق"
-
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
 msgid "Quit"
 msgstr "غلق"
+
+#: tfmain.filereload.caption
+msgctxt "tfmain.filereload.caption"
+msgid "Reload"
+msgstr ""
 
 #: tfmain.filesave.caption
 msgctxt "TFMAIN.FILESAVE.CAPTION"
@@ -471,85 +494,102 @@ msgctxt "TFMAIN.FILESAVESELECTIONAS.CAPTION"
 msgid "Save selection as..."
 msgstr "حفظ التحديد ك.."
 
+#: tfmain.filterblurcorona.caption
+msgctxt "tfmain.filterblurcorona.caption"
+msgid "Corona blur..."
+msgstr "الهالة الضبابية"
+
+#: tfmain.filterblurcustom.caption
+msgctxt "tfmain.filterblurcustom.caption"
+msgid "Custom blur..."
+msgstr "ضبابية مخصصة"
+
+#: tfmain.filterblurdisk.caption
+msgctxt "tfmain.filterblurdisk.caption"
+msgid "Disk blur..."
+msgstr "مجال الضبابية"
+
+#: tfmain.filterblurfast.caption
+msgctxt "tfmain.filterblurfast.caption"
+msgid "Fast blur..."
+msgstr "ضبابية سريعة"
+
+#: tfmain.filterblurmotion.caption
+msgctxt "tfmain.filterblurmotion.caption"
+msgid "Motion blur..."
+msgstr "ضبابية الحركة"
+
+#: tfmain.filterblurprecise.caption
+msgctxt "tfmain.filterblurprecise.caption"
+msgid "Precise blur..."
+msgstr "ضبابية دقيق"
+
+#: tfmain.filterblurradial.caption
+msgctxt "tfmain.filterblurradial.caption"
+msgid "Radial blur..."
+msgstr "ضبابية شعاعية"
+
 #: tfmain.filtercleartype.caption
 msgid "ClearType"
-msgstr ""
+msgstr "نوع واضح"
 
 #: tfmain.filtercleartypeinverse.caption
 msgid "Inverse ClearType"
-msgstr ""
+msgstr "عكس النوع الواضح"
 
 #: tfmain.filtercontour.caption
 msgid "Contour"
 msgstr "محيط شكل"
 
-#: tfmain.filtercoronablur.caption
-msgid "Corona blur..."
-msgstr "الهالة الضبابية"
-
-#: tfmain.filtercustomblur.caption
-msgid "Custom blur..."
-msgstr "ضبابية مخصصة"
-
 #: tfmain.filtercylinder.caption
 msgid "Cylinder"
 msgstr "أسطوانة"
-
-#: tfmain.filterdiskblur.caption
-msgid "Disk blur..."
-msgstr "مجال الضبابية"
 
 #: tfmain.filteremboss.caption
 msgid "Emboss..."
 msgstr "زخرف"
 
-#: tfmain.filterfastblur.caption
-msgid "Fast blur..."
-msgstr "ضبابية سريعة"
+#: tfmain.filterfunction.caption
+msgid "Apply function..."
+msgstr ""
 
 #: tfmain.filtergrayscale.caption
 msgid "Grayscale"
 msgstr "تدرج رمادي"
 
+#: tfmain.filterlinearnegative.caption
+msgctxt "tfmain.filterlinearnegative.caption"
+msgid "Linear negative"
+msgstr "خط السلبية"
+
 #: tfmain.filtermedian.caption
 msgid "Median"
 msgstr "متوسط"
-
-#: tfmain.filtermotionblur.caption
-msgid "Motion blur..."
-msgstr "ضبابية الحركة"
 
 #: tfmain.filternegative.caption
 msgid "Negative"
 msgstr "سلبي"
 
-#: tfmain.filternegativelinear.caption
-msgid "Linear negative"
-msgstr "خط السلبية"
-
 #: tfmain.filternormalize.caption
 msgid "Normalize"
 msgstr "تطبيع"
 
+#: tfmain.filterphong.caption
+msgctxt "tfmain.filterphong.caption"
+msgid "Shaded map..."
+msgstr ""
+
 #: tfmain.filterpixelate.caption
 msgid "Pixelate..."
-msgstr "تأخير البكس..."
+msgstr "تأخير البكسل..."
 
 #: tfmain.filterplane.caption
 msgid "Plane (slow)"
 msgstr "مستوى (بطيء)"
 
-#: tfmain.filterpreciseblur.caption
-msgid "Precise blur..."
-msgstr "ضبابية دقيق"
-
-#: tfmain.filterradialblur.caption
-msgid "Radial blur..."
-msgstr "ضبابية شعاعية"
-
 #: tfmain.filtersharpen.caption
-msgid "Sharpen"
-msgstr "شحذ القلم"
+msgid "Sharpen..."
+msgstr "شحذ القلم..."
 
 #: tfmain.filtersmooth.caption
 msgid "Smooth"
@@ -564,16 +604,6 @@ msgstr "كرة"
 msgid "Twirl..."
 msgstr "برم"
 
-#: tfmain.gridnbx_spinedit.hint
-msgctxt "TFMAIN.GRIDNBX_SPINEDIT.HINT"
-msgid "Pen width"
-msgstr "عرض القلم"
-
-#: tfmain.gridnby_spinedit.hint
-msgctxt "TFMAIN.GRIDNBY_SPINEDIT.HINT"
-msgid "Pen width"
-msgstr "عرض القلم"
-
 #: tfmain.helpabout.caption
 msgid "About..."
 msgstr "عنا..."
@@ -584,7 +614,7 @@ msgstr "فهرس"
 
 #: tfmain.imagechangecanvassize.caption
 msgid "Canvas size..."
-msgstr "حجم الرسم..."
+msgstr "حجم الصورة..."
 
 #: tfmain.imageclearalpha.caption
 msgid "Clear alpha channel and set background"
@@ -601,6 +631,10 @@ msgstr ""
 #: tfmain.imagefillbackground.caption
 msgid "Fill background with antialiasing"
 msgstr "ملء الخلفية مع مضاد التعرج"
+
+#: tfmain.imageflatten.caption
+msgid "Flatten image"
+msgstr ""
 
 #: tfmain.imagehorizontalflip.caption
 msgctxt "tfmain.imagehorizontalflip.caption"
@@ -646,6 +680,7 @@ msgid "Flip image vertically"
 msgstr "قلب الصورة عموديا"
 
 #: tfmain.image_currenttexture.hint
+msgctxt "tfmain.image_currenttexture.hint"
 msgid "Current texture"
 msgstr "النسيج الحالي"
 
@@ -654,10 +689,61 @@ msgctxt "TFMAIN.IMAGE_CURRENTTOOL.HINT"
 msgid "Selected tool"
 msgstr "تحديد أداة"
 
-#: tfmain.image_swap.hint
-msgctxt "TFMAIN.IMAGE_SWAP.HINT"
-msgid "Selected tool"
-msgstr "تحديد أداة"
+#: tfmain.image_swapcolors.hint
+#, fuzzy
+msgctxt "tfmain.image_swapcolors.hint"
+msgid "Switch color"
+msgstr "<->"
+
+#: tfmain.itemdonate.caption
+msgctxt "tfmain.itemdonate.caption"
+msgid "Donate..."
+msgstr "تبرع..."
+
+#: tfmain.itemhorizfliplayer.caption
+msgctxt "tfmain.itemhorizfliplayer.caption"
+msgid "Current layer"
+msgstr ""
+
+#: tfmain.itemhorizflippicture.caption
+msgctxt "tfmain.itemhorizflippicture.caption"
+msgid "Whole picture"
+msgstr ""
+
+#: tfmain.itemhorizflipselection.caption
+msgctxt "tfmain.itemhorizflipselection.caption"
+msgid "Selection"
+msgstr ""
+
+#: tfmain.itemlanguage.caption
+msgctxt "tfmain.itemlanguage.caption"
+msgid "Language"
+msgstr "لغة"
+
+#: tfmain.itemquitseparator.caption
+msgctxt "tfmain.itemquitseparator.caption"
+msgid "-"
+msgstr "-"
+
+#: tfmain.itemseparatortransparency.caption
+msgctxt "tfmain.itemseparatortransparency.caption"
+msgid "-"
+msgstr "-"
+
+#: tfmain.itemvertfliplayer.caption
+msgctxt "tfmain.itemvertfliplayer.caption"
+msgid "Current layer"
+msgstr ""
+
+#: tfmain.itemvertflippicture.caption
+msgctxt "tfmain.itemvertflippicture.caption"
+msgid "Whole picture"
+msgstr ""
+
+#: tfmain.itemvertflipselection.caption
+msgctxt "tfmain.itemvertflipselection.caption"
+msgid "Selection"
+msgstr ""
 
 #: tfmain.label_altitude.caption
 msgid "Altitude"
@@ -666,10 +752,6 @@ msgstr "ارتفاع"
 #: tfmain.label_back.caption
 msgid "Back"
 msgstr "رجوع"
-
-#: tfmain.label_border.caption
-msgid "Border"
-msgstr "الحدود"
 
 #: tfmain.label_coordinates.caption
 msgid "99999x99999"
@@ -690,8 +772,8 @@ msgstr ""
 
 #: tfmain.label_currentzoom.caption
 msgctxt "TFMAIN.LABEL_CURRENTZOOM.CAPTION"
-msgid "100%"
-msgstr "100%"
+msgid "%"
+msgstr "%"
 
 #: tfmain.label_currentzoom.hint
 msgid "Current zoom"
@@ -702,15 +784,40 @@ msgctxt "TFMAIN.LABEL_CURVE.CAPTION"
 msgid "Curve"
 msgstr "منحنى"
 
+#: tfmain.label_eraser.caption
+msgctxt "tfmain.label_eraser.caption"
+msgid "Erase"
+msgstr "محو"
+
 #: tfmain.label_grid.caption
 msgctxt "TFMAIN.LABEL_GRID.CAPTION"
 msgid "Grid"
 msgstr "شبكة"
 
+#: tfmain.label_gridx.caption
+msgctxt "tfmain.label_gridx.caption"
+msgid "x"
+msgstr "x"
+
+#: tfmain.label_outlinewidth.caption
+msgctxt "tfmain.label_outlinewidth.caption"
+msgid "Width"
+msgstr "عرض"
+
 #: tfmain.label_pen.caption
 msgctxt "TFMAIN.LABEL_PEN.CAPTION"
 msgid "Pen"
 msgstr "قلم"
+
+#: tfmain.label_penwidth.caption
+msgctxt "tfmain.label_penwidth.caption"
+msgid "Width"
+msgstr "عرض"
+
+#: tfmain.label_phongborder.caption
+msgctxt "tfmain.label_phongborder.caption"
+msgid "Border"
+msgstr "الحدود"
 
 #: tfmain.label_shadowoffset.caption
 msgctxt "TFMAIN.LABEL_SHADOWOFFSET.CAPTION"
@@ -732,36 +839,82 @@ msgctxt "TFMAIN.LABEL_TEXTBLUR.CAPTION"
 msgid "Blur"
 msgstr "ضباب"
 
-#: tfmain.label_x.caption
-msgid "x"
-msgstr "x"
+#: tfmain.label_tolerance.caption
+msgctxt "tfmain.label_tolerance.caption"
+msgid "Tolerance"
+msgstr "الاحتمال"
+
+#: tfmain.layeraddnew.hint
+msgctxt "tfmain.layeraddnew.hint"
+msgid "Add new layer"
+msgstr ""
+
+#: tfmain.layerduplicate.hint
+msgctxt "tfmain.layerduplicate.hint"
+msgid "Duplicate selected layer"
+msgstr ""
+
+#: tfmain.layerfromfile.hint
+msgctxt "tfmain.layerfromfile.hint"
+msgid "Import layer from file..."
+msgstr ""
+
+#: tfmain.layerhorizontalflip.hint
+msgid "Flip layer horizontally"
+msgstr ""
+
+#: tfmain.layermergeover.hint
+msgctxt "tfmain.layermergeover.hint"
+msgid "Merge layer over"
+msgstr ""
+
+#: tfmain.layermove.hint
+msgctxt "tfmain.layermove.hint"
+msgid "Move layer"
+msgstr ""
+
+#: tfmain.layerremovecurrent.hint
+msgctxt "tfmain.layerremovecurrent.hint"
+msgid "Remove layer"
+msgstr ""
+
+#: tfmain.layerrotate.hint
+msgctxt "tfmain.layerrotate.hint"
+msgid "Rotate layer"
+msgstr ""
+
+#: tfmain.layerverticalflip.hint
+msgctxt "tfmain.layerverticalflip.hint"
+msgid "Flip layer vertically"
+msgstr ""
 
 #: tfmain.loadselectiondialog.title
 msgid "Load selection"
 msgstr "تحميل التحديد "
 
-#: tfmain.menudonate.caption
-msgid "Donate..."
-msgstr "تبرع..."
+#: tfmain.menucolors.caption
+msgctxt "tfmain.menucolors.caption"
+msgid "Colors"
+msgstr "الألوان"
+
+#: tfmain.menuedit.caption
+msgctxt "tfmain.menuedit.caption"
+msgid "Edit"
+msgstr "تحرير"
 
 #: tfmain.menufile.caption
 msgid "File"
 msgstr "ملف"
 
-#: tfmain.menuhorizfliplayer.caption
-msgctxt "tfmain.menuhorizfliplayer.caption"
-msgid "Current layer"
-msgstr ""
+#: tfmain.menufilter.caption
+msgctxt "tfmain.menufilter.caption"
+msgid "Filter"
+msgstr "مرشح"
 
-#: tfmain.menuhorizflippicture.caption
-msgctxt "tfmain.menuhorizflippicture.caption"
-msgid "Whole picture"
-msgstr ""
-
-#: tfmain.menuhorizflipselection.caption
-msgctxt "tfmain.menuhorizflipselection.caption"
-msgid "Selection"
-msgstr ""
+#: tfmain.menuhelp.caption
+msgctxt "tfmain.menuhelp.caption"
+msgid "Help"
+msgstr "مساعدة"
 
 #: tfmain.menuhorizflipsub.caption
 msgctxt "tfmain.menuhorizflipsub.caption"
@@ -773,207 +926,52 @@ msgctxt "tfmain.menuhorizflipsub.hint"
 msgid "Flip image horizontally"
 msgstr "قلب الصورة افقيا"
 
-#: tfmain.menuitem102.caption
-msgid "Render"
-msgstr "تصيير"
-
-#: tfmain.menuitem103.caption
-msgctxt "TFMAIN.MENUITEM103.CAPTION"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem104.caption
-msgctxt "TFMAIN.MENUITEM104.CAPTION"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem118.caption
-msgctxt "TFMAIN.MENUITEM118.CAPTION"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem12.caption
-msgctxt "TFMAIN.MENUITEM12.CAPTION"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem122.caption
-msgctxt "TFMAIN.MENUITEM122.CAPTION"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem125.caption
-msgctxt "TFMAIN.MENUITEM125.CAPTION"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem128.caption
-msgctxt "tfmain.menuitem128.caption"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem130.caption
-msgctxt "tfmain.menuitem130.caption"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem19.caption
-msgctxt "TFMAIN.MENUITEM19.CAPTION"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem2.caption
-msgid "Edit"
-msgstr "تحرير"
-
-#: tfmain.menuitem20.caption
-msgctxt "TFMAIN.MENUITEM20.CAPTION"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem22.caption
-msgctxt "TFMAIN.MENUITEM22.CAPTION"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem25.caption
+#: tfmain.menuimage.caption
+msgctxt "tfmain.menuimage.caption"
 msgid "Image"
 msgstr "صورة"
 
-#: tfmain.menuitem3.caption
-msgid "Tool"
-msgstr "أداة"
-
-#: tfmain.menuitem30.caption
-msgctxt "TFMAIN.MENUITEM30.CAPTION"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem32.caption
-msgctxt "TFMAIN.MENUITEM32.CAPTION"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem33.caption
-msgid "Filter"
-msgstr "مرشح"
-
-#: tfmain.menuitem39.caption
-msgctxt "TFMAIN.MENUITEM39.CAPTION"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem40.caption
-msgctxt "TFMAIN.MENUITEM40.CAPTION"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem41.caption
-msgctxt "TFMAIN.MENUITEM41.CAPTION"
+#: tfmain.menuradialblur.caption
+msgctxt "tfmain.menuradialblur.caption"
 msgid "Radial blur"
 msgstr "ضباب شعاعي"
 
-#: tfmain.menuitem48.caption
-msgctxt "TFMAIN.MENUITEM48.CAPTION"
-msgid "-"
-msgstr "-"
+#: tfmain.menurecentfiles.caption
+msgctxt "tfmain.menurecentfiles.caption"
+msgid "Recent files"
+msgstr "الملفات الأخيرة"
 
-#: tfmain.menuitem53.caption
-msgctxt "TFMAIN.MENUITEM53.CAPTION"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem57.caption
-msgctxt "TFMAIN.MENUITEM57.CAPTION"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem64.caption
-msgid "View"
-msgstr "معاينة"
-
-#: tfmain.menuitem69.caption
-msgctxt "TFMAIN.MENUITEM69.CAPTION"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem72.caption
-msgctxt "TFMAIN.MENUITEM72.CAPTION"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem74.caption
+#: tfmain.menuremovetransparency.caption
+msgctxt "tfmain.menuremovetransparency.caption"
 msgid "Remove transparency"
 msgstr "إزالة الشفافية"
 
-#: tfmain.menuitem81.caption
-msgctxt "TFMAIN.MENUITEM81.CAPTION"
-msgid "Colors"
-msgstr "الألوان"
+#: tfmain.menurender.caption
+msgctxt "tfmain.menurender.caption"
+msgid "Render"
+msgstr "تصيير"
 
-#: tfmain.menuitem89.caption
-msgctxt "TFMAIN.MENUITEM89.CAPTION"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem91.caption
-msgctxt "TFMAIN.MENUITEM91.CAPTION"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem93.caption
-msgctxt "TFMAIN.MENUITEM93.CAPTION"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuitem94.caption
+#: tfmain.menuselect.caption
+msgctxt "tfmain.menuselect.caption"
 msgid "Select"
 msgstr "تحديد"
 
-#: tfmain.menuitem_quitseparator.caption
-msgctxt "TFMAIN.MENUITEM_QUITSEPARATOR.CAPTION"
-msgid "-"
-msgstr "-"
-
-#: tfmain.menuvertfliplayer.caption
-msgctxt "tfmain.menuvertfliplayer.caption"
-msgid "Current layer"
-msgstr ""
-
-#: tfmain.menuvertflippicture.caption
-msgctxt "tfmain.menuvertflippicture.caption"
-msgid "Whole picture"
-msgstr ""
-
-#: tfmain.menuvertflipselection.caption
-msgctxt "tfmain.menuvertflipselection.caption"
-msgid "Selection"
-msgstr ""
+#: tfmain.menutool.caption
+msgctxt "tfmain.menutool.caption"
+msgid "Tool"
+msgstr "أداة"
 
 #: tfmain.menuvertflipsub.caption
 msgctxt "tfmain.menuvertflipsub.caption"
 msgid "Vertical flip"
 msgstr "قلب عمودي"
 
-#: tfmain.menu_language.caption
-msgid "Language"
-msgstr "لغة"
-
-#: tfmain.menu_recentfiles.caption
-msgid "Recent files"
-msgstr "الملفات الأخيرة"
-
-#: tfmain.mnucheckupdate.caption
-msgid "Check for update..."
-msgstr "التحقق من التحديث..."
-
-#: tfmain.mnuhelp.caption
-msgid "Help"
-msgstr "مساعدة"
+#: tfmain.menuview.caption
+msgctxt "tfmain.menuview.caption"
+msgid "View"
+msgstr "معاينة"
 
 #: tfmain.open3dobjectdialog.title
-#, fuzzy
-#| msgid "Open existing file"
 msgctxt "tfmain.open3dobjectdialog.title"
 msgid "Import 3D object"
 msgstr "فتح ملف موجود"
@@ -987,14 +985,15 @@ msgstr "فتح ملف موجود"
 msgid "Open texture"
 msgstr "فتح نسيج"
 
-#: tfmain.penwidth_label.caption
-msgid "Width"
-msgstr "عرض"
+#: tfmain.perspective_repeat.hint
+msgctxt "tfmain.perspective_repeat.hint"
+msgid "Repeat image"
+msgstr "تكرار الصورة"
 
-#: tfmain.penwidth_spinedit.hint
-msgctxt "TFMAIN.PENWIDTH_SPINEDIT.HINT"
-msgid "Pen width"
-msgstr "عرض القلم"
+#: tfmain.perspective_twoplanes.hint
+msgctxt "tfmain.perspective_twoplanes.hint"
+msgid "Draw opposite plane too"
+msgstr "ملء الشكل"
 
 #: tfmain.rendercamouflage.caption
 msgid "Camouflage"
@@ -1008,6 +1007,11 @@ msgstr "غيوم"
 msgid "Water with custom colors"
 msgstr "ماء مع ألوان مخصصة"
 
+#: tfmain.rendercyclicperlinnoise.caption
+msgctxt "tfmain.rendercyclicperlinnoise.caption"
+msgid "Cyclic Perlin noise"
+msgstr "ضجيج بيرلين دائري"
+
 #: tfmain.rendermarble.caption
 msgid "Marble"
 msgstr "رخام"
@@ -1019,10 +1023,6 @@ msgstr "طبق معدني"
 #: tfmain.renderperlinnoise.caption
 msgid "Perlin noise"
 msgstr "ضجيج بيرلين"
-
-#: tfmain.renderperlinnoisecyclic.caption
-msgid "Cyclic Perlin noise"
-msgstr "ضجيج بيرلين دائري"
 
 #: tfmain.renderplastik.caption
 msgid "Plastik"
@@ -1040,7 +1040,8 @@ msgstr "طباعة ثلج"
 msgid "Stone"
 msgstr "حجر"
 
-#: tfmain.renderwaterauto.caption
+#: tfmain.renderwater.caption
+msgctxt "tfmain.renderwater.caption"
 msgid "Water"
 msgstr "ماء"
 
@@ -1061,45 +1062,6 @@ msgctxt "TFMAIN.SAVESELECTIONDIALOG.TITLE"
 msgid "Save selection as..."
 msgstr "حفظ التحديد ك..."
 
-#: tfmain.shapealtitude_spinedit.hint
-msgctxt "TFMAIN.SHAPEALTITUDE_SPINEDIT.HINT"
-msgid "Shape altitude"
-msgstr "ارتفاع الشكل"
-
-#: tfmain.shapes_closeshape.caption
-msgctxt "TFMAIN.SHAPES_CLOSESHAPE.CAPTION"
-msgid "Close shape"
-msgstr "غلق الشكل"
-
-#: tfmain.shapes_closeshape.hint
-msgctxt "TFMAIN.SHAPES_CLOSESHAPE.HINT"
-msgid "Close shape"
-msgstr "غلق الشكل"
-
-#: tfmain.shapes_drawborder.caption
-msgctxt "TFMAIN.SHAPES_DRAWBORDER.CAPTION"
-msgid "Draw border"
-msgstr "رسم حدود"
-
-#: tfmain.shapes_drawborder.hint
-msgctxt "TFMAIN.SHAPES_DRAWBORDER.HINT"
-msgid "Draw border"
-msgstr "رسم حدود"
-
-#: tfmain.shapes_fillshape.caption
-msgctxt "TFMAIN.SHAPES_FILLSHAPE.CAPTION"
-msgid "Fill shape"
-msgstr "ملء الشكل"
-
-#: tfmain.shapes_fillshape.hint
-msgctxt "TFMAIN.SHAPES_FILLSHAPE.HINT"
-msgid "Fill shape"
-msgstr "ملء الشكل"
-
-#: tfmain.shapes_separator1.caption
-msgid "Shapes_Separator"
-msgstr "فرز_الأشكال"
-
 #: tfmain.shape_backcolor.hint
 msgctxt "tfmain.shape_backcolor.hint"
 msgid "Select secondary color"
@@ -1110,259 +1072,68 @@ msgid "Select pen color"
 msgstr "تحديد لون القلم"
 
 #: tfmain.spinedit_backopacity.hint
+msgctxt "tfmain.spinedit_backopacity.hint"
 msgid "Secondary color opacity"
 msgstr "تعتيم اللون الثاني"
+
+#: tfmain.spinedit_eraser.hint
+msgctxt "tfmain.spinedit_eraser.hint"
+msgid "Eraser opacity"
+msgstr "محو الشفافية"
+
+#: tfmain.spinedit_gridnbx.hint
+msgctxt "tfmain.spinedit_gridnbx.hint"
+msgid "Pen width"
+msgstr "عرض القلم"
+
+#: tfmain.spinedit_gridnby.hint
+msgctxt "tfmain.spinedit_gridnby.hint"
+msgid "Pen width"
+msgstr "عرض القلم"
 
 #: tfmain.spinedit_penopacity.hint
 msgid "Pen opacity"
 msgstr "تعتيم القلم"
 
-#: tfmain.textblur_spinedit.hint
-msgctxt "TFMAIN.TEXTBLUR_SPINEDIT.HINT"
+#: tfmain.spinedit_penwidth.hint
+msgctxt "tfmain.spinedit_penwidth.hint"
+msgid "Pen width"
+msgstr "عرض القلم"
+
+#: tfmain.spinedit_phongbordersize.hint
+msgctxt "tfmain.spinedit_phongbordersize.hint"
+msgid "Border size"
+msgstr "حجم الإطار"
+
+#: tfmain.spinedit_shapealtitude.hint
+msgctxt "tfmain.spinedit_shapealtitude.hint"
+msgid "Shape altitude"
+msgstr "ارتفاع الشكل"
+
+#: tfmain.spinedit_textblur.hint
+msgctxt "tfmain.spinedit_textblur.hint"
 msgid "Shadow blur"
 msgstr "ضلال الضبابية"
 
-#: tfmain.textshadowx_spinedit.hint
-msgctxt "TFMAIN.TEXTSHADOWX_SPINEDIT.HINT"
+#: tfmain.spinedit_textoutlinewidth.hint
+msgctxt "tfmain.spinedit_textoutlinewidth.hint"
+msgid "Text outline width"
+msgstr ""
+
+#: tfmain.spinedit_textshadowx.hint
+msgctxt "tfmain.spinedit_textshadowx.hint"
 msgid "Horizontal shadow offset"
 msgstr "ظل الإزاحة الافقي"
 
-#: tfmain.textshadowy_spinedit.hint
-msgctxt "TFMAIN.TEXTSHADOWY_SPINEDIT.HINT"
+#: tfmain.spinedit_textshadowy.hint
+msgctxt "tfmain.spinedit_textshadowy.hint"
 msgid "Vertical shadow offset"
 msgstr "ظل الإزاحة العمودي"
 
-#: tfmain.tolerance_label.caption
-msgid "Tolerance"
-msgstr "الاحتمال"
-
-#: tfmain.toolbar10.caption
-msgctxt "TFMAIN.TOOLBAR10.CAPTION"
-msgid "ToolBar2"
-msgstr "شريط الأدوات 2"
-
-#: tfmain.toolbar11.caption
-msgctxt "TFMAIN.TOOLBAR11.CAPTION"
-msgid "ToolBar2"
-msgstr "شريط الأدوات 2"
-
-#: tfmain.toolbar12.caption
-msgctxt "TFMAIN.TOOLBAR12.CAPTION"
-msgid "ToolBar2"
-msgstr "شريط الأدوات 2"
-
-#: tfmain.toolbar13.caption
-msgctxt "TFMAIN.TOOLBAR13.CAPTION"
-msgid "ToolBar3"
-msgstr "شريط الأدوات 3"
-
-#: tfmain.toolbar14.caption
-msgctxt "TFMAIN.TOOLBAR14.CAPTION"
-msgid "ToolBar2"
-msgstr "شريط الأدوات 2"
-
-#: tfmain.toolbar15.caption
-msgctxt "TFMAIN.TOOLBAR15.CAPTION"
-msgid "ToolBar2"
-msgstr "شريط الأدوات 2"
-
-#: tfmain.toolbar16.caption
-msgctxt "TFMAIN.TOOLBAR16.CAPTION"
-msgid "ToolBar2"
-msgstr "شريط الأدوات 2"
-
-#: tfmain.toolbar2.caption
-msgctxt "TFMAIN.TOOLBAR2.CAPTION"
-msgid "ToolBar2"
-msgstr "شريط الأدوات 2"
-
-#: tfmain.toolbar3.caption
-msgctxt "TFMAIN.TOOLBAR3.CAPTION"
-msgid "ToolBar3"
-msgstr "شريط الأدوات 3"
-
-#: tfmain.toolbar4.caption
-msgctxt "TFMAIN.TOOLBAR4.CAPTION"
-msgid "ToolBar2"
-msgstr "شريط الأدوات 2"
-
-#: tfmain.toolbar5.caption
-msgctxt "TFMAIN.TOOLBAR5.CAPTION"
-msgid "ToolBar2"
-msgstr "شريط الأدوات 2"
-
-#: tfmain.toolbar6.caption
-msgctxt "TFMAIN.TOOLBAR6.CAPTION"
-msgid "ToolBar3"
-msgstr "شريط الأدوات 3"
-
-#: tfmain.toolbar7.caption
-msgctxt "TFMAIN.TOOLBAR7.CAPTION"
-msgid "ToolBar2"
-msgstr "شريط الأدوات 2"
-
-#: tfmain.toolbar8.caption
-msgctxt "TFMAIN.TOOLBAR8.CAPTION"
-msgid "ToolBar2"
-msgstr "شريط الأدوات 2"
-
-#: tfmain.toolbar9.caption
-msgctxt "TFMAIN.TOOLBAR9.CAPTION"
-msgid "ToolBar2"
-msgstr "شريط الأدوات 2"
-
-#: tfmain.toolbutton_diamondgradient.caption
-msgctxt "TFMAIN.TOOLBUTTON_DIAMONDGRADIENT.CAPTION"
-msgid "Diamond gradient"
-msgstr "ميل الماس"
-
-#: tfmain.toolbutton_diamondgradient.hint
-msgctxt "TFMAIN.TOOLBUTTON_DIAMONDGRADIENT.HINT"
-msgid "Diamond gradient"
-msgstr "ميل الماس"
-
-#: tfmain.toolbutton_gridmovewithoutdeformation.caption
-msgctxt "TFMAIN.TOOLBUTTON_GRIDMOVEWITHOUTDEFORMATION.CAPTION"
-msgid "Move grid without deformation"
-msgstr "تحريك الشبكة بدون تشويه"
-
-#: tfmain.toolbutton_gridmovewithoutdeformation.hint
-msgctxt "TFMAIN.TOOLBUTTON_GRIDMOVEWITHOUTDEFORMATION.HINT"
-msgid "Move grid without deformation"
-msgstr "تحريك الشبكة بدون تشويه"
-
-#: tfmain.toolbutton_lineargradient.caption
-msgctxt "TFMAIN.TOOLBUTTON_LINEARGRADIENT.CAPTION"
-msgid "Linear gradient"
-msgstr "ميل خطي"
-
-#: tfmain.toolbutton_lineargradient.hint
-msgctxt "TFMAIN.TOOLBUTTON_LINEARGRADIENT.HINT"
-msgid "Linear gradient"
-msgstr "ميل خطي"
-
-#: tfmain.toolbutton_progressivefloodfill.caption
-msgctxt "TFMAIN.TOOLBUTTON_PROGRESSIVEFLOODFILL.CAPTION"
-msgid "Progressive floodfill"
-msgstr "ملء  متدرج"
-
-#: tfmain.toolbutton_progressivefloodfill.hint
-msgctxt "TFMAIN.TOOLBUTTON_PROGRESSIVEFLOODFILL.HINT"
-msgid "Progressive floodfill"
-msgstr "ملء  متدرج"
-
-#: tfmain.toolbutton_radialgradient.caption
-msgctxt "TFMAIN.TOOLBUTTON_RADIALGRADIENT.CAPTION"
-msgid "Radial gradient"
-msgstr "ميل شعاعي"
-
-#: tfmain.toolbutton_radialgradient.hint
-msgctxt "TFMAIN.TOOLBUTTON_RADIALGRADIENT.HINT"
-msgid "Radial gradient"
-msgstr "ميل شعاعي"
-
-#: tfmain.toolbutton_reflectedgradient.caption
-msgctxt "TFMAIN.TOOLBUTTON_REFLECTEDGRADIENT.CAPTION"
-msgid "Reflected gradient"
-msgstr "ميل معكوس"
-
-#: tfmain.toolbutton_reflectedgradient.hint
-msgctxt "TFMAIN.TOOLBUTTON_REFLECTEDGRADIENT.HINT"
-msgid "Reflected gradient"
-msgstr "ميل معكوس"
-
-#: tfmain.toolbutton_shapecone.caption
-msgctxt "TFMAIN.TOOLBUTTON_SHAPECONE.CAPTION"
-msgid "Cone"
-msgstr "مخروط"
-
-#: tfmain.toolbutton_shapecone.hint
-msgctxt "TFMAIN.TOOLBUTTON_SHAPECONE.HINT"
-msgid "Cone"
-msgstr "مخروط"
-
-#: tfmain.toolbutton_shapehorizontalcylinder.caption
-msgctxt "TFMAIN.TOOLBUTTON_SHAPEHORIZONTALCYLINDER.CAPTION"
-msgid "Horizontal cylinder"
-msgstr ""
-
-#: tfmain.toolbutton_shapehorizontalcylinder.hint
-msgctxt "TFMAIN.TOOLBUTTON_SHAPEHORIZONTALCYLINDER.HINT"
-msgid "Horizontal cylinder"
-msgstr ""
-
-#: tfmain.toolbutton_shaperectangle.caption
-msgctxt "TFMAIN.TOOLBUTTON_SHAPERECTANGLE.CAPTION"
-msgid "Rectangle"
-msgstr "مستطيل"
-
-#: tfmain.toolbutton_shaperectangle.hint
-msgctxt "TFMAIN.TOOLBUTTON_SHAPERECTANGLE.HINT"
-msgid "Rectangle"
-msgstr "مستطيل"
-
-#: tfmain.toolbutton_shaperoundrect.caption
-msgctxt "TFMAIN.TOOLBUTTON_SHAPEROUNDRECT.CAPTION"
-msgid "Rounded rectangle"
-msgstr "مستطيل مدور"
-
-#: tfmain.toolbutton_shaperoundrect.hint
-msgctxt "TFMAIN.TOOLBUTTON_SHAPEROUNDRECT.HINT"
-msgid "Rounded rectangle"
-msgstr "مستطيل مدور"
-
-#: tfmain.toolbutton_shapesphere.caption
-msgctxt "TFMAIN.TOOLBUTTON_SHAPESPHERE.CAPTION"
-msgid "Sphere"
-msgstr "كرة"
-
-#: tfmain.toolbutton_shapesphere.hint
-msgctxt "TFMAIN.TOOLBUTTON_SHAPESPHERE.HINT"
-msgid "Sphere"
-msgstr "كرة"
-
-#: tfmain.toolbutton_shapeverticalcone.caption
-msgctxt "TFMAIN.TOOLBUTTON_SHAPEVERTICALCONE.CAPTION"
-msgid "Vertical cone"
-msgstr ""
-
-#: tfmain.toolbutton_shapeverticalcone.hint
-msgctxt "TFMAIN.TOOLBUTTON_SHAPEVERTICALCONE.HINT"
-msgid "Vertical cone"
-msgstr ""
-
-#: tfmain.toolbutton_shapeverticalcylinder.caption
-msgctxt "TFMAIN.TOOLBUTTON_SHAPEVERTICALCYLINDER.CAPTION"
-msgid "Vertical cylinder"
-msgstr ""
-
-#: tfmain.toolbutton_shapeverticalcylinder.hint
-msgctxt "TFMAIN.TOOLBUTTON_SHAPEVERTICALCYLINDER.HINT"
-msgid "Vertical cylinder"
-msgstr ""
-
-#: tfmain.toolbutton_singradient.caption
-msgid "ToolButton_SinGradient"
-msgstr "أداةالأزر_ميل"
-
-#: tfmain.toolbutton_singradient.hint
-msgid "Sine gradient"
-msgstr "جيب الميل"
-
-#: tfmain.toolbutton_zoomoriginal.caption
-msgctxt "TFMAIN.TOOLBUTTON_ZOOMORIGINAL.CAPTION"
-msgid "Original size"
-msgstr "الحجم الاصلي"
-
-#: tfmain.toolbutton_zoomoriginal.hint
-msgctxt "TFMAIN.TOOLBUTTON_ZOOMORIGINAL.HINT"
-msgid "Zoom to fit in the window"
-msgstr "زووم ليناسب النافذة"
-
-#: tfmain.toolcolorpicker.caption
-msgctxt "TFMAIN.TOOLCOLORPICKER.CAPTION"
-msgid "Color picker"
-msgstr "منتقي الألوان"
+#: tfmain.spinedit_textureopacity.hint
+msgctxt "tfmain.spinedit_textureopacity.hint"
+msgid "Secondary color opacity"
+msgstr "تعتيم اللون الثاني"
 
 #: tfmain.toolcolorpicker.hint
 msgctxt "TFMAIN.TOOLCOLORPICKER.HINT"
@@ -1377,29 +1148,15 @@ msgstr "تشويه"
 msgid "Deformation grid"
 msgstr "تشويه الشبكة"
 
-#: tfmain.toolellipse.caption
-msgctxt "TFMAIN.TOOLELLIPSE.CAPTION"
-msgid "Ellipse"
-msgstr "القطع الناقص"
-
 #: tfmain.toolellipse.hint
 msgctxt "TFMAIN.TOOLELLIPSE.HINT"
 msgid "Ellipse"
 msgstr "القطع الناقص"
 
-#: tfmain.tooleraser.caption
-msgctxt "TFMAIN.TOOLERASER.CAPTION"
-msgid "Eraser"
-msgstr "مسح"
-
 #: tfmain.tooleraser.hint
 msgctxt "TFMAIN.TOOLERASER.HINT"
 msgid "Eraser"
 msgstr "مسح"
-
-#: tfmain.toolfloodfill.caption
-msgid "Flood fill"
-msgstr "ملء"
 
 #: tfmain.toolfloodfill.hint
 msgid "Floodfill"
@@ -1421,11 +1178,13 @@ msgstr "يد"
 msgid "Move and scroll picture"
 msgstr "حرك و مرر الصورة"
 
-#: tfmain.toolloadtexture.caption
-msgid "ToolLoadTexture"
-msgstr "أداة تحميل النسيج"
+#: tfmain.toollayermapping.hint
+msgctxt "tfmain.toollayermapping.hint"
+msgid "Layer perspective"
+msgstr ""
 
 #: tfmain.toolloadtexture.hint
+msgctxt "tfmain.toolloadtexture.hint"
 msgid "Load texture..."
 msgstr "تحميل نسيج"
 
@@ -1437,21 +1196,13 @@ msgstr "عصا سحرية"
 msgid "Magic wand select"
 msgstr "تحديد العصا سحرية"
 
-#: tfmain.toolmoveselection.caption
-msgctxt "TFMAIN.TOOLMOVESELECTION.CAPTION"
-msgid "Move selection"
-msgstr "تحريك التحدد"
-
 #: tfmain.toolmoveselection.hint
 msgctxt "TFMAIN.TOOLMOVESELECTION.HINT"
 msgid "Move selection"
 msgstr "تحريك التحدد"
 
-#: tfmain.toolnotexture.caption
-msgid "ToolNoTexture"
-msgstr "أداة لا نسيج"
-
 #: tfmain.toolnotexture.hint
+msgctxt "tfmain.toolnotexture.hint"
 msgid "No texture"
 msgstr "بدون نسيج"
 
@@ -1463,11 +1214,6 @@ msgstr "قلم"
 #: tfmain.toolpen.hint
 msgid "Simple pen"
 msgstr "قلم عادي"
-
-#: tfmain.toolphong.caption
-msgctxt "TFMAIN.TOOLPHONG.CAPTION"
-msgid "Shaded shape"
-msgstr "اشكال مظللة"
 
 #: tfmain.toolphong.hint
 msgctxt "TFMAIN.TOOLPHONG.HINT"
@@ -1482,73 +1228,45 @@ msgstr "مضلع"
 msgid "Polygon or polyline"
 msgstr "مضلع او مضلع خطي"
 
-#: tfmain.toolrect.caption
-msgctxt "TFMAIN.TOOLRECT.CAPTION"
-msgid "Rectangle"
-msgstr "مستطيل"
-
 #: tfmain.toolrect.hint
 msgctxt "TFMAIN.TOOLRECT.HINT"
 msgid "Rectangle"
 msgstr "مستطيل"
-
-#: tfmain.toolrotateselection.caption
-msgctxt "TFMAIN.TOOLROTATESELECTION.CAPTION"
-msgid "Rotate selection"
-msgstr "تدوير التحديد"
 
 #: tfmain.toolrotateselection.hint
 msgctxt "TFMAIN.TOOLROTATESELECTION.HINT"
 msgid "Rotate selection"
 msgstr "تدوير التحديد"
 
-#: tfmain.toolselectcurve.caption
-msgctxt "TFMAIN.TOOLSELECTCURVE.CAPTION"
-msgid "Select curve"
-msgstr "تحديد بمنحنى"
-
-#: tfmain.toolselectcurve.hint
-msgctxt "TFMAIN.TOOLSELECTCURVE.HINT"
-msgid "Select curve"
-msgstr "تحديد بمنحنى"
-
-#: tfmain.toolselectellipse.caption
-msgctxt "TFMAIN.TOOLSELECTELLIPSE.CAPTION"
-msgid "Select ellipse"
-msgstr "تحديد بالقطع الناقص "
-
 #: tfmain.toolselectellipse.hint
 msgctxt "TFMAIN.TOOLSELECTELLIPSE.HINT"
 msgid "Select ellipse"
 msgstr "تحديد بالقطع الناقص "
 
-#: tfmain.toolselectionpen.caption
+#: tfmain.toolselectpen.caption
+msgctxt "tfmain.toolselectpen.caption"
 msgid "Selection pen"
 msgstr "تحديد القلم"
 
-#: tfmain.toolselectionpen.hint
+#: tfmain.toolselectpen.hint
+msgctxt "tfmain.toolselectpen.hint"
 msgid "Draw selection with pen"
 msgstr "رسم التحديد بالقلم"
-
-#: tfmain.toolselectpoly.caption
-msgctxt "TFMAIN.TOOLSELECTPOLY.CAPTION"
-msgid "Select polygon"
-msgstr "تحديد مضلع"
 
 #: tfmain.toolselectpoly.hint
 msgctxt "TFMAIN.TOOLSELECTPOLY.HINT"
 msgid "Select polygon"
 msgstr "تحديد مضلع"
 
-#: tfmain.toolselectrect.caption
-msgctxt "TFMAIN.TOOLSELECTRECT.CAPTION"
-msgid "Select rectangle"
-msgstr "تحديد مستطيل"
-
 #: tfmain.toolselectrect.hint
 msgctxt "TFMAIN.TOOLSELECTRECT.HINT"
 msgid "Select rectangle"
 msgstr "تحديد مستطيل"
+
+#: tfmain.toolselectspline.hint
+msgctxt "tfmain.toolselectspline.hint"
+msgid "Select curve"
+msgstr "تحديد بمنحنى"
 
 #: tfmain.toolspline.caption
 msgctxt "TFMAIN.TOOLSPLINE.CAPTION"
@@ -1560,170 +1278,175 @@ msgctxt "TFMAIN.TOOLSPLINE.HINT"
 msgid "Spline"
 msgstr "رتب"
 
-#: tfmain.tooltext.caption
-msgctxt "TFMAIN.TOOLTEXT.CAPTION"
-msgid "Text"
-msgstr "نص"
-
 #: tfmain.tooltext.hint
 msgctxt "TFMAIN.TOOLTEXT.HINT"
 msgid "Text"
 msgstr "نص"
 
-#: tfmain.tooltexturemapping.caption
-msgctxt "tfmain.tooltexturemapping.caption"
-msgid "Texture mapping"
-msgstr ""
-
 #: tfmain.tooltexturemapping.hint
 msgctxt "tfmain.tooltexturemapping.hint"
 msgid "Texture mapping"
-msgstr ""
-
-#: tfmain.tool_capflat.caption
-msgctxt "TFMAIN.TOOL_CAPFLAT.CAPTION"
-msgid "Flat cap"
-msgstr "قبة السطح"
+msgstr "رسم النسيج"
 
 #: tfmain.tool_capflat.hint
 msgctxt "TFMAIN.TOOL_CAPFLAT.HINT"
 msgid "Flat cap"
 msgstr "قبة السطح"
 
-#: tfmain.tool_capround.caption
-msgctxt "TFMAIN.TOOL_CAPROUND.CAPTION"
-msgid "Round cap"
-msgstr "قبة الطوق"
-
 #: tfmain.tool_capround.hint
 msgctxt "TFMAIN.TOOL_CAPROUND.HINT"
 msgid "Round cap"
 msgstr "قبة الطوق"
-
-#: tfmain.tool_capsquare.caption
-msgctxt "TFMAIN.TOOL_CAPSQUARE.CAPTION"
-msgid "Square cap"
-msgstr "قبة المربع"
 
 #: tfmain.tool_capsquare.hint
 msgctxt "TFMAIN.TOOL_CAPSQUARE.HINT"
 msgid "Square cap"
 msgstr "قبة المربع"
 
-#: tfmain.tool_joinbevel.caption
-msgctxt "TFMAIN.TOOL_JOINBEVEL.CAPTION"
-msgid "Bevel join"
-msgstr "برمة الحافة"
+#: tfmain.tool_closeshape.hint
+msgctxt "tfmain.tool_closeshape.hint"
+msgid "Close shape"
+msgstr "غلق الشكل"
+
+#: tfmain.tool_diamondgradient.hint
+msgctxt "tfmain.tool_diamondgradient.hint"
+msgid "Diamond gradient"
+msgstr "ميل الماس"
+
+#: tfmain.tool_drawshapeborder.hint
+msgctxt "tfmain.tool_drawshapeborder.hint"
+msgid "Draw border"
+msgstr "رسم حدود"
+
+#: tfmain.tool_fillshape.hint
+msgctxt "tfmain.tool_fillshape.hint"
+msgid "Fill shape"
+msgstr "ملء الشكل"
+
+#: tfmain.tool_gridmovewithoutdeformation.hint
+msgctxt "tfmain.tool_gridmovewithoutdeformation.hint"
+msgid "Move grid without deformation"
+msgstr "تحريك الشبكة بدون تشويه"
 
 #: tfmain.tool_joinbevel.hint
 msgctxt "TFMAIN.TOOL_JOINBEVEL.HINT"
 msgid "Bevel join"
 msgstr "برمة الحافة"
 
-#: tfmain.tool_joinmiter.caption
-msgctxt "TFMAIN.TOOL_JOINMITER.CAPTION"
-msgid "Miter join"
-msgstr "وسيط البرمة"
-
 #: tfmain.tool_joinmiter.hint
 msgctxt "TFMAIN.TOOL_JOINMITER.HINT"
 msgid "Miter join"
 msgstr "وسيط البرمة"
-
-#: tfmain.tool_joinround.caption
-msgctxt "TFMAIN.TOOL_JOINROUND.CAPTION"
-msgid "Round join"
-msgstr "برمة الوصلة"
 
 #: tfmain.tool_joinround.hint
 msgctxt "TFMAIN.TOOL_JOINROUND.HINT"
 msgid "Round join"
 msgstr "برمة الوصلة"
 
-#: tfmain.tool_pendash.caption
-msgctxt "TFMAIN.TOOL_PENDASH.CAPTION"
-msgid "Dashed line"
-msgstr "خط متقطع"
+#: tfmain.tool_lineargradient.hint
+msgctxt "tfmain.tool_lineargradient.hint"
+msgid "Linear gradient"
+msgstr "ميل خطي"
 
 #: tfmain.tool_pendash.hint
 msgctxt "TFMAIN.TOOL_PENDASH.HINT"
 msgid "Dashed line"
 msgstr "خط متقطع"
 
-#: tfmain.tool_pendashdot.caption
-msgctxt "TFMAIN.TOOL_PENDASHDOT.CAPTION"
-msgid "Dash dot"
-msgstr "شريط نقطة "
-
 #: tfmain.tool_pendashdot.hint
 msgctxt "TFMAIN.TOOL_PENDASHDOT.HINT"
 msgid "Dash dot"
 msgstr "شريط نقطة "
-
-#: tfmain.tool_pendashdotdot.caption
-msgctxt "TFMAIN.TOOL_PENDASHDOTDOT.CAPTION"
-msgid "Dash dot dot"
-msgstr "شريط نقطة نقطة"
 
 #: tfmain.tool_pendashdotdot.hint
 msgctxt "TFMAIN.TOOL_PENDASHDOTDOT.HINT"
 msgid "Dash dot dot"
 msgstr "شريط نقطة نقطة"
 
-#: tfmain.tool_pendot.caption
-msgctxt "TFMAIN.TOOL_PENDOT.CAPTION"
-msgid "Dotted line"
-msgstr "خط منقط"
-
 #: tfmain.tool_pendot.hint
 msgctxt "TFMAIN.TOOL_PENDOT.HINT"
 msgid "Dotted line"
 msgstr "خط منقط"
-
-#: tfmain.tool_pensolid.caption
-msgctxt "TFMAIN.TOOL_PENSOLID.CAPTION"
-msgid "Solid line"
-msgstr "خط موطود"
 
 #: tfmain.tool_pensolid.hint
 msgctxt "TFMAIN.TOOL_PENSOLID.HINT"
 msgid "Solid line"
 msgstr "خط موطود"
 
-#: tfmain.tool_textfont.caption
-msgctxt "TFMAIN.TOOL_TEXTFONT.CAPTION"
-msgid "Choose font..."
-msgstr "اختيار الخط..."
+#: tfmain.tool_phongshapecone.hint
+msgctxt "tfmain.tool_phongshapecone.hint"
+msgid "Cone"
+msgstr "مخروط"
+
+#: tfmain.tool_phongshapehorizontalcylinder.hint
+msgctxt "tfmain.tool_phongshapehorizontalcylinder.hint"
+msgid "Horizontal cylinder"
+msgstr "اسطوانة افقية"
+
+#: tfmain.tool_phongshaperectangle.hint
+msgctxt "tfmain.tool_phongshaperectangle.hint"
+msgid "Rectangle"
+msgstr "مستطيل"
+
+#: tfmain.tool_phongshaperoundrect.hint
+msgctxt "tfmain.tool_phongshaperoundrect.hint"
+msgid "Rounded rectangle"
+msgstr "مستطيل مدور"
+
+#: tfmain.tool_phongshapesphere.hint
+msgctxt "tfmain.tool_phongshapesphere.hint"
+msgid "Sphere"
+msgstr "كرة"
+
+#: tfmain.tool_phongshapeverticalcone.hint
+msgctxt "tfmain.tool_phongshapeverticalcone.hint"
+msgid "Vertical cone"
+msgstr "مخروط عمودي"
+
+#: tfmain.tool_phongshapeverticalcylinder.hint
+msgctxt "tfmain.tool_phongshapeverticalcylinder.hint"
+msgid "Vertical cylinder"
+msgstr "اسطوانة عمودية"
+
+#: tfmain.tool_progressivefloodfill.caption
+msgctxt "tfmain.tool_progressivefloodfill.caption"
+msgid "Progressive floodfill"
+msgstr "ملء  متدرج"
+
+#: tfmain.tool_progressivefloodfill.hint
+msgctxt "tfmain.tool_progressivefloodfill.hint"
+msgid "Progressive floodfill"
+msgstr "ملء  متدرج"
+
+#: tfmain.tool_radialgradient.hint
+msgctxt "tfmain.tool_radialgradient.hint"
+msgid "Radial gradient"
+msgstr "ميل شعاعي"
+
+#: tfmain.tool_reflectedgradient.hint
+msgctxt "tfmain.tool_reflectedgradient.hint"
+msgid "Reflected gradient"
+msgstr "ميل معكوس"
+
+#: tfmain.tool_singradient.hint
+msgctxt "tfmain.tool_singradient.hint"
+msgid "Sine gradient"
+msgstr "جيب الميل"
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
 msgid "Choose font..."
 msgstr "اختيار الخط..."
 
-#: tfmain.tool_textoutline.caption
-msgctxt "TFMAIN.TOOL_TEXTOUTLINE.CAPTION"
-msgid "Text outline"
-msgstr "خط خارج النص"
-
 #: tfmain.tool_textoutline.hint
 msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
 msgid "Text outline"
 msgstr "خط خارج النص"
 
-#: tfmain.tool_textphong.caption
-msgctxt "TFMAIN.TOOL_TEXTPHONG.CAPTION"
-msgid "Text phong shading"
-msgstr ""
-
 #: tfmain.tool_textphong.hint
 msgctxt "TFMAIN.TOOL_TEXTPHONG.HINT"
 msgid "Text phong shading"
-msgstr ""
-
-#: tfmain.tool_textshadow.caption
-msgctxt "TFMAIN.TOOL_TEXTSHADOW.CAPTION"
-msgid "Text shadow"
-msgstr "ظل النص"
+msgstr "نص بتظليل فونغ"
 
 #: tfmain.tool_textshadow.hint
 msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
@@ -1750,6 +1473,11 @@ msgctxt "tfmain.viewlayerstackbutton.caption"
 msgid "Show layers"
 msgstr ""
 
+#: tfmain.viewlayerstackbutton.hint
+msgctxt "tfmain.viewlayerstackbutton.hint"
+msgid "Show or hide layer stack window"
+msgstr ""
+
 #: tfmain.viewtoolbox.caption
 msgid "Toolbox"
 msgstr "علبة الأدوات"
@@ -1762,11 +1490,6 @@ msgstr "زووم مناسب"
 msgctxt "TFMAIN.VIEWZOOMFIT.HINT"
 msgid "Zoom to fit in the window"
 msgstr "زووم ليناسب النافذة"
-
-#: tfmain.viewzoomin.caption
-msgctxt "TFMAIN.VIEWZOOMIN.CAPTION"
-msgid "Zoom in"
-msgstr "زووم للداخل"
 
 #: tfmain.viewzoomin.hint
 msgctxt "TFMAIN.VIEWZOOMIN.HINT"
@@ -1781,11 +1504,6 @@ msgstr "الحجم الأصلي"
 #: tfmain.viewzoomoriginal.hint
 msgid "Zoom to original pixel size"
 msgstr "زووم الى حجم بكسل الأصلي"
-
-#: tfmain.viewzoomout.caption
-msgctxt "TFMAIN.VIEWZOOMOUT.CAPTION"
-msgid "Zoom out"
-msgstr "زووم للخارج"
 
 #: tfmain.viewzoomout.hint
 msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
@@ -1802,32 +1520,19 @@ msgctxt "TFMOTIONBLUR.BUTTON_OK.CAPTION"
 msgid "OK"
 msgstr "موافق"
 
+#: tfmotionblur.caption
+msgctxt "tfmotionblur.caption"
+msgid "Motion blur"
+msgstr "ضبابية الحركة"
+
 #: tfmotionblur.checkbox_oriented.caption
 msgid "Oriented"
 msgstr "منحى"
 
-#: tfmotionblur.fmotionblur.caption
-msgctxt "TFMOTIONBLUR.FMOTIONBLUR.CAPTION"
-msgid "Motion blur"
-msgstr "ضبابية الحركة"
-
-#: tfmotionblur.label3.caption
+#: tfmotionblur.label_distance.caption
+msgctxt "tfmotionblur.label_distance.caption"
 msgid "Distance :"
 msgstr "المدى :"
-
-#: tfmultiimage.button_cancel.caption
-msgctxt "TFMULTIIMAGE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tfmultiimage.button_ok.caption
-msgctxt "TFMULTIIMAGE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "موافق"
-
-#: tfmultiimage.caption
-msgid "Choose image"
-msgstr "إختيار الصورة"
 
 #: tfnewimage.button_cancel.caption
 msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
@@ -1839,20 +1544,20 @@ msgctxt "TFNEWIMAGE.BUTTON_OK.CAPTION"
 msgid "OK"
 msgstr "موافق"
 
-#: tfnewimage.fnewimage.caption
-msgctxt "TFNEWIMAGE.FNEWIMAGE.CAPTION"
+#: tfnewimage.caption
+msgctxt "tfnewimage.caption"
 msgid "New image"
 msgstr "صورة جديدة"
 
-#: tfnewimage.label2.caption
-msgctxt "TFNEWIMAGE.LABEL2.CAPTION"
-msgid "Width :"
-msgstr "العرض :"
-
-#: tfnewimage.label3.caption
-msgctxt "TFNEWIMAGE.LABEL3.CAPTION"
+#: tfnewimage.label_height.caption
+msgctxt "tfnewimage.label_height.caption"
 msgid "Height :"
 msgstr "الطول :"
+
+#: tfnewimage.label_width.caption
+msgctxt "tfnewimage.label_width.caption"
+msgid "Width :"
+msgstr "العرض :"
 
 #: tfobject3d.button_cancel.caption
 msgctxt "tfobject3d.button_cancel.caption"
@@ -1866,70 +1571,156 @@ msgstr "موافق"
 
 #: tfobject3d.caption
 msgid "3D object"
-msgstr ""
+msgstr "جسم ثلاثي الابعاد"
 
 #: tfobject3d.checkbox_antialiasing.caption
 msgid "Antialiasing"
-msgstr ""
+msgstr "ضد الإسترداف"
 
 #: tfobject3d.checkbox_biface.caption
 msgid "2-sided faces"
-msgstr ""
+msgstr "وجه بجهتين"
 
 #: tfobject3d.checkbox_textureinterp.caption
 msgid "Texture interpolation"
-msgstr ""
+msgstr "نسيج متولد"
 
-#: tfobject3d.groupbox1.caption
+#: tfobject3d.groupbox_selectedmaterial.caption
+msgctxt "tfobject3d.groupbox_selectedmaterial.caption"
 msgid "Selected material"
-msgstr ""
+msgstr "المادة المحددة"
 
-#: tfobject3d.label2.caption
-msgid "Materials :"
-msgstr ""
-
-#: tfobject3d.label3.caption
-msgid "Zoom"
-msgstr ""
-
-#: tfobject3d.label4.caption
-msgid "Lighting normals :"
-msgstr ""
-
-#: tfobject3d.label5.caption
-msgid "Spec. index :"
-msgstr ""
-
-#: tfobject3d.label6.caption
+#: tfobject3d.label_color.caption
+msgctxt "tfobject3d.label_color.caption"
 msgid "Color :"
-msgstr ""
+msgstr "اللون :"
 
-#: tfobject3d.label7.caption
-msgid "Opacity :"
-msgstr ""
-
-#: tfobject3d.label8.caption
-msgctxt "tfobject3d.label8.caption"
-msgid "Width :"
-msgstr "العرض :"
-
-#: tfobject3d.label9.caption
-msgctxt "tfobject3d.label9.caption"
+#: tfobject3d.label_height.caption
+msgctxt "tfobject3d.label_height.caption"
 msgid "Height :"
 msgstr "الطول :"
 
+#: tfobject3d.label_lightingnormals.caption
+msgctxt "tfobject3d.label_lightingnormals.caption"
+msgid "Lighting normals :"
+msgstr "إضاءة طبيعية"
+
+#: tfobject3d.label_materials.caption
+msgctxt "tfobject3d.label_materials.caption"
+msgid "Materials :"
+msgstr "المواد :"
+
+#: tfobject3d.label_opacity.caption
+msgctxt "tfobject3d.label_opacity.caption"
+msgid "Opacity :"
+msgstr "الشفافية :"
+
+#: tfobject3d.label_specularindex.caption
+msgctxt "tfobject3d.label_specularindex.caption"
+msgid "Spec. index :"
+msgstr "فهرس :"
+
+#: tfobject3d.label_width.caption
+msgctxt "tfobject3d.label_width.caption"
+msgid "Width :"
+msgstr "عرض"
+
+#: tfobject3d.label_zoom.caption
+msgctxt "tfobject3d.label_zoom.caption"
+msgid "Zoom"
+msgstr "زوم"
+
 #: tfobject3d.materials.caption
 msgid "Materials"
-msgstr ""
+msgstr "المواد :"
 
 #: tfobject3d.rendering.caption
 msgid "Rendering"
-msgstr ""
+msgstr "تصيير"
 
 #: tfobject3d.shape_materialcolor.hint
 msgctxt "tfobject3d.shape_materialcolor.hint"
 msgid "Select secondary color"
 msgstr "تحديد الون الثانوي"
+
+#: tfphongfilter.button_cancel.caption
+msgctxt "tfphongfilter.button_cancel.caption"
+msgid "Cancel"
+msgstr "إلغاء"
+
+#: tfphongfilter.button_ok.caption
+msgctxt "tfphongfilter.button_ok.caption"
+msgid "OK"
+msgstr "موافق"
+
+#: tfphongfilter.caption
+msgctxt "tfphongfilter.caption"
+msgid "Shaded map"
+msgstr ""
+
+#: tfphongfilter.groupbox_color.caption
+msgctxt "tfphongfilter.groupbox_color.caption"
+msgid "Color"
+msgstr "لون"
+
+#: tfphongfilter.groupbox_color1.caption
+msgid "Altitude map"
+msgstr ""
+
+#: tfphongfilter.label_altitude.caption
+msgid "Global altitude :"
+msgstr ""
+
+#: tfphongfilter.label_lightposition.caption
+msgid "Light position :"
+msgstr ""
+
+#: tfphongfilter.radio_mapalpha.caption
+msgid "Alpha"
+msgstr ""
+
+#: tfphongfilter.radio_mapblue.caption
+msgid "B"
+msgstr ""
+
+#: tfphongfilter.radio_mapgreen.caption
+msgid "G"
+msgstr ""
+
+#: tfphongfilter.radio_maplightness.caption
+msgctxt "tfphongfilter.radio_maplightness.caption"
+msgid "Lightness"
+msgstr "إضاءة"
+
+#: tfphongfilter.radio_maplinearlightness.caption
+msgid "Linear lightness"
+msgstr ""
+
+#: tfphongfilter.radio_mapred.caption
+msgid "R"
+msgstr ""
+
+#: tfphongfilter.radio_mapsaturation.caption
+msgctxt "tfphongfilter.radio_mapsaturation.caption"
+msgid "Saturation"
+msgstr "التشبيع"
+
+#: tfphongfilter.radio_usebackcolor.caption
+msgid "Back color"
+msgstr ""
+
+#: tfphongfilter.radio_usekeep.caption
+msgid "Keep"
+msgstr ""
+
+#: tfphongfilter.radio_usepencolor.caption
+msgid "Pen color"
+msgstr ""
+
+#: tfphongfilter.radio_usetexture.caption
+msgctxt "tfphongfilter.radio_usetexture.caption"
+msgid "Current texture"
+msgstr "النسيج الحالي"
 
 #: tfpixelate.button_cancel.caption
 msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
@@ -1941,19 +1732,20 @@ msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
 msgid "OK"
 msgstr "موافق"
 
-#: tfpixelate.fpixelate.caption
-msgctxt "TFPIXELATE.FPIXELATE.CAPTION"
+#: tfpixelate.caption
+msgctxt "tfpixelate.caption"
 msgid "Pixelate"
 msgstr "تأخير البكس"
 
-#: tfpixelate.label1.caption
-msgctxt "TFPIXELATE.LABEL1.CAPTION"
-msgid "Quality :"
-msgstr "الجودة :"
-
-#: tfpixelate.label3.caption
+#: tfpixelate.label_pixelsize.caption
+msgctxt "tfpixelate.label_pixelsize.caption"
 msgid "Pixel size :"
 msgstr "حجم البيكسل :"
+
+#: tfpixelate.label_quality.caption
+msgctxt "tfpixelate.label_quality.caption"
+msgid "Quality :"
+msgstr "الجودة :"
 
 #: tfradialblur.button_cancel.caption
 msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"
@@ -1965,13 +1757,13 @@ msgctxt "TFRADIALBLUR.BUTTON_OK.CAPTION"
 msgid "OK"
 msgstr "موافق"
 
-#: tfradialblur.fradialblur.caption
-msgctxt "TFRADIALBLUR.FRADIALBLUR.CAPTION"
+#: tfradialblur.caption
+msgctxt "tfradialblur.caption"
 msgid "Radial blur"
 msgstr "ضباب شعاعي"
 
-#: tfradialblur.label3.caption
-msgctxt "TFRADIALBLUR.LABEL3.CAPTION"
+#: tfradialblur.label_radius.caption
+msgctxt "tfradialblur.label_radius.caption"
 msgid "Radius :"
 msgstr "نصف القطر :"
 
@@ -1985,29 +1777,48 @@ msgctxt "TFRESAMPLE.BUTTON_OK.CAPTION"
 msgid "OK"
 msgstr "موافق"
 
+#: tfresample.caption
+msgctxt "tfresample.caption"
+msgid "Resample"
+msgstr "إعادة تشكيل"
+
 #: tfresample.checkbox_ratio.caption
 msgid "Keep aspect ratio"
 msgstr "إبقاء نسبة الجانب"
 
-#: tfresample.fresample.caption
-msgctxt "TFRESAMPLE.FRESAMPLE.CAPTION"
-msgid "Resample"
-msgstr "إعادة تشكيل"
+#: tfresample.label_height.caption
+msgctxt "tfresample.label_height.caption"
+msgid "Height :"
+msgstr "الطول :"
 
-#: tfresample.label1.caption
-msgctxt "TFRESAMPLE.LABEL1.CAPTION"
+#: tfresample.label_quality.caption
+msgctxt "tfresample.label_quality.caption"
 msgid "Quality :"
 msgstr "الجودة :"
 
-#: tfresample.label2.caption
-msgctxt "TFRESAMPLE.LABEL2.CAPTION"
+#: tfresample.label_width.caption
+msgctxt "tfresample.label_width.caption"
 msgid "Width :"
-msgstr "العرض :"
+msgstr "عرض"
 
-#: tfresample.label3.caption
-msgctxt "TFRESAMPLE.LABEL3.CAPTION"
-msgid "Height :"
-msgstr "الطول :"
+#: tfsharpen.button_cancel.caption
+msgctxt "tfsharpen.button_cancel.caption"
+msgid "Cancel"
+msgstr "إلغاء"
+
+#: tfsharpen.button_ok.caption
+msgctxt "tfsharpen.button_ok.caption"
+msgid "OK"
+msgstr "موافق"
+
+#: tfsharpen.caption
+msgid "Sharpen/Smooth"
+msgstr ""
+
+#: tfsharpen.label_amount.caption
+msgctxt "tfsharpen.label_amount.caption"
+msgid "Amount :"
+msgstr ""
 
 #: tfshiftcolors.button_cancel.caption
 msgctxt "TFSHIFTCOLORS.BUTTON_CANCEL.CAPTION"
@@ -2019,14 +1830,15 @@ msgctxt "TFSHIFTCOLORS.BUTTON_OK.CAPTION"
 msgid "OK"
 msgstr "موافق"
 
-#: tfshiftcolors.checkbox_gsba.caption
-msgid "Corrected hue and lightness"
-msgstr ""
-
-#: tfshiftcolors.fshiftcolors.caption
-msgctxt "TFSHIFTCOLORS.FSHIFTCOLORS.CAPTION"
+#: tfshiftcolors.caption
+msgctxt "tfshiftcolors.caption"
 msgid "Shift colors"
 msgstr "سحب الألوان  "
+
+#: tfshiftcolors.checkbox_gsba.caption
+msgctxt "tfshiftcolors.checkbox_gsba.caption"
+msgid "Corrected hue and lightness"
+msgstr "تصحيح درجة اللون و الخفة"
 
 #: tfshiftcolors.label1.caption
 msgctxt "TFSHIFTCOLORS.LABEL1.CAPTION"
@@ -2043,26 +1855,6 @@ msgctxt "tftoolbox.caption"
 msgid "Tools"
 msgstr " الأدوات "
 
-#: tftoolbox.toolbar1.caption
-msgctxt "TFTOOLBOX.TOOLBAR1.CAPTION"
-msgid "ToolBar1"
-msgstr "شريط الأدوات 1"
-
-#: tftoolbox.toolbar2.caption
-msgctxt "TFTOOLBOX.TOOLBAR2.CAPTION"
-msgid "ToolBar1"
-msgstr "شريط الأدوات 1"
-
-#: tftoolbox.toolbar4.caption
-msgctxt "TFTOOLBOX.TOOLBAR4.CAPTION"
-msgid "ToolBar1"
-msgstr "شريط الأدوات 1"
-
-#: tftoolbox.toolbar5.caption
-msgctxt "TFTOOLBOX.TOOLBAR5.CAPTION"
-msgid "ToolBar1"
-msgstr "شريط الأدوات 1"
-
 #: tftwirl.button_cancel.caption
 msgctxt "TFTWIRL.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -2073,22 +1865,35 @@ msgctxt "TFTWIRL.BUTTON_OK.CAPTION"
 msgid "OK"
 msgstr "موافق"
 
-#: tftwirl.ftwirl.caption
-msgctxt "TFTWIRL.FTWIRL.CAPTION"
+#: tftwirl.caption
+msgctxt "tftwirl.caption"
 msgid "Twirl"
 msgstr "برم"
 
-#: tftwirl.label2.caption
-msgctxt "TFTWIRL.LABEL2.CAPTION"
-msgid "Radius :"
-msgstr "نصف القطر :"
-
-#: tftwirl.label3.caption
+#: tftwirl.label_angle.caption
+msgctxt "tftwirl.label_angle.caption"
 msgid "Angle :"
 msgstr "زاوية :"
 
+#: tftwirl.label_radius.caption
+msgctxt "tftwirl.label_radius.caption"
+msgid "Radius :"
+msgstr "نصف القطر :"
+
+#: uresourcestrings.rsactioninprogress
+msgid "Action in progress"
+msgstr ""
+
 #: uresourcestrings.rsallapplications
 msgid "all"
+msgstr ""
+
+#: uresourcestrings.rsaltshiftscalemode
+msgid "Hold ALT or SHIFT to scale"
+msgstr ""
+
+#: uresourcestrings.rsbackspaceremovelastpoint
+msgid "Press BACKSPACE to remove last point"
 msgstr ""
 
 #: uresourcestrings.rsbestquality
@@ -2109,6 +1914,10 @@ msgctxt "uresourcestrings.rscolors"
 msgid "Colors"
 msgstr "الألوان"
 
+#: uresourcestrings.rsconflictingactions
+msgid "Conflicting actions"
+msgstr ""
+
 #: uresourcestrings.rscosine
 msgid "Cosine"
 msgstr "جيب التمام"
@@ -2117,17 +1926,25 @@ msgstr "جيب التمام"
 msgid "Crop"
 msgstr "محصول"
 
+#: uresourcestrings.rsctrlrestrictrotation
+msgid "Hold CTRL to restrict rotation angle"
+msgstr ""
+
 #: uresourcestrings.rseditmask
 msgid "Edit mask"
 msgstr "تحرير القناع"
 
 #: uresourcestrings.rseditselection
 msgid "Edit selection"
-msgstr ""
+msgstr "تحرير التحديد"
 
 #: uresourcestrings.rsedittexture
 msgid "Edit texture"
 msgstr "تحرير نسيج"
+
+#: uresourcestrings.rsemptylayer
+msgid "Layer is empty"
+msgstr ""
 
 #: uresourcestrings.rsemptyselection
 msgid "Selection is empty"
@@ -2165,6 +1982,18 @@ msgstr "هذا الملف إمتداده غير متوافق"
 msgid "Half-cosine"
 msgstr "نصف - جيب التمام"
 
+#: uresourcestrings.rsholdctrlsnaptopixel
+msgid "Hold CTRL to snap to pixels"
+msgstr ""
+
+#: uresourcestrings.rsholdshiftforsquare
+msgid "Hold SHIFT to draw a square or a circle"
+msgstr ""
+
+#: uresourcestrings.rsimagetoobig
+msgid "Image is too big"
+msgstr ""
+
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
 msgid "Intensity"
@@ -2194,6 +2023,10 @@ msgstr "هل تريد حفظ التغييرات؟"
 msgid "Keep empty space around opaque pixels?"
 msgstr "إبقاء مساحة فارغة حول بكسل غير نافذ ؟"
 
+#: uresourcestrings.rslatestversion
+msgid "The latest version of LazPaint available online is"
+msgstr ""
+
 #: uresourcestrings.rslazpaintonly
 msgid "LazPaint only"
 msgstr ""
@@ -2203,6 +2036,7 @@ msgid "Light"
 msgstr "ضوء"
 
 #: uresourcestrings.rslightness
+msgctxt "uresourcestrings.rslightness"
 msgid "Lightness"
 msgstr "إضاءة"
 
@@ -2213,6 +2047,10 @@ msgstr "موضع الضوء"
 #: uresourcestrings.rslinear
 msgid "Linear"
 msgstr "خطي"
+
+#: uresourcestrings.rsloading
+msgid "Loading"
+msgstr ""
 
 #: uresourcestrings.rsmergeselection
 msgid "Do you want to merge selection?"
@@ -2225,6 +2063,19 @@ msgstr "ميتشل"
 #: uresourcestrings.rsmovingorrotatingselection
 msgid "Moving or rotating selection"
 msgstr "تحريك او تدوير التحديد"
+
+#: uresourcestrings.rsmustreleaseselection
+msgid "You must first release the selection"
+msgstr ""
+
+#: uresourcestrings.rsmustshowlayer
+msgid "You must first make the layer visible"
+msgstr ""
+
+#: uresourcestrings.rsnewimage
+msgctxt "uresourcestrings.rsnewimage"
+msgid "New image"
+msgstr "صورة جديدة"
 
 #: uresourcestrings.rsnoactivelayer
 msgid "No active layer"
@@ -2254,17 +2105,39 @@ msgstr "لا يوجد شيئ للإسترجاع"
 msgid "Opacity"
 msgstr "عتمة"
 
+#: uresourcestrings.rsopen
+msgid "Open"
+msgstr ""
+
+#: uresourcestrings.rsopening
+msgid "Opening"
+msgstr ""
+
 #: uresourcestrings.rsotherblendop
 msgid "Other..."
 msgstr ""
 
+#: uresourcestrings.rsreload
+msgctxt "uresourcestrings.rsreload"
+msgid "Reload"
+msgstr ""
+
+#: uresourcestrings.rsreloadchanged
+msgid "Bitmap has been modified. Do you really want to reload?"
+msgstr ""
+
 #: uresourcestrings.rsrepeatimage
+msgctxt "uresourcestrings.rsrepeatimage"
 msgid "Repeat image"
 msgstr "تكرار الصورة"
 
 #: uresourcestrings.rsretrieveselectedarea
 msgid "Do you want to retrieve selected area?"
 msgstr "هل تريد استرداد المنطقة المحددة؟"
+
+#: uresourcestrings.rsreturnvalides
+msgid "Press ENTER to validate"
+msgstr ""
 
 #: uresourcestrings.rssave
 msgctxt "uresourcestrings.rssave"
@@ -2279,6 +2152,10 @@ msgstr "تم تعديل الصورة الحالية. هل تريد حفظ الت
 msgctxt "uresourcestrings.rsspline"
 msgid "Spline"
 msgstr "رتب"
+
+#: uresourcestrings.rstransferselectiontootherlayer
+msgid "Transfer selection to other layer?"
+msgstr ""
 
 #: uresourcestrings.rsunabletoapplyfilter
 msgid "Unable to apply filter : "

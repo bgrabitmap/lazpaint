@@ -33,6 +33,7 @@ type
     function GetLayerBitmapCopy(layer: integer): TBGRABitmap; override;
     constructor Create; override;
   protected
+    procedure InternalLoadFromStream(stream: TStream);
     function GetWidth: integer; override;
     function GetHeight: integer; override;
     function GetNbLayers: integer; override;
@@ -209,14 +210,26 @@ var
   stream: TFileStream;
 begin
   stream := TFileStream.Create(filename, fmOpenRead);
+  OnLayeredBitmapLoadStart(filename);
   try
-    LoadFromStream(stream);
+    InternalLoadFromStream(stream);
   finally
+    OnLayeredBitmapLoaded;
     stream.Free;
   end;
 end;
 
 procedure TPaintDotNetFile.LoadFromStream(stream: TStream);
+begin
+  OnLayeredBitmapLoadFromStreamStart;
+  try
+    InternalLoadFromStream(stream);
+  finally
+    OnLayeredBitmapLoaded;
+  end;
+end;
+
+procedure TPaintDotNetFile.InternalLoadFromStream(stream: TStream);
 var
   header: packed array[0..3] of char;
   XmlHeaderSize: integer;
@@ -254,6 +267,7 @@ begin
   SetLength(LayerData, NbLayers);
   for i := 0 to NbLayers - 1 do
   begin
+    OnLayeredBitmapLoadProgress((i+1)*100 div NbLayers);
     LayerData[i] := TMemoryStream.Create;
     LoadLayer(LayerData[i], Stream, LayerDataSize(i));
   end;

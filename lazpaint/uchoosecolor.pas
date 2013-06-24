@@ -1,4 +1,4 @@
-unit uchoosecolor;
+unit UChooseColor;
 
 {$mode objfpc}{$H+}
 
@@ -16,13 +16,13 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
-    procedure FormMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+      {%H-}Shift: TShiftState; X, Y: Integer);
+    procedure FormMouseMove(Sender: TObject; {%H-}Shift: TShiftState; X, Y: Integer);
     procedure FormMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
+      {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure FormPaint(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure WMEraseBkgnd(var Message: TLMEraseBkgnd); message LM_ERASEBKGND;
+    procedure WMEraseBkgnd({%H-} var Message: TLMEraseBkgnd); message LM_ERASEBKGND;
   private
     { private declarations }
     bmp: TBGRABitmap;
@@ -152,32 +152,48 @@ end;
 
 procedure TFChooseColor.FormPaint(Sender: TObject);
 var x,y: integer;
+  boundRight,w: integer;
 begin
   bmp.Fill(FormBackgroundColor);
   bmp.FontAntialias := True;
+  boundRight := bmp.Width;
+  if alphascale.Bmp<>nil then
+  begin
+    w := bmp.TextSize(rsOpacity).cx;
+    x := (alphascale.bounds.Left+alphascale.bounds.Right-w) div 2;
+    if x + w > boundRight then
+      x := boundRight-w;
+    bmp.TextOut(x,margin div 2,rsOpacity,FormTextColor,taLeftJustify);
+    boundRight := x-4;
+    bmp.PutImage(alphascale.bounds.Left,alphascale.bounds.top,alphascale.Bmp,dmDrawWithTransparency);
+    bmp.Rectangle(alphascale.bounds,BGRA(FormTextColor.red,FormTextColor.green,FormTextColor.Blue,128),dmDrawWithTransparency);
+    DrawTriangleCursor(bmp, alphascale.bounds, currentColor.alpha);
+  end;
+  if Lightscale.Bmp<>nil then
+  begin
+    w := bmp.TextSize(rsLight).cx;
+    x := (Lightscale.bounds.Left+Lightscale.bounds.Right-w) div 2;
+    if x+ w > boundRight then
+      x:= boundRight-w;
+    bmp.TextOut(x,margin div 2,rsLight,FormTextColor,taLeftJustify);
+    boundRight := x-4;
+    bmp.PutImage(Lightscale.bounds.Left,Lightscale.bounds.top,Lightscale.Bmp,dmFastBlend);
+    bmp.Rectangle(Lightscale.bounds,BGRA(FormTextColor.red,FormTextColor.green,FormTextColor.Blue,128),dmDrawWithTransparency);
+    DrawTriangleCursor(bmp, Lightscale.bounds, colorLight div 256);
+  end;
   if (colorCircle.Bmp<>nil) and not LazPaintInstance.BlackAndWhite then
   begin
-    bmp.TextOut(colorCircle.center.X,margin div 2,rsColors,FormTextColor,taCenter);
+    w := bmp.TextSize(rsColors).cx;
+    x := colorCircle.center.X-(w div 2);
+    if x + w > boundRight then
+      x := boundRight-w;
+    bmp.TextOut(x,margin div 2,rsColors,FormTextColor,taLeftJustify);
     bmp.PutImage(colorCircle.bounds.Left,colorCircle.bounds.top,colorCircle.Bmp,dmDrawWithTransparency);
     x := colorCircle.bounds.Left+ColorX;
     y := colorCircle.bounds.top+ColorY;
     bmp.Rectangle(x-colorxysize-1,y-colorxysize-1,x+colorxysize+2,y+colorxysize+2,BGRA(0,0,0,cursorxyopacity),dmDrawWithTransparency);
     bmp.Rectangle(x-colorxysize,y-colorxysize,x+colorxysize+1,y+colorxysize+1,BGRA(255,255,255,cursorxyopacity),dmDrawWithTransparency);
     bmp.Rectangle(x-colorxysize+1,y-colorxysize+1,x+colorxysize,y+colorxysize,BGRA(0,0,0,cursorxyopacity),dmDrawWithTransparency);
-  end;
-  if Lightscale.Bmp<>nil then
-  begin
-    bmp.TextOut((Lightscale.bounds.Left+Lightscale.bounds.Right) div 2,margin div 2,rsLight,FormTextColor,taCenter);
-    bmp.PutImage(Lightscale.bounds.Left,Lightscale.bounds.top,Lightscale.Bmp,dmFastBlend);
-    bmp.Rectangle(Lightscale.bounds,BGRA(FormTextColor.red,FormTextColor.green,FormTextColor.Blue,128),dmDrawWithTransparency);
-    DrawTriangleCursor(bmp, Lightscale.bounds, colorLight div 256);
-  end;
-  if alphascale.Bmp<>nil then
-  begin
-    bmp.TextOut((alphascale.bounds.Left+alphascale.bounds.Right) div 2,margin div 2,rsOpacity,FormTextColor,taCenter);
-    bmp.PutImage(alphascale.bounds.Left,alphascale.bounds.top,alphascale.Bmp,dmDrawWithTransparency);
-    bmp.Rectangle(alphascale.bounds,BGRA(FormTextColor.red,FormTextColor.green,FormTextColor.Blue,128),dmDrawWithTransparency);
-    DrawTriangleCursor(bmp, alphascale.bounds, currentColor.alpha);
   end;
   bmp.Draw(Canvas,0,0,True);
 end;
@@ -214,7 +230,7 @@ begin
                 end;
   szColorCircle: if PtInRect(point(x,y),ColorCircle.Bounds) then
                  begin
-                   pix := Colorcircle.bmpMaxlight.GetPixel(integer(x-ColorCircle.Bounds.Left),integer(y-ColorCircle.Bounds.top));
+                   pix := Colorcircle.bmpMaxlight.GetPixel(x-ColorCircle.Bounds.Left,y-ColorCircle.Bounds.top);
                    if pix.alpha <> 0 then
                    begin
                      currentColor := BGRA(pix.Red,pix.Green,pix.Blue,currentColor.Alpha);

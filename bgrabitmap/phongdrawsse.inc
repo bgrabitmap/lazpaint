@@ -1,8 +1,8 @@
 asm
         //vL := vLS- vP*LightDestFactor;
         movups xmm4, vP
-        movss xmm6,LightDestFactor4
-        mulps xmm6, xmm4
+        movups xmm6,LightDestFactor4
+        mulps xmm6, xmm4   //keep xmm4 = vP
         movaps xmm0, xmm1
         subps xmm0, xmm6
 

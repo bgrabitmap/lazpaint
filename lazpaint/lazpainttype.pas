@@ -1,42 +1,71 @@
 unit LazPaintType;
 
-{ to do :
-
-reload picture
-import 3D object -> new layer
-layers shortcut
-layer solo
-layer merge
-layer duplicate
-layer from file
-layer stack minimum width
-flatten image
-
-selection redraw optimization
-render options window
-smart zoom using vectorization
-facelets
-surface blur
-
-}
-
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, SysUtils, Inifiles, BGRABitmap, BGRABitmapTypes, uconfig, uimage, utool, Forms, BGRALayers;
+  Classes, SysUtils, Inifiles, BGRABitmap, BGRABitmapTypes, uconfig, uimage, utool, Forms, BGRALayers, Graphics;
 
 const
   //Version Number (to increment at each release)
-  LazPaintCurrentVersion : String='4.8';
+  LazPaintCurrentVersionOnly = '5.6';
+
+  { to do :
+
+  load selection filename with additional slash
+  filtre de vagues concentriques
+  filtre de vagues en translation
+  posterize
+  G'MIC filters
+
+  scripting
+
+  integrate tools in window
+  selection redraw optimization
+  image bounds optimisation
+
+  3D text
+
+  linear gradient  
+  hue curve
+  hue/color blend mode
+
+  keyboard zoom with mousepos
+  
+  noise filter
+  box blur
+  surface blur
+  smart zoom using vectorization
+  facelets
+  
+  erase tool in empty selection
+  aliased selection
+  antialiased magic wand
+
+  import 3D object -> new layer
+  texture for 3D objects
+
+  layers shortcut
+  layer solo
+  inversible layer action undo optimisation
+
+  }
+
+const
+  {$IFDEF CPU64}
+    LazPaintProcessorInfo = ' (64-bit)';
+  {$ELSE}
+    LazPaintProcessorInfo = ' (32-bit)';
+  {$ENDIF}
+  LazPaintCurrentVersion : String=LazPaintCurrentVersionOnly + LazPaintProcessorInfo;
   OriginalDPI = 96;
 
 type
   TPictureFilter = (pfNone,
                     pfBlurPrecise, pfBlurRadial, pfBlurFast, pfBlurCorona, pfBlurDisk, pfBlurMotion, pfBlurCustom,
-                    pfSharpen, pfSmooth, pfMedian, pfPixelate, pfClearType, pfClearTypeInverse,
-                    pfEmboss, pfContour, pfGrayscale, pfNegative, pfLinearNegative, pfNormalize,
+                    pfSharpen, pfSmooth, pfMedian, pfPixelate, pfClearType, pfClearTypeInverse, pfFunction,
+                    pfEmboss, pfPhong, pfContour, pfGrayscale, pfNegative, pfLinearNegative, pfNormalize,
                     pfSphere, pfTwirl, pfCylinder, pfPlane,
                     pfPerlinNoise,pfCyclicPerlinNoise,pfClouds,pfCustomWater,pfWater,pfWood,pfWoodVertical,pfPlastik,pfMetalFloor,pfCamouflage,
                     pfSnowPrint,pfStone,pfRoundStone,pfMarble);
@@ -45,11 +74,23 @@ const
   PictureFilterStr : array[TPictureFilter] of string =
                    ('None',
                     'BlurPrecise', 'BlurRadial', 'BlurFast', 'BlurCorona', 'BlurDisk', 'BlurMotion', 'BlurCustom',
-                    'Sharpen', 'Smooth', 'Median', 'Pixelate', 'ClearType', 'ClearTypeInverse',
-                    'Emboss', 'Contour', 'Grayscale', 'Negative', 'LinearNegative', 'Normalize',
+                    'Sharpen', 'Smooth', 'Median', 'Pixelate', 'ClearType', 'ClearTypeInverse', 'Function',
+                    'Emboss', 'Phong', 'Contour', 'Grayscale', 'Negative', 'LinearNegative', 'Normalize',
                     'Sphere', 'Twirl', 'Cylinder', 'Plane',
                     'PerlinNoise','CyclicPerlinNoise','Clouds','CustomWater','Water','Wood','WoodVertical','Plastik','MetalFloor','Camouflage',
                     'SnowPrint','Stone','RoundStone','Marble');
+
+  IsColoredFilter: array[TPictureFilter] of boolean =
+                   (false,
+                    false, false, false, false, false, false, false,
+                    false, false, false, false, true, true, true,
+                    false, true, false, false, false, false, false,
+                    false, false, false, false,
+                    false,false,true,true,true,true,true,true,true,true,
+                    true,true,true,true);
+
+const
+  OutsideColor = TColor($00E8D1BB);
 
 type
     ArrayOfBGRABitmap = array of TBGRABitmap;
@@ -66,10 +107,13 @@ type
   private
     FBlackAndWhite: boolean;
   protected
+    function GetShowSelectionNormal: boolean; virtual; abstract;
+    procedure SetShowSelectionNormal(AValue: boolean); virtual; abstract;
     function GetGridVisible: boolean; virtual; abstract;
     procedure SetGridVisible(const AValue: boolean); virtual; abstract;
     function GetEmbedded: boolean; virtual; abstract;
     function GetTopMostHasFocus: boolean; virtual; abstract;
+    function GetTopMostVisible: boolean; virtual; abstract;
 
     function GetConfig: TLazPaintConfig; virtual; abstract;
     function GetImage: TLazPaintImage; virtual; abstract;
@@ -103,6 +147,8 @@ type
     procedure UseConfig(ini: TInifile); virtual; abstract;
     procedure AssignBitmap(bmp: TBGRABitmap); virtual; abstract;
     procedure EditBitmap(var bmp: TBGRABitmap; ConfigStream: TStream = nil; ATitle: String = ''; AOnRun: TLazPaintInstanceEvent = nil; AOnExit: TLazPaintInstanceEvent = nil; ABlackAndWhite : boolean = false); virtual; abstract;
+    procedure EditTexture; virtual; abstract;
+    procedure EditSelection; virtual; abstract;
     function ProcessCommandLine: boolean; virtual; abstract;
     function ProcessCommands(commands: TStringList): boolean; virtual; abstract;
     procedure Show; virtual; abstract;
@@ -114,16 +160,19 @@ type
     function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): boolean; virtual; abstract;
     procedure ColorFromFChooseColor; virtual; abstract;
     procedure ColorToFChooseColor; virtual; abstract;
-    procedure ShowColorIntensityDlg(activeLayer: TBGRABitmap); virtual; abstract;
-    procedure ShowColorLightnessDlg(activeLayer: TBGRABitmap); virtual; abstract;
-    procedure ShowShiftColorsDlg(activeLayer: TBGRABitmap); virtual; abstract;
-    procedure ShowColorizeDlg(activeLayer: TBGRABitmap); virtual; abstract;
-    function ShowRadialBlurDlg(layer:TBGRABitmap; out filteredLayer: TBGRABitmap;blurType:TRadialBlurType):boolean; virtual; abstract;
-    function ShowMotionBlurDlg(layer:TBGRABitmap; out filteredLayer: TBGRABitmap):boolean; virtual; abstract;
-    function ShowCustomBlurDlg(layer:TBGRABitmap; out filteredLayer: TBGRABitmap): boolean; virtual; abstract;
-    function ShowEmbossDlg(layer:TBGRABitmap; out filteredLayer: TBGRABitmap):boolean; virtual; abstract;
-    function ShowPixelateDlg(layer:TBGRABitmap; out filteredLayer: TBGRABitmap):boolean; virtual; abstract;
-    function ShowTwirlDlg(layer:TBGRABitmap; out filteredLayer: TBGRABitmap):boolean; virtual; abstract;
+    procedure ShowColorIntensityDlg; virtual; abstract;
+    procedure ShowColorLightnessDlg; virtual; abstract;
+    procedure ShowShiftColorsDlg; virtual; abstract;
+    procedure ShowColorizeDlg; virtual; abstract;
+    function ShowRadialBlurDlg(AFilterConnector: TObject;blurType:TRadialBlurType):boolean; virtual; abstract;
+    function ShowMotionBlurDlg(AFilterConnector: TObject):boolean; virtual; abstract;
+    function ShowCustomBlurDlg(AFilterConnector: TObject):boolean; virtual; abstract;
+    function ShowEmbossDlg(AFilterConnector: TObject):boolean; virtual; abstract;
+    function ShowPixelateDlg(AFilterConnector: TObject):boolean; virtual; abstract;
+    function ShowTwirlDlg(AFilterConnector: TObject):boolean; virtual; abstract;
+    function ShowPhongFilterDlg(AFilterConnector: TObject): boolean; virtual; abstract;
+    function ShowFunctionFilterDlg(AFilterConnector: TObject): boolean; virtual; abstract;
+    function ShowSharpenDlg(AFilterConnector: TObject):boolean; virtual; abstract;
     procedure HideTopmost; virtual; abstract;
     procedure ShowTopmost; virtual; abstract;
     procedure ShowCanvasSizeDlg; virtual; abstract;
@@ -132,17 +181,15 @@ type
     function ShowNewImageDlg(out bitmap: TBGRABitmap):boolean; virtual; abstract;
     function ShowResampleDialog:boolean; virtual; abstract;
 
-    function ChooseImage(images: ArrayOfBGRABitmap): TBGRABitmap; virtual; abstract;
     property BlackAndWhite: boolean read FBlackAndWhite write SetBlackAndWhite;
 
-    procedure DoHorizontalFlip(AOption: TFlipOption); virtual; abstract;
-    procedure DoVerticalFlip(AOption: TFlipOption); virtual; abstract;
-    procedure DoRotateCW; virtual; abstract;
-    procedure DoRotateCCW; virtual; abstract;
-    procedure DoSmartZoom3; virtual; abstract;
+    procedure NewLayer; virtual; abstract;
+    procedure NewLayer(ALayer: TBGRABitmap; AName: string); virtual; abstract;
+    procedure DuplicateLayer; virtual; abstract;
+    procedure RemoveLayer; virtual; abstract;
+    procedure MergeLayerOver; virtual; abstract;
     function MakeNewBitmapReplacement(AWidth, AHeight: integer): TBGRABitmap; virtual; abstract;
     procedure ChooseTool(Tool : TPaintToolType); virtual; abstract;
-    procedure PictureSelectionChanged; virtual; abstract;
 
     property GridVisible: boolean read GetGridVisible write SetGridVisible;
 
@@ -167,6 +214,9 @@ type
     property ToolManager: TToolManager read GetToolManager;
     property Embedded: boolean read GetEmbedded;
     property TopMostHasFocus: boolean read GetTopMostHasFocus;
+    property TopMostVisible: boolean read GetTopMostVisible;
+
+    property ShowSelectionNormal: boolean read GetShowSelectionNormal write SetShowSelectionNormal;
   end;
 
 function StrToPictureFilter(const s: ansistring): TPictureFilter;

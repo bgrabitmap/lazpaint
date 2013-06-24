@@ -1,4 +1,4 @@
-BGRABitmap v6.2 - Drawing routines with alpha blending and antialiasing with Lazarus.
+BGRABitmap v7.2 - Drawing routines with alpha blending and antialiasing with Lazarus.
 
 These routines allow to manipulate 32bit images in BGRA format.
 

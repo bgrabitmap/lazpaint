@@ -1,4 +1,4 @@
-unit uobject3D;
+unit UObject3D;
 
 {$mode objfpc}{$H+}
 
@@ -36,15 +36,15 @@ type
     CheckBox_TextureInterp: TCheckBox;
     ColorDialog1: TColorDialog;
     ComboBox_Normals: TComboBox;
-    GroupBox1: TGroupBox;
-    Label2: TLabel;
-    Label3: TLabel;
-    Label4: TLabel;
-    Label5: TLabel;
-    Label6: TLabel;
-    Label7: TLabel;
-    Label8: TLabel;
-    Label9: TLabel;
+    GroupBox_SelectedMaterial: TGroupBox;
+    Label_Materials: TLabel;
+    Label_Zoom: TLabel;
+    Label_LightingNormals: TLabel;
+    Label_SpecularIndex: TLabel;
+    Label_Color: TLabel;
+    Label_Opacity: TLabel;
+    Label_Width: TLabel;
+    Label_Height: TLabel;
     ListBox_Materials: TListBox;
     PageControl1: TPageControl;
     Shape_MaterialColor: TShape;
@@ -56,11 +56,11 @@ type
     SpinEdit_Width: TSpinEdit;
     procedure BGRAKnob_ZoomValueChanged(Sender: TObject; Value: single);
     procedure BGRAView3DMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
-    procedure BGRAView3DMouseMove(Sender: TObject; Shift: TShiftState; X,
+      {%H-}Shift: TShiftState; X, Y: Integer);
+    procedure BGRAView3DMouseMove(Sender: TObject; {%H-}Shift: TShiftState; X,
       Y: Integer);
     procedure BGRAView3DMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
+      {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure BGRAView3DRedraw(Sender: TObject; Bitmap: TBGRABitmap);
     procedure CheckBox_AntialiasingChange(Sender: TObject);
     procedure CheckBox_BifaceChange(Sender: TObject);
@@ -68,14 +68,16 @@ type
     procedure ComboBox_NormalsChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure ListBox_MaterialsSelectionChange(Sender: TObject; User: boolean);
+    procedure ListBox_MaterialsSelectionChange(Sender: TObject; {%H-}User: boolean);
     procedure Shape_MaterialColorMouseDown(Sender: TObject;
-      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+      {%H-}Button: TMouseButton; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure SpinEdit_ColorOpacityChange(Sender: TObject);
     procedure SpinEdit_SpecularIndexChange(Sender: TObject);
   private
     { private declarations }
+    procedure UpdateMaterialsTab;
   public
     { public declarations }
     scene : TScene;
@@ -84,9 +86,10 @@ type
     previousAngle: single;
     previousZoom: single;
     materialIndex: integer;
+    MaterialsClientHeight: integer;
   end;
 
-function ShowObject3DDlg(Instance: TLazPaintCustomInstance; filename: string; maxWidth, maxHeight: integer): TBGRABitmap;
+function ShowObject3DDlg({%H-}Instance: TLazPaintCustomInstance; filename: string; maxWidth, maxHeight: integer): TBGRABitmap;
 
 implementation
 
@@ -202,11 +205,11 @@ procedure TFObject3D.BGRAKnob_ZoomValueChanged(Sender: TObject; Value: single);
 begin
   if scene.Object3DCount > 0 then
   begin
-    scene.Object3D[0].MainPart.Scale(BGRAKnob_Zoom.Value/previousZoom,false);
+    scene.Object3D[0].MainPart.Scale(Value/previousZoom,false);
     BGRAView3D.DiscardBitmap;
   end;
 
-  previousZoom := BGRAKnob_Zoom.Value;
+  previousZoom := Value;
 end;
 
 procedure TFObject3D.BGRAView3DMouseMove(Sender: TObject; Shift: TShiftState;
@@ -265,7 +268,7 @@ begin
   CheckSpinEdit(SpinEdit_Height);
 
   scene := TScene.Create;
-  scene.DefaultLightingNormal := lnVertex;
+  scene.DefaultLightingNormal := lnFaceVertexMix;
   with scene.RenderingOptions do
   begin
     LightingInterpolation := liAlwaysHighQuality;
@@ -280,11 +283,19 @@ begin
   ComboBox_Normals.Items.Add('Intermediate');
   ComboBox_Normals.ItemIndex := ord(scene.DefaultLightingNormal)-1;
   materialIndex:= -1;
+
+  MaterialsClientHeight := GroupBox_SelectedMaterial.Top+GroupBox_SelectedMaterial.Height;
+  UpdateMaterialsTab;
 end;
 
 procedure TFObject3D.FormDestroy(Sender: TObject);
 begin
   scene.Free;
+end;
+
+procedure TFObject3D.FormResize(Sender: TObject);
+begin
+  UpdateMaterialsTab;
 end;
 
 procedure TFObject3D.FormShow(Sender: TObject);
@@ -348,6 +359,12 @@ begin
     scene.FCustomMaterials[materialIndex].Material3D.SpecularIndex := SpinEdit_SpecularIndex.Value;
     BGRAView3D.DiscardBitmap;
   end;
+end;
+
+procedure TFObject3D.UpdateMaterialsTab;
+begin
+  GroupBox_SelectedMaterial.Top := MaterialsClientHeight - GroupBox_SelectedMaterial.Height;
+  ListBox_Materials.Height := GroupBox_SelectedMaterial.Top-2-ListBox_Materials.Top;
 end;
 
 function ShowObject3DDlg(Instance: TLazPaintCustomInstance; filename: string;

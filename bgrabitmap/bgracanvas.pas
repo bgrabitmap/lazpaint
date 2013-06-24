@@ -5,7 +5,7 @@ unit BGRACanvas;
 interface
 
 uses
-  Classes, SysUtils, Graphics, GraphType, Types, FPImage, FPCanvas, BGRABitmapTypes;
+  Classes, SysUtils, FPCanvas, Graphics, GraphType, Types, FPImage, BGRABitmapTypes;
 
 type
 
@@ -228,8 +228,11 @@ end;
 
 procedure TBGRAFont.SetAntialiasing(const AValue: Boolean);
 begin
-  if AValue and not Antialiasing then
-    Quality := fqFineAntialiasing;
+  if AValue = Antialiasing then exit;
+  if AValue then
+    Quality := fqFineAntialiasing
+  else
+    Quality := fqSystem;
 end;
 
 constructor TBGRAFont.Create;
@@ -278,7 +281,11 @@ begin
     if cf.Bold then Style += [fsBold];
     if cf.Italic then Style += [fsItalic];
     if cf.Underline then Style += [fsUnderline];
+{$IF FPC_FULLVERSION>=20602} //changed in 2.6.2 and 2.7    
+    if cf.StrikeThrough then Style += [fsStrikeOut];
+{$ELSE}
     if cf.StrikeTrough then Style += [fsStrikeOut];
+{$ENDIF}
     Name := cf.Name;
     //Orientation := cf.Orientation;
     if cf.Size = 0 then

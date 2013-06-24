@@ -14,12 +14,14 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    CheckBox_Antialiasing: TCheckBox;
     VirtualScreen: TBGRAVirtualScreen;
     Button_toDataURL: TButton;
     CheckBox_PixelCentered: TCheckBox;
     SpinEdit1: TSpinEdit;
     Timer1: TTimer;
     procedure Button_toDataURLClick(Sender: TObject);
+    procedure CheckBox_AntialiasingChange(Sender: TObject);
     procedure CheckBox_PixelCenteredChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -101,6 +103,11 @@ begin
   MessageDlg('toDataURL','Output: dataUrlTest.html',mtInformation,[mbOK],0);
 end;
 
+procedure TForm1.CheckBox_AntialiasingChange(Sender: TObject);
+begin
+  VirtualScreen.DiscardBitmap;
+end;
+
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
   img.Free;
@@ -148,6 +155,7 @@ var content: TBGRABitmap;
 begin
   content := TBGRABitmap.Create(Bitmap.Width,Bitmap.Height,BGRAPixelTransparent);
   ctx := content.Canvas2D;
+  ctx.antialiasing := CheckBox_Antialiasing.Checked;
   ctx.pixelCenteredCoordinates := CheckBox_PixelCentered.Checked;
   case SpinEdit1.Value of
     1: Test1(ctx);

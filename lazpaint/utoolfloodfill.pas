@@ -1,4 +1,4 @@
-unit utoolfloodfill;
+unit UToolFloodFill;
 
 {$mode objfpc}{$H+}
 
@@ -25,7 +25,10 @@ type
   TToolGradient = class(TToolRectangle)
   protected
     function UpdateShape(toolDest: TBGRABitmap): TRect; override;
-    function NeedClearShape: boolean; override;
+    function ShouldFinishShapeWhenFirstMouseUp: boolean; override;
+    function FinishShape(ToolDest: TBGRABitmap): TRect; override;
+    function BorderTest(ptF: TPointF): TRectangularBorderTest; override;
+    function RenderAllCornerPositions: boolean; override;
   public
     function ToolUp: TRect; override;
     procedure Render(VirtualScreen: TBGRABitmap; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction); override;
@@ -45,9 +48,26 @@ begin
    result := rect(0,0,Manager.Image.Width,Manager.Image.Height);
 end;
 
-function TToolGradient.NeedClearShape: boolean;
+function TToolGradient.ShouldFinishShapeWhenFirstMouseUp: boolean;
 begin
-  Result:=true;
+  Result:=false;
+end;
+
+function TToolGradient.FinishShape(ToolDest: TBGRABitmap): TRect;
+begin
+  Result:= UpdateShape(toolDest);
+end;
+
+function TToolGradient.BorderTest(ptF: TPointF): TRectangularBorderTest;
+begin
+  Result:=inherited BorderTest(ptF);
+  if (result <> [btOriginY,btOriginX]) and (result <> [btDestY,btDestX]) then
+    result := [];
+end;
+
+function TToolGradient.RenderAllCornerPositions: boolean;
+begin
+  Result:=false;
 end;
 
 function TToolGradient.ToolUp: TRect;
@@ -80,11 +100,10 @@ var
    floodFillMask,floodFillTex: TBGRABitmap;
 begin
   if rightBtn then penColor := Manager.ToolBackColor else penColor := Manager.ToolForeColor;
-  Manager.Image.RetrieveSelectionIfLayerEmpty;
-  if Manager.ToolTexture <> nil then
+  if Manager.GetToolTextureAfterAlpha <> nil then
   begin
     floodFillMask := TBGRABitmap.Create(toolDest.Width,toolDest.Height,BGRABlack);
-    floodFillTex := Manager.ToolTexture.GetPart(rect(0,0,toolDest.Width,toolDest.Height)) as TBGRABitmap;
+    floodFillTex := Manager.GetToolTextureAfterAlpha.GetPart(rect(0,0,toolDest.Width,toolDest.Height)) as TBGRABitmap;
     toolDest.ParallelFloodFill(pt.X,pt.Y,floodFillMask,BGRAWhite,fmSet,Manager.ToolTolerance);
     floodFillTex.ApplyMask(floodFillMask);
     toolDest.PutImage(0,0,floodFillTex,dmDrawWithTransparency);
@@ -95,7 +114,7 @@ begin
       toolDest.FloodFill(pt.X,pt.Y,penColor,fmProgressive,Manager.ToolTolerance) else
         toolDest.FloodFill(pt.X,pt.Y,penColor,fmDrawWithTransparency,Manager.ToolTolerance);
   Manager.Image.ImageMayChangeCompletely;
-  Manager.Image.SaveLayerOrSelectionUndo;
+  ValidateAction;
   result := ToolRepaintOnly;
 end;
 

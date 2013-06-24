@@ -1,4 +1,4 @@
-unit uparse;
+unit UParse;
 
 {$mode objfpc}
 

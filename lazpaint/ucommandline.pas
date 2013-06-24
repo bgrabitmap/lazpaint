@@ -1,4 +1,4 @@
-unit ucommandline;
+unit UCommandline;
 
 {$mode objfpc}{$H+}
 
@@ -11,9 +11,9 @@ procedure ProcessCommands(instance: TLazPaintCustomInstance; commands: TStringLi
 implementation
 
 uses
-  SysUtils, FileUtil, LCLProc, BGRABitmap, BGRABitmapTypes, Dialogs, uparse;
+  SysUtils, FileUtil, LCLProc, BGRABitmap, BGRABitmapTypes, Dialogs, uparse, uimage, UImageAction;
 
-procedure ProcessCommands(instance: TLazPaintCustomInstance; commands: TStringList; out errorEncountered, fileSaved: boolean);
+procedure InternalProcessCommands(instance: TLazPaintCustomInstance; commands: TStringList; out errorEncountered, fileSaved: boolean; AImageActions: TImageActions);
 var
   commandPrefix: set of char;
   InputFilename:string;
@@ -37,6 +37,7 @@ var
   c1,c2: TBGRAPixel;
   gt: TGradientType;
   o1,o2: TPointF;
+  layerAction: TLayerAction;
 
 begin
   fileSaved := True;
@@ -82,12 +83,12 @@ begin
       end else
       begin
         LowerCmd := UTF8LowerCase(CommandStr);
-        if LowerCmd='horizontalflip' then instance.DoHorizontalFlip(foAuto) else
-        if LowerCmd='verticalflip' then instance.DoVerticalFlip(foAuto) else
-        if LowerCmd='swapredblue' then instance.Image.currentImageLayer.SwapRedBlue else
-        if LowerCmd='rotatecw' then instance.DoRotateCW else
-        if LowerCmd='smartzoom3' then instance.DoSmartZoom3 else
-        if LowerCmd='rotateccw' then instance.DoRotateCCW else
+        if LowerCmd='horizontalflip' then AImageActions.HorizontalFlip(foAuto) else
+        if LowerCmd='verticalflip' then AImageActions.VerticalFlip(foAuto) else
+        if LowerCmd='swapredblue' then instance.Image.SwapRedBlue else
+        if LowerCmd='smartzoom3' then AImageActions.SmartZoom3 else
+        if LowerCmd='rotatecw' then AImageActions.RotateCW else
+        if LowerCmd='rotateccw' then AImageActions.RotateCCW else
         if copy(lowerCmd,1,9)='gradient(' then
         begin
           //c1, c2: TBGRAPixel; gtype: TGradientType; o1, o2: TPointF;
@@ -111,9 +112,12 @@ begin
           val(funcParams[10],o1.y,errPos);
           val(funcParams[11],o2.x,errPos);
           val(funcParams[12],o2.y,errPos);
-          instance.Image.GetDrawingLayer.GradientFill(0,0,
+          layerAction := TLayerAction.Create(instance.Image);
+          layerAction.DrawingLayer.GradientFill(0,0,
             instance.Image.Width,instance.Image.Height,
             c1,c2,gt,o1,o2,dmDrawWithTransparency,True,False);
+          layerAction.Validate;
+          FreeAndNil(layerAction);
         end else
         if copy(lowerCmd,1,8)='opacity(' then
         begin
@@ -131,7 +135,10 @@ begin
             errorEncountered := true;
             exit;
           end;
-          instance.Image.GetDrawingLayer.ApplyGlobalOpacity(opacity);
+          layerAction := TLayerAction.Create(instance.Image);
+          layerAction.DrawingLayer.ApplyGlobalOpacity(opacity);
+          layerAction.Validate;
+          FreeAndNil(layerAction);
         end else
         if copy(lowerCmd,1,9)='resample(' then
         begin
@@ -169,7 +176,7 @@ begin
             errorEncountered := true;
             exit;
           end;
-          instance.Image.Assign(instance.MakeNewBitmapReplacement(w,h),True);
+          instance.Image.Assign(instance.MakeNewBitmapReplacement(w,h),True,False);
         end else
         if Copy(CommandStr,1,4) <> 'psn_' then //ignore mac parameter
         begin
@@ -182,7 +189,7 @@ begin
     begin
       OutputFilename := CommandStr;
       try
-         instance.Image.SaveToFile(OutputFilename)
+         instance.Image.SaveToFileSys(UTF8ToSys(OutputFilename))
       except
         on ex: Exception do
         begin
@@ -194,6 +201,14 @@ begin
     end;
   end;
 
+end;
+
+procedure ProcessCommands(instance: TLazPaintCustomInstance; commands: TStringList; out errorEncountered, fileSaved: boolean);
+var imageActions: TImageActions;
+begin
+  imageActions := TImageActions.Create(instance);
+  InternalProcessCommands(instance,commands,errorEncountered,fileSaved,imageActions);
+  imageActions.Free;
 end;
 
 end.

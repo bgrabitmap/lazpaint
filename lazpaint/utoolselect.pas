@@ -1,6 +1,4 @@
-unit utoolselect;
-
-//result := currentTool in [ptMoveSelection,ptRotateSelection];
+unit UToolSelect;
 
 {$mode objfpc}{$H+}
 
@@ -15,22 +13,20 @@ type
 
   TToolSelectPoly = class(TToolGenericPolygon)
   protected
-    fillColor: TBGRAPixel;
-    function DoUpdatePolygonView(toolDest: TBGRABitmap): TRect; override;
-    function DoValidatePolygon(toolDest: TBGRABitmap): TRect; override;
-    procedure StartPolygon(rightBtn: boolean); override;
+    function HandDrawingPolygonView({%H-}toolDest: TBGRABitmap): TRect; override;
+    function FinalPolygonView(toolDest: TBGRABitmap): TRect; override;
     function GetIsSelectingTool: boolean; override;
+    function GetFillColor: TBGRAPixel; override;
   end;
 
   { TToolSelectSpline }
 
   TToolSelectSpline = class(TToolGenericSpline)
   protected
-    fillColor: TBGRAPixel;
-    function DoUpdatePolygonView(toolDest: TBGRABitmap): TRect; override;
-    function DoValidatePolygon(toolDest: TBGRABitmap): TRect; override;
-    procedure StartPolygon(rightBtn: boolean); override;
+    function HandDrawingPolygonView(toolDest: TBGRABitmap): TRect; override;
+    function FinalPolygonView({%H-}toolDest: TBGRABitmap): TRect; override;
     function GetIsSelectingTool: boolean; override;
+    function GetFillColor: TBGRAPixel; override;
   end;
 
   { TToolMagicWand }
@@ -38,7 +34,7 @@ type
   TToolMagicWand = class(TGenericTool)
   protected
     function GetIsSelectingTool: boolean; override;
-    function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;
+    function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF;
       rightBtn: boolean): TRect; override;
   end;
 
@@ -55,12 +51,15 @@ type
 
   TToolSelectRect = class(TToolRectangular)
   protected
+    FCurrentBounds: TRect;
     function GetIsSelectingTool: boolean; override;
     function UpdateShape(toolDest: TBGRABitmap): TRect; override;
     function FinishShape(toolDest: TBGRABitmap): TRect; override;
     procedure PrepareDrawing(rightBtn: boolean); override;
     function BigImage: boolean;
-    function NeedClearShape: boolean; override;
+    function ShouldFinishShapeWhenFirstMouseUp: boolean; override;
+    function GetFillColor: TBGRAPixel; override;
+    function GetPenColor: TBGRAPixel; override;
   public
     procedure Render(VirtualScreen: TBGRABitmap; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction); override;
   end;
@@ -70,6 +69,7 @@ type
   TToolSelectEllipse = class(TToolSelectRect)
   protected
     function FinishShape(toolDest: TBGRABitmap): TRect; override;
+    function BorderTest(ptF: TPointF): TRectangularBorderTest; override;
   public
     procedure Render(VirtualScreen: TBGRABitmap; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction); override;
   end;
@@ -78,13 +78,14 @@ type
 
   TToolMoveSelection = class(TGenericTool)
   protected
+    contentBounds: TRect;
     handMoving: boolean;
     handOrigin: TPoint;
     function GetIsSelectingTool: boolean; override;
-    function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;
-      rightBtn: boolean): TRect; override;
-    function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect; override;
-    procedure DoToolMoveAfter(pt: TPoint; ptF: TPointF); override;
+    function DoToolDown({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF;
+      {%H-}rightBtn: boolean): TRect; override;
+    function DoToolMove({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF): TRect; override;
+    procedure DoToolMoveAfter(pt: TPoint; {%H-}ptF: TPointF); override;
   public
     function ToolUp: TRect; override;
     destructor Destroy; override;
@@ -94,15 +95,17 @@ type
 
   TToolRotateSelection = class(TGenericTool)
   protected
+    class var HintShowed: boolean;
     handMoving: boolean;
-    handOrigin: TPoint;
+    handOrigin: TPointF;
     snapRotate: boolean;
     snapAngle: single;
     function GetIsSelectingTool: boolean; override;
-    function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;
+    function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
       rightBtn: boolean): TRect; override;
-    function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect; override;
+    function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect; override;
   public
+    constructor Create(AManager: TToolManager); override;
     function ToolKeyDown(key: Word): TRect; override;
     function ToolKeyUp(key: Word): TRect; override;
     function ToolUp: TRect; override;
@@ -112,7 +115,7 @@ type
 
 implementation
 
-uses types, ugraph, LCLType;
+uses types, ugraph, LCLType, BGRATypewriter;
 
 { TToolRotateSelection }
 
@@ -129,14 +132,13 @@ begin
   begin
     if rightBtn then
     begin
-      Manager.Image.SelectionRotateAngle := 0;
-      Manager.Image.SelectionRotateCenter := ptF;
-      Manager.Image.SelectionMayChange;
+      Action.SelectionRotateAngle := 0;
+      Action.SelectionRotateCenter := ptF;
       result := rect(0,0,Manager.Image.Width,Manager.Image.Height);
     end else
     begin
       handMoving := true;
-      handOrigin := pt;
+      handOrigin := ptF;
     end;
   end;
 end;
@@ -145,22 +147,32 @@ function TToolRotateSelection.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF): TRect;
 var angleDiff: single;
 begin
-  if handMoving and ((handOrigin.X <> pt.X) or (handOrigin.Y <> pt.Y)) then
+  if not HintShowed then
   begin
-    angleDiff := ComputeAngle(pt.X-Manager.Image.SelectionRotateCenter.X,pt.Y-Manager.Image.SelectionRotateCenter.Y)-
-                 ComputeAngle(handOrigin.X-Manager.Image.SelectionRotateCenter.X,handOrigin.Y-Manager.Image.SelectionRotateCenter.Y);
+    Manager.ToolPopup(tpmCtrlRestrictRotation);
+    HintShowed:= true;
+  end;
+  if handMoving and ((handOrigin.X <> ptF.X) or (handOrigin.Y <> ptF.Y)) then
+  begin
+    angleDiff := ComputeAngle(ptF.X-Manager.Image.GetSelectionRotateCenter.X,ptF.Y-Manager.Image.GetSelectionRotateCenter.Y)-
+                 ComputeAngle(handOrigin.X-Manager.Image.GetSelectionRotateCenter.X,handOrigin.Y-Manager.Image.GetSelectionRotateCenter.Y);
     if snapRotate then
     begin
       snapAngle += angleDiff;
-      Manager.Image.SelectionRotateAngle := round(snapAngle/15)*15;
+      Action.SelectionRotateAngle := round(snapAngle/15)*15;
     end
      else
-       Manager.Image.SelectionRotateAngle += angleDiff;
-    Manager.Image.SelectionMayChange;
-    handOrigin := pt;
+       Action.SelectionRotateAngle := Action.SelectionRotateAngle + angleDiff;
+    handOrigin := ptF;
     result := rect(0,0,Manager.Image.Width,Manager.Image.Height);
   end else
     result := EmptyRect;
+end;
+
+constructor TToolRotateSelection.Create(AManager: TToolManager);
+begin
+  inherited Create(AManager);
+  Action.SelectionRotateCenter := Manager.Image.GetSelectionCenter;
 end;
 
 function TToolRotateSelection.ToolKeyDown(key: Word): TRect;
@@ -170,7 +182,7 @@ begin
     if not snapRotate then
     begin
       snapRotate := true;
-      snapAngle := Manager.Image.SelectionRotateAngle;
+      snapAngle := Manager.Image.GetSelectionRotateAngle;
     end;
   end;
   result := EmptyRect;
@@ -191,17 +203,17 @@ end;
 procedure TToolRotateSelection.Render(VirtualScreen: TBGRABitmap; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction);
 var pictureRotateCenter: TPointF;
 begin
-  pictureRotateCenter := BitmapToVirtualScreen(Manager.image.SelectionRotateCenter);
+  pictureRotateCenter := BitmapToVirtualScreen(Manager.image.GetSelectionRotateCenter);
   NicePoint(VirtualScreen, pictureRotateCenter.X,pictureRotateCenter.Y);
 end;
 
 destructor TToolRotateSelection.Destroy;
 begin
   if handMoving then handMoving := false;
-  if (Manager.Image.SelectionOffset.X <> 0) or (Manager.Image.SelectionOffset.Y <> 0) or (Manager.Image.SelectionRotateAngle <> 0) then
+  if (Manager.Image.GetSelectionOffset.X <> 0) or (Manager.Image.GetSelectionOffset.Y <> 0) or (Manager.Image.GetSelectionRotateAngle <> 0) then
   begin
-    Manager.Image.ApplySelectionTransform;
-    Manager.Image.SaveLayerOrSelectionUndo;
+    Action.ApplySelectionTransform;
+    ValidateAction;
   end;
   inherited Destroy;
 end;
@@ -220,6 +232,8 @@ begin
   begin
     handMoving := true;
     handOrigin := pt;
+    contentBounds := toolDest.GetImageBounds(cGreen);
+    IntersectRect(contentBounds, contentBounds, Manager.Image.SelectionLayerBounds[False]);
   end;
   result := EmptyRect;
 end;
@@ -227,20 +241,21 @@ end;
 function TToolMoveSelection.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF): TRect;
 var dx,dy: integer;
+  prevBounds,newBounds: TRect;
 begin
   result := EmptyRect;
   if handMoving and ((handOrigin.X <> pt.X) or (handOrigin.Y <> pt.Y)) then
   begin
-    result := Manager.Image.SelectionLayerBounds[True];
+    prevBounds := contentBounds;
+    OffsetRect(prevBounds,Action.SelectionOffset.X,Action.SelectionOffset.Y);
     dx := pt.X-HandOrigin.X;
     dy := pt.Y-HandOrigin.Y;
-    Manager.Image.SelectionOffset := Point(Manager.Image.SelectionOffset.X+dx,
-                                   Manager.Image.SelectionOffset.Y+dy);
-    Manager.Image.SelectionMayChange(True);
-    if IsRectEmpty(result) then Result:= ToolRepaintOnly else
-      begin
-        result := RectUnion(result,RectOfs(result,dx,dy));
-      end;
+    Action.SelectionOffset := Point(Action.SelectionOffset.X+dx,
+                                   Action.SelectionOffset.Y+dy);
+    newBounds := contentBounds;
+    OffsetRect(newBounds,Action.SelectionOffset.X,Action.SelectionOffset.Y);
+    result := RectUnion(prevBounds,newBounds);
+    if IsRectEmpty(result) then Result:= ToolRepaintOnly;
   end;
 end;
 
@@ -258,10 +273,10 @@ end;
 destructor TToolMoveSelection.Destroy;
 begin
   if handMoving then handMoving := false;
-  if (Manager.Image.SelectionOffset.X <> 0) or (Manager.Image.SelectionOffset.Y <> 0) or (Manager.Image.SelectionRotateAngle <> 0) then
+  if (Manager.Image.GetSelectionOffset.X <> 0) or (Manager.Image.GetSelectionOffset.Y <> 0) or (Manager.Image.GetSelectionRotateAngle <> 0) then
   begin
-    Manager.Image.ApplySelectionTransform;
-    Manager.Image.SaveLayerOrSelectionUndo;
+    Action.ApplySelectionTransform;
+    ValidateAction;
   end;
   inherited Destroy;
 end;
@@ -269,14 +284,26 @@ end;
 { TToolSelectEllipse }
 
 function TToolSelectEllipse.FinishShape(toolDest: TBGRABitmap): TRect;
-var rx,ry: single;
+var
+  rx,ry: single;
+  previousBounds: TRect;
 begin
-   ClearShape;
-   rx := abs(rectDest.X-rectOrigin.X)+0.5;
-   ry := abs(rectDest.Y-rectOrigin.Y)+0.5;
-   Manager.Image.currentSelection.FillEllipseAntialias(rectOrigin.X,rectOrigin.Y,rx,ry,fillColor);
-   Manager.Image.SelectionMayChange;
-   result := ToolRepaintOnly;
+  previousBounds := FCurrentBounds;
+  ClearShape;
+  rx := abs(rectDest.X-rectOrigin.X)+0.5;
+  ry := abs(rectDest.Y-rectOrigin.Y)+0.5;
+  toolDest.FillEllipseAntialias(rectOrigin.X,rectOrigin.Y,rx,ry,fillColor);
+  FCurrentBounds := GetShapeBounds([PointF(rectOrigin.X-rx,rectOrigin.Y-ry),PointF(rectOrigin.X+rx,rectOrigin.Y+ry)],1);
+  result := RectUnion(previousBounds,FCurrentBounds);
+end;
+
+function TToolSelectEllipse.BorderTest(ptF: TPointF): TRectangularBorderTest;
+begin
+  Result:=inherited BorderTest(ptF);
+  if (result = [btOriginY,btOriginX]) or (result = [btDestY,btDestX]) then exit; //ok
+  if (result = [btDestX,btOriginY]) then result := [btDestX] else
+  if (result = [btDestY,btOriginX]) then result := [btDestY] else
+    result := [];
 end;
 
 procedure TToolSelectEllipse.Render(VirtualScreen: TBGRABitmap;
@@ -287,6 +314,7 @@ var toolPtF,toolPtF2: TPointF;
     pts: array of TPoint;
     i: integer;
 begin
+  inherited Render(VirtualScreen,BitmapToVirtualScreen);
   if rectDrawing and BigImage then
   begin
     rx := abs(rectDest.X-rectOrigin.X)+0.5;
@@ -322,26 +350,31 @@ end;
 
 function TToolSelectRect.UpdateShape(toolDest: TBGRABitmap): TRect;
 begin
-  if not BigImage then FinishShape(toolDest);
-  result := ToolRepaintOnly;
+  if not BigImage then
+    result := FinishShape(toolDest)
+  else
+    result := ToolRepaintOnly;
 end;
 
 function TToolSelectRect.FinishShape(toolDest: TBGRABitmap): TRect;
-var sx,sy :integer;
+var
+  sx,sy :integer;
+  previousBounds: TRect;
 begin
+  previousBounds := FCurrentBounds;
   ClearShape;
   if rectDest.X > rectOrigin.X then sx := 1 else sx := -1;
   if rectDest.Y > rectOrigin.Y then sy := 1 else sy := -1;
 
   toolDest.FillRectAntialias(rectOrigin.X-0.5*sx,rectOrigin.Y-0.5*sy,rectDest.X+0.5*sx,rectDest.Y+0.5*sy,fillColor);
-  Manager.Image.SelectionMayChange;
-  result := ToolRepaintOnly;
+  FCurrentBounds := GetShapeBounds([PointF(rectOrigin.X,rectOrigin.Y),PointF(rectDest.X,rectDest.Y)],1);
+  result := RectUnion(previousBounds,FCurrentBounds);
 end;
 
 procedure TToolSelectRect.PrepareDrawing(rightBtn: boolean);
 begin
-  if rightBtn then fillColor := BGRABlack else
-    fillColor := BGRAWhite;
+  inherited PrepareDrawing(rightBtn);
+  FCurrentBounds := EmptyRect;
 end;
 
 function TToolSelectRect.BigImage: boolean;
@@ -349,9 +382,20 @@ begin
   result := GetToolDrawingLayer.NbPixels > 480000;
 end;
 
-function TToolSelectRect.NeedClearShape: boolean;
+function TToolSelectRect.ShouldFinishShapeWhenFirstMouseUp: boolean;
 begin
-  result := not BigImage;
+  result := BigImage;
+end;
+
+function TToolSelectRect.GetFillColor: TBGRAPixel;
+begin
+  if swapedColor then result := BGRABlack else
+    result := BGRAWhite;
+end;
+
+function TToolSelectRect.GetPenColor: TBGRAPixel;
+begin
+  result := BGRAPixelTransparent;
 end;
 
 procedure TToolSelectRect.Render(VirtualScreen: TBGRABitmap;
@@ -359,6 +403,7 @@ procedure TToolSelectRect.Render(VirtualScreen: TBGRABitmap;
 var toolPtF,toolPtF2: TPointF;
     r: TRect;
 begin
+  inherited Render(VirtualScreen,BitmapToVirtualScreen);
   if rectDrawing and BigImage then
   begin
     if rectDest.X > rectOrigin.X then
@@ -395,34 +440,43 @@ end;
 
 { TToolSelectSpline }
 
-function TToolSelectSpline.DoUpdatePolygonView(toolDest: TBGRABitmap): TRect;
+function TToolSelectSpline.HandDrawingPolygonView(toolDest: TBGRABitmap): TRect;
 var
-   splinePoints: ArrayOfTPointF;
+  splinePoints: ArrayOfTPointF;
 begin
-  splinePoints := toolDest.ComputeClosedSpline(polygonPoints,Manager.ToolSplineStyle);
+  if Manager.ToolSplineEasyBezier then
+  begin
+    splinePoints := ComputeEasyBezier(polygonPoints,True, EasyBezierMinimumDotProduct);
+  end else
+    splinePoints := toolDest.ComputeClosedSpline(polygonPoints,Manager.ToolSplineStyle);
+
   if length(splinePoints) > 2 then
+  begin
     toolDest.FillPolyAntialias(splinePoints, fillColor);
-  Manager.Image.SelectionMayChange;
-  result := ToolRepaintOnly;
+    result := GetShapeBounds(splinePoints,1);
+  end else
+    result := EmptyRect;
 end;
 
-function TToolSelectSpline.DoValidatePolygon(toolDest: TBGRABitmap): TRect;
+function TToolSelectSpline.FinalPolygonView(toolDest: TBGRABitmap): TRect;
 begin
-  //nothing
-  result := EmptyRect;
-end;
-
-procedure TToolSelectSpline.StartPolygon(rightBtn: boolean);
-begin
-  if rightBtn then
-    fillColor := BGRABlack
+  if FAfterHandDrawing then
+    result := HandDrawingPolygonView(toolDest)
   else
-    fillColor := BGRAWhite;
+    result := EmptyRect;
 end;
 
 function TToolSelectSpline.GetIsSelectingTool: boolean;
 begin
   Result:= true;
+end;
+
+function TToolSelectSpline.GetFillColor: TBGRAPixel;
+begin
+  if swapedColor then
+    result := BGRABlack
+  else
+    result := BGRAWhite;
 end;
 
 { TToolSelectionPen }
@@ -437,16 +491,14 @@ function TToolSelectionPen.StartDrawing(toolDest: TBGRABitmap; ptF: TPointF;
 begin
   if rightBtn then penColor := BGRABlack else penColor := BGRAWhite;
   toolDest.DrawLineAntialias(ptF.X,ptF.Y,ptF.X,ptF.Y,penColor,Manager.ToolPenWidth,True);
-  Manager.Image.SelectionMayChange;
-  result := ToolRepaintOnly;
+  result := GetShapeBounds([ptF],Manager.ToolPenWidth+1);
 end;
 
 function TToolSelectionPen.ContinueDrawing(toolDest: TBGRABitmap; originF,
   destF: TPointF): TRect;
 begin
-  Manager.Image.currentSelection.DrawLineAntialias(destF.X,destF.Y,originF.X,originF.Y,penColor,Manager.ToolPenWidth,False);
-  Manager.Image.SelectionMayChange;
-  result := ToolRepaintOnly;
+  toolDest.DrawLineAntialias(destF.X,destF.Y,originF.X,originF.Y,penColor,Manager.ToolPenWidth,False);
+  result := GetShapeBounds([destF,originF],Manager.ToolPenWidth+1);
 end;
 
 { TToolMagicWand }
@@ -460,41 +512,43 @@ function TToolMagicWand.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
 var penColor: TBGRAPixel;
 begin
+  if not Manager.Image.CurrentLayerVisible then exit;
   if rightBtn then penColor := BGRABlack else penColor := BGRAWhite;
-  Manager.Image.currentImageLayer.ParallelFloodFill(pt.X,pt.Y,toolDest,penColor,fmDrawWithTransparency,Manager.ToolTolerance);
-  Manager.Image.SelectionMayChange;
-  Manager.Image.SaveLayerOrSelectionUndo;
-  result := ToolRepaintOnly;
+  Manager.Image.SelectedImageLayerReadOnly.ParallelFloodFill(pt.X,pt.Y,toolDest,penColor,fmDrawWithTransparency,Manager.ToolTolerance);
+  Manager.Image.SelectionMayChangeCompletely;
+  ValidateAction;
+  result := rect(0,0,Manager.Image.Width,Manager.Image.Height);
 end;
 
 { TToolSelectPoly }
 
-function TToolSelectPoly.DoUpdatePolygonView(toolDest: TBGRABitmap): TRect;
+function TToolSelectPoly.HandDrawingPolygonView(toolDest: TBGRABitmap): TRect;
 begin
   result := ToolRepaintOnly;
   //nothing
 end;
 
-function TToolSelectPoly.DoValidatePolygon(toolDest: TBGRABitmap): TRect;
+function TToolSelectPoly.FinalPolygonView(toolDest: TBGRABitmap): TRect;
 begin
-  toolDest.PutImage(0,0,polygonBackup,dmSet);
   if length(polygonPoints) > 2 then
+  begin
     toolDest.FillPolyAntialias(polygonPoints, fillColor);
-  Manager.Image.SelectionMayChange;
-  result := ToolRepaintOnly;
-end;
-
-procedure TToolSelectPoly.StartPolygon(rightBtn: boolean);
-begin
-  if rightBtn then
-    fillColor := BGRABlack
-  else
-    fillColor := BGRAWhite;
+    result := GetShapeBounds(polygonPoints,1);
+  end else
+    result := EmptyRect;
 end;
 
 function TToolSelectPoly.GetIsSelectingTool: boolean;
 begin
   result := true;
+end;
+
+function TToolSelectPoly.GetFillColor: TBGRAPixel;
+begin
+  if swapedColor then
+    result := BGRABlack
+  else
+    result := BGRAWhite;
 end;
 
 initialization

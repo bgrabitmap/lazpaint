@@ -14,7 +14,7 @@ object FAbout: TFAbout
   OnHide = FormHide
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '0.9.30'
+  LCLVersion = '1.1'
   object Image_Title: TImage
     Left = 8
     Height = 34
@@ -22,36 +22,36 @@ object FAbout: TFAbout
     Width = 352
     Anchors = [akTop, akLeft, akRight]
   end
-  object Label1: TLabel
+  object Label_Authors: TLabel
     Left = 8
-    Height = 16
+    Height = 15
     Top = 74
-    Width = 46
+    Width = 45
     Caption = 'Authors:'
     ParentColor = False
   end
-  object Label2: TLabel
+  object Label_HomePage: TLabel
     Left = 8
-    Height = 16
+    Height = 15
     Top = 97
-    Width = 63
+    Width = 62
     Caption = 'Homepage:'
     ParentColor = False
   end
-  object Label3: TLabel
+  object Label_AuthorsValue: TLabel
     Left = 104
-    Height = 16
+    Height = 15
     Top = 74
-    Width = 134
-    Caption = 'Circular and FabienWang'
+    Width = 205
+    Caption = 'Circular help by FabienWang and Lainz'
     ParentColor = False
   end
   object LabelUrl: TLabel
     Cursor = crHandPoint
     Left = 104
-    Height = 16
+    Height = 15
     Top = 97
-    Width = 217
+    Width = 216
     Caption = 'http://sourceforge.net/projects/lazpaint/'
     Font.Color = clBlue
     Font.Height = -12
@@ -60,35 +60,35 @@ object FAbout: TFAbout
     ParentFont = False
     OnClick = LabelUrlClick
   end
-  object Label5: TLabel
+  object Label_Libraries: TLabel
     Left = 8
-    Height = 16
+    Height = 15
     Top = 121
-    Width = 76
+    Width = 75
     Caption = 'Libraries used:'
     ParentColor = False
   end
-  object Label6: TLabel
+  object Label_LibrariesValue: TLabel
     Left = 104
-    Height = 16
+    Height = 15
     Top = 121
-    Width = 107
+    Width = 106
     Caption = 'BGRABitmap (LGPL)'
     ParentColor = False
   end
-  object Label7: TLabel
+  object Label_Licence: TLabel
     Left = 8
-    Height = 16
+    Height = 15
     Top = 50
-    Width = 44
+    Width = 43
     Caption = 'Licence:'
     ParentColor = False
   end
-  object Label8: TLabel
+  object Label_OpenSource: TLabel
     Left = 104
-    Height = 16
+    Height = 15
     Top = 50
-    Width = 112
+    Width = 111
     Caption = 'Open source (GPLv3)'
     ParentColor = False
   end
@@ -97,9 +97,6 @@ object FAbout: TFAbout
     Height = 145
     Top = 143
     Width = 353
-    Lines.Strings = (
-      'Memo1'
-    )
     ReadOnly = True
     TabOrder = 0
   end
@@ -107,7 +104,7 @@ object FAbout: TFAbout
     Enabled = False
     Interval = 100
     OnTimer = Timer1Timer
-    left = 288
-    top = 48
+    left = 264
+    top = 160
   end
 end

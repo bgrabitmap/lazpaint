@@ -10,13 +10,15 @@ object FRadialBlur: TFRadialBlur
   ClientWidth = 171
   Font.Height = -12
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '0.9.30'
-  object Label3: TLabel
+  LCLVersion = '1.1'
+  object Label_Radius: TLabel
     Left = 18
-    Height = 16
+    Height = 15
     Top = 11
-    Width = 42
+    Width = 41
     Caption = 'Radius :'
     ParentColor = False
   end
@@ -47,7 +49,14 @@ object FRadialBlur: TFRadialBlur
     Width = 79
     MaxValue = 10000
     MinValue = 1
+    OnChange = SpinEdit_RadiusChange
     TabOrder = 2
     Value = 5
+  end
+  object Timer1: TTimer
+    Interval = 100
+    OnTimer = Timer1Timer
+    left = 16
+    top = 16
   end
 end

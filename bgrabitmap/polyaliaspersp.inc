@@ -3,6 +3,21 @@
 
 { TPolygonPerspectiveTextureMappingInfo }
 
+procedure TPolygonPerspectiveTextureMappingInfo.SetIntersectionValues(
+  AInter: TIntersectionInfo; AInterX: Single; AWinding, ANumSegment: integer;
+  dy: single; AData: pointer);
+var info: PPerspectiveTextureInfo;
+begin
+  AInter.SetValues(AInterX,AWinding,ANumSegment);
+  info := PPerspectiveTextureInfo(AData);
+  TPerspectiveTextureMappingIntersectionInfo(AInter).coordInvZ := dy*info^.InvZSlope + info^.InvZ;
+  TPerspectiveTextureMappingIntersectionInfo(AInter).texCoordDivByZ := info^.TexCoordDivByZ + info^.TexCoordDivByZSlopes*dy;
+  if FLightnesses<>nil then
+    TPerspectiveTextureMappingIntersectionInfo(AInter).lightness := round(info^.lightness + info^.lightnessSlope*dy)
+  else
+    TPerspectiveTextureMappingIntersectionInfo(AInter).lightness := 32768;
+end;
+
 constructor TPolygonPerspectiveTextureMappingInfo.Create(
   const points: array of TPointF; const pointsZ: array of single;
   const texCoords: array of TPointF);
@@ -107,37 +122,6 @@ end;
 function TPolygonPerspectiveTextureMappingInfo.CreateIntersectionInfo: TIntersectionInfo;
 begin
   Result:= TPerspectiveTextureMappingIntersectionInfo.Create;
-end;
-
-procedure TPolygonPerspectiveTextureMappingInfo.ComputeIntersection(cury: single;
-      var inter: ArrayOfTIntersectionInfo; var nbInter: integer);
-var
-  j: integer;
-  dy: single;
-  info: PPerspectiveTextureInfo;
-begin
-  if length(FSlices)=0 then exit;
-
-  while (cury < FSlices[FCurSlice].y1) and (FCurSlice > 0) do dec(FCurSlice);
-  while (cury > FSlices[FCurSlice].y2) and (FCurSlice < high(FSlices)) do inc(FCurSlice);
-  with FSlices[FCurSlice] do
-  if (cury >= y1) and (cury <= y2) then
-  begin
-    for j := 0 to nbSegments-1 do
-    begin
-      dy := cury - segments[j].y1;
-      inter[nbinter].interX := dy * segments[j].slope + segments[j].x1;
-      inter[nbinter].winding := segments[j].winding;
-      info := PPerspectiveTextureInfo(segments[j].data);
-      TPerspectiveTextureMappingIntersectionInfo(inter[nbinter]).coordInvZ := dy*info^.InvZSlope + info^.InvZ;
-      TPerspectiveTextureMappingIntersectionInfo(inter[nbinter]).texCoordDivByZ := info^.TexCoordDivByZ + info^.TexCoordDivByZSlopes*dy;
-      if FLightnesses<>nil then
-        TPerspectiveTextureMappingIntersectionInfo(inter[nbinter]).lightness := round(info^.lightness + info^.lightnessSlope*dy)
-      else
-        TPerspectiveTextureMappingIntersectionInfo(inter[nbinter]).lightness := 32768;
-      Inc(nbinter);
-    end;
-  end;
 end;
 
 {$hints off}
@@ -494,6 +478,19 @@ end;
 
 { TPolygonPerspectiveMappingShaderInfo }
 
+procedure TPolygonPerspectiveMappingShaderInfo.SetIntersectionValues(
+  AInter: TIntersectionInfo; AInterX: Single; AWinding, ANumSegment: integer;
+  dy: single; AData: pointer);
+var info : PPerspectiveTextureInfo;
+begin
+  AInter.SetValues(AInterX,AWinding,ANumSegment);
+  info := PPerspectiveTextureInfo(AData);
+  TPerspectiveTextureMappingIntersectionInfo(AInter).coordInvZ := dy*info^.InvZSlope + info^.InvZ;
+  TPerspectiveTextureMappingIntersectionInfo(AInter).texCoordDivByZ := info^.TexCoordDivByZ + info^.TexCoordDivByZSlopes*dy;
+  TPerspectiveTextureMappingIntersectionInfo(AInter).Position3D := info^.Position3D + info^.Position3DSlope*dy;
+  TPerspectiveTextureMappingIntersectionInfo(AInter).Normal3D := info^.Normal3D + info^.Normal3DSlope*dy;
+end;
+
 constructor TPolygonPerspectiveMappingShaderInfo.Create(
   const points: array of TPointF; const points3D: array of TPoint3D;
   const normals: array of TPoint3D; const texCoords: array of TPointF);
@@ -605,34 +602,5 @@ end;
 function TPolygonPerspectiveMappingShaderInfo.CreateIntersectionInfo: TIntersectionInfo;
 begin
   Result:= TPerspectiveTextureMappingIntersectionInfo.Create;
-end;
-
-procedure TPolygonPerspectiveMappingShaderInfo.ComputeIntersection(
-  cury: single; var inter: ArrayOfTIntersectionInfo; var nbInter: integer);
-var
-  j: integer;
-  dy: single;
-  info: PPerspectiveTextureInfo;
-begin
-  if length(FSlices)=0 then exit;
-
-  while (cury < FSlices[FCurSlice].y1) and (FCurSlice > 0) do dec(FCurSlice);
-  while (cury > FSlices[FCurSlice].y2) and (FCurSlice < high(FSlices)) do inc(FCurSlice);
-  with FSlices[FCurSlice] do
-  if (cury >= y1) and (cury <= y2) then
-  begin
-    for j := 0 to nbSegments-1 do
-    begin
-      dy := cury - segments[j].y1;
-      inter[nbinter].interX := dy * segments[j].slope + segments[j].x1;
-      inter[nbinter].winding := segments[j].winding;
-      info := PPerspectiveTextureInfo(segments[j].data);
-      TPerspectiveTextureMappingIntersectionInfo(inter[nbinter]).coordInvZ := dy*info^.InvZSlope + info^.InvZ;
-      TPerspectiveTextureMappingIntersectionInfo(inter[nbinter]).texCoordDivByZ := info^.TexCoordDivByZ + info^.TexCoordDivByZSlopes*dy;
-      TPerspectiveTextureMappingIntersectionInfo(inter[nbinter]).Position3D := info^.Position3D + info^.Position3DSlope*dy;
-      TPerspectiveTextureMappingIntersectionInfo(inter[nbinter]).Normal3D := info^.Normal3D + info^.Normal3DSlope*dy;
-      Inc(nbinter);
-    end;
-  end;
 end;
 

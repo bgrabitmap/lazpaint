@@ -11,7 +11,7 @@ object FBlendOp: TFBlendOp
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poMainFormCenter
-  LCLVersion = '1.0.1.3'
+  LCLVersion = '1.1'
   object ListBox_PatternUnder: TListBox
     Left = 8
     Height = 264
@@ -40,9 +40,9 @@ object FBlendOp: TFBlendOp
   end
   object Label_PatternUnder: TLabel
     Left = 8
-    Height = 16
+    Height = 15
     Top = 8
-    Width = 73
+    Width = 72
     Caption = 'Pattern under'
     ParentColor = False
   end
@@ -74,9 +74,9 @@ object FBlendOp: TFBlendOp
   end
   object Label_PatternOver: TLabel
     Left = 108
-    Height = 16
+    Height = 15
     Top = 8
-    Width = 65
+    Width = 64
     Caption = 'Pattern over'
     ParentColor = False
   end
@@ -107,9 +107,9 @@ object FBlendOp: TFBlendOp
   end
   object Label_SvgOver: TLabel
     Left = 223
-    Height = 16
+    Height = 15
     Top = 8
-    Width = 52
+    Width = 51
     Caption = 'Basic SVG'
     ParentColor = False
   end
@@ -139,9 +139,9 @@ object FBlendOp: TFBlendOp
   end
   object Label_KritaOver: TLabel
     Left = 323
-    Height = 16
+    Height = 15
     Top = 8
-    Width = 25
+    Width = 24
     Caption = 'Krita'
     ParentColor = False
   end
@@ -173,25 +173,25 @@ object FBlendOp: TFBlendOp
   end
   object Label_OtherOver: TLabel
     Left = 423
-    Height = 16
+    Height = 15
     Top = 8
-    Width = 31
+    Width = 30
     Caption = 'Other'
     ParentColor = False
   end
   object Label_SelectedBlendOp: TLabel
     Left = 8
-    Height = 16
+    Height = 15
     Top = 294
-    Width = 138
+    Width = 137
     Caption = 'Selected blend operation :'
     ParentColor = False
   end
   object Label_BlendOpValue: TLabel
     Left = 152
-    Height = 16
+    Height = 15
     Top = 294
-    Width = 4
+    Width = 3
     Caption = '.'
     ParentColor = False
   end

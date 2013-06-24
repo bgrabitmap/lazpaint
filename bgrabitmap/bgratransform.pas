@@ -23,8 +23,8 @@ type
   public
     TopLeft, TopRight,
     BottomLeft: TPointF;
-    function EmptyBox: TAffineBox;
-    function AffineBox(ATopLeft, ATopRight, ABottomLeft: TPointF): TAffineBox;
+    class function EmptyBox: TAffineBox;
+    class function AffineBox(ATopLeft, ATopRight, ABottomLeft: TPointF): TAffineBox;
     property BottomRight: TPointF read GetBottomRight;
     property IsEmpty: boolean read GetIsEmpty;
     property AsPolygon: ArrayOfTPointF read GetAsPolygon;
@@ -100,6 +100,17 @@ type
     procedure ScanMoveTo(X, Y: Integer); override;
     function ScanNextPixel: TBGRAPixel; override;
     function ScanAt(X, Y: Single): TBGRAPixel; override;
+  end;
+
+  { TBGRAExtendedBorderScanner }
+
+  TBGRAExtendedBorderScanner = class(TBGRACustomScanner)
+  protected
+    FSource: IBGRAScanner;
+    FBounds: TRect;
+  public
+    constructor Create(ASource: IBGRAScanner; ABounds: TRect);
+    function ScanAt(X,Y: Single): TBGRAPixel; override;
   end;
 
   { TBGRAScannerOffset }
@@ -187,6 +198,8 @@ type
     FTexture: IBGRAScanner;
     FMatrix: TPerspectiveTransform;
     FScanAtProc: TScanAtFunction;
+    function GetIncludeOppositePlane: boolean;
+    procedure SetIncludeOppositePlane(AValue: boolean);
   public
     constructor Create(texture: IBGRAScanner; texCoord1,texCoord2: TPointF; const quad: array of TPointF);
     constructor Create(texture: IBGRAScanner; const texCoordsQuad: array of TPointF; const quad: array of TPointF);
@@ -194,6 +207,7 @@ type
     procedure ScanMoveTo(X, Y: Integer); override;
     function ScanAt(X, Y: Single): TBGRAPixel; override;
     function ScanNextPixel: TBGRAPixel; override;
+    property IncludeOppositePlane: boolean read GetIncludeOppositePlane write SetIncludeOppositePlane;
   end;
 
   { TPerspectiveTransform }
@@ -202,6 +216,9 @@ type
   private
     sx ,shy ,w0 ,shx ,sy ,w1 ,tx ,ty ,w2 : single;
     scanDenom,scanNumX,scanNumY: single;
+    FOutsideValue: TPointF;
+    FIncludeOppositePlane: boolean;
+    procedure Init;
   public
     constructor Create; overload;
     constructor Create(x1,y1,x2,y2: single; const quad: array of TPointF);
@@ -221,6 +238,8 @@ type
     function Apply(pt: TPointF): TPointF;
     procedure ScanMoveTo(x,y:single);
     function ScanNext: TPointF;
+    property OutsideValue: TPointF read FOutsideValue write FOutsideValue;
+    property IncludeOppositePlane: boolean read FIncludeOppositePlane write FIncludeOppositePlane;
   end;
 
 type
@@ -335,6 +354,24 @@ begin
   result := PointF(M[1,1],M[2,1])*PointF(M[1,2],M[2,2]) = 0;
 end;
 
+{ TBGRAExtendedBorderScanner }
+
+constructor TBGRAExtendedBorderScanner.Create(ASource: IBGRAScanner;
+  ABounds: TRect);
+begin
+  FSource := ASource;
+  FBounds := ABounds;
+end;
+
+function TBGRAExtendedBorderScanner.ScanAt(X, Y: Single): TBGRAPixel;
+begin
+  if x < FBounds.Left then x := FBounds.Left;
+  if y < FBounds.Top then y := FBounds.Top;
+  if x > FBounds.Right-1 then x := FBounds.Right-1;
+  if y > FBounds.Bottom-1 then y := FBounds.Bottom-1;
+  result := FSource.ScanAt(X,Y);
+end;
+
 { TAffineBox }
 
 function TAffineBox.GetAsPolygon: ArrayOfTPointF;
@@ -355,14 +392,14 @@ begin
   result := isEmptyPointF(TopRight) or isEmptyPointF(BottomLeft) or isEmptyPointF(TopLeft);
 end;
 
-function TAffineBox.EmptyBox: TAffineBox;
+class function TAffineBox.EmptyBox: TAffineBox;
 begin
   result.TopLeft := EmptyPointF;
   result.TopRight := EmptyPointF;
   result.BottomLeft := EmptyPointF;
 end;
 
-function TAffineBox.AffineBox(ATopLeft, ATopRight, ABottomLeft: TPointF): TAffineBox;
+class function TAffineBox.AffineBox(ATopLeft, ATopRight, ABottomLeft: TPointF): TAffineBox;
 begin
   result.TopLeft := ATopLeft;
   result.TopRight := ATopRight;
@@ -683,12 +720,30 @@ end;
 
 { TBGRAPerspectiveScannerTransform }
 
+function TBGRAPerspectiveScannerTransform.GetIncludeOppositePlane: boolean;
+begin
+  if FMatrix = nil then
+    result := false
+  else
+    result := FMatrix.IncludeOppositePlane;
+end;
+
+procedure TBGRAPerspectiveScannerTransform.SetIncludeOppositePlane(
+  AValue: boolean);
+begin
+  if FMatrix <> nil then
+    FMatrix.IncludeOppositePlane := AValue;
+end;
+
 constructor TBGRAPerspectiveScannerTransform.Create(texture: IBGRAScanner; texCoord1,texCoord2: TPointF; const quad: array of TPointF);
 begin
   if DoesQuadIntersect(quad[0],quad[1],quad[2],quad[3]) or not IsConvex(quad,False) or (texCoord1.x = texCoord2.x) or (texCoord1.y = texCoord2.y) then
     FMatrix := nil
   else
+  begin
     FMatrix := TPerspectiveTransform.Create(quad,texCoord1.x,texCoord1.y,texCoord2.x,texCoord2.y);
+    FMatrix.OutsideValue := EmptyPointF;
+  end;
   FTexture := texture;
   FScanAtProc:= @FTexture.ScanAt;
 end;
@@ -700,7 +755,10 @@ begin
      DoesQuadIntersect(texCoordsQuad[0],texCoordsQuad[1],texCoordsQuad[2],texCoordsQuad[3]) or not IsConvex(texCoordsQuad,False) then
     FMatrix := nil
   else
+  begin
     FMatrix := TPerspectiveTransform.Create(quad,texCoordsQuad);
+    FMatrix.OutsideValue := EmptyPointF;
+  end;
   FTexture := texture;
   FScanAtProc:= @FTexture.ScanAt;
 end;
@@ -724,7 +782,10 @@ begin
     result := BGRAPixelTransparent else
   begin
     ptSource := FMatrix.Apply(PointF(X,Y));
-    Result:= FScanAtProc(ptSource.X, ptSource.Y);
+    if ptSource.x = EmptySingle then
+      result := BGRAPixelTransparent
+    else
+      Result:= FScanAtProc(ptSource.X, ptSource.Y);
   end;
 end;
 
@@ -735,32 +796,45 @@ begin
     result := BGRAPixelTransparent else
   begin
     ptSource := FMatrix.ScanNext;
-    Result:= FScanAtProc(ptSource.X, ptSource.Y);
+    if ptSource.x = EmptySingle then
+      result := BGRAPixelTransparent
+    else
+      Result:= FScanAtProc(ptSource.X, ptSource.Y);
   end;
 end;
 
 { TPerspectiveTransform }
 
+procedure TPerspectiveTransform.Init;
+begin
+  FOutsideValue := PointF(0,0);
+  FIncludeOppositePlane:= True;
+end;
+
 constructor TPerspectiveTransform.Create;
 begin
+  Init;
   AssignIdentity;
 end;
 
 constructor TPerspectiveTransform.Create(x1, y1, x2, y2: single;
   const quad: array of TPointF);
 begin
+  Init;
   MapRectToQuad(x1 ,y1 ,x2 ,y2 ,quad );
 end;
 
 constructor TPerspectiveTransform.Create(const quad: array of TPointF; x1, y1,
   x2, y2: single);
 begin
+  Init;
   MapQuadToRect(quad, x1,y1,x2,y2);
 end;
 
 constructor TPerspectiveTransform.Create(const srcQuad,
   destQuad: array of TPointF);
 begin
+  Init;
   MapQuadToQuad(srcQuad,destQuad);
 end;
 
@@ -994,12 +1068,10 @@ function TPerspectiveTransform.Apply(pt: TPointF): TPointF;
 var
   m : single;
 begin
-  m:= pt.x * w0 + pt.y * w1 + w2 ;
-  if m=0 then
-  begin
-    result.x := 0;
-    result.y := 0;
-  end else
+  m:= pt.x * w0 + pt.y * w1 + w2;
+  if (m=0) or (not FIncludeOppositePlane and (m < 0)) then
+    result := FOutsideValue
+  else
   begin
    m := 1/m;
    result.x := m * (pt.x * sx  + pt.y * shx + tx );
@@ -1017,11 +1089,9 @@ end;
 function TPerspectiveTransform.ScanNext: TPointF;
 var m: single;
 begin
-  if ScanDenom = 0 then
-  begin
-    result.x := 0;
-    result.y := 0;
-  end else
+  if (ScanDenom = 0) or (not FIncludeOppositePlane and (ScanDenom < 0)) then
+    result := FOutsideValue
+  else
   begin
    m := 1/scanDenom;
    result.x := m * ScanNumX;

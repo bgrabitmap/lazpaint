@@ -1,4 +1,4 @@
-unit uabout;
+unit UAbout;
 
 {$mode objfpc}{$H+}
 
@@ -14,14 +14,14 @@ type
 
   TFAbout = class(TForm)
     Image_Title: TImage;
-    Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
+    Label_Authors: TLabel;
+    Label_HomePage: TLabel;
+    Label_AuthorsValue: TLabel;
     LabelUrl: TLabel;
-    Label5: TLabel;
-    Label6: TLabel;
-    Label7: TLabel;
-    Label8: TLabel;
+    Label_Libraries: TLabel;
+    Label_LibrariesValue: TLabel;
+    Label_Licence: TLabel;
+    Label_OpenSource: TLabel;
     Memo1: TMemo;
     Timer1: TTimer;
     procedure FormCreate(Sender: TObject);
@@ -75,7 +75,6 @@ procedure TFAbout.Timer1Timer(Sender: TObject);
 begin
   Timer1.Enabled := false;
   angle += 2*Pi/180;
-  shader.LightPosition := Point(round(cos(angle)*Image_Title.Width),round(sin(angle)*Image_Title.Width));
   RenderTitle;
   Timer1.Enabled := true;
 end;
@@ -83,12 +82,13 @@ end;
 procedure TFAbout.RenderTitle;
 var bmp: TBGRABitmap;
 begin
+  shader.LightPosition := Point(round((cos(angle)+1)/2*Image_Title.Width),round((sin(angle)+1)*Image_Title.height));
   inc(frameNumber);
-  bmp := TBGRABitmap.Create(Image_Title.Width,Image_Title.Height);
+  bmp := TBGRABitmap.Create(Image_Title.Width,Image_Title.Height,ColorToRGB(clBtnFace));
 
-  bmp.GradientFill(0,0,bmp.Width,bmp.Height,BGRA(0,128,255,255),BGRA(55,70,176,255),gtLinear,
-    PointF(bmp.Width div 4,-bmp.Width div 4),PointF(bmp.Width*3 div 4,bmp.Width div 4),dmSet,False);
-  fx.DrawShaded(bmp,bmp.Width div 2,0, shader, 3, BGRA(255,160,0), taCenter, false);
+  fx.DrawShaded(bmp,bmp.Width div 2,0, shader, 2,
+    MergeBGRA(ColorToBGRA(ColorToRGB(clBtnFace)),ColorToBGRA(ColorToRGB(clWindowText))),
+    taCenter, false);
 
   bmp.Draw(Image_Title.Picture.Bitmap.Canvas,0,0,true);
   bmp.Free;

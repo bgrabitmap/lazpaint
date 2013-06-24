@@ -273,7 +273,7 @@ type
     procedure SetMaterial(const AValue: IBGRAMaterial3D);
     procedure SetParentLighting(const AValue: boolean);
     procedure SetTexture(const AValue: IBGRAScanner);
-    procedure ComputeWithMatrix(const AMatrix: TMatrix3D; const AProjection: TProjection3D);
+    procedure ComputeWithMatrix(constref AMatrix: TMatrix3D; constref AProjection: TProjection3D);
     procedure RemoveUnusedVertices;
     function AddFaceReversed(const AVertices: array of IBGRAVertex3D): IBGRAFace3D;
     function AddFace(const AVertices: array of IBGRAVertex3D): IBGRAFace3D;

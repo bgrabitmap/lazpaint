@@ -1,4 +1,4 @@
-unit uemboss;
+unit UEmboss;
 
 {$mode objfpc}{$H+}
 
@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  ExtCtrls, StdCtrls, BGRABitmap, LazPaintType, uscaledpi;
+  ExtCtrls, StdCtrls, BGRABitmap, LazPaintType, uscaledpi, ufilterconnector;
 
 type
 
@@ -15,18 +15,18 @@ type
   TFEmboss = class(TForm)
     Button_OK: TButton;
     Button_Cancel: TButton;
-    Label3: TLabel;
+    Label_Direction: TLabel;
     PaintBox1: TPaintBox;
     procedure Button_OKClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure PaintBox1MouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
-    procedure PaintBox1MouseMove(Sender: TObject; Shift: TShiftState; X,
+      {%H-}Shift: TShiftState; X, Y: Integer);
+    procedure PaintBox1MouseMove(Sender: TObject; {%H-}Shift: TShiftState; X,
       Y: Integer);
     procedure PaintBox1MouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
+      {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure PaintBox1Paint(Sender: TObject);
   private
     { private declarations }
@@ -34,17 +34,14 @@ type
     PaintBoxMouseMovePos: TPoint;
     angle: single;
     selectingAngle: boolean;
-    backupSource: TBGRABitmap;
     procedure ComputeAngle(X,Y: integer);
     function ComputeFilteredLayer: TBGRABitmap;
     procedure PreviewNeeded;
   public
-    { public declarations }
-    LazPaintInstance: TLazPaintCustomInstance;
-    sourceLayer, filteredLayer: TBGRABitmap;
+    FilterConnector: TFilterConnector;
   end;
 
-function ShowEmbossDlg(Instance: TLazPaintCustomInstance; layer:TBGRABitmap; out filteredLayer: TBGRABitmap):boolean;
+function ShowEmbossDlg(AFilterConnector: TObject):boolean;
 
 implementation
 
@@ -52,18 +49,18 @@ uses BGRABitmapTypes, math, ugraph, umac;
 
 { TFEmboss }
 
-function ShowEmbossDlg(Instance: TLazPaintCustomInstance; layer:TBGRABitmap; out filteredLayer: TBGRABitmap):boolean;
+function ShowEmbossDlg(AFilterConnector: TObject):boolean;
 var
   FEmboss: TFEmboss;
 begin
-  filteredLayer := nil;
   result := false;
   FEmboss:= TFEmboss.create(nil);
-  FEmboss.LazPaintInstance := Instance;
+  FEmboss.FilterConnector := AFilterConnector as TFilterConnector;
   try
-    FEmboss.sourceLayer := layer;
-    result:= (FEmboss.showModal = mrOk);
-    filteredLayer := FEmboss.filteredLayer;
+    if FEmboss.FilterConnector.ActiveLayer <> nil then
+      result:= (FEmboss.showModal = mrOk)
+    else
+      result := false;
   finally
     FEmboss.free;
   end;
@@ -75,35 +72,24 @@ begin
 
   InPaintBoxMouseMove := false;
   CheckOKCancelBtns(Button_OK,Button_Cancel);
-  filteredLayer := nil;
-  backupSource := nil;
 end;
 
 procedure TFEmboss.FormDestroy(Sender: TObject);
 begin
-  if backupSource <> nil then
-  begin
-    sourceLayer.PutImage(0,0,backupSource,dmSet);
-    FreeAndNil(backupSource);
-    LazPaintInstance.NotifyImageChangeCompletely(False);
-  end;
+
 end;
 
 procedure TFEmboss.FormShow(Sender: TObject);
 begin
-  angle := LazPaintInstance.Config.DefaultEmbossAngle;
+  angle := FilterConnector.LazPaintInstance.Config.DefaultEmbossAngle;
   PreviewNeeded;
 end;
 
 procedure TFEmboss.Button_OKClick(Sender: TObject);
 begin
-  if sourceLayer <> nil then
-  begin
-    filteredLayer := ComputeFilteredLayer;
-    LazPaintInstance.Config.SetDefaultEmbossAngle(angle);
-    ModalResult := mrOK;
-  end else
-    ModalResult := mrCancel;
+  FilterConnector.ValidateAction;
+  FilterConnector.LazPaintInstance.Config.SetDefaultEmbossAngle(angle);
+  ModalResult := mrOK;
 end;
 
 procedure TFEmboss.PaintBox1MouseDown(Sender: TObject; Button: TMouseButton;
@@ -162,25 +148,16 @@ begin
 end;
 
 function TFEmboss.ComputeFilteredLayer: TBGRABitmap;
-var usedSource: TBGRABitmap;
 begin
-  if backupSource <> nil then
-    usedSource := backupSource
-  else
-    usedSource := sourceLayer;
-  result := usedSource.FilterEmboss(angle) as TBGRABitmap;
+  result := FilterConnector.BackupLayer.FilterEmboss(angle,FilterConnector.WorkArea) as TBGRABitmap;
 end;
 
 procedure TFEmboss.PreviewNeeded;
 var temp: TBGRABitmap;
 begin
-  if sourceLayer = nil then exit;
   temp := ComputeFilteredLayer;
-  if backupSource = nil then
-    backupSource := sourceLayer.Duplicate as TBGRABitmap;
-  sourceLayer.PutImage(0,0,temp,dmSet);
+  FilterConnector.PutImage(temp,False);
   temp.Free;
-  LazPaintInstance.NotifyImageChangeCompletely(True);
 end;
 
 initialization

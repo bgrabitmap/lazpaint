@@ -2,7 +2,8 @@ unit BGRAMatrix3D;
 
 {$mode objfpc}{$H+}
 
-{$ifdef CPUI386}
+{$i bgrasse.inc}
+{$ifdef BGRASSE_AVAILABLE}
   {$asmmode intel}
 {$endif}
 
@@ -29,7 +30,7 @@ function MatrixRotateX(angle: single): TMatrix3D;
 function MatrixRotateY(angle: single): TMatrix3D;
 function MatrixRotateZ(angle: single): TMatrix3D;
 
-{$IFDEF CPUI386}
+{$IFDEF BGRASSE_AVAILABLE}
 procedure Matrix3D_SSE_Load(const A: TMatrix3D);
 procedure MatrixMultiplyVect3D_SSE_Aligned(var M: TPoint3D_128; out N: TPoint3D_128);
 procedure MatrixMultiplyVect3D_SSE3_Aligned(var M: TPoint3D_128; out N: TPoint3D_128);
@@ -51,25 +52,80 @@ begin
   result.z := M.x * A[3,1] + M.y * A[3,2] + M.z * A[3,3] + A[3,4];
 end;
 
-{$IFDEF CPUI386}
+{$IFDEF BGRASSE_AVAILABLE}
 var SingleConst1 : single = 1;
 
-procedure Matrix3D_SSE_Load(const A: TMatrix3D);
-begin
-  asm
-    mov eax, A
-    movups xmm5, [eax]
-    movups xmm6, [eax+16]
-    movups xmm7, [eax+32]
+  procedure Matrix3D_SSE_Load(const A: TMatrix3D);
+  begin
+    {$IFDEF cpux86_64}
+    asm
+      mov rax, A
+      movups xmm5, [rax]
+      movups xmm6, [rax+16]
+      movups xmm7, [rax+32]
+    end;
+    {$ELSE}
+    asm
+      mov eax, A
+      movups xmm5, [eax]
+      movups xmm6, [eax+16]
+      movups xmm7, [eax+32]
+    end;
+   {$ENDIF}
   end;
-end;
 
 procedure MatrixMultiplyVect3D_SSE_Aligned(var M: TPoint3D_128; out N: TPoint3D_128);
 var oldMt: single;
 begin
   oldMt := M.t;
   M.t := SingleConst1;
+  {$IFDEF cpux86_64}
   asm
+    mov rax, M
+    movaps xmm0, [rax]
+
+    mov rax, N
+
+    movaps xmm2,xmm0
+    mulps xmm2,xmm5
+    //mix1
+    movaps xmm3, xmm2
+    shufps xmm3, xmm3, $4e
+    addps xmm2, xmm3
+    //mix2
+    movaps xmm3, xmm2
+    shufps xmm3, xmm3, $11
+    addps xmm2, xmm3
+
+    movss [rax], xmm2
+
+    movaps xmm2,xmm0
+    mulps xmm2,xmm6
+    //mix1
+    movaps xmm3, xmm2
+    shufps xmm3, xmm3, $4e
+    addps xmm2, xmm3
+    //mix2
+    movaps xmm3, xmm2
+    shufps xmm3, xmm3, $11
+    addps xmm2, xmm3
+
+    movss [rax+4], xmm2
+
+    mulps xmm0,xmm7
+    //mix1
+    movaps xmm3, xmm0
+    shufps xmm3, xmm3, $4e
+    addps xmm0, xmm3
+    //mix2
+    movaps xmm3, xmm0
+    shufps xmm3, xmm3, $11
+    addps xmm0, xmm3
+
+    movss [rax+8], xmm0
+  end;
+  {$ELSE}
+    asm
     mov eax, M
     movaps xmm0, [eax]
 
@@ -113,6 +169,7 @@ begin
 
     movss [eax+8], xmm0
   end;
+  {$ENDIF}
   M.t := oldMt;
   N.t := 0;
 end;
@@ -122,6 +179,31 @@ var oldMt: single;
 begin
   oldMt := M.t;
   M.t := SingleConst1;
+  {$IFDEF cpux86_64}
+  asm
+    mov rax, M
+    movaps xmm0, [rax]
+
+    mov rax, N
+
+    movaps xmm2,xmm0
+    mulps xmm2,xmm5
+    haddps xmm2,xmm2
+    haddps xmm2,xmm2
+    movss [rax], xmm2
+
+    movaps xmm2,xmm0
+    mulps xmm2,xmm6
+    haddps xmm2,xmm2
+    haddps xmm2,xmm2
+    movss [rax+4], xmm2
+
+    mulps xmm0,xmm7
+    haddps xmm0,xmm0
+    haddps xmm0,xmm0
+    movss [rax+8], xmm0
+  end;
+  {$ELSE}
   asm
     mov eax, M
     movaps xmm0, [eax]
@@ -145,6 +227,7 @@ begin
     haddps xmm0,xmm0
     movss [eax+8], xmm0
   end;
+  {$ENDIF}
   M.t := oldMt;
 end;
 {$ENDIF}

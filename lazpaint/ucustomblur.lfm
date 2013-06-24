@@ -11,8 +11,9 @@ object FCustomBlur: TFCustomBlur
   Font.Height = -12
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '0.9.30'
+  LCLVersion = '1.1'
   object Image1: TImage
     Left = 8
     Height = 216
