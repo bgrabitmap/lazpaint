@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, ComCtrls, ugraph, BGRABitmap, LazPaintType, uscaledpi;
+  StdCtrls, ComCtrls, BGRABitmap, LazPaintType, uscaledpi;
 
 type
 
@@ -32,7 +32,7 @@ type
 
 implementation
 
-uses umac;
+uses umac, BGRAThumbnail, BGRABitmapTypes;
 
 { TFMultiImage }
 
@@ -73,12 +73,13 @@ begin
   ListView1.Clear;
   ImageList1.Clear;
   ImageList1.Masked := false;
+  thumb := TBGRABitmap.Create(ImageList1.Width,ImageList1.Height);
   for i := 0 to high(images) do
   begin
-    thumb := MakeThumbnail(images[i],ImageList1.Width,ImageList1.Height);
-    ImageList1.Add(thumb.Bitmap,nil);
-    thumb.free;
+    if GetBitmapThumbnail(images[i],thumb.Width,thumb.Height,BGRAPixelTransparent,True,thumb) <> nil then
+      ImageList1.Add(thumb.Bitmap,nil);
   end;
+  thumb.free;
 
   for i := 0 to high(images) do
     with ListView1.Items.Add do
@@ -98,8 +99,7 @@ begin
     result := nil;
 end;
 
-initialization
-  {$I umultiimage.lrs}
+{$R *.lfm}
 
 end.
 

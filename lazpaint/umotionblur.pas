@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, Spin, ExtCtrls, BGRABitmap, LazPaintType, uscaledpi, UFilterConnector;
+  StdCtrls, Spin, ExtCtrls, BGRABitmap, LazPaintType, uscaledpi,
+  UFilterConnector, UFilterThread;
 
 type
 
@@ -22,8 +23,8 @@ type
     Timer1: TTimer;
     procedure Button_OKClick(Sender: TObject);
     procedure Checkbox_OrientedChange(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure PaintBox1MouseDown(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; X, Y: Integer);
@@ -37,22 +38,22 @@ type
   private
     { private declarations }
     FFilterConnector: TFilterConnector;
-    FThread: TThread;
+    FThreadManager: TFilterThreadManager;
     angle: single;
     selectingAngle: boolean;
     InPaintBoxMouseMove: boolean;
     PaintBoxMouseMovePos: TPoint;
+    FQuitQuery: boolean;
     procedure ComputeAngle(X,Y: integer);
     procedure PreviewNeeded;
-    procedure OnBlurDone({%H-}ASender: TThread; AFilteredLayer: TBGRABitmap);
-    procedure ClearThread;
+    procedure OnTaskEvent({%H-}ASender: TObject; AEvent: TThreadManagerEvent);
   end;
 
 function ShowMotionBlurDlg(AFilterConnector: TObject):boolean;
 
 implementation
 
-uses BGRABitmapTypes, math, ugraph, umac, UFilterThread, BGRAFilters;
+uses BGRABitmapTypes, math, ugraph, umac, BGRAFilters;
 
 function ShowMotionBlurDlg(AFilterConnector: TObject):boolean;
 var
@@ -61,45 +62,17 @@ begin
   result := false;
   FMotionBlur:= TFMotionBlur.create(nil);
   FMotionBlur.FFilterConnector := AFilterConnector as TFilterConnector;
+  FMotionBlur.FThreadManager := TFilterThreadManager.Create(FMotionBlur.FFilterConnector);
+  FMotionBlur.FThreadManager.OnEvent:= @FMotionBlur.OnTaskEvent;
   try
     if FMotionBlur.FFilterConnector.ActiveLayer <> nil then
       result:= (FMotionBlur.showmodal = mrOk)
     else
       result := false;
   finally
+    FMotionBlur.FThreadManager.free;
     FMotionBlur.free;
   end;
-end;
-
-
-type
-  { TMotionBlurThread }
-
-  TMotionBlurThread = class(TFilterThread)
-  protected
-    FDistance, FAngle: single;
-    FOriented: boolean;
-    function CreateFilterTask: TFilterTask; override;
-  public
-    constructor Create(AConnector: TFilterConnector; ADistance, AAngle: single;
-    AOriented: boolean; ASuspended: boolean);
-  end;
-
-{ TMotionBlurThread }
-
-function TMotionBlurThread.CreateFilterTask: TFilterTask;
-begin
-  result := CreateMotionBlurTask(FilterConnector.BackupLayer,FilterConnector.WorkArea, FDistance, FAngle, FOriented)
-end;
-
-constructor TMotionBlurThread.Create(AConnector: TFilterConnector; ADistance, AAngle: single;
-    AOriented: boolean; ASuspended: boolean);
-begin
-  inherited Create(AConnector, True);
-  FDistance := ADistance;
-  FAngle := AAngle;
-  FOriented := AOriented;
-  if not ASuspended then Start;
 end;
 
 { TFMotionBlur }
@@ -142,16 +115,11 @@ begin
 end;
 
 procedure TFMotionBlur.Timer1Timer(Sender: TObject);
-var filteredLayer: TBGRABitmap;
 begin
-  if FThread <> nil then
-  begin
-    Timer1.Enabled:= false;
-    filteredLayer := (FThread as TFilterThread).FilteredLayer;
-    if filteredLayer <> nil then
-      FFilterConnector.PutImage(filteredLayer,False);
-    Timer1.Enabled:= true;
-  end;
+  Timer1.Enabled:= false;
+  FThreadManager.RegularCheck;
+  Timer1.Interval := 200;
+  Timer1.Enabled:= true;
 end;
 
 procedure TFMotionBlur.ComputeAngle(X, Y: integer);
@@ -164,30 +132,31 @@ begin
 end;
 
 procedure TFMotionBlur.PreviewNeeded;
-var blurThread: TFilterThread;
 begin
-  ClearThread;
-  Button_OK.Enabled := false;
-  blurThread := TMotionBlurThread.Create(FFilterConnector,SpinEdit_Distance.Value, angle, Checkbox_Oriented.Checked, True);
-  blurThread.OnFilterDone:= @OnBlurDone;
-  FThread := blurThread;
-  FThread.Start;
+  FThreadManager.WantPreview(CreateMotionBlurTask(FFilterConnector.BackupLayer,
+    FFilterConnector.WorkArea, SpinEdit_Distance.Value, angle,
+    Checkbox_Oriented.Checked));
 end;
 
-procedure TFMotionBlur.OnBlurDone(ASender: TThread; AFilteredLayer: TBGRABitmap
+procedure TFMotionBlur.OnTaskEvent(ASender: TObject; AEvent: TThreadManagerEvent
   );
 begin
-  FFilterConnector.PutImage(AFilteredLayer,False);
-  Button_OK.Enabled := true;
-  ClearThread;
-end;
-
-procedure TFMotionBlur.ClearThread;
-begin
-  if FThread <> nil then
-  begin
-    FThread.Terminate;
-    FThread := nil; //let the thread free itself
+  case AEvent of
+  tmeAbortedTask,tmeCompletedTask:
+    begin
+      Timer1.Enabled := false;
+      if FThreadManager.ReadyToClose then
+        Close
+      else
+        if AEvent = tmeCompletedTask then Button_OK.Enabled := true;
+    end;
+  tmeStartingNewTask:
+    begin
+      Timer1.Enabled := false;
+      Timer1.Interval := 100;
+      Timer1.Enabled := true;
+      Button_OK.Enabled := false;
+    end;
   end;
 end;
 
@@ -200,17 +169,14 @@ begin
   CheckSpinEdit(SpinEdit_Distance);
 end;
 
-procedure TFMotionBlur.FormDestroy(Sender: TObject);
-begin
-  ClearThread;
-end;
-
 procedure TFMotionBlur.FormShow(Sender: TObject);
 begin
+  FQuitQuery := false;
   Checkbox_Oriented.Checked := FFilterConnector.LazPaintInstance.Config.DefaultBlurMotionOriented;
   SpinEdit_Distance.Value := FFilterConnector.LazPaintInstance.Config.DefaultBlurMotionDistance;
   angle := FFilterConnector.LazPaintInstance.Config.DefaultBlurMotionAngle;
   PreviewNeeded;
+  Left := FFilterConnector.LazPaintInstance.MainFormBounds.Left;
 end;
 
 procedure TFMotionBlur.PaintBox1MouseDown(Sender: TObject;
@@ -239,10 +205,13 @@ end;
 
 procedure TFMotionBlur.Button_OKClick(Sender: TObject);
 begin
-  FFilterConnector.ValidateAction;
-  FFilterConnector.LazPaintInstance.Config.SetDefaultBlurMotionOriented(Checkbox_Oriented.Checked);
-  FFilterConnector.LazPaintInstance.Config.SetDefaultBlurMotionDistance(SpinEdit_Distance.Value);
-  FFilterConnector.LazPaintInstance.Config.SetDefaultBlurMotionAngle(angle);
+  if not FFilterConnector.ActionDone then
+  begin
+    FFilterConnector.ValidateAction;
+    FFilterConnector.LazPaintInstance.Config.SetDefaultBlurMotionOriented(Checkbox_Oriented.Checked);
+    FFilterConnector.LazPaintInstance.Config.SetDefaultBlurMotionDistance(SpinEdit_Distance.Value);
+    FFilterConnector.LazPaintInstance.Config.SetDefaultBlurMotionAngle(angle);
+  end;
   ModalResult := mrOK;
 end;
 
@@ -252,8 +221,13 @@ begin
   PreviewNeeded;
 end;
 
-initialization
-  {$I umotionblur.lrs}
+procedure TFMotionBlur.FormCloseQuery(Sender: TObject; var CanClose: boolean);
+begin
+  FThreadManager.Quit;
+  CanClose := FThreadManager.ReadyToClose;
+end;
+
+{$R *.lfm}
 
 end.
 

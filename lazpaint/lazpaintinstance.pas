@@ -10,10 +10,10 @@ uses
   LazPaintMainForm,
 
   utoolbox, uchoosecolor, ulayerstack, ucanvassize,
-  ucolorintensity, ushiftcolors, ucolorize,
-  ucustomblur, umultiimage,
+  ucolorintensity, ushiftcolors, ucolorize, uadjustcurves,
+  ucustomblur, uimagelist,
 
-  ULoading, uimage, utool, uconfig, IniFiles, uresourcestrings;
+  ULoading, UImage, UTool, uconfig, IniFiles, uresourcestrings, uscripting;
 
 const
   MaxToolPopupShowCount = 2;
@@ -25,7 +25,7 @@ type
   TLazPaintInstance = class(TLazPaintCustomInstance)
   private
     function GetMainFormVisible: boolean;
-    procedure OnLayeredBitmapLoadStartHandler(AFilename: string);
+    procedure OnLayeredBitmapLoadStartHandler(AFilenameUTF8: string);
     procedure OnLayeredBitmapLoadProgressHandler(APercentage: integer);
     procedure OnLayeredBitmapLoadedHandler;
     procedure SelectionInstanceOnRun(AInstance: TLazPaintCustomInstance);
@@ -34,15 +34,17 @@ type
     InColorFromFChooseColor: boolean;
     FMain: TFMain;
     FToolbox: TFToolbox;
+    FImageList: TFImageList;
     FChooseColor: TFChooseColor;
     FLayerStack: TFLayerStack;
     FCanvasSize: TFCanvasSize;
     FColorIntensity: TFColorIntensity;
     FShiftColors: TFShiftColors;
     FColorize: TFColorize;
+    FColorCurves: TFAdjustCurves;
     FCustomBlur: TFCustomBlur;
-    FLoading: TFLoading;
-    toolboxHidden, choosecolorHidden, layerstackHidden: boolean;
+    FLoadingLayers: TFLoading;
+    FTopMostInfo: TTopMostInfo;
     FGridVisible: boolean;
     FConfig: TLazPaintConfig;
     FImage: TLazPaintImage;
@@ -51,7 +53,10 @@ type
     FDestroying: boolean;
     FSelectionEditConfig: TStream;
     FTextureEditConfig: TStream;
+    FScriptContext: TScriptContext;
+    FInFormsNeeded: boolean;
 
+    function GetScriptContext: TScriptContext; override;
     function GetShowSelectionNormal: boolean; override;
     procedure SetShowSelectionNormal(AValue: boolean); override;
     function GetEmbedded: boolean; override;
@@ -59,14 +64,17 @@ type
     procedure SetGridVisible(const AValue: boolean); override;
     function GetChooseColorVisible: boolean; override;
     function GetToolboxVisible: boolean; override;
+    function GetImageListWindowVisible: boolean; override;
     procedure SetChooseColorVisible(const AValue: boolean); override;
-    procedure SetToolboxVisible(const AValue: boolean); override;
+    procedure SetToolBoxVisible(const AValue: boolean); override;
+    procedure SetImageListWindowVisible(const AValue: boolean); override;
     function GetChooseColorHeight: integer; override;
     function GetChooseColorWidth: integer; override;
     function GetToolboxHeight: integer; override;
     function GetToolboxWidth: integer; override;
     function GetTopMostHasFocus: boolean; override;
     function GetTopMostVisible: boolean; override;
+    function GetTopMostOkToUnfocus: boolean; override;
     function GetChooseColorTarget: TColorTarget; override;
     procedure SetChooseColorTarget(const AValue: TColorTarget); override;
     function GetConfig: TLazPaintConfig; override;
@@ -78,14 +86,25 @@ type
     procedure OnStackChanged({%H-}sender: TLazPaintImage; AScrollIntoView: boolean);
     procedure OnToolPopup({%H-}sender: TToolManager; AMessage: TToolPopupMessage);
 
+    function GetImageListWindowHeight: integer; override;
+    function GetImageListWindowWidth: integer; override;
+    procedure SetImageListWindowHeight(AValue: integer); override;
+    procedure SetImageListWindowWidth(AValue: integer); override;
     function GetLayerWindowHeight: integer; override;
     function GetLayerWindowWidth: integer; override;
+    procedure SetLayerWindowHeight(AValue: integer); override;
+    procedure SetLayerWindowWidth(AValue: integer); override;
     function GetLayerWindowVisible: boolean; override;
     procedure SetLayerWindowVisible(AValue: boolean); override;
+    procedure OnFunctionException(AFunctionName: string; AException: Exception);
+    function GetMainFormBounds: TRect; override;
+    procedure EditSelectionHandler(var AImage: TBGRABitmap);
+    function GetZoomFactor: single; override;
 
   public
     constructor Create; override;
     constructor Create(AEmbedded: boolean); override;
+    procedure Donate; override;
     procedure UseConfig(ini: TInifile); override;
     procedure AssignBitmap(bmp: TBGRABitmap); override;
     procedure EditBitmap(var bmp: TBGRABitmap; ConfigStream: TStream = nil; ATitle: String = ''; AOnRun: TLazPaintInstanceEvent = nil; AOnExit: TLazPaintInstanceEvent = nil; ABlackAndWhite: boolean = false); override;
@@ -94,57 +113,63 @@ type
     function ProcessCommandLine: boolean; override;
     function ProcessCommands(commands: TStringList): boolean; override;
     procedure Show; override;
+    procedure Hide; override;
     procedure Run; override;
     destructor Destroy; override;
     procedure NotifyImageChange(RepaintNow: boolean; ARect: TRect); override;
     procedure NotifyImageChangeCompletely(RepaintNow: boolean); override;
-    function TryOpenFile(filename: string): boolean; override;
+    function TryOpenFileUTF8(filename: string): boolean; override;
     function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): boolean; override;
     procedure ColorFromFChooseColor; override;
     procedure ColorToFChooseColor; override;
-    procedure ShowColorIntensityDlg; override;
-    procedure ShowColorLightnessDlg; override;
-    procedure ShowShiftColorsDlg; override;
-    procedure ShowColorizeDlg; override;
+    function ShowColorIntensityDlg(AParameters: TVariableSet): boolean; override;
+    function ShowColorLightnessDlg(AParameters: TVariableSet): boolean; override;
+    function ShowShiftColorsDlg(AParameters: TVariableSet): boolean; override;
+    function ShowColorizeDlg(AParameters: TVariableSet): boolean; override;
+    function ShowColorCurvesDlg(AParameters: TVariableSet): boolean; override;
     function ShowRadialBlurDlg(AFilterConnector: TObject;blurType:TRadialBlurType):boolean; override;
     function ShowMotionBlurDlg(AFilterConnector: TObject):boolean; override;
     function ShowCustomBlurDlg(AFilterConnector: TObject):boolean; override;
     function ShowEmbossDlg(AFilterConnector: TObject):boolean; override;
     function ShowPixelateDlg(AFilterConnector: TObject):boolean; override;
+    function ShowNoiseFilterDlg(AFilterConnector: TObject):boolean; override;
     function ShowTwirlDlg(AFilterConnector: TObject):boolean; override;
     function ShowPhongFilterDlg(AFilterConnector: TObject): boolean; override;
     function ShowFunctionFilterDlg(AFilterConnector: TObject): boolean; override;
     function ShowSharpenDlg(AFilterConnector: TObject):boolean; override;
-    procedure HideTopmost; override;
-    procedure ShowTopmost; override;
+    function ShowPosterizeDlg(AParameters: TVariableSet):boolean; override;
+    procedure ShowPrintDlg; override;
+    function HideTopmost: TTopMostInfo; override;
+    procedure ShowTopmost(AInfo: TTopMostInfo); override;
+    procedure UpdateWindows;  override;
     procedure ShowCanvasSizeDlg; override;
     procedure ShowRepeatImageDlg; override;
     procedure MoveToolboxTo(X,Y: integer); override;
     procedure MoveChooseColorTo(X,Y: integer); override;
     procedure MoveLayerWindowTo(X,Y: integer); override;
+    procedure MoveImageListWindowTo(X,Y: integer); override;
+    procedure ImageListWindowVisibleKeyDown(var Key: Word; Shift: TShiftState); override;
     procedure ShowAboutDlg; override;
     function ShowNewImageDlg(out bitmap: TBGRABitmap):boolean; override;
-    function ShowResampleDialog:boolean; override;
+    function ShowResampleDialog(AParameters: TVariableSet):boolean; override;
     property MainFormVisible: boolean read GetMainFormVisible;
     procedure NotifyStackChange; override;
-
-    procedure NewLayer; override;
-    procedure NewLayer(ALayer: TBGRABitmap; AName: string); override;
-    procedure DuplicateLayer; override;
-    procedure RemoveLayer; override;
-    procedure MergeLayerOver; override;
+    procedure ScrollLayerStackOnItem(AIndex: integer); override;
     function MakeNewBitmapReplacement(AWidth, AHeight: integer): TBGRABitmap; override;
     procedure ChooseTool(Tool : TPaintToolType); override;
-
+    function OpenImage (FileName: string; AddToRecent: Boolean= True): boolean; override;
+    procedure ZoomFit; override;
+    procedure AddToImageList(const FileNames: array of String); override;
   end;
 
 implementation
 
-uses Forms, Dialogs, Controls, FileUtil,
+uses Types, Forms, Dialogs, Controls, FileUtil, LCLIntf,
 
      uradialblur, umotionblur, uemboss, utwirl,
-     unewimage, uresample, upixelate, ufilters,
-     UImageAction, USharpen, UPhongFilter, UFilterFunction,
+     unewimage, uresample, upixelate, unoisefilter, ufilters,
+     UImageAction, USharpen, uposterize, UPhongFilter, UFilterFunction,
+     uprint,
 
      ugraph, ucommandline, uabout;
 
@@ -160,17 +185,27 @@ begin
   Init(AEmbedded);
 end;
 
+procedure TLazPaintInstance.Donate;
+begin
+  OpenURL('http://sourceforge.net/donate/index.php?group_id=404555');
+end;
+
 procedure TLazPaintInstance.Init(AEmbedded: boolean);
 begin
   Title := 'LazPaint ' + LazPaintCurrentVersion;
-  toolboxHidden := false;
-  choosecolorHidden := false;
-  layerstackHidden := false;
+  FTopMostInfo.choosecolorHidden := 0;
+  FTopMostInfo.layerstackHidden := 0;
+  FTopMostInfo.toolboxHidden := 0;
+  FTopMostInfo.imagelistHidden := 0;
   FEmbedded:= AEmbedded;
+  FScriptContext := TScriptContext.Create;
+  FScriptContext.OnFunctionException:= @OnFunctionException;
+  //FScriptContext.Recording := true;
 
   InColorFromFChooseColor := false;
   FImage := TLazPaintImage.Create;
   FImage.OnStackChanged:= @OnStackChanged;
+  FImage.OnException := @OnFunctionException;
   FToolManager := TToolManager.Create(FImage, nil, BlackAndWhite);
   FToolManager.OnPopup := @OnToolPopup;
   UseConfig(TIniFile.Create(''));
@@ -180,13 +215,14 @@ begin
   if not AEmbedded then
     BGRALayers.RegisterLoadingHandler(@OnLayeredBitmapLoadStartHandler,@OnLayeredBitmapLoadProgressHandler,@OnLayeredBitmapLoadedHandler)
   else
-    FLoading := nil;
+    FLoadingLayers := nil;
 end;
 
 procedure TLazPaintInstance.FormsNeeded;
 begin
-  if FMain <> nil then exit;
+  if (FMain <> nil) or FInFormsNeeded then exit;
 
+  FInFormsNeeded := true;
   Application.CreateForm(TFMain, FMain);
   FMain.LazPaintInstance := self;
   ToolManager.BitmapToVirtualScreen := @FMain.BitmapToVirtualScreen;
@@ -226,15 +262,16 @@ begin
   FLayerStack.LazPaintInstance := self;
 
   FLayerStack.AddButton(FMain.LayerAddNew);
+  FLayerStack.AddButton(FMain.LayerFromFile);
+  FLayerStack.AddButton(FMain.LayerDuplicate);
+  FLayerStack.AddButton(FMain.LayerMergeOver);
+  FLayerStack.AddButton(FMain.LayerRemoveCurrent);
+  FLayerStack.AddSeparator;
   FLayerStack.AddButton(FMain.LayerMove);
   FLayerStack.AddButton(FMain.LayerRotate);
   FLayerStack.AddButton(FMain.ToolLayerMapping);
   FLayerStack.AddButton(FMain.LayerHorizontalFlip);
   FLayerStack.AddButton(FMain.LayerVerticalFlip);
-  FLayerStack.AddButton(FMain.LayerDuplicate);
-  FLayerStack.AddButton(FMain.LayerFromFile);
-  FLayerStack.AddButton(FMain.LayerMergeOver);
-  FLayerStack.AddButton(FMain.LayerRemoveCurrent);
 
   Application.CreateForm(TFChooseColor, FChooseColor);
   FChooseColor.LazPaintInstance := self;
@@ -243,18 +280,25 @@ begin
   Application.CreateForm(TFColorIntensity, FColorIntensity);
   Application.CreateForm(TFShiftColors, FShiftColors);
   Application.CreateForm(TFColorize, FColorize);
+  Application.CreateForm(TFAdjustCurves, FColorCurves);
   Application.CreateForm(TFCustomBlur, FCustomBlur);
   FCustomBlur.LazPaintInstance := self;
+
+  Application.CreateForm(TFImageList, FImageList);
+  FImageList.LazPaintInstance := self;
+
+  FInFormsNeeded := false;
 end;
 
 procedure TLazPaintInstance.UseConfig(ini: TInifile);
 begin
   FreeAndNil(FConfig);
-  FConfig := TLazPaintConfig.Create(ini);
+  FConfig := TLazPaintConfig.Create(ini,LazPaintCurrentVersionOnly);
 
   ToolManager.ToolForeColor := Config.DefaultToolForeColor;
   ToolManager.ToolBackColor := Config.DefaultToolBackColor;
-  ToolManager.ToolPenWidth := Config.DefaultToolPenWidth;
+  ToolManager.ToolNormalPenWidth := Config.DefaultToolPenWidth;
+  ToolManager.ToolEraserWidth := Config.DefaultToolEraserWidth;
   ToolManager.ToolOptionDrawShape := Config.DefaultToolOptionDrawShape;
   ToolManager.ToolOptionFillShape := Config.DefaultToolOptionFillShape;
   ToolManager.ToolOptionCloseShape := Config.DefaultToolOptionCloseShape;
@@ -315,8 +359,37 @@ begin
   end;
   messageStr := ToolPopupMessageToStr(AMessage);
   if messageStr <> '' then
-    MessagePopup(messageStr,2000);
+    MessagePopup(messageStr,4000);
 end;
+
+function TLazPaintInstance.GetImageListWindowHeight: integer;
+begin
+  if FImageList <> nil then
+    result := FImageList.Height
+  else
+    result := 0;
+end;
+
+function TLazPaintInstance.GetImageListWindowWidth: integer;
+begin
+  if FImageList <> nil then
+    result := FImageList.Width
+  else
+    result := 0;
+end;
+
+procedure TLazPaintInstance.SetImageListWindowHeight(AValue: integer);
+begin
+  if FImageList <> nil then
+    FImageList.Height := AValue;
+end;
+
+procedure TLazPaintInstance.SetImageListWindowWidth(AValue: integer);
+begin
+  if FImageList <> nil then
+    FImageList.Width := AValue;
+end;
+
 
 function TLazPaintInstance.GetLayerWindowHeight: integer;
 begin
@@ -334,6 +407,18 @@ begin
     result := 0;
 end;
 
+procedure TLazPaintInstance.SetLayerWindowHeight(AValue: integer);
+begin
+  if FLayerStack <> nil then
+    FLayerStack.Height := AValue;
+end;
+
+procedure TLazPaintInstance.SetLayerWindowWidth(AValue: integer);
+begin
+  if FLayerStack <> nil then
+    FLayerStack.Width := AValue;
+end;
+
 function TLazPaintInstance.GetMainFormVisible: boolean;
 begin
   if FMain <> nil then
@@ -342,27 +427,30 @@ begin
     result := false;
 end;
 
-procedure TLazPaintInstance.OnLayeredBitmapLoadStartHandler(AFilename: string);
+procedure TLazPaintInstance.OnLayeredBitmapLoadStartHandler(AFilenameUTF8: string);
 begin
-  if FLoading = nil then
-  begin
-    FLoading := TFLoading.Create(nil);
-    FLoading.ShowMessage(rsOpening+' ' +AFilename+'...');
-  end;
+  if FLoadingLayers = nil then
+    FLoadingLayers := TFLoading.Create(nil);
+  FLoadingLayers.ShowMessage(rsOpening+' ' +AFilenameUTF8+'...');
+  UpdateWindows;
 end;
 
 procedure TLazPaintInstance.OnLayeredBitmapLoadProgressHandler(
   APercentage: integer);
 begin
-  if FLoading <> nil then
-    FLoading.ShowMessage(rsLoading+' (' +inttostr(APercentage)+'%)');
+  if FLoadingLayers <> nil then
+  begin
+    FLoadingLayers.ShowMessage(rsLoading+' (' +inttostr(APercentage)+'%)');
+    UpdateWindows;
+  end;
 end;
 
 procedure TLazPaintInstance.OnLayeredBitmapLoadedHandler;
 begin
-  if FLoading <> nil then
+  if FLoadingLayers <> nil then
   begin
-    FreeAndNil(FLoading);
+    FreeAndNil(FLoadingLayers);
+    UpdateWindows;
   end;
 end;
 
@@ -396,6 +484,43 @@ begin
     FLayerStack.Visible := AValue;
 end;
 
+procedure TLazPaintInstance.OnFunctionException(AFunctionName: string;
+  AException: Exception);
+begin
+  ShowError(AFunctionName,AException.Message);
+end;
+
+function TLazPaintInstance.GetMainFormBounds: TRect;
+var workarea: TRect;
+begin
+  workarea := rect(Screen.WorkAreaLeft,Screen.WorkAreaTop,
+    Screen.WorkAreaLeft+Screen.WorkAreaWidth,
+    Screen.WorkAreaTop+Screen.WorkAreaHeight);
+  result := workarea;
+  if Assigned(FMain) then
+  begin
+    if not IntersectRect(result, workarea, FMain.BoundsRect) then
+      result := workarea;
+  end;
+end;
+
+procedure TLazPaintInstance.EditSelectionHandler(var AImage: TBGRABitmap);
+begin
+  if FSelectionEditConfig = nil then
+    FSelectionEditConfig := TStringStream.Create('[Tool]'+LineEnding+
+      'ForeColor=FFFFFFFF'+LineEnding+
+      'BackColor=000000FF'+LineEnding+
+      '[Window]'+LineEnding+'LayerWindowVisible=False');
+  EditBitmap(AImage,FSelectionEditConfig,rsEditSelection,@SelectionInstanceOnRun,nil,True);
+end;
+
+function TLazPaintInstance.GetZoomFactor: single;
+begin
+  if Assigned(FMain) then
+    Result:=FMain.ZoomFactor else
+      result := inherited GetZoomFactor;
+end;
+
 function TLazPaintInstance.GetGridVisible: boolean;
 begin
   Result:= FGridVisible;
@@ -404,6 +529,7 @@ end;
 procedure TLazPaintInstance.SetGridVisible(const AValue: boolean);
 begin
   FGridVisible := AValue;
+  Image.RenderMayChange(rect(0,0,Image.Width,Image.Height),True);
   NotifyImageChange(False,EmptyRect);
 end;
 
@@ -420,25 +546,41 @@ begin
     Result := false;
 end;
 
+function TLazPaintInstance.GetImageListWindowVisible: boolean;
+begin
+  if FImageList <> nil then
+    Result:= FImageList.Visible
+  else
+    Result := false;
+end;
+
 procedure TLazPaintInstance.SetChooseColorVisible(const AValue: boolean);
 begin
   if FChooseColor <> nil then
     FChooseColor.Visible := AValue;
 end;
 
-procedure TLazPaintInstance.SetToolboxVisible(const AValue: boolean);
+procedure TLazPaintInstance.SetToolBoxVisible(const AValue: boolean);
 begin
   if FToolbox <> nil then
     FToolbox.Visible := AValue;
 end;
 
+procedure TLazPaintInstance.SetImageListWindowVisible(const AValue: boolean);
+begin
+  if FImageList <> nil then
+    FImageList.Visible := AValue;
+end;
+
 function TLazPaintInstance.GetChooseColorHeight: integer;
 begin
+  FChooseColor.UpdateLayout;
   Result:= FChooseColor.Height;
 end;
 
 function TLazPaintInstance.GetChooseColorWidth: integer;
 begin
+  FChooseColor.UpdateLayout;
   Result:= FChooseColor.Width;
 end;
 
@@ -454,11 +596,22 @@ procedure TLazPaintInstance.EditBitmap(var bmp: TBGRABitmap; ConfigStream: TStre
 var
   subLaz: TLazPaintInstance;
   ini : TIniFile;
+  topmostInfo: TTopMostInfo;
+
 begin
-  subLaz := TLazPaintInstance.Create(True);
+  try
+    subLaz := TLazPaintInstance.Create(True);
+  except
+    on ex:Exception do
+    begin
+      ShowError('EditBitmap',ex.Message);
+      exit;
+    end;
+  end;
   subLaz.BlackAndWhite := ABlackAndWhite;
   if ATitle <> '' then subLaz.Title := ATitle;
   if FMain <> nil then FMain.Enabled := false;
+  topmostInfo:= HideTopmost;
   try
     if ConfigStream <> nil then
     begin
@@ -488,52 +641,29 @@ begin
     end;
   except
     on ex:Exception do
-      ShowMessage(ex.Message);
+      ShowError('EditBitmap',ex.Message);
   end;
+  ShowTopmost(topmostInfo);
   if FMain <> nil then FMain.Enabled := true;
   subLaz.Free;
 end;
 
 procedure TLazPaintInstance.EditSelection;
-var lSelection,lTemp: TBGRABitmap;
-    LayerAction: TLayerAction;
+var imageActions: TimageActions;
 begin
-  if not image.CheckNoAction then exit;
-  HideTopmost;
+  imageActions := TImageActions.Create(self);
   try
-    if FSelectionEditConfig = nil then
-      FSelectionEditConfig := TStringStream.Create('[Tool]'+LineEnding+
-        'ForeColor=FFFFFFFF'+LineEnding+
-        'BackColor=000000FF');
-    LayerAction := TLayerAction.Create(Image);
-    LayerAction.QuerySelection;
-    lSelection:= LayerAction.currentSelection.Duplicate as TBGRABitmap;
-    lSelection.LinearAntialiasing := False;
-    lSelection.ConvertFromLinearRGB;
-    EditBitmap(lSelection,FSelectionEditConfig,rsEditSelection,@SelectionInstanceOnRun,nil,True);
-    lSelection.InplaceGrayscale;
-    lTemp := TBGRABitmap.Create(lSelection.Width,lSelection.Height,BGRABlack);
-    lTemp.PutImage(0,0,lSelection,dmDrawWithTransparency);
-    lSelection.Free;
-    lSelection := lTemp;
-    lTemp := nil;
-    lSelection.ConvertToLinearRGB;
-    lSelection.LinearAntialiasing := True;
-    LayerAction.ReplaceCurrentSelection(lSelection);
-    LayerAction.Validate;
-    LayerAction.Free;
-    Image.ImageMayChangeCompletely;
+    imageActions.EditSelection(@EditSelectionHandler);
   except
     on ex: Exception do
-      ShowMessage(ex.Message);
+      ShowError('EditSelection',ex.Message);
   end;
-  ShowTopmost;
+  imageActions.Free;
 end;
 
 procedure TLazPaintInstance.EditTexture;
 var tex: TBGRABitmap;
 begin
-  HideTopmost;
   try
     if FTextureEditConfig = nil then
       FTextureEditConfig := TStringStream.Create('[General]'+LineEnding+
@@ -547,15 +677,19 @@ begin
     end;
   except
     on ex: Exception do
-      ShowMessage(ex.Message);
+      ShowError('EditTexture',ex.Message);
   end;
-  ShowTopmost;
 end;
 
 procedure TLazPaintInstance.SelectionInstanceOnRun(AInstance: TLazPaintCustomInstance);
 begin
   AInstance.Config.SetDefaultImageWidth(Image.Width);
   AInstance.Config.SetDefaultImageHeight(Image.Height);
+end;
+
+function TLazPaintInstance.GetScriptContext: TScriptContext;
+begin
+  result := FScriptContext;
 end;
 
 function TLazPaintInstance.ProcessCommandLine: boolean;
@@ -572,7 +706,7 @@ begin
   FormsNeeded;
   commands := TStringList.Create;
   for i := 1 to paramCount do
-    commands.Add( ConvertToUTF8IfNeeded(ParamStr(i)));
+    commands.Add( ParamStrUtf8(i));
   ucommandline.ProcessCommands(self,commands,error,saved);
   commands.free;
   result := error or saved;
@@ -597,6 +731,11 @@ begin
   FMain.Show;
 end;
 
+procedure TLazPaintInstance.Hide;
+begin
+  if MainFormVisible then FMain.Hide;
+end;
+
 procedure TLazPaintInstance.Run;
 begin
   if not MainFormVisible then Show;
@@ -612,21 +751,25 @@ begin
 
   Config.SetDefaultGridVisible(FGridVisible);
   if FToolbox <> nil then
-    Config.SetDefaultToolboxWindowVisible(FToolbox.Visible or toolboxHidden);
+    Config.SetDefaultToolboxWindowVisible(FToolbox.Visible or (FTopMostInfo.toolboxHidden > 0));
   if FChooseColor <> nil then
-    Config.SetDefaultColorWindowVisible(FChooseColor.Visible or choosecolorHidden);
+    Config.SetDefaultColorWindowVisible(FChooseColor.Visible or (FTopMostInfo.choosecolorHidden > 0));
   if FLayerStack <> nil then
-    Config.SetDefaultLayerWindowVisible(FLayerStack.Visible or layerstackHidden);
+    Config.SetDefaultLayerWindowVisible(FLayerStack.Visible or (FTopMostInfo.layerstackHidden > 0));
+  if FImageList <> nil then
+    Config.SetDefaultImagelistWindowVisible (FImageList.Visible or (FTopMostInfo.imagelistHidden > 0));
   if FToolbox <> nil then
     Config.SetDefaultToolboxWindowPosition(FToolBox.BoundsRect);
   if FChooseColor <> nil then
     Config.SetDefaultColorWindowPosition(FChooseColor.BoundsRect);
   if FLayerStack <> nil then
     Config.SetDefaultLayerWindowPosition(FLayerStack.BoundsRect);
-
+  if FImageList <> nil then
+     Config.SetDefaultImagelistWindowPosition(FImageList.BoundsRect);
   Config.SetDefaultToolForeColor(ToolManager.ToolForeColor);
   Config.SetDefaultToolBackColor(ToolManager.ToolBackColor);
-  Config.SetDefaultToolPenWidth(ToolManager.ToolPenWidth);
+  Config.SetDefaultToolPenWidth(ToolManager.ToolNormalPenWidth);
+  Config.SetDefaultToolEraserWidth(ToolManager.ToolEraserWidth);
   Config.SetDefaultToolOptionDrawShape(ToolManager.ToolOptionDrawShape);
   Config.SetDefaultToolOptionFillShape(ToolManager.ToolOptionFillShape);
   Config.SetDefaultToolOptionCloseShape(ToolManager.ToolOptionCloseShape);
@@ -645,14 +788,15 @@ begin
   Config.SetDefaultToolShapeAltitude(ToolManager.ToolShapeAltitude);
   Config.SetDefaultToolShapeType(ToolManager.ToolShapeType);
 
-  if FLoading <> nil then
+  if FLoadingLayers <> nil then
   begin
-    FreeAndNil(FLoading);
+    FreeAndNil(FLoadingLayers);
     BGRALayers.UnregisterLoadingHandler(@OnLayeredBitmapLoadStartHandler,@OnLayeredBitmapLoadProgressHandler,@OnLayeredBitmapLoadedHandler);
   end;
   FreeAndNil(FLayerStack);
   FreeAndNil(FCustomBlur);
   FreeAndNil(FColorize);
+  FreeAndNil(FColorCurves);
   FreeAndNil(FShiftColors);
   FreeAndNil(FColorIntensity);
   FreeAndNil(FCanvasSize);
@@ -664,51 +808,81 @@ begin
   FreeAndNil(FConfig);
   FreeAndNil(FSelectionEditConfig);
   FreeAndNil(FTextureEditConfig);
+  //MessageDlg(FScriptContext.RecordedScript,mtInformation,[mbOk],0);
+  FreeAndNil(FScriptContext);
+  FreeAndNil(FImageList);
   inherited Destroy;
 end;
 
-procedure TLazPaintInstance.HideTopmost;
+function TLazPaintInstance.HideTopmost: TTopMostInfo;
 begin
+  result.defined:= false;
   if FDestroying then exit;
 
-  FormsNeeded;
   if (FToolBox <> nil) and FToolBox.Visible then
   begin
     FToolbox.Hide;
-    toolboxHidden := true;
-  end;
+    result.toolboxHidden := 1;
+  end else
+    result.toolboxHidden := 0;
   if (FChooseColor <> nil) and FChooseColor.Visible then
   begin
     FChooseColor.Hide;
-    choosecolorHidden := true;
-  end;
+    result.choosecolorHidden := 1;
+  end else
+    result.choosecolorHidden := 0;
   if (FLayerStack <> nil) and FLayerStack.Visible then
   begin
     FLayerStack.Hide;
-    layerstackHidden := true;
+    result.layerstackHidden := 1;
+  end else
+    result.layerstackHidden := 0;
+  if (FImageList <> nil) and FImageList.Visible then
+  begin
+    FImageList.Hide;
+    result.imagelistHidden := 1;
+  end else
+     result.imagelistHidden := 0;
+  Inc(FTopMostInfo.toolboxHidden, result.toolboxHidden);
+  Inc(FTopMostInfo.choosecolorHidden, result.choosecolorHidden);
+  Inc(FTopMostInfo.layerstackHidden, result.layerstackHidden);
+  Inc(FTopMostInfo.imagelistHidden, result.imagelistHidden);
+  result.defined:= true;
+end;
+
+procedure TLazPaintInstance.ShowTopmost(AInfo: TTopMostInfo);
+begin
+  if FDestroying or not AInfo.defined then exit;
+
+  if Assigned(FToolbox) and (AInfo.toolboxHidden > 0) then
+  begin
+    FToolbox.Show;
+    dec(FTopMostInfo.toolboxHidden);
+  end;
+  if Assigned(FChooseColor) and (AInfo.choosecolorHidden > 0) then
+  begin
+    FChooseColor.Show;
+    dec(FTopMostInfo.choosecolorHidden);
+  end;
+  if Assigned(FLayerStack) and (AInfo.layerstackHidden > 0) then
+  begin
+    FLayerStack.Show;
+    dec(FTopMostInfo.layerstackHidden);
+  end;
+  if assigned(FImageList) and (AInfo.imagelistHidden > 0) then
+  begin
+    FImageList.Show;
+    dec(FTopMostInfo.imagelistHidden);
   end;
 end;
 
-procedure TLazPaintInstance.ShowTopmost;
+procedure TLazPaintInstance.UpdateWindows;
 begin
-  if FDestroying then exit;
-
-  FormsNeeded;
-  if toolboxHidden then
-  begin
-    FToolbox.Show;
-    toolboxHidden := false;
-  end;
-  if choosecolorHidden then
-  begin
-    FChooseColor.Show;
-    choosecolorHidden := false;
-  end;
-  if layerstackHidden then
-  begin
-    FLayerStack.Show;
-    layerstackHidden := false;
-  end;
+  if Assigned(FMain) then FMain.Update;
+  if Assigned(FToolbox) then FToolbox.Update;
+  if Assigned(FChooseColor) then FChooseColor.Update;
+  if Assigned(FLayerStack) then FLayerStack.Update;
+  if Assigned(FImageList) then FImageList.Update;
 end;
 
 procedure TLazPaintInstance.NotifyImageChange(RepaintNow: boolean; ARect: TRect);
@@ -726,16 +900,21 @@ begin
   If RepaintNow then FMain.Update;
 end;
 
-function TLazPaintInstance.TryOpenFile(filename: string): boolean;
+function TLazPaintInstance.TryOpenFileUTF8(filename: string): boolean;
 begin
   FormsNeeded;
-  result := FMain.TryOpenFile(filename);
+  result := FMain.TryOpenFileUTF8(filename);
 end;
 
 function TLazPaintInstance.ExecuteFilter(filter: TPictureFilter;
   skipDialog: boolean): boolean;
+var vars: TVariableSet;
 begin
-  Result:= UFilters.ExecuteFilter(self, filter, skipDialog);
+  if filter = pfNone then exit;
+  vars := TVariableSet.Create('Filter');
+  vars.AddString('Name',PictureFilterStr[filter]);
+  Result:= UFilters.ExecuteFilter(self, filter, vars, skipDialog);
+  vars.Free;
 end;
 
 procedure TLazPaintInstance.ColorFromFChooseColor;
@@ -754,8 +933,7 @@ end;
 
 procedure TLazPaintInstance.ColorToFChooseColor;
 begin
-  FormsNeeded;
-  if InColorFromFChooseColor then exit;
+  if not Assigned(FChooseColor) or InColorFromFChooseColor then exit;
   if FChooseColor.colorTarget = ctForeColor then
     FChooseColor.SetCurrentColor(ToolManager.ToolForeColor) else
   if FChooseColor.colorTarget = ctBackColor then
@@ -763,33 +941,35 @@ begin
 end;
 
 procedure TLazPaintInstance.ShowCanvasSizeDlg;
+var topmostInfo: TTopMostInfo;
 begin
   FormsNeeded;
-  HideTopmost;
+  topmostInfo := HideTopmost;
   try
     FCanvasSize.repeatImage := False;
     if FCanvasSize.ShowModal = mrOk then
       Image.Assign(FCanvasSize.canvasSizeResult, true, True);
   except
     on ex:Exception do
-      ShowMessage('ShowCanvasSizeDlg: '+ex.Message);
+      ShowError('ShowCanvasSizeDlg',ex.Message);
   end;
-  ShowTopmost;
+  ShowTopmost(topmostInfo);
 end;
 
 procedure TLazPaintInstance.ShowRepeatImageDlg;
+var topmostInfo: TTopMostInfo;
 begin
   FormsNeeded;
-  HideTopmost;
+  topmostInfo := HideTopmost;
   try
     FCanvasSize.repeatImage := True;
     if FCanvasSize.ShowModal = mrOk then
       image.Assign(FCanvasSize.canvasSizeResult,true,True);
   except
     on ex:Exception do
-      ShowMessage('ShowRepeatImageDlg: '+ex.Message);
+      ShowError('ShowRepeatImageDlg',ex.Message);
   end;
-  ShowTopmost;
+  ShowTopmost(topmostInfo);
 end;
 
 procedure TLazPaintInstance.MoveToolboxTo(X, Y: integer);
@@ -815,24 +995,45 @@ begin
   end;
 end;
 
-procedure TLazPaintInstance.ShowAboutDlg;
+procedure TLazPaintInstance.MoveImageListWindowTo(X, Y: integer);
 begin
-  uabout.ShowAboutDlg(AboutText);
+  FormsNeeded;
+  FImageList.Left := X;
+  FImageList.Top := Y;
+end;
+
+procedure TLazPaintInstance.ImageListWindowVisibleKeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  if FImageList <> nil then
+    FImageList.FormKeyDown(nil,Key,Shift);
+end;
+
+procedure TLazPaintInstance.ShowAboutDlg;
+var tmi: TTopMostInfo;
+begin
+  tmi := HideTopmost;
+  uabout.ShowAboutDlg(self,AboutText);
+  ShowTopmost(tmi);
 end;
 
 function TLazPaintInstance.ShowNewImageDlg(out bitmap: TBGRABitmap
   ): boolean;
+var tx,ty: integer;
 begin
   FormsNeeded;
-  Result:= unewimage.ShowNewImageDlg(self,bitmap);
+
+  Result:= unewimage.ShowNewImageDlg(self,tx,ty);
+  if result then
+    bitmap := MakeNewBitmapReplacement(tx,ty)
+  else
+    bitmap := nil;
 end;
 
-function TLazPaintInstance.ShowResampleDialog: boolean;
+function TLazPaintInstance.ShowResampleDialog(AParameters: TVariableSet): boolean;
 begin
   FormsNeeded;
-  HideTopmost;
-  Result:= uresample.ShowResampleDialog(self);
-  ShowTopmost;
+  Result:= uresample.ShowResampleDialog(self,AParameters);
 end;
 
 procedure TLazPaintInstance.NotifyStackChange;
@@ -840,53 +1041,16 @@ begin
   OnStackChanged(image,False);
 end;
 
-procedure TLazPaintInstance.NewLayer;
+procedure TLazPaintInstance.ScrollLayerStackOnItem(AIndex: integer);
 begin
-  if not image.SelectionLayerIsEmpty then
-    if MessageDlg(rsTransferSelectionToOtherLayer,mtConfirmation,[mbOk,mbCancel],0) <> mrOk then
-      exit;
-  if image.NbLayers < MaxLayersToAdd then
+  if FLayerStack<> nil then
   begin
-    Image.AddNewLayer;
-    if FLayerStack <> nil then FLayerStack.SetLayerStackScrollPos(0,0);
-  end;
-end;
-
-procedure TLazPaintInstance.NewLayer(ALayer: TBGRABitmap; AName: string);
-begin
-  if image.NbLayers < MaxLayersToAdd then
-  begin
-    Image.AddNewLayer(ALayer, AName);
-    if FLayerStack <> nil then FLayerStack.SetLayerStackScrollPos(0,0);
-  end;
-end;
-
-procedure TLazPaintInstance.DuplicateLayer;
-begin
-  if image.NbLayers < MaxLayersToAdd then
-  begin
-    Image.DuplicateLayer;
-    if FLayerStack <> nil then FLayerStack.SetLayerStackScrollPosOnItem(Image.currentImageLayerIndex);
-  end;
-end;
-
-procedure TLazPaintInstance.MergeLayerOver;
-begin
-  if (Image.currentImageLayerIndex <> -1) and (image.NbLayers > 1) then
-  begin
-    Image.MergeLayerOver;
-    if FLayerStack <> nil then FLayerStack.SetLayerStackScrollPosOnItem(Image.currentImageLayerIndex);
-  end;
-end;
-
-procedure TLazPaintInstance.RemoveLayer;
-var idx: integer;
-begin
-  if (Image.currentImageLayerIndex <> -1) and (Image.NbLayers > 1) then
-  begin
-    idx := Image.currentImageLayerIndex;
-    Image.RemoveLayer;
-    if FLayerStack <> nil then FLayerStack.SetLayerStackScrollPosOnItem(Idx);
+    FLayerStack.SetLayerStackScrollPosOnItem(AIndex);
+    if FMain <> nil then
+    begin
+      FMain.StackNeedUpdate := true;
+    end else
+      NotifyStackChange;
   end;
 end;
 
@@ -935,6 +1099,14 @@ begin
   result := FToolBox.Visible or FChooseColor.Visible or FLayerStack.Visible;
 end;
 
+function TLazPaintInstance.GetTopMostOkToUnfocus: boolean;
+begin
+  if FChooseColor.Active and FChooseColor.EColor.Visible then
+    result := false
+  else
+    result := true;
+end;
+
 function TLazPaintInstance.GetChooseColorTarget: TColorTarget;
 begin
   Result:= FChooseColor.colorTarget;
@@ -946,155 +1118,257 @@ begin
   ColorToFChooseColor;
 end;
 
-procedure TLazPaintInstance.ShowColorIntensityDlg;
+function TLazPaintInstance.ShowColorIntensityDlg(AParameters: TVariableSet
+  ): boolean;
 var oldSelectionNormal: boolean;
 begin
+  result := false;
   FormsNeeded;
-  HideTopMost;
   oldSelectionNormal := ShowSelectionNormal;
   ShowSelectionNormal := true;
   try
-    FColorIntensity.ShowModal(self,ciIntensity);
+    result := FColorIntensity.ShowModal(self,ciIntensity,AParameters) = mrOK;
   except
     on ex:Exception do
-      ShowMessage('ShowColorIntensityDlg: '+ex.Message);
+      ShowError('ShowColorIntensityDlg',ex.Message);
   end;
   ShowSelectionNormal := oldSelectionNormal;
-  ShowTopMost;
 end;
 
-procedure TLazPaintInstance.ShowColorLightnessDlg;
+function TLazPaintInstance.ShowColorLightnessDlg(AParameters: TVariableSet
+  ): boolean;
 var oldSelectionNormal: boolean;
 begin
+  result := false;
   FormsNeeded;
-  HideTopMost;
   oldSelectionNormal := ShowSelectionNormal;
   ShowSelectionNormal := true;
   try
-    FColorIntensity.ShowModal(self,ciLightness);
+    result := FColorIntensity.ShowModal(self,ciLightness,AParameters) = mrOk;
   except
     on ex:Exception do
-      ShowMessage('ShowColorLightnessDlg: '+ex.Message);
+      ShowError('ShowColorLightnessDlg',ex.Message);
   end;
   ShowSelectionNormal := oldSelectionNormal;
-  ShowTopMost;
 end;
 
-procedure TLazPaintInstance.ShowShiftColorsDlg;
+function TLazPaintInstance.ShowShiftColorsDlg(AParameters: TVariableSet
+  ): boolean;
 var oldSelectionNormal: boolean;
 begin
+  result := false;
   FormsNeeded;
-  HideTopMost;
   oldSelectionNormal := ShowSelectionNormal;
   ShowSelectionNormal := true;
   try
-    FShiftColors.ShowModal(self);
+    result := FShiftColors.ShowModal(self,AParameters) = mrOk;
   except
     on ex:Exception do
-      ShowMessage('ShowShiftColorsDlg: '+ex.Message);
+      ShowError('ShowShiftColorsDlg',ex.Message);
   end;
   ShowSelectionNormal := oldSelectionNormal;
-  ShowTopMost;
 end;
 
-procedure TLazPaintInstance.ShowColorizeDlg;
+function TLazPaintInstance.ShowColorizeDlg(AParameters: TVariableSet): boolean;
 var oldSelectionNormal: boolean;
 begin
+  result := false;
   FormsNeeded;
-  HideTopMost;
   oldSelectionNormal := ShowSelectionNormal;
   ShowSelectionNormal := true;
   try
-    FColorize.ShowModal(self);
+    result := FColorize.ShowModal(self,AParameters) = mrOk;
   except
     on ex:Exception do
-      ShowMessage('ShowColorizeDlg: '+ex.Message);
+      ShowError('ShowColorizeDlg',ex.Message);
   end;
   ShowSelectionNormal := oldSelectionNormal;
-  ShowTopMost;
+end;
+
+function TLazPaintInstance.ShowColorCurvesDlg(AParameters: TVariableSet
+  ): boolean;
+var oldSelectionNormal: boolean;
+begin
+  result := false;
+  FormsNeeded;
+  oldSelectionNormal := ShowSelectionNormal;
+  ShowSelectionNormal := true;
+  try
+    result := FColorCurves.ShowModal(self,AParameters) = mrOk;
+  except
+    on ex:Exception do
+      ShowError('ShowColorCurvesDlg',ex.Message);
+  end;
+  ShowSelectionNormal := oldSelectionNormal;
 end;
 
 function TLazPaintInstance.ShowRadialBlurDlg(AFilterConnector: TObject; blurType: TRadialBlurType): boolean;
 var oldSelectionNormal: boolean;
+    top: TTopMostInfo;
 begin
+  top := self.HideTopmost;
   oldSelectionNormal := ShowSelectionNormal;
   ShowSelectionNormal := true;
   result := uradialblur.ShowRadialBlurDlg(AFilterConnector,blurType);
   ShowSelectionNormal := oldSelectionNormal;
+  self.ShowTopmost(top);
 end;
 
 function TLazPaintInstance.ShowMotionBlurDlg(AFilterConnector: TObject):boolean;
 var oldSelectionNormal: boolean;
+    top: TTopMostInfo;
 begin
+  top := self.HideTopmost;
   oldSelectionNormal := ShowSelectionNormal;
   ShowSelectionNormal := true;
   result := umotionblur.ShowMotionBlurDlg(AFilterConnector);
   ShowSelectionNormal := oldSelectionNormal;
+  self.ShowTopmost(top);
 end;
 
 function TLazPaintInstance.ShowCustomBlurDlg(AFilterConnector: TObject):boolean;
 var oldSelectionNormal: boolean;
+    top: TTopMostInfo;
 begin
+  top := self.HideTopmost;
   oldSelectionNormal := ShowSelectionNormal;
   ShowSelectionNormal := true;
   result := FCustomBlur.ShowDlg(AFilterConnector);
   ShowSelectionNormal := oldSelectionNormal;
+  self.ShowTopmost(top);
 end;
 
 function TLazPaintInstance.ShowEmbossDlg(AFilterConnector: TObject): boolean;
 var oldSelectionNormal: boolean;
+    top: TTopMostInfo;
 begin
+  top := self.HideTopmost;
   oldSelectionNormal := ShowSelectionNormal;
   ShowSelectionNormal := true;
   result := uemboss.ShowEmbossDlg(AFilterConnector);
   ShowSelectionNormal := oldSelectionNormal;
+  self.ShowTopmost(top);
 end;
 
 function TLazPaintInstance.ShowPixelateDlg(AFilterConnector: TObject): boolean;
 var oldSelectionNormal: boolean;
+    top: TTopMostInfo;
 begin
+  top := self.HideTopmost;
   oldSelectionNormal := ShowSelectionNormal;
   ShowSelectionNormal := true;
   result := upixelate.ShowPixelateDlg(AFilterConnector);
   ShowSelectionNormal := oldSelectionNormal;
+  self.ShowTopmost(top);
+end;
+
+function TLazPaintInstance.ShowNoiseFilterDlg(AFilterConnector: TObject
+  ): boolean;
+var oldSelectionNormal: boolean;
+    top: TTopMostInfo;
+begin
+  top := self.HideTopmost;
+  oldSelectionNormal := ShowSelectionNormal;
+  ShowSelectionNormal := true;
+  result := unoisefilter.ShowNoiseFilterDlg(AFilterConnector);
+  ShowSelectionNormal := oldSelectionNormal;
+  self.ShowTopmost(top);
 end;
 
 function TLazPaintInstance.ShowTwirlDlg(AFilterConnector: TObject): boolean;
 var oldSelectionNormal: boolean;
+    top: TTopMostInfo;
 begin
+  top := self.HideTopmost;
   oldSelectionNormal := ShowSelectionNormal;
   ShowSelectionNormal := true;
   result := utwirl.ShowTwirlDlg(AFilterConnector);
   ShowSelectionNormal := oldSelectionNormal;
+  self.ShowTopmost(top);
 end;
 
 function TLazPaintInstance.ShowPhongFilterDlg(AFilterConnector: TObject): boolean;
 var oldSelectionNormal: boolean;
+    top: TTopMostInfo;
 begin
+  top := self.HideTopmost;
   oldSelectionNormal := ShowSelectionNormal;
   ShowSelectionNormal := true;
   result := UPhongFilter.ShowPhongFilterDlg(AFilterConnector);
   ShowSelectionNormal := oldSelectionNormal;
+  self.ShowTopmost(top);
 end;
 
 function TLazPaintInstance.ShowFunctionFilterDlg(AFilterConnector: TObject
   ): boolean;
 var oldSelectionNormal: boolean;
+    top: TTopMostInfo;
 begin
+  top := self.HideTopmost;
   oldSelectionNormal := ShowSelectionNormal;
   ShowSelectionNormal := true;
   result := UFilterFunction.ShowFilterFunctionDlg(AFilterConnector);
   ShowSelectionNormal := oldSelectionNormal;
+  self.ShowTopmost(top);
 end;
 
 function TLazPaintInstance.ShowSharpenDlg(AFilterConnector: TObject): boolean;
 var oldSelectionNormal: boolean;
+    top: TTopMostInfo;
 begin
+  top := self.HideTopmost;
   oldSelectionNormal := ShowSelectionNormal;
   ShowSelectionNormal := true;
   result := USharpen.ShowSharpenDlg(AFilterConnector,smSharpen);
   ShowSelectionNormal := oldSelectionNormal;
+  self.ShowTopmost(top);
+end;
+
+function TLazPaintInstance.ShowPosterizeDlg(AParameters: TVariableSet): boolean;
+var oldSelectionNormal: boolean;
+    top: TTopMostInfo;
+begin
+  top := self.HideTopmost;
+  oldSelectionNormal := ShowSelectionNormal;
+  ShowSelectionNormal := true;
+  result := uposterize.ShowPosterizeDlg(self, AParameters);
+  ShowSelectionNormal := oldSelectionNormal;
+  self.ShowTopmost(top);
+end;
+
+procedure TLazPaintInstance.ShowPrintDlg;
+var f: TFPrint;
+    wasVisible: boolean;
+begin
+  wasVisible := false;
+  if (FMain <> nil) and FMain.Visible then
+  begin
+    wasVisible := true;
+    FMain.Hide;
+  end;
+  f := TFPrint.Create(nil);
+  f.Instance := self;
+  f.ShowModal;
+  f.Free;
+  if (FMain <> nil) and wasVisible then FMain.Show;
+end;
+
+function TLazPaintInstance.OpenImage (FileName: string; AddToRecent: Boolean=True): boolean;
+begin
+  FormsNeeded;
+  Result:= FMain.TryOpenFileUTF8(FileName, AddToRecent);
+end;
+
+procedure TLazPaintInstance.ZoomFit;
+begin
+    FMain.Zoom.ZoomFit(Image.Width,Image.Height,FMain.GetPictureArea);
+end;
+
+procedure TLazPaintInstance.AddToImageList(const FileNames: array of String);
+begin
+  if FImageList <> nil then
+    FImageList.AddFiles (FileNames);
 end;
 
 end.
-
+

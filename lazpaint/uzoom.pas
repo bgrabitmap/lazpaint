@@ -45,6 +45,7 @@ type
     procedure ZoomOut;
     procedure SetPosition(ABitmapPosition: TPointF; AMousePosition: TPoint);
     procedure ClearPosition;
+    procedure DoAction(const AName: string);
     property EditingZoom: boolean read GetEditingZoom write SetEditingZoom;
     property Factor: single read GetZoomFactor write SetZoomFactor;
     property OnZoomChanged: TOnZoomChangedHandler read FOnZoomChangedHandler write FOnZoomChangedHandler;
@@ -189,16 +190,18 @@ begin
 end;
 
 procedure TZoom.ZoomFit(AImageWidth, AImageHeight: integer; APictureArea: TRect);
+const pixelMargin = 0;
 var zx,zy: single;
 begin
-  if (AImageWidth = 0) or (AImageHeight = 0) then exit;
+  if (AImageWidth = 0) or (AImageHeight = 0) or (APictureArea.right-APictureArea.Left <= pixelMargin)
+    or (APictureArea.Bottom-APictureArea.top <= pixelMargin) then exit;
   try
-    zx := (APictureArea.right-APictureArea.left)/AImageWidth;
-    zy := (APictureArea.bottom-APictureArea.top)/AImageheight;
+    zx := (APictureArea.right-APictureArea.left-pixelMargin)/AImageWidth;
+    zy := (APictureArea.bottom-APictureArea.top-pixelMargin)/AImageheight;
     Factor:= min(zx,zy);
   except
     on ex:Exception do
-      ShowMessage('ZoomFit: '+ex.Message);
+    begin end;
   end;
 end;
 
@@ -227,6 +230,13 @@ end;
 procedure TZoom.ClearPosition;
 begin
   SetPosition(EmptyPointF,Point(0,0));
+end;
+
+procedure TZoom.DoAction(const AName: string);
+begin
+  if AName = 'ViewZoomIn' then ZoomIn else
+  if AName = 'ViewZoomOriginal' then ZoomOriginal else
+  if AName = 'ViewZoomOut' then ZoomOut;
 end;
 
 end.

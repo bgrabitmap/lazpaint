@@ -7,9 +7,10 @@ interface
 uses
   Classes, SysUtils, Forms, BGRABitmap, BGRAGradients;
 
-const VolatileScrollBarSize = 16;
-  VolatileThumbSize = 24;
-  VolatileBorderSize = 3;
+var
+  VolatileScrollBarSize : integer = 16;
+  VolatileThumbSize : integer = 24;
+  VolatileBorderSize : integer = 3;
 
 type
 
@@ -44,7 +45,7 @@ type
 
 implementation
 
-uses Graphics, Types, BGRABitmapTypes;
+uses Graphics, Types, BGRABitmapTypes, LazPaintType;
 
 { TVolatileScrollBar }
 
@@ -170,5 +171,10 @@ begin
   FPhong.DrawRectangle(ADest,lThumb,VolatileBorderSize,h,ColorToBGRA(ColorToRGB(clBtnFace)),true,[]);
 end;
 
-end.
+initialization
 
+  VolatileScrollBarSize := ScaleX(VolatileScrollBarSize, OriginalDPI);
+  VolatileThumbSize := ScaleX(VolatileThumbSize, OriginalDPI);
+
+end.
+

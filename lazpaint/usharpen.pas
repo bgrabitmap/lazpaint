@@ -49,7 +49,7 @@ begin
   except
     on ex: exception do
     begin
-      MessageDlg(ex.Message,mtInformation,[mbOk],0);
+      (AFilterConnector as TFilterConnector).LazPaintInstance.ShowError('ShowSharpenDlg',ex.Message);
       result := false;
       exit;
     end;
@@ -58,8 +58,8 @@ begin
     result := FSharpen.ShowModal = mrOK;
   finally
     FSharpen.FFilterConnector.OnTryStopAction := nil;
+    FSharpen.Free;
   end;
-  FSharpen.Free
 end;
 
 { TFSharpen }
@@ -86,6 +86,7 @@ begin
     if FMode = smSharpen then Caption := Trim(copy(Caption,1,idxSlash-1)) else
         Caption := Trim(Copy(Caption,idxSlash+1,length(Caption)-idxSlash));
   end;
+  Top := FFilterConnector.LazPaintInstance.MainFormBounds.Top;
 end;
 
 procedure TFSharpen.SpinEdit_AmountChange(Sender: TObject);
@@ -110,12 +111,10 @@ var filtered: TBGRABitmap;
 begin
   if FMode = smSharpen then
     filtered := FFilterConnector.BackupLayer.FilterSharpen(FFilterConnector.WorkArea,SpinEdit_Amount.Value/100) as TBGRABitmap;
-  FFilterConnector.PutImage(filtered,False);
-  filtered.Free;
+  FFilterConnector.PutImage(filtered,False,True);
 end;
 
-initialization
-  {$I usharpen.lrs}
+{$R *.lfm}
 
 end.
 

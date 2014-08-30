@@ -45,7 +45,6 @@ type
     function ShaderActuallyActive: boolean;
     function OutlineActuallyVisible: boolean;
     procedure Init;
-    procedure UpdateFont; override;
     function VectorizedFontNeeded: boolean;
     procedure InternalTextOut(ADest: TBGRACustomBitmap; x, y: single; s: string; c: TBGRAPixel; texture: IBGRAScanner; align: TAlignment);
   public
@@ -71,6 +70,7 @@ type
       texture: IBGRAScanner; align: TAlignment); override;
     procedure TextOut(ADest: TBGRACustomBitmap; x, y: single; s: string; c: TBGRAPixel;
       align: TAlignment); override;
+    function TextSize(sUTF8: string): TSize; override;
     property Shader: TCustomPhongShading read FShader;
     property ShaderLightPosition: TPoint read GetShaderLightPosition write SetShaderLightPosition;
     property VectorizedFontRenderer: TBGRAVectorizedFontRenderer read GetVectorizedRenderer;
@@ -154,7 +154,7 @@ procedure BGRATextOutImproveReadability(bmp: TBGRACustomBitmap; AFont: TFont; xf
 
 implementation
 
-uses BGRAGradientScanner, GraphType, Math;
+uses BGRAGradientScanner, GraphType, Math, BGRAGrayscaleMask;
 
 const DefaultOutlineWidth = 3;
 
@@ -166,11 +166,11 @@ var
   x,y,yb,cury,fromy: integer;
   toAdd: integer;
   lines: array[0..3] of integer;
-  parts: array[0..3] of TBGRACustomBitmap;
-  n,nbLines,v: integer;
-  alphaMax: byte;
+  parts: array[0..3] of TGrayscaleMask;
+  n,nbLines: integer;
+  alphaMax: NativeUint;
   ptrPart: TBGRACustomBitmap;
-  pmask: PBGRAPixel;
+  pmask: PByte;
   fx: TBGRATextEffect;
   FxFont: TFont;
   prevCenter, newCenter, diffCenter: single;
@@ -251,18 +251,17 @@ begin
     begin
       ptrPart := fx.TextMask.GetPtrBitmap(fromy,lines[yb]);
       if useClearType then
-        parts[yb] := ptrPart.Resample(round(ptrPart.Width/FontAntialiasingLevel*3),round(ptrPart.Height/FontAntialiasingLevel),rmSimpleStretch)
+        parts[yb] := TGrayscaleMask.CreateDownSample(ptrPart,round(ptrPart.Width/FontAntialiasingLevel*3),round(ptrPart.Height/FontAntialiasingLevel))
       else
-        parts[yb] := ptrPart.Resample(round(ptrPart.Width/FontAntialiasingLevel),round(ptrPart.Height/FontAntialiasingLevel),rmSimpleStretch);
+        parts[yb] := TGrayscaleMask.CreateDownSample(ptrPart,round(ptrPart.Width/FontAntialiasingLevel),round(ptrPart.Height/FontAntialiasingLevel));
       ptrPart.Free;
 
       if alphaMax < 255 then
       begin
-        pmask := parts[yb].data;
+        pmask := parts[yb].Data;
         for n := parts[yb].NbPixels-1 downto 0 do
         begin
-          v := pmask^.green;
-          if v > alphaMax then alphaMax := v;
+          if pmask^ > alphaMax then alphaMax := pmask^;
           inc(pmask);
         end;
       end;
@@ -310,29 +309,19 @@ begin
       pmask := parts[yb].data;
       for n := parts[yb].NbPixels-1 downto 0 do
       begin
-        v := integer(pmask^.green)*255 div alphaMax;
-        if v > 255 then v := 255;
-        pmask^.green := v;
-        pmask^.red := v;
-        pmask^.blue := v;
+        pmask^ := pmask^*255 div alphaMax;
         inc(pmask);
       end;
     end;
     if useClearType then
-    begin
-      if tex <> nil then
-        bmp.FillClearTypeMask(x,cury,xThird,parts[yb],tex,ClearTypeRGBOrder) else
-        bmp.FillClearTypeMask(x,cury,xThird,parts[yb],color,ClearTypeRGBOrder);
-    end else
-    if mode = irMask then
-    begin
-      bmp.PutImage(x,cury,parts[yb],dmSet);
-    end
+      BGRAFillClearTypeGrayscaleMask(bmp,x,cury,xThird,parts[yb],color,tex,ClearTypeRGBOrder)
+    else if mode = irMask then
+      parts[yb].Draw(bmp,x,cury)
     else
     begin
       if tex <> nil then
-        bmp.FillMask(x,cury,parts[yb],tex) else
-        bmp.FillMask(x,cury,parts[yb],color);
+        parts[yb].DrawAsAlpha(bmp,x,cury,tex) else
+        parts[yb].DrawAsAlpha(bmp,x,cury,color);
     end;
     inc(cury,parts[yb].Height);
     parts[yb].Free;
@@ -449,18 +438,14 @@ begin
   FVectorizedRenderer := TBGRAVectorizedFontRenderer.Create;
 end;
 
-procedure TBGRATextEffectFontRenderer.UpdateFont;
-begin
-  FontOrientation:= 0;
-  inherited UpdateFont;
-end;
-
 function TBGRATextEffectFontRenderer.VectorizedFontNeeded: boolean;
 var bAntialiasing, bBigFont, bSpecialOutline, bOriented, bEffectVectorizedSupported: boolean;
+  textsz: TSize;
 begin
   bAntialiasing := FontQuality in [fqFineAntialiasing,fqFineClearTypeRGB,fqFineClearTypeBGR];
-  bBigFont := (not OutlineActuallyVisible and (TextSize('Hg').cy >= 24)) or
-     (OutlineActuallyVisible and (TextSize('Hg').cy > 42));
+  textsz := inherited TextSize('Hg');
+  bBigFont := (not OutlineActuallyVisible and (textsz.cy >= 24)) or
+     (OutlineActuallyVisible and (textsz.cy > 42));
   bSpecialOutline:= OutlineActuallyVisible and (abs(OutlineWidth) <> DefaultOutlineWidth);
   bOriented := FontOrientation <> 0;
   bEffectVectorizedSupported := OutlineActuallyVisible or ShadowActuallyVisible;
@@ -570,6 +555,16 @@ begin
     VectorizedFontRenderer.TextOut(ADest,x,y,s,c,align)
   else
     InternalTextOut(ADest,x,y,s,c,nil,align);
+end;
+
+function TBGRATextEffectFontRenderer.TextSize(sUTF8: string): TSize;
+begin
+  if VectorizedFontNeeded then
+    result := VectorizedFontRenderer.TextSize(sUTF8)
+  else
+  begin
+    result := inherited TextSize(sUTF8);
+  end;
 end;
 
 { TBGRATextEffect }
@@ -957,6 +952,7 @@ begin
 end;
 
 procedure TBGRATextEffect.Init(AText: string; Font: TFont; Antialiasing: boolean; SubOffsetX,SubOffsetY: single; GrainX, GrainY: Integer);
+const FXAntialiasingLevel = FontAntialiasingLevel;
 var temp: TBGRACustomBitmap;
     size: TSize;
     p: PBGRAPixel;
@@ -976,10 +972,10 @@ begin
     quality := fqFineAntialiasing
   else
     quality := fqSystem;
-  size := BGRAOriginalTextSize(Font,quality,AText,FontAntialiasingLevel);
+  size := BGRAOriginalTextSize(Font,quality,AText,FXAntialiasingLevel);
   if (size.cx = 0) or (size.cy = 0) then
   begin
-    size := BGRATextSize(Font,quality,'Hg',FontAntialiasingLevel);
+    size := BGRATextSize(Font,quality,'Hg',FXAntialiasingLevel);
     FTextSize.cx := 0;
     FTextSize.cy := size.cy;
     FOffset := Point(0,0);
@@ -997,24 +993,24 @@ begin
 
   if Antialiasing then
   begin
-    sizeX := (sizeX + FontAntialiasingLevel-1);
-    sizeX -= sizeX mod FontAntialiasingLevel;
+    sizeX := (sizeX + FXAntialiasingLevel-1);
+    sizeX -= sizeX mod FXAntialiasingLevel;
 
-    sizeY := (sizeY + FontAntialiasingLevel-1);
-    sizeY -= sizeY mod FontAntialiasingLevel;
+    sizeY := (sizeY + FXAntialiasingLevel-1);
+    sizeY -= sizeY mod FXAntialiasingLevel;
 
     if SubOffsetX <> 0 then
     begin
-      sizeX += ceil(SubOffsetX*FontAntialiasingLevel);
-      iSubX := round(SubOffsetX*FontAntialiasingLevel);
+      sizeX += ceil(SubOffsetX*FXAntialiasingLevel);
+      iSubX := round(SubOffsetX*FXAntialiasingLevel);
     end;
     if SubOffsetY <> 0 then
     begin
-      sizeY += ceil(SubOffsetY*FontAntialiasingLevel);
-      iSubY := round(SubOffsetY*FontAntialiasingLevel);
+      sizeY += ceil(SubOffsetY*FXAntialiasingLevel);
+      iSubY := round(SubOffsetY*FXAntialiasingLevel);
     end;
 
-    OnePixel := FontAntialiasingLevel;
+    OnePixel := FXAntialiasingLevel;
   end else
   begin
     OnePixel := 1;
@@ -1052,11 +1048,11 @@ begin
 
   if Antialiasing then
   begin
-    FTextSize.cx := round(FTextSize.cx/FontAntialiasingLevel);
-    FTextSize.cy := round(FTextSize.cy/FontAntialiasingLevel);
-    FOffset := Point(round(FOffset.X/FontAntialiasingLevel),round(FOffset.Y/FontAntialiasingLevel));
+    FTextSize.cx := round(FTextSize.cx/FXAntialiasingLevel);
+    FTextSize.cy := round(FTextSize.cy/FXAntialiasingLevel);
+    FOffset := Point(round(FOffset.X/FXAntialiasingLevel),round(FOffset.Y/FXAntialiasingLevel));
 
-    FTextMask := temp.Resample(round(temp.width/FontAntialiasingLevel),round(temp.Height/FontAntialiasingLevel),rmSimpleStretch);
+    FTextMask := temp.Resample(round(temp.width/FXAntialiasingLevel),round(temp.Height/FXAntialiasingLevel),rmSimpleStretch);
 
     maxAlpha := 0;
     p := FTextMask.Data;

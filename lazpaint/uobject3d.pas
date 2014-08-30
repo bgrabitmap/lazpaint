@@ -7,13 +7,14 @@ interface
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
   StdCtrls, Spin, ExtCtrls, ComCtrls, BGRAVirtualScreen, BGRAKnob, BGRABitmap,
-  BGRAScene3D, LazPaintType, BGRABitmapTypes;
+  BGRAScene3D, LazPaintType, BGRABitmapTypes, UConfig;
 
 type
 
   { TScene }
 
   TScene = class(TBGRAScene3D)
+  public
     FCustomMaterials: array of record
         Name: string;
         Material3D: IBGRAMaterial3D;
@@ -21,7 +22,13 @@ type
         Texture: TBGRABitmap;
       end;
     FCustomMaterialCount: integer;
+    procedure ClearCoordFlag(AVertex: IBGRAVertex3D);
+    procedure SetCoordFlag(AVertex: IBGRAVertex3D);
+    function GetCoordFlag(AVertex: IBGRAVertex3D): boolean;
     procedure UseMaterial(AMaterialName: string; AFace: IBGRAFace3D); override;
+    procedure UpdateMaterials; override;
+    procedure UpdateMaterial(AMaterialName: string); override;
+    destructor Destroy; override;
   end;
 
   { TFObject3D }
@@ -29,6 +36,8 @@ type
   TFObject3D = class(TForm)
     BGRAKnob_Zoom: TBGRAKnob;
     BGRAView3D: TBGRAVirtualScreen;
+    Button_LoadTex: TButton;
+    Button_NoTex: TButton;
     Button_Cancel: TButton;
     Button_OK: TButton;
     CheckBox_Antialiasing: TCheckBox;
@@ -46,6 +55,7 @@ type
     Label_Width: TLabel;
     Label_Height: TLabel;
     ListBox_Materials: TListBox;
+    OpenTextureDialog: TOpenDialog;
     PageControl1: TPageControl;
     Shape_MaterialColor: TShape;
     SpinEdit_ColorOpacity: TSpinEdit;
@@ -62,22 +72,31 @@ type
     procedure BGRAView3DMouseUp(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure BGRAView3DRedraw(Sender: TObject; Bitmap: TBGRABitmap);
+    procedure Button_LoadTexClick(Sender: TObject);
+    procedure Button_NoTexClick(Sender: TObject);
     procedure CheckBox_AntialiasingChange(Sender: TObject);
     procedure CheckBox_BifaceChange(Sender: TObject);
     procedure CheckBox_TextureInterpChange(Sender: TObject);
     procedure ComboBox_NormalsChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormKeyPress(Sender: TObject; var Key: char);
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure ListBox_MaterialsKeyPress(Sender: TObject; var Key: char);
     procedure ListBox_MaterialsSelectionChange(Sender: TObject; {%H-}User: boolean);
     procedure Shape_MaterialColorMouseDown(Sender: TObject;
       {%H-}Button: TMouseButton; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure SpinEdit_ColorOpacityChange(Sender: TObject);
+    procedure SpinEdit_ColorOpacityKeyPress(Sender: TObject; var Key: char);
+    procedure SpinEdit_HeightKeyPress(Sender: TObject; var Key: char);
     procedure SpinEdit_SpecularIndexChange(Sender: TObject);
+    procedure SpinEdit_SpecularIndexKeyPress(Sender: TObject; var Key: char);
+    procedure SpinEdit_WidthKeyPress(Sender: TObject; var Key: char);
   private
     { private declarations }
     procedure UpdateMaterialsTab;
+    procedure CheckKey(var Key: char);
   public
     { public declarations }
     scene : TScene;
@@ -87,18 +106,33 @@ type
     previousZoom: single;
     materialIndex: integer;
     MaterialsClientHeight: integer;
+    Config: TLazPaintConfig;
   end;
 
-function ShowObject3DDlg({%H-}Instance: TLazPaintCustomInstance; filename: string; maxWidth, maxHeight: integer): TBGRABitmap;
+function ShowObject3DDlg({%H-}Instance: TLazPaintCustomInstance; filenameUTF8: string; maxWidth, maxHeight: integer): TBGRABitmap;
 
 implementation
 
-uses ugraph, uscaledpi, umac;
+uses ugraph, uscaledpi, umac, ULoadImage;
 
 { TScene }
 
+procedure TScene.ClearCoordFlag(AVertex: IBGRAVertex3D);
+begin
+  AVertex.CustomFlags:= AVertex.CustomFlags and not 1;
+end;
+
+procedure TScene.SetCoordFlag(AVertex: IBGRAVertex3D);
+begin
+  AVertex.CustomFlags:= AVertex.CustomFlags or 1;
+end;
+
+function TScene.GetCoordFlag(AVertex: IBGRAVertex3D): boolean;
+begin
+  result := (AVertex.CustomFlags and 1) <> 0;
+end;
+
 procedure TScene.UseMaterial(AMaterialName: string; AFace: IBGRAFace3D);
-var i: integer;
 
   function ParseColor(text: string): TBGRAPixel;
   var
@@ -127,6 +161,63 @@ var i: integer;
     result := color;
   end;
 
+  procedure ComputeTexCoord(AWidth,AHeight: integer);
+  var
+    j: integer;
+    p1,p2,p3,u,v: TPoint3d;
+    min,max,pt: TPointF;
+    factor: single;
+  begin
+    if AFace.VertexCount < 3 then exit;
+
+    j := 0;
+    p1 := AFace.Vertex[j].GetSceneCoord;
+    repeat
+      inc(j);
+      if j >= AFace.VertexCount then exit;
+      p2 := AFace.Vertex[j].GetSceneCoord;
+      u := p2-p1;
+    until u*u <> 0;
+    Normalize3D(u);
+    repeat
+      inc(j);
+      if j >= AFace.VertexCount then exit;
+      p3 := AFace.Vertex[j].GetSceneCoord;
+      v := p3-p2;
+      v := v - u*(u*v);
+    until v*v <> 0;
+    Normalize3D(v);
+
+    for j := 0 to AFace.VertexCount-1 do
+    with AFace.Vertex[j] do
+    begin
+      pt := PointF((GetSceneCoord-p1)*u,(GetSceneCoord-p1)*v);
+      if j = 0 then
+      begin
+        min := pt;
+        max := pt;
+      end else
+      begin
+        if pt.x < min.x then min.x := pt.x else
+        if pt.x > max.x then max.x := pt.x;
+        if pt.y < min.y then min.y := pt.y else
+        if pt.y > max.y then max.y := pt.y;
+      end;
+    end;
+    if min.x = max.x then max.x := min.x+1;
+    if min.y = max.y then max.y := min.y+1;
+    factor := AWidth/(max.x-min.x);
+    if AHeight/(max.y-min.y) < factor then factor := AHeight/(max.y-min.y);
+    for j := 0 to AFace.VertexCount-1 do
+    with AFace.Vertex[j] do
+    begin
+      pt := PointF((GetSceneCoord-p1)*u,(GetSceneCoord-p1)*v);
+      pt := PointF((pt.x-min.x)*factor,(pt.y-min.y)*factor);
+      AFace.TexCoord[j] := pt;
+    end;
+  end;
+
+var i: integer;
 begin
   for i := 0 to FCustomMaterialCount -1 do
     if FCustomMaterials[i].Name = AMaterialName then
@@ -139,6 +230,7 @@ begin
       begin
         AFace.SetColor(BGRAWhite);
         AFace.Texture := FCustomMaterials[i].Texture;
+        ComputeTexCoord(FCustomMaterials[i].Texture.Width,FCustomMaterials[i].Texture.Height);
       end;
       AFace.Material := FCustomMaterials[i].Material3D;
       exit;
@@ -158,14 +250,73 @@ begin
   inc(FCustomMaterialCount);
 end;
 
+procedure TScene.UpdateMaterials;
+var i: integer;
+begin
+  for i := 0 to FCustomMaterialCount-1 do
+    UpdateMaterial(FCustomMaterials[i].Name);
+end;
+
+procedure TScene.UpdateMaterial(AMaterialName: string);
+begin
+  ForEachVertex(@ClearCoordFlag);
+  inherited UpdateMaterial(AMaterialName);
+end;
+
+destructor TScene.Destroy;
+var i: integer;
+begin
+  for i := 0 to FCustomMaterialCount-1 do
+    FreeAndNil(FCustomMaterials[i].Texture);
+  inherited Destroy;
+end;
+
 { TFObject3D }
 
 procedure TFObject3D.BGRAView3DRedraw(Sender: TObject;
   Bitmap: TBGRABitmap);
 begin
-  DrawCheckers(Bitmap);
+  DrawCheckers(Bitmap,rect(0,0,Bitmap.Width,Bitmap.Height));
   scene.Surface := Bitmap;
   scene.Render;
+end;
+
+procedure TFObject3D.Button_LoadTexClick(Sender: TObject);
+var prevTex,tex: TBGRABitmap;
+  final: string;
+begin
+  if materialIndex <> -1 then
+  begin
+    OpenTextureDialog.InitialDir := Config.DefaultTextureDirectory;
+    if OpenTextureDialog.Execute then
+    begin
+      prevTex := nil;
+      try
+        tex := LoadFlatImageUTF8(OpenTextureDialog.FileName,final,'');
+        prevTex := scene.FCustomMaterials[materialIndex].Texture;
+        scene.FCustomMaterials[materialIndex].Texture := tex;
+        Config.SetDefaultTextureDirectory(ExtractFilePath(OpenTextureDialog.Filename));
+      except
+        on ex:exception do ShowMessage(ex.Message);
+      end;
+      scene.UpdateMaterial(scene.FCustomMaterials[materialIndex].Name);
+      prevTex.Free;
+      BGRAView3D.DiscardBitmap;
+    end;
+  end;
+end;
+
+procedure TFObject3D.Button_NoTexClick(Sender: TObject);
+begin
+  if materialIndex <> -1 then
+  begin
+    if scene.FCustomMaterials[materialIndex].Texture <> nil then
+    begin
+      FreeAndNil(scene.FCustomMaterials[materialIndex].Texture);
+      scene.UpdateMaterial(scene.FCustomMaterials[materialIndex].Name);
+      BGRAView3D.DiscardBitmap;
+    end;
+  end;
 end;
 
 procedure TFObject3D.CheckBox_AntialiasingChange(Sender: TObject);
@@ -273,7 +424,7 @@ begin
   begin
     LightingInterpolation := liAlwaysHighQuality;
     AntialiasingMode := am3dResample;
-    AntialiasingResampleLevel := 2;
+    AntialiasingResampleLevel := 1;
     PerspectiveMode := pmZBuffer;
     TextureInterpolation := True;
   end;
@@ -293,6 +444,11 @@ begin
   scene.Free;
 end;
 
+procedure TFObject3D.FormKeyPress(Sender: TObject; var Key: char);
+begin
+  CheckKey(Key);
+end;
+
 procedure TFObject3D.FormResize(Sender: TObject);
 begin
   UpdateMaterialsTab;
@@ -304,6 +460,13 @@ begin
   ListBox_Materials.Clear;
   for i := 0 to scene.FCustomMaterialCount-1 do
     ListBox_Materials.Items.Add(scene.FCustomMaterials[i].Name);
+  if ListBox_Materials.Items.Count > 0 then
+    ListBox_Materials.ItemIndex := 0;
+end;
+
+procedure TFObject3D.ListBox_MaterialsKeyPress(Sender: TObject; var Key: char);
+begin
+  CheckKey(Key);
 end;
 
 procedure TFObject3D.ListBox_MaterialsSelectionChange(Sender: TObject;
@@ -344,7 +507,7 @@ end;
 
 procedure TFObject3D.SpinEdit_ColorOpacityChange(Sender: TObject);
 begin
-  if SpinEdit_ColorOpacity.Enabled then
+  if SpinEdit_ColorOpacity.Enabled and (materialIndex <> -1) then
   begin
     scene.FCustomMaterials[materialIndex].Color.alpha := SpinEdit_ColorOpacity.Value;
     scene.UpdateMaterial(scene.FCustomMaterials[materialIndex].Name);
@@ -352,13 +515,35 @@ begin
   end;
 end;
 
+procedure TFObject3D.SpinEdit_ColorOpacityKeyPress(Sender: TObject;
+  var Key: char);
+begin
+  CheckKey(Key);
+end;
+
+procedure TFObject3D.SpinEdit_HeightKeyPress(Sender: TObject; var Key: char);
+begin
+   CheckKey(Key);
+end;
+
 procedure TFObject3D.SpinEdit_SpecularIndexChange(Sender: TObject);
 begin
-  if SpinEdit_SpecularIndex.Enabled then
+  if SpinEdit_SpecularIndex.Enabled and (materialIndex <> -1) then
   begin
     scene.FCustomMaterials[materialIndex].Material3D.SpecularIndex := SpinEdit_SpecularIndex.Value;
     BGRAView3D.DiscardBitmap;
   end;
+end;
+
+procedure TFObject3D.SpinEdit_SpecularIndexKeyPress(Sender: TObject;
+  var Key: char);
+begin
+  CheckKey(Key);
+end;
+
+procedure TFObject3D.SpinEdit_WidthKeyPress(Sender: TObject; var Key: char);
+begin
+  CheckKey(Key);
 end;
 
 procedure TFObject3D.UpdateMaterialsTab;
@@ -367,7 +552,19 @@ begin
   ListBox_Materials.Height := GroupBox_SelectedMaterial.Top-2-ListBox_Materials.Top;
 end;
 
-function ShowObject3DDlg(Instance: TLazPaintCustomInstance; filename: string;
+procedure TFObject3D.CheckKey(var Key: char);
+begin
+  if (Key = '+') or (Key = '-') then
+  begin
+    if Key = '+' then
+      scene.Object3D[0].MainPart.Scale(1.1,false) else
+      scene.Object3D[0].MainPart.Scale(1/1.1,false);
+    Key := #0;
+    BGRAView3D.DiscardBitmap;
+  end;
+end;
+
+function ShowObject3DDlg(Instance: TLazPaintCustomInstance; filenameUTF8: string;
   maxWidth, maxHeight: integer): TBGRABitmap;
 var
   f: TFObject3D;
@@ -375,9 +572,10 @@ var
   r: single;
 begin
   f:= TFObject3D.Create(nil);
+  f.Config := Instance.Config;
   result := nil;
   try
-    obj := f.scene.LoadObjectFromFile(filename);
+    obj := f.scene.LoadObjectFromFileUTF8(filenameUTF8);
     if obj <> nil then
     begin
       with obj do
@@ -385,7 +583,7 @@ begin
         with MainPart.BoundingBox do
           MainPart.Translate((min+max)*(-1/2), False);
         r := MainPart.Radius;
-        if r <> 0 then MainPart.Scale(40/r, False);
+        if r <> 0 then MainPart.Scale(50/r, False);
         MainPart.RotateXDeg(180-20, False);
         MainPart.RotateYDeg(-20, False);
       end;
@@ -409,13 +607,12 @@ begin
     end;
   except
     on ex:Exception do
-      MessageDlg(ex.Message,mtError,[mbOk],0);
+      Instance.ShowError('ShowObject3DDlg',ex.Message);
   end;
   f.Free;
 end;
 
-initialization
-  {$I uobject3d.lrs}
+{$R *.lfm}
 
 end.
 

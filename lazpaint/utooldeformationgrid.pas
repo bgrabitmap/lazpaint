@@ -5,7 +5,8 @@ unit UToolDeformationGrid;
 interface
 
 uses
-  Classes, Types, Math, SysUtils, utool, BGRABitmapTypes, BGRABitmap, UImage;
+  Classes, Types, Math, SysUtils, utool, BGRABitmapTypes, BGRABitmap, UImage,
+  UImageType, ULayerAction;
 
 type
 
@@ -30,9 +31,9 @@ type
       override;
     function GetIsSelectingTool: boolean; override;
   public
-    function ToolKeyDown(key: Word): TRect; override;
+    function ToolKeyDown(var key: Word): TRect; override;
     function ToolUp: TRect; override;
-    procedure Render(VirtualScreen: TBGRABitmap; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction); override;
+    function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
     procedure BeforeGridSizeChange; override;
     procedure AfterGridSizeChange(NewNbX,NewNbY: Integer); override;
     destructor Destroy; override;
@@ -69,17 +70,18 @@ type
       override;
     function GetIsSelectingTool: boolean; override;
     function GetTexture: TBGRABitmap; virtual;
-    procedure OnTryStop({%H-}sender: TLayerAction); override;
+    procedure OnTryStop({%H-}sender: TCustomLayerAction); override;
     function ComputeBoundsPoints: ArrayOfTPointF;
     procedure PrepareBackground({%H-}toolDest: TBGRABitmap; AFirstTime: boolean); virtual;
     function DefaultTextureCenter: TPointF; virtual;
     function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
+    function GetAction: TLayerAction; override;
   public
     constructor Create(AManager: TToolManager); override;
-    function ToolKeyDown(key: Word): TRect; override;
-    function ToolKeyUp(key: Word): TRect; override;
+    function ToolKeyDown(var key: Word): TRect; override;
+    function ToolKeyUp(var key: Word): TRect; override;
     function ToolUp: TRect; override;
-    procedure Render(VirtualScreen: TBGRABitmap; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction); override;
+    function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
     destructor Destroy; override;
   end;
 
@@ -126,7 +128,7 @@ begin
   if not FAlreadyDrawnOnce then
   begin
     FAlreadyDrawnOnce := true;
-    Manager.Image.ImageMayChangeCompletely;
+    Manager.Image.LayerMayChangeCompletely(toolDest);
   end;
 end;
 
@@ -195,8 +197,10 @@ begin
       DrawQuad;
       FCanReadaptTexture:= false;
       FHighQuality := false;
-      Manager.Image.ImageMayChange(FMergedBounds);
+      Manager.Image.LayerMayChange(GetToolDrawingLayer,FMergedBounds);
     end;
+    Action.AllChangesNotified := true;
+    Action.NotifyChange(GetToolDrawingLayer, FMergedBounds);
     ValidateAction;
     quadDefined := false;
     quad := nil;
@@ -264,8 +268,9 @@ begin
         GetToolDrawingLayer.PutImage(0,0,dest,dmDrawWithTransparency);
         FreeAndNil(dest);
       end;
+      Action.NotifyChange(dest, FCurrentBounds);
       FMergedBounds := RectUnion(previousBounds,FCurrentBounds);
-      Manager.Image.ImageMayChange(FMergedBounds);
+      Manager.Image.LayerMayChange(GetToolDrawingLayer,FMergedBounds);
     end;
   end;
 end;
@@ -471,7 +476,7 @@ begin
   result := Manager.GetToolTextureAfterAlpha;
 end;
 
-procedure TToolTextureMapping.OnTryStop(sender: TLayerAction);
+procedure TToolTextureMapping.OnTryStop(sender: TCustomLayerAction);
 begin
   //nothing
 end;
@@ -505,7 +510,7 @@ end;
 
 function TToolTextureMapping.DefaultTextureCenter: TPointF;
 begin
-  result := PointF(Manager.Image.Width/2,Manager.Image.Height/2);
+  result := PointF(Manager.Image.Width/2-LayerOffset.X,Manager.Image.Height/2-LayerOffset.Y);
 end;
 
 function TToolTextureMapping.DoToolUpdate(toolDest: TBGRABitmap): TRect;
@@ -520,6 +525,12 @@ begin
       result := EmptyRect;
 end;
 
+function TToolTextureMapping.GetAction: TLayerAction;
+begin
+  Result:=inherited GetAction;
+  result.AllChangesNotified:= true;
+end;
+
 constructor TToolTextureMapping.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
@@ -528,23 +539,25 @@ begin
   ToolQuadNeeded;
 end;
 
-function TToolTextureMapping.ToolKeyDown(key: Word): TRect;
+function TToolTextureMapping.ToolKeyDown(var key: Word): TRect;
 begin
   result := EmptyRect;
 
   if key = VK_MENU then
   begin
     AltKey := true;
+    key := 0;
   end else
   if Key = VK_SHIFT then
   begin
     ShiftKey := true;
+    key := 0;
   end
   else
   if Key = VK_CONTROL then
   begin
     snapToPixel:= true;
-    result := ToolRepaintOnly;
+    key := 0;
   end else
   if Key = VK_RETURN then
   begin
@@ -553,6 +566,17 @@ begin
       ValidateQuad;
       result := EmptyRect;
       manager.QueryExitTool;
+      key := 0;
+    end;
+  end else
+  if Key = VK_ESCAPE then
+  begin
+    if quadDefined then
+    begin
+      CancelActionPartially;
+      result := OnlyRenderChange;
+      manager.QueryExitTool;
+      key := 0;
     end;
   end;
 
@@ -561,32 +585,34 @@ begin
     boundsMode := true;
     boundsPts := ComputeBoundsPoints;
     if IsRectEmpty(result) then
-      result := ToolRepaintOnly;
+      result := OnlyRenderChange;
   end;
 end;
 
-function TToolTextureMapping.ToolKeyUp(key: Word): TRect;
+function TToolTextureMapping.ToolKeyUp(var key: Word): TRect;
 begin
   result := EmptyRect;
   if Key = VK_CONTROL then
   begin
     snapToPixel:= false;
-    result := ToolRepaintOnly;
+    key := 0;
   end else
   if key = VK_MENU then
   begin
-    AltKey := false
+    AltKey := false;
+    key := 0;
   end else
   if Key = VK_SHIFT then
   begin
     ShiftKey := false;
+    key := 0;
   end;
 
   if boundsMode and (not AltKey and not ShiftKey) then
   begin
     boundsMode := false;
     if IsRectEmpty(result) then
-      result := ToolRepaintOnly;
+      result := OnlyRenderChange;
   end;
 end;
 
@@ -627,14 +653,14 @@ begin
       FCanReadaptTexture:= false;
       result := FMergedBounds;
     end else
-      result := ToolRepaintOnly;
+      result := EmptyRect;
     quadMoving := false;
   end else
     result := EmptyRect;
 end;
 
-procedure TToolTextureMapping.Render(VirtualScreen: TBGRABitmap;
-  BitmapToVirtualScreen: TBitmapToVirtualScreenFunction);
+function TToolTextureMapping.Render(VirtualScreen: TBGRABitmap;
+  VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
 
   procedure DrawPoints(pts: array of TPointF; alpha: byte);
   var curPt,nextPt: TPointF;
@@ -649,11 +675,12 @@ procedure TToolTextureMapping.Render(VirtualScreen: TBGRABitmap;
     For n := 0 to high(pts) do
     begin
       curPt := BitmapToVirtualScreen(pts[n]);
-      NicePoint(VirtualScreen, curPt.X,curPt.Y,alpha);
+      result := RectUnion(result,NicePoint(VirtualScreen, curPt.X,curPt.Y,alpha));
     end;
   end;
 
 begin
+  result := EmptyRect;
   if not quadDefined then exit;
   if boundsMode or quadMovingBounds then
   begin
@@ -665,7 +692,6 @@ end;
 
 destructor TToolTextureMapping.Destroy;
 begin
-  ValidateQuad;
   FreeAndNil(FAdaptedTexture);
   inherited Destroy;
 end;
@@ -737,9 +763,9 @@ begin
   begin
     DeformationGrid := nil;
     DeformationGridTexCoord := nil;
+    Manager.Image.LayerMayChange(GetToolDrawingLayer,FMergedBounds);
     ValidateAction;
     DoingDeformation := false;
-    Manager.Image.ImageMayChange(FMergedBounds);
   end;
 end;
 
@@ -778,6 +804,7 @@ var xb,yb,NbX,NbY: integer;
     layer,backupLayer : TBGRABitmap;
     PreviousClipRect: TRect;
     previousBounds: TRect;
+    gridMinX,gridMinY,gridMaxX,gridMaxY: integer;
 
   procedure AddToDeformationArea(xi,yi: integer);
   var ptF: TPointF;
@@ -806,6 +833,7 @@ begin
       DeformationGrid[deformationGridY,deformationGridX].X + ptF.X-deformationOrigin.X,
       DeformationGrid[deformationGridY,deformationGridX].Y + ptF.Y-deformationOrigin.Y);
     DeformationGridTexCoord[deformationGridY,deformationGridX] := DeformationGrid[deformationGridY,deformationGridX];
+    result := OnlyRenderChange;
   end else
   begin
     if not DoingDeformation then
@@ -825,26 +853,28 @@ begin
 
     previousBounds := FCurrentBounds;
     FCurrentBounds := EmptyRect;
-    for yb := 0 to NbY-1 do
-     for xb := 0 to NbX-1 do
-       if DeformationGrid[yb,xb] <> deformationGridTexCoord[yb,xb] then
-       begin
+    gridMinX := deformationGridX-1;
+    if gridMinX < 0 then gridMinX := 0;
+    gridMinY := deformationGridY-1;
+    if gridMinY < 0 then gridMinY := 0;
+    gridMaxX := deformationGridX+1;
+    if gridMaxX > NbX-1 then gridMaxX := NbX-1;
+    gridMaxY := deformationGridY+1;
+    if gridMaxY > NbY-1 then gridMaxY := NbY-1;
+    for yb := gridMinY to gridMaxY do
+     for xb := gridMinX to gridMaxX do
          AddToDeformationArea(xb,yb);
-         AddToDeformationArea(xb-1,yb);
-         AddToDeformationArea(xb,yb-1);
-         AddToDeformationArea(xb+1,yb);
-         AddToDeformationArea(xb,yb+1);
-         AddToDeformationArea(xb-1,yb-1);
-         AddToDeformationArea(xb-1,yb+1);
-         AddToDeformationArea(xb+1,yb+1);
-         AddToDeformationArea(xb+1,yb-1);
-       end;
     FMergedBounds := RectUnion(previousBounds,FCurrentBounds);
+
+    gridMinX := 0;
+    gridMinY := 0;
+    gridMaxX := NbX-1;
+    gridMaxY := NbY-1;
 
     //progressive drawing of deformation zones
     setlength(gridDone,NbY-1,NbX-1);
-    for yb := 0 to NbY-2 do
-      for xb := 0 to NbX-2 do
+    for yb := gridMinY to gridMaxY-1 do
+      for xb := gridMinX to gridMaxX-1 do
         gridDone[yb,xb] := false;
 
     if not IsRectEmpty(FMergedBounds) and (backupLayer <>nil) then
@@ -854,8 +884,8 @@ begin
       layer.ClipRect := FMergedBounds;
       layer.FillRect(0,0,layer.Width,layer.Height,BGRAPixelTransparent,dmSet);
       //drawing zones that are not deformed
-      for yb := 0 to NbY-2 do
-        for xb := 0 to NbX-2 do
+      for yb := gridMinY to gridMaxY-1 do
+        for xb := gridMinX to gridMaxX-1 do
           if (DeformationGrid[yb,xb] = DeformationGridTexCoord[yb,xb]) and
              (DeformationGrid[yb,xb+1] = DeformationGridTexCoord[yb,xb+1]) and
              (DeformationGrid[yb+1,xb+1] = DeformationGridTexCoord[yb+1,xb+1]) and
@@ -866,8 +896,8 @@ begin
             gridDone[yb,xb] := true;
           end;
       //drawing zones that are concave
-      for yb := 0 to NbY-2 do
-        for xb := 0 to NbX-2 do
+      for yb := gridMinY to gridMaxY-1 do
+        for xb := gridMinX to gridMaxX-1 do
           if not gridDone[yb,xb] and
              not IsConvex([DeformationGrid[yb,xb],DeformationGrid[yb,xb+1],
                 DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb]]) then
@@ -879,8 +909,8 @@ begin
             gridDone[yb,xb] := true;
           end;
       //drawing convex zones
-      for yb := 0 to NbY-2 do
-        for xb := 0 to NbX-2 do
+      for yb := gridMinY to gridMaxY-1 do
+        for xb := gridMinX to gridMaxX-1 do
           if not gridDone[yb,xb] then
           layer.FillQuadLinearMapping(DeformationGrid[yb,xb],DeformationGrid[yb,xb+1],
                 DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb],backupLayer,
@@ -889,11 +919,10 @@ begin
 
       layer.ClipRect := PreviousClipRect;
     end;
+    result := FMergedBounds;
   end;
   deformationOrigin := ptF;
 
-  result := FMergedBounds;
-  if IsRectEmpty(result) then result := ToolRepaintOnly;
 end;
 
 function TToolDeformationGrid.GetIsSelectingTool: boolean;
@@ -901,7 +930,57 @@ begin
   Result:= false;
 end;
 
-function TToolDeformationGrid.ToolKeyDown(key: Word): TRect;
+function TToolDeformationGrid.Render(VirtualScreen: TBGRABitmap;
+  VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
+var curPt,rightPt,downPt: TPointF;
+    xb,yb: Integer;
+begin
+  result := EmptyRect;
+  if not ToolDeformationGridNeeded then exit;
+  for xb := 0 to Manager.ToolDeformationGridNbX-1 do
+    for yb := 0 to Manager.ToolDeformationGridNbY-1 do
+    begin
+      curPt := BitmapToVirtualScreen(DeformationGrid[yb,xb]);
+      if not deformationGridMoving or ((xb+1 >= deformationGridX) and (xb <= deformationGridX) and
+        (yb >= deformationGridY-1) and (yb <= deformationGridY+1)) then
+      begin
+        if (xb < Manager.ToolDeformationGridNbX-1) and (yb > 0) and (yb < Manager.ToolDeformationGridNbY-1) then
+        begin
+          rightPt := BitmapToVirtualScreen(DeformationGrid[yb,xb+1]);
+          if Assigned(VirtualScreen) then NiceLine(VirtualScreen, curPt.X,curPt.Y, rightPt.X,rightPt.Y);
+          result := RectUnion(result,rect(floor(curPt.x)-1,floor(curPt.y)-1,
+            ceil(curPt.x)+2,ceil(curPt.y)+2));
+          result := RectUnion(result,rect(floor(rightPt.x)-1,floor(rightPt.y)-1,
+            ceil(rightPt.x)+2,ceil(rightPt.y)+2));
+        end;
+      end;
+      if not deformationGridMoving or ((xb >= deformationGridX-1) and (xb <= deformationGridX+1) and
+        (yb+1 >= deformationGridY) and (yb <= deformationGridY)) then
+      begin
+        if (yb < Manager.ToolDeformationGridNbY-1) and (xb > 0) and (xb < Manager.ToolDeformationGridNbX-1) then
+        begin
+          downPt := BitmapToVirtualScreen(DeformationGrid[yb+1,xb]);
+          if Assigned(virtualScreen) then NiceLine(VirtualScreen, curPt.X,curPt.Y, downPt.X,downPt.Y);
+          result := RectUnion(result,rect(floor(curPt.x)-1,floor(curPt.y)-1,
+            ceil(curPt.x)+2,ceil(curPt.y)+2));
+          result := RectUnion(result,rect(floor(downPt.x)-1,floor(downPt.y)-1,
+            ceil(downPt.x)+2,ceil(downPt.y)+2));
+        end;
+      end;
+    end;
+  for xb := 1 to Manager.ToolDeformationGridNbX-2 do
+    for yb := 1 to Manager.ToolDeformationGridNbY-2 do
+    begin
+      if not deformationGridMoving or ((xb >= deformationGridX-1) and (xb <= deformationGridX+1) and
+        (yb >= deformationGridY-1) and (yb <= deformationGridY+1)) then
+      begin
+        curPt := BitmapToVirtualScreen(DeformationGrid[yb,xb]);
+        result := RectUnion(result,NicePoint(VirtualScreen, curPt.X,curPt.Y));
+      end;
+    end;
+end;
+
+function TToolDeformationGrid.ToolKeyDown(var key: Word): TRect;
 begin
   result := EmptyRect;
   if Key = VK_RETURN then
@@ -911,43 +990,28 @@ begin
       ValidateDeformationGrid;
       result := EmptyRect;
       manager.QueryExitTool;
+      Key := 0;
+    end;
+  end else
+  if Key = VK_ESCAPE then
+  begin
+    if Action <> nil then
+    begin
+      CancelActionPartially;
+      result := OnlyRenderChange;
+      manager.QueryExitTool;
+      Key := 0;
     end;
   end;
 end;
 
 function TToolDeformationGrid.ToolUp: TRect;
 begin
+  if deformationGridMoving then
+    result := OnlyRenderChange
+  else
+    Result:=EmptyRect;
   deformationGridMoving := false;
-  Result:=EmptyRect;
-end;
-
-procedure TToolDeformationGrid.Render(VirtualScreen: TBGRABitmap; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction);
-var curPt,rightPt,downPt: TPointF;
-    xb,yb: Integer;
-
-begin
-  if not ToolDeformationGridNeeded then exit;
-  for xb := 0 to Manager.ToolDeformationGridNbX-1 do
-    for yb := 0 to Manager.ToolDeformationGridNbY-1 do
-    begin
-      curPt := BitmapToVirtualScreen(DeformationGrid[yb,xb]);
-      if (xb < Manager.ToolDeformationGridNbX-1) and (yb > 0) and (yb < Manager.ToolDeformationGridNbY-1) then
-      begin
-        rightPt := BitmapToVirtualScreen(DeformationGrid[yb,xb+1]);
-        NiceLine(VirtualScreen, curPt.X,curPt.Y, rightPt.X,rightPt.Y);
-      end;
-      if (yb < Manager.ToolDeformationGridNbY-1) and (xb > 0) and (xb < Manager.ToolDeformationGridNbX-1) then
-      begin
-        downPt := BitmapToVirtualScreen(DeformationGrid[yb+1,xb]);
-        NiceLine(VirtualScreen, curPt.X,curPt.Y, downPt.X,downPt.Y);
-      end;
-    end;
-  for xb := 1 to Manager.ToolDeformationGridNbX-2 do
-    for yb := 1 to Manager.ToolDeformationGridNbY-2 do
-    begin
-      curPt := BitmapToVirtualScreen(DeformationGrid[yb,xb]);
-      NicePoint(VirtualScreen, curPt.X,curPt.Y);
-    end;
 end;
 
 initialization

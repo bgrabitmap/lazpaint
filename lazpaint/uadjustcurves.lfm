@@ -1,0 +1,138 @@
+object FAdjustCurves: TFAdjustCurves
+  Left = 439
+  Height = 326
+  Top = 193
+  Width = 432
+  BorderIcons = [biSystemMenu, biMinimize]
+  Caption = 'Adjust curves'
+  ClientHeight = 326
+  ClientWidth = 432
+  KeyPreview = True
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnHide = FormHide
+  OnKeyDown = FormKeyDown
+  Position = poOwnerFormCenter
+  LCLVersion = '1.0.10.0'
+  object TabControl1: TTabControl
+    Left = 0
+    Height = 289
+    Top = 0
+    Width = 432
+    OnChange = TabControl1Change
+    TabIndex = 0
+    Tabs.Strings = (
+      'Red'
+      'Green'
+      'Blue'
+      'Hue'
+      'Saturation'
+      'Lightness'
+      'Alpha'
+    )
+    Align = alClient
+    TabOrder = 0
+    object vsChart: TBGRAVirtualScreen
+      Left = 2
+      Height = 224
+      Top = 55
+      Width = 420
+      OnRedraw = vsChartRedraw
+      Align = alClient
+      Alignment = taLeftJustify
+      Color = clWhite
+      ParentColor = False
+      TabOrder = 1
+      OnMouseDown = vsChartMouseDown
+      OnMouseMove = vsChartMouseMove
+      OnMouseUp = vsChartMouseUp
+    end
+    object Panel2: TPanel
+      Left = 2
+      Height = 25
+      Top = 30
+      Width = 420
+      Align = alTop
+      ClientHeight = 25
+      ClientWidth = 420
+      TabOrder = 2
+      object ToolBar8: TToolBar
+        Left = 0
+        Height = 24
+        Top = 0
+        Width = 90
+        Align = alNone
+        Anchors = [akTop, akRight]
+        EdgeBorders = []
+        Images = FMain.ImageList1
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+        object ToolButton_NewCurve: TToolButton
+          Left = 1
+          Hint = 'Discard current curve and start a new one'
+          Top = 0
+          ImageIndex = 0
+          OnClick = ToolButton_NewCurveClick
+        end
+        object ToolButton_RemovePoint: TToolButton
+          Left = 24
+          Hint = 'Remove selected point (Del)'
+          Top = 0
+          ImageIndex = 39
+          OnClick = ToolButton_RemovePointClick
+        end
+        object ToolButton_Posterize: TToolButton
+          Left = 47
+          Hint = 'Posterize'
+          Top = 0
+          ImageIndex = 90
+          OnClick = ToolButton_PosterizeClick
+          Style = tbsCheck
+        end
+      end
+    end
+  end
+  object Panel1: TPanel
+    Left = 0
+    Height = 37
+    Top = 289
+    Width = 432
+    Align = alBottom
+    BevelOuter = bvNone
+    ClientHeight = 37
+    ClientWidth = 432
+    TabOrder = 1
+    object Button_Cancel: TButton
+      Left = 213
+      Height = 22
+      Top = 7
+      Width = 72
+      Anchors = [akLeft, akBottom]
+      Cancel = True
+      Caption = 'Cancel'
+      ModalResult = 2
+      TabOrder = 0
+    end
+    object Button_OK: TButton
+      Left = 149
+      Height = 22
+      Top = 7
+      Width = 59
+      Anchors = [akLeft, akBottom]
+      Caption = 'OK'
+      Default = True
+      ModalResult = 1
+      OnClick = Button_OKClick
+      TabOrder = 1
+    end
+  end
+  object Timer1: TTimer
+    Enabled = False
+    Interval = 200
+    OnTimer = Timer1Timer
+    left = 39
+    top = 294
+  end
+end

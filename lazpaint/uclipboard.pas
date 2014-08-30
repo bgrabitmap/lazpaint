@@ -61,7 +61,6 @@ var width,height: integer;
     offset: TPointF;
 begin
   result := nil;
-//  ShowMessage(deserial.ToString);
   mainObj := deserial.FindClass('PaintDotNet.MaskedSurface');
   try
     width := StrToInt(deserial.GetSimpleField(mainObj,'surface\width'));

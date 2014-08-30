@@ -32,12 +32,8 @@ uses Math;
 { TTest8 }
 
 procedure TTest8.DrawPacman(x, y: integer; palphaFactor: byte);
-var temp: TBGRABitmap;
 begin
-   temp := Pacman.Duplicate as TBGRABitmap;
-   temp.ApplyGlobalOpacity(palphaFactor);
-   virtualScreen.PutImage(x-temp.width div 2,y-temp.height div 2,temp,dmDrawWithTransparency);
-   temp.Free;
+   virtualScreen.PutImage(x-Pacman.width div 2,y-Pacman.height div 2,Pacman,dmDrawWithTransparency,palphaFactor);
 end;
 
 constructor TTest8.Create;

@@ -92,6 +92,7 @@ type
 
   IBGRAVertex3D = interface
     function GetColor: TBGRAPixel;
+    function GetCustomFlags: DWord;
     function GetLight: Single;
     function GetProjectedCoord: TPointF;
     function GetUsage: integer;
@@ -106,6 +107,7 @@ type
     procedure ComputeCoordinateAndClearNormal(const AMatrix: TMatrix3D; const AProjection: TProjection3D);
     function GetViewCoordZ: single;
     procedure SetColor(const AValue: TBGRAPixel);
+    procedure SetCustomFlags(AValue: DWord);
     procedure SetLight(const AValue: Single);
     procedure SetProjectedCoord(const AValue: TPointF);
     procedure SetViewNormal(const AValue: TPoint3D);
@@ -131,10 +133,12 @@ type
     property ViewNormal: TPoint3D read GetViewNormal write SetViewNormal;
     property ViewNormal_128: TPoint3D_128 read GetViewNormal_128 write SetViewNormal_128;
     property Usage: integer read GetUsage;
+    property CustomFlags: DWord read GetCustomFlags write SetCustomFlags;
     function GetAsObject: TObject;
   end;
 
   arrayOfIBGRAVertex3D = array of IBGRAVertex3D;
+  TVertex3DCallback = procedure(AVertex: IBGRAVertex3D) of object;
 
   { IBGRAPart3D }
 
@@ -179,6 +183,7 @@ type
     procedure LookAt(AWhere: TPoint3D; ATopDir: TPoint3D);
     procedure RemoveUnusedVertices;
     function CreatePart: IBGRAPart3D;
+    procedure ForEachVertex(ACallback: TVertex3DCallback);
     property VertexCount: integer read GetVertexCount;
     property Vertex[AIndex: Integer]: IBGRAVertex3D read GetVertex write SetVertex;
     property Matrix: TMatrix3D read GetMatrix write SetMatrix;
@@ -197,6 +202,7 @@ type
   IBGRAFace3D = interface
     procedure AddVertex(AVertex: IBGRAVertex3D);
     function GetBiface: boolean;
+    function GetCustomFlags: DWord;
     function GetLightThroughFactorOverride: boolean;
     function GetMaterial: IBGRAMaterial3D;
     function GetMaterialName: string;
@@ -215,6 +221,7 @@ type
     function GetViewNormal: TPoint3D;
     function GetViewNormal_128: TPoint3D_128;
     function GetLightThroughFactor: single;
+    procedure SetCustomFlags(AValue: DWord);
     procedure SetLightThroughFactor(const AValue: single);
     procedure SetBiface(const AValue: boolean);
     procedure SetLightThroughFactorOverride(const AValue: boolean);
@@ -249,7 +256,10 @@ type
     property Material: IBGRAMaterial3D read GetMaterial write SetMaterial;
     property MaterialName: string read GetMaterialName write SetMaterialName;
     function GetAsObject: TObject;
+    property CustomFlags: DWord read GetCustomFlags write SetCustomFlags;
   end;
+
+  TFace3DCallback = procedure(AFace: IBGRAFace3D) of object;
 
   { IBGRAObject3D }
 
@@ -275,6 +285,8 @@ type
     procedure SetTexture(const AValue: IBGRAScanner);
     procedure ComputeWithMatrix(constref AMatrix: TMatrix3D; constref AProjection: TProjection3D);
     procedure RemoveUnusedVertices;
+    procedure ForEachVertex(ACallback: TVertex3DCallback);
+    procedure ForEachFace(ACallback: TFace3DCallback);
     function AddFaceReversed(const AVertices: array of IBGRAVertex3D): IBGRAFace3D;
     function AddFace(const AVertices: array of IBGRAVertex3D): IBGRAFace3D;
     function AddFace(const AVertices: array of IBGRAVertex3D; ABiface: boolean): IBGRAFace3D;

@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
   StdCtrls, Spin, ExtCtrls, BGRABitmap, BGRABitmapTypes, LazPaintType, UScaleDPI,
-  UFilterConnector;
+  UFilterConnector, UFilterThread;
 
 type
 
@@ -22,18 +22,18 @@ type
     Label_Radius: TLabel;
     Timer1: TTimer;
     procedure Button_OKClick(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure SpinEdit_RadiusChange(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
   private
     FInitializing: boolean;
     FFilterConnector: TFilterConnector;
-    FThread: TThread;
+    FThreadManager: TFilterThreadManager;
+    FLastRadius: integer;
     procedure PreviewNeeded;
-    procedure ClearThread;
-    procedure OnBlurDone({%H-}ASender: TThread; AFilteredLayer: TBGRABitmap);
+    procedure OnTaskEvent({%H-}ASender: TObject; AEvent: TThreadManagerEvent);
   public
     blurType: TRadialBlurType;
   end;
@@ -42,7 +42,7 @@ function ShowRadialBlurDlg(AFilterConnector: TObject; blurType:TRadialBlurType):
 
 implementation
 
-uses UMac, BGRAFilters, UFilterThread;
+uses UMac, BGRAFilters;
 
 function ShowRadialBlurDlg(AFilterConnector: TObject; blurType:TRadialBlurType):boolean;
 var
@@ -51,64 +51,42 @@ begin
   result := false;
   RadialBlur:= TFRadialBlur.create(nil);
   RadialBlur.FFilterConnector := AFilterConnector as TFilterConnector;
+  RadialBlur.FThreadManager := TFilterThreadManager.Create(RadialBlur.FFilterConnector);
+  RadialBlur.FThreadManager.OnEvent := @RadialBlur.OnTaskEvent;
   try
     RadialBlur.blurType := blurType;
     result:= (RadialBlur.ShowModal = mrOk);
   finally
+    RadialBlur.FThreadManager.Free;
     RadialBlur.free;
   end;
-end;
-
-type
-  { TRadialBlurThread }
-
-  TRadialBlurThread = class(TFilterThread)
-  protected
-    FBlurType: TRadialBlurType;
-    FRadius: integer;
-    function CreateFilterTask: TFilterTask; override;
-  public
-    constructor Create(AConnector: TFilterConnector; ABlurType: TRadialBlurType; ARadius: integer; ASuspended: boolean);
-  end;
-
-{ TRadialBlurThread }
-
-function TRadialBlurThread.CreateFilterTask: TFilterTask;
-begin
-  result := CreateRadialBlurTask(FilterConnector.BackupLayer,FilterConnector.WorkArea, FRadius, FBlurType)
-end;
-
-constructor TRadialBlurThread.Create(AConnector: TFilterConnector;
-  ABlurType: TRadialBlurType; ARadius: integer; ASuspended: boolean);
-begin
-  inherited Create(AConnector, True);
-  FBlurType:= ABlurType;
-  FRadius := ARadius;
-  if not ASuspended then Start;
 end;
 
 { TFRadialBlur }
 
 procedure TFRadialBlur.Button_OKClick(Sender: TObject);
 begin
-  FFilterConnector.ValidateAction;
-  FFilterConnector.lazPaintInstance.Config.SetDefaultBlurRadius(SpinEdit_Radius.Value);
+  if not FFilterConnector.ActionDone then
+  begin
+    FFilterConnector.ValidateAction;
+    FFilterConnector.lazPaintInstance.Config.SetDefaultBlurRadius(SpinEdit_Radius.Value);
+  end;
   ModalResult := mrOK;
+end;
+
+procedure TFRadialBlur.FormCloseQuery(Sender: TObject; var CanClose: boolean);
+begin
+  FThreadManager.Quit;
+  CanClose := FThreadManager.ReadyToClose;
 end;
 
 procedure TFRadialBlur.FormCreate(Sender: TObject);
 begin
   ScaleDPI(Self,OriginalDPI);
 
-  FThread := nil;
   blurType := rbNormal;
   CheckOKCancelBtns(Button_OK,Button_Cancel);
   CheckSpinEdit(SpinEdit_Radius);
-end;
-
-procedure TFRadialBlur.FormDestroy(Sender: TObject);
-begin
-  ClearThread;
 end;
 
 procedure TFRadialBlur.FormShow(Sender: TObject);
@@ -117,56 +95,51 @@ begin
   SpinEdit_Radius.Value := FFilterConnector.LazPaintInstance.Config.DefaultBlurRadius;
   FInitializing := False;
   PreviewNeeded;
+  Top := FFilterConnector.LazPaintInstance.MainFormBounds.Top;
 end;
 
 procedure TFRadialBlur.SpinEdit_RadiusChange(Sender: TObject);
 begin
-  if not FInitializing then PreviewNeeded;
+  if not FInitializing and (SpinEdit_Radius.Value <> FLastRadius) then PreviewNeeded;
 end;
 
 procedure TFRadialBlur.Timer1Timer(Sender: TObject);
-var filteredLayer: TBGRABitmap;
 begin
-  if FThread <> nil then
-  begin
-    Timer1.Enabled:= false;
-    filteredLayer := (FThread as TFilterThread).FilteredLayer;
-    if filteredLayer <> nil then
-      FFilterConnector.PutImage(filteredLayer,False);
-    Timer1.Enabled:= true;
-  end;
+  Timer1.Enabled:= false;
+  FThreadManager.RegularCheck;
+  Timer1.Interval := 200;
+  Timer1.Enabled:= true;
 end;
 
 procedure TFRadialBlur.PreviewNeeded;
-var blurThread: TFilterThread;
 begin
-  ClearThread;
-  Button_OK.Enabled := false;
-  blurThread := TRadialBlurThread.Create(FFilterConnector,blurType,SpinEdit_Radius.Value, True);
-  blurThread.OnFilterDone:= @OnBlurDone;
-  FThread := blurThread;
-  FThread.Start;
+  FLastRadius:= SpinEdit_Radius.Value;
+  FThreadManager.WantPreview(CreateRadialBlurTask(FFilterConnector.BackupLayer,FFilterConnector.WorkArea, FLastRadius, blurType));
 end;
 
-procedure TFRadialBlur.ClearThread;
+procedure TFRadialBlur.OnTaskEvent(ASender: TObject; AEvent: TThreadManagerEvent
+  );
 begin
-  if FThread <> nil then
-  begin
-    FThread.Terminate;
-    FThread := nil; //let the thread free itself
+  case AEvent of
+  tmeAbortedTask,tmeCompletedTask:
+    begin
+      Timer1.Enabled := false;
+      if FThreadManager.ReadyToClose then
+        Close
+      else
+        if AEvent = tmeCompletedTask then Button_OK.Enabled := true;
+    end;
+  tmeStartingNewTask:
+    begin
+      Timer1.Enabled := false;
+      Timer1.Interval := 100;
+      Timer1.Enabled := true;
+      Button_OK.Enabled := false;
+    end;
   end;
 end;
 
-procedure TFRadialBlur.OnBlurDone(ASender: TThread; AFilteredLayer: TBGRABitmap
-  );
-begin
-  FFilterConnector.PutImage(AFilteredLayer,False);
-  Button_OK.Enabled := true;
-  ClearThread;
-end;
-
-initialization
-  {$I uradialblur.lrs}
+{$R *.lfm}
 
 end.
 

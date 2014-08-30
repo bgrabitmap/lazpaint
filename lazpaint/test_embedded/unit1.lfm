@@ -1,0 +1,36 @@
+object Form1: TForm1
+  Left = 378
+  Height = 365
+  Top = 149
+  Width = 444
+  Caption = 'Form1'
+  ClientHeight = 365
+  ClientWidth = 444
+  OnCreate = FormCreate
+  LCLVersion = '1.0.10.0'
+  object Button1: TButton
+    Left = 8
+    Height = 25
+    Top = 8
+    Width = 184
+    Caption = 'LazPaint normal application'
+    OnClick = Button1Click
+    TabOrder = 0
+  end
+  object Button2: TButton
+    Left = 200
+    Height = 25
+    Top = 8
+    Width = 184
+    Caption = 'Embedded LazPaint'
+    OnClick = Button2Click
+    TabOrder = 1
+  end
+  object Image1: TImage
+    Left = 8
+    Height = 312
+    Top = 40
+    Width = 428
+    Anchors = [akTop, akLeft, akRight, akBottom]
+  end
+end

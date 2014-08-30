@@ -1,74 +1,103 @@
 object FNewImage: TFNewImage
   Left = 378
-  Height = 107
+  Height = 157
   Top = 180
-  Width = 172
+  Width = 304
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'New image'
-  ClientHeight = 107
-  ClientWidth = 172
+  ClientHeight = 157
+  ClientWidth = 304
   Font.Height = -12
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.1'
+  LCLVersion = '1.0.10.0'
   object Label_Width: TLabel
     Left = 16
-    Height = 15
-    Top = 19
-    Width = 38
+    Height = 16
+    Top = 27
+    Width = 39
     Caption = 'Width :'
     ParentColor = False
   end
   object Label_Height: TLabel
     Left = 16
-    Height = 15
-    Top = 46
-    Width = 42
+    Height = 16
+    Top = 54
+    Width = 43
     Caption = 'Height :'
     ParentColor = False
   end
   object Button_OK: TButton
-    Left = 18
+    Left = 80
     Height = 22
-    Top = 80
+    Top = 128
     Width = 59
     Caption = 'OK'
     Default = True
     OnClick = Button_OKClick
-    TabOrder = 0
+    TabOrder = 4
   end
   object Button_Cancel: TButton
-    Left = 82
+    Left = 144
     Height = 22
-    Top = 80
+    Top = 128
     Width = 73
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
-    TabOrder = 1
+    TabOrder = 5
   end
   object SpinEdit_Width: TSpinEdit
     Left = 80
     Height = 23
-    Top = 16
+    Top = 24
     Width = 79
     Increment = 10
     MaxValue = 10000
     MinValue = 1
-    TabOrder = 2
+    OnChange = SpinEdit_SizeChange
+    TabOrder = 0
     Value = 1
   end
   object SpinEdit_Height: TSpinEdit
     Left = 80
     Height = 23
-    Top = 43
+    Top = 51
     Width = 79
     Increment = 10
     MaxValue = 10000
     MinValue = 1
-    TabOrder = 3
+    OnChange = SpinEdit_SizeChange
+    TabOrder = 1
     Value = 1
+  end
+  object vsPreview: TBGRAVirtualScreen
+    Left = 166
+    Height = 116
+    Top = 8
+    Width = 134
+    OnRedraw = vsPreviewRedraw
+    Alignment = taLeftJustify
+    Color = clBtnFace
+    ParentColor = False
+    TabOrder = 2
+  end
+  object ToolBar8: TToolBar
+    Left = 104
+    Height = 24
+    Top = 80
+    Width = 24
+    Align = alNone
+    EdgeBorders = []
+    Images = FMain.ImageList1
+    TabOrder = 3
+    object ToolButton23: TToolButton
+      Left = 1
+      Top = 0
+      ImageIndex = 43
+      OnClick = ToolButton23Click
+    end
   end
 end

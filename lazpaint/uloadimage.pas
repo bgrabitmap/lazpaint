@@ -7,21 +7,40 @@ interface
 uses
   Classes, SysUtils, LazPaintType, BGRABitmap;
 
-function LoadGifUTF8(AFilename: string): ArrayOfBGRABitmap;
-function LoadGifSys(AFilename: string): ArrayOfBGRABitmap;
-function LoadIcoUTF8(AFilename: string): ArrayOfBGRABitmap;
-function LoadIcoSys(AFilename: string): ArrayOfBGRABitmap;
+function LoadGifMultiImageUTF8(AFilename: string): ArrayOfBGRABitmap;
+function LoadIcoMultiImageUTF8(AFilename: string): ArrayOfBGRABitmap;
 function LoadFlatImageUTF8(AFilename: string; out AFinalFilename: string; AAppendFrame: string): TBGRABitmap;
-function LoadFlatImageSys(AFilename: string; out AFinalFilename: string; AAppendFrame: string): TBGRABitmap;
-function LoadFlatLzpUTF8(AFilename: string): TBGRABitmap;
-function LoadFlatLzpSys(AFilename: string): TBGRABitmap;
-function AbleToLoadUTF8(AFilename: string): boolean;
-function AbleToLoadSys(AFilename: string): boolean;
+function LoadFlatLzpUTF8(AFilenameUTF8: string): TBGRABitmap;
+function LoadPngUTF8(AFilenameUTF8: string): TBGRABitmap;
 procedure FreeMultiImage(var images: ArrayOfBGRABitmap);
+function AbleToLoadUTF8(AFilename: string): boolean;
 
 implementation
 
-uses FileUtil, BGRAAnimatedGif, Graphics, UMultiImage, BGRACompressableBitmap;
+uses FileUtil, BGRAAnimatedGif, Graphics, UMultiImage,
+  BGRAReadLzp, LCLProc, BGRABitmapTypes, BGRAReadPng;
+
+function LoadPngUTF8(AFilenameUTF8: string): TBGRABitmap;
+var
+  reader: TBGRAReaderPNG;
+  p: PBGRAPixel;
+  n: integer;
+begin
+  reader := TBGRAReaderPNG.Create;
+  result := TBGRABitmap.Create;
+  try
+    result.LoadFromFileUTF8(AFilenameUTF8, reader);
+    p := result.Data;
+    for n := result.NbPixels-1 downto 0 do
+    begin
+      if p^ = BGRA(0,0,1) then p^ := BGRA(0,0,0); //undo png trick
+      inc(p);
+    end;
+  finally
+    reader.Free;
+    if (result.Width = 0) or (result.Height = 0) then FreeAndNil(result);
+  end;
+end;
 
 procedure FreeMultiImage(var images: ArrayOfBGRABitmap);
 var i: integer;
@@ -31,18 +50,16 @@ begin
   images := nil;
 end;
 
-function LoadFlatImageUTF8(AFilename: string; out AFinalFilename: string; AAppendFrame: string): TBGRABitmap;
-var finalFilenameSys: string;
+function AbleToLoadUTF8(AFilename: string): boolean;
 begin
-  result := LoadFlatImageSys(UTF8ToSys(AFilename),finalFilenameSys,UTF8ToSys(AAppendFrame));
-  AFinalFilename:= SysToUTF8(finalFilenameSys);
+  result := DefaultBGRAImageReader[DetectFileFormat(AFilename)] <> nil;
 end;
 
-function LoadFlatImageSys(AFilename: string; out AFinalFilename: string; AAppendFrame: string): TBGRABitmap;
+function LoadFlatImageUTF8(AFilename: string; out AFinalFilename: string; AAppendFrame: string): TBGRABitmap;
 var
-  ext: string;
   formMultiImage: TFMultiImage;
   multi: ArrayOfBGRABitmap;
+  format : TBGRAImageFormat;
 
   procedure ChooseMulti;
   begin
@@ -65,93 +82,59 @@ var
   end;
 
 begin
+  format := DetectFileFormat(AFilename);
   AFinalFilename:= AFilename;
   result := nil;
-  ext := LowerCase(ExtractFileExt(AFilename));
-  if ext='.ico' then
+  if format = ifIco then
   begin
-    multi := LoadIcoSys(AFilename);
+    multi := LoadIcoMultiImageUTF8(AFilename);
     ChooseMulti;
   end else
-  if ext='.gif' then
+  if format = ifGif then
   begin
-    multi := LoadGifSys(AFilename);
+    multi := LoadGifMultiImageUTF8(AFilename);
     ChooseMulti;
   end else
-  if ext='.lzp' then
+  if format = ifLazPaint then
   begin
-    result := LoadFlatLzpSys(AFilename);
+    result := LoadFlatLzpUTF8(AFilename);
   end else
-    result := TBGRABitmap.Create(AFilename);
+  if format = ifPng then
+  begin
+    result := LoadPngUTF8(AFilename);
+  end else
+    result := TBGRABitmap.Create(AFilename, True);
 end;
 
-function LoadFlatLzpUTF8(AFilename: string): TBGRABitmap;
-begin
-  result := LoadFlatLzpSys(UTF8ToSys(AFilename));
-end;
-
-function LoadFlatLzpSys(AFilename: string): TBGRABitmap;
+function LoadFlatLzpUTF8(AFilenameUTF8: string): TBGRABitmap;
 var
-  comp: TBGRACompressableBitmap;
-  stream: TFileStream;
+  reader: TBGRAReaderLazPaint;
 begin
-  result := nil;
-  comp := TBGRACompressableBitmap.Create;
+  reader := TBGRAReaderLazPaint.Create;
+  result := TBGRABitmap.Create;
   try
-    stream := TFileStream.Create(AFilename,fmOpenRead);
-    try
-      comp.ReadFromStream(stream);
-      result := comp.GetBitmap;
-    finally
-      stream.Free;
-    end;
+    result.LoadFromFileUTF8(AFilenameUTF8, reader);
   finally
-    comp.Free;
+    reader.Free;
+    if (result.Width = 0) or (result.Height = 0) then FreeAndNil(result);
   end;
 end;
 
-function AbleToLoadUTF8(AFilename: string): boolean;
-begin
-  result := AbleToLoadSys(UTF8ToSys(AFilename));
-end;
-
-function AbleToLoadSys(AFilename: string): boolean;
-var ext: string;
-begin
-  ext := LowerCase(ExtractFileExt(AFilename));
-  if (ext='.bmp') or (ext='.jpg') or (ext='.jpeg')
-    or (ext='.png') or (ext='.pcx') or
-    (ext='.gif') or (ext='.ico') or (ext='.pdn') or
-    (ext='.lzp') or (ext='.ora') then
-    result := true else
-      result := false;
-end;
-
-function LoadGifUTF8(AFilename: string): ArrayOfBGRABitmap;
-begin
-  result := LoadGifSys(UTF8ToSys(AFilename));
-end;
-
-function LoadGifSys(AFilename: string): ArrayOfBGRABitmap;
+function LoadGifMultiImageUTF8(AFilename: string): ArrayOfBGRABitmap;
 var gif: TBGRAAnimatedGif; i: integer;
 begin
-   gif := TBGRAAnimatedGif.Create(AFilename);
-   setlength(result,gif.Count);
-   for i := 0 to gif.Count-1 do
-   begin
-     gif.CurrentImage:= i;
-     result[i] := gif.MemBitmap.Duplicate as TBGRABitmap;
-     result[i].Caption:= 'Frame'+IntToStr(i);
-   end;
-   gif.Free;
+  gif := TBGRAAnimatedGif.Create(AFilename);
+  setlength(result,gif.Count);
+  for i := 0 to gif.Count-1 do
+  begin
+    gif.CurrentImage:= i;
+    result[i] := gif.MemBitmap.Duplicate as TBGRABitmap;
+    result[i].Caption:= 'Frame'+IntToStr(i);
+  end;
+  gif.Free;
 end;
 
-function LoadIcoUTF8(AFilename: string): ArrayOfBGRABitmap;
-begin
-   result := LoadIcoSys(UTF8ToSys(AFilename));
-end;
-
-function LoadIcoSys(AFilename: string): ArrayOfBGRABitmap;
+function LoadIcoMultiImageUTF8(AFilename: string): ArrayOfBGRABitmap;
 var ico: TIcon; i,resIdx,maxIdx: integer;
     height,width: word; format:TPixelFormat;
     maxHeight,maxWidth: word; maxFormat: TPixelFormat;

@@ -47,6 +47,8 @@ begin
       Margin := OKBtn.Parent.ClientHeight-OkBtn.Top-OkBtn.Height;
       OKBtn.Left := OkBtn.Parent.ClientWidth-Margin-OkBtn.Width;
       CancelBtn.Left := OkBtn.Left-Margin-CancelBtn.Width;
+      OKBtn.Anchors := OKBtn.Anchors - [akLeft] + [akRight];
+      CancelBtn.Anchors := CancelBtn.Anchors - [akLeft] + [akRight];
     end else
     begin
       SaveLeft := OKBtn.Left;

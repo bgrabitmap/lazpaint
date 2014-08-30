@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
   ComCtrls, StdCtrls, Spin, BGRABitmap, LazPaintType, uscaledpi,
-  uresourcestrings, ufilterconnector;
+  uresourcestrings, ufilterconnector, uscripting;
 
 type
   TColorIntensityMode = (ciIntensity, ciLightness);
@@ -32,9 +32,12 @@ type
   private
     { private declarations }
     FInitialized: boolean;
+    FInstance: TLazPaintCustomInstance;
     FFilterConnector: TFilterConnector;
     FMode: TColorIntensityMode;
     FUpdatingSpinEdit: boolean;
+    FShiftCaption: string;
+    FMultiplyCaption: string;
     procedure UpdateSpinEdit;
     function GetChosenFactor: single;
     function GetChosenShift: single;
@@ -42,11 +45,11 @@ type
     procedure SetChosenFactor(AValue: single);
     procedure SetChosenShift(AValue: single);
     procedure AdjustLabels(ALabel1,ALabel2: TLabel; ATrack1,ATrack2:TTrackBar);
+    procedure LoadParameters;
   public
     { public declarations }
     function ShowModal: integer; override;
-    function ShowModal(AInstance: TLazPaintCustomInstance; AMode: TColorIntensityMode): integer;
-    procedure ApplyIntensity(multiply, shift: single);
+    function ShowModal(AInstance: TLazPaintCustomInstance; AMode: TColorIntensityMode; AParameters: TVariableSet): integer;
     procedure ApplyChosenIntensity;
     property ChosenFactor: single read GetChosenFactor write SetChosenFactor;
     property ChosenShift: single read GetChosenShift write SetChosenShift;
@@ -55,7 +58,7 @@ type
 
 implementation
 
-uses umac, BGRABitmapTypes;
+uses umac, BGRABitmapTypes, UColorFilters;
 
 { TFColorIntensity }
 
@@ -63,6 +66,8 @@ procedure TFColorIntensity.FormCreate(Sender: TObject);
 begin
   ScaleDPI(Self,OriginalDPI);
 
+  FShiftCaption:= Label_Shift.Caption;
+  FMultiplyCaption := Label_Multiply.Caption;
   CheckFloatSpinEdit(FloatSpinEdit_Factor);
   CheckFloatSpinEdit(FloatSpinEdit_Shift);
   CheckOKCancelBtns(Button_OK,Button_Cancel);
@@ -82,6 +87,8 @@ procedure TFColorIntensity.Button_OKClick(Sender: TObject);
 begin
   ApplyChosenIntensity;
   FFilterConnector.ValidateAction;
+  FFilterConnector.Parameters.Floats['Factor'] := FloatSpinEdit_Factor.Value;
+  FFilterConnector.Parameters.Floats['Shift'] := FloatSpinEdit_Shift.Value;
 end;
 
 procedure TFColorIntensity.FloatSpinEdit_FactorChange(Sender: TObject);
@@ -101,9 +108,21 @@ end;
 procedure TFColorIntensity.FormShow(Sender: TObject);
 begin
   AdjustLabels(Label_Multiply,Label_Shift, TrackBar_Multiply,TrackBar_Shift);
-  if FMode = ciIntensity then Caption := rsIntensity else
+  if FMode = ciIntensity then
+  begin
+    Caption := rsIntensity;
+    Label_Multiply.Caption := FMultiplyCaption;
+    Label_Shift.Caption := FShiftCaption;
+  end
+  else
+  begin
     Caption := rsLightness;
+    Label_Multiply.Caption := rsContrast;
+    Label_Shift.Caption := rsBrightness;
+  end;
+  LoadParameters;
   ApplyChosenIntensity;
+  Top := FInstance.MainFormBounds.Top;
 end;
 
 procedure TFColorIntensity.TrackBar_Change(Sender: TObject);
@@ -166,11 +185,29 @@ begin
   end;
 end;
 
+procedure TFColorIntensity.LoadParameters;
+var OldInitialized: boolean;
+begin
+  If Assigned(FFilterConnector) then
+  begin
+    OldInitialized := FInitialized;
+    FInitialized := false;
+    if FFilterConnector.Parameters.IsDefined('Factor') then
+      ChosenFactor := FFilterConnector.Parameters.Floats['Factor'];
+    if FFilterConnector.Parameters.IsDefined('Shift') then
+      ChosenShift := FFilterConnector.Parameters.Floats['Shift'];
+    UpdateSpinEdit;
+    FInitialized := OldInitialized;
+  end;
+end;
+
 function TFColorIntensity.ShowModal: integer;
 begin
   if (FFilterConnector = nil) or (FFilterConnector.ActiveLayer = nil) then
   begin
-    ShowMessage(rsNoActiveLayer);
+    if FInstance <> nil then
+      FInstance.ShowMessage(rsLazPaint,rsNoActiveLayer) else
+      ShowMessage(rsNoActiveLayer);
     result := mrAbort
   end
   else
@@ -178,103 +215,60 @@ begin
 end;
 
 function TFColorIntensity.ShowModal(AInstance: TLazPaintCustomInstance;
-  AMode: TColorIntensityMode): integer;
+  AMode: TColorIntensityMode; AParameters: TVariableSet): integer;
+var topmostInfo: TTopMostInfo;
 begin
   FMode := AMode;
   try
-    FFilterConnector := TFilterConnector.Create(AInstance);
+    FFilterConnector := TFilterConnector.Create(AInstance,AParameters);
     FFilterConnector.OnTryStopAction := @OnTryStopAction;
   except
     on ex: exception do
     begin
-      MessageDlg(ex.Message,mtInformation,[mbOk],0);
+      AInstance.ShowError('ColorIntensity',ex.Message);
       result := mrAbort;
       exit;
     end;
   end;
   try
-    result := self.ShowModal;
-  finally
-    FFilterConnector.Free;
-  end;
-end;
-
-procedure TFColorIntensity.ApplyIntensity(multiply, shift: single);
-var n: integer;
-    psrc,pdest: PBGRAPixel;
-    ec: TExpandedPixel;
-    newIntensity: single;
-
-    pselect: PBGRAPixel;
-    selection: TBGRABitmap;
-    alpha: byte;
-
-begin
-    psrc := FFilterConnector.BackupLayer.Data;
-    pdest := FFilterConnector.ActiveLayer.Data;
-
-    selection := FFilterConnector.CurrentSelection;
-    if selection = nil then
+    FInstance := AInstance;
+    if AParameters.IsDefined('Factor') and AParameters.IsDefined('Shift') then
     begin
-      alpha := 255;
-      pselect := nil;
-    end else pselect := selection.Data;
-
-    if FMode = ciIntensity then
-    begin
-      for n := 0 to FFilterConnector.ActiveLayer.NbPixels-1 do
-      begin
-        if pselect <> nil then
-        begin
-          alpha := pselect^.green;
-          inc(pselect);
-        end;
-        if alpha <> 0 then
-        begin
-          ec := GammaExpansion(psrc^);
-          newIntensity := (GetIntensity(ec)-32767.5)*multiply+shift+32767.5;
-          if newIntensity < 0 then newIntensity := 0;
-          if newIntensity > 65535 then newIntensity := 65535;
-          pdest^ := GammaCompression(SetIntensity(ec,round(newIntensity)));
-          if alpha <> 255 then
-            pdest^ := MergeBGRAWithGammaCorrection(pdest^,alpha,psrc^,not alpha);
-        end;
-        inc(psrc);
-        inc(pdest);
+      case FMode of
+        ciIntensity: FilterIntensity(FFilterConnector, AParameters.Floats['Factor'],AParameters.Floats['Shift']);
+        ciLightness: FilterLightness(FFilterConnector, AParameters.Floats['Factor'],AParameters.Floats['Shift']);
       end;
-    end else //ciLightness
+      FFilterConnector.ValidateAction;
+      result := mrOk;
+    end else
     begin
-      for n := 0 to FFilterConnector.ActiveLayer.NbPixels-1 do
-      begin
-        if pselect <> nil then
+      topmostInfo := AInstance.HideTopmost;
+      try
+        result := self.ShowModal;
+      except
+        on ex: exception do
         begin
-          alpha := pselect^.green;
-          inc(pselect);
+          AInstance.ShowError('ColorIntensity',ex.Message);
+          result := mrAbort;
         end;
-        if alpha <> 0 then
-        begin
-          ec := GammaExpansion(psrc^);
-          newIntensity := (GetLightness(ec)-32767.5)*multiply+shift+32767.5;
-          if newIntensity < 0 then newIntensity := 0;
-          if newIntensity > 65535 then newIntensity := 65535;
-          pdest^ := GammaCompression(SetLightness(ec,round(newIntensity)));
-          if alpha <> 255 then
-            pdest^ := MergeBGRAWithGammaCorrection(pdest^,alpha,psrc^,not alpha);
-        end;
-        inc(psrc);
-        inc(pdest);
       end;
+      AInstance.ShowTopmost(topmostInfo);
     end;
-    FFilterConnector.InvalidateActiveLayer;
+  finally
+    FreeAndNil(FFilterConnector);
+    FInstance := nil;
+  end;
 end;
 
 procedure TFColorIntensity.ApplyChosenIntensity;
 begin
-  ApplyIntensity(exp(ChosenFactor),ChosenShift*65535);
+  case FMode of
+    ciIntensity: FilterIntensity(FFilterConnector, ChosenFactor,ChosenShift);
+    ciLightness: FilterLightness(FFilterConnector, ChosenFactor,ChosenShift);
+  end;
 end;
 
-initialization
-  {$I ucolorintensity.lrs}
+{$R *.lfm}
 
 end.
 

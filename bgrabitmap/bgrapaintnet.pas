@@ -26,7 +26,7 @@ type
 
   TPaintDotNetFile = class(TBGRACustomLayeredBitmap)
   public
-    procedure LoadFromFile(const filename: string); override;
+    procedure LoadFromFile(const filenameUTF8: string); override;
     procedure LoadFromStream(stream: TStream); override;
     procedure Clear; override;
     function ToString: ansistring; override;
@@ -42,8 +42,6 @@ type
     function GetLayerOpacity(layer: integer): byte; override;
     function GetLayerName(layer: integer): string; override;
   private
-    XmlHeader: string;
-    ThumbNail: TBGRABitmap;
     Content:   TDotNetDeserialization;
     Document:  TSerializedClass;
     Layers:    TSerializedClass;
@@ -60,20 +58,28 @@ type
   { TFPReaderPaintDotNet }
 
   TFPReaderPaintDotNet = class(TFPCustomImageReader)
+    private
+      FWidth,FHeight,FNbLayers: integer;
     protected
       function InternalCheck(Stream: TStream): boolean; override;
       procedure InternalRead(Stream: TStream; Img: TFPCustomImage); override;
+    public
+      property Width: integer read FWidth;
+      property Height: integer read FHeight;
+      property NbLayers: integer read FNbLayers;
   end;
 
 function IsPaintDotNetFile(filename: string): boolean;
+function IsPaintDotNetFileUTF8(filenameUTF8: string): boolean;
 function IsPaintDotNetStream(stream: TStream): boolean;
 function LoadPaintDotNetFile(filename: string): TBGRABitmap;
+function LoadPaintDotNetFileUTF8(filenameUTF8: string): TBGRABitmap;
 
 procedure RegisterPaintNetFormat;
 
 implementation
 
-uses zstream, Math, graphtype, Graphics;
+uses zstream, Math, graphtype, Graphics, lazutf8classes, FileUtil;
 
 {$hints off}
 function BEReadLongword(Stream: TStream): longword;
@@ -104,6 +110,19 @@ begin
   end;
 end;
 
+function IsPaintDotNetFileUTF8(filenameUTF8: string): boolean;
+var
+  stream: TFileStreamUTF8;
+begin
+  Result := False;
+  if FileExistsUTF8(filenameUTF8) then
+  begin
+    stream := TFileStreamUTF8.Create(filenameUTF8, fmOpenRead);
+    Result := IsPaintDotNetStream(stream);
+    stream.Free;
+  end;
+end;
+
 function IsPaintDotNetStream(stream: TStream): boolean;
 var
   header:  packed array[0..3] of char;
@@ -127,13 +146,18 @@ begin
 end;
 
 function LoadPaintDotNetFile(filename: string): TBGRABitmap;
+begin
+  result := LoadPaintDotNetFileUTF8(SysToUTF8(filename));
+end;
+
+function LoadPaintDotNetFileUTF8(filenameUTF8: string): TBGRABitmap;
 var
   pdn: TPaintDotNetFile;
 begin
   pdn    := TPaintDotNetFile.Create;
   Result := nil;
   try
-    pdn.LoadFromFile(filename);
+    pdn.LoadFromFile(filenameUTF8);
     Result := pdn.ComputeFlatImage;
     pdn.Free;
   except
@@ -181,15 +205,26 @@ var
   flat: TBGRABitmap;
   x,y: integer;
 begin
+  FWidth := 0;
+  FHeight:= 0;
+  FNbLayers:= 0;
   pdn    := TPaintDotNetFile.Create;
   try
     pdn.LoadFromStream(Stream);
     flat := pdn.ComputeFlatImage;
     try
-      Img.SetSize(pdn.Width,pdn.Height);
-      for y := 0 to pdn.Height-1 do
-        for x := 0 to pdn.Width-1 do
-          Img.Colors[x,y] := BGRAToFPColor(flat.GetPixel(x,y));
+      FWidth:= pdn.Width;
+      FHeight:= pdn.Height;
+      FNbLayers:= pdn.NbLayers;
+
+      if Img is TBGRACustomBitmap then
+        TBGRACustomBitmap(Img).Assign(flat) else
+      begin
+        Img.SetSize(pdn.Width,pdn.Height);
+        for y := 0 to pdn.Height-1 do
+          for x := 0 to pdn.Width-1 do
+            Img.Colors[x,y] := BGRAToFPColor(flat.GetPixel(x,y));
+      end;
     finally
       flat.free;
     end;
@@ -205,12 +240,12 @@ end;
 
 { TPaintDotNetFile }
 
-procedure TPaintDotNetFile.LoadFromFile(const filename: string);
+procedure TPaintDotNetFile.LoadFromFile(const filenameUTF8: string);
 var
-  stream: TFileStream;
+  stream: TFileStreamUTF8;
 begin
-  stream := TFileStream.Create(filename, fmOpenRead);
-  OnLayeredBitmapLoadStart(filename);
+  stream := TFileStreamUTF8.Create(filenameUTF8, fmOpenRead);
+  OnLayeredBitmapLoadStart(filenameUTF8);
   try
     InternalLoadFromStream(stream);
   finally
@@ -245,10 +280,9 @@ begin
   XmlHeaderSize := 0;
   stream.Read(XmlHeaderSize, 3);
   XmlheaderSize := LEtoN(XmlheaderSize);
-  setlength(XmlHeader, XmlHeaderSize);
-  if stream.Read(XmlHeader[1], XmlHeaderSize) <> XmlHeaderSize then
+  if Stream.Position + XmlHeaderSize > stream.Size then
     raise Exception.Create('Xml header size error');
-  XmlHeader := Utf8ToAnsi(XmlHeader);
+  Stream.Position:= Stream.Position + XmlHeaderSize;
      {$hints off}
   stream.Read(CompressionFormat, sizeof(CompressionFormat));
      {$hints on}
@@ -279,11 +313,7 @@ var
   b: byte;
 begin
   Result := 'Paint.Net document' + LineEnding + LineEnding;
-  if length(XmlHeader) > 255 then
-    Result += copy(XmlHeader, 1, 255) + '...'
-  else
-    Result += XmlHeader;
-  Result += LineEnding + LineEnding + Content.ToString;
+  Result += Content.ToString;
   for i := 0 to NbLayers - 1 do
   begin
     Result += LineEnding + 'Layer ' + IntToStr(i) + ' : ' + LayerName[i] + LineEnding;
@@ -310,7 +340,6 @@ constructor TPaintDotNetFile.Create;
 begin
   inherited Create;
   Content   := nil;
-  ThumbNail := nil;
   Document  := nil;
   Layers    := nil;
   LinearBlend := True;
@@ -321,9 +350,7 @@ procedure TPaintDotNetFile.Clear;
 var
   i: integer;
 begin
-  XmlHeader := '';
   FreeAndNil(content);
-  FreeAndNil(thumbNail);
   document := nil;
   Layers   := nil;
   for i := 0 to high(LayerData) do
@@ -623,6 +650,7 @@ begin
   ImageHandlers.RegisterImageReader ('Paint.NET image', 'pdn', TFPReaderPaintDotNet);
   RegisterLayeredBitmapReader('pdn', TPaintDotNetFile);
   //TPicture.RegisterFileFormat('pdn', 'Paint.NET image', TPaintDotNetFile);
+  DefaultBGRAImageReader[ifPaintDotNet] := TFPReaderPaintDotNet;
   AlreadyRegistered := true;
 end;
 

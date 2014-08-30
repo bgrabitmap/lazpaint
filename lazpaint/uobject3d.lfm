@@ -2,24 +2,26 @@ object FObject3D: TFObject3D
   Left = 415
   Height = 301
   Top = 139
-  Width = 531
+  Width = 530
   BorderIcons = [biSystemMenu, biMaximize]
   Caption = '3D object'
   ClientHeight = 301
-  ClientWidth = 531
+  ClientWidth = 530
   Constraints.MinHeight = 300
   Constraints.MinWidth = 340
+  KeyPreview = True
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnKeyPress = FormKeyPress
   OnResize = FormResize
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '1.1'
+  LCLVersion = '1.0.10.0'
   object BGRAView3D: TBGRAVirtualScreen
     Left = 0
     Height = 301
     Top = 0
-    Width = 354
+    Width = 353
     OnRedraw = BGRAView3DRedraw
     Alignment = taLeftJustify
     Anchors = [akTop, akLeft, akRight, akBottom]
@@ -31,7 +33,7 @@ object FObject3D: TFObject3D
     OnMouseUp = BGRAView3DMouseUp
   end
   object Button_OK: TButton
-    Left = 373
+    Left = 372
     Height = 22
     Top = 271
     Width = 59
@@ -42,7 +44,7 @@ object FObject3D: TFObject3D
     TabOrder = 1
   end
   object Button_Cancel: TButton
-    Left = 439
+    Left = 438
     Height = 22
     Top = 271
     Width = 73
@@ -53,7 +55,7 @@ object FObject3D: TFObject3D
     TabOrder = 2
   end
   object PageControl1: TPageControl
-    Left = 354
+    Left = 353
     Height = 266
     Top = 0
     Width = 179
@@ -82,7 +84,7 @@ object FObject3D: TFObject3D
         Height = 45
         Top = 24
         Width = 48
-        CurveExponent = 0.20000000298023
+        CurveExponent = 0.200000002980232
         KnobColor = clBtnShadow
         LightIntensity = 300
         PositionColor = clBtnText
@@ -99,9 +101,9 @@ object FObject3D: TFObject3D
       end
       object Label_Zoom: TLabel
         Left = 67
-        Height = 15
+        Height = 16
         Top = 8
-        Width = 32
+        Width = 33
         Caption = 'Zoom'
         ParentColor = False
       end
@@ -126,25 +128,25 @@ object FObject3D: TFObject3D
       end
       object Label_LightingNormals: TLabel
         Left = 10
-        Height = 15
+        Height = 16
         Top = 136
-        Width = 96
+        Width = 97
         Caption = 'Lighting normals :'
         ParentColor = False
       end
       object Label_Width: TLabel
         Left = 11
-        Height = 15
+        Height = 16
         Top = 83
-        Width = 38
+        Width = 39
         Caption = 'Width :'
         ParentColor = False
       end
       object Label_Height: TLabel
         Left = 11
-        Height = 15
+        Height = 16
         Top = 110
-        Width = 42
+        Width = 43
         Caption = 'Height :'
         ParentColor = False
       end
@@ -156,6 +158,7 @@ object FObject3D: TFObject3D
         Increment = 10
         MaxValue = 10000
         MinValue = 1
+        OnKeyPress = SpinEdit_WidthKeyPress
         TabOrder = 3
         Value = 1
       end
@@ -167,6 +170,7 @@ object FObject3D: TFObject3D
         Increment = 10
         MaxValue = 10000
         MinValue = 1
+        OnKeyPress = SpinEdit_HeightKeyPress
         TabOrder = 4
         Value = 1
       end
@@ -188,43 +192,44 @@ object FObject3D: TFObject3D
       ClientWidth = 171
       object Label_Materials: TLabel
         Left = 10
-        Height = 15
+        Height = 16
         Top = 6
-        Width = 54
+        Width = 55
         Caption = 'Materials :'
         ParentColor = False
       end
       object ListBox_Materials: TListBox
         Left = 4
-        Height = 110
+        Height = 86
         Top = 24
         Width = 158
         ItemHeight = 0
+        OnKeyPress = ListBox_MaterialsKeyPress
         OnSelectionChange = ListBox_MaterialsSelectionChange
         TabOrder = 0
       end
       object GroupBox_SelectedMaterial: TGroupBox
         Left = 4
-        Height = 96
-        Top = 138
+        Height = 120
+        Top = 112
         Width = 158
         Caption = 'Selected material'
-        ClientHeight = 78
+        ClientHeight = 102
         ClientWidth = 154
         TabOrder = 1
         object Label_SpecularIndex: TLabel
           Left = 7
-          Height = 15
+          Height = 16
           Top = 6
-          Width = 65
+          Width = 66
           Caption = 'Spec. index :'
           ParentColor = False
         end
         object Label_Color: TLabel
           Left = 7
-          Height = 15
+          Height = 16
           Top = 30
-          Width = 35
+          Width = 36
           Caption = 'Color :'
           ParentColor = False
         end
@@ -246,13 +251,14 @@ object FObject3D: TFObject3D
           Increment = 10
           MaxValue = 1000
           OnChange = SpinEdit_SpecularIndexChange
+          OnKeyPress = SpinEdit_SpecularIndexKeyPress
           TabOrder = 0
         end
         object Label_Opacity: TLabel
           Left = 7
-          Height = 15
+          Height = 16
           Top = 55
-          Width = 47
+          Width = 48
           Caption = 'Opacity :'
           ParentColor = False
         end
@@ -264,8 +270,27 @@ object FObject3D: TFObject3D
           Increment = 15
           MaxValue = 255
           OnChange = SpinEdit_ColorOpacityChange
+          OnKeyPress = SpinEdit_ColorOpacityKeyPress
           TabOrder = 1
           Value = 255
+        end
+        object Button_LoadTex: TButton
+          Left = 8
+          Height = 23
+          Top = 77
+          Width = 72
+          Caption = 'Texture...'
+          OnClick = Button_LoadTexClick
+          TabOrder = 2
+        end
+        object Button_NoTex: TButton
+          Left = 85
+          Height = 23
+          Top = 77
+          Width = 64
+          Caption = 'No tex.'
+          OnClick = Button_NoTexClick
+          TabOrder = 3
         end
       end
     end
@@ -295,6 +320,13 @@ object FObject3D: TFObject3D
       'ColorT=A4A0A0'
     )
     left = 40
+    top = 24
+  end
+  object OpenTextureDialog: TOpenDialog
+    Title = 'Open texture'
+    DefaultExt = '.png'
+    Filter = 'Texture images (*.*)|*.bmp;*.gif;*.ico;*.jpg;*.jpeg;*.lzp;*.ora;*.pcx;*.pdn;*.png;*.psd;*.tga;*.tif;*.tiff;*.xwd;*.BMP;*.GIF;*.ICO;*.JPG;*.JPEG;*.LZP;*.ORA;*.PCX;*.PDN;*.PNG;*.PSD;*.TGA;*.TIF;*.TIFF;*.XWD;*.Bmp;*.Gif;*.Ico;*.Jpg;*.Jpeg;*.Lzp;*.Ora;*.Pcx;*.Pdn;*.Png;*.Psd;*.Tga;*.Tif;*.Tiff;*.Xwd|Layered images (*.lzp, *.ora, *.pdn)|*.lzp;*.ora;*.pdn;*.LZP;*.ORA;*.PDN;*.Lzp;*.Ora;*.Pdn|Bitmaps (*.bmp)|*.bmp;*.BMP;*.Bmp|Animated GIF (*.gif)|*.gif;*.GIF;*.Gif|Icon (*.ico)|*.ico;*.ICO;*.Ico|JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg;*.JPG;*.JPEG;*.Jpg;*.Jpeg|LazPaint image (*.lzp)|*.lzp;*.LZP;*.Lzp|OpenRaster (*.ora)|*.ora;*.ORA;*.Ora|Personal Computer eXchange (*.pcx)|*.pcx;*.PCX;*.Pcx|Paint.NET image (*.pdn)|*.pdn;*.PDN;*.Pdn|Portable Network Graphic (*.png)|*.png;*.PNG;*.Png|Flattened photoshop (*.psd)|*.psd;*.PSD;*.Psd|Targa (*.tga)|*.tga;*.TGA;*.Tga|Tiff (*.tif;*.tiff)|*.tif;*.tiff;*.TIF;*.TIFF;*.Tif;*.Tiff|X window capture (*.xwd)|*.xwd;*.XWD;*.Xwd'
+    left = 120
     top = 24
   end
 end

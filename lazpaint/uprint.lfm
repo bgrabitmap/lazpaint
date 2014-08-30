@@ -1,0 +1,290 @@
+object FPrint: TFPrint
+  Left = 345
+  Height = 399
+  Top = 163
+  Width = 599
+  BorderIcons = [biSystemMenu, biMaximize]
+  Caption = 'Print'
+  ClientHeight = 399
+  ClientWidth = 599
+  Constraints.MinHeight = 399
+  Constraints.MinWidth = 450
+  OnCreate = FormCreate
+  OnShow = FormShow
+  Position = poDesktopCenter
+  LCLVersion = '1.0.10.0'
+  object Label_PrinterAndPaper: TLabel
+    Left = 9
+    Height = 25
+    Top = 6
+    Width = 127
+    AutoSize = False
+    Caption = 'Printer and paper:'
+    Layout = tlCenter
+    ParentColor = False
+  end
+  object Label_SelectedPrinterAndPaper: TLabel
+    Cursor = crHandPoint
+    Left = 141
+    Height = 25
+    Top = 6
+    Width = 346
+    Anchors = [akTop, akLeft, akRight]
+    AutoSize = False
+    Color = clWindow
+    Font.Color = clWindowText
+    Layout = tlCenter
+    ParentColor = False
+    ParentFont = False
+    Transparent = False
+    OnClick = Label_SelectedPrinterAndPaperClick
+  end
+  object Button_ConfigurePrinter: TButton
+    Left = 490
+    Height = 25
+    Top = 6
+    Width = 103
+    Anchors = [akTop, akRight]
+    Caption = 'Configure...'
+    OnClick = Button_ConfigurePrinterClick
+    TabOrder = 0
+  end
+  object Label_Orientation: TLabel
+    Left = 12
+    Height = 16
+    Top = 37
+    Width = 64
+    Caption = 'Orientation:'
+    ParentColor = False
+  end
+  object ComboBox_Orientation: TComboBox
+    Left = 12
+    Height = 23
+    Top = 53
+    Width = 172
+    ItemHeight = 15
+    OnChange = ComboBox_OrientationChange
+    Style = csDropDownList
+    TabOrder = 1
+  end
+  object GroupBox_Margins: TGroupBox
+    Left = 12
+    Height = 119
+    Top = 79
+    Width = 174
+    Caption = 'Margins'
+    ClientHeight = 101
+    ClientWidth = 170
+    TabOrder = 2
+    object Label_Left: TLabel
+      Left = 10
+      Height = 16
+      Top = 27
+      Width = 24
+      Caption = 'Left:'
+      ParentColor = False
+    end
+    object Label_Top: TLabel
+      Left = 2
+      Height = 16
+      Top = 7
+      Width = 56
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Top:'
+      ParentColor = False
+    end
+    object Label_Right: TLabel
+      Left = 106
+      Height = 16
+      Top = 27
+      Width = 32
+      Caption = 'Right:'
+      ParentColor = False
+    end
+    object Label_Bottom: TLabel
+      Left = 2
+      Height = 16
+      Top = 76
+      Width = 56
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Bottom:'
+      ParentColor = False
+    end
+    object SpinEdit_Top: TSpinEdit
+      Left = 66
+      Height = 23
+      Top = 4
+      Width = 56
+      OnChange = SpinEdit_Change
+      TabOrder = 0
+      Value = 10
+    end
+    object SpinEdit_Bottom: TSpinEdit
+      Left = 66
+      Height = 23
+      Top = 73
+      Width = 56
+      OnChange = SpinEdit_Change
+      TabOrder = 1
+      Value = 10
+    end
+    object SpinEdit_Left: TSpinEdit
+      Left = 10
+      Height = 23
+      Top = 43
+      Width = 56
+      OnChange = SpinEdit_Change
+      TabOrder = 2
+      Value = 10
+    end
+    object SpinEdit_Right: TSpinEdit
+      Left = 106
+      Height = 23
+      Top = 43
+      Width = 56
+      OnChange = SpinEdit_Change
+      TabOrder = 3
+      Value = 10
+    end
+  end
+  object BGRAVirtualScreen1: TBGRAVirtualScreen
+    Left = 192
+    Height = 351
+    Top = 40
+    Width = 400
+    OnRedraw = BGRAVirtualScreen1Redraw
+    Alignment = taLeftJustify
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    Color = clBtnFace
+    ParentColor = False
+    TabOrder = 3
+    OnMouseDown = BGRAVirtualScreen1MouseDown
+    OnMouseMove = BGRAVirtualScreen1MouseMove
+    OnMouseUp = BGRAVirtualScreen1MouseUp
+  end
+  object GroupBox_ImageSize: TGroupBox
+    Left = 12
+    Height = 157
+    Top = 202
+    Width = 175
+    Caption = 'Image size'
+    ClientHeight = 139
+    ClientWidth = 171
+    TabOrder = 4
+    object SpinEdit_DpiX: TSpinEdit
+      Left = 10
+      Height = 23
+      Top = 38
+      Width = 56
+      Increment = 16
+      MaxValue = 99999
+      MinValue = 1
+      OnChange = SpinEdit_DPIChange
+      TabOrder = 0
+      Value = 96
+    end
+    object Label_DpiX: TLabel
+      Left = 10
+      Height = 16
+      Top = 22
+      Width = 4
+      Caption = '.'
+      ParentColor = False
+    end
+    object Label_Width: TLabel
+      Left = 10
+      Height = 16
+      Top = 63
+      Width = 36
+      Caption = 'Width:'
+      ParentColor = False
+    end
+    object SpinEdit_Width: TSpinEdit
+      Left = 10
+      Height = 23
+      Top = 79
+      Width = 72
+      MaxValue = 99999
+      MinValue = 1
+      OnChange = SpinEdit_SizeChange
+      TabOrder = 1
+      Value = 10
+    end
+    object Label_Height: TLabel
+      Left = 90
+      Height = 16
+      Top = 63
+      Width = 40
+      Caption = 'Height:'
+      ParentColor = False
+    end
+    object SpinEdit_Height: TSpinEdit
+      Left = 90
+      Height = 23
+      Top = 79
+      Width = 72
+      MaxValue = 99999
+      MinValue = 1
+      OnChange = SpinEdit_SizeChange
+      TabOrder = 2
+      Value = 10
+    end
+    object Label_DpiY: TLabel
+      Left = 90
+      Height = 16
+      Top = 22
+      Width = 4
+      Caption = '.'
+      ParentColor = False
+      Visible = False
+    end
+    object SpinEdit_DpiY: TSpinEdit
+      Left = 90
+      Height = 23
+      Top = 38
+      Width = 56
+      Increment = 16
+      MaxValue = 99999
+      MinValue = 1
+      OnChange = SpinEdit_DPIChange
+      TabOrder = 3
+      Value = 96
+      Visible = False
+    end
+    object CheckBox_Ratio: TCheckBox
+      Left = 10
+      Height = 19
+      Top = 3
+      Width = 110
+      Caption = 'Keep aspect ratio'
+      Checked = True
+      OnChange = CheckBox_RatioChange
+      State = cbChecked
+      TabOrder = 4
+    end
+    object Button_ZoomFit: TButton
+      Left = 7
+      Height = 25
+      Top = 110
+      Width = 155
+      Caption = 'Zoom fit'
+      OnClick = Button_ZoomFitClick
+      TabOrder = 5
+    end
+  end
+  object Button_Print: TButton
+    Left = 46
+    Height = 25
+    Top = 368
+    Width = 103
+    Caption = 'Print!'
+    OnClick = Button_PrintClick
+    TabOrder = 5
+  end
+  object PrinterSetupDialog1: TPrinterSetupDialog
+    left = 288
+    top = 120
+  end
+end

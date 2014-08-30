@@ -154,6 +154,7 @@ type
     function GetBoxedValue(obj: TCustomSerializedObject; index: integer): string;
     procedure LoadFromStream(Stream: TStream);
     procedure LoadFromFile(filename: string);
+    procedure LoadFromFileUTF8(filenameUTF8: string);
     function ToString: string; override;
     constructor Create;
     destructor Destroy; override;
@@ -181,6 +182,8 @@ function WinReadInt64(Stream: TStream): int64;
 function WinReadQWord(Stream: TStream): QWord;
 
 implementation
+
+uses lazutf8classes;
 
 const
   //block types
@@ -858,6 +861,18 @@ var
   stream: TFileStream;
 begin
   stream := TFileStream.Create(filename, fmOpenRead);
+  try
+    LoadFromStream(stream);
+  finally
+    stream.Free;
+  end;
+end;
+
+procedure TDotNetDeserialization.LoadFromFileUTF8(filenameUTF8: string);
+var
+  stream: TFileStreamUTF8;
+begin
+  stream := TFileStreamUTF8.Create(filenameUTF8, fmOpenRead);
   try
     LoadFromStream(stream);
   finally

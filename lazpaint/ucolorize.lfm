@@ -12,20 +12,20 @@ object FColorize: TFColorize
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.1'
+  LCLVersion = '1.0.10.0'
   object Label_Hue: TLabel
     Left = 8
-    Height = 15
+    Height = 16
     Top = 10
-    Width = 22
+    Width = 23
     Caption = 'Hue'
     ParentColor = False
   end
   object Label_Colorness: TLabel
     Left = 8
-    Height = 15
+    Height = 16
     Top = 48
-    Width = 52
+    Width = 53
     Caption = 'Colorness'
     ParentColor = False
   end
@@ -104,5 +104,47 @@ object FColorize: TFColorize
     Caption = 'Corrected hue and lightness'
     OnChange = CheckBox_GSBAChange
     TabOrder = 6
+  end
+  object Label_Preset: TLabel
+    Left = 184
+    Height = 16
+    Top = 83
+    Width = 80
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = 'Preset'
+    ParentColor = False
+  end
+  object Combo_Preset: TComboBox
+    Left = 272
+    Height = 23
+    Top = 80
+    Width = 154
+    ItemHeight = 15
+    OnChange = Combo_PresetChange
+    Style = csDropDownList
+    TabOrder = 7
+  end
+  object ToolBar8: TToolBar
+    Left = 432
+    Height = 24
+    Top = 80
+    Width = 48
+    Align = alNone
+    EdgeBorders = []
+    Images = FMain.ImageList1
+    TabOrder = 8
+    object ToolButton23: TToolButton
+      Left = 1
+      Top = 0
+      ImageIndex = 81
+      OnClick = ToolButton23Click
+    end
+    object ToolButton1: TToolButton
+      Left = 24
+      Top = 0
+      ImageIndex = 39
+      OnClick = ToolButton1Click
+    end
   end
 end

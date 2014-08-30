@@ -52,7 +52,7 @@ type
     procedure SetTransparent(Value: Boolean); override;
 
   public
-    procedure SaveToFile(const filename: string); override;
+    procedure SaveToFile(const filenameUTF8: string); override;
     procedure SaveToStream(Stream: TStream); override;
     constructor Create; override;
     destructor Destroy; override;
@@ -128,7 +128,7 @@ type
     procedure SetLayerUniqueId(layer: integer; AValue: integer);
 
   public
-    procedure LoadFromFile(const filename: string); override;
+    procedure LoadFromFile(const filenameUTF8: string); override;
     procedure LoadFromStream(stream: TStream); override;
     procedure SetSize(AWidth, AHeight: integer); virtual;
     procedure Clear; override;
@@ -158,8 +158,8 @@ type
     function AddOwnedLayer(ABitmap: TBGRABitmap; Position: TPoint; Opacity: byte = 255): integer; overload;
     function AddOwnedLayer(ABitmap: TBGRABitmap; BlendOp: TBlendOperation; Opacity: byte = 255): integer; overload;
     destructor Destroy; override;
-    constructor Create; override;
-    constructor Create(AWidth, AHeight: integer);
+    constructor Create; override; overload;
+    constructor Create(AWidth, AHeight: integer); virtual; overload;
     function GetLayerBitmapDirectly(layer: integer): TBGRABitmap; override;
     function GetLayerBitmapCopy(layer: integer): TBGRABitmap; override;
     function GetLayerIndexFromId(AIdentifier: integer): integer;
@@ -185,20 +185,20 @@ type
     property LayerUniqueId[layer: integer]: integer read GetLayerUniqueId write SetLayerUniqueId;
   end;
 
-procedure RegisterLayeredBitmapWriter(AExtension: string; AWriter: TBGRALayeredBitmapClass);
-procedure RegisterLayeredBitmapReader(AExtension: string; AReader: TBGRACustomLayeredBitmapClass);
+procedure RegisterLayeredBitmapWriter(AExtensionUTF8: string; AWriter: TBGRALayeredBitmapClass);
+procedure RegisterLayeredBitmapReader(AExtensionUTF8: string; AReader: TBGRACustomLayeredBitmapClass);
 
 var
   LayeredBitmapSaveToStreamProc : TBGRALayeredBitmapSaveToStreamProc;
   LayeredBitmapLoadFromStreamProc : TBGRALayeredBitmapLoadFromStreamProc;
 
 type
-  TOnLayeredBitmapLoadStartProc = procedure(AFilename: string) of object;
+  TOnLayeredBitmapLoadStartProc = procedure(AFilenameUTF8: string) of object;
   TOnLayeredBitmapLoadProgressProc = procedure(APercentage: integer) of object;
   TOnLayeredBitmapLoadedProc = procedure() of object;
 
 procedure OnLayeredBitmapLoadFromStreamStart;
-procedure OnLayeredBitmapLoadStart(AFilename: string);
+procedure OnLayeredBitmapLoadStart(AFilenameUTF8: string);
 procedure OnLayeredBitmapLoadProgress(APercentage: integer);
 procedure OnLayeredBitmapLoaded();
 procedure RegisterLoadingHandler(AStart: TOnLayeredBitmapLoadStartProc; AProgress: TOnLayeredBitmapLoadProgressProc;
@@ -207,6 +207,8 @@ procedure UnregisterLoadingHandler(AStart: TOnLayeredBitmapLoadStartProc; AProgr
      ADone: TOnLayeredBitmapLoadedProc);
 
 implementation
+
+uses LCLProc;
 
 var
   OnLayeredBitmapLoadStartProc: TOnLayeredBitmapLoadStartProc;
@@ -408,20 +410,20 @@ begin
     Result:= FLayers[layer].Source;
 end;
 
-procedure TBGRALayeredBitmap.LoadFromFile(const filename: string);
+procedure TBGRALayeredBitmap.LoadFromFile(const filenameUTF8: string);
 var bmp: TBGRABitmap;
     index: integer;
     ext: string;
     temp: TBGRACustomLayeredBitmap;
     i: integer;
 begin
-  ext := lowercase(ExtractFileExt(filename));
+  ext := UTF8LowerCase(ExtractFileExt(filenameUTF8));
   for i := 0 to high(LayeredBitmapReaders) do
     if '.'+LayeredBitmapReaders[i].extension = ext then
     begin
       temp := LayeredBitmapReaders[i].theClass.Create;
       try
-        temp.LoadFromFile(filename);
+        temp.LoadFromFile(filenameUTF8);
         Assign(temp);
       finally
         temp.Free;
@@ -429,7 +431,7 @@ begin
       exit;
     end;
 
-  bmp := TBGRABitmap.Create(filename);
+  bmp := TBGRABitmap.Create(filenameUTF8, True);
   Clear;
   SetSize(bmp.Width,bmp.Height);
   index := AddSharedLayer(bmp);
@@ -952,20 +954,20 @@ begin
   //nothing
 end;
 
-procedure TBGRACustomLayeredBitmap.SaveToFile(const filename: string);
+procedure TBGRACustomLayeredBitmap.SaveToFile(const filenameUTF8: string);
 var bmp: TBGRABitmap;
     ext: string;
     temp: TBGRALayeredBitmap;
     i: integer;
 begin
-  ext := lowercase(ExtractFileExt(filename));
+  ext := UTF8LowerCase(ExtractFileExt(filenameUTF8));
   for i := 0 to high(LayeredBitmapWriters) do
     if '.'+LayeredBitmapWriters[i].extension = ext then
     begin
       temp := LayeredBitmapWriters[i].theClass.Create;
       try
         temp.Assign(self);
-        temp.SaveToFile(filename);
+        temp.SaveToFile(filenameUTF8);
       finally
         temp.Free;
       end;
@@ -974,7 +976,7 @@ begin
 
   bmp := ComputeFlatImage;
   try
-    bmp.SaveToFile(filename);
+    bmp.SaveToFileUTF8(filenameUTF8);
   finally
     bmp.Free;
   end;
@@ -1291,12 +1293,12 @@ begin
       RemoveFrozenRange(i);
 end;
 
-procedure RegisterLayeredBitmapReader(AExtension: string; AReader: TBGRACustomLayeredBitmapClass);
+procedure RegisterLayeredBitmapReader(AExtensionUTF8: string; AReader: TBGRACustomLayeredBitmapClass);
 begin
   setlength(LayeredBitmapReaders,length(LayeredBitmapReaders)+1);
   with LayeredBitmapReaders[high(LayeredBitmapReaders)] do
   begin
-    extension:= AExtension;
+    extension:= UTF8LowerCase(AExtensionUTF8);
     theClass := AReader;
   end;
 end;
@@ -1306,10 +1308,10 @@ begin
   OnLayeredBitmapLoadStart('<Stream>');
 end;
 
-procedure OnLayeredBitmapLoadStart(AFilename: string);
+procedure OnLayeredBitmapLoadStart(AFilenameUTF8: string);
 begin
   if Assigned(OnLayeredBitmapLoadStartProc) then
-    OnLayeredBitmapLoadStartProc(AFilename);
+    OnLayeredBitmapLoadStartProc(AFilenameUTF8);
 end;
 
 procedure OnLayeredBitmapLoadProgress(APercentage: integer);
@@ -1341,12 +1343,13 @@ begin
   if OnLayeredBitmapLoadedProc = ADone then OnLayeredBitmapLoadedProc := nil;
 end;
 
-procedure RegisterLayeredBitmapWriter(AExtension: string; AWriter: TBGRALayeredBitmapClass);
+procedure RegisterLayeredBitmapWriter(AExtensionUTF8: string; AWriter: TBGRALayeredBitmapClass);
 begin
+  while (length(AExtensionUTF8)>0) and (AExtensionUTF8[1]='.') do delete(AExtensionUTF8,1,1);
   setlength(LayeredBitmapWriters,length(LayeredBitmapWriters)+1);
   with LayeredBitmapWriters[high(LayeredBitmapWriters)] do
   begin
-    extension:= AExtension;
+    extension:= UTF8LowerCase(AExtensionUTF8);
     theClass := AWriter;
   end;
 end;

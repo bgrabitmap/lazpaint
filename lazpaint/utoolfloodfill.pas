@@ -31,12 +31,12 @@ type
     function RenderAllCornerPositions: boolean; override;
   public
     function ToolUp: TRect; override;
-    procedure Render(VirtualScreen: TBGRABitmap; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction); override;
+    function Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
   end;
 
 implementation
 
-uses ugraph;
+uses ugraph, LazPaintType;
 
 { TToolGradient }
 
@@ -73,17 +73,20 @@ end;
 function TToolGradient.ToolUp: TRect;
 begin
   inherited ToolUp;
-  result := ToolRepaintOnly;
+  result := EmptyRect;
 end;
 
-procedure TToolGradient.Render(VirtualScreen: TBGRABitmap;
-  BitmapToVirtualScreen: TBitmapToVirtualScreenFunction);
+function TToolGradient.Render(VirtualScreen: TBGRABitmap;
+  VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
+var ptF: TPointF;
 begin
-  inherited Render(VirtualScreen, BitmapToVirtualScreen);
+  result := inherited Render(VirtualScreen, VirtualScreenWidth,VirtualScreenHeight, BitmapToVirtualScreen);
   if rectDrawing then
   begin
-    NicePoint(VirtualScreen, BitmapToVirtualScreen(PointF(rectOrigin.X,rectOrigin.Y)) );
-    NicePoint(VirtualScreen, BitmapToVirtualScreen(PointF(rectDest.X,rectDest.Y)) );
+    ptF := BitmapToVirtualScreen(PointF(rectOrigin.X,rectOrigin.Y));
+    result := RectUnion(result,NicePoint(VirtualScreen, ptF));
+    ptF := BitmapToVirtualScreen(PointF(rectDest.X,rectDest.Y));
+    result := RectUnion(result,NicePoint(VirtualScreen, ptF));
   end;
 end;
 
@@ -113,9 +116,9 @@ begin
     if Manager.ToolFloodFillOptionProgressive then
       toolDest.FloodFill(pt.X,pt.Y,penColor,fmProgressive,Manager.ToolTolerance) else
         toolDest.FloodFill(pt.X,pt.Y,penColor,fmDrawWithTransparency,Manager.ToolTolerance);
-  Manager.Image.ImageMayChangeCompletely;
+  Manager.Image.LayerMayChangeCompletely(toolDest);
   ValidateAction;
-  result := ToolRepaintOnly;
+  result := OnlyRenderChange;
 end;
 
 initialization

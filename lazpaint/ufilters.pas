@@ -5,15 +5,15 @@ unit UFilters;
 interface
 
 uses
-  Classes, SysUtils, LazPaintType;
+  Classes, SysUtils, LazPaintType, uscripting;
 
-function ExecuteFilter(AInstance: TLazPaintCustomInstance; filter: TPictureFilter; skipDialog: boolean = false): boolean;
+function ExecuteFilter(AInstance: TLazPaintCustomInstance; filter: TPictureFilter; AParameters: TVariableSet; skipDialog: boolean = false): boolean;
 
 implementation
 
-uses UFilterConnector, BGRABitmap, BGRABitmapTypes, UGraph, BGRAGradients, Dialogs;
+uses UFilterConnector, BGRABitmap, BGRABitmapTypes, UGraph, BGRAGradients, Dialogs, UColorFilters;
 
-function ExecuteFilter(AInstance: TLazPaintCustomInstance;filter: TPictureFilter; skipDialog: boolean = false): boolean;
+function ExecuteFilter(AInstance: TLazPaintCustomInstance;filter: TPictureFilter; AParameters: TVariableSet; skipDialog: boolean = false): boolean;
 var
     FilterConnector: TFilterConnector;
     filteredLayer: TBGRABitmap;
@@ -22,11 +22,10 @@ var
   var
     blurMask,blurMaskCopy: TBGRABitmap;
   begin
-    AInstance.HideTopmost;
-    if skipDialog and (AInstance.Config.DefaultCustomBlurMask <> '') then
+    if skipDialog and (AInstance.Config.DefaultCustomBlurMaskUTF8 <> '') then
     begin
       try
-        blurMask := TBGRABitmap.Create(AInstance.Config.DefaultCustomBlurMask);
+        blurMask := TBGRABitmap.Create(AInstance.Config.DefaultCustomBlurMaskUTF8,True);
         blurMaskCopy := blurMask.FilterGrayscale as TBGRABitmap;
         blurMask.Fill(BGRABlack);
         blurMask.PutImage(0,0,blurMaskCopy,dmDrawWithTransparency);
@@ -35,19 +34,17 @@ var
         blurMask.Free;
       except
         on ex: exception do
-          ShowMessage(ex.Message);
+          AInstance.ShowError(PictureFilterStr[filter],ex.Message);
       end;
     end
     else
       AInstance.ShowCustomBlurDlg(FilterConnector);
-    AInstance.ShowTopmost;
   end;
 
   procedure DoSimpleBlur;
   var
     blurType: TRadialBlurType;
   begin
-    AInstance.HideTopmost;
     case filter of
       pfBlurPrecise: blurType := rbPrecise;
       pfBlurRadial: blurType := rbNormal;
@@ -59,7 +56,6 @@ var
       filteredLayer := FilterConnector.ActiveLayer.FilterBlurRadial(FilterConnector.WorkArea, AInstance.Config.DefaultBlurRadius,blurType) as TBGRABitmap
     else
       AInstance.ShowRadialBlurDlg(FilterConnector,blurType);
-    AInstance.ShowTopmost;
   end;
 
   procedure DoMetalFloor;
@@ -70,10 +66,27 @@ var
      temp.Free;
   end;
 
+  procedure DoSharpen;
+  var
+    amountDefined: boolean;
+    amount: single;
+  begin
+    amountDefined := AParameters.IsDefined('Amount');
+    if skipDialog or amountDefined then
+    begin
+      amount := AInstance.Config.DefaultSharpenAmount;
+      if amountDefined then amount := AParameters.Floats['Amount'];
+      filteredLayer := FilterConnector.ActiveLayer.FilterSharpen(FilterConnector.WorkArea,amount) as TBGRABitmap;
+      AParameters.Floats['Amount'] := amount;
+    end
+    else AInstance.ShowSharpenDlg(FilterConnector);
+  end;
+
 var
   layer: TBGRABitmap;
 
 begin
+  result := false;
   if filter = pfNone then exit;
   if not AInstance.Image.CheckNoAction then exit;
   if not AInstance.image.CheckCurrentLayerVisible then exit;
@@ -83,16 +96,13 @@ begin
       result := true;
       exit;
   end;
-  result := false;
-  if not skipDialog then AInstance.HideTopmost;
   try
-    FilterConnector := TFilterConnector.Create(AInstance);
+    FilterConnector := TFilterConnector.Create(AInstance, AParameters);
     layer := FilterConnector.ActiveLayer;
 
     filteredLayer := nil;
     case filter of
-    pfSharpen: if skipDialog then filteredLayer := layer.FilterSharpen(FilterConnector.WorkArea,AInstance.Config.DefaultSharpenAmount) as TBGRABitmap
-               else AInstance.ShowSharpenDlg(FilterConnector);
+    pfSharpen: DoSharpen;
     pfSmooth: filteredLayer := layer.FilterSmooth as TBGRABitmap;
     pfClearTypeInverse: filteredLayer := ClearTypeInverseFilter(layer) as TBGRABitmap;
     pfClearType: filteredLayer := ClearTypeFilter(layer) as TBGRABitmap;
@@ -111,6 +121,11 @@ begin
         filteredLayer := layer.Duplicate as TBGRABitmap;
         filteredLayer.LinearNegativeRect(FilterConnector.WorkArea)
       end;
+    pfComplementaryColor:
+      begin
+        filteredLayer := layer.Duplicate as TBGRABitmap;
+        FilterComplementaryColor(filteredLayer,FilterConnector.WorkArea);
+      end;
     pfBlurPrecise, pfBlurRadial, pfBlurCorona, pfBlurDisk, pfBlurFast: DoSimpleBlur;
     pfBlurMotion:
         if skipDialog then
@@ -125,6 +140,7 @@ begin
           AInstance.ShowEmbossDlg(FilterConnector);
     pfPhong: AInstance.ShowPhongFilterDlg(FilterConnector);
     pfFunction: AInstance.ShowFunctionFilterDlg(FilterConnector);
+    pfNoise: AInstance.ShowNoiseFilterDlg(FilterConnector);
     pfPixelate:
         if skipDialog then
           filteredLayer := DoPixelate(layer,AInstance.Config.DefaultPixelateSize,AInstance.config.DefaultPixelateQuality)
@@ -167,16 +183,14 @@ begin
         filteredLayer.Free
       else
       begin
-        FilterConnector.PutImage(filteredLayer,IsColoredFilter[filter]);
-        filteredLayer.Free;
+        FilterConnector.PutImage(filteredLayer,IsColoredFilter[filter],True);
         FilterConnector.ValidateAction;
       end;
     end;
   except
     on ex: Exception do
-      ShowMessage('ExecuteFilter: '+ex.Message);
+      AInstance.ShowError(PictureFilterStr[filter],ex.Message);
   end;
-  if not skipDialog then AInstance.ShowTopmost;
   result:= FilterConnector.ActionDone;
   FilterConnector.Free;
 end;

@@ -37,18 +37,23 @@ type
     procedure SetMemoryStreamAsString(AFilename: string; AContent: string);
     function GetMemoryStreamAsString(AFilename: string): string;
     procedure UnzipFromStream(AStream: TStream);
-    procedure UnzipFromFile(AFilename: string);
-    procedure ZipToFile(AFilename: string);
+    procedure UnzipFromFile(AFilenameUTF8: string);
+    procedure ZipToFile(AFilenameUTF8: string);
+    procedure ZipToStream(AStream: TStream);
     procedure CopyThumbnailToMemoryStream(AMaxWidth, AMaxHeight: integer);
     procedure AnalyzeZip;
+    procedure PrepareZipToSave;
     function GetMimeType: string; override;
 
   public
-    constructor Create; override;
+    constructor Create; override; overload;
+    constructor Create(AWidth, AHeight: integer); override; overload;
     procedure Clear; override;
+    function CheckMimeType(AStream: TStream): boolean;
     procedure LoadFromStream(AStream: TStream); override;
-    procedure LoadFromFile(const filename: string); override;
-    procedure SaveToFile(const filename: string); override;
+    procedure LoadFromFile(const filenameUTF8: string); override;
+    procedure SaveToFile(const filenameUTF8: string); override;
+    procedure SaveToStream(AStream: TStream); override;
     property MimeType : string read GetMimeType write SetMimeType;
     property StackXML : TXMLDocument read FStackXML;
   end;
@@ -56,16 +61,30 @@ type
   { TFPReaderOpenRaster }
 
   TFPReaderOpenRaster = class(TFPCustomImageReader)
+    private
+      FWidth,FHeight,FNbLayers: integer;
     protected
       function InternalCheck(Stream: TStream): boolean; override;
       procedure InternalRead(Stream: TStream; Img: TFPCustomImage); override;
+    public
+      property Width: integer read FWidth;
+      property Height: integer read FHeight;
+      property NbLayers: integer read FNbLayers;
+  end;
+
+  { TFPWriterOpenRaster }
+
+  TFPWriterOpenRaster = class(TFPCustomImageWriter)
+    protected
+      procedure InternalWrite (Str:TStream; Img:TFPCustomImage); override;
   end;
 
 procedure RegisterOpenRasterFormat;
 
 implementation
 
-uses Graphics, XMLRead, XMLWrite, FPReadPNG, dialogs, BGRABitmapTypes, zstream;
+uses Graphics, XMLRead, XMLWrite, FPReadPNG, dialogs, BGRABitmapTypes, zstream, lazutf8classes,
+  UnzipperExt;
 
 function IsZipStream(stream: TStream): boolean;
 var
@@ -88,11 +107,46 @@ begin
   end;
 end;
 
+{ TFPWriterOpenRaster }
+
+procedure TFPWriterOpenRaster.InternalWrite(Str: TStream; Img: TFPCustomImage);
+var doc: TBGRAOpenRasterDocument;
+  tempBmp: TBGRABitmap;
+  x,y: integer;
+
+begin
+  doc := TBGRAOpenRasterDocument.Create;
+  if Img is TBGRABitmap then doc.AddLayer(Img as TBGRABitmap) else
+  begin
+    tempBmp := TBGRABitmap.Create(img.Width,img.Height);
+    for y := 0 to Img.Height-1 do
+      for x := 0 to img.Width-1 do
+        tempBmp.SetPixel(x,y, FPColorToBGRA(img.Colors[x,y]));
+    doc.AddOwnedLayer(tempBmp);
+  end;
+  doc.SaveToStream(Str);
+  doc.Free;
+end;
+
 { TFPReaderOpenRaster }
 
 function TFPReaderOpenRaster.InternalCheck(Stream: TStream): boolean;
+var {%h-}magic: packed array[0..3] of byte;
+  OldPos,BytesRead: Int64;
+  doc : TBGRAOpenRasterDocument;
 begin
- result := IsZipStream(Stream);
+  Result:=false;
+  if Stream=nil then exit;
+  oldPos := stream.Position;
+  BytesRead := Stream.Read({%h-}magic,sizeof(magic));
+  stream.Position:= OldPos;
+  if BytesRead<>sizeof(magic) then exit;
+  if (magic[0] = $50) and (magic[1] = $4b) and (magic[2] = $03) and (magic[3] = $04) then
+  begin
+    doc := TBGRAOpenRasterDocument.Create;
+    result := doc.CheckMimeType(Stream);
+    doc.Free;
+  end;
 end;
 
 procedure TFPReaderOpenRaster.InternalRead(Stream: TStream; Img: TFPCustomImage);
@@ -101,15 +155,26 @@ var
   flat: TBGRABitmap;
   x,y: integer;
 begin
+  FWidth := 0;
+  FHeight:= 0;
+  FNbLayers:= 0;
   layeredImage := TBGRAOpenRasterDocument.Create;
   try
     layeredImage.LoadFromStream(Stream);
     flat := layeredImage.ComputeFlatImage;
     try
-      Img.SetSize(flat.Width,flat.Height);
-      for y := 0 to flat.Height-1 do
-        for x := 0 to flat.Width-1 do
-          Img.Colors[x,y] := BGRAToFPColor(flat.GetPixel(x,y));
+      FWidth:= layeredImage.Width;
+      FHeight:= layeredImage.Height;
+      FNbLayers:= layeredImage.NbLayers;
+      if Img is TBGRACustomBitmap then
+        TBGRACustomBitmap(img).Assign(flat)
+      else
+      begin
+        Img.SetSize(flat.Width,flat.Height);
+        for y := 0 to flat.Height-1 do
+          for x := 0 to flat.Width-1 do
+            Img.Colors[x,y] := BGRAToFPColor(flat.GetPixel(x,y));
+      end;
     finally
       flat.free;
     end;
@@ -291,18 +356,7 @@ begin
 
 end;
 
-procedure TBGRAOpenRasterDocument.LoadFromFile(const filename: string);
-begin
-  OnLayeredBitmapLoadStart(filename);
-  try
-    UnzipFromFile(filename);
-    AnalyzeZip;
-  finally
-    OnLayeredBitmapLoaded;
-  end;
-end;
-
-procedure TBGRAOpenRasterDocument.SaveToFile(const filename: string);
+procedure TBGRAOpenRasterDocument.PrepareZipToSave;
 var i: integer;
     imageNode,stackNode,layerNode: TDOMElement;
     layerFilename,strval: string;
@@ -380,8 +434,29 @@ begin
   StackStream := TMemoryStream.Create;
   WriteXMLFile(StackXML, StackStream);
   SetMemoryStream('stack.xml',StackStream);
+end;
 
-  ZipToFile(filename);
+procedure TBGRAOpenRasterDocument.LoadFromFile(const filenameUTF8: string);
+var AStream: TFileStreamUTF8;
+begin
+  AStream := TFileStreamUTF8.Create(filenameUTF8,fmOpenRead or fmShareDenyWrite);
+  try
+    LoadFromStream(AStream);
+  finally
+    AStream.Free;
+  end;
+end;
+
+procedure TBGRAOpenRasterDocument.SaveToFile(const filenameUTF8: string);
+begin
+  PrepareZipToSave;
+  ZipToFile(filenameUTF8);
+end;
+
+procedure TBGRAOpenRasterDocument.SaveToStream(AStream: TStream);
+begin
+  PrepareZipToSave;
+  ZipToStream(AStream);
 end;
 
 function TBGRAOpenRasterDocument.GetMimeType: string;
@@ -395,6 +470,12 @@ end;
 constructor TBGRAOpenRasterDocument.Create;
 begin
   inherited Create;
+  RegisterOpenRasterFormat;
+end;
+
+constructor TBGRAOpenRasterDocument.Create(AWidth, AHeight: integer);
+begin
+  inherited Create(AWidth, AHeight);
   RegisterOpenRasterFormat;
 end;
 
@@ -519,38 +600,49 @@ begin
     unzip.UnZipAllFiles;
   finally
     FZipInputStream := nil;
+    unzip.Free;
   end;
-  unzip.Free;
 end;
 
-procedure TBGRAOpenRasterDocument.UnzipFromFile(AFilename: string);
+procedure TBGRAOpenRasterDocument.UnzipFromFile(AFilenameUTF8: string);
 var unzip: TUnZipper;
 begin
   Clear;
   unzip := TUnZipper.Create;
   try
-    unzip.FileName := AFilename;
+    unzip.FileName := Utf8ToAnsi(AFilenameUTF8);
     unzip.OnCreateStream := @ZipOnCreateStream;
     unzip.OnDoneStream := @ZipOnDoneStream;
     unzip.UnZipAllFiles;
   finally
+    unzip.Free;
   end;
-  unzip.Free;
 end;
 
-procedure TBGRAOpenRasterDocument.ZipToFile(AFilename: string);
+procedure TBGRAOpenRasterDocument.ZipToFile(AFilenameUTF8: string);
+var
+  stream: TFileStreamUTF8;
+begin
+  stream := TFileStreamUTF8.Create(AFilenameUTF8, fmCreate);
+  try
+    ZipToStream(stream);
+  finally
+    stream.Free;
+  end;
+end;
+
+procedure TBGRAOpenRasterDocument.ZipToStream(AStream: TStream);
 var zip: TZipper;
   i: integer;
 begin
   zip := TZipper.Create;
   try
-    zip.FileName := AFilename;
     for i := 0 to high(FFiles) do
     begin
       FFiles[i].Stream.Position:= 0;
       zip.Entries.AddFileEntry(FFiles[i].Stream,FFiles[i].Filename).CompressionLevel := clnone;
     end;
-    zip.ZipAllFiles;
+    zip.SaveToStream(AStream);
   finally
     zip.Free;
   end;
@@ -589,6 +681,24 @@ procedure TBGRAOpenRasterDocument.Clear;
 begin
   ClearFiles;
   inherited Clear;
+end;
+
+function TBGRAOpenRasterDocument.CheckMimeType(AStream: TStream): boolean;
+var unzip: TUnzipperStreamUtf8;
+  mimeTypeFound: string;
+  oldPos: int64;
+begin
+  result := false;
+  unzip := TUnzipperStreamUtf8.Create;
+  oldPos := AStream.Position;
+  try
+    unzip.InputStream := AStream;
+    mimeTypeFound := unzip.UnzipFileToString('mimetype');
+    if mimeTypeFound = OpenRasterMimeType then result := true;
+  except
+  end;
+  unzip.Free;
+  astream.Position:= OldPos;
 end;
 
 procedure TBGRAOpenRasterDocument.LoadFromStream(AStream: TStream);
@@ -683,6 +793,8 @@ begin
   RegisterLayeredBitmapReader('ora', TBGRAOpenRasterDocument);
   RegisterLayeredBitmapWriter('ora', TBGRAOpenRasterDocument);
   //TPicture.RegisterFileFormat('ora', 'OpenRaster', TBGRAOpenRasterDocument);
+  DefaultBGRAImageReader[ifOpenRaster] := TFPReaderOpenRaster;
+  DefaultBGRAImageWriter[ifOpenRaster] := TFPWriterOpenRaster;
   AlreadyRegistered:= True;
 end;
 

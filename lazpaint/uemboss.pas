@@ -83,6 +83,7 @@ procedure TFEmboss.FormShow(Sender: TObject);
 begin
   angle := FilterConnector.LazPaintInstance.Config.DefaultEmbossAngle;
   PreviewNeeded;
+  Left := FilterConnector.LazPaintInstance.MainFormBounds.Left
 end;
 
 procedure TFEmboss.Button_OKClick(Sender: TObject);
@@ -153,15 +154,11 @@ begin
 end;
 
 procedure TFEmboss.PreviewNeeded;
-var temp: TBGRABitmap;
 begin
-  temp := ComputeFilteredLayer;
-  FilterConnector.PutImage(temp,False);
-  temp.Free;
+  FilterConnector.PutImage(ComputeFilteredLayer,False,True);
 end;
 
-initialization
-  {$I uemboss.lrs}
+{$R *.lfm}
 
 end.
 

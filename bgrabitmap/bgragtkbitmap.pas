@@ -64,7 +64,7 @@ uses BGRABitmapTypes, LCLType,
   {$IFDEF LCLgtk}
   gdk, gtkdef, gtkProc, gdkpixbuf, glib,
   {$ENDIF}
-  FPImage;
+  FPImage, Dialogs;
 
 {$IFDEF LCLgtk2}
 type TGtkDeviceContext = TGtk2DeviceContext;
@@ -143,13 +143,11 @@ begin
   SwapRedBlue;
   
   P := Rect.TopLeft;
-  DpToLP(ACanvas.Handle, P, 1);
+  LPToDP(ACanvas.Handle, P, 1);
   gdk_pixbuf_render_to_drawable(FPixBuf,
     TGtkDeviceContext(ACanvas.Handle).Drawable,
     TGtkDeviceContext(ACanvas.Handle).GC,
-    0,0,
-    TGtkDeviceContext(ACanvas.Handle).Offset.X + abs(P.X),
-    TGtkDeviceContext(ACanvas.Handle).Offset.Y + abs(P.Y),
+    0,0, P.X,P.Y,
     Width,Height,
     GDK_RGB_DITHER_NORMAL,0,0);   
 
@@ -250,13 +248,12 @@ begin
   end;
 
   dest := ACanvas.Handle;
-  pos := TGtkDeviceContext(dest).Offset;
-  pos.X += rect.Left;
-  pos.Y += rect.Top;
+  pos := rect.TopLeft;
+  LPtoDP(dest, pos, 1);
   If ALineOrder = riloBottomToTop then VerticalFlip;
   SwapRedBlue;
   gdk_draw_rgb_32_image(TGtkDeviceContext(dest).Drawable,
-    TGtkDeviceContext(Dest).GC, pos.X,pos.Y,
+    TGtkDeviceContext(Dest).GC, pos.x,pos.y,
     AWidth,AHeight, GDK_RGB_DITHER_NORMAL,
     AData, AWidth*sizeof(TBGRAPixel));
   SwapRedBlue;
@@ -295,12 +292,10 @@ begin
   end;
 
   P := Point(x,y);
-  DpToLP(CanvasSource.Handle, P, 1);
+  LPToDP(CanvasSource.Handle, P, 1);
   gdk_pixbuf_get_from_drawable(FPixBuf,
     TGtkDeviceContext(CanvasSource.Handle).Drawable,
-    nil,
-    TGtkDeviceContext(CanvasSource.Handle).Offset.X+abs(P.X),
-    TGtkDeviceContext(CanvasSource.Handle).Offset.Y+abs(P.Y),0,0,Width,Height);
+    nil, P.X,P.Y,0,0,Width,Height);
   SwapRedBlue;
   InvalidateBitmap;
 end;

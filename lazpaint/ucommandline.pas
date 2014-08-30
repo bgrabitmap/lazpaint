@@ -6,14 +6,21 @@ interface
 
 uses classes, LazpaintType, uresourcestrings;
 
-procedure ProcessCommands(instance: TLazPaintCustomInstance; commands: TStringList; out errorEncountered, fileSaved: boolean);
+procedure ProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList; out errorEncountered, fileSaved: boolean);
+function ParamStrUTF8(AIndex: integer): string;
 
 implementation
 
 uses
-  SysUtils, FileUtil, LCLProc, BGRABitmap, BGRABitmapTypes, Dialogs, uparse, uimage, UImageAction;
+  SysUtils, FileUtil, LCLProc, BGRABitmap, BGRABitmapTypes, Dialogs, uparse,
+  UImage, UImageAction, ULayerAction;
 
-procedure InternalProcessCommands(instance: TLazPaintCustomInstance; commands: TStringList; out errorEncountered, fileSaved: boolean; AImageActions: TImageActions);
+function ParamStrUTF8(AIndex: integer): string;
+begin
+  result := SysToUTF8(ParamStr(AIndex)); //not perfect
+end;
+
+procedure InternalProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList; out errorEncountered, fileSaved: boolean; AImageActions: TImageActions);
 var
   commandPrefix: set of char;
   InputFilename:string;
@@ -42,22 +49,22 @@ var
 begin
   fileSaved := True;
   errorEncountered := false;
-  if commands.count = 0 then exit;
+  if commandsUTF8.count = 0 then exit;
 
   commandPrefix := ['-'];
   {$WARNINGS OFF}
   if PathDelim<>'/' then commandPrefix += ['/'];
   {$WARNINGS ON}
-  InputFilename:= commands[0];
+  InputFilename:= commandsUTF8[0];
   iStart := 0;
   if InputFilename <> '' then
   begin
     if not (InputFilename[1] in commandPrefix) then
     begin
       iStart := 1;
-      if not instance.TryOpenFile(ExpandFileNameUTF8(InputFilename)) then
+      if not instance.TryOpenFileUTF8(ExpandFileNameUTF8(InputFilename)) then
       begin
-        ShowMessage(rsUnableToLoadFile+InputFilename);
+        instance.ShowError(rsOpen, rsUnableToLoadFile+InputFilename);
         errorEncountered := true;
         exit;
       end;
@@ -65,9 +72,9 @@ begin
   end;
 
   fileSaved := false;
-  for i := iStart to commands.count-1 do
+  for i := iStart to commandsUTF8.count-1 do
   begin
-    CommandStr := commands[i];
+    CommandStr := commandsUTF8[i];
     if (length(CommandStr) >= 1) and (CommandStr[1] in commandPrefix) then
     begin
       Delete(CommandStr,1,1);
@@ -76,7 +83,7 @@ begin
       begin
         if not instance.ExecuteFilter(Filter,True) then
         begin
-          ShowMessage(rsUnableToApplyFilter+CommandStr);
+          instance.ShowError(CommandStr, rsUnableToApplyFilter+CommandStr);
           errorEncountered := true;
           exit;
         end;
@@ -95,7 +102,7 @@ begin
           funcParams := SimpleParseFuncParam(CommandStr);
           if length(funcParams)<>13 then
           begin
-            ShowMessage('"Gradient" '+StringReplace(rsExpectNParameters,'N','13',[])+'red1,green1,blue1,alpha1,red2,green2,blue2,alpha2,type,x1,y1,x2,y2');
+            instance.ShowError('Gradient','"Gradient" '+StringReplace(rsExpectNParameters,'N','13',[])+'red1,green1,blue1,alpha1,red2,green2,blue2,alpha2,type,x1,y1,x2,y2');
             errorEncountered := true;
             exit;
           end;
@@ -124,14 +131,14 @@ begin
           funcParams := SimpleParseFuncParam(CommandStr);
           if length(funcParams)<>1 then
           begin
-            ShowMessage('"Opacity" ' + rsExpect1Parameter+CommandStr);
+            instance.ShowError('Opacity','"Opacity" ' + rsExpect1Parameter+CommandStr);
             errorEncountered := true;
             exit;
           end;
           val(funcParams[0],opacity,errPos);
           if (errPos <> 0) then
           begin
-            ShowMessage(rsInvalidOpacity+CommandStr);
+            instance.ShowError('Opacity',rsInvalidOpacity+CommandStr);
             errorEncountered := true;
             exit;
           end;
@@ -145,7 +152,7 @@ begin
           funcParams := SimpleParseFuncParam(CommandStr);
           if length(funcParams)<>2 then
           begin
-            ShowMessage('"Resample" ' + rsExpect2Parameters+CommandStr);
+            instance.ShowError('Resample','"Resample" ' + rsExpect2Parameters+CommandStr);
             errorEncountered := true;
             exit;
           end;
@@ -153,18 +160,18 @@ begin
           val(funcParams[1],h,errPos);
           if (errPos <> 0) or (w <= 0) or (h <= 0) then
           begin
-            ShowMessage(rsInvalidResampleSize+CommandStr);
+            instance.ShowError('Resample',rsInvalidResampleSize+CommandStr);
             errorEncountered := true;
             exit;
           end;
-          instance.Image.Resample(w,h,rsHalfCosine);
+          instance.Image.Resample(w,h,rfHalfCosine);
         end else
         if copy(lowerCmd,1,4)='new(' then
         begin
           funcParams := SimpleParseFuncParam(CommandStr);
           if length(funcParams)<>2 then
           begin
-            ShowMessage('"New" ' + rsExpect2Parameters+CommandStr);
+            instance.ShowError('New','"New" ' + rsExpect2Parameters+CommandStr);
             errorEncountered := true;
             exit;
           end;
@@ -172,7 +179,7 @@ begin
           val(funcParams[1],h,errPos);
           if (errPos <> 0) or (w <= 0) or (h <= 0) then
           begin
-            ShowMessage(rsInvalidSizeForNew+CommandStr);
+            instance.ShowError('New',rsInvalidSizeForNew+CommandStr);
             errorEncountered := true;
             exit;
           end;
@@ -180,7 +187,7 @@ begin
         end else
         if Copy(CommandStr,1,4) <> 'psn_' then //ignore mac parameter
         begin
-          ShowMessage(rsUnknownCommand+CommandStr);
+          instance.ShowError('Command line', rsUnknownCommand+CommandStr);
           errorEncountered := true;
           exit;
         end;
@@ -189,11 +196,11 @@ begin
     begin
       OutputFilename := CommandStr;
       try
-         instance.Image.SaveToFileSys(UTF8ToSys(OutputFilename))
+         instance.Image.SaveToFileUTF8(OutputFilename)
       except
         on ex: Exception do
         begin
-          ShowMessage(rsUnableToSaveFile+OutputFilename);
+          instance.ShowError(rsSave, rsUnableToSaveFile+OutputFilename);
         end;
       end;
       fileSaved:= true;
@@ -203,11 +210,11 @@ begin
 
 end;
 
-procedure ProcessCommands(instance: TLazPaintCustomInstance; commands: TStringList; out errorEncountered, fileSaved: boolean);
+procedure ProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList; out errorEncountered, fileSaved: boolean);
 var imageActions: TImageActions;
 begin
   imageActions := TImageActions.Create(instance);
-  InternalProcessCommands(instance,commands,errorEncountered,fileSaved,imageActions);
+  InternalProcessCommands(instance,commandsUTF8,errorEncountered,fileSaved,imageActions);
   imageActions.Free;
 end;
 

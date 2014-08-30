@@ -5,7 +5,7 @@ unit UConfig;
 interface
 
 uses
-  Classes, SysUtils, IniFiles, BGRABitmapTypes, Graphics, LCLType;
+  Classes, SysUtils, IniFiles, BGRABitmapTypes, Graphics, LCLType, uscripting;
 
 type
   { TLazPaintConfig }
@@ -13,28 +13,50 @@ type
   TLazPaintConfig = class
   private
     iniOptions: TIniFile;
-    recentFiles: TStringList;
+    recentFiles, recentDirs: TStringList;
     tempFont: TFont;
+    colorizePresets: TList;
+    FVersion: string;
+    function GetColorizePreset(Index: Integer): TVariableSet;
+    function GetColorizePresetCount: integer;
+    function GetRecentDirectoriesCount: integer;
+    function GetRecentDirectory(Index: Integer): string;
     function GetRecentFile(Index: Integer): string;
     function GetRecentFilesCount: integer;
 
   public
     Languages: TStringList;
-    constructor Create(ini: TIniFile);
+    constructor Create(ini: TIniFile; AVersion: string);
     destructor Destroy; override;
 
     procedure InitRecentFiles;
     procedure AddRecentFile(filename: string);
+    procedure AddRecentDirectory(dirname: string);
     procedure FinalizeRecentFiles;
 
+    procedure InitColorizePresets;
+    function AddColorizePreset(AName: string; AHue, ASaturation: double; ACorrection: Boolean): integer;
+    function AddColorizePreset(AParams: TVariableSet): integer;
+    procedure RemoveColorizePreset(AIndex: integer);
+    function IndexOfColorizePreset(AName: string): integer;
+    procedure FinalizeColorizePresets;
+
     function DefaultLangage: string;
+    class function ClassGetDefaultLangage(AIni: TIniFile): string;
     procedure SetDefaultLangage(value: string);
 
     function LatestVersion: string;
     procedure SetLatestVersion(value: string);
     procedure GetUpdatedLanguages(AList: TStringList);
     procedure SetUpdatedLanguages(AList: TStringList);
+    class procedure ClassGetUpdatedLanguages(AList: TStringList; AIni: TIniFile; AVersion: string);
+    class procedure ClassSetUpdatedLanguages(AList: TStringList; AIni: TIniFile; AVersion: string);
     procedure AddUpdatedLanguage(ALang: string);
+
+    function Default3dObjectDirectory: string;
+    procedure SetDefault3dObjectDirectory(value: string);
+    function DefaultTextureDirectory: string;
+    procedure SetDefaultTextureDirectory(value: string);
 
     //new image config
     function DefaultImageWidth: integer;
@@ -62,12 +84,21 @@ type
     procedure SetDefaultLayerWindowPosition(value: TRect);
     function DefaultToolboxWindowPosition: TRect;
     procedure SetDefaultToolboxWindowPosition(value: TRect);
+    function DefaultImageListPosition: TRect;
+    procedure SetDefaultImagelistWindowPosition(value: TRect);
+    function DefaultBrowseWindowMaximized: boolean;
+    procedure SetDefaultBrowseWindowMaximized(value: boolean);
+    function DefaultBrowseWindowPosition: TRect;
+    procedure SetDefaultBrowseWindowPosition(value: TRect);
+
     function DefaultColorWindowVisible: boolean;
     procedure SetDefaultColorWindowVisible(value: boolean);
     function DefaultLayerWindowVisible: boolean;
     procedure SetDefaultLayerWindowVisible(value: boolean);
     function DefaultToolboxWindowVisible: boolean;
     procedure SetDefaultToolboxWindowVisible(value: boolean);
+    function DefaultImagelistWindowVisible: boolean;
+    procedure SetDefaultImagelistWindowVisible(value: boolean);
     function DefaultGridVisible: boolean;
     procedure SetDefaultGridVisible(value: boolean);
 
@@ -78,6 +109,8 @@ type
     procedure SetDefaultToolBackColor(value: TBGRAPixel);
     function DefaultToolPenWidth: single;
     procedure SetDefaultToolPenWidth(value: single);
+    function DefaultToolEraserWidth: single;
+    procedure SetDefaultToolEraserWidth(value: single);
     function DefaultToolOptionDrawShape: boolean;
     procedure SetDefaultToolOptionDrawShape(value: boolean);
     function DefaultToolOptionFillShape: boolean;
@@ -140,8 +173,8 @@ type
     procedure SetDefaultBlurMotionOriented(value: boolean);
 
     //custom blur config
-    function DefaultCustomBlurMask: string;
-    procedure SetDefaultCustomBlurMask(value: string);
+    function DefaultCustomBlurMaskUTF8: string;
+    procedure SetDefaultCustomBlurMaskUTF8(value: string);
 
     //emboss config
     function DefaultEmbossAngle: double;
@@ -158,59 +191,89 @@ type
     procedure SetDefaultPhongFilterAltitude(value: integer);
 
     //color config
+    function DefaultPosterizeLevels: integer;
+    procedure SetDefaultPosterizeLevels(value: integer);
+    function DefaultPosterizeByLightness: boolean;
+    procedure SetDefaultPosterizeByLightness(value: boolean);
     function DefaultUseGSBA: boolean;
     procedure SetDefaultUseGSBA(value: boolean);
 
     property RecentFilesCount : integer read GetRecentFilesCount;
     property RecentFile[Index: Integer]: string read GetRecentFile;
+    property RecentDirectoriesCount : integer read GetRecentDirectoriesCount;
+    property RecentDirectory[Index: Integer]: string read GetRecentDirectory;
+
+    property ColorizePresetCount: integer read GetColorizePresetCount;
+    property ColorizePreset[Index: Integer]: TVariableSet read GetColorizePreset;
+
+    //ImageList
+    function ImageListLastFolder: string;
+    procedure SetImageListLastFolder(value: string);
+    function ImageListAutoZoom: Boolean;
+    procedure SetImageListAutoZoom(value: Boolean);
+    function ImageListAutoUncheck: Boolean;
+    procedure SetImageListAutoUncheck(value: Boolean);
+    function ImageListAutoUncheckMode: Integer;
+    procedure SetImageListAutoUncheckMode(value: integer);
   end;
 
 function GetActualConfig: TIniFile;
+function DefaultPicturesDirectory: string;
 
-var ActualConfigDir : string;
+var ActualConfigDirUTF8 : string;
 
 implementation
 
-uses forms, uparse, LCLProc;
+uses forms, uparse, LCLProc, FileUtil;
 
 const maxRecentFiles = 10;
+      maxRecentDirectories = 10;
 
 //returns the config file to use
 function GetActualConfig: TIniFile;
 var
   PortableConfig: TIniFile;
-  PortableConfigFilename: string;
-  ActualConfigFilename: string;
+  AppDirSys: string;
+  PortableConfigFilenameSys: string;
+  ActualConfigFilenameSys: string;
   {$IFDEF DARWIN}
   ConfigPath: string;
   {$ENDIF}
 begin
-  ActualConfigFilename := '';
+  ActualConfigFilenameSys := '';
 
   //check if a config file path is defined
-  PortableConfigFilename := ExtractFilePath(Application.ExeName)+'lazpaint.ini';
-  If FileExists(PortableConfigFilename) then
+  AppDirSys := ExtractFilePath(Application.ExeName);
+  PortableConfigFilenameSys := AppDirSys+'lazpaint.ini';
+  If FileExists(PortableConfigFilenameSys) then
   begin
-    PortableConfig := TIniFile.Create(PortableConfigFilename);
-    ActualConfigFilename:= PortableConfig.ReadString('General','ConfigFile','');
-    if ActualConfigFilename <> '' then
-      ActualConfigFilename:= ExpandFileName(ExtractFilePath(Application.ExeName)+ActualConfigFilename);
+    PortableConfig := TIniFile.Create(PortableConfigFilenameSys);
+    ActualConfigFilenameSys:= PortableConfig.ReadString('General','ConfigFile','');
+    if ActualConfigFilenameSys <> '' then
+      ActualConfigFilenameSys:= ExpandFileName(AppDirSys+ActualConfigFilenameSys);
     PortableConfig.Free;
   end;
 
   //otherwise, use default path
-  if ActualConfigFilename = '' then
+  if ActualConfigFilenameSys = '' then
   begin
     CreateDir(GetAppConfigDir(False));
-    ActualConfigFilename := GetAppConfigFile(False,False);
+    ActualConfigFilenameSys := GetAppConfigFile(False,False);
   end;
 
   {$IFDEF DARWIN}
-  ConfigPath := ExtractFilePath(ActualConfigFilename);
+  ConfigPath := ExtractFilePath(ActualConfigFilenameSys);
   CreateDir(ConfigPath);
   {$ENDIF}
-  result := TIniFile.Create(ActualConfigFilename,True);
-  ActualConfigDir := ExtractFilePath(ActualConfigFilename);
+  result := TIniFile.Create(ActualConfigFilenameSys,True);
+  ActualConfigDirUTF8 := SysToUTF8(ExtractFilePath(ActualConfigFilenameSys));
+end;
+
+function DefaultPicturesDirectory: string;
+begin
+  DefaultPicturesDirectory := SysToUTF8(GetUserDir);
+  if DirectoryExistsUTF8(AppendPathDelim(DefaultPicturesDirectory)+'Pictures') then
+    DefaultPicturesDirectory := AppendPathDelim(DefaultPicturesDirectory)+'Pictures';
 end;
 
 { TLazPaintConfig }
@@ -316,6 +379,36 @@ begin
   iniOptions.WriteString('Window','ToolboxWindowPosition',RectToStr(value));
 end;
 
+function TLazPaintConfig.DefaultImageListPosition: TRect;
+begin
+  result := StrToRect(iniOptions.ReadString('Window','ImagelistWindowPosition',''));
+end;
+
+procedure TLazPaintConfig.SetDefaultImagelistWindowPosition(value: TRect);
+begin
+  iniOptions.WriteString('Window','ImagelistWindowPosition',RectToStr(value));
+end;
+
+function TLazPaintConfig.DefaultBrowseWindowMaximized: boolean;
+begin
+  result := iniOptions.ReadBool('Window','BrowseWindowMaximized',false);
+end;
+
+procedure TLazPaintConfig.SetDefaultBrowseWindowMaximized(value: boolean);
+begin
+  iniOptions.WriteBool('Window','BrowseWindowMaximized',value);
+end;
+
+function TLazPaintConfig.DefaultBrowseWindowPosition: TRect;
+begin
+  result := StrToRect(iniOptions.ReadString('Window','BrowseWindowPosition',''));
+end;
+
+procedure TLazPaintConfig.SetDefaultBrowseWindowPosition(value: TRect);
+begin
+  iniOptions.WriteString('Window','BrowseWindowPosition',RectToStr(value));
+end;
+
 function TLazPaintConfig.DefaultColorWindowVisible: boolean;
 begin
   result := iniOptions.ReadBool('Window','ColorWindowVisible',true);
@@ -341,9 +434,19 @@ begin
   result := iniOptions.ReadBool('Window','ToolboxWindowVisible',true);
 end;
 
+function TLazPaintConfig.DefaultImagelistWindowVisible: boolean;
+begin
+  result := iniOptions.ReadBool('Window','ImagelistWindowVisible',false);
+end;
+
 procedure TLazPaintConfig.SetDefaultToolboxWindowVisible(value: boolean);
 begin
   iniOptions.WriteBool('Window','ToolboxWindowVisible',value);
+end;
+
+procedure TLazPaintConfig.SetDefaultImagelistWindowVisible(value: boolean);
+begin
+  iniOptions.WriteBool('Window','ImagelistWindowVisible',value);
 end;
 
 function TLazPaintConfig.DefaultGridVisible: boolean;
@@ -384,6 +487,16 @@ end;
 procedure TLazPaintConfig.SetDefaultToolPenWidth(value: single);
 begin
   iniOptions.WriteFloat('Tool','PenWidth',value);
+end;
+
+function TLazPaintConfig.DefaultToolEraserWidth: single;
+begin
+  result := iniOptions.ReadFloat('Tool','EraserWidth',10);
+end;
+
+procedure TLazPaintConfig.SetDefaultToolEraserWidth(value: single);
+begin
+  iniOptions.WriteFloat('Tool','EraserWidth',value);
 end;
 
 function TLazPaintConfig.DefaultToolOptionDrawShape: boolean;
@@ -677,12 +790,12 @@ begin
   iniOptions.WriteBool('Filter','MotionBlurOriented',value);
 end;
 
-function TLazPaintConfig.DefaultCustomBlurMask: string;
+function TLazPaintConfig.DefaultCustomBlurMaskUTF8: string;
 begin
   result := iniOptions.ReadString('Filter','CustomBlurMask','');
 end;
 
-procedure TLazPaintConfig.SetDefaultCustomBlurMask(value: string);
+procedure TLazPaintConfig.SetDefaultCustomBlurMaskUTF8(value: string);
 begin
   iniOptions.WriteString('Filter','CustomBlurMask',value);
 end;
@@ -727,6 +840,26 @@ begin
   iniOptions.WriteInteger('Filter','MapAltitude',value);
 end;
 
+function TLazPaintConfig.DefaultPosterizeLevels: integer;
+begin
+  result := iniOptions.ReadInteger('Filter','PosterizeLevels',4);
+end;
+
+procedure TLazPaintConfig.SetDefaultPosterizeLevels(value: integer);
+begin
+  iniOptions.WriteInteger('Filter','PosterizeLevels',value);
+end;
+
+function TLazPaintConfig.DefaultPosterizeByLightness: boolean;
+begin
+  result := iniOptions.ReadBool('Filter','PosterizeByLightness',True);
+end;
+
+procedure TLazPaintConfig.SetDefaultPosterizeByLightness(value: boolean);
+begin
+  iniOptions.WriteBool('Filter','PosterizeByLightness',value);
+end;
+
 function TLazPaintConfig.DefaultUseGSBA: boolean;
 begin
   result := iniOptions.ReadBool('Filter','UseGSBA',True);
@@ -742,12 +875,17 @@ var i: integer;
 begin
   recentFiles := TStringList.Create;
   iniOptions.ReadSection('RecentFiles',recentFiles);
-
   for i := 0 to recentFiles.Count-1 do
     recentFiles[i] := iniOptions.ReadString('RecentFiles',recentFiles[i],'');
-
   for i := recentFiles.Count-1 downto 0 do
-   if not FileExists(recentFiles[i]) then recentFiles.Delete(i);
+    if not FileExistsUTF8(recentFiles[i]) then recentFiles.Delete(i);
+
+  recentDirs := TStringList.Create;
+  iniOptions.ReadSection('RecentDirectories',recentDirs);
+  for i := 0 to recentDirs.Count-1 do
+    recentDirs[i] := iniOptions.ReadString('RecentDirectories',recentDirs[i],'');
+  for i := recentDirs.Count-1 downto 0 do
+    if not DirectoryExistsUTF8(recentDirs[i]) then recentDirs.Delete(i);
 end;
 
 procedure TLazPaintConfig.FinalizeRecentFiles;
@@ -757,11 +895,99 @@ begin
   for i := 0 to recentFiles.Count-1 do
     iniOptions.WriteString('RecentFiles','File'+inttostr(I+1),recentFiles[i]);
   recentFiles.Free;
+
+  iniOptions.EraseSection('RecentDirectories');
+  for i := 0 to recentDirs.Count-1 do
+    iniOptions.WriteString('RecentDirectories','Dir'+inttostr(I+1),recentDirs[i]);
+  recentDirs.Free;
+end;
+
+procedure TLazPaintConfig.InitColorizePresets;
+var presetsStr: TStringList;
+  i: integer;
+begin
+  presetsStr := TStringList.Create;
+  iniOptions.ReadSection('Colorize',presetsStr);
+  colorizePresets := TList.Create;
+  for i := 0 to presetsStr.Count-1 do
+   begin
+     AddColorizePreset(TVariableSet.Create('ColorColorize',iniOptions.ReadString('Colorize',presetsStr[i],'')));
+   end;
+  presetsStr.free;
+  if ColorizePresetCount = 0 then
+  begin
+    AddColorizePreset('Antartic',211,0.660,True);
+    AddColorizePreset('Mars',16.5,0.902,True);
+    AddColorizePreset('Purple',291,0.634,False);
+    AddColorizePreset('Sepia',31.0,0.119,False);
+  end;
+end;
+
+function TLazPaintConfig.AddColorizePreset(AName: string; AHue,
+  ASaturation: double; ACorrection: Boolean): integer;
+var
+  params: TVariableSet;
+begin
+  params := TVariableSet.Create('ColorColorize');
+  params.AddString('Name',AName);
+  params.AddFloat('Hue', AHue);
+  params.AddFloat('Saturation',ASaturation);
+  params.AddBoolean('Correction',ACorrection);
+  result := AddColorizePreset(params);
+end;
+
+function TLazPaintConfig.AddColorizePreset(AParams: TVariableSet): integer;
+var i: integer;
+  s: string;
+begin
+  s := AParams.Strings['Name'];
+  for i := ColorizePresetCount-1 downto 0 do
+    if CompareText(colorizePreset[i].Strings['Name'],s) = 0 then
+      RemoveColorizePreset(i);
+  result := colorizePresets.Add(AParams);
+end;
+
+procedure TLazPaintConfig.RemoveColorizePreset(AIndex: integer);
+begin
+  if (AIndex >= 0) and (AIndex < ColorizePresetCount) then
+  begin
+    ColorizePreset[AIndex].Free;
+    colorizePresets.Delete(AIndex);
+  end;
+end;
+
+function TLazPaintConfig.IndexOfColorizePreset(AName: string): integer;
+var i: integer;
+begin
+  for i := ColorizePresetCount-1 downto 0 do
+    if CompareText(colorizePreset[i].Strings['Name'],AName) = 0 then
+    begin
+      result := i;
+      exit;
+    end;
+  result := -1;
+end;
+
+procedure TLazPaintConfig.FinalizeColorizePresets;
+var i: integer;
+begin
+  iniOptions.EraseSection('Colorize');
+  for i := 0 to ColorizePresetCount-1 do
+    iniOptions.WriteString('Colorize','Preset'+inttostr(I+1),ColorizePreset[i].VariablesAsString);
+
+  for i := 0 to ColorizePresetCount-1 do
+    ColorizePreset[i].Free;
+  colorizePresets.Free;
 end;
 
 function TLazPaintConfig.DefaultLangage: string;
 begin
-  result := iniOptions.ReadString('General','Language','');
+  result := ClassGetDefaultLangage(iniOptions);
+end;
+
+class function TLazPaintConfig.ClassGetDefaultLangage(AIni: TIniFile): string;
+begin
+  result := AIni.ReadString('General','Language','');
   if result = '' then result := 'auto';
 end;
 
@@ -783,12 +1009,24 @@ end;
 
 procedure TLazPaintConfig.GetUpdatedLanguages(AList: TStringList);
 begin
-  AList.CommaText := iniOptions.ReadString('General','UpdatedLanguages','');
+  ClassGetUpdatedLanguages(AList,iniOptions,FVersion);
 end;
 
 procedure TLazPaintConfig.SetUpdatedLanguages(AList: TStringList);
 begin
-  iniOptions.WriteString('General','UpdatedLanguages',AList.CommaText)
+  ClassSetUpdatedLanguages(AList,iniOptions,FVersion);
+end;
+
+class procedure TLazPaintConfig.ClassGetUpdatedLanguages(AList: TStringList;
+  AIni: TIniFile; AVersion: string);
+begin
+  AList.CommaText := AIni.ReadString('General','UpdatedLanguages'+AVersion,'');
+end;
+
+class procedure TLazPaintConfig.ClassSetUpdatedLanguages(AList: TStringList;
+  AIni: TIniFile; AVersion: string);
+begin
+  AIni.WriteString('General','UpdatedLanguages'+AVersion,AList.CommaText)
 end;
 
 procedure TLazPaintConfig.AddUpdatedLanguage(ALang: string);
@@ -802,6 +1040,26 @@ begin
     SetUpdatedLanguages(list);
   end;
   list.Free;
+end;
+
+function TLazPaintConfig.Default3dObjectDirectory: string;
+begin
+  result := iniOptions.ReadString('General','3dObjectDirectory','');
+end;
+
+procedure TLazPaintConfig.SetDefault3dObjectDirectory(value: string);
+begin
+  iniOptions.WriteString('General','3dObjectDirectory',ChompPathDelim(value))
+end;
+
+function TLazPaintConfig.DefaultTextureDirectory: string;
+begin
+  result := iniOptions.ReadString('General','TextureDirectory',DefaultPicturesDirectory);
+end;
+
+procedure TLazPaintConfig.SetDefaultTextureDirectory(value: string);
+begin
+  iniOptions.WriteString('General','TextureDirectory',ChompPathDelim(value))
 end;
 
 function TLazPaintConfig.ScreenSizeChanged: boolean;
@@ -828,9 +1086,41 @@ begin
     recentFiles.Delete(recentFiles.count-1);
 end;
 
+procedure TLazPaintConfig.AddRecentDirectory(dirname: string);
+var idx : integer;
+begin
+  dirname := ChompPathDelim(dirname);
+  idx := recentDirs.IndexOf(dirname);
+  if idx <> -1 then
+    recentDirs.Delete(idx);
+  recentDirs.Insert(0,dirname);
+  while recentDirs.count > maxRecentDirectories do
+    recentDirs.Delete(recentDirs.count-1);
+end;
+
 function TLazPaintConfig.GetRecentFilesCount: integer;
 begin
   result := recentFiles.Count;
+end;
+
+function TLazPaintConfig.GetColorizePreset(Index: Integer): TVariableSet;
+begin
+  result := TVariableSet(colorizePresets[Index]);
+end;
+
+function TLazPaintConfig.GetColorizePresetCount: integer;
+begin
+  result := colorizePresets.Count;
+end;
+
+function TLazPaintConfig.GetRecentDirectoriesCount: integer;
+begin
+  result := recentDirs.Count;
+end;
+
+function TLazPaintConfig.GetRecentDirectory(Index: Integer): string;
+begin
+  result := recentDirs[Index];
 end;
 
 function TLazPaintConfig.GetRecentFile(Index: Integer): string;
@@ -838,8 +1128,50 @@ begin
   result := recentFiles[Index];
 end;
 
-constructor TLazPaintConfig.Create(ini: TIniFile);
+function TLazPaintConfig.ImageListLastFolder: String;
 begin
+  result := iniOptions.ReadString('ImageList','LastFolder','');
+end;
+
+procedure TLazPaintConfig.SetImageListLastFolder(value: String);
+begin
+  iniOptions.WriteString('ImageList','LastFolder',ChompPathDelim(value));
+end;
+
+function TLazPaintConfig.ImageListAutoZoom: Boolean;
+begin
+  result := iniOptions.ReadBool('ImageList','AutoZoom',True);
+end;
+
+procedure TLazPaintConfig.SetImageListAutoZoom(Value: Boolean);
+begin
+  iniOptions.WriteBool('ImageList','AutoZoom',Value);
+end;
+
+function TLazPaintConfig.ImageListAutoUncheck: Boolean;
+begin
+  result := iniOptions.ReadBool('ImageList','AutoUncheck',True);
+end;
+
+procedure TLazPaintConfig.SetImageListAutoUncheck(Value: Boolean);
+begin
+  iniOptions.WriteBool('ImageList','AutoUncheck',Value);
+end;
+
+function TLazPaintConfig.ImageListAutoUncheckMode: Integer;
+begin
+  result := iniOptions.ReadInteger('ImageList','AutoUncheckMode',0);
+end;
+
+procedure TLazPaintConfig.SetImageListAutoUncheckMode(value: integer);
+begin
+  iniOptions.WriteInteger('ImageList','AutoUncheckMode',value);
+end;
+
+
+constructor TLazPaintConfig.Create(ini: TIniFile; AVersion: string);
+begin
+  FVersion:= AVersion;
   iniOptions := ini;
   InitRecentFiles;
 
@@ -849,15 +1181,20 @@ begin
     SetDefaultColorWindowPosition(EmptyRect);
     SetDefaultToolboxWindowPosition(EmptyRect);
     SetDefaultLayerWindowPosition(EmptyRect);
+    SetDefaultImagelistWindowPosition(EmptyRect);
+    SetDefaultBrowseWindowPosition(EmptyRect);
   end;
 
   tempFont := TFont.Create;
   Languages := TStringList.Create;
+
+  InitColorizePresets;
 end;
 
 destructor TLazPaintConfig.Destroy;
 begin
   FinalizeRecentFiles;
+  FinalizeColorizePresets;
   iniOptions.Free;
   tempFont.Free;
   Languages.Free;

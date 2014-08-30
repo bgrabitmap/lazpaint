@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
     <Version Value="9"/>
@@ -19,12 +19,12 @@
     </i18n>
     <VersionInfo>
       <UseVersionInfo Value="True"/>
-      <MajorVersionNr Value="5"/>
-      <MinorVersionNr Value="6"/>
+      <MajorVersionNr Value="6"/>
+      <MinorVersionNr Value="2"/>
       <CharSet Value="04B0"/>
       <StringTable CompanyName="http://sourceforge.net/projects/lazpaint/" ProductName="LazPaint" InternalName="lazpaint" ProductVersion="" OriginalFilename="lazpaint.exe"/>
     </VersionInfo>
-    <BuildModes Count="4" Active="Release">
+    <BuildModes Count="4" Active="Debug">
       <Item1 Name="Debug" Default="True"/>
       <Item2 Name="Release">
         <CompilerOptions>
@@ -45,8 +45,8 @@
           </Parsing>
           <CodeGeneration>
             <Optimizations>
-              <VariablesInRegisters Value="True"/>
               <OptimizationLevel Value="3"/>
+              <VariablesInRegisters Value="True"/>
             </Optimizations>
           </CodeGeneration>
           <Linking>
@@ -91,8 +91,8 @@
             <TargetCPU Value="i386"/>
             <TargetOS Value="win32"/>
             <Optimizations>
-              <VariablesInRegisters Value="True"/>
               <OptimizationLevel Value="3"/>
+              <VariablesInRegisters Value="True"/>
             </Optimizations>
           </CodeGeneration>
           <Linking>
@@ -137,8 +137,8 @@
             <TargetCPU Value="x86_64"/>
             <TargetOS Value="win64"/>
             <Optimizations>
-              <VariablesInRegisters Value="True"/>
               <OptimizationLevel Value="3"/>
+              <VariablesInRegisters Value="True"/>
             </Optimizations>
           </CodeGeneration>
           <Linking>
@@ -162,6 +162,9 @@
           </Other>
         </CompilerOptions>
       </Item4>
+      <SharedMatrixOptions Count="1">
+        <Item1 ID="826743622130" Type="IDEMacro" MacroName="LCLWidgetType" Value="qt"/>
+      </SharedMatrixOptions>
     </BuildModes>
     <PublishOptions>
       <Version Value="2"/>
@@ -174,29 +177,34 @@
         <LaunchingApplication PathPlusParams="\usr\X11R6\bin\xterm -T 'Lazarus Run Output' -e $(LazarusDir)\tools\runwait.sh $(TargetCmdLine)"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="4">
+    <RequiredPackages Count="5">
       <Item1>
-        <PackageName Value="lnetvisual"/>
+        <PackageName Value="Printer4Lazarus"/>
       </Item1>
       <Item2>
-        <PackageName Value="bgracontrols"/>
+        <PackageName Value="lnetvisual"/>
       </Item2>
       <Item3>
-        <PackageName Value="bgrabitmappack"/>
+        <PackageName Value="bgracontrols"/>
       </Item3>
       <Item4>
-        <PackageName Value="LCL"/>
+        <PackageName Value="bgrabitmappack"/>
       </Item4>
+      <Item5>
+        <PackageName Value="LCL"/>
+      </Item5>
     </RequiredPackages>
-    <Units Count="135">
+    <Units Count="160">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="lazpaint"/>
+        <EditorIndex Value="2"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="22"/>
-        <CursorPos X="1" Y="36"/>
+        <TopLine Value="76"/>
+        <CursorPos X="33" Y="112"/>
         <UsageCount Value="204"/>
+        <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="lazpaintmainform.pas"/>
@@ -205,60 +213,67 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="LazpaintMainForm"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="13"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="2570"/>
-        <CursorPos X="44" Y="2580"/>
+        <TopLine Value="1645"/>
+        <CursorPos X="93" Y="1662"/>
         <UsageCount Value="204"/>
+        <Loaded Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="..\bgrabitmap\bgrabitmap.pas"/>
         <UnitName Value="BGRABitmap"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="51"/>
-        <CursorPos X="3" Y="69"/>
-        <UsageCount Value="27"/>
+        <TopLine Value="35"/>
+        <CursorPos X="1" Y="35"/>
+        <UsageCount Value="35"/>
       </Unit2>
       <Unit3>
         <Filename Value="..\bgrabitmap\bgrabitmaptypes.pas"/>
         <UnitName Value="BGRABitmapTypes"/>
+        <EditorIndex Value="22"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="811"/>
-        <CursorPos X="10" Y="831"/>
+        <TopLine Value="913"/>
+        <CursorPos X="22" Y="924"/>
         <UsageCount Value="100"/>
+        <Loaded Value="True"/>
       </Unit3>
       <Unit4>
         <Filename Value="ugraph.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UGraph"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="15"/>
-        <CursorPos X="1" Y="33"/>
+        <TopLine Value="1"/>
+        <CursorPos X="55" Y="22"/>
         <UsageCount Value="204"/>
       </Unit4>
       <Unit5>
         <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
         <UnitName Value="BGRADefaultBitmap"/>
+        <EditorIndex Value="11"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="3027"/>
-        <CursorPos X="38" Y="3048"/>
-        <UsageCount Value="95"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="89"/>
+        <Loaded Value="True"/>
       </Unit5>
       <Unit6>
         <Filename Value="utool.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UTool"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="28"/>
-        <CursorPos X="14" Y="48"/>
+        <TopLine Value="915"/>
+        <CursorPos X="61" Y="934"/>
         <UsageCount Value="204"/>
       </Unit6>
       <Unit7>
         <Filename Value="..\bgrabitmap\bgrapolygon.pas"/>
         <UnitName Value="BGRAPolygon"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="451"/>
-        <CursorPos X="1" Y="470"/>
-        <UsageCount Value="117"/>
+        <TopLine Value="1"/>
+        <CursorPos X="62" Y="1"/>
+        <UsageCount Value="91"/>
       </Unit7>
       <Unit8>
         <Filename Value="uresample.pas"/>
@@ -268,8 +283,8 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UResample"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="18"/>
-        <CursorPos X="48" Y="42"/>
+        <TopLine Value="278"/>
+        <CursorPos X="1" Y="290"/>
         <UsageCount Value="200"/>
       </Unit8>
       <Unit9>
@@ -280,8 +295,8 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UNewimage"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="40"/>
-        <CursorPos X="3" Y="43"/>
+        <TopLine Value="38"/>
+        <CursorPos X="44" Y="68"/>
         <UsageCount Value="201"/>
       </Unit9>
       <Unit10>
@@ -300,26 +315,28 @@
         <Filename Value="uimage.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImage"/>
+        <EditorIndex Value="24"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="467"/>
-        <CursorPos X="3" Y="471"/>
+        <TopLine Value="167"/>
+        <CursorPos X="75" Y="185"/>
         <UsageCount Value="203"/>
+        <Loaded Value="True"/>
       </Unit11>
       <Unit12>
         <Filename Value="..\bgrabitmap\bgrafilters.pas"/>
         <UnitName Value="BGRAFilters"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="40" Y="6"/>
-        <UsageCount Value="127"/>
+        <TopLine Value="1452"/>
+        <CursorPos X="61" Y="1463"/>
+        <UsageCount Value="73"/>
       </Unit12>
       <Unit13>
         <Filename Value="..\bgrabitmap\bgraresample.pas"/>
         <UnitName Value="BGRAResample"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="54"/>
-        <CursorPos X="1" Y="54"/>
-        <UsageCount Value="122"/>
+        <TopLine Value="15"/>
+        <CursorPos X="10" Y="34"/>
+        <UsageCount Value="73"/>
       </Unit13>
       <Unit14>
         <Filename Value="uradialblur.pas"/>
@@ -329,8 +346,8 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="URadialBlur"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="136"/>
-        <CursorPos X="49" Y="163"/>
+        <TopLine Value="49"/>
+        <CursorPos X="36" Y="60"/>
         <UsageCount Value="200"/>
       </Unit14>
       <Unit15>
@@ -341,8 +358,8 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UMotionBlur"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="162"/>
-        <CursorPos X="49" Y="180"/>
+        <TopLine Value="119"/>
+        <CursorPos X="48" Y="137"/>
         <UsageCount Value="202"/>
       </Unit15>
       <Unit16>
@@ -353,8 +370,8 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UEmboss"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="131"/>
-        <CursorPos X="38" Y="159"/>
+        <TopLine Value="126"/>
+        <CursorPos X="1" Y="157"/>
         <UsageCount Value="203"/>
       </Unit16>
       <Unit17>
@@ -362,8 +379,8 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UClipboard"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="8" Y="1"/>
+        <TopLine Value="290"/>
+        <CursorPos X="3" Y="295"/>
         <UsageCount Value="200"/>
       </Unit17>
       <Unit18>
@@ -374,8 +391,8 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UCustomblur"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="151"/>
-        <CursorPos X="30" Y="169"/>
+        <TopLine Value="111"/>
+        <CursorPos X="17" Y="122"/>
         <UsageCount Value="200"/>
       </Unit18>
       <Unit19>
@@ -383,8 +400,8 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UMac"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="2"/>
-        <CursorPos X="11" Y="20"/>
+        <TopLine Value="33"/>
+        <CursorPos X="37" Y="51"/>
         <UsageCount Value="200"/>
       </Unit19>
       <Unit20>
@@ -393,7 +410,7 @@
         <UnitName Value="UCursors"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="8" Y="1"/>
+        <CursorPos X="55" Y="14"/>
         <UsageCount Value="200"/>
       </Unit20>
       <Unit21>
@@ -404,17 +421,17 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UChooseColor"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="165"/>
-        <CursorPos X="81" Y="175"/>
+        <TopLine Value="120"/>
+        <CursorPos X="52" Y="125"/>
         <UsageCount Value="203"/>
       </Unit21>
       <Unit22>
         <Filename Value="..\bgrabitmap\bgrapaintnet.pas"/>
         <UnitName Value="BGRAPaintNet"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="1" Y="1"/>
-        <UsageCount Value="82"/>
+        <TopLine Value="132"/>
+        <CursorPos X="41" Y="150"/>
+        <UsageCount Value="24"/>
       </Unit22>
       <Unit23>
         <Filename Value="..\bgrabitmap\bgradnetdeserial.pas"/>
@@ -422,15 +439,15 @@
         <WindowIndex Value="0"/>
         <TopLine Value="141"/>
         <CursorPos X="5" Y="142"/>
-        <UsageCount Value="80"/>
+        <UsageCount Value="22"/>
       </Unit23>
       <Unit24>
         <Filename Value="..\bgrabitmap\bgrablend.pas"/>
         <UnitName Value="BGRABlend"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="439"/>
-        <CursorPos X="14" Y="454"/>
-        <UsageCount Value="58"/>
+        <TopLine Value="142"/>
+        <CursorPos X="3" Y="179"/>
+        <UsageCount Value="14"/>
       </Unit24>
       <Unit25>
         <Filename Value="ucanvassize.pas"/>
@@ -440,8 +457,8 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UCanvassize"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="56"/>
-        <CursorPos X="1" Y="63"/>
+        <TopLine Value="172"/>
+        <CursorPos X="46" Y="189"/>
         <UsageCount Value="200"/>
       </Unit25>
       <Unit26>
@@ -452,8 +469,8 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UColorintensity"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="245"/>
-        <CursorPos X="1" Y="268"/>
+        <TopLine Value="106"/>
+        <CursorPos X="66" Y="116"/>
         <UsageCount Value="200"/>
       </Unit26>
       <Unit27>
@@ -464,8 +481,8 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UShiftColors"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="213"/>
-        <CursorPos X="1" Y="237"/>
+        <TopLine Value="170"/>
+        <CursorPos X="11" Y="207"/>
         <UsageCount Value="202"/>
       </Unit27>
       <Unit28>
@@ -476,8 +493,8 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UColorize"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="227"/>
-        <CursorPos X="1" Y="256"/>
+        <TopLine Value="79"/>
+        <CursorPos X="3" Y="81"/>
         <UsageCount Value="202"/>
       </Unit28>
       <Unit29>
@@ -488,8 +505,8 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UMultiImage"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="69"/>
-        <CursorPos X="3" Y="73"/>
+        <TopLine Value="57"/>
+        <CursorPos X="52" Y="81"/>
         <UsageCount Value="200"/>
       </Unit29>
       <Unit30>
@@ -500,43 +517,45 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UAbout"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="41"/>
-        <CursorPos X="28" Y="63"/>
+        <TopLine Value="31"/>
+        <CursorPos X="65" Y="50"/>
         <UsageCount Value="200"/>
       </Unit30>
       <Unit31>
         <Filename Value="uconfig.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UConfig"/>
+        <EditorIndex Value="25"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="667"/>
-        <CursorPos X="41" Y="693"/>
+        <TopLine Value="879"/>
+        <CursorPos X="5" Y="915"/>
         <UsageCount Value="202"/>
+        <Loaded Value="True"/>
       </Unit31>
       <Unit32>
         <Filename Value="..\bgrabitmap\bgracompressablebitmap.pas"/>
         <UnitName Value="BGRACompressableBitmap"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="89"/>
-        <CursorPos X="3" Y="97"/>
-        <UsageCount Value="95"/>
+        <TopLine Value="208"/>
+        <CursorPos X="61" Y="221"/>
+        <UsageCount Value="59"/>
       </Unit32>
       <Unit33>
         <Filename Value="ucommandline.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UCommandline"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="175"/>
-        <CursorPos X="49" Y="198"/>
+        <TopLine Value="123"/>
+        <CursorPos X="54" Y="142"/>
         <UsageCount Value="209"/>
       </Unit33>
       <Unit34>
         <Filename Value="..\bgrabitmap\bgragradients.pas"/>
         <UnitName Value="BGRAGradients"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="361"/>
-        <CursorPos X="1" Y="381"/>
-        <UsageCount Value="34"/>
+        <TopLine Value="595"/>
+        <CursorPos X="25" Y="614"/>
+        <UsageCount Value="9"/>
       </Unit34>
       <Unit35>
         <Filename Value="utwirl.pas"/>
@@ -547,27 +566,28 @@
         <UnitName Value="UTwirl"/>
         <WindowIndex Value="0"/>
         <TopLine Value="126"/>
-        <CursorPos X="38" Y="144"/>
+        <CursorPos X="1" Y="141"/>
         <UsageCount Value="200"/>
       </Unit35>
       <Unit36>
         <Filename Value="lazpaintinstance.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="LazpaintInstance"/>
+        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="505"/>
-        <CursorPos X="33" Y="522"/>
+        <TopLine Value="1"/>
+        <CursorPos X="18" Y="2"/>
         <UsageCount Value="200"/>
+        <Loaded Value="True"/>
       </Unit36>
       <Unit37>
         <Filename Value="lazpainttype.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="LazPaintType"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="1" Y="1"/>
+        <TopLine Value="271"/>
+        <CursorPos X="38" Y="271"/>
         <UsageCount Value="203"/>
         <Loaded Value="True"/>
       </Unit37>
@@ -585,8 +605,8 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolDeformationGrid"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="70"/>
-        <CursorPos X="1" Y="70"/>
+        <TopLine Value="555"/>
+        <CursorPos X="1" Y="562"/>
         <UsageCount Value="203"/>
       </Unit39>
       <Unit40>
@@ -594,8 +614,8 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolSelect"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="443"/>
-        <CursorPos X="31" Y="452"/>
+        <TopLine Value="8"/>
+        <CursorPos X="14" Y="26"/>
         <UsageCount Value="203"/>
       </Unit40>
       <Unit41>
@@ -603,8 +623,8 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolPolygon"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="130"/>
-        <CursorPos X="3" Y="134"/>
+        <TopLine Value="107"/>
+        <CursorPos X="83" Y="120"/>
         <UsageCount Value="203"/>
       </Unit41>
       <Unit42>
@@ -612,8 +632,8 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolFloodFill"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="19"/>
-        <CursorPos X="1" Y="19"/>
+        <TopLine Value="23"/>
+        <CursorPos X="38" Y="23"/>
         <UsageCount Value="203"/>
       </Unit42>
       <Unit43>
@@ -621,27 +641,31 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolBasic"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="265"/>
-        <CursorPos X="4" Y="268"/>
+        <TopLine Value="811"/>
+        <CursorPos X="1" Y="826"/>
         <UsageCount Value="200"/>
       </Unit43>
       <Unit44>
         <Filename Value="uscaledpi.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UScaleDPI"/>
+        <EditorIndex Value="23"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="1" Y="4"/>
+        <CursorPos X="1" Y="1"/>
         <UsageCount Value="221"/>
+        <Loaded Value="True"/>
       </Unit44>
       <Unit45>
         <Filename Value="uresourcestrings.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UResourceStrings"/>
+        <EditorIndex Value="6"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="1" Y="11"/>
+        <TopLine Value="19"/>
+        <CursorPos X="3" Y="37"/>
         <UsageCount Value="292"/>
+        <Loaded Value="True"/>
       </Unit45>
       <Unit46>
         <Filename Value="upixelate.pas"/>
@@ -651,8 +675,8 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UPixelate"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="86"/>
-        <CursorPos X="39" Y="114"/>
+        <TopLine Value="81"/>
+        <CursorPos X="1" Y="114"/>
         <UsageCount Value="287"/>
       </Unit46>
       <Unit47>
@@ -660,8 +684,8 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolPhong"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="3"/>
-        <CursorPos X="29" Y="20"/>
+        <TopLine Value="9"/>
+        <CursorPos X="14" Y="25"/>
         <UsageCount Value="281"/>
       </Unit47>
       <Unit48>
@@ -669,8 +693,8 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolText"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="1" Y="1"/>
+        <TopLine Value="23"/>
+        <CursorPos X="15" Y="46"/>
         <UsageCount Value="232"/>
       </Unit48>
       <Unit49>
@@ -678,25 +702,26 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImageState"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="49"/>
-        <CursorPos X="1" Y="67"/>
+        <TopLine Value="341"/>
+        <CursorPos X="3" Y="346"/>
         <UsageCount Value="202"/>
       </Unit49>
       <Unit50>
         <Filename Value="ustatetype.pas"/>
+        <IsPartOfProject Value="True"/>
         <UnitName Value="UStateType"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="58"/>
-        <CursorPos X="36" Y="76"/>
-        <UsageCount Value="92"/>
+        <TopLine Value="472"/>
+        <CursorPos X="51" Y="488"/>
+        <UsageCount Value="202"/>
       </Unit50>
       <Unit51>
         <Filename Value="..\bgrabitmap\bgralayers.pas"/>
         <UnitName Value="BGRALayers"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="171"/>
-        <CursorPos X="14" Y="185"/>
-        <UsageCount Value="86"/>
+        <TopLine Value="503"/>
+        <CursorPos X="3" Y="507"/>
+        <UsageCount Value="53"/>
       </Unit51>
       <Unit52>
         <Filename Value="uobject3d.pas"/>
@@ -707,45 +732,35 @@
         <UnitName Value="UObject3D"/>
         <WindowIndex Value="0"/>
         <TopLine Value="370"/>
-        <CursorPos X="42" Y="380"/>
+        <CursorPos X="39" Y="380"/>
         <UsageCount Value="201"/>
       </Unit52>
       <Unit53>
-        <Filename Value="C:\lazarus\fpc\2.6.0\source\rtl\inc\systemh.inc"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1012"/>
-        <CursorPos X="30" Y="1030"/>
-        <UsageCount Value="8"/>
-      </Unit53>
-      <Unit54>
         <Filename Value="ulayerstack.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FLayerStack"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="ULayerstack"/>
+        <EditorIndex Value="17"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="422"/>
-        <CursorPos X="28" Y="427"/>
+        <TopLine Value="641"/>
+        <CursorPos X="75" Y="676"/>
         <UsageCount Value="200"/>
-      </Unit54>
-      <Unit55>
-        <Filename Value="C:\lazarus\lcl\include\customform.inc"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="3031"/>
-        <CursorPos X="1" Y="3053"/>
-        <UsageCount Value="1"/>
-      </Unit55>
-      <Unit56>
+        <Loaded Value="True"/>
+      </Unit53>
+      <Unit54>
         <Filename Value="uvolatilescrollbar.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UVolatileScrollBar"/>
+        <EditorIndex Value="18"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="20"/>
-        <CursorPos X="27" Y="36"/>
+        <TopLine Value="144"/>
+        <CursorPos X="1" Y="172"/>
         <UsageCount Value="201"/>
-      </Unit56>
-      <Unit57>
+        <Loaded Value="True"/>
+      </Unit54>
+      <Unit55>
         <Filename Value="ublendop.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FBlendOp"/>
@@ -753,20 +768,20 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UBlendOp"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="172"/>
-        <CursorPos X="53" Y="187"/>
+        <TopLine Value="256"/>
+        <CursorPos X="71" Y="269"/>
         <UsageCount Value="231"/>
-      </Unit57>
-      <Unit58>
+      </Unit55>
+      <Unit56>
         <Filename Value="uimageobservation.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImageObservation"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="49"/>
-        <CursorPos X="5" Y="73"/>
+        <TopLine Value="47"/>
+        <CursorPos X="1" Y="81"/>
         <UsageCount Value="200"/>
-      </Unit58>
-      <Unit59>
+      </Unit56>
+      <Unit57>
         <Filename Value="uloading.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FLoading"/>
@@ -774,382 +789,88 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="ULoading"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="27"/>
-        <CursorPos X="39" Y="39"/>
+        <TopLine Value="1"/>
+        <CursorPos X="18" Y="1"/>
         <UsageCount Value="205"/>
-      </Unit59>
-      <Unit60>
+      </Unit57>
+      <Unit58>
         <Filename Value="..\bgrabitmap\bgrapolygonaliased.pas"/>
         <UnitName Value="BGRAPolygonAliased"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="819"/>
-        <CursorPos X="23" Y="844"/>
-        <UsageCount Value="38"/>
-      </Unit60>
-      <Unit61>
-        <Filename Value="..\bgrabitmap\bgrastreamlayers.pas"/>
-        <UnitName Value="BGRAStreamLayers"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="58"/>
-        <CursorPos X="10" Y="63"/>
-        <UsageCount Value="12"/>
-      </Unit61>
-      <Unit62>
-        <Filename Value="D:\lazarus64\fpc\2.6.0\source\packages\paszlib\src\zstream.pp"/>
-        <UnitName Value="zstream"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="13"/>
-        <CursorPos X="9" Y="31"/>
-        <UsageCount Value="3"/>
-      </Unit62>
-      <Unit63>
-        <Filename Value="D:\lazarus64\lcl\graphics.pp"/>
-        <UnitName Value="Graphics"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="2021"/>
-        <CursorPos X="5" Y="2039"/>
-        <UsageCount Value="2"/>
-      </Unit63>
-      <Unit64>
-        <Filename Value="D:\lazarus64\lcl\forms.pp"/>
-        <UnitName Value="Forms"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1998"/>
-        <CursorPos X="3" Y="2000"/>
-        <UsageCount Value="4"/>
-      </Unit64>
-      <Unit65>
-        <Filename Value="..\bgrabitmap\bgratext.pas"/>
-        <UnitName Value="BGRAText"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="249"/>
-        <CursorPos X="1" Y="250"/>
-        <UsageCount Value="1"/>
-      </Unit65>
-      <Unit66>
-        <Filename Value="D:\lazarus64\components\tachart\tabgrautils.pas"/>
-        <UnitName Value="TABGRAUtils"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="138"/>
-        <CursorPos X="51" Y="148"/>
-        <UsageCount Value="10"/>
-      </Unit66>
-      <Unit67>
-        <Filename Value="D:\lazarus64\fpc\2.6.0\source\packages\fcl-process\src\process.pp"/>
-        <UnitName Value="process"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="127"/>
-        <CursorPos X="14" Y="140"/>
-        <UsageCount Value="3"/>
-      </Unit67>
-      <Unit68>
+        <TopLine Value="156"/>
+        <CursorPos X="11" Y="175"/>
+        <UsageCount Value="23"/>
+      </Unit58>
+      <Unit59>
         <Filename Value="..\bgrabitmap\bgratextfx.pas"/>
         <UnitName Value="BGRATextFX"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="132"/>
-        <CursorPos X="15" Y="136"/>
-        <UsageCount Value="10"/>
-      </Unit68>
-      <Unit69>
-        <Filename Value="D:\lazarus64\lcl\include\customedit.inc"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="518"/>
-        <CursorPos X="1" Y="528"/>
-        <UsageCount Value="1"/>
-      </Unit69>
-      <Unit70>
-        <Filename Value="D:\lazarus64\lcl\include\spinedit.inc"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="200"/>
-        <CursorPos X="1" Y="219"/>
+        <TopLine Value="541"/>
+        <CursorPos X="3" Y="545"/>
         <UsageCount Value="8"/>
-      </Unit70>
-      <Unit71>
-        <Filename Value="D:\lazarus64\lcl\include\control.inc"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1083"/>
-        <CursorPos X="1" Y="1102"/>
-        <UsageCount Value="1"/>
-      </Unit71>
-      <Unit72>
-        <Filename Value="D:\lazarus64\lcl\widgetset\wscontrols.pp"/>
-        <UnitName Value="WSControls"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="249"/>
-        <CursorPos X="1" Y="262"/>
-        <UsageCount Value="10"/>
-      </Unit72>
-      <Unit73>
-        <Filename Value="D:\lazarus64\lcl\lclmessageglue.pas"/>
-        <UnitName Value="LCLMessageGlue"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="111"/>
-        <CursorPos X="1" Y="128"/>
-        <UsageCount Value="10"/>
-      </Unit73>
-      <Unit74>
-        <Filename Value="D:\lazarus64\lcl\interfaces\win32\win32callback.inc"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="209"/>
-        <CursorPos X="1" Y="222"/>
-        <UsageCount Value="10"/>
-      </Unit74>
-      <Unit75>
-        <Filename Value="D:\lazarus64\lcl\dialogs.pp"/>
-        <UnitName Value="Dialogs"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="191"/>
-        <CursorPos X="14" Y="207"/>
-        <UsageCount Value="4"/>
-      </Unit75>
-      <Unit76>
+      </Unit59>
+      <Unit60>
         <Filename Value="ufilterconnector.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UFilterConnector"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="148"/>
-        <CursorPos X="81" Y="167"/>
+        <TopLine Value="188"/>
+        <CursorPos X="58" Y="204"/>
         <UsageCount Value="218"/>
-      </Unit76>
-      <Unit77>
-        <Filename Value="D:\lazarus64\lcl\include\customform.inc"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="2162"/>
-        <CursorPos X="20" Y="2163"/>
-        <UsageCount Value="25"/>
-      </Unit77>
-      <Unit78>
-        <Filename Value="..\bgrabitmap\phongdraw.inc"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="190"/>
-        <CursorPos X="1" Y="209"/>
-        <UsageCount Value="8"/>
-      </Unit78>
-      <Unit79>
-        <Filename Value="..\bgrabitmap\bgrabitmappack.pas"/>
-        <UnitName Value="BGRABitmapPack"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="1" Y="1"/>
-        <UsageCount Value="3"/>
-      </Unit79>
-      <Unit80>
-        <Filename Value="..\bgrabitmap\bgrapen.pas"/>
-        <UnitName Value="BGRAPen"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="216"/>
-        <CursorPos X="38" Y="231"/>
-        <UsageCount Value="10"/>
-      </Unit80>
-      <Unit81>
-        <Filename Value="..\bgrabitmap\renderdensity256.inc"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="1" Y="2"/>
-        <UsageCount Value="3"/>
-      </Unit81>
-      <Unit82>
-        <Filename Value="..\bgrabitmap\bgracanvas2d.pas"/>
-        <UnitName Value="BGRACanvas2D"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1254"/>
-        <CursorPos X="3" Y="1259"/>
-        <UsageCount Value="12"/>
-      </Unit82>
-      <Unit83>
-        <Filename Value="..\..\bgracontrolssvn\bgraneobutton.pas"/>
-        <UnitName Value="BGRANeoButton"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="340"/>
-        <CursorPos X="66" Y="360"/>
-        <UsageCount Value="3"/>
-      </Unit83>
-      <Unit84>
-        <Filename Value="D:\lazarus64\lcl\controls.pp"/>
-        <UnitName Value="Controls"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="200"/>
-        <CursorPos X="3" Y="200"/>
-        <UsageCount Value="11"/>
-      </Unit84>
-      <Unit85>
-        <Filename Value="D:\lazarus64\fpc\2.6.0\source\rtl\objpas\classes\classesh.inc"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="567"/>
-        <CursorPos X="15" Y="586"/>
-        <UsageCount Value="10"/>
-      </Unit85>
-      <Unit86>
-        <Filename Value="D:\lazarus64\lcl\lclversion.pas"/>
-        <UnitName Value="LCLVersion"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="14"/>
-        <CursorPos X="1" Y="43"/>
-        <UsageCount Value="4"/>
-      </Unit86>
-      <Unit87>
-        <Filename Value="..\bgrabitmap\bgrafreetype.pas"/>
-        <UnitName Value="BGRAFreeType"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="1" Y="1"/>
-        <UsageCount Value="12"/>
-      </Unit87>
-      <Unit88>
-        <Filename Value="D:\lazarus64\components\lazutils\easylazfreetype.pas"/>
-        <UnitName Value="EasyLazFreeType"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="16"/>
-        <CursorPos X="82" Y="30"/>
-        <UsageCount Value="3"/>
-      </Unit88>
-      <Unit89>
-        <Filename Value="..\bgrabitmap\bgrasse.pas"/>
-        <UnitName Value="BGRASSE"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="17" Y="16"/>
-        <UsageCount Value="3"/>
-      </Unit89>
-      <Unit90>
-        <Filename Value="..\..\lnet0.6.5\lnet\lib\lhttp.pp"/>
-        <UnitName Value="lhttp"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="990"/>
-        <CursorPos X="25" Y="1020"/>
-        <UsageCount Value="6"/>
-      </Unit90>
-      <Unit91>
-        <Filename Value="D:\lazarus64\components\lazutils\ttinterp.pas"/>
-        <UnitName Value="TTInterp"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="726"/>
-        <CursorPos X="23" Y="736"/>
-        <UsageCount Value="10"/>
-      </Unit91>
-      <Unit92>
+      </Unit60>
+      <Unit61>
         <Filename Value="..\bgrabitmap\bgratransform.pas"/>
         <UnitName Value="BGRATransform"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="236"/>
-        <CursorPos X="3" Y="254"/>
-        <UsageCount Value="10"/>
-      </Unit92>
-      <Unit93>
-        <Filename Value="D:\lazarus64\lcl\lcltype.pp"/>
-        <UnitName Value="LCLType"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1054"/>
-        <CursorPos X="5" Y="1072"/>
-        <UsageCount Value="3"/>
-      </Unit93>
-      <Unit94>
-        <Filename Value="D:\lazarus64\fpc\2.6.0\source\rtl\inc\objpash.inc"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="53"/>
-        <CursorPos X="8" Y="71"/>
-        <UsageCount Value="11"/>
-      </Unit94>
-      <Unit95>
+        <TopLine Value="38"/>
+        <CursorPos X="14" Y="64"/>
+        <UsageCount Value="9"/>
+      </Unit61>
+      <Unit62>
         <Filename Value="uzoom.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UZoom"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="1" Y="1"/>
-        <UsageCount Value="173"/>
-      </Unit95>
-      <Unit96>
+        <TopLine Value="58"/>
+        <CursorPos X="1" Y="78"/>
+        <UsageCount Value="200"/>
+      </Unit62>
+      <Unit63>
         <Filename Value="ufilters.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UFilters"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="20"/>
-        <CursorPos X="9" Y="32"/>
-        <UsageCount Value="170"/>
-      </Unit96>
-      <Unit97>
+        <TopLine Value="162"/>
+        <CursorPos X="1" Y="192"/>
+        <UsageCount Value="200"/>
+      </Unit63>
+      <Unit64>
         <Filename Value="uimageaction.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImageAction"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="638"/>
-        <CursorPos X="40" Y="648"/>
-        <UsageCount Value="168"/>
-      </Unit97>
-      <Unit98>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="200"/>
+      </Unit64>
+      <Unit65>
         <Filename Value="uloadimage.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ULoadImage"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="75"/>
-        <CursorPos X="27" Y="88"/>
-        <UsageCount Value="167"/>
-      </Unit98>
-      <Unit99>
-        <Filename Value="D:\lazarus64\components\lazutils\fileutil.pas"/>
-        <UnitName Value="FileUtil"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="172"/>
-        <CursorPos X="10" Y="190"/>
-        <UsageCount Value="4"/>
-      </Unit99>
-      <Unit100>
-        <Filename Value="D:\lazarus64\lcl\actnlist.pas"/>
-        <UnitName Value="ActnList"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="226"/>
-        <CursorPos X="14" Y="244"/>
-        <UsageCount Value="1"/>
-      </Unit100>
-      <Unit101>
-        <Filename Value="D:\lazarus64\lcl\include\customactionlist.inc"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="183"/>
-        <CursorPos X="3" Y="188"/>
-        <UsageCount Value="10"/>
-      </Unit101>
-      <Unit102>
-        <Filename Value="D:\lazarus64\lcl\menus.pp"/>
-        <UnitName Value="Menus"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="530"/>
-        <CursorPos X="3" Y="534"/>
-        <UsageCount Value="10"/>
-      </Unit102>
-      <Unit103>
-        <Filename Value="D:\lazarus64\lcl\translations.pas"/>
-        <UnitName Value="Translations"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="525"/>
-        <CursorPos X="3" Y="529"/>
-        <UsageCount Value="4"/>
-      </Unit103>
-      <Unit104>
-        <Filename Value="D:\lazarus64\fpc\2.6.0\source\packages\fcl-base\src\inifiles.pp"/>
-        <UnitName Value="IniFiles"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="818"/>
-        <CursorPos X="3" Y="824"/>
-        <UsageCount Value="10"/>
-      </Unit104>
-      <Unit105>
+        <TopLine Value="53"/>
+        <CursorPos X="3" Y="55"/>
+        <UsageCount Value="200"/>
+      </Unit65>
+      <Unit66>
         <Filename Value="uimagediff.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImageDiff"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="24"/>
-        <CursorPos X="46" Y="37"/>
-        <UsageCount Value="154"/>
-      </Unit105>
-      <Unit106>
-        <Filename Value="D:\lazarus64\fpc\2.6.0\source\rtl\inc\systemh.inc"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="921"/>
-        <CursorPos X="11" Y="939"/>
-        <UsageCount Value="11"/>
-      </Unit106>
-      <Unit107>
+        <TopLine Value="115"/>
+        <CursorPos X="15" Y="119"/>
+        <UsageCount Value="210"/>
+      </Unit66>
+      <Unit67>
         <Filename Value="usharpen.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FSharpen"/>
@@ -1157,11 +878,11 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="USharpen"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="85"/>
-        <CursorPos X="43" Y="113"/>
-        <UsageCount Value="137"/>
-      </Unit107>
-      <Unit108>
+        <TopLine Value="82"/>
+        <CursorPos X="52" Y="113"/>
+        <UsageCount Value="200"/>
+      </Unit67>
+      <Unit68>
         <Filename Value="uphongfilter.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FPhongFilter"/>
@@ -1169,27 +890,11 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UPhongFilter"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="275"/>
-        <CursorPos X="53" Y="282"/>
-        <UsageCount Value="121"/>
-      </Unit108>
-      <Unit109>
-        <Filename Value="D:\lazarus64\lcl\interfaces\win32\interfaces.pp"/>
-        <UnitName Value="Interfaces"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="9"/>
-        <CursorPos X="1" Y="37"/>
-        <UsageCount Value="2"/>
-      </Unit109>
-      <Unit110>
-        <Filename Value="D:\lazarus64\lcl\lclproc.pas"/>
-        <UnitName Value="LCLProc"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="383"/>
-        <CursorPos X="11" Y="401"/>
-        <UsageCount Value="6"/>
-      </Unit110>
-      <Unit111>
+        <TopLine Value="171"/>
+        <CursorPos X="1" Y="186"/>
+        <UsageCount Value="205"/>
+      </Unit68>
+      <Unit69>
         <Filename Value="ufilterfunction.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FFilterFunction"/>
@@ -1197,198 +902,887 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UFilterFunction"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="354"/>
-        <CursorPos X="104" Y="372"/>
-        <UsageCount Value="115"/>
-      </Unit111>
-      <Unit112>
-        <Filename Value="D:\lazarus64\fpc\2.6.0\source\packages\fcl-base\src\fpexprpars.pp"/>
-        <UnitName Value="fpexprpars"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="66"/>
-        <CursorPos X="65" Y="84"/>
-        <UsageCount Value="4"/>
-      </Unit112>
-      <Unit113>
-        <Filename Value="D:\lazarus64\fpc\2.6.0\source\packages\fcl-base\src\contnrs.pp"/>
-        <UnitName Value="contnrs"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1841"/>
-        <CursorPos X="3" Y="1844"/>
-        <UsageCount Value="3"/>
-      </Unit113>
-      <Unit114>
-        <Filename Value="D:\lazarus64\fpc\2.6.0\source\rtl\objpas\sysutils\sysinth.inc"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="45"/>
-        <CursorPos X="3" Y="57"/>
-        <UsageCount Value="3"/>
-      </Unit114>
-      <Unit115>
-        <Filename Value="..\bgrabitmap\blurnormal.inc"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="55"/>
-        <CursorPos X="50" Y="65"/>
-        <UsageCount Value="10"/>
-      </Unit115>
-      <Unit116>
-        <Filename Value="..\bgrabitmap\blurfast.inc"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="20" Y="1"/>
-        <UsageCount Value="8"/>
-      </Unit116>
-      <Unit117>
-        <Filename Value="D:\lazarus64\fpc\2.6.0\source\rtl\win\tthread.inc"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="91"/>
-        <CursorPos X="3" Y="95"/>
-        <UsageCount Value="4"/>
-      </Unit117>
-      <Unit118>
-        <Filename Value="D:\lazarus64\fpc\2.6.0\source\rtl\objpas\classes\classes.inc"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="113"/>
-        <CursorPos X="3" Y="115"/>
-        <UsageCount Value="4"/>
-      </Unit118>
-      <Unit119>
+        <TopLine Value="490"/>
+        <CursorPos X="59" Y="528"/>
+        <UsageCount Value="200"/>
+      </Unit69>
+      <Unit70>
         <Filename Value="ufilterthread.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UFilterThread"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="46" Y="8"/>
-        <UsageCount Value="90"/>
-      </Unit119>
-      <Unit120>
+        <TopLine Value="190"/>
+        <CursorPos X="9" Y="210"/>
+        <UsageCount Value="201"/>
+      </Unit70>
+      <Unit71>
         <Filename Value="utranslation.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UTranslation"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="91"/>
-        <CursorPos X="22" Y="118"/>
-        <UsageCount Value="84"/>
-      </Unit120>
-      <Unit121>
+        <TopLine Value="86"/>
+        <CursorPos X="3" Y="86"/>
+        <UsageCount Value="201"/>
+      </Unit71>
+      <Unit72>
         <Filename Value="uonline.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UOnline"/>
         <WindowIndex Value="0"/>
+        <TopLine Value="103"/>
+        <CursorPos X="51" Y="107"/>
+        <UsageCount Value="201"/>
+      </Unit72>
+      <Unit73>
+        <Filename Value="uscripting.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UScripting"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="264"/>
+        <CursorPos X="25" Y="264"/>
+        <UsageCount Value="200"/>
+      </Unit73>
+      <Unit74>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\sysutils\sysstrh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="78"/>
+        <CursorPos X="10" Y="97"/>
+        <UsageCount Value="31"/>
+      </Unit74>
+      <Unit75>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\inc\objpash.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="177"/>
+        <CursorPos X="23" Y="192"/>
+        <UsageCount Value="9"/>
+      </Unit75>
+      <Unit76>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\inc\systemh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="288"/>
+        <CursorPos X="3" Y="307"/>
+        <UsageCount Value="14"/>
+      </Unit76>
+      <Unit77>
+        <Filename Value="umenu.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UMenu"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="248"/>
+        <CursorPos X="3" Y="251"/>
+        <UsageCount Value="201"/>
+      </Unit77>
+      <Unit78>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\sysutils\sysstr.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="528"/>
+        <CursorPos X="3" Y="531"/>
+        <UsageCount Value="31"/>
+      </Unit78>
+      <Unit79>
+        <Filename Value="ucolorfilters.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UColorFilters"/>
+        <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="1" Y="131"/>
-        <UsageCount Value="84"/>
-      </Unit121>
-      <Unit122>
-        <Filename Value="D:\lazarus64\lcl\lclintf.pas"/>
-        <UnitName Value="LCLIntf"/>
+        <CursorPos X="47" Y="15"/>
+        <UsageCount Value="201"/>
+      </Unit79>
+      <Unit80>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\inc\generic.inc"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="65"/>
-        <CursorPos X="10" Y="83"/>
-        <UsageCount Value="5"/>
-      </Unit122>
-      <Unit123>
-        <Filename Value="D:\lazarus64\lcl\lresources.pp"/>
-        <UnitName Value="LResources"/>
+        <TopLine Value="2122"/>
+        <CursorPos X="27" Y="2124"/>
+        <UsageCount Value="9"/>
+      </Unit80>
+      <Unit81>
+        <Filename Value="C:\lazarus\lcl\include\control.inc"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="94"/>
-        <CursorPos X="5" Y="112"/>
-        <UsageCount Value="4"/>
-      </Unit123>
-      <Unit124>
-        <Filename Value="D:\lazarus64\lcl\defaulttranslator.pas"/>
-        <UnitName Value="DefaultTranslator"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="387"/>
-        <CursorPos X="3" Y="389"/>
-        <UsageCount Value="4"/>
-      </Unit124>
-      <Unit125>
-        <Filename Value="..\..\lnet0.6.5\lnet\lazaruspackage\lnetcomponents.pas"/>
-        <UnitName Value="lNetComponents"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="115"/>
-        <CursorPos X="3" Y="133"/>
+        <TopLine Value="2100"/>
+        <CursorPos X="1" Y="2112"/>
         <UsageCount Value="6"/>
-      </Unit125>
-      <Unit126>
-        <Filename Value="D:\lazarus64\fpc\2.6.0\source\rtl\objpas\classes\stringl.inc"/>
+      </Unit81>
+      <Unit82>
+        <Filename Value="..\bgrabitmap\bgrafillinfo.pas"/>
+        <UnitName Value="BGRAFillInfo"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="861"/>
-        <CursorPos X="3" Y="866"/>
+        <TopLine Value="224"/>
+        <CursorPos X="1" Y="224"/>
+        <UsageCount Value="22"/>
+      </Unit82>
+      <Unit83>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\inc\ustringh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="14"/>
+        <CursorPos X="10" Y="26"/>
+        <UsageCount Value="1"/>
+      </Unit83>
+      <Unit84>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\inc\ustrings.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="2353"/>
+        <CursorPos X="5" Y="2355"/>
+        <UsageCount Value="1"/>
+      </Unit84>
+      <Unit85>
+        <Filename Value="uadjustcurves.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FAdjustCurves"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="uadjustcurves"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="285"/>
+        <CursorPos X="59" Y="289"/>
+        <UsageCount Value="204"/>
+      </Unit85>
+      <Unit86>
+        <Filename Value="quote.inc"/>
+        <IsPartOfProject Value="True"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="90"/>
+        <CursorPos X="77" Y="114"/>
+        <UsageCount Value="200"/>
+      </Unit86>
+      <Unit87>
+        <Filename Value="uscripttype.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UScriptType"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="27" Y="9"/>
+        <UsageCount Value="203"/>
+      </Unit87>
+      <Unit88>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\classes\classesh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1549"/>
+        <CursorPos X="15" Y="1568"/>
+        <UsageCount Value="16"/>
+      </Unit88>
+      <Unit89>
+        <Filename Value="ulayeraction.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ULayerAction"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="251"/>
+        <CursorPos X="3" Y="255"/>
+        <UsageCount Value="200"/>
+      </Unit89>
+      <Unit90>
+        <Filename Value="uimagetype.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UImageType"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="13"/>
+        <CursorPos X="9" Y="51"/>
+        <UsageCount Value="200"/>
+      </Unit90>
+      <Unit91>
+        <Filename Value="..\bgrabitmap\bgralzpcommon.pas"/>
+        <UnitName Value="BGRALzpCommon"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="520"/>
+        <CursorPos X="25" Y="557"/>
+        <UsageCount Value="3"/>
+      </Unit91>
+      <Unit92>
+        <Filename Value="..\bgrabitmap\bgrawritelzp.pas"/>
+        <UnitName Value="BGRAWriteLzp"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="69"/>
+        <CursorPos X="33" Y="107"/>
+        <UsageCount Value="7"/>
+      </Unit92>
+      <Unit93>
+        <Filename Value="..\bgrabitmap\bgrareadpcx.pas"/>
+        <UnitName Value="BGRAReadPCX"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="189"/>
+        <CursorPos X="46" Y="203"/>
+        <UsageCount Value="1"/>
+      </Unit93>
+      <Unit94>
+        <Filename Value="C:\lazarus\components\lazutils\fileutil.pas"/>
+        <UnitName Value="FileUtil"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="66"/>
+        <CursorPos X="10" Y="86"/>
+        <UsageCount Value="1"/>
+      </Unit94>
+      <Unit95>
+        <Filename Value="C:\lazarus\components\lazutils\fileutil.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="535"/>
+        <CursorPos X="3" Y="540"/>
+        <UsageCount Value="1"/>
+      </Unit95>
+      <Unit96>
+        <Filename Value="C:\lazarus\lcl\include\customform.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="448"/>
+        <CursorPos X="1" Y="454"/>
+        <UsageCount Value="28"/>
+      </Unit96>
+      <Unit97>
+        <Filename Value="..\bgrabitmap\bgratext.pas"/>
+        <UnitName Value="BGRAText"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="79"/>
+        <CursorPos X="7" Y="98"/>
+        <UsageCount Value="9"/>
+      </Unit97>
+      <Unit98>
+        <Filename Value="C:\lazarus\lcl\clipbrd.pp"/>
+        <UnitName Value="Clipbrd"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="217"/>
+        <CursorPos X="10" Y="236"/>
+        <UsageCount Value="9"/>
+      </Unit98>
+      <Unit99>
+        <Filename Value="uposterize.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FPosterize"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="uposterize"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="79"/>
+        <CursorPos X="103" Y="85"/>
+        <UsageCount Value="201"/>
+      </Unit99>
+      <Unit100>
+        <Filename Value="umyslv.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UMySLV"/>
+        <EditorIndex Value="8"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="866"/>
+        <CursorPos X="71" Y="872"/>
+        <UsageCount Value="201"/>
+        <Loaded Value="True"/>
+      </Unit100>
+      <Unit101>
+        <Filename Value="ubrowseimages.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FBrowseImages"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ubrowseimages"/>
+        <EditorIndex Value="3"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="201"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit101>
+      <Unit102>
+        <Filename Value="C:\lazarus\lcl\comctrls.pp"/>
+        <UnitName Value="ComCtrls"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="936"/>
+        <CursorPos X="14" Y="955"/>
+        <UsageCount Value="9"/>
+      </Unit102>
+      <Unit103>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\win\tthread.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="44"/>
+        <CursorPos X="3" Y="46"/>
+        <UsageCount Value="0"/>
+      </Unit103>
+      <Unit104>
+        <Filename Value="C:\lazarus\lcl\interfaces\win32\win32callback.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="2565"/>
+        <CursorPos X="1" Y="2585"/>
         <UsageCount Value="6"/>
-      </Unit126>
-      <Unit127>
-        <Filename Value="D:\lazarus64\components\lazutils\fileutil.inc"/>
+      </Unit104>
+      <Unit105>
+        <Filename Value="C:\lazarus\lcl\forms.pp"/>
+        <UnitName Value="Forms"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1516"/>
-        <CursorPos X="3" Y="1525"/>
-        <UsageCount Value="4"/>
-      </Unit127>
-      <Unit128>
-        <Filename Value="..\..\lnet0.6.5\lnet\lib\lnetssl.pp"/>
-        <UnitName Value="lNetSSL"/>
+        <TopLine Value="601"/>
+        <CursorPos X="14" Y="614"/>
+        <UsageCount Value="7"/>
+      </Unit105>
+      <Unit106>
+        <Filename Value="utoollayer.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UToolLayer"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="3" Y="19"/>
-        <UsageCount Value="4"/>
-      </Unit128>
-      <Unit129>
-        <Filename Value="..\bgrabitmap\phongdrawsse.inc"/>
+        <TopLine Value="393"/>
+        <CursorPos X="141" Y="403"/>
+        <UsageCount Value="201"/>
+      </Unit106>
+      <Unit107>
+        <Filename Value="C:\lazarus\lcl\include\customedit.inc"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="44" Y="5"/>
-        <UsageCount Value="8"/>
-      </Unit129>
-      <Unit130>
-        <Filename Value="..\bgrabitmap\bgravectorize.pas"/>
-        <UnitName Value="BGRAVectorize"/>
+        <TopLine Value="513"/>
+        <CursorPos X="1" Y="526"/>
+        <UsageCount Value="6"/>
+      </Unit107>
+      <Unit108>
+        <Filename Value="C:\lazarus\lcl\maskedit.pp"/>
+        <UnitName Value="MaskEdit"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1425"/>
-        <CursorPos X="11" Y="1455"/>
-        <UsageCount Value="12"/>
-      </Unit130>
-      <Unit131>
+        <TopLine Value="1444"/>
+        <CursorPos X="1" Y="1462"/>
+        <UsageCount Value="1"/>
+      </Unit108>
+      <Unit109>
         <Filename Value="..\bgrabitmap\bgratypewriter.pas"/>
         <UnitName Value="BGRATypewriter"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="184"/>
-        <CursorPos X="24" Y="209"/>
-        <UsageCount Value="12"/>
-      </Unit131>
-      <Unit132>
-        <Filename Value="..\bgrabitmap\bgrapath.pas"/>
-        <UnitName Value="BGRAPath"/>
+        <TopLine Value="21"/>
+        <CursorPos X="26" Y="37"/>
+        <UsageCount Value="23"/>
+      </Unit109>
+      <Unit110>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\packages\fcl-base\src\fpexprpars.pp"/>
+        <UnitName Value="fpexprpars"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="73"/>
-        <CursorPos X="1" Y="87"/>
-        <UsageCount Value="12"/>
-      </Unit132>
-      <Unit133>
-        <Filename Value="..\bgrabitmap\winstream.inc"/>
+        <TopLine Value="954"/>
+        <CursorPos X="13" Y="992"/>
+        <UsageCount Value="16"/>
+      </Unit110>
+      <Unit111>
+        <Filename Value="C:\lazarus\lcl\include\customlistbox.inc"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="17"/>
-        <CursorPos X="10" Y="53"/>
-        <UsageCount Value="11"/>
-      </Unit133>
-      <Unit134>
-        <Filename Value="D:\lazarus64\fpc\2.6.0\source\rtl\win\keyboard.pp"/>
-        <UnitName Value="Keyboard"/>
+        <TopLine Value="403"/>
+        <CursorPos X="29" Y="417"/>
+        <UsageCount Value="7"/>
+      </Unit111>
+      <Unit112>
+        <Filename Value="unoisefilter.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FNoiseFilter"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="unoisefilter"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="111"/>
+        <CursorPos X="50" Y="128"/>
+        <UsageCount Value="203"/>
+      </Unit112>
+      <Unit113>
+        <Filename Value="uprint.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FPrint"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="uprint"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="408"/>
+        <CursorPos X="45" Y="421"/>
+        <UsageCount Value="200"/>
+      </Unit113>
+      <Unit114>
+        <Filename Value="C:\lazarus\lcl\graphics.pp"/>
+        <UnitName Value="Graphics"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="558"/>
+        <CursorPos X="3" Y="572"/>
+        <UsageCount Value="7"/>
+      </Unit114>
+      <Unit115>
+        <Filename Value="C:\lazarus\lcl\include\wincontrol.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="5318"/>
+        <CursorPos X="21" Y="5334"/>
+        <UsageCount Value="6"/>
+      </Unit115>
+      <Unit116>
+        <Filename Value="C:\lazarus\lcl\lclmessageglue.pas"/>
+        <UnitName Value="LCLMessageGlue"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="109"/>
+        <CursorPos X="1" Y="128"/>
+        <UsageCount Value="6"/>
+      </Unit116>
+      <Unit117>
+        <Filename Value="uimagelist.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FImageList"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="uimagelist"/>
         <WindowIndex Value="0"/>
         <TopLine Value="73"/>
         <CursorPos X="1" Y="73"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="200"/>
+        <Bookmarks Count="1">
+          <Item0 X="1" Y="291" ID="0"/>
+        </Bookmarks>
+      </Unit117>
+      <Unit118>
+        <Filename Value="..\bgrabitmap\bgrapen.pas"/>
+        <UnitName Value="BGRAPen"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="716"/>
+        <CursorPos X="3" Y="722"/>
+        <UsageCount Value="3"/>
+      </Unit118>
+      <Unit119>
+        <Filename Value="..\bgrabitmap\bgraunits.pas"/>
+        <UnitName Value="BGRAUnits"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="5"/>
+        <CursorPos X="73" Y="13"/>
+        <UsageCount Value="2"/>
+      </Unit119>
+      <Unit120>
+        <Filename Value="C:\lazarus\lcl\lclintf.pas"/>
+        <UnitName Value="LCLIntf"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="70"/>
+        <CursorPos X="10" Y="83"/>
+        <UsageCount Value="1"/>
+      </Unit120>
+      <Unit121>
+        <Filename Value="..\bgrabitmap\perspectivescan2.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="52"/>
+        <CursorPos X="30" Y="60"/>
+        <UsageCount Value="33"/>
+      </Unit121>
+      <Unit122>
+        <Filename Value="C:\lazarus\lcl\shellctrls.pas"/>
+        <UnitName Value="ShellCtrls"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="141"/>
+        <CursorPos X="15" Y="153"/>
+        <UsageCount Value="33"/>
+      </Unit122>
+      <Unit123>
+        <Filename Value="C:\lazarus\lcl\include\spinedit.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="45"/>
+        <CursorPos X="1" Y="58"/>
+        <UsageCount Value="29"/>
+      </Unit123>
+      <Unit124>
+        <Filename Value="..\bgrabitmap\bgrasse.pas"/>
+        <UnitName Value="BGRASSE"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="590"/>
+        <CursorPos X="1" Y="628"/>
+        <UsageCount Value="23"/>
+      </Unit124>
+      <Unit125>
+        <Filename Value="..\bgrabitmap\polyaliaspersp.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="130"/>
+        <CursorPos X="3" Y="148"/>
+        <UsageCount Value="23"/>
+      </Unit125>
+      <Unit126>
+        <Filename Value="..\bgrabitmap\perspectivescan.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="115"/>
+        <CursorPos X="1" Y="115"/>
+        <UsageCount Value="23"/>
+      </Unit126>
+      <Unit127>
+        <Filename Value="C:\lazarus\lcl\interfaces\win32\win32wsforms.pp"/>
+        <UnitName Value="Win32WSForms"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="363"/>
+        <CursorPos X="35" Y="380"/>
+        <UsageCount Value="6"/>
+      </Unit127>
+      <Unit128>
+        <Filename Value="ubarupdown.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UBarUpDown"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="60"/>
+      </Unit128>
+      <Unit129>
+        <Filename Value="..\..\bgra-controls-3.1-20140419\bgra-controls-3.1-20140419\bgravirtualscreen.pas"/>
+        <UnitName Value="BGRAVirtualScreen"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="72"/>
+        <CursorPos X="44" Y="88"/>
+        <UsageCount Value="10"/>
+      </Unit129>
+      <Unit130>
+        <Filename Value="C:\lazarus\lcl\controls.pp"/>
+        <UnitName Value="Controls"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="332"/>
+        <CursorPos X="3" Y="351"/>
+        <UsageCount Value="8"/>
+      </Unit130>
+      <Unit131>
+        <Filename Value="..\bgrabitmap\bgravectorize.pas"/>
+        <UnitName Value="BGRAVectorize"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1017"/>
+        <CursorPos X="26" Y="1032"/>
+        <UsageCount Value="8"/>
+      </Unit131>
+      <Unit132>
+        <Filename Value="..\..\..\..\usr\share\lazarus\1.2.4\lcl\forms.pp"/>
+        <UnitName Value="Forms"/>
+        <EditorIndex Value="20"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="58"/>
+        <CursorPos X="3" Y="76"/>
+        <UsageCount Value="23"/>
+        <Loaded Value="True"/>
+      </Unit132>
+      <Unit133>
+        <Filename Value="..\..\..\..\usr\share\fpcsrc\2.6.4\rtl\objpas\sysutils\osutilsh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="31" Y="15"/>
+        <UsageCount Value="14"/>
+      </Unit133>
+      <Unit134>
+        <Filename Value="..\..\..\..\usr\share\lazarus\1.2.4\lcl\lclproc.pas"/>
+        <UnitName Value="LCLProc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="812"/>
+        <CursorPos X="3" Y="814"/>
+        <UsageCount Value="14"/>
       </Unit134>
+      <Unit135>
+        <Filename Value="..\..\..\..\usr\share\fpcsrc\2.6.4\packages\fcl-process\src\process.pp"/>
+        <UnitName Value="process"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="6"/>
+        <CursorPos X="36" Y="24"/>
+        <UsageCount Value="14"/>
+      </Unit135>
+      <Unit136>
+        <Filename Value="..\..\..\..\usr\share\fpcsrc\2.6.4\packages\fcl-base\src\custapp.pp"/>
+        <UnitName Value="CustApp"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="67"/>
+        <CursorPos X="14" Y="74"/>
+        <UsageCount Value="14"/>
+      </Unit136>
+      <Unit137>
+        <Filename Value="..\..\..\..\usr\share\fpcsrc\2.6.4\rtl\objpas\objpas.pp"/>
+        <UnitName Value="objpas"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="23"/>
+        <CursorPos X="1" Y="23"/>
+        <UsageCount Value="14"/>
+      </Unit137>
+      <Unit138>
+        <Filename Value="ufileextensions.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UFileExtensions"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="50"/>
+      </Unit138>
+      <Unit139>
+        <Filename Value="..\..\..\..\usr\share\lazarus\1.2.4\lcl\extdlgs.pas"/>
+        <UnitName Value="ExtDlgs"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="85"/>
+        <CursorPos X="3" Y="95"/>
+        <UsageCount Value="14"/>
+      </Unit139>
+      <Unit140>
+        <Filename Value="..\..\..\..\usr\share\lazarus\1.2.4\components\lazutils\masks.pas"/>
+        <UnitName Value="Masks"/>
+        <EditorIndex Value="5"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="13"/>
+        <CursorPos X="3" Y="31"/>
+        <UsageCount Value="16"/>
+        <Loaded Value="True"/>
+      </Unit140>
+      <Unit141>
+        <Filename Value="..\..\..\..\usr\share\lazarus\1.2.4\lcl\controls.pp"/>
+        <UnitName Value="Controls"/>
+        <EditorIndex Value="16"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="26"/>
+        <CursorPos X="3" Y="46"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit141>
+      <Unit142>
+        <Filename Value="..\..\..\..\usr\share\lazarus\1.2.4\lcl\include\imglist.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="437"/>
+        <CursorPos X="3" Y="446"/>
+        <UsageCount Value="11"/>
+      </Unit142>
+      <Unit143>
+        <Filename Value="..\..\..\..\usr\share\lazarus\1.2.4\lcl\interfaces\gtk2\gtk2wscustomlistview.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1381"/>
+        <CursorPos X="3" Y="1398"/>
+        <UsageCount Value="11"/>
+      </Unit143>
+      <Unit144>
+        <Filename Value="..\..\..\..\usr\share\lazarus\1.2.4\lcl\include\listitem.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="422"/>
+        <CursorPos X="1" Y="440"/>
+        <UsageCount Value="11"/>
+      </Unit144>
+      <Unit145>
+        <Filename Value="..\..\..\..\usr\share\lazarus\1.2.4\lcl\include\listitems.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="220"/>
+        <CursorPos X="1" Y="242"/>
+        <UsageCount Value="11"/>
+      </Unit145>
+      <Unit146>
+        <Filename Value="..\..\..\..\usr\share\lazarus\1.2.4\lcl\include\customlistview.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="538"/>
+        <CursorPos X="1" Y="567"/>
+        <UsageCount Value="11"/>
+      </Unit146>
+      <Unit147>
+        <Filename Value="..\..\..\..\usr\share\lazarus\1.2.4\lcl\include\wincontrol.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="3486"/>
+        <CursorPos X="1" Y="3505"/>
+        <UsageCount Value="11"/>
+      </Unit147>
+      <Unit148>
+        <Filename Value="..\..\..\..\usr\share\lazarus\1.2.4\lcl\imglist.pp"/>
+        <UnitName Value="ImgList"/>
+        <EditorIndex Value="7"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="165"/>
+        <CursorPos X="57" Y="199"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+      </Unit148>
+      <Unit149>
+        <Filename Value="..\..\..\..\usr\share\lazarus\1.2.4\lcl\shellctrls.pas"/>
+        <UnitName Value="ShellCtrls"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="241"/>
+        <CursorPos X="22" Y="269"/>
+        <UsageCount Value="9"/>
+      </Unit149>
+      <Unit150>
+        <Filename Value="..\..\pascal\bgra-controls-3.1-20140419\bgra-controls-3.1-20140419\bgravirtualscreen.pas"/>
+        <UnitName Value="BGRAVirtualScreen"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="258"/>
+        <CursorPos X="3" Y="282"/>
+        <UsageCount Value="10"/>
+      </Unit150>
+      <Unit151>
+        <Filename Value="..\..\pascal\bgra-controls-3.1-20140419\bgra-controls-3.1-20140419\bctypes.pas"/>
+        <UnitName Value="BCTypes"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="31"/>
+        <CursorPos X="49" Y="49"/>
+        <UsageCount Value="9"/>
+      </Unit151>
+      <Unit152>
+        <Filename Value="..\..\..\..\usr\share\lazarus\1.2.4\lcl\comctrls.pp"/>
+        <UnitName Value="ComCtrls"/>
+        <EditorIndex Value="21"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="897"/>
+        <CursorPos X="3" Y="915"/>
+        <UsageCount Value="18"/>
+        <Loaded Value="True"/>
+      </Unit152>
+      <Unit153>
+        <Filename Value="..\..\..\..\usr\share\lazarus\1.2.4\lcl\graphics.pp"/>
+        <UnitName Value="Graphics"/>
+        <EditorIndex Value="19"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="2567"/>
+        <CursorPos X="1" Y="2592"/>
+        <UsageCount Value="17"/>
+        <Loaded Value="True"/>
+      </Unit153>
+      <Unit154>
+        <Filename Value="..\..\..\..\usr\share\fpcsrc\2.6.4\rtl\objpas\types.pp"/>
+        <UnitName Value="types"/>
+        <EditorIndex Value="12"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="342"/>
+        <CursorPos X="3" Y="345"/>
+        <UsageCount Value="17"/>
+        <Loaded Value="True"/>
+      </Unit154>
+      <Unit155>
+        <Filename Value="..\..\..\..\usr\share\lazarus\1.2.4\lcl\lcltype.pp"/>
+        <UnitName Value="LCLType"/>
+        <EditorIndex Value="4"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="43"/>
+        <CursorPos X="3" Y="61"/>
+        <UsageCount Value="12"/>
+        <Loaded Value="True"/>
+      </Unit155>
+      <Unit156>
+        <Filename Value="..\..\..\..\usr\share\fpcsrc\2.6.4\rtl\objpas\classes\classesh.inc"/>
+        <EditorIndex Value="9"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="179"/>
+        <CursorPos X="3" Y="198"/>
+        <UsageCount Value="12"/>
+        <Loaded Value="True"/>
+      </Unit156>
+      <Unit157>
+        <Filename Value="..\..\..\..\usr\share\fpcsrc\2.6.4\rtl\objpas\classes\lists.inc"/>
+        <EditorIndex Value="10"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="339"/>
+        <CursorPos X="3" Y="341"/>
+        <UsageCount Value="12"/>
+        <Loaded Value="True"/>
+      </Unit157>
+      <Unit158>
+        <Filename Value="..\..\..\..\usr\share\lazarus\1.2.4\lcl\dialogs.pp"/>
+        <UnitName Value="Dialogs"/>
+        <EditorIndex Value="14"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="487"/>
+        <CursorPos X="10" Y="505"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit158>
+      <Unit159>
+        <Filename Value="..\..\..\..\usr\share\lazarus\1.2.4\lcl\include\promptdialog.inc"/>
+        <EditorIndex Value="15"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="833"/>
+        <CursorPos X="101" Y="845"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit159>
     </Units>
-    <JumpHistory Count="2" HistoryIndex="1">
+    <JumpHistory Count="29" HistoryIndex="28">
       <Position1>
-        <Filename Value="lazpainttype.pas"/>
-        <Caret Line="42" Column="12" TopLine="24"/>
+        <Filename Value="ubrowseimages.pas"/>
+        <Caret Line="597" Column="72" TopLine="567"/>
       </Position1>
       <Position2>
-        <Filename Value="lazpainttype.pas"/>
-        <Caret Line="12" Column="36" TopLine="1"/>
+        <Filename Value="ubrowseimages.pas"/>
+        <Caret Line="615" Column="58" TopLine="586"/>
       </Position2>
+      <Position3>
+        <Filename Value="ubrowseimages.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position3>
+      <Position4>
+        <Filename Value="ubrowseimages.pas"/>
+        <Caret Line="707" Column="31" TopLine="689"/>
+      </Position4>
+      <Position5>
+        <Filename Value="ubrowseimages.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position5>
+      <Position6>
+        <Filename Value="ubrowseimages.pas"/>
+        <Caret Line="103" Column="72" TopLine="74"/>
+      </Position6>
+      <Position7>
+        <Filename Value="ubrowseimages.pas"/>
+        <Caret Line="47" Column="15" TopLine="30"/>
+      </Position7>
+      <Position8>
+        <Filename Value="ubrowseimages.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position8>
+      <Position9>
+        <Filename Value="lazpaintmainform.pas"/>
+        <Caret Line="502" Column="40" TopLine="480"/>
+      </Position9>
+      <Position10>
+        <Filename Value="lazpaintmainform.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position10>
+      <Position11>
+        <Filename Value="lazpaintmainform.pas"/>
+        <Caret Line="220" Column="13" TopLine="191"/>
+      </Position11>
+      <Position12>
+        <Filename Value="lazpaintmainform.pas"/>
+        <Caret Line="1273" Column="44" TopLine="1240"/>
+      </Position12>
+      <Position13>
+        <Filename Value="ubrowseimages.pas"/>
+        <Caret Line="736" Column="22" TopLine="708"/>
+      </Position13>
+      <Position14>
+        <Filename Value="ubrowseimages.pas"/>
+        <Caret Line="315" Column="26" TopLine="297"/>
+      </Position14>
+      <Position15>
+        <Filename Value="ubrowseimages.pas"/>
+        <Caret Line="316" Column="24" TopLine="305"/>
+      </Position15>
+      <Position16>
+        <Filename Value="ubrowseimages.pas"/>
+        <Caret Line="713" Column="1" TopLine="700"/>
+      </Position16>
+      <Position17>
+        <Filename Value="ubrowseimages.pas"/>
+        <Caret Line="346" Column="3" TopLine="341"/>
+      </Position17>
+      <Position18>
+        <Filename Value="ubrowseimages.pas"/>
+        <Caret Line="384" Column="5" TopLine="374"/>
+      </Position18>
+      <Position19>
+        <Filename Value="ubrowseimages.pas"/>
+        <Caret Line="115" Column="27" TopLine="105"/>
+      </Position19>
+      <Position20>
+        <Filename Value="ubrowseimages.pas"/>
+        <Caret Line="345" Column="16" TopLine="329"/>
+      </Position20>
+      <Position21>
+        <Filename Value="ubrowseimages.pas"/>
+        <Caret Line="722" Column="55" TopLine="708"/>
+      </Position21>
+      <Position22>
+        <Filename Value="ubrowseimages.pas"/>
+        <Caret Line="45" Column="1" TopLine="37"/>
+      </Position22>
+      <Position23>
+        <Filename Value="lazpaintmainform.pas"/>
+        <Caret Line="1170" Column="60" TopLine="1158"/>
+      </Position23>
+      <Position24>
+        <Filename Value="lazpaintmainform.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position24>
+      <Position25>
+        <Filename Value="lazpaintmainform.pas"/>
+        <Caret Line="1663" Column="1" TopLine="1645"/>
+      </Position25>
+      <Position26>
+        <Filename Value="..\..\..\..\usr\share\lazarus\1.2.4\lcl\include\promptdialog.inc"/>
+        <Caret Line="936" Column="3" TopLine="903"/>
+      </Position26>
+      <Position27>
+        <Filename Value="..\..\..\..\usr\share\lazarus\1.2.4\lcl\include\promptdialog.inc"/>
+        <Caret Line="937" Column="3" TopLine="904"/>
+      </Position27>
+      <Position28>
+        <Filename Value="..\..\..\..\usr\share\lazarus\1.2.4\lcl\include\promptdialog.inc"/>
+        <Caret Line="922" Column="68" TopLine="887"/>
+      </Position28>
+      <Position29>
+        <Filename Value="lazpaintmainform.pas"/>
+        <Caret Line="1719" Column="17" TopLine="1711"/>
+      </Position29>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
@@ -1396,7 +1790,6 @@
     <PathDelim Value="\"/>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="buttons;test_embedded"/>
       <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <CodeGeneration>
@@ -1423,10 +1816,13 @@
     </Other>
   </CompilerOptions>
   <Debugging>
-    <Watches Count="1">
+    <Watches Count="2">
       <Item1>
         <Expression Value="GetActualConfig"/>
       </Item1>
+      <Item2>
+        <Expression Value="FRefCount"/>
+      </Item2>
     </Watches>
     <Exceptions Count="8">
       <Item1>
@@ -1456,4 +1852,4 @@
     </Exceptions>
   </Debugging>
   <EditorMacros Count="0"/>
-</CONFIG>
+</CONFIG>

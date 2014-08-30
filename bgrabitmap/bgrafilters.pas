@@ -12,7 +12,7 @@ uses
   Classes, BGRABitmapTypes;
 
 type
-  TCheckShouldStopFunc = function: boolean of object;
+  TCheckShouldStopFunc = function(ACurrentY: integer) : boolean of object;
 
   { TFilterTask }
 
@@ -23,12 +23,14 @@ type
   protected
     FDestination: TBGRACustomBitmap;
     FSource: TBGRACustomBitmap;
-    function GetShouldStop: boolean;
+    FCurrentY: integer;
+    function GetShouldStop(ACurrentY: integer): boolean;
     procedure DoExecute; virtual; abstract;
   public
     function Execute: TBGRACustomBitmap;
     property Destination: TBGRACustomBitmap read FDestination write SetDestination;
     property CheckShouldStop: TCheckShouldStopFunc read FCheckShouldStop write FCheckShouldStop;
+    property CurrentY: integer read FCurrentY;
   end;
 
 { The median filter consist in calculating the median value of pixels. Here
@@ -68,7 +70,7 @@ function CreateMotionBlurTask(ABmp: TBGRACustomBitmap; ABounds: TRect; ADistance
 { General purpose blur filter, with a blur mask as parameter to describe
   how pixels influence each other }
 function FilterBlur(bmp: TBGRACustomBitmap; blurMask: TBGRACustomBitmap): TBGRACustomBitmap;
-function CreateBlurTask(ABmp: TBGRACustomBitmap; ABounds: TRect; AMask: TBGRACustomBitmap): TFilterTask;
+function CreateBlurTask(ABmp: TBGRACustomBitmap; ABounds: TRect; AMask: TBGRACustomBitmap; AMaskIsThreadSafe: boolean = false): TFilterTask;
 
 function FilterPixelate(bmp: TBGRACustomBitmap; pixelSize: integer; useResample: boolean; filter: TResampleFilter = rfLinear): TBGRACustomBitmap;
 
@@ -92,7 +94,7 @@ function FilterNormalize(bmp: TBGRACustomBitmap; ABounds: TRect;
 
 { Rotate filter rotate the image and clip it in the bounding rectangle }
 function FilterRotate(bmp: TBGRACustomBitmap; origin: TPointF;
-  angle: single): TBGRACustomBitmap;
+  angle: single; correctBlur: boolean = false): TBGRACustomBitmap;
 
 { Grayscale converts colored pixel into grayscale with same luminosity }
 function FilterGrayscale(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
@@ -151,8 +153,10 @@ type
   private
     FBounds: TRect;
     FMask: TBGRACustomBitmap;
+    FMaskOwned: boolean;
   public
-    constructor Create(bmp: TBGRACustomBitmap; ABounds: TRect; AMask: TBGRACustomBitmap);
+    constructor Create(bmp: TBGRACustomBitmap; ABounds: TRect; AMask: TBGRACustomBitmap; AMaskIsThreadSafe: boolean = false);
+    destructor Destroy; override;
   protected
     procedure DoExecute; override;
   end;
@@ -752,9 +756,9 @@ begin
 end;
 
 function CreateBlurTask(ABmp: TBGRACustomBitmap; ABounds: TRect;
-  AMask: TBGRACustomBitmap): TFilterTask;
+  AMask: TBGRACustomBitmap; AMaskIsThreadSafe: boolean): TFilterTask;
 begin
-  result := TCustomBlurTask.Create(ABmp,ABounds,AMask);
+  result := TCustomBlurTask.Create(ABmp,ABounds,AMask,AMaskIsThreadSafe);
 end;
 
 procedure FilterBlur(bmp: TBGRACustomBitmap;
@@ -1431,7 +1435,7 @@ end;
 { Rotates the image. To do this, loop through the destination and
   calculates the position in the source bitmap with an affine transformation }
 function FilterRotate(bmp: TBGRACustomBitmap; origin: TPointF;
-  angle: single): TBGRACustomBitmap;
+  angle: single; correctBlur: boolean): TBGRACustomBitmap;
 var
   bounds:     TRect;
   pdest:      PBGRAPixel;
@@ -1440,6 +1444,7 @@ var
   dx, dy:     single;
   xb, yb:     int32or64;
   minx, miny, maxx, maxy: single;
+  rf : TResampleFilter;
 
   function RotatePos(x, y: single): TPointF;
   var
@@ -1451,10 +1456,15 @@ var
   end;
 
 begin
-  Result := bmp.NewBitmap(bmp.Width, bmp.Height);
   bounds := bmp.GetImageBounds;
   if (bounds.Right <= bounds.Left) or (bounds.Bottom <= Bounds.Top) then
+  begin
+    Result := bmp.NewBitmap(bmp.Width, bmp.Height);
     exit;
+  end;
+
+  Result := bmp.NewBitmap(bmp.Width, bmp.Height);
+  if correctBlur then rf := rfHalfCosine else rf := rfLinear;
 
   //compute new bounding rectangle
   dx   := cos(angle * Pi / 180);
@@ -1514,7 +1524,7 @@ begin
     savexysrc := pointf(xsrc, ysrc);
     for xb := bounds.left to bounds.right - 1 do
     begin
-      pdest^ := bmp.GetPixel(xsrc, ysrc);
+      pdest^ := bmp.GetPixel(xsrc, ysrc, rf);
       Inc(pdest);
       xsrc += dx;
       ysrc -= dy;
@@ -1536,7 +1546,7 @@ begin
 
   for yb := ABounds.Top to ABounds.bottom - 1 do
   begin
-    if Assigned(ACheckShouldStop) and ACheckShouldStop() then break;
+    if Assigned(ACheckShouldStop) and ACheckShouldStop(yb) then break;
     pdest := ADestination.scanline[yb] + ABounds.left;
     psrc  := bmp.scanline[yb] + ABounds.left;
     for xb := ABounds.left to ABounds.right - 1 do
@@ -1992,11 +2002,25 @@ end;
 { TCustomBlurTask }
 
 constructor TCustomBlurTask.Create(bmp: TBGRACustomBitmap; ABounds: TRect;
-  AMask: TBGRACustomBitmap);
+  AMask: TBGRACustomBitmap; AMaskIsThreadSafe: boolean);
 begin
   FSource := bmp;
   FBounds := ABounds;
-  FMask := AMask;
+  if AMaskIsThreadSafe then
+  begin
+    FMask := AMask;
+    FMaskOwned := false;
+  end else
+  begin
+    FMask := AMask.Duplicate;
+    FMaskOwned := true;
+  end;
+end;
+
+destructor TCustomBlurTask.Destroy;
+begin
+  If FMaskOwned then FreeAndNil(FMask);
+  inherited Destroy;
 end;
 
 procedure TCustomBlurTask.DoExecute;
@@ -2050,10 +2074,11 @@ end;
 
 { TFilterTask }
 
-function TFilterTask.GetShouldStop: boolean;
+function TFilterTask.GetShouldStop(ACurrentY: integer): boolean;
 begin
+  FCurrentY:= ACurrentY;
   if Assigned(FCheckShouldStop) then
-    result := FCheckShouldStop()
+    result := FCheckShouldStop(ACurrentY)
   else
     result := false;
 end;
@@ -2061,6 +2086,7 @@ end;
 function TFilterTask.Execute: TBGRACustomBitmap;
 var DestinationOwned: boolean;
 begin
+  FCurrentY := 0;
   if Destination = nil then
   begin
     FDestination := FSource.NewBitmap(FSource.Width,FSource.Height);

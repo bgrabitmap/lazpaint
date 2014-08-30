@@ -1,0 +1,359 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <Package Version="4">
+    <PathDelim Value="\"/>
+    <Name Value="LazPaintEmbeddedPack"/>
+    <AddToProjectUsesSection Value="True"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+      <CodeGeneration>
+        <Optimizations>
+          <VariablesInRegisters Value="True"/>
+          <OptimizationLevel Value="2"/>
+        </Optimizations>
+      </CodeGeneration>
+      <Linking>
+        <Debugging>
+          <GenerateDebugInfo Value="False"/>
+          <DebugInfoType Value="dsStabs"/>
+        </Debugging>
+      </Linking>
+      <Other>
+        <CompilerPath Value="$(CompPath)"/>
+      </Other>
+    </CompilerOptions>
+    <Version Major="5" Minor="7"/>
+    <Files Count="76">
+      <Item1>
+        <Filename Value="lazpaintinstance.pas"/>
+        <UnitName Value="LazpaintInstance"/>
+      </Item1>
+      <Item2>
+        <Filename Value="lazpaintmainform.lfm"/>
+        <Type Value="LFM"/>
+      </Item2>
+      <Item3>
+        <Filename Value="lazpaintmainform.pas"/>
+        <UnitName Value="LazpaintMainForm"/>
+      </Item3>
+      <Item4>
+        <Filename Value="lazpainttype.pas"/>
+        <UnitName Value="LazPaintType"/>
+      </Item4>
+      <Item5>
+        <Filename Value="uabout.lfm"/>
+        <Type Value="LFM"/>
+      </Item5>
+      <Item6>
+        <Filename Value="uabout.pas"/>
+        <UnitName Value="UAbout"/>
+      </Item6>
+      <Item7>
+        <Filename Value="ucanvassize.lfm"/>
+        <Type Value="LFM"/>
+      </Item7>
+      <Item8>
+        <Filename Value="ucanvassize.pas"/>
+        <UnitName Value="UCanvassize"/>
+      </Item8>
+      <Item9>
+        <Filename Value="uchoosecolor.lfm"/>
+        <Type Value="LFM"/>
+      </Item9>
+      <Item10>
+        <Filename Value="uchoosecolor.pas"/>
+        <UnitName Value="UChooseColor"/>
+      </Item10>
+      <Item11>
+        <Filename Value="uclipboard.pas"/>
+        <UnitName Value="UClipboard"/>
+      </Item11>
+      <Item12>
+        <Filename Value="ucolorintensity.lfm"/>
+        <Type Value="LFM"/>
+      </Item12>
+      <Item13>
+        <Filename Value="ucolorintensity.pas"/>
+        <UnitName Value="UColorintensity"/>
+      </Item13>
+      <Item14>
+        <Filename Value="ucolorize.lfm"/>
+        <Type Value="LFM"/>
+      </Item14>
+      <Item15>
+        <Filename Value="ucolorize.pas"/>
+        <UnitName Value="UColorize"/>
+      </Item15>
+      <Item16>
+        <Filename Value="ucommandline.pas"/>
+        <UnitName Value="UCommandline"/>
+      </Item16>
+      <Item17>
+        <Filename Value="uconfig.pas"/>
+        <UnitName Value="UConfig"/>
+      </Item17>
+      <Item18>
+        <Filename Value="ucursors.pas"/>
+        <UnitName Value="UCursors"/>
+      </Item18>
+      <Item19>
+        <Filename Value="ucustomblur.lfm"/>
+        <Type Value="LFM"/>
+      </Item19>
+      <Item20>
+        <Filename Value="ucustomblur.pas"/>
+        <UnitName Value="UCustomblur"/>
+      </Item20>
+      <Item21>
+        <Filename Value="uemboss.lfm"/>
+        <Type Value="LFM"/>
+      </Item21>
+      <Item22>
+        <Filename Value="uemboss.pas"/>
+        <UnitName Value="UEmboss"/>
+      </Item22>
+      <Item23>
+        <Filename Value="ugraph.pas"/>
+        <UnitName Value="UGraph"/>
+      </Item23>
+      <Item24>
+        <Filename Value="uimage.pas"/>
+        <UnitName Value="UImage"/>
+      </Item24>
+      <Item25>
+        <Filename Value="umac.pas"/>
+        <UnitName Value="UMac"/>
+      </Item25>
+      <Item26>
+        <Filename Value="umotionblur.lfm"/>
+        <Type Value="LFM"/>
+      </Item26>
+      <Item27>
+        <Filename Value="umotionblur.pas"/>
+        <UnitName Value="UMotionBlur"/>
+      </Item27>
+      <Item28>
+        <Filename Value="umultiimage.lfm"/>
+        <Type Value="LFM"/>
+      </Item28>
+      <Item29>
+        <Filename Value="umultiimage.pas"/>
+        <UnitName Value="UMultiImage"/>
+      </Item29>
+      <Item30>
+        <Filename Value="unewimage.lfm"/>
+        <Type Value="LFM"/>
+      </Item30>
+      <Item31>
+        <Filename Value="unewimage.pas"/>
+        <UnitName Value="UNewimage"/>
+      </Item31>
+      <Item32>
+        <Filename Value="uparse.pas"/>
+        <UnitName Value="UParse"/>
+      </Item32>
+      <Item33>
+        <Filename Value="uradialblur.lfm"/>
+        <Type Value="LFM"/>
+      </Item33>
+      <Item34>
+        <Filename Value="uradialblur.pas"/>
+        <UnitName Value="URadialBlur"/>
+      </Item34>
+      <Item35>
+        <Filename Value="uresample.lfm"/>
+        <Type Value="LFM"/>
+      </Item35>
+      <Item36>
+        <Filename Value="uresample.pas"/>
+        <UnitName Value="UResample"/>
+      </Item36>
+      <Item37>
+        <Filename Value="ushiftcolors.lfm"/>
+        <Type Value="LFM"/>
+      </Item37>
+      <Item38>
+        <Filename Value="ushiftcolors.pas"/>
+        <UnitName Value="UShiftColors"/>
+      </Item38>
+      <Item39>
+        <Filename Value="utool.pas"/>
+        <UnitName Value="UTool"/>
+      </Item39>
+      <Item40>
+        <Filename Value="utoolbox.lfm"/>
+        <Type Value="LFM"/>
+      </Item40>
+      <Item41>
+        <Filename Value="utoolbox.pas"/>
+        <UnitName Value="UToolbox"/>
+      </Item41>
+      <Item42>
+        <Filename Value="utwirl.lfm"/>
+        <Type Value="LFM"/>
+      </Item42>
+      <Item43>
+        <Filename Value="utwirl.pas"/>
+        <UnitName Value="UTwirl"/>
+      </Item43>
+      <Item44>
+        <Filename Value="uimagestate.pas"/>
+        <UnitName Value="UImageState"/>
+      </Item44>
+      <Item45>
+        <Filename Value="upixelate.lfm"/>
+        <Type Value="LFM"/>
+      </Item45>
+      <Item46>
+        <Filename Value="upixelate.pas"/>
+        <UnitName Value="UPixelate"/>
+      </Item46>
+      <Item47>
+        <Filename Value="uresourcestrings.pas"/>
+        <UnitName Value="UResourceStrings"/>
+      </Item47>
+      <Item48>
+        <Filename Value="uscaledpi.pas"/>
+        <UnitName Value="UScaleDPI"/>
+      </Item48>
+      <Item49>
+        <Filename Value="utoolbasic.pas"/>
+        <UnitName Value="UToolBasic"/>
+      </Item49>
+      <Item50>
+        <Filename Value="utooldeformationgrid.pas"/>
+        <UnitName Value="UToolDeformationGrid"/>
+      </Item50>
+      <Item51>
+        <Filename Value="utoolfloodfill.pas"/>
+        <UnitName Value="UToolFloodFill"/>
+      </Item51>
+      <Item52>
+        <Filename Value="utoolpolygon.pas"/>
+        <UnitName Value="UToolPolygon"/>
+      </Item52>
+      <Item53>
+        <Filename Value="utoolselect.pas"/>
+        <UnitName Value="UToolSelect"/>
+      </Item53>
+      <Item54>
+        <Filename Value="utooltext.pas"/>
+        <UnitName Value="UToolText"/>
+      </Item54>
+      <Item55>
+        <Filename Value="ublendop.lfm"/>
+        <Type Value="LFM"/>
+      </Item55>
+      <Item56>
+        <Filename Value="ublendop.pas"/>
+        <UnitName Value="UBlendOp"/>
+      </Item56>
+      <Item57>
+        <Filename Value="uimageaction.pas"/>
+        <UnitName Value="UImageAction"/>
+      </Item57>
+      <Item58>
+        <Filename Value="uimagediff.pas"/>
+        <UnitName Value="UImageDiff"/>
+      </Item58>
+      <Item59>
+        <Filename Value="uimageobservation.pas"/>
+        <UnitName Value="UImageObservation"/>
+      </Item59>
+      <Item60>
+        <Filename Value="ulayerstack.lfm"/>
+        <Type Value="LFM"/>
+      </Item60>
+      <Item61>
+        <Filename Value="ulayerstack.pas"/>
+        <UnitName Value="ULayerstack"/>
+      </Item61>
+      <Item62>
+        <Filename Value="uloadimage.pas"/>
+        <UnitName Value="ULoadImage"/>
+      </Item62>
+      <Item63>
+        <Filename Value="uloading.lfm"/>
+        <Type Value="LFM"/>
+      </Item63>
+      <Item64>
+        <Filename Value="uloading.pas"/>
+        <UnitName Value="ULoading"/>
+      </Item64>
+      <Item65>
+        <Filename Value="umenu.pas"/>
+        <UnitName Value="UMenu"/>
+      </Item65>
+      <Item66>
+        <Filename Value="uobject3d.lfm"/>
+        <Type Value="LFM"/>
+      </Item66>
+      <Item67>
+        <Filename Value="uobject3d.pas"/>
+        <UnitName Value="UObject3D"/>
+      </Item67>
+      <Item68>
+        <Filename Value="uphongfilter.lfm"/>
+        <Type Value="LFM"/>
+      </Item68>
+      <Item69>
+        <Filename Value="uphongfilter.pas"/>
+        <UnitName Value="UPhongFilter"/>
+      </Item69>
+      <Item70>
+        <Filename Value="uscripting.pas"/>
+        <UnitName Value="uscripting"/>
+      </Item70>
+      <Item71>
+        <Filename Value="usharpen.lfm"/>
+        <Type Value="LFM"/>
+      </Item71>
+      <Item72>
+        <Filename Value="usharpen.pas"/>
+        <UnitName Value="USharpen"/>
+      </Item72>
+      <Item73>
+        <Filename Value="utoolphong.pas"/>
+        <UnitName Value="UToolPhong"/>
+      </Item73>
+      <Item74>
+        <Filename Value="utranslation.pas"/>
+        <UnitName Value="UTranslation"/>
+      </Item74>
+      <Item75>
+        <Filename Value="uvolatilescrollbar.pas"/>
+        <UnitName Value="UVolatileScrollBar"/>
+      </Item75>
+      <Item76>
+        <Filename Value="uzoom.pas"/>
+        <UnitName Value="UZoom"/>
+      </Item76>
+    </Files>
+    <Type Value="RunAndDesignTime"/>
+    <RequiredPkgs Count="4">
+      <Item1>
+        <PackageName Value="bgracontrols"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="bgrabitmappack"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="LCL"/>
+      </Item3>
+      <Item4>
+        <PackageName Value="FCL"/>
+        <MinVersion Major="1" Valid="True"/>
+      </Item4>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

@@ -8,24 +8,25 @@ uses
   Classes, SysUtils, bgrabitmap, bgrabitmaptypes, LazPaintType, Graphics, BGRALayers;
 
 const FrameDashLength = 4;
+  NicePointMaxRadius = 4;
 
 function RectUnion(const rect1,Rect2: TRect): TRect;
 function RectOfs(const ARect: TRect; ofsX,ofsY: integer): TRect;
 function GetShapeBounds(const pts: array of TPointF; width: single): TRect;
 function DoPixelate(source: TBGRABitmap; pixelSize: integer; quality: string): TBGRABitmap;
-procedure DrawCheckers(bmp : TBGRABitmap);
+procedure DrawCheckers(bmp : TBGRABitmap; ARect: TRect);
 procedure DrawGrid(bmp: TBGRABitmap; sizex,sizey: single);
 function ComputeAngle(dx,dy: single): single;
 function GetSelectionCenter(bmp: TBGRABitmap): TPointF;
-procedure ComputeSelectionMask(image: TBGRABitmap; destMask: TBGRABitmap);
-procedure SubstractMask(image: TBGRABitmap; mask: TBGRABitmap);
-procedure NicePoint(bmp: TBGRABitmap; x,y: single; alpha: byte = 192); overload;
-procedure NicePoint(bmp: TBGRABitmap; ptF: TPointF; alpha: byte = 192); overload;
+procedure ComputeSelectionMask(image: TBGRABitmap; destMask: TBGRABitmap; ARect: TRect);
+procedure SubstractMask(image: TBGRABitmap; DestX,DestY: Integer; mask: TBGRABitmap; SourceMaskRect: TRect);
+function NicePointBounds(x,y: single): TRect;
+function NicePoint(bmp: TBGRABitmap; x,y: single; alpha: byte = 192):TRect; overload;
+function NicePoint(bmp: TBGRABitmap; ptF: TPointF; alpha: byte = 192):TRect; overload;
 procedure NiceLine(bmp: TBGRABitmap; x1,y1,x2,y2: single; alpha: byte = 192);
-procedure NiceText(bmp: TBGRABitmap; x,y: integer; s: string; align: TAlignment = taLeftJustify; valign: TTextLayout = tlTop);
+function NiceText(bmp: TBGRABitmap; x,y,bmpWidth,bmpHeight: integer; s: string; align: TAlignment = taLeftJustify; valign: TTextLayout = tlTop): TRect;
 function ComputeColorCircle(tx,ty: integer; light: word; hueCorrection: boolean = true): TBGRABitmap;
 function ChangeCanvasSize(bmp: TBGRABitmap; newWidth,newHeight: integer; anchor: string; background: TBGRAPixel; repeatImage: boolean; flipMode: boolean = false): TBGRABitmap; overload;
-function MakeThumbnail(bmp: TBGRABitmap; width,height: integer): TBGRABitmap;
 
 procedure RenderCloudsOn(bmp: TBGRABitmap; color: TBGRAPixel);
 procedure RenderWaterOn(bmp: TBGRABitmap; waterColor, skyColor: TBGRAPixel);
@@ -48,7 +49,7 @@ function DoResample(source :TBGRABitmap; newWidth, newHeight: integer; StretchMo
 
 implementation
 
-uses math, Types, LCLProc, FileUtil, dialogs, BGRAAnimatedGif, BGRAGradients, BGRATextFX, uresourcestrings, uscaledpi;
+uses GraphType, math, Types, LCLProc, FileUtil, dialogs, BGRAAnimatedGif, BGRAGradients, BGRATextFX, uresourcestrings, uscaledpi;
 
 function RectUnion(const rect1, Rect2: TRect): TRect;
 begin
@@ -81,13 +82,14 @@ begin
   result.Right := low(Integer);
   result.Bottom := low(Integer);
   for i := 0 to high(pts) do
+  if not isEmptyPointF(pts[i]) then
   begin
     ix := floor(pts[i].x - width);
     iy := floor(pts[i].y - width);
     if ix < result.left then result.left := ix;
     if iy < result.Top then result.top := iy;
-    ix := ceil(pts[i].x + width)+2;
-    iy := ceil(pts[i].y + width)+2;
+    ix := ceil(pts[i].x + width)+1;
+    iy := ceil(pts[i].y + width)+1;
     if ix > result.right then result.right := ix;
     if iy > result.bottom then result.bottom := iy;
   end;
@@ -111,26 +113,58 @@ begin
   result := source.FilterPixelate(pixelSize,useFilter,filter) as TBGRABitmap;
 end;
 
-procedure DrawCheckers(bmp: TBGRABitmap);
-const tx = 8; ty = 8;
-var xb,yb,x,y: integer;
+procedure DrawCheckers(bmp: TBGRABitmap; ARect: TRect);
+const tx = 8; ty = 8; //must be a power of 2
+      xMask = tx*2-1;
+var xcount,patY,w,n,patY1,patY2m1,patX,patX1: NativeInt;
     oddColor, evenColor: TBGRAPixel;
+    pdest: PBGRAPixel;
+    delta: PtrInt;
+    actualRect: TRect;
 begin
   oddColor := BGRA(220,220,220);
   evenColor := BGRA(255,255,255);
-  y := 0;
-  for yb := 0 to (bmp.Height-1) div ty do
+  actualRect := ARect;
+  IntersectRect(actualRect, ARect, bmp.ClipRect);
+  w := actualRect.Right-actualRect.Left;
+  if (w <= 0) or (actualRect.Bottom <= actualRect.Top) then exit;
+  delta := bmp.Width;
+  if bmp.LineOrder = riloBottomToTop then delta := -delta;
+  delta := (delta-w)*SizeOf(TBGRAPixel);
+  pdest := bmp.ScanLine[actualRect.Top]+actualRect.left;
+  patY1 := actualRect.Top - ARect.Top;
+  patY2m1 := actualRect.Bottom - ARect.Top-1;
+  patX1 := (actualRect.Left - ARect.Left) and xMask;
+  for patY := patY1 to patY2m1 do
   begin
-    x := 0;
-    for xb := 0 to (bmp.Width-1) div tx do
+    xcount := w;
+    if patY and ty = 0 then
+       patX := patX1
+    else
+       patX := (patX1+tx) and xMask;
+    while xcount > 0 do
     begin
-     if odd(xb+yb) then
-      bmp.FillRect(x,y,x+tx,y+ty,oddColor,dmSet) else
-        bmp.FillRect(x,y,x+tx,y+ty,evenColor,dmSet);
-     inc(x,tx);
+      if patX and tx = 0 then
+      begin
+        n := 8-patX;
+        if n > xcount then n := xcount;
+        FillDWord(pdest^,n,DWord(evenColor));
+        dec(xcount,n);
+        inc(pdest,n);
+        patX := tx;
+      end else
+      begin
+        n := 16-patX;
+        if n > xcount then n := xcount;
+        FillDWord(pdest^,n,DWord(oddColor));
+        dec(xcount,n);
+        inc(pdest,n);
+        patX := 0;
+      end;
     end;
-    inc(y,ty);
+    inc(pbyte(pdest),delta);
   end;
+  bmp.InvalidateBitmap;
 end; 
 
 procedure DrawGrid(bmp: TBGRABitmap; sizex, sizey: single);
@@ -859,6 +893,11 @@ function GetSelectionCenter(bmp: TBGRABitmap): TPointF;
 var xb,yb: integer; p: PBGRAPixel;
     xsum,ysum,asum,alpha: single;
 begin
+    if bmp = nil then
+    begin
+      result := pointF(0,0);
+      exit;
+    end;
     xsum := 0;
     ysum := 0;
     asum := 0;
@@ -878,18 +917,18 @@ begin
        result := pointF(xsum/asum,ysum/asum);
 end;
 
-procedure ComputeSelectionMask(image: TBGRABitmap; destMask: TBGRABitmap);
+procedure ComputeSelectionMask(image: TBGRABitmap; destMask: TBGRABitmap; ARect: TRect);
 var
-   maxx,maxy: integer; aimage: byte;
+   aimage: byte;
    xb,yb: integer; pimage, pmask: PBGRAPixel;
 begin
-    maxx := min(image.Width,destMask.Width)-1;
-    maxy := min(image.Height,destMask.Height)-1;
-    for yb := 0 to maxy do
+    IntersectRect(ARect, ARect,rect(0,0,image.Width,image.Height));
+    IntersectRect(ARect, ARect,rect(0,0,destMask.Width,destMask.Height));
+    for yb := ARect.Top to ARect.Bottom-1 do
     begin
-      pimage := image.ScanLine[yb];
-      pmask := destMask.ScanLine[yb];
-      for xb := 0 to maxx do
+      pimage := image.ScanLine[yb]+ARect.Left;
+      pmask := destMask.ScanLine[yb]+ARect.Left;
+      for xb := ARect.Left to ARect.Right-1 do
       begin
         aimage := pimage^.alpha;
         pmask^ := BGRA(aimage,aimage,aimage,255);
@@ -900,20 +939,24 @@ begin
     end;
 end;
 
-procedure SubstractMask(image: TBGRABitmap; mask: TBGRABitmap);
+procedure SubstractMask(image: TBGRABitmap; DestX,DestY: Integer; mask: TBGRABitmap; SourceMaskRect: TRect);
 var
-   maxx,maxy: integer;
    xb,yb: integer;
    pimage, pmask: PBGRAPixel;
    aimage, amask: byte;
+   Delta: TPoint;
 begin
-    maxx := min(image.Width,mask.Width)-1;
-    maxy := min(image.Height,mask.Height)-1;
-    for yb := 0 to maxy do
+    if not IntersectRect(SourceMaskRect,SourceMaskRect,rect(0,0,mask.Width,mask.Height)) then exit;
+    Delta.X := - SourceMaskRect.Left + DestX;
+    Delta.Y := - SourceMaskRect.Top + DestY;
+    OffsetRect(SourceMaskRect, Delta.x, Delta.y);
+    if not IntersectRect(SourceMaskRect,SourceMaskRect,rect(0,0,image.Width,image.Height)) then exit;
+    OffsetRect(SourceMaskRect, -Delta.x, -Delta.y);
+    for yb := SourceMaskRect.Top to SourceMaskRect.Bottom-1 do
     begin
-      pimage := image.ScanLine[yb];
-      pmask := mask.ScanLine[yb];
-      for xb := 0 to maxx do
+      pimage := image.ScanLine[yb+Delta.Y]+SourceMaskRect.Left+Delta.X;
+      pmask := mask.ScanLine[yb]+SourceMaskRect.Left;
+      for xb := SourceMaskRect.Left to SourceMaskRect.Right-1 do
       begin
         amask := pmask^.red;
         if amask <> 0 then
@@ -929,25 +972,34 @@ begin
     end;
 end;
 
-procedure NicePoint(bmp: TBGRABitmap; x, y: single; alpha: byte = 192);
+function NicePointBounds(x,y: single): TRect;
 begin
-    bmp.EllipseAntialias(x,y,4,4,BGRA(0,0,0,alpha),1);
-    bmp.EllipseAntialias(x,y,3,3,BGRA(255,255,255,alpha),1);
-    bmp.EllipseAntialias(x,y,2,2,BGRA(0,0,0,alpha),1);
+  result := rect(floor(x)-NicePointMaxRadius-1,floor(y)-NicePointMaxRadius-1,
+  ceil(x)+NicePointMaxRadius+2,ceil(y)+NicePointMaxRadius+2);
 end;
 
-procedure NicePoint(bmp: TBGRABitmap; ptF: TPointF; alpha: byte = 192);
+function NicePoint(bmp: TBGRABitmap; x, y: single; alpha: byte = 192): TRect;
 begin
-  NicePoint(bmp,ptF.x,ptF.y,alpha);
+    result := NicePointBounds(x,y);
+    if not Assigned(bmp) then exit;
+    bmp.EllipseAntialias(x,y,NicePointMaxRadius,NicePointMaxRadius,BGRA(0,0,0,alpha),1);
+    bmp.EllipseAntialias(x,y,NicePointMaxRadius-1,NicePointMaxRadius-1,BGRA(255,255,255,alpha),1);
+    bmp.EllipseAntialias(x,y,NicePointMaxRadius-2,NicePointMaxRadius-2,BGRA(0,0,0,alpha),1);
+end;
+
+function NicePoint(bmp: TBGRABitmap; ptF: TPointF; alpha: byte = 192): TRect;
+begin
+  result := NicePoint(bmp,ptF.x,ptF.y,alpha);
 end;
 
 procedure NiceLine(bmp: TBGRABitmap; x1, y1, x2, y2: single; alpha: byte = 192);
 begin
+  if not Assigned(bmp) then exit;
   bmp.DrawLineAntialias(round(x1), round(y1), round(x2), round(y2),BGRA(0,0,0,alpha),3,True);
   bmp.DrawLineAntialias(round(x1), round(y1), round(x2), round(y2),BGRA(255,255,255,alpha),1,True);
 end;
 
-procedure NiceText(bmp: TBGRABitmap; x, y: integer; s: string; align: TAlignment; valign: TTextLayout);
+function NiceText(bmp: TBGRABitmap; x, y, bmpWidth,bmpHeight: integer; s: string; align: TAlignment; valign: TTextLayout): TRect;
 var fx: TBGRATextEffect;
     f: TFont;
     ofs: integer;
@@ -959,15 +1011,19 @@ begin
   fx := TBGRATextEffect.Create(s,f,true);
   if valign = tlBottom then y := y-fx.TextSize.cy else
   if valign = tlCenter then y := y-fx.TextSize.cy div 2;
-  if y+fx.TextSize.cy > bmp.Height then y := bmp.Height-fx.TextSize.cy;
+  if y+fx.TextSize.cy > bmpHeight then y := bmpHeight-fx.TextSize.cy;
   if y < 0 then y := 0;
   if align = taRightJustify then x := x-fx.TextSize.cx else
   if align = taCenter then x := x-fx.TextSize.cx div 2;
-  if x+fx.TextSize.cx > bmp.Width then x := bmp.Width-fx.TextSize.cx;
+  if x+fx.TextSize.cx > bmpWidth then x := bmpWidth-fx.TextSize.cx;
   if x < 0 then x := 0;
-  fx.DrawShadow(bmp,x+ofs,y+ofs,ofs,BGRABlack);
-  fx.DrawOutline(bmp,x,y,BGRABlack);
-  fx.Draw(bmp,x,y,BGRAWhite);
+  result := rect(x,y,x+fx.TextWidth+2*ofs,y+fx.TextHeight+2*ofs);
+  if Assigned(bmp) then
+  begin
+    fx.DrawShadow(bmp,x+ofs,y+ofs,ofs,BGRABlack);
+    fx.DrawOutline(bmp,x,y,BGRABlack);
+    fx.Draw(bmp,x,y,BGRAWhite);
+  end;
   fx.Free;
   f.Free;
 end;
@@ -1111,21 +1167,6 @@ begin
        for yb := miny to maxy do
         result.PutImage(origin.x+xb*dx,origin.Y+yb*dy,bmp,dmSet);
    end;
-end;
-
-function MakeThumbnail(bmp: TBGRABitmap; width, height: integer): TBGRABitmap;
-var resampled: TBGRABitmap;
-begin
-  result:= TBGRABitmap.Create(width,height);
-  if (width <> 0) and (height <> 0) and (bmp.width <> 0) and (bmp.Height <> 0) then
-  begin
-    if bmp.width/bmp.height > width/height then
-      resampled := bmp.Resample(width,max(1,round(bmp.height*(width/bmp.Width)))) as TBGRABitmap else
-        resampled := bmp.Resample(max(1,round(bmp.width*(height/bmp.height))),height) as TBGRABitmap;
-    result.PutImage((result.width-resampled.width) div 2,
-      (result.height-resampled.height) div 2, resampled, dmSet);
-    resampled.Free;
-  end;
 end;
 
 initialization

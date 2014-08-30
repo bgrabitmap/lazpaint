@@ -36,8 +36,8 @@
     </CompilerOptions>
     <Description Value="Drawing routines with alpha blending and antialiasing"/>
     <License Value="modified LGPL"/>
-    <Version Major="7" Minor="2"/>
-    <Files Count="62">
+    <Version Major="7" Minor="7"/>
+    <Files Count="82">
       <Item1>
         <Filename Value="bgraanimatedgif.pas"/>
         <UnitName Value="BGRAAnimatedGif"/>
@@ -286,8 +286,87 @@
         <Filename Value="ssesavev.inc"/>
         <UnitName Value="ssesavev"/>
       </Item62>
+      <Item63>
+        <Filename Value="bgragrayscalemask.pas"/>
+        <UnitName Value="BGRAGrayscaleMask"/>
+      </Item63>
+      <Item64>
+        <Filename Value="bgrareadbmp.pas"/>
+        <UnitName Value="BGRAReadBMP"/>
+      </Item64>
+      <Item65>
+        <Filename Value="bgrareadgif.pas"/>
+        <UnitName Value="BGRAReadGif"/>
+      </Item65>
+      <Item66>
+        <Filename Value="bgrareadpcx.pas"/>
+        <UnitName Value="BGRAReadPCX"/>
+      </Item66>
+      <Item67>
+        <Filename Value="bgrareadpng.pas"/>
+        <UnitName Value="BGRAReadPng"/>
+      </Item67>
+      <Item68>
+        <Filename Value="bgrareadpsd.pas"/>
+        <UnitName Value="BGRAReadPSD"/>
+      </Item68>
+      <Item69>
+        <Filename Value="bgrathumbnail.pas"/>
+        <UnitName Value="BGRAThumbnail"/>
+      </Item69>
+      <Item70>
+        <Filename Value="bgrareadtga.pas"/>
+        <UnitName Value="BGRAReadTGA"/>
+      </Item70>
+      <Item71>
+        <Filename Value="bgrareadico.pas"/>
+        <UnitName Value="BGRAReadIco"/>
+      </Item71>
+      <Item72>
+        <Filename Value="bgrareadjpeg.pas"/>
+        <UnitName Value="bgrareadjpeg"/>
+      </Item72>
+      <Item73>
+        <Filename Value="bgrareadlzp.pas"/>
+        <UnitName Value="BGRAReadLzp"/>
+      </Item73>
+      <Item74>
+        <Filename Value="unzipperext.pas"/>
+        <UnitName Value="UnzipperExt"/>
+      </Item74>
+      <Item75>
+        <Filename Value="bgralzpcommon.pas"/>
+        <UnitName Value="BGRALzpCommon"/>
+      </Item75>
+      <Item76>
+        <Filename Value="bgrawritelzp.pas"/>
+        <UnitName Value="BGRAWriteLzp"/>
+      </Item76>
+      <Item77>
+        <Filename Value="bgrareadxpm.pas"/>
+        <UnitName Value="BGRAReadXPM"/>
+      </Item77>
+      <Item78>
+        <Filename Value="bgrasvg.pas"/>
+        <UnitName Value="BGRASVG"/>
+      </Item78>
+      <Item79>
+        <Filename Value="bgraunits.pas"/>
+        <UnitName Value="BGRAUnits"/>
+      </Item79>
+      <Item80>
+        <Filename Value="bgrasvgshapes.pas"/>
+        <UnitName Value="BGRASVGShapes"/>
+      </Item80>
+      <Item81>
+        <Filename Value="bgrasvgtype.pas"/>
+        <UnitName Value="BGRASVGType"/>
+      </Item81>
+      <Item82>
+        <Filename Value="bgrareadbmpmiomap.pas"/>
+        <UnitName Value="BGRAReadBmpMioMap"/>
+      </Item82>
     </Files>
-    <Type Value="RunAndDesignTime"/>
     <RequiredPkgs Count="2">
       <Item1>
         <PackageName Value="LCL"/>

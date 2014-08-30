@@ -1,19 +1,61 @@
 object FChooseColor: TFChooseColor
-  Left = 296
+  Left = 323
   Height = 198
-  Top = 393
+  Top = 335
   Width = 264
   BorderIcons = [biSystemMenu]
   BorderStyle = bsToolWindow
   Caption = 'Color'
+  ClientHeight = 198
+  ClientWidth = 264
   Font.Height = -12
   FormStyle = fsStayOnTop
   OnCreate = FormCreate
+  OnDeactivate = FormDeactivate
   OnDestroy = FormDestroy
-  OnMouseDown = FormMouseDown
-  OnMouseMove = FormMouseMove
-  OnMouseUp = FormMouseUp
-  OnPaint = FormPaint
+  OnResize = FormResize
   OnShow = FormShow
-  LCLVersion = '1.1'
+  LCLVersion = '1.0.10.0'
+  object EColor: TEdit
+    Left = 16
+    Height = 23
+    Top = 16
+    Width = 140
+    Font.Height = -12
+    Font.Name = 'Courier New'
+    OnChange = EColorChange
+    OnKeyDown = EColorKeyDown
+    ParentFont = False
+    TabOrder = 0
+  end
+  object LColor: TLabel
+    Left = 17
+    Height = 26
+    Hint = 'Color description: click to type in a color with the keyboard using color names or CSS notation.'
+    Top = 46
+    Width = 135
+    AutoSize = False
+    Font.Height = -12
+    Font.Name = 'Courier New'
+    Layout = tlCenter
+    ParentColor = False
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    OnMouseDown = LColorMouseDown
+  end
+  object vsColorView: TBGRAVirtualScreen
+    Left = 19
+    Height = 82
+    Top = 82
+    Width = 187
+    OnRedraw = vsColorViewRedraw
+    Alignment = taLeftJustify
+    Color = clBtnFace
+    ParentColor = False
+    TabOrder = 1
+    OnMouseDown = vsColorViewMouseDown
+    OnMouseMove = vsColorViewMouseMove
+    OnMouseUp = vsColorViewMouseUp
+  end
 end

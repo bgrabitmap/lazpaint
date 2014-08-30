@@ -25,6 +25,7 @@ function ApplyOpacity(opacity1,opacity2: byte): byte; inline;
 function FastRoundDiv255(value: cardinal): cardinal; inline;
 
 { Draw a series of pixels with alpha blending }
+procedure PutPixels(pdest: PBGRAPixel; psource: PBGRAPixel; copycount: integer; mode: TDrawMode; AOpacity:byte);
 procedure DrawPixelsInline(dest: PBGRAPixel; c: TBGRAPixel; Count: integer); inline; overload;
 procedure DrawExpandedPixelsInline(dest: PBGRAPixel; ec: TExpandedPixel; Count: integer); inline; overload;
 procedure DrawPixelsInlineExpandedOrNot(dest: PBGRAPixel; ec: TExpandedPixel; c: TBGRAPixel; Count: integer); inline; overload;  //alpha in 'c' parameter
@@ -234,6 +235,98 @@ begin
   begin
     FastBlendPixelInline(dest, c);
     Inc(dest);
+  end;
+end;
+
+procedure PutPixels(pdest: PBGRAPixel; psource: PBGRAPixel; copycount: integer;
+  mode: TDrawMode; AOpacity: byte);
+var i: integer; tempPixel: TBGRAPixel;
+begin
+  case mode of
+    dmSet:
+    begin
+      if AOpacity <> 255 then
+          CopyPixelsWithOpacity(pdest, psource, AOpacity, copycount)
+      else
+      begin
+        copycount *= sizeof(TBGRAPixel);
+        move(psource^, pdest^, copycount);
+      end;
+    end;
+    dmSetExceptTransparent:
+    begin
+        if AOpacity <> 255 then
+        begin
+          for i := copycount - 1 downto 0 do
+          begin
+            if psource^.alpha = 255 then
+            begin
+              tempPixel := psource^;
+              tempPixel.alpha := ApplyOpacity(tempPixel.alpha,AOpacity);
+              FastBlendPixelInline(pdest,tempPixel);
+            end;
+            Inc(pdest);
+            Inc(psource);
+          end;
+        end else
+          for i := copycount - 1 downto 0 do
+          begin
+            if psource^.alpha = 255 then
+              pdest^ := psource^;
+            Inc(pdest);
+            Inc(psource);
+          end;
+    end;
+    dmDrawWithTransparency:
+    begin
+        if AOpacity <> 255 then
+        begin
+          for i := copycount - 1 downto 0 do
+          begin
+            DrawPixelInlineWithAlphaCheck(pdest, psource^, AOpacity);
+            Inc(pdest);
+            Inc(psource);
+          end;
+        end
+        else
+          for i := copycount - 1 downto 0 do
+          begin
+            DrawPixelInlineWithAlphaCheck(pdest, psource^);
+            Inc(pdest);
+            Inc(psource);
+          end;
+    end;
+    dmFastBlend:
+    begin
+        if AOpacity <> 255 then
+        begin
+          for i := copycount - 1 downto 0 do
+          begin
+            FastBlendPixelInline(pdest, psource^, AOpacity);
+            Inc(pdest);
+            Inc(psource);
+          end;
+        end else
+          for i := copycount - 1 downto 0 do
+          begin
+            FastBlendPixelInline(pdest, psource^);
+            Inc(pdest);
+            Inc(psource);
+          end;
+    end;
+    dmXor:
+    begin
+      if AOpacity <> 255 then
+      begin
+          for i := copycount - 1 downto 0 do
+          begin
+            FastBlendPixelInline(pdest, TBGRAPixel(PDWord(pdest)^ xor PDword(psource)^), AOpacity);
+            Inc(pdest);
+            Inc(psource);
+          end;
+      end else
+          XorPixels(pdest, psource, copycount);
+    end;
   end;
 end;
 

@@ -1,8 +1,8 @@
 #define MyAppName "LazPaint"
 #define MyAppOutputName "lazpaint"
 #define MyInstallerSuffix "_setup_win32_win64"
-#define MyAppVersion "5.6"
-#define MyAppPublisher "Circular, Fabien Wang, Lainz"
+#define MyAppVersion "6.2"
+#define MyAppPublisher "Circular, Fabien Wang, Lainz and others"
 #define MyAppURL "http://sourceforge.net/projects/lazpaint/"
 #define MyAppExeName "lazpaint.exe"
 #define ReleaseDir "release\"
@@ -54,49 +54,54 @@ end;}
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
-Name: "basque"; MessagesFile: "compiler:Languages\Basque.isl"
 Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
 Name: "catalan"; MessagesFile: "compiler:Languages\Catalan.isl"
+Name: "corsican"; MessagesFile: "compiler:Languages\Corsican.isl"
 Name: "czech"; MessagesFile: "compiler:Languages\Czech.isl"
 Name: "danish"; MessagesFile: "compiler:Languages\Danish.isl"
 Name: "dutch"; MessagesFile: "compiler:Languages\Dutch.isl"
 Name: "finnish"; MessagesFile: "compiler:Languages\Finnish.isl"
 Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 Name: "german"; MessagesFile: "compiler:Languages\German.isl"
+Name: "greek"; MessagesFile: "compiler:Languages\Greek.isl"
 Name: "hebrew"; MessagesFile: "compiler:Languages\Hebrew.isl"
 Name: "hungarian"; MessagesFile: "compiler:Languages\Hungarian.isl"
 Name: "italian"; MessagesFile: "compiler:Languages\Italian.isl"
+Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"
 Name: "norwegian"; MessagesFile: "compiler:Languages\Norwegian.isl"
 Name: "polish"; MessagesFile: "compiler:Languages\Polish.isl"
 Name: "portuguese"; MessagesFile: "compiler:Languages\Portuguese.isl"
 Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
-Name: "slovak"; MessagesFile: "compiler:Languages\Slovak.isl"
+Name: "serbiancyrillic"; MessagesFile: "compiler:Languages\SerbianCyrillic.isl"
+Name: "serbianlatin"; MessagesFile: "compiler:Languages\SerbianLatin.isl"
 Name: "slovenian"; MessagesFile: "compiler:Languages\Slovenian.isl"
 Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
+Name: "ukrainian"; MessagesFile: "compiler:Languages\Ukrainian.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"
 Name: "assoc_lzp"; Description: "{cm:AssocFileExtension,{#MyAppName},.lzp}"
 Name: "assoc_ora"; Description: "{cm:AssocFileExtension,{#MyAppName},.ora}"
-Name: "assoc_pdn"; Description: "{cm:AssocFileExtension,{#MyAppName},.pdn}"
-Name: "assoc_bmp"; Description: "{cm:AssocFileExtension,{#MyAppName},.bmp}"
-Name: "assoc_pcx"; Description: "{cm:AssocFileExtension,{#MyAppName},.pcx}"
-Name: "assoc_png"; Description: "{cm:AssocFileExtension,{#MyAppName},.png}"
-Name: "assoc_jpg"; Description: "{cm:AssocFileExtension,{#MyAppName},.jpg}"
-Name: "assoc_gif"; Description: "{cm:AssocFileExtension,{#MyAppName},.gif}"
+Name: "assoc_pdn"; Description: "{cm:AssocFileExtension,{#MyAppName},.pdn}"; Flags: unchecked
+Name: "assoc_bmp"; Description: "{cm:AssocFileExtension,{#MyAppName},.bmp}"; Flags: unchecked
+Name: "assoc_pcx"; Description: "{cm:AssocFileExtension,{#MyAppName},.pcx}"; Flags: unchecked
+Name: "assoc_png"; Description: "{cm:AssocFileExtension,{#MyAppName},.png}"; Flags: unchecked
+Name: "assoc_jpg"; Description: "{cm:AssocFileExtension,{#MyAppName},.jpg}"; Flags: unchecked
+Name: "assoc_gif"; Description: "{cm:AssocFileExtension,{#MyAppName},.gif}"; Flags: unchecked
 Name: "assoc_ico"; Description: "{cm:AssocFileExtension,{#MyAppName},.ico}"; Flags: unchecked
 
 [Files]
 Source: "{#ReleaseDir}lazpaint32.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Flags: ignoreversion; Check: not Is64BitInstallMode
 Source: "{#ReleaseDir}lazpaint_x64.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Flags: ignoreversion; Check: Is64BitInstallMode
 Source: "{#ReleaseDir}i18n\*.po"; DestDir: "{app}\i18n"; Excludes: "i18n\lazpaint_x64.po"; Flags: ignoreversion
+Source: "{#ReleaseDir}*.obj"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#ReleaseDir}readme.txt"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Comment: "A paint program made with Lazarus"
-;Name: "{group}\{cm:ProgramOnTheWeb,{#MyAppName}}"; Filename: "{#MyAppURL}"
-;Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
-Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Comment: "A paint program made with Lazarus"; Tasks: desktopicon
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Comment: "LazPaint"
+Name: "{group}\{cm:ProgramOnTheWeb,{#MyAppName}}"; Filename: "{#MyAppURL}"
+Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
+Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Comment: "LazPaint"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, "&", "&&")}}"; Flags: nowait postinstall skipifsilent

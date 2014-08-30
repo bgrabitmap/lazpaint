@@ -112,7 +112,10 @@ procedure BGRAReplace(var Destination: TBGRABitmap; Temp: TObject);
 
 implementation
 
-uses GraphType, BGRABitmapTypes;
+uses GraphType, BGRABitmapTypes, BGRAReadBMP, BGRAReadGif,
+  BGRAReadIco, bgrareadjpeg, BGRAReadLzp, BGRAReadPCX,
+  BGRAReadPng, BGRAReadPSD, BGRAReadTGA, BGRAReadXPM,
+  BGRAWriteLzp;
 
 var
   tempBmp: TBGRABitmap;

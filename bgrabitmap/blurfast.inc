@@ -92,7 +92,7 @@ begin
   //loop through destination bitmap
   for yb := bounds.top to bounds.bottom-1 do
   begin
-    if (ACheckShouldStop <> nil) and ACheckShouldStop() then break;
+    if (ACheckShouldStop <> nil) and ACheckShouldStop(yb) then break;
     //evalute available vertical range
     if yb - radius < 0 then
       ys1 := radius - yb

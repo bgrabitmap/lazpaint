@@ -12,27 +12,27 @@ object FColorIntensity: TFColorIntensity
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.1'
+  LCLVersion = '1.0.10.0'
   object Label_Multiply: TLabel
     Left = 8
-    Height = 15
-    Top = 10
-    Width = 44
+    Height = 16
+    Top = 46
+    Width = 45
     Caption = 'Multiply'
     ParentColor = False
   end
   object Label_Shift: TLabel
     Left = 8
-    Height = 15
-    Top = 48
-    Width = 24
+    Height = 16
+    Top = 13
+    Width = 25
     Caption = 'Shift'
     ParentColor = False
   end
   object TrackBar_Multiply: TTrackBar
     Left = 64
     Height = 30
-    Top = 8
+    Top = 44
     Width = 328
     OnChange = TrackBar_Change
     Position = 0
@@ -41,7 +41,7 @@ object FColorIntensity: TFColorIntensity
   object TrackBar_Shift: TTrackBar
     Left = 64
     Height = 30
-    Top = 44
+    Top = 9
     Width = 328
     OnChange = TrackBar_Change
     Position = 0
@@ -71,7 +71,7 @@ object FColorIntensity: TFColorIntensity
   object FloatSpinEdit_Shift: TFloatSpinEdit
     Left = 392
     Height = 23
-    Top = 43
+    Top = 8
     Width = 72
     DecimalPlaces = 3
     Increment = 1
@@ -84,7 +84,7 @@ object FColorIntensity: TFColorIntensity
   object FloatSpinEdit_Factor: TFloatSpinEdit
     Left = 392
     Height = 23
-    Top = 7
+    Top = 43
     Width = 72
     DecimalPlaces = 3
     Increment = 1

@@ -121,11 +121,7 @@ end;
 
 procedure TForm1.SpinEdit_AAChange(Sender: TObject);
 begin
-  if not inBGRASurfaceRedraw then
-  begin
-    if scene <> nil then
-      scene.RenderingOptions.AntialiasingResampleLevel := SpinEdit_AA.Value;
-  end;
+
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
@@ -152,8 +148,8 @@ begin
   inBGRASurfaceRedraw := true;
   if scene <> nil then
   begin
-    if scene.RenderingOptions.AntialiasingResampleLevel <> SpinEdit_AA.Value then
-      SpinEdit_AA.Value := scene.RenderingOptions.AntialiasingResampleLevel;
+    scene.RenderingOptions.AntialiasingMode := am3dResample;
+    scene.RenderingOptions.AntialiasingResampleLevel := SpinEdit_AA.Value;
 
     scene.Surface := Bitmap;
     timer.Clear;

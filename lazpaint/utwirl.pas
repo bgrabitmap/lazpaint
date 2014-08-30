@@ -90,6 +90,7 @@ begin
   SpinEdit_Angle.Value := round(FilterConnector.LazPaintInstance.Config.DefaultTwirlTurn*360);
   FInitializing := false;
   PreviewNeeded;
+  Left := FilterConnector.LazPaintInstance.MainFormBounds.Left
 end;
 
 procedure TFTwirl.PaintBox1MouseDown(Sender: TObject; Button: TMouseButton;
@@ -137,12 +138,9 @@ begin
 end;
 
 procedure TFTwirl.Timer1Timer(Sender: TObject);
-var temp: TBGRABitmap;
 begin
   Timer1.Enabled := false;
-  temp := ComputeFilteredLayer;
-  FilterConnector.PutImage(temp,False);
-  temp.Free;
+  FilterConnector.PutImage(ComputeFilteredLayer,False,true);
   Button_OK.Enabled := true;
 end;
 
@@ -167,8 +165,7 @@ begin
   ModalResult := mrOK;
 end;
 
-initialization
-  {$I utwirl.lrs}
+{$R *.lfm}
 
 end.
 

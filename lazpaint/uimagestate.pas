@@ -5,7 +5,8 @@ unit UImageState;
 interface
 
 uses
-  Classes, SysUtils, UStateType, BGRABitmap, BGRABitmapTypes, Types, BGRALayers;
+  Classes, SysUtils, UStateType, BGRABitmap, BGRABitmapTypes, Types, BGRALayers,
+  UImageType, BGRAWriteLzp, BGRAReadLzp, FPimage;
 
 type
   { TImageState }
@@ -26,13 +27,12 @@ type
     function GetWidth: integer;
     procedure SetCurrentLayer(AValue: TBGRABitmap);
     procedure SetCurrentLayerIndex(AValue: integer);
-    procedure SetLayerOffset(Index: integer; AValue: TPoint);
     procedure SetLinearBlend(AValue: boolean);
   public
     currentLayeredBitmap: TBGRALayeredBitmap;
     currentSelection, selectionLayer: TBGRABitmap;
     selectedLayerId: integer;
-    filename: string;
+    filenameUTF8: string;
     constructor Create;
     destructor Destroy; override;
     function Equals(Obj: TObject): boolean; override;
@@ -53,7 +53,7 @@ type
     function GetUndoAfterAssign(ABackup: TImageState): TCustomImageDifference;
     procedure LoadFromStream(AStream: TStream);
     procedure SaveToStream(AStream: TStream);
-    procedure SaveToFile(AFilename: string);
+    procedure SaveToFile(AFilenameUTF8: string);
     procedure AdaptLayers;
     function AddNewLayer(ALayer: TBGRABitmap; AName: string): TCustomImageDifference;
     function DuplicateLayer: TCustomImageDifference;
@@ -66,14 +66,19 @@ type
     function LinearNegative: TCustomImageDifference;
     function RotateCW: TCustomImageDifference;
     function RotateCCW: TCustomImageDifference;
+    function ApplyLayerOffset(AOffsetX, AOffsetY: integer): TCustomImageDifference;
     function ComputeLayerDifference(APreviousImage: TBGRABitmap; APreviousImageDefined: boolean;
         APreviousSelection: TBGRABitmap; APreviousSelectionDefined: boolean;
-        APreviousSelectionLayer: TBGRABitmap; APreviousSelectionLayerDefined: boolean): TCustomImageDifference;
+        APreviousSelectionLayer: TBGRABitmap; APreviousSelectionLayerDefined: boolean): TCustomImageDifference; overload;
+    function ComputeLayerDifference(APreviousImage: TBGRABitmap; APreviousImageChangeRect: TRect;
+        APreviousSelection: TBGRABitmap; APreviousSelectionChangeRect: TRect;
+        APreviousSelectionLayer: TBGRABitmap; APreviousSelectionLayerChangeRect: TRect): TCustomImageDifference; overload;
     function GetLayeredBitmapCopy: TBGRALayeredBitmap;
     function ComputeFlatImage(AFromLayer, AToLayer: integer): TBGRABitmap;
     function SetLayerName(Index: integer; AValue: string): TCustomImageDifference;
     function SetLayerOpacity(Index: integer; AValue: byte): TCustomImageDifference;
     function SetLayerVisible(Index: integer; AValue: boolean): TCustomImageDifference;
+    function SetLayerOffset(Index: integer; AValue: TPoint): TCustomImageDifference;
     function SetBlendOp(Index: integer; AValue: TBlendOperation): TCustomImageDifference;
     procedure DrawLayers(ADest: TBGRABitmap; X,Y: Integer);
     property currentLayer: TBGRABitmap read GetCurrentLayer write SetCurrentLayer;
@@ -81,6 +86,7 @@ type
     property LayerBitmap[Index: integer]: TBGRABitmap read GetLayerBitmap;
     property BlendOperation[Index: integer]: TBlendOperation read GetBlendOp;
     property LayerOpacity[Index: integer]: byte read GetLayerOpacity;
+    property LayerOffset[Index: integer]: TPoint read GetLayerOffset;
     property LayerName[Index: integer]: string read GetLayerName;
     property NbLayers: integer read GetNbLayers;
     property Width: integer read GetWidth;
@@ -89,9 +95,79 @@ type
     property LayerVisible[Index: integer]: boolean read GetLayerVisible;
   end;
 
+  { TBGRAWriterLazPaintWithLayers }
+
+  TBGRAWriterLazPaintWithLayers = class(TBGRAWriterLazPaint)
+    protected
+      FState: TImageState;
+      function GetNbLayers: integer; override;
+      function InternalWriteLayers(Str: TStream; {%H-}Img: TFPCustomImage): boolean; override;
+    public
+      constructor Create(AState: TImageState); overload;
+  end;
+
+  { TBGRAReaderLazPaintWithLayers }
+
+  TBGRAReaderLazPaintWithLayers = class(TBGRAReaderLazPaint)
+    protected
+      FState: TImageState;
+      FLayersLoaded: boolean;
+      procedure InternalReadLayers(str: TStream; {%H-}Img: TFPCustomImage); override;
+    public
+      constructor Create(AState: TImageState); overload;
+      property LayersLoaded: boolean read FLayersLoaded;
+  end;
+
 implementation
 
-uses BGRAStreamLayers, UImageDiff;
+uses BGRAStreamLayers, UImageDiff, BGRALzpCommon;
+
+{ TBGRAReaderLazPaintWithLayers }
+
+procedure TBGRAReaderLazPaintWithLayers.InternalReadLayers(str: TStream;
+  Img: TFPCustomImage);
+begin
+  if Assigned(FState) then
+  begin
+    if (Caption = 'Preview') and CheckStreamForLayers(str) then
+    begin
+      FState.LoadFromStream(str);
+      FLayersLoaded := true;
+    end;
+  end;
+end;
+
+constructor TBGRAReaderLazPaintWithLayers.Create(AState: TImageState);
+begin
+  FLayersLoaded := false;
+  FState := AState;
+end;
+
+{ TBGRAWriterLazPaintWithLayers }
+
+function TBGRAWriterLazPaintWithLayers.GetNbLayers: integer;
+begin
+  if Assigned(FState) then
+    Result:= FState.NbLayers
+  else
+    Result := 1;
+end;
+
+function TBGRAWriterLazPaintWithLayers.InternalWriteLayers(Str: TStream;
+  Img: TFPCustomImage): boolean;
+begin
+  If Assigned(FState) then
+  begin
+    FState.SaveToStream(Str);
+    Result:=true;
+  end;
+end;
+
+constructor TBGRAWriterLazPaintWithLayers.Create(AState: TImageState);
+begin
+  inherited Create;
+  FState := AState;
+end;
 
 { TImageState }
 
@@ -236,10 +312,18 @@ begin
     result := nil;
 end;
 
-procedure TImageState.SetLayerOffset(Index: integer; AValue: TPoint);
+function TImageState.SetLayerOffset(Index: integer; AValue: TPoint
+  ): TCustomImageDifference;
 begin
   if currentLayeredBitmap <> nil then
-    currentLayeredBitmap.LayerOffset[index] := AValue;
+  begin
+    if (LayerOffset[index].x <> AValue.x) or (LayerOffset[index].y <> AValue.y) then
+      result := TSetLayerOffsetStateDifference.Create(self,currentLayeredBitmap.LayerUniqueId[index],AValue)
+    else
+      result := nil;
+  end
+  else
+    result := nil;
 end;
 
 function TImageState.SetLayerOpacity(Index: integer; AValue: byte
@@ -402,13 +486,13 @@ end;
 
 procedure TImageState.SaveToStream(AStream: TStream);
 begin
-  SaveLayersToStream(AStream, currentLayeredBitmap, currentLayerIndex);
+  SaveLayersToStream(AStream, currentLayeredBitmap, currentLayerIndex, lzpRLE);
 end;
 
-procedure TImageState.SaveToFile(AFilename: string);
+procedure TImageState.SaveToFile(AFilenameUTF8: string);
 begin
   if currentLayeredBitmap <> nil then
-    currentLayeredBitmap.SaveToFile(AFilename);
+    currentLayeredBitmap.SaveToFile(AFilenameUTF8);
 end;
 
 procedure TImageState.AdaptLayers;
@@ -525,6 +609,11 @@ begin
   result := TInversibleStateDifference.Create(self, iaRotateCCW);
 end;
 
+function TImageState.ApplyLayerOffset(AOffsetX,AOffsetY: integer): TCustomImageDifference;
+begin
+  result := TApplyLayerOffsetStateDifference.Create(self, currentLayeredBitmap.LayerUniqueId[currentLayerIndex], AOffsetX,AOffsetY);
+end;
+
 function TImageState.ComputeLayerDifference(APreviousImage: TBGRABitmap;
   APreviousImageDefined: boolean; APreviousSelection: TBGRABitmap;
   APreviousSelectionDefined: boolean; APreviousSelectionLayer: TBGRABitmap;
@@ -535,6 +624,18 @@ begin
   else
     result := TImageLayerStateDifference.Create(self, APreviousImage, APreviousImageDefined,
       APreviousSelection, APreviousSelectionDefined, APreviousSelectionLayer, APreviousSelectionLayerDefined);
+end;
+
+function TImageState.ComputeLayerDifference(APreviousImage: TBGRABitmap;
+  APreviousImageChangeRect: TRect; APreviousSelection: TBGRABitmap;
+  APreviousSelectionChangeRect: TRect; APreviousSelectionLayer: TBGRABitmap;
+  APreviousSelectionLayerChangeRect: TRect): TCustomImageDifference;
+begin
+  if currentLayeredBitmap = nil then
+    result := nil
+  else
+    result := TImageLayerStateDifference.Create(self, APreviousImage, APreviousImageChangeRect,
+      APreviousSelection, APreviousSelectionChangeRect, APreviousSelectionLayer, APreviousSelectionLayerChangeRect);
 end;
 
 function TImageState.GetLayeredBitmapCopy: TBGRALayeredBitmap;
@@ -591,7 +692,7 @@ begin
     if (other.selectionLayer = nil) and (selectionLayer <> nil) and not selectionLayer.Empty then exit;
     if (other.selectionLayer <> nil) and (selectionLayer = nil) and not other.selectionLayer.Empty then exit;
     if (other.selectionLayer <> nil) and (selectionLayer <> nil) and not other.selectionLayer.Equals(selectionLayer) then exit;
-    if (other.filename <> filename) then exit;
+    if (other.filenameUTF8 <> filenameUTF8) then exit;
     result := true;
   end
   else

@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, ComCtrls, Spin, BGRABitmap, LazPaintType, uscaledpi,
-  ufilterconnector;
+  StdCtrls, ComCtrls, Spin, ExtCtrls, BGRABitmap, LazPaintType, uscaledpi,
+  ufilterconnector, uscripting;
 
 type
 
@@ -21,6 +21,7 @@ type
     FloatSpinEdit_Saturation: TFloatSpinEdit;
     Label1: TLabel;
     Label2: TLabel;
+    TimerDrawPendingRows: TTimer;
     TrackBar_Hue: TTrackBar;
     TrackBar_Saturation: TTrackBar;
     procedure Button_OKClick(Sender: TObject);
@@ -29,28 +30,39 @@ type
     procedure FloatSpinEdit_SaturationChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure TimerDrawPendingRowsTimer(Sender: TObject);
     procedure TrackBar_Change(Sender: TObject);
   private
     { private declarations }
     FInitialized: boolean;
+    FInstance: TLazPaintCustomInstance;
     FFilterConnector: TFilterConnector;
     FUpdatingSpinEdit: boolean;
+    FOddRows: boolean;
+    FPendingRows: boolean;
+    function GetChosenHueShiftF: single;
+    function GetChosenSatShiftF: single;
+    procedure SetChosenHueShiftF(AValue: single);
+    procedure SetChosenSatShiftF(AValue: single);
     procedure UpdateSpinEdit;
     function GetChosenHueShift: integer;
     procedure OnTryStopAction({%H-}sender: TFilterConnector);
     procedure SetChosenHueShift(AValue: integer);
+    procedure LoadParameters;
+    procedure HalfApplyChosenShift;
+    procedure ParametersChanged;
   public
     { public declarations }
     function ShowModal: integer; override;
-    function ShowModal(AInstance: TLazPaintCustomInstance): integer;
-    procedure ApplyChosenShift;
-    procedure ApplyShift(hueShift, satMul: integer; useGSBA: boolean);
+    function ShowModal(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): integer;
     property ChosenHueShift: integer read GetChosenHueShift write SetChosenHueShift;
+    property ChosenHueShiftF: single read GetChosenHueShiftF write SetChosenHueShiftF;
+    property ChosenSatShiftF: single read GetChosenSatShiftF write SetChosenSatShiftF;
   end;
 
 implementation
 
-uses umac, BGRABitmapTypes, math, uresourcestrings;
+uses umac, BGRABitmapTypes, uresourcestrings, UColorFilters;
 
 { TFShiftColors }
 
@@ -74,7 +86,21 @@ end;
 
 procedure TFShiftColors.FormShow(Sender: TObject);
 begin
-  ApplyChosenShift;
+  LoadParameters;
+  HalfApplyChosenShift;
+  HalfApplyChosenShift;
+  FPendingRows:= false;
+  Top := FInstance.MainFormBounds.Top;
+end;
+
+procedure TFShiftColors.TimerDrawPendingRowsTimer(Sender: TObject);
+begin
+  TimerDrawPendingRows.Enabled := false;
+  if FPendingRows then
+  begin
+    HalfApplyChosenShift;
+    FPendingRows:= false;
+  end;
 end;
 
 procedure TFShiftColors.TrackBar_Change(Sender: TObject);
@@ -82,7 +108,7 @@ begin
   if FInitialized then
   begin
     UpdateSpinEdit;
-    ApplyChosenShift;
+    ParametersChanged;
   end;
 end;
 
@@ -90,11 +116,31 @@ procedure TFShiftColors.UpdateSpinEdit;
 begin
   if FUpdatingSpinEdit then exit;
   FUpdatingSpinEdit:= true;
-  FloatSpinEdit_Hue.Value := round(ChosenHueShift/65536*3600)/10;
-  FloatSpinEdit_Saturation.Value := round((TrackBar_Saturation.Position/TrackBar_Saturation.Max*4-2)*1000)/1000;
+  FloatSpinEdit_Hue.Value := ChosenHueShiftF;
+  FloatSpinEdit_Saturation.Value := ChosenSatShiftF;
   FloatSpinEdit_Hue.Update;
   FloatSpinEdit_Saturation.Update;
   FUpdatingSpinEdit:= false;
+end;
+
+function TFShiftColors.GetChosenHueShiftF: single;
+begin
+  result := round(ChosenHueShift/65536*3600)/10;
+end;
+
+function TFShiftColors.GetChosenSatShiftF: single;
+begin
+  result := round((TrackBar_Saturation.Position/TrackBar_Saturation.Max*4-2)*1000)/1000;
+end;
+
+procedure TFShiftColors.SetChosenHueShiftF(AValue: single);
+begin
+  ChosenHueShift := round(AValue*65536/360);
+end;
+
+procedure TFShiftColors.SetChosenSatShiftF(AValue: single);
+begin
+  TrackBar_Saturation.Position := round((AValue+2)/4*TrackBar_Saturation.Max);
 end;
 
 procedure TFShiftColors.OnTryStopAction(sender: TFilterConnector);
@@ -112,137 +158,140 @@ begin
   TrackBar_Hue.Position := round((AValue/65536+0.5)*TrackBar_Hue.Max);
 end;
 
+procedure TFShiftColors.LoadParameters;
+var OldInitialized: boolean;
+begin
+  If Assigned(FFilterConnector) then
+  begin
+    OldInitialized := FInitialized;
+    FInitialized := false;
+    if FFilterConnector.Parameters.IsDefined('Hue') then
+      ChosenHueShiftF := FFilterConnector.Parameters.Floats['Hue'];
+    if FFilterConnector.Parameters.IsDefined('Saturation') then
+      ChosenSatShiftF := FFilterConnector.Parameters.Floats['Saturation'];
+    if FFilterConnector.Parameters.IsDefined('Correction') then
+      CheckBox_GSBA.Checked := FFilterConnector.Parameters.Booleans['Correction'];
+    UpdateSpinEdit;
+    FInitialized := OldInitialized;
+  end;
+end;
+
 function TFShiftColors.ShowModal: integer;
 begin
+  TimerDrawPendingRows.Enabled:= false;
   if (FFilterConnector = nil) or (FFilterConnector.ActiveLayer = nil) then
   begin
-    ShowMessage(rsNoActiveLayer);
+    if FInstance <> nil then
+      FInstance.ShowMessage(rsLazPaint,rsNoActiveLayer) else
+      ShowMessage(rsNoActiveLayer);
     result := mrAbort
   end
   else
     Result:=inherited ShowModal;
+  TimerDrawPendingRows.Enabled:= false;
 end;
 
-function TFShiftColors.ShowModal(AInstance: TLazPaintCustomInstance): integer;
+function TFShiftColors.ShowModal(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): integer;
+var gsbaOptionFromConfig: boolean;
+    topmostInfo: TTopMostInfo;
 begin
   try
-    FFilterConnector := TFilterConnector.Create(AInstance);
+    FFilterConnector := TFilterConnector.Create(AInstance,AParameters);
     FFilterConnector.OnTryStopAction := @OnTryStopAction;
   except
     on ex: exception do
     begin
-      MessageDlg(ex.Message,mtInformation,[mbOk],0);
+      AInstance.ShowError('ShiftColors',ex.Message);
       result := mrAbort;
       exit;
     end;
   end;
   try
-    self.CheckBox_GSBA.Checked := AInstance.Config.DefaultUseGSBA;
-    result := self.ShowModal;
-    if result = mrOK then
-      AInstance.Config.SetDefaultUseGSBA(self.CheckBox_GSBA.Checked);
+    FInstance := AInstance;
+    if AParameters.IsDefined('Correction') and AParameters.IsDefined('Hue') and AParameters.IsDefined('Saturation') then
+    begin
+      ShiftColors(FFilterConnector, AParameters.Floats['Hue'], AParameters.Floats['Saturation'], AParameters.Booleans['Correction']);
+      FFilterConnector.ValidateAction;
+      result := mrOk;
+    end else
+    begin
+      if AParameters.IsDefined('Correction') then
+      begin
+        gsbaOptionFromConfig:= false;
+        self.CheckBox_GSBA.Checked := AParameters.Booleans['Correction'];
+      end else
+      begin
+        gsbaOptionFromConfig:= true;
+        self.CheckBox_GSBA.Checked := AInstance.Config.DefaultUseGSBA;
+      end;
+      topmostInfo := AInstance.HideTopmost;
+      try
+        result := self.ShowModal;
+      except
+        on ex: exception do
+        begin
+          AInstance.ShowError('ShiftColors',ex.Message);
+          result := mrAbort;
+        end;
+      end;
+      AInstance.ShowTopmost(topmostInfo);
+      if (result = mrOK) and gsbaOptionFromConfig then
+        AInstance.Config.SetDefaultUseGSBA(self.CheckBox_GSBA.Checked);
+    end;
   finally
-    FFilterConnector.Free;
+    FreeAndNil(FFilterConnector);
+    FInstance := nil;
   end;
 end;
 
 procedure TFShiftColors.Button_OKClick(Sender: TObject);
 begin
-  ApplyChosenShift;
+  if FPendingRows then
+  begin
+    HalfApplyChosenShift;
+    FPendingRows := false;
+  end;
   FFilterConnector.ValidateAction;
+  FFilterConnector.Parameters.Floats['Hue'] := FloatSpinEdit_Hue.Value;
+  FFilterConnector.Parameters.Floats['Saturation'] := FloatSpinEdit_Saturation.Value;
+  FFilterConnector.Parameters.Booleans['Correction'] := CheckBox_GSBA.Checked;
 end;
 
 procedure TFShiftColors.CheckBox_GSBAChange(Sender: TObject);
 begin
-  if FInitialized and Visible then ApplyChosenShift;
+  if FInitialized and Visible then ParametersChanged;
 end;
 
 procedure TFShiftColors.FloatSpinEdit_HueChange(Sender: TObject);
 begin
+  if FUpdatingSpinEdit then exit;
   FUpdatingSpinEdit := true;
-  ChosenHueShift:= round(FloatSpinEdit_Hue.Value*65536/360);
+  ChosenHueShiftF:= FloatSpinEdit_Hue.Value;
   FUpdatingSpinEdit := false;
 end;
 
 procedure TFShiftColors.FloatSpinEdit_SaturationChange(Sender: TObject);
 begin
+  if FUpdatingSpinEdit then exit;
   FUpdatingSpinEdit := true;
-  TrackBar_Saturation.Position := round((FloatSpinEdit_Saturation.Value+2)/4*TrackBar_Saturation.Max);
+  ChosenSatShiftF := FloatSpinEdit_Saturation.Value;
   FUpdatingSpinEdit := false;
 end;
 
-procedure TFShiftColors.ApplyShift(hueShift, satMul: integer; useGSBA: boolean);
-var n: integer;
-    psrc,pdest: PBGRAPixel;
-    hsl: THSLAPixel;
-
-    pselect: PBGRAPixel;
-    selection: TBGRABitmap;
-    alpha: byte;
+procedure TFShiftColors.HalfApplyChosenShift;
 begin
-    psrc := FFilterConnector.BackupLayer.Data;
-    pdest := FFilterConnector.ActiveLayer.Data;
-
-    selection := FFilterConnector.CurrentSelection;
-    if selection = nil then
-    begin
-      alpha := 255;
-      pselect := nil;
-    end else pselect := selection.Data;
-
-    if not useGSBA then
-    begin
-      for n := 0 to FFilterConnector.ActiveLayer.NbPixels-1 do
-      begin
-        if pselect <> nil then
-        begin
-          alpha := pselect^.green;
-          inc(pselect);
-        end;
-        if alpha <> 0 then
-        begin
-          hsl := BGRAToHSLA(psrc^);
-          hsl.hue := hsl.hue + hueShift;
-          hsl.saturation := min(65535,max(0,hsl.saturation*satMul shr 12));
-          pdest^ := HSLAToBGRA(hsl);
-          if alpha <> 255 then
-            pdest^ := MergeBGRAWithGammaCorrection(pdest^,alpha,psrc^,not alpha);
-        end;
-        inc(psrc);
-        inc(pdest);
-      end;
-    end else
-    begin
-      for n := 0 to FFilterConnector.ActiveLayer.NbPixels-1 do
-      begin
-        if pselect <> nil then
-        begin
-          alpha := pselect^.green;
-          inc(pselect);
-        end;
-        if alpha <> 0 then
-        begin
-          hsl := BGRAToGSBA(psrc^);
-          hsl.hue := hsl.hue + hueShift;
-          hsl.saturation := min(65535,max(0,hsl.saturation*satMul shr 12));
-          pdest^ := GSBAToBGRA(hsl);
-          if alpha <> 255 then
-            pdest^ := MergeBGRAWithGammaCorrection(pdest^,alpha,psrc^,not alpha);
-        end;
-        inc(psrc);
-        inc(pdest);
-      end;
-    end;
-    FFilterConnector.InvalidateActiveLayer;
+  ShiftColors(FFilterConnector,ChosenHueShiftF,ChosenSatShiftF,CheckBox_GSBA.Checked,not FOddRows,FOddRows);
+  FOddRows:= not FOddRows;
 end;
 
-procedure TFShiftColors.ApplyChosenShift;
+procedure TFShiftColors.ParametersChanged;
 begin
-  ApplyShift(ChosenHueShift,round(exp((TrackBar_Saturation.Position/TrackBar_Saturation.Max-0.5)*4)*4096),CheckBox_GSBA.Checked);
+  HalfApplyChosenShift;
+  FPendingRows:= true;
+  TimerDrawPendingRows.Enabled := true;
 end;
 
-initialization
-  {$I ushiftcolors.lrs}
+{$R *.lfm}
 
 end.
 

@@ -141,7 +141,8 @@ var
 
   density: PDensity;
 
-  xb, yb, yc, i, j: integer;
+  xb, yb, yc, i: integer;
+  tempDensity: UInt32or64;
 
   x1, x2, x1b,x2b: single;
   ix1, ix2: integer;
@@ -170,6 +171,7 @@ var
   var
       curdens: single;
       pdens: pdensity;
+      newvalue: Int32or64;
   begin
     if (x1 <> x2) and (x1 < maxx + 1) and (x2 >= minx) then
     begin
@@ -188,12 +190,25 @@ var
       ix2  := floor(x2);
 
       if ix1 = ix2 then
-        (density + (ix1 - minx))^ -= round((x2 - x1)*(density1+density2)/2)
+      begin
+        newValue := (density + (ix1 - minx))^ - round((x2 - x1)*(density1+density2)/2);
+        if newValue < 0 then newValue := 0;
+        if newValue > 256 then newValue := 256;
+        (density + (ix1 - minx))^ := newValue
+      end
       else
       begin
-        (density + (ix1 - minx))^ := max(0, (density + (ix1 - minx))^ - round((1 - (x1 - ix1))*(density1+densityAt(ix1+1))/2) );
+        newValue := (density + (ix1 - minx))^ - round((1 - (x1 - ix1))*(density1+densityAt(ix1+1))/2) ;
+        if newValue < 0 then newValue := 0;
+        if newValue > 256 then newValue := 256;
+        (density + (ix1 - minx))^ := newValue;
         if (ix2 <= maxx) then
-          (density + (ix2 - minx))^ := max(0, (density + (ix2 - minx))^ - round((x2 - ix2)*(density2+densityAt(ix2))/2) );
+        begin
+          newValue := (density + (ix2 - minx))^ - round((x2 - ix2)*(density2+densityAt(ix2))/2);
+          if newValue < 0 then newValue := 0;
+          if newValue > 256 then newValue := 256;
+          (density + (ix2 - minx))^ := newValue;
+        end;
       end;
       if ix2 > ix1 + 1 then
       begin
@@ -201,7 +216,10 @@ var
         pdens := density + (ix1+1 - minx);
         for n := ix2-1-(ix1+1) downto 0 do
         begin
-          pdens^ -= round(curdens);
+          newValue := pdens^ - round(curdens);
+          if newValue < 0 then newValue := 0;
+          if newValue > 256 then newValue := 256;
+          pdens^ := newValue;
           curdens += slope;
           inc(pdens);
         end;
@@ -382,8 +400,8 @@ begin
 
     for i := 0 to nbinter div 2 - 1 do
     begin
-      x1 := inter[i + i].interX-AliasingOfs.X;
-      x2 := inter[i + i+ 1].interX-AliasingOfs.X;
+      x1 := inter[i + i].interX+AliasingOfs.X;
+      x2 := inter[i + i+ 1].interX+AliasingOfs.X;
 
       if x1 <> x2 then
       begin
@@ -1121,9 +1139,5 @@ begin
   end;
   info.Free;
 end;
-
-initialization
-
-  Randomize;
 
 end.

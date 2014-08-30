@@ -107,6 +107,25 @@ type
     function IsScanPutPixelsDefined: boolean; override;
   end;
 
+  { TBGRAConstantScanner }
+
+  TBGRAConstantScanner = class(TBGRAGradientScanner)
+    constructor Create(c: TBGRAPixel);
+  end;
+
+  { TBGRARandomScanner }
+
+  TBGRARandomScanner = class(TBGRACustomScanner)
+  private
+    FOpacity: byte;
+    FGrayscale: boolean;
+  public
+    constructor Create(AGrayscale: Boolean; AOpacity: byte);
+    function ScanAtInteger({%H-}X, {%H-}Y: integer): TBGRAPixel; override;
+    function ScanNextPixel: TBGRAPixel; override;
+    function ScanAt({%H-}X, {%H-}Y: Single): TBGRAPixel; override;
+  end;
+
   { TBGRAGradientTriangleScanner }
 
   TBGRAGradientTriangleScanner= class(TBGRACustomScanner)
@@ -183,6 +202,43 @@ type
 implementation
 
 uses BGRABlend;
+
+{ TBGRAConstantScanner }
+
+constructor TBGRAConstantScanner.Create(c: TBGRAPixel);
+begin
+  inherited Create(c,c,gtLinear,PointF(0,0),PointF(0,0),false);
+end;
+
+{ TBGRARandomScanner }
+
+constructor TBGRARandomScanner.Create(AGrayscale: Boolean; AOpacity: byte);
+begin
+  FGrayscale:= AGrayscale;
+  FOpacity:= AOpacity;
+end;
+
+function TBGRARandomScanner.ScanAtInteger(X, Y: integer): TBGRAPixel;
+begin
+  Result:=ScanNextPixel;
+end;
+
+function TBGRARandomScanner.ScanNextPixel: TBGRAPixel;
+begin
+  if FGrayscale then
+  begin
+    result.red := random(256);
+    result.green := result.red;
+    result.blue := result.red;
+    result.alpha:= FOpacity;
+  end else
+    Result:= BGRA(random(256),random(256),random(256),FOpacity);
+end;
+
+function TBGRARandomScanner.ScanAt(X, Y: Single): TBGRAPixel;
+begin
+  Result:=ScanNextPixel;
+end;
 
 { TBGRAHueGradient }
 
@@ -757,7 +813,7 @@ procedure TBGRAGradientScanner.ScanMoveTo(X, Y: Integer);
 begin
   InitScanInline(X,Y);
   if FVertical then
-    FHorizColor := ScanAt(X,Y);
+    FHorizColor := ScanNextInline;
 end;
 
 function TBGRAGradientScanner.ScanNextPixel: TBGRAPixel;
@@ -1245,6 +1301,10 @@ begin
   result := FScanAt(X,Y);
   result.alpha := ApplyOpacity(result.alpha, FGlobalOpacity );
 end;
+
+initialization
+
+  Randomize;
 
 end.
 

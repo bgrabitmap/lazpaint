@@ -54,8 +54,8 @@ type
     procedure Reset;
     procedure Invert;
     procedure Translate(OfsX,OfsY: Single);
-    procedure RotateDeg(Angle: Single);
-    procedure RotateRad(Angle: Single);
+    procedure RotateDeg(AngleCW: Single);
+    procedure RotateRad(AngleCCW: Single);
     procedure MultiplyBy(AMatrix: TAffineMatrix);
     procedure Fit(Origin,HAxis,VAxis: TPointF); virtual;
     procedure Scale(sx,sy: single); overload;
@@ -78,11 +78,16 @@ type
     FBitmap: TBGRACustomBitmap;
     FRepeatImageX,FRepeatImageY: boolean;
     FResampleFilter : TResampleFilter;
+    FBuffer: PBGRAPixel;
+    FBufferSize: Int32or64;
     procedure Init(ABitmap: TBGRACustomBitmap; ARepeatImageX: Boolean= false; ARepeatImageY: Boolean= false; AResampleFilter: TResampleFilter = rfLinear);
   public
     constructor Create(ABitmap: TBGRACustomBitmap; ARepeatImage: Boolean= false; AResampleFilter: TResampleFilter = rfLinear);
     constructor Create(ABitmap: TBGRACustomBitmap; ARepeatImageX: Boolean; ARepeatImageY: Boolean; AResampleFilter: TResampleFilter = rfLinear);
+    destructor Destroy; override;
     function InternalScanCurrentPixel: TBGRAPixel; override;
+    procedure ScanPutPixels(pdest: PBGRAPixel; count: integer; mode: TDrawMode); override;
+    function IsScanPutPixelsDefined: boolean; override;
     procedure Fit(Origin, HAxis, VAxis: TPointF); override;
   end;
 
@@ -143,6 +148,15 @@ operator *(M: TAffineMatrix; V: TPointF): TPointF;
 //check if matrix is inversible
 function IsAffineMatrixInversible(M: TAffineMatrix): boolean;
 
+//check if the matrix is a translation (including the identity)
+function IsAffineMatrixTranslation(M: TAffineMatrix): boolean;
+
+//check if the matrix is a scaling (including a projection i.e. with factor 0)
+function IsAffineMatrixScale(M: TAffineMatrix): boolean;
+
+//check if the matrix is the identity
+function IsAffineMatrixIdentity(M: TAffineMatrix): boolean;
+
 //compute inverse (check if inversible before)
 function AffineMatrixInverse(M: TAffineMatrix): TAffineMatrix;
 
@@ -155,11 +169,13 @@ function AffineMatrixScale(sx,sy: single): TAffineMatrix;
 //define a linear matrix
 function AffineMatrixLinear(v1,v2: TPointF): TAffineMatrix;
 
-//define a rotation matrix (positive radians are counter clock wise)
-function AffineMatrixRotationRad(Angle: Single): TAffineMatrix;
+//define a rotation matrix (positive radians are counter-clockwise)
+//(assuming the y-axis is pointing down)
+function AffineMatrixRotationRad(AngleCCW: Single): TAffineMatrix;
 
-//Positive degrees are clock wise
-function AffineMatrixRotationDeg(Angle: Single): TAffineMatrix;
+//Positive degrees are clockwise
+//(assuming the y-axis is pointing down)
+function AffineMatrixRotationDeg(AngleCW: Single): TAffineMatrix;
 
 //define the identity matrix (that do nothing)
 function AffineMatrixIdentity: TAffineMatrix;
@@ -267,7 +283,7 @@ type
 
 implementation
 
-uses BGRABlend;
+uses BGRABlend, GraphType;
 
 function AffineMatrix(m11, m12, m13, m21, m22, m23: single): TAffineMatrix;
 begin
@@ -301,6 +317,22 @@ begin
   result := M[1,1]*M[2,2]-M[1,2]*M[2,1] <> 0;
 end;
 
+function IsAffineMatrixTranslation(M: TAffineMatrix): boolean;
+begin
+  result := (m[1,1]=1) and (m[1,2]=0) and (m[2,1] = 1) and (m[2,2]=0);
+end;
+
+function IsAffineMatrixScale(M: TAffineMatrix): boolean;
+begin
+  result := (M[1,3]=0) and (M[2,3]=0) and
+            (M[1,2]=0) and (M[2,1]=0);
+end;
+
+function IsAffineMatrixIdentity(M: TAffineMatrix): boolean;
+begin
+  result := IsAffineMatrixTranslation(M) and (M[1,3]=0) and (M[2,3]=0);
+end;
+
 function AffineMatrixInverse(M: TAffineMatrix): TAffineMatrix;
 var det,f: single;
     linearInverse: TAffineMatrix;
@@ -332,15 +364,16 @@ begin
                          v1.y, v2.y, 0);
 end;
 
-function AffineMatrixRotationRad(Angle: Single): TAffineMatrix;
+function AffineMatrixRotationRad(AngleCCW: Single): TAffineMatrix;
 begin
-  result := AffineMatrix(cos(Angle),  sin(Angle), 0,
-                         -sin(Angle), cos(Angle), 0);
+  result := AffineMatrix(cos(AngleCCW),  sin(AngleCCW), 0,
+                         -sin(AngleCCW), cos(AngleCCW), 0);
 end;
 
-function AffineMatrixRotationDeg(Angle: Single): TAffineMatrix;
+function AffineMatrixRotationDeg(AngleCW: Single): TAffineMatrix;
+const DegToRad = -Pi/180;
 begin
-  result := AffineMatrixRotationRad(-Angle*Pi/180);
+  result := AffineMatrixRotationRad(AngleCW*DegToRad);
 end;
 
 function AffineMatrixIdentity: TAffineMatrix;
@@ -592,19 +625,22 @@ begin
   FMatrix := AMatrix;
 end;
 
+//transformations are inverted because the effect on the resulting image
+//is the inverse of the transformation. This is due to the fact
+//that the matrix is applied to source coordinates, not destination coordinates
 procedure TBGRAAffineScannerTransform.Translate(OfsX, OfsY: Single);
 begin
   MultiplyBy(AffineMatrixTranslation(-OfsX,-OfsY));
 end;
 
-procedure TBGRAAffineScannerTransform.RotateDeg(Angle: Single);
+procedure TBGRAAffineScannerTransform.RotateDeg(AngleCW: Single);
 begin
-  MultiplyBy(AffineMatrixRotationDeg(-Angle));
+  MultiplyBy(AffineMatrixRotationDeg(-AngleCW));
 end;
 
-procedure TBGRAAffineScannerTransform.RotateRad(Angle: Single);
+procedure TBGRAAffineScannerTransform.RotateRad(AngleCCW: Single);
 begin
-  MultiplyBy(AffineMatrixRotationRad(-Angle));
+  MultiplyBy(AffineMatrixRotationRad(-AngleCCW));
 end;
 
 procedure TBGRAAffineScannerTransform.MultiplyBy(AMatrix: TAffineMatrix);
@@ -687,6 +723,7 @@ begin
   FRepeatImageX := ARepeatImageX;
   FRepeatImageY := ARepeatImageY;
   FResampleFilter:= AResampleFilter;
+  FBufferSize:= 0;
 end;
 
 constructor TBGRAAffineBitmapTransform.Create(ABitmap: TBGRACustomBitmap;
@@ -702,12 +739,134 @@ begin
   Init(ABitmap,ARepeatImageX,ARepeatImageY,AResampleFilter);
 end;
 
+destructor TBGRAAffineBitmapTransform.Destroy;
+begin
+  FreeMem(FBuffer);
+end;
+
 function TBGRAAffineBitmapTransform.InternalScanCurrentPixel: TBGRAPixel;
 begin
-  if FRepeatImageX or FRepeatImageY then
-    result := FBitmap.GetPixelCycle(FCurX,FCurY,FResampleFilter,FRepeatImageX,FRepeatImageY)
+  result := FBitmap.GetPixelCycle(FCurX,FCurY,FResampleFilter,FRepeatImageX,FRepeatImageY);
+end;
+
+procedure TBGRAAffineBitmapTransform.ScanPutPixels(pdest: PBGRAPixel;
+  count: integer; mode: TDrawMode);
+var p: PBGRAPixel;
+  n: integer;
+  posX4096, posY4096: Int32or64;
+  deltaX4096,deltaY4096: Int32or64;
+  ix,iy,shrMask,w,h: Int32or64;
+  py0: PByte;
+  deltaRow: Int32or64;
+begin
+  w := FBitmap.Width;
+  h := FBitmap.Height;
+  if (w = 0) or (h = 0) then exit;
+
+  posX4096 := round(FCurX*4096);
+  deltaX4096:= round(FMatrix[1,1]*4096);
+  posY4096 := round(FCurY*4096);
+  deltaY4096:= round(FMatrix[2,1]*4096);
+  shrMask := -1;
+  shrMask := shrMask shr 12;
+  shrMask := not shrMask;
+
+  if mode = dmSet then
+    p := pdest
   else
-    result := FBitmap.GetPixel(FCurX,FCurY,FResampleFilter);
+  begin
+    if count > FBufferSize then
+    begin
+      FBufferSize := count;
+      ReAllocMem(FBuffer, FBufferSize*sizeof(TBGRAPixel));
+    end;
+    p := FBuffer;
+  end;
+
+  if FResampleFilter = rfBox then
+  begin
+    posX4096 += 2048;
+    posY4096 += 2048;
+    py0 := PByte(FBitmap.ScanLine[0]);
+    if FBitmap.LineOrder = riloTopToBottom then
+      deltaRow := FBitmap.Width*sizeof(TBGRAPixel) else
+      deltaRow := -FBitmap.Width*sizeof(TBGRAPixel);
+    if FRepeatImageX or FRepeatImageY then
+    begin
+      for n := count-1 downto 0 do
+      begin
+        if posX4096 < 0 then ix := (posX4096 shr 12) or shrMask else ix := posX4096 shr 12;
+        if posY4096 < 0 then iy := (posY4096 shr 12) or shrMask else iy := posY4096 shr 12;
+        if FRepeatImageX then ix := PositiveMod(ix,w);
+        if FRepeatImageY then iy := PositiveMod(iy,h);
+        if (ix < 0) or (iy < 0) or (ix >= w) or (iy >= h) then
+          p^ := BGRAPixelTransparent
+        else
+          p^ := (PBGRAPixel(py0 + iy*deltaRow)+ix)^;
+        inc(p);
+        posX4096 += deltaX4096;
+        posY4096 += deltaY4096;
+      end;
+    end else
+    begin
+     for n := count-1 downto 0 do
+     begin
+       if posX4096 < 0 then ix := (posX4096 shr 12) or shrMask else ix := posX4096 shr 12;
+       if posY4096 < 0 then iy := (posY4096 shr 12) or shrMask else iy := posY4096 shr 12;
+       if (ix < 0) or (iy < 0) or (ix >= w) or (iy >= h) then
+         p^ := BGRAPixelTransparent
+       else
+         p^ := (PBGRAPixel(py0 + iy*deltaRow)+ix)^;
+       inc(p);
+       posX4096 += deltaX4096;
+       posY4096 += deltaY4096;
+     end;
+    end;
+  end else
+  begin
+   if FRepeatImageX and FRepeatImageY then
+   begin
+     for n := count-1 downto 0 do
+     begin
+       if posX4096 < 0 then ix := (posX4096 shr 12) or shrMask else ix := posX4096 shr 12;
+       if posY4096 < 0 then iy := (posY4096 shr 12) or shrMask else iy := posY4096 shr 12;
+       p^ := FBitmap.GetPixelCycle256(ix,iy, (posX4096 shr 4) and 255, (posY4096 shr 4) and 255,FResampleFilter);
+       inc(p);
+       posX4096 += deltaX4096;
+       posY4096 += deltaY4096;
+     end;
+   end else
+   if FRepeatImageX or FRepeatImageY then
+   begin
+     for n := count-1 downto 0 do
+     begin
+       if posX4096 < 0 then ix := (posX4096 shr 12) or shrMask else ix := posX4096 shr 12;
+       if posY4096 < 0 then iy := (posY4096 shr 12) or shrMask else iy := posY4096 shr 12;
+       p^ := FBitmap.GetPixelCycle256(ix,iy, (posX4096 shr 4) and 255, (posY4096 shr 4) and 255,FResampleFilter, FRepeatImageX,FRepeatImageY);
+       inc(p);
+       posX4096 += deltaX4096;
+       posY4096 += deltaY4096;
+     end;
+   end else
+   begin
+    for n := count-1 downto 0 do
+    begin
+      if posX4096 < 0 then ix := (posX4096 shr 12) or shrMask else ix := posX4096 shr 12;
+      if posY4096 < 0 then iy := (posY4096 shr 12) or shrMask else iy := posY4096 shr 12;
+      p^ := FBitmap.GetPixel256(ix,iy, (posX4096 shr 4) and 255, (posY4096 shr 4) and 255,FResampleFilter);
+      inc(p);
+      posX4096 += deltaX4096;
+      posY4096 += deltaY4096;
+    end;
+   end;
+  end;
+
+  if mode <> dmSet then PutPixels(pdest,FBuffer,count,mode,255);
+end;
+
+function TBGRAAffineBitmapTransform.IsScanPutPixelsDefined: boolean;
+begin
+  Result:=true;
 end;
 
 procedure TBGRAAffineBitmapTransform.Fit(Origin, HAxis, VAxis: TPointF);

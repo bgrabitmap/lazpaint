@@ -66,9 +66,13 @@
              addps xmm3, xmm7
              {$ENDIF}
 
-             rsqrtps xmm3,xmm3
+             xorps xmm7,xmm7
+             comiss xmm3,xmm7
+             jna @skipnormal
 
+             rsqrtps xmm3,xmm3
              mulps xmm3, xmm1  //apply
+             @skipnormal:
 
              {$ifdef cpux86_64}
              movaps [rax+16], xmm3  //Normal

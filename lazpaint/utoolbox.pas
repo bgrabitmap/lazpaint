@@ -51,8 +51,7 @@ begin
   ScaleDPI(Self,OriginalDPI);
 end;
 
-initialization
-  {$I utoolbox.lrs}
+{$R *.lfm}
 
 end.
 

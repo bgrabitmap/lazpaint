@@ -16,6 +16,8 @@ type
     Bevel1: TBevel;
     Button_Cancel: TButton;
     Button_OK: TButton;
+    Label_PreviewWith: TLabel;
+    Label_BlendOpCategory: TLabel;
     Label_BlendOpValue: TLabel;
     Label_SelectedBlendOp: TLabel;
     Label_SvgOver: TLabel;
@@ -28,8 +30,12 @@ type
     ListBox_BlendKrita: TListBox;
     ListBox_PatternUnder: TListBox;
     ListBox_PatternOver: TListBox;
+    ScrollBar1: TScrollBar;
+    TimerResize: TTimer;
     procedure Button_OKClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormHide(Sender: TObject);
+    procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure ListBox_BlendDblClick(Sender: TObject);
     procedure ListBox_BlendSelectionChange(Sender: TObject; {%H-} User: boolean);
@@ -39,56 +45,84 @@ type
       Index: Integer; ARect: TRect; State: TOwnerDrawState);
     procedure ListBox_PatternSelectionChange(Sender: TObject; {%H-}User: boolean
       );
+    procedure ListBox_MeasureItem(Control: TWinControl;
+      {%H-}Index: Integer; var AHeight: Integer);
+    procedure TimerResizeTimer(Sender: TObject);
   private
+    FPatterns: array of record
+      name:string;
+      bmp: TBGRABitmap;
+      width,height: integer;
+    end;
+    FListBoxInternalMargin: integer;
+    FFirstColumnLeft: integer;
+    FLastColumnRightMargin: integer;
+    FComputedWidth,FComputedHeight: integer;
     procedure DrawPattern(ACanvas: TCanvas; ARect: TRect; APattern: string;
       State: TOwnerDrawState);
-    function GetPattern(AWidth, AHeight: integer; APattern: string
-      ): TBGRABitmap;
+    function GetPattern(AWidth, AHeight: integer; APattern: string;
+      ACheckers: boolean): TBGRABitmap;
     { private declarations }
     procedure UpdateBlendOpLabel;
+    procedure DiscardPatterns;
   public
     { public declarations }
     SelectedBlendOp: TBlendOperation;
     PatternUnder,PatternOver: TBGRABitmap;
   end;
 
-function ShowBlendOpDialog(var BlendOp: TBlendOperation; APatternUnder, APatternOver: TBGRABitmap): boolean;
-function BlendThumbNailSize: integer;
+function ShowBlendOpDialog(AInstance: TLazPaintCustomInstance; var BlendOp: TBlendOperation; APatternUnder, APatternOver: TBGRABitmap): boolean;
 
 implementation
 
-uses LCLType,uscaledpi,umac,uresourcestrings,ugraph;
+uses LCLType,uscaledpi,umac,uresourcestrings,ugraph,BGRAThumbnail,Math, BGRATextFX;
 
-function TFBlendOp.GetPattern(AWidth,AHeight: integer; APattern: string): TBGRABitmap;
+function TFBlendOp.GetPattern(AWidth,AHeight: integer; APattern: string; ACheckers: boolean): TBGRABitmap;
 var lColor: TBGRAPixel;
   idx: integer;
-  attr: string;
+  fullPatternName, attr: string;
+  i: integer;
 begin
+  fullPatternName:= APattern;
+  for i := 0 to high(FPatterns) do
+  begin
+    if (FPatterns[i].name = fullPatternName) and (FPatterns[i].width = AWidth) and (FPatterns[i].height = AHeight) then
+    begin
+      result := FPatterns[i].bmp;
+      exit;
+    end;
+  end;
   if APattern = 'Under' then
   begin
-    result := PatternUnder.Resample(AWidth,AHeight,rmSimpleStretch) as TBGRABitmap;
-    exit;
+    result := GetBitmapThumbnail(PatternUnder,AWidth,AHeight,BGRAPixelTransparent,ACheckers) as TBGRABitmap;
   end else
   if APattern = 'Over' then
   begin
-    result := PatternOver.Resample(AWidth,AHeight,rmSimpleStretch) as TBGRABitmap;
-    exit;
-  end;
-  result := TBGRABitmap.Create(AWidth,AHeight,BGRABlack);
-  lColor := BGRAWhite;
-  idx := pos('.',APattern);
-  if idx <> 0 then
+    result := GetBitmapThumbnail(PatternOver,AWidth,AHeight,BGRAPixelTransparent,ACheckers) as TBGRABitmap;
+  end else
   begin
-    attr := copy(APattern,idx+1,length(APattern)-idx);
-    delete(APattern,idx,length(APattern)-idx+1);
-    lColor := StrToBGRA(attr,BGRAWhite);
+    result := TBGRABitmap.Create(FComputedWidth,FComputedHeight,BGRABlack);
+    lColor := BGRAWhite;
+    idx := pos('.',APattern);
+    if idx <> 0 then
+    begin
+      attr := copy(APattern,idx+1,length(APattern)-idx);
+      delete(APattern,idx,length(APattern)-idx+1);
+      lColor := StrToBGRA(attr,BGRAWhite);
+    end;
+    if APattern = 'LeftToRight' then
+      result.GradientFill(0,0,result.Width,result.Height,BGRABlack,lColor,gtLinear,PointF(0,0),PointF(result.Width-1,0),dmSet,False) else
+    if APattern = 'TopToBottom' then
+      result.GradientFill(0,0,result.Width,result.Height,BGRABlack,lColor,gtLinear,PointF(0,0),PointF(0,result.Height-1),dmSet,False) else
+    if APattern = 'Ellipse' then
+      result.GradientFill(0,0,result.Width,result.Height,lColor,BGRABlack,gtRadial,PointF((result.Width-1)/2,(result.Height-1)/2),PointF(0,(result.Height-1)/2),dmSet,False);
+    BGRAReplace(result,GetBitmapThumbnail(result,AWidth,AHeight,BGRAPixelTransparent,false));
   end;
-  if APattern = 'LeftToRight' then
-    result.GradientFill(0,0,AWidth,AHeight,BGRABlack,lColor,gtLinear,PointF(0,0),PointF(AWidth-1,0),dmSet,False) else
-  if APattern = 'TopToBottom' then
-    result.GradientFill(0,0,AWidth,AHeight,BGRABlack,lColor,gtLinear,PointF(0,0),PointF(0,AHeight-1),dmSet,False) else
-  if APattern = 'Ellipse' then
-    result.GradientFill(0,0,AWidth,AHeight,lColor,BGRABlack,gtRadial,PointF((AWidth-1)/2,(AHeight-1)/2),PointF(0,(AHeight-1)/2),dmSet,False);
+  setlength(FPatterns,length(FPatterns)+1);
+  FPatterns[high(FPatterns)].name := fullPatternName;
+  FPatterns[high(FPatterns)].bmp := result;
+  FPatterns[high(FPatterns)].width:= AWidth;
+  FPatterns[high(FPatterns)].height:= AHeight;
 end;
 
 procedure DrawPatternHighlight(ABmp: TBGRABitmap);
@@ -105,7 +139,7 @@ begin
   if ABmp.HasTransparentPixels then
   begin
     temp := TBGRABitmap.Create(ABmp.Width,ABmp.Height);
-    DrawCheckers(temp);
+    DrawCheckers(temp, rect(0,0,temp.Width,temp.Height));
     temp.PutImage(0,0,ABmp,dmDrawWithTransparency);
     ABmp.Free;
     ABmp := temp;
@@ -116,24 +150,21 @@ procedure TFBlendOp.DrawPattern(ACanvas: TCanvas; ARect: TRect; APattern: string
 var bmp: TBGRABitmap;
 begin
   if (ARect.Right <= ARect.Left) or (ARect.Bottom <= ARect.Top) then exit;
-  bmp := GetPattern(ARect.Right-ARect.Left,ARect.Bottom-ARect.Top,APattern);
+  bmp := TBGRABitmap.Create(ARect.Right-ARect.Left,ARect.Bottom-ARect.Top,ColorToRGB(clBtnFace));
+  bmp.PutImage(0,0,GetPattern(bmp.width,bmp.height,APattern,True),dmDrawWithTransparency);
   if odSelected in State then DrawPatternHighlight(bmp);
-  AddCheckersIfNeeded(bmp);
-  bmp.Draw(ACanvas,ARect.Left,ARect.Top,true);
+  bmp.Draw(ACanvas,ARect.Left,ARect.Top,false);
   bmp.Free;
 end;
 
-function ShowBlendOpDialog(var BlendOp: TBlendOperation; APatternUnder,
+function ShowBlendOpDialog(AInstance: TLazPaintCustomInstance; var BlendOp: TBlendOperation; APatternUnder,
   APatternOver: TBGRABitmap): boolean;
 var f: TFBlendOp;
-  resampledOver,resampledUnder: TBGRABitmap;
 begin
   result := false;
   f:= TFBlendOp.Create(nil);
-  resampledOver := APatternOver.Resample(BlendThumbNailSize,BlendThumbNailSize,rmSimpleStretch) as TBGRABitmap;
-  resampledUnder := APatternUnder.Resample(BlendThumbNailSize,BlendThumbNailSize,rmSimpleStretch) as TBGRABitmap;
-  f.PatternOver := resampledOver;
-  f.PatternUnder := resampledUnder;
+  f.PatternOver := APatternOver;
+  f.PatternUnder := APatternUnder;
   try
     if f.ShowModal = mrOK then
     begin
@@ -141,10 +172,8 @@ begin
       BlendOp := f.SelectedBlendOp;
     end;
   except on ex:Exception do
-    MessageDlg(ex.Message,mtError,[mbOk],0);
+    AInstance.ShowError('ShowBlendOpDialog',ex.Message);
   end;
-  resampledOver.Free;
-  resampledUnder.Free;
   f.Free;
 end;
 
@@ -158,6 +187,9 @@ end;
 procedure TFBlendOp.ListBox_DrawPatternItem(Control: TWinControl;
   Index: Integer; ARect: TRect; State: TOwnerDrawState);
 begin
+  {$IFDEF LINUX}
+  ARect.Right := ARect.Left+Control.Width-FListBoxInternalMargin;
+  {$ENDIF}
   if Index <> -1 then
     DrawPattern((Control as TListBox).Canvas,ARect,(Control as TListBox).Items[Index],State);
 end;
@@ -168,6 +200,41 @@ begin
   ListBox_BlendSvg.Invalidate;
   ListBox_BlendKrita.Invalidate;
   ListBox_BlendOther.Invalidate;
+end;
+
+procedure TFBlendOp.ListBox_MeasureItem(Control: TWinControl;
+  Index: Integer; var AHeight: Integer);
+begin
+  AHeight := (Control as TListBox).ItemHeight;
+end;
+
+procedure TFBlendOp.TimerResizeTimer(Sender: TObject);
+var leftPos: integer;
+  columnWidth, rowHeight: integer;
+begin
+  DiscardPatterns;
+  leftPos := FFirstColumnLeft;
+  columnWidth := (ClientWidth - FLastColumnRightMargin - leftPos) div 3;
+  if columnWidth < 4 then columnWidth:= 4;
+  rowHeight := columnWidth*600 div 800;
+  Label_SvgOver.Left := leftPos;
+  Label_SvgOver.Width := columnWidth-2;
+  ListBox_BlendSvg.Left := leftPos;
+  ListBox_BlendSvg.Width := columnWidth-2;
+  ListBox_BlendSvg.ItemHeight := rowHeight;
+  leftPos += columnWidth;
+  Label_KritaOver.Left := leftPos;
+  Label_KritaOver.Width := columnWidth-2;
+  ListBox_BlendKrita.Left := leftPos;
+  ListBox_BlendKrita.Width := columnWidth-2;
+  ListBox_BlendKrita.ItemHeight := rowHeight;
+  leftPos += columnWidth;
+  Label_OtherOver.Left := leftPos;
+  Label_OtherOver.Width := columnWidth-2;
+  ListBox_BlendOther.Left := leftPos;
+  ListBox_BlendOther.Width := columnWidth-2;
+  ListBox_BlendOther.ItemHeight := rowHeight;
+  TimerResize.Enabled := false;
 end;
 
 procedure TFBlendOp.UpdateBlendOpLabel;
@@ -182,7 +249,7 @@ begin
     compatible := TStringList.Create;
     if SelectedBlendOp in[boColorBurn,boColorDodge,boDarken,boHardLight,boLighten,
       boMultiply,boOverlay,boScreen,boSoftLight,boLinearDifference] then compatible.Add(rsAllApplications);
-    if SelectedBlendOp in[boLinearAdd,boXor] then compatible.Add('Paint.NET');
+    if SelectedBlendOp in[boLinearAdd,boXor,boGlow,boReflect,boLinearNegation] then compatible.Add('Paint.NET');
     if SelectedBlendOp in[boDivide,boLinearAdd,boLinearExclusion,boLinearSubtract,boLinearSubtractInverse] then compatible.Add('Krita');
     if compatible.Count = 0 then str += ' ('+rsLazPaintOnly+')' else
       str += ' (' + compatible.CommaText+')';
@@ -192,17 +259,52 @@ begin
   Label_BlendOpValue.Caption := str;
 end;
 
+procedure TFBlendOp.DiscardPatterns;
+var i: integer;
+begin
+  for i := 0 to high(FPatterns) do
+    FPatterns[i].bmp.free;
+  FPatterns := nil;
+end;
+
 procedure TFBlendOp.FormCreate(Sender: TObject);
 begin
   ScaleDPI(self,OriginalDPI);
+  FListBoxInternalMargin:= ListBox_PatternUnder.Width - ListBox_PatternUnder.ClientWidth + ScrollBar1.Height;
+  {$IFDEF LINUX}
+  ListBox_PatternUnder.Style := lbOwnerDrawVariable;
+  ListBox_PatternUnder.ScrollWidth := 0;
+  ListBox_PatternOver.Style := lbOwnerDrawVariable;
+  ListBox_PatternOver.ScrollWidth := 0;
+  ListBox_BlendSvg.Style := lbOwnerDrawVariable;
+  ListBox_BlendSvg.ScrollWidth := 0;
+  ListBox_BlendKrita.Style := lbOwnerDrawVariable;
+  ListBox_BlendKrita.ScrollWidth := 0;
+  ListBox_BlendOther.Style := lbOwnerDrawVariable;
+  ListBox_BlendOther.ScrollWidth := 0;
+  {$ENDIF}
   ListBox_PatternUnder.ItemHeight := BlendThumbNailSize;
   ListBox_PatternOver.ItemHeight := BlendThumbNailSize;
   ListBox_BlendSvg.ItemHeight := BlendThumbNailSize;
   ListBox_BlendKrita.ItemHeight := BlendThumbNailSize;
   ListBox_BlendOther.ItemHeight := BlendThumbNailSize;
-  ListBox_PatternUnder.ItemIndex := 1;
-  ListBox_PatternOver.ItemIndex := 2;
+  ListBox_PatternUnder.ItemIndex := 0;
+  ListBox_PatternOver.ItemIndex := 0;
   CheckOKCancelBtns(Button_OK,Button_Cancel);
+  FFirstColumnLeft := ListBox_BlendSvg.Left;
+  FLastColumnRightMargin:= ClientWidth-(ListBox_BlendOther.Left+ListBox_BlendOther.Width);
+  TimerResizeTimer(nil);
+end;
+
+procedure TFBlendOp.FormHide(Sender: TObject);
+begin
+  DiscardPatterns;
+end;
+
+procedure TFBlendOp.FormResize(Sender: TObject);
+begin
+  TimerResize.Enabled := false;
+  TimerResize.Enabled := true;
 end;
 
 procedure TFBlendOp.Button_OKClick(Sender: TObject);
@@ -213,6 +315,8 @@ end;
 procedure TFBlendOp.FormShow(Sender: TObject);
 begin
   SelectedBlendOp := boTransparent;
+  FComputedWidth := Max(PatternOver.Width,PatternUnder.Width);
+  FComputedHeight := Max(PatternOver.Height,PatternUnder.Height);
   UpdateBlendOpLabel;
 end;
 
@@ -240,6 +344,9 @@ begin
     begin
       SelectedBlendOp := StrToBlendOperation(Items[ItemIndex]);
       UpdateBlendOpLabel;
+      if not (Sender = ListBox_BlendSvg) then ListBox_BlendSvg.ItemIndex := -1;
+      if not (Sender = ListBox_BlendKrita) then ListBox_BlendKrita.ItemIndex := -1;
+      if not (Sender = ListBox_BlendOther) then ListBox_BlendOther.ItemIndex := -1;
     end;
   end;
 end;
@@ -247,10 +354,14 @@ end;
 procedure TFBlendOp.ListBox_DrawBlendItem(Control: TWinControl; Index: Integer;
   ARect: TRect; State: TOwnerDrawState);
 var
-  under,over: TBGRABitmap;
+  background,preview,over: TBGRABitmap;
   w,h: integer;
   BlendStr: string;
+  fx: TBGRATextEffect;
 begin
+  {$IFDEF LINUX}
+  ARect.Right := ARect.Left+Control.Width-FListBoxInternalMargin;
+  {$ENDIF}
   if (ListBox_PatternUnder.ItemIndex <> -1) and
     (ListBox_PatternOver.ItemIndex <> -1) and
     (Index <> -1) then
@@ -259,24 +370,24 @@ begin
     BlendStr := (Control as TListBox).Items[Index];
     w := ARect.Right-ARect.Left;
     h := ARect.Bottom-ARect.Top;
-    under := GetPattern(w,h,ListBox_PatternUnder.Items[ListBox_PatternUnder.ItemIndex]);
-    over := GetPattern(w,h,ListBox_PatternOver.Items[ListBox_PatternOver.ItemIndex]);
-    under.BlendImageOver(0,0,over,StrToBlendOperation(BlendStr));
-    over.Free;
-    if odSelected in State then DrawPatternHighlight(under);
-    under.FontName := 'Arial';
-    under.FontFullHeight := DoScaleY(12,OriginalDPI);
-    under.FontQuality := fqFineAntialiasing;
-    under.TextOut(1,1,BlendStr,BGRABlack);
-    under.TextOut(0,0,BlendStr,BGRAWhite);
-    AddCheckersIfNeeded(under);
-    under.Draw((Control as TListBox).Canvas,ARect.Left,ARect.Top,True);
-    under.Free;
+    background := TBGRABitmap.Create(w,h,ColorToBGRA(ColorToRGB(clBtnFace)));
+    preview := GetPattern(w,h,ListBox_PatternUnder.Items[ListBox_PatternUnder.ItemIndex],False).Duplicate as TBGRABitmap;
+    over := GetPattern(w,h,ListBox_PatternOver.Items[ListBox_PatternOver.ItemIndex],False);
+    preview.BlendImageOver(0,0,over,StrToBlendOperation(BlendStr));
+    background.PutImage(0,0,preview,dmDrawWithTransparency);
+    preview.Free;
+    if odSelected in State then DrawPatternHighlight(background);
+    fx := TBGRATextEffect.Create(BlendStr,'Arial',Max(DoScaleY(12,OriginalDPI),h div 10),true);
+    fx.DrawOutline(background,1,1,BGRABlack);
+    fx.Draw(background,1,1,BGRAWhite);
+    fx.Free;
+    background.FontName := 'Arial';
+    background.Draw((Control as TListBox).Canvas,ARect.Left,ARect.Top,True);
+    background.Free;
   end;
 end;
 
-initialization
-  {$I ublendop.lrs}
+{$R *.lfm}
 
 end.
-
+

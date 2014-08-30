@@ -6,13 +6,15 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  ExtCtrls, StdCtrls, uscaledpi, BGRATextFX, BGRAGradients;
+  ExtCtrls, StdCtrls, Buttons, uscaledpi, BGRATextFX, BGRAGradients,
+  LazPaintType;
 
 type
 
   { TFAbout }
 
   TFAbout = class(TForm)
+    Button_Donate: TBitBtn;
     Image_Title: TImage;
     Label_Authors: TLabel;
     Label_HomePage: TLabel;
@@ -22,8 +24,10 @@ type
     Label_LibrariesValue: TLabel;
     Label_Licence: TLabel;
     Label_OpenSource: TLabel;
-    Memo1: TMemo;
+    Panel1: TPanel;
+    Panel2: TPanel;
     Timer1: TTimer;
+    procedure Button_DonateClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormHide(Sender: TObject);
@@ -32,6 +36,7 @@ type
     procedure Timer1Timer(Sender: TObject);
   private
     { private declarations }
+    FInstance: TLazPaintCustomInstance;
     titleStartTime: TDateTime;
     frameNumber: integer;
     fx: TBGRATextEffect;
@@ -42,24 +47,24 @@ type
     { public declarations }
   end;
 
-procedure ShowAboutDlg(AText: string);
+procedure ShowAboutDlg(AInstance: TLazPaintCustomInstance; {%H-}AText: string);
 
 implementation
 
-uses LCLIntf, BGRABitmap, BGRABitmapTypes, LazPaintType;
+uses LCLIntf, BGRABitmap, BGRABitmapTypes;
 
-procedure ShowAboutDlg(AText: string);
+procedure ShowAboutDlg(AInstance: TLazPaintCustomInstance; {%H-}AText: string);
 var
   About: TFAbout;
 begin
   About := nil;
   try
     About:= TFAbout.create(nil);
-    About.Memo1.Text := AText;
+    About.FInstance := AInstance;
     About.ShowModal;
   except
     on ex:Exception do
-      ShowMessage('ShowAboutDlg: '+ex.Message);
+      AInstance.ShowError('ShowAboutDlg',ex.Message);
   end;
   About.Free;
 end;
@@ -132,14 +137,18 @@ begin
   shader := TPhongShading.Create;
 end;
 
+procedure TFAbout.Button_DonateClick(Sender: TObject);
+begin
+  FInstance.Donate;
+end;
+
 procedure TFAbout.FormDestroy(Sender: TObject);
 begin
   fx.Free;
   shader.Free;
 end;
 
-initialization
-  {$I uabout.lrs}
+{$R *.lfm}
 
 end.
 

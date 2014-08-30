@@ -24,8 +24,10 @@ type
     TimerScroll: TTimer;
     ToolBar1: TToolBar;
     ToolBar2: TToolBar;
+    ToolBar3: TToolBar;
     ToolZoomLayerStackIn: TToolButton;
     ToolZoomLayerStackOut: TToolButton;
+    ToolBlendOp: TToolButton;
     procedure BGRALayerStackMouseDown(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; X, Y: Integer);
     procedure BGRALayerStackMouseMove(Sender: TObject; {%H-}Shift: TShiftState; X,
@@ -39,6 +41,7 @@ type
     procedure FormHide(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure TimerScrollTimer(Sender: TObject);
+    procedure ToolBlendOpClick(Sender: TObject);
     procedure ToolZoomLayerStackInClick(Sender: TObject);
     procedure ToolZoomLayerStackOutClick(Sender: TObject);
     procedure HandleChangeLayerOpacity(X,{%H-}Y: integer);
@@ -74,18 +77,19 @@ type
     procedure RedrawLayerStack(Bitmap: TBGRABitmap; Layout: boolean; UpdateItem: Integer);
     procedure UpdateImage;
     procedure OnImageChangedHandler(AEvent: TLazPaintImageObservationEvent);
+    procedure SelectBlendOp;
   public
     { public declarations }
     LazPaintInstance: TLazPaintCustomInstance;
     procedure InvalidateStack(AScrollIntoView: boolean);
-    procedure SetLayerStackScrollPos(x,y: integer);
     procedure SetLayerStackScrollPosOnItem(idx: integer);
     procedure AddButton(AAction: TBasicAction);
+    procedure AddSeparator;
   end;
 
 implementation
 
-uses BGRAFillInfo,uscaledpi,uresourcestrings,ublendop, uimage;
+uses BGRAFillInfo,uscaledpi,uresourcestrings,ublendop, uimage, utool;
 
 function TFLayerStack.DrawLayerItem(ABitmap: TBGRABitmap; layerPos: TPoint; layerIndex: integer; ASelected: boolean): TDrawLayerItemResult;
 var LayerBmp: TBGRABitmap;
@@ -176,6 +180,10 @@ end;
 procedure TFLayerStack.FormShow(Sender: TObject);
 begin
   LazPaintInstance.Image.OnImageChanged.AddObserver(@OnImageChangedHandler);
+  if Toolbar2.Top < ComboBox_BlendOp.Top + ComboBox_BlendOp.Height then
+    Toolbar2.Top := ComboBox_BlendOp.Top + ComboBox_BlendOp.Height;
+  if Toolbar2.Top+Toolbar2.Height+2 > Panel1.Height then
+    Panel1.Height := Toolbar2.Top+Toolbar2.Height+2;
 end;
 
 procedure TFLayerStack.TimerScrollTimer(Sender: TObject);
@@ -188,6 +196,11 @@ begin
   movingItemMouseOrigin.Y -= ScrollPos.Y-prevY;
   TimerScroll.Enabled := False;
   BGRALayerStack.RedrawBitmap;
+end;
+
+procedure TFLayerStack.ToolBlendOpClick(Sender: TObject);
+begin
+  SelectBlendOp;
 end;
 
 procedure TFLayerStack.ToolZoomLayerStackInClick(Sender: TObject);
@@ -229,13 +242,17 @@ begin
 end;
 
 procedure TFLayerStack.HandleSelectLayer(i,x,y: integer);
+var topmostInfo: TTopMostInfo; res: integer;
 begin
   if i < LazPaintInstance.Image.NbLayers then
   begin
     if not LazPaintInstance.Image.SelectionLayerIsEmpty and
         (i <> LazPaintInstance.Image.currentImageLayerIndex) then
     begin
-      if MessageDlg(rsTransferSelectionToOtherLayer,mtConfirmation,[mbOk,mbCancel],0) = mrOk then
+      topmostInfo := LazPaintInstance.HideTopmost;
+      res := MessageDlg(rsTransferSelectionToOtherLayer,mtConfirmation,[mbOk,mbCancel],0);
+      LazPaintInstance.ShowTopmost(topmostInfo);
+      if res = mrOk then
       begin
         if LazPaintInstance.Image.SetCurrentImageLayerIndex(i) then
         begin
@@ -415,11 +432,6 @@ begin
   end;
 end;
 
-procedure TFLayerStack.SetLayerStackScrollPos(x, y: integer);
-begin
-  ScrollPos := point(X,Y);
-end;
-
 procedure TFLayerStack.SetLayerStackScrollPosOnItem(idx: integer);
 begin
   ScrollPos.X := 0;
@@ -433,6 +445,14 @@ begin
   button.Parent := Toolbar2;
   button.Action := AAction;
   button.Style := tbsButton;
+end;
+
+procedure TFLayerStack.AddSeparator;
+var button: TToolButton;
+begin
+  button := TToolButton.Create(Toolbar2);
+  button.Style := tbsSeparator;
+  button.Parent := Toolbar2;
 end;
 
 procedure TFLayerStack.BGRALayerStackRedraw(Sender: TObject; Bitmap: TBGRABitmap);
@@ -565,10 +585,33 @@ begin
   if not AEvent.DelayedStackUpdate then InvalidateStack(False);
 end;
 
+procedure TFLayerStack.SelectBlendOp;
+var blendOp: TBlendOperation;
+  topmostInfo: TTopMostInfo;
+  tempUnder: TBGRABitmap;
+begin
+  blendOp := boTransparent;
+  topmostInfo := LazPaintInstance.HideTopmost;
+  if LazPaintInstance.Image.currentImageLayerIndex > 0 then
+    tempUnder := LazPaintInstance.Image.ComputeFlatImage(0,LazPaintInstance.Image.currentImageLayerIndex-1)
+  else
+    tempUnder := TBGRABitmap.Create(1,1);
+  if ublendop.ShowBlendOpDialog(LazPaintInstance, blendOp, tempUnder,LazPaintInstance.Image.SelectedImageLayerReadOnly) then
+  begin
+    updatingImageOnly := true;
+    LazPaintInstance.Image.BlendOperation[LazPaintInstance.Image.currentImageLayerIndex] := blendOp;
+    updatingImageOnly := false;
+    UpdateComboBlendOp;
+  end;
+  tempUnder.Free;
+  LazPaintInstance.ShowTopmost(topmostInfo);
+  if LazPaintInstance.Image.currentImageLayerIndex = 0 then
+    LazPaintInstance.ToolManager.ToolPopup(tpmBlendOpBackground);
+end;
+
 procedure TFLayerStack.ComboBox_BlendOpChange(Sender: TObject);
 var blendOp: TBlendOperation;
   itemStr: string;
-  tempUnder: TBGRABitmap;
 begin
   if not UpdatingComboBlendOp then
   begin
@@ -583,25 +626,11 @@ begin
           blendOp := StrToBlendOperation(itemStr);
         updatingImageOnly := true;
         LazPaintInstance.Image.BlendOperation[LazPaintInstance.Image.currentImageLayerIndex] := blendOp;
+        if LazPaintInstance.Image.currentImageLayerIndex = 0 then
+          LazPaintInstance.ToolManager.ToolPopup(tpmBlendOpBackground);
         updatingImageOnly := false;
       end else
-      begin
-        blendOp := boTransparent;
-        LazPaintInstance.HideTopmost;
-        if LazPaintInstance.Image.currentImageLayerIndex > 0 then
-          tempUnder := LazPaintInstance.Image.ComputeFlatImage(0,LazPaintInstance.Image.currentImageLayerIndex-1)
-        else
-          tempUnder := TBGRABitmap.Create(1,1);
-        if ublendop.ShowBlendOpDialog(blendOp, tempUnder,LazPaintInstance.Image.SelectedImageLayerReadOnly) then
-        begin
-          updatingImageOnly := true;
-          LazPaintInstance.Image.BlendOperation[LazPaintInstance.Image.currentImageLayerIndex] := blendOp;
-          updatingImageOnly := false;
-          UpdateComboBlendOp;
-        end;
-        tempUnder.Free;
-        LazPaintInstance.ShowTopmost;
-      end;
+        SelectBlendOp;
     end;
   end;
 end;
@@ -733,8 +762,7 @@ begin
   end;
 end;
 
-initialization
-  {$I ulayerstack.lrs}
+{$R *.lfm}
 
 end.
 

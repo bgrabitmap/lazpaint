@@ -121,6 +121,8 @@ type
     destructor Destroy; override;
     procedure Clear;
     function LoadObjectFromFile(AFilename: string; SwapFacesOrientation: boolean = true): IBGRAObject3D;
+    function LoadObjectFromFileUTF8(AFilename: string; SwapFacesOrientation: boolean = true): IBGRAObject3D;
+    function LoadObjectFromStream(AStream: TStream; SwapFacesOrientation: boolean = true): IBGRAObject3D;
     procedure LookAt(AWhere: TPoint3D; ATopDir: TPoint3D);
     procedure LookLeft(angleDeg: single);
     procedure LookRight(angleDeg: single);
@@ -146,6 +148,8 @@ type
     function CreateMaterial(ASpecularIndex: integer): IBGRAMaterial3D;
     procedure UpdateMaterials; virtual;
     procedure UpdateMaterial(AMaterialName: string); virtual;
+    procedure ForEachVertex(ACallback: TVertex3DCallback);
+    procedure ForEachFace(ACallback: TFace3DCallback);
     property ViewCenter: TPointF read GetViewCenter write SetViewCenter;
     property AutoViewCenter: boolean read FAutoViewCenter write SetAutoViewCenter;
     property AutoZoom: boolean read FAutoZoom write SetAutoZoom;
@@ -168,7 +172,8 @@ type
 
 implementation
 
-uses BGRAPolygon, BGRAPolygonAliased, BGRACoordPool3D;
+uses BGRAPolygon, BGRAPolygonAliased, BGRACoordPool3D, BGRAResample,
+  lazutf8classes;
 
 {$i lightingclasses3d.inc}
 
@@ -221,6 +226,8 @@ type
     function GetScene: TBGRAScene3D;
     function GetRefCount: integer;
     procedure SetBiface(AValue : boolean);
+    procedure ForEachVertex(ACallback: TVertex3DCallback);
+    procedure ForEachFace(ACallback: TFace3DCallback);
   end;
 
 {$i shape3D.inc}
@@ -280,6 +287,7 @@ type
     procedure LookAt(ALookWhere,ATopDir: TPoint3D);
     procedure RemoveUnusedVertices;
     function IndexOf(AVertex: IBGRAVertex3D): integer;
+    procedure ForEachVertex(ACallback: TVertex3DCallback);
   end;
 
   { TBGRAFace3D }
@@ -307,7 +315,10 @@ type
     FBiface: boolean;
     FLightThroughFactor: single;
     FLightThroughFactorOverride: boolean;
+    FCustomFlags: DWord;
+    function GetCustomFlags: DWord;
     function GetVertexDescription(AIndex : integer): PBGRAFaceVertexDescription;
+    procedure SetCustomFlags(AValue: DWord);
   public
     function GetObject3D: IBGRAObject3D;
     constructor Create(AObject3D: IBGRAObject3D; AVertices: array of IBGRAVertex3D);
@@ -365,6 +376,7 @@ type
     property LightThroughFactorOverride: boolean read GetLightThroughFactorOverride write SetLightThroughFactorOverride;
     property Material: IBGRAMaterial3D read GetMaterial write SetMaterial;
     property VertexDescription[AIndex : integer]: PBGRAFaceVertexDescription read GetVertexDescription;
+    property CustomFlags: DWord read GetCustomFlags write SetCustomFlags;
   end;
 
   { TBGRAVertex3D }
@@ -377,6 +389,7 @@ type
     FTexCoord: TPointF;
     FCoordPool: TBGRACoordPool3D;
     FCoordPoolIndex: integer;
+    FCustomFlags: DWord;
     function GetCoordData: PBGRACoordData3D;
     procedure Init(ACoordPool: TBGRACoordPool3D; ASceneCoord: TPoint3D_128);
   public
@@ -393,12 +406,14 @@ type
     function GetViewCoord: TPoint3D;
     function GetViewCoord_128: TPoint3D_128;
     function GetUsage: integer;
+    function GetCustomFlags: DWord;
     procedure SetColor(const AValue: TBGRAPixel);
     procedure SetLight(const AValue: Single);
     procedure SetViewNormal(const AValue: TPoint3D);
     procedure SetViewNormal_128(const AValue: TPoint3D_128);
     procedure NormalizeViewNormal;
     procedure AddViewNormal(const AValue: TPoint3D_128);
+    procedure SetCustomFlags(AValue: DWord);
     procedure SetSceneCoord(const AValue: TPoint3D);
     procedure SetSceneCoord_128(const AValue: TPoint3D_128);
     procedure SetTexCoord(const AValue: TPointF);
@@ -510,6 +525,11 @@ begin
   result := frefcount;
 end;
 
+function TBGRAVertex3D.GetCustomFlags: DWord;
+begin
+  result := FCustomFlags;
+end;
+
 procedure TBGRAVertex3D.SetColor(const AValue: TBGRAPixel);
 begin
   FColor := AValue;
@@ -614,12 +634,27 @@ begin
   Add3D_Aligned(FCoordPool.CoordData[FCoordPoolIndex]^.viewNormal, AValue);
 end;
 
+procedure TBGRAVertex3D.SetCustomFlags(AValue: DWord);
+begin
+  FCustomFlags:= AValue;
+end;
+
 { TBGRAFace3D }
 
 function TBGRAFace3D.GetVertexDescription(AIndex : integer
   ): PBGRAFaceVertexDescription;
 begin
   result := @FVertices[AIndex];
+end;
+
+function TBGRAFace3D.GetCustomFlags: DWord;
+begin
+  result := FCustomFlags;
+end;
+
+procedure TBGRAFace3D.SetCustomFlags(AValue: DWord);
+begin
+  FCustomFlags:= AValue;
 end;
 
 function TBGRAFace3D.GetObject3D: IBGRAObject3D;
@@ -949,6 +984,13 @@ begin
       exit;
     end;
   result := -1;
+end;
+
+procedure TBGRAPart3D.ForEachVertex(ACallback: TVertex3DCallback);
+var i: integer;
+begin
+  for i := 0 to FVertexCount-1 do
+    ACallback(FVertices[i]);
 end;
 
 procedure TBGRAPart3D.Add(AVertex: IBGRAVertex3D);
@@ -1531,6 +1573,18 @@ begin
     GetFace(i).Biface := AValue;
 end;
 
+procedure TBGRAObject3D.ForEachVertex(ACallback: TVertex3DCallback);
+begin
+  FMainPart.ForEachVertex(ACallback);
+end;
+
+procedure TBGRAObject3D.ForEachFace(ACallback: TFace3DCallback);
+var i: integer;
+begin
+  for i := 0 to GetFaceCount-1 do
+    ACallback(GetFace(i));
+end;
+
 function TBGRAObject3D.GetLightingNormal: TLightingNormal3D;
 begin
   result := FLightingNormal;
@@ -1884,8 +1938,31 @@ end;
 {$hints on}
 
 function TBGRAScene3D.LoadObjectFromFile(AFilename: string; SwapFacesOrientation: boolean): IBGRAObject3D;
-var t: textfile;
-    s: string;
+var source: TFileStream;
+begin
+  source := TFileStream.Create(AFilename,fmOpenRead,fmShareDenyWrite);
+  try
+    result := LoadObjectFromStream(source,SwapFacesOrientation);
+  finally
+    source.free;
+  end;
+end;
+
+function TBGRAScene3D.LoadObjectFromFileUTF8(AFilename: string;
+  SwapFacesOrientation: boolean): IBGRAObject3D;
+var source: TFileStreamUTF8;
+begin
+  source := TFileStreamUTF8.Create(AFilename,fmOpenRead,fmShareDenyWrite);
+  try
+    result := LoadObjectFromStream(source,SwapFacesOrientation);
+  finally
+    source.free;
+  end;
+end;
+
+function TBGRAScene3D.LoadObjectFromStream(AStream: TStream;
+  SwapFacesOrientation: boolean): IBGRAObject3D;
+var s: string;
 
   function GetNextToken: string;
   var idxStart,idxEnd: integer;
@@ -1912,17 +1989,21 @@ var lineType : string;
     tempV: IBGRAVertex3D;
     materialname: string;
     face: IBGRAFace3D;
+    lines: TStringList;
+    lineIndex: integer;
 
 begin
+  lines := TStringList.Create;
+  lines.LoadFromStream(AStream);
   result := CreateObject;
-  assignfile(t,AFilename);
-  reset(t);
   vertices := nil;
   NbVertices:= 0;
   materialname := 'default';
-  while not eof(t) do
+  lineIndex := 0;
+  while lineIndex < lines.Count do
   begin
-    readln(t,s);
+    s := lines[lineIndex];
+    inc(lineIndex);
     lineType := GetNextToken;
     if lineType = 'v' then
     begin
@@ -1961,7 +2042,7 @@ begin
       end;
     end;
   end;
-  closefile(t);
+  lines.Free;
 end;
 
 procedure TBGRAScene3D.LookAt(AWhere: TPoint3D; ATopDir: TPoint3D);
@@ -2634,14 +2715,13 @@ var
 
   procedure DrawWithResample;
   var
-    tempSurface,resampledTempSurface: TBGRACustomBitmap;
+    tempSurface: TBGRACustomBitmap;
   begin
     tempSurface := ASurface.NewBitmap(ASurface.Width*RenderingOptions.AntialiasingResampleLevel,ASurface.Height*RenderingOptions.AntialiasingResampleLevel);
     InternalRender(tempSurface, am3dNone, RenderingOptions.AntialiasingResampleLevel);
-    resampledTempSurface := tempSurface.Resample(ASurface.Width,ASurface.Height,rmSimpleStretch);
+    BGRAResample.DownSamplePutImage(tempSurface,RenderingOptions.AntialiasingResampleLevel,RenderingOptions.AntialiasingResampleLevel,
+                 ASurface, 0,0, dmDrawWithTransparency);
     tempSurface.Free;
-    ASurface.PutImage(0,0,resampledTempSurface,dmDrawWithTransparency);
-    resampledTempSurface.Free;
   end;
 
 var i,j: integer;
@@ -2995,6 +3075,24 @@ begin
     end;
   end;
 end;
+
+procedure TBGRAScene3D.ForEachVertex(ACallback: TVertex3DCallback);
+var i: integer;
+begin
+  for i := 0 to Object3DCount-1 do
+    Object3D[i].ForEachVertex(ACallback);
+end;
+
+procedure TBGRAScene3D.ForEachFace(ACallback: TFace3DCallback);
+var i: integer;
+begin
+  for i := 0 to Object3DCount-1 do
+    Object3D[i].ForEachFace(ACallback);
+end;
+
+initialization
+
+  Randomize;
 
 end.
 

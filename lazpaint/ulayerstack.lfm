@@ -1,5 +1,5 @@
 object FLayerStack: TFLayerStack
-  Left = 846
+  Left = 555
   Height = 153
   Top = 269
   Width = 243
@@ -14,7 +14,7 @@ object FLayerStack: TFLayerStack
   OnDestroy = FormDestroy
   OnHide = FormHide
   OnShow = FormShow
-  LCLVersion = '1.1'
+  LCLVersion = '1.0.10.0'
   object BGRALayerStack: TBGRAVirtualScreen
     Left = 0
     Height = 103
@@ -69,10 +69,10 @@ object FLayerStack: TFLayerStack
       end
     end
     object ComboBox_BlendOp: TComboBox
-      Left = 2
+      Left = 25
       Height = 23
       Top = 2
-      Width = 184
+      Width = 156
       Anchors = [akTop, akLeft, akRight]
       ItemHeight = 15
       OnChange = ComboBox_BlendOpChange
@@ -80,11 +80,12 @@ object FLayerStack: TFLayerStack
       TabOrder = 1
     end
     object ToolBar2: TToolBar
-      Left = 1
+      Left = 0
       Height = 24
       Top = 25
-      Width = 238
+      Width = 242
       Align = alNone
+      Anchors = [akTop, akLeft, akRight]
       EdgeBorders = []
       EdgeInner = esNone
       EdgeOuter = esNone
@@ -92,6 +93,27 @@ object FLayerStack: TFLayerStack
       ParentShowHint = False
       ShowHint = True
       TabOrder = 2
+    end
+    object ToolBar3: TToolBar
+      Left = 0
+      Height = 24
+      Top = 2
+      Width = 24
+      Align = alNone
+      EdgeBorders = []
+      EdgeInner = esNone
+      EdgeOuter = esNone
+      Images = FMain.ImageList1
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 3
+      object ToolBlendOp: TToolButton
+        Left = 1
+        Hint = 'Select blend operation'
+        Top = 0
+        ImageIndex = 103
+        OnClick = ToolBlendOpClick
+      end
     end
   end
   object TimerScroll: TTimer

@@ -1,39 +1,39 @@
 object FResample: TFResample
-  Left = 479
+  Left = 327
   Height = 161
-  Top = 249
-  Width = 211
+  Top = 238
+  Width = 462
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Resample'
   ClientHeight = 161
-  ClientWidth = 211
+  ClientWidth = 462
   Font.Height = -12
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.1'
+  LCLVersion = '1.0.10.0'
   object Label_Quality: TLabel
     Left = 10
-    Height = 15
+    Height = 16
     Top = 13
-    Width = 44
+    Width = 45
     Caption = 'Quality :'
     ParentColor = False
   end
   object Label_Width: TLabel
     Left = 38
-    Height = 15
+    Height = 16
     Top = 73
-    Width = 38
+    Width = 39
     Caption = 'Width :'
     ParentColor = False
   end
   object Label_Height: TLabel
     Left = 38
-    Height = 15
+    Height = 16
     Top = 100
-    Width = 42
+    Width = 43
     Caption = 'Height :'
     ParentColor = False
   end
@@ -53,11 +53,12 @@ object FResample: TFResample
     Width = 110
     Caption = 'Keep aspect ratio'
     Checked = True
+    OnChange = CheckBox_RatioChange
     State = cbChecked
     TabOrder = 1
   end
   object Button_OK: TButton
-    Left = 38
+    Left = 120
     Height = 22
     Top = 134
     Width = 59
@@ -67,7 +68,7 @@ object FResample: TFResample
     TabOrder = 4
   end
   object Button_Cancel: TButton
-    Left = 102
+    Left = 184
     Height = 22
     Top = 134
     Width = 72
@@ -77,7 +78,7 @@ object FResample: TFResample
     TabOrder = 5
   end
   object SpinEdit_Width: TSpinEdit
-    Left = 94
+    Left = 104
     Height = 23
     Top = 70
     Width = 79
@@ -89,7 +90,7 @@ object FResample: TFResample
     Value = 1
   end
   object SpinEdit_Height: TSpinEdit
-    Left = 94
+    Left = 104
     Height = 23
     Top = 97
     Width = 79
@@ -99,5 +100,42 @@ object FResample: TFResample
     OnChange = SpinEdit_HeightChange
     TabOrder = 3
     Value = 1
+  end
+  object ToolBar8: TToolBar
+    Left = 190
+    Height = 24
+    Top = 97
+    Width = 24
+    Align = alNone
+    EdgeBorders = []
+    Images = FMain.ImageList1
+    TabOrder = 6
+    object ToolButton23: TToolButton
+      Left = 1
+      Top = 0
+      ImageIndex = 43
+      OnClick = ToolButton23Click
+    end
+  end
+  object vsPreview: TBGRAVirtualScreen
+    Left = 270
+    Height = 112
+    Top = 8
+    Width = 185
+    OnRedraw = vsPreviewRedraw
+    Alignment = taLeftJustify
+    Color = clBtnFace
+    ParentColor = False
+    TabOrder = 7
+  end
+  object ComboBox_MUnit: TComboBox
+    Left = 190
+    Height = 23
+    Top = 70
+    Width = 52
+    ItemHeight = 15
+    OnChange = ComboBox_MUnitChange
+    Style = csDropDownList
+    TabOrder = 8
   end
 end

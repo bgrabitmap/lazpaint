@@ -232,9 +232,9 @@ type
   end;
 
 procedure AddDensity(dest: PDensity; start,count: integer; value : word); inline;
-function DivByAntialiasPrecision(value: cardinal): cardinal; inline;
-function DivByAntialiasPrecision256(value: cardinal): cardinal; inline;
-function DivByAntialiasPrecision65536(value: cardinal): cardinal; inline;
+function DivByAntialiasPrecision(value: UInt32or64): UInt32or64; inline;
+function DivByAntialiasPrecision256(value: UInt32or64): UInt32or64; inline;
+function DivByAntialiasPrecision65536(value: UInt32or64): UInt32or64; inline;
 procedure ComputeAliasedRowBounds(x1,x2: single; minx,maxx: integer; out ix1,ix2: integer);
 
 function IsPointInPolygon(const points: ArrayOfTPointF; point: TPointF; windingMode: boolean): boolean;
@@ -322,17 +322,17 @@ begin
     dest^ += value;
 end;
 
-function DivByAntialiasPrecision(value: cardinal): cardinal;
+function DivByAntialiasPrecision(value: UInt32or64): UInt32or64;
 begin             //
   result := value shr AntialiasPrecisionShift;// div AntialiasPrecision;
 end;
 
-function DivByAntialiasPrecision256(value: cardinal): cardinal;
+function DivByAntialiasPrecision256(value: UInt32or64): UInt32or64;
 begin             //
   result := value shr (AntialiasPrecisionShift+8);// div (256*AntialiasPrecision);
 end;
 
-function DivByAntialiasPrecision65536(value: cardinal): cardinal;
+function DivByAntialiasPrecision65536(value: UInt32or64): UInt32or64;
 begin             //
   result := value shr (AntialiasPrecisionShift+16);//div (65536*AntialiasPrecision);
 end;
@@ -1104,7 +1104,10 @@ begin
   for i := 0 to high(FPoints) do
   begin
     j := FNext[i];
-    FSimple[i].winding:= ComputeWinding(FPoints[i].y,FPoints[j].y);
+    if j <> -1 then
+      FSimple[i].winding:= ComputeWinding(FPoints[i].y,FPoints[j].y)
+    else
+      FSimple[i].winding:= 0;
     if FSlopes[i] <> EmptySingle then
       FSimple[i].data := CreateSegmentData(i, j, FPoints[i].x, FPoints[i].y);
   end;
@@ -1416,6 +1419,10 @@ begin
   FInnerBorder.Free;
   inherited Destroy;
 end;
+
+initialization
+
+  Randomize;
 
 end.
 

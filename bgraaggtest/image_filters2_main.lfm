@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 103
+  Left = 213
   Height = 301
-  Top = 199
+  Top = 213
   Width = 583
   Caption = 'BGRA Image resample filters'
   ClientHeight = 301
@@ -9,7 +9,7 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnPaint = FormPaint
-  LCLVersion = '0.9.30'
+  LCLVersion = '1.0.10.0'
   object Panel1: TPanel
     Left = 0
     Height = 301
@@ -22,7 +22,7 @@ object Form1: TForm1
     object Radio_Linear: TRadioButton
       Left = 11
       Height = 19
-      Top = 48
+      Top = 64
       Width = 52
       Caption = 'Linear'
       OnChange = Radio_Change
@@ -40,17 +40,15 @@ object Form1: TForm1
       Left = 11
       Height = 19
       Top = 32
-      Width = 49
-      Caption = 'None'
-      Checked = True
+      Width = 96
+      Caption = 'None (stretch)'
       OnChange = Radio_Change
       TabOrder = 0
-      TabStop = True
     end
     object Radio_HalfCosine: TRadioButton
       Left = 11
       Height = 19
-      Top = 64
+      Top = 80
       Width = 81
       Caption = 'Half-cosine'
       OnChange = Radio_Change
@@ -59,7 +57,7 @@ object Form1: TForm1
     object Radio_Cosine: TRadioButton
       Left = 11
       Height = 19
-      Top = 80
+      Top = 96
       Width = 56
       Caption = 'Cosine'
       OnChange = Radio_Change
@@ -68,7 +66,7 @@ object Form1: TForm1
     object Radio_Bicubic: TRadioButton
       Left = 11
       Height = 19
-      Top = 96
+      Top = 112
       Width = 91
       Caption = 'Bicubic (blur)'
       OnChange = Radio_Change
@@ -77,7 +75,7 @@ object Form1: TForm1
     object Radio_Mitchell: TRadioButton
       Left = 11
       Height = 19
-      Top = 112
+      Top = 128
       Width = 63
       Caption = 'Mitchell'
       OnChange = Radio_Change
@@ -86,7 +84,7 @@ object Form1: TForm1
     object Radio_Spline: TRadioButton
       Left = 11
       Height = 19
-      Top = 128
+      Top = 144
       Width = 75
       Caption = 'Spline (16)'
       OnChange = Radio_Change
@@ -108,6 +106,17 @@ object Form1: TForm1
       Top = 168
       Width = 151
       OnPaint = PaintBox1Paint
+    end
+    object Radio_BoxFilter: TRadioButton
+      Left = 11
+      Height = 19
+      Top = 48
+      Width = 66
+      Caption = 'Box filter'
+      Checked = True
+      OnChange = Radio_Change
+      TabOrder = 7
+      TabStop = True
     end
   end
 end

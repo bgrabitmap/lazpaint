@@ -5,7 +5,8 @@ unit UFilterConnector;
 interface
 
 uses
-  Classes, SysUtils, uimage, Forms, LazPaintType, BGRABitmap;
+  Classes, SysUtils, UImage, ULayerAction, UImageType, Forms,
+  LazPaintType, BGRABitmap, uscripting;
 
 type
   TFilterConnector = class;
@@ -20,25 +21,28 @@ type
     FActionOwned: boolean;
     FOnTryStopAction: TFilterOnTryStopActionHandler;
     FWorkArea: TRect;
+    FWorkAreaFullySelected: boolean;
+    FParameters: TVariableSet;
     function GetActionDone: boolean;
     function GetActiveLayer: TBGRABitmap;
     function GetBackupLayer: TBGRABitmap;
     function GetCurrentSelection: TBGRABitmap;
-    procedure Init(ALazPaintInstance: TLazPaintCustomInstance; AAction: TLayerAction; AOwned: boolean);
-    procedure OnTryStop({%H-}sender: TLayerAction);
+    procedure Init(ALazPaintInstance: TLazPaintCustomInstance; AAction: TLayerAction; AOwned: boolean; AParameters: TVariableSet);
+    procedure OnTryStop({%H-}sender: TCustomLayerAction);
     procedure DiscardAction;
     procedure ApplySelectionMaskOn(AFilteredLayer: TBGRABitmap);
     procedure ImageChanged;
   public
     ApplyOnSelectionLayer: boolean;
     Form: TForm;
-    constructor Create(ALazPaintInstance : TLazPaintCustomInstance);
-    constructor Create(ALazPaintInstance : TLazPaintCustomInstance; AAction: TLayerAction; AOwned: boolean);
+    constructor Create(ALazPaintInstance : TLazPaintCustomInstance; AParameters: TVariableSet);
+    constructor Create(ALazPaintInstance : TLazPaintCustomInstance; AParameters: TVariableSet; AAction: TLayerAction; AOwned: boolean);
     destructor Destroy; override;
     procedure ValidateAction;
-    procedure InvalidateActiveLayer;
-    procedure PutImage(AFilteredLayer: TBGRABitmap; AMayBeColored: boolean);
-    procedure PutImage(AFilteredLayer: TBGRABitmap; AModifiedRect: TRect; AMayBeColored: boolean);
+    procedure InvalidateActiveLayer; overload;
+    procedure InvalidateActiveLayer(ARect: TRect); overload;
+    procedure PutImage(AFilteredLayer: TBGRABitmap; AMayBeColored: boolean; AOwner: boolean);
+    procedure PutImage(AFilteredLayer: TBGRABitmap; AModifiedRect: TRect; AMayBeColored: boolean; AOwner: boolean);
     procedure RestoreBackup;
     property BackupLayer: TBGRABitmap read GetBackupLayer;
     property CurrentSelection: TBGRABitmap read GetCurrentSelection;
@@ -47,6 +51,7 @@ type
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance;
     property ActiveLayer: TBGRABitmap read GetActiveLayer;
     property WorkArea: TRect read FWorkArea;
+    property Parameters: TVariableSet read FParameters;
   end;
 
 implementation
@@ -91,22 +96,42 @@ begin
   end;
 end;
 
-procedure TFilterConnector.Init(ALazPaintInstance: TLazPaintCustomInstance; AAction: TLayerAction; AOwned: boolean);
+procedure TFilterConnector.Init(ALazPaintInstance: TLazPaintCustomInstance; AAction: TLayerAction; AOwned: boolean; AParameters: TVariableSet);
 var sel: TBGRABitmap;
+  y,x: integer;
+  p : PBGRAPixel;
+
 begin
   FLazPaintInstance := ALazPaintInstance;
+  FParameters := AParameters;
   FAction := AAction;
   FActionOwned:= AOwned;
   FAction.OnTryStop := @OnTryStop;
   ApplyOnSelectionLayer:= not FLazPaintInstance.Image.SelectionLayerIsEmpty;
   sel := CurrentSelection;
   if sel <> nil then
-    FWorkArea := CurrentSelection.GetImageBounds(cGreen)
+    FWorkArea := FLazPaintInstance.Image.SelectionBounds[false]
   else
     FWorkArea := rect(0,0,ActiveLayer.Width,ActiveLayer.Height);
+  FWorkAreaFullySelected := true;
+  if sel <> nil then
+    for y := FWorkArea.Top to FWorkArea.Bottom-1 do
+    begin
+      p := sel.ScanLine[y]+FWorkArea.Left;
+      for x := FWorkArea.Left to FWorkArea.Right-1 do
+      begin
+        if p^.alpha <> 255 then
+        begin
+          FWorkAreaFullySelected := false;
+          break;
+        end;
+        inc(p);
+      end;
+      if not FWorkAreaFullySelected then break;
+    end;
 end;
 
-procedure TFilterConnector.OnTryStop(sender: TLayerAction);
+procedure TFilterConnector.OnTryStop(sender: TCustomLayerAction);
 begin
   DiscardAction;
   If FOnTryStopAction <> nil then FOnTryStopAction(self);
@@ -124,14 +149,14 @@ begin
   end;
 end;
 
-constructor TFilterConnector.Create(ALazPaintInstance : TLazPaintCustomInstance);
+constructor TFilterConnector.Create(ALazPaintInstance : TLazPaintCustomInstance; AParameters: TVariableSet);
 begin
-  Init(ALazPaintInstance,TLayerAction.Create(ALazPaintInstance.Image),True);
+  Init(ALazPaintInstance,TLayerAction.Create(ALazPaintInstance.Image),True,AParameters);
 end;
 
-constructor TFilterConnector.Create(ALazPaintInstance : TLazPaintCustomInstance; AAction: TLayerAction; AOwned: boolean);
+constructor TFilterConnector.Create(ALazPaintInstance : TLazPaintCustomInstance; AParameters: TVariableSet; AAction: TLayerAction; AOwned: boolean);
 begin
-  Init(ALazPaintInstance,AAction,AOwned);
+  Init(ALazPaintInstance,AAction,AOwned,AParameters);
 end;
 
 destructor TFilterConnector.Destroy;
@@ -147,24 +172,47 @@ end;
 
 procedure TFilterConnector.InvalidateActiveLayer;
 begin
-  ActiveLayer.InvalidateBitmap;
   FLazPaintInstance.NotifyImageChange(True, FWorkArea);
 end;
 
-procedure TFilterConnector.PutImage(AFilteredLayer: TBGRABitmap; AMayBeColored: boolean);
+procedure TFilterConnector.InvalidateActiveLayer(ARect: TRect);
 begin
-  PutImage(AFilteredLayer,FWorkArea,AMayBeColored);
+  if IntersectRect(ARect, ARect, FWorkArea) then
+    FLazPaintInstance.NotifyImageChange(True, ARect);
+end;
+
+procedure TFilterConnector.PutImage(AFilteredLayer: TBGRABitmap; AMayBeColored: boolean; AOwner: boolean);
+begin
+  PutImage(AFilteredLayer,FWorkArea,AMayBeColored,AOwner);
 end;
 
 procedure TFilterConnector.PutImage(AFilteredLayer: TBGRABitmap;
-  AModifiedRect: TRect; AMayBeColored: boolean);
+  AModifiedRect: TRect; AMayBeColored: boolean; AOwner: boolean);
+var AMine: boolean;
 begin
   if IntersectRect(AModifiedRect,AModifiedRect,FWorkArea) then
   begin
+    AMine := AOwner;
     if AMayBeColored and LazPaintInstance.BlackAndWhite then
+    begin
+      if not AMine then
+      begin
+        AFilteredLayer := AFilteredLayer.Duplicate as TBGRABitmap;
+        AMine := true;
+      end;
       AFilteredLayer.InplaceGrayscale(AModifiedRect);
-    ApplySelectionMaskOn(AFilteredLayer);
+    end;
+    if not FWorkAreaFullySelected then
+    begin
+      if not AMine then
+      begin
+        AFilteredLayer := AFilteredLayer.Duplicate as TBGRABitmap;
+        AMine := true;
+      end;
+      ApplySelectionMaskOn(AFilteredLayer);
+    end;
     ActiveLayer.PutImagePart(AModifiedRect.Left,AModifiedRect.Top,AFilteredLayer,AModifiedRect,dmSet);
+    if AMine then AFilteredLayer.Free;
     FLazPaintInstance.NotifyImageChange(True, AModifiedRect);
   end;
 end;

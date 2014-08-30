@@ -1088,5 +1088,9 @@ begin
   end;
 end;
 
+initialization
+
+  Randomize;
+
 end.
 

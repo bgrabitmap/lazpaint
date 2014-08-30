@@ -183,12 +183,9 @@ begin
 end;
 
 procedure TFPhongFilter.Timer1Timer(Sender: TObject);
-var temp: TBGRABitmap;
 begin
   Timer1.Enabled := false;
-  temp := ComputeFilteredLayer;
-  FilterConnector.PutImage(temp,True);
-  temp.Free;
+  FilterConnector.PutImage(ComputeFilteredLayer,True,true);
   Button_OK.Enabled := true;
 end;
 
@@ -339,8 +336,7 @@ begin
   shader.Free;
 end;
 
-initialization
-  {$I uphongfilter.lrs}
+{$R *.lfm}
 
 end.
 

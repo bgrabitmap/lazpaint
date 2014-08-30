@@ -2,7 +2,7 @@ unit BGRACanvas2D;
 
 { To do :
 
-  text functions -> using BGRAVectorize
+  draw text with a different precision if the matrix is scaled
   drawImage(in image, in double sx, in double sy, in double sw, in double sh, in double dx, in double dy, in double dw, in double dh)
   -> using FillPoly with texture coordinates
   linear gradient any transformation
@@ -17,7 +17,7 @@ unit BGRACanvas2D;
 interface
 
 uses
-  Classes, SysUtils, Graphics, BGRABitmapTypes, BGRATransform, BGRAGradientScanner;
+  Classes, SysUtils, Graphics, BGRABitmapTypes, BGRATransform, BGRAGradientScanner, BGRAPath;
 
 type
   IBGRACanvasTextureProvider2D = interface
@@ -47,6 +47,12 @@ type
     fillTextureProvider: IBGRACanvasTextureProvider2D;
     globalAlpha: byte;
 
+    fontName: string;
+    fontStyle: TFontStyles;
+    fontEmHeight: single;
+    textAlign: TAlignment;
+    textBaseline: string;
+
     lineWidth: single;
     lineCap: TPenEndCap;
     lineJoin: TPenJoinStyle;
@@ -63,9 +69,13 @@ type
     destructor Destroy; override;
   end;
 
+  TCanvas2dTextSize = record
+    width,height: single;
+  end;
+
   { TBGRACanvas2D }
 
-  TBGRACanvas2D = class
+  TBGRACanvas2D = class(IBGRAPath)
   private
     FSurface: TBGRACustomBitmap;
     StateStack: TList;
@@ -74,44 +84,69 @@ type
     FPixelCenteredCoordinates: boolean;
     FPathPoints: array of TPointF;
     FPathPointCount: integer;
+    FFontRenderer: TBGRACustomFontRenderer;
+    FLastCoord, FStartCoord: TPointF;
     function GetCurrentPath: ArrayOfTPointF;
+    function GetFontName: string;
+    function GetFontRenderer: TBGRACustomFontRenderer;
+    function GetFontEmHeight: single;
+    function GetFontString: string;
+    function GetFontStyle: TFontStyles;
     function GetGlobalAlpha: single;
     function GetHasShadow: boolean;
     function GetHeight: Integer;
     function GetLineCap: string;
+    function GetLineCapLCL: TPenEndCap;
     function GetlineJoin: string;
+    function GetlineJoinLCL: TPenJoinStyle;
     function GetLineWidth: single;
+    function GetMatrix: TAffineMatrix;
     function GetMiterLimit: single;
     function GetPixelCenteredCoordinates: boolean;
     function GetShadowBlur: single;
     function GetShadowOffset: TPointF;
     function GetShadowOffsetX: single;
     function GetShadowOffsetY: single;
+    function GetTextAlign: string;
+    function GetTextAlignLCL: TAlignment;
+    function GetTextBaseline: string;
     function GetWidth: Integer;
+    procedure SetFontName(AValue: string);
+    procedure SetFontRenderer(AValue: TBGRACustomFontRenderer);
+    procedure SetFontEmHeight(AValue: single);
+    procedure SetFontString(AValue: string);
+    procedure SetFontStyle(AValue: TFontStyles);
     procedure SetGlobalAlpha(const AValue: single);
     procedure SetLineCap(const AValue: string);
+    procedure SetLineCapLCL(AValue: TPenEndCap);
     procedure SetLineJoin(const AValue: string);
     procedure FillPoly(const points: array of TPointF);
     procedure FillStrokePoly(const points: array of TPointF; fillOver: boolean);
+    procedure SetLineJoinLCL(AValue: TPenJoinStyle);
     procedure SetLineWidth(const AValue: single);
+    procedure SetMatrix(AValue: TAffineMatrix);
     procedure SetMiterLimit(const AValue: single);
     procedure SetPixelCenteredCoordinates(const AValue: boolean);
     procedure SetShadowBlur(const AValue: single);
     procedure SetShadowOffset(const AValue: TPointF);
     procedure SetShadowOffsetX(const AValue: single);
     procedure SetShadowOffsetY(const AValue: single);
+    procedure SetTextAlign(AValue: string);
+    procedure SetTextAlignLCL(AValue: TAlignment);
+    procedure SetTextBaseine(AValue: string);
     procedure StrokePoly(const points: array of TPointF);
     procedure DrawShadow(const points, points2: array of TPointF);
     procedure ClearPoly(const points: array of TPointF);
     function ApplyTransform(const points: array of TPointF; matrix: TAffineMatrix): ArrayOfTPointF; overload;
     function ApplyTransform(const points: array of TPointF): ArrayOfTPointF; overload;
     function ApplyTransform(point: TPointF): TPointF; overload;
-    function GetPenPos: TPointF;
+    function GetPenPos(defaultX, defaultY: single): TPointF;
     procedure AddPoint(point: TPointF);
     procedure AddPoints(const points: array of TPointF);
     procedure AddPointsRev(const points: array of TPointF);
     function ApplyGlobalAlpha(color: TBGRAPixel): TBGRAPixel;
     function GetDrawMode: TDrawMode;
+    procedure copyTo({%H-}dest: IBGRAPath); //IBGRAPath
   public
     antialiasing, linearBlend: boolean;
     constructor Create(ASurface: TBGRACustomBitmap);
@@ -121,10 +156,12 @@ type
 
     procedure save;
     procedure restore;
-    procedure scale(x,y: single);
-    procedure rotate(angleRad: single);
+    procedure scale(x,y: single); overload;
+    procedure scale(factor: single); overload;
+    procedure rotate(angleRadCW: single);
     procedure translate(x,y: single);
-    procedure transform(a,b,c,d,e,f: single);
+    procedure transform(a,b,c,d,e,f: single); overload;
+    procedure transform(AMatrix: TAffineMatrix); overload;
     procedure setTransform(a,b,c,d,e,f: single);
     procedure resetTransform;
     procedure strokeStyle(color: TBGRAPixel); overload;
@@ -140,6 +177,7 @@ type
     procedure shadowColor(color: TBGRAPixel); overload;
     procedure shadowColor(color: TColor); overload;
     procedure shadowColor(color: string); overload;
+    procedure shadowNone;
     function getShadowColor: TBGRAPixel;
     function createLinearGradient(x0,y0,x1,y1: single): IBGRACanvasGradient2D; overload;
     function createLinearGradient(p0,p1: TPointF): IBGRACanvasGradient2D; overload;
@@ -152,26 +190,42 @@ type
     procedure strokeRect(x,y,w,h: single);
     procedure clearRect(x,y,w,h: single);
 
+    procedure addPath(APath: IBGRAPath); overload;
+    procedure addPath(ASvgPath: string); overload;
+    procedure path(APath: IBGRAPath); overload;
+    procedure path(ASvgPath: string); overload;
     procedure beginPath;
     procedure closePath;
     procedure toSpline(closed: boolean; style: TSplineStyle= ssOutside);
     procedure moveTo(x,y: single); overload;
     procedure lineTo(x,y: single); overload;
-    procedure moveTo(pt: TPointF); overload;
-    procedure lineTo(pt: TPointF); overload;
+    procedure moveTo(const pt: TPointF); overload;
+    procedure lineTo(const pt: TPointF); overload;
     procedure polylineTo(const pts: array of TPointF);
     procedure quadraticCurveTo(cpx,cpy,x,y: single); overload;
-    procedure quadraticCurveTo(cp,pt: TPointF); overload;
+    procedure quadraticCurveTo(const cp,pt: TPointF); overload;
     procedure bezierCurveTo(cp1x,cp1y,cp2x,cp2y,x,y: single); overload;
-    procedure bezierCurveTo(cp1,cp2,pt: TPointF); overload;
+    procedure bezierCurveTo(const cp1,cp2,pt: TPointF); overload;
     procedure rect(x,y,w,h: single);
-    procedure roundRect(x,y,w,h,radius: single);
+    procedure roundRect(x,y,w,h,radius: single); overload;
+    procedure roundRect(x,y,w,h,rx,ry: single); overload;
     procedure spline(const pts: array of TPointF; style: TSplineStyle= ssOutside);
     procedure splineTo(const pts: array of TPointF; style: TSplineStyle= ssOutside);
-    procedure arc(x, y, radius, startAngle, endAngle: single; anticlockwise: boolean); overload;
-    procedure arc(x, y, radius, startAngle, endAngle: single); overload;
+    procedure arc(x, y, radius, startAngleRadCW, endAngleRadCW: single; anticlockwise: boolean); overload;
+    procedure arc(x, y, radius, startAngleRadCW, endAngleRadCW: single); overload;
+    procedure arc(cx, cy, rx,ry, xAngleRadCW, startAngleRadCW, endAngleRadCW: single; anticlockwise: boolean); overload;
+    procedure arc(cx, cy, rx,ry, xAngleRadCW, startAngleRadCW, endAngleRadCW: single); overload;
+    procedure arc(const arcDef: TArcDef); overload;
     procedure arcTo(x1, y1, x2, y2, radius: single); overload;
     procedure arcTo(p1,p2: TPointF; radius: single); overload;
+    procedure arcTo(rx, ry, xAngleRadCW: single; largeArc,anticlockwise: boolean; x, y: single);
+    procedure circle(x,y,r: single);
+    procedure ellipse(x,y,rx,ry: single);
+    procedure text(AText: string; x,y: single);
+    procedure fillText(AText: string; x,y: single);
+    procedure strokeText(AText: string; x,y: single);
+    function measureText(AText: string): TCanvas2dTextSize;
+
     procedure fill;
     procedure stroke;
     procedure fillOverStroke;
@@ -186,17 +240,21 @@ type
     procedure drawImage(image: TBGRACustomBitmap; dx,dy,dw,dh: single); overload;
 
     function getLineStyle: TBGRAPenStyle;
-    procedure lineStyle(const AValue: array of single);
+    procedure lineStyle(const AValue: array of single); overload;
+    procedure lineStyle(AStyle: TPenStyle); overload;
 
     property surface: TBGRACustomBitmap read FSurface;
     property width: Integer read GetWidth;
     property height: Integer read GetHeight;
     property pixelCenteredCoordinates: boolean read GetPixelCenteredCoordinates write SetPixelCenteredCoordinates;
     property globalAlpha: single read GetGlobalAlpha write SetGlobalAlpha;
+    property matrix: TAffineMatrix read GetMatrix write SetMatrix;
 
     property lineWidth: single read GetLineWidth write SetLineWidth;
     property lineCap: string read GetLineCap write SetLineCap;
+    property lineCapLCL: TPenEndCap read GetLineCapLCL write SetLineCapLCL;
     property lineJoin: string read GetlineJoin write SetLineJoin;
+    property lineJoinLCL: TPenJoinStyle read GetlineJoinLCL write SetLineJoinLCL;
     property miterLimit: single read GetMiterLimit write SetMiterLimit;
 
     property shadowOffsetX: single read GetShadowOffsetX write SetShadowOffsetX;
@@ -205,12 +263,26 @@ type
     property shadowBlur: single read GetShadowBlur write SetShadowBlur;
     property hasShadow: boolean read GetHasShadow;
 
+    property fontName: string read GetFontName write SetFontName;
+    property fontEmHeight: single read GetFontEmHeight write SetFontEmHeight;
+    property fontStyle: TFontStyles read GetFontStyle write SetFontStyle;
+    property font: string read GetFontString write SetFontString;
+    property textAlignLCL: TAlignment read GetTextAlignLCL write SetTextAlignLCL;
+    property textAlign: string read GetTextAlign write SetTextAlign;
+    property textBaseline: string read GetTextBaseline write SetTextBaseine;
+
     property currentPath: ArrayOfTPointF read GetCurrentPath;
+    property fontRenderer: TBGRACustomFontRenderer read GetFontRenderer write SetFontRenderer;
+
+  protected
+    function QueryInterface({$IFDEF FPC_HAS_CONSTREF}constref{$ELSE}const{$ENDIF} IID: TGUID; out Obj): HResult; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
+    function _AddRef: Integer; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
+    function _Release: Integer; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
   end;
 
 implementation
 
-uses Types, Math, BGRAPen, BGRAFillInfo, BGRAPolygon, BGRABlend, FPWriteJPEG, FPWriteBMP, base64, BGRAPath;
+uses Types, Math, BGRAPen, BGRAFillInfo, BGRAPolygon, BGRABlend, FPWriteJPEG, FPWriteBMP, base64;
 
 type
   TColorStop = record
@@ -451,6 +523,12 @@ begin
   fillColor := BGRABlack;
   globalAlpha := 255;
 
+  fontName := 'Arial';
+  fontEmHeight := 10;
+  fontStyle := [];
+  textAlign:= taLeftJustify;
+  textBaseline := 'alphabetic';
+
   lineWidth := 1;
   lineCap := pecFlat;
   lineJoin := pjsMiter;
@@ -477,6 +555,10 @@ begin
   result.fillColor := fillColor;
   result.fillTextureProvider := fillTextureProvider;
   result.globalAlpha := globalAlpha;
+
+  result.fontName:= fontName;
+  result.fontEmHeight := fontEmHeight;
+  result.fontStyle := fontStyle;
 
   result.lineWidth := lineWidth;
   result.lineCap := lineCap;
@@ -515,6 +597,11 @@ begin
   end;
 end;
 
+function TBGRACanvas2D.GetLineCapLCL: TPenEndCap;
+begin
+  result := currentState.lineCap;
+end;
+
 function TBGRACanvas2D.GetlineJoin: string;
 begin
   case currentState.lineJoin of
@@ -522,6 +609,11 @@ begin
     pjsRound: result := 'round';
     else result := 'miter';
   end;
+end;
+
+function TBGRACanvas2D.GetlineJoinLCL: TPenJoinStyle;
+begin
+  result := currentState.lineJoin;
 end;
 
 function TBGRACanvas2D.getLineStyle: TBGRAPenStyle;
@@ -532,6 +624,11 @@ end;
 function TBGRACanvas2D.GetLineWidth: single;
 begin
   result := currentState.lineWidth;
+end;
+
+function TBGRACanvas2D.GetMatrix: TAffineMatrix;
+begin
+  result := currentState.matrix;
 end;
 
 function TBGRACanvas2D.GetMiterLimit: single;
@@ -564,6 +661,26 @@ begin
   result := currentState.shadowOffsetY;
 end;
 
+function TBGRACanvas2D.GetTextAlign: string;
+begin
+  case currentState.textAlign of
+    taRightJustify: result := 'right';
+    taCenter: result := 'center';
+  else
+    result := 'left';
+  end;
+end;
+
+function TBGRACanvas2D.GetTextAlignLCL: TAlignment;
+begin
+  result := currentState.textAlign;
+end;
+
+function TBGRACanvas2D.GetTextBaseline: string;
+begin
+  result := currentState.textBaseline;
+end;
+
 function TBGRACanvas2D.GetGlobalAlpha: single;
 begin
   result := currentState.globalAlpha/255;
@@ -575,6 +692,64 @@ begin
   setlength(result, FPathPointCount);
   for i := 0 to high(result) do
     result[i] := FPathPoints[i];
+end;
+
+function TBGRACanvas2D.GetFontName: string;
+begin
+  result := currentState.fontName;
+end;
+
+function TBGRACanvas2D.GetFontRenderer: TBGRACustomFontRenderer;
+var zoom1,zoom2,zoom: single;
+begin
+  if FFontRenderer = nil then
+  begin
+    if FSurface <> nil then
+      result := FSurface.FontRenderer
+    else
+      result := nil;
+  end else
+    result := FFontRenderer;
+  if Assigned(result) then
+  begin
+    result.FontName := currentState.fontName;
+    result.FontStyle := currentState.fontStyle;
+    if antialiasing then
+      result.FontQuality:= fqFineAntialiasing
+    else
+      result.FontQuality := fqSystem;
+    result.FontOrientation := 0;
+    zoom1 := VectLen(currentState.matrix[1,1],currentState.matrix[2,1]);
+    zoom2 := VectLen(currentState.matrix[1,2],currentState.matrix[2,2]);
+    if zoom1>zoom2 then zoom := zoom1 else zoom := zoom2;
+    result.FontEmHeight := round(currentState.fontEmHeight*zoom);
+  end;
+end;
+
+function TBGRACanvas2D.GetFontEmHeight: single;
+begin
+  result := currentState.fontEmHeight;
+end;
+
+function TBGRACanvas2D.GetFontString: string;
+var formats: TFormatSettings;
+begin
+  formats := DefaultFormatSettings;
+  formats.DecimalSeparator := '.';
+
+  result := '';
+  if fsItalic in currentState.fontStyle then
+    result := result+'italic ';
+  if fsBold in currentState.fontStyle then
+    result += 'bold ';
+  result += FloatToStrF(currentState.fontEmHeight,ffGeneral,6,0,formats)+'px ';
+  result += currentState.fontName;
+  result := trim(result);
+end;
+
+function TBGRACanvas2D.GetFontStyle: TFontStyles;
+begin
+  result := currentState.fontStyle;
 end;
 
 function TBGRACanvas2D.GetHasShadow: boolean;
@@ -592,6 +767,88 @@ begin
     result := 0;
 end;
 
+procedure TBGRACanvas2D.SetFontName(AValue: string);
+begin
+  currentState.fontName := AValue;
+end;
+
+procedure TBGRACanvas2D.SetFontRenderer(AValue: TBGRACustomFontRenderer);
+begin
+  if AValue = FFontRenderer then exit;
+  FreeAndNil(FFontRenderer);
+  FFontRenderer := AValue;
+end;
+
+procedure TBGRACanvas2D.SetFontEmHeight(AValue: single);
+begin
+  currentState.fontEmHeight := AValue;
+end;
+
+procedure TBGRACanvas2D.SetFontString(AValue: string);
+var idxSpace,errPos: integer;
+  attrib,u: string;
+  value: single;
+begin
+  currentState.fontStyle := [];
+  currentState.fontEmHeight := 10;
+  currentState.fontName := 'Arial';
+  AValue := trim(AValue);
+  while AValue <> '' do
+  begin
+    while (AValue <> '') and (AValue[1]in [#0..#32]) do delete(AValue,1,1);
+    idxSpace := pos(' ',AValue);
+    if idxSpace = 0 then
+      attrib := AValue
+    else
+      attrib := copy(AValue,1,idxSpace-1);
+    attrib := lowerCase(attrib);
+    if attrib = '' then break;
+    if (attrib = 'normal') or (attrib = 'small-caps') or (attrib = 'lighter') then
+    begin
+      //nothing
+    end else
+    if (attrib = 'italic') or (attrib = 'oblique') then
+    begin
+      currentState.fontStyle += [fsItalic];
+    end else
+    if (attrib = 'bold') or (attrib = 'bolder') then
+    begin
+      currentState.fontStyle += [fsBold];
+    end else
+    if (attrib[1] in ['.','0'..'9']) then
+    begin
+      u := '';
+      while (length(attrib)>0) and (attrib[length(attrib)] in['a'..'z']) do
+      begin
+        u := attrib[length(attrib)]+u;
+        delete(attrib,length(attrib),1);
+      end;
+      val(attrib,value,errPos);
+      if errPos = 0 then
+      begin
+        if u = '' then //weight
+        begin
+          if value >= 600 then currentState.fontStyle += [fsBold];
+        end else
+        if u = 'px' then currentState.fontEmHeight := value else
+        if u = 'pt' then currentState.fontEmHeight:= value/72*96 else
+        if u = 'in' then currentState.fontEmHeight:= value*96 else
+        if u = 'mm' then currentState.fontEmHeight:= value/25.4*96 else
+        if u = 'cm' then currentState.fontEmHeight:= value/2.54*96;
+      end;
+    end else
+      break;
+    delete(AValue,1,length(attrib)+1);
+  end;
+  AValue := trim(AValue);
+  if AValue <> '' then currentState.fontName := AValue;
+end;
+
+procedure TBGRACanvas2D.SetFontStyle(AValue: TFontStyles);
+begin
+  currentState.fontStyle:= AValue;
+end;
+
 procedure TBGRACanvas2D.SetGlobalAlpha(const AValue: single);
 begin
   if AValue < 0 then currentState.globalAlpha:= 0 else
@@ -607,6 +864,11 @@ begin
     currentState.lineCap := pecSquare
   else
     currentState.lineCap := pecFlat;
+end;
+
+procedure TBGRACanvas2D.SetLineCapLCL(AValue: TPenEndCap);
+begin
+  currentState.lineCap := AValue;
 end;
 
 procedure TBGRACanvas2D.SetLineJoin(const AValue: string);
@@ -735,14 +997,55 @@ begin
   multi.Free;
 end;
 
+procedure TBGRACanvas2D.SetLineJoinLCL(AValue: TPenJoinStyle);
+begin
+  currentState.lineJoin := AValue;
+end;
+
 procedure TBGRACanvas2D.lineStyle(const AValue: array of single);
 begin
   currentState.lineStyle := DuplicatePenStyle(AValue);
 end;
 
+procedure TBGRACanvas2D.lineStyle(AStyle: TPenStyle);
+begin
+  case AStyle of
+    psSolid: lineStyle(SolidPenStyle);
+    psDash: lineStyle(DashPenStyle);
+    psDot: lineStyle(DotPenStyle);
+    psDashDot: lineStyle(DashDotPenStyle);
+    psDashDotDot: lineStyle(DashDotDotPenStyle);
+    psClear: lineStyle(ClearPenStyle);
+  end;
+end;
+
+function TBGRACanvas2D.QueryInterface({$IFDEF FPC_HAS_CONSTREF}constref{$ELSE}const{$ENDIF} IID: TGUID; out Obj): HResult; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
+begin
+  if GetInterface(iid, obj) then
+    Result := S_OK
+  else
+    Result := longint(E_NOINTERFACE);
+end;
+
+{ There is no automatic reference counting, but it is compulsory to define these functions }
+function TBGRACanvas2D._AddRef: Integer; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
+begin
+  result := 0;
+end;
+
+function TBGRACanvas2D._Release: Integer; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
+begin
+  result := 0;
+end;
+
 procedure TBGRACanvas2D.SetLineWidth(const AValue: single);
 begin
   currentState.lineWidth := AValue;
+end;
+
+procedure TBGRACanvas2D.SetMatrix(AValue: TAffineMatrix);
+begin
+  currentState.matrix := AValue;
 end;
 
 procedure TBGRACanvas2D.SetMiterLimit(const AValue: single);
@@ -778,6 +1081,27 @@ end;
 procedure TBGRACanvas2D.SetShadowOffsetY(const AValue: single);
 begin
   currentState.shadowOffsetY := AValue;
+end;
+
+procedure TBGRACanvas2D.SetTextAlign(AValue: string);
+begin
+  AValue := trim(LowerCase(AValue));
+  if (AValue = 'left') or (AValue = 'start') then
+    textAlignLCL := taLeftJustify else
+  if (AValue = 'right') or (AValue = 'end') then
+    textAlignLCL := taRightJustify else
+  if AValue = 'center' then
+    textAlignLCL := taCenter;
+end;
+
+procedure TBGRACanvas2D.SetTextAlignLCL(AValue: TAlignment);
+begin
+  currentState.textAlign := AValue;
+end;
+
+procedure TBGRACanvas2D.SetTextBaseine(AValue: string);
+begin
+  currentState.textBaseline := trim(lowercase(AValue));
 end;
 
 procedure TBGRACanvas2D.StrokePoly(const points: array of TPointF);
@@ -941,12 +1265,12 @@ begin
   result := currentState.matrix*point+FCanvasOffset;
 end;
 
-function TBGRACanvas2D.GetPenPos: TPointF;
+function TBGRACanvas2D.GetPenPos(defaultX,defaultY: single): TPointF;
 begin
-  if FPathPointCount = 0 then
-    result := PointF(0,0)
+  if isEmptyPointF(FLastCoord) then
+    result := PointF(defaultX,defaultY)
   else
-    result := FPathPoints[FPathPointCount-1];
+    result := FLastCoord;
 end;
 
 procedure TBGRACanvas2D.AddPoint(point: TPointF);
@@ -991,11 +1315,18 @@ begin
   if linearBlend then result := dmLinearBlend else result := dmDrawWithTransparency;
 end;
 
+procedure TBGRACanvas2D.copyTo(dest: IBGRAPath);
+begin
+  //nothing
+end;
+
 constructor TBGRACanvas2D.Create(ASurface: TBGRACustomBitmap);
 begin
   FSurface := ASurface;
   StateStack := TList.Create;
   FPathPointCount := 0;
+  FLastCoord := EmptyPointF;
+  FStartCoord := EmptyPointF;
   currentState := TBGRACanvasState2D.Create(AffineMatrixIdentity,nil);
   pixelCenteredCoordinates := false;
   antialiasing := true;
@@ -1009,6 +1340,7 @@ begin
     TObject(StateStack[i]).Free;
   StateStack.Free;
   currentState.Free;
+  FreeAndNil(FFontRenderer);
   inherited Destroy;
 end;
 
@@ -1071,9 +1403,14 @@ begin
   currentState.matrix *= AffineMatrixScale(x,y);
 end;
 
-procedure TBGRACanvas2D.rotate(angleRad: single);
+procedure TBGRACanvas2D.scale(factor: single);
 begin
-  currentState.matrix *= AffineMatrixRotationRad(-angleRad);
+  currentState.matrix *= AffineMatrixScale(factor,factor);
+end;
+
+procedure TBGRACanvas2D.rotate(angleRadCW: single);
+begin
+  currentState.matrix *= AffineMatrixRotationRad(-angleRadCW);
 end;
 
 procedure TBGRACanvas2D.translate(x, y: single);
@@ -1084,6 +1421,11 @@ end;
 procedure TBGRACanvas2D.transform(a, b, c, d, e, f: single);
 begin
   currentState.matrix *= AffineMatrix(a,c,e,b,d,f);
+end;
+
+procedure TBGRACanvas2D.transform(AMatrix: TAffineMatrix);
+begin
+  currentState.matrix *= AMatrix;
 end;
 
 procedure TBGRACanvas2D.setTransform(a, b, c, d, e, f: single);
@@ -1169,6 +1511,11 @@ begin
   shadowColor(StrToBGRA(color));
 end;
 
+procedure TBGRACanvas2D.shadowNone;
+begin
+  shadowColor(BGRAPixelTransparent);
+end;
+
 function TBGRACanvas2D.getShadowColor: TBGRAPixel;
 begin
   result := currentState.shadowColor;
@@ -1249,9 +1596,42 @@ begin
   ClearPoly(ApplyTransform([PointF(x,y),PointF(x+w,y),PointF(x+w,y+h),PointF(x,y+h)]));
 end;
 
+procedure TBGRACanvas2D.addPath(APath: IBGRAPath);
+begin
+  if (FPathPointCount <> 0) and not isEmptyPointF(FPathPoints[FPathPointCount-1]) then
+  begin
+    AddPoint(EmptyPointF);
+    FLastCoord := EmptyPointF;
+    FStartCoord := EmptyPointF;
+  end;
+  APath.copyTo(self);
+end;
+
+procedure TBGRACanvas2D.addPath(ASvgPath: string);
+var p: TBGRAPath;
+begin
+  p := TBGRAPath.Create(ASvgPath);
+  addPath(p);
+  p.Free;
+end;
+
+procedure TBGRACanvas2D.path(APath: IBGRAPath);
+begin
+  beginPath;
+  addPath(APath);
+end;
+
+procedure TBGRACanvas2D.path(ASvgPath: string);
+begin
+  beginPath;
+  addPath(ASvgPath);
+end;
+
 procedure TBGRACanvas2D.beginPath;
 begin
   FPathPointCount := 0;
+  FLastCoord := EmptyPointF;
+  FStartCoord := EmptyPointF;
 end;
 
 procedure TBGRACanvas2D.closePath;
@@ -1262,6 +1642,7 @@ begin
     i := FPathPointCount-1;
     while (i > 0) and not isEmptyPointF(FPathPoints[i-1]) do dec(i);
     AddPoint(FPathPoints[i]);
+    FLastCoord := FStartCoord;
   end;
 end;
 
@@ -1297,21 +1678,28 @@ begin
   lineTo(PointF(x,y));
 end;
 
-procedure TBGRACanvas2D.moveTo(pt: TPointF);
+procedure TBGRACanvas2D.moveTo(const pt: TPointF);
 begin
-  if FPathPointCount <> 0 then
+  if (FPathPointCount <> 0) and not isEmptyPointF(FPathPoints[FPathPointCount-1]) then
     AddPoint(EmptyPointF);
   AddPoint(ApplyTransform(pt));
+  FStartCoord := pt;
+  FLastCoord := pt;
 end;
 
-procedure TBGRACanvas2D.lineTo(pt: TPointF);
+procedure TBGRACanvas2D.lineTo(const pt: TPointF);
 begin
   AddPoint(ApplyTransform(pt));
+  FLastCoord := pt;
 end;
 
 procedure TBGRACanvas2D.polylineTo(const pts: array of TPointF);
 begin
-  AddPoints(ApplyTransform(pts));
+  if length(pts)> 0 then
+  begin
+    AddPoints(ApplyTransform(pts));
+    FLastCoord := pts[high(pts)];
+  end;
 end;
 
 procedure TBGRACanvas2D.quadraticCurveTo(cpx, cpy, x, y: single);
@@ -1319,12 +1707,13 @@ var
   curve : TQuadraticBezierCurve;
   pts : array of TPointF;
 begin
-  curve := BezierCurve(GetPenPos,ApplyTransform(PointF(cpx,cpy)),ApplyTransform(PointF(x,y)));
+  curve := BezierCurve(GetPenPos(cpx,cpy),ApplyTransform(PointF(cpx,cpy)),ApplyTransform(PointF(x,y)));
   pts := BGRAPath.ComputeBezierCurve(curve);
   AddPoints(pts);
+  FLastCoord := PointF(x,y);
 end;
 
-procedure TBGRACanvas2D.quadraticCurveTo(cp, pt: TPointF);
+procedure TBGRACanvas2D.quadraticCurveTo(const cp, pt: TPointF);
 begin
   quadraticCurveTo(cp.x,cp.y,pt.x,pt.y);
 end;
@@ -1334,13 +1723,14 @@ var
   curve : TCubicBezierCurve;
   pts : array of TPointF;
 begin
-  curve := BezierCurve(GetPenPos,ApplyTransform(PointF(cp1x,cp1y)),
+  curve := BezierCurve(GetPenPos(cp1x,cp1y),ApplyTransform(PointF(cp1x,cp1y)),
     ApplyTransform(PointF(cp2x,cp2y)),ApplyTransform(PointF(x,y)));
   pts := BGRAPath.ComputeBezierCurve(curve);
   AddPoints(pts);
+  FLastCoord := PointF(x,y);
 end;
 
-procedure TBGRACanvas2D.bezierCurveTo(cp1, cp2, pt: TPointF);
+procedure TBGRACanvas2D.bezierCurveTo(const cp1, cp2, pt: TPointF);
 begin
   bezierCurveTo(cp1.x,cp1.y,cp2.x,cp2.y,pt.x,pt.y);
 end;
@@ -1351,7 +1741,7 @@ begin
   LineTo(x+w,y);
   LineTo(x+w,y+h);
   LineTo(x,y+h);
-  LineTo(x,y);
+  closePath;
 end;
 
 procedure TBGRACanvas2D.roundRect(x, y, w, h, radius: single);
@@ -1369,6 +1759,31 @@ begin
   arcTo(PointF(x+w,y+h),PointF(x,y+h), radius);
   arcTo(PointF(x,y+h),PointF(x,y), radius);
   arcTo(PointF(x,y),PointF(x+w,y), radius);
+  closePath;
+end;
+
+procedure TBGRACanvas2D.roundRect(x, y, w, h, rx, ry: single);
+begin
+  if (w <= 0) or (h <= 0) then exit;
+  if rx < 0 then rx := 0;
+  if ry < 0 then ry := 0;
+  if (rx = 0) and (ry = 0) then
+  begin
+    rect(x,y,w,h);
+    exit;
+  end;
+  if rx*2 > w then rx := w/2;
+  if ry*2 > h then ry := h/2;
+  moveTo(x+rx,y);
+  lineTo(x+w-rx,y);
+  arcTo(rx,ry,0,false,false,x+w,y+ry);
+  lineTo(x+w,y+h-ry);
+  arcTo(rx,ry,0,false,false,x+w-rx,y+h);
+  lineTo(x+rx,y+h);
+  arcTo(rx,ry,0,false,false,x,y+h-ry);
+  lineTo(x,y+ry);
+  arcTo(rx,ry,0,false,false,x+rx,y);
+  closePath;
 end;
 
 procedure TBGRACanvas2D.spline(const pts: array of TPointF; style: TSplineStyle);
@@ -1381,6 +1796,7 @@ begin
   else
     transf := BGRAPath.ComputeOpenedSpline(transf,style);
   AddPoints(transf);
+  FLastCoord := pts[high(pts)];
 end;
 
 procedure TBGRACanvas2D.splineTo(const pts: array of TPointF;
@@ -1388,19 +1804,21 @@ procedure TBGRACanvas2D.splineTo(const pts: array of TPointF;
 var transf: array of TPointF;
   i: Integer;
 begin
+  if length(pts) = 0 then exit;
   transf := ApplyTransform(pts);
   if FPathPointCount <> 0 then
   begin
     setlength(transf,length(transf)+1);
     for i := high(transf) downto 1 do
       transf[i]:= transf[i-1];
-    transf[0] := GetPenPos;
+    transf[0] := ApplyTransform(GetPenPos(pts[0].x,pts[0].y));
   end;
   transf := BGRAPath.ComputeOpenedSpline(transf,style);
   AddPoints(transf);
+  FLastCoord := pts[high(pts)];
 end;
 
-procedure TBGRACanvas2D.arc(x, y, radius, startAngle, endAngle: single;
+procedure TBGRACanvas2D.arc(x, y, radius, startAngleRadCW, endAngleRadCW: single;
   anticlockwise: boolean);
 var pts: array of TPointF;
   temp: single;
@@ -1409,6 +1827,7 @@ var pts: array of TPointF;
   len1,len2: single;
   unitAffine: TAffineMatrix;
   v1orig,v2orig,v1ortho,v2ortho: TPointF;
+  startRadCCW,endRadCCW: single;
 begin
   v1orig := PointF(currentState.matrix[1,1],currentState.matrix[2,1]);
   v2orig := PointF(currentState.matrix[1,2],currentState.matrix[2,2]);
@@ -1421,87 +1840,148 @@ begin
   pt := currentState.matrix* PointF(x,y);
   unitAffine := AffineMatrix(v1ortho.x, v2ortho.x, pt.x,
                              v1ortho.y, v2ortho.y, pt.y);
-  startAngle := -startAngle;
-  endAngle := -endAngle;
+  startRadCCW := -startAngleRadCW;
+  endRadCCW := -endAngleRadCW;
   if not anticlockwise then
   begin
-    temp := startAngle;
-    startAngle := endAngle;
-    endAngle := temp;
-    pts := BGRAPath.ComputeArcRad(0,0,rx,ry,startAngle,endAngle);
+    temp := startRadCCW;
+    startRadCCW := endRadCCW;
+    endRadCCW:= temp;
+    pts := BGRAPath.ComputeArcRad(0,0,rx,ry,startRadCCW,endRadCCW);
     pts := ApplyTransform(pts,unitAffine);
     AddPointsRev(pts);
   end else
   begin
-    pts := BGRAPath.ComputeArcRad(0,0,rx,ry,startAngle,endAngle);
+    pts := BGRAPath.ComputeArcRad(0,0,rx,ry,startRadCCW,endRadCCW);
     pts := ApplyTransform(pts,unitAffine);
     AddPoints(pts);
   end;
+  FLastCoord := ArcEndPoint(ArcDef(x,y,radius,radius,0,startAngleRadCW,endAngleRadCW,anticlockwise));
 end;
 
-procedure TBGRACanvas2D.arc(x, y, radius, startAngle, endAngle: single);
+procedure TBGRACanvas2D.arc(x, y, radius, startAngleRadCW, endAngleRadCW: single);
 begin
-  arc(x,y,radius,startAngle,endAngle,false);
+  arc(x,y,radius,startAngleRadCW,endAngleRadCW,false);
+end;
+
+procedure TBGRACanvas2D.arc(cx, cy, rx, ry, xAngleRadCW, startAngleRadCW, endAngleRadCW: single;
+  anticlockwise: boolean);
+begin
+  arc(ArcDef(cx,cy,rx,ry,xAngleRadCW,startAngleRadCW,endAngleRadCW,anticlockwise))
+end;
+
+procedure TBGRACanvas2D.arc(cx, cy, rx, ry, xAngleRadCW, startAngleRadCW, endAngleRadCW: single);
+begin
+  arc(ArcDef(cx,cy,rx,ry,xAngleRadCW,startAngleRadCW,endAngleRadCW,false))
+end;
+
+procedure TBGRACanvas2D.arc(const arcDef: TArcDef);
+var previousMatrix: TAffineMatrix;
+begin
+  if (arcDef.radius.x = 0) and (arcDef.radius.y = 0) then
+    lineTo(arcDef.center) else
+  begin
+    previousMatrix := currentState.matrix;
+    translate(arcDef.center.x,arcDef.center.y);
+    rotate(arcDef.xAngleRadCW);
+    scale(arcDef.radius.x,arcDef.radius.y);
+    arc(0,0,1,arcDef.startAngleRadCW,arcDef.endAngleRadCW,arcDef.anticlockwise);
+    currentState.matrix := previousMatrix;
+    FLastCoord := ArcEndPoint(arcDef);
+  end;
 end;
 
 procedure TBGRACanvas2D.arcTo(x1, y1, x2, y2, radius: single);
-var p0,p1,p2,p3,p4,an,bn,cn,c: TPointF;
-    dir, a2, b2, c2, cosx, sinx, d,
-    angle0, angle1: single;
-    anticlockwise: boolean;
+var p0: TPointF;
 begin
-  if FPathPointCount = 0 then
-    moveTo(x1,y1);
-  radius := abs(radius);
-  p0 := GetPenPos;
-  p1 := PointF(x1,y1);
-  p2 := PointF(x2,y2);
-
-  if (p0 = p1) or (p1 = p2) or (radius = 0) then
-  begin
-    lineto(x1,y1);
-    exit;
-  end;
-
-  dir := (x2-x1)*(p0.y-y1) + (y2-y1)*(x1-p0.x);
-  if dir = 0 then
-  begin
-    lineto(x1,y1);
-    exit;
-  end;
-
-  a2 := (p0.x-x1)*(p0.x-x1) + (p0.y-y1)*(p0.y-y1);
-  b2 := (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2);
-  c2 := (p0.x-x2)*(p0.x-x2) + (p0.y-y2)*(p0.y-y2);
-  cosx := (a2+b2-c2)/(2*sqrt(a2*b2));
-
-  sinx := sqrt(1 - cosx*cosx);
-  if (sinx = 0) or (cosx = 1) then
-  begin
-    lineto(x1,y1);
-    exit;
-  end;
-  d := radius / ((1 - cosx) / sinx);
-
-  an := (p1-p0)*(1/sqrt(a2));
-  bn := (p1-p2)*(1/sqrt(b2));
-  p3 := p1 - an*d;
-  p4 := p1 - bn*d;
-  anticlockwise := (dir < 0);
-
-  cn := PointF(an.y,-an.x)*radius;
-  if not anticlockwise then cn := -cn;
-  c := p3 + cn;
-  angle0 := arctan2((p3.y-c.y), (p3.x-c.x));
-  angle1 := arctan2((p4.y-c.y), (p4.x-c.x));
-
-  lineTo(p3.x,p3.y);
-  arc(c.x,c.y, radius, angle0, angle1, anticlockwise);
+  p0 := GetPenPos(x1,y1);
+  arc(Html5ArcTo(p0,PointF(x1,y1),PointF(x2,y2),radius));
 end;
 
 procedure TBGRACanvas2D.arcTo(p1, p2: TPointF; radius: single);
 begin
   arcTo(p1.x,p1.y,p2.x,p2.y,radius);
+end;
+
+procedure TBGRACanvas2D.arcTo(rx, ry, xAngleRadCW: single; largeArc,
+  anticlockwise: boolean; x, y: single);
+begin
+  arc(SvgArcTo(GetPenPos(x,y), rx,ry, xAngleRadCW, largeArc, anticlockwise, PointF(x,y)));
+  FLastCoord := PointF(x,y);
+end;
+
+procedure TBGRACanvas2D.circle(x, y, r: single);
+begin
+  arc(x,y,r,0,0);
+end;
+
+procedure TBGRACanvas2D.ellipse(x, y, rx, ry: single);
+begin
+  arc(x,y,rx,ry,0,0,0);
+end;
+
+procedure TBGRACanvas2D.text(AText: string; x, y: single);
+var renderer : TBGRACustomFontRenderer;
+  previousMatrix: TAffineMatrix;
+begin
+  renderer := fontRenderer;
+  if renderer.FontEmHeight <= 0 then exit;
+  previousMatrix := currentState.matrix;
+
+  scale(currentState.fontEmHeight/renderer.FontEmHeight);
+  if (currentState.textBaseline <> 'top') and
+    (currentState.textBaseline <> 'hanging') then
+  with renderer.GetFontPixelMetric do
+  begin
+    if currentState.textBaseline = 'bottom' then
+       translate(0,-Lineheight)
+    else if currentState.textBaseline = 'middle' then
+       translate(0,-Lineheight/2)
+    else if currentState.textBaseline = 'alphabetic' then
+       translate(0,-baseline);
+  end;
+
+  if renderer <> nil then
+    renderer.CopyTextPathTo(self, x,y, AText, taLeftJustify);
+
+  currentState.matrix := previousMatrix;
+  FLastCoord := EmptyPointF;
+  FStartCoord := EmptyPointF;
+end;
+
+procedure TBGRACanvas2D.fillText(AText: string; x, y: single);
+begin
+  beginPath;
+  text(AText,x,y);
+  fill;
+  beginPath;
+end;
+
+procedure TBGRACanvas2D.strokeText(AText: string; x, y: single);
+begin
+  beginPath;
+  text(AText,x,y);
+  stroke;
+  beginPath;
+end;
+
+function TBGRACanvas2D.measureText(AText: string): TCanvas2dTextSize;
+var renderer: TBGRACustomFontRenderer;
+begin
+  renderer := fontRenderer;
+  if renderer <> nil then
+  begin
+    with renderer.TextSize(AText) do
+    begin
+      result.width := cx;
+      result.height:= cy;
+    end;
+  end
+  else
+  begin
+    result.width := 0;
+    result.height := 0;
+  end;
 end;
 
 procedure TBGRACanvas2D.fill;

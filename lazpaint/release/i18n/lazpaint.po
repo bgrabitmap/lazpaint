@@ -1,6 +1,11 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
+#: tfabout.button_donate.caption
+msgctxt "TFABOUT.BUTTON_DONATE.CAPTION"
+msgid "Donate..."
+msgstr ""
+
 #: tfabout.caption
 msgctxt "TFABOUT.CAPTION"
 msgid "About"
@@ -17,7 +22,7 @@ msgstr ""
 
 #: tfabout.label_authorsvalue.caption
 msgctxt "TFABOUT.LABEL_AUTHORSVALUE.CAPTION"
-msgid "Circular help by FabienWang and Lainz"
+msgid "Circular helped by FabienWang, Lainz and others"
 msgstr ""
 
 #: tfabout.label_homepage.caption
@@ -45,6 +50,33 @@ msgctxt "TFABOUT.LABEL_OPENSOURCE.CAPTION"
 msgid "Open source (GPLv3)"
 msgstr ""
 
+#: tfadjustcurves.button_cancel.caption
+msgctxt "TFADJUSTCURVES.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr ""
+
+#: tfadjustcurves.button_ok.caption
+msgctxt "TFADJUSTCURVES.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfadjustcurves.caption
+msgid "Adjust curves"
+msgstr ""
+
+#: tfadjustcurves.toolbutton_newcurve.hint
+msgid "Discard current curve and start a new one"
+msgstr ""
+
+#: tfadjustcurves.toolbutton_posterize.hint
+msgctxt "tfadjustcurves.toolbutton_posterize.hint"
+msgid "Posterize"
+msgstr ""
+
+#: tfadjustcurves.toolbutton_removepoint.hint
+msgid "Remove selected point (Del)"
+msgstr ""
+
 #: tfblendop.button_cancel.caption
 msgctxt "TFBLENDOP.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -59,7 +91,13 @@ msgstr ""
 msgid "Blend operation"
 msgstr ""
 
+#: tfblendop.label_blendopcategory.caption
+msgctxt "TFBLENDOP.LABEL_BLENDOPCATEGORY.CAPTION"
+msgid "Category of blend operation"
+msgstr ""
+
 #: tfblendop.label_blendopvalue.caption
+msgctxt "tfblendop.label_blendopvalue.caption"
 msgid "."
 msgstr ""
 
@@ -68,9 +106,17 @@ msgctxt "TFBLENDOP.LABEL_KRITAOVER.CAPTION"
 msgid "Krita"
 msgstr ""
 
+#: tfblendop.label_kritaover.hint
+msgid "Blend operations that are available in Krita"
+msgstr ""
+
 #: tfblendop.label_otherover.caption
 msgctxt "TFBLENDOP.LABEL_OTHEROVER.CAPTION"
 msgid "Other"
+msgstr ""
+
+#: tfblendop.label_otherover.hint
+msgid "Blend operations of LazPaint and Paint.NET"
 msgstr ""
 
 #: tfblendop.label_patternover.caption
@@ -78,9 +124,22 @@ msgctxt "TFBLENDOP.LABEL_PATTERNOVER.CAPTION"
 msgid "Pattern over"
 msgstr ""
 
+#: tfblendop.label_patternover.hint
+msgid "Preview blend operation with the specified image on top"
+msgstr ""
+
 #: tfblendop.label_patternunder.caption
 msgctxt "TFBLENDOP.LABEL_PATTERNUNDER.CAPTION"
 msgid "Pattern under"
+msgstr ""
+
+#: tfblendop.label_patternunder.hint
+msgid "Preview blend operation with the specified image underneath"
+msgstr ""
+
+#: tfblendop.label_previewwith.caption
+msgctxt "TFBLENDOP.LABEL_PREVIEWWITH.CAPTION"
+msgid "Preview with"
 msgstr ""
 
 #: tfblendop.label_selectedblendop.caption
@@ -90,6 +149,30 @@ msgstr ""
 #: tfblendop.label_svgover.caption
 msgctxt "TFBLENDOP.LABEL_SVGOVER.CAPTION"
 msgid "Basic SVG"
+msgstr ""
+
+#: tfblendop.label_svgover.hint
+msgid "Basic blend operations that are available in virtually all image editors"
+msgstr ""
+
+#: tfbrowseimages.caption
+msgid "Browse images"
+msgstr ""
+
+#: tfbrowseimages.label_size.caption
+msgid "Size: "
+msgstr ""
+
+#: tfbrowseimages.toolbutton_goup.hint
+msgid "Go one directory up"
+msgstr ""
+
+#: tfbrowseimages.toolbutton_viewbigicon.caption
+msgid "Show big icons"
+msgstr ""
+
+#: tfbrowseimages.toolbutton_viewdetails.caption
+msgid "Show details and preview"
 msgstr ""
 
 #: tfcanvassize.button_cancel.caption
@@ -129,6 +212,10 @@ msgstr ""
 #: tfchoosecolor.caption
 msgctxt "TFCHOOSECOLOR.CAPTION"
 msgid "Color"
+msgstr ""
+
+#: tfchoosecolor.lcolor.hint
+msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
 msgstr ""
 
 #: tfcolorintensity.button_cancel.caption
@@ -184,6 +271,10 @@ msgstr ""
 #: tfcolorize.label_hue.caption
 msgctxt "TFCOLORIZE.LABEL_HUE.CAPTION"
 msgid "Hue"
+msgstr ""
+
+#: tfcolorize.label_preset.caption
+msgid "Preset"
 msgstr ""
 
 #: tfcustomblur.button_cancel.caption
@@ -253,31 +344,38 @@ msgid "Corrected hue and lightness"
 msgstr ""
 
 #: tffilterfunction.label_alphaequals.caption
-msgid "Alpha ="
+msgctxt "tffilterfunction.label_alphaequals.caption"
+msgid "."
 msgstr ""
 
 #: tffilterfunction.label_blueequals.caption
-msgid "Blue ="
+msgctxt "tffilterfunction.label_blueequals.caption"
+msgid "."
 msgstr ""
 
 #: tffilterfunction.label_greenequals.caption
-msgid "Green ="
+msgctxt "tffilterfunction.label_greenequals.caption"
+msgid "."
 msgstr ""
 
 #: tffilterfunction.label_hueequals.caption
-msgid "Hue ="
+msgctxt "tffilterfunction.label_hueequals.caption"
+msgid "."
 msgstr ""
 
 #: tffilterfunction.label_lightnessequals.caption
-msgid "Lightness ="
+msgctxt "tffilterfunction.label_lightnessequals.caption"
+msgid "."
 msgstr ""
 
 #: tffilterfunction.label_redequals.caption
-msgid "Red ="
+msgctxt "tffilterfunction.label_redequals.caption"
+msgid "."
 msgstr ""
 
 #: tffilterfunction.label_saturationequals.caption
-msgid "Saturation ="
+msgctxt "tffilterfunction.label_saturationequals.caption"
+msgid "."
 msgstr ""
 
 #: tffilterfunction.label_variables.caption
@@ -292,9 +390,129 @@ msgstr ""
 msgid "RGB"
 msgstr ""
 
+#: tfimagelist.caption
+msgid "Image List"
+msgstr ""
+
+#: tfimagelist.lblstatus.caption
+msgid "lblStatus"
+msgstr ""
+
+#: tfimagelist.pmautouncheckonopen.caption
+msgid "Autouncheck files after being open"
+msgstr ""
+
+#: tfimagelist.pmautouncheckonsave.caption
+msgid "Autouncheck files after being edited and saved"
+msgstr ""
+
+#: tfimagelist.pmremoveall.caption
+msgid "Empty image list"
+msgstr ""
+
+#: tfimagelist.pmremovenonexisting.caption
+msgid "Remove nonexisting images"
+msgstr ""
+
+#: tfimagelist.pmremoveunchecked.caption
+msgid "Remove unchecked images"
+msgstr ""
+
+#: tfimagelist.pmunchecknonexisting.caption
+msgid "Uncheck nonexisting files"
+msgstr ""
+
+#: tfimagelist.stringgrid1.columns[0].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[0].title.caption"
+msgid "-"
+msgstr ""
+
+#: tfimagelist.stringgrid1.columns[1].title.caption
+msgctxt "TFIMAGELIST.STRINGGRID1.COLUMNS[1].TITLE.CAPTION"
+msgid "-"
+msgstr ""
+
+#: tfimagelist.stringgrid1.columns[2].title.caption
+msgctxt "TFIMAGELIST.STRINGGRID1.COLUMNS[2].TITLE.CAPTION"
+msgid "-"
+msgstr ""
+
+#: tfimagelist.stringgrid1.columns[3].title.caption
+msgctxt "TFIMAGELIST.STRINGGRID1.COLUMNS[3].TITLE.CAPTION"
+msgid "-"
+msgstr ""
+
+#: tfimagelist.tbaddfiles.hint
+msgid "Add images to list"
+msgstr ""
+
+#: tfimagelist.tbautouncheck.hint
+msgid "Enable/disable autounchecking for processed files"
+msgstr ""
+
+#: tfimagelist.tbautozoomfit.hint
+msgid "Enable/disable autofitting images in the LazPaint window"
+msgstr ""
+
+#: tfimagelist.tbcheckall.hint
+msgid "Check all files for processing"
+msgstr ""
+
+#: tfimagelist.tbminiwindow.hint
+msgid "Switch to miniwindow"
+msgstr ""
+
+#: tfimagelist.tbmovedown.hint
+msgid "Move selected items down"
+msgstr ""
+
+#: tfimagelist.tbmoveup.hint
+msgid "Move selected items up"
+msgstr ""
+
+#: tfimagelist.tbnormalwindows.hint
+msgid "Switch to normal window"
+msgstr ""
+
+#: tfimagelist.tbopenimage.hint
+msgid "Open current image"
+msgstr ""
+
+#: tfimagelist.tbopennext.hint
+msgctxt "tfimagelist.tbopennext.hint"
+msgid "Open next image (Alt-Right)"
+msgstr ""
+
+#: tfimagelist.tbopennextsw.hint
+msgctxt "TFIMAGELIST.TBOPENNEXTSW.HINT"
+msgid "Open next image"
+msgstr ""
+
+#: tfimagelist.tbopenprev.hint
+msgctxt "tfimagelist.tbopenprev.hint"
+msgid "Open previous image (Alt-Left)"
+msgstr ""
+
+#: tfimagelist.tbopenprevsw.hint
+msgctxt "TFIMAGELIST.TBOPENPREVSW.HINT"
+msgid "Open previous image"
+msgstr ""
+
+#: tfimagelist.tbremoveitem.hint
+msgid "Remove selected images from list"
+msgstr ""
+
+#: tfimagelist.tbuncheckall.hint
+msgid "Uncheck all files for processing"
+msgstr ""
+
 #: tflayerstack.caption
 msgctxt "TFLAYERSTACK.CAPTION"
 msgid "Layers"
+msgstr ""
+
+#: tflayerstack.toolblendop.hint
+msgid "Select blend operation"
 msgstr ""
 
 #: tflayerstack.toolzoomlayerstackin.hint
@@ -312,11 +530,6 @@ msgctxt "tfloading.caption"
 msgid "Loading..."
 msgstr ""
 
-#: tfloading.label_loadingstatus.caption
-msgctxt "TFLOADING.LABEL_LOADINGSTATUS.CAPTION"
-msgid "Loading..."
-msgstr ""
-
 #: tfmain.caption
 msgctxt "TFMAIN.CAPTION"
 msgid "LazPaint"
@@ -324,6 +537,10 @@ msgstr ""
 
 #: tfmain.colorcolorize.caption
 msgid "Colorize..."
+msgstr ""
+
+#: tfmain.colorcurves.caption
+msgid "Curves..."
 msgstr ""
 
 #: tfmain.colordialog1.title
@@ -335,7 +552,11 @@ msgid "Intensity..."
 msgstr ""
 
 #: tfmain.colorlightness.caption
-msgid "Lightness..."
+msgid "Brightness / Contrast..."
+msgstr ""
+
+#: tfmain.colorposterize.caption
+msgid "Posterize..."
 msgstr ""
 
 #: tfmain.colorshiftcolors.caption
@@ -453,6 +674,10 @@ msgctxt "TFMAIN.FILEOPEN.HINT"
 msgid "Open existing file"
 msgstr ""
 
+#: tfmain.fileprint.caption
+msgid "Print..."
+msgstr ""
+
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
 msgid "Quit"
@@ -478,6 +703,10 @@ msgstr ""
 
 #: tfmain.filesaveas.hint
 msgid "Save file as"
+msgstr ""
+
+#: tfmain.filesaveasinsamefolder.caption
+msgid "Save in same folder..."
 msgstr ""
 
 #: tfmain.filesaveselectionas.caption
@@ -528,6 +757,10 @@ msgstr ""
 msgid "Inverse ClearType"
 msgstr ""
 
+#: tfmain.filtercomplementarycolor.caption
+msgid "Complementary colors"
+msgstr ""
+
 #: tfmain.filtercontour.caption
 msgid "Contour"
 msgstr ""
@@ -559,6 +792,10 @@ msgstr ""
 
 #: tfmain.filternegative.caption
 msgid "Negative"
+msgstr ""
+
+#: tfmain.filternoise.caption
+msgid "Noise filter..."
 msgstr ""
 
 #: tfmain.filternormalize.caption
@@ -948,7 +1185,7 @@ msgstr ""
 
 #: tfmain.menutool.caption
 msgctxt "TFMAIN.MENUTOOL.CAPTION"
-msgid "Tool"
+msgid "Tools"
 msgstr ""
 
 #: tfmain.menuvertflipsub.caption
@@ -967,11 +1204,11 @@ msgid "Import 3D object"
 msgstr ""
 
 #: tfmain.openpicturedialog1.title
-msgctxt "TFMAIN.OPENPICTUREDIALOG1.TITLE"
-msgid "Open existing file"
+msgid "Open existing image"
 msgstr ""
 
 #: tfmain.opentexturedialog.title
+msgctxt "tfmain.opentexturedialog.title"
 msgid "Open texture"
 msgstr ""
 
@@ -1059,70 +1296,6 @@ msgstr ""
 
 #: tfmain.shape_pencolor.hint
 msgid "Select pen color"
-msgstr ""
-
-#: tfmain.spinedit_backopacity.hint
-msgctxt "tfmain.spinedit_backopacity.hint"
-msgid "Secondary color opacity"
-msgstr ""
-
-#: tfmain.spinedit_eraser.hint
-msgctxt "TFMAIN.SPINEDIT_ERASER.HINT"
-msgid "Eraser opacity"
-msgstr ""
-
-#: tfmain.spinedit_gridnbx.hint
-msgctxt "TFMAIN.SPINEDIT_GRIDNBX.HINT"
-msgid "Pen width"
-msgstr ""
-
-#: tfmain.spinedit_gridnby.hint
-msgctxt "TFMAIN.SPINEDIT_GRIDNBY.HINT"
-msgid "Pen width"
-msgstr ""
-
-#: tfmain.spinedit_penopacity.hint
-msgid "Pen opacity"
-msgstr ""
-
-#: tfmain.spinedit_penwidth.hint
-msgctxt "TFMAIN.SPINEDIT_PENWIDTH.HINT"
-msgid "Pen width"
-msgstr ""
-
-#: tfmain.spinedit_phongbordersize.hint
-msgctxt "TFMAIN.SPINEDIT_PHONGBORDERSIZE.HINT"
-msgid "Border size"
-msgstr ""
-
-#: tfmain.spinedit_shapealtitude.hint
-msgctxt "TFMAIN.SPINEDIT_SHAPEALTITUDE.HINT"
-msgid "Shape altitude"
-msgstr ""
-
-#: tfmain.spinedit_textblur.hint
-msgctxt "TFMAIN.SPINEDIT_TEXTBLUR.HINT"
-msgid "Shadow blur"
-msgstr ""
-
-#: tfmain.spinedit_textoutlinewidth.hint
-msgctxt "TFMAIN.SPINEDIT_TEXTOUTLINEWIDTH.HINT"
-msgid "Text outline width"
-msgstr ""
-
-#: tfmain.spinedit_textshadowx.hint
-msgctxt "TFMAIN.SPINEDIT_TEXTSHADOWX.HINT"
-msgid "Horizontal shadow offset"
-msgstr ""
-
-#: tfmain.spinedit_textshadowy.hint
-msgctxt "TFMAIN.SPINEDIT_TEXTSHADOWY.HINT"
-msgid "Vertical shadow offset"
-msgstr ""
-
-#: tfmain.spinedit_textureopacity.hint
-msgctxt "TFMAIN.SPINEDIT_TEXTUREOPACITY.HINT"
-msgid "Secondary color opacity"
 msgstr ""
 
 #: tfmain.toolcolorpicker.hint
@@ -1298,6 +1471,23 @@ msgctxt "TFMAIN.TOOL_CLOSESHAPE.HINT"
 msgid "Close shape"
 msgstr ""
 
+#: tfmain.tool_curvemodeangle.hint
+msgid "Draw an angle"
+msgstr ""
+
+#: tfmain.tool_curvemodeauto.hint
+msgctxt "TFMAIN.TOOL_CURVEMODEAUTO.HINT"
+msgid "Autodetect angles"
+msgstr ""
+
+#: tfmain.tool_curvemodecurve.hint
+msgid "Draw a curve"
+msgstr ""
+
+#: tfmain.tool_curvemovepoint.hint
+msgid "Move point"
+msgstr ""
+
 #: tfmain.tool_diamondgradient.hint
 msgctxt "TFMAIN.TOOL_DIAMONDGRADIENT.HINT"
 msgid "Diamond gradient"
@@ -1306,6 +1496,16 @@ msgstr ""
 #: tfmain.tool_drawshapeborder.hint
 msgctxt "TFMAIN.TOOL_DRAWSHAPEBORDER.HINT"
 msgid "Draw border"
+msgstr ""
+
+#: tfmain.tool_erasealpha.hint
+msgctxt "TFMAIN.TOOL_ERASEALPHA.HINT"
+msgid "Make transparent"
+msgstr ""
+
+#: tfmain.tool_eraseblur.hint
+msgctxt "TFMAIN.TOOL_ERASEBLUR.HINT"
+msgid "Soften"
 msgstr ""
 
 #: tfmain.tool_fillshape.hint
@@ -1453,6 +1653,10 @@ msgctxt "TFMAIN.VIEWGRID.CAPTION"
 msgid "Grid"
 msgstr ""
 
+#: tfmain.viewimagelist.caption
+msgid "Image list"
+msgstr ""
+
 #: tfmain.viewlayerstack.caption
 msgctxt "tfmain.viewlayerstack.caption"
 msgid "Layers"
@@ -1473,6 +1677,7 @@ msgid "Toolbox"
 msgstr ""
 
 #: tfmain.viewzoomfit.caption
+msgctxt "tfmain.viewzoomfit.caption"
 msgid "Zoom fit"
 msgstr ""
 
@@ -1500,6 +1705,65 @@ msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
 msgid "Zoom out"
 msgstr ""
 
+#: tfmain.vsbackopacity.hint
+msgctxt "TFMAIN.VSBACKOPACITY.HINT"
+msgid "Secondary color opacity"
+msgstr ""
+
+#: tfmain.vseraseropacity.hint
+msgctxt "TFMAIN.VSERASEROPACITY.HINT"
+msgid "Eraser opacity"
+msgstr ""
+
+#: tfmain.vspenopacity.hint
+msgctxt "TFMAIN.VSPENOPACITY.HINT"
+msgid "Pen opacity"
+msgstr ""
+
+#: tfmain.vspenwidth.hint
+msgctxt "TFMAIN.VSPENWIDTH.HINT"
+msgid "Pen width"
+msgstr ""
+
+#: tfmain.vsphongbordersize.hint
+msgctxt "TFMAIN.VSPHONGBORDERSIZE.HINT"
+msgid "Border size"
+msgstr ""
+
+#: tfmain.vsshapealtitude.hint
+msgctxt "TFMAIN.VSSHAPEALTITUDE.HINT"
+msgid "Shape altitude"
+msgstr ""
+
+#: tfmain.vstextblur.hint
+msgctxt "TFMAIN.VSTEXTBLUR.HINT"
+msgid "Shadow blur"
+msgstr ""
+
+#: tfmain.vstextoutlinewidth.hint
+msgctxt "TFMAIN.VSTEXTOUTLINEWIDTH.HINT"
+msgid "Text outline width"
+msgstr ""
+
+#: tfmain.vstextshadowx.hint
+msgctxt "TFMAIN.VSTEXTSHADOWX.HINT"
+msgid "Horizontal shadow offset"
+msgstr ""
+
+#: tfmain.vstextshadowy.hint
+msgctxt "TFMAIN.VSTEXTSHADOWY.HINT"
+msgid "Vertical shadow offset"
+msgstr ""
+
+#: tfmain.vstextsize.hint
+msgctxt "TFMAIN.VSTEXTSIZE.HINT"
+msgid "Text size"
+msgstr ""
+
+#: tfmain.vstextureopacity.hint
+msgid "Texture opacity"
+msgstr ""
+
 #: tfmotionblur.button_cancel.caption
 msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -1522,6 +1786,20 @@ msgstr ""
 #: tfmotionblur.label_distance.caption
 msgctxt "TFMOTIONBLUR.LABEL_DISTANCE.CAPTION"
 msgid "Distance :"
+msgstr ""
+
+#: tfmultiimage.button_cancel.caption
+msgctxt "TFMULTIIMAGE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr ""
+
+#: tfmultiimage.button_ok.caption
+msgctxt "TFMULTIIMAGE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfmultiimage.caption
+msgid "Choose image"
 msgstr ""
 
 #: tfnewimage.button_cancel.caption
@@ -1549,9 +1827,43 @@ msgctxt "TFNEWIMAGE.LABEL_WIDTH.CAPTION"
 msgid "Width :"
 msgstr ""
 
+#: tfnoisefilter.button_cancel.caption
+msgctxt "TFNOISEFILTER.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr ""
+
+#: tfnoisefilter.button_ok.caption
+msgctxt "TFNOISEFILTER.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfnoisefilter.caption
+msgid "Noise filter"
+msgstr ""
+
+#: tfnoisefilter.label_opacity.caption
+msgid "Opacity:"
+msgstr ""
+
+#: tfnoisefilter.radio_grayscalenoise.caption
+msgid "Grayscale noise"
+msgstr ""
+
+#: tfnoisefilter.radio_rgbnoise.caption
+msgid "RGB noise"
+msgstr ""
+
 #: tfobject3d.button_cancel.caption
 msgctxt "TFOBJECT3D.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
+msgstr ""
+
+#: tfobject3d.button_loadtex.caption
+msgid "Texture..."
+msgstr ""
+
+#: tfobject3d.button_notex.caption
+msgid "No tex."
 msgstr ""
 
 #: tfobject3d.button_ok.caption
@@ -1622,6 +1934,11 @@ msgstr ""
 
 #: tfobject3d.materials.caption
 msgid "Materials"
+msgstr ""
+
+#: tfobject3d.opentexturedialog.title
+msgctxt "TFOBJECT3D.OPENTEXTUREDIALOG.TITLE"
+msgid "Open texture"
 msgstr ""
 
 #: tfobject3d.rendering.caption
@@ -1737,6 +2054,101 @@ msgctxt "TFPIXELATE.LABEL_QUALITY.CAPTION"
 msgid "Quality :"
 msgstr ""
 
+#: tfposterize.button_cancel.caption
+msgctxt "TFPOSTERIZE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr ""
+
+#: tfposterize.button_ok.caption
+msgctxt "TFPOSTERIZE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfposterize.caption
+msgctxt "TFPOSTERIZE.CAPTION"
+msgid "Posterize"
+msgstr ""
+
+#: tfposterize.checkbox_bylightness.caption
+msgid "By lightness"
+msgstr ""
+
+#: tfposterize.label_levels.caption
+msgid "Levels :"
+msgstr ""
+
+#: tfprint.button_configureprinter.caption
+msgid "Configure..."
+msgstr ""
+
+#: tfprint.button_print.caption
+msgid "Print!"
+msgstr ""
+
+#: tfprint.button_zoomfit.caption
+msgctxt "TFPRINT.BUTTON_ZOOMFIT.CAPTION"
+msgid "Zoom fit"
+msgstr ""
+
+#: tfprint.caption
+msgid "Print"
+msgstr ""
+
+#: tfprint.checkbox_ratio.caption
+msgctxt "TFPRINT.CHECKBOX_RATIO.CAPTION"
+msgid "Keep aspect ratio"
+msgstr ""
+
+#: tfprint.groupbox_imagesize.caption
+msgid "Image size"
+msgstr ""
+
+#: tfprint.groupbox_margins.caption
+msgid "Margins"
+msgstr ""
+
+#: tfprint.label_bottom.caption
+msgid "Bottom:"
+msgstr ""
+
+#: tfprint.label_dpix.caption
+msgctxt "TFPRINT.LABEL_DPIX.CAPTION"
+msgid "."
+msgstr ""
+
+#: tfprint.label_dpiy.caption
+msgctxt "TFPRINT.LABEL_DPIY.CAPTION"
+msgid "."
+msgstr ""
+
+#: tfprint.label_height.caption
+msgid "Height:"
+msgstr ""
+
+#: tfprint.label_left.caption
+msgid "Left:"
+msgstr ""
+
+#: tfprint.label_orientation.caption
+msgid "Orientation:"
+msgstr ""
+
+#: tfprint.label_printerandpaper.caption
+msgid "Printer and paper:"
+msgstr ""
+
+#: tfprint.label_right.caption
+msgid "Right:"
+msgstr ""
+
+#: tfprint.label_top.caption
+msgid "Top:"
+msgstr ""
+
+#: tfprint.label_width.caption
+msgid "Width:"
+msgstr ""
+
 #: tfradialblur.button_cancel.caption
 msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -1773,6 +2185,7 @@ msgid "Resample"
 msgstr ""
 
 #: tfresample.checkbox_ratio.caption
+msgctxt "tfresample.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
 msgstr ""
 
@@ -1874,12 +2287,24 @@ msgstr ""
 msgid "Action in progress"
 msgstr ""
 
+#: uresourcestrings.rsaddtoimagelist
+msgid "Add files to the image processing list"
+msgstr ""
+
 #: uresourcestrings.rsallapplications
 msgid "all"
 msgstr ""
 
+#: uresourcestrings.rsallsupportedfiletypes
+msgid "All supported filetypes"
+msgstr ""
+
 #: uresourcestrings.rsaltshiftscalemode
 msgid "Hold ALT or SHIFT to scale"
+msgstr ""
+
+#: uresourcestrings.rsanimatedgif
+msgid "Animated GIF"
 msgstr ""
 
 #: uresourcestrings.rsbackspaceremovelastpoint
@@ -1888,6 +2313,31 @@ msgstr ""
 
 #: uresourcestrings.rsbestquality
 msgid "Best quality"
+msgstr ""
+
+#: uresourcestrings.rsbitmap
+msgid "Bitmap"
+msgstr ""
+
+#: uresourcestrings.rsblendopnotusedforbackground
+msgid "The blend operation is applied only if there is a layer underneath"
+msgstr ""
+
+#: uresourcestrings.rsbrightness
+msgid "Brightness"
+msgstr ""
+
+#: uresourcestrings.rsbytes
+msgid "Bytes"
+msgstr ""
+
+#: uresourcestrings.rscancel
+msgctxt "uresourcestrings.rscancel"
+msgid "Cancel"
+msgstr ""
+
+#: uresourcestrings.rscannotopenfile
+msgid "Cannot open file"
 msgstr ""
 
 #: uresourcestrings.rscanvassize
@@ -1908,6 +2358,10 @@ msgstr ""
 msgid "Conflicting actions"
 msgstr ""
 
+#: uresourcestrings.rscontrast
+msgid "Contrast"
+msgstr ""
+
 #: uresourcestrings.rscosine
 msgid "Cosine"
 msgstr ""
@@ -1918,6 +2372,10 @@ msgstr ""
 
 #: uresourcestrings.rsctrlrestrictrotation
 msgid "Hold CTRL to restrict rotation angle"
+msgstr ""
+
+#: uresourcestrings.rscurvemodehint
+msgid "Press S or X to set the curve mode of the last point"
 msgstr ""
 
 #: uresourcestrings.rseditmask
@@ -1944,6 +2402,14 @@ msgstr ""
 msgid "Enter layer name:"
 msgstr ""
 
+#: uresourcestrings.rserror
+msgid "Error"
+msgstr ""
+
+#: uresourcestrings.rserroronopeningfile
+msgid "Error on opening file \"%1\""
+msgstr ""
+
 #: uresourcestrings.rsexitrequest
 msgid "Exit request"
 msgstr ""
@@ -1964,8 +2430,48 @@ msgstr ""
 msgid "Fast"
 msgstr ""
 
+#: uresourcestrings.rsfiledate
+msgid "Date"
+msgstr ""
+
 #: uresourcestrings.rsfileextensionnotsupported
 msgid "This file extension is not supported."
+msgstr ""
+
+#: uresourcestrings.rsfileformatnotrecognized
+msgid "The file format has not been recognized."
+msgstr ""
+
+#: uresourcestrings.rsfilename
+msgid "Filename"
+msgstr ""
+
+#: uresourcestrings.rsfilenotfound
+msgid "File not found!"
+msgstr ""
+
+#: uresourcestrings.rsfilenotsaved
+msgid "File not saved"
+msgstr ""
+
+#: uresourcestrings.rsfilesize
+msgid "Size"
+msgstr ""
+
+#: uresourcestrings.rsfiletype
+msgid "Type"
+msgstr ""
+
+#: uresourcestrings.rsfolder
+msgid "Folder"
+msgstr ""
+
+#: uresourcestrings.rsfollowingerrorsoccured
+msgid "Following errors occured:"
+msgstr ""
+
+#: uresourcestrings.rsfunctionnotdefined
+msgid "The function %1 is not defined."
 msgstr ""
 
 #: uresourcestrings.rshalfcosine
@@ -1980,8 +2486,16 @@ msgstr ""
 msgid "Hold SHIFT to draw a square or a circle"
 msgstr ""
 
+#: uresourcestrings.rsiconorcursor
+msgid "Icon/cursor"
+msgstr ""
+
 #: uresourcestrings.rsimagetoobig
 msgid "Image is too big"
+msgstr ""
+
+#: uresourcestrings.rsinformation
+msgid "Information"
 msgstr ""
 
 #: uresourcestrings.rsintensity
@@ -2013,8 +2527,25 @@ msgstr ""
 msgid "Keep empty space around opaque pixels?"
 msgstr ""
 
+#: uresourcestrings.rslanczos
+msgid "Lanczos %1"
+msgstr ""
+
+#: uresourcestrings.rslandscape
+msgid "Landscape"
+msgstr ""
+
 #: uresourcestrings.rslatestversion
 msgid "The latest version of LazPaint available online is"
+msgstr ""
+
+#: uresourcestrings.rslayeredimage
+msgid "Layered image"
+msgstr ""
+
+#: uresourcestrings.rslazpaint
+msgctxt "uresourcestrings.rslazpaint"
+msgid "LazPaint"
 msgstr ""
 
 #: uresourcestrings.rslazpaintonly
@@ -2050,6 +2581,10 @@ msgstr ""
 msgid "Mitchell"
 msgstr ""
 
+#: uresourcestrings.rsmorethanonefile
+msgid "You are trying to open more than one file. How would you like these files to be opened?"
+msgstr ""
+
 #: uresourcestrings.rsmovingorrotatingselection
 msgid "Moving or rotating selection"
 msgstr ""
@@ -2067,12 +2602,20 @@ msgctxt "uresourcestrings.rsnewimage"
 msgid "New image"
 msgstr ""
 
+#: uresourcestrings.rsno
+msgid "No"
+msgstr ""
+
 #: uresourcestrings.rsnoactivelayer
 msgid "No active layer"
 msgstr ""
 
 #: uresourcestrings.rsnoactiveselection
 msgid "There is no active selection"
+msgstr ""
+
+#: uresourcestrings.rsnoandproceedtonext
+msgid "Do not save and open another file"
 msgstr ""
 
 #: uresourcestrings.rsnoname
@@ -2091,6 +2634,18 @@ msgstr ""
 msgid "There is nothing to be retrieved"
 msgstr ""
 
+#: uresourcestrings.rsnotreasonableformat
+msgid "It is not reasonable to save such a big image in this file format."
+msgstr ""
+
+#: uresourcestrings.rsnumber
+msgid "№"
+msgstr ""
+
+#: uresourcestrings.rsokay
+msgid "Okay"
+msgstr ""
+
 #: uresourcestrings.rsopacity
 msgid "Opacity"
 msgstr ""
@@ -2099,12 +2654,45 @@ msgstr ""
 msgid "Open"
 msgstr ""
 
+#: uresourcestrings.rsopenfilesaslayers
+msgid "Open files as layers in a single image"
+msgstr ""
+
+#: uresourcestrings.rsopenfirstfileonly
+msgid "Open the first file only"
+msgstr ""
+
 #: uresourcestrings.rsopening
 msgid "Opening"
 msgstr ""
 
+#: uresourcestrings.rsopenmultipleimagefiles
+msgid "Open multiple image files"
+msgstr ""
+
 #: uresourcestrings.rsotherblendop
 msgid "Other..."
+msgstr ""
+
+#: uresourcestrings.rspercent
+msgctxt "uresourcestrings.rspercent"
+msgid "%"
+msgstr ""
+
+#: uresourcestrings.rsportait
+msgid "Portrait"
+msgstr ""
+
+#: uresourcestrings.rspresetname
+msgid "Preset name"
+msgstr ""
+
+#: uresourcestrings.rspx
+msgid "px"
+msgstr ""
+
+#: uresourcestrings.rsrecentdirectories
+msgid "Recent directories:"
 msgstr ""
 
 #: uresourcestrings.rsreload
@@ -2138,9 +2726,33 @@ msgstr ""
 msgid "Current bitmap has been modified. Do you want to save changes?"
 msgstr ""
 
+#: uresourcestrings.rsscript
+msgid "Script"
+msgstr ""
+
 #: uresourcestrings.rsspline
 msgctxt "uresourcestrings.rsspline"
 msgid "Spline"
+msgstr ""
+
+#: uresourcestrings.rstherearenocheckeditems
+msgid "There are no checked items. Check some items or add some new ones."
+msgstr ""
+
+#: uresourcestrings.rsthereisnofilenamegivenforthisfileusesaveas
+msgid "There is no file name given for this file. Use \"Save as...\" from the main menu."
+msgstr ""
+
+#: uresourcestrings.rstodo
+msgid "To do"
+msgstr ""
+
+#: uresourcestrings.rstodoimages
+msgid "Images left: %1"
+msgstr ""
+
+#: uresourcestrings.rstotalimages
+msgid "Total images: %1"
 msgstr ""
 
 #: uresourcestrings.rstransferselectiontootherlayer
@@ -2163,3 +2775,7 @@ msgstr ""
 msgid "Unknown command : "
 msgstr ""
 
+#: uresourcestrings.rsyes
+msgid "Yes"
+msgstr ""
+

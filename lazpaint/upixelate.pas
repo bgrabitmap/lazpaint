@@ -95,6 +95,7 @@ begin
   ComboBox_Quality.ItemIndex := ComboBox_Quality.Items.IndexOf(FFilterConnector.LazPaintInstance.Config.DefaultPixelateQuality);
   FInitializing := false;
   PreviewNeeded;
+  Top := FFilterConnector.LazPaintInstance.MainFormBounds.Top;
 end;
 
 procedure TFPixelate.SpinEdit_PixelSizeChange(Sender: TObject);
@@ -108,15 +109,11 @@ begin
 end;
 
 procedure TFPixelate.PreviewNeeded;
-var temp: TBGRABitmap;
 begin
-  temp := ComputeFilteredLayer;
-  FFilterConnector.PutImage(temp,False);
-  temp.Free;
+  FFilterConnector.PutImage(ComputeFilteredLayer,False,true);
 end;
 
-initialization
-  {$I upixelate.lrs}
+{$R *.lfm}
 
 end.
 

@@ -34,7 +34,7 @@ var
   i: Integer;
 
 begin
-  if Screen.PixelsPerInch <= FromDPI then exit;
+  if Screen.PixelsPerInch <= FromDPI*1.1 then exit;
 
   NewWidth := ScaleX(ImgList.Width,FromDPI);
   NewHeight := ScaleY(ImgList.Height,FromDPI);
@@ -120,4 +120,4 @@ begin
   end;
 end;
 
-end.
+end.

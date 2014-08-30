@@ -1,5 +1,5 @@
-LazPaint v5.6 - A paint program made with Lazarus
+LazPaint v6.2 - A paint program made with Lazarus
 
-This program is designed to draw like with Paint.Net and to experiment this kind of programming with Lazarus.
+This program is designed to draw like with Paint.Net, to experiment this kind of programming with Lazarus and to provide an example of use of BGRABitmap library.
 
-It is under license GPLv3 which means it must remain opensource.
+LazPaint itself is under license GPLv3 which means it must remain opensource, whereas BGRABitmap library can be used in any application.

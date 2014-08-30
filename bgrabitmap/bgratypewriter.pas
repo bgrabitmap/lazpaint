@@ -28,11 +28,13 @@ type
     Width,Height: single;
     constructor Create(AIdentifier: string); virtual;
     constructor Create(AStream: TStream); virtual;
-    procedure Path({%H-}ADest: TBGRACanvas2D; {%H-}AMatrix: TAffineMatrix); virtual;
+    procedure Path({%H-}ADest: IBGRAPath; {%H-}AMatrix: TAffineMatrix); virtual;
     property Identifier: string read FIdentifier;
     procedure SaveToStream(AStream: TStream);
     class function LoadFromStream(AStream: TStream): TBGRAGlyph;
   end;
+
+  TGlyphPointCurveMode= (cmAuto, cmCurve, cmAngle);
 
   { TBGRAPolygonalGlyph }
 
@@ -42,6 +44,7 @@ type
   protected
     FQuadraticCurves: boolean;
     Points: array of TPointF;
+    CurveMode: array of TGlyphPointCurveMode;
     Curves: array of record
       isCurvedToNext,isCurvedToPrevious: boolean;
       Center,ControlPoint,NextCenter: TPointF;
@@ -59,8 +62,9 @@ type
     MinimumDotProduct: single;
     constructor Create(AIdentifier: string); override;
     constructor Create(AStream: TStream); override;
-    procedure SetPoints(const APoints: array of TPointF);
-    procedure Path(ADest: TBGRACanvas2D; AMatrix: TAffineMatrix); override;
+    procedure SetPoints(const APoints: array of TPointF); overload;
+    procedure SetPoints(const APoints: array of TPointF; const ACurveMode: array of TGlyphPointCurveMode); overload;
+    procedure Path(ADest: IBGRAPath; AMatrix: TAffineMatrix); override;
     property QuadraticCurves: boolean read FQuadraticCurves write SetQuadraticCurves;
   end;
 
@@ -80,14 +84,14 @@ type
     function FindGlyph(AIdentifier: string): TAvgLvlTreeNode;
     function GetGlyph(AIdentifier: string): TBGRAGlyph; virtual;
     procedure SetGlyph(AIdentifier: string; AValue: TBGRAGlyph);
-    procedure TextPath(ADest: TBGRACanvas2D; AText: string; X,Y: Single; AAlign: TBGRATypeWriterAlignment; ADrawEachChar: boolean);
+    procedure TextPath(ADest: TBGRACanvas2D; ATextUTF8: string; X,Y: Single; AAlign: TBGRATypeWriterAlignment; ADrawEachChar: boolean);
     procedure GlyphPath(ADest: TBGRACanvas2D; AIdentifier: string; X,Y: Single; AAlign: TBGRATypeWriterAlignment = twaTopLeft);
     procedure DrawLastPath(ADest: TBGRACanvas2D);
     procedure ClearGlyphs;
     procedure RemoveGlyph(AIdentifier: string);
     procedure AddGlyph(AGlyph: TBGRAGlyph);
     function GetGlyphMatrix(AGlyph: TBGRAGlyph; X,Y: Single; AAlign: TBGRATypeWriterAlignment): TAffineMatrix;
-    function GetTextMatrix(AText: string; X,Y: Single; AAlign: TBGRATypeWriterAlignment): TAffineMatrix;
+    function GetTextMatrix(ATextUTF8: string; X,Y: Single; AAlign: TBGRATypeWriterAlignment): TAffineMatrix;
     property Glyph[AIdentifier: string]: TBGRAGlyph read GetGlyph write SetGlyph;
     function CustomHeaderSize: integer; virtual;
     procedure WriteCustomHeader(AStream: TStream); virtual;
@@ -98,25 +102,27 @@ type
     OutlineMode: TBGRATypeWriterOutlineMode;
     DrawGlyphsSimultaneously : boolean;
     constructor Create;
-    procedure SaveGlyphsToFile(AFilename: string);
+    procedure SaveGlyphsToFile(AFilenameUTF8: string);
     procedure SaveGlyphsToStream(AStream: TStream);
-    procedure LoadGlyphsFromFile(AFilename: string);
+    procedure LoadGlyphsFromFile(AFilenameUTF8: string);
     procedure LoadGlyphsFromStream(AStream: TStream);
     procedure DrawGlyph(ADest: TBGRACanvas2D; AIdentifier: string; X,Y: Single; AAlign: TBGRATypeWriterAlignment = twaTopLeft);
-    procedure DrawText(ADest: TBGRACanvas2D; AText: string; X,Y: Single; AAlign: TBGRATypeWriterAlignment = twaTopLeft); virtual;
+    procedure DrawText(ADest: TBGRACanvas2D; ATextUTF8: string; X,Y: Single; AAlign: TBGRATypeWriterAlignment = twaTopLeft); virtual;
+    procedure CopyTextPathTo(ADest: IBGRAPath; ATextUTF8: string; X,Y: Single; AAlign: TBGRATypeWriterAlignment = twaTopLeft); virtual;
     function GetGlyphBox(AIdentifier: string; X,Y: Single; AAlign: TBGRATypeWriterAlignment = twaTopLeft): TAffineBox;
-    function GetTextBox(AText: string; X,Y: Single; AAlign: TBGRATypeWriterAlignment = twaTopLeft): TAffineBox;
-    function GetTextGlyphBoxes(AText: string; X,Y: Single; AAlign: TBGRATypeWriterAlignment = twaTopLeft): TGlyphBoxes;
+    function GetTextBox(ATextUTF8: string; X,Y: Single; AAlign: TBGRATypeWriterAlignment = twaTopLeft): TAffineBox;
+    function GetTextGlyphBoxes(ATextUTF8: string; X,Y: Single; AAlign: TBGRATypeWriterAlignment = twaTopLeft): TGlyphBoxes;
     procedure NeedGlyphRange(AUnicodeFrom, AUnicodeTo: Cardinal);
     procedure NeedGlyphAnsiRange;
     destructor Destroy; override;
   end;
 
-function ComputeEasyBezier(APoints: array of TPointF; AClosed: boolean; AMinimumDotProduct: single = 0.707): ArrayOfTPointF;
+function ComputeEasyBezier(APoints: array of TPointF; AClosed: boolean; AMinimumDotProduct: single = 0.707): ArrayOfTPointF; overload;
+function ComputeEasyBezier(APoints: array of TPointF; ACurveMode: array of TGlyphPointCurveMode; AClosed: boolean; AMinimumDotProduct: single = 0.707): ArrayOfTPointF; overload;
 
 implementation
 
-uses LCLProc;
+uses LCLProc, lazutf8classes;
 
 {$i winstream.inc}
 
@@ -138,6 +144,34 @@ begin
   glyph.Closed:= AClosed;
   glyph.MinimumDotProduct := AMinimumDotProduct;
   glyph.SetPoints(APoints);
+  canvas2D := TBGRACanvas2D.Create(nil);
+  canvas2D.pixelCenteredCoordinates := true;
+  glyph.Path(canvas2D,AffineMatrixIdentity);
+  glyph.Free;
+  result := canvas2D.currentPath;
+  canvas2D.free;
+end;
+
+function ComputeEasyBezier(APoints: array of TPointF;
+  ACurveMode: array of TGlyphPointCurveMode; AClosed: boolean;
+  AMinimumDotProduct: single): ArrayOfTPointF;
+var
+  glyph: TBGRAPolygonalGlyph;
+  canvas2D: TBGRACanvas2D;
+  i: integer;
+begin
+  if length(APoints) <= 2 then
+  begin
+    setlength(result, length(APoints));
+    for i := 0 to high(result) do
+      result[i] := APoints[i];
+    exit;
+  end;
+  glyph := TBGRAPolygonalGlyph.Create('');
+  glyph.QuadraticCurves := true;
+  glyph.Closed:= AClosed;
+  glyph.MinimumDotProduct := AMinimumDotProduct;
+  glyph.SetPoints(APoints, ACurveMode);
   canvas2D := TBGRACanvas2D.Create(nil);
   canvas2D.pixelCenteredCoordinates := true;
   glyph.Path(canvas2D,AffineMatrixIdentity);
@@ -206,7 +240,11 @@ begin
 
       if (i < high(points)-1) or Closed then
       begin
-        Curves[i].isCurvedToNext:= MaybeCurve(i,NextPt,NextPt,NextPt2);
+        case CurveMode[nextPt] of
+          cmAuto: Curves[i].isCurvedToNext:= MaybeCurve(i,NextPt,NextPt,NextPt2);
+          cmCurve: Curves[i].isCurvedToNext:= true;
+          else Curves[i].isCurvedToNext:= false;
+        end;
         Curves[NextPt].isCurvedToPrevious := Curves[i].isCurvedToNext;
       end;
     end;
@@ -270,10 +308,28 @@ begin
   SetLength(Points,length(APoints));
   for i := 0 to high(points) do
     points[i] := APoints[i];
+  setlength(CurveMode, length(APoints));
+  for i := 0 to high(CurveMode) do
+    CurveMode[i] := cmAuto;
   Curves := nil;
 end;
 
-procedure TBGRAPolygonalGlyph.Path(ADest: TBGRACanvas2D; AMatrix: TAffineMatrix);
+procedure TBGRAPolygonalGlyph.SetPoints(const APoints: array of TPointF;
+  const ACurveMode: array of TGlyphPointCurveMode);
+var i: integer;
+begin
+  if length(APoints) <> length(ACurveMode) then
+    raise exception.Create('Dimension mismatch');
+  SetLength(Points,length(APoints));
+  for i := 0 to high(points) do
+    points[i] := APoints[i];
+  setlength(CurveMode, length(ACurveMode));
+  for i := 0 to high(CurveMode) do
+    CurveMode[i] := ACurveMode[i];
+  Curves := nil;
+end;
+
+procedure TBGRAPolygonalGlyph.Path(ADest: IBGRAPath; AMatrix: TAffineMatrix);
 var i: integer;
   nextMove: boolean;
   startCoord: TPointF;
@@ -386,7 +442,7 @@ begin
   ReadContent(AStream);
 end;
 
-procedure TBGRAGlyph.Path(ADest: TBGRACanvas2D; AMatrix: TAffineMatrix);
+procedure TBGRAGlyph.Path(ADest: IBGRAPath; AMatrix: TAffineMatrix);
 begin
   //nothing
 end;
@@ -477,10 +533,47 @@ begin
   DrawLastPath(ADest);
 end;
 
-procedure TBGRACustomTypeWriter.DrawText(ADest: TBGRACanvas2D; AText: string;
+procedure TBGRACustomTypeWriter.DrawText(ADest: TBGRACanvas2D; ATextUTF8: string;
   X, Y: Single; AAlign: TBGRATypeWriterAlignment);
 begin
-  TextPath(ADest, AText, X,Y, AAlign, (OutlineMode <> twoPath) and not DrawGlyphsSimultaneously);
+  TextPath(ADest, ATextUTF8, X,Y, AAlign, (OutlineMode <> twoPath) and not DrawGlyphsSimultaneously);
+end;
+
+procedure TBGRACustomTypeWriter.CopyTextPathTo(ADest: IBGRAPath; ATextUTF8: string; X,Y: Single; AAlign: TBGRATypeWriterAlignment = twaTopLeft);
+var
+  pstr: pchar;
+  left,charlen: integer;
+  nextchar: string;
+  g: TBGRAGlyph;
+  m,m2: TAffineMatrix;
+begin
+  if ATextUTF8 = '' then exit;
+  m := GetTextMatrix(ATextUTF8, X,Y,AAlign);
+  m2 := m;
+
+  pstr := @ATextUTF8[1];
+  left := length(ATextUTF8);
+  while left > 0 do
+  begin
+    charlen := UTF8CharacterLength(pstr);
+    setlength(nextchar, charlen);
+    move(pstr^, nextchar[1], charlen);
+    inc(pstr,charlen);
+    dec(left,charlen);
+
+    g := GetGlyph(nextchar);
+    if g <> nil then
+    begin
+      if AAlign in [twaLeft,twaMiddle,twaRight] then
+        m2 := m*AffineMatrixTranslation(0,-g.Height/2) else
+      if AAlign in [twaBottomLeft,twaBottom,twaBottomRight] then
+        m2 := m*AffineMatrixTranslation(0,-g.Height)
+      else
+        m2 := m;
+      g.Path(ADest, m2);
+      m := m*AffineMatrixTranslation(g.Width,0);
+    end;
+  end;
 end;
 
 function TBGRACustomTypeWriter.GetGlyphBox(AIdentifier: string; X, Y: Single;
@@ -496,7 +589,7 @@ begin
   end;
 end;
 
-function TBGRACustomTypeWriter.GetTextBox(AText: string; X, Y: Single;
+function TBGRACustomTypeWriter.GetTextBox(ATextUTF8: string; X, Y: Single;
   AAlign: TBGRATypeWriterAlignment): TAffineBox;
 var
   m: TAffineMatrix;
@@ -508,15 +601,15 @@ var
   g: TBGRAGlyph;
 
 begin
-  if AText = '' then result := TAffineBox.EmptyBox else
+  if ATextUTF8 = '' then result := TAffineBox.EmptyBox else
   begin
-    m := GetTextMatrix(AText,X,Y,AAlign);
+    m := GetTextMatrix(ATextUTF8,X,Y,AAlign);
     minY := 0;
     maxY := 0;
     totalWidth := 0;
 
-    pstr := @AText[1];
-    left := length(AText);
+    pstr := @ATextUTF8[1];
+    left := length(ATextUTF8);
     while left > 0 do
     begin
       charlen := UTF8CharacterLength(pstr);
@@ -554,7 +647,7 @@ begin
   end;
 end;
 
-function TBGRACustomTypeWriter.GetTextGlyphBoxes(AText: string; X, Y: Single;
+function TBGRACustomTypeWriter.GetTextGlyphBoxes(ATextUTF8: string; X, Y: Single;
   AAlign: TBGRATypeWriterAlignment): TGlyphBoxes;
 var
   m: TAffineMatrix;
@@ -567,14 +660,14 @@ var
   numChar: integer;
 
 begin
-  if AText = '' then result := nil else
+  if ATextUTF8 = '' then result := nil else
   begin
-    setlength(result, UTF8Length(AText));
+    setlength(result, UTF8Length(ATextUTF8));
 
-    m := GetTextMatrix(AText,X,Y,AAlign);
+    m := GetTextMatrix(ATextUTF8,X,Y,AAlign);
 
-    pstr := @AText[1];
-    left := length(AText);
+    pstr := @ATextUTF8[1];
+    left := length(ATextUTF8);
     numChar := 0;
     while left > 0 do
     begin
@@ -627,7 +720,7 @@ begin
     GetGlyph(AnsiToUtf8(chr(i)));
 end;
 
-procedure TBGRACustomTypeWriter.TextPath(ADest: TBGRACanvas2D; AText: string; X,
+procedure TBGRACustomTypeWriter.TextPath(ADest: TBGRACanvas2D; ATextUTF8: string; X,
   Y: Single; AAlign: TBGRATypeWriterAlignment; ADrawEachChar: boolean);
 var
   pstr: pchar;
@@ -637,12 +730,12 @@ var
   m,m2: TAffineMatrix;
 begin
   if not ADrawEachChar then ADest.beginPath;
-  if AText = '' then exit;
-  m := GetTextMatrix(AText, X,Y,AAlign);
+  if ATextUTF8 = '' then exit;
+  m := GetTextMatrix(ATextUTF8, X,Y,AAlign);
   m2 := m;
 
-  pstr := @AText[1];
-  left := length(AText);
+  pstr := @ATextUTF8[1];
+  left := length(ATextUTF8);
   while left > 0 do
   begin
     charlen := UTF8CharacterLength(pstr);
@@ -720,12 +813,12 @@ begin
   Enumerator.Free;
 end;
 
-procedure TBGRACustomTypeWriter.LoadGlyphsFromFile(AFilename: string);
-var Stream: TFileStream;
+procedure TBGRACustomTypeWriter.LoadGlyphsFromFile(AFilenameUTF8: string);
+var Stream: TFileStreamUTF8;
 begin
   Stream := nil;
   try
-    Stream := TFileStream.Create(AFilename, fmOpenRead);
+    Stream := TFileStreamUTF8.Create(AFilenameUTF8, fmOpenRead);
     LoadGlyphsFromStream(Stream);
   finally
     Stream.Free;
@@ -753,12 +846,12 @@ begin
   end;
 end;
 
-procedure TBGRACustomTypeWriter.SaveGlyphsToFile(AFilename: string);
-var Stream: TFileStream;
+procedure TBGRACustomTypeWriter.SaveGlyphsToFile(AFilenameUTF8: string);
+var Stream: TFileStreamUTF8;
 begin
   Stream := nil;
   try
-    Stream := TFileStream.Create(AFilename, fmCreate or fmOpenWrite);
+    Stream := TFileStreamUTF8.Create(AFilenameUTF8, fmCreate or fmOpenWrite);
     SaveGlyphsToStream(Stream);
   finally
     Stream.Free;
@@ -782,7 +875,7 @@ begin
   result := AffineMatrixTranslation(X,Y)*TypeWriterMatrix*AffineMatrixTranslation(tGlyph.X,tGlyph.Y);
 end;
 
-function TBGRACustomTypeWriter.GetTextMatrix(AText: string; X, Y: Single;
+function TBGRACustomTypeWriter.GetTextMatrix(ATextUTF8: string; X, Y: Single;
   AAlign: TBGRATypeWriterAlignment): TAffineMatrix;
 var
   tGlyph: TPointF;
@@ -796,8 +889,8 @@ begin
   if not (AAlign in [twaLeft,twaTopLeft,twaBottomLeft]) then
   begin
     totalWidth := 0;
-    pstr := @AText[1];
-    left := length(AText);
+    pstr := @ATextUTF8[1];
+    left := length(ATextUTF8);
     while left > 0 do
     begin
       charlen := UTF8CharacterLength(pstr);

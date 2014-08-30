@@ -60,8 +60,9 @@ type
     function ShouldFinishShapeWhenFirstMouseUp: boolean; override;
     function GetFillColor: TBGRAPixel; override;
     function GetPenColor: TBGRAPixel; override;
+    function GetSelectRectMargin: single; virtual;
   public
-    procedure Render(VirtualScreen: TBGRABitmap; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction); override;
+    function Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
   end;
 
   { TToolSelectEllipse }
@@ -70,15 +71,17 @@ type
   protected
     function FinishShape(toolDest: TBGRABitmap): TRect; override;
     function BorderTest(ptF: TPointF): TRectangularBorderTest; override;
+    function RoundCoordinate(ptF: TPointF): TPointF; override;
+    function GetSelectRectMargin: single; override;
   public
-    procedure Render(VirtualScreen: TBGRABitmap; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction); override;
+    function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
   end;
 
   { TToolMoveSelection }
 
   TToolMoveSelection = class(TGenericTool)
   protected
-    contentBounds: TRect;
+    contentBounds,selectBounds: TRect;
     handMoving: boolean;
     handOrigin: TPoint;
     function GetIsSelectingTool: boolean; override;
@@ -100,22 +103,23 @@ type
     handOrigin: TPointF;
     snapRotate: boolean;
     snapAngle: single;
+    FOriginalAngle: single;
     function GetIsSelectingTool: boolean; override;
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
       rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect; override;
   public
     constructor Create(AManager: TToolManager); override;
-    function ToolKeyDown(key: Word): TRect; override;
-    function ToolKeyUp(key: Word): TRect; override;
+    function ToolKeyDown(var key: Word): TRect; override;
+    function ToolKeyUp(var key: Word): TRect; override;
     function ToolUp: TRect; override;
-    procedure Render(VirtualScreen: TBGRABitmap; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction); override;
+    function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
     destructor Destroy; override;
   end;
 
 implementation
 
-uses types, ugraph, LCLType, BGRATypewriter;
+uses types, ugraph, LCLType, BGRATypewriter, LazPaintType, Math;
 
 { TToolRotateSelection }
 
@@ -132,9 +136,10 @@ begin
   begin
     if rightBtn then
     begin
+      if Action.SelectionRotateAngle <> 0 then Manager.Image.ImageMayChange(rect(0,0,Manager.Image.Width,Manager.Image.Height),false);
       Action.SelectionRotateAngle := 0;
       Action.SelectionRotateCenter := ptF;
-      result := rect(0,0,Manager.Image.Width,Manager.Image.Height);
+      result := OnlyRenderChange;
     end else
     begin
       handMoving := true;
@@ -164,7 +169,8 @@ begin
      else
        Action.SelectionRotateAngle := Action.SelectionRotateAngle + angleDiff;
     handOrigin := ptF;
-    result := rect(0,0,Manager.Image.Width,Manager.Image.Height);
+    Manager.Image.ImageMayChange(rect(0,0,Manager.Image.Width,Manager.Image.Height),false);
+    result := OnlyRenderChange;
   end else
     result := EmptyRect;
 end;
@@ -173,24 +179,45 @@ constructor TToolRotateSelection.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
   Action.SelectionRotateCenter := Manager.Image.GetSelectionCenter;
+  FOriginalAngle := Manager.Image.GetSelectionRotateAngle;
 end;
 
-function TToolRotateSelection.ToolKeyDown(key: Word): TRect;
+function TToolRotateSelection.ToolKeyDown(var key: Word): TRect;
 begin
+  result := EmptyRect;
   if key = VK_CONTROL then
   begin
     if not snapRotate then
     begin
       snapRotate := true;
       snapAngle := Manager.Image.GetSelectionRotateAngle;
+
+      if handMoving then
+      begin
+        Action.SelectionRotateAngle := round(snapAngle/15)*15;
+        Manager.Image.ImageMayChange(rect(0,0,Manager.Image.Width,Manager.Image.Height),false);
+        result := OnlyRenderChange;
+      end;
     end;
+    Key := 0;
+  end else
+  if key = VK_ESCAPE then
+  begin
+    if action.SelectionRotateAngle <> 0 then
+      Manager.Image.ImageMayChange(rect(0,0,Manager.Image.Width,Manager.Image.Height),false);
+    Action.SelectionRotateAngle := FOriginalAngle;
+    result := OnlyRenderChange;
+    Key := 0;
   end;
-  result := EmptyRect;
 end;
 
-function TToolRotateSelection.ToolKeyUp(key: Word): TRect;
+function TToolRotateSelection.ToolKeyUp(var key: Word): TRect;
 begin
-  if key = VK_CONTROL then snapRotate := false;
+  if key = VK_CONTROL then
+  begin
+    snapRotate := false;
+    Key := 0;
+  end;
   result := EmptyRect;
 end;
 
@@ -200,11 +227,12 @@ begin
   Result:= EmptyRect;
 end;
 
-procedure TToolRotateSelection.Render(VirtualScreen: TBGRABitmap; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction);
+function TToolRotateSelection.Render(VirtualScreen: TBGRABitmap;
+  VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
 var pictureRotateCenter: TPointF;
 begin
   pictureRotateCenter := BitmapToVirtualScreen(Manager.image.GetSelectionRotateCenter);
-  NicePoint(VirtualScreen, pictureRotateCenter.X,pictureRotateCenter.Y);
+  result := NicePoint(VirtualScreen, pictureRotateCenter.X,pictureRotateCenter.Y);
 end;
 
 destructor TToolRotateSelection.Destroy;
@@ -212,7 +240,15 @@ begin
   if handMoving then handMoving := false;
   if (Manager.Image.GetSelectionOffset.X <> 0) or (Manager.Image.GetSelectionOffset.Y <> 0) or (Manager.Image.GetSelectionRotateAngle <> 0) then
   begin
-    Action.ApplySelectionTransform;
+    if Action.GetSelectionLayerIfExists = nil then
+      Action.ApplySelectionTransform
+    else
+    begin
+      Action.ApplySelectionMask;
+      Action.ApplySelectionTransform(False);
+      ComputeSelectionMask(Action.GetOrCreateSelectionLayer,Action.CurrentSelection,rect(0,0,Manager.Image.Width,Manager.Image.Height));
+      Manager.Image.SelectionMayChangeCompletely;
+    end;
     ValidateAction;
   end;
   inherited Destroy;
@@ -232,8 +268,8 @@ begin
   begin
     handMoving := true;
     handOrigin := pt;
-    contentBounds := toolDest.GetImageBounds(cGreen);
-    IntersectRect(contentBounds, contentBounds, Manager.Image.SelectionLayerBounds[False]);
+    selectBounds := Manager.Image.SelectionBounds[False];
+    IntersectRect(contentBounds, selectBounds, Manager.Image.SelectionLayerBounds[False]);
   end;
   result := EmptyRect;
 end;
@@ -241,11 +277,19 @@ end;
 function TToolMoveSelection.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF): TRect;
 var dx,dy: integer;
-  prevBounds,newBounds: TRect;
+  prevBounds,newBounds,mergedBounds: TRect;
 begin
   result := EmptyRect;
   if handMoving and ((handOrigin.X <> pt.X) or (handOrigin.Y <> pt.Y)) then
   begin
+    prevBounds := selectBounds;
+    OffsetRect(prevBounds,Action.SelectionOffset.X,Action.SelectionOffset.Y);
+    if not IsRectEmpty(prevBounds) then
+    begin
+      InflateRect(prevBounds,1,1);
+      Manager.Image.RenderMayChange(prevBounds,True);
+    end;
+
     prevBounds := contentBounds;
     OffsetRect(prevBounds,Action.SelectionOffset.X,Action.SelectionOffset.Y);
     dx := pt.X-HandOrigin.X;
@@ -254,8 +298,18 @@ begin
                                    Action.SelectionOffset.Y+dy);
     newBounds := contentBounds;
     OffsetRect(newBounds,Action.SelectionOffset.X,Action.SelectionOffset.Y);
-    result := RectUnion(prevBounds,newBounds);
-    if IsRectEmpty(result) then Result:= ToolRepaintOnly;
+    mergedBounds := RectUnion(prevBounds,newBounds);
+    if not Manager.Image.SelectionLayerIsEmpty then
+      Manager.Image.ImageMayChange(mergedBounds);
+
+    newBounds := selectBounds;
+    OffsetRect(newBounds,Action.SelectionOffset.X,Action.SelectionOffset.Y);
+    if not IsRectEmpty(newBounds) then
+    begin
+      InflateRect(newBounds,1,1);
+      Manager.Image.RenderMayChange(newBounds,True);
+    end;
+    Result := OnlyRenderChange;
   end;
 end;
 
@@ -290,8 +344,8 @@ var
 begin
   previousBounds := FCurrentBounds;
   ClearShape;
-  rx := abs(rectDest.X-rectOrigin.X)+0.5;
-  ry := abs(rectDest.Y-rectOrigin.Y)+0.5;
+  rx := abs(rectDest.X-rectOrigin.X);
+  ry := abs(rectDest.Y-rectOrigin.Y);
   toolDest.FillEllipseAntialias(rectOrigin.X,rectOrigin.Y,rx,ry,fillColor);
   FCurrentBounds := GetShapeBounds([PointF(rectOrigin.X-rx,rectOrigin.Y-ry),PointF(rectOrigin.X+rx,rectOrigin.Y+ry)],1);
   result := RectUnion(previousBounds,FCurrentBounds);
@@ -306,19 +360,45 @@ begin
     result := [];
 end;
 
-procedure TToolSelectEllipse.Render(VirtualScreen: TBGRABitmap;
-  BitmapToVirtualScreen: TBitmapToVirtualScreenFunction);
+function TToolSelectEllipse.RoundCoordinate(ptF: TPointF): TPointF;
+begin
+  result := PointF(round(ptF.X*2)/2,round(ptF.Y*2)/2);
+end;
+
+function TToolSelectEllipse.GetSelectRectMargin: single;
+begin
+  Result:= 0;
+end;
+
+function TToolSelectEllipse.Render(VirtualScreen: TBGRABitmap;
+  VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
 var toolPtF,toolPtF2: TPointF;
     rx,ry: single;
     ptsF: Array of TPointF;
     pts: array of TPoint;
     i: integer;
+    curPt: TPointF;
 begin
-  inherited Render(VirtualScreen,BitmapToVirtualScreen);
+  result := EmptyRect;
+  if afterRectDrawing then
+  begin
+    curPt := BitmapToVirtualScreen(rectOrigin);
+    result := RectUnion(result, NicePoint(VirtualScreen, curPt.X,curPt.Y));
+    curPt := BitmapToVirtualScreen(rectDest);
+    result := RectUnion(result, NicePoint(VirtualScreen, curPt.X,curPt.Y));
+    if RenderAllCornerPositions then
+    begin
+      curPt := BitmapToVirtualScreen(PointF(rectDest.X,rectOrigin.Y));
+      result := RectUnion(result, NicePoint(VirtualScreen, curPt.X,curPt.Y));
+      curPt := BitmapToVirtualScreen(PointF(rectOrigin.X,rectDest.Y));
+      result := RectUnion(result, NicePoint(VirtualScreen, curPt.X,curPt.Y));
+    end;
+  end;
+
   if rectDrawing and BigImage then
   begin
-    rx := abs(rectDest.X-rectOrigin.X)+0.5;
-    ry := abs(rectDest.Y-rectOrigin.Y)+0.5;
+    rx := abs(rectDest.X-rectOrigin.X);
+    ry := abs(rectDest.Y-rectOrigin.Y);
 
     toolPtF := pointf(rectOrigin.X-rx,rectOrigin.Y-ry);
     toolPtF2 := pointf(rectOrigin.X+rx,rectOrigin.Y+ry);
@@ -328,16 +408,21 @@ begin
     toolPtF2.x -= 1;
     toolPtF2.y -= 1;
 
-    ptsF := VirtualScreen.ComputeEllipseContour((toolPtF.X+toolPtF2.X)/2,
-      (toolPtF.Y+toolPtF2.Y)/2,(toolPtF2.X-toolPtF.X)/2,(toolPtF2.Y-toolPtF.Y)/2,0.1);
+    result := RectUnion(result,rect(floor(toolPtF.x),floor(toolPtF.y),ceil(toolPtF2.x)+1,ceil(toolptF2.y)+1));
 
-    setlength(pts, length(ptsF));
-    for i := 0 to high(pts) do
-      pts[i] := point(round(ptsF[i].x),round(ptsF[i].y));
-    setlength(pts, length(pts)+1);
-    pts[high(pts)] := pts[0];
+    if Assigned(VirtualScreen) then
+    begin
+      ptsF := VirtualScreen.ComputeEllipseContour((toolPtF.X+toolPtF2.X)/2,
+        (toolPtF.Y+toolPtF2.Y)/2,(toolPtF2.X-toolPtF.X)/2,(toolPtF2.Y-toolPtF.Y)/2,0.1);
 
-    virtualscreen.DrawPolyLineAntialias(pts,BGRA(255,255,255,192),BGRA(0,0,0,192),FrameDashLength,False);
+      setlength(pts, length(ptsF));
+      for i := 0 to high(pts) do
+        pts[i] := point(round(ptsF[i].x),round(ptsF[i].y));
+      setlength(pts, length(pts)+1);
+      pts[high(pts)] := pts[0];
+
+      virtualscreen.DrawPolyLineAntialias(pts,BGRA(255,255,255,192),BGRA(0,0,0,192),FrameDashLength,False);
+    end;
   end;
 end;
 
@@ -353,7 +438,7 @@ begin
   if not BigImage then
     result := FinishShape(toolDest)
   else
-    result := ToolRepaintOnly;
+    result := OnlyRenderChange;
 end;
 
 function TToolSelectRect.FinishShape(toolDest: TBGRABitmap): TRect;
@@ -398,43 +483,57 @@ begin
   result := BGRAPixelTransparent;
 end;
 
-procedure TToolSelectRect.Render(VirtualScreen: TBGRABitmap;
-  BitmapToVirtualScreen: TBitmapToVirtualScreenFunction);
-var toolPtF,toolPtF2: TPointF;
-    r: TRect;
+function TToolSelectRect.GetSelectRectMargin: single;
 begin
-  inherited Render(VirtualScreen,BitmapToVirtualScreen);
+  result := 0.5;
+end;
+
+function TToolSelectRect.Render(VirtualScreen: TBGRABitmap;
+  VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
+var toolPtF,toolPtF2: TPointF;
+    rLeft,rTop,rRight,rBottom: Single;
+    pt1,pt2: TPoint;
+    penWidth,i: integer;
+begin
+  result := inherited Render(VirtualScreen,VirtualScreenWidth,VirtualScreenHeight, BitmapToVirtualScreen);
   if rectDrawing and BigImage then
   begin
     if rectDest.X > rectOrigin.X then
     begin
-      r.Left := rectOrigin.x;
-      r.Right := rectDest.x;
+      rLeft := rectOrigin.x;
+      rRight := rectDest.x;
     end else
     begin
-      r.Right := rectOrigin.x;
-      r.Left := rectDest.x;
+      rRight := rectOrigin.x;
+      rLeft := rectDest.x;
     end;
     if rectDest.Y > rectOrigin.Y then
     begin
-      r.Top := rectOrigin.Y;
-      r.Bottom := rectDest.Y;
+      rTop := rectOrigin.Y;
+      rBottom := rectDest.Y;
     end else
     begin
-      r.Bottom := rectOrigin.Y;
-      r.Top := rectDest.Y;
+      rBottom := rectOrigin.Y;
+      rTop := rectDest.Y;
     end;
 
-    toolPtF := BitmapToVirtualScreen(pointf(r.Left-0.5,r.Top-0.5));
-    toolPtF2 := BitmapToVirtualScreen(pointf(r.Right+0.5,r.Bottom+0.5));
+    toolPtF := BitmapToVirtualScreen(pointf(rLeft-GetSelectRectMargin,rTop-GetSelectRectMargin));
+    toolPtF2 := BitmapToVirtualScreen(pointf(rRight+GetSelectRectMargin,rBottom+GetSelectRectMargin));
     toolPtF2.x -= 1;
     toolPtF2.y -= 1;
+    pt1 := point(round(toolPtF.X),round(toolPtF.Y));
+    pt2 := point(round(toolPtF2.X),round(toolPtF2.Y));
 
-    virtualScreen.DrawpolylineAntialias([point(round(toolPtF.X),round(toolPtF.Y)),
-             point(round(toolPtF2.X),round(toolPtF.Y)),
-             point(round(toolPtF2.X),round(toolPtF2.Y)),
-             point(round(toolPtF.X),round(toolPtF2.Y)),
-             point(round(toolPtF.X),round(toolPtF.Y))],BGRA(255,255,255,192),BGRA(0,0,0,192),FrameDashLength,False);
+    if Manager.Image.ZoomFactor > 3 then penWidth := 2 else penWidth := 1;
+    result := RectUnion(result,rect(pt1.x-(penWidth-1),pt1.y-(penWidth-1),pt2.x+1+(penWidth-1),pt2.y+1+(penWidth-1)));
+
+    if Assigned(VirtualScreen) then
+    begin
+      for i := 0 to penWidth-1 do
+        virtualScreen.DrawpolylineAntialias([point(pt1.x-(penWidth-1)+i,pt1.y-(penWidth-1)+i),
+                 point(pt2.x+i,pt1.y-(penWidth-1)+i),point(pt2.x+i,pt2.y+i),
+                 point(pt1.x-(penWidth-1)+i,pt2.y+i),point(pt1.x-(penWidth-1)+i,pt1.y-(penWidth-1)+i)],BGRA(255,255,255,192),BGRA(0,0,0,192),FrameDashLength,False);
+    end;
   end;
 end;
 
@@ -446,9 +545,11 @@ var
 begin
   if Manager.ToolSplineEasyBezier then
   begin
-    splinePoints := ComputeEasyBezier(polygonPoints,True, EasyBezierMinimumDotProduct);
+    NeedCurveMode;
+    splinePoints := ComputeEasyBezier(polygonPoints,FCurveMode,True, EasyBezierMinimumDotProduct);
   end else
     splinePoints := toolDest.ComputeClosedSpline(polygonPoints,Manager.ToolSplineStyle);
+  FRenderedPolygonPoints := splinePoints;
 
   if length(splinePoints) > 2 then
   begin
@@ -492,6 +593,7 @@ begin
   if rightBtn then penColor := BGRABlack else penColor := BGRAWhite;
   toolDest.DrawLineAntialias(ptF.X,ptF.Y,ptF.X,ptF.Y,penColor,Manager.ToolPenWidth,True);
   result := GetShapeBounds([ptF],Manager.ToolPenWidth+1);
+  Action.NotifyChange(toolDest, result);
 end;
 
 function TToolSelectionPen.ContinueDrawing(toolDest: TBGRABitmap; originF,
@@ -499,6 +601,7 @@ function TToolSelectionPen.ContinueDrawing(toolDest: TBGRABitmap; originF,
 begin
   toolDest.DrawLineAntialias(destF.X,destF.Y,originF.X,originF.Y,penColor,Manager.ToolPenWidth,False);
   result := GetShapeBounds([destF,originF],Manager.ToolPenWidth+1);
+  Action.NotifyChange(toolDest, result);
 end;
 
 { TToolMagicWand }
@@ -524,11 +627,13 @@ end;
 
 function TToolSelectPoly.HandDrawingPolygonView(toolDest: TBGRABitmap): TRect;
 begin
-  result := ToolRepaintOnly;
+  result := EmptyRect;
   //nothing
 end;
 
 function TToolSelectPoly.FinalPolygonView(toolDest: TBGRABitmap): TRect;
+var
+  i: Integer;
 begin
   if length(polygonPoints) > 2 then
   begin
@@ -536,6 +641,9 @@ begin
     result := GetShapeBounds(polygonPoints,1);
   end else
     result := EmptyRect;
+  setlength(FRenderedPolygonPoints, length(polygonPoints));
+  for i := 0 to high(polygonPoints) do
+    FRenderedPolygonPoints[i] := polygonPoints[i];
 end;
 
 function TToolSelectPoly.GetIsSelectingTool: boolean;

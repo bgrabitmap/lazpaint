@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
   StdCtrls, ExtCtrls, ExtDlgs,  bgrabitmap, LazPaintType, UScaleDPI,
-  UResourceStrings, UFilterConnector;
+  UResourceStrings, UFilterConnector, UFilterThread;
 
 type
 
@@ -21,20 +21,25 @@ type
     btnLoadMask: TButton;
     Image1: TImage;
     OpenPictureDialog1: TOpenPictureDialog;
+    Timer1: TTimer;
     procedure Button_EditMaskClick(Sender: TObject);
     procedure Button_LoadMaskClick(Sender: TObject);
     procedure Button_OKClick(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure LoadMask(filename: string);
-    procedure UpdatePreview;
+    procedure LoadMask(filenameUTF8: string);
+    procedure PreviewNeeded;
+    procedure Timer1Timer(Sender: TObject);
   private
     subConfig: TStringStream;
     FLazPaintInstance: TLazPaintCustomInstance;
     FFilterConnector: TFilterConnector;
+    FThreadManager: TFilterThreadManager;
     procedure GenerateDefaultMask;
     procedure SetLazPaintInstance(const AValue: TLazPaintCustomInstance);
+    procedure OnTaskEvent({%H-}ASender: TObject; AEvent: TThreadManagerEvent);
   public
     function ShowDlg(AFilterConnector: TObject): boolean;
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
@@ -42,7 +47,7 @@ type
 
 implementation
 
-uses umac,BGRABitmapTypes;
+uses umac,BGRABitmapTypes, BGRAFilters;
 
 { TFCustomBlur }
 
@@ -64,14 +69,14 @@ end;
 
 procedure TFCustomBlur.FormShow(Sender: TObject);
 begin
-  UpdatePreview;
+  PreviewNeeded;
 end;
 
-procedure TFCustomBlur.LoadMask(filename: string);
+procedure TFCustomBlur.LoadMask(filenameUTF8: string);
 var loadedImg, grayscale: TBGRABitmap;
     bmp: TBitmap;
 begin
-  loadedImg := TBGRABitmap.Create(UTF8ToSys( filename ));
+  loadedImg := TBGRABitmap.Create(filenameUTF8,True);
   grayscale := loadedImg.FilterGrayscale as TBGRABitmap;
   loadedImg.Free;
 
@@ -81,16 +86,21 @@ begin
   bmp.Free;
 end;
 
-procedure TFCustomBlur.UpdatePreview;
-var mask,temp: TBGRABitmap;
+procedure TFCustomBlur.PreviewNeeded;
+var mask: TBGRABitmap;
 begin
-    mask := TBGRABitmap.Create(Image1.Picture.Width,Image1.Picture.Height);
-    mask.Canvas.Draw(0,0,image1.picture.bitmap);
-    mask.AlphaFill(255);
-    temp := FFilterConnector.BackupLayer.FilterCustomBlur(FFilterConnector.WorkArea, mask) as TBGRABitmap;
-    mask.Free;
-    FFilterConnector.PutImage(temp,False);
-    temp.Free;
+  mask := TBGRABitmap.Create(Image1.Picture.Width,Image1.Picture.Height,BGRABlack);
+  mask.Canvas.Draw(0,0,image1.picture.bitmap);
+  FThreadManager.WantPreview(CreateBlurTask(FFilterConnector.BackupLayer,FFilterConnector.WorkArea, mask, false));
+  mask.Free;
+end;
+
+procedure TFCustomBlur.Timer1Timer(Sender: TObject);
+begin
+  Timer1.Enabled:= false;
+  FThreadManager.RegularCheck;
+  Timer1.Interval := 200;
+  Timer1.Enabled:= true;
 end;
 
 procedure TFCustomBlur.GenerateDefaultMask;
@@ -107,21 +117,43 @@ end;
 
 procedure TFCustomBlur.SetLazPaintInstance(const AValue: TLazPaintCustomInstance);
 var
-  defaultMaskFilename: String;
+  defaultMaskFilenameUTF8: String;
 begin
   FLazPaintInstance := AValue;
-  defaultMaskFilename := LazPaintInstance.Config.DefaultCustomBlurMask;
-  if (defaultMaskFilename = '') or not FileExists(defaultMaskFilename) then
+  defaultMaskFilenameUTF8 := LazPaintInstance.Config.DefaultCustomBlurMaskUTF8;
+  if (defaultMaskFilenameUTF8 = '') or not FileExistsUTF8(defaultMaskFilenameUTF8) then
     GenerateDefaultMask else
   begin
     try
-      LoadMask(defaultMaskFilename);
+      LoadMask(defaultMaskFilenameUTF8);
     except
       on ex: Exception do
       begin
-        LazPaintInstance.Config.SetDefaultCustomBlurMask('');
+        LazPaintInstance.Config.SetDefaultCustomBlurMaskUTF8('');
         GenerateDefaultMask;
       end;
+    end;
+  end;
+end;
+
+procedure TFCustomBlur.OnTaskEvent(ASender: TObject; AEvent: TThreadManagerEvent
+  );
+begin
+  case AEvent of
+  tmeAbortedTask,tmeCompletedTask:
+    begin
+      Timer1.Enabled := false;
+      if FThreadManager.ReadyToClose then
+        Close
+      else
+        if AEvent = tmeCompletedTask then Button_OK.Enabled := true;
+    end;
+  tmeStartingNewTask:
+    begin
+      Timer1.Enabled := false;
+      Timer1.Interval := 100;
+      Timer1.Enabled := true;
+      Button_OK.Enabled := false;
     end;
   end;
 end;
@@ -129,6 +161,8 @@ end;
 function TFCustomBlur.ShowDlg(AFilterConnector: TObject): boolean;
 begin
   FFilterConnector := AFilterConnector as TFilterConnector;
+  FThreadManager := TFilterThreadManager.Create(FFilterConnector);
+  FThreadManager.OnEvent := @OnTaskEvent;
   try
     if FFilterConnector.ActiveLayer <> nil then
       result:= (ShowModal = mrOk)
@@ -136,23 +170,24 @@ begin
       result := false;
   finally
     FFilterConnector := nil;
+    FThreadManager.Free;
   end;
 end;
 
 procedure TFCustomBlur.Button_LoadMaskClick(Sender: TObject);
-var filename: string;
+var filenameUTF8: string;
 begin
   if not OpenPictureDialog1.Execute then exit;
   try
-    filename := OpenPictureDialog1.FileName;
-    LoadMask(filename);
-    LazPaintInstance.Config.SetDefaultCustomBlurMask(filename);
+    filenameUTF8 := OpenPictureDialog1.FileName;
+    LoadMask(filenameUTF8);
+    LazPaintInstance.Config.SetDefaultCustomBlurMaskUTF8(filenameUTF8);
     self.Update;
-    UpdatePreview;
+    PreviewNeeded;
   except
     on ex:Exception do
     begin
-      MessageDlg(ex.Message,mtError,[mbOk],0);
+      LazPaintInstance.ShowError('LoadMask',ex.Message);
     end;
   end;
 end;
@@ -174,21 +209,26 @@ begin
       bmpCopy.Free;
     end;
   except on ex: exception do
-    ShowMessage(ex.Message);
+    LazPaintInstance.ShowError('EditMask', ex.Message);
   end;
   bgraBmp.Free;
   self.Update;
-  UpdatePreview;
+  PreviewNeeded;
 end;
 
 procedure TFCustomBlur.Button_OKClick(Sender: TObject);
 begin
-  FFilterConnector.ValidateAction;
+  if not FFilterConnector.ActionDone then FFilterConnector.ValidateAction;
   ModalResult := mrOK;
 end;
 
-initialization
-  {$I ucustomblur.lrs}
+procedure TFCustomBlur.FormCloseQuery(Sender: TObject; var CanClose: boolean);
+begin
+  FThreadManager.Quit;
+  CanClose := FThreadManager.ReadyToClose;
+end;
+
+{$R *.lfm}
 
 end.
 

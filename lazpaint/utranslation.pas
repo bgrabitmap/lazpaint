@@ -5,18 +5,24 @@ unit UTranslation;
 interface
 
 uses
+  {$ifdef Darwin}
+  MacOSAll,
+ {$endif}
   Classes, SysUtils, UConfig, IniFiles;
 
 {*************** Language ****************}
 const
   DesignLanguage = 'en';
+  {$ifdef Darwin}
+  BundleResourcesDirectory = '/Contents/Resources/';
+  {$endif}
 var
   ActiveLanguage: string;
 
 function FallbackLanguage: string;
 
 {*************** Language files ************}
-function LanguagePath: string;
+function LanguagePathUTF8: string;
 function LazPaintLanguageFile(ALanguage: string): string;
 
 {*************** Translation ***************}
@@ -26,19 +32,34 @@ procedure TranslateLazPaint(AConfig: TIniFile);
 
 implementation
 
-uses Forms, FileUtil, LCLProc, LResources, DefaultTranslator, Translations;
+uses Forms, FileUtil, LCLProc, LResources, DefaultTranslator, Translations, LazPaintType;
 
-function LanguagePath: string;
-{$IFDEF DARWIN}
-const macLangDir = '..'+PathDelim+'..'+PathDelim+'Resources'+PathDelim+'i18n';
-{$ENDIF}
+{$ifdef Darwin}
+function GetResourcesPath(): string;
+var
+  pathRef: CFURLRef;
+  pathCFStr: CFStringRef;
+  pathStr: shortstring;
+
+begin
+  pathRef := CFBundleCopyBundleURL(CFBundleGetMainBundle());
+  pathCFStr := CFURLCopyFileSystemPath(pathRef, kCFURLPOSIXPathStyle);
+  CFStringGetPascalString(pathCFStr, @pathStr, 255, CFStringGetSystemEncoding());
+  CFRelease(pathRef);
+  CFRelease(pathCFStr);
+
+  Result := pathStr + BundleResourcesDirectory;
+end;
+{$endif}
+
+function LanguagePathUTF8: string;
 begin
   {$IFDEF WINDOWS}
-    result:=ExtractFilePath(Application.ExeName)+'i18n'+PathDelim;
+    result:=SysToUTF8(ExtractFilePath(Application.ExeName))+'i18n'+PathDelim;
   {$ELSE}
     {$IFDEF DARWIN}
-    if DirectoryExists(macLangDir) then
-      result := macLangDir+PathDelim
+    if DirectoryExists(GetResourcesPath+'i18n') then
+      result := GetResourcesPath+'i18n'+PathDelim
     else
     {$ENDIF}
     result:='i18n'+PathDelim;
@@ -64,15 +85,23 @@ procedure TranslateLazPaint(AConfig: TIniFile);
 var
   POFile: String;
   Language: string;
+  UpdatedLanguages: TStringList;
 begin
-  Language := AConfig.ReadString('General','Language','');
-  if Language = '' then
+  Language := TLazPaintConfig.ClassGetDefaultLangage(AConfig);
+  if Language = 'auto' then
     Language := FallBackLanguage;
   if Language = 'en' then exit;
 
-  POFile:=ActualConfigDir+LazPaintLanguageFile(Language); //updated file
-  if not FileExistsUTF8(POFile) then
-    POFile:=LanguagePath+LazPaintLanguageFile(Language); //default file
+  UpdatedLanguages := TStringList.Create;
+  TLazPaintConfig.ClassGetUpdatedLanguages(UpdatedLanguages,AConfig,LazPaintCurrentVersionOnly);
+  if UpdatedLanguages.IndexOf(Language)<>-1 then
+    POFile:=ActualConfigDirUTF8+LazPaintLanguageFile(Language) //updated file
+  else
+    POFile:='';
+  if (POFile='') or not FileExistsUTF8(POFile) then
+    POFile:=LanguagePathUTF8+LazPaintLanguageFile(Language); //default file
+  UpdatedLanguages.Free;
+
   if FileExistsUTF8(POFile) then
   begin
     LRSTranslator:=TPoTranslator.Create(POFile);
@@ -80,7 +109,7 @@ begin
     ActiveLanguage:= Language;
   end;
 
-  POFile:=LanguagePath+'lclstrconsts.'+Language+'.po';
+  POFile:=LanguagePathUTF8+'lclstrconsts.'+Language+'.po';
   if FileExistsUTF8(POFile) then
     Translations.TranslateUnitResourceStrings('LCLStrConsts',POFile);
 end;
@@ -96,7 +125,7 @@ var
   updatedLanguages: TStringList;
 begin
   AConfig.Languages.Add('en');
-  if FindFirst(LanguagePath+'*.po',faAnyFile,dir) = 0 then
+  if FindFirstUTF8(LanguagePathUTF8+'*.po',faAnyFile,dir) = 0 then
   repeat
     if (dir.Attr and (faDirectory or faVolumeId) = 0) and
       (copy(dir.name,1,9)='lazpaint.') then
@@ -109,8 +138,8 @@ begin
         AConfig.Languages.Add(language);
       end;
     end;
-  until FindNext(dir)<>0;
-  FindClose(dir);
+  until FindNextUTF8(dir)<>0;
+  FindCloseUTF8(dir);
 
   updatedLanguages := TStringList.Create;
   AConfig.GetUpdatedLanguages(updatedLanguages);

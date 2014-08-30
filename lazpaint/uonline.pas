@@ -11,13 +11,12 @@ interface
 uses
   {$IFDEF LAZPAINT_USE_LNET}lNetComponents, lhttp,{$ENDIF}
   Classes, SysUtils,
-  UConfig;
+  UConfig, LazPaintType;
 
 type
-
   { TLazPaintOnlineUpdater }
 
-  TLazPaintOnlineUpdater = class
+  TLazPaintOnlineUpdater = class(TLazPaintCustomOnlineUpdater)
   private
     class var FOnlineVersionQueryDone: boolean;
     FConfig: TLazPaintConfig;
@@ -31,10 +30,10 @@ type
     procedure LHTTPClientDoneInput(ASocket: TLHTTPClientSocket);
     function LHTTPClientInput({%H-}ASocket: TLHTTPClientSocket;
       ABuffer: pchar; ASize: integer): integer;
+    procedure ReceiveHTTPBuffer;
     {$ENDIF}
 
-    function GetURL(AURL: string): boolean;
-    procedure ReceiveHTTPBuffer;
+    function GetURL({%H-}AURL: string): boolean;
     procedure ParseVersionInfo;
     procedure CheckDownloadLanguages;
     procedure DoOnlineVersionQuery;
@@ -48,7 +47,7 @@ implementation
 
 uses {$IFDEF LAZPAINT_USE_LNET}lHTTPUtil,{$ENDIF}
     FileUtil, Dialogs,
-    LazPaintType, UResourceStrings, UTranslation;
+    UTranslation, lazutf8classes;
 
 const OnlineResourcesURL = 'http://lazpaint.sourceforge.net/';
 
@@ -77,14 +76,14 @@ end;
 
 procedure TLazPaintOnlineUpdater.SaveLanguageFile;
 var
-  stream: TFileStream;
+  stream: TFileStreamUTF8;
 begin
   if (FUpdaterState = usDownloadingLanguage) then
   begin
     if (FHTTPBuffer <> '') and (FDownloadedLanguageFile <> '') and
      (copy(FHTTPBuffer,1,8)='msgid ""') then
     begin
-      stream := TFileStream.Create(UTF8ToSys(ActualConfigDir+FDownloadedLanguageFile),fmOpenWrite or fmCreate);
+      stream := TFileStreamUTF8.Create(ActualConfigDirUTF8+FDownloadedLanguageFile,fmOpenWrite or fmCreate);
       stream.Write(FHTTPBuffer[1],length(FHTTPBuffer));
       stream.Free;
       FConfig.AddUpdatedLanguage(FDownloadedLanguage);
@@ -105,8 +104,8 @@ begin
   if latestVersion <> FConfig.LatestVersion then
   begin
     Fconfig.SetLatestVersion(latestVersion);
-    if latestVersion <> LazPaintCurrentVersionOnly then
-      MessageDlg(rsLatestVersion + ' ' + latestVersion,mtInformation,[mbOK],0);
+    If Assigned(OnLatestVersionUpdate) then
+       OnLatestVersionUpdate(latestVersion);
   end;
   if latestVersion = LazPaintCurrentVersionOnly then
   begin
@@ -194,6 +193,7 @@ begin
   {$ENDIF}
 end;
 
+{$IFDEF LAZPAINT_USE_LNET}
 procedure TLazPaintOnlineUpdater.ReceiveHTTPBuffer;
 begin
   case FUpdaterState of
@@ -214,6 +214,7 @@ begin
   end;
   CheckDownloadLanguages;
 end;
+{$ENDIF}
 
 constructor TLazPaintOnlineUpdater.Create(AConfig: TLazPaintConfig);
 begin
@@ -265,4 +266,4 @@ end;
 {$ENDIF}
 
 end.
-
+

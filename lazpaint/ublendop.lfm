@@ -1,22 +1,25 @@
 object FBlendOp: TFBlendOp
   Left = 510
-  Height = 345
+  Height = 346
   Top = 229
-  Width = 529
-  BorderIcons = [biSystemMenu]
-  BorderStyle = bsDialog
+  Width = 527
+  BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'Blend operation'
-  ClientHeight = 345
-  ClientWidth = 529
+  ClientHeight = 346
+  ClientWidth = 527
   OnCreate = FormCreate
+  OnHide = FormHide
+  OnResize = FormResize
   OnShow = FormShow
   Position = poMainFormCenter
-  LCLVersion = '1.1'
+  LCLVersion = '1.0.10.0'
   object ListBox_PatternUnder: TListBox
     Left = 8
-    Height = 264
-    Top = 24
+    Height = 248
+    Top = 40
     Width = 98
+    Anchors = [akTop, akLeft, akBottom]
+    Color = clBtnFace
     Items.Strings = (
       'Under'
       'LeftToRight'
@@ -34,23 +37,32 @@ object FBlendOp: TFBlendOp
     )
     ItemHeight = 80
     OnDrawItem = ListBox_DrawPatternItem
+    OnMeasureItem = ListBox_MeasureItem
     OnSelectionChange = ListBox_PatternSelectionChange
+    ScrollWidth = 149
     Style = lbOwnerDrawFixed
     TabOrder = 0
   end
   object Label_PatternUnder: TLabel
     Left = 8
-    Height = 15
-    Top = 8
-    Width = 72
+    Height = 16
+    Hint = 'Preview blend operation with the specified image underneath'
+    Top = 24
+    Width = 97
+    Alignment = taCenter
+    AutoSize = False
     Caption = 'Pattern under'
     ParentColor = False
+    ParentShowHint = False
+    ShowHint = True
   end
   object ListBox_PatternOver: TListBox
     Left = 108
-    Height = 264
-    Top = 24
+    Height = 248
+    Top = 40
     Width = 98
+    Anchors = [akTop, akLeft, akBottom]
+    Color = clBtnFace
     Items.Strings = (
       'Over'
       'LeftToRight'
@@ -68,23 +80,32 @@ object FBlendOp: TFBlendOp
     )
     ItemHeight = 80
     OnDrawItem = ListBox_DrawPatternItem
+    OnMeasureItem = ListBox_MeasureItem
     OnSelectionChange = ListBox_PatternSelectionChange
+    ScrollWidth = 149
     Style = lbOwnerDrawFixed
     TabOrder = 1
   end
   object Label_PatternOver: TLabel
     Left = 108
-    Height = 15
-    Top = 8
-    Width = 64
+    Height = 16
+    Hint = 'Preview blend operation with the specified image on top'
+    Top = 24
+    Width = 98
+    Alignment = taCenter
+    AutoSize = False
     Caption = 'Pattern over'
     ParentColor = False
+    ParentShowHint = False
+    ShowHint = True
   end
   object ListBox_BlendSvg: TListBox
     Left = 223
-    Height = 264
-    Top = 24
+    Height = 248
+    Top = 40
     Width = 98
+    Anchors = [akTop, akLeft, akBottom]
+    Color = clBtnFace
     Items.Strings = (
       'Overlay'
       'SoftLight'
@@ -101,29 +122,39 @@ object FBlendOp: TFBlendOp
     ItemHeight = 80
     OnDblClick = ListBox_BlendDblClick
     OnDrawItem = ListBox_DrawBlendItem
+    OnMeasureItem = ListBox_MeasureItem
     OnSelectionChange = ListBox_BlendSelectionChange
+    ScrollWidth = 120
     Style = lbOwnerDrawFixed
     TabOrder = 2
   end
   object Label_SvgOver: TLabel
     Left = 223
-    Height = 15
-    Top = 8
-    Width = 51
+    Height = 16
+    Hint = 'Basic blend operations that are available in virtually all image editors'
+    Top = 24
+    Width = 97
+    Alignment = taCenter
+    AutoSize = False
     Caption = 'Basic SVG'
     ParentColor = False
+    ParentShowHint = False
+    ShowHint = True
   end
   object Bevel1: TBevel
     Left = 214
     Height = 290
     Top = 2
     Width = 2
+    Anchors = [akTop, akLeft, akBottom]
   end
   object ListBox_BlendKrita: TListBox
     Left = 323
-    Height = 264
-    Top = 24
+    Height = 248
+    Top = 40
     Width = 98
+    Anchors = [akTop, akLeft, akBottom]
+    Color = clBtnFace
     Items.Strings = (
       'LinearSubtractInverse'
       'LinearExclusion'
@@ -133,23 +164,32 @@ object FBlendOp: TFBlendOp
     ItemHeight = 80
     OnDblClick = ListBox_BlendDblClick
     OnDrawItem = ListBox_DrawBlendItem
+    OnMeasureItem = ListBox_MeasureItem
     OnSelectionChange = ListBox_BlendSelectionChange
+    ScrollWidth = 156
     Style = lbOwnerDrawFixed
     TabOrder = 3
   end
   object Label_KritaOver: TLabel
     Left = 323
-    Height = 15
-    Top = 8
-    Width = 24
+    Height = 16
+    Hint = 'Blend operations that are available in Krita'
+    Top = 24
+    Width = 98
+    Alignment = taCenter
+    AutoSize = False
     Caption = 'Krita'
     ParentColor = False
+    ParentShowHint = False
+    ShowHint = True
   end
   object ListBox_BlendOther: TListBox
     Left = 423
-    Height = 264
-    Top = 24
+    Height = 248
+    Top = 40
     Width = 98
+    Anchors = [akTop, akLeft, akBottom]
+    Color = clBtnFace
     Items.Strings = (
       'DarkOverlay'
       'Additive'
@@ -167,31 +207,40 @@ object FBlendOp: TFBlendOp
     ItemHeight = 80
     OnDblClick = ListBox_BlendDblClick
     OnDrawItem = ListBox_DrawBlendItem
+    OnMeasureItem = ListBox_MeasureItem
     OnSelectionChange = ListBox_BlendSelectionChange
+    ScrollWidth = 114
     Style = lbOwnerDrawFixed
     TabOrder = 4
   end
   object Label_OtherOver: TLabel
     Left = 423
-    Height = 15
-    Top = 8
-    Width = 30
+    Height = 16
+    Hint = 'Blend operations of LazPaint and Paint.NET'
+    Top = 24
+    Width = 98
+    Alignment = taCenter
+    AutoSize = False
     Caption = 'Other'
     ParentColor = False
+    ParentShowHint = False
+    ShowHint = True
   end
   object Label_SelectedBlendOp: TLabel
     Left = 8
-    Height = 15
-    Top = 294
-    Width = 137
+    Height = 18
+    Top = 292
+    Width = 177
+    Anchors = [akLeft, akBottom]
     Caption = 'Selected blend operation :'
     ParentColor = False
   end
   object Label_BlendOpValue: TLabel
     Left = 152
-    Height = 15
-    Top = 294
-    Width = 3
+    Height = 18
+    Top = 292
+    Width = 5
+    Anchors = [akLeft, akBottom]
     Caption = '.'
     ParentColor = False
   end
@@ -200,6 +249,7 @@ object FBlendOp: TFBlendOp
     Height = 22
     Top = 317
     Width = 59
+    Anchors = [akLeft, akBottom]
     Caption = 'OK'
     Default = True
     OnClick = Button_OKClick
@@ -210,9 +260,51 @@ object FBlendOp: TFBlendOp
     Height = 22
     Top = 317
     Width = 76
+    Anchors = [akLeft, akBottom]
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
     TabOrder = 6
   end
-end
+  object Label_PreviewWith: TLabel
+    Left = 8
+    Height = 16
+    Top = 5
+    Width = 198
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'Preview with'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label_BlendOpCategory: TLabel
+    Left = 223
+    Height = 16
+    Top = 5
+    Width = 298
+    Alignment = taCenter
+    Anchors = [akTop, akLeft, akRight]
+    AutoSize = False
+    Caption = 'Category of blend operation'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object ScrollBar1: TScrollBar
+    Left = 22
+    Height = 15
+    Top = 318
+    Width = 121
+    PageSize = 0
+    TabOrder = 7
+    Visible = False
+  end
+  object TimerResize: TTimer
+    Enabled = False
+    Interval = 100
+    OnTimer = TimerResizeTimer
+    left = 382
+    top = 288
+  end
+end

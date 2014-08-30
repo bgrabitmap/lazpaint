@@ -23,6 +23,7 @@ type
     Radio_HalfCosine: TRadioButton;
     Radio_Cosine: TRadioButton;
     Radio_Bicubic: TRadioButton;
+    Radio_BoxFilter: TRadioButton;
     Radio_Spline: TRadioButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -141,7 +142,7 @@ begin
     filterPos := i/precision;
     if noFilter then
     begin
-       if abs(filterPos) < 0.5 then
+       if (filterPos >= 0) and (filterPos < 1) then
          filterValue := 1
        else
          filterValue := 0;
@@ -180,6 +181,7 @@ end;
 procedure TForm1.GetFilter(out filter: TResampleFilter; out noFilter: boolean);
 begin
   noFilter := Radio_None.Checked;
+  if Radio_BoxFilter.Checked then filter := rfBox else
   if Radio_Bicubic.Checked then filter := rfBicubic else
   if Radio_Cosine.Checked then filter := rfCosine else
   if Radio_HalfCosine.Checked then filter := rfHalfCosine else

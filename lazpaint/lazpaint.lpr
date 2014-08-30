@@ -2,13 +2,15 @@ program lazpaint;
 
 {$mode objfpc}{$H+}
 
+{$DEFINE UseCThreads}
+
 uses
   {$IFDEF UNIX}cwstring, {$IFDEF UseCThreads}
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces,
 
-  Forms, SysUtils, Inifiles, FileUtil,
+  process, Forms, SysUtils, Inifiles, FileUtil, printer4lazarus,
   BGRABitmapPack, lnetvisual, //packages
 
   LazPaintType, LazpaintInstance, LazpaintMainForm, UConfig, UOnline,
@@ -22,27 +24,59 @@ uses
   UFilterThread,
 
   //forms
-  UNewimage, UMultiImage, UBlendOp, UCanvassize, UResample, UObject3D,
+  UNewimage, UMultiImage, UBrowseImages, UBlendOp, UCanvassize, UResample, UObject3D,
   URadialBlur, UMotionBlur, UCustomblur, UEmboss, UTwirl, UPixelate,
   UColorintensity, UShiftColors, UColorize, USharpen,
   UPhongFilter, UFilterFunction,
   UAbout, ULoading,
 
   //tools
-  UToolDeformationGrid, UToolSelect, UToolPolygon,
-  UToolFloodFill, UToolBasic, UToolPhong, UToolText;
+  UToolDeformationGrid, UToolSelect, UToolPolygon, UToolFloodFill, UToolBasic,
+  UToolPhong, UToolText, UScripting, UMenu, UColorFilters, uadjustcurves,
+  UScriptType, ULayerAction, UImageType, uposterize, UMySLV, UToolLayer,
+  unoisefilter, uprint, uimagelist, UBarUpDown, UFileExtensions;
 
 //sometimes LResources disappear in the uses clause
 
 procedure RestartApplication;
+var p: TProcess;
+  exe: string;
 begin
-  SysUtils.ExecuteProcess(Application.ExeName, '', []);
+  p := TProcess.Create(nil);
+  exe := Application.ExeName;
+  p.Executable := exe;
+  p.Options := [];
+  p.Execute;
+  p.Free;
 end;
 
+type
+
+  { TMyLazPaintInstance }
+
+  TMyLazPaintInstance = class(TLazPaintInstance)
+    FMyOnlineUpdater: TLazPaintOnlineUpdater;
+    function GetOnlineUpdater: TLazPaintCustomOnlineUpdater; override;
+  end;
+
 var
-  LazpaintApplication: TLazPaintInstance;
+  LazpaintApplication: TMyLazPaintInstance;
   ActualConfig: TIniFile;
   RestartQuery: boolean;
+
+{ TMyLazPaintInstance }
+
+function TMyLazPaintInstance.GetOnlineUpdater: TLazPaintCustomOnlineUpdater;
+begin
+  try
+    if not Assigned(FMyOnlineUpdater) then
+      FMyOnlineUpdater := TLazPaintOnlineUpdater.Create(Config);
+    Result:= FMyOnlineUpdater;
+  except
+    on ex:exception do
+      result := nil;
+  end;
+end;
 
 {$R *.res}
 
@@ -53,12 +87,12 @@ begin
   Application.Title := 'LazPaint';
   Application.Initialize;
 
-  LazpaintApplication := TLazPaintInstance.Create;
+  LazpaintApplication := TMyLazPaintInstance.Create;
   LazpaintApplication.UseConfig(ActualConfig);
   FillLanguageList(LazpaintApplication.Config);
 
   {$IFDEF WINDOWS}
-    LazpaintApplication.AboutText := ReadFileToString(ExtractFilePath(Application.ExeName)+'readme.txt');
+    LazpaintApplication.AboutText := ReadFileToString(SysToUTF8(ExtractFilePath(Application.ExeName))+'readme.txt');
   {$ELSE}
     LazpaintApplication.AboutText := ReadFileToString('readme.txt');
   {$ENDIF}
@@ -68,9 +102,11 @@ begin
     LazpaintApplication.Show;
     Application.Run;
   end;
+  LazpaintApplication.Hide;
+  Application.ProcessMessages;
 
   RestartQuery := LazpaintApplication.RestartQuery;
   LazpaintApplication.Free;
   if RestartQuery then RestartApplication;
 end.
-
+

@@ -1,110 +1,173 @@
 object FAbout: TFAbout
-  Left = 488
-  Height = 299
-  Top = 254
-  Width = 368
+  Left = 344
+  Height = 185
+  Top = 125
+  Width = 525
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'About'
-  ClientHeight = 299
-  ClientWidth = 368
+  ClientHeight = 185
+  ClientWidth = 525
   Font.Height = -12
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnHide = FormHide
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.1'
+  LCLVersion = '1.2.4.0'
   object Image_Title: TImage
     Left = 8
     Height = 34
     Top = 8
-    Width = 352
+    Width = 509
     Anchors = [akTop, akLeft, akRight]
   end
-  object Label_Authors: TLabel
+  object Panel1: TPanel
     Left = 8
-    Height = 15
-    Top = 74
-    Width = 45
-    Caption = 'Authors:'
-    ParentColor = False
-  end
-  object Label_HomePage: TLabel
-    Left = 8
-    Height = 15
-    Top = 97
-    Width = 62
-    Caption = 'Homepage:'
-    ParentColor = False
-  end
-  object Label_AuthorsValue: TLabel
-    Left = 104
-    Height = 15
-    Top = 74
-    Width = 205
-    Caption = 'Circular help by FabienWang and Lainz'
-    ParentColor = False
-  end
-  object LabelUrl: TLabel
-    Cursor = crHandPoint
-    Left = 104
-    Height = 15
-    Top = 97
-    Width = 216
-    Caption = 'http://sourceforge.net/projects/lazpaint/'
-    Font.Color = clBlue
-    Font.Height = -12
-    Font.Style = [fsUnderline]
-    ParentColor = False
-    ParentFont = False
-    OnClick = LabelUrlClick
-  end
-  object Label_Libraries: TLabel
-    Left = 8
-    Height = 15
-    Top = 121
-    Width = 75
-    Caption = 'Libraries used:'
-    ParentColor = False
-  end
-  object Label_LibrariesValue: TLabel
-    Left = 104
-    Height = 15
-    Top = 121
-    Width = 106
-    Caption = 'BGRABitmap (LGPL)'
-    ParentColor = False
-  end
-  object Label_Licence: TLabel
-    Left = 8
-    Height = 15
+    Height = 86
     Top = 50
-    Width = 43
-    Caption = 'Licence:'
-    ParentColor = False
-  end
-  object Label_OpenSource: TLabel
-    Left = 104
-    Height = 15
-    Top = 50
-    Width = 111
-    Caption = 'Open source (GPLv3)'
-    ParentColor = False
-  end
-  object Memo1: TMemo
-    Left = 7
-    Height = 145
-    Top = 143
-    Width = 353
-    ReadOnly = True
+    Width = 88
+    AutoSize = True
+    BevelOuter = bvNone
+    ClientHeight = 86
+    ClientWidth = 88
     TabOrder = 0
+    object Label_Licence: TLabel
+      Left = 0
+      Height = 15
+      Top = 0
+      Width = 50
+      Caption = 'Licence:'
+      ParentColor = False
+    end
+    object Label_Authors: TLabel
+      Left = 0
+      Height = 15
+      Top = 24
+      Width = 51
+      Caption = 'Authors:'
+      ParentColor = False
+    end
+    object Label_HomePage: TLabel
+      Left = 0
+      Height = 15
+      Top = 47
+      Width = 69
+      Caption = 'Homepage:'
+      ParentColor = False
+    end
+    object Label_Libraries: TLabel
+      Left = 0
+      Height = 15
+      Top = 71
+      Width = 88
+      Caption = 'Libraries used:'
+      ParentColor = False
+    end
+  end
+  object Panel2: TPanel
+    AnchorSideLeft.Control = Panel1
+    AnchorSideLeft.Side = asrBottom
+    Left = 106
+    Height = 87
+    Top = 49
+    Width = 295
+    AutoSize = True
+    BorderSpacing.Left = 10
+    BevelOuter = bvNone
+    ClientHeight = 87
+    ClientWidth = 295
+    TabOrder = 1
+    object Label_OpenSource: TLabel
+      Left = 0
+      Height = 15
+      Top = 0
+      Width = 128
+      Caption = 'Open source (GPLv3)'
+      ParentColor = False
+    end
+    object Label_AuthorsValue: TLabel
+      Left = 0
+      Height = 15
+      Top = 25
+      Width = 295
+      Caption = 'Circular helped by FabienWang, Lainz and others'
+      ParentColor = False
+    end
+    object LabelUrl: TLabel
+      Cursor = crHandPoint
+      Left = 0
+      Height = 15
+      Top = 48
+      Width = 240
+      Caption = 'http://sourceforge.net/projects/lazpaint/'
+      Font.Color = clBlue
+      Font.Height = -12
+      Font.Style = [fsUnderline]
+      ParentColor = False
+      ParentFont = False
+      OnClick = LabelUrlClick
+    end
+    object Label_LibrariesValue: TLabel
+      Left = 0
+      Height = 15
+      Top = 72
+      Width = 120
+      Caption = 'BGRABitmap (LGPL)'
+      ParentColor = False
+    end
+  end
+  object Button_Donate: TBitBtn
+    Left = 188
+    Height = 30
+    Top = 147
+    Width = 135
+    Anchors = [akBottom]
+    Caption = 'Donate...'
+    Glyph.Data = {
+      36040000424D3604000000000000360000002800000010000000100000000100
+      2000000000000004000064000000640000000000000000000000000000000000
+      0000000000000100002401000061010000AE010000D504292DE9000405DB0100
+      00BA010000770100003401000007000000000000000000000000000000000000
+      00000100001C01000061010000A9010000D7010000ED17C4D9FD05191CF00100
+      00DD010000B8010000780100002D010000030000000000000000000000000100
+      00070100003F01000092000606CF085D66F20D94A3FC1DE5FCFF14A4B4FD0A6F
+      7AF602191BE2010000B20100005D010000130000000000000000000000000100
+      001301000052010809A311BED2F614E7FFFF14E7FFFF15E7FFFF15E7FFFF14E7
+      FFFF14DDF4FF043439DC01000084010000270000000000000000000000000100
+      00100100003F0F8998B814E7FFFF2EE9FFFFAEF2FFFF36E9FFFFAEF1FEFF58EC
+      FFFF14E7FFFF1BB4C6F60100008D0100002F0000000000000000000000000100
+      00040100001C60B9C7B768EDFFFF80DDECFA232A2CE22FE1F7FF1D363AF85DB3
+      C0FD14E7FFFF2DDDF2FD0100007E010000220000000000000000000000000000
+      0000010000195A6D728B7E99A0DB47565AE7010000F12FE1F6FF13717CFC1CD0
+      E5FE14E7FFFF4EDEF1F9010000540100000D0000000000000000000000000100
+      00040100003701000094010B0CDA0A7885F911C7DCFF15E7FFFF14E7FFFF14E7
+      FFFF2FE9FFFF88C1CBCF01000027010000030000000000000000000000000100
+      000D01000054000303B711B7CAFB14E7FFFF14E7FFFF15E7FFFF4EEBFFFF8AEF
+      FFFFB0DCE6F32E383A7A01000024010000040000000000000000000000000100
+      00100100005807434ACC14E7FFFF1DE8FFFFA3F1FFFF36E9FFFF83B1BAF94C5C
+      60EC080A0AC30100008B010000410100000D0000000000000000000000000100
+      0007010000482F848FD114E7FFFF31E7FDFF2D3638FA2FE1F6FF132A2DF70EA3
+      B4FA11CADFF9096974BE010000480100000A0000000000000000000000000100
+      00030100002454868FAA1AE7FFFF15E7FFFF0B8391F826E3F9FF1498A7FA15E7
+      FFFF16E7FFFF5396A0B80100002A010000030000000000000000000000000000
+      0000010000074D5D61478EEDFCFC29E9FFFF14E7FFFF14E7FFFF14E7FFFF21E8
+      FFFF84EFFFFF61767B5B0100000A000000000000000000000000000000000000
+      00000000000001000004A3C5CE64C3EBF6EAB2F2FFFF31E9FFFFA1F1FFFFC3EE
+      F9F3A6C8D2760100000700000000000000000000000000000000000000000000
+      0000000000000000000000000000010000046F868C3CA1EBF8E486A8B1553D4A
+      4D09000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000001000004B3D8E23257696E060000
+      0000000000000000000000000000000000000000000000000000
+    }
+    OnClick = Button_DonateClick
+    TabOrder = 2
   end
   object Timer1: TTimer
     Enabled = False
     Interval = 100
     OnTimer = Timer1Timer
-    left = 264
-    top = 160
+    left = 320
+    top = 80
   end
-end
+end

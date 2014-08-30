@@ -1,44 +1,44 @@
 object FCanvasSize: TFCanvasSize
-  Left = 549
+  Left = 370
   Height = 184
-  Top = 189
-  Width = 175
+  Top = 187
+  Width = 367
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Canvas size'
   ClientHeight = 184
-  ClientWidth = 175
+  ClientWidth = 367
   Font.Height = -12
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.1'
+  LCLVersion = '1.2.2.0'
   object Label_Width: TLabel
     Left = 16
-    Height = 15
+    Height = 14
     Top = 19
-    Width = 38
+    Width = 41
     Caption = 'Width :'
     ParentColor = False
   end
   object Label_Height: TLabel
     Left = 16
-    Height = 15
+    Height = 14
     Top = 46
-    Width = 42
+    Width = 44
     Caption = 'Height :'
     ParentColor = False
   end
   object Label_Anchor: TLabel
     Left = 16
-    Height = 15
+    Height = 14
     Top = 80
-    Width = 45
+    Width = 47
     Caption = 'Anchor :'
     ParentColor = False
   end
   object Button_OK: TButton
-    Left = 19
+    Left = 88
     Height = 22
     Top = 155
     Width = 59
@@ -49,7 +49,7 @@ object FCanvasSize: TFCanvasSize
     TabOrder = 0
   end
   object Button_Cancel: TButton
-    Left = 83
+    Left = 152
     Height = 22
     Top = 155
     Width = 73
@@ -61,32 +61,34 @@ object FCanvasSize: TFCanvasSize
   end
   object SpinEdit_Width: TSpinEdit
     Left = 81
-    Height = 23
+    Height = 22
     Top = 16
     Width = 79
     Increment = 10
     MaxValue = 10000
     MinValue = 1
+    OnChange = SpinEdit_WidthChange
     TabOrder = 2
     Value = 1
   end
   object SpinEdit_Height: TSpinEdit
     Left = 81
-    Height = 23
+    Height = 22
     Top = 43
     Width = 79
     Increment = 10
     MaxValue = 10000
     MinValue = 1
+    OnChange = SpinEdit_HeightChange
     TabOrder = 3
     Value = 1
   end
   object ComboBox_Anchor: TComboBox
     Left = 16
-    Height = 23
+    Height = 22
     Top = 96
     Width = 128
-    ItemHeight = 15
+    ItemHeight = 14
     Items.Strings = (
       'TopLeft'
       'Top'
@@ -98,15 +100,38 @@ object FCanvasSize: TFCanvasSize
       'Bottom'
       'BottomRight'
     )
+    OnChange = ComboBox_AnchorChange
     Style = csDropDownList
     TabOrder = 4
   end
   object CheckBox_FlipMode: TCheckBox
     Left = 16
-    Height = 19
+    Height = 18
     Top = 128
-    Width = 73
+    Width = 70
     Caption = 'Flip mode'
+    OnChange = CheckBox_FlipModeChange
     TabOrder = 5
+  end
+  object vsPreview: TBGRAVirtualScreen
+    Left = 218
+    Height = 112
+    Top = 7
+    Width = 144
+    OnRedraw = vsPreviewRedraw
+    Alignment = taLeftJustify
+    Color = clBtnFace
+    ParentColor = False
+    TabOrder = 6
+  end
+  object ComboBox_MUnit: TComboBox
+    Left = 163
+    Height = 22
+    Top = 16
+    Width = 52
+    ItemHeight = 14
+    OnChange = ComboBox_MUnitChange
+    Style = csDropDownList
+    TabOrder = 7
   end
 end

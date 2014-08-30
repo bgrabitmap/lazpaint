@@ -15,19 +15,21 @@ type
     destructor Destroy; override;
   protected
     shader: TPhongShading;
+    rightBtnDown: boolean;
     function UpdateShape(toolDest: TBGRABitmap): TRect; override;
     function FinishShape({%H-}toolDest: TBGRABitmap): TRect; override;
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;
       rightBtn: boolean): TRect; override;
     function ShouldFinishShapeWhenFirstMouseUp: boolean; override;
   public
-    procedure Render(VirtualScreen: TBGRABitmap;
-      BitmapToVirtualScreen: TBitmapToVirtualScreenFunction); override;
+    function ToolUp: TRect; override;
+    function Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth, VirtualScreenHeight: integer;
+      BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
   end;
 
 implementation
 
-uses ugraph, uresourcestrings, Graphics;
+uses ugraph, uresourcestrings, Graphics, LazPaintType;
 
 { TToolPhong }
 
@@ -55,7 +57,7 @@ begin
   shader.LightPosition := Manager.ToolLightPosition;
   shader.LightPositionZ := Manager.ToolLightAltitude;
 
-  bounds := rect(rectOrigin.x,rectOrigin.y,rectDest.x,rectDest.y);
+  bounds := rect(round(rectOrigin.x),round(rectOrigin.y),round(rectDest.x),round(rectDest.y));
   if Bounds.Right < Bounds.Left then
   begin
     temp := Bounds.Left;
@@ -131,11 +133,15 @@ function TToolPhong.DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;
 begin
   if rightBtn then
   begin
+    rightBtnDown := true;
     Manager.ToolLightPosition := pt;
     if afterRectDrawing then
-      result := FinishShape(toolDest)
+    begin
+      result := FinishShape(toolDest);
+      Action.NotifyChange(toolDest, result);
+    end
     else
-      result := ToolRepaintOnly;
+      result := OnlyRenderChange;
     exit;
   end;
   inherited DoToolDown(toolDest,pt,ptF,rightBtn);
@@ -146,17 +152,27 @@ begin
   result := false;
 end;
 
-procedure TToolPhong.Render(VirtualScreen: TBGRABitmap;
-  BitmapToVirtualScreen: TBitmapToVirtualScreenFunction);
+function TToolPhong.ToolUp: TRect;
+begin
+  if rightBtnDown then
+  begin
+    result := EmptyRect;
+    rightBtnDown:= false;
+  end else
+    Result:=inherited ToolUp;
+end;
+
+function TToolPhong.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth, VirtualScreenHeight: integer;
+  BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
 var lightPosition: TPointF;
 begin
-  inherited Render(VirtualScreen,BitmapToVirtualScreen);
+  result := inherited Render(VirtualScreen,VirtualScreenWidth,VirtualScreenHeight, BitmapToVirtualScreen);
   lightPosition := BitmapToVirtualScreen(PointF(Manager.ToolLightPosition.X,Manager.ToolLightPosition.Y));
-  NicePoint(VirtualScreen, lightPosition.X,lightPosition.Y);
-  if lightPosition.Y > virtualScreen.Height/2 then
-    NiceText(VirtualScreen, round(lightPosition.X),round(lightPosition.Y-6), rsLightPosition, taCenter, tlBottom)
+  result := RectUnion(result,NicePoint(VirtualScreen, lightPosition.X,lightPosition.Y));
+  if lightPosition.Y > virtualScreenHeight/2 then
+    result := RectUnion(result,NiceText(VirtualScreen, round(lightPosition.X),round(lightPosition.Y-6), VirtualScreenWidth,VirtualScreenHeight, rsLightPosition, taCenter, tlBottom))
   else
-    NiceText(VirtualScreen, round(lightPosition.X),round(lightPosition.Y+6), rsLightPosition, taCenter, tlTop);
+    result := RectUnion(result,NiceText(VirtualScreen, round(lightPosition.X),round(lightPosition.Y+6), VirtualScreenWidth,VirtualScreenHeight, rsLightPosition, taCenter, tlTop));
 end;
 
 initialization

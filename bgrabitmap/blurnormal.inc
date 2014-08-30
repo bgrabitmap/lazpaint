@@ -170,7 +170,7 @@ begin
   //loop through destination
   for yb := bounds.Top to bounds.Bottom - 1 do
   begin
-    if (ACheckShouldStop <> nil) and ACheckShouldStop() then break;
+    if (ACheckShouldStop <> nil) and ACheckShouldStop(yb) then break;
     pdest := ADestination.ScanLine[yb] + bounds.Left;
     //compute vertical range
     mindy := max(-blurOfs.Y, -yb);
