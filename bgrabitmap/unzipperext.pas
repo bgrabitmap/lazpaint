@@ -30,7 +30,7 @@ type
 
 implementation
 
-uses lazutf8classes;
+uses BGRAUTF8;
 
 { TUnzipperStreamUtf8 }
 

@@ -25,8 +25,8 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure OnPaint(Canvas: TCanvas; Width,Height: Integer); override;
-    procedure OnTimer(Canvas: TCanvas; Width,Height: Integer; ElapsedSec: Double); override;
+    procedure OnPaint(Canvas: TCanvas; Left,Top,Width,Height: Integer); override;
+    procedure OnTimer(Width,Height: Integer; ElapsedSec: Double); override;
   end;
 
 implementation
@@ -88,7 +88,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TTest16.OnPaint(Canvas: TCanvas; Width, Height: Integer);
+procedure TTest16.OnPaint(Canvas: TCanvas; Left,Top,Width, Height: Integer);
 var
   borderSize: integer;
   barPrecalc: TBGRABitmap;
@@ -171,12 +171,12 @@ begin
   barPrecalc.Free;
 
   //draw chart
-  image.Draw(Canvas,0,0,True);
+  image.Draw(Canvas,Left,Top,True);
 
   image.free;
 end;
 
-procedure TTest16.OnTimer(Canvas: TCanvas; Width, Height: Integer;
+procedure TTest16.OnTimer(Width, Height: Integer;
   ElapsedSec: Double);
 begin
   lightTime := lightTime+ElapsedSec*0.2;
@@ -188,8 +188,6 @@ begin
     chartTime := chartTime-10;
     NewChart;
   end;
-
-  OnPaint(Canvas,Width,Height);
 end;
 
 end.

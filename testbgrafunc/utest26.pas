@@ -22,8 +22,8 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure OnPaint(Canvas: TCanvas; Width,Height: Integer); override;
-    procedure OnTimer(Canvas: TCanvas; Width,Height: Integer; ElapsedSec: Double); override;
+    procedure OnPaint(Canvas: TCanvas; Left,Top,Width,Height: Integer); override;
+    procedure OnTimer(Width,Height: Integer; ElapsedSec: Double); override;
   end;
 
 implementation
@@ -46,7 +46,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TTest26.OnPaint(Canvas: TCanvas; Width, Height: Integer);
+procedure TTest26.OnPaint(Canvas: TCanvas; Left,Top,Width, Height: Integer);
 begin
   if pts = nil then exit;
 
@@ -62,10 +62,10 @@ begin
   virtualScreen.FillTriangleLinearColorAntialias(pts[0],pts[1],pts[2],BGRA(255,0,0),BGRA(255,255,0),BGRA(255,0,255));
   virtualScreen.FillEllipseLinearColorAntialias(pts[7].x,pts[7].y,pts[8].x/4,pts[8].y/4,BGRABlack,BGRAWhite);
 
-  virtualScreen.draw(Canvas,0,0);
+  virtualScreen.draw(Canvas,Left,Top);
 end;
 
-procedure TTest26.OnTimer(Canvas: TCanvas; Width, Height: Integer; ElapsedSec: Double);
+procedure TTest26.OnTimer(Width, Height: Integer; ElapsedSec: Double);
 var i: integer;
     moveFactor: single;
 begin
@@ -105,7 +105,6 @@ begin
       dirs[i].y := -abs(dirs[i].y);
     end;
   end;
-  OnPaint(Canvas,Width,Height);
 end;
 
 end.

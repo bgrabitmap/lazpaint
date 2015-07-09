@@ -48,10 +48,13 @@ end;
 
 procedure TFToolbox.FormCreate(Sender: TObject);
 begin
+  {$IFDEF LINUX}
+  BorderStyle:= bsDialog;
+  {$ENDIF}
   ScaleDPI(Self,OriginalDPI);
 end;
 
 {$R *.lfm}
 
 end.
-
+

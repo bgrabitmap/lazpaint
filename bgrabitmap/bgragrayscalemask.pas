@@ -38,9 +38,22 @@ type
 procedure DownSamplePutImageGrayscale(sourceData: PByte; sourcePixelSize: NativeInt; sourceRowDelta: NativeInt; sourceWidth, sourceHeight: NativeInt; dest: TGrayscaleMask; ADestRect: TRect);
 procedure DownSamplePutImageGrayscale(source: TBGRACustomBitmap; dest: TGrayscaleMask; ADestRect: TRect);
 
+procedure BGRAFillClearTypeGrayscaleMask(dest: TBGRACustomBitmap; x,
+  y: integer; xThird: integer; mask: TGrayscaleMask; color: TBGRAPixel;
+  texture: IBGRAScanner; RGBOrder: boolean);
+
 implementation
 
-uses GraphType, BGRABlend;
+uses BGRABlend;
+
+procedure BGRAFillClearTypeGrayscaleMask(dest: TBGRACustomBitmap; x,
+  y: integer; xThird: integer; mask: TGrayscaleMask; color: TBGRAPixel;
+  texture: IBGRAScanner; RGBOrder: boolean);
+var delta: NativeInt;
+begin
+  delta := mask.Width;
+  BGRABlend.BGRAFillClearTypeMaskPtr(dest,x,y,xThird,mask.ScanLine[0],1,delta,mask.Width,mask.Height,color,texture,RGBOrder);
+end;
 
 { TGrayscaleMask }
 
@@ -76,11 +89,11 @@ begin
   begin
     pdest := FData;
     Case AChannel of
-      cAlpha: ofs := 3;
-      cRed: ofs := 2;
-      cGreen: ofs := 1;
+      cAlpha: ofs := TBGRAPixel_AlphaByteOffset;
+      cRed: ofs := TBGRAPixel_RedByteOffset;
+      cGreen: ofs := TBGRAPixel_GreenByteOffset;
     else
-      ofs := 0;
+      ofs := TBGRAPixel_BlueByteOffset;
     end;
     for y := 0 to FHeight-1 do
     begin

@@ -179,13 +179,23 @@ msgstr "Velikost:"
 msgid "Go one directory up"
 msgstr "Jít o adresář výše"
 
-#: tfbrowseimages.toolbutton_viewbigicon.caption
+#: tfbrowseimages.toolbutton_openselectedfiles.hint
+msgid "Open selected files"
+msgstr ""
+
+#: tfbrowseimages.toolbutton_viewbigicon.hint
+msgctxt "tfbrowseimages.toolbutton_viewbigicon.hint"
 msgid "Show big icons"
 msgstr "Ukázat velké ikony"
 
-#: tfbrowseimages.toolbutton_viewdetails.caption
+#: tfbrowseimages.toolbutton_viewdetails.hint
+msgctxt "tfbrowseimages.toolbutton_viewdetails.hint"
 msgid "Show details and preview"
 msgstr "Ukázat podrobnosti a náhled"
+
+#: tfbrowseimages.tool_selectdrive.hint
+msgid "Select drive"
+msgstr ""
 
 #: tfcanvassize.button_cancel.caption
 msgctxt "TFCANVASSIZE.BUTTON_CANCEL.CAPTION"
@@ -220,6 +230,14 @@ msgstr "Výška :"
 msgctxt "tfcanvassize.label_width.caption"
 msgid "Width :"
 msgstr "Šířka :"
+
+#: tfchoosecolor.bcbutton_addtopalette.hint
+msgid "Add color to palette"
+msgstr ""
+
+#: tfchoosecolor.bcbutton_removefrompalette.hint
+msgid "Remove color from palette"
+msgstr ""
 
 #: tfchoosecolor.caption
 msgctxt "tfchoosecolor.caption"
@@ -402,13 +420,31 @@ msgstr "HSL"
 msgid "RGB"
 msgstr "RGB"
 
+#: tfgeometricbrush.button_cancel.caption
+msgctxt "tfgeometricbrush.button_cancel.caption"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfgeometricbrush.button_ok.caption
+msgctxt "tfgeometricbrush.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfgeometricbrush.caption
+msgid "Geometric brush"
+msgstr ""
+
+#: tfgeometricbrush.checkbox_isgradient.caption
+msgid "Opacity gradient"
+msgstr ""
+
+#: tfgeometricbrush.label1.caption
+msgid "Number of sides:"
+msgstr ""
+
 #: tfimagelist.caption
 msgid "Image List"
 msgstr "Seznam obrázků"
-
-#: tfimagelist.lblstatus.caption
-msgid "lblStatus"
-msgstr ""
 
 #: tfimagelist.pmautouncheckonopen.caption
 msgid "Autouncheck files after being open"
@@ -542,6 +578,20 @@ msgctxt "tfloading.caption"
 msgid "Loading..."
 msgstr "Načítání..."
 
+#: tfmain.brushcreategeometric.hint
+msgctxt "tfmain.brushcreategeometric.hint"
+msgid "Create geometric brush"
+msgstr ""
+
+#: tfmain.brushloadfromfile.hint
+msgctxt "tfmain.brushloadfromfile.hint"
+msgid "Load brush from file..."
+msgstr ""
+
+#: tfmain.brushremovecurrent.hint
+msgid "Remove current brush"
+msgstr ""
+
 #: tfmain.caption
 msgctxt "tfmain.caption"
 msgid "LazPaint"
@@ -594,6 +644,7 @@ msgid "Cut selection"
 msgstr "Vyříznout výběr"
 
 #: tfmain.editdeleteselection.caption
+msgctxt "tfmain.editdeleteselection.caption"
 msgid "Delete"
 msgstr "Smazat"
 
@@ -619,6 +670,10 @@ msgstr "Vložit"
 #: tfmain.editpasteasnew.caption
 msgid "Paste as new image"
 msgstr "Vložit jako nový obrázek"
+
+#: tfmain.editpasteasnewlayer.caption
+msgid "Paste as new layer"
+msgstr ""
 
 #: tfmain.editredo.hint
 msgctxt "TFMAIN.EDITREDO.HINT"
@@ -727,6 +782,10 @@ msgctxt "TFMAIN.FILESAVESELECTIONAS.CAPTION"
 msgid "Save selection as..."
 msgstr "Uložit výběr jako..."
 
+#: tfmain.filterblurbox.caption
+msgid "Box blur..."
+msgstr ""
+
 #: tfmain.filterblurcorona.caption
 msgctxt "tfmain.filterblurcorona.caption"
 msgid "Corona blur..."
@@ -759,8 +818,8 @@ msgstr "Přestné rozostření..."
 
 #: tfmain.filterblurradial.caption
 msgctxt "tfmain.filterblurradial.caption"
-msgid "Radial blur..."
-msgstr "Radiální rozmazání..."
+msgid "Gaussian blur..."
+msgstr "Gaussovské rozmazání..."
 
 #: tfmain.filtercleartype.caption
 msgid "ClearType"
@@ -827,6 +886,10 @@ msgstr "Pixelace..."
 #: tfmain.filterplane.caption
 msgid "Plane (slow)"
 msgstr "Rovina (pomalé)"
+
+#: tfmain.filterrain.caption
+msgid "Rain..."
+msgstr ""
 
 #: tfmain.filtersharpen.caption
 msgid "Sharpen..."
@@ -935,10 +998,18 @@ msgctxt "tfmain.image_swapcolors.hint"
 msgid "Switch color"
 msgstr "Vybraný nástroj"
 
+#: tfmain.itemdocklayersandcolors.caption
+msgid "Dock layers and colors"
+msgstr ""
+
 #: tfmain.itemdonate.caption
 msgctxt "tfmain.itemdonate.caption"
 msgid "Donate..."
 msgstr "Přispět..."
+
+#: tfmain.itemfullscreen.caption
+msgid "Fullscreen"
+msgstr ""
 
 #: tfmain.itemhorizfliplayer.caption
 msgctxt "tfmain.itemhorizfliplayer.caption"
@@ -955,18 +1026,8 @@ msgctxt "tfmain.itemhorizflipselection.caption"
 msgid "Selection"
 msgstr "Výběr"
 
-#: tfmain.itemlanguage.caption
-msgctxt "tfmain.itemlanguage.caption"
-msgid "Language"
-msgstr "Jazyk"
-
 #: tfmain.itemquitseparator.caption
 msgctxt "tfmain.itemquitseparator.caption"
-msgid "-"
-msgstr "-"
-
-#: tfmain.itemseparatortransparency.caption
-msgctxt "tfmain.itemseparatortransparency.caption"
 msgid "-"
 msgstr "-"
 
@@ -985,6 +1046,14 @@ msgctxt "tfmain.itemvertflipselection.caption"
 msgid "Selection"
 msgstr "Výběr"
 
+#: tfmain.itemviewdocktoolbox.caption
+msgid "Dock toolbox"
+msgstr ""
+
+#: tfmain.itemviewpalette.caption
+msgid "Palette"
+msgstr ""
+
 #: tfmain.label_altitude.caption
 msgid "Altitude"
 msgstr "Výška"
@@ -992,6 +1061,11 @@ msgstr "Výška"
 #: tfmain.label_back.caption
 msgid "Back"
 msgstr "Zpět"
+
+#: tfmain.label_brush.caption
+msgctxt "tfmain.label_brush.caption"
+msgid "Brush"
+msgstr ""
 
 #: tfmain.label_coordinates.caption
 msgid "99999x99999"
@@ -1069,6 +1143,10 @@ msgctxt "TFMAIN.LABEL_SHAPE.CAPTION"
 msgid "Shape"
 msgstr "Tvar"
 
+#: tfmain.label_spacing.caption
+msgid "Spacing"
+msgstr ""
+
 #: tfmain.label_text.caption
 msgctxt "TFMAIN.LABEL_TEXT.CAPTION"
 msgid "Text"
@@ -1137,6 +1215,22 @@ msgctxt "tfmain.menucolors.caption"
 msgid "Colors"
 msgstr "Barvy"
 
+#: tfmain.menucoordinatestoolbar.caption
+msgid "Show coordinates"
+msgstr ""
+
+#: tfmain.menucopypastetoolbar.caption
+msgid "Show copy/paste toolbar"
+msgstr ""
+
+#: tfmain.menudocktoolboxleft.caption
+msgid "Dock left"
+msgstr ""
+
+#: tfmain.menudocktoolboxright.caption
+msgid "Dock right"
+msgstr ""
+
 #: tfmain.menuedit.caption
 msgctxt "tfmain.menuedit.caption"
 msgid "Edit"
@@ -1171,6 +1265,16 @@ msgctxt "tfmain.menuimage.caption"
 msgid "Image"
 msgstr "Obrázek"
 
+#: tfmain.menuitem1.caption
+msgctxt "tfmain.menuitem1.caption"
+msgid "-"
+msgstr "-"
+
+#: tfmain.menulanguage.caption
+msgctxt "tfmain.menulanguage.caption"
+msgid "Language"
+msgstr "Jazyk"
+
 #: tfmain.menuradialblur.caption
 msgctxt "tfmain.menuradialblur.caption"
 msgid "Radial blur"
@@ -1196,11 +1300,24 @@ msgctxt "tfmain.menuselect.caption"
 msgid "Select"
 msgstr "Vybrat"
 
+#: tfmain.menushowpalette.caption
+msgctxt "tfmain.menushowpalette.caption"
+msgid "Show palette"
+msgstr ""
+
 #: tfmain.menutool.caption
 #| msgid "Tool"
 msgctxt "tfmain.menutool.caption"
 msgid "Tools"
 msgstr "Nástroje"
+
+#: tfmain.menuundocktoolbox.caption
+msgid "Undock"
+msgstr ""
+
+#: tfmain.menuundoredotoolbar.caption
+msgid "Show undo/redo toolbar"
+msgstr ""
 
 #: tfmain.menuvertflipsub.caption
 msgctxt "tfmain.menuvertflipsub.caption"
@@ -1212,10 +1329,18 @@ msgctxt "tfmain.menuview.caption"
 msgid "View"
 msgstr "Pohled"
 
+#: tfmain.menuzoomtoolbar.caption
+msgid "Show zoom toolbar"
+msgstr ""
+
 #: tfmain.open3dobjectdialog.title
 msgctxt "tfmain.open3dobjectdialog.title"
 msgid "Import 3D object"
 msgstr "Otevřít existující soubor"
+
+#: tfmain.openbrushdialog.title
+msgid "Open brush"
+msgstr ""
 
 #: tfmain.openpicturedialog1.title
 msgid "Open existing image"
@@ -1311,6 +1436,20 @@ msgstr "Vyberte druhotnou barvu"
 #: tfmain.shape_pencolor.hint
 msgid "Select pen color"
 msgstr "Vyberte barvu pera"
+
+#: tfmain.toolbrush.hint
+msgctxt "tfmain.toolbrush.hint"
+msgid "Brush"
+msgstr ""
+
+#: tfmain.toolchangedocking.hint
+msgctxt "tfmain.toolchangedocking.hint"
+msgid "Change docking"
+msgstr ""
+
+#: tfmain.toolclone.hint
+msgid "Clone tool"
+msgstr ""
 
 #: tfmain.toolcolorpicker.hint
 msgctxt "TFMAIN.TOOLCOLORPICKER.HINT"
@@ -1719,10 +1858,23 @@ msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
 msgid "Zoom out"
 msgstr "Oddálit"
 
+#: tfmain.vsarrowsizex.hint
+msgid "Horizontal size of the arrow"
+msgstr ""
+
+#: tfmain.vsarrowsizey.hint
+msgid "Vertical size of the arrow"
+msgstr ""
+
 #: tfmain.vsbackopacity.hint
 msgctxt "tfmain.vsbackopacity.hint"
 msgid "Secondary color opacity"
 msgstr "Průhlednost druhotné barvy"
+
+#: tfmain.vsbrushspacing.hint
+msgctxt "tfmain.vsbrushspacing.hint"
+msgid "Spacing between patterns"
+msgstr ""
 
 #: tfmain.vseraseropacity.hint
 msgctxt "tfmain.vseraseropacity.hint"
@@ -1901,6 +2053,10 @@ msgstr "2-stranné povrchy"
 msgid "Texture interpolation"
 msgstr "Interpolace textury"
 
+#: tfobject3d.groupbox_selectedlight.caption
+msgid "Selected light"
+msgstr ""
+
 #: tfobject3d.groupbox_selectedmaterial.caption
 msgctxt "tfobject3d.groupbox_selectedmaterial.caption"
 msgid "Selected material"
@@ -1908,6 +2064,11 @@ msgstr "Vybraný materiál"
 
 #: tfobject3d.label_color.caption
 msgctxt "tfobject3d.label_color.caption"
+msgid "Color :"
+msgstr "Barva :"
+
+#: tfobject3d.label_color1.caption
+msgctxt "tfobject3d.label_color1.caption"
 msgid "Color :"
 msgstr "Barva :"
 
@@ -1920,6 +2081,10 @@ msgstr "Výška :"
 msgctxt "tfobject3d.label_lightingnormals.caption"
 msgid "Lighting normals :"
 msgstr "Světelné normály :"
+
+#: tfobject3d.label_lights.caption
+msgid "Lights :"
+msgstr ""
 
 #: tfobject3d.label_materials.caption
 msgctxt "tfobject3d.label_materials.caption"
@@ -1946,6 +2111,10 @@ msgctxt "tfobject3d.label_zoom.caption"
 msgid "Zoom"
 msgstr "Měřítko"
 
+#: tfobject3d.lights.caption
+msgid "Lights"
+msgstr ""
+
 #: tfobject3d.materials.caption
 msgid "Materials"
 msgstr "Materiály"
@@ -1959,10 +2128,17 @@ msgstr "Otevřít texturu"
 msgid "Rendering"
 msgstr "Vykreslení"
 
-#: tfobject3d.shape_materialcolor.hint
-msgctxt "tfobject3d.shape_materialcolor.hint"
-msgid "Select secondary color"
-msgstr "Vyberte druhotnou barvu"
+#: tfobject3d.tooladddirectional.hint
+msgid "Add a directional light"
+msgstr ""
+
+#: tfobject3d.toolpointlight.hint
+msgid "Add a point light"
+msgstr ""
+
+#: tfobject3d.toolremoveselectedlight.hint
+msgid "Remove selected light"
+msgstr ""
 
 #: tfphongfilter.button_cancel.caption
 msgctxt "tfphongfilter.button_cancel.caption"
@@ -2183,6 +2359,28 @@ msgctxt "tfradialblur.label_radius.caption"
 msgid "Radius :"
 msgstr "Poloměr :"
 
+#: tfrain.button_cancel.caption
+msgctxt "tfrain.button_cancel.caption"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfrain.button_ok.caption
+msgctxt "tfrain.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfrain.caption
+msgid "Rain"
+msgstr ""
+
+#: tfrain.label_quantity.caption
+msgid "Quantity:"
+msgstr ""
+
+#: tfrain.label_wind.caption
+msgid "Wind :"
+msgstr ""
+
 #: tfresample.button_cancel.caption
 msgctxt "TFRESAMPLE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -2217,6 +2415,65 @@ msgstr "Kvalita :"
 msgctxt "tfresample.label_width.caption"
 msgid "Width :"
 msgstr "Šířka :"
+
+#: tfsaveoption.button_cancel.caption
+msgctxt "tfsaveoption.button_cancel.caption"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfsaveoption.button_ok.caption
+msgctxt "tfsaveoption.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfsaveoption.caption
+msgctxt "tfsaveoption.caption"
+msgid "Save"
+msgstr "Uložit"
+
+#: tfsaveoption.checkbox_dithering.caption
+msgid "Dithering"
+msgstr ""
+
+#: tfsaveoption.label1.caption
+msgid "Quality:"
+msgstr ""
+
+#: tfsaveoption.label_0.caption
+msgid "0"
+msgstr ""
+
+#: tfsaveoption.label_1.caption
+msgid "100"
+msgstr ""
+
+#: tfsaveoption.label_50.caption
+msgid "50"
+msgstr ""
+
+#: tfsaveoption.label_colordepth.caption
+msgid "Color depth:"
+msgstr ""
+
+#: tfsaveoption.label_size.caption
+msgid "Size:"
+msgstr ""
+
+#: tfsaveoption.radiobutton_16colors.caption
+msgid "16 colors"
+msgstr ""
+
+#: tfsaveoption.radiobutton_24bitsperpixel.caption
+msgid "24 bits"
+msgstr ""
+
+#: tfsaveoption.radiobutton_256colors.caption
+msgid "256 colors"
+msgstr ""
+
+#: tfsaveoption.radiobutton_2colors.caption
+msgid "2 colors"
+msgstr ""
 
 #: tfsharpen.button_cancel.caption
 msgctxt "tfsharpen.button_cancel.caption"
@@ -2337,6 +2594,10 @@ msgstr ""
 msgid "The blend operation is applied only if there is a layer underneath"
 msgstr "Operace mísení je použita pouze pokud je vespodu vrstva"
 
+#: uresourcestrings.rsblue
+msgid "Blue"
+msgstr ""
+
 #: uresourcestrings.rsbrightness
 msgid "Brightness"
 msgstr "Světlost"
@@ -2359,6 +2620,14 @@ msgctxt "uresourcestrings.rscanvassize"
 msgid "Canvas size"
 msgstr "Velikost plátna"
 
+#: uresourcestrings.rscdrom
+msgid "CD"
+msgstr ""
+
+#: uresourcestrings.rsclearpalette
+msgid "Clear palette"
+msgstr ""
+
 #: uresourcestrings.rscloserequest
 msgid "Close request"
 msgstr "Uzavřit požadavek"
@@ -2367,6 +2636,14 @@ msgstr "Uzavřit požadavek"
 msgctxt "uresourcestrings.rscolors"
 msgid "Colors"
 msgstr "Barvy"
+
+#: uresourcestrings.rsconfirmmovemultipletotrash
+msgid "Are you sure you want to move these %1 files to the trash?"
+msgstr ""
+
+#: uresourcestrings.rsconfirmmovetotrash
+msgid "Are you sure you want to move this file to the trash?"
+msgstr ""
 
 #: uresourcestrings.rsconflictingactions
 msgid "Conflicting actions"
@@ -2391,6 +2668,19 @@ msgstr "Přidržte CTRL pro omezení úhlu otočení"
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
 msgstr "Stiskni S nebo X k nastavení režimu křivky posledního bodu"
+
+#: uresourcestrings.rsdefaultpalette
+msgid "Default palette"
+msgstr ""
+
+#: uresourcestrings.rsdeletefile
+msgctxt "uresourcestrings.rsdeletefile"
+msgid "Delete"
+msgstr "Smazat"
+
+#: uresourcestrings.rsditherlayerusingpalette
+msgid "Dither layer using palette"
+msgstr ""
 
 #: uresourcestrings.rseditmask
 msgid "Edit mask"
@@ -2472,9 +2762,17 @@ msgstr "Neuložený soubor"
 msgid "Size"
 msgstr "Velikost"
 
+#: uresourcestrings.rsfilesystem
+msgid "File system"
+msgstr ""
+
 #: uresourcestrings.rsfiletype
 msgid "Type"
 msgstr "Typ"
+
+#: uresourcestrings.rsfixeddrive
+msgid "Fixed"
+msgstr ""
 
 #: uresourcestrings.rsfolder
 msgid "Folder"
@@ -2488,6 +2786,10 @@ msgstr ""
 msgid "The function %1 is not defined."
 msgstr "Funkce %1 není určena."
 
+#: uresourcestrings.rsgreen
+msgid "Green"
+msgstr ""
+
 #: uresourcestrings.rshalfcosine
 msgid "Half-cosine"
 msgstr "Poloviční-kosinus"
@@ -2499,6 +2801,11 @@ msgstr "Přidržte CTRL pro přichycení k bodům"
 #: uresourcestrings.rsholdshiftforsquare
 msgid "Hold SHIFT to draw a square or a circle"
 msgstr "Přidržte SHIFT pro kreslení čtverce nebo kruhu"
+
+#: uresourcestrings.rshue
+msgctxt "uresourcestrings.rshue"
+msgid "Hue"
+msgstr "Odstín"
 
 #: uresourcestrings.rsiconorcursor
 msgid "Icon/cursor"
@@ -2583,9 +2890,21 @@ msgstr "Pozice světla"
 msgid "Linear"
 msgstr "Lineární"
 
+#: uresourcestrings.rsloadandmergepalette
+msgid "Load and merge palette..."
+msgstr ""
+
 #: uresourcestrings.rsloading
 msgid "Loading"
 msgstr "Načítání"
+
+#: uresourcestrings.rsloadpalette
+msgid "Load palette..."
+msgstr ""
+
+#: uresourcestrings.rsmakencolorspalettefrombitmap
+msgid "Make %1-colors palette from image"
+msgstr ""
 
 #: uresourcestrings.rsmergeselection
 msgid "Do you want to merge selection?"
@@ -2610,6 +2929,10 @@ msgstr "Musíte nejdříve uvolnit výběr"
 #: uresourcestrings.rsmustshowlayer
 msgid "You must first make the layer visible"
 msgstr "Musíte nejdříve vrstvu udělat viditelnou"
+
+#: uresourcestrings.rsnetworkdrive
+msgid "Network"
+msgstr ""
 
 #: uresourcestrings.rsnewimage
 msgctxt "uresourcestrings.rsnewimage"
@@ -2688,6 +3011,18 @@ msgstr "Otevřít více obrazových souborů"
 msgid "Other..."
 msgstr "Jiné..."
 
+#: uresourcestrings.rsoverwritefile
+msgid "File already exists. Do you want to overwrite it?"
+msgstr ""
+
+#: uresourcestrings.rspaletteincludesalphachannel
+msgid "Palette includes alpha channel"
+msgstr ""
+
+#: uresourcestrings.rspaletteoptions
+msgid "Palette options"
+msgstr ""
+
 #: uresourcestrings.rspercent
 msgctxt "uresourcestrings.rspercent"
 msgid "%"
@@ -2697,6 +3032,10 @@ msgstr "%"
 msgid "Portrait"
 msgstr "Na výšku"
 
+#: uresourcestrings.rsposterizelayerusingpalette
+msgid "Posterize layer using palette"
+msgstr ""
+
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "Jméno předvolby"
@@ -2705,9 +3044,17 @@ msgstr "Jméno předvolby"
 msgid "px"
 msgstr "px"
 
+#: uresourcestrings.rsramdisk
+msgid "RAM disk"
+msgstr ""
+
 #: uresourcestrings.rsrecentdirectories
 msgid "Recent directories:"
 msgstr "Nedávné adresáře:"
+
+#: uresourcestrings.rsred
+msgid "Red"
+msgstr ""
 
 #: uresourcestrings.rsreload
 msgctxt "uresourcestrings.rsreload"
@@ -2717,6 +3064,10 @@ msgstr "Obnovit"
 #: uresourcestrings.rsreloadchanged
 msgid "Bitmap has been modified. Do you really want to reload?"
 msgstr "Bitová mapa byla upravena. Chcete jí opravdu načíst znovu?"
+
+#: uresourcestrings.rsremovabledrive
+msgid "Removable"
+msgstr ""
 
 #: uresourcestrings.rsrepeatimage
 msgctxt "uresourcestrings.rsrepeatimage"
@@ -2731,23 +3082,54 @@ msgstr "Chcete obdržet vybranou oblast?"
 msgid "Press ENTER to validate"
 msgstr "Stiskněte ENTER k ověření"
 
+#: uresourcestrings.rsrightclickforsource
+msgid "Use RIGHT click to define source"
+msgstr ""
+
+#: uresourcestrings.rssaturation
+msgctxt "uresourcestrings.rssaturation"
+msgid "Saturation"
+msgstr "Barevnost"
+
 #: uresourcestrings.rssave
 msgctxt "uresourcestrings.rssave"
 msgid "Save"
 msgstr "Uložit"
 
+#: uresourcestrings.rssaveasbuttonhint
+msgctxt "uresourcestrings.rssaveasbuttonhint"
+msgid "Save with specified filename"
+msgstr ""
+
 #: uresourcestrings.rssavechanges
 msgid "Current bitmap has been modified. Do you want to save changes?"
 msgstr "Aktuální bitová mapa byla změněna. Chcete uložit změny?"
+
+#: uresourcestrings.rssavepaletteas
+msgid "Save palette as..."
+msgstr ""
 
 #: uresourcestrings.rsscript
 msgid "Script"
 msgstr "Skript"
 
+#: uresourcestrings.rsshowpalette
+msgctxt "uresourcestrings.rsshowpalette"
+msgid "Show palette"
+msgstr ""
+
+#: uresourcestrings.rssourceposition
+msgid "Source position"
+msgstr ""
+
 #: uresourcestrings.rsspline
 msgctxt "uresourcestrings.rsspline"
 msgid "Spline"
 msgstr "Spline"
+
+#: uresourcestrings.rsstoragedevice
+msgid "Device"
+msgstr ""
 
 #: uresourcestrings.rstherearenocheckeditems
 msgid "There are no checked items. Check some items or add some new ones."
@@ -2792,4 +3174,4 @@ msgstr "Neznámý příkaz :"
 #: uresourcestrings.rsyes
 msgid "Yes"
 msgstr "Ano"
-
+

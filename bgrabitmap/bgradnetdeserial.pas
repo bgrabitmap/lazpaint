@@ -183,7 +183,7 @@ function WinReadQWord(Stream: TStream): QWord;
 
 implementation
 
-uses lazutf8classes;
+uses BGRAUTF8;
 
 const
   //block types

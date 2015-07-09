@@ -1,25 +1,29 @@
 object FLayerStack: TFLayerStack
-  Left = 555
-  Height = 153
-  Top = 269
-  Width = 243
+  Left = 554
+  Height = 108
+  Top = 245
+  Width = 245
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSizeToolWin
   Caption = 'Layers'
-  ClientHeight = 153
-  ClientWidth = 243
-  Constraints.MinWidth = 243
+  ClientHeight = 108
+  ClientWidth = 245
+  Constraints.MinHeight = 108
+  Constraints.MinWidth = 245
   FormStyle = fsStayOnTop
+  OnActivate = FormActivate
   OnCreate = FormCreate
+  OnDeactivate = FormDeactivate
   OnDestroy = FormDestroy
   OnHide = FormHide
   OnShow = FormShow
+  ShowInTaskBar = stNever
   LCLVersion = '1.0.10.0'
   object BGRALayerStack: TBGRAVirtualScreen
     Left = 0
-    Height = 103
-    Top = 0
-    Width = 243
+    Height = 37
+    Top = 21
+    Width = 245
     OnRedraw = BGRALayerStackRedraw
     Align = alClient
     Alignment = taLeftJustify
@@ -29,18 +33,19 @@ object FLayerStack: TFLayerStack
     OnMouseDown = BGRALayerStackMouseDown
     OnMouseMove = BGRALayerStackMouseMove
     OnMouseUp = BGRALayerStackMouseUp
+    OnResize = BGRALayerStackResize
   end
   object Panel1: TPanel
     Left = 0
     Height = 50
-    Top = 103
-    Width = 243
+    Top = 58
+    Width = 245
     Align = alBottom
     ClientHeight = 50
-    ClientWidth = 243
+    ClientWidth = 245
     TabOrder = 1
     object ToolBar1: TToolBar
-      Left = 187
+      Left = 189
       Height = 24
       Top = 2
       Width = 52
@@ -69,10 +74,10 @@ object FLayerStack: TFLayerStack
       end
     end
     object ComboBox_BlendOp: TComboBox
-      Left = 25
+      Left = 26
       Height = 23
       Top = 2
-      Width = 156
+      Width = 158
       Anchors = [akTop, akLeft, akRight]
       ItemHeight = 15
       OnChange = ComboBox_BlendOpChange
@@ -80,10 +85,10 @@ object FLayerStack: TFLayerStack
       TabOrder = 1
     end
     object ToolBar2: TToolBar
-      Left = 0
+      Left = 1
       Height = 24
       Top = 25
-      Width = 242
+      Width = 243
       Align = alNone
       Anchors = [akTop, akLeft, akRight]
       EdgeBorders = []
@@ -95,7 +100,7 @@ object FLayerStack: TFLayerStack
       TabOrder = 2
     end
     object ToolBar3: TToolBar
-      Left = 0
+      Left = 1
       Height = 24
       Top = 2
       Width = 24
@@ -115,6 +120,71 @@ object FLayerStack: TFLayerStack
         OnClick = ToolBlendOpClick
       end
     end
+  end
+  object Panel_WindowTitle: TBCPanel
+    Left = 0
+    Height = 21
+    Top = 0
+    Width = 245
+    Align = alTop
+    Background.Color = clInactiveCaption
+    Background.ColorOpacity = 255
+    Background.Gradient1.StartColor = clWhite
+    Background.Gradient1.StartColorOpacity = 255
+    Background.Gradient1.DrawMode = dmSet
+    Background.Gradient1.EndColor = clBlack
+    Background.Gradient1.EndColorOpacity = 255
+    Background.Gradient1.ColorCorrection = True
+    Background.Gradient1.GradientType = gtLinear
+    Background.Gradient1.Point1XPercent = 0
+    Background.Gradient1.Point1YPercent = 0
+    Background.Gradient1.Point2XPercent = 0
+    Background.Gradient1.Point2YPercent = 100
+    Background.Gradient1.Sinus = False
+    Background.Gradient2.StartColor = clWhite
+    Background.Gradient2.StartColorOpacity = 255
+    Background.Gradient2.DrawMode = dmSet
+    Background.Gradient2.EndColor = clBlack
+    Background.Gradient2.EndColorOpacity = 255
+    Background.Gradient2.ColorCorrection = True
+    Background.Gradient2.GradientType = gtLinear
+    Background.Gradient2.Point1XPercent = 0
+    Background.Gradient2.Point1YPercent = 0
+    Background.Gradient2.Point2XPercent = 0
+    Background.Gradient2.Point2YPercent = 100
+    Background.Gradient2.Sinus = False
+    Background.Gradient1EndPercent = 35
+    Background.Style = bbsColor
+    BevelInner = bvNone
+    BevelOuter = bvNone
+    BevelWidth = 1
+    Border.Color = clBlack
+    Border.ColorOpacity = 255
+    Border.LightColor = clWhite
+    Border.LightOpacity = 255
+    Border.LightWidth = 0
+    Border.Style = bboSolid
+    Border.Width = 1
+    BorderBCStyle = bpsBorder
+    FontEx.Color = clInactiveCaptionText
+    FontEx.EndEllipsis = False
+    FontEx.FontQuality = fqSystemClearType
+    FontEx.Height = -15
+    FontEx.SingleLine = True
+    FontEx.Shadow = False
+    FontEx.ShadowColor = clBlack
+    FontEx.ShadowColorOpacity = 255
+    FontEx.ShadowRadius = 5
+    FontEx.ShadowOffsetX = 5
+    FontEx.ShadowOffsetY = 5
+    FontEx.Style = []
+    FontEx.TextAlignment = bcaLeftCenter
+    FontEx.WordBreak = False
+    Rounding.RoundX = 1
+    Rounding.RoundY = 1
+    Rounding.RoundOptions = []
+    TabOrder = 2
+    Visible = False
   end
   object TimerScroll: TTimer
     Enabled = False

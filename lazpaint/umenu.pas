@@ -5,7 +5,7 @@ unit UMenu;
 interface
 
 uses
-  Classes, SysUtils, ActnList, Forms, Menus, UTool, LCLType, ExtCtrls;
+  Classes, SysUtils, ActnList, Forms, Menus, UTool, LCLType, ExtCtrls, UConfig;
 
 type
 
@@ -21,7 +21,7 @@ type
     FToolbarBackground: TPanel;
   protected
     procedure AddMenus(AMenu: TMenuItem; AActionList: TActionList; AActionsCommaText: string; AIndex: integer = -1); overload;
-    procedure AddMenus(AMenuName: string; AActionsCommaText: string; AIndex: integer = -1); overload;
+    procedure AddMenus(AMenuName: string; AActionsCommaText: string); overload;
     procedure ApplyShortcuts;
     procedure ActionShortcut(AName: string; AShortcut: TUTF8Char);
   public
@@ -38,7 +38,7 @@ type
 implementation
 
 uses UResourceStrings, LCLProc, LazPaintType, UScaleDPI, ComCtrls, Graphics,
-  Spin, StdCtrls, BGRAText;
+  Spin, StdCtrls, BGRAText, Controls;
 
 { TMainFormMenu }
 
@@ -47,41 +47,85 @@ procedure TMainFormMenu.AddMenus(AMenu: TMenuItem; AActionList: TActionList;
 var actions: TStringList;
   foundAction: TBasicAction;
   item: TMenuItem;
-  i: NativeInt;
+  i,j: NativeInt;
 begin
   actions := TStringList.Create;
   actions.CommaText := AActionsCommaText;
   for i := 0 to actions.Count-1 do
+    if (actions[i]='*') and (AIndex = -1) then
+      AIndex := 0;
+  for i := 0 to actions.Count-1 do
   begin
+    if actions[i]='*' then
+    begin
+      AIndex := -1;
+      Continue;
+    end;
     item := TMenuItem.Create(nil);
     if trim(actions[i]) = '-' then
       item.Caption := cLineCaption
     else
     begin
-      foundAction := AActionList.ActionByName(trim(actions[i]));
+      foundAction := AActionList.ActionByName(actions[i]);
       if foundAction <> nil then
         item.Action := foundAction
       else
-        item.Caption := trim(actions[i])+'?';
+      begin
+        for j := 0 to AMenu.Count-1 do
+          if UTF8CompareText(AMenu.Items[j].Name,actions[i])=0 then
+          begin
+            FreeAndNil(item);
+            AMenu.Items[j].Visible := true;
+            if (AIndex <> -1) and (AIndex < j) then
+            begin
+              item := AMenu.Items[j];
+              AMenu.Remove(item);
+              AMenu.Insert(AIndex,item);
+              item := nil;
+              inc(AIndex);
+            end else
+            if AIndex = -1 then
+            begin
+              item := AMenu.Items[j];
+              AMenu.Remove(item);
+              AMenu.Add(item);
+              item := nil;
+            end;
+            break;
+          end;
+        if Assigned(item) then item.Caption := trim(actions[i])+'?';
+      end;
     end;
-    if AIndex = -1 then
-      AMenu.Add(item)
-    else
+    if Assigned(item) then
     begin
-      AMenu.Insert(AIndex,item);
-      inc(AIndex);
+      if AIndex = -1 then
+        AMenu.Add(item)
+      else
+      begin
+        AMenu.Insert(AIndex,item);
+        inc(AIndex);
+      end;
     end;
   end;
   actions.Free;
 end;
 
-procedure TMainFormMenu.AddMenus(AMenuName: string; AActionsCommaText: string;
-  AIndex: integer);
+procedure TMainFormMenu.AddMenus(AMenuName: string; AActionsCommaText: string);
 var i: NativeInt;
 begin
+  for i := 0 to MenuDefinitionKeys.count-1 do
+    if UTF8CompareText(MenuDefinitionKeys[i],AMenuName)=0 then
+    begin
+      AActionsCommaText:= MenuDefinitionValues[i];
+      if AActionsCommaText = '' then exit;
+      break;
+    end;
   for i := 0 to high(FMainMenus) do
     if FMainMenus[i].Name = AMenuName then
-      AddMenus(FMainMenus[i], FActionList, AActionsCommaText, AIndex);
+    begin
+      AddMenus(FMainMenus[i], FActionList, AActionsCommaText);
+      FMainMenus[i].Visible := true;
+    end;
 end;
 
 procedure TMainFormMenu.ActionShortcut(AName: string; AShortcut: TUTF8Char);
@@ -120,11 +164,15 @@ begin
   for i := 0 to high(FToolbars) do
   begin
     FToolbars[i] := AToolbars[i];
+    FToolbars[i].Cursor := crArrow;
     for j := 0 to FToolbars[i].ControlCount-1 do
+    begin
+      FToolbars[i].Controls[j].Cursor := crArrow;
       if (FToolbars[i].Controls[j] is TLabel) then
       begin
         FToolbars[i].Controls[j].Font.Height := FToolbars[i].Controls[j].Height*FontEmHeightSign*11 div 20;
       end;
+    end;
   end;
   FToolbarBackground := AToolbarBackground;
 end;
@@ -158,19 +206,17 @@ begin
   with FActionList.Actions[i] as TAction do
     if (Caption = '') and (Hint <> '') then Caption := Hint;
 
-  AddMenus('MenuFile',   'FileReload,-,FileSave,FileSaveAsInSameFolder,FileSaveAs,-,FileImport3D,-,FilePrint,-', 1);
-  AddMenus('MenuFile',   'FileNew,FileOpen,LayerFromFile', 0);
-  AddMenus('MenuEdit',   'EditUndo,EditRedo,-,EditCut,EditCopy,EditPaste,EditPasteAsNew,EditDeleteSelection,-,EditSelectAll,EditInvertSelection,EditSelectionFit,EditDeselect');
-  AddMenus('MenuSelect', 'EditSelection,FileLoadSelection,FileSaveSelectionAs,-,ToolSelectRect,ToolSelectEllipse,ToolSelectPoly,ToolSelectSpline,-,ToolMoveSelection,ToolRotateSelection,-,ToolSelectPen,ToolMagicWand');
-  AddMenus('MenuView',   'ViewZoomOriginal,ViewZoomIn,ViewZoomOut,ViewZoomFit,-', 0);
-  AddMenus('MenuImage',  'ImageCrop,ImageCropLayer,ImageFlatten,-,ImageHorizontalFlip,ImageVerticalFlip',0);
-  AddMenus('MenuImage',  'ImageChangeCanvasSize,ImageRepeat,-,ImageResample,ImageSmartZoom3,ImageRotateCW,ImageRotateCCW');
+  AddMenus('MenuFile',   'FileNew,FileOpen,LayerFromFile,MenuRecentFiles,FileReload,-,FileSave,FileSaveAsInSameFolder,FileSaveAs,-,FileImport3D,-,FilePrint,-,MenuLanguage,*');
+  AddMenus('MenuEdit',   'EditUndo,EditRedo,-,EditCut,EditCopy,EditPaste,EditPasteAsNew,EditPasteAsNewLayer,EditDeleteSelection,-,EditSelectAll,EditInvertSelection,EditSelectionFit,EditDeselect');
+  AddMenus('MenuSelect', 'EditSelection,FileLoadSelection,FileSaveSelectionAs,-,EditSelectAll,EditInvertSelection,EditSelectionFit,EditDeselect,-,ToolSelectRect,ToolSelectEllipse,ToolSelectPoly,ToolSelectSpline,-,ToolMoveSelection,ToolRotateSelection,-,ToolSelectPen,ToolMagicWand');
+  AddMenus('MenuView',   'ViewZoomOriginal,ViewZoomIn,ViewZoomOut,ViewZoomFit,-,*');
+  AddMenus('MenuImage',  'ImageCrop,ImageCropLayer,ImageFlatten,-,ImageHorizontalFlip,MenuHorizFlipSub,ImageVerticalFlip,MenuVertFlipSub,-,MenuRemoveTransparency,ImageChangeCanvasSize,ImageRepeat,-,ImageResample,ImageSmartZoom3,ImageRotateCW,ImageRotateCCW');
   AddMenus('MenuRemoveTransparency', 'ImageClearAlpha,ImageFillBackground');
-  AddMenus('MenuFilter', 'FilterBlurMotion,FilterBlurCustom,FilterPixelate,-,FilterSharpen,FilterSmooth,FilterNoise,FilterMedian,FilterClearType,FilterClearTypeInverse,FilterFunction,-,FilterContour,FilterEmboss,FilterPhong,-,FilterSphere,FilterTwirl,FilterCylinder');
-  AddMenus('MenuRadialBlur',  'FilterBlurFast,FilterBlurRadial,FilterBlurCorona,FilterBlurDisk');
+  AddMenus('MenuFilter', 'MenuRadialBlur,FilterBlurMotion,FilterBlurCustom,FilterPixelate,-,FilterSharpen,FilterSmooth,FilterNoise,FilterMedian,FilterClearType,FilterClearTypeInverse,FilterFunction,-,FilterContour,FilterEmboss,FilterPhong,-,FilterSphere,FilterTwirl,FilterCylinder');
+  AddMenus('MenuRadialBlur',  'FilterBlurBox,FilterBlurFast,FilterBlurRadial,FilterBlurCorona,FilterBlurDisk');
   AddMenus('MenuColors', 'ColorCurves,ColorPosterize,ColorColorize,ColorShiftColors,FilterComplementaryColor,ColorIntensity,-,ColorLightness,FilterNegative,FilterLinearNegative,FilterNormalize,FilterGrayscale');
-  AddMenus('MenuTool',   'ToolHand,-,ToolPen,ToolColorPicker,ToolEraser,-,ToolRect,ToolEllipse,ToolPolygon,ToolSpline,-,ToolFloodFill,ToolGradient,ToolPhong,-,ToolText,ToolDeformation,ToolTextureMapping');
-  AddMenus('MenuRender', 'RenderPerlinNoise,RenderCyclicPerlinNoise,-,RenderWater,RenderCustomWater,RenderSnowPrint,RenderWood,RenderWoodVertical,RenderMetalFloor,RenderPlastik,RenderStone,RenderRoundStone,RenderMarble,RenderCamouflage,-,RenderClouds');
+  AddMenus('MenuTool',   'ToolHand,ToolColorPicker,-,ToolPen,ToolBrush,ToolEraser,-,ToolRect,ToolEllipse,ToolPolygon,ToolSpline,-,ToolFloodFill,ToolGradient,ToolPhong,-,ToolText,ToolDeformation,ToolTextureMapping,ToolClone');
+  AddMenus('MenuRender', 'RenderPerlinNoise,RenderCyclicPerlinNoise,-,RenderWater,RenderCustomWater,RenderSnowPrint,RenderWood,RenderWoodVertical,RenderMetalFloor,RenderPlastik,RenderStone,RenderRoundStone,RenderMarble,RenderCamouflage,-,RenderClouds,FilterRain');
   AddMenus('MenuHelp',   'HelpIndex,-,HelpAbout');
   for i := 0 to high(FMainMenus) do
     if FMainMenus[i].Count = 0 then FMainMenus[i].visible := false;
@@ -263,6 +309,7 @@ procedure TMainFormMenu.ApplyShortcuts;
 begin
   ActionShortcut('ToolHand','H');
   ActionShortcut('ToolPen','P');
+  ActionShortcut('ToolBrush','B');
   ActionShortcut('ToolColorPicker','I');
   ActionShortcut('ToolEraser','E');
   ActionShortcut('ToolRect','U');

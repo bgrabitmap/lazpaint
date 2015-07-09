@@ -14,9 +14,13 @@ uses
 
 type
   TMatrix3D = packed array[1..3,1..4] of single;
+  TProjection3D = packed record
+    Zoom, Center: TPointF;
+  end;
 
 operator*(const A: TMatrix3D; const M: TPoint3D): TPoint3D;
-operator*(const A: TMatrix3D; var M: TPoint3D_128): TPoint3D_128;
+operator*(constref A: TMatrix3D; var M: TPoint3D_128): TPoint3D_128;
+function MultiplyVect3DWithoutTranslation(constref A: TMatrix3D; constref M: TPoint3D_128): TPoint3D_128;
 operator*(A,B: TMatrix3D): TMatrix3D;
 
 function Matrix3D(m11,m12,m13,m14, m21,m22,m23,m24, m31,m32,m33,m34: single): TMatrix3D; overload;
@@ -34,6 +38,8 @@ function MatrixRotateZ(angle: single): TMatrix3D;
 procedure Matrix3D_SSE_Load(const A: TMatrix3D);
 procedure MatrixMultiplyVect3D_SSE_Aligned(var M: TPoint3D_128; out N: TPoint3D_128);
 procedure MatrixMultiplyVect3D_SSE3_Aligned(var M: TPoint3D_128; out N: TPoint3D_128);
+procedure MatrixMultiplyVect3DWithoutTranslation_SSE_Aligned(var M: TPoint3D_128; out N: TPoint3D_128);
+procedure MatrixMultiplyVect3DWithoutTranslation_SSE3_Aligned(var M: TPoint3D_128; out N: TPoint3D_128);
 {$ENDIF}
 
 implementation
@@ -230,9 +236,160 @@ begin
   {$ENDIF}
   M.t := oldMt;
 end;
+
+procedure MatrixMultiplyVect3DWithoutTranslation_SSE_Aligned(
+  var M: TPoint3D_128; out N: TPoint3D_128);
+begin
+  {$IFDEF cpux86_64}
+  asm
+    mov rax, M
+    movaps xmm0, [rax]
+
+    mov rax, N
+
+    movaps xmm2,xmm0
+    mulps xmm2,xmm5
+    //mix1
+    movaps xmm3, xmm2
+    shufps xmm3, xmm3, $4e
+    addps xmm2, xmm3
+    //mix2
+    movaps xmm3, xmm2
+    shufps xmm3, xmm3, $11
+    addps xmm2, xmm3
+
+    movss [rax], xmm2
+
+    movaps xmm2,xmm0
+    mulps xmm2,xmm6
+    //mix1
+    movaps xmm3, xmm2
+    shufps xmm3, xmm3, $4e
+    addps xmm2, xmm3
+    //mix2
+    movaps xmm3, xmm2
+    shufps xmm3, xmm3, $11
+    addps xmm2, xmm3
+
+    movss [rax+4], xmm2
+
+    mulps xmm0,xmm7
+    //mix1
+    movaps xmm3, xmm0
+    shufps xmm3, xmm3, $4e
+    addps xmm0, xmm3
+    //mix2
+    movaps xmm3, xmm0
+    shufps xmm3, xmm3, $11
+    addps xmm0, xmm3
+
+    movss [rax+8], xmm0
+  end;
+  {$ELSE}
+    asm
+    mov eax, M
+    movaps xmm0, [eax]
+
+    mov eax, N
+
+    movaps xmm2,xmm0
+    mulps xmm2,xmm5
+    //mix1
+    movaps xmm3, xmm2
+    shufps xmm3, xmm3, $4e
+    addps xmm2, xmm3
+    //mix2
+    movaps xmm3, xmm2
+    shufps xmm3, xmm3, $11
+    addps xmm2, xmm3
+
+    movss [eax], xmm2
+
+    movaps xmm2,xmm0
+    mulps xmm2,xmm6
+    //mix1
+    movaps xmm3, xmm2
+    shufps xmm3, xmm3, $4e
+    addps xmm2, xmm3
+    //mix2
+    movaps xmm3, xmm2
+    shufps xmm3, xmm3, $11
+    addps xmm2, xmm3
+
+    movss [eax+4], xmm2
+
+    mulps xmm0,xmm7
+    //mix1
+    movaps xmm3, xmm0
+    shufps xmm3, xmm3, $4e
+    addps xmm0, xmm3
+    //mix2
+    movaps xmm3, xmm0
+    shufps xmm3, xmm3, $11
+    addps xmm0, xmm3
+
+    movss [eax+8], xmm0
+  end;
+  {$ENDIF}
+end;
+
+procedure MatrixMultiplyVect3DWithoutTranslation_SSE3_Aligned(
+  var M: TPoint3D_128; out N: TPoint3D_128);
+begin
+  {$IFDEF cpux86_64}
+  asm
+    mov rax, M
+    movaps xmm0, [rax]
+
+    mov rax, N
+
+    movaps xmm2,xmm0
+    mulps xmm2,xmm5
+    haddps xmm2,xmm2
+    haddps xmm2,xmm2
+    movss [rax], xmm2
+
+    movaps xmm2,xmm0
+    mulps xmm2,xmm6
+    haddps xmm2,xmm2
+    haddps xmm2,xmm2
+    movss [rax+4], xmm2
+
+    mulps xmm0,xmm7
+    haddps xmm0,xmm0
+    haddps xmm0,xmm0
+    movss [rax+8], xmm0
+  end;
+  {$ELSE}
+  asm
+    mov eax, M
+    movaps xmm0, [eax]
+
+    mov eax, N
+
+    movaps xmm2,xmm0
+    mulps xmm2,xmm5
+    haddps xmm2,xmm2
+    haddps xmm2,xmm2
+    movss [eax], xmm2
+
+    movaps xmm2,xmm0
+    mulps xmm2,xmm6
+    haddps xmm2,xmm2
+    haddps xmm2,xmm2
+    movss [eax+4], xmm2
+
+    mulps xmm0,xmm7
+    haddps xmm0,xmm0
+    haddps xmm0,xmm0
+    movss [eax+8], xmm0
+  end;
+  {$ENDIF}
+end;
+
 {$ENDIF}
 
-operator*(const A: TMatrix3D; var M: TPoint3D_128): TPoint3D_128;
+operator*(constref A: TMatrix3D; var M: TPoint3D_128): TPoint3D_128;
 {$IFDEF CPUI386}var oldMt: single; {$ENDIF}
 begin
   {$IFDEF CPUI386}
@@ -326,6 +483,99 @@ begin
     result.x := M.x * A[1,1] + M.y * A[1,2] + M.z * A[1,3] + A[1,4];
     result.y := M.x * A[2,1] + M.y * A[2,2] + M.z * A[2,3] + A[2,4];
     result.z := M.x * A[3,1] + M.y * A[3,2] + M.z * A[3,3] + A[3,4];
+    result.t := 0;
+  end;
+end;
+
+function MultiplyVect3DWithoutTranslation(constref A: TMatrix3D; constref M: TPoint3D_128): TPoint3D_128;
+begin
+  {$IFDEF CPUI386}
+  if UseSSE then
+  begin
+    if UseSSE3 then
+    asm
+      mov eax, A
+      movups xmm5, [eax]
+      movups xmm6, [eax+16]
+      movups xmm7, [eax+32]
+
+      mov eax, M
+      movups xmm0, [eax]
+
+      mov eax, result
+
+      movaps xmm4,xmm0
+      mulps xmm4,xmm5
+      haddps xmm4,xmm4
+      haddps xmm4,xmm4
+      movss [eax], xmm4
+
+      movaps xmm4,xmm0
+      mulps xmm4,xmm6
+      haddps xmm4,xmm4
+      haddps xmm4,xmm4
+      movss [eax+4], xmm4
+
+      mulps xmm0,xmm7
+      haddps xmm0,xmm0
+      haddps xmm0,xmm0
+      movss [eax+8], xmm0
+    end else
+    asm
+      mov eax, A
+      movups xmm5, [eax]
+      movups xmm6, [eax+16]
+      movups xmm7, [eax+32]
+
+      mov eax, M
+      movups xmm0, [eax]
+
+      mov eax, result
+
+      movaps xmm4,xmm0
+      mulps xmm4,xmm5
+      //mix1
+      movaps xmm3, xmm4
+      shufps xmm3, xmm3, $4e
+      addps xmm4, xmm3
+      //mix2
+      movaps xmm3, xmm4
+      shufps xmm3, xmm3, $11
+      addps xmm4, xmm3
+
+      movss [eax], xmm4
+
+      movaps xmm4,xmm0
+      mulps xmm4,xmm6
+      //mix1
+      movaps xmm3, xmm4
+      shufps xmm3, xmm3, $4e
+      addps xmm4, xmm3
+      //mix2
+      movaps xmm3, xmm4
+      shufps xmm3, xmm3, $11
+      addps xmm4, xmm3
+
+      movss [eax+4], xmm4
+
+      mulps xmm0,xmm7
+      //mix1
+      movaps xmm3, xmm0
+      shufps xmm3, xmm3, $4e
+      addps xmm0, xmm3
+      //mix2
+      movaps xmm3, xmm0
+      shufps xmm3, xmm3, $11
+      addps xmm0, xmm3
+
+      movss [eax+8], xmm0
+    end;
+  end else
+  {$ENDIF}
+  begin
+    result.x := M.x * A[1,1] + M.y * A[1,2] + M.z * A[1,3];
+    result.y := M.x * A[2,1] + M.y * A[2,2] + M.z * A[2,3];
+    result.z := M.x * A[3,1] + M.y * A[3,2] + M.z * A[3,3];
     result.t := 0;
   end;
 end;

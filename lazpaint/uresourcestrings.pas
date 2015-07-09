@@ -41,6 +41,7 @@ resourcestring
   rsEditSelection='Edit selection';
   rsExitRequest='Exit request';
   rsSaveChanges='Current bitmap has been modified. Do you want to save changes?';
+  rsSaveAsButtonHint='Save with specified filename';
   rsCloseRequest='Close request';
   rsKeepChanges='Do you want to keep changes?';
   rsNothingToBeDeformed='There is nothing to be deformed';
@@ -69,6 +70,7 @@ resourcestring
   rsAltShiftScaleMode = 'Hold ALT or SHIFT to scale';
   rsCurveModeHint = 'Press S or X to set the curve mode of the last point';
   rsBlendOpNotUsedForBackground = 'The blend operation is applied only if there is a layer underneath';
+  rsRightClickForSource = 'Use RIGHT click to define source';
 
   rsEmptySelection='Selection is empty';
   rsEmptyLayer='Layer is empty';
@@ -77,10 +79,16 @@ resourcestring
   rsRepeatImage='Repeat image';
   rsCanvasSize='Canvas size';
 
+  rsRed='Red';
+  rsGreen='Green';
+  rsBlue='Blue';
+  rsSaturation='Saturation';
+  rsHue='Hue';
   rsColors='Colors';
   rsLight='Light';
   rsOpacity='Opacity';
   rsLightPosition='Light position';
+  rsSourcePosition='Source position';
   rsBrightness='Brightness';
   rsContrast='Contrast';
   rsPresetName='Preset name';
@@ -149,6 +157,31 @@ resourcestring
   rsErrorOnOpeningFile='Error on opening file "%1"';
   rsFollowingErrorsOccured='Following errors occured:';
 
+  rsRemovableDrive = 'Removable';
+  rsFixedDrive = 'Fixed';
+  rsNetworkDrive = 'Network';
+  rsCdRom = 'CD';
+  rsRamDisk = 'RAM disk';
+
+  rsFileSystem = 'File system';
+  rsStorageDevice = 'Device';
+  rsOverwriteFile = 'File already exists. Do you want to overwrite it?';
+  rsDeleteFile = 'Delete';
+  rsConfirmMoveToTrash = 'Are you sure you want to move this file to the trash?';
+  rsConfirmMoveMultipleToTrash = 'Are you sure you want to move these %1 files to the trash?';
+
+  rsClearPalette = 'Clear palette';
+  rsDefaultPalette = 'Default palette';
+  rsMakeNColorsPaletteFromBitmap = 'Make %1-colors palette from image';
+  rsPosterizeLayerUsingPalette = 'Posterize layer using palette';
+  rsDitherLayerUsingPalette = 'Dither layer using palette';
+  rsLoadPalette = 'Load palette...';
+  rsLoadAndMergePalette = 'Load and merge palette...';
+  rsSavePaletteAs = 'Save palette as...';
+  rsPaletteIncludesAlphaChannel = 'Palette includes alpha channel';
+  rsShowPalette = 'Show palette';
+  rsPaletteOptions = 'Palette options';
+
 implementation
 
 function ApplyShortcutStr(ACaption, AShortcut: string): string;
@@ -196,4 +229,4 @@ begin
 end;
 
 end.
-
+

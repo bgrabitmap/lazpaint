@@ -1,0 +1,1 @@
+({%H-}Params: PParamArray; const Result: Pointer); {$IFDEF Lape_CDECL}cdecl;{$ENDIF}

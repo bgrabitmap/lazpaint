@@ -3,7 +3,7 @@ type
 
   { IBGRALight3D }
 
-  IBGRALight3D = interface
+  IBGRALight3D = interface ['{85C683B6-07AC-4B8D-9324-06BC22882433}']
     procedure ComputeDiffuseLightness(Context: PSceneLightingContext);
     procedure ComputeDiffuseColor(Context: PSceneLightingContext);
     procedure ComputeDiffuseAndSpecularColor(Context: PSceneLightingContext);
@@ -29,13 +29,13 @@ type
     function IsDirectional: boolean;
   end;
 
-  IBGRAPointLight3D = interface(IBGRALight3D)
+  IBGRAPointLight3D = interface(IBGRALight3D) ['{C939900D-DDD6-49F0-B1E9-E29F94FDB4C8}']
     function GetVertex: IBGRAVertex3D;
     procedure SetVertex(const AValue: IBGRAVertex3D);
     property Vertex: IBGRAVertex3D read GetVertex write SetVertex;
   end;
 
-  IBGRADirectionalLight3D = interface(IBGRALight3D)
+  IBGRADirectionalLight3D = interface(IBGRALight3D) ['{8D575CEE-8DD2-46FB-9BCC-17DE3DAAF53D}']
     function GetDirection: TPoint3D;
     procedure SetDirection(const AValue: TPoint3D);
     property Direction: TPoint3D read GetDirection write SetDirection;
@@ -44,37 +44,78 @@ type
   { IBGRAMaterial3D }
 
   IBGRAMaterial3D = interface
+    function GetAmbiantAlpha: byte;
+    function GetAutoAmbiantColor: boolean;
     function GetAutoDiffuseColor: boolean;
+    function GetAutoSimpleColor: boolean;
     function GetAutoSpecularColor: boolean;
+    function GetAmbiantColor: TBGRAPixel;
+    function GetAmbiantColorF: TColorF;
+    function GetAmbiantColorInt: TColorInt65536;
+    function GetDiffuseAlpha: byte;
     function GetDiffuseColor: TBGRAPixel;
     function GetDiffuseColorF: TColorF;
     function GetDiffuseColorInt: TColorInt65536;
     function GetLightThroughFactor: single;
+    function GetName: string;
     function GetSaturationHigh: single;
     function GetSaturationLow: single;
+    function GetSimpleAlpha: byte;
+    function GetSimpleColor: TBGRAPixel;
+    function GetSimpleColorF: TColorF;
+    function GetSimpleColorInt: TColorInt65536;
     function GetSpecularColor: TBGRAPixel;
     function GetSpecularColorF: TColorF;
     function GetSpecularColorInt: TColorInt65536;
     function GetSpecularIndex: integer;
     function GetSpecularOn: boolean;
+    function GetTexture: IBGRAScanner;
+    function GetTextureZoom: TPointF;
+    procedure SetAmbiantAlpha(AValue: byte);
     procedure SetAutoDiffuseColor(const AValue: boolean);
     procedure SetAutoSpecularColor(const AValue: boolean);
+    procedure SetAmbiantColor(const AValue: TBGRAPixel);
+    procedure SetAmbiantColorF(const AValue: TColorF);
+    procedure SetAmbiantColorInt(const AValue: TColorInt65536);
+    procedure SetDiffuseAlpha(AValue: byte);
     procedure SetDiffuseColor(const AValue: TBGRAPixel);
     procedure SetDiffuseColorF(const AValue: TColorF);
     procedure SetDiffuseColorInt(const AValue: TColorInt65536);
     procedure SetLightThroughFactor(const AValue: single);
+    procedure SetName(const AValue: string);
     procedure SetSaturationHigh(const AValue: single);
     procedure SetSaturationLow(const AValue: single);
+    procedure SetSimpleAlpha(AValue: byte);
+    procedure SetSimpleColor(AValue: TBGRAPixel);
+    procedure SetSimpleColorF(AValue: TColorF);
+    procedure SetSimpleColorInt(AValue: TColorInt65536);
     procedure SetSpecularColor(const AValue: TBGRAPixel);
     procedure SetSpecularColorF(const AValue: TColorF);
     procedure SetSpecularColorInt(const AValue: TColorInt65536);
     procedure SetSpecularIndex(const AValue: integer);
     function GetAsObject: TObject;
+    procedure SetTexture(AValue: IBGRAScanner);
+    procedure SetTextureZoom(AValue: TPointF);
+
+    property AutoSimpleColor: boolean read GetAutoSimpleColor;
+    property SimpleColor: TBGRAPixel read GetSimpleColor write SetSimpleColor;
+    property SimpleColorF: TColorF read GetSimpleColorF write SetSimpleColorF;
+    property SimpleColorInt: TColorInt65536 read GetSimpleColorInt write SetSimpleColorInt;
+    property SimpleAlpha: byte read GetSimpleAlpha write SetSimpleAlpha;
+
+    property AmbiantColor: TBGRAPixel read GetAmbiantColor write SetAmbiantColor;
+    property AmbiantColorF: TColorF read GetAmbiantColorF write SetAmbiantColorF;
+    property AmbiantColorInt: TColorInt65536 read GetAmbiantColorInt write SetAmbiantColorInt;
+    property AutoAmbiantColor: boolean read GetAutoAmbiantColor;
+    property AmbiantAlpha: byte read GetAmbiantAlpha write SetAmbiantAlpha;
+    property Texture: IBGRAScanner read GetTexture write SetTexture;
+    property TextureZoom: TPointF read GetTextureZoom write SetTextureZoom;
 
     property DiffuseColor: TBGRAPixel read GetDiffuseColor write SetDiffuseColor;
     property DiffuseColorF: TColorF read GetDiffuseColorF write SetDiffuseColorF;
     property DiffuseColorInt: TColorInt65536 read GetDiffuseColorInt write SetDiffuseColorInt;
     property AutoDiffuseColor: boolean read GetAutoDiffuseColor write SetAutoDiffuseColor;
+    property DiffuseAlpha: byte read GetDiffuseAlpha write SetDiffuseAlpha;
     property SaturationLow: single read GetSaturationLow write SetSaturationLow;
     property SaturationHigh: single read GetSaturationHigh write SetSaturationHigh;
 
@@ -86,6 +127,24 @@ type
     property SpecularOn: boolean read GetSpecularOn;
 
     property LightThroughFactor: single read GetLightThroughFactor write SetLightThroughFactor;
+    property Name: string read GetName write SetName;
+  end;
+
+  { IBGRANormal3D }
+
+  IBGRANormal3D = interface
+    function GetCustomNormal: TPoint3D;
+    function GetCustomNormal_128: TPoint3D_128;
+    function GetViewNormal: TPoint3D;
+    function GetViewNormal_128: TPoint3D_128;
+    procedure SetCustomNormal(AValue: TPoint3D);
+    procedure SetCustomNormal_128(AValue: TPoint3D_128);
+    procedure SetViewNormal(AValue: TPoint3D);
+    procedure SetViewNormal_128(AValue: TPoint3D_128);
+    property ViewNormal: TPoint3D read GetViewNormal write SetViewNormal;
+    property ViewNormal_128: TPoint3D_128 read GetViewNormal_128 write SetViewNormal_128;
+    property CustomNormal: TPoint3D read GetCustomNormal write SetCustomNormal;
+    property CustomNormal_128: TPoint3D_128 read GetCustomNormal_128 write SetCustomNormal_128;
   end;
 
   { IBGRAVertex3D }
@@ -93,6 +152,8 @@ type
   IBGRAVertex3D = interface
     function GetColor: TBGRAPixel;
     function GetCustomFlags: DWord;
+    function GetCustomNormal: TPoint3D;
+    function GetCustomNormal_128: TPoint3D_128;
     function GetLight: Single;
     function GetProjectedCoord: TPointF;
     function GetUsage: integer;
@@ -108,6 +169,8 @@ type
     function GetViewCoordZ: single;
     procedure SetColor(const AValue: TBGRAPixel);
     procedure SetCustomFlags(AValue: DWord);
+    procedure SetCustomNormal(AValue: TPoint3D);
+    procedure SetCustomNormal_128(AValue: TPoint3D_128);
     procedure SetLight(const AValue: Single);
     procedure SetProjectedCoord(const AValue: TPointF);
     procedure SetViewNormal(const AValue: TPoint3D);
@@ -132,6 +195,8 @@ type
     property Light: Single read GetLight write SetLight;
     property ViewNormal: TPoint3D read GetViewNormal write SetViewNormal;
     property ViewNormal_128: TPoint3D_128 read GetViewNormal_128 write SetViewNormal_128;
+    property CustomNormal: TPoint3D read GetCustomNormal write SetCustomNormal;
+    property CustomNormal_128: TPoint3D_128 read GetCustomNormal_128 write SetCustomNormal_128;
     property Usage: integer read GetUsage;
     property CustomFlags: DWord read GetCustomFlags write SetCustomFlags;
     function GetAsObject: TObject;
@@ -146,14 +211,21 @@ type
     procedure Clear(ARecursive: boolean);
     function Add(x,y,z: single): IBGRAVertex3D;
     function Add(pt: TPoint3D): IBGRAVertex3D;
+    function Add(pt: TPoint3D; normal: TPoint3D): IBGRAVertex3D;
     function Add(pt: TPoint3D_128): IBGRAVertex3D;
+    function Add(pt: TPoint3D_128; normal: TPoint3D_128): IBGRAVertex3D;
+    function AddNormal(x,y,z: single): IBGRANormal3D;
+    function AddNormal(pt: TPoint3D): IBGRANormal3D;
+    function AddNormal(pt: TPoint3D_128): IBGRANormal3D;
     function Add(const coords: array of single): arrayOfIBGRAVertex3D;
     function Add(const pts: array of TPoint3D): arrayOfIBGRAVertex3D;
     function Add(const pts_128: array of TPoint3D_128): arrayOfIBGRAVertex3D;
     procedure Add(const pts: array of IBGRAVertex3D);
     procedure Add(AVertex: IBGRAVertex3D);
+    function GetTotalNormalCount: integer;
     function IndexOf(AVertex: IBGRAVertex3D): integer;
     procedure RemoveVertex(Index: integer);
+    procedure RemoveNormal(Index: integer);
     function GetBoundingBox: TBox3D;
     function GetMatrix: TMatrix3D;
     function GetPart(AIndex: Integer): IBGRAPart3D;
@@ -161,6 +233,8 @@ type
     function GetRadius: single;
     function GetVertex(AIndex: Integer): IBGRAVertex3D;
     function GetVertexCount: integer;
+    function GetNormal(AIndex: Integer): IBGRANormal3D;
+    function GetNormalCount: integer;
     function GetTotalVertexCount: integer;
     function GetContainer: IBGRAPart3D;
     procedure ResetTransform;
@@ -168,7 +242,8 @@ type
     procedure Scale(x,y,z: single; Before: boolean = true);
     procedure Scale(size: TPoint3D; Before: boolean = true);
     procedure SetMatrix(const AValue: TMatrix3D);
-    procedure SetVertex(AIndex: Integer; const AValue: IBGRAVertex3D);
+    procedure SetNormal(AIndex: Integer; AValue: IBGRANormal3D);
+    procedure SetVertex(AIndex: Integer; AValue: IBGRAVertex3D);
     procedure Translate(x,y,z: single; Before: boolean = true);
     procedure Translate(ofs: TPoint3D; Before: boolean = true);
     procedure RotateXDeg(angle: single; Before: boolean = true);
@@ -185,13 +260,16 @@ type
     function CreatePart: IBGRAPart3D;
     procedure ForEachVertex(ACallback: TVertex3DCallback);
     property VertexCount: integer read GetVertexCount;
+    property NormalCount: integer read GetNormalCount;
     property Vertex[AIndex: Integer]: IBGRAVertex3D read GetVertex write SetVertex;
+    property Normal[AIndex: Integer]: IBGRANormal3D read GetNormal write SetNormal;
     property Matrix: TMatrix3D read GetMatrix write SetMatrix;
     property PartCount: integer read GetPartCount;
     property Part[AIndex: Integer]: IBGRAPart3D read GetPart;
     property Radius: single read GetRadius;
     property BoundingBox: TBox3D read GetBoundingBox;
     property TotalVertexCount: integer read GetTotalVertexCount;
+    property TotalNormalCount: integer read GetTotalNormalCount;
     property Container: IBGRAPart3D read GetContainer;
   end;
 
@@ -200,7 +278,7 @@ type
   { IBGRAFace3D }
 
   IBGRAFace3D = interface
-    procedure AddVertex(AVertex: IBGRAVertex3D);
+    function AddVertex(AVertex: IBGRAVertex3D): integer;
     function GetBiface: boolean;
     function GetCustomFlags: DWord;
     function GetLightThroughFactorOverride: boolean;
@@ -212,6 +290,7 @@ type
     function GetTexCoordOverride(AIndex: Integer): boolean;
     function GetTexture: IBGRAScanner;
     function GetVertex(AIndex: Integer): IBGRAVertex3D;
+    function GetNormal(AIndex: Integer): IBGRANormal3D;
     function GetVertexColor(AIndex: Integer): TBGRAPixel;
     function GetVertexColorOverride(AIndex: Integer): boolean;
     function GetVertexCount: integer;
@@ -231,7 +310,8 @@ type
     procedure SetTexCoord(AIndex: Integer; const AValue: TPointF);
     procedure SetTexCoordOverride(AIndex: Integer; const AValue: boolean);
     procedure SetTexture(const AValue: IBGRAScanner);
-    procedure SetVertex(AIndex: Integer; const AValue: IBGRAVertex3D);
+    procedure SetVertex(AIndex: Integer; AValue: IBGRAVertex3D);
+    procedure SetNormal(AIndex: Integer; AValue: IBGRANormal3D);
     procedure SetVertexColor(AIndex: Integer; const AValue: TBGRAPixel);
     procedure SetVertexColorOverride(AIndex: Integer; const AValue: boolean);
     procedure ComputeViewNormalAndCenter;
@@ -270,6 +350,7 @@ type
     function GetFaceCount: integer;
     function GetMaterial: IBGRAMaterial3D;
     function GetRefCount: integer;
+    function GetTotalNormalCount: integer;
     function GetTotalVertexCount: integer;
     function GetLight: Single;
     function GetLightingNormal: TLightingNormal3D;
@@ -304,6 +385,7 @@ type
     property LightingNormal: TLightingNormal3D read GetLightingNormal write SetLightingNormal;
     property ParentLighting: boolean read GetParentLighting write SetParentLighting;
     property TotalVertexCount: integer read GetTotalVertexCount;
+    property TotalNormalCount: integer read GetTotalNormalCount;
     property Material: IBGRAMaterial3D read GetMaterial write SetMaterial;
     property Scene: TBGRAScene3D read GetScene;
     property RefCount: integer read GetRefCount;

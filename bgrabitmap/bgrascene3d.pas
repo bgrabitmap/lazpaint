@@ -8,6 +8,25 @@ uses
   Classes, SysUtils, BGRABitmapTypes, BGRAColorInt, BGRASSE, BGRAMatrix3D;
 
 type
+  TProjection3D = BGRAMatrix3D.TProjection3D;
+  TBox3D = record
+    min,max: TPoint3D;
+  end;
+
+  TLightingNormal3D = (lnNone, lnFace, lnVertex, lnFaceVertexMix);
+  TLightingInterpolation3D = (liLowQuality, liSpecularHighQuality, liAlwaysHighQuality);
+  TAntialiasingMode3D = (am3dNone, am3dMultishape, am3dResample);
+  TPerspectiveMode3D = (pmLinearMapping, pmPerspectiveMapping, pmZBuffer);
+
+  TRenderingOptions = record
+    LightingInterpolation: TLightingInterpolation3D;
+    AntialiasingMode: TAntialiasingMode3D;
+    AntialiasingResampleLevel: integer;
+    PerspectiveMode: TPerspectiveMode3D;
+    TextureInterpolation: boolean;
+    MinZ: single;
+  end;
+
   PSceneLightingContext = ^TSceneLightingContext;
   TSceneLightingContext = packed record
     basic: TBasicLightingContext;
@@ -22,29 +41,6 @@ type
     SaturationLowF: single;
     SaturationHigh: integer;
     SaturationHighF: single;
-  end;
-
-  TProjection3D = packed record
-    Zoom, Center: TPointF;
-  end;
-
-  TBox3D = record
-    min,max: TPoint3D;
-  end;
-
-  TLightingNormal3D = (lnNone, lnFace, lnVertex, lnFaceVertexMix);
-  TLightingInterpolation3D = (liLowQuality, liSpecularHighQuality, liAlwaysHighQuality);
-  TAntialiasingMode3D = (am3dNone, am3dMultishape, am3dResample);
-  TPerspectiveMode3D = (pmLinearMapping, pmPerspectiveMapping, pmZBuffer);
-
-type
-  TRenderingOptions = record
-    LightingInterpolation: TLightingInterpolation3D;
-    AntialiasingMode: TAntialiasingMode3D;
-    AntialiasingResampleLevel: integer;
-    PerspectiveMode: TPerspectiveMode3D;
-    TextureInterpolation: boolean;
-    MinZ: single;
   end;
 
   TBGRAScene3D = class;
@@ -80,6 +76,7 @@ type
     function GetLight(AIndex: integer): IBGRALight3D;
     function GetLightCount: integer;
     function GetMaterial(AIndex: integer): IBGRAMaterial3D;
+    function GetNormalCount: integer;
     function GetObject(AIndex: integer): IBGRAObject3D;
     function GetVertexCount: integer;
     function GetViewCenter: TPointF;
@@ -110,19 +107,24 @@ type
     function ApplyLightingWithAmbiantLightnessOnly(Context: PSceneLightingContext; Color: TBGRAPixel): TBGRAPixel; virtual;
     function ApplyNoLighting(Context: PSceneLightingContext; Color: TBGRAPixel): TBGRAPixel; virtual;
     procedure UseMaterial(AMaterialName: string; AFace: IBGRAFace3D); virtual;
+    function FetchTexture({%H-}AName: string; out texSize: TPointF): IBGRAScanner; virtual;
 
   public
     DefaultLightingNormal: TLightingNormal3D;
     DefaultMaterial : IBGRAMaterial3D;
     RenderingOptions: TRenderingOptions;
+    UnknownColor: TBGRAPixel;
 
     constructor Create;
     constructor Create(ASurface: TBGRACustomBitmap);
     destructor Destroy; override;
-    procedure Clear;
+    procedure Clear; virtual;
     function LoadObjectFromFile(AFilename: string; SwapFacesOrientation: boolean = true): IBGRAObject3D;
     function LoadObjectFromFileUTF8(AFilename: string; SwapFacesOrientation: boolean = true): IBGRAObject3D;
     function LoadObjectFromStream(AStream: TStream; SwapFacesOrientation: boolean = true): IBGRAObject3D;
+    procedure LoadMaterialsFromFile(AFilename: string);
+    procedure LoadMaterialsFromFileUTF8(AFilename: string);
+    procedure LoadMaterialsFromStream(AStream: TStream);
     procedure LookAt(AWhere: TPoint3D; ATopDir: TPoint3D);
     procedure LookLeft(angleDeg: single);
     procedure LookRight(angleDeg: single);
@@ -146,6 +148,7 @@ type
     procedure SetZoom(value: TPointF); overload;
     function CreateMaterial: IBGRAMaterial3D;
     function CreateMaterial(ASpecularIndex: integer): IBGRAMaterial3D;
+    function GetMaterialByName(AName: string): IBGRAMaterial3D;
     procedure UpdateMaterials; virtual;
     procedure UpdateMaterial(AMaterialName: string); virtual;
     procedure ForEachVertex(ACallback: TVertex3DCallback);
@@ -157,6 +160,7 @@ type
     property Object3D[AIndex: integer]: IBGRAObject3D read GetObject;
     property Object3DCount: integer read FObjectCount;
     property VertexCount: integer read GetVertexCount;
+    property NormalCount: integer read GetNormalCount;
     property FaceCount: integer read GetFaceCount;
     property Zoom: TPointF read GetZoom write SetZoom;
     property AmbiantLightness: single read GetAmbiantLightness write SetAmbiantLightness;
@@ -173,9 +177,11 @@ type
 implementation
 
 uses BGRAPolygon, BGRAPolygonAliased, BGRACoordPool3D, BGRAResample,
-  lazutf8classes;
+  BGRAUTF8;
 
 {$i lightingclasses3d.inc}
+{$i vertex3d.inc}
+{$i face3d.inc}
 
 type
   { TBGRAObject3D }
@@ -214,6 +220,7 @@ type
     function GetFace(AIndex: integer): IBGRAFace3D;
     function GetFaceCount: integer;
     function GetTotalVertexCount: integer;
+    function GetTotalNormalCount: integer;
     function GetMaterial: IBGRAMaterial3D;
     procedure SetLightingNormal(const AValue: TLightingNormal3D);
     procedure SetParentLighting(const AValue: boolean);
@@ -230,1472 +237,9 @@ type
     procedure ForEachFace(ACallback: TFace3DCallback);
   end;
 
-{$i shape3D.inc}
-
-type
-  { TBGRAPart3D }
-
-  TBGRAPart3D = class(TInterfacedObject,IBGRAPart3D)
-  private
-    FVertices: array of IBGRAVertex3D;
-    FVertexCount: integer;
-    FMatrix: TMatrix3D;
-    FParts: array of IBGRAPart3D;
-    FPartCount: integer;
-    FContainer: IBGRAPart3D;
-    FCoordPool: TBGRACoordPool3D;
-  public
-    constructor Create(AContainer: IBGRAPart3D);
-    destructor Destroy; override;
-    procedure Clear(ARecursive: boolean);
-    function Add(x,y,z: single): IBGRAVertex3D;
-    function Add(pt: TPoint3D): IBGRAVertex3D;
-    function Add(pt: TPoint3D_128): IBGRAVertex3D;
-    function Add(const coords: array of single): arrayOfIBGRAVertex3D;
-    function Add(const pts: array of TPoint3D): arrayOfIBGRAVertex3D;
-    function Add(const pts: array of TPoint3D_128): arrayOfIBGRAVertex3D;
-    procedure Add(const pts: array of IBGRAVertex3D);
-    procedure Add(AVertex: IBGRAVertex3D);
-    procedure RemoveVertex(Index: integer);
-    function GetBoundingBox: TBox3D;
-    function GetRadius: single;
-    function GetMatrix: TMatrix3D;
-    function GetPart(AIndex: Integer): IBGRAPart3D;
-    function GetPartCount: integer;
-    function GetVertex(AIndex: Integer): IBGRAVertex3D;
-    function GetVertexCount: integer;
-    function GetTotalVertexCount: integer;
-    function GetContainer: IBGRAPart3D;
-    procedure SetVertex(AIndex: Integer; const AValue: IBGRAVertex3D);
-    procedure ResetTransform;
-    procedure Translate(x,y,z: single; Before: boolean = true);
-    procedure Translate(ofs: TPoint3D; Before: boolean = true);
-    procedure Scale(size: single; Before: boolean = true);
-    procedure Scale(x,y,z: single; Before: boolean = true);
-    procedure Scale(size: TPoint3D; Before: boolean = true);
-    procedure RotateXDeg(angle: single; Before: boolean = true);
-    procedure RotateYDeg(angle: single; Before: boolean = true);
-    procedure RotateZDeg(angle: single; Before: boolean = true);
-    procedure RotateXRad(angle: single; Before: boolean = true);
-    procedure RotateYRad(angle: single; Before: boolean = true);
-    procedure RotateZRad(angle: single; Before: boolean = true);
-    procedure SetMatrix(const AValue: TMatrix3D);
-    procedure ComputeWithMatrix(const AMatrix: TMatrix3D; const AProjection: TProjection3D);
-    function ComputeCoordinate(var ASceneCoord: TPoint3D_128; const AProjection: TProjection3D): TPointF;
-    procedure NormalizeViewNormal;
-    function CreatePart: IBGRAPart3D;
-    procedure LookAt(ALookWhere,ATopDir: TPoint3D);
-    procedure RemoveUnusedVertices;
-    function IndexOf(AVertex: IBGRAVertex3D): integer;
-    procedure ForEachVertex(ACallback: TVertex3DCallback);
-  end;
-
-  { TBGRAFace3D }
-
-  PBGRAFaceVertexDescription = ^TBGRAFaceVertexDescription;
-  TBGRAFaceVertexDescription = record
-       Vertex: IBGRAVertex3D;
-       Color: TBGRAPixel;
-       TexCoord: TPointF;
-       ColorOverride: boolean;
-       TexCoordOverride: boolean;
-     end;
-
-  TBGRAFace3D = class(TInterfacedObject,IBGRAFace3D)
-  private
-    FVertices: packed array of TBGRAFaceVertexDescription;
-    FVertexCount: integer;
-    FTexture: IBGRAScanner;
-    FMaterial: IBGRAMaterial3D;
-    FMaterialName: string;
-    FParentTexture: boolean;
-    FViewNormal: TPoint3D_128;
-    FViewCenter: TPoint3D_128;
-    FObject3D : IBGRAObject3D;
-    FBiface: boolean;
-    FLightThroughFactor: single;
-    FLightThroughFactorOverride: boolean;
-    FCustomFlags: DWord;
-    function GetCustomFlags: DWord;
-    function GetVertexDescription(AIndex : integer): PBGRAFaceVertexDescription;
-    procedure SetCustomFlags(AValue: DWord);
-  public
-    function GetObject3D: IBGRAObject3D;
-    constructor Create(AObject3D: IBGRAObject3D; AVertices: array of IBGRAVertex3D);
-    destructor Destroy; override;
-    procedure AddVertex(AVertex: IBGRAVertex3D);
-    function GetParentTexture: boolean;
-    function GetTexture: IBGRAScanner;
-    function GetVertex(AIndex: Integer): IBGRAVertex3D;
-    function GetVertexColor(AIndex: Integer): TBGRAPixel;
-    function GetVertexColorOverride(AIndex: Integer): boolean;
-    function GetVertexCount: integer;
-    function GetMaterial: IBGRAMaterial3D;
-    function GetMaterialName: string;
-    function GetTexCoord(AIndex: Integer): TPointF;
-    function GetTexCoordOverride(AIndex: Integer): boolean;
-    function GetViewNormal: TPoint3D;
-    function GetViewNormal_128: TPoint3D_128;
-    function GetViewCenter: TPoint3D;
-    function GetViewCenter_128: TPoint3D_128;
-    function GetViewCenterZ: single;
-    function GetBiface: boolean;
-    function GetLightThroughFactor: single;
-    function GetLightThroughFactorOverride: boolean;
-    procedure SetParentTexture(const AValue: boolean);
-    procedure SetTexture(const AValue: IBGRAScanner);
-    procedure SetColor(AColor: TBGRAPixel);
-    procedure SetVertexColor(AIndex: Integer; const AValue: TBGRAPixel);
-    procedure SetVertexColorOverride(AIndex: Integer; const AValue: boolean);
-    procedure SetTexCoord(AIndex: Integer; const AValue: TPointF);
-    procedure SetTexCoordOverride(AIndex: Integer; const AValue: boolean);
-    procedure SetBiface(const AValue: boolean);
-    procedure SetLightThroughFactor(const AValue: single);
-    procedure SetLightThroughFactorOverride(const AValue: boolean);
-    procedure SetVertex(AIndex: Integer; const AValue: IBGRAVertex3D);
-    procedure ComputeViewNormalAndCenter;
-    procedure SetMaterial(const AValue: IBGRAMaterial3D);
-    procedure SetMaterialName(const AValue: string);
-    function GetAsObject: TObject;
-    property Texture: IBGRAScanner read GetTexture write SetTexture;
-    property ParentTexture: boolean read GetParentTexture write SetParentTexture;
-    property VertexCount: integer read GetVertexCount;
-    property Vertex[AIndex: Integer]: IBGRAVertex3D read GetVertex write SetVertex;
-    property VertexColor[AIndex: Integer]: TBGRAPixel read GetVertexColor write SetVertexColor;
-    property VertexColorOverride[AIndex: Integer]: boolean read GetVertexColorOverride write SetVertexColorOverride;
-    property TexCoord[AIndex: Integer]: TPointF read GetTexCoord write SetTexCoord;
-    property TexCoordOverride[AIndex: Integer]: boolean read GetTexCoordOverride write SetTexCoordOverride;
-    property ViewNormal: TPoint3D read GetViewNormal;
-    property ViewNormal_128: TPoint3D_128 read GetViewNormal_128;
-    property ViewCenter: TPoint3D read GetViewCenter;
-    property ViewCenter_128: TPoint3D_128 read GetViewCenter_128;
-    property ViewCenterZ: single read GetViewCenterZ;
-    property Object3D: IBGRAObject3D read GetObject3D;
-    property Biface: boolean read GetBiface write SetBiface;
-    property LightThroughFactor: single read GetLightThroughFactor write SetLightThroughFactor;
-    property LightThroughFactorOverride: boolean read GetLightThroughFactorOverride write SetLightThroughFactorOverride;
-    property Material: IBGRAMaterial3D read GetMaterial write SetMaterial;
-    property VertexDescription[AIndex : integer]: PBGRAFaceVertexDescription read GetVertexDescription;
-    property CustomFlags: DWord read GetCustomFlags write SetCustomFlags;
-  end;
-
-  { TBGRAVertex3D }
-
-  TBGRAVertex3D = class(TInterfacedObject,IBGRAVertex3D)
-  private
-    FColor: TBGRAPixel;
-    FParentColor: boolean;
-    FLight: Single;
-    FTexCoord: TPointF;
-    FCoordPool: TBGRACoordPool3D;
-    FCoordPoolIndex: integer;
-    FCustomFlags: DWord;
-    function GetCoordData: PBGRACoordData3D;
-    procedure Init(ACoordPool: TBGRACoordPool3D; ASceneCoord: TPoint3D_128);
-  public
-    constructor Create(ACoordPool: TBGRACoordPool3D; ASceneCoord: TPoint3D); overload;
-    constructor Create(ACoordPool: TBGRACoordPool3D; ASceneCoord: TPoint3D_128); overload;
-    destructor Destroy; override;
-    function GetColor: TBGRAPixel;
-    function GetLight: Single;
-    function GetViewNormal: TPoint3D;
-    function GetViewNormal_128: TPoint3D_128;
-    function GetSceneCoord: TPoint3D;
-    function GetSceneCoord_128: TPoint3D_128;
-    function GetTexCoord: TPointF;
-    function GetViewCoord: TPoint3D;
-    function GetViewCoord_128: TPoint3D_128;
-    function GetUsage: integer;
-    function GetCustomFlags: DWord;
-    procedure SetColor(const AValue: TBGRAPixel);
-    procedure SetLight(const AValue: Single);
-    procedure SetViewNormal(const AValue: TPoint3D);
-    procedure SetViewNormal_128(const AValue: TPoint3D_128);
-    procedure NormalizeViewNormal;
-    procedure AddViewNormal(const AValue: TPoint3D_128);
-    procedure SetCustomFlags(AValue: DWord);
-    procedure SetSceneCoord(const AValue: TPoint3D);
-    procedure SetSceneCoord_128(const AValue: TPoint3D_128);
-    procedure SetTexCoord(const AValue: TPointF);
-    procedure SetViewCoord(const AValue: TPoint3D);
-    procedure SetViewCoord_128(const AValue: TPoint3D_128);
-    function GetViewCoordZ: single;
-    function GetParentColor: Boolean;
-    procedure SetParentColor(const AValue: Boolean);
-    function GetProjectedCoord: TPointF;
-    procedure SetProjectedCoord(const AValue: TPointF);
-    procedure ComputeCoordinateAndClearNormal(const AMatrix: TMatrix3D; const AProjection: TProjection3D);
-    property SceneCoord: TPoint3D read GetSceneCoord write SetSceneCoord;
-    property SceneCoord_128: TPoint3D_128 read GetSceneCoord_128 write SetSceneCoord_128;
-    property ViewCoord: TPoint3D read GetViewCoord write SetViewCoord;
-    property ViewCoord_128: TPoint3D_128 read GetViewCoord_128 write SetViewCoord_128;
-    property ViewCoordZ: single read GetViewCoordZ;
-    property ProjectedCoord: TPointF read GetProjectedCoord write SetProjectedCoord;
-    property TexCoord: TPointF read GetTexCoord write SetTexCoord;
-    property Color: TBGRAPixel read GetColor write SetColor;
-    property ParentColor: Boolean read GetParentColor write SetParentColor;
-    property Light: Single read GetLight write SetLight;
-    property ViewNormal: TPoint3D read GetViewNormal write SetViewNormal;
-    property ViewNormal_128: TPoint3D_128 read GetViewNormal_128 write SetViewNormal_128;
-    property Usage: integer read GetUsage;
-    property CoordData: PBGRACoordData3D read GetCoordData;
-    function GetAsObject: TObject;
-  end;
-
-{ TBGRAVertex3D }
-
-procedure TBGRAVertex3D.Init(ACoordPool: TBGRACoordPool3D; ASceneCoord: TPoint3D_128);
-begin
-  FCoordPool := ACoordPool;
-  FCoordPoolIndex := FCoordPool.Add;
-  FColor := BGRAWhite;
-  FParentColor := True;
-  FLight := 1;
-  SceneCoord_128 := ASceneCoord;
-end;
-
-function TBGRAVertex3D.GetCoordData: PBGRACoordData3D;
-begin
-  result := FCoordPool.CoordData[FCoordPoolIndex];
-end;
-
-constructor TBGRAVertex3D.Create(ACoordPool: TBGRACoordPool3D; ASceneCoord: TPoint3D);
-begin
-  Init(ACoordPool, Point3D_128(ASceneCoord));
-end;
-
-constructor TBGRAVertex3D.Create(ACoordPool: TBGRACoordPool3D; ASceneCoord: TPoint3D_128);
-begin
-  Init(ACoordPool, ASceneCoord);
-end;
-
-destructor TBGRAVertex3D.Destroy;
-begin
-  FCoordPool.Remove(FCoordPoolIndex);
-  inherited Destroy;
-end;
-
-function TBGRAVertex3D.GetColor: TBGRAPixel;
-begin
-  result := FColor;
-end;
-
-function TBGRAVertex3D.GetLight: Single;
-begin
-  result := FLight;
-end;
-
-function TBGRAVertex3D.GetViewNormal: TPoint3D;
-begin
-  result := Point3D(FCoordPool.CoordData[FCoordPoolIndex]^.viewNormal);
-end;
-
-function TBGRAVertex3D.GetViewNormal_128: TPoint3D_128;
-begin
-  result := FCoordPool.CoordData[FCoordPoolIndex]^.viewNormal;
-end;
-
-function TBGRAVertex3D.GetSceneCoord: TPoint3D;
-begin
-  result := Point3D(FCoordPool.CoordData[FCoordPoolIndex]^.sceneCoord);
-end;
-
-function TBGRAVertex3D.GetSceneCoord_128: TPoint3D_128;
-begin
-  result := FCoordPool.CoordData[FCoordPoolIndex]^.sceneCoord;
-end;
-
-function TBGRAVertex3D.GetTexCoord: TPointF;
-begin
-  result := FTexCoord;
-end;
-
-function TBGRAVertex3D.GetViewCoord: TPoint3D;
-begin
-  result := Point3D(FCoordPool.CoordData[FCoordPoolIndex]^.viewCoord);
-end;
-
-function TBGRAVertex3D.GetViewCoord_128: TPoint3D_128;
-begin
-  result := FCoordPool.CoordData[FCoordPoolIndex]^.viewCoord;
-end;
-
-function TBGRAVertex3D.GetUsage: integer;
-begin
-  result := frefcount;
-end;
-
-function TBGRAVertex3D.GetCustomFlags: DWord;
-begin
-  result := FCustomFlags;
-end;
-
-procedure TBGRAVertex3D.SetColor(const AValue: TBGRAPixel);
-begin
-  FColor := AValue;
-  FParentColor := false;
-end;
-
-procedure TBGRAVertex3D.SetLight(const AValue: Single);
-begin
-  FLight := AValue;
-end;
-
-procedure TBGRAVertex3D.SetViewNormal(const AValue: TPoint3D);
-begin
-  FCoordPool.CoordData[FCoordPoolIndex]^.viewNormal := Point3D_128(AValue);
-end;
-
-procedure TBGRAVertex3D.SetViewNormal_128(const AValue: TPoint3D_128);
-begin
-  FCoordPool.CoordData[FCoordPoolIndex]^.viewNormal := AValue;
-end;
-
-procedure TBGRAVertex3D.SetSceneCoord(const AValue: TPoint3D);
-begin
-  FCoordPool.CoordData[FCoordPoolIndex]^.sceneCoord := Point3D_128(AValue);
-end;
-
-procedure TBGRAVertex3D.SetSceneCoord_128(const AValue: TPoint3D_128);
-begin
-  FCoordPool.CoordData[FCoordPoolIndex]^.sceneCoord := AValue;
-end;
-
-procedure TBGRAVertex3D.SetTexCoord(const AValue: TPointF);
-begin
-  FTexCoord := AValue;
-end;
-
-procedure TBGRAVertex3D.SetViewCoord(const AValue: TPoint3D);
-begin
-  FCoordPool.CoordData[FCoordPoolIndex]^.viewCoord := Point3D_128(AValue);
-end;
-
-procedure TBGRAVertex3D.SetViewCoord_128(const AValue: TPoint3D_128);
-begin
-  FCoordPool.CoordData[FCoordPoolIndex]^.viewCoord := AValue;
-end;
-
-function TBGRAVertex3D.GetViewCoordZ: single;
-begin
-  result := FCoordPool.CoordData[FCoordPoolIndex]^.viewCoord.Z;
-end;
-
-function TBGRAVertex3D.GetParentColor: Boolean;
-begin
-  result := FParentColor;
-end;
-
-procedure TBGRAVertex3D.SetParentColor(const AValue: Boolean);
-begin
-  FParentColor := AValue;
-end;
-
-function TBGRAVertex3D.GetProjectedCoord: TPointF;
-begin
-  result := FCoordPool.CoordData[FCoordPoolIndex]^.projectedCoord;
-end;
-
-procedure TBGRAVertex3D.SetProjectedCoord(const AValue: TPointF);
-begin
-  FCoordPool.CoordData[FCoordPoolIndex]^.projectedCoord := AValue;
-end;
-
-procedure TBGRAVertex3D.ComputeCoordinateAndClearNormal(const AMatrix: TMatrix3D; const AProjection : TProjection3D);
-var P: PBGRACoordData3D;
-begin
-  P := FCoordPool.CoordData[FCoordPoolIndex];
-  with p^ do
-  begin
-    viewCoord := AMatrix*sceneCoord;
-    ClearPoint3D_128(viewNormal);
-    if viewCoord.z > 0 then
-    begin
-      InvZ := 1/viewCoord.z;
-      projectedCoord := PointF(viewCoord.x*InvZ*AProjection.Zoom.x + AProjection.Center.x,
-                               viewCoord.y*InvZ*AProjection.Zoom.Y + AProjection.Center.y);
-    end else
-      projectedCoord := PointF(0,0);
-  end;
-end;
-
-function TBGRAVertex3D.GetAsObject: TObject;
-begin
-  result := self;
-end;
-
-procedure TBGRAVertex3D.NormalizeViewNormal;
-begin
-  Normalize3D_128(FCoordPool.CoordData[FCoordPoolIndex]^.viewNormal);
-end;
-
-procedure TBGRAVertex3D.AddViewNormal(const AValue: TPoint3D_128);
-begin
-  Add3D_Aligned(FCoordPool.CoordData[FCoordPoolIndex]^.viewNormal, AValue);
-end;
-
-procedure TBGRAVertex3D.SetCustomFlags(AValue: DWord);
-begin
-  FCustomFlags:= AValue;
-end;
-
-{ TBGRAFace3D }
-
-function TBGRAFace3D.GetVertexDescription(AIndex : integer
-  ): PBGRAFaceVertexDescription;
-begin
-  result := @FVertices[AIndex];
-end;
-
-function TBGRAFace3D.GetCustomFlags: DWord;
-begin
-  result := FCustomFlags;
-end;
-
-procedure TBGRAFace3D.SetCustomFlags(AValue: DWord);
-begin
-  FCustomFlags:= AValue;
-end;
-
-function TBGRAFace3D.GetObject3D: IBGRAObject3D;
-begin
-  result := FObject3D;
-end;
-
-constructor TBGRAFace3D.Create(AObject3D: IBGRAObject3D;
-  AVertices: array of IBGRAVertex3D);
-var
-  i: Integer;
-begin
-  SetLength(FVertices, length(AVertices));
-  for i:= 0 to high(AVertices) do
-    AddVertex(AVertices[i]);
-  FObject3D := AObject3D;
-  FBiface := false;
-  FParentTexture := True;
-  FLightThroughFactor:= 0;
-  FLightThroughFactorOverride:= false;
-end;
-
-destructor TBGRAFace3D.Destroy;
-begin
-  fillchar(FTexture,sizeof(FTexture),0);
-  inherited Destroy;
-end;
-
-procedure TBGRAFace3D.AddVertex(AVertex: IBGRAVertex3D);
-begin
-  if FVertexCount = length(FVertices) then
-    setlength(FVertices, FVertexCount*2+3);
-  with FVertices[FVertexCount] do
-  begin
-    Color := BGRAWhite;
-    ColorOverride := false;
-    TexCoord := PointF(0,0);
-    TexCoordOverride := false;
-    Vertex := AVertex;
-  end;
-  inc(FVertexCount);
-end;
-
-function TBGRAFace3D.GetParentTexture: boolean;
-begin
-  result := FParentTexture;
-end;
-
-function TBGRAFace3D.GetTexture: IBGRAScanner;
-begin
-  result := FTexture;
-end;
-
-function TBGRAFace3D.GetVertex(AIndex: Integer): IBGRAVertex3D;
-begin
-  if (AIndex < 0) or (AIndex >= FVertexCount) then
-    raise Exception.Create('Index out of bounds');
-  result := FVertices[AIndex].Vertex;
-end;
-
-procedure TBGRAFace3D.SetVertex(AIndex: Integer; const AValue: IBGRAVertex3D);
-begin
-  if (AIndex < 0) or (AIndex >= FVertexCount) then
-    raise Exception.Create('Index out of bounds');
-  FVertices[AIndex].Vertex := AValue;
-end;
-
-function TBGRAFace3D.GetVertexColor(AIndex: Integer): TBGRAPixel;
-begin
-  if (AIndex < 0) or (AIndex >= FVertexCount) then
-    raise Exception.Create('Index out of bounds');
-  result := FVertices[AIndex].Color;
-end;
-
-function TBGRAFace3D.GetVertexColorOverride(AIndex: Integer): boolean;
-begin
-  if (AIndex < 0) or (AIndex >= FVertexCount) then
-    raise Exception.Create('Index out of bounds');
-  result := FVertices[AIndex].ColorOverride;
-end;
-
-function TBGRAFace3D.GetVertexCount: integer;
-begin
-  result := FVertexCount;
-end;
-
-function TBGRAFace3D.GetMaterial: IBGRAMaterial3D;
-begin
-  result := FMaterial;
-end;
-
-function TBGRAFace3D.GetMaterialName: string;
-begin
-  result := FMaterialName;
-end;
-
-procedure TBGRAFace3D.SetParentTexture(const AValue: boolean);
-begin
-  FParentTexture := AValue;
-end;
-
-procedure TBGRAFace3D.SetTexture(const AValue: IBGRAScanner);
-begin
-  FTexture := AValue;
-  FParentTexture := false;
-end;
-
-procedure TBGRAFace3D.SetColor(AColor: TBGRAPixel);
-var i: integer;
-begin
-  for i := 0 to GetVertexCount-1 do
-    SetVertexColor(i,AColor);
-end;
-
-procedure TBGRAFace3D.SetVertexColor(AIndex: Integer; const AValue: TBGRAPixel
-  );
-begin
-  if (AIndex < 0) or (AIndex >= FVertexCount) then
-    raise Exception.Create('Index out of bounds');
-  with FVertices[AIndex] do
-  begin
-    Color := AValue;
-    ColorOverride := true;
-  end;
-end;
-
-procedure TBGRAFace3D.SetVertexColorOverride(AIndex: Integer;
-  const AValue: boolean);
-begin
-  if (AIndex < 0) or (AIndex >= FVertexCount) then
-    raise Exception.Create('Index out of bounds');
-  FVertices[AIndex].ColorOverride := AValue;
-end;
-
-function TBGRAFace3D.GetTexCoord(AIndex: Integer): TPointF;
-begin
-  if (AIndex < 0) or (AIndex >= FVertexCount) then
-    raise Exception.Create('Index out of bounds');
-  result := FVertices[AIndex].TexCoord;
-end;
-
-function TBGRAFace3D.GetTexCoordOverride(AIndex: Integer): boolean;
-begin
-  if (AIndex < 0) or (AIndex >= FVertexCount) then
-    raise Exception.Create('Index out of bounds');
-  result := FVertices[AIndex].TexCoordOverride;
-end;
-
-procedure TBGRAFace3D.SetTexCoord(AIndex: Integer; const AValue: TPointF);
-begin
-  if (AIndex < 0) or (AIndex >= FVertexCount) then
-    raise Exception.Create('Index out of bounds');
-  FVertices[AIndex].TexCoord := AValue;
-  FVertices[AIndex].TexCoordOverride := true;
-end;
-
-procedure TBGRAFace3D.SetTexCoordOverride(AIndex: Integer; const AValue: boolean
-  );
-begin
-  if (AIndex < 0) or (AIndex >= FVertexCount) then
-    raise Exception.Create('Index out of bounds');
-  FVertices[AIndex].TexCoordOverride := AValue;
-end;
-
-function TBGRAFace3D.GetViewNormal: TPoint3D;
-begin
-  result := Point3D(FViewNormal);
-end;
-
-function TBGRAFace3D.GetViewNormal_128: TPoint3D_128;
-begin
-  result := FViewNormal;
-end;
-
-function TBGRAFace3D.GetViewCenter: TPoint3D;
-begin
-  result := Point3D(FViewCenter);
-end;
-
-function TBGRAFace3D.GetViewCenter_128: TPoint3D_128;
-begin
-  result := FViewCenter;
-end;
-
-function TBGRAFace3D.GetViewCenterZ: single;
-begin
-  result := FViewCenter.Z;
-end;
-
-function TBGRAFace3D.GetBiface: boolean;
-begin
-  result := FBiface;
-end;
-
-procedure TBGRAFace3D.SetBiface(const AValue: boolean);
-begin
-  FBiface := AValue;
-end;
-
-function TBGRAFace3D.GetLightThroughFactor: single;
-begin
-  result := FLightThroughFactor;
-end;
-
-function TBGRAFace3D.GetLightThroughFactorOverride: boolean;
-begin
-  result := FLightThroughFactorOverride;
-end;
-
-procedure TBGRAFace3D.SetLightThroughFactor(const AValue: single);
-begin
-  if AValue < 0 then
-    FLightThroughFactor := 0
-  else
-    FLightThroughFactor:= AValue;
-  FLightThroughFactorOverride := true;
-end;
-
-procedure TBGRAFace3D.SetLightThroughFactorOverride(const AValue: boolean);
-begin
-  FLightThroughFactorOverride := AValue;
-end;
-
-procedure TBGRAFace3D.ComputeViewNormalAndCenter;
-var v1,v2: TPoint3D_128;
-  i: Integer;
-  p0,p1,p2: IBGRAVertex3D;
-begin
-  if FVertexCount < 3 then
-    ClearPoint3D_128(FViewNormal)
-  else
-  begin
-    p0 := FVertices[0].Vertex;
-    p1 := FVertices[1].Vertex;
-    p2 := FVertices[2].Vertex;
-    v1 := p1.ViewCoord_128 - p0.ViewCoord_128;
-    v2 := p2.ViewCoord_128 - p1.ViewCoord_128;
-    VectProduct3D_128(v2,v1,FViewNormal);
-    Normalize3D_128(FViewNormal);
-    for i := 0 to FVertexCount-1 do
-      FVertices[i].Vertex.AddViewNormal(FViewNormal);
-  end;
-  ClearPoint3D_128(FViewCenter);
-  if FVertexCount > 0 then
-  begin
-    for i := 0 to FVertexCount-1 do
-      FViewCenter += FVertices[i].Vertex.ViewCoord_128;
-    FViewCenter *= 1/FVertexCount;
-  end;
-end;
-
-procedure TBGRAFace3D.SetMaterial(const AValue: IBGRAMaterial3D);
-begin
-  FMaterial := AValue;
-end;
-
-procedure TBGRAFace3D.SetMaterialName(const AValue: string);
-begin
-  if AValue <> FMaterialName then
-  begin
-    FMaterialName := AValue;
-    FObject3D.Scene.UseMaterial(FMaterialName, self);
-  end;
-end;
-
-function TBGRAFace3D.GetAsObject: TObject;
-begin
-  result := self;
-end;
-
-{ TBGRAPart3D }
-
-procedure TBGRAPart3D.LookAt(ALookWhere,ATopDir: TPoint3D);
-var ZDir, XDir, YDir: TPoint3D_128;
-    ViewPoint: TPoint3D_128;
-    CurPart: IBGRAPart3D;
-    ComposedMatrix: TMatrix3D;
-begin
-  YDir := -Point3D_128(ATopDir);
-  if IsPoint3D_128_Zero(YDir) then exit;
-  Normalize3D_128(YDir);
-
-  ComposedMatrix := FMatrix;
-  CurPart := self.FContainer;
-  while CurPart <> nil do
-  begin
-    ComposedMatrix := CurPart.Matrix*ComposedMatrix;
-    CurPart := CurPart.Container;
-  end;
-  ViewPoint := ComposedMatrix*Point3D_128_Zero;
-
-  ZDir := Point3D_128(ALookWhere)-ViewPoint;
-  if IsPoint3D_128_Zero(ZDir) then exit;
-  Normalize3D_128(ZDir);
-
-  VectProduct3D_128(YDir,ZDir,XDir);
-  VectProduct3D_128(ZDir,XDir,YDir); //correct Y dir
-
-  FMatrix := Matrix3D(XDir,YDir,ZDir,ViewPoint);
-  ComposedMatrix := MatrixIdentity3D;
-  CurPart := self.FContainer;
-  while CurPart <> nil do
-  begin
-    ComposedMatrix := CurPart.Matrix*ComposedMatrix;
-    CurPart := CurPart.Container;
-  end;
-  FMatrix := MatrixInverse3D(ComposedMatrix)*FMatrix;
-end;
-
-procedure TBGRAPart3D.RemoveUnusedVertices;
-var
-  i: Integer;
-begin
-  for i := FVertexCount-1 downto 0 do
-    if FVertices[i].Usage <= 2 then RemoveVertex(i);
-  for i := 0 to FPartCount-1 do
-    FParts[i].RemoveUnusedVertices;
-end;
-
-function TBGRAPart3D.IndexOf(AVertex: IBGRAVertex3D): integer;
-var i: integer;
-begin
-  for i := 0 to FVertexCount-1 do
-    if FVertices[i] = AVertex then
-    begin
-      result := i;
-      exit;
-    end;
-  result := -1;
-end;
-
-procedure TBGRAPart3D.ForEachVertex(ACallback: TVertex3DCallback);
-var i: integer;
-begin
-  for i := 0 to FVertexCount-1 do
-    ACallback(FVertices[i]);
-end;
-
-procedure TBGRAPart3D.Add(AVertex: IBGRAVertex3D);
-begin
-  if FVertexCount = length(FVertices) then
-    setlength(FVertices, FVertexCount*2+3);
-  FVertices[FVertexCount] := AVertex;
-  inc(FVertexCount);
-end;
-
-procedure TBGRAPart3D.RemoveVertex(Index: integer);
-var i: integer;
-begin
-  if (Index >= 0) and (Index < FVertexCount) then
-  begin
-    for i := Index to FVertexCount-2 do
-      FVertices[i] := FVertices[i+1];
-    FVertices[FVertexCount-1] := nil;
-    dec(FVertexCount);
-  end;
-end;
-
-function TBGRAPart3D.GetRadius: single;
-var i: integer;
-    pt: TPoint3D_128;
-    d: single;
-begin
-  result := 0;
-  for i := 0 to GetVertexCount-1 do
-  begin
-    pt := GetVertex(i).SceneCoord_128;
-    d:= sqrt(DotProduct3D_128(pt,pt));
-    if d > result then result := d;
-  end;
-end;
-
-constructor TBGRAPart3D.Create(AContainer: IBGRAPart3D);
-begin
-  FContainer := AContainer;
-  FMatrix := MatrixIdentity3D;
-  FCoordPool := TBGRACoordPool3D.Create(4);
-end;
-
-destructor TBGRAPart3D.Destroy;
-begin
-  FCoordPool.Free;
-  inherited Destroy;
-end;
-
-procedure TBGRAPart3D.Clear(ARecursive: boolean);
-var i: integer;
-begin
-  FVertices := nil;
-  FVertexCount := 0;
-  if ARecursive then
-  begin
-    for i := 0 to FPartCount-1 do
-      FParts[i].Clear(ARecursive);
-    FParts := nil;
-    FPartCount := 0;
-  end;
-end;
-
-function TBGRAPart3D.Add(x, y, z: single): IBGRAVertex3D;
-begin
-  result := TBGRAVertex3D.Create(FCoordPool,Point3D(x,y,z));
-  Add(result);
-end;
-
-function TBGRAPart3D.Add(pt: TPoint3D): IBGRAVertex3D;
-begin
-  result := TBGRAVertex3D.Create(FCoordPool,pt);
-  Add(result);
-end;
-
-function TBGRAPart3D.Add(pt: TPoint3D_128): IBGRAVertex3D;
-begin
-  result := TBGRAVertex3D.Create(FCoordPool,pt);
-  Add(result);
-end;
-
-function TBGRAPart3D.Add(const coords: array of single
-  ): arrayOfIBGRAVertex3D;
-var pts: array of TPoint3D;
-    CoordsIdx: integer;
-    i: Integer;
-begin
-  if length(coords) mod 3 <> 0 then
-    raise exception.Create('Array size must be a multiple of 3');
-  setlength(pts, length(coords) div 3);
-  coordsIdx := 0;
-  for i := 0 to high(pts) do
-  begin
-    pts[i] := Point3D(coords[CoordsIdx],coords[CoordsIdx+1],coords[CoordsIdx+2]);
-    inc(coordsIdx,3);
-  end;
-  result := Add(pts);
-end;
-
-function TBGRAPart3D.Add(const pts: array of TPoint3D): arrayOfIBGRAVertex3D;
-var
-  i: Integer;
-begin
-  setlength(result, length(pts));
-  for i := 0 to high(pts) do
-    result[i] := TBGRAVertex3D.Create(FCoordPool,pts[i]);
-  Add(result);
-end;
-
-function TBGRAPart3D.Add(const pts: array of TPoint3D_128
-  ): arrayOfIBGRAVertex3D;
-var
-  i: Integer;
-begin
-  setlength(result, length(pts));
-  for i := 0 to high(pts) do
-    result[i] := TBGRAVertex3D.Create(FCoordPool,pts[i]);
-  Add(result);
-end;
-
-procedure TBGRAPart3D.Add(const pts: array of IBGRAVertex3D);
-var
-  i: Integer;
-begin
-  if FVertexCount + length(pts) > length(FVertices) then
-    setlength(FVertices, (FVertexCount*2 + length(pts))+1);
-  for i := 0 to high(pts) do
-  begin
-    FVertices[FVertexCount] := pts[i];
-    inc(FVertexCount);
-  end;
-end;
-
-function TBGRAPart3D.GetBoundingBox: TBox3D;
-var i: integer;
-    pt: TPoint3D_128;
-begin
-  if GetVertexCount > 0 then
-  begin
-    result.min := GetVertex(0).SceneCoord;
-    result.max := result.min;
-  end else
-  begin
-    result.min := Point3D(0,0,0);
-    result.max := Point3D(0,0,0);
-    exit;
-  end;
-  for i := 1 to GetVertexCount-1 do
-  begin
-    pt := GetVertex(i).SceneCoord_128;
-    if pt.x < result.min.x then result.min.x := pt.x else
-    if pt.x > result.max.x then result.max.x := pt.x;
-    if pt.y < result.min.y then result.min.y := pt.y else
-    if pt.y > result.max.y then result.max.y := pt.y;
-    if pt.z < result.min.z then result.min.z := pt.z else
-    if pt.z > result.max.z then result.max.z := pt.z;
-  end;
-end;
-
-function TBGRAPart3D.GetMatrix: TMatrix3D;
-begin
-  result := FMatrix;
-end;
-
-function TBGRAPart3D.GetPart(AIndex: Integer): IBGRAPart3D;
-begin
-  if (AIndex < 0) or (AIndex >= FPartCount) then
-    raise exception.Create('Index of out bounds');
-  result := FParts[AIndex];
-end;
-
-function TBGRAPart3D.GetPartCount: integer;
-begin
-  result := FPartCount;
-end;
-
-function TBGRAPart3D.GetVertex(AIndex: Integer): IBGRAVertex3D;
-begin
-  if (AIndex < 0) or (AIndex >= FVertexCount) then
-    raise exception.Create('Index of out bounds');
-  result := FVertices[AIndex];
-end;
-
-function TBGRAPart3D.GetVertexCount: integer;
-begin
-  result := FVertexCount;
-end;
-
-function TBGRAPart3D.GetTotalVertexCount: integer;
-var i: integer;
-begin
-  result := GetVertexCount;
-  for i := 0 to GetPartCount-1 do
-    result += GetPart(i).GetTotalVertexCount;
-end;
-
-procedure TBGRAPart3D.ResetTransform;
-begin
-  FMatrix := MatrixIdentity3D;
-end;
-
-procedure TBGRAPart3D.Scale(size: single; Before: boolean = true);
-begin
-  Scale(size,size,size,Before);
-end;
-
-procedure TBGRAPart3D.Scale(x, y, z: single; Before: boolean = true);
-begin
-  Scale(Point3D(x,y,z),Before);
-end;
-
-procedure TBGRAPart3D.Scale(size: TPoint3D; Before: boolean = true);
-begin
-  if Before then
-    FMatrix *= MatrixScale3D(size)
-  else
-    FMatrix := MatrixScale3D(size)*FMatrix;
-end;
-
-procedure TBGRAPart3D.RotateXDeg(angle: single; Before: boolean = true);
-begin
-  RotateXRad(-angle*Pi/180, Before);
-end;
-
-procedure TBGRAPart3D.RotateYDeg(angle: single; Before: boolean = true);
-begin
-  RotateYRad(-angle*Pi/180, Before);
-end;
-
-procedure TBGRAPart3D.RotateZDeg(angle: single; Before: boolean = true);
-begin
-  RotateZRad(-angle*Pi/180, Before);
-end;
-
-procedure TBGRAPart3D.RotateXRad(angle: single; Before: boolean = true);
-begin
-  if Before then
-    FMatrix *= MatrixRotateX(angle)
-  else
-    FMatrix := MatrixRotateX(angle) * FMatrix;
-end;
-
-procedure TBGRAPart3D.RotateYRad(angle: single; Before: boolean = true);
-begin
-  if Before then
-    FMatrix *= MatrixRotateY(angle)
-  else
-    FMatrix := MatrixRotateY(angle) * FMatrix;
-end;
-
-procedure TBGRAPart3D.RotateZRad(angle: single; Before: boolean = true);
-begin
-  if Before then
-    FMatrix *= MatrixRotateZ(angle)
-  else
-    FMatrix := MatrixRotateZ(angle) * FMatrix;
-end;
-
-procedure TBGRAPart3D.SetMatrix(const AValue: TMatrix3D);
-begin
-  FMatrix := AValue;
-end;
-
-procedure TBGRAPart3D.ComputeWithMatrix(const AMatrix: TMatrix3D; const AProjection: TProjection3D);
-var
-  i: Integer;
-  Composed: TMatrix3D;
-  P: PBGRACoordData3D;
-begin
-  Composed := AMatrix* self.FMatrix;
-  {$IFDEF CPUI386}
-  if UseSSE then
-  begin
-    Matrix3D_SSE_Load(Composed);
-    asm
-      mov eax,[AProjection]
-      movups xmm4,[eax]
-      xorps xmm1,xmm1
-    end;
-    P := FCoordPool.CoordData[0];
-    i := FCoordPool.UsedCapacity;
-    if UseSSE3 then
-    begin
-      while i > 0 do
-      with P^ do
-      begin
-        MatrixMultiplyVect3D_SSE3_Aligned(sceneCoord,viewCoord);
-        if viewCoord.z > 0 then
-        begin
-          asm
-            mov eax, P
-            movaps xmm3, [eax+16] //viewCoord
-            movaps xmm2,xmm3
-            shufps xmm2,xmm3,2+8+32+128
-            rcpps xmm2,xmm2  //xmm2 = InvZ
-            movss [eax+40],xmm2 //-> InvZ
-
-            mulps xmm3,xmm4  //xmm3 *= Projection.Zoom
-            mulps xmm3,xmm2  //xmm3 *= InvZ
-
-            movhlps xmm0,xmm4  //xmm2 = Projection.Center
-            addps xmm3,xmm0  //xmm3 += Projection.Center
-
-            movlps [eax+32],xmm3 //->projectedCoord
-            movaps [eax+48],xmm1 //->normal
-          end;
-        end else
-        asm
-          mov eax, P
-          movlps [eax+32],xmm1  //0 ->projectedCoord
-          movaps [eax+48],xmm1 //->normal
-        end;
-        dec(i);
-        inc(p);
-      end;
-    end else
-    begin
-      while i > 0 do
-      with P^ do
-      begin
-        MatrixMultiplyVect3D_SSE_Aligned(sceneCoord,viewCoord);
-        if viewCoord.z > 0 then
-        begin
-          asm
-            mov eax, P
-            movaps xmm3, [eax+16] //viewCoord
-            movaps xmm2,xmm3
-            shufps xmm2,xmm3,2+8+32+128
-            rcpps xmm2,xmm2  //xmm2 = InvZ
-            movss [eax+40],xmm2 //-> InvZ
-
-            mulps xmm3,xmm4  //xmm3 *= Projection.Zoom
-            mulps xmm3,xmm2  //xmm3 *= InvZ
-
-            movhlps xmm0,xmm4  //xmm2 = Projection.Center
-            addps xmm3,xmm0  //xmm3 += Projection.Center
-
-            movlps [eax+32],xmm3 //->projectedCoord
-            movaps [eax+48],xmm1 //->normal
-          end;
-        end else
-        asm
-          mov eax, P
-          movlps [eax+32],xmm1  //0 ->projectedCoord
-          movaps [eax+48],xmm1 //->normal
-        end;
-        dec(i);
-        inc(p);
-      end;
-    end;
-  end
-  else
-  {$ENDIF}
-  begin
-    P := FCoordPool.CoordData[0];
-    i := FCoordPool.UsedCapacity;
-    while i > 0 do
-    with P^ do
-    begin
-      viewCoord := Composed*sceneCoord;
-      ClearPoint3D_128(viewNormal);
-      if viewCoord.z > 0 then
-      begin
-        InvZ := 1/viewCoord.z;
-        projectedCoord := PointF(viewCoord.x*InvZ*AProjection.Zoom.x + AProjection.Center.x,
-                                 viewCoord.y*InvZ*AProjection.Zoom.Y + AProjection.Center.y);
-      end else
-        projectedCoord := PointF(0,0);
-      dec(i);
-      inc(p);
-    end;
-  end;
-  for i := 0 to FPartCount-1 do
-    FParts[i].ComputeWithMatrix(Composed,AProjection);
-end;
-
-function TBGRAPart3D.ComputeCoordinate(var ASceneCoord: TPoint3D_128; const AProjection: TProjection3D): TPointF;
-var part: IBGRAPart3D;
-  newViewCoord: TPoint3D_128;
-  InvZ: single;
-begin
-  newViewCoord := FMatrix * ASceneCoord;
-  part := FContainer;
-  while part <> nil do
-  begin
-    newViewCoord := part.Matrix * newViewCoord;
-    part := part.Container;
-  end;
-  if NewViewCoord.z > 0 then
-  begin
-    InvZ := 1/NewViewCoord.z;
-    result := PointF(NewViewCoord.x*InvZ*AProjection.Zoom.x + AProjection.Center.x,
-                     NewViewCoord.y*InvZ*AProjection.Zoom.Y + AProjection.Center.y);
-  end else
-    result := PointF(0,0);
-end;
-
-procedure TBGRAPart3D.NormalizeViewNormal;
-var
-  i: Integer;
-begin
-  for i := 0 to FVertexCount-1 do
-    FVertices[i].NormalizeViewNormal;
-  for i := 0 to FPartCount-1 do
-    FParts[i].NormalizeViewNormal;
-end;
-
-procedure TBGRAPart3D.Translate(x, y, z: single; Before: boolean = true);
-begin
-  Translate(Point3D(x,y,z),Before);
-end;
-
-procedure TBGRAPart3D.Translate(ofs: TPoint3D; Before: boolean = true);
-begin
-  if Before then
-    FMatrix *= MatrixTranslation3D(ofs)
-  else
-    FMatrix := MatrixTranslation3D(ofs)*FMatrix;
-end;
-
-function TBGRAPart3D.CreatePart: IBGRAPart3D;
-begin
-  if FPartCount = length(FParts) then
-    setlength(FParts, FPartCount*2+1);
-  result := TBGRAPart3D.Create(self);
-  FParts[FPartCount] := result;
-  inc(FPartCount);
-end;
-
-function TBGRAPart3D.GetContainer: IBGRAPart3D;
-begin
-  result := FContainer;
-end;
-
-procedure TBGRAPart3D.SetVertex(AIndex: Integer; const AValue: IBGRAVertex3D);
-begin
-  if (AIndex < 0) or (AIndex >= FVertexCount) then
-    raise exception.Create('Index of out bounds');
-  FVertices[AIndex] := AValue;
-end;
-
-{ TBGRAObject3D }
-
-procedure TBGRAObject3D.AddFace(AFace: IBGRAFace3D);
-begin
-  if FFaceCount = length(FFaces) then
-     setlength(FFaces,FFaceCount*2+3);
-  FFaces[FFaceCount] := AFace;
-  inc(FFaceCount);
-end;
-
-constructor TBGRAObject3D.Create(AScene: TBGRAScene3D);
-begin
-  FColor := BGRAWhite;
-  FLight := 1;
-  FTexture := nil;
-  FMainPart := TBGRAPart3D.Create(nil);
-  FLightingNormal:= AScene.DefaultLightingNormal;
-  FParentLighting:= True;
-  FScene := AScene;
-end;
-
-destructor TBGRAObject3D.Destroy;
-begin
-  fillchar(FTexture,sizeof(FTexture),0);
-  inherited Destroy;
-end;
-
-procedure TBGRAObject3D.Clear;
-begin
-  FFaces := nil;
-  FFaceCount := 0;
-  FMainPart.Clear(True);
-end;
-
-function TBGRAObject3D.GetColor: TBGRAPixel;
-begin
-  result := FColor;
-end;
-
-function TBGRAObject3D.GetLight: Single;
-begin
-  result := FLight;
-end;
-
-function TBGRAObject3D.GetTexture: IBGRAScanner;
-begin
-  result := FTexture;
-end;
-
-function TBGRAObject3D.GetMainPart: IBGRAPart3D;
-begin
-  result := FMainPart;
-end;
-
-procedure TBGRAObject3D.SetColor(const AValue: TBGRAPixel);
-begin
-  FColor := AValue;
-  FTexture := nil;
-end;
-
-procedure TBGRAObject3D.SetLight(const AValue: Single);
-begin
-  FLight := AValue;
-end;
-
-procedure TBGRAObject3D.SetTexture(const AValue: IBGRAScanner);
-begin
-  FTexture := AValue;
-end;
-
-procedure TBGRAObject3D.SetMaterial(const AValue: IBGRAMaterial3D);
-begin
-  FMaterial := AValue;
-end;
-
-procedure TBGRAObject3D.RemoveUnusedVertices;
-begin
-  GetMainPart.RemoveUnusedVertices;
-end;
-
-procedure TBGRAObject3D.SeparatePart(APart: IBGRAPart3D);
-var
-  vertexInfo: array of record
-       orig,dup: IBGRAVertex3D;
-     end;
-
-  i,j: integer;
-  inPart,outPart: boolean;
-  idxV: integer;
-begin
-  setlength(vertexInfo, APart.VertexCount);
-  for i := 0 to high(vertexInfo) do
-    with vertexInfo[i] do
-    begin
-      orig := APart.Vertex[i];
-      dup := APart.Add(orig.SceneCoord_128);
-    end;
-
-  for i := 0 to GetFaceCount-1 do
-    with GetFace(i) do
-    begin
-      inPart := false;
-      outPart := false;
-      for j := 0 to VertexCount-1 do
-        if (APart.IndexOf(Vertex[j]) <> -1) then
-          inPart := true
-        else
-          outPart := true;
-
-      if inPart and not outPart then
-      begin
-        for j := 0 to VertexCount-1 do
-        begin
-          idxV := APart.IndexOf(Vertex[j]);
-          if idxV <> -1 then
-            Vertex[j] := vertexInfo[idxV].dup;
-        end;
-      end;
-    end;
-
-  for i := APart.VertexCount-1 downto 0 do
-    APart.RemoveVertex(i);
-end;
-
-function TBGRAObject3D.GetScene: TBGRAScene3D;
-begin
-  result := FScene;
-end;
-
-function TBGRAObject3D.GetRefCount: integer;
-begin
-  result := RefCount;
-end;
-
-procedure TBGRAObject3D.SetBiface(AValue: boolean);
-var i: integer;
-begin
-  for i := 0 to GetFaceCount-1 do
-    GetFace(i).Biface := AValue;
-end;
-
-procedure TBGRAObject3D.ForEachVertex(ACallback: TVertex3DCallback);
-begin
-  FMainPart.ForEachVertex(ACallback);
-end;
-
-procedure TBGRAObject3D.ForEachFace(ACallback: TFace3DCallback);
-var i: integer;
-begin
-  for i := 0 to GetFaceCount-1 do
-    ACallback(GetFace(i));
-end;
-
-function TBGRAObject3D.GetLightingNormal: TLightingNormal3D;
-begin
-  result := FLightingNormal;
-end;
-
-function TBGRAObject3D.GetParentLighting: boolean;
-begin
-  result := FParentLighting;
-end;
-
-procedure TBGRAObject3D.SetLightingNormal(const AValue: TLightingNormal3D);
-begin
-  FLightingNormal := AValue;
-  FParentLighting:= False;
-end;
-
-procedure TBGRAObject3D.SetParentLighting(const AValue: boolean);
-begin
-  FParentLighting:= AValue;
-end;
-
-procedure TBGRAObject3D.ComputeWithMatrix(constref AMatrix: TMatrix3D; constref AProjection: TProjection3D);
-var
-  i: Integer;
-begin
-  FMainPart.ComputeWithMatrix(AMatrix,AProjection);
-  for i := 0 to FFaceCount-1 do
-    FFaces[i].ComputeViewNormalAndCenter;
-  FMainPart.NormalizeViewNormal;
-end;
-
-function TBGRAObject3D.AddFaceReversed(const AVertices: array of IBGRAVertex3D
-  ): IBGRAFace3D;
-var
-  tempVertices: array of IBGRAVertex3D;
-  i: Integer;
-begin
-  setlength(tempVertices,length(AVertices));
-  for i := 0 to high(tempVertices) do
-    tempVertices[i] := AVertices[high(AVertices)-i];
-  result := AddFace(tempVertices);
-end;
-
-function TBGRAObject3D.AddFace(const AVertices: array of IBGRAVertex3D): IBGRAFace3D;
-begin
-  result := TBGRAFace3D.Create(self,AVertices);
-  AddFace(result);
-end;
-
-function TBGRAObject3D.AddFace(const AVertices: array of IBGRAVertex3D;
-  ABiface: boolean): IBGRAFace3D;
-begin
-  result := TBGRAFace3D.Create(self,AVertices);
-  result.Biface := ABiface;
-  AddFace(result);
-end;
-
-function TBGRAObject3D.AddFace(const AVertices: array of IBGRAVertex3D; ATexture: IBGRAScanner): IBGRAFace3D;
-var Face: IBGRAFace3D;
-begin
-  Face := TBGRAFace3D.Create(self,AVertices);
-  Face.Texture := ATexture;
-  AddFace(Face);
-  result := face;
-end;
-
-function TBGRAObject3D.AddFace(const AVertices: array of IBGRAVertex3D;
-  AColor: TBGRAPixel): IBGRAFace3D;
-var Face: IBGRAFace3D;
-begin
-  Face := TBGRAFace3D.Create(self,AVertices);
-  Face.SetColor(AColor);
-  Face.Texture := nil;
-  AddFace(Face);
-  result := face;
-end;
-
-function TBGRAObject3D.AddFace(const AVertices: array of IBGRAVertex3D;
-  AColors: array of TBGRAPixel): IBGRAFace3D;
-var
-  i: Integer;
-begin
-  if length(AColors) <> length(AVertices) then
-    raise Exception.Create('Dimension mismatch');
-  result := TBGRAFace3D.Create(self,AVertices);
-  for i := 0 to high(AColors) do
-    result.VertexColor[i] := AColors[i];
-  AddFace(result);
-end;
-
-function TBGRAObject3D.GetFace(AIndex: integer): IBGRAFace3D;
-begin
-  if (AIndex < 0) or (AIndex >= FFaceCount) then
-    raise Exception.Create('Index out of bounds');
-  result := FFaces[AIndex];
-end;
-
-function TBGRAObject3D.GetFaceCount: integer;
-begin
-  result := FFaceCount;
-end;
-
-function TBGRAObject3D.GetTotalVertexCount: integer;
-begin
-  result := GetMainPart.TotalVertexCount;
-end;
-
-function TBGRAObject3D.GetMaterial: IBGRAMaterial3D;
-begin
-  result := FMaterial;
-end;
+{$i part3d.inc}
+{$i object3d.inc}
+{$i shapes3d.inc}
 
 { TBGRAScene3D }
 
@@ -1799,6 +343,14 @@ begin
   result := FMaterials[AIndex];
 end;
 
+function TBGRAScene3D.GetNormalCount: integer;
+var i: integer;
+begin
+  result := 0;
+  for i := 0 to Object3DCount-1 do
+    result += Object3D[i].TotalNormalCount;
+end;
+
 function TBGRAScene3D.GetAmbiantLightness: single;
 begin
   result := FAmbiantLightness/32768;
@@ -1875,6 +427,7 @@ end;
 
 procedure TBGRAScene3D.Init;
 begin
+  UnknownColor := BGRA(0,128,255);
   FAutoZoom := True;
   FAutoViewCenter := True;
   ViewPoint := Point3D(0,0,-100);
@@ -1919,23 +472,67 @@ end;
 procedure TBGRAScene3D.Clear;
 var i: integer;
 begin
+  for i := 0 to FLights.Count-1 do
+    TBGRALight3D(FLights[i])._Release;
+  FLights.Clear;
+
   for i := 0 to FObjectCount-1 do
     FObjects[i].Clear;
   FObjects := nil;
   FObjectCount := 0;
-  for i := 0 to FLights.Count-1 do
-    IBGRALight3D(TBGRALight3D(FLights[i]))._Release;
-  FLights.Clear;
+
+  FMaterials := nil;
+  FMaterialCount := 0;
+  DefaultMaterial := CreateMaterial;
 end;
 
-{$hints off}
 procedure TBGRAScene3D.UseMaterial(AMaterialName: string; AFace: IBGRAFace3D);
-var color: TBGRAPixel;
+
+  function ParseColor(text: string): TBGRAPixel;
+  var
+    color,tempColor: TBGRAPixel;
+  begin
+    color := UnknownColor;
+
+    if copy(text,1,2) = 'dk' then
+    begin
+      tempcolor := ParseColor(copy(text,3,length(text)-2));
+      tempcolor := MergeBGRA(tempcolor,3,BGRABlack,1);
+      color := StrToBGRA('dark'+copy(text,3,length(text)-2),tempcolor);
+    end;
+    if copy(text,1,2) = 'lt' then
+    begin
+      tempcolor := ParseColor(copy(text,3,length(text)-2));
+      tempcolor := MergeBGRA(tempcolor,3,BGRAWhite,1);
+      color := StrToBGRA('light'+copy(text,3,length(text)-2),tempcolor);
+    end;
+    Color := StrToBGRA(StringReplace(text,'deep','dark',[]),Color);
+    Color := StrToBGRA(StringReplace(text,'dark','deep',[]),Color);
+    Color := StrToBGRA(text,Color);
+    result := color;
+  end;
+
+var
+  mat: IBGRAMaterial3D;
+  c: TBGRAPixel;
 begin
-  color := BGRA(0,128,255);
-  AFace.SetColor(color);
+  mat := GetMaterialByName(AMaterialName);
+  if mat = nil then
+  begin
+    mat := CreateMaterial;
+    mat.Name := AMaterialName;
+    c := ParseColor(AMaterialName);
+    mat.AmbiantColor := c;
+    mat.DiffuseColor := c;
+  end;
+  AFace.Material := mat;
 end;
-{$hints on}
+
+function TBGRAScene3D.FetchTexture(AName: string; out texSize: TPointF): IBGRAScanner;
+begin
+  result := nil;
+  texSize := PointF(1,1);
+end;
 
 function TBGRAScene3D.LoadObjectFromFile(AFilename: string; SwapFacesOrientation: boolean): IBGRAObject3D;
 var source: TFileStream;
@@ -1963,46 +560,78 @@ end;
 function TBGRAScene3D.LoadObjectFromStream(AStream: TStream;
   SwapFacesOrientation: boolean): IBGRAObject3D;
 var s: string;
+  secondValue,thirdValue: string;
 
   function GetNextToken: string;
-  var idxStart,idxEnd: integer;
+  var idxStart,idxEnd,idxSlash: integer;
   begin
     idxStart := 1;
-    while (idxStart <= length(s)) and (s[idxStart]=' ') do inc(idxStart);
+    while (idxStart <= length(s)) and (s[idxStart]in[' ',#9]) do inc(idxStart);
     if idxStart > length(s) then
     begin
       result := '';
       exit;
     end;
     idxEnd := idxStart;
-    while (idxEnd < length(s)) and (s[idxEnd+1]<> ' ') do inc(idxEnd);
+    while (idxEnd < length(s)) and not (s[idxEnd+1]in[' ',#9]) do inc(idxEnd);
     result := copy(s,idxStart, idxEnd-idxStart+1);
     delete(s,1,idxEnd);
-    if pos('/',result) <> 0 then result := copy(result,1,pos('/',result)-1);
+    idxSlash := pos('/',result);
+    if idxSlash <> 0 then
+    begin
+      secondValue:= copy(result,idxSlash+1,length(result)-idxSlash);
+      result := copy(result,1,idxSlash-1);
+      idxSlash:= pos('/',secondValue);
+      if idxSlash <> 0 then
+      begin
+        thirdValue:= copy(secondValue,idxSlash+1,length(secondValue)-idxSlash);
+        secondValue:= copy(secondValue,1,idxSlash-1);
+      end else
+        thirdValue:= '';
+    end else
+    begin
+      secondValue:= '';
+      thirdValue:= '';
+    end;
+  end;
+
+type
+  TFaceVertexExtra = record
+    normal: IBGRANormal3D;
+    texCoord: TPointF;
   end;
 
 var lineType : string;
     x,y,z : single;
     code : integer;
-    vertices: array of IBGRAVertex3D;
-    NbVertices,v,i: integer;
+    faceVertices: array of IBGRAVertex3D;
+    faceExtra: array of TFaceVertexExtra;
+    NbFaceVertices,v,v2,v3,i: integer;
     tempV: IBGRAVertex3D;
+    tempN: TFaceVertexExtra;
     materialname: string;
     face: IBGRAFace3D;
     lines: TStringList;
     lineIndex: integer;
+    texCoords: array of TPointF;
+    nbTexCoords: integer;
 
 begin
   lines := TStringList.Create;
   lines.LoadFromStream(AStream);
   result := CreateObject;
-  vertices := nil;
-  NbVertices:= 0;
+  faceVertices := nil;
+  faceExtra := nil;
+  NbFaceVertices:= 0;
   materialname := 'default';
   lineIndex := 0;
+  texCoords := nil;
+  nbTexCoords:= 0;
   while lineIndex < lines.Count do
   begin
     s := lines[lineIndex];
+    if pos('#',s) <> 0 then
+      s := copy(s,1,pos('#',s)-1);
     inc(lineIndex);
     lineType := GetNextToken;
     if lineType = 'v' then
@@ -2012,33 +641,193 @@ begin
       val(GetNextToken,z,code);
       result.MainPart.Add(x,y,z);
     end else
+    if lineType = 'vt' then
+    begin
+      val(GetNextToken,x,code);
+      val(GetNextToken,y,code);
+      if nbTexCoords >= length(texCoords) then
+        setlength(texCoords, length(texCoords)*2+1);
+      texCoords[nbTexCoords] := PointF(x,y);
+      inc(nbTexCoords);
+    end else
+    if lineType = 'vn' then
+    begin
+      val(GetNextToken,x,code);
+      val(GetNextToken,y,code);
+      val(GetNextToken,z,code);
+      result.MainPart.AddNormal(x,y,z);
+      result.LightingNormal := lnVertex;
+    end else
     if lineType = 'usemtl' then
       materialname := trim(s)
     else
     if lineType = 'f' then
     begin
-      NbVertices:= 0;
+      NbFaceVertices:= 0;
       repeat
         val(GetNextToken,v,code);
+        if (code = 0) and (v < 0) then v := result.MainPart.VertexCount+1+v;
         if (code = 0) and (v >= 1) and (v <= result.MainPart.VertexCount) then
         begin
-          if length(vertices) = nbvertices then
-            setlength(vertices, length(vertices)*2+1);
-          vertices[NbVertices] := result.MainPart.Vertex[v-1];
-          inc(NbVertices);
+          if length(faceVertices) = NbFaceVertices then
+          begin
+            setlength(faceVertices, length(faceVertices)*2+1);
+            setlength(faceExtra, length(faceExtra)*2+1);
+          end;
+          faceVertices[NbFaceVertices] := result.MainPart.Vertex[v-1];
+          val(secondValue,v2,code);
+          if (code = 0) and (v2 < 0) then v2 := nbTexCoords+1+v2;
+          if (code = 0) and (v2 >= 1) and (v2-1 < nbTexCoords) then
+            faceExtra[NbFaceVertices].texCoord := texCoords[v2-1]
+          else if nbTexCoords > v-1 then
+            faceExtra[NbFaceVertices].texCoord := texCoords[v-1]
+          else
+            faceExtra[NbFaceVertices].texCoord := PointF(0,0);
+          val(thirdValue,v3,code);
+          if (code = 0) and (v3 < 0) then v3 := result.MainPart.NormalCount+1+v3;
+          if code = 0 then
+            faceExtra[NbFaceVertices].normal := result.MainPart.Normal[v3-1]
+          else if result.MainPart.NormalCount > v-1 then
+            faceExtra[NbFaceVertices].normal := result.MainPart.Normal[v-1]
+          else
+            faceExtra[NbFaceVertices].normal := nil;
+          inc(NbFaceVertices);
         end else break;
       until false;
-      if NbVertices > 2 then
+      if NbFaceVertices > 2 then
       begin
         if SwapFacesOrientation then
-          for i := 0 to NbVertices div 2-1 do
+          for i := 0 to NbFaceVertices div 2-1 do
           begin
-            tempV := vertices[i];
-            vertices[i] := vertices[NbVertices-1-i];
-            vertices[NbVertices-1-i] := tempV;
+            tempV := faceVertices[i];
+            faceVertices[i] := faceVertices[NbFaceVertices-1-i];
+            faceVertices[NbFaceVertices-1-i] := tempV;
+            tempN := faceExtra[i];
+            faceExtra[i] := faceExtra[NbFaceVertices-1-i];
+            faceExtra[NbFaceVertices-1-i] := tempN;
           end;
-        face := result.AddFace(slice(vertices,NbVertices));
+        face := result.AddFace(slice(faceVertices,NbFaceVertices));
+        for i := 0 to NbFaceVertices-1 do
+        begin
+          face.SetNormal(i, faceExtra[i].normal);
+          face.SetTexCoord(i, faceExtra[i].texCoord);
+        end;
         face.MaterialName := materialname;
+      end;
+    end;
+  end;
+  lines.Free;
+end;
+
+procedure TBGRAScene3D.LoadMaterialsFromFile(AFilename: string);
+var source: TFileStream;
+begin
+  source := TFileStream.Create(AFilename,fmOpenRead,fmShareDenyWrite);
+  try
+    LoadMaterialsFromStream(source);
+  finally
+    source.free;
+  end;
+end;
+
+procedure TBGRAScene3D.LoadMaterialsFromFileUTF8(AFilename: string);
+var source: TFileStreamUTF8;
+begin
+  source := TFileStreamUTF8.Create(AFilename,fmOpenRead,fmShareDenyWrite);
+  try
+    LoadMaterialsFromStream(source);
+  finally
+    source.free;
+  end;
+end;
+
+procedure TBGRAScene3D.LoadMaterialsFromStream(AStream: TStream);
+var
+  s: String;
+
+  function GetNextToken: string;
+  var idxStart,idxEnd: integer;
+  begin
+    idxStart := 1;
+    while (idxStart <= length(s)) and (s[idxStart]in[#9,' ']) do inc(idxStart);
+    if idxStart > length(s) then
+    begin
+      result := '';
+      exit;
+    end;
+    idxEnd := idxStart;
+    while (idxEnd < length(s)) and not (s[idxEnd+1]in[#9,' ']) do inc(idxEnd);
+    result := copy(s,idxStart, idxEnd-idxStart+1);
+    delete(s,1,idxEnd);
+  end;
+
+  function GetSingle: single;
+  var code: integer;
+  begin
+    val(GetNextToken,result,code);
+  end;
+
+  function GetColorF: TColorF;
+  var r,g,b: single;
+    code: integer;
+  begin
+    val(GetNextToken,r,code);
+    val(GetNextToken,g,code);
+    val(GetNextToken,b,code);
+    result := ColorF(r,g,b,1);
+  end;
+
+var
+  lines: TStringList;
+  lineIndex: integer;
+  lineType: String;
+  currentMaterial: IBGRAMaterial3D;
+  materialName: string;
+  texZoom: TPointF;
+  v: single;
+
+begin
+  lines := TStringList.Create;
+  lines.LoadFromStream(AStream);
+  lineIndex := 0;
+  while lineIndex < lines.Count do
+  begin
+    s := lines[lineIndex];
+    if pos('#',s) <> 0 then
+      s := copy(s,1,pos('#',s)-1);
+    inc(lineIndex);
+    lineType := GetNextToken;
+    if lineType = 'newmtl' then
+    begin
+      materialName := trim(s);
+      currentMaterial := GetMaterialByName(materialName);
+      if currentMaterial = nil then
+      begin
+        currentMaterial := CreateMaterial;
+        currentMaterial.Name := materialName;
+      end;
+    end else
+    if currentMaterial <> nil then
+    begin
+      if lineType = 'Ka' then currentMaterial.AmbiantColorF := GetColorF else
+      if lineType = 'Kd' then currentMaterial.DiffuseColorF := GetColorF else
+      if lineType = 'Ks' then currentMaterial.SpecularColorF := GetColorF else
+      if (lineType = 'map_Ka') or (lineType = 'map_Kd') then
+      begin
+        currentMaterial.Texture := FetchTexture(trim(s),texZoom);
+        texZoom.y := -texZoom.y;
+        currentMaterial.TextureZoom := texZoom;
+      end else
+      if lineType = 'Ns' then currentMaterial.SpecularIndex := round(GetSingle) else
+      if lineType = 'd' then
+      begin
+        v := GetSingle;
+        if v > 1 then
+          currentMaterial.SimpleAlpha := 255
+        else if v < 0 then
+          currentMaterial.SimpleAlpha := 0
+        else
+          currentMaterial.SimpleAlpha := round(v*255);
       end;
     end;
   end;
@@ -2438,6 +1227,7 @@ var
           if LTexture <> nil then
             LColors[idxL] := BGRA(128,128,128)
           else
+          begin
             if ColorOverride then
               LColors[idxL] := Color
             else
@@ -2447,11 +1237,17 @@ var
               else
                 LColors[idxL] := tempV.Color;
             end;
+          end;
 
           if TexCoordOverride then
             LTexCoord[idxL] := TexCoord
           else
             LTexCoord[idxL] := tempV.TexCoord;
+          with LMaterial.GetTextureZoom do
+          begin
+            LTexCoord[idxL].x *= x;
+            LTexCoord[idxL].y *= y;
+          end;
 
           with tempV.CoordData^ do
           begin
@@ -2460,6 +1256,8 @@ var
             LProj[idxL] := projectedCoord;
             LZ[idxL] := viewCoord.Z;
           end;
+          if Normal <> nil then
+            LNormal3D[idxL] := Normal.ViewNormal_128;
         end;
       end;
     end;
@@ -2470,11 +1268,6 @@ var
        VCount := VertexCount;
        if VCount < 3 then exit;
 
-       if ParentTexture then
-         LTexture := Object3D.Texture
-       else
-         LTexture := Texture;
-
        if Material <> nil then
          LMaterial := TBGRAMaterial3D(Material.GetAsObject)
        else if Object3D.Material <> nil then
@@ -2483,6 +1276,16 @@ var
          LMaterial := TBGRAMaterial3D(self.DefaultMaterial.GetAsObject)
        else
          exit;
+
+       if ParentTexture then
+       begin
+         if LMaterial.GetTexture <> nil then
+           LTexture := LMaterial.GetTexture
+         else
+           LTexture := Object3D.Texture
+       end
+       else
+         LTexture := Texture;
 
        LLightNormal := Object3D.LightingNormal;
 
@@ -2818,7 +1621,11 @@ end;
 function TBGRAScene3D.ApplyLightingWithLightness(Context: PSceneLightingContext;
   Color: TBGRAPixel): TBGRAPixel;
 var i: Integer;
+  m: TBGRAMaterial3D;
 begin
+  m := TBGRAMaterial3D(Context^.material);
+  if not m.GetAutoSimpleColor then Color := ColorIntToBGRA(BGRAToColorIntMultiply(Color, m.GetSimpleColorInt));
+
   Context^.lightness := FAmbiantLightness;
 
   i := FLights.Count-1;
@@ -2846,8 +1653,14 @@ end;
 function TBGRAScene3D.ApplyLightingWithDiffuseColor(Context: PSceneLightingContext;
   Color: TBGRAPixel): TBGRAPixel;
 var i: Integer;
+  m: TBGRAMaterial3D;
 begin
-  Context^.diffuseColor := FAmbiantLightColor;
+  m := TBGRAMaterial3D(Context^.material);
+
+  if m.GetAutoAmbiantColor then
+    Context^.diffuseColor := FAmbiantLightColor
+  else
+    Context^.diffuseColor := FAmbiantLightColor*m.GetAmbiantColorInt;
 
   i := FLights.Count-1;
   while i >= 0 do
@@ -2863,8 +1676,14 @@ end;
 function TBGRAScene3D.ApplyLightingWithDiffuseAndSpecularColor(Context: PSceneLightingContext;
   Color: TBGRAPixel): TBGRAPixel;
 var i: Integer;
+  m: TBGRAMaterial3D;
 begin
-  Context^.diffuseColor := FAmbiantLightColor;
+  m := TBGRAMaterial3D(Context^.material);
+
+  if m.GetAutoAmbiantColor then
+    Context^.diffuseColor := FAmbiantLightColor
+  else
+    Context^.diffuseColor := FAmbiantLightColor*m.GetAmbiantColorInt;
   Context^.specularColor := ColorInt65536(0,0,0,0);
 
   i := FLights.Count-1;
@@ -2881,23 +1700,34 @@ begin
   end;
 end;
 
-{$hints off}
 function TBGRAScene3D.ApplyNoLighting(Context: PSceneLightingContext;
   Color: TBGRAPixel): TBGRAPixel;
+var
+  m: TBGRAMaterial3D;
 begin
-  result := Color;
+  m := TBGRAMaterial3D(Context^.material);
+
+  if not m.GetAutoAmbiantColor then
+    result := ColorIntToBGRA(BGRAToColorIntMultiply(Color, m.GetAmbiantColorInt))
+  else
+    result := Color;
 end;
 
 function TBGRAScene3D.ApplyLightingWithAmbiantLightnessOnly(
   Context: PSceneLightingContext; Color: TBGRAPixel): TBGRAPixel;
+var
+  m: TBGRAMaterial3D;
 begin
+  m := TBGRAMaterial3D(Context^.material);
+
+  if not m.GetAutoAmbiantColor then
+    Color := ColorIntToBGRA(BGRAToColorIntMultiply(Color, m.GetAmbiantColorInt));
+
   if FAmbiantLightness <= 0 then
     result := BGRA(0,0,0,color.alpha)
   else
     result := ApplyIntensityFast(Color, FAmbiantLightness);
 end;
-
-{$hints on}
 
 function TBGRAScene3D.CreateObject: IBGRAObject3D;
 begin
@@ -3040,6 +1870,18 @@ begin
   result.SpecularIndex := ASpecularIndex;
   result.SpecularColor := BGRAWhite;
   AddMaterial(result);
+end;
+
+function TBGRAScene3D.GetMaterialByName(AName: string): IBGRAMaterial3D;
+var i: integer;
+begin
+  for i := 0 to MaterialCount-1 do
+    if AName = Material[i].Name then
+    begin
+      result := Material[i];
+      exit;
+    end;
+  result := nil;
 end;
 
 procedure TBGRAScene3D.UpdateMaterials;

@@ -15,7 +15,7 @@ type
     virtualScreen: TBGRABitmap;
   public
     constructor Create;
-    procedure OnPaint(Canvas: TCanvas; Width,Height: Integer); override;
+    procedure OnPaint(Canvas: TCanvas; Left,Top,Width,Height: Integer); override;
   end;
 
 implementation
@@ -29,7 +29,7 @@ begin
   virtualScreen := nil;
 end;
 
-procedure TTest5.OnPaint(Canvas: TCanvas; Width, Height: Integer);
+procedure TTest5.OnPaint(Canvas: TCanvas; Left,Top,Width, Height: Integer);
 var i: integer;
 begin
   if backgroundImg = nil then exit;
@@ -48,7 +48,7 @@ begin
     virtualscreen.PutImage(pacLoc[i].x,pacLoc[i].y,pacImg[numPacImg],dmDrawWithTransparency);
 
   //draw virtualscreen opaque on canvas
-  virtualscreen.Draw(Canvas,0,0,True);
+  virtualscreen.Draw(Canvas,Left,Top,True);
 end;
 
 end.

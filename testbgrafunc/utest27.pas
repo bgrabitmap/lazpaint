@@ -17,8 +17,8 @@ type
   public
     constructor Create(lightNormal: TLightingNormal3D; lightInterp: TLightingInterpolation3D);
     destructor Destroy; override;
-    procedure OnPaint(Canvas: TCanvas; Width,Height: Integer); override;
-    procedure OnTimer(Canvas: TCanvas; Width,Height: Integer; ElapsedSec: Double); override;
+    procedure OnPaint(Canvas: TCanvas; Left,Top,Width,Height: Integer); override;
+    procedure OnTimer(Width,Height: Integer; ElapsedSec: Double); override;
   end;
 
 implementation
@@ -59,7 +59,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TTest27.OnPaint(Canvas: TCanvas; Width, Height: Integer);
+procedure TTest27.OnPaint(Canvas: TCanvas; Left,Top,Width, Height: Integer);
 begin
   if (virtualscreen <> nil) and ((virtualscreen.width <> width) or (virtualscreen.Height <> height)) then
   begin
@@ -81,16 +81,15 @@ begin
     scene.Render;
   end;
 
-  virtualScreen.draw(Canvas,0,0);
+  virtualScreen.draw(Canvas,Left,Top);
 end;
 
-procedure TTest27.OnTimer(Canvas: TCanvas; Width, Height: Integer; ElapsedSec: Double);
+procedure TTest27.OnTimer(Width, Height: Integer; ElapsedSec: Double);
 var
   moveFactor: single;
 begin
   moveFactor := ElapsedSec*20;
   scene.angle := scene.angle + moveFactor;
-  OnPaint(Canvas,Width,Height);
 end;
 
 end.

@@ -42,6 +42,7 @@ type
     fx: TBGRATextEffect;
     shader: TPhongShading;
     angle: single;
+    xTxt: integer;
     procedure RenderTitle;
   public
     { public declarations }
@@ -89,9 +90,11 @@ var bmp: TBGRABitmap;
 begin
   shader.LightPosition := Point(round((cos(angle)+1)/2*Image_Title.Width),round((sin(angle)+1)*Image_Title.height));
   inc(frameNumber);
-  bmp := TBGRABitmap.Create(Image_Title.Width,Image_Title.Height,ColorToRGB(clBtnFace));
+  bmp := TBGRABitmap.Create(Image_Title.Width,Image_Title.Height,ColorToRGB({$IFDEF DARWIN}clWindow{$ELSE}clBtnFace{$ENDIF}));
 
-  fx.DrawShaded(bmp,bmp.Width div 2,0, shader, 2,
+  if xTxt = -1 then xTxt := bmp.Width;
+  if xTxt > bmp.Width div 2 then dec(xTxt);
+  fx.DrawShaded(bmp,xTxt,0, shader, 1,
     MergeBGRA(ColorToBGRA(ColorToRGB(clBtnFace)),ColorToBGRA(ColorToRGB(clWindowText))),
     taCenter, false);
 
@@ -135,6 +138,7 @@ begin
   fx := TBGRATextEffect.Create('LazPaint ' + LazPaintCurrentVersion,titlefont,True);
   titlefont.Free;
   shader := TPhongShading.Create;
+  xTxt := -1;
 end;
 
 procedure TFAbout.Button_DonateClick(Sender: TObject);
@@ -151,4 +155,4 @@ end;
 {$R *.lfm}
 
 end.
-
+

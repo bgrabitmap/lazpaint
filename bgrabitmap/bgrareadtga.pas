@@ -115,9 +115,7 @@ begin
         begin
           for Col:=Img.Width-1 downto 0 do
           begin
-            PWord(PDest)^ := PWord(P)^;
-            (PByte(PDest)+2)^ := (PByte(P)+2)^;
-            (PByte(PDest)+3)^ := 255;
+            PDest^ := BGRA((P+2)^,(P+1)^,P^);
             inc(Pdest);
             Inc(p,3);
           end;
@@ -128,12 +126,7 @@ begin
             Value:=P[0];
             inc(P);
             Value:=value or (P[0] shl 8);
-            With PDest^ do
-               begin
-               Red:=((value)shr 10) shl 3;
-               Green:=((value)shr 5) shl 3;
-               Blue:=((value)) shl 3;
-               end;
+            PDest^ := BGRA(((value)shr 10) shl 3,((value)shr 5) shl 3,((value)) shl 3);
             Inc(PDest);
             Inc(P);
           end;

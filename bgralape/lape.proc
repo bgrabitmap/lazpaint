@@ -1,0 +1,1 @@
+({%H-}Params: PParamArray); {$IFDEF Lape_CDECL}cdecl;{$ENDIF}

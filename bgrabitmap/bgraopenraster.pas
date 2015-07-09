@@ -83,7 +83,7 @@ procedure RegisterOpenRasterFormat;
 
 implementation
 
-uses Graphics, XMLRead, XMLWrite, FPReadPNG, dialogs, BGRABitmapTypes, zstream, lazutf8classes,
+uses XMLRead, XMLWrite, FPReadPNG, BGRABitmapTypes, zstream, BGRAUTF8,
   UnzipperExt;
 
 function IsZipStream(stream: TStream): boolean;
@@ -131,14 +131,16 @@ end;
 { TFPReaderOpenRaster }
 
 function TFPReaderOpenRaster.InternalCheck(Stream: TStream): boolean;
-var {%h-}magic: packed array[0..3] of byte;
+var magic: packed array[0..3] of byte;
   OldPos,BytesRead: Int64;
   doc : TBGRAOpenRasterDocument;
 begin
   Result:=false;
   if Stream=nil then exit;
   oldPos := stream.Position;
-  BytesRead := Stream.Read({%h-}magic,sizeof(magic));
+  {$PUSH}{$HINTS OFF}
+  BytesRead := Stream.Read(magic,sizeof(magic));
+  {$POP}
   stream.Position:= OldPos;
   if BytesRead<>sizeof(magic) then exit;
   if (magic[0] = $50) and (magic[1] = $4b) and (magic[2] = $03) and (magic[3] = $04) then
@@ -330,7 +332,8 @@ begin
             if (opstr = 'bgra:xor') or (opstr = 'xor') then
               BlendOperation[idx] := boXor else
             begin
-              messagedlg('Unknown blend operation : ' + attr.NodeValue,mtInformation,[mbOk],0);
+              //messagedlg('Unknown blend operation : ' + attr.NodeValue,mtInformation,[mbOk],0);
+              BlendOperation[idx] := boTransparent;
             end;
           end;
         end;
@@ -654,6 +657,7 @@ var thumbnail: TBGRABitmap;
 begin
   if (Width = 0) or (Height = 0) then exit;
   thumbnail := ComputeFlatImage;
+  CopyBitmapToMemoryStream(thumbnail,'mergedimage.png');
   if (thumbnail.Width > AMaxWidth) or
    (thumbnail.Height > AMaxHeight) then
   begin

@@ -28,16 +28,17 @@ unit BGRAWinBitmap;
 interface
 
 uses
-  Classes, SysUtils, BGRADefaultBitmap, Windows, Graphics, GraphType;
+  Classes, SysUtils, BGRALCLBitmap, Windows, Graphics, GraphType;
 
 type
   { TBGRAWinBitmap }
 
-  TBGRAWinBitmap = class(TBGRADefaultBitmap)
+  TBGRAWinBitmap = class(TBGRALCLBitmap)
   private
     procedure AlphaCorrectionNeeded;
   protected
     DIB_SectionHandle: HBITMAP;
+    FReversed: boolean;
     function DIBitmapInfo(AWidth, AHeight: integer): TBitmapInfo;
 
     procedure ReallocData; override;
@@ -47,14 +48,20 @@ type
     procedure FreeBitmap; override;
 
     procedure Init; override;
+    function GetBitmap: TBitmap; override;
 
   public
+    procedure LoadFromBitmapIfNeeded; override;
+    procedure Draw(ACanvas: TCanvas; x, y: integer; Opaque: boolean=True); override;
+    procedure Draw(ACanvas: TCanvas; Rect: TRect; Opaque: boolean = True); override;
     procedure DataDrawOpaque(ACanvas: TCanvas; Rect: TRect; AData: Pointer;
       ALineOrder: TRawImageLineOrder; AWidth, AHeight: integer); override;
     procedure GetImageFromCanvas(CanvasSource: TCanvas; x, y: integer); override;
   end;
 
 implementation
+
+uses BGRADefaultBitmap, BGRABitmapTypes;
 
 type
   { TWinBitmapTracker }
@@ -117,6 +124,64 @@ begin
   FLineOrder := riloBottomToTop;
 end;
 
+function TBGRAWinBitmap.GetBitmap: TBitmap;
+begin
+  Result:=inherited GetBitmap;
+  if (LineOrder = riloTopToBottom) and not FReversed then
+  begin
+    VerticalFlip;
+    FReversed:= true;
+  end;
+end;
+
+procedure TBGRAWinBitmap.LoadFromBitmapIfNeeded;
+begin
+  if FReversed then
+  begin
+    FReversed := false;
+    VerticalFlip;
+  end;
+  if FAlphaCorrectionNeeded then
+  begin
+    DoAlphaCorrection;
+  end;
+end;
+
+procedure TBGRAWinBitmap.Draw(ACanvas: TCanvas; x, y: integer; Opaque: boolean);
+begin
+  if self = nil then exit;
+  Draw(ACanvas, Classes.Rect(x,y,x+Width,y+Height), Opaque);
+end;
+
+procedure TBGRAWinBitmap.Draw(ACanvas: TCanvas; Rect: TRect; Opaque: boolean);
+var
+  info:      TBITMAPINFO;
+begin
+  if (self = nil) or (Width = 0) or (Height = 0) then exit;
+  if TBGRAPixel_RGBAOrder then SwapRedBlue;
+  if Opaque then
+  begin
+    info := DIBitmapInfo(Width, Height);
+    if LineOrder = riloTopToBottom then
+      StretchDIBits(ACanvas.Handle, Rect.Left, Rect.Bottom, Rect.Right -
+        Rect.Left, Rect.Top - Rect.Bottom,
+        0, 0, Width, Height, Data, info, DIB_RGB_COLORS, SRCCOPY)
+    else
+      StretchDIBits(ACanvas.Handle, Rect.Left, Rect.Top, Rect.Right -
+        Rect.Left, Rect.Bottom - Rect.Top,
+        0, 0, Width, Height, Data, info, DIB_RGB_COLORS, SRCCOPY);
+  end
+  else
+  begin
+    if Empty then exit;
+    if LineOrder = riloTopToBottom then VerticalFlip;
+    LoadFromBitmapIfNeeded;
+    ACanvas.StretchDraw(Rect, Bitmap);
+    if LineOrder = riloTopToBottom then VerticalFlip;
+  end;
+  if TBGRAPixel_RGBAOrder then SwapRedBlue;
+end;
+
 procedure TBGRAWinBitmap.DataDrawOpaque(ACanvas: TCanvas; Rect: TRect;
   AData: Pointer; ALineOrder: TRawImageLineOrder; AWidth, AHeight: integer);
 var
@@ -132,6 +197,12 @@ begin
     Temp.VerticalFlip;
     IsFlipped := True;
   end;
+  if TBGRAPixel_RGBAOrder then
+  begin
+    if Temp = nil then
+      Temp := TBGRAPtrBitmap.Create(AWidth, AHeight, AData);
+    Temp.SwapRedBlue;
+  end;
 
   info := DIBitmapInfo(AWidth, AHeight);
   StretchDIBits(ACanvas.Handle, Rect.Left, Rect.Top, Rect.Right -
@@ -140,6 +211,7 @@ begin
 
   if Temp <> nil then
   begin
+    if TBGRAPixel_RGBAOrder then Temp.SwapRedBlue;
     if IsFlipped then
       Temp.VerticalFlip;
     Temp.Free;

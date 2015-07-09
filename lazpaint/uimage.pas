@@ -28,6 +28,7 @@ type
   TOnCurrentSelectionChanged = procedure(ASender: TLazPaintImage; AOffsetOnly: boolean) of object;
   TOnStackChanged = procedure(ASender: TLazPaintImage; AScrollIntoView: boolean) of object;
   TImageExceptionHandler = procedure(AFunctionName: string; AException: Exception) of object;
+  TOnCurrentFilenameChanged = procedure(ASender: TLazPaintImage) of object;
 
   TOnQueryExitToolHandler = procedure(sender: TLazPaintImage) of object;
 
@@ -49,6 +50,7 @@ type
     FUndoList: TList;
     FUndoPos: integer;
     FRenderUpdateRectInPicCoord, FRenderUpdateRectInVSCoord: TRect;
+    FOnCurrentFilenameChanged: TOnCurrentFilenameChanged;
 
     FSelectionOffset: TPoint;
     FSelectionRotateAngle: Single;
@@ -59,6 +61,8 @@ type
     FSelectionLayerAfterMaskDefined: boolean;
 
     procedure DiscardSelectionLayerAfterMask;
+    function GetLayerBitmapById(AId: integer): TBGRABitmap;
+    function GetLayerId(AIndex: integer): integer;
     procedure NeedSelectionLayerAfterMask;
     function GetBlendOperation(AIndex: integer): TBlendOperation;
     function GetCurrentFilenameUTF8: string;
@@ -102,7 +106,6 @@ type
     OnException: TImageExceptionHandler;
     ImageOffset: TPoint;
     Zoom: TZoom;
-
 
     procedure DiscardSelectionBounds;
     procedure DiscardSelectionLayerBounds;
@@ -207,6 +210,7 @@ type
     procedure RotateCCW;
     function CheckCurrentLayerVisible: boolean;
     function CheckNoAction(ASilent: boolean = false): boolean;
+    procedure ZoomFit;
 
     property currentFilenameUTF8: string read GetCurrentFilenameUTF8 write SetCurrentFilenameUTF8;
     property currentImageLayerIndex: integer read GetCurrentImageLayerIndex;
@@ -223,12 +227,15 @@ type
     property SelectionBounds[AOffseted: boolean]: TRect read GetSelectionBounds;
     property LayerName[AIndex: integer]: string read GetLayerName write SetLayerName;
     property LayerBitmap[AIndex: integer]: TBGRABitmap read GetLayerBitmap;
+    property LayerBitmapById[AIndex: integer]: TBGRABitmap read GetLayerBitmapById;
+    property LayerId[AIndex: integer]: integer read GetLayerId;
     property LayerVisible[AIndex: integer]: boolean read GetLayerVisible write SetLayerVisible;
     property LayerOpacity[AIndex: integer]: byte read GetLayerOpacity write SetLayerOpacity;
     property LayerOffset[AIndex: integer]: TPoint read GetLayerOffset write SetLayerOffset;
     property BlendOperation[AIndex: integer]: TBlendOperation read GetBlendOperation write SetBlendOperation;
     property CurrentLayerVisible: boolean read GetCurrentLayerVisible;
     property OnQueryExitToolHandler: TOnQueryExitToolHandler read FOnQueryExitToolHandler write FOnQueryExitToolHandler;
+    property OnCurrentFilenameChanged: TOnCurrentFilenameChanged read FOnCurrentFilenameChanged write FOnCurrentFilenameChanged;
     property RenderUpdateRectInPicCoord: TRect read FRenderUpdateRectInPicCoord;
     property RenderUpdateRectInVSCoord: TRect read FRenderUpdateRectInVSCoord;
     property SelectionOffset: TPoint read FSelectionOffset write SetSelectionOffset;
@@ -243,7 +250,8 @@ implementation
 
 uses UGraph, UResourceStrings, Dialogs,
     BGRAOpenRaster, BGRAPaintNet, UImageDiff, ULoading,
-    BGRAWriteLzp, lazutf8classes, LCLProc;
+    BGRAWriteLzp, lazutf8classes, LCLProc,
+    BGRAPalette, BGRAColorQuantization;
 
 function ComputeAcceptableImageSize(AWidth, AHeight: integer): TSize;
 var ratio,newRatio: single;
@@ -469,9 +477,6 @@ end;
 
 procedure TLazPaintImage.SaveToFileUTF8(AFilename: string);
 var s: TFileStreamUTF8;
-  temp: TBGRABitmap;
-  p: pbgrapixel;
-  n: integer;
   format: TBGRAImageFormat;
 begin
   format := SuggestImageFormat(AFilename);
@@ -492,23 +497,7 @@ begin
   end else
   begin
     if RenderedImage = nil then exit;
-    if (format = ifPng) and RenderedImage.HasTransparentPixels then
-    begin
-      temp := RenderedImage.Duplicate as TBGRABitmap;
-      //avoid png bug with black color transformed into transparent
-      p := temp.data;
-      for n := temp.NbPixels-1 downto 0 do
-      begin
-        if (p^.alpha <> 0) and (p^.red = 0) and (p^.green = 0) and (p^.blue = 0) then
-          p^.blue := 1;
-        inc(p);
-      end;
-      temp.SaveToFileUTF8(AFilename);
-      temp.Free;
-    end else
-    begin
-      RenderedImage.SaveToFileUTF8(AFilename);
-    end;
+    RenderedImage.SaveToFileUTF8(AFilename);
     if NbLayers = 1 then SetSavedFlag;
   end;
 end;
@@ -553,14 +542,14 @@ begin
   if (NbLayers > 1) or (LayerOpacity[0] <> 255) or not LayerVisible[0] or (BlendOperation[0]<>boTransparent) then
   begin
     writer := TBGRAWriterLazPaintWithLayers.Create(FCurrentState);
-    writer.IncludeThumbnail := (Width*Height >= 262144);
+    writer.IncludeThumbnail := true;// (Width*Height >= 262144);
     writer.Caption := 'Preview';
     RenderedImage.SaveToStream(AStream, writer);
     writer.free;
   end else
   begin
     writer := TBGRAWriterLazPaint.Create;
-    writer.IncludeThumbnail := (Width*Height >= 262144);
+    writer.IncludeThumbnail := true;// (Width*Height >= 262144);
     writer.Caption := LayerName[0];
     RenderedImage.SaveToStream(AStream, writer);
     writer.free;
@@ -1151,6 +1140,16 @@ begin
   end;
 end;
 
+function TLazPaintImage.GetLayerBitmapById(AId: integer): TBGRABitmap;
+begin
+  result := FCurrentState.LayerBitmapById[AId];
+end;
+
+function TLazPaintImage.GetLayerId(AIndex: integer): integer;
+begin
+  result := FCurrentState.LayerId[AIndex];
+end;
+
 procedure TLazPaintImage.NeedSelectionLayerAfterMask;
 var r: TRect;
 begin
@@ -1213,6 +1212,8 @@ end;
 procedure TLazPaintImage.SetCurrentFilenameUTF8(AValue: string);
 begin
   FCurrentState.filenameUTF8 := AValue;
+  if Assigned(FOnCurrentFilenameChanged) then
+    FOnCurrentFilenameChanged(self);
 end;
 
 procedure TLazPaintImage.SelectImageLayer(AValue: TBGRABitmap);
@@ -1260,6 +1261,11 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TLazPaintImage.ZoomFit;
+begin
+  if Assigned(Zoom) then Zoom.ZoomFit(Width,Height);
 end;
 
 procedure TLazPaintImage.ResetRenderUpdateRect;
@@ -1930,5 +1936,6 @@ initialization
 
   RegisterPaintNetFormat;
   RegisterOpenRasterFormat;
+  BGRAColorQuantizerFactory := TBGRAColorQuantizer;
 
 end.

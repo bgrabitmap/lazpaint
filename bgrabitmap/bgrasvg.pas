@@ -120,7 +120,7 @@ type
 
 implementation
 
-uses laz2_XMLRead, laz2_XMLWrite, lazutf8classes, BGRATransform;
+uses laz2_XMLRead, laz2_XMLWrite, BGRAUTF8, BGRATransform;
 
 const SvgNamespace = 'http://www.w3.org/2000/svg';
 

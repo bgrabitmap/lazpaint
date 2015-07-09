@@ -10,8 +10,7 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces,
 
-  process, Forms, SysUtils, Inifiles, FileUtil, printer4lazarus,
-  BGRABitmapPack, lnetvisual, //packages
+  process, Forms, SysUtils, Inifiles, FileUtil, printer4lazarus, lnetvisual, //packages
 
   LazPaintType, LazpaintInstance, LazpaintMainForm, UConfig, UOnline,
 
@@ -34,7 +33,8 @@ uses
   UToolDeformationGrid, UToolSelect, UToolPolygon, UToolFloodFill, UToolBasic,
   UToolPhong, UToolText, UScripting, UMenu, UColorFilters, uadjustcurves,
   UScriptType, ULayerAction, UImageType, uposterize, UMySLV, UToolLayer,
-  unoisefilter, uprint, uimagelist, UBarUpDown, UFileExtensions;
+  unoisefilter, uprint, uimagelist, UBarUpDown, UFileExtensions, UFileSystem, UToolBrush, UMainFormLayout, USaveOption, UBrushType, 
+  ugeometricbrush, URainType, UFormRain, UPaletteToolbar, bgrabitmappack;
 
 //sometimes LResources disappear in the uses clause
 
@@ -109,4 +109,4 @@ begin
   LazpaintApplication.Free;
   if RestartQuery then RestartApplication;
 end.
-
+

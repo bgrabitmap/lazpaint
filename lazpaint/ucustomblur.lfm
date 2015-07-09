@@ -1,7 +1,7 @@
 object FCustomBlur: TFCustomBlur
-  Left = 673
+  Left = 672
   Height = 300
-  Top = 182
+  Top = 158
   Width = 400
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
@@ -14,7 +14,7 @@ object FCustomBlur: TFCustomBlur
   OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.0.10.0'
+  LCLVersion = '1.2.4.0'
   object Image1: TImage
     Left = 8
     Height = 216
@@ -65,6 +65,7 @@ object FCustomBlur: TFCustomBlur
   object OpenPictureDialog1: TOpenPictureDialog
     Title = 'Open grayscale file'
     Filter = 'Mask images (*.bmp, *.jpeg, *.lzp, *.pcx, *.png, *.tga)|*.bmp;*.jpg;*.jpeg;*.lzp;*.pcx;*.png;*.tga;*.BMP;*.JPG;*.JPEG;*.LZP;*.PCX;*.PNG;*.TGA;*.Bmp;*.Jpg;*.Jpeg;*.Lzp;*.Pcx;*.Png;*.Tga|Bitmaps (*.bmp)|*.bmp;*.BMP;*.Bmp|JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg;*.JPG;*.JPEG;*.Jpg;*.Jpeg|LazPaint (*.lzp)|*.lzp;*.LZP;*.Lzp|PCX (*.pcx)|*.pcx;*.PCX;*.Pcx|Portable Network Graphic (*.png)|*.png;*.PNG;*.Png|Targa (*.tga)|*.tga;*.TGA;*.Tga'
+    Options = [ofNoDereferenceLinks, ofEnableSizing, ofViewDetail]
     left = 48
     top = 248
   end
@@ -75,4 +76,4 @@ object FCustomBlur: TFCustomBlur
     left = 308
     top = 230
   end
-end
+end

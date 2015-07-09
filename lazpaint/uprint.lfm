@@ -11,7 +11,8 @@ object FPrint: TFPrint
   Constraints.MinWidth = 450
   OnCreate = FormCreate
   OnShow = FormShow
-  Position = poDesktopCenter
+  Position = poMainFormCenter
+  ShowInTaskBar = stAlways
   LCLVersion = '1.0.10.0'
   object Label_PrinterAndPaper: TLabel
     Left = 9
@@ -163,6 +164,7 @@ object FPrint: TFPrint
     OnMouseDown = BGRAVirtualScreen1MouseDown
     OnMouseMove = BGRAVirtualScreen1MouseMove
     OnMouseUp = BGRAVirtualScreen1MouseUp
+    OnResize = BGRAVirtualScreen1Resize
   end
   object GroupBox_ImageSize: TGroupBox
     Left = 12

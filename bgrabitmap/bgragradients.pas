@@ -1,7 +1,7 @@
 unit BGRAGradients;
 
 {$mode objfpc}{$H+}
-
+{$i bgrabitmap.inc}
 {$i bgrasse.inc}
 
 interface
@@ -9,11 +9,12 @@ interface
 { Here are various functions that draw gradients, shadow and lighting }
 
 uses
-  Classes, Graphics, BGRABitmapTypes, BGRABitmap, BGRABlend, BGRAPhongTypes, BGRASSE;
+  Classes, BGRAGraphics, BGRABitmapTypes, BGRABitmap, BGRABlend, BGRAPhongTypes, BGRASSE;
 
-{ Creates a bitmap with the specified text horizontally centered and with a shadow }
+{$IFDEF BGRABITMAP_USE_LCL}{ Creates a bitmap with the specified text horizontally centered and with a shadow }
 function TextShadow(AWidth,AHeight: Integer; AText: String; AFontHeight: Integer; ATextColor,AShadowColor: TBGRAPixel;
   AOffSetX,AOffSetY: Integer; ARadius: Integer = 0; AFontStyle: TFontStyles = []; AFontName: String = 'Default'; AShowText: Boolean = True): TBGRABitmap;
+{$ENDIF}
 
 {----------------------------------------------------------------------}
 { Functions to draw multiple gradients.
@@ -175,15 +176,15 @@ function CreateCyclicPerlinNoiseMap(AWidth, AHeight: integer; HorizontalPeriod: 
 
 implementation
 
-uses GraphType, Types, SysUtils, BGRATextFX; {GraphType unit used by phongdraw.inc}
+uses Types, SysUtils{$IFDEF BGRABITMAP_USE_LCL}, BGRATextFX{$ENDIF}; {GraphType unit used by phongdraw.inc}
 
-function TextShadow(AWidth, AHeight: Integer; AText: String;
+{$IFDEF BGRABITMAP_USE_LCL}function TextShadow(AWidth, AHeight: Integer; AText: String;
   AFontHeight: Integer; ATextColor, AShadowColor: TBGRAPixel; AOffSetX,
   AOffSetY: Integer; ARadius: Integer; AFontStyle: TFontStyles;
   AFontName: String; AShowText: Boolean): TBGRABitmap;
 begin
   result := BGRATextFX.TextShadow(AWidth,AHeight,AText,AFontHeight,ATextColor,AShadowColor,AOffsetX,AOffsetY,ARadius,AFontStyle,AFontName,AShowText) as TBGRABitmap;
-end;
+end;{$ENDIF}
 
 function nGradientInfo(StartColor, StopColor: TBGRAPixel;
   Direction: TGradientDirection; EndPercent: Single): TnGradientInfo;

@@ -28,7 +28,7 @@ function GetSelectedFilterExtensions(const Filter: string; FilterIndex: integer;
 //- it is not case sensitive
 function ApplySelectedFilterExtension(const FileName: string; const Filter: string; FilterIndex: integer): string;
 
-function GetExtensionFilter(AOption: TExtensionOptions): string;
+function GetExtensionFilter(AOption: TExtensionOptions; ADisplayPrefix: string = '*.'): string;
 
 procedure RegisterPicExt(AName: string; AExtensionsWithoutDot: string; AOptions: TExtensionOptions);
 
@@ -69,7 +69,7 @@ begin
   finally
     ParsedFilter.Free;
   end;
-  if result.count = 0 then FreeAndNil(result);
+  if (result <> nil) and (result.count = 0) then FreeAndNil(result);
 end;
 
 function ApplySelectedFilterExtension(const FileName: string;
@@ -102,7 +102,7 @@ begin
   exts.Free;
 end;
 
-function GetExtensionFilter(AOption: TExtensionOptions): string;
+function GetExtensionFilter(AOption: TExtensionOptions; ADisplayPrefix: string = '*.'): string;
 var i: integer;
   extDescription, allExtWithoutDot, allExtFilter: string;
 begin
@@ -114,7 +114,7 @@ begin
      (PictureFileExtensions[i].filterForAllCases <> '') then
     begin
       if result <> '' then result += '|';
-      extDescription := StringReplace(PictureFileExtensions[i].extensionsWithoutDot,';',', ',[rfReplaceAll]);
+      extDescription := ADisplayPrefix + StringReplace(PictureFileExtensions[i].extensionsWithoutDot,';',', ' +ADisplayPrefix,[rfReplaceAll]);
       result += PictureFileExtensions[i].name+' ('+extDescription+')|'+PictureFileExtensions[i].filterForAllCases;
       //do not repeat extensions in all-file-types
       if pos(', '+extDescription+', ', ', '+allExtWithoutDot+', ') = 0 then
@@ -127,12 +127,12 @@ begin
     end;
   if allExtWithoutDot = '' then
   begin
-    allExtWithoutDot := '*';
+    allExtWithoutDot := ADisplayPrefix + '*';
     allExtFilter:= '*.*';
   end;
   if result <> '' then result := '|' + result;
   if length(allExtWithoutDot)>12 then
-    result := rsAllSupportedFiletypes + ' (*)|' + allExtFilter + result
+    result := rsAllSupportedFiletypes + ' (' + ADisplayPrefix+ '*)|' + allExtFilter + result
   else
     result := rsAllSupportedFiletypes + ' (' + allExtWithoutDot + ')|' + allExtFilter + result;
 end;
@@ -222,7 +222,7 @@ begin
   with PictureFileExtensions[high(PictureFileExtensions)] do
   begin
     name := AName;
-    extensionsWithoutDot := AExtensionsWithoutDot;
+    extensionsWithoutDot := UTF8LowerCase(AExtensionsWithoutDot);
     filterForAllCases:= ExtensionsAllCases(extensionsWithoutDot, ';', '*.');
     fileFormat := ifUnknown;
     extList := TParseStringList.Create(extensionsWithoutDot,';');
@@ -251,7 +251,7 @@ var
   ext: string;
   i : integer;
 begin
-  ext := ExtractFileExt(AFilename);
+  ext := UTF8LowerCase(ExtractFileExt(AFilename));
   if (ext<>'') and (ext[1]='.') then delete(ext,1,1);
   for i := 0 to high(PictureFileExtensions) do
   begin
@@ -298,7 +298,7 @@ initialization
   RegisterPicExt(rsLayeredImage,'lzp;ora;pdn', [eoReadable]);
   RegisterPicExt(rsLayeredImage,'lzp;ora', [eoWritable]);
   RegisterPicExt(rsBitmap,'bmp', [eoReadable,eoWritable]);
-  RegisterPicExt(rsAnimatedGIF,'gif', [eoReadable]);
+  RegisterPicExt(rsAnimatedGIF,'gif', [eoReadable,eoWritable]);
   RegisterPicExt(rsIconOrCursor,'ico;cur', [eoReadable]);
   RegisterPicExt('JPEG','jpg;jpeg', [eoReadable,eoWritable]);
   RegisterPicExt(rsLazPaint,'lzp', [eoReadable,eoWritable]);

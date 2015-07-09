@@ -18,6 +18,8 @@ type
     function GetCurrentLayerIndex: integer;
     function GetHeight: integer;
     function GetLayerBitmap(Index: integer): TBGRABitmap;
+    function GetLayerBitmapById(AId: integer): TBGRABitmap;
+    function GetLayerId(Index: integer): integer;
     function GetLayerName(Index: integer): string;
     function GetLayerOffset(Index: integer): TPoint;
     function GetLayerOpacity(Index: integer): byte;
@@ -84,10 +86,12 @@ type
     property currentLayer: TBGRABitmap read GetCurrentLayer write SetCurrentLayer;
     property currentLayerIndex: integer read GetCurrentLayerIndex write SetCurrentLayerIndex;
     property LayerBitmap[Index: integer]: TBGRABitmap read GetLayerBitmap;
+    property LayerBitmapById[AId: integer]: TBGRABitmap read GetLayerBitmapById;
     property BlendOperation[Index: integer]: TBlendOperation read GetBlendOp;
     property LayerOpacity[Index: integer]: byte read GetLayerOpacity;
     property LayerOffset[Index: integer]: TPoint read GetLayerOffset;
     property LayerName[Index: integer]: string read GetLayerName;
+    property LayerId[Index: integer]: integer read GetLayerId;
     property NbLayers: integer read GetNbLayers;
     property Width: integer read GetWidth;
     property Height: integer read GetHeight;
@@ -214,6 +218,24 @@ end;
 function TImageState.GetLayerBitmap(Index: integer): TBGRABitmap;
 begin
   result := currentLayeredBitmap.LayerBitmap[Index];
+end;
+
+function TImageState.GetLayerBitmapById(AId: integer): TBGRABitmap;
+var idx: integer;
+begin
+  idx := currentLayeredBitmap.GetLayerIndexFromId(AId);
+  if idx = -1 then
+    result := nil
+  else
+    result := currentLayeredBitmap.LayerBitmap[idx];
+end;
+
+function TImageState.GetLayerId(Index: integer): integer;
+begin
+  if currentLayeredBitmap = nil then
+    result := -1
+  else
+    result := currentLayeredBitmap.LayerUniqueId[index];
 end;
 
 function TImageState.GetLayerName(Index: integer): string;

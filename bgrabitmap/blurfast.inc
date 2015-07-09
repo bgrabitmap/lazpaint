@@ -1,6 +1,6 @@
 
 var
-  blurRow: array of cardinal;
+  blurRow: array of UInt32or64;
 
   { Compute weights of pixels in a row }
   procedure ComputeBlurRow;
@@ -18,7 +18,7 @@ var
 
 var
   srcDelta,
-  weightShift: integer;
+  verticalWeightShift, horizontalWeightShift: integer;
 
   { Compute blur result in a vertical direction }
   procedure ComputeVerticalRow(psrc: PBGRAPixel; var sums: TRowSum; ys1,ys2: integer); inline;
@@ -35,7 +35,7 @@ var
       sumA += aw;
       aDiv += w;
 
-      aw := aw shr weightShift;
+      aw := aw shr verticalWeightShift;
       {$hints off}
       sumR += c.red*aw;
       sumG += c.green*aw;
@@ -50,11 +50,12 @@ var
   sums: array of TRowSum;
   sumStartIndex,curIndex: integer;
   total: TRowSum;
+  extendedTotal: TExtendedRowSum;
   yb,xb,xs,ys1,ys2,x: integer;
   w: cardinal;
   pdest: PBGRAPixel;
   bmpWidth,bmpHeight : integer;
-  radiusSquare: integer;
+  accumulationFactor: double;
   bounds: TRect;
 
 begin
@@ -76,12 +77,19 @@ begin
   bounds.Bottom := min(bmp.Height, bounds.Bottom + radius);
   if not IntersectRect(bounds,bounds,ABounds) then exit;
 
-  radiusSquare := sqr((radius+1)*(radius+2) div 2);
-  weightShift := 0;
-  while radiusSquare > 16384 do //18496 do
+  accumulationFactor := (radius+2)*(radius+1) div 2 + (radius+1)*radius div 2;
+  verticalWeightShift := 0;
+  while accumulationFactor > (high(UInt32or64) shr 16) + 1 do
   begin
-    radiusSquare := radiusSquare shr 1;
-    inc(weightShift);
+    inc(verticalWeightShift);
+    accumulationFactor *= 0.5;
+  end;
+  horizontalWeightShift:= 0;
+  accumulationFactor *= ((radius+2)*(radius+1) div 2 + (radius+1)*radius div 2);
+  while accumulationFactor > (high(UInt32or64) shr 16) + 1 do
+  begin
+    inc(horizontalWeightShift);
+    accumulationFactor *= 0.5;
   end;
   ComputeBlurRow;
   //current vertical sums
@@ -119,27 +127,75 @@ begin
     for xb := bounds.left to bounds.right-1 do
     begin
       //add vertical rows
-      {$hints off}
-      fillchar(total,sizeof(total),0);
-      {$hints on}
       curIndex:= sumStartIndex;
-      for xs := 0 to high(sums) do
-      with sums[curIndex] do
-      begin
-        w := blurRow[xs];
-        total.sumA += sumA*w;
-        total.aDiv += aDiv*w;
-        total.sumR += sumR*w;
-        total.sumG += sumG*w;
-        total.sumB += sumB*w;
-        total.rgbDiv += rgbDiv*w;
-        inc(curIndex);
-        if curIndex = length(sums) then curIndex := 0;
+      if horizontalWeightShift > 4 then
+      begin //we don't want to loose too much precision
+        {$hints off}
+        fillchar(extendedTotal,sizeof(extendedTotal),0);
+        {$hints on}
+        for xs := 0 to high(sums) do
+        with sums[curIndex] do
+        begin
+          w := blurRow[xs];
+          extendedTotal.sumA += TExtendedRowValue(sumA)*w;
+          extendedTotal.aDiv += TExtendedRowValue(aDiv)*w;
+          extendedTotal.sumR += TExtendedRowValue(sumR)*w;
+          extendedTotal.sumG += TExtendedRowValue(sumG)*w;
+          extendedTotal.sumB += TExtendedRowValue(sumB)*w;
+          extendedTotal.rgbDiv += TExtendedRowValue(rgbDiv)*w;
+          inc(curIndex);
+          if curIndex = length(sums) then curIndex := 0;
+        end;
+        if (extendedTotal.aDiv > 0) and (extendedTotal.rgbDiv > 0) then
+          pdest^:= ComputeExtendedAverage(extendedTotal)
+        else
+          pdest^:= BGRAPixelTransparent;
+      end else
+      if horizontalWeightShift > 0 then
+      begin //lossy but efficient way
+        {$hints off}
+        fillchar(total,sizeof(total),0);
+        {$hints on}
+        for xs := 0 to high(sums) do
+        with sums[curIndex] do
+        begin
+          w := blurRow[xs];
+          total.sumA += sumA*w shr horizontalWeightShift;
+          total.aDiv += aDiv*w shr horizontalWeightShift;
+          total.sumR += sumR*w shr horizontalWeightShift;
+          total.sumG += sumG*w shr horizontalWeightShift;
+          total.sumB += sumB*w shr horizontalWeightShift;
+          total.rgbDiv += rgbDiv*w shr horizontalWeightShift;
+          inc(curIndex);
+          if curIndex = length(sums) then curIndex := 0;
+        end;
+        if (total.aDiv > 0) and (total.rgbDiv > 0) then
+          pdest^:= ComputeClampedAverage(total)
+        else
+          pdest^:= BGRAPixelTransparent;
+      end else
+      begin //normal way
+        {$hints off}
+        fillchar(total,sizeof(total),0);
+        {$hints on}
+        for xs := 0 to high(sums) do
+        with sums[curIndex] do
+        begin
+          w := blurRow[xs];
+          total.sumA += sumA*w;
+          total.aDiv += aDiv*w;
+          total.sumR += sumR*w;
+          total.sumG += sumG*w;
+          total.sumB += sumB*w;
+          total.rgbDiv += rgbDiv*w;
+          inc(curIndex);
+          if curIndex = length(sums) then curIndex := 0;
+        end;
+        if (total.aDiv > 0) and (total.rgbDiv > 0) then
+          pdest^:= ComputeAverage(total)
+        else
+          pdest^:= BGRAPixelTransparent;
       end;
-      if (total.aDiv > 0) and (total.rgbDiv > 0) then
-        pdest^:= ComputeAverage(total)
-      else
-        pdest^:= BGRAPixelTransparent;
       inc(pdest);
       //shift vertical rows
       fillchar(sums[sumStartIndex],sizeof(TRowSum),0);

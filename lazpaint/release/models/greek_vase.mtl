@@ -1,0 +1,14 @@
+# 
+# Wavefront material file
+# Converted by the DEEP Exploration  2.00.1211
+# Right Hemisphere, LTD
+# http://www.righthemisphere.com/
+# 
+
+newmtl vase_tex
+Ka 0.752941 0.752941 0.752941
+Kd 0.752941 0.752941 0.752941
+Ks 1 1 1
+illum 2
+Ns 27.8576
+map_Kd greek_vase.jpg

@@ -20,8 +20,8 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure OnPaint(Canvas: TCanvas; Width,Height: Integer); override;
-    procedure OnTimer(Canvas: TCanvas; Width,Height: Integer; ElapsedSec: Double); override;
+    procedure OnPaint(Canvas: TCanvas; Left,Top,Width,Height: Integer); override;
+    procedure OnTimer(Width,Height: Integer; ElapsedSec: Double); override;
   end;
 
 implementation
@@ -42,7 +42,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TTest10.OnPaint(Canvas: TCanvas; Width, Height: Integer);
+procedure TTest10.OnPaint(Canvas: TCanvas; Left,Top,Width, Height: Integer);
 var xb,yb: integer;
     p: PBGRAPixel;
     value: integer;
@@ -94,13 +94,12 @@ begin
   end;
   virtualScreen.InvalidateBitmap;
 
-  virtualscreen.Draw(Canvas,0,0,True);
+  virtualscreen.Draw(Canvas,Left,Top,True);
 end;
 
-procedure TTest10.OnTimer(Canvas: TCanvas; Width, Height: Integer; ElapsedSec: Double);
+procedure TTest10.OnTimer(Width, Height: Integer; ElapsedSec: Double);
 begin
   time := time+ElapsedSec;
-  OnPaint(Canvas,Width,Height);
 end;
 
 end.

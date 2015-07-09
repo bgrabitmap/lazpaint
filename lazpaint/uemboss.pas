@@ -107,7 +107,7 @@ begin
   if InPaintBoxMouseMove then Exit;
   InPaintBoxMouseMove := True;
   Application.ProcessMessages; //empty message stack
-  if selectingAngle then ComputeAngle(PaintBoxMouseMovePos.X,PaintBoxMouseMovePos.Y);
+  ComputeAngle(PaintBoxMouseMovePos.X,PaintBoxMouseMovePos.Y);
   InPaintBoxMouseMove := False;
 end;
 
@@ -143,9 +143,12 @@ end;
 
 procedure TFEmboss.ComputeAngle(X, Y: integer);
 begin
-  angle := ugraph.ComputeAngle(X-PaintBox1.Width/2,Y-PaintBox1.Height/2);
-  PreviewNeeded;
-  PaintBox1.Repaint;
+  if selectingAngle then
+  begin
+    angle := ugraph.ComputeAngle(X-PaintBox1.Width/2,Y-PaintBox1.Height/2);
+    PreviewNeeded;
+    PaintBox1.Repaint;
+  end;
 end;
 
 function TFEmboss.ComputeFilteredLayer: TBGRABitmap;

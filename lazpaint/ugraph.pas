@@ -5,7 +5,8 @@ unit UGraph;
 interface
 
 uses
-  Classes, SysUtils, bgrabitmap, bgrabitmaptypes, LazPaintType, Graphics, BGRALayers;
+  Classes, SysUtils, bgrabitmap, bgrabitmaptypes, LazPaintType, Graphics, BGRALayers, LCLType,
+  BCButton;
 
 const FrameDashLength = 4;
   NicePointMaxRadius = 4;
@@ -46,10 +47,91 @@ function ClearTypeFilter(source: TBGRACustomBitmap): TBGRACustomBitmap;
 function ClearTypeInverseFilter(source: TBGRACustomBitmap): TBGRACustomBitmap;
 
 function DoResample(source :TBGRABitmap; newWidth, newHeight: integer; StretchMode: TResampleMode): TBGRABitmap;
+procedure DrawArrow(ACanvas: TCanvas; ARect: TRect; AStart: boolean; AKind: string; ALineCap: TPenEndCap; State: TOwnerDrawState);
+procedure ApplyArrowStyle(AStart: boolean; AKind: string; ABmp: TBGRABitmap; ASize: TPointF);
+procedure BCAssignSystemStyle(AButton: TBCButton);
 
 implementation
 
-uses GraphType, math, Types, LCLProc, FileUtil, dialogs, BGRAAnimatedGif, BGRAGradients, BGRATextFX, uresourcestrings, uscaledpi;
+uses GraphType, math, Types, LCLProc, FileUtil, dialogs, BGRAAnimatedGif,
+  BGRAGradients, BGRATextFX, uresourcestrings, uscaledpi, BCTypes;
+
+procedure BCAssignSystemState(AState: TBCButtonState; AFontColor, ATopColor, AMiddleTopColor, AMiddleBottomColor, ABottomColor, ABorderColor: TColor);
+begin
+  with AState do
+  begin
+    Border.Style := bboSolid;
+    Border.Color := ABorderColor;
+    Border.ColorOpacity := 255;
+    FontEx.Color := AFontColor;
+    FontEx.Style := [];
+    FontEx.Shadow := True;
+    FontEx.ShadowColor := clBlack;
+    FontEx.ShadowColorOpacity := 192;
+    FontEx.ShadowOffsetX := 1;
+    FontEx.ShadowOffsetY := 1;
+    FontEx.ShadowRadius := 2;
+    Background.Gradient1EndPercent := 60;
+    Background.Style := bbsGradient;
+    // Gradient1
+    with Background.Gradient1 do
+    begin
+      GradientType := gtLinear;
+      StartColor := ATopColor;
+      EndColor := AMiddleTopColor;
+      Point1XPercent := 0;
+      Point1YPercent := 0;
+      Point2XPercent := 0;
+      Point2YPercent := 100;
+    end;
+    // Gradient2
+    with Background.Gradient2 do
+    begin
+      StartColor := AMiddleBottomColor;
+      EndColor := ABottomColor;
+      GradientType := gtLinear;
+      Point1XPercent := 0;
+      Point1YPercent := 0;
+      Point2XPercent := 0;
+      Point2YPercent := 100;
+    end;
+  end;
+end;
+
+procedure BCAssignSystemStyle(AButton: TBCButton);
+
+  function MergeColor(AColor1,AColor2:TColor):TColor;
+  begin
+    result:= BGRAToColor(MergeBGRAWithGammaCorrection(ColorToBGRA(ColorToRGB(AColor1)),1,
+    ColorToBGRA(ColorToRGB(AColor2)),1));
+  end;
+
+  function HoverColor(AColor1: TColor): TColor;
+  var hsla1, hsla2: THSLAPixel;
+  begin
+    hsla1 := BGRAToHSLA(ColorToBGRA(ColorToRGB(AColor1)));
+    hsla2 := BGRAToHSLA(ColorToBGRA(ColorToRGB(clHighlight)));
+    hsla1.hue := hsla2.hue;
+    hsla1.saturation:= hsla2.saturation;
+    result := BGRAToColor(HSLAToBGRA(hsla1));
+  end;
+
+var highlight: TColor;
+begin
+  {$IFDEF DARWIN}
+  highlight := MergeColor(clBtnFace,clWhite);
+  {$ELSE}
+  highlight := clBtnHighlight;
+  {$ENDIF}
+  with AButton do
+  begin
+    Rounding.RoundX := 6;
+    Rounding.RoundY := 6;
+    BCAssignSystemState(StateNormal, clBtnText, clBtnFace, highlight, clBtnFace, clBtnShadow, clBtnShadow);
+    BCAssignSystemState(StateHover, HoverColor(clBtnText), HoverColor(clBtnFace), HoverColor(highlight), HoverColor(clBtnFace), HoverColor(clBtnShadow), HoverColor(clBtnShadow));
+    BCAssignSystemState(StateClicked, HoverColor(clBtnText), HoverColor(MergeColor(clBtnFace,clBtnShadow)), HoverColor(clBtnFace), HoverColor(MergeColor(clBtnFace,clBtnShadow)), HoverColor(clBtnShadow), HoverColor(clBtnShadow));
+  end;
+end;
 
 function RectUnion(const rect1, Rect2: TRect): TRect;
 begin
@@ -660,6 +742,75 @@ begin
   result := source.Resample(newWidth,newHeight,StretchMode) as TBGRABitmap;
 end;
 
+procedure DrawArrow(ACanvas: TCanvas; ARect: TRect; AStart: boolean; AKind: string; ALineCap: TPenEndCap; State: TOwnerDrawState);
+var bmp : TBGRABitmap;
+  c,c2: TBGRAPixel;
+  x1,x2,xm1,xm2,y,w,temp: single;
+begin
+  if odSelected in State then
+  begin
+    c2 := ColorToBGRA(ColorToRGB(clHighlight));
+    c := ColorToBGRA(ColorToRGB(clHighlightText));
+  end else
+  begin
+    c2 := ColorToBGRA(ColorToRGB(clWindow));
+    c := ColorToBGRA(ColorToRGB(clWindowText));
+  end;
+  with Size(ARect) do bmp:= TBGRABitmap.Create(cx,cy,c2);
+  ApplyArrowStyle(AStart,AKind,bmp,PointF(1.5,1.5));
+  bmp.LineCap := ALineCap;
+  w := bmp.Height/5;
+  if w > 0 then
+  begin
+    x1 := w*2.5;
+    x2 := 0;
+    xm1 := 0;
+    xm2 := w*2.5;
+    if (AKind = 'Normal') or (AKind = 'Cut') then x1 -= w*0.7 else
+    if (AKind = 'Flipped') or (AKind = 'FlippedCut') then x1 += w*0.7;
+    if not AStart then
+    begin
+      temp := x1;
+      x1 := -x2;
+      x2 := -temp;
+    end else
+    begin
+      xm1 := (bmp.Width-0.5)-xm1;
+      xm2 := (bmp.Width-0.5)-xm2;
+    end;
+    x1 -= 0.5;
+    x2 += bmp.Width-0.5;
+    y := (bmp.Height-1)/2;
+    if (AKind='Tail') or (AKind='None') or (AKind = 'Tip') then w *= 2;
+    bmp.DrawLineAntialias(x1,y,x2,y,c,w);
+    if bmp.Width > bmp.Height*2 then
+      bmp.GradientFill(0,0,bmp.width,bmp.height,c2,BGRAPixelTransparent,gtLinear,PointF(xm1,0),PointF(xm2,0),dmDrawWithTransparency);
+  end;
+  ACanvas.Draw(ARect.Left,ARect.Top,bmp.Bitmap);
+  bmp.Free;
+end;
+
+procedure ApplyArrowStyle(AStart: boolean; AKind: string; ABmp: TBGRABitmap; ASize: TPointF);
+var backOfs: single;
+begin
+  backOfs := 0;
+  if (ASize.x = 0) or (ASize.y = 0) then AKind := 'None';
+  if (length(AKind)>0) and (AKind[length(AKind)] in['1'..'9']) then backOfs := (ord(AKind[length(AKind)])-ord('0'))*0.25;
+  case AKind of
+  'Tail': if AStart then ABmp.ArrowStartAsTail else ABmp.ArrowEndAsTail;
+  'Tip': if AStart then ABmp.ArrowStartAsTriangle else ABmp.ArrowEndAsTriangle;
+  'Normal','Cut','Flipped','FlippedCut': if AStart then ABmp.ArrowStartAsClassic((AKind='Flipped') or (AKind='FlippedCut'),(AKind='Cut') or (AKind='FlippedCut'))
+    else ABmp.ArrowEndAsClassic((AKind='Flipped') or (AKind='FlippedCut'),(AKind='Cut') or (AKind='FlippedCut'));
+  'Triangle','TriangleBack1','TriangleBack2': if AStart then ABmp.ArrowStartAsTriangle(backOfs) else ABmp.ArrowEndAsTriangle(backOfs);
+  'HollowTriangle','HollowTriangleBack1','HollowTriangleBack2': if AStart then ABmp.ArrowStartAsTriangle(backOfs,False,True) else ABmp.ArrowEndAsTriangle(backOfs,False,True);
+  else if AStart then ABmp.ArrowStartAsNone else ABmp.ArrowEndAsNone;
+  end;
+  if (AKind = 'Tip') and not ((ASize.x = 0) or (ASize.y = 0)) then
+    ASize := ASize*(0.5/ASize.y);
+  if AStart then ABmp.ArrowStartSize := ASize
+  else ABmp.ArrowEndSize := ASize;
+end;
+
 function CreateMarbleTexture(tx,ty: integer): TBGRABitmap;
 var
   colorOscillation: integer;
@@ -1003,6 +1154,7 @@ function NiceText(bmp: TBGRABitmap; x, y, bmpWidth,bmpHeight: integer; s: string
 var fx: TBGRATextEffect;
     f: TFont;
     ofs: integer;
+    previousClip: TRect;
 begin
   f := TFont.Create;
   f.Name := 'Arial';
@@ -1020,9 +1172,12 @@ begin
   result := rect(x,y,x+fx.TextWidth+2*ofs,y+fx.TextHeight+2*ofs);
   if Assigned(bmp) then
   begin
+    previousClip := bmp.ClipRect;
+    bmp.ClipRect := result;
     fx.DrawShadow(bmp,x+ofs,y+ofs,ofs,BGRABlack);
     fx.DrawOutline(bmp,x,y,BGRABlack);
     fx.Draw(bmp,x,y,BGRAWhite);
+    bmp.ClipRect := previousClip;
   end;
   fx.Free;
   f.Free;
@@ -1128,9 +1283,9 @@ begin
    if repeatImage then
    begin
      minx := (0-origin.X-bmp.Width+1) div bmp.Width;
-     miny := (0-origin.Y-bmp.Width+1) div bmp.Width;
+     miny := (0-origin.Y-bmp.Height+1) div bmp.Height;
      maxx := (newWidth-origin.X+bmp.Width-1) div bmp.Width;
-     maxy := (newHeight-origin.Y+bmp.Width-1) div bmp.Width;
+     maxy := (newHeight-origin.Y+bmp.Height-1) div bmp.Height;
    end else
    begin
      minx := 0;
@@ -1174,4 +1329,4 @@ initialization
   Randomize;
 
 end.
-
+

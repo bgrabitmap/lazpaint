@@ -1,0 +1,75 @@
+object FGeometricBrush: TFGeometricBrush
+  Left = 364
+  Height = 126
+  Top = 123
+  Width = 320
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
+  Caption = 'Geometric brush'
+  ClientHeight = 126
+  ClientWidth = 320
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  Position = poOwnerFormCenter
+  LCLVersion = '1.2.4.0'
+  object Button_OK: TButton
+    Left = 88
+    Height = 22
+    Top = 96
+    Width = 59
+    Caption = 'OK'
+    Default = True
+    ModalResult = 1
+    TabOrder = 0
+  end
+  object Button_Cancel: TButton
+    Left = 152
+    Height = 22
+    Top = 96
+    Width = 73
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 1
+  end
+  object Label1: TLabel
+    Left = 8
+    Height = 15
+    Top = 8
+    Width = 102
+    Caption = 'Number of sides:'
+    ParentColor = False
+  end
+  object TrackBar_SideCount: TTrackBar
+    Left = 8
+    Height = 25
+    Top = 26
+    Width = 208
+    Min = 3
+    OnChange = TrackBar_SideCountChange
+    PageSize = 3
+    Position = 9
+    ScalePos = trRight
+    TabOrder = 2
+  end
+  object CheckBox_IsGradient: TCheckBox
+    Left = 8
+    Height = 22
+    Top = 61
+    Width = 125
+    Caption = 'Opacity gradient'
+    OnChange = CheckBox_IsGradientChange
+    TabOrder = 3
+  end
+  object BGRAVirtualScreen1: TBGRAVirtualScreen
+    Left = 232
+    Height = 81
+    Top = 8
+    Width = 80
+    OnRedraw = BGRAVirtualScreen1Redraw
+    Alignment = taLeftJustify
+    Color = clWhite
+    ParentColor = False
+    TabOrder = 4
+  end
+end

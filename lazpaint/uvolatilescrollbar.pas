@@ -122,6 +122,7 @@ begin
 end;
 
 function TVolatileScrollBar.MouseDown(X, Y: integer): boolean;
+var NewThumbBounds: TRect;
 begin
   if not FScrollThumbDown and PtInRect(point(x,y),ScrollThumbBounds) then
   begin
@@ -129,6 +130,17 @@ begin
     FScrollThumbDown:= true;
     FMouseOrigin := point(X,Y);
     FScrollThumbBoundsOrigin := ScrollThumbBounds;
+  end else
+  if PtInRect(point(x,y),FBounds) then
+  begin
+    NewThumbBounds := ScrollThumbBounds;
+    OffsetRect(NewThumbBounds, X-(NewThumbBounds.Left+NewThumbBounds.Right) div 2,
+      Y-(NewThumbBounds.Top+NewThumbBounds.Bottom) div 2);
+    ScrollThumbBounds := NewThumbBounds;
+    FScrollThumbDown := true;
+    FMouseOrigin := point(X,Y);
+    FScrollThumbBoundsOrigin := NewThumbBounds;
+    result := true;
   end else
     result := false;
 end;
@@ -177,4 +189,4 @@ initialization
   VolatileThumbSize := ScaleX(VolatileThumbSize, OriginalDPI);
 
 end.
-
+

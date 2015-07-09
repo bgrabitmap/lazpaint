@@ -79,7 +79,7 @@ procedure RegisterPaintNetFormat;
 
 implementation
 
-uses zstream, Math, graphtype, Graphics, lazutf8classes, FileUtil;
+uses zstream, Math, BGRAUTF8;
 
 {$hints off}
 function BEReadLongword(Stream: TStream): longword;
@@ -417,6 +417,7 @@ begin
   begin
     layerData[layer].Position := 0;
     layerData[layer].Read(Result.Data^, LayerData[layer].Size);
+    if TBGRAPixel_RGBAOrder then result.SwapRedBlue;
     Result.InvalidateBitmap;
 
     if Result.LineOrder = riloBottomToTop then

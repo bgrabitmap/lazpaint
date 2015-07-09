@@ -13,7 +13,7 @@ type
   TTest1 = class(TTestPacRect)
   public
     constructor Create;
-    procedure OnPaint(Canvas: TCanvas; Width,Height: Integer); override;
+    procedure OnPaint(Canvas: TCanvas; Left,Top,Width,Height: Integer); override;
   end;
 
 implementation
@@ -26,17 +26,17 @@ begin
   Name := 'Canvas.Draw(TBitmap) on Form. Flickering pacmans walking with a rectangle. Rectangle opacity depends on the standard Canvas rendering capacities on windows.';
 end;
 
-procedure TTest1.OnPaint(Canvas: TCanvas; Width, Height: Integer);
+procedure TTest1.OnPaint(Canvas: TCanvas; Left,Top,Width, Height: Integer);
 var i: integer;
 begin
   if backgroundImg = nil then exit;
 
   //draw background as TBitmap
-  Canvas.Draw(0,0,backgroundImg.Bitmap);
+  Canvas.Draw(Left,Top,backgroundImg.Bitmap);
 
   //draw sprites as TBitmaps
   for i := 0 to high(pacLoc) do
-    Canvas.Draw(pacLoc[i].x,pacLoc[i].y,pacImg[numPacImg].Bitmap);
+    Canvas.Draw(Left+pacLoc[i].x,Top+pacLoc[i].y,pacImg[numPacImg].Bitmap);
 end;
 
 end.

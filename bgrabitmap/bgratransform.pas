@@ -283,7 +283,7 @@ type
 
 implementation
 
-uses BGRABlend, GraphType;
+uses BGRABlend;
 
 function AffineMatrix(m11, m12, m13, m21, m22, m23: single): TAffineMatrix;
 begin

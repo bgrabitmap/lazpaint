@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="9"/>
+    <Units Count="28">
+      <Unit0>
+        <Filename Value="testopenglcontext1.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UsageCount Value="35"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="mainunit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="MainUnit"/>
+        <TopLine Value="54"/>
+        <CursorPos X="18" Y="85"/>
+        <UsageCount Value="35"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="ugame.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UGame"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="163"/>
+        <CursorPos X="39" Y="181"/>
+        <UsageCount Value="26"/>
+        <Loaded Value="True"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="bgraopenglcontext.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="366"/>
+        <CursorPos Y="392"/>
+        <UsageCount Value="25"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="..\openglcontext.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="128"/>
+        <CursorPos X="11" Y="134"/>
+        <UsageCount Value="17"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="..\..\..\fpc\2.6.4\source\packages\opengl\src\glu.pp"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="13"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="..\..\..\fpc\2.6.4\source\packages\opengl\src\gl.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1120"/>
+        <CursorPos X="3" Y="1138"/>
+        <UsageCount Value="18"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="..\glwin32wglcontext.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="233"/>
+        <CursorPos X="3" Y="237"/>
+        <UsageCount Value="13"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="..\..\..\fpc\2.6.4\source\rtl\win\wininc\func.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="784"/>
+        <CursorPos X="10" Y="802"/>
+        <UsageCount Value="13"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgraopengltype.pas"/>
+        <UnitName Value="BGRAOpenGLType"/>
+        <EditorIndex Value="7"/>
+        <CursorPos X="20"/>
+        <UsageCount Value="19"/>
+        <Loaded Value="True"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgranoguibitmap.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="79"/>
+        <CursorPos X="24" Y="82"/>
+        <UsageCount Value="13"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgradefaultbitmap.pas"/>
+        <UnitName Value="BGRADefaultBitmap"/>
+        <EditorIndex Value="11"/>
+        <TopLine Value="1927"/>
+        <CursorPos X="3" Y="1931"/>
+        <UsageCount Value="15"/>
+        <Loaded Value="True"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="..\..\..\fpc\2.6.4\source\packages\fcl-image\src\fpimage.inc"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="12"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\geometrytypes.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="671"/>
+        <CursorPos Y="691"/>
+        <UsageCount Value="10"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="..\..\lazutils\lazutf8classes.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="117"/>
+        <CursorPos Y="139"/>
+        <UsageCount Value="15"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgraspritegl.pas"/>
+        <UnitName Value="BGRASpriteGL"/>
+        <EditorIndex Value="6"/>
+        <TopLine Value="2"/>
+        <CursorPos X="41" Y="7"/>
+        <UsageCount Value="16"/>
+        <Loaded Value="True"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgrawinbitmap.pas"/>
+        <UnitName Value="BGRAWinBitmap"/>
+        <EditorIndex Value="8"/>
+        <TopLine Value="137"/>
+        <CursorPos X="6" Y="139"/>
+        <UsageCount Value="12"/>
+        <Loaded Value="True"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgraopenglcontext.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="26" Y="14"/>
+        <UsageCount Value="14"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="..\..\..\lcl\forms.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="33"/>
+        <CursorPos X="19" Y="57"/>
+        <UsageCount Value="14"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="..\..\..\fpc\2.6.4\source\rtl\objpas\objpas.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="11"/>
+        <CursorPos X="8" Y="28"/>
+        <UsageCount Value="14"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgragraphics.pas"/>
+        <UnitName Value="BGRAGraphics"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="116"/>
+        <CursorPos Y="134"/>
+        <UsageCount Value="13"/>
+        <Loaded Value="True"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgralclbitmap.pas"/>
+        <UnitName Value="BGRALCLBitmap"/>
+        <EditorIndex Value="9"/>
+        <TopLine Value="123"/>
+        <CursorPos Y="123"/>
+        <UsageCount Value="12"/>
+        <Loaded Value="True"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgracustombitmap.inc"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="36"/>
+        <CursorPos Y="37"/>
+        <UsageCount Value="12"/>
+        <Loaded Value="True"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgrabitmaptypes.pas"/>
+        <UnitName Value="BGRABitmapTypes"/>
+        <EditorIndex Value="12"/>
+        <TopLine Value="441"/>
+        <CursorPos Y="471"/>
+        <UsageCount Value="12"/>
+        <Loaded Value="True"/>
+      </Unit23>
+      <Unit24>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgratext.pas"/>
+        <UnitName Value="BGRAText"/>
+        <EditorIndex Value="13"/>
+        <TopLine Value="580"/>
+        <CursorPos Y="601"/>
+        <UsageCount Value="12"/>
+        <Loaded Value="True"/>
+      </Unit24>
+      <Unit25>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgraopengl.pas"/>
+        <UnitName Value="BGRAOpenGL"/>
+        <EditorIndex Value="5"/>
+        <CursorPos X="62"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit25>
+      <Unit26>
+        <Filename Value="..\..\..\lazutils\lazutf8classes.pas"/>
+        <UnitName Value="LazUTF8Classes"/>
+        <EditorIndex Value="10"/>
+        <TopLine Value="127"/>
+        <CursorPos X="49" Y="135"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit26>
+      <Unit27>
+        <Filename Value="..\..\..\..\fpc\2.6.4\source\rtl\objpas\sysutils\sysutilh.inc"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="236"/>
+        <CursorPos X="3" Y="254"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit27>
+    </Units>
+    <JumpHistory Count="30" HistoryIndex="28">
+      <Position1>
+        <Filename Value="ugame.pas"/>
+        <Caret Line="290" TopLine="268"/>
+      </Position1>
+      <Position2>
+        <Filename Value="ugame.pas"/>
+        <Caret Line="282" Column="70" TopLine="261"/>
+      </Position2>
+      <Position3>
+        <Filename Value="ugame.pas"/>
+        <Caret Line="34" TopLine="9"/>
+      </Position3>
+      <Position4>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgraspritegl.pas"/>
+        <Caret Line="51" Column="31" TopLine="26"/>
+      </Position4>
+      <Position5>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgraspritegl.pas"/>
+        <Caret Line="393" Column="69" TopLine="372"/>
+      </Position5>
+      <Position6>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgraspritegl.pas"/>
+        <Caret Line="388" TopLine="372"/>
+      </Position6>
+      <Position7>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgraspritegl.pas"/>
+        <Caret Line="398" TopLine="372"/>
+      </Position7>
+      <Position8>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgraspritegl.pas"/>
+        <Caret Line="388" TopLine="372"/>
+      </Position8>
+      <Position9>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgraspritegl.pas"/>
+        <Caret Line="396" Column="28" TopLine="372"/>
+      </Position9>
+      <Position10>
+        <Filename Value="ugame.pas"/>
+        <Caret Line="304" Column="44" TopLine="300"/>
+      </Position10>
+      <Position11>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgraspritegl.pas"/>
+        <Caret Line="398" TopLine="372"/>
+      </Position11>
+      <Position12>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgraspritegl.pas"/>
+        <Caret Line="402" TopLine="372"/>
+      </Position12>
+      <Position13>
+        <Filename Value="ugame.pas"/>
+        <Caret Line="61" Column="20" TopLine="42"/>
+      </Position13>
+      <Position14>
+        <Filename Value="ugame.pas"/>
+      </Position14>
+      <Position15>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgracustombitmap.inc"/>
+        <Caret Line="1305" Column="28" TopLine="1293"/>
+      </Position15>
+      <Position16>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="37" Column="24" TopLine="36"/>
+      </Position16>
+      <Position17>
+        <Filename Value="mainunit.pas"/>
+      </Position17>
+      <Position18>
+        <Filename Value="ugame.pas"/>
+      </Position18>
+      <Position19>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgraopengl.pas"/>
+      </Position19>
+      <Position20>
+        <Filename Value="ugame.pas"/>
+      </Position20>
+      <Position21>
+        <Filename Value="ugame.pas"/>
+        <Caret Line="243" Column="39" TopLine="226"/>
+      </Position21>
+      <Position22>
+        <Filename Value="ugame.pas"/>
+      </Position22>
+      <Position23>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="10" Column="20"/>
+      </Position23>
+      <Position24>
+        <Filename Value="ugame.pas"/>
+      </Position24>
+      <Position25>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgralclbitmap.pas"/>
+        <Caret Line="27" Column="3"/>
+      </Position25>
+      <Position26>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgralclbitmap.pas"/>
+        <Caret Line="552" TopLine="537"/>
+      </Position26>
+      <Position27>
+        <Filename Value="C:\pascal\lazpaintsvn\bgrabitmap\bgralclbitmap.pas"/>
+        <Caret Line="123" TopLine="123"/>
+      </Position27>
+      <Position28>
+        <Filename Value="ugame.pas"/>
+        <Caret Line="101" Column="28" TopLine="91"/>
+      </Position28>
+      <Position29>
+        <Filename Value="ugame.pas"/>
+        <Caret Line="12" Column="32"/>
+      </Position29>
+      <Position30>
+        <Filename Value="..\..\..\..\fpc\2.6.4\source\rtl\objpas\sysutils\sysutilh.inc"/>
+        <Caret Line="254" Column="3" TopLine="236"/>
+      </Position30>
+    </JumpHistory>
+  </ProjectSession>
+</CONFIG>

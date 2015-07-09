@@ -22,8 +22,8 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure OnPaint(Canvas: TCanvas; Width,Height: Integer); override;
-    procedure OnTimer(Canvas: TCanvas; Width,Height: Integer; ElapsedSec: Double); override;
+    procedure OnPaint(Canvas: TCanvas; Left,Top,Width,Height: Integer); override;
+    procedure OnTimer(Width,Height: Integer; ElapsedSec: Double); override;
   end;
 
 implementation
@@ -54,7 +54,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TTest15.OnPaint(Canvas: TCanvas; Width, Height: Integer);
+procedure TTest15.OnPaint(Canvas: TCanvas; Left,Top,Width, Height: Integer);
 const lightSize= 20;
 begin
   if (virtualscreen <> nil) and ((virtualscreen.width <> width) or (virtualscreen.Height <> height)) then
@@ -83,12 +83,12 @@ begin
       phong.LightPosition.X+lightSize,phong.LightPosition.Y+lightSize, BGRA(255,255,240,255),BGRAPixelTransparent,
       gtRadial,PointF(phong.LightPosition.X,phong.LightPosition.Y),PointF(phong.LightPosition.X+lightSize,phong.LightPosition.Y),
       dmDrawWithTransparency);
-    virtualScreen.Draw(Canvas,0,0,True);
+    virtualScreen.Draw(Canvas,Left,Top,True);
   end else
   begin
     virtualScreen.Fill(BGRABlack);
     virtualScreen.TextOut(Width div 2, height div 2-virtualScreen.FontHeight div 2,'Generating map...',BGRAWhite,taCenter);
-    virtualScreen.Draw(Canvas,0,0,True);
+    virtualScreen.Draw(Canvas,Left,Top,True);
     ShouldGenerateMap := True;
   end;
 end;
@@ -126,13 +126,11 @@ begin
   colorMap := temp;
 end;
 
-procedure TTest15.OnTimer(Canvas: TCanvas; Width, Height: Integer;
+procedure TTest15.OnTimer(Width, Height: Integer;
   ElapsedSec: Double);
 begin
   time := time+ElapsedSec;
   lightPos1 := pointF((sin(time*0.7+1)+1)/4+0.4,(cos(time*0.5+2)+1)/4+0.3);
-
-  OnPaint(Canvas,Width,Height);
 end;
 
 end.

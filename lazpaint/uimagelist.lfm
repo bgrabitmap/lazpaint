@@ -1,7 +1,7 @@
 object FImageList: TFImageList
-  Left = 419
+  Left = 412
   Height = 360
-  Top = 98
+  Top = 0
   Width = 500
   AllowDropFiles = True
   BorderIcons = [biSystemMenu]
@@ -13,11 +13,13 @@ object FImageList: TFImageList
   KeyPreview = True
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnDropFiles = FormDropFiles
   OnKeyDown = FormKeyDown
   OnResize = FormResize
   OnShow = FormShow
-  LCLVersion = '1.2.4.0'
+  ShowInTaskBar = stNever
+  LCLVersion = '1.0.10.0'
   object StringGrid1: TStringGrid
     Left = 8
     Height = 291
@@ -67,7 +69,7 @@ object FImageList: TFImageList
     AnchorSideTop.Side = asrBottom
     Left = 8
     Height = 26
-    Top = 318
+    Top = 319
     Width = 352
     BorderSpacing.Top = 4
     BevelOuter = bvNone
@@ -78,7 +80,7 @@ object FImageList: TFImageList
       Left = 0
       Height = 26
       Top = 0
-      Width = 348
+      Width = 352
       ButtonHeight = 24
       ButtonWidth = 12
       ChildSizing.EnlargeHorizontal = crsScaleChilds
@@ -256,7 +258,7 @@ object FImageList: TFImageList
       Left = 0
       Height = 26
       Top = 0
-      Width = 76
+      Width = 80
       ButtonHeight = 24
       ButtonWidth = 24
       EdgeBorders = []
@@ -296,14 +298,14 @@ object FImageList: TFImageList
     AnchorSideTop.Control = StringGrid1
     AnchorSideTop.Side = asrBottom
     Left = 8
-    Height = 15
+    Height = 16
     Top = 299
-    Width = 53
-    Caption = 'lblStatus'
+    Width = 48
+    AutoSize = False
     ParentColor = False
   end
   object OpenDialog1: TOpenDialog
-    Options = [ofAllowMultiSelect, ofPathMustExist, ofFileMustExist, ofEnableSizing, ofDontAddToRecent, ofForceShowHidden, ofViewDetail]
+    Options = [ofAllowMultiSelect, ofPathMustExist, ofFileMustExist, ofNoDereferenceLinks, ofEnableSizing, ofDontAddToRecent, ofForceShowHidden, ofViewDetail]
     left = 48
     top = 176
   end
@@ -805,4 +807,4 @@ object FImageList: TFImageList
       0000000000000000000000000000
     }
   end
-end
+end

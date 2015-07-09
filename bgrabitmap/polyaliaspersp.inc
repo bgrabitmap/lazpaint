@@ -164,7 +164,7 @@ var
   ix1, ix2: integer;
 
 begin
-  If not polyInfo.ComputeMinMax(minx,miny,maxx,maxy,bmp) then exit;
+  If not BGRAShapeComputeMinMax(polyInfo,minx,miny,maxx,maxy,bmp) then exit;
 
   inter := polyInfo.CreateIntersectionArray;
   scanAtFunc := @texture.ScanAt;
@@ -360,7 +360,7 @@ var
   inter1,inter2: TPerspectiveTextureMappingIntersectionInfo;
 
 begin
-  If not polyInfo.ComputeMinMax(minx,miny,maxx,maxy,bmp) then exit;
+  If not BGRAShapeComputeMinMax(polyInfo,minx,miny,maxx,maxy,bmp) then exit;
 
   inter := polyInfo.CreateIntersectionArray;
 

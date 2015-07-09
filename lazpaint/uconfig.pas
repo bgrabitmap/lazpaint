@@ -8,6 +8,12 @@ uses
   Classes, SysUtils, IniFiles, BGRABitmapTypes, Graphics, LCLType, uscripting;
 
 type
+  TLazPaintConfig = class;
+
+  IConfigProvider = interface
+    function GetConfig: TLazPaintConfig;
+  end;
+
   { TLazPaintConfig }
 
   TLazPaintConfig = class
@@ -17,6 +23,8 @@ type
     tempFont: TFont;
     colorizePresets: TList;
     FVersion: string;
+    function GetBrushCount: integer;
+    function GetBrushInfo(Index: integer): string;
     function GetColorizePreset(Index: Integer): TVariableSet;
     function GetColorizePresetCount: integer;
     function GetRecentDirectoriesCount: integer;
@@ -33,6 +41,11 @@ type
     procedure AddRecentFile(filename: string);
     procedure AddRecentDirectory(dirname: string);
     procedure FinalizeRecentFiles;
+    procedure SetBrushes(ABrushes: TStringList);
+    function DefaultJpegQuality: integer;
+    procedure SetDefaultJpegQuality(value: integer);
+    function DefaultSaveOptionDialogMaximized: boolean;
+    procedure SetDefaultSaveOptionDialogMaximized(value: boolean);
 
     procedure InitColorizePresets;
     function AddColorizePreset(AName: string; AHue, ASaturation: double; ACorrection: Boolean): integer;
@@ -57,6 +70,10 @@ type
     procedure SetDefault3dObjectDirectory(value: string);
     function DefaultTextureDirectory: string;
     procedure SetDefaultTextureDirectory(value: string);
+    function DefaultBrushDirectory: string;
+    procedure SetDefaultBrushDirectory(value: string);
+    function DefaultPaletteDirectory: string;
+    procedure SetDefaultPaletteDirectory(value: string);
 
     //new image config
     function DefaultImageWidth: integer;
@@ -72,6 +89,8 @@ type
 
     //window
     function DefaultScreenSize: TRect;
+    function DefaultDockLayersAndColors: boolean;
+    procedure SetDefaultDockLayersAndColors(value: boolean);
     function ScreenSizeChanged: boolean;
     procedure SetDefaultScreenSize(value: TRect);
     function DefaultMainWindowMaximized: boolean;
@@ -84,6 +103,8 @@ type
     procedure SetDefaultLayerWindowPosition(value: TRect);
     function DefaultToolboxWindowPosition: TRect;
     procedure SetDefaultToolboxWindowPosition(value: TRect);
+    function DefaultToolboxDocking: string;
+    procedure SetDefaultToolboxDocking(value: string);
     function DefaultImageListPosition: TRect;
     procedure SetDefaultImagelistWindowPosition(value: TRect);
     function DefaultBrowseWindowMaximized: boolean;
@@ -91,6 +112,8 @@ type
     function DefaultBrowseWindowPosition: TRect;
     procedure SetDefaultBrowseWindowPosition(value: TRect);
 
+    function DefaultPaletteToolbarVisible: boolean;
+    procedure SetDefaultPaletteToolbarVisible(value: boolean);
     function DefaultColorWindowVisible: boolean;
     procedure SetDefaultColorWindowVisible(value: boolean);
     function DefaultLayerWindowVisible: boolean;
@@ -101,6 +124,14 @@ type
     procedure SetDefaultImagelistWindowVisible(value: boolean);
     function DefaultGridVisible: boolean;
     procedure SetDefaultGridVisible(value: boolean);
+    function DefaultZoomToolbarVisible: boolean;
+    procedure SetDefaultZoomToolbarVisible(value: boolean);
+    function DefaultUndoRedoToolbarVisible: boolean;
+    procedure SetDefaultUndoRedoToolbarVisible(value: boolean);
+    function DefaultCopyPasteToolbarVisible: boolean;
+    procedure SetDefaultCopyPasteToolbarVisible(value: boolean);
+    function DefaultCoordinatesToolbarVisible: boolean;
+    procedure SetDefaultCoordinatesToolbarVisible(value: boolean);
 
     //tools
     function DefaultToolForeColor: TBGRAPixel;
@@ -180,6 +211,12 @@ type
     function DefaultEmbossAngle: double;
     procedure SetDefaultEmbossAngle(value: double);
 
+    //rain config
+    function DefaultRainWind: double;
+    procedure SetDefaultRainWind(value: double);
+    function DefaultRainQuantity: double;
+    procedure SetDefaultRainQuantity(value: double);
+
     //twirl config
     function DefaultTwirlRadius: double;
     procedure SetDefaultTwirlRadius(value: double);
@@ -206,6 +243,9 @@ type
     property ColorizePresetCount: integer read GetColorizePresetCount;
     property ColorizePreset[Index: Integer]: TVariableSet read GetColorizePreset;
 
+    property BrushCount: integer read GetBrushCount;
+    property BrushInfo[Index: integer]: string read GetBrushInfo;
+
     //ImageList
     function ImageListLastFolder: string;
     procedure SetImageListLastFolder(value: string);
@@ -220,7 +260,9 @@ type
 function GetActualConfig: TIniFile;
 function DefaultPicturesDirectory: string;
 
-var ActualConfigDirUTF8 : string;
+var
+  ActualConfigDirUTF8 : string;
+  MenuDefinitionKeys,MenuDefinitionValues: TStringList;
 
 implementation
 
@@ -239,6 +281,7 @@ var
   {$IFDEF DARWIN}
   ConfigPath: string;
   {$ENDIF}
+  i: integer;
 begin
   ActualConfigFilenameSys := '';
 
@@ -251,6 +294,11 @@ begin
     ActualConfigFilenameSys:= PortableConfig.ReadString('General','ConfigFile','');
     if ActualConfigFilenameSys <> '' then
       ActualConfigFilenameSys:= ExpandFileName(AppDirSys+ActualConfigFilenameSys);
+    MenuDefinitionKeys.Clear;
+    MenuDefinitionValues.Clear;
+    PortableConfig.ReadSection('Menu',MenuDefinitionKeys);
+    for i := 0 to MenuDefinitionKeys.Count-1 do
+      MenuDefinitionValues.Add(PortableConfig.ReadString('Menu',MenuDefinitionKeys[i],''));
     PortableConfig.Free;
   end;
 
@@ -323,6 +371,16 @@ begin
  result := StrToRect(iniOptions.ReadString('Window','ScreenSize',''));
 end;
 
+function TLazPaintConfig.DefaultDockLayersAndColors: boolean;
+begin
+  result := iniOptions.ReadBool('Window','DockLayersAndColors',false);
+end;
+
+procedure TLazPaintConfig.SetDefaultDockLayersAndColors(value: boolean);
+begin
+  iniOptions.WriteBool('Window','DockLayersAndColors',value);
+end;
+
 procedure TLazPaintConfig.SetDefaultScreenSize(value: TRect);
 begin
  iniOptions.WriteString('Window','ScreenSize',RectToStr(value));
@@ -379,6 +437,16 @@ begin
   iniOptions.WriteString('Window','ToolboxWindowPosition',RectToStr(value));
 end;
 
+function TLazPaintConfig.DefaultToolboxDocking: string;
+begin
+  result := iniOptions.ReadString('Window','ToolBoxDocking','Left');
+end;
+
+procedure TLazPaintConfig.SetDefaultToolboxDocking(value: string);
+begin
+  iniOptions.WriteString('Window','ToolBoxDocking',value);
+end;
+
 function TLazPaintConfig.DefaultImageListPosition: TRect;
 begin
   result := StrToRect(iniOptions.ReadString('Window','ImagelistWindowPosition',''));
@@ -407,6 +475,16 @@ end;
 procedure TLazPaintConfig.SetDefaultBrowseWindowPosition(value: TRect);
 begin
   iniOptions.WriteString('Window','BrowseWindowPosition',RectToStr(value));
+end;
+
+function TLazPaintConfig.DefaultPaletteToolbarVisible: boolean;
+begin
+  result := iniOptions.ReadBool('Toolbar','PaletteToolbar',true);
+end;
+
+procedure TLazPaintConfig.SetDefaultPaletteToolbarVisible(value: boolean);
+begin
+  iniOptions.WriteBool('Toolbar','PaletteToolbar',value);
 end;
 
 function TLazPaintConfig.DefaultColorWindowVisible: boolean;
@@ -457,6 +535,46 @@ end;
 procedure TLazPaintConfig.SetDefaultGridVisible(value: boolean);
 begin
   iniOptions.WriteBool('General','GridVisible',value);
+end;
+
+function TLazPaintConfig.DefaultZoomToolbarVisible: boolean;
+begin
+  result := iniOptions.ReadBool('Toolbar','ZoomToolbar',true);
+end;
+
+procedure TLazPaintConfig.SetDefaultZoomToolbarVisible(value: boolean);
+begin
+  iniOptions.WriteBool('Toolbar','ZoomToolbar',value);
+end;
+
+function TLazPaintConfig.DefaultUndoRedoToolbarVisible: boolean;
+begin
+  result := iniOptions.ReadBool('Toolbar','UndoRedoToolbar',false);
+end;
+
+procedure TLazPaintConfig.SetDefaultUndoRedoToolbarVisible(value: boolean);
+begin
+  iniOptions.WriteBool('Toolbar','UndoRedoToolbar',value);
+end;
+
+function TLazPaintConfig.DefaultCopyPasteToolbarVisible: boolean;
+begin
+  result := iniOptions.ReadBool('Toolbar','CopyPasteToolbar',false);
+end;
+
+procedure TLazPaintConfig.SetDefaultCopyPasteToolbarVisible(value: boolean);
+begin
+  iniOptions.WriteBool('Toolbar','CopyPasteToolbar',value);
+end;
+
+function TLazPaintConfig.DefaultCoordinatesToolbarVisible: boolean;
+begin
+  result := iniOptions.ReadBool('Toolbar','CoordinatesToolbar',true);
+end;
+
+procedure TLazPaintConfig.SetDefaultCoordinatesToolbarVisible(value: boolean);
+begin
+  iniOptions.WriteBool('Toolbar','CoordinatesToolbar',value);
 end;
 
 function TLazPaintConfig.DefaultToolForeColor: TBGRAPixel;
@@ -810,6 +928,26 @@ begin
   iniOptions.WriteFloat('Filter','EmbossAngle',value);
 end;
 
+function TLazPaintConfig.DefaultRainWind: double;
+begin
+  result := iniOptions.ReadFloat('Filter','RainWind',-0.5);
+end;
+
+procedure TLazPaintConfig.SetDefaultRainWind(value: double);
+begin
+  iniOptions.WriteFloat('Filter','RainWind',value);
+end;
+
+function TLazPaintConfig.DefaultRainQuantity: double;
+begin
+  result := iniOptions.ReadFloat('Filter','RainQuantity',0.5);
+end;
+
+procedure TLazPaintConfig.SetDefaultRainQuantity(value: double);
+begin
+  iniOptions.WriteFloat('Filter','RainQuantity',value);
+end;
+
 function TLazPaintConfig.DefaultTwirlRadius: double;
 begin
   result := iniOptions.ReadFloat('Filter','TwirlRadius',100);
@@ -900,6 +1038,36 @@ begin
   for i := 0 to recentDirs.Count-1 do
     iniOptions.WriteString('RecentDirectories','Dir'+inttostr(I+1),recentDirs[i]);
   recentDirs.Free;
+end;
+
+procedure TLazPaintConfig.SetBrushes(ABrushes: TStringList);
+var
+  i: Integer;
+begin
+  iniOptions.EraseSection('Brushes');
+  iniOptions.WriteInteger('Brushes','Count',ABrushes.Count);
+  for i := 0 to ABrushes.Count-1 do
+    iniOptions.WriteString('Brushes','Brush'+inttostr(I+1),ABrushes[i]);
+end;
+
+function TLazPaintConfig.DefaultJpegQuality: integer;
+begin
+  result := iniOptions.ReadInteger('General','JpegQuality',100);
+end;
+
+procedure TLazPaintConfig.SetDefaultJpegQuality(value: integer);
+begin
+  iniOptions.WriteInteger('General','JpegQuality',value);
+end;
+
+function TLazPaintConfig.DefaultSaveOptionDialogMaximized: boolean;
+begin
+  result := iniOptions.ReadBool('Window','SaveOptionDialogMaximized',false);
+end;
+
+procedure TLazPaintConfig.SetDefaultSaveOptionDialogMaximized(value: boolean);
+begin
+  iniOptions.WriteBool('Window','SaveOptionDialogMaximized',value);
 end;
 
 procedure TLazPaintConfig.InitColorizePresets;
@@ -1062,6 +1230,26 @@ begin
   iniOptions.WriteString('General','TextureDirectory',ChompPathDelim(value))
 end;
 
+function TLazPaintConfig.DefaultBrushDirectory: string;
+begin
+  result := iniOptions.ReadString('General','BrushDirectory',DefaultPicturesDirectory);
+end;
+
+procedure TLazPaintConfig.SetDefaultBrushDirectory(value: string);
+begin
+  iniOptions.WriteString('General','BrushDirectory',ChompPathDelim(value))
+end;
+
+function TLazPaintConfig.DefaultPaletteDirectory: string;
+begin
+  result := iniOptions.ReadString('General','PaletteDirectory','');
+end;
+
+procedure TLazPaintConfig.SetDefaultPaletteDirectory(value: string);
+begin
+  iniOptions.WriteString('General','PaletteDirectory',ChompPathDelim(value))
+end;
+
 function TLazPaintConfig.ScreenSizeChanged: boolean;
 var currentScreenSize,previousScreenSize: TRect;
 begin
@@ -1106,6 +1294,16 @@ end;
 function TLazPaintConfig.GetColorizePreset(Index: Integer): TVariableSet;
 begin
   result := TVariableSet(colorizePresets[Index]);
+end;
+
+function TLazPaintConfig.GetBrushCount: integer;
+begin
+  result := iniOptions.ReadInteger('Brushes','Count',0);
+end;
+
+function TLazPaintConfig.GetBrushInfo(Index: integer): string;
+begin
+  result := iniOptions.ReadString('Brushes','Brush'+IntToStr(index+1),'');
 end;
 
 function TLazPaintConfig.GetColorizePresetCount: integer;
@@ -1199,5 +1397,15 @@ begin
   tempFont.Free;
   Languages.Free;
 end;
+
+initialization
+
+  MenuDefinitionKeys := TStringList.Create;
+  MenuDefinitionValues := TStringList.Create;
+
+finalization
+
+  MenuDefinitionKeys.Free;
+  MenuDefinitionValues.Free;
 
 end.

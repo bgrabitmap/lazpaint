@@ -64,6 +64,7 @@ type
   public
     procedure SelectAll;
     procedure SetFocus;
+    procedure DelayTimer;
     function RemoveSelection: boolean;
     property Value: integer read FValue write SetValue;
     property MinValue: integer read FMinValue write SetMinValue;
@@ -87,7 +88,7 @@ type
 
 implementation
 
-uses BGRABitmapTypes, Graphics, Types, Math;
+uses BGRABitmapTypes, Graphics, Types, Math, LazPaintType;
 
 { TBarUpDown }
 
@@ -217,7 +218,7 @@ begin
   end;
   if not vs.Focused then
   begin
-    vs.SetFocus;
+    SafeSetFocus(vs);
     SelectAll;
   end;
 end;
@@ -490,7 +491,16 @@ end;
 
 procedure TBarUpDown.SetFocus;
 begin
-  FVirtualScreen.SetFocus;
+   SafeSetFocus(FVirtualScreen);
+end;
+
+procedure TBarUpDown.DelayTimer;
+begin
+  if FTimer.Enabled then
+  begin
+    FTimer.Enabled:= false;
+    FTimer.Enabled:= true;
+  end;
 end;
 
 function TBarUpDown.RemoveSelection: boolean;
@@ -512,4 +522,4 @@ begin
 end;
 
 end.
-
+

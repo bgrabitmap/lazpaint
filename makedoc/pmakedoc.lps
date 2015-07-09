@@ -1,0 +1,367 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="9"/>
+    <BuildModes Active="Default"/>
+    <Units Count="28">
+      <Unit0>
+        <Filename Value="pmakedoc.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="pmakedoc"/>
+        <UsageCount Value="46"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="unit1.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="Unit1"/>
+        <EditorIndex Value="0"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="112"/>
+        <CursorPos X="27" Y="119"/>
+        <UsageCount Value="46"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="C:\lazarus\lcl\dialogs.pp"/>
+        <UnitName Value="Dialogs"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="114"/>
+        <CursorPos X="14" Y="132"/>
+        <UsageCount Value="13"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="C:\lazarus\lcl\include\filedialog.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="54"/>
+        <CursorPos X="3" Y="59"/>
+        <UsageCount Value="13"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="C:\lazarus\components\lazutils\fileutil.pas"/>
+        <UnitName Value="FileUtil"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="42"/>
+        <CursorPos X="10" Y="61"/>
+        <UsageCount Value="14"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="C:\lazarus\components\lazutils\winfileutil.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="512"/>
+        <CursorPos X="3" Y="514"/>
+        <UsageCount Value="14"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\sysutils\filutilh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="3" Y="17"/>
+        <UsageCount Value="13"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\sysutils\sysutilh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="19"/>
+        <CursorPos X="4" Y="38"/>
+        <UsageCount Value="13"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\win\wininc\struct.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="6819"/>
+        <CursorPos X="11" Y="6838"/>
+        <UsageCount Value="13"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="..\bgrabitmap\bgrautf8.pas"/>
+        <UnitName Value="BGRAUTF8"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="227"/>
+        <CursorPos X="3" Y="260"/>
+        <UsageCount Value="13"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="..\bgrabitmap\csscolorconst.inc"/>
+        <EditorIndex Value="5"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="322"/>
+        <CursorPos X="1" Y="323"/>
+        <UsageCount Value="16"/>
+        <Loaded Value="True"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\win32\system.pp"/>
+        <UnitName Value="System"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="17"/>
+        <CursorPos X="2" Y="36"/>
+        <UsageCount Value="13"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\objpas.pp"/>
+        <UnitName Value="objpas"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="67"/>
+        <CursorPos X="33" Y="86"/>
+        <UsageCount Value="13"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="..\bgrabitmap\bgrabitmaptypes.pas"/>
+        <UnitName Value="BGRABitmapTypes"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="200"/>
+        <CursorPos X="3" Y="217"/>
+        <UsageCount Value="21"/>
+        <Loaded Value="True"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="..\bgrabitmap\geometrytypes.inc"/>
+        <EditorIndex Value="6"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="412"/>
+        <CursorPos X="1" Y="414"/>
+        <UsageCount Value="14"/>
+        <Loaded Value="True"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="..\bgrabitmap\bgrapixel.inc"/>
+        <EditorIndex Value="7"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="15"/>
+        <Loaded Value="True"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="2"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="16"/>
+        <Loaded Value="True"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="..\bgrabitmap\bgratext.pas"/>
+        <UnitName Value="BGRAText"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="77"/>
+        <CursorPos X="1" Y="101"/>
+        <UsageCount Value="12"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="..\bgrabitmap\bgrafreetype.pas"/>
+        <UnitName Value="BGRAFreeType"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="309"/>
+        <CursorPos X="31" Y="347"/>
+        <UsageCount Value="12"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="..\bgrabitmap\bgragraphics.pas"/>
+        <UnitName Value="BGRAGraphics"/>
+        <EditorIndex Value="3"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="3" Y="16"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="C:\lazarus\lcl\graphics.pp"/>
+        <UnitName Value="Graphics"/>
+        <EditorIndex Value="4"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="564"/>
+        <CursorPos X="3" Y="583"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="..\bgrabitmap\bgrapen.pas"/>
+        <UnitName Value="BGRAPen"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1448"/>
+        <CursorPos X="1" Y="1484"/>
+        <UsageCount Value="11"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\packages\fcl-image\src\fpimage.pp"/>
+        <UnitName Value="FPimage"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="11"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\packages\fcl-image\src\fpcanvas.pp"/>
+        <UnitName Value="FPCanvas"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="127"/>
+        <CursorPos X="1" Y="157"/>
+        <UsageCount Value="11"/>
+      </Unit23>
+      <Unit24>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\packages\fcl-image\src\fppen.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="20"/>
+        <CursorPos X="16" Y="54"/>
+        <UsageCount Value="11"/>
+      </Unit24>
+      <Unit25>
+        <Filename Value="C:\lazarus\lcl\include\pen.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="491"/>
+        <CursorPos X="3" Y="502"/>
+        <UsageCount Value="11"/>
+      </Unit25>
+      <Unit26>
+        <Filename Value="..\bgrabitmap\bgracanvas.pas"/>
+        <UnitName Value="BGRACanvas"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="44"/>
+        <CursorPos X="1" Y="45"/>
+        <UsageCount Value="11"/>
+      </Unit26>
+      <Unit27>
+        <Filename Value="C:\lazarus\components\lazutils\fileutil.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1499"/>
+        <CursorPos X="3" Y="1508"/>
+        <UsageCount Value="10"/>
+      </Unit27>
+    </Units>
+    <General>
+      <ActiveWindowIndexAtStart Value="0"/>
+    </General>
+    <JumpHistory Count="30" HistoryIndex="28">
+      <Position1>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="71" Column="56" TopLine="48"/>
+      </Position1>
+      <Position2>
+        <Filename Value="..\bgrabitmap\bgrabitmaptypes.pas"/>
+        <Caret Line="96" Column="1" TopLine="96"/>
+      </Position2>
+      <Position3>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="262" Column="18" TopLine="246"/>
+      </Position3>
+      <Position4>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="171" Column="1" TopLine="152"/>
+      </Position4>
+      <Position5>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="261" Column="18" TopLine="230"/>
+      </Position5>
+      <Position6>
+        <Filename Value="..\bgrabitmap\bgrabitmaptypes.pas"/>
+        <Caret Line="306" Column="18" TopLine="292"/>
+      </Position6>
+      <Position7>
+        <Filename Value="..\bgrabitmap\bgrabitmaptypes.pas"/>
+        <Caret Line="296" Column="29" TopLine="274"/>
+      </Position7>
+      <Position8>
+        <Filename Value="..\bgrabitmap\bgrabitmaptypes.pas"/>
+        <Caret Line="134" Column="1" TopLine="133"/>
+      </Position8>
+      <Position9>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <Caret Line="712" Column="1" TopLine="710"/>
+      </Position9>
+      <Position10>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <Caret Line="1565" Column="9" TopLine="1527"/>
+      </Position10>
+      <Position11>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position11>
+      <Position12>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <Caret Line="1565" Column="9" TopLine="1527"/>
+      </Position12>
+      <Position13>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <Caret Line="16" Column="36" TopLine="1"/>
+      </Position13>
+      <Position14>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <Caret Line="20" Column="27" TopLine="1"/>
+      </Position14>
+      <Position15>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <Caret Line="35" Column="27" TopLine="3"/>
+      </Position15>
+      <Position16>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <Caret Line="584" Column="28" TopLine="554"/>
+      </Position16>
+      <Position17>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <Caret Line="35" Column="14" TopLine="15"/>
+      </Position17>
+      <Position18>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <Caret Line="20" Column="14" TopLine="12"/>
+      </Position18>
+      <Position19>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <Caret Line="35" Column="27" TopLine="16"/>
+      </Position19>
+      <Position20>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <Caret Line="584" Column="27" TopLine="554"/>
+      </Position20>
+      <Position21>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <Caret Line="612" Column="42" TopLine="580"/>
+      </Position21>
+      <Position22>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <Caret Line="584" Column="15" TopLine="577"/>
+      </Position22>
+      <Position23>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <Caret Line="35" Column="14" TopLine="15"/>
+      </Position23>
+      <Position24>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <Caret Line="148" Column="8" TopLine="128"/>
+      </Position24>
+      <Position25>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <Caret Line="150" Column="72" TopLine="128"/>
+      </Position25>
+      <Position26>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <Caret Line="136" Column="30" TopLine="136"/>
+      </Position26>
+      <Position27>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <Caret Line="129" Column="58" TopLine="129"/>
+      </Position27>
+      <Position28>
+        <Filename Value="..\bgrabitmap\bgrabitmaptypes.pas"/>
+        <Caret Line="181" Column="7" TopLine="163"/>
+      </Position28>
+      <Position29>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <Caret Line="140" Column="45" TopLine="127"/>
+      </Position29>
+      <Position30>
+        <Filename Value="..\bgrabitmap\bgrabitmaptypes.pas"/>
+        <Caret Line="217" Column="3" TopLine="200"/>
+      </Position30>
+    </JumpHistory>
+  </ProjectSession>
+</CONFIG>

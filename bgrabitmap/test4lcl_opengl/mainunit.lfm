@@ -1,0 +1,17 @@
+object Form1: TForm1
+  Left = 419
+  Height = 300
+  Top = 287
+  Width = 400
+  HorzScrollBar.Page = 399
+  VertScrollBar.Page = 299
+  Caption = 'BGRABitmapPack + LCL + OpenGLContext'
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnKeyDown = FormKeyDown
+  OnKeyUp = FormKeyUp
+  OnMouseDown = FormMouseDown
+  OnMouseMove = FormMouseMove
+  OnMouseUp = FormMouseUp
+  LCLVersion = '1.4.0.4'
+end

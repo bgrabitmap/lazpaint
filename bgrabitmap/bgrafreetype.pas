@@ -10,8 +10,8 @@ unit BGRAFreeType;
   To do this, create an instance of this class and assign it to a TBGRABitmap.FontRenderer property. Now functions
   to draw text like TBGRABitmap.TextOut will use the chosen renderer.
 
-  >> Note that you need to defined the default FreeType font collection
-  >> using LazFreeTypeFontCollection unit.
+  >> Note that you need to define the default FreeType font collection
+  >> using EasyLazFreeType unit.
 
   To set the effects, keep a variable containing
   the TBGRAFreeTypeFontRenderer class and modify ShadowVisible and other effects parameters. The FontHinted property
@@ -25,8 +25,11 @@ unit BGRAFreeType;
 
 interface
 
+{$i bgrabitmap.inc}
+
 uses
-  Types, Classes, SysUtils, Graphics, BGRABitmapTypes, EasyLazFreeType, FPimage, BGRAText, BGRATextFX, BGRAPhongTypes, LCLVersion;
+  Types, Classes, SysUtils, BGRAGraphics, BGRABitmapTypes, EasyLazFreeType, FPimage,
+  BGRACustomTextFX, BGRAPhongTypes;
 
 type
   TBGRAFreeTypeDrawer = class;
@@ -56,6 +59,7 @@ type
     ShadowColor: TBGRAPixel;
     ShadowRadius: integer;
     ShadowOffset: TPoint;
+    ShadowQuality: TRadialBlurType;
 
     OutlineColor: TBGRAPixel;
     OutlineVisible,OuterOutlineOnly: boolean;
@@ -100,6 +104,7 @@ type
     ShadowColor: TBGRAPixel;
     ShadowRadius: integer;
     ShadowOffset: TPoint;
+    ShadowQuality: TRadialBlurType;
 
     OutlineColor: TBGRAPixel;
     OutlineVisible,OuterOutlineOnly: boolean;
@@ -109,14 +114,25 @@ type
     procedure DrawText(AText: string; AFont: TFreeTypeRenderableFont; x,y: single; AColor: TFPColor); override; overload;
     procedure DrawText(AText: string; AFont: TFreeTypeRenderableFont; x,y: single; AColor: TBGRAPixel); overload;
     procedure DrawText(AText: string; AFont: TFreeTypeRenderableFont; x,y: single; AColor: TBGRAPixel; AAlign: TFreeTypeAlignments); overload;
-    function CreateTextEffect(AText: string; AFont: TFreeTypeRenderableFont): TBGRATextEffect;
+    { If this code does not compile, you probably have an older version of Lazarus. To fix the problem,
+      go into "bgrabitmap.inc" and comment the compiler directives }
+    {$IFDEF BGRABITMAP_USE_LCL12}
+    procedure DrawTextWordBreak(AText: string; AFont: TFreeTypeRenderableFont; x, y, AMaxWidth: Single; AColor: TBGRAPixel; AAlign: TFreeTypeAlignments); overload;
+    procedure DrawTextRect(AText: string; AFont: TFreeTypeRenderableFont; X1,Y1,X2,Y2: Single; AColor: TBGRAPixel; AAlign: TFreeTypeAlignments); overload;
+    {$ENDIF}
+    {$IFDEF BGRABITMAP_USE_LCL15}
+    procedure DrawGlyph(AGlyph: integer; AFont: TFreeTypeRenderableFont; x,y: single; AColor: TFPColor); override; overload;
+    procedure DrawGlyph(AGlyph: integer; AFont: TFreeTypeRenderableFont; x,y: single; AColor: TBGRAPixel); overload;
+    procedure DrawGlyph(AGlyph: integer; AFont: TFreeTypeRenderableFont; x,y: single; AColor: TBGRAPixel; AAlign: TFreeTypeAlignments); overload;
+    {$ENDIF}
+    function CreateTextEffect(AText: string; AFont: TFreeTypeRenderableFont): TBGRACustomTextEffect;
     destructor Destroy; override;
   end;
 
 
 implementation
 
-uses LCLType, BGRABlend, Math;
+uses BGRABlend, Math;
 
 { TBGRAFreeTypeFontRenderer }
 
@@ -132,6 +148,7 @@ begin
   result.ShadowOffset := ShadowOffset;
   result.ShadowRadius := ShadowRadius;
   result.ShadowVisible := ShadowVisible;
+  result.ShadowQuality := ShadowQuality;
   result.ClearTypeRGBOrder := FontQuality <> fqFineClearTypeBGR;
   result.Destination := ASurface;
   result.OutlineColor := OutlineColor;
@@ -163,8 +180,8 @@ begin
   if fsBold in FontStyle then fts += [ftsBold];
   if fsItalic in FontStyle then fts += [ftsItalic];
   try
-    {$IF (lcl_fullversion>=1010000)}
-    FFont.SetNameAndStyle(FontName,fts);
+    {$IFDEF BGRABITMAP_USE_LCL12}
+      FFont.SetNameAndStyle(FontName,fts);
     {$ELSE}
     FFont.Name := FontName;
     FFont.Style := fts;
@@ -201,9 +218,9 @@ begin
     end;
   end;
   FFont.Hinted := FontHinted;
-  {$IF (lcl_fullversion>=1010000)}
-  FFont.StrikeOutDecoration := fsStrikeOut in FontStyle;
-  FFont.UnderlineDecoration := fsUnderline in FontStyle;
+  {$IFDEF BGRABITMAP_USE_LCL12}
+    FFont.StrikeOutDecoration := fsStrikeOut in FontStyle;
+    FFont.UnderlineDecoration := fsUnderline in FontStyle;
   {$ENDIF}
 end;
 
@@ -219,6 +236,7 @@ begin
   ShadowVisible := false;
   ShadowOffset := Point(5,5);
   ShadowRadius := 5;
+  ShadowQuality:= rbFast;
 end;
 
 constructor TBGRAFreeTypeFontRenderer.Create;
@@ -302,17 +320,17 @@ begin
     align += [ftaLeft];
   end;
   case style.Layout of
-  {$IF (lcl_fullversion>=1010000)}
-  tlCenter: begin ARect.Top := y; align += [ftaVerticalCenter]; end;
+  {$IFDEF BGRABITMAP_USE_LCL12}
+    tlCenter: begin ARect.Top := y; align += [ftaVerticalCenter]; end;
   {$ENDIF}
   tlBottom: begin ARect.top := y; align += [ftaBottom]; end;
   else align += [ftaTop];
   end;
   try
-    {$IF (lcl_fullversion>=1010000)}
-    if style.Wordbreak then
-      GetDrawer(ADest).DrawTextRect(s, FFont, ARect.Left,ARect.Top,ARect.Right,ARect.Bottom,BGRAToFPColor(c),align)
-    else
+    {$IFDEF BGRABITMAP_USE_LCL12}
+      if style.Wordbreak then
+        GetDrawer(ADest).DrawTextRect(s, FFont, ARect.Left,ARect.Top,ARect.Right,ARect.Bottom,BGRAToFPColor(c),align)
+      else
     {$ENDIF}
     begin
       case style.Layout of
@@ -344,6 +362,7 @@ end;
 
 function TBGRAFreeTypeFontRenderer.TextSize(s: string): TSize;
 begin
+  UpdateFont;
   result.cx := round(FFont.TextWidth(s));
   result.cy := round(FFont.LineFullHeight);
 end;
@@ -456,11 +475,12 @@ begin
   Destination := ADestination;
   ClearTypeRGBOrder:= true;
   ShaderActive := true;
+  ShadowQuality:= rbFast;
 end;
 
 procedure TBGRAFreeTypeDrawer.DrawText(AText: string;
   AFont: TFreeTypeRenderableFont; x, y: single; AColor: TFPColor);
-var fx: TBGRATextEffect;
+var fx: TBGRACustomTextEffect;
   procedure DoOutline;
   begin
     if OutlineActuallyVisible then
@@ -475,6 +495,7 @@ begin
   if not FInCreateTextEffect and (ShadowActuallyVisible or OutlineActuallyVisible or ShaderActuallyActive) then
   begin
     fx := CreateTextEffect(AText, AFont);
+    fx.ShadowQuality := ShadowQuality;
     y -= AFont.Ascent;
     if ShadowActuallyVisible then fx.DrawShadow(Destination, round(x+ShadowOffset.X),round(y+ShadowOffset.Y), ShadowRadius, ShadowColor);
     if OuterOutlineOnly then DoOutline;
@@ -517,8 +538,52 @@ begin
   DrawText(AText, AFont, x,y, BGRAToFPColor(AColor), AAlign);
 end;
 
+{$IFDEF BGRABITMAP_USE_LCL12}
+procedure TBGRAFreeTypeDrawer.DrawTextWordBreak(AText: string;
+  AFont: TFreeTypeRenderableFont; x, y, AMaxWidth: Single; AColor: TBGRAPixel;
+  AAlign: TFreeTypeAlignments);
+begin
+  DrawTextWordBreak(AText,AFont,x,y,AMaxWidth,BGRAToFPColor(AColor),AAlign);
+end;
+
+procedure TBGRAFreeTypeDrawer.DrawTextRect(AText: string;
+  AFont: TFreeTypeRenderableFont; X1, Y1, X2, Y2: Single; AColor: TBGRAPixel;
+  AAlign: TFreeTypeAlignments);
+begin
+  DrawTextRect(AText,AFont,X1,Y1,X2,Y2,BGRAToFPColor(AColor),AAlign);
+end;
+{$ENDIF}
+
+{$IFDEF BGRABITMAP_USE_LCL15}
+procedure TBGRAFreeTypeDrawer.DrawGlyph(AGlyph: integer;
+  AFont: TFreeTypeRenderableFont; x, y: single; AColor: TFPColor);
+var f: TFreeTypeFont;
+begin
+  if not (AFont is TFreeTypeFont) then exit;
+  f := TFreeTypeFont(Afont);
+  FColor := FPColorToBGRA(AColor);
+  if AFont.ClearType then
+    f.RenderGlyph(AGlyph, x, y, Destination.ClipRect, @RenderDirectlyClearType)
+  else
+    f.RenderGlyph(AGlyph, x, y, Destination.ClipRect, @RenderDirectly);
+end;
+
+procedure TBGRAFreeTypeDrawer.DrawGlyph(AGlyph: integer;
+  AFont: TFreeTypeRenderableFont; x, y: single; AColor: TBGRAPixel);
+begin
+  DrawGlyph(AGlyph, AFont, x,y, BGRAToFPColor(AColor));
+end;
+
+procedure TBGRAFreeTypeDrawer.DrawGlyph(AGlyph: integer;
+  AFont: TFreeTypeRenderableFont; x, y: single; AColor: TBGRAPixel;
+  AAlign: TFreeTypeAlignments);
+begin
+  DrawGlyph(AGlyph, AFont, x,y, BGRAToFPColor(AColor), AAlign);
+end;
+{$ENDIF}
+
 function TBGRAFreeTypeDrawer.CreateTextEffect(AText: string;
-  AFont: TFreeTypeRenderableFont): TBGRATextEffect;
+  AFont: TFreeTypeRenderableFont): TBGRACustomTextEffect;
 var
   mask: TBGRACustomBitmap;
   tx,ty,marginHoriz,marginVert: integer;
@@ -544,7 +609,7 @@ begin
     Texture := tempTex;
     AFont.ClearType := tempClearType;
     mask.ConvertToLinearRGB;
-    result := TBGRATextEffect.Create(mask, true,tx,ty,point(-marginHoriz,-marginVert));
+    result := TBGRACustomTextEffect.Create(mask, true,tx,ty,point(-marginHoriz,-marginVert));
   finally
     FInCreateTextEffect:= false;
   end;

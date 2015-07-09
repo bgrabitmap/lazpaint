@@ -83,9 +83,19 @@ begin
     if (FHTTPBuffer <> '') and (FDownloadedLanguageFile <> '') and
      (copy(FHTTPBuffer,1,8)='msgid ""') then
     begin
-      stream := TFileStreamUTF8.Create(ActualConfigDirUTF8+FDownloadedLanguageFile,fmOpenWrite or fmCreate);
-      stream.Write(FHTTPBuffer[1],length(FHTTPBuffer));
-      stream.Free;
+      try
+        if FileExistsUTF8(ActualConfigDirUTF8+FDownloadedLanguageFile) then
+          DeleteFileUTF8(ActualConfigDirUTF8+FDownloadedLanguageFile);
+        stream := TFileStreamUTF8.Create(ActualConfigDirUTF8+FDownloadedLanguageFile,fmOpenWrite or fmCreate);
+        try
+          stream.Write(FHTTPBuffer[1],length(FHTTPBuffer));
+        finally
+          stream.Free;
+        end;
+      except
+
+      end;
+      //even if there was an error, we consider that it has been downloaded to avoid downloading it again
       FConfig.AddUpdatedLanguage(FDownloadedLanguage);
       FUpdaterState:= usReady;
     end else
@@ -266,4 +276,4 @@ end;
 {$ENDIF}
 
 end.
-
+

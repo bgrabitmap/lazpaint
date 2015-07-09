@@ -4,12 +4,17 @@ type
 
   TBGRAMaterial3D = class(TInterfacedObject, IBGRAMaterial3D)
   private
-    FDiffuseColorInt: TColorInt65536;
+    FName: string;
+    FTexture: IBGRAScanner;
+    FAutoSimpleColor,FAutoAmbiantColor,FAutoDiffuseColor,FAutoSpecularColor: boolean;
+    FSimpleColorInt, FAmbiantColorInt, FDiffuseColorInt: TColorInt65536;
     FDiffuseLightness: integer;
+    FTextureZoom: TPointF;
+
     FSpecularColorInt: TColorInt65536;
-    FAutoDiffuseColor,FAutoSpecularColor: boolean;
     FSpecularIndex: integer;
     FSpecularOn: boolean;
+
     FSaturationLowF: single;
     FSaturationHighF: single;
     FLightThroughFactor: single;
@@ -20,13 +25,21 @@ type
     FPowerTableSizeF: single;
 
     procedure UpdateSpecular;
+    procedure UpdateSimpleColor;
     procedure ComputePowerTable;
   public
     constructor Create;
     destructor Destroy; override;
 
+    function GetAutoAmbiantColor: boolean;
     function GetAutoDiffuseColor: boolean;
     function GetAutoSpecularColor: boolean;
+    function GetAutoSimpleColor: boolean;
+    function GetAmbiantAlpha: byte;
+    function GetAmbiantColor: TBGRAPixel;
+    function GetAmbiantColorF: TColorF;
+    function GetAmbiantColorInt: TColorInt65536;
+    function GetDiffuseAlpha: byte;
     function GetDiffuseColor: TBGRAPixel;
     function GetDiffuseColorF: TColorF;
     function GetDiffuseColorInt: TColorInt65536;
@@ -37,8 +50,20 @@ type
     function GetSpecularIndex: integer;
     function GetSaturationHigh: single;
     function GetSaturationLow: single;
+    function GetSimpleAlpha: byte;
+    function GetSimpleColor: TBGRAPixel;
+    function GetSimpleColorF: TColorF;
+    function GetSimpleColorInt: TColorInt65536;
+    function GetTexture: IBGRAScanner;
+    function GetTextureZoom: TPointF;
+    procedure SetAutoAmbiantColor(const AValue: boolean);
     procedure SetAutoDiffuseColor(const AValue: boolean);
     procedure SetAutoSpecularColor(const AValue: boolean);
+    procedure SetAmbiantAlpha(AValue: byte);
+    procedure SetAmbiantColor(const AValue: TBGRAPixel);
+    procedure SetAmbiantColorF(const AValue: TColorF);
+    procedure SetAmbiantColorInt(const AValue: TColorInt65536);
+    procedure SetDiffuseAlpha(AValue: byte);
     procedure SetDiffuseColor(const AValue: TBGRAPixel);
     procedure SetDiffuseColorF(const AValue: TColorF);
     procedure SetDiffuseColorInt(const AValue: TColorInt65536);
@@ -49,6 +74,14 @@ type
     procedure SetSpecularIndex(const AValue: integer);
     procedure SetSaturationHigh(const AValue: single);
     procedure SetSaturationLow(const AValue: single);
+    procedure SetSimpleAlpha(AValue: byte);
+    procedure SetSimpleColor(AValue: TBGRAPixel);
+    procedure SetSimpleColorF(AValue: TColorF);
+    procedure SetSimpleColorInt(AValue: TColorInt65536);
+    procedure SetTexture(AValue: IBGRAScanner);
+    procedure SetTextureZoom(AValue: TPointF);
+    function GetName: string;
+    procedure SetName(const AValue: string);
 
     function GetSpecularOn: boolean;
     function GetAsObject: TObject;
@@ -62,8 +95,15 @@ type
 
 procedure TBGRAMaterial3D.UpdateSpecular;
 begin
+  FAutoSpecularColor := (FSpecularColorInt.r = 65536) and (FSpecularColorInt.g = 65536) and (FSpecularColorInt.b = 65536) and (FSpecularColorInt.a = 65536);
   FSpecularOn := (FSpecularIndex > 0) and ((FSpecularColorInt.r <> 0) or (FSpecularColorInt.g <> 0) or (FSpecularColorInt.b <> 0) or
                                             FAutoSpecularColor);
+end;
+
+procedure TBGRAMaterial3D.UpdateSimpleColor;
+begin
+  FSimpleColorInt := (FAmbiantColorInt+FDiffuseColorInt)*32768;
+  FAutoSimpleColor := (FSimpleColorInt.r = 65536) and (FSimpleColorInt.g = 65536) and (FSimpleColorInt.b = 65536) and (FSimpleColorInt.a = 65536);
 end;
 
 procedure TBGRAMaterial3D.ComputePowerTable;
@@ -90,15 +130,16 @@ end;
 
 constructor TBGRAMaterial3D.Create;
 begin
+  SetAmbiantColorInt(ColorInt65536(65536,65536,65536));
   SetDiffuseColorInt(ColorInt65536(65536,65536,65536));
-  FAutoDiffuseColor:= True;
-  FSpecularColorInt := ColorInt65536(0,0,0);
-  FAutoSpecularColor:= True;
   FSpecularIndex := 10;
-  FSpecularOn := false;
+  SetSpecularColorInt(ColorInt65536(0,0,0));
   FLightThroughFactor:= 0;
   SetSaturationLow(2);
   SetSaturationHigh(3);
+
+  FTexture := nil;
+  FTextureZoom := PointF(1,1);
 
   FPowerTableSize := 128;
   FPowerTableSizeF := FPowerTableSize;
@@ -110,6 +151,20 @@ begin
   inherited Destroy;
 end;
 
+function TBGRAMaterial3D.GetAutoAmbiantColor: boolean;
+begin
+  result := FAutoAmbiantColor;
+end;
+
+procedure TBGRAMaterial3D.SetDiffuseAlpha(AValue: byte);
+begin
+  if AValue = 0 then
+    FDiffuseColorInt.a := 0
+  else
+    FDiffuseColorInt.a := AValue*257+1;
+  UpdateSimpleColor;
+end;
+
 function TBGRAMaterial3D.GetAutoDiffuseColor: boolean;
 begin
   result := FAutoDiffuseColor;
@@ -118,6 +173,52 @@ end;
 function TBGRAMaterial3D.GetAutoSpecularColor: boolean;
 begin
   result := FAutoSpecularColor;
+end;
+
+function TBGRAMaterial3D.GetAutoSimpleColor: boolean;
+begin
+  result := FAutoSimpleColor;
+end;
+
+function TBGRAMaterial3D.GetAmbiantAlpha: byte;
+var v: integer;
+begin
+  if FAmbiantColorInt.a < 128 then
+    result := 0
+  else
+  begin
+    v := (FAmbiantColorInt.a-128) shr 8;
+    if v > 255 then v := 255;
+    result := v;
+  end;
+end;
+
+function TBGRAMaterial3D.GetAmbiantColor: TBGRAPixel;
+begin
+  result := ColorIntToBGRA(FAmbiantColorInt);
+end;
+
+function TBGRAMaterial3D.GetAmbiantColorF: TColorF;
+begin
+  result := ColorInt65536ToColorF(FAmbiantColorInt);
+end;
+
+function TBGRAMaterial3D.GetAmbiantColorInt: TColorInt65536;
+begin
+  result := FAmbiantColorInt;
+end;
+
+function TBGRAMaterial3D.GetDiffuseAlpha: byte;
+var v: integer;
+begin
+  if FDiffuseColorInt.a < 128 then
+    result := 0
+  else
+  begin
+    v := (FDiffuseColorInt.a-128) shr 8;
+    if v > 255 then v := 255;
+    result := v;
+  end;
 end;
 
 function TBGRAMaterial3D.GetDiffuseColor: TBGRAPixel;
@@ -170,33 +271,106 @@ begin
   result := FSaturationLowF;
 end;
 
+function TBGRAMaterial3D.GetSimpleAlpha: byte;
+begin
+  result := (GetAmbiantAlpha + GetDiffuseAlpha) shr 1;
+end;
+
+function TBGRAMaterial3D.GetSimpleColor: TBGRAPixel;
+begin
+  result := ColorIntToBGRA(GetSimpleColorInt);
+end;
+
+function TBGRAMaterial3D.GetSimpleColorF: TColorF;
+begin
+  result := ColorInt65536ToColorF(GetSimpleColorInt);
+end;
+
+function TBGRAMaterial3D.GetSimpleColorInt: TColorInt65536;
+begin
+  result := (GetAmbiantColorInt + GetDiffuseColorInt)*32768;
+end;
+
+function TBGRAMaterial3D.GetTexture: IBGRAScanner;
+begin
+  result := FTexture;
+end;
+
+function TBGRAMaterial3D.GetTextureZoom: TPointF;
+begin
+  result := FTextureZoom;
+end;
+
+procedure TBGRAMaterial3D.SetAutoAmbiantColor(const AValue: boolean);
+begin
+  If AValue then
+    SetAmbiantColorInt(ColorInt65536(65536,65536,65536));
+end;
+
 procedure TBGRAMaterial3D.SetAutoDiffuseColor(const AValue: boolean);
 begin
-  FAutoDiffuseColor:= AValue;
+  If AValue then
+    SetDiffuseColorInt(ColorInt65536(65536,65536,65536));
 end;
 
 procedure TBGRAMaterial3D.SetAutoSpecularColor(const AValue: boolean);
 begin
-  FAutoSpecularColor:= AValue;
-  UpdateSpecular;
+  If AValue then
+    SetSpecularColorInt(ColorInt65536(65536,65536,65536));
+end;
+
+procedure TBGRAMaterial3D.SetAmbiantAlpha(AValue: byte);
+begin
+  if AValue = 0 then
+    FAmbiantColorInt.a := 0
+  else
+    FAmbiantColorInt.a := AValue*257+1;
+  UpdateSimpleColor;
+end;
+
+procedure TBGRAMaterial3D.SetAmbiantColor(const AValue: TBGRAPixel);
+begin
+  FAmbiantColorInt := BGRAToColorInt(AValue);
+  FAutoAmbiantColor := (FAmbiantColorInt.r = 65536) and (FAmbiantColorInt.g = 65536) and (FAmbiantColorInt.b = 65536) and (FAmbiantColorInt.a = 65536);
+  UpdateSimpleColor;
+end;
+
+procedure TBGRAMaterial3D.SetAmbiantColorF(const AValue: TColorF);
+begin
+  FAmbiantColorInt := ColorFToColorInt65536(AValue);
+  FAutoAmbiantColor := (FAmbiantColorInt.r = 65536) and (FAmbiantColorInt.g = 65536) and (FAmbiantColorInt.b = 65536) and (FAmbiantColorInt.a = 65536);
+  UpdateSimpleColor;
+end;
+
+procedure TBGRAMaterial3D.SetAmbiantColorInt(const AValue: TColorInt65536);
+begin
+  FAmbiantColorInt := AValue;
+  FAutoAmbiantColor := (FAmbiantColorInt.r = 65536) and (FAmbiantColorInt.g = 65536) and (FAmbiantColorInt.b = 65536) and (FAmbiantColorInt.a = 65536);
+  UpdateSimpleColor;
 end;
 
 procedure TBGRAMaterial3D.SetDiffuseColor(const AValue: TBGRAPixel);
 begin
   FDiffuseColorInt := BGRAToColorInt(AValue);
   FDiffuseLightness := (FDiffuseColorInt.r + FDiffuseColorInt.g + FDiffuseColorInt.b) div 6;
+  FAutoDiffuseColor:= (FDiffuseColorInt.r = 65536) and (FDiffuseColorInt.g = 65536) and (FDiffuseColorInt.b = 65536);
+  UpdateSimpleColor;
 end;
 
 procedure TBGRAMaterial3D.SetDiffuseColorF(const AValue: TColorF);
 begin
   FDiffuseColorInt := ColorFToColorInt65536(AValue);
   FDiffuseLightness := (FDiffuseColorInt.r + FDiffuseColorInt.g + FDiffuseColorInt.b) div 6;
+  FAutoDiffuseColor:= (FDiffuseColorInt.r = 65536) and (FDiffuseColorInt.g = 65536) and (FDiffuseColorInt.b = 65536);
+  UpdateSimpleColor;
 end;
 
 procedure TBGRAMaterial3D.SetDiffuseColorInt(const AValue: TColorInt65536);
 begin
   FDiffuseColorInt := AValue;
   FDiffuseLightness := (FDiffuseColorInt.r + FDiffuseColorInt.g + FDiffuseColorInt.b) div 6;
+  FAutoDiffuseColor:= (FDiffuseColorInt.r = 65536) and (FDiffuseColorInt.g = 65536) and (FDiffuseColorInt.b = 65536);
+  UpdateSimpleColor;
 end;
 
 procedure TBGRAMaterial3D.SetLightThroughFactor(const AValue: single);
@@ -237,6 +411,50 @@ end;
 procedure TBGRAMaterial3D.SetSaturationLow(const AValue: single);
 begin
   FSaturationLowF:= AValue;
+end;
+
+procedure TBGRAMaterial3D.SetSimpleAlpha(AValue: byte);
+begin
+  SetAmbiantAlpha(AValue);
+  SetDiffuseAlpha(AValue);
+end;
+
+procedure TBGRAMaterial3D.SetSimpleColor(AValue: TBGRAPixel);
+begin
+  SetAmbiantColor(AValue);
+  SetDiffuseColor(AValue);
+end;
+
+procedure TBGRAMaterial3D.SetSimpleColorF(AValue: TColorF);
+begin
+  SetAmbiantColorF(AValue);
+  SetDiffuseColorF(AValue);
+end;
+
+procedure TBGRAMaterial3D.SetSimpleColorInt(AValue: TColorInt65536);
+begin
+  SetAmbiantColorInt(AValue);
+  SetDiffuseColorInt(AValue);
+end;
+
+procedure TBGRAMaterial3D.SetTexture(AValue: IBGRAScanner);
+begin
+  FTexture := AValue;
+end;
+
+procedure TBGRAMaterial3D.SetTextureZoom(AValue: TPointF);
+begin
+  FTextureZoom := AValue;
+end;
+
+function TBGRAMaterial3D.GetName: string;
+begin
+  result := FName;
+end;
+
+procedure TBGRAMaterial3D.SetName(const AValue: string);
+begin
+  FName := AValue;
 end;
 
 function TBGRAMaterial3D.GetSpecularOn: boolean;
@@ -282,7 +500,7 @@ begin
       end;
     end
     else
-      NH *= FPowerTableSize;
+      PowerTablePos := NH*FPowerTableSize;
     {$ELSE}
     PowerTablePos := NH;
     for i := FPowerTableExp2-1 downto 0 do
@@ -297,12 +515,12 @@ begin
   if FAutoDiffuseColor then
     Context^.diffuseColor += ALightColor*round(DiffuseIntensity*65536)
   else
-    Context^.diffuseColor += FDiffuseColorInt*round(DiffuseIntensity*65536);
+    Context^.diffuseColor += ALightColor*FDiffuseColorInt*round(DiffuseIntensity*65536);
 
   if FAutoSpecularColor then
     Context^.specularColor += ALightColor*round(SpecularIntensity* NnH*65536)
   else
-    Context^.specularColor += FSpecularColorInt*round(SpecularIntensity* NnH*65536);
+    Context^.specularColor += ALightColor*FSpecularColorInt*round(SpecularIntensity* NnH*65536);
 end;
 
 procedure TBGRAMaterial3D.ComputeDiffuseColor(Context: PSceneLightingContext;
@@ -311,7 +529,7 @@ begin
   if FAutoDiffuseColor then
     Context^.diffuseColor += ALightColor*round(DiffuseIntensity*65536)
   else
-    Context^.diffuseColor += FDiffuseColorInt*round(DiffuseIntensity*65536);
+    Context^.diffuseColor += ALightColor*FDiffuseColorInt*round(DiffuseIntensity*65536);
 end;
 
 procedure TBGRAMaterial3D.ComputeDiffuseLightness(
@@ -326,9 +544,9 @@ begin
   end else
   begin
     if FDiffuseLightness <> 32768 then
-      Context^.lightness += CombineLightness(DiffuseLightnessTerm32768,FDiffuseLightness)
+      Context^.lightness += CombineLightness(DiffuseLightnessTerm32768,CombineLightness(FDiffuseLightness,ALightLightness))
     else
-      Context^.lightness += DiffuseLightnessTerm32768;
+      Context^.lightness += CombineLightness(DiffuseLightnessTerm32768,ALightLightness);
   end;
 end;
 
@@ -560,7 +778,7 @@ end;
 
 function TBGRADirectionalLight3D.GetDirection: TPoint3D;
 begin
-  result := Point3D(FDirection.x,FDirection.y,FDirection.z);
+  result := Point3D(-FDirection.x,-FDirection.y,-FDirection.z);
 end;
 
 procedure TBGRADirectionalLight3D.SetDirection(const AValue: TPoint3D);

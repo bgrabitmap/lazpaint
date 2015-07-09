@@ -38,7 +38,7 @@ type
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure ListBox_BlendDblClick(Sender: TObject);
-    procedure ListBox_BlendSelectionChange(Sender: TObject; {%H-} User: boolean);
+    procedure ListBox_BlendSelectionChange(Sender: TObject; {%H-}User: boolean);
     procedure ListBox_DrawBlendItem(Control: TWinControl; Index: Integer;
       ARect: TRect; State: TOwnerDrawState);
     procedure ListBox_DrawPatternItem(Control: TWinControl;
@@ -390,4 +390,4 @@ end;
 {$R *.lfm}
 
 end.
-
+

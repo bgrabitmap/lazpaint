@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  ComCtrls, ExtCtrls, StdCtrls, BGRAVirtualScreen, LazPaintType, BGRABitmap,
-  UVolatileScrollBar, Types, BGRABitmapTypes, UImageObservation;
+  ComCtrls, ExtCtrls, StdCtrls, BGRAVirtualScreen, BCPanel, LazPaintType,
+  BGRABitmap, UVolatileScrollBar, Types, BGRABitmapTypes, UImageObservation;
 
 type
   TDrawLayerItemResult = record
@@ -18,6 +18,7 @@ type
   { TFLayerStack }
 
   TFLayerStack = class(TForm)
+    Panel_WindowTitle: TBCPanel;
     BGRALayerStack: TBGRAVirtualScreen;
     ComboBox_BlendOp: TComboBox;
     Panel1: TPanel;
@@ -35,8 +36,11 @@ type
     procedure BGRALayerStackMouseUp(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; X, Y: Integer);
     procedure BGRALayerStackRedraw(Sender: TObject; Bitmap: TBGRABitmap);
+    procedure BGRALayerStackResize(Sender: TObject);
     procedure ComboBox_BlendOpChange(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormDeactivate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormHide(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -49,6 +53,7 @@ type
     procedure UpdateComboBlendOp;
     procedure UpdateLayerStackItem(idx: integer);
   private
+    FCompletelyResizeable: boolean;
     { private declarations }
     UpdatingComboBlendOp : boolean;
     background: TBGRABitmap;
@@ -75,6 +80,7 @@ type
     function DrawLayerItem(ABitmap: TBGRABitmap; layerPos: TPoint;
       layerIndex: integer; ASelected: boolean): TDrawLayerItemResult;
     procedure RedrawLayerStack(Bitmap: TBGRABitmap; Layout: boolean; UpdateItem: Integer);
+    procedure SetCompletelyResizeable(AValue: boolean);
     procedure UpdateImage;
     procedure OnImageChangedHandler(AEvent: TLazPaintImageObservationEvent);
     procedure SelectBlendOp;
@@ -85,6 +91,7 @@ type
     procedure SetLayerStackScrollPosOnItem(idx: integer);
     procedure AddButton(AAction: TBasicAction);
     procedure AddSeparator;
+    property CompletelyResizeable: boolean read FCompletelyResizeable write SetCompletelyResizeable;
   end;
 
 implementation
@@ -140,6 +147,9 @@ begin
     result.NameRect := rect(layerpos.X+round(LayerRectWidth*0.95),layerpos.Y,layerpos.X+StackWidth,layerPos.Y+LayerRectHeight);
     result.OpacityBar := EmptyRect;
   end;
+  {$IFDEF DARWIN}
+  ABitmap.FontQuality := fqFineAntialiasing;
+  {$ENDIF}
   ABitmap.TextOut(result.NameRect.Left,result.NameRect.Top+(result.NameRect.bottom-result.NameRect.top -ABitmap.FontFullHeight) div 2,
     LazPaintInstance.Image.LayerName[layerIndex],lColor);
 end;
@@ -149,6 +159,7 @@ end;
 procedure TFLayerStack.FormCreate(Sender: TObject);
 begin
   ScaleDPI(Self,OriginalDPI);
+  FCompletelyResizeable:= true;
   Position := poDesigned;
   ZoomFactor := 1;
   ScrollPos := point(0,0);
@@ -162,6 +173,13 @@ begin
   renaming := false;
   Visible := false;
   movingItemStart := false;
+  Panel_WindowTitle.Caption := ' '+self.Caption;
+end;
+
+procedure TFLayerStack.FormDeactivate(Sender: TObject);
+begin
+  Panel_WindowTitle.Background.Color := clInactiveCaption;
+  Panel_WindowTitle.FontEx.Color := clInactiveCaptionText;
 end;
 
 procedure TFLayerStack.FormDestroy(Sender: TObject);
@@ -460,6 +478,11 @@ begin
   RedrawLayerStack(Bitmap,True,-1);
 end;
 
+procedure TFLayerStack.BGRALayerStackResize(Sender: TObject);
+begin
+  BGRALayerStack.DiscardBitmap;
+end;
+
 procedure TFLayerStack.RedrawLayerStack(Bitmap: TBGRABitmap; Layout: boolean; UpdateItem: Integer);
 var i: integer;
   layerPos: TPoint;
@@ -568,8 +591,31 @@ begin
 
     UpdateComboBlendOp;
   end;
-
+  if not CompletelyResizeable then
+  begin
+    Bitmap.DrawVertLine(0,0,Bitmap.Height-1, BGRA(0,0,0,128));
+    Bitmap.DrawVertLine(Bitmap.Width-1,0,Bitmap.Height-1, BGRA(0,0,0,128));
+  end;
   movingItemStart := false;
+end;
+
+procedure TFLayerStack.SetCompletelyResizeable(AValue: boolean);
+begin
+  if FCompletelyResizeable=AValue then Exit;
+  FCompletelyResizeable:=AValue;
+  if AValue then
+  begin
+    BorderStyle := bsSizeToolWin;
+    BGRALayerStack.Align := alNone;
+    Panel_WindowTitle.Visible := false;
+    BGRALayerStack.Align := alClient;
+  end else
+  begin
+    BorderStyle := bsNone;
+    BGRALayerStack.Align := alNone;
+    Panel_WindowTitle.Visible := true;
+    BGRALayerStack.Align := alClient;
+  end;
 end;
 
 procedure TFLayerStack.UpdateImage;
@@ -635,6 +681,12 @@ begin
   end;
 end;
 
+procedure TFLayerStack.FormActivate(Sender: TObject);
+begin
+  Panel_WindowTitle.Background.Color := clActiveCaption;
+  Panel_WindowTitle.FontEx.Color := clCaptionText;
+end;
+
 procedure TFLayerStack.BGRALayerStackMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var i: integer;
@@ -646,6 +698,8 @@ begin
     if ((VolatileHorzScrollBar <> nil) and VolatileHorzScrollBar.MouseDown(X,Y)) or
       ((VolatileVertScrollBar <> nil) and VolatileVertScrollBar.MouseDown(X,Y)) then
     begin
+      if VolatileHorzScrollBar <> nil then ScrollPos.X := VolatileHorzScrollBar.Position;
+      if VolatileVertScrollBar <> nil then ScrollPos.Y := VolatileVertScrollBar.Position;
       BGRALayerStack.RedrawBitmap;
       exit;
     end;
@@ -765,4 +819,4 @@ end;
 {$R *.lfm}
 
 end.
-
+

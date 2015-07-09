@@ -120,7 +120,7 @@ begin
       p := sel.ScanLine[y]+FWorkArea.Left;
       for x := FWorkArea.Left to FWorkArea.Right-1 do
       begin
-        if p^.alpha <> 255 then
+        if p^.green <> 255 then
         begin
           FWorkAreaFullySelected := false;
           break;

@@ -43,6 +43,7 @@ type
     procedure CutSelection;
     procedure DeleteSelection;
     procedure Paste;
+    procedure PasteAsNewLayer;
     procedure SelectAll;
     procedure SelectionFit;
     procedure NewLayer;
@@ -110,6 +111,7 @@ begin
   Scripting.RegisterScriptFunction('EditCut',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditDeleteSelection',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditPaste',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('EditPasteAsNewLayer',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditSelectAll',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditSelectionFit',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerHorizontalFlip',@GenericScriptFunction,ARegister);
@@ -159,6 +161,7 @@ begin
   if f = 'EditCut' then CutSelection else
   if f = 'EditDeleteSelection' then DeleteSelection else
   if f = 'EditPaste' then Paste else
+  if f = 'EditPasteAsNewLayer' then PasteAsNewLayer else
   if f = 'EditSelectAll' then SelectAll else
   if f = 'EditSelectionFit' then SelectionFit else
   if f = 'LayerHorizontalFlip' then HorizontalFlip(foCurrentLayer) else
@@ -736,6 +739,27 @@ begin
         ChooseTool(ptMoveSelection);
       end;
       partial.Free;
+    end;
+  except
+    on ex:Exception do
+      FInstance.ShowError('Paste',ex.Message);
+  end;
+end;
+
+procedure TImageActions.PasteAsNewLayer;
+var partial: TBGRABitmap;
+begin
+  try
+    partial := GetBitmapFromClipboard;
+    if partial<>nil then
+    begin
+      if partial.NbPixels <> 0 then
+      begin
+        AddLayerFromBitmap(partial,'');
+        ChooseTool(ptMoveLayer);
+      end
+      else
+        partial.Free;
     end;
   except
     on ex:Exception do

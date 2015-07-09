@@ -1,0 +1,82 @@
+object FRain: TFRain
+  Left = 489
+  Height = 195
+  Top = 161
+  Width = 164
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
+  Caption = 'Rain'
+  ClientHeight = 195
+  ClientWidth = 164
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnHide = FormHide
+  OnShow = FormShow
+  Position = poMainFormCenter
+  LCLVersion = '1.2.4.0'
+  object PaintBox_Wind: TPaintBox
+    Left = 15
+    Height = 48
+    Top = 32
+    Width = 134
+    OnMouseDown = PaintBox_WindMouseDown
+    OnMouseMove = PaintBox_WindMouseMove
+    OnMouseUp = PaintBox_WindMouseUp
+    OnPaint = PaintBox_WindPaint
+  end
+  object Label_Wind: TLabel
+    Left = 15
+    Height = 15
+    Top = 11
+    Width = 39
+    Caption = 'Wind :'
+    ParentColor = False
+  end
+  object Button_OK: TButton
+    Left = 10
+    Height = 22
+    Top = 160
+    Width = 59
+    Caption = 'OK'
+    Default = True
+    OnClick = Button_OKClick
+    TabOrder = 0
+  end
+  object Button_Cancel: TButton
+    Left = 76
+    Height = 22
+    Top = 160
+    Width = 73
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 1
+  end
+  object TrackBar_Quantity: TTrackBar
+    Left = 8
+    Height = 25
+    Top = 119
+    Width = 144
+    Frequency = 100
+    Max = 100
+    PageSize = 200
+    Position = 0
+    ScalePos = trRight
+    TabOrder = 2
+  end
+  object Label_Quantity: TLabel
+    Left = 16
+    Height = 15
+    Top = 96
+    Width = 55
+    Caption = 'Quantity:'
+    ParentColor = False
+  end
+  object Timer1: TTimer
+    Enabled = False
+    Interval = 100
+    OnTimer = Timer1Timer
+    left = 96
+    top = 40
+  end
+end

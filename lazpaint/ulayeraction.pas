@@ -513,6 +513,7 @@ begin
           if not FImage.SelectionLayerIsEmpty then
             FBackupSelectionLayer := Fimage.GetSelectionLayerIfExists.Duplicate as TBGRABitmap;
         end else
+        if Assigned(FBackupSelectionLayer) then
         begin
           if AllChangesNotified then FBackupSelectionLayer.ClipRect := FSelectionLayerChangedArea;
           if Assigned(FImage.GetSelectionLayerIfExists) then
@@ -557,4 +558,4 @@ end;
 
 
 end.
-
+

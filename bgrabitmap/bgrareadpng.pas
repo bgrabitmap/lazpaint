@@ -498,11 +498,11 @@ begin
     if Header.BitDepth = 16 then
       begin
        p := @Databytes;
-       p^ := 0;
-       for r:=0 to bytewidth-2 do
+       for r:=0 to bytewidth shr 1 - 1 do
        begin
-        inc(p);
-        p^:=FCurrentLine^[Dataindex+r];
+        p^ := FCurrentLine^[Dataindex+(r shl 1)+1];
+        (p+1)^ := FCurrentLine^[Dataindex+(r shl 1)];
+        inc(p,2);
        end;
       end
     else move (FCurrentLine^[DataIndex], Databytes, bytewidth);
@@ -856,13 +856,13 @@ end;
 function TBGRAReaderPNG.ColorGrayAlpha16 (const CD:TColorData) : TFPColor;
 var c : NativeUint;
 begin
-  c := (CD shr 16) and $FFFF;
+  c := CD and $FFFF;
   with result do
     begin
     red := c;
     green := c;
     blue := c;
-    alpha := CD and $FFFF;
+    alpha := (CD shr 16) and $FFFF;
     end;
 end;
 
@@ -933,13 +933,7 @@ begin
   c := CD and 3;
   c := c + (c shl 2);
   c := c + (c shl 4);
-  with result do
-    begin
-    red := c;
-    green := c;
-    blue := c;
-    alpha := 255;
-    end;
+  result := BGRA(c,c,c);
 end;
 
 function TBGRAReaderPNG.BGRAColorGray4(const CD: TColorData): TBGRAPixel;
@@ -947,115 +941,59 @@ var c : NativeUint;
 begin
   c := CD and $F;
   c := c + (c shl 4);
-  with result do
-    begin
-    red := c;
-    green := c;
-    blue := c;
-    alpha := 255;
-    end;
+  result := BGRA(c,c,c);
 end;
 
 function TBGRAReaderPNG.BGRAColorGray8(const CD: TColorData): TBGRAPixel;
 var c : NativeUint;
 begin
   c := CD and $FF;
-  with result do
-    begin
-    red := c;
-    green := c;
-    blue := c;
-    alpha := 255;
-    end;
+  result := BGRA(c,c,c);
 end;
 
 function TBGRAReaderPNG.BGRAColorGray16(const CD: TColorData): TBGRAPixel;
 var c : NativeUint;
 begin
   c := (CD shr 8) and $FF;
-  with result do
-    begin
-    red := c;
-    green := c;
-    blue := c;
-    alpha := 255;
-    end;
+  result := BGRA(c,c,c);
 end;
 
 function TBGRAReaderPNG.BGRAColorGrayAlpha8(const CD: TColorData): TBGRAPixel;
 var c : NativeUint;
 begin
   c := CD and $00FF;
-  with result do
-    begin
-    red := c;
-    green := c;
-    blue := c;
-    alpha := (CD shr 8) and $FF;
-    end;
+  result := BGRA(c,c,c,(CD shr 8) and $FF);
 end;
 
 function TBGRAReaderPNG.BGRAColorGrayAlpha16(const CD: TColorData): TBGRAPixel;
 var c : NativeUint;
 begin
-  c := (CD shr 24) and $FF;
-  with result do
-    begin
-    red := c;
-    green := c;
-    blue := c;
-    alpha := (CD shr 8) and $FF;
-    end;
+  c := (CD shr 8) and $FF;
+  result := BGRA(c,c,c,(CD shr 24) and $FF);
 end;
 
 function TBGRAReaderPNG.BGRAColorColor8(const CD: TColorData): TBGRAPixel;
 var temp: DWord;
 begin
   temp := CD;
-  temp := ((temp and $ff) shl 16) or
-    (temp and $ff00) or ((temp shr 16) and $ff) or
-    $ff000000;
-  {$IFDEF ENDIAN_BIG}
-  DWord(result) := swap(temp);
-  {$ELSE}
-  DWord(result) := temp;
-  {$ENDIF}
+  result := BGRA(temp and $ff, (temp shr 8) and $ff, (temp shr 16) and $ff);
 end;
 
 function TBGRAReaderPNG.BGRAColorColor16(const CD: TColorData): TBGRAPixel;
 begin
-  with result do
-    begin
-    red := CD shr 8 and $FF;
-    green := (CD shr 24) and $FF;
-    blue := (CD shr 40) and $FF;
-    alpha := 255;
-    end;
+  result := BGRA(CD shr 8 and $FF,(CD shr 24) and $FF,(CD shr 40) and $FF);
 end;
 
 function TBGRAReaderPNG.BGRAColorColorAlpha8(const CD: TColorData): TBGRAPixel;
 var temp: DWord;
 begin
   temp := CD;
-  temp := ((temp and $ff) shl 16) or
-    (temp and $ff00) or ((temp shr 16) and $ff) or
-    (temp and $ff000000);
-  {$IFDEF ENDIAN_BIG}
-  DWord(result) := swap(temp);
-  {$ELSE}
-  DWord(result) := temp;
-  {$ENDIF}
+  result := BGRA(temp and $ff, (temp shr 8) and $ff, (temp shr 16) and $ff, temp shr 24);
 end;
 
 function TBGRAReaderPNG.BGRAColorColorAlpha16(const CD: TColorData): TBGRAPixel;
 begin
-  with result do
-    begin
-    red := (CD shr 8) and $FF;
-    green := (CD shr 24) and $FF;
-    blue := (CD shr 40) and $FF;
-    alpha := (CD shr 56) and $FF;
-    end;
+  result := BGRA(CD shr 8 and $FF,(CD shr 24) and $FF,(CD shr 40) and $FF, CD shr 56);
 end;
 
 procedure TBGRAReaderPNG.DoDecompress;

@@ -295,11 +295,7 @@ begin
                 PDest := TBGRACustomBitmap(Img).ScanLine[y];
                 for x := w-1 downto 0 do
                 begin
-                  {$IFDEF ENDIAN_LITTLE}
-                  PDWord(PDest)^ := PCurBlue^ or (PCurGreen^ shl 8) or (PCurRed^ shl 16) or $ff000000;
-                  {$ELSE}
-                  PDWord(PDest)^ := (PCurBlue^ shl 24) or (PCurGreen^ shl 16) or (PCurRed^ shl 8) or $ff;
-                  {$ENDIF}
+                  PDest^ := BGRA(PCurRed^,PCurGreen^,PCurBlue^);
                   inc(PCurBlue);
                   inc(PCurGreen);
                   inc(PCurRed);
@@ -316,11 +312,7 @@ begin
                 PDest^ := BGRAPixelTransparent
               else
               begin
-                {$IFDEF ENDIAN_LITTLE}
-                PDWord(PDest)^ := PCurBlue^ or (PCurGreen^ shl 8) or (PCurRed^ shl 16) or (PCurAlpha^ shl 24);
-                {$ELSE}
-                PDWord(PDest)^ := (PCurBlue^ shl 24) or (PCurGreen^ shl 16) or (PCurRed^ shl 8) or PCurAlpha^;
-                {$ENDIF}
+                PDest^ := BGRA(PCurRed^,PCurGreen^,PCurBlue^,PCurAlpha^);
                 inc(PCurBlue);
                 inc(PCurGreen);
                 inc(PCurRed);

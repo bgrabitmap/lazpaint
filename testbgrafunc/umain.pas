@@ -13,12 +13,12 @@ type
   { TFMain }
 
   TFMain = class(TForm)
-    Button_Last: TButton;
-    Button_Prev: TButton;
-    Button_Next: TButton;
     Button_First: TButton;
+    Button_Last: TButton;
+    Button_Next: TButton;
+    Button_Prev: TButton;
     Label_TestName: TLabel;
-    PaintBox_Test: TPaintBox;
+    Panel1: TPanel;
     Timer1: TTimer;
     procedure Button_LastClick(Sender: TObject);
     procedure Button_NextClick(Sender: TObject);
@@ -26,10 +26,8 @@ type
     procedure Button_PrevClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure PaintBox_TestPaint(Sender: TObject);
+    procedure FormPaint(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
-  private
-    { private declarations }
   public
     NumTest: integer;
     CurrentTest: TTest;
@@ -45,20 +43,20 @@ implementation
 uses utest1, utest2, utest3, utest4, utest5, utest6, utest7,
      utest8, utest9, utest10, utest11, utest14, utest15, utest16, utest17,
      utest18, utest19, utest22, utest23, utest24, utest25, utest26,
-     utest27, utest31, BGRAScene3D;
+     utest27, utest31, utest32, utest33, BGRAScene3D,
+     BGRABitmapTypes, LCLIntf;
 
 const
-    TestCount = 31;
+    TestCount = 33;
 
 { TFMain }
 
 procedure TFMain.SetNumTest(value: integer);
 begin
-  if CurrentTest <> nil then FreeAndNil(CurrentTest);
+  FreeAndNil(CurrentTest);
   numTest := value;
   Button_Prev.Enabled := TestCount >=2;
   Button_Next.Enabled := TestCount >=2;
-  PaintBox_Test.Invalidate;
   case numTest of
   1: currentTest := TTest1.Create;
   2: currentTest := TTest2.Create;
@@ -91,6 +89,8 @@ begin
   29: currentTest := TTest27.create(lnVertex, liLowQuality);
   30: currentTest := TTest27.create(lnVertex, liAlwaysHighQuality);
   31: currentTest := TTest31.create;
+  32: currentTest := TTest32.create;
+  33: currentTest := TTest33.create;
   else
     raise exception.Create('Test number unknown ('+IntToStr(numTest)+')');
   end;
@@ -104,53 +104,72 @@ begin
   stopwatch := TEpikTimer.Create(Application);
   timeMeasure := TEpikTimer.Create(Application);
   timeMeasure.Start;
+
+  if TBGRAPixel_RedByteOffset > TBGRAPixel_BlueByteOffset then
+    Caption := Caption + ' (BGRA 32-bit)'
+  else
+    Caption := Caption + ' (RGBA 32-bit)';
 end;
 
 procedure TFMain.FormDestroy(Sender: TObject);
 begin
+  FreeAndNil(CurrentTest);
 end;
 
-procedure TFMain.PaintBox_TestPaint(Sender: TObject);
+procedure TFMain.FormPaint(Sender: TObject);
+var
+  strTime: string;
+  ptText: TPoint;
+  drawElapsed: extended;
 begin
   if CurrentTest <> nil then
-    CurrentTest.OnPaint(PaintBox_Test.Canvas,PaintBox_Test.Width,PaintBox_Test.Height);
+  begin
+    stopwatch.clear;
+    stopwatch.Start;
+
+    CurrentTest.OnPaint(self.Canvas,0,Panel1.Height,ClientWidth,ClientHeight-Panel1.Height);
+
+    drawElapsed := stopwatch.Elapsed;
+
+    if drawElapsed > 0.0001 then
+    begin
+      strTime := IntToStr(round(drawElapsed*1000))+ ' ms';
+      strTime += ', ' + IntToStr(round(1/drawElapsed)) + ' FPS';
+      ptText := Point(3,ClientHeight-25);
+      with self.Canvas do
+      begin
+        Font.Height := 25;
+        Font.Style := [fsBold];
+        Brush.Style := bsClear;
+        Font.Color := clBlack;
+        TextOut(ptText.X-1,ptText.Y-1,strTime);
+        TextOut(ptText.X+1,ptText.Y-1,strTime);
+        TextOut(ptText.X+1,ptText.Y+1,strTime);
+        TextOut(ptText.X-1,ptText.Y+1,strTime);
+        Font.Color := clWhite;
+        TextOut(ptText.X,ptText.Y,strTime);
+      end;
+    end;
+
+  end;
 end;
 
 procedure TFMain.Timer1Timer(Sender: TObject);
 var
-    strTime: string;
-    elapsed: extended;
-    ptText: TPoint;
+  elapsed: Extended;
+  r: TRect;
 begin
   if CurrentTest <> nil then
   begin
     Timer1.Enabled := false;
-
     elapsed := timeMeasure.Elapsed;
     timeMeasure.clear;
     timeMeasure.Start;
 
-    stopwatch.clear;
-    stopwatch.Start;
-    CurrentTest.OnTimer(PaintBox_Test.Canvas,PaintBox_Test.Width,PaintBox_Test.Height,elapsed);
-    elapsed := stopwatch.Elapsed;
-
-    strTime := IntToStr(round(elapsed*1000))+ ' ms';
-    if elapsed <> 0 then
-      strTime += ', ' + IntToStr(round(1/elapsed)) + ' FPS';
-
-    ptText := Point(3,paintbox_test.Height-25);
-    paintbox_test.Canvas.Font.Height := 25;
-    paintbox_test.Canvas.Font.Style := [fsBold];
-    paintbox_test.Canvas.Brush.Style := bsClear;
-    paintbox_test.Canvas.Font.Color := clBlack;
-    paintbox_test.Canvas.TextOut(ptText.X-1,ptText.Y-1,strTime);
-    paintbox_test.Canvas.TextOut(ptText.X+1,ptText.Y-1,strTime);
-    paintbox_test.Canvas.TextOut(ptText.X+1,ptText.Y+1,strTime);
-    paintbox_test.Canvas.TextOut(ptText.X-1,ptText.Y+1,strTime);
-    paintbox_test.Canvas.Font.Color := clWhite;
-    paintbox_test.Canvas.TextOut(ptText.X,ptText.Y,strTime);
-
+    CurrentTest.OnTimer(ClientWidth,ClientHeight-Panel1.Height,elapsed);
+    r := rect(0,Panel1.Height,ClientWidth,ClientHeight);
+    InvalidateRect(self.Handle,@r,False);
+    self.Update;
     Timer1.Enabled := true;
   end;
 end;

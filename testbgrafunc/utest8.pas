@@ -21,8 +21,8 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure OnPaint(Canvas: TCanvas; Width,Height: Integer); override;
-    procedure OnTimer(Canvas: TCanvas; Width,Height: Integer; ElapsedSec: Double); override;
+    procedure OnPaint(Canvas: TCanvas; Left,Top,Width,Height: Integer); override;
+    procedure OnTimer(Width,Height: Integer; ElapsedSec: Double); override;
   end;
 
 implementation
@@ -58,7 +58,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TTest8.OnPaint(Canvas: TCanvas; Width, Height: Integer);
+procedure TTest8.OnPaint(Canvas: TCanvas; Left,Top,Width, Height: Integer);
 var twirl: TBGRATwirlScanner;
 begin
   if time=0 then exit;
@@ -83,17 +83,16 @@ begin
   twirled.Fill(virtualscreen);
   twirled.FillRect(floor(twirl.Center.X-twirl.Radius),floor(twirl.Center.Y-twirl.Radius),
     ceil(twirl.Center.X+twirl.Radius),ceil(twirl.Center.Y+twirl.Radius),twirl,dmSet);
-  twirled.Draw(Canvas,0,0,True);
+  twirled.Draw(Canvas,Left,Top,True);
   twirl.Free;
 end;
 
-procedure TTest8.OnTimer(Canvas: TCanvas; Width, Height: Integer; ElapsedSec: Double);
+procedure TTest8.OnTimer(Width, Height: Integer; ElapsedSec: Double);
 begin
   time := time+ElapsedSec;
   alphaFactor := round((sin(time)+1)/2*255);
   backgroundTile.ScanOffset := point(round((sin(time*0.3)+1)/2*1023) mod backgroundTile.Width,
      round((sin(time*1.7)+1)/2*63) mod backgroundTile.Height);
-  OnPaint(Canvas,Width,Height);
 end;
 
 end.

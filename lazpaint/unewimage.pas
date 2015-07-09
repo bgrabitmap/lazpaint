@@ -146,7 +146,7 @@ begin
   SpinEdit_Height.Value := LazPaintInstance.Config.DefaultImageHeight;
 
   UpdatePreview;
-  SpinEdit_Width.SetFocus;
+  SafeSetFocus(SpinEdit_Width);
   SpinEdit_Width.SelectAll;
 end;
 

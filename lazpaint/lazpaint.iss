@@ -1,7 +1,7 @@
 #define MyAppName "LazPaint"
 #define MyAppOutputName "lazpaint"
 #define MyInstallerSuffix "_setup_win32_win64"
-#define MyAppVersion "6.2"
+#define MyAppVersion "6.4.1"
 #define MyAppPublisher "Circular, Fabien Wang, Lainz and others"
 #define MyAppURL "http://sourceforge.net/projects/lazpaint/"
 #define MyAppExeName "lazpaint.exe"
@@ -94,7 +94,7 @@ Name: "assoc_ico"; Description: "{cm:AssocFileExtension,{#MyAppName},.ico}"; Fla
 Source: "{#ReleaseDir}lazpaint32.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Flags: ignoreversion; Check: not Is64BitInstallMode
 Source: "{#ReleaseDir}lazpaint_x64.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Flags: ignoreversion; Check: Is64BitInstallMode
 Source: "{#ReleaseDir}i18n\*.po"; DestDir: "{app}\i18n"; Excludes: "i18n\lazpaint_x64.po"; Flags: ignoreversion
-Source: "{#ReleaseDir}*.obj"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#ReleaseDir}models\*.*"; DestDir: "{app}\models"; Flags: ignoreversion
 Source: "{#ReleaseDir}readme.txt"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]

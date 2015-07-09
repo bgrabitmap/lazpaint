@@ -1,6 +1,7 @@
 unit BGRAReadIco;
 
 {$mode objfpc}{$H+}
+{$i bgrabitmap.inc}
 
 interface
 
@@ -13,7 +14,7 @@ type
 
   TBGRAReaderIco = class(TFPCustomImageReader)
   protected
-    procedure InternalRead(Str: TStream; Img: TFPCustomImage); override;
+    procedure InternalRead({%H-}Str: TStream; {%H-}Img: TFPCustomImage); override;
     function InternalCheck(Str: TStream): boolean; override;
   public
     WantedWidth, WantedHeight : integer;
@@ -21,11 +22,12 @@ type
 
 implementation
 
-uses BGRABitmapTypes, Graphics;
+uses BGRABitmapTypes{$IFDEF BGRABITMAP_USE_LCL}, Graphics{$ENDIF};
 
 { TBGRAReaderIco }
 
 procedure TBGRAReaderIco.InternalRead(Str: TStream; Img: TFPCustomImage);
+{$IFDEF BGRABITMAP_USE_LCL}
 var ico: TIcon; i,bestIdx: integer;
     height,width: word; format:TPixelFormat;
     bestHeight,bestWidth: integer; maxFormat: TPixelFormat;
@@ -66,6 +68,11 @@ begin
     ico.free;
   end;
 end;
+{$ELSE}
+begin
+  raise exception.create('Not implemented');
+end;
+{$ENDIF}
 
 function TBGRAReaderIco.InternalCheck(Str: TStream): boolean;
 var {%H-}magic: packed array[0..5] of byte;

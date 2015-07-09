@@ -16,7 +16,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure OnTimer(Canvas: TCanvas; Width,Height: Integer; ElapsedSec: Double); override;
+    procedure OnTimer(Width,Height: Integer; ElapsedSec: Double); override;
   protected
     pacLoc: array of TPoint;
     pacImg: array of TBGRABitmap;
@@ -57,7 +57,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TTestPacRect.OnTimer(Canvas: TCanvas; Width, Height: Integer; ElapsedSec: Double);
+procedure TTestPacRect.OnTimer(Width, Height: Integer; ElapsedSec: Double);
 var i: integer;
 begin
   if pacLoc = nil then
@@ -87,8 +87,6 @@ begin
 
   if backgroundImg = nil then
     backgroundImg := backgroundTile.GetPart(rect(0,0,Width,Height)) as TBGRABitmap;
-
-  OnPaint(Canvas,Width,Height);
 end;
 
 function TTestPacRect.AddTranspRectTo(filename: string): TBGRABitmap;

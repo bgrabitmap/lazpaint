@@ -1,0 +1,215 @@
+object FSaveOption: TFSaveOption
+  Left = 375
+  Height = 444
+  Top = 181
+  Width = 596
+  BorderIcons = [biSystemMenu, biMaximize]
+  Caption = 'Save'
+  ClientHeight = 444
+  ClientWidth = 596
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnHide = FormHide
+  LCLVersion = '1.0.10.0'
+  object Panel_Option: TPanel
+    Left = 0
+    Height = 444
+    Top = 0
+    Width = 104
+    Align = alLeft
+    BevelOuter = bvNone
+    ClientHeight = 444
+    ClientWidth = 104
+    TabOrder = 0
+    object Panel_BitsPerPixel: TPanel
+      Left = 0
+      Height = 119
+      Top = 0
+      Width = 104
+      Align = alTop
+      ClientHeight = 119
+      ClientWidth = 104
+      TabOrder = 0
+      object Label_ColorDepth: TLabel
+        Left = 5
+        Height = 16
+        Top = 3
+        Width = 67
+        Caption = 'Color depth:'
+        ParentColor = False
+      end
+      object RadioButton_2Colors: TRadioButton
+        Left = 5
+        Height = 19
+        Top = 20
+        Width = 61
+        Caption = '2 colors'
+        OnChange = RadioButton_BitsPerPixelChange
+        TabOrder = 0
+      end
+      object RadioButton_16Colors: TRadioButton
+        Left = 5
+        Height = 19
+        Top = 36
+        Width = 67
+        Caption = '16 colors'
+        OnChange = RadioButton_BitsPerPixelChange
+        TabOrder = 1
+      end
+      object RadioButton_256Colors: TRadioButton
+        Left = 5
+        Height = 19
+        Top = 52
+        Width = 73
+        Caption = '256 colors'
+        OnChange = RadioButton_BitsPerPixelChange
+        TabOrder = 3
+      end
+      object RadioButton_24BitsPerPixel: TRadioButton
+        Left = 5
+        Height = 19
+        Top = 68
+        Width = 54
+        Caption = '24 bits'
+        Checked = True
+        OnChange = RadioButton_BitsPerPixelChange
+        TabOrder = 2
+        TabStop = True
+      end
+      object CheckBox_Dithering: TCheckBox
+        Left = 5
+        Height = 19
+        Top = 95
+        Width = 69
+        Caption = 'Dithering'
+        Checked = True
+        OnChange = CheckBox_DitheringChange
+        State = cbChecked
+        TabOrder = 4
+      end
+    end
+    object Panel_Quality: TPanel
+      Left = 0
+      Height = 206
+      Top = 119
+      Width = 104
+      Align = alTop
+      ClientHeight = 206
+      ClientWidth = 104
+      TabOrder = 1
+      object TrackBar_Quality: TTrackBar
+        Left = 28
+        Height = 154
+        Top = 46
+        Width = 25
+        Frequency = 10
+        Max = 100
+        OnChange = TrackBar_QualityChange
+        Orientation = trVertical
+        Position = 100
+        Reversed = True
+        TabOrder = 0
+      end
+      object Label1: TLabel
+        Left = 5
+        Height = 16
+        Top = 3
+        Width = 42
+        Caption = 'Quality:'
+        ParentColor = False
+      end
+      object Edit_QualityValue: TEdit
+        Left = 16
+        Height = 23
+        Top = 22
+        Width = 59
+        OnChange = Edit_QualityValueChange
+        OnExit = Edit_QualityValueExit
+        TabOrder = 1
+      end
+      object Label_0: TLabel
+        Left = 60
+        Height = 16
+        Top = 180
+        Width = 7
+        Caption = '0'
+        ParentColor = False
+      end
+      object Label_1: TLabel
+        Left = 60
+        Height = 16
+        Top = 50
+        Width = 19
+        Caption = '100'
+        ParentColor = False
+      end
+      object Label_50: TLabel
+        Left = 60
+        Height = 16
+        Top = 115
+        Width = 13
+        Caption = '50'
+        ParentColor = False
+      end
+    end
+    object Panel_OkCancel: TPanel
+      Left = 0
+      Height = 80
+      Top = 325
+      Width = 104
+      Align = alTop
+      ClientHeight = 80
+      ClientWidth = 104
+      TabOrder = 2
+      object Button_Cancel: TButton
+        Left = 5
+        Height = 22
+        Top = 53
+        Width = 91
+        Anchors = [akTop, akRight]
+        Cancel = True
+        Caption = 'Cancel'
+        ModalResult = 2
+        TabOrder = 0
+      end
+      object Button_OK: TButton
+        Left = 5
+        Height = 22
+        Top = 28
+        Width = 91
+        Anchors = [akTop, akRight]
+        Caption = 'OK'
+        Default = True
+        OnClick = Button_OKClick
+        TabOrder = 1
+      end
+      object Label_Size: TLabel
+        Left = 7
+        Height = 16
+        Top = 7
+        Width = 24
+        Caption = 'Size:'
+        ParentColor = False
+      end
+    end
+  end
+  object BGRAPreview: TBGRAVirtualScreen
+    Left = 104
+    Height = 444
+    Top = 0
+    Width = 492
+    OnRedraw = BGRAPreviewRedraw
+    Align = alClient
+    Alignment = taLeftJustify
+    Color = clBtnFace
+    ParentColor = False
+    TabOrder = 1
+  end
+  object Timer_Update: TTimer
+    Enabled = False
+    Interval = 500
+    OnTimer = Timer_UpdateTimer
+    left = 39
+    top = 393
+  end
+end

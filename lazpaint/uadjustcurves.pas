@@ -110,12 +110,25 @@ uses UResourceStrings, LCLType, UMac, Math, UScaleDPI, BGRAGradientScanner,
 { TFAdjustCurves }
 
 procedure TFAdjustCurves.FormCreate(Sender: TObject);
+var
+  i: Integer;
 begin
   ScaleDPI(Self, OriginalDPI);
 
   CheckOKCancelBtns(Button_OK, Button_Cancel);
   FSelectedPoint:= -1;
   FThreadManager := nil;
+
+  for i := 0 to TabControl1.PageCount-1 do
+  begin
+    if TabControl1.Page[i].Caption = 'Red' then TabControl1.Page[i].Caption := rsRed else
+    if TabControl1.Page[i].Caption = 'Green' then TabControl1.Page[i].Caption := rsGreen else
+    if TabControl1.Page[i].Caption = 'Blue' then TabControl1.Page[i].Caption := rsBlue else
+    if TabControl1.Page[i].Caption = 'Alpha' then TabControl1.Page[i].Caption := rsOpacity else
+    if TabControl1.Page[i].Caption = 'Hue' then TabControl1.Page[i].Caption := rsHue else
+    if TabControl1.Page[i].Caption = 'Saturation' then TabControl1.Page[i].Caption := rsSaturation else
+    if TabControl1.Page[i].Caption = 'Lightness' then TabControl1.Page[i].Caption := rsLightness;
+  end;
 end;
 
 procedure TFAdjustCurves.vsChartRedraw(Sender: TObject; Bitmap: TBGRABitmap);

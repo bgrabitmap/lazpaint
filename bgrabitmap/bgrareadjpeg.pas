@@ -1,4 +1,4 @@
-unit bgrareadjpeg;
+unit BGRAReadJpeg;
 
 {$mode objfpc}{$H+}
 

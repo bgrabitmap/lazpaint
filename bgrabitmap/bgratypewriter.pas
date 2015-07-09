@@ -122,9 +122,19 @@ function ComputeEasyBezier(APoints: array of TPointF; ACurveMode: array of TGlyp
 
 implementation
 
-uses LCLProc, lazutf8classes;
+uses BGRAUTF8;
 
-{$i winstream.inc}
+procedure LEWritePointF(Stream: TStream; AValue: TPointF);
+begin
+  LEWriteSingle(Stream,AValue.x);
+  LEWriteSingle(Stream,AValue.y);
+end;
+
+function LEReadPointF(Stream: TStream): TPointF;
+begin
+  result.x := LEReadSingle(Stream);
+  result.y := LEReadSingle(Stream);
+end;
 
 function ComputeEasyBezier(APoints: array of TPointF; AClosed: boolean; AMinimumDotProduct: single = 0.707): ArrayOfTPointF;
 var
@@ -265,10 +275,10 @@ procedure TBGRAPolygonalGlyph.WriteContent(AStream: TStream);
 var i: integer;
 begin
   inherited WriteContent(AStream);
-  WinWritePointF(AStream, Offset);
-  WinWriteLongint(AStream,length(Points));
+  LEWritePointF(AStream, Offset);
+  LEWriteLongint(AStream,length(Points));
   for i := 0 to high(Points) do
-    WinWritePointF(AStream, Points[i]);
+    LEWritePointF(AStream, Points[i]);
 end;
 
 procedure TBGRAPolygonalGlyph.ReadContent(AStream: TStream);
@@ -276,10 +286,10 @@ var i: integer;
   tempPts: array of TPointF;
 begin
   inherited ReadContent(AStream);
-  Offset := WinReadPointF(AStream);
-  SetLength(tempPts, WinReadLongint(AStream));
+  Offset := LEReadPointF(AStream);
+  SetLength(tempPts, LEReadLongint(AStream));
   for i := 0 to high(tempPts) do
-    tempPts[i] := WinReadPointF(AStream);
+    tempPts[i] := LEReadPointF(AStream);
   SetPoints(tempPts);
 end;
 
@@ -389,19 +399,19 @@ end;
 procedure TBGRAGlyph.WriteHeader(AStream: TStream; AName: string;
   AContentSize: longint);
 begin
-  WinWriteByte(AStream, length(AName));
+  LEWriteByte(AStream, length(AName));
   AStream.Write(AName[1],length(AName));
-  WinWriteLongint(AStream, AContentSize);
+  LEWriteLongint(AStream, AContentSize);
 end;
 
 class procedure TBGRAGlyph.ReadHeader(AStream: TStream; out AName: string; out
   AContentSize: longint);
 var NameLength: integer;
 begin
-  NameLength := WinReadByte(AStream);
+  NameLength := LEReadByte(AStream);
   setlength(AName,NameLength);
   AStream.Read(AName[1],length(AName));
-  AContentSize := WinReadLongint(AStream);
+  AContentSize := LEReadLongint(AStream);
 end;
 
 function TBGRAGlyph.ContentSize: integer;
@@ -416,20 +426,20 @@ end;
 
 procedure TBGRAGlyph.WriteContent(AStream: TStream);
 begin
-  WinWriteLongint(AStream,length(FIdentifier));
+  LEWriteLongint(AStream,length(FIdentifier));
   AStream.Write(FIdentifier[1],length(FIdentifier));
-  WinWriteSingle(AStream,Width);
-  WinWriteSingle(AStream,Height);
+  LEWriteSingle(AStream,Width);
+  LEWriteSingle(AStream,Height);
 end;
 
 procedure TBGRAGlyph.ReadContent(AStream: TStream);
 var lIdentifierLength: integer;
 begin
-  lIdentifierLength:= WinReadLongint(AStream);
+  lIdentifierLength:= LEReadLongint(AStream);
   setlength(FIdentifier, lIdentifierLength);
   AStream.Read(FIdentifier[1],length(FIdentifier));
-  Width := WinReadSingle(AStream);
-  Height := WinReadSingle(AStream);
+  Width := LEReadSingle(AStream);
+  Height := LEReadSingle(AStream);
 end;
 
 constructor TBGRAGlyph.Create(AIdentifier: string);
@@ -710,7 +720,7 @@ procedure TBGRACustomTypeWriter.NeedGlyphRange(AUnicodeFrom, AUnicodeTo: Cardina
 var c: cardinal;
 begin
   for c := AUnicodeFrom to AUnicodeTo do
-    GetGlyph(UnicodeToUTF8(c));
+    GetGlyph(UnicodeCharToUTF8(c));
 end;
 
 procedure TBGRACustomTypeWriter.NeedGlyphAnsiRange;
@@ -804,7 +814,7 @@ end;
 procedure TBGRACustomTypeWriter.SaveGlyphsToStream(AStream: TStream);
 var Enumerator: TAvgLvlTreeNodeEnumerator;
 begin
-  WinWriteLongint(AStream,CustomHeaderSize);
+  LEWriteLongint(AStream,CustomHeaderSize);
   WriteCustomHeader(AStream);
 
   Enumerator := FGlyphs.GetEnumerator;
@@ -832,7 +842,7 @@ var Header: TBGRACustomTypeWriterHeader;
   HeaderSize: integer;
   GlyphStartPosition: Int64;
 begin
-  HeaderSize := WinReadLongint(AStream);
+  HeaderSize := LEReadLongint(AStream);
   GlyphStartPosition:= AStream.Position+HeaderSize;
   Header := ReadCustomTypeWriterHeader(AStream);
   if header.HeaderName <> HeaderName then
@@ -918,17 +928,17 @@ procedure TBGRACustomTypeWriter.WriteCustomHeader(AStream: TStream);
 var lHeaderName: string;
 begin
   lHeaderName:= HeaderName;
-  WinWriteByte(AStream,length(lHeaderName));
+  LEWriteByte(AStream,length(lHeaderName));
   AStream.Write(lHeaderName[1],length(lHeaderName));
-  WinWriteLongint(AStream,FGlyphs.Count);
+  LEWriteLongint(AStream,FGlyphs.Count);
 end;
 
 function TBGRACustomTypeWriter.ReadCustomTypeWriterHeader(AStream: TStream
   ): TBGRACustomTypeWriterHeader;
 begin
-  setlength(result.HeaderName, WinReadByte(AStream));
+  setlength(result.HeaderName, LEReadByte(AStream));
   AStream.Read(result.HeaderName[1],length(result.HeaderName));
-  result.NbGlyphs:= WinReadLongint(AStream);
+  result.NbGlyphs:= LEReadLongint(AStream);
 end;
 
 procedure TBGRACustomTypeWriter.ReadAdditionalHeader(AStream: TStream);

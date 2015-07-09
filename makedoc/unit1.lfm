@@ -1,0 +1,58 @@
+object Form1: TForm1
+  Left = 428
+  Height = 240
+  Top = 272
+  Width = 390
+  Caption = 'Form1'
+  ClientHeight = 240
+  ClientWidth = 390
+  LCLVersion = '1.0.10.0'
+  object EPath: TEdit
+    Left = 8
+    Height = 23
+    Top = 30
+    Width = 374
+    Anchors = [akTop, akLeft, akRight]
+    TabOrder = 0
+    Text = 'c:\pascal\lazpaintsvn\bgrabitmap'
+  end
+  object Label1: TLabel
+    Left = 9
+    Height = 16
+    Top = 9
+    Width = 78
+    Caption = 'Path of library:'
+    ParentColor = False
+  end
+  object Memo1: TMemo
+    Left = 8
+    Height = 144
+    Top = 88
+    Width = 372
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    ScrollBars = ssBoth
+    TabOrder = 1
+  end
+  object Button1: TButton
+    Left = 8
+    Height = 25
+    Top = 56
+    Width = 96
+    Caption = 'Browse...'
+    OnClick = Button1Click
+    TabOrder = 2
+  end
+  object Button2: TButton
+    Left = 112
+    Height = 25
+    Top = 56
+    Width = 96
+    Caption = 'Make doc'
+    OnClick = Button2Click
+    TabOrder = 3
+  end
+  object SelectDirectoryDialog1: TSelectDirectoryDialog
+    left = 300
+    top = 9
+  end
+end

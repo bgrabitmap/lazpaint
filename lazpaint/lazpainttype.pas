@@ -5,40 +5,68 @@ unit LazPaintType;
 interface
 
 uses
-  Classes, SysUtils, Inifiles, BGRABitmap, BGRABitmapTypes, uconfig, uimage, utool, Forms, BGRALayers, Graphics, uscripting, Dialogs, Controls;
+  Classes, SysUtils, Inifiles, BGRABitmap, BGRABitmapTypes, uconfig, uimage, utool, Forms, BGRALayers, Graphics, Menus,
+  uscripting, Dialogs, Controls
+  {$IFDEF LINUX}, InterfaceBase{$ENDIF};
 
 const
   //Version Number (to increment at each release)
-  LazPaintCurrentVersionOnly = '6.2';
+  //Also increment in project options > information on version
+  LazPaintCurrentVersionOnly = '6.4.1';
 
-  { to do :
+  {
 
-  filtre de vagues concentriques
-  filtre de vagues en translation
-  filtre pontillisme
-  G'MIC filters
+  Improvements accepted:
+  ----------------------
+  Mac:
+  - Combobox ownerdrawn (brush, arrow)
+  - update image preview when saving
+  - filename fix
+  - ctrl shortcut to change
+  Scripting
+  Color picker
+  - From final image
+  - With radius
+  Translation of curve modes (in dropdown)
+  Lasso
+  Raccourcis clavier pour utiliser le bouton droit
+  Utiliser les touches de direction
+  Indiquer l'outil actif
+  Rotation des objets des outils
+  Afficher les coordonnees des points (snap de la valeur en haut?)
+  Ajout barre d'outils pour les coordonnees de la selection 
+  Mettre a jour le curseur quand on change d'outil (notamment avec Espace)
 
-  scripting
+  Possible improvements:
+  ----------------------
+  Integrate tools in window (partly done)
+  Hue/color blend mode
+  Acquisition (Twain)
+  Graphic tablet support : http://forum.lazarus.freepascal.org/index.php/topic,20489.0.html
 
-  integrate tools in window
-  selection redraw optimization
+  Format:
+  - TIM image format
+  - load/save image DPI
+  - saving GIF
+  - saving BMP IGO
+  - load/save RAW
 
-  3D text
+  Filters:
+  - filtre de vagues concentriques
+  - filtre de vagues en translation
+  - filtre pontillisme
+  - G'MIC filters
+  - surface blur
+  - smart zoom using vectorization
 
-  linear gradient  
-  hue/color blend mode
+  Tools:
+  - 3D text
+  - erase tool in empty selection
+  - aliased selection
+  - antialiased magic wand
 
-  keyboard zoom with mousepos
-  
-  box blur
-  surface blur
-  smart zoom using vectorization
-  facelets
-  
-  erase tool in empty selection
-  aliased selection
-  antialiased magic wand
-
+  Known bugs:
+  - Puppy linx: title bar disappears sometimes
   }
 
 const
@@ -52,30 +80,30 @@ const
 
 type
   TPictureFilter = (pfNone,
-                    pfBlurPrecise, pfBlurRadial, pfBlurFast, pfBlurCorona, pfBlurDisk, pfBlurMotion, pfBlurCustom,
+                    pfBlurPrecise, pfBlurRadial, pfBlurFast, pfBlurBox, pfBlurCorona, pfBlurDisk, pfBlurMotion, pfBlurCustom,
                     pfSharpen, pfSmooth, pfMedian, pfNoise, pfPixelate, pfClearType, pfClearTypeInverse, pfFunction,
                     pfEmboss, pfPhong, pfContour, pfGrayscale, pfNegative, pfLinearNegative, pfComplementaryColor, pfNormalize,
                     pfSphere, pfTwirl, pfCylinder, pfPlane,
-                    pfPerlinNoise,pfCyclicPerlinNoise,pfClouds,pfCustomWater,pfWater,pfWood,pfWoodVertical,pfPlastik,pfMetalFloor,pfCamouflage,
+                    pfPerlinNoise,pfCyclicPerlinNoise,pfClouds,pfCustomWater,pfWater,pfRain,pfWood,pfWoodVertical,pfPlastik,pfMetalFloor,pfCamouflage,
                     pfSnowPrint,pfStone,pfRoundStone,pfMarble);
 
 const
   PictureFilterStr : array[TPictureFilter] of string =
                    ('None',
-                    'BlurPrecise', 'BlurRadial', 'BlurFast', 'BlurCorona', 'BlurDisk', 'BlurMotion', 'BlurCustom',
+                    'BlurPrecise', 'BlurRadial', 'BlurFast', 'BlurBox', 'BlurCorona', 'BlurDisk', 'BlurMotion', 'BlurCustom',
                     'Sharpen', 'Smooth', 'Median', 'Noise', 'Pixelate', 'ClearType', 'ClearTypeInverse', 'Function',
                     'Emboss', 'Phong', 'Contour', 'Grayscale', 'Negative', 'LinearNegative', 'ComplementaryColor', 'Normalize',
                     'Sphere', 'Twirl', 'Cylinder', 'Plane',
-                    'PerlinNoise','CyclicPerlinNoise','Clouds','CustomWater','Water','Wood','WoodVertical','Plastik','MetalFloor','Camouflage',
+                    'PerlinNoise','CyclicPerlinNoise','Clouds','CustomWater','Water','Rain','Wood','WoodVertical','Plastik','MetalFloor','Camouflage',
                     'SnowPrint','Stone','RoundStone','Marble');
 
   IsColoredFilter: array[TPictureFilter] of boolean =
                    (false,
-                    false, false, false, false, false, false, false,
+                    false, false, false, false, false, false, false, false,
                     false, false, false, false, false, true, true, true,
                     false, true, false, false, false, false, false, false,
                     false, false, false, false,
-                    false,false,true,true,true,true,true,true,true,true,
+                    false,false,true,true,true,true,true,true,true,true,true,
                     true,true,true,true);
 
 const
@@ -116,10 +144,20 @@ type
 
   { TLazPaintCustomInstance }
 
-  TLazPaintCustomInstance = class
+  TLazPaintCustomInstance = class(TInterfacedObject,IConfigProvider)
   private
     FBlackAndWhite: boolean;
   protected
+    function QueryInterface({$IFDEF FPC_HAS_CONSTREF}constref{$ELSE}const{$ENDIF} IID: TGUID; out Obj): HResult; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
+    function _AddRef: Integer; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
+    function _Release: Integer; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
+
+    function GetToolBoxWindowPopup: TPopupMenu; virtual; abstract;
+    procedure SetToolBoxWindowPopup(AValue: TPopupMenu); virtual; abstract;
+    function GetFullscreen: boolean; virtual; abstract;
+    procedure SetFullscreen(AValue: boolean); virtual; abstract;
+    function GetDockLayersAndColors: boolean; virtual; abstract;
+    procedure SetDockLayersAndColors(AValue: boolean); virtual; abstract;
     function GetScriptContext: TScriptContext; virtual; abstract;
     function GetShowSelectionNormal: boolean; virtual; abstract;
     procedure SetShowSelectionNormal(AValue: boolean); virtual; abstract;
@@ -171,6 +209,8 @@ type
 
     constructor Create; virtual; abstract;
     constructor Create(AEmbedded: boolean); virtual; abstract;
+    procedure SaveMainWindowPosition; virtual; abstract;
+    procedure RestoreMainWindowPosition; virtual; abstract;
     procedure Donate; virtual; abstract;
     procedure UseConfig(ini: TInifile); virtual; abstract;
     procedure AssignBitmap(bmp: TBGRABitmap); virtual; abstract;
@@ -189,6 +229,7 @@ type
     function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): boolean; virtual; abstract;
     procedure ColorFromFChooseColor; virtual; abstract;
     procedure ColorToFChooseColor; virtual; abstract;
+    function ShowSaveOptionDlg(AParameters: TVariableSet; AOutputFilenameUTF8: string): boolean; virtual; abstract;
     function ShowColorIntensityDlg(AParameters: TVariableSet): boolean; virtual; abstract;
     function ShowColorLightnessDlg(AParameters: TVariableSet): boolean; virtual; abstract;
     function ShowShiftColorsDlg(AParameters: TVariableSet): boolean; virtual; abstract;
@@ -198,6 +239,7 @@ type
     function ShowMotionBlurDlg(AFilterConnector: TObject):boolean; virtual; abstract;
     function ShowCustomBlurDlg(AFilterConnector: TObject):boolean; virtual; abstract;
     function ShowEmbossDlg(AFilterConnector: TObject):boolean; virtual; abstract;
+    function ShowRainDlg(AFilterConnector: TObject):boolean; virtual; abstract;
     function ShowPixelateDlg(AFilterConnector: TObject):boolean; virtual; abstract;
     function ShowNoiseFilterDlg(AFilterConnector: TObject):boolean; virtual; abstract;
     function ShowTwirlDlg(AFilterConnector: TObject):boolean; virtual; abstract;
@@ -207,8 +249,9 @@ type
     function ShowPosterizeDlg(AParameters: TVariableSet):boolean; virtual; abstract;
     procedure ShowPrintDlg; virtual; abstract;
     function OpenImage (FileName: string; AddToRecent: Boolean= True): boolean; virtual; abstract;
-    procedure ZoomFit; virtual; abstract;
     procedure AddToImageList(const FileNames: array of String); virtual; abstract;
+    procedure UpdateToolbar; virtual; abstract;
+    procedure UpdateEditPicture(ADelayed: boolean); virtual; abstract;
     function HideTopmost: TTopMostInfo; virtual; abstract;
     procedure ShowTopmost(AInfo: TTopMostInfo); virtual; abstract;
     procedure ShowCanvasSizeDlg; virtual; abstract;
@@ -220,6 +263,9 @@ type
     function ShowNewImageDlg(out bitmap: TBGRABitmap):boolean; virtual; abstract;
     function ShowResampleDialog(AParameters: TVariableSet):boolean; virtual; abstract;
     procedure UpdateWindows; virtual; abstract;
+    procedure ApplyDocking; virtual; abstract;
+    procedure AddColorToPalette(AColor: TBGRAPixel); virtual; abstract;
+    procedure RemoveColorFromPalette(AColor: TBGRAPixel); virtual; abstract;
 
     property BlackAndWhite: boolean read FBlackAndWhite write SetBlackAndWhite;
 
@@ -234,6 +280,7 @@ type
     property ToolboxVisible: boolean read GetToolboxVisible write SetToolboxVisible;
     property ToolboxWidth: integer read GetToolboxWidth;
     property ToolboxHeight: integer read GetToolboxHeight;
+    property ToolboxWindowPopup: TPopupMenu read GetToolBoxWindowPopup write SetToolBoxWindowPopup;
 
     procedure MoveChooseColorTo(X,Y: integer); virtual; abstract;
     property ChooseColorVisible: boolean read GetChooseColorVisible write SetChooseColorVisible;
@@ -264,15 +311,29 @@ type
     property ShowSelectionNormal: boolean read GetShowSelectionNormal write SetShowSelectionNormal;
     property ScriptContext: TScriptContext read GetScriptContext;
     property MainFormBounds: TRect read GetMainFormBounds;
+    property DockLayersAndColors: boolean read GetDockLayersAndColors write SetDockLayersAndColors;
+    property Fullscreen: boolean read GetFullscreen write SetFullscreen;
   end;
 
 function StrToPictureFilter(const s: ansistring): TPictureFilter;
 function ConvertToUTF8IfNeeded(const s: ansistring): ansistring;
 procedure SafeSetFocus(AControl: TWinControl);
+function WindowBorderWidth(AForm: TForm): integer;
+function WindowBorderTopHeight(AForm: TForm; {%H-}AIncludeTitle: boolean): integer;
+function WindowBorderBottomHeight(AForm: TForm): integer;
+function WindowOutermostBorderWidth: integer;
+function WindowOutermostBorderHeight: integer;
+function GetWindowFullWidth(AForm: TForm): integer;
+procedure SetWindowFullWidth(AForm: TForm; AWidth: integer);
+function GetWindowFullHeight(AForm: TForm): integer;
+procedure SetWindowFullHeight(AForm: TForm; AHeight: integer);
+procedure SetWindowFullSize(AForm: TForm; AWidth,AHeight: integer);
+procedure SetWindowTopLeftCorner(AForm: TForm; X,Y: integer);
+function GetWindowTopLeftCorner(AForm: TForm): TPoint;
 
 implementation
 
-uses LCLProc, FileUtil, UResourceStrings;
+uses LCLType, LCLProc, LCLIntf, FileUtil, UResourceStrings;
 
 function IsOnlyRenderChange(const ARect: TRect): boolean;
 begin
@@ -312,7 +373,146 @@ begin
   end;
 end;
 
+function WindowBorderWidth(AForm: TForm): integer;
+begin
+  If AForm.BorderStyle = bsNone then
+  begin
+    result := 0;
+    exit;
+  end;
+  {$IFDEF LINUX}
+  result := (GetWindowFullWidth(AForm)-AForm.ClientWidth) div 2;
+  {$ELSE}
+  if AForm.BorderStyle in[bsSizeable,bsSizeToolWin] then
+    result := GetSystemMetrics(SM_CXSIZEFRAME)
+  else if AForm.BorderStyle in[bsSingle,bsDialog,bsToolWindow] then
+    result := GetSystemMetrics(SM_CXFIXEDFRAME)
+  else
+    result := 0;
+  {$ENDIF}
+end;
+
+function WindowBorderTopHeight(AForm: TForm; AIncludeTitle: boolean): integer;
+begin
+  if AForm.BorderStyle = bsNone then
+  begin
+    result := 0;
+    exit;
+  end;
+  {$IFDEF LINUX}
+  result := GetWindowFullHeight(AForm) - AForm.ClientHeight - WindowBorderBottomHeight(AForm);
+  {$ELSE}
+  result := WindowBorderBottomHeight(AForm);
+  if AIncludeTitle and (AForm.BorderStyle <> bsNone) then
+  begin
+    if AForm.BorderStyle in[bsToolWindow,bsSizeToolWin] then
+    begin
+      result += GetSystemMetrics(SM_CYSMCAPTION)
+    end
+    else result += GetSystemMetrics(SM_CYCAPTION);
+  end;
+  {$ENDIF}
+end;
+
+function WindowBorderBottomHeight(AForm: TForm): integer;
+begin
+  {$IFDEF LINUX}
+  result := WindowBorderWidth(AForm);
+  {$ELSE}
+  if AForm.BorderStyle in[bsSizeable,bsSizeToolWin] then
+    result := GetSystemMetrics(SM_CYSIZEFRAME)
+  else if AForm.BorderStyle in[bsSingle,bsDialog,bsToolWindow] then
+    result := GetSystemMetrics(SM_CYFIXEDFRAME)
+  else
+    result := 0;
+  {$ENDIF}
+end;
+
+function WindowOutermostBorderWidth: integer;
+begin
+  result := {$IFDEF LINUX}1{$ELSE}GetSystemMetrics(SM_CXBORDER){$ENDIF};
+end;
+
+function WindowOutermostBorderHeight: integer;
+begin
+  result := {$IFDEF LINUX}1{$ELSE}GetSystemMetrics(SM_CYBORDER){$ENDIF};
+end;
+
+function GetWindowFullWidth(AForm: TForm): integer;
+{$IFDEF LINUX}var r: TRect;{$ENDIF}
+begin
+  {$IFDEF LINUX}
+  if AForm.BorderStyle <> bsNone then
+  begin
+    r := rect(0,0,AForm.Width,AForm.Height);
+    WidgetSet.GetWindowRect(AForm.Handle, r);
+    result := r.right-r.left;
+  end else
+  {$ENDIF}
+  result := AForm.Width + WindowBorderWidth(AForm)*2;
+end;
+
+procedure SetWindowFullWidth(AForm: TForm; AWidth: integer);
+begin
+  AForm.Width := AWidth - WindowBorderWidth(AForm)*2;
+end;
+
+function GetWindowFullHeight(AForm: TForm): integer;
+{$IFDEF LINUX}var r: TRect;{$ENDIF}
+begin
+  {$IFDEF LINUX}
+  if AForm.BorderStyle <> bsNone then
+  begin
+    r := rect(0,0,AForm.Width,AForm.Height);
+    WidgetSet.GetWindowRect(AForm.Handle, r);
+    result := r.bottom-r.top;
+  end else
+  {$ENDIF}
+  result := AForm.Height + WindowBorderTopHeight(AForm,True) + WindowBorderBottomHeight(AForm);
+end;
+
+procedure SetWindowFullHeight(AForm: TForm; AHeight: integer);
+begin
+  AForm.Height := AHeight - WindowBorderTopHeight(AForm,True) - WindowBorderBottomHeight(AForm);
+end;
+
+procedure SetWindowFullSize(AForm: TForm; AWidth, AHeight: integer);
+begin
+  AForm.SetBounds(AForm.Left,AForm.Top, AWidth - WindowBorderWidth(AForm)*2,
+      AHeight - WindowBorderTopHeight(AForm,True) - WindowBorderBottomHeight(AForm));
+end;
+
+procedure SetWindowTopLeftCorner(AForm: TForm; X, Y: integer);
+begin
+  AForm.SetBounds(X,Y,AForm.Width,AForm.Height);
+end;
+
+function GetWindowTopLeftCorner(AForm: TForm): TPoint;
+begin
+  result := Point(AForm.Left,AForm.Top);
+end;
+
 { TLazPaintCustomInstance }
+
+{ Interface gateway }
+function TLazPaintCustomInstance.QueryInterface({$IFDEF FPC_HAS_CONSTREF}constref{$ELSE}const{$ENDIF} IID: TGUID; out Obj): HResult; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
+begin
+  if GetInterface(iid, obj) then
+    Result := S_OK
+  else
+    Result := longint(E_NOINTERFACE);
+end;
+
+{ There is no automatic reference counting, but it is compulsory to define these functions }
+function TLazPaintCustomInstance._AddRef: Integer; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
+begin
+  result := 0;
+end;
+
+function TLazPaintCustomInstance._Release: Integer; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
+begin
+  result := 0;
+end;
 
 function TLazPaintCustomInstance.SaveQuestion(ATitle: string): integer;
 var top: TTopMostInfo;
@@ -352,4 +552,4 @@ begin
 end;
 
 end.
-
+

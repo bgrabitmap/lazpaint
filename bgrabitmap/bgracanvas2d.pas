@@ -17,7 +17,7 @@ unit BGRACanvas2D;
 interface
 
 uses
-  Classes, SysUtils, Graphics, BGRABitmapTypes, BGRATransform, BGRAGradientScanner, BGRAPath;
+  Classes, SysUtils, BGRAGraphics, BGRABitmapTypes, BGRATransform, BGRAGradientScanner, BGRAPath;
 
 type
   IBGRACanvasTextureProvider2D = interface
@@ -61,6 +61,7 @@ type
 
     shadowOffsetX,shadowOffsetY,shadowBlur: single;
     shadowColor: TBGRAPixel;
+    shadowFastest: boolean;
 
     matrix: TAffineMatrix;
     clipMask: TBGRACustomBitmap;
@@ -86,7 +87,7 @@ type
     FPathPointCount: integer;
     FFontRenderer: TBGRACustomFontRenderer;
     FLastCoord, FStartCoord: TPointF;
-    function GetCurrentPath: ArrayOfTPointF;
+    function GetCurrentPathAsPoints: ArrayOfTPointF;
     function GetFontName: string;
     function GetFontRenderer: TBGRACustomFontRenderer;
     function GetFontEmHeight: single;
@@ -104,6 +105,7 @@ type
     function GetMiterLimit: single;
     function GetPixelCenteredCoordinates: boolean;
     function GetShadowBlur: single;
+    function GetShadowFastest: boolean;
     function GetShadowOffset: TPointF;
     function GetShadowOffsetX: single;
     function GetShadowOffsetY: single;
@@ -128,6 +130,7 @@ type
     procedure SetMiterLimit(const AValue: single);
     procedure SetPixelCenteredCoordinates(const AValue: boolean);
     procedure SetShadowBlur(const AValue: single);
+    procedure SetShadowFastest(AValue: boolean);
     procedure SetShadowOffset(const AValue: TPointF);
     procedure SetShadowOffsetX(const AValue: single);
     procedure SetShadowOffsetY(const AValue: single);
@@ -141,12 +144,15 @@ type
     function ApplyTransform(const points: array of TPointF): ArrayOfTPointF; overload;
     function ApplyTransform(point: TPointF): TPointF; overload;
     function GetPenPos(defaultX, defaultY: single): TPointF;
+    function GetPenPos(defaultPt: TPointF): TPointF;
     procedure AddPoint(point: TPointF);
     procedure AddPoints(const points: array of TPointF);
     procedure AddPointsRev(const points: array of TPointF);
     function ApplyGlobalAlpha(color: TBGRAPixel): TBGRAPixel;
     function GetDrawMode: TDrawMode;
     procedure copyTo({%H-}dest: IBGRAPath); //IBGRAPath
+    function getPoints: ArrayOfTPointF; //IBGRAPath
+    function getCursor: TBGRACustomPathCursor; //IBGRAPath
   public
     antialiasing, linearBlend: boolean;
     constructor Create(ASurface: TBGRACustomBitmap);
@@ -209,6 +215,8 @@ type
     procedure rect(x,y,w,h: single);
     procedure roundRect(x,y,w,h,radius: single); overload;
     procedure roundRect(x,y,w,h,rx,ry: single); overload;
+    procedure openedSpline(const pts: array of TPointF; style: TSplineStyle);
+    procedure closedSpline(const pts: array of TPointF; style: TSplineStyle);
     procedure spline(const pts: array of TPointF; style: TSplineStyle= ssOutside);
     procedure splineTo(const pts: array of TPointF; style: TSplineStyle= ssOutside);
     procedure arc(x, y, radius, startAngleRadCW, endAngleRadCW: single; anticlockwise: boolean); overload;
@@ -261,6 +269,7 @@ type
     property shadowOffsetY: single read GetShadowOffsetY write SetShadowOffsetY;
     property shadowOffset: TPointF read GetShadowOffset write SetShadowOffset;
     property shadowBlur: single read GetShadowBlur write SetShadowBlur;
+    property shadowFastest: boolean read GetShadowFastest write SetShadowFastest;
     property hasShadow: boolean read GetHasShadow;
 
     property fontName: string read GetFontName write SetFontName;
@@ -271,7 +280,7 @@ type
     property textAlign: string read GetTextAlign write SetTextAlign;
     property textBaseline: string read GetTextBaseline write SetTextBaseine;
 
-    property currentPath: ArrayOfTPointF read GetCurrentPath;
+    property currentPath: ArrayOfTPointF read GetCurrentPathAsPoints;
     property fontRenderer: TBGRACustomFontRenderer read GetFontRenderer write SetFontRenderer;
 
   protected
@@ -539,6 +548,7 @@ begin
   shadowOffsetY := 0;
   shadowBlur := 0;
   shadowColor := BGRAPixelTransparent;
+  shadowFastest:= false;
 
   matrix := AMatrix;
   if AClipMask = nil then
@@ -570,6 +580,7 @@ begin
   result.shadowOffsetY := shadowOffsetY;
   result.shadowBlur := shadowBlur;
   result.shadowColor := shadowColor;
+  result.shadowFastest := shadowFastest;
 end;
 
 destructor TBGRACanvasState2D.Destroy;
@@ -646,6 +657,11 @@ begin
   result := currentState.shadowBlur;
 end;
 
+function TBGRACanvas2D.GetShadowFastest: boolean;
+begin
+  result := currentState.shadowFastest;
+end;
+
 function TBGRACanvas2D.GetShadowOffset: TPointF;
 begin
   result := PointF(shadowOffsetX,shadowOffsetY);
@@ -686,7 +702,7 @@ begin
   result := currentState.globalAlpha/255;
 end;
 
-function TBGRACanvas2D.GetCurrentPath: ArrayOfTPointF;
+function TBGRACanvas2D.GetCurrentPathAsPoints: ArrayOfTPointF;
 var i: integer;
 begin
   setlength(result, FPathPointCount);
@@ -1067,6 +1083,11 @@ begin
   currentState.shadowBlur := AValue;
 end;
 
+procedure TBGRACanvas2D.SetShadowFastest(AValue: boolean);
+begin
+  currentState.shadowFastest := AValue;
+end;
+
 procedure TBGRACanvas2D.SetShadowOffset(const AValue: TPointF);
 begin
   shadowOffsetX := AValue.X;
@@ -1149,6 +1170,7 @@ begin
 end;
 
 procedure TBGRACanvas2D.DrawShadow(const points, points2: array of TPointF);
+const invSqrt2 = 1/sqrt(2);
 var ofsPts,ofsPts2: array of TPointF;
     offset: TPointF;
     i: Integer;
@@ -1212,12 +1234,24 @@ begin
   tempBmp.FillPolyAntialias(ofsPts2, getShadowColor);
   if shadowBlur > 0 then
   begin
-    if (shadowBlur < 5) and (abs(shadowBlur-round(shadowBlur)) > 1e-6) then
-      blurred := tempBmp.FilterBlurRadial(round(shadowBlur*10),rbPrecise)
+    if shadowFastest then
+    begin
+      if shadowBlur*invSqrt2 >= 0.5 then
+      begin
+        blurred := tempBmp.FilterBlurRadial(round(shadowBlur*invSqrt2),rbBox);
+        tempBmp.Free;
+        tempBmp := blurred;
+      end;
+    end
     else
-      blurred := tempBmp.FilterBlurRadial(round(shadowBlur),rbFast);
-    tempBmp.Free;
-    tempBmp := blurred;
+    begin
+      if (shadowBlur < 5) and (abs(shadowBlur-round(shadowBlur)) > 1e-6) then
+        blurred := tempBmp.FilterBlurRadial(round(shadowBlur*10),rbPrecise)
+      else
+        blurred := tempBmp.FilterBlurRadial(round(shadowBlur),rbFast);
+      tempBmp.Free;
+      tempBmp := blurred;
+    end;
   end;
   if currentState.clipMask <> nil then
     tempBmp.ApplyMask(currentState.clipMask);
@@ -1273,6 +1307,11 @@ begin
     result := FLastCoord;
 end;
 
+function TBGRACanvas2D.GetPenPos(defaultPt: TPointF): TPointF;
+begin
+  result := GetPenPos(defaultPt.x,defaultPt.y);
+end;
+
 procedure TBGRACanvas2D.AddPoint(point: TPointF);
 begin
   if FPathPointCount = length(FPathPoints) then
@@ -1318,6 +1357,16 @@ end;
 procedure TBGRACanvas2D.copyTo(dest: IBGRAPath);
 begin
   //nothing
+end;
+
+function TBGRACanvas2D.getPoints: ArrayOfTPointF;
+begin
+  result := GetCurrentPathAsPoints;
+end;
+
+function TBGRACanvas2D.getCursor: TBGRACustomPathCursor;
+begin
+  result := nil;
 end;
 
 constructor TBGRACanvas2D.Create(ASurface: TBGRACustomBitmap);
@@ -1707,7 +1756,7 @@ var
   curve : TQuadraticBezierCurve;
   pts : array of TPointF;
 begin
-  curve := BezierCurve(GetPenPos(cpx,cpy),ApplyTransform(PointF(cpx,cpy)),ApplyTransform(PointF(x,y)));
+  curve := BezierCurve(ApplyTransform(GetPenPos(cpx,cpy)),ApplyTransform(PointF(cpx,cpy)),ApplyTransform(PointF(x,y)));
   pts := BGRAPath.ComputeBezierCurve(curve);
   AddPoints(pts);
   FLastCoord := PointF(x,y);
@@ -1723,7 +1772,7 @@ var
   curve : TCubicBezierCurve;
   pts : array of TPointF;
 begin
-  curve := BezierCurve(GetPenPos(cp1x,cp1y),ApplyTransform(PointF(cp1x,cp1y)),
+  curve := BezierCurve(ApplyTransform(GetPenPos(cp1x,cp1y)),ApplyTransform(PointF(cp1x,cp1y)),
     ApplyTransform(PointF(cp2x,cp2y)),ApplyTransform(PointF(x,y)));
   pts := BGRAPath.ComputeBezierCurve(curve);
   AddPoints(pts);
@@ -1784,6 +1833,28 @@ begin
   lineTo(x,y+ry);
   arcTo(rx,ry,0,false,false,x+rx,y);
   closePath;
+end;
+
+procedure TBGRACanvas2D.openedSpline(const pts: array of TPointF;
+  style: TSplineStyle);
+var transf: array of TPointF;
+begin
+  if length(pts)=0 then exit;
+  transf := ApplyTransform(pts);
+  transf := BGRAPath.ComputeOpenedSpline(transf,style);
+  AddPoints(transf);
+  FLastCoord := pts[high(pts)];
+end;
+
+procedure TBGRACanvas2D.closedSpline(const pts: array of TPointF;
+  style: TSplineStyle);
+var transf: array of TPointF;
+begin
+  if length(pts)=0 then exit;
+  transf := ApplyTransform(pts);
+  transf := BGRAPath.ComputeClosedSpline(slice(transf, length(transf)-1),style);
+  AddPoints(transf);
+  FLastCoord := pts[high(pts)];
 end;
 
 procedure TBGRACanvas2D.spline(const pts: array of TPointF; style: TSplineStyle);

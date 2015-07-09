@@ -32,7 +32,7 @@ type
 
 implementation
 
-uses BGRACompressableBitmap, FPWritePNG;
+uses BGRACompressableBitmap;
 
 { TBGRAWriterLazPaint }
 
@@ -41,8 +41,6 @@ var w,h: integer;
   thumbStream: TStream;
   OldResampleFilter: TResampleFilter;
   thumbnail: TBGRACustomBitmap;
-  p: PBGRAPixel;
-  n: integer;
 begin
   result := false;
   if not (Img is TBGRACustomBitmap) then exit;
@@ -68,14 +66,6 @@ begin
     thumbnail := TBGRACustomBitmap(Img).Resample(w,h,rmFineResample);
     TBGRACustomBitmap(Img).ResampleFilter := OldResampleFilter;
 
-    p := thumbnail.data; //avoid PNG bug with black color transformed into transparent
-    for n := thumbnail.NbPixels-1 downto 0 do
-    begin
-      if (p^.alpha <> 0) and (p^.red = 0) and (p^.green = 0) and (p^.blue = 0) then
-        p^.blue := 1;
-      inc(p);
-    end;
-
     try
       thumbStream := TMemoryStream.Create;
       try
@@ -88,6 +78,17 @@ begin
       end;
     finally
       thumbnail.Free;
+    end;
+  end else
+  begin
+    thumbStream := TMemoryStream.Create;
+    try
+      TBGRACustomBitmap(Img).SaveToStreamAsPng(thumbStream);
+      thumbStream.Position:= 0;
+      Str.CopyFrom(thumbStream, thumbStream.Size);
+      result := true;
+    finally
+      thumbStream.Free;
     end;
   end;
 end;

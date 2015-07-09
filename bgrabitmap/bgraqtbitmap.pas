@@ -27,15 +27,15 @@ unit BGRAQtBitmap;
 interface
 
 uses
-  Classes, SysUtils, BGRADefaultBitmap, Graphics,
-  GraphType;
+  Classes, SysUtils, BGRALCLBitmap, Graphics,
+  GraphType, BGRABitmapTypes;
 
 type
   { TBGRAQtBitmap }
 
-  TBGRAQtBitmap = class(TBGRADefaultBitmap)
+  TBGRAQtBitmap = class(TBGRALCLBitmap)
   private
-    procedure SlowDrawTransparent(ABitmap: TBGRADefaultBitmap;
+    procedure SlowDrawTransparent(ABitmap: TBGRACustomBitmap;
       ACanvas: TCanvas; ARect: TRect);
   public
     procedure DataDrawTransparent(ACanvas: TCanvas; Rect: TRect;
@@ -51,12 +51,12 @@ type
 
 implementation
 
-uses BGRABitmapTypes, LCLType,
+uses LCLType,
   LCLIntf, IntfGraphics,
   qtobjects, qt4,
   FPImage;
 
-procedure TBGRAQtBitmap.SlowDrawTransparent(ABitmap: TBGRADefaultBitmap;
+procedure TBGRAQtBitmap.SlowDrawTransparent(ABitmap: TBGRACustomBitmap;
   ACanvas: TCanvas; ARect: TRect);
 begin
   ACanvas.StretchDraw(ARect, ABitmap.Bitmap);
@@ -65,9 +65,9 @@ end;
 procedure TBGRAQtBitmap.DataDrawTransparent(ACanvas: TCanvas; Rect: TRect;
   AData: Pointer; ALineOrder: TRawImageLineOrder; AWidth, AHeight: integer);
 var
-  Temp: TBGRAPtrBitmap;
+  Temp: TBGRALCLPtrBitmap;
 begin
-  Temp := TBGRAPtrBitmap.Create(AWidth, AHeight, AData);
+  Temp := TBGRALCLPtrBitmap.Create(AWidth, AHeight, AData);
   Temp.LineOrder := ALineOrder;
   SlowDrawTransparent(Temp, ACanvas, Rect);
   Temp.Free;
@@ -106,7 +106,10 @@ begin
     exit;
 
   RawImage.Init;
-  RawImage.Description.Init_BPP32_B8G8R8_BIO_TTB(AWidth, AHeight);
+  if TBGRAPixel_RGBAOrder then
+    RawImage.Description.Init_BPP32_R8G8B8_BIO_TTB(AWidth, AHeight)
+  else
+    RawImage.Description.Init_BPP32_B8G8R8_BIO_TTB(AWidth, AHeight);
   RawImage.Description.LineOrder := ALineOrder;
   RawImage.Description.LineEnd := rileDWordBoundary;
   RawImage.Data     := PByte(AData);
@@ -143,7 +146,6 @@ begin
   SrcX     := x + Ofs.X;
   SrcY     := y + Ofs.Y;
 
-  {$warning QT: recheck this}
   if (dcSource.vImage <> nil) and (dcSource.vImage.Handle <> nil) then
   begin
     // we must stop painting on device
@@ -156,10 +158,6 @@ begin
       QPainter_begin(dcDest.Widget, TQtImage(bmp.Handle).Handle);
   end;
 
-  (*
-  gdk_window_copy_area(dcDest.Drawable, dcDest.GC, 0, 0, dcSource.Drawable,
-    SrcX, SrcY, Width, Height);
-  *)
   LoadFromRawImage(bmp.RawImage, 255, True);
   bmp.Free;
   InvalidateBitmap;

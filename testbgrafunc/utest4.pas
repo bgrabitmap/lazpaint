@@ -15,7 +15,7 @@ type
     virtualScreen: TBitmap;
   public
     constructor Create;
-    procedure OnPaint(Canvas: TCanvas; Width,Height: Integer); override;
+    procedure OnPaint(Canvas: TCanvas; Left,Top,Width,Height: Integer); override;
   end;
 
 implementation
@@ -29,7 +29,7 @@ begin
   virtualScreen := nil;
 end;
 
-procedure TTest4.OnPaint(Canvas: TCanvas; Width, Height: Integer);
+procedure TTest4.OnPaint(Canvas: TCanvas; Left,Top,Width, Height: Integer);
 var i: integer;
 begin
   if backgroundImg = nil then exit;
@@ -52,7 +52,7 @@ begin
     pacImg[numPacImg].Draw(virtualscreen.Canvas,pacLoc[i].x,pacLoc[i].y,false);
 
   //draw virtualscreen as TBitmap
-  Canvas.Draw(0,0,VirtualScreen);
+  Canvas.Draw(Left,Top,VirtualScreen);
 end;
 
 end.

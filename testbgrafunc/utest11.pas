@@ -23,8 +23,8 @@ type
   public
     constructor Create(filter: string);
     destructor Destroy; override;
-    procedure OnPaint(Canvas: TCanvas; Width,Height: Integer); override;
-    procedure OnTimer(Canvas: TCanvas; Width,Height: Integer; ElapsedSec: Double); override;
+    procedure OnPaint(Canvas: TCanvas; Left,Top,Width,Height: Integer); override;
+    procedure OnTimer(Width,Height: Integer; ElapsedSec: Double); override;
   end;
 
 implementation
@@ -47,7 +47,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TTest11.OnPaint(Canvas: TCanvas; Width, Height: Integer);
+procedure TTest11.OnPaint(Canvas: TCanvas; Left,Top,Width, Height: Integer);
 var filtered: TBGRABitmap;
 begin
   if pts = nil then exit;
@@ -66,7 +66,7 @@ begin
     virtualScreen.Fill(ColorToRGB(clBtnFace));
     virtualScreen.PutImage(0,0,filtered,dmDrawWithTransparency);
     filtered.Free;
-    virtualscreen.Draw(Canvas,0,0,True);
+    virtualscreen.Draw(Canvas,Left,Top,True);
   end else
   begin
     virtualScreen.Fill(BGRAWhite);
@@ -74,17 +74,17 @@ begin
     if ffilter = 'Contour' then
     begin
       filtered := virtualScreen.FilterContour as TBGRABitmap;
-      filtered.Draw(Canvas,0,0,True);
+      filtered.Draw(Canvas,Left,Top,True);
       filtered.Free;
     end else
     begin
       virtualScreen.DrawPolyLineAntialias(pts,BGRA(0,0,0,128),(width+height)/800,True);
-      virtualscreen.Draw(Canvas,0,0,True);
+      virtualscreen.Draw(Canvas,Left,Top,True);
     end;
   end;
 end;
 
-procedure TTest11.OnTimer(Canvas: TCanvas; Width, Height: Integer; ElapsedSec: Double);
+procedure TTest11.OnTimer(Width, Height: Integer; ElapsedSec: Double);
 var i: integer;
 begin
   if pts = nil then
@@ -122,7 +122,6 @@ begin
       dirs[i].y := -abs(dirs[i].y);
     end;
   end;
-  OnPaint(Canvas,Width,Height);
 end;
 
 end.

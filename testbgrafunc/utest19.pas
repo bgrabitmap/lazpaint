@@ -19,8 +19,8 @@ type
   public
     constructor Create(TextureInterpolation: boolean; GradientTexture: boolean);
     destructor Destroy; override;
-    procedure OnPaint(Canvas: TCanvas; Width,Height: Integer); override;
-    procedure OnTimer(Canvas: TCanvas; Width,Height: Integer; ElapsedSec: Double); override;
+    procedure OnPaint(Canvas: TCanvas; Left,Top,Width,Height: Integer); override;
+    procedure OnTimer(Width,Height: Integer; ElapsedSec: Double); override;
   end;
 
 implementation
@@ -74,7 +74,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TTest19.OnPaint(Canvas: TCanvas; Width, Height: Integer);
+procedure TTest19.OnPaint(Canvas: TCanvas; Left,Top,Width, Height: Integer);
 begin
   if (virtualscreen <> nil) and ((virtualscreen.width <> width) or (virtualscreen.Height <> height)) then
   begin
@@ -111,10 +111,10 @@ begin
     end;
   end;
 
-  virtualScreen.draw(Canvas,0,0);
+  virtualScreen.draw(Canvas,Left,Top);
 end;
 
-procedure TTest19.OnTimer(Canvas: TCanvas; Width, Height: Integer; ElapsedSec: Double);
+procedure TTest19.OnTimer(Width, Height: Integer; ElapsedSec: Double);
 var
   moveFactor: single;
 begin
@@ -126,8 +126,6 @@ begin
     RotateXRad(-0.01*moveFactor);
     RotateZRad(0.005*moveFactor);
   end;
-
-  OnPaint(Canvas,Width,Height);
 end;
 
 end.

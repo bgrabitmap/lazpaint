@@ -15,8 +15,8 @@ type
     time: double;
     dashstyle: TPenStyle;
     constructor Create;
-    procedure OnPaint(Canvas: TCanvas; Width,Height: Integer); override;
-    procedure OnTimer(Canvas: TCanvas; Width,Height: Integer; ElapsedSec: Double); override;
+    procedure OnPaint(Canvas: TCanvas; Left,Top,Width,Height: Integer); override;
+    procedure OnTimer(Width,Height: Integer; ElapsedSec: Double); override;
   end;
 
 implementation
@@ -29,7 +29,7 @@ begin
   dashstyle := psSolid;
 end;
 
-procedure TTest17.OnPaint(Canvas: TCanvas; Width, Height: Integer);
+procedure TTest17.OnPaint(Canvas: TCanvas; Left,Top,Width, Height: Integer);
 var
   image: TBGRABitmap;
   c : TBGRAPixel;
@@ -80,11 +80,11 @@ begin
     image.JoinStyle := pjsRound;
     DrawLines(530,20,'Round join');
 
-    image.Draw(Canvas,0,0,True);
+    image.Draw(Canvas,Left,Top,True);
     image.free;
 end;
 
-procedure TTest17.OnTimer(Canvas: TCanvas; Width, Height: Integer;
+procedure TTest17.OnTimer(Width, Height: Integer;
   ElapsedSec: Double);
 var prev5: integer;
 begin
@@ -96,7 +96,6 @@ begin
       dashstyle := psSolid else
        dashstyle := succ(dashstyle);
   end;
-  OnPaint(Canvas,Width,Height);
 end;
 
 end.

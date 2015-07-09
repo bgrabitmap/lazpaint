@@ -1,6 +1,7 @@
 unit BGRAThumbnail;
 
 {$mode objfpc}{$H+}
+{$i bgrabitmap.inc}
 
 interface
 
@@ -19,7 +20,9 @@ function GetPsdThumbnail(AStream: TStream; AWidth,AHeight: integer; ABackColor: 
 function GetPngThumbnail(AStream: TStream; AWidth, AHeight: integer; ABackColor: TBGRAPixel; ACheckers: boolean; ADest: TBGRABitmap= nil): TBGRABitmap;
 function GetPaintDotNetThumbnail(AStream: TStream; AWidth, AHeight: integer; ABackColor: TBGRAPixel; ACheckers: boolean; ADest: TBGRABitmap= nil): TBGRABitmap;
 function GetBmpThumbnail(AStream: TStream; AWidth, AHeight: integer; ABackColor: TBGRAPixel; ACheckers: boolean; ADest: TBGRABitmap= nil): TBGRABitmap;
+{$IFDEF BGRABITMAP_USE_LCL}
 function GetIcoThumbnail(AStream: TStream; AWidth, AHeight: integer; ABackColor: TBGRAPixel; ACheckers: boolean; ADest: TBGRABitmap= nil): TBGRABitmap;
+{$ENDIF}
 
 function GetPcxThumbnail(AStream: TStream; AWidth, AHeight: integer; ABackColor: TBGRAPixel; ACheckers: boolean; ADest: TBGRABitmap= nil): TBGRABitmap;
 function GetTargaThumbnail(AStream: TStream; AWidth, AHeight: integer; ABackColor: TBGRAPixel; ACheckers: boolean; ADest: TBGRABitmap= nil): TBGRABitmap;
@@ -33,7 +36,7 @@ procedure DrawThumbnailCheckers(bmp: TBGRABitmap; ARect: TRect);
 
 implementation
 
-uses Types, GraphType, Graphics, base64, lazutf8classes, LCLProc,
+uses Types, base64, BGRAUTF8, {$IFDEF BGRABITMAP_USE_LCL}Graphics, GraphType,{$ENDIF}
      DOM, XMLRead, FPReadJPEG, BGRAReadPng, BGRAReadGif, BGRAReadBMP,
      BGRAReadPSD, BGRAReadIco, UnzipperExt, BGRAReadLzp;
 
@@ -100,7 +103,9 @@ begin
     ifPng: result := GetPngThumbnail(AStream, AWidth,AHeight, ABackColor, ACheckers, ADest);
     ifGif: result := GetGifThumbnail(AStream, AWidth,AHeight, ABackColor, ACheckers, ADest);
     ifBmp: result := GetBmpThumbnail(AStream, AWidth,AHeight, ABackColor, ACheckers, ADest);
+    {$IFDEF BGRABITMAP_USE_LCL}
     ifIco: result := GetIcoThumbnail(AStream, AWidth,AHeight, ABackColor, ACheckers, ADest);
+    {$ENDIF}
     ifPcx: result := GetPcxThumbnail(AStream, AWidth,AHeight, ABackColor, ACheckers, ADest);
     ifPaintDotNet: result := GetPaintDotNetThumbnail(AStream, AWidth,AHeight, ABackColor, ACheckers, ADest);
     ifLazPaint: result := GetLazPaintThumbnail(AStream, AWidth,AHeight, ABackColor, ACheckers, ADest);
@@ -327,6 +332,7 @@ begin
   bmpFormat.Free;
 end;
 
+{$IFDEF BGRABITMAP_USE_LCL}
 function GetIcoThumbnail(AStream: TStream; AWidth, AHeight: integer;
   ABackColor: TBGRAPixel; ACheckers: boolean; ADest: TBGRABitmap): TBGRABitmap;
 var ico: TIcon; i,bestIdx: integer;
@@ -371,8 +377,7 @@ begin
   end;
   ico.Free;
 end;
-
-
+{$ENDIF}
 
 function GetPcxThumbnail(AStream: TStream; AWidth, AHeight: integer;
   ABackColor: TBGRAPixel; ACheckers: boolean; ADest: TBGRABitmap): TBGRABitmap;

@@ -2,12 +2,17 @@ unit uimagelist;
 
 {$mode objfpc}{$H+}
 
+{$IFNDEF DARWIN}
+  {$DEFINE USE_IMAGE_BROWSER}
+{$ENDIF}
+
 interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
   Grids, StdCtrls, Buttons, ComCtrls, ExtCtrls, Menus,
-  LazPaintType, UResourceStrings, UConfig, BGRAImageList;
+  LazPaintType, UResourceStrings, UConfig, BGRAImageList
+  {$IFDEF USE_IMAGE_BROWSER}, ubrowseimages{$ENDIF};
 
 type
   String1D= array of string;
@@ -56,6 +61,7 @@ type
     procedure EnableButtons;
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
     procedure FormKeyDown(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
     procedure FormResize(Sender: TObject);
@@ -97,6 +103,9 @@ type
     function IsExtensionIsValid (FileName:string): boolean;
     procedure Renumber;
   private
+    {$IFDEF USE_IMAGE_BROWSER}
+    FBrowseImages: TFBrowseImages;
+    {$ENDIF}
     WidthNormal: integer;
     HeightNormal: integer;
     WidthMinimal: integer;
@@ -134,7 +143,7 @@ begin
    if Row> aStringGrid.RowCount-1 then Exit;
    aStringGrid.Row:=Row;
    aStringGrid.Selection:=GridRect;
-  if aSetFocus then aStringGrid.SetFocus;
+  if aSetFocus then SafeSetFocus(aStringGrid);
 end;
 
 function StringExists (aStringGrid: TStringGrid; Column: integer ;  aStr: String): Boolean;
@@ -161,7 +170,7 @@ begin
   if not LazPaintInstance.OpenImage(FileName,False) then
      begin QuestionDlg (rsError, rsCannotOpenFile, mtError, [mrOk, rsOkay],''); Exit; end
      else Result:=True;
-  if tbAutoZoomFit.Down then LazPaintInstance.ZoomFit;
+  if tbAutoZoomFit.Down then LazPaintInstance.Image.ZoomFit;
 end;
 
 procedure DeleteRow(aStringGrid: TStringGrid; ARow: integer);
@@ -282,7 +291,15 @@ begin
   StringGrid1.Columns.Items[ColLongFname].Visible:=False;
   OpenDialog1.Filter:= GetExtensionFilter([eoReadable]);
   lblStatus.Caption:='';
+  lblStatus.AutoSize := true;
   EnableButtons;
+end;
+
+procedure TFImageList.FormDestroy(Sender: TObject);
+begin
+  {$IFDEF USE_IMAGE_BROWSER}
+  FreeAndNil(FBrowseImages);
+  {$ENDIF}
 end;
 
 function TFImageList.IsExtensionIsValid (FileName: string): boolean;
@@ -318,7 +335,7 @@ begin
        if shouldOpenFirst then
        begin
             tbOpenImageClick(nil);
-            if tbAutoZoomFit.Down then LazPaintInstance.ZoomFit;
+            if tbAutoZoomFit.Down then LazPaintInstance.Image.ZoomFit;
        end;
   end; //if
   EnableButtons;
@@ -717,10 +734,33 @@ end;
 
 procedure TFImageList.tbAddFilesClick(Sender: TObject);
 var topMostInfo: TTopMostInfo;
+   {$IFDEF USE_IMAGE_BROWSER}
+   fileNames: array of string;
+   i: integer;
+   {$ENDIF}
+
 begin
-  if Length(LazPaintInstance.Config.ImageListLastFolder)>0 then OpenDialog1.InitialDir:=LazPaintInstance.Config.ImageListLastFolder;
   topMostInfo := LazPaintInstance.HideTopmost;
+
+  {$IFDEF USE_IMAGE_BROWSER}
+  if not assigned(FBrowseImages) then
+  begin
+    FBrowseImages := TFBrowseImages.Create(self);
+    FBrowseImages.LazPaintInstance := LazPaintInstance;
+  end;
+
+  if FBrowseImages.ShowModal = mrOK then
+  begin
+    setlength(fileNames,FBrowseImages.SelectedFileCount);
+    for i := 0 to high(fileNames) do
+      fileNames[i] := FBrowseImages.SelectedFile[i];
+    AddFiles(Filenames);
+  end;
+  {$ELSE}
+  if Length(LazPaintInstance.Config.ImageListLastFolder)>0 then OpenDialog1.InitialDir:=LazPaintInstance.Config.ImageListLastFolder;
   if OpenDialog1.Execute= True then AddFiles(StringsToStringArray(OpenDialog1.Files));
+  {$ENDIF}
+
   LazPaintInstance.ShowTopmost(topMostInfo);
 end;
 

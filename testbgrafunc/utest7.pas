@@ -19,8 +19,8 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure OnPaint(Canvas: TCanvas; Width,Height: Integer); override;
-    procedure OnTimer(Canvas: TCanvas; Width,Height: Integer; ElapsedSec: Double); override;
+    procedure OnPaint(Canvas: TCanvas; Left,Top,Width,Height: Integer); override;
+    procedure OnTimer(Width,Height: Integer; ElapsedSec: Double); override;
   end;
 
 implementation
@@ -60,7 +60,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TTest7.OnPaint(Canvas: TCanvas; Width, Height: Integer);
+procedure TTest7.OnPaint(Canvas: TCanvas; Left,Top,Width, Height: Integer);
 begin
   if (virtualscreen <> nil) and ((virtualscreen.width <> width) or (virtualscreen.Height <> height)) then
   begin
@@ -78,13 +78,12 @@ begin
   virtualscreen.PutImage(0,0,background,dmSet);
   DrawPacman(virtualScreen.Width div 4,virtualScreen.Height div 2, ln(time+1)*100);
   DrawPacman(3*virtualScreen.Width div 4,virtualScreen.Height div 2, -time*4);
-  virtualscreen.Draw(Canvas,0,0,True);
+  virtualscreen.Draw(Canvas,Left,Top,True);
 end;
 
-procedure TTest7.OnTimer(Canvas: TCanvas; Width, Height: Integer; ElapsedSec: Double);
+procedure TTest7.OnTimer(Width, Height: Integer; ElapsedSec: Double);
 begin
   time := time+ElapsedSec*5;
-  OnPaint(Canvas,Width,Height);
 end;
 
 end.

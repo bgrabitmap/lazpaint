@@ -18,8 +18,8 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure OnPaint(Canvas: TCanvas; Width,Height: Integer); override;
-    procedure OnTimer(Canvas: TCanvas; Width,Height: Integer; ElapsedSec: Double); override;
+    procedure OnPaint(Canvas: TCanvas; Left,Top,Width,Height: Integer); override;
+    procedure OnTimer(Width,Height: Integer; ElapsedSec: Double); override;
   end;
 
 implementation
@@ -47,7 +47,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TTest9.OnPaint(Canvas: TCanvas; Width, Height: Integer);
+procedure TTest9.OnPaint(Canvas: TCanvas; Left,Top,Width, Height: Integer);
 var mask: TBGRABitmap; x,y: single;
 begin
   UpdateBackground(Width,Height);
@@ -79,15 +79,14 @@ begin
   virtualScreen.FillMask(0,0,mask,masked);
   mask.free;
 
-  virtualscreen.Draw(Canvas,0,0,True);
+  virtualscreen.Draw(Canvas,Left,Top,True);
 end;
 
-procedure TTest9.OnTimer(Canvas: TCanvas; Width, Height: Integer; ElapsedSec: Double);
+procedure TTest9.OnTimer(Width, Height: Integer; ElapsedSec: Double);
 begin
   time := time+ElapsedSec*0.5;
   lightPos1 := pointF((sin(time)+1)/4+0.2,(cos(time*0.3)+1)/4+0.3);
   lightPos2 := pointF((sin(time*0.7+1)+1)/4+0.4,(cos(time*0.5+2)+1)/4+0.3);
-  OnPaint(Canvas,Width,Height);
 end;
 
 end.

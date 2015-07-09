@@ -21,7 +21,7 @@ type
 
 implementation
 
-uses BGRABitmapTypes, Dialogs;
+uses BGRABitmapTypes;
 
 { TBGRAReaderXPM }
 

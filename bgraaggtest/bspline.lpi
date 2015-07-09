@@ -37,214 +37,386 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="8">
+    <Units Count="29">
       <Unit0>
         <Filename Value="bspline.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="bspline"/>
-        <UsageCount Value="25"/>
+        <UsageCount Value="77"/>
       </Unit0>
       <Unit1>
         <Filename Value="bspline_main.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="bspline_main"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="31"/>
-        <CursorPos X="1" Y="71"/>
-        <UsageCount Value="25"/>
+        <TopLine Value="102"/>
+        <CursorPos X="48" Y="118"/>
+        <UsageCount Value="77"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
         <UnitName Value="BGRADefaultBitmap"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="280"/>
-        <CursorPos X="25" Y="298"/>
-        <UsageCount Value="13"/>
+        <TopLine Value="568"/>
+        <CursorPos X="44" Y="586"/>
+        <UsageCount Value="37"/>
         <Loaded Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="..\bgrabitmap\bgrapolygon.pas"/>
         <UnitName Value="BGRAPolygon"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="9"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1351"/>
-        <CursorPos X="38" Y="1365"/>
-        <UsageCount Value="13"/>
+        <TopLine Value="1251"/>
+        <CursorPos X="38" Y="1289"/>
+        <UsageCount Value="39"/>
         <Loaded Value="True"/>
       </Unit3>
       <Unit4>
         <Filename Value="..\bgrabitmap\bgraresample.pas"/>
         <UnitName Value="BGRAResample"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="10"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="803"/>
-        <CursorPos X="57" Y="819"/>
-        <UsageCount Value="13"/>
+        <TopLine Value="68"/>
+        <CursorPos X="10" Y="87"/>
+        <UsageCount Value="39"/>
         <Loaded Value="True"/>
       </Unit4>
       <Unit5>
         <Filename Value="..\bgrabitmap\bgrabitmaptypes.pas"/>
         <UnitName Value="BGRABitmapTypes"/>
-        <EditorIndex Value="3"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="67"/>
-        <CursorPos X="39" Y="84"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
+        <TopLine Value="2100"/>
+        <CursorPos X="49" Y="2123"/>
+        <UsageCount Value="21"/>
       </Unit5>
       <Unit6>
         <Filename Value="..\bgrabitmap\bgrapen.pas"/>
         <UnitName Value="BGRAPen"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="4"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="28"/>
-        <CursorPos X="10" Y="31"/>
-        <UsageCount Value="11"/>
+        <TopLine Value="732"/>
+        <CursorPos X="1" Y="753"/>
+        <UsageCount Value="35"/>
         <Loaded Value="True"/>
       </Unit6>
       <Unit7>
         <Filename Value="D:\lazarus\lcl\graphics.pp"/>
         <UnitName Value="Graphics"/>
-        <EditorIndex Value="4"/>
         <WindowIndex Value="0"/>
         <TopLine Value="82"/>
         <CursorPos X="3" Y="95"/>
-        <UsageCount Value="11"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="6"/>
       </Unit7>
+      <Unit8>
+        <Filename Value="..\bgrabitmap\bgrapath.pas"/>
+        <UnitName Value="BGRAPath"/>
+        <EditorIndex Value="5"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="38" Y="15"/>
+        <UsageCount Value="36"/>
+        <Loaded Value="True"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\math.pp"/>
+        <UnitName Value="math"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="175"/>
+        <CursorPos X="10" Y="193"/>
+        <UsageCount Value="15"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="..\bgrabitmap\bgrafillinfo.pas"/>
+        <UnitName Value="BGRAFillInfo"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="443"/>
+        <CursorPos X="1" Y="457"/>
+        <UsageCount Value="13"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="..\bgrabitmap\csscolorconst.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="722"/>
+        <CursorPos X="22" Y="758"/>
+        <UsageCount Value="13"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="..\bgrabitmap\geometrytypes.inc"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="239"/>
+        <CursorPos X="33" Y="258"/>
+        <UsageCount Value="26"/>
+        <Loaded Value="True"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="..\bgrabitmap\bgragraphics.pas"/>
+        <UnitName Value="BGRAGraphics"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="12"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="..\bgrabitmap\bgratransform.pas"/>
+        <UnitName Value="BGRATransform"/>
+        <EditorIndex Value="7"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="3" Y="14"/>
+        <UsageCount Value="12"/>
+        <Loaded Value="True"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="C:\lazarus\lcl\graphtype.pp"/>
+        <UnitName Value="GraphType"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="23"/>
+        <CursorPos X="5" Y="42"/>
+        <UsageCount Value="11"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="C:\lazarus\lcl\graphics.pp"/>
+        <UnitName Value="Graphics"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="153"/>
+        <CursorPos X="3" Y="172"/>
+        <UsageCount Value="11"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\types.pp"/>
+        <UnitName Value="types"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="276"/>
+        <CursorPos X="10" Y="295"/>
+        <UsageCount Value="11"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="C:\lazarus\lcl\include\customcontrol.inc"/>
+        <EditorIndex Value="8"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="65"/>
+        <CursorPos X="1" Y="79"/>
+        <UsageCount Value="27"/>
+        <Loaded Value="True"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="..\bgrabitmap\bgragifformat.pas"/>
+        <UnitName Value="BGRAGifFormat"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="26" Y="8"/>
+        <UsageCount Value="10"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
+        <EditorIndex Value="3"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="175"/>
+        <CursorPos X="47" Y="194"/>
+        <UsageCount Value="24"/>
+        <Loaded Value="True"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\packages\fcl-image\src\fpwritepcx.pas"/>
+        <UnitName Value="FPWritePCX"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="11"/>
+        <CursorPos X="3" Y="30"/>
+        <UsageCount Value="9"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\packages\fcl-image\src\fpimage.pp"/>
+        <UnitName Value="FPimage"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="530"/>
+        <CursorPos X="11" Y="549"/>
+        <UsageCount Value="9"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\packages\fcl-image\src\fpreadpcx.pas"/>
+        <UnitName Value="FPReadPCX"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="2"/>
+        <UsageCount Value="9"/>
+      </Unit23>
+      <Unit24>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\packages\fcl-image\src\fpwritexpm.pp"/>
+        <UnitName Value="FPWriteXPM"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="5"/>
+        <CursorPos X="3" Y="24"/>
+        <UsageCount Value="9"/>
+      </Unit24>
+      <Unit25>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\packages\fcl-image\src\fphandler.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="88"/>
+        <CursorPos X="3" Y="92"/>
+        <UsageCount Value="9"/>
+      </Unit25>
+      <Unit26>
+        <Filename Value="..\bgrabitmap\bgrareadpcx.pas"/>
+        <UnitName Value="BGRAReadPCX"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="9"/>
+      </Unit26>
+      <Unit27>
+        <Filename Value="..\bgrabitmap\bgrareadxpm.pas"/>
+        <UnitName Value="BGRAReadXPM"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="9"/>
+      </Unit27>
+      <Unit28>
+        <Filename Value="..\bgrabitmap\bgracanvas2d.pas"/>
+        <UnitName Value="BGRACanvas2D"/>
+        <EditorIndex Value="6"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="248"/>
+        <CursorPos X="3" Y="263"/>
+        <UsageCount Value="12"/>
+        <Loaded Value="True"/>
+      </Unit28>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
-        <Caret Line="2385" Column="30" TopLine="2382"/>
+        <Caret Line="1329" Column="1" TopLine="1310"/>
       </Position1>
       <Position2>
-        <Filename Value="..\bgrabitmap\bgraresample.pas"/>
-        <Caret Line="50" Column="24" TopLine="38"/>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="1330" Column="1" TopLine="1310"/>
       </Position2>
       <Position3>
-        <Filename Value="..\bgrabitmap\bgrapolygon.pas"/>
-        <Caret Line="1403" Column="22" TopLine="1387"/>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="1331" Column="1" TopLine="1310"/>
       </Position3>
       <Position4>
-        <Filename Value="..\bgrabitmap\bgrapolygon.pas"/>
-        <Caret Line="1404" Column="13" TopLine="1387"/>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="1332" Column="1" TopLine="1310"/>
       </Position4>
       <Position5>
-        <Filename Value="..\bgrabitmap\bgrapolygon.pas"/>
-        <Caret Line="1329" Column="46" TopLine="1311"/>
+        <Filename Value="..\bgrabitmap\bgrapen.pas"/>
+        <Caret Line="752" Column="1" TopLine="732"/>
       </Position5>
       <Position6>
-        <Filename Value="..\bgrabitmap\bgrapolygon.pas"/>
-        <Caret Line="1403" Column="24" TopLine="1383"/>
+        <Filename Value="bspline_main.pas"/>
+        <Caret Line="130" Column="1" TopLine="96"/>
       </Position6>
       <Position7>
-        <Filename Value="..\bgrabitmap\bgraresample.pas"/>
-        <Caret Line="52" Column="24" TopLine="29"/>
+        <Filename Value="..\bgrabitmap\bgrapath.pas"/>
+        <Caret Line="1683" Column="58" TopLine="1672"/>
       </Position7>
       <Position8>
-        <Filename Value="..\bgrabitmap\bgrapolygon.pas"/>
-        <Caret Line="1372" Column="20" TopLine="1365"/>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="1320" Column="27" TopLine="1311"/>
       </Position8>
       <Position9>
-        <Filename Value="..\bgrabitmap\bgrapolygon.pas"/>
-        <Caret Line="129" Column="81" TopLine="112"/>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position9>
       <Position10>
-        <Filename Value="..\bgrabitmap\bgrapolygon.pas"/>
-        <Caret Line="130" Column="10" TopLine="111"/>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="36" Column="27" TopLine="3"/>
       </Position10>
       <Position11>
-        <Filename Value="..\bgrabitmap\bgraresample.pas"/>
-        <Caret Line="67" Column="69" TopLine="42"/>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="54" Column="40" TopLine="21"/>
       </Position11>
       <Position12>
-        <Filename Value="bspline_main.pas"/>
-        <Caret Line="76" Column="45" TopLine="60"/>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="83" Column="29" TopLine="51"/>
       </Position12>
       <Position13>
         <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
-        <Caret Line="298" Column="86" TopLine="280"/>
+        <Caret Line="540" Column="54" TopLine="510"/>
       </Position13>
       <Position14>
         <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
-        <Caret Line="2382" Column="73" TopLine="2382"/>
+        <Caret Line="1018" Column="12" TopLine="986"/>
       </Position14>
       <Position15>
         <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
-        <Caret Line="298" Column="73" TopLine="288"/>
+        <Caret Line="3752" Column="55" TopLine="3720"/>
       </Position15>
       <Position16>
         <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
-        <Caret Line="2382" Column="38" TopLine="2373"/>
+        <Caret Line="3754" Column="15" TopLine="3722"/>
       </Position16>
       <Position17>
         <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
-        <Caret Line="298" Column="25" TopLine="280"/>
+        <Caret Line="3755" Column="31" TopLine="3723"/>
       </Position17>
       <Position18>
-        <Filename Value="bspline_main.pas"/>
-        <Caret Line="76" Column="45" TopLine="48"/>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="3756" Column="22" TopLine="3724"/>
       </Position18>
       <Position19>
-        <Filename Value="bspline_main.pas"/>
-        <Caret Line="75" Column="45" TopLine="50"/>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="3755" Column="6" TopLine="3724"/>
       </Position19>
       <Position20>
-        <Filename Value="bspline_main.pas"/>
-        <Caret Line="76" Column="45" TopLine="51"/>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="3754" Column="7" TopLine="3724"/>
       </Position20>
       <Position21>
-        <Filename Value="..\bgrabitmap\bgrabitmaptypes.pas"/>
-        <Caret Line="343" Column="77" TopLine="332"/>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="3752" Column="32" TopLine="3724"/>
       </Position21>
       <Position22>
-        <Filename Value="..\bgrabitmap\bgrabitmaptypes.pas"/>
-        <Caret Line="350" Column="81" TopLine="344"/>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="1018" Column="4" TopLine="998"/>
       </Position22>
       <Position23>
-        <Filename Value="bspline_main.pas"/>
-        <Caret Line="77" Column="45" TopLine="52"/>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="540" Column="14" TopLine="522"/>
       </Position23>
       <Position24>
-        <Filename Value="bspline_main.pas"/>
-        <Caret Line="78" Column="45" TopLine="53"/>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="83" Column="6" TopLine="65"/>
       </Position24>
       <Position25>
-        <Filename Value="bspline_main.pas"/>
-        <Caret Line="79" Column="45" TopLine="54"/>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="54" Column="17" TopLine="34"/>
       </Position25>
       <Position26>
-        <Filename Value="..\bgrabitmap\bgraresample.pas"/>
-        <Caret Line="815" Column="55" TopLine="46"/>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="36" Column="19" TopLine="29"/>
       </Position26>
       <Position27>
-        <Filename Value="bspline_main.pas"/>
-        <Caret Line="85" Column="73" TopLine="71"/>
+        <Filename Value="..\bgrabitmap\bgracanvas2d.pas"/>
+        <Caret Line="227" Column="3" TopLine="210"/>
       </Position27>
       <Position28>
-        <Filename Value="..\bgrabitmap\bgrapolygon.pas"/>
-        <Caret Line="1383" Column="72" TopLine="1334"/>
+        <Filename Value="..\bgrabitmap\bgracanvas2d.pas"/>
+        <Caret Line="263" Column="3" TopLine="248"/>
       </Position28>
       <Position29>
-        <Filename Value="..\bgrabitmap\bgrapolygon.pas"/>
-        <Caret Line="130" Column="10" TopLine="112"/>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="36" Column="19" TopLine="29"/>
       </Position29>
       <Position30>
-        <Filename Value="..\bgrabitmap\bgrapolygon.pas"/>
-        <Caret Line="1339" Column="102" TopLine="1324"/>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position30>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
-    <Version Value="9"/>
+    <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
       <Filename Value="bspline"/>

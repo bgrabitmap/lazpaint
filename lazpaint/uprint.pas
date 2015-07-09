@@ -49,6 +49,7 @@ type
     procedure BGRAVirtualScreen1MouseUp(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure BGRAVirtualScreen1Redraw(Sender: TObject; Bitmap: TBGRABitmap);
+    procedure BGRAVirtualScreen1Resize(Sender: TObject);
     procedure Button_ConfigurePrinterClick(Sender: TObject);
     procedure Button_PrintClick(Sender: TObject);
     procedure Button_ZoomFitClick(Sender: TObject);
@@ -402,8 +403,8 @@ begin
   imgBottomRight := FPrintTransform*(FImagePos+FImageSize);
   Printer.Canvas.StretchDraw(rect(round(imgTopLeft.x),round(imgTopLeft.y),
     round(imgBottomRight.x),round(imgBottomRight.y)), Instance.Image.RenderedImage.Bitmap);
-  Printer.EndDoc;
   Printer.Canvas.Clipping := false;
+  Printer.EndDoc;
 end;
 
 procedure TFPrint.Button_ZoomFitClick(Sender: TObject);
@@ -519,6 +520,11 @@ begin
                                   Point(imgRect.left, imgRect.Bottom-1),imgRect.TopLeft], BGRA(128,160,192,128), BGRAPixelTransparent, 2, False);
   end;
   Bitmap.NoClip;
+end;
+
+procedure TFPrint.BGRAVirtualScreen1Resize(Sender: TObject);
+begin
+  BGRAVirtualScreen1.DiscardBitmap;
 end;
 
 procedure TFPrint.BGRAVirtualScreen1MouseMove(Sender: TObject;

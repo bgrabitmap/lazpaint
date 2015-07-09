@@ -5,7 +5,7 @@ unit BGRACanvas;
 interface
 
 uses
-  Classes, SysUtils, FPCanvas, Graphics, GraphType, Types, FPImage, BGRABitmapTypes;
+  Classes, SysUtils, FPCanvas, BGRAGraphics, Types, FPImage, BGRABitmapTypes;
 
 type
 
@@ -922,6 +922,14 @@ begin
   begin
     dec(x2);
     dec(y2);
+
+    if (Pen.Style = psSolid) and not Filled then
+    begin
+      ApplyPenStyle;
+      FBitmap.RectangleAntialias(x1,y1,x2,y2,Pen.ActualColor,Pen.ActualWidth);
+      exit;
+    end;
+
     tex := Brush.BuildTexture(FBitmap);
 
     if (Pen.Style = psSolid) and (tex=nil) then
@@ -1090,7 +1098,7 @@ end;
 procedure TBGRACanvas.Frame3D(var bounds: TRect; width: integer;
   Style: TGraphicsBevelCut);
 begin
-  Frame3D(bounds,width,style,ColorToBGRA(ColorToRGB(clBtnHighlight)),ColorToBGRA(ColorToRGB(clBtnShadow)));
+  Frame3D(bounds,width,style,ColorToBGRA(clRgbBtnHighlight),ColorToBGRA(clRgbBtnShadow));
 end;
 
 procedure TBGRACanvas.Frame3D(var bounds: TRect; width: integer;
@@ -1141,7 +1149,7 @@ var
     GStop,GStart: Byte;
     RStop,RStart: Byte;
   begin
-    RedGreenBlue(ColorToRGB(AStart), RStart, GStart, BStart);
+      RedGreenBlue(ColorToRGB(AStart), RStart, GStart, BStart);
       RedGreenBlue(ColorToRGB(AStop),  RStop,  GStop,  BStop);
 
       RDiff := RStop - RStart;

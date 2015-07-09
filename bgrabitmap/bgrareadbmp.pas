@@ -86,8 +86,6 @@ type
 
 implementation
 
-uses dialogs;
-
 type
   TWriteScanlineProc = procedure (Row : Integer; Img : TFPCustomImage) of object;
 
@@ -434,12 +432,10 @@ begin
       if percent<>prevPercent then Progress(psRunning,percent,false,Rect,'',continue);
     end;
     Progress(psEnding,100,false,Rect,'',continue);
-  except
-    on ex:exception do
-      ShowMessage(ex.Message);
+  finally
+    if (BFI.Compression=BI_RLE8) or(BFI.Compression=BI_RLE4) then CloseReadBuffer;
+    FreeBufs;
   end;
-  if (BFI.Compression=BI_RLE8) or(BFI.Compression=BI_RLE4) then CloseReadBuffer;
-  FreeBufs;
 end;
 
 procedure TBGRAReaderBMP.ExpandRLE8ScanLine(Row : Integer; Stream : TStream);
@@ -671,11 +667,7 @@ begin
       PSrc := LineBuf;
       for Column:=0 to img.Width-1 do
       begin
-        {$IFDEF ENDIAN_BIG}
-        PDWord(PDest)^ := (PWord(PSrc)^ shl 16) or ((Psrc+2)^ shl 8) or $000000ff;
-        {$ELSE}
-        PDWord(PDest)^ := PWord(PSrc)^ or ((Psrc+2)^ shl 16) or $ff000000;
-        {$ENDIF}
+        PDest^ := BGRA((Psrc+2)^,(Psrc+1)^,(Psrc)^);
         inc(PDest);
         inc(PSrc,3);
       end;
@@ -688,7 +680,21 @@ begin
         PDest^:=ExpandColorBGRA(PLongWord(LineBuf)[Column]);
         inc(PDest);
       end;
-     end else Move(LineBuf^, PDest^, img.Width*SizeOf(TBGRAPixel));
+     end else
+     begin
+       if TBGRAPixel_RGBAOrder then
+       begin
+        PSrc := LineBuf;
+        for Column:=0 to img.Width-1 do
+        begin
+          PDest^:= BGRA((PSrc+2)^,(PSrc+1)^,(PSrc)^,(PSrc+3)^);
+          inc(PDest);
+          Inc(PSrc,4);
+        end;
+       end
+       else
+         Move(LineBuf^, PDest^, img.Width*SizeOf(TBGRAPixel));
+     end;
     end;
 end;
 

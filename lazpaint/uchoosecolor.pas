@@ -6,17 +6,23 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  ExtCtrls, BGRABitmap, BGRABitmapTypes, StdCtrls, BGRAVirtualScreen,
-  LazPaintType, uscaledpi, uresourcestrings;
+  ExtCtrls, BGRABitmap, BGRABitmapTypes, StdCtrls, Buttons,
+  BGRAVirtualScreen, BCButton, LazPaintType, uscaledpi, uresourcestrings;
+
+const externalMargin = 3;
 
 type
 
   { TFChooseColor }
 
   TFChooseColor = class(TForm)
+    BCButton_AddToPalette: TBCButton;
+    BCButton_RemoveFromPalette: TBCButton;
     vsColorView: TBGRAVirtualScreen;
     EColor: TEdit;
     LColor: TLabel;
+    procedure BCButton_AddToPaletteClick(Sender: TObject);
+    procedure BCButton_RemoveFromPaletteClick(Sender: TObject);
     procedure EColorChange(Sender: TObject);
     procedure EColorKeyDown(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
@@ -55,6 +61,7 @@ type
     Alphascale: record bounds: TRect;
                        bmp: TBGRABitmap; end;
     function GetAvailableBmpHeight: integer;
+    function GetAvailableBmpWidth: integer;
     procedure SetAvailableBmpHeight(AValue: integer);
     procedure UpdateColorview(UpdateColorCircle, UpdateLightScale: boolean);
     procedure SetColorLight(value: word);
@@ -72,6 +79,7 @@ type
     procedure SetCurrentColor(value: TBGRAPixel);
     function GetCurrentColor: TBGRAPixel;
     property AvailableBmpHeight: integer read GetAvailableBmpHeight write SetAvailableBmpHeight;
+    property AvailableBmpWidth: integer read GetAvailableBmpWidth;
   end;
 
 implementation
@@ -82,15 +90,20 @@ uses ugraph, math, LCLType;
 
 procedure TFChooseColor.FormCreate(Sender: TObject);
 begin
+   {$IFDEF LINUX}
+   BorderStyle:= bsDialog;
+   {$ENDIF}
    ScaleDPI(Self,OriginalDPI);
    EColor.Visible := false;
    EColor.Text:= '';
    LColor.Visible := true;
    LColor.Caption := '';
    LColor.Height := EColor.Height;
-   vsColorView.Left := 0;
+   vsColorView.Left := externalMargin;
    vsColorView.Top := 0;
    ClientHeight := ClientHeight+EColor.Height;
+   BCAssignSystemStyle(BCButton_AddToPalette);
+   BCAssignSystemStyle(BCButton_RemoveFromPalette);
    FormResize(Sender);
 
    topmargin := DoScaleY(27,OriginalDPI);
@@ -111,7 +124,7 @@ begin
    ColorCircle.bmp := nil;
    ColorCircle.bmpMaxlight := nil;
 
-   FormBackgroundColor := ColorToBGRA(ColorToRGB(clBtnFace));
+   FormBackgroundColor := ColorToBGRA(ColorToRGB({$IFDEF DARWIN}clWindow{$ELSE}clBtnFace{$ENDIF}));
    FormTextColor := ColorToBGRA(ColorToRGB(clWindowText));
 
    If (LazPaintInstance = nil) or (LazPaintInstance.BlackAndWhite) then
@@ -160,6 +173,16 @@ begin
    end;
 end;
 
+procedure TFChooseColor.BCButton_AddToPaletteClick(Sender: TObject);
+begin
+  LazPaintInstance.AddColorToPalette(GetCurrentColor);
+end;
+
+procedure TFChooseColor.BCButton_RemoveFromPaletteClick(Sender: TObject);
+begin
+  LazPaintInstance.RemoveColorFromPalette(GetCurrentColor);
+end;
+
 procedure TFChooseColor.EColorKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
@@ -187,17 +210,15 @@ begin
 end;
 
 procedure TFChooseColor.FormResize(Sender: TObject);
-var bmpHeight: integer;
 begin
-  bmpHeight := AvailableBmpHeight;
-  EColor.Top := bmpHeight;
-  EColor.Left := 0;
-  EColor.Width := ClientWidth;
-  LColor.Top := bmpHeight;
-  LColor.Left := 0;
-  LColor.Width := ClientWidth;
-  vsColorView.Width := ClientWidth;
-  vsColorView.Height := bmpHeight;
+  vsColorView.Width := AvailableBmpWidth;
+  vsColorView.Height := AvailableBmpHeight;
+  EColor.Top := vsColorView.Top + vsColorView.Height;
+  EColor.Left := externalMargin;
+  EColor.Width := ClientWidth-2*externalMargin;
+  LColor.Top := vsColorView.Top + vsColorView.Height;
+  LColor.Left := externalMargin;
+  LColor.Width := ClientWidth-2*externalMargin;
 end;
 
 procedure TFChooseColor.FormShow(Sender: TObject);
@@ -218,7 +239,7 @@ begin
   end else
     EColor.Text := '#' + copy(BGRAToStr(ColorBeforeEColor),1,6);
   EColor.Visible := true;
-  EColor.SetFocus;
+  SafeSetFocus(EColor);
 end;
 
 procedure TFChooseColor.vsColorViewMouseDown(Sender: TObject;
@@ -269,6 +290,8 @@ end;
 procedure TFChooseColor.vsColorViewRedraw(Sender: TObject; Bitmap: TBGRABitmap);
 var x,y: integer;
   boundRight,w: integer;
+  size: single;
+  c: TBGRAPixel;
 begin
   Bitmap.FontHeight := topmargin-2*margin;
 
@@ -312,6 +335,11 @@ begin
     Bitmap.Rectangle(x-colorxysize-1,y-colorxysize-1,x+colorxysize+2,y+colorxysize+2,BGRA(0,0,0,cursorxyopacity),dmDrawWithTransparency);
     Bitmap.Rectangle(x-colorxysize,y-colorxysize,x+colorxysize+1,y+colorxysize+1,BGRA(255,255,255,cursorxyopacity),dmDrawWithTransparency);
     Bitmap.Rectangle(x-colorxysize+1,y-colorxysize+1,x+colorxysize,y+colorxysize,BGRA(0,0,0,cursorxyopacity),dmDrawWithTransparency);
+    size := (ColorCircle.bounds.Bottom-ColorCircle.bounds.Top)/10;
+    c := GetCurrentColor;
+    c.alpha := 255;
+    Bitmap.RoundRectAntialias(0,colorCircle.bounds.Bottom-1-size,size,colorCircle.bounds.Bottom-1,
+        size/6,size/6, BGRA(0,0,0,192),1,c,[]);
   end;
 end;
 
@@ -351,19 +379,26 @@ begin
 end;
 
 procedure TFChooseColor.UpdateLayout;
-var bmpWidth,bmpHeight: integer;
+var bmpWidth,bmpHeight,internalMargin: integer;
 begin
   if LazPaintInstance = nil then exit;
 
+  internalMargin := margin-externalMargin;
+  if internalMargin < 0 then internalMargin := 0;
+
   if LazPaintInstance.BlackAndWhite then
-    ClientWidth := 2*margin+cursorplace+barwidth+margin+cursorplace+barwidth+margin
+  begin
+    ClientWidth := BCButton_AddToPalette.Width + 2*(externalMargin+internalMargin)+cursorplace+barwidth+margin+cursorplace+barwidth+margin;
+    BCButton_AddToPalette.Top := (ClientHeight-BCButton_AddToPalette.Height-BCButton_RemoveFromPalette.Height) div 2;
+    BCButton_RemoveFromPalette.Top := BCButton_AddToPalette.Top+BCButton_AddToPalette.Height;
+  end
   else
-    ClientWidth := AvailableBmpHeight-topmargin+margin + margin+cursorplace+barwidth+margin+cursorplace+barwidth+margin;
+    ClientWidth := AvailableBmpHeight-topmargin+ 2*(externalMargin+internalMargin) +cursorplace+barwidth+margin+cursorplace+barwidth+margin;
 
   if ClientWidth <> PreviousClientWidth then
   begin
     PreviousClientWidth := ClientWidth;
-    bmpWidth := ClientWidth;
+    bmpWidth := AvailableBmpWidth;
     bmpHeight := AvailableBmpHeight;
 
     Alphascale.bounds := rect(bmpWidth-margin-cursorplace-barwidth,topmargin,bmpWidth-margin-cursorplace,bmpHeight-margin);
@@ -372,8 +407,8 @@ begin
 
     Lightscale.bounds := rect(Alphascale.bounds.left-margin-cursorplace-barwidth,Alphascale.Bounds.Top,Alphascale.bounds.left-margin-cursorplace,Alphascale.Bounds.Bottom);
 
-    ColorCircle.radius := min((Lightscale.bounds.left-2*margin-1) div 2, (bmpHeight-topmargin-(margin+1)) div 2);
-    ColorCircle.center := point(ColorCircle.radius+margin,topmargin+ColorCircle.radius);
+    ColorCircle.radius := min((Lightscale.bounds.left-margin-internalMargin) div 2, (bmpHeight-topmargin-margin) div 2);
+    ColorCircle.center := point(ColorCircle.radius+internalMargin,topmargin+ColorCircle.radius-1);
     ColorCircle.bounds := rect(ColorCircle.center.x-ColorCircle.radius,
       ColorCircle.center.y-ColorCircle.radius,ColorCircle.center.x+ColorCircle.radius+1,
       ColorCircle.center.y+ColorCircle.radius+1);
@@ -440,12 +475,17 @@ end;
 
 function TFChooseColor.GetAvailableBmpHeight: integer;
 begin
-  result := ClientHeight-EColor.Height;
+  result := ClientHeight-EColor.Height-externalMargin;
+end;
+
+function TFChooseColor.GetAvailableBmpWidth: integer;
+begin
+  result := ClientWidth-externalMargin*2;
 end;
 
 procedure TFChooseColor.SetAvailableBmpHeight(AValue: integer);
 begin
-  ClientHeight := AValue+EColor.Height;
+  ClientHeight := AValue+EColor.Height+externalMargin;
 end;
 
 procedure TFChooseColor.SetColorLight(value: word);
@@ -537,4 +577,4 @@ end;
 {$R *.lfm}
 
 end.
-
+

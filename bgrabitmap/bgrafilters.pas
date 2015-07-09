@@ -119,7 +119,7 @@ function FilterPlane(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
 
 implementation
 
-uses Math, GraphType, Dialogs, BGRATransform, Types, SysUtils;
+uses Math, BGRATransform, Types, SysUtils;
 
 type
   { TGrayscaleTask }
@@ -129,6 +129,18 @@ type
     FBounds: TRect;
   public
     constructor Create(bmp: TBGRACustomBitmap; ABounds: TRect);
+  protected
+    procedure DoExecute; override;
+  end;
+
+  { TBoxBlurTask }
+
+  TBoxBlurTask = class(TFilterTask)
+  private
+    FBounds: TRect;
+    FRadius: integer;
+  public
+    constructor Create(bmp: TBGRACustomBitmap; ABounds: TRect; radius: integer);
   protected
     procedure DoExecute; override;
   end;
@@ -519,11 +531,50 @@ end;
   the square }
 procedure FilterBlurFast(bmp: TBGRACustomBitmap; ABounds: TRect;
   radius: integer; ADestination: TBGRACustomBitmap; ACheckShouldStop: TCheckShouldStopFunc);
-
+ {$IFDEF CPU64}{$DEFINE FASTBLUR_DOUBLE}{$ENDIF}
   type
     TRowSum = record
       sumR,sumG,sumB,rgbDiv,sumA,aDiv: uint32or64;
     end;
+    TExtendedRowValue = {$IFDEF FASTBLUR_DOUBLE}double{$ELSE}uint64{$ENDIF};
+    TExtendedRowSum = record
+      sumR,sumG,sumB,rgbDiv,sumA,aDiv: TExtendedRowValue;
+    end;
+
+  function ComputeExtendedAverage(sum: TExtendedRowSum): TBGRAPixel;
+  {$IFDEF FASTBLUR_DOUBLE}
+  var v: uint32or64;
+  {$ENDIF}
+  begin
+    {$IFDEF FASTBLUR_DOUBLE}
+    v := round(sum.sumA/sum.aDiv);
+    if v > 255 then result.alpha := 255 else result.alpha := v;
+    v := round(sum.sumR/sum.rgbDiv);
+    if v > 255 then result.red := 255 else result.red := v;
+    v := round(sum.sumG/sum.rgbDiv);
+    if v > 255 then result.green := 255 else result.green := v;
+    v := round(sum.sumB/sum.rgbDiv);
+    if v > 255 then result.blue := 255 else result.blue := v;
+    {$ELSE}
+    result.alpha:= (sum.sumA+sum.aDiv shr 1) div sum.aDiv;
+    result.red := (sum.sumR+sum.rgbDiv shr 1) div sum.rgbDiv;
+    result.green := (sum.sumG+sum.rgbDiv shr 1) div sum.rgbDiv;
+    result.blue := (sum.sumB+sum.rgbDiv shr 1) div sum.rgbDiv;
+    {$ENDIF}
+  end;
+
+  function ComputeClampedAverage(sum: TRowSum): TBGRAPixel;
+  var v: UInt32or64;
+  begin
+    v := (sum.sumA+sum.aDiv shr 1) div sum.aDiv;
+    if v > 255 then result.alpha := 255 else result.alpha := v;
+    v := (sum.sumR+sum.rgbDiv shr 1) div sum.rgbDiv;
+    if v > 255 then result.red := 255 else result.red := v;
+    v := (sum.sumG+sum.rgbDiv shr 1) div sum.rgbDiv;
+    if v > 255 then result.green := 255 else result.green := v;
+    v := (sum.sumB+sum.rgbDiv shr 1) div sum.rgbDiv;
+    if v > 255 then result.blue := 255 else result.blue := v;
+  end;
 
   function ComputeAverage(sum: TRowSum): TBGRAPixel;
   begin
@@ -598,6 +649,15 @@ begin
   blurShape.Free;
 end;
 
+function FilterBlurBox(bmp: TBGRACustomBitmap; radius: integer; ADestination: TBGRACustomBitmap): TBGRACustomBitmap;
+var task: TBoxBlurTask;
+begin
+  task := TBoxBlurTask.Create(bmp, rect(0,0,bmp.Width,bmp.Height), radius);
+  task.Destination := ADestination;
+  result := task.Execute;
+  task.Free;
+end;
+
 procedure FilterBlurRadial(bmp: TBGRACustomBitmap; ABounds: TRect; radius: integer;
   blurType: TRadialBlurType; ADestination: TBGRACustomBitmap; ACheckShouldStop: TCheckShouldStopFunc);
 begin
@@ -612,20 +672,30 @@ begin
     rbNormal:  FilterBlurRadialNormal(bmp, ABounds, radius, ADestination, ACheckShouldStop);
     rbFast:    FilterBlurFast(bmp, ABounds, radius, ADestination, ACheckShouldStop);
     rbPrecise: FilterBlurRadialPrecise(bmp, ABounds, radius / 10, ADestination, ACheckShouldStop);
+    rbBox:     FilterBlurBox(bmp, radius, ADestination);
   end;
 end;
 
 function FilterBlurRadial(bmp: TBGRACustomBitmap; radius: integer;
   blurType: TRadialBlurType): TBGRACustomBitmap;
 begin
-  result := bmp.NewBitmap(bmp.width,bmp.Height);
-  FilterBlurRadial(bmp, rect(0,0,bmp.Width,bmp.height), radius, blurType,result,nil);
+  if blurType = rbBox then
+  begin
+    result := FilterBlurBox(bmp,radius,nil);
+  end else
+  begin
+    result := bmp.NewBitmap(bmp.width,bmp.Height);
+    FilterBlurRadial(bmp, rect(0,0,bmp.Width,bmp.height), radius, blurType,result,nil);
+  end;
 end;
 
 function CreateRadialBlurTask(ABmp: TBGRACustomBitmap; ABounds: TRect; ARadius: integer;
   ABlurType: TRadialBlurType): TFilterTask;
 begin
-  result := TRadialBlurTask.Create(ABmp,ABounds,ARadius,ABlurType);
+  if ABlurType = rbBox then
+    result := TBoxBlurTask.Create(ABmp,ABounds,ARadius)
+  else
+    result := TRadialBlurTask.Create(ABmp,ABounds,ARadius,ABlurType);
 end;
 
 { This filter draws an antialiased line to make the mask, and
@@ -1985,6 +2055,178 @@ begin
       pdest^ := refPixel;
       Inc(pdest);
     end;
+  end;
+end;
+
+constructor TBoxBlurTask.Create(bmp: TBGRACustomBitmap; ABounds: TRect;
+  radius: integer);
+begin
+  FSource := bmp;
+  FBounds := ABounds;
+  FRadius := radius;
+end;
+
+procedure TBoxBlurTask.DoExecute;
+type
+  TVertical = record red,green,blue,alpha,count: NativeUint; end;
+  PVertical = ^TVertical;
+var
+  verticals: PVertical;
+  left,right,width,height: NativeInt;
+  delta: PtrInt;
+
+  procedure PrepareVerticals;
+  var
+    xb,yb: NativeInt;
+    psrc,p: PBGRAPixel;
+    pvert : PVertical;
+  begin
+    fillchar(verticals^, width*sizeof(TVertical), 0);
+    psrc := FSource.ScanLine[FBounds.Top];
+    pvert := verticals;
+    for xb := left to right-1 do
+    begin
+      p := psrc+xb;
+      for yb := 0 to FRadius-1 do
+      begin
+        if yb = height then break;
+        if p^.alpha <> 0 then
+        begin
+          pvert^.red += p^.red * p^.alpha;
+          pvert^.green += p^.green * p^.alpha;
+          pvert^.blue += p^.blue * p^.alpha;
+          pvert^.alpha += p^.alpha;
+        end;
+        inc(pvert^.count);
+        PByte(p) += delta;
+      end;
+      inc(pvert);
+    end;
+  end;
+
+  procedure NextVerticals(y: integer);
+  var
+    psrc1,psrc2: PBGRAPixel;
+    pvert : PVertical;
+    xb: NativeInt;
+  begin
+    pvert := verticals;
+    if y-FRadius-1 >= 0 then
+      psrc1 := FSource.ScanLine[y-FRadius-1]
+    else
+      psrc1 := nil;
+    if y+FRadius < FSource.Height then
+      psrc2 := FSource.ScanLine[y+FRadius]
+    else
+      psrc2 := nil;
+    for xb := width-1 downto 0 do
+    begin
+      if psrc1 <> nil then
+      begin
+        if psrc1^.alpha <> 0 then
+        begin
+          {$HINTS OFF}
+          pvert^.red -= psrc1^.red * psrc1^.alpha;
+          pvert^.green -= psrc1^.green * psrc1^.alpha;
+          pvert^.blue -= psrc1^.blue * psrc1^.alpha;
+          pvert^.alpha -= psrc1^.alpha;
+          {$HINTS ON}
+        end;
+        dec(pvert^.count);
+        inc(psrc1);
+      end;
+      if psrc2 <> nil then
+      begin
+        if psrc2^.alpha <> 0 then
+        begin
+          pvert^.red += psrc2^.red * psrc2^.alpha;
+          pvert^.green += psrc2^.green * psrc2^.alpha;
+          pvert^.blue += psrc2^.blue * psrc2^.alpha;
+          pvert^.alpha += psrc2^.alpha;
+        end;
+        inc(pvert^.count);
+        inc(psrc2);
+      end;
+      inc(pvert);
+    end;
+  end;
+
+  procedure MainLoop;
+  var
+    xb,yb,xdest: NativeInt;
+    pdest: PBGRAPixel;
+    pvert : PVertical;
+    sumRed,sumGreen,sumBlue,sumAlpha,sumCount: NativeUInt;
+  begin
+    for yb := FBounds.Top to FBounds.Bottom-1 do
+    begin
+      NextVerticals(yb);
+      if GetShouldStop(yb) then exit;
+      pdest := Destination.ScanLine[yb]+left;
+      sumRed := 0;
+      sumGreen := 0;
+      sumBlue := 0;
+      sumAlpha := 0;
+      sumCount := 0;
+      pvert := verticals;
+      for xb := 0 to FRadius-1 do
+      begin
+        if xb = width then break;
+        sumRed += pvert^.red;
+        sumGreen += pvert^.green;
+        sumBlue += pvert^.blue;
+        sumAlpha += pvert^.alpha;
+        sumCount += pvert^.count;
+        inc(pvert);
+      end;
+      for xdest := 0 to width-1 do
+      begin
+        if xdest-FRadius-1 >= 0 then
+        begin
+          pvert := verticals+(xdest-FRadius-1);
+          sumRed -= pvert^.red;
+          sumGreen -= pvert^.green;
+          sumBlue -= pvert^.blue;
+          sumAlpha -= pvert^.alpha;
+          sumCount -= pvert^.count;
+        end;
+        if xdest+FRadius < width then
+        begin
+          pvert := verticals+(xdest+FRadius);
+          sumRed += pvert^.red;
+          sumGreen += pvert^.green;
+          sumBlue += pvert^.blue;
+          sumAlpha += pvert^.alpha;
+          sumCount += pvert^.count;
+        end;
+        if (sumCount > 0) and (sumAlpha >= (sumCount+1) shr 1) then
+        begin
+          pdest^.red := (sumRed+(sumAlpha shr 1)) div sumAlpha;
+          pdest^.green := (sumGreen+(sumAlpha shr 1)) div sumAlpha;
+          pdest^.blue := (sumBlue+(sumAlpha shr 1)) div sumAlpha;
+          pdest^.alpha := (sumAlpha+(sumCount shr 1)) div sumCount;
+        end else
+          pdest^ := BGRAPixelTransparent;
+        inc(pdest);
+      end;
+    end;
+  end;
+
+begin
+  if (FBounds.Right <= FBounds.Left) or (FBounds.Bottom <= FBounds.Top) or (FRadius <= 0) then exit;
+  left := FBounds.left;
+  right := FBounds.right;
+  width := right-left;
+  height := FBounds.bottom-FBounds.top;
+  delta := FSource.Width*SizeOf(TBGRAPixel);
+  if FSource.LineOrder = riloBottomToTop then delta := -delta;
+
+  getmem(verticals, width*sizeof(TVertical));
+  try
+    PrepareVerticals;
+    MainLoop;
+  finally
+    freemem(verticals);
   end;
 end;
 

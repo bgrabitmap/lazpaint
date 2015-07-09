@@ -9,7 +9,7 @@ uses
 
 function LoadGifMultiImageUTF8(AFilename: string): ArrayOfBGRABitmap;
 function LoadIcoMultiImageUTF8(AFilename: string): ArrayOfBGRABitmap;
-function LoadFlatImageUTF8(AFilename: string; out AFinalFilename: string; AAppendFrame: string): TBGRABitmap;
+function LoadFlatImageUTF8(AFilename: string; out AFinalFilename: string; AAppendFrame: string; ASkipDialog: boolean = false): TBGRABitmap;
 function LoadFlatLzpUTF8(AFilenameUTF8: string): TBGRABitmap;
 function LoadPngUTF8(AFilenameUTF8: string): TBGRABitmap;
 procedure FreeMultiImage(var images: ArrayOfBGRABitmap);
@@ -23,23 +23,19 @@ uses FileUtil, BGRAAnimatedGif, Graphics, UMultiImage,
 function LoadPngUTF8(AFilenameUTF8: string): TBGRABitmap;
 var
   reader: TBGRAReaderPNG;
-  p: PBGRAPixel;
-  n: integer;
 begin
   reader := TBGRAReaderPNG.Create;
   result := TBGRABitmap.Create;
   try
     result.LoadFromFileUTF8(AFilenameUTF8, reader);
-    p := result.Data;
-    for n := result.NbPixels-1 downto 0 do
-    begin
-      if p^ = BGRA(0,0,1) then p^ := BGRA(0,0,0); //undo png trick
-      inc(p);
-    end;
-  finally
-    reader.Free;
+  except
+    FreeAndNil(result);
+  end;
+  if result <> nil then
+  begin
     if (result.Width = 0) or (result.Height = 0) then FreeAndNil(result);
   end;
+  reader.Free;
 end;
 
 procedure FreeMultiImage(var images: ArrayOfBGRABitmap);
@@ -55,7 +51,7 @@ begin
   result := DefaultBGRAImageReader[DetectFileFormat(AFilename)] <> nil;
 end;
 
-function LoadFlatImageUTF8(AFilename: string; out AFinalFilename: string; AAppendFrame: string): TBGRABitmap;
+function LoadFlatImageUTF8(AFilename: string; out AFinalFilename: string; AAppendFrame: string; ASkipDialog: boolean): TBGRABitmap;
 var
   formMultiImage: TFMultiImage;
   multi: ArrayOfBGRABitmap;
@@ -88,9 +84,16 @@ begin
   if format = ifIco then
   begin
     multi := LoadIcoMultiImageUTF8(AFilename);
-    ChooseMulti;
+    if ASkipDialog then
+    begin
+      result := multi[0];
+      multi[0] := nil;
+      FreeMultiImage(multi);
+    end
+    else
+      ChooseMulti;
   end else
-  if format = ifGif then
+  if (format = ifGif) and not ASkipDialog then
   begin
     multi := LoadGifMultiImageUTF8(AFilename);
     ChooseMulti;

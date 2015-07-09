@@ -16,8 +16,8 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure OnPaint(Canvas: TCanvas; Width,Height: Integer); override;
-    procedure OnTimer(Canvas: TCanvas; Width, Height: Integer; ElapsedSec: Double); override;
+    procedure OnPaint(Canvas: TCanvas; Left,Top,Width,Height: Integer); override;
+    procedure OnTimer(Width, Height: Integer; ElapsedSec: Double); override;
   end;
 
 implementation
@@ -39,7 +39,7 @@ begin
   virtualscreen.free;
 end;
 
-procedure TTest22.OnPaint(Canvas: TCanvas; Width, Height: Integer);
+procedure TTest22.OnPaint(Canvas: TCanvas; Left,Top,Width, Height: Integer);
 var c: TBGRAPixel; x1,y1,x2,y2,x3,y3: integer; w: single;
 begin
   if (virtualscreen <> nil) and ((virtualscreen.width <> width) or (virtualscreen.Height <> height)) then
@@ -79,13 +79,13 @@ begin
   virtualscreen.SetPixel(random(width),random(height),c);
 
   //draw virtualscreen opaque on canvas
-  virtualscreen.Draw(Canvas,0,0,True);
+  virtualscreen.Draw(Canvas,Left,Top,True);
 end;
 
-procedure TTest22.OnTimer(Canvas: TCanvas; Width, Height: Integer;
+procedure TTest22.OnTimer(Width, Height: Integer;
   ElapsedSec: Double);
 begin
-  OnPaint(Canvas,Width,Height);
+  //nothing
 end;
 
 end.

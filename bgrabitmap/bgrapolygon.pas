@@ -32,7 +32,7 @@ unit BGRAPolygon;
 interface
 
 uses
-  Classes, SysUtils, Graphics, BGRABitmapTypes, BGRAFillInfo;
+  Classes, SysUtils, BGRAGraphics, BGRABitmapTypes, BGRAFillInfo;
 
 procedure FillShapeAntialias(bmp: TBGRACustomBitmap; shapeInfo: TBGRACustomFillInfo;
   c: TBGRAPixel; EraseMode: boolean; scan: IBGRAScanner; NonZeroWinding: boolean; LinearBlend: boolean = false);
@@ -86,7 +86,7 @@ type
     procedure AddRectangle(x1, y1, x2, y2: single; ATexture: IBGRAScanner);
     procedure AddRectangleBorder(x1, y1, x2, y2, w: single; AColor: TBGRAPixel);
     procedure AddRectangleBorder(x1, y1, x2, y2, w: single; ATexture: IBGRAScanner);
-    procedure Draw(dest: TBGRACustomBitmap);
+    procedure Draw(dest: TBGRACustomBitmap; ADrawMode: TDrawMode = dmDrawWithTransparency);
   end;
 
 procedure FillPolyAliased(bmp: TBGRACustomBitmap; points: array of TPointF;
@@ -229,7 +229,7 @@ var
 
 begin
   if (scan=nil) and (c.alpha=0) then exit;
-  If not shapeInfo.ComputeMinMax(minx,miny,maxx,maxy,bmp) then exit;
+  If not BGRAShapeComputeMinMax(shapeInfo,minx,miny,maxx,maxy,bmp) then exit;
 
   inter := shapeInfo.CreateIntersectionArray;
   getmem(density, (maxx - minx + 2)*sizeof(TDensity)); //more for safety
@@ -299,7 +299,9 @@ begin
             x2 := x2b;
             x2b := temp;
           end;
-          {$i filldensitysegment256.inc}
+		  {$DEFINE INCLUDE_FILLDENSITY}
+		  {$DEFINE PARAM_SINGLESEGMENT}
+          {$i density256.inc}
           SubTriangleDensity(x1,256,x1b,0);
           SubTriangleDensity(x2b,0,x2,256);
         end;
@@ -310,7 +312,8 @@ begin
           //find intersections
           shapeInfo.ComputeAndSort(GetYScan(yc),inter,nbInter,NonZeroWinding);
 
-          {$i filldensity256.inc}
+		  {$DEFINE INCLUDE_FILLDENSITY}
+          {$i density256.inc}
         end;
       end;
     end else
@@ -322,26 +325,31 @@ begin
         //find intersections
         shapeInfo.ComputeAndSort(GetYScan(yc),inter,nbInter,NonZeroWinding);
 
-        {$i filldensity256.inc}
+		{$DEFINE INCLUDE_FILLDENSITY}
+        {$i density256.inc}
       end;
     end;
 
     if LinearBlend then
     begin
       if optimised then
+		{$DEFINE INCLUDE_RENDERDENSITY}
         {$define PARAM_LINEARANTIALIASING}
-        {$i renderdensity256.inc}
+        {$i density256.inc}
       else
+		{$DEFINE INCLUDE_RENDERDENSITY}
         {$define PARAM_LINEARANTIALIASING}
         {$define PARAM_ANTIALIASINGFACTOR}
-        {$i renderdensity256.inc}
+        {$i density256.inc}
     end else
     begin
       if optimised then
-        {$i renderdensity256.inc}
+        {$DEFINE INCLUDE_RENDERDENSITY}
+        {$i density256.inc}
       else
+        {$DEFINE INCLUDE_RENDERDENSITY}
         {$define PARAM_ANTIALIASINGFACTOR}
-        {$i renderdensity256.inc}
+        {$i density256.inc}
     end;
   end;
 
@@ -382,7 +390,7 @@ var
 
 begin
   if (scan=nil) and (c.alpha=0) then exit;
-  If not shapeInfo.ComputeMinMax(minx,miny,maxx,maxy,bmp) then exit;
+  If not BGRAShapeComputeMinMax(shapeInfo,minx,miny,maxx,maxy,bmp) then exit;
   inter := shapeInfo.CreateIntersectionArray;
 
   if AliasingIncludeBottomRight then
@@ -774,7 +782,7 @@ begin
                 PointF(x1+hw,y2-hw),PointF(x2-hw,y2-hw),PointF(x2-hw,y1+hw),PointF(x1+hw,y1+hw)],ATexture);
 end;
 
-procedure TBGRAMultishapeFiller.Draw(dest: TBGRACustomBitmap);
+procedure TBGRAMultishapeFiller.Draw(dest: TBGRACustomBitmap; ADrawMode: TDrawMode = dmDrawWithTransparency);
 var
   shapeRow: array of record
     density: PDensity;
@@ -841,6 +849,7 @@ var
 
 var
     AliasingOfs: TPointF;
+    useAA: boolean;
 
   procedure AddOneLineDensity(cury: single);
   var
@@ -875,7 +884,7 @@ var
       with shapeRow[shapeRowsList[k]] do
       begin
         //fill density
-        if not Antialiasing then
+        if not useAA then
         begin
           for i := 0 to nbinter div 2 - 1 do
           begin
@@ -889,7 +898,8 @@ var
             FillWord(density[ix1-minx],ix2-ix1+1,256);
           end;
         end else
-          {$I filldensity256.inc}
+		  {$DEFINE INCLUDE_FILLDENSITY}
+          {$i density256.inc}
       end;
 
       for k := 0 to NbShapeRows-1 do
@@ -923,11 +933,12 @@ var
 
 begin
   if nbShapes = 0 then exit;
+  useAA := Antialiasing and (ADrawMode in [dmDrawWithTransparency,dmLinearBlend]);
   if nbShapes = 1 then
   begin
-    if Antialiasing then
-      FillShapeAntialias(dest,shapes[0].info,GammaCompression(shapes[0].color),False,shapes[0].texture,FillMode = fmWinding, false) else
-      FillShapeAliased(dest,shapes[0].info,GammaCompression(shapes[0].color),False,shapes[0].texture,FillMode = fmWinding, dmDrawWithTransparency,
+    if useAA then
+      FillShapeAntialias(dest,shapes[0].info,GammaCompression(shapes[0].color),False,shapes[0].texture,FillMode = fmWinding, ADrawMode=dmLinearBlend) else
+      FillShapeAliased(dest,shapes[0].info,GammaCompression(shapes[0].color),False,shapes[0].texture,FillMode = fmWinding, ADrawMode,
         AliasingIncludeBottomRight);
     exit;
   end;
@@ -935,7 +946,7 @@ begin
   MultiEmpty := True;
   for k := 0 to nbShapes-1 do
   begin
-    If shapes[k].info.ComputeMinMax(minx,miny,maxx,maxy,dest) then
+    If BGRAShapeComputeMinMax(shapes[k].info,minx,miny,maxx,maxy,dest) then
     begin
       shapes[k].bounds := rect(minx,miny,maxx+1,maxy+1);
       if MultiEmpty then
@@ -991,7 +1002,7 @@ begin
       shapeRow[k].densMaxx := minx-1;
     end;
 
-    If Antialiasing then
+    If useAA then
     begin
       //precision scan
       for yc := 0 to AntialiasPrecision - 1 do
@@ -1010,7 +1021,7 @@ begin
 
       FillChar(sums[rowminx-minx],(rowmaxx-rowminx+1)*sizeof(sums[0]),0);
 
-      if Antialiasing then
+      if useAA then
         {$define PARAM_ANTIALIASINGFACTOR}
         {$i multishapeline.inc}
       else
@@ -1019,35 +1030,161 @@ begin
       pdest := dest.ScanLine[yb] + rowminx;
       xb := rowminx;
       nextSum := @sums[xb-minx];
-      while xb <= rowmaxx do
-      begin
-        curSum := nextSum;
-        inc(nextSum);
-        with curSum^ do
-        begin
-          if sumA <> 0 then
+      case ADrawMode of
+        dmDrawWithTransparency:
+          while xb <= rowmaxx do
           begin
-            ec.red := (sumR+sumA shr 1) div sumA;
-            ec.green := (sumG+sumA shr 1) div sumA;
-            ec.blue := (sumB+sumA shr 1) div sumA;
-            if sumA > 255 then sumA := 255;
-            ec.alpha := sumA shl 8 + sumA;
-            count := 1;
-            while (xb < rowmaxx) and (nextSum^.sumA = sumA) and (nextSum^.sumB = sumB)
-              and (nextSum^.sumG = sumG) and (nextSum^.sumR = sumR) do
+            curSum := nextSum;
+            inc(nextSum);
+            with curSum^ do
             begin
-              inc(xb);
-              inc(nextSum);
-              inc(count);
+              if sumA <> 0 then
+              begin
+                ec.red := (sumR+sumA shr 1) div sumA;
+                ec.green := (sumG+sumA shr 1) div sumA;
+                ec.blue := (sumB+sumA shr 1) div sumA;
+                if sumA > 255 then sumA := 255;
+                ec.alpha := sumA shl 8 + sumA;
+                count := 1;
+                while (xb < rowmaxx) and (nextSum^.sumA = sumA) and (nextSum^.sumB = sumB)
+                  and (nextSum^.sumG = sumG) and (nextSum^.sumR = sumR) do
+                begin
+                  inc(xb);
+                  inc(nextSum);
+                  inc(count);
+                end;
+                if count = 1 then
+                  DrawExpandedPixelInlineNoAlphaCheck(pdest,ec,sumA) else
+                   DrawExpandedPixelsInline(pdest, ec, count );
+                inc(pdest,count-1);
+              end;
             end;
-            if count = 1 then
-              DrawExpandedPixelInlineWithAlphaCheck(pdest,ec) else
-               DrawExpandedPixelsInline(pdest, ec, count );
-            inc(pdest,count-1);
+            inc(xb);
+            inc(pdest);
           end;
-        end;
-        inc(xb);
-        inc(pdest);
+
+        dmLinearBlend:
+          while xb <= rowmaxx do
+          begin
+            curSum := nextSum;
+            inc(nextSum);
+            with curSum^ do
+            begin
+              if sumA <> 0 then
+              begin
+                ec.red := (sumR+sumA shr 1) div sumA;
+                ec.green := (sumG+sumA shr 1) div sumA;
+                ec.blue := (sumB+sumA shr 1) div sumA;
+                if sumA > 255 then sumA := 255;
+                ec.alpha := sumA shl 8 + sumA;
+                count := 1;
+                while (xb < rowmaxx) and (nextSum^.sumA = sumA) and (nextSum^.sumB = sumB)
+                  and (nextSum^.sumG = sumG) and (nextSum^.sumR = sumR) do
+                begin
+                  inc(xb);
+                  inc(nextSum);
+                  inc(count);
+                end;
+                if count = 1 then
+                  DrawPixelInlineNoAlphaCheck(pdest,GammaCompression(ec)) else
+                   DrawPixelsInline(pdest, GammaCompression(ec), count );
+                inc(pdest,count-1);
+              end;
+            end;
+            inc(xb);
+            inc(pdest);
+          end;
+
+        dmXor:
+          while xb <= rowmaxx do
+          begin
+            curSum := nextSum;
+            inc(nextSum);
+            with curSum^ do
+            begin
+              if sumA <> 0 then
+              begin
+                ec.red := (sumR+sumA shr 1) div sumA;
+                ec.green := (sumG+sumA shr 1) div sumA;
+                ec.blue := (sumB+sumA shr 1) div sumA;
+                if sumA > 255 then sumA := 255;
+                ec.alpha := sumA shl 8 + sumA;
+                count := 1;
+                while (xb < rowmaxx) and (nextSum^.sumA = sumA) and (nextSum^.sumB = sumB)
+                  and (nextSum^.sumG = sumG) and (nextSum^.sumR = sumR) do
+                begin
+                  inc(xb);
+                  inc(nextSum);
+                  inc(count);
+                end;
+                XorInline(pdest,GammaCompression(ec),count);
+                inc(pdest,count-1);
+              end;
+            end;
+            inc(xb);
+            inc(pdest);
+          end;
+
+        dmSet:
+          while xb <= rowmaxx do
+          begin
+            curSum := nextSum;
+            inc(nextSum);
+            with curSum^ do
+            begin
+              if sumA <> 0 then
+              begin
+                ec.red := (sumR+sumA shr 1) div sumA;
+                ec.green := (sumG+sumA shr 1) div sumA;
+                ec.blue := (sumB+sumA shr 1) div sumA;
+                if sumA > 255 then sumA := 255;
+                ec.alpha := sumA shl 8 + sumA;
+                count := 1;
+                while (xb < rowmaxx) and (nextSum^.sumA = sumA) and (nextSum^.sumB = sumB)
+                  and (nextSum^.sumG = sumG) and (nextSum^.sumR = sumR) do
+                begin
+                  inc(xb);
+                  inc(nextSum);
+                  inc(count);
+                end;
+                FillInline(pdest,GammaCompression(ec),count);
+                inc(pdest,count-1);
+              end;
+            end;
+            inc(xb);
+            inc(pdest);
+          end;
+
+        dmSetExceptTransparent:
+          while xb <= rowmaxx do
+          begin
+            curSum := nextSum;
+            inc(nextSum);
+            with curSum^ do
+            begin
+              if sumA >= 255 then
+              begin
+                ec.red := (sumR+sumA shr 1) div sumA;
+                ec.green := (sumG+sumA shr 1) div sumA;
+                ec.blue := (sumB+sumA shr 1) div sumA;
+                if sumA > 255 then sumA := 255;
+                ec.alpha := sumA shl 8 + sumA;
+                count := 1;
+                while (xb < rowmaxx) and (nextSum^.sumA = sumA) and (nextSum^.sumB = sumB)
+                  and (nextSum^.sumG = sumG) and (nextSum^.sumR = sumR) do
+                begin
+                  inc(xb);
+                  inc(nextSum);
+                  inc(count);
+                end;
+                FillInline(pdest,GammaCompression(ec),count);
+                inc(pdest,count-1);
+              end;
+            end;
+            inc(xb);
+            inc(pdest);
+          end;
+
       end;
     end;
 
@@ -1089,9 +1226,18 @@ procedure BorderRoundRectangleAntialias(bmp: TBGRACustomBitmap; x1, y1, x2,
   y2, rx, ry, w: single; options: TRoundRectangleOptions; c: TBGRAPixel;
   EraseMode: boolean; LinearBlend: boolean);
 var
-  info: TFillBorderRoundRectInfo;
+  info: TFillShapeInfo;
+  oldLinear: boolean;
 begin
-  if (rx = 0) or (ry = 0) or (w=0) then exit;
+  if w=0 then exit;
+  if ((rx=0) or (ry=0)) and not EraseMode then
+  begin
+    oldLinear := bmp.LinearAntialiasing;
+    bmp.LinearAntialiasing := LinearBlend;
+    bmp.RectangleAntialias(x1,y1,x2,y2,c,w);
+    bmp.LinearAntialiasing := oldLinear;
+    exit;
+  end;
   info := TFillBorderRoundRectInfo.Create(x1, y1, x2,y2, rx, ry, w, options);
   FillShapeAntialias(bmp, info, c, EraseMode, nil, False, LinearBlend);
   info.Free;
@@ -1102,8 +1248,17 @@ procedure BorderRoundRectangleAntialiasWithTexture(bmp: TBGRACustomBitmap; x1,
   scan: IBGRAScanner; LinearBlend: boolean);
 var
   info: TFillBorderRoundRectInfo;
+  oldLinear: Boolean;
 begin
-  if (rx = 0) or (ry = 0) or (w=0) then exit;
+  if w=0 then exit;
+  if (rx=0) or (ry=0) then
+  begin
+    oldLinear := bmp.LinearAntialiasing;
+    bmp.LinearAntialiasing := LinearBlend;
+    bmp.RectangleAntialias(x1,y1,x2,y2,scan,w);
+    bmp.LinearAntialiasing := oldLinear;
+    exit;
+  end;
   info := TFillBorderRoundRectInfo.Create(x1, y1, x2,y2, rx, ry, w, options);
   FillShapeAntialiasWithTexture(bmp, info, scan, False, LinearBlend);
   info.Free;

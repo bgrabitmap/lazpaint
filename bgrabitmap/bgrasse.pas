@@ -38,7 +38,7 @@ type
   function Point3D_128(x,y,z,t: single): TPoint3D_128; inline; overload;
   procedure Normalize3D_128_SqLen(var v: TPoint3D_128; out SqLen: single);
   operator * (const v1: TPoint3D_128; const factor: single): TPoint3D_128;
-  operator + (const v1,v2: TPoint3D_128): TPoint3D_128;
+  operator + (constref v1,v2: TPoint3D_128): TPoint3D_128;
   operator - (const v1,v2: TPoint3D_128): TPoint3D_128;
   operator - (const v: TPoint3D_128): TPoint3D_128; inline;
   operator = (const v1,v2: TPoint3D_128): boolean; inline;
@@ -126,7 +126,7 @@ begin
   result.t := t;
 end;
 
-operator + (const v1,v2: TPoint3D_128): TPoint3D_128;
+operator + (constref v1,v2: TPoint3D_128): TPoint3D_128;
 {$ifdef CPUI386} assembler;
 asm
   db $d9, $00 //flds [eax]
@@ -350,7 +350,7 @@ procedure Normalize3D_128_SSE1(var v: TPoint3D_128);
 var len: single;
 begin
   asm
-    {$i sseloadv.inc}
+    {$DEFINE SSE_LOADV}{$i bgrasse.inc}
     movaps xmm2, xmm1
     mulps xmm2, xmm2
 
@@ -376,7 +376,7 @@ begin
   asm
     rsqrtps xmm2, xmm2
     mulps xmm1, xmm2  //apply
-    {$i ssesavev.inc}
+    {$DEFINE SSE_SAVEV}{$i bgrasse.inc}
   end;
 end;
 {$endif}
@@ -386,7 +386,7 @@ procedure Normalize3D_128_SSE3(var v: TPoint3D_128);
 var len: single;
 begin
   asm
-    {$i sseloadv.inc}
+    {$DEFINE SSE_LOADV}{$i bgrasse.inc}
     movaps xmm2, xmm1
     mulps xmm2, xmm2
 
@@ -406,7 +406,7 @@ begin
   asm
     rsqrtps xmm2, xmm2
     mulps xmm1, xmm2  //apply
-    {$i ssesavev.inc}
+    {$DEFINE SSE_SAVEV}{$i bgrasse.inc}
   end;
 end;
 {$endif}
@@ -418,7 +418,7 @@ begin
     if UseSSE then
     begin
       asm
-        {$i sseloadv.inc}
+        {$DEFINE SSE_LOADV}{$i bgrasse.inc}
         movaps xmm2, xmm1
         mulps xmm2, xmm2
       end;
@@ -450,7 +450,7 @@ begin
       asm
         rsqrtps xmm2, xmm2
         mulps xmm1, xmm2  //apply
-        {$i ssesavev.inc}
+        {$DEFINE SSE_SAVEV}{$i bgrasse.inc}
       end;
     end
     else

@@ -12,8 +12,8 @@ object FEmboss: TFEmboss
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  Position = poScreenCenter
-  LCLVersion = '1.1'
+  Position = poMainFormCenter
+  LCLVersion = '1.0.10.0'
   object PaintBox1: TPaintBox
     Left = 19
     Height = 120
@@ -26,9 +26,9 @@ object FEmboss: TFEmboss
   end
   object Label_Direction: TLabel
     Left = 22
-    Height = 15
+    Height = 16
     Top = 11
-    Width = 54
+    Width = 55
     Caption = 'Direction :'
     ParentColor = False
   end

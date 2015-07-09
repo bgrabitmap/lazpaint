@@ -7,8 +7,7 @@ interface
 {
   Font rendering units : BGRAText, BGRATextFX, BGRAVectorize, BGRAFreeType
 
-  This unit provides basic text rendering functions using LCL, and general
-  text definitions.
+  This unit provides basic text rendering functions using LCL.
 
   Text functions use a temporary bitmap where the operating system text drawing is used.
   Then it is scaled down (if antialiasing is activated), and colored.
@@ -22,7 +21,7 @@ uses
   Classes, Types, SysUtils, Graphics, BGRABitmapTypes, InterfaceBase, BGRAPen, BGRAGrayscaleMask;
 
 type
-  TWordBreakHandler = procedure(var ABeforeUTF8, AAfterUTF8: string) of object;
+  TWordBreakHandler = BGRABitmapTypes.TWordBreakHandler;
 
   { TCustomLCLFontRenderer }
 
@@ -77,7 +76,6 @@ procedure BGRATextRect(bmp: TBGRACustomBitmap; Font: TFont; Quality: TBGRAFontQu
 function BGRATextSize(Font: TFont; Quality: TBGRAFontQuality; sUTF8: string; CustomAntialiasingLevel: Integer): TSize;
 function BGRAOriginalTextSize(Font: TFont; Quality: TBGRAFontQuality; sUTF8: string; CustomAntialiasingLevel: integer): TSize;
 function BGRAOriginalTextSizeEx(Font: TFont; Quality: TBGRAFontQuality; sUTF8: string; CustomAntialiasingLevel: Integer; out actualAntialiasingLevel: integer): TSize;
-procedure BGRADefaultWordBreakHandler(var ABefore,AAfter: string);
 
 function BGRATextUnderline(ATopLeft: TPointF; AWidth: Single; AMetrics: TFontPixelMetric): ArrayOfTPointF; overload;
 function BGRATextUnderline(ATopLeft: TPointF; AWidth: Single; ABaseline, AEmHeight: single): ArrayOfTPointF; overload;
@@ -92,13 +90,14 @@ function LCLFontAvailable: boolean;
 procedure BGRAFillClearTypeGrayscaleMask(dest: TBGRACustomBitmap; x,y: integer; xThird: integer; mask: TGrayscaleMask; color: TBGRAPixel; texture: IBGRAScanner = nil; RGBOrder: boolean=true);
 procedure BGRAFillClearTypeMask(dest: TBGRACustomBitmap; x,y: integer; xThird: integer; mask: TBGRACustomBitmap; color: TBGRAPixel; texture: IBGRAScanner = nil; RGBOrder: boolean=true);
 procedure BGRAFillClearTypeRGBMask(dest: TBGRACustomBitmap; x,y: integer; mask: TBGRACustomBitmap; color: TBGRAPixel; texture: IBGRAScanner = nil; KeepRGBOrder: boolean=true);
-procedure BGRAInternalRenderText(dest: TBGRACustomBitmap; Quality: TBGRAFontQuality; grayscale: TGrayscaleMask; temp: TBGRACustomBitmap;
-    x,y,xThird: integer; c: TBGRAPixel; tex: IBGRAScanner);
 
-const FontAntialiasingLevel = 6;
+const FontAntialiasingLevel = {$IFDEF LINUX}3{$ELSE}{$IFDEF FREEBSD}3{$ELSE}6{$ENDIF}{$ENDIF}; //linux and freebsd rendering is already great
 const FontDefaultQuality = fqAntialiased;
 
-function GetFontPixelMetric(AFont: TFont): TFontPixelMetric;
+function GetLCLFontPixelMetric(AFont: TFont): TFontPixelMetric;
+
+var
+  BGRATextOutImproveReadabilityProc : procedure (bmp: TBGRACustomBitmap; AFont: TFont; xf,yf: single; text: string; color: TBGRAPixel; tex: IBGRAScanner; align: TAlignment; mode : TBGRATextOutImproveReadabilityMode);
 
 implementation
 
@@ -263,7 +262,7 @@ begin
   FontPixelMetricCount := nb;
 end;
 
-function GetFontPixelMetric(AFont: TFont): TFontPixelMetric;
+function GetLCLFontPixelMetric(AFont: TFont): TFontPixelMetric;
 var i,startPos,endPos: integer;
 begin
   FindPixelMetricPos(AFont,startPos,endPos);
@@ -391,223 +390,23 @@ begin
   result := not LCLFontDisabledValue;
 end;
 
-procedure BGRAFillClearTypeMaskPtr(dest: TBGRACustomBitmap; x,y: integer; xThird: integer; maskData: PByte; maskPixelSize: NativeInt; maskRowSize: NativeInt; maskWidth,maskHeight: integer; color: TBGRAPixel; texture: IBGRAScanner; RGBOrder: boolean);
-var
-  pdest: PBGRAPixel;
-  ClearTypePixel: array[0..2] of byte;
-  curThird: integer;
-
-  procedure OutputPixel; inline;
-  begin
-    if texture <> nil then
-      color := texture.ScanNextPixel;
-    if RGBOrder then
-      ClearTypeDrawPixel(pdest, ClearTypePixel[0],ClearTypePixel[1],ClearTypePixel[2], color)
-    else
-      ClearTypeDrawPixel(pdest, ClearTypePixel[2],ClearTypePixel[1],ClearTypePixel[0], color);
-  end;
-
-  procedure NextAlpha(alphaValue: byte); inline;
-  begin
-    ClearTypePixel[curThird] := alphaValue;
-    inc(curThird);
-    if curThird = 3 then
-    begin
-      OutputPixel;
-      curThird := 0;
-      Fillchar(ClearTypePixel, sizeof(ClearTypePixel),0);
-      inc(pdest);
-    end;
-  end;
-
-  procedure EndRow; inline;
-  begin
-    if curThird > 0 then OutputPixel;
-  end;
-
-var
-  yMask,n: integer;
-  a: byte;
-  pmask: PByte;
-  dx:integer;
-  miny,maxy,minx,minxThird,maxx,alphaMinX,alphaMaxX,alphaLineLen: integer;
-  leftOnSide, rightOnSide: boolean;
-  countBetween: integer;
-  v1,v2,v3: byte;
-
-  procedure StartRow; inline;
-  begin
-    pdest := dest.Scanline[yMask+y]+minx;
-    if texture <> nil then
-      texture.ScanMoveTo(minx,yMask+y);
-
-    curThird := minxThird;
-    ClearTypePixel[0] := 0;
-    ClearTypePixel[1] := 0;
-    ClearTypePixel[2] := 0;
-  end;
-
-begin
-  alphaLineLen := maskWidth+2;
-
-  xThird -= 1; //for first subpixel
-
-  if xThird >= 0 then dx := xThird div 3
-   else dx := -((-xThird+2) div 3);
-  x += dx;
-  xThird -= dx*3;
-
-  if y >= dest.ClipRect.Top then miny := 0
-    else miny := dest.ClipRect.Top-y;
-  if y+maskHeight-1 < dest.ClipRect.Bottom then
-    maxy := maskHeight-1 else
-      maxy := dest.ClipRect.Bottom-1-y;
-
-  if x >= dest.ClipRect.Left then
-  begin
-    minx := x;
-    minxThird := xThird;
-    alphaMinX := 0;
-    leftOnSide := false;
-  end else
-  begin
-    minx := dest.ClipRect.Left;
-    minxThird := 0;
-    alphaMinX := (dest.ClipRect.Left-x)*3 - xThird;
-    leftOnSide := true;
-  end;
-
-  if x*3+xThird+maskWidth-1 < dest.ClipRect.Right*3 then
-  begin
-    maxx := (x*3+xThird+maskWidth-1) div 3;
-    alphaMaxX := alphaLineLen-1;
-    rightOnSide := false;
-  end else
-  begin
-    maxx := dest.ClipRect.Right-1;
-    alphaMaxX := maxx*3+2 - (x*3+xThird);
-    rightOnSide := true;
-  end;
-
-  countBetween := alphaMaxX-alphaMinX-1;
-
-  if (alphaMinX <= alphaMaxX) then
-  begin
-    for yMask := miny to maxy do
-    begin
-      StartRow;
-
-      if leftOnSide then
-      begin
-        pmask := maskData + (yMask*maskRowSize)+ (alphaMinX-1)*maskPixelSize;
-        a := pmask^ div 3;
-        v1 := a+a;
-        v2 := a;
-        v3 := 0;
-        inc(pmask, maskPixelSize);
-      end else
-      begin
-        pmask := maskData + (yMask*maskRowSize);
-        v1 := 0;
-        v2 := 0;
-        v3 := 0;
-      end;
-
-      for n := countBetween-1 downto 0 do
-      begin
-        a := pmask^ div 3;
-        v1 += a;
-        v2 += a;
-        v3 += a;
-        inc(pmask, maskPixelSize);
-
-        NextAlpha(v1);
-        v1 := v2;
-        v2 := v3;
-        v3 := 0;
-      end;
-
-      if rightOnSide then
-      begin
-        a := pmask^ div 3;
-        v1 += a;
-        v2 += a+a;
-      end;
-
-      NextAlpha(v1);
-      NextAlpha(v2);
-
-      EndRow;
-    end;
-  end;
-end;
-
 procedure BGRAFillClearTypeGrayscaleMask(dest: TBGRACustomBitmap; x,
   y: integer; xThird: integer; mask: TGrayscaleMask; color: TBGRAPixel;
   texture: IBGRAScanner; RGBOrder: boolean);
-var delta: NativeInt;
 begin
-  delta := mask.Width;
-  BGRAFillClearTypeMaskPtr(dest,x,y,xThird,mask.ScanLine[0],1,delta,mask.Width,mask.Height,color,texture,RGBOrder);
+  BGRAGrayscaleMask.BGRAFillClearTypeGrayscaleMask(dest,x,y,xThird,mask,color,texture,RGBOrder);
 end;
 
 procedure BGRAFillClearTypeMask(dest: TBGRACustomBitmap; x,y: integer; xThird: integer; mask: TBGRACustomBitmap; color: TBGRAPixel; texture: IBGRAScanner; RGBOrder: boolean);
-var delta: NativeInt;
 begin
-  delta := mask.Width*sizeof(TBGRAPixel);
-  if mask.LineOrder = riloBottomToTop then
-    delta := -delta;
-  BGRAFillClearTypeMaskPtr(dest,x,y,xThird,pbyte(mask.ScanLine[0])+1,sizeof(TBGRAPixel),delta,mask.Width,mask.Height,color,texture,RGBOrder);
+  BGRABlend.BGRAFillClearTypeMask(dest,x,y,xThird,mask,color,texture,RGBOrder);
 end;
 
 procedure BGRAFillClearTypeRGBMask(dest: TBGRACustomBitmap; x, y: integer;
   mask: TBGRACustomBitmap; color: TBGRAPixel; texture: IBGRAScanner;
   KeepRGBOrder: boolean);
-var
-  minx,miny,maxx,maxy,countx,n,yb: integer;
-  pdest,psrc: PBGRAPixel;
 begin
-  if y >= dest.ClipRect.Top then miny := 0
-    else miny := dest.ClipRect.Top-y;
-  if y+mask.Height-1 < dest.ClipRect.Bottom then
-    maxy := mask.Height-1 else
-      maxy := dest.ClipRect.Bottom-1-y;
-
-  if x >= dest.ClipRect.Left then minx := 0
-    else minx := dest.ClipRect.Left-x;
-  if x+mask.Width-1 < dest.ClipRect.Right then
-    maxx := mask.Width-1 else
-      maxx := dest.ClipRect.Right-1-x;
-
-  countx := maxx-minx+1;
-  if countx <= 0 then exit;
-
-  for yb := miny to maxy do
-  begin
-    pdest := dest.ScanLine[y+yb]+(x+minx);
-    psrc := mask.ScanLine[yb]+minx;
-    if texture <> nil then
-      texture.ScanMoveTo(x+minx, y+yb);
-    if KeepRGBOrder then
-    begin
-      for n := countx-1 downto 0 do
-      begin
-        if texture <> nil then color := texture.ScanNextPixel;
-        ClearTypeDrawPixel(pdest, psrc^.red, psrc^.green, psrc^.blue, color);
-        inc(pdest);
-        inc(psrc);
-      end;
-    end else
-    begin
-      for n := countx-1 downto 0 do
-      begin
-        if texture <> nil then color := texture.ScanNextPixel;
-        ClearTypeDrawPixel(pdest, psrc^.blue, psrc^.green, psrc^.red, color);
-        inc(pdest);
-        inc(psrc);
-      end;
-    end;
-  end;
+  BGRABlend.BGRAFillClearTypeRGBMask(dest,x,y,mask,color,texture,KeepRGBOrder);
 end;
 
 function BGRAOriginalTextSizeEx(Font: TFont; Quality: TBGRAFontQuality; sUTF8: string; CustomAntialiasingLevel: Integer; out actualAntialiasingLevel: integer): TSize;
@@ -646,26 +445,6 @@ function BGRAOriginalTextSize(Font: TFont; Quality: TBGRAFontQuality; sUTF8: str
 var actualAntialiasingLevel: integer;
 begin
   result := BGRAOriginalTextSizeEx(Font, Quality, sUTF8, CustomAntialiasingLevel, actualAntialiasingLevel);
-end;
-
-procedure BGRADefaultWordBreakHandler(var ABefore, AAfter: string);
-var p: integer;
-begin
-  if (AAfter <> '') and (ABefore <> '') and (AAfter[1]<> ' ') and (ABefore[length(ABefore)] <> ' ') then
-  begin
-    p := length(ABefore);
-    while (p > 1) and (ABefore[p-1] <> ' ') do dec(p);
-    if p > 1 then //can put the word after
-    begin
-      AAfter := copy(ABefore,p,length(ABefore)-p+1)+AAfter;
-      ABefore := copy(ABefore,1,p-1);
-    end else
-    begin //cannot put the word after, so before
-
-    end;
-  end;
-  while (ABefore <> '') and (ABefore[length(ABefore)] =' ') do delete(ABefore,length(ABefore),1);
-  while (AAfter <> '') and (AAfter[1] =' ') do delete(AAfter,1,1);
 end;
 
 function BGRATextSize(Font: TFont; Quality: TBGRAFontQuality; sUTF8: string; CustomAntialiasingLevel: Integer): TSize;
@@ -734,57 +513,18 @@ begin
 end;
 
 function CleanTextOutString(s: string): string;
-var idxIn, idxOut: integer;
 begin
-  setlength(result, length(s));
-  idxIn := 1;
-  idxOut := 1;
-  while IdxIn <= length(s) do
-  begin
-    if not (s[idxIn] in[#13,#10,#9]) then //those characters are always 1 byte long so it is the same with UTF8
-    begin
-      result[idxOut] := s[idxIn];
-      inc(idxOut);
-    end;
-    inc(idxIn);
-  end;
-  setlength(result, idxOut-1);
+  result := BGRABitmapTypes.CleanTextOutString(s);
 end;
 
 function RemoveLineEnding(var s: string; indexByte: integer): boolean;
-begin //we can ignore UTF8 character length because #13 and #10 are always 1 byte long
-      //so this function can be applied to UTF8 strings as well
-  result := false;
-  if length(s) >= indexByte then
-  begin
-    if s[indexByte] in[#13,#10] then
-    begin
-      result := true;
-      if length(s) >= indexByte+1 then
-      begin
-        if (s[indexByte+1] <> s[indexByte]) and (s[indexByte+1] in[#13,#10]) then
-          delete(s,indexByte,2)
-        else
-          delete(s,indexByte,1);
-      end
-        else
-          delete(s,indexByte,1);
-    end;
-  end;
+begin
+  result := BGRABitmapTypes.RemoveLineEnding(s, indexByte);
 end;
 
 function RemoveLineEndingUTF8(var sUTF8: string; indexUTF8: integer): boolean;
-var indexByte: integer;
-    pIndex: PChar;
 begin
-  pIndex := UTF8CharStart(@sUTF8[1],length(sUTF8),indexUTF8);
-  if pIndex = nil then
-  begin
-    result := false;
-    exit;
-  end;
-  indexByte := pIndex - @sUTF8[1];
-  result := RemoveLineEnding(sUTF8, indexByte);
+  result := BGRABitmapTypes.RemoveLineEndingUTF8(sUTF8,indexUTF8);
 end;
 
 procedure BGRAInternalRenderText(dest: TBGRACustomBitmap; Quality: TBGRAFontQuality; grayscale: TGrayscaleMask; temp: TBGRACustomBitmap;
@@ -1162,13 +902,13 @@ var fxFont: TFont;
 begin
   UpdateFont;
   if FontQuality in[fqSystem,fqSystemClearType] then
-    result := BGRAText.GetFontPixelMetric(FFont)
+    result := GetLCLFontPixelMetric(FFont)
   else
   begin
     FxFont := TFont.Create;
     FxFont.Assign(FFont);
     FxFont.Height := fxFont.Height*FontAntialiasingLevel;
-    Result:= BGRAText.GetFontPixelMetric(FxFont);
+    Result:= GetLCLFontPixelMetric(FxFont);
     if Result.Baseline <> -1 then Result.Baseline:= round((Result.Baseline-1)/FontAntialiasingLevel);
     if Result.CapLine <> -1 then Result.CapLine:= round(Result.CapLine/FontAntialiasingLevel);
     if Result.DescentLine <> -1 then Result.DescentLine:= round((Result.DescentLine-1)/FontAntialiasingLevel);

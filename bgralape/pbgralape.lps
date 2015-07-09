@@ -1,0 +1,480 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="9"/>
+    <BuildModes Active="Default"/>
+    <Units Count="42">
+      <Unit0>
+        <Filename Value="pbgralape.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="pbgralape"/>
+        <UsageCount Value="39"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="umain.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="umain"/>
+        <EditorIndex Value="0"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="36" Y="14"/>
+        <UsageCount Value="39"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="..\lape\lpcompiler.pas"/>
+        <UnitName Value="lpcompiler"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="3"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="2367"/>
+        <CursorPos X="59" Y="2395"/>
+        <UsageCount Value="27"/>
+        <Loaded Value="True"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="..\lape\lputils.pas"/>
+        <UnitName Value="lputils"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="2"/>
+        <CursorPos X="26" Y="18"/>
+        <UsageCount Value="8"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="..\lape\lptypes.pas"/>
+        <UnitName Value="lptypes"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="49"/>
+        <CursorPos X="3" Y="69"/>
+        <UsageCount Value="12"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="..\lape\lptree.pas"/>
+        <UnitName Value="lptree"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1992"/>
+        <CursorPos X="1" Y="2010"/>
+        <UsageCount Value="14"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="..\lape\lpexceptions.pas"/>
+        <UnitName Value="lpexceptions"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="8"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="..\lape\lpvartypes_record.pas"/>
+        <UnitName Value="lpvartypes_record"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="8"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="..\lape\lpvartypes_array.pas"/>
+        <UnitName Value="lpvartypes_array"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="77"/>
+        <CursorPos X="19" Y="92"/>
+        <UsageCount Value="8"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="..\lape\lpinterpreter.pas"/>
+        <UnitName Value="lpinterpreter"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="556"/>
+        <CursorPos X="97" Y="578"/>
+        <UsageCount Value="19"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="..\lape\lpparser.pas"/>
+        <UnitName Value="lpparser"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="258"/>
+        <CursorPos X="31" Y="273"/>
+        <UsageCount Value="18"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="..\bgracontrols\bgravirtualscreen.pas"/>
+        <UnitName Value="BGRAVirtualScreen"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="9"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="..\lazpaintsvn\bgrabitmap\bgrabitmap.pas"/>
+        <UnitName Value="BGRABitmap"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="58"/>
+        <CursorPos X="1" Y="58"/>
+        <UsageCount Value="11"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="..\lazpaintsvn\bgrabitmap\bgrabitmaptypes.pas"/>
+        <UnitName Value="BGRABitmapTypes"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="607"/>
+        <CursorPos X="1" Y="623"/>
+        <UsageCount Value="19"/>
+        <Loaded Value="True"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="..\lape\lpvartypes.pas"/>
+        <UnitName Value="lpvartypes"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="2726"/>
+        <CursorPos X="66" Y="2749"/>
+        <UsageCount Value="14"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="..\lape\lpinterpreter_opcodecase.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="4"/>
+        <CursorPos X="1" Y="42"/>
+        <UsageCount Value="8"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="..\lape\lpinterpreter_invokecase.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="8"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="..\lape\lpinterpreter_doinvoke.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="17"/>
+        <CursorPos X="11" Y="36"/>
+        <UsageCount Value="8"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="ubgralape.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ubgralape"/>
+        <EditorIndex Value="2"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="143"/>
+        <CursorPos X="45" Y="161"/>
+        <UsageCount Value="38"/>
+        <Loaded Value="True"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="lape_proc.inc"/>
+        <IsPartOfProject Value="True"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="38"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="lape_func.inc"/>
+        <IsPartOfProject Value="True"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="38"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="lape.func"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="5" Y="1"/>
+        <UsageCount Value="8"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="C:\lazarus\components\lazutils\fileutil.pas"/>
+        <UnitName Value="FileUtil"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="157"/>
+        <CursorPos X="10" Y="176"/>
+        <UsageCount Value="10"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="C:\lazarus\lcl\graphics.pp"/>
+        <UnitName Value="Graphics"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="79"/>
+        <CursorPos X="67" Y="104"/>
+        <UsageCount Value="15"/>
+      </Unit23>
+      <Unit24>
+        <Filename Value="C:\lazarus\lcl\graphtype.pp"/>
+        <UnitName Value="GraphType"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="20"/>
+        <CursorPos X="3" Y="39"/>
+        <UsageCount Value="9"/>
+      </Unit24>
+      <Unit25>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\typinfo.pp"/>
+        <UnitName Value="typinfo"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="408"/>
+        <CursorPos X="3" Y="414"/>
+        <UsageCount Value="9"/>
+      </Unit25>
+      <Unit26>
+        <Filename Value="..\lape\lpvartypes_ord.pas"/>
+        <UnitName Value="lpvartypes_ord"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="712"/>
+        <CursorPos X="20" Y="716"/>
+        <UsageCount Value="9"/>
+      </Unit26>
+      <Unit27>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\classes\classesh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="17"/>
+        <CursorPos X="4" Y="33"/>
+        <UsageCount Value="13"/>
+      </Unit27>
+      <Unit28>
+        <Filename Value="..\lape\lpeval.pas"/>
+        <UnitName Value="lpeval"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="14"/>
+        <CursorPos X="11" Y="30"/>
+        <UsageCount Value="9"/>
+      </Unit28>
+      <Unit29>
+        <Filename Value="..\lazpaintsvn\bgrabitmap\bgradefaultbitmap.pas"/>
+        <UnitName Value="BGRADefaultBitmap"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="3944"/>
+        <CursorPos X="50" Y="3976"/>
+        <UsageCount Value="15"/>
+      </Unit29>
+      <Unit30>
+        <Filename Value="lape.proc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="7" Y="1"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit30>
+      <Unit31>
+        <Filename Value="text_functions.inc"/>
+        <IsPartOfProject Value="True"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="32"/>
+      </Unit31>
+      <Unit32>
+        <Filename Value="basic_functions.inc"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="4"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="107"/>
+        <CursorPos X="18" Y="128"/>
+        <UsageCount Value="32"/>
+        <Loaded Value="True"/>
+      </Unit32>
+      <Unit33>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\types.pp"/>
+        <UnitName Value="types"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="67"/>
+        <CursorPos X="3" Y="83"/>
+        <UsageCount Value="13"/>
+      </Unit33>
+      <Unit34>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\win\wininc\struct.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="210"/>
+        <CursorPos X="54" Y="227"/>
+        <UsageCount Value="13"/>
+      </Unit34>
+      <Unit35>
+        <Filename Value="..\lazpaintsvn\bgrabitmap\bgrapen.pas"/>
+        <UnitName Value="BGRAPen"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="446"/>
+        <CursorPos X="42" Y="458"/>
+        <UsageCount Value="13"/>
+      </Unit35>
+      <Unit36>
+        <Filename Value="..\lazpaintsvn\bgrabitmap\bgracanvas2d.pas"/>
+        <UnitName Value="BGRACanvas2D"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="194"/>
+        <CursorPos X="22" Y="224"/>
+        <UsageCount Value="11"/>
+      </Unit36>
+      <Unit37>
+        <Filename Value="..\lazpaintsvn\bgrabitmap\bgracanvas.pas"/>
+        <UnitName Value="BGRACanvas"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="846"/>
+        <CursorPos X="27" Y="856"/>
+        <UsageCount Value="11"/>
+      </Unit37>
+      <Unit38>
+        <Filename Value="..\lazpaintsvn\bgrabitmap\bgrapolygonaliased.pas"/>
+        <UnitName Value="BGRAPolygonAliased"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="977"/>
+        <CursorPos X="21" Y="1004"/>
+        <UsageCount Value="11"/>
+      </Unit38>
+      <Unit39>
+        <Filename Value="..\lazpaintsvn\bgrabitmap\bgrawinbitmap.pas"/>
+        <UnitName Value="BGRAWinBitmap"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="17"/>
+        <CursorPos X="3" Y="36"/>
+        <UsageCount Value="11"/>
+      </Unit39>
+      <Unit40>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\inc\systemh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="309"/>
+        <CursorPos X="3" Y="328"/>
+        <UsageCount Value="11"/>
+      </Unit40>
+      <Unit41>
+        <Filename Value="basic_geometry_functions.inc"/>
+        <IsPartOfProject Value="True"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="23"/>
+      </Unit41>
+    </Units>
+    <General>
+      <ActiveWindowIndexAtStart Value="0"/>
+    </General>
+    <JumpHistory Count="30" HistoryIndex="29">
+      <Position1>
+        <Filename Value="basic_functions.inc"/>
+        <Caret Line="149" Column="24" TopLine="126"/>
+      </Position1>
+      <Position2>
+        <Filename Value="basic_functions.inc"/>
+        <Caret Line="163" Column="1" TopLine="126"/>
+      </Position2>
+      <Position3>
+        <Filename Value="ubgralape.pas"/>
+        <Caret Line="107" Column="1" TopLine="86"/>
+      </Position3>
+      <Position4>
+        <Filename Value="ubgralape.pas"/>
+        <Caret Line="109" Column="1" TopLine="86"/>
+      </Position4>
+      <Position5>
+        <Filename Value="ubgralape.pas"/>
+        <Caret Line="110" Column="1" TopLine="86"/>
+      </Position5>
+      <Position6>
+        <Filename Value="umain.pas"/>
+        <Caret Line="11" Column="55" TopLine="1"/>
+      </Position6>
+      <Position7>
+        <Filename Value="ubgralape.pas"/>
+        <Caret Line="150" Column="108" TopLine="134"/>
+      </Position7>
+      <Position8>
+        <Filename Value="ubgralape.pas"/>
+        <Caret Line="126" Column="37" TopLine="114"/>
+      </Position8>
+      <Position9>
+        <Filename Value="ubgralape.pas"/>
+        <Caret Line="143" Column="95" TopLine="122"/>
+      </Position9>
+      <Position10>
+        <Filename Value="ubgralape.pas"/>
+        <Caret Line="155" Column="93" TopLine="124"/>
+      </Position10>
+      <Position11>
+        <Filename Value="ubgralape.pas"/>
+        <Caret Line="124" Column="72" TopLine="103"/>
+      </Position11>
+      <Position12>
+        <Filename Value="umain.pas"/>
+        <Caret Line="14" Column="36" TopLine="1"/>
+      </Position12>
+      <Position13>
+        <Filename Value="basic_functions.inc"/>
+        <Caret Line="145" Column="6" TopLine="107"/>
+      </Position13>
+      <Position14>
+        <Filename Value="basic_functions.inc"/>
+        <Caret Line="77" Column="1" TopLine="77"/>
+      </Position14>
+      <Position15>
+        <Filename Value="basic_functions.inc"/>
+        <Caret Line="202" Column="5" TopLine="164"/>
+      </Position15>
+      <Position16>
+        <Filename Value="ubgralape.pas"/>
+        <Caret Line="44" Column="11" TopLine="24"/>
+      </Position16>
+      <Position17>
+        <Filename Value="ubgralape.pas"/>
+        <Caret Line="224" Column="1" TopLine="186"/>
+      </Position17>
+      <Position18>
+        <Filename Value="ubgralape.pas"/>
+        <Caret Line="160" Column="62" TopLine="122"/>
+      </Position18>
+      <Position19>
+        <Filename Value="basic_functions.inc"/>
+        <Caret Line="3" Column="30" TopLine="1"/>
+      </Position19>
+      <Position20>
+        <Filename Value="basic_functions.inc"/>
+        <Caret Line="42" Column="50" TopLine="39"/>
+      </Position20>
+      <Position21>
+        <Filename Value="ubgralape.pas"/>
+        <Caret Line="46" Column="18" TopLine="32"/>
+      </Position21>
+      <Position22>
+        <Filename Value="basic_functions.inc"/>
+        <Caret Line="196" Column="7" TopLine="165"/>
+      </Position22>
+      <Position23>
+        <Filename Value="ubgralape.pas"/>
+        <Caret Line="27" Column="27" TopLine="1"/>
+      </Position23>
+      <Position24>
+        <Filename Value="ubgralape.pas"/>
+        <Caret Line="44" Column="34" TopLine="20"/>
+      </Position24>
+      <Position25>
+        <Filename Value="ubgralape.pas"/>
+        <Caret Line="52" Column="43" TopLine="33"/>
+      </Position25>
+      <Position26>
+        <Filename Value="ubgralape.pas"/>
+        <Caret Line="207" Column="36" TopLine="188"/>
+      </Position26>
+      <Position27>
+        <Filename Value="basic_functions.inc"/>
+        <Caret Line="195" Column="25" TopLine="172"/>
+      </Position27>
+      <Position28>
+        <Filename Value="ubgralape.pas"/>
+        <Caret Line="164" Column="93" TopLine="147"/>
+      </Position28>
+      <Position29>
+        <Filename Value="basic_functions.inc"/>
+        <Caret Line="194" Column="25" TopLine="187"/>
+      </Position29>
+      <Position30>
+        <Filename Value="ubgralape.pas"/>
+        <Caret Line="161" Column="45" TopLine="143"/>
+      </Position30>
+    </JumpHistory>
+  </ProjectSession>
+</CONFIG>

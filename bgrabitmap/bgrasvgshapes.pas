@@ -242,7 +242,7 @@ function CreateSVGElementFromNode(ADocument: TXMLDocument;
 
 implementation
 
-uses BGRATransform, Graphics;
+uses BGRATransform, BGRAGraphics;
 
 function GetSVGFactory(ATagName: string): TSVGFactory;
 var tag: string;

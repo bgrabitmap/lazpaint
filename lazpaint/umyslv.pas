@@ -12,7 +12,7 @@ type
   PMyShellListViewItemData = ^TMyShellListViewItemData;
   TMyShellListViewItemData = record
     initialIndex: integer;
-    caption, filename, typeStr, sizeStr, dateStr: string;
+    caption, filename, typeStr, sizeStr, dateOrDeviceStr: string;
     fileSize: int64;
     isFolder: boolean;
     modification: TDateTime;
@@ -30,6 +30,7 @@ type
 
   TMyShellListView = class
   private
+    FAllowMultiSelect: boolean;
     FOnDblClick: TNotifyEvent;
     FOnSelectItem: TSelectItemEvent;
     FSortColumn: integer;
@@ -61,11 +62,15 @@ type
     function GetHeight: integer;
     function GetItemCaption(AIndex: integer): string;
     function GetItemCount: integer;
+    function GetItemDevice(AIndex: integer): string;
     function GetItemIsFolder(AIndex: integer): boolean;
     function GetItemName(AIndex: integer): string;
     function GetItemSelected(AIndex: integer): boolean;
+    function GetItemType(AIndex: integer): string;
+    function GetSelectedCount: integer;
     function GetViewStyleFit: TViewStyle;
     function GetWidth: integer;
+    procedure SetAllowMultiSelect(AValue: boolean);
     procedure SetItemSelected(AIndex: integer; AValue: boolean);
     procedure SetMask(const AValue: string);
     procedure SetOnDblClick(AValue: TNotifyEvent);
@@ -105,6 +110,7 @@ type
     procedure Reload;
     procedure BeginUpdate;
     procedure EndUpdate;
+    procedure Invalidate;
     procedure Update;
     procedure MakeItemVisible(AIndex : integer);
     constructor Create(AVirtualScreen: TBGRAVirtualScreen);
@@ -115,11 +121,11 @@ type
     function GetItemAt(X,Y: Integer): integer;
     procedure DeselectAll;
     procedure Sort;
+    procedure RemoveItemFromList(AIndex: integer);
     { Properties }
     property Mask: string read FMask write SetMask; // Can be used to conect to other controls
     property ObjectTypes: TObjectTypes read FObjectTypes write FObjectTypes;
     property Root: string read FRoot write SetRoot;
-    { Protected properties which users may want to access, see bug 15374 }
     property ViewStyle: TViewStyle read GetViewStyleFit write SetViewStyleFit;
     property OnDblClick: TNotifyEvent read FOnDblClick write SetOnDblClick;
     property OnSelectItem: TSelectItemEvent read FOnSelectItem write SetOnSelectItem;
@@ -137,14 +143,31 @@ type
     property ItemDisplayRect[AIndex: integer]: TRect read GetItemDisplayRect;
     property ItemSelected[AIndex: integer]: boolean read GetItemSelected write SetItemSelected;
     property ItemIsFolder[AIndex: integer]: boolean read GetItemIsFolder;
+    property ItemType[AIndex: integer]: string read GetItemType;
+    property ItemDevice[AIndex: integer]: string read GetItemDevice;
+    property AllowMultiSelect: boolean read FAllowMultiSelect write SetAllowMultiSelect;
+    property SelectedCount: integer read GetSelectedCount;
   end;
+
+function FileSizeToStr(ASize: int64; AByteCaption: string): string;
 
 implementation
 
-uses LCLType, FileUtil, UResourceStrings, LazPaintType, LazUTF8, Forms, Math;
+uses LCLType, FileUtil, UResourceStrings, LazPaintType, LazUTF8, Forms, Math,
+  UFileSystem;
 
 var
   SortTarget: TMyShellListView;
+
+function FileSizeToStr(ASize: int64; AByteCaption: string): string;
+begin
+  if ASize < 1024 then
+    result := IntToStr(ASize) + ' ' + AByteCaption
+  else if ASize < 1024 * 1024 then
+    result := FloatToStrF(ASize/1024, ffFixed, 5, 1) + ' kB'
+  else
+    result := FloatToStrF(ASize/(1024*1024), ffFixed, 5, 1) + ' MB';
+end;
 
 function MyShellListViewCompare(item1,item2: pointer): integer;
 begin
@@ -186,6 +209,23 @@ begin
   result := FVirtualScreen.Width;
 end;
 
+procedure TMyShellListView.SetAllowMultiSelect(AValue: boolean);
+var idx: integer;
+begin
+  if FAllowMultiSelect=AValue then Exit;
+  FAllowMultiSelect:=AValue;
+
+  if not AValue then
+  begin
+    if SelectedCount > 1 then
+    begin
+      idx := SelectedIndex;
+      DeselectAll;
+      if idx <> -1 then ItemSelected[idx] := true;
+    end;
+  end;
+end;
+
 procedure TMyShellListView.SetItemSelected(AIndex: integer; AValue: boolean);
 begin
   if (AIndex < 0) or (AIndex >= ItemCount) then exit
@@ -219,6 +259,14 @@ begin
   result := length(FData);
 end;
 
+function TMyShellListView.GetItemDevice(AIndex: integer): string;
+begin
+  if (AIndex < 0) or (AIndex >= ItemCount) then
+    result := ''
+  else
+    result := FData[AIndex].dateOrDeviceStr;
+end;
+
 function TMyShellListView.GetItemIsFolder(AIndex: integer): boolean;
 begin
   if (AIndex < 0) or (AIndex >= ItemCount) then
@@ -241,6 +289,23 @@ begin
     result := false
   else
     result := FData[AIndex].isSelected;
+end;
+
+function TMyShellListView.GetItemType(AIndex: integer): string;
+begin
+  if (AIndex < 0) or (AIndex >= ItemCount) then
+    result := ''
+  else
+    result := FData[AIndex].typeStr;
+end;
+
+function TMyShellListView.GetSelectedCount: integer;
+var
+  i: Integer;
+begin
+  result := 0;
+  for i := 0 to ItemCount-1 do
+    if ItemSelected[i] then inc(result);
 end;
 
 procedure TMyShellListView.SetRoot(const AValue: string);
@@ -300,7 +365,7 @@ var
       filename := '';
       typeStr := '';
       sizeStr := '';
-      dateStr := '';
+      dateOrDeviceStr := '';
       fileSize:= 0;
       isFolder := false;
       modification := 0;
@@ -312,6 +377,7 @@ var
     inc(dataIndex);
   end;
 
+var drives: TFileSystemArray;
 begin
   BeginUpdate;
   Clear;
@@ -326,53 +392,80 @@ begin
   Files := TStringList.Create;
   Dirs := TStringList.Create;
   try
-    if FObjectTypes * [otFolders] <> [] then TCustomShellTreeView.GetFilesInDir(FRoot, '', FObjectTypes * [otFolders], Dirs, fstAlphabet);
-    if FObjectTypes - [otFolders] <> [] then TCustomShellTreeView.GetFilesInDir(FRoot, FMask, FObjectTypes - [otFolders], Files, fstAlphabet);
-    setlength(FData, Dirs.Count+Files.Count);
-    dataIndex := 0;
-
-    fileType := rsFolder;
-    if Assigned(FOnFormatType) then FOnFormatType(self, fileType);
-    for i := 0 to Dirs.Count - 1 do
-    if (Dirs.Strings[i] <> '') and (Dirs.Strings[i][1] <> '.') then
+    if FRoot = ':' then
     begin
-      CurFileName := Dirs.Strings[i];
-      CurFilePath := IncludeTrailingPathDelimiter(FRoot) + CurFileName;
-      with FData[NewItem] do
+      if FIndexDate <> -1 then FColumns[FIndexDate].Name := rsStorageDevice;
+      if FObjectTypes * [otFolders] = [] then
       begin
-        isFolder := true;
-        filename := CurFileName;
-        caption := CurFileName;
-        typeStr := fileType;
+        FData := nil;
+        dataIndex := 0;
+      end else
+      begin
+        drives := GetFileSystems;
+        setlength(FData, length(drives));
+        dataIndex := 0;
+        for i := 0 to high(drives) do
+        with FData[NewItem] do
+        begin
+          isFolder := true;
+          caption := Trim(drives[i].name);
+          filename := drives[i].path;
+          if filename <> PathDelim then
+            filename := ExcludeTrailingPathDelimiter(filename);
+          if caption = '' then caption := filename;
+          dateOrDeviceStr := drives[i].device;
+          typeStr := drives[i].fileSystem;
+        end;
       end;
-    end;
-
-    for i := 0 to Files.Count - 1 do
+    end else
     begin
-      j := NewItem;
-      CurFileName := Files.Strings[i];
-      CurFilePath := IncludeTrailingPathDelimiter(FRoot) + CurFileName;
-      CurFileSize := FileSize(CurFilePath); // in Bytes
-      FData[j].isFolder := false;
-      FData[j].filename := CurFileName;
-      FData[j].caption := ChangeFileExt(CurFileName,'');
-      age := FileAgeUTF8(CurFilePath);
-      FData[j].modification := FileDateToDateTime(age);
-      FData[j].fileSize:= CurFileSize;
+      if FIndexDate <> -1 then FColumns[FIndexDate].Name := rsFileDate;
+      if FObjectTypes * [otFolders] <> [] then TCustomShellTreeView.GetFilesInDir(FRoot, '', FObjectTypes * [otFolders], Dirs, fstAlphabet);
+      if FObjectTypes - [otFolders] <> [] then TCustomShellTreeView.GetFilesInDir(FRoot, FMask, FObjectTypes - [otFolders], Files, fstAlphabet);
+      setlength(FData, Dirs.Count+Files.Count);
+      dataIndex := 0;
 
-      // Second column - Size
-      // The raw size in bytes is stored in the data part of the item
-      if CurFileSize < 1024 then
-        FData[j].sizeStr := IntToStr(CurFileSize) + ' ' + BytesCaption
-      else if CurFileSize < 1024 * 1024 then
-        FData[j].sizeStr := IntToStr(CurFileSize div 1024) + ' kB'
-      else
-        FData[j].sizeStr := IntToStr(CurFileSize div (1024 * 1024)) + ' MB';
-      // Third column - Type
-      fileType := ExtractFileExt(CurFileName);
+      fileType := rsFolder;
       if Assigned(FOnFormatType) then FOnFormatType(self, fileType);
-      FData[j].typeStr := fileType;
-      FData[j].dateStr := DateToStr(FData[j].modification);
+      for i := 0 to Dirs.Count - 1 do
+      if (Dirs.Strings[i] <> '') and (Dirs.Strings[i][1] <> '.') then
+      begin
+        CurFileName := Dirs.Strings[i];
+        CurFilePath := IncludeTrailingPathDelimiter(FRoot) + CurFileName;
+        with FData[NewItem] do
+        begin
+          isFolder := true;
+          filename := CurFileName;
+          caption := CurFileName;
+          typeStr := fileType;
+        end;
+      end;
+
+      for i := 0 to Files.Count - 1 do
+      begin
+        j := NewItem;
+        CurFileName := Files.Strings[i];
+        CurFilePath := IncludeTrailingPathDelimiter(FRoot) + CurFileName;
+        CurFileSize := FileSize(CurFilePath); // in Bytes
+        FData[j].isFolder := false;
+        FData[j].filename := CurFileName;
+        FData[j].caption := ChangeFileExt(CurFileName,'');
+        age := FileAgeUTF8(CurFilePath);
+        try
+          FData[j].modification := FileDateToDateTime(age);
+        except
+        end;
+        FData[j].fileSize:= CurFileSize;
+
+        // Second column - Size
+        // The raw size in bytes is stored in the data part of the item
+        FData[j].sizeStr := FileSizeToStr(CurFileSize, BytesCaption);
+        // Third column - Type
+        fileType := ExtractFileExt(CurFileName);
+        if Assigned(FOnFormatType) then FOnFormatType(self, fileType);
+        FData[j].typeStr := fileType;
+        FData[j].dateOrDeviceStr := DateToStr(FData[j].modification);
+      end;
     end;
   finally
     Files.Free;
@@ -454,7 +547,11 @@ var
       if ABitmap.TextSize(txt).cx > Size(r).cx then
         ABitmap.TextOut(r.left,r.top, txt, btnTxtColor, taLeftJustify)
       else
-        ABitmap.TextOut((r.left+r.right) div 2,r.top, txt, btnTxtColor, FColumns[col].Align);
+       case FColumns[col].Align of
+        taCenter: ABitmap.TextOut((r.left+r.right) div 2,r.top, txt, btnTxtColor, FColumns[col].Align);
+        taRightJustify: ABitmap.TextOut(r.right,r.top, txt, btnTxtColor, FColumns[col].Align);
+        else ABitmap.TextOut(r.left,r.top, txt, btnTxtColor, FColumns[col].Align);
+       end;
       ABitmap.NoClip;
     end;
     curY := textHeight-(FVerticalScrollPos mod 32)*FActualRowHeight div 32;
@@ -639,7 +736,8 @@ procedure TMyShellListView.KeyDown(Sender: TObject; var Key: Word;
   var i: integer;
   begin
     DeselectAll;
-    if (ssShift in Shift) and (FKeySelectionRangeStart >= 0) and (FKeySelectionRangeStart < ItemCount) then
+    if (ssShift in Shift) and (FKeySelectionRangeStart >= 0) and (FKeySelectionRangeStart < ItemCount) and
+      FAllowMultiSelect then
       begin
         i := curItem;
         FSelectedIndex:= curItem;
@@ -750,8 +848,8 @@ begin
   idx := GetItemAt(X,Y);
   prevItem := FSelectedIndex;
   prevItemWasSelected := (prevItem <> -1) and ItemSelected[prevItem];
-  if not (ssCtrl in Shift) then DeselectAll;
-  if (ssShift in Shift) and (prevItem <> -1) and (idx <> -1) then
+  if not (ssCtrl in Shift) or not FAllowMultiSelect then DeselectAll;
+  if (ssShift in Shift) and (prevItem <> -1) and (idx <> -1) and FAllowMultiSelect then
   begin
     FSelectedIndex:= prevItem;
     ItemSelected[FSelectedIndex] := prevItemWasSelected;
@@ -893,6 +991,11 @@ begin
   FreeAndNil(FVScrollBar);
 end;
 
+procedure TMyShellListView.Invalidate;
+begin
+  FVirtualScreen.DiscardBitmap;
+end;
+
 procedure TMyShellListView.Update;
 begin
   FVirtualScreen.Update;
@@ -970,7 +1073,7 @@ begin
   if AColumn = FIndexName then result := FData[AIndex].caption;
   if AColumn = FIndexSize then result := FData[AIndex].sizeStr;
   if AColumn = FIndexType then result := FData[AIndex].typeStr;
-  if AColumn = FIndexDate then result := FData[AIndex].dateStr;
+  if AColumn = FIndexDate then result := FData[AIndex].dateOrDeviceStr;
 end;
 
 procedure TMyShellListView.Clear;
@@ -987,6 +1090,7 @@ begin
   BytesCaption:= rsBytes;
   FVirtualScreen := AVirtualScreen;
   FVScrollBar := nil;
+  FAllowMultiSelect:= true;
   FVirtualScreen.OnRedraw := @Redraw;
   FVirtualScreen.OnKeyDown := @KeyDown;
   FVirtualScreen.OnDblClick := @MouseDoubleClick;
@@ -1050,7 +1154,10 @@ begin
   if (AIndex < 0) or (AIndex >= ItemCount) then
     result := ''
   else
-    Result := IncludeTrailingPathDelimiter(FRoot) + FData[AIndex].filename;
+    if FRoot = ':' then
+      result := FData[AIndex].filename
+    else
+      Result := IncludeTrailingPathDelimiter(FRoot) + FData[AIndex].filename;
 end;
 
 procedure TMyShellListView.SetFocus;
@@ -1086,6 +1193,17 @@ begin
   FVirtualScreen.DiscardBitmap;
 end;
 
+procedure TMyShellListView.RemoveItemFromList(AIndex: integer);
+var i: integer;
+begin
+  if (AIndex < 0) or (AIndex >= ItemCount) then exit;
+  SetItemImage(AIndex,nil,false);
+  for i := AIndex to ItemCount-2 do
+    FData[i] := FData[i+1];
+  setlength(FData, ItemCount-1);
+  FVirtualScreen.DiscardBitmap;
+end;
+
 function TMyShellListView.GetItemAt(X, Y: Integer): integer;
 var i: integer;
   p : TPoint;
@@ -1116,4 +1234,4 @@ begin
 end;
 
 end.
-
+

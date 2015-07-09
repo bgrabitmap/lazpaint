@@ -1869,8 +1869,8 @@ begin
         else
            setlength(ASet.FScalars, length(ASet.FScalars)*2);
       end;
-      ASet.FScalars[FNbScalars] := FScalars[i];
-      inc(FNbScalars);
+      ASet.FScalars[ASet.FNbScalars] := FScalars[i];
+      inc(ASet.FNbScalars);
     end else
     begin
       w.variableIndex := i;

@@ -166,11 +166,20 @@ operator*(const color1: TColorInt65536; factor65536: integer): TColorInt65536;
     pop edx
   end;
 {$else}
+var prod: int64;
 begin
-  result.r := int64(color1.r)*factor65536 shr 16;
-  result.g := int64(color1.g)*factor65536 shr 16;
-  result.b := int64(color1.b)*factor65536 shr 16;
-  result.a := int64(color1.a)*factor65536 shr 16;
+  prod := int64(color1.r)*factor65536;
+  if prod >= 0 then result.r := prod shr 16
+  else result.r := -((-prod) shr 16);
+  prod := int64(color1.g)*factor65536;
+  if prod >= 0 then result.g := prod shr 16
+  else result.g := -((-prod) shr 16);
+  prod := int64(color1.b)*factor65536;
+  if prod >= 0 then result.b := prod shr 16
+  else result.b := -((-prod) shr 16);
+  prod := int64(color1.a)*factor65536;
+  if prod >= 0 then result.a := prod shr 16
+  else result.a := -((-prod) shr 16);
 end;
 {$endif}
 
@@ -193,29 +202,9 @@ function BGRAToColorIntMultiply(const color1: TBGRAPixel;
     mov ebx, result
     mov ecx, [Color1]
 
-    movzx eax, cl //b
-    mov edx, eax
-    shr edx, 7
-    add eax, edx
-    imul [esi+8]
-    shl edx, 24
-    shr eax, 8
-    or edx, eax
-    mov [ebx+8], edx
-    shr ecx, 8
-
-    movzx eax, cl //g
-    mov edx, eax
-    shr edx, 7
-    add eax, edx
-    imul [esi+4]
-    shl edx, 24
-    shr eax, 8
-    or edx, eax
-    mov [ebx+4], edx
-    shr ecx, 8
-
-    movzx eax, cl //r
+    mov eax, ecx
+    shr eax, TBGRAPixel_RedShift
+    and eax, 255
     mov edx, eax
     shr edx, 7
     add eax, edx
@@ -224,9 +213,34 @@ function BGRAToColorIntMultiply(const color1: TBGRAPixel;
     shr eax, 8
     or edx, eax
     mov [ebx], edx
-    shr ecx, 8
 
-    movzx eax, cl //a
+    mov eax, ecx
+    shr eax, TBGRAPixel_GreenShift
+    and eax, 255
+    mov edx, eax
+    shr edx, 7
+    add eax, edx
+    imul [esi+4]
+    shl edx, 24
+    shr eax, 8
+    or edx, eax
+    mov [ebx+4], edx
+
+    mov eax, ecx
+    shr eax, TBGRAPixel_BlueShift
+    and eax, 255
+    mov edx, eax
+    shr edx, 7
+    add eax, edx
+    imul [esi+8]
+    shl edx, 24
+    shr eax, 8
+    or edx, eax
+    mov [ebx+8], edx
+
+    mov eax, ecx
+    shr eax, TBGRAPixel_AlphaShift
+    and eax, 255
     mov edx, eax
     shr edx, 7
     add eax, edx

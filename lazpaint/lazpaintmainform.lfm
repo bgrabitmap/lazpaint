@@ -1,16 +1,18 @@
 object FMain: TFMain
-  Left = 376
+  Left = 403
   Height = 578
-  Top = 90
+  Top = 61
   Width = 739
   AllowDropFiles = True
   Caption = 'LazPaint'
-  ClientHeight = 557
+  ClientHeight = 558
   ClientWidth = 739
   Color = 15258043
+  Constraints.MinWidth = 320
   Font.Height = -12
   KeyPreview = True
   Menu = MainMenu1
+  OnClose = FormClose
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -29,25 +31,25 @@ object FMain: TFMain
   OnUTF8KeyPress = FormUTF8KeyPress
   Position = poDefault
   ShowHint = True
-  LCLVersion = '1.2.4.0'
+  LCLVersion = '1.0.10.0'
   object Panel_ToolbarBackground: TPanel
-    Left = 544
+    Left = 8
     Height = 36
-    Top = 16
-    Width = 91
+    Top = 8
+    Width = 59
     BevelOuter = bvNone
     ParentColor = False
     TabOrder = 9
-    OnMouseMove = Panel_ToolbarBackgroundMouseMove
   end
   object Panel_File: TPanel
-    Left = 16
+    Left = 84
     Height = 36
-    Top = 16
+    Top = 8
     Width = 98
     ClientHeight = 36
     ClientWidth = 98
     ParentColor = False
+    PopupMenu = PopupToolbar
     TabOrder = 0
     object ToolBar2: TToolBar
       Left = 1
@@ -82,13 +84,14 @@ object FMain: TFMain
     end
   end
   object Panel_Tool: TPanel
-    Left = 16
+    Left = 696
     Height = 36
-    Top = 72
+    Top = 8
     Width = 29
     ClientHeight = 36
     ClientWidth = 29
     ParentColor = False
+    PopupMenu = PopupToolbar
     TabOrder = 1
     object Image_CurrentTool: TImage
       Left = 2
@@ -100,13 +103,14 @@ object FMain: TFMain
     end
   end
   object Panel_Zoom: TPanel
-    Left = 128
+    Left = 280
     Height = 36
-    Top = 16
+    Top = 8
     Width = 162
     ClientHeight = 36
     ClientWidth = 162
     ParentColor = False
+    PopupMenu = PopupToolbar
     TabOrder = 2
     object Label_CurrentZoom: TLabel
       Left = 3
@@ -161,7 +165,7 @@ object FMain: TFMain
     end
     object Edit_Zoom: TEdit
       Left = 3
-      Height = 25
+      Height = 23
       Top = 24
       Width = 38
       MaxLength = 5
@@ -170,13 +174,14 @@ object FMain: TFMain
     end
   end
   object Panel_Color: TPanel
-    Left = 64
+    Left = 8
     Height = 36
-    Top = 72
+    Top = 56
     Width = 256
     ClientHeight = 36
     ClientWidth = 256
     ParentColor = False
+    PopupMenu = PopupToolbar
     TabOrder = 3
     object Label_Pen: TLabel
       Left = 4
@@ -205,7 +210,6 @@ object FMain: TFMain
       Top = 4
       Width = 16
       Center = True
-      OnMouseDown = Image_SwapColorsMouseDown
       Picture.Data = {
         1754506F727461626C654E6574776F726B47726170686963D103000089504E47
         0D0A1A0A0000000D49484452000000100000001008060000001FF3FF61000000
@@ -283,7 +287,6 @@ object FMain: TFMain
       Hint = 'Select pen color'
       Top = 2
       Width = 20
-      OnMouseDown = Shape_PenColorMouseDown
     end
     object Shape_BackColor: TShape
       Left = 149
@@ -291,19 +294,17 @@ object FMain: TFMain
       Hint = 'Select secondary color'
       Top = 2
       Width = 20
-      OnMouseDown = Shape_BackColorMouseDown
     end
   end
   object Panel_PenWidth: TPanel
-    Left = 442
+    Left = 608
     Height = 36
-    Top = 140
+    Top = 176
     Width = 98
     ClientHeight = 36
     ClientWidth = 98
     ParentColor = False
     TabOrder = 4
-    OnMouseMove = Panel_PenWidthMouseMove
     object Label_PenWidth: TLabel
       Left = 4
       Height = 22
@@ -324,13 +325,12 @@ object FMain: TFMain
       Color = clWhite
       ParentColor = False
       TabOrder = 0
-      OnClick = vsTextureOpacityClick
     end
   end
   object Panel_Eraser: TPanel
-    Left = 16
+    Left = 444
     Height = 36
-    Top = 184
+    Top = 56
     Width = 137
     ClientHeight = 36
     ClientWidth = 137
@@ -362,7 +362,6 @@ object FMain: TFMain
         Down = True
         Grouped = True
         ImageIndex = 91
-        OnClick = Tool_EraseOptionClick
         Style = tbsCheck
       end
       object Tool_EraseBlur: TToolButton
@@ -371,7 +370,6 @@ object FMain: TFMain
         Top = 0
         Grouped = True
         ImageIndex = 92
-        OnClick = Tool_EraseOptionClick
         Style = tbsCheck
       end
     end
@@ -385,13 +383,12 @@ object FMain: TFMain
       Color = clWhite
       ParentColor = False
       TabOrder = 1
-      OnClick = vsTextureOpacityClick
     end
   end
   object Panel_Tolerance: TPanel
-    Left = 296
+    Left = 303
     Height = 36
-    Top = 238
+    Top = 152
     Width = 140
     ClientHeight = 36
     ClientWidth = 140
@@ -422,7 +419,6 @@ object FMain: TFMain
         Top = 0
         Caption = 'Progressive floodfill'
         ImageIndex = 38
-        OnClick = Tool_ProgressiveFloodfillClick
         Style = tbsCheck
       end
     end
@@ -435,13 +431,12 @@ object FMain: TFMain
       Color = clWhite
       ParentColor = False
       TabOrder = 1
-      OnClick = vsTextureOpacityClick
     end
   end
   object Panel_ShapeOption: TPanel
-    Left = 16
+    Left = 8
     Height = 36
-    Top = 128
+    Top = 104
     Width = 51
     ClientHeight = 36
     ClientWidth = 51
@@ -460,7 +455,6 @@ object FMain: TFMain
         Hint = 'Draw border'
         Top = 0
         ImageIndex = 8
-        OnClick = ToolDrawShapeExecute
         Style = tbsCheck
       end
       object Tool_FillShape: TToolButton
@@ -468,15 +462,14 @@ object FMain: TFMain
         Hint = 'Fill shape'
         Top = 0
         ImageIndex = 9
-        OnClick = ToolFillShapeExecute
         Style = tbsCheck
       end
     end
   end
   object Panel_GradientType: TPanel
-    Left = 608
+    Left = 458
     Height = 36
-    Top = 296
+    Top = 152
     Width = 122
     ClientHeight = 36
     ClientWidth = 122
@@ -497,7 +490,6 @@ object FMain: TFMain
         Down = True
         Grouped = True
         ImageIndex = 11
-        OnClick = Tool_LinearGradientClick
         Style = tbsCheck
       end
       object Tool_ReflectedGradient: TToolButton
@@ -506,7 +498,6 @@ object FMain: TFMain
         Top = 0
         Grouped = True
         ImageIndex = 12
-        OnClick = Tool_ReflectedGradientClick
         Style = tbsCheck
       end
       object Tool_DiamondGradient: TToolButton
@@ -515,7 +506,6 @@ object FMain: TFMain
         Top = 0
         Grouped = True
         ImageIndex = 13
-        OnClick = Tool_DiamondGradientClick
         Style = tbsCheck
       end
       object Tool_RadialGradient: TToolButton
@@ -524,7 +514,6 @@ object FMain: TFMain
         Top = 0
         Grouped = True
         ImageIndex = 14
-        OnClick = Tool_RadialGradientClick
         Style = tbsCheck
       end
       object Tool_SinGradient: TToolButton
@@ -532,19 +521,19 @@ object FMain: TFMain
         Hint = 'Sine gradient'
         Top = 0
         ImageIndex = 41
-        OnClick = Tool_SinGradientClick
         Style = tbsCheck
       end
     end
   end
   object Panel_Undo: TPanel
-    Left = 312
+    Left = 456
     Height = 36
-    Top = 16
+    Top = 8
     Width = 51
     ClientHeight = 36
     ClientWidth = 51
     ParentColor = False
+    PopupMenu = PopupToolbar
     TabOrder = 10
     object ToolBar8: TToolBar
       Left = 1
@@ -567,19 +556,20 @@ object FMain: TFMain
     end
   end
   object Panel_CopyPaste: TPanel
-    Left = 368
+    Left = 520
     Height = 36
-    Top = 16
-    Width = 52
+    Top = 8
+    Width = 76
     ClientHeight = 36
-    ClientWidth = 52
+    ClientWidth = 76
     ParentColor = False
+    PopupMenu = PopupToolbar
     TabOrder = 11
     object ToolBar9: TToolBar
       Left = 1
       Height = 24
       Top = 1
-      Width = 50
+      Width = 74
       EdgeBorders = []
       Images = ImageList1
       TabOrder = 0
@@ -593,16 +583,22 @@ object FMain: TFMain
         Top = 0
         Action = EditPaste
       end
+      object ToolButton4: TToolButton
+        Left = 47
+        Top = 0
+        Action = EditDeselect
+      end
     end
   end
   object Panel_Coordinates: TPanel
-    Left = 440
+    Left = 608
     Height = 36
-    Top = 16
+    Top = 8
     Width = 77
     ClientHeight = 36
     ClientWidth = 77
     ParentColor = False
+    PopupMenu = PopupToolbar
     TabOrder = 12
     object Label_Coordinates: TLabel
       Left = 3
@@ -620,19 +616,20 @@ object FMain: TFMain
     end
   end
   object Panel_LineCap: TPanel
-    Left = 88
+    Left = 72
     Height = 36
-    Top = 128
-    Width = 98
+    Top = 104
+    Width = 278
     ClientHeight = 36
-    ClientWidth = 98
+    ClientWidth = 278
     ParentColor = False
     TabOrder = 13
     object ToolBar10: TToolBar
       Left = 1
       Height = 24
       Top = 1
-      Width = 96
+      Width = 97
+      Align = alNone
       EdgeBorders = []
       Images = ImageList1
       TabOrder = 0
@@ -642,7 +639,6 @@ object FMain: TFMain
         Top = 0
         Grouped = True
         ImageIndex = 45
-        OnClick = Tool_CapFlatClick
         Style = tbsCheck
       end
       object Tool_CapRound: TToolButton
@@ -652,7 +648,6 @@ object FMain: TFMain
         Down = True
         Grouped = True
         ImageIndex = 46
-        OnClick = Tool_CapRoundClick
         Style = tbsCheck
       end
       object Tool_CapSquare: TToolButton
@@ -661,7 +656,6 @@ object FMain: TFMain
         Top = 0
         Grouped = True
         ImageIndex = 47
-        OnClick = Tool_CapSquareClick
         Style = tbsCheck
       end
       object Tool_CloseShape: TToolButton
@@ -669,15 +663,86 @@ object FMain: TFMain
         Hint = 'Close shape'
         Top = 0
         ImageIndex = 10
-        OnClick = Tool_CloseShapeClick
         Style = tbsCheck
       end
     end
+    object ComboBox_ArrowStart: TComboBox
+      Left = 100
+      Height = 23
+      Top = 1
+      Width = 45
+      DropDownCount = 12
+      ItemHeight = 17
+      Items.Strings = (
+        'None'
+        'Tail'
+        'Tip'
+        'Normal'
+        'Cut'
+        'Flipped'
+        'FlippedCut'
+        'Triangle'
+        'TriangleBack1'
+        'TriangleBack2'
+        'HollowTriangle'
+        'HollowTriangleBack1'
+      )
+      ReadOnly = True
+      Style = csOwnerDrawFixed
+      TabOrder = 1
+    end
+    object ComboBox_ArrowEnd: TComboBox
+      Left = 146
+      Height = 23
+      Top = 1
+      Width = 45
+      DropDownCount = 12
+      ItemHeight = 17
+      Items.Strings = (
+        'None'
+        'Tail'
+        'Tip'
+        'Normal'
+        'Cut'
+        'Flipped'
+        'FlippedCut'
+        'Triangle'
+        'TriangleBack1'
+        'TriangleBack2'
+        'HollowTriangle'
+        'HollowTriangleBack1'
+      )
+      ReadOnly = True
+      Style = csOwnerDrawFixed
+      TabOrder = 2
+    end
+    object vsArrowSizeX: TBGRAVirtualScreen
+      Left = 193
+      Height = 20
+      Hint = 'Horizontal size of the arrow'
+      Top = 2
+      Width = 41
+      Alignment = taLeftJustify
+      Color = clWhite
+      ParentColor = False
+      TabOrder = 3
+    end
+    object vsArrowSizeY: TBGRAVirtualScreen
+      Left = 233
+      Height = 20
+      Hint = 'Vertical size of the arrow'
+      Top = 2
+      Width = 41
+      Alignment = taLeftJustify
+      Color = clWhite
+      ParentColor = False
+      TabOrder = 4
+    end
   end
   object Panel_JoinStyle: TPanel
-    Left = 208
+    Left = 368
     Height = 36
-    Top = 128
+    Top = 104
     Width = 75
     ClientHeight = 36
     ClientWidth = 75
@@ -697,7 +762,6 @@ object FMain: TFMain
         Top = 0
         Grouped = True
         ImageIndex = 48
-        OnClick = Tool_JoinBevelClick
         Style = tbsCheck
       end
       object Tool_JoinRound: TToolButton
@@ -707,7 +771,6 @@ object FMain: TFMain
         Down = True
         Grouped = True
         ImageIndex = 49
-        OnClick = Tool_JoinRoundClick
         Style = tbsCheck
       end
       object Tool_JoinMiter: TToolButton
@@ -716,15 +779,14 @@ object FMain: TFMain
         Top = 0
         Grouped = True
         ImageIndex = 50
-        OnClick = Tool_JoinMiterClick
         Style = tbsCheck
       end
     end
   end
   object Panel_PenStyle: TPanel
-    Left = 304
+    Left = 461
     Height = 36
-    Top = 128
+    Top = 104
     Width = 120
     ClientHeight = 36
     ClientWidth = 120
@@ -745,7 +807,6 @@ object FMain: TFMain
         Down = True
         Grouped = True
         ImageIndex = 51
-        OnClick = Tool_PenSolidClick
         Style = tbsCheck
       end
       object Tool_PenDash: TToolButton
@@ -754,7 +815,6 @@ object FMain: TFMain
         Top = 0
         Grouped = True
         ImageIndex = 52
-        OnClick = Tool_PenDashClick
         Style = tbsCheck
       end
       object Tool_PenDashDot: TToolButton
@@ -763,7 +823,6 @@ object FMain: TFMain
         Top = 0
         Grouped = True
         ImageIndex = 53
-        OnClick = Tool_PenDashDotClick
         Style = tbsCheck
       end
       object Tool_PenDashDotDot: TToolButton
@@ -772,7 +831,6 @@ object FMain: TFMain
         Top = 0
         Grouped = True
         ImageIndex = 54
-        OnClick = Tool_PenDashDotDotClick
         Style = tbsCheck
       end
       object Tool_PenDot: TToolButton
@@ -781,19 +839,19 @@ object FMain: TFMain
         Top = 0
         Grouped = True
         ImageIndex = 55
-        OnClick = Tool_PenDotClick
         Style = tbsCheck
       end
     end
   end
   object Panel_Texture: TPanel
-    Left = 400
+    Left = 288
     Height = 36
-    Top = 72
+    Top = 56
     Width = 131
     ClientHeight = 36
     ClientWidth = 131
     ParentColor = False
+    PopupMenu = PopupToolbar
     TabOrder = 16
     object ToolBar4: TToolBar
       Left = 32
@@ -822,7 +880,6 @@ object FMain: TFMain
       Top = 1
       Width = 24
       Center = True
-      OnMouseDown = Image_CurrentTextureMouseDown
     end
     object vsTextureOpacity: TBGRAVirtualScreen
       Left = 85
@@ -834,13 +891,12 @@ object FMain: TFMain
       Color = clWhite
       ParentColor = False
       TabOrder = 1
-      OnClick = vsTextureOpacityClick
     end
   end
   object Panel_Grid: TPanel
-    Left = 176
+    Left = 407
     Height = 36
-    Top = 184
+    Top = 296
     Width = 172
     ClientHeight = 36
     ClientWidth = 172
@@ -881,7 +937,6 @@ object FMain: TFMain
         Hint = 'Move grid without deformation'
         Top = 0
         ImageIndex = 58
-        OnClick = Tool_GridMoveWithoutDeformationClick
         Style = tbsCheck
       end
     end
@@ -894,7 +949,6 @@ object FMain: TFMain
       Color = clWhite
       ParentColor = False
       TabOrder = 1
-      OnClick = vsTextureOpacityClick
     end
     object vsGridNbY: TBGRAVirtualScreen
       Left = 96
@@ -905,13 +959,12 @@ object FMain: TFMain
       Color = clWhite
       ParentColor = False
       TabOrder = 2
-      OnClick = vsTextureOpacityClick
     end
   end
   object Panel_PenWidthPreview: TPanel
-    Left = 442
+    Left = 608
     Height = 104
-    Top = 172
+    Top = 208
     Width = 106
     ClientHeight = 104
     ClientWidth = 106
@@ -924,14 +977,12 @@ object FMain: TFMain
       Height = 91
       Top = 6
       Width = 93
-      OnMouseDown = PaintBox_PenPreviewMouseDown
-      OnPaint = PaintBox_PenPreviewPaint
     end
   end
   object Panel_SplineStyle: TPanel
-    Left = 16
+    Left = 8
     Height = 36
-    Top = 238
+    Top = 152
     Width = 272
     ClientHeight = 36
     ClientWidth = 272
@@ -939,10 +990,10 @@ object FMain: TFMain
     TabOrder = 19
     object Combo_SplineStyle: TComboBox
       Left = 48
-      Height = 29
+      Height = 23
       Top = 1
       Width = 118
-      ItemHeight = 0
+      ItemHeight = 15
       Items.Strings = (
         'Inside'
         'Inside + ends'
@@ -953,7 +1004,6 @@ object FMain: TFMain
         'Vertex to side'
         'Easy Bézier'
       )
-      OnChange = Combo_SplineStyleChange
       Style = csDropDownList
       TabOrder = 0
     end
@@ -981,7 +1031,6 @@ object FMain: TFMain
         Hint = 'Draw an angle'
         Top = 0
         ImageIndex = 101
-        OnClick = Tool_CurveModeAngleClick
         Style = tbsCheck
       end
       object Tool_CurveModeCurve: TToolButton
@@ -989,14 +1038,12 @@ object FMain: TFMain
         Hint = 'Draw a curve'
         Top = 0
         ImageIndex = 102
-        OnClick = Tool_CurveModeCurveClick
       end
       object Tool_CurveModeAuto: TToolButton
         Left = 24
         Hint = 'Autodetect angles'
         Top = 0
         ImageIndex = 100
-        OnClick = Tool_CurveModeAutoClick
         Style = tbsCheck
       end
       object Tool_CurveMovePoint: TToolButton
@@ -1005,19 +1052,19 @@ object FMain: TFMain
         Top = 0
         Enabled = False
         ImageIndex = 104
-        OnClick = Tool_CurveMovePointClick
         Style = tbsCheck
       end
     end
   end
   object Panel_Embedded: TPanel
-    Left = 656
+    Left = 192
     Height = 36
-    Top = 16
+    Top = 8
     Width = 76
     ClientHeight = 36
     ClientWidth = 76
     ParentColor = False
+    PopupMenu = PopupToolbar
     TabOrder = 20
     object ToolBar14: TToolBar
       Left = 1
@@ -1045,12 +1092,12 @@ object FMain: TFMain
     end
   end
   object Panel_Text: TPanel
-    Left = 16
+    Left = 8
     Height = 36
-    Top = 296
-    Width = 448
+    Top = 200
+    Width = 445
     ClientHeight = 36
-    ClientWidth = 448
+    ClientWidth = 445
     ParentColor = False
     TabOrder = 21
     object Label_Text: TLabel
@@ -1077,14 +1124,12 @@ object FMain: TFMain
         Hint = 'Choose font...'
         Top = 0
         ImageIndex = 61
-        OnClick = Tool_TextFontClick
       end
       object Tool_TextShadow: TToolButton
         Left = 116
         Hint = 'Text shadow'
         Top = 0
         ImageIndex = 62
-        OnClick = Tool_TextShadowClick
         Style = tbsCheck
       end
       object Tool_TextPhong: TToolButton
@@ -1092,7 +1137,6 @@ object FMain: TFMain
         Hint = 'Text phong shading'
         Top = 0
         ImageIndex = 74
-        OnClick = Tool_TextPhongClick
         Style = tbsCheck
       end
       object Tool_TextAlignLeft: TToolButton
@@ -1101,7 +1145,6 @@ object FMain: TFMain
         Down = True
         Grouped = True
         ImageIndex = 84
-        OnClick = Tool_TextAlignClick
         Style = tbsCheck
       end
       object Tool_TextAlignCenter: TToolButton
@@ -1109,7 +1152,6 @@ object FMain: TFMain
         Top = 0
         Grouped = True
         ImageIndex = 85
-        OnClick = Tool_TextAlignClick
         Style = tbsCheck
       end
       object Tool_TextAlignRight: TToolButton
@@ -1117,7 +1159,6 @@ object FMain: TFMain
         Top = 0
         Grouped = True
         ImageIndex = 86
-        OnClick = Tool_TextAlignClick
         Style = tbsCheck
       end
     end
@@ -1151,7 +1192,6 @@ object FMain: TFMain
       Color = clWhite
       ParentColor = False
       TabOrder = 1
-      OnClick = vsTextureOpacityClick
     end
     object vsTextBlur: TBGRAVirtualScreen
       Left = 268
@@ -1163,7 +1203,6 @@ object FMain: TFMain
       Color = clWhite
       ParentColor = False
       TabOrder = 2
-      OnClick = vsTextureOpacityClick
     end
     object vsTextShadowX: TBGRAVirtualScreen
       Left = 359
@@ -1175,10 +1214,9 @@ object FMain: TFMain
       Color = clWhite
       ParentColor = False
       TabOrder = 3
-      OnClick = vsTextureOpacityClick
     end
     object vsTextShadowY: TBGRAVirtualScreen
-      Left = 403
+      Left = 399
       Height = 20
       Hint = 'Vertical shadow offset'
       Top = 2
@@ -1187,13 +1225,12 @@ object FMain: TFMain
       Color = clWhite
       ParentColor = False
       TabOrder = 4
-      OnClick = vsTextureOpacityClick
     end
   end
   object Panel_PhongShape: TPanel
-    Left = 16
+    Left = 8
     Height = 36
-    Top = 352
+    Top = 248
     Width = 314
     ClientHeight = 36
     ClientWidth = 314
@@ -1214,7 +1251,7 @@ object FMain: TFMain
       Left = 224
       Height = 22
       Top = 1
-      Width = 48
+      Width = 43
       AutoSize = False
       Caption = 'Border'
       Layout = tlCenter
@@ -1236,7 +1273,6 @@ object FMain: TFMain
         Down = True
         Grouped = True
         ImageIndex = 70
-        OnClick = Tool_PhongShapeRectangleClick
         Style = tbsCheck
       end
       object Tool_PhongShapeRoundRect: TToolButton
@@ -1245,7 +1281,6 @@ object FMain: TFMain
         Top = 0
         Grouped = True
         ImageIndex = 71
-        OnClick = Tool_PhongShapeRoundRectClick
         Style = tbsCheck
       end
       object Tool_PhongShapeSphere: TToolButton
@@ -1254,7 +1289,6 @@ object FMain: TFMain
         Top = 0
         Grouped = True
         ImageIndex = 72
-        OnClick = Tool_PhongShapeSphereClick
         Style = tbsCheck
       end
       object Tool_PhongShapeCone: TToolButton
@@ -1263,7 +1297,6 @@ object FMain: TFMain
         Top = 0
         Grouped = True
         ImageIndex = 73
-        OnClick = Tool_PhongShapeConeClick
         Style = tbsCheck
       end
       object Tool_PhongShapeVerticalCone: TToolButton
@@ -1272,7 +1305,6 @@ object FMain: TFMain
         Top = 0
         Grouped = True
         ImageIndex = 75
-        OnClick = Tool_PhongShapeVerticalConeClick
         Style = tbsCheck
       end
       object Tool_PhongShapeHorizontalCylinder: TToolButton
@@ -1281,7 +1313,6 @@ object FMain: TFMain
         Top = 0
         Grouped = True
         ImageIndex = 76
-        OnClick = Tool_PhongShapeHorizontalCylinderClick
         Style = tbsCheck
       end
       object Tool_PhongShapeVerticalCylinder: TToolButton
@@ -1290,7 +1321,6 @@ object FMain: TFMain
         Top = 0
         Grouped = True
         ImageIndex = 77
-        OnClick = Tool_PhongShapeVerticalCylinderClick
         Style = tbsCheck
       end
     end
@@ -1304,13 +1334,12 @@ object FMain: TFMain
       Color = clWhite
       ParentColor = False
       TabOrder = 1
-      OnClick = vsTextureOpacityClick
     end
   end
   object Panel_Altitude: TPanel
-    Left = 520
+    Left = 331
     Height = 36
-    Top = 352
+    Top = 248
     Width = 111
     ClientHeight = 36
     ClientWidth = 111
@@ -1336,13 +1365,12 @@ object FMain: TFMain
       Color = clWhite
       ParentColor = False
       TabOrder = 0
-      OnClick = vsTextureOpacityClick
     end
   end
   object Panel_TextOutline: TPanel
-    Left = 368
+    Left = 464
     Height = 36
-    Top = 352
+    Top = 200
     Width = 117
     ClientHeight = 36
     ClientWidth = 117
@@ -1372,7 +1400,6 @@ object FMain: TFMain
         Hint = 'Text outline'
         Top = 0
         ImageIndex = 63
-        OnClick = Tool_TextOutlineClick
         Style = tbsCheck
       end
     end
@@ -1386,13 +1413,12 @@ object FMain: TFMain
       Color = clWhite
       ParentColor = False
       TabOrder = 1
-      OnClick = vsTextureOpacityClick
     end
   end
   object Panel_PerspectiveOption: TPanel
-    Left = 664
+    Left = 528
     Height = 36
-    Top = 352
+    Top = 248
     Width = 51
     ClientHeight = 36
     ClientWidth = 51
@@ -1411,7 +1437,6 @@ object FMain: TFMain
         Hint = 'Repeat image'
         Top = 0
         ImageIndex = 88
-        OnClick = Perspective_RepeatClick
         Style = tbsCheck
       end
       object Perspective_TwoPlanes: TToolButton
@@ -1419,16 +1444,15 @@ object FMain: TFMain
         Hint = 'Draw opposite plane too'
         Top = 0
         ImageIndex = 89
-        OnClick = Perspective_TwoPlanesClick
         Style = tbsCheck
       end
     end
   end
   object PaintBox_Picture: TPaintBox
-    Left = 560
-    Height = 217
+    Left = 608
+    Height = 90
     Top = 72
-    Width = 168
+    Width = 120
     Anchors = [akTop, akLeft, akRight, akBottom]
     Visible = False
     OnMouseDown = PaintBox_PictureMouseDown
@@ -1438,11 +1462,90 @@ object FMain: TFMain
     OnMouseWheel = PaintBox_PictureMouseWheel
     OnPaint = PaintBox_PicturePaint
   end
+  object Panel_Brush: TPanel
+    Left = 8
+    Height = 36
+    Top = 296
+    Width = 266
+    ClientHeight = 36
+    ClientWidth = 266
+    ParentColor = False
+    TabOrder = 26
+    object Label_Brush: TLabel
+      Left = 4
+      Height = 22
+      Top = 1
+      Width = 38
+      AutoSize = False
+      Caption = 'Brush'
+      Layout = tlCenter
+      ParentColor = False
+    end
+    object vsBrushSpacing: TBGRAVirtualScreen
+      Left = 218
+      Height = 20
+      Hint = 'Spacing between patterns'
+      Top = 3
+      Width = 41
+      Alignment = taLeftJustify
+      Color = clWhite
+      ParentColor = False
+      TabOrder = 0
+    end
+    object ComboBox_BrushSelect: TComboBox
+      Left = 117
+      Height = 23
+      Top = 1
+      Width = 45
+      DropDownCount = 12
+      ItemHeight = 17
+      ReadOnly = True
+      Style = csOwnerDrawFixed
+      TabOrder = 1
+    end
+    object Label_Spacing: TLabel
+      Left = 169
+      Height = 22
+      Top = 1
+      Width = 47
+      AutoSize = False
+      Caption = 'Spacing'
+      Layout = tlCenter
+      ParentColor = False
+    end
+    object ToolBar21: TToolBar
+      Left = 41
+      Height = 24
+      Top = 1
+      Width = 74
+      Align = alNone
+      Color = clBtnFace
+      EdgeBorders = []
+      Images = ImageList1
+      ParentColor = False
+      TabOrder = 2
+      object ToolButton21: TToolButton
+        Left = 1
+        Top = 0
+        Action = BrushCreateGeometric
+      end
+      object ToolButton22: TToolButton
+        Left = 24
+        Top = 0
+        Action = BrushLoadFromFile
+      end
+      object ToolButton7: TToolButton
+        Left = 47
+        Top = 0
+        Action = BrushRemoveCurrent
+      end
+    end
+  end
   object ImageList1: TBGRAImageList
     left = 120
     top = 432
     Bitmap = {
-      4C696F0000001000000010000000FFFFFF00B6B6B6FFB6B6B6FFB6B6B6FFB6B6
+      4C69780000001000000010000000FFFFFF00B6B6B6FFB6B6B6FFB6B6B6FFB6B6
       B6FFB6B6B6FFB6B6B6FFB6B6B6FFB6B6B6FFB6B6B6FFB6B6B6EFB6B6B6300000
       000000000000FFFFFF00FFFFFF00FFFFFF00B6B6B6FFFFFFFFFFFFFFFFFFFFFF
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB6B6B6FFDDDDDDFFB6B6B6EFB6B6
@@ -2985,95 +3088,95 @@ object FMain: TFMain
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      000000000000FF99338FFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
+      00000000000000000000985B1E3F9C5D1FF8985B1EFF985B1EFF985B1EFF985B
+      1EFF985B1EFF985B1EFFA96522FF000000000000000000000000000000000000
+      000000000000985B1E409E5E1FF4E88B2EFFFF9933FFFF9933FFFF9933FFFF99
       33FFFF9933FFFF9933FFFF9933FF000000000000000000000000000000000000
-      0000FF99338FFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF00000000000000000000000000000000FF99
-      338FFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF99338FFF99
+      0000985B1E409E5E1FF4E88B2EFFFF9933FFFF9933FFFF9933FFFF9933FFFF99
+      33FFFF9933FFFF9933FFFF9933FF00000000000000000000000000000000985B
+      1E409E5E1FF4E88B2EFFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
+      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000985B1E409E5E
+      1FF4E88B2EFFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
+      33FFFF9933FFFF9933FFFF9933FF0000000000000000000000009C5D1FF8E98C
+      2EFFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
+      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000985B1EFFFF99
       33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933FFFF99
+      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000985B1EFFFF99
       33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FF0000
-      0000000000000000000000000000000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FF0000
-      0000000000000000000000000000000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FF0000
-      0000000000000000000000000000000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FF0000
+      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000985B1EFFFF99
+      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFA16120FF985B
+      1EFF985B1EFF985B1EFFA96522FF000000000000000000000000985B1EFFFF99
+      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FF985B1EFF0000
+      0000000000000000000000000000000000000000000000000000985B1EFFFF99
+      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FF985B1EFF0000
+      0000000000000000000000000000000000000000000000000000985B1EFFFF99
+      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FF985B1EFF0000
+      0000000000000000000000000000000000000000000000000000A96522FFFF99
+      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFA96522FF0000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      000000000000000000000000000000000000000000000000000000000000FF99
-      335DFF9933A3FF9933CDFF9A36FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF99335DFF99
-      33B6FF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933A3FF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933CDFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9B39FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FF0000
-      0000000000000000000000000000000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FF0000
-      0000000000000000000000000000000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FF0000
-      0000000000000000000000000000000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FF0000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000F4933104DD852E92C27427F7AF6923FFA06020FF985B1EFF985B
+      1EFF985B1EFF985B1EFFA66321FF000000000000000000000000000000000000
+      0000E78B2E76B26A23FFB06A23FFD8812BFFED8E2FFFF99532FFFF9933FFFF99
+      33FFFF9933FFFF9933FFFF9933FF00000000000000000000000000000000E086
+      2D7DA36120FFDB832CFFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
+      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000C576270BA362
+      20FFE88B2EFFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
+      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000C97A2B9EC677
+      27FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
+      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000B96F25F9E288
+      2DFFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
+      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000A96521FFF291
+      30FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
+      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000A16120FFF895
+      32FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
+      33FFFF9933FFFF9933FFFF9933FF0000000000000000000000009C5D1FFFFD98
+      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFA16120FF985B
+      1EFF985B1EFF985B1EFF9B5D1FFF0000000000000000000000009A5C1EFFFE98
+      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FF985B1EFF0000
+      0000000000000000000000000000000000000000000000000000995C1EFFFE99
+      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FF985B1EFF0000
+      0000000000000000000000000000000000000000000000000000995C1EFFFF99
+      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FF985B1EFF0000
+      0000000000000000000000000000000000000000000000000000A96522FFFF99
+      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFA96522FF0000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000FF9933FFFF99
+      0000000000000000000000000000000000000000000000000000A16120FF985B
+      1EFF985B1EFF985B1EFF985B1EFF985B1EFF985B1EFF985B1EFF985B1EFF985B
+      1EFF985B1EFF985B1EFFA96522FF000000000000000000000000985B1EFFFF99
       33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933FFFF99
+      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000985B1EFFFF99
       33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933FFFF99
+      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000985B1EFFFF99
       33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933FFFF99
+      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000985B1EFFFF99
       33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933FFFF99
+      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000985B1EFFFF99
       33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933FFFF99
+      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000985B1EFFFF99
       33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933FFFF99
+      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000985B1EFFFF99
       33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FF0000
-      0000000000000000000000000000000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FF0000
-      0000000000000000000000000000000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FF0000
-      0000000000000000000000000000000000000000000000000000FF9933FFFF99
-      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FF0000
+      33FFFF9933FFFF9933FFFF9933FF000000000000000000000000985B1EFFFF99
+      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFA16120FF985B
+      1EFF985B1EFF985B1EFFA96522FF000000000000000000000000985B1EFFFF99
+      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FF985B1EFF0000
+      0000000000000000000000000000000000000000000000000000985B1EFFFF99
+      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FF985B1EFF0000
+      0000000000000000000000000000000000000000000000000000985B1EFFFF99
+      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FF985B1EFF0000
+      0000000000000000000000000000000000000000000000000000A96522FFFF99
+      33FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFFF9933FFA96522FF0000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3558,31 +3661,31 @@ object FMain: TFMain
       0000000000000000000000000000000000000000000000000000000000000000
       00000000000000000000000000000000007F0000008900000089000000890000
       0089000000890000008900000089000000890000008900000089000000890000
-      008900000089000000890000007F0000008900D2CBFF00D2CBFF00D2CBFF00D2
-      CBFF00D2CBFF95C364FFB7BD00FFB7BD00FFB7BD00FFB7BD00FFB6B914FFB3B3
-      26FFB2AE2DFFAFA736FF000000890000008900D2CBFF00D2CBFF00D2CBFF00D2
-      CBFF3ECEB7FFB7BD0DFFB7BD00FFB7BD00FFB7BD00FFB7BD00FF93577AFF8500
-      96FF850096FF850096FF000000890000008900D2CBFF00D2CBFF00D2CBFF00D2
-      CBFF88C676FFB7BD00FFB7BD00FFB7BD00FFB7BD00FFB5B61EFF870D93FF8500
-      96FF850096FF850096FF000000890000008900D2CBFF00D2CBFF00D2CBFF2DD0
-      C0FFB4BD19FFB7BD00FFB7BD00FFB7BD00FFB7BD00FFA79251FF850096FF8500
-      96FF850096FF850096FF000000890000008900D2CBFF00D2CBFF0DD1CAFF7FC0
-      80FFAFAB1EFF9BA33CFF9BA33CFFA2A933FFA3AA33FF926077FF850096FF8500
-      96FF850096FF850096FF00000089000000899E2D4AFFA31941FFA70039FFA700
-      39FF8C1953FF003688FF003688FF003688FF003688FF3C308BFF840096FF8500
-      96FF850096FF850096FF0000008900000089A70039FFA70039FFA70039FFA700
-      39FF891955FF003688FF003688FF003688FF003688FF003688FF5D2290FF8500
-      96FF850096FF850096FF0000008900000089A70039FFA70039FFA70039FFA700
-      39FF871957FF003688FF003688FF003688FF003688FF003688FF142666FF3300
-      39FF410048FF4F0057FF0000008900000089A70039FFA70039FFA70039FFA700
-      39FF801E5BFF003688FF003688FF003688FF003688FF003688FF002257FF0000
-      00FF000000FF000000FF0000008900000089A70039FFA70039FFA70039FFA700
-      39FF64266DFF003688FF003688FF003688FF003688FF003688FF001941FF0000
-      00FF000000FF000000FF0000008900000089A70039FFA70039FFA70039FFA700
-      39FF3E307CFF003688FF003688FF003688FF003688FF00337FFF00000DFF0000
-      00FF000000FF000000FF0000008900000089A70039FFA70039FFA70039FF9A0D
-      46FF0D3687FF003688FF003688FF003688FF003688FF002255FF000000FF0000
-      00FF000000FF000000FF000000890000007F0000008900000089000000890000
+      008900000089000000890000007F00000089000000FF383838FF555555FF6C6C
+      6CFF7F7F7FFF919191FFA2A2A2FFB1B1B1FFC0C0C0FFCDCDCDFFDBDBDBFFE7E7
+      E7FFF3F3F3FFFFFFFFFF0000008900000089000000FF383838FF555555FF6C6C
+      6CFF7F7F7FFF919191FFA2A2A2FFB1B1B1FFC0C0C0FFCDCDCDFFDBDBDBFFE7E7
+      E7FFF3F3F3FFFFFFFFFF0000008900000089000000FF383838FF555555FF6C6C
+      6CFF7F7F7FFF919191FFA2A2A2FFB1B1B1FFC0C0C0FFCDCDCDFFDBDBDBFFE7E7
+      E7FFF3F3F3FFFFFFFFFF0000008900000089000000FF383838FF555555FF6C6C
+      6CFF7F7F7FFF919191FFA2A2A2FFB1B1B1FFC0C0C0FFCDCDCDFFDBDBDBFFE7E7
+      E7FFF3F3F3FFFFFFFFFF0000008900000089000000FF383838FF555555FF6C6C
+      6CFF7F7F7FFF919191FFA2A2A2FFB1B1B1FFC0C0C0FFCDCDCDFFDBDBDBFFE7E7
+      E7FFF3F3F3FFFFFFFFFF0000008900000089000000FF383838FF555555FF6C6C
+      6CFF7F7F7FFF919191FFA2A2A2FFB1B1B1FFC0C0C0FFCDCDCDFFDBDBDBFFE7E7
+      E7FFF3F3F3FFFFFFFFFF0000008900000089FFFFFFFFF3F3F3FFE7E7E7FFDBDB
+      DBFFCDCDCDFFC0C0C0FFB1B1B1FFA2A2A2FF919191FF7F7F7FFF6C6C6CFF5555
+      55FF383838FF000000FF0000008900000089FFFFFFFFF3F3F3FFE7E7E7FFDBDB
+      DBFFCDCDCDFFC0C0C0FFB1B1B1FFA2A2A2FF919191FF7F7F7FFF6C6C6CFF5555
+      55FF383838FF000000FF0000008900000089FFFFFFFFF3F3F3FFE7E7E7FFDBDB
+      DBFFCDCDCDFFC0C0C0FFB1B1B1FFA2A2A2FF919191FF7F7F7FFF6C6C6CFF5555
+      55FF383838FF000000FF0000008900000089FFFFFFFFF3F3F3FFE7E7E7FFDBDB
+      DBFFCDCDCDFFC0C0C0FFB1B1B1FFA2A2A2FF919191FF7F7F7FFF6C6C6CFF5555
+      55FF383838FF000000FF0000008900000089FFFFFFFFF3F3F3FFE7E7E7FFDBDB
+      DBFFCDCDCDFFC0C0C0FFB1B1B1FFA2A2A2FF919191FF7F7F7FFF6C6C6CFF5555
+      55FF383838FF000000FF0000008900000089FFFFFFFFF3F3F3FFE7E7E7FFDBDB
+      DBFFCDCDCDFFC0C0C0FFB1B1B1FFA2A2A2FF919191FF7F7F7FFF6C6C6CFF5555
+      55FF383838FF000000FF000000890000007F0000008900000089000000890000
       0089000000890000008900000089000000890000008900000089000000890000
       008900000089000000890000007F000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -4963,38 +5066,326 @@ object FMain: TFMain
       131C000000020000000000000000000000000000000000000000000000000000
       0007001C0D1E00381A3E003A1C46003A1C4600381A3E001C0D1E000000070000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000000001000004B3D8E23257696E060000000000000000000000000000
+      0000000000000000000000000000FFFFFFB3FFFFFFC7FFFFFFC7FFFFFF210000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000010000046F868C3CA1EBF8E486A8B1553D4A4D0900000000000000000000
-      000000000000000000000000000000000000000000000000000001000004A3C5
-      CE64C3EBF6EAB2F2FFFF31E9FFFFA1F1FFFFC3EEF9F3A6C8D276010000070000
-      00000000000000000000000000000000000000000000010000074D5D61478EED
-      FCFC29E9FFFF14E7FFFF14E7FFFF14E7FFFF21E8FFFF84EFFFFF61767B5B0100
-      000A00000000000000000000000000000000010000030100002454868FAA1AE7
-      FFFF15E7FFFF0B8391F826E3F9FF1498A7FA15E7FFFF16E7FFFF5396A0B80100
-      002A0100000300000000000000000000000001000007010000482F848FD114E7
-      FFFF31E7FDFF2D3638FA2FE1F6FF132A2DF70EA3B4FA11CADFF9096974BE0100
-      00480100000A000000000000000000000000010000100100005807434ACC14E7
-      FFFF1DE8FFFFA3F1FFFF36E9FFFF83B1BAF94C5C60EC080A0AC30100008B0100
-      00410100000D0000000000000000000000000100000D01000054000303B711B7
-      CAFB14E7FFFF14E7FFFF15E7FFFF4EEBFFFF8AEFFFFFB0DCE6F32E383A7A0100
-      002401000004000000000000000000000000010000040100003701000094010B
-      0CDA0A7885F911C7DCFF15E7FFFF14E7FFFF14E7FFFF2FE9FFFF88C1CBCF0100
-      00270100000300000000000000000000000000000000010000195A6D728B7E99
-      A0DB47565AE7010000F12FE1F6FF13717CFC1CD0E5FE14E7FFFF4EDEF1F90100
-      00540100000D000000000000000000000000010000040100001C60B9C7B768ED
-      FFFF80DDECFA232A2CE22FE1F7FF1D363AF85DB3C0FD14E7FFFF2DDDF2FD0100
-      007E01000022000000000000000000000000010000100100003F0F8998B814E7
-      FFFF2EE9FFFFAEF2FFFF36E9FFFFAEF1FEFF58ECFFFF14E7FFFF1BB4C6F60100
-      008D0100002F0000000000000000000000000100001301000052010809A311BE
-      D2F614E7FFFF14E7FFFF15E7FFFF15E7FFFF14E7FFFF14DDF4FF043439DC0100
-      008401000027000000000000000000000000010000070100003F010000920006
-      06CF085D66F20D94A3FC1DE5FCFF14A4B4FD0A6F7AF602191BE2010000B20100
-      005D01000013000000000000000000000000000000000100001C010000610100
-      00A9010000D7010000ED17C4D9FD05191CF0010000DD010000B8010000780100
-      002D010000030000000000000000000000000000000000000000010000240100
-      0061010000AE010000D504292DE9000405DB010000BA01000077010000340100
-      0007000000000000000000000000
+      00000000000000000000FFFFFF21FFFFFFFF7D7D7DFFEBEBEBFFFFFFFFF50000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000FFFFFF76EBEBEBFF010000FF3A3A3AFFFFFFFFFFFFFF
+      FF01000000000000000000000000000000000000000000000000000000000000
+      000000000000FFFFFF12FFFFFFFFC5C5C5FF010000FF1A1A1AFFFEFEFEFFFFFF
+      FF01000000000000000000000000000000000000000000000000000000000000
+      000000000000FFFFFFEBF4F4F4FF404040FF010000FF5B5B5BFFFFFFFFFFFFFF
+      FF01000000000000000000000000000000000000000000000000000000000000
+      0000FFFFFF69FFFFFFFF434343FF010000FF030303FFE0E0E0FFFFFFFFFFFFFF
+      FFF2FFFFFFB3FFFFFF4F00000000000000000000000000000000000000000000
+      0000FFFFFFFFBBBBBBFF010000FF010000FF181818FFAFAFAFFFAFAFAFFFAFAF
+      AFFFCDCDCDFFFFFFFFFFFFFFFF78FFFFFFA5FFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFF3A3A3AFF010000FF010000FF010000FF010000FF010000FF0100
+      00FF010000FFAFAFAFFFFFFFFFCEFFFFFFFF8B8B8BFF3D3D3DFF4A4A4AFFC7C7
+      C7FF4D4D4DFF010000FF010000FF010000FF010000FF010000FF010000FF0100
+      00FF010000FFB1B1B1FFFFFFFFFCFFFFFFFF010000FF010000FF010000FF8080
+      80F7010000FF010000FF010000FF010000FF010000FF010000FF010000FF0100
+      00FF010000FFAFAFAFFFFFFFFFEBFFFFFFFF010000FF010000FF020202FF1C1C
+      1C7E010000FF010000FF010000FF010000FF010000FF010000FF010000FF0100
+      00FF040404FFD7D7D7FFFFFFFFC4FFFFFFFF010000FF010000FF020202FF1313
+      1379010000FF010000FF010000FF010000FF010000FF010000FF010000FF0100
+      00FF010000FFE4E4E4FFFFFFFF67FFFFFFFF010000FF010000FF010101FF2424
+      2489010000FF010000FF010000FF010000FF010000FF010000FF010000FF0100
+      00FF575757FFFFFFFFFFFFFFFF2CFFFFFFFF191919FF010000FF010000FF9292
+      92FF141414FF010000FF010000FF010000FF010000FF010000FF010000FF0100
+      00FFB5B5B5FFFFFFFFFE00000000FFFFFFFAFFFFFFFFD1D1D1FFD3D3D3FFFFFF
+      FFFFFFFFFFFFE6E6E6FFC0C0C0FFABABABFF858585FF242424FF7C7C7CFFCFCF
+      CFFFFFFFFFFFFFFFFF710000000000000000FFFFFF49FFFFFF85FFFFFF85FFFF
+      FF46FFFFFF29FFFFFF83FFFFFFD9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFDEFFFFFF4C0000000000000000000000FF000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF898989FF898989FF898989FF8989
+      89FF898989FF898989FF898989FF898989FF898989FF898989FF898989FF8989
+      89FF898989FF898989FF000000FF000000FF898989FF898989FF898989FF8989
+      89FF898989FF898989FF898989FF898989FF898989FF898989FF898989FF8989
+      89FF898989FF898989FF000000FF000000FF000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF898989FF898989FF898989FF8989
+      89FF000000FF898989FF898989FF898989FF898989FF000000FF898989FF8989
+      89FF898989FF898989FF000000FF000000FF898989FF898989FF898989FF8989
+      89FF000000FF898989FF898989FF898989FF898989FF000000FF898989FF8989
+      89FF898989FF898989FF000000FF000000FF898989FF898989FF898989FFD3D3
+      D3FF000000FF898989FF898989FF898989FF898989FF000000FFD3D3D3FF8989
+      89FF898989FF898989FF000000FF000000FF898989FF898989FFD3D3D3FFFFFF
+      FFFF000000FF898989FF898989FF898989FF898989FF000000FFFFFFFFFFD3D3
+      D3FF898989FF898989FF000000FF000000FF898989FFD3D3D3FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFD3D3D3FF898989FF000000FF000000FF898989FF898989FFD3D3D3FFFFFF
+      FFFF000000FF898989FF898989FF898989FF898989FF000000FFFFFFFFFFD3D3
+      D3FF898989FF898989FF000000FF000000FF898989FF898989FF898989FFD3D3
+      D3FF000000FF898989FF898989FF898989FF898989FF000000FFD3D3D3FF8989
+      89FF898989FF898989FF000000FF000000FF898989FF898989FF898989FF8989
+      89FF000000FF898989FF898989FF898989FF898989FF000000FF898989FF8989
+      89FF898989FF898989FF000000FF000000FF898989FF898989FF898989FF8989
+      89FF000000FF898989FF898989FF898989FF898989FF000000FF898989FF8989
+      89FF898989FF898989FF000000FF000000FF898989FF898989FF898989FF8989
+      89FF000000FF898989FF898989FF898989FF898989FF000000FF898989FF8989
+      89FF898989FF898989FF000000FF000000FF898989FF898989FF898989FF8989
+      89FF000000FF898989FF898989FF898989FF898989FF000000FF898989FF8989
+      89FF898989FF898989FF000000FF000000FF000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000105D920C206EA1641665
+      9B8113649C0E0000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000002C71A3844488B5F94D8C
+      B1FA2A77AA480000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000185584163080B2DD1C82C3FF3986
+      B8FA347EAF3A0000000000000000000000000000000000000000000000000000
+      00000000000000000000007DB104005A940710558C641E7DBAFA1B87C9FF347C
+      ABC11858870F0000000000000000000000000000000000000000000000000000
+      000000000000000000000EB2C96038CCDFCA0B679DDE0761A5FF1B6DA4E51959
+      872B000000000000000000000000000000000000000000000000000000000000
+      000000000000000046200E338ACA88E6E8FE78EBEEFF279CC1FB076FA0840082
+      AB03000000000000000000000000000000000000000000000000000000000000
+      00001DB4C5171A4F92B7120AA4FF3428C3FF4D8ECCFF4EE9E9FF1CD2DFE10091
+      BB38000000000000000000000000000000000000000000000000000000002CA3
+      C2373DBED7D04AE9F0FC58B3D3FF4540BFFE0707AFFF041D9AFE0A73A78900E4
+      E0060000000000000000000000000000000000000000000A640140AECB5241BF
+      D5E623CBE2FF2FE5FCFF66F8FDFF6CF3F2FE4095C1FE01067AD8000048360100
+      000E0100000A010000040000000000000000005594044BB3CF7356C7DCED22C3
+      D9FF11C9E2FF30D6F0FF49DAF2FF39EBFDFF50EAF0F80E4E5F670100003C0100
+      003A0100002E0100001501000005189AC12B57BFD79F5BCCDFF72FC4DAFF0EBF
+      D7FF18C5DEFF26CFEBFF30D9F1FF20D6EFFF39BAD3F609232B70010000610100
+      0061010000530100002B0100000B2DAFCCCB5CCDE1FD32C5DAFF1CC3DAFF14BA
+      D5FF26BFDBFF2CD4EDFF14C9E3FF19CADFFF2CA7BFEC020B0E710100006B0100
+      006B0100005B0100002C0100000C0F9DC04F33B1CFD44ED1E2FE19BAD4FF27BD
+      D6FF37C9DFFE1EC8E1FE10BDD7FF35C3DAFE298298C10100006B010000670100
+      005C010000410100001A010000030000000034A8C71823A3C2A545B9D3F240C4
+      DAFF38CDE0FF1EBED7FF28C2DAFF45B8CEF40B3D4B850100005A010000490100
+      0032010000190100000400000000000000000000000001000002107B973833A3
+      BDAD30ADC5E74AC1D7FA44B8D0FB257E94AA000001410100002C010000190100
+      000B010000020000000000000000000000000000000000000000000000000014
+      2905075D752929778A472274874E01222C24010000160100000B010000020000
+      000000000000000000000000000000000000B6B6B6FFB6B6B6FFB6B6B6FFB6B6
+      B6FFB6B6B6FFB6B6B6FFB6B6B6FFB6B6B6FFB6B6B6FFB6B6B6EFB6B6B6300000
+      000000000000000000000000000000000000B6B6B6FFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB6B6B6FFDDDDDDFFB6B6B6EFB6B6
+      B63000000000000000000000000000000000B6B6B6FFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB6B6B6FFFDFDFDFFDDDDDDFFB6B6
+      B6EFB6B6B630000000000000000000000000B6B6B6FFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA5A5A5FFFFFFFFFFFDFDFDFFDDDD
+      DDFFB6B6B6EF000000000000000000000000B6B6B6FFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF888888FF878787FF878787FF8787
+      87FF9D9D9DFF000000000000000000000000B6B6B6FFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFF8A8A8AFF000000000000000000000000B6B6B6FFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFAFAFAFF929292FFFDFDFDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFF878787FF000000000000000000000000B6B6B6FFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFF9C9C9CFF010000FFA8A8A8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFF878787FF000000000000000000000000B6B6B6FFFFFFFFFFFFFFFFFFFFFF
+      FFFFD2D2D2FF0A0A0AFF010000FF131313FFDADADAFFFFFFFFFFFFFFFFFFFFFF
+      FFFF878787FF000000000000000000000000B6B6B6FFFFFFFFFFFEFEFEFFF2F2
+      F2FF414141FF010000FF010000FF010000FF4C4C4CFFF6F6F6FFFEFEFEFFFFFF
+      FFFF878787FF000000000000000000000000B6B6B6FFFFFFFFFFFDFDFDFF8181
+      81FF010000FF010000FF010000FF010000FF010000FF8D8D8DFFFEFEFEFFFFFF
+      FFFF878787FF000000000000000000000000B6B6B6FFFFFFFFFFBDBDBDFF0100
+      00FF010000FF010000FF010000FF010000FF010000FF010000FFC6C6C6FFFFFF
+      FFFF878787FF000000000000000000000000B6B6B6FFFFFFFFFFFAFAFAFFFAFA
+      FAFFFAFAFAFFFAFAFAFFFAFAFAFFFAFAFAFFFAFAFAFFFAFAFAFFFBFBFBFFFFFF
+      FFFF878787FF000000000000000000000000B6B6B6FFFFFFFFFFF9F9F9FFF9F9
+      F9FFF9F9F9FFF9F9F9FFF9F9F9FFF9F9F9FFF9F9F9FFF9F9F9FFFAFAFAFFFFFF
+      FFFF878787FF000000000000000000000000B6B6B6FFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFF878787FF000000000000000000000000ADADADFF8F8F8FFF878787FF8787
+      87FF878787FF878787FF878787FF878787FF878787FF878787FF878787FF8787
+      87FF878787FF000000000000000000000060000000FF00000060000000000000
+      000000000000000000000000000000000000000000000000000000000000FFFF
+      FF08F5F4FF2EFFFFFF1800000000000000FF000000FF000000FF000000600000
+      0000000000000000000000000000000000000000000000000000FFFFFF16BAB6
+      FF987D74FFEEBAB6FF99FFFFFF0800000000000000FF00000000000000000000
+      00000000000000000000000000000000000000000000FFFFFF14AFAAFFAD5343
+      FFFF300FFFFF7D74FFF5D6D4FF5600000000000000FF00000000000000000000
+      00000000000000000000000000000000000000000000CECBFF695F51FFFE5E50
+      FFFCA9A4FFBAC0BDFF81EBEAFF3000000000000000FF00000000000000000000
+      000000000000000000000000000000000000EEEDFF31948DFFD54430FFFFB6B2
+      FFA2FFFFFF10000000000000000000000000000000FF00000000000000000000
+      000000000000FFFFFF11E7E5FF3EBEBAFF90968FFFD33E28FFFF877FFFE2EEEE
+      FF3200000000000000000000000000000000000000FF0000000000000000FFFF
+      FF02DFDDFF48A29CFFC16E62FFF74632FFFF412CFFFF7D73FFF0D1CEFF66FFFF
+      FF0100000000000000000000000000000000000000FF00000000FFFFFF01D6D4
+      FF5A837AFFE83519FFFF6052FFFE8D86FFD5B9B5FF9EEAE9FF39FFFFFF050000
+      000000000000000000000000000000000000000000FF00000000D9D7FF54837A
+      FFE7381FFFFF867DFFE4CFCCFF6CFFFFFF1CFFFFFF0200000000000000000000
+      000000000000000000000000000000000000000000FFE1E0FF438A82FFE03519
+      FFFF8A82FFE0E3E2FF46FFFFFF01000000000000000000000000000000000000
+      000000000000000000000000000000000000191919FFB6B2FFAE5D4FFFFF948D
+      FFD4DAD8FF520000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000FFDDDCFF40C5C2FF73FFFF
+      FF1F000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000FF00000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000600000000000000000000000FF00000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000FF0000006000000000000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000FF00000060000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFB37FFF0000000000000000FFFFFFFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFF000000000000000000000000FFFFFFFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFF000000000000000000000000FFFFFFFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFF000000000000000000000000FFFFFFFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFF000000000000000000000000FFFFFFFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFF000000000000000000000000FFFFFFFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFF000000000000000000000000FFFFFFFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFF000000000000000000000000FFFFFFFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFF000000000000000000000000FFFFFFFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFF000000000000000000000000FFFFFFFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFF000000000000000000000000FFFFFFFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFF000000000000000000000000FFFFFFFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB37FFFFFB3
+      7FFFFFB37FFF000000000000000000000000FFB37FFF00000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000099CC40009FCFFF00B0D7FF986565FF925F
+      5FFF8C5959FF875454FF824F4FFF7C4949FF764343FF009BC6FF0088B9FF0082
+      B540000000000000000000000000009FCFFF0AF9FCFF26FCFDFFAE7B7BFFF8C5
+      C5FFDBA8A8FFC18E8EFFAC7979FF8E5B5BFF723F3FFF21DBF0FF00CCE5FF0080
+      B3FF00000000000000000000000000B0D7FF26FCFDFF98FEFFFF9F6C6CFFDBA8
+      A8FFC18E8EFFAC7979FF8E5B5BFF744141FF6C3939FF83E9FFFF00CCE5FF007E
+      B1FF00000000000000000000000000ADD4FF26F9FCFF95FBFFFF8FBBBFFF7256
+      4DFF885656FF7A4C4AFF6A4440FF5C3D36FF80744EFF608C5CFF5A8457FF5177
+      4EFF00000000000000000000000000ABD2FF25F4FAFF93F9FFFF91F7FFFF8DF3
+      FFFF88C783FFAEFFA7FFAEFFA7FFAEFFA7FFAEFFA7FFAEFFA7FF598255FF6695
+      62FF496A469F000000000000000000A8D0FF25EFF8FF91F7FFFF8DF3FFFF8AF0
+      FFFF84C17FFFAEFFA7FFAEFFA7FFAEFFA7FFAEFFA7FFAEFFA7FF537A50FF82BE
+      7DFF547B51FF4463419F0000000000A6CEFF24ECF6FF8DF3FFFF8AF0FFFF88EE
+      FFFF7EB879FFAEFFA7FFAEFFA7FFAEFFA7FFAEFFA7FFAEFFA7FF4D7049FF6B9D
+      67FF537A50FF426140FF3C583A9F00A3CCFF23E7F5FF8AF0FFFF88EEFFFF86EC
+      FFFF78B073FFAEFFA7FFAEFFA7FFAEFFA7FFAEFFA7FFAEFFA7FF3F5C3CFF4666
+      43FF395437FF375034FF3B5638FF00A0CAFF23E3F3FF88EEFFFF86ECFFFF83E9
+      FFFF73A86EFFAEFFA7FFAEFFA7FFAEFFA7FFAEFFA7FFAEFFA7FFAEFFA7FFACFB
+      A5FFAAF8A3FFA7F4A0FF375135FF009DC8FF22DFF1FF86ECFFFF83E9FFFF81E6
+      FFFF6FA26AFFAEFFA7FF86C481FF86C481FF86C481FF86C481FF86C481FF86C4
+      81FF86C481FFA4F09DFF354D33FF009BC6FF21DBF0FF83E9FFFF81E6FFFF7FE4
+      FFFF699A65FFAEFFA7FFAEFFA7FFAEFFA7FFAEFFA7FFACFBA5FFAAF8A3FFA7F4
+      A0FFA4F09DFFA1EB9AFF334A31FF0097C3FF21D7EEFF81E6FFFF7FE4FFFF7BE1
+      FFFF649260FFAEFFA7FF86C481FF86C481FF86C481FF86C481FF86C481FF86C4
+      81FF86C481FF9EE798FF31472FFF0095C1FF20D3ECFF7FE4FFFF7BE1FFFF78DE
+      FFFF608C5CFFAEFFA7FFAEFFA7FFACFBA5FFAAF8A3FFA7F4A0FFA4F09DFFA1EB
+      9AFF9EE798FF9CE496FF2E432CFF0085B6FF00C3E0FF00C3E1FF00BFDFFF00BA
+      DDFF5A8457FFAEFFA7FF86C481FF86C481FF86C481FF86C481FF86C481FF86C4
+      81FF86C481FF99E093FF2B3F29FF007EB140007CAFFF007AADFF0078ABFF0075
+      A8FF5A8457FFACFBA5FFAAF8A3FFA7F4A0FFA4F09DFFA1EB9AFF9EE798FF9CE4
+      96FF99E093FF97DC90FF2A3D28FF000000000000000000000000000000000000
+      0000456542FF567D52FF53794FFF51764DFF4F734BFF4C6F49FF4A6C47FF496A
+      46FF466643FF446341FF283A26FF000000000000000000000000969491FF9694
+      91FF969491FF969491FF969491FF969491FF969491FF969491FF969491FF9694
+      91FF0000000000000000000000000000000000000000000000008B8986FFF9EB
+      E5FFF9EBE5FFF9EBE5FFF9EBE5FFF9EBE5FFF9EBE5FFF9EBE5FFF9EBE5FF8B89
+      86FF000000000000000000000000000000000000000000000000807E7BFFF9EB
+      E5FFF5DFD6FFF5DFD6FFF5DFD6FFF5DFD6FFF5DFD6FFF5DFD6FFF9EBE5FF807E
+      7BFF000000000000000000000000000000000000000000000000757371FFF9EB
+      E5FFF5DFD6FFF5DFD6FFF5DFD6FFF5DFD6FFF5DFD6FFF5DFD6FFF9EBE5FF7573
+      71FF0000000000000000000000000000000000000000000000006A6866FFFFFF
+      FFFFF1F1F0FFF1F1F0FFF1F1F0FFF1F1F0FFF1F1F0FFF1F1F0FFFFFFFFFF6A68
+      66FF00000000000000000000000092908D0F95938FBF969491FF5F5D5BFFFFFF
+      FFFFECEBEAFFECEBEAFFECEBEAFFECEBEAFFECEBEAFFECEBEAFFFFFFFFFF5F5D
+      5BFF969491FF95938FBF92908D0F8A8885BFC6C5C3FFFFFFFFFF545250FFFFFF
+      FFFFE6E5E3FFE6E5E3FFE6E5E3FFE6E5E3FFE6E5E3FFE6E5E3FFFFFFFFFF5452
+      50FFD8D8D8FFC6C5C3FF8A8885BF878583FFFCFCFCFFE1E0DDFF94928EFF9492
+      8EFF94928EFF94928EFF94928EFF94928EFF94928EFF94928EFF94928EFF9492
+      8EFFDDDDDBFFFFFFFFFF7F7D7AFF7C7A78FFFCFCFCFFD5D4D1FF83817EFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF8381
+      7EFFD5D4D1FFFFFFFFFF74726FFF686664FFE5E5E5FFCCCAC7FF716F6DFFFFFF
+      FFFFDAD8D6FFDAD8D6FFDAD8D6FFDAD8D6FFDAD8D6FFA19F9CFFAAA9A6FF8684
+      82FFCCCAC7FFE5E5E5FF686664FF5D5B59FFCCCCCCFF9B9A97FF4D4B4AFFCCCC
+      CCFF9B9997FF9B9997FF9B9997FF9B9997FF9B9997FF777573FFFFFFFFFF6361
+      60FF9B9A97FFCCCCCCFF5D5B59FF514F4EFFCCCCCCFF979693FF3F3D3CFFCCCC
+      CCFFCCCCCCFFCCCCCCFFCCCCCCFFCCCCCCFFCCCCCCFF6A6868FF6A6868FF4644
+      43FF979693FFCCCCCCFF514F4EFF474544BF888786FFCCCCCCFF363434FF3634
+      34FF363434FF363434FF363434FF363434FF363434FF363434FF363434FF3634
+      34FFCCCCCCFF888786FF474544BF3F3D3C0F3B3939BF3A3838FF3D3B3BFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF3D3B
+      3BFF393737FF3B3939BF3F3D3C0F000000000000000000000000373535FF3735
+      35FF373535FF373535FF373535FF373535FF373535FF373535FF373535FF3735
+      35FF3331311F0000000000000000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00000000000000000000000000000000000000
+      0000000000004B73D5592C61D1D61F5ACAFD1E59C7D61E58C659000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00006687DC59537AD8FE3B6AD3FF1F5ACAFF1E58C6FF164BABFE0B3C8F590000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00005177D8D6597DD9FF7993E0FF1F5ACAFF164BACFF003480FF00337DD60000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00003768D3FC4670D6FF416DD5FF416DD5FF003178FF003178FF003076FC0000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000215DCFD61F5ACAFF2C61D1FF416DD5FF003075FF002E71FF002F74D60000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000205ACB591E59C6FE205BCCFF2E62D1FF002E70FF002C6CFE003075590000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000001E58C6591F5ACAFF5A7DD9FF002D6DFF00296559000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000245ECFFF7993E0FF002F74FF00000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000235ECFFF7993E0FF002F74FF00000000000000000000
+      0000000000000000000000000000000000003B6AD3853A69D3FF3A69D3FF3869
+      D3FF3869D3FF2A61D1FF1F59C9FF7993E0FF002D6DFF00347EFF3466D2FF3466
+      D2FF3465D2FF3365D271000000003B6AD34D3B6AD3FF3B6AD3FF3A6AD3FF3A69
+      D3FF3869D3FF4770D6FF205ACBFF7993E0FF002E70FF11449EFF3466D2FF3466
+      D2FF3466D2FF3466D2FF3365D27D3D6BD4DC3C6BD4FF3B6AD3FF3B6AD3FF3B6A
+      D3FF3A6AD3FF6183DBFF235ECFFF0C3D92FF002F74FF1E58C6FF3668D2FF3668
+      D2FF3466D2FF3466D2FF3466D2FF5D7FDAFF5C7FD9FF5B7ED9FF5A7ED9FF5A7D
+      D9FF597DD9FF587CD9FF587CD9FF587CD9FF587CD9FF547BD8FF5479D8FF537A
+      D8FF5278D8FF5178D8FF5177D7FFC8D3FAFFC7D2F9FFC6D1F9FFC5D0F8FFC3CF
+      F8FFC2CEF6FFC0CDF6FFBFCCF6FFBDCBF5FFBCC9F5FFBAC8F4FFB8C7F4FFB7C6
+      F4FFB6C5F2FFB5C4F2FFB4C3F2FFA3B5EDFFA2B5EDFFA1B4EDFFA0B3ECFF9FB1
+      EBFF9EB1EBFF9EB0EBFF9DAFEBFF9CAFEAFF9BAEEAFF9BADEAFF9AADEAFF99AC
+      E9FF98ABE9FF97ABE9FF96AAE9FF000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000095626270936060FF915E5EFF8F5C5C7000000000000000000000
+      0000000000000000000000000000000000000000000099666620996666700000
+      000000000000936060BFDCCCCCFFCAB2B2FF8C5959AF00000000865353108552
+      52708350502000000000000000000000000099666620996666EFAB8282FF9562
+      62DF9360609F915E5EFFF8F5F5FFF0EAEAFF8A5757EF8754549F855252DF9D75
+      76FF814E4EEF804D4D20000000000000000099666670AB8282FFFFFFFFFFE4D7
+      D7FFBFA1A1FFE4D7D7FFE4D6D6FFDDCDCDFFD2BCBCFFB29191FFDBCFCFFFD9C8
+      C8FF8B5C5CFF7C494970000000000000000099666610956262DFE3D6D6FFF0E9
+      E9FFD6C2C2FFB38E8EFFB08888FFB69292FFD4BFBFFFCAB0B0FFD0B9B9FFB08B
+      8BFF7C4949DF000000000000000000000000000000009360609FC6ABABFFD6C2
+      C2FFAA8080FFDAC7C7FFFFFFFFFFFBFBFDFFF8F9FAFFEDE9E9FFC5A8A8FF9C72
+      72FF7946469F000000000000000095626270936060AF905D5DEFE4D7D7FFB38E
+      8EFFDAC7C7FFCFB7B7FFB28B8BFFAD8484FFC1A2A2FFF4F4F5FFD6C6C6FFB28D
+      8DFF774444FF754242BF723F3F80936060FFD6C2C2FFEFE8E8FFE4D6D6FFB088
+      88FFFFFFFFFFB28B8BFF0000000000000000A27474FFF1F1F2FFDED3D3FFB089
+      89FFE4E0E1FFB09292FF703D3DFF915E5EFFCFBABAFFEFE7E7FFDDCDCDFFB692
+      92FFFBFBFDFFAD8484FF00000000000000009D6C6CFFEFEFF0FFDED4D4FFAB81
+      81FFB39292FF926262FF6E3B3BFF8F5C5C708C5959BF8A5757FFD2BCBCFFD4BF
+      BFFFF8F9FAFFC7ABABFFA27474FF9D6C6CFFB28B8BFFEDEDEEFFCAB5B5FFA375
+      75FF703D3DEF6E3B3BAF6C39397000000000000000008754549FAC8787FFCAB0
+      B0FFEDE9E9FFF4F4F5FFF1F1F2FFEFEFF0FFEDEDEEFFDFD7D8FFAA7F7FFF8C5B
+      5BFF6E3B3B9F00000000000000000000000000000000855252DFD1BEC0FFD0B9
+      B9FFC5A8A8FFD6C6C6FFE0D7D8FFDED4D4FFCAB5B5FFAA7F7FFFAE8788FFBBA5
+      A7FF6B3838DF69363610000000000000000085525260966B6BFFDFD2D2FFB390
+      90FFA07878FFB28D8DFFB08989FFAB8181FFA37575FF895757FFB49B9CFFC0A6
+      A7FF754242FF67343470000000000000000083505010814E4ECF8F6161FF7C49
+      49DF7946469F774444EFD8CFD0FFC1A6A6FF703D3DFF6E3B3B9F6B3838DF723F
+      3FFF673434EF663333200000000000000000000000007C4949107C4949707C49
+      491000000000754242AFB09495FF996D6DFF6E3B3BBF00000000000000006734
+      3470663333200000000000000000000000000000000000000000000000000000
+      000000000000723F3F70703D3DFF6E3B3BFF6C39398000000000000000000000
+      0000000000000000000000000000
     }
   end
   object ActionList1: TActionList
@@ -5116,56 +5507,6 @@ object FMain: TFMain
       OnExecute = ScriptExecute
       ShortCut = 16466
     end
-    object FilterBlurFast: TAction
-      Category = 'Filter'
-      Caption = 'Fast blur...'
-      OnExecute = FilterAnyExecute
-    end
-    object FilterBlurRadial: TAction
-      Category = 'Filter'
-      Caption = 'Radial blur...'
-      OnExecute = FilterAnyExecute
-    end
-    object FilterBlurCorona: TAction
-      Category = 'Filter'
-      Caption = 'Corona blur...'
-      OnExecute = FilterAnyExecute
-    end
-    object FilterBlurDisk: TAction
-      Category = 'Filter'
-      Caption = 'Disk blur...'
-      OnExecute = FilterAnyExecute
-    end
-    object FilterBlurPrecise: TAction
-      Category = 'Filter'
-      Caption = 'Precise blur...'
-      OnExecute = FilterAnyExecute
-    end
-    object FilterBlurMotion: TAction
-      Category = 'Filter'
-      Caption = 'Motion blur...'
-      OnExecute = FilterAnyExecute
-    end
-    object FilterBlurCustom: TAction
-      Category = 'Filter'
-      Caption = 'Custom blur...'
-      OnExecute = FilterAnyExecute
-    end
-    object FilterSharpen: TAction
-      Category = 'Filter'
-      Caption = 'Sharpen...'
-      OnExecute = FilterAnyExecute
-    end
-    object FilterSmooth: TAction
-      Category = 'Filter'
-      Caption = 'Smooth'
-      OnExecute = FilterAnyExecute
-    end
-    object FilterMedian: TAction
-      Category = 'Filter'
-      Caption = 'Median'
-      OnExecute = FilterAnyExecute
-    end
     object ImageSmartZoom3: TAction
       Category = 'Image'
       Caption = 'Smart zoom x3'
@@ -5177,6 +5518,7 @@ object FMain: TFMain
       Hint = 'Zoom to original pixel size'
       ImageIndex = 29
       OnExecute = ScriptExecute
+      ShortCut = 32839
     end
     object EditUndo: TAction
       Category = 'Edit'
@@ -5201,6 +5543,7 @@ object FMain: TFMain
       Hint = 'Zoom to fit in the window'
       ImageIndex = 30
       OnExecute = ScriptExecute
+      ShortCut = 32838
     end
     object EditDeselect: TAction
       Category = 'Edit'
@@ -5298,6 +5641,7 @@ object FMain: TFMain
     object EditSelectAll: TAction
       Category = 'Edit'
       Caption = 'Select all'
+      ImageIndex = 115
       OnExecute = ScriptExecute
       ShortCut = 16449
     end
@@ -5405,65 +5749,15 @@ object FMain: TFMain
       ImageIndex = 42
       OnExecute = ToolAnyExecute
     end
-    object FilterEmboss: TAction
-      Category = 'Filter'
-      Caption = 'Emboss...'
-      OnExecute = FilterAnyExecute
-    end
-    object FilterNormalize: TAction
-      Category = 'Filter'
-      Caption = 'Normalize'
-      ImageIndex = 67
-      OnExecute = FilterAnyExecute
-    end
-    object FilterNegative: TAction
-      Category = 'Filter'
-      Caption = 'Negative'
-      ImageIndex = 66
-      OnExecute = FilterAnyExecute
-      ShortCut = 24649
-    end
-    object FilterGrayscale: TAction
-      Category = 'Filter'
-      Caption = 'Grayscale'
-      ImageIndex = 65
-      OnExecute = FilterAnyExecute
-      ShortCut = 24647
-    end
-    object FilterContour: TAction
-      Category = 'Filter'
-      Caption = 'Contour'
-      OnExecute = FilterAnyExecute
-    end
-    object FilterSphere: TAction
-      Category = 'Filter'
-      Caption = 'Sphere'
-      OnExecute = FilterAnyExecute
-    end
-    object FilterCylinder: TAction
-      Category = 'Filter'
-      Caption = 'Cylinder'
-      OnExecute = FilterAnyExecute
-    end
     object RenderClouds: TAction
       Category = 'Render'
       Caption = 'Clouds'
       OnExecute = RenderAnyExecute
     end
-    object FilterLinearNegative: TAction
-      Category = 'Filter'
-      Caption = 'Linear negative'
-      OnExecute = FilterAnyExecute
-    end
     object RenderCustomWater: TAction
       Category = 'Render'
       Caption = 'Water with custom colors'
       OnExecute = RenderAnyExecute
-    end
-    object FilterPlane: TAction
-      Category = 'Filter'
-      Caption = 'Plane (slow)'
-      OnExecute = FilterAnyExecute
     end
     object RenderPerlinNoise: TAction
       Category = 'Render'
@@ -5541,11 +5835,6 @@ object FMain: TFMain
       ImageIndex = 57
       OnExecute = ToolAnyExecute
     end
-    object FilterTwirl: TAction
-      Category = 'Filter'
-      Caption = 'Twirl...'
-      OnExecute = FilterAnyExecute
-    end
     object RenderWoodVertical: TAction
       Category = 'Render'
       Caption = 'Vertical wood'
@@ -5579,11 +5868,6 @@ object FMain: TFMain
       OnExecute = ScriptExecute
       ShortCut = 49238
     end
-    object FilterPixelate: TAction
-      Category = 'Filter'
-      Caption = 'Pixelate...'
-      OnExecute = FilterAnyExecute
-    end
     object ToolText: TAction
       Category = 'Tool'
       Hint = 'Text'
@@ -5595,16 +5879,6 @@ object FMain: TFMain
       Hint = 'Shaded shape'
       ImageIndex = 70
       OnExecute = ToolAnyExecute
-    end
-    object FilterClearType: TAction
-      Category = 'Filter'
-      Caption = 'ClearType'
-      OnExecute = FilterAnyExecute
-    end
-    object FilterClearTypeInverse: TAction
-      Category = 'Filter'
-      Caption = 'Inverse ClearType'
-      OnExecute = FilterAnyExecute
     end
     object EditSelection: TAction
       Category = 'Edit'
@@ -5763,6 +6037,169 @@ object FMain: TFMain
       OnExecute = FileImport3DExecute
       OnUpdate = FileImport3DUpdate
     end
+    object ColorCurves: TAction
+      Category = 'Colors'
+      Caption = 'Curves...'
+      ImageIndex = 114
+      OnExecute = ScriptExecute
+    end
+    object ColorPosterize: TAction
+      Category = 'Colors'
+      Caption = 'Posterize...'
+      OnExecute = ScriptExecute
+    end
+    object FilePrint: TAction
+      Category = 'File'
+      Caption = 'Print...'
+      ImageIndex = 117
+      OnExecute = FilePrintExecute
+    end
+    object ViewImageList: TAction
+      Category = 'View'
+      Caption = 'Image list'
+      OnExecute = ViewImageListExecute
+      OnUpdate = ViewImageListUpdate
+    end
+    object FileSaveAsInSameFolder: TAction
+      Category = 'File'
+      Caption = 'Save in same folder...'
+      OnExecute = FileSaveAsInSameFolderExecute
+      OnUpdate = FileSaveAsInSameFolderUpdate
+      ShortCut = 49235
+    end
+    object EditPasteAsNewLayer: TAction
+      Category = 'Edit'
+      Caption = 'Paste as new layer'
+      ImageIndex = 116
+      OnExecute = ScriptExecute
+      ShortCut = 24662
+    end
+    object FilterBlurBox: TAction
+      Category = 'Filter'
+      Caption = 'Box blur...'
+      OnExecute = FilterAnyExecute
+    end
+    object FilterBlurFast: TAction
+      Category = 'Filter'
+      Caption = 'Fast blur...'
+      OnExecute = FilterAnyExecute
+    end
+    object FilterBlurRadial: TAction
+      Category = 'Filter'
+      Caption = 'Gaussian blur...'
+      OnExecute = FilterAnyExecute
+    end
+    object FilterBlurCorona: TAction
+      Category = 'Filter'
+      Caption = 'Corona blur...'
+      OnExecute = FilterAnyExecute
+    end
+    object FilterBlurDisk: TAction
+      Category = 'Filter'
+      Caption = 'Disk blur...'
+      OnExecute = FilterAnyExecute
+    end
+    object FilterBlurPrecise: TAction
+      Category = 'Filter'
+      Caption = 'Precise blur...'
+      OnExecute = FilterAnyExecute
+    end
+    object FilterBlurMotion: TAction
+      Category = 'Filter'
+      Caption = 'Motion blur...'
+      OnExecute = FilterAnyExecute
+    end
+    object FilterBlurCustom: TAction
+      Category = 'Filter'
+      Caption = 'Custom blur...'
+      OnExecute = FilterAnyExecute
+    end
+    object FilterSharpen: TAction
+      Category = 'Filter'
+      Caption = 'Sharpen...'
+      OnExecute = FilterAnyExecute
+    end
+    object FilterSmooth: TAction
+      Category = 'Filter'
+      Caption = 'Smooth'
+      OnExecute = FilterAnyExecute
+    end
+    object FilterMedian: TAction
+      Category = 'Filter'
+      Caption = 'Median'
+      OnExecute = FilterAnyExecute
+    end
+    object FilterEmboss: TAction
+      Category = 'Filter'
+      Caption = 'Emboss...'
+      OnExecute = FilterAnyExecute
+    end
+    object FilterNormalize: TAction
+      Category = 'Filter'
+      Caption = 'Normalize'
+      ImageIndex = 67
+      OnExecute = FilterAnyExecute
+    end
+    object FilterNegative: TAction
+      Category = 'Filter'
+      Caption = 'Negative'
+      ImageIndex = 66
+      OnExecute = FilterAnyExecute
+      ShortCut = 24649
+    end
+    object FilterGrayscale: TAction
+      Category = 'Filter'
+      Caption = 'Grayscale'
+      ImageIndex = 65
+      OnExecute = FilterAnyExecute
+      ShortCut = 24647
+    end
+    object FilterContour: TAction
+      Category = 'Filter'
+      Caption = 'Contour'
+      OnExecute = FilterAnyExecute
+    end
+    object FilterSphere: TAction
+      Category = 'Filter'
+      Caption = 'Sphere'
+      OnExecute = FilterAnyExecute
+    end
+    object FilterCylinder: TAction
+      Category = 'Filter'
+      Caption = 'Cylinder'
+      OnExecute = FilterAnyExecute
+    end
+    object FilterLinearNegative: TAction
+      Category = 'Filter'
+      Caption = 'Linear negative'
+      ImageIndex = 66
+      OnExecute = FilterAnyExecute
+    end
+    object FilterPlane: TAction
+      Category = 'Filter'
+      Caption = 'Plane (slow)'
+      OnExecute = FilterAnyExecute
+    end
+    object FilterTwirl: TAction
+      Category = 'Filter'
+      Caption = 'Twirl...'
+      OnExecute = FilterAnyExecute
+    end
+    object FilterPixelate: TAction
+      Category = 'Filter'
+      Caption = 'Pixelate...'
+      OnExecute = FilterAnyExecute
+    end
+    object FilterClearType: TAction
+      Category = 'Filter'
+      Caption = 'ClearType'
+      OnExecute = FilterAnyExecute
+    end
+    object FilterClearTypeInverse: TAction
+      Category = 'Filter'
+      Caption = 'Inverse ClearType'
+      OnExecute = FilterAnyExecute
+    end
     object FilterPhong: TAction
       Category = 'Filter'
       Caption = 'Shaded map...'
@@ -5778,38 +6215,54 @@ object FMain: TFMain
       Caption = 'Complementary colors'
       OnExecute = FilterAnyExecute
     end
-    object ColorCurves: TAction
-      Category = 'Colors'
-      Caption = 'Curves...'
-      OnExecute = ScriptExecute
-    end
-    object ColorPosterize: TAction
-      Category = 'Colors'
-      Caption = 'Posterize...'
-      OnExecute = ScriptExecute
-    end
     object FilterNoise: TAction
       Category = 'Filter'
       Caption = 'Noise filter...'
       OnExecute = FilterAnyExecute
     end
-    object FilePrint: TAction
-      Category = 'File'
-      Caption = 'Print...'
-      OnExecute = FilePrintExecute
+    object ToolChangeDocking: TAction
+      Category = 'Tool'
+      Hint = 'Change docking'
+      ImageIndex = 111
+      OnExecute = ToolChangeDockingExecute
     end
-    object ViewImageList: TAction
-      Category = 'View'
-      Caption = 'Image list'
-      OnExecute = ViewImageListExecute
-      OnUpdate = ViewImageListUpdate
+    object ToolBrush: TAction
+      Category = 'Tool'
+      Hint = 'Brush'
+      ImageIndex = 112
+      OnExecute = ToolAnyExecute
     end
-    object FileSaveAsInSameFolder: TAction
-      Category = 'File'
-      Caption = 'Save in same folder...'
-      OnExecute = FileSaveAsInSameFolderExecute
-      OnUpdate = FileSaveAsInSameFolderUpdate
-      ShortCut = 49235
+    object BrushCreateGeometric: TAction
+      Category = 'Tool'
+      Hint = 'Create geometric brush'
+      ImageIndex = 113
+      OnExecute = BrushCreateGeometricExecute
+      OnUpdate = BrushCreateGeometricUpdate
+    end
+    object BrushLoadFromFile: TAction
+      Category = 'Tool'
+      Hint = 'Load brush from file...'
+      ImageIndex = 1
+      OnExecute = BrushLoadFromFileExecute
+      OnUpdate = BrushLoadFromFileUpdate
+    end
+    object BrushRemoveCurrent: TAction
+      Category = 'Tool'
+      Hint = 'Remove current brush'
+      ImageIndex = 39
+      OnExecute = BrushRemoveCurrentExecute
+      OnUpdate = BrushRemoveCurrentUpdate
+    end
+    object FilterRain: TAction
+      Category = 'Filter'
+      Caption = 'Rain...'
+      OnExecute = FilterAnyExecute
+    end
+    object ToolClone: TAction
+      Category = 'Tool'
+      Hint = 'Clone tool'
+      ImageIndex = 118
+      OnExecute = ToolAnyExecute
     end
   end
   object ColorDialog1: TColorDialog
@@ -5850,10 +6303,12 @@ object FMain: TFMain
       object MenuRecentFiles: TMenuItem
         Caption = 'Recent files'
         Enabled = False
+        Visible = False
       end
-      object ItemLanguage: TMenuItem
+      object MenuLanguage: TMenuItem
         Caption = 'Language'
         Enabled = False
+        Visible = False
       end
       object ItemDonate: TMenuItem
         Caption = 'Donate...'
@@ -5906,12 +6361,15 @@ object FMain: TFMain
     end
     object MenuEdit: TMenuItem
       Caption = 'Edit'
+      Visible = False
     end
     object MenuSelect: TMenuItem
       Caption = 'Select'
+      Visible = False
     end
     object MenuView: TMenuItem
       Caption = 'View'
+      OnClick = MenuViewClick
       object ItemViewToolbox: TMenuItem
         Action = ViewToolbox
         OnClick = ViewToolboxExecute
@@ -5920,8 +6378,9 @@ object FMain: TFMain
         Action = ViewColors
         OnClick = ViewColorsExecute
       end
-      object ItemViewGrid: TMenuItem
-        Action = ViewGrid
+      object ItemViewPalette: TMenuItem
+        Caption = 'Palette'
+        OnClick = ItemViewPaletteClick
       end
       object ItemViewLayerStack: TMenuItem
         Action = ViewLayerStack
@@ -5930,13 +6389,34 @@ object FMain: TFMain
         Action = ViewImageList
         ShortCut = 24652
       end
+      object MenuItem1: TMenuItem
+        Caption = '-'
+      end
+      object ItemViewDockToolbox: TMenuItem
+        Caption = 'Dock toolbox'
+        OnClick = ItemViewDockToolboxClick
+      end
+      object ItemDockLayersAndColors: TMenuItem
+        Caption = 'Dock layers and colors'
+        OnClick = ItemDockLayersAndColorsClick
+      end
+      object ItemFullscreen: TMenuItem
+        Caption = 'Fullscreen'
+        ShortCut = 122
+        OnClick = ItemFullscreenClick
+      end
+      object ItemViewGrid: TMenuItem
+        Action = ViewGrid
+      end
     end
     object MenuImage: TMenuItem
       Caption = 'Image'
+      Visible = False
       OnClick = MenuImageClick
       object MenuHorizFlipSub: TMenuItem
         Caption = 'Horizontal flip'
         Hint = 'Flip image horizontally'
+        Visible = False
         object ItemHorizFlipPicture: TMenuItem
           Caption = 'Whole picture'
           OnClick = ItemHorizFlipPictureClick
@@ -5952,6 +6432,7 @@ object FMain: TFMain
       end
       object MenuVertFlipSub: TMenuItem
         Caption = 'Vertical flip'
+        Visible = False
         object ItemVertFlipPicture: TMenuItem
           Caption = 'Whole picture'
           OnClick = ItemVertFlipPictureClick
@@ -5965,38 +6446,41 @@ object FMain: TFMain
           OnClick = ItemVertFlipSelectionClick
         end
       end
-      object ItemSeparatorTransparency: TMenuItem
-        Caption = '-'
-      end
       object MenuRemoveTransparency: TMenuItem
         Caption = 'Remove transparency'
+        Visible = False
       end
     end
     object MenuColors: TMenuItem
       Caption = 'Colors'
+      Visible = False
     end
     object MenuTool: TMenuItem
       Caption = 'Tools'
+      Visible = False
     end
     object MenuFilter: TMenuItem
       Caption = 'Filter'
+      Visible = False
       object MenuRadialBlur: TMenuItem
         Caption = 'Radial blur'
+        Visible = False
       end
     end
     object MenuRender: TMenuItem
       Caption = 'Render'
+      Visible = False
     end
     object MenuHelp: TMenuItem
       Caption = 'Help'
+      Visible = False
     end
   end
   object TimerHidePenPreview: TTimer
     Enabled = False
     Interval = 3000
-    OnTimer = TimerHidePenPreviewTimer
-    left = 432
-    top = 496
+    left = 648
+    top = 272
   end
   object FontDialog1: TFontDialog
     Font.CharSet = ANSI_CHARSET
@@ -6011,30 +6495,26 @@ object FMain: TFMain
   end
   object LoadSelectionDialog: TOpenPictureDialog
     Title = 'Load selection'
+    Options = [ofNoDereferenceLinks, ofEnableSizing, ofViewDetail]
     left = 424
     top = 432
   end
-  object SaveSelectionDialog: TSavePictureDialog
-    Title = 'Save selection as...'
-    DefaultExt = '.lzp'
-    Options = [ofOverwritePrompt, ofEnableSizing, ofViewDetail]
-    left = 524
-    top = 496
-  end
   object OpenPictureDialog1: TOpenDialog
     Title = 'Open existing image'
+    Options = [ofNoDereferenceLinks, ofEnableSizing, ofViewDetail]
     left = 144
     top = 496
   end
   object OpenTextureDialog: TOpenDialog
     Title = 'Open texture'
     DefaultExt = '.png'
+    Options = [ofNoDereferenceLinks, ofEnableSizing, ofViewDetail]
     left = 48
     top = 496
   end
-  object Timer1: TTimer
+  object TimerUpdate: TTimer
     Interval = 50
-    OnTimer = Timer1Timer
+    OnTimer = TimerUpdateTimer
     left = 336
     top = 432
   end
@@ -6042,6 +6522,7 @@ object FMain: TFMain
     Title = 'Import 3D object'
     DefaultExt = '.obj'
     Filter = 'Wavefront Object file (*.obj)|*.obj;*.Obj;*.OBJ'
+    Options = [ofNoDereferenceLinks, ofEnableSizing, ofViewDetail]
     left = 528
     top = 432
   end
@@ -6052,4 +6533,66 @@ object FMain: TFMain
     left = 248
     top = 496
   end
-end
+  object TimerDocking: TTimer
+    Interval = 200
+    OnTimer = TimerDockingTimer
+    left = 640
+    top = 496
+  end
+  object SaveSelectionDialog: TSaveDialog
+    Title = 'Save selection as...'
+    DefaultExt = '.lzp'
+    Options = [ofOverwritePrompt, ofEnableSizing, ofViewDetail]
+    left = 528
+    top = 496
+  end
+  object OpenBrushDialog: TOpenDialog
+    Title = 'Open brush'
+    DefaultExt = '.lzp'
+    Options = [ofNoDereferenceLinks, ofEnableSizing, ofViewDetail]
+    left = 640
+    top = 432
+  end
+  object PopupToolbar: TPopupMenu
+    OnPopup = PopupToolbarPopup
+    left = 424
+    top = 496
+    object MenuZoomToolbar: TMenuItem
+      Caption = 'Show zoom toolbar'
+      OnClick = MenuZoomToolbarClick
+    end
+    object MenuCopyPasteToolbar: TMenuItem
+      Caption = 'Show copy/paste toolbar'
+      OnClick = MenuCopyPasteToolbarClick
+    end
+    object MenuCoordinatesToolbar: TMenuItem
+      Caption = 'Show coordinates'
+      OnClick = MenuCoordinatesToolbarClick
+    end
+    object MenuUndoRedoToolbar: TMenuItem
+      Caption = 'Show undo/redo toolbar'
+      OnClick = MenuUndoRedoToolbarClick
+    end
+    object MenuShowPalette: TMenuItem
+      Caption = 'Show palette'
+      OnClick = MenuShowPaletteClick
+    end
+  end
+  object PopupToolbox: TPopupMenu
+    OnPopup = PopupToolboxPopup
+    left = 424
+    top = 376
+    object MenuDockToolboxLeft: TMenuItem
+      Caption = 'Dock left'
+      OnClick = MenuDockToolboxLeftClick
+    end
+    object MenuDockToolboxRight: TMenuItem
+      Caption = 'Dock right'
+      OnClick = MenuDockToolboxRightClick
+    end
+    object MenuUndockToolbox: TMenuItem
+      Caption = 'Undock'
+      OnClick = MenuUndockToolboxClick
+    end
+  end
+end

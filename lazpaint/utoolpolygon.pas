@@ -55,6 +55,8 @@ type
     procedure OnDeletePoint({%H-}AIndex: integer); virtual;
     procedure OnValidatePolygon; virtual;
     function MustUpdateOnAddPoint: boolean; virtual;
+    procedure StartArrow(dest: TBGRABitmap); virtual;
+    procedure EndArrow(dest: TBGRABitmap); virtual;
   public
     constructor Create(AToolManager: TToolManager); override;
     function GetCurrentPolygonPoints: ArrayOfTPointF;
@@ -385,9 +387,17 @@ begin
       if Manager.ToolOptionCloseShape then
         outline := toolDest.ComputeWidePolygon(splinePoints,Manager.ToolPenWidth)
       else
+      begin
+        StartArrow(toolDest);
         outline := toolDest.ComputeWidePolyline(splinePoints,Manager.ToolPenWidth);
+        EndArrow(toolDest);
+      end;
     end else
+    begin
+      StartArrow(toolDest);
       outline := toolDest.ComputeWidePolyline(splinePoints,Manager.ToolPenWidth);
+      EndArrow(toolDest);
+    end;
 
     if not Manager.ToolOptionFillShape and (Manager.GetToolTextureAfterAlpha <> nil) then
       toolDest.FillPolyAntialias(outline,Manager.GetToolTextureAfterAlpha)
@@ -434,7 +444,14 @@ var
 begin
   if Manager.ToolOptionDrawShape and (length(polygonPoints)>0) then
   begin
-    outline := toolDest.ComputeWidePolyline(polygonPoints,Manager.ToolPenWidth);
+    if Manager.ToolOptionCloseShape then
+      outline := toolDest.ComputeWidePolyline(polygonPoints,Manager.ToolPenWidth)
+    else
+    begin
+      StartArrow(toolDest);
+      outline := toolDest.ComputeWidePolyline(polygonPoints,Manager.ToolPenWidth);
+      EndArrow(toolDest);
+    end;
     if not Manager.ToolOptionFillShape and (Manager.GetToolTextureAfterAlpha <> nil) then
       toolDest.FillPolyAntialias(outline,Manager.GetToolTextureAfterAlpha)
     else
@@ -465,7 +482,11 @@ begin
      if Manager.ToolOptionCloseShape then
        outline := toolDest.ComputeWidePolygon(polygonPoints,Manager.ToolPenWidth)
      else
+     begin
+       StartArrow(toolDest);
        outline := toolDest.ComputeWidePolyline(polygonPoints,Manager.ToolPenWidth);
+       EndArrow(toolDest);
+     end;
      if not Manager.ToolOptionFillShape and (Manager.GetToolTextureAfterAlpha <> nil) then
        toolDest.FillPolyAntialias(outline,Manager.GetToolTextureAfterAlpha)
      else
@@ -541,6 +562,18 @@ end;
 function TToolGenericPolygon.MustUpdateOnAddPoint: boolean;
 begin
   result := true;
+end;
+
+procedure TToolGenericPolygon.StartArrow(dest: TBGRABitmap);
+begin
+  ApplyArrowStyle(True,Manager.ToolArrowStart,dest,Manager.ToolArrowSize);
+  ApplyArrowStyle(False,Manager.ToolArrowEnd,dest,Manager.ToolArrowSize);
+end;
+
+procedure TToolGenericPolygon.EndArrow(dest: TBGRABitmap);
+begin
+  dest.ArrowStartAsNone;
+  dest.ArrowEndAsNone;
 end;
 
 constructor TToolGenericPolygon.Create(AToolManager: TToolManager);

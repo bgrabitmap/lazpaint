@@ -26,7 +26,7 @@ interface
   at a time. }
 
 uses
-  Classes, SysUtils, BGRABitmap, GraphType, zstream;
+  Classes, SysUtils, BGRABitmapTypes, BGRABitmap, zstream;
 
 type
 
@@ -67,8 +67,6 @@ type
    end;
 
 implementation
-
-uses BGRABitmapTypes;
 
 // size of each chunk treated by Compress function
 const maxPartSize = 524288;
@@ -112,11 +110,15 @@ begin
       UsedPart := TBGRABitmap.Create(FBounds.Right-FBounds.Left,FBounds.Bottom-FBounds.Top);
       FUncompressedData.Read(UsedPart.Data^,UsedPart.NbPixels*Sizeof(TBGRAPixel));
       if UsedPart.LineOrder <> FLineOrder then UsedPart.VerticalFlip;
+      If TBGRAPixel_RGBAOrder then UsedPart.SwapRedBlue;
       result.PutImage(FBounds.Left,FBounds.Top,UsedPart,dmSet);
       UsedPart.Free;
     end;
   end else
+  begin
     FUncompressedData.Read(result.Data^,result.NbPixels*Sizeof(TBGRAPixel));
+    If TBGRAPixel_RGBAOrder then result.SwapRedBlue;
+  end;
 end;
 
 { Returns the total memory used by this object for storing bitmap data }
@@ -304,12 +306,15 @@ begin
     or (FBounds.Right <> Source.Width) or (FBounds.Bottom <> Source.Height) then
   begin
     UsedPart := Source.GetPart(FBounds) as TBGRABitmap;
+    If TBGRAPixel_RGBAOrder then UsedPart.SwapRedBlue;
     FUncompressedData.Write(UsedPart.Data^,NbUsedPixels*Sizeof(TBGRAPixel));
     FLineOrder := UsedPart.LineOrder;
     UsedPart.Free;
   end else
   begin
+    If TBGRAPixel_RGBAOrder then Source.SwapRedBlue;
     FUncompressedData.Write(Source.Data^,Source.NbPixels*Sizeof(TBGRAPixel));
+    If TBGRAPixel_RGBAOrder then Source.SwapRedBlue;
     FLineOrder := Source.LineOrder;
   end;
 end;

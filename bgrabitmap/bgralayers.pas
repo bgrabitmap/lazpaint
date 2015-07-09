@@ -5,7 +5,7 @@ unit BGRALayers;
 interface
 
 uses
-  Graphics, Classes, SysUtils, Types, BGRABitmapTypes, BGRABitmap;
+  BGRAGraphics, Classes, SysUtils, Types, BGRABitmapTypes, BGRABitmap;
 
 type
   TBGRACustomLayeredBitmap = class;
@@ -208,7 +208,7 @@ procedure UnregisterLoadingHandler(AStart: TOnLayeredBitmapLoadStartProc; AProgr
 
 implementation
 
-uses LCLProc;
+uses BGRAUTF8;
 
 var
   OnLayeredBitmapLoadStartProc: TOnLayeredBitmapLoadStartProc;

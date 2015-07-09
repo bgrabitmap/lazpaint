@@ -35,8 +35,8 @@ type
 
     constructor Create;
     destructor Destroy; override;
-    procedure OnPaint(Canvas: TCanvas; Width, Height: Integer); override;
-    procedure OnTimer(Canvas: TCanvas; Width, Height: Integer; ElapsedSec: Double);
+    procedure OnPaint(Canvas: TCanvas; Left,Top,Width, Height: Integer); override;
+    procedure OnTimer(Width, Height: Integer; ElapsedSec: Double);
       override;
   end;
 
@@ -82,10 +82,11 @@ begin
   textfx_lightpos.Free;
   textfx_multi.Free;
   wood.free;
+  virtualScreen.free;
   inherited Destroy;
 end;
 
-procedure TTest31.OnPaint(Canvas: TCanvas; Width, Height: Integer);
+procedure TTest31.OnPaint(Canvas: TCanvas; Left,Top,Width, Height: Integer);
 var font: TFont; h, r: integer;
 begin
   if pts = nil then exit;
@@ -150,10 +151,10 @@ begin
   textfx_multi.DrawMulticolored(virtualScreen, round(pts[2].x),round(pts[2].y), colorArray,taCenter);
 
   //draw virtualscreen opaque on canvas
-  virtualscreen.Draw(Canvas,0,0,True);
+  virtualscreen.Draw(Canvas,Left,Top,True);
 end;
 
-procedure TTest31.OnTimer(Canvas: TCanvas; Width, Height: Integer;
+procedure TTest31.OnTimer(Width, Height: Integer;
   ElapsedSec: Double);
 var i: integer;
     moveFactor: single;
@@ -215,8 +216,6 @@ begin
       c:= c2;
     end;
   end;
-
-  OnPaint(Canvas,Width,Height);
 end;
 
 end.

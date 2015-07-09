@@ -1,51 +1,55 @@
 object FToolbox: TFToolbox
   Left = 854
-  Height = 98
+  Height = 99
   Top = 189
-  Width = 141
+  Width = 143
   BorderIcons = [biSystemMenu]
   BorderStyle = bsToolWindow
   Caption = 'Tools'
-  ClientHeight = 98
-  ClientWidth = 141
+  ClientHeight = 99
+  ClientWidth = 143
   Font.Height = -12
   FormStyle = fsStayOnTop
   OnCreate = FormCreate
   OnShow = FormShow
   ShowHint = True
-  LCLVersion = '1.1'
+  LCLVersion = '1.0.10.0'
   object ToolBar1: TToolBar
-    Left = 0
+    Left = 1
     Height = 24
     Top = 0
     Width = 141
+    Align = alNone
     AutoSize = True
     Images = FMain.ImageList1
     TabOrder = 0
   end
   object ToolBar2: TToolBar
-    Left = 0
+    Left = 1
     Height = 24
     Top = 24
     Width = 141
+    Align = alNone
     AutoSize = True
     Images = FMain.ImageList1
     TabOrder = 1
   end
   object ToolBar3: TToolBar
-    Left = 0
+    Left = 1
     Height = 24
     Top = 48
     Width = 141
+    Align = alNone
     AutoSize = True
     Images = FMain.ImageList1
     TabOrder = 2
   end
   object ToolBar4: TToolBar
-    Left = 0
+    Left = 1
     Height = 24
     Top = 72
     Width = 141
+    Align = alNone
     AutoSize = True
     Images = FMain.ImageList1
     TabOrder = 3

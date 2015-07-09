@@ -16,7 +16,8 @@ procedure RegisterStreamLayers;
 
 implementation
 
-uses BGRABitmapTypes, BGRACompressableBitmap, zstream, BGRAReadLzp, BGRAWriteLzp;
+uses BGRABitmapTypes, BGRACompressableBitmap, zstream, BGRAReadLzp, BGRAWriteLzp,
+     BGRAUTF8;
 
 procedure SaveLayeredBitmapToStream(AStream: TStream; ALayers: TBGRACustomLayeredBitmap);
 begin
@@ -36,8 +37,6 @@ const
   StreamHeader = 'TBGRALayeredBitmap'#26#0;
   StreamMaxLayerCount = 4096;
   StreamMaxHeaderSize = 256;
-
-{$i winstream.inc}
 
 function CheckStreamForLayers(AStream: TStream): boolean;
 var
@@ -90,20 +89,20 @@ begin
       raise exception.Create('Invalid header');
 
     //header size
-    HeaderSize:= WinReadLongint(AStream);
+    HeaderSize:= LEReadLongint(AStream);
     if (HeaderSize < 12) or (HeaderSize > StreamMaxHeaderSize) then
       raise exception.Create('Invalid header size');
     LayerStackStartPosition := AStream.Position + HeaderSize;
 
-    NbLayers:= WinReadLongint(AStream);
+    NbLayers:= LEReadLongint(AStream);
     if (NbLayers < 0) or (NbLayers > StreamMaxLayerCount) then
       raise exception.Create('Invalid layer count');
 
-    ASelectedLayerIndex:= WinReadLongint(AStream);
+    ASelectedLayerIndex:= LEReadLongint(AStream);
     if (ASelectedLayerIndex < -1) or (ASelectedLayerIndex >= NbLayers) then
       raise exception.Create('Selected layer out of bounds');
 
-    StackOption := WinReadLongint(AStream);
+    StackOption := LEReadLongint(AStream);
     result.LinearBlend := (StackOption and 1) = 1;
     if (StackOption and 2) = 2 then Compression := lzpRLE else Compression:= lzpZStream;
     //end of header
@@ -111,7 +110,7 @@ begin
     AStream.Position:= LayerStackStartPosition;
     for i := 0 to NbLayers-1 do
     begin
-      LayerHeaderSize:= WinReadLongint(AStream);
+      LayerHeaderSize:= LEReadLongint(AStream);
       LayerHeaderPosition := AStream.Position;
       LayerBitmapPosition := LayerHeaderPosition + LayerHeaderSize;
       LayerEndPosition := -1;
@@ -125,26 +124,26 @@ begin
 
       if AStream.Position <= LayerBitmapPosition-4 then
       begin
-        LayerOption := WinReadLongint(AStream);
+        LayerOption := LEReadLongint(AStream);
         LayerVisible := (LayerOption and 1) = 1;
       end;
       if AStream.Position <= LayerBitmapPosition-4 then
-        LayerBlendOp := TBlendOperation(WinReadLongint(AStream));
+        LayerBlendOp := TBlendOperation(LEReadLongint(AStream));
 
       if AStream.Position <= LayerBitmapPosition-8 then
       begin
-        LayerOffset := Point(WinReadLongint(AStream),WinReadLongint(AStream));
+        LayerOffset := Point(LEReadLongint(AStream),LEReadLongint(AStream));
         if AStream.Position <= LayerBitmapPosition-4 then
         begin
-          LayerId := WinReadLongint(AStream);
+          LayerId := LEReadLongint(AStream);
           LayerIdFound := true;
         end;
         if AStream.Position <= LayerBitmapPosition-4 then
-          LayerOpacity := WinReadLongint(AStream) shr 8;
+          LayerOpacity := LEReadLongint(AStream) shr 8;
       end;
       if AStream.Position <= LayerBitmapPosition-4 then
       begin
-        LayerBitmapSize := WinReadLongint(AStream);
+        LayerBitmapSize := LEReadLongint(AStream);
         LayerEndPosition:= LayerBitmapPosition+LayerBitmapSize;
       end;
 
@@ -185,35 +184,35 @@ begin
   if (ASelectedLayerIndex < -1) or (ASelectedLayerIndex >= ALayers.NbLayers) then
     raise exception.Create('Selected layer out of bounds');
   AStream.Write(StreamHeader[1], length(StreamHeader));
-  WinWriteLongint(AStream, 12); //header size
-  WinWriteLongint(AStream, ALayers.NbLayers);
-  WinWriteLongint(AStream, ASelectedLayerIndex);
+  LEWriteLongint(AStream, 12); //header size
+  LEWriteLongint(AStream, ALayers.NbLayers);
+  LEWriteLongint(AStream, ASelectedLayerIndex);
   StackOption := 0;
   if ALayers.LinearBlend then StackOption := StackOption or 1;
   if ACompression = lzpRLE then StackOption:= StackOption or 2;
-  WinWriteLongint(AStream, StackOption);
+  LEWriteLongint(AStream, StackOption);
   //end of header
 
   for i := 0 to ALayers.NbLayers-1 do
   begin
     LayerHeaderSizePosition:= AStream.Position;
-    WinWriteLongint(AStream, 0); //header size not computed yet
+    LEWriteLongint(AStream, 0); //header size not computed yet
     LayerHeaderPosition := AStream.Position;
 
     LayerOption := 0;
     if ALayers.LayerVisible[i] then LayerOption:= LayerOption or 1;
-    WinWriteLongint(AStream, LayerOption);
-    WinWriteLongint(AStream, Longint(ALayers.BlendOperation[i]));
-    WinWriteLongint(AStream, ALayers.LayerOffset[i].x);
-    WinWriteLongint(AStream, ALayers.LayerOffset[i].y);
-    WinWriteLongint(AStream, ALayers.LayerUniqueId[i]);
-    WinWriteLongint(AStream, integer(ALayers.LayerOpacity[i])*$101);
+    LEWriteLongint(AStream, LayerOption);
+    LEWriteLongint(AStream, Longint(ALayers.BlendOperation[i]));
+    LEWriteLongint(AStream, ALayers.LayerOffset[i].x);
+    LEWriteLongint(AStream, ALayers.LayerOffset[i].y);
+    LEWriteLongint(AStream, ALayers.LayerUniqueId[i]);
+    LEWriteLongint(AStream, integer(ALayers.LayerOpacity[i])*$101);
     LayerBitmapSizePosition:=AStream.Position;
-    WinWriteLongint(AStream, 0);
+    LEWriteLongint(AStream, 0);
     LayerBitmapPosition:=AStream.Position;
     LayerHeaderSize := LayerBitmapPosition - LayerHeaderPosition;
     AStream.Position:= LayerHeaderSizePosition;
-    WinWriteLongint(AStream, LayerHeaderSize);
+    LEWriteLongint(AStream, LayerHeaderSize);
     //end of layer header
 
     AStream.Position:= LayerBitmapPosition;
@@ -230,7 +229,7 @@ begin
     if BitmapSize > maxLongint then
       raise exception.Create('Image too big');
     AStream.Position:= LayerBitmapSizePosition;
-    WinWriteLongint(AStream, BitmapSize);
+    LEWriteLongint(AStream, BitmapSize);
     AStream.Position:= LayerBitmapPosition+BitmapSize;
   end;
 end;

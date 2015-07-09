@@ -23,8 +23,8 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure OnPaint(Canvas: TCanvas; Width,Height: Integer); override;
-    procedure OnTimer(Canvas: TCanvas; Width,Height: Integer; ElapsedSec: Double); override;
+    procedure OnPaint(Canvas: TCanvas; Left,Top,Width,Height: Integer); override;
+    procedure OnTimer(Width,Height: Integer; ElapsedSec: Double); override;
   end;
 
 implementation
@@ -52,7 +52,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TTest18.OnPaint(Canvas: TCanvas; Width, Height: Integer);
+procedure TTest18.OnPaint(Canvas: TCanvas; Left,Top,Width, Height: Integer);
 begin
   if pts = nil then exit;
 
@@ -76,10 +76,10 @@ begin
 
   virtualScreen.PutImageAngle(virtualScreen.Width div 2,virtualScreen.Height div 2,texture,angle,texture.Width/2,texture.Height/2);
 
-  virtualScreen.draw(Canvas,0,0);
+  virtualScreen.draw(Canvas,Left,Top);
 end;
 
-procedure TTest18.OnTimer(Canvas: TCanvas; Width, Height: Integer; ElapsedSec: Double);
+procedure TTest18.OnTimer(Width, Height: Integer; ElapsedSec: Double);
 var i: integer;
     moveFactor: single;
 begin
@@ -120,7 +120,6 @@ begin
       dirs[i].y := -abs(dirs[i].y);
     end;
   end;
-  OnPaint(Canvas,Width,Height);
 end;
 
 end.

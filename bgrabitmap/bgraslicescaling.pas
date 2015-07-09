@@ -5,7 +5,7 @@ unit BGRASliceScaling;
 interface
 
 uses
-  Classes, SysUtils, Graphics, BGRABitmap, BGRABitmapTypes, IniFiles, FileUtil;
+  Classes, SysUtils, BGRAGraphics, BGRABitmap, BGRABitmapTypes, IniFiles;
 
 type
   TMargins = record
@@ -150,7 +150,7 @@ type
 
 implementation
 
-uses types;
+uses BGRAUTF8, Types;
 
 function Margins(ATop, ARight, ABottom, ALeft: integer): TMargins;
 begin

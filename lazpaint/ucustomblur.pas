@@ -2,12 +2,17 @@ unit UCustomblur;
 
 {$mode objfpc}{$H+}
 
+{$IFNDEF DARWIN}
+  {$DEFINE USE_IMAGE_BROWSER}
+{$ENDIF}
+
 interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
   StdCtrls, ExtCtrls, ExtDlgs,  bgrabitmap, LazPaintType, UScaleDPI,
-  UResourceStrings, UFilterConnector, UFilterThread;
+  UResourceStrings, UFilterConnector, UFilterThread
+  {$IFDEF USE_IMAGE_BROWSER}, ubrowseimages {$ENDIF};
 
 type
 
@@ -33,6 +38,9 @@ type
     procedure PreviewNeeded;
     procedure Timer1Timer(Sender: TObject);
   private
+    {$IFDEF USE_IMAGE_BROWSER}
+    FBrowseImages: TFBrowseImages;
+    {$ENDIF}
     subConfig: TStringStream;
     FLazPaintInstance: TLazPaintCustomInstance;
     FFilterConnector: TFilterConnector;
@@ -65,6 +73,9 @@ end;
 procedure TFCustomBlur.FormDestroy(Sender: TObject);
 begin
   subConfig.Free;
+  {$IFDEF USE_IMAGE_BROWSER}
+  FreeAndNil(FBrowseImages);
+  {$ENDIF}
 end;
 
 procedure TFCustomBlur.FormShow(Sender: TObject);
@@ -177,19 +188,33 @@ end;
 procedure TFCustomBlur.Button_LoadMaskClick(Sender: TObject);
 var filenameUTF8: string;
 begin
-  if not OpenPictureDialog1.Execute then exit;
-  try
-    filenameUTF8 := OpenPictureDialog1.FileName;
-    LoadMask(filenameUTF8);
-    LazPaintInstance.Config.SetDefaultCustomBlurMaskUTF8(filenameUTF8);
-    self.Update;
-    PreviewNeeded;
-  except
-    on ex:Exception do
-    begin
-      LazPaintInstance.ShowError('LoadMask',ex.Message);
-    end;
+  filenameUTF8 := '';
+  {$IFDEF USE_IMAGE_BROWSER}
+  if not assigned(FBrowseImages) then
+  begin
+    FBrowseImages := TFBrowseImages.Create(self);
+    FBrowseImages.LazPaintInstance := LazPaintInstance;
+    FBrowseImages.AllowMultiSelect := false;
   end;
+  if FBrowseImages.ShowModal = mrOK then
+    filenameUTF8 := FBrowseImages.Filename;
+  {$ELSE}
+  if OpenPictureDialog1.Execute then filenameUTF8 := OpenPictureDialog1.FileName;
+  {$ENDIF}
+  if filenameUTF8 <> '' then
+    begin
+      try
+        LoadMask(filenameUTF8);
+        LazPaintInstance.Config.SetDefaultCustomBlurMaskUTF8(filenameUTF8);
+        self.Update;
+        PreviewNeeded;
+      except
+        on ex:Exception do
+        begin
+          LazPaintInstance.ShowError('LoadMask',ex.Message);
+        end;
+      end;
+    end;
 end;
 
 procedure TFCustomBlur.Button_EditMaskClick(Sender: TObject);
@@ -231,4 +256,4 @@ end;
 {$R *.lfm}
 
 end.
-
+

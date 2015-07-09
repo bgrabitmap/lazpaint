@@ -12,10 +12,18 @@ type
 
   TOnZoomChangedHandler = procedure(sender: TZoom; ANewZoom: single) of object;
 
+  TCustomMainFormLayout = class
+  protected
+    function GetPictureArea: TRect; virtual; abstract;
+  public
+    property PictureArea: TRect read GetPictureArea;
+  end;
+
   { TZoom }
 
   TZoom = class
   private
+    FLayout: TCustomMainFormLayout;
     FLabelCurrentZoom: TLabel;
     FEditZoom: TEdit;
     FMaxFactor: single;
@@ -37,10 +45,10 @@ type
     procedure LabelCurrentZoom_Click(Sender: TObject);
     procedure UpdateLabel;
   public
-    constructor Create(ALabelCurrentZoom: TLabel; AEditZoom: TEdit);
+    constructor Create(ALabelCurrentZoom: TLabel; AEditZoom: TEdit; ALayout: TCustomMainFormLayout);
     destructor Destroy; override;
     procedure ZoomOriginal;
-    procedure ZoomFit(AImageWidth,AImageHeight: integer; APictureArea: TRect);
+    procedure ZoomFit(AImageWidth,AImageHeight: integer);
     procedure ZoomIn;
     procedure ZoomOut;
     procedure SetPosition(ABitmapPosition: TPointF; AMousePosition: TPoint);
@@ -58,7 +66,7 @@ type
 
 implementation
 
-uses Math, Dialogs;
+uses Math, Dialogs, LazPaintType;
 
 { TZoom }
 
@@ -86,7 +94,7 @@ begin
       FEditZoom.Text := IntToStr(round(FZoomFactor*100));
       FEditZoom.Visible := true;
       FLabelCurrentZoom.Visible := false;
-      FEditZoom.SetFocus;
+      SafeSetFocus(FEditZoom);
     end else
     begin
       FLabelCurrentZoom.Visible := not AValue;
@@ -160,9 +168,11 @@ begin
   if not (Key in['0'..'9',#8]) then Key := #0;
 end;
 
-constructor TZoom.Create(ALabelCurrentZoom: TLabel; AEditZoom: TEdit);
+constructor TZoom.Create(ALabelCurrentZoom: TLabel; AEditZoom: TEdit;
+  ALayout: TCustomMainFormLayout);
 begin
   inherited Create;
+  FLayout := ALayout;
   FLabelCurrentZoom := ALabelCurrentZoom;
   FLabelCurrentZoom.OnClick := @LabelCurrentZoom_Click;
   FEditZoom := AEditZoom;
@@ -189,15 +199,17 @@ begin
   Factor := 1;
 end;
 
-procedure TZoom.ZoomFit(AImageWidth, AImageHeight: integer; APictureArea: TRect);
+procedure TZoom.ZoomFit(AImageWidth, AImageHeight: integer);
 const pixelMargin = 0;
 var zx,zy: single;
+  pictureArea: TRect;
 begin
-  if (AImageWidth = 0) or (AImageHeight = 0) or (APictureArea.right-APictureArea.Left <= pixelMargin)
-    or (APictureArea.Bottom-APictureArea.top <= pixelMargin) then exit;
+  pictureArea := FLayout.PictureArea;
+  if (AImageWidth = 0) or (AImageHeight = 0) or (pictureArea.right-pictureArea.Left <= pixelMargin)
+    or (pictureArea.Bottom-pictureArea.top <= pixelMargin) then exit;
   try
-    zx := (APictureArea.right-APictureArea.left-pixelMargin)/AImageWidth;
-    zy := (APictureArea.bottom-APictureArea.top-pixelMargin)/AImageheight;
+    zx := (pictureArea.right-pictureArea.left-pixelMargin)/AImageWidth;
+    zy := (pictureArea.bottom-pictureArea.top-pixelMargin)/AImageheight;
     Factor:= min(zx,zy);
   except
     on ex:Exception do

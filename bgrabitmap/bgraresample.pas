@@ -96,7 +96,7 @@ function WideKernelResample(bmp: TBGRACustomBitmap;
 
 implementation
 
-uses GraphType, Math, BGRABlend;
+uses Math, BGRABlend;
 
 function SimpleStretch(bmp: TBGRACustomBitmap;
   newWidth, newHeight: integer): TBGRACustomBitmap;

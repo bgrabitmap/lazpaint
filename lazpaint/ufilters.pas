@@ -51,6 +51,7 @@ var
       pfBlurCorona: blurType := rbCorona;
       pfBlurDisk: blurType := rbDisk;
       pfBlurFast: blurType := rbFast;
+      pfBlurBox: blurType := rbBox;
     end;
     if skipDialog then
       filteredLayer := FilterConnector.ActiveLayer.FilterBlurRadial(FilterConnector.WorkArea, AInstance.Config.DefaultBlurRadius,blurType) as TBGRABitmap
@@ -126,7 +127,7 @@ begin
         filteredLayer := layer.Duplicate as TBGRABitmap;
         FilterComplementaryColor(filteredLayer,FilterConnector.WorkArea);
       end;
-    pfBlurPrecise, pfBlurRadial, pfBlurCorona, pfBlurDisk, pfBlurFast: DoSimpleBlur;
+    pfBlurPrecise, pfBlurRadial, pfBlurCorona, pfBlurDisk, pfBlurFast, pfBlurBox: DoSimpleBlur;
     pfBlurMotion:
         if skipDialog then
           filteredLayer := layer.FilterBlurMotion(FilterConnector.WorkArea, AInstance.Config.DefaultBlurMotionDistance,AInstance.Config.DefaultBlurMotionAngle,AInstance.Config.DefaultBlurMotionOriented) as TBGRABitmap
@@ -138,6 +139,7 @@ begin
           filteredLayer := layer.FilterEmboss(AInstance.Config.DefaultEmbossAngle,FilterConnector.WorkArea) as TBGRABitmap
         else
           AInstance.ShowEmbossDlg(FilterConnector);
+    pfRain: AInstance.ShowRainDlg(FilterConnector);
     pfPhong: AInstance.ShowPhongFilterDlg(FilterConnector);
     pfFunction: AInstance.ShowFunctionFilterDlg(FilterConnector);
     pfNoise: AInstance.ShowNoiseFilterDlg(FilterConnector);

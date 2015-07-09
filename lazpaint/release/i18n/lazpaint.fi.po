@@ -1,0 +1,3163 @@
+﻿msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: tfabout.button_donate.caption
+msgctxt "TFABOUT.BUTTON_DONATE.CAPTION"
+msgid "Donate..."
+msgstr ""
+
+#: tfabout.caption
+msgctxt "TFABOUT.CAPTION"
+msgid "About"
+msgstr "Tietoja"
+
+#: tfabout.labelurl.caption
+msgid "http://sourceforge.net/projects/lazpaint/"
+msgstr ""
+
+#: tfabout.label_authors.caption
+msgctxt "TFABOUT.LABEL_AUTHORS.CAPTION"
+msgid "Authors:"
+msgstr "Tekijät:"
+
+#: tfabout.label_authorsvalue.caption
+msgctxt "TFABOUT.LABEL_AUTHORSVALUE.CAPTION"
+msgid "Circular helped by FabienWang, Lainz and others"
+msgstr ""
+
+#: tfabout.label_homepage.caption
+msgctxt "TFABOUT.LABEL_HOMEPAGE.CAPTION"
+msgid "Homepage:"
+msgstr "Kotisivu:"
+
+#: tfabout.label_libraries.caption
+msgctxt "TFABOUT.LABEL_LIBRARIES.CAPTION"
+msgid "Libraries used:"
+msgstr "Käytetyt kirjastot:"
+
+#: tfabout.label_librariesvalue.caption
+msgctxt "TFABOUT.LABEL_LIBRARIESVALUE.CAPTION"
+msgid "BGRABitmap (LGPL)"
+msgstr ""
+
+#: tfabout.label_licence.caption
+msgctxt "TFABOUT.LABEL_LICENCE.CAPTION"
+msgid "Licence:"
+msgstr "Lisenssi:"
+
+#: tfabout.label_opensource.caption
+msgctxt "TFABOUT.LABEL_OPENSOURCE.CAPTION"
+msgid "Open source (GPLv3)"
+msgstr "Avoin lähdekoodi (GPLv3)"
+
+#: tfadjustcurves.button_cancel.caption
+msgctxt "TFADJUSTCURVES.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfadjustcurves.button_ok.caption
+msgctxt "TFADJUSTCURVES.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfadjustcurves.caption
+msgid "Adjust curves"
+msgstr "Muokkaa käyriä"
+
+#: tfadjustcurves.toolbutton_newcurve.hint
+msgid "Discard current curve and start a new one"
+msgstr ""
+
+#: tfadjustcurves.toolbutton_posterize.hint
+msgctxt "tfadjustcurves.toolbutton_posterize.hint"
+msgid "Posterize"
+msgstr ""
+
+#: tfadjustcurves.toolbutton_removepoint.hint
+msgid "Remove selected point (Del)"
+msgstr ""
+
+#: tfblendop.button_cancel.caption
+msgctxt "TFBLENDOP.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfblendop.button_ok.caption
+msgctxt "TFBLENDOP.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfblendop.caption
+msgid "Blend operation"
+msgstr ""
+
+#: tfblendop.label_blendopcategory.caption
+msgctxt "TFBLENDOP.LABEL_BLENDOPCATEGORY.CAPTION"
+msgid "Category of blend operation"
+msgstr ""
+
+#: tfblendop.label_blendopvalue.caption
+msgctxt "tfblendop.label_blendopvalue.caption"
+msgid "."
+msgstr ""
+
+#: tfblendop.label_kritaover.caption
+msgctxt "TFBLENDOP.LABEL_KRITAOVER.CAPTION"
+msgid "Krita"
+msgstr ""
+
+#: tfblendop.label_kritaover.hint
+msgid "Blend operations that are available in Krita"
+msgstr ""
+
+#: tfblendop.label_otherover.caption
+msgctxt "TFBLENDOP.LABEL_OTHEROVER.CAPTION"
+msgid "Other"
+msgstr ""
+
+#: tfblendop.label_otherover.hint
+msgid "Blend operations of LazPaint and Paint.NET"
+msgstr ""
+
+#: tfblendop.label_patternover.caption
+msgctxt "TFBLENDOP.LABEL_PATTERNOVER.CAPTION"
+msgid "Pattern over"
+msgstr ""
+
+#: tfblendop.label_patternover.hint
+msgid "Preview blend operation with the specified image on top"
+msgstr ""
+
+#: tfblendop.label_patternunder.caption
+msgctxt "TFBLENDOP.LABEL_PATTERNUNDER.CAPTION"
+msgid "Pattern under"
+msgstr ""
+
+#: tfblendop.label_patternunder.hint
+msgid "Preview blend operation with the specified image underneath"
+msgstr ""
+
+#: tfblendop.label_previewwith.caption
+msgctxt "TFBLENDOP.LABEL_PREVIEWWITH.CAPTION"
+msgid "Preview with"
+msgstr ""
+
+#: tfblendop.label_selectedblendop.caption
+msgid "Selected blend operation :"
+msgstr ""
+
+#: tfblendop.label_svgover.caption
+msgctxt "TFBLENDOP.LABEL_SVGOVER.CAPTION"
+msgid "Basic SVG"
+msgstr ""
+
+#: tfblendop.label_svgover.hint
+msgid "Basic blend operations that are available in virtually all image editors"
+msgstr ""
+
+#: tfbrowseimages.caption
+msgid "Browse images"
+msgstr ""
+
+#: tfbrowseimages.label_size.caption
+msgid "Size: "
+msgstr "Koko: "
+
+#: tfbrowseimages.toolbutton_goup.hint
+msgid "Go one directory up"
+msgstr ""
+
+#: tfbrowseimages.toolbutton_openselectedfiles.hint
+msgid "Open selected files"
+msgstr ""
+
+#: tfbrowseimages.toolbutton_viewbigicon.hint
+msgctxt "TFBROWSEIMAGES.TOOLBUTTON_VIEWBIGICON.HINT"
+msgid "Show big icons"
+msgstr "Näytä isot kuvakkeet"
+
+#: tfbrowseimages.toolbutton_viewdetails.hint
+msgctxt "TFBROWSEIMAGES.TOOLBUTTON_VIEWDETAILS.HINT"
+msgid "Show details and preview"
+msgstr ""
+
+#: tfbrowseimages.tool_selectdrive.hint
+msgid "Select drive"
+msgstr ""
+
+#: tfcanvassize.button_cancel.caption
+msgctxt "TFCANVASSIZE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfcanvassize.button_ok.caption
+msgctxt "TFCANVASSIZE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfcanvassize.caption
+msgctxt "TFCANVASSIZE.CAPTION"
+msgid "Canvas size"
+msgstr ""
+
+#: tfcanvassize.checkbox_flipmode.caption
+msgid "Flip mode"
+msgstr ""
+
+#: tfcanvassize.label_anchor.caption
+msgctxt "TFCANVASSIZE.LABEL_ANCHOR.CAPTION"
+msgid "Anchor :"
+msgstr ""
+
+#: tfcanvassize.label_height.caption
+msgctxt "TFCANVASSIZE.LABEL_HEIGHT.CAPTION"
+msgid "Height :"
+msgstr "Korkeus :"
+
+#: tfcanvassize.label_width.caption
+msgctxt "TFCANVASSIZE.LABEL_WIDTH.CAPTION"
+msgid "Width :"
+msgstr "Leveys :"
+
+#: tfchoosecolor.bcbutton_addtopalette.hint
+msgid "Add color to palette"
+msgstr ""
+
+#: tfchoosecolor.bcbutton_removefrompalette.hint
+msgid "Remove color from palette"
+msgstr ""
+
+#: tfchoosecolor.caption
+msgctxt "TFCHOOSECOLOR.CAPTION"
+msgid "Color"
+msgstr "Väri"
+
+#: tfchoosecolor.lcolor.hint
+msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
+msgstr ""
+
+#: tfcolorintensity.button_cancel.caption
+msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfcolorintensity.button_ok.caption
+msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfcolorintensity.caption
+msgctxt "TFCOLORINTENSITY.CAPTION"
+msgid "Intensity"
+msgstr ""
+
+#: tfcolorintensity.label_multiply.caption
+msgctxt "TFCOLORINTENSITY.LABEL_MULTIPLY.CAPTION"
+msgid "Multiply"
+msgstr ""
+
+#: tfcolorintensity.label_shift.caption
+msgctxt "TFCOLORINTENSITY.LABEL_SHIFT.CAPTION"
+msgid "Shift"
+msgstr ""
+
+#: tfcolorize.button_cancel.caption
+msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfcolorize.button_ok.caption
+msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfcolorize.caption
+msgctxt "TFCOLORIZE.CAPTION"
+msgid "Colorize"
+msgstr ""
+
+#: tfcolorize.checkbox_gsba.caption
+msgctxt "TFCOLORIZE.CHECKBOX_GSBA.CAPTION"
+msgid "Corrected hue and lightness"
+msgstr ""
+
+#: tfcolorize.label_colorness.caption
+msgctxt "TFCOLORIZE.LABEL_COLORNESS.CAPTION"
+msgid "Colorness"
+msgstr ""
+
+#: tfcolorize.label_hue.caption
+msgctxt "TFCOLORIZE.LABEL_HUE.CAPTION"
+msgid "Hue"
+msgstr ""
+
+#: tfcolorize.label_preset.caption
+msgid "Preset"
+msgstr ""
+
+#: tfcustomblur.button_cancel.caption
+msgctxt "TFCUSTOMBLUR.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfcustomblur.button_editmask.caption
+msgid "Edit mask..."
+msgstr ""
+
+#: tfcustomblur.button_loadmask.caption
+msgid "Load mask..."
+msgstr ""
+
+#: tfcustomblur.button_ok.caption
+msgctxt "TFCUSTOMBLUR.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfcustomblur.caption
+msgctxt "TFCUSTOMBLUR.CAPTION"
+msgid "Custom blur"
+msgstr ""
+
+#: tfcustomblur.openpicturedialog1.title
+msgid "Open grayscale file"
+msgstr "Avaa harmaasävytiedosto"
+
+#: tfemboss.button_cancel.caption
+msgctxt "TFEMBOSS.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfemboss.button_ok.caption
+msgctxt "TFEMBOSS.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfemboss.caption
+msgctxt "TFEMBOSS.CAPTION"
+msgid "Emboss"
+msgstr ""
+
+#: tfemboss.label_direction.caption
+msgctxt "TFEMBOSS.LABEL_DIRECTION.CAPTION"
+msgid "Direction :"
+msgstr ""
+
+#: tffilterfunction.button_cancel.caption
+msgctxt "TFFILTERFUNCTION.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tffilterfunction.button_ok.caption
+msgctxt "TFFILTERFUNCTION.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tffilterfunction.caption
+msgid "Apply function"
+msgstr ""
+
+#: tffilterfunction.checkbox_gsba.caption
+msgctxt "TFFILTERFUNCTION.CHECKBOX_GSBA.CAPTION"
+msgid "Corrected hue and lightness"
+msgstr ""
+
+#: tffilterfunction.label_alphaequals.caption
+msgctxt "tffilterfunction.label_alphaequals.caption"
+msgid "."
+msgstr ""
+
+#: tffilterfunction.label_blueequals.caption
+msgctxt "tffilterfunction.label_blueequals.caption"
+msgid "."
+msgstr ""
+
+#: tffilterfunction.label_greenequals.caption
+msgctxt "tffilterfunction.label_greenequals.caption"
+msgid "."
+msgstr ""
+
+#: tffilterfunction.label_hueequals.caption
+msgctxt "tffilterfunction.label_hueequals.caption"
+msgid "."
+msgstr ""
+
+#: tffilterfunction.label_lightnessequals.caption
+msgctxt "tffilterfunction.label_lightnessequals.caption"
+msgid "."
+msgstr ""
+
+#: tffilterfunction.label_redequals.caption
+msgctxt "tffilterfunction.label_redequals.caption"
+msgid "."
+msgstr ""
+
+#: tffilterfunction.label_saturationequals.caption
+msgctxt "tffilterfunction.label_saturationequals.caption"
+msgid "."
+msgstr ""
+
+#: tffilterfunction.label_variables.caption
+msgid "Variables :"
+msgstr ""
+
+#: tffilterfunction.tabsheet_hsl.caption
+msgid "HSL"
+msgstr ""
+
+#: tffilterfunction.tabsheet_rgb.caption
+msgid "RGB"
+msgstr ""
+
+#: tfgeometricbrush.button_cancel.caption
+msgctxt "TFGEOMETRICBRUSH.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfgeometricbrush.button_ok.caption
+msgctxt "TFGEOMETRICBRUSH.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfgeometricbrush.caption
+msgid "Geometric brush"
+msgstr ""
+
+#: tfgeometricbrush.checkbox_isgradient.caption
+msgid "Opacity gradient"
+msgstr ""
+
+#: tfgeometricbrush.label1.caption
+msgid "Number of sides:"
+msgstr ""
+
+#: tfimagelist.caption
+msgid "Image List"
+msgstr "Kuvaluettelo"
+
+#: tfimagelist.pmautouncheckonopen.caption
+msgid "Autouncheck files after being open"
+msgstr ""
+
+#: tfimagelist.pmautouncheckonsave.caption
+msgid "Autouncheck files after being edited and saved"
+msgstr ""
+
+#: tfimagelist.pmremoveall.caption
+msgid "Empty image list"
+msgstr "Tyhjä kuvaluettelo"
+
+#: tfimagelist.pmremovenonexisting.caption
+msgid "Remove nonexisting images"
+msgstr ""
+
+#: tfimagelist.pmremoveunchecked.caption
+msgid "Remove unchecked images"
+msgstr ""
+
+#: tfimagelist.pmunchecknonexisting.caption
+msgid "Uncheck nonexisting files"
+msgstr ""
+
+#: tfimagelist.stringgrid1.columns[0].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[0].title.caption"
+msgid "-"
+msgstr ""
+
+#: tfimagelist.stringgrid1.columns[1].title.caption
+msgctxt "TFIMAGELIST.STRINGGRID1.COLUMNS[1].TITLE.CAPTION"
+msgid "-"
+msgstr ""
+
+#: tfimagelist.stringgrid1.columns[2].title.caption
+msgctxt "TFIMAGELIST.STRINGGRID1.COLUMNS[2].TITLE.CAPTION"
+msgid "-"
+msgstr ""
+
+#: tfimagelist.stringgrid1.columns[3].title.caption
+msgctxt "TFIMAGELIST.STRINGGRID1.COLUMNS[3].TITLE.CAPTION"
+msgid "-"
+msgstr ""
+
+#: tfimagelist.tbaddfiles.hint
+msgid "Add images to list"
+msgstr ""
+
+#: tfimagelist.tbautouncheck.hint
+msgid "Enable/disable autounchecking for processed files"
+msgstr ""
+
+#: tfimagelist.tbautozoomfit.hint
+msgid "Enable/disable autofitting images in the LazPaint window"
+msgstr ""
+
+#: tfimagelist.tbcheckall.hint
+msgid "Check all files for processing"
+msgstr ""
+
+#: tfimagelist.tbminiwindow.hint
+msgid "Switch to miniwindow"
+msgstr ""
+
+#: tfimagelist.tbmovedown.hint
+msgid "Move selected items down"
+msgstr ""
+
+#: tfimagelist.tbmoveup.hint
+msgid "Move selected items up"
+msgstr ""
+
+#: tfimagelist.tbnormalwindows.hint
+msgid "Switch to normal window"
+msgstr ""
+
+#: tfimagelist.tbopenimage.hint
+msgid "Open current image"
+msgstr ""
+
+#: tfimagelist.tbopennext.hint
+msgctxt "tfimagelist.tbopennext.hint"
+msgid "Open next image (Alt-Right)"
+msgstr ""
+
+#: tfimagelist.tbopennextsw.hint
+msgctxt "TFIMAGELIST.TBOPENNEXTSW.HINT"
+msgid "Open next image"
+msgstr ""
+
+#: tfimagelist.tbopenprev.hint
+msgctxt "tfimagelist.tbopenprev.hint"
+msgid "Open previous image (Alt-Left)"
+msgstr ""
+
+#: tfimagelist.tbopenprevsw.hint
+msgctxt "TFIMAGELIST.TBOPENPREVSW.HINT"
+msgid "Open previous image"
+msgstr ""
+
+#: tfimagelist.tbremoveitem.hint
+msgid "Remove selected images from list"
+msgstr ""
+
+#: tfimagelist.tbuncheckall.hint
+msgid "Uncheck all files for processing"
+msgstr ""
+
+#: tflayerstack.caption
+msgctxt "TFLAYERSTACK.CAPTION"
+msgid "Layers"
+msgstr ""
+
+#: tflayerstack.toolblendop.hint
+msgid "Select blend operation"
+msgstr ""
+
+#: tflayerstack.toolzoomlayerstackin.hint
+msgctxt "tflayerstack.toolzoomlayerstackin.hint"
+msgid "Zoom layer stack in"
+msgstr ""
+
+#: tflayerstack.toolzoomlayerstackout.hint
+msgctxt "tflayerstack.toolzoomlayerstackout.hint"
+msgid "Zoom layer stack out"
+msgstr ""
+
+#: tfloading.caption
+msgctxt "tfloading.caption"
+msgid "Loading..."
+msgstr ""
+
+#: tfmain.brushcreategeometric.hint
+msgctxt "TFMAIN.BRUSHCREATEGEOMETRIC.HINT"
+msgid "Create geometric brush"
+msgstr ""
+
+#: tfmain.brushloadfromfile.hint
+msgctxt "TFMAIN.BRUSHLOADFROMFILE.HINT"
+msgid "Load brush from file..."
+msgstr ""
+
+#: tfmain.brushremovecurrent.hint
+msgid "Remove current brush"
+msgstr ""
+
+#: tfmain.caption
+msgctxt "TFMAIN.CAPTION"
+msgid "LazPaint"
+msgstr ""
+
+#: tfmain.colorcolorize.caption
+msgid "Colorize..."
+msgstr ""
+
+#: tfmain.colorcurves.caption
+msgid "Curves..."
+msgstr "Käyrät"
+
+#: tfmain.colordialog1.title
+msgid "Choose color"
+msgstr ""
+
+#: tfmain.colorintensity.caption
+msgid "Intensity..."
+msgstr ""
+
+#: tfmain.colorlightness.caption
+msgid "Brightness / Contrast..."
+msgstr ""
+
+#: tfmain.colorposterize.caption
+msgid "Posterize..."
+msgstr ""
+
+#: tfmain.colorshiftcolors.caption
+msgctxt "TFMAIN.COLORSHIFTCOLORS.CAPTION"
+msgid "Shift colors..."
+msgstr ""
+
+#: tfmain.editcopy.caption
+msgid "Copy"
+msgstr "Kopio"
+
+#: tfmain.editcopy.hint
+msgid "Copy selection"
+msgstr ""
+
+#: tfmain.editcut.caption
+msgid "Cut"
+msgstr "Leikkaa"
+
+#: tfmain.editcut.hint
+msgid "Cut selection"
+msgstr ""
+
+#: tfmain.editdeleteselection.caption
+msgctxt "tfmain.editdeleteselection.caption"
+msgid "Delete"
+msgstr "Poista"
+
+#: tfmain.editdeleteselection.hint
+msgid "Delete selection"
+msgstr ""
+
+#: tfmain.editdeselect.hint
+msgctxt "TFMAIN.EDITDESELECT.HINT"
+msgid "Deselect"
+msgstr ""
+
+#: tfmain.editinvertselection.hint
+msgctxt "TFMAIN.EDITINVERTSELECTION.HINT"
+msgid "Invert selection"
+msgstr ""
+
+#: tfmain.editpaste.hint
+msgctxt "TFMAIN.EDITPASTE.HINT"
+msgid "Paste"
+msgstr "Liitä"
+
+#: tfmain.editpasteasnew.caption
+msgid "Paste as new image"
+msgstr "Liitä uutena kuvana"
+
+#: tfmain.editpasteasnewlayer.caption
+msgid "Paste as new layer"
+msgstr "Liitä uutena kerroksena"
+
+#: tfmain.editredo.hint
+msgctxt "TFMAIN.EDITREDO.HINT"
+msgid "Redo"
+msgstr "Palauta"
+
+#: tfmain.editselectall.caption
+msgid "Select all"
+msgstr "Valitse kaikki"
+
+#: tfmain.editselection.caption
+msgid "Edit selection..."
+msgstr ""
+
+#: tfmain.editselectionfit.caption
+msgid "Selection fit"
+msgstr ""
+
+#: tfmain.editundo.caption
+msgid "Undo"
+msgstr "Kumoa"
+
+#: tfmain.editundo.hint
+msgid "Undo last modification"
+msgstr "Kumoa"
+
+#: tfmain.embeddedcancel.caption
+msgctxt "TFMAIN.EMBEDDEDCANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfmain.embeddedcancel.hint
+msgid "Cancel modifications"
+msgstr ""
+
+#: tfmain.embeddedvalidate.caption
+msgid "Validate"
+msgstr ""
+
+#: tfmain.embeddedvalidate.hint
+msgid "Validate modifications"
+msgstr ""
+
+#: tfmain.fileimport3d.caption
+msgid "Import 3D object..."
+msgstr ""
+
+#: tfmain.fileloadselection.caption
+msgid "Load selection..."
+msgstr ""
+
+#: tfmain.filenew.caption
+msgid "New..."
+msgstr "Uusi..."
+
+#: tfmain.filenew.hint
+msgid "Create a new file"
+msgstr "Luo uusi tiedosto"
+
+#: tfmain.fileopen.caption
+msgid "Open..."
+msgstr "Avaa..."
+
+#: tfmain.fileopen.hint
+msgctxt "TFMAIN.FILEOPEN.HINT"
+msgid "Open existing file"
+msgstr "Avaa tiedosto"
+
+#: tfmain.fileprint.caption
+msgid "Print..."
+msgstr "Tulosta..."
+
+#: tfmain.filequit.hint
+msgctxt "TFMAIN.FILEQUIT.HINT"
+msgid "Quit"
+msgstr "Lopeta"
+
+#: tfmain.filereload.caption
+msgctxt "TFMAIN.FILERELOAD.CAPTION"
+msgid "Reload"
+msgstr ""
+
+#: tfmain.filesave.caption
+msgctxt "TFMAIN.FILESAVE.CAPTION"
+msgid "Save"
+msgstr "Tallenna"
+
+#: tfmain.filesave.hint
+msgid "Save current file"
+msgstr "Tallenna"
+
+#: tfmain.filesaveas.caption
+msgid "Save as..."
+msgstr "Tallenna nimellä..."
+
+#: tfmain.filesaveas.hint
+msgid "Save file as"
+msgstr "Tallenna nimellä"
+
+#: tfmain.filesaveasinsamefolder.caption
+msgid "Save in same folder..."
+msgstr ""
+
+#: tfmain.filesaveselectionas.caption
+msgctxt "TFMAIN.FILESAVESELECTIONAS.CAPTION"
+msgid "Save selection as..."
+msgstr ""
+
+#: tfmain.filterblurbox.caption
+msgid "Box blur..."
+msgstr ""
+
+#: tfmain.filterblurcorona.caption
+msgctxt "TFMAIN.FILTERBLURCORONA.CAPTION"
+msgid "Corona blur..."
+msgstr ""
+
+#: tfmain.filterblurcustom.caption
+msgctxt "TFMAIN.FILTERBLURCUSTOM.CAPTION"
+msgid "Custom blur..."
+msgstr ""
+
+#: tfmain.filterblurdisk.caption
+msgctxt "TFMAIN.FILTERBLURDISK.CAPTION"
+msgid "Disk blur..."
+msgstr ""
+
+#: tfmain.filterblurfast.caption
+msgctxt "TFMAIN.FILTERBLURFAST.CAPTION"
+msgid "Fast blur..."
+msgstr ""
+
+#: tfmain.filterblurmotion.caption
+msgctxt "TFMAIN.FILTERBLURMOTION.CAPTION"
+msgid "Motion blur..."
+msgstr ""
+
+#: tfmain.filterblurprecise.caption
+msgctxt "TFMAIN.FILTERBLURPRECISE.CAPTION"
+msgid "Precise blur..."
+msgstr ""
+
+#: tfmain.filterblurradial.caption
+msgctxt "TFMAIN.FILTERBLURRADIAL.CAPTION"
+msgid "Gaussian blur..."
+msgstr ""
+
+#: tfmain.filtercleartype.caption
+msgid "ClearType"
+msgstr ""
+
+#: tfmain.filtercleartypeinverse.caption
+msgid "Inverse ClearType"
+msgstr ""
+
+#: tfmain.filtercomplementarycolor.caption
+msgid "Complementary colors"
+msgstr ""
+
+#: tfmain.filtercontour.caption
+msgid "Contour"
+msgstr ""
+
+#: tfmain.filtercylinder.caption
+msgid "Cylinder"
+msgstr ""
+
+#: tfmain.filteremboss.caption
+msgid "Emboss..."
+msgstr ""
+
+#: tfmain.filterfunction.caption
+msgid "Apply function..."
+msgstr ""
+
+#: tfmain.filtergrayscale.caption
+msgid "Grayscale"
+msgstr "Harmaasävy"
+
+#: tfmain.filterlinearnegative.caption
+msgctxt "TFMAIN.FILTERLINEARNEGATIVE.CAPTION"
+msgid "Linear negative"
+msgstr ""
+
+#: tfmain.filtermedian.caption
+msgid "Median"
+msgstr ""
+
+#: tfmain.filternegative.caption
+msgid "Negative"
+msgstr ""
+
+#: tfmain.filternoise.caption
+msgid "Noise filter..."
+msgstr ""
+
+#: tfmain.filternormalize.caption
+msgid "Normalize"
+msgstr ""
+
+#: tfmain.filterphong.caption
+msgctxt "tfmain.filterphong.caption"
+msgid "Shaded map..."
+msgstr ""
+
+#: tfmain.filterpixelate.caption
+msgid "Pixelate..."
+msgstr ""
+
+#: tfmain.filterplane.caption
+msgid "Plane (slow)"
+msgstr ""
+
+#: tfmain.filterrain.caption
+msgid "Rain..."
+msgstr ""
+
+#: tfmain.filtersharpen.caption
+msgid "Sharpen..."
+msgstr ""
+
+#: tfmain.filtersmooth.caption
+msgid "Smooth"
+msgstr ""
+
+#: tfmain.filtersphere.caption
+msgctxt "TFMAIN.FILTERSPHERE.CAPTION"
+msgid "Sphere"
+msgstr ""
+
+#: tfmain.filtertwirl.caption
+msgid "Twirl..."
+msgstr ""
+
+#: tfmain.helpabout.caption
+msgid "About..."
+msgstr "Tietoja..."
+
+#: tfmain.helpindex.caption
+msgid "Index..."
+msgstr ""
+
+#: tfmain.imagechangecanvassize.caption
+msgid "Canvas size..."
+msgstr ""
+
+#: tfmain.imageclearalpha.caption
+msgid "Clear alpha channel and set background"
+msgstr ""
+
+#: tfmain.imagecrop.caption
+msgid "Crop to selection"
+msgstr ""
+
+#: tfmain.imagecroplayer.caption
+msgid "Crop to selection and current layer"
+msgstr ""
+
+#: tfmain.imagefillbackground.caption
+msgid "Fill background with antialiasing"
+msgstr ""
+
+#: tfmain.imageflatten.caption
+msgid "Flatten image"
+msgstr ""
+
+#: tfmain.imagehorizontalflip.caption
+msgctxt "tfmain.imagehorizontalflip.caption"
+msgid "Horizontal flip"
+msgstr ""
+
+#: tfmain.imagehorizontalflip.hint
+msgctxt "tfmain.imagehorizontalflip.hint"
+msgid "Flip image horizontally"
+msgstr ""
+
+#: tfmain.imagerepeat.caption
+msgid "Repeat..."
+msgstr ""
+
+#: tfmain.imageresample.caption
+msgid "Resample..."
+msgstr ""
+
+#: tfmain.imageresample.hint
+msgid "Resample image"
+msgstr ""
+
+#: tfmain.imagerotateccw.caption
+msgid "Rotate 90° CCW"
+msgstr ""
+
+#: tfmain.imagerotatecw.caption
+msgid "Rotate 90° CW"
+msgstr ""
+
+#: tfmain.imagesmartzoom3.caption
+msgid "Smart zoom x3"
+msgstr ""
+
+#: tfmain.imageverticalflip.caption
+msgctxt "tfmain.imageverticalflip.caption"
+msgid "Vertical flip"
+msgstr ""
+
+#: tfmain.imageverticalflip.hint
+msgid "Flip image vertically"
+msgstr ""
+
+#: tfmain.image_currenttexture.hint
+msgctxt "tfmain.image_currenttexture.hint"
+msgid "Current texture"
+msgstr ""
+
+#: tfmain.image_currenttool.hint
+msgctxt "TFMAIN.IMAGE_CURRENTTOOL.HINT"
+msgid "Selected tool"
+msgstr "Valittu työkalu"
+
+#: tfmain.image_swapcolors.hint
+msgctxt "TFMAIN.IMAGE_SWAPCOLORS.HINT"
+msgid "Switch color"
+msgstr "Vaihda värit"
+
+#: tfmain.itemdocklayersandcolors.caption
+msgid "Dock layers and colors"
+msgstr ""
+
+#: tfmain.itemdonate.caption
+msgctxt "TFMAIN.ITEMDONATE.CAPTION"
+msgid "Donate..."
+msgstr ""
+
+#: tfmain.itemfullscreen.caption
+msgid "Fullscreen"
+msgstr ""
+
+#: tfmain.itemhorizfliplayer.caption
+msgctxt "TFMAIN.ITEMHORIZFLIPLAYER.CAPTION"
+msgid "Current layer"
+msgstr ""
+
+#: tfmain.itemhorizflippicture.caption
+msgctxt "TFMAIN.ITEMHORIZFLIPPICTURE.CAPTION"
+msgid "Whole picture"
+msgstr ""
+
+#: tfmain.itemhorizflipselection.caption
+msgctxt "TFMAIN.ITEMHORIZFLIPSELECTION.CAPTION"
+msgid "Selection"
+msgstr ""
+
+#: tfmain.itemquitseparator.caption
+msgctxt "TFMAIN.ITEMQUITSEPARATOR.CAPTION"
+msgid "-"
+msgstr ""
+
+#: tfmain.itemvertfliplayer.caption
+msgctxt "TFMAIN.ITEMVERTFLIPLAYER.CAPTION"
+msgid "Current layer"
+msgstr ""
+
+#: tfmain.itemvertflippicture.caption
+msgctxt "TFMAIN.ITEMVERTFLIPPICTURE.CAPTION"
+msgid "Whole picture"
+msgstr ""
+
+#: tfmain.itemvertflipselection.caption
+msgctxt "TFMAIN.ITEMVERTFLIPSELECTION.CAPTION"
+msgid "Selection"
+msgstr ""
+
+#: tfmain.itemviewdocktoolbox.caption
+msgid "Dock toolbox"
+msgstr ""
+
+#: tfmain.itemviewpalette.caption
+msgid "Palette"
+msgstr ""
+
+#: tfmain.label_altitude.caption
+msgid "Altitude"
+msgstr ""
+
+#: tfmain.label_back.caption
+msgid "Back"
+msgstr "Tausta"
+
+#: tfmain.label_brush.caption
+msgctxt "TFMAIN.LABEL_BRUSH.CAPTION"
+msgid "Brush"
+msgstr ""
+
+#: tfmain.label_coordinates.caption
+msgid "99999x99999"
+msgstr ""
+
+#: tfmain.label_coordinates.hint
+msgid "Coordinates"
+msgstr ""
+
+#: tfmain.label_currentdiff.caption
+msgctxt "TFMAIN.LABEL_CURRENTDIFF.CAPTION"
+msgid "100%"
+msgstr ""
+
+#: tfmain.label_currentdiff.hint
+msgid "Color difference"
+msgstr ""
+
+#: tfmain.label_currentzoom.caption
+msgctxt "TFMAIN.LABEL_CURRENTZOOM.CAPTION"
+msgid "%"
+msgstr ""
+
+#: tfmain.label_currentzoom.hint
+msgid "Current zoom"
+msgstr ""
+
+#: tfmain.label_curve.caption
+msgctxt "TFMAIN.LABEL_CURVE.CAPTION"
+msgid "Curve"
+msgstr ""
+
+#: tfmain.label_eraser.caption
+msgctxt "TFMAIN.LABEL_ERASER.CAPTION"
+msgid "Erase"
+msgstr ""
+
+#: tfmain.label_grid.caption
+msgctxt "TFMAIN.LABEL_GRID.CAPTION"
+msgid "Grid"
+msgstr ""
+
+#: tfmain.label_gridx.caption
+msgctxt "TFMAIN.LABEL_GRIDX.CAPTION"
+msgid "x"
+msgstr ""
+
+#: tfmain.label_outlinewidth.caption
+msgctxt "TFMAIN.LABEL_OUTLINEWIDTH.CAPTION"
+msgid "Width"
+msgstr ""
+
+#: tfmain.label_pen.caption
+msgctxt "TFMAIN.LABEL_PEN.CAPTION"
+msgid "Pen"
+msgstr "Kynä"
+
+#: tfmain.label_penwidth.caption
+msgctxt "TFMAIN.LABEL_PENWIDTH.CAPTION"
+msgid "Width"
+msgstr ""
+
+#: tfmain.label_phongborder.caption
+msgctxt "TFMAIN.LABEL_PHONGBORDER.CAPTION"
+msgid "Border"
+msgstr ""
+
+#: tfmain.label_shadowoffset.caption
+msgctxt "TFMAIN.LABEL_SHADOWOFFSET.CAPTION"
+msgid "Offset"
+msgstr ""
+
+#: tfmain.label_shape.caption
+msgctxt "TFMAIN.LABEL_SHAPE.CAPTION"
+msgid "Shape"
+msgstr ""
+
+#: tfmain.label_spacing.caption
+msgid "Spacing"
+msgstr ""
+
+#: tfmain.label_text.caption
+msgctxt "TFMAIN.LABEL_TEXT.CAPTION"
+msgid "Text"
+msgstr "Teksti"
+
+#: tfmain.label_textblur.caption
+msgctxt "TFMAIN.LABEL_TEXTBLUR.CAPTION"
+msgid "Blur"
+msgstr ""
+
+#: tfmain.label_tolerance.caption
+msgctxt "TFMAIN.LABEL_TOLERANCE.CAPTION"
+msgid "Tolerance"
+msgstr ""
+
+#: tfmain.layeraddnew.hint
+msgctxt "tfmain.layeraddnew.hint"
+msgid "Add new layer"
+msgstr "Lisää uusi kerros"
+
+#: tfmain.layerduplicate.hint
+msgctxt "tfmain.layerduplicate.hint"
+msgid "Duplicate selected layer"
+msgstr ""
+
+#: tfmain.layerfromfile.hint
+msgctxt "TFMAIN.LAYERFROMFILE.HINT"
+msgid "Import layer from file..."
+msgstr ""
+
+#: tfmain.layerhorizontalflip.hint
+msgid "Flip layer horizontally"
+msgstr ""
+
+#: tfmain.layermergeover.hint
+msgctxt "TFMAIN.LAYERMERGEOVER.HINT"
+msgid "Merge layer over"
+msgstr ""
+
+#: tfmain.layermove.hint
+msgctxt "TFMAIN.LAYERMOVE.HINT"
+msgid "Move layer"
+msgstr ""
+
+#: tfmain.layerremovecurrent.hint
+msgctxt "TFMAIN.LAYERREMOVECURRENT.HINT"
+msgid "Remove layer"
+msgstr ""
+
+#: tfmain.layerrotate.hint
+msgctxt "TFMAIN.LAYERROTATE.HINT"
+msgid "Rotate layer"
+msgstr ""
+
+#: tfmain.layerverticalflip.hint
+msgctxt "tfmain.layerverticalflip.hint"
+msgid "Flip layer vertically"
+msgstr ""
+
+#: tfmain.loadselectiondialog.title
+msgid "Load selection"
+msgstr ""
+
+#: tfmain.menucolors.caption
+msgctxt "TFMAIN.MENUCOLORS.CAPTION"
+msgid "Colors"
+msgstr "Värit"
+
+#: tfmain.menucoordinatestoolbar.caption
+msgid "Show coordinates"
+msgstr ""
+
+#: tfmain.menucopypastetoolbar.caption
+msgid "Show copy/paste toolbar"
+msgstr ""
+
+#: tfmain.menudocktoolboxleft.caption
+msgid "Dock left"
+msgstr ""
+
+#: tfmain.menudocktoolboxright.caption
+msgid "Dock right"
+msgstr ""
+
+#: tfmain.menuedit.caption
+msgctxt "TFMAIN.MENUEDIT.CAPTION"
+msgid "Edit"
+msgstr "Muokkaa"
+
+#: tfmain.menufile.caption
+msgid "File"
+msgstr "Tiedosto"
+
+#: tfmain.menufilter.caption
+msgctxt "TFMAIN.MENUFILTER.CAPTION"
+msgid "Filter"
+msgstr "Suodattimet"
+
+#: tfmain.menuhelp.caption
+msgctxt "TFMAIN.MENUHELP.CAPTION"
+msgid "Help"
+msgstr "Ohje"
+
+#: tfmain.menuhorizflipsub.caption
+msgctxt "TFMAIN.MENUHORIZFLIPSUB.CAPTION"
+msgid "Horizontal flip"
+msgstr ""
+
+#: tfmain.menuhorizflipsub.hint
+msgctxt "TFMAIN.MENUHORIZFLIPSUB.HINT"
+msgid "Flip image horizontally"
+msgstr ""
+
+#: tfmain.menuimage.caption
+msgctxt "TFMAIN.MENUIMAGE.CAPTION"
+msgid "Image"
+msgstr "Kuva"
+
+#: tfmain.menuitem1.caption
+msgctxt "TFMAIN.MENUITEM1.CAPTION"
+msgid "-"
+msgstr ""
+
+#: tfmain.menulanguage.caption
+msgctxt "TFMAIN.MENULANGUAGE.CAPTION"
+msgid "Language"
+msgstr "Kieli"
+
+#: tfmain.menuradialblur.caption
+msgctxt "TFMAIN.MENURADIALBLUR.CAPTION"
+msgid "Radial blur"
+msgstr ""
+
+#: tfmain.menurecentfiles.caption
+msgctxt "TFMAIN.MENURECENTFILES.CAPTION"
+msgid "Recent files"
+msgstr "Viimeisimmät tiedostot"
+
+#: tfmain.menuremovetransparency.caption
+msgctxt "TFMAIN.MENUREMOVETRANSPARENCY.CAPTION"
+msgid "Remove transparency"
+msgstr ""
+
+#: tfmain.menurender.caption
+msgctxt "TFMAIN.MENURENDER.CAPTION"
+msgid "Render"
+msgstr ""
+
+#: tfmain.menuselect.caption
+msgctxt "TFMAIN.MENUSELECT.CAPTION"
+msgid "Select"
+msgstr "Valitse"
+
+#: tfmain.menushowpalette.caption
+msgctxt "TFMAIN.MENUSHOWPALETTE.CAPTION"
+msgid "Show palette"
+msgstr ""
+
+#: tfmain.menutool.caption
+msgctxt "TFMAIN.MENUTOOL.CAPTION"
+msgid "Tools"
+msgstr "Työkalut"
+
+#: tfmain.menuundocktoolbox.caption
+msgid "Undock"
+msgstr ""
+
+#: tfmain.menuundoredotoolbar.caption
+msgid "Show undo/redo toolbar"
+msgstr ""
+
+#: tfmain.menuvertflipsub.caption
+msgctxt "TFMAIN.MENUVERTFLIPSUB.CAPTION"
+msgid "Vertical flip"
+msgstr ""
+
+#: tfmain.menuview.caption
+msgctxt "TFMAIN.MENUVIEW.CAPTION"
+msgid "View"
+msgstr "Näytä"
+
+#: tfmain.menuzoomtoolbar.caption
+msgid "Show zoom toolbar"
+msgstr ""
+
+#: tfmain.open3dobjectdialog.title
+msgctxt "TFMAIN.OPEN3DOBJECTDIALOG.TITLE"
+msgid "Import 3D object"
+msgstr ""
+
+#: tfmain.openbrushdialog.title
+msgid "Open brush"
+msgstr ""
+
+#: tfmain.openpicturedialog1.title
+msgid "Open existing image"
+msgstr ""
+
+#: tfmain.opentexturedialog.title
+msgctxt "tfmain.opentexturedialog.title"
+msgid "Open texture"
+msgstr ""
+
+#: tfmain.perspective_repeat.hint
+msgctxt "TFMAIN.PERSPECTIVE_REPEAT.HINT"
+msgid "Repeat image"
+msgstr ""
+
+#: tfmain.perspective_twoplanes.hint
+msgctxt "TFMAIN.PERSPECTIVE_TWOPLANES.HINT"
+msgid "Draw opposite plane too"
+msgstr ""
+
+#: tfmain.rendercamouflage.caption
+msgid "Camouflage"
+msgstr ""
+
+#: tfmain.renderclouds.caption
+msgid "Clouds"
+msgstr ""
+
+#: tfmain.rendercustomwater.caption
+msgid "Water with custom colors"
+msgstr ""
+
+#: tfmain.rendercyclicperlinnoise.caption
+msgctxt "TFMAIN.RENDERCYCLICPERLINNOISE.CAPTION"
+msgid "Cyclic Perlin noise"
+msgstr ""
+
+#: tfmain.rendermarble.caption
+msgid "Marble"
+msgstr ""
+
+#: tfmain.rendermetalfloor.caption
+msgid "Metal floor"
+msgstr ""
+
+#: tfmain.renderperlinnoise.caption
+msgid "Perlin noise"
+msgstr ""
+
+#: tfmain.renderplastik.caption
+msgid "Plastik"
+msgstr ""
+
+#: tfmain.renderroundstone.caption
+msgid "Round stone"
+msgstr ""
+
+#: tfmain.rendersnowprint.caption
+msgid "Snow print"
+msgstr ""
+
+#: tfmain.renderstone.caption
+msgid "Stone"
+msgstr ""
+
+#: tfmain.renderwater.caption
+msgctxt "TFMAIN.RENDERWATER.CAPTION"
+msgid "Water"
+msgstr ""
+
+#: tfmain.renderwood.caption
+msgid "Wood"
+msgstr ""
+
+#: tfmain.renderwoodvertical.caption
+msgid "Vertical wood"
+msgstr ""
+
+#: tfmain.savepicturedialog1.title
+msgid "Save file as..."
+msgstr ""
+
+#: tfmain.saveselectiondialog.title
+msgctxt "TFMAIN.SAVESELECTIONDIALOG.TITLE"
+msgid "Save selection as..."
+msgstr ""
+
+#: tfmain.shape_backcolor.hint
+msgctxt "tfmain.shape_backcolor.hint"
+msgid "Select secondary color"
+msgstr ""
+
+#: tfmain.shape_pencolor.hint
+msgid "Select pen color"
+msgstr ""
+
+#: tfmain.toolbrush.hint
+msgctxt "tfmain.toolbrush.hint"
+msgid "Brush"
+msgstr ""
+
+#: tfmain.toolchangedocking.hint
+msgctxt "TFMAIN.TOOLCHANGEDOCKING.HINT"
+msgid "Change docking"
+msgstr ""
+
+#: tfmain.toolclone.hint
+msgid "Clone tool"
+msgstr ""
+
+#: tfmain.toolcolorpicker.hint
+msgctxt "TFMAIN.TOOLCOLORPICKER.HINT"
+msgid "Color picker"
+msgstr "Värin poimija"
+
+#: tfmain.tooldeformation.caption
+msgid "Deformation"
+msgstr ""
+
+#: tfmain.tooldeformation.hint
+msgid "Deformation grid"
+msgstr ""
+
+#: tfmain.toolellipse.hint
+msgctxt "TFMAIN.TOOLELLIPSE.HINT"
+msgid "Ellipse"
+msgstr ""
+
+#: tfmain.tooleraser.hint
+msgctxt "TFMAIN.TOOLERASER.HINT"
+msgid "Eraser"
+msgstr "Pyyhin"
+
+#: tfmain.toolfloodfill.hint
+msgid "Floodfill"
+msgstr "Täytä värillä"
+
+#: tfmain.toolgradient.caption
+msgid "Gradient"
+msgstr ""
+
+#: tfmain.toolgradient.hint
+msgid "Render gradient"
+msgstr ""
+
+#: tfmain.toolhand.caption
+msgid "Hand"
+msgstr ""
+
+#: tfmain.toolhand.hint
+msgid "Move and scroll picture"
+msgstr ""
+
+#: tfmain.toollayermapping.hint
+msgctxt "TFMAIN.TOOLLAYERMAPPING.HINT"
+msgid "Layer perspective"
+msgstr ""
+
+#: tfmain.toolloadtexture.hint
+msgctxt "tfmain.toolloadtexture.hint"
+msgid "Load texture..."
+msgstr ""
+
+#: tfmain.toolmagicwand.caption
+msgid "Magic wand"
+msgstr ""
+
+#: tfmain.toolmagicwand.hint
+msgid "Magic wand select"
+msgstr ""
+
+#: tfmain.toolmoveselection.hint
+msgctxt "TFMAIN.TOOLMOVESELECTION.HINT"
+msgid "Move selection"
+msgstr ""
+
+#: tfmain.toolnotexture.hint
+msgctxt "tfmain.toolnotexture.hint"
+msgid "No texture"
+msgstr ""
+
+#: tfmain.toolpen.caption
+msgctxt "TFMAIN.TOOLPEN.CAPTION"
+msgid "Pen"
+msgstr "Kynä"
+
+#: tfmain.toolpen.hint
+msgid "Simple pen"
+msgstr ""
+
+#: tfmain.toolphong.hint
+msgctxt "TFMAIN.TOOLPHONG.HINT"
+msgid "Shaded shape"
+msgstr ""
+
+#: tfmain.toolpolygon.caption
+msgid "Polygon"
+msgstr ""
+
+#: tfmain.toolpolygon.hint
+msgid "Polygon or polyline"
+msgstr ""
+
+#: tfmain.toolrect.hint
+msgctxt "TFMAIN.TOOLRECT.HINT"
+msgid "Rectangle"
+msgstr ""
+
+#: tfmain.toolrotateselection.hint
+msgctxt "TFMAIN.TOOLROTATESELECTION.HINT"
+msgid "Rotate selection"
+msgstr ""
+
+#: tfmain.toolselectellipse.hint
+msgctxt "TFMAIN.TOOLSELECTELLIPSE.HINT"
+msgid "Select ellipse"
+msgstr ""
+
+#: tfmain.toolselectpen.caption
+msgctxt "TFMAIN.TOOLSELECTPEN.CAPTION"
+msgid "Selection pen"
+msgstr ""
+
+#: tfmain.toolselectpen.hint
+msgctxt "TFMAIN.TOOLSELECTPEN.HINT"
+msgid "Draw selection with pen"
+msgstr ""
+
+#: tfmain.toolselectpoly.hint
+msgctxt "TFMAIN.TOOLSELECTPOLY.HINT"
+msgid "Select polygon"
+msgstr ""
+
+#: tfmain.toolselectrect.hint
+msgctxt "TFMAIN.TOOLSELECTRECT.HINT"
+msgid "Select rectangle"
+msgstr ""
+
+#: tfmain.toolselectspline.hint
+msgctxt "TFMAIN.TOOLSELECTSPLINE.HINT"
+msgid "Select curve"
+msgstr ""
+
+#: tfmain.toolspline.caption
+msgctxt "TFMAIN.TOOLSPLINE.CAPTION"
+msgid "Curve"
+msgstr ""
+
+#: tfmain.toolspline.hint
+msgctxt "TFMAIN.TOOLSPLINE.HINT"
+msgid "Spline"
+msgstr ""
+
+#: tfmain.tooltext.hint
+msgctxt "TFMAIN.TOOLTEXT.HINT"
+msgid "Text"
+msgstr "Teksti"
+
+#: tfmain.tooltexturemapping.hint
+msgctxt "tfmain.tooltexturemapping.hint"
+msgid "Texture mapping"
+msgstr ""
+
+#: tfmain.tool_capflat.hint
+msgctxt "TFMAIN.TOOL_CAPFLAT.HINT"
+msgid "Flat cap"
+msgstr ""
+
+#: tfmain.tool_capround.hint
+msgctxt "TFMAIN.TOOL_CAPROUND.HINT"
+msgid "Round cap"
+msgstr ""
+
+#: tfmain.tool_capsquare.hint
+msgctxt "TFMAIN.TOOL_CAPSQUARE.HINT"
+msgid "Square cap"
+msgstr ""
+
+#: tfmain.tool_closeshape.hint
+msgctxt "TFMAIN.TOOL_CLOSESHAPE.HINT"
+msgid "Close shape"
+msgstr ""
+
+#: tfmain.tool_curvemodeangle.hint
+msgid "Draw an angle"
+msgstr ""
+
+#: tfmain.tool_curvemodeauto.hint
+msgctxt "TFMAIN.TOOL_CURVEMODEAUTO.HINT"
+msgid "Autodetect angles"
+msgstr ""
+
+#: tfmain.tool_curvemodecurve.hint
+msgid "Draw a curve"
+msgstr ""
+
+#: tfmain.tool_curvemovepoint.hint
+msgid "Move point"
+msgstr ""
+
+#: tfmain.tool_diamondgradient.hint
+msgctxt "TFMAIN.TOOL_DIAMONDGRADIENT.HINT"
+msgid "Diamond gradient"
+msgstr ""
+
+#: tfmain.tool_drawshapeborder.hint
+msgctxt "TFMAIN.TOOL_DRAWSHAPEBORDER.HINT"
+msgid "Draw border"
+msgstr ""
+
+#: tfmain.tool_erasealpha.hint
+msgctxt "TFMAIN.TOOL_ERASEALPHA.HINT"
+msgid "Make transparent"
+msgstr ""
+
+#: tfmain.tool_eraseblur.hint
+msgctxt "TFMAIN.TOOL_ERASEBLUR.HINT"
+msgid "Soften"
+msgstr ""
+
+#: tfmain.tool_fillshape.hint
+msgctxt "TFMAIN.TOOL_FILLSHAPE.HINT"
+msgid "Fill shape"
+msgstr ""
+
+#: tfmain.tool_gridmovewithoutdeformation.hint
+msgctxt "TFMAIN.TOOL_GRIDMOVEWITHOUTDEFORMATION.HINT"
+msgid "Move grid without deformation"
+msgstr ""
+
+#: tfmain.tool_joinbevel.hint
+msgctxt "TFMAIN.TOOL_JOINBEVEL.HINT"
+msgid "Bevel join"
+msgstr ""
+
+#: tfmain.tool_joinmiter.hint
+msgctxt "TFMAIN.TOOL_JOINMITER.HINT"
+msgid "Miter join"
+msgstr ""
+
+#: tfmain.tool_joinround.hint
+msgctxt "TFMAIN.TOOL_JOINROUND.HINT"
+msgid "Round join"
+msgstr ""
+
+#: tfmain.tool_lineargradient.hint
+msgctxt "TFMAIN.TOOL_LINEARGRADIENT.HINT"
+msgid "Linear gradient"
+msgstr ""
+
+#: tfmain.tool_pendash.hint
+msgctxt "TFMAIN.TOOL_PENDASH.HINT"
+msgid "Dashed line"
+msgstr ""
+
+#: tfmain.tool_pendashdot.hint
+msgctxt "TFMAIN.TOOL_PENDASHDOT.HINT"
+msgid "Dash dot"
+msgstr ""
+
+#: tfmain.tool_pendashdotdot.hint
+msgctxt "TFMAIN.TOOL_PENDASHDOTDOT.HINT"
+msgid "Dash dot dot"
+msgstr ""
+
+#: tfmain.tool_pendot.hint
+msgctxt "TFMAIN.TOOL_PENDOT.HINT"
+msgid "Dotted line"
+msgstr ""
+
+#: tfmain.tool_pensolid.hint
+msgctxt "TFMAIN.TOOL_PENSOLID.HINT"
+msgid "Solid line"
+msgstr ""
+
+#: tfmain.tool_phongshapecone.hint
+msgctxt "TFMAIN.TOOL_PHONGSHAPECONE.HINT"
+msgid "Cone"
+msgstr ""
+
+#: tfmain.tool_phongshapehorizontalcylinder.hint
+msgctxt "TFMAIN.TOOL_PHONGSHAPEHORIZONTALCYLINDER.HINT"
+msgid "Horizontal cylinder"
+msgstr ""
+
+#: tfmain.tool_phongshaperectangle.hint
+msgctxt "TFMAIN.TOOL_PHONGSHAPERECTANGLE.HINT"
+msgid "Rectangle"
+msgstr ""
+
+#: tfmain.tool_phongshaperoundrect.hint
+msgctxt "TFMAIN.TOOL_PHONGSHAPEROUNDRECT.HINT"
+msgid "Rounded rectangle"
+msgstr ""
+
+#: tfmain.tool_phongshapesphere.hint
+msgctxt "TFMAIN.TOOL_PHONGSHAPESPHERE.HINT"
+msgid "Sphere"
+msgstr ""
+
+#: tfmain.tool_phongshapeverticalcone.hint
+msgctxt "TFMAIN.TOOL_PHONGSHAPEVERTICALCONE.HINT"
+msgid "Vertical cone"
+msgstr ""
+
+#: tfmain.tool_phongshapeverticalcylinder.hint
+msgctxt "TFMAIN.TOOL_PHONGSHAPEVERTICALCYLINDER.HINT"
+msgid "Vertical cylinder"
+msgstr ""
+
+#: tfmain.tool_progressivefloodfill.caption
+msgctxt "TFMAIN.TOOL_PROGRESSIVEFLOODFILL.CAPTION"
+msgid "Progressive floodfill"
+msgstr ""
+
+#: tfmain.tool_progressivefloodfill.hint
+msgctxt "TFMAIN.TOOL_PROGRESSIVEFLOODFILL.HINT"
+msgid "Progressive floodfill"
+msgstr ""
+
+#: tfmain.tool_radialgradient.hint
+msgctxt "TFMAIN.TOOL_RADIALGRADIENT.HINT"
+msgid "Radial gradient"
+msgstr ""
+
+#: tfmain.tool_reflectedgradient.hint
+msgctxt "TFMAIN.TOOL_REFLECTEDGRADIENT.HINT"
+msgid "Reflected gradient"
+msgstr ""
+
+#: tfmain.tool_singradient.hint
+msgctxt "TFMAIN.TOOL_SINGRADIENT.HINT"
+msgid "Sine gradient"
+msgstr ""
+
+#: tfmain.tool_textfont.hint
+msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
+msgid "Choose font..."
+msgstr "Valitse kirjaisin..."
+
+#: tfmain.tool_textoutline.hint
+msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
+msgid "Text outline"
+msgstr ""
+
+#: tfmain.tool_textphong.hint
+msgctxt "TFMAIN.TOOL_TEXTPHONG.HINT"
+msgid "Text phong shading"
+msgstr ""
+
+#: tfmain.tool_textshadow.hint
+msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
+msgid "Text shadow"
+msgstr ""
+
+#: tfmain.viewcolors.caption
+msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
+msgid "Colors"
+msgstr "Värit"
+
+#: tfmain.viewgrid.caption
+msgctxt "TFMAIN.VIEWGRID.CAPTION"
+msgid "Grid"
+msgstr ""
+
+#: tfmain.viewimagelist.caption
+msgid "Image list"
+msgstr "Kuvaluettelo"
+
+#: tfmain.viewlayerstack.caption
+msgctxt "tfmain.viewlayerstack.caption"
+msgid "Layers"
+msgstr "Kerrokset"
+
+#: tfmain.viewlayerstackbutton.caption
+msgctxt "TFMAIN.VIEWLAYERSTACKBUTTON.CAPTION"
+msgid "Show layers"
+msgstr ""
+
+#: tfmain.viewlayerstackbutton.hint
+msgctxt "TFMAIN.VIEWLAYERSTACKBUTTON.HINT"
+msgid "Show or hide layer stack window"
+msgstr ""
+
+#: tfmain.viewtoolbox.caption
+msgid "Toolbox"
+msgstr ""
+
+#: tfmain.viewzoomfit.caption
+msgctxt "tfmain.viewzoomfit.caption"
+msgid "Zoom fit"
+msgstr ""
+
+#: tfmain.viewzoomfit.hint
+msgctxt "TFMAIN.VIEWZOOMFIT.HINT"
+msgid "Zoom to fit in the window"
+msgstr ""
+
+#: tfmain.viewzoomin.hint
+msgctxt "TFMAIN.VIEWZOOMIN.HINT"
+msgid "Zoom in"
+msgstr "Lähennä"
+
+#: tfmain.viewzoomoriginal.caption
+msgctxt "TFMAIN.VIEWZOOMORIGINAL.CAPTION"
+msgid "Original size"
+msgstr "Alkuperäinen koko"
+
+#: tfmain.viewzoomoriginal.hint
+msgid "Zoom to original pixel size"
+msgstr "Näytä alkuperäisessä koossa"
+
+#: tfmain.viewzoomout.hint
+msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
+msgid "Zoom out"
+msgstr "Loitonna"
+
+#: tfmain.vsarrowsizex.hint
+msgid "Horizontal size of the arrow"
+msgstr ""
+
+#: tfmain.vsarrowsizey.hint
+msgid "Vertical size of the arrow"
+msgstr ""
+
+#: tfmain.vsbackopacity.hint
+msgctxt "TFMAIN.VSBACKOPACITY.HINT"
+msgid "Secondary color opacity"
+msgstr ""
+
+#: tfmain.vsbrushspacing.hint
+msgctxt "TFMAIN.VSBRUSHSPACING.HINT"
+msgid "Spacing between patterns"
+msgstr ""
+
+#: tfmain.vseraseropacity.hint
+msgctxt "TFMAIN.VSERASEROPACITY.HINT"
+msgid "Eraser opacity"
+msgstr ""
+
+#: tfmain.vspenopacity.hint
+msgctxt "TFMAIN.VSPENOPACITY.HINT"
+msgid "Pen opacity"
+msgstr ""
+
+#: tfmain.vspenwidth.hint
+msgctxt "TFMAIN.VSPENWIDTH.HINT"
+msgid "Pen width"
+msgstr ""
+
+#: tfmain.vsphongbordersize.hint
+msgctxt "TFMAIN.VSPHONGBORDERSIZE.HINT"
+msgid "Border size"
+msgstr ""
+
+#: tfmain.vsshapealtitude.hint
+msgctxt "TFMAIN.VSSHAPEALTITUDE.HINT"
+msgid "Shape altitude"
+msgstr ""
+
+#: tfmain.vstextblur.hint
+msgctxt "TFMAIN.VSTEXTBLUR.HINT"
+msgid "Shadow blur"
+msgstr ""
+
+#: tfmain.vstextoutlinewidth.hint
+msgctxt "TFMAIN.VSTEXTOUTLINEWIDTH.HINT"
+msgid "Text outline width"
+msgstr ""
+
+#: tfmain.vstextshadowx.hint
+msgctxt "TFMAIN.VSTEXTSHADOWX.HINT"
+msgid "Horizontal shadow offset"
+msgstr ""
+
+#: tfmain.vstextshadowy.hint
+msgctxt "TFMAIN.VSTEXTSHADOWY.HINT"
+msgid "Vertical shadow offset"
+msgstr ""
+
+#: tfmain.vstextsize.hint
+msgctxt "TFMAIN.VSTEXTSIZE.HINT"
+msgid "Text size"
+msgstr "Kirjaisimen koko"
+
+#: tfmain.vstextureopacity.hint
+msgid "Texture opacity"
+msgstr ""
+
+#: tfmotionblur.button_cancel.caption
+msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfmotionblur.button_ok.caption
+msgctxt "TFMOTIONBLUR.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfmotionblur.caption
+msgctxt "TFMOTIONBLUR.CAPTION"
+msgid "Motion blur"
+msgstr ""
+
+#: tfmotionblur.checkbox_oriented.caption
+msgid "Oriented"
+msgstr ""
+
+#: tfmotionblur.label_distance.caption
+msgctxt "TFMOTIONBLUR.LABEL_DISTANCE.CAPTION"
+msgid "Distance :"
+msgstr ""
+
+#: tfmultiimage.button_cancel.caption
+msgctxt "TFMULTIIMAGE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfmultiimage.button_ok.caption
+msgctxt "TFMULTIIMAGE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfmultiimage.caption
+msgid "Choose image"
+msgstr ""
+
+#: tfnewimage.button_cancel.caption
+msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfnewimage.button_ok.caption
+msgctxt "TFNEWIMAGE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfnewimage.caption
+msgctxt "TFNEWIMAGE.CAPTION"
+msgid "New image"
+msgstr ""
+
+#: tfnewimage.label_height.caption
+msgctxt "TFNEWIMAGE.LABEL_HEIGHT.CAPTION"
+msgid "Height :"
+msgstr "Korkeus :"
+
+#: tfnewimage.label_width.caption
+msgctxt "TFNEWIMAGE.LABEL_WIDTH.CAPTION"
+msgid "Width :"
+msgstr "Leveys :"
+
+#: tfnoisefilter.button_cancel.caption
+msgctxt "TFNOISEFILTER.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfnoisefilter.button_ok.caption
+msgctxt "TFNOISEFILTER.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfnoisefilter.caption
+msgid "Noise filter"
+msgstr ""
+
+#: tfnoisefilter.label_opacity.caption
+msgid "Opacity:"
+msgstr ""
+
+#: tfnoisefilter.radio_grayscalenoise.caption
+msgid "Grayscale noise"
+msgstr ""
+
+#: tfnoisefilter.radio_rgbnoise.caption
+msgid "RGB noise"
+msgstr ""
+
+#: tfobject3d.button_cancel.caption
+msgctxt "TFOBJECT3D.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfobject3d.button_loadtex.caption
+msgid "Texture..."
+msgstr ""
+
+#: tfobject3d.button_notex.caption
+msgid "No tex."
+msgstr ""
+
+#: tfobject3d.button_ok.caption
+msgctxt "TFOBJECT3D.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfobject3d.caption
+msgid "3D object"
+msgstr ""
+
+#: tfobject3d.checkbox_antialiasing.caption
+msgid "Antialiasing"
+msgstr ""
+
+#: tfobject3d.checkbox_biface.caption
+msgid "2-sided faces"
+msgstr ""
+
+#: tfobject3d.checkbox_textureinterp.caption
+msgid "Texture interpolation"
+msgstr ""
+
+#: tfobject3d.groupbox_selectedlight.caption
+msgid "Selected light"
+msgstr ""
+
+#: tfobject3d.groupbox_selectedmaterial.caption
+msgctxt "TFOBJECT3D.GROUPBOX_SELECTEDMATERIAL.CAPTION"
+msgid "Selected material"
+msgstr ""
+
+#: tfobject3d.label_color.caption
+msgctxt "TFOBJECT3D.LABEL_COLOR.CAPTION"
+msgid "Color :"
+msgstr ""
+
+#: tfobject3d.label_color1.caption
+msgctxt "TFOBJECT3D.LABEL_COLOR1.CAPTION"
+msgid "Color :"
+msgstr ""
+
+#: tfobject3d.label_height.caption
+msgctxt "TFOBJECT3D.LABEL_HEIGHT.CAPTION"
+msgid "Height :"
+msgstr "Korkeus :"
+
+#: tfobject3d.label_lightingnormals.caption
+msgctxt "TFOBJECT3D.LABEL_LIGHTINGNORMALS.CAPTION"
+msgid "Lighting normals :"
+msgstr ""
+
+#: tfobject3d.label_lights.caption
+msgid "Lights :"
+msgstr ""
+
+#: tfobject3d.label_materials.caption
+msgctxt "TFOBJECT3D.LABEL_MATERIALS.CAPTION"
+msgid "Materials :"
+msgstr ""
+
+#: tfobject3d.label_opacity.caption
+msgctxt "TFOBJECT3D.LABEL_OPACITY.CAPTION"
+msgid "Opacity :"
+msgstr ""
+
+#: tfobject3d.label_specularindex.caption
+msgctxt "TFOBJECT3D.LABEL_SPECULARINDEX.CAPTION"
+msgid "Spec. index :"
+msgstr ""
+
+#: tfobject3d.label_width.caption
+msgctxt "TFOBJECT3D.LABEL_WIDTH.CAPTION"
+msgid "Width :"
+msgstr "Leveys :"
+
+#: tfobject3d.label_zoom.caption
+msgctxt "TFOBJECT3D.LABEL_ZOOM.CAPTION"
+msgid "Zoom"
+msgstr ""
+
+#: tfobject3d.lights.caption
+msgid "Lights"
+msgstr ""
+
+#: tfobject3d.materials.caption
+msgid "Materials"
+msgstr ""
+
+#: tfobject3d.opentexturedialog.title
+msgctxt "TFOBJECT3D.OPENTEXTUREDIALOG.TITLE"
+msgid "Open texture"
+msgstr ""
+
+#: tfobject3d.rendering.caption
+msgid "Rendering"
+msgstr ""
+
+#: tfobject3d.tooladddirectional.hint
+msgid "Add a directional light"
+msgstr ""
+
+#: tfobject3d.toolpointlight.hint
+msgid "Add a point light"
+msgstr ""
+
+#: tfobject3d.toolremoveselectedlight.hint
+msgid "Remove selected light"
+msgstr ""
+
+#: tfphongfilter.button_cancel.caption
+msgctxt "TFPHONGFILTER.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfphongfilter.button_ok.caption
+msgctxt "TFPHONGFILTER.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfphongfilter.caption
+msgctxt "TFPHONGFILTER.CAPTION"
+msgid "Shaded map"
+msgstr ""
+
+#: tfphongfilter.groupbox_color.caption
+msgctxt "TFPHONGFILTER.GROUPBOX_COLOR.CAPTION"
+msgid "Color"
+msgstr "Väri"
+
+#: tfphongfilter.groupbox_color1.caption
+msgid "Altitude map"
+msgstr ""
+
+#: tfphongfilter.label_altitude.caption
+msgid "Global altitude :"
+msgstr ""
+
+#: tfphongfilter.label_lightposition.caption
+msgid "Light position :"
+msgstr ""
+
+#: tfphongfilter.radio_mapalpha.caption
+msgid "Alpha"
+msgstr ""
+
+#: tfphongfilter.radio_mapblue.caption
+msgid "B"
+msgstr ""
+
+#: tfphongfilter.radio_mapgreen.caption
+msgid "G"
+msgstr ""
+
+#: tfphongfilter.radio_maplightness.caption
+msgctxt "TFPHONGFILTER.RADIO_MAPLIGHTNESS.CAPTION"
+msgid "Lightness"
+msgstr ""
+
+#: tfphongfilter.radio_maplinearlightness.caption
+msgid "Linear lightness"
+msgstr ""
+
+#: tfphongfilter.radio_mapred.caption
+msgid "R"
+msgstr ""
+
+#: tfphongfilter.radio_mapsaturation.caption
+msgctxt "TFPHONGFILTER.RADIO_MAPSATURATION.CAPTION"
+msgid "Saturation"
+msgstr ""
+
+#: tfphongfilter.radio_usebackcolor.caption
+msgid "Back color"
+msgstr ""
+
+#: tfphongfilter.radio_usekeep.caption
+msgid "Keep"
+msgstr ""
+
+#: tfphongfilter.radio_usepencolor.caption
+msgid "Pen color"
+msgstr ""
+
+#: tfphongfilter.radio_usetexture.caption
+msgctxt "TFPHONGFILTER.RADIO_USETEXTURE.CAPTION"
+msgid "Current texture"
+msgstr ""
+
+#: tfpixelate.button_cancel.caption
+msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfpixelate.button_ok.caption
+msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfpixelate.caption
+msgctxt "TFPIXELATE.CAPTION"
+msgid "Pixelate"
+msgstr ""
+
+#: tfpixelate.label_pixelsize.caption
+msgctxt "TFPIXELATE.LABEL_PIXELSIZE.CAPTION"
+msgid "Pixel size :"
+msgstr ""
+
+#: tfpixelate.label_quality.caption
+msgctxt "TFPIXELATE.LABEL_QUALITY.CAPTION"
+msgid "Quality :"
+msgstr ""
+
+#: tfposterize.button_cancel.caption
+msgctxt "TFPOSTERIZE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfposterize.button_ok.caption
+msgctxt "TFPOSTERIZE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfposterize.caption
+msgctxt "TFPOSTERIZE.CAPTION"
+msgid "Posterize"
+msgstr ""
+
+#: tfposterize.checkbox_bylightness.caption
+msgid "By lightness"
+msgstr ""
+
+#: tfposterize.label_levels.caption
+msgid "Levels :"
+msgstr ""
+
+#: tfprint.button_configureprinter.caption
+msgid "Configure..."
+msgstr ""
+
+#: tfprint.button_print.caption
+msgid "Print!"
+msgstr ""
+
+#: tfprint.button_zoomfit.caption
+msgctxt "TFPRINT.BUTTON_ZOOMFIT.CAPTION"
+msgid "Zoom fit"
+msgstr ""
+
+#: tfprint.caption
+msgid "Print"
+msgstr ""
+
+#: tfprint.checkbox_ratio.caption
+msgctxt "TFPRINT.CHECKBOX_RATIO.CAPTION"
+msgid "Keep aspect ratio"
+msgstr ""
+
+#: tfprint.groupbox_imagesize.caption
+msgid "Image size"
+msgstr ""
+
+#: tfprint.groupbox_margins.caption
+msgid "Margins"
+msgstr ""
+
+#: tfprint.label_bottom.caption
+msgid "Bottom:"
+msgstr ""
+
+#: tfprint.label_dpix.caption
+msgctxt "TFPRINT.LABEL_DPIX.CAPTION"
+msgid "."
+msgstr ""
+
+#: tfprint.label_dpiy.caption
+msgctxt "TFPRINT.LABEL_DPIY.CAPTION"
+msgid "."
+msgstr ""
+
+#: tfprint.label_height.caption
+msgid "Height:"
+msgstr ""
+
+#: tfprint.label_left.caption
+msgid "Left:"
+msgstr ""
+
+#: tfprint.label_orientation.caption
+msgid "Orientation:"
+msgstr ""
+
+#: tfprint.label_printerandpaper.caption
+msgid "Printer and paper:"
+msgstr ""
+
+#: tfprint.label_right.caption
+msgid "Right:"
+msgstr ""
+
+#: tfprint.label_top.caption
+msgid "Top:"
+msgstr ""
+
+#: tfprint.label_width.caption
+msgid "Width:"
+msgstr ""
+
+#: tfradialblur.button_cancel.caption
+msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfradialblur.button_ok.caption
+msgctxt "TFRADIALBLUR.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfradialblur.caption
+msgctxt "TFRADIALBLUR.CAPTION"
+msgid "Radial blur"
+msgstr ""
+
+#: tfradialblur.label_radius.caption
+msgctxt "TFRADIALBLUR.LABEL_RADIUS.CAPTION"
+msgid "Radius :"
+msgstr ""
+
+#: tfrain.button_cancel.caption
+msgctxt "TFRAIN.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfrain.button_ok.caption
+msgctxt "TFRAIN.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfrain.caption
+msgid "Rain"
+msgstr ""
+
+#: tfrain.label_quantity.caption
+msgid "Quantity:"
+msgstr ""
+
+#: tfrain.label_wind.caption
+msgid "Wind :"
+msgstr ""
+
+#: tfresample.button_cancel.caption
+msgctxt "TFRESAMPLE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfresample.button_ok.caption
+msgctxt "TFRESAMPLE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfresample.caption
+msgctxt "TFRESAMPLE.CAPTION"
+msgid "Resample"
+msgstr ""
+
+#: tfresample.checkbox_ratio.caption
+msgctxt "tfresample.checkbox_ratio.caption"
+msgid "Keep aspect ratio"
+msgstr ""
+
+#: tfresample.label_height.caption
+msgctxt "TFRESAMPLE.LABEL_HEIGHT.CAPTION"
+msgid "Height :"
+msgstr "Korkeus :"
+
+#: tfresample.label_quality.caption
+msgctxt "TFRESAMPLE.LABEL_QUALITY.CAPTION"
+msgid "Quality :"
+msgstr ""
+
+#: tfresample.label_width.caption
+msgctxt "TFRESAMPLE.LABEL_WIDTH.CAPTION"
+msgid "Width :"
+msgstr "Leveys :"
+
+#: tfsaveoption.button_cancel.caption
+msgctxt "TFSAVEOPTION.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfsaveoption.button_ok.caption
+msgctxt "TFSAVEOPTION.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfsaveoption.caption
+msgctxt "TFSAVEOPTION.CAPTION"
+msgid "Save"
+msgstr "Tallenna"
+
+#: tfsaveoption.checkbox_dithering.caption
+msgid "Dithering"
+msgstr ""
+
+#: tfsaveoption.label1.caption
+msgid "Quality:"
+msgstr ""
+
+#: tfsaveoption.label_0.caption
+msgid "0"
+msgstr ""
+
+#: tfsaveoption.label_1.caption
+msgid "100"
+msgstr ""
+
+#: tfsaveoption.label_50.caption
+msgid "50"
+msgstr ""
+
+#: tfsaveoption.label_colordepth.caption
+msgid "Color depth:"
+msgstr ""
+
+#: tfsaveoption.label_size.caption
+msgid "Size:"
+msgstr ""
+
+#: tfsaveoption.radiobutton_16colors.caption
+msgid "16 colors"
+msgstr ""
+
+#: tfsaveoption.radiobutton_24bitsperpixel.caption
+msgid "24 bits"
+msgstr ""
+
+#: tfsaveoption.radiobutton_256colors.caption
+msgid "256 colors"
+msgstr ""
+
+#: tfsaveoption.radiobutton_2colors.caption
+msgid "2 colors"
+msgstr ""
+
+#: tfsharpen.button_cancel.caption
+msgctxt "TFSHARPEN.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfsharpen.button_ok.caption
+msgctxt "TFSHARPEN.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfsharpen.caption
+msgid "Sharpen/Smooth"
+msgstr ""
+
+#: tfsharpen.label_amount.caption
+msgctxt "TFSHARPEN.LABEL_AMOUNT.CAPTION"
+msgid "Amount :"
+msgstr ""
+
+#: tfshiftcolors.button_cancel.caption
+msgctxt "TFSHIFTCOLORS.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfshiftcolors.button_ok.caption
+msgctxt "TFSHIFTCOLORS.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tfshiftcolors.caption
+msgctxt "TFSHIFTCOLORS.CAPTION"
+msgid "Shift colors"
+msgstr ""
+
+#: tfshiftcolors.checkbox_gsba.caption
+msgctxt "tfshiftcolors.checkbox_gsba.caption"
+msgid "Corrected hue and lightness"
+msgstr ""
+
+#: tfshiftcolors.label1.caption
+msgctxt "TFSHIFTCOLORS.LABEL1.CAPTION"
+msgid "Hue"
+msgstr ""
+
+#: tfshiftcolors.label2.caption
+msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
+msgid "Saturation"
+msgstr ""
+
+#: tftoolbox.caption
+msgctxt "TFTOOLBOX.CAPTION"
+msgid "Tools"
+msgstr "Työkalut"
+
+#: tftwirl.button_cancel.caption
+msgctxt "TFTWIRL.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tftwirl.button_ok.caption
+msgctxt "TFTWIRL.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr ""
+
+#: tftwirl.caption
+msgctxt "TFTWIRL.CAPTION"
+msgid "Twirl"
+msgstr ""
+
+#: tftwirl.label_angle.caption
+msgctxt "TFTWIRL.LABEL_ANGLE.CAPTION"
+msgid "Angle :"
+msgstr ""
+
+#: tftwirl.label_radius.caption
+msgctxt "TFTWIRL.LABEL_RADIUS.CAPTION"
+msgid "Radius :"
+msgstr ""
+
+#: uresourcestrings.rsactioninprogress
+msgid "Action in progress"
+msgstr ""
+
+#: uresourcestrings.rsaddtoimagelist
+msgid "Add files to the image processing list"
+msgstr ""
+
+#: uresourcestrings.rsallapplications
+msgid "all"
+msgstr ""
+
+#: uresourcestrings.rsallsupportedfiletypes
+msgid "All supported filetypes"
+msgstr ""
+
+#: uresourcestrings.rsaltshiftscalemode
+msgid "Hold ALT or SHIFT to scale"
+msgstr ""
+
+#: uresourcestrings.rsanimatedgif
+msgid "Animated GIF"
+msgstr ""
+
+#: uresourcestrings.rsbackspaceremovelastpoint
+msgid "Press BACKSPACE to remove last point"
+msgstr ""
+
+#: uresourcestrings.rsbestquality
+msgid "Best quality"
+msgstr ""
+
+#: uresourcestrings.rsbitmap
+msgid "Bitmap"
+msgstr ""
+
+#: uresourcestrings.rsblendopnotusedforbackground
+msgid "The blend operation is applied only if there is a layer underneath"
+msgstr ""
+
+#: uresourcestrings.rsblue
+msgid "Blue"
+msgstr ""
+
+#: uresourcestrings.rsbrightness
+msgid "Brightness"
+msgstr ""
+
+#: uresourcestrings.rsbytes
+msgid "Bytes"
+msgstr ""
+
+#: uresourcestrings.rscancel
+msgctxt "uresourcestrings.rscancel"
+msgid "Cancel"
+msgstr "Peru"
+
+#: uresourcestrings.rscannotopenfile
+msgid "Cannot open file"
+msgstr ""
+
+#: uresourcestrings.rscanvassize
+msgctxt "uresourcestrings.rscanvassize"
+msgid "Canvas size"
+msgstr ""
+
+#: uresourcestrings.rscdrom
+msgid "CD"
+msgstr ""
+
+#: uresourcestrings.rsclearpalette
+msgid "Clear palette"
+msgstr ""
+
+#: uresourcestrings.rscloserequest
+msgid "Close request"
+msgstr ""
+
+#: uresourcestrings.rscolors
+msgctxt "uresourcestrings.rscolors"
+msgid "Colors"
+msgstr "Värit"
+
+#: uresourcestrings.rsconfirmmovemultipletotrash
+msgid "Are you sure you want to move these %1 files to the trash?"
+msgstr ""
+
+#: uresourcestrings.rsconfirmmovetotrash
+msgid "Are you sure you want to move this file to the trash?"
+msgstr ""
+
+#: uresourcestrings.rsconflictingactions
+msgid "Conflicting actions"
+msgstr ""
+
+#: uresourcestrings.rscontrast
+msgid "Contrast"
+msgstr ""
+
+#: uresourcestrings.rscosine
+msgid "Cosine"
+msgstr ""
+
+#: uresourcestrings.rscrop
+msgid "Crop"
+msgstr ""
+
+#: uresourcestrings.rsctrlrestrictrotation
+msgid "Hold CTRL to restrict rotation angle"
+msgstr ""
+
+#: uresourcestrings.rscurvemodehint
+msgid "Press S or X to set the curve mode of the last point"
+msgstr ""
+
+#: uresourcestrings.rsdefaultpalette
+msgid "Default palette"
+msgstr ""
+
+#: uresourcestrings.rsdeletefile
+msgctxt "uresourcestrings.rsdeletefile"
+msgid "Delete"
+msgstr "Poista"
+
+#: uresourcestrings.rsditherlayerusingpalette
+msgid "Dither layer using palette"
+msgstr ""
+
+#: uresourcestrings.rseditmask
+msgid "Edit mask"
+msgstr ""
+
+#: uresourcestrings.rseditselection
+msgid "Edit selection"
+msgstr ""
+
+#: uresourcestrings.rsedittexture
+msgid "Edit texture"
+msgstr ""
+
+#: uresourcestrings.rsemptylayer
+msgid "Layer is empty"
+msgstr ""
+
+#: uresourcestrings.rsemptyselection
+msgid "Selection is empty"
+msgstr ""
+
+#: uresourcestrings.rsenterlayername
+msgid "Enter layer name:"
+msgstr ""
+
+#: uresourcestrings.rserror
+msgid "Error"
+msgstr ""
+
+#: uresourcestrings.rserroronopeningfile
+msgid "Error on opening file \"%1\""
+msgstr ""
+
+#: uresourcestrings.rsexitrequest
+msgid "Exit request"
+msgstr ""
+
+#: uresourcestrings.rsexpect1parameter
+msgid "expects one parameter : "
+msgstr ""
+
+#: uresourcestrings.rsexpect2parameters
+msgid "expects two parameters : "
+msgstr ""
+
+#: uresourcestrings.rsexpectnparameters
+msgid "expects N parameters : "
+msgstr ""
+
+#: uresourcestrings.rsfast
+msgid "Fast"
+msgstr ""
+
+#: uresourcestrings.rsfiledate
+msgid "Date"
+msgstr ""
+
+#: uresourcestrings.rsfileextensionnotsupported
+msgid "This file extension is not supported."
+msgstr ""
+
+#: uresourcestrings.rsfileformatnotrecognized
+msgid "The file format has not been recognized."
+msgstr ""
+
+#: uresourcestrings.rsfilename
+msgid "Filename"
+msgstr "Tiedostonimi"
+
+#: uresourcestrings.rsfilenotfound
+msgid "File not found!"
+msgstr "Tiedostoa ei löydy!"
+
+#: uresourcestrings.rsfilenotsaved
+msgid "File not saved"
+msgstr "Tiedostoa ei tallennettu"
+
+#: uresourcestrings.rsfilesize
+msgid "Size"
+msgstr ""
+
+#: uresourcestrings.rsfilesystem
+msgid "File system"
+msgstr ""
+
+#: uresourcestrings.rsfiletype
+msgid "Type"
+msgstr ""
+
+#: uresourcestrings.rsfixeddrive
+msgid "Fixed"
+msgstr ""
+
+#: uresourcestrings.rsfolder
+msgid "Folder"
+msgstr ""
+
+#: uresourcestrings.rsfollowingerrorsoccured
+msgid "Following errors occured:"
+msgstr ""
+
+#: uresourcestrings.rsfunctionnotdefined
+msgid "The function %1 is not defined."
+msgstr ""
+
+#: uresourcestrings.rsgreen
+msgid "Green"
+msgstr ""
+
+#: uresourcestrings.rshalfcosine
+msgid "Half-cosine"
+msgstr ""
+
+#: uresourcestrings.rsholdctrlsnaptopixel
+msgid "Hold CTRL to snap to pixels"
+msgstr ""
+
+#: uresourcestrings.rsholdshiftforsquare
+msgid "Hold SHIFT to draw a square or a circle"
+msgstr ""
+
+#: uresourcestrings.rshue
+msgctxt "uresourcestrings.rshue"
+msgid "Hue"
+msgstr ""
+
+#: uresourcestrings.rsiconorcursor
+msgid "Icon/cursor"
+msgstr ""
+
+#: uresourcestrings.rsimagetoobig
+msgid "Image is too big"
+msgstr ""
+
+#: uresourcestrings.rsinformation
+msgid "Information"
+msgstr ""
+
+#: uresourcestrings.rsintensity
+msgctxt "uresourcestrings.rsintensity"
+msgid "Intensity"
+msgstr ""
+
+#: uresourcestrings.rsinternalerror
+msgid "Internal error"
+msgstr ""
+
+#: uresourcestrings.rsinvalidopacity
+msgid "Invalid opacity : "
+msgstr ""
+
+#: uresourcestrings.rsinvalidresamplesize
+msgid "Invalid resample size : "
+msgstr ""
+
+#: uresourcestrings.rsinvalidsizefornew
+msgid "Invalid size for new : "
+msgstr ""
+
+#: uresourcestrings.rskeepchanges
+msgid "Do you want to keep changes?"
+msgstr ""
+
+#: uresourcestrings.rskeepemptyspace
+msgid "Keep empty space around opaque pixels?"
+msgstr ""
+
+#: uresourcestrings.rslanczos
+msgid "Lanczos %1"
+msgstr ""
+
+#: uresourcestrings.rslandscape
+msgid "Landscape"
+msgstr ""
+
+#: uresourcestrings.rslatestversion
+msgid "The latest version of LazPaint available online is"
+msgstr ""
+
+#: uresourcestrings.rslayeredimage
+msgid "Layered image"
+msgstr ""
+
+#: uresourcestrings.rslazpaint
+msgctxt "uresourcestrings.rslazpaint"
+msgid "LazPaint"
+msgstr ""
+
+#: uresourcestrings.rslazpaintonly
+msgid "LazPaint only"
+msgstr ""
+
+#: uresourcestrings.rslight
+msgid "Light"
+msgstr ""
+
+#: uresourcestrings.rslightness
+msgctxt "uresourcestrings.rslightness"
+msgid "Lightness"
+msgstr ""
+
+#: uresourcestrings.rslightposition
+msgid "Light position"
+msgstr ""
+
+#: uresourcestrings.rslinear
+msgid "Linear"
+msgstr ""
+
+#: uresourcestrings.rsloadandmergepalette
+msgid "Load and merge palette..."
+msgstr ""
+
+#: uresourcestrings.rsloading
+msgid "Loading"
+msgstr ""
+
+#: uresourcestrings.rsloadpalette
+msgid "Load palette..."
+msgstr ""
+
+#: uresourcestrings.rsmakencolorspalettefrombitmap
+msgid "Make %1-colors palette from image"
+msgstr ""
+
+#: uresourcestrings.rsmergeselection
+msgid "Do you want to merge selection?"
+msgstr ""
+
+#: uresourcestrings.rsmitchell
+msgid "Mitchell"
+msgstr ""
+
+#: uresourcestrings.rsmorethanonefile
+msgid "You are trying to open more than one file. How would you like these files to be opened?"
+msgstr ""
+
+#: uresourcestrings.rsmovingorrotatingselection
+msgid "Moving or rotating selection"
+msgstr ""
+
+#: uresourcestrings.rsmustreleaseselection
+msgid "You must first release the selection"
+msgstr ""
+
+#: uresourcestrings.rsmustshowlayer
+msgid "You must first make the layer visible"
+msgstr ""
+
+#: uresourcestrings.rsnetworkdrive
+msgid "Network"
+msgstr ""
+
+#: uresourcestrings.rsnewimage
+msgctxt "uresourcestrings.rsnewimage"
+msgid "New image"
+msgstr "Uusi kuva"
+
+#: uresourcestrings.rsno
+msgid "No"
+msgstr ""
+
+#: uresourcestrings.rsnoactivelayer
+msgid "No active layer"
+msgstr ""
+
+#: uresourcestrings.rsnoactiveselection
+msgid "There is no active selection"
+msgstr ""
+
+#: uresourcestrings.rsnoandproceedtonext
+msgid "Do not save and open another file"
+msgstr ""
+
+#: uresourcestrings.rsnoname
+msgid "noname"
+msgstr ""
+
+#: uresourcestrings.rsnormalblendop
+msgid "Normal"
+msgstr ""
+
+#: uresourcestrings.rsnothingtobedeformed
+msgid "There is nothing to be deformed"
+msgstr ""
+
+#: uresourcestrings.rsnothingtoberetrieved
+msgid "There is nothing to be retrieved"
+msgstr ""
+
+#: uresourcestrings.rsnotreasonableformat
+msgid "It is not reasonable to save such a big image in this file format."
+msgstr ""
+
+#: uresourcestrings.rsnumber
+msgid "№"
+msgstr ""
+
+#: uresourcestrings.rsokay
+msgid "Okay"
+msgstr ""
+
+#: uresourcestrings.rsopacity
+msgid "Opacity"
+msgstr ""
+
+#: uresourcestrings.rsopen
+msgid "Open"
+msgstr ""
+
+#: uresourcestrings.rsopenfilesaslayers
+msgid "Open files as layers in a single image"
+msgstr ""
+
+#: uresourcestrings.rsopenfirstfileonly
+msgid "Open the first file only"
+msgstr ""
+
+#: uresourcestrings.rsopening
+msgid "Opening"
+msgstr ""
+
+#: uresourcestrings.rsopenmultipleimagefiles
+msgid "Open multiple image files"
+msgstr ""
+
+#: uresourcestrings.rsotherblendop
+msgid "Other..."
+msgstr ""
+
+#: uresourcestrings.rsoverwritefile
+msgid "File already exists. Do you want to overwrite it?"
+msgstr ""
+
+#: uresourcestrings.rspaletteincludesalphachannel
+msgid "Palette includes alpha channel"
+msgstr ""
+
+#: uresourcestrings.rspaletteoptions
+msgid "Palette options"
+msgstr ""
+
+#: uresourcestrings.rspercent
+msgctxt "uresourcestrings.rspercent"
+msgid "%"
+msgstr ""
+
+#: uresourcestrings.rsportait
+msgid "Portrait"
+msgstr ""
+
+#: uresourcestrings.rsposterizelayerusingpalette
+msgid "Posterize layer using palette"
+msgstr ""
+
+#: uresourcestrings.rspresetname
+msgid "Preset name"
+msgstr ""
+
+#: uresourcestrings.rspx
+msgid "px"
+msgstr ""
+
+#: uresourcestrings.rsramdisk
+msgid "RAM disk"
+msgstr ""
+
+#: uresourcestrings.rsrecentdirectories
+msgid "Recent directories:"
+msgstr ""
+
+#: uresourcestrings.rsred
+msgid "Red"
+msgstr ""
+
+#: uresourcestrings.rsreload
+msgctxt "uresourcestrings.rsreload"
+msgid "Reload"
+msgstr ""
+
+#: uresourcestrings.rsreloadchanged
+msgid "Bitmap has been modified. Do you really want to reload?"
+msgstr ""
+
+#: uresourcestrings.rsremovabledrive
+msgid "Removable"
+msgstr ""
+
+#: uresourcestrings.rsrepeatimage
+msgctxt "uresourcestrings.rsrepeatimage"
+msgid "Repeat image"
+msgstr ""
+
+#: uresourcestrings.rsretrieveselectedarea
+msgid "Do you want to retrieve selected area?"
+msgstr ""
+
+#: uresourcestrings.rsreturnvalides
+msgid "Press ENTER to validate"
+msgstr ""
+
+#: uresourcestrings.rsrightclickforsource
+msgid "Use RIGHT click to define source"
+msgstr ""
+
+#: uresourcestrings.rssaturation
+msgctxt "uresourcestrings.rssaturation"
+msgid "Saturation"
+msgstr ""
+
+#: uresourcestrings.rssave
+msgctxt "uresourcestrings.rssave"
+msgid "Save"
+msgstr "Tallenna"
+
+#: uresourcestrings.rssaveasbuttonhint
+msgctxt "uresourcestrings.rssaveasbuttonhint"
+msgid "Save with specified filename"
+msgstr ""
+
+#: uresourcestrings.rssavechanges
+msgid "Current bitmap has been modified. Do you want to save changes?"
+msgstr ""
+
+#: uresourcestrings.rssavepaletteas
+msgid "Save palette as..."
+msgstr ""
+
+#: uresourcestrings.rsscript
+msgid "Script"
+msgstr ""
+
+#: uresourcestrings.rsshowpalette
+msgctxt "uresourcestrings.rsshowpalette"
+msgid "Show palette"
+msgstr ""
+
+#: uresourcestrings.rssourceposition
+msgid "Source position"
+msgstr ""
+
+#: uresourcestrings.rsspline
+msgctxt "uresourcestrings.rsspline"
+msgid "Spline"
+msgstr ""
+
+#: uresourcestrings.rsstoragedevice
+msgid "Device"
+msgstr ""
+
+#: uresourcestrings.rstherearenocheckeditems
+msgid "There are no checked items. Check some items or add some new ones."
+msgstr ""
+
+#: uresourcestrings.rsthereisnofilenamegivenforthisfileusesaveas
+msgid "There is no file name given for this file. Use \"Save as...\" from the main menu."
+msgstr ""
+
+#: uresourcestrings.rstodo
+msgid "To do"
+msgstr ""
+
+#: uresourcestrings.rstodoimages
+msgid "Images left: %1"
+msgstr ""
+
+#: uresourcestrings.rstotalimages
+msgid "Total images: %1"
+msgstr ""
+
+#: uresourcestrings.rstransferselectiontootherlayer
+msgid "Transfer selection to other layer?"
+msgstr ""
+
+#: uresourcestrings.rsunabletoapplyfilter
+msgid "Unable to apply filter : "
+msgstr ""
+
+#: uresourcestrings.rsunabletoloadfile
+msgid "Unable to load file : "
+msgstr ""
+
+#: uresourcestrings.rsunabletosavefile
+msgid "Unable to save file : "
+msgstr ""
+
+#: uresourcestrings.rsunknowncommand
+msgid "Unknown command : "
+msgstr ""
+
+#: uresourcestrings.rsyes
+msgid "Yes"
+msgstr ""
+
