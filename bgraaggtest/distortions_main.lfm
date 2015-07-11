@@ -9,7 +9,7 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnPaint = FormPaint
-  LCLVersion = '0.9.30'
+  LCLVersion = '1.4.0.4'
   object Panel1: TPanel
     Left = 0
     Height = 59
@@ -32,17 +32,17 @@ object Form1: TForm1
     end
     object Label1: TLabel
       Left = 8
-      Height = 16
+      Height = 15
       Top = 8
-      Width = 32
+      Width = 31
       Caption = 'Angle'
       ParentColor = False
     end
     object Label2: TLabel
-      Left = 336
-      Height = 16
+      Left = 337
+      Height = 15
       Top = 8
-      Width = 28
+      Width = 27
       Anchors = [akTop, akRight]
       Caption = 'Scale'
       ParentColor = False

@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
     <Version Value="9"/>
@@ -7,8 +7,6 @@
       <MainUnit Value="0"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
-      <Icon Value="0"/>
-      <ActiveWindowIndexAtStart Value="0"/>
     </General>
     <i18n>
       <EnableI18N LFM="False"/>
@@ -44,11 +42,8 @@
       <Unit0>
         <Filename Value="image_perspective.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="image_perspective"/>
         <EditorIndex Value="4"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="1" Y="14"/>
+        <CursorPos Y="14"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -56,12 +51,12 @@
         <Filename Value="image_perspective_main.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="image_perspective_main"/>
-        <EditorIndex Value="0"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="32"/>
-        <CursorPos X="19" Y="50"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="113"/>
+        <CursorPos X="43" Y="135"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -70,16 +65,13 @@
         <Filename Value="gouraud_main.pas"/>
         <UnitName Value="gouraud_main"/>
         <EditorIndex Value="5"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="120"/>
-        <CursorPos X="1" Y="156"/>
+        <CursorPos Y="156"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="uperspective.pas"/>
-        <UnitName Value="uperspective"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="363"/>
         <CursorPos X="18" Y="368"/>
         <UsageCount Value="20"/>
@@ -88,7 +80,6 @@
         <Filename Value="..\bgrabitmap\bgratransform.pas"/>
         <UnitName Value="BGRATransform"/>
         <EditorIndex Value="2"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="433"/>
         <CursorPos X="56" Y="471"/>
         <UsageCount Value="10"/>
@@ -98,20 +89,15 @@
         <Filename Value="..\bgrabitmap\bgrabitmaptypes.pas"/>
         <UnitName Value="BGRABitmapTypes"/>
         <EditorIndex Value="3"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1507"/>
-        <CursorPos X="7" Y="1527"/>
+        <TopLine Value="992"/>
+        <CursorPos X="7" Y="991"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit5>
       <Unit6>
         <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
         <UnitName Value="BGRADefaultBitmap"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1777"/>
-        <CursorPos X="38" Y="1805"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit6>
@@ -158,37 +144,37 @@
         <Caret Line="541" Column="63" TopLine="522"/>
       </Position10>
       <Position11>
-        <Filename Value="..\bgrabitmap\bgrabitmaptypes.pas"/>
-        <Caret Line="1525" Column="50" TopLine="1567"/>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="1801" TopLine="1780"/>
       </Position11>
       <Position12>
         <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
-        <Caret Line="1801" Column="1" TopLine="1780"/>
+        <Caret Line="1792" Column="6" TopLine="1774"/>
       </Position12>
       <Position13>
         <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
-        <Caret Line="1792" Column="6" TopLine="1774"/>
+        <Caret Line="1798" Column="83" TopLine="1774"/>
       </Position13>
       <Position14>
         <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
-        <Caret Line="1798" Column="83" TopLine="1774"/>
+        <Caret Line="1792" Column="7" TopLine="1774"/>
       </Position14>
       <Position15>
         <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
-        <Caret Line="1792" Column="7" TopLine="1774"/>
+        <Caret Line="1804" Column="5" TopLine="1774"/>
       </Position15>
       <Position16>
         <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
-        <Caret Line="1804" Column="5" TopLine="1774"/>
+        <Caret Line="1780" Column="38" TopLine="1778"/>
       </Position16>
       <Position17>
         <Filename Value="image_perspective_main.pas"/>
-        <Caret Line="68" Column="1" TopLine="80"/>
+        <Caret Line="50" Column="19" TopLine="32"/>
       </Position17>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
-    <Version Value="9"/>
+    <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
       <Filename Value="image_perspective"/>
@@ -204,9 +190,6 @@
         </Win32>
       </Options>
     </Linking>
-    <Other>
-      <CompilerPath Value="$(CompPath)"/>
-    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">

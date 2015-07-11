@@ -29,6 +29,7 @@ uses BGRABitmap, BGRABitmapTypes;
 {$R *.lfm}
 
 procedure DrawEllipseHello(bmp: TBGRABitmap);
+var br: TBGRACustomBitmap;
 begin
   bmp.Fill(BGRABlack);
   bmp.CustomPenStyle := BGRAPenStyle(2,1);
@@ -43,6 +44,10 @@ begin
   bmp.Canvas.Pen.Color := clBlue;
   bmp.Canvas.MoveTo(0,0);
   bmp.Canvas.LineTo(bmp.Width,bmp.Height);
+  br := bmp.CreateBrushTexture(bsDiagCross, CSSYellow,CSSRed);
+  bmp.FillPieInRect(rect(10,10,100,100),0,3*Pi/2,br);
+  bmp.TextOutAngle(50,50, -300, 'Test angle', CSSGreen, taLeftJustify);
+  br.Free;
 end;
 
 { TForm1 }

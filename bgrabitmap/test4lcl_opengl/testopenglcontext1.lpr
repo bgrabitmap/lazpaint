@@ -7,6 +7,8 @@ uses
   Forms
   { add your units here }, MainUnit, LazOpenGLContext, UGame;
 
+{$R *.res}
+
 begin
   Application.Initialize;
   Application.CreateForm(TForm1, Form1);

@@ -13,7 +13,7 @@ object Form1: TForm1
   OnMouseUp = FormMouseUp
   OnPaint = FormPaint
   Position = poDefaultPosOnly
-  LCLVersion = '0.9.30'
+  LCLVersion = '1.4.0.4'
   object Panel1: TPanel
     Left = 376
     Height = 140
@@ -34,9 +34,9 @@ object Form1: TForm1
     end
     object Label1: TLabel
       Left = 8
-      Height = 16
+      Height = 15
       Top = 7
-      Width = 49
+      Width = 48
       Caption = 'Mapping'
       ParentColor = False
     end

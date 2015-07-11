@@ -88,6 +88,8 @@ begin
   frm.Free;
 end;
 
+{$R *.res}
+
 begin
   MainProc;
 end.

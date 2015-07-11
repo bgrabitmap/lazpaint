@@ -147,7 +147,7 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  image := TBGRABitmap.Create('spheres.bmp');
+  image := TBGRABitmap.Create('spheres.png');
   timer := TEpikTimer.Create(self);
   multigrad := TBGRAMultiGradient.Create([BGRAWhite,BGRA(255,235,96),BGRA(255,160,0),BGRA(140,0,0),BGRA(64,0,0),BGRA(160,64,0)],[0,0.2,0.4,0.8,0.9,1],True);
 end;

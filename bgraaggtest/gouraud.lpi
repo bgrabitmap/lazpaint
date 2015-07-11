@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
     <Version Value="9"/>
@@ -8,7 +8,6 @@
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
       <Icon Value="0"/>
-      <ActiveWindowIndexAtStart Value="0"/>
     </General>
     <i18n>
       <EnableI18N LFM="False"/>
@@ -41,19 +40,16 @@
       <Unit0>
         <Filename Value="gouraud.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="gouraud"/>
         <UsageCount Value="20"/>
       </Unit0>
       <Unit1>
         <Filename Value="gouraud_main.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="gouraud_main"/>
         <IsVisibleTab Value="True"/>
-        <EditorIndex Value="0"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
         <CursorPos X="55" Y="9"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
@@ -63,7 +59,6 @@
         <Filename Value="..\bgrabitmap\bgrapolygon.pas"/>
         <UnitName Value="BGRAPolygon"/>
         <EditorIndex Value="1"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="19"/>
         <CursorPos X="30" Y="250"/>
         <UsageCount Value="10"/>
@@ -77,7 +72,7 @@
       </Position1>
       <Position2>
         <Filename Value="gouraud_main.pas"/>
-        <Caret Line="8" Column="78" TopLine="1"/>
+        <Caret Line="8" Column="78"/>
       </Position2>
       <Position3>
         <Filename Value="gouraud_main.pas"/>
@@ -85,7 +80,7 @@
       </Position3>
       <Position4>
         <Filename Value="gouraud_main.pas"/>
-        <Caret Line="126" Column="1" TopLine="91"/>
+        <Caret Line="126" TopLine="91"/>
       </Position4>
       <Position5>
         <Filename Value="gouraud_main.pas"/>
@@ -98,7 +93,7 @@
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
-    <Version Value="9"/>
+    <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
       <Filename Value="gouraud"/>
@@ -114,9 +109,6 @@
         </Win32>
       </Options>
     </Linking>
-    <Other>
-      <CompilerPath Value="$(CompPath)"/>
-    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">

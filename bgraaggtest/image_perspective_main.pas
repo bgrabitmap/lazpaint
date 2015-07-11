@@ -132,7 +132,7 @@ begin
   pts[2] := PointF(clientwidth-150,clientheight-150);
   pts[3] := PointF(120,clientheight-200);
   MovingPointIndex := -1;
-  image := TBGRABitmap.Create('spheres.bmp');
+  image := TBGRABitmap.Create('spheres.png');
   stopwatch := TEpikTimer.Create(Self);
 end;
 

@@ -105,10 +105,10 @@ begin
   timeMeasure := TEpikTimer.Create(Application);
   timeMeasure.Start;
 
-  if TBGRAPixel_RedByteOffset > TBGRAPixel_BlueByteOffset then
-    Caption := Caption + ' (BGRA 32-bit)'
+  if TBGRAPixel_RGBAOrder then
+    Caption := Caption + ' (RGBA 32-bit)'
   else
-    Caption := Caption + ' (RGBA 32-bit)';
+    Caption := Caption + ' (BGRA 32-bit)';
 end;
 
 procedure TFMain.FormDestroy(Sender: TObject);

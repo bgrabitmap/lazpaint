@@ -68,6 +68,9 @@ end;
 
 var
   Application: TTestBGRANoGui;
+
+{$R *.res}
+
 begin
   Application:=TTestBGRANoGui.Create(nil);
   Application.Title:='TestBGRANoGui';

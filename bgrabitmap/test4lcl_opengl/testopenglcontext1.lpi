@@ -10,6 +10,7 @@
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
       <ResourceType Value="res"/>
+      <Icon Value="0"/>
     </General>
     <BuildModes Count="1">
       <Item1 Name="default" Default="True"/>
@@ -53,7 +54,6 @@
       <Unit2>
         <Filename Value="ugame.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="UGame"/>
       </Unit2>
     </Units>
   </ProjectOptions>

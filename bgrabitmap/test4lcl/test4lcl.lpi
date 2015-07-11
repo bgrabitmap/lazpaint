@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
     <Version Value="9"/>
@@ -42,7 +42,6 @@
       <Unit0>
         <Filename Value="test4lcl.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="test4lcl"/>
       </Unit0>
       <Unit1>
         <Filename Value="umain.pas"/>
@@ -67,25 +66,15 @@
     <CodeGeneration>
       <Optimizations>
         <VariablesInRegisters Value="True"/>
-        <OptimizationLevel Value="3"/>
       </Optimizations>
     </CodeGeneration>
     <Linking>
-      <Debugging>
-        <GenerateDebugInfo Value="False"/>
-      </Debugging>
       <Options>
         <Win32>
           <GraphicApplication Value="True"/>
         </Win32>
       </Options>
     </Linking>
-    <Other>
-      <CompilerMessages>
-        <MsgFileName Value=""/>
-      </CompilerMessages>
-      <CompilerPath Value="$(CompPath)"/>
-    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">

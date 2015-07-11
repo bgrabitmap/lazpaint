@@ -17,6 +17,7 @@ type
     Label2: TLabel;
     Label_RadiusValue: TLabel;
     Panel1: TPanel;
+    Radio_Box: TRadioButton;
     Radio_Motion: TRadioButton;
     Radio_Fast: TRadioButton;
     Radio_Corona: TRadioButton;
@@ -57,6 +58,7 @@ procedure TForm1.FormPaint(Sender: TObject);
 var bmp,ombre: TBGRABitmap;
     x,y,tx,ty: integer;
     blurType: TRadialBlurType;
+    radius: single;
 begin
   tx := clientWidth;
   ty := Panel1.Top;
@@ -71,11 +73,17 @@ begin
     ombre := shadowBase.FilterBlurMotion(TrackBar_BlurRadius.Position,0,False) as TBGRABitmap;
   end else
   begin
+    radius := TrackBar_BlurRadius.Position;
+    if Radio_Box.Checked then
+    begin
+      blurType := rbBox;
+      radius := radius/sqrt(2);
+    end else
     if Radio_Fast.Checked then blurType := rbFast else
     if Radio_Corona.Checked then blurType := rbCorona else
     if Radio_Disk.Checked then blurType := rbDisk else
     if Radio_Radial.Checked then blurType := rbNormal;
-    ombre := shadowBase.FilterBlurRadial(TrackBar_BlurRadius.Position,blurType) as TBGRABitmap;
+    ombre := shadowBase.FilterBlurRadial(round(radius),blurType) as TBGRABitmap;
   end;
   timer.Stop;
   ombre.Rectangle(0,0,ombre.width,ombre.height,BGRA(0,0,0,128),dmDrawWithTransparency);
