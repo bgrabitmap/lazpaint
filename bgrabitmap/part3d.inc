@@ -228,7 +228,7 @@ begin
   FVertices := nil;
   FVertexCount := 0;
   if FCoordPool.UsedCapacity > 0 then
-    raise Exception.Create('Coordinate pool still used');
+    raise Exception.Create('Coordinate pool still used. Please set vertex references to nil before destroying the scene.');
   FreeAndNil(FCoordPool);
   if Assigned(FNormalPool) then
   begin
