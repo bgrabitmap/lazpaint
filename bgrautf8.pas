@@ -74,7 +74,8 @@ procedure LEWriteSingle(Stream: TStream; AValue: single);
 implementation
 
 {$IFDEF BGRABITMAP_USE_LCL}
-uses LazFileUtils, LazUtf8, LCLProc;
+uses {$IFDEF FPC_FULLVERSION>=49525}LazFileUtils, LazUtf8, LCLProc 
+{$ELSE}FileUtil, LCLProc{$IFEND};
 
 procedure LoadStringsFromFileUTF8(List: TStrings; const FileName: string);
 begin
@@ -88,88 +89,112 @@ end;
 
 function UTF8ToSys(const s: string): string;
 begin
+  {$IFDEF FPC_FULLVERSION>=49525}
   result := LazUtf8.UTF8ToSys(s);
+  {$ELSE}
+  result := FileUtil.UTF8ToSys(s);
+  {$ENDIF}
 end;
 
 function SysToUTF8(const s: string): string;
 begin
+  {$IFDEF FPC_FULLVERSION>=49525}
   result := LazUtf8.SysToUTF8(s);
+  {$ELSE}
+  result := FileUtil.SysToUTF8(s);
+  {$ENDIF}
 end;
 
 function UTF8LowerCase(const s: string): string;
 begin
+  {$IFDEF FPC_FULLVERSION>=49525}
   result := LazUTF8.UTF8LowerCase(s);
+  {$ELSE}
+  result := LCLProc.UTF8LowerCase(s);
+  {$ENDIF}
 end;
 
 function UTF8UpperCase(const s: string): string;
 begin
+  {$IFDEF FPC_FULLVERSION>=49525}
   result := LazUTF8.UTF8UpperCase(s);
+  {$ELSE}
+  result := LCLProc.UTF8UpperCase(s);
+  {$ENDIF}
 end;
 
 function UTF8CompareStr(const S1, S2: string): Integer;
 begin
+  {$IFDEF FPC_FULLVERSION>=49525}
   result := LazUTF8.UTF8CompareStr(S1,S2);
+  {$ELSE}
+  result := LCLProc.UTF8CompareStr(S1,S2);
+  {$ENDIF}
 end;
 
 function UTF8CompareText(const S1, S2: string): Integer;
 begin
+  {$IFDEF FPC_FULLVERSION>=49525}
   result := LazUTF8.UTF8CompareText(S1,S2);
+  {$ELSE}
+  result := LCLProc.UTF8CompareText(S1,S2);
+  {$ENDIF}
 end;
 
 function FileOpenUTF8(Const FileName : string; Mode : Integer) : THandle;
 begin
-  result := LazFileUtils.FileOpenUTF8(FileName, Mode);
+  result := FileUtil.FileOpenUTF8(FileName, Mode);
 end;
 
 function FileCreateUTF8(Const FileName : string) : THandle; overload;
 begin
-  result := LazFileUtils.FileCreateUTF8(FileName);
+  result := FileUtil.FileCreateUTF8(FileName);
 end;
 
 function FileCreateUTF8(Const FileName : string; Rights: Cardinal) : THandle; overload;
 begin
-  result := LazFileUtils.FileCreateUTF8(FileName, Rights);
+  result := FileUtil.FileCreateUTF8(FileName, Rights);
 end;
 
 function FileExistsUTF8(Const FileName : string): boolean;
 begin
-  result := LazFileUtils.FileExistsUTF8(FileName);
+  result := FileUtil.FileExistsUTF8(FileName);
 end;
 
 function FindFirstUTF8(const Path: string; Attr: Longint; out Rslt: TSearchRec
   ): Longint;
 begin
-  result := LazFileUtils.FindFirstUTF8(Path,Attr,Rslt);
+  result := FileUtil.FindFirstUTF8(Path,Attr,Rslt);
 end;
 
 function FindNextUTF8(var Rslt: TSearchRec): Longint;
 begin
-  result := LazFileUtils.FindNextUTF8(Rslt);
+  result := FileUtil.FindNextUTF8(Rslt);
 end;
 
 procedure FindCloseUTF8(var F: TSearchrec);
 begin
-  LazFileUtils.FindCloseUTF8(F);
+  FileUtil.FindCloseUTF8(F);
 end;
 
 function UTF8CharacterLength(p: PChar): integer;
 begin
-  result := LazUtf8.UTF8CharacterLength(p);
+  result := LCLProc.UTF8CharacterLength(p);
 end;
 
 function UTF8Length(const s: string): PtrInt;
 begin
-  result := LazUtf8.UTF8Length(s);
+  result := LCLProc.UTF8Length(s);
 end;
 
 function UTF8Length(p: PChar; ByteCount: PtrInt): PtrInt;
 begin
-  result := LazUtf8.UTF8Length(p, ByteCount);
+  result := LCLProc.UTF8Length(p, ByteCount);
 end;
 
 function UnicodeCharToUTF8(u: cardinal): string4;
 begin
-  result := LazUtf8.UnicodeToUTF8(u);
+  result := LCLProc.UnicodeToUTF8(u);
 end;
 {$ELSE}
 
