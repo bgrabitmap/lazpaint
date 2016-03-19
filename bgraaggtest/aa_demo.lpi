@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
     <Version Value="9"/>
@@ -7,8 +7,6 @@
       <MainUnit Value="0"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
-      <Icon Value="0"/>
-      <ActiveWindowIndexAtStart Value="0"/>
     </General>
     <i18n>
       <EnableI18N LFM="False"/>
@@ -37,36 +35,30 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="4">
+    <Units Count="5">
       <Unit0>
         <Filename Value="aa_demo.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="aa_demo"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="1" Y="15"/>
-        <UsageCount Value="20"/>
+        <CursorPos Y="15"/>
+        <UsageCount Value="21"/>
       </Unit0>
       <Unit1>
         <Filename Value="aa_demo_main.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="aa_demo_main"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="0"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="61"/>
-        <CursorPos X="71" Y="77"/>
-        <UsageCount Value="20"/>
+        <TopLine Value="67"/>
+        <CursorPos X="72" Y="91"/>
+        <UsageCount Value="21"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="..\bgrabitmap\bgrapolygon.pas"/>
         <UnitName Value="BGRAPolygon"/>
-        <EditorIndex Value="1"/>
-        <WindowIndex Value="0"/>
+        <EditorIndex Value="2"/>
         <TopLine Value="244"/>
         <CursorPos X="69" Y="259"/>
         <UsageCount Value="10"/>
@@ -75,22 +67,30 @@
       <Unit3>
         <Filename Value="..\bgrabitmap\bgrafillinfo.pas"/>
         <UnitName Value="BGRAFillInfo"/>
-        <EditorIndex Value="2"/>
-        <WindowIndex Value="0"/>
+        <EditorIndex Value="3"/>
         <TopLine Value="497"/>
-        <CursorPos X="1" Y="504"/>
+        <CursorPos Y="504"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit3>
+      <Unit4>
+        <Filename Value="..\bgrabitmap\bgrapixel.inc"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="326"/>
+        <CursorPos X="44" Y="330"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit4>
     </Units>
-    <JumpHistory Count="13" HistoryIndex="12">
+    <JumpHistory Count="20" HistoryIndex="19">
       <Position1>
         <Filename Value="aa_demo_main.pas"/>
         <Caret Line="55" Column="12" TopLine="39"/>
       </Position1>
       <Position2>
         <Filename Value="aa_demo_main.pas"/>
-        <Caret Line="42" Column="1" TopLine="37"/>
+        <Caret Line="42" TopLine="37"/>
       </Position2>
       <Position3>
         <Filename Value="aa_demo_main.pas"/>
@@ -110,7 +110,7 @@
       </Position6>
       <Position7>
         <Filename Value="aa_demo_main.pas"/>
-        <Caret Line="134" Column="1" TopLine="119"/>
+        <Caret Line="134" TopLine="119"/>
       </Position7>
       <Position8>
         <Filename Value="aa_demo_main.pas"/>
@@ -126,7 +126,7 @@
       </Position10>
       <Position11>
         <Filename Value="aa_demo_main.pas"/>
-        <Caret Line="28" Column="1" TopLine="17"/>
+        <Caret Line="28" TopLine="17"/>
       </Position11>
       <Position12>
         <Filename Value="aa_demo_main.pas"/>
@@ -136,10 +136,37 @@
         <Filename Value="aa_demo_main.pas"/>
         <Caret Line="76" Column="42" TopLine="55"/>
       </Position13>
+      <Position14>
+        <Filename Value="aa_demo_main.pas"/>
+        <Caret Line="77" Column="71" TopLine="61"/>
+      </Position14>
+      <Position15>
+        <Filename Value="aa_demo_main.pas"/>
+        <Caret Line="78" Column="71" TopLine="62"/>
+      </Position15>
+      <Position16>
+        <Filename Value="aa_demo_main.pas"/>
+        <Caret Line="80" Column="71" TopLine="64"/>
+      </Position16>
+      <Position17>
+        <Filename Value="aa_demo_main.pas"/>
+        <Caret Line="125" Column="39" TopLine="118"/>
+      </Position17>
+      <Position18>
+        <Filename Value="aa_demo_main.pas"/>
+        <Caret Line="103" Column="3" TopLine="81"/>
+      </Position18>
+      <Position19>
+        <Filename Value="..\bgrabitmap\bgrapixel.inc"/>
+      </Position19>
+      <Position20>
+        <Filename Value="..\bgrabitmap\bgrapixel.inc"/>
+        <Caret Line="371" Column="10" TopLine="362"/>
+      </Position20>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
-    <Version Value="9"/>
+    <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
       <Filename Value="aa_demo"/>
@@ -155,9 +182,6 @@
         </Win32>
       </Options>
     </Linking>
-    <Other>
-      <CompilerPath Value="$(CompPath)"/>
-    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">

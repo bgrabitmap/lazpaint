@@ -25,7 +25,7 @@ implementation
 constructor TTest2.Create;
 begin
   inherited Create;
-  Name := 'Canvas.Draw(TBitmap) on TBitmap. Non-flickering pacmans walking with a rectangle. Rectangle opacity depends on the standard Canvas rendering capacities on bitmap canvas.';
+  Name := 'Canvas.Draw(TBitmap) on TBitmap. NOT RECOMMENDED! Non-flickering pacmans walking with a rectangle. Rectangle opacity depends on the standard Canvas rendering capacities on bitmap canvas.';
   virtualScreen := nil;
 end;
 

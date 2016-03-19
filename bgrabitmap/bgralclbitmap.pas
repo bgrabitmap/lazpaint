@@ -55,6 +55,212 @@ implementation
 
 uses BGRAText, LCLType, LCLIntf, FPimage;
 
+type
+  TCopyPixelProc = procedure (psrc: PByte; pdest: PBGRAPixel; count: NativeInt; sourcePixelSize: PtrInt; defaultOpacity: byte);
+
+procedure CopyFrom24Bit(psrc: PByte; pdest: PBGRAPixel; count: NativeInt; sourcePixelSize: PtrInt; defaultOpacity: byte);
+begin
+  while count > 0 do
+  begin
+    PWord(pdest)^ := PWord(psrc)^;
+    (PByte(pdest)+2)^ := (psrc+2)^;
+    pdest^.alpha := DefaultOpacity;
+    inc(psrc,sourcePixelSize);
+    inc(pdest);
+    dec(count);
+  end;
+end;
+
+procedure CopyFrom24Bit_SwapRedBlue(psrc: PByte; pdest: PBGRAPixel; count: NativeInt; sourcePixelSize: PtrInt; defaultOpacity: byte);
+begin
+  while count > 0 do
+  begin
+    PByte(pdest)^ := (psrc+2)^;
+    (PByte(pdest)+1)^ := (psrc+1)^;
+    (PByte(pdest)+2)^ := psrc^;
+    pdest^.alpha := DefaultOpacity;
+    inc(psrc,sourcePixelSize);
+    inc(pdest);
+    dec(count);
+  end;
+end;
+
+procedure CopyFromARGB_KeepAlpha(psrc: PByte; pdest: PBGRAPixel; count: NativeInt; sourcePixelSize: PtrInt; {%H-}defaultOpacity: byte);
+begin
+  while count > 0 do
+  begin
+    PDWord(pdest)^ := ((PByte(psrc)+3)^ shl TBGRAPixel_BlueShift) or
+                      ((PByte(psrc)+2)^ shl TBGRAPixel_GreenShift) or
+                      ((PByte(psrc)+1)^ shl TBGRAPixel_RedShift) or
+                      (PByte(psrc)^ shl TBGRAPixel_AlphaShift);
+    dec(count);
+    inc(pdest);
+    inc(psrc, sourcePixelSize);
+  end;
+end;
+
+procedure CopyFromARGB_SetAlpha(psrc: PByte; pdest: PBGRAPixel; count: NativeInt; sourcePixelSize: PtrInt; defaultOpacity: byte);
+begin
+  while count > 0 do
+  begin
+    PDWord(pdest)^ := ((PByte(psrc)+3)^ shl TBGRAPixel_BlueShift) or
+                      ((PByte(psrc)+2)^ shl TBGRAPixel_GreenShift) or
+                      ((PByte(psrc)+1)^ shl TBGRAPixel_RedShift) or
+                      (DefaultOpacity shl TBGRAPixel_AlphaShift);
+    inc(psrc);
+    inc(pdest);
+    dec(count, sourcePixelSize);
+  end;
+end;
+
+procedure CopyFromARGB_ReplaceZeroAlpha(psrc: PByte; pdest: PBGRAPixel; count: NativeInt; sourcePixelSize: PtrInt; defaultOpacity: byte);
+const ARGB_ColorMask = {$IFDEF ENDIAN_LITTLE}$FFFFFF00{$ELSE}$00FFFFFF{$ENDIF};
+      ARGB_RedShift = {$IFDEF ENDIAN_LITTLE}8{$ELSE}16{$ENDIF};
+      ARGB_GreenShift = {$IFDEF ENDIAN_LITTLE}16{$ELSE}8{$ENDIF};
+      ARGB_BlueShift = {$IFDEF ENDIAN_LITTLE}24{$ELSE}0{$ENDIF};
+var
+  sourceval: NativeUint;
+  alphaValue: NativeUint;
+  OpacityOrMask: NativeUint;
+begin
+  OpacityOrMask := DefaultOpacity shl TBGRAPixel_AlphaShift;
+  while count > 0 do
+  begin
+    sourceval := plongword(psrc)^;
+    alphaValue := {$IFDEF ENDIAN_LITTLE}sourceval and $ff{$ELSE}sourceval shr 24{$ENDIF};
+    if (alphaValue = 0) and ((sourceval and ARGB_ColorMask) <> 0) then //if not black but transparent
+    begin
+      PDWord(pdest)^ := (((sourceval shr ARGB_BlueShift) and $ff) shl TBGRAPixel_BlueShift) or
+                        (((sourceval shr ARGB_GreenShift) and $ff) shl TBGRAPixel_GreenShift) or
+                        (((sourceval shr ARGB_RedShift) and $ff) shl TBGRAPixel_RedShift) or
+                        OpacityOrMask;
+    end else
+    begin
+      PDWord(pdest)^ := (((sourceval shr ARGB_BlueShift) and $ff) shl TBGRAPixel_BlueShift) or
+                        (((sourceval shr ARGB_GreenShift) and $ff) shl TBGRAPixel_GreenShift) or
+                        (((sourceval shr ARGB_RedShift) and $ff) shl TBGRAPixel_RedShift) or
+                        (alphaValue shl TBGRAPixel_AlphaShift);
+    end;
+    dec(count);
+    inc(pdest);
+    inc(psrc, sourcePixelSize);
+  end;
+end;
+
+const
+  BGRA_AlphaMask = 255 shl TBGRAPixel_AlphaShift;
+  BGRA_RedMask = 255 shl TBGRAPixel_RedShift;
+  BGRA_GreenMask = 255 shl TBGRAPixel_GreenShift;
+  BGRA_BlueMask = 255 shl TBGRAPixel_BlueShift;
+  BGRA_ColorMask = BGRA_RedMask or BGRA_GreenMask or BGRA_BlueMask;
+
+procedure CopyFrom32Bit_KeepAlpha(psrc: PByte; pdest: PBGRAPixel; count: NativeInt; sourcePixelSize: PtrInt; {%H-}defaultOpacity: byte);
+begin
+  if sourcePixelSize = 4 then
+    move(psrc^,pdest^,count*sizeof(TBGRAPixel))
+  else
+  begin
+    while count > 0 do
+    begin
+      PDWord(pdest)^ := PDWord(psrc)^;
+      dec(count);
+      inc(pdest);
+      inc(psrc, sourcePixelSize);
+    end;
+  end;
+end;
+
+procedure CopyFrom32Bit_SwapRedBlue_KeepAlpha(psrc: PByte; pdest: PBGRAPixel; count: NativeInt; sourcePixelSize: PtrInt; {%H-}defaultOpacity: byte);
+var srcValue: NativeUInt;
+begin
+  while count > 0 do
+  begin
+    srcValue := PDWord(psrc)^;
+    PDWord(pdest)^ := (srcValue and not (BGRA_RedMask or BGRA_BlueMask))
+                   or (((srcValue and BGRA_RedMask) shr TBGRAPixel_RedShift) shl TBGRAPixel_BlueShift)
+                   or (((srcValue and BGRA_BlueMask) shr TBGRAPixel_BlueShift) shl TBGRAPixel_RedShift);
+    dec(count);
+    inc(pdest);
+    inc(psrc, sourcePixelSize);
+  end;
+end;
+
+procedure CopyFrom32Bit_SetAlpha(psrc: PByte; pdest: PBGRAPixel; count: NativeInt; sourcePixelSize: PtrInt; defaultOpacity: byte);
+var
+  OpacityOrMask: NativeUInt;
+begin
+  OpacityOrMask := DefaultOpacity shl TBGRAPixel_AlphaShift;
+  while count > 0 do
+  begin
+    PDWord(pdest)^ := (PDWord(psrc)^ and not BGRA_AlphaMask) or OpacityOrMask;
+    inc(psrc, sourcePixelSize);
+    inc(pdest);
+    dec(count);
+  end;
+end;
+
+procedure CopyFrom32Bit_SwapRedBlue_SetAlpha(psrc: PByte; pdest: PBGRAPixel; count: NativeInt; sourcePixelSize: PtrInt; defaultOpacity: byte);
+var srcValue: NativeUInt;
+    OpacityOrMask: NativeUInt;
+begin
+  OpacityOrMask := DefaultOpacity shl TBGRAPixel_AlphaShift;
+  while count > 0 do
+  begin
+    srcValue := PDWord(psrc)^;
+    PDWord(pdest)^ := (srcValue and not (BGRA_RedMask or BGRA_BlueMask or BGRA_AlphaMask))
+                   or (((srcValue and BGRA_RedMask) shr TBGRAPixel_RedShift) shl TBGRAPixel_BlueShift)
+                   or (((srcValue and BGRA_BlueMask) shr TBGRAPixel_BlueShift) shl TBGRAPixel_RedShift)
+                   or OpacityOrMask;
+
+    pdest^.red := PBGRAPixel(psrc)^.blue;
+    pdest^.green := PBGRAPixel(psrc)^.green;
+    pdest^.blue := PBGRAPixel(psrc)^.red;
+    pdest^.alpha := DefaultOpacity; //use default opacity
+    inc(psrc, sourcePixelSize);
+    inc(pdest);
+    dec(count);
+  end;
+end;
+
+procedure CopyFrom32Bit_ReplaceZeroAlpha(psrc: PByte; pdest: PBGRAPixel; count: NativeInt; sourcePixelSize: PtrInt; defaultOpacity: byte);
+var sourceval: NativeUInt;
+  OpacityOrMask : NativeUInt;
+begin
+  OpacityOrMask := DefaultOpacity shl TBGRAPixel_AlphaShift;
+  while count > 0 do
+  begin
+    sourceval := plongword(psrc)^;
+    if ((sourceVal shr TBGRAPixel_AlphaShift) and $ff = 0) and ((sourceval and BGRA_ColorMask) <> 0) then //if not black but transparent
+      plongword(pdest)^ := (sourceval and BGRA_ColorMask) or OpacityOrMask //use default opacity
+    else
+      plongword(pdest)^ := plongword(psrc)^;
+    dec(count);
+    inc(pdest);
+    inc(psrc, sourcePixelSize);
+  end;
+end;
+
+procedure CopyFrom32Bit_SwapRedBlue_ReplaceZeroAlpha(psrc: PByte; pdest: PBGRAPixel; count: NativeInt; sourcePixelSize: PtrInt; defaultOpacity: byte);
+var sourceval: NativeUInt;
+  OpacityOrMask : NativeUInt;
+begin
+  OpacityOrMask := DefaultOpacity shl TBGRAPixel_AlphaShift;
+  while count > 0 do
+  begin
+    sourceval := plongword(psrc)^;
+    if ((sourceVal shr TBGRAPixel_AlphaShift) and $ff = 0) and ((sourceval and BGRA_ColorMask) <> 0) then //if not black but transparent
+      plongword(pdest)^ := (((sourceval and BGRA_RedMask) shr TBGRAPixel_RedShift) shl TBGRAPixel_BlueShift)
+                        or (((sourceval and BGRA_BlueMask) shr TBGRAPixel_BlueShift) shl TBGRAPixel_RedShift)
+                        or (sourceval and BGRA_GreenMask)
+                        or OpacityOrMask
+    else
+      plongword(pdest)^ := (sourceval and BGRA_ColorMask) or OpacityOrMask;
+    dec(count);
+    inc(pdest);
+    inc(psrc, sourcePixelSize);
+  end;
+end;
+
 { Load raw image data. It must be 32bit or 24 bits per pixel}
 function LoadFromRawImageImplementation(ADestination: TBGRADefaultBitmap; ARawImage: TRawImage;
   DefaultOpacity: byte; AlwaysReplaceAlpha: boolean; RaiseErrorOnInvalidPixelFormat: boolean): boolean;
@@ -64,180 +270,16 @@ var
   psource_delta, pdest_delta: integer;
 
   n: integer;
-  mustSwapRedBlue, fromARGB: boolean;
+  mustSwapRedBlue: boolean;
+  copyProc: TCopyPixelProc;
+  nbColorChannels: integer;
 
-  procedure CopyFrom24Bit(psrc: PByte; pdest: PBGRAPixel; count: integer);
+  function FormatError(message: string): boolean;
   begin
-    if mustSwapRedBlue then
-    begin
-      while count > 0 do
-      begin
-        PByte(pdest)^ := (psrc+2)^;
-        (PByte(pdest)+1)^ := (psrc+1)^;
-        (PByte(pdest)+2)^ := psrc^;
-        pdest^.alpha := DefaultOpacity;
-        inc(psrc,3);
-        inc(pdest);
-        dec(count);
-      end;
-    end else
-    begin
-      while count > 0 do
-      begin
-        PWord(pdest)^ := PWord(psrc)^;
-        (PByte(pdest)+2)^ := (psrc+2)^;
-        pdest^.alpha := DefaultOpacity;
-        inc(psrc,3);
-        inc(pdest);
-        dec(count);
-      end;
-    end;
-  end;
-
-  procedure CopyAndSwapIfNecessary(psrc: PBGRAPixel; pdest: PBGRAPixel; count: integer);
-  begin
-    if fromARGB then
-    begin
-      while count > 0 do
-      begin
-        PDWord(pdest)^ := ((PByte(psrc)+3)^ shl TBGRAPixel_BlueShift) or
-                          ((PByte(psrc)+2)^ shl TBGRAPixel_GreenShift) or
-                          ((PByte(psrc)+1)^ shl TBGRAPixel_RedShift) or
-                          (PByte(psrc)^ shl TBGRAPixel_AlphaShift);
-        dec(count);
-        inc(pdest);
-        inc(psrc);
-      end;
-    end else
-    if mustSwapRedBlue then
-    begin
-      while count > 0 do
-      begin
-        pdest^.red := psrc^.blue;
-        pdest^.green := psrc^.green;
-        pdest^.blue := psrc^.red;
-        pdest^.alpha := psrc^.alpha;
-        dec(count);
-        inc(pdest);
-        inc(psrc);
-      end;
-    end else
-      move(psrc^,pdest^,count*sizeof(TBGRAPixel));
-  end;
-
-  procedure CopyAndSwapIfNecessaryAndSetAlpha(psrc: PBGRAPixel; pdest: PBGRAPixel; count: integer);
-  begin
-    if fromARGB then
-    begin
-      while count > 0 do
-      begin
-        PDWord(pdest)^ := ((PByte(psrc)+3)^ shl TBGRAPixel_BlueShift) or
-                          ((PByte(psrc)+2)^ shl TBGRAPixel_GreenShift) or
-                          ((PByte(psrc)+1)^ shl TBGRAPixel_RedShift) or
-                          (DefaultOpacity shl TBGRAPixel_AlphaShift);
-        inc(psrc);
-        inc(pdest);
-        dec(count);
-      end;
-    end else
-    if mustSwapRedBlue then
-    begin
-      while count > 0 do
-      begin
-        pdest^.red := psrc^.blue;
-        pdest^.green := psrc^.green;
-        pdest^.blue := psrc^.red;
-        pdest^.alpha := DefaultOpacity; //use default opacity
-        inc(psrc);
-        inc(pdest);
-        dec(count);
-      end;
-    end else
-    begin
-      while count > 0 do
-      begin
-        PDWord(pdest)^ := PDWord(psrc)^;
-        pdest^.alpha := DefaultOpacity; //use default opacity
-        inc(psrc);
-        inc(pdest);
-        dec(count);
-      end;
-    end;
-  end;
-
-  procedure CopyAndSwapIfNecessaryAndReplaceAlpha(psrc: PBGRAPixel; pdest: PBGRAPixel; count: integer);
-  const
-    BGRA_ColorMask = not (255 shl TBGRAPixel_AlphaShift);
-    ARGB_ColorMask = {$IFDEF ENDIAN_LITTLE}$FFFFFF00{$ELSE}$00FFFFFF{$ENDIF};
-
-  var sourceval: Longword;
-    alphaValue: NativeUint;
-    OpacityOrMask : longword;
-  begin
-    OpacityOrMask := DefaultOpacity shl TBGRAPixel_AlphaShift;
-    if fromARGB then
-    begin
-      while count > 0 do
-      begin
-        sourceval := plongword(psrc)^;
-        alphaValue := {$IFDEF ENDIAN_LITTLE}sourceval and $ff{$ELSE}sourceval shr 24{$ENDIF};
-        if (alphaValue = 0) and ((sourceval and ARGB_ColorMask) <> 0) then //if not black but transparent
-        begin
-          PDWord(pdest)^ := ((PByte(psrc)+3)^ shl TBGRAPixel_BlueShift) or
-                            ((PByte(psrc)+2)^ shl TBGRAPixel_GreenShift) or
-                            ((PByte(psrc)+1)^ shl TBGRAPixel_RedShift) or
-                            OpacityOrMask;
-        end else
-        begin
-          PDWord(pdest)^ := ((PByte(psrc)+3)^ shl TBGRAPixel_BlueShift) or
-                            ((PByte(psrc)+2)^ shl TBGRAPixel_GreenShift) or
-                            ((PByte(psrc)+1)^ shl TBGRAPixel_RedShift) or
-                            (alphaValue shl TBGRAPixel_AlphaShift);
-        end;
-        dec(count);
-        inc(pdest);
-        inc(psrc);
-      end;
-    end else
-    if mustSwapRedBlue then
-    begin
-      while count > 0 do
-      begin
-        sourceval := plongword(psrc)^;
-        alphaValue:= (sourceVal shr TBGRAPixel_AlphaShift) and $ff;
-        if (alphaValue = 0) and ((sourceval and BGRA_ColorMask) <> 0) then //if not black but transparent
-        begin
-          (PByte(pdest)+2)^ := PByte(psrc)^;
-          (PByte(pdest)+1)^ := (PByte(psrc)+1)^;
-          PByte(pdest)^ := (PByte(psrc)+2)^;
-          pdest^.alpha := DefaultOpacity; //use default opacity
-        end
-        else
-        begin
-          (PByte(pdest)+2)^ := PByte(psrc)^;
-          (PByte(pdest)+1)^ := (PByte(psrc)+1)^;
-          PByte(pdest)^ := (PByte(psrc)+2)^;
-          pdest^.alpha := alphaValue;
-        end;
-        dec(count);
-        inc(pdest);
-        inc(psrc);
-      end;
-    end else
-    begin
-      while count > 0 do
-      begin
-        sourceval := plongword(psrc)^;
-        alphaValue:= (sourceVal shr TBGRAPixel_AlphaShift) and $ff;
-        if (alphaValue = 0) and ((sourceval and BGRA_ColorMask) <> 0) then //if not black but transparent
-          plongword(pdest)^ := (sourceval and BGRA_ColorMask) or OpacityOrMask //use default opacity
-        else
-          pdest^ := psrc^;
-        dec(count);
-        inc(pdest);
-        inc(psrc);
-      end;
-    end;
+    if RaiseErrorOnInvalidPixelFormat then
+      raise Exception.Create('Invalid raw image format. ' + message)
+    else
+      result := false;
   end;
 
 begin
@@ -251,127 +293,147 @@ begin
     exit;
   end;
 
-  if ARawImage.Description.LineOrder = riloTopToBottom then
+  if ((ARawImage.Description.BitsPerPixel and 7) <> 0) then
   begin
-    psource_first := ARawImage.Data;
-    psource_delta := ARawImage.Description.BytesPerLine;
-  end else
-  begin
-    psource_first := ARawImage.Data + (ARawImage.Description.Height-1) * ARawImage.Description.BytesPerLine;
-    psource_delta := -ARawImage.Description.BytesPerLine;
+    result := FormatError(IntToStr(ARawImage.Description.Depth) + 'bit found but multiple of 8bit expected');
+    exit;
   end;
 
-  //channels are in RGB order (alpha channel may follow)
-  if ((ARawImage.Description.RedShift = 0) and
-    (ARawImage.Description.BlueShift = 16) and
-    (ARawImage.Description.ByteOrder = riboLSBFirst)) or
-    ((ARawImage.Description.RedShift = 24) and
-    (ARawImage.Description.BlueShift = 8) and
-    (ARawImage.Description.ByteOrder = riboMSBFirst)) then
+  if (ARawImage.Description.BitsPerPixel < 24) then
   begin
-    mustSwapRedBlue:= not TBGRAPixel_RGBAOrder;
-    fromARGB := false;
-  end
+    result := FormatError(IntToStr(ARawImage.Description.Depth) + 'bit found but at least 24bit expected');
+    exit;
+  end;
+
+  nbColorChannels := 0;
+  if (ARawImage.Description.RedPrec > 0)  then inc(nbColorChannels);
+  if (ARawImage.Description.GreenPrec > 0)  then inc(nbColorChannels);
+  if (ARawImage.Description.BluePrec > 0)  then inc(nbColorChannels);
+
+  if (nbColorChannels < 3) then
+  begin
+    result := FormatError('One or more color channel is missing (RGB expected)');
+    exit;
+  end;
+
+  //channels are in ARGB order
+  if (ARawImage.Description.BitsPerPixel >= 32) and
+     (ARawImage.Description.AlphaPrec = 8) and
+    (((ARawImage.Description.AlphaShift = 0) and
+    (ARawImage.Description.RedShift = 8) and
+    (ARawImage.Description.GreenShift = 16) and
+    (ARawImage.Description.BlueShift = 24) and
+    (ARawImage.Description.ByteOrder = riboLSBFirst)) or
+    ((ARawImage.Description.AlphaShift = ARawImage.Description.BitsPerPixel - 8) and
+    (ARawImage.Description.RedShift = ARawImage.Description.BitsPerPixel - 16) and
+    (ARawImage.Description.GreenShift = ARawImage.Description.BitsPerPixel - 24) and
+    (ARawImage.Description.BlueShift = ARawImage.Description.BitsPerPixel - 32) and
+    (ARawImage.Description.ByteOrder = riboMSBFirst))) then
+    begin
+      if AlwaysReplaceAlpha then
+        copyProc := @CopyFromARGB_SetAlpha
+      else if DefaultOpacity = 0 then
+        copyProc := @CopyFromARGB_KeepAlpha
+      else
+        copyProc := @CopyFromARGB_ReplaceZeroAlpha;
+    end
   else
   begin
-    //channels are in ARGB order
-    if ((ARawImage.Description.RedShift = 8) and
-      (ARawImage.Description.GreenShift = 16) and
-      (ARawImage.Description.BlueShift = 24) and
-      (ARawImage.Description.ByteOrder = riboLSBFirst)) or
-      ((ARawImage.Description.RedShift = 16) and
-      (ARawImage.Description.GreenShift = 8) and
-      (ARawImage.Description.BlueShift = 0) and
-      (ARawImage.Description.ByteOrder = riboMSBFirst)) then
-      begin
-        fromARGB := true;
-        mustSwapRedBlue:= false;
-      end
-      else
-      begin
-        //assume channel are in BGR order (alpha channel may follow)
-        fromARGB := false;
-        mustSwapRedBlue:= TBGRAPixel_RGBAOrder;
-      end;
-  end;
-
-  if ADestination.LineOrder = riloTopToBottom then
-  begin
-    pdest_first := PByte(ADestination.Data);
-    pdest_delta := ADestination.Width*sizeof(TBGRAPixel);
-  end else
-  begin
-    pdest_first := PByte(ADestination.Data) + (ADestination.Height-1)*ADestination.Width*sizeof(TBGRAPixel);
-    pdest_delta := -ADestination.Width*sizeof(TBGRAPixel);
-  end;
-
-  { 32 bits per pixel }
-  if (ARawImage.Description.BitsPerPixel = 32) and
-    (ARawImage.DataSize >= longword(ADestination.NbPixels) * 4) then
-  begin
-    { If there is an alpha channel }
-    if (ARawImage.Description.AlphaPrec = 8) and not AlwaysReplaceAlpha then
+    //channels are in RGB order (alpha channel may follow)
+    if (ARawImage.Description.BitsPerPixel >= 24) and
+       (((ARawImage.Description.RedShift = 0) and
+         (ARawImage.Description.GreenShift = 8) and
+         (ARawImage.Description.BlueShift = 16) and
+         (ARawImage.Description.ByteOrder = riboLSBFirst)) or
+        ((ARawImage.Description.RedShift = ARawImage.Description.BitsPerPixel - 8) and
+         (ARawImage.Description.GreenShift = ARawImage.Description.BitsPerPixel - 16) and
+         (ARawImage.Description.BlueShift = ARawImage.Description.BitsPerPixel - 24) and
+         (ARawImage.Description.ByteOrder = riboMSBFirst))) then
     begin
-      if DefaultOpacity = 0 then
-      begin
-        if ARawImage.Description.LineOrder = ADestination.LineOrder then
-          CopyAndSwapIfNecessary(PBGRAPixel(ARawImage.Data), ADestination.Data, ADestination.NbPixels) else
-        begin
-          psource_byte := psource_first;
-          pdest_byte := pdest_first;
-          for n := ADestination.Height-1 downto 0 do
-          begin
-            CopyAndSwapIfNecessary(PBGRAPixel(psource_byte), PBGRAPixel(pdest_byte), ADestination.Width);
-            inc(psource_byte, psource_delta);
-            inc(pdest_byte, pdest_delta);
-          end;
-        end;
-      end
-      else
-      begin
-        psource_byte := psource_first;
-        pdest_byte := pdest_first;
-        for n := ADestination.Height-1 downto 0 do
-        begin
-          CopyAndSwapIfNecessaryAndReplaceAlpha(PBGRAPixel(psource_byte), PBGRAPixel(pdest_byte), ADestination.Width);
-          inc(psource_byte, psource_delta);
-          inc(pdest_byte, pdest_delta);
-        end;
-      end;
+      mustSwapRedBlue:= not TBGRAPixel_RGBAOrder;
     end
     else
-    begin { If there isn't any alpha channel }
-      psource_byte := psource_first;
-      pdest_byte := pdest_first;
-      for n := ADestination.Height-1 downto 0 do
+    //channels are in BGR order (alpha channel may follow)
+    if (ARawImage.Description.BitsPerPixel >= 24) and
+       (((ARawImage.Description.BlueShift = 0) and
+         (ARawImage.Description.GreenShift = 8) and
+         (ARawImage.Description.RedShift = 16) and
+         (ARawImage.Description.ByteOrder = riboLSBFirst)) or
+        ((ARawImage.Description.BlueShift = ARawImage.Description.BitsPerPixel - 8) and
+         (ARawImage.Description.GreenShift = ARawImage.Description.BitsPerPixel - 16) and
+         (ARawImage.Description.RedShift = ARawImage.Description.BitsPerPixel - 24) and
+         (ARawImage.Description.ByteOrder = riboMSBFirst))) then
+    begin
+      mustSwapRedBlue:= TBGRAPixel_RGBAOrder;
+    end
+    else
+    begin
+      if RaiseErrorOnInvalidPixelFormat then
+        raise Exception.Create('Invalid raw image format')
+      else
       begin
-        CopyAndSwapIfNecessaryAndSetAlpha(PBGRAPixel(psource_byte), PBGRAPixel(pdest_byte), ADestination.Width);
-        inc(psource_byte, psource_delta);
-        inc(pdest_byte, pdest_delta);
+        result := false;
+        exit;
       end;
     end;
-  end
+
+    if not mustSwapRedBlue then
+    begin
+      if ARawImage.Description.BitsPerPixel = 24 then
+        copyProc := @CopyFrom24Bit
+      else
+      if AlwaysReplaceAlpha then
+        copyProc := @CopyFrom32Bit_SetAlpha
+      else if DefaultOpacity = 0 then
+        copyProc := @CopyFrom32Bit_KeepAlpha
+      else
+        copyProc := @CopyFrom32Bit_ReplaceZeroAlpha;
+    end else
+    begin
+      if ARawImage.Description.BitsPerPixel = 24 then
+        copyProc := @CopyFrom24Bit_SwapRedBlue
+      else
+      if AlwaysReplaceAlpha then
+        copyProc := @CopyFrom32Bit_SwapRedBlue_SetAlpha
+      else if DefaultOpacity = 0 then
+        copyProc := @CopyFrom32Bit_SwapRedBlue_KeepAlpha
+      else
+        copyProc := @CopyFrom32Bit_SwapRedBlue_ReplaceZeroAlpha;
+    end;
+  end;
+
+  if (ARawImage.Description.LineOrder = ADestination.LineOrder) and
+    (ARawImage.Description.BytesPerLine = (ARawImage.Description.BitsPerPixel shr 3) * cardinal(ADestination.Width)) then
+    copyProc(ARawImage.Data, ADestination.Data, ADestination.NbPixels, ARawImage.Description.BitsPerPixel shr 3, DefaultOpacity)
   else
-  { 24 bit per pixel }
-  if (ARawImage.Description.BitsPerPixel = 24) then
   begin
+    if ARawImage.Description.LineOrder = riloTopToBottom then
+    begin
+      psource_first := ARawImage.Data;
+      psource_delta := ARawImage.Description.BytesPerLine;
+    end else
+    begin
+      psource_first := ARawImage.Data + (ARawImage.Description.Height-1) * ARawImage.Description.BytesPerLine;
+      psource_delta := -ARawImage.Description.BytesPerLine;
+    end;
+
+    if ADestination.LineOrder = riloTopToBottom then
+    begin
+      pdest_first := PByte(ADestination.Data);
+      pdest_delta := ADestination.Width*sizeof(TBGRAPixel);
+    end else
+    begin
+      pdest_first := PByte(ADestination.Data) + (ADestination.Height-1)*ADestination.Width*sizeof(TBGRAPixel);
+      pdest_delta := -ADestination.Width*sizeof(TBGRAPixel);
+    end;
+
     psource_byte := psource_first;
     pdest_byte := pdest_first;
     for n := ADestination.Height-1 downto 0 do
     begin
-      CopyFrom24Bit(psource_byte, PBGRAPixel(pdest_byte), ADestination.Width);
+      copyProc(psource_byte, PBGRAPixel(pdest_byte), ADestination.Width, ARawImage.Description.BitsPerPixel shr 3, DefaultOpacity);
       inc(psource_byte, psource_delta);
       inc(pdest_byte, pdest_delta);
-    end;
-  end
-  else
-  begin
-    if RaiseErrorOnInvalidPixelFormat then
-      raise Exception.Create('Invalid raw image format (' + IntToStr(
-        ARawImage.Description.Depth) + ' found)') else
-    begin
-      result := false;
-      exit;
     end;
   end;
 
@@ -670,7 +732,6 @@ end;
 
 procedure TBGRALCLBitmap.AssignRasterImage(ARaster: TRasterImage);
 var TempBmp: TBitmap;
-    ConvertOk: boolean;
 begin
   DiscardBitmapChange;
   SetSize(ARaster.Width, ARaster.Height);
@@ -681,10 +742,11 @@ begin
     TempBmp.Width := ARaster.Width;
     TempBmp.Height := ARaster.Height;
     TempBmp.Canvas.Draw(0,0,ARaster);
-    ConvertOk := LoadFromRawImage(TempBmp.RawImage,0,False,False);
-    TempBmp.Free;
-    if not ConvertOk then
-      raise Exception.Create('Unable to convert image to 24 bit');
+    try
+      LoadFromRawImage(TempBmp.RawImage,0,False,true);
+    finally
+      TempBmp.Free;
+    end;
   end else
     raise Exception.Create('Unable to convert image to 24 bit');
   If Empty then AlphaFill(255); // if bitmap seems to be empty, assume

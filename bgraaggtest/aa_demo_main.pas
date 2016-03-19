@@ -6,14 +6,16 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
-  ExtCtrls, StdCtrls, BGRABitmapTypes, BGRABitmap, lmessages;
+  ExtCtrls, StdCtrls, BGRABitmapTypes, BGRABitmap, lmessages, Spin;
 
 type
 
   { TForm1 }
 
   TForm1 = class(TForm)
+    SpinEdit_Gamma: TFloatSpinEdit;
     Label1: TLabel;
+    Label2: TLabel;
     Label_PixelSizeValue: TLabel;
     Panel1: TPanel;
     TrackBar_PixelSize: TTrackBar;
@@ -24,6 +26,7 @@ type
     procedure FormMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure FormPaint(Sender: TObject);
+    procedure SpinEdit_GammaChange(Sender: TObject);
     procedure TrackBar_PixelSizeChange(Sender: TObject);
     procedure WMEraseBkgnd(var Message: TLMEraseBkgnd); message LM_ERASEBKGND;
   private
@@ -86,6 +89,7 @@ begin
 
   //zoom
   BGRAReplace(bmp,bmp.Resample(tx*pixSize,ty*pixSize,rmSimpleStretch));
+
   bmp.DrawPolygonAntialias(pts,BGRA(0,128,128,192),1);
   for i := 0 to 2 do
     NicePoint(bmp,pts[i].x,pts[i].y);
@@ -93,6 +97,12 @@ begin
   bmp.Draw(Canvas,0,0);
 
   bmp.free;
+end;
+
+procedure TForm1.SpinEdit_GammaChange(Sender: TObject);
+begin
+  BGRASetGamma(SpinEdit_Gamma.Value);
+  Invalidate;
 end;
 
 procedure TForm1.TrackBar_PixelSizeChange(Sender: TObject);
@@ -113,6 +123,7 @@ begin
   pts[2] := PointF(143,310);
   Label_PixelSizeValue.Caption := '= ' + IntToStr(TrackBar_PixelSize.Position);
   MovingPointIndex := -1;
+  SpinEdit_Gamma.Value := BGRAGetGamma;
 end;
 
 procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;

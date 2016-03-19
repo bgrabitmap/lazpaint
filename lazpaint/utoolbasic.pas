@@ -465,6 +465,7 @@ end;
 function TToolRectangular.ToolUp: TRect;
 var currentRect: TRect;
 begin
+  result := EmptyRect;
   if rectMovingPoint then
   begin
     rectMovingPoint := false;

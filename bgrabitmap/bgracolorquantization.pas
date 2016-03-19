@@ -95,6 +95,7 @@ type
       approxColorIndex: integer;
     end;
     FLargerOwned: boolean;
+    FWeights: array of UInt32;
   protected
     function FindNearestLargerColorIndex(AValue: TBGRAPixel): integer; virtual;
     function SlowFindNearestColorIndex(AValue: TBGRAPixel): integer;
@@ -103,6 +104,7 @@ type
     destructor Destroy; override;
     function FindNearestColor(AValue: TBGRAPixel): TBGRAPixel; override;
     function FindNearestColorIndex(AValue: TBGRAPixel): integer; override;
+    function GetAsArrayOfWeightedColor: ArrayOfWeightedColor; override;
   end;
 
   TIsChannelStrictlyGreaterFunc = function (p1,p2 : PBGRAPixel): boolean;
@@ -118,12 +120,13 @@ type
     FTotalWeight: UInt32;
     FColors: ArrayOfWeightedColor;
     FDimensions: TColorDimensions;
-    FHasPureTransparentColor: boolean;
+    FPureTransparentColorCount: integer;
     function GetApparentInterval(ADimension: TColorDimension): UInt32;
     function GetAverageColor: TBGRAPixel;
     function GetAverageColorOrMainColor: TBGRAPixel;
     function GetBounds(ADimension: TColorDimension): TDimensionMinMax;
     function GetColorCount(ACountPureTransparent: boolean): integer;
+    function GetHasPureTransparentColor: boolean;
     function GetInferiorColor: TBGRAPixel;
     function GetLargestApparentDimension: TColorDimension;
     function GetLargestApparentInterval: UInt32;
@@ -155,7 +158,8 @@ type
     function GetAsArrayOfColors(AIncludePureTransparent: boolean): ArrayOfTBGRAPixel;
     property TotalWeight: UInt32 read FTotalWeight;
     property ColorCount[ACountPureTransparent: boolean]: integer read GetColorCount;
-    property HasPureTransparentColor: boolean read FHasPureTransparentColor;
+    property HasPureTransparentColor: boolean read GetHasPureTransparentColor;
+    property PureTransparentColorCount: integer read FPureTransparentColorCount;
   end;
 
   TBGRALeafColorMode = (lcAverage, lcCenter, lcExtremum, lcMix);
@@ -176,13 +180,14 @@ type
     FCenterColor: TBGRAPixel;
     FAverageColor: TBGRAPixel;
 
-    FHasPureTransparentColor: boolean;
+    FPureTransparentColorCount: integer;
     FPureTransparentColorIndex: integer;
     FDimension: TColorDimension;
     FPixelValueComparer: TIsChannelGreaterThanOrEqualToValueFunc;
     FSuperiorMiddle: UInt32;
     FInferiorBranch, FSuperiorBranch: TBGRAColorTree;
     function GetApproximatedColorCount: integer;
+    function GetHasPureTransparentColor: boolean;
     function GetLeafCount: integer;
     procedure Init(ALeaf: TBGRAColorBox; AOwned: boolean);
     procedure InternalComputeLeavesColor(ALeafColor: TBGRALeafColorMode; var AStartIndex: integer);
@@ -202,13 +207,15 @@ type
     function ApproximateColor(AColor: TBGRAPixel): TBGRAPixel;
     function ApproximateColorIndex(AColor: TBGRAPixel): integer;
     function GetAsArrayOfApproximatedColors: ArrayOfTBGRAPixel;
+    function GetAsArrayOfWeightedColors: ArrayOfWeightedColor;
     procedure SplitIntoPalette(ACount: integer; AMethod: TBiggestLeafMethod;
       ALeafColor: TBGRALeafColorMode);
     function SplitIntoPaletteWithSubPalette(ACount: integer; AMethod: TBiggestLeafMethod;
       ALeafColor: TBGRALeafColorMode; ASubPaletteCount: integer): ArrayOfTBGRAPixel;
     property LeafCount: integer read GetLeafCount;
     property ApproximatedColorCount: integer read GetApproximatedColorCount;
-    property HasPureTransparentColor: boolean read FHasPureTransparentColor;
+    property HasPureTransparentColor: boolean read GetHasPureTransparentColor;
+    property PureTransparentColorCount: integer read FPureTransparentColorCount;
   end;
 
 function GetPixelStrictComparer(ADimension: TColorDimension): TIsChannelStrictlyGreaterFunc;
@@ -566,19 +573,27 @@ end;
 constructor TBGRAApproxPaletteViaLargerPalette.Create(
   const AColors: ArrayOfTBGRAPixel; ALarger: TBGRACustomApproxPalette; ALargerOwned: boolean);
 var i: integer;
+  largeWeighted: ArrayOfWeightedColor;
 begin
   inherited Create(AColors);
+  setlength(FWeights, length(FColors));
+  for i := 0 to high(FWeights) do
+    FWeights[i] := 0;
   FLarger := ALarger;
   FLargerOwned := ALargerOwned;
-  setlength(FLargerColors, FLarger.Count);
+  largeWeighted := FLarger.GetAsArrayOfWeightedColor;
+  setlength(FLargerColors, length(largeWeighted));
   for i := 0 to high(FLargerColors) do
   with FLargerColors[i] do
   begin
-    approxColorIndex := SlowFindNearestColorIndex(FLarger.Color[i]);
+    approxColorIndex := SlowFindNearestColorIndex(largeWeighted[i].Color);
     if approxColorIndex = -1 then
       approxColor := BGRAPixelTransparent
     else
+    begin
       approxColor := FColors[approxColorIndex];
+      inc(FWeights[approxColorIndex]);
+    end;
   end;
 end;
 
@@ -608,6 +623,18 @@ begin
     result := -1
   else
     Result:= FLargerColors[index].approxColorIndex;
+end;
+
+function TBGRAApproxPaletteViaLargerPalette.GetAsArrayOfWeightedColor: ArrayOfWeightedColor;
+var
+  i: Integer;
+begin
+  setlength(result, length(FColors));
+  for i := 0 to high(FColors) do
+  begin
+    result[i].Color := FColors[i];
+    result[i].Weight := FWeights[i];
+  end;
 end;
 
 { TBGRAApproxPalette }
@@ -701,12 +728,17 @@ function TBGRAApproxPalette.GetAsArrayOfWeightedColor: ArrayOfWeightedColor;
 var
   i: NativeInt;
 begin
-  setlength(result, length(FColors));
-  for i := 0 to high(result) do
-  with result[i] do
+  if Assigned(FTree) then
+    result := FTree.GetAsArrayOfWeightedColors
+  else
   begin
-    Color := FColors[i];
-    Weight:= 1;
+    setlength(result, length(FColors));
+    for i := 0 to high(result) do
+    with result[i] do
+    begin
+      Color := FColors[i];
+      Weight:= 1;
+    end;
   end;
 end;
 
@@ -715,13 +747,13 @@ end;
 procedure TBGRAColorQuantizer.Init(ABox: TBGRAColorBox);
 begin
   FColors := ABox.FColors;
-  if ABox.FHasPureTransparentColor then
+  if ABox.HasPureTransparentColor then
   begin
     setlength(FColors,length(FColors)+1);
     with FColors[high(FColors)] do
     begin
       Color := BGRAPixelTransparent;
-      Weight:= 1;
+      Weight:= ABox.PureTransparentColorCount;
     end;
   end;
   ABox.FColors := nil;
@@ -890,7 +922,7 @@ begin
     bounds[cdGreen] := originalBox.Bounds[cdGreen];
     bounds[cdBlue] := originalBox.Bounds[cdBlue];
     bounds[cdAlpha] := originalBox.Bounds[cdAlpha];
-    if originalBox.FHasPureTransparentColor then bounds[cdAlpha].Minimum := 0;
+    if originalBox.HasPureTransparentColor then bounds[cdAlpha].Minimum := 0;
     if FReductionColorCount = 1 then
     begin
       setlength(colors,1);
@@ -1072,7 +1104,7 @@ procedure TBGRAColorTree.ComputeLeavesColor(ALeafColor: TBGRALeafColorMode);
 var index: integer;
 begin
   index := 0;
-  if FHasPureTransparentColor then
+  if HasPureTransparentColor then
   begin
     FPureTransparentColorIndex:= index;
     inc(index);
@@ -1209,9 +1241,9 @@ begin
   if IsLeaf then
   begin
     CheckColorComputed;
-    setlength(result,1+byte(FHasPureTransparentColor));
+    setlength(result,1+byte(HasPureTransparentColor));
     idx := 0;
-    if FHasPureTransparentColor then
+    if HasPureTransparentColor then
     begin
       result[idx] := BGRAPixelTransparent;
       inc(idx);
@@ -1221,11 +1253,53 @@ begin
   begin
     a := FInferiorBranch.GetAsArrayOfApproximatedColors;
     b := FSuperiorBranch.GetAsArrayOfApproximatedColors;
-    setlength(result, length(a)+length(b)+byte(FHasPureTransparentColor));
+    setlength(result, length(a)+length(b)+byte(HasPureTransparentColor));
     idx := 0;
-    if FHasPureTransparentColor then
+    if HasPureTransparentColor then
     begin
       result[idx] := BGRAPixelTransparent;
+      inc(idx);
+    end;
+    for i := 0 to high(a) do
+    begin
+      result[idx] := a[i];
+      inc(idx);
+    end;
+    for i := 0 to high(b) do
+    begin
+      result[idx] := b[i];
+      inc(idx);
+    end;
+  end;
+end;
+
+function TBGRAColorTree.GetAsArrayOfWeightedColors: ArrayOfWeightedColor;
+var a,b: ArrayOfWeightedColor;
+  idx,i: integer;
+begin
+  if IsLeaf then
+  begin
+    CheckColorComputed;
+    setlength(result,1+byte(HasPureTransparentColor));
+    idx := 0;
+    if HasPureTransparentColor then
+    begin
+      result[idx].Color := BGRAPixelTransparent;
+      result[idx].Weight := PureTransparentColorCount;
+      inc(idx);
+    end;
+    result[idx].Color := FLeafColor;
+    result[idx].Weight := Weight;
+  end else
+  begin
+    a := FInferiorBranch.GetAsArrayOfWeightedColors;
+    b := FSuperiorBranch.GetAsArrayOfWeightedColors;
+    setlength(result, length(a)+length(b)+byte(HasPureTransparentColor));
+    idx := 0;
+    if HasPureTransparentColor then
+    begin
+      result[idx].Color := BGRAPixelTransparent;
+      result[idx].Weight := PureTransparentColorCount;
       inc(idx);
     end;
     for i := 0 to high(a) do
@@ -1308,7 +1382,12 @@ begin
     if Assigned(FInferiorBranch) then result += FInferiorBranch.ApproximatedColorCount;
     if Assigned(FSuperiorBranch) then result += FSuperiorBranch.ApproximatedColorCount;
   end;
-  if FHasPureTransparentColor then inc(result);
+  if HasPureTransparentColor then inc(result);
+end;
+
+function TBGRAColorTree.GetHasPureTransparentColor: boolean;
+begin
+  result := FPureTransparentColorCount > 0;
 end;
 
 procedure TBGRAColorTree.Init(ALeaf: TBGRAColorBox; AOwned: boolean);
@@ -1327,7 +1406,7 @@ begin
     FMinBorder[c] := true;
     FMaxBorder[c] := true;
   end;
-  FHasPureTransparentColor:= FLeaf.HasPureTransparentColor;
+  FPureTransparentColorCount:= FLeaf.PureTransparentColorCount;
   FPureTransparentColorIndex:= -1;
 end;
 
@@ -1513,7 +1592,12 @@ end;
 function TBGRAColorBox.GetColorCount(ACountPureTransparent: boolean): integer;
 begin
   result := length(FColors);
-  if ACountPureTransparent and FHasPureTransparentColor then inc(result);
+  if ACountPureTransparent and HasPureTransparentColor then inc(result);
+end;
+
+function TBGRAColorBox.GetHasPureTransparentColor: boolean;
+begin
+  result := FPureTransparentColorCount > 0;
 end;
 
 function TBGRAColorBox.GetInferiorColor: TBGRAPixel;
@@ -1647,7 +1731,7 @@ var
   FirstColor: boolean;
   c: TColorDimension;
 begin
-  FHasPureTransparentColor:= false;
+  FPureTransparentColorCount:= 0;
   FTotalWeight:= 0;
   for c := low(TColorDimension) to high(TColorDimension) do
     FBounds[c].SetAsPoint(0);
@@ -1677,7 +1761,7 @@ begin
         FColors[idx] := AColors[i];
       inc(idx);
     end else
-      FHasPureTransparentColor:= true;
+      inc(FPureTransparentColorCount);
   end;
   setlength(FColors,idx);
 end;
@@ -1842,7 +1926,7 @@ begin
   FDimensions:= ADimensions;
   FBounds := ABounds;
   FTotalWeight:= 0;
-  FHasPureTransparentColor:= false;
+  FPureTransparentColorCount:= 0;
 end;
 
 constructor TBGRAColorBox.Create(ADimensions: TColorDimensions; APalette: TBGRACustomPalette);
@@ -1986,7 +2070,7 @@ end;
 function TBGRAColorBox.GetAsArrayOfColors(AIncludePureTransparent: boolean): ArrayOfTBGRAPixel;
 var i,idx: integer;
 begin
-  if AIncludePureTransparent and FHasPureTransparentColor then
+  if AIncludePureTransparent and HasPureTransparentColor then
   begin
     setlength(result, length(FColors)+1);
     result[0] := BGRAPixelTransparent;

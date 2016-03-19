@@ -23,7 +23,7 @@ implementation
 constructor TTest1.Create;
 begin
   inherited Create;
-  Name := 'Canvas.Draw(TBitmap) on Form. Flickering pacmans walking with a rectangle. Rectangle opacity depends on the standard Canvas rendering capacities on windows.';
+  Name := 'Canvas.Draw(TBitmap) on Form. NOT RECOMMENDED! Flickering pacmans walking with a rectangle. Rectangle opacity depends on the standard Canvas rendering capacities on windows.';
 end;
 
 procedure TTest1.OnPaint(Canvas: TCanvas; Left,Top,Width, Height: Integer);

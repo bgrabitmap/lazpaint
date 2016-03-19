@@ -12,7 +12,7 @@ object Form1: TForm1
   OnMouseUp = FormMouseUp
   OnPaint = FormPaint
   Position = poDefaultPosOnly
-  LCLVersion = '0.9.30'
+  LCLVersion = '1.4.0.4'
   object Panel1: TPanel
     Left = 88
     Height = 55
@@ -24,9 +24,9 @@ object Form1: TForm1
     TabOrder = 0
     object Label1: TLabel
       Left = 4
-      Height = 16
+      Height = 15
       Top = 2
-      Width = 47
+      Width = 46
       Caption = 'Pixel size'
       ParentColor = False
     end
@@ -34,7 +34,7 @@ object Form1: TForm1
       Left = 4
       Height = 25
       Top = 21
-      Width = 461
+      Width = 373
       Frequency = 4
       Max = 100
       Min = 8
@@ -45,11 +45,34 @@ object Form1: TForm1
     end
     object Label_PixelSizeValue: TLabel
       Left = 56
-      Height = 16
+      Height = 15
       Top = 2
-      Width = 17
+      Width = 16
       Caption = '= ?'
       ParentColor = False
+    end
+    object Label2: TLabel
+      Left = 383
+      Height = 15
+      Top = 2
+      Width = 76
+      Anchors = [akTop, akRight]
+      Caption = 'Gamma factor'
+      ParentColor = False
+    end
+    object SpinEdit_Gamma: TFloatSpinEdit
+      Left = 392
+      Height = 23
+      Top = 22
+      Width = 66
+      Anchors = [akTop, akRight]
+      DecimalPlaces = 1
+      Increment = 0.1
+      MaxValue = 3
+      MinValue = 0.1
+      OnChange = SpinEdit_GammaChange
+      TabOrder = 1
+      Value = 1.7
     end
   end
 end

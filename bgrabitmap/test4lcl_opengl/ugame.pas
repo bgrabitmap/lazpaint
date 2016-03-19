@@ -5,8 +5,8 @@ unit UGame;
 interface
 
 uses
-  Classes, sysutils, BGRAGraphics, BGRABitmap, BGRABitmapTypes, BGRAOpenGL,
-  Controls;
+  Classes, sysutils, BGRAGraphics, BGRABitmap, BGRABitmapTypes,
+  BGRAOpenGL, Controls;
 
 const
   FrameDurationMs = 15;
@@ -18,22 +18,31 @@ type
   { TGameContext }
 
   TGameContext = class
-    DataLoaded: boolean;
+  protected
+    TexturesLoaded: boolean;
     LeftKey,RightKey,UpKey: boolean;
     texWalking,texGround: IBGLTexture;
     tux,smallTux: TTux;
     elapsedMs: single;
     sun: IBGLTexture;
-    constructor Create;
-    destructor Destroy; override;
-    procedure Render(AWidth,AHeight: integer);
-    procedure LoadData;
+    CenterOnSmallTux: boolean;
     procedure AddGround(x,y,w: single);
-    procedure Elapse(ms: single);
     function FindGround(x: single; var y: single): boolean;
+
+  public
+    constructor Create(ACenterOnSmallTux: boolean);
+    destructor Destroy; override;
+
+    procedure LoadTextures({%H-}ctx: TBGLContext);
+    procedure UnloadTextures({%H-}ctx: TBGLContext);
+    procedure Render(ctx: TBGLContext);
+    procedure Elapse(ctx: TBGLContext; ms: single);
+
     procedure MouseDown({%H-}Button: TMouseButton; {%H-}X,{%H-}Y: integer);
     procedure MouseMove({%H-}X,{%H-}Y: integer);
     procedure MouseUp({%H-}Button: TMouseButton);
+    procedure KeyDown(var Key: Word; {%H-}Shift: TShiftState);
+    procedure KeyUp(var Key: Word; {%H-}Shift: TShiftState);
   end;
 
   { TTux }
@@ -72,6 +81,8 @@ type
   end;
 
 implementation
+
+uses LCLType;
 
 function CreateTextBubble(AText: string): IBGLTexture;
 const horizMargin = 6; vertMargin = 4;
@@ -117,35 +128,51 @@ end;
 
 { TGameContext }
 
-constructor TGameContext.Create;
+constructor TGameContext.Create(ACenterOnSmallTux: boolean);
 begin
   LeftKey := false;
   RightKey := false;
   UpKey := false;
-  DataLoaded:= false;
+  TexturesLoaded:= false;
+  CenterOnSmallTux:= ACenterOnSmallTux;
 end;
 
 destructor TGameContext.Destroy;
 begin
-  BGLSpriteEngine.Clear;
   inherited Destroy;
 end;
 
-procedure TGameContext.Render(AWidth, AHeight: integer);
+procedure TGameContext.Render(ctx: TBGLContext);
+var ofsX,ofsY: single;
 begin
-  LoadData;
-  BGLViewPort(AWidth, AHeight);
+  ctx.Canvas.FillRectLinearColor(Rect(0,0,ctx.Width,ctx.Height),
+       CSSSkyBlue,CSSSkyBlue,MergeBGRA(CSSSkyBlue,CSSBlue),MergeBGRA(CSSSkyBlue,CSSBlue));
 
-  BGLCanvas.FillQuadLinearColor(PointF(0,0),PointF(AWidth,0),PointF(AWidth,AHeight),PointF(0,AHeight),
-        CSSSkyBlue,CSSSkyBlue,MergeBGRA(CSSSkyBlue,CSSBlue),MergeBGRA(CSSSkyBlue,CSSBlue));
+  if CenterOnSmallTux then
+  begin
+    ofsX := smallTux.X;
+    ofsY := smallTux.Y;
+  end else
+  begin
+    ofsX := tux.X;
+    ofsY := tux.Y;
+  end;
+  ofsX -= ctx.Width div 2;
+  ofsY -= ctx.Height div 2;
+  if ofsX > 800-ctx.Width then ofsX := 800-ctx.Width;
+  if ofsY > 600-ctx.Height then ofsY := 600-ctx.Height;
+  if ofsX < 0 then ofsX := 0;
+  if ofsY < 0 then ofsY := 0;
+  ctx.Canvas.Translate(-ofsX,-ofsY);
 
-  BGLSpriteEngine.OnDraw;
+  ctx.Sprites.OnDraw;
 end;
 
-procedure TGameContext.LoadData;
+procedure TGameContext.LoadTextures({%H-}ctx: TBGLContext);
 var sunBmp: TBGLBitmap;
 begin
-  if DataLoaded then exit;
+  if TexturesLoaded then exit;
+  Randomize;
   texWalking := BGLTexture(ResourceDir+'tux_walking.png');
   texWalking.SetFrameSize(64,64);
 
@@ -167,11 +194,20 @@ begin
   smallTux.Location := PointF(450,128);
 
   sunBmp := TBGLBitmap.Create(100,100);
-  sunBmp.FillEllipseLinearColorAntialias(50,50,49,49,CSSYellow,CSSOrange);
+  sunBmp.FillEllipseLinearColorAntialias(50,50,49,49,BGRA(255,255,random(100)),BGRA(255,random(200),0));
   sun := sunBmp.MakeTextureAndFree;
-  TBGLSprite.Create(sun,-2).Location := PointF(0,0);
+  TBGLSprite.Create(sun,-2).Location := PointF(random(200),0);
 
-  DataLoaded:= true;
+  TexturesLoaded:= true;
+end;
+
+procedure TGameContext.UnloadTextures(ctx: TBGLContext);
+begin
+  if TexturesLoaded then
+  begin
+    ctx.Sprites.Clear;
+    TexturesLoaded := false;
+  end;
 end;
 
 procedure TGameContext.AddGround(x, y, w: single);
@@ -188,12 +224,12 @@ begin
   TGround.Create(texGround,x,y,3);
 end;
 
-procedure TGameContext.Elapse(ms: single);
+procedure TGameContext.Elapse(ctx: TBGLContext; ms: single);
 begin
   elapsedMs += ms;
   while elapsedMs > FrameDurationMs do
   begin
-    BGLSpriteEngine.OnTimer;
+    ctx.Sprites.OnTimer;
     elapsedMs -= FrameDurationMs;
   end;
 end;
@@ -237,6 +273,20 @@ end;
 procedure TGameContext.MouseUp(Button: TMouseButton);
 begin
 
+end;
+
+procedure TGameContext.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  If Key = VK_LEFT then begin LeftKey := true; Key := 0; end;
+  If Key = VK_RIGHT then begin RightKey := true; Key := 0; end;
+  If Key = VK_UP then begin UpKey := true; Key := 0; end;
+end;
+
+procedure TGameContext.KeyUp(var Key: Word; Shift: TShiftState);
+begin
+  If Key = VK_LEFT then begin LeftKey := false; Key := 0; end;
+  If Key = VK_RIGHT then begin RightKey := false; Key := 0; end;
+  If Key = VK_UP then begin UpKey := false; Key := 0; end;
 end;
 
 { TGround }

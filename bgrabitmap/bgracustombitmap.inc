@@ -19,10 +19,13 @@ type
     procedure ScanMoveTo(X,Y: Integer);
     {** Scan the pixel at the current location and increments ''X'' }
     function ScanNextPixel: TBGRAPixel;
+    function ScanNextExpandedPixel: TExpandedPixel;
     {** Scan at any location using floating point coordinates }
     function ScanAt(X,Y: Single): TBGRAPixel;
+    function ScanAtExpanded(X,Y: Single): TExpandedPixel;
     {** Scan at any location using integer coordinates }
     function ScanAtInteger(X,Y: integer): TBGRAPixel;
+    function ScanAtIntegerExpanded(X,Y: integer): TExpandedPixel;
     {** Copy a row of pixels from ''X'' to ''X''+''count''-1 to a specified destination
         ''pdest''. ''mode'' indicates how to combine with existing data }
     procedure ScanPutPixels(pdest: PBGRAPixel; count: integer; mode: TDrawMode);
@@ -46,9 +49,12 @@ type
     FCurX,FCurY: integer;
   public
     function ScanAtInteger(X,Y: integer): TBGRAPixel; virtual;
+    function ScanAtIntegerExpanded(X,Y: integer): TExpandedPixel; virtual;
     procedure ScanMoveTo(X,Y: Integer); virtual;
     function ScanNextPixel: TBGRAPixel; virtual;
+    function ScanNextExpandedPixel: TExpandedPixel; virtual;
     function ScanAt(X,Y: Single): TBGRAPixel; virtual; abstract;
+    function ScanAtExpanded(X,Y: Single): TExpandedPixel; virtual;
     procedure ScanPutPixels(pdest: PBGRAPixel; count: integer; mode: TDrawMode); virtual;
     function IsScanPutPixelsDefined: boolean; virtual;
   protected
@@ -294,7 +300,7 @@ type
   public
      constructor Create; virtual; abstract; overload;
      constructor Create(AFPImage: TFPCustomImage); virtual; abstract; overload;
-     constructor Create(ABitmap: TBitmap); virtual; abstract; overload;
+     constructor Create(ABitmap: TBitmap; AUseTransparent: boolean = true); virtual; abstract; overload;
      constructor Create(AWidth, AHeight: integer; Color: TColor); virtual; abstract; overload;
      constructor Create(AWidth, AHeight: integer; Color: TBGRAPixel); virtual; abstract; overload;
      constructor Create(AFilename: string); virtual; abstract; overload;
@@ -513,6 +519,8 @@ type
      procedure RectangleAntialias(x, y, x2, y2: single; c: TBGRAPixel; w: single); virtual; overload;
      procedure RectangleAntialias(x, y, x2, y2: single; c: TBGRAPixel; w: single; back: TBGRAPixel); virtual; abstract; overload;
      procedure RectangleAntialias(x, y, x2, y2: single; texture: IBGRAScanner; w: single); virtual; abstract; overload;
+     procedure RectangleWithin(x1,y1,x2,y2: single; ABorderColor: TBGRAPixel; w: single; AFillColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); overload;
+     procedure RectangleWithin(r: TRect; ABorderColor: TBGRAPixel; w: single; AFillColor: TBGRAPixel); overload;
 
      procedure RoundRect(X1, Y1, X2, Y2: integer; DX, DY: integer; BorderColor, FillColor: TBGRAPixel; ADrawMode: TDrawMode = dmDrawWithTransparency); virtual; abstract; overload;
      procedure RoundRect(X1, Y1, X2, Y2: integer; DX, DY: integer; BorderColor: TBGRAPixel; ADrawMode: TDrawMode = dmDrawWithTransparency); virtual; abstract; overload;
@@ -521,9 +529,9 @@ type
      procedure RoundRectAntialias(x,y,x2,y2,rx,ry: single; penTexture: IBGRAScanner; w: single; fillTexture: IBGRAScanner; options: TRoundRectangleOptions = []); virtual; abstract;
      procedure RoundRectAntialias(x,y,x2,y2,rx,ry: single; texture: IBGRAScanner; w: single; options: TRoundRectangleOptions = []); virtual; abstract;
      procedure FillRoundRect(X1, Y1, X2, Y2: integer; DX, DY: integer; FillColor: TBGRAPixel; ADrawMode: TDrawMode = dmDrawWithTransparency); virtual;
-     procedure FillRoundRectAntialias(x,y,x2,y2,rx,ry: single; c: TBGRAPixel; options: TRoundRectangleOptions = []); virtual; abstract;
-     procedure FillRoundRectAntialias(x,y,x2,y2,rx,ry: single; texture: IBGRAScanner; options: TRoundRectangleOptions = []); virtual; abstract;
-     procedure EraseRoundRectAntialias(x,y,x2,y2,rx,ry: single; alpha: byte; options: TRoundRectangleOptions = []); virtual; abstract;
+     procedure FillRoundRectAntialias(x,y,x2,y2,rx,ry: single; c: TBGRAPixel; options: TRoundRectangleOptions = []; pixelCenteredCoordinates: boolean = true); virtual; abstract;
+     procedure FillRoundRectAntialias(x,y,x2,y2,rx,ry: single; texture: IBGRAScanner; options: TRoundRectangleOptions = []; pixelCenteredCoordinates: boolean = true); virtual; abstract;
+     procedure EraseRoundRectAntialias(x,y,x2,y2,rx,ry: single; alpha: byte; options: TRoundRectangleOptions = []; pixelCenteredCoordinates: boolean = true); virtual; abstract;
 
      procedure EllipseInRect(r: TRect; BorderColor: TBGRAPixel; ADrawMode: TDrawMode = dmDrawWithTransparency); virtual; overload;
      procedure EllipseInRect(r: TRect; BorderColor,FillColor: TBGRAPixel; ADrawMode: TDrawMode = dmDrawWithTransparency); virtual; overload;
@@ -535,9 +543,10 @@ type
      procedure FillRect(x, y, x2, y2: integer; c: TColor); virtual; overload;
      procedure FillRect(x, y, x2, y2: integer; c: TBGRAPixel; mode: TDrawMode); virtual; abstract; overload;
      procedure FillRect(x, y, x2, y2: integer; texture: IBGRAScanner; mode: TDrawMode); virtual; abstract; overload;
-     procedure FillRectAntialias(x, y, x2, y2: single; c: TBGRAPixel); virtual; abstract;
-     procedure FillRectAntialias(x, y, x2, y2: single; texture: IBGRAScanner); virtual; abstract;
-     procedure EraseRectAntialias(x, y, x2, y2: single; alpha: byte); virtual; abstract;
+     procedure FillRect(x, y, x2, y2: integer; texture: IBGRAScanner; mode: TDrawMode; ditheringAlgorithm: TDitheringAlgorithm); virtual; abstract; overload;
+     procedure FillRectAntialias(x, y, x2, y2: single; c: TBGRAPixel; pixelCenteredCoordinates: boolean = true); virtual; abstract;
+     procedure FillRectAntialias(x, y, x2, y2: single; texture: IBGRAScanner; pixelCenteredCoordinates: boolean = true); virtual; abstract;
+     procedure EraseRectAntialias(x, y, x2, y2: single; alpha: byte; pixelCenteredCoordinates: boolean = true); virtual; abstract;
      procedure AlphaFillRect(x, y, x2, y2: integer; alpha: byte); virtual; abstract;
 
      procedure TextOut(x, y: single; sUTF8: string; c: TBGRAPixel; align: TAlignment); virtual; abstract; overload;
@@ -618,10 +627,12 @@ type
        mode: TFloodfillMode; Tolerance: byte = 0); virtual; abstract;
      procedure GradientFill(x, y, x2, y2: integer; c1, c2: TBGRAPixel;
        gtype: TGradientType; o1, o2: TPointF; mode: TDrawMode;
-       gammaColorCorrection: boolean = True; Sinus: Boolean=False); virtual; abstract;
+       gammaColorCorrection: boolean = True; Sinus: Boolean=False;
+       ditherAlgo: TDitheringAlgorithm = daFloydSteinberg); virtual; abstract; overload;
      procedure GradientFill(x, y, x2, y2: integer; gradient: TBGRACustomGradient;
        gtype: TGradientType; o1, o2: TPointF; mode: TDrawMode;
-       Sinus: Boolean=False); virtual; abstract;
+       Sinus: Boolean=False;
+       ditherAlgo: TDitheringAlgorithm = daFloydSteinberg); virtual; abstract; overload;
      function CreateBrushTexture(ABrushStyle: TBrushStyle; APatternColor, ABackgroundColor: TBGRAPixel;
                 AWidth: integer = 8; AHeight: integer = 8; APenWidth: single = 1): TBGRACustomBitmap; virtual; abstract;
 
@@ -727,12 +738,14 @@ type
 
      //IBGRAScanner
      function ScanAtInteger(X,Y: integer): TBGRAPixel; virtual; abstract;
+     function ScanAtIntegerExpanded(X,Y: integer): TExpandedPixel; virtual;
      procedure ScanMoveTo(X,Y: Integer); virtual; abstract;
      function ScanNextPixel: TBGRAPixel; virtual; abstract;
+     function ScanNextExpandedPixel: TExpandedPixel; virtual;
      function ScanAt(X,Y: Single): TBGRAPixel; virtual; abstract;
+     function ScanAtExpanded(X,Y: Single): TExpandedPixel; virtual;
      procedure ScanPutPixels(pdest: PBGRAPixel; count: integer; mode: TDrawMode); virtual;
      function IsScanPutPixelsDefined: boolean; virtual;
-
   protected
      //interface
      function QueryInterface({$IFDEF FPC_HAS_CONSTREF}constref{$ELSE}const{$ENDIF} IID: TGUID; out Obj): HResult; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
@@ -759,6 +772,12 @@ begin
   result := ScanAt(X,Y);
 end;
 
+function TBGRACustomScanner.ScanAtIntegerExpanded(X, Y: integer
+  ): TExpandedPixel;
+begin
+  result := GammaExpansion(ScanAtInteger(X,Y));
+end;
+
 procedure TBGRACustomScanner.ScanMoveTo(X, Y: Integer);
 begin
   FCurX := X;
@@ -770,6 +789,16 @@ function TBGRACustomScanner.ScanNextPixel: TBGRAPixel;
 begin
   result := ScanAt(FCurX,FCurY);
   Inc(FCurX);
+end;
+
+function TBGRACustomScanner.ScanNextExpandedPixel: TExpandedPixel;
+begin
+  result := GammaExpansion(ScanNextPixel);
+end;
+
+function TBGRACustomScanner.ScanAtExpanded(X, Y: Single): TExpandedPixel;
+begin
+  result := GammaExpansion(ScanAt(X,Y));
 end;
 
 {$hints off}
@@ -1420,6 +1449,26 @@ begin
   RectangleAntialias(x, y, x2, y2, c, w, BGRAPixelTransparent);
 end;
 
+procedure TBGRACustomBitmap.RectangleWithin(x1, y1, x2, y2: single;
+  ABorderColor: TBGRAPixel; w: single; AFillColor: TBGRAPixel;
+  APixelCenteredCoordinates: boolean);
+begin
+  if not APixelCenteredCoordinates then
+  begin
+    x1 -= 0.5;
+    y1 -= 0.5;
+    x2 -= 0.5;
+    y2 -= 0.5;
+  end;
+  RectangleAntialias(x1+w*0.5,y1+w*0.5,x2-w*0.5,y2-w*0.5, ABorderColor, w, AFillColor);
+end;
+
+procedure TBGRACustomBitmap.RectangleWithin(r: TRect; ABorderColor: TBGRAPixel;
+  w: single; AFillColor: TBGRAPixel);
+begin
+  RectangleWithin(r.left,r.top,r.right,r.bottom,ABorderColor,w,AFillColor,false);
+end;
+
 procedure TBGRACustomBitmap.FillRoundRect(X1, Y1, X2, Y2: integer; DX,
   DY: integer; FillColor: TBGRAPixel; ADrawMode: TDrawMode);
 begin
@@ -1862,6 +1911,21 @@ end;
 procedure TBGRACustomBitmap.ApplyMask(mask: TBGRACustomBitmap; ARect: TRect);
 begin
   ApplyMask(mask, ARect, ARect.TopLeft);
+end;
+
+function TBGRACustomBitmap.ScanAtIntegerExpanded(X, Y: integer): TExpandedPixel;
+begin
+  result := GammaExpansion(ScanAtInteger(X,Y));
+end;
+
+function TBGRACustomBitmap.ScanNextExpandedPixel: TExpandedPixel;
+begin
+  result := GammaExpansion(ScanNextPixel);
+end;
+
+function TBGRACustomBitmap.ScanAtExpanded(X, Y: Single): TExpandedPixel;
+begin
+  result := GammaExpansion(ScanAt(X,Y));
 end;
 
 { Interface gateway }

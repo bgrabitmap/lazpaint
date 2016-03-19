@@ -23,12 +23,17 @@ type
   { TToolGradient }
 
   TToolGradient = class(TToolRectangle)
+  private
+    lastRenderWasHighQuality: boolean;
   protected
+    function UpdateShape(toolDest: TBGRABitmap; HighQuality: boolean): TRect;
     function UpdateShape(toolDest: TBGRABitmap): TRect; override;
     function ShouldFinishShapeWhenFirstMouseUp: boolean; override;
     function FinishShape(ToolDest: TBGRABitmap): TRect; override;
     function BorderTest(ptF: TPointF): TRectangularBorderTest; override;
     function RenderAllCornerPositions: boolean; override;
+    function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;
+      rightBtn: boolean): TRect; override;
   public
     function ToolUp: TRect; override;
     function Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
@@ -40,12 +45,26 @@ uses ugraph, LazPaintType;
 
 { TToolGradient }
 
-function TToolGradient.UpdateShape(toolDest: TBGRABitmap): TRect;
+function TToolGradient.UpdateShape(toolDest: TBGRABitmap; HighQuality: boolean
+  ): TRect;
+var ditherAlgo: TDitheringAlgorithm;
 begin
+  lastRenderWasHighQuality:= HighQuality;
+   if HighQuality then
+     ditherAlgo:= daFloydSteinberg
+   else
+     ditherAlgo:= daNearestNeighbor;
    ClearShape;
    toolDest.GradientFill(0,0,toolDest.Width,toolDest.Height, penColor, fillColor,
-     Manager.ToolGradientType, pointf(rectOrigin.X,rectOrigin.Y), pointf(rectDest.X,rectDest.Y), dmDrawWithTransparency, True, Manager.ToolGradientSine);
+     Manager.ToolGradientType, pointf(rectOrigin.X,rectOrigin.Y), pointf(rectDest.X,rectDest.Y),
+     dmDrawWithTransparency, True, Manager.ToolGradientSine,
+     ditherAlgo);
    result := rect(0,0,Manager.Image.Width,Manager.Image.Height);
+end;
+
+function TToolGradient.UpdateShape(toolDest: TBGRABitmap): TRect;
+begin
+   result := UpdateShape(toolDest,false);
 end;
 
 function TToolGradient.ShouldFinishShapeWhenFirstMouseUp: boolean;
@@ -55,7 +74,7 @@ end;
 
 function TToolGradient.FinishShape(ToolDest: TBGRABitmap): TRect;
 begin
-  Result:= UpdateShape(toolDest);
+  Result:= UpdateShape(toolDest, lastRenderWasHighQuality);
 end;
 
 function TToolGradient.BorderTest(ptF: TPointF): TRectangularBorderTest;
@@ -70,10 +89,18 @@ begin
   Result:=false;
 end;
 
+function TToolGradient.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
+  ptF: TPointF; rightBtn: boolean): TRect;
+begin
+  Result:=inherited DoToolDown(toolDest, pt, ptF, rightBtn);
+  if rectMovingPoint then lastRenderWasHighQuality := false;
+end;
+
 function TToolGradient.ToolUp: TRect;
 begin
-  inherited ToolUp;
-  result := EmptyRect;
+  result := inherited ToolUp;
+  if not lastRenderWasHighQuality then
+    result := RectUnion(result, UpdateShape(GetToolDrawingLayer,true));
 end;
 
 function TToolGradient.Render(VirtualScreen: TBGRABitmap;

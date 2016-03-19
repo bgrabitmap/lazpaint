@@ -23,12 +23,16 @@ type
     FCurrentOutputScanline: PBGRAPixel;
     FCurrentOutputY: NativeInt;
     FOutputPixel : TOutputPixelProc;
+    FDrawMode: TDrawMode;
     procedure OutputPixel(X,Y: NativeInt; {%H-}AColorIndex: NativeInt; AColor: TBGRAPixel); virtual;
+    procedure ApproximateColor(const AColor: TBGRAPixel; out AApproxColor: TBGRAPixel; out AIndex: integer);
   public
+    constructor Create(ASource: IBGRAScanner; APalette: TBGRACustomApproxPalette; ADestination: TBGRACustomBitmap; AIgnoreAlpha: boolean; ABounds: TRect); overload;
     constructor Create(bmp: TBGRACustomBitmap; APalette: TBGRACustomApproxPalette; AInPlace: boolean; AIgnoreAlpha: boolean; ABounds: TRect); overload;
     constructor Create(bmp: TBGRACustomBitmap; APalette: TBGRACustomApproxPalette; AInPlace: boolean; AIgnoreAlpha: boolean); overload;
     property OnOutputPixel: TOutputPixelProc read FOutputPixel write FOutputPixel;
     property Inplace: boolean read GetInplace write SetInplace;
+    property DrawMode: TDrawMode read FDrawMode write FDrawMode;
   end;
 
   { TNearestColorTask }
@@ -105,8 +109,13 @@ function CreateDitheringTask(AAlgorithm: TDitheringAlgorithm; ABitmap: TBGRACust
   AIgnoreAlpha: boolean): TDitheringTask; overload;
 function CreateDitheringTask(AAlgorithm: TDitheringAlgorithm; ABitmap: TBGRACustomBitmap; APalette: TBGRACustomApproxPalette;
   AIgnoreAlpha: boolean; ABounds: TRect): TDitheringTask; overload;
+function CreateDitheringTask(AAlgorithm: TDitheringAlgorithm; ASource: IBGRAScanner; ADestination: TBGRACustomBitmap; ABounds: TRect): TDitheringTask; overload;
+function CreateDitheringTask(AAlgorithm: TDitheringAlgorithm; ASource: IBGRAScanner; ADestination: TBGRACustomBitmap; APalette: TBGRACustomApproxPalette;
+    AIgnoreAlpha: boolean; ABounds: TRect): TDitheringTask; overload;
 
 implementation
+
+uses BGRABlend;
 
 function AbsRGBADiff(const c1, c2: TExpandedPixel): NativeInt;
 begin
@@ -129,6 +138,26 @@ begin
   case AAlgorithm of
     daNearestNeighbor: result := TNearestColorTask.Create(ABitmap, APalette, False, AIgnoreAlpha, ABounds);
     daFloydSteinberg: result := TFloydSteinbergDitheringTask.Create(ABitmap, APalette, False, AIgnoreAlpha, ABounds);
+    else raise exception.Create('Unknown algorithm');
+  end;
+end;
+
+function CreateDitheringTask(AAlgorithm: TDitheringAlgorithm;
+  ASource: IBGRAScanner; ADestination: TBGRACustomBitmap; ABounds: TRect
+  ): TDitheringTask;
+begin
+  result := CreateDitheringTask(AAlgorithm, ASource, ADestination, nil, true, ABounds);
+end;
+
+function CreateDitheringTask(AAlgorithm: TDitheringAlgorithm;
+  ASource: IBGRAScanner; ADestination: TBGRACustomBitmap;
+  APalette: TBGRACustomApproxPalette; AIgnoreAlpha: boolean; ABounds: TRect
+  ): TDitheringTask;
+begin
+  result := nil;
+  case AAlgorithm of
+    daNearestNeighbor: result := TNearestColorTask.Create(ASource, APalette, ADestination, AIgnoreAlpha, ABounds);
+    daFloydSteinberg: result := TFloydSteinbergDitheringTask.Create(ASource, APalette, ADestination, AIgnoreAlpha, ABounds);
     else raise exception.Create('Unknown algorithm');
   end;
 end;
@@ -324,12 +353,14 @@ end;
 
 function TDitheringTask.GetInplace: boolean;
 begin
-  result := Destination = FSource;
+  result := (Destination = FSource) and (FSource <> nil);
 end;
 
 procedure TDitheringTask.SetInplace(AValue: boolean);
 begin
   if AValue = InPlace then exit;
+  if AValue and (FSource = nil) then
+     raise exception.Create('Inplace is valid only when source image is defined');
   Destination := FSource;
 end;
 
@@ -341,7 +372,46 @@ begin
     FCurrentOutputY := Y;
     FCurrentOutputScanline := FDestination.ScanLine[y];
   end;
-  (FCurrentOutputScanline+x)^ := AColor;
+  PutPixels(FCurrentOutputScanline+x, @AColor, 1, FDrawMode, 255);
+end;
+
+procedure TDitheringTask.ApproximateColor(const AColor: TBGRAPixel;
+  out AApproxColor: TBGRAPixel; out AIndex: integer);
+begin
+  if FPalette <> nil then
+  begin
+    AIndex := FPalette.FindNearestColorIndex(AColor, FIgnoreAlpha);
+    if AIndex = -1 then
+      AApproxColor := BGRAPixelTransparent
+    else
+      AApproxColor := FPalette.Color[AIndex];
+  end else
+  begin
+    if AColor.alpha = 0 then
+    begin
+      AApproxColor := BGRAPixelTransparent;
+      AIndex := -1;
+    end else
+    begin
+      AApproxColor := AColor;
+      AIndex := 0;
+    end;
+  end;
+end;
+
+constructor TDitheringTask.Create(ASource: IBGRAScanner;
+  APalette: TBGRACustomApproxPalette; ADestination: TBGRACustomBitmap;
+  AIgnoreAlpha: boolean; ABounds: TRect);
+begin
+  FPalette := APalette;
+  SetSource(ASource);
+  FBounds := ABounds;
+  FIgnoreAlpha:= AIgnoreAlpha;
+  FCurrentOutputY := -1;
+  FCurrentOutputScanline:= nil;
+  FOutputPixel:= @OutputPixel;
+  FDestination := ADestination;
+  FDrawMode:= dmSet;
 end;
 
 constructor TDitheringTask.Create(bmp: TBGRACustomBitmap;
@@ -349,26 +419,28 @@ constructor TDitheringTask.Create(bmp: TBGRACustomBitmap;
   ABounds: TRect);
 begin
   FPalette := APalette;
-  FSource := bmp;
+  SetSource(bmp);
   FBounds := ABounds;
   FIgnoreAlpha:= AIgnoreAlpha;
   FCurrentOutputY := -1;
   FCurrentOutputScanline:= nil;
   FOutputPixel:= @OutputPixel;
   InPlace := AInPlace;
+  FDrawMode:= dmSet;
 end;
 
 constructor TDitheringTask.Create(bmp: TBGRACustomBitmap;
   APalette: TBGRACustomApproxPalette; AInPlace: boolean; AIgnoreAlpha: boolean);
 begin
   FPalette := APalette;
-  FSource := bmp;
+  SetSource(bmp);
   FBounds := rect(0,0,bmp.Width,bmp.Height);
   FIgnoreAlpha:= AIgnoreAlpha;
   FCurrentOutputY := -1;
   FCurrentOutputScanline:= nil;
   FOutputPixel:= @OutputPixel;
   InPlace := AInPlace;
+  FDrawMode:= dmSet;
 end;
 
 { TFloydSteinbergDitheringTask }
@@ -405,7 +477,7 @@ var
   w,h: NativeInt;
 
 var
-  p,pNext: PBGRAPixel;
+  p,pNext: PExpandedPixel;
   destX,destY: NativeInt;
   orig,cur,approxExp: TExpandedPixel;
   approx: TBGRAPixel;
@@ -414,6 +486,8 @@ var
   i: NativeInt;
   yWrite: NativeInt;
   tempLine, currentLine, nextLine: TLine;
+
+  nextScan,curScan: PExpandedPixel;
 
   function ClampWordDiv(AValue: NativeInt): Word; inline;
   begin
@@ -440,16 +514,20 @@ begin
   if (w <= 0) or (h <= 0) then exit;
   setlength(currentLine,w);
   setlength(nextLine,w);
+  curScan := nil;
+  nextScan := RequestSourceExpandedScanLine(FBounds.Left, FBounds.Top, FBounds.Right-FBounds.Left);
   for yWrite := 0 to h-1 do
   begin
     if GetShouldStop(yWrite) then break;
-    p := FSource.ScanLine[yWrite+FBounds.Top]+FBounds.Left;
+    ReleaseSourceExpandedScanLine(curScan);
+    curScan := nextScan;
+    nextScan := nil;
+    p := curScan;
     destX := FBounds.Left;
     destY := yWrite+FBounds.Top;
     if yWrite < h-1 then
-      pNext := FSource.ScanLine[yWrite+FBounds.Top+1]+FBounds.Left
-    else
-      pNext := nil;
+      nextScan := RequestSourceExpandedScanLine(FBounds.Left,yWrite+FBounds.Top+1, FBounds.Right-FBounds.Left);
+    pNext := nextScan;
     if odd(yWrite) then
     begin
       inc(p, w);
@@ -462,7 +540,7 @@ begin
         if pNext<>nil then dec(pNext);
         if p^.alpha <> 0 then
         begin
-          orig := GammaExpansion(p^);
+          orig := p^;
           with currentLine[i] do
           begin
             curPix.alpha := alpha+NativeInt(orig.alpha shl ErrorPrecisionShift);
@@ -474,11 +552,7 @@ begin
             cur.green := ClampWordDiv(curPix.green);
             cur.blue := ClampWordDiv(curPix.blue);
           end;
-          approxIndex := FPalette.FindNearestColorIndex(GammaCompression(cur), FIgnoreAlpha);
-          if approxIndex = -1 then
-            approx := BGRAPixelTransparent
-          else
-            approx := FPalette.Color[approxIndex];
+          ApproximateColor(GammaCompression(cur), approx, approxIndex);
           approxExp := GammaExpansion(approx);
           diff.alpha := Div16(curPix.alpha - (approxExp.alpha shl ErrorPrecisionShift));
           if (approxExp.alpha = 0) or (cur.alpha = 0) then
@@ -494,21 +568,21 @@ begin
           end;
           if i > 0 then
           begin
-            if AbsRGBADiff(GammaExpansion((p-1)^),orig) < MaxColorDiffForDiffusion then
+            if AbsRGBADiff((p-1)^,orig) < MaxColorDiffForDiffusion then
               AddError(currentLine[i-1], diff, 7);
           end;
           if nextLine <> nil then
           begin
             if i > 0 then
             begin
-              if AbsRGBADiff(GammaExpansion((pNext-1)^),orig) < MaxColorDiffForDiffusion then
+              if AbsRGBADiff((pNext-1)^,orig) < MaxColorDiffForDiffusion then
                 AddError(nextLine[i-1], diff, 1);
             end;
-            if AbsRGBADiff(GammaExpansion(pNext^),orig) < MaxColorDiffForDiffusion then
+            if AbsRGBADiff(pNext^,orig) < MaxColorDiffForDiffusion then
               AddError(nextLine[i], diff, 5);
             if i < w-1 then
             begin
-              if AbsRGBADiff(GammaExpansion((pNext+1)^),orig) < MaxColorDiffForDiffusion then
+              if AbsRGBADiff((pNext+1)^,orig) < MaxColorDiffForDiffusion then
                 AddError(nextLine[i+1], diff, 3);
             end;
           end;
@@ -521,7 +595,7 @@ begin
     begin
       if p^.alpha <> 0 then
       begin
-        orig := GammaExpansion(p^);
+        orig := p^;
         with currentLine[i] do
         begin
           curPix.alpha := alpha+NativeInt(orig.alpha shl ErrorPrecisionShift);
@@ -533,11 +607,7 @@ begin
           cur.green := ClampWordDiv(curPix.green);
           cur.blue := ClampWordDiv(curPix.blue);
         end;
-        approxIndex := FPalette.FindNearestColorIndex(GammaCompression(cur), FIgnoreAlpha);
-        if approxIndex = -1 then
-          approx := BGRAPixelTransparent
-        else
-          approx := FPalette.Color[approxIndex];
+        ApproximateColor(GammaCompression(cur), approx, approxIndex);
         approxExp := GammaExpansion(approx);
         diff.alpha := Div16(curPix.alpha - (approxExp.alpha shl ErrorPrecisionShift));
         if (approxExp.alpha = 0) or (cur.alpha = 0) then
@@ -553,21 +623,21 @@ begin
         end;
         if i < w-1 then
         begin
-          if AbsRGBADiff(GammaExpansion((p+1)^),orig) < MaxColorDiffForDiffusion then
+          if AbsRGBADiff((p+1)^,orig) < MaxColorDiffForDiffusion then
             AddError(currentLine[i+1], diff, 7);
         end;
         if nextLine <> nil then
         begin
           if i > 0 then
           begin
-            if AbsRGBADiff(GammaExpansion((pNext-1)^),orig) < MaxColorDiffForDiffusion then
+            if AbsRGBADiff((pNext-1)^,orig) < MaxColorDiffForDiffusion then
               AddError(nextLine[i-1], diff, 3);
           end;
-          if AbsRGBADiff(GammaExpansion(pNext^),orig) < MaxColorDiffForDiffusion then
+          if AbsRGBADiff(pNext^,orig) < MaxColorDiffForDiffusion then
             AddError(nextLine[i], diff, 5);
           if i < w-1 then
           begin
-            if AbsRGBADiff(GammaExpansion((pNext+1)^),orig) < MaxColorDiffForDiffusion then
+            if AbsRGBADiff((pNext+1)^,orig) < MaxColorDiffForDiffusion then
               AddError(nextLine[i+1], diff, 1);
           end;
         end;
@@ -591,6 +661,8 @@ begin
         nextLine[i].alpha := 0;
       end;
   end;
+  ReleaseSourceExpandedScanLine(curScan);
+  ReleaseSourceExpandedScanLine(nextScan);
   FDestination.InvalidateBitmap;
 end;
 
@@ -598,24 +670,22 @@ end;
 
 procedure TNearestColorTask.DoExecute;
 var yb,xb: NativeInt;
-  psrc: PBGRAPixel;
-  colorIndex: NativeInt;
+  curScan,psrc: PBGRAPixel;
+  colorIndex: LongInt;
   colorValue: TBGRAPixel;
 begin
   for yb := FBounds.Top to FBounds.Bottom - 1 do
   begin
     if GetShouldStop(yb) then break;
-    psrc := FSource.ScanLine[yb] + FBounds.Left;
+    curScan := RequestSourceScanLine(FBounds.Left,yb,FBounds.Right-FBounds.Left);
+    psrc := curScan;
     for xb := FBounds.Left to FBounds.Right-1 do
     begin
-      colorIndex := FPalette.FindNearestColorIndex(psrc^, FIgnoreAlpha);
-      if colorIndex = -1 then
-        colorValue := BGRAPixelTransparent
-      else
-        colorValue := FPalette.Color[colorIndex];
+      ApproximateColor(psrc^, colorValue, colorIndex);
       FOutputPixel(xb,yb,colorIndex,colorValue);
       inc(psrc);
     end;
+    ReleaseSourceScanLine(curScan);
   end;
   FDestination.InvalidateBitmap;
 end;

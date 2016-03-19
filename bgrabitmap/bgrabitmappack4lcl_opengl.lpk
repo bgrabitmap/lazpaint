@@ -3,6 +3,7 @@
   <Package Version="4">
     <PathDelim Value="\"/>
     <Name Value="BGRABitmapPack4LCL_OpenGL"/>
+    <Type Value="RunAndDesignTime"/>
     <Author Value="Circular"/>
     <CompilerOptions>
       <Version Value="11"/>
@@ -32,8 +33,8 @@
     </CompilerOptions>
     <Description Value="Drawing routines with alpha blending and antialiasing"/>
     <License Value="modified LGPL"/>
-    <Version Major="8" Minor="7"/>
-    <Files Count="96">
+    <Version Major="8" Minor="8" Release="2"/>
+    <Files Count="98">
       <Item1>
         <Filename Value="bgraanimatedgif.pas"/>
         <UnitName Value="BGRAAnimatedGif"/>
@@ -416,17 +417,29 @@
       </Item95>
       <Item96>
         <Filename Value="bgracanvasgl.pas"/>
-        <UnitName Value="bgracanvasgl"/>
+        <UnitName Value="BGRACanvasGL"/>
       </Item96>
+      <Item97>
+        <Filename Value="bglvirtualscreen_icon.lrs"/>
+        <Type Value="LRS"/>
+      </Item97>
+      <Item98>
+        <Filename Value="bglvirtualscreen.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="BGLVirtualScreen"/>
+      </Item98>
     </Files>
-    <RequiredPkgs Count="2">
+    <RequiredPkgs Count="3">
       <Item1>
-        <PackageName Value="LCL"/>
+        <PackageName Value="lazopenglcontext"/>
       </Item1>
       <Item2>
+        <PackageName Value="LCL"/>
+      </Item2>
+      <Item3>
         <PackageName Value="FCL"/>
         <MinVersion Major="1" Valid="True"/>
-      </Item2>
+      </Item3>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

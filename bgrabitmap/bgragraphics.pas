@@ -43,6 +43,9 @@ const
   psInsideframe = Graphics.psInsideframe;
   psPattern = Graphics.psPattern;
 
+  tmAuto = Graphics.tmAuto;
+  tmFixed = Graphics.tmFixed;
+
 type
   TPen = Graphics.TPen;
   TTextLayout = Graphics.TTextLayout;
@@ -271,6 +274,11 @@ const
   psPattern = FPCanvas.psPattern;
 
 type
+  TTransparentMode = (
+    tmAuto,
+    tmFixed
+    );
+
   { TPen }
   {* A class containing a pen }
   TPen = class(TFPCustomPen)

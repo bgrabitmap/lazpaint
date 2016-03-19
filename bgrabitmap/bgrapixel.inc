@@ -125,6 +125,7 @@ type
   function MergeBGRA(const colors: array of TBGRAPixel): TBGRAPixel; overload;
 
 type
+  PExpandedPixel = ^TExpandedPixel;
   {* Stores a gamma expanded RGB color. Values range from 0 to 65535 }
   TExpandedPixel = packed record red, green, blue, alpha: word;
                    end;
@@ -326,54 +327,50 @@ type
         following Floyd-Steinberg algorithm }
     daFloydSteinberg);
 
+procedure BGRASetGamma(AGamma: single = 1.7);
+function BGRAGetGamma: single;
+
 {$ENDIF}
 
 {$IFDEF INCLUDE_IMPLEMENTATION}
 {$UNDEF INCLUDE_IMPLEMENTATION}
 { The gamma correction is approximated here by a power function }
+var
+  GammaExpFactor   : single; //exponent
+
 const
-  GammaExpFactor   = 1.7; //exponent
   redWeightShl10   = 306; // = 0.299
   greenWeightShl10 = 601; // = 0.587
   blueWeightShl10  = 117; // = 0.114
 
-procedure InitGamma;
+procedure BGRASetGamma(AGamma: single);
 var
-  i: integer;
   GammaLinearFactor: single;
-{$IFDEF WINCE}
-  j,prevpos,curpos,midpos: integer;
-{$ENDIF}
+  i,j,prevpos,nextpos,midpos: NativeInt;
 begin
+  GammaExpFactor := AGamma;
   //the linear factor is used to normalize expanded values in the range 0..65535
   GammaLinearFactor := 65535 / power(255, GammaExpFactor);
-
-{$IFDEF WINCE}
-  curpos := 0;
   GammaExpansionTab[0] := 0;
   GammaCompressionTab[0] := 0;
+  nextpos := 0;
   for i := 0 to 255 do
   begin
-    prevpos := curpos;
-    curpos := round(power(i, GammaExpFactor) * GammaLinearFactor);
-    if i = 1 then curpos := 1; //to avoid information loss
-    GammaExpansionTab[i] := curpos;
-    midpos := (prevpos+1+curpos) div 2;
-    for j := prevpos+1 to midpos-1 do
-      GammaCompressionTab[j] := i-1;
-    for j := midpos to curpos do
+    prevpos := nextpos;
+    midpos := round(power(i, GammaExpFactor) * GammaLinearFactor);
+    if i = 255 then
+      nextpos := 65536
+    else
+      nextpos := round(power(i+0.5, GammaExpFactor) * GammaLinearFactor);
+    GammaExpansionTab[i] := midpos;
+    for j := prevpos to nextpos-1 do
       GammaCompressionTab[j] := i;
   end;
-{$ELSE}
-  for i := 0 to 255 do
-    GammaExpansionTab[i] := round(power(i, GammaExpFactor) * GammaLinearFactor);
+end;
 
-  for i := 0 to 65535 do
-    GammaCompressionTab[i] := round(power(i / GammaLinearFactor, 1 / GammaExpFactor));
-
-  GammaExpansionTab[1]   := 1; //to avoid information loss
-  GammaCompressionTab[1] := 1;
-{$ENDIF}
+function BGRAGetGamma: single;
+begin
+  result := GammaExpFactor;
 end;
 
 function StrToBlendOperation(str: string): TBlendOperation;
@@ -1393,5 +1390,5 @@ end;
 
 {$IFDEF INCLUDE_INIT}
 {$UNDEF INCLUDE_INIT}
-  InitGamma;
+  BGRASetGamma();
 {$ENDIF}

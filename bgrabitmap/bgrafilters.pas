@@ -23,9 +23,16 @@ type
   protected
     FDestination: TBGRACustomBitmap;
     FSource: TBGRACustomBitmap;
+    FSourceScanner: IBGRAScanner;
     FCurrentY: integer;
     function GetShouldStop(ACurrentY: integer): boolean;
     procedure DoExecute; virtual; abstract;
+    function RequestSourceScanLine(X,Y,Count: Integer): PBGRAPixel;
+    procedure ReleaseSourceScanLine(P: PBGRAPixel);
+    function RequestSourceExpandedScanLine(X,Y,Count: Integer): PExpandedPixel;
+    procedure ReleaseSourceExpandedScanLine(P: PExpandedPixel);
+    procedure SetSource(ABitmap: TBGRACustomBitmap); overload;
+    procedure SetSource(AScanner: IBGRAScanner); overload;
   public
     function Execute: TBGRACustomBitmap;
     property Destination: TBGRACustomBitmap read FDestination write SetDestination;
@@ -2061,7 +2068,7 @@ end;
 constructor TBoxBlurTask.Create(bmp: TBGRACustomBitmap; ABounds: TRect;
   radius: integer);
 begin
-  FSource := bmp;
+  SetSource(bmp);
   FBounds := ABounds;
   FRadius := radius;
 end;
@@ -2232,7 +2239,7 @@ end;
 
 constructor TGrayscaleTask.Create(bmp: TBGRACustomBitmap; ABounds: TRect);
 begin
-  FSource := bmp;
+  SetSource(bmp);
   FBounds := ABounds;
 end;
 
@@ -2246,7 +2253,7 @@ end;
 constructor TCustomBlurTask.Create(bmp: TBGRACustomBitmap; ABounds: TRect;
   AMask: TBGRACustomBitmap; AMaskIsThreadSafe: boolean);
 begin
-  FSource := bmp;
+  SetSource(bmp);
   FBounds := ABounds;
   if AMaskIsThreadSafe then
   begin
@@ -2273,7 +2280,7 @@ end;
 constructor TMotionBlurTask.Create(ABmp: TBGRACustomBitmap; ABounds: TRect;
   ADistance, AAngle: single; AOriented: boolean);
 begin
-  FSource := ABmp;
+  SetSource(ABmp);
   FBounds := ABounds;
   FDistance := ADistance;
   FAngle := AAngle;
@@ -2288,7 +2295,7 @@ end;
 constructor TRadialPreciseBlurTask.Create(bmp: TBGRACustomBitmap;
   ABounds: TRect; radius: single);
 begin
-  FSource := bmp;
+  SetSource(bmp);
   FBounds := ABounds;
   FRadius := radius;
 end;
@@ -2303,7 +2310,7 @@ end;
 constructor TRadialBlurTask.Create(bmp: TBGRACustomBitmap; ABounds: TRect;
   radius: integer; blurType: TRadialBlurType);
 begin
-  FSource := bmp;
+  SetSource(bmp);
   FBounds := ABounds;
   FRadius := radius;
   FBlurType:= blurType;
@@ -2325,13 +2332,80 @@ begin
     result := false;
 end;
 
+function TFilterTask.RequestSourceScanLine(X, Y, Count: Integer): PBGRAPixel;
+begin
+  if FSource <> nil then
+    result := FSource.ScanLine[y]+x
+  else
+  begin
+    getmem(result, sizeof(TBGRAPixel)*Count);
+    FSourceScanner.ScanPutPixels(result,count,dmSet);
+  end;
+end;
+
+procedure TFilterTask.ReleaseSourceScanLine(P: PBGRAPixel);
+begin
+  if FSource = nil then
+    if p <> nil then freemem(p);
+end;
+
+function TFilterTask.RequestSourceExpandedScanLine(X, Y, Count: Integer
+  ): PExpandedPixel;
+var p: PBGRAPixel;
+   pexp: PExpandedPixel;
+begin
+  getmem(result, sizeof(TExpandedPixel)*Count);
+  if FSource <> nil then
+  begin
+    p := FSource.ScanLine[Y]+x;
+    pexp := result;
+    while Count > 0 do
+    begin
+      pexp^ := GammaExpansion(p^);
+      inc(pexp);
+      inc(p);
+      dec(Count);
+    end;
+  end else
+  begin
+    FSourceScanner.ScanMoveTo(X,Y);
+    pexp := result;
+    while Count > 0 do
+    begin
+      pexp^ := FSourceScanner.ScanNextExpandedPixel;
+      inc(pexp);
+      dec(Count);
+    end;
+  end;
+end;
+
+procedure TFilterTask.ReleaseSourceExpandedScanLine(P: PExpandedPixel);
+begin
+  if p <> nil then freemem(p);
+end;
+
+procedure TFilterTask.SetSource(ABitmap: TBGRACustomBitmap);
+begin
+  FSource := ABitmap;
+  FSourceScanner := nil;
+end;
+
+procedure TFilterTask.SetSource(AScanner: IBGRAScanner);
+begin
+  FSource := nil;
+  FSourceScanner := AScanner;
+end;
+
 function TFilterTask.Execute: TBGRACustomBitmap;
 var DestinationOwned: boolean;
 begin
   FCurrentY := 0;
   if Destination = nil then
   begin
-    FDestination := FSource.NewBitmap(FSource.Width,FSource.Height);
+    if FSource = nil then //using default factory
+      FDestination := BGRABitmapFactory.create(FSource.Width,FSource.Height)
+    else
+      FDestination := FSource.NewBitmap(FSource.Width,FSource.Height);
     DestinationOwned:= true;
   end else
     DestinationOwned:= false;

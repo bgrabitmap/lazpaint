@@ -14,6 +14,19 @@ type
   TOpenGLResampleFilter = BGRAOpenGLType.TOpenGLResampleFilter;
   TBGLPath = BGRACanvasGL.TBGLPath;
 
+  { TBGLContext }
+
+  TBGLContext = object
+  private
+    function GetHeight: integer;
+    function GetWidth: integer;
+  public
+    Canvas: TBGLCustomCanvas;
+    Sprites: TBGLCustomSpriteEngine;
+    property Width: integer read GetWidth;
+    property Height: integer read GetHeight;
+  end;
+
 const
   orfBox = BGRAOpenGLType.orfBox;
   orfLinear = BGRAOpenGLType.orfLinear;
@@ -98,11 +111,16 @@ type
   { TBGLCanvas }
 
   TBGLCanvas = class(TBGLCustomCanvas)
-    procedure FillTriangles(const APoints: array of TPointF; AColor: TBGRAPixel); override;
-    procedure FillTrianglesLinearColor(const APoints: array of TPointF; const AColors: array of TBGRAPixel); override;
-    procedure FillTrianglesFan(const APoints: array of TPointF; ACenterColor, ABorderColor: TBGRAPixel); override;
-    procedure FillQuads(const APoints: array of TPointF; AColor: TBGRAPixel); override;
-    procedure FillQuadsLinearColor(const APoints: array of TPointF; const AColors: array of TBGRAPixel); override;
+  protected
+    FMatrix: TAffineMatrix;
+    function GetMatrix: TAffineMatrix; override;
+    procedure SetMatrix(AValue: TAffineMatrix); override;
+  public
+    procedure FillTriangles(const APoints: array of TPointF; AColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); override;
+    procedure FillTrianglesLinearColor(const APoints: array of TPointF; const AColors: array of TBGRAPixel; APixelCenteredCoordinates: boolean = true); override;
+    procedure FillTrianglesFan(const APoints: array of TPointF; ACenterColor, ABorderColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); override;
+    procedure FillQuads(const APoints: array of TPointF; AColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); override;
+    procedure FillQuadsLinearColor(const APoints: array of TPointF; const AColors: array of TBGRAPixel; APixelCenteredCoordinates: boolean = true); override;
     procedure Polylines(const APoints: array of TPointF; AColor: TBGRAPixel; ADrawLastPoints: boolean = true); override;
     procedure Polygons(const APoints: array of TPointF; AColor: TBGRAPixel); override;
     procedure Fill(AColor: TBGRAPixel); override;
@@ -172,31 +190,70 @@ begin
   glMatrixMode(GL_MODELVIEW);
   BGLCanvas.Width := AWidth;
   BGLCanvas.Height := AHeight;
+  BGLCanvas.Matrix := AffineMatrixIdentity;
+end;
+
+{ TBGLContext }
+
+function TBGLContext.GetHeight: integer;
+begin
+  if Assigned(Canvas) then
+    result := Canvas.Height
+  else
+    result := 0;
+end;
+
+function TBGLContext.GetWidth: integer;
+begin
+  if Assigned(Canvas) then
+    result := Canvas.Width
+  else
+    result := 0;
 end;
 
 { TBGLCanvas }
 
+function TBGLCanvas.GetMatrix: TAffineMatrix;
+begin
+  result := FMatrix;
+end;
+
+procedure TBGLCanvas.SetMatrix(AValue: TAffineMatrix);
+var m: packed array[1..4,1..4] of single;
+begin
+  glMatrixMode(GL_MODELVIEW);
+  m[1,1] := AValue[1,1];  m[2,1] := AValue[1,2];  m[3,1] := 0; m[4,1] := AValue[1,3];
+  m[1,2] := AValue[2,1];  m[2,2] := AValue[2,2];  m[3,2] := 0; m[4,2] := AValue[2,3];
+  m[1,3] := 0;            m[2,3] := 0;            m[3,3] := 1; m[4,3] := 0;
+  m[1,4] := 0;            m[2,4] := 0;            m[3,4] := 0; m[4,4] := 1;
+  glLoadMatrixf(@m);
+  FMatrix := AValue;
+end;
+
 procedure TBGLCanvas.FillTriangles(const APoints: array of TPointF;
-  AColor: TBGRAPixel);
+  AColor: TBGRAPixel; APixelCenteredCoordinates: boolean);
 var
   i: NativeInt;
+  ofs: single;
 begin
   if (length(APoints) < 3) or (AColor.alpha = 0) then exit;
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glColor4ubv(@AColor);
   glBegin(GL_TRIANGLES);
+  if APixelCenteredCoordinates then ofs := 0.5 else ofs := 0;
   for i := 0 to length(APoints) - (length(APoints) mod 3) - 1 do
     with APoints[i] do
-      glVertex2f(x+0.5,y+0.5);
+      glVertex2f(x+ofs,y+ofs);
   glEnd();
   glDisable(GL_BLEND);
 end;
 
 procedure TBGLCanvas.FillTrianglesLinearColor(const APoints: array of TPointF;
-  const AColors: array of TBGRAPixel);
+  const AColors: array of TBGRAPixel; APixelCenteredCoordinates: boolean);
 var
   i: NativeInt;
+  ofs: single;
 begin
   if length(APoints) < 3 then exit;
   if length(AColors)<>length(APoints) then
@@ -204,26 +261,29 @@ begin
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glBegin(GL_TRIANGLES);
+  if APixelCenteredCoordinates then ofs := 0.5 else ofs := 0;
   for i := 0 to length(APoints) - (length(APoints) mod 3) - 1 do
   begin
     glColor4ubv(@AColors[i]);
     with APoints[i] do
-      glVertex2f(x+0.5,y+0.5);
+      glVertex2f(x+ofs,y+ofs);
   end;
   glEnd();
   glDisable(GL_BLEND);
 end;
 
 procedure TBGLCanvas.FillTrianglesFan(const APoints: array of TPointF;
-  ACenterColor, ABorderColor: TBGRAPixel);
+  ACenterColor, ABorderColor: TBGRAPixel; APixelCenteredCoordinates: boolean);
 var
   i: NativeInt;
   firstPoint: boolean;
+  ofs: single;
 begin
   if (length(APoints) < 3) or ((ACenterColor.alpha = 0) and (ABorderColor.alpha = 0)) then exit;
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   firstPoint := true;
+  if APixelCenteredCoordinates then ofs := 0.5 else ofs := 0;
   for i := 0 to high(APoints) do
   begin
     if isEmptyPointF(APoints[i]) then
@@ -240,12 +300,12 @@ begin
         glBegin(GL_TRIANGLE_FAN);
         glColor4ubv(@ACenterColor);
         with APoints[i] do
-          glVertex2f(x+0.5,y+0.5);
+          glVertex2f(x+ofs,y+ofs);
         glColor4ubv(@ABorderColor);
         firstPoint := false;
       end else
         with APoints[i] do
-          glVertex2f(x+0.5,y+0.5);
+          glVertex2f(x+ofs,y+ofs);
     end;
   end;
   if not firstPoint then glEnd();
@@ -253,26 +313,29 @@ begin
 end;
 
 procedure TBGLCanvas.FillQuads(const APoints: array of TPointF;
-  AColor: TBGRAPixel);
+  AColor: TBGRAPixel; APixelCenteredCoordinates: boolean);
 var
   i: NativeInt;
+  ofs: single;
 begin
   if (length(APoints) < 4) or (AColor.alpha = 0) then exit;
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glColor4ubv(@AColor);
   glBegin(GL_QUADS);
+  if APixelCenteredCoordinates then ofs := 0.5 else ofs := 0;
   for i := 0 to length(APoints) - (length(APoints) and 3) - 1 do
     with APoints[i] do
-      glVertex2f(x+0.5,y+0.5);
+      glVertex2f(x+ofs,y+ofs);
   glEnd();
   glDisable(GL_BLEND);
 end;
 
 procedure TBGLCanvas.FillQuadsLinearColor(const APoints: array of TPointF;
-  const AColors: array of TBGRAPixel);
+  const AColors: array of TBGRAPixel; APixelCenteredCoordinates: boolean);
 var
   i: NativeInt;
+  ofs: single;
 begin
   if length(APoints) < 4 then exit;
   if length(AColors)<>length(APoints) then
@@ -280,11 +343,12 @@ begin
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glBegin(GL_QUADS);
+  if APixelCenteredCoordinates then ofs := 0.5 else ofs := 0;
   for i := 0 to length(APoints) - (length(APoints) and 3) - 1 do
   begin
     glColor4ubv(@AColors[i]);
     with APoints[i] do
-      glVertex2f(x+0.5,y+0.5);
+      glVertex2f(x+ofs,y+ofs);
   end;
   glEnd();
   glDisable(GL_BLEND);

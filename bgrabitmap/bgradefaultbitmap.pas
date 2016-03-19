@@ -56,6 +56,14 @@ type
     function CheckAntialiasRectBounds(var x,y,x2,y2: single; w: single): boolean;
     function GetCanvasBGRA: TBGRACanvas;
     function GetCanvas2D: TBGRACanvas2D;
+    procedure GradientFillDithered(x, y, x2, y2: integer; c1, c2: TBGRAPixel;
+      gtype: TGradientType; o1, o2: TPointF; mode: TDrawMode;
+      gammaColorCorrection: boolean = True; Sinus: Boolean=False;
+      ditherAlgo: TDitheringAlgorithm = daFloydSteinberg);
+    procedure GradientFillDithered(x, y, x2, y2: integer; gradient: TBGRACustomGradient;
+      gtype: TGradientType; o1, o2: TPointF; mode: TDrawMode;
+      Sinus: Boolean=False;
+      ditherAlgo: TDitheringAlgorithm = daFloydSteinberg);
   protected
     FRefCount: integer; //reference counter (not related to interface reference counter)
 
@@ -237,7 +245,7 @@ type
     {** Creates an image by copying the content of a ''TFPCustomImage'' }
     constructor Create(AFPImage: TFPCustomImage); override;
     {** Creates an image by copying the content of a ''TBitmap'' }
-    constructor Create(ABitmap: TBitmap); override;
+    constructor Create(ABitmap: TBitmap; AUseTransparent: boolean = true); override;
     {** Creates an image of dimensions ''AWidth'' and ''AHeight'' and fills it with the opaque color ''Color'' }
     constructor Create(AWidth, AHeight: integer; Color: TColor); override;
     {** Creates an image of dimensions ''AWidth'' and ''AHeight'' and fills it with ''Color'' }
@@ -287,6 +295,7 @@ type
     {** Assign the content of the specified ''Source''. It can be a ''TBGRACustomBitmap'' or
         a ''TFPCustomImage'' }
     procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TBitmap; AUseTransparent: boolean); overload;
     {** Stores the image in the stream without compression nor header }
     procedure Serialize(AStream: TStream); override;
     {** Reads the image in a stream that was previously serialized }
@@ -533,6 +542,7 @@ type
     {** Fills completely a rectangle, without any border, with the specified ''texture'' and
         with the specified ''mode'' }
     procedure FillRect(x, y, x2, y2: integer; texture: IBGRAScanner; mode: TDrawMode); override; overload;
+    procedure FillRect(x, y, x2, y2: integer; texture: IBGRAScanner; mode: TDrawMode; ditheringAlgorithm: TDitheringAlgorithm); override; overload;
     {** Sets the alpha value within the specified rectangle }
     procedure AlphaFillRect(x, y, x2, y2: integer; alpha: byte); override;
     {** Draws a filled round rectangle, with corners having an elliptical diameter of ''DX'' and ''DY'' }
@@ -557,11 +567,11 @@ type
     procedure RectangleAntialias(x, y, x2, y2: single; texture: IBGRAScanner; w: single); override;
     {** Fills a rectangle with antialiasing. For example (-0.5,-0.5,0.5,0.5)
         fills one pixel }
-    procedure FillRectAntialias(x, y, x2, y2: single; c: TBGRAPixel); override;
+    procedure FillRectAntialias(x, y, x2, y2: single; c: TBGRAPixel; pixelCenteredCoordinates: boolean = true); override;
     {** Fills a rectangle with a texture }
-    procedure FillRectAntialias(x, y, x2, y2: single; texture: IBGRAScanner); override;
+    procedure FillRectAntialias(x, y, x2, y2: single; texture: IBGRAScanner; pixelCenteredCoordinates: boolean = true); override;
     {** Erases the content of a rectangle with antialiasing }
-    procedure EraseRectAntialias(x, y, x2, y2: single; alpha: byte); override;
+    procedure EraseRectAntialias(x, y, x2, y2: single; alpha: byte; pixelCenteredCoordinates: boolean = true); override;
 
     {** Draws a rounded rectangle border with antialiasing. The corners have an
         elliptical radius of ''rx'' and ''ry''. ''options'' specifies how to
@@ -580,11 +590,11 @@ type
     {** Fills a rounded rectangle with antialiasing. The corners have an
         elliptical radius of ''rx'' and ''ry''. ''options'' specifies how to
         draw the corners. See [[BGRABitmap Geometry types|geometry types]] }
-    procedure FillRoundRectAntialias(x,y,x2,y2,rx,ry: single; c: TBGRAPixel; options: TRoundRectangleOptions = []); override;
+    procedure FillRoundRectAntialias(x,y,x2,y2,rx,ry: single; c: TBGRAPixel; options: TRoundRectangleOptions = []; pixelCenteredCoordinates: boolean = true); override;
     {** Fills a rounded rectangle with a texture }
-    procedure FillRoundRectAntialias(x,y,x2,y2,rx,ry: single; texture: IBGRAScanner; options: TRoundRectangleOptions = []); override;
+    procedure FillRoundRectAntialias(x,y,x2,y2,rx,ry: single; texture: IBGRAScanner; options: TRoundRectangleOptions = []; pixelCenteredCoordinates: boolean = true); override;
     {** Erases the content of a rounded rectangle with a texture }
-    procedure EraseRoundRectAntialias(x,y,x2,y2,rx,ry: single; alpha: byte; options: TRoundRectangleOptions = []); override;
+    procedure EraseRoundRectAntialias(x,y,x2,y2,rx,ry: single; alpha: byte; options: TRoundRectangleOptions = []; pixelCenteredCoordinates: boolean = true); override;
 
     {** Draws an ellipse with antialising. ''rx'' is the horizontal radius and
         ''ry'' the vertical radius }
@@ -719,10 +729,11 @@ type
       mode: TFloodfillMode; Tolerance: byte = 0); override;
     procedure GradientFill(x, y, x2, y2: integer; c1, c2: TBGRAPixel;
       gtype: TGradientType; o1, o2: TPointF; mode: TDrawMode;
-      gammaColorCorrection: boolean = True; Sinus: Boolean=False); override;
+      gammaColorCorrection: boolean = True; Sinus: Boolean=False;
+      ditherAlgo: TDitheringAlgorithm = daFloydSteinberg); override;
     procedure GradientFill(x, y, x2, y2: integer; gradient: TBGRACustomGradient;
       gtype: TGradientType; o1, o2: TPointF; mode: TDrawMode;
-      Sinus: Boolean=False); override;
+      Sinus: Boolean=False; ditherAlgo: TDitheringAlgorithm = daFloydSteinberg); override;
     function CreateBrushTexture(ABrushStyle: TBrushStyle; APatternColor, ABackgroundColor: TBGRAPixel;
                 AWidth: integer = 8; AHeight: integer = 8; APenWidth: single = 1): TBGRACustomBitmap; override;
     function ScanAtInteger(X,Y: integer): TBGRAPixel; override;
@@ -876,7 +887,8 @@ implementation
 
 uses Math, BGRAUTF8, BGRABlend, BGRAFilters, BGRAGradientScanner,
   BGRAResample, BGRATransform, BGRAPolygon, BGRAPolygonAliased,
-  BGRAPath, FPReadPcx, FPWritePcx, FPReadXPM, FPWriteXPM;
+  BGRAPath, FPReadPcx, FPWritePcx, FPReadXPM, FPWriteXPM,
+  BGRADithering;
 
 { TBitmapTracker }
 
@@ -1301,11 +1313,11 @@ begin
 end;
 
 { Creates an image of dimensions AWidth and AHeight and filled with transparent pixels. }
-constructor TBGRADefaultBitmap.Create(ABitmap: TBitmap);
+constructor TBGRADefaultBitmap.Create(ABitmap: TBitmap; AUseTransparent: boolean);
 begin
   Init;
   inherited Create(ABitmap.Width, ABitmap.Height);
-  Assign(ABitmap);
+  Assign(ABitmap, AUseTransparent);
 end;
 
 { Creates an image of dimensions AWidth and AHeight and fills it with the opaque color Color. }
@@ -1428,6 +1440,21 @@ begin
     end;
   end else
     inherited Assign(Source);
+end;
+
+procedure TBGRADefaultBitmap.Assign(Source: TBitmap; AUseTransparent: boolean);
+var
+  transpColor: TBGRAPixel;
+begin
+  Assign(Source);
+  if AUseTransparent and TBitmap(Source).Transparent then
+  begin
+    if TBitmap(Source).TransparentMode = tmFixed then
+      transpColor := ColorToBGRA(TBitmap(Source).TransparentColor)
+    else
+      transpColor := GetPixel(0,Height-1);
+    ReplaceColor(transpColor, BGRAPixelTransparent);
+  end;
 end;
 
 {------------------------- Clipping -------------------------------}
@@ -2368,9 +2395,9 @@ begin
     with ACursor.CurrentCoordinate do
     begin
       if ATexture = nil then
-        TextOutAngle(x,y, round(-angle*1800/Pi), nextchar, AColor, taCenter)
+        TextOutAngle(x,y, system.round(-angle*1800/Pi), nextchar, AColor, taCenter)
       else
-        TextOutAngle(x,y, round(-angle*1800/Pi), nextchar, ATexture, taCenter);
+        TextOutAngle(x,y, system.round(-angle*1800/Pi), nextchar, ATexture, taCenter);
     end;
     ACursor.MoveForward(charwidth*0.5 + ALetterSpacing);
   end;
@@ -3390,6 +3417,17 @@ begin
   InvalidateBitmap;
 end;
 
+procedure TBGRADefaultBitmap.FillRect(x, y, x2, y2: integer;
+  texture: IBGRAScanner; mode: TDrawMode; ditheringAlgorithm: TDitheringAlgorithm);
+var dither: TDitheringTask;
+begin
+  if not CheckClippedRectBounds(x,y,x2,y2) then exit;
+  dither := CreateDitheringTask(ditheringAlgorithm, texture, self, rect(x,y,x2,y2));
+  dither.DrawMode := mode;
+  dither.Execute;
+  dither.Free;
+end;
+
 procedure TBGRADefaultBitmap.AlphaFillRect(x, y, x2, y2: integer; alpha: byte);
 var
   yb, tx, delta: integer;
@@ -3419,9 +3457,17 @@ begin
   InvalidateBitmap;
 end;
 
-procedure TBGRADefaultBitmap.FillRectAntialias(x, y, x2, y2: single; c: TBGRAPixel);
+procedure TBGRADefaultBitmap.FillRectAntialias(x, y, x2, y2: single; c: TBGRAPixel; pixelCenteredCoordinates: boolean);
 var tx,ty: single;
 begin
+  if not pixelCenteredCoordinates then
+  begin
+    x -= 0.5;
+    y -= 0.5;
+    x2 -= 0.5;
+    y2 -= 0.5;
+  end;
+
   tx := x2-x;
   ty := y2-y;
   if (abs(tx)<1e-3) or (abs(ty)<1e-3) then exit;
@@ -3449,32 +3495,67 @@ begin
 end;
 
 procedure TBGRADefaultBitmap.EraseRectAntialias(x, y, x2, y2: single;
-  alpha: byte);
+  alpha: byte; pixelCenteredCoordinates: boolean);
 begin
+  if not pixelCenteredCoordinates then
+  begin
+    x -= 0.5;
+    y -= 0.5;
+    x2 -= 0.5;
+    y2 -= 0.5;
+  end;
   ErasePolyAntialias([pointf(x, y), pointf(x2, y), pointf(x2, y2), pointf(x, y2)], alpha);
 end;
 
 procedure TBGRADefaultBitmap.FillRectAntialias(x, y, x2, y2: single;
-  texture: IBGRAScanner);
+  texture: IBGRAScanner; pixelCenteredCoordinates: boolean);
 begin
+  if not pixelCenteredCoordinates then
+  begin
+    x -= 0.5;
+    y -= 0.5;
+    x2 -= 0.5;
+    y2 -= 0.5;
+  end;
   FillPolyAntialias([pointf(x, y), pointf(x2, y), pointf(x2, y2), pointf(x, y2)], texture);
 end;
 
 procedure TBGRADefaultBitmap.FillRoundRectAntialias(x, y, x2, y2, rx,ry: single;
-  c: TBGRAPixel; options: TRoundRectangleOptions);
+  c: TBGRAPixel; options: TRoundRectangleOptions; pixelCenteredCoordinates: boolean);
 begin
+  if not pixelCenteredCoordinates then
+  begin
+    x -= 0.5;
+    y -= 0.5;
+    x2 -= 0.5;
+    y2 -= 0.5;
+  end;
   BGRAPolygon.FillRoundRectangleAntialias(self,x,y,x2,y2,rx,ry,options,c,False, LinearAntialiasing);
 end;
 
 procedure TBGRADefaultBitmap.FillRoundRectAntialias(x, y, x2, y2, rx,
-  ry: single; texture: IBGRAScanner; options: TRoundRectangleOptions);
+  ry: single; texture: IBGRAScanner; options: TRoundRectangleOptions; pixelCenteredCoordinates: boolean);
 begin
+  if not pixelCenteredCoordinates then
+  begin
+    x -= 0.5;
+    y -= 0.5;
+    x2 -= 0.5;
+    y2 -= 0.5;
+  end;
   BGRAPolygon.FillRoundRectangleAntialiasWithTexture(self,x,y,x2,y2,rx,ry,options,texture, LinearAntialiasing);
 end;
 
 procedure TBGRADefaultBitmap.EraseRoundRectAntialias(x, y, x2, y2, rx,
-  ry: single; alpha: byte; options: TRoundRectangleOptions);
+  ry: single; alpha: byte; options: TRoundRectangleOptions; pixelCenteredCoordinates: boolean);
 begin
+  if not pixelCenteredCoordinates then
+  begin
+    x -= 0.5;
+    y -= 0.5;
+    x2 -= 0.5;
+    y2 -= 0.5;
+  end;
   BGRAPolygon.FillRoundRectangleAntialias(self,x,y,x2,y2,rx,ry,options,BGRA(0,0,0,alpha),True, LinearAntialiasing);
 end;
 
@@ -3533,14 +3614,14 @@ procedure TBGRADefaultBitmap.TextRect(ARect: TRect; x, y: integer;
   sUTF8: string; style: TTextStyle; c: TBGRAPixel);
 begin
   with (PointF(x,y)-GetFontAnchorRotatedOffset(0)) do
-    FontRenderer.TextRect(self,ARect,round(x),round(y),sUTF8,style,c);
+    FontRenderer.TextRect(self,ARect,system.round(x),system.round(y),sUTF8,style,c);
 end;
 
 procedure TBGRADefaultBitmap.TextRect(ARect: TRect; x, y: integer; sUTF8: string;
   style: TTextStyle; texture: IBGRAScanner);
 begin
   with (PointF(x,y)-GetFontAnchorRotatedOffset(0)) do
-    FontRenderer.TextRect(self,ARect,round(x),round(y),sUTF8,style,texture);
+    FontRenderer.TextRect(self,ARect,system.round(x),system.round(y),sUTF8,style,texture);
 end;
 
 { Returns the total size of the string provided using the current font.
@@ -4021,19 +4102,64 @@ end;
 
 procedure TBGRADefaultBitmap.GradientFill(x, y, x2, y2: integer;
   c1, c2: TBGRAPixel; gtype: TGradientType; o1, o2: TPointF; mode: TDrawMode;
-  gammaColorCorrection: boolean = True; Sinus: Boolean=False);
+  gammaColorCorrection: boolean; Sinus: Boolean; ditherAlgo: TDitheringAlgorithm);
+var
+  scanner: TBGRAGradientScanner;
 begin
-  BGRAGradientFill(self, x, y, x2, y2, c1, c2, gtype, o1, o2, mode, gammaColorCorrection, Sinus);
+  if (c1.alpha = 0) and (c2.alpha = 0) then
+    FillRect(x, y, x2, y2, BGRAPixelTransparent, mode)
+  else
+  if ditherAlgo <> daNearestNeighbor then
+    GradientFillDithered(x,y,x2,y2,c1,c2,gtype,o1,o2,mode,gammaColorCorrection,sinus,ditherAlgo)
+  else
+  begin
+    scanner := TBGRAGradientScanner.Create(c1,c2,gtype,o1,o2,gammaColorCorrection,Sinus);
+    FillRect(x,y,x2,y2,scanner,mode);
+    scanner.Free;
+  end;
 end;
 
 procedure TBGRADefaultBitmap.GradientFill(x, y, x2, y2: integer;
   gradient: TBGRACustomGradient; gtype: TGradientType; o1, o2: TPointF;
-  mode: TDrawMode; Sinus: Boolean);
+  mode: TDrawMode; Sinus: Boolean; ditherAlgo: TDitheringAlgorithm);
+var
+  scanner: TBGRAGradientScanner;
+begin
+  if ditherAlgo <> daNearestNeighbor then
+    GradientFillDithered(x,y,x2,y2,gradient,gtype,o1,o2,mode,sinus,ditherAlgo)
+  else
+  begin
+    scanner := TBGRAGradientScanner.Create(gradient,gtype,o1,o2,sinus);
+    FillRect(x,y,x2,y2,scanner,mode);
+    scanner.Free;
+  end;
+end;
+
+procedure TBGRADefaultBitmap.GradientFillDithered(x, y, x2, y2: integer; c1,
+  c2: TBGRAPixel; gtype: TGradientType; o1, o2: TPointF;
+  mode: TDrawMode; gammaColorCorrection: boolean; Sinus: Boolean;
+  ditherAlgo: TDitheringAlgorithm);
+var
+  scanner: TBGRAGradientScanner;
+begin
+  if (c1.alpha = 0) and (c2.alpha = 0) then
+    FillRect(x, y, x2, y2, BGRAPixelTransparent, dmSet)
+  else
+  begin
+    scanner := TBGRAGradientScanner.Create(c1,c2,gtype,o1,o2,gammaColorCorrection,Sinus);
+    FillRect(x,y,x2,y2,scanner,mode,ditherAlgo);
+    scanner.Free;
+  end;
+end;
+
+procedure TBGRADefaultBitmap.GradientFillDithered(x, y, x2, y2: integer;
+  gradient: TBGRACustomGradient; gtype: TGradientType; o1, o2: TPointF;
+  mode: TDrawMode; Sinus: Boolean; ditherAlgo: TDitheringAlgorithm);
 var
   scanner: TBGRAGradientScanner;
 begin
   scanner := TBGRAGradientScanner.Create(gradient,gtype,o1,o2,sinus);
-  FillRect(x,y,x2,y2,scanner,mode);
+  FillRect(x,y,x2,y2,scanner,mode,ditherAlgo);
   scanner.Free;
 end;
 
@@ -5819,19 +5945,8 @@ end;
 procedure BGRAGradientFill(bmp: TBGRACustomBitmap; x, y, x2, y2: integer;
   c1, c2: TBGRAPixel; gtype: TGradientType; o1, o2: TPointF; mode: TDrawMode;
   gammaColorCorrection: boolean = True; Sinus: Boolean=False);
-var
-  gradScan : TBGRAGradientScanner;
 begin
-  //handles transparency
-  if (c1.alpha = 0) and (c2.alpha = 0) then
-  begin
-    bmp.FillRect(x, y, x2, y2, BGRAPixelTransparent, mode);
-    exit;
-  end;
-
-  gradScan := TBGRAGradientScanner.Create(c1,c2,gtype,o1,o2,gammaColorCorrection,Sinus);
-  bmp.FillRect(x,y,x2,y2,gradScan,mode);
-  gradScan.Free;
+  bmp.GradientFill(x,y,x2,y2,c1,c2,gtype,o1,o2,mode,gammaColorCorrection,sinus);
 end;
 
 initialization

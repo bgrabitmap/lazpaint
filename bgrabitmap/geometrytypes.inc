@@ -11,8 +11,27 @@ type
   {* Pointer to a ''TPointF'' structure }
   PPointF = ^TPointF;
   {* Contains a point with single-precision floating point coordinates }
+  {$ifdef VER3_1_1 }
+  TPointF = Types.TPointF;
+  {$else}
   TPointF = packed record x, y: single;
-            end;
+  end;
+  {$endif}
+
+  {$ifdef VER3_1_1 }
+  TRectF = Types.TRectF;
+  {$else}
+  TRectF =
+  {$ifndef FPC_REQUIRES_PROPER_ALIGNMENT}
+  packed
+  {$endif FPC_REQUIRES_PROPER_ALIGNMENT}
+  record
+    case Integer of
+     0: (Left, Top, Right, Bottom: Single);
+     1: (TopLeft, BottomRight: TPointF);
+  end;
+  {$endif}
+  function RectF(Left, Top, Right, Bottom: Single): TRectF;
 
   const
     {** Value indicating that there is an empty ''TPointF'' structure.
@@ -112,6 +131,7 @@ type
        maximum orthogonal distance that is ignored and approximated by a straight line.
        ''AIncludeFirstPoint'' indicates if the first point must be included in the array }
     function ToPoints(AAcceptedDeviation: single = 0.1; AIncludeFirstPoint: boolean = true): ArrayOfTPointF;
+    function GetBounds: TRectF;
   end;
 
   {** Creates a structure for a cubic Bézier curve }
@@ -141,6 +161,7 @@ type
        maximum orthogonal distance that is ignored and approximated by a straight line.
        ''AIncludeFirstPoint'' indicates if the first point must be included in the array }
     function ToPoints(AAcceptedDeviation: single = 0.1; AIncludeFirstPoint: boolean = true): ArrayOfTPointF;
+    function GetBounds: TRectF;
   end;
 
   {** Creates a structure for a quadratic Bézier curve }
@@ -276,6 +297,7 @@ type
     function GetLoopClosedShapes: boolean; virtual; abstract;
     function GetLoopPath: boolean; virtual; abstract;
     function GetPathLength: single; virtual; abstract;
+    function GetBounds: TRectF; virtual; abstract;
     function GetStartCoordinate: TPointF; virtual; abstract;
     procedure SetArcPos(AValue: single); virtual; abstract;
     procedure SetLoopClosedShapes(AValue: boolean); virtual; abstract;
@@ -408,11 +430,14 @@ type
     {** Returns the color at a given ''position''. The reference range is
         from 0 to 65535, however values beyond are possible as well }
     function GetColorAt(position: integer): TBGRAPixel; virtual; abstract;
+    function GetExpandedColorAt(position: integer): TExpandedPixel; virtual;
     {** Returns the color at a given ''position''. The reference range is
         from 0 to 1, however values beyond are possible as well }
     function GetColorAtF(position: single): TBGRAPixel; virtual;
+    function GetExpandedColorAtF(position: single): TExpandedPixel; virtual;
     {** Returns the average color of the gradient }
     function GetAverageColor: TBGRAPixel; virtual; abstract;
+    function GetAverageExpandedColor: TExpandedPixel; virtual;
     function GetMonochrome: boolean; virtual; abstract;
     {** This property is True if the gradient contains only one color,
         and thus is not really a gradient }
@@ -441,6 +466,12 @@ end;
 
 { TBGRACustomGradient }
 
+function TBGRACustomGradient.GetExpandedColorAt(position: integer
+  ): TExpandedPixel;
+begin
+  result := GammaExpansion(GetColorAt(position));
+end;
+
 function TBGRACustomGradient.GetColorAtF(position: single): TBGRAPixel;
 begin
   position *= 65536;
@@ -450,6 +481,22 @@ begin
     result := GetColorAt(high(Integer))
   else
     result := GetColorAt(round(position));
+end;
+
+function TBGRACustomGradient.GetExpandedColorAtF(position: single): TExpandedPixel;
+begin
+  position *= 65536;
+  if position < low(integer) then
+    result := GetExpandedColorAt(low(Integer))
+  else if position > high(integer) then
+    result := GetExpandedColorAt(high(Integer))
+  else
+    result := GetExpandedColorAt(round(position));
+end;
+
+function TBGRACustomGradient.GetAverageExpandedColor: TExpandedPixel;
+begin
+  result := GammaExpansion(GetAverageColor);
 end;
 
 { TIntersectionInfo }
@@ -682,6 +729,14 @@ operator *(factor: single; const pt1: TPointF): TPointF;
 begin
   result.x := pt1.x*factor;
   result.y := pt1.y*factor;
+end;
+
+function RectF(Left, Top, Right, Bottom: Single): TRectF;
+begin
+  result.Left:= Left;
+  result.Top:= Top;
+  result.Right:= Right;
+  result.Bottom:= Bottom;
 end;
 
 function PointF(x, y: single): TPointF;
@@ -1093,6 +1148,58 @@ begin
   end;
 end;}
 
+function TCubicBezierCurve.GetBounds: TRectF;
+const precision = 1e-5;
+
+  procedure Include(pt: TPointF);
+  begin
+    if pt.x < result.Left then result.Left := pt.x
+    else if pt.x > result.Right then result.Right := pt.x;
+    if pt.y < result.Top then result.Top := pt.y
+    else if pt.y > result.Bottom then result.Bottom := pt.y;
+  end;
+
+  procedure IncludeT(t: single);
+  begin
+    if (t > 0) and (t < 1) then
+      Include(ComputePointAt(t));
+  end;
+
+  procedure IncludeABC(a,b,c: single);
+  var b2ac, sqrtb2ac: single;
+  begin
+    if abs(a) < precision then
+    begin
+      if abs(b) < precision then exit;
+      IncludeT(-c/b);
+    end else
+    begin
+      b2ac := sqr(b) - 4 * a * c;
+      if b2ac >= 0 then
+      begin
+        sqrtb2ac := sqrt(b2ac);
+        IncludeT((-b + sqrtb2ac) / (2 * a));
+        IncludeT((-b - sqrtb2ac) / (2 * a));
+      end;
+    end;
+  end;
+
+var
+  va, vb, vc: TPointF;
+
+begin
+  result.TopLeft := p1;
+  result.BottomRight := p1;
+  Include(p2);
+
+  vb := 6 * p1 - 12 * c1 + 6 * c2;
+  va := -3 * p1 + 9 * c1 - 9 * c2 + 3 * p2;
+  vc := 3 * c1 - 3 * p1;
+
+  IncludeABC(va.x,vb.x,vc.x);
+  IncludeABC(va.y,vb.y,vc.y);
+end;
+
 { TQuadraticBezierCurve }
 
 function TQuadraticBezierCurve.SimpleComputePoints(AAcceptedDeviation: single;
@@ -1213,6 +1320,40 @@ function TQuadraticBezierCurve.ToPoints(AAcceptedDeviation: single;
   AIncludeFirstPoint: boolean = true): ArrayOfTPointF;
 begin
   result := SimpleComputePoints(AAcceptedDeviation, AIncludeFirstPoint);
+end;
+
+function TQuadraticBezierCurve.GetBounds: TRectF;
+const precision = 1e-5;
+
+  procedure Include(pt: TPointF);
+  begin
+    if pt.x < result.Left then result.Left := pt.x
+    else if pt.x > result.Right then result.Right := pt.x;
+    if pt.y < result.Top then result.Top := pt.y
+    else if pt.y > result.Bottom then result.Bottom := pt.y;
+  end;
+
+  procedure IncludeT(t: single);
+  begin
+    if (t > 0) and (t < 1) then
+      Include(ComputePointAt(t));
+  end;
+
+  procedure IncludeABC(a,b,c: single);
+  var denom: single;
+  begin
+    denom := a-2*b+c;
+    if abs(denom) < precision then exit;
+    IncludeT((a-b)/denom);
+  end;
+
+begin
+  result.TopLeft := p1;
+  result.BottomRight := p1;
+  Include(p2);
+
+  IncludeABC(p1.x,c.x,p2.x);
+  IncludeABC(p1.y,c.y,p2.y);
 end;
 
 {//The following function computes by splitting the curve. It is slower than the simple function

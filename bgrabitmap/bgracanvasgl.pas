@@ -5,7 +5,7 @@ unit BGRACanvasGL;
 interface
 
 uses
-  Classes, SysUtils, BGRABitmapTypes,
+  Classes, SysUtils, BGRAGraphics, BGRABitmapTypes,
   BGRAOpenGLType, BGRATransform, BGRAPath;
 
 type
@@ -32,23 +32,30 @@ type
     procedure SetClipRect(AValue: TRect);
     procedure EnableScissor(AValue: TRect); virtual; abstract;
     procedure DisableScissor; virtual; abstract;
+    function GetMatrix: TAffineMatrix; virtual; abstract;
+    procedure SetMatrix(AValue: TAffineMatrix); virtual; abstract;
   public
     constructor Create;
-    procedure FillTriangles(const APoints: array of TPointF; AColor: TBGRAPixel); virtual; abstract;
-    procedure FillTrianglesLinearColor(const APoints: array of TPointF; const AColors: array of TBGRAPixel); virtual; abstract;
-    procedure FillTrianglesFan(const APoints: array of TPointF; ACenterColor, ABorderColor: TBGRAPixel); virtual; abstract;
-    procedure FillQuads(const APoints: array of TPointF; AColor: TBGRAPixel); virtual; abstract;
-    procedure FillQuadsLinearColor(const APoints: array of TPointF; const AColors: array of TBGRAPixel); virtual; abstract;
+    procedure FillTriangles(const APoints: array of TPointF; AColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual; abstract;
+    procedure FillTrianglesLinearColor(const APoints: array of TPointF; const AColors: array of TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual; abstract;
+    procedure FillTrianglesFan(const APoints: array of TPointF; ACenterColor, ABorderColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual; abstract;
+    procedure FillQuads(const APoints: array of TPointF; AColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual; abstract;
+    procedure FillQuadsLinearColor(const APoints: array of TPointF; const AColors: array of TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual; abstract;
     procedure Polylines(const APoints: array of TPointF; AColor: TBGRAPixel; ADrawLastPoints: boolean = true); virtual; abstract;
     procedure Polygons(const APoints: array of TPointF; AColor: TBGRAPixel); virtual; abstract;
     procedure Fill(AColor: TBGRAPixel); virtual; abstract;
-    procedure FillRect(r: TRect; AScanner: IBGRAScanner); virtual; abstract;
+    procedure FillRect(r: TRect; AScanner: IBGRAScanner); virtual; abstract; overload;
 
     procedure DrawPath(APath: TBGLPath; c: TBGRAPixel);
-    procedure FillPathConvex(APath: TBGLPath; c: TBGRAPixel);
+    procedure FillPathConvex(APath: TBGLPath; c: TBGRAPixel; APixelCenteredCoordinates: boolean = true);
 
     procedure Line(x1,y1,x2,y2: single; AColor: TBGRAPixel; ADrawLastPoint: boolean = true);
     procedure Line(p1,p2: TPointF; AColor: TBGRAPixel; ADrawLastPoint: boolean = true);
+
+    procedure FillRectLinearColor(r: TRect; ATopLeftColor, ATopRightColor, ABottomRightColor, ABottomLeftColor: TBGRAPixel); virtual; overload;
+    procedure FillRectLinearColor(x1,y1,x2,y2: single;
+         ATopLeftColor, ATopRightColor, ABottomRightColor, ABottomLeftColor: TBGRAPixel;
+         APixelCenteredCoordinates: boolean = true); virtual; overload;
 
     procedure Ellipse(cx,cy,rx,ry: single; AColor: TBGRAPixel); overload;
     procedure EllipseInRect(r: TRect; AColor: TBGRAPixel); overload;
@@ -56,9 +63,9 @@ type
     procedure EllipseInRect(r: TRect; AColor: TBGRAPixel; AFillColor: TBGRAPixel); overload;
     procedure EllipseLinearColor(cx,cy,rx,ry: single; AColor: TBGRAPixel; AOuterFillColor, AInnerFillColor: TBGRAPixel); overload;
     procedure EllipseLinearColorInRect(r: TRect; AColor: TBGRAPixel; AOuterFillColor, AInnerFillColor: TBGRAPixel); overload;
-    procedure FillEllipse(cx,cy,rx,ry: single; AColor: TBGRAPixel);
+    procedure FillEllipse(cx,cy,rx,ry: single; AColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true);
     procedure FillEllipseInRect(r: TRect; AColor: TBGRAPixel);
-    procedure FillEllipseLinearColor(cx, cy, rx, ry: single; AOuterColor, AInnerColor: TBGRAPixel);
+    procedure FillEllipseLinearColor(cx, cy, rx, ry: single; AOuterColor, AInnerColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true);
     procedure FillEllipseLinearColorInRect(r: TRect; AOuterColor, AInnerColor: TBGRAPixel);
 
     procedure Arc(cx,cy,rx,ry: single; const StartPoint,EndPoint: TPointF; AColor: TBGRAPixel; ADrawChord: boolean; AFillColor: TBGRAPixel); overload;
@@ -79,17 +86,23 @@ type
     procedure Rectangle(r: TRect; AColor: TBGRAPixel; AFillColor: TBGRAPixel); overload;
     procedure Rectangle(x1,y1,x2,y2: single; AColor: TBGRAPixel); overload;
     procedure Rectangle(x1,y1,x2,y2: single; AColor: TBGRAPixel; AFillColor: TBGRAPixel); overload;
-    procedure Rectangle(x1,y1,x2,y2: single; AColor: TBGRAPixel; w: single); overload;
-    procedure Rectangle(x1,y1,x2,y2: single; AColor: TBGRAPixel; w: single; AFillColor: TBGRAPixel); overload;
-    procedure FillRect(x1,y1,x2,y2: single; AColor: TBGRAPixel); overload;
+    procedure Rectangle(x1,y1,x2,y2: single; AColor: TBGRAPixel; w: single; APixelCenteredCoordinates: boolean = true); overload;
+    procedure Rectangle(x1,y1,x2,y2: single; AColor: TBGRAPixel; w: single; AFillColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); overload;
+    procedure RectangleWithin(x1,y1,x2,y2: single; ABorderColor: TBGRAPixel; w: single; AFillColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); overload;
+    procedure RectangleWithin(r: TRect; ABorderColor: TBGRAPixel; w: single; AFillColor: TBGRAPixel); overload;
+    procedure FillRect(x1,y1,x2,y2: single; AColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); overload;
     procedure FillRect(r: TRect; AColor: TBGRAPixel); overload;
     procedure RoundRect(x1,y1,x2,y2,rx,ry: single; ABorderColor: TBGRAPixel; options: TRoundRectangleOptions = []); overload;
     procedure RoundRect(x1,y1,x2,y2,rx,ry: single; ABorderColor,AFillColor: TBGRAPixel; options: TRoundRectangleOptions = []); overload;
-    procedure FillRoundRect(x,y,x2,y2,rx,ry: single; AFillColor: TBGRAPixel; options: TRoundRectangleOptions = []);
+    procedure FillRoundRect(x,y,x2,y2,rx,ry: single; AFillColor: TBGRAPixel; options: TRoundRectangleOptions = []; APixelCenteredCoordinates: boolean = true);
 
-    procedure FillTriangleLinearColor(pt1,pt2,pt3: TPointF; c1,c2,c3: TBGRAPixel);
-    procedure FillQuadLinearColor(pt1,pt2,pt3,pt4: TPointF; c1,c2,c3,c4: TBGRAPixel);
-    procedure FillPolyConvex(const APoints: array of TPointF; AColor: TBGRAPixel);
+    procedure Frame3D(var bounds: TRect; width: integer; Style: TGraphicsBevelCut); overload;
+    procedure Frame3D(var bounds: TRect; width: integer;
+      Style: TGraphicsBevelCut; LightColor: TBGRAPixel; ShadowColor: TBGRAPixel); overload;
+
+    procedure FillTriangleLinearColor(pt1,pt2,pt3: TPointF; c1,c2,c3: TBGRAPixel; APixelCenteredCoordinates: boolean = true);
+    procedure FillQuadLinearColor(pt1,pt2,pt3,pt4: TPointF; c1,c2,c3,c4: TBGRAPixel; APixelCenteredCoordinates: boolean = true);
+    procedure FillPolyConvex(const APoints: array of TPointF; AColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true);
 
     procedure PutImage(x,y: single; ATexture: IBGLTexture; AAlpha: byte = 255); overload;
     procedure PutImage(x,y: single; ATexture: IBGLTexture; AColor: TBGRAPixel); overload;
@@ -104,10 +117,14 @@ type
     procedure PutImageAffine(x,y: single; ATexture: IBGLTexture; const AMatrix: TAffineMatrix; AAlpha: byte = 255); overload;
     procedure PutImageAffine(x,y: single; ATexture: IBGLTexture; const AMatrix: TAffineMatrix; AColor: TBGRAPixel); overload;
 
+    procedure Translate(x,y: single);
+    procedure Scale(sx,sy: single);
+
     procedure NoClip;
     property Width: integer read FWidth write SetWidth;
     property Height: integer read FHeight write SetHeight;
     property ClipRect: TRect read GetClipRect write SetClipRect;
+    property Matrix: TAffineMatrix read GetMatrix write SetMatrix;
   end;
 
   { TBGLPath }
@@ -119,12 +136,12 @@ type
     procedure GLDrawProc(const APoints: array of TPointF; AClosed: boolean);
   public
     procedure stroke(ACanvas: TBGLCustomCanvas; AColor: TBGRAPixel; AAcceptedDeviation: single = 0.1); overload;
-    procedure fillConvex(ACanvas: TBGLCustomCanvas; AColor: TBGRAPixel; AAcceptedDeviation: single = 0.1);
+    procedure fillConvex(ACanvas: TBGLCustomCanvas; AColor: TBGRAPixel; AAcceptedDeviation: single = 0.1; APixelCenteredCoordinates: boolean = true);
   end;
 
 implementation
 
-uses Math, BGRAGradientScanner;
+uses Math, Types, BGRAGradientScanner;
 
 { TBGLPath }
 
@@ -144,9 +161,9 @@ begin
   InternalDraw(@GLDrawProc, AAcceptedDeviation);
 end;
 
-procedure TBGLPath.fillConvex(ACanvas: TBGLCustomCanvas; AColor: TBGRAPixel; AAcceptedDeviation: single);
+procedure TBGLPath.fillConvex(ACanvas: TBGLCustomCanvas; AColor: TBGRAPixel; AAcceptedDeviation: single; APixelCenteredCoordinates: boolean);
 begin
-  ACanvas.FillPolyConvex(ToPoints(AAcceptedDeviation),AColor);
+  ACanvas.FillPolyConvex(ToPoints(AAcceptedDeviation),AColor,APixelCenteredCoordinates);
 end;
 
 { TBGLCustomCanvas }
@@ -231,9 +248,9 @@ begin
   APath.stroke(self, c);
 end;
 
-procedure TBGLCustomCanvas.FillPathConvex(APath: TBGLPath; c: TBGRAPixel);
+procedure TBGLCustomCanvas.FillPathConvex(APath: TBGLPath; c: TBGRAPixel; APixelCenteredCoordinates: boolean);
 begin
-  APath.fillConvex(self, c);
+  APath.fillConvex(self, c, 0.1, APixelCenteredCoordinates);
 end;
 
 procedure TBGLCustomCanvas.SwapRect(var r: TRect);
@@ -352,21 +369,21 @@ begin
 end;
 
 procedure TBGLCustomCanvas.FillTriangleLinearColor(pt1, pt2, pt3: TPointF; c1,
-  c2, c3: TBGRAPixel);
+  c2, c3: TBGRAPixel; APixelCenteredCoordinates: boolean);
 begin
-  FillTrianglesLinearColor([pt1,pt2,pt3],[c1,c2,c3]);
+  FillTrianglesLinearColor([pt1,pt2,pt3],[c1,c2,c3],APixelCenteredCoordinates);
 end;
 
 procedure TBGLCustomCanvas.FillQuadLinearColor(pt1, pt2, pt3, pt4: TPointF; c1,
-  c2, c3, c4: TBGRAPixel);
+  c2, c3, c4: TBGRAPixel; APixelCenteredCoordinates: boolean);
 begin
-  FillQuadsLinearColor([pt1,pt2,pt3,pt4],[c1,c2,c3,c4]);
+  FillQuadsLinearColor([pt1,pt2,pt3,pt4],[c1,c2,c3,c4],APixelCenteredCoordinates);
 end;
 
 procedure TBGLCustomCanvas.FillPolyConvex(const APoints: array of TPointF;
-  AColor: TBGRAPixel);
+  AColor: TBGRAPixel; APixelCenteredCoordinates: boolean);
 begin
-  FillTrianglesFan(APoints,AColor,AColor);
+  FillTrianglesFan(APoints,AColor,AColor,APixelCenteredCoordinates);
 end;
 
 procedure TBGLCustomCanvas.Line(x1, y1, x2, y2: single; AColor: TBGRAPixel; ADrawLastPoint: boolean);
@@ -387,6 +404,24 @@ begin
   Polylines(pts,AColor,ADrawLastPoint);
 end;
 
+procedure TBGLCustomCanvas.FillRectLinearColor(r: TRect;
+  ATopLeftColor, ATopRightColor, ABottomRightColor, ABottomLeftColor: TBGRAPixel);
+begin
+  FillRectLinearColor(r.left,r.top,r.right,r.bottom,
+       ATopLeftColor, ATopRightColor, ABottomRightColor, ABottomLeftColor,
+       False);
+end;
+
+procedure TBGLCustomCanvas.FillRectLinearColor(x1, y1, x2, y2: single;
+  ATopLeftColor, ATopRightColor, ABottomRightColor,
+  ABottomLeftColor: TBGRAPixel; APixelCenteredCoordinates: boolean);
+begin
+  FillQuadLinearColor(PointF(x1,y1),PointF(x2,y1),
+       PointF(x2,y2),PointF(x1,y2),
+       ATopLeftColor, ATopRightColor, ABottomRightColor, ABottomLeftColor,
+       APixelCenteredCoordinates);
+end;
+
 procedure TBGLCustomCanvas.Ellipse(cx, cy, rx, ry: single; AColor: TBGRAPixel);
 begin
   if AColor.alpha = 0 then exit;
@@ -400,10 +435,10 @@ begin
   Ellipse(cx,cy,rx,ry, AColor);
 end;
 
-procedure TBGLCustomCanvas.FillEllipse(cx, cy, rx, ry: single; AColor: TBGRAPixel);
+procedure TBGLCustomCanvas.FillEllipse(cx, cy, rx, ry: single; AColor: TBGRAPixel; APixelCenteredCoordinates: boolean);
 begin
   if AColor.alpha = 0 then exit;
-  FillTrianglesFan(ComputeEllipse(cx,cy,rx,ry),AColor,AColor);
+  FillTrianglesFan(ComputeEllipse(cx,cy,rx,ry),AColor,AColor,APixelCenteredCoordinates);
 end;
 
 procedure TBGLCustomCanvas.FillEllipseInRect(r: TRect; AColor: TBGRAPixel);
@@ -414,10 +449,10 @@ begin
 end;
 
 procedure TBGLCustomCanvas.FillEllipseLinearColor(cx, cy, rx, ry: single;
-  AOuterColor, AInnerColor: TBGRAPixel);
+  AOuterColor, AInnerColor: TBGRAPixel; APixelCenteredCoordinates: boolean);
 begin
   if (AOutercolor.alpha = 0) and (AInnercolor.alpha = 0) then exit;
-  FillTrianglesFan(ConcatPointsF([PointsF([PointF(cx,cy)]),ComputeEllipse(cx,cy,rx,ry)]),AInnercolor,AOutercolor);
+  FillTrianglesFan(ConcatPointsF([PointsF([PointF(cx,cy)]),ComputeEllipse(cx,cy,rx,ry)]),AInnercolor,AOutercolor,APixelCenteredCoordinates);
 end;
 
 procedure TBGLCustomCanvas.FillEllipseLinearColorInRect(r: TRect; AOuterColor,
@@ -569,7 +604,7 @@ begin
 end;
 
 procedure TBGLCustomCanvas.Rectangle(x1, y1, x2, y2: single;
-  AColor: TBGRAPixel; w: single);
+  AColor: TBGRAPixel; w: single; APixelCenteredCoordinates: boolean);
 var hw: single;
 begin
   SwapRect(x1,y1,x2,y2);
@@ -578,18 +613,34 @@ begin
     FillQuads(PointsF([PointF(x1-hw,y1-hw),PointF(x2+hw,y1-hw),PointF(x2+hw,y1+hw),PointF(x1-hw,y1+hw),
       PointF(x1-hw,y2-hw),PointF(x2+hw,y2-hw),PointF(x2+hw,y2+hw),PointF(x1-hw,y2+hw),
       PointF(x1-hw,y1+hw),PointF(x1+hw,y1+hw),PointF(x1+hw,y2-hw),PointF(x1-hw,y2-hw),
-      PointF(x2-hw,y1+hw),PointF(x2+hw,y1+hw),PointF(x2+hw,y2-hw),PointF(x2-hw,y2-hw)]), AColor)
+      PointF(x2-hw,y1+hw),PointF(x2+hw,y1+hw),PointF(x2+hw,y2-hw),PointF(x2-hw,y2-hw)]), AColor,
+      APixelCenteredCoordinates)
   else
-    FillQuads(PointsF([PointF(x1-hw,y1-hw),PointF(x2+hw,y1-hw),PointF(x2+hw,y2+hw),PointF(x1-hw,y2+hw)]),AColor);
+    FillQuads(PointsF([PointF(x1-hw,y1-hw),PointF(x2+hw,y1-hw),PointF(x2+hw,y2+hw),PointF(x1-hw,y2+hw)]),AColor,
+    APixelCenteredCoordinates);
 end;
 
 procedure TBGLCustomCanvas.Rectangle(x1, y1, x2, y2: single;
-  AColor: TBGRAPixel; w: single; AFillColor: TBGRAPixel);
+  AColor: TBGRAPixel; w: single; AFillColor: TBGRAPixel; APixelCenteredCoordinates: boolean);
 begin
   SwapRect(x1,y1,x2,y2);
   if (x2-x1 > w) and (y2-y1 > w) then
-    FillRect(x1+0.5*w,y1+0.5*w,x2-0.5*w,y2-0.5*w,AFillColor);
-  Rectangle(x1,y1,x2,y2,AColor,w);
+    FillRect(x1+0.5*w,y1+0.5*w,x2-0.5*w,y2-0.5*w,AFillColor,APixelCenteredCoordinates);
+  Rectangle(x1,y1,x2,y2,AColor,w,APixelCenteredCoordinates);
+end;
+
+procedure TBGLCustomCanvas.RectangleWithin(x1, y1, x2, y2: single;
+  ABorderColor: TBGRAPixel; w: single; AFillColor: TBGRAPixel;
+  APixelCenteredCoordinates: boolean);
+begin
+  Rectangle(x1+w*0.5,y1+w*0.5,x2-w*0.5,y2-w*0.5, ABorderColor, w, AFillColor,
+    APixelCenteredCoordinates);
+end;
+
+procedure TBGLCustomCanvas.RectangleWithin(r: TRect; ABorderColor: TBGRAPixel;
+  w: single; AFillColor: TBGRAPixel);
+begin
+  RectangleWithin(r.left,r.top,r.right,r.bottom,ABorderColor,w,AFillColor,false);
 end;
 
 procedure TBGLCustomCanvas.RoundRect(x1, y1, x2, y2, rx, ry: single;
@@ -616,15 +667,15 @@ begin
 end;
 
 procedure TBGLCustomCanvas.FillRoundRect(x, y, x2, y2, rx, ry: single;
-  AFillColor: TBGRAPixel; options: TRoundRectangleOptions);
+  AFillColor: TBGRAPixel; options: TRoundRectangleOptions; APixelCenteredCoordinates: boolean);
 begin
   if AFillColor.alpha <> 0 then
-    FillPolyConvex(ComputeRoundRect(x,y,x2,y2,rx,ry,options),AFillColor);
+    FillPolyConvex(ComputeRoundRect(x,y,x2,y2,rx,ry,options),AFillColor,APixelCenteredCoordinates);
 end;
 
-procedure TBGLCustomCanvas.FillRect(x1, y1, x2, y2: single; AColor: TBGRAPixel);
+procedure TBGLCustomCanvas.FillRect(x1, y1, x2, y2: single; AColor: TBGRAPixel; APixelCenteredCoordinates: boolean);
 begin
-  FillQuads(PointsF([PointF(x1,y1),PointF(x2,y1),PointF(x2,y2),PointF(x1,y2)]), AColor);
+  FillQuads(PointsF([PointF(x1,y1),PointF(x2,y1),PointF(x2,y2),PointF(x1,y2)]), AColor, APixelCenteredCoordinates);
 end;
 
 procedure TBGLCustomCanvas.FillRect(r: TRect; AColor: TBGRAPixel);
@@ -632,7 +683,40 @@ begin
   SwapRect(r);
   if r.left=r.right then exit;
   if r.top=r.bottom then exit;
-  FillRect(r.left-0.5,r.top-0.5,r.Right-0.5,r.bottom-0.5,AColor);
+  FillRect(r.left,r.top,r.Right,r.bottom,AColor,False);
+end;
+
+procedure TBGLCustomCanvas.Frame3D(var bounds: TRect; width: integer;
+  Style: TGraphicsBevelCut);
+begin
+  Frame3D(bounds,width,style,ColorToBGRA(clRgbBtnHighlight),ColorToBGRA(clRgbBtnShadow));
+end;
+
+procedure TBGLCustomCanvas.Frame3D(var bounds: TRect; width: integer;
+  Style: TGraphicsBevelCut; LightColor: TBGRAPixel; ShadowColor: TBGRAPixel);
+var temp: TBGRAPixel;
+    color1,color2: TBGRAPixel;
+begin
+  if width <= 0 then exit;
+  color1 := LightColor;
+  color2 := ShadowColor;
+  if Style = bvLowered then
+  begin
+    temp := color1;
+    color1 := color2;
+    color2 := temp;
+  end;
+  if Style in [bvLowered,bvRaised] then
+  with bounds do
+  begin
+    FillTrianglesFan([PointF(Left,Top),PointF(Right,Top),
+                      PointF(Right-width,Top+width),PointF(Left+width,Top+width),
+                      PointF(Left+width,Bottom-width),PointF(Left,Bottom)],color1,color1, False);
+    FillTrianglesFan([PointF(Right,Bottom),PointF(Left,Bottom),
+                        PointF(Left+width,Bottom-width),PointF(Right-width,Bottom-width),
+                        PointF(Right-width,Top+width),PointF(Right,Top)],color2,color2, false);
+  end;
+  InflateRect(bounds,-width,-width);
 end;
 
 procedure TBGLCustomCanvas.PutImage(x, y: single; ATexture: IBGLTexture;
@@ -705,6 +789,16 @@ procedure TBGLCustomCanvas.PutImageAffine(x, y: single; ATexture: IBGLTexture;
   const AMatrix: TAffineMatrix; AColor: TBGRAPixel);
 begin
   ATexture.DrawAffine(x,y,AMatrix,AColor);
+end;
+
+procedure TBGLCustomCanvas.Translate(x, y: single);
+begin
+  Matrix := Matrix*AffineMatrixTranslation(x,y);
+end;
+
+procedure TBGLCustomCanvas.Scale(sx, sy: single);
+begin
+  Matrix := Matrix*AffineMatrixScale(sx,sy);
 end;
 
 end.

@@ -38,6 +38,8 @@ type
   { TBGRACustomPalette }
 
   TBGRACustomPalette = class
+  private
+    function GetDominantColor: TBGRAPixel;
   protected
     function GetCount: integer; virtual; abstract;
     function GetColorByIndex(AIndex: integer): TBGRAPixel; virtual; abstract;
@@ -48,6 +50,7 @@ type
     function GetAsArrayOfWeightedColor: ArrayOfWeightedColor; virtual; abstract;
     procedure AssignTo(AImage: TFPCustomImage); overload;
     procedure AssignTo(APalette: TFPPalette); overload;
+    property DominantColor: TBGRAPixel read GetDominantColor;
     property Count: integer read GetCount;
     property Color[AIndex: integer]: TBGRAPixel read GetColorByIndex;
   end;
@@ -91,6 +94,8 @@ type
   public
     constructor Create(ABitmap: TBGRACustomBitmap); virtual; overload;
     constructor Create(APalette: TBGRACustomPalette); virtual; overload;
+    constructor Create(AColors: ArrayOfTBGRAPixel); virtual; overload;
+    constructor Create(AColors: ArrayOfWeightedColor); virtual; overload;
     function AddColor(AValue: TBGRAPixel): boolean; virtual;
     procedure AddColors(ABitmap: TBGRACustomBitmap); virtual; overload;
     procedure AddColors(APalette: TBGRACustomPalette); virtual; overload;
@@ -129,6 +134,7 @@ type
     function GetWeightByIndex(AIndex: Integer): UInt32; virtual;
     procedure IncludePixel(PPixel: PBGRAPixel); override;
   public
+    constructor Create(AColors: ArrayOfWeightedColor); override;
     function GetAsArrayOfWeightedColor: ArrayOfWeightedColor; override;
     function IncColor(AValue: TBGRAPixel; out NewWeight: UInt32): boolean;
     function DecColor(AValue: TBGRAPixel; out NewWeight: UInt32): boolean;
@@ -162,6 +168,7 @@ type
 
   TBGRACustomColorQuantizer = class
   protected
+    function GetDominantColor: TBGRAPixel; virtual;
     function GetPalette: TBGRACustomApproxPalette; virtual; abstract;
     function GetSourceColor(AIndex: integer): TBGRAPixel; virtual; abstract;
     function GetSourceColorCount: Integer; virtual; abstract;
@@ -187,6 +194,7 @@ type
     property SourceColor[AIndex: integer]: TBGRAPixel read GetSourceColor;
     property ReductionColorCount: Integer read GetReductionColorCount write SetReductionColorCount;
     property ReducedPalette: TBGRACustomApproxPalette read GetPalette;
+    property DominantColor: TBGRAPixel read GetDominantColor;
   end;
 
   TBGRAColorQuantizerAny = class of TBGRACustomColorQuantizer;
@@ -349,6 +357,11 @@ end;
 
 { TBGRACustomColorQuantizer }
 
+function TBGRACustomColorQuantizer.GetDominantColor: TBGRAPixel;
+begin
+  result := ReducedPalette.DominantColor;
+end;
+
 procedure TBGRACustomColorQuantizer.ApplyDitheringInplace(
   AAlgorithm: TDitheringAlgorithm; ABitmap: TBGRACustomBitmap);
 begin
@@ -401,6 +414,40 @@ begin
 end;
 
 { TBGRACustomPalette }
+
+function TBGRACustomPalette.GetDominantColor: TBGRAPixel;
+var
+  w: ArrayOfWeightedColor;
+  i: Integer;
+  maxWeight, totalWeight: UInt32;
+begin
+  result := BGRAWhite;
+  maxWeight := 0;
+  w := GetAsArrayOfWeightedColor;
+  totalWeight:= 0;
+  for i := 0 to high(w) do
+    inc(totalWeight, w[i].Weight);
+  for i := 0 to high(w) do
+    if (w[i].Weight > maxWeight) and (BGRAToGSBA(w[i].Color).saturation > 16000) then
+    begin
+      maxWeight:= w[i].Weight;
+      result := w[i].Color;
+    end;
+  if maxWeight > totalWeight div 20 then exit;
+  for i := 0 to high(w) do
+    if (w[i].Weight > maxWeight) and (BGRAToGSBA(w[i].Color).lightness < 56000) and (BGRAToGSBA(w[i].Color).lightness > 16000) then
+    begin
+      maxWeight:= w[i].Weight;
+      result := w[i].Color;
+    end;
+  if maxWeight > 0 then exit;
+  for i := 0 to high(w) do
+    if (w[i].Weight > maxWeight) then
+    begin
+      maxWeight:= w[i].Weight;
+      result := w[i].Color;
+    end;
+end;
 
 procedure TBGRACustomPalette.AssignTo(AImage: TFPCustomImage);
 begin
@@ -463,7 +510,7 @@ end;
 
 { TBGRAWeightedPalette }
 
-function TBGRAWeightedPalette.GetWeightByIndex(AIndex: integer): UInt32;
+function TBGRAWeightedPalette.GetWeightByIndex(AIndex: Integer): UInt32;
 begin
   NeedArray;
   if (AIndex >= 0) and (AIndex < length(FArray)) then
@@ -476,6 +523,15 @@ procedure TBGRAWeightedPalette.IncludePixel(PPixel: PBGRAPixel);
 var dummy: UInt32;
 begin
   IncColor(PPixel^,dummy);
+end;
+
+constructor TBGRAWeightedPalette.Create(AColors: ArrayOfWeightedColor);
+var
+  i: Integer;
+begin
+  inherited Create;
+  for i := 0 to high(AColors) do
+    with AColors[i] do IncColor(Color,Weight);
 end;
 
 function TBGRAWeightedPalette.GetAsArrayOfWeightedColor: ArrayOfWeightedColor;
@@ -837,6 +893,24 @@ constructor TBGRAPalette.Create(APalette: TBGRACustomPalette);
 begin
   inherited Create;
   AddColors(APalette);
+end;
+
+constructor TBGRAPalette.Create(AColors: ArrayOfTBGRAPixel);
+var
+  i: Integer;
+begin
+  inherited Create;
+  for i := 0 to high(AColors) do
+    AddColor(AColors[i]);
+end;
+
+constructor TBGRAPalette.Create(AColors: ArrayOfWeightedColor);
+var
+  i: Integer;
+begin
+  inherited Create;
+  for i := 0 to high(AColors) do
+    AddColor(AColors[i].Color);
 end;
 
 function TBGRAPalette.AddColor(AValue: TBGRAPixel): boolean;

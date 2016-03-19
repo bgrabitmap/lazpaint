@@ -5,7 +5,7 @@ program TestOpenGLContext1;
 uses
   Interfaces, // this includes the LCL widgetset
   Forms
-  { add your units here }, MainUnit, LazOpenGLContext, UGame;
+  { add your units here }, MainUnit, UGame;
 
 {$R *.res}
 

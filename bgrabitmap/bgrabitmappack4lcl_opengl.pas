@@ -21,8 +21,15 @@ uses
   BGRASVGShapes, BGRASVGType, BGRAReadBmpMioMap, BGRAArrow, BGRAPalette, 
   BGRAColorQuantization, BGRADithering, BGRAUTF8, BGRALCLBitmap, BGRAWritePNG, 
   BGRAGifFormat, BGRAGraphics, BGRAOpenGLType, BGRASpriteGL, BGRAOpenGL, 
-  BGRACanvasGL;
+  BGRACanvasGL, BGLVirtualScreen, LazarusPackageIntf;
 
 implementation
 
+procedure Register;
+begin
+  RegisterUnit('BGLVirtualScreen', @BGLVirtualScreen.Register);
+end;
+
+initialization
+  RegisterPackage('BGRABitmapPack4LCL_OpenGL', @Register);
 end.

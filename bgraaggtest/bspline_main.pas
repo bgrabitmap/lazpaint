@@ -46,6 +46,7 @@ type
     PreviousSize: TPointF;
     FPath: TBGRAPath;
     FPathCursor: TBGRAPathCursor;
+    FPathThumbnail: TBGRAPath;
     FPathSpeed: single;
     FPathPos: single;
     procedure PathChange;
@@ -98,6 +99,7 @@ var bmp: TBGRABitmap;
   nbPoints: integer;
   pt,tangent: TPointF;
   closed: boolean;
+  thumbRect: TRect;
 begin
   PreviousSize := PointF(ClientWidth,clientheight);
   bmp := TBGRABitmap.Create(clientwidth,panel1.top,BGRAWhite);
@@ -162,6 +164,19 @@ begin
       FPathCursor.LoopPath:= true;
       FPathCursor.Position := FPathPos*FPathCursor.PathLength;
     end;
+
+    thumbRect := recT(bmp.Width-128,0,bmp.Width,128);
+    if FPathThumbnail = nil then
+    begin
+      FPathThumbnail := TBGRAPath.Create;
+      FPath.FitInto(FPathThumbnail, RectF(0,0,thumbRect.Right-thumbRect.Left-1,thumbRect.Bottom-thumbRect.Top-1));
+    end;
+
+    bmp.FillRect(thumbRect, BGRA(102,148,179,128), dmDrawWithTransparency);
+    FPathThumbnail.stroke(bmp, thumbRect.Left, thumbRect.Top, BGRABlack, 1);
+
+    with FPathCursor.Bounds do
+      bmp.RectangleAntialias(Left,Top,Right,Bottom,CSSFireBrick,1.5);
 
     //bmp.TextOut(0,bmp.FontFullHeight, IntToStr(length(comp_pts))+' points', BGRABlack);
     //bmp.DrawPolyLineAntialiasAutocycle(FPath.ToPoints(0.1),BGRABlack,1);
@@ -279,6 +294,7 @@ end;
 procedure TForm1.PathChange;
 begin
   FreeAndNil(FPathCursor);
+  FreeAndNil(FPathThumbnail);
   FreeAndNil(FPath);
   Invalidate;
 end;
