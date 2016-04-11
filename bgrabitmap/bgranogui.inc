@@ -18,7 +18,8 @@ type
   end;
 
 const
-  clNone = TColor($1FFFFFFF);
+  clNone    = TColor($1FFFFFFF);
+  clDefault = TColor($20000000);
   clBlack   = TColor($000000);
   clMaroon  = TColor($000080);
   clGreen   = TColor($008000);

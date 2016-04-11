@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)\$(FPCVer)"/>
+        <UnitOutputDirectory Value="lib4lcl_gl\$(TargetCPU)-$(TargetOS)\$(FPCVer)"/>
       </SearchPaths>
       <Parsing>
         <SyntaxOptions>
@@ -33,8 +33,8 @@
     </CompilerOptions>
     <Description Value="Drawing routines with alpha blending and antialiasing"/>
     <License Value="modified LGPL"/>
-    <Version Major="8" Minor="8" Release="2"/>
-    <Files Count="98">
+    <Version Major="8" Minor="8" Release="4"/>
+    <Files Count="99">
       <Item1>
         <Filename Value="bgraanimatedgif.pas"/>
         <UnitName Value="BGRAAnimatedGif"/>
@@ -428,6 +428,10 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="BGLVirtualScreen"/>
       </Item98>
+      <Item99>
+        <Filename Value="bgrafontgl.pas"/>
+        <UnitName Value="BGRAFontGL"/>
+      </Item99>
     </Files>
     <RequiredPkgs Count="3">
       <Item1>

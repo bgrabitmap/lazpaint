@@ -105,6 +105,7 @@ begin
       if Y2 > Y1 then dec(Y2) else inc(Y2);
     end;
     dest.VertLine(X1,Y1,Y2,c, ADrawMode);
+	Exit;
   end;
 
   DX := X2 - X1;

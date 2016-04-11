@@ -466,8 +466,12 @@ type
     FWidth: integer;
     FInDraw: boolean;
     FTransparent: boolean;
+    FTransparentColor: TColor;
+    FTransparentMode: TTransparentMode;
     function GetCanvas: TCanvas;
     function GetRawImage: TRawImage;
+    procedure SetTransparentColor(AValue: TColor);
+    procedure SetTransparentMode(AValue: TTransparentMode);
   protected
     FRawImage: TRawImage;
     procedure Draw(ACanvas: TCanvas; const Rect: TRect); override;
@@ -491,6 +495,10 @@ type
     property Height: integer read GetHeight write SetHeight;
     property RawImage: TRawImage read GetRawImage;
     property Canvas: TCanvas read GetCanvas;
+    property TransparentColor: TColor read FTransparentColor
+             write SetTransparentColor default clDefault;
+    property TransparentMode: TTransparentMode read FTransparentMode
+             write SetTransparentMode default tmAuto;
   end;
 
   TRasterImage = TBitmap;
@@ -810,6 +818,25 @@ procedure TBitmap.SetTransparent(Value: Boolean);
 begin
   if Value = FTransparent then exit;
   FTransparent:= Value;
+end;
+
+procedure TBitmap.SetTransparentColor(AValue: TColor);
+begin
+  if FTransparentColor = AValue then exit;
+  FTransparentColor := AValue;
+
+  if AValue = clDefault
+  then FTransparentMode := tmAuto
+  else FTransparentMode := tmFixed;
+end;
+
+procedure TBitmap.SetTransparentMode(AValue: TTransparentMode);
+begin
+  if AValue = TransparentMode then exit;
+  FTransparentMode := AValue;
+
+  if AValue = tmAuto
+  then TransparentColor := clDefault
 end;
 
 function TBitmap.GetMimeType: string;

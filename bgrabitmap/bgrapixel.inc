@@ -1216,11 +1216,6 @@ begin
                    (255 shl TBGRAPixel_AlphaShift);
 end;
 
-{ Convert a TColor value to a TBGRAPixel value. Note that
-  you need to call ColorToRGB first if you use a system
-  color identifier like clWindow. }
-{$PUSH}{$R-}
-
 function HSLA(hue, saturation, lightness, alpha: word): THSLAPixel;
 begin
   Result.hue   := hue;
@@ -1237,6 +1232,10 @@ begin
   Result.alpha := $ffff;
 end;
 
+{ Convert a TColor value to a TBGRAPixel value. Note that
+  you need to call ColorToRGB first if you use a system
+  color identifier like clWindow. }
+{$PUSH}{$R-}
 function ColorToBGRA(color: TColor): TBGRAPixel; overload;
 begin
   RedGreenBlue(color, Result.red,Result.green,Result.blue);
@@ -1383,7 +1382,9 @@ begin
   if Height <= 0 then result := BGRA(0,0,0,alpha) else
   begin
     intval := round(Height*16777215);
+    {$PUSH}{$R-}
     result := BGRA(intval shr 8,intval shr 16,intval,alpha);
+    {$POP}
   end;
 end;
 {$ENDIF}

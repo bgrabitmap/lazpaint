@@ -1,17 +1,22 @@
 unit BGRAOpenGL;
 
 {$mode objfpc}{$H+}
+{$I bgrabitmap.inc}
 
 interface
 
 uses
   Classes, SysUtils, FPimage, BGRAGraphics,
-  BGRAOpenGLType, BGRASpriteGL, BGRACanvasGL, GL, GLU, BGRABitmapTypes;
+  BGRAOpenGLType, BGRASpriteGL, BGRACanvasGL, GL, GLU, BGRABitmapTypes,
+  BGRAFontGL;
 
 type
   TBGLSprite = TBGLDefaultSprite;
   IBGLTexture = BGRAOpenGLType.IBGLTexture;
+  IBGLFont = BGRAOpenGLType.IBGLFont;
+  IBGLRenderedFont = BGRAFontGL.IBGLRenderedFont;
   TOpenGLResampleFilter = BGRAOpenGLType.TOpenGLResampleFilter;
+  TOpenGLBlendMode = BGRAOpenGLType.TOpenGLBlendMode;
   TBGLPath = BGRACanvasGL.TBGLPath;
 
   { TBGLContext }
@@ -30,6 +35,9 @@ type
 const
   orfBox = BGRAOpenGLType.orfBox;
   orfLinear = BGRAOpenGLType.orfLinear;
+  obmNormal = BGRAOpenGLType.obmNormal;
+  obmAdd = BGRAOpenGLType.obmAdd;
+  obmMultiply = BGRAOpenGLType.obmMultiply;
 
 type
   { TBGLBitmap }
@@ -54,12 +62,26 @@ function BGLCanvas: TBGLCustomCanvas;
 procedure BGLViewPort(AWidth,AHeight: integer); overload;
 procedure BGLViewPort(AWidth,AHeight: integer; AColor: TBGRAPixel); overload;
 
+function BGLFont({%H-}AName: string; {%H-}AEmHeight: integer; {%H-}AStyle: TFontStyles = []): IBGLRenderedFont; overload;
+function BGLFont({%H-}AName: string; {%H-}AEmHeight: integer; {%H-}AColor: TBGRAPixel; {%H-}AStyle: TFontStyles = []): IBGLRenderedFont; overload;
+function BGLFont({%H-}AName: string; {%H-}AEmHeight: integer; {%H-}AColor: TBGRAPixel; {%H-}AOutlineColor: TBGRAPixel; {%H-}AStyle: TFontStyles = []): IBGLRenderedFont; overload;
+function BGLFont({%H-}AName: string; {%H-}AEmHeight: integer; ARenderer: TBGRACustomFontRenderer; ARendererOwned: boolean = true): IBGLRenderedFont; overload;
+
 implementation
 
-uses BGRATransform;
+uses dynlibs, BGRATransform{$IFDEF BGRABITMAP_USE_LCL}, BGRAText, BGRATextFX{$ENDIF};
+
+type
+  TBlendFuncSeparateProc = procedure(sfactorRGB: GLenum; dfactorRGB: GLenum; sfactorAlpha: GLenum; dfactorAlpha: GLenum); stdcall;
+  TGetProcAddressFunc = function(proc: PAnsiChar): Pointer; stdcall;
 
 var
   BGLCanvasInstance: TBGLCustomCanvas;
+  glBlendFuncSeparate: TBlendFuncSeparateProc;
+  glBlendFuncSeparateFetched: boolean;
+  {$IFDEF WINDOWS}
+  wglGetProcAddress: TGetProcAddressFunc;
+  {$ENDIF}
 
 const
   GL_COMBINE_ARB                    = $8570;
@@ -113,21 +135,70 @@ type
   TBGLCanvas = class(TBGLCustomCanvas)
   protected
     FMatrix: TAffineMatrix;
+    FBlendMode: TOpenGLBlendMode;
+
     function GetMatrix: TAffineMatrix; override;
     procedure SetMatrix(AValue: TAffineMatrix); override;
-  public
-    procedure FillTriangles(const APoints: array of TPointF; AColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); override;
-    procedure FillTrianglesLinearColor(const APoints: array of TPointF; const AColors: array of TBGRAPixel; APixelCenteredCoordinates: boolean = true); override;
-    procedure FillTrianglesFan(const APoints: array of TPointF; ACenterColor, ABorderColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); override;
-    procedure FillQuads(const APoints: array of TPointF; AColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); override;
-    procedure FillQuadsLinearColor(const APoints: array of TPointF; const AColors: array of TBGRAPixel; APixelCenteredCoordinates: boolean = true); override;
-    procedure Polylines(const APoints: array of TPointF; AColor: TBGRAPixel; ADrawLastPoints: boolean = true); override;
-    procedure Polygons(const APoints: array of TPointF; AColor: TBGRAPixel); override;
-    procedure Fill(AColor: TBGRAPixel); override;
-    procedure FillRect(r: TRect; AScanner: IBGRAScanner); override;
+
+    procedure InternalSetColor(const AColor: TBGRAPixel); override;
+    procedure InternalStartPutPixel(const pt: TPointF); override;
+    procedure InternalStartPolyline(const pt: TPointF); override;
+    procedure InternalStartPolygon(const pt: TPointF); override;
+    procedure InternalStartTriangleFan(const pt: TPointF); override;
+    procedure InternalContinueShape(const pt: TPointF); override;
+    procedure InternalEndShape; override;
+
+    procedure InternalStartBlend; override;
+    procedure InternalEndBlend; override;
+
+    procedure InternalStartBlendTriangles; override;
+    procedure InternalStartBlendQuads; override;
+    procedure InternalEndBlendTriangles; override;
+    procedure InternalEndBlendQuads; override;
+
     procedure EnableScissor(AValue: TRect); override;
     procedure DisableScissor; override;
+
+    function GetBlendMode: TOpenGLBlendMode; override;
+    procedure SetBlendMode(AValue: TOpenGLBlendMode); override;
+  public
+    procedure Fill(AColor: TBGRAPixel); override;
   end;
+
+procedure ApplyBlendMode(ABlendMode: TOpenGLBlendMode);
+var
+  srcBlend : LongWord;
+  dstBlend : LongWord;
+begin
+  case ABlendMode of
+    obmAdd:
+      begin
+        srcBlend := GL_SRC_ALPHA;
+        dstBlend := GL_ONE;
+      end;
+    obmMultiply:
+      begin
+        srcBlend := GL_ZERO;
+        dstBlend := GL_SRC_COLOR;
+      end
+    else
+      begin
+        srcBlend := GL_SRC_ALPHA;
+        dstBlend := GL_ONE_MINUS_SRC_ALPHA;
+      end;
+  end;
+  {$IFDEF WINDOWS}
+  if not glBlendFuncSeparateFetched then
+  begin
+    glBlendFuncSeparate := TBlendFuncSeparateProc(wglGetProcAddress('glBlendFuncSeparate'));
+    glBlendFuncSeparateFetched := true;
+  end;
+  {$ENDIF}
+  if Assigned(glBlendFuncSeparate) then
+    glBlendFuncSeparate( srcBlend, dstBlend, GL_ONE, GL_ONE_MINUS_SRC_ALPHA )
+  else
+    glBlendFunc( srcBlend, dstBlend );
+end;
 
 function BGLTexture(ARGBAData: PBGRAPixel; AllocatedWidth, AllocatedHeight,
   ActualWidth, ActualHeight: integer): IBGLTexture;
@@ -177,6 +248,61 @@ begin
   BGLCanvas.Fill(AColor);
 end;
 
+function BGLFont(AName: string; AEmHeight: integer; AStyle: TFontStyles = []): IBGLRenderedFont;
+begin
+  {$IFDEF BGRABITMAP_USE_LCL}
+  result := BGLFont(AName, AEmHeight, TLCLFontRenderer.Create);
+  result.Style := AStyle;
+  {$ELSE}
+  result := nil;
+  raise exception.Create('LCL renderer not available');
+  {$ENDIF}
+end;
+
+function BGLFont(AName: string; AEmHeight: integer; AColor: TBGRAPixel;
+  AStyle: TFontStyles): IBGLRenderedFont;
+begin
+  {$IFDEF BGRABITMAP_USE_LCL}
+  result := BGLFont(AName, AEmHeight, TLCLFontRenderer.Create);
+  result.Color := AColor;
+  result.Style := AStyle;
+  {$ELSE}
+  result := nil;
+  raise exception.Create('LCL renderer not available');
+  {$ENDIF}
+end;
+
+function BGLFont(AName: string; AEmHeight: integer; AColor: TBGRAPixel;
+  AOutlineColor: TBGRAPixel; AStyle: TFontStyles = []): IBGLRenderedFont;
+{$IFDEF BGRABITMAP_USE_LCL}
+var renderer: TBGRATextEffectFontRenderer;
+begin
+  renderer := TBGRATextEffectFontRenderer.Create;
+  renderer.OuterOutlineOnly:= true;
+  renderer.OutlineColor := AOutlineColor;
+  renderer.OutlineVisible := true;
+  result := BGLFont(AName, AEmHeight, renderer, true);
+  result.Color := AColor;
+  result.Style := AStyle;
+end;
+{$ELSE}
+begin
+  result := nil;
+  raise exception.Create('LCL renderer not available');
+end;
+{$ENDIF}
+
+function BGLFont(AName: string; AEmHeight: integer;
+  ARenderer: TBGRACustomFontRenderer;
+  ARendererOwned: boolean): IBGLRenderedFont;
+var f: TBGLRenderedFont;
+begin
+  f:= TBGLRenderedFont.Create(ARenderer, ARendererOwned);
+  f.Name := AName;
+  f.EmHeight := AEmHeight;
+  result := f;
+end;
+
 function BGLCanvas: TBGLCustomCanvas;
 begin
   result := BGLCanvasInstance;
@@ -219,343 +345,92 @@ begin
 end;
 
 procedure TBGLCanvas.SetMatrix(AValue: TAffineMatrix);
-var m: packed array[1..4,1..4] of single;
+var m: TOpenGLMatrix;
 begin
   glMatrixMode(GL_MODELVIEW);
-  m[1,1] := AValue[1,1];  m[2,1] := AValue[1,2];  m[3,1] := 0; m[4,1] := AValue[1,3];
-  m[1,2] := AValue[2,1];  m[2,2] := AValue[2,2];  m[3,2] := 0; m[4,2] := AValue[2,3];
-  m[1,3] := 0;            m[2,3] := 0;            m[3,3] := 1; m[4,3] := 0;
-  m[1,4] := 0;            m[2,4] := 0;            m[3,4] := 0; m[4,4] := 1;
+  m := AffineMatrixToOpenGL(AValue);
   glLoadMatrixf(@m);
   FMatrix := AValue;
 end;
 
-procedure TBGLCanvas.FillTriangles(const APoints: array of TPointF;
-  AColor: TBGRAPixel; APixelCenteredCoordinates: boolean);
-var
-  i: NativeInt;
-  ofs: single;
+procedure TBGLCanvas.InternalStartPutPixel(const pt: TPointF);
 begin
-  if (length(APoints) < 3) or (AColor.alpha = 0) then exit;
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glBegin(GL_POINTS);
+  glVertex2f(pt.x,pt.y);
+end;
+
+procedure TBGLCanvas.InternalStartPolyline(const pt: TPointF);
+begin
+  glBegin(GL_LINE_STRIP);
+  glVertex2f(pt.x,pt.y);
+end;
+
+procedure TBGLCanvas.InternalStartPolygon(const pt: TPointF);
+begin
+  glBegin(GL_LINE_LOOP);
+  glVertex2f(pt.x,pt.y);
+end;
+
+procedure TBGLCanvas.InternalStartTriangleFan(const pt: TPointF);
+begin
+  glBegin(GL_TRIANGLE_FAN);
+  glVertex2f(pt.x,pt.y);
+end;
+
+procedure TBGLCanvas.InternalContinueShape(const pt: TPointF);
+begin
+  glVertex2f(pt.x,pt.y);
+end;
+
+procedure TBGLCanvas.InternalEndShape;
+begin
+  glEnd();
+end;
+
+procedure TBGLCanvas.InternalSetColor(const AColor: TBGRAPixel);
+begin
   glColor4ubv(@AColor);
+end;
+
+procedure TBGLCanvas.InternalStartBlend;
+begin
+  glEnable(GL_BLEND);
+  ApplyBlendMode(BlendMode);
+end;
+
+procedure TBGLCanvas.InternalEndBlend;
+begin
+  glDisable(GL_BLEND);
+end;
+
+procedure TBGLCanvas.InternalStartBlendTriangles;
+begin
+  InternalStartBlend;
   glBegin(GL_TRIANGLES);
-  if APixelCenteredCoordinates then ofs := 0.5 else ofs := 0;
-  for i := 0 to length(APoints) - (length(APoints) mod 3) - 1 do
-    with APoints[i] do
-      glVertex2f(x+ofs,y+ofs);
-  glEnd();
-  glDisable(GL_BLEND);
 end;
 
-procedure TBGLCanvas.FillTrianglesLinearColor(const APoints: array of TPointF;
-  const AColors: array of TBGRAPixel; APixelCenteredCoordinates: boolean);
-var
-  i: NativeInt;
-  ofs: single;
+procedure TBGLCanvas.InternalStartBlendQuads;
 begin
-  if length(APoints) < 3 then exit;
-  if length(AColors)<>length(APoints) then
-    raise exception.Create('Length of APoints and AColors do not match');
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glBegin(GL_TRIANGLES);
-  if APixelCenteredCoordinates then ofs := 0.5 else ofs := 0;
-  for i := 0 to length(APoints) - (length(APoints) mod 3) - 1 do
-  begin
-    glColor4ubv(@AColors[i]);
-    with APoints[i] do
-      glVertex2f(x+ofs,y+ofs);
-  end;
-  glEnd();
-  glDisable(GL_BLEND);
-end;
-
-procedure TBGLCanvas.FillTrianglesFan(const APoints: array of TPointF;
-  ACenterColor, ABorderColor: TBGRAPixel; APixelCenteredCoordinates: boolean);
-var
-  i: NativeInt;
-  firstPoint: boolean;
-  ofs: single;
-begin
-  if (length(APoints) < 3) or ((ACenterColor.alpha = 0) and (ABorderColor.alpha = 0)) then exit;
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  firstPoint := true;
-  if APixelCenteredCoordinates then ofs := 0.5 else ofs := 0;
-  for i := 0 to high(APoints) do
-  begin
-    if isEmptyPointF(APoints[i]) then
-    begin
-      if not firstPoint then
-      begin
-        glEnd();
-        firstPoint := true;
-      end;
-    end else
-    begin
-      if firstPoint then
-      begin
-        glBegin(GL_TRIANGLE_FAN);
-        glColor4ubv(@ACenterColor);
-        with APoints[i] do
-          glVertex2f(x+ofs,y+ofs);
-        glColor4ubv(@ABorderColor);
-        firstPoint := false;
-      end else
-        with APoints[i] do
-          glVertex2f(x+ofs,y+ofs);
-    end;
-  end;
-  if not firstPoint then glEnd();
-  glDisable(GL_BLEND);
-end;
-
-procedure TBGLCanvas.FillQuads(const APoints: array of TPointF;
-  AColor: TBGRAPixel; APixelCenteredCoordinates: boolean);
-var
-  i: NativeInt;
-  ofs: single;
-begin
-  if (length(APoints) < 4) or (AColor.alpha = 0) then exit;
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glColor4ubv(@AColor);
+  InternalStartBlend;
   glBegin(GL_QUADS);
-  if APixelCenteredCoordinates then ofs := 0.5 else ofs := 0;
-  for i := 0 to length(APoints) - (length(APoints) and 3) - 1 do
-    with APoints[i] do
-      glVertex2f(x+ofs,y+ofs);
-  glEnd();
-  glDisable(GL_BLEND);
 end;
 
-procedure TBGLCanvas.FillQuadsLinearColor(const APoints: array of TPointF;
-  const AColors: array of TBGRAPixel; APixelCenteredCoordinates: boolean);
-var
-  i: NativeInt;
-  ofs: single;
+procedure TBGLCanvas.InternalEndBlendTriangles;
 begin
-  if length(APoints) < 4 then exit;
-  if length(AColors)<>length(APoints) then
-    raise exception.Create('Length of APoints and AColors do not match');
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glBegin(GL_QUADS);
-  if APixelCenteredCoordinates then ofs := 0.5 else ofs := 0;
-  for i := 0 to length(APoints) - (length(APoints) and 3) - 1 do
-  begin
-    glColor4ubv(@AColors[i]);
-    with APoints[i] do
-      glVertex2f(x+ofs,y+ofs);
-  end;
-  glEnd();
-  glDisable(GL_BLEND);
+  InternalEndShape;
+  InternalEndBlend;
 end;
 
-procedure TBGLCanvas.Polylines(const APoints: array of TPointF;
-  AColor: TBGRAPixel; ADrawLastPoints: boolean);
-const
-  STATE_START = 0;  //nothing defined
-  STATE_SECOND = 1; //prevPoint defined and is the first point
-  STATE_AFTER = 2;  //newPoint defined and is the lastest point, prevPoint is the point before that
-var
-  i: NativeInt;
-  state: NativeInt;
-  prevPoint,newPoint,v: TPointF;
-  len: single;
-
-  procedure Flush;
-  begin
-    case state of
-      STATE_SECOND:
-      begin
-        glBegin(GL_POINTS);
-        glVertex2f(prevPoint.x,prevPoint.y);
-        glEnd();
-      end;
-      STATE_AFTER:
-      begin
-        v := newPoint-prevPoint;
-        len := VectLen(v);
-        if len > 0 then
-        begin
-          v := v*(1/len);
-          if ADrawLastPoints then
-          begin
-            with (newPoint + v*0.5) do
-              glVertex2f(x+0.5,y+0.5);
-          end else
-          begin
-            with (newPoint - v*0.5) do
-              glVertex2f(x+0.5,y+0.5);
-          end;
-        end;
-        glEnd();
-      end;
-    end;
-    state := STATE_START;
-  end;
-
+procedure TBGLCanvas.InternalEndBlendQuads;
 begin
-  if (length(APoints) = 0) or (AColor.alpha = 0) then exit;
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glColor4ubv(@AColor);
-
-  prevPoint := PointF(0,0);
-  newPoint := PointF(0,0);
-  state := STATE_START;
-  for i := 0 to high(APoints) do
-  begin
-    if isEmptyPointF(APoints[i]) then
-    begin
-      Flush;
-    end else
-    begin
-      if state = STATE_START then
-      begin
-        state := STATE_SECOND;
-        prevPoint := APoints[i];
-      end else
-      if APoints[i] <> prevPoint then
-      begin
-        if state = STATE_SECOND then
-        begin
-          glBegin(GL_LINE_STRIP);
-          newPoint := APoints[i];
-          v := newPoint-prevPoint;
-          len := VectLen(v);
-          if len > 0 then
-          begin
-            v := v*(1/len);
-            with (prevPoint - v*0.5) do
-              glVertex2f(x+0.5,y+0.5);
-          end;
-          state := STATE_AFTER;
-        end else
-        begin
-          with newPoint do
-            glVertex2f(x+0.5,y+0.5);
-          prevPoint := newPoint;
-          newPoint := APoints[i];
-        end;
-      end;
-    end;
-  end;
-  Flush;
-  glDisable(GL_BLEND);
-end;
-
-procedure TBGLCanvas.Polygons(const APoints: array of TPointF;
-  AColor: TBGRAPixel);
-const
-  STATE_START = 0;  //nothing defined
-  STATE_SECOND = 1; //prevPoint defined and is the first point
-  STATE_AFTER = 2;  //newPoint defined and is the lastest point, prevPoint is the point before that
-var
-  i: NativeInt;
-  state: NativeInt;
-  prevPoint,newPoint: TPointF;
-
-  procedure Flush;
-  begin
-    case state of
-      STATE_SECOND:
-      begin
-        glBegin(GL_POINTS);
-        glVertex2f(prevPoint.x,prevPoint.y);
-        glEnd();
-      end;
-      STATE_AFTER:
-      begin
-        with newPoint do
-          glVertex2f(x+0.5,y+0.5);
-        glEnd();
-      end;
-    end;
-    state := STATE_START;
-  end;
-
-begin
-  if (length(APoints) = 0) or (AColor.alpha = 0) then exit;
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glColor4ubv(@AColor);
-
-  prevPoint := PointF(0,0);
-  newPoint := PointF(0,0);
-  state := STATE_START;
-  for i := 0 to high(APoints) do
-  begin
-    if isEmptyPointF(APoints[i]) then
-    begin
-      Flush;
-    end else
-    begin
-      if state = STATE_START then
-      begin
-        state := STATE_SECOND;
-        prevPoint := APoints[i];
-      end else
-      if APoints[i] <> prevPoint then
-      begin
-        if state = STATE_SECOND then
-        begin
-          glBegin(GL_LINE_LOOP);
-          newPoint := APoints[i];
-          with prevPoint do
-            glVertex2f(x+0.5,y+0.5);
-          state := STATE_AFTER;
-        end else
-        begin
-          with newPoint do
-            glVertex2f(x+0.5,y+0.5);
-          prevPoint := newPoint;
-          newPoint := APoints[i];
-        end;
-      end;
-    end;
-  end;
-  Flush;
-  glDisable(GL_BLEND);
+  InternalEndShape;
+  InternalEndBlend;
 end;
 
 procedure TBGLCanvas.Fill(AColor: TBGRAPixel);
 begin
   glClearColor(AColor.Red/255, AColor.green/255, AColor.blue/255, AColor.alpha/255);
   glClear(GL_COLOR_BUFFER_BIT);
-end;
-
-procedure TBGLCanvas.FillRect(r: TRect; AScanner: IBGRAScanner);
-var
-  bmp: TBGLBitmap;
-  yb,bandHeight,bandY: NativeInt;
-  tx: integer;
-begin
-  SwapRect(r);
-  if (r.right = r.left) or (r.bottom = r.top) then exit;
-  tx := r.right-r.left;
-  bandHeight := 65536 div tx;
-  if bandHeight <= 2 then bandHeight := 2;
-  bandHeight := GetPowerOfTwo(bandHeight);
-  bmp := TBGLBitmap.Create(tx,bandHeight);
-  bmp.Texture.ResampleFilter := orfBox;
-  bandY := (r.Bottom-1-r.top) mod bandHeight;
-  for yb := r.bottom-1 downto r.top do
-  begin
-    AScanner.ScanMoveTo(r.left,yb);
-    AScanner.ScanPutPixels(bmp.ScanLine[bandY],tx,dmSet);
-    bmp.InvalidateBitmap;
-    if bandY = 0 then
-    begin
-      bmp.Texture.Draw(r.left,yb);
-      bandY := bandHeight-1;
-    end else
-      dec(bandY);
-  end;
-  bmp.Free;
 end;
 
 procedure TBGLCanvas.EnableScissor(AValue: TRect);
@@ -567,6 +442,16 @@ end;
 procedure TBGLCanvas.DisableScissor;
 begin
   glDisable(GL_SCISSOR_TEST);
+end;
+
+function TBGLCanvas.GetBlendMode: TOpenGLBlendMode;
+begin
+  result := FBlendMode;
+end;
+
+procedure TBGLCanvas.SetBlendMode(AValue: TOpenGLBlendMode);
+begin
+  FBlendMode := AValue;
 end;
 
 { TBGLTexture }
@@ -742,19 +627,34 @@ begin
     end else
       glTexEnvi( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
 
+    ApplyBlendMode(BlendMode);
+
     coordFlip := FLIP_TEXCOORD[ Integer(FFlipX) + Integer(FFlipY)*2 ];
 
     glBegin( GL_QUADS );
-    glColor4ubv(@AColor);
+
+    if GradientColors then
+      glColor4ubv(@FGradTopLeft)
+    else
+      glColor4ubv(@AColor);
 
     glTexCoord2fv( @FramesCoord[FFrame,coordFlip[0]] );
     glVertex2fv( @pt1 );
 
+    if GradientColors then
+      glColor4ubv(@FGradTopRight);
+
     glTexCoord2fv( @FramesCoord[FFrame,coordFlip[1]] );
     glVertex2fv( @pt2 );
 
+    if GradientColors then
+      glColor4ubv(@FGradBottomRight);
+
     glTexCoord2fv( @FramesCoord[FFrame,coordFlip[2]] );
     glVertex2fv( @pt3 );
+
+    if GradientColors then
+      glColor4ubv(@FGradBottomLeft);
 
     glTexCoord2fv( @FramesCoord[FFrame,coordFlip[3]] );
     glVertex2fv( @pt4 );
@@ -803,6 +703,7 @@ begin
   inherited Init(ATexture, AWidth, AHeight, AOwned);
   FFlipX := false;
   FFlipY := false;
+  FBlendMode := obmNormal;
 end;
 
 procedure TBGLTexture.NotifyInvalidFrameSize;
@@ -847,10 +748,17 @@ initialization
   BGLTextureFactory := TBGLTexture;
   BGRASpriteGL.BGLSpriteEngine := TBGLDefaultSpriteEngine.Create;
   BGLCanvasInstance := TBGLCanvas.Create;
+  {$IFDEF WINDOWS}
+  wglGetProcAddress := TGetProcAddressFunc(GetProcAddress(LibGL, 'wglGetProcAddress'));
+  {$ELSE}
+  glBlendFuncSeparate := TBlendFuncSeparateProc(GetProcAddress(LibGL, 'glBlendFuncSeparate'));
+  glBlendFuncSeparateFetched := true;
+  {$ENDIF}
 
 finalization
 
   BGLCanvasInstance.Free;
+  BGLCanvasInstance := nil;
   BGRASpriteGL.BGLSpriteEngine.Free;
   BGRASpriteGL.BGLSpriteEngine := nil;
 

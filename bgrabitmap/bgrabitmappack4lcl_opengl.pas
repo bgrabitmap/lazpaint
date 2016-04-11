@@ -21,7 +21,7 @@ uses
   BGRASVGShapes, BGRASVGType, BGRAReadBmpMioMap, BGRAArrow, BGRAPalette, 
   BGRAColorQuantization, BGRADithering, BGRAUTF8, BGRALCLBitmap, BGRAWritePNG, 
   BGRAGifFormat, BGRAGraphics, BGRAOpenGLType, BGRASpriteGL, BGRAOpenGL, 
-  BGRACanvasGL, BGLVirtualScreen, LazarusPackageIntf;
+  BGRACanvasGL, BGLVirtualScreen, BGRAFontGL, LazarusPackageIntf;
 
 implementation
 

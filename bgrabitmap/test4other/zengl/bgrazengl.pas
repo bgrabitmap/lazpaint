@@ -23,14 +23,18 @@ interface
 
 uses
   Classes,
-  BGRAOpenGLType, BGRASpriteGL,
+  BGRAOpenGLType, BGRASpriteGL, BGRACanvasGL,
   BGRAGraphics, BGRABitmap, BGRABitmapTypes,
+  BGRAFontGL,
   zgl_textures, zgl_memory, FPimage, zgl_font,
   zgl_math_2d, zgl_sengine_2d;
 
 type
   TAlignment = Classes.TAlignment;
   TTextLayout = BGRAGraphics.TTextLayout;
+
+  TOpenGLResampleFilter = BGRAOpenGLType.TOpenGLResampleFilter;
+  TOpenGLBlendMode = BGRAOpenGLType.TOpenGLBlendMode;
 
 const
   taLeftJustify = Classes.taLeftJustify;
@@ -40,6 +44,12 @@ const
   tlTop = BGRAGraphics.tlTop;
   tlCenter = BGRAGraphics.tlCenter;
   tlBottom = BGRAGraphics.tlBottom;
+
+  orfBox = BGRAOpenGLType.orfBox;
+  orfLinear = BGRAOpenGLType.orfLinear;
+  obmNormal = BGRAOpenGLType.obmNormal;
+  obmAdd = BGRAOpenGLType.obmAdd;
+  obmMultiply = BGRAOpenGLType.obmMultiply;
 
 type
   IBGLFont = BGRAOpenGLType.IBGLFont;
@@ -111,6 +121,10 @@ function ColorToZenGL(AColor: TColor): Longword;
 
 function BGLZenFont(AFilename: UTF8String): IBGLFont; overload;
 function BGLZenFont(AZenFont: zglPFont): IBGLFont; overload;
+function BGLFont(AName: string; AEmHeight: integer; AStyle: TFontStyles = []): IBGLRenderedFont; overload;
+function BGLFont(AName: string; AEmHeight: integer; AColor: TBGRAPixel; AStyle: TFontStyles = []): IBGLRenderedFont; overload;
+function BGLFont(AName: string; AEmHeight: integer; AColor: TBGRAPixel; AOutlineColor: TBGRAPixel; AStyle: TFontStyles = []): IBGLRenderedFont; overload;
+function BGLFont(AName: string; AEmHeight: integer; ARenderer: TBGRACustomFontRenderer; ARendererOwned: boolean = true): IBGLRenderedFont; overload;
 
 function BGLTexture(ATexture: TBGLTextureHandle; AWidth,AHeight: integer): IBGLTexture; overload;
 function BGLTexture(ARGBAData: PBGRAPixel; AllocatedWidth,AllocatedHeight, ActualWidth,ActualHeight: integer): IBGLTexture; overload;
@@ -124,10 +138,21 @@ function BGLTexture(var AMemory: zglTMemory): IBGLTexture; overload;
 
 function BGLSpriteEngine: TBGLCustomSpriteEngine;
 
+function BGLCanvas: TBGLCustomCanvas;
+
 implementation
 
 uses Types, zgl_utils, zgl_opengl_all, zgl_opengl, zgl_render_2d,
-  zgl_sprite_2d, zgl_log, zgl_fx, zgl_file, zgl_text;
+  zgl_sprite_2d, zgl_log, zgl_fx, zgl_file, zgl_text,
+  zgl_camera_2d,
+  BGRATransform, BGRAFreeType;
+
+const
+  GL_LINE_LOOP                      = $0002;
+  GL_LINE_STRIP                     = $0003;
+
+var
+  BGLCanvasInstance: TBGLCustomCanvas;
 
 type
   PSpriteData = ^TSpriteData;
@@ -241,6 +266,70 @@ type
     procedure Delete(AIndex: integer); override;
   end;
 
+  { TBGLZenCanvas }
+
+  TBGLZenCanvas = class(TBGLCustomCanvas)
+  protected
+    FMatrix: TAffineMatrix;
+    FOldBlendMode : TOpenGLBlendMode;
+    function GetMatrix: TAffineMatrix; override;
+    procedure SetMatrix(AValue: TAffineMatrix); override;
+
+    procedure InternalSetColor(const AColor: TBGRAPixel); override;
+    procedure InternalStartPutPixel(const pt: TPointF); override;
+    procedure InternalStartPolyline(const pt: TPointF); override;
+    procedure InternalStartPolygon(const pt: TPointF); override;
+    procedure InternalStartTriangleFan(const pt: TPointF); override;
+    procedure InternalContinueShape(const pt: TPointF); override;
+    procedure InternalEndShape; override;
+
+    procedure InternalStartBlend; override;
+    procedure InternalEndBlend; override;
+
+    procedure InternalStartBlendTriangles; override;
+    procedure InternalStartBlendQuads; override;
+    procedure InternalEndBlendTriangles; override;
+    procedure InternalEndBlendQuads; override;
+
+    procedure EnableScissor(AValue: TRect); override;
+    procedure DisableScissor; override;
+
+    function GetBlendMode: TOpenGLBlendMode; override;
+    procedure SetBlendMode(AValue: TOpenGLBlendMode); override;
+  public
+    procedure Fill(AColor: TBGRAPixel); override;
+
+    procedure Translate(x,y: single); override;
+    procedure Scale(sx,sy: single); override;
+    procedure RotateDeg(angleCW: single); override;
+    procedure RotateRad(angleCCW: single); override;
+  end;
+
+function GetZenBlendMode: TOpenGLBlendMode;
+begin
+  case b2dCurBlendMode and 255 of
+    FX_BLEND_ADD: result := obmAdd;
+    FX_BLEND_MULT, FX_BLEND_MASK: result := obmMultiply;
+    else result := obmNormal;
+  end;
+end;
+
+function ToZenBlendMode(ABlendMode: TOpenGLBlendMode): Byte;
+begin
+  case ABlendMode of
+    obmAdd: result := FX_BLEND_ADD;
+    obmMultiply: result := FX_BLEND_MULT;
+  else
+    result := FX_BLEND_NORMAL;
+  end;
+end;
+
+procedure SetZenBlendMode(ABlendMode: TOpenGLBlendMode);
+var ZenMode : Byte;
+begin
+  fx_SetBlendMode(ToZenBlendMode(ABlendMode));
+end;
+
 function BGRAToZenGL(AColor: TBGRAPixel): Longword;
 begin
   result := (AColor.red shl 16) + (AColor.green shl 8) + AColor.blue;
@@ -274,6 +363,45 @@ end;
 function BGLZenFont(AZenFont: zglPFont): IBGLFont;
 begin
   result := TBGRAZenFont.Create(AZenFont);
+end;
+
+function BGLFont(AName: string; AEmHeight: integer; AStyle: TFontStyles = []): IBGLRenderedFont;
+begin
+  result := BGLFont(AName, AEmHeight, TBGRAFreeTypeFontRenderer.Create);
+  result.Style := AStyle;
+end;
+
+function BGLFont(AName: string; AEmHeight: integer; AColor: TBGRAPixel;
+  AStyle: TFontStyles): IBGLRenderedFont;
+begin
+  result := BGLFont(AName, AEmHeight, TBGRAFreeTypeFontRenderer.Create);
+  result.Color := AColor;
+  result.Style := AStyle;
+end;
+
+function BGLFont(AName: string; AEmHeight: integer; AColor: TBGRAPixel;
+  AOutlineColor: TBGRAPixel; AStyle: TFontStyles): IBGLRenderedFont; overload;
+var
+  renderer: TBGRAFreeTypeFontRenderer;
+begin
+  renderer := TBGRAFreeTypeFontRenderer.Create;
+  renderer.OuterOutlineOnly:= true;
+  renderer.OutlineColor := AOutlineColor;
+  renderer.OutlineVisible := true;
+  result := BGLFont(AName, AEmHeight, renderer);
+  result.Color := AColor;
+  result.Style := AStyle;
+end;
+
+function BGLFont(AName: string; AEmHeight: integer;
+  ARenderer: TBGRACustomFontRenderer;
+  ARendererOwned: boolean): IBGLRenderedFont;
+var f: TBGLRenderedFont;
+begin
+  f:= TBGLRenderedFont.Create(ARenderer, ARendererOwned);
+  f.Name := AName;
+  f.EmHeight := AEmHeight;
+  result := f;
 end;
 
 function BGLTexture(ATexture: TBGLTextureHandle; AWidth, AHeight: integer
@@ -328,6 +456,173 @@ begin
   result := BGRASpriteGL.BGLSpriteEngine;
 end;
 
+function BGLCanvas: TBGLCustomCanvas;
+begin
+  result := BGLCanvasInstance;
+end;
+
+{ TBGLZenCanvas }
+
+function TBGLZenCanvas.GetMatrix: TAffineMatrix;
+begin
+  result := FMatrix;
+end;
+
+procedure TBGLZenCanvas.SetMatrix(AValue: TAffineMatrix);
+var m: TOpenGLMatrix;
+begin
+  if Assigned(cam2d.Global) then
+    cam2d_Set(nil);
+
+  batch2d_Flush;
+
+  glMatrixMode(GL_MODELVIEW);
+  m := AffineMatrixToOpenGL(AValue);
+  glLoadMatrixf(@m);
+  FMatrix := AValue;
+end;
+
+procedure TBGLZenCanvas.InternalSetColor(const AColor: TBGRAPixel);
+begin
+  glColor4ubv(@AColor);
+end;
+
+procedure TBGLZenCanvas.InternalStartPutPixel(const pt: TPointF);
+begin
+  glBegin(GL_POINTS);
+  glVertex2f(pt.x,pt.y);
+end;
+
+procedure TBGLZenCanvas.InternalStartPolyline(const pt: TPointF);
+begin
+  glBegin(GL_LINE_STRIP);
+  glVertex2f(pt.x,pt.y);
+end;
+
+procedure TBGLZenCanvas.InternalStartPolygon(const pt: TPointF);
+begin
+  glBegin(GL_LINE_LOOP);
+  glVertex2f(pt.x,pt.y);
+end;
+
+procedure TBGLZenCanvas.InternalStartTriangleFan(const pt: TPointF);
+begin
+  glBegin(GL_TRIANGLE_FAN);
+  glVertex2f(pt.x,pt.y);
+end;
+
+procedure TBGLZenCanvas.InternalContinueShape(const pt: TPointF);
+begin
+  glVertex2f(pt.x,pt.y);
+end;
+
+procedure TBGLZenCanvas.InternalEndShape;
+begin
+  glEnd();
+end;
+
+procedure TBGLZenCanvas.InternalStartBlend;
+begin
+  batch2d_Flush;
+  glEnable( GL_BLEND );
+end;
+
+procedure TBGLZenCanvas.InternalEndBlend;
+begin
+  glDisable(GL_BLEND);
+end;
+
+procedure TBGLZenCanvas.InternalStartBlendTriangles;
+begin
+  if not b2dStarted or batch2d_Check( GL_TRIANGLES, FX_BLEND, nil ) then
+  begin
+    glEnable( GL_BLEND );
+    glBegin( GL_TRIANGLES );
+  end;
+end;
+
+procedure TBGLZenCanvas.InternalStartBlendQuads;
+begin
+  if not b2dStarted or batch2d_Check( GL_QUADS, FX_BLEND, nil ) then
+  begin
+    glEnable( GL_BLEND );
+    glBegin( GL_QUADS );
+  end;
+end;
+
+procedure TBGLZenCanvas.InternalEndBlendTriangles;
+begin
+  if not b2dStarted Then
+  begin
+    glEnd();
+    glDisable( GL_BLEND );
+  end;
+end;
+
+procedure TBGLZenCanvas.InternalEndBlendQuads;
+begin
+  if not b2dStarted Then
+  begin
+    glEnd();
+    glDisable( GL_BLEND );
+  end;
+end;
+
+procedure TBGLZenCanvas.Fill(AColor: TBGRAPixel);
+begin
+  glClearColor(AColor.Red/255, AColor.green/255, AColor.blue/255, AColor.alpha/255);
+  glClear(GL_COLOR_BUFFER_BIT);
+end;
+
+procedure TBGLZenCanvas.Translate(x, y: single);
+begin
+  batch2d_Flush;
+  FMatrix := FMatrix*AffineMatrixTranslation(x,y);
+  glTranslatef(x,y,0);
+end;
+
+procedure TBGLZenCanvas.Scale(sx, sy: single);
+begin
+  batch2d_Flush;
+  FMatrix := FMatrix*AffineMatrixScale(sx,sy);
+  glScalef(sx,sy,1);
+end;
+
+procedure TBGLZenCanvas.RotateDeg(angleCW: single);
+begin
+  batch2d_Flush;
+  FMatrix := FMatrix*AffineMatrixRotationDeg(angleCW);
+  glRotatef(angleCW,0,0,1);
+end;
+
+procedure TBGLZenCanvas.RotateRad(angleCCW: single);
+begin
+  batch2d_Flush;
+  FMatrix := FMatrix*AffineMatrixRotationRad(angleCCW);
+  glRotatef(-angleCCW*180/Pi,0,0,1);
+end;
+
+procedure TBGLZenCanvas.EnableScissor(AValue: TRect);
+begin
+  glScissor(AValue.left,Height-AValue.bottom,AValue.right-AValue.left,AValue.Bottom-AValue.Top);
+  glEnable(GL_SCISSOR_TEST);
+end;
+
+procedure TBGLZenCanvas.DisableScissor;
+begin
+  glDisable(GL_SCISSOR_TEST);
+end;
+
+function TBGLZenCanvas.GetBlendMode: TOpenGLBlendMode;
+begin
+  Result:= GetZenBlendMode;
+end;
+
+procedure TBGLZenCanvas.SetBlendMode(AValue: TOpenGLBlendMode);
+begin
+  SetZenBlendMode(AValue);
+end;
+
 { TBGLZenSpriteEngine }
 
 function TBGLZenSpriteEngine.GetCount: integer;
@@ -354,8 +649,11 @@ begin
 end;
 
 procedure TBGLZenSpriteEngine.OnDraw;
+var oldBlendMode: TOpenGLBlendMode;
 begin
+  oldBlendMode:= GetZenBlendMode;
   sengine2d_Draw();
+  SetZenBlendMode(oldBlendMode);
 end;
 
 procedure TBGLZenSpriteEngine.OnTimer;
@@ -933,6 +1231,7 @@ end;
 procedure TBGLTexture.DoStretchDraw(x, y, w, h: single; AColor: TBGRAPixel);
 begin
   if AColor.Alpha = 0 then exit;
+  SetZenBlendMode(BlendMode);
   if (BGRAToColor(AColor)=clWhite) and not FIsMask then
   begin
     if FFrame > 0 then
@@ -955,6 +1254,7 @@ procedure TBGLTexture.DoStretchDrawAngle(x, y, w,h, angleDeg: single;
   rotationCenter: TPointF; AColor: TBGRAPixel);
 begin
   if AColor.Alpha = 0 then exit;
+  SetZenBlendMode(BlendMode);
   fx2d_SetRotatingPivot(rotationCenter.X-x,rotationCenter.Y-y);
   if (BGRAToColor(AColor)=clWhite) and not FIsMask then
   begin
@@ -1065,6 +1365,7 @@ begin
   p2 := HAxis-Origin;
   p4 := VAxis-Origin;
   p3 := p2+p4;
+  SetZenBlendMode(BlendMode);
   fx2d_SetVertexes(0,0,p2.x,p2.y,p3.x,p3.y,p4.x,p4.y);
   if (BGRAToColor(AColor)=clWhite) and not FIsMask then
   begin
@@ -1148,9 +1449,11 @@ initialization
 {$ELSE}
   BGRASpriteGL.BGLSpriteEngine := TBGLDefaultSpriteEngine.Create;
 {$ENDIF}
+  BGLCanvasInstance := TBGLZenCanvas.Create;
 
 finalization
 
+  BGLCanvasInstance.Free;
   BGRASpriteGL.BGLSpriteEngine.Free;
   BGRASpriteGL.BGLSpriteEngine := nil;
 

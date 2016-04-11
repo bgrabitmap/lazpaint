@@ -1,4 +1,4 @@
-program TestOpenGLContext1;
+program tux_game;
 
 {$mode objfpc}{$H+}
 

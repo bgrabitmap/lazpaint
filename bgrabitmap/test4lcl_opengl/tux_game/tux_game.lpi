@@ -9,6 +9,7 @@
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
+      <Title Value="tux_game"/>
       <ResourceType Value="res"/>
       <Icon Value="0"/>
     </General>
@@ -37,8 +38,9 @@
     </RequiredPackages>
     <Units Count="3">
       <Unit0>
-        <Filename Value="testopenglcontext1.lpr"/>
+        <Filename Value="tux_game.lpr"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="tux_game"/>
       </Unit0>
       <Unit1>
         <Filename Value="mainunit.pas"/>

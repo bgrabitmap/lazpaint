@@ -8,7 +8,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <UnitOutputDirectory Value="lib4nogui\$(TargetCPU)-$(TargetOS)\$(FPCVer)"/>
+        <UnitOutputDirectory Value="lib4nogui_gl\$(TargetCPU)-$(TargetOS)\$(FPCVer)"/>
       </SearchPaths>
       <Parsing>
         <SyntaxOptions>
@@ -32,8 +32,8 @@
     </CompilerOptions>
     <Description Value="Drawing routines with alpha blending and antialiasing"/>
     <License Value="modified LGPL"/>
-    <Version Major="8" Minor="8" Release="2"/>
-    <Files Count="90">
+    <Version Major="8" Minor="8" Release="4"/>
+    <Files Count="91">
       <Item1>
         <Filename Value="bgraanimatedgif.pas"/>
         <UnitName Value="BGRAAnimatedGif"/>
@@ -384,7 +384,7 @@
       </Item87>
       <Item88>
         <Filename Value="bgraspritegl.pas"/>
-        <UnitName Value="bgraspritegl"/>
+        <UnitName Value="BGRASpriteGL"/>
       </Item88>
       <Item89>
         <Filename Value="bgraopengltype.pas"/>
@@ -394,6 +394,10 @@
         <Filename Value="bgraopengl.pas"/>
         <UnitName Value="BGRAOpenGL"/>
       </Item90>
+      <Item91>
+        <Filename Value="bgracanvasgl.pas"/>
+        <UnitName Value="BGRACanvasGL"/>
+      </Item91>
     </Files>
     <RequiredPkgs Count="2">
       <Item1>

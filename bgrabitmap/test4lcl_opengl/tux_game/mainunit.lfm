@@ -5,7 +5,7 @@ object Form1: TForm1
   Width = 800
   HorzScrollBar.Page = 399
   VertScrollBar.Page = 299
-  Caption = 'BGRABitmapPack + LCL + OpenGLContext'
+  Caption = 'BGRABitmapPack + LCL + OpenGL'
   ClientHeight = 600
   ClientWidth = 800
   OnClose = FormClose
@@ -75,6 +75,7 @@ object Form1: TForm1
     TabOrder = 0
     UseDockManager = False
     OnElapse = BGLVirtualScreen1Elapse
+    OnFramesPerSecond = BGLVirtualScreen1FramesPerSecond
     OnLoadTextures = BGLVirtualScreen1LoadTextures
     OnUnloadTextures = BGLVirtualScreen1UnloadTextures
     OnMouseDown = BGLVirtualScreen1MouseDown
@@ -96,6 +97,7 @@ object Form1: TForm1
     UseDockManager = False
     OnClick = BGLVirtualScreen2Click
     OnElapse = BGLVirtualScreen2Elapse
+    OnFramesPerSecond = BGLVirtualScreen2FramesPerSecond
     OnLoadTextures = BGLVirtualScreen2LoadTextures
     OnUnloadTextures = BGLVirtualScreen2UnloadTextures
   end

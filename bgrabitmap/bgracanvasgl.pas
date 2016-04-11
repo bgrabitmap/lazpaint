@@ -34,23 +34,49 @@ type
     procedure DisableScissor; virtual; abstract;
     function GetMatrix: TAffineMatrix; virtual; abstract;
     procedure SetMatrix(AValue: TAffineMatrix); virtual; abstract;
+    procedure SetBlendMode(AValue: TOpenGLBlendMode); virtual; abstract;
+    function GetBlendMode: TOpenGLBlendMode; virtual; abstract;
+
+    procedure InternalStartPutPixel(const pt: TPointF); virtual; abstract;
+    procedure InternalStartPolyline(const pt: TPointF); virtual; abstract;
+    procedure InternalStartPolygon(const pt: TPointF); virtual; abstract;
+    procedure InternalStartTriangleFan(const pt: TPointF); virtual; abstract;
+    procedure InternalContinueShape(const pt: TPointF); virtual; abstract;
+    procedure InternalEndShape; virtual; abstract;
+    procedure InternalSetColor(const AColor: TBGRAPixel); virtual; abstract;
+
+    procedure InternalStartBlend; virtual; abstract;
+    procedure InternalEndBlend; virtual; abstract;
+
+    procedure InternalStartBlendTriangles; virtual; abstract;
+    procedure InternalStartBlendQuads; virtual; abstract;
+    procedure InternalEndBlendTriangles; virtual; abstract;
+    procedure InternalEndBlendQuads; virtual; abstract;
   public
     constructor Create;
-    procedure FillTriangles(const APoints: array of TPointF; AColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual; abstract;
-    procedure FillTrianglesLinearColor(const APoints: array of TPointF; const AColors: array of TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual; abstract;
-    procedure FillTrianglesFan(const APoints: array of TPointF; ACenterColor, ABorderColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual; abstract;
-    procedure FillQuads(const APoints: array of TPointF; AColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual; abstract;
-    procedure FillQuadsLinearColor(const APoints: array of TPointF; const AColors: array of TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual; abstract;
-    procedure Polylines(const APoints: array of TPointF; AColor: TBGRAPixel; ADrawLastPoints: boolean = true); virtual; abstract;
-    procedure Polygons(const APoints: array of TPointF; AColor: TBGRAPixel); virtual; abstract;
     procedure Fill(AColor: TBGRAPixel); virtual; abstract;
-    procedure FillRect(r: TRect; AScanner: IBGRAScanner); virtual; abstract; overload;
 
-    procedure DrawPath(APath: TBGLPath; c: TBGRAPixel);
-    procedure FillPathConvex(APath: TBGLPath; c: TBGRAPixel; APixelCenteredCoordinates: boolean = true);
+    procedure PutPixels(const APoints: array of TPointF; AColor: TBGRAPixel); virtual; overload;
+    procedure PutPixels(const APoints: array of TPointF; const AColors: array of TBGRAPixel); virtual; overload;
 
     procedure Line(x1,y1,x2,y2: single; AColor: TBGRAPixel; ADrawLastPoint: boolean = true);
     procedure Line(p1,p2: TPointF; AColor: TBGRAPixel; ADrawLastPoint: boolean = true);
+    procedure Polylines(const APoints: array of TPointF; AColor: TBGRAPixel; ADrawLastPoints: boolean = true); virtual;
+
+    procedure Polygons(const APoints: array of TPointF; AColor: TBGRAPixel); virtual;
+    procedure FillPolyConvex(const APoints: array of TPointF; AColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true);
+
+    procedure FillTriangleLinearColor(pt1,pt2,pt3: TPointF; c1,c2,c3: TBGRAPixel; APixelCenteredCoordinates: boolean = true);
+    procedure FillTriangles(const APoints: array of TPointF; AColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual;
+    procedure FillTrianglesLinearColor(const APoints: array of TPointF; const AColors: array of TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual;
+    procedure FillTrianglesFan(const APoints: array of TPointF; ACenterColor, ABorderColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual;
+
+    procedure FillQuadLinearColor(pt1,pt2,pt3,pt4: TPointF; c1,c2,c3,c4: TBGRAPixel; APixelCenteredCoordinates: boolean = true);
+    procedure FillQuads(const APoints: array of TPointF; AColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual;
+    procedure FillQuadsLinearColor(const APoints: array of TPointF; const AColors: array of TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual;
+
+    procedure DrawPath(APath: TBGLPath; c: TBGRAPixel);
+    procedure FillPathConvex(APath: TBGLPath; c: TBGRAPixel; APixelCenteredCoordinates: boolean = true);
 
     procedure FillRectLinearColor(r: TRect; ATopLeftColor, ATopRightColor, ABottomRightColor, ABottomLeftColor: TBGRAPixel); virtual; overload;
     procedure FillRectLinearColor(x1,y1,x2,y2: single;
@@ -92,6 +118,8 @@ type
     procedure RectangleWithin(r: TRect; ABorderColor: TBGRAPixel; w: single; AFillColor: TBGRAPixel); overload;
     procedure FillRect(x1,y1,x2,y2: single; AColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); overload;
     procedure FillRect(r: TRect; AColor: TBGRAPixel); overload;
+    procedure FillRect(r: TRectF; AColor: TBGRAPixel; APixelCenteredCoordinates: boolean = false); overload;
+    procedure FillRect(r: TRect; AScanner: IBGRAScanner); virtual; overload;
     procedure RoundRect(x1,y1,x2,y2,rx,ry: single; ABorderColor: TBGRAPixel; options: TRoundRectangleOptions = []); overload;
     procedure RoundRect(x1,y1,x2,y2,rx,ry: single; ABorderColor,AFillColor: TBGRAPixel; options: TRoundRectangleOptions = []); overload;
     procedure FillRoundRect(x,y,x2,y2,rx,ry: single; AFillColor: TBGRAPixel; options: TRoundRectangleOptions = []; APixelCenteredCoordinates: boolean = true);
@@ -99,10 +127,6 @@ type
     procedure Frame3D(var bounds: TRect; width: integer; Style: TGraphicsBevelCut); overload;
     procedure Frame3D(var bounds: TRect; width: integer;
       Style: TGraphicsBevelCut; LightColor: TBGRAPixel; ShadowColor: TBGRAPixel); overload;
-
-    procedure FillTriangleLinearColor(pt1,pt2,pt3: TPointF; c1,c2,c3: TBGRAPixel; APixelCenteredCoordinates: boolean = true);
-    procedure FillQuadLinearColor(pt1,pt2,pt3,pt4: TPointF; c1,c2,c3,c4: TBGRAPixel; APixelCenteredCoordinates: boolean = true);
-    procedure FillPolyConvex(const APoints: array of TPointF; AColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true);
 
     procedure PutImage(x,y: single; ATexture: IBGLTexture; AAlpha: byte = 255); overload;
     procedure PutImage(x,y: single; ATexture: IBGLTexture; AColor: TBGRAPixel); overload;
@@ -117,14 +141,18 @@ type
     procedure PutImageAffine(x,y: single; ATexture: IBGLTexture; const AMatrix: TAffineMatrix; AAlpha: byte = 255); overload;
     procedure PutImageAffine(x,y: single; ATexture: IBGLTexture; const AMatrix: TAffineMatrix; AColor: TBGRAPixel); overload;
 
-    procedure Translate(x,y: single);
-    procedure Scale(sx,sy: single);
+    procedure Translate(x,y: single); virtual;
+    procedure Scale(sx,sy: single); virtual;
+    procedure RotateDeg(angleCW: single); virtual;
+    procedure RotateRad(angleCCW: single); virtual;
+    procedure ResetTransform; virtual;
 
     procedure NoClip;
     property Width: integer read FWidth write SetWidth;
     property Height: integer read FHeight write SetHeight;
     property ClipRect: TRect read GetClipRect write SetClipRect;
     property Matrix: TAffineMatrix read GetMatrix write SetMatrix;
+    property BlendMode: TOpenGLBlendMode read GetBlendMode write SetBlendMode;
   end;
 
   { TBGLPath }
@@ -241,6 +269,322 @@ end;
 constructor TBGLCustomCanvas.Create;
 begin
   FNoClip:= true;
+end;
+
+procedure TBGLCustomCanvas.FillTriangles(const APoints: array of TPointF;
+  AColor: TBGRAPixel; APixelCenteredCoordinates: boolean);
+var
+  i: NativeInt;
+  ofs: TPointF;
+begin
+  if (length(APoints) < 3) or (AColor.alpha = 0) then exit;
+  InternalStartBlendTriangles;
+  InternalSetColor(AColor);
+  if APixelCenteredCoordinates then ofs := PointF(0.5,0.5) else ofs := PointF(0,0);
+  for i := 0 to length(APoints) - (length(APoints) mod 3) - 1 do
+    InternalContinueShape(APoints[i]+ofs);
+  InternalEndBlendTriangles;
+end;
+
+procedure TBGLCustomCanvas.FillTrianglesLinearColor(const APoints: array of TPointF;
+  const AColors: array of TBGRAPixel; APixelCenteredCoordinates: boolean);
+var
+  i: NativeInt;
+  ofs: TPointF;
+begin
+  if length(APoints) < 3 then exit;
+  if length(AColors)<>length(APoints) then
+    raise exception.Create('Length of APoints and AColors do not match');
+  InternalStartBlendTriangles;
+  if APixelCenteredCoordinates then ofs := PointF(0.5,0.5) else ofs := PointF(0,0);
+  for i := 0 to length(APoints) - (length(APoints) mod 3) - 1 do
+  begin
+    InternalSetColor(AColors[i]);
+    InternalContinueShape(APoints[i]+ofs);
+  end;
+  InternalEndBlendTriangles;
+end;
+
+procedure TBGLCustomCanvas.FillQuads(const APoints: array of TPointF;
+  AColor: TBGRAPixel; APixelCenteredCoordinates: boolean);
+var
+  i: NativeInt;
+  ofs: TPointF;
+begin
+  if (length(APoints) < 4) or (AColor.alpha = 0) then exit;
+  InternalStartBlendQuads;
+  InternalSetColor(AColor);
+  if APixelCenteredCoordinates then ofs := PointF(0.5,0.5) else ofs := PointF(0,0);
+  for i := 0 to length(APoints) - (length(APoints) and 3) - 1 do
+    InternalContinueShape(APoints[i]+ofs);
+  InternalEndBlendQuads;
+end;
+
+procedure TBGLCustomCanvas.FillQuadsLinearColor(const APoints: array of TPointF;
+  const AColors: array of TBGRAPixel; APixelCenteredCoordinates: boolean);
+var
+  i: NativeInt;
+  ofs: TPointF;
+begin
+  if length(APoints) < 4 then exit;
+  if length(AColors)<>length(APoints) then
+    raise exception.Create('Length of APoints and AColors do not match');
+  InternalStartBlendQuads;
+  if APixelCenteredCoordinates then ofs := PointF(0.5,0.5) else ofs := PointF(0,0);
+  for i := 0 to length(APoints) - (length(APoints) and 3) - 1 do
+  begin
+    InternalSetColor(AColors[i]);
+    InternalContinueShape(APoints[i]+ofs);
+  end;
+  InternalEndBlendQuads;
+end;
+
+procedure TBGLCustomCanvas.PutPixels(const APoints: array of TPointF;
+  AColor: TBGRAPixel);
+var
+  i: NativeInt;
+begin
+  if length(APoints) = 0 then exit;
+  InternalStartBlend;
+  InternalSetColor(AColor);
+  InternalStartPutPixel(APoints[0]);
+  for i := 1 to high(APoints) do
+    InternalContinueShape(APoints[i]);
+  InternalEndBlend;
+end;
+
+procedure TBGLCustomCanvas.PutPixels(const APoints: array of TPointF;
+  const AColors: array of TBGRAPixel);
+var
+  i: NativeInt;
+begin
+  if length(APoints) = 0 then exit;
+  InternalStartBlend;
+  InternalSetColor(AColors[0]);
+  InternalStartPutPixel(APoints[0]);
+  for i := 1 to high(APoints) do
+  begin
+    InternalSetColor(AColors[i]);
+    InternalContinueShape(APoints[i]);
+  end;
+  InternalEndBlend;
+end;
+
+procedure TBGLCustomCanvas.FillTrianglesFan(const APoints: array of TPointF;
+  ACenterColor, ABorderColor: TBGRAPixel; APixelCenteredCoordinates: boolean);
+var
+  i: NativeInt;
+  firstPoint: boolean;
+  ofs: TPointF;
+begin
+  if (length(APoints) < 3) or ((ACenterColor.alpha = 0) and (ABorderColor.alpha = 0)) then exit;
+  InternalStartBlend;
+  firstPoint := true;
+  if APixelCenteredCoordinates then ofs := PointF(0.5,0.5) else ofs := PointF(0,0);
+  for i := 0 to high(APoints) do
+  begin
+    if isEmptyPointF(APoints[i]) then
+    begin
+      if not firstPoint then
+      begin
+        InternalEndShape;
+        firstPoint := true;
+      end;
+    end else
+    begin
+      if firstPoint then
+      begin
+        InternalSetColor(ACenterColor);
+        InternalStartTriangleFan(APoints[i]+ofs);
+        InternalSetColor(ABorderColor);
+        firstPoint := false;
+      end else
+        InternalContinueShape(APoints[i]+ofs);
+    end;
+  end;
+  if not firstPoint then InternalEndShape;
+  InternalEndBlend;
+end;
+
+procedure TBGLCustomCanvas.Polylines(const APoints: array of TPointF;
+  AColor: TBGRAPixel; ADrawLastPoints: boolean);
+const
+  STATE_START = 0;  //nothing defined
+  STATE_SECOND = 1; //prevPoint defined and is the first point
+  STATE_AFTER = 2;  //newPoint defined and is the lastest point, prevPoint is the point before that
+var
+  i: NativeInt;
+  state: NativeInt;
+  prevPoint,newPoint,v,ofs: TPointF;
+  len: single;
+
+  procedure Flush;
+  begin
+    case state of
+      STATE_SECOND: begin
+        InternalStartPutPixel(prevPoint);
+        InternalEndShape;
+      end;
+      STATE_AFTER:
+      begin
+        v := newPoint-prevPoint;
+        len := VectLen(v);
+        if len > 0 then
+        begin
+          v := v*(1/len);
+          if ADrawLastPoints then
+            InternalContinueShape(newPoint + v*0.5 + ofs)
+          else
+            InternalContinueShape(newPoint - v*0.5 + ofs);
+        end;
+        InternalEndShape;
+      end;
+    end;
+    state := STATE_START;
+  end;
+
+begin
+  if (length(APoints) = 0) or (AColor.alpha = 0) then exit;
+  InternalStartBlend;
+  InternalSetColor(AColor);
+  prevPoint := PointF(0,0);
+  newPoint := PointF(0,0);
+  state := STATE_START;
+  ofs := PointF(0.5,0.5);
+  for i := 0 to high(APoints) do
+  begin
+    if isEmptyPointF(APoints[i]) then
+    begin
+      Flush;
+    end else
+    begin
+      if state = STATE_START then
+      begin
+        state := STATE_SECOND;
+        prevPoint := APoints[i];
+      end else
+      if APoints[i] <> prevPoint then
+      begin
+        if state = STATE_SECOND then
+        begin
+          newPoint := APoints[i];
+          v := newPoint-prevPoint;
+          len := VectLen(v);
+          if len > 0 then
+          begin
+            v := v*(1/len);
+            InternalStartPolyline(prevPoint - v*0.5 + ofs);
+            state := STATE_AFTER;
+          end;
+        end else
+        begin
+          InternalContinueShape(newPoint + ofs);
+          prevPoint := newPoint;
+          newPoint := APoints[i];
+        end;
+      end;
+    end;
+  end;
+  Flush;
+  InternalEndBlend;
+end;
+
+procedure TBGLCustomCanvas.Polygons(const APoints: array of TPointF;
+  AColor: TBGRAPixel);
+const
+  STATE_START = 0;  //nothing defined
+  STATE_SECOND = 1; //prevPoint defined and is the first point
+  STATE_AFTER = 2;  //newPoint defined and is the lastest point, prevPoint is the point before that
+var
+  i: NativeInt;
+  state: NativeInt;
+  prevPoint,newPoint: TPointF;
+  ofs: TPointF;
+
+  procedure Flush;
+  begin
+    case state of
+      STATE_SECOND: begin
+        InternalStartPutPixel(prevPoint);
+        InternalEndShape;
+      end;
+      STATE_AFTER:
+      begin
+        InternalContinueShape(newPoint + ofs);
+        InternalEndShape;
+      end;
+    end;
+    state := STATE_START;
+  end;
+
+begin
+  if (length(APoints) = 0) or (AColor.alpha = 0) then exit;
+  InternalStartBlend;
+  InternalSetColor(AColor);
+  prevPoint := PointF(0,0);
+  newPoint := PointF(0,0);
+  state := STATE_START;
+  ofs := PointF(0.5,0.5);
+  for i := 0 to high(APoints) do
+  begin
+    if isEmptyPointF(APoints[i]) then
+    begin
+      Flush;
+    end else
+    begin
+      if state = STATE_START then
+      begin
+        state := STATE_SECOND;
+        prevPoint := APoints[i];
+      end else
+      if APoints[i] <> prevPoint then
+      begin
+        if state = STATE_SECOND then
+        begin
+          InternalStartPolygon(prevPoint+ofs);
+          newPoint := APoints[i];
+          state := STATE_AFTER;
+        end else
+        begin
+          InternalContinueShape(newPoint+ofs);
+          prevPoint := newPoint;
+          newPoint := APoints[i];
+        end;
+      end;
+    end;
+  end;
+  Flush;
+  InternalEndBlend;
+end;
+
+procedure TBGLCustomCanvas.FillRect(r: TRect; AScanner: IBGRAScanner);
+var
+  bmp: TBGLCustomBitmap;
+  yb,bandHeight,bandY: NativeInt;
+  tx: integer;
+begin
+  SwapRect(r);
+  if (r.right = r.left) or (r.bottom = r.top) then exit;
+  tx := r.right-r.left;
+  bandHeight := 65536 div tx;
+  if bandHeight <= 2 then bandHeight := 2;
+  bandHeight := GetPowerOfTwo(bandHeight);
+  bmp := BGLBitmapFactory.Create(tx,bandHeight);
+  bmp.Texture.ResampleFilter := orfBox;
+  bandY := (r.Bottom-1-r.top) mod bandHeight;
+  for yb := r.bottom-1 downto r.top do
+  begin
+    AScanner.ScanMoveTo(r.left,yb);
+    AScanner.ScanPutPixels(bmp.ScanLine[bandY],tx,dmSet);
+    bmp.InvalidateBitmap;
+    if bandY = 0 then
+    begin
+      bmp.Texture.Draw(r.left,yb);
+      bandY := bandHeight-1;
+    end else
+      dec(bandY);
+  end;
+  bmp.Free;
 end;
 
 procedure TBGLCustomCanvas.DrawPath(APath: TBGLPath; c: TBGRAPixel);
@@ -686,6 +1030,14 @@ begin
   FillRect(r.left,r.top,r.Right,r.bottom,AColor,False);
 end;
 
+procedure TBGLCustomCanvas.FillRect(r: TRectF; AColor: TBGRAPixel;
+  APixelCenteredCoordinates: boolean);
+begin
+  if r.left=r.right then exit;
+  if r.top=r.bottom then exit;
+  FillRect(r.left,r.top,r.Right,r.bottom,AColor,APixelCenteredCoordinates);
+end;
+
 procedure TBGLCustomCanvas.Frame3D(var bounds: TRect; width: integer;
   Style: TGraphicsBevelCut);
 begin
@@ -799,6 +1151,21 @@ end;
 procedure TBGLCustomCanvas.Scale(sx, sy: single);
 begin
   Matrix := Matrix*AffineMatrixScale(sx,sy);
+end;
+
+procedure TBGLCustomCanvas.RotateDeg(angleCW: single);
+begin
+  Matrix := Matrix*AffineMatrixRotationDeg(angleCW);
+end;
+
+procedure TBGLCustomCanvas.RotateRad(angleCCW: single);
+begin
+  Matrix := Matrix*AffineMatrixRotationRad(angleCCW);
+end;
+
+procedure TBGLCustomCanvas.ResetTransform;
+begin
+  Matrix := AffineMatrixIdentity;
 end;
 
 end.

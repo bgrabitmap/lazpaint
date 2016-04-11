@@ -18,7 +18,7 @@ interface
   in BGRAFreeType. }
 
 uses
-  Classes, Types, SysUtils, Graphics, BGRABitmapTypes, InterfaceBase, BGRAPen, BGRAGrayscaleMask;
+  Classes, Types, SysUtils, BGRAGraphics, BGRABitmapTypes, InterfaceBase, BGRAPen, BGRAGrayscaleMask;
 
 type
   TWordBreakHandler = BGRABitmapTypes.TWordBreakHandler;

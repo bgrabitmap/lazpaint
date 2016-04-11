@@ -11,11 +11,13 @@ uses
 type
   TBGLTextureHandle = type Pointer;
   TOpenGLResampleFilter = (orfBox,orfLinear);
+  TOpenGLBlendMode = (obmNormal, obmAdd, obmMultiply);
 
   { IBGLFont }
 
   IBGLFont = interface
     function GetClipped: boolean;
+    function GetPadding: TRectF;
     function GetUseGradientColors: boolean;
     function GetHorizontalAlign: TAlignment;
     function GetJustify: boolean;
@@ -23,6 +25,7 @@ type
     function GetStepX: single;
     function GetVerticalAlign: TTextLayout;
     procedure SetClipped(AValue: boolean);
+    procedure SetPadding(AValue: TRectF);
     procedure SetUseGradientColors(AValue: boolean);
     procedure SetHorizontalAlign(AValue: TAlignment);
     procedure SetJustify(AValue: boolean);
@@ -39,6 +42,12 @@ type
     procedure TextRect(X, Y, Width, Height: Single; const Text : UTF8String; AVertAlign: TTextLayout; AColor: TBGRAPixel); overload;
     procedure TextRect(X, Y, Width, Height: Single; const Text : UTF8String; AHorizAlign: TAlignment; AVertAlign: TTextLayout = tlTop); overload;
     procedure TextRect(X, Y, Width, Height: Single; const Text : UTF8String; AHorizAlign: TAlignment; AVertAlign: TTextLayout; AColor: TBGRAPixel); overload;
+    procedure TextRect(ARect: TRectF; const Text : UTF8String); overload;
+    procedure TextRect(ARect: TRectF; const Text : UTF8String; AColor: TBGRAPixel); overload;
+    procedure TextRect(ARect: TRectF; const Text : UTF8String; AVertAlign: TTextLayout); overload;
+    procedure TextRect(ARect: TRectF; const Text : UTF8String; AVertAlign: TTextLayout; AColor: TBGRAPixel); overload;
+    procedure TextRect(ARect: TRectF; const Text : UTF8String; AHorizAlign: TAlignment; AVertAlign: TTextLayout = tlTop); overload;
+    procedure TextRect(ARect: TRectF; const Text : UTF8String; AHorizAlign: TAlignment; AVertAlign: TTextLayout; AColor: TBGRAPixel); overload;
     function TextWidth(const Text: UTF8String): single;
     function TextHeight(const Text: UTF8String): single; overload;
     function TextHeight(const Text: UTF8String; AWidth: single): single; overload;
@@ -51,6 +60,7 @@ type
     property HorizontalAlign: TAlignment read GetHorizontalAlign write SetHorizontalAlign;
     property VerticalAlign: TTextLayout read GetVerticalAlign write SetVerticalAlign;
     property GradientColors: boolean read GetUseGradientColors write SetUseGradientColors;
+    property Padding: TRectF read GetPadding write SetPadding;
   end;
 
   { TBGLCustomFont }
@@ -58,6 +68,7 @@ type
   TBGLCustomFont = class(TInterfacedObject, IBGLFont)
   protected
     FScale, FStepX: single;
+    FPadding: TRectF;
     FFlags: LongWord;
     FHorizontalAlign: TAlignment;
     FVerticalAlign: TTextLayout;
@@ -70,6 +81,8 @@ type
     function GetStepX: single; virtual;
     procedure SetScale(AValue: single); virtual;
     procedure SetStepX(AValue: single); virtual;
+    function GetPadding: TRectF;
+    procedure SetPadding(AValue: TRectF); virtual;
 
     function GetHorizontalAlign: TAlignment; virtual;
     function GetJustify: boolean; virtual;
@@ -85,6 +98,10 @@ type
 
     procedure DoTextOut(X, Y: Single; const Text : UTF8String; AColor: TBGRAPixel); virtual; abstract;
     procedure DoTextRect(X, Y, Width, Height: Single; const Text : UTF8String; AColor: TBGRAPixel); virtual; abstract;
+
+    function GetDefaultColor: TBGRAPixel; virtual;
+    procedure SwapRectIfNeeded(var ARect: TRectF); overload;
+    procedure SwapRectIfNeeded(var ARect: TRect); overload;
   public
     constructor Create(AFilename: UTF8String);
     procedure FreeMemory; virtual;
@@ -99,6 +116,18 @@ type
     procedure TextRect(X, Y, Width, Height: Single; const Text : UTF8String; AVertAlign: TTextLayout; AColor: TBGRAPixel); overload;
     procedure TextRect(X, Y, Width, Height: Single; const Text : UTF8String; AHorizAlign: TAlignment; AVertAlign: TTextLayout = tlTop); overload;
     procedure TextRect(X, Y, Width, Height: Single; const Text : UTF8String; AHorizAlign: TAlignment; AVertAlign: TTextLayout; AColor: TBGRAPixel); overload;
+    procedure TextRect(ARect: TRect; const Text : UTF8String); overload;
+    procedure TextRect(ARect: TRect; const Text : UTF8String; AColor: TBGRAPixel); overload;
+    procedure TextRect(ARect: TRect; const Text : UTF8String; AVertAlign: TTextLayout); overload;
+    procedure TextRect(ARect: TRect; const Text : UTF8String; AVertAlign: TTextLayout; AColor: TBGRAPixel); overload;
+    procedure TextRect(ARect: TRect; const Text : UTF8String; AHorizAlign: TAlignment; AVertAlign: TTextLayout = tlTop); overload;
+    procedure TextRect(ARect: TRect; const Text : UTF8String; AHorizAlign: TAlignment; AVertAlign: TTextLayout; AColor: TBGRAPixel); overload;
+    procedure TextRect(ARect: TRectF; const Text : UTF8String); overload;
+    procedure TextRect(ARect: TRectF; const Text : UTF8String; AColor: TBGRAPixel); overload;
+    procedure TextRect(ARect: TRectF; const Text : UTF8String; AVertAlign: TTextLayout); overload;
+    procedure TextRect(ARect: TRectF; const Text : UTF8String; AVertAlign: TTextLayout; AColor: TBGRAPixel); overload;
+    procedure TextRect(ARect: TRectF; const Text : UTF8String; AHorizAlign: TAlignment; AVertAlign: TTextLayout = tlTop); overload;
+    procedure TextRect(ARect: TRectF; const Text : UTF8String; AHorizAlign: TAlignment; AVertAlign: TTextLayout; AColor: TBGRAPixel); overload;
     function TextWidth(const Text: UTF8String): single; virtual; abstract;
     function TextHeight(const Text: UTF8String): single; virtual; abstract; overload;
     function TextHeight(const Text: UTF8String; AWidth: single): single; virtual; abstract; overload;
@@ -111,6 +140,7 @@ type
     property HorizontalAlign: TAlignment read GetHorizontalAlign write SetHorizontalAlign;
     property VerticalAlign: TTextLayout read GetVerticalAlign write SetVerticalAlign;
     property GradientColors: boolean read GetUseGradientColors write SetUseGradientColors;
+    property Padding: TRectF read GetPadding write SetPadding;
   end;
 
   { IBGLTexture }
@@ -125,13 +155,18 @@ type
     function GetHeight: integer;
     function GetImageCenter: TPointF;
     function GetMask: IBGLTexture;
+    function GetOpenGLBlendMode: TOpenGLBlendMode;
     function GetOpenGLTexture: TBGLTextureHandle;
     function GetResampleFilter: TOpenGLResampleFilter;
+    function GetUseGradientColors: boolean;
     function GetWidth: integer;
 
     procedure SetFrameSize(x,y: integer);
     procedure SetImageCenter(const AValue: TPointF);
+    procedure SetOpenGLBlendMode(AValue: TOpenGLBlendMode);
     procedure SetResampleFilter(AValue: TOpenGLResampleFilter);
+    procedure SetGradientColors(ATopLeft, ATopRight, ABottomRight, ABottomLeft: TBGRAPixel);
+    procedure SetUseGradientColors(AValue: boolean);
     procedure Update(ARGBAData: PBGRAPixel; AllocatedWidth, AllocatedHeight, ActualWidth,ActualHeight: integer);
     procedure ToggleFlipX;
     procedure ToggleFlipY;
@@ -176,6 +211,8 @@ type
     property Handle: TBGLTextureHandle read GetOpenGLTexture;
     property ImageCenter: TPointF read GetImageCenter write SetImageCenter;
     property ResampleFilter: TOpenGLResampleFilter read GetResampleFilter write SetResampleFilter;
+    property BlendMode: TOpenGLBlendMode read GetOpenGLBlendMode write SetOpenGLBlendMode;
+    property GradientColors: boolean read GetUseGradientColors write SetUseGradientColors;
   end;
 
   { TBGLCustomBitmap }
@@ -225,11 +262,13 @@ type
     function GetFrameWidth: integer;
     function GetHeight: integer;
     function GetMask: IBGLTexture;
+    function GetOpenGLBlendMode: TOpenGLBlendMode;
     function GetOpenGLTexture: TBGLTextureHandle;
     function GetWidth: integer;
     function GetImageCenter: TPointF;
     procedure SetImageCenter(const AValue: TPointF);
     function GetResampleFilter: TOpenGLResampleFilter;
+    procedure SetOpenGLBlendMode(AValue: TOpenGLBlendMode);
     procedure SetResampleFilter(AValue: TOpenGLResampleFilter);
   protected
     FOpenGLTexture: TBGLTextureHandle;
@@ -240,6 +279,9 @@ type
     FFrame: integer;
     FFrameWidth,FFrameHeight: integer;
     FIsMask: boolean;
+    FGradTopLeft, FGradTopRight, FGradBottomRight, FGradBottomLeft: TBGRAPixel;
+    FUseGradientColor: boolean;
+    FBlendMode: TOpenGLBlendMode;
 
     function GetOpenGLMaxTexSize: integer; virtual; abstract;
     function CreateOpenGLTexture(ARGBAData: PBGRAPixel; AAllocatedWidth, AAllocatedHeight, AActualWidth, AActualHeight: integer): TBGLTextureHandle; virtual; abstract;
@@ -250,6 +292,8 @@ type
     function GetEmptyTexture: TBGLTextureHandle; virtual; abstract;
     procedure FreeOpenGLTexture(ATexture: TBGLTextureHandle); virtual; abstract;
     procedure UpdateGLResampleFilter(ATexture: TBGLTextureHandle; AFilter: TOpenGLResampleFilter); virtual; abstract;
+    function GetUseGradientColors: boolean; virtual;
+    procedure SetUseGradientColors(AValue: boolean); virtual;
 
     procedure DoStretchDraw(x,y,w,h: single; AColor: TBGRAPixel); virtual; abstract;
     procedure DoStretchDrawAngle(x,y,w,h,angleDeg: single; rotationCenter: TPointF; AColor: TBGRAPixel); virtual; abstract;
@@ -284,6 +328,7 @@ type
     procedure SetFrameSize(x,y: integer);
     procedure Update(ARGBAData: PBGRAPixel; AllocatedWidth, AllocatedHeight, ActualWidth,ActualHeight: integer);
     procedure SetFrame(AIndex: integer);
+    procedure SetGradientColors(ATopLeft, ATopRight, ABottomRight, ABottomLeft: TBGRAPixel);
     procedure FreeMemory;
 
     procedure Draw(x,y: single; AAlpha: byte = 255); overload;
@@ -321,16 +366,22 @@ type
     property FlipY: IBGLTexture read GetFlipY;
     property Mask: IBGLTexture read GetMask;
     property Handle: TBGLTextureHandle read GetOpenGLTexture;
+    property ResampleFilter: TOpenGLResampleFilter read GetResampleFilter write SetResampleFilter;
+    property BlendMode: TOpenGLBlendMode read GetOpenGLBlendMode write SetOpenGLBlendMode;
+    property GradientColors: boolean read GetUseGradientColors write SetUseGradientColors;
   end;
 
 type
   TBGLBitmapAny = class of TBGLCustomBitmap;
   TBGLTextureAny = class of TBGLCustomTexture;
+  TOpenGLMatrix = packed array[1..4,1..4] of single;
+
 var
   BGLBitmapFactory : TBGLBitmapAny;
   BGLTextureFactory: TBGLTextureAny;
 
 function GetPowerOfTwo( Value : Integer ) : Integer;
+function AffineMatrixToOpenGL(AValue: TAffineMatrix): TOpenGLMatrix;
 
 implementation
 
@@ -345,6 +396,14 @@ begin
   Result := Result or ( Result shr 8 );
   Result := Result or ( Result shr 16 );
   Result := Result + 1;
+end;
+
+function AffineMatrixToOpenGL(AValue: TAffineMatrix): TOpenGLMatrix;
+begin
+  result[1,1] := AValue[1,1];  result[2,1] := AValue[1,2];  result[3,1] := 0; result[4,1] := AValue[1,3];
+  result[1,2] := AValue[2,1];  result[2,2] := AValue[2,2];  result[3,2] := 0; result[4,2] := AValue[2,3];
+  result[1,3] := 0;            result[2,3] := 0;            result[3,3] := 1; result[4,3] := 0;
+  result[1,4] := 0;            result[2,4] := 0;            result[3,4] := 0; result[4,4] := 1;
 end;
 
 { TBGLCustomTexture }
@@ -405,9 +464,19 @@ begin
   result.ToggleMask;
 end;
 
+function TBGLCustomTexture.GetOpenGLBlendMode: TOpenGLBlendMode;
+begin
+  result := FBlendMode;
+end;
+
 function TBGLCustomTexture.GetOpenGLTexture: TBGLTextureHandle;
 begin
   result := FOpenGLTexture;
+end;
+
+function TBGLCustomTexture.GetUseGradientColors: boolean;
+begin
+  result := FUseGradientColor;
 end;
 
 function TBGLCustomTexture.GetWidth: integer;
@@ -430,6 +499,11 @@ begin
   result := FResampleFilter;
 end;
 
+procedure TBGLCustomTexture.SetOpenGLBlendMode(AValue: TOpenGLBlendMode);
+begin
+  FBlendMode := AValue;
+end;
+
 procedure TBGLCustomTexture.SetResampleFilter(AValue: TOpenGLResampleFilter);
 begin
   if AValue <> FResampleFilter then
@@ -437,6 +511,11 @@ begin
     FResampleFilter:= AValue;
     UpdateGLResampleFilter(FOpenGLTexture, AValue);
   end;
+end;
+
+procedure TBGLCustomTexture.SetUseGradientColors(AValue: boolean);
+begin
+  FUseGradientColor := AValue;
 end;
 
 procedure TBGLCustomTexture.ToggleMask;
@@ -463,6 +542,16 @@ begin
       FHeight:= FFrameHeight;
       FImageCenter := PointF(FWidth*0.5,FHeight*0.5);
     end;
+end;
+
+procedure TBGLCustomTexture.SetGradientColors(ATopLeft, ATopRight,
+  ABottomRight, ABottomLeft: TBGRAPixel);
+begin
+  FGradTopLeft := ATopLeft;
+  FGradTopRight := ATopRight;
+  FGradBottomLeft := ABottomLeft;
+  FGradBottomRight := ABottomRight;
+  GradientColors := true;
 end;
 
 procedure TBGLCustomTexture.FreeMemory;
@@ -507,6 +596,12 @@ begin
   result.FFrameHeight := FFrameHeight;
   result.FIsMask := FIsMask;
   result.FResampleFilter := FResampleFilter;
+  result.FGradTopLeft := FGradTopLeft;
+  result.FGradTopRight := FGradTopRight;
+  result.FGradBottomRight := FGradBottomRight;
+  result.FGradBottomLeft := FGradBottomLeft;
+  result.FUseGradientColor := FUseGradientColor;
+  result.FBlendMode := FBlendMode;
 end;
 
 procedure TBGLCustomTexture.FreeMemoryOnDestroy;
@@ -867,6 +962,55 @@ begin
   FVerticalAlign := AValue;
 end;
 
+function TBGLCustomFont.GetDefaultColor: TBGRAPixel;
+begin
+  result := BGRAWhite;
+end;
+
+procedure TBGLCustomFont.SwapRectIfNeeded(var ARect: TRectF);
+var temp: single;
+begin
+  if ARect.Right < ARect.Left then
+  begin
+    temp := ARect.Left;
+    ARect.Left := ARect.Right;
+    ARect.Right := temp;
+  end;
+  if ARect.Bottom < ARect.Top then
+  begin
+    temp := ARect.Top;
+    ARect.Top := ARect.Bottom;
+    ARect.Bottom := temp;
+  end;
+end;
+
+procedure TBGLCustomFont.SwapRectIfNeeded(var ARect: TRect);
+var temp: integer;
+begin
+  if ARect.Right < ARect.Left then
+  begin
+    temp := ARect.Left;
+    ARect.Left := ARect.Right;
+    ARect.Right := temp;
+  end;
+  if ARect.Bottom < ARect.Top then
+  begin
+    temp := ARect.Top;
+    ARect.Top := ARect.Bottom;
+    ARect.Bottom := temp;
+  end;
+end;
+
+procedure TBGLCustomFont.SetPadding(AValue: TRectF);
+begin
+  FPadding:=AValue;
+end;
+
+function TBGLCustomFont.GetPadding: TRectF;
+begin
+  result := FPadding;
+end;
+
 procedure TBGLCustomFont.Init;
 begin
   FScale:= 1;
@@ -874,6 +1018,7 @@ begin
   FHorizontalAlign:= taLeftJustify;
   FVerticalAlign:= tlTop;
   FJustify:= false;
+  FPadding := RectF(1,1,1,1);
 end;
 
 procedure TBGLCustomFont.FreeMemoryOnDestroy;
@@ -900,7 +1045,7 @@ end;
 
 procedure TBGLCustomFont.TextOut(X, Y: Single; const Text: UTF8String);
 begin
-  DoTextOut(X,Y,Text,BGRAWhite);
+  DoTextOut(X,Y,Text,GetDefaultColor);
 end;
 
 procedure TBGLCustomFont.TextOut(X, Y: Single; const Text: UTF8String;
@@ -912,7 +1057,7 @@ end;
 procedure TBGLCustomFont.TextOut(X, Y: Single; const Text: UTF8String;
   AHorizAlign: TAlignment; AVertAlign: TTextLayout);
 begin
-  TextOut(X,Y,Text,AHorizAlign,AVertAlign,BGRAWhite);
+  TextOut(X,Y,Text,AHorizAlign,AVertAlign,GetDefaultColor);
 end;
 
 procedure TBGLCustomFont.TextOut(X, Y: Single; const Text: UTF8String;
@@ -932,31 +1077,35 @@ end;
 procedure TBGLCustomFont.TextRect(X, Y, Width, Height: Single;
   const Text: UTF8String);
 begin
-  DoTextRect(X,Y,Width,Height,Text,BGRAWhite);
+  DoTextRect(X+Padding.Left,Y+Padding.Top,Width-Padding.Left-Padding.Right,Height-Padding.Top-Padding.Bottom,Text,GetDefaultColor);
 end;
 
 procedure TBGLCustomFont.TextRect(X, Y, Width, Height: Single;
   const Text: UTF8String; AColor: TBGRAPixel);
 begin
-  DoTextRect(X,Y,Width,Height,Text,AColor);
+  DoTextRect(X+Padding.Left,Y+Padding.Top,Width-Padding.Left-Padding.Right,Height-Padding.Top-Padding.Bottom,Text,AColor);
 end;
 
 procedure TBGLCustomFont.TextRect(X, Y, Width, Height: Single;
   const Text: UTF8String; AVertAlign: TTextLayout);
 begin
-  TextRect(X,Y,Width,Height,Text,taLeftJustify,AVertAlign,BGRAWhite);
+  TextRect(X+Padding.Left,Y+Padding.Top,Width-Padding.Left-Padding.Right,Height-Padding.Top-Padding.Bottom,Text,AVertAlign,GetDefaultColor);
 end;
 
 procedure TBGLCustomFont.TextRect(X, Y, Width, Height: Single;
   const Text: UTF8String; AVertAlign: TTextLayout; AColor: TBGRAPixel);
+var PrevVertAlign: TTextLayout;
 begin
-  TextRect(X,Y,Width,Height,Text,taLeftJustify,AVertAlign,AColor);
+  PrevVertAlign:= GetVerticalAlign;
+  SetVerticalAlign(AVertAlign);
+  DoTextRect(X+Padding.Left,Y+Padding.Top,Width-Padding.Left-Padding.Right,Height-Padding.Top-Padding.Bottom,Text,AColor);
+  SetVerticalAlign(PrevVertAlign);
 end;
 
 procedure TBGLCustomFont.TextRect(X, Y, Width, Height: Single;
   const Text: UTF8String; AHorizAlign: TAlignment; AVertAlign: TTextLayout);
 begin
-  TextRect(X,Y,Width,Height,Text,AHorizAlign,AVertAlign,BGRAWhite);
+  TextRect(X+Padding.Left,Y+Padding.Top,Width-Padding.Left-Padding.Right,Height-Padding.Top-Padding.Bottom,Text,AHorizAlign,AVertAlign,GetDefaultColor);
 end;
 
 procedure TBGLCustomFont.TextRect(X, Y, Width, Height: Single;
@@ -964,14 +1113,110 @@ procedure TBGLCustomFont.TextRect(X, Y, Width, Height: Single;
   AColor: TBGRAPixel);
 var PrevHorizAlign: TAlignment;
     PrevVertAlign: TTextLayout;
+    PrevJustify: boolean;
 begin
   PrevHorizAlign:= GetHorizontalAlign;
   PrevVertAlign:= GetVerticalAlign;
+  PrevJustify := GetJustify;
   SetHorizontalAlign(AHorizAlign);
   SetVerticalAlign(AVertAlign);
-  DoTextRect(X,Y,Width,Height,Text,AColor);
+  SetJustify(False);
+  DoTextRect(X+Padding.Left,Y+Padding.Top,Width-Padding.Left-Padding.Right,Height-Padding.Top-Padding.Bottom,Text,AColor);
   SetHorizontalAlign(PrevHorizAlign);
   SetVerticalAlign(PrevVertAlign);
+  SetJustify(PrevJustify);
+end;
+
+procedure TBGLCustomFont.TextRect(ARect: TRect; const Text: UTF8String);
+begin
+  SwapRectIfNeeded(ARect);
+  with ARect do TextRect(Left,Top,Right-Left,Bottom-Top,Text);
+end;
+
+procedure TBGLCustomFont.TextRect(ARect: TRect; const Text: UTF8String;
+  AColor: TBGRAPixel);
+begin
+  SwapRectIfNeeded(ARect);
+  with ARect do TextRect(Left,Top,Right-Left,Bottom-Top,Text,
+    AColor);
+end;
+
+procedure TBGLCustomFont.TextRect(ARect: TRect; const Text: UTF8String;
+  AVertAlign: TTextLayout);
+begin
+  SwapRectIfNeeded(ARect);
+  with ARect do TextRect(Left,Top,Right-Left,Bottom-Top,Text,
+    AVertAlign);
+end;
+
+procedure TBGLCustomFont.TextRect(ARect: TRect; const Text: UTF8String;
+  AVertAlign: TTextLayout; AColor: TBGRAPixel);
+begin
+  SwapRectIfNeeded(ARect);
+  with ARect do TextRect(Left,Top,Right-Left,Bottom-Top,Text,
+    AVertAlign, AColor);
+end;
+
+procedure TBGLCustomFont.TextRect(ARect: TRect; const Text: UTF8String;
+  AHorizAlign: TAlignment; AVertAlign: TTextLayout);
+begin
+  SwapRectIfNeeded(ARect);
+  with ARect do TextRect(Left,Top,Right-Left,Bottom-Top,Text,
+    AHorizAlign, AVertAlign);
+end;
+
+procedure TBGLCustomFont.TextRect(ARect: TRect; const Text: UTF8String;
+  AHorizAlign: TAlignment; AVertAlign: TTextLayout; AColor: TBGRAPixel);
+begin
+  SwapRectIfNeeded(ARect);
+  with ARect do TextRect(Left,Top,Right-Left,Bottom-Top,Text,
+    AHorizAlign, AVertAlign, AColor);
+end;
+
+procedure TBGLCustomFont.TextRect(ARect: TRectF; const Text: UTF8String);
+begin
+  SwapRectIfNeeded(ARect);
+  with ARect do TextRect(Left,Top,Right-Left,Bottom-Top,Text);
+end;
+
+procedure TBGLCustomFont.TextRect(ARect: TRectF; const Text: UTF8String;
+  AColor: TBGRAPixel);
+begin
+  SwapRectIfNeeded(ARect);
+  with ARect do TextRect(Left,Top,Right-Left,Bottom-Top,Text,
+    AColor);
+end;
+
+procedure TBGLCustomFont.TextRect(ARect: TRectF; const Text: UTF8String;
+  AVertAlign: TTextLayout);
+begin
+  SwapRectIfNeeded(ARect);
+  with ARect do TextRect(Left,Top,Right-Left,Bottom-Top,Text,
+    AVertAlign);
+end;
+
+procedure TBGLCustomFont.TextRect(ARect: TRectF; const Text: UTF8String;
+  AVertAlign: TTextLayout; AColor: TBGRAPixel);
+begin
+  SwapRectIfNeeded(ARect);
+  with ARect do TextRect(Left,Top,Right-Left,Bottom-Top,Text,
+    AVertAlign, AColor);
+end;
+
+procedure TBGLCustomFont.TextRect(ARect: TRectF; const Text: UTF8String;
+  AHorizAlign: TAlignment; AVertAlign: TTextLayout);
+begin
+  SwapRectIfNeeded(ARect);
+  with ARect do TextRect(Left,Top,Right-Left,Bottom-Top,Text,
+    AHorizAlign, AVertAlign);
+end;
+
+procedure TBGLCustomFont.TextRect(ARect: TRectF; const Text: UTF8String;
+  AHorizAlign: TAlignment; AVertAlign: TTextLayout; AColor: TBGRAPixel);
+begin
+  SwapRectIfNeeded(ARect);
+  with ARect do TextRect(Left,Top,Right-Left,Bottom-Top,Text,
+    AHorizAlign, AVertAlign, AColor);
 end;
 
 { TBGLCustomBitmap }
@@ -1050,7 +1295,8 @@ function TBGLCustomBitmap.Resample(newWidth, newHeight: integer;
   mode: TResampleMode): TBGRACustomBitmap;
 var temp,resampled: TBGRACustomBitmap;
 begin
-  temp := (inherited GetPart(FActualRect)) as TBGRACustomBitmap;
+  temp := TBGRABitmap.Create(FActualWidth,FActualHeight);
+  temp.PutImage(-FActualRect.Left,-FActualRect.Top, self, dmSet);
   temp.ResampleFilter := ResampleFilter;
   resampled := temp.Resample(NewWidth,NewHeight,mode);
   temp.Free;

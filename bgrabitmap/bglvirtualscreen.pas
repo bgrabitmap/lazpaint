@@ -14,6 +14,7 @@ type
   TBGLRedrawEvent = procedure (Sender: TObject; BGLContext: TBGLContext) of object;
   TBGLLoadTexturesEvent = procedure (Sender: TObject; BGLContext: TBGLContext) of object;
   TBGLElapseEvent = procedure (Sender: TObject; BGLContext: TBGLContext; ElapsedMs: integer) of object;
+  TBGLFramesPerSecondEvent = procedure (Sender: TObject; BGLContext: TBGLContext; FramesPerSecond: integer) of object;
 
   { TCustomBGLVirtualScreen }
 
@@ -24,12 +25,14 @@ type
     FOnLoadTextures: TBGLLoadTexturesEvent;
     FOnUnloadTextures: TBGLLoadTexturesEvent;
     FOnElapse: TBGLElapseEvent;
+    FOnFramesPerSecond: TBGLFramesPerSecondEvent;
     FTexturesLoaded: boolean;
     FBevelInner, FBevelOuter: TPanelBevel;
     FBevelWidth:  TBevelWidth;
     FBorderWidth: TBorderWidth;
     FRedrawOnIdle: boolean;
     FSprites: TBGLCustomSpriteEngine;
+    FElapseAccumulator, FElapseCount: integer;
     function GetCanvas: TBGLCustomCanvas;
     procedure SetBevelInner(const AValue: TPanelBevel);
     procedure SetBevelOuter(const AValue: TPanelBevel);
@@ -57,6 +60,7 @@ type
     property OnUnloadTextures: TBGLLoadTexturesEvent Read FOnUnloadTextures Write FOnUnloadTextures;
     property OnRedraw: TBGLRedrawEvent Read FOnRedraw Write FOnRedraw;
     property OnElapse: TBGLElapseEvent Read FOnElapse Write FOnElapse;
+    property OnFramesPerSecond: TBGLFramesPerSecondEvent Read FOnFramesPerSecond Write FOnFramesPerSecond;
     property RedrawOnIdle: Boolean read FRedrawOnIdle write SetRedrawOnIdle default False;
     property BorderWidth: TBorderWidth Read FBorderWidth Write SetBorderWidth default 0;
     property BevelInner: TPanelBevel Read FBevelInner Write SetBevelInner default bvNone;
@@ -112,6 +116,7 @@ type
     property OnEndDrag;
     property OnEnter;
     property OnExit;
+    property OnFramesPerSecond;
     property OnGetSiteInfo;
     property OnGetDockCaption;
     property OnLoadTextures;
@@ -236,6 +241,16 @@ begin
   RedrawContent(ctx);
   inherited DoOnPaint;
   SwapBuffers;
+
+  FElapseAccumulator += FrameDiffTimeInMSecs;
+  Inc(FElapseCount);
+  if FElapseAccumulator >= 2000 then
+  begin
+    if Assigned(FOnFramesPerSecond) then
+      FOnFramesPerSecond(self, ctx, 1000*FElapseCount div FElapseAccumulator);
+    FElapseAccumulator := 0;
+    FElapseCount := 0;
+  end;
 
   If Assigned(FOnElapse) then
     FOnElapse(self, ctx, FrameDiffTimeInMSecs);

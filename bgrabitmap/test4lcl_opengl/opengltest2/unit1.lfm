@@ -1,0 +1,15 @@
+object Form1: TForm1
+  Left = 231
+  Height = 240
+  Top = 114
+  Width = 320
+  Caption = 'Rotate and zoom'
+  OnCreate = FormCreate
+  LCLVersion = '1.4.0.4'
+  object Timer1: TTimer
+    Interval = 15
+    OnTimer = Timer1Timer
+    left = 19
+    top = 16
+  end
+end

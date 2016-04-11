@@ -25,11 +25,14 @@ type
     tux,smallTux: TTux;
     elapsedMs: single;
     sun: IBGLTexture;
+    font, bubbleFont: IBGLRenderedFont;
     CenterOnSmallTux: boolean;
+    infoTextAnimTime: single;
     procedure AddGround(x,y,w: single);
     function FindGround(x: single; var y: single): boolean;
 
   public
+    FPS: integer;
     constructor Create(ACenterOnSmallTux: boolean);
     destructor Destroy; override;
 
@@ -45,6 +48,17 @@ type
     procedure KeyUp(var Key: Word; {%H-}Shift: TShiftState);
   end;
 
+  { TTextBubble }
+
+  TTextBubble = class
+  protected
+    FText: string;
+    FFont: IBGLFont;
+  public
+    constructor Create(AText: string; AFont: IBGLFont);
+    procedure Draw(AXCenter, AYBottom: single);
+  end;
+
   { TTux }
 
   TTux = class(TBGLSprite)
@@ -54,7 +68,7 @@ type
     Autoplay: boolean;
     Parent: TTux;
     OnTheGround: boolean;
-    Bubble,BubbleTooFar: IBGLTexture;
+    Bubble,BubbleTooFar: TTextBubble;
     BubbleTime: integer;
     ShowBubbleTooFar: boolean;
     goRight,goLeft,goUp: boolean;
@@ -64,6 +78,7 @@ type
     procedure OnDraw; override;
     procedure OnTimer; override;
     constructor Create(ATexture: IBGLTexture; AContext: TGameContext);
+    destructor Destroy; override;
   end;
 
   { TSmallTux }
@@ -84,18 +99,27 @@ implementation
 
 uses LCLType;
 
-function CreateTextBubble(AText: string): IBGLTexture;
-const horizMargin = 6; vertMargin = 4;
-var bmp: TBGLBitmap;
+{ TTextBubble }
+
+constructor TTextBubble.Create(AText: string; AFont: IBGLFont);
 begin
-  bmp := TBGLBitmap.Create;
-  bmp.FontHeight := 14;
-  bmp.FontStyle := [fsBold];
-  bmp.SetSize(((bmp.TextSize(AText).cx+2*horizMargin+2)+1) and not 1, bmp.FontFullHeight+vertMargin*2+2);
-  bmp.FillTransparent;
-  bmp.RoundRectAntialias(1,1,bmp.Width-2,bmp.Height-2,12,12, BGRABlack, 1, BGRA(255,255,250));
-  bmp.TextOut(horizMargin+1,vertMargin+1,AText, BGRABlack);
-  result := bmp.MakeTextureAndFree;
+  FText := AText;
+  FFont := AFont;
+end;
+
+procedure TTextBubble.Draw(AXCenter, AYBottom: single);
+const horizMargin = 6; vertMargin = 4;
+var tw,x,y,tx,ty: integer;
+begin
+  tw := round(FFont.TextWidth(FText));
+  tx := tw+horizMargin*2;
+  ty := round(FFont.TextHeight(FText))+2*vertMargin;
+  x := round(AXCenter)-tx div 2;
+  y := round(AYBottom)-ty;
+  BGLCanvas.RoundRect(x,y,x+tx,y+ty,12,12,BGRABlack, BGRA(255,255,250));
+  FFont.SetGradientColors(CSSBlack,CSSBlack,CSSDodgerBlue,CSSDodgerBlue);
+  FFont.TextOut(x+horizMargin,y+vertMargin,FText, taLeftJustify, tlTop, BGRABlack);
+  FFont.GradientColors := false;
 end;
 
 { TSmallTux }
@@ -107,8 +131,8 @@ begin
   H := H*0.75;
   W := W*0.75;
   LookingLeft := true;
-  Bubble := CreateTextBubble('Where are my parents?');
-  BubbleTooFar := CreateTextBubble('Please stay close to me!');
+  Bubble := TTextBubble.Create('Where are my parents?',Context.bubbleFont);
+  BubbleTooFar := TTextBubble.Create('Please stay close to me!',Context.bubbleFont);
   //JumpStrength := 4;
 end;
 
@@ -120,7 +144,8 @@ begin
     if sqr(X-Context.tux.X)+sqr(Y-Context.tux.Y) < sqr(50) then
     begin
       Parent := Context.tux;
-      Bubble := CreateTextBubble('Hey my parent!');
+      FreeAndNil(Bubble);
+      Bubble := TTextBubble.Create('Hey my parent!',Context.bubbleFont);
       BubbleTime := 400;
     end;
   end;
@@ -135,37 +160,12 @@ begin
   UpKey := false;
   TexturesLoaded:= false;
   CenterOnSmallTux:= ACenterOnSmallTux;
+  infoTextAnimTime := 0;
 end;
 
 destructor TGameContext.Destroy;
 begin
   inherited Destroy;
-end;
-
-procedure TGameContext.Render(ctx: TBGLContext);
-var ofsX,ofsY: single;
-begin
-  ctx.Canvas.FillRectLinearColor(Rect(0,0,ctx.Width,ctx.Height),
-       CSSSkyBlue,CSSSkyBlue,MergeBGRA(CSSSkyBlue,CSSBlue),MergeBGRA(CSSSkyBlue,CSSBlue));
-
-  if CenterOnSmallTux then
-  begin
-    ofsX := smallTux.X;
-    ofsY := smallTux.Y;
-  end else
-  begin
-    ofsX := tux.X;
-    ofsY := tux.Y;
-  end;
-  ofsX -= ctx.Width div 2;
-  ofsY -= ctx.Height div 2;
-  if ofsX > 800-ctx.Width then ofsX := 800-ctx.Width;
-  if ofsY > 600-ctx.Height then ofsY := 600-ctx.Height;
-  if ofsX < 0 then ofsX := 0;
-  if ofsY < 0 then ofsY := 0;
-  ctx.Canvas.Translate(-ofsX,-ofsY);
-
-  ctx.Sprites.OnDraw;
 end;
 
 procedure TGameContext.LoadTextures({%H-}ctx: TBGLContext);
@@ -178,6 +178,12 @@ begin
 
   texGround := BGLTexture(ResourceDir+'ground.png');
   texGround.SetFrameSize(32,32);
+
+  font := BGLFont('Arial', 20, CSSLightYellow,CSSBlack, [fsBold]);
+  bubbleFont := BGLFont('Arial', 16);
+  bubbleFont.HorizontalAlign := taCenter;
+  bubbleFont.Justify:= true;
+  bubbleFont.Padding := RectF(10,10,10,10);
 
   AddGround(32,128,200);
   AddGround(400,128,200);
@@ -199,6 +205,63 @@ begin
   TBGLSprite.Create(sun,-2).Location := PointF(random(200),0);
 
   TexturesLoaded:= true;
+end;
+
+procedure TGameContext.Render(ctx: TBGLContext);
+const infoText = 'Welcome to this demo showing how to use BGRABitmap with OpenGL';
+var ofsX,ofsY,h: single;
+  r:TRectF;
+  alpha: byte;
+begin
+  ctx.Canvas.FillRectLinearColor(Rect(0,0,ctx.Width,ctx.Height),
+       CSSSkyBlue,CSSSkyBlue,MergeBGRA(CSSSkyBlue,CSSBlue),MergeBGRA(CSSSkyBlue,CSSBlue));
+
+  if CenterOnSmallTux then
+  begin
+    ofsX := smallTux.X;
+    ofsY := smallTux.Y;
+  end else
+  begin
+    ofsX := tux.X;
+    ofsY := tux.Y;
+  end;
+  ofsX -= ctx.Width div 2;
+  ofsY -= ctx.Height div 2;
+  if ofsX > 800-ctx.Width then ofsX := 800-ctx.Width;
+  if ofsY > 600-ctx.Height then ofsY := 600-ctx.Height;
+  if ofsX < 0 then ofsX := 0;
+  if ofsY < 0 then ofsY := 0;
+
+  ctx.Canvas.Translate(-ofsX,-ofsY);
+  ctx.Sprites.OnDraw;
+  ctx.Canvas.Translate(ofsX,ofsY);
+
+  if infoTextAnimTime <= 500 then
+    alpha := round(infoTextAnimTime*255/500)
+  else if infoTextAnimTime <= 3500 then
+    alpha := 255
+  else if infoTextAnimTime <= 4000 then
+    alpha := round((4000-infoTextAnimTime)*255/500)
+  else
+    alpha := 0;
+
+  if alpha <> 0 then
+  begin
+    h := bubbleFont.TextHeight(infoText, 300)+bubbleFont.Padding.Top+bubbleFont.Padding.Bottom+4;
+    if infoTextAnimTime <= 500 then
+      h := h*infoTextAnimTime/500;
+    r.Left := ctx.Width/2-150;
+    r.Right := r.Left + 300;
+    r.Top := ctx.Height/2-h/2;
+    r.Bottom := r.Top + h;
+    ctx.Canvas.FillRect(r, BGRA(0,0,0,alpha div 2));
+    bubbleFont.Clipped:= true;
+    bubbleFont.TextRect(r, infoText, BGRA(255,255,255,alpha));
+    bubbleFont.Clipped:= false;
+  end;
+
+  if FPS <> 0 then
+     font.TextOut(ctx.Width-5,0,inttostr(FPS)+' FPS',taRightJustify);
 end;
 
 procedure TGameContext.UnloadTextures(ctx: TBGLContext);
@@ -226,6 +289,7 @@ end;
 
 procedure TGameContext.Elapse(ctx: TBGLContext; ms: single);
 begin
+  infoTextAnimTime += ms;
   elapsedMs += ms;
   while elapsedMs > FrameDurationMs do
   begin
@@ -335,9 +399,9 @@ begin
     if BubbleTime mod 500 > 400 then
     begin
       if ShowBubbleTooFar then
-        BubbleTooFar.Draw(x,y-H,taCenter,tlBottom)
+        BubbleTooFar.Draw(x,y-H)
       else
-        Bubble.Draw(x,y-H,taCenter,tlBottom);
+        Bubble.Draw(x,y-H);
     end;
   end;
 end;
@@ -468,8 +532,15 @@ end;
 
 constructor TTux.Create(ATexture: IBGLTexture; AContext: TGameContext);
 begin
-  inherited Create(ATexture, 0);
   Context := AContext;
+  inherited Create(ATexture, 0);
+end;
+
+destructor TTux.Destroy;
+begin
+  FreeAndNil(Bubble);
+  FreeAndNil(BubbleTooFar);
+  inherited Destroy;
 end;
 
 end.

@@ -254,7 +254,9 @@ begin
                         or (sourceval and BGRA_GreenMask)
                         or OpacityOrMask
     else
-      plongword(pdest)^ := (sourceval and BGRA_ColorMask) or OpacityOrMask;
+      plongword(pdest)^ := (((sourceval and BGRA_RedMask) shr TBGRAPixel_RedShift) shl TBGRAPixel_BlueShift)
+                        or (((sourceval and BGRA_BlueMask) shr TBGRAPixel_BlueShift) shl TBGRAPixel_RedShift)
+                        or (sourceval and (BGRA_GreenMask or BGRA_AlphaMask));
     dec(count);
     inc(pdest);
     inc(psrc, sourcePixelSize);

@@ -1,0 +1,10 @@
+object Form1: TForm1
+  Left = 230
+  Height = 240
+  Top = 121
+  Width = 320
+  Caption = 'Ground test'
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '1.4.0.4'
+end

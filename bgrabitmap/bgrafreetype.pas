@@ -175,15 +175,17 @@ end;
 
 procedure TBGRAFreeTypeFontRenderer.UpdateFont;
 var fts: TFreeTypeStyles;
+  filename: string;
 begin
   fts := [];
   if fsBold in FontStyle then fts += [ftsBold];
   if fsItalic in FontStyle then fts += [ftsItalic];
   try
+    filename := FontName;
     {$IFDEF BGRABITMAP_USE_LCL12}
-      FFont.SetNameAndStyle(FontName,fts);
+    FFont.SetNameAndStyle(filename,fts);
     {$ELSE}
-    FFont.Name := FontName;
+    FFont.Name := filename;
     FFont.Style := fts;
     {$ENDIF}
   except

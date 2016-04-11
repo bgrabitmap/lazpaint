@@ -41,12 +41,14 @@ type
     procedure BGLVirtualScreen1LoadTextures(Sender: TObject; BGLContext: TBGLContext);
     procedure BGLVirtualScreen1Redraw(Sender: TObject; BGLContext: TBGLContext);
     procedure BGLVirtualScreen1Elapse(Sender: TObject; BGLContext: TBGLContext; ElapsedMs: integer);
+    procedure BGLVirtualScreen1FramesPerSecond(Sender: TObject; {%H-}BGLContext: TBGLContext; FramesPerSecond: integer);
     procedure BGLVirtualScreen1UnloadTextures(Sender: TObject; BGLContext: TBGLContext);
 
     { VIRTUAL SCREEN 2 }
-    procedure BGLVirtualScreen2Elapse(Sender: TObject; BGLContext: TBGLContext; ElapsedMs: integer);
     procedure BGLVirtualScreen2LoadTextures(Sender: TObject; BGLContext: TBGLContext);
     procedure BGLVirtualScreen2Redraw(Sender: TObject; BGLContext: TBGLContext);
+    procedure BGLVirtualScreen2Elapse(Sender: TObject; BGLContext: TBGLContext; ElapsedMs: integer);
+    procedure BGLVirtualScreen2FramesPerSecond(Sender: TObject; {%H-}BGLContext: TBGLContext; FramesPerSecond: integer);
     procedure BGLVirtualScreen2UnloadTextures(Sender: TObject; BGLContext: TBGLContext);
   protected
     procedure AdjustHeight;
@@ -200,6 +202,13 @@ begin
     GameContext1.Elapse(BGLContext, ElapsedMs);
 end;
 
+procedure TForm1.BGLVirtualScreen1FramesPerSecond(Sender: TObject;
+  BGLContext: TBGLContext; FramesPerSecond: integer);
+begin
+  if Assigned(GameContext1) then
+    GameContext1.FPS := FramesPerSecond;
+end;
+
 procedure TForm1.BGLVirtualScreen1UnloadTextures(Sender: TObject;
   BGLContext: TBGLContext);
 begin
@@ -239,6 +248,13 @@ procedure TForm1.BGLVirtualScreen2Elapse(Sender: TObject;
 begin
   if Assigned(GameContext2) then
     GameContext2.Elapse(BGLContext, ElapsedMs);
+end;
+
+procedure TForm1.BGLVirtualScreen2FramesPerSecond(Sender: TObject;
+  BGLContext: TBGLContext; FramesPerSecond: integer);
+begin
+  if Assigned(GameContext2) then
+    GameContext2.FPS := FramesPerSecond;
 end;
 
 procedure TForm1.BGLVirtualScreen2UnloadTextures(Sender: TObject;
