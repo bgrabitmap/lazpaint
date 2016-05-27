@@ -118,6 +118,9 @@ const
       result ranges from 0 to 255 }
   function BGRADiff(c1, c2: TBGRAPixel): byte;
 
+  function Color16BitToBGRA(AColor: Word): TBGRAPixel;
+  function BGRAToColor16Bit(const AColor: TBGRAPixel): Word;
+
 type
   {* Array of pixels }
   ArrayOfTBGRAPixel = array of TBGRAPixel;
@@ -133,9 +136,9 @@ type
   {** Converts a pixel from sRGB to gamma expanded RGB }
   function GammaExpansion(c: TBGRAPixel): TExpandedPixel; inline;
   {** Converts a pixel from gamma expanded RGB to sRGB }
-  function GammaCompression(const ec: TExpandedPixel): TBGRAPixel; inline;
+  function GammaCompression(const ec: TExpandedPixel): TBGRAPixel; inline; overload;
   {** Converts a pixel from gamma expanded RGB to sRGB }
-  function GammaCompression(red,green,blue,alpha: word): TBGRAPixel; inline;
+  function GammaCompression(red,green,blue,alpha: word): TBGRAPixel; inline; overload;
   {** Returns the intensity of an gamma-expanded pixel. The intensity is the
      maximum value reached by any component }
   function GetIntensity(const c: TExpandedPixel): word; inline;
@@ -213,9 +216,14 @@ type
 type
   {* General purpose color variable with single-precision floating point values }
   TColorF = packed array[1..4] of single;
+  ArrayOfTColorF = array of TColorF;
 
   {** Creates a TColorF structure }
   function ColorF(red,green,blue,alpha: single): TColorF;
+  function BGRAToColorF(c: TBGRAPixel; AGammaExpansion: boolean): TColorF; overload;
+  function BGRAToColorF(const a: array of TBGRAPixel; AGammaExpansion: boolean): ArrayOfTColorF; overload;
+  function ColorFToBGRA(c: TColorF; AGammaCompression: boolean): TBGRAPixel;
+  function GammaCompressionF(c: TColorF): TColorF;
   {** Subtract each component separately }
   operator - (const c1, c2: TColorF): TColorF; inline;
   {** Add each component separately }
@@ -1050,6 +1058,20 @@ begin
   result.alpha := $ff;
 end;
 
+function Color16BitToBGRA(AColor: Word): TBGRAPixel;
+begin
+  result := BGRA( ((AColor and $F800) shr 11)*255 div 31,
+                  ((AColor and $07e0) shr 5)*255 div 63,
+                  (AColor and $001f)*255 div 31 );
+end;
+
+function BGRAToColor16Bit(const AColor: TBGRAPixel): Word;
+begin
+  result := (((AColor.Red * 31 + 64) div 255) shl 11) +
+            (((AColor.green * 63 + 64) div 255) shl 5) +
+             ((AColor.blue * 31 + 64) div 255);
+end;
+
 function MergeBGRA(const colors: array of TBGRAPixel): TBGRAPixel;
 var
   sumR,sumG,sumB,sumA: NativeUInt;
@@ -1326,6 +1348,59 @@ end;
 function BGRADiff(c1,c2: TBGRAPixel): byte;
 begin
   result := ExpandedDiff(GammaExpansion(c1),GammaExpansion(c2)) shr 8;
+end;
+
+function BGRAToColorF(c: TBGRAPixel; AGammaExpansion: boolean): TColorF;
+const OneOver255 = 1/255;
+      OneOver65535 = 1/65535;
+begin
+  if not AGammaExpansion then
+  begin
+    result[1] := c.red*OneOver255;
+    result[2] := c.green*OneOver255;
+    result[3] := c.blue*OneOver255;
+    result[4] := c.alpha*OneOver255;
+  end else
+  with GammaExpansion(c) do
+  begin
+    result[1] := red*OneOver65535;
+    result[2] := green*OneOver65535;
+    result[3] := blue*OneOver65535;
+    result[4] := alpha*OneOver65535;
+  end;
+end;
+
+function BGRAToColorF(const a: array of TBGRAPixel; AGammaExpansion: boolean
+  ): ArrayOfTColorF;
+var
+  i: NativeInt;
+begin
+  setlength(result, length(a));
+  for i := 0 to high(a) do
+    result[i] := BGRAToColorF(a[i],AGammaExpansion);
+end;
+
+function ColorFToBGRA(c: TColorF; AGammaCompression: boolean): TBGRAPixel;
+begin
+  if not AGammaCompression then
+  begin
+    result.red := Min(255,Max(0,round(c[1]*255)));
+    result.green := Min(255,Max(0,round(c[1]*255)));
+    result.blue := Min(255,Max(0,round(c[1]*255)));
+  end else
+  begin
+    result.red := GammaCompressionTab[Min(65535,Max(0,round(c[1]*65535)))];
+    result.green := GammaCompressionTab[Min(65535,Max(0,round(c[1]*65535)))];
+    result.blue := GammaCompressionTab[Min(65535,Max(0,round(c[1]*65535)))];
+  end;
+  result.alpha := Min(255,Max(0,round(c[4]*255)));
+end;
+
+function GammaCompressionF(c: TColorF): TColorF;
+var inv: single;
+begin
+  inv := 1/GammaExpFactor;
+  result := ColorF(power(c[1],inv),power(c[2],inv),power(c[3],inv),c[4]);
 end;
 
 operator-(const c1, c2: TColorF): TColorF;

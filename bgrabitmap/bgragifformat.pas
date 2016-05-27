@@ -241,6 +241,7 @@ var
 
   procedure AddStr2Tab(prefix: Pstr; suffix: longint);
   begin
+    if stridx >= GIFCodeTableSize then exit;
     strtab^[stridx].prefix := prefix;
     strtab^[stridx].suffix := suffix;
     Inc(stridx);
@@ -1105,6 +1106,7 @@ begin
     WriteGlobalPalette;
 
     WriteImages;
+    Stream.WriteByte($3B); //end of file
 
   finally
     FreeGlobalPalette;

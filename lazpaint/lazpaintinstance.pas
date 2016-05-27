@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, LazPaintType, BGRABitmap, BGRABitmapTypes, BGRALayers,
-  Menus,
+  Menus, Controls,
 
   LazPaintMainForm, UMainFormLayout,
 
@@ -73,6 +73,7 @@ type
     FLayerStackPositionDefined,
     FImageListPositionDefined : boolean;
 
+    function GetIcons(ASize: integer): TImageList; override;
     function GetToolBoxWindowPopup: TPopupMenu; override;
     procedure SetToolBoxWindowPopup(AValue: TPopupMenu); override;
     function GetFullscreen: boolean; override;
@@ -139,9 +140,12 @@ type
     procedure EditTexture; override;
     function ProcessCommandLine: boolean; override;
     function ProcessCommands(commands: TStringList): boolean; override;
+    procedure ChangeIconSize(size: integer); override;
     procedure Show; override;
     procedure Hide; override;
     procedure Run; override;
+    procedure Restart; override;
+    procedure CancelRestart; override;
     destructor Destroy; override;
     procedure NotifyImageChange(RepaintNow: boolean; ARect: TRect); override;
     procedure NotifyImageChangeCompletely(RepaintNow: boolean); override;
@@ -155,7 +159,7 @@ type
     function ShowShiftColorsDlg(AParameters: TVariableSet): boolean; override;
     function ShowColorizeDlg(AParameters: TVariableSet): boolean; override;
     function ShowColorCurvesDlg(AParameters: TVariableSet): boolean; override;
-    function ShowRadialBlurDlg(AFilterConnector: TObject;blurType:TRadialBlurType):boolean; override;
+    function ShowRadialBlurDlg(AFilterConnector: TObject;blurType:TRadialBlurType; ACaption: string = ''):boolean; override;
     function ShowMotionBlurDlg(AFilterConnector: TObject):boolean; override;
     function ShowCustomBlurDlg(AFilterConnector: TObject):boolean; override;
     function ShowEmbossDlg(AFilterConnector: TObject):boolean; override;
@@ -197,14 +201,14 @@ type
 
 implementation
 
-uses LCLType, Types, Forms, Dialogs, Controls, FileUtil, LCLIntf, Math,
+uses LCLType, Types, Forms, Dialogs, FileUtil, LCLIntf, Math,
 
      uradialblur, umotionblur, uemboss, utwirl,
      unewimage, uresample, upixelate, unoisefilter, ufilters,
      UImageAction, USharpen, uposterize, UPhongFilter, UFilterFunction,
      uprint, USaveOption, UFormRain,
 
-     ugraph, ucommandline, uabout;
+     ugraph, UScaleDPI, ucommandline, uabout;
 
 { TLazPaintInstance }
 
@@ -316,6 +320,7 @@ begin
   Application.CreateForm(TFImageList, FImageList);
   FImageList.LazPaintInstance := self;
 
+  TFChooseColor_CustomDPI := round(Power(Config.DefaultIconSize(18)/16,0.7)*96);
   Application.CreateForm(TFChooseColor, FChooseColor);
   FChooseColor.LazPaintInstance := self;
 
@@ -432,7 +437,7 @@ begin
   FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolRotateSelection);
   FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolMagicWand);
 
-  FMain.Layout.DockedToolBoxToolBar.Images := FMain.ImageList1;
+  FToolBox.SetImages(Icons[Config.DefaultIconSize(DoScaleX(24,OriginalDPI))]);
 
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolChangeDocking);
 
@@ -468,6 +473,8 @@ begin
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolMoveSelection);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolRotateSelection);
   FMain.Layout.DockedToolBoxAddButton(FMain.EditDeselect);
+
+  FMain.Layout.DockedToolBoxSetImages(Icons[Config.DefaultIconSize(DoScaleX(24,OriginalDPI))]);
 end;
 
 procedure TLazPaintInstance.SetBlackAndWhite(AValue: boolean);
@@ -679,7 +686,7 @@ end;
 function TLazPaintInstance.GetToolboxVisible: boolean;
 begin
   if FToolbox <> nil then
-    Result:= FToolbox.Visible or ((FMain <> nil) and (FMain.Layout.ToolBoxDocking <> twNone))
+    Result:= FToolbox.Visible or ((FMain <> nil) and not (FMain.Layout.ToolBoxDocking in [twNone,twWindow]))
   else
     Result := false;
 end;
@@ -835,6 +842,39 @@ begin
   AInstance.Config.SetDefaultImageHeight(Image.Height);
 end;
 
+function TLazPaintInstance.GetIcons(ASize: integer): TImageList;
+begin
+  if Assigned(FMain) then
+  begin
+    if ASize < 24 then
+      result := FMain.ImageList16
+    else
+    if ASize < 32 then
+    begin
+      result := FMain.ImageList24;
+      if result.Count = 0 then
+        ScaleImageList(FMain.ImageList48, 24,24, result);
+    end
+    else
+    if ASize < 48 then
+    begin
+      result := FMain.ImageList32;
+      if result.Count = 0 then
+        ScaleImageList(FMain.ImageList48, 32,32, result);
+    end
+    else
+    if ASize < 64 then
+      result := FMain.ImageList48
+    else
+    begin
+      result := FMain.ImageList64;
+      if result.Count = 0 then
+        ScaleImageList(FMain.ImageList48, 64,64, result);
+    end;
+  end else
+    result := nil;
+end;
+
 function TLazPaintInstance.GetToolBoxWindowPopup: TPopupMenu;
 begin
   if Assigned(FToolbox) then
@@ -940,6 +980,15 @@ begin
   ucommandline.ProcessCommands(self,commands,result,saved);
 end;
 
+procedure TLazPaintInstance.ChangeIconSize(size: integer);
+begin
+  if Config.DefaultIconSize(0)<>size then
+  begin
+    Config.SetDefaultIconSize(size);
+    Restart;
+  end;
+end;
+
 procedure TLazPaintInstance.Show;
 begin
   EmbeddedResult := mrNone;
@@ -959,6 +1008,20 @@ begin
     application.ProcessMessages;
     Sleep(10);
   until not MainFormVisible;
+end;
+
+procedure TLazPaintInstance.Restart;
+begin
+  if FMain <> nil then
+  begin
+    FRestartQuery := true;
+    FMain.Close;
+  end;
+end;
+
+procedure TLazPaintInstance.CancelRestart;
+begin
+  FRestartQuery := false;
 end;
 
 destructor TLazPaintInstance.Destroy;
@@ -1085,6 +1148,7 @@ begin
   if Assigned(FLayerStack) and (AInfo.layerstackHidden > 0) then
   begin
     FLayerStack.Show;
+    FLayerStack.InvalidateStack(False);
     dec(FTopMostInfo.layerstackHidden);
   end;
   if Assigned(FChooseColor) and (AInfo.choosecolorHidden > 0) then

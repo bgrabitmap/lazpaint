@@ -30,7 +30,12 @@ type
   TBitmapToVirtualScreenFunction = function(PtF: TPointF): TPointF of object;
 
   TEraserMode = (emEraseAlpha, emSoften);
+  TGradientColorspace = (gcsRgb, gcsLinearRgb, gcsHueCW, gcsHueCCW, gcsCorrectedHueCW, gcsCorrectedHueCCW);
 
+function GradientColorSpaceToDisplay(AValue: TGradientColorspace): string;
+function DisplayToGradientColorSpace(AValue: string): TGradientColorspace;
+
+type
   { TGenericTool }
 
   TGenericTool = class
@@ -48,6 +53,7 @@ type
     function DoToolUpdate(toolDest: TBGRABitmap): TRect; virtual;
     procedure OnTryStop(sender: TCustomLayerAction); virtual;
     function SelectionMaxPointDistance: single;
+    function GetStatusText: string; virtual;
   public
     ToolUpdateNeeded: boolean;
     Cursor: TCursor;
@@ -82,6 +88,7 @@ type
     property Action : TLayerAction read GetAction;
     property LayerOffset : TPoint read GetLayerOffset;
     property LastToolDrawingLayer: TBGRABitmap read FLastToolDrawingLayer;
+    property StatusText: string read GetStatusText;
   end;
 
   TToolClass = class of TGenericTool;
@@ -132,7 +139,6 @@ type
   protected
     function CheckExitTool: boolean;
     procedure NotifyImageOrSelectionChanged(ALayer: TBGRABitmap; ARect: TRect);
-    function ToolCanBeUsed: boolean;
     procedure InternalSetCurrentToolType(tool: TPaintToolType);
     function InternalBitmapToVirtualScreen(PtF: TPointF): TPointF;
     function AddLayerOffset(ARect: TRect) : TRect;
@@ -156,6 +162,7 @@ type
     ToolFloodFillOptionProgressive: boolean;
     ToolGradientType: TGradientType;
     ToolGradientSine: boolean;
+    ToolGradientColorspace: TGradientColorspace;
     ToolLineCap: TPenEndCap;
     ToolArrowStart: string;
     ToolArrowEnd: string;
@@ -187,6 +194,7 @@ type
 
     function GetCurrentToolType: TPaintToolType;
     function SetCurrentToolType(tool: TPaintToolType): boolean;
+    function ToolCanBeUsed: boolean;
     procedure ToolWakeUp;
     procedure ToolSleep;
 
@@ -267,6 +275,30 @@ begin
     end;
 end;
 
+function GradientColorSpaceToDisplay(AValue: TGradientColorspace): string;
+begin
+  case AValue of
+    gcsLinearRgb: result := rsLinearRGB;
+    gcsHueCW: result := rsHueCW;
+    gcsHueCCW: result := rsHueCCW;
+    gcsCorrectedHueCW: result := rsCorrectedHueCW;
+    gcsCorrectedHueCCW: result := rsCorrectedHueCCW;
+  else
+    result := rsRGB;
+  end;
+end;
+
+function DisplayToGradientColorSpace(AValue: string): TGradientColorspace;
+begin
+  if AValue=rsLinearRGB then result := gcsLinearRgb else
+  if AValue=rsHueCW then result := gcsHueCW else
+  if AValue=rsHueCCW then result := gcsHueCCW else
+  if AValue=rsCorrectedHueCW then result := gcsCorrectedHueCW else
+  if AValue=rsCorrectedHueCCW then result := gcsCorrectedHueCCW
+  else
+    result := gcsRgb;
+end;
+
 var
    PaintTools: array[TPaintToolType] of TToolClass;
 
@@ -314,6 +346,11 @@ begin
       result := Manager.Image.LayerOffset[Manager.Image.currentImageLayerIndex]
     else
       result := Point(0,0);
+end;
+
+function TGenericTool.GetStatusText: string;
+begin
+  result := '';
 end;
 
 function TGenericTool.GetAction: TLayerAction;
@@ -666,7 +703,7 @@ end;
 
 function TToolManager.ToolCanBeUsed: boolean;
 begin
-  result := (currentTool <> nil) and (CurrentTool.IsSelectingTool or Image.CurrentLayerVisible);
+  result := (currentTool <> nil) and ((FCurrentToolType = ptHand) or CurrentTool.IsSelectingTool or Image.CurrentLayerVisible);
 end;
 
 function TToolManager.GetToolBackColor: TBGRAPixel;
@@ -772,6 +809,7 @@ begin
 
   ToolGradientType := gtLinear;
   ToolGradientSine := false;
+  ToolGradientColorspace := gcsRgb;
   ToolFloodFillOptionProgressive := true;
   ToolLineCap := pecRound;
   ToolJoinStyle := pjsRound;

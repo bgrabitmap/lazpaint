@@ -47,6 +47,9 @@ resourcestring
   rsNothingToBeDeformed='There is nothing to be deformed';
   rsMovingOrRotatingSelection='Moving or rotating selection';
   rsRetrieveSelectedArea='Do you want to retrieve selected area?';
+  rsTextureMapping='Texture mapping';
+  rsTransformSelectionContent='Do you want to transform content of the selection?';
+  rsToolOnInvisibleLayer = 'Tool cannot be used on an invisible layer';
   rsNothingToBeRetrieved='There is nothing to be retrieved';
   rsCrop='Crop';
   rsMergeSelection='Do you want to merge selection?';
@@ -84,6 +87,15 @@ resourcestring
   rsBlue='Blue';
   rsSaturation='Saturation';
   rsHue='Hue';
+
+  rsRGB = 'RGB';
+  rsLinearRGB = 'Linear RGB';
+  rsHueCW = 'Hue CW';
+  rsHueCCW = 'Hue CCW';
+  rsCorrectedHueCW = 'Corr. Hue CW';
+  rsCorrectedHueCCW = 'Corr. Hue CCW';
+
+
   rsColors='Colors';
   rsLight='Light';
   rsOpacity='Opacity';

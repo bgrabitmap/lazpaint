@@ -13,8 +13,9 @@ type
     FContainer: IBGRAPart3D;
     FCoordPool: TBGRACoordPool3D;
     FNormalPool: TBGRANormalPool3D;
+    FObject3D: TBGRAObject3D;
   public
-    constructor Create(AContainer: IBGRAPart3D);
+    constructor Create(AObject3D: TBGRAObject3D; AContainer: IBGRAPart3D);
     destructor Destroy; override;
     procedure Clear(ARecursive: boolean);
     function Add(x,y,z: single): IBGRAVertex3D;
@@ -213,8 +214,9 @@ begin
   end;
 end;
 
-constructor TBGRAPart3D.Create(AContainer: IBGRAPart3D);
+constructor TBGRAPart3D.Create(AObject3D: TBGRAObject3D; AContainer: IBGRAPart3D);
 begin
+  FObject3D := AObject3D;
   FContainer := AContainer;
   FMatrix := MatrixIdentity3D;
   FCoordPool := TBGRACoordPool3D.Create(4);
@@ -257,32 +259,32 @@ end;
 
 function TBGRAPart3D.Add(x, y, z: single): IBGRAVertex3D;
 begin
-  result := TBGRAVertex3D.Create(FCoordPool,Point3D(x,y,z));
+  result := TBGRAVertex3D.Create(FObject3D,FCoordPool,Point3D(x,y,z));
   Add(result);
 end;
 
 function TBGRAPart3D.Add(pt: TPoint3D): IBGRAVertex3D;
 begin
-  result := TBGRAVertex3D.Create(FCoordPool,pt);
+  result := TBGRAVertex3D.Create(FObject3D,FCoordPool,pt);
   Add(result);
 end;
 
 function TBGRAPart3D.Add(pt: TPoint3D; normal: TPoint3D): IBGRAVertex3D;
 begin
-  result := TBGRAVertex3D.Create(FCoordPool,pt);
+  result := TBGRAVertex3D.Create(FObject3D,FCoordPool,pt);
   result.CustomNormal := normal;
   Add(result);
 end;
 
 function TBGRAPart3D.Add(pt: TPoint3D_128): IBGRAVertex3D;
 begin
-  result := TBGRAVertex3D.Create(FCoordPool,pt);
+  result := TBGRAVertex3D.Create(FObject3D,FCoordPool,pt);
   Add(result);
 end;
 
 function TBGRAPart3D.Add(pt: TPoint3D_128; normal: TPoint3D_128): IBGRAVertex3D;
 begin
-  result := TBGRAVertex3D.Create(FCoordPool,pt);
+  result := TBGRAVertex3D.Create(FObject3D,FCoordPool,pt);
   result.CustomNormal := Point3D(normal);
   Add(result);
 end;
@@ -311,7 +313,7 @@ var
 begin
   setlength(result, length(pts));
   for i := 0 to high(pts) do
-    result[i] := TBGRAVertex3D.Create(FCoordPool,pts[i]);
+    result[i] := TBGRAVertex3D.Create(FObject3D,FCoordPool,pts[i]);
   Add(result);
 end;
 
@@ -322,7 +324,7 @@ var
 begin
   setlength(result, length(pts));
   for i := 0 to high(pts) do
-    result[i] := TBGRAVertex3D.Create(FCoordPool,pts[i]);
+    result[i] := TBGRAVertex3D.Create(FObject3D,FCoordPool,pts[i]);
   Add(result);
 end;
 
@@ -551,7 +553,7 @@ function TBGRAPart3D.CreatePart: IBGRAPart3D;
 begin
   if FPartCount = length(FParts) then
     setlength(FParts, FPartCount*2+1);
-  result := TBGRAPart3D.Create(self);
+  result := TBGRAPart3D.Create(FObject3D,self);
   FParts[FPartCount] := result;
   inc(FPartCount);
 end;

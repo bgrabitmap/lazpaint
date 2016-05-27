@@ -72,7 +72,8 @@ type
     procedure AddTriangleLinearColor(pt1, pt2, pt3: TPointF; c1, c2, c3: TBGRAPixel);
     procedure AddTriangleLinearMapping(pt1, pt2, pt3: TPointF; texture: IBGRAScanner; tex1, tex2, tex3: TPointF);
     procedure AddQuadLinearColor(pt1, pt2, pt3, pt4: TPointF; c1, c2, c3, c4: TBGRAPixel);
-    procedure AddQuadLinearMapping(pt1, pt2, pt3, pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF);
+    procedure AddQuadLinearMapping(pt1, pt2, pt3, pt4: TPointF; texture: IBGRAScanner; tex1, tex2, {%H-}tex3, tex4: TPointF;
+       ACulling: TFaceCulling = fcNone);
     procedure AddQuadPerspectiveMapping(pt1, pt2, pt3, pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF);
     procedure AddEllipse(x, y, rx, ry: single; AColor: TBGRAPixel);
     procedure AddEllipse(x, y, rx, ry: single; ATexture: IBGRAScanner);
@@ -539,7 +540,7 @@ procedure BorderEllipseAntialias(bmp: TBGRACustomBitmap; x, y, rx, ry, w: single
 var
   info: TFillBorderEllipseInfo;
 begin
-  if (rx = 0) or (ry = 0) or (w=0) or (x = EmptySingle) or (y = EmptySingle) then
+  if ((rx = 0) and (ry = 0)) or (w=0) or (x = EmptySingle) or (y = EmptySingle) then
     exit;
   info := TFillBorderEllipseInfo.Create(x, y, rx, ry, w);
   FillShapeAntialias(bmp, info, c, EraseMode, nil, False, LinearBlend);
@@ -551,7 +552,7 @@ procedure BorderEllipseAntialiasWithTexture(bmp: TBGRACustomBitmap; x, y, rx,
 var
   info: TFillBorderEllipseInfo;
 begin
-  if (rx = 0) or (ry = 0) or (w=0) or (x = EmptySingle) or (y = EmptySingle) then
+  if ((rx = 0) and (ry = 0)) or (w=0) or (x = EmptySingle) or (y = EmptySingle) then
     exit;
   info := TFillBorderEllipseInfo.Create(x, y, rx, ry, w);
   FillShapeAntialiasWithTexture(bmp, info, scan, False, LinearBlend);
@@ -644,11 +645,15 @@ end;
 
 procedure TBGRAMultishapeFiller.AddTriangleLinearColor(pt1, pt2, pt3: TPointF; c1, c2,
   c3: TBGRAPixel);
-var
-  grad: TBGRAGradientTriangleScanner;
+var grad: TBGRAGradientTriangleScanner;
 begin
-  grad := TBGRAGradientTriangleScanner.Create(pt1,pt2,pt3, c1,c2,c3);
-  AddShape(TOnePassFillPolyInfo.Create([pt1,pt2,pt3]),True,grad,grad,BGRAPixelTransparent);
+  if (c1 = c2) and (c2 = c3) then
+    AddPolygon([pt1,pt2,pt3],c1)
+  else
+  begin
+    grad := TBGRAGradientTriangleScanner.Create(pt1,pt2,pt3, c1,c2,c3);
+    AddShape(TOnePassFillPolyInfo.Create([pt1,pt2,pt3]),True,grad,grad,BGRAPixelTransparent);
+  end;
 end;
 
 procedure TBGRAMultishapeFiller.AddTriangleLinearMapping(pt1, pt2,
@@ -666,27 +671,31 @@ var
   center: TPointF;
   centerColor: TBGRAPixel;
 begin
-  center := (pt1+pt2+pt3+pt4)*(1/4);
-  centerColor := GammaCompression( MergeBGRA(MergeBGRA(GammaExpansion(c1),GammaExpansion(c2)),
-                    MergeBGRA(GammaExpansion(c3),GammaExpansion(c4))) );
-  AddTriangleLinearColor(pt1,pt2,center, c1,c2,centerColor);
-  AddTriangleLinearColor(pt2,pt3,center, c2,c3,centerColor);
-  AddTriangleLinearColor(pt3,pt4,center, c3,c4,centerColor);
-  AddTriangleLinearColor(pt4,pt1,center, c4,c1,centerColor);
+  if (c1 = c2) and (c2 = c3) and (c3 = c4) then
+    AddPolygon([pt1,pt2,pt3,pt4],c1)
+  else
+  begin
+    center := (pt1+pt2+pt3+pt4)*(1/4);
+    centerColor := GammaCompression( MergeBGRA(MergeBGRA(GammaExpansion(c1),GammaExpansion(c2)),
+                      MergeBGRA(GammaExpansion(c3),GammaExpansion(c4))) );
+    AddTriangleLinearColor(pt1,pt2,center, c1,c2,centerColor);
+    AddTriangleLinearColor(pt2,pt3,center, c2,c3,centerColor);
+    AddTriangleLinearColor(pt3,pt4,center, c3,c4,centerColor);
+    AddTriangleLinearColor(pt4,pt1,center, c4,c1,centerColor);
+  end;
 end;
 
 procedure TBGRAMultishapeFiller.AddQuadLinearMapping(pt1, pt2, pt3,
-  pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF);
+  pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF;
+  ACulling: TFaceCulling);
 var
-  center: TPointF;
-  centerTex: TPointF;
+  mapping: TBGRAQuadLinearScanner;
 begin
-  center := (pt1+pt2+pt3+pt4)*(1/4);
-  centerTex := (tex1+tex2+tex3+tex4)*(1/4);
-  AddTriangleLinearMapping(pt1,pt2,center, texture,tex1,tex2,centerTex);
-  AddTriangleLinearMapping(pt2,pt3,center, texture,tex2,tex3,centerTex);
-  AddTriangleLinearMapping(pt3,pt4,center, texture,tex3,tex4,centerTex);
-  AddTriangleLinearMapping(pt4,pt1,center, texture,tex4,tex1,centerTex);
+  mapping := TBGRAQuadLinearScanner.Create(texture,
+    [tex1,tex2,tex3,tex4],
+    [pt1,pt2,pt3,pt4]);
+  mapping.Culling := ACulling;
+  AddShape(TOnePassFillPolyInfo.Create([pt1,pt2,pt3,pt4]),True,mapping,mapping,BGRAPixelTransparent);
 end;
 
 procedure TBGRAMultishapeFiller.AddQuadPerspectiveMapping(pt1, pt2, pt3,

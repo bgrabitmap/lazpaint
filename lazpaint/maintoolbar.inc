@@ -1,4 +1,5 @@
 procedure TFMain.CreateToolbarElements;
+var gcs: TGradientColorspace;
 begin
   if Assigned(SpinEdit_PenOpacity) then exit;
 
@@ -45,6 +46,9 @@ begin
   Tool_DiamondGradient.OnClick := @Tool_DiamondGradientClick;
   Tool_RadialGradient.OnClick := @Tool_RadialGradientClick;
   Tool_SinGradient.OnClick := @Tool_SinGradientClick;
+  for gcs := low(TGradientColorspace) to high(TGradientColorspace) do
+    Combo_GradientColorspace.Items.Add(GradientColorSpaceToDisplay(gcs));
+  Combo_GradientColorspace.OnChange := @Combo_GradientColorspaceChange;
   Tool_PhongShapeRectangle.OnClick := @Tool_PhongShapeRectangleClick;
   Tool_PhongShapeRoundRect.OnClick := @Tool_PhongShapeRoundRectClick;
   Tool_PhongShapeSphere.OnClick := @Tool_PhongShapeSphereClick;
@@ -173,6 +177,39 @@ begin
   Tool_CurveMovePoint.Hint := Tool_CurveMovePoint.Hint + ' (Z)';
 end;
 
+function TFMain.GetCurrentToolAction: TAction;
+begin
+  Case CurrentTool of
+  ptHand: result := ToolHand;
+  ptPen: result := ToolPen;
+  ptBrush: result := ToolBrush;
+  ptClone: result := ToolClone;
+  ptColorPicker: result := ToolColorPicker;
+  ptEraser: result := ToolEraser;
+  ptRect: result := ToolRect;
+  ptEllipse: result := ToolEllipse;
+  ptPolygon: result := ToolPolygon;
+  ptSpline: result := ToolSpline;
+  ptFloodFill: result := ToolFloodfill;
+  ptGradient: result := ToolGradient;
+  ptSelectRect: result := ToolSelectRect;
+  ptSelectEllipse: result := ToolSelectEllipse;
+  ptSelectPoly: result := ToolSelectPoly;
+  ptSelectSpline: result := ToolSelectSpline;
+  ptSelectPen: result := ToolSelectPen;
+  ptMoveSelection: result := ToolMoveSelection;
+  ptRotateSelection: result := ToolRotateSelection;
+  ptMagicWand: result := ToolMagicWand;
+  ptText: result := ToolText;
+  ptDeformation: result := ToolDeformation;
+  ptTextureMapping: result := ToolTextureMapping;
+  ptLayerMapping: result := ToolLayerMapping;
+  ptPhong: result := ToolPhong;
+  ptMoveLayer: result := LayerMove;
+  else result := nil;
+  end;
+end;
+
 procedure TFMain.LabelAutosize(ALabel: TLabel);
 var
   NewSize,Delta: integer;
@@ -269,6 +306,7 @@ begin
   SpinEdit_Tolerance.Value := ToolManager.ToolTolerance;
   Tool_ProgressiveFloodfill.Down := ToolManager.ToolFloodFillOptionProgressive;
   Tool_SinGradient.Down := ToolManager.ToolGradientSine;
+  Combo_GradientColorspace.ItemIndex := Combo_GradientColorspace.Items.IndexOf(GradientColorSpaceToDisplay(ToolManager.ToolGradientColorspace));
   Tool_GridMoveWithoutDeformation.Down := ToolManager.ToolDeformationGridMoveWithoutDeformation;
   SpinEdit_GridNbX.Value := ToolManager.ToolDeformationGridNbX-1;
   SpinEdit_GridNbY.Value := ToolManager.ToolDeformationGridNbY-1;
@@ -391,37 +429,19 @@ end;
 
 procedure TFMain.UpdateToolImage;
 var img: integer; ToolBmp, IconBmp: TBitmap; IconBGRA, Blur, ToolBGRA: TBGRABitmap;
+    a: TAction;
 begin
-  Case CurrentTool of
-  ptHand: img := ToolHand.ImageIndex;
-  ptPen: img := ToolPen.ImageIndex;
-  ptBrush: img := ToolBrush.ImageIndex;
-  ptClone: img := ToolClone.ImageIndex;
-  ptColorPicker: img := ToolColorPicker.ImageIndex;
-  ptEraser: img := ToolEraser.ImageIndex;
-  ptRect: img := ToolRect.ImageIndex;
-  ptEllipse: img := ToolEllipse.ImageIndex;
-  ptPolygon: img := ToolPolygon.ImageIndex;
-  ptSpline: img := ToolSpline.ImageIndex;
-  ptFloodFill: img := ToolFloodfill.ImageIndex;
-  ptGradient: img := ToolGradient.ImageIndex;
-  ptSelectRect: img := ToolSelectRect.ImageIndex;
-  ptSelectEllipse: img := ToolSelectEllipse.ImageIndex;
-  ptSelectPoly: img := ToolSelectPoly.ImageIndex;
-  ptSelectSpline: img := ToolSelectSpline.ImageIndex;
-  ptSelectPen: img := ToolSelectPen.ImageIndex;
-  ptMoveSelection: img := ToolMoveSelection.ImageIndex;
-  ptRotateSelection: img := ToolRotateSelection.ImageIndex;
-  ptMagicWand: img := ToolMagicWand.ImageIndex;
-  ptText: img := ToolText.ImageIndex;
-  ptDeformation: img := ToolDeformation.ImageIndex;
-  ptTextureMapping: img := ToolTextureMapping.ImageIndex;
-  ptLayerMapping: img := ToolLayerMapping.ImageIndex;
-  ptPhong: img := ToolPhong.ImageIndex;
-  ptMoveLayer: img := LayerMove.ImageIndex;
-  else img := -1;
+  a := CurrentToolAction;
+  if a <> nil then
+  begin
+    img := a.ImageIndex;
+    currentToolLabel := a.Caption;
+  end
+  else
+  begin
+    img := -1;
+    currentToolLabel := '';
   end;
-
   if img <> previousToolImg then
   begin
     if img <> -1 then
@@ -429,7 +449,7 @@ begin
       IconBGRA := TBGRABitmap.Create(Image_CurrentTool.Width,Image_CurrentTool.Height);
 
       ToolBmp := TBitmap.Create;
-      ImageList1.GetBitmap(img,ToolBmp);
+      ImageList16.GetBitmap(img,ToolBmp);
       ToolBGRA := TBGRABitmap.Create(ToolBmp);
       FreeAndNil(ToolBmp);
 
@@ -456,7 +476,7 @@ var lIcon: TBitmap;
 begin
   Image_CurrentTexture.Picture.Clear;
   lIcon := TBitmap.Create;
-  ImageList1.GetBitmap(56,lIcon);
+  ImageList16.GetBitmap(56,lIcon);
   Image_CurrentTexture.Picture.Assign(lIcon);
   lIcon.Free;
 end;
@@ -1104,7 +1124,7 @@ procedure TFMain.PaintBox_PenPreviewMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var t: integer;
 begin
-  t := ImageList1.Width;
+  t := ImageList16.Width;
   if (X < t) and (Y < t) then DecreasePenSize else
   if (X >= PaintBox_PenPreview.Width-t) and (Y < t) then IncreasePenSize;
   ShowPenPreview(False);
@@ -1148,7 +1168,7 @@ begin
       end;
   end else
     bmp.FillEllipseAntialias(x,y,visualSize/2,visualSize/2,ColorToBGRA(ColorToRGB(clBtnText)));
-  t := ImageList1.Width;
+  t := ImageList16.Width;
   m := t/10;
   x := 0;
   bmp.EllipseAntialias(x+(t-1)/2,(t-1)/2,t/2-m,t/2-m,BGRABlack,m,BGRAWhite);
@@ -1217,6 +1237,15 @@ begin
   begin
     ToolManager.ToolGradientSine := Tool_SinGradient.Down;
     UpdateEditPicture;
+  end;
+end;
+
+procedure TFMain.Combo_GradientColorspaceChange(Sender: TObject);
+begin
+  if initialized then
+  begin
+    ToolManager.ToolGradientColorspace := DisplayToGradientColorSpace(Combo_GradientColorspace.Text);
+    UpdateEditPicture(True);
   end;
 end;
 
@@ -1457,4 +1486,4 @@ begin
     ToolManager.ToolBrushSpacing := SpinEdit_BrushSpacing.Value;
   end;
 end;
-
+

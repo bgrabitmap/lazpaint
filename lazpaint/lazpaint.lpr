@@ -10,7 +10,7 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces,
 
-  process, Forms, SysUtils, Inifiles, FileUtil, printer4lazarus, lnetvisual, //packages
+  process, Forms, SysUtils, Inifiles, FileUtil, printer4lazarus, //packages
 
   LazPaintType, LazpaintInstance, LazpaintMainForm, UConfig, UOnline,
 
@@ -34,7 +34,7 @@ uses
   UToolPhong, UToolText, UScripting, UMenu, UColorFilters, uadjustcurves,
   UScriptType, ULayerAction, UImageType, uposterize, UMySLV, UToolLayer,
   unoisefilter, uprint, uimagelist, UBarUpDown, UFileExtensions, UFileSystem, UToolBrush, UMainFormLayout, USaveOption, UBrushType, 
-  ugeometricbrush, URainType, UFormRain, UPaletteToolbar, bgrabitmappack;
+  ugeometricbrush, URainType, UFormRain, UPaletteToolbar;
 
 //sometimes LResources disappear in the uses clause
 
@@ -67,10 +67,18 @@ var
 { TMyLazPaintInstance }
 
 function TMyLazPaintInstance.GetOnlineUpdater: TLazPaintCustomOnlineUpdater;
+var lastCheck: TDateTime;
 begin
   try
-    if not Assigned(FMyOnlineUpdater) then
-      FMyOnlineUpdater := TLazPaintOnlineUpdater.Create(Config);
+    lastCheck := Config.GetLastUpdateCheck;
+    if (lastCheck = 0) or (Now-lastCheck > 30) then
+    begin
+      if not Assigned(FMyOnlineUpdater) then
+      begin
+        FMyOnlineUpdater := TLazPaintOnlineUpdater.Create(Config);
+        Config.SetLastUpdateCheck(Now);
+      end;
+    end;
     Result:= FMyOnlineUpdater;
   except
     on ex:exception do

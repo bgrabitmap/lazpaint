@@ -19,7 +19,7 @@ function CreateWaterTexture(tx,ty: integer): TBGRABitmap;
 
 implementation
 
-uses BGRAGradients;
+uses BGRAOpenGL, BGRAGradients;
 
 function Interp256(value1,value2,position: integer): integer; inline;
 begin
@@ -50,6 +50,7 @@ begin
                     Interp256(BGRA(157,97,60),BGRA(202,145,112),colorOscillation), globalColorVariation);
     inc(p);
   end;
+  BGRAReplace(result, TBGLBitmap.Create(result));
 end;
 
 function CreateVerticalWoodTexture(tx, ty: integer): TBGRABitmap;
@@ -76,6 +77,7 @@ begin
     inc(x);
     if x = tx then x := 0;
   end;
+  BGRAReplace(result, TBGLBitmap.Create(result));
 end;
 
 function CreateGrassTexture(tx,ty: integer): TBGRABitmap;
@@ -90,17 +92,19 @@ begin
     p^ := Interp256( BGRA(0,128,0), BGRA(192,255,0), p^.red );
     inc(p);
   end;
+  BGRAReplace(result, TBGLBitmap.Create(result));
 end;
 
 function CreateWaterTexture(tx,ty: integer): TBGRABitmap;
 const blurSize = 5;
 var
-  temp: TBGRABitmap;
+  map: TBGRABitmap;
   phong: TPhongShading;
 begin
-  result := CreateCyclicPerlinNoiseMap(tx,ty,1,1,1.2,rfBestQuality);
-  temp:= result.GetPart(rect(-blurSize,-blurSize,tx+blurSize,ty+blurSize)) as TBGRABitmap;
-  BGRAReplace(temp,temp.FilterBlurRadial(blurSize,rbFast));
+  result := TBGLBitmap.Create(tx,ty);
+  map := CreateCyclicPerlinNoiseMap(tx,ty,1,1,1.2,rfBestQuality);
+  BGRAReplace(map,map.GetPart(rect(-blurSize,-blurSize,tx+blurSize,ty+blurSize)));
+  BGRAReplace(map,map.FilterBlurRadial(blurSize,rbFast));
   phong := TPhongShading.Create;
   phong.LightSourceDistanceFactor := 0;
   phong.LightDestFactor := 0;
@@ -110,9 +114,9 @@ begin
   phong.NegativeDiffusionFactor := 0.3;
   phong.SpecularIndex := 20;
   phong.AmbientFactor := 0.4;
-  phong.Draw(result,temp,20,-blurSize,-blurSize,BGRA(28,139,166));
+  phong.Draw(result,map,20,-blurSize,-blurSize,BGRA(28,139,166));
   phong.Free;
-  temp.Free;
+  map.Free;
 end;
 
 

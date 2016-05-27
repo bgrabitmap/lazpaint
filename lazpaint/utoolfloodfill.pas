@@ -23,8 +23,6 @@ type
   { TToolGradient }
 
   TToolGradient = class(TToolRectangle)
-  private
-    lastRenderWasHighQuality: boolean;
   protected
     function UpdateShape(toolDest: TBGRABitmap; HighQuality: boolean): TRect;
     function UpdateShape(toolDest: TBGRABitmap): TRect; override;
@@ -32,34 +30,42 @@ type
     function FinishShape(ToolDest: TBGRABitmap): TRect; override;
     function BorderTest(ptF: TPointF): TRectangularBorderTest; override;
     function RenderAllCornerPositions: boolean; override;
-    function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;
-      rightBtn: boolean): TRect; override;
+    function LeaveMovingPoint: TRect; override;
+    function GetStatusText: string; override;
   public
-    function ToolUp: TRect; override;
     function Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
   end;
 
 implementation
 
-uses ugraph, LazPaintType;
+uses ugraph, LazPaintType, BGRAGradientScanner;
 
 { TToolGradient }
 
 function TToolGradient.UpdateShape(toolDest: TBGRABitmap; HighQuality: boolean
   ): TRect;
 var ditherAlgo: TDitheringAlgorithm;
+   g: TBGRACustomGradient;
 begin
-  lastRenderWasHighQuality:= HighQuality;
    if HighQuality then
      ditherAlgo:= daFloydSteinberg
    else
      ditherAlgo:= daNearestNeighbor;
    ClearShape;
-   toolDest.GradientFill(0,0,toolDest.Width,toolDest.Height, penColor, fillColor,
+   case Manager.ToolGradientColorspace of
+     gcsLinearRgb: g := TBGRASimpleGradientWithoutGammaCorrection.Create(penColor, fillColor);
+     gcsHueCW: g := TBGRAHueGradient.Create(penColor, fillColor, [hgoPositiveDirection]);
+     gcsHueCCW: g := TBGRAHueGradient.Create(penColor, fillColor, [hgoNegativeDirection]);
+     gcsCorrectedHueCW: g := TBGRAHueGradient.Create(penColor, fillColor, [hgoPositiveDirection, hgoLightnessCorrection]);
+     gcsCorrectedHueCCW: g := TBGRAHueGradient.Create(penColor, fillColor, [hgoNegativeDirection, hgoLightnessCorrection]);
+   else
+     g := TBGRASimpleGradientWithGammaCorrection.Create(penColor, fillColor);
+   end;
+   toolDest.GradientFill(0,0,toolDest.Width,toolDest.Height, g,
      Manager.ToolGradientType, pointf(rectOrigin.X,rectOrigin.Y), pointf(rectDest.X,rectDest.Y),
-     dmDrawWithTransparency, True, Manager.ToolGradientSine,
-     ditherAlgo);
-   result := rect(0,0,Manager.Image.Width,Manager.Image.Height);
+     dmDrawWithTransparency, Manager.ToolGradientSine, ditherAlgo);
+   g.Free;
+   result := rect(0,0,toolDest.Width,toolDest.Height);
 end;
 
 function TToolGradient.UpdateShape(toolDest: TBGRABitmap): TRect;
@@ -74,7 +80,7 @@ end;
 
 function TToolGradient.FinishShape(ToolDest: TBGRABitmap): TRect;
 begin
-  Result:= UpdateShape(toolDest, lastRenderWasHighQuality);
+  Result:= UpdateShape(toolDest, not rectDrawing and not rectMovingPoint);
 end;
 
 function TToolGradient.BorderTest(ptF: TPointF): TRectangularBorderTest;
@@ -89,18 +95,19 @@ begin
   Result:=false;
 end;
 
-function TToolGradient.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
-  ptF: TPointF; rightBtn: boolean): TRect;
+function TToolGradient.LeaveMovingPoint: TRect;
 begin
-  Result:=inherited DoToolDown(toolDest, pt, ptF, rightBtn);
-  if rectMovingPoint then lastRenderWasHighQuality := false;
+  result := FinishShape(GetToolDrawingLayer);
 end;
 
-function TToolGradient.ToolUp: TRect;
+function TToolGradient.GetStatusText: string;
 begin
-  result := inherited ToolUp;
-  if not lastRenderWasHighQuality then
-    result := RectUnion(result, UpdateShape(GetToolDrawingLayer,true));
+  if rectDrawing or afterRectDrawing then
+    result := 'x1 = '+inttostr(round(rectOrigin.x))+'|y1 = '+inttostr(round(rectOrigin.y))+'|'+
+    'x2 = '+inttostr(round(rectDest.x))+' |y2 = '+inttostr(round(rectDest.y))+'|'+
+    'Δ = '+inttostr(round(sqrt(sqr(rectDest.x-rectOrigin.x)+sqr(rectDest.y-rectOrigin.y))))
+  else
+    Result:=inherited GetStatusText;
 end;
 
 function TToolGradient.Render(VirtualScreen: TBGRABitmap;

@@ -23,23 +23,29 @@ interface
 }
 
 uses
-  Classes, SysUtils, BGRAScene3D, BGRABitmap, BGRABitmapTypes;
+  Classes, SysUtils, BGRAScene3D, BGRABitmap, BGRABitmapTypes,
+  BGRAOpenGL3D;
 
 type
   TExample2Lighting = (e2lNone,e2lLightness,e2lColored);
 
   { TExample2 }
 
-  TExample2 = class(TBGRAScene3D)
+  TExample2 = class(TBGLScene3D)
+  private
     water,wood,vWood: TBGRABitmap;
     box,ground,light1,light2: IBGRAObject3D;
     alpha: integer;
     cury: single;
-
-    constructor Create(Lighting: TExample2Lighting);
+    FLighting: TExample2Lighting;
+    procedure CreateScene;
     procedure ApplyTexCoord(face: IBGRAFace3D; Times: integer = 1);
-    procedure Render; override;
+    procedure SetLighting(AValue: TExample2Lighting);
+  public
+    constructor Create(ALighting: TExample2Lighting);
+    procedure Elapse;
     destructor Destroy; override;
+    property Lighting: TExample2Lighting read FLighting write SetLighting;
   end;
 
 implementation
@@ -50,10 +56,7 @@ const texSize = 256;
 
 { TExample2 }
 
-constructor TExample2.Create(Lighting: TExample2Lighting);
-var
-  base,v: array of IBGRAVertex3D;
-  lamp,shiny: IBGRAMaterial3D;
+constructor TExample2.Create(ALighting: TExample2Lighting);
 begin
   inherited Create;
 
@@ -61,6 +64,35 @@ begin
   water := CreateWaterTexture(texSize,texSize);
   vWood := CreateVerticalWoodTexture(texSize,texSize);
   wood := CreateWoodTexture(texSize,texSize);
+
+  FLighting:= ALighting;
+  CreateScene;
+end;
+
+procedure TExample2.Elapse;
+var dy: single;
+begin
+  if light1 <> nil then light1.MainPart.RotateYDeg(1,False);
+  if light2 <> nil then light2.MainPart.RotateYDeg(-1.3,False);
+  if ground <> nil then
+  begin
+    dy := cos(alpha*Pi/180)*0.05;
+    cury += dy;
+    ground.MainPart.Translate(0,dy,0,False);
+    ViewPoint := Point3D(ViewPoint.x,-40+cury,ViewPoint.z);
+    LookAt(Point3D(0,cury,0),Point3D(0,-1,0));
+    inc(alpha);
+    if alpha = 360 then alpha := 0;
+  end;
+end;
+
+procedure TExample2.CreateScene;
+var
+  base,v: array of IBGRAVertex3D;
+  lamp,shiny: IBGRAMaterial3D;
+begin
+  Clear;
+
   shiny := CreateMaterial(500);
   lamp := CreateMaterial;
   lamp.LightThroughFactor := 0.01;
@@ -94,7 +126,7 @@ begin
     light1 := CreateHalfSphere(10, BGRA(255,128,0), 8,8);
     with light1 do
     begin
-      AddPointLight(MainPart.Add(0,0,-5),80,BGRA(255,128,0),0);
+      AddPointLight(MainPart.Add(0,0,-5),60,BGRA(255,128,0),0);
       MainPart.Translate(-100,-50,0);
       MainPart.LookAt(Point3D(0,0,0),Point3D(0,-1,0));
       Material := lamp;
@@ -103,7 +135,7 @@ begin
     light2 := CreateHalfSphere(10, BGRA(0,128,255), 8,8);
     with light2 do
     begin
-      AddPointLight(MainPart.Add(0,0,-5),80,BGRA(0,128,255),0);
+      AddPointLight(MainPart.Add(0,0,-5),100,BGRA(0,128,255),0);
       MainPart.Translate(50,0,-100);
       MainPart.LookAt(Point3D(0,0,0),Point3D(0,-1,0));
       Material := lamp;
@@ -123,9 +155,10 @@ begin
       ViewPoint := Point3D(-40,-40,-100);
       AmbiantLightness := 0.25;
       with CreateObject do
-        AddPointLight(MainPart.Add(-100,-80,0),100,1.25);
+        AddPointLight(MainPart.Add(-100,-80,0),100,1.25, -0.15);
     end else
     begin
+      AmbiantLightness := 1;
       with ground do
       begin
         base := MainPart.Add([-50,0,-50, -50,0,50, 50,0,50, 50,0,-50]);
@@ -151,22 +184,11 @@ begin
   end;
 end;
 
-procedure TExample2.Render;
-var dy: single;
+procedure TExample2.SetLighting(AValue: TExample2Lighting);
 begin
-  if light1 <> nil then light1.MainPart.RotateYDeg(1,False);
-  if light2 <> nil then light2.MainPart.RotateYDeg(-1.3,False);
-  if ground <> nil then
-  begin
-    dy := cos(alpha*Pi/180)*0.05;
-    cury += dy;
-    ground.MainPart.Translate(0,dy,0,False);
-    ViewPoint := Point3D(ViewPoint.x,-40+cury,ViewPoint.z);
-    LookAt(Point3D(0,cury,0),Point3D(0,-1,0));
-    inc(alpha);
-    if alpha = 360 then alpha := 0;
-  end;
-  inherited Render;
+  if FLighting=AValue then Exit;
+  FLighting:=AValue;
+  CreateScene;
 end;
 
 destructor TExample2.Destroy;

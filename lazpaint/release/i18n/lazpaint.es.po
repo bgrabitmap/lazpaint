@@ -44,11 +44,6 @@ msgctxt "tfabout.label_libraries.caption"
 msgid "Libraries used:"
 msgstr "Librerías usadas:"
 
-#: tfabout.label_librariesvalue.caption
-msgctxt "tfabout.label_librariesvalue.caption"
-msgid "BGRABitmap (LGPL)"
-msgstr "BGRABitmap (LGPL)"
-
 #: tfabout.label_licence.caption
 msgctxt "tfabout.label_licence.caption"
 msgid "Licence:"
@@ -346,6 +341,14 @@ msgctxt "tfemboss.caption"
 msgid "Emboss"
 msgstr "Realzar"
 
+#: tfemboss.checkbox_preservecolors.caption
+msgid "Preserve colors"
+msgstr ""
+
+#: tfemboss.checkbox_transparent.caption
+msgid "Transparent"
+msgstr ""
+
 #: tfemboss.label_direction.caption
 msgctxt "tfemboss.label_direction.caption"
 msgid "Direction :"
@@ -414,6 +417,7 @@ msgid "HSL"
 msgstr "HSL"
 
 #: tffilterfunction.tabsheet_rgb.caption
+msgctxt "tffilterfunction.tabsheet_rgb.caption"
 msgid "RGB"
 msgstr "RGB"
 
@@ -778,6 +782,11 @@ msgctxt "TFMAIN.FILESAVESELECTIONAS.CAPTION"
 msgid "Save selection as..."
 msgstr "Guardar selección como..."
 
+#: tfmain.fileuseimagebrowser.caption
+msgctxt "tfmain.fileuseimagebrowser.caption"
+msgid "Use image browser"
+msgstr ""
+
 #: tfmain.filterblurbox.caption
 msgid "Box blur..."
 msgstr "Desenfoque caja..."
@@ -1022,10 +1031,39 @@ msgctxt "tfmain.itemhorizflipselection.caption"
 msgid "Selection"
 msgstr "Selección"
 
+#: tfmain.itemiconsize16.caption
+msgid "16px"
+msgstr ""
+
+#: tfmain.itemiconsize24.caption
+msgid "24px"
+msgstr ""
+
+#: tfmain.itemiconsize32.caption
+msgid "32px"
+msgstr ""
+
+#: tfmain.itemiconsize48.caption
+msgid "48px"
+msgstr ""
+
+#: tfmain.itemiconsize64.caption
+msgid "64px"
+msgstr ""
+
+#: tfmain.itemiconsizeauto.caption
+msgid "auto"
+msgstr ""
+
 #: tfmain.itemquitseparator.caption
 msgctxt "tfmain.itemquitseparator.caption"
 msgid "-"
 msgstr "-"
+
+#: tfmain.itemuseimagebrowser.caption
+msgctxt "tfmain.itemuseimagebrowser.caption"
+msgid "Use image browser"
+msgstr ""
 
 #: tfmain.itemvertfliplayer.caption
 msgctxt "tfmain.itemvertfliplayer.caption"
@@ -1045,10 +1083,6 @@ msgstr "Selección"
 #: tfmain.itemviewdocktoolbox.caption
 msgid "Dock toolbox"
 msgstr "Acoplar barra de herramientas"
-
-#: tfmain.itemviewpalette.caption
-msgid "Palette"
-msgstr "Paleta"
 
 #: tfmain.label_altitude.caption
 msgid "Altitude"
@@ -1255,6 +1289,10 @@ msgstr "Voltear horizontalmente"
 msgctxt "tfmain.menuhorizflipsub.hint"
 msgid "Flip image horizontally"
 msgstr "Voltear imágen horizontalmente"
+
+#: tfmain.menuiconsize.caption
+msgid "Icon size"
+msgstr ""
 
 #: tfmain.menuimage.caption
 msgctxt "tfmain.menuimage.caption"
@@ -1820,6 +1858,15 @@ msgctxt "tfmain.viewlayerstackbutton.hint"
 msgid "Show or hide layer stack window"
 msgstr "Mostrar u ocultar ventana de apilado"
 
+#: tfmain.viewpalette.caption
+msgctxt "tfmain.viewpalette.caption"
+msgid "Palette"
+msgstr "Paleta"
+
+#: tfmain.viewstatusbar.caption
+msgid "Status bar"
+msgstr ""
+
 #: tfmain.viewtoolbox.caption
 msgid "Toolbox"
 msgstr "Herramientas"
@@ -1963,6 +2010,46 @@ msgstr "Aceptar"
 msgid "Choose image"
 msgstr "Eligir imagen"
 
+#: tfnewimage.bgrashape1.caption
+msgid "BGRAShape1"
+msgstr ""
+
+#: tfnewimage.bgrashape10.caption
+msgid "BGRAShape10"
+msgstr ""
+
+#: tfnewimage.bgrashape2.caption
+msgid "BGRAShape2"
+msgstr ""
+
+#: tfnewimage.bgrashape3.caption
+msgid "BGRAShape3"
+msgstr ""
+
+#: tfnewimage.bgrashape4.caption
+msgid "BGRAShape4"
+msgstr ""
+
+#: tfnewimage.bgrashape5.caption
+msgid "BGRAShape5"
+msgstr ""
+
+#: tfnewimage.bgrashape6.caption
+msgid "BGRAShape6"
+msgstr ""
+
+#: tfnewimage.bgrashape7.caption
+msgid "BGRAShape7"
+msgstr ""
+
+#: tfnewimage.bgrashape8.caption
+msgid "BGRAShape8"
+msgstr ""
+
+#: tfnewimage.bgrashape9.caption
+msgid "BGRAShape9"
+msgstr ""
+
 #: tfnewimage.button_cancel.caption
 msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -1982,6 +2069,14 @@ msgstr "Nueva imágen"
 msgctxt "tfnewimage.label_height.caption"
 msgid "Height :"
 msgstr "Alto:"
+
+#: tfnewimage.label_height1.caption
+msgid "Ratio :"
+msgstr ""
+
+#: tfnewimage.label_memoryrequired.caption
+msgid "Memory required :"
+msgstr ""
 
 #: tfnewimage.label_width.caption
 msgctxt "tfnewimage.label_width.caption"
@@ -2470,6 +2565,10 @@ msgstr "256 colores"
 msgid "2 colors"
 msgstr "2 colores"
 
+#: tfsaveoption.radiobutton_miomap.caption
+msgid "MioMap"
+msgstr ""
+
 #: tfsharpen.button_cancel.caption
 msgctxt "tfsharpen.button_cancel.caption"
 msgid "Cancel"
@@ -2650,6 +2749,16 @@ msgstr "Acciónes conflictivas"
 msgid "Contrast"
 msgstr "Contraste"
 
+#: uresourcestrings.rscorrectedhueccw
+msgctxt "uresourcestrings.rscorrectedhueccw"
+msgid "Corr. Hue CCW"
+msgstr ""
+
+#: uresourcestrings.rscorrectedhuecw
+msgctxt "uresourcestrings.rscorrectedhuecw"
+msgid "Corr. Hue CW"
+msgstr ""
+
 #: uresourcestrings.rscosine
 msgctxt "uresourcestrings.rscosine"
 msgid "Cosine"
@@ -2811,6 +2920,16 @@ msgctxt "uresourcestrings.rshue"
 msgid "Hue"
 msgstr "Matiz"
 
+#: uresourcestrings.rshueccw
+msgctxt "uresourcestrings.rshueccw"
+msgid "Hue CCW"
+msgstr ""
+
+#: uresourcestrings.rshuecw
+msgctxt "uresourcestrings.rshuecw"
+msgid "Hue CW"
+msgstr ""
+
 #: uresourcestrings.rsiconorcursor
 msgid "Icon/cursor"
 msgstr "Icono/cursor"
@@ -2896,6 +3015,10 @@ msgstr "Posición de la luz"
 msgctxt "uresourcestrings.rslinear"
 msgid "Linear"
 msgstr "Linear"
+
+#: uresourcestrings.rslinearrgb
+msgid "Linear RGB"
+msgstr ""
 
 #: uresourcestrings.rsloadandmergepalette
 msgid "Load and merge palette..."
@@ -3096,6 +3219,11 @@ msgstr "¿Quieres recuperar el área seleccionada?"
 msgid "Press ENTER to validate"
 msgstr "Presiona ENTER para validar"
 
+#: uresourcestrings.rsrgb
+msgctxt "uresourcestrings.rsrgb"
+msgid "RGB"
+msgstr "RGB"
+
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
 msgstr "Usa clic DERECHO para definir fuente"
@@ -3146,6 +3274,11 @@ msgstr "Ranura"
 msgid "Device"
 msgstr "Aparato"
 
+#: uresourcestrings.rstexturemapping
+msgctxt "uresourcestrings.rstexturemapping"
+msgid "Texture mapping"
+msgstr "Mapeo de texturas"
+
 #: uresourcestrings.rstherearenocheckeditems
 msgid "There are no checked items. Check some items or add some new ones."
 msgstr "No casillas activadas. Activa algunas o añada nuevas."
@@ -3162,6 +3295,10 @@ msgstr "Hacer"
 msgid "Images left: %1"
 msgstr "Se quedan: %1"
 
+#: uresourcestrings.rstooloninvisiblelayer
+msgid "Tool cannot be used on an invisible layer"
+msgstr ""
+
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"
 msgstr "Número total: %1"
@@ -3169,6 +3306,10 @@ msgstr "Número total: %1"
 #: uresourcestrings.rstransferselectiontootherlayer
 msgid "Transfer selection to other layer?"
 msgstr "¿Transferir selección a otra capa?"
+
+#: uresourcestrings.rstransformselectioncontent
+msgid "Do you want to transform content of the selection?"
+msgstr ""
 
 #: uresourcestrings.rsunabletoapplyfilter
 msgid "Unable to apply filter : "

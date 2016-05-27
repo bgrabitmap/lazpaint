@@ -519,6 +519,7 @@ begin
   if FDisplayedPreviewFilename <> FPreviewFilename then UpdatePreview;
   if FComputeIconCurrentItem < ShellListView1.ItemCount then
   begin
+    vsList.Cursor := crAppStart;
     shellRect := rect(0,0,ShellListView1.Width,ShellListView1.Height);
     someIconDone := false;
     for i := FComputeIconCurrentItem to ShellListView1.ItemCount-1 do
@@ -536,6 +537,7 @@ begin
       FComputeIconCurrentItem := i+1;
       DetermineIcon(i);
     end;
+    vsList.Cursor := crDefault;
   end;
   vsList.SetBounds(vsList.Left, vsList.Top, Panel2.Width, Panel2.Height-Panel3.Height);
   ShellListView1.Update;

@@ -56,7 +56,7 @@ var
     if skipDialog then
       filteredLayer := FilterConnector.ActiveLayer.FilterBlurRadial(FilterConnector.WorkArea, AInstance.Config.DefaultBlurRadius,blurType) as TBGRABitmap
     else
-      AInstance.ShowRadialBlurDlg(FilterConnector,blurType);
+      AInstance.ShowRadialBlurDlg(FilterConnector,blurType,AParameters.Strings['Caption']);
   end;
 
   procedure DoMetalFloor;

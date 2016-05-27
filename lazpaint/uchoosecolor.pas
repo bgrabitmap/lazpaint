@@ -70,6 +70,9 @@ type
     function ColorLightOf(c: TBGRAPixel): word;
     procedure DrawTriangleCursor(dest: TBGRABitmap; bounds: TRect; value: byte);
     procedure DoSelect(X,Y: integer);
+    function MakeIconBase(size: integer): TBitmap;
+    function MakeAddIcon(size: integer): TBitmap;
+    function MakeRemoveIcon(size: integer): TBitmap;
   public
     { public declarations }
     colorTarget: TColorTarget;
@@ -82,9 +85,11 @@ type
     property AvailableBmpWidth: integer read GetAvailableBmpWidth;
   end;
 
+var TFChooseColor_CustomDPI: integer = 0;
+
 implementation
 
-uses ugraph, math, LCLType;
+uses ugraph, math, LCLType, BGRAText;
 
 { TFChooseColor }
 
@@ -93,27 +98,33 @@ begin
    {$IFDEF LINUX}
    BorderStyle:= bsDialog;
    {$ENDIF}
-   ScaleDPI(Self,OriginalDPI);
-   EColor.Visible := false;
+   ClientHeight := DoScaleY(160,OriginalDPI,TFChooseColor_CustomDPI);
+   ScaleDPI(Self,OriginalDPI,TFChooseColor_CustomDPI);
+   EColor.Font.Height := FontFullHeightSign*DoScaleY(14,OriginalDPI,TFChooseColor_CustomDPI);
+   LColor.Font.Height := FontFullHeightSign*DoScaleY(14,OriginalDPI,TFChooseColor_CustomDPI);
+   EColor.AdjustSize;
    EColor.Text:= '';
+   EColor.Top := ClientHeight;
    LColor.Visible := true;
    LColor.Caption := '';
-   LColor.Height := EColor.Height;
+   LColor.Height := BGRATextSize(LColor.Font, fqSystemClearType, 'Hg', 1).cy+2;// DoScaleY(14,OriginalDPI,TFChooseColor_CustomDPI)+2;
+   LColor.Top := ClientHeight;
    vsColorView.Left := externalMargin;
    vsColorView.Top := 0;
    ClientHeight := ClientHeight+EColor.Height;
    BCAssignSystemStyle(BCButton_AddToPalette);
    BCAssignSystemStyle(BCButton_RemoveFromPalette);
    FormResize(Sender);
+   EColor.Visible := false;
 
-   topmargin := DoScaleY(27,OriginalDPI);
-   barwidth := DoScaleX(20,OriginalDPI);
-   cursorplace := DoScaleX(10,OriginalDPI);
-   margin := DoScaleY(8,OriginalDPI);
-   cursormargin := DoScaleX(2,OriginalDPI);
-   cursorsize := DoScaleX(6,OriginalDPI);
-   colorXYsize := DoScaleX(3,OriginalDPI);
-   cursorxyopacity := DoScaleX(128,OriginalDPI);
+   topmargin := DoScaleY(27,OriginalDPI,TFChooseColor_CustomDPI);
+   barwidth := DoScaleX(20,OriginalDPI,TFChooseColor_CustomDPI);
+   cursorplace := DoScaleX(10,OriginalDPI,TFChooseColor_CustomDPI);
+   margin := DoScaleY(8,OriginalDPI,TFChooseColor_CustomDPI);
+   cursormargin := DoScaleX(2,OriginalDPI,TFChooseColor_CustomDPI);
+   cursorsize := DoScaleX(6,OriginalDPI,TFChooseColor_CustomDPI);
+   colorXYsize := DoScaleX(3,OriginalDPI,TFChooseColor_CustomDPI);
+   cursorxyopacity := DoScaleX(128,OriginalDPI,TFChooseColor_CustomDPI);
    if cursorxyopacity > 255 then cursorxyopacity := 255;
 
    selectZone := szNone;
@@ -213,18 +224,19 @@ procedure TFChooseColor.FormResize(Sender: TObject);
 begin
   vsColorView.Width := AvailableBmpWidth;
   vsColorView.Height := AvailableBmpHeight;
-  EColor.Top := vsColorView.Top + vsColorView.Height;
   EColor.Left := externalMargin;
   EColor.Width := ClientWidth-2*externalMargin;
-  LColor.Top := vsColorView.Top + vsColorView.Height;
   LColor.Left := externalMargin;
   LColor.Width := ClientWidth-2*externalMargin;
+  EColor.Top := ClientHeight-EColor.Height;
+  LColor.Top := ClientHeight-LColor.Height;
 end;
 
 procedure TFChooseColor.FormShow(Sender: TObject);
 begin
   Position := poDesigned;
   UpdateLayout;
+  LColor.Top := ClientHeight-LColor.Height;
   self.EnsureVisible(False);
 end;
 
@@ -239,6 +251,7 @@ begin
   end else
     EColor.Text := '#' + copy(BGRAToStr(ColorBeforeEColor),1,6);
   EColor.Visible := true;
+  EColor.Top := ClientHeight-EColor.Height;
   SafeSetFocus(EColor);
 end;
 
@@ -378,19 +391,107 @@ begin
   LazPaintInstance.ColorFromFChooseColor;
 end;
 
+function TFChooseColor.MakeIconBase(size: integer): TBitmap;
+var sq,offs: integer;
+begin
+  result := TBitmap.Create;
+  result.Width := size;
+  result.Height := size;
+
+  with result.Canvas do
+  begin
+    Brush.Color := clFuchsia;
+    FillRect(0,0,size,size);
+
+    sq := size div 3;
+    offs := size div 6;
+
+    Pen.Color := clBlack;
+    Brush.Color := BGRAToColor(CSSLawnGreen);
+    Rectangle(offs+0,offs+0,offs+sq+1,offs+sq+1);
+    Brush.Color := clYellow;
+    Rectangle(offs+sq,offs+0,offs+sq+sq+1,offs+sq+1);
+    Brush.Color := BGRAToColor(CSSDodgerBlue);
+    Rectangle(offs+0,offs+sq,offs+sq+1,offs+sq+sq+1);
+    Brush.Color := BGRAToColor(CSSBlue);
+    Rectangle(offs+sq,offs+sq,offs+sq+sq+1,offs+sq+sq+1);
+  end;
+
+  result.TransparentMode := tmFixed;
+  result.TransparentColor := clFuchsia;
+  result.Transparent := true;
+end;
+
+function TFChooseColor.MakeAddIcon(size: integer): TBitmap;
+begin
+  result := MakeIconBase(size);
+
+  with result.Canvas do
+  begin
+    Pen.Color := clBlack;
+    Brush.Color := clWhite;
+    Polygon([Point(size div 2-1,size div 2-1),Point(size div 2-1,size),
+                        Point(size*5 div 8,size*5 div 6),
+                        Point(size*5 div 6,size*5 div 6)]);
+  end;
+end;
+
+function TFChooseColor.MakeRemoveIcon(size: integer): TBitmap;
+var w: integer;
+begin
+  result := MakeIconBase(size);
+
+  with result.Canvas do
+  begin
+    w := (size+2) div 6;
+    Pen.Color := BGRAToColor(BGRA(128,0,0));
+    Pen.Width := w;
+    MoveTo(size div 2-1,size div 2-1);
+    LineTo(size-w,size-w);
+    MoveTo(size div 2-1,size-w);
+    LineTo(size-w,size div 2-1);
+
+    Pen.Color := BGRAToColor(BGRA(255,80,80));
+    Pen.Width := w-2;
+    MoveTo(size div 2-1,size div 2-1);
+    LineTo(size-w,size-w);
+    MoveTo(size div 2-1,size-w);
+    LineTo(size-w,size div 2-1);
+  end;
+end;
+
 procedure TFChooseColor.UpdateLayout;
-var bmpWidth,bmpHeight,internalMargin: integer;
+var tmpIcon: TBitmap; bmpWidth,bmpHeight,internalMargin,deltaY, iconSize: integer;
 begin
   if LazPaintInstance = nil then exit;
 
   internalMargin := margin-externalMargin;
   if internalMargin < 0 then internalMargin := 0;
 
+  BCButton_AddToPalette.Width := barwidth;
+  BCButton_AddToPalette.Height := barwidth;
+  BCButton_RemoveFromPalette.Width := barwidth;
+  BCButton_RemoveFromPalette.Height := barwidth;
+  BCButton_RemoveFromPalette.Top := BCButton_AddToPalette.Top+BCButton_AddToPalette.Height;
+  iconSize := barwidth-4;
+  if not Assigned(BCButton_AddToPalette.Glyph) or (BCButton_AddToPalette.Glyph.Width <> iconSize) then
+  begin
+    tmpIcon:= MakeAddIcon(iconSize);
+    BCButton_AddToPalette.Glyph.Assign(tmpIcon);
+    tmpIcon.Free;
+  end;
+  if not Assigned(BCButton_RemoveFromPalette.Glyph) or (BCButton_RemoveFromPalette.Glyph.Width <> iconSize) then
+  begin
+    tmpIcon:= MakeRemoveIcon(iconSize);
+    BCButton_RemoveFromPalette.Glyph.Assign(tmpIcon);
+    tmpIcon.Free;
+  end;
   if LazPaintInstance.BlackAndWhite then
   begin
     ClientWidth := BCButton_AddToPalette.Width + 2*(externalMargin+internalMargin)+cursorplace+barwidth+margin+cursorplace+barwidth+margin;
-    BCButton_AddToPalette.Top := (ClientHeight-BCButton_AddToPalette.Height-BCButton_RemoveFromPalette.Height) div 2;
-    BCButton_RemoveFromPalette.Top := BCButton_AddToPalette.Top+BCButton_AddToPalette.Height;
+    deltaY := (ClientHeight-BCButton_AddToPalette.Height-BCButton_RemoveFromPalette.Height) div 2 - BCButton_AddToPalette.Top;
+    BCButton_AddToPalette.Top := BCButton_AddToPalette.Top + deltaY;
+    BCButton_RemoveFromPalette.Top := BCButton_RemoveFromPalette.Top + deltaY;
   end
   else
     ClientWidth := AvailableBmpHeight-topmargin+ 2*(externalMargin+internalMargin) +cursorplace+barwidth+margin+cursorplace+barwidth+margin;
@@ -469,13 +570,13 @@ begin
            IntToStr(tempColor.blue) + ',' + FloatToStr(round(tempColor.alpha/255*100)/100) + ')';
      end;
 
-   LColor.Caption := ' '+strColor;
+   LColor.Caption := strColor;
    vsColorView.RedrawBitmap;
 end;
 
 function TFChooseColor.GetAvailableBmpHeight: integer;
 begin
-  result := ClientHeight-EColor.Height-externalMargin;
+  result := ClientHeight-max(EColor.Height, LColor.Height)-externalMargin;
 end;
 
 function TFChooseColor.GetAvailableBmpWidth: integer;
@@ -577,4 +678,4 @@ end;
 {$R *.lfm}
 
 end.
-
+

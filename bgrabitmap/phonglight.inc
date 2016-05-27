@@ -1,8 +1,6 @@
 {$i bgrasse.inc}
 var
   {%H-}dist2,LdotN,NdotH,lightEnergy,diffuse : single;
-const
-  minus_05 = -0.5;
 begin
   {$IFDEF BGRASSE_AVAILABLE}If UseSSE then
   begin
@@ -44,13 +42,6 @@ begin
     {$ENDIF}
   end;
 
-  if LdotN < minus_05 then NdotH := 0 else
-  if LdotN < 0 then
-  begin
-    NdotH := NdotH*(LdotN-minus_05);
-    NdotH += NdotH;
-  end;
-
   {$IFDEF PARAM_POINTLIGHT}
   if dist2 = 0 then
     lightEnergy := 0
@@ -61,6 +52,7 @@ begin
   lightEnergy := 1;
   diffuse := LdotN;
   {$ENDIF}
+  if diffuse < FMinIntensity then diffuse:= FMinIntensity;
 
   if Context^.LightThrough and (diffuse < 0) then diffuse := -diffuse*Context^.LightThroughFactor;
   TBGRAMaterial3D(Context^.material).ComputeDiffuseAndSpecularColor(Context, diffuse, lightEnergy, NdotH, FColorInt);

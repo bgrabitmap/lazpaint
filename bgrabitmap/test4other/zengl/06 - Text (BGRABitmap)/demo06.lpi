@@ -82,7 +82,7 @@
     </RunParams>
     <RequiredPackages Count="1">
       <Item1>
-        <PackageName Value="BGRABitmapPack4NoGUI_OpenGL"/>
+        <PackageName Value="BGRABitmapPack4NoGUI"/>
       </Item1>
     </RequiredPackages>
     <Units Count="1">

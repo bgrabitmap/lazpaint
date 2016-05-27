@@ -22,6 +22,7 @@ type
       {%H-}rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF): TRect; override;
     procedure DoToolMoveAfter(pt: TPoint; {%H-}ptF: TPointF); override;
+    function GetStatusText: string; override;
   public
     function GetToolDrawingLayer: TBGRABitmap; override;
     function ToolUp: TRect; override;
@@ -109,6 +110,8 @@ type
     function DoToolUpdate(toolDest: TBGRABitmap): TRect; override;
     procedure ApplyConstraint(px,py: PSingle);
     function RoundCoordinate(ptF: TPointF): TPointF; virtual;
+    function LeaveMovingPoint: TRect; virtual;
+    function GetStatusText: string; override;
   public
     constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
@@ -137,6 +140,7 @@ type
     function BorderTest(ptF: TPointF): TRectangularBorderTest; override;
     function UpdateShape(toolDest: TBGRABitmap): TRect; override;
     function RoundCoordinate(ptF: TPointF): TPointF; override;
+    function GetStatusText: string; override;
   public
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth,
       {%H-}VirtualScreenHeight: integer;
@@ -145,7 +149,8 @@ type
 
 implementation
 
-uses Types, BGRAPolygon, Graphics, LCLType, ugraph, Controls, math, LazPaintType;
+uses Types, BGRAPolygon, Graphics, LCLType, ugraph, Controls, math, LazPaintType,
+  UResourceStrings;
 
 { TToolEllipse }
 
@@ -210,6 +215,15 @@ end;
 function TToolEllipse.RoundCoordinate(ptF: TPointF): TPointF;
 begin
   result := PointF(round(ptF.X*2)/2,round(ptF.Y*2)/2);
+end;
+
+function TToolEllipse.GetStatusText: string;
+begin
+  if rectDrawing or afterRectDrawing then
+    result := 'x = '+inttostr(round(rectOrigin.x))+'|y = '+inttostr(round(rectOrigin.y))+'|'+
+    'rx = '+FloatToStrF(abs(rectDest.x-rectOrigin.x),ffFixed,6,1)+'|ry = '+FloatToStrF(abs(rectDest.y-rectOrigin.y),ffFixed,6,1)
+  else
+    Result:=inherited GetStatusText;
 end;
 
 function TToolEllipse.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,
@@ -465,13 +479,13 @@ end;
 function TToolRectangular.ToolUp: TRect;
 var currentRect: TRect;
 begin
-  result := EmptyRect;
   if rectMovingPoint then
   begin
     rectMovingPoint := false;
     rectMovingX := nil;
     rectMovingY := nil;
     UpdateCursor(lastMousePos);
+    result := LeaveMovingPoint;
   end else
   if rectDrawing then
   begin
@@ -554,9 +568,9 @@ function TToolRectangular.ValidateDrawing: TRect;
 begin
   if rectDrawing then
   begin
+    rectDrawing := false;
     result := FinishShape(GetToolDrawingLayer);
     Action.NotifyChange(GetToolDrawingLayer, result);
-    rectDrawing := false;
     afterRectDrawing:= true;
   end else
     result := EmptyRect;
@@ -663,6 +677,21 @@ end;
 function TToolRectangular.RoundCoordinate(ptF: TPointF): TPointF;
 begin
   result := PointF(Round(ptF.X),round(ptF.y));
+end;
+
+function TToolRectangular.LeaveMovingPoint: TRect;
+begin
+  result := EmptyRect;
+end;
+
+function TToolRectangular.GetStatusText: string;
+begin
+  if rectDrawing or afterRectDrawing then
+    result := 'x1 = '+inttostr(round(rectOrigin.x))+'|y1 = '+inttostr(round(rectOrigin.y))+'|'+
+    'x2 = '+inttostr(round(rectDest.x))+'|y2 = '+inttostr(round(rectDest.y))+'|'+
+    'Δx = '+inttostr(abs(round(rectDest.x-rectOrigin.x))+1)+'|Δy = '+inttostr(abs(round(rectDest.y-rectOrigin.y))+1)
+  else
+    Result:=inherited GetStatusText;
 end;
 
 constructor TToolRectangular.Create(AManager: TToolManager);
@@ -978,6 +1007,42 @@ end;
 procedure TToolHand.DoToolMoveAfter(pt: TPoint; ptF: TPointF);
 begin
   if handMoving then handOrigin := pt;
+end;
+
+function TToolHand.GetStatusText: string;
+var w,h,i,j: integer;
+  smallestNum, smallestDenom: integer;
+begin
+  w := Manager.Image.Width;
+  h := Manager.Image.Height;
+  Result:= rsCanvasSize + ' = ' + inttostr(w) + ' x ' + inttostr(h);
+  if h > 0 then
+  begin
+    result += '|Δx/Δy = ' + FloatToStrF(w/h, ffFixed, 6, 2);
+    smallestNum := 0;
+    smallestDenom := 0;
+    for i := 2 to 9 do
+      for j := i+1 to i*2-1 do
+        if j mod i <> 0 then
+          if w*j = h*i then
+          begin
+            if (smallestNum = 0) or (i+j < smallestNum+smallestDenom) then
+            begin
+              smallestNum:= i;
+              smallestDenom := j;
+            end;
+          end else
+          if w*i = h*j then
+          begin
+            if (smallestNum = 0) or (i+j < smallestNum+smallestDenom) then
+            begin
+              smallestNum:= j;
+              smallestDenom := i;
+            end;
+          end;
+    if (smallestNum <> 0) then
+      result += ' = ' + inttostr(smallestNum)+'/'+inttostr(smallestDenom);
+  end;
 end;
 
 function TToolHand.GetToolDrawingLayer: TBGRABitmap;

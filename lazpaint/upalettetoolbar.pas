@@ -35,6 +35,9 @@ type
     procedure PopupClose(Sender: TObject);
     procedure PopupOpen(Sender: TObject);
   private
+    FPaletteItemHeight: integer;
+    FPaletteItemWidth: integer;
+    FPaletteAlphaWidth:integer;
     FContainer: TWinControl;
     FLazPaintInstance: TLazPaintCustomInstance;
     FOnVisibilityChangedByUser: TPaletteVisibilityChangedByUserHandler;
@@ -51,6 +54,7 @@ type
     FItemToggleVisible: TMenuItem;
     FPaletteColorRect: TRect;
     FPaletteColorItemHeight: integer;
+    function GetPanelPalette: TBGRAVirtualScreen;
     procedure MakePalette(ACount: integer);
     procedure Quantize(ADither: TDitheringAlgorithm);
     function GetHeight: integer;
@@ -73,6 +77,7 @@ type
     procedure PanelMouseUp(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; X, Y: Integer);
     procedure CreatePopupMenu;
+    property PanelPalette: TBGRAVirtualScreen read GetPanelPalette;
   public
     constructor Create;
     destructor Destroy; override;
@@ -93,26 +98,21 @@ uses UScaleDPI, Graphics, Forms, UGraph,
   UResourceStrings, BGRAColorQuantization,
   ULayerAction, UCursors;
 
-const
-  PaletteItemHeight = 16;
-  PaletteItemWidth = 24;
-  PaletteAlphaWidth = 8;
-
 { TPaletteToolbar }
 
 procedure TPaletteToolbar.SetContainer(AValue: TWinControl);
 begin
   if FContainer=AValue then Exit;
-  if Assigned(FContainer) then
+  if Assigned(FPanelPalette) and Assigned(FContainer) then
     FContainer.RemoveControl(FPanelPalette);
   FContainer:=AValue;
-  if Assigned(FContainer) then
+  if Assigned(FPanelPalette) and Assigned(FContainer) then
     FContainer.InsertControl(FPanelPalette);
 end;
 
 function TPaletteToolbar.GetWidth: integer;
 begin
-  result := FPanelPalette.Width;
+  result := PanelPalette.Width;
 end;
 
 procedure TPaletteToolbar.PanelMouseDown(Sender: TObject; Button: TMouseButton;
@@ -123,7 +123,7 @@ begin
     if FScrollbar.MouseDown(X,Y) then
     begin
       FScrollPos := FScrollBar.Position;
-      FPanelPalette.RedrawBitmap;
+      PanelPalette.RedrawBitmap;
     end;
   end;
   PickColor(Shift,X,Y);
@@ -133,15 +133,15 @@ procedure TPaletteToolbar.PanelMouseMove(Sender: TObject; Shift: TShiftState;
   X, Y: Integer);
 begin
   if PtInRect(Point(x,y),FPaletteColorRect) then
-    FPanelPalette.Cursor := crCustomColorPicker
+    PanelPalette.Cursor := crCustomColorPicker
   else
-    FPanelPalette.Cursor := crArrow;
+    PanelPalette.Cursor := crArrow;
   if Assigned(FScrollbar) then
   begin
     if FScrollbar.MouseMove(X,Y) then
     begin
       FScrollPos := FScrollBar.Position;
-      FPanelPalette.RedrawBitmap;
+      PanelPalette.RedrawBitmap;
     end;
   end;
   PickColor(Shift,X,Y);
@@ -155,7 +155,7 @@ begin
     if FScrollbar.MouseUp(X,Y) then
     begin
       FScrollPos := FScrollBar.Position;
-      FPanelPalette.RedrawBitmap;
+      PanelPalette.RedrawBitmap;
     end;
   end;
 end;
@@ -165,7 +165,7 @@ var
   item: TMenuItem;
 begin
   if Assigned(FPopupMenu) then exit;
-  FPopupMenu := TPopupMenu.Create(FPanelPalette);
+  FPopupMenu := TPopupMenu.Create(PanelPalette);
   FPopupMenu.OnPopup:=@PopupOpen;
   FPopupMenu.OnClose:=@PopupClose;
 
@@ -388,10 +388,10 @@ var
   i: Integer;
 begin
   DoClearPalette(nil);
-  FPanelPalette.Enabled := false;
-  FPanelPalette.Cursor := crHourGlass;
+  PanelPalette.Enabled := false;
+  PanelPalette.Cursor := crHourGlass;
   Application.ProcessMessages;
-  FPanelPalette.Update;
+  PanelPalette.Update;
   try
     if FTransparentPalette then
       quant := TBGRAColorQuantizer.Create(LazPaintInstance.Image.RenderedImage, acFullChannelInPalette, ACount)
@@ -414,8 +414,74 @@ begin
     on ex: exception do
       ShowMessage(ex.Message);
   end;
-  FPanelPalette.Enabled := true;
-  FPanelPalette.Cursor := crDefault;
+  PanelPalette.Enabled := true;
+  PanelPalette.Cursor := crDefault;
+end;
+
+function TPaletteToolbar.GetPanelPalette: TBGRAVirtualScreen;
+var
+  glyphBmp: TBitmap;
+  size: integer;
+begin
+  if not Assigned(FPanelPalette) then
+  begin
+    if Assigned(LazPaintInstance) then
+      FPaletteItemWidth := LazPaintInstance.Config.DefaultIconSize(24)
+    else
+      FPaletteItemWidth := 24;
+    FPaletteItemHeight := FPaletteItemWidth*2 div 3;
+    FPaletteAlphaWidth := FPaletteItemWidth div 3;
+
+    FPanelPalette := TBGRAVirtualScreen.Create(nil);
+    FPanelPalette.Width := DoScaleX(FPaletteItemWidth, OriginalDPI)+VolatileScrollBarSize;
+    FPanelPalette.Visible := false;
+    FPanelPalette.OnRedraw := @RepaintPalette;
+    FPanelPalette.OnMouseDown:=@PanelMouseDown;
+    FPanelPalette.OnMouseUp:=@PanelMouseUp;
+    FPanelPalette.OnMouseMove:=@PanelMouseMove;
+    FPanelPalette.BevelOuter := bvRaised;
+    FPanelPalette.Color := clBtnFace;
+    FPanelPalette.Caption := '';
+    FColors := TBGRAPalette.Create;
+    FTransparentPalette:= false;
+    FMergePalette:= false;
+
+    FMenuButton := TBCButton.Create(FPanelPalette);
+    FMenuButton.Cursor := crArrow;
+    FMenuButton.Rounding.RoundX := 6;
+    FMenuButton.Rounding.RoundY := 6;
+    BCAssignSystemStyle(FMenuButton);
+    FMenuButton.DropDownArrow := true;
+    FMenuButton.DropDownArrowSize := DoScaleY(FPaletteItemHeight div 2, OriginalDPI);
+    glyphBmp := TBitmap.Create;
+    size := DoScaleY(FPaletteItemHeight*3 div 5, OriginalDPI);
+    if not odd(size) then size += 1;
+    glyphBmp.Width := size;
+    glyphBmp.Height := size;
+    glyphBmp.Canvas.Pen.Color := clBlack;
+    glyphBmp.Canvas.Brush.Color := BGRAToColor(CSSLawnGreen);
+    glyphBmp.Canvas.Rectangle(0,0,glyphBmp.Width div 2+1,glyphBmp.Height div 2+1);
+    glyphBmp.Canvas.Brush.Color := clYellow;
+    glyphBmp.Canvas.Rectangle(glyphBmp.Width div 2,0,glyphBmp.Width,glyphBmp.Height div 2+1);
+    glyphBmp.Canvas.Brush.Color := BGRAToColor(CSSDodgerBlue);
+    glyphBmp.Canvas.Rectangle(0,glyphBmp.Height div 2,glyphBmp.Width div 2+1,glyphBmp.Height);
+    glyphBmp.Canvas.Brush.Color := BGRAToColor(CSSBlue);
+    glyphBmp.Canvas.Rectangle(glyphBmp.Width div 2,glyphBmp.Height div 2,glyphBmp.Width,glyphBmp.Height);
+    FMenuButton.Glyph := glyphBmp;
+    glyphBmp.Free;
+    FMenuButton.DropDownStyle := bdsCommon;
+    FMenuButton.Caption := '';
+    FMenuButton.SetBounds(2,2,FPanelPalette.Width-4, DoScaleY(FPaletteItemHeight*4 div 3, OriginalDPI));
+    FMenuButton.OnMouseDown:=@MenuButtonDown;
+    FMenuButton.Hint := rsPaletteOptions;
+    FPanelPalette.InsertControl(FMenuButton);
+
+    CreatePopupMenu;
+
+    if Assigned(FPanelPalette) and Assigned(FContainer) then
+        FContainer.InsertControl(FPanelPalette);
+  end;
+  result := FPanelPalette;
 end;
 
 procedure TPaletteToolbar.Quantize(ADither: TDitheringAlgorithm);
@@ -441,7 +507,7 @@ end;
 
 function TPaletteToolbar.GetHeight: integer;
 begin
-  result := FPanelPalette.Height;
+  result := PanelPalette.Height;
 end;
 
 procedure TPaletteToolbar.SetLazPaintInstance(AValue: TLazPaintCustomInstance);
@@ -451,7 +517,7 @@ begin
   if Assigned(FLazPaintInstance) then
   begin
     FVisible := FLazPaintInstance.Config.DefaultPaletteToolbarVisible;
-    FPanelPalette.Visible := FVisible;
+    PanelPalette.Visible := FVisible;
     FillPaletteWithDefault;
   end else
   begin
@@ -470,7 +536,7 @@ procedure TPaletteToolbar.SetVisible(AValue: boolean);
 begin
   if FVisible=AValue then Exit;
   FVisible:=AValue;
-  FPanelPalette.Visible := AValue;
+  PanelPalette.Visible := AValue;
   if Assigned(FLazPaintInstance) then
     FLazPaintInstance.Config.SetDefaultPaletteToolbarVisible(AValue);
 end;
@@ -532,7 +598,7 @@ end;
 procedure TPaletteToolbar.PaletteChanged;
 begin
   FreeAndNil(FScrollbar);
-  FPanelPalette.DiscardBitmap;
+  PanelPalette.DiscardBitmap;
 end;
 
 procedure TPaletteToolbar.RepaintPalette(Sender: TObject; Bitmap: TBGRABitmap);
@@ -545,8 +611,8 @@ begin
   x := 2;
   y := FMenuButton.Top+FMenuButton.Height+1;
   w := Bitmap.Width-(VolatileScrollBarSize+1)-x;
-  aw := DoScaleX(PaletteAlphaWidth, OriginalDPI);
-  h := DoScaleY(PaletteItemHeight, OriginalDPI);
+  aw := DoScaleX(FPaletteAlphaWidth, OriginalDPI);
+  h := DoScaleY(FPaletteItemHeight, OriginalDPI);
   if h < 3 then h := 3;
   nbVisible := (Bitmap.Height - 2 - y - 1) div (h-1);
   if nbVisible < 1 then nbVisible:= 1;
@@ -621,55 +687,8 @@ begin
 end;
 
 constructor TPaletteToolbar.Create;
-var
-  glyphBmp: TBitmap;
-  size: integer;
 begin
-  FPanelPalette := TBGRAVirtualScreen.Create(nil);
-  FPanelPalette.Width := DoScaleX(PaletteItemWidth, OriginalDPI)+VolatileScrollBarSize;
-  FPanelPalette.Visible := false;
-  FPanelPalette.OnRedraw := @RepaintPalette;
-  FPanelPalette.OnMouseDown:=@PanelMouseDown;
-  FPanelPalette.OnMouseUp:=@PanelMouseUp;
-  FPanelPalette.OnMouseMove:=@PanelMouseMove;
-  FPanelPalette.BevelOuter := bvRaised;
-  FPanelPalette.Color := clBtnFace;
-  FPanelPalette.Caption := '';
-  FColors := TBGRAPalette.Create;
-  FTransparentPalette:= false;
-  FMergePalette:= false;
-
-  FMenuButton := TBCButton.Create(FPanelPalette);
-  FMenuButton.Cursor := crArrow;
-  FMenuButton.Rounding.RoundX := 6;
-  FMenuButton.Rounding.RoundY := 6;
-  BCAssignSystemStyle(FMenuButton);
-  FMenuButton.DropDownArrow := true;
-  FMenuButton.DropDownArrowSize := DoScaleY(PaletteItemHeight div 2, OriginalDPI);
-  glyphBmp := TBitmap.Create;
-  size := DoScaleY(PaletteItemHeight*3 div 5, OriginalDPI);
-  if not odd(size) then size += 1;
-  glyphBmp.Width := size;
-  glyphBmp.Height := size;
-  glyphBmp.Canvas.Pen.Color := clBlack;
-  glyphBmp.Canvas.Brush.Color := BGRAToColor(CSSLawnGreen);
-  glyphBmp.Canvas.Rectangle(0,0,glyphBmp.Width div 2+1,glyphBmp.Height div 2+1);
-  glyphBmp.Canvas.Brush.Color := clYellow;
-  glyphBmp.Canvas.Rectangle(glyphBmp.Width div 2,0,glyphBmp.Width,glyphBmp.Height div 2+1);
-  glyphBmp.Canvas.Brush.Color := BGRAToColor(CSSDodgerBlue);
-  glyphBmp.Canvas.Rectangle(0,glyphBmp.Height div 2,glyphBmp.Width div 2+1,glyphBmp.Height);
-  glyphBmp.Canvas.Brush.Color := BGRAToColor(CSSBlue);
-  glyphBmp.Canvas.Rectangle(glyphBmp.Width div 2,glyphBmp.Height div 2,glyphBmp.Width,glyphBmp.Height);
-  FMenuButton.Glyph := glyphBmp;
-  glyphBmp.Free;
-  FMenuButton.DropDownStyle := bdsCommon;
-  FMenuButton.Caption := '';
-  FMenuButton.SetBounds(2,2,FPanelPalette.Width-4, DoScaleY(PaletteItemHeight*4 div 3, OriginalDPI));
-  FMenuButton.OnMouseDown:=@MenuButtonDown;
-  FMenuButton.Hint := rsPaletteOptions;
-  FPanelPalette.InsertControl(FMenuButton);
-
-  CreatePopupMenu;
+  FPanelPalette := nil;
 end;
 
 destructor TPaletteToolbar.Destroy;

@@ -93,6 +93,8 @@ type
     procedure MouseMove(Sender: TObject; {%H-}Shift: TShiftState; X, Y: Integer);
     procedure MouseUp(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; X, Y: Integer);
+    procedure MouseWheel(Sender: TObject; {%H-}Shift: TShiftState;
+         WheelDelta: Integer; {%H-}MousePos: TPoint; var Handled: Boolean);
     procedure CompareItem(Sender: TObject; Item1, Item2: PMyShellListViewItemData; {%H-}Data: Integer;
       var Compare: Integer);
     procedure ColumnClick(Sender: TObject; AColumn: integer);
@@ -903,6 +905,26 @@ begin
     end;
 end;
 
+procedure TMyShellListView.MouseWheel(Sender: TObject; Shift: TShiftState;
+  WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+var Delta: integer;
+begin
+  if Assigned(FVScrollBar) then
+  begin
+    Delta := WheelDelta*32;
+    if ViewStyle = vsIcon then
+      Delta *= FIconsPerLine
+    else
+      Delta *= 2;
+    FVerticalScrollPos -= Delta div 120;
+    if FVerticalScrollPos > FVScrollBar.Maximum then FVerticalScrollPos:= FVScrollBar.Maximum;
+    if FVerticalScrollPos < FVScrollBar.Minimum then FVerticalScrollPos:= FVScrollBar.Minimum;
+    FreeAndNil(FVScrollBar);
+    FVirtualScreen.DiscardBitmap;
+    Handled := true;
+  end;
+end;
+
 procedure TMyShellListView.CompareItem(Sender: TObject; Item1,
   Item2: PMyShellListViewItemData; Data: Integer; var Compare: Integer);
 var diff: int64;
@@ -1097,6 +1119,7 @@ begin
   FVirtualScreen.OnMouseDown := @MouseDown;
   FVirtualScreen.OnMouseMove := @MouseMove;
   FVirtualScreen.OnMouseUp := @MouseUp;
+  FVirtualScreen.OnMouseWheel:= @MouseWheel;
   FIndexIcon := AddColumn('',50,taCenter);
   FIndexName := AddColumn(rsFileName,200,taLeftJustify);
   FIndexSize := AddColumn(rsFileSize,80,taCenter);
@@ -1124,6 +1147,7 @@ begin
   FVirtualScreen.OnMouseDown := nil;
   FVirtualScreen.OnMouseMove := nil;
   FVirtualScreen.OnMouseUp := nil;
+  FVirtualScreen.OnMouseWheel := nil;
   FreeAndNil(FVScrollBar);
   inherited Destroy;
 end;

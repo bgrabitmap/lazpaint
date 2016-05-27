@@ -288,14 +288,14 @@ begin
   ShowSelectionNormal := oldSelectionNormal;
 end;
 
-function TLazPaintInstance.ShowRadialBlurDlg(AFilterConnector: TObject; blurType: TRadialBlurType): boolean;
+function TLazPaintInstance.ShowRadialBlurDlg(AFilterConnector: TObject; blurType: TRadialBlurType; ACaption: string): boolean;
 var oldSelectionNormal: boolean;
     top: TTopMostInfo;
 begin
   top := self.HideTopmost;
   oldSelectionNormal := ShowSelectionNormal;
   ShowSelectionNormal := true;
-  result := uradialblur.ShowRadialBlurDlg(AFilterConnector,blurType);
+  result := uradialblur.ShowRadialBlurDlg(AFilterConnector,blurType,ACaption);
   ShowSelectionNormal := oldSelectionNormal;
   self.ShowTopmost(top);
 end;

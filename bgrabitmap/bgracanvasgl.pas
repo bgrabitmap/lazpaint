@@ -6,10 +6,104 @@ interface
 
 uses
   Classes, SysUtils, BGRAGraphics, BGRABitmapTypes,
-  BGRAOpenGLType, BGRATransform, BGRAPath;
+  BGRAOpenGLType, BGRATransform, BGRAPath,
+  BGRASSE, BGRAMatrix3D;
 
 type
   TBGLPath = class;
+  TBGLCustomCanvas = class;
+
+  TBGLCustomShader = class
+  protected
+    procedure StartUse; virtual; abstract;
+    procedure EndUse; virtual; abstract;
+  end;
+
+  TBGLCustomArray = class
+  protected
+    FBuffer: DWord;
+    function GetCount: integer; virtual; abstract;
+    function GetRecordSize: integer; virtual; abstract;
+  public
+    constructor Create(ABufferAddress: pointer; ACount: integer; ARecordSize: integer); virtual; abstract;
+    property Count: integer read GetCount;
+    property RecordSize: integer read GetRecordSize;
+    property Handle: DWord read FBuffer;
+  end;
+
+  { TAttributeVariable }
+
+  TAttributeVariable = object
+  protected
+    FOwner: TObject;
+    FAttribute: DWord;
+    FVectorSize: integer;
+    FArray: TBGLCustomArray;
+    FRecordOffset: integer;
+    FFloat: boolean;
+    procedure Init(AOwner: TObject; AAttribute: DWord; AVectorSize: integer;
+              AFloat: boolean);
+  public
+    property Source: TBGLCustomArray read FArray write FArray;
+    property RecordOffset: integer read FRecordOffset write FRecordOffset;
+    property Handle: DWord read FAttribute;
+    property VectorSize: integer read FVectorSize;
+    property IsFloat: boolean read FFloat;
+    property Owner: TObject read FOwner;
+  end;
+
+  TBGLCustomElementArray = class
+  protected
+    function GetCount: integer; virtual; abstract;
+  public
+    constructor Create(const AElements: array of integer); virtual; abstract;
+    procedure Draw(ACanvas: TBGLCustomCanvas; APrimitive: TOpenGLPrimitive; AAttributes: array of TAttributeVariable); virtual; abstract;
+    property Count: integer read GetCount;
+  end;
+
+  { TBGLCustomLighting }
+
+  TBGLCustomLighting = class
+  private
+    FCurrentShader: TBGLCustomShader;
+    function GetActiveShader: TBGLCustomShader;
+    procedure SetActiveShader(AValue: TBGLCustomShader);
+  protected
+    function GetSupportShaders: boolean; virtual;
+    function GetShader(AName: string): TBGLCustomShader;
+    procedure SetShader(AName: string; AValue: TBGLCustomShader);
+    procedure SetAmbiantLightF(AAmbiantLight: TColorF); virtual; abstract;
+    function GetAmbiantLightF: TColorF; virtual; abstract;
+    function GetBuiltInLightingEnabled: boolean; virtual; abstract;
+    procedure SetBuiltInLightingEnabled(AValue: boolean); virtual; abstract;
+  public
+    ShaderList: TStringList;
+    destructor Destroy; override;
+    function AddDirectionalLight(AColor: TColorF; ADirection: TPoint3D): integer; virtual; abstract;
+    function AddPointLight(AColor: TColorF; APosition: TPoint3D; ALinearAttenuation, AQuadraticAttenuation: single): integer; virtual; abstract;
+    procedure ClearLights; virtual; abstract;
+    function RemoveLight(AIndex: integer): boolean; virtual; abstract;
+    procedure SetSpecularIndex(AIndex: integer); virtual; abstract;
+
+    function MakeVertexShader(ASource: string): DWord; virtual; abstract;
+    function MakeFragmentShader(ASource: string): DWord; virtual; abstract;
+    function MakeShaderProgram(AVertexShader, AFragmentShader: DWord): DWord; virtual; abstract;
+    procedure DeleteShaderObject(AShader: DWord); virtual; abstract;
+    procedure DeleteShaderProgram(AProgram: DWord); virtual; abstract;
+    procedure UseProgram(AProgram: DWord); virtual; abstract;
+    function GetUniformVariable(AProgram: DWord; AName: string): DWord; virtual; abstract;
+    function GetAttribVariable(AProgram: DWord; AName: string): DWord; virtual; abstract;
+    procedure SetUniformSingle(AVariable: DWord; const AValue; ACount: integer); virtual; abstract;
+    procedure SetUniformInteger(AVariable: DWord; const AValue; ACount: integer); virtual; abstract;
+    procedure BindAttribute(AAttribute: TAttributeVariable); virtual; abstract;
+    procedure UnbindAttribute(AAttribute: TAttributeVariable); virtual; abstract;
+    procedure FreeShaders;
+    property ActiveShader: TBGLCustomShader read GetActiveShader write SetActiveShader;
+    property Shader[AName: string]: TBGLCustomShader read GetShader write SetShader;
+    property SupportShaders: boolean read GetSupportShaders;
+    property AmbiantLightF: TColorF read GetAmbiantLightF write SetAmbiantLightF;
+    property BuiltInLightingEnabled: boolean read GetBuiltInLightingEnabled write SetBuiltInLightingEnabled;
+  end;
 
   { TBGLCustomCanvas }
 
@@ -33,17 +127,29 @@ type
     procedure EnableScissor(AValue: TRect); virtual; abstract;
     procedure DisableScissor; virtual; abstract;
     function GetMatrix: TAffineMatrix; virtual; abstract;
-    procedure SetMatrix(AValue: TAffineMatrix); virtual; abstract;
+    procedure SetMatrix(const AValue: TAffineMatrix); virtual; abstract;
+    function GetProjectionMatrix: TMatrix4D; virtual;
+    procedure SetProjectionMatrix(const {%H-}AValue: TMatrix4D); virtual;
     procedure SetBlendMode(AValue: TOpenGLBlendMode); virtual; abstract;
     function GetBlendMode: TOpenGLBlendMode; virtual; abstract;
+    function GetFaceCulling: TFaceCulling; virtual; abstract;
+    procedure SetFaceCulling(AValue: TFaceCulling); virtual; abstract;
+
+    function GetLighting: TBGLCustomLighting; virtual;
 
     procedure InternalStartPutPixel(const pt: TPointF); virtual; abstract;
     procedure InternalStartPolyline(const pt: TPointF); virtual; abstract;
     procedure InternalStartPolygon(const pt: TPointF); virtual; abstract;
     procedure InternalStartTriangleFan(const pt: TPointF); virtual; abstract;
     procedure InternalContinueShape(const pt: TPointF); virtual; abstract;
+
+    procedure InternalContinueShape(const {%H-}pt: TPoint3D); virtual; overload;
+    procedure InternalContinueShape(const {%H-}pt: TPoint3D_128); virtual; overload;
+    procedure InternalContinueShape(const {%H-}pt, {%H-}normal: TPoint3D_128); virtual; overload;
+
     procedure InternalEndShape; virtual; abstract;
     procedure InternalSetColor(const AColor: TBGRAPixel); virtual; abstract;
+    procedure InternalSetColorF(const AColor: TColorF); virtual; abstract;
 
     procedure InternalStartBlend; virtual; abstract;
     procedure InternalEndBlend; virtual; abstract;
@@ -68,12 +174,33 @@ type
 
     procedure FillTriangleLinearColor(pt1,pt2,pt3: TPointF; c1,c2,c3: TBGRAPixel; APixelCenteredCoordinates: boolean = true);
     procedure FillTriangles(const APoints: array of TPointF; AColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual;
-    procedure FillTrianglesLinearColor(const APoints: array of TPointF; const AColors: array of TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual;
+    procedure FillTrianglesLinearColor(const APoints: array of TPointF; const AColors: array of TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual; overload;
+    procedure FillTrianglesLinearColor(const APoints: array of TPoint3D; const AColors: array of TBGRAPixel); virtual; overload;
+    procedure FillTrianglesLinearColor(const APoints: array of TPoint3D_128; const AColors: array of TBGRAPixel); virtual; overload;
+    procedure FillTrianglesLinearColor(const APoints, ANormals: array of TPoint3D_128; const AColors: array of TBGRAPixel); virtual; overload;
     procedure FillTrianglesFan(const APoints: array of TPointF; ACenterColor, ABorderColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual;
+
+    procedure FillTriangleLinearColor(pt1,pt2,pt3: TPointF; c1,c2,c3: TColorF; APixelCenteredCoordinates: boolean = true);
+    procedure FillTriangles(const APoints: array of TPointF; AColor: TColorF; APixelCenteredCoordinates: boolean = true); virtual;
+    procedure FillTrianglesLinearColor(const APoints: array of TPointF; const AColors: array of TColorF; APixelCenteredCoordinates: boolean = true); virtual; overload;
+    procedure FillTrianglesLinearColor(const APoints: array of TPoint3D; const AColors: array of TColorF); virtual; overload;
+    procedure FillTrianglesLinearColor(const APoints: array of TPoint3D_128; const AColors: array of TColorF); virtual; overload;
+    procedure FillTrianglesLinearColor(const APoints, ANormals: array of TPoint3D_128; const AColors: array of TColorF); virtual; overload;
+    procedure FillTrianglesFan(const APoints: array of TPointF; ACenterColor, ABorderColor: TColorF; APixelCenteredCoordinates: boolean = true); virtual;
 
     procedure FillQuadLinearColor(pt1,pt2,pt3,pt4: TPointF; c1,c2,c3,c4: TBGRAPixel; APixelCenteredCoordinates: boolean = true);
     procedure FillQuads(const APoints: array of TPointF; AColor: TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual;
-    procedure FillQuadsLinearColor(const APoints: array of TPointF; const AColors: array of TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual;
+    procedure FillQuadsLinearColor(const APoints: array of TPointF; const AColors: array of TBGRAPixel; APixelCenteredCoordinates: boolean = true); virtual; overload;
+    procedure FillQuadsLinearColor(const APoints: array of TPoint3D; const AColors: array of TBGRAPixel); virtual; overload;
+    procedure FillQuadsLinearColor(const APoints: array of TPoint3D_128; const AColors: array of TBGRAPixel); virtual; overload;
+    procedure FillQuadsLinearColor(const APoints, ANormals: array of TPoint3D_128; const AColors: array of TBGRAPixel); virtual; overload;
+
+    procedure FillQuadLinearColor(pt1,pt2,pt3,pt4: TPointF; c1,c2,c3,c4: TColorF; APixelCenteredCoordinates: boolean = true);
+    procedure FillQuads(const APoints: array of TPointF; AColor: TColorF; APixelCenteredCoordinates: boolean = true); virtual;
+    procedure FillQuadsLinearColor(const APoints: array of TPointF; const AColors: array of TColorF; APixelCenteredCoordinates: boolean = true); virtual; overload;
+    procedure FillQuadsLinearColor(const APoints: array of TPoint3D; const AColors: array of TColorF); virtual; overload;
+    procedure FillQuadsLinearColor(const APoints: array of TPoint3D_128; const AColors: array of TColorF); virtual; overload;
+    procedure FillQuadsLinearColor(const APoints, ANormals: array of TPoint3D_128; const AColors: array of TColorF); virtual; overload;
 
     procedure DrawPath(APath: TBGLPath; c: TBGRAPixel);
     procedure FillPathConvex(APath: TBGLPath; c: TBGRAPixel; APixelCenteredCoordinates: boolean = true);
@@ -147,12 +274,20 @@ type
     procedure RotateRad(angleCCW: single); virtual;
     procedure ResetTransform; virtual;
 
+    procedure UseOrthoProjection; virtual;
+    procedure StartZBuffer; virtual;
+    procedure EndZBuffer; virtual;
+    procedure WaitForGPU({%H-}AOption: TWaitForGPUOption); virtual;
+
     procedure NoClip;
     property Width: integer read FWidth write SetWidth;
     property Height: integer read FHeight write SetHeight;
     property ClipRect: TRect read GetClipRect write SetClipRect;
     property Matrix: TAffineMatrix read GetMatrix write SetMatrix;
+    property ProjectionMatrix: TMatrix4D read GetProjectionMatrix write SetProjectionMatrix;
     property BlendMode: TOpenGLBlendMode read GetBlendMode write SetBlendMode;
+    property FaceCulling: TFaceCulling read GetFaceCulling write SetFaceCulling;
+    property Lighting: TBGLCustomLighting read GetLighting;
   end;
 
   { TBGLPath }
@@ -170,6 +305,86 @@ type
 implementation
 
 uses Math, Types, BGRAGradientScanner;
+
+{ TAttributeVariable }
+
+procedure TAttributeVariable.Init(AOwner: TObject; AAttribute: DWord;
+  AVectorSize: integer; AFloat: boolean);
+begin
+  FOwner := AOwner;
+  FAttribute:= AAttribute;
+  FVectorSize:= AVectorSize;
+  FFloat := AFloat;
+  FArray := nil;
+  FRecordOffset := 0;
+end;
+
+{ TBGLCustomLighting }
+
+function TBGLCustomLighting.GetActiveShader: TBGLCustomShader;
+begin
+  result := FCurrentShader;
+end;
+
+function TBGLCustomLighting.GetSupportShaders: boolean;
+begin
+  result := false;
+end;
+
+function TBGLCustomLighting.GetShader(AName: string): TBGLCustomShader;
+var index: integer;
+begin
+  index := ShaderList.IndexOf(AName);
+  if index = -1 then
+    result := nil
+  else
+    result := TBGLCustomShader(ShaderList.Objects[index]);
+end;
+
+procedure TBGLCustomLighting.SetShader(AName: string; AValue: TBGLCustomShader);
+var index: integer;
+begin
+  index := ShaderList.IndexOf(AName);
+  if AValue = nil then
+  begin
+    if index <> -1 then
+      ShaderList.Delete(index);
+  end else
+  begin
+    if index = -1 then
+      ShaderList.AddObject(AName,AValue)
+    else
+      ShaderList.Objects[index] := AValue;
+  end;
+end;
+
+destructor TBGLCustomLighting.Destroy;
+begin
+  FreeShaders;
+  FreeAndNil(ShaderList);
+  inherited Destroy;
+end;
+
+procedure TBGLCustomLighting.FreeShaders;
+var i: integer;
+begin
+  if Assigned(ShaderList) then
+  begin
+    for i := 0 to ShaderList.Count-1 do
+      ShaderList.Objects[i].Free;
+    ShaderList.Clear;
+  end;
+end;
+
+procedure TBGLCustomLighting.SetActiveShader(AValue: TBGLCustomShader);
+begin
+  if AValue <> FCurrentShader then
+  begin
+    if Assigned(FCurrentShader) then FCurrentShader.EndUse;
+    FCurrentShader := AValue;
+    if Assigned(FCurrentShader) then FCurrentShader.StartUse;
+  end;
+end;
 
 { TBGLPath }
 
@@ -259,6 +474,37 @@ begin
   end;
 end;
 
+function TBGLCustomCanvas.GetProjectionMatrix: TMatrix4D;
+begin
+  result := MatrixIdentity4D;
+end;
+
+procedure TBGLCustomCanvas.SetProjectionMatrix(const AValue: TMatrix4D);
+begin
+  raise exception.Create('Not implemented');
+end;
+
+function TBGLCustomCanvas.GetLighting: TBGLCustomLighting;
+begin
+  result := nil;
+  raise exception.Create('Not implemented');
+end;
+
+procedure TBGLCustomCanvas.InternalContinueShape(const pt: TPoint3D);
+begin
+  raise exception.Create('Not available');
+end;
+
+procedure TBGLCustomCanvas.InternalContinueShape(const pt: TPoint3D_128);
+begin
+  raise exception.Create('Not available');
+end;
+
+procedure TBGLCustomCanvas.InternalContinueShape(const pt, normal: TPoint3D_128);
+begin
+  raise exception.Create('Not available');
+end;
+
 procedure TBGLCustomCanvas.NoClip;
 begin
   FClipRect := rect(0,0,Width,Height);
@@ -305,6 +551,57 @@ begin
   InternalEndBlendTriangles;
 end;
 
+procedure TBGLCustomCanvas.FillTrianglesLinearColor(
+  const APoints: array of TPoint3D; const AColors: array of TBGRAPixel);
+var
+  i: NativeInt;
+begin
+  if length(APoints) < 3 then exit;
+  if length(AColors)<>length(APoints) then
+    raise exception.Create('Length of APoints and AColors do not match');
+  InternalStartBlendTriangles;
+  for i := 0 to length(APoints) - (length(APoints) mod 3) - 1 do
+  begin
+    InternalSetColor(AColors[i]);
+    InternalContinueShape(APoints[i]);
+  end;
+  InternalEndBlendTriangles;
+end;
+
+procedure TBGLCustomCanvas.FillTrianglesLinearColor(
+  const APoints: array of TPoint3D_128; const AColors: array of TBGRAPixel);
+var
+  i: NativeInt;
+begin
+  if length(APoints) < 3 then exit;
+  if length(AColors)<>length(APoints) then
+    raise exception.Create('Length of APoints and AColors do not match');
+  InternalStartBlendTriangles;
+  for i := 0 to length(APoints) - (length(APoints) mod 3) - 1 do
+  begin
+    InternalSetColor(AColors[i]);
+    InternalContinueShape(APoints[i]);
+  end;
+  InternalEndBlendTriangles;
+end;
+
+procedure TBGLCustomCanvas.FillTrianglesLinearColor(const APoints,
+  ANormals: array of TPoint3D_128; const AColors: array of TBGRAPixel);
+var
+  i: NativeInt;
+begin
+  if length(APoints) < 3 then exit;
+  if length(AColors)<>length(APoints) then raise exception.Create('Length of APoints and AColors do not match');
+  if length(AColors)<>length(ANormals) then raise exception.Create('Length of APoints and ANormals do not match');
+  InternalStartBlendTriangles;
+  for i := 0 to length(APoints) - (length(APoints) mod 3) - 1 do
+  begin
+    InternalSetColor(AColors[i]);
+    InternalContinueShape(APoints[i], ANormals[i]);
+  end;
+  InternalEndBlendTriangles;
+end;
+
 procedure TBGLCustomCanvas.FillQuads(const APoints: array of TPointF;
   AColor: TBGRAPixel; APixelCenteredCoordinates: boolean);
 var
@@ -335,6 +632,149 @@ begin
   begin
     InternalSetColor(AColors[i]);
     InternalContinueShape(APoints[i]+ofs);
+  end;
+  InternalEndBlendQuads;
+end;
+
+procedure TBGLCustomCanvas.FillQuadsLinearColor(
+  const APoints: array of TPoint3D; const AColors: array of TBGRAPixel);
+var
+  i: NativeInt;
+begin
+  if length(APoints) < 4 then exit;
+  if length(AColors)<>length(APoints) then
+    raise exception.Create('Length of APoints and AColors do not match');
+  InternalStartBlendQuads;
+  for i := 0 to length(APoints) - (length(APoints) and 3) - 1 do
+  begin
+    InternalSetColor(AColors[i]);
+    InternalContinueShape(APoints[i]);
+  end;
+  InternalEndBlendQuads;
+end;
+
+procedure TBGLCustomCanvas.FillQuadsLinearColor(
+  const APoints: array of TPoint3D_128; const AColors: array of TBGRAPixel);
+var
+  i: NativeInt;
+begin
+  if length(APoints) < 4 then exit;
+  if length(AColors)<>length(APoints) then
+    raise exception.Create('Length of APoints and AColors do not match');
+  InternalStartBlendQuads;
+  for i := 0 to length(APoints) - (length(APoints) and 3) - 1 do
+  begin
+    InternalSetColor(AColors[i]);
+    InternalContinueShape(APoints[i]);
+  end;
+  InternalEndBlendQuads;
+end;
+
+procedure TBGLCustomCanvas.FillQuadsLinearColor(const APoints,
+  ANormals: array of TPoint3D_128; const AColors: array of TBGRAPixel);
+var
+  i: NativeInt;
+begin
+  if length(APoints) < 4 then exit;
+  if length(AColors)<>length(APoints) then raise exception.Create('Length of APoints and AColors do not match');
+  if length(AColors)<>length(ANormals) then raise exception.Create('Length of APoints and ANormals do not match');
+  InternalStartBlendQuads;
+  for i := 0 to length(APoints) - (length(APoints) and 3) - 1 do
+  begin
+    InternalSetColor(AColors[i]);
+    InternalContinueShape(APoints[i], ANormals[i]);
+  end;
+  InternalEndBlendQuads;
+end;
+
+procedure TBGLCustomCanvas.FillQuadLinearColor(pt1, pt2, pt3, pt4: TPointF; c1,
+  c2, c3, c4: TColorF; APixelCenteredCoordinates: boolean);
+begin
+  FillQuadsLinearColor([pt1,pt2,pt3,pt4],[c1,c2,c3,c4],APixelCenteredCoordinates);
+end;
+
+procedure TBGLCustomCanvas.FillQuads(const APoints: array of TPointF;
+  AColor: TColorF; APixelCenteredCoordinates: boolean);
+var
+  i: NativeInt;
+  ofs: TPointF;
+begin
+  if (length(APoints) < 4) or (AColor[4] = 0) then exit;
+  InternalStartBlendQuads;
+  InternalSetColorF(AColor);
+  if APixelCenteredCoordinates then ofs := PointF(0.5,0.5) else ofs := PointF(0,0);
+  for i := 0 to length(APoints) - (length(APoints) and 3) - 1 do
+    InternalContinueShape(APoints[i]+ofs);
+  InternalEndBlendQuads;
+end;
+
+procedure TBGLCustomCanvas.FillQuadsLinearColor(
+  const APoints: array of TPointF; const AColors: array of TColorF;
+  APixelCenteredCoordinates: boolean);
+var
+  i: NativeInt;
+  ofs: TPointF;
+begin
+  if length(APoints) < 4 then exit;
+  if length(AColors)<>length(APoints) then
+    raise exception.Create('Length of APoints and AColors do not match');
+  InternalStartBlendQuads;
+  if APixelCenteredCoordinates then ofs := PointF(0.5,0.5) else ofs := PointF(0,0);
+  for i := 0 to length(APoints) - (length(APoints) and 3) - 1 do
+  begin
+    InternalSetColorF(AColors[i]);
+    InternalContinueShape(APoints[i]+ofs);
+  end;
+  InternalEndBlendQuads;
+end;
+
+procedure TBGLCustomCanvas.FillQuadsLinearColor(
+  const APoints: array of TPoint3D; const AColors: array of TColorF);
+var
+  i: NativeInt;
+begin
+  if length(APoints) < 4 then exit;
+  if length(AColors)<>length(APoints) then
+    raise exception.Create('Length of APoints and AColors do not match');
+  InternalStartBlendQuads;
+  for i := 0 to length(APoints) - (length(APoints) and 3) - 1 do
+  begin
+    InternalSetColorF(AColors[i]);
+    InternalContinueShape(APoints[i]);
+  end;
+  InternalEndBlendQuads;
+end;
+
+procedure TBGLCustomCanvas.FillQuadsLinearColor(
+  const APoints: array of TPoint3D_128; const AColors: array of TColorF);
+var
+  i: NativeInt;
+begin
+  if length(APoints) < 4 then exit;
+  if length(AColors)<>length(APoints) then
+    raise exception.Create('Length of APoints and AColors do not match');
+  InternalStartBlendQuads;
+  for i := 0 to length(APoints) - (length(APoints) and 3) - 1 do
+  begin
+    InternalSetColorF(AColors[i]);
+    InternalContinueShape(APoints[i]);
+  end;
+  InternalEndBlendQuads;
+end;
+
+procedure TBGLCustomCanvas.FillQuadsLinearColor(const APoints,
+  ANormals: array of TPoint3D_128; const AColors: array of TColorF);
+var
+  i: NativeInt;
+begin
+  if length(APoints) < 4 then exit;
+  if length(AColors)<>length(APoints) then raise exception.Create('Length of APoints and AColors do not match');
+  if length(AColors)<>length(ANormals) then raise exception.Create('Length of APoints and ANormals do not match');
+  InternalStartBlendQuads;
+  for i := 0 to length(APoints) - (length(APoints) and 3) - 1 do
+  begin
+    InternalSetColorF(AColors[i]);
+    InternalContinueShape(APoints[i], ANormals[i]);
   end;
   InternalEndBlendQuads;
 end;
@@ -397,6 +837,134 @@ begin
         InternalSetColor(ACenterColor);
         InternalStartTriangleFan(APoints[i]+ofs);
         InternalSetColor(ABorderColor);
+        firstPoint := false;
+      end else
+        InternalContinueShape(APoints[i]+ofs);
+    end;
+  end;
+  if not firstPoint then InternalEndShape;
+  InternalEndBlend;
+end;
+
+procedure TBGLCustomCanvas.FillTriangleLinearColor(pt1, pt2, pt3: TPointF; c1,
+  c2, c3: TColorF; APixelCenteredCoordinates: boolean);
+begin
+  FillTrianglesLinearColor([pt1,pt2,pt3],[c1,c2,c3],APixelCenteredCoordinates);
+end;
+
+procedure TBGLCustomCanvas.FillTriangles(const APoints: array of TPointF;
+  AColor: TColorF; APixelCenteredCoordinates: boolean);
+var
+  i: NativeInt;
+  ofs: TPointF;
+begin
+  if (length(APoints) < 3) or (AColor[4] = 0) then exit;
+  InternalStartBlendTriangles;
+  InternalSetColorF(AColor);
+  if APixelCenteredCoordinates then ofs := PointF(0.5,0.5) else ofs := PointF(0,0);
+  for i := 0 to length(APoints) - (length(APoints) mod 3) - 1 do
+    InternalContinueShape(APoints[i]+ofs);
+  InternalEndBlendTriangles;
+end;
+
+procedure TBGLCustomCanvas.FillTrianglesLinearColor(
+  const APoints: array of TPointF; const AColors: array of TColorF;
+  APixelCenteredCoordinates: boolean);
+var
+  i: NativeInt;
+  ofs: TPointF;
+begin
+  if length(APoints) < 3 then exit;
+  if length(AColors)<>length(APoints) then
+    raise exception.Create('Length of APoints and AColors do not match');
+  InternalStartBlendTriangles;
+  if APixelCenteredCoordinates then ofs := PointF(0.5,0.5) else ofs := PointF(0,0);
+  for i := 0 to length(APoints) - (length(APoints) mod 3) - 1 do
+  begin
+    InternalSetColorF(AColors[i]);
+    InternalContinueShape(APoints[i]+ofs);
+  end;
+  InternalEndBlendTriangles;
+end;
+
+procedure TBGLCustomCanvas.FillTrianglesLinearColor(
+  const APoints: array of TPoint3D; const AColors: array of TColorF);
+var
+  i: NativeInt;
+begin
+  if length(APoints) < 3 then exit;
+  if length(AColors)<>length(APoints) then
+    raise exception.Create('Length of APoints and AColors do not match');
+  InternalStartBlendTriangles;
+  for i := 0 to length(APoints) - (length(APoints) mod 3) - 1 do
+  begin
+    InternalSetColorF(AColors[i]);
+    InternalContinueShape(APoints[i]);
+  end;
+  InternalEndBlendTriangles;
+end;
+
+procedure TBGLCustomCanvas.FillTrianglesLinearColor(
+  const APoints: array of TPoint3D_128; const AColors: array of TColorF);
+var
+  i: NativeInt;
+begin
+  if length(APoints) < 3 then exit;
+  if length(AColors)<>length(APoints) then
+    raise exception.Create('Length of APoints and AColors do not match');
+  InternalStartBlendTriangles;
+  for i := 0 to length(APoints) - (length(APoints) mod 3) - 1 do
+  begin
+    InternalSetColorF(AColors[i]);
+    InternalContinueShape(APoints[i]);
+  end;
+  InternalEndBlendTriangles;
+end;
+
+procedure TBGLCustomCanvas.FillTrianglesLinearColor(const APoints,
+  ANormals: array of TPoint3D_128; const AColors: array of TColorF);
+var
+  i: NativeInt;
+begin
+  if length(APoints) < 3 then exit;
+  if length(AColors)<>length(APoints) then raise exception.Create('Length of APoints and AColors do not match');
+  if length(AColors)<>length(ANormals) then raise exception.Create('Length of APoints and ANormals do not match');
+  InternalStartBlendTriangles;
+  for i := 0 to length(APoints) - (length(APoints) mod 3) - 1 do
+  begin
+    InternalSetColorF(AColors[i]);
+    InternalContinueShape(APoints[i], ANormals[i]);
+  end;
+  InternalEndBlendTriangles;
+end;
+
+procedure TBGLCustomCanvas.FillTrianglesFan(const APoints: array of TPointF;
+  ACenterColor, ABorderColor: TColorF; APixelCenteredCoordinates: boolean);
+var
+  i: NativeInt;
+  firstPoint: boolean;
+  ofs: TPointF;
+begin
+  if (length(APoints) < 3) or ((ACenterColor[4] = 0) and (ABorderColor[4] = 0)) then exit;
+  InternalStartBlend;
+  firstPoint := true;
+  if APixelCenteredCoordinates then ofs := PointF(0.5,0.5) else ofs := PointF(0,0);
+  for i := 0 to high(APoints) do
+  begin
+    if isEmptyPointF(APoints[i]) then
+    begin
+      if not firstPoint then
+      begin
+        InternalEndShape;
+        firstPoint := true;
+      end;
+    end else
+    begin
+      if firstPoint then
+      begin
+        InternalSetColorF(ACenterColor);
+        InternalStartTriangleFan(APoints[i]+ofs);
+        InternalSetColorF(ABorderColor);
         firstPoint := false;
       end else
         InternalContinueShape(APoints[i]+ofs);
@@ -1166,6 +1734,26 @@ end;
 procedure TBGLCustomCanvas.ResetTransform;
 begin
   Matrix := AffineMatrixIdentity;
+end;
+
+procedure TBGLCustomCanvas.UseOrthoProjection;
+begin
+  ProjectionMatrix := OrthoProjectionToOpenGL(0,0,Width,Height);
+end;
+
+procedure TBGLCustomCanvas.StartZBuffer;
+begin
+  raise exception.Create('Not implemented');
+end;
+
+procedure TBGLCustomCanvas.EndZBuffer;
+begin
+  raise exception.Create('Not implemented');
+end;
+
+procedure TBGLCustomCanvas.WaitForGPU(AOption: TWaitForGPUOption);
+begin
+  raise exception.Create('Not implemented');
 end;
 
 end.

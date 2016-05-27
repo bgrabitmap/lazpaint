@@ -200,13 +200,14 @@ begin
 end;
 
 procedure TMainFormMenu.Apply;
+const ImageBrowser = {$IFNDEF DARWIN}'FileUseImageBrowser,'{$ENDIF};
 var i,j,tbHeight,tbHeightOrig: NativeInt;
 begin
   for i := 0 to FActionList.ActionCount-1 do
   with FActionList.Actions[i] as TAction do
     if (Caption = '') and (Hint <> '') then Caption := Hint;
 
-  AddMenus('MenuFile',   'FileNew,FileOpen,LayerFromFile,MenuRecentFiles,FileReload,-,FileSave,FileSaveAsInSameFolder,FileSaveAs,-,FileImport3D,-,FilePrint,-,MenuLanguage,*');
+  AddMenus('MenuFile',   'FileNew,FileOpen,LayerFromFile,MenuRecentFiles,FileReload,-,FileSave,FileSaveAsInSameFolder,FileSaveAs,-,FileImport3D,-,FilePrint,-,'+ImageBrowser+'MenuLanguage,MenuIconSize,*');
   AddMenus('MenuEdit',   'EditUndo,EditRedo,-,EditCut,EditCopy,EditPaste,EditPasteAsNew,EditPasteAsNewLayer,EditDeleteSelection,-,EditSelectAll,EditInvertSelection,EditSelectionFit,EditDeselect');
   AddMenus('MenuSelect', 'EditSelection,FileLoadSelection,FileSaveSelectionAs,-,EditSelectAll,EditInvertSelection,EditSelectionFit,EditDeselect,-,ToolSelectRect,ToolSelectEllipse,ToolSelectPoly,ToolSelectSpline,-,ToolMoveSelection,ToolRotateSelection,-,ToolSelectPen,ToolMagicWand');
   AddMenus('MenuView',   'ViewZoomOriginal,ViewZoomIn,ViewZoomOut,ViewZoomFit,-,*');
@@ -333,4 +334,4 @@ begin
 end;
 
 end.
-
+

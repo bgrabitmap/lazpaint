@@ -33,7 +33,7 @@ interface
 
 uses
   SysUtils, Classes, Types, FPImage, BGRAGraphics, BGRABitmapTypes, FPImgCanv,
-  BGRACanvas, BGRACanvas2D, BGRAArrow, BGRAPen;
+  BGRACanvas, BGRACanvas2D, BGRAArrow, BGRAPen, BGRATransform;
 
 type
   TBGRAPtrBitmap = class;
@@ -52,7 +52,6 @@ type
     function CheckHorizLineBounds(var x, y, x2: int32or64): boolean; inline;
     function CheckVertLineBounds(var x, y, y2: int32or64; out delta: int32or64): boolean; inline;
     function CheckRectBounds(var x,y,x2,y2: integer; minsize: integer): boolean; inline;
-    function CheckClippedRectBounds(var x,y,x2,y2: integer): boolean; inline;
     function CheckAntialiasRectBounds(var x,y,x2,y2: single; w: single): boolean;
     function GetCanvasBGRA: TBGRACanvas;
     function GetCanvas2D: TBGRACanvas2D;
@@ -205,8 +204,10 @@ type
     procedure SetArrowEnd(AStyle: TBGRAArrowStyle; ATipStyle: TPenJoinStyle = pjsMiter; ARelativePenWidth: single = 1; ATriangleBackOffset: single = 0); override;
     procedure InternalTextOutCurved(ACursor: TBGRACustomPathCursor; sUTF8: string; AColor: TBGRAPixel; ATexture: IBGRAScanner; AAlign: TAlignment; ALetterSpacing: single);
 
+    function CheckClippedRectBounds(var x,y,x2,y2: integer): boolean;
     procedure InternalArc(cx,cy,rx,ry: single; StartAngleRad,EndAngleRad: Single; ABorderColor: TBGRAPixel; w: single;
       AFillColor: TBGRAPixel; AOptions: TArcOptions; ADrawChord: boolean = false; ATexture: IBGRAScanner = nil); override;
+    procedure InternalSwapRedBlue(AData: PBGRAPixel; ACount: integer);
 
   public
     {** Provides a canvas with opacity and antialiasing }
@@ -631,13 +632,15 @@ type
 
     procedure FillQuadLinearColor(pt1,pt2,pt3,pt4: TPointF; c1,c2,c3,c4: TBGRAPixel); override;
     procedure FillQuadLinearColorAntialias(pt1,pt2,pt3,pt4: TPointF; c1,c2,c3,c4: TBGRAPixel); override;
-    procedure FillQuadLinearMapping(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; TextureInterpolation: Boolean= True); override;
+    procedure FillQuadLinearMapping(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; TextureInterpolation: Boolean= True; ACulling: TFaceCulling = fcNone); override;
     procedure FillQuadLinearMappingLightness(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; light1,light2,light3,light4: word; TextureInterpolation: Boolean= True); override;
-    procedure FillQuadLinearMappingAntialias(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF); override;
-    procedure FillQuadPerspectiveMapping(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF); override;
-    procedure FillQuadPerspectiveMapping(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; ACleanBorders: TRect); override;
+    procedure FillQuadLinearMappingAntialias(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; ACulling: TFaceCulling = fcNone); override;
+    procedure FillQuadPerspectiveMapping(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; ADrawMode: TDrawMode = dmDrawWithTransparency); override;
+    procedure FillQuadPerspectiveMapping(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; ACleanBorders: TRect; ADrawMode: TDrawMode = dmDrawWithTransparency); override;
     procedure FillQuadPerspectiveMappingAntialias(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF); override;
     procedure FillQuadPerspectiveMappingAntialias(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; ACleanBorders: TRect); override;
+    procedure FillQuadAffineMapping(Orig,HAxis,VAxis: TPointF; AImage: TBGRACustomBitmap; APixelCenteredCoordinates: boolean = true; ADrawMode: TDrawMode = dmDrawWithTransparency); override;
+    procedure FillQuadAffineMappingAntialias(Orig,HAxis,VAxis: TPointF; AImage: TBGRACustomBitmap; APixelCenteredCoordinates: boolean = true); override;
 
     procedure FillPolyLinearMapping(const points: array of TPointF; texture: IBGRAScanner; texCoords: array of TPointF; TextureInterpolation: Boolean); override;
     procedure FillPolyLinearMappingLightness(const points: array of TPointF; texture: IBGRAScanner; texCoords: array of TPointF; lightnesses: array of word; TextureInterpolation: Boolean); override;
@@ -730,10 +733,10 @@ type
     procedure GradientFill(x, y, x2, y2: integer; c1, c2: TBGRAPixel;
       gtype: TGradientType; o1, o2: TPointF; mode: TDrawMode;
       gammaColorCorrection: boolean = True; Sinus: Boolean=False;
-      ditherAlgo: TDitheringAlgorithm = daFloydSteinberg); override;
+      ditherAlgo: TDitheringAlgorithm = daNearestNeighbor); override;
     procedure GradientFill(x, y, x2, y2: integer; gradient: TBGRACustomGradient;
       gtype: TGradientType; o1, o2: TPointF; mode: TDrawMode;
-      Sinus: Boolean=False; ditherAlgo: TDitheringAlgorithm = daFloydSteinberg); override;
+      Sinus: Boolean=False; ditherAlgo: TDitheringAlgorithm = daNearestNeighbor); override;
     function CreateBrushTexture(ABrushStyle: TBrushStyle; APatternColor, ABackgroundColor: TBGRAPixel;
                 AWidth: integer = 8; AHeight: integer = 8; APenWidth: single = 1): TBGRACustomBitmap; override;
     function ScanAtInteger(X,Y: integer): TBGRAPixel; override;
@@ -785,9 +788,10 @@ type
     procedure InplaceGrayscale; override;
     procedure InplaceGrayscale(ABounds: TRect); override;
     procedure SwapRedBlue; override;
+    procedure SwapRedBlue(ARect: TRect); override;
     procedure GrayscaleToAlpha; override;
     procedure AlphaToGrayscale; override;
-    procedure ApplyMask(mask: TBGRACustomBitmap; ARect: TRect; AMaskRectTopLeft: TPoint); override;
+    procedure ApplyMask(mask: TBGRACustomBitmap; ARect: TRect; AMaskRectTopLeft: TPoint); override; overload;
     procedure ApplyGlobalOpacity(alpha: byte); override;
     procedure ApplyGlobalOpacity(ABounds: TRect; alpha: byte); override;
     procedure ConvertToLinearRGB; override;
@@ -802,18 +806,16 @@ type
     function FilterSharpen(ABounds: TRect; Amount: single = 1): TBGRACustomBitmap; override;
     function FilterContour: TBGRACustomBitmap; override;
     function FilterPixelate(pixelSize: integer; useResample: boolean; filter: TResampleFilter = rfLinear): TBGRACustomBitmap; override;
-    function FilterBlurRadial(radius: integer;
-      blurType: TRadialBlurType): TBGRACustomBitmap; override;
-    function FilterBlurRadial(ABounds: TRect; radius: integer;
-      blurType: TRadialBlurType): TBGRACustomBitmap; override;
-    function FilterBlurMotion(distance: integer; angle: single;
-      oriented: boolean): TBGRACustomBitmap; override;
-    function FilterBlurMotion(ABounds: TRect; distance: integer; angle: single;
-      oriented: boolean): TBGRACustomBitmap; override;
+    function FilterBlurRadial(radius: single; blurType: TRadialBlurType): TBGRACustomBitmap; override;
+    function FilterBlurRadial(ABounds: TRect; radius: single; blurType: TRadialBlurType): TBGRACustomBitmap; override;
+    function FilterBlurRadial(radiusX, radiusY: single; blurType: TRadialBlurType): TBGRACustomBitmap; override;
+    function FilterBlurRadial(ABounds: TRect; radiusX, radiusY: single; blurType: TRadialBlurType): TBGRACustomBitmap; override;
+    function FilterBlurMotion(distance: single; angle: single; oriented: boolean): TBGRACustomBitmap; override;
+    function FilterBlurMotion(ABounds: TRect; distance: single; angle: single; oriented: boolean): TBGRACustomBitmap; override;
     function FilterCustomBlur(mask: TBGRACustomBitmap): TBGRACustomBitmap; override;
     function FilterCustomBlur(ABounds: TRect; mask: TBGRACustomBitmap): TBGRACustomBitmap; override;
-    function FilterEmboss(angle: single): TBGRACustomBitmap; override;
-    function FilterEmboss(angle: single; ABounds: TRect): TBGRACustomBitmap; override;
+    function FilterEmboss(angle: single; AStrength: integer= 64; AOptions: TEmbossOptions = []): TBGRACustomBitmap; override;
+    function FilterEmboss(angle: single; ABounds: TRect; AStrength: integer= 64; AOptions: TEmbossOptions = []): TBGRACustomBitmap; override;
     function FilterEmbossHighlight(FillSelection: boolean): TBGRACustomBitmap; override;
     function FilterEmbossHighlight(FillSelection: boolean; BorderColor: TBGRAPixel): TBGRACustomBitmap; override;
     function FilterEmbossHighlight(FillSelection: boolean; BorderColor: TBGRAPixel; var Offset: TPoint): TBGRACustomBitmap; override;
@@ -886,7 +888,7 @@ type
 implementation
 
 uses Math, BGRAUTF8, BGRABlend, BGRAFilters, BGRAGradientScanner,
-  BGRAResample, BGRATransform, BGRAPolygon, BGRAPolygonAliased,
+  BGRAResample, BGRAPolygon, BGRAPolygonAliased,
   BGRAPath, FPReadPcx, FPWritePcx, FPReadXPM, FPWriteXPM,
   BGRADithering;
 
@@ -2460,6 +2462,70 @@ begin
   multi.Free;
 end;
 
+procedure TBGRADefaultBitmap.InternalSwapRedBlue(AData: PBGRAPixel;
+  ACount: integer);
+const RedMask = 255 shl TBGRAPixel_RedShift;
+      BlueMask = 255 shl TBGRAPixel_BlueShift;
+      GreenAndAlphaMask = (255 shl TBGRAPixel_GreenShift) or (255 shl TBGRAPixel_AlphaShift);
+      RedMask64 = RedMask or (RedMask shl 32);
+      BlueMask64 = BlueMask or (BlueMask shl 32);
+      GreenAndAlphaMask64 = GreenAndAlphaMask or (GreenAndAlphaMask shl 32);
+var
+  n: NativeInt;
+  p: PLongword;
+  temp: longword;
+  temp64: QWord;
+  oddN: boolean;
+begin
+  {$PUSH}{$WARNINGS OFF}
+  p := PLongWord(AData);
+  n := ACount;
+  if n = 0 then
+    exit;
+  oddN := odd(n);
+  n := n shr 1;
+  if TBGRAPixel_RedShift > TBGRAPixel_BlueShift then
+    while n > 0 do
+    begin
+      temp64 := PQWord(p)^;
+      PQWord(p)^ := ((temp64 and BlueMask64) shl (TBGRAPixel_RedShift-TBGRAPixel_BlueShift)) or
+                    ((temp64 and RedMask64) shr (TBGRAPixel_RedShift-TBGRAPixel_BlueShift)) or
+                    (temp64 and GreenAndAlphaMask64);
+      dec(n);
+      inc(p,2);
+    end else
+    while n > 0 do
+    begin
+      temp64 := PQWord(p)^;
+      PQWord(p)^ := ((temp64 and BlueMask64) shr (TBGRAPixel_BlueShift-TBGRAPixel_RedShift)) or
+                    ((temp64 and RedMask64) shl (TBGRAPixel_BlueShift-TBGRAPixel_RedShift)) or
+                    (temp64 and GreenAndAlphaMask64);
+      dec(n);
+      inc(p,2);
+    end;
+  n := NativeInt(oddN);
+  if TBGRAPixel_RedShift > TBGRAPixel_BlueShift then
+    while n > 0 do
+    begin
+      temp := p^;
+      p^ := ((temp and BlueMask) shl (TBGRAPixel_RedShift-TBGRAPixel_BlueShift)) or
+            ((temp and RedMask) shr (TBGRAPixel_RedShift-TBGRAPixel_BlueShift)) or
+            (temp and GreenAndAlphaMask);
+      dec(n);
+      inc(p);
+    end else
+    while n > 0 do
+    begin
+      temp := p^;
+      p^ := ((temp and BlueMask) shr (TBGRAPixel_BlueShift-TBGRAPixel_RedShift)) or
+            ((temp and RedMask) shl (TBGRAPixel_BlueShift-TBGRAPixel_RedShift)) or
+            (temp and GreenAndAlphaMask);
+      dec(n);
+      inc(p);
+    end;
+  {$POP}
+end;
+
 procedure TBGRADefaultBitmap.DrawPath(APath: IBGRAPath; c: TBGRAPixel; w: single);
 var tempPath: TBGRAPath;
 begin
@@ -2763,17 +2829,24 @@ begin
 end;
 
 procedure TBGRADefaultBitmap.FillQuadLinearMapping(pt1, pt2, pt3, pt4: TPointF;
-  texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; TextureInterpolation: Boolean= True);
+  texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF;
+  TextureInterpolation: Boolean; ACulling: TFaceCulling);
 var
-  center: TPointF;
-  centerTex: TPointF;
+  scan: TBGRAQuadLinearScanner;
 begin
-  center := (pt1+pt2+pt3+pt4)*(1/4);
-  centerTex := (tex1+tex2+tex3+tex4)*(1/4);
-  FillTriangleLinearMapping(pt1,pt2,center, texture,tex1,tex2,centerTex, TextureInterpolation);
-  FillTriangleLinearMapping(pt2,pt3,center, texture,tex2,tex3,centerTex, TextureInterpolation);
-  FillTriangleLinearMapping(pt3,pt4,center, texture,tex3,tex4,centerTex, TextureInterpolation);
-  FillTriangleLinearMapping(pt4,pt1,center, texture,tex4,tex1,centerTex, TextureInterpolation);
+  if ((abs(pt1.y-pt2.y)<1e-6) and (abs(pt3.y-pt4.y)<1e-6)) or
+     ((abs(pt3.y-pt2.y)<1e-6) and (abs(pt1.y-pt4.y)<1e-6)) then
+     FillPolyLinearMapping([pt1,pt2,pt3,pt4], texture,
+            [tex1,tex2,tex3,tex4], TextureInterpolation)
+  else
+  begin
+    scan := TBGRAQuadLinearScanner.Create(texture,
+         [tex1,tex2,tex3,tex4],
+         [pt1,pt2,pt3,pt4],TextureInterpolation);
+    scan.Culling := ACulling;
+    FillPoly([pt1,pt2,pt3,pt4],scan,dmDrawWithTransparency);
+    scan.Free;
+  end;
 end;
 
 procedure TBGRADefaultBitmap.FillQuadLinearMappingLightness(pt1, pt2, pt3,
@@ -2794,35 +2867,37 @@ begin
 end;
 
 procedure TBGRADefaultBitmap.FillQuadLinearMappingAntialias(pt1, pt2, pt3,
-  pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF);
+  pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF;
+  ACulling: TFaceCulling);
 var multi : TBGRAMultishapeFiller;
 begin
   multi := TBGRAMultishapeFiller.Create;
-  multi.AddQuadLinearMapping(pt1, pt2, pt3, pt4, texture, tex1,tex2,tex3,tex4);
+  multi.AddQuadLinearMapping(pt1, pt2, pt3, pt4, texture, tex1,tex2,tex3,tex4, ACulling);
   multi.Draw(self);
   multi.free;
 end;
 
 procedure TBGRADefaultBitmap.FillQuadPerspectiveMapping(pt1, pt2, pt3,
-  pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF);
+  pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF;
+  ADrawMode: TDrawMode);
 var
   persp: TBGRAPerspectiveScannerTransform;
 begin
   persp := TBGRAPerspectiveScannerTransform.Create(texture,[tex1,tex2,tex3,tex4],[pt1,pt2,pt3,pt4]);
-  FillPoly([pt1,pt2,pt3,pt4],persp,dmDrawWithTransparency);
+  FillPoly([pt1,pt2,pt3,pt4],persp,ADrawMode);
   persp.Free;
 end;
 
 procedure TBGRADefaultBitmap.FillQuadPerspectiveMapping(pt1, pt2, pt3,
   pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF;
-  ACleanBorders: TRect);
+  ACleanBorders: TRect; ADrawMode: TDrawMode);
 var
   persp: TBGRAPerspectiveScannerTransform;
   clean: TBGRAExtendedBorderScanner;
 begin
   clean := TBGRAExtendedBorderScanner.Create(texture,ACleanBorders);
   persp := TBGRAPerspectiveScannerTransform.Create(clean,[tex1,tex2,tex3,tex4],[pt1,pt2,pt3,pt4]);
-  FillPoly([pt1,pt2,pt3,pt4],persp,dmDrawWithTransparency);
+  FillPoly([pt1,pt2,pt3,pt4],persp,ADrawMode);
   persp.Free;
   clean.Free;
 end;
@@ -2849,6 +2924,42 @@ begin
   FillPolyAntialias([pt1,pt2,pt3,pt4],persp);
   persp.Free;
   clean.Free;
+end;
+
+procedure TBGRADefaultBitmap.FillQuadAffineMapping(Orig, HAxis, VAxis: TPointF;
+  AImage: TBGRACustomBitmap; APixelCenteredCoordinates: boolean; ADrawMode: TDrawMode);
+var pts3: TPointF;
+  affine: TBGRAAffineBitmapTransform;
+begin
+  if not APixelCenteredCoordinates then
+  begin
+    Orig -= PointF(0.5,0.5);
+    HAxis -= PointF(0.5,0.5);
+    VAxis -= PointF(0.5,0.5);
+  end;
+  pts3 := HAxis+(VAxis-Orig);
+  affine := TBGRAAffineBitmapTransform.Create(AImage,False,AImage.ScanInterpolationFilter,not APixelCenteredCoordinates);
+  affine.Fit(Orig,HAxis,VAxis);
+  FillPoly([Orig,HAxis,pts3,VAxis],affine,ADrawMode);
+  affine.Free;
+end;
+
+procedure TBGRADefaultBitmap.FillQuadAffineMappingAntialias(Orig, HAxis,
+  VAxis: TPointF; AImage: TBGRACustomBitmap; APixelCenteredCoordinates: boolean);
+var pts3: TPointF;
+  affine: TBGRAAffineBitmapTransform;
+begin
+  if not APixelCenteredCoordinates then
+  begin
+    Orig -= PointF(0.5,0.5);
+    HAxis -= PointF(0.5,0.5);
+    VAxis -= PointF(0.5,0.5);
+  end;
+  pts3 := HAxis+(VAxis-Orig);
+  affine := TBGRAAffineBitmapTransform.Create(AImage,False,AImage.ScanInterpolationFilter,not APixelCenteredCoordinates);
+  affine.Fit(Orig,HAxis,VAxis);
+  FillPolyAntialias([Orig,HAxis,pts3,VAxis],affine);
+  affine.Free;
 end;
 
 procedure TBGRADefaultBitmap.FillPolyLinearMapping(const points: array of TPointF;
@@ -4213,6 +4324,13 @@ begin
   LoadFromBitmapIfNeeded;
   ix := round(x*256);
   iy := round(y*256);
+  if ScanInterpolationFilter = rfBox then
+  begin
+    ix := PositiveMod((ix+128)+(ScanOffset.X shl 8), FScanWidth shl 8) shr 8;
+    iy := PositiveMod((iy+128)+(ScanOffset.Y shl 8), FScanHeight shl 8) shr 8;
+    result := (GetScanlineFast(iy)+ix)^;
+    exit;
+  end;
   iFactX := ix and 255;
   iFactY := iy and 255;
   ix := PositiveMod(ix+(ScanOffset.X shl 8), FScanWidth shl 8) shr 8;
@@ -4802,17 +4920,35 @@ begin
   Result := BGRAFilters.FilterContour(self);
 end;
 
-function TBGRADefaultBitmap.FilterBlurRadial(radius: integer;
+function TBGRADefaultBitmap.FilterBlurRadial(radius: single;
   blurType: TRadialBlurType): TBGRACustomBitmap;
 begin
   Result := BGRAFilters.FilterBlurRadial(self, radius, blurType);
 end;
 
-function TBGRADefaultBitmap.FilterBlurRadial(ABounds: TRect; radius: integer;
+function TBGRADefaultBitmap.FilterBlurRadial(ABounds: TRect; radius: single;
   blurType: TRadialBlurType): TBGRACustomBitmap;
 var task: TFilterTask;
 begin
   task := BGRAFilters.CreateRadialBlurTask(self, ABounds, radius, blurType);
+  try
+    result := task.Execute;
+  finally
+    task.Free;
+  end;
+end;
+
+function TBGRADefaultBitmap.FilterBlurRadial(radiusX, radiusY: single;
+  blurType: TRadialBlurType): TBGRACustomBitmap;
+begin
+  Result := BGRAFilters.FilterBlurRadial(self, radiusX,radiusY, blurType);
+end;
+
+function TBGRADefaultBitmap.FilterBlurRadial(ABounds: TRect; radiusX,
+  radiusY: single; blurType: TRadialBlurType): TBGRACustomBitmap;
+var task: TFilterTask;
+begin
+  task := BGRAFilters.CreateRadialBlurTask(self, ABounds, radiusX,radiusY, blurType);
   try
     result := task.Execute;
   finally
@@ -4826,13 +4962,13 @@ begin
   Result:= BGRAFilters.FilterPixelate(self, pixelSize, useResample, filter);
 end;
 
-function TBGRADefaultBitmap.FilterBlurMotion(distance: integer;
+function TBGRADefaultBitmap.FilterBlurMotion(distance: single;
   angle: single; oriented: boolean): TBGRACustomBitmap;
 begin
   Result := BGRAFilters.FilterBlurMotion(self, distance, angle, oriented);
 end;
 
-function TBGRADefaultBitmap.FilterBlurMotion(ABounds: TRect; distance: integer;
+function TBGRADefaultBitmap.FilterBlurMotion(ABounds: TRect; distance: single;
   angle: single; oriented: boolean): TBGRACustomBitmap;
 var task: TFilterTask;
 begin
@@ -4862,14 +4998,16 @@ begin
   end;
 end;
 
-function TBGRADefaultBitmap.FilterEmboss(angle: single): TBGRACustomBitmap;
+function TBGRADefaultBitmap.FilterEmboss(angle: single;
+  AStrength: integer; AOptions: TEmbossOptions): TBGRACustomBitmap;
 begin
-  Result := BGRAFilters.FilterEmboss(self, angle);
+  Result := BGRAFilters.FilterEmboss(self, angle, AStrength, AOptions);
 end;
 
-function TBGRADefaultBitmap.FilterEmboss(angle: single; ABounds: TRect): TBGRACustomBitmap;
+function TBGRADefaultBitmap.FilterEmboss(angle: single; ABounds: TRect;
+  AStrength: integer; AOptions: TEmbossOptions): TBGRACustomBitmap;
 begin
-  Result := BGRAFilters.FilterEmboss(self, angle, ABounds);
+  Result := BGRAFilters.FilterEmboss(self, angle, ABounds, AStrength, AOptions);
 end;
 
 function TBGRADefaultBitmap.FilterEmbossHighlight(FillSelection: boolean):
@@ -5245,68 +5383,20 @@ end;
 
   It is an involution, i.e it does nothing when applied twice }
 procedure TBGRADefaultBitmap.SwapRedBlue;
-const RedMask = 255 shl TBGRAPixel_RedShift;
-      BlueMask = 255 shl TBGRAPixel_BlueShift;
-      GreenAndAlphaMask = (255 shl TBGRAPixel_GreenShift) or (255 shl TBGRAPixel_AlphaShift);
-      RedMask64 = RedMask or (RedMask shl 32);
-      BlueMask64 = BlueMask or (BlueMask shl 32);
-      GreenAndAlphaMask64 = GreenAndAlphaMask or (GreenAndAlphaMask shl 32);
-var
-  n: NativeInt;
-  p: PLongword;
-  temp: longword;
-  temp64: QWord;
-  oddN: boolean;
 begin
-  {$PUSH}{$WARNINGS OFF}
   LoadFromBitmapIfNeeded;
-  p := PLongword(Data);
-  n := NbPixels;
-  if n = 0 then
-    exit;
-  oddN := odd(n);
-  n := n shr 1;
-  if TBGRAPixel_RedShift > TBGRAPixel_BlueShift then
-    while n > 0 do
-    begin
-      temp64 := PQWord(p)^;
-      PQWord(p)^ := ((temp64 and BlueMask64) shl (TBGRAPixel_RedShift-TBGRAPixel_BlueShift)) or
-                    ((temp64 and RedMask64) shr (TBGRAPixel_RedShift-TBGRAPixel_BlueShift)) or
-                    (temp64 and GreenAndAlphaMask64);
-      dec(n);
-      inc(p,2);
-    end else
-    while n > 0 do
-    begin
-      temp64 := PQWord(p)^;
-      PQWord(p)^ := ((temp64 and BlueMask64) shr (TBGRAPixel_BlueShift-TBGRAPixel_RedShift)) or
-                    ((temp64 and RedMask64) shl (TBGRAPixel_BlueShift-TBGRAPixel_RedShift)) or
-                    (temp64 and GreenAndAlphaMask64);
-      dec(n);
-      inc(p,2);
-    end;
-  n := NativeInt(oddN);
-  if TBGRAPixel_RedShift > TBGRAPixel_BlueShift then
-    while n > 0 do
-    begin
-      temp := p^;
-      p^ := ((temp and BlueMask) shl (TBGRAPixel_RedShift-TBGRAPixel_BlueShift)) or
-            ((temp and RedMask) shr (TBGRAPixel_RedShift-TBGRAPixel_BlueShift)) or
-            (temp and GreenAndAlphaMask);
-      dec(n);
-      inc(p);
-    end else
-    while n > 0 do
-    begin
-      temp := p^;
-      p^ := ((temp and BlueMask) shr (TBGRAPixel_BlueShift-TBGRAPixel_RedShift)) or
-            ((temp and RedMask) shl (TBGRAPixel_BlueShift-TBGRAPixel_RedShift)) or
-            (temp and GreenAndAlphaMask);
-      dec(n);
-      inc(p);
-    end;
+  InternalSwapRedBlue(Data, NbPixels);
   InvalidateBitmap;
-  {$POP}
+end;
+
+procedure TBGRADefaultBitmap.SwapRedBlue(ARect: TRect);
+var y: NativeInt;
+begin
+  if not CheckClippedRectBounds(ARect.Left,ARect.Top,ARect.Right,ARect.Bottom) then exit;
+  LoadFromBitmapIfNeeded;
+  for y := ARect.Top to ARect.Bottom-1 do
+    InternalSwapRedBlue(GetScanlineFast(y)+ARect.Left, ARect.Right-ARect.Left);
+  InvalidateBitmap;
 end;
 
 { Convert a grayscale image into a black image with alpha value }

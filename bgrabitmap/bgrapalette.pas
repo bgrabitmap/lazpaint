@@ -164,6 +164,21 @@ type
     function FindNearestColorIndex(AValue: TBGRAPixel): integer; virtual; abstract; overload;
   end;
 
+  { TBGRA16BitPalette }
+
+  TBGRA16BitPalette = class(TBGRACustomApproxPalette)
+  protected
+    function GetCount: integer; override;
+    function GetColorByIndex(AIndex: integer): TBGRAPixel; override;
+  public
+    function ContainsColor(AValue: TBGRAPixel): boolean; override;
+    function IndexOfColor(AValue: TBGRAPixel): integer; override;
+    function GetAsArrayOfColor: ArrayOfTBGRAPixel; override;
+    function GetAsArrayOfWeightedColor: ArrayOfWeightedColor; override;
+    function FindNearestColor(AValue: TBGRAPixel): TBGRAPixel; override;
+    function FindNearestColorIndex(AValue: TBGRAPixel): integer; override;
+  end;
+
   { TBGRACustomColorQuantizer }
 
   TBGRACustomColorQuantizer = class
@@ -299,6 +314,68 @@ begin
     result := 8;
     while (result > 0) and (1 shl (result shr 1) >= APalette.Count) do result := result shr 1;
   end;
+end;
+
+{ TBGRA16BitPalette }
+
+function TBGRA16BitPalette.GetCount: integer;
+begin
+  result := 65537;
+end;
+
+function TBGRA16BitPalette.GetColorByIndex(AIndex: integer): TBGRAPixel;
+begin
+  if (AIndex >= 65536) or (AIndex < 0) then
+    result := BGRAPixelTransparent
+  else
+    result := Color16BitToBGRA(AIndex);
+end;
+
+function TBGRA16BitPalette.ContainsColor(AValue: TBGRAPixel): boolean;
+begin
+  if AValue.alpha = 0 then
+    result := true
+  else
+    result := (AValue.alpha = 255) and (FindNearestColor(AValue)=AValue);
+end;
+
+function TBGRA16BitPalette.IndexOfColor(AValue: TBGRAPixel): integer;
+var idx: integer;
+begin
+  if AValue.Alpha = 0 then
+    result := 65536
+  else
+  begin
+    idx := BGRAToColor16Bit(AValue);
+    if Color16BitToBGRA(idx)=AValue then
+      result := idx
+    else
+      result := -1;
+  end;
+end;
+
+function TBGRA16BitPalette.GetAsArrayOfColor: ArrayOfTBGRAPixel;
+begin
+  result := nil;
+  raise exception.Create('Palette too big');
+end;
+
+function TBGRA16BitPalette.GetAsArrayOfWeightedColor: ArrayOfWeightedColor;
+begin
+  result := nil;
+  raise exception.Create('Palette too big');
+end;
+
+function TBGRA16BitPalette.FindNearestColor(AValue: TBGRAPixel): TBGRAPixel;
+begin
+  if AValue.alpha = 0 then result := BGRAPixelTransparent
+  else
+    result := GetColorByIndex(BGRAToColor16Bit(AValue));
+end;
+
+function TBGRA16BitPalette.FindNearestColorIndex(AValue: TBGRAPixel): integer;
+begin
+  result := BGRAToColor16Bit(AValue);
 end;
 
 { TBGRAIndexedPalette }

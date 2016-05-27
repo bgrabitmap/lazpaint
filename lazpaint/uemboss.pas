@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  ExtCtrls, StdCtrls, BGRABitmap, LazPaintType, uscaledpi, ufilterconnector;
+  ExtCtrls, StdCtrls, ComCtrls, BGRABitmap, LazPaintType, uscaledpi,
+  ufilterconnector;
 
 type
 
@@ -15,9 +16,13 @@ type
   TFEmboss = class(TForm)
     Button_OK: TButton;
     Button_Cancel: TButton;
+    CheckBox_Transparent: TCheckBox;
+    CheckBox_PreserveColors: TCheckBox;
     Label_Direction: TLabel;
     PaintBox1: TPaintBox;
+    TrackBar_Strength: TTrackBar;
     procedure Button_OKClick(Sender: TObject);
+    procedure CheckBox_Change(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -28,6 +33,7 @@ type
     procedure PaintBox1MouseUp(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure PaintBox1Paint(Sender: TObject);
+    procedure TrackBar_StrengthChange(Sender: TObject);
   private
     { private declarations }
     InPaintBoxMouseMove: boolean;
@@ -93,6 +99,11 @@ begin
   ModalResult := mrOK;
 end;
 
+procedure TFEmboss.CheckBox_Change(Sender: TObject);
+begin
+  PreviewNeeded;
+end;
+
 procedure TFEmboss.PaintBox1MouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
@@ -141,6 +152,12 @@ begin
     bmp.Free;
 end;
 
+procedure TFEmboss.TrackBar_StrengthChange(Sender: TObject);
+begin
+  PreviewNeeded;
+  PaintBox1.Repaint;
+end;
+
 procedure TFEmboss.ComputeAngle(X, Y: integer);
 begin
   if selectingAngle then
@@ -152,8 +169,12 @@ begin
 end;
 
 function TFEmboss.ComputeFilteredLayer: TBGRABitmap;
+var options: TEmbossOptions;
 begin
-  result := FilterConnector.BackupLayer.FilterEmboss(angle,FilterConnector.WorkArea) as TBGRABitmap;
+  options := [];
+  if CheckBox_Transparent.Checked then options += [eoTransparent];
+  if CheckBox_PreserveColors.Checked then options += [eoPreserveHue];
+  result := FilterConnector.BackupLayer.FilterEmboss(angle,FilterConnector.WorkArea,TrackBar_Strength.Position,options) as TBGRABitmap;
 end;
 
 procedure TFEmboss.PreviewNeeded;

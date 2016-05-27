@@ -5,70 +5,99 @@ unit BGRAScene3D;
 interface
 
 uses
-  Classes, SysUtils, BGRABitmapTypes, BGRAColorInt, BGRASSE, BGRAMatrix3D;
+  Classes, SysUtils, BGRABitmapTypes, BGRAColorInt,
+  BGRASSE, BGRAMatrix3D,
+  BGRASceneTypes, BGRARenderer3D;
 
 type
   TProjection3D = BGRAMatrix3D.TProjection3D;
-  TBox3D = record
-    min,max: TPoint3D;
-  end;
+  TLightingNormal3D = BGRASceneTypes.TLightingNormal3D;
+  TLightingInterpolation3D = BGRASceneTypes.TLightingInterpolation3D;
+  TAntialiasingMode3D = BGRASceneTypes.TAntialiasingMode3D;
+  TPerspectiveMode3D = BGRASceneTypes.TPerspectiveMode3D;
+  TRenderingOptions = BGRASceneTypes.TRenderingOptions;
 
-  TLightingNormal3D = (lnNone, lnFace, lnVertex, lnFaceVertexMix);
-  TLightingInterpolation3D = (liLowQuality, liSpecularHighQuality, liAlwaysHighQuality);
-  TAntialiasingMode3D = (am3dNone, am3dMultishape, am3dResample);
-  TPerspectiveMode3D = (pmLinearMapping, pmPerspectiveMapping, pmZBuffer);
+  IBGRAVertex3D = BGRASceneTypes.IBGRAVertex3D;
+  IBGRANormal3D = BGRASceneTypes.IBGRANormal3D;
+  IBGRALight3D = BGRASceneTypes.IBGRALight3D;
+  IBGRADirectionalLight3D = BGRASceneTypes.IBGRADirectionalLight3D;
+  IBGRAPointLight3D = BGRASceneTypes.IBGRAPointLight3D;
+  IBGRAMaterial3D = BGRASceneTypes.IBGRAMaterial3D;
+  IBGRAFace3D = BGRASceneTypes.IBGRAFace3D;
+  IBGRAPart3D = BGRASceneTypes.IBGRAPart3D;
+  IBGRAObject3D = BGRASceneTypes.IBGRAObject3D;
 
-  TRenderingOptions = record
-    LightingInterpolation: TLightingInterpolation3D;
-    AntialiasingMode: TAntialiasingMode3D;
-    AntialiasingResampleLevel: integer;
-    PerspectiveMode: TPerspectiveMode3D;
-    TextureInterpolation: boolean;
-    MinZ: single;
-  end;
+  arrayOfIBGRAVertex3D = BGRASceneTypes.arrayOfIBGRAVertex3D;
 
-  PSceneLightingContext = ^TSceneLightingContext;
-  TSceneLightingContext = packed record
-    basic: TBasicLightingContext;
-    {128} diffuseColor, {144} specularColor: TColorInt65536;
-    {160} vL, {176} dummy: TPoint3D_128;
-    {192} vH: TPoint3D_128;
-    {208} lightness: integer;
-    {212} material : TObject;
-    LightThroughFactor: single;
-    LightThrough: LongBool;
-    SaturationLow: integer;
-    SaturationLowF: single;
-    SaturationHigh: integer;
-    SaturationHighF: single;
-  end;
+const
+  lnNone = BGRASceneTypes.lnNone;
+  lnFace = BGRASceneTypes.lnFace;
+  lnVertex = BGRASceneTypes.lnVertex;
+  lnFaceVertexMix = BGRASceneTypes.lnFaceVertexMix;
 
-  TBGRAScene3D = class;
+  liLowQuality = BGRASceneTypes.liLowQuality;
+  liSpecularHighQuality = BGRASceneTypes.liSpecularHighQuality;
+  liAlwaysHighQuality = BGRASceneTypes.liAlwaysHighQuality;
 
-{$i bgrascene3Dinterface.inc}
+  am3dNone = BGRASceneTypes.am3dNone;
+  am3dMultishape = BGRASceneTypes.am3dMultishape;
+  am3dResample = BGRASceneTypes.am3dResample;
+
+  pmLinearMapping = BGRASceneTypes.pmLinearMapping;
+  pmPerspectiveMapping = BGRASceneTypes.pmPerspectiveMapping;
+  pmZBuffer = BGRASceneTypes.pmZBuffer;
 
 type
+
+  { TCamera3D }
+
+  TCamera3D = class
+  private
+    procedure ComputeMatrix;
+    function GetLookWhere: TPoint3D;
+    function GetMatrix: TMatrix3D;
+    function GetViewPoint: TPoint3D;
+    procedure SetMatrix(AValue: TMatrix3D);
+    procedure SetViewPoint(AValue: TPoint3D);
+  protected
+    FMatrix: TMatrix3D;
+    FMatrixComputed: boolean;
+    FViewPoint: TPoint3D_128;
+    FLookWhere, FTopDir: TPoint3D_128;
+  public
+    procedure LookAt(AWhere: TPoint3D; ATopDir: TPoint3D);
+    procedure LookDown(angleDeg: single);
+    procedure LookLeft(angleDeg: single);
+    procedure LookRight(angleDeg: single);
+    procedure LookUp(angleDeg: single);
+    property ViewPoint: TPoint3D read GetViewPoint write SetViewPoint;
+    property LookWhere: TPoint3D read GetLookWhere;
+    property Matrix: TMatrix3D read GetMatrix write SetMatrix;
+  end;
+
   { TBGRAScene3D }
 
   TBGRAScene3D = class
   private
-    FSurface: TBGRACustomBitmap;
-    FViewCenter: TPointF;
-    FAutoViewCenter: boolean;
+    FSurface: TBGRACustomBitmap; //destination of software renderer
+    FViewCenter: TPointF;        //where origin is drawn
+    FAutoViewCenter: boolean;    //use middle of the screen
+    FZoom: TPointF;              //how much the drawing is zoomed
+    FAutoZoom: Boolean;          //display 1 as 80% of surface size
+    FProjection: TProjection3D;  //current projection
+    FRenderedFaceCount: integer; //current counter of rendered faces
+
+    FCamera: TCamera3D;
+
     FObjects: array of IBGRAObject3D;
     FObjectCount: integer;
     FMaterials: array of IBGRAMaterial3D;
     FMaterialCount: integer;
-    FMatrix: TMatrix3D;
-    FViewPoint: TPoint3D_128;
-    FLookWhere, FTopDir: TPoint3D_128;
-    FZoom: TPointF;
-    FAutoZoom: Boolean;
-    FLights: TList;
-    FAmbiantLightness: integer;
-    FAmbiantLightColor: TColorInt65536;
-    FRenderedFaceCount: integer;
-    FProjection: TProjection3D;
+    FDefaultMaterial : IBGRAMaterial3D;
+
+    FAmbiantLightColorF: TColorF;        //lightness without light sources
+    FLights: TList;                      //individual light sources
+
     function GetAmbiantLightColorF: TColorF;
     function GetAmbiantLightness: single;
     function GetAmbiantLightColor: TBGRAPixel;
@@ -90,35 +119,44 @@ type
     procedure SetViewCenter(const AValue: TPointF);
     procedure SetViewPoint(const AValue: TPoint3D);
     procedure ComputeView(ScaleX,ScaleY: single);
-    function ComputeCoordinate(ASceneCoord: TPoint3D_128; APart: IBGRAPart3D): TPointF; overload;
-    function ComputeCoordinate(AViewCoord: TPoint3D_128): TPointF; overload;
-    procedure ComputeLight;
-    procedure ComputeMatrix;
+    function ComputeCoordinate(AViewCoord: TPoint3D_128): TPointF;
     procedure AddObject(AObj: IBGRAObject3D);
     procedure AddLight(ALight: TObject);
     procedure AddMaterial(AMaterial: IBGRAMaterial3D);
     procedure Init;
-    procedure InternalRender(ASurface: TBGRACustomBitmap; AAntialiasingMode: TAntialiasingMode3D; GlobalScale: single); virtual;
 
   protected
-    function ApplyLightingWithLightness(Context: PSceneLightingContext; Color: TBGRAPixel): TBGRAPixel; virtual;
-    function ApplyLightingWithDiffuseColor(Context: PSceneLightingContext; Color: TBGRAPixel): TBGRAPixel; virtual;
-    function ApplyLightingWithDiffuseAndSpecularColor(Context: PSceneLightingContext; Color: TBGRAPixel): TBGRAPixel; virtual;
-    function ApplyLightingWithAmbiantLightnessOnly(Context: PSceneLightingContext; Color: TBGRAPixel): TBGRAPixel; virtual;
-    function ApplyNoLighting(Context: PSceneLightingContext; Color: TBGRAPixel): TBGRAPixel; virtual;
+    FRenderer: TCustomRenderer3D;
+    FMaterialLibrariesFetched: array of string;
+    FTexturesFetched: array of record
+        Name: string;
+        Bitmap: TBGRACustomBitmap;
+      end;
     procedure UseMaterial(AMaterialName: string; AFace: IBGRAFace3D); virtual;
-    function FetchTexture({%H-}AName: string; out texSize: TPointF): IBGRAScanner; virtual;
+    function LoadBitmapFromFileUTF8(AFilenameUTF8: string): TBGRACustomBitmap; virtual;
+    function FetchTexture(AName: string; out texSize: TPointF): IBGRAScanner; virtual;
+    procedure HandleFetchException(AException: Exception); virtual;
+    procedure DoRender; virtual;
+    procedure DoClear; virtual;
+    function GetRenderWidth: integer;
+    function GetRenderHeight: integer;
+    procedure OnMaterialTextureChanged({%H-}ASender: TObject); virtual;
+    procedure SetDefaultMaterial(AValue: IBGRAMaterial3D);
+    procedure InvalidateMaterial;
 
   public
     DefaultLightingNormal: TLightingNormal3D;
-    DefaultMaterial : IBGRAMaterial3D;
     RenderingOptions: TRenderingOptions;
     UnknownColor: TBGRAPixel;
+    FetchDirectory: string;
+    FetchThrowsException: boolean;
 
     constructor Create;
     constructor Create(ASurface: TBGRACustomBitmap);
     destructor Destroy; override;
     procedure Clear; virtual;
+    function FetchObject(AName: string; SwapFacesOrientation: boolean = true): IBGRAObject3D;
+    procedure FetchMaterials(ALibraryName: string); virtual;
     function LoadObjectFromFile(AFilename: string; SwapFacesOrientation: boolean = true): IBGRAObject3D;
     function LoadObjectFromFileUTF8(AFilename: string; SwapFacesOrientation: boolean = true): IBGRAObject3D;
     function LoadObjectFromStream(AStream: TStream; SwapFacesOrientation: boolean = true): IBGRAObject3D;
@@ -131,6 +169,7 @@ type
     procedure LookUp(angleDeg: single);
     procedure LookDown(angleDeg: single);
     procedure Render; virtual;
+    procedure Render(ARenderer: TCustomRenderer3D);
     function CreateObject: IBGRAObject3D; overload;
     function CreateObject(ATexture: IBGRAScanner): IBGRAObject3D; overload;
     function CreateObject(AColor: TBGRAPixel): IBGRAObject3D; overload;
@@ -153,6 +192,8 @@ type
     procedure UpdateMaterial(AMaterialName: string); virtual;
     procedure ForEachVertex(ACallback: TVertex3DCallback);
     procedure ForEachFace(ACallback: TFace3DCallback);
+    function MakeLightList: TList;
+
     property ViewCenter: TPointF read GetViewCenter write SetViewCenter;
     property AutoViewCenter: boolean read FAutoViewCenter write SetAutoViewCenter;
     property AutoZoom: boolean read FAutoZoom write SetAutoZoom;
@@ -172,74 +213,114 @@ type
     property RenderedFaceCount : integer read FRenderedFaceCount;
     property Material[AIndex: integer] : IBGRAMaterial3D read GetMaterial;
     property MaterialCount: integer read FMaterialCount;
+    property Camera: TCamera3D read FCamera;
+    property DefaultMaterial: IBGRAMaterial3D read FDefaultMaterial write SetDefaultMaterial;
   end;
 
 implementation
 
-uses BGRAPolygon, BGRAPolygonAliased, BGRACoordPool3D, BGRAResample,
-  BGRAUTF8;
+uses BGRACoordPool3D, BGRAUTF8;
 
 {$i lightingclasses3d.inc}
 {$i vertex3d.inc}
 {$i face3d.inc}
-
-type
-  { TBGRAObject3D }
-
-  TBGRAObject3D = class(TInterfacedObject,IBGRAObject3D)
-  private
-    FColor: TBGRAPixel;
-    FLight: Single;
-    FTexture: IBGRAScanner;
-    FMainPart: IBGRAPart3D;
-    FFaces: array of IBGRAFace3D;
-    FFaceCount: integer;
-    FLightingNormal : TLightingNormal3D;
-    FParentLighting: boolean;
-    FMaterial: IBGRAMaterial3D;
-    FScene: TBGRAScene3D;
-    procedure AddFace(AFace: IBGRAFace3D);
-  public
-    constructor Create(AScene: TBGRAScene3D);
-    destructor Destroy; override;
-    procedure Clear;
-
-    function AddFace(const AVertices: array of IBGRAVertex3D): IBGRAFace3D;
-    function AddFace(const AVertices: array of IBGRAVertex3D; ABiface: boolean): IBGRAFace3D;
-    function AddFace(const AVertices: array of IBGRAVertex3D; ATexture: IBGRAScanner): IBGRAFace3D;
-    function AddFace(const AVertices: array of IBGRAVertex3D; AColor: TBGRAPixel): IBGRAFace3D;
-    function AddFace(const AVertices: array of IBGRAVertex3D; AColors: array of TBGRAPixel): IBGRAFace3D;
-    function AddFaceReversed(const AVertices: array of IBGRAVertex3D): IBGRAFace3D;
-    procedure ComputeWithMatrix(constref AMatrix: TMatrix3D; constref AProjection: TProjection3D);
-    function GetColor: TBGRAPixel;
-    function GetLight: Single;
-    function GetTexture: IBGRAScanner;
-    function GetMainPart: IBGRAPart3D;
-    function GetLightingNormal: TLightingNormal3D;
-    function GetParentLighting: boolean;
-    function GetFace(AIndex: integer): IBGRAFace3D;
-    function GetFaceCount: integer;
-    function GetTotalVertexCount: integer;
-    function GetTotalNormalCount: integer;
-    function GetMaterial: IBGRAMaterial3D;
-    procedure SetLightingNormal(const AValue: TLightingNormal3D);
-    procedure SetParentLighting(const AValue: boolean);
-    procedure SetColor(const AValue: TBGRAPixel);
-    procedure SetLight(const AValue: Single);
-    procedure SetTexture(const AValue: IBGRAScanner);
-    procedure SetMaterial(const AValue: IBGRAMaterial3D);
-    procedure RemoveUnusedVertices;
-    procedure SeparatePart(APart: IBGRAPart3D);
-    function GetScene: TBGRAScene3D;
-    function GetRefCount: integer;
-    procedure SetBiface(AValue : boolean);
-    procedure ForEachVertex(ACallback: TVertex3DCallback);
-    procedure ForEachFace(ACallback: TFace3DCallback);
-  end;
-
 {$i part3d.inc}
 {$i object3d.inc}
 {$i shapes3d.inc}
+
+{ TCamera3D }
+
+function TCamera3D.GetLookWhere: TPoint3D;
+begin
+  result := Point3D(FLookWhere);
+end;
+
+function TCamera3D.GetMatrix: TMatrix3D;
+begin
+  if not FMatrixComputed then
+  begin
+    ComputeMatrix;
+    FMatrixComputed := true;
+  end;
+  result := FMatrix;
+end;
+
+function TCamera3D.GetViewPoint: TPoint3D;
+begin
+  result := Point3D(FViewPoint);
+end;
+
+procedure TCamera3D.SetMatrix(AValue: TMatrix3D);
+begin
+  FMatrix := AValue;
+  FMatrixComputed:= true;
+  FViewPoint := Point3D_128(FMatrix[1,4],FMatrix[2,4],FMatrix[3,4]);
+end;
+
+procedure TCamera3D.SetViewPoint(AValue: TPoint3D);
+begin
+  FViewPoint := Point3D_128(AValue);
+  FMatrix[1,4] := FViewPoint.x;
+  FMatrix[2,4] := FViewPoint.y;
+  FMatrix[3,4] := FViewPoint.z;
+  FMatrixComputed := false;
+end;
+
+procedure TCamera3D.ComputeMatrix;
+var ZDir, XDir, YDir: TPoint3D_128;
+begin
+  if IsPoint3D_128_Zero(FTopDir) then exit;
+  YDir := -FTopDir;
+  Normalize3D_128(YDir);
+
+  ZDir := FLookWhere-FViewPoint;
+  if IsPoint3D_128_Zero(ZDir) then exit;
+  Normalize3D_128(ZDir);
+
+  VectProduct3D_128(YDir,ZDir,XDir);
+  VectProduct3D_128(ZDir,XDir,YDir); //correct Y dir
+  Normalize3D_128(XDir);
+  Normalize3D_128(YDir);
+
+  FMatrix := Matrix3D(XDir,YDir,ZDir,FViewPoint);
+  FMatrix := MatrixInverse3D(FMatrix);
+end;
+
+procedure TCamera3D.LookAt(AWhere: TPoint3D; ATopDir: TPoint3D);
+begin
+  FLookWhere := Point3D_128(AWhere);
+  FTopDir := Point3D_128(ATopDir);
+  FMatrixComputed := false;
+end;
+
+procedure TCamera3D.LookLeft(angleDeg: single);
+var m,inv: TMatrix3D;
+begin
+  inv := MatrixInverse3D(Matrix);
+  m := MatrixRotateY(angleDeg*Pi/180);
+  FLookWhere := inv*m*Matrix*FLookWhere;
+  FMatrixComputed := false;
+end;
+
+procedure TCamera3D.LookRight(angleDeg: single);
+begin
+  LookLeft(-angleDeg);
+end;
+
+procedure TCamera3D.LookUp(angleDeg: single);
+var m,inv: TMatrix3D;
+begin
+  inv := MatrixInverse3D(Matrix);
+  m := MatrixRotateX(-angleDeg*Pi/180);
+  FLookWhere := inv*m*Matrix*FLookWhere;
+  FMatrixComputed := false;
+end;
+
+procedure TCamera3D.LookDown(angleDeg: single);
+begin
+  LookUp(-angleDeg);
+end;
+
 
 { TBGRAScene3D }
 
@@ -247,10 +328,7 @@ function TBGRAScene3D.GetViewCenter: TPointF;
 begin
   if FAutoViewCenter then
   begin
-    if Surface = nil then
-      result := PointF(0,0)
-    else
-      result := PointF((Surface.Width-1)/2,(Surface.Height-1)/2)
+    result := PointF((GetRenderWidth-1)/2,(GetRenderHeight-1)/2)
   end
   else
     result := FViewCenter;
@@ -258,7 +336,7 @@ end;
 
 function TBGRAScene3D.GetViewPoint: TPoint3D;
 begin
-  result := Point3D(FViewPoint);
+  result := Camera.ViewPoint;
 end;
 
 function TBGRAScene3D.GetZoom: TPointF;
@@ -266,33 +344,28 @@ var size: single;
 begin
   if FAutoZoom then
   begin
-    if FSurface = nil then
+    Size := sqrt(GetRenderWidth*GetRenderHeight)*0.8;
+    if Size = 0 then
       result := PointF(1,1)
     else
-    begin
-      Size := sqrt(FSurface.Width*FSurface.Height)*0.8;
       result := PointF(size,size);
-    end;
   end else
     result := FZoom;
 end;
 
 procedure TBGRAScene3D.SetAmbiantLightColorF(const AValue: TColorF);
 begin
-  FAmbiantLightColor := ColorFToColorInt65536(AValue);
-  FAmbiantLightness := (FAmbiantLightColor.r + FAmbiantLightColor.g + FAmbiantLightColor.b) div 6;
+  FAmbiantLightColorF := AValue;
 end;
 
 procedure TBGRAScene3D.SetAmbiantLightness(const AValue: single);
 begin
-  FAmbiantLightness:= round(AValue*32768);
-  FAmbiantLightColor := ColorInt65536(FAmbiantLightness*2, FAmbiantLightness*2, FAmbiantLightness*2);
+  FAmbiantLightColorF := ColorF(AValue, AValue, AValue, 1);
 end;
 
 procedure TBGRAScene3D.SetAmbiantLightColor(const AValue: TBGRAPixel);
 begin
-  FAmbiantLightColor := BGRAToColorInt(AValue);
-  FAmbiantLightness := (FAmbiantLightColor.r + FAmbiantLightColor.g + FAmbiantLightColor.b) div 6;
+  FAmbiantLightColorF := ColorInt65536ToColorF(BGRAToColorInt(AValue,True));
 end;
 
 function TBGRAScene3D.GetObject(AIndex: integer): IBGRAObject3D;
@@ -312,7 +385,7 @@ end;
 
 function TBGRAScene3D.GetAmbiantLightColor: TBGRAPixel;
 begin
-  result := ColorIntToBGRA(FAmbiantLightColor);
+  result := ColorIntToBGRA(ColorFToColorInt65536(FAmbiantLightColorF),True);
 end;
 
 function TBGRAScene3D.GetFaceCount: integer;
@@ -353,12 +426,12 @@ end;
 
 function TBGRAScene3D.GetAmbiantLightness: single;
 begin
-  result := FAmbiantLightness/32768;
+  result := (FAmbiantLightColorF[1]+FAmbiantLightColorF[2]+FAmbiantLightColorF[3])/3;
 end;
 
 function TBGRAScene3D.GetAmbiantLightColorF: TColorF;
 begin
-  result := ColorInt65536ToColorF(FAmbiantLightColor);
+  result := FAmbiantLightColorF;
 end;
 
 procedure TBGRAScene3D.SetAutoViewCenter(const AValue: boolean);
@@ -377,30 +450,22 @@ begin
   FAutoZoom:=AValue;
 end;
 
+procedure TBGRAScene3D.SetDefaultMaterial(AValue: IBGRAMaterial3D);
+begin
+  if FDefaultMaterial=AValue then Exit;
+  FDefaultMaterial:=AValue;
+  InvalidateMaterial;
+end;
+
 procedure TBGRAScene3D.SetViewCenter(const AValue: TPointF);
 begin
   FViewCenter := AValue;
   FAutoViewCenter:= False;
 end;
 
-procedure TBGRAScene3D.ComputeMatrix;
-var ZDir, XDir, YDir: TPoint3D_128;
+procedure TBGRAScene3D.SetViewPoint(const AValue: TPoint3D);
 begin
-  if IsPoint3D_128_Zero(FTopDir) then exit;
-  YDir := -FTopDir;
-  Normalize3D_128(YDir);
-
-  ZDir := FLookWhere-FViewPoint;
-  if IsPoint3D_128_Zero(ZDir) then exit;
-  Normalize3D_128(ZDir);
-
-  VectProduct3D_128(YDir,ZDir,XDir);
-  VectProduct3D_128(ZDir,XDir,YDir); //correct Y dir
-  Normalize3D_128(XDir);
-  Normalize3D_128(YDir);
-
-  FMatrix := Matrix3D(XDir,YDir,ZDir,FViewPoint);
-  FMatrix := MatrixInverse3D(FMatrix);
+  Camera.ViewPoint := AValue;
 end;
 
 procedure TBGRAScene3D.AddObject(AObj: IBGRAObject3D);
@@ -430,8 +495,10 @@ begin
   UnknownColor := BGRA(0,128,255);
   FAutoZoom := True;
   FAutoViewCenter := True;
-  ViewPoint := Point3D(0,0,-100);
-  LookAt(Point3D(0,0,0), Point3D(0,-1,0));
+
+  FCamera := TCamera3D.Create;
+  Camera.ViewPoint := Point3D(0,0,-100);
+  Camera.LookAt(Point3D(0,0,0), Point3D(0,-1,0));
   with RenderingOptions do
   begin
     TextureInterpolation := False;
@@ -463,27 +530,33 @@ begin
 end;
 
 destructor TBGRAScene3D.Destroy;
+var
+  i: Integer;
 begin
-  Clear;
-  FLights.Free;
+  DoClear;
+  FreeAndNil(FLights);
+  FreeAndNil(FCamera);
+  for i := 0 to high(FTexturesFetched) do
+    FTexturesFetched[i].Bitmap.Free;
   inherited Destroy;
 end;
 
 procedure TBGRAScene3D.Clear;
-var i: integer;
 begin
-  for i := 0 to FLights.Count-1 do
-    TBGRALight3D(FLights[i])._Release;
-  FLights.Clear;
-
-  for i := 0 to FObjectCount-1 do
-    FObjects[i].Clear;
-  FObjects := nil;
-  FObjectCount := 0;
-
-  FMaterials := nil;
-  FMaterialCount := 0;
+  DoClear;
   DefaultMaterial := CreateMaterial;
+end;
+
+function TBGRAScene3D.FetchObject(AName: string; SwapFacesOrientation: boolean
+  ): IBGRAObject3D;
+begin
+  if FetchDirectory = '' then raise exception.Create('Please define first the FetchDirectory');
+  try
+    result := LoadObjectFromFileUTF8(ConcatPaths([FetchDirectory,AName]), SwapFacesOrientation);
+  except
+    on ex:Exception do
+      HandleFetchException(ex);
+  end;
 end;
 
 procedure TBGRAScene3D.UseMaterial(AMaterialName: string; AFace: IBGRAFace3D);
@@ -528,21 +601,131 @@ begin
   AFace.Material := mat;
 end;
 
-function TBGRAScene3D.FetchTexture(AName: string; out texSize: TPointF): IBGRAScanner;
+function TBGRAScene3D.LoadBitmapFromFileUTF8(AFilenameUTF8: string): TBGRACustomBitmap;
 begin
-  result := nil;
-  texSize := PointF(1,1);
+  result := BGRABitmapFactory.Create(AfileNameUTF8,True);
+end;
+
+function TBGRAScene3D.FetchTexture(AName: string; out texSize: TPointF): IBGRAScanner;
+var
+  i: Integer;
+  bmp: TBGRACustomBitmap;
+begin
+  bmp := nil;
+  for i := 0 to high(FTexturesFetched) do
+    if FTexturesFetched[i].Name = AName then
+    begin
+      bmp := FTexturesFetched[i].Bitmap;
+      result := bmp;
+      texSize := PointF(bmp.Width,bmp.Height);
+      exit;
+    end;
+  if FetchDirectory <> '' then
+  begin
+    try
+      bmp := LoadBitmapFromFileUTF8(ConcatPaths([FetchDirectory,AName]));
+    except
+      on ex:Exception do
+        HandleFetchException(ex);
+    end;
+  end;
+  if bmp = nil then
+  begin
+    result := nil;
+    texSize := PointF(1,1);
+  end else
+  begin
+    setlength(FTexturesFetched, length(FTexturesFetched)+1);
+    FTexturesFetched[high(FTexturesFetched)].Name := AName;
+    FTexturesFetched[high(FTexturesFetched)].Bitmap := bmp;
+    result := bmp;
+    texSize := PointF(bmp.Width,bmp.Height);
+  end;
+end;
+
+procedure TBGRAScene3D.FetchMaterials(ALibraryName: string);
+var
+  i: Integer;
+begin
+  if FetchDirectory <> '' then
+  begin
+    for i := 0 to high(FMaterialLibrariesFetched) do
+      if FMaterialLibrariesFetched[i]=ALibraryName then exit;
+    setlength(FMaterialLibrariesFetched,length(FMaterialLibrariesFetched)+1);
+    FMaterialLibrariesFetched[high(FMaterialLibrariesFetched)] := ALibraryName;
+    try
+      LoadMaterialsFromFile(ConcatPaths([FetchDirectory,ALibraryName]));
+    except
+      on ex:Exception do
+        HandleFetchException(ex);
+    end;
+  end;
+end;
+
+procedure TBGRAScene3D.HandleFetchException(AException: Exception);
+begin
+  if FetchThrowsException then
+    raise AException;
+end;
+
+procedure TBGRAScene3D.DoClear;
+var i: integer;
+begin
+  for i := 0 to FLights.Count-1 do
+    TBGRALight3D(FLights[i]).ReleaseInterface;
+  FLights.Clear;
+
+  for i := 0 to FObjectCount-1 do
+  begin
+    FObjects[i].Clear;
+    FObjects[i] := nil;
+  end;
+  FObjects := nil;
+  FObjectCount := 0;
+
+  FMaterials := nil;
+  FMaterialCount := 0;
+  DefaultMaterial := nil;
+end;
+
+function TBGRAScene3D.GetRenderWidth: integer;
+begin
+  if Assigned(FRenderer) then
+    result := FRenderer.SurfaceWidth
+  else
+  if Assigned(FSurface) then
+    result := FSurface.Width
+  else
+    result := 0;
+end;
+
+function TBGRAScene3D.GetRenderHeight: integer;
+begin
+  if Assigned(FRenderer) then
+    result := FRenderer.SurfaceHeight
+  else
+  if Assigned(FSurface) then
+    result := FSurface.Height
+  else
+    result := 0;
+end;
+
+procedure TBGRAScene3D.OnMaterialTextureChanged(ASender: TObject);
+begin
+  InvalidateMaterial;
+end;
+
+procedure TBGRAScene3D.InvalidateMaterial;
+var
+  i: Integer;
+begin
+  for i := 0 to FObjectCount-1 do
+    FObjects[i].InvalidateMaterial;
 end;
 
 function TBGRAScene3D.LoadObjectFromFile(AFilename: string; SwapFacesOrientation: boolean): IBGRAObject3D;
-var source: TFileStream;
 begin
-  source := TFileStream.Create(AFilename,fmOpenRead,fmShareDenyWrite);
-  try
-    result := LoadObjectFromStream(source,SwapFacesOrientation);
-  finally
-    source.free;
-  end;
+  result := LoadObjectFromFileUTF8(SysToUTF8(AFilename), SwapFacesOrientation);
 end;
 
 function TBGRAScene3D.LoadObjectFromFileUTF8(AFilename: string;
@@ -658,6 +841,9 @@ begin
       result.MainPart.AddNormal(x,y,z);
       result.LightingNormal := lnVertex;
     end else
+    if lineType = 'mtllib' then
+      FetchMaterials(trim(s))
+    else
     if lineType = 'usemtl' then
       materialname := trim(s)
     else
@@ -836,47 +1022,49 @@ end;
 
 procedure TBGRAScene3D.LookAt(AWhere: TPoint3D; ATopDir: TPoint3D);
 begin
-  FLookWhere := Point3D_128(AWhere);
-  FTopDir := Point3D_128(ATopDir);
+  Camera.LookAt(AWhere,ATopDir);
 end;
 
 procedure TBGRAScene3D.LookLeft(angleDeg: single);
-var m,inv: TMatrix3D;
 begin
-  inv := MatrixInverse3D(FMatrix);
-  m := MatrixRotateY(angleDeg*Pi/180);
-  FLookWhere := inv*m*FMatrix*FLookWhere;
+  Camera.LookLeft(angleDeg);
 end;
 
 procedure TBGRAScene3D.LookRight(angleDeg: single);
 begin
-  LookLeft(-angleDeg);
+  Camera.LookRight(angleDeg);
 end;
 
 procedure TBGRAScene3D.LookUp(angleDeg: single);
-var m,inv: TMatrix3D;
 begin
-  inv := MatrixInverse3D(FMatrix);
-  m := MatrixRotateX(-angleDeg*Pi/180);
-  FLookWhere := inv*m*FMatrix*FLookWhere;
+  Camera.LookUp(angleDeg);
 end;
 
 procedure TBGRAScene3D.LookDown(angleDeg: single);
 begin
-  LookUp(-angleDeg);
+  Camera.LookDown(angleDeg);
 end;
 
 procedure TBGRAScene3D.Render;
 begin
-  InternalRender(FSurface, RenderingOptions.AntialiasingMode, 1);
+  FRenderer := TBGRARenderer3D.Create(FSurface, RenderingOptions,
+    FAmbiantLightColorF,
+    FLights);
+  DoRender;
+  FRenderer.Free;
+end;
+
+procedure TBGRAScene3D.Render(ARenderer: TCustomRenderer3D);
+begin
+  FRenderer := ARenderer;
+  DoRender;
+  FRenderer := nil;
 end;
 
 procedure TBGRAScene3D.ComputeView(ScaleX,ScaleY: single);
 var
   i: Integer;
 begin
-  ComputeMatrix;
-
   FProjection.Zoom := Zoom;
   FProjection.Zoom.X *= ScaleX;
   FProjection.Zoom.Y *= ScaleY;
@@ -884,12 +1072,7 @@ begin
   FProjection.Center.X *= ScaleX;
   FProjection.Center.Y *= ScaleY;
   for i := 0 to FObjectCount-1 do
-    FObjects[i].ComputeWithMatrix(FMatrix, FProjection);
-end;
-
-function TBGRAScene3D.ComputeCoordinate(ASceneCoord: TPoint3D_128; APart: IBGRAPart3D): TPointF;
-begin
-  result := APart.ComputeCoordinate(ASceneCoord, FProjection);
+    FObjects[i].ComputeWithMatrix(Camera.Matrix, FProjection);
 end;
 
 function TBGRAScene3D.ComputeCoordinate(AViewCoord: TPoint3D_128): TPointF;
@@ -902,11 +1085,6 @@ begin
                      AViewCoord.y*InvZ*FProjection.Zoom.Y + FProjection.Center.y);
   end else
     result := PointF(0,0);
-end;
-
-procedure TBGRAScene3D.ComputeLight;
-begin
-
 end;
 
 type
@@ -997,7 +1175,7 @@ begin
   result := false;
 end;
 
-procedure TBGRAScene3D.InternalRender(ASurface: TBGRACustomBitmap; AAntialiasingMode: TAntialiasingMode3D; GlobalScale: single);
+procedure TBGRAScene3D.DoRender;
 var
   LFaces: array of TBGRAFace3D;
   LFaceOpaque: array of boolean;
@@ -1013,11 +1191,7 @@ var
     begin
       obj := FObjects[i];
       inc(LFaceCount, obj.GetFaceCount);
-      if obj.GetParentLighting then
-      begin
-        obj.SetLightingNormal(Self.DefaultLightingNormal);
-        obj.SetParentLighting(True);
-      end;
+      obj.Update;
     end;
     setlength(LFaces, LFaceCount);
     LFaceIndex := 0;
@@ -1033,165 +1207,14 @@ var
   end;
 
 var
-  multi: TBGRAMultishapeFiller;
-  ColorGradientTempBmp: TBGRACustomBitmap;
-  zbuffer: psingle;
-
+  faceDesc: TFaceRenderingDescription;
   LVertices: array of TBGRAVertex3D;
-  LColors: array of TBGRAPixel;
-  LTexCoord: array of TPointF;
-  LZ: array of single;
-  LProj: array of TPointF;
-  LPos3D, LNormal3D: array of TPoint3D_128;
-  LLighting: array of word;
-  shaderContext: TMemoryBlockAlign128;
-  lightingProc: TShaderFunction3D;
-  UseAmbiantColor: boolean;
 
   procedure DrawFace(numFace: integer);
-
-    procedure DrawAliasedColoredFace(shader: TShaderFunction3D; VCount: integer; context: PBasicLightingContext);
-    var j,k: integer;
-        SameColor: boolean;
-        center: record
-          proj: TPointF;
-          pos3D,normal3D: TPoint3D_128;
-          color: TBGRAPixel;
-        end;
-
-    begin
-      SameColor := True;
-      for j := 1 to VCount-1 do
-        if (LColors[j]<>LColors[j-1]) then SameColor := False;
-
-      if shader <> nil then
-      begin
-        if SameColor then
-        begin
-          BGRAPolygonAliased.PolygonPerspectiveMappingShaderAliased(ASurface,
-            slice(LProj,VCount),slice(LPos3D,VCount),slice(LNormal3D,VCount),nil,
-              slice(LTexCoord,VCount),False,shader,True,LColors[0],zbuffer,context);
-        end else
-        if VCount = 3 then
-        begin
-          ColorGradientTempBmp.SetPixel(0,0,LColors[0]);
-          ColorGradientTempBmp.SetPixel(1,0,LColors[1]);
-          ColorGradientTempBmp.SetPixel(0,1,LColors[2]);
-          ColorGradientTempBmp.SetPixel(1,1,MergeBGRA(LColors[1],LColors[2]));
-          BGRAPolygonAliased.PolygonPerspectiveMappingShaderAliased(ASurface,
-            slice(LProj,VCount),slice(LPos3D,VCount),slice(LNormal3D,VCount),ColorGradientTempBmp,
-              [PointF(0,0),PointF(1,0),PointF(0,1)],True,shader,True, BGRAPixelTransparent,zbuffer,context);
-        end else
-        if VCount = 4 then
-        begin
-          ColorGradientTempBmp.SetPixel(0,0,LColors[0]);
-          ColorGradientTempBmp.SetPixel(1,0,LColors[1]);
-          ColorGradientTempBmp.SetPixel(1,1,LColors[2]);
-          ColorGradientTempBmp.SetPixel(0,1,LColors[3]);
-          BGRAPolygonAliased.PolygonPerspectiveMappingShaderAliased(ASurface,
-            slice(LProj,VCount),slice(LPos3D,VCount),slice(LNormal3D,VCount),ColorGradientTempBmp,
-              [PointF(0,0),PointF(1,0),PointF(1,1),PointF(0,1)],True,shader,True, BGRAPixelTransparent,zbuffer,context);
-        end else
-        if VCount >= 3 then
-        begin //split into triangles
-          with center do
-          begin
-            ClearPoint3D_128(pos3D);
-            ClearPoint3D_128(normal3D);
-            color := MergeBGRA(slice(LColors,VCount));
-          end;
-          for j := 0 to VCount-1 do
-          begin
-            center.pos3D += LPos3D[j];
-            center.normal3D += LNormal3D[j];
-          end;
-          with center do
-          begin
-            pos3D *= (1/VCount);
-            Normalize3D_128(normal3D);
-          end;
-          center.proj := ComputeCoordinate(center.pos3D);
-          k := VCount-1;
-          for j := 0 to VCount-1 do
-          begin
-            ColorGradientTempBmp.SetPixel(0,0,LColors[k]);
-            ColorGradientTempBmp.SetPixel(1,0,LColors[j]);
-            ColorGradientTempBmp.SetPixel(0,1,center.color);
-            ColorGradientTempBmp.SetPixel(1,1,MergeBGRA(LColors[j],center.color));
-            BGRAPolygonAliased.PolygonPerspectiveMappingShaderAliased(ASurface,
-              [LProj[k],LProj[j],center.proj], [LPos3D[k],LPos3D[j],center.pos3D],
-              [LNormal3D[k],LNormal3D[j],center.normal3D], ColorGradientTempBmp,
-                [PointF(0,0),PointF(1,0),PointF(0,1)],True,shader,True, BGRAPixelTransparent,zbuffer,context);
-            k := j;
-          end;
-        end;
-      end else
-      begin
-        if SameColor then
-        begin
-          if RenderingOptions.PerspectiveMode = pmZBuffer then
-            BGRAPolygonAliased.PolygonPerspectiveColorGradientAliased(ASurface, slice(LProj,VCount),
-            slice(LZ,VCount), slice(LColors,VCount),True,zbuffer)
-          else
-            ASurface.FillPoly(slice(LProj,VCount),LColors[0],dmDrawWithTransparency);
-        end
-        else
-        begin
-          if VCount > 4 then
-          begin //split into triangles
-            with center do
-            begin
-              ClearPoint3D_128(pos3D);
-              color := MergeBGRA(slice(LColors,VCount));
-            end;
-            for j := 0 to VCount-1 do
-              center.pos3D += LPos3D[j];
-            with center do
-              pos3D *= (1/VCount);
-            center.proj := ComputeCoordinate(center.pos3D);
-            k := VCount-1;
-            if RenderingOptions.PerspectiveMode = pmLinearMapping then
-            begin
-              for j := 0 to VCount-1 do
-              begin
-                ASurface.FillPolyLinearColor([LProj[k],LProj[j],center.proj],[LColors[k],LColors[j],center.color]);
-                k := j;
-              end;
-            end else
-            begin
-              for j := 0 to VCount-1 do
-              begin
-                BGRAPolygonAliased.PolygonPerspectiveColorGradientAliased(ASurface, [LProj[k],LProj[j],center.proj],
-                 [LZ[k],LZ[j],center.pos3D.z], [LColors[k],LColors[j],center.color],True,zbuffer);
-                k := j;
-              end;
-            end;
-          end else
-          begin
-            if RenderingOptions.PerspectiveMode = pmLinearMapping then
-              ASurface.FillPolyLinearColor(slice(LProj,VCount),slice(LColors,VCount))
-            else
-              BGRAPolygonAliased.PolygonPerspectiveColorGradientAliased(ASurface, slice(LProj,VCount),
-               slice(LZ,VCount), slice(LColors,VCount),True,zbuffer);
-          end;
-        end;
-      end;
-    end;
-
   var
     j,k: Integer;
-    LTexture: IBGRAScanner;
-    LMaterial: TBGRAMaterial3D;
-    SameColor: boolean;
-    LLightNormal : TLightingNormal3D;
-    LNoLighting: boolean;
-    PtCenter: TPointF;
-    PtCenter3D: TPoint3D_128;
-    ColorCenter: TBGRAPixel;
     VCount,NewVCount: integer;
-    ctx: PSceneLightingContext;
-    NegNormals, UseDiffuseColor,
-    UseDiffuseLightness{, OnlyDirectionalLight}: boolean;
+    NegNormals: boolean;
     LastVisibleVertex: integer;
 
     procedure AddZIntermediate(n1,n2: integer);
@@ -1203,61 +1226,38 @@ var
        t := (RenderingOptions.MinZ - v1.ViewCoord.z)/(v2.ViewCoord.z - v1.ViewCoord.z);
        LVertices[NewVCount] := nil; //computed
 
-       LColors[NewVCount] := MergeBGRA(LColors[n1],round((1-t)*65536),LColors[n2],round(t*65536));
-       LTexCoord[NewVCount] := LTexCoord[n1]*(1-t) + LTexCoord[n2]*t;
-       LPos3D[NewVCount] := LPos3D[n1]*(1-t) + LPos3D[n2]*t;
-       LNormal3D[NewVCount] := LNormal3D[n1]*(1-t) + LNormal3D[n2]*t;
-       LZ[NewVCount] := LZ[n1]*(1-t) + LZ[n2]*t;
-       LProj[NewVCount] := ComputeCoordinate(LPos3D[NewVCount]);
+       faceDesc.Colors[NewVCount] := MergeBGRA(faceDesc.Colors[n1],round((1-t)*65536),faceDesc.Colors[n2],round(t*65536));
+       faceDesc.TexCoords[NewVCount] := faceDesc.TexCoords[n1]*(1-t) + faceDesc.TexCoords[n2]*t;
+       faceDesc.Positions3D[NewVCount] := faceDesc.Positions3D[n1]*(1-t) + faceDesc.Positions3D[n2]*t;
+       faceDesc.Normals3D[NewVCount] := faceDesc.Normals3D[n1]*(1-t) + faceDesc.Normals3D[n2]*t;
+       faceDesc.Projections[NewVCount] := ComputeCoordinate(faceDesc.Positions3D[NewVCount]);
        NewVCount += 1;
     end;
 
     procedure LoadVertex(idxL: integer; idxV: integer);
-    var desc: PBGRAFaceVertexDescription;
+    var vertexDesc: PBGRAFaceVertexDescription;
         tempV: TBGRAVertex3D;
     begin
       with LFaces[numFace] do
       begin
-        desc := VertexDescription[idxV];
-        with desc^ do
+        vertexDesc := VertexDescription[idxV];
+        with vertexDesc^ do
         begin
           tempV := TBGRAVertex3D(vertex.GetAsObject);
           LVertices[idxL] := tempV;
 
-          if LTexture <> nil then
-            LColors[idxL] := BGRA(128,128,128)
-          else
-          begin
-            if ColorOverride then
-              LColors[idxL] := Color
-            else
-            begin
-              if tempV.ParentColor then
-                LColors[idxL] := Object3D.Color
-              else
-                LColors[idxL] := tempV.Color;
-            end;
-          end;
-
-          if TexCoordOverride then
-            LTexCoord[idxL] := TexCoord
-          else
-            LTexCoord[idxL] := tempV.TexCoord;
-          with LMaterial.GetTextureZoom do
-          begin
-            LTexCoord[idxL].x *= x;
-            LTexCoord[idxL].y *= y;
-          end;
+          faceDesc.Colors[idxL] := ActualColor;
+          faceDesc.TexCoords[idxL] := ActualTexCoord;
 
           with tempV.CoordData^ do
           begin
-            LPos3D[idxL] := viewCoord;
-            LNormal3D[idxL] := viewNormal;
-            LProj[idxL] := projectedCoord;
-            LZ[idxL] := viewCoord.Z;
+            faceDesc.Positions3D[idxL] := viewCoord;
+            facedesc.Normals3D[idxL] := viewNormal;
+            faceDesc.Projections[idxL] := projectedCoord;
           end;
           if Normal <> nil then
-            LNormal3D[idxL] := Normal.ViewNormal_128;
+            facedesc.Normals3D[idxL] := Normal.ViewNormal_128;
+          Normalize3D_128(facedesc.Normals3D[idxL]);
         end;
       end;
     end;
@@ -1268,263 +1268,106 @@ var
        VCount := VertexCount;
        if VCount < 3 then exit;
 
-       if Material <> nil then
-         LMaterial := TBGRAMaterial3D(Material.GetAsObject)
-       else if Object3D.Material <> nil then
-         LMaterial := TBGRAMaterial3D(Object3D.Material.GetAsObject)
-       else if self.DefaultMaterial <> nil then
-         LMaterial := TBGRAMaterial3D(self.DefaultMaterial.GetAsObject)
-       else
-         exit;
+       faceDesc.NormalsMode := Object3D.LightingNormal;
 
-       if ParentTexture then
-       begin
-         if LMaterial.GetTexture <> nil then
-           LTexture := LMaterial.GetTexture
-         else
-           LTexture := Object3D.Texture
-       end
-       else
-         LTexture := Texture;
-
-       LLightNormal := Object3D.LightingNormal;
+       faceDesc.Material := ActualMaterial;
+       if faceDesc.Material = nil then exit;
+       faceDesc.Texture := ActualTexture;
 
        if length(LVertices) < VCount+3 then  //keep margin for z-clip
        begin
          setlength(LVertices, (VCount+3)*2);
-         setlength(LColors, length(LVertices));
-         setlength(LTexCoord, length(LVertices));
-         setlength(LZ, length(LVertices));
-         setlength(LProj, length(LVertices));
-         setlength(LPos3D, length(LVertices));
-         setlength(LNormal3D, length(LVertices));
-         setlength(LLighting, length(LVertices));
+         setlength(faceDesc.Colors, length(LVertices));
+         setlength(faceDesc.TexCoords, length(LVertices));
+         setlength(faceDesc.Projections, length(LVertices));
+         setlength(faceDesc.Positions3D, length(LVertices));
+         setlength(faceDesc.Normals3D, length(LVertices));
        end;
 
-       NewVCount := 0;
-       LastVisibleVertex := -1;
-       for k := VCount-1 downto 0 do
-         if Vertex[k].ViewCoordZ >= RenderingOptions.MinZ then
-         begin
-           LastVisibleVertex := k;
-           break;
-         end;
-       if LastVisibleVertex = -1 then exit;
-
-       k := VCount-1;
-       for j := 0 to VCount-1 do
+       if FRenderer.HandlesNearClipping then
        begin
-         if Vertex[j].ViewCoordZ >= RenderingOptions.MinZ then
-         begin
-           if k <> LastVisibleVertex then   //one or more vertices is out
-           begin
-             LoadVertex(NewVCount+1, LastVisibleVertex);
-             LoadVertex(NewVCount+2, (LastVisibleVertex+1) mod VertexCount);
-             AddZIntermediate(NewVCount+1,NewVCount+2);
-
-             LoadVertex(NewVCount+1, j);
-             LoadVertex(NewVCount+2, k);
-
-             AddZIntermediate(NewVCount+1,NewVCount+2);
-             inc(NewVCount);
-           end else
-           begin
-             LoadVertex(NewVCount, j);
-             NewVCount += 1;
-           end;
-           LastVisibleVertex := j;
-         end;
-         k := j;
-       end;
-       VCount := NewVCount;
-       if VCount < 3 then exit; //after z-clipping
-
-       if not IsPolyVisible(slice(LProj,VCount)) then
-       begin
-         if not Biface then exit;
-         NegNormals := True;
+         for j := 0 to VCount-1 do
+           LoadVertex(j,j);
        end else
        begin
-         NegNormals := False;
+         NewVCount := 0;
+         LastVisibleVertex := -1;
+         for k := VCount-1 downto 0 do
+           if Vertex[k].ViewCoordZ >= RenderingOptions.MinZ then
+           begin
+             LastVisibleVertex := k;
+             break;
+           end;
+         if LastVisibleVertex = -1 then exit;
+
+         k := VCount-1;
+         for j := 0 to VCount-1 do
+         begin
+           if Vertex[j].ViewCoordZ >= RenderingOptions.MinZ then
+           begin
+             if k <> LastVisibleVertex then   //one or more vertices is out
+             begin
+               LoadVertex(NewVCount+1, LastVisibleVertex);
+               LoadVertex(NewVCount+2, (LastVisibleVertex+1) mod VertexCount);
+               AddZIntermediate(NewVCount+1,NewVCount+2);
+
+               LoadVertex(NewVCount+1, j);
+               LoadVertex(NewVCount+2, k);
+
+               AddZIntermediate(NewVCount+1,NewVCount+2);
+               inc(NewVCount);
+             end else
+             begin
+               LoadVertex(NewVCount, j);
+               NewVCount += 1;
+             end;
+             LastVisibleVertex := j;
+           end;
+           k := j;
+         end;
+         VCount := NewVCount;
+         if VCount < 3 then exit; //after z-clipping
        end;
 
-       //from here we assume the face will be drawn
-       inc(FRenderedFaceCount);
+       if not FRenderer.HandlesFaceCulling then
+       begin
+         if not IsPolyVisible(slice(faceDesc.Projections,VCount)) then
+         begin
+           if not Biface then exit;
+           NegNormals := True;
+         end else
+         begin
+           NegNormals := False;
+         end;
+       end else
+         NegNormals := false;
 
        //compute normals
-       case LLightNormal of
+       case faceDesc.NormalsMode of
          lnFace: for j := 0 to VCount-1 do
-                   LNormal3D[j] := ViewNormal_128;
+                   faceDesc.Normals3D[j] := ViewNormal_128;
          lnFaceVertexMix:
              for j := 0 to VCount-1 do
              begin
-               LNormal3D[j] += ViewNormal_128;
-               Normalize3D_128(LNormal3D[j]);
+               faceDesc.Normals3D[j] += ViewNormal_128;
+               Normalize3D_128(faceDesc.Normals3D[j]);
              end;
        end;
        if NegNormals then
          for j := 0 to VCount-1 do
-           LNormal3D[j] := -LNormal3D[j];
+           faceDesc.Normals3D[j] := -faceDesc.Normals3D[j];
 
-       //prepare lighting
-       {OnlyDirectionalLight := true;
-       for j := 0 to LightCount-1 do
-         if not Light[j].IsDirectional then OnlyDirectionalLight := false; }
-
-       if LMaterial.GetSpecularOn then
-        lightingProc:= TShaderFunction3D(@ApplyLightingWithDiffuseAndSpecularColor) else
-       begin
-         UseDiffuseColor := UseAmbiantColor;
-         if not UseDiffuseColor then
-         begin
-           with LMaterial.GetDiffuseColorInt do
-            UseDiffuseColor := (r <> g) or (g <> b);
-           if not UseDiffuseColor and LMaterial.GetAutoDiffuseColor then
-           begin
-             for j := 0 to LightCount-1 do
-               if Light[j].ColoredLight then
-               begin
-                 UseDiffuseColor := true;
-                 break;
-               end;
-           end;
-         end;
-         if UseDiffuseColor then
-           lightingProc := TShaderFunction3D(@ApplyLightingWithDiffuseColor) else
-         begin
-           UseDiffuseLightness := FAmbiantLightness <> 32768;
-           if not UseDiffuseLightness then
-           begin
-             if LightCount <> 0 then
-               UseDiffuseLightness := true;
-           end;
-
-           if UseDiffuseLightness then
-             lightingProc := TShaderFunction3D(@ApplyLightingWithLightness) else
-           if FAmbiantLightness <> 32768 then
-            lightingProc := TShaderFunction3D(@ApplyLightingWithAmbiantLightnessOnly) else
-              lightingProc := TShaderFunction3D(@ApplyNoLighting);
-         end;
-       end;
-
-       ctx := PSceneLightingContext( shaderContext.Data );
-       ctx^.material := LMaterial;
        if LightThroughFactorOverride then
-         ctx^.LightThroughFactor := LightThroughFactor
+         faceDesc.LightThroughFactor := LightThroughFactor
        else
-         ctx^.LightThroughFactor := LMaterial.GetLightThroughFactor;
-       ctx^.LightThrough := ctx^.LightThroughFactor > 0;
-       ctx^.SaturationHighF := LMaterial.GetSaturationHigh;
-       ctx^.SaturationLowF := LMaterial.GetSaturationLow;
-       ctx^.SaturationHigh := round(LMaterial.GetSaturationHigh*32768);
-       ctx^.SaturationLow := round(LMaterial.GetSaturationLow*32768);
+         faceDesc.LightThroughFactor := faceDesc.Material.GetLightThroughFactor;
 
-       //high-quality lighting interpolation, necessary for Phong and high-quality Gouraud
-       if (
-           (RenderingOptions.LightingInterpolation = liAlwaysHighQuality) or
-           ((RenderingOptions.LightingInterpolation = liSpecularHighQuality) and LMaterial.GetSpecularOn)
-       ) and (LLightNormal <> lnNone) {and (not (LLightNormal = lnFace) and OnlyDirectionalLight) }then
-       begin
-         if LTexture = nil then
-           DrawAliasedColoredFace(lightingProc,VCount,PBasicLightingContext(ctx)) //use shader
-         else
-           BGRAPolygonAliased.PolygonPerspectiveMappingShaderAliased(ASurface,
-               slice(LProj,VCount),slice(LPos3D,VCount),slice(LNormal3D,VCount),LTexture,
-                 slice(LTexCoord,VCount),RenderingOptions.TextureInterpolation,lightingProc,True, BGRAPixelTransparent,zbuffer,PBasicLightingContext(ctx));
+       faceDesc.NbVertices:= VCount;
+       faceDesc.Biface := Biface;
 
-         exit;
-       end;
-
-       //Vertex lighting interpolation (low-quality Gouraud, low-quality Phong)
-       LNoLighting := True;
-       for j := 0 to VCount-1 do
-       begin
-         with ctx^ do
-         begin
-           basic.Position := LPos3D[j];
-           basic.Normal := LNormal3D[j];
-         end;
-         LColors[j] := lightingProc(PBasicLightingContext(ctx),LColors[j]);
-         if LColors[j] <> BGRA(128,128,128) then
-           LNoLighting := false;
-       end;
-
-       if (AAntialiasingMode = am3dMultishape) and not (RenderingOptions.PerspectiveMode = pmZBuffer) then //high-quality antialiasing
-       begin
-         if LTexture <> nil then
-         begin
-           if (RenderingOptions.PerspectiveMode <> pmLinearMapping) and (VCount=4) then
-             multi.AddQuadPerspectiveMapping(LProj[0],LProj[1],LProj[2],LProj[3],LTexture,LTexCoord[0],LTexCoord[1],LTexCoord[2],LTexCoord[3])
-           else
-           if VCount>=3 then
-           begin
-             for j := 0 to VCount-3 do
-               multi.AddTriangleLinearMapping(LProj[j],LProj[j+1],LProj[j+2],LTexture,LTexCoord[j],LTexCoord[j+1],LTexCoord[j+2]);
-           end;
-         end
-         else
-         begin
-           SameColor := True;
-           for j := 1 to VCount-1 do
-             if (LColors[j]<>LColors[j-1]) then SameColor := False;
-
-           if SameColor then
-             multi.AddPolygon(slice(LProj,VCount),LColors[0])
-           else
-           if VCount=3 then
-             multi.AddTriangleLinearColor(LProj[0],LProj[1],LProj[2],LColors[0],LColors[1],LColors[2])
-           else
-           if VCount>=3 then
-           begin  //split into triangles
-             PtCenter3D := Point3D_128_Zero;
-             for j := 0 to VCount-1 do
-               PtCenter3D += LPos3D[j];
-             PtCenter3D *= (1/VCount);
-             PtCenter := ComputeCoordinate(PtCenter3D);
-             ColorCenter := MergeBGRA(slice(LColors,VCount));
-             k := VCount-1;
-             for j := 0 to VCount-1 do
-             begin
-               multi.AddTriangleLinearColor(LProj[k],LProj[j],PtCenter,LColors[k],LColors[j],ColorCenter);
-               k := j;
-             end;
-           end;
-         end;
-       end else
-       begin
-         if LTexture <> nil then
-         begin
-           if LNoLighting then
-           begin
-             if RenderingOptions.PerspectiveMode <> pmLinearMapping then
-               ASurface.FillPolyPerspectiveMapping(slice(LProj,VCount),slice(LZ,VCount),LTexture,slice(LTexCoord,VCount),RenderingOptions.TextureInterpolation, zbuffer)
-             else
-               ASurface.FillPolyLinearMapping(slice(LProj,VCount),LTexture,slice(LTexCoord,VCount),RenderingOptions.TextureInterpolation);
-           end else
-           begin
-             for j := 0 to VCount-1 do
-               LLighting[j] := LColors[j].green shl 8;
-             if RenderingOptions.PerspectiveMode <> pmLinearMapping then
-               ASurface.FillPolyPerspectiveMappingLightness(slice(LProj,VCount),slice(LZ,VCount),LTexture,slice(LTexCoord,VCount),slice(LLighting,VCount),RenderingOptions.TextureInterpolation, zbuffer)
-             else
-               ASurface.FillPolyLinearMappingLightness(slice(LProj,VCount),LTexture,slice(LTexCoord,VCount),slice(LLighting,VCount),RenderingOptions.TextureInterpolation);
-           end;
-         end
-         else
-           DrawAliasedColoredFace(nil,VCount,PBasicLightingContext(ctx));  //already low-quality shaded
-       end;
+       if FRenderer.RenderFace(faceDesc, @ComputeCoordinate) then
+         inc(FRenderedFaceCount);
      end;
-  end;
-
-  procedure DrawWithResample;
-  var
-    tempSurface: TBGRACustomBitmap;
-  begin
-    tempSurface := ASurface.NewBitmap(ASurface.Width*RenderingOptions.AntialiasingResampleLevel,ASurface.Height*RenderingOptions.AntialiasingResampleLevel);
-    InternalRender(tempSurface, am3dNone, RenderingOptions.AntialiasingResampleLevel);
-    BGRAResample.DownSamplePutImage(tempSurface,RenderingOptions.AntialiasingResampleLevel,RenderingOptions.AntialiasingResampleLevel,
-                 ASurface, 0,0, dmDrawWithTransparency);
-    tempSurface.Free;
   end;
 
 var i,j: integer;
@@ -1532,45 +1375,16 @@ var i,j: integer;
 begin
   FRenderedFaceCount:= 0;
 
-  if ASurface = nil then
-    raise exception.Create('No surface specified');
-
-  if (AAntialiasingMode = am3dResample) and (RenderingOptions.AntialiasingResampleLevel > 1) then
-  begin
-    DrawWithResample;
-    exit;
-  end;
-
   PrepareFaces;
-  ComputeView(GlobalScale,GlobalScale);
-  ComputeLight;
-  UseAmbiantColor := (FAmbiantLightColor.r <> FAmbiantLightColor.g) or (FAmbiantLightColor.g <> FAmbiantLightColor.b);
+  ComputeView(FRenderer.GlobalScale,FRenderer.GlobalScale);
+  FRenderer.Projection := FProjection;
 
   SortFaces(LFaces);
   LVertices := nil;
 
-  if AAntialiasingMode = am3dMultishape then
-  begin
-    multi := TBGRAMultishapeFiller.Create;
-    multi.PolygonOrder := poLastOnTop;
-  end
-  else
-    multi := nil;
-
-  ColorGradientTempBmp := ASurface.NewBitmap(2,2);
-  ColorGradientTempBmp.ScanInterpolationFilter := rfLinear;
-
-  if RenderingOptions.PerspectiveMode = pmZBuffer then
-  begin
-    getmem(zbuffer, ASurface.NbPixels*sizeof(single));
-    FillDWord(zbuffer^, ASurface.NbPixels, dword(single(0)));
-  end
-  else
-    zbuffer := nil;
-
-  shaderContext := TMemoryBlockAlign128.Create(sizeof(TSceneLightingContext));
-
-  if zbuffer <> nil then
+  //if there is a Z-Buffer, it is possible to avoid drawing things that
+  //are hidden by opaque faces by drawing first all opaque faces
+  if FRenderer.HasZBuffer then
   begin
     setlength(LFaceOpaque, length(LFaces));
     for i := 0 to High(LFaces) do
@@ -1601,132 +1415,6 @@ begin
     for i := High(LFaces) downto 0 do
       DrawFace(i);
   end;
-
-  shaderContext.Free;
-  if zbuffer <> nil then freemem(zbuffer);
-  ColorGradientTempBmp.Free;
-
-  if multi <> nil then
-  begin
-    multi.Draw(ASurface);
-    multi.Free;
-  end;
-end;
-
-procedure TBGRAScene3D.SetViewPoint(const AValue: TPoint3D);
-begin
-  FViewPoint := Point3D_128(AValue);
-end;
-
-function TBGRAScene3D.ApplyLightingWithLightness(Context: PSceneLightingContext;
-  Color: TBGRAPixel): TBGRAPixel;
-var i: Integer;
-  m: TBGRAMaterial3D;
-begin
-  m := TBGRAMaterial3D(Context^.material);
-  if not m.GetAutoSimpleColor then Color := ColorIntToBGRA(BGRAToColorIntMultiply(Color, m.GetSimpleColorInt));
-
-  Context^.lightness := FAmbiantLightness;
-
-  i := FLights.Count-1;
-  while i >= 0 do
-  begin
-    TBGRALight3D(FLights[i]).ComputeDiffuseLightness(Context);
-    dec(i);
-  end;
-
-  with Context^ do
-    if Lightness <= 0 then
-      result := BGRA(0,0,0,color.alpha)
-    else
-    begin
-      if Lightness <= SaturationLow then
-        result := ApplyIntensityFast(Color, Lightness)
-      else if Lightness >= SaturationHigh then
-        result := BGRA(255,255,255,color.alpha)
-      else
-        result := ApplyLightnessFast( ApplyIntensityFast(Color, SaturationLow),
-                              (Lightness - SaturationLow)*32767 div (SaturationHigh-SaturationLow)+32768 );
-    end;
-end;
-
-function TBGRAScene3D.ApplyLightingWithDiffuseColor(Context: PSceneLightingContext;
-  Color: TBGRAPixel): TBGRAPixel;
-var i: Integer;
-  m: TBGRAMaterial3D;
-begin
-  m := TBGRAMaterial3D(Context^.material);
-
-  if m.GetAutoAmbiantColor then
-    Context^.diffuseColor := FAmbiantLightColor
-  else
-    Context^.diffuseColor := FAmbiantLightColor*m.GetAmbiantColorInt;
-
-  i := FLights.Count-1;
-  while i >= 0 do
-  begin
-    TBGRALight3D(FLights[i]).ComputeDiffuseColor(Context);
-    dec(i);
-  end;
-
-  result := ColorIntToBGRA(BGRAToColorIntMultiply(Color,Context^.diffuseColor));
-  result.alpha := Color.alpha;
-end;
-
-function TBGRAScene3D.ApplyLightingWithDiffuseAndSpecularColor(Context: PSceneLightingContext;
-  Color: TBGRAPixel): TBGRAPixel;
-var i: Integer;
-  m: TBGRAMaterial3D;
-begin
-  m := TBGRAMaterial3D(Context^.material);
-
-  if m.GetAutoAmbiantColor then
-    Context^.diffuseColor := FAmbiantLightColor
-  else
-    Context^.diffuseColor := FAmbiantLightColor*m.GetAmbiantColorInt;
-  Context^.specularColor := ColorInt65536(0,0,0,0);
-
-  i := FLights.Count-1;
-  while i >= 0 do
-  begin
-    TBGRALight3D(FLights[i]).ComputeDiffuseAndSpecularColor(Context);
-    dec(i);
-  end;
-
-  with Context^ do
-  begin
-    diffuseColor.a := 65536;
-    result := ColorIntToBGRA(BGRAToColorIntMultiply(Color,diffuseColor) + specularColor);
-  end;
-end;
-
-function TBGRAScene3D.ApplyNoLighting(Context: PSceneLightingContext;
-  Color: TBGRAPixel): TBGRAPixel;
-var
-  m: TBGRAMaterial3D;
-begin
-  m := TBGRAMaterial3D(Context^.material);
-
-  if not m.GetAutoAmbiantColor then
-    result := ColorIntToBGRA(BGRAToColorIntMultiply(Color, m.GetAmbiantColorInt))
-  else
-    result := Color;
-end;
-
-function TBGRAScene3D.ApplyLightingWithAmbiantLightnessOnly(
-  Context: PSceneLightingContext; Color: TBGRAPixel): TBGRAPixel;
-var
-  m: TBGRAMaterial3D;
-begin
-  m := TBGRAMaterial3D(Context^.material);
-
-  if not m.GetAutoAmbiantColor then
-    Color := ColorIntToBGRA(BGRAToColorIntMultiply(Color, m.GetAmbiantColorInt));
-
-  if FAmbiantLightness <= 0 then
-    result := BGRA(0,0,0,color.alpha)
-  else
-    result := ApplyIntensityFast(Color, FAmbiantLightness);
 end;
 
 function TBGRAScene3D.CreateObject: IBGRAObject3D;
@@ -1859,16 +1547,22 @@ begin
 end;
 
 function TBGRAScene3D.CreateMaterial: IBGRAMaterial3D;
+var m: TBGRAMaterial3D;
 begin
-  result := TBGRAMaterial3D.Create;
+  m := TBGRAMaterial3D.Create;
+  m.OnTextureChanged := @OnMaterialTextureChanged;
+  result := m;
   AddMaterial(result);
 end;
 
 function TBGRAScene3D.CreateMaterial(ASpecularIndex: integer): IBGRAMaterial3D;
+var m: TBGRAMaterial3D;
 begin
-  result := TBGRAMaterial3D.Create;
-  result.SpecularIndex := ASpecularIndex;
-  result.SpecularColor := BGRAWhite;
+  m := TBGRAMaterial3D.Create;
+  m.SetSpecularIndex(ASpecularIndex);
+  m.SetSpecularColor(BGRAWhite);
+  m.OnTextureChanged := @OnMaterialTextureChanged;
+  result := m;
   AddMaterial(result);
 end;
 
@@ -1930,6 +1624,14 @@ var i: integer;
 begin
   for i := 0 to Object3DCount-1 do
     Object3D[i].ForEachFace(ACallback);
+end;
+
+function TBGRAScene3D.MakeLightList: TList;
+var i: integer;
+begin
+  result := TList.Create;
+  for i := 0 to FLights.Count-1 do
+    result.Add(FLights[i]);
 end;
 
 initialization

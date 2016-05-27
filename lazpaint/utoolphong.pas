@@ -70,6 +70,8 @@ begin
     bounds.Bottom := bounds.Top;
     Bounds.Top := temp;
   end;
+  bounds.right += 1;
+  bounds.bottom += 1;
   if (bounds.left = bounds.right) or (bounds.top = bounds.bottom) then
   begin
     result := EmptyRect;

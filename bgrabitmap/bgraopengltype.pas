@@ -6,12 +6,24 @@ interface
 
 uses
   BGRAGraphics, BGRABitmap, BGRABitmapTypes,
-  FPimage, Classes, SysUtils, BGRATransform;
+  FPimage, Classes, SysUtils, BGRATransform,
+  BGRASSE, BGRAMatrix3D;
 
 type
   TBGLTextureHandle = type Pointer;
   TOpenGLResampleFilter = (orfBox,orfLinear);
   TOpenGLBlendMode = (obmNormal, obmAdd, obmMultiply);
+  TWaitForGPUOption = (wfgQueueAllCommands, wfgFinishAllCommands);
+  TFaceCulling = BGRABitmapTypes.TFaceCulling;
+  TOpenGLPrimitive = (opPoints,opLineStrip,opLineLoop,opLines,
+                  opTriangleStrip,opTriangleFan,opTriangles);
+
+const
+  fcNone = BGRABitmapTypes.fcNone;
+  fcKeepCW = BGRABitmapTypes.fcKeepCW;
+  fcKeepCCW = BGRABitmapTypes.fcKeepCCW;
+
+type
 
   { IBGLFont }
 
@@ -145,7 +157,7 @@ type
 
   { IBGLTexture }
 
-  IBGLTexture = interface
+  IBGLTexture = interface ['{BF2FF051-EBC6-4102-8268-37A9D0297B92}']
     function GetFlipX: IBGLTexture;
     function GetFlipY: IBGLTexture;
     function GetFrame(AIndex: integer): IBGLTexture;
@@ -167,12 +179,13 @@ type
     procedure SetResampleFilter(AValue: TOpenGLResampleFilter);
     procedure SetGradientColors(ATopLeft, ATopRight, ABottomRight, ABottomLeft: TBGRAPixel);
     procedure SetUseGradientColors(AValue: boolean);
-    procedure Update(ARGBAData: PBGRAPixel; AllocatedWidth, AllocatedHeight, ActualWidth,ActualHeight: integer);
+    procedure Update(ARGBAData: PDWord; AllocatedWidth, AllocatedHeight, ActualWidth,ActualHeight: integer);
     procedure ToggleFlipX;
     procedure ToggleFlipY;
     procedure ToggleMask;
     procedure SetFrame(AIndex: integer);
     procedure FreeMemory;
+    procedure Bind(ATextureNumber: integer);
 
     procedure Draw(x,y: single; AAlpha: byte = 255); overload;
     procedure Draw(x,y: single; AColor: TBGRAPixel); overload;
@@ -198,6 +211,22 @@ type
     procedure DrawAffine(const Origin, HAxis, VAxis: TPointF; AColor: TBGRAPixel); overload;
     procedure DrawAffine(x,y: single; const AMatrix: TAffineMatrix; AAlpha: byte = 255); overload;
     procedure DrawAffine(x,y: single; const AMatrix: TAffineMatrix; AColor: TBGRAPixel); overload;
+    procedure DrawTriangle(const APoints: array of TPointF; const ATexCoords: array of TPointF);
+    procedure DrawTriangle(const APoints: array of TPointF; const ATexCoords: array of TPointF; const AColors: array of TColorF);
+    procedure DrawTriangle(const APoints: array of TPointF; const APointsZ: array of Single; const ATexCoords: array of TPointF);
+    procedure DrawTriangle(const APoints: array of TPointF; const APointsZ: array of Single; const ATexCoords: array of TPointF; const AColors: array of TColorF);
+    procedure DrawTriangle(const APoints3D: array of TPoint3D_128; const ATexCoords: array of TPointF);
+    procedure DrawTriangle(const APoints3D: array of TPoint3D_128; const ATexCoords: array of TPointF; const AColors: array of TColorF);
+    procedure DrawTriangle(const APoints3D: array of TPoint3D_128; const ANormals3D: array of TPoint3D_128; const ATexCoords: array of TPointF);
+    procedure DrawTriangle(const APoints3D: array of TPoint3D_128; const ANormals3D: array of TPoint3D_128; const ATexCoords: array of TPointF; const AColors: array of TColorF);
+    procedure DrawQuad(const APoints: array of TPointF; const ATexCoords: array of TPointF);
+    procedure DrawQuad(const APoints: array of TPointF; const ATexCoords: array of TPointF; const AColors: array of TColorF);
+    procedure DrawQuad(const APoints: array of TPointF; const APointsZ: array of Single; const ATexCoords: array of TPointF);
+    procedure DrawQuad(const APoints: array of TPointF; const APointsZ: array of Single; const ATexCoords: array of TPointF; const AColors: array of TColorF);
+    procedure DrawQuad(const APoints3D: array of TPoint3D_128; const ATexCoords: array of TPointF);
+    procedure DrawQuad(const APoints3D: array of TPoint3D_128; const ATexCoords: array of TPointF; const AColors: array of TColorF);
+    procedure DrawQuad(const APoints3D: array of TPoint3D_128; const ANormals3D: array of TPoint3D_128; const ATexCoords: array of TPointF);
+    procedure DrawQuad(const APoints3D: array of TPoint3D_128; const ANormals3D: array of TPoint3D_128; const ATexCoords: array of TPointF; const AColors: array of TColorF);
 
     property Width: integer read GetWidth;
     property Height: integer read GetHeight;
@@ -229,11 +258,14 @@ type
     function GetOpenGLMaxTexSize: integer; virtual; abstract;
     procedure NotifySizeTooBigForOpenGL; virtual;
     procedure NotifyOpenGLContextNotCreatedYet; virtual;
+    function GetTextureGL: IUnknown; override;
+    procedure SwapRedBlueWithoutInvalidate(ARect: TRect);
   public
     procedure InvalidateBitmap; override;
     procedure Fill(c: TBGRAPixel); override;
     procedure NoClip; override;
     destructor Destroy; override;
+    procedure SwapRedBlue; override; overload;
     function Resample(newWidth, newHeight: integer; mode: TResampleMode=rmFineResample): TBGRACustomBitmap; override;
     procedure ApplyGlobalOpacity(alpha: byte); override; overload;
     procedure ReplaceColor(before, after: TColor); override; overload;
@@ -284,8 +316,8 @@ type
     FBlendMode: TOpenGLBlendMode;
 
     function GetOpenGLMaxTexSize: integer; virtual; abstract;
-    function CreateOpenGLTexture(ARGBAData: PBGRAPixel; AAllocatedWidth, AAllocatedHeight, AActualWidth, AActualHeight: integer): TBGLTextureHandle; virtual; abstract;
-    procedure UpdateOpenGLTexture(ATexture: TBGLTextureHandle; ARGBAData: PBGRAPixel; AAllocatedWidth, AAllocatedHeight, AActualWidth,AActualHeight: integer); virtual; abstract;
+    function CreateOpenGLTexture(ARGBAData: PDWord; AAllocatedWidth, AAllocatedHeight, AActualWidth, AActualHeight: integer): TBGLTextureHandle; virtual; abstract;
+    procedure UpdateOpenGLTexture(ATexture: TBGLTextureHandle; ARGBAData: PDWord; AAllocatedWidth, AAllocatedHeight, AActualWidth,AActualHeight: integer); virtual; abstract;
     procedure SetOpenGLTextureSize(ATexture: TBGLTextureHandle; AAllocatedWidth, AAllocatedHeight, AActualWidth, AActualHeight: integer); virtual; abstract;
     procedure ComputeOpenGLFramesCoord(ATexture: TBGLTextureHandle; FramesX: Integer=1; FramesY: Integer=1); virtual; abstract;
     function GetOpenGLFrameCount(ATexture: TBGLTextureHandle): integer; virtual; abstract;
@@ -295,6 +327,10 @@ type
     function GetUseGradientColors: boolean; virtual;
     procedure SetUseGradientColors(AValue: boolean); virtual;
 
+    procedure DoDrawTriangleOrQuad(const {%H-}Points: array of TPointF;
+      const {%H-}APointsZ: array of Single; const {%H-}APoints3D: array of TPoint3D_128;
+      const {%H-}ANormals3D: array of TPoint3D_128; const {%H-}TexCoords: array of TPointF;
+      const {%H-}AColors: array of TColorF); virtual;
     procedure DoStretchDraw(x,y,w,h: single; AColor: TBGRAPixel); virtual; abstract;
     procedure DoStretchDrawAngle(x,y,w,h,angleDeg: single; rotationCenter: TPointF; AColor: TBGRAPixel); virtual; abstract;
     procedure DoDrawAffine(Origin, HAxis, VAxis: TPointF; AColor: TBGRAPixel); virtual; abstract;
@@ -308,28 +344,30 @@ type
     procedure FreeMemoryOnDestroy; virtual;
 
     procedure InitEmpty;
-    procedure InitFromData(ARGBAData: PBGRAPixel; AllocatedWidth,AllocatedHeight, ActualWidth,ActualHeight: integer);
+    procedure InitFromData(ARGBAData: PDWord; AllocatedWidth,AllocatedHeight, ActualWidth,ActualHeight: integer);
     procedure InitFromStream(AStream: TStream);
   public
     destructor Destroy; override;
     constructor Create; overload;
     constructor Create(ATexture: TBGLTextureHandle; AWidth,AHeight: integer); overload;
-    constructor Create(ARGBAData: PBGRAPixel; AllocatedWidth,AllocatedHeight, ActualWidth,ActualHeight: integer); overload;
+    constructor Create(ARGBAData: PDWord; AllocatedWidth,AllocatedHeight, ActualWidth,ActualHeight: integer); overload;
     constructor Create(AFPImage: TFPCustomImage); overload;
     constructor Create(ABitmap: TBitmap); overload;
     constructor Create(AWidth, AHeight: integer; Color: TColor); overload;
     constructor Create(AWidth, AHeight: integer; Color: TBGRAPixel); overload;
     constructor Create(AFilenameUTF8: string); overload;
+    constructor Create(AFilenameUTF8: string; AWidth,AHeight: integer; AResampleFilter: TResampleFilter); overload;
     constructor Create(AStream: TStream); overload;
     procedure ToggleFlipX; virtual; abstract;
     procedure ToggleFlipY; virtual; abstract;
     procedure ToggleMask; virtual;
 
     procedure SetFrameSize(x,y: integer);
-    procedure Update(ARGBAData: PBGRAPixel; AllocatedWidth, AllocatedHeight, ActualWidth,ActualHeight: integer);
+    procedure Update(ARGBAData: PDWord; AllocatedWidth, AllocatedHeight, ActualWidth,ActualHeight: integer);
     procedure SetFrame(AIndex: integer);
     procedure SetGradientColors(ATopLeft, ATopRight, ABottomRight, ABottomLeft: TBGRAPixel);
     procedure FreeMemory;
+    procedure Bind({%H-}ATextureNumber: integer); virtual;
 
     procedure Draw(x,y: single; AAlpha: byte = 255); overload;
     procedure Draw(x,y: single; AColor: TBGRAPixel); overload;
@@ -355,6 +393,22 @@ type
     procedure DrawAffine(const Origin, HAxis, VAxis: TPointF; AColor: TBGRAPixel); overload;
     procedure DrawAffine(x,y: single; const AMatrix: TAffineMatrix; AAlpha: byte = 255); overload;
     procedure DrawAffine(x,y: single; const AMatrix: TAffineMatrix; AColor: TBGRAPixel); overload;
+    procedure DrawTriangle(const APoints: array of TPointF; const ATexCoords: array of TPointF);
+    procedure DrawTriangle(const APoints: array of TPointF; const ATexCoords: array of TPointF; const AColors: array of TColorF);
+    procedure DrawTriangle(const APoints: array of TPointF; const APointsZ: array of Single; const ATexCoords: array of TPointF);
+    procedure DrawTriangle(const APoints: array of TPointF; const APointsZ: array of Single; const ATexCoords: array of TPointF; const AColors: array of TColorF);
+    procedure DrawTriangle(const APoints3D: array of TPoint3D_128; const ATexCoords: array of TPointF);
+    procedure DrawTriangle(const APoints3D: array of TPoint3D_128; const ATexCoords: array of TPointF; const AColors: array of TColorF);
+    procedure DrawTriangle(const APoints3D: array of TPoint3D_128; const ANormals3D: array of TPoint3D_128; const ATexCoords: array of TPointF);
+    procedure DrawTriangle(const APoints3D: array of TPoint3D_128; const ANormals3D: array of TPoint3D_128; const ATexCoords: array of TPointF; const AColors: array of TColorF);
+    procedure DrawQuad(const APoints: array of TPointF; const ATexCoords: array of TPointF);
+    procedure DrawQuad(const APoints: array of TPointF; const ATexCoords: array of TPointF; const AColors: array of TColorF);
+    procedure DrawQuad(const APoints: array of TPointF; const APointsZ: array of Single; const ATexCoords: array of TPointF);
+    procedure DrawQuad(const APoints: array of TPointF; const APointsZ: array of Single; const ATexCoords: array of TPointF; const AColors: array of TColorF);
+    procedure DrawQuad(const APoints3D: array of TPoint3D_128; const ATexCoords: array of TPointF);
+    procedure DrawQuad(const APoints3D: array of TPoint3D_128; const ATexCoords: array of TPointF; const AColors: array of TColorF);
+    procedure DrawQuad(const APoints3D: array of TPoint3D_128; const ANormals3D: array of TPoint3D_128; const ATexCoords: array of TPointF);
+    procedure DrawQuad(const APoints3D: array of TPoint3D_128; const ANormals3D: array of TPoint3D_128; const ATexCoords: array of TPointF; const AColors: array of TColorF);
 
     property Width: integer read GetWidth;
     property Height: integer read GetHeight;
@@ -374,18 +428,25 @@ type
 type
   TBGLBitmapAny = class of TBGLCustomBitmap;
   TBGLTextureAny = class of TBGLCustomTexture;
-  TOpenGLMatrix = packed array[1..4,1..4] of single;
 
 var
   BGLBitmapFactory : TBGLBitmapAny;
   BGLTextureFactory: TBGLTextureAny;
 
+function OrthoProjectionToOpenGL(AMinX,AMinY,AMaxX,AMaxY: Single): TMatrix4D;
 function GetPowerOfTwo( Value : Integer ) : Integer;
-function AffineMatrixToOpenGL(AValue: TAffineMatrix): TOpenGLMatrix;
 
 implementation
 
 uses Types;
+
+function OrthoProjectionToOpenGL(AMinX, AMinY, AMaxX, AMaxY: Single): TMatrix4D;
+begin
+  result[1,1] := 2/(AMaxX-AMinX); result[2,1] := 0;                result[3,1] := 0;   result[4,1] := -1;
+  result[1,2] := 0;               result[2,2] := -2/(AMaxY-AMinY); result[3,2] := 0;   result[4,2] := 1;
+  result[1,3] := 0;               result[2,3] := 0;                result[3,3] := -1;  result[4,3] := 0;
+  result[1,4] := 0;               result[2,4] := 0;                result[3,4] := 0;   result[4,4] := 1;
+end;
 
 function GetPowerOfTwo( Value : Integer ) : Integer;
 begin
@@ -396,14 +457,6 @@ begin
   Result := Result or ( Result shr 8 );
   Result := Result or ( Result shr 16 );
   Result := Result + 1;
-end;
-
-function AffineMatrixToOpenGL(AValue: TAffineMatrix): TOpenGLMatrix;
-begin
-  result[1,1] := AValue[1,1];  result[2,1] := AValue[1,2];  result[3,1] := 0; result[4,1] := AValue[1,3];
-  result[1,2] := AValue[2,1];  result[2,2] := AValue[2,2];  result[3,2] := 0; result[4,2] := AValue[2,3];
-  result[1,3] := 0;            result[2,3] := 0;            result[3,3] := 1; result[4,3] := 0;
-  result[1,4] := 0;            result[2,4] := 0;            result[3,4] := 0; result[4,4] := 1;
 end;
 
 { TBGLCustomTexture }
@@ -518,12 +571,21 @@ begin
   FUseGradientColor := AValue;
 end;
 
+procedure TBGLCustomTexture.DoDrawTriangleOrQuad(
+  const Points: array of TPointF; const APointsZ: array of Single;
+  const APoints3D: array of TPoint3D_128;
+  const ANormals3D: array of TPoint3D_128; const TexCoords: array of TPointF;
+  const AColors: array of TColorF);
+begin
+  raise Exception.Create('Not implemented');
+end;
+
 procedure TBGLCustomTexture.ToggleMask;
 begin
   FIsMask := not FIsMask;
 end;
 
-procedure TBGLCustomTexture.Update(ARGBAData: PBGRAPixel; AllocatedWidth,
+procedure TBGLCustomTexture.Update(ARGBAData: PDWord; AllocatedWidth,
   AllocatedHeight, ActualWidth, ActualHeight: integer);
 begin
   UpdateOpenGLTexture(FOpenGLTexture, ARGBAData, AllocatedWidth, AllocatedHeight, ActualWidth,ActualHeight);
@@ -562,6 +624,11 @@ begin
     FOpenGLTexture := GetEmptyTexture;
     FOpenGLTextureOwned := false;
   end;
+end;
+
+procedure TBGLCustomTexture.Bind(ATextureNumber: integer);
+begin
+  raise Exception.Create('Not implemented');
 end;
 
 procedure TBGLCustomTexture.NotifyInvalidFrameSize;
@@ -614,7 +681,7 @@ begin
   Init(GetEmptyTexture,0,0,False);
 end;
 
-procedure TBGLCustomTexture.InitFromData(ARGBAData: PBGRAPixel;
+procedure TBGLCustomTexture.InitFromData(ARGBAData: PDWord;
   AllocatedWidth, AllocatedHeight, ActualWidth, ActualHeight: integer);
 var tex: TBGLTextureHandle;
     MaxTexSize: integer;
@@ -638,7 +705,8 @@ begin
   bmp := nil;
   try
     bmp := BGLBitmapFactory.Create(AStream);
-    InitFromData(bmp.Data, bmp.AllocatedWidth,bmp.AllocatedHeight, bmp.Width,bmp.Height);
+    if not TBGRAPixel_RGBAOrder then bmp.SwapRedBlue;
+    InitFromData(PDWord(bmp.Data), bmp.AllocatedWidth,bmp.AllocatedHeight, bmp.Width,bmp.Height);
   except
     InitEmpty;
   end;
@@ -662,7 +730,7 @@ begin
   Init(ATexture, AWidth,AHeight, False);
 end;
 
-constructor TBGLCustomTexture.Create(ARGBAData: PBGRAPixel; AllocatedWidth,
+constructor TBGLCustomTexture.Create(ARGBAData: PDWord; AllocatedWidth,
   AllocatedHeight, ActualWidth, ActualHeight: integer);
 begin
   InitFromData(ARGBAData,AllocatedWidth,AllocatedHeight,ActualWidth,ActualHeight);
@@ -676,11 +744,16 @@ begin
     (AFPImage.Height = GetPowerOfTwo(AFPImage.Height)) then
   begin
     with TBGRACustomBitmap(AFPImage) do
-      InitFromData(Data, Width,Height, Width,Height);
+    begin
+      if not TBGRAPixel_RGBAOrder then SwapRedBlue;
+      InitFromData(PDWord(Data), Width,Height, Width,Height);
+      if not TBGRAPixel_RGBAOrder then SwapRedBlue;
+    end;
   end else
   begin
     bmp := BGLBitmapFactory.Create(AFPImage);
-    InitFromData(bmp.Data, bmp.AllocatedWidth,bmp.AllocatedHeight, bmp.Width,bmp.Height);
+    if not TBGRAPixel_RGBAOrder then bmp.SwapRedBlue;
+    InitFromData(PDWord(bmp.Data), bmp.AllocatedWidth,bmp.AllocatedHeight, bmp.Width,bmp.Height);
     bmp.Free;
   end;
 end;
@@ -689,7 +762,8 @@ constructor TBGLCustomTexture.Create(ABitmap: TBitmap);
 var bmp: TBGLCustomBitmap;
 begin
   bmp := BGLBitmapFactory.Create(ABitmap);
-  InitFromData(bmp.Data, bmp.AllocatedWidth,bmp.AllocatedHeight, bmp.Width,bmp.Height);
+  if not TBGRAPixel_RGBAOrder then bmp.SwapRedBlue;
+  InitFromData(PDWord(bmp.Data), bmp.AllocatedWidth,bmp.AllocatedHeight, bmp.Width,bmp.Height);
   bmp.Free;
 end;
 
@@ -697,7 +771,8 @@ constructor TBGLCustomTexture.Create(AWidth, AHeight: integer; Color: TColor);
 var bmp: TBGLCustomBitmap;
 begin
   bmp := BGLBitmapFactory.Create(AWidth,AHeight,Color);
-  InitFromData(bmp.Data, bmp.AllocatedWidth,bmp.AllocatedHeight, bmp.Width,bmp.Height);
+  if not TBGRAPixel_RGBAOrder then bmp.SwapRedBlue;
+  InitFromData(PDWord(bmp.Data), bmp.AllocatedWidth,bmp.AllocatedHeight, bmp.Width,bmp.Height);
   bmp.Free;
 end;
 
@@ -706,7 +781,8 @@ constructor TBGLCustomTexture.Create(AWidth, AHeight: integer;
 var bmp: TBGLCustomBitmap;
 begin
   bmp := BGLBitmapFactory.Create(AWidth,AHeight,Color);
-  InitFromData(bmp.Data, bmp.AllocatedWidth,bmp.AllocatedHeight, bmp.Width,bmp.Height);
+  if not TBGRAPixel_RGBAOrder then bmp.SwapRedBlue;
+  InitFromData(PDWord(bmp.Data), bmp.AllocatedWidth,bmp.AllocatedHeight, bmp.Width,bmp.Height);
   bmp.Free;
 end;
 
@@ -716,7 +792,37 @@ begin
   bmp := nil;
   try
     bmp := BGLBitmapFactory.Create(AFilenameUTF8, True);
-    InitFromData(bmp.Data, bmp.AllocatedWidth,bmp.AllocatedHeight, bmp.Width,bmp.Height);
+    if not TBGRAPixel_RGBAOrder then bmp.SwapRedBlue;
+    InitFromData(PDWord(bmp.Data), bmp.AllocatedWidth,bmp.AllocatedHeight, bmp.Width,bmp.Height);
+  except
+    InitEmpty;
+    NotifyErrorLoadingFile(AFilenameUTF8);
+  end;
+  bmp.Free;
+end;
+
+constructor TBGLCustomTexture.Create(AFilenameUTF8: string; AWidth,
+  AHeight: integer; AResampleFilter: TResampleFilter);
+var bmp, temp: TBGLCustomBitmap;
+begin
+  bmp := nil;
+  try
+    bmp := BGLBitmapFactory.Create(AFilenameUTF8, True);
+    if (bmp.Width <> AWidth) or (bmp.Height <> AHeight) then
+    begin
+      if AResampleFilter = rfBox then
+        temp := bmp.Resample(AWidth,AHeight,rmSimpleStretch) as TBGLCustomBitmap
+      else
+      begin
+        bmp.ResampleFilter := AResampleFilter;
+        temp := bmp.Resample(AWidth,AHeight) as TBGLCustomBitmap;
+      end;
+      bmp.Free;
+      bmp := temp;
+      temp := nil;
+    end;
+    if not TBGRAPixel_RGBAOrder then bmp.SwapRedBlue;
+    InitFromData(PDWord(bmp.Data), bmp.AllocatedWidth,bmp.AllocatedHeight, bmp.Width,bmp.Height);
   except
     InitEmpty;
     NotifyErrorLoadingFile(AFilenameUTF8);
@@ -908,6 +1014,139 @@ procedure TBGLCustomTexture.DrawAffine(x, y: single;
 begin
   DoDrawAffine(AMatrix*PointF(0,0) + PointF(x,y), AMatrix*PointF(Width,0) + PointF(x,y),
      AMatrix*PointF(0,Height) + PointF(x,y), AColor);
+end;
+
+procedure TBGLCustomTexture.DrawTriangle(const APoints: array of TPointF;
+  const ATexCoords: array of TPointF);
+begin
+  if (length(APoints) = 3) and (length(ATexCoords) = 3) then
+    DoDrawTriangleOrQuad(APoints,[],[],[],ATexCoords,[]);
+end;
+
+procedure TBGLCustomTexture.DrawTriangle(const APoints: array of TPointF;
+  const ATexCoords: array of TPointF; const AColors: array of TColorF);
+begin
+  if (length(APoints) = 3) and (length(ATexCoords) = 3)
+     and (length(AColors) = 3) then
+    DoDrawTriangleOrQuad(APoints,[],[],[],ATexCoords,AColors);
+end;
+
+procedure TBGLCustomTexture.DrawTriangle(const APoints: array of TPointF;
+  const APointsZ: array of Single; const ATexCoords: array of TPointF);
+begin
+  if (length(APoints) = 3) and (length(ATexCoords) = 3)
+     and (length(APointsZ) = 3) then
+  DoDrawTriangleOrQuad(APoints,APointsZ,[],[],ATexCoords,[]);
+end;
+
+procedure TBGLCustomTexture.DrawTriangle(const APoints: array of TPointF;
+  const APointsZ: array of Single; const ATexCoords: array of TPointF;
+  const AColors: array of TColorF);
+begin
+  if (length(APoints) = 3) and (length(ATexCoords) = 3)
+     and (length(APointsZ) = 3) and (length(AColors) = 3) then
+  DoDrawTriangleOrQuad(APoints,APointsZ,[],[],ATexCoords,AColors);
+end;
+
+procedure TBGLCustomTexture.DrawTriangle(
+  const APoints3D: array of TPoint3D_128; const ATexCoords: array of TPointF);
+begin
+  if (length(APoints3D) = 3) and (length(ATexCoords) = 3) then
+  DoDrawTriangleOrQuad([],[],APoints3D,[],ATexCoords,[]);
+end;
+
+procedure TBGLCustomTexture.DrawTriangle(
+  const APoints3D: array of TPoint3D_128; const ATexCoords: array of TPointF;
+  const AColors: array of TColorF);
+begin
+  if (length(APoints3D) = 3) and (length(ATexCoords) = 3)
+  and (length(AColors) = 3) then
+  DoDrawTriangleOrQuad([],[],APoints3D,[],ATexCoords,AColors);
+end;
+
+procedure TBGLCustomTexture.DrawTriangle(const APoints3D: array of TPoint3D_128;
+  const ANormals3D: array of TPoint3D_128;
+  const ATexCoords: array of TPointF);
+begin
+  if (length(APoints3D) = 3) and (length(ATexCoords) = 3)
+  and (length(ANormals3D) = 3) then
+  DoDrawTriangleOrQuad([],[],APoints3D,ANormals3D,ATexCoords,[]);
+end;
+
+procedure TBGLCustomTexture.DrawTriangle(const APoints3D: array of TPoint3D_128;
+  const ANormals3D: array of TPoint3D_128;
+  const ATexCoords: array of TPointF; const AColors: array of TColorF);
+begin
+  if (length(APoints3D) = 3) and (length(ATexCoords) = 3)
+  and (length(ANormals3D) = 3)
+  and (length(AColors) = 3) then
+  DoDrawTriangleOrQuad([],[],APoints3D,ANormals3D,ATexCoords,AColors);
+end;
+
+procedure TBGLCustomTexture.DrawQuad(const APoints: array of TPointF;
+  const ATexCoords: array of TPointF);
+begin
+  if (length(APoints) = 4) and (length(ATexCoords) = 4) then
+    DoDrawTriangleOrQuad(APoints,[],[],[],ATexCoords,[]);
+end;
+
+procedure TBGLCustomTexture.DrawQuad(const APoints: array of TPointF;
+  const ATexCoords: array of TPointF; const AColors: array of TColorF);
+begin
+  if (length(APoints) = 4) and (length(ATexCoords) = 4)
+    and (length(AColors) = 4) then
+    DoDrawTriangleOrQuad(APoints,[],[],[],ATexCoords, AColors);
+end;
+
+procedure TBGLCustomTexture.DrawQuad(const APoints: array of TPointF;
+  const APointsZ: array of Single; const ATexCoords: array of TPointF);
+begin
+  if (length(APoints) = 4) and (length(ATexCoords) = 4)
+     and (length(APointsZ) = 4) then
+    DoDrawTriangleOrQuad(APoints,APointsZ,[],[],ATexCoords,[]);
+end;
+
+procedure TBGLCustomTexture.DrawQuad(const APoints: array of TPointF;
+  const APointsZ: array of Single; const ATexCoords: array of TPointF;
+  const AColors: array of TColorF);
+begin
+  if (length(APoints) = 4) and (length(ATexCoords) = 4)
+     and (length(APointsZ) = 4) and (length(AColors) = 4) then
+    DoDrawTriangleOrQuad(APoints,APointsZ,[],[],ATexCoords,AColors);
+end;
+
+procedure TBGLCustomTexture.DrawQuad(const APoints3D: array of TPoint3D_128;
+  const ATexCoords: array of TPointF);
+begin
+  if (length(APoints3D) = 4) and (length(ATexCoords) = 4) then
+    DoDrawTriangleOrQuad([],[],APoints3D,[],ATexCoords,[]);
+end;
+
+procedure TBGLCustomTexture.DrawQuad(const APoints3D: array of TPoint3D_128;
+  const ATexCoords: array of TPointF; const AColors: array of TColorF);
+begin
+  if (length(APoints3D) = 4) and (length(ATexCoords) = 4)
+     and (length(AColors) = 4) then
+    DoDrawTriangleOrQuad([],[],APoints3D,[],ATexCoords,AColors);
+end;
+
+procedure TBGLCustomTexture.DrawQuad(const APoints3D: array of TPoint3D_128;
+  const ANormals3D: array of TPoint3D_128;
+  const ATexCoords: array of TPointF);
+begin
+  if (length(APoints3D) = 4) and (length(ATexCoords) = 4)
+     and (length(ANormals3D) = 4) then
+    DoDrawTriangleOrQuad([],[],APoints3D,ANormals3D,ATexCoords,[]);
+end;
+
+procedure TBGLCustomTexture.DrawQuad(const APoints3D: array of TPoint3D_128;
+  const ANormals3D: array of TPoint3D_128;
+  const ATexCoords: array of TPointF; const AColors: array of TColorF);
+begin
+  if (length(APoints3D) = 4) and (length(ATexCoords) = 4)
+     and (length(ANormals3D) = 4)
+     and (length(AColors) = 4) then
+    DoDrawTriangleOrQuad([],[],APoints3D,ANormals3D,ATexCoords,AColors);
 end;
 
 { TBGLCustomFont }
@@ -1241,10 +1480,12 @@ begin
     if FTextureInvalidated then
     begin
       FTextureInvalidated := false;
+      if not TBGRAPixel_RGBAOrder then SwapRedBlueWithoutInvalidate(Rect(0,0,Width,Height));
       if FTexture = nil then
-        FTexture := BGLTextureFactory.Create(self.Data, AllocatedWidth,AllocatedHeight, Width,Height)
+        FTexture := BGLTextureFactory.Create(PDWord(self.Data), AllocatedWidth,AllocatedHeight, Width,Height)
       else
-        FTexture.Update(self.Data, AllocatedWidth,AllocatedHeight, Width,Height);
+        FTexture.Update(PDWord(self.Data), AllocatedWidth,AllocatedHeight, Width,Height);
+      if not TBGRAPixel_RGBAOrder then SwapRedBlueWithoutInvalidate(Rect(0,0,Width,Height));
     end;
     result := FTexture;
   end;
@@ -1258,6 +1499,19 @@ end;
 procedure TBGLCustomBitmap.NotifyOpenGLContextNotCreatedYet;
 begin
   raise exception.Create('OpenGL context has not been created yet');
+end;
+
+function TBGLCustomBitmap.GetTextureGL: IUnknown;
+begin
+  Result:=GetTexture;
+end;
+
+procedure TBGLCustomBitmap.SwapRedBlueWithoutInvalidate(ARect: TRect);
+var y: NativeInt;
+begin
+  if not CheckClippedRectBounds(ARect.Left,ARect.Top,ARect.Right,ARect.Bottom) then exit;
+  for y := ARect.Top to ARect.Bottom-1 do
+    InternalSwapRedBlue(GetScanlineFast(y)+ARect.Left, ARect.Right-ARect.Left);
 end;
 
 procedure TBGLCustomBitmap.InvalidateBitmap;
@@ -1289,6 +1543,15 @@ begin
     FTexture := nil;
   end;
   inherited Destroy;
+end;
+
+procedure TBGLCustomBitmap.SwapRedBlue;
+var previousClip : TRect;
+begin
+  previousClip := ClipRect;
+  NoClip;
+  SwapRedBlue(rect(0,0,Width,Height));
+  ClipRect := previousClip;
 end;
 
 function TBGLCustomBitmap.Resample(newWidth, newHeight: integer;

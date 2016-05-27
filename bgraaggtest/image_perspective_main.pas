@@ -14,7 +14,13 @@ type
 
   TForm1 = class(TForm)
     Label1: TLabel;
+    Label2: TLabel;
     Panel1: TPanel;
+    Panel2: TPanel;
+    Radio_InterpBox: TRadioButton;
+    Radio_InterpLinear: TRadioButton;
+    Radio_InterpHalfCosine: TRadioButton;
+    Radio_InterpCosine: TRadioButton;
     Radio_Perspective: TRadioButton;
     Radio_LinearAntialias: TRadioButton;
     Radio_Linear: TRadioButton;
@@ -47,8 +53,6 @@ var
 
 implementation
 
-uses BGRATransform;
-
 {$R *.lfm}
 
 procedure NicePoint(bmp: TBGRABitmap; x, y: single);
@@ -63,12 +67,19 @@ end;
 procedure TForm1.FormPaint(Sender: TObject);
 var bmp: TBGRABitmap;
     tx,ty,i: Integer;
-    affine : TBGRAAffineBitmapTransform;
     texPos: array of TPointF;
-
 begin
   tx := ClientWidth;
   ty := clientHeight;
+
+  if Radio_InterpBox.Checked then
+    image.ScanInterpolationFilter := rfBox else
+  if Radio_InterpLinear.Checked then
+    image.ScanInterpolationFilter := rfLinear else
+  if Radio_InterpHalfCosine.Checked then
+    image.ScanInterpolationFilter := rfHalfCosine else
+  if Radio_InterpCosine.Checked then
+    image.ScanInterpolationFilter := rfCosine;
 
   bmp := TBGRABitmap.Create(tx,ty,BGRAWhite);
 
@@ -87,25 +98,27 @@ begin
               texPos[0],texPos[1],texPos[2],texPos[3]);
   end else
   if Radio_LinearAntialias.Checked then
-    bmp.FillQuadLinearMappingAntialias(pts[0],pts[1],pts[2],pts[3],image,
-         texPos[0],texPos[1],texPos[2],texPos[3])
+  begin
+    bmp.FillQuadLinearMappingAntialias(pts[0],pts[1],pts[2],pts[3], image,
+        texPos[0],texPos[1],texPos[2],texPos[3]);
+  end
   else if Radio_Linear.Checked then
-    bmp.FillQuadLinearMapping(pts[0],pts[1],pts[2],pts[3],image,
-         texPos[0],texPos[1],texPos[2],texPos[3])
-  else if Radio_Affine.Checked or Radio_AffineAntialias.checked then
+  begin
+    bmp.FillQuadLinearMapping(pts[0],pts[1],pts[2],pts[3], image,
+        texPos[0],texPos[1],texPos[2],texPos[3]);
+  end
+  else if Radio_Affine.Checked then
   begin
     pts[2] := pts[1]+(pts[3]-pts[0]);
-    affine := TBGRAAffineBitmapTransform.Create(image,false);
-    affine.Fit(pts[0],pts[1],pts[3]);
-    if Radio_AffineAntialias.Checked then
-      bmp.FillPolyAntialias(pts,affine)
-    else
-      bmp.FillPoly(pts,affine,dmSet);
-    affine.Free;
+    bmp.FillQuadAffineMapping(pts[0],pts[1],pts[3],image);
+  end else if Radio_AffineAntialias.checked then
+  begin
+    pts[2] := pts[1]+(pts[3]-pts[0]);
+    bmp.FillQuadAffineMappingAntialias(pts[0],pts[1],pts[3],image);
   end;
 
   stopwatch.stop;
-  bmp.DrawPolygonAntialias(pts,BGRA(0,0,0,64),1);
+  //bmp.DrawPolygonAntialias(pts,BGRA(0,0,0,64),1);
   bmp.textOut(0,0,inttostr(round(stopwatch.Elapsed*1000))+' ms',BGRABlack);
 
   for i := 0 to 3 do

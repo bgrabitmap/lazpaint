@@ -2,17 +2,12 @@ unit UCustomblur;
 
 {$mode objfpc}{$H+}
 
-{$IFNDEF DARWIN}
-  {$DEFINE USE_IMAGE_BROWSER}
-{$ENDIF}
-
 interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
   StdCtrls, ExtCtrls, ExtDlgs,  bgrabitmap, LazPaintType, UScaleDPI,
-  UResourceStrings, UFilterConnector, UFilterThread
-  {$IFDEF USE_IMAGE_BROWSER}, ubrowseimages {$ENDIF};
+  UResourceStrings, UFilterConnector, UFilterThread, ubrowseimages;
 
 type
 
@@ -38,9 +33,7 @@ type
     procedure PreviewNeeded;
     procedure Timer1Timer(Sender: TObject);
   private
-    {$IFDEF USE_IMAGE_BROWSER}
     FBrowseImages: TFBrowseImages;
-    {$ENDIF}
     subConfig: TStringStream;
     FLazPaintInstance: TLazPaintCustomInstance;
     FFilterConnector: TFilterConnector;
@@ -73,9 +66,7 @@ end;
 procedure TFCustomBlur.FormDestroy(Sender: TObject);
 begin
   subConfig.Free;
-  {$IFDEF USE_IMAGE_BROWSER}
   FreeAndNil(FBrowseImages);
-  {$ENDIF}
 end;
 
 procedure TFCustomBlur.FormShow(Sender: TObject);
@@ -189,18 +180,20 @@ procedure TFCustomBlur.Button_LoadMaskClick(Sender: TObject);
 var filenameUTF8: string;
 begin
   filenameUTF8 := '';
-  {$IFDEF USE_IMAGE_BROWSER}
-  if not assigned(FBrowseImages) then
+  if LazPaintInstance.Config.DefaultUseImageBrowser then
   begin
-    FBrowseImages := TFBrowseImages.Create(self);
-    FBrowseImages.LazPaintInstance := LazPaintInstance;
-    FBrowseImages.AllowMultiSelect := false;
+    if not assigned(FBrowseImages) then
+    begin
+      FBrowseImages := TFBrowseImages.Create(self);
+      FBrowseImages.LazPaintInstance := LazPaintInstance;
+      FBrowseImages.AllowMultiSelect := false;
+    end;
+    if FBrowseImages.ShowModal = mrOK then
+      filenameUTF8 := FBrowseImages.Filename;
+  end else
+  begin
+    if OpenPictureDialog1.Execute then filenameUTF8 := OpenPictureDialog1.FileName;
   end;
-  if FBrowseImages.ShowModal = mrOK then
-    filenameUTF8 := FBrowseImages.Filename;
-  {$ELSE}
-  if OpenPictureDialog1.Execute then filenameUTF8 := OpenPictureDialog1.FileName;
-  {$ENDIF}
   if filenameUTF8 <> '' then
     begin
       try
@@ -256,4 +249,4 @@ end;
 {$R *.lfm}
 
 end.
-
+

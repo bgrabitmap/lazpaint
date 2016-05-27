@@ -13,30 +13,35 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
-    Label1: TLabel;
+    Label_RadiusValueY: TLabel;
+    Label_RadiusX: TLabel;
     Label2: TLabel;
-    Label_RadiusValue: TLabel;
+    Label_RadiusY: TLabel;
+    Label_RadiusValueX: TLabel;
     Panel1: TPanel;
     Radio_Box: TRadioButton;
     Radio_Motion: TRadioButton;
     Radio_Fast: TRadioButton;
     Radio_Corona: TRadioButton;
     Radio_Disk: TRadioButton;
+    Radio_OrientedMotion: TRadioButton;
     Radio_Radial: TRadioButton;
-    TrackBar_BlurRadius: TTrackBar;
+    TrackBar_BlurRadiusX: TTrackBar;
+    TrackBar_BlurRadiusY: TTrackBar;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
+      {%H-}Shift: TShiftState; X, Y: Integer);
     procedure FormMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
     procedure FormMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
+      {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure FormPaint(Sender: TObject);
     procedure Radio_Change(Sender: TObject);
     procedure TrackBar_BlurRadiusChange(Sender: TObject);
-    procedure WMEraseBkgnd(var Message: TLMEraseBkgnd); message LM_ERASEBKGND;
+    procedure WMEraseBkgnd(var {%H-}Message: TLMEraseBkgnd); message LM_ERASEBKGND;
   private
     { private declarations }
+    procedure UpdateLabelRadius;
   public
     { public declarations }
     image,shadowBase: TBGRABitmap;
@@ -52,13 +57,29 @@ implementation
 
 {$R *.lfm}
 
+function ComputeAngle(dx, dy: single): single;
+begin
+     if dy = 0 then
+     begin
+       if dx < 0 then result := 180 else result := 0;
+     end else
+     if dx = 0 then
+     begin
+       if dy < 0 then result := -90 else result := 90;
+     end else
+     begin
+       result := ArcTan(dy/dx)*180/Pi;
+       if dx < 0 then result += 180;
+     end;
+end;
+
 { TForm1 }
 
 procedure TForm1.FormPaint(Sender: TObject);
 var bmp,ombre: TBGRABitmap;
     x,y,tx,ty: integer;
     blurType: TRadialBlurType;
-    radius: single;
+    radiusX,radiusY,len: single;
 begin
   tx := clientWidth;
   ty := Panel1.Top;
@@ -66,24 +87,29 @@ begin
   x := (tx-image.Width) div 2;
   y := (ty-image.Height) div 2;
 
+  radiusX := TrackBar_BlurRadiusX.Position/10;
+  radiusY := TrackBar_BlurRadiusY.Position/10;
+
   timer.Clear;
   timer.Start;
-  if Radio_Motion.Checked then
+  if Radio_Motion.Checked or Radio_OrientedMotion.Checked then
   begin
-    ombre := shadowBase.FilterBlurMotion(TrackBar_BlurRadius.Position,0,False) as TBGRABitmap;
+    len := sqrt(sqr(radiusX)+sqr(radiusY));
+    ombre := shadowBase.FilterBlurMotion(len*2,ComputeAngle(radiusX,radiusY),Radio_OrientedMotion.Checked) as TBGRABitmap;
   end else
   begin
-    radius := TrackBar_BlurRadius.Position;
     if Radio_Box.Checked then
     begin
       blurType := rbBox;
-      radius := radius/sqrt(2);
+      ombre := shadowBase.FilterBlurRadial(radiusX,radiusY,blurType) as TBGRABitmap;
     end else
-    if Radio_Fast.Checked then blurType := rbFast else
-    if Radio_Corona.Checked then blurType := rbCorona else
-    if Radio_Disk.Checked then blurType := rbDisk else
-    if Radio_Radial.Checked then blurType := rbNormal;
-    ombre := shadowBase.FilterBlurRadial(round(radius),blurType) as TBGRABitmap;
+    begin
+      if Radio_Fast.Checked then blurType := rbFast else
+      if Radio_Corona.Checked then blurType := rbCorona else
+      if Radio_Disk.Checked then blurType := rbDisk else
+      if Radio_Radial.Checked then blurType := rbNormal;
+      ombre := shadowBase.FilterBlurRadial(radiusX,radiusY,blurType) as TBGRABitmap;
+    end;
   end;
   timer.Stop;
   ombre.Rectangle(0,0,ombre.width,ombre.height,BGRA(0,0,0,128),dmDrawWithTransparency);
@@ -103,13 +129,21 @@ end;
 
 procedure TForm1.TrackBar_BlurRadiusChange(Sender: TObject);
 begin
-  Label_RadiusValue.Caption := '= '+IntToStr(TrackBar_BlurRadius.Position);
-  Invalidate;
+  UpdateLabelRadius;
+  Repaint;
 end;
 
 procedure TForm1.WMEraseBkgnd(var Message: TLMEraseBkgnd);
 begin
   //
+end;
+
+procedure TForm1.UpdateLabelRadius;
+begin
+  Label_RadiusValueX.Caption := '= '+FloatToStrF(TrackBar_BlurRadiusX.Position/10,ffFixed,7,1);
+  Label_RadiusValueY.Caption := '= '+FloatToStrF(TrackBar_BlurRadiusY.Position/10,ffFixed,7,1);
+  Label_RadiusValueX.Update;
+  Label_RadiusValueY.Update;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -122,7 +156,7 @@ begin
   shadowBase := TBGRABitmap.Create(200,200,BGRAWhite);
   image.CopyPropertiesTo(shadowBase);
   shadowBase.TextOut(100,-100,'a',BGRA(64,128,64),taCenter);
-  Label_RadiusValue.Caption := '= '+IntToStr(TrackBar_BlurRadius.Position);
+  UpdateLabelRadius;
   timer := TEpikTimer.Create(Self);
 end;
 

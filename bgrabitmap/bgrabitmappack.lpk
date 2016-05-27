@@ -29,8 +29,8 @@
     </CompilerOptions>
     <Description Value="Drawing routines with alpha blending and antialiasing"/>
     <License Value="modified LGPL"/>
-    <Version Major="8" Minor="8" Release="4"/>
-    <Files Count="92">
+    <Version Major="8" Minor="9" Release="1"/>
+    <Files Count="101">
       <Item1>
         <Filename Value="bgraanimatedgif.pas"/>
         <UnitName Value="BGRAAnimatedGif"/>
@@ -140,265 +140,301 @@
         <UnitName Value="BGRAScene3D"/>
       </Item27>
       <Item28>
-        <Filename Value="bgrascene3dinterface.inc"/>
-        <Type Value="Binary"/>
-      </Item28>
-      <Item29>
         <Filename Value="bgraslicescaling.pas"/>
         <UnitName Value="BGRASliceScaling"/>
-      </Item29>
-      <Item30>
+      </Item28>
+      <Item29>
         <Filename Value="bgrasse.pas"/>
         <UnitName Value="BGRASSE"/>
-      </Item30>
-      <Item31>
+      </Item29>
+      <Item30>
         <Filename Value="bgrastreamlayers.pas"/>
         <UnitName Value="BGRAStreamLayers"/>
-      </Item31>
-      <Item32>
+      </Item30>
+      <Item31>
         <Filename Value="bgratext.pas"/>
         <UnitName Value="BGRAText"/>
-      </Item32>
-      <Item33>
+      </Item31>
+      <Item32>
         <Filename Value="bgratextfx.pas"/>
         <UnitName Value="BGRATextFX"/>
-      </Item33>
-      <Item34>
+      </Item32>
+      <Item33>
         <Filename Value="bgratransform.pas"/>
         <UnitName Value="BGRATransform"/>
-      </Item34>
-      <Item35>
+      </Item33>
+      <Item34>
         <Filename Value="bgratypewriter.pas"/>
         <UnitName Value="BGRATypewriter"/>
-      </Item35>
-      <Item36>
+      </Item34>
+      <Item35>
         <Filename Value="bgravectorize.pas"/>
         <UnitName Value="BGRAVectorize"/>
+      </Item35>
+      <Item36>
+        <Filename Value="blendpixelinline.inc"/>
+        <Type Value="Binary"/>
       </Item36>
       <Item37>
-        <Filename Value="blendpixelinline.inc"/>
+        <Filename Value="blendpixels.inc"/>
         <Type Value="Binary"/>
       </Item37>
       <Item38>
-        <Filename Value="blendpixels.inc"/>
+        <Filename Value="blendpixelsover.inc"/>
         <Type Value="Binary"/>
       </Item38>
       <Item39>
-        <Filename Value="blendpixelsover.inc"/>
+        <Filename Value="blurfast.inc"/>
         <Type Value="Binary"/>
       </Item39>
       <Item40>
-        <Filename Value="blurfast.inc"/>
+        <Filename Value="blurnormal.inc"/>
         <Type Value="Binary"/>
       </Item40>
       <Item41>
-        <Filename Value="blurnormal.inc"/>
+        <Filename Value="csscolorconst.inc"/>
         <Type Value="Binary"/>
       </Item41>
       <Item42>
-        <Filename Value="csscolorconst.inc"/>
+        <Filename Value="lightingclasses3d.inc"/>
         <Type Value="Binary"/>
       </Item42>
       <Item43>
-        <Filename Value="lightingclasses3d.inc"/>
+        <Filename Value="lineartexscan.inc"/>
         <Type Value="Binary"/>
       </Item43>
       <Item44>
-        <Filename Value="lineartexscan.inc"/>
+        <Filename Value="lineartexscan2.inc"/>
         <Type Value="Binary"/>
       </Item44>
       <Item45>
-        <Filename Value="lineartexscan2.inc"/>
+        <Filename Value="multishapeline.inc"/>
         <Type Value="Binary"/>
       </Item45>
       <Item46>
-        <Filename Value="multishapeline.inc"/>
+        <Filename Value="perspectivecolorscan.inc"/>
         <Type Value="Binary"/>
       </Item46>
       <Item47>
-        <Filename Value="perspectivecolorscan.inc"/>
+        <Filename Value="perspectivescan.inc"/>
         <Type Value="Binary"/>
       </Item47>
       <Item48>
-        <Filename Value="perspectivescan.inc"/>
+        <Filename Value="perspectivescan2.inc"/>
         <Type Value="Binary"/>
       </Item48>
       <Item49>
-        <Filename Value="perspectivescan2.inc"/>
+        <Filename Value="phongdraw.inc"/>
         <Type Value="Binary"/>
       </Item49>
       <Item50>
-        <Filename Value="phongdraw.inc"/>
+        <Filename Value="phongdrawsse.inc"/>
         <Type Value="Binary"/>
       </Item50>
       <Item51>
-        <Filename Value="phongdrawsse.inc"/>
+        <Filename Value="phonglight.inc"/>
         <Type Value="Binary"/>
       </Item51>
       <Item52>
-        <Filename Value="phonglight.inc"/>
+        <Filename Value="phonglightsse.inc"/>
         <Type Value="Binary"/>
       </Item52>
       <Item53>
-        <Filename Value="phonglightsse.inc"/>
+        <Filename Value="polyaliaspersp.inc"/>
         <Type Value="Binary"/>
       </Item53>
       <Item54>
-        <Filename Value="polyaliaspersp.inc"/>
+        <Filename Value="shapes3d.inc"/>
         <Type Value="Binary"/>
       </Item54>
       <Item55>
-        <Filename Value="shapes3d.inc"/>
-        <Type Value="Binary"/>
-      </Item55>
-      <Item56>
         <Filename Value="bgrasse.inc"/>
         <UnitName Value="bgrasse"/>
-      </Item56>
-      <Item57>
+      </Item55>
+      <Item56>
         <Filename Value="bgragrayscalemask.pas"/>
         <UnitName Value="BGRAGrayscaleMask"/>
-      </Item57>
-      <Item58>
+      </Item56>
+      <Item57>
         <Filename Value="bgrareadbmp.pas"/>
         <UnitName Value="BGRAReadBMP"/>
-      </Item58>
-      <Item59>
+      </Item57>
+      <Item58>
         <Filename Value="bgrareadgif.pas"/>
         <UnitName Value="BGRAReadGif"/>
-      </Item59>
-      <Item60>
+      </Item58>
+      <Item59>
         <Filename Value="bgrareadpcx.pas"/>
         <UnitName Value="BGRAReadPCX"/>
-      </Item60>
-      <Item61>
+      </Item59>
+      <Item60>
         <Filename Value="bgrareadpng.pas"/>
         <UnitName Value="BGRAReadPng"/>
-      </Item61>
-      <Item62>
+      </Item60>
+      <Item61>
         <Filename Value="bgrareadpsd.pas"/>
         <UnitName Value="BGRAReadPSD"/>
-      </Item62>
-      <Item63>
+      </Item61>
+      <Item62>
         <Filename Value="bgrathumbnail.pas"/>
         <UnitName Value="BGRAThumbnail"/>
-      </Item63>
-      <Item64>
+      </Item62>
+      <Item63>
         <Filename Value="bgrareadtga.pas"/>
         <UnitName Value="BGRAReadTGA"/>
-      </Item64>
-      <Item65>
+      </Item63>
+      <Item64>
         <Filename Value="bgrareadico.pas"/>
         <UnitName Value="BGRAReadIco"/>
-      </Item65>
-      <Item66>
+      </Item64>
+      <Item65>
         <Filename Value="bgrareadjpeg.pas"/>
         <UnitName Value="BGRAReadJpeg"/>
-      </Item66>
-      <Item67>
+      </Item65>
+      <Item66>
         <Filename Value="bgrareadlzp.pas"/>
         <UnitName Value="BGRAReadLzp"/>
-      </Item67>
-      <Item68>
+      </Item66>
+      <Item67>
         <Filename Value="unzipperext.pas"/>
         <UnitName Value="UnzipperExt"/>
-      </Item68>
-      <Item69>
+      </Item67>
+      <Item68>
         <Filename Value="bgralzpcommon.pas"/>
         <UnitName Value="BGRALzpCommon"/>
-      </Item69>
-      <Item70>
+      </Item68>
+      <Item69>
         <Filename Value="bgrawritelzp.pas"/>
         <UnitName Value="BGRAWriteLzp"/>
-      </Item70>
-      <Item71>
+      </Item69>
+      <Item70>
         <Filename Value="bgrareadxpm.pas"/>
         <UnitName Value="BGRAReadXPM"/>
-      </Item71>
-      <Item72>
+      </Item70>
+      <Item71>
         <Filename Value="bgrasvg.pas"/>
         <UnitName Value="BGRASVG"/>
-      </Item72>
-      <Item73>
+      </Item71>
+      <Item72>
         <Filename Value="bgraunits.pas"/>
         <UnitName Value="BGRAUnits"/>
-      </Item73>
-      <Item74>
+      </Item72>
+      <Item73>
         <Filename Value="bgrasvgshapes.pas"/>
         <UnitName Value="BGRASVGShapes"/>
-      </Item74>
-      <Item75>
+      </Item73>
+      <Item74>
         <Filename Value="bgrasvgtype.pas"/>
         <UnitName Value="BGRASVGType"/>
-      </Item75>
-      <Item76>
+      </Item74>
+      <Item75>
         <Filename Value="bgrareadbmpmiomap.pas"/>
         <UnitName Value="BGRAReadBmpMioMap"/>
-      </Item76>
-      <Item77>
+      </Item75>
+      <Item76>
         <Filename Value="bgraarrow.pas"/>
         <UnitName Value="BGRAArrow"/>
+      </Item76>
+      <Item77>
+        <Filename Value="vertex3d.inc"/>
+        <Type Value="Binary"/>
       </Item77>
       <Item78>
-        <Filename Value="vertex3d.inc"/>
+        <Filename Value="face3d.inc"/>
         <Type Value="Binary"/>
       </Item78>
       <Item79>
-        <Filename Value="face3d.inc"/>
+        <Filename Value="part3d.inc"/>
         <Type Value="Binary"/>
       </Item79>
       <Item80>
-        <Filename Value="part3d.inc"/>
+        <Filename Value="object3d.inc"/>
         <Type Value="Binary"/>
       </Item80>
       <Item81>
-        <Filename Value="object3d.inc"/>
-        <Type Value="Binary"/>
-      </Item81>
-      <Item82>
         <Filename Value="bgrapalette.pas"/>
         <UnitName Value="BGRAPalette"/>
-      </Item82>
-      <Item83>
+      </Item81>
+      <Item82>
         <Filename Value="bgracolorquantization.pas"/>
         <UnitName Value="BGRAColorQuantization"/>
-      </Item83>
-      <Item84>
+      </Item82>
+      <Item83>
         <Filename Value="bgradithering.pas"/>
         <UnitName Value="BGRADithering"/>
-      </Item84>
-      <Item85>
+      </Item83>
+      <Item84>
         <Filename Value="paletteformats.inc"/>
         <Type Value="Binary"/>
-      </Item85>
-      <Item86>
+      </Item84>
+      <Item85>
         <Filename Value="bgrautf8.pas"/>
         <UnitName Value="BGRAUTF8"/>
-      </Item86>
-      <Item87>
+      </Item85>
+      <Item86>
         <Filename Value="bgralclbitmap.pas"/>
         <UnitName Value="BGRALCLBitmap"/>
-      </Item87>
-      <Item88>
+      </Item86>
+      <Item87>
         <Filename Value="bgrawritepng.pas"/>
         <UnitName Value="BGRAWritePNG"/>
-      </Item88>
-      <Item89>
+      </Item87>
+      <Item88>
         <Filename Value="bgragifformat.pas"/>
         <UnitName Value="BGRAGifFormat"/>
+      </Item88>
+      <Item89>
+        <Filename Value="geometrytypes.inc"/>
+        <Type Value="Binary"/>
       </Item89>
       <Item90>
-        <Filename Value="geometrytypes.inc"/>
+        <Filename Value="bgracustombitmap.inc"/>
         <Type Value="Binary"/>
       </Item90>
       <Item91>
-        <Filename Value="bgracustombitmap.inc"/>
-        <Type Value="Binary"/>
-      </Item91>
-      <Item92>
         <Filename Value="bgragraphics.pas"/>
         <UnitName Value="BGRAGraphics"/>
+      </Item91>
+      <Item92>
+        <Filename Value="bgrascenetypes.pas"/>
+        <UnitName Value="BGRASceneTypes"/>
       </Item92>
+      <Item93>
+        <Filename Value="bgrarenderer3d.pas"/>
+        <UnitName Value="BGRARenderer3D"/>
+      </Item93>
+      <Item94>
+        <Filename Value="bgrawritebmpmiomap.pas"/>
+        <UnitName Value="BGRAWriteBmpMioMap"/>
+      </Item94>
+      <Item95>
+        <Filename Value="bgraopengltype.pas"/>
+        <UnitName Value="BGRAOpenGLType"/>
+      </Item95>
+      <Item96>
+        <Filename Value="bgraspritegl.pas"/>
+        <UnitName Value="BGRASpriteGL"/>
+      </Item96>
+      <Item97>
+        <Filename Value="bgraopengl.pas"/>
+        <UnitName Value="BGRAOpenGL"/>
+      </Item97>
+      <Item98>
+        <Filename Value="bgracanvasgl.pas"/>
+        <UnitName Value="BGRACanvasGL"/>
+      </Item98>
+      <Item99>
+        <Filename Value="bgrafontgl.pas"/>
+        <UnitName Value="BGRAFontGL"/>
+      </Item99>
+      <Item100>
+        <Filename Value="bgraopengl3d.pas"/>
+        <UnitName Value="BGRAOpenGL3D"/>
+      </Item100>
+      <Item101>
+        <Filename Value="blurbox.inc"/>
+        <Type Value="Text"/>
+      </Item101>
     </Files>
     <RequiredPkgs Count="2">
       <Item1>

@@ -10,13 +10,16 @@ unit BGRAMatrix3D;
 interface
 
 uses
-  BGRABitmapTypes, BGRASSE;
+  BGRABitmapTypes, BGRASSE,
+  BGRATransform;
 
 type
   TMatrix3D = packed array[1..3,1..4] of single;
+  TMatrix4D = packed array[1..4,1..4] of single;
   TProjection3D = packed record
     Zoom, Center: TPointF;
   end;
+  TComputeProjectionFunc = function(AViewCoord: TPoint3D_128): TPointF of object;
 
 operator*(const A: TMatrix3D; const M: TPoint3D): TPoint3D;
 operator*(constref A: TMatrix3D; var M: TPoint3D_128): TPoint3D_128;
@@ -34,6 +37,10 @@ function MatrixRotateX(angle: single): TMatrix3D;
 function MatrixRotateY(angle: single): TMatrix3D;
 function MatrixRotateZ(angle: single): TMatrix3D;
 
+operator *(const A, B: TMatrix4D): TMatrix4D;
+function MatrixIdentity4D: TMatrix4D;
+function AffineMatrixToMatrix4D(AValue: TAffineMatrix): TMatrix4D;
+
 {$IFDEF BGRASSE_AVAILABLE}
 procedure Matrix3D_SSE_Load(const A: TMatrix3D);
 procedure MatrixMultiplyVect3D_SSE_Aligned(var M: TPoint3D_128; out N: TPoint3D_128);
@@ -44,11 +51,19 @@ procedure MatrixMultiplyVect3DWithoutTranslation_SSE3_Aligned(var M: TPoint3D_12
 
 implementation
 
-procedure multiplyVectInline(const A : TMatrix3D; const vx,vy,vz,vt: single; out outx,outy,outz: single);
+procedure multiplyVect3(const A : TMatrix3D; const vx,vy,vz,vt: single; out outx,outy,outz: single);
 begin
   outx := vx * A[1,1] + vy * A[1,2] + vz * A[1,3] + vt * A[1,4];
   outy := vx * A[2,1] + vy * A[2,2] + vz * A[2,3] + vt * A[2,4];
   outz := vx * A[3,1] + vy * A[3,2] + vz * A[3,3] + vt * A[3,4];
+end;
+
+procedure multiplyVect4(const A : TMatrix4D; const vx,vy,vz,vt: single; out outx,outy,outz,outt: single);
+begin
+  outx := vx * A[1,1] + vy * A[1,2] + vz * A[1,3] + vt * A[1,4];
+  outy := vx * A[2,1] + vy * A[2,2] + vz * A[2,3] + vt * A[2,4];
+  outz := vx * A[3,1] + vy * A[3,2] + vz * A[3,3] + vt * A[3,4];
+  outt := vx * A[4,1] + vy * A[4,2] + vz * A[4,3] + vt * A[4,4];
 end;
 
 operator*(const A: TMatrix3D; const M: TPoint3D): TPoint3D;
@@ -56,6 +71,30 @@ begin
   result.x := M.x * A[1,1] + M.y * A[1,2] + M.z * A[1,3] + A[1,4];
   result.y := M.x * A[2,1] + M.y * A[2,2] + M.z * A[2,3] + A[2,4];
   result.z := M.x * A[3,1] + M.y * A[3,2] + M.z * A[3,3] + A[3,4];
+end;
+
+operator*(const A, B: TMatrix4D): TMatrix4D;
+begin
+  multiplyVect4(A, B[1,1],B[2,1],B[3,1],B[4,1], result[1,1],result[2,1],result[3,1],result[4,1]);
+  multiplyVect4(A, B[1,2],B[2,2],B[3,2],B[4,2], result[1,2],result[2,2],result[3,2],result[4,2]);
+  multiplyVect4(A, B[1,3],B[2,3],B[3,3],B[4,3], result[1,3],result[2,3],result[3,3],result[4,3]);
+  multiplyVect4(A, B[1,4],B[2,4],B[3,4],B[4,4], result[1,4],result[2,4],result[3,4],result[4,4]);
+end;
+
+function MatrixIdentity4D: TMatrix4D;
+begin
+  result[1,1] := 1;  result[2,1] := 0;  result[3,1] := 0; result[4,1] := 0;
+  result[1,2] := 0;  result[2,2] := 1;  result[3,2] := 0; result[4,2] := 0;
+  result[1,3] := 0;  result[2,3] := 0;  result[3,3] := 1; result[4,3] := 0;
+  result[1,4] := 0;  result[2,4] := 0;  result[3,4] := 0; result[4,4] := 1;
+end;
+
+function AffineMatrixToMatrix4D(AValue: TAffineMatrix): TMatrix4D;
+begin
+  result[1,1] := AValue[1,1];  result[2,1] := AValue[1,2];  result[3,1] := 0; result[4,1] := AValue[1,3];
+  result[1,2] := AValue[2,1];  result[2,2] := AValue[2,2];  result[3,2] := 0; result[4,2] := AValue[2,3];
+  result[1,3] := 0;            result[2,3] := 0;            result[3,3] := 1; result[4,3] := 0;
+  result[1,4] := 0;            result[2,4] := 0;            result[3,4] := 0; result[4,4] := 1;
 end;
 
 {$IFDEF BGRASSE_AVAILABLE}
@@ -582,10 +621,10 @@ end;
 
 operator*(A,B: TMatrix3D): TMatrix3D;
 begin
-  multiplyVectInline(A, B[1,1],B[2,1],B[3,1],0, result[1,1],result[2,1],result[3,1]);
-  multiplyVectInline(A, B[1,2],B[2,2],B[3,2],0, result[1,2],result[2,2],result[3,2]);
-  multiplyVectInline(A, B[1,3],B[2,3],B[3,3],0, result[1,3],result[2,3],result[3,3]);
-  multiplyVectInline(A, B[1,4],B[2,4],B[3,4],1, result[1,4],result[2,4],result[3,4]);
+  multiplyVect3(A, B[1,1],B[2,1],B[3,1],0, result[1,1],result[2,1],result[3,1]);
+  multiplyVect3(A, B[1,2],B[2,2],B[3,2],0, result[1,2],result[2,2],result[3,2]);
+  multiplyVect3(A, B[1,3],B[2,3],B[3,3],0, result[1,3],result[2,3],result[3,3]);
+  multiplyVect3(A, B[1,4],B[2,4],B[3,4],1, result[1,4],result[2,4],result[3,4]);
 end;
 
 function MatrixIdentity3D: TMatrix3D;

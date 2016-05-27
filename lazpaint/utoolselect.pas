@@ -73,6 +73,7 @@ type
     function BorderTest(ptF: TPointF): TRectangularBorderTest; override;
     function RoundCoordinate(ptF: TPointF): TPointF; override;
     function GetSelectRectMargin: single; override;
+    function GetStatusText: string; override;
   public
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
   end;
@@ -108,6 +109,7 @@ type
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
       rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect; override;
+    function GetStatusText: string; override;
   public
     constructor Create(AManager: TToolManager); override;
     function ToolKeyDown(var key: Word): TRect; override;
@@ -173,6 +175,11 @@ begin
     result := OnlyRenderChange;
   end else
     result := EmptyRect;
+end;
+
+function TToolRotateSelection.GetStatusText: string;
+begin
+  Result:= 'α = '+FloatToStrF(Manager.Image.GetSelectionRotateAngle,ffFixed,5,1);
 end;
 
 constructor TToolRotateSelection.Create(AManager: TToolManager);
@@ -368,6 +375,15 @@ end;
 function TToolSelectEllipse.GetSelectRectMargin: single;
 begin
   Result:= 0;
+end;
+
+function TToolSelectEllipse.GetStatusText: string;
+begin
+  if rectDrawing or afterRectDrawing then
+    result := 'x = '+inttostr(round(rectOrigin.x))+'|y = '+inttostr(round(rectOrigin.y))+'|'+
+    'rx = '+FloatToStrF(abs(rectDest.x-rectOrigin.x),ffFixed,6,1)+'|ry = '+FloatToStrF(abs(rectDest.y-rectOrigin.y),ffFixed,6,1)
+  else
+    Result:=inherited GetStatusText;
 end;
 
 function TToolSelectEllipse.Render(VirtualScreen: TBGRABitmap;

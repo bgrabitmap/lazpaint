@@ -9,18 +9,20 @@ interface
   handled differently in umain }
 
 uses
-  Classes, SysUtils, BGRAScene3D, BGRABitmap, BGRABitmapTypes;
+  Classes, SysUtils, BGRAScene3D, BGRABitmap, BGRABitmapTypes,
+  BGRAOpenGL3D, BGRAOpenGL;
 
 type
   { TExample5 }
 
-  TExample5 = class(TBGRAScene3D)
+  TExample5 = class(TBGLScene3D)
     grass,wood,vWood: TBGRABitmap;
     box,ground,light1,light2: IBGRAObject3D;
 
     constructor Create;
     procedure ApplyTexCoord(face: IBGRAFace3D; Times: integer = 1);
     procedure Render; override;
+    procedure RenderGL(ACanvas: TBGLCustomCanvas; AMaxZ: single=1000); override;
     destructor Destroy; override;
   end;
 
@@ -72,8 +74,8 @@ begin
     ApplyTexCoord(AddFace(base,True),10);
   end;
 
-  ViewPoint := Point3D(0,-20,0);
-  LookAt(Point3D(0,-20,20),Point3D(0,-1,0));
+  Camera.ViewPoint := Point3D(0,-20,0);
+  Camera.LookAt(Point3D(0,-20,20),Point3D(0,-1,0));
 
   RenderingOptions.PerspectiveMode:= pmZBuffer;
   RenderingOptions.TextureInterpolation := false;
@@ -92,8 +94,21 @@ end;
 
 procedure TExample5.Render;
 begin
-  Surface.Fill(CSSSkyBlue);
+  Surface.GradientFill(0,0,Surface.Width,Surface.Height,
+          CSSSkyBlue,
+          MergeBGRA(CSSBlue,CSSSkyBlue),
+          gtLinear,PointF(0,0),PointF(0,Surface.Height),dmSet,
+          False);
   inherited Render;
+end;
+
+procedure TExample5.RenderGL(ACanvas: TBGLCustomCanvas; AMaxZ: single);
+begin
+  ACanvas.FillRectLinearColor(0,0,BGLCanvas.Width,BGLCanvas.Height,
+          CSSSkyBlue,CSSSkyBlue,
+          MergeBGRA(CSSBlue,CSSSkyBlue),MergeBGRA(CSSBlue,CSSSkyBlue),
+          False);
+  inherited RenderGL(ACanvas, AMaxZ);
 end;
 
 destructor TExample5.Destroy;

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="4">
+    <PathDelim Value="\"/>
+    <Name Value="BGLControls"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Circular"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)\$(FPCVer)"/>
+      </SearchPaths>
+      <Parsing>
+        <SyntaxOptions>
+          <UseAnsiStrings Value="False"/>
+        </SyntaxOptions>
+      </Parsing>
+      <CodeGeneration>
+        <Optimizations>
+          <OptimizationLevel Value="3"/>
+          <VariablesInRegisters Value="True"/>
+        </Optimizations>
+      </CodeGeneration>
+      <Linking>
+        <Debugging>
+          <GenerateDebugInfo Value="False"/>
+        </Debugging>
+      </Linking>
+    </CompilerOptions>
+    <Description Value="Drawing routines with alpha blending and antialiasing"/>
+    <License Value="modified LGPL"/>
+    <Version Major="1" Minor="1"/>
+    <Files Count="2">
+      <Item1>
+        <Filename Value="bglvirtualscreen_icon.lrs"/>
+        <Type Value="LRS"/>
+      </Item1>
+      <Item2>
+        <Filename Value="bglvirtualscreen.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="BGLVirtualScreen"/>
+      </Item2>
+    </Files>
+    <RequiredPkgs Count="4">
+      <Item1>
+        <PackageName Value="BGRABitmapPack"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="lazopenglcontext"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="LCL"/>
+      </Item3>
+      <Item4>
+        <PackageName Value="FCL"/>
+        <MinVersion Major="1" Valid="True"/>
+      </Item4>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IgnoreBinaries Value="False"/>
+    </PublishOptions>
+    <CustomOptions Items="ExternHelp" Version="2">
+      <_ExternHelp Items="Count"/>
+    </CustomOptions>
+  </Package>
+</CONFIG>

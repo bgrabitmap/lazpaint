@@ -148,10 +148,12 @@ type
   private
     FBlackAndWhite: boolean;
   protected
+    FRestartQuery: boolean;
     function QueryInterface({$IFDEF FPC_HAS_CONSTREF}constref{$ELSE}const{$ENDIF} IID: TGUID; out Obj): HResult; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
     function _AddRef: Integer; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
     function _Release: Integer; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
 
+    function GetIcons(ASize: integer): TImageList; virtual; abstract;
     function GetToolBoxWindowPopup: TPopupMenu; virtual; abstract;
     procedure SetToolBoxWindowPopup(AValue: TPopupMenu); virtual; abstract;
     function GetFullscreen: boolean; virtual; abstract;
@@ -205,7 +207,6 @@ type
     Title,AboutText: string;
     EmbeddedResult: TModalResult;
     EmbeddedImageBackup: TBGRABitmap;
-    RestartQuery: boolean;
 
     constructor Create; virtual; abstract;
     constructor Create(AEmbedded: boolean); virtual; abstract;
@@ -219,9 +220,12 @@ type
     procedure EditSelection; virtual; abstract;
     function ProcessCommandLine: boolean; virtual; abstract;
     function ProcessCommands(commands: TStringList): boolean; virtual; abstract;
+    procedure ChangeIconSize(size: integer); virtual; abstract;
     procedure Show; virtual; abstract;
     procedure Hide; virtual; abstract;
     procedure Run; virtual; abstract;
+    procedure Restart; virtual; abstract;
+    procedure CancelRestart; virtual; abstract;
     procedure NotifyImageChange(RepaintNow: boolean; ARect: TRect); virtual; abstract;
     procedure NotifyImageChangeCompletely(RepaintNow: boolean); virtual; abstract;
     procedure NotifyStackChange; virtual; abstract;
@@ -235,7 +239,7 @@ type
     function ShowShiftColorsDlg(AParameters: TVariableSet): boolean; virtual; abstract;
     function ShowColorizeDlg(AParameters: TVariableSet): boolean; virtual; abstract;
     function ShowColorCurvesDlg(AParameters: TVariableSet): boolean; virtual; abstract;
-    function ShowRadialBlurDlg(AFilterConnector: TObject;blurType:TRadialBlurType):boolean; virtual; abstract;
+    function ShowRadialBlurDlg(AFilterConnector: TObject;blurType:TRadialBlurType; ACaption: string = ''):boolean; virtual; abstract;
     function ShowMotionBlurDlg(AFilterConnector: TObject):boolean; virtual; abstract;
     function ShowCustomBlurDlg(AFilterConnector: TObject):boolean; virtual; abstract;
     function ShowEmbossDlg(AFilterConnector: TObject):boolean; virtual; abstract;
@@ -313,6 +317,9 @@ type
     property MainFormBounds: TRect read GetMainFormBounds;
     property DockLayersAndColors: boolean read GetDockLayersAndColors write SetDockLayersAndColors;
     property Fullscreen: boolean read GetFullscreen write SetFullscreen;
+    property RestartQuery: boolean read FRestartQuery;
+
+    property Icons[ASize: integer]: TImageList read GetIcons;
   end;
 
 function StrToPictureFilter(const s: ansistring): TPictureFilter;
@@ -491,8 +498,6 @@ function GetWindowTopLeftCorner(AForm: TForm): TPoint;
 begin
   result := Point(AForm.Left,AForm.Top);
 end;
-
-{ TLazPaintCustomInstance }
 
 { Interface gateway }
 function TLazPaintCustomInstance.QueryInterface({$IFDEF FPC_HAS_CONSTREF}constref{$ELSE}const{$ENDIF} IID: TGUID; out Obj): HResult; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};

@@ -2,18 +2,31 @@ unit UOnline;
 
 {$mode objfpc}{$H+}
 
-{$IFNDEF DARWIN}
-  {$DEFINE LAZPAINT_USE_LNET}
-{$ENDIF}
-
 interface
 
 uses
-  {$IFDEF LAZPAINT_USE_LNET}lNetComponents, lhttp,{$ENDIF}
-  Classes, SysUtils,
+  fphttpclient, Classes, SysUtils,
   UConfig, LazPaintType;
 
 type
+  { THttpGetThread }
+
+  THttpGetThread = class(TThread)
+  private
+    FOnError: TNotifyEvent;
+    FOnSuccess: TNotifyEvent;
+    FUrl, FError: string;
+    FBuffer: string;
+    procedure NotifySuccess;
+    procedure NotifyError;
+  public
+    constructor Create(AUrl: string);
+    procedure Execute; override;
+    property OnSuccess: TNotifyEvent read FOnSuccess write FOnSuccess;
+    property OnError: TNotifyEvent read FOnError write FOnError;
+    property Buffer: string read FBuffer;
+  end;
+
   { TLazPaintOnlineUpdater }
 
   TLazPaintOnlineUpdater = class(TLazPaintCustomOnlineUpdater)
@@ -24,20 +37,16 @@ type
     FHTTPBuffer: string;
     FUpdaterState: (usReady, usGettingVersion, usDownloadingLanguage, usDisabled);
     FDownloadedLanguageFile, FDownloadedLanguage: string;
-
-    {$IFDEF LAZPAINT_USE_LNET}
-    LHTTPClient: TLHTTPClientComponent;
-    procedure LHTTPClientDoneInput(ASocket: TLHTTPClientSocket);
-    function LHTTPClientInput({%H-}ASocket: TLHTTPClientSocket;
-      ABuffer: pchar; ASize: integer): integer;
-    procedure ReceiveHTTPBuffer;
-    {$ENDIF}
+    FThread: THttpGetThread;
 
     function GetURL({%H-}AURL: string): boolean;
     procedure ParseVersionInfo;
     procedure CheckDownloadLanguages;
     procedure DoOnlineVersionQuery;
     procedure SaveLanguageFile;
+    procedure OnThreadSuccess(Sender: TObject);
+    procedure OnThreadError(Sender: TObject);
+    procedure OnThreadTerminate(Sender: TObject);
   public
     constructor Create(AConfig: TLazPaintConfig);
     destructor Destroy; override;
@@ -45,8 +54,7 @@ type
 
 implementation
 
-uses {$IFDEF LAZPAINT_USE_LNET}lHTTPUtil,{$ENDIF}
-    FileUtil, Dialogs,
+uses FileUtil, Dialogs,
     UTranslation, lazutf8classes;
 
 const OnlineResourcesURL = 'http://lazpaint.sourceforge.net/';
@@ -63,15 +71,55 @@ begin
       exit;
 end;
 
+{ THttpGetThread }
+
+procedure THttpGetThread.NotifySuccess;
+begin
+  if Assigned(OnSuccess) then OnSuccess(self);
+end;
+
+procedure THttpGetThread.NotifyError;
+begin
+  if Assigned(OnError) then OnError(self);
+end;
+
+constructor THttpGetThread.Create(AUrl: string);
+begin
+  inherited Create(True);
+  FUrl:= AUrl;
+  FreeOnTerminate := true;
+  Suspended := false;
+end;
+
+procedure THttpGetThread.Execute;
+var stream: TMemoryStream;
+begin
+  stream := TMemoryStream.Create;
+  try
+    TFPHTTPClient.SimpleGet(FUrl, stream);
+    setlength(FBuffer, stream.Size);
+    stream.Position:= 0;
+    stream.Read(FBuffer[1], length(FBuffer));
+    Synchronize(@NotifySuccess);
+  except
+    on ex:exception do
+    begin
+      FError := ex.Message;
+      Synchronize(@NotifyError);
+    end;
+  end;
+  stream.Free;
+end;
+
 procedure TLazPaintOnlineUpdater.DoOnlineVersionQuery;
 begin
   if FUpdaterState <> usReady then exit;
 
+  FUpdaterState := usGettingVersion;
   if GetURL(OnlineResourcesURL+'latest.txt') then
-  begin
-    FUpdaterState := usGettingVersion;
-    FOnlineVersionQueryDone := true;
-  end;
+    FOnlineVersionQueryDone := true
+  else
+    FUpdaterState := usReady;
 end;
 
 procedure TLazPaintOnlineUpdater.SaveLanguageFile;
@@ -169,54 +217,42 @@ begin
 end;
 
 function TLazPaintOnlineUpdater.GetURL(AURL: string): boolean;
-{$IFDEF LAZPAINT_USE_LNET}
-var
-  aHost, aURI: string;
-  aPort: word;
-{$ENDIF}
 begin
-  {$IFDEF LAZPAINT_USE_LNET}
-  try
-    if LHTTPClient = nil then
-    begin
-      LHTTPClient := TLHTTPClientComponent.Create(nil);
-      LHTTPClient.OnDoneInput := @LHTTPClientDoneInput;
-      LHTTPClient.OnInput:= @LHTTPClientInput;
-    end;
-    FHTTPBuffer := '';
-    LHTTPClient.Method := hmGet;
-    DecomposeURL(AURL, aHost, aURI, aPort);
-    LHTTPClient.Host := aHost;
-    LHTTPClient.URI := aURI;
-    LHTTPClient.Port := aPort;
-    LHTTPClient.SendRequest;
+  if not Assigned(FThread) then
+  begin
+    FThread := THttpGetThread.Create(AUrl);
+    FThread.OnSuccess := @OnThreadSuccess;
+    FThread.OnError := @OnThreadError;
+    FThread.OnTerminate := @OnThreadTerminate;
     result := true;
-  except
-    on ex: exception do
-    begin
-      result := false;
-    end;
-  end;
-  {$ELSE}
-    //no connection available
+  end else
     result := false;
-  {$ENDIF}
 end;
 
-{$IFDEF LAZPAINT_USE_LNET}
-procedure TLazPaintOnlineUpdater.ReceiveHTTPBuffer;
+procedure TLazPaintOnlineUpdater.OnThreadSuccess(Sender: TObject);
 begin
+  FHTTPBuffer := FThread.Buffer;
+end;
+
+procedure TLazPaintOnlineUpdater.OnThreadError(Sender: TObject);
+begin
+  FUpdaterState:= usDisabled;
+end;
+
+procedure TLazPaintOnlineUpdater.OnThreadTerminate(Sender: TObject);
+begin
+  FThread := nil;
   case FUpdaterState of
   usGettingVersion:
   begin
-    if LHTTPClient.Response.Status <> hsOK then
+    if FHTTPBuffer = '' then
       FUpdaterState:= usDisabled
     else
       ParseVersionInfo;
   end;
   usDownloadingLanguage:
   begin
-    if LHTTPClient.Response.Status <> hsOK then
+    if FHTTPBuffer = '' then
       FUpdaterState:= usDisabled
     else
       SaveLanguageFile;
@@ -224,13 +260,11 @@ begin
   end;
   CheckDownloadLanguages;
 end;
-{$ENDIF}
 
 constructor TLazPaintOnlineUpdater.Create(AConfig: TLazPaintConfig);
 begin
   FConfig := AConfig;
   FLanguagesAvailableOnline := nil;
-  {$IFDEF LAZPAINT_USE_LNET}
   if not FOnlineVersionQueryDone then
   begin
     FUpdaterState:= usReady;
@@ -238,42 +272,14 @@ begin
   end
   else
     FUpdaterState:= usDisabled;
-  {$ELSE}
-  FUpdaterState := usDisabled;
-  {$ENDIF}
 end;
 
 destructor TLazPaintOnlineUpdater.Destroy;
 begin
-  {$IFDEF LAZPAINT_USE_LNET}
-  if LHTTPClient <> nil then
-  begin
-    LHTTPClient.Disconnect(True);
-    FreeAndNil(LHTTPClient);
-  end;
-  {$ENDIF}
+  FreeAndNil(FThread);
   FreeAndNil(FLanguagesAvailableOnline);
   inherited Destroy;
 end;
-
-{$IFDEF LAZPAINT_USE_LNET}
-procedure TLazPaintOnlineUpdater.LHTTPClientDoneInput(ASocket: TLHTTPClientSocket);
-begin
-  aSocket.Disconnect;
-  ReceiveHTTPBuffer;
-end;
-
-function TLazPaintOnlineUpdater.LHTTPClientInput(ASocket: TLHTTPClientSocket;
-  ABuffer: pchar; ASize: integer): integer;
-var
-  oldLength: dword;
-begin
-  oldLength := Length(FHTTPBuffer);
-  setlength(FHTTPBuffer, oldLength + dword(ASize));
-  move(ABuffer^, FHTTPBuffer[oldLength + 1], ASize);
-  Result := aSize; // tell the http buffer we read it all
-end;
-{$ENDIF}
 
 end.
 

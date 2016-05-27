@@ -2,17 +2,13 @@ unit uimagelist;
 
 {$mode objfpc}{$H+}
 
-{$IFNDEF DARWIN}
-  {$DEFINE USE_IMAGE_BROWSER}
-{$ENDIF}
 
 interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
   Grids, StdCtrls, Buttons, ComCtrls, ExtCtrls, Menus,
-  LazPaintType, UResourceStrings, UConfig, BGRAImageList
-  {$IFDEF USE_IMAGE_BROWSER}, ubrowseimages{$ENDIF};
+  LazPaintType, UResourceStrings, UConfig, BGRAImageList, ubrowseimages;
 
 type
   String1D= array of string;
@@ -103,9 +99,7 @@ type
     function IsExtensionIsValid (FileName:string): boolean;
     procedure Renumber;
   private
-    {$IFDEF USE_IMAGE_BROWSER}
     FBrowseImages: TFBrowseImages;
-    {$ENDIF}
     WidthNormal: integer;
     HeightNormal: integer;
     WidthMinimal: integer;
@@ -297,9 +291,7 @@ end;
 
 procedure TFImageList.FormDestroy(Sender: TObject);
 begin
-  {$IFDEF USE_IMAGE_BROWSER}
   FreeAndNil(FBrowseImages);
-  {$ENDIF}
 end;
 
 function TFImageList.IsExtensionIsValid (FileName: string): boolean;
@@ -734,32 +726,32 @@ end;
 
 procedure TFImageList.tbAddFilesClick(Sender: TObject);
 var topMostInfo: TTopMostInfo;
-   {$IFDEF USE_IMAGE_BROWSER}
    fileNames: array of string;
    i: integer;
-   {$ENDIF}
 
 begin
   topMostInfo := LazPaintInstance.HideTopmost;
 
-  {$IFDEF USE_IMAGE_BROWSER}
-  if not assigned(FBrowseImages) then
+  if LazPaintInstance.Config.DefaultUseImageBrowser then
   begin
-    FBrowseImages := TFBrowseImages.Create(self);
-    FBrowseImages.LazPaintInstance := LazPaintInstance;
-  end;
+    if not assigned(FBrowseImages) then
+    begin
+      FBrowseImages := TFBrowseImages.Create(self);
+      FBrowseImages.LazPaintInstance := LazPaintInstance;
+    end;
 
-  if FBrowseImages.ShowModal = mrOK then
+    if FBrowseImages.ShowModal = mrOK then
+    begin
+      setlength(fileNames,FBrowseImages.SelectedFileCount);
+      for i := 0 to high(fileNames) do
+        fileNames[i] := FBrowseImages.SelectedFile[i];
+      AddFiles(Filenames);
+    end;
+  end else
   begin
-    setlength(fileNames,FBrowseImages.SelectedFileCount);
-    for i := 0 to high(fileNames) do
-      fileNames[i] := FBrowseImages.SelectedFile[i];
-    AddFiles(Filenames);
+    if Length(LazPaintInstance.Config.ImageListLastFolder)>0 then OpenDialog1.InitialDir:=LazPaintInstance.Config.ImageListLastFolder;
+    if OpenDialog1.Execute= True then AddFiles(StringsToStringArray(OpenDialog1.Files));
   end;
-  {$ELSE}
-  if Length(LazPaintInstance.Config.ImageListLastFolder)>0 then OpenDialog1.InitialDir:=LazPaintInstance.Config.ImageListLastFolder;
-  if OpenDialog1.Execute= True then AddFiles(StringsToStringArray(OpenDialog1.Files));
-  {$ENDIF}
 
   LazPaintInstance.ShowTopmost(topMostInfo);
 end;

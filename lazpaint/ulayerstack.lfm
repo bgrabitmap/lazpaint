@@ -18,7 +18,7 @@ object FLayerStack: TFLayerStack
   OnHide = FormHide
   OnShow = FormShow
   ShowInTaskBar = stNever
-  LCLVersion = '1.0.10.0'
+  LCLVersion = '1.4.0.4'
   object BGRALayerStack: TBGRAVirtualScreen
     Left = 0
     Height = 37
@@ -54,7 +54,7 @@ object FLayerStack: TFLayerStack
       EdgeBorders = []
       EdgeInner = esNone
       EdgeOuter = esNone
-      Images = FMain.ImageList1
+      Images = FMain.ImageList16
       ParentShowHint = False
       ShowHint = True
       TabOrder = 0
@@ -94,7 +94,7 @@ object FLayerStack: TFLayerStack
       EdgeBorders = []
       EdgeInner = esNone
       EdgeOuter = esNone
-      Images = FMain.ImageList1
+      Images = FMain.ImageList16
       ParentShowHint = False
       ShowHint = True
       TabOrder = 2
@@ -108,7 +108,7 @@ object FLayerStack: TFLayerStack
       EdgeBorders = []
       EdgeInner = esNone
       EdgeOuter = esNone
-      Images = FMain.ImageList1
+      Images = FMain.ImageList16
       ParentShowHint = False
       ShowHint = True
       TabOrder = 3

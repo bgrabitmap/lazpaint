@@ -113,6 +113,8 @@ function CreateDitheringTask(AAlgorithm: TDitheringAlgorithm; ASource: IBGRAScan
 function CreateDitheringTask(AAlgorithm: TDitheringAlgorithm; ASource: IBGRAScanner; ADestination: TBGRACustomBitmap; APalette: TBGRACustomApproxPalette;
     AIgnoreAlpha: boolean; ABounds: TRect): TDitheringTask; overload;
 
+function DitherImageTo16Bit(AAlgorithm: TDitheringAlgorithm; ABitmap: TBGRACustomBitmap): TBGRACustomBitmap;
+
 implementation
 
 uses BGRABlend;
@@ -160,6 +162,19 @@ begin
     daFloydSteinberg: result := TFloydSteinbergDitheringTask.Create(ASource, APalette, ADestination, AIgnoreAlpha, ABounds);
     else raise exception.Create('Unknown algorithm');
   end;
+end;
+
+function DitherImageTo16Bit(AAlgorithm: TDitheringAlgorithm;
+  ABitmap: TBGRACustomBitmap): TBGRACustomBitmap;
+var
+  palette16bit: TBGRA16BitPalette;
+  dither: TDitheringTask;
+begin
+  palette16bit := TBGRA16BitPalette.Create;
+  dither := CreateDitheringTask(AAlgorithm, ABitmap, palette16bit, false);
+  result := dither.Execute;
+  dither.Free;
+  palette16bit.Free;
 end;
 
 { TDitheringToIndexedImage }
@@ -626,7 +641,7 @@ begin
           if AbsRGBADiff((p+1)^,orig) < MaxColorDiffForDiffusion then
             AddError(currentLine[i+1], diff, 7);
         end;
-        if nextLine <> nil then
+        if pNext <> nil then
         begin
           if i > 0 then
           begin

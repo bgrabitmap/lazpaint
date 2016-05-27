@@ -8,10 +8,6 @@ interface
   {$DEFINE USEPAINTBOXPICTURE}
 {$ENDIF}
 
-{$IFNDEF DARWIN}
-  {$DEFINE USE_IMAGE_BROWSER}
-{$ENDIF}
-
 uses
   Classes, LMessages, SysUtils, FileUtil, LResources, Forms,
   Controls, Graphics, Dialogs, Menus, ExtDlgs, ComCtrls, ActnList, StdCtrls,
@@ -21,7 +17,7 @@ uses
 
   LazPaintType, UMainFormLayout, UTool, UImage, UImageAction, ULayerAction, UZoom,
   UImageObservation, UConfig, UScaleDPI, UResourceStrings,
-  UMenu, uscripting, {$IFDEF USE_IMAGE_BROWSER}ubrowseimages, {$ENDIF} UToolPolygon, UBarUpDown;
+  UMenu, uscripting, ubrowseimages, UToolPolygon, UBarUpDown;
 
 const
   MinPenWidthValue = 10;
@@ -30,7 +26,24 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    FileUseImageBrowser: TAction;
+    Combo_GradientColorspace: TComboBox;
+    ItemUseImageBrowser: TMenuItem;
+    ViewPalette: TAction;
+    ViewStatusBar: TAction;
+    ImageList24: TBGRAImageList;
+    ImageList64: TBGRAImageList;
+    ImageList32: TBGRAImageList;
+    ImageList48: TBGRAImageList;
     ItemViewPalette: TMenuItem;
+    MenuIconSize: TMenuItem;
+    ItemIconSize16: TMenuItem;
+    ItemIconSize32: TMenuItem;
+    ItemIconSize48: TMenuItem;
+    ItemIconSizeAuto: TMenuItem;
+    ItemIconSize64: TMenuItem;
+    ItemIconSize24: TMenuItem;
+    ItemViewStatusBar: TMenuItem;
     MenuShowPalette: TMenuItem;
     ToolClone: TAction;
     FilterRain: TAction;
@@ -388,7 +401,7 @@ type
     ToolButton_ZoomOriginal: TToolButton;
     ColorDialog1: TColorDialog;
     ActionList1: TActionList;
-    ImageList1: TBGRAImageList;
+    ImageList16: TBGRAImageList;
     vsBackOpacity: TBGRAVirtualScreen;
     vsEraserOpacity: TBGRAVirtualScreen;
     vsPenWidth: TBGRAVirtualScreen;
@@ -418,17 +431,25 @@ type
     procedure FilePrintExecute(Sender: TObject);
     procedure FileSaveAsInSameFolderExecute(Sender: TObject);
     procedure FileSaveAsInSameFolderUpdate(Sender: TObject);
+    procedure FileUseImageBrowserExecute(Sender: TObject);
+    procedure FileUseImageBrowserUpdate(Sender: TObject);
     procedure FormClose(Sender: TObject; var {%H-}CloseAction: TCloseAction);
     procedure FormMouseLeave(Sender: TObject);
     procedure FormWindowStateChange(Sender: TObject);
     procedure ItemDockLayersAndColorsClick(Sender: TObject);
     procedure ItemFullscreenClick(Sender: TObject);
+    procedure ItemIconSize24Click(Sender: TObject);
     procedure ItemViewDockToolboxClick(Sender: TObject);
-    procedure ItemViewPaletteClick(Sender: TObject);
     procedure MenuCoordinatesToolbarClick(Sender: TObject);
     procedure MenuCopyPasteToolbarClick(Sender: TObject);
     procedure MenuDockToolboxLeftClick(Sender: TObject);
     procedure MenuDockToolboxRightClick(Sender: TObject);
+    procedure ItemIconSize16Click(Sender: TObject);
+    procedure ItemIconSize32Click(Sender: TObject);
+    procedure ItemIconSize48Click(Sender: TObject);
+    procedure ItemIconSizeAutoClick(Sender: TObject);
+    procedure MenuIconSizeClick(Sender: TObject);
+    procedure ItemIconSize64Click(Sender: TObject);
     procedure MenuShowPaletteClick(Sender: TObject);
     procedure MenuUndockToolboxClick(Sender: TObject);
     procedure MenuUndoRedoToolbarClick(Sender: TObject);
@@ -541,6 +562,7 @@ type
     procedure Tool_PhongShapeRoundRectClick(Sender: TObject);
     procedure Tool_PhongShapeSphereClick(Sender: TObject);
     procedure Tool_SinGradientClick(Sender: TObject);
+    procedure Combo_GradientColorspaceChange(Sender: TObject);
     procedure ToolLoadTextureExecute(Sender: TObject);
     procedure ToolNoTextureExecute(Sender: TObject);
     procedure ToolNoTextureUpdate(Sender: TObject);
@@ -565,6 +587,10 @@ type
     procedure ViewLayerStackButtonUpdate(Sender: TObject);
     procedure ViewLayerStackExecute(Sender: TObject);
     procedure ViewLayerStackUpdate(Sender: TObject);
+    procedure ViewPaletteExecute(Sender: TObject);
+    procedure ViewPaletteUpdate(Sender: TObject);
+    procedure ViewStatusBarExecute(Sender: TObject);
+    procedure ViewStatusBarUpdate(Sender: TObject);
     procedure ViewToolboxUpdate(Sender: TObject);
     procedure ViewImagelistUpdate(Sender: TObject);
     procedure SpinEdit_EraserChange(Sender: TObject);
@@ -632,14 +658,13 @@ type
     {$IFDEF LINUX}
     FTopMostHiddenMinimised: TTopMostInfo;
     {$ENDIF}
-    {$IFDEF USE_IMAGE_BROWSER}
     FBrowseImages: TFBrowseImages;
     FBrowseSelections: TFBrowseImages;
     FBrowseTextures: TFBrowseImages;
     FBrowseBrushes: TFBrowseImages;
     FSaveImage: TFBrowseImages;
     FSaveSelection: TFBrowseImages;
-    {$ENDIF}
+
     FSaveInitialDir: string;
     FSaveSelectionInitialFilename: string;
     FInTextFont: boolean;
@@ -647,7 +672,7 @@ type
     FOnlineUpdater: TLazPaintCustomOnlineUpdater;
     initialized: boolean;
     shouldArrangeOnResize: boolean;
-    btnLeftDown, btnRightDown : boolean;
+    btnLeftDown, btnRightDown, btnMiddleDown: boolean;
     spacePressed: boolean;
     FormMouseMovePos: TPoint;
     InFormMouseMove: boolean;
@@ -661,6 +686,7 @@ type
     FImageActions: TImageActions;
     StartDirectory: string;
     previousToolImg: integer;
+    currentToolLabel: string;
     InShowNoPicture: boolean;
     FTopMostInfo: TTopMostInfo;
     DelayedPaintPicture: boolean;
@@ -688,7 +714,10 @@ type
        selectionHighlightOffset: TPoint;
     end;
 
+    function GetUseImageBrowser: boolean;
+    procedure UpdateStatusText;
     procedure CreateToolbarElements;
+    function GetCurrentToolAction: TAction;
     procedure NoTextureIcon;
     procedure RegisterToolbarElements;
     procedure InitToolbarElements;
@@ -801,13 +830,16 @@ type
     procedure UpdateToolbar;
     function ChooseTool(Tool : TPaintToolType): boolean;
     procedure PictureSelectionChanged({%H-}sender: TLazPaintImage; AOffsetOnly: boolean);
+    procedure PictureSelectedLayerIndexChanged({%H-}sender: TLazPaintImage);
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
     procedure UpdateEditPicture(ADelayed: boolean = false);
     property CurrentTool: TPaintToolType read GetCurrentTool;
+    property CurrentToolAction: TAction read GetCurrentToolAction;
     property ShowSelectionNormal: boolean read FShowSelectionNormal write SetShowSelectionNormal;
     property ZoomFactor: single read GetZoomFactor;
     property ToolManager: TToolManager read GetToolManager;
     property Layout: TMainFormLayout read FLayout;
+    property UseImageBrowser: boolean read GetUseImageBrowser;
   end;
 
 implementation
@@ -829,7 +861,6 @@ begin
   FLayout := TMainFormLayout.Create(self);
 
   ScaleDPI(Self,OriginalDPI);
-  ScaleImageList(ImageList1,OriginalDPI);
 
   //use background color
   FormBackgroundColor := OutsideColor;
@@ -865,6 +896,7 @@ begin
   //mouse status
   btnLeftDown := false;
   btnRightDown := false;
+  btnMiddleDown:= false;
 
   //recursive calls
   InFormMouseMove:= false;
@@ -913,6 +945,11 @@ end;
 
 procedure TFMain.FormDestroy(Sender: TObject);
 begin
+  if Assigned(Image) then
+  begin
+    Image.OnSelectionChanged := nil;
+    Image.OnSelectedLayerIndexChanged:= nil;
+  end;
   FLayout.ToolBoxPopup := nil;
   RegisterScripts(False);
   FreeAndNil(FImageActions);
@@ -929,14 +966,12 @@ begin
 
   DestroyMenuAndToolbar;
 
-  {$IFDEF USE_IMAGE_BROWSER}
   FreeAndNil(FBrowseSelections);
   FreeAndNil(FBrowseImages);
   FreeAndNil(FBrowseTextures);
   FreeAndNil(FBrowseBrushes);
   FreeAndNil(FSaveImage);
   FreeAndNil(FSaveSelection);
-  {$ENDIF}
 
   FreeAndNil(FLayout);
 end;
@@ -958,11 +993,14 @@ begin
   if Config.Default3dObjectDirectory = '' then
     Config.SetDefault3dObjectDirectory(StartDirectory);
 
+  MainMenu1.Images := LazPaintInstance.Icons[DoScaleX(20,OriginalDPI)];
+
   Image := LazPaintInstance.Image;
   FImageActions := TImageActions.Create(LazPaintInstance);
   LazPaintInstance.EmbeddedResult := mrNone;
 
   Image.OnSelectionChanged := @PictureSelectionChanged;
+  Image.OnSelectedLayerIndexChanged:= @PictureSelectedLayerIndexChanged;
   Image.CurrentFilenameUTF8 := '';
 
   RegisterToolbarElements;
@@ -1048,17 +1086,20 @@ procedure TFMain.FormMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   ReleaseMouseButtons(Shift);
-  if not (Button in[mbLeft,mbRight]) then exit;
+  if not (Button in[mbLeft,mbRight,mbMiddle]) then exit;
   CanCompressOrUpdateStack := false;
   Image.OnImageChanged.DelayedStackUpdate := True;
 
-  if btnLeftDown or btnRightDown then exit;
+  if btnLeftDown or btnRightDown or btnMiddleDown then exit;
   if Button = mbLeft then
     btnLeftDown := true else
   if Button = mbRight then
-    btnRightDown := true
-      else exit;
-
+    btnRightDown := true else
+  if Button = mbMiddle then
+  begin
+    btnMiddleDown:= true;
+    if not ToolManager.ToolSleeping then ToolManager.ToolSleep;
+  end;
   if ToolManager.ToolDown(FormToBitmap(X,Y),btnRightDown) then
       PaintPictureNow;
   UpdateToolbar;
@@ -1098,6 +1139,7 @@ begin
     FCoordinatesCaptionCount := 0;
     Label_Coordinates.caption := FCoordinatesCaption;
     Label_Coordinates.Update;
+    UpdateStatusText;
   end;
   updateForVSCursor:= false;
   if ToolManager.ToolMove(BmpPos) then
@@ -1119,7 +1161,8 @@ begin
       PaintVirtualScreenCursor;
   end;
 
-  if ToolManager.ToolSleeping and not spacePressed and not btnLeftDown and not btnRightDown then
+  if ToolManager.ToolSleeping and not spacePressed and not btnLeftDown and not btnRightDown
+    and not btnMiddleDown then
     ToolManager.ToolWakeUp;
 
   InFormMouseMove := False;
@@ -1131,26 +1174,27 @@ procedure TFMain.FormMouseUp(Sender: TObject; Button: TMouseButton;
 var redraw: boolean;
 begin
   redraw := ToolManager.ToolMove(FormToBitmap(X,Y));
-  if (btnLeftDown and (Button = mbLeft)) or (btnRightDown and (Button=mbRight)) then
+  if (btnLeftDown and (Button = mbLeft)) or (btnRightDown and (Button=mbRight))
+    or (btnMiddleDown and (Button = mbMiddle)) then
   begin
     if ToolManager.ToolUp then redraw := true;
     btnLeftDown := false;
     btnRightDown := false;
+    btnMiddleDown:= false;
   end;
   if redraw then PaintPictureNow;
   UpdateToolbar;
   ReleaseMouseButtons(Shift);
 
-  if ToolManager.ToolSleeping and not spacePressed and not btnLeftDown and not btnRightDown then
+  if ToolManager.ToolSleeping and not spacePressed and not btnLeftDown and not btnRightDown
+   and not btnMiddleDown then
     ToolManager.ToolWakeUp;
 end;
 
 function TFMain.ScriptFileOpen(AVars: TVariableSet): TScriptResult;
 var vFilename: TScriptVariableReference;
     topInfo: TTopMostInfo;
-    {$IFDEF USE_IMAGE_BROWSER}
     i: integer;
-    {$ENDIF}
     cancelled: boolean;
     chosenFiles: array of string;
 begin
@@ -1186,42 +1230,45 @@ begin
     end
     else
     begin
-      {$IFDEF USE_IMAGE_BROWSER}
-      if not assigned(FBrowseImages) then
+      if UseImageBrowser then
       begin
-        FBrowseImages := TFBrowseImages.Create(self);
-        FBrowseImages.LazPaintInstance := LazPaintInstance;
+        if not assigned(FBrowseImages) then
+        begin
+          FBrowseImages := TFBrowseImages.Create(self);
+          FBrowseImages.LazPaintInstance := LazPaintInstance;
+        end;
       end;
-      {$ENDIF}
       try
         if not topInfo.defined then topInfo := FLazPaintInstance.HideTopmost;
-        {$IFDEF USE_IMAGE_BROWSER}
-        self.Hide;
-        if FBrowseImages.ShowModal = mrOK then
+        if UseImageBrowser then
         begin
-          setlength(chosenFiles, FBrowseImages.SelectedFileCount);
-          for i := 0 to high(chosenFiles) do
-            chosenFiles[i] := FBrowseImages.SelectedFile[i];
-          cancelled := false
-        end
-        else
+          self.Hide;
+          if FBrowseImages.ShowModal = mrOK then
+          begin
+            setlength(chosenFiles, FBrowseImages.SelectedFileCount);
+            for i := 0 to high(chosenFiles) do
+              chosenFiles[i] := FBrowseImages.SelectedFile[i];
+            cancelled := false
+          end
+          else
+          begin
+            chosenFiles := nil;
+            cancelled := true;
+          end;
+        end else
         begin
-          chosenFiles := nil;
-          cancelled := true;
+          if OpenPictureDialog1.Execute then
+          begin
+            setlength(chosenFiles,1);
+            chosenFiles[0]:= OpenPictureDialog1.FileName;
+            cancelled := false;
+          end
+          else
+          begin
+            chosenFiles:= nil;
+            cancelled:= true;
+          end;
         end;
-        {$ELSE}
-        if OpenPictureDialog1.Execute then
-        begin
-          setlength(chosenFiles,1);
-          chosenFiles[0]:= OpenPictureDialog1.FileName;
-          cancelled := false;
-        end
-        else
-        begin
-          chosenFiles:= nil;
-          cancelled:= true;
-        end;
-        {$ENDIF}
         if not cancelled then
         begin
           if length(chosenFiles) = 1 then
@@ -1312,32 +1359,34 @@ begin
   end;
   SavePictureDialog1.FileName := filename;
   topMost := LazPaintInstance.HideTopmost;
-  {$IFDEF USE_IMAGE_BROWSER}
-  if not assigned(FSaveImage) then
+  if UseImageBrowser then
   begin
-    FSaveImage := TFBrowseImages.Create(self);
-    FSaveImage.LazPaintInstance := LazPaintInstance;
-    FSaveImage.IsSaveDialog := true;
-    FSaveImage.Caption := SavePictureDialog1.Title;
-  end;
-  FSaveImage.InitialFilename := filename;
-  if Image.NbLayers > 1 then FSaveImage.DefaultExtension := '.lzp' else
-    FSaveImage.DefaultExtension := '.png';
-  FSaveImage.InitialDirectory:= FSaveInitialDir;
-  if FSaveImage.ShowModal = mrOK then
-    DoSaveAs(FSaveImage.FileName)
-  else
-    result := srCancelledByUser;
-  {$ELSE}
-  if Image.NbLayers > 1 then SavePictureDialog1.DefaultExt := '.lzp' else
-    SavePictureDialog1.DefaultExt := '.png';
-  SavePictureDialog1.InitialDir:= FSaveInitialDir;
-  if SavePictureDialog1.Execute then
-  begin
-    DoSaveAs(SavePictureDialog1.FileName);
+    if not assigned(FSaveImage) then
+    begin
+      FSaveImage := TFBrowseImages.Create(self);
+      FSaveImage.LazPaintInstance := LazPaintInstance;
+      FSaveImage.IsSaveDialog := true;
+      FSaveImage.Caption := SavePictureDialog1.Title;
+    end;
+    FSaveImage.InitialFilename := filename;
+    if Image.NbLayers > 1 then FSaveImage.DefaultExtension := '.lzp' else
+      FSaveImage.DefaultExtension := '.png';
+    FSaveImage.InitialDirectory:= FSaveInitialDir;
+    if FSaveImage.ShowModal = mrOK then
+      DoSaveAs(FSaveImage.FileName)
+    else
+      result := srCancelledByUser;
   end else
-    result := srCancelledByUser;
-  {$ENDIF}
+  begin
+    if Image.NbLayers > 1 then SavePictureDialog1.DefaultExt := '.lzp' else
+      SavePictureDialog1.DefaultExt := '.png';
+    SavePictureDialog1.InitialDir:= FSaveInitialDir;
+    if SavePictureDialog1.Execute then
+    begin
+      DoSaveAs(SavePictureDialog1.FileName);
+    end else
+      result := srCancelledByUser;
+  end;
   LazPaintInstance.ShowTopmost(topMost);
 end;
 
@@ -1371,6 +1420,7 @@ end;
 procedure TFMain.FilterAnyExecute(Sender: TObject);
 var filterName: string;
     params: TVariableSet;
+    s: string;
 begin
   if Sender is TAction then
   begin
@@ -1380,6 +1430,10 @@ begin
           delete(filterName,1,6);
     params := TVariableSet.Create('Filter');
     params.AddString('Name', filterName);
+    s := (Sender as TAction).Caption;
+    while (s<>'') and (s[length(s)] in[' ',':','.','?','!']) do
+      delete(s,length(s),1);
+    params.AddString('Caption', s);
     CallScriptFunction(params);
     params.Free;
   end;
@@ -1486,7 +1540,7 @@ begin
     begin
       spacePressed:= true;
       Key := 0;
-      if not btnLeftDown and not btnRightDown then ToolManager.ToolSleep;
+      if not ToolManager.ToolSleeping and not btnLeftDown and not btnRightDown then ToolManager.ToolSleep;
     end else
     if LazPaintInstance.ImageListWindowVisible then
       LazPaintInstance.ImageListWindowVisibleKeyDown(Key,Shift);
@@ -1555,43 +1609,45 @@ begin
   else
   begin
     topmost := LazPaintInstance.HideTopmost;
-    {$IFDEF USE_IMAGE_BROWSER}
-    if not assigned(FBrowseSelections) then
+    if UseImageBrowser then
     begin
-      FBrowseSelections := TFBrowseImages.Create(self);
-      FBrowseSelections.LazPaintInstance := LazPaintInstance;
-      FBrowseSelections.AllowMultiSelect := false;
-      FBrowseSelections.Caption := LoadSelectionDialog.Title;
-    end;
-    self.Hide;
-    try
-      if FBrowseSelections.ShowModal = mrOK then
+      if not assigned(FBrowseSelections) then
+      begin
+        FBrowseSelections := TFBrowseImages.Create(self);
+        FBrowseSelections.LazPaintInstance := LazPaintInstance;
+        FBrowseSelections.AllowMultiSelect := false;
+        FBrowseSelections.Caption := LoadSelectionDialog.Title;
+      end;
+      self.Hide;
+      try
+        if FBrowseSelections.ShowModal = mrOK then
+        begin
+          LazPaintInstance.ShowTopmost(topmost);
+          selectionFileName := FBrowseSelections.Filename;
+          Config.AddRecentDirectory(ExtractFilePath(selectionFileName));
+        end else
+        begin
+          result := srCancelledByUser;
+          LazPaintInstance.ShowTopmost(topmost);
+          exit;
+        end;
+      finally
+        self.Show;
+      end;
+    end else
+    begin
+      if LoadSelectionDialog.Execute then
       begin
         LazPaintInstance.ShowTopmost(topmost);
-        selectionFileName := FBrowseSelections.Filename;
-        Config.AddRecentDirectory(ExtractFilePath(selectionFileName));
-      end else
+        selectionFileName := LoadSelectionDialog.Filename
+      end
+      else
       begin
         result := srCancelledByUser;
         LazPaintInstance.ShowTopmost(topmost);
         exit;
       end;
-    finally
-      self.Show;
     end;
-    {$ELSE}
-    if LoadSelectionDialog.Execute then
-    begin
-      LazPaintInstance.ShowTopmost(topmost);
-      selectionFileName := LoadSelectionDialog.Filename
-    end
-    else
-    begin
-      result := srCancelledByUser;
-      LazPaintInstance.ShowTopmost(topmost);
-      exit;
-    end;
-    {$ENDIF}
   end;
   if FImageActions.LoadSelection(selectionFileName) then
   begin
@@ -1647,34 +1703,36 @@ begin
   if AVars.IsReferenceDefined(vFileName) then
     filename:= AVars.GetString(vFileName);
   if filename = '' then filename := FSaveSelectionInitialFilename;
-  {$IFDEF USE_IMAGE_BROWSER}
-  if not assigned(FSaveSelection) then
+  if UseImageBrowser then
   begin
-    FSaveSelection := TFBrowseImages.Create(self);
-    FSaveSelection.LazPaintInstance := LazPaintInstance;
-    FSaveSelection.IsSaveDialog := true;
-    FSaveSelection.Caption := SaveSelectionDialog.Title;
-    FSaveSelection.DefaultExtension := SaveSelectionDialog.DefaultExt;
-  end;
-  if pos(PathDelim,filename)<>0 then FSaveSelection.InitialDirectory := ExtractFilePath(filename);
-  FSaveSelection.InitialFilename := ExtractFileName(filename);
-  if (FSaveSelection.ShowModal = mrOk) and (FSaveSelection.Filename <> '') then
-    filename := FSaveSelection.Filename
-  else
-    filename := '';
-  {$ELSE}
-  SaveSelectionDialog.FileName:= filename;
-  if pos(PathDelim,SaveSelectionDialog.FileName)<>0 then
+    if not assigned(FSaveSelection) then
+    begin
+      FSaveSelection := TFBrowseImages.Create(self);
+      FSaveSelection.LazPaintInstance := LazPaintInstance;
+      FSaveSelection.IsSaveDialog := true;
+      FSaveSelection.Caption := SaveSelectionDialog.Title;
+      FSaveSelection.DefaultExtension := SaveSelectionDialog.DefaultExt;
+    end;
+    if pos(PathDelim,filename)<>0 then FSaveSelection.InitialDirectory := ExtractFilePath(filename);
+    FSaveSelection.InitialFilename := ExtractFileName(filename);
+    if (FSaveSelection.ShowModal = mrOk) and (FSaveSelection.Filename <> '') then
+      filename := FSaveSelection.Filename
+    else
+      filename := '';
+  end else
   begin
-    filename := SaveSelectionDialog.FileName;
-    SaveSelectionDialog.FileName := ExtractFileName(filename);
-    SaveSelectionDialog.InitialDir := ExtractFilePath(filename);
+    SaveSelectionDialog.FileName:= filename;
+    if pos(PathDelim,SaveSelectionDialog.FileName)<>0 then
+    begin
+      filename := SaveSelectionDialog.FileName;
+      SaveSelectionDialog.FileName := ExtractFileName(filename);
+      SaveSelectionDialog.InitialDir := ExtractFilePath(filename);
+    end;
+    if SaveSelectionDialog.Execute then
+      filename := SaveSelectionDialog.FileName
+    else
+      filename := '';
   end;
-  if SaveSelectionDialog.Execute then
-    filename := SaveSelectionDialog.FileName
-  else
-    filename := '';
-  {$ENDIF}
   if filename <> '' then
   begin
     if not Image.AbleToSaveSelectionAsUTF8(filename) then
@@ -1946,44 +2004,44 @@ begin
   end;
   topmostInfo := LazPaintInstance.HideTopmost;
   chosenFiles := nil;
-  {$IFDEF USE_IMAGE_BROWSER}
-  if not assigned(FBrowseImages) then
+  if UseImageBrowser then
   begin
-    FBrowseImages := TFBrowseImages.Create(self);
-    FBrowseImages.LazPaintInstance := LazPaintInstance;
-  end;
-  {$ENDIF}
-  {$IFDEF USE_IMAGE_BROWSER}
-  self.Hide;
-  FBrowseImages.AllowMultiSelect := true;
-  FBrowseImages.OpenLayerIcon := true;
-  try
-    if FBrowseImages.ShowModal = mrOK then
+    if not assigned(FBrowseImages) then
     begin
-      setlength(chosenFiles, FBrowseImages.SelectedFileCount);
-      for i := 0 to high(chosenFiles) do
-        chosenFiles[i] := FBrowseImages.SelectedFile[i];
+      FBrowseImages := TFBrowseImages.Create(self);
+      FBrowseImages.LazPaintInstance := LazPaintInstance;
     end;
-  except
-    on ex: Exception do
-    begin
-      LazPaintInstance.ShowError('LayerFromFile',ex.Message);
+    self.Hide;
+    FBrowseImages.AllowMultiSelect := true;
+    FBrowseImages.OpenLayerIcon := true;
+    try
+      if FBrowseImages.ShowModal = mrOK then
+      begin
+        setlength(chosenFiles, FBrowseImages.SelectedFileCount);
+        for i := 0 to high(chosenFiles) do
+          chosenFiles[i] := FBrowseImages.SelectedFile[i];
+      end;
+    except
+      on ex: Exception do
+      begin
+        LazPaintInstance.ShowError('LayerFromFile',ex.Message);
+      end;
     end;
-  end;
-  FBrowseImages.OpenLayerIcon := false;
-  FBrowseImages.AllowMultiSelect := false;
-  self.Show;
-  {$ELSE}
-  OpenPictureDialog1.Options := OpenPictureDialog1.Options + [ofAllowMultiSelect];
-  layerLoaded := false;
-  if OpenPictureDialog1.Execute then
+    FBrowseImages.OpenLayerIcon := false;
+    FBrowseImages.AllowMultiSelect := false;
+    self.Show;
+  end else
   begin
-    setlength(chosenFiles, OpenPictureDialog1.Files.Count);
-    for i := 0 to OpenPictureDialog1.Files.Count-1 do
-      chosenFiles[i] := OpenPictureDialog1.Files[i];
+    OpenPictureDialog1.Options := OpenPictureDialog1.Options + [ofAllowMultiSelect];
+    layerLoaded := false;
+    if OpenPictureDialog1.Execute then
+    begin
+      setlength(chosenFiles, OpenPictureDialog1.Files.Count);
+      for i := 0 to OpenPictureDialog1.Files.Count-1 do
+        chosenFiles[i] := OpenPictureDialog1.Files[i];
+    end;
+    OpenPictureDialog1.Options := OpenPictureDialog1.Options - [ofAllowMultiSelect];
   end;
-  OpenPictureDialog1.Options := OpenPictureDialog1.Options - [ofAllowMultiSelect];
-  {$ENDIF}
   for i := 0 to high(chosenFiles) do
     begin
       if FImageActions.TryAddLayerFromFile(chosenFiles[i]) then
@@ -2133,7 +2191,7 @@ begin
     IDNO: ;
     IDCANCEL: begin
                 CanClose := false;
-                LazPaintInstance.RestartQuery := false;
+                LazPaintInstance.CancelRestart;
                 LazPaintInstance.ShowTopmost(topmostInfo);
               end;
     end;
@@ -2147,7 +2205,7 @@ begin
     IDNO: LazPaintInstance.EmbeddedResult := mrCancel;
     IDCANCEL: begin
                 CanClose := false;
-                LazPaintInstance.RestartQuery := false;
+                LazPaintInstance.CancelRestart;
                 LazPaintInstance.ShowTopmost(topmostInfo);
               end;
     end;
@@ -2256,9 +2314,11 @@ begin
   if Sender is TMenuItem then
   begin
     language := (Sender as TMenuItem).Caption;
-    Config.SetDefaultLangage(language);
-    LazPaintInstance.RestartQuery := True;
-    Close;
+    if Config.DefaultLangage <> language then
+    begin
+      Config.SetDefaultLangage(language);
+      LazPaintInstance.Restart;
+    end;
   end;
 end;
 
@@ -2267,6 +2327,7 @@ begin
   TimerUpdate.Enabled := false;
   EditUndo.Update;
   EditRedo.Update;
+  UpdateStatusText;
   if FCoordinatesCaptionCount > 0 then
   begin
     Label_Coordinates.Caption := FCoordinatesCaption;
@@ -2364,6 +2425,26 @@ begin
   ViewLayerStack.Checked := LazPaintInstance.LayerWindowVisible;
 end;
 
+procedure TFMain.ViewPaletteExecute(Sender: TObject);
+begin
+  Layout.PaletteVisible := not Layout.PaletteVisible;
+end;
+
+procedure TFMain.ViewPaletteUpdate(Sender: TObject);
+begin
+  ViewPalette.Checked := Layout.PaletteVisible;
+end;
+
+procedure TFMain.ViewStatusBarExecute(Sender: TObject);
+begin
+  Layout.StatusBarVisible := not Layout.StatusBarVisible;
+end;
+
+procedure TFMain.ViewStatusBarUpdate(Sender: TObject);
+begin
+  ViewStatusBar.Checked := Layout.StatusBarVisible;
+end;
+
 procedure TFMain.ViewToolboxUpdate(Sender: TObject);
 begin
   ViewToolBox.Checked := LazPaintInstance.ToolboxVisible;
@@ -2382,35 +2463,45 @@ begin
     result := srException;
     exit;
   end;
-  bmp := GetBitmapFromClipboard;
-  if bmp <> nil then
-  begin
-    if bmp.NbPixels > 0 then
+  Cursor := crHourGlass;
+  try
+    bmp := GetBitmapFromClipboard;
+    Cursor := crDefault;
+    if bmp <> nil then
     begin
-      ChooseTool(ptHand);
-      if Image.IsFileModified then
+      if bmp.NbPixels > 0 then
       begin
-        case LazPaintInstance.SaveQuestion(rsNewImage) of
-        IDYES: scripting.CallScriptFunction('FileSave');
-        IDCANCEL: begin
-            bmp.Free;
-            result := srCancelledByUser;
-            exit;
+        ChooseTool(ptHand);
+        if Image.IsFileModified then
+        begin
+          case LazPaintInstance.SaveQuestion(rsNewImage) of
+          IDYES: scripting.CallScriptFunction('FileSave');
+          IDCANCEL: begin
+              bmp.Free;
+              result := srCancelledByUser;
+              exit;
+            end;
           end;
         end;
-      end;
-      image.Assign(bmp,true,false);
-      Image.CurrentFilenameUTF8 := '';
-      image.SetSavedFlag;
-      result := srOk;
-    end
-     else
-     begin
-       bmp.Free;
-       result := srException;
-     end;
-  end else
-    result := srException;
+        image.Assign(bmp,true,false);
+        Image.CurrentFilenameUTF8 := '';
+        image.SetSavedFlag;
+        result := srOk;
+      end
+       else
+       begin
+         bmp.Free;
+         result := srException;
+       end;
+    end else
+      result := srException;
+  except on ex:exception do
+    begin
+      Cursor := crDefault;
+      LazPaintInstance.ShowError(rsLazPaint, ex.Message);
+      result := srException;
+    end;
+  end;
 end;
 
 function TFMain.ChooseTool(Tool: TPaintToolType): boolean;
@@ -2473,6 +2564,8 @@ var toolName: string;
   LayerAction: TLayerAction;
   topmostInfo: TTopMostInfo;
   res: integer;
+  useSelection: boolean;
+  newTexture: TBGRABitmap;
 begin
   if ToolManager.ToolSleeping then exit;
   toolName := AVars.Strings['Name'];
@@ -2491,8 +2584,48 @@ begin
       begin
         case Tool of
           ptTextureMapping:
+          begin
+            useSelection:= false;
+            newTexture := nil;
+            if not image.SelectionEmpty and not image.SelectionLayerIsEmpty then
+            begin
+              topmostInfo := LazPaintInstance.HideTopmost;
+              res := MessageDlg(rsTextureMapping,rsTransformSelectionContent,mtConfirmation,[mbYes,mbNo],0);
+              LazPaintInstance.ShowTopmost(topmostInfo);
+              case res of
+                mrYes: begin
+                  useSelection:= true;
+                  if image.SelectionLayerReadonly <> nil then
+                  begin
+                    newTexture := image.SelectionLayerReadonly.Duplicate as TBGRABitmap;
+                    newTexture.ApplyMask(image.SelectionReadonly, image.SelectionLayerBounds[False]);
+                    if newTexture.Empty then
+                      MessagePopup(rsNothingToBeRetrieved,2000)
+                    else
+                    begin
+                      LayerAction := nil;
+                      try
+                        LayerAction := TLayerAction.Create(Image);
+                        LayerAction.RemoveSelection;
+                        LayerAction.Validate;
+                      except on ex:exception do LazPaintInstance.ShowError(rsTextureMapping,ex.Message);
+                      end;
+                      LayerAction.Free;
+                      BGRAReplace(newTexture, newTexture.GetPart(newTexture.GetImageBounds));
+                      ToolManager.SetToolTexture(newTexture);
+                      UpdateTextureIcon;
+                    end;
+                  end;
+                end;
+              end;
+            end;
             if (ToolManager.GetToolTexture = nil) or ToolManager.GetToolTexture.Empty then
             begin
+              if useSelection then
+              begin
+                Tool := ptHand;
+                result := srException;
+              end else
               if not ShowOpenTextureDialog then
               begin
                 Tool := ptHand;
@@ -2505,6 +2638,7 @@ begin
                 result := srException;
               end;
             end;
+          end;
           ptLayerMapping:
           begin
             EditDeselect.Execute;
@@ -2691,6 +2825,16 @@ begin
   FileSaveAsInSameFolder.Enabled := ExtractFilePath(Image.CurrentFilenameUTF8)<>'';
 end;
 
+procedure TFMain.FileUseImageBrowserExecute(Sender: TObject);
+begin
+  Config.SetDefaultUseImageBrowser(not UseImageBrowser);
+end;
+
+procedure TFMain.FileUseImageBrowserUpdate(Sender: TObject);
+begin
+  FileUseImageBrowser.Checked := UseImageBrowser;
+end;
+
 procedure TFMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
   Image.OnCurrentFilenameChanged := nil;
@@ -2717,11 +2861,6 @@ begin
     Layout.ToolBoxDocking := twWindow;
 end;
 
-procedure TFMain.ItemViewPaletteClick(Sender: TObject);
-begin
-  Layout.PaletteVisible := not Layout.PaletteVisible;
-end;
-
 procedure TFMain.MenuCoordinatesToolbarClick(Sender: TObject);
 begin
   Panel_Coordinates.Visible := not Panel_Coordinates.Visible;
@@ -2746,6 +2885,48 @@ begin
   Layout.ToolBoxDocking := twRight;
 end;
 
+procedure TFMain.ItemIconSize16Click(Sender: TObject);
+begin
+  LazPaintInstance.ChangeIconSize(16);
+end;
+
+procedure TFMain.ItemIconSize24Click(Sender: TObject);
+begin
+  LazPaintInstance.ChangeIconSize(24);
+end;
+
+procedure TFMain.ItemIconSize32Click(Sender: TObject);
+begin
+  LazPaintInstance.ChangeIconSize(32);
+end;
+
+procedure TFMain.ItemIconSize48Click(Sender: TObject);
+begin
+  LazPaintInstance.ChangeIconSize(48);
+end;
+
+procedure TFMain.ItemIconSize64Click(Sender: TObject);
+begin
+  LazPaintInstance.ChangeIconSize(64);
+end;
+
+procedure TFMain.ItemIconSizeAutoClick(Sender: TObject);
+begin
+  LazPaintInstance.ChangeIconSize(0);
+end;
+
+procedure TFMain.MenuIconSizeClick(Sender: TObject);
+var iconSize: integer;
+begin
+  iconSize := Config.DefaultIconSize(0);
+  ItemIconSize16.Checked := iconSize=16;
+  ItemIconSize24.Checked := iconSize=24;
+  ItemIconSize32.Checked := iconSize=32;
+  ItemIconSize48.Checked := iconSize=48;
+  ItemIconSize64.Checked := iconSize=64;
+  ItemIconSizeAuto.Checked := iconSize=0;
+end;
+
 procedure TFMain.MenuShowPaletteClick(Sender: TObject);
 begin
   Layout.PaletteVisible := not Layout.PaletteVisible;
@@ -2765,10 +2946,9 @@ end;
 
 procedure TFMain.MenuViewClick(Sender: TObject);
 begin
+  ItemViewDockToolbox.Checked := (Layout.ToolBoxDocking <> twWindow) and (Layout.ToolBoxDocking <> twNone);
   ItemDockLayersAndColors.Checked := LazPaintInstance.DockLayersAndColors;
   ItemFullscreen.Checked := LazPaintInstance.Fullscreen;
-  ItemViewDockToolbox.Checked := (Layout.ToolBoxDocking <> twWindow) and (Layout.ToolBoxDocking <> twNone);
-  ItemViewPalette.Checked := Layout.PaletteVisible;
   {$IFDEF LINUX}
   ItemFullscreen.Visible := false;
   {$ENDIF}
@@ -2856,27 +3036,29 @@ begin
   topMostInfo := LazPaintInstance.HideTopmost;
   try
     texFilename := '';
-    {$IFDEF USE_IMAGE_BROWSER}
-    if not assigned(FBrowseTextures) then
+    if UseImageBrowser then
     begin
-      FBrowseTextures := TFBrowseImages.Create(self);
-      FBrowseTextures.LazPaintInstance := LazPaintInstance;
-      FBrowseTextures.AllowMultiSelect := false;
-      FBrowseTextures.Caption := OpenTextureDialog.Title;
+      if not assigned(FBrowseTextures) then
+      begin
+        FBrowseTextures := TFBrowseImages.Create(self);
+        FBrowseTextures.LazPaintInstance := LazPaintInstance;
+        FBrowseTextures.AllowMultiSelect := false;
+        FBrowseTextures.Caption := OpenTextureDialog.Title;
+      end;
+      self.Hide;
+      try
+        FBrowseTextures.InitialDirectory := Config.DefaultTextureDirectory;
+        if FBrowseTextures.ShowModal = mrOK then
+          texFilename := FBrowseTextures.Filename;
+      finally
+        self.Show;
+      end;
+    end else
+    begin
+      OpenTextureDialog.InitialDir := Config.DefaultTextureDirectory;
+      if OpenTextureDialog.Execute then
+        texFilename:= OpenTextureDialog.FileName;
     end;
-    self.Hide;
-    try
-      FBrowseTextures.InitialDirectory := Config.DefaultTextureDirectory;
-      if FBrowseTextures.ShowModal = mrOK then
-        texFilename := FBrowseTextures.Filename;
-    finally
-      self.Show;
-    end;
-    {$ELSE}
-    OpenTextureDialog.InitialDir := Config.DefaultTextureDirectory;
-    if OpenTextureDialog.Execute then
-      texFilename:= OpenTextureDialog.FileName;
-    {$ENDIF}
     if texFilename <> '' then
     begin
       try
@@ -2910,27 +3092,29 @@ begin
   topMostInfo := LazPaintInstance.HideTopmost;
   try
     brushFilename := '';
-    {$IFDEF USE_IMAGE_BROWSER}
-    if not assigned(FBrowseBrushes) then
+    if UseImageBrowser then
     begin
-      FBrowseBrushes := TFBrowseImages.Create(self);
-      FBrowseBrushes.LazPaintInstance := LazPaintInstance;
-      FBrowseBrushes.AllowMultiSelect := false;
-      FBrowseBrushes.Caption := OpenBrushDialog.Title;
+      if not assigned(FBrowseBrushes) then
+      begin
+        FBrowseBrushes := TFBrowseImages.Create(self);
+        FBrowseBrushes.LazPaintInstance := LazPaintInstance;
+        FBrowseBrushes.AllowMultiSelect := false;
+        FBrowseBrushes.Caption := OpenBrushDialog.Title;
+      end;
+      self.Hide;
+      try
+        FBrowseBrushes.InitialDirectory := Config.DefaultBrushDirectory;
+        if FBrowseBrushes.ShowModal = mrOK then
+          brushFilename := FBrowseBrushes.Filename;
+      finally
+        self.Show;
+      end;
+    end else
+    begin
+      OpenBrushDialog.InitialDir := Config.DefaultTextureDirectory;
+      if OpenBrushDialog.Execute then
+        brushFilename:= OpenBrushDialog.FileName;
     end;
-    self.Hide;
-    try
-      FBrowseBrushes.InitialDirectory := Config.DefaultBrushDirectory;
-      if FBrowseBrushes.ShowModal = mrOK then
-        brushFilename := FBrowseBrushes.Filename;
-    finally
-      self.Show;
-    end;
-    {$ELSE}
-    OpenBrushDialog.InitialDir := Config.DefaultTextureDirectory;
-    if OpenBrushDialog.Execute then
-      brushFilename:= OpenBrushDialog.FileName;
-    {$ENDIF}
     if brushFilename <> '' then
     begin
       try
@@ -3131,6 +3315,11 @@ begin
     FLastHeight:= image.Height;
     UpdateWindowCaption;
   end;
+  if not image.CurrentLayerVisible and not ToolManager.ToolCanBeUsed then
+  begin
+    ChooseTool(ptHand);
+    MessagePopup(rsToolOnInvisibleLayer,5000);
+  end;
 end;
 
 procedure TFMain.InvalidatePicture(AInvalidateAll: boolean);
@@ -3274,6 +3463,12 @@ begin
   if not AOffsetOnly or selectionHighlightInfo.partialSelectionHighlight then ForgetSelectionHightlight;
 end;
 
+procedure TFMain.PictureSelectedLayerIndexChanged(sender: TLazPaintImage);
+begin
+  if not image.CurrentLayerVisible and not ToolManager.ToolCanBeUsed then
+    ChooseTool(ptHand);
+end;
+
 procedure TFMain.SetShowSelectionNormal(const AValue: boolean);
 begin
   if FShowSelectionNormal=AValue then exit;
@@ -3338,6 +3533,23 @@ procedure TFMain.WMEraseBkgnd(var Message: TLMEraseBkgnd);
 begin
    //  block Erasing background
    //  inherited EraseBackground(DC);
+end;
+
+procedure TFMain.UpdateStatusText;
+var s: string;
+begin
+  if ToolManager.CurrentTool <> nil then
+  begin
+    s := ToolManager.CurrentTool.StatusText;
+    if s = '' then s := currentToolLabel;
+  end
+  else s := '';
+  Layout.StatusText := s;
+end;
+
+function TFMain.GetUseImageBrowser: boolean;
+begin
+  result := Config.DefaultUseImageBrowser;
 end;
 
 function TFMain.GetScriptContext: TScriptContext;

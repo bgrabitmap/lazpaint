@@ -1,4 +1,3 @@
-
 { TBGRAObject3D }
 
 procedure TBGRAObject3D.AddFace(AFace: IBGRAFace3D);
@@ -14,14 +13,17 @@ begin
   FColor := BGRAWhite;
   FLight := 1;
   FTexture := nil;
-  FMainPart := TBGRAPart3D.Create(nil);
+  FMainPart := TBGRAPart3D.Create(self,nil);
   FLightingNormal:= AScene.DefaultLightingNormal;
   FParentLighting:= True;
   FScene := AScene;
+  FFaceColorsInvalidated := true;
+  FMaterialInvalidated := false;
 end;
 
 destructor TBGRAObject3D.Destroy;
 begin
+  FMaterial := nil;
   fillchar(FTexture,sizeof(FTexture),0);
   inherited Destroy;
 end;
@@ -31,6 +33,16 @@ begin
   FFaces := nil;
   FFaceCount := 0;
   FMainPart.Clear(True);
+end;
+
+procedure TBGRAObject3D.InvalidateColor;
+begin
+  FFaceColorsInvalidated := true;
+end;
+
+procedure TBGRAObject3D.InvalidateMaterial;
+begin
+  FMaterialInvalidated := true;
 end;
 
 function TBGRAObject3D.GetColor: TBGRAPixel;
@@ -57,6 +69,7 @@ procedure TBGRAObject3D.SetColor(const AValue: TBGRAPixel);
 begin
   FColor := AValue;
   FTexture := nil;
+  InvalidateColor;
 end;
 
 procedure TBGRAObject3D.SetLight(const AValue: Single);
@@ -67,11 +80,13 @@ end;
 procedure TBGRAObject3D.SetTexture(const AValue: IBGRAScanner);
 begin
   FTexture := AValue;
+  InvalidateMaterial;
 end;
 
 procedure TBGRAObject3D.SetMaterial(const AValue: IBGRAMaterial3D);
 begin
   FMaterial := AValue;
+  InvalidateMaterial;
 end;
 
 procedure TBGRAObject3D.RemoveUnusedVertices;
@@ -123,7 +138,7 @@ begin
     APart.RemoveVertex(i);
 end;
 
-function TBGRAObject3D.GetScene: TBGRAScene3D;
+function TBGRAObject3D.GetScene: TObject;
 begin
   result := FScene;
 end;
@@ -150,6 +165,28 @@ var i: integer;
 begin
   for i := 0 to GetFaceCount-1 do
     ACallback(GetFace(i));
+end;
+
+procedure TBGRAObject3D.Update;
+var
+  i: Integer;
+begin
+  if FParentLighting and (FLightingNormal <> FScene.DefaultLightingNormal) then
+    FLightingNormal := FScene.DefaultLightingNormal;
+
+  if FFaceColorsInvalidated then
+  begin
+    for i := 0 to FFaceCount-1 do
+      FFaces[i].ComputeVertexColors;
+    FFaceColorsInvalidated := false;
+  end;
+
+  if FMaterialInvalidated then
+  begin
+    for i := 0 to FFaceCount-1 do
+      FFaces[i].UpdateMaterial;
+    FMaterialInvalidated := false;
+  end;
 end;
 
 function TBGRAObject3D.GetLightingNormal: TLightingNormal3D;

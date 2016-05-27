@@ -76,6 +76,7 @@ type
     function DefaultTextureCenter: TPointF; virtual;
     function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
     function GetAction: TLayerAction; override;
+    function GetStatusText: string; override;
   public
     constructor Create(AManager: TToolManager); override;
     function ToolKeyDown(var key: Word): TRect; override;
@@ -510,7 +511,7 @@ end;
 
 function TToolTextureMapping.DefaultTextureCenter: TPointF;
 begin
-  result := PointF(Manager.Image.Width/2-LayerOffset.X,Manager.Image.Height/2-LayerOffset.Y);
+  result := PointF(Manager.Image.Width/2-0.5-LayerOffset.X,Manager.Image.Height/2-0.5-LayerOffset.Y);
 end;
 
 function TToolTextureMapping.DoToolUpdate(toolDest: TBGRABitmap): TRect;
@@ -529,6 +530,19 @@ function TToolTextureMapping.GetAction: TLayerAction;
 begin
   Result:=inherited GetAction;
   result.AllChangesNotified:= true;
+end;
+
+function TToolTextureMapping.GetStatusText: string;
+var
+  i: Integer;
+begin
+  result := '';
+  for i := 0 to high(quad) do
+  begin
+    if i > 0 then result += '|';
+    result += 'x'+inttostr(i+1)+' = '+inttostr(round(quad[i].x+0.5))+'|'+
+       'y'+inttostr(i+1)+' = '+inttostr(round(quad[i].y+0.5));
+  end;
 end;
 
 constructor TToolTextureMapping.Create(AManager: TToolManager);
@@ -905,13 +919,14 @@ begin
             layer.FillQuadLinearMapping(DeformationGrid[yb,xb],DeformationGrid[yb,xb+1],
                   DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb],backupLayer,
                   DeformationGridTexCoord[yb,xb],DeformationGridTexCoord[yb,xb+1],DeformationGridTexCoord[yb+1,xb+1],
-                  DeformationGridTexCoord[yb+1,xb],true);
+                  DeformationGridTexCoord[yb+1,xb],true, fcKeepCW);
             gridDone[yb,xb] := true;
           end;
       //drawing convex zones
       for yb := gridMinY to gridMaxY-1 do
         for xb := gridMinX to gridMaxX-1 do
-          if not gridDone[yb,xb] then
+          if not gridDone[yb,xb] and IsClockwise([DeformationGrid[yb,xb],DeformationGrid[yb,xb+1],
+                DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb]]) then
           layer.FillQuadLinearMapping(DeformationGrid[yb,xb],DeformationGrid[yb,xb+1],
                 DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb],backupLayer,
                 DeformationGridTexCoord[yb,xb],DeformationGridTexCoord[yb,xb+1],DeformationGridTexCoord[yb+1,xb+1],

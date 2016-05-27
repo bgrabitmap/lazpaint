@@ -8,14 +8,14 @@ uses
   Forms, Graphics, Controls, ComCtrls;
 
 procedure HighDPI(FromDPI: Integer);
-procedure ScaleDPI(Control: TControl; FromDPI: Integer);
-procedure ScaleImageList(ImgList: TImageList; FromDPI: Integer);
-function DoScaleX(Size: Integer; FromDPI: Integer): integer;
-function DoScaleY(Size: Integer; FromDPI: Integer): integer;
+procedure ScaleDPI(Control: TControl; FromDPI: Integer; ToDPI_X: Integer = 0; ToDPI_Y: Integer = 0);
+procedure ScaleImageList(SourceList: TImageList; newWidth, newHeight: Integer; TargetList: TImageList);
+function DoScaleX(Size: Integer; FromDPI: Integer; ToDPI: Integer = 0): integer;
+function DoScaleY(Size: Integer; FromDPI: Integer; ToDPI: Integer = 0): integer;
 
 implementation
 
-uses BGRABitmap, BGRABitmapTypes;
+uses BGRABitmap, BGRABitmapTypes, LCLType;
 
 procedure HighDPI(FromDPI: Integer);
 var
@@ -26,73 +26,77 @@ begin
   end;
 end;
 
-procedure ScaleImageList(ImgList: TImageList; FromDPI: Integer);
+procedure ScaleImageList(SourceList: TImageList; newWidth, newHeight: Integer; TargetList: TImageList);
 var
   TempBmp: TBitmap;
   TempBGRA: array of TBGRABitmap;
-  NewWidth,NewHeight: integer;
   i: Integer;
 
 begin
-  if Screen.PixelsPerInch <= FromDPI*1.1 then exit;
-
-  NewWidth := ScaleX(ImgList.Width,FromDPI);
-  NewHeight := ScaleY(ImgList.Height,FromDPI);
-
-  setlength(TempBGRA, ImgList.Count);
+  setlength(TempBGRA, SourceList.Count);
   TempBmp := TBitmap.Create;
-  for i := 0 to ImgList.Count-1 do
+  for i := 0 to SourceList.Count-1 do
   begin
-    ImgList.GetBitmap(i,TempBmp);
+    SourceList.GetBitmap(i,TempBmp);
     TempBGRA[i] := TBGRABitmap.Create(TempBmp);
     TempBGRA[i].ResampleFilter := rfBestQuality;
     if (TempBGRA[i].width=0) or (TempBGRA[i].height=0) then continue;
     while (TempBGRA[i].Width < NewWidth) or (TempBGRA[i].Height < NewHeight) do
       BGRAReplace(TempBGRA[i], TempBGRA[i].FilterSmartZoom3(moLowSmooth));
     BGRAReplace(TempBGRA[i], TempBGRA[i].Resample(NewWidth,NewHeight));
+    BGRAReplace(TempBGRA[i], TempBGRA[i].FilterSharpen(0.50));
   end;
   TempBmp.Free;
 
-  ImgList.Clear;
-  ImgList.Width:= NewWidth;
-  ImgList.Height:= NewHeight;
+  TargetList.Clear;
+  TargetList.Width:= NewWidth;
+  TargetList.Height:= NewHeight;
 
   for i := 0 to high(TempBGRA) do
   begin
-    ImgList.Add(TempBGRA[i].Bitmap,nil);
+    {$IFDEF WINDOWS}
+    If TBGRAPixel_RGBAOrder then TempBGRA[i].SwapRedBlue;
+    {$ENDIF}
+    TargetList.Add(TempBGRA[i].Bitmap,nil);
     TempBGRA[i].Free;
   end;
 end;
 
-function DoScaleX(Size: Integer; FromDPI: Integer): integer;
+function DoScaleX(Size: Integer; FromDPI: Integer; ToDPI: Integer): integer;
 begin
-  if Screen.PixelsPerInch <= FromDPI then
+  if ToDPI = 0 then ToDPI := ScreenInfo.PixelsPerInchX;
+  if ToDPI <= FromDPI then
     result := Size
   else
-    result := ScaleX(Size, FromDPI);
+    Result := MulDiv(Size, ToDPI, FromDPI);
 end;
 
-function DoScaleY(Size: Integer; FromDPI: Integer): integer;
+function DoScaleY(Size: Integer; FromDPI: Integer; ToDPI: Integer): integer;
 begin
-  if Screen.PixelsPerInch <= FromDPI then
+  if ToDPI = 0 then ToDPI := ScreenInfo.PixelsPerInchY;
+  if ToDPI <= FromDPI then
     result := Size
   else
-    result := ScaleY(Size, FromDPI);
+    Result := MulDiv(Size, ToDPI, FromDPI);
 end;
 
-procedure ScaleDPI(Control: TControl; FromDPI: Integer);
+procedure ScaleDPI(Control: TControl; FromDPI: Integer; ToDPI_X, ToDPI_Y: integer);
 var
   n: Integer;
   WinControl: TWinControl;
   ToolBarControl: TToolBar;
 begin
-  if Screen.PixelsPerInch <= FromDPI then exit;
+  if ToDPI_X = 0 then ToDPI_X := ScreenInfo.PixelsPerInchX;
+  if ToDPI_Y = 0 then ToDPI_Y := ScreenInfo.PixelsPerInchY;
+  if ToDPI_X < FromDPI then ToDPI_X := FromDPI;
+  if ToDPI_Y < FromDPI then ToDPI_Y := FromDPI;
+  if (ToDPI_X = FromDPI) and (ToDPI_Y = FromDPI) then exit;
 
   with Control do begin
-    Left:=ScaleX(Left,FromDPI);
-    Top:=ScaleY(Top,FromDPI);
-    Width:=ScaleX(Width,FromDPI);
-    Height:=ScaleY(Height,FromDPI);
+    Left:=DoScaleX(Left,FromDPI,ToDPI_X);
+    Top:=DoScaleY(Top,FromDPI,ToDPI_Y);
+    Width:=DoScaleX(Width,FromDPI,ToDPI_X);
+    Height:=DoScaleY(Height,FromDPI,ToDPI_Y);
     {$IFDEF LCL Qt}
       Font.Size := 0;
     {$ELSE}
@@ -103,8 +107,8 @@ begin
   if Control is TToolBar then begin
     ToolBarControl:=TToolBar(Control);
     with ToolBarControl do begin
-      ButtonWidth:=ScaleX(ButtonWidth,FromDPI);
-      ButtonHeight:=ScaleY(ButtonHeight,FromDPI);
+      ButtonWidth:=DoScaleX(ButtonWidth,FromDPI,ToDPI_X);
+      ButtonHeight:=DoScaleY(ButtonHeight,FromDPI,ToDPI_Y);
     end;
   end;
 
@@ -113,11 +117,11 @@ begin
     if WinControl.ControlCount > 0 then begin
       for n:=0 to WinControl.ControlCount-1 do begin
         if WinControl.Controls[n] is TControl then begin
-          ScaleDPI(WinControl.Controls[n],FromDPI);
+          ScaleDPI(WinControl.Controls[n],FromDPI,ToDPI_X,ToDPI_Y);
         end;
       end;
     end;
   end;
 end;
 
-end.
+end.

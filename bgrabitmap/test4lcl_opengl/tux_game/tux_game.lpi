@@ -28,19 +28,21 @@
         <LaunchingApplication PathPlusParams="\usr\X11R6\bin\xterm -T 'Lazarus Run Output' -e $(LazarusDir)\tools\runwait.sh $(TargetCmdLine)"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="2">
+    <RequiredPackages Count="3">
       <Item1>
-        <PackageName Value="BGRABitmapPack4LCL_OpenGL"/>
+        <PackageName Value="BGLControls"/>
       </Item1>
       <Item2>
-        <PackageName Value="LCL"/>
+        <PackageName Value="BGRABitmapPack"/>
       </Item2>
+      <Item3>
+        <PackageName Value="LCL"/>
+      </Item3>
     </RequiredPackages>
     <Units Count="3">
       <Unit0>
         <Filename Value="tux_game.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="tux_game"/>
       </Unit0>
       <Unit1>
         <Filename Value="mainunit.pas"/>
@@ -48,12 +50,10 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="MainUnit"/>
       </Unit1>
       <Unit2>
         <Filename Value="ugame.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="UGame"/>
       </Unit2>
     </Units>
   </ProjectOptions>

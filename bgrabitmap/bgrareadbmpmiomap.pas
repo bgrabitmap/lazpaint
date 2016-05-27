@@ -7,6 +7,10 @@ interface
 uses
   Classes, SysUtils, FPimage, BGRABitmapTypes;
 
+const
+  MioMapMagicValue = 'RL';
+  MioMapTransparentColor = $F81F;
+
 type
   TMioHeader = packed record
     magic: packed array[1..2] of char;
@@ -28,9 +32,43 @@ type
     function  InternalCheck (Stream:TStream) : boolean; override;
   end;
 
+function MioMapToBGRA(AColor: Word): TBGRAPixel;
+function BGRAToMioMap(const AColor: TBGRAPixel): Word;
+function MioMapToAlpha(AValue: Byte): Byte;
+function AlphaToMioMap(AValue: Byte): Byte;
+
 implementation
 
 uses bufstream;
+
+function MioMapToBGRA(AColor: Word): TBGRAPixel;
+begin
+  if AColor = MioMapTransparentColor then
+    result := BGRAPixelTransparent
+  else
+    result := Color16BitToBGRA(AColor);
+end;
+
+function BGRAToMioMap(const AColor: TBGRAPixel): Word;
+begin
+  if AColor.alpha < 7 then
+    result := MioMapTransparentColor
+  else
+  begin
+    result := BGRAToColor16Bit(AColor);
+    if result = MioMapTransparentColor then dec(result);
+  end;
+end;
+
+function MioMapToAlpha(AValue: Byte): Byte;
+begin
+  result := AValue*255 div 32;
+end;
+
+function AlphaToMioMap(AValue: Byte): Byte;
+begin
+  result := (AValue*32 + 64) div 255;
+end;
 
 { TBGRAReaderBmpMioMap }
 
@@ -40,7 +78,7 @@ begin
   result := false;
   fillchar({%H-}header,sizeof(header),0);
   if stream.Read(header, sizeof(header))<> sizeof(header) then exit;
-  if header.magic <> 'RL' then exit;
+  if header.magic <> MioMapMagicValue then exit;
   header.format:= LEtoN(header.format);
   header.width:= LEtoN(header.width);
   header.height:= LEtoN(header.height);
@@ -63,12 +101,7 @@ begin
   for i := 0 to nbColorsRead-1 do
   begin
     colorValue := LEtoN(mioPalette[i]);
-    if colorValue = $F81F then
-      result[i] := BGRAPixelTransparent
-    else
-      result[i] := BGRA(   ((colorValue and $F800) shr 11)*255 div 31,
-                           ((colorValue and $07e0) shr 5)*255 div 63,
-                           (colorValue and $001f)*255 div 31);
+    result[i] := MioMapToBGRA(colorValue);
   end;
   for i := nbColorsRead to nbColors-1 do
     result[i] := BGRAPixelTransparent;
@@ -77,8 +110,8 @@ begin
     setlength(alphaPalette,nbColors);
     Stream.Read(alphaPalette[0],nbColors);
     for i := 0 to nbColors-1 do
-      if mioPalette[i] <> $F81F then
-        result[i].alpha := alphaPalette[i]*255 div 32;
+      if mioPalette[i] <> MioMapTransparentColor then
+        result[i].alpha := MioMapToAlpha(alphaPalette[i]);
   end;
 end;
 

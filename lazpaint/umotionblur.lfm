@@ -13,12 +13,12 @@ object FMotionBlur: TFMotionBlur
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '1.0.10.0'
+  LCLVersion = '1.4.0.4'
   object Label_Distance: TLabel
     Left = 11
-    Height = 16
+    Height = 15
     Top = 11
-    Width = 52
+    Width = 51
     Caption = 'Distance :'
     ParentColor = False
   end
@@ -52,18 +52,6 @@ object FMotionBlur: TFMotionBlur
     ModalResult = 2
     TabOrder = 1
   end
-  object SpinEdit_Distance: TSpinEdit
-    Left = 86
-    Height = 23
-    Top = 8
-    Width = 69
-    Increment = 3
-    MaxValue = 10000
-    MinValue = 1
-    OnChange = SpinEdit_DistanceChange
-    TabOrder = 2
-    Value = 5
-  end
   object Checkbox_Oriented: TCheckBox
     Left = 11
     Height = 19
@@ -75,11 +63,24 @@ object FMotionBlur: TFMotionBlur
     State = cbChecked
     TabOrder = 3
   end
+  object SpinEdit_Distance: TFloatSpinEdit
+    Left = 88
+    Height = 23
+    Top = 8
+    Width = 69
+    DecimalPlaces = 1
+    Increment = 3
+    MaxValue = 1000
+    MinValue = 0
+    OnChange = SpinEdit_DistanceChange
+    TabOrder = 2
+    Value = 5
+  end
   object Timer1: TTimer
     Enabled = False
     Interval = 200
     OnTimer = Timer1Timer
-    left = 115
-    top = 44
+    left = 112
+    top = 96
   end
 end

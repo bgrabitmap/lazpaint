@@ -22,16 +22,19 @@ interface
   each scanline is filled with one color. }
 
 uses
-  Classes, SysUtils, BGRAScene3D, BGRABitmapTypes;
+  Classes, SysUtils, BGRAScene3D,
+  BGRAOpenGL, BGRAOpenGL3D,
+  BGRABitmapTypes;
 
 type
 
   { TExample1 }
 
-  TExample1 = class(TBGRAScene3D)
+  TExample1 = class(TBGLScene3D)
     SandColor: TBGRAPixel;
     constructor Create;
     procedure Render; override;
+    procedure RenderGL(ACanvas: TBGLCustomCanvas; AMaxZ: single=1000); override;
   end;
 
 implementation
@@ -71,19 +74,32 @@ begin
   //set ambiant lightness to dark (1 is normal lightness, 2 is complete whiteness)
   AmbiantLightness := 0.5;
   //add a directional light from top-left, maximum lightness will be 0.5 + 1 = 1.5
-  AddDirectionalLight(Point3D(1,1,1),1);
+  AddDirectionalLight(Point3D(1,1,1),0.5);
 
   //we can have high quality antialiasing because it is a simple scene
-  //RenderingOptions.AntialiasingMode := am3dMultishape;
   RenderingOptions.PerspectiveMode := pmLinearMapping;
 end;
 
 procedure TExample1.Render;
 begin
   //fill background
-  Surface.GradientFill(0,0,Surface.Width,Surface.Height,SandColor,MergeBGRA(SandColor,BGRABlack),gtLinear,PointF(0,0),PointF(0,Surface.Height),dmSet);
+  Surface.GradientFill(0,0,Surface.Width,Surface.Height,
+          MergeBGRA(SandColor,1,BGRABlack,1),
+          MergeBGRA(SandColor,1,BGRABlack,2),
+          gtLinear,PointF(0,0),PointF(0,Surface.Height),dmSet);
 
   inherited Render;
+end;
+
+procedure TExample1.RenderGL(ACanvas: TBGLCustomCanvas; AMaxZ: single);
+begin
+  //fill background
+  ACanvas.FillRectLinearColor(0,0,BGLCanvas.Width,BGLCanvas.Height,
+          MergeBGRA(SandColor,1,BGRABlack,1),MergeBGRA(SandColor,1,BGRABlack,1),
+          MergeBGRA(SandColor,1,BGRABlack,2),MergeBGRA(SandColor,1,BGRABlack,2),
+          False);
+
+  inherited RenderGL(ACanvas, AMaxZ);
 end;
 
 end.

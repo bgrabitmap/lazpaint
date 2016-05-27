@@ -57,6 +57,7 @@ type
     function MustUpdateOnAddPoint: boolean; virtual;
     procedure StartArrow(dest: TBGRABitmap); virtual;
     procedure EndArrow(dest: TBGRABitmap); virtual;
+    function GetStatusText: string; override;
   public
     constructor Create(AToolManager: TToolManager); override;
     function GetCurrentPolygonPoints: ArrayOfTPointF;
@@ -574,6 +575,14 @@ procedure TToolGenericPolygon.EndArrow(dest: TBGRABitmap);
 begin
   dest.ArrowStartAsNone;
   dest.ArrowEndAsNone;
+end;
+
+function TToolGenericPolygon.GetStatusText: string;
+begin
+  if length(polygonPoints) > 0 then
+    result := 'n = ' + inttostr(length(polygonPoints))
+  else
+    Result:=inherited GetStatusText;
 end;
 
 constructor TToolGenericPolygon.Create(AToolManager: TToolManager);

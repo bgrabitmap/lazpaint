@@ -13,12 +13,12 @@ object FRadialBlur: TFRadialBlur
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.0.10.0'
+  LCLVersion = '1.4.0.4'
   object Label_Radius: TLabel
     Left = 18
-    Height = 16
+    Height = 15
     Top = 11
-    Width = 42
+    Width = 41
     Caption = 'Radius :'
     ParentColor = False
   end
@@ -42,13 +42,15 @@ object FRadialBlur: TFRadialBlur
     ModalResult = 2
     TabOrder = 1
   end
-  object SpinEdit_Radius: TSpinEdit
+  object SpinEdit_Radius: TFloatSpinEdit
     Left = 78
     Height = 23
     Top = 8
     Width = 79
-    MaxValue = 10000
-    MinValue = 1
+    DecimalPlaces = 1
+    Increment = 1
+    MaxValue = 1000
+    MinValue = 0.1
     OnChange = SpinEdit_RadiusChange
     TabOrder = 2
     Value = 5

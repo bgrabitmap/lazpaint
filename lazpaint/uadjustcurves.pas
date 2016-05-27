@@ -829,6 +829,7 @@ begin
     EnsureCurveExist(tempParameters,'Saturation');
     EnsureCurveExist(tempParameters,'Lightness');
     topmostInfo := AInstance.HideTopmost;
+    ToolBar8.Images := AInstance.Icons[DoScaleY(16,OriginalDPI)];
     try
       Result := self.ShowModal;
     except

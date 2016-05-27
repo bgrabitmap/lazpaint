@@ -25,13 +25,14 @@ interface
   could see the reflection of some white beam. }
 
 uses
-  Classes, SysUtils, BGRAScene3D, BGRABitmapTypes;
+  Classes, SysUtils, BGRAScene3D, BGRABitmapTypes,
+  BGRAOpenGL3D;
 
 type
 
   { TExample3 }
 
-  TExample3 = class(TBGRAScene3D)
+  TExample3 = class(TBGLScene3D)
     constructor Create;
   end;
 
@@ -46,7 +47,7 @@ const
   radius = 20;
   topY = -20;
   bottomY = 20;
-  precision = 15;
+  precision = 40;
 var
   bottom,top: array[1..precision] of IBGRAVertex3D;
   topCoord,bottomCoord: TPoint3D;
@@ -55,8 +56,8 @@ var
 begin
   inherited Create;
 
-  DefaultMaterial.SaturationLow := 1;
-  DefaultMaterial.SaturationHigh := 2;
+  DefaultMaterial.SpecularIndex := 50;
+  DefaultMaterial.AutoSpecularColor:= true;
 
   //create a cylinder
   with CreateObject(BGRA(0,0,255)) do

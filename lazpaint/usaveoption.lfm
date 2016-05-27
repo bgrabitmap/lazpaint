@@ -10,7 +10,7 @@ object FSaveOption: TFSaveOption
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnHide = FormHide
-  LCLVersion = '1.0.10.0'
+  LCLVersion = '1.4.0.4'
   object Panel_Option: TPanel
     Left = 0
     Height = 444
@@ -23,18 +23,18 @@ object FSaveOption: TFSaveOption
     TabOrder = 0
     object Panel_BitsPerPixel: TPanel
       Left = 0
-      Height = 119
+      Height = 128
       Top = 0
       Width = 104
       Align = alTop
-      ClientHeight = 119
+      ClientHeight = 128
       ClientWidth = 104
       TabOrder = 0
       object Label_ColorDepth: TLabel
         Left = 5
-        Height = 16
+        Height = 15
         Top = 3
-        Width = 67
+        Width = 66
         Caption = 'Color depth:'
         ParentColor = False
       end
@@ -68,7 +68,7 @@ object FSaveOption: TFSaveOption
       object RadioButton_24BitsPerPixel: TRadioButton
         Left = 5
         Height = 19
-        Top = 68
+        Top = 84
         Width = 54
         Caption = '24 bits'
         Checked = True
@@ -79,7 +79,7 @@ object FSaveOption: TFSaveOption
       object CheckBox_Dithering: TCheckBox
         Left = 5
         Height = 19
-        Top = 95
+        Top = 104
         Width = 69
         Caption = 'Dithering'
         Checked = True
@@ -87,11 +87,20 @@ object FSaveOption: TFSaveOption
         State = cbChecked
         TabOrder = 4
       end
+      object RadioButton_MioMap: TRadioButton
+        Left = 5
+        Height = 19
+        Top = 68
+        Width = 65
+        Caption = 'MioMap'
+        OnChange = RadioButton_BitsPerPixelChange
+        TabOrder = 5
+      end
     end
     object Panel_Quality: TPanel
       Left = 0
       Height = 206
-      Top = 119
+      Top = 128
       Width = 104
       Align = alTop
       ClientHeight = 206
@@ -112,9 +121,9 @@ object FSaveOption: TFSaveOption
       end
       object Label1: TLabel
         Left = 5
-        Height = 16
+        Height = 15
         Top = 3
-        Width = 42
+        Width = 41
         Caption = 'Quality:'
         ParentColor = False
       end
@@ -129,25 +138,25 @@ object FSaveOption: TFSaveOption
       end
       object Label_0: TLabel
         Left = 60
-        Height = 16
+        Height = 15
         Top = 180
-        Width = 7
+        Width = 6
         Caption = '0'
         ParentColor = False
       end
       object Label_1: TLabel
         Left = 60
-        Height = 16
+        Height = 15
         Top = 50
-        Width = 19
+        Width = 18
         Caption = '100'
         ParentColor = False
       end
       object Label_50: TLabel
         Left = 60
-        Height = 16
+        Height = 15
         Top = 115
-        Width = 13
+        Width = 12
         Caption = '50'
         ParentColor = False
       end
@@ -155,7 +164,7 @@ object FSaveOption: TFSaveOption
     object Panel_OkCancel: TPanel
       Left = 0
       Height = 80
-      Top = 325
+      Top = 334
       Width = 104
       Align = alTop
       ClientHeight = 80
@@ -185,9 +194,9 @@ object FSaveOption: TFSaveOption
       end
       object Label_Size: TLabel
         Left = 7
-        Height = 16
+        Height = 15
         Top = 7
-        Width = 24
+        Width = 23
         Caption = 'Size:'
         ParentColor = False
       end

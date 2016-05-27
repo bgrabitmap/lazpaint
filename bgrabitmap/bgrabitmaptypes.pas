@@ -71,6 +71,9 @@ type
         square shapes in the resulting image }
     rbBox);
 
+  TEmbossOption = (eoTransparent, eoPreserveHue);
+  TEmbossOptions = set of TEmbossOption;
+
   // checks the bounds of an image in the given clipping rectangle
   function CheckPutImageBounds(x, y, tx, ty: integer; out minxb, minyb, maxxb, maxyb, ignoreleft: integer; const cliprect: TRect): boolean;
 

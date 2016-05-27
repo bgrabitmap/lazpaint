@@ -33,6 +33,9 @@ type
     FRedrawOnIdle: boolean;
     FSprites: TBGLCustomSpriteEngine;
     FElapseAccumulator, FElapseCount: integer;
+    FContextPrepared: boolean;
+    FOldSprites: TBGLCustomSpriteEngine;
+    FShaderList,FOldShaderList: TStringList;
     function GetCanvas: TBGLCustomCanvas;
     procedure SetBevelInner(const AValue: TPanelBevel);
     procedure SetBevelOuter(const AValue: TPanelBevel);
@@ -46,6 +49,8 @@ type
     procedure SetEnabled(Value: boolean); override;
     class procedure OnAppIdle(Sender: TObject; var Done: Boolean);
     procedure LoadTextures; virtual;
+    function PrepareBGLContext: TBGLContext;
+    procedure ReleaseBGLContext(ctx: TBGLContext);
   public
     { Public declarations }
     procedure DoOnPaint; override;
@@ -220,16 +225,12 @@ begin
 end;
 
 procedure TCustomBGLVirtualScreen.DoOnPaint;
-var OldSprites: TBGLCustomSpriteEngine;
+var
   ctx: TBGLContext;
 begin
-  OldSprites := BGRASpriteGL.BGLSpriteEngine;
-  BGRASpriteGL.BGLSpriteEngine := FSprites;
-  ctx.Canvas := BGLCanvas;
-  ctx.Sprites := Sprites;
+  if not FTexturesLoaded then LoadTextures;
 
-  if not FTexturesLoaded then
-    LoadTextures;
+  ctx := PrepareBGLContext;
   if Color = clNone then
     BGLViewPort(ClientWidth,ClientHeight)
   else
@@ -255,7 +256,7 @@ begin
   If Assigned(FOnElapse) then
     FOnElapse(self, ctx, FrameDiffTimeInMSecs);
 
-  BGRASpriteGL.BGLSpriteEngine := OldSprites;
+  ReleaseBGLContext(ctx);
 end;
 
 procedure TCustomBGLVirtualScreen.QueryLoadTextures;
@@ -270,12 +271,34 @@ begin
   begin
     if Assigned(FOnLoadTextures) then
     begin
-      ctx.Canvas := BGLCanvas;
-      ctx.Sprites := FSprites;
+      ctx := PrepareBGLContext;
       FOnLoadTextures(self, ctx);
+      ReleaseBGLContext(ctx);
     end;
     FTexturesLoaded:= true;
   end;
+end;
+
+function TCustomBGLVirtualScreen.PrepareBGLContext: TBGLContext;
+begin
+  if FContextPrepared then
+    raise exception.Create('Context already prepared');
+  FOldSprites := BGRASpriteGL.BGLSpriteEngine;
+  BGRASpriteGL.BGLSpriteEngine := FSprites;
+  FOldShaderList := BGLCanvas.Lighting.ShaderList;
+  BGLCanvas.Lighting.ShaderList := FShaderList;
+  result.Canvas := BGLCanvas;
+  result.Sprites := FSprites;
+  FContextPrepared := true;
+end;
+
+procedure TCustomBGLVirtualScreen.ReleaseBGLContext(ctx: TBGLContext);
+begin
+  if not FContextPrepared then
+    raise exception.Create('Context not prepared');
+  ctx.Canvas.Lighting.ShaderList := FOldShaderList;
+  BGRASpriteGL.BGLSpriteEngine := FOldSprites;
+  FContextPrepared := false;
 end;
 
 procedure TCustomBGLVirtualScreen.UnloadTextures;
@@ -283,13 +306,11 @@ var ctx: TBGLContext;
 begin
   if MakeCurrent then
   begin
-    if Assigned(FOnUnloadTextures) then
-    begin
-      ctx.Canvas := BGLCanvas;
-      ctx.Sprites := FSprites;
-      FOnUnloadTextures(self, ctx);
-    end;
+    ctx := PrepareBGLContext;
+    if Assigned(FOnUnloadTextures) then FOnUnloadTextures(self, ctx);
     FSprites.Clear;
+    ctx.Canvas.Lighting.FreeShaders;
+    ReleaseBGLContext(ctx);
     FTexturesLoaded := false;
   end;
 end;
@@ -341,10 +362,16 @@ begin
   FTexturesLoaded:= False;
   AutoResizeViewport := true;
   FSprites := TBGLDefaultSpriteEngine.Create;
+  FShaderList:= TStringList.Create;
 end;
 
 destructor TCustomBGLVirtualScreen.Destroy;
+var
+  i: Integer;
 begin
+  for i := 0 to FShaderList.Count-1 do
+    FShaderList.Objects[i].Free;
+  FShaderList.Free;
   RedrawOnIdle := false;
   FSprites.Free;
   inherited Destroy;

@@ -17,8 +17,8 @@ type
     Button_OK: TButton;
     Button_Cancel: TButton;
     Button3: TButton;
+    SpinEdit_Radius: TFloatSpinEdit;
     Image1: TImage;
-    SpinEdit_Radius: TSpinEdit;
     Label_Radius: TLabel;
     Timer1: TTimer;
     procedure Button_OKClick(Sender: TObject);
@@ -31,20 +31,21 @@ type
     FInitializing: boolean;
     FFilterConnector: TFilterConnector;
     FThreadManager: TFilterThreadManager;
-    FLastRadius: integer;
+    FLastRadius: single;
     procedure PreviewNeeded;
+    procedure UpdateStep;
     procedure OnTaskEvent({%H-}ASender: TObject; AEvent: TThreadManagerEvent);
   public
     blurType: TRadialBlurType;
   end;
 
-function ShowRadialBlurDlg(AFilterConnector: TObject; blurType:TRadialBlurType):boolean;
+function ShowRadialBlurDlg(AFilterConnector: TObject; blurType:TRadialBlurType; ACaption: string = ''):boolean;
 
 implementation
 
 uses UMac, BGRAFilters;
 
-function ShowRadialBlurDlg(AFilterConnector: TObject; blurType:TRadialBlurType):boolean;
+function ShowRadialBlurDlg(AFilterConnector: TObject; blurType:TRadialBlurType; ACaption: string):boolean;
 var
   RadialBlur: TFRadialBlur;
 begin
@@ -53,6 +54,7 @@ begin
   RadialBlur.FFilterConnector := AFilterConnector as TFilterConnector;
   RadialBlur.FThreadManager := TFilterThreadManager.Create(RadialBlur.FFilterConnector);
   RadialBlur.FThreadManager.OnEvent := @RadialBlur.OnTaskEvent;
+  if ACaption<>'' then RadialBlur.Caption := ACaption;
   try
     RadialBlur.blurType := blurType;
     result:= (RadialBlur.ShowModal = mrOk);
@@ -86,13 +88,14 @@ begin
 
   blurType := rbNormal;
   CheckOKCancelBtns(Button_OK,Button_Cancel);
-  CheckSpinEdit(SpinEdit_Radius);
+  CheckFloatSpinEdit(SpinEdit_Radius);
 end;
 
 procedure TFRadialBlur.FormShow(Sender: TObject);
 begin
   FInitializing := True;
   SpinEdit_Radius.Value := FFilterConnector.LazPaintInstance.Config.DefaultBlurRadius;
+  UpdateStep;
   FInitializing := False;
   PreviewNeeded;
   Top := FFilterConnector.LazPaintInstance.MainFormBounds.Top;
@@ -100,7 +103,11 @@ end;
 
 procedure TFRadialBlur.SpinEdit_RadiusChange(Sender: TObject);
 begin
-  if not FInitializing and (SpinEdit_Radius.Value <> FLastRadius) then PreviewNeeded;
+  if not FInitializing and (SpinEdit_Radius.Value <> FLastRadius) then
+  begin
+    UpdateStep;
+    PreviewNeeded;
+  end;
 end;
 
 procedure TFRadialBlur.Timer1Timer(Sender: TObject);
@@ -115,6 +122,17 @@ procedure TFRadialBlur.PreviewNeeded;
 begin
   FLastRadius:= SpinEdit_Radius.Value;
   FThreadManager.WantPreview(CreateRadialBlurTask(FFilterConnector.BackupLayer,FFilterConnector.WorkArea, FLastRadius, blurType));
+end;
+
+procedure TFRadialBlur.UpdateStep;
+var deci: integer;
+begin
+  deci := round(SpinEdit_Radius.Value*10) mod 10;
+  if (SpinEdit_Radius.Value < 2) or ((deci <> 0) and (deci <> 5)) then
+    SpinEdit_Radius.Increment := 0.1 else
+  if (SpinEdit_Radius.Value < 8) or (deci<>0) then
+    SpinEdit_Radius.Increment := 0.5 else
+    SpinEdit_Radius.Increment := 1;
 end;
 
 procedure TFRadialBlur.OnTaskEvent(ASender: TObject; AEvent: TThreadManagerEvent

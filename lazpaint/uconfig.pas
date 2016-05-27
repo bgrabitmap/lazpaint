@@ -58,6 +58,9 @@ type
     class function ClassGetDefaultLangage(AIni: TIniFile): string;
     procedure SetDefaultLangage(value: string);
 
+    function GetLastUpdateCheck: TDateTime;
+    procedure SetLastUpdateCheck(value: TDateTime);
+
     function LatestVersion: string;
     procedure SetLatestVersion(value: string);
     procedure GetUpdatedLanguages(AList: TStringList);
@@ -74,6 +77,9 @@ type
     procedure SetDefaultBrushDirectory(value: string);
     function DefaultPaletteDirectory: string;
     procedure SetDefaultPaletteDirectory(value: string);
+
+    function DefaultIconSize(defaultValue: integer): integer;
+    procedure SetDefaultIconSize(value: integer);
 
     //new image config
     function DefaultImageWidth: integer;
@@ -133,6 +139,11 @@ type
     function DefaultCoordinatesToolbarVisible: boolean;
     procedure SetDefaultCoordinatesToolbarVisible(value: boolean);
 
+    function GetStatusBarVisible: boolean;
+    procedure SetStatusBarVisible(value: boolean);
+    function DefaultUseImageBrowser: boolean;
+    procedure SetDefaultUseImageBrowser(value: boolean);
+
     //tools
     function DefaultToolForeColor: TBGRAPixel;
     function DefaultToolBackColor: TBGRAPixel;
@@ -186,8 +197,8 @@ type
     procedure SetDefaultToolShapeType(value: string);
 
     //radial blur config
-    function DefaultBlurRadius: integer;
-    procedure SetDefaultBlurRadius(value: integer);
+    function DefaultBlurRadius: single;
+    procedure SetDefaultBlurRadius(value: single);
     function DefaultPixelateSize: integer;
     procedure SetDefaultPixelateSize(value: integer);
     function DefaultPixelateQuality: string;
@@ -197,10 +208,10 @@ type
 
     //motion blur config
     function DefaultBlurMotionAngle: double;
-    function DefaultBlurMotionDistance: integer;
+    function DefaultBlurMotionDistance: single;
     function DefaultBlurMotionOriented: boolean;
     procedure SetDefaultBlurMotionAngle(value: double);
-    procedure SetDefaultBlurMotionDistance(value: integer);
+    procedure SetDefaultBlurMotionDistance(value: single);
     procedure SetDefaultBlurMotionOriented(value: boolean);
 
     //custom blur config
@@ -577,6 +588,26 @@ begin
   iniOptions.WriteBool('Toolbar','CoordinatesToolbar',value);
 end;
 
+function TLazPaintConfig.GetStatusBarVisible: boolean;
+begin
+  result := iniOptions.ReadBool('Toolbar','StatusBar',true);
+end;
+
+procedure TLazPaintConfig.SetStatusBarVisible(value: boolean);
+begin
+  iniOptions.WriteBool('Toolbar','StatusBar',value);
+end;
+
+function TLazPaintConfig.DefaultUseImageBrowser: boolean;
+begin
+  result := iniOptions.ReadBool('General','UseImageBrowser',{$IFDEF DARWIN}false{$ELSE}true{$ENDIF});
+end;
+
+procedure TLazPaintConfig.SetDefaultUseImageBrowser(value: boolean);
+begin
+  iniOptions.WriteBool('General','UseImageBrowser',value);
+end;
+
 function TLazPaintConfig.DefaultToolForeColor: TBGRAPixel;
 begin
   result := StrToBGRA(iniOptions.ReadString('Tool','ForeColor','00000080'));
@@ -838,14 +869,14 @@ begin
   iniOptions.WriteString('Filter','ShapeType',value);
 end;
 
-function TLazPaintConfig.DefaultBlurRadius: integer;
+function TLazPaintConfig.DefaultBlurRadius: single;
 begin
-  result := iniOptions.ReadInteger('Filter','BlurRadius',5);
+  result := iniOptions.ReadFloat('Filter','BlurRadius',5);
 end;
 
-procedure TLazPaintConfig.SetDefaultBlurRadius(value: integer);
+procedure TLazPaintConfig.SetDefaultBlurRadius(value: single);
 begin
-  iniOptions.WriteInteger('Filter','BlurRadius',value);
+  iniOptions.WriteFloat('Filter','BlurRadius',value);
 end;
 
 function TLazPaintConfig.DefaultPixelateSize: integer;
@@ -883,9 +914,9 @@ begin
   result := iniOptions.ReadFloat('Filter','MotionBlurAngle',0);
 end;
 
-function TLazPaintConfig.DefaultBlurMotionDistance: integer;
+function TLazPaintConfig.DefaultBlurMotionDistance: single;
 begin
-  result := iniOptions.ReadInteger('Filter','MotionBlurDistance',5);
+  result := iniOptions.ReadFloat('Filter','MotionBlurDistance',5);
 end;
 
 function TLazPaintConfig.DefaultBlurMotionOriented: boolean;
@@ -898,9 +929,9 @@ begin
   iniOptions.WriteFloat('Filter','MotionBlurAngle',value);
 end;
 
-procedure TLazPaintConfig.SetDefaultBlurMotionDistance(value: integer);
+procedure TLazPaintConfig.SetDefaultBlurMotionDistance(value: single);
 begin
-  iniOptions.WriteInteger('Filter','MotionBlurDistance',value);
+  iniOptions.WriteFloat('Filter','MotionBlurDistance',value);
 end;
 
 procedure TLazPaintConfig.SetDefaultBlurMotionOriented(value: boolean);
@@ -1165,6 +1196,16 @@ begin
   iniOptions.WriteString('General','Language',value);
 end;
 
+function TLazPaintConfig.GetLastUpdateCheck: TDateTime;
+begin
+  result := iniOptions.ReadInt64('General','LastUpdateCheck',0);
+end;
+
+procedure TLazPaintConfig.SetLastUpdateCheck(value: TDateTime);
+begin
+ iniOptions.WriteInt64('General','LastUpdateCheck',round(value));
+end;
+
 function TLazPaintConfig.LatestVersion: string;
 begin
   result := iniOptions.ReadString('General','LatestOnlineVersion','');
@@ -1250,6 +1291,17 @@ begin
   iniOptions.WriteString('General','PaletteDirectory',ChompPathDelim(value))
 end;
 
+function TLazPaintConfig.DefaultIconSize(defaultValue: integer): integer;
+begin
+  result := iniOptions.ReadInteger('General','DefaultIconSize',0);
+  if result = 0 then result := defaultValue;
+end;
+
+procedure TLazPaintConfig.SetDefaultIconSize(value: integer);
+begin
+  iniOptions.WriteInteger('General','DefaultIconSize',value);
+end;
+
 function TLazPaintConfig.ScreenSizeChanged: boolean;
 var currentScreenSize,previousScreenSize: TRect;
 begin
@@ -1326,12 +1378,12 @@ begin
   result := recentFiles[Index];
 end;
 
-function TLazPaintConfig.ImageListLastFolder: String;
+function TLazPaintConfig.ImageListLastFolder: string;
 begin
   result := iniOptions.ReadString('ImageList','LastFolder','');
 end;
 
-procedure TLazPaintConfig.SetImageListLastFolder(value: String);
+procedure TLazPaintConfig.SetImageListLastFolder(value: string);
 begin
   iniOptions.WriteString('ImageList','LastFolder',ChompPathDelim(value));
 end;
@@ -1341,7 +1393,7 @@ begin
   result := iniOptions.ReadBool('ImageList','AutoZoom',True);
 end;
 
-procedure TLazPaintConfig.SetImageListAutoZoom(Value: Boolean);
+procedure TLazPaintConfig.SetImageListAutoZoom(value: Boolean);
 begin
   iniOptions.WriteBool('ImageList','AutoZoom',Value);
 end;
@@ -1351,7 +1403,7 @@ begin
   result := iniOptions.ReadBool('ImageList','AutoUncheck',True);
 end;
 
-procedure TLazPaintConfig.SetImageListAutoUncheck(Value: Boolean);
+procedure TLazPaintConfig.SetImageListAutoUncheck(value: Boolean);
 begin
   iniOptions.WriteBool('ImageList','AutoUncheck',Value);
 end;

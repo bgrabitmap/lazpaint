@@ -26,6 +26,7 @@ type
 
   TLazPaintImage = class;
   TOnCurrentSelectionChanged = procedure(ASender: TLazPaintImage; AOffsetOnly: boolean) of object;
+  TOnSelectedLayerIndexChanged = procedure(ASender: TLazPaintImage) of object;
   TOnStackChanged = procedure(ASender: TLazPaintImage; AScrollIntoView: boolean) of object;
   TImageExceptionHandler = procedure(AFunctionName: string; AException: Exception) of object;
   TOnCurrentFilenameChanged = procedure(ASender: TLazPaintImage) of object;
@@ -41,6 +42,7 @@ type
     FLastSelectionLayerBoundsIsDefined: boolean;
     FLastSelectionBounds, FLastSelectionLayerBounds: TRect;
     FOnSelectionChanged: TOnCurrentSelectionChanged;
+    FOnSelectedLayerIndexChanged: TOnSelectedLayerIndexChanged;
     FOnStackChanged: TOnStackChanged;
     FOnQueryExitToolHandler: TOnQueryExitToolHandler;
     FCurrentState: TImageState;
@@ -219,6 +221,7 @@ type
     property Width: integer read GetWidth;
     property Height: integer read GetHeight;
     property OnSelectionChanged: TOnCurrentSelectionChanged read FOnSelectionChanged write FOnSelectionChanged;
+    property OnSelectedLayerIndexChanged: TOnSelectedLayerIndexChanged read FOnSelectedLayerIndexChanged write FOnSelectedLayerIndexChanged;
     property OnStackChanged: TOnStackChanged read FOnStackChanged write FOnStackChanged;
     property OnImageChanged: TLazPaintImageObservable read FOnImageChanged;
     property NbLayers: integer read GetNbLayers;
@@ -1229,6 +1232,7 @@ begin
     exit;
   end;
   FCurrentState.currentLayerIndex := AValue;
+  if assigned(OnSelectedLayerIndexChanged) then OnSelectedLayerIndexChanged(self);
   result := true;
 end;
 
@@ -1905,6 +1909,7 @@ begin
   FRenderUpdateRectInPicCoord := rect(0,0,0,0);
   FRenderUpdateRectInVSCoord := rect(0,0,0,0);
   FOnSelectionChanged := nil;
+  FOnSelectedLayerIndexChanged := nil;
   FOnStackChanged := nil;
   FOnImageChanged := TLazPaintImageObservable.Create(self);
   FUndoList := TList.Create;

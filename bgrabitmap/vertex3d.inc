@@ -1,4 +1,61 @@
 type
+  { TBGRAObject3D }
+
+  TBGRAObject3D = class(TInterfacedObject,IBGRAObject3D)
+  private
+    FColor: TBGRAPixel;
+    FLight: Single;
+    FTexture: IBGRAScanner;
+    FMainPart: IBGRAPart3D;
+    FFaces: array of IBGRAFace3D;
+    FFaceCount: integer;
+    FLightingNormal : TLightingNormal3D;
+    FParentLighting: boolean;
+    FMaterial: IBGRAMaterial3D;
+    FScene: TBGRAScene3D;
+    FFaceColorsInvalidated,
+    FMaterialInvalidated: boolean;
+    procedure AddFace(AFace: IBGRAFace3D);
+  public
+    constructor Create(AScene: TBGRAScene3D);
+    destructor Destroy; override;
+    procedure Clear;
+    procedure InvalidateColor;
+    procedure InvalidateMaterial;
+    function AddFace(const AVertices: array of IBGRAVertex3D): IBGRAFace3D;
+    function AddFace(const AVertices: array of IBGRAVertex3D; ABiface: boolean): IBGRAFace3D;
+    function AddFace(const AVertices: array of IBGRAVertex3D; ATexture: IBGRAScanner): IBGRAFace3D;
+    function AddFace(const AVertices: array of IBGRAVertex3D; AColor: TBGRAPixel): IBGRAFace3D;
+    function AddFace(const AVertices: array of IBGRAVertex3D; AColors: array of TBGRAPixel): IBGRAFace3D;
+    function AddFaceReversed(const AVertices: array of IBGRAVertex3D): IBGRAFace3D;
+    procedure ComputeWithMatrix(constref AMatrix: TMatrix3D; constref AProjection: TProjection3D);
+    function GetColor: TBGRAPixel;
+    function GetLight: Single;
+    function GetTexture: IBGRAScanner;
+    function GetMainPart: IBGRAPart3D;
+    function GetLightingNormal: TLightingNormal3D;
+    function GetParentLighting: boolean;
+    function GetFace(AIndex: integer): IBGRAFace3D;
+    function GetFaceCount: integer;
+    function GetTotalVertexCount: integer;
+    function GetTotalNormalCount: integer;
+    function GetMaterial: IBGRAMaterial3D;
+    procedure SetLightingNormal(const AValue: TLightingNormal3D);
+    procedure SetParentLighting(const AValue: boolean);
+    procedure SetColor(const AValue: TBGRAPixel);
+    procedure SetLight(const AValue: Single);
+    procedure SetTexture(const AValue: IBGRAScanner);
+    procedure SetMaterial(const AValue: IBGRAMaterial3D);
+    procedure RemoveUnusedVertices;
+    procedure SeparatePart(APart: IBGRAPart3D);
+    function GetScene: TObject;
+    function GetRefCount: integer;
+    procedure SetBiface(AValue : boolean);
+    procedure ForEachVertex(ACallback: TVertex3DCallback);
+    procedure ForEachFace(ACallback: TFace3DCallback);
+    procedure Update;
+  end;
+
   { TBGRAVertex3D }
 
   TBGRAVertex3D = class(TInterfacedObject,IBGRAVertex3D)
@@ -10,11 +67,12 @@ type
     FCoordPool: TBGRACoordPool3D;
     FCoordPoolIndex: integer;
     FCustomFlags: DWord;
+    FObject3D: TBGRAObject3D;
     function GetCoordData: PBGRACoordData3D;
-    procedure Init(ACoordPool: TBGRACoordPool3D; ASceneCoord: TPoint3D_128);
+    procedure Init(AObject3D: TBGRAObject3D; ACoordPool: TBGRACoordPool3D; ASceneCoord: TPoint3D_128);
   public
-    constructor Create(ACoordPool: TBGRACoordPool3D; ASceneCoord: TPoint3D); overload;
-    constructor Create(ACoordPool: TBGRACoordPool3D; ASceneCoord: TPoint3D_128); overload;
+    constructor Create(AObject3D: TBGRAObject3D; ACoordPool: TBGRACoordPool3D; ASceneCoord: TPoint3D); overload;
+    constructor Create(AObject3D: TBGRAObject3D; ACoordPool: TBGRACoordPool3D; ASceneCoord: TPoint3D_128); overload;
     destructor Destroy; override;
     function GetColor: TBGRAPixel;
     function GetLight: Single;
@@ -165,8 +223,9 @@ end;
 
 { TBGRAVertex3D }
 
-procedure TBGRAVertex3D.Init(ACoordPool: TBGRACoordPool3D; ASceneCoord: TPoint3D_128);
+procedure TBGRAVertex3D.Init(AObject3D: TBGRAObject3D; ACoordPool: TBGRACoordPool3D; ASceneCoord: TPoint3D_128);
 begin
+  FObject3D := AObject3D;
   FCoordPool := ACoordPool;
   FCoordPoolIndex := FCoordPool.Add;
   FColor := BGRAWhite;
@@ -208,14 +267,14 @@ begin
   result := FCoordPool.CoordData[FCoordPoolIndex]^.customNormal;
 end;
 
-constructor TBGRAVertex3D.Create(ACoordPool: TBGRACoordPool3D; ASceneCoord: TPoint3D);
+constructor TBGRAVertex3D.Create(AObject3D: TBGRAObject3D; ACoordPool: TBGRACoordPool3D; ASceneCoord: TPoint3D);
 begin
-  Init(ACoordPool, Point3D_128(ASceneCoord));
+  Init(AObject3D, ACoordPool, Point3D_128(ASceneCoord));
 end;
 
-constructor TBGRAVertex3D.Create(ACoordPool: TBGRACoordPool3D; ASceneCoord: TPoint3D_128);
+constructor TBGRAVertex3D.Create(AObject3D: TBGRAObject3D; ACoordPool: TBGRACoordPool3D; ASceneCoord: TPoint3D_128);
 begin
-  Init(ACoordPool, ASceneCoord);
+  Init(AObject3D, ACoordPool, ASceneCoord);
 end;
 
 destructor TBGRAVertex3D.Destroy;
@@ -283,6 +342,7 @@ procedure TBGRAVertex3D.SetColor(const AValue: TBGRAPixel);
 begin
   FColor := AValue;
   FParentColor := false;
+  FObject3D.InvalidateColor;
 end;
 
 procedure TBGRAVertex3D.SetLight(const AValue: Single);
@@ -338,6 +398,7 @@ end;
 procedure TBGRAVertex3D.SetParentColor(const AValue: Boolean);
 begin
   FParentColor := AValue;
+  FObject3D.InvalidateColor;
 end;
 
 function TBGRAVertex3D.GetProjectedCoord: TPointF;

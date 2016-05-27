@@ -204,11 +204,15 @@ begin
   begin
     filteredLayer := (FThread as TFilterThread).FilteredLayer;
     currentY := FThread.CurrentY;
-    changedBounds := rect(FFilterConnector.WorkArea.Left,FLastUpdatedY,FFilterConnector.WorkArea.Right,currentY+1);
-    if filteredLayer <> nil then
-      FFilterConnector.PutImage(filteredLayer,changedBounds,False,False)
-    else
-      FFilterConnector.InvalidateActiveLayer(changedBounds);
+    if currentY >= FLastUpdatedY then
+    begin
+      changedBounds := rect(FFilterConnector.WorkArea.Left,FLastUpdatedY,FFilterConnector.WorkArea.Right,currentY);
+      if (currentY < FFilterConnector.WorkArea.Bottom) and (currentY=FLastUpdatedY) then currentY+=1;
+      if filteredLayer <> nil then
+        FFilterConnector.PutImage(filteredLayer,changedBounds,False,False)
+      else
+        FFilterConnector.InvalidateActiveLayer(changedBounds);
+    end;
     FLastUpdatedY := currentY;
   end else
   if Assigned(FNextTask) then

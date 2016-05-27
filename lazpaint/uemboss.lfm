@@ -1,19 +1,19 @@
 object FEmboss: TFEmboss
   Left = 491
-  Height = 196
+  Height = 279
   Top = 168
   Width = 172
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Emboss'
-  ClientHeight = 196
+  ClientHeight = 279
   ClientWidth = 172
   Font.Height = -12
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poMainFormCenter
-  LCLVersion = '1.0.10.0'
+  LCLVersion = '1.4.0.4'
   object PaintBox1: TPaintBox
     Left = 19
     Height = 120
@@ -26,16 +26,16 @@ object FEmboss: TFEmboss
   end
   object Label_Direction: TLabel
     Left = 22
-    Height = 16
+    Height = 15
     Top = 11
-    Width = 55
+    Width = 54
     Caption = 'Direction :'
     ParentColor = False
   end
   object Button_OK: TButton
-    Left = 15
+    Left = 16
     Height = 22
-    Top = 168
+    Top = 248
     Width = 59
     Caption = 'OK'
     Default = True
@@ -43,13 +43,44 @@ object FEmboss: TFEmboss
     TabOrder = 0
   end
   object Button_Cancel: TButton
-    Left = 81
+    Left = 82
     Height = 22
-    Top = 168
+    Top = 248
     Width = 73
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
     TabOrder = 1
+  end
+  object CheckBox_Transparent: TCheckBox
+    Left = 19
+    Height = 19
+    Top = 192
+    Width = 83
+    Caption = 'Transparent'
+    OnChange = CheckBox_Change
+    TabOrder = 2
+  end
+  object TrackBar_Strength: TTrackBar
+    Left = 16
+    Height = 25
+    Top = 160
+    Width = 136
+    Frequency = 64
+    Max = 256
+    OnChange = TrackBar_StrengthChange
+    Position = 64
+    TabOrder = 3
+  end
+  object CheckBox_PreserveColors: TCheckBox
+    Left = 19
+    Height = 19
+    Top = 216
+    Width = 99
+    Caption = 'Preserve colors'
+    Checked = True
+    OnChange = CheckBox_Change
+    State = cbChecked
+    TabOrder = 4
   end
 end

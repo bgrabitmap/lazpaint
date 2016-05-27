@@ -17,9 +17,9 @@ type
     Button_OK: TButton;
     Button_Cancel: TButton;
     Checkbox_Oriented: TCheckBox;
+    SpinEdit_Distance: TFloatSpinEdit;
     Label_Distance: TLabel;
     PaintBox1: TPaintBox;
-    SpinEdit_Distance: TSpinEdit;
     Timer1: TTimer;
     procedure Button_OKClick(Sender: TObject);
     procedure Checkbox_OrientedChange(Sender: TObject);
@@ -44,6 +44,7 @@ type
     InPaintBoxMouseMove: boolean;
     PaintBoxMouseMovePos: TPoint;
     FQuitQuery: boolean;
+    procedure UpdateStep;
     procedure ComputeAngle(X,Y: integer);
     procedure PreviewNeeded;
     procedure OnTaskEvent({%H-}ASender: TObject; AEvent: TThreadManagerEvent);
@@ -111,6 +112,7 @@ end;
 
 procedure TFMotionBlur.SpinEdit_DistanceChange(Sender: TObject);
 begin
+  UpdateStep;
   PreviewNeeded;
 end;
 
@@ -120,6 +122,17 @@ begin
   FThreadManager.RegularCheck;
   Timer1.Interval := 200;
   Timer1.Enabled:= true;
+end;
+
+procedure TFMotionBlur.UpdateStep;
+var deci: integer;
+begin
+  deci := round(SpinEdit_Distance.Value*10) mod 10;
+  if (SpinEdit_Distance.Value < 2) or ((deci <> 0) and (deci <> 5)) then
+    SpinEdit_Distance.Increment := 0.1 else
+  if (SpinEdit_Distance.Value < 8) or (deci<>0) then
+    SpinEdit_Distance.Increment := 0.5 else
+    SpinEdit_Distance.Increment := 1;
 end;
 
 procedure TFMotionBlur.ComputeAngle(X, Y: integer);
@@ -166,7 +179,7 @@ begin
 
   InPaintBoxMouseMove := false;
   CheckOKCancelBtns(Button_OK,Button_Cancel);
-  CheckSpinEdit(SpinEdit_Distance);
+  CheckFloatSpinEdit(SpinEdit_Distance);
 end;
 
 procedure TFMotionBlur.FormShow(Sender: TObject);
@@ -174,6 +187,7 @@ begin
   FQuitQuery := false;
   Checkbox_Oriented.Checked := FFilterConnector.LazPaintInstance.Config.DefaultBlurMotionOriented;
   SpinEdit_Distance.Value := FFilterConnector.LazPaintInstance.Config.DefaultBlurMotionDistance;
+  UpdateStep;
   angle := FFilterConnector.LazPaintInstance.Config.DefaultBlurMotionAngle;
   PreviewNeeded;
   Left := FFilterConnector.LazPaintInstance.MainFormBounds.Left;

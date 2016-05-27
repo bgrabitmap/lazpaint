@@ -70,6 +70,8 @@ type
     function GetMonochrome: boolean; override;
   end;
 
+  TGradientInterpolationFunction = function(t: single): single of object;
+
   { TBGRAMultiGradient }
 
   TBGRAMultiGradient = class(TBGRACustomGradient)
@@ -79,14 +81,18 @@ type
     FPositionsF: array of single;
     FEColors: array of TExpandedPixel;
     FCycle: Boolean;
+    FInterpolationFunction: TGradientInterpolationFunction;
     procedure Init(Colors: array of TBGRAPixel; Positions0To1: array of single; AGammaCorrection, ACycle: boolean);
   public
     GammaCorrection: boolean;
+    function CosineInterpolation(t: single): single;
+    function HalfCosineInterpolation(t: single): single;
     constructor Create(Colors: array of TBGRAPixel; Positions0To1: array of single; AGammaCorrection: boolean; ACycle: boolean = false);
     function GetColorAt(position: integer): TBGRAPixel; override;
     function GetExpandedColorAt(position: integer): TExpandedPixel; override;
     function GetAverageColor: TBGRAPixel; override;
     function GetMonochrome: boolean; override;
+    property InterpolationFunction: TGradientInterpolationFunction read FInterpolationFunction write FInterpolationFunction;
   end;
 
   { TBGRAGradientScanner }
@@ -497,6 +503,16 @@ begin
   if FPositions[high(FPositions)] = FPositions[0] then FCycle := false;
 end;
 
+function TBGRAMultiGradient.CosineInterpolation(t: single): single;
+begin
+  result := (1-cos(t*Pi))*0.5;
+end;
+
+function TBGRAMultiGradient.HalfCosineInterpolation(t: single): single;
+begin
+  result := (1-cos(t*Pi))*0.25 + t*0.5;
+end;
+
 constructor TBGRAMultiGradient.Create(Colors: array of TBGRAPixel;
   Positions0To1: array of single; AGammaCorrection: boolean; ACycle: boolean);
 begin
@@ -504,9 +520,9 @@ begin
 end;
 
 function TBGRAMultiGradient.GetColorAt(position: integer): TBGRAPixel;
-var i: integer;
+var i: NativeInt;
     ec: TExpandedPixel;
-    rw,gw,bw: word;
+    curPos,posDiff: NativeInt;
 begin
   if FCycle then
     position := (position-FPositions[0]) mod (FPositions[high(FPositions)] - FPositions[0]) + FPositions[0];
@@ -522,42 +538,45 @@ begin
     if Position = FPositions[i] then
       result := FColors[i]
     else
-    if GammaCorrection then
     begin
-      if FEColors[i+1].red < FEColors[i].red then
-        ec.red := FEColors[i].red - NativeUInt(position-FPositions[i])*NativeUInt(FEColors[i].red-FEColors[i+1].red) div NativeUInt(FPositions[i+1]-FPositions[i]) else
-        ec.red := FEColors[i].red + NativeUInt(position-FPositions[i])*NativeUInt(FEColors[i+1].red-FEColors[i].red) div NativeUInt(FPositions[i+1]-FPositions[i]);
-      if FEColors[i+1].green < FEColors[i].green then
-        ec.green := FEColors[i].green - NativeUInt(position-FPositions[i])*NativeUInt(FEColors[i].green-FEColors[i+1].green) div NativeUInt(FPositions[i+1]-FPositions[i]) else
-        ec.green := FEColors[i].green + NativeUInt(position-FPositions[i])*NativeUInt(FEColors[i+1].green-FEColors[i].green) div NativeUInt(FPositions[i+1]-FPositions[i]);
-      if FEColors[i+1].blue < FEColors[i].blue then
-        ec.blue := FEColors[i].blue - NativeUInt(position-FPositions[i])*NativeUInt(FEColors[i].blue-FEColors[i+1].blue) div NativeUInt(FPositions[i+1]-FPositions[i]) else
-        ec.blue := FEColors[i].blue + NativeUInt(position-FPositions[i])*NativeUInt(FEColors[i+1].blue-FEColors[i].blue) div NativeUInt(FPositions[i+1]-FPositions[i]);
-      if FEColors[i+1].alpha < FEColors[i].alpha then
-        ec.alpha := FEColors[i].alpha - NativeUInt(position-FPositions[i])*NativeUInt(FEColors[i].alpha-FEColors[i+1].alpha) div NativeUInt(FPositions[i+1]-FPositions[i]) else
-        ec.alpha := FEColors[i].alpha + NativeUInt(position-FPositions[i])*NativeUInt(FEColors[i+1].alpha-FEColors[i].alpha) div NativeUInt(FPositions[i+1]-FPositions[i]);
-      result := GammaCompression(ec);
-    end else
-    begin
-      rw := NativeInt(FColors[i].red shl 8) + (((position-FPositions[i]) shl 8)*(FColors[i+1].red-FColors[i].red)) div (FPositions[i+1]-FPositions[i]);
-      rw := rw+ (rw shr 8);
-      gw := NativeInt(FColors[i].green shl 8) + (((position-FPositions[i]) shl 8)*(FColors[i+1].green-FColors[i].green)) div (FPositions[i+1]-FPositions[i]);
-      gw := gw+ (gw shr 8);
-      bw := NativeInt(FColors[i].blue shl 8) + (((position-FPositions[i]) shl 8)*(FColors[i+1].blue-FColors[i].blue)) div (FPositions[i+1]-FPositions[i]);
-      bw := bw+ (bw shr 8);
-
-      result.red := (GammaExpansionTab[rw shr 8]*NativeUInt(255 - (rw and 255)) + GammaExpansionTab[(rw shr 8)+1]*NativeUInt(rw and 255)) shr 8;
-      result.green := (GammaExpansionTab[gw shr 8]*NativeUInt(255 - (gw and 255)) + GammaExpansionTab[(gw shr 8)+1]*NativeUInt(gw and 255)) shr 8;
-      result.blue := (GammaExpansionTab[bw shr 8]*NativeUInt(255 - (bw and 255)) + GammaExpansionTab[(bw shr 8)+1]*NativeUInt(bw and 255)) shr 8;
-      result.alpha := NativeInt(FColors[i].alpha shl 8) + (((position-FPositions[i]) shl 8)*(FColors[i+1].alpha-FColors[i].alpha)) div (FPositions[i+1]-FPositions[i]);
-      result.alpha := result.alpha + (result.alpha shr 8);
+      curPos := position-FPositions[i];
+      posDiff := FPositions[i+1]-FPositions[i];
+      if FInterpolationFunction <> nil then
+      begin
+        curPos := round(FInterpolationFunction(curPos/posDiff)*65536);
+        posDiff := 65536;
+      end;
+      if GammaCorrection then
+      begin
+        if FEColors[i+1].red < FEColors[i].red then
+          ec.red := FEColors[i].red - NativeUInt(curPos)*NativeUInt(FEColors[i].red-FEColors[i+1].red) div NativeUInt(posDiff) else
+          ec.red := FEColors[i].red + NativeUInt(curPos)*NativeUInt(FEColors[i+1].red-FEColors[i].red) div NativeUInt(posDiff);
+        if FEColors[i+1].green < FEColors[i].green then
+          ec.green := FEColors[i].green - NativeUInt(curPos)*NativeUInt(FEColors[i].green-FEColors[i+1].green) div NativeUInt(posDiff) else
+          ec.green := FEColors[i].green + NativeUInt(curPos)*NativeUInt(FEColors[i+1].green-FEColors[i].green) div NativeUInt(posDiff);
+        if FEColors[i+1].blue < FEColors[i].blue then
+          ec.blue := FEColors[i].blue - NativeUInt(curPos)*NativeUInt(FEColors[i].blue-FEColors[i+1].blue) div NativeUInt(posDiff) else
+          ec.blue := FEColors[i].blue + NativeUInt(curPos)*NativeUInt(FEColors[i+1].blue-FEColors[i].blue) div NativeUInt(posDiff);
+        if FEColors[i+1].alpha < FEColors[i].alpha then
+          ec.alpha := FEColors[i].alpha - NativeUInt(curPos)*NativeUInt(FEColors[i].alpha-FEColors[i+1].alpha) div NativeUInt(posDiff) else
+          ec.alpha := FEColors[i].alpha + NativeUInt(curPos)*NativeUInt(FEColors[i+1].alpha-FEColors[i].alpha) div NativeUInt(posDiff);
+        result := GammaCompression(ec);
+      end else
+      begin
+        result.red := FColors[i].red + (curPos)*(FColors[i+1].red-FColors[i].red) div (posDiff);
+        result.green := FColors[i].green + (curPos)*(FColors[i+1].green-FColors[i].green) div (posDiff);
+        result.blue := FColors[i].blue + (curPos)*(FColors[i+1].blue-FColors[i].blue) div (posDiff);
+        result.alpha := FColors[i].alpha + (curPos)*(FColors[i+1].alpha-FColors[i].alpha) div (posDiff);
+      end;
     end;
   end;
 end;
 
 function TBGRAMultiGradient.GetExpandedColorAt(position: integer
   ): TExpandedPixel;
-var i: integer;
+var i: NativeInt;
+    curPos,posDiff: NativeInt;
+    rw,gw,bw: NativeUInt;
 begin
   if FCycle then
     position := (position-FPositions[0]) mod (FPositions[high(FPositions)] - FPositions[0]) + FPositions[0];
@@ -573,27 +592,43 @@ begin
     if Position = FPositions[i] then
       result := FEColors[i]
     else
-    if GammaCorrection then
     begin
-      if FEColors[i+1].red < FEColors[i].red then
-        result.red := FEColors[i].red - NativeUInt(position-FPositions[i])*NativeUInt(FEColors[i].red-FEColors[i+1].red) div NativeUInt(FPositions[i+1]-FPositions[i]) else
-        result.red := FEColors[i].red + NativeUInt(position-FPositions[i])*NativeUInt(FEColors[i+1].red-FEColors[i].red) div NativeUInt(FPositions[i+1]-FPositions[i]);
-      if FEColors[i+1].green < FEColors[i].green then
-        result.green := FEColors[i].green - NativeUInt(position-FPositions[i])*NativeUInt(FEColors[i].green-FEColors[i+1].green) div NativeUInt(FPositions[i+1]-FPositions[i]) else
-        result.green := FEColors[i].green + NativeUInt(position-FPositions[i])*NativeUInt(FEColors[i+1].green-FEColors[i].green) div NativeUInt(FPositions[i+1]-FPositions[i]);
-      if FEColors[i+1].blue < FEColors[i].blue then
-        result.blue := FEColors[i].blue - NativeUInt(position-FPositions[i])*NativeUInt(FEColors[i].blue-FEColors[i+1].blue) div NativeUInt(FPositions[i+1]-FPositions[i]) else
-        result.blue := FEColors[i].blue + NativeUInt(position-FPositions[i])*NativeUInt(FEColors[i+1].blue-FEColors[i].blue) div NativeUInt(FPositions[i+1]-FPositions[i]);
-      if FEColors[i+1].alpha < FEColors[i].alpha then
-        result.alpha := FEColors[i].alpha - NativeUInt(position-FPositions[i])*NativeUInt(FEColors[i].alpha-FEColors[i+1].alpha) div NativeUInt(FPositions[i+1]-FPositions[i]) else
-        result.alpha := FEColors[i].alpha + NativeUInt(position-FPositions[i])*NativeUInt(FEColors[i+1].alpha-FEColors[i].alpha) div NativeUInt(FPositions[i+1]-FPositions[i]);
-    end else
-    begin
-      result.red := GammaExpansionTab[FColors[i].red + (position-FPositions[i])*(FColors[i+1].red-FColors[i].red) div (FPositions[i+1]-FPositions[i])];
-      result.green := GammaExpansionTab[FColors[i].green + (position-FPositions[i])*(FColors[i+1].green-FColors[i].green) div (FPositions[i+1]-FPositions[i])];
-      result.blue := GammaExpansionTab[FColors[i].blue + (position-FPositions[i])*(FColors[i+1].blue-FColors[i].blue) div (FPositions[i+1]-FPositions[i])];
-      result.alpha := NativeInt(FColors[i].alpha shl 8) + (((position-FPositions[i]) shl 8)*(FColors[i+1].alpha-FColors[i].alpha)) div (FPositions[i+1]-FPositions[i]);
-      result.alpha := result.alpha + (result.alpha shr 8);
+      curPos := position-FPositions[i];
+      posDiff := FPositions[i+1]-FPositions[i];
+      if FInterpolationFunction <> nil then
+      begin
+        curPos := round(FInterpolationFunction(curPos/posDiff)*65536);
+        posDiff := 65536;
+      end;
+      if GammaCorrection then
+      begin
+        if FEColors[i+1].red < FEColors[i].red then
+          result.red := FEColors[i].red - NativeUInt(curPos)*NativeUInt(FEColors[i].red-FEColors[i+1].red) div NativeUInt(posDiff) else
+          result.red := FEColors[i].red + NativeUInt(curPos)*NativeUInt(FEColors[i+1].red-FEColors[i].red) div NativeUInt(posDiff);
+        if FEColors[i+1].green < FEColors[i].green then
+          result.green := FEColors[i].green - NativeUInt(curPos)*NativeUInt(FEColors[i].green-FEColors[i+1].green) div NativeUInt(posDiff) else
+          result.green := FEColors[i].green + NativeUInt(curPos)*NativeUInt(FEColors[i+1].green-FEColors[i].green) div NativeUInt(posDiff);
+        if FEColors[i+1].blue < FEColors[i].blue then
+          result.blue := FEColors[i].blue - NativeUInt(curPos)*NativeUInt(FEColors[i].blue-FEColors[i+1].blue) div NativeUInt(posDiff) else
+          result.blue := FEColors[i].blue + NativeUInt(curPos)*NativeUInt(FEColors[i+1].blue-FEColors[i].blue) div NativeUInt(posDiff);
+        if FEColors[i+1].alpha < FEColors[i].alpha then
+          result.alpha := FEColors[i].alpha - NativeUInt(curPos)*NativeUInt(FEColors[i].alpha-FEColors[i+1].alpha) div NativeUInt(posDiff) else
+          result.alpha := FEColors[i].alpha + NativeUInt(curPos)*NativeUInt(FEColors[i+1].alpha-FEColors[i].alpha) div NativeUInt(posDiff);
+      end else
+      begin
+        rw := NativeInt(FColors[i].red shl 8) + (((curPos) shl 8)*(FColors[i+1].red-FColors[i].red)) div (posDiff);
+        gw := NativeInt(FColors[i].green shl 8) + (((curPos) shl 8)*(FColors[i+1].green-FColors[i].green)) div (posDiff);
+        bw := NativeInt(FColors[i].blue shl 8) + (((curPos) shl 8)*(FColors[i+1].blue-FColors[i].blue)) div (posDiff);
+
+        if rw >= $ff00 then result.red := $ffff
+        else result.red := (GammaExpansionTab[rw shr 8]*NativeUInt(255 - (rw and 255)) + GammaExpansionTab[(rw shr 8)+1]*NativeUInt(rw and 255)) shr 8;
+        if gw >= $ff00 then result.green := $ffff
+        else result.green := (GammaExpansionTab[gw shr 8]*NativeUInt(255 - (gw and 255)) + GammaExpansionTab[(gw shr 8)+1]*NativeUInt(gw and 255)) shr 8;
+        if bw >= $ff00 then result.blue := $ffff
+        else result.blue := (GammaExpansionTab[bw shr 8]*NativeUInt(255 - (bw and 255)) + GammaExpansionTab[(bw shr 8)+1]*NativeUInt(bw and 255)) shr 8;
+        result.alpha := NativeInt(FColors[i].alpha shl 8) + (((curPos) shl 8)*(FColors[i+1].alpha-FColors[i].alpha)) div (posDiff);
+        result.alpha := result.alpha + (result.alpha shr 8);
+      end;
     end;
   end;
 end;

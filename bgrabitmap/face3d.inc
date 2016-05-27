@@ -7,6 +7,8 @@ type
        TexCoord: TPointF;
        ColorOverride: boolean;
        TexCoordOverride: boolean;
+       ActualColor: TBGRAPixel;
+       ActualTexCoord: TPointF;
      end;
 
   { TBGRAFace3D }
@@ -15,8 +17,9 @@ type
   private
     FVertices: packed array of TBGRAFaceVertexDescription;
     FVertexCount: integer;
-    FTexture: IBGRAScanner;
+    FTexture, FActualTexture: IBGRAScanner;
     FMaterial: IBGRAMaterial3D;
+    FActualMaterial: TBGRAMaterial3D;
     FMaterialName: string;
     FParentTexture: boolean;
     FViewNormal: TPoint3D_128;
@@ -29,10 +32,16 @@ type
     function GetCustomFlags: DWord;
     function GetVertexDescription(AIndex : integer): PBGRAFaceVertexDescription;
     procedure SetCustomFlags(AValue: DWord);
+    procedure ComputeActualVertexColor(AIndex: integer);
+    procedure ComputeActualTexCoord(AMinIndex, AMaxIndex: integer);
+    procedure UpdateTexture;
   public
     function GetObject3D: IBGRAObject3D;
     constructor Create(AObject3D: IBGRAObject3D; AVertices: array of IBGRAVertex3D);
     destructor Destroy; override;
+    procedure ComputeVertexColors;
+    procedure UpdateMaterial;
+    procedure FlipFace;
     function AddVertex(AVertex: IBGRAVertex3D): integer;
     function GetParentTexture: boolean;
     function GetTexture: IBGRAScanner;
@@ -88,6 +97,8 @@ type
     property LightThroughFactor: single read GetLightThroughFactor write SetLightThroughFactor;
     property LightThroughFactorOverride: boolean read GetLightThroughFactorOverride write SetLightThroughFactorOverride;
     property Material: IBGRAMaterial3D read GetMaterial write SetMaterial;
+    property ActualMaterial: TBGRAMaterial3D read FActualMaterial;
+    property ActualTexture: IBGRAScanner read FActualTexture;
     property VertexDescription[AIndex : integer]: PBGRAFaceVertexDescription read GetVertexDescription;
     property CustomFlags: DWord read GetCustomFlags write SetCustomFlags;
   end;
@@ -115,6 +126,55 @@ begin
   FCustomFlags:= AValue;
 end;
 
+procedure TBGRAFace3D.ComputeActualVertexColor(AIndex: integer);
+begin
+  with FVertices[AIndex] do
+  begin
+    if ColorOverride then
+      ActualColor := Color
+    else
+    if Vertex.ParentColor then
+      ActualColor := FObject3D.Color
+    else
+      ActualColor := Vertex.Color;
+  end;
+end;
+
+procedure TBGRAFace3D.ComputeActualTexCoord(AMinIndex, AMaxIndex: integer);
+var
+  i: Integer;
+  zoom: TPointF;
+  m: IBGRAMaterial3D;
+begin
+  m := ActualMaterial;
+  if m <> nil then zoom := m.TextureZoom
+  else zoom := PointF(1,1);
+  for i := AMinIndex to AMaxIndex do
+    with FVertices[i] do
+    begin
+      if TexCoordOverride then
+        ActualTexCoord := TexCoord
+      else
+        ActualTexCoord := Vertex.TexCoord;
+      ActualTexCoord.x *= zoom.x;
+      ActualTexCoord.y *= zoom.y;
+    end;
+end;
+
+procedure TBGRAFace3D.UpdateTexture;
+begin
+  if FParentTexture then
+  begin
+    FActualTexture := nil;
+    if FActualMaterial <> nil then
+      FActualTexture := FActualMaterial.GetTexture;
+    if FActualTexture = nil then
+      FActualTexture := FObject3D.Texture
+  end
+  else
+    FActualTexture := FTexture;
+end;
+
 procedure TBGRAFace3D.SetNormal(AIndex: Integer; AValue: IBGRANormal3D);
 begin
   FVertices[AIndex].Normal := AValue;
@@ -130,20 +190,59 @@ constructor TBGRAFace3D.Create(AObject3D: IBGRAObject3D;
 var
   i: Integer;
 begin
-  SetLength(FVertices, length(AVertices));
-  for i:= 0 to high(AVertices) do
-    AddVertex(AVertices[i]);
   FObject3D := AObject3D;
   FBiface := false;
   FParentTexture := True;
   FLightThroughFactor:= 0;
   FLightThroughFactorOverride:= false;
+
+  UpdateMaterial;
+
+  SetLength(FVertices, length(AVertices));
+  for i:= 0 to high(AVertices) do
+    AddVertex(AVertices[i]);
 end;
 
 destructor TBGRAFace3D.Destroy;
 begin
+  FMaterial := nil;
   fillchar(FTexture,sizeof(FTexture),0);
+  fillchar(FActualTexture,sizeof(FActualTexture),0);
   inherited Destroy;
+end;
+
+procedure TBGRAFace3D.ComputeVertexColors;
+var
+  i: Integer;
+begin
+  for i := 0 to FVertexCount-1 do
+    ComputeActualVertexColor(i);
+end;
+
+procedure TBGRAFace3D.UpdateMaterial;
+begin
+  if Material <> nil then
+    FActualMaterial := TBGRAMaterial3D(Material.GetAsObject)
+  else if FObject3D.Material <> nil then
+    FActualMaterial := TBGRAMaterial3D(FObject3D.Material.GetAsObject)
+  else if TBGRAScene3D(FObject3D.Scene).DefaultMaterial <> nil then
+    FActualMaterial := TBGRAMaterial3D(TBGRAScene3D(FObject3D.Scene).DefaultMaterial.GetAsObject);
+
+  UpdateTexture;
+
+  ComputeActualTexCoord(0,FVertexCount-1);
+end;
+
+procedure TBGRAFace3D.FlipFace;
+var i: integer;
+  temp: TBGRAFaceVertexDescription;
+begin
+  for i := 0 to (VertexCount div 2)-1 do
+  begin
+    temp := FVertices[i];
+    FVertices[i] := FVertices[VertexCount-1-i];
+    FVertices[VertexCount-1-i] := temp;
+  end;
 end;
 
 function TBGRAFace3D.AddVertex(AVertex: IBGRAVertex3D): integer;
@@ -160,6 +259,8 @@ begin
     Vertex := AVertex;
     Normal := nil;
   end;
+  ComputeActualVertexColor(result);
+  ComputeActualTexCoord(result,result);
   inc(FVertexCount);
 end;
 
@@ -185,6 +286,7 @@ begin
   if (AIndex < 0) or (AIndex >= FVertexCount) then
     raise Exception.Create('Index out of bounds');
   FVertices[AIndex].Vertex := AValue;
+  ComputeActualVertexColor(AIndex);
 end;
 
 function TBGRAFace3D.GetVertexColor(AIndex: Integer): TBGRAPixel;
@@ -219,12 +321,14 @@ end;
 procedure TBGRAFace3D.SetParentTexture(const AValue: boolean);
 begin
   FParentTexture := AValue;
+  UpdateTexture;
 end;
 
 procedure TBGRAFace3D.SetTexture(const AValue: IBGRAScanner);
 begin
   FTexture := AValue;
   FParentTexture := false;
+  UpdateTexture;
 end;
 
 procedure TBGRAFace3D.SetColor(AColor: TBGRAPixel);
@@ -244,6 +348,7 @@ begin
     Color := AValue;
     ColorOverride := true;
   end;
+  ComputeActualVertexColor(AIndex);
 end;
 
 procedure TBGRAFace3D.SetVertexColorOverride(AIndex: Integer;
@@ -252,6 +357,7 @@ begin
   if (AIndex < 0) or (AIndex >= FVertexCount) then
     raise Exception.Create('Index out of bounds');
   FVertices[AIndex].ColorOverride := AValue;
+  ComputeActualVertexColor(AIndex);
 end;
 
 function TBGRAFace3D.GetTexCoord(AIndex: Integer): TPointF;
@@ -274,6 +380,7 @@ begin
     raise Exception.Create('Index out of bounds');
   FVertices[AIndex].TexCoord := AValue;
   FVertices[AIndex].TexCoordOverride := true;
+  ComputeActualTexCoord(AIndex, AIndex);
 end;
 
 procedure TBGRAFace3D.SetTexCoordOverride(AIndex: Integer; const AValue: boolean
@@ -373,7 +480,11 @@ end;
 
 procedure TBGRAFace3D.SetMaterial(const AValue: IBGRAMaterial3D);
 begin
-  FMaterial := AValue;
+  if AValue <> FMaterial then
+  begin
+    FMaterial := AValue;
+    UpdateMaterial;
+  end;
 end;
 
 procedure TBGRAFace3D.SetMaterialName(const AValue: string);
@@ -381,7 +492,7 @@ begin
   if AValue <> FMaterialName then
   begin
     FMaterialName := AValue;
-    FObject3D.Scene.UseMaterial(FMaterialName, self);
+    TBGRAScene3D(FObject3D.Scene).UseMaterial(FMaterialName, self);
   end;
 end;
 

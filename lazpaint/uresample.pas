@@ -111,6 +111,7 @@ end;
 procedure TFResample.FormShow(Sender: TObject);
 var idxQuality: integer;
 begin
+  ToolBar8.Images := LazPaintInstance.Icons[DoScaleY(16,OriginalDPI)];
   FIgnoreInput := true;
   idxQuality := LazPaintInstance.Config.DefaultResampleQuality;
   if (idxQuality >= 0) and (idxQuality < ComboBox_Quality.Items.Count) then

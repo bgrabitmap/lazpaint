@@ -1,7 +1,7 @@
 object FResample: TFResample
-  Left = 327
+  Left = 709
   Height = 161
-  Top = 238
+  Top = 181
   Width = 462
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
@@ -12,28 +12,28 @@ object FResample: TFResample
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.0.10.0'
+  LCLVersion = '1.4.0.4'
   object Label_Quality: TLabel
     Left = 10
-    Height = 16
+    Height = 15
     Top = 13
-    Width = 45
+    Width = 44
     Caption = 'Quality :'
     ParentColor = False
   end
   object Label_Width: TLabel
     Left = 38
-    Height = 16
+    Height = 15
     Top = 73
-    Width = 39
+    Width = 38
     Caption = 'Width :'
     ParentColor = False
   end
   object Label_Height: TLabel
     Left = 38
-    Height = 16
+    Height = 15
     Top = 100
-    Width = 43
+    Width = 42
     Caption = 'Height :'
     ParentColor = False
   end
@@ -108,7 +108,7 @@ object FResample: TFResample
     Width = 24
     Align = alNone
     EdgeBorders = []
-    Images = FMain.ImageList1
+    Images = FMain.ImageList16
     TabOrder = 6
     object ToolButton23: TToolButton
       Left = 1

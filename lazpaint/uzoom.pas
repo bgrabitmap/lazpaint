@@ -44,6 +44,7 @@ type
     procedure EditZoom_ZoomExit(Sender: TObject);
     procedure LabelCurrentZoom_Click(Sender: TObject);
     procedure UpdateLabel;
+    function RoundZoom(AValue: single): single;
   public
     constructor Create(ALabelCurrentZoom: TLabel; AEditZoom: TEdit; ALayout: TCustomMainFormLayout);
     destructor Destroy; override;
@@ -144,6 +145,28 @@ begin
      FLabelCurrentZoom.Caption := 'x'+FloatToStr(round(Factor*100)/100);
 end;
 
+function TZoom.RoundZoom(AValue: single): single;
+var zoomFactorLog,halfZoom,sign: single;
+begin
+  halfZoom := ln(1.5)/ln(2);
+  zoomFactorLog := ln(AValue)/ln(2);
+  if zoomFactorLog < 0 then
+  begin
+    sign := -1;
+    zoomFactorLog:= -zoomFactorLog;
+  end else
+    sign := 1;
+  if frac(zoomFactorLog) >= (halfZoom+1)/2 then
+    zoomFactorLog:= ceil(zoomFactorLog)
+  else
+  if frac(zoomFactorLog) >= halfZoom/2 then
+    zoomFactorLog:= floor(zoomFactorLog)+halfZoom
+  else
+    zoomFactorLog:= floor(zoomFactorLog);
+
+  result := exp(sign*zoomFactorLog*ln(2));
+end;
+
 procedure TZoom.EditZoom_KeyPress(Sender: TObject; var Key: char);
 begin
   if Key = #13 then
@@ -218,19 +241,19 @@ begin
 end;
 
 procedure TZoom.ZoomIn;
-var zoomFactorLog: integer;
 begin
-  zoomFactorLog := ceil(ln(Factor)/ln(2)+0.001);
-  if zoomFactorLog >= 0 then Factor := 1 shl zoomFactorLog
-  else Factor := 1/(1 shl (-zoomFactorLog));
+  if RoundZoom(Factor) > Factor then
+    Factor := RoundZoom(Factor)
+  else
+    Factor := RoundZoom(Factor*sqrt(2));
 end;
 
 procedure TZoom.ZoomOut;
-var zoomFactorLog: integer;
 begin
-  zoomFactorLog := floor(ln(Factor)/ln(2)-0.001);
-  if zoomFactorLog >= 0 then Factor := 1 shl zoomFactorLog
-  else Factor := 1/(1 shl (-zoomFactorLog));
+  if RoundZoom(Factor) < Factor then
+    Factor := RoundZoom(Factor)
+  else
+    Factor := RoundZoom(Factor/sqrt(2));
 end;
 
 procedure TZoom.SetPosition(ABitmapPosition: TPointF; AMousePosition: TPoint);

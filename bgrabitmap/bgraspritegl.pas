@@ -235,7 +235,11 @@ procedure TBGLDefaultSpriteEngine.Clear;
 var i: integer;
 begin
   for i := 0 to Count-1 do
-    FSprites[i].Free;
+  begin
+    FSpriteRemoved := FSprites[i];
+    FSpriteRemoved.Free;
+    FSpriteRemoved := nil;
+  end;
   FSprites := nil;
   FSpritesCount := 0;
 end;
@@ -497,7 +501,8 @@ end;
 
 destructor TBGLCustomSprite.Destroy;
 begin
-  BGLSpriteEngine.Remove(self);
+  if Assigned(BGLSpriteEngine) then
+    BGLSpriteEngine.Remove(self);
   inherited Destroy;
 end;
 

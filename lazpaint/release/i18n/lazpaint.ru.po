@@ -53,11 +53,6 @@ msgctxt "tfabout.label_libraries.caption"
 msgid "Libraries used:"
 msgstr "Библиотеки:"
 
-#: tfabout.label_librariesvalue.caption
-msgctxt "tfabout.label_librariesvalue.caption"
-msgid "BGRABitmap (LGPL)"
-msgstr "BGRABitmap (LGPL)"
-
 #: tfabout.label_licence.caption
 msgctxt "tfabout.label_licence.caption"
 msgid "Licence:"
@@ -350,6 +345,14 @@ msgctxt "tfemboss.caption"
 msgid "Emboss"
 msgstr "Тиснение"
 
+#: tfemboss.checkbox_preservecolors.caption
+msgid "Preserve colors"
+msgstr ""
+
+#: tfemboss.checkbox_transparent.caption
+msgid "Transparent"
+msgstr ""
+
 #: tfemboss.label_direction.caption
 msgctxt "tfemboss.label_direction.caption"
 msgid "Direction :"
@@ -418,6 +421,7 @@ msgid "HSL"
 msgstr "HSL"
 
 #: tffilterfunction.tabsheet_rgb.caption
+msgctxt "tffilterfunction.tabsheet_rgb.caption"
 msgid "RGB"
 msgstr "RGB"
 
@@ -784,6 +788,11 @@ msgctxt "TFMAIN.FILESAVESELECTIONAS.CAPTION"
 msgid "Save selection as..."
 msgstr "Сохранить выделение как ..."
 
+#: tfmain.fileuseimagebrowser.caption
+msgctxt "tfmain.fileuseimagebrowser.caption"
+msgid "Use image browser"
+msgstr ""
+
 #: tfmain.filterblurbox.caption
 msgid "Box blur..."
 msgstr ""
@@ -1030,10 +1039,39 @@ msgctxt "tfmain.itemhorizflipselection.caption"
 msgid "Selection"
 msgstr "Выделение"
 
+#: tfmain.itemiconsize16.caption
+msgid "16px"
+msgstr ""
+
+#: tfmain.itemiconsize24.caption
+msgid "24px"
+msgstr ""
+
+#: tfmain.itemiconsize32.caption
+msgid "32px"
+msgstr ""
+
+#: tfmain.itemiconsize48.caption
+msgid "48px"
+msgstr ""
+
+#: tfmain.itemiconsize64.caption
+msgid "64px"
+msgstr ""
+
+#: tfmain.itemiconsizeauto.caption
+msgid "auto"
+msgstr ""
+
 #: tfmain.itemquitseparator.caption
 msgctxt "tfmain.itemquitseparator.caption"
 msgid "-"
 msgstr "-"
+
+#: tfmain.itemuseimagebrowser.caption
+msgctxt "tfmain.itemuseimagebrowser.caption"
+msgid "Use image browser"
+msgstr ""
 
 #: tfmain.itemvertfliplayer.caption
 msgctxt "tfmain.itemvertfliplayer.caption"
@@ -1052,10 +1090,6 @@ msgstr "Выделение"
 
 #: tfmain.itemviewdocktoolbox.caption
 msgid "Dock toolbox"
-msgstr ""
-
-#: tfmain.itemviewpalette.caption
-msgid "Palette"
 msgstr ""
 
 #: tfmain.label_altitude.caption
@@ -1263,6 +1297,10 @@ msgstr "Горизонтальное отражение"
 msgctxt "tfmain.menuhorizflipsub.hint"
 msgid "Flip image horizontally"
 msgstr "Отразить изображение по горизонтали"
+
+#: tfmain.menuiconsize.caption
+msgid "Icon size"
+msgstr ""
 
 #: tfmain.menuimage.caption
 msgctxt "tfmain.menuimage.caption"
@@ -1828,6 +1866,15 @@ msgstr "Показать слои"
 msgid "Show or hide layer stack window"
 msgstr "Показать/скрыть окно стека слоев"
 
+#: tfmain.viewpalette.caption
+msgctxt "tfmain.viewpalette.caption"
+msgid "Palette"
+msgstr ""
+
+#: tfmain.viewstatusbar.caption
+msgid "Status bar"
+msgstr ""
+
 #: tfmain.viewtoolbox.caption
 msgid "Toolbox"
 msgstr "Инструменты"
@@ -1971,6 +2018,46 @@ msgstr "ОК"
 msgid "Choose image"
 msgstr ""
 
+#: tfnewimage.bgrashape1.caption
+msgid "BGRAShape1"
+msgstr ""
+
+#: tfnewimage.bgrashape10.caption
+msgid "BGRAShape10"
+msgstr ""
+
+#: tfnewimage.bgrashape2.caption
+msgid "BGRAShape2"
+msgstr ""
+
+#: tfnewimage.bgrashape3.caption
+msgid "BGRAShape3"
+msgstr ""
+
+#: tfnewimage.bgrashape4.caption
+msgid "BGRAShape4"
+msgstr ""
+
+#: tfnewimage.bgrashape5.caption
+msgid "BGRAShape5"
+msgstr ""
+
+#: tfnewimage.bgrashape6.caption
+msgid "BGRAShape6"
+msgstr ""
+
+#: tfnewimage.bgrashape7.caption
+msgid "BGRAShape7"
+msgstr ""
+
+#: tfnewimage.bgrashape8.caption
+msgid "BGRAShape8"
+msgstr ""
+
+#: tfnewimage.bgrashape9.caption
+msgid "BGRAShape9"
+msgstr ""
+
 #: tfnewimage.button_cancel.caption
 msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -1990,6 +2077,14 @@ msgstr "Новое изображение"
 msgctxt "tfnewimage.label_height.caption"
 msgid "Height :"
 msgstr "Высота:"
+
+#: tfnewimage.label_height1.caption
+msgid "Ratio :"
+msgstr ""
+
+#: tfnewimage.label_memoryrequired.caption
+msgid "Memory required :"
+msgstr ""
 
 #: tfnewimage.label_width.caption
 msgctxt "tfnewimage.label_width.caption"
@@ -2478,6 +2573,10 @@ msgstr ""
 msgid "2 colors"
 msgstr ""
 
+#: tfsaveoption.radiobutton_miomap.caption
+msgid "MioMap"
+msgstr ""
+
 #: tfsharpen.button_cancel.caption
 msgctxt "tfsharpen.button_cancel.caption"
 msgid "Cancel"
@@ -2656,6 +2755,16 @@ msgstr "Противоречивые действия"
 msgid "Contrast"
 msgstr ""
 
+#: uresourcestrings.rscorrectedhueccw
+msgctxt "uresourcestrings.rscorrectedhueccw"
+msgid "Corr. Hue CCW"
+msgstr ""
+
+#: uresourcestrings.rscorrectedhuecw
+msgctxt "uresourcestrings.rscorrectedhuecw"
+msgid "Corr. Hue CW"
+msgstr ""
+
 #: uresourcestrings.rscosine
 msgid "Cosine"
 msgstr "Косинус"
@@ -2810,6 +2919,16 @@ msgctxt "uresourcestrings.rshue"
 msgid "Hue"
 msgstr "Оттенок"
 
+#: uresourcestrings.rshueccw
+msgctxt "uresourcestrings.rshueccw"
+msgid "Hue CCW"
+msgstr ""
+
+#: uresourcestrings.rshuecw
+msgctxt "uresourcestrings.rshuecw"
+msgid "Hue CW"
+msgstr ""
+
 #: uresourcestrings.rsiconorcursor
 msgid "Icon/cursor"
 msgstr ""
@@ -2892,6 +3011,10 @@ msgstr "Позиция света"
 #: uresourcestrings.rslinear
 msgid "Linear"
 msgstr "Линейный"
+
+#: uresourcestrings.rslinearrgb
+msgid "Linear RGB"
+msgstr ""
 
 #: uresourcestrings.rsloadandmergepalette
 msgid "Load and merge palette..."
@@ -3085,6 +3208,11 @@ msgstr "Вы хотите получить выделенную область?"
 msgid "Press ENTER to validate"
 msgstr "Нажмите ENTER для подтверждения"
 
+#: uresourcestrings.rsrgb
+msgctxt "uresourcestrings.rsrgb"
+msgid "RGB"
+msgstr "RGB"
+
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
 msgstr ""
@@ -3134,6 +3262,11 @@ msgstr "Сплайн"
 msgid "Device"
 msgstr ""
 
+#: uresourcestrings.rstexturemapping
+msgctxt "uresourcestrings.rstexturemapping"
+msgid "Texture mapping"
+msgstr "Отображение текстуры"
+
 #: uresourcestrings.rstherearenocheckeditems
 msgid "There are no checked items. Check some items or add some new ones."
 msgstr ""
@@ -3150,6 +3283,10 @@ msgstr ""
 msgid "Images left: %1"
 msgstr ""
 
+#: uresourcestrings.rstooloninvisiblelayer
+msgid "Tool cannot be used on an invisible layer"
+msgstr ""
+
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"
 msgstr ""
@@ -3157,6 +3294,10 @@ msgstr ""
 #: uresourcestrings.rstransferselectiontootherlayer
 msgid "Transfer selection to other layer?"
 msgstr "Перенести выделение на другой слой?"
+
+#: uresourcestrings.rstransformselectioncontent
+msgid "Do you want to transform content of the selection?"
+msgstr ""
 
 #: uresourcestrings.rsunabletoapplyfilter
 msgid "Unable to apply filter : "

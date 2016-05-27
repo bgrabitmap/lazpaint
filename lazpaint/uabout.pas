@@ -21,7 +21,6 @@ type
     Label_AuthorsValue: TLabel;
     LabelUrl: TLabel;
     Label_Libraries: TLabel;
-    Label_LibrariesValue: TLabel;
     Label_Licence: TLabel;
     Label_OpenSource: TLabel;
     Panel1: TPanel;
@@ -36,6 +35,7 @@ type
     procedure Timer1Timer(Sender: TObject);
   private
     { private declarations }
+    FLabelLibraries: TLabel;
     FInstance: TLazPaintCustomInstance;
     titleStartTime: TDateTime;
     frameNumber: integer;
@@ -139,6 +139,14 @@ begin
   titlefont.Free;
   shader := TPhongShading.Create;
   xTxt := -1;
+
+  FLabelLibraries := TLabel.Create(self);
+  FLabelLibraries.Font := Label_Libraries.Font;
+  FLabelLibraries.AutoSize := true;
+  FLabelLibraries.Caption := 'BGRABitmap, BGRAControls, LNet';
+  FLabelLibraries.Top := Label_Libraries.Top;
+  FLabelLibraries.Left := Label_OpenSource.Left;
+  Panel2.InsertControl(FLabelLibraries);
 end;
 
 procedure TFAbout.Button_DonateClick(Sender: TObject);
@@ -155,4 +163,4 @@ end;
 {$R *.lfm}
 
 end.
-
+

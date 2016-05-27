@@ -19,9 +19,7 @@ function ClipboardContainsBitmap: boolean;
 implementation
 
 uses Dialogs, BGRABitmapTypes, Clipbrd, Graphics, LCLIntf, LCLType,
-    BGRADNetDeserial, math, GraphType
-
-    , FPWriteBMP
+    BGRADNetDeserial, math, GraphType, fphttpclient, FPWriteBMP
 {$IFDEF TIFF_CLIPBOARD_FORMAT}, FPReadTIFF, FPWriteTIFF
 {$ENDIF};
 
@@ -128,6 +126,215 @@ begin
   end;
 end;
 
+function WideStringToStr(data: string): string;
+var
+  i: integer;
+  isWidestring: boolean;
+  w: WideString;
+begin
+  isWidestring := (length(data)>0) and ((length(data) and 1) = 0);
+  i := 2;
+  while (i <= length(data)) do
+  begin
+    if data[i] <> #0 then
+    begin
+      isWidestring := false;
+      break;
+    end;
+    inc(i,2);
+  end;
+  if isWidestring then
+  begin
+    setlength(w, length(data) div 2);
+    move(data[1],w[1],length(data));
+    result := w;
+  end
+    else result := data;
+end;
+
+function HtmlEntitiesToText(data: string): string;
+var p,start: integer;
+  entity: string;
+  charcode,errpos: integer;
+begin
+  p := 1;
+  while p <= length(data)-1 do
+  begin
+    if (data[p]='&') and (data[p+1] in ['#','a'..'z','A'..'Z']) then
+    begin
+      start := p;
+      inc(p);
+      while (p < length(data)) and (data[p+1] in['0'..'9','a'..'z','A'..'Z']) do inc(p);
+      entity := copy(data,start,p-start +1);
+      if (p < length(data)) and (data[p+1] = ';') then inc(p);
+      delete(data, start, p-start+1);
+      p := start;
+      case entity of
+      '&nbsp': entity := #160;
+      '&lt': entity := '<';
+      '&gt': entity := '>';
+      '&amp': entity := '&';
+      else
+        begin
+          if copy(entity,1,2)='&#' then
+          begin
+            val(copy(entity,3,length(entity)-2),charcode,errpos);
+            if (errpos = 0) and (charcode <= 127) then
+              entity := char(charcode);
+          end;
+        end;
+      end;
+      insert(entity,data,p);
+      inc(p,length(entity));
+      continue;
+    end;
+    inc(p);
+  end;
+  result := data;
+end;
+
+function GetBitmapFromTag(tokens: TStringList): TBGRABitmap;
+var
+  i: Integer;
+  stream: TMemoryStream;
+  url: string;
+begin
+  if tokens.Count > 0 then
+  begin
+    if UpperCase(tokens[0]) = 'IMG' then
+    begin
+      for i := 1 to tokens.count-3 do
+        if (UpperCase(tokens[i])='SRC')
+            and (tokens[i+1]='=') and (tokens[i+2][1] in ['''','"']) then
+      begin
+        url := HtmlEntitiesToText(copy(tokens[i+2],2,length(tokens[i+2])-2));
+        if copy(url,1,8) = 'https://' then
+          delete(url,5,1);
+        stream := TMemoryStream.Create;
+        try
+          TFPHttpClient.SimpleGet(url,stream);
+          stream.Position:= 0;
+          result := TBGRABitmap.Create(stream);
+        except on ex: exception do begin
+            ShowMessage(ex.Message);
+          end;
+        end;
+        stream.Free;
+        if result <> nil then exit;
+      end;
+    end;
+  end;
+  result := nil;
+end;
+
+function GetBitmapFromHtml(data: string): TBGRABitmap;
+var
+  p: integer;
+  inTag, inComment: boolean;
+  tagTokens: TStringList;
+  inStr1, inStr2, inId, inNum: integer;
+begin
+  result := nil;
+  data := WideStringToStr(data);
+  inTag := false;
+  inComment := false;
+  inStr1 := 0;
+  inStr2 := 0;
+  inId := 0;
+  inNum := 0;
+  tagTokens := TStringList.Create;
+  p := 1;
+  while p <= length(data) do
+  begin
+    if inComment then
+    begin
+      if data[p] = '-' then
+      begin
+        if copy(data,p,3) = '-->' then
+        begin
+          p += 3;
+          inComment:= false;
+          continue;
+        end;
+      end;
+    end else
+    if inStr1<>0 then
+    begin
+      if data[p] = '''' then
+      begin
+        tagTokens.add(copy(data,inStr1,p-inStr1+1));
+        inStr1 := 0;
+      end;
+    end else
+    if inStr2<>0 then
+    begin
+      if data[p] = '"' then
+      begin
+        tagTokens.add(copy(data,inStr2,p-inStr2+1));
+        inStr2 := 0;
+      end;
+    end else
+    begin
+      if inId<>0 then
+      begin
+        if not (data[p] in['A'..'Z','a'..'z',':','.']) then
+        begin
+          tagTokens.add(copy(data,inId,p-inId));
+          inId := 0;
+        end else
+        begin
+          inc(p);
+          continue;
+        end;
+      end;
+      if inNum<>0 then
+      begin
+        if not (data[p] in['0'..'9','.']) then
+        begin
+          tagTokens.add(copy(data,inNum,p-inNum));
+          inNum := 0;
+        end else
+        begin
+          inc(p);
+          continue;
+        end;
+      end;
+      if data[p]='<' then
+      begin
+        if copy(data,p,4) = '<!--' then
+        begin
+          p += 4;
+          inComment := true;
+          continue;
+        end else
+          inTag := true;
+      end else
+      if inTag then
+      begin
+        if data[p] = '''' then
+          inStr1 := p
+        else if data[p] = '"' then
+          inStr2 := p
+        else if data[p] in ['A'..'Z','a'..'z'] then
+          inId := p
+        else if data[p] in ['0'..'9','+','-'] then
+          inNum := p
+        else if data[p] = '>' then
+        begin
+          inTag := false;
+          result := GetBitmapFromTag(tagTokens);
+          tagTokens.clear;
+          if result <> nil then exit;
+        end else
+          if data[p]>#32 then
+            tagTokens.Add(data[p]);
+      end;
+    end;
+    inc(p);
+  end;
+  tagTokens.Free;
+end;
+
 function SafeClipboardFormatToMimeType(FormatID: TClipboardFormat): string;
 begin
   try
@@ -145,12 +352,14 @@ var i: integer;
 {$IFDEF DEBUG_CLIPBOARD}
     j: integer;
     pcf: TPredefinedClipboardFormat;
-    str,mime: string;
-    data : string;
+    str: string;
+
     c: char;
+    prevCok: boolean;
 {$ENDIF}
 
     deserial: TDotNetDeserialization;
+    mime, data: string;
 
 begin
   result := nil;
@@ -160,7 +369,7 @@ begin
   for i := 0 to clipboard.FormatCount-1 do
   begin
     if str <> '' then str += ', ';
-    str := str + inttostr(clipboard.Formats[i])+'=';
+    str := str + '#'+inttostr(clipboard.Formats[i])+'=';
     mime := ClipboardFormatToMimeType(clipboard.Formats[i]);
     if mime = '' then
       for pcf := low(TPredefinedClipboardFormat) to high(TPredefinedClipboardFormat) do
@@ -172,38 +381,46 @@ begin
            mime := moreMimeTypes[j];
     str += mime;
 
-    if (mime = 'PSP Selection Mask') or (mime = 'image/bmp') then
+    stream := TMemoryStream.Create;
+    Clipboard.GetFormat(Clipboard.Formats[i],Stream);
+
+    str += '('+inttostr(stream.Size)+' bytes)';
+    if (mime = 'DataObject') or (mime = 'text/html') or (mime = 'HTML Format') or (mime = 'text/plain') then
     begin
-      stream := TMemoryStream.Create;
-      Clipboard.GetFormat(Clipboard.Formats[i],Stream);
-
-      str += '['+inttostr(stream.Size)+' o]';
-
        if stream.Size > 1024 then
         setlength(data,1024) else
           setlength(data,stream.size);
       stream.Position:= 0;
       stream.read(data[1],length(data));
 
-      str += LineEnding+'Data=[';
+      str += '=[';
+      prevCok := false;
       for j := 1 to length(data) do
       begin
         c := data[j];
         if c in[#32..#126] then
-          str+= c else
-        str += ' '+inttohex(ord(c),2)+' ';
+        begin
+          str+= c;
+          prevCok := true
+        end else
+        begin
+          if not (prevCOk and (c = #0)) then
+            str += ' '+inttohex(ord(c),2)+' ';
+          prevCok := false;
+        end;
       end;
-      str += ']'+lineending+lineending;
-
-      stream.Free;
+      str += ']'+lineending;
     end;
+    stream.Free;
 
   end;
   ShowMessage(str);
   {$ENDIF}
 
   for i := 0 to clipboard.FormatCount-1 do
-    if SafeClipboardFormatToMimeType(Clipboard.Formats[i]) = 'PaintDotNet.MaskedSurface' then
+  begin
+    mime := SafeClipboardFormatToMimeType(Clipboard.Formats[i]);
+    if mime = 'PaintDotNet.MaskedSurface' then
     begin
        Stream := TMemoryStream.Create;
        Clipboard.GetFormat(Clipboard.Formats[i],Stream);
@@ -211,10 +428,30 @@ begin
        deserial := TDotNetDeserialization.Create;
        deserial.LoadFromStream(stream);
        Stream.Free;
-       result := GetBitmapFromPaintDotNetMaskedSurface(deserial);
+       try
+         result := GetBitmapFromPaintDotNetMaskedSurface(deserial);
+       except
+       end;
        deserial.Free;
        if result <> nil then exit;
+    end else
+    if mime = 'text/html' then
+    begin
+       Stream := TMemoryStream.Create;
+       Clipboard.GetFormat(Clipboard.Formats[i],Stream);
+       if stream.Size > 65536 then
+        setlength(data,65536) else
+          setlength(data,stream.size);
+       stream.Position:= 0;
+       stream.read(data[1],length(data));
+       Stream.Free;
+       try
+         result := GetBitmapFromHtml(data);
+       except
+       end;
+       if result <> nil then exit;
     end;
+  end;
 
   for i := 0 to clipboard.FormatCount-1 do
     if Clipboard.Formats[i] = bgraClipboardFormat then

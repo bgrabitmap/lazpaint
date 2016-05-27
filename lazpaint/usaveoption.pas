@@ -29,6 +29,7 @@ type
     Panel_Quality: TPanel;
     Panel_BitsPerPixel: TPanel;
     Panel_Option: TPanel;
+    RadioButton_MioMap: TRadioButton;
     RadioButton_2Colors: TRadioButton;
     RadioButton_16Colors: TRadioButton;
     RadioButton_256Colors: TRadioButton;
@@ -53,16 +54,19 @@ type
     FOutputFilename: string;
     FQualityVisible, FBitsPerPixelVisible: boolean;
     FFlattenedOriginal, FJpegPreview: TBGRABitmap;
-    FJpegStream, FPngStream: TMemoryStream;
+    FBmpStream, FJpegStream, FPngStream: TMemoryStream;
     FFormTitle: string;
     FImageFormat: TBGRAImageFormat;
     FQuantizer: TBGRAColorQuantizer;
     FSizeCaption: string;
+    function GetBmpStreamNeeded: boolean;
+    procedure BmpQualityChanged;
     procedure PngQualityChanged;
     function GetBitsPerPixelVisible: boolean;
     function GetColorQuantizer: TBGRAColorQuantizer;
     function GetJpegPreview: TBGRABitmap;
     procedure RequireJpegStream;
+    procedure MakeBmpStreamIfNeeded;
     function GetWantedBitsPerPixel: integer;
     procedure SetJpegQuality(AValue: integer);
     procedure UpdateFileSize;
@@ -94,13 +98,15 @@ type
     property JpegPreview: TBGRABitmap read GetJpegPreview;
     property JpegQuality: integer read GetJpegQuality write SetJpegQuality;
     property WantedBitsPerPixel: integer read GetWantedBitsPerPixel;
+    property BmpStreamNeeded: boolean read GetBmpStreamNeeded;
   end;
 
 function ShowSaveOptionDialog(AInstance: TLazPaintCustomInstance; AOutputFilenameUTF8: string): boolean;
 
 implementation
 
-uses UGraph, FPWriteJPEG, UResourceStrings, lazutf8classes, FPWriteBMP, BMPcomn, UMySLV;
+uses UGraph, FPWriteJPEG, UResourceStrings, lazutf8classes, FPWriteBMP, BMPcomn,
+  UMySLV, BGRAWriteBmpMioMap, BGRADithering;
 
 function ShowSaveOptionDialog(AInstance: TLazPaintCustomInstance; AOutputFilenameUTF8: string): boolean;
 var f: TFSaveOption;
@@ -151,6 +157,7 @@ begin
   FreeAndNil(FFlattenedOriginal);
   FreeAndNil(FQuantizer);
   FreeAndNil(FJpegPreview);
+  FreeAndNil(FBmpStream);
   FreeAndNil(FJpegStream);
   FreeAndNil(FPngStream);
 end;
@@ -164,6 +171,7 @@ end;
 procedure TFSaveOption.RadioButton_BitsPerPixelChange(Sender: TObject);
 begin
   if FInit then exit;
+  BmpQualityChanged;
   PngQualityChanged;
   NeedBitmapUpdate(True);
   UpdateDitheringCheckbox;
@@ -253,6 +261,21 @@ begin
     mustFreePic:= false;
     picture := GetJpegPreview;
   end else
+  if BmpStreamNeeded and (FBmpStream = nil) then
+  begin
+    FBmpStream := TMemoryStream.Create;
+    if GetDitheringAlgorithm <> daNearestNeighbor then
+    begin
+      picture := DitherImageTo16Bit(GetDitheringAlgorithm, FFlattenedOriginal) as TBGRABitmap;
+      picture.SaveToStreamAs(FBmpStream, ifBmpMioMap);
+      picture.Free;
+    end else
+      FFlattenedOriginal.SaveToStreamAs(FBmpStream, ifBmpMioMap);
+    UpdateFileSize;
+    mustFreePic:= true;
+    FBmpStream.Position:= 0;
+    picture := TBGRABitmap.Create(FBmpStream);
+  end else
   begin
     mustFreePic:= false;
     picture := FFlattenedOriginal;
@@ -263,6 +286,7 @@ begin
       UpdateFileSize;
     end;
   end;
+
   if (Bitmap.Width = 0) or (Bitmap.Height = 0) or (picture.Width = 0) or (picture.Height = 0) then exit;
   ratioX := Bitmap.Width/picture.Width;
   ratioY := Bitmap.Height/picture.Height;
@@ -307,7 +331,20 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
   procedure SaveBmp;
   var writer: TFPWriterBMP;
     dithered: TBGRACustomBitmap;
+    outputStream: TFileStreamUTF8;
   begin
+    MakeBmpStreamIfNeeded;
+    if Assigned(FBmpStream) then
+    begin
+      outputStream := TFileStreamUTF8.Create(FOutputFilename,fmCreate);
+      try
+        FBmpStream.Position := 0;
+        outputStream.CopyFrom(FBmpStream, FBmpStream.Size);
+        if FLazPaintInstance.Image.NbLayers = 1 then FLazPaintInstance.Image.SetSavedFlag;
+      finally
+        outputStream.Free;
+      end;
+    end else
     if QuantizerNeeded then
     begin
       dithered := Quantizer.GetDitheredBitmap(GetDitheringAlgorithm, FFlattenedOriginal);
@@ -375,6 +412,7 @@ end;
 procedure TFSaveOption.CheckBox_DitheringChange(Sender: TObject);
 begin
   if FInit then exit;
+  BmpQualityChanged;
   PngQualityChanged;
   NeedBitmapUpdate(True);
 end;
@@ -399,6 +437,16 @@ begin
   FreeAndNil(FPngStream);
 end;
 
+function TFSaveOption.GetBmpStreamNeeded: boolean;
+begin
+  result := (FImageFormat in [ifBmp,ifBmpMioMap]) and RadioButton_MioMap.Checked;
+end;
+
+procedure TFSaveOption.BmpQualityChanged;
+begin
+  FreeAndNil(FBmpStream);
+end;
+
 procedure TFSaveOption.UpdateQualityTextBox;
 begin
   FInit := true;
@@ -413,7 +461,7 @@ end;
 
 function TFSaveOption.GetQuantizerNeeded: boolean;
 begin
-  result := (FImageFormat in [ifPng,ifBmp]) and (WantedBitsPerPixel < 24);
+  result := (FImageFormat in [ifPng,ifBmp]) and (WantedBitsPerPixel <= 8);
 end;
 
 function TFSaveOption.GetBitsPerPixelVisible: boolean;
@@ -454,6 +502,20 @@ begin
   end;
 end;
 
+procedure TFSaveOption.MakeBmpStreamIfNeeded;
+begin
+  if RadioButton_MioMap.Checked then
+  begin
+    if not Assigned(FBmpStream) then
+    begin
+      FBmpStream := TMemoryStream.Create;
+      FFlattenedOriginal.SaveToStreamAs(FBmpStream, ifBmpMioMap);
+      UpdateFileSize;
+    end;
+  end else
+    FreeAndNil(FBmpStream);
+end;
+
 function TFSaveOption.GetWantedBitsPerPixel: integer;
 begin
   if RadioButton_2Colors.Checked then
@@ -462,6 +524,8 @@ begin
     result := 4
   else if RadioButton_256Colors.Checked then
     result := 8
+  else if RadioButton_MioMap.Checked then
+    result := 16
   else
     result := 24;
 end;
@@ -480,7 +544,14 @@ procedure TFSaveOption.UpdateFileSize;
 var size: int64;
 begin
   case ImageFormat of
-  ifBmp: begin
+  ifBmp: if BmpStreamNeeded then
+    begin
+      if FBmpStream = nil then
+         UpdateFileSizeTo(-1)
+      else
+         UpdateFileSizeTo(FBmpStream.Size);
+    end else
+    begin
       size := int64((FFlattenedOriginal.Width*WantedBitsPerPixel+7) div 8)*FFlattenedOriginal.Height;
       if QuantizerNeeded then size += int64(1 shl WantedBitsPerPixel)*4;
       size += sizeof(TBitMapFileHeader)+sizeof(TBitMapInfoHeader);
@@ -531,6 +602,7 @@ begin
     RadioButton_2Colors.Enabled := false;
     RadioButton_16Colors.Enabled := false;
     RadioButton_256Colors.Enabled := true;
+    RadioButton_MioMap.Enabled := false;
     if GetOriginalBitDepth > 8 then
       RadioButton_24BitsPerPixel.Checked := true
     else
@@ -557,6 +629,7 @@ begin
         RadioButton_16Colors.Checked := true else
         RadioButton_2Colors.Checked := true;
     end;
+    RadioButton_MioMap.Enabled := true;
   end;
   UpdateDitheringCheckbox;
   UpdateFileSize;

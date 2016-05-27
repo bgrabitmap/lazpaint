@@ -3,6 +3,7 @@
 {$UNDEF INCLUDE_SCANNER_INTERFACE}
 type
   TBGRACustomBitmap = class;
+
 {==== IBGRAScanner ====}
   {* Interface for a scanner. A scanner is like an image, but its content
      has no limit and it can be calculated on the fly. It is like a
@@ -33,6 +34,8 @@ type
         you need to call ''ScanNextPixel'' and combine pixels for example
         with ''SetPixel'' }
     function IsScanPutPixelsDefined: boolean;
+    {** Returns the corresponding OpenGL texture. The value is ''nil'' if no texture is associated. **}
+    function GetTextureGL: IUnknown;
   end;
 
   {** A type of function of a scanner that returns the content at floating point coordinates }
@@ -57,6 +60,7 @@ type
     function ScanAtExpanded(X,Y: Single): TExpandedPixel; virtual;
     procedure ScanPutPixels(pdest: PBGRAPixel; count: integer; mode: TDrawMode); virtual;
     function IsScanPutPixelsDefined: boolean; virtual;
+    function GetTextureGL: IUnknown; virtual;
   protected
     function QueryInterface({$IFDEF FPC_HAS_CONSTREF}constref{$ELSE}const{$ENDIF} IID: TGUID; out Obj): HResult; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
     function _AddRef: Integer; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
@@ -135,6 +139,8 @@ type
      procedure InternalArc(cx,cy,rx,ry: single; StartAngleRad,EndAngleRad: Single; ABorderColor: TBGRAPixel; w: single; AFillColor: TBGRAPixel; AOptions: TArcOptions; ADrawChord: boolean = false; ATexture: IBGRAScanner = nil); overload; virtual; abstract;
      procedure InternalArcInRect(r: TRect; StartAngleRad,EndAngleRad: Single; ABorderColor : TBGRAPixel; w: single; AFillColor: TBGRAPixel; AOptions: TArcOptions; ADrawChord: boolean = false; ATexture: IBGRAScanner = nil);
      procedure InternalFillArcInRect(r: TRect; StartAngleRad,EndAngleRad: Single; AFillColor: TBGRAPixel; AOptions: TArcOptions; ATexture: IBGRAScanner = nil);
+
+     function GetTextureGL: IUnknown; virtual;
 
   public
      {** User defined caption. It does not appear on the image }
@@ -456,13 +462,15 @@ type
 
      procedure FillQuadLinearColor(pt1,pt2,pt3,pt4: TPointF; c1,c2,c3,c4: TBGRAPixel); virtual; abstract; overload;
      procedure FillQuadLinearColorAntialias(pt1,pt2,pt3,pt4: TPointF; c1,c2,c3,c4: TBGRAPixel); virtual; abstract; overload;
-     procedure FillQuadLinearMapping(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; TextureInterpolation: Boolean= True);  virtual; abstract; overload;
+     procedure FillQuadLinearMapping(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; TextureInterpolation: Boolean= True; ACulling: TFaceCulling = fcNone);  virtual; abstract; overload;
      procedure FillQuadLinearMappingLightness(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; light1,light2,light3,light4: word; TextureInterpolation: Boolean= True); virtual; abstract; overload;
-     procedure FillQuadLinearMappingAntialias(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF); virtual; abstract; overload;
-     procedure FillQuadPerspectiveMapping(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF); virtual; abstract; overload;
-     procedure FillQuadPerspectiveMapping(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; ACleanBorders: TRect); virtual; abstract; overload;
+     procedure FillQuadLinearMappingAntialias(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; ACulling: TFaceCulling = fcNone); virtual; abstract; overload;
+     procedure FillQuadPerspectiveMapping(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; ADrawMode: TDrawMode = dmDrawWithTransparency); virtual; abstract; overload;
+     procedure FillQuadPerspectiveMapping(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; ACleanBorders: TRect; ADrawMode: TDrawMode = dmDrawWithTransparency); virtual; abstract; overload;
      procedure FillQuadPerspectiveMappingAntialias(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF); virtual; abstract; overload;
      procedure FillQuadPerspectiveMappingAntialias(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; ACleanBorders: TRect); virtual; abstract; overload;
+     procedure FillQuadAffineMapping(Orig,HAxis,VAxis: TPointF; AImage: TBGRACustomBitmap; APixelCenteredCoordinates: boolean = true; ADrawMode: TDrawMode = dmDrawWithTransparency); virtual; abstract;
+     procedure FillQuadAffineMappingAntialias(Orig,HAxis,VAxis: TPointF; AImage: TBGRACustomBitmap; APixelCenteredCoordinates: boolean = true); virtual; abstract;
 
      procedure FillPolyLinearColor(const points: array of TPointF; AColors: array of TBGRAPixel);  virtual; abstract; overload;
      procedure FillPolyLinearMapping(const points: array of TPointF; texture: IBGRAScanner; texCoords: array of TPointF; TextureInterpolation: Boolean); virtual; abstract; overload;
@@ -628,11 +636,11 @@ type
      procedure GradientFill(x, y, x2, y2: integer; c1, c2: TBGRAPixel;
        gtype: TGradientType; o1, o2: TPointF; mode: TDrawMode;
        gammaColorCorrection: boolean = True; Sinus: Boolean=False;
-       ditherAlgo: TDitheringAlgorithm = daFloydSteinberg); virtual; abstract; overload;
+       ditherAlgo: TDitheringAlgorithm = daNearestNeighbor); virtual; abstract; overload;
      procedure GradientFill(x, y, x2, y2: integer; gradient: TBGRACustomGradient;
        gtype: TGradientType; o1, o2: TPointF; mode: TDrawMode;
        Sinus: Boolean=False;
-       ditherAlgo: TDitheringAlgorithm = daFloydSteinberg); virtual; abstract; overload;
+       ditherAlgo: TDitheringAlgorithm = daNearestNeighbor); virtual; abstract; overload;
      function CreateBrushTexture(ABrushStyle: TBrushStyle; APatternColor, ABackgroundColor: TBGRAPixel;
                 AWidth: integer = 8; AHeight: integer = 8; APenWidth: single = 1): TBGRACustomBitmap; virtual; abstract;
 
@@ -691,7 +699,8 @@ type
      procedure InplaceGrayscale(ABounds: TRect); virtual; abstract;
      procedure ConvertToLinearRGB; virtual; abstract;
      procedure ConvertFromLinearRGB; virtual; abstract;
-     procedure SwapRedBlue; virtual; abstract;
+     procedure SwapRedBlue; virtual; abstract; overload;
+     procedure SwapRedBlue(ARect: TRect); virtual; abstract; overload;
      procedure GrayscaleToAlpha; virtual; abstract;
      procedure AlphaToGrayscale; virtual; abstract;
      procedure ApplyMask(mask: TBGRACustomBitmap); overload;
@@ -710,18 +719,16 @@ type
      function FilterSharpen(ABounds: TRect; Amount: single = 1): TBGRACustomBitmap; virtual; abstract;
      function FilterContour: TBGRACustomBitmap; virtual; abstract;
      function FilterPixelate(pixelSize: integer; useResample: boolean; filter: TResampleFilter = rfLinear): TBGRACustomBitmap; virtual; abstract;
-     function FilterBlurRadial(radius: integer;
-       blurType: TRadialBlurType): TBGRACustomBitmap; virtual; abstract;
-     function FilterBlurRadial(ABounds: TRect; radius: integer;
-       blurType: TRadialBlurType): TBGRACustomBitmap; virtual; abstract;
-     function FilterBlurMotion(distance: integer; angle: single;
-       oriented: boolean): TBGRACustomBitmap; virtual; abstract;
-     function FilterBlurMotion(ABounds: TRect; distance: integer; angle: single;
-       oriented: boolean): TBGRACustomBitmap; virtual; abstract;
-     function FilterCustomBlur(mask: TBGRACustomBitmap): TBGRACustomBitmap; virtual; abstract;
+     function FilterBlurRadial(radius: single; blurType: TRadialBlurType): TBGRACustomBitmap; virtual; abstract; overload;
+     function FilterBlurRadial(ABounds: TRect; radius: single; blurType: TRadialBlurType): TBGRACustomBitmap; virtual; abstract; overload;
+     function FilterBlurRadial(radiusX, radiusY: single; blurType: TRadialBlurType): TBGRACustomBitmap; virtual; abstract; overload;
+     function FilterBlurRadial(ABounds: TRect; radiusX, radiusY: single; blurType: TRadialBlurType): TBGRACustomBitmap; virtual; abstract; overload;
+     function FilterBlurMotion(distance: single; angle: single; oriented: boolean): TBGRACustomBitmap; virtual; abstract;
+     function FilterBlurMotion(ABounds: TRect; distance: single; angle: single;
+       oriented: boolean): TBGRACustomBitmap; virtual; abstract; function FilterCustomBlur(mask: TBGRACustomBitmap): TBGRACustomBitmap; virtual; abstract;
      function FilterCustomBlur(ABounds: TRect; mask: TBGRACustomBitmap): TBGRACustomBitmap; virtual; abstract;
-     function FilterEmboss(angle: single): TBGRACustomBitmap; virtual; abstract;
-     function FilterEmboss(angle: single; ABounds: TRect): TBGRACustomBitmap; virtual; abstract;
+     function FilterEmboss(angle: single; AStrength: integer= 64; AOptions: TEmbossOptions = []): TBGRACustomBitmap; virtual; abstract;
+     function FilterEmboss(angle: single; ABounds: TRect; AStrength: integer= 64; AOptions: TEmbossOptions = []): TBGRACustomBitmap; virtual; abstract;
      function FilterEmbossHighlight(FillSelection: boolean): TBGRACustomBitmap; virtual; abstract;
      function FilterEmbossHighlight(FillSelection: boolean; BorderColor: TBGRAPixel): TBGRACustomBitmap; virtual; abstract;
      function FilterEmbossHighlight(FillSelection: boolean; BorderColor: TBGRAPixel; var Offset: TPoint): TBGRACustomBitmap; virtual; abstract;
@@ -814,6 +821,11 @@ begin
   result := false;
 end;
 
+function TBGRACustomScanner.GetTextureGL: IUnknown;
+begin
+  result := nil;
+end;
+
 { Interface gateway }
 function TBGRACustomScanner.QueryInterface({$IFDEF FPC_HAS_CONSTREF}constref{$ELSE}const{$ENDIF} IID: TGUID; out Obj): HResult; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
 begin
@@ -849,6 +861,11 @@ begin
     FontQuality := fqFineAntialiasing
   else if not AValue and (FontQuality <> fqSystem) then
     FontQuality := fqSystem;
+end;
+
+function TBGRACustomBitmap.GetTextureGL: IUnknown;
+begin
+  result := nil;
 end;
 
 procedure TBGRACustomBitmap.InternalArc(cx, cy, rx, ry: single;
