@@ -808,13 +808,13 @@ begin
 end;
 
 {----------- Line and polygon functions -----------}
-{$OPTIMIZATION OFF}  // Modif J.P  5/2013
+{$PUSH}{$OPTIMIZATION OFF}
 function IntersectLine(line1, line2: TLineDef): TPointF;
 var parallel: boolean;
 begin
   result := IntersectLine(line1,line2,parallel);
 end;
-{$OPTIMIZATION ON}
+{$POP}
 
 function IntersectLine(line1, line2: TLineDef; out parallel: boolean): TPointF;
 var divFactor: double;

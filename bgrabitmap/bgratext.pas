@@ -101,7 +101,7 @@ var
 
 implementation
 
-uses GraphType, Math, BGRABlend, LCLProc;
+uses GraphType, Math, BGRABlend, BGRAUTF8;
 
 const MaxPixelMetricCount = 100;
 

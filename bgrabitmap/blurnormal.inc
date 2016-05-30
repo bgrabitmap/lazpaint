@@ -17,13 +17,13 @@ var
 
   bmpWidth,bmpHeight,lineDelta: NativeInt;
 
-  procedure LoadMask;
+  procedure LoadMask(out ABlurOfs: TPoint);
   var x,y,n,i: NativeInt;
       tempWeight: NativeInt;
       diffMask: array of packed array of NativeInt;
       p: PBGRAPixel;
   begin
-    blurOfs := point(blurMask.Width shr 1, blurMask.Height shr 1);
+    ABlurOfs := point(blurMask.Width shr 1, blurMask.Height shr 1);
 
     //count number of non empty pixels
     maskWidth := blurMask.Width;
@@ -60,7 +60,7 @@ var
         begin
           Pixel[n].Weight := tempWeight;
           Pixel[n].Coord := Point(x,y);
-          Pixel[n].PtrOfs := (y-blurOfs.Y)*lineDelta + (x-blurOfs.X)*sizeof(TBGRAPixel);
+          Pixel[n].PtrOfs := (y-ABlurOfs.Y)*lineDelta + (x-ABlurOfs.X)*sizeof(TBGRAPixel);
           Inc(n);
         end;
       end;
@@ -88,7 +88,7 @@ var
         begin
           DiffPixel[n].Weight := tempWeight;
           DiffPixel[n].Coord := Point(x-1,y);
-          DiffPixel[n].PtrOfs := (y-blurOfs.Y)*lineDelta + (x-blurOfs.X-1)*sizeof(TBGRAPixel);
+          DiffPixel[n].PtrOfs := (y-ABlurOfs.Y)*lineDelta + (x-ABlurOfs.X-1)*sizeof(TBGRAPixel);
           Inc(n);
         end;
       end;
@@ -96,23 +96,20 @@ var
     DiffPixelArrayLineStart[maskHeight] := n;
   end;
 
-var
-  bounds: TRect;
-
-  function PrepareScan: boolean;
+  function PrepareScan(AWantedBounds: TRect; out AClippedBounds: TRect): boolean;
   begin
     //evaluate required bounds taking blur radius into acount
-    bounds := bmp.GetImageBounds;
-    if IsRectEmpty(bounds) then
+    AClippedBounds := bmp.GetImageBounds;
+    if IsRectEmpty(AClippedBounds) then
     begin
       result := false;
       exit;
     end;
-    bounds.Left   := max(0, bounds.Left - blurOfs.X);
-    bounds.Top    := max(0, bounds.Top - blurOfs.Y);
-    bounds.Right  := min(bmpWidth, bounds.Right + maskWidth - 1 - blurOfs.X);
-    bounds.Bottom := min(bmpHeight, bounds.Bottom + maskHeight - 1 - blurOfs.Y);
-    if not IntersectRect(bounds, bounds, ABounds) then
+    AClippedBounds.Left   := max(0, AClippedBounds.Left - blurOfs.X);
+    AClippedBounds.Top    := max(0, AClippedBounds.Top - blurOfs.Y);
+    AClippedBounds.Right  := min(bmpWidth, AClippedBounds.Right + maskWidth - 1 - blurOfs.X);
+    AClippedBounds.Bottom := min(bmpHeight, AClippedBounds.Bottom + maskHeight - 1 - blurOfs.Y);
+    if not IntersectRect(AClippedBounds, AClippedBounds, AWantedBounds) then
     begin
       result := false;
       exit;
@@ -122,6 +119,7 @@ var
   end;
 
 var
+  bounds: TRect;
   yb, xb: NativeInt;
   mindy, maxdy, n, nStart, nCount, nDiffStart, nDiffCount: NativeInt;
   bmpX,bmpXBase,bmpYBase: NativeInt;
@@ -140,8 +138,8 @@ begin
   if (ADestination.Width <> bmpWidth) or (ADestination.Height <> bmpHeight) then
     raise exception.Create('Dimension mismatch');
 
-  LoadMask;
-  if not PrepareScan then exit; //nothing to do
+  LoadMask(blurOfs);
+  if not PrepareScan(ABounds, bounds) then exit; //nothing to do
 
   bmpYBase := bounds.Top - blurOfs.Y;
 
@@ -238,7 +236,7 @@ begin
         if (Adiv <= 0) {$ifdef PARAM_MASKSHIFT} or (RGBdiv <= 0) {$endif} then
           pdest^ := BGRAPixelTransparent
         else
-          pdest^ := computeAverage;
+          pdest^ := ComputeAverage;
       end;
     end else
     begin

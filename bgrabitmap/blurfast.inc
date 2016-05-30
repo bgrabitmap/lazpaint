@@ -186,9 +186,7 @@ begin
       psum := @sums[sumStartIndex];
       if horizontalWeightShift > 4 then
       begin //we don't want to loose too much precision
-        {$hints off}
-        fillchar(extendedTotal,sizeof(extendedTotal),0);
-        {$hints on}
+        fillchar({%H-}extendedTotal,sizeof(extendedTotal),0);
         for xs := highSum downto 0 do
         with psum^ do
         begin
@@ -210,9 +208,7 @@ begin
       end else
       if horizontalWeightShift > 0 then
       begin //lossy but efficient way
-        {$hints off}
-        fillchar(total,sizeof(total),0);
-        {$hints on}
+        fillchar({%H-}total,sizeof(total),0);
         for xs := highSum downto 0 do
         with psum^ do
         begin

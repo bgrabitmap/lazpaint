@@ -400,9 +400,10 @@ var
   lastXincluded: boolean;
   alpha,rgbDivShr1: uint32or64;
 begin
-  if IsRectEmpty(ABounds) then exit;
-  Amount256 := AAmount = 256;
   Result := bmp.NewBitmap(bmp.Width, bmp.Height);
+  if IsRectEmpty(ABounds) then exit;
+
+  Amount256 := AAmount = 256;
 
   //determine where pixels are in the bitmap
   bounds := bmp.GetImageBounds;
@@ -1145,7 +1146,7 @@ begin
           tempPixel.blue := min(255, blueDiff);
           if eoTransparent in AOptions then
           begin
-            tempPixel.alpha := min(255,abs(redDiff-128)+abs(greenDiff-128)+abs(blueDiff-128));
+            tempPixel.alpha := min(255,abs(NativeInt(redDiff-128))+abs(NativeInt(greenDiff-128))+abs(NativeInt(blueDiff-128)));
             pdest^ := tempPixel;
           end else
           begin
@@ -2166,7 +2167,12 @@ type
 {$ENDIF}
 
 procedure TBoxBlurTask.DoExecute;
-  const
+{$IFDEF CPU64}
+begin
+  DoExecute64;
+end;
+{$ELSE}
+const
     factMainX = 16;
     factMainY = 16;
 var totalSum: UInt64;
@@ -2183,6 +2189,7 @@ begin
   else
     DoExecuteNormal;
 end;
+{$ENDIF}
 
 constructor TGrayscaleTask.Create(bmp: TBGRACustomBitmap; ABounds: TRect);
 begin

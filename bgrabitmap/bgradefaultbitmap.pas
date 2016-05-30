@@ -2094,8 +2094,10 @@ end;
 
 function TBGRADefaultBitmap.GetInternalColor(x, y: integer): TFPColor;
 begin
-  if (x < 0) or (y < 0) or (x >= Width) or (y >= Height) then exit;
-  result := BGRAToFPColor((Scanline[y] + x)^);
+  if (x < 0) or (y < 0) or (x >= Width) or (y >= Height) then
+    result := colTransparent
+  else
+    result := BGRAToFPColor((Scanline[y] + x)^);
 end;
 
 procedure TBGRADefaultBitmap.SetInternalPixel(x, y: integer; Value: integer);
@@ -2112,9 +2114,13 @@ function TBGRADefaultBitmap.GetInternalPixel(x, y: integer): integer;
 var
   c: TFPColor;
 begin
-  if (x < 0) or (y < 0) or (x >= Width) or (y >= Height) then exit;
-  c := BGRAToFPColor((Scanline[y] + x)^);
-  Result := palette.IndexOf(c);
+  if (x < 0) or (y < 0) or (x >= Width) or (y >= Height) then
+    result := 0
+  else
+  begin
+    c := BGRAToFPColor((Scanline[y] + x)^);
+    Result := palette.IndexOf(c);
+  end;
 end;
 
 procedure TBGRADefaultBitmap.Draw(ACanvas: TCanvas; x, y: integer; Opaque: boolean);

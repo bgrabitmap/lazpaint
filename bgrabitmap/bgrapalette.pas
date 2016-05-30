@@ -391,7 +391,7 @@ begin
     for Node in FTree do
     with PBGRAIndexedPaletteEntry(Node.Data)^ do
     begin
-      if (Index >= 0) and (Index < n) then
+      if Index < n then //index is unsigned so always >= 0
         FArray[Index] := @Color;
     end;
   end;

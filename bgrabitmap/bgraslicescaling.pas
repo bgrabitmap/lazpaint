@@ -758,7 +758,6 @@ begin
         isRepeating := False;
         break;
       end;
-      Inc(p);
     end;
     if not isRepeating then
       break;

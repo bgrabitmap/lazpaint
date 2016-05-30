@@ -671,7 +671,7 @@ begin
   end;
   //antialiased border
   mask := TBGRABitmap.Create(width,height,BGRABlack);
-  mask.FillPolyAntialias([PointF(rx,-0.5),PointF(0,height-0.5),PointF(width-0.5,height-0.5)],BGRAWhite);
+  mask.FillPolyAntialias([PointF(width/2,-0.5),PointF(0,height-0.5),PointF(width-0.5,height-0.5)],BGRAWhite);
   result.ApplyMask(mask);
   mask.Free;
 end;
