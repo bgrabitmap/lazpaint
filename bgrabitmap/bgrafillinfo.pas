@@ -1085,6 +1085,8 @@ begin
   end;
 
   setlength(result, NbMaxIntersection);
+  for i := 0 to high(result) do
+    result[i] := nil;
 end;
 
 destructor TOnePassFillPolyInfo.Destroy;
