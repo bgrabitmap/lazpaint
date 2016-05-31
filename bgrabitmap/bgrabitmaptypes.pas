@@ -727,8 +727,8 @@ var
         if AStream.Read(dwords,10*4) = 10*4 then
         begin
           for i := 0 to 6 do dwords[i] := LEtoN(dwords[i]);
-          if (dwords[0] = 0) and (dwords[1] <= expectedFileSize) and (dwords[5] <= expectedFileSize) and
-             (dwords[9] <= expectedFileSize) and
+          if (dwords[0] = 0) and (dwords[1] <= maxFileSize) and (dwords[5] <= maxFileSize) and
+             (dwords[9] <= maxFileSize) and
             (dwords[6] = 0) then inc(scores[ifLazPaint],2);
         end;
       end else //without header
