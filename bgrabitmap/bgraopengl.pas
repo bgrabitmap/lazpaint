@@ -1374,6 +1374,8 @@ begin
   end;
   glActiveTexture(GL_TEXTURE0 + ATextureNumber);
   glBindTexture(GL_TEXTURE_2D, POpenGLTexture(FOpenGLTexture)^.ID);
+  if ATextureNumber<>0 then
+    glActiveTexture(GL_TEXTURE0);
 end;
 
 procedure TBGLTexture.Init(ATexture: TBGLTextureHandle; AWidth,

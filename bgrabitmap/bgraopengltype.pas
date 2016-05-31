@@ -5,7 +5,7 @@ unit BGRAOpenGLType;
 interface
 
 uses
-  BGRAGraphics, BGRABitmap, BGRABitmapTypes,
+  Types, BGRAGraphics, BGRABitmap, BGRABitmapTypes,
   FPimage, Classes, SysUtils, BGRATransform,
   BGRASSE, BGRAMatrix3D;
 
@@ -437,8 +437,6 @@ function OrthoProjectionToOpenGL(AMinX,AMinY,AMaxX,AMaxY: Single): TMatrix4D;
 function GetPowerOfTwo( Value : Integer ) : Integer;
 
 implementation
-
-uses Types;
 
 function OrthoProjectionToOpenGL(AMinX, AMinY, AMaxX, AMaxY: Single): TMatrix4D;
 begin
