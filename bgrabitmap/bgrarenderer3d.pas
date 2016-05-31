@@ -26,6 +26,7 @@ type
     FInt65536ShaderFunc: TInt65536ShaderFunction3D;
     FContext: PBasicLightingContext;
     FOnlyDirectionalLights: boolean;
+    FWhiteMaterial: boolean;
 
     procedure ComputeDiffuseLightness(Context: PSceneLightingContext); inline;
     procedure ComputeDiffuseLight(Context: PSceneLightingContext); inline;
@@ -151,6 +152,7 @@ var
 begin
   with ADescription do
   begin
+   FWhiteMaterial:= Texture <> nil;
    if Material.GetSpecularOn then
    begin
      FShaderFunc := TShaderFunction3D(@ApplyLightingWithDiffuseAndSpecularColor);
@@ -229,7 +231,7 @@ var i: NativeInt;
 begin
   m := TBGRAMaterial3D(Context^.material);
 
-  if m.GetAutoAmbiantColor then
+  if FWhiteMaterial or m.GetAutoAmbiantColor then
     Context^.diffuseColor := FAmbiantLightColor
   else
     Context^.diffuseColor := FAmbiantLightColor*m.GetAmbiantColorInt;
@@ -251,7 +253,7 @@ var i: NativeInt;
 begin
   m := TBGRAMaterial3D(Context^.material);
 
-  if m.GetAutoAmbiantColor then
+  if FWhiteMaterial or m.GetAutoAmbiantColor then
     Context^.diffuseColor := FAmbiantLightColor
   else
     Context^.diffuseColor := FAmbiantLightColor*m.GetAmbiantColorInt;
@@ -274,10 +276,10 @@ var
 begin
   m := TBGRAMaterial3D(Context^.material);
 
-  if not m.GetAutoAmbiantColor then
-    result := ColorIntToBGRA(BGRAToColorInt(Color,True)*m.GetAmbiantColorInt,True)
+  if FWhiteMaterial or m.GetAutoAmbiantColor then
+    result := Color
   else
-    result := Color;
+    result := ColorIntToBGRA(BGRAToColorInt(Color,True)*m.GetAmbiantColorInt,True);
 end;
 
 function TBGRAShader3D.ApplyLightingWithAmbiantLightnessOnly(
@@ -287,7 +289,7 @@ var
 begin
   m := TBGRAMaterial3D(Context^.material);
 
-  if not m.GetAutoAmbiantColor then
+  if not FWhiteMaterial and not m.GetAutoAmbiantColor then
     Color := ColorIntToBGRA(BGRAToColorInt(Color,True)* m.GetAmbiantColorInt,True);
 
   if FAmbiantLightness <= 0 then
@@ -304,7 +306,7 @@ begin
   ComputeDiffuseLightness(Context);
 
   m := TBGRAMaterial3D(Context^.material);
-  if not m.GetAutoSimpleColor then
+  if not FWhiteMaterial and not m.GetAutoSimpleColor then
     Color := ColorIntToBGRA(BGRAToColorInt(Color,True)*m.GetSimpleColorInt,True);
 
   with Context^ do
@@ -343,7 +345,7 @@ var
 begin
   m := TBGRAMaterial3D(Context^.material);
 
-  if not m.GetAutoAmbiantColor then
+  if not FWhiteMaterial and not m.GetAutoAmbiantColor then
     result := BGRAToColorInt(Color,True)* m.GetAmbiantColorInt
   else
     result := BGRAToColorInt(Color,True);
@@ -357,7 +359,7 @@ var
 begin
   m := TBGRAMaterial3D(Context^.material);
 
-  if not m.GetAutoAmbiantColor then
+  if not FWhiteMaterial and not m.GetAutoAmbiantColor then
     MaterialColor := BGRAToColorInt(Color,True)* m.GetAmbiantColorInt
   else
     MaterialColor := BGRAToColorInt(Color,True);
@@ -379,7 +381,7 @@ begin
   ComputeDiffuseLightness(Context);
 
   m := TBGRAMaterial3D(Context^.material);
-  if not m.GetAutoSimpleColor then
+  if not FWhiteMaterial and not m.GetAutoSimpleColor then
     MaterialColor := BGRAToColorInt(Color,True)*m.GetSimpleColorInt
   else
     MaterialColor := BGRAToColorInt(Color,True);
