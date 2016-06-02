@@ -5,7 +5,11 @@
   - to always have RGBA pixel format, write "-dBGRABITMAP_RGBAPIXEL"
   - to always have BGRA pixel format, write "-dBGRABITMAP_BGRAPIXEL"
   - to use fpGUI toolkit, write "-dBGRABITMAP_USE_FPGUI" }
-{$IFDEF LCL}{$DEFINE BGRABITMAP_USE_LCL}{$ENDIF}
+{$IFNDEF BGRABITMAP_DONT_USE_LCL}
+  {$IFDEF LCL}
+    {$DEFINE BGRABITMAP_USE_LCL}
+  {$ENDIF}
+{$ENDIF}
 {$IFDEF BGRABITMAP_USE_FPGUI}{$UNDEF BGRABITMAP_USE_LCL}{$ENDIF}
 
 { Extensions of LCL to be used. Add // at the beginning of the line

@@ -26,6 +26,12 @@
           <GenerateDebugInfo Value="False"/>
         </Debugging>
       </Linking>
+      <Other>
+        <CustomOptions Value="-dBGRABITMAP_DONT_USE_LCL"/>
+        <OtherDefines Count="1">
+          <Define0 Value="$DEFINE BGRABITMAP_DONT_USE_LCL"/>
+        </OtherDefines>
+      </Other>
     </CompilerOptions>
     <Description Value="Drawing routines with alpha blending and antialiasing"/>
     <License Value="modified LGPL"/>

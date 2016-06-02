@@ -20,7 +20,8 @@ uses
   BGRAReadBmpMioMap, BGRAArrow, BGRAGraphics, BGRAUTF8, BGRAfpGUIBitmap, 
   BGRATypewriter, BGRASVG, BGRASVGShapes, BGRASVGType, BGRAPalette, 
   BGRAColorQuantization, BGRADithering, BGRAFreeType, BGRACustomTextFX, 
-  BGRAWritePNG, BGRAGifFormat;
+  BGRAWritePNG, BGRAGifFormat, BGRASceneTypes, BGRARenderer3D, 
+  BGRAWriteBmpMioMap;
 
 implementation
 
