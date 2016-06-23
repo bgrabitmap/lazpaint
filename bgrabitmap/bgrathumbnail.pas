@@ -37,7 +37,7 @@ procedure DrawThumbnailCheckers(bmp: TBGRABitmap; ARect: TRect);
 implementation
 
 uses Types, base64, BGRAUTF8, {$IFDEF BGRABITMAP_USE_LCL}Graphics, GraphType,{$ENDIF}
-     DOM, XMLRead, FPReadJPEG, BGRAReadPng, BGRAReadGif, BGRAReadBMP,
+     DOM, XMLRead, BGRAReadJPEG, BGRAReadPng, BGRAReadGif, BGRAReadBMP,
      BGRAReadPSD, BGRAReadIco, UnzipperExt, BGRAReadLzp;
 
 procedure DrawThumbnailCheckers(bmp: TBGRABitmap; ARect: TRect);
@@ -182,9 +182,9 @@ end;
 function GetJpegThumbnail(AStream: TStream; AWidth, AHeight: integer
   ; ABackColor: TBGRAPixel; ACheckers: boolean; ADest: TBGRABitmap): TBGRABitmap;
 var
-  jpeg: TFPReaderJPEG;
+  jpeg: TBGRAReaderJpeg;
 begin
-  jpeg := TFPReaderJPEG.Create;
+  jpeg := TBGRAReaderJpeg.Create;
   jpeg.Performance := jpBestSpeed;
   jpeg.MinWidth := AWidth;
   jpeg.MinHeight := AHeight;

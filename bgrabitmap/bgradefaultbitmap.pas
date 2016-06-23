@@ -261,6 +261,7 @@ type
         The boolean ''AIsUtf8Filename'' specifies if UTF8 encoding is assumed
         for the filename }
     constructor Create(AFilename: string; AIsUtf8: boolean); override;
+    constructor Create(AFilename: string; AIsUtf8: boolean; AOptions: TBGRALoadingOptions); override;
 
     {** Creates an image by loading its content from the stream ''AStream'' }
     constructor Create(AStream: TStream); override;
@@ -288,10 +289,14 @@ type
         Creates a new instance with by loading its content
         from the file ''Filename'' }
     function NewBitmap(Filename: string; AIsUtf8: boolean): TBGRACustomBitmap; override;
+    function NewBitmap(Filename: string; AIsUtf8: boolean; AOptions: TBGRALoadingOptions): TBGRACustomBitmap; override;
 
     {** Can only be called from an existing instance of ''TBGRABitmap''.
         Creates an image by copying the content of a ''TFPCustomImage'' }
     function NewBitmap(AFPImage: TFPCustomImage): TBGRACustomBitmap; override;
+
+    {** Load image from a stream. The specified image reader is used }
+    procedure LoadFromStream(Str: TStream; Handler: TFPCustomImageReader; AOptions: TBGRALoadingOptions); override;
 
     {** Assign the content of the specified ''Source''. It can be a ''TBGRACustomBitmap'' or
         a ''TFPCustomImage'' }
@@ -890,6 +895,7 @@ implementation
 uses Math, BGRAUTF8, BGRABlend, BGRAFilters, BGRAGradientScanner,
   BGRAResample, BGRAPolygon, BGRAPolygonAliased,
   BGRAPath, FPReadPcx, FPWritePcx, FPReadXPM, FPWriteXPM,
+  BGRAReadBMP, BGRAReadJpeg,
   BGRADithering;
 
 { TBitmapTracker }
@@ -1257,12 +1263,43 @@ begin
   Result    := BGRAClass.Create(Filename,AIsUtf8);
 end;
 
+function TBGRADefaultBitmap.NewBitmap(Filename: string; AIsUtf8: boolean;
+  AOptions: TBGRALoadingOptions): TBGRACustomBitmap;
+var
+  BGRAClass: TBGRABitmapAny;
+begin
+  BGRAClass := TBGRABitmapAny(self.ClassType);
+  Result    := BGRAClass.Create(Filename,AIsUtf8,AOptions);
+end;
+
 function TBGRADefaultBitmap.NewBitmap(AFPImage: TFPCustomImage): TBGRACustomBitmap;
 var
   BGRAClass: TBGRABitmapAny;
 begin
   BGRAClass := TBGRABitmapAny(self.ClassType);
   Result    := BGRAClass.Create(AFPImage);
+end;
+
+procedure TBGRADefaultBitmap.LoadFromStream(Str: TStream;
+  Handler: TFPCustomImageReader; AOptions: TBGRALoadingOptions);
+var OldBmpOption: TBMPTransparencyOption;
+  OldJpegPerf: TJPEGReadPerformance;
+begin
+  if (loBmpAutoOpaque in AOptions) and (Handler is TBGRAReaderBMP) then
+  begin
+    OldBmpOption := TBGRAReaderBMP(Handler).TransparencyOption;
+    TBGRAReaderBMP(Handler).TransparencyOption := toAuto;
+    inherited LoadFromStream(Str, Handler, AOptions);
+    TBGRAReaderBMP(Handler).TransparencyOption := OldBmpOption;
+  end else
+  if (loJpegQuick in AOptions) and (Handler is TBGRAReaderJpeg) then
+  begin
+    OldJpegPerf := TBGRAReaderJpeg(Handler).Performance;
+    TBGRAReaderJpeg(Handler).Performance := jpBestSpeed;
+    inherited LoadFromStream(Str, Handler, AOptions);
+    TBGRAReaderJpeg(Handler).Performance := OldJpegPerf;
+  end else
+    inherited LoadFromStream(Str, Handler, AOptions);
 end;
 
 {----------------------- TFPCustomImage override ------------------------------}
@@ -1373,6 +1410,17 @@ begin
     LoadFromFileUTF8(Afilename)
   else
     LoadFromFile(Afilename);
+end;
+
+constructor TBGRADefaultBitmap.Create(AFilename: string; AIsUtf8: boolean;
+  AOptions: TBGRALoadingOptions);
+begin
+  Init;
+  inherited Create(0, 0);
+  if AIsUtf8 then
+    LoadFromFileUTF8(Afilename, AOptions)
+  else
+    LoadFromFile(Afilename, AOptions);
 end;
 
 { Creates an image by loading its content from the stream AStream. }

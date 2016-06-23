@@ -8,7 +8,19 @@ uses
   Classes, SysUtils, FPReadJPEG;
 
 type
+  TJPEGScale = FPReadJPEG.TJPEGScale;
+  TJPEGReadPerformance = FPReadJPEG.TJPEGReadPerformance;
 
+const
+  jsFullSize = FPReadJPEG.jsFullSize;
+  jsHalf = FPReadJPEG.jsHalf;
+  jsQuarter = FPReadJPEG.jsQuarter;
+  jsEighth = FPReadJPEG.jsEighth;
+
+  jpBestQuality = FPReadJPEG.jpBestQuality;
+  jpBestSpeed = FPReadJPEG.jpBestSpeed;
+
+type
   { TBGRAReaderJpeg }
 
   TBGRAReaderJpeg = class(TFPReaderJPEG)

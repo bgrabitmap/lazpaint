@@ -35,6 +35,7 @@ interface
 uses FPImage, classes, sysutils, BMPcomn, BGRABitmapTypes;
 
 type
+  TBMPTransparencyOption = (toAuto, toTransparent, toOpaque);
 
   { TBGRAReaderBMP }
 
@@ -55,9 +56,11 @@ type
       RedShift, GreenShift, BlueShift : shortint;
       FOutputHeight: integer;
       FOriginalHeight: Integer;
+      FTransparencyOption: TBMPTransparencyOption;
       FBuffer: packed array of byte;
       FBufferPos, FBufferSize: integer;
       FBufferStream: TStream;
+      FHasAlphaValues: boolean;
       // SetupRead will allocate the needed buffers, and read the colormap if needed.
       procedure SetupRead(nPalette, nRowBits: Integer; Stream : TStream); virtual;
       function CountBits(Value : byte) : shortint;
@@ -76,12 +79,14 @@ type
       procedure InitReadBuffer(AStream: TStream; ASize: integer);
       procedure CloseReadBuffer;
       function GetNextBufferByte: byte;
+      procedure MakeOpaque(Img: TFPCustomImage);
     public
       MinifyHeight,WantedHeight: integer;
       constructor Create; override;
       destructor Destroy; override;
       property OriginalHeight: integer read FOriginalHeight;
       property OutputHeight: integer read FOutputHeight;
+      property TransparencyOption: TBMPTransparencyOption read FTransparencyOption write FTransparencyOption;
   end;
 
 implementation
@@ -114,20 +119,21 @@ begin
     end;
 end;
 
-Constructor TBGRAReaderBMP.create;
+constructor TBGRAReaderBMP.Create;
 
 begin
   inherited create;
+  FTransparencyOption := toTransparent;
 end;
 
-Destructor TBGRAReaderBMP.Destroy;
+destructor TBGRAReaderBMP.Destroy;
 
 begin
   FreeBufs;
   inherited destroy;
 end;
 
-Procedure TBGRAReaderBMP.FreeBufs;
+procedure TBGRAReaderBMP.FreeBufs;
 
 begin
   If (LineBuf<>Nil) then
@@ -402,6 +408,7 @@ begin
         WriteScanlineProc := @WriteScanLine;
     PrevSourceRow := SourceRow-SourceRowDelta;
     if (BFI.Compression=BI_RLE8) or(BFI.Compression=BI_RLE4) then InitReadBuffer(Stream,2048);
+    FHasAlphaValues:= false;
     while SourceRow <> SourceLastRow+SourceRowDelta do
     begin
       while PrevSourceRow <> SourceRow do
@@ -431,6 +438,8 @@ begin
       if percentAcc>=percentMod then inc(percent);
       if percent<>prevPercent then Progress(psRunning,percent,false,Rect,'',continue);
     end;
+    if not FHasAlphaValues and (TransparencyOption = toAuto) and (BFI.BitCount = 32) then
+      MakeOpaque(Img);
     Progress(psEnding,100,false,Rect,'',continue);
   finally
     if (BFI.Compression=BI_RLE8) or(BFI.Compression=BI_RLE4) then CloseReadBuffer;
@@ -597,7 +606,7 @@ procedure TBGRAReaderBMP.WriteScanLine(Row : Integer; Img : TFPCustomImage);
 
 Var
   Column : Integer;
-
+  c: TFPColor;
 begin
   Case BFI.BitCount of
    1 :
@@ -623,7 +632,16 @@ begin
         if BFI.Compression=BI_BITFIELDS then
           img.colors[Column,Row]:=ExpandColor(PLongWord(LineBuf)[Column])
         else
-          img.colors[Column,Row]:=RGBAToFPColor(PColorRGBA(LineBuf)[Column]);
+        begin
+          if FTransparencyOption = toOpaque then
+            img.colors[Column,Row]:=RGBToFPColor(PColorRGB(PColorRGBA(LineBuf)+Column)^)
+          else
+          begin
+            c := RGBAToFPColor(PColorRGBA(LineBuf)[Column]);
+            if c.alpha <> 0 then FHasAlphaValues:= true;
+            img.colors[Column,Row]:= c;
+          end;
+        end;
     end;
 end;
 
@@ -681,19 +699,52 @@ begin
         inc(PDest);
       end;
      end else
+     if FTransparencyOption = toOpaque then
      begin
        if TBGRAPixel_RGBAOrder then
        begin
         PSrc := LineBuf;
         for Column:=0 to img.Width-1 do
         begin
-          PDest^:= BGRA((PSrc+2)^,(PSrc+1)^,(PSrc)^,(PSrc+3)^);
+          PDest^:= BGRA((PSrc)^,(PSrc+1)^,(PSrc+2)^);
           inc(PDest);
           Inc(PSrc,4);
         end;
        end
        else
-         Move(LineBuf^, PDest^, img.Width*SizeOf(TBGRAPixel));
+       begin
+        PSrc := LineBuf;
+        for Column:=0 to img.Width-1 do
+        begin
+          PDest^:= BGRA((PSrc+2)^,(PSrc+1)^,(PSrc+1)^);
+          inc(PDest);
+          Inc(PSrc,4);
+        end;
+       end;
+     end else
+     begin
+       if TBGRAPixel_RGBAOrder then
+       begin
+        PSrc := LineBuf;
+        for Column:=0 to img.Width-1 do
+        begin
+          PDest^:= BGRA((PSrc)^,(PSrc+1)^,(PSrc+2)^,(PSrc+3)^);
+          if PDest^.alpha <> 0 then FHasAlphaValues:= true;
+          inc(PDest);
+          Inc(PSrc,4);
+        end;
+       end
+       else
+       begin
+         PSrc := LineBuf;
+         for Column:=0 to img.Width-1 do
+         begin
+           PDest^ := PBGRAPixel(PSrc)^;
+           if PDest^.alpha <> 0 then FHasAlphaValues:= true;
+           inc(PDest);
+           Inc(PSrc,4);
+         end;
+       end;
      end;
     end;
 end;
@@ -744,6 +795,22 @@ begin
     end else
       result := 0;
   end;
+end;
+
+procedure TBGRAReaderBMP.MakeOpaque(Img: TFPCustomImage);
+var c: TFPColor;
+  x,y: NativeInt;
+begin
+  if Img is TBGRACustomBitmap then
+    TBGRACustomBitmap(Img).AlphaFill(255)
+  else
+    for y := 0 to Img.Height-1 do
+      for x := 0 to Img.Width-1 do
+      begin
+        c := Img.Colors[x,y];
+        c.alpha := alphaOpaque;
+        Img.Colors[x,y] := c;
+      end;
 end;
 
 

@@ -411,6 +411,16 @@ type
     {** iGO BMP, limited support }
     ifBmpMioMap);
 
+  {* Options when loading an image }
+  TBGRALoadingOption = (
+     {** Do not clear RGB channels when alpha is zero (not recommended) }
+     loKeepTransparentRGB,
+     {** Consider BMP to be opaque if no alpha value is provided (for compatibility) }
+     loBmpAutoOpaque,
+     {** Load JPEG quickly however with a lower quality }
+     loJpegQuick);
+  TBGRALoadingOptions = set of TBGRALoadingOption;
+
 var
   {** List of stream readers for images }
   DefaultBGRAImageReader: array[TBGRAImageFormat] of TFPCustomImageReaderClass;

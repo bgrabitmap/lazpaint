@@ -27,7 +27,8 @@ type
   {$ELSE}
   {* Each pixel is a sequence of 4 bytes containing blue, green, red and alpha channel.
      Values range from 0 to 255, color is in sRGB colorspace. The alpha value of 0
-     is transparent and 255 is opaque }
+     is transparent and 255 is opaque. In the bitmap data, when the pixel is fully transparent,
+	 the RGB values are supposed to be set to zero. }
   TBGRAPixel = packed record blue, green, red, alpha: byte;
                end;
   {$ENDIF}

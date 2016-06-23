@@ -311,12 +311,14 @@ type
      constructor Create(AWidth, AHeight: integer; Color: TBGRAPixel); virtual; abstract; overload;
      constructor Create(AFilename: string); virtual; abstract; overload;
      constructor Create(AFilename: string; AIsUtf8Filename: boolean); virtual; abstract; overload;
+     constructor Create(AFilename: string; AIsUtf8Filename: boolean; AOptions: TBGRALoadingOptions); virtual; abstract; overload;
      constructor Create(AStream: TStream); virtual; abstract; overload;
 
      function NewBitmap(AWidth, AHeight: integer): TBGRACustomBitmap; virtual; abstract; overload;
      function NewBitmap(AWidth, AHeight: integer; Color: TBGRAPixel): TBGRACustomBitmap; virtual; abstract; overload;
      function NewBitmap(Filename: string): TBGRACustomBitmap; virtual; abstract; overload;
      function NewBitmap(Filename: string; AIsUtf8: boolean): TBGRACustomBitmap; virtual; abstract; overload;
+     function NewBitmap(Filename: string; AIsUtf8: boolean; AOptions: TBGRALoadingOptions): TBGRACustomBitmap; virtual; abstract; overload;
      function NewBitmap(AFPImage: TFPCustomImage): TBGRACustomBitmap; virtual; abstract; overload;
 
      //there are UTF8 functions that are different from standard function as those
@@ -324,16 +326,20 @@ type
   {==== Load and save files ====}
      {** Load image from a file. ''filename'' is an ANSI string }
      procedure LoadFromFile(const filename: string); virtual;
+     procedure LoadFromFile(const filename: string; AOptions: TBGRALoadingOptions); virtual;
      {** Load image from a file with the specified image reader. ''filename'' is an ANSI string }
      procedure LoadFromFile(const filename:String; Handler:TFPCustomImageReader); virtual;
+     procedure LoadFromFile(const filename:String; Handler:TFPCustomImageReader; AOptions: TBGRALoadingOptions); virtual;
      {** Load image from a file. ''filename'' is an UTF8 string }
-     procedure LoadFromFileUTF8(const filenameUTF8: string); virtual;
+     procedure LoadFromFileUTF8(const filenameUTF8: string; AOptions: TBGRALoadingOptions = []); virtual;
      {** Load image from a file with the specified image reader. ''filename'' is an UTF8 string }
-     procedure LoadFromFileUTF8(const filenameUTF8: string; AHandler: TFPCustomImageReader); virtual;
+     procedure LoadFromFileUTF8(const filenameUTF8: string; AHandler: TFPCustomImageReader; AOptions: TBGRALoadingOptions = []); virtual;
      {** Load image from a stream. Format is detected automatically }
      procedure LoadFromStream(Str: TStream); virtual; overload;
+     procedure LoadFromStream(Str: TStream; AOptions: TBGRALoadingOptions); virtual; overload;
      {** Load image from a stream. The specified image reader is used }
      procedure LoadFromStream(Str: TStream; Handler: TFPCustomImageReader); virtual; overload;
+     procedure LoadFromStream(Str: TStream; Handler: TFPCustomImageReader; AOptions: TBGRALoadingOptions); virtual; overload;
 
      {** Save image to a file. The format is guessed from the file extension. ''filename'' is an ANSI string }
      procedure SaveToFile(const filename: string); virtual; overload;
@@ -941,13 +947,25 @@ begin
   LoadFromFileUTF8(SysToUtf8(filename));
 end;
 
+procedure TBGRACustomBitmap.LoadFromFile(const filename: string;
+  AOptions: TBGRALoadingOptions);
+begin
+  LoadFromFileUTF8(SysToUtf8(filename), AOptions);
+end;
+
 procedure TBGRACustomBitmap.LoadFromFile(const filename: String;
   Handler: TFPCustomImageReader);
 begin
   LoadFromFileUTF8(SysToUtf8(filename),Handler);
 end;
 
-procedure TBGRACustomBitmap.LoadFromFileUTF8(const filenameUTF8: string);
+procedure TBGRACustomBitmap.LoadFromFile(const filename: String;
+  Handler: TFPCustomImageReader; AOptions: TBGRALoadingOptions);
+begin
+  LoadFromFileUTF8(SysToUtf8(filename),Handler,AOptions);
+end;
+
+procedure TBGRACustomBitmap.LoadFromFileUTF8(const filenameUTF8: string; AOptions: TBGRALoadingOptions);
 var
   Stream: TStream;
   format: TBGRAImageFormat;
@@ -958,26 +976,24 @@ begin
     format := DetectFileFormat(Stream, ExtractFileExt(filenameUTF8));
     reader := CreateBGRAImageReader(format);
     try
-      LoadFromStream(stream, reader);
+      LoadFromStream(stream, reader, AOptions);
     finally
       reader.Free;
     end;
   finally
-    ClearTransparentPixels;
     stream.Free;
   end;
 end;
 
 procedure TBGRACustomBitmap.LoadFromFileUTF8(const filenameUTF8: string;
-  AHandler: TFPCustomImageReader);
+  AHandler: TFPCustomImageReader; AOptions: TBGRALoadingOptions);
 var
   Stream: TStream;
 begin
   stream := TFileStreamUTF8.Create(filenameUTF8,fmOpenRead or fmShareDenyWrite);
   try
-    LoadFromStream(stream, AHandler);
+    LoadFromStream(stream, AHandler, AOptions);
   finally
-    ClearTransparentPixels;
     stream.Free;
   end;
 end;
@@ -1055,6 +1071,12 @@ begin
 end;
 
 procedure TBGRACustomBitmap.LoadFromStream(Str: TStream);
+begin
+  LoadFromStream(Str, [loKeepTransparentRGB]);
+end;
+
+procedure TBGRACustomBitmap.LoadFromStream(Str: TStream;
+  AOptions: TBGRALoadingOptions);
 var
   format: TBGRAImageFormat;
   reader: TFPCustomImageReader;
@@ -1062,7 +1084,7 @@ begin
   format := DetectFileFormat(Str);
   reader := CreateBGRAImageReader(format);
   try
-    LoadFromStream(Str,reader);
+    LoadFromStream(Str,reader,AOptions);
   finally
     reader.Free;
   end;
@@ -1074,6 +1096,12 @@ end;
   bitmaps properly }
 procedure TBGRACustomBitmap.LoadFromStream(Str: TStream;
   Handler: TFPCustomImageReader);
+begin
+  LoadFromStream(Str, Handler, [loKeepTransparentRGB]);
+end;
+
+procedure TBGRACustomBitmap.LoadFromStream(Str: TStream;
+  Handler: TFPCustomImageReader; AOptions: TBGRALoadingOptions);
 var
   OldDrawMode: TDrawMode;
 begin
@@ -1081,6 +1109,8 @@ begin
   CanvasDrawModeFP := dmSet;
   try
     inherited LoadFromStream(Str, Handler);
+    if not (loKeepTransparentRGB in AOptions) then
+      ClearTransparentPixels;
   finally
     CanvasDrawModeFP := OldDrawMode;
   end;
