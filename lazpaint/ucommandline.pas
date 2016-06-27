@@ -183,7 +183,7 @@ begin
             errorEncountered := true;
             exit;
           end;
-          instance.Image.Assign(instance.MakeNewBitmapReplacement(w,h),True,False);
+          instance.Image.Assign(instance.MakeNewBitmapReplacement(w,h,BGRAPixelTransparent),True,False);
         end else
         if Copy(CommandStr,1,4) <> 'psn_' then //ignore mac parameter
         begin

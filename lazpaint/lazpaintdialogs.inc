@@ -50,8 +50,9 @@ end;
 function TLazPaintInstance.ScriptFileNew(AVars: TVariableSet): TScriptResult;
 var
   bitmapRepl: TBGRABitmap;
-  vW,vH: TScriptVariableReference;
+  vW,vH,vBack: TScriptVariableReference;
   w,h: NativeInt;
+  back: TBGRAPixel;
   whDefined: boolean;
 begin
   if ToolManager.ToolSleeping then
@@ -61,11 +62,16 @@ begin
   end;
   vW := AVars.GetVariable('Width');
   vH := AVars.GetVariable('Height');
+  vBack := AVars.GetVariable('BackColor');
   whDefined := AVars.IsReferenceDefined(vW) and AVars.IsReferenceDefined(vH);
   if whDefined then
   begin
     w := AVars.GetInteger(vW);
     h := AVars.GetInteger(vH);
+    if AVars.IsReferenceDefined(vBack) then
+      back := AVars.GetPixel(vBack)
+    else
+      back := BGRAPixelTransparent;
     if (w < 1) or (w > MaxImageWidth) or (h < 1) or (h > MaxImageHeight) then
     begin
       result := srInvalidParameters;
@@ -91,7 +97,7 @@ begin
     end;
   end;
   if whDefined then
-    bitmapRepl := MakeNewBitmapReplacement(w,h)
+    bitmapRepl := MakeNewBitmapReplacement(w,h,back)
   else
   begin
     if not ShowNewImageDlg(bitmapRepl) then
@@ -103,6 +109,7 @@ begin
     begin
       ScriptContext.RecordingFunctionParameters.AddInteger('Width', bitmapRepl.Width);
       ScriptContext.RecordingFunctionParameters.AddInteger('Height', bitmapRepl.Height);
+      ScriptContext.RecordingFunctionParameters.AddPixel('BackColor', bitmapRepl.GetPixel(0,0));
     end;
   end;
   ChooseTool(ptHand);
@@ -115,12 +122,13 @@ end;
 function TLazPaintInstance.ShowNewImageDlg(out bitmap: TBGRABitmap
   ): boolean;
 var tx,ty: integer;
+  back: TBGRAPixel;
 begin
   FormsNeeded;
 
-  Result:= unewimage.ShowNewImageDlg(self,tx,ty);
+  Result:= unewimage.ShowNewImageDlg(self,tx,ty,back);
   if result then
-    bitmap := MakeNewBitmapReplacement(tx,ty)
+    bitmap := MakeNewBitmapReplacement(tx,ty,back)
   else
     bitmap := nil;
 end;

@@ -34,6 +34,7 @@ const
   Indiquer l'outil actif
   Rotation des objets des outils
   Afficher les coordonnees des points (snap de la valeur en haut?)
+  Ajout barre d'outils pour les coordonnees de la selection 
   Mettre a jour le curseur quand on change d'outil (notamment avec Espace)
 
   Possible improvements:
@@ -46,6 +47,8 @@ const
   Format:
   - TIM image format
   - load/save image DPI
+  - saving GIF
+  - saving BMP IGO
   - load/save RAW
 
   Filters:
@@ -271,7 +274,7 @@ type
     property BlackAndWhite: boolean read FBlackAndWhite write SetBlackAndWhite;
 
     procedure ScrollLayerStackOnItem(AIndex: integer); virtual; abstract;
-    function MakeNewBitmapReplacement(AWidth, AHeight: integer): TBGRABitmap; virtual; abstract;
+    function MakeNewBitmapReplacement(AWidth, AHeight: integer; AColor: TBGRAPixel): TBGRABitmap; virtual; abstract;
     procedure ChooseTool(Tool : TPaintToolType); virtual; abstract;
     function GetOnlineUpdater: TLazPaintCustomOnlineUpdater; virtual;
 

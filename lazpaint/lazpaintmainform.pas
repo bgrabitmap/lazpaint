@@ -1010,7 +1010,7 @@ begin
 
   InitToolbarElements;
 
-  FImageActions.SetCurrentBitmap(TBGRABitmap.Create(Config.DefaultImageWidth,Config.DefaultImageHeight,BGRAPixelTransparent), false);
+  FImageActions.SetCurrentBitmap(TBGRABitmap.Create(Config.DefaultImageWidth,Config.DefaultImageHeight,Config.DefaultImageBackgroundColor), false);
   image.ClearUndo;
   image.SetSavedFlag;
 

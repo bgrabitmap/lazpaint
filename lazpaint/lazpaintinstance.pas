@@ -189,7 +189,7 @@ type
     property MainFormVisible: boolean read GetMainFormVisible;
     procedure NotifyStackChange; override;
     procedure ScrollLayerStackOnItem(AIndex: integer); override;
-    function MakeNewBitmapReplacement(AWidth, AHeight: integer): TBGRABitmap; override;
+    function MakeNewBitmapReplacement(AWidth, AHeight: integer; AColor: TBGRAPixel): TBGRABitmap; override;
     procedure ChooseTool(Tool : TPaintToolType); override;
     function OpenImage (FileName: string; AddToRecent: Boolean= True): boolean; override;
     procedure AddToImageList(const FileNames: array of String); override;
@@ -1302,9 +1302,9 @@ begin
   end;
 end;
 
-function TLazPaintInstance.MakeNewBitmapReplacement(AWidth, AHeight: integer): TBGRABitmap;
+function TLazPaintInstance.MakeNewBitmapReplacement(AWidth, AHeight: integer; AColor: TBGRAPixel): TBGRABitmap;
 begin
-  result := TBGRABitmap.Create(AWidth,AHeight);
+  result := TBGRABitmap.Create(AWidth,AHeight, AColor);
 end;
 
 procedure TLazPaintInstance.ChooseTool(Tool: TPaintToolType);

@@ -64,15 +64,15 @@ type
     newImageResult: TBGRABitmap;
   end; 
 
-function ShowNewImageDlg(Instance: TLazPaintCustomInstance; out tx,ty: integer):boolean;
+function ShowNewImageDlg(Instance: TLazPaintCustomInstance; out tx,ty: integer; out back: TBGRAPixel):boolean;
 
 implementation
 
-uses umac, UMySLV, UResourceStrings;
+uses umac, UMySLV, UResourceStrings, UGraph;
 
 { TFNewImage }
 
-function ShowNewImageDlg(Instance: TLazPaintCustomInstance; out tx,ty: integer):boolean;
+function ShowNewImageDlg(Instance: TLazPaintCustomInstance; out tx,ty: integer; out back: TBGRAPixel):boolean;
 var
   NewImage: TFNewImage;
 begin
@@ -86,6 +86,7 @@ begin
     result:= (NewImage.ShowModal = mrOk);
     tx:= NewImage.SpinEdit_Width.Value;
     ty:= NewImage.SpinEdit_Height.Value;
+    back:= NewImage.FBackColor;
   except
     on ex:Exception do
     begin
@@ -100,6 +101,7 @@ procedure TFNewImage.Button_OKClick(Sender: TObject);
 begin
   LazPaintInstance.Config.SetDefaultImageWidth(SpinEdit_Width.Value);
   LazPaintInstance.Config.SetDefaultImageHeight(SpinEdit_Height.Value);
+  LazPaintInstance.Config.SetDefaultImageBackgroundColor(FBackColor);
   ModalResult:= mrOk;
 end;
 
@@ -139,7 +141,7 @@ begin
       Bitmap.FillRect(x,y,x+px,y+py,BGRABlack,dmSet)
     else
     begin
-      Bitmap.DrawCheckers(rect(x,y,x+px,y+py),BGRAWhite,CSSSilver);
+      ugraph.DrawCheckers(Bitmap,rect(x,y,x+px,y+py));
       Bitmap.Rectangle(x,y,x+px,y+py,BGRABlack,FBackColor,dmDrawWithTransparency);
     end;
   end;
@@ -250,7 +252,6 @@ begin
   CheckSpinEdit(SpinEdit_Width);
   CheckSpinEdit(SpinEdit_Height);
   newImageResult := nil;
-  FBackColor:= BGRAPixelTransparent;
 end;
 
 procedure TFNewImage.FormShow(Sender: TObject);
@@ -261,6 +262,7 @@ begin
   FRecomputing := true;
   SpinEdit_Width.Value := LazPaintInstance.Config.DefaultImageWidth;
   SpinEdit_Height.Value := LazPaintInstance.Config.DefaultImageHeight;
+  FBackColor:= LazPaintInstance.Config.DefaultImageBackgroundColor;
   FRecomputing := false;
 
   UpdatePreview;

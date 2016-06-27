@@ -12,7 +12,7 @@ object FNewImage: TFNewImage
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.4.0.4'
+  LCLVersion = '1.6.0.4'
   object Label_Width: TLabel
     Left = 16
     Height = 15
@@ -136,7 +136,7 @@ object FNewImage: TFNewImage
   end
   object BGRAShape1: TBGRAShape
     Cursor = crHandPoint
-    Left = 44
+    Left = 16
     Height = 23
     Top = 144
     Width = 23
@@ -175,7 +175,7 @@ object FNewImage: TFNewImage
   end
   object BGRAShape2: TBGRAShape
     Cursor = crHandPoint
-    Left = 72
+    Left = 44
     Height = 23
     Top = 144
     Width = 23
@@ -214,7 +214,7 @@ object FNewImage: TFNewImage
   end
   object BGRAShape3: TBGRAShape
     Cursor = crHandPoint
-    Left = 100
+    Left = 72
     Height = 23
     Top = 144
     Width = 23
@@ -253,7 +253,7 @@ object FNewImage: TFNewImage
   end
   object BGRAShape4: TBGRAShape
     Cursor = crHandPoint
-    Left = 128
+    Left = 100
     Height = 23
     Top = 144
     Width = 23
@@ -292,7 +292,7 @@ object FNewImage: TFNewImage
   end
   object BGRAShape5: TBGRAShape
     Cursor = crHandPoint
-    Left = 156
+    Left = 128
     Height = 23
     Top = 144
     Width = 23
@@ -331,7 +331,7 @@ object FNewImage: TFNewImage
   end
   object BGRAShape6: TBGRAShape
     Cursor = crHandPoint
-    Left = 184
+    Left = 156
     Height = 23
     Top = 144
     Width = 23
@@ -370,7 +370,7 @@ object FNewImage: TFNewImage
   end
   object BGRAShape7: TBGRAShape
     Cursor = crHandPoint
-    Left = 213
+    Left = 185
     Height = 23
     Top = 144
     Width = 23
@@ -409,7 +409,7 @@ object FNewImage: TFNewImage
   end
   object BGRAShape8: TBGRAShape
     Cursor = crHandPoint
-    Left = 242
+    Left = 214
     Height = 23
     Top = 144
     Width = 23
@@ -448,7 +448,7 @@ object FNewImage: TFNewImage
   end
   object BGRAShape9: TBGRAShape
     Cursor = crHandPoint
-    Left = 271
+    Left = 243
     Height = 23
     Top = 144
     Width = 23
@@ -486,7 +486,7 @@ object FNewImage: TFNewImage
     OnClick = BGRAShapeClick
   end
   object Image1: TImage
-    Left = 16
+    Left = 272
     Height = 23
     Top = 144
     Width = 23
@@ -501,7 +501,7 @@ object FNewImage: TFNewImage
   end
   object BGRAShape10: TBGRAShape
     Cursor = crHandPoint
-    Left = 16
+    Left = 272
     Height = 23
     Top = 144
     Width = 23

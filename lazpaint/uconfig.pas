@@ -84,8 +84,11 @@ type
     //new image config
     function DefaultImageWidth: integer;
     function DefaultImageHeight: integer;
+    function DefaultImageBackgroundColor: TBGRAPixel;
     procedure SetDefaultImageWidth(value: integer);
     procedure SetDefaultImageHeight(value: integer);
+    procedure SetDefaultImageBackgroundColor(value: TBGRAPixel);
+
 
     //resample config
     function DefaultResampleKeepAspectRatio: boolean;
@@ -355,6 +358,16 @@ end;
 procedure TLazPaintConfig.SetDefaultImageHeight(value: integer);
 begin
   iniOptions.WriteInteger('General','DefaultImageHeight',value);
+end;
+
+procedure TLazPaintConfig.SetDefaultImageBackgroundColor(value: TBGRAPixel);
+begin
+  iniOptions.WriteString('General','DefaultImageBackColor',BGRAToStr(value));
+end;
+
+function TLazPaintConfig.DefaultImageBackgroundColor: TBGRAPixel;
+begin
+  result := StrToBGRA(iniOptions.ReadString('General','DefaultImageBackColor','00000000'));
 end;
 
 function TLazPaintConfig.DefaultResampleKeepAspectRatio: boolean;

@@ -196,57 +196,8 @@ begin
 end;
 
 procedure DrawCheckers(bmp: TBGRABitmap; ARect: TRect);
-const tx = 8; ty = 8; //must be a power of 2
-      xMask = tx*2-1;
-var xcount,patY,w,n,patY1,patY2m1,patX,patX1: NativeInt;
-    oddColor, evenColor: TBGRAPixel;
-    pdest: PBGRAPixel;
-    delta: PtrInt;
-    actualRect: TRect;
 begin
-  oddColor := BGRA(220,220,220);
-  evenColor := BGRA(255,255,255);
-  actualRect := ARect;
-  IntersectRect(actualRect, ARect, bmp.ClipRect);
-  w := actualRect.Right-actualRect.Left;
-  if (w <= 0) or (actualRect.Bottom <= actualRect.Top) then exit;
-  delta := bmp.Width;
-  if bmp.LineOrder = riloBottomToTop then delta := -delta;
-  delta := (delta-w)*SizeOf(TBGRAPixel);
-  pdest := bmp.ScanLine[actualRect.Top]+actualRect.left;
-  patY1 := actualRect.Top - ARect.Top;
-  patY2m1 := actualRect.Bottom - ARect.Top-1;
-  patX1 := (actualRect.Left - ARect.Left) and xMask;
-  for patY := patY1 to patY2m1 do
-  begin
-    xcount := w;
-    if patY and ty = 0 then
-       patX := patX1
-    else
-       patX := (patX1+tx) and xMask;
-    while xcount > 0 do
-    begin
-      if patX and tx = 0 then
-      begin
-        n := 8-patX;
-        if n > xcount then n := xcount;
-        FillDWord(pdest^,n,DWord(evenColor));
-        dec(xcount,n);
-        inc(pdest,n);
-        patX := tx;
-      end else
-      begin
-        n := 16-patX;
-        if n > xcount then n := xcount;
-        FillDWord(pdest^,n,DWord(oddColor));
-        dec(xcount,n);
-        inc(pdest,n);
-        patX := 0;
-      end;
-    end;
-    inc(pbyte(pdest),delta);
-  end;
-  bmp.InvalidateBitmap;
+  bmp.DrawCheckers(ARect,BGRA(255,255,255),BGRA(220,220,220));
 end; 
 
 procedure DrawGrid(bmp: TBGRABitmap; sizex, sizey: single);
@@ -1329,4 +1280,4 @@ initialization
   Randomize;
 
 end.
-
+
