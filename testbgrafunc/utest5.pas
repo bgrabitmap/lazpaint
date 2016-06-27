@@ -15,6 +15,7 @@ type
     virtualScreen: TBGRABitmap;
   public
     constructor Create;
+    destructor Destroy; override;
     procedure OnPaint(Canvas: TCanvas; Left,Top,Width,Height: Integer); override;
   end;
 
@@ -27,6 +28,12 @@ begin
   inherited Create;
   Name := 'TBGRABitmap.PutImage. This is the recommended way. Non-flickering pacmans walking with a rectangle. Rectangle opacity always there with the rendering capacities on BGRABitmap.';
   virtualScreen := nil;
+end;
+
+destructor TTest5.Destroy;
+begin
+  virtualScreen.Free;
+  inherited Destroy;
 end;
 
 procedure TTest5.OnPaint(Canvas: TCanvas; Left,Top,Width, Height: Integer);

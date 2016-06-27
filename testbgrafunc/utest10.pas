@@ -64,6 +64,7 @@ begin
     p := virtualScreen.ScanLine[yb];
     for xb := 0 to virtualScreen.Width-1 do
     begin
+      {$push}{$r-}
       value := Sin65536(
                         (xb shl 8 + (height-yb)*(Sin65536(intTime2 shr 2) shr 8 - 128) + intTime1 shr 5 + Sin65536(yb shl 16 div height + intTime3) shr 4)*
                         ( Sin65536(intTime1 shr 3) shr 9 - 64 + 256 )*2 div Width);
@@ -72,6 +73,7 @@ begin
 
       value += Sin65536( round( sqrt(sqr(xb/width-center.x)+sqr(yb/height-center.y))
                           * ( (Sin65536(intTime3 shr 3)+ 2*65536)  ) ) + intTime2 shr 2);
+      {$pop}
 
       value := value div (3*128);
 

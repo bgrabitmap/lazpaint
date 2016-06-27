@@ -34,7 +34,7 @@ constructor TTestPacRect.Create;
 begin
   inherited Create;
   randomize;
-  setlength(pacImg,3);
+  setlength(pacImg,4);
   pacImg[0] := AddTranspRectTo('..'+pathdelim+'img'+pathdelim+'pac_d1.bmp');
   pacImg[1] := AddTranspRectTo('..'+pathdelim+'img'+pathdelim+'pac_d2.bmp');
   pacImg[2] := AddTranspRectTo('..'+pathdelim+'img'+pathdelim+'pac_d3.bmp');
