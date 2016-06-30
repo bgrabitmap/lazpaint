@@ -58,11 +58,7 @@ begin
       raise exception.Create('No adequate icon found') else
     begin
       ico.Current := bestIdx;
-      with Img as TBGRACustomBitmap do
-      begin
-        SetSize(bestWidth,bestHeight);
-        GetImageFromCanvas(ico.Canvas,0,0);
-      end;
+      (Img as TBGRACustomBitmap).Assign(ico);
     end;
   finally
     ico.free;
