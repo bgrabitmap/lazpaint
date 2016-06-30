@@ -116,7 +116,7 @@ uses BGRATransform{$IFDEF BGRABITMAP_USE_LCL}, BGRAText, BGRATextFX{$ENDIF}
     ,BGRAMatrix3D;
 
 type
-  TBlendFuncSeparateProc = procedure(sfactorRGB: GLenum; dfactorRGB: GLenum; sfactorAlpha: GLenum; dfactorAlpha: GLenum); stdcall;
+  TBlendFuncSeparateProc = procedure(sfactorRGB: GLenum; dfactorRGB: GLenum; sfactorAlpha: GLenum; dfactorAlpha: GLenum); {$IFDEF Windows} stdcall; {$ELSE} cdecl; {$ENDIF}
 
 function PrimitiveToOpenGL(AValue: TOpenGLPrimitive): GLenum;
 begin
