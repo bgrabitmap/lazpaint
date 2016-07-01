@@ -293,7 +293,7 @@ function TBGRAFace3D.GetVertexColor(AIndex: Integer): TBGRAPixel;
 begin
   if (AIndex < 0) or (AIndex >= FVertexCount) then
     raise Exception.Create('Index out of bounds');
-  result := FVertices[AIndex].Color;
+  result := FVertices[AIndex].ActualColor;
 end;
 
 function TBGRAFace3D.GetVertexColorOverride(AIndex: Integer): boolean;

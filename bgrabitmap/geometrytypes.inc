@@ -231,6 +231,7 @@ type
   procedure VectProduct3D(u,v: TPoint3D; out w: TPoint3D);
   {** Normalize the vector, i.e. scale it so that its length be 1 }
   procedure Normalize3D(var v: TPoint3D); inline;
+  function VectLen3D(const v: TPoint3D): single;
 
 type
   {* Defition of a line in the euclidian plane }
@@ -684,6 +685,11 @@ begin
   v.x /= len;
   v.y /= len;
   v.z /= len;
+end;
+
+function VectLen3D(const v: TPoint3D): single;
+begin
+  result := sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
 end;
 
 procedure VectProduct3D(u,v: TPoint3D; out w: TPoint3D);
