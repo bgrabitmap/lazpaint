@@ -4,3 +4,6 @@
 *.lps
 backup/*
 lib
+debug
+*.res
+*.lrt
