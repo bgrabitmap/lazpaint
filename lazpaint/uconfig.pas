@@ -280,7 +280,7 @@ var
 
 implementation
 
-uses forms, uparse, LCLProc, FileUtil;
+uses forms, uparse, LCLProc, BGRAUTF8, LazFileUtils;
 
 const maxRecentFiles = 10;
       maxRecentDirectories = 10;

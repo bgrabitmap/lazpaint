@@ -406,7 +406,11 @@ function TFAdjustCurves.GetPosterize: boolean;
 var curve: TVariableSet;
 begin
   curve := SelectedCurve;
-  if curve = nil then exit;
+  if curve = nil then
+  begin
+    result := false;
+    exit;
+  end;
   result := curve.Booleans['Posterize'];
 end;
 

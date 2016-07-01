@@ -1197,7 +1197,11 @@ function TLazPaintInstance.ExecuteFilter(filter: TPictureFilter;
   skipDialog: boolean): boolean;
 var vars: TVariableSet;
 begin
-  if filter = pfNone then exit;
+  if filter = pfNone then
+  begin
+    result := false;
+    exit;
+  end;
   vars := TVariableSet.Create('Filter');
   vars.AddString('Name',PictureFilterStr[filter]);
   Result:= UFilters.ExecuteFilter(self, filter, vars, skipDialog);
@@ -1325,7 +1329,11 @@ end;
 
 function TLazPaintInstance.GetTopMostHasFocus: boolean;
 begin
-  if FDestroying then exit;
+  if FDestroying then
+  begin
+    result := false;
+    exit;
+  end;
 
   result := false;
   if (FToolBox <> nil) and FToolBox.Visible and FToolBox.Active then

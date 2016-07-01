@@ -5,7 +5,7 @@ unit ubrowseimages;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs,
   ComCtrls, ExtCtrls, Buttons, StdCtrls, BGRAVirtualScreen, BGRABitmap,
   BGRABitmapTypes, BGRAAnimatedGif, UMySLV, LazPaintType, Masks, LCLType;
 
@@ -143,7 +143,7 @@ uses BGRAThumbnail, BGRAPaintNet, BGRAOpenRaster, BGRAReadLzp,
     BGRAWriteLzp, FPimage,
     Types, UResourceStrings,
     UConfig, bgrareadjpeg, FPReadJPEG,
-    UFileExtensions, LazUTF8, UFileSystem;
+    UFileExtensions, BGRAUTF8, LazFileUtils, UFileSystem;
 
 var
   IconCache: TStringList;

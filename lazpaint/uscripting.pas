@@ -782,6 +782,8 @@ begin
   case listType of
     svtBoolList: ref := AddBooleanList(AName);
     svtStrList: ref := AddStringList(AName);
+  else
+    raise exception.Create('Unknown list type');
   end;
   result := AssignList(ref, AListExpr);
 end;
@@ -1096,11 +1098,8 @@ end;
 class function TVariableSet.AssignObject(const ADest: TScriptVariableReference;
   AValue: TScriptInteger): boolean;
 begin
-  if ADest.variableSet = nil then
-  begin
-    result := false;
-    exit;
-  end;
+  result := false;
+  if ADest.variableSet = nil then exit;
   if ADest.variableType = svtObject then
   begin
     ADest.variableSet.FScalars[ADest.variableIndex].valueInt := AValue;
@@ -1458,7 +1457,7 @@ end;
 
 class function TVariableSet.GetFloat(const ASource: TScriptVariableReference
   ): double;
-var errPos: integer;
+var {%H-}errPos: integer;
 begin
   if ASource.variableSet <> nil then
   begin
@@ -1482,7 +1481,7 @@ end;
 
 class function TVariableSet.GetInteger(const ASource: TScriptVariableReference
   ): TScriptInteger;
-var errPos: integer;
+var {%H-}errPos: integer;
 begin
   if ASource.variableSet <> nil then
   begin
@@ -1629,12 +1628,13 @@ begin
     else
       result := 0;
     end;
-  end;
+  end
+  else result := 0;
 end;
 
 class function TVariableSet.GetFloatAt(const ASource: TScriptVariableReference;
   AIndex: NativeInt): double;
-var errPos: integer;
+var {%H-}errPos: integer;
 begin
   result := 0;
   if (ASource.variableSet = nil) or (AIndex < 0) then exit;
@@ -1658,7 +1658,7 @@ end;
 
 class function TVariableSet.GetIntegerAt(
   const ASource: TScriptVariableReference; AIndex: NativeInt): TScriptInteger;
-var errPos: integer;
+var {%H-}errPos: integer;
 begin
   result := 0;
   if (ASource.variableSet = nil) or (AIndex < 0) then exit;

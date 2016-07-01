@@ -157,7 +157,8 @@ begin
     FActualAngle:= GetActualAngle;
     result := UpdateRotation;
     FPreviousMousePos := ptF;
-  end;
+  end else
+    result := EmptyRect;
 end;
 
 function TToolRotateLayer.UpdateRotation: TRect;

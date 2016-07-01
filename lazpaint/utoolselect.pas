@@ -631,7 +631,11 @@ function TToolMagicWand.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
 var penColor: TBGRAPixel;
 begin
-  if not Manager.Image.CurrentLayerVisible then exit;
+  if not Manager.Image.CurrentLayerVisible then
+  begin
+    result := EmptyRect;
+    exit;
+  end;
   if rightBtn then penColor := BGRABlack else penColor := BGRAWhite;
   Manager.Image.SelectedImageLayerReadOnly.ParallelFloodFill(pt.X,pt.Y,toolDest,penColor,fmDrawWithTransparency,Manager.ToolTolerance);
   Manager.Image.SelectionMayChangeCompletely;

@@ -5,7 +5,7 @@ unit UObject3D;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
+  Classes, SysUtils, LResources, Forms, Controls, Graphics, Dialogs,
   StdCtrls, Spin, ExtCtrls, ComCtrls, BGRAVirtualScreen, BGRAKnob,
   BGRAImageList, BGRABitmap, BGRAScene3D, LazPaintType, BGRABitmapTypes,
   UConfig;
@@ -152,7 +152,7 @@ function ShowObject3DDlg({%H-}Instance: TLazPaintCustomInstance; filenameUTF8: s
 
 implementation
 
-uses ugraph, uscaledpi, umac, ULoadImage;
+uses LazFileUtils, BGRAUTF8, ugraph, uscaledpi, umac, ULoadImage;
 
 const PointLightDist = 80;
 
@@ -195,21 +195,20 @@ begin
   until v*v <> 0;
   Normalize3D(v);
 
-  for j := 0 to AFace.VertexCount-1 do
+  with AFace.Vertex[0] do
+  begin
+    pt := PointF((GetSceneCoord-p1)*u,(GetSceneCoord-p1)*v);
+    min := pt;
+    max := pt
+  end;
+  for j := 1 to AFace.VertexCount-1 do
   with AFace.Vertex[j] do
   begin
     pt := PointF((GetSceneCoord-p1)*u,(GetSceneCoord-p1)*v);
-    if j = 0 then
-    begin
-      min := pt;
-      max := pt;
-    end else
-    begin
-      if pt.x < min.x then min.x := pt.x else
-      if pt.x > max.x then max.x := pt.x;
-      if pt.y < min.y then min.y := pt.y else
-      if pt.y > max.y then max.y := pt.y;
-    end;
+    if pt.x < min.x then min.x := pt.x else
+    if pt.x > max.x then max.x := pt.x;
+    if pt.y < min.y then min.y := pt.y else
+    if pt.y > max.y then max.y := pt.y;
   end;
   if min.x = max.x then max.x := min.x+1;
   if min.y = max.y then max.y := min.y+1;

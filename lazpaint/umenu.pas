@@ -37,7 +37,7 @@ type
 
 implementation
 
-uses UResourceStrings, LCLProc, LazPaintType, UScaleDPI, ComCtrls, Graphics,
+uses UResourceStrings, BGRAUTF8, LazPaintType, UScaleDPI, ComCtrls, Graphics,
   Spin, StdCtrls, BGRAText, Controls;
 
 { TMainFormMenu }

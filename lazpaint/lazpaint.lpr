@@ -10,7 +10,7 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces,
 
-  process, Forms, SysUtils, Inifiles, FileUtil, printer4lazarus, //packages
+  process, Forms, FileUtil, SysUtils, Inifiles, BGRAUTF8, LazFileUtils, printer4lazarus, //packages
 
   LazPaintType, LazpaintInstance, LazpaintMainForm, UConfig, UOnline,
 

@@ -211,15 +211,11 @@ begin
       Value := BarPosToValue(X);
       vs.RedrawBitmap;
     end else
-    if vs.Focused then
+    if not vs.Focused then
     begin
-
+      SafeSetFocus(vs);
+      SelectAll;
     end;
-  end;
-  if not vs.Focused then
-  begin
-    SafeSetFocus(vs);
-    SelectAll;
   end;
 end;
 
@@ -522,4 +518,4 @@ begin
 end;
 
 end.
-
+

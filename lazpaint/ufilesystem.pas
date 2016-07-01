@@ -175,7 +175,7 @@ begin
   result := nil;
   for Drive := 'A' to 'Z' do
   begin
-    DrivePath := Drive + ':\';
+    DrivePath := WideString(Drive + ':\');
     lDevice := '';
     case GetDriveTypeW(PWideChar(DrivePath)) of
      DRIVE_REMOVABLE: lDevice := rsRemovableDrive;
@@ -195,7 +195,7 @@ begin
         with result[high(result)] do
         begin
           device := lDevice;
-          path := DrivePath;
+          path := UTF8Encode(DrivePath);
           name := UTF16ToUTF8(PWideChar(@volumeName));
           fileSystem := UTF16ToUTF8(PWideChar(@fileSystemName));
           longFilenames:= maxFilenameLength >= 128;

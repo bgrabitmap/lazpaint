@@ -502,7 +502,9 @@ begin
     previousRect := currentRect;
     afterRectDrawing := true;
     UpdateCursor(lastMousePos);
-  end;
+  end
+  else
+    result := EmptyRect;
 end;
 
 function TToolRectangular.ToolKeyDown(var key: Word): TRect;

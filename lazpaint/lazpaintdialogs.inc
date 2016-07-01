@@ -61,8 +61,11 @@ begin
     exit;
   end;
   vW := AVars.GetVariable('Width');
+  w := 1;
   vH := AVars.GetVariable('Height');
+  h := 1;
   vBack := AVars.GetVariable('BackColor');
+  back := BGRAPixelTransparent;
   whDefined := AVars.IsReferenceDefined(vW) and AVars.IsReferenceDefined(vH);
   if whDefined then
   begin

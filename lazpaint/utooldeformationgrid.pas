@@ -335,6 +335,7 @@ var
   curDist,minDist: single;
   pts: array of TPointF;
 begin
+  result := EmptyRect;
   if rightBtn then exit;
   ToolQuadNeeded;
   if not quadDefined then exit;
@@ -344,7 +345,6 @@ begin
   else
     pts := quad;
 
-  result := EmptyRect;
   minDist := sqr(DoScaleX(10,OriginalDPI));
   for n := 0 to high(pts) do
   begin

@@ -629,6 +629,8 @@ var xb,yb: integer;
 begin
   result:= TBGRABitmap.Create(bmpsrc.Width,bmpsrc.Height);
   dist := 256*3;
+  colorXsum := 0;
+  colorYsum := 0;
   colorXYnb := 0;
   for yb := 0 to bmpsrc.Height-1 do
   begin

@@ -296,6 +296,12 @@ function TToolGenericSpline.ToolKeyDown(var key: Word): TRect;
 var idx: integer;
    newCurveMode: TGlyphPointCurveMode;
 begin
+  if Key = VK_Z then
+  begin
+    if not IsHandDrawing and not IsIdle then CurrentMode := tsmMovePoint;
+    result := EmptyRect;
+    exit;
+  end;
   if (Key = VK_S) or (Key = VK_X) or (Key = VK_A) or (Key = VK_Z) then
   begin
     if IsHandDrawing then idx := length(polygonPoints)-1
@@ -303,14 +309,9 @@ begin
     if Key = VK_S then
       newCurveMode := cmCurve
     else if Key = VK_X then
-      newCurveMode := cmAngle else
-    if Key = VK_A then
-      newCurveMode := cmAuto else
-    if Key = VK_Z then
-    begin
-      if not IsHandDrawing and not IsIdle then CurrentMode := tsmMovePoint;
-      exit;
-    end;
+      newCurveMode := cmAngle
+    else //VK_A
+      newCurveMode := cmAuto;
     DefaultCurveMode := newCurveMode;
     if idx = -1 then
     begin

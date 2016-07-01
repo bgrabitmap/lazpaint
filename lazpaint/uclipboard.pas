@@ -147,7 +147,7 @@ begin
   begin
     setlength(w, length(data) div 2);
     move(data[1],w[1],length(data));
-    result := w;
+    result := UTF8Encode(w);
   end
     else result := data;
 end;

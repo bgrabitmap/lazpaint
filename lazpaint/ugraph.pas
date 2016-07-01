@@ -53,7 +53,7 @@ procedure BCAssignSystemStyle(AButton: TBCButton);
 
 implementation
 
-uses GraphType, math, Types, LCLProc, FileUtil, dialogs, BGRAAnimatedGif,
+uses GraphType, math, Types, BGRAUTF8, FileUtil, dialogs, BGRAAnimatedGif,
   BGRAGradients, BGRATextFX, uresourcestrings, uscaledpi, BCTypes;
 
 procedure BCAssignSystemState(AState: TBCButtonState; AFontColor, ATopColor, AMiddleTopColor, AMiddleBottomColor, ABottomColor, ABorderColor: TColor);

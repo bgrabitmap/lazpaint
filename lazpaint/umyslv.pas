@@ -155,8 +155,8 @@ function FileSizeToStr(ASize: int64; AByteCaption: string): string;
 
 implementation
 
-uses LCLType, FileUtil, UResourceStrings, LazPaintType, LazUTF8, Forms, Math,
-  UFileSystem;
+uses LCLType, UResourceStrings, LazPaintType, LazUTF8, Forms, Math,
+  UFileSystem, LazFileUtils;
 
 var
   SortTarget: TMyShellListView;
@@ -448,7 +448,7 @@ begin
         j := NewItem;
         CurFileName := Files.Strings[i];
         CurFilePath := IncludeTrailingPathDelimiter(FRoot) + CurFileName;
-        CurFileSize := FileSize(CurFilePath); // in Bytes
+        CurFileSize := FileSizeUtf8(CurFilePath); // in Bytes
         FData[j].isFolder := false;
         FData[j].filename := CurFileName;
         FData[j].caption := ChangeFileExt(CurFileName,'');

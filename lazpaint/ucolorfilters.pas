@@ -55,7 +55,11 @@ begin
     begin
       alpha := 255;
       pselect := nil;
-    end else pselect := selection.Data;
+    end else
+    begin
+      pselect := selection.Data;
+      alpha := 0;
+    end;
 
     for n := 0 to FilterConnector.ActiveLayer.NbPixels-1 do
     begin
@@ -195,7 +199,11 @@ begin
     begin
       alpha := 255;
       pselect := nil;
-    end else pselect := selection.Data;
+    end else
+    begin
+      pselect := selection.Data;
+      alpha := 0;
+    end;
 
     for n := 0 to FilterConnector.ActiveLayer.NbPixels-1 do
     begin
@@ -256,7 +264,11 @@ begin
     begin
       alpha := 255;
       pselect := nil;
-    end else pselect := selection.Data;
+    end else
+    begin
+      pselect := selection.Data;
+      alpha := 0;
+    end;
 
     for n := 0 to FilterConnector.ActiveLayer.NbPixels-1 do
     begin
@@ -479,11 +491,8 @@ begin
   ApplyRGBA:= CurveDefined(RGBCurves[0]) or CurveDefined(RGBCurves[1]) or CurveDefined(RGBCurves[2]) or CurveDefined(AlphaCurve);
 
   selection := FFilterConnector.CurrentSelection;
-  if selection = nil then
-  begin
-    alpha := 255;
-    pselect := nil;
-  end;
+  pselect := nil;
+  alpha := 255;
 
   if ApplyRGBA then
     for n := 0 to 255 do

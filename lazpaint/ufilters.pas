@@ -52,6 +52,8 @@ var
       pfBlurDisk: blurType := rbDisk;
       pfBlurFast: blurType := rbFast;
       pfBlurBox: blurType := rbBox;
+    else
+      exit;
     end;
     if skipDialog then
       filteredLayer := FilterConnector.ActiveLayer.FilterBlurRadial(FilterConnector.WorkArea, AInstance.Config.DefaultBlurRadius,blurType) as TBGRABitmap

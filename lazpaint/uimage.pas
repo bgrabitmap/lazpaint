@@ -253,7 +253,7 @@ implementation
 
 uses UGraph, UResourceStrings, Dialogs,
     BGRAOpenRaster, BGRAPaintNet, UImageDiff, ULoading,
-    BGRAWriteLzp, lazutf8classes, LCLProc,
+    BGRAWriteLzp, lazutf8classes, BGRAUTF8,
     BGRAPalette, BGRAColorQuantization;
 
 function ComputeAcceptableImageSize(AWidth, AHeight: integer): TSize;
@@ -1334,6 +1334,7 @@ begin
     PrepareForRendering;
 
     backupCurrentLayer := nil;
+    backupTopLeft := Point(0,0);
     FDisplayedSelectionBounds := EmptyRect;
     //if there is an overlapping selection, then we must draw it on current layer
     if (currentSelection <> nil) and (GetSelectedImageLayer <> nil) then

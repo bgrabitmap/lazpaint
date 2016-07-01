@@ -12,7 +12,7 @@ function ParamStrUTF8(AIndex: integer): string;
 implementation
 
 uses
-  SysUtils, FileUtil, LCLProc, BGRABitmap, BGRABitmapTypes, Dialogs, uparse,
+  SysUtils, BGRAUTF8, LazFileUtils, BGRABitmap, BGRABitmapTypes, Dialogs, uparse,
   UImage, UImageAction, ULayerAction;
 
 function ParamStrUTF8(AIndex: integer): string;

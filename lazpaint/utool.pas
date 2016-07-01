@@ -458,7 +458,11 @@ function TGenericTool.ToolUpdate: TRect;
 var toolDest :TBGRABitmap;
 begin
   toolDest := GetToolDrawingLayer;
-  if toolDest = nil then exit;
+  if toolDest = nil then
+  begin
+    result := EmptyRect;
+    exit;
+  end;
   toolDest.JoinStyle := Manager.ToolJoinStyle;
   toolDest.LineCap := Manager.ToolLineCap;
   toolDest.PenStyle := Manager.ToolPenStyle;
@@ -1384,7 +1388,7 @@ begin
 end;
 
 initialization
-  fillchar(PaintTools,sizeof(PaintTools),0);
+  fillchar({%H-}PaintTools,sizeof(PaintTools),0);
 
 end.
 

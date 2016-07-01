@@ -6,7 +6,7 @@ unit uimagelist;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs,
   Grids, StdCtrls, Buttons, ComCtrls, ExtCtrls, Menus,
   LazPaintType, UResourceStrings, UConfig, BGRAImageList, ubrowseimages;
 
@@ -123,7 +123,7 @@ implementation
 
 {$R *.lfm}
 
-uses LCLType, UFileExtensions;
+uses LCLType, UFileExtensions, LazFileUtils;
 
 { TFImageList }
 

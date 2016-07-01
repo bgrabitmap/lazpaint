@@ -110,8 +110,10 @@ procedure TFSharpen.PreviewNeeded;
 var filtered: TBGRABitmap;
 begin
   if FMode = smSharpen then
+  begin
     filtered := FFilterConnector.BackupLayer.FilterSharpen(FFilterConnector.WorkArea,SpinEdit_Amount.Value/100) as TBGRABitmap;
-  FFilterConnector.PutImage(filtered,False,True);
+    FFilterConnector.PutImage(filtered,False,True);
+  end;
 end;
 
 {$R *.lfm}

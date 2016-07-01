@@ -323,7 +323,6 @@ type
   end;
 
 function StrToPictureFilter(const s: ansistring): TPictureFilter;
-function ConvertToUTF8IfNeeded(const s: ansistring): ansistring;
 procedure SafeSetFocus(AControl: TWinControl);
 function WindowBorderWidth(AForm: TForm): integer;
 function WindowBorderTopHeight(AForm: TForm; {%H-}AIncludeTitle: boolean): integer;
@@ -340,7 +339,7 @@ function GetWindowTopLeftCorner(AForm: TForm): TPoint;
 
 implementation
 
-uses LCLType, LCLProc, LCLIntf, FileUtil, UResourceStrings;
+uses LCLType, BGRAUTF8, LCLIntf, FileUtil, UResourceStrings;
 
 function IsOnlyRenderChange(const ARect: TRect): boolean;
 begin
@@ -362,14 +361,6 @@ begin
       result := pf;
       break;
     end;
-end;
-
-function ConvertToUTF8IfNeeded(const s: ansistring): ansistring;
-begin
-  if FindInvalidUTF8Character(pchar(s),length(s)) = -1 then
-    result := s
-  else
-    result := SysToUtf8(s);
 end;
 
 procedure SafeSetFocus(AControl: TWinControl);

@@ -103,6 +103,7 @@ begin
          if (SpinEdit_Width.Value>0) and (tx=0) then tx:=1;
          if (SpinEdit_Height.Value>0) and (ty=0) then ty:=1;
        end;
+    else exit;
   end;
   if (tx = LazPaintInstance.Image.Width) and
     (ty = LazPaintInstance.Image.Height) then
@@ -213,6 +214,7 @@ begin
          if (SpinEdit_Width.Value>0) and (tx=0) then tx:=1;
          if (SpinEdit_Height.Value>0) and (ty=0) then ty:=1;
        end;
+    else exit;
   end;
 
   px := tx;

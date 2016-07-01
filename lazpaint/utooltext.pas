@@ -61,7 +61,8 @@ type
 
 implementation
 
-uses ugraph, uresourcestrings, BGRAText, LazPaintType, Math, LCLProc, Clipbrd;
+uses ugraph, uresourcestrings, BGRAText, LazPaintType, Math,
+  LazUTF8, Clipbrd;
 
 { TToolText }
 
@@ -481,11 +482,13 @@ begin
   begin
     FShiftKey:= false;
     Key := 0;
+    result := EmptyRect;
   end else
   if Key = VK_CONTROL then
   begin
     FCtrlKey:= false;
     Key := 0;
+    result := EmptyRect;
   end else
     Result:=inherited ToolKeyUp(key);
 end;
@@ -496,6 +499,7 @@ begin
   if key = #8 then
   begin
     key := '';
+    result := EmptyRect;
     //handled as a keycode
   end else
   if (key = #13) and FEditing then

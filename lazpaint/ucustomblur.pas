@@ -5,7 +5,7 @@ unit UCustomblur;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
+  Classes, SysUtils, LResources, Forms, Controls, Graphics, Dialogs,
   StdCtrls, ExtCtrls, ExtDlgs,  bgrabitmap, LazPaintType, UScaleDPI,
   UResourceStrings, UFilterConnector, UFilterThread, ubrowseimages;
 
@@ -48,7 +48,7 @@ type
 
 implementation
 
-uses umac,BGRABitmapTypes, BGRAFilters;
+uses umac,BGRABitmapTypes, BGRAFilters, BGRAUTF8;
 
 { TFCustomBlur }
 

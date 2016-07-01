@@ -146,7 +146,7 @@ begin
       result := OnlyRenderChange;
     exit;
   end;
-  inherited DoToolDown(toolDest,pt,ptF,rightBtn);
+  result := inherited DoToolDown(toolDest,pt,ptF,rightBtn);
 end;
 
 function TToolPhong.ShouldFinishShapeWhenFirstMouseUp: boolean;

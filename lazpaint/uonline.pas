@@ -54,7 +54,7 @@ type
 
 implementation
 
-uses FileUtil, Dialogs,
+uses LazFileUtils, Dialogs,
     UTranslation, lazutf8classes;
 
 const OnlineResourcesURL = 'http://lazpaint.sourceforge.net/';

@@ -179,6 +179,8 @@ begin
   case FMUnit of
     0: Result:=SpinEdit_Width.Value;
     1: Result:=round(SpinEdit_Width.Value*LazPaintInstance.Image.Width/100);
+  else
+    Result:=SpinEdit_Width.Value;
   end;
   if result <= 1 then result := 1;
 end;
@@ -188,6 +190,8 @@ begin
   case FMUnit of
     0: Result:=SpinEdit_Height.Value;
     1: Result:=round(SpinEdit_Height.Value*LazPaintInstance.Image.Height/100);
+  else
+    Result:=SpinEdit_Height.Value;
   end;
   if result <= 1 then result := 1;
 end;

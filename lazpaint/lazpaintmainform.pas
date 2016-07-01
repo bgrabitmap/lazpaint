@@ -844,7 +844,7 @@ type
 
 implementation
 
-uses LCLIntf, LCLProc, ugraph, math, umac, uclipboard, ucursors,
+uses LCLIntf, BGRAUTF8, ugraph, math, umac, uclipboard, ucursors,
    ufilters, ULoadImage, ULoading, UFileExtensions, UBrushType,
    ugeometricbrush;
 
@@ -1310,7 +1310,7 @@ end;
 
 function TFMain.ScriptFileSaveAs(AVars: TVariableSet): TScriptResult;
 
-  procedure DoSaveAs(filename: string);
+  function DoSaveAs(filename: string): TScriptResult;
   begin
     if not Image.AbleToSaveAsUTF8(filename) then
     begin
@@ -1373,7 +1373,7 @@ begin
       FSaveImage.DefaultExtension := '.png';
     FSaveImage.InitialDirectory:= FSaveInitialDir;
     if FSaveImage.ShowModal = mrOK then
-      DoSaveAs(FSaveImage.FileName)
+      result := DoSaveAs(FSaveImage.FileName)
     else
       result := srCancelledByUser;
   end else
@@ -1383,7 +1383,7 @@ begin
     SavePictureDialog1.InitialDir:= FSaveInitialDir;
     if SavePictureDialog1.Execute then
     begin
-      DoSaveAs(SavePictureDialog1.FileName);
+      result := DoSaveAs(SavePictureDialog1.FileName);
     end else
       result := srCancelledByUser;
   end;

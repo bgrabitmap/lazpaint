@@ -164,7 +164,8 @@ begin
   begin
     FState.SaveToStream(Str);
     Result:=true;
-  end;
+  end
+  else result := False;
 end;
 
 constructor TBGRAWriterLazPaintWithLayers.Create(AState: TImageState);
