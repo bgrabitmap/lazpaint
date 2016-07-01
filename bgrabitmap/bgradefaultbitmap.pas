@@ -1438,10 +1438,10 @@ begin
   lHeight := NtoLE(Height);
   AStream.Write(lWidth,sizeof(lWidth));
   AStream.Write(lHeight,sizeof(lHeight));
-  If TBGRAPixel_RGBAOrder then SwapRedBlue;
+  If TBGRAPixel_RGBAOrder then InternalSwapRedBlue(FData, FNbPixels);
   for y := 0 to Height-1 do
     AStream.Write(ScanLine[y]^, Width*sizeof(TBGRAPixel));
-  If TBGRAPixel_RGBAOrder then SwapRedBlue;
+  If TBGRAPixel_RGBAOrder then InternalSwapRedBlue(FData, FNbPixels);
 end;
 
 procedure TBGRADefaultBitmap.Deserialize(AStream: TStream);
@@ -1454,7 +1454,8 @@ begin
   SetSize(lWidth,lHeight);
   for y := 0 to Height-1 do
     AStream.Read(ScanLine[y]^, Width*sizeof(TBGRAPixel));
-  If TBGRAPixel_RGBAOrder then SwapRedBlue;
+  If TBGRAPixel_RGBAOrder then InternalSwapRedBlue(FData, FNbPixels);
+  InvalidateBitmap;
 end;
 
 class procedure TBGRADefaultBitmap.SerializeEmpty(AStream: TStream);

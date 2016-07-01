@@ -29,8 +29,8 @@
     </CompilerOptions>
     <Description Value="Drawing routines with alpha blending and antialiasing"/>
     <License Value="modified LGPL"/>
-    <Version Major="8" Minor="9" Release="2"/>
-    <Files Count="101">
+    <Version Major="9"/>
+    <Files Count="102">
       <Item1>
         <Filename Value="bgraanimatedgif.pas"/>
         <UnitName Value="BGRAAnimatedGif"/>
@@ -435,6 +435,10 @@
         <Filename Value="blurbox.inc"/>
         <Type Value="Text"/>
       </Item101>
+      <Item102>
+        <Filename Value="bgraphoxo.pas"/>
+        <UnitName Value="BGRAPhoxo"/>
+      </Item102>
     </Files>
     <RequiredPkgs Count="2">
       <Item1>

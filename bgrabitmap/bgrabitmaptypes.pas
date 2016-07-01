@@ -398,6 +398,8 @@ type
     ifLazPaint,
     {** OpenRaster format, layers, lossless compression }
     ifOpenRaster,
+    {** Phoxo format, layers }
+    ifPhoxo,
     {** Photoshop format, layers, rudimentary lossless compression }
     ifPsd,
     {** Targa format (TGA), transparency, rudimentary lossless compression }
