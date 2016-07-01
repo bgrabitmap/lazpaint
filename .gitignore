@@ -3,4 +3,4 @@
 *.exe
 *.lps
 backup/*
-lib/*
+lib
