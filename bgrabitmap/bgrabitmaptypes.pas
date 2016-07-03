@@ -890,11 +890,14 @@ end;
 
 function SuggestImageFormat(AFilenameOrExtensionUTF8: string): TBGRAImageFormat;
 var ext: string;
+  posDot: integer;
 begin
   result := ifUnknown;
 
   ext := ExtractFileName(AFilenameOrExtensionUTF8);
-  if pos('.', ext) <> 0 then ext := ExtractFileExt(ext) else ext := '.'+ext;
+  posDot := LastDelimiter('.', ext);
+  if posDot <> 0 then ext := copy(ext,posDot,length(ext)-posDot+1)
+  else ext := '.'+ext;
   ext := UTF8LowerCase(ext);
 
   if (ext = '.jpg') or (ext = '.jpeg') then result := ifJpeg else
@@ -910,7 +913,8 @@ begin
   if (ext = '.tga') then result := ifTarga else
   if (ext = '.tif') or (ext = '.tiff') then result := ifTiff else
   if (ext = '.xwd') then result := ifXwd else
-  if (ext = '.xpm') then result := ifXPixMap;
+  if (ext = '.xpm') then result := ifXPixMap else
+  if (ext = '.oxo') then result := ifPhoxo;
 end;
 
 function SuggestImageExtension(AFormat: TBGRAImageFormat): string;
