@@ -323,7 +323,9 @@ begin
               setlength(wCaption, blockHeader.blockSize div 2);
               for i := 1 to length(wCaption) do
                 Word(wCaption[i]) := LEtoN((PWord(blockData)+i-1)^);
+              if wCaption[1] = #1 then Delete(wCaption,1,1);
               LayerName[NbLayers-1] := UTF8Encode(wCaption);
+
             end;
           end;
         PhoxoBlock_LazPaintBlendMode:

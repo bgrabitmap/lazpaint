@@ -22,7 +22,7 @@ uses
   BGRAColorQuantization, BGRADithering, BGRAUTF8, BGRALCLBitmap, BGRAWritePNG, 
   BGRAGifFormat, BGRAGraphics, BGRASceneTypes, BGRARenderer3D, 
   BGRAWriteBmpMioMap, BGRAOpenGLType, BGRASpriteGL, BGRAOpenGL, BGRACanvasGL, 
-  BGRAFontGL, BGRAOpenGL3D;
+  BGRAFontGL, BGRAOpenGL3D, BGRAPhoxo;
 
 implementation
 

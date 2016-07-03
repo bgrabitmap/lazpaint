@@ -828,6 +828,13 @@ var
       end;
     end;
 
+    if (copy(magicAsText,1,4) = 'oXo ') then
+    begin
+      inc(scores[ifPhoxo],1);
+      if (magic[4] = 1) and (magic[5] = 0) and (magic[6] = 0) and (magic[7] = 0) then
+        inc(scores[ifPhoxo],1);
+    end;
+
     DetectLazPaint;
 
     if (magic[0] = $50) and (magic[1] = $4b) and (magic[2] = $03) and (magic[3] = $04) then
