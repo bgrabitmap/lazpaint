@@ -408,6 +408,7 @@ msgid "HSL"
 msgstr ""
 
 #: tffilterfunction.tabsheet_rgb.caption
+msgctxt "tffilterfunction.tabsheet_rgb.caption"
 msgid "RGB"
 msgstr ""
 
@@ -1146,7 +1147,7 @@ msgstr "Kynä"
 #: tfmain.label_penwidth.caption
 msgctxt "TFMAIN.LABEL_PENWIDTH.CAPTION"
 msgid "Width"
-msgstr ""
+msgstr "Leveys"
 
 #: tfmain.label_phongborder.caption
 msgctxt "TFMAIN.LABEL_PHONGBORDER.CAPTION"
@@ -1273,7 +1274,7 @@ msgstr "Ohje"
 #: tfmain.menuhorizflipsub.caption
 msgctxt "TFMAIN.MENUHORIZFLIPSUB.CAPTION"
 msgid "Horizontal flip"
-msgstr ""
+msgstr "Peilaa vaakasuunnassa"
 
 #: tfmain.menuhorizflipsub.hint
 msgctxt "TFMAIN.MENUHORIZFLIPSUB.HINT"
@@ -1345,7 +1346,7 @@ msgstr "Näytä kumoa/palauta kuvakkeet kuvakerivillä"
 #: tfmain.menuvertflipsub.caption
 msgctxt "TFMAIN.MENUVERTFLIPSUB.CAPTION"
 msgid "Vertical flip"
-msgstr ""
+msgstr "Peilaa pystysuunnassa"
 
 #: tfmain.menuview.caption
 msgctxt "TFMAIN.MENUVIEW.CAPTION"
@@ -2150,7 +2151,7 @@ msgstr "Väri :"
 #: tfobject3d.label_color1.caption
 msgctxt "TFOBJECT3D.LABEL_COLOR1.CAPTION"
 msgid "Color :"
-msgstr ""
+msgstr "Väri :"
 
 #: tfobject3d.label_height.caption
 msgctxt "TFOBJECT3D.LABEL_HEIGHT.CAPTION"
@@ -2702,7 +2703,7 @@ msgstr ""
 #: uresourcestrings.rscanvassize
 msgctxt "uresourcestrings.rscanvassize"
 msgid "Canvas size"
-msgstr ""
+msgstr "Kuva-alueen koko"
 
 #: uresourcestrings.rscdrom
 msgid "CD"
