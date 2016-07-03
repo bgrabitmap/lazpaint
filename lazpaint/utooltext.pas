@@ -235,7 +235,7 @@ begin
       TextFX_Antialias:= FAntialias;
       TextFX_Font.Assign(Manager.ToolTextFont);
       TextFX := TBGRATextEffect.Create(TextFX_Text,TextFX_Font,TextFX_Antialias);
-      TextFX.ShadowQuality := rbBox;
+      TextFX.ShadowQuality := rbFast;
     end;
   end else
   begin
@@ -247,7 +247,7 @@ begin
   {$ELSE}
   TextRendererFX.FontQuality := fqFineAntialiasing;
   {$ENDIF}
-  TextRendererFX.ShadowQuality := rbBox;
+  TextRendererFX.ShadowQuality := rbFast;
   TextRendererFX.VectorizedFontRenderer.MaxFontResolution := 1000;
   TextRendererFX.FontEmHeight := Manager.ToolTextFont.Height * FontEmHeightSign;
   TextRendererFX.FontName := manager.ToolTextFont.Name;
