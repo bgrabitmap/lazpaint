@@ -391,21 +391,18 @@ begin
     Exit;
   end;
 
+  FData := nil;
+  dataIndex := 0;
   Files := TStringList.Create;
   Dirs := TStringList.Create;
   try
     if FRoot = ':' then
     begin
       if FIndexDate <> -1 then FColumns[FIndexDate].Name := rsStorageDevice;
-      if FObjectTypes * [otFolders] = [] then
-      begin
-        FData := nil;
-        dataIndex := 0;
-      end else
+      if FObjectTypes * [otFolders] <> [] then
       begin
         drives := GetFileSystems;
         setlength(FData, length(drives));
-        dataIndex := 0;
         for i := 0 to high(drives) do
         with FData[NewItem] do
         begin
@@ -425,8 +422,6 @@ begin
       if FObjectTypes * [otFolders] <> [] then TCustomShellTreeView.GetFilesInDir(FRoot, '', FObjectTypes * [otFolders], Dirs, fstAlphabet);
       if FObjectTypes - [otFolders] <> [] then TCustomShellTreeView.GetFilesInDir(FRoot, FMask, FObjectTypes - [otFolders], Files, fstAlphabet);
       setlength(FData, Dirs.Count+Files.Count);
-      dataIndex := 0;
-
       fileType := rsFolder;
       if Assigned(FOnFormatType) then FOnFormatType(self, fileType);
       for i := 0 to Dirs.Count - 1 do
