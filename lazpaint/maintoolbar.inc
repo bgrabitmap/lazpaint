@@ -177,6 +177,18 @@ begin
   Tool_CurveMovePoint.Hint := Tool_CurveMovePoint.Hint + ' (Z)';
 end;
 
+procedure TFMain.UpdateTextSizeIncrement;
+begin
+  if SpinEdit_TextSize.Value < 10 then
+    SpinEdit_TextSize.Increment := 1
+  else if SpinEdit_TextSize.Value < 20 then
+    SpinEdit_TextSize.Increment := 2
+  else if SpinEdit_TextSize.Value < 30 then
+    SpinEdit_TextSize.Increment := 3
+  else
+    SpinEdit_TextSize.Increment := 5;
+end;
+
 function TFMain.GetCurrentToolAction: TAction;
 begin
   Case CurrentTool of
@@ -322,6 +334,7 @@ begin
   FontDialog1.Font := ToolManager.ToolTextFont;
   SpinEdit_TextBlur.Value := ToolManager.ToolTextBlur;
   SpinEdit_TextSize.Value := ToolManager.ToolTextFont.Size;
+  UpdateTextSizeIncrement;
   SpinEdit_TextShadowX.Value := ToolManager.ToolTextShadowOffset.X;
   SpinEdit_TextShadowY.Value := ToolManager.ToolTextShadowOffset.Y;
   SpinEdit_TextureOpacity.Value := ToolManager.ToolTextureOpacity;
@@ -548,6 +561,7 @@ begin
   begin
     if ToolManager.ToolTextFont.Size = SpinEdit_TextSize.Value then exit;
     ToolManager.ToolTextFont.Size := SpinEdit_TextSize.Value;
+    UpdateTextSizeIncrement;
     UpdateEditPicture(True);
     FActiveSpinEdit := SpinEdit_TextSize;
   end;
@@ -1366,6 +1380,7 @@ begin
   begin
     ToolManager.ToolTextFont.Assign(FontDialog1.Font);
     SpinEdit_TextSize.Value := FontDialog1.Font.Size;
+    UpdateTextSizeIncrement;
     if FontDialog1.Font.Color <> BGRAToColor(ToolManager.ToolForeColor) then
     begin
       ToolManager.ToolForeColor := ColorToBGRA(FontDialog1.Font.Color,ToolManager.ToolForeColor.alpha);

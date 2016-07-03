@@ -749,6 +749,7 @@ type
         pSelectionHighlight: TBGRABitmap; pPartialSelectionHighlight: boolean; pSelectionHighlightOffset: TPoint);
     procedure ForgetSelectionHightlight;
     procedure ToggleToolwindowsVisible;
+    procedure UpdateTextSizeIncrement;
     procedure UpdateToolImage;
     procedure ToggleGridVisible;
     procedure ToggleToolboxVisible;

@@ -222,17 +222,23 @@ end;
 
 procedure TToolText.UpdateTextFX;
 var isVectorOutline, allowShader: boolean;
+  doAntialias: boolean;
 begin
+  {$IFDEF LINUX}
+  doAntialias := false;
+  {$ELSE}
+  doAntialias := BGRAText.BGRATextSize(Manager.ToolTextFont, fqSystem, 'Hg', 1).cy > 35;
+  {$ENDIF}
   isVectorOutline:= (Manager.ToolTextOutlineWidth <> TBGRATextEffect.OutlineWidth) and Manager.ToolTextOutline;
   allowShader := Manager.ToolTextPhong and (Manager.ToolTextFont.Size < 300);
   if (not isVectorOutline and (Manager.ToolTextFont.Size < 120)) or allowShader then
   begin
     if (TextFX = nil) or (FText <> TextFX_Text) or (TextFX_Font = nil) or not TextFX_Font.IsEqual(Manager.ToolTextFont)
-     or (TextFX_Antialias <> FAntialias) then
+     or (TextFX_Antialias <> doAntialias) then
     begin
       FreeAndNil(TextFX);
       TextFX_Text := FText;
-      TextFX_Antialias:= FAntialias;
+      TextFX_Antialias:= doAntialias;
       TextFX_Font.Assign(Manager.ToolTextFont);
       TextFX := TBGRATextEffect.Create(TextFX_Text,TextFX_Font,TextFX_Antialias);
       TextFX.ShadowQuality := rbFast;
@@ -242,11 +248,10 @@ begin
     FreeAndNil(TextFX);
   end;
   if TextRendererFX = nil then TextRendererFX := TBGRATextEffectFontRenderer.Create(shader,false);
-  {$IFDEF LINUX}
-  TextRendererFX.FontQuality := fqSystem;
-  {$ELSE}
-  TextRendererFX.FontQuality := fqFineAntialiasing;
-  {$ENDIF}
+  if doAntialias then
+    TextRendererFX.FontQuality := fqFineAntialiasing
+  else
+    TextRendererFX.FontQuality := fqSystem;
   TextRendererFX.ShadowQuality := rbFast;
   TextRendererFX.VectorizedFontRenderer.MaxFontResolution := 1000;
   TextRendererFX.FontEmHeight := Manager.ToolTextFont.Height * FontEmHeightSign;
