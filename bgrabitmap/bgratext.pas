@@ -92,7 +92,7 @@ procedure BGRAFillClearTypeMask(dest: TBGRACustomBitmap; x,y: integer; xThird: i
 procedure BGRAFillClearTypeRGBMask(dest: TBGRACustomBitmap; x,y: integer; mask: TBGRACustomBitmap; color: TBGRAPixel; texture: IBGRAScanner = nil; KeepRGBOrder: boolean=true);
 
 const FontAntialiasingLevel = {$IFDEF LINUX}3{$ELSE}{$IFDEF FREEBSD}3{$ELSE}6{$ENDIF}{$ENDIF}; //linux and freebsd rendering is already great
-const FontDefaultQuality = fqAntialiased;
+const FontDefaultQuality = fqProof;
 
 function GetLCLFontPixelMetric(AFont: TFont): TFontPixelMetric;
 
