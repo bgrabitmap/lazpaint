@@ -252,7 +252,7 @@ function ComputeAcceptableImageSize(AWidth,AHeight: integer): TSize;
 implementation
 
 uses UGraph, UResourceStrings, Dialogs,
-    BGRAOpenRaster, BGRAPaintNet, UImageDiff, ULoading,
+    BGRAOpenRaster, BGRAPhoxo, BGRAPaintNet, UImageDiff, ULoading,
     BGRAWriteLzp, lazutf8classes, BGRAUTF8,
     BGRAPalette, BGRAColorQuantization;
 
@@ -493,7 +493,7 @@ begin
     end;
     SetSavedFlag;
   end else
-  if format = ifOpenRaster then
+  if format in[ifOpenRaster,ifPhoxo] then
   begin
     FCurrentState.SaveToFile(AFilename);
     SetSavedFlag;
@@ -1942,6 +1942,7 @@ initialization
 
   RegisterPaintNetFormat;
   RegisterOpenRasterFormat;
+  RegisterPhoxoFormat;
   BGRAColorQuantizerFactory := TBGRAColorQuantizer;
 
 end.

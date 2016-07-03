@@ -148,46 +148,50 @@ begin
   if AUppercase then Result:=UTF8UpperCase(AStrUtf8) else Result:= UTF8LowerCase(AStrUtf8);
 end;
 
-{(en) Checks if a character is caseble}
-function IsCasable(AUtf8Char: string): Boolean;
-begin
-   Result:=not (UTF8LowerCase(AUtf8Char)=UTF8UpperCase(AUtf8Char));
-end;
-
 {(en) Generates all possible upper and lowercase combinations of a string}
 function SingleExtAllCases (ASingleExtension: string; Delimiter: String=';'; Prefix: string=''; Suffix: String=''):string;
 var
   FWord,FChar:integer;
   Len: integer;
   Count: integer;
-  LCArray: array of String;
+  OrigArray,LCArray,UCArray: array of String;
   CExt:string='';
   Cased: Boolean;
-  CChar: String;
 begin
   Result := '';
   Len:= Length(ASingleExtension);
   Len:=UTF8Length(ASingleExtension);
   Count:=(1 shl len) - 1;
+  SetLength(OrigArray,Len);
   SetLength(LCArray,Len);
-  for FWord:=0 to Len -1 do
-     LCArray[FWord]:=Utf8Copy (ASingleExtension,FWord+1,1);
+  SetLength(UCArray,Len);
+  for FChar:=0 to Len -1 do
+  begin
+     OrigArray[FChar]:=Utf8Copy (ASingleExtension,FChar+1,1);
+     LCArray[FChar]:=UTF8LowerCase(OrigArray[FChar]);
+     UCArray[FChar]:=UTF8UpperCase(OrigArray[FChar]);
+  end;
   for FWord:=0 to Count do
   begin
     CExt:='';
     Cased:=True;
     for FChar:=0 to Len-1 do
     begin
-      CChar:=LCArray[FChar];
-      if IsCasable(CChar) or not GetBit(FWord,FChar) then CExt += ULCaseUtf8 (CChar,GetBit(FWord,FChar))
+      if not GetBit(FWord,FChar) or (LCArray[FChar]<>UCArray[FChar]) then
+      begin
+        if (OrigArray[FChar] = UCArray[FChar]) xor GetBit(FWord,FChar) then
+          CExt += UCArray[FChar]
+        else
+          CExt += LCArray[FChar];
+      end
       else begin Cased:= False; Break; end;
-     end; //for FChar
-     if Cased then
-     begin
-        if length(Result) > 0 then result += Delimiter;
-        Result:= Result+ Prefix+ CExt + Suffix;
-     end;  //if
-    end; //for FWord
+    end; //for FChar
+    if Cased then
+    begin
+      if length(Result) > 0 then result += Delimiter;
+      Result:= Result+ Prefix+ CExt + Suffix;
+    end;  //if
+  end; //for FWord
 end;
 
 {(en) Generates all possible upper and lowercase combinations of file extensions}
@@ -222,7 +226,7 @@ begin
   with PictureFileExtensions[high(PictureFileExtensions)] do
   begin
     name := AName;
-    extensionsWithoutDot := UTF8LowerCase(AExtensionsWithoutDot);
+    extensionsWithoutDot := AExtensionsWithoutDot;
     filterForAllCases:= ExtensionsAllCases(extensionsWithoutDot, ';', '*.');
     fileFormat := ifUnknown;
     extList := TParseStringList.Create(extensionsWithoutDot,';');
@@ -255,7 +259,7 @@ begin
   if (ext<>'') and (ext[1]='.') then delete(ext,1,1);
   for i := 0 to high(PictureFileExtensions) do
   begin
-    if pos(';'+ext+';', ';'+PictureFileExtensions[i].extensionsWithoutDot+';')<> 0 then
+    if pos(';'+ext+';', UTF8LowerCase(';'+PictureFileExtensions[i].extensionsWithoutDot+';'))<> 0 then
     begin
       if PictureFileExtensions[i].options * AOptions = AOptions then
       begin
@@ -282,7 +286,7 @@ var i: integer;
 begin
   if AFormat = ifUnknown then
   begin
-    result := '';
+    result := 'Unknown';
     exit;
   end;
   for i := 0 to high(PictureFileExtensions) do
@@ -291,12 +295,13 @@ begin
       result := PictureFileExtensions[i].name;
       exit;
     end;
+  result := 'Error';
 end;
 
 initialization
 
-  RegisterPicExt(rsLayeredImage,'lzp;ora;pdn', [eoReadable]);
-  RegisterPicExt(rsLayeredImage,'lzp;ora', [eoWritable]);
+  RegisterPicExt(rsLayeredImage,'lzp;ora;pdn;oXo', [eoReadable]);
+  RegisterPicExt(rsLayeredImage,'lzp;ora;oXo', [eoWritable]);
   RegisterPicExt(rsBitmap,'bmp', [eoReadable,eoWritable]);
   RegisterPicExt(rsAnimatedGIF,'gif', [eoReadable,eoWritable]);
   RegisterPicExt(rsIconOrCursor,'ico;cur', [eoReadable]);
@@ -305,6 +310,7 @@ initialization
   RegisterPicExt(rsOpenRaster,'ora', [eoReadable,eoWritable]);
   RegisterPicExt('PC eXchange','pcx', [eoReadable,eoWritable]);
   RegisterPicExt('Paint.NET','pdn', [eoReadable]);
+  RegisterPicExt('PhoXo','oXo', [eoReadable,eoWritable]);
   RegisterPicExt('Portable Network Graphic','png', [eoReadable,eoWritable]);
   RegisterPicExt(rsPhotoshop,'psd', [eoReadable]);
   RegisterPicExt('Targa','tga', [eoReadable,eoWritable]);
