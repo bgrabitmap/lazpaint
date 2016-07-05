@@ -11,14 +11,14 @@ type
   {* Pointer to a ''TPointF'' structure }
   PPointF = ^TPointF;
   {* Contains a point with single-precision floating point coordinates }
-  {$ifdef VER3_1_1 }
+  {$if FPC_FULLVERSION>=030001}
   TPointF = Types.TPointF;
   {$else}
   TPointF = packed record x, y: single;
   end;
   {$endif}
 
-  {$ifdef VER3_1_1 }
+  {$if FPC_FULLVERSION>=030001}
   TRectF = Types.TRectF;
   {$else}
   TRectF =
