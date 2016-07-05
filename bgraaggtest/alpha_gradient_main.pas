@@ -146,6 +146,7 @@ begin
   mask := TBGRABitmap.Create(ellipseLayer.Width,ellipseLayer.Height);
   mask.Fill(affine);
   ellipseLayer.ApplyMask(mask);
+  mask.Free;
   affine.Free;
   multiply.Free;
 
