@@ -194,6 +194,7 @@ operator *(M,N: TAffineMatrix): TAffineMatrix;
 
 //matrix multiplication by a vector (apply transformation to that vector)
 operator *(M: TAffineMatrix; V: TPointF): TPointF;
+operator *(M: TAffineMatrix; A: ArrayOfTPointF): ArrayOfTPointF;
 
 //check if matrix is inversible
 function IsAffineMatrixInversible(M: TAffineMatrix): boolean;
@@ -360,6 +361,15 @@ operator*(M: TAffineMatrix; V: TPointF): TPointF;
 begin
   result.X := V.X*M[1,1]+V.Y*M[1,2]+M[1,3];
   result.Y := V.X*M[2,1]+V.Y*M[2,2]+M[2,3];
+end;
+
+operator*(M: TAffineMatrix; A: ArrayOfTPointF): ArrayOfTPointF;
+var
+  i: NativeInt;
+begin
+  setlength(result, length(A));
+  for i := 0 to high(A) do
+    result[i] := M*A[i];
 end;
 
 function IsAffineMatrixInversible(M: TAffineMatrix): boolean;
