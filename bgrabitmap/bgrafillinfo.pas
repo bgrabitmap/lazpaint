@@ -49,6 +49,8 @@ type
       //nbInter gets the number of computed intersections
       procedure ComputeAndSort(cury: single; var inter: ArrayOfTIntersectionInfo; out nbInter: integer; windingMode: boolean); override;
 
+      function GetSliceIndex: integer; override;
+
   end;
 
   { TFillEllipseInfo }
@@ -174,6 +176,7 @@ type
   public
     constructor Create(const points: array of TPointF);
     destructor Destroy; override;
+    function GetSliceIndex: integer; override;
   end;
 
   POnePassRecord = ^TOnePassRecord;
@@ -203,11 +206,13 @@ type
     FSortedByY: array of POnePassRecord;
     FFirstWaiting, FFirstDrawing: POnePassRecord;
     FShouldInitializeDrawing: boolean;
+    FSliceIndex: integer;
     procedure ComputeIntersection(cury: single;
       var inter: ArrayOfTIntersectionInfo; var nbInter: integer); override;
   public
     constructor Create(const points: array of TPointF);
     function CreateIntersectionArray: ArrayOfTIntersectionInfo; override;
+    function GetSliceIndex: integer; override;
     destructor Destroy; override;
   end;
 
@@ -488,6 +493,11 @@ begin
   if nbInter < 2 then exit;
   SortIntersection(inter,nbInter);
   if windingMode then ConvertFromNonZeroWinding(inter,nbInter);
+end;
+
+function TFillShapeInfo.GetSliceIndex: integer;
+begin
+  result := 0;
 end;
 
 function TFillShapeInfo.CreateIntersectionArray: ArrayOfTIntersectionInfo;
@@ -885,6 +895,11 @@ begin
   inherited Destroy;
 end;
 
+function TFillPolyInfo.GetSliceIndex: integer;
+begin
+  Result:= FCurSlice;
+end;
+
 { TOnePassFillPolyInfo }
 
 function TOnePassFillPolyInfo.PartitionByY(left,right: integer): integer;
@@ -982,6 +997,7 @@ begin
       begin
         p^.nextDrawing := FFirstDrawing;
         FFirstDrawing := p;
+        inc(FSliceIndex);
       end;
     end
       else break;
@@ -1012,6 +1028,7 @@ begin
       else
         FFirstDrawing:= pnext;
       p := pnext;
+      Inc(FSliceIndex);
       continue;
     end;
     pprev := p;
@@ -1055,6 +1072,7 @@ begin
   end;
 
   SortByY;
+  FSliceIndex := 0;
 end;
 
 function TOnePassFillPolyInfo.CreateIntersectionArray: ArrayOfTIntersectionInfo;
@@ -1087,6 +1105,11 @@ begin
   setlength(result, NbMaxIntersection);
   for i := 0 to high(result) do
     result[i] := nil;
+end;
+
+function TOnePassFillPolyInfo.GetSliceIndex: integer;
+begin
+  Result:= FSliceIndex;
 end;
 
 destructor TOnePassFillPolyInfo.Destroy;

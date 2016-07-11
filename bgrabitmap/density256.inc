@@ -68,9 +68,14 @@
           begin
             tempDensity := pdens^;
             Inc(pdens);
-            c := pscan^;
-            inc(pscan);
+            if tempDensity >= 256 {$ifdef PARAM_ANTIALIASINGFACTOR}shl AntialiasPrecisionShift{$endif} then
+              {$ifdef PARAM_LINEARANTIALIASING}
+              FastBlendPixelInline
+              {$else}
+              DrawPixelInlineWithAlphaCheck{$endif}(pdest, pscan^) else
             if tempDensity <> 0 then
+            begin
+              c := pscan^;
               {$ifdef PARAM_LINEARANTIALIASING}
               FastBlendPixelInline
               {$else}
@@ -79,6 +84,8 @@
               (c.alpha * tempDensity
               {$ifdef PARAM_ANTIALIASINGFACTOR} ) {$else} +128) shr 8 {$endif}
               ));
+            end;
+            inc(pscan);
             Inc(pdest);
           end;
         end else

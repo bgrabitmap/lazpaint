@@ -174,6 +174,7 @@ type
     FSolidColor: TBGRAPixel;
     FScanNext : TScanNextPixelFunction;
     FScanAt : TScanAtFunction;
+    FMemMask: packed array of TBGRAPixel;
   public
     constructor Create(AMask: TBGRACustomBitmap; AOffset: TPoint; ASolidColor: TBGRAPixel);
     destructor Destroy; override;
@@ -195,6 +196,7 @@ type
     FMaskScanNext,FTextureScanNext : TScanNextPixelFunction;
     FMaskScanAt,FTextureScanAt : TScanAtFunction;
     FGlobalOpacity: Byte;
+    FMemMask, FMemTex: packed array of TBGRAPixel;
   public
     constructor Create(AMask: TBGRACustomBitmap; AOffset: TPoint; ATexture: IBGRAScanner; AGlobalOpacity: Byte = 255);
     destructor Destroy; override;
@@ -213,6 +215,7 @@ type
       FGlobalOpacity: Byte;
       FScanNext : TScanNextPixelFunction;
       FScanAt : TScanAtFunction;
+      FMemTex: packed array of TBGRAPixel;
   public
     constructor Create(ATexture: IBGRAScanner; AGlobalOpacity: Byte = 255);
     destructor Destroy; override;
@@ -225,7 +228,7 @@ type
 
 implementation
 
-uses BGRABlend;
+uses BGRABlend, Math;
 
 { TBGRAConstantScanner }
 
@@ -1322,7 +1325,7 @@ procedure TBGRATextureMaskScanner.ScanPutPixels(pdest: PBGRAPixel;
   count: integer; mode: TDrawMode);
 var c: TBGRAPixel;
     alpha: byte;
-    MemMask, pmask, MemTex, ptex: pbgrapixel;
+    pmask, ptex: pbgrapixel;
 
   function GetNext: TBGRAPixel; inline;
   begin
@@ -1343,13 +1346,13 @@ var c: TBGRAPixel;
   end;
 
 begin
-  getmem(MemMask, count*sizeof(TBGRAPixel));
-  ScannerPutPixels(FMask,MemMask,count,dmSet);
-  getmem(MemTex, count*sizeof(TBGRAPixel));
-  ScannerPutPixels(FTexture,MemTex,count,dmSet);
+  if count > length(FMemMask) then setlength(FMemMask, max(length(FMemMask)*2,count));
+  if count > length(FMemTex) then setlength(FMemTex, max(length(FMemTex)*2,count));
+  ScannerPutPixels(FMask,@FMemMask[0],count,dmSet);
+  ScannerPutPixels(FTexture,@FMemTex[0],count,dmSet);
 
-  pmask := MemMask;
-  ptex := MemTex;
+  pmask := @FMemMask[0];
+  ptex := @FMemTex[0];
 
   if FGlobalOpacity <> 255 then
   begin
@@ -1432,9 +1435,6 @@ begin
         end;
     end;
   end;
-
-  freemem(MemMask);
-  freemem(MemTex);
 end;
 
 procedure TBGRATextureMaskScanner.ScanMoveTo(X, Y: Integer);
@@ -1486,7 +1486,7 @@ procedure TBGRASolidColorMaskScanner.ScanPutPixels(pdest: PBGRAPixel;
   count: integer; mode: TDrawMode);
 var c: TBGRAPixel;
     alpha: byte;
-    MemMask, pmask: pbgrapixel;
+    pmask: pbgrapixel;
 
   function GetNext: TBGRAPixel; inline;
   begin
@@ -1497,10 +1497,10 @@ var c: TBGRAPixel;
   end;
 
 begin
-  getmem(MemMask, count*sizeof(TBGRAPixel));
-  ScannerPutPixels(FMask,MemMask,count,dmSet);
+  if count > length(FMemMask) then setlength(FMemMask, max(length(FMemMask)*2,count));
+  ScannerPutPixels(FMask,@FMemMask[0],count,dmSet);
 
-  pmask := MemMask;
+  pmask := @FMemMask[0];
 
   case mode of
     dmDrawWithTransparency:
@@ -1540,8 +1540,6 @@ begin
         dec(count);
       end;
   end;
-
-  freemem(MemMask);
 end;
 
 procedure TBGRASolidColorMaskScanner.ScanMoveTo(X, Y: Integer);
@@ -1590,7 +1588,7 @@ end;
 procedure TBGRAOpacityScanner.ScanPutPixels(pdest: PBGRAPixel; count: integer;
   mode: TDrawMode);
 var c: TBGRAPixel;
-    MemTex, ptex: pbgrapixel;
+    ptex: pbgrapixel;
 
   function GetNext: TBGRAPixel; inline;
   begin
@@ -1600,10 +1598,10 @@ var c: TBGRAPixel;
   end;
 
 begin
-  getmem(MemTex, count*sizeof(TBGRAPixel));
-  ScannerPutPixels(FTexture,MemTex,count,dmSet);
+  if count > length(FMemTex) then setlength(FMemTex, max(length(FMemTex)*2,count));
+  ScannerPutPixels(FTexture,@FMemTex[0],count,dmSet);
 
-  ptex := MemTex;
+  ptex := @FMemTex[0];
 
   case mode of
     dmDrawWithTransparency:
@@ -1643,8 +1641,6 @@ begin
         dec(count);
       end;
   end;
-
-  freemem(MemTex);
 end;
 
 procedure TBGRAOpacityScanner.ScanMoveTo(X, Y: Integer);

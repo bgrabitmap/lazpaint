@@ -128,6 +128,7 @@ uses Math, BGRABlend, BGRAGradientScanner, BGRATransform;
 
 procedure FillShapeAntialias(bmp: TBGRACustomBitmap; shapeInfo: TBGRACustomFillInfo;
   c: TBGRAPixel; EraseMode: boolean; scan: IBGRAScanner; NonZeroWinding: boolean; LinearBlend: boolean);
+const oneOver512 = 1/512;
 var
   inter:   array of TIntersectionInfo;
   nbInter: integer;
@@ -135,6 +136,7 @@ var
   firstScan, lastScan: record
     inter:   array of TIntersectionInfo;
     nbInter: integer;
+    sliceIndex: integer;
   end;
 
   miny, maxy, minx, maxx,
@@ -265,10 +267,16 @@ begin
     if not curvedSeg then
     begin
       with firstScan do
+      begin
         shapeInfo.ComputeAndSort(yb+1/256,inter,nbInter,NonZeroWinding);
+        sliceIndex:= shapeInfo.GetSliceIndex;
+      end;
       with lastScan do
+      begin
         shapeInfo.ComputeAndSort(yb+255/256,inter,nbInter,NonZeroWinding);
-      if (firstScan.nbInter = lastScan.nbInter) and (firstScan.nbInter >= 2) then
+        sliceIndex:= shapeInfo.GetSliceIndex;
+      end;
+      if (firstScan.sliceIndex = lastScan.sliceIndex) and (firstScan.nbInter = lastScan.nbInter) then
       begin
         optimised := true;
         for i := 0 to firstScan.nbInter-1 do
@@ -286,25 +294,137 @@ begin
         begin
           x1 := firstScan.inter[i+i].interX;
           x1b := lastScan.inter[i+i].interX;
-          if (x1 > x1b) then
-          begin
-            temp := x1;
-            x1 := x1b;
-            x1b := temp;
-          end;
           x2 := firstScan.inter[i+i+1].interX;
           x2b := lastScan.inter[i+i+1].interX;
-          if (x2 < x2b) then
+          if (abs(x1-x1b)<oneOver512) and (abs(x2-x2b)<oneOver512) and
+             ((i+i+2 >= firstScan.nbInter) or
+              ((firstScan.inter[i+i+2].interX >= x2+1) and
+               (lastScan.inter[i+i+2].interX >= x2b+1))) then
           begin
-            temp := x2;
-            x2 := x2b;
-            x2b := temp;
+            x1 := (x1+x1b)*0.5;
+            x2 := (x2+x2b)*0.5;
+            ix1 := floor(x1);
+            ix2 := floor(x2);
+            if ix1 < minx then ix1 := minx;
+            if ix2 > maxx then ix2 := maxx;
+            if ix1>ix2 then continue;
+            if ix1=ix2 then
+            begin
+              tempDensity:= round((x2-x1)*256);
+              if scan <> nil then //with texture scan
+              begin
+                scan.ScanMoveTo(ix1,yb);
+                c := scan.ScanNextPixel;
+                c.alpha := c.alpha*tempDensity shr 8;
+                if linearBlend then
+                  bmp.DrawPixel(ix1, yb, c, dmLinearBlend)
+                else
+                  bmp.DrawPixel(ix1, yb, c, dmDrawWithTransparency);
+              end else
+              if EraseMode then //erase with alpha
+                bmp.ErasePixel(ix1,yb,c.alpha*tempDensity shr 8)
+              else
+              begin  //solid color
+                c2.alpha := c.alpha*tempDensity shr 8;
+                if linearBlend then
+                  bmp.DrawPixel(ix1, yb, c2, dmLinearBlend)
+                else
+                  bmp.DrawPixel(ix1, yb, c2, dmDrawWithTransparency);
+              end;
+            end else
+            begin
+              tempDensity:= round((ix1+1-x1)*256);
+              if scan <> nil then scan.ScanMoveTo(ix1,yb);
+              if tempDensity < 256 then
+              begin
+                if scan <> nil then //with texture scan
+                begin
+                  c := scan.ScanNextPixel;
+                  c.alpha := c.alpha*tempDensity shr 8;
+                  if linearBlend then
+                    bmp.DrawPixel(ix1, yb, c, dmLinearBlend)
+                  else
+                    bmp.DrawPixel(ix1, yb, c, dmDrawWithTransparency);
+                end else
+                if EraseMode then //erase with alpha
+                  bmp.ErasePixel(ix1,yb, c.alpha*tempDensity shr 8)
+                else
+                begin  //solid color
+                  c2.alpha := c.alpha*tempDensity shr 8;
+                  if linearBlend then
+                    bmp.DrawPixel(ix1, yb, c2, dmLinearBlend)
+                  else
+                    bmp.DrawPixel(ix1, yb, c2, dmDrawWithTransparency);
+                end;
+                inc(ix1);
+              end;
+              tempDensity:= round((x2-ix2)*256);
+              if tempDensity < 256 then dec(ix2);
+              if ix2 >= ix1 then
+              begin
+                if scan <> nil then //with texture scan
+                begin
+                  if linearBlend then
+                    ScannerPutPixels(scan, bmp.ScanLine[yb] + ix1, ix2-ix1+1, dmLinearBlend)
+                  else
+                    ScannerPutPixels(scan, bmp.ScanLine[yb] + ix1, ix2-ix1+1, dmDrawWithTransparency);
+                end else
+                if EraseMode then //erase with alpha
+                  bmp.EraseLine(ix1,yb,ix2,yb,c.alpha,True)
+                else
+                begin  //solid color
+                  if LinearBlend then
+                    bmp.HorizLine(ix1,yb,ix2,c,dmLinearBlend)
+                  else
+                    bmp.HorizLine(ix1,yb,ix2,c,dmDrawWithTransparency);
+                end;
+              end;
+              if tempDensity < 256 then
+              begin
+                inc(ix2);
+                if scan <> nil then //with texture scan
+                begin
+                  c := scan.ScanNextPixel;
+                  c.alpha := c.alpha*tempDensity shr 8;
+                  if linearBlend then
+                    bmp.DrawPixel(ix2, yb, c, dmLinearBlend)
+                  else
+                    bmp.DrawPixel(ix2, yb, c, dmDrawWithTransparency);
+                end else
+                if EraseMode then //erase with alpha
+                  bmp.ErasePixel(ix2,yb,c.alpha*tempDensity shr 8)
+                else
+                begin  //solid color
+                  c2.alpha := c.alpha*tempDensity shr 8;
+                  if linearBlend then
+                    bmp.DrawPixel(ix2, yb, c2, dmLinearBlend)
+                  else
+                    bmp.DrawPixel(ix2, yb, c2, dmDrawWithTransparency);
+                end;
+              end;
+            end;
+            continue;
+          end else
+          begin
+            if (x1 > x1b) then
+            begin
+              temp := x1;
+              x1 := x1b;
+              x1b := temp;
+            end;
+            if (x2 < x2b) then
+            begin
+              temp := x2;
+              x2 := x2b;
+              x2b := temp;
+            end;
+
+  	    {$DEFINE INCLUDE_FILLDENSITY}
+  	    {$DEFINE PARAM_SINGLESEGMENT}
+            {$i density256.inc}
+            SubTriangleDensity(x1,256,x1b,0);
+            SubTriangleDensity(x2b,0,x2,256);
           end;
-		  {$DEFINE INCLUDE_FILLDENSITY}
-		  {$DEFINE PARAM_SINGLESEGMENT}
-          {$i density256.inc}
-          SubTriangleDensity(x1,256,x1b,0);
-          SubTriangleDensity(x2b,0,x2,256);
         end;
       end else
       begin
@@ -313,7 +433,7 @@ begin
           //find intersections
           shapeInfo.ComputeAndSort(GetYScan(yc),inter,nbInter,NonZeroWinding);
 
-		  {$DEFINE INCLUDE_FILLDENSITY}
+	  {$DEFINE INCLUDE_FILLDENSITY}
           {$i density256.inc}
         end;
       end;
@@ -326,7 +446,7 @@ begin
         //find intersections
         shapeInfo.ComputeAndSort(GetYScan(yc),inter,nbInter,NonZeroWinding);
 
-		{$DEFINE INCLUDE_FILLDENSITY}
+	{$DEFINE INCLUDE_FILLDENSITY}
         {$i density256.inc}
       end;
     end;
@@ -334,11 +454,11 @@ begin
     if LinearBlend then
     begin
       if optimised then
-		{$DEFINE INCLUDE_RENDERDENSITY}
+	{$DEFINE INCLUDE_RENDERDENSITY}
         {$define PARAM_LINEARANTIALIASING}
         {$i density256.inc}
       else
-		{$DEFINE INCLUDE_RENDERDENSITY}
+	{$DEFINE INCLUDE_RENDERDENSITY}
         {$define PARAM_LINEARANTIALIASING}
         {$define PARAM_ANTIALIASINGFACTOR}
         {$i density256.inc}
