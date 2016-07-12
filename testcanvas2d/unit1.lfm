@@ -1,17 +1,17 @@
 object Form1: TForm1
   Left = 576
-  Height = 229
+  Height = 386
   Top = 151
-  Width = 452
+  Width = 640
   Caption = 'Test Canvas2D'
-  ClientHeight = 229
-  ClientWidth = 452
+  ClientHeight = 386
+  ClientWidth = 640
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnMouseLeave = FormMouseLeave
   OnMouseMove = FormMouseMove
   OnPaint = FormPaint
-  LCLVersion = '1.0.1.3'
+  LCLVersion = '1.6.0.4'
   object SpinEdit1: TSpinEdit
     Left = 0
     Height = 23
@@ -47,9 +47,9 @@ object Form1: TForm1
   end
   object VirtualScreen: TBGRAVirtualScreen
     Left = 0
-    Height = 204
+    Height = 362
     Top = 24
-    Width = 451
+    Width = 640
     OnRedraw = VirtualScreenRedraw
     Alignment = taLeftJustify
     Anchors = [akTop, akLeft, akRight, akBottom]

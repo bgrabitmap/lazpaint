@@ -68,7 +68,7 @@ var
 
 implementation
 
-uses BGRAGradientScanner;
+uses BGRAGradientScanner, Math;
 
 {$R *.lfm}
 
@@ -82,6 +82,8 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   img := TBGRABitmap.Create('pteRaz.jpg');
   abelias := TBGRABitmap.Create('abelias.png');
+  mx := -1000;
+  my := -1000;
 end;
 
 procedure TForm1.CheckBox_PixelCenteredChange(Sender: TObject);
@@ -194,28 +196,35 @@ procedure TForm1.Test1(ctx: TBGRACanvas2D);
 var
   colors: TBGRACustomGradient;
 begin
-  ctx.fillStyle('rgb(1000,1000,1000)');
-  ctx.fillRect (0, 0, 300, 300);
+  if (mx < 0) or (my < 0) then
+  begin
+    mx := ctx.Width div 2;
+    my := ctx.height div 2;
+  end;
+  ctx.fillStyle('rgb(1000,1000,1000)');  //out of bounds so it is saturated to 255,255,255
+  ctx.fillRect (0, 0, ctx.Width, ctx.Height);
   colors := TBGRAMultiGradient.Create([BGRA(0,255,0),BGRA(0,192,128),BGRA(0,255,0)],[0,0.5,1],True,True);
   ctx.fillStyle(ctx.createLinearGradient(0,0,20,0,colors));
   ctx.shadowOffset := PointF(5,5);
   ctx.shadowColor('rgba(0,0,0,0.5)');
   ctx.shadowBlur := 4;
-  ctx.fillRect (50, 50, 200, 200);
+  ctx.fillRect (mx-100, my-100, 200, 200);
   colors.Free;
+
+  UpdateIn(10);
 end;
 
 procedure TForm1.Test2(ctx: TBGRACanvas2D);
 begin
   ctx.fillStyle('rgb(1000,0,0)'); // fond de couleur rouge
   ctx.beginPath;
-  ctx.roundRect(25,25,250,250,25); // remplissage d un carré 250x250
+  ctx.roundRect(25,25,ctx.Width-50,ctx.Height-50,25); // remplissage d un carré 250x250
   ctx.fill;
 
-  ctx.clearRect(50,50,50,50); // effacement d un carré
+  ctx.clearRect(ctx.Width-mx-25,ctx.Height-my-25,50,50); // effacement d un carré
 
   ctx.beginPath;
-  ctx.arc(150,50,30,0,2*Pi);
+  ctx.arc(mx,my,30,0,2*Pi);
   ctx.clearPath;
 
   ctx.strokeStyle ('rgb(0,0,1000)'); // contour de couleur bleue
@@ -232,18 +241,20 @@ begin
   ctx.lineStyle([3,1]);
   ctx.stroke;
 
-  ctx.BeginPath;
+  ctx.beginPath;
   ctx.moveTo(20,180);
   ctx.lineTo(220,180);
   ctx.lineTo(240,160);
   ctx.lineStyle([1,1,2,2]);
   ctx.stroke;
+
+  UpdateIn(10);
 end;
 
 procedure TForm1.Test3(ctx: TBGRACanvas2D);
 begin
   ctx.fillStyle ('rgb(1000,1000,1000)');
-  ctx.fillRect (0, 0, 300, 300);
+  ctx.fillRect (0, 0, ctx.width, ctx.height);
   // Triangle plein sans bordure
   ctx.beginPath();
   ctx.moveTo(100,100);
@@ -280,10 +291,16 @@ var angle: single;
 begin
   inc(test4pos);
   angle := test4pos*2*Pi/400;
+  ctx.translate((ctx.Width-300)/2,(ctx.height-300)/2);
   ctx.transform(1,0, sin(angle)/2,1, 0,0);
 
-  ctx.fillStyle ('rgb(800,800,800)');
-  ctx.fillRect (0, 0, 300, 300);
+  ctx.beginPath;
+  ctx.rect (0, 0, 300, 300);
+  ctx.fillStyle (CSSYellow);
+  ctx.strokeStyle(CSSRed);
+  ctx.lineWidth := 5;
+  ctx.strokeOverFill;
+
   ctx.beginPath();
   // coord. centre 150,150  rayon : 50 angle départ 0 fin 2Pi, sens
   ctx.arc(150,150,50,0,PI*2,true); // Cercle
@@ -291,17 +308,20 @@ begin
   ctx.arc(100,100,50,PI/2,PI,false); // Arc sens aig. montre
   ctx.moveTo(150,150); // aller au pt de départ de l arc
   ctx.arc(200,150,50,2*PI/2,0,false);  // Autre cercle
+  ctx.lineWidth := 1;
+  ctx.strokeStyle(BGRABlack);
   ctx.stroke();
 
   ctx.lineJoin := 'round';
 
   angle := test4pos*2*Pi/180;
-  p0 := PointF(ctx.width/2,50);
-  p1 := pointF(ctx.width/2+50,50);
-  p2 := pointF(ctx.width/2+50+cos(angle)*40,50+sin(angle)*40);
+  p0 := PointF(150,50);
+  p1 := pointF(150+50,50);
+  p2 := pointF(150+50+cos(sin(angle)*Pi/2)*40,50+sin(sin(angle)*Pi/2)*40);
   ctx.beginPath;
   ctx.moveTo(p0);
   ctx.arcTo(p1, p2, 30);
+  ctx.lineTo(p2);
   ctx.lineWidth := 5;
   ctx.strokeStyle( BGRA(240,170,0) );
   ctx.stroke();
@@ -411,6 +431,7 @@ var
   i: Integer;
   j: Integer;
 begin
+  ctx.translate(ctx.Width/2 -15*10, ctx.Height/2 -15*10);
   ctx.strokeStyle ('#000');
   ctx.lineWidth :=4;
   for i := 0 to 14 do
@@ -428,7 +449,7 @@ var
   i: Integer;
   j: Integer;
 begin
-  ctx.translate(150, 150);  // centre 0 0 maintenant en position centrale
+  ctx.translate(ctx.Width/2, ctx.Height/2);  // centre 0 0 maintenant en position centrale
   for i := 1 to 9 do
   begin
     ctx.save(); // contrebalancé par un restore
@@ -455,7 +476,7 @@ var
 
   function f(x: single): single; // fonction à tracer
   begin
-    result := 5+3*sin(x)*(cos(x)+1/2*cos(x/2)+1/3*cos(x/3)+1/4*cos(x/4));
+    result := 3*sin(x)*(cos(x)+1/2*cos(x/2)+1/3*cos(x/3)+1/4*cos(x/4));
   end;
 begin
   H := ctx.height;
@@ -465,10 +486,10 @@ begin
    ctx.beginPath();
    ctx.lineWidth:=0.5;
    // lignes horizontales
-   for i := 0 to trunc(H/sc) do
+   for i := -trunc(H/2/sc) to trunc(H/2/sc) do
    begin
-     ctx.moveTo(0, H-sc*i);
-     ctx.lineTo(W, H-sc*i);
+     ctx.moveTo(0, H/2-sc*i);
+     ctx.lineTo(W, H/2-sc*i);
    end;
    // lignes verticales
    for i := 0 to trunc(W/sc) do
@@ -483,11 +504,11 @@ begin
      ctx.beginPath();
      x:=0;
      u:=f(x);
-     ctx.moveTo(0, H-u*sc);
+     ctx.moveTo(0, H/2-u*sc);
      while x < W/sc do
      begin
        u := f(x);
-       ctx.lineTo(x*sc, H-u*sc);
+       ctx.lineTo(x*sc, H/2-u*sc);
        x += 1/sc;
      end;
    ctx.stroke();
@@ -693,7 +714,7 @@ begin
   inc(test16pos);
   center := pointf(ctx.width/2,ctx.height/2);
   angle := test16pos*2*Pi/300;
-  zoom := sin(test16pos*2*Pi/400)+1.1;
+  zoom := (sin(test16pos*2*Pi/400)+1.1)*min(ctx.width,ctx.height)/300;
   with ctx do
   begin
     save;
@@ -763,23 +784,23 @@ begin
   inc(test17pos);
   angle := test17pos*2*Pi/1000;
 
-  ctx.translate(160,120);
+  ctx.translate(ctx.Width/2,ctx.Height/2);
+  ctx.scale(min(ctx.Width,ctx.Height)/2-10);
   ctx.rotate(angle);
-  ctx.translate(-160,-120);
 
-  grad := ctx.createLinearGradient(0,0,320,240);
+  grad := ctx.createLinearGradient(-1,-1,1,1);
   grad.addColorStop(0.3, '#ff0000');
   grad.addColorStop(0.6, '#0000ff');
   ctx.fillStyle(grad);
 
-  grad := ctx.createLinearGradient(0,0,320,240);
+  grad := ctx.createLinearGradient(-1,-1,1,1);
   grad.addColorStop(0.3, '#ffffff');
   grad.addColorStop(0.6, '#000000');
   ctx.strokeStyle(grad);
   ctx.lineWidth := 5;
 
-  ctx.moveto(160,120);
-  ctx.arc(160,120,100,Pi/6,-Pi/6,false);
+  ctx.moveto(0,0);
+  ctx.arc(0,0,1,Pi/6,-Pi/6,false);
   ctx.fill();
   ctx.stroke();
 
@@ -833,9 +854,6 @@ begin
   end;
   ctx.restore;
   ctx.clip;
-  ctx.beginPath;
-  ctx.arc(0,ctx.height/2,ctx.width/8,0,2*Pi);
-  ctx.unclip;
 
   tx := ctx.width div 2;
   ty := ctx.height div 2;
