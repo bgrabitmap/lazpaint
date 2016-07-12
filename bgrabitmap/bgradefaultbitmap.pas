@@ -99,13 +99,7 @@ type
     FFontHeight: integer;
     FFontRenderer: TBGRACustomFontRenderer;
 
-    { Pen style can be defined by PenStyle property of by CustomPenStyle property.
-      When PenStyle property is assigned, CustomPenStyle property is assigned the actual
-      pen pattern. }
-    FCustomPenStyle:  TBGRAPenStyle;
-    FPenStyle: TPenStyle;
-    FArrow: TBGRAArrow;
-    FLineCap: TPenEndCap;
+    FPenStroker: TBGRAPenStroker;
 
     //Pixel data
     function GetRefCount: integer; override;
@@ -162,12 +156,18 @@ type
     function GetAveragePixel: TBGRAPixel; override;
 
     //drawing
+    function GetPenJoinStyle: TPenJoinStyle; override;
+    procedure SetPenJoinStyle(const AValue: TPenJoinStyle); override;
+    function GetPenMiterLimit: single; override;
+    procedure SetPenMiterLimit(const AValue: single); override;
     function GetCustomPenStyle: TBGRAPenStyle; override;
     procedure SetCustomPenStyle(const AValue: TBGRAPenStyle); override;
     procedure SetPenStyle(const AValue: TPenStyle); override;
     function GetPenStyle: TPenStyle; override;
     function GetLineCap: TPenEndCap; override;
     procedure SetLineCap(AValue: TPenEndCap); override;
+    function GetPenStroker: TBGRACustomPenStroker; override;
+
     function GetArrowEndSize: TPointF; override;
     function GetArrowStartSize: TPointF; override;
     procedure SetArrowEndSize(AValue: TPointF); override;
@@ -198,7 +198,6 @@ type
 
     function InternalGetPixelCycle256(ix,iy: int32or64; iFactX,iFactY: int32or64): TBGRAPixel;
     function InternalGetPixel256(ix,iy: int32or64; iFactX,iFactY: int32or64; smoothBorder: boolean): TBGRAPixel;
-    function GetPolyLineOption: TBGRAPolyLineOptions;
     function GetArrow: TBGRAArrow;
     procedure SetArrowStart(AStyle: TBGRAArrowStyle; ATipStyle: TPenJoinStyle = pjsMiter; ARelativePenWidth: single = 1; ATriangleBackOffset: single = 0); override;
     procedure SetArrowEnd(AStyle: TBGRAArrowStyle; ATipStyle: TPenJoinStyle = pjsMiter; ARelativePenWidth: single = 1; ATriangleBackOffset: single = 0); override;
@@ -487,9 +486,9 @@ type
     {** Draws a line from (x1,y1) to (x2,y2) using current pen style/cap/join.
         ''Closed'' specifies if the end of the line is closed. If it is not closed,
         a space is left so that the next line can fit }
-    procedure DrawLineAntialias(x1, y1, x2, y2: single; c: TBGRAPixel; w: single; Closed: boolean); override;
+    procedure DrawLineAntialias(x1, y1, x2, y2: single; c: TBGRAPixel; w: single; ClosedCap: boolean); override;
     {** Same as above with ''texture'' specifying the source color to use when filling the line }
-    procedure DrawLineAntialias(x1, y1, x2, y2: single; texture: IBGRAScanner; w: single; Closed: boolean); override;
+    procedure DrawLineAntialias(x1, y1, x2, y2: single; texture: IBGRAScanner; w: single; ClosedCap: boolean); override;
 
     {** Draws a polyline using current pen style/cap/join }
     procedure DrawPolyLineAntialias(const points: array of TPointF; c: TBGRAPixel; w: single); override;
@@ -499,7 +498,8 @@ type
     {** Draws a polyline using current pen style/cap/join.
         ''Closed'' specifies if the end of the line is closed. If it is not closed,
         a space is left so that the next line can fit }
-    procedure DrawPolyLineAntialias(const points: array of TPointF; c: TBGRAPixel; w: single; Closed: boolean); override;
+    procedure DrawPolyLineAntialias(const points: array of TPointF; c: TBGRAPixel; w: single; ClosedCap: boolean); override;
+    procedure DrawPolyLineAntialias(const points: array of TPointF; texture: IBGRAScanner; w: single; ClosedCap: boolean); override;
     {** Draws a polyline using current pen style/cap/join.
         ''fillcolor'' specifies a color to fill the polygon formed by the points }
     procedure DrawPolyLineAntialias(const points: array of TPointF; c: TBGRAPixel; w: single; fillcolor: TBGRAPixel); override;
@@ -507,6 +507,7 @@ type
         The last point considered as a join with the first point if it has
         the same coordinate }
     procedure DrawPolyLineAntialiasAutocycle(const points: array of TPointF; c: TBGRAPixel; w: single); override;
+    procedure DrawPolyLineAntialiasAutocycle(const points: array of TPointF; texture: IBGRAScanner; w: single); override;
     {** Draws a polygon using current pen style/cap/join.
         The polygon is always closed. You don't need to set the last point
         to be the same as the first point }
@@ -660,11 +661,25 @@ type
     procedure EraseShape(shape: TBGRACustomFillInfo; alpha: byte); override;
     procedure EraseShapeAntialias(shape: TBGRACustomFillInfo; alpha: byte); override;
 
-    procedure DrawPath(APath: IBGRAPath; c: TBGRAPixel; w: single); override;
-    procedure DrawPath(APath: IBGRAPath; texture: IBGRAScanner; w: single); override;
-    procedure FillPath(APath: IBGRAPath; c: TBGRAPixel); override;
-    procedure FillPath(APath: IBGRAPath; texture: IBGRAScanner); override;
+    procedure DrawPath(APath: IBGRAPath; AStrokeColor: TBGRAPixel; AWidth: single; AFillColor: TBGRAPixel); override;
+    procedure DrawPath(APath: IBGRAPath; AStrokeTexture: IBGRAScanner; AWidth: single; AFillColor: TBGRAPixel); override;
+    procedure DrawPath(APath: IBGRAPath; AStrokeColor: TBGRAPixel; AWidth: single; AFillTexture: IBGRAScanner); override;
+    procedure DrawPath(APath: IBGRAPath; AStrokeTexture: IBGRAScanner; AWidth: single; AFillTexture: IBGRAScanner); override;
+    procedure DrawPath(APath: IBGRAPath; AStrokeColor: TBGRAPixel; AWidth: single); override;
+    procedure DrawPath(APath: IBGRAPath; AStrokeTexture: IBGRAScanner; AWidth: single); override;
+    procedure FillPath(APath: IBGRAPath; AFillColor: TBGRAPixel); override;
+    procedure FillPath(APath: IBGRAPath; AFillTexture: IBGRAScanner); override;
     procedure ErasePath(APath: IBGRAPath; alpha: byte); override;
+
+    procedure DrawPath(APath: IBGRAPath; AMatrix: TAffineMatrix; AStrokeColor: TBGRAPixel; AWidth: single; AFillColor: TBGRAPixel); override;
+    procedure DrawPath(APath: IBGRAPath; AMatrix: TAffineMatrix; AStrokeTexture: IBGRAScanner; AWidth: single; AFillColor: TBGRAPixel); override;
+    procedure DrawPath(APath: IBGRAPath; AMatrix: TAffineMatrix; AStrokeColor: TBGRAPixel; AWidth: single; AFillTexture: IBGRAScanner); override;
+    procedure DrawPath(APath: IBGRAPath; AMatrix: TAffineMatrix; AStrokeTexture: IBGRAScanner; AWidth: single; AFillTexture: IBGRAScanner); override;
+    procedure DrawPath(APath: IBGRAPath; AMatrix: TAffineMatrix; AStrokeColor: TBGRAPixel; AWidth: single); override;
+    procedure DrawPath(APath: IBGRAPath; AMatrix: TAffineMatrix; AStrokeTexture: IBGRAScanner; AWidth: single); override;
+    procedure FillPath(APath: IBGRAPath; AMatrix: TAffineMatrix; AFillColor: TBGRAPixel); override;
+    procedure FillPath(APath: IBGRAPath; AMatrix: TAffineMatrix; AFillTexture: IBGRAScanner); override;
+    procedure ErasePath(APath: IBGRAPath; AMatrix: TAffineMatrix; alpha: byte); override;
 
     { Draws the UTF8 encoded string, with color c.
       If align is taLeftJustify, (x,y) is the top-left corner.
@@ -704,7 +719,7 @@ type
     function ComputeBezierSpline(const ASpline: array of TQuadraticBezierCurve): ArrayOfTPointF; override;
 
     function ComputeWidePolyline(const points: array of TPointF; w: single): ArrayOfTPointF; override;
-    function ComputeWidePolyline(const points: array of TPointF; w: single; Closed: boolean): ArrayOfTPointF; override;
+    function ComputeWidePolyline(const points: array of TPointF; w: single; ClosedCap: boolean): ArrayOfTPointF; override;
     function ComputeWidePolygon(const points: array of TPointF; w: single): ArrayOfTPointF; override;
 
     function ComputeEllipseContour(x,y,rx,ry: single; quality: single = 1): ArrayOfTPointF; override;
@@ -761,7 +776,10 @@ type
     procedure CrossFade(ARect: TRect; Source1, Source2: IBGRAScanner; AFadePosition: byte; mode: TDrawMode = dmDrawWithTransparency); override;
     procedure CrossFade(ARect: TRect; Source1, Source2: IBGRAScanner; AFadeMask: IBGRAScanner; mode: TDrawMode = dmDrawWithTransparency); override;
     procedure PutImage(x, y: integer; Source: TBGRACustomBitmap; mode: TDrawMode; AOpacity: byte = 255); override;
-    procedure PutImageAffine(Origin,HAxis,VAxis: TPointF; Source: TBGRACustomBitmap; AOutputBounds: TRect; AResampleFilter: TResampleFilter; AMode: TDrawMode; AOpacity: Byte=255); override;
+    procedure PutImageAffine(Origin,HAxis,VAxis: TPointF; Source: TBGRACustomBitmap; AOutputBounds: TRect; AResampleFilter: TResampleFilter; AMode: TDrawMode; AOpacity: Byte=255); override; overload;
+    procedure PutImageAffine(AMatrix: TAffineMatrix; Source: TBGRACustomBitmap; AResampleFilter: TResampleFilter; AOpacity: Byte=255); override; overload;
+    procedure PutImageAffine(AMatrix: TAffineMatrix; Source: TBGRACustomBitmap; AOutputBounds: TRect; AResampleFilter: TResampleFilter; AMode: TDrawMode; AOpacity: Byte=255); override; overload;
+    function GetImageAffineBounds(AMatrix: TAffineMatrix; Source: TBGRACustomBitmap): TRect; override; overload;
 
     procedure StretchPutImage(ARect: TRect; Source: TBGRACustomBitmap; mode: TDrawMode; AOpacity: byte = 255); override;
 
@@ -777,6 +795,8 @@ type
     function Equals(comp: TBGRAPixel): boolean; override;
     function GetImageBounds(Channel: TChannel = cAlpha; ANothingValue: Byte = 0): TRect; override;
     function GetImageBounds(Channels: TChannels; ANothingValue: Byte = 0): TRect; override;
+    function GetImageBoundsWithin(const ARect: TRect; Channel: TChannel = cAlpha; ANothingValue: Byte = 0): TRect; override;
+    function GetImageBoundsWithin(const ARect: TRect; Channels: TChannels; ANothingValue: Byte = 0): TRect; override;
     function GetDifferenceBounds(ABitmap: TBGRACustomBitmap): TRect; override;
     function MakeBitmapCopy(BackgroundColor: TColor): TBitmap; override;
 
@@ -829,6 +849,7 @@ type
     function FilterNormalize(eachChannel: boolean = True): TBGRACustomBitmap; override;
     function FilterNormalize(ABounds: TRect; eachChannel: boolean = True): TBGRACustomBitmap; override;
     function FilterRotate(origin: TPointF; angle: single; correctBlur: boolean = false): TBGRACustomBitmap; override;
+    function FilterAffine(AMatrix: TAffineMatrix; correctBlur: boolean = false): TBGRACustomBitmap; override;
     function FilterSphere: TBGRACustomBitmap; override;
     function FilterTwirl(ACenter: TPoint; ARadius: Single; ATurn: Single=1; AExponent: Single=3): TBGRACustomBitmap; override;
     function FilterTwirl(ABounds: TRect; ACenter: TPoint; ARadius: Single; ATurn: Single=1; AExponent: Single=3): TBGRACustomBitmap; override;
@@ -947,7 +968,7 @@ end;
 
 function TBGRADefaultBitmap.GetCustomPenStyle: TBGRAPenStyle;
 begin
-  result := DuplicatePenStyle(FCustomPenStyle);
+  result := DuplicatePenStyle(FPenStroker.CustomPenStyle);
 end;
 
 procedure TBGRADefaultBitmap.SetCanvasAlphaCorrection(const AValue: boolean);
@@ -984,39 +1005,37 @@ end;
 
 procedure TBGRADefaultBitmap.SetCustomPenStyle(const AValue: TBGRAPenStyle);
 begin
-  FCustomPenStyle := DuplicatePenStyle(AValue);
+  FPenStroker.CustomPenStyle := DuplicatePenStyle(AValue);
 end;
 
 procedure TBGRADefaultBitmap.SetPenStyle(const AValue: TPenStyle);
 begin
-  Case AValue of
-  psSolid: CustomPenStyle := SolidPenStyle;
-  psDash: CustomPenStyle := DashPenStyle;
-  psDot: CustomPenStyle := DotPenStyle;
-  psDashDot: CustomPenStyle := DashDotPenStyle;
-  psDashDotDot: CustomPenStyle := DashDotDotPenStyle;
-  else CustomPenStyle := ClearPenStyle;
-  end;
-  FPenStyle := AValue;
+  FPenStroker.PenStyle := AValue;
 end;
 
 function TBGRADefaultBitmap.GetPenStyle: TPenStyle;
 begin
-  Result:= FPenStyle;
+  Result:= FPenStroker.PenStyle;
 end;
 
 function TBGRADefaultBitmap.GetLineCap: TPenEndCap;
 begin
-  result := FLineCap;
+  result := FPenStroker.LineCap;
 end;
 
 procedure TBGRADefaultBitmap.SetLineCap(AValue: TPenEndCap);
 begin
-  if AValue <> FLineCap then
+  if AValue <> FPenStroker.LineCap then
   begin
-    FLineCap:= AValue;
-    if Assigned(FArrow) then FArrow.LineCap := AValue;
+    FPenStroker.LineCap := AValue;
+    if Assigned(FPenStroker.Arrow) then
+      FPenStroker.Arrow.LineCap := AValue;
   end;
+end;
+
+function TBGRADefaultBitmap.GetPenStroker: TBGRACustomPenStroker;
+begin
+  result := FPenStroker;
 end;
 
 function TBGRADefaultBitmap.GetArrowEndSize: TPointF;
@@ -1388,11 +1407,11 @@ end;
 { Free the object and all its resources }
 destructor TBGRADefaultBitmap.Destroy;
 begin
+  FPenStroker.Free;
   FFontRenderer.Free;
   FCanvasFP.Free;
   FCanvasBGRA.Free;
   FCanvas2D.Free;
-  FArrow.Free;
   FreeData;
   FreeBitmap;
   inherited Destroy;
@@ -1709,21 +1728,15 @@ begin
   end;
 end;
 
-function TBGRADefaultBitmap.GetPolyLineOption: TBGRAPolyLineOptions;
-begin
-  result := [];
-  if Assigned(FArrow) and FArrow.IsStartDefined then result += [plNoStartCap];
-  if Assigned(FArrow) and FArrow.IsEndDefined then result += [plNoEndCap];
-end;
-
 function TBGRADefaultBitmap.GetArrow: TBGRAArrow;
 begin
-  if FArrow = nil then
+  if FPenStroker.Arrow = nil then
   begin
-    FArrow := TBGRAArrow.Create;
-    FArrow.LineCap := LineCap;
+    FPenStroker.Arrow := TBGRAArrow.Create;
+    FPenStroker.Arrow.LineCap := LineCap;
+    FPenStroker.ArrowOwned := true;
   end;
-  result := FArrow;
+  result := FPenStroker.Arrow as TBGRAArrow;
 end;
 
 {-------------------------- Pixel functions -----------------------------------}
@@ -2127,13 +2140,11 @@ begin
   FontVerticalAnchor:= fvaTop;
   FFontHeight := 20;
 
-  PenStyle := psSolid;
-  LineCap := pecRound;
-  JoinStyle := pjsBevel;
-  JoinMiterLimit := 2;
   ResampleFilter := rfHalfCosine;
   ScanInterpolationFilter := rfLinear;
   ScanOffset := Point(0,0);
+
+  FPenStroker := TBGRAPenStroker.Create;
 end;
 
 procedure TBGRADefaultBitmap.SetInternalColor(x, y: integer; const Value: TFPColor);
@@ -2581,22 +2592,6 @@ begin
   {$POP}
 end;
 
-procedure TBGRADefaultBitmap.DrawPath(APath: IBGRAPath; c: TBGRAPixel; w: single);
-var tempPath: TBGRAPath;
-begin
-  tempPath := TBGRAPath.Create(APath);
-  tempPath.stroke(self, c, w);
-  tempPath.Free;
-end;
-
-procedure TBGRADefaultBitmap.DrawPath(APath: IBGRAPath; texture: IBGRAScanner; w: single);
-var tempPath: TBGRAPath;
-begin
-  tempPath := TBGRAPath.Create(APath);
-  tempPath.stroke(self, texture, w);
-  tempPath.Free;
-end;
-
 {---------------------------- Lines ---------------------------------}
 { Call appropriate functions }
 
@@ -2629,85 +2624,50 @@ end;
 procedure TBGRADefaultBitmap.DrawLineAntialias(x1, y1, x2, y2: single;
   c: TBGRAPixel; w: single);
 begin
-  if Assigned(FArrow) then
-    BGRAPen.BGRAPolyLine(self,[PointF(x1,y1),PointF(x2,y2)],w,c,LineCap,JoinStyle,FCustomPenStyle,GetPolyLineOption,nil,JoinMiterLimit,@FArrow.ComputeStartAt,FArrow.StartOffsetX,@FArrow.ComputeEndAt,FArrow.EndOffsetX)
-  else
-    BGRAPen.BGRAPolyLine(self,[PointF(x1,y1),PointF(x2,y2)],w,c,LineCap,JoinStyle,FCustomPenStyle,GetPolyLineOption,nil,JoinMiterLimit);
+  FillPolyAntialias( FPenStroker.ComputePolyline([PointF(x1,y1),PointF(x2,y2)],w,c), c);
 end;
 
 procedure TBGRADefaultBitmap.DrawLineAntialias(x1, y1, x2, y2: single;
   texture: IBGRAScanner; w: single);
 begin
-  if Assigned(FArrow) then
-    BGRAPen.BGRAPolyLine(self,[PointF(x1,y1),PointF(x2,y2)],w,BGRAPixelTransparent,LineCap,JoinStyle,FCustomPenStyle,GetPolyLineOption,texture,JoinMiterLimit,@FArrow.ComputeStartAt,FArrow.StartOffsetX,@FArrow.ComputeEndAt,FArrow.EndOffsetX)
-  else
-    BGRAPen.BGRAPolyLine(self,[PointF(x1,y1),PointF(x2,y2)],w,BGRAPixelTransparent,LineCap,JoinStyle,FCustomPenStyle,GetPolyLineOption,texture,JoinMiterLimit);
+  FillPolyAntialias( FPenStroker.ComputePolyline([PointF(x1,y1),PointF(x2,y2)],w), texture);
 end;
 
 procedure TBGRADefaultBitmap.DrawLineAntialias(x1, y1, x2, y2: single;
-  c: TBGRAPixel; w: single; Closed: boolean);
-var
-  options: TBGRAPolyLineOptions;
+  c: TBGRAPixel; w: single; ClosedCap: boolean);
 begin
-  if not closed then options := [plRoundCapOpen] else options := [];
-  options += GetPolyLineOption;
-  if Assigned(FArrow) then
-    BGRAPen.BGRAPolyLine(self,[PointF(x1,y1),PointF(x2,y2)],w,c,pecRound,pjsRound,FCustomPenStyle,options,nil,JoinMiterLimit,@FArrow.ComputeStartAt,FArrow.StartOffsetX,@FArrow.ComputeEndAt,FArrow.EndOffsetX)
-  else
-    BGRAPen.BGRAPolyLine(self,[PointF(x1,y1),PointF(x2,y2)],w,c,pecRound,pjsRound,FCustomPenStyle,options,nil,JoinMiterLimit)
+  FillPolyAntialias( FPenStroker.ComputePolyline([PointF(x1,y1),PointF(x2,y2)],w,c,ClosedCap), c);
 end;
 
 procedure TBGRADefaultBitmap.DrawLineAntialias(x1, y1, x2, y2: single;
-  texture: IBGRAScanner; w: single; Closed: boolean);
-var
-  options: TBGRAPolyLineOptions;
-  c: TBGRAPixel;
+  texture: IBGRAScanner; w: single; ClosedCap: boolean);
 begin
-  if not closed then
-  begin
-    options := [plRoundCapOpen];
-    c := BGRAWhite; //needed for alpha junction
-  end else
-  begin
-    options := [];
-    c := BGRAPixelTransparent;
-  end;
-  options += GetPolyLineOption;
-  if Assigned(FArrow) then
-    BGRAPen.BGRAPolyLine(self,[PointF(x1,y1),PointF(x2,y2)],w,c,pecRound,pjsRound,FCustomPenStyle,options,texture,JoinMiterLimit,@FArrow.ComputeStartAt,FArrow.StartOffsetX,@FArrow.ComputeEndAt,FArrow.EndOffsetX)
-  else
-    BGRAPen.BGRAPolyLine(self,[PointF(x1,y1),PointF(x2,y2)],w,c,pecRound,pjsRound,FCustomPenStyle,options,texture,JoinMiterLimit);
+  FillPolyAntialias( FPenStroker.ComputePolyline([PointF(x1,y1),PointF(x2,y2)],w,ClosedCap), texture);
 end;
 
 procedure TBGRADefaultBitmap.DrawPolyLineAntialias(const points: array of TPointF;
   c: TBGRAPixel; w: single);
 begin
-  if Assigned(FArrow) then
-    BGRAPen.BGRAPolyLine(self,points,w,c,LineCap,JoinStyle,FCustomPenStyle,GetPolyLineOption,nil,JoinMiterLimit,@FArrow.ComputeStartAt,FArrow.StartOffsetX,@FArrow.ComputeEndAt,FArrow.EndOffsetX)
-  else
-    BGRAPen.BGRAPolyLine(self,points,w,c,LineCap,JoinStyle,FCustomPenStyle,GetPolyLineOption,nil,JoinMiterLimit)
+  FillPolyAntialias( FPenStroker.ComputePolyline(points,w,c), c);
 end;
 
 procedure TBGRADefaultBitmap.DrawPolyLineAntialias(
   const points: array of TPointF; texture: IBGRAScanner; w: single);
 begin
-  if Assigned(FArrow) then
-    BGRAPen.BGRAPolyLine(self,points,w,BGRAPixelTransparent,LineCap,JoinStyle,FCustomPenStyle,GetPolyLineOption,texture,JoinMiterLimit,@FArrow.ComputeStartAt,FArrow.StartOffsetX,@FArrow.ComputeEndAt,FArrow.EndOffsetX)
-  else
-    BGRAPen.BGRAPolyLine(self,points,w,BGRAPixelTransparent,LineCap,JoinStyle,FCustomPenStyle,GetPolyLineOption,texture,JoinMiterLimit);
+  FillPolyAntialias( FPenStroker.ComputePolyline(points,w), texture);
 end;
 
 procedure TBGRADefaultBitmap.DrawPolyLineAntialias(const points: array of TPointF;
-  c: TBGRAPixel; w: single; Closed: boolean);
-var
-  options: TBGRAPolyLineOptions;
+  c: TBGRAPixel; w: single; ClosedCap: boolean);
 begin
-  if not closed then options := [plRoundCapOpen] else options := [];
-  options += GetPolyLineOption;
-  if Assigned(FArrow) then
-    BGRAPen.BGRAPolyLine(self,points,w,c,pecRound,JoinStyle,FCustomPenStyle,options,nil,JoinMiterLimit,@FArrow.ComputeStartAt,FArrow.StartOffsetX,@FArrow.ComputeEndAt,FArrow.EndOffsetX)
-  else
-    BGRAPen.BGRAPolyLine(self,points,w,c,pecRound,JoinStyle,FCustomPenStyle,options,nil,JoinMiterLimit);
+  FillPolyAntialias( FPenStroker.ComputePolyline(points,w,c,ClosedCap), c);
+end;
+
+procedure TBGRADefaultBitmap.DrawPolyLineAntialias(
+  const points: array of TPointF; texture: IBGRAScanner; w: single;
+  ClosedCap: boolean);
+begin
+  FillPolyAntialias( FPenStroker.ComputePolyline(points,w,ClosedCap), texture);
 end;
 
 procedure TBGRADefaultBitmap.DrawPolyLineAntialias(
@@ -2729,22 +2689,25 @@ end;
 procedure TBGRADefaultBitmap.DrawPolyLineAntialiasAutocycle(
   const points: array of TPointF; c: TBGRAPixel; w: single);
 begin
-  if Assigned(FArrow) then
-    BGRAPen.BGRAPolyLine(self,points,w,c,LineCap,JoinStyle,FCustomPenStyle,GetPolyLineOption+[plAutoCycle],nil,JoinMiterLimit,@FArrow.ComputeStartAt,FArrow.StartOffsetX,@FArrow.ComputeEndAt,FArrow.EndOffsetX)
-  else
-    BGRAPen.BGRAPolyLine(self,points,w,c,LineCap,JoinStyle,FCustomPenStyle,GetPolyLineOption+[plAutoCycle],nil,JoinMiterLimit)
+  FillPolyAntialias( FPenStroker.ComputePolylineAutocycle(points,w), c);
+end;
+
+procedure TBGRADefaultBitmap.DrawPolyLineAntialiasAutocycle(
+  const points: array of TPointF; texture: IBGRAScanner; w: single);
+begin
+  FillPolyAntialias( FPenStroker.ComputePolylineAutocycle(points,w), texture);
 end;
 
 procedure TBGRADefaultBitmap.DrawPolygonAntialias(const points: array of TPointF;
   c: TBGRAPixel; w: single);
 begin
-  BGRAPolyLine(self,points,w,c,LineCap,JoinStyle,FCustomPenStyle,[plCycle],nil,JoinMiterLimit);
+  FillPolyAntialias( FPenStroker.ComputePolygon(points,w), c);
 end;
 
 procedure TBGRADefaultBitmap.DrawPolygonAntialias(
   const points: array of TPointF; texture: IBGRAScanner; w: single);
 begin
-  BGRAPolyLine(self,points,w,BGRAPixelTransparent,LineCap,JoinStyle,FCustomPenStyle,[plCycle],texture,JoinMiterLimit);
+  FillPolyAntialias( FPenStroker.ComputePolygon(points,w), texture);
 end;
 
 procedure TBGRADefaultBitmap.DrawPolygonAntialias(
@@ -2791,19 +2754,116 @@ begin
   FEraseMode := False;
 end;
 
-procedure TBGRADefaultBitmap.FillPath(APath: IBGRAPath; c: TBGRAPixel);
+procedure TBGRADefaultBitmap.FillPath(APath: IBGRAPath; AFillColor: TBGRAPixel);
 begin
-  FillPolyAntialias(APath.getPoints,c);
+  FillPolyAntialias(APath.getPoints,AFillColor);
 end;
 
-procedure TBGRADefaultBitmap.FillPath(APath: IBGRAPath; texture: IBGRAScanner);
+procedure TBGRADefaultBitmap.FillPath(APath: IBGRAPath; AFillTexture: IBGRAScanner);
 begin
-  FillPolyAntialias(APath.getPoints,texture);
+  FillPolyAntialias(APath.getPoints,AFillTexture);
 end;
 
 procedure TBGRADefaultBitmap.ErasePath(APath: IBGRAPath; alpha: byte);
 begin
   ErasePolyAntialias(APath.getPoints,alpha);
+end;
+
+procedure TBGRADefaultBitmap.DrawPath(APath: IBGRAPath; AMatrix: TAffineMatrix;
+  AStrokeColor: TBGRAPixel; AWidth: single; AFillColor: TBGRAPixel);
+var tempPath: TBGRAPath;
+  multi: TBGRAMultishapeFiller;
+begin
+  tempPath := TBGRAPath.Create(APath);
+  multi := TBGRAMultishapeFiller.Create;
+  multi.PolygonOrder := poLastOnTop;
+  multi.AddPathFill(tempPath,AMatrix,AFillColor);
+  multi.AddPathStroke(tempPath,AMatrix,AStrokeColor,AWidth,FPenStroker);
+  multi.Draw(self);
+  multi.Free;
+  tempPath.Free;
+end;
+
+procedure TBGRADefaultBitmap.DrawPath(APath: IBGRAPath; AMatrix: TAffineMatrix;
+  AStrokeTexture: IBGRAScanner; AWidth: single; AFillColor: TBGRAPixel);
+var tempPath: TBGRAPath;
+  multi: TBGRAMultishapeFiller;
+begin
+  tempPath := TBGRAPath.Create(APath);
+  multi := TBGRAMultishapeFiller.Create;
+  multi.PolygonOrder := poLastOnTop;
+  multi.AddPathFill(tempPath,AMatrix,AFillColor);
+  multi.AddPathStroke(tempPath,AMatrix,AStrokeTexture,AWidth,FPenStroker);
+  multi.Draw(self);
+  multi.Free;
+  tempPath.Free;
+end;
+
+procedure TBGRADefaultBitmap.DrawPath(APath: IBGRAPath; AMatrix: TAffineMatrix;
+  AStrokeColor: TBGRAPixel; AWidth: single; AFillTexture: IBGRAScanner);
+var tempPath: TBGRAPath;
+  multi: TBGRAMultishapeFiller;
+begin
+  tempPath := TBGRAPath.Create(APath);
+  multi := TBGRAMultishapeFiller.Create;
+  multi.PolygonOrder := poLastOnTop;
+  multi.AddPathFill(tempPath,AMatrix,AFillTexture);
+  multi.AddPathStroke(tempPath,AMatrix,AStrokeColor,AWidth,FPenStroker);
+  multi.Draw(self);
+  multi.Free;
+  tempPath.Free;
+end;
+
+procedure TBGRADefaultBitmap.DrawPath(APath: IBGRAPath; AMatrix: TAffineMatrix;
+  AStrokeTexture: IBGRAScanner; AWidth: single; AFillTexture: IBGRAScanner);
+var
+  tempPath: TBGRAPath;
+  multi: TBGRAMultishapeFiller;
+begin
+  tempPath := TBGRAPath.Create(APath);
+  multi := TBGRAMultishapeFiller.Create;
+  multi.PolygonOrder := poLastOnTop;
+  multi.AddPathFill(tempPath,AMatrix,AFillTexture);
+  multi.AddPathStroke(tempPath,AMatrix,AStrokeTexture,AWidth,FPenStroker);
+  multi.Draw(self);
+  multi.Free;
+  tempPath.Free;
+end;
+
+procedure TBGRADefaultBitmap.DrawPath(APath: IBGRAPath; AMatrix: TAffineMatrix;
+  AStrokeColor: TBGRAPixel; AWidth: single);
+var tempPath: TBGRAPath;
+begin
+  tempPath := TBGRAPath.Create(APath);
+  tempPath.stroke(self, AMatrix, AStrokeColor, AWidth);
+  tempPath.Free;
+end;
+
+procedure TBGRADefaultBitmap.DrawPath(APath: IBGRAPath; AMatrix: TAffineMatrix;
+  AStrokeTexture: IBGRAScanner; AWidth: single);
+var tempPath: TBGRAPath;
+begin
+  tempPath := TBGRAPath.Create(APath);
+  tempPath.stroke(self, AMatrix, AStrokeTexture, AWidth);
+  tempPath.Free;
+end;
+
+procedure TBGRADefaultBitmap.FillPath(APath: IBGRAPath; AMatrix: TAffineMatrix;
+  AFillColor: TBGRAPixel);
+begin
+  FillPolyAntialias(APath.getPoints(AMatrix),AFillColor);
+end;
+
+procedure TBGRADefaultBitmap.FillPath(APath: IBGRAPath; AMatrix: TAffineMatrix;
+  AFillTexture: IBGRAScanner);
+begin
+  FillPolyAntialias(APath.getPoints(AMatrix),AFillTexture);
+end;
+
+procedure TBGRADefaultBitmap.ErasePath(APath: IBGRAPath;
+  AMatrix: TAffineMatrix; alpha: byte);
+begin
+  ErasePolyAntialias(APath.getPoints(AMatrix),alpha);
 end;
 
 {------------------------ Shapes ----------------------------------------------}
@@ -3135,11 +3195,45 @@ begin
   FEraseMode := False;
 end;
 
+procedure TBGRADefaultBitmap.DrawPath(APath: IBGRAPath;
+  AStrokeColor: TBGRAPixel; AWidth: single; AFillColor: TBGRAPixel);
+begin
+  DrawPath(APath,AffineMatrixIdentity,AStrokeColor,AWidth,AFillColor);
+end;
+
+procedure TBGRADefaultBitmap.DrawPath(APath: IBGRAPath;
+  AStrokeTexture: IBGRAScanner; AWidth: single; AFillColor: TBGRAPixel);
+begin
+  DrawPath(APath,AffineMatrixIdentity,AStrokeTexture,AWidth,AFillColor);
+end;
+
+procedure TBGRADefaultBitmap.DrawPath(APath: IBGRAPath;
+  AStrokeColor: TBGRAPixel; AWidth: single; AFillTexture: IBGRAScanner);
+begin
+  DrawPath(APath,AffineMatrixIdentity,AStrokeColor,AWidth,AFillTexture);
+end;
+
+procedure TBGRADefaultBitmap.DrawPath(APath: IBGRAPath;
+  AStrokeTexture: IBGRAScanner; AWidth: single; AFillTexture: IBGRAScanner);
+begin
+  DrawPath(APath,AffineMatrixIdentity,AStrokeTexture,AWidth,AFillTexture);
+end;
+
+procedure TBGRADefaultBitmap.DrawPath(APath: IBGRAPath; AStrokeColor: TBGRAPixel; AWidth: single);
+begin
+  DrawPath(APath, AffineMatrixIdentity, AStrokeColor, AWidth);
+end;
+
+procedure TBGRADefaultBitmap.DrawPath(APath: IBGRAPath; AStrokeTexture: IBGRAScanner; AWidth: single);
+begin
+  DrawPath(APath, AffineMatrixIdentity, AStrokeTexture, AWidth);
+end;
+
 procedure TBGRADefaultBitmap.EllipseAntialias(x, y, rx, ry: single;
   c: TBGRAPixel; w: single);
 begin
-  if IsClearPenStyle(FCustomPenStyle) or (c.alpha = 0) then exit;
-  if IsSolidPenStyle(FCustomPenStyle) then
+  if (PenStyle = psClear) or (c.alpha = 0) then exit;
+  if (PenStyle = psSolid) then
     BGRAPolygon.BorderEllipseAntialias(self, x, y, rx, ry, w, c, FEraseMode, LinearAntialiasing)
   else
     DrawPolygonAntialias(ComputeEllipseContour(x,y,rx,ry),c,w);
@@ -3148,8 +3242,8 @@ end;
 procedure TBGRADefaultBitmap.EllipseAntialias(x, y, rx, ry: single;
   texture: IBGRAScanner; w: single);
 begin
-  if IsClearPenStyle(FCustomPenStyle) then exit;
-  if IsSolidPenStyle(FCustomPenStyle) then
+  if (PenStyle = psClear) then exit;
+  if (PenStyle = psSolid) then
     BGRAPolygon.BorderEllipseAntialiasWithTexture(self, x, y, rx, ry, w, texture, LinearAntialiasing)
   else
     DrawPolygonAntialias(ComputeEllipseContour(x,y,rx,ry),texture,w);
@@ -3171,9 +3265,9 @@ begin
   end;
   { use multishape filler for fine junction between polygons }
   multi := TBGRAMultishapeFiller.Create;
-  if not IsClearPenStyle(FCustomPenStyle) and (c.alpha <> 0) then
+  if not (PenStyle = psClear) and (c.alpha <> 0) then
   begin
-    if IsSolidPenStyle(FCustomPenStyle) then
+    if (PenStyle = psSolid) then
     begin
       multi.AddEllipse(x,y,rx-hw,ry-hw,back);
       multi.AddEllipseBorder(x,y,rx,ry,w,c)
@@ -3238,7 +3332,7 @@ var
   multi: TBGRAMultishapeFiller;
   hw: single;
 begin
-  if IsClearPenStyle(FCustomPenStyle) or (c.alpha=0) or (w=0) then
+  if (PenStyle = psClear) or (c.alpha=0) or (w=0) then
   begin
     if back <> BGRAPixelTransparent then
       FillRectAntialias(x,y,x2,y2,back);
@@ -3263,7 +3357,7 @@ begin
   { use multishape filler for fine junction between polygons }
   multi := TBGRAMultishapeFiller.Create;
   multi.FillMode := FillMode;
-  if (JoinStyle = pjsMiter) and IsSolidPenStyle(FCustomPenStyle) then
+  if (JoinStyle = pjsMiter) and (PenStyle = psSolid) then
     multi.AddRectangleBorder(x,y,x2,y2,w,c)
   else
     multi.AddPolygon(ComputeWidePolygon([Pointf(x,y),Pointf(x2,y),Pointf(x2,y2),Pointf(x,y2)],w),c);
@@ -3282,7 +3376,7 @@ var
   bevel,hw: single;
   multi: TBGRAMultishapeFiller;
 begin
-  if IsClearPenStyle(FCustomPenStyle) or (w=0) then exit;
+  if (PenStyle = psClear) or (w=0) then exit;
 
   hw := w/2;
   if not CheckAntialiasRectBounds(x,y,x2,y2,w) then
@@ -3302,7 +3396,7 @@ begin
   { use multishape filler for fine junction between polygons }
   multi := TBGRAMultishapeFiller.Create;
   multi.FillMode := FillMode;
-  if (JoinStyle = pjsMiter) and IsSolidPenStyle(FCustomPenStyle) then
+  if (JoinStyle = pjsMiter) and (PenStyle = psSolid) then
     multi.AddRectangleBorder(x,y,x2,y2,w, texture)
   else
     multi.AddPolygon(ComputeWidePolygon([Pointf(x,y),Pointf(x2,y),Pointf(x2,y2),Pointf(x,y2)],w), texture);
@@ -3313,8 +3407,8 @@ end;
 procedure TBGRADefaultBitmap.RoundRectAntialias(x, y, x2, y2, rx, ry: single;
    c: TBGRAPixel; w: single; options: TRoundRectangleOptions);
 begin
-  if IsClearPenStyle(FCustomPenStyle) or (c.alpha = 0) then exit;
-  if IsSolidPenStyle(FCustomPenStyle) then
+  if (PenStyle = psClear) or (c.alpha = 0) then exit;
+  if (PenStyle = psSolid) then
     BGRAPolygon.BorderRoundRectangleAntialias(self,x,y,x2,y2,rx,ry,w,options,c,False, LinearAntialiasing)
   else
     DrawPolygonAntialias(BGRAPath.ComputeRoundRect(x,y,x2,y2,rx,ry,options),c,w);
@@ -3326,12 +3420,12 @@ procedure TBGRADefaultBitmap.RoundRectAntialias(x, y, x2, y2, rx, ry: single;
 var
   multi: TBGRAMultishapeFiller;
 begin
-  if IsClearPenStyle(FCustomPenStyle) or (pencolor.alpha = 0) then
+  if (PenStyle = psClear) or (pencolor.alpha = 0) then
   begin
     FillRoundRectAntialias(x,y,x2,y2,rx,ry,fillColor,options);
     exit;
   end;
-  if IsSolidPenStyle(FCustomPenStyle) then
+  if (PenStyle = psSolid) then
     BGRAPolygon.BorderAndFillRoundRectangleAntialias(self,x,y,x2,y2,rx,ry,w,options,pencolor,fillcolor,nil,nil,False)
   else
   begin
@@ -3350,12 +3444,12 @@ procedure TBGRADefaultBitmap.RoundRectAntialias(x, y, x2, y2, rx, ry: single;
 var
   multi: TBGRAMultishapeFiller;
 begin
-  if IsClearPenStyle(FCustomPenStyle) then
+  if (PenStyle = psClear) then
   begin
     FillRoundRectAntialias(x,y,x2,y2,rx,ry,fillTexture,options);
     exit;
   end else
-  if IsSolidPenStyle(FCustomPenStyle) then
+  if (PenStyle = psSolid) then
     BGRAPolygon.BorderAndFillRoundRectangleAntialias(self,x,y,x2,y2,rx,ry,w,options,BGRAPixelTransparent,BGRAPixelTransparent,pentexture,filltexture,False)
   else
   begin
@@ -3371,8 +3465,8 @@ end;
 procedure TBGRADefaultBitmap.RoundRectAntialias(x, y, x2, y2, rx, ry: single;
   texture: IBGRAScanner; w: single; options: TRoundRectangleOptions);
 begin
-  if IsClearPenStyle(FCustomPenStyle) then exit;
-  if IsSolidPenStyle(FCustomPenStyle) then
+  if (PenStyle = psClear) then exit;
+  if (PenStyle = psSolid) then
     BGRAPolygon.BorderRoundRectangleAntialiasWithTexture(self,x,y,x2,y2,rx,ry,w,options,texture, LinearAntialiasing)
   else
     DrawPolygonAntialias(BGRAPath.ComputeRoundRect(x,y,x2,y2,rx,ry,options),texture,w);
@@ -3836,29 +3930,19 @@ end;
 function TBGRADefaultBitmap.ComputeWidePolyline(const points: array of TPointF;
   w: single): ArrayOfTPointF;
 begin
-  if Assigned(FArrow) then
-    Result:= BGRAPen.ComputeWidePolylinePoints(points,w,BGRAWhite,LineCap,JoinStyle,FCustomPenStyle,GetPolyLineOption,JoinMiterLimit,@FArrow.ComputeStartAt,FArrow.StartOffsetX,@FArrow.ComputeEndAt,FArrow.EndOffsetX)
-  else
-    Result:= BGRAPen.ComputeWidePolylinePoints(points,w,BGRAWhite,LineCap,JoinStyle,FCustomPenStyle,GetPolyLineOption,JoinMiterLimit)
+  result := FPenStroker.ComputePolyline(points,w);
 end;
 
 function TBGRADefaultBitmap.ComputeWidePolyline(const points: array of TPointF;
-  w: single; Closed: boolean): ArrayOfTPointF;
-var
-  options: TBGRAPolyLineOptions;
+  w: single; ClosedCap: boolean): ArrayOfTPointF;
 begin
-  if not closed then options := [plRoundCapOpen] else options := [];
-  options += GetPolyLineOption;
-  if Assigned(FArrow) then
-    Result:= BGRAPen.ComputeWidePolylinePoints(points,w,BGRAWhite,pecRound,pjsRound,FCustomPenStyle,options,JoinMiterLimit,@FArrow.ComputeStartAt,FArrow.StartOffsetX,@FArrow.ComputeEndAt,FArrow.EndOffsetX)
-  else
-    Result:= BGRAPen.ComputeWidePolylinePoints(points,w,BGRAWhite,pecRound,pjsRound,FCustomPenStyle,options,JoinMiterLimit);
+  result := FPenStroker.ComputePolyline(points,w,ClosedCap);
 end;
 
 function TBGRADefaultBitmap.ComputeWidePolygon(const points: array of TPointF;
   w: single): ArrayOfTPointF;
 begin
-  Result:= BGRAPen.ComputeWidePolylinePoints(points,w,BGRAWhite,LineCap,JoinStyle,FCustomPenStyle,GetPolyLineOption+[plCycle],JoinMiterLimit);
+  result := FPenStroker.ComputePolygon(points,w);
 end;
 
 function TBGRADefaultBitmap.ComputeEllipseContour(x, y, rx, ry: single; quality: single): ArrayOfTPointF;
@@ -4823,6 +4907,32 @@ begin
   affine.Free;
 end;
 
+procedure TBGRADefaultBitmap.PutImageAffine(AMatrix: TAffineMatrix;
+  Source: TBGRACustomBitmap; AResampleFilter: TResampleFilter; AOpacity: Byte);
+begin
+  PutImageAffine(AMatrix*PointF(0,0), AMatrix*PointF(Source.Width,0),
+                 AMatrix*PointF(0,Source.Height),
+                 Source, AResampleFilter,AOpacity);
+end;
+
+procedure TBGRADefaultBitmap.PutImageAffine(AMatrix: TAffineMatrix;
+  Source: TBGRACustomBitmap; AOutputBounds: TRect;
+  AResampleFilter: TResampleFilter; AMode: TDrawMode; AOpacity: Byte);
+begin
+  PutImageAffine(AMatrix*PointF(0,0), AMatrix*PointF(Source.Width,0),
+                 AMatrix*PointF(0,Source.Height),
+                 Source, AOutputBounds,
+                 AResampleFilter, AMode, AOpacity);
+end;
+
+function TBGRADefaultBitmap.GetImageAffineBounds(AMatrix: TAffineMatrix;
+  Source: TBGRACustomBitmap): TRect;
+begin
+  result := GetImageAffineBounds(AMatrix*PointF(0,0), AMatrix*PointF(Source.Width,0),
+                                 AMatrix*PointF(0,Source.Height),
+                                 Source);
+end;
+
 procedure TBGRADefaultBitmap.StretchPutImage(ARect: TRect;
   Source: TBGRACustomBitmap; mode: TDrawMode; AOpacity: byte);
 begin
@@ -5110,6 +5220,13 @@ begin
   Result := BGRAFilters.FilterRotate(self, origin, angle, correctBlur);
 end;
 
+function TBGRADefaultBitmap.FilterAffine(AMatrix: TAffineMatrix;
+  correctBlur: boolean): TBGRACustomBitmap;
+begin
+  Result := NewBitmap(Width,Height);
+  Result.PutImageAffine(AMatrix,self,255,correctBlur);
+end;
+
 function TBGRADefaultBitmap.GetHasTransparentPixels: boolean;
 var
   p: PBGRAPixel;
@@ -5165,6 +5282,26 @@ begin
     Result := BGRAPixelTransparent
   else
     Result := BGRA(round(r / sum),round(g / sum),round(b / sum),round(sum*255/NbPixels));
+end;
+
+function TBGRADefaultBitmap.GetPenJoinStyle: TPenJoinStyle;
+begin
+  result := FPenStroker.JoinStyle;
+end;
+
+procedure TBGRADefaultBitmap.SetPenJoinStyle(const AValue: TPenJoinStyle);
+begin
+  FPenStroker.JoinStyle := AValue;
+end;
+
+function TBGRADefaultBitmap.GetPenMiterLimit: single;
+begin
+  result := FPenStroker.MiterLimit;
+end;
+
+procedure TBGRADefaultBitmap.SetPenMiterLimit(const AValue: single);
+begin
+  FPenStroker.MiterLimit := AValue;
 end;
 
 procedure TBGRADefaultBitmap.SetCanvasOpacity(AValue: byte);
@@ -5487,8 +5624,9 @@ begin
   if n = 0 then
     exit;
   repeat
-    temp := LEtoN(p^ shr 24);
-    p^   := NtoLE(temp or (temp shl 8) or (temp shl 16) or $FF000000);
+    temp := (p^ shr TBGRAPixel_AlphaShift) and $ff;
+    p^   := (temp shl TBGRAPixel_RedShift) or (temp shl TBGRAPixel_GreenShift)
+         or (temp shl TBGRAPixel_BlueShift) or ($ff shl TBGRAPixel_AlphaShift);
     Inc(p);
     Dec(n);
   until n = 0;
@@ -5656,16 +5794,31 @@ begin
 end;
 
 function TBGRADefaultBitmap.GetImageBounds(Channels: TChannels; ANothingValue: Byte = 0): TRect;
+begin
+  result := GetImageBoundsWithin(rect(0,0,Width,Height),Channels,ANothingValue);
+end;
+
+function TBGRADefaultBitmap.GetImageBoundsWithin(const ARect: TRect;
+  Channel: TChannel; ANothingValue: Byte): TRect;
+begin
+  result := GetImageBoundsWithin(ARect,[Channel], ANothingValue);
+end;
+
+function TBGRADefaultBitmap.GetImageBoundsWithin(const ARect: TRect;
+  Channels: TChannels; ANothingValue: Byte): TRect;
 var
   minx, miny, maxx, maxy: integer;
   xb, xb2, yb: integer;
   p:      PDWord;
   colorMask, colorZeros: DWord;
+  actualRect: TRect;
 begin
-  maxx := -1;
-  maxy := -1;
-  minx := self.Width;
-  miny := self.Height;
+  actualRect := EmptyRect;
+  IntersectRect(actualRect,ARect,rect(0,0,Width,Height));
+  maxx := actualRect.Left-1;
+  maxy := actualRect.Top-1;
+  minx := actualRect.Right;
+  miny := actualRect.Bottom;
   colorMask := 0;
   colorZeros := 0;
   if cBlue in Channels then
@@ -5690,10 +5843,10 @@ begin
   end;
   colorMask := NtoLE(colorMask);
   colorZeros := NtoLE(colorZeros);
-  for yb := 0 to self.Height - 1 do
+  for yb := actualRect.Top to actualRect.Bottom-1 do
   begin
-    p := PDWord(self.ScanLine[yb]);
-    for xb := 0 to self.Width - 1 do
+    p := PDWord(self.ScanLine[yb])+actualRect.Left;
+    for xb := actualRect.Left to actualRect.Right - 1 do
     begin
       if (p^ and colorMask) <> colorZeros then
       begin
@@ -5706,8 +5859,8 @@ begin
         if yb > maxy then
           maxy := yb;
 
-        inc(p, self.width-1-xb);
-        for xb2 := self.Width-1 downto xb+1 do
+        inc(p, actualRect.Right-1-xb);
+        for xb2 := actualRect.Right-1 downto xb+1 do
         begin
           if (p^ and colorMask) <> colorZeros then
           begin

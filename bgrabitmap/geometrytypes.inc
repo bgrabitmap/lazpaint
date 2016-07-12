@@ -18,6 +18,8 @@ type
   end;
   {$endif}
 
+  TAffineMatrix = array[1..2,1..3] of single;
+
   {$if FPC_FULLVERSION>=030001}
   TRectF = Types.TRectF;
   {$else}
@@ -205,6 +207,37 @@ type
 
   TBGRAArrowStyle = (asNone, asNormal, asCut, asTriangle, asHollowTriangle, asFlipped, asFlippedCut, asTail, asTailRepeat);
 
+  { TBGRACustomArrow }
+
+  TBGRACustomArrow = class
+  protected
+    function GetIsEndDefined: boolean; virtual; abstract;
+    function GetIsStartDefined: boolean; virtual; abstract;
+    function GetEndOffsetX: single; virtual; abstract;
+    function GetStartOffsetX: single; virtual; abstract;
+    procedure SetEndOffsetX(AValue: single); virtual; abstract;
+    procedure SetStartOffsetX(AValue: single); virtual; abstract;
+    function GetLineCap: TPenEndCap; virtual; abstract;
+    procedure SetLineCap(AValue: TPenEndCap); virtual; abstract;
+  public
+    function ComputeStartAt(const APosition: TPointF; const ADirection: TPointF; const AWidth: single; const ACurrentPos: single): ArrayOfTPointF; virtual; abstract;
+    function ComputeEndAt(const APosition: TPointF; const ADirection: TPointF; const AWidth: single; const ACurrentPos: single): ArrayOfTPointF; virtual; abstract;
+    property IsStartDefined: boolean read GetIsStartDefined;
+    property IsEndDefined: boolean read GetIsEndDefined;
+    property StartOffsetX: single read GetStartOffsetX write SetStartOffsetX;
+    property EndOffsetX: single read GetEndOffsetX write SetEndOffsetX;
+    property LineCap: TPenEndCap read GetLineCap write SetLineCap;
+  end;
+
+  { TBGRACustomPenStroker }
+
+  TBGRACustomPenStroker = class
+      function ComputePolyline(const APoints: array of TPointF; AWidth: single; AClosedCap: boolean = true): ArrayOfTPointF; virtual; abstract;
+      function ComputePolyline(const APoints: array of TPointF; AWidth: single; APenColor: TBGRAPixel; AClosedCap: boolean = true): ArrayOfTPointF; virtual; abstract;
+      function ComputePolylineAutoCycle(const APoints: array of TPointF; AWidth: single): ArrayOfTPointF; virtual; abstract;
+      function ComputePolygon(const APoints: array of TPointF; AWidth: single): ArrayOfTPointF; virtual; abstract;
+  end;
+
 type
   {* Point in 3D with single-precision floating point coordinates }
   TPoint3D = record x,y,z: single;
@@ -287,6 +320,8 @@ type
     procedure copyTo(dest: IBGRAPath);
     {** Returns the content of the path as an array of points }
     function getPoints: ArrayOfTPointF;
+    {** Returns the content of the path as an array of points with the transformation specified by ''AMatrix'' }
+    function getPoints(AMatrix: TAffineMatrix): ArrayOfTPointF;
     {** Returns a cursor to go through the path. The cursor must be freed by calling ''Free''. }
     function getCursor: TBGRACustomPathCursor;
   end;
@@ -405,6 +440,8 @@ type
           ''nbInter'' receives the number of computed intersections. ''windingMode'' specifies if
           the winding method must be used to determine what is inside of the shape }
       procedure ComputeAndSort(cury: single; var inter: ArrayOfTIntersectionInfo; out nbInter: integer; windingMode: boolean); virtual; abstract;
+
+      function GetSliceIndex: integer; virtual; abstract;
   end;
 
 type

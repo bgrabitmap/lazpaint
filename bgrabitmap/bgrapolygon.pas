@@ -32,7 +32,7 @@ unit BGRAPolygon;
 interface
 
 uses
-  Classes, SysUtils, BGRAGraphics, BGRABitmapTypes, BGRAFillInfo;
+  Classes, SysUtils, BGRAGraphics, BGRABitmapTypes, BGRAFillInfo, BGRAPath;
 
 procedure FillShapeAntialias(bmp: TBGRACustomBitmap; shapeInfo: TBGRACustomFillInfo;
   c: TBGRAPixel; EraseMode: boolean; scan: IBGRAScanner; NonZeroWinding: boolean; LinearBlend: boolean = false);
@@ -58,6 +58,7 @@ type
       end;
     procedure AddShape(AInfo: TBGRACustomFillInfo; AInternalInfo: boolean; ATexture: IBGRAScanner; AInternalTexture: TObject; AColor: TBGRAPixel);
     function CheckRectangleBorderBounds(var x1, y1, x2, y2: single; w: single): boolean;
+    procedure InternalAddStroke(const APoints: array of TPointF; AClosed: boolean; AData: Pointer);
   public
     FillMode : TFillMode;
     PolygonOrder: TPolygonOrder;
@@ -69,6 +70,18 @@ type
     procedure AddShape(AShape: TBGRACustomFillInfo; ATexture: IBGRAScanner);
     procedure AddPolygon(const points: array of TPointF; AColor: TBGRAPixel);
     procedure AddPolygon(const points: array of TPointF; ATexture: IBGRAScanner);
+    procedure AddPathStroke(APath: TBGRAPath; AColor: TBGRAPixel; AWidth: single; AStroker: TBGRACustomPenStroker);
+    procedure AddPathStroke(APath: TBGRAPath; ATexture: IBGRAScanner; AWidth: single; AStroker: TBGRACustomPenStroker);
+    procedure AddPathStroke(APath: TBGRAPath; AMatrix: TAffineMatrix; AColor: TBGRAPixel; AWidth: single; AStroker: TBGRACustomPenStroker);
+    procedure AddPathStroke(APath: TBGRAPath; AMatrix: TAffineMatrix; ATexture: IBGRAScanner; AWidth: single; AStroker: TBGRACustomPenStroker);
+    procedure AddPathFill(APath: TBGRAPath; AColor: TBGRAPixel);
+    procedure AddPathFill(APath: TBGRAPath; ATexture: IBGRAScanner);
+    procedure AddPathFill(APath: TBGRAPath; AMatrix: TAffineMatrix; AColor: TBGRAPixel);
+    procedure AddPathFill(APath: TBGRAPath; AMatrix: TAffineMatrix; ATexture: IBGRAScanner);
+    procedure AddPolylineStroke(const points: array of TPointF; AColor: TBGRAPixel; AWidth: single; AStroker: TBGRACustomPenStroker);
+    procedure AddPolylineStroke(const points: array of TPointF; ATexture: IBGRAScanner; AWidth: single; AStroker: TBGRACustomPenStroker);
+    procedure AddPolygonStroke(const points: array of TPointF; AColor: TBGRAPixel; AWidth: single; AStroker: TBGRACustomPenStroker);
+    procedure AddPolygonStroke(const points: array of TPointF; ATexture: IBGRAScanner; AWidth: single; AStroker: TBGRACustomPenStroker);
     procedure AddTriangleLinearColor(pt1, pt2, pt3: TPointF; c1, c2, c3: TBGRAPixel);
     procedure AddTriangleLinearMapping(pt1, pt2, pt3: TPointF; texture: IBGRAScanner; tex1, tex2, tex3: TPointF);
     procedure AddQuadLinearColor(pt1, pt2, pt3, pt4: TPointF; c1, c2, c3, c4: TBGRAPixel);
@@ -125,6 +138,14 @@ procedure BorderAndFillRoundRectangleAntialias(bmp: TBGRACustomBitmap; x1, y1, x
 implementation
 
 uses Math, BGRABlend, BGRAGradientScanner, BGRATransform;
+
+type
+  TPathStrokeData = record
+    Stroker: TBGRACustomPenStroker;
+    Texture: IBGRAScanner;
+    Color: TBGRAPixel;
+    Width: Single;
+  end;
 
 procedure FillShapeAntialias(bmp: TBGRACustomBitmap; shapeInfo: TBGRACustomFillInfo;
   c: TBGRAPixel; EraseMode: boolean; scan: IBGRAScanner; NonZeroWinding: boolean; LinearBlend: boolean);
@@ -715,6 +736,23 @@ begin
   result := (x2-x1 > w) and (y2-y1 > w);
 end;
 
+procedure TBGRAMultishapeFiller.InternalAddStroke(
+  const APoints: array of TPointF; AClosed: boolean; AData: Pointer);
+var pts: ArrayOfTPointF;
+begin
+  with TPathStrokeData(AData^) do
+  begin
+    if AClosed then
+      pts := Stroker.ComputePolygon(APoints, Width)
+    else
+      pts := Stroker.ComputePolylineAutoCycle(APoints, Width);
+    if Texture <> nil then
+      AddPolygon(pts, Texture)
+    else
+      AddPolygon(pts, Color);
+  end;
+end;
+
 constructor TBGRAMultishapeFiller.Create;
 begin
   nbShapes := 0;
@@ -761,6 +799,93 @@ procedure TBGRAMultishapeFiller.AddPolygon(const points: array of TPointF;
 begin
   if length(points) <= 2 then exit;
   AddShape(TOnePassFillPolyInfo.Create(points),True,ATexture,nil,BGRAPixelTransparent);
+end;
+
+procedure TBGRAMultishapeFiller.AddPathStroke(APath: TBGRAPath;
+  AColor: TBGRAPixel; AWidth: single; AStroker: TBGRACustomPenStroker);
+begin
+  AddPathStroke(APath,AffineMatrixIdentity,AColor,AWidth,AStroker);
+end;
+
+procedure TBGRAMultishapeFiller.AddPathStroke(APath: TBGRAPath;
+  ATexture: IBGRAScanner; AWidth: single; AStroker: TBGRACustomPenStroker);
+begin
+  AddPathStroke(APath,AffineMatrixIdentity,ATexture,AWidth,AStroker);
+end;
+
+procedure TBGRAMultishapeFiller.AddPathStroke(APath: TBGRAPath;
+  AMatrix: TAffineMatrix; AColor: TBGRAPixel; AWidth: single;
+  AStroker: TBGRACustomPenStroker);
+var data: TPathStrokeData;
+begin
+  data.Stroker := AStroker;
+  data.Color := AColor;
+  data.Texture := nil;
+  data.Width := AWidth;
+  APath.stroke(@InternalAddStroke, AMatrix, 0.1, @data);
+end;
+
+procedure TBGRAMultishapeFiller.AddPathStroke(APath: TBGRAPath;
+  AMatrix: TAffineMatrix; ATexture: IBGRAScanner; AWidth: single;
+  AStroker: TBGRACustomPenStroker);
+var data: TPathStrokeData;
+begin
+  data.Stroker := AStroker;
+  data.Color := BGRAPixelTransparent;
+  data.Texture := ATexture;
+  data.Width := AWidth;
+  APath.stroke(@InternalAddStroke, AMatrix, 0.1, @data);
+end;
+
+procedure TBGRAMultishapeFiller.AddPathFill(APath: TBGRAPath; AColor: TBGRAPixel);
+begin
+  AddPolygon(APath.ToPoints, AColor);
+end;
+
+procedure TBGRAMultishapeFiller.AddPathFill(APath: TBGRAPath;
+  ATexture: IBGRAScanner);
+begin
+  AddPolygon(APath.ToPoints, ATexture);
+end;
+
+procedure TBGRAMultishapeFiller.AddPathFill(APath: TBGRAPath;
+  AMatrix: TAffineMatrix; AColor: TBGRAPixel);
+begin
+  AddPolygon(APath.ToPoints(AMatrix), AColor);
+end;
+
+procedure TBGRAMultishapeFiller.AddPathFill(APath: TBGRAPath;
+  AMatrix: TAffineMatrix; ATexture: IBGRAScanner);
+begin
+  AddPolygon(APath.ToPoints(AMatrix), ATexture);
+end;
+
+procedure TBGRAMultishapeFiller.AddPolylineStroke(
+  const points: array of TPointF; AColor: TBGRAPixel; AWidth: single;
+  AStroker: TBGRACustomPenStroker);
+begin
+  AddPolygon(AStroker.ComputePolyline(points,AWidth,AColor), AColor);
+end;
+
+procedure TBGRAMultishapeFiller.AddPolylineStroke(
+  const points: array of TPointF; ATexture: IBGRAScanner; AWidth: single;
+  AStroker: TBGRACustomPenStroker);
+begin
+  AddPolygon(AStroker.ComputePolyline(points,AWidth), ATexture);
+end;
+
+procedure TBGRAMultishapeFiller.AddPolygonStroke(
+  const points: array of TPointF; AColor: TBGRAPixel; AWidth: single;
+  AStroker: TBGRACustomPenStroker);
+begin
+  AddPolygon(AStroker.ComputePolygon(points,AWidth), AColor);
+end;
+
+procedure TBGRAMultishapeFiller.AddPolygonStroke(
+  const points: array of TPointF; ATexture: IBGRAScanner; AWidth: single;
+  AStroker: TBGRACustomPenStroker);
+begin
+  AddPolygon(AStroker.ComputePolygon(points,AWidth), ATexture);
 end;
 
 procedure TBGRAMultishapeFiller.AddTriangleLinearColor(pt1, pt2, pt3: TPointF; c1, c2,

@@ -17,7 +17,8 @@ unit BGRACanvas2D;
 interface
 
 uses
-  Classes, SysUtils, BGRAGraphics, BGRABitmapTypes, BGRATransform, BGRAGradientScanner, BGRAPath;
+  Classes, SysUtils, BGRAGraphics, BGRABitmapTypes, BGRATransform,
+  BGRAGradientScanner, BGRAPath, BGRAPen;
 
 type
   IBGRACanvasTextureProvider2D = interface
@@ -54,10 +55,7 @@ type
     textBaseline: string;
 
     lineWidth: single;
-    lineCap: TPenEndCap;
-    lineJoin: TPenJoinStyle;
-    lineStyle: TBGRAPenStyle;
-    miterLimit: single;
+    penStroker: TBGRAPenStroker;
 
     shadowOffsetX,shadowOffsetY,shadowBlur: single;
     shadowColor: TBGRAPixel;
@@ -152,6 +150,7 @@ type
     function GetDrawMode: TDrawMode;
     procedure copyTo({%H-}dest: IBGRAPath); //IBGRAPath
     function getPoints: ArrayOfTPointF; //IBGRAPath
+    function getPoints(AMatrix: TAffineMatrix): ArrayOfTPointF; //IBGRAPath
     function getCursor: TBGRACustomPathCursor; //IBGRAPath
   public
     antialiasing, linearBlend: boolean;
@@ -291,7 +290,7 @@ type
 
 implementation
 
-uses Types, Math, BGRAPen, BGRAFillInfo, BGRAPolygon, BGRABlend, FPWriteJPEG, FPWriteBMP, base64;
+uses Types, Math, BGRAFillInfo, BGRAPolygon, BGRABlend, FPWriteJPEG, FPWriteBMP, base64;
 
 type
   TColorStop = record
@@ -539,10 +538,11 @@ begin
   textBaseline := 'alphabetic';
 
   lineWidth := 1;
-  lineCap := pecFlat;
-  lineJoin := pjsMiter;
-  lineStyle := DuplicatePenStyle(SolidPenStyle);
-  miterLimit := 10;
+  penStroker := TBGRAPenStroker.Create;
+  penStroker.LineCap := pecFlat;
+  penStroker.JoinStyle := pjsMiter;
+  penStroker.CustomPenStyle := DuplicatePenStyle(SolidPenStyle);
+  penStroker.MiterLimit := 10;
 
   shadowOffsetX := 0;
   shadowOffsetY := 0;
@@ -571,10 +571,11 @@ begin
   result.fontStyle := fontStyle;
 
   result.lineWidth := lineWidth;
-  result.lineCap := lineCap;
-  result.lineJoin := lineJoin;
-  result.lineStyle := DuplicatePenStyle(lineStyle);
-  result.miterLimit := miterLimit;
+  result.penStroker := TBGRAPenStroker.Create;
+  result.penStroker.LineCap := penStroker.LineCap;
+  result.penStroker.JoinStyle := penStroker.JoinStyle;
+  result.penStroker.CustomPenStyle := DuplicatePenStyle(penStroker.CustomPenStyle);
+  result.penStroker.MiterLimit := penStroker.MiterLimit;
 
   result.shadowOffsetX := shadowOffsetX;
   result.shadowOffsetY := shadowOffsetY;
@@ -586,6 +587,7 @@ end;
 destructor TBGRACanvasState2D.Destroy;
 begin
   clipMask.Free;
+  penStroker.Free;
   inherited Destroy;
 end;
 
@@ -601,7 +603,7 @@ end;
 
 function TBGRACanvas2D.GetLineCap: string;
 begin
-  case currentState.lineCap of
+  case currentState.penStroker.LineCap of
     pecRound: result := 'round';
     pecSquare: result := 'square';
     else result := 'butt';
@@ -610,12 +612,12 @@ end;
 
 function TBGRACanvas2D.GetLineCapLCL: TPenEndCap;
 begin
-  result := currentState.lineCap;
+  result := currentState.penStroker.LineCap;
 end;
 
 function TBGRACanvas2D.GetlineJoin: string;
 begin
-  case currentState.lineJoin of
+  case currentState.penStroker.JoinStyle of
     pjsBevel: result := 'bevel';
     pjsRound: result := 'round';
     else result := 'miter';
@@ -624,12 +626,12 @@ end;
 
 function TBGRACanvas2D.GetlineJoinLCL: TPenJoinStyle;
 begin
-  result := currentState.lineJoin;
+  result := currentState.penStroker.JoinStyle;
 end;
 
 function TBGRACanvas2D.getLineStyle: TBGRAPenStyle;
 begin
-  result := DuplicatePenStyle(currentState.lineStyle);
+  result := DuplicatePenStyle(currentState.penStroker.CustomPenStyle);
 end;
 
 function TBGRACanvas2D.GetLineWidth: single;
@@ -644,7 +646,7 @@ end;
 
 function TBGRACanvas2D.GetMiterLimit: single;
 begin
-  result := currentState.miterLimit;
+  result := currentState.penStroker.MiterLimit;
 end;
 
 function TBGRACanvas2D.GetPixelCenteredCoordinates: boolean;
@@ -875,26 +877,26 @@ end;
 procedure TBGRACanvas2D.SetLineCap(const AValue: string);
 begin
   if CompareText(AValue,'round')=0 then
-    currentState.lineCap := pecRound else
+    currentState.penStroker.LineCap := pecRound else
   if CompareText(AValue,'square')=0 then
-    currentState.lineCap := pecSquare
+    currentState.penStroker.LineCap := pecSquare
   else
-    currentState.lineCap := pecFlat;
+    currentState.penStroker.LineCap := pecFlat;
 end;
 
 procedure TBGRACanvas2D.SetLineCapLCL(AValue: TPenEndCap);
 begin
-  currentState.lineCap := AValue;
+  currentState.penStroker.LineCap := AValue;
 end;
 
 procedure TBGRACanvas2D.SetLineJoin(const AValue: string);
 begin
   if CompareText(AValue,'round')=0 then
-    currentState.lineJoin := pjsRound else
+    currentState.penStroker.JoinStyle := pjsRound else
   if CompareText(AValue,'bevel')=0 then
-    currentState.lineJoin := pjsBevel
+    currentState.penStroker.JoinStyle := pjsBevel
   else
-    currentState.lineJoin := pjsMiter;
+    currentState.penStroker.JoinStyle := pjsMiter;
 end;
 
 procedure TBGRACanvas2D.FillPoly(const points: array of TPointF);
@@ -981,8 +983,7 @@ begin
 
   if currentState.lineWidth > 0 then
   begin
-    contour := ComputeWidePolylinePoints(points,currentState.lineWidth,BGRAPixelTransparent,
-        currentState.lineCap,currentState.lineJoin,currentState.lineStyle,[plAutoCycle],miterLimit);
+    contour := currentState.penStroker.ComputePolylineAutocycle(points,currentState.lineWidth);
 
     if currentState.clipMask <> nil then
     begin
@@ -1015,12 +1016,12 @@ end;
 
 procedure TBGRACanvas2D.SetLineJoinLCL(AValue: TPenJoinStyle);
 begin
-  currentState.lineJoin := AValue;
+  currentState.penStroker.JoinStyle := AValue;
 end;
 
 procedure TBGRACanvas2D.lineStyle(const AValue: array of single);
 begin
-  currentState.lineStyle := DuplicatePenStyle(AValue);
+  currentState.penStroker.CustomPenStyle := DuplicatePenStyle(AValue);
 end;
 
 procedure TBGRACanvas2D.lineStyle(AStyle: TPenStyle);
@@ -1066,7 +1067,7 @@ end;
 
 procedure TBGRACanvas2D.SetMiterLimit(const AValue: single);
 begin
-  currentState.miterLimit := AValue;
+  currentState.penStroker.MiterLimit := AValue;
 end;
 
 procedure TBGRACanvas2D.SetPixelCenteredCoordinates(const AValue: boolean);
@@ -1132,8 +1133,7 @@ var
   contour: array of TPointF;
 begin
   if (length(points)= 0) or (currentState.lineWidth = 0) or (surface = nil) then exit;
-  contour := ComputeWidePolylinePoints(points,currentState.lineWidth,BGRAPixelTransparent,
-      currentState.lineCap,currentState.lineJoin,currentState.lineStyle,[plAutoCycle],miterLimit);
+  contour := currentState.penStroker.ComputePolylineAutocycle(points,currentState.lineWidth);
 
   If hasShadow then DrawShadow(contour,[]);
   if currentState.clipMask <> nil then
@@ -1364,6 +1364,13 @@ begin
   result := GetCurrentPathAsPoints;
 end;
 
+function TBGRACanvas2D.getPoints(AMatrix: TAffineMatrix): ArrayOfTPointF;
+begin
+  result := GetCurrentPathAsPoints;
+  if not IsAffineMatrixIdentity(AMatrix) then
+    result := AMatrix*result;
+end;
+
 function TBGRACanvas2D.getCursor: TBGRACustomPathCursor;
 begin
   result := nil;
@@ -1464,6 +1471,7 @@ end;
 
 procedure TBGRACanvas2D.translate(x, y: single);
 begin
+  if (x = 0) and (y = 0) then exit;
   currentState.matrix *= AffineMatrixTranslation(x,y);
 end;
 

@@ -17,6 +17,40 @@ var   //predefined pen styles
   SolidPenStyle, DashPenStyle, DotPenStyle, DashDotPenStyle, DashDotDotPenStyle, ClearPenStyle: TBGRAPenStyle;
 
 type
+
+  { TBGRAPenStroker }
+
+  TBGRAPenStroker = class(TBGRACustomPenStroker)
+  private
+    FArrowOwned: boolean;
+    protected
+      { Pen style can be defined by PenStyle property of by CustomPenStyle property.
+      When PenStyle property is assigned, CustomPenStyle property is assigned the actual
+      pen pattern. }
+      FCustomPenStyle: TBGRAPenStyle;
+      FPenStyle: TPenStyle;
+      FArrow: TBGRACustomArrow;
+
+      procedure SetPenStyle(AValue: TPenStyle);
+      procedure SetCustomPenStyle(AValue: TBGRAPenStyle);
+    public
+      LineCap: TPenEndCap;
+      JoinStyle: TPenJoinStyle;
+      MiterLimit: single;
+
+      constructor Create;
+      destructor Destroy; override;
+      function ComputePolyline(const APoints: array of TPointF; AWidth: single; AClosedCap: boolean = true): ArrayOfTPointF; override;
+      function ComputePolyline(const APoints: array of TPointF; AWidth: single; APenColor: TBGRAPixel; AClosedCap: boolean = true): ArrayOfTPointF; override;
+      function ComputePolylineAutocycle(const APoints: array of TPointF; AWidth: single): ArrayOfTPointF; override;
+      function ComputePolygon(const APoints: array of TPointF; AWidth: single): ArrayOfTPointF; override;
+
+      property PenStyle: TPenStyle read FPenStyle write SetPenStyle;
+      property CustomPenStyle: TBGRAPenStyle read FCustomPenStyle write SetCustomPenStyle;
+      property Arrow: TBGRACustomArrow read FArrow write FArrow;
+      property ArrowOwned: boolean read FArrowOwned write FArrowOwned;
+  end;
+
   TBGRAPolyLineOption = (plRoundCapOpen, //specifies that the line ending is opened
                          plCycle,        //specifies that it is a polygon
                          plAutoCycle,    //specifies that a cycle must be used if the last point is the first point
@@ -25,21 +59,15 @@ type
   TBGRAPolyLineOptions = set of TBGRAPolyLineOption;
   TComputeArrowHeadProc = function(const APosition: TPointF; const ADirection: TPointF; const AWidth: single; const ACurrentPos: single): ArrayOfTPointF of object;
 
-{ Draw a polyline with specified parameters. If a scanner is specified, it is used as a texture.
-  Else the pencolor parameter is used as a solid color. }
-procedure BGRAPolyLine(bmp: TBGRACustomBitmap; const linepts: array of TPointF;
-     width: single; pencolor: TBGRAPixel; linecap: TPenEndCap; joinstyle: TPenJoinStyle; const penstyle: TBGRAPenStyle;
-     options: TBGRAPolyLineOptions; scan: IBGRAScanner = nil; miterLimit: single = 2; arrowStart: TComputeArrowHeadProc = nil; arrowStartPos: single = 0; arrowEnd: TComputeArrowHeadProc = nil; arrowEndPos: single = 0);
-
 { Compute the path for a polyline }
 function ComputeWidePolylinePoints(const linepts: array of TPointF; width: single;
           pencolor: TBGRAPixel; linecap: TPenEndCap; joinstyle: TPenJoinStyle; const penstyle: TBGRAPenStyle;
-          options: TBGRAPolyLineOptions; miterLimit: single = 2; arrowStart: TComputeArrowHeadProc = nil; wantedStartArrowPos: single = 0; arrowEnd: TComputeArrowHeadProc = nil; WantedEndArrowPos: single = 0): ArrayOfTPointF;
+          options: TBGRAPolyLineOptions; miterLimit: single = 2; arrow: TBGRACustomArrow = nil): ArrayOfTPointF;
 
 { Compute the path for a poly-polyline }
 function ComputeWidePolyPolylinePoints(const linepts: array of TPointF; width: single;
           pencolor: TBGRAPixel; linecap: TPenEndCap; joinstyle: TPenJoinStyle; const penstyle: TBGRAPenStyle;
-          options: TBGRAPolyLineOptions; miterLimit: single = 2; arrowStart: TComputeArrowHeadProc = nil; arrowStartPos: single = 0; arrowEnd: TComputeArrowHeadProc = nil; arrowEndPos: single = 0): ArrayOfTPointF;
+          options: TBGRAPolyLineOptions; miterLimit: single = 2; arrow: TBGRACustomArrow = nil): ArrayOfTPointF;
 
 {--------------------- Pixel line procedures --------------------------}
 { These procedures take integer coordinates as parameters and do not handle pen styles and width.
@@ -745,22 +773,9 @@ begin
   setlength(styledPts,nbStyled);
 end;
 
-procedure BGRAPolyLine(bmp: TBGRACustomBitmap; const linepts: array of TPointF; width: single;
-          pencolor: TBGRAPixel; linecap: TPenEndCap; joinstyle: TPenJoinStyle; const penstyle: TBGRAPenStyle;
-          options: TBGRAPolyLineOptions; scan: IBGRAScanner; miterLimit: single; arrowStart: TComputeArrowHeadProc; arrowStartPos: single; arrowEnd: TComputeArrowHeadProc; arrowEndPos: single);
-var
-  widePolylinePoints: ArrayOfTPointF;
-begin
-  widePolylinePoints := ComputeWidePolylinePoints(linepts,width,pencolor,linecap,joinstyle,penstyle,options,miterLimit,arrowStart,arrowStartPos,arrowEnd,arrowEndPos);
-  if scan <> nil then
-    bmp.FillPolyAntialias(widePolylinePoints,scan)
-  else
-    bmp.FillPolyAntialias(widePolylinePoints,pencolor);
-end;
-
 function ComputeWidePolylinePoints(const linepts: array of TPointF; width: single;
           pencolor: TBGRAPixel; linecap: TPenEndCap; joinstyle: TPenJoinStyle; const penstyle: TBGRAPenStyle;
-          options: TBGRAPolyLineOptions; miterLimit: single; arrowStart: TComputeArrowHeadProc; wantedStartArrowPos: single; arrowEnd: TComputeArrowHeadProc; wantedEndArrowPos: single): ArrayOfTPointF;
+          options: TBGRAPolyLineOptions; miterLimit: single; arrow: TBGRACustomArrow): ArrayOfTPointF;
 var
   startArrowPos, startArrowDir, endArrowPos, endArrowDir: TPointF;
   startArrowLinePos, endArrowLinePos: single;
@@ -986,12 +1001,12 @@ var
     finalNb,i,delta: integer;
     hasStart,hasEnd: boolean;
   begin
-    if assigned(arrowStart) and not isEmptyPointF(startArrowPos) then
-      arrowStartData := arrowStart(startArrowPos, startArrowDir, width, startArrowLinePos)
+    if assigned(arrow) and not isEmptyPointF(startArrowPos) then
+      arrowStartData := arrow.ComputeStartAt(startArrowPos, startArrowDir, width, startArrowLinePos)
     else
       arrowStartData := nil;
-    if assigned(arrowEnd) and not isEmptyPointF(endArrowPos) then
-      arrowEndData := arrowEnd(endArrowPos, endArrowDir, width, endArrowLinePos)
+    if assigned(arrow) and not isEmptyPointF(endArrowPos) then
+      arrowEndData := arrow.ComputeEndAt(endArrowPos, endArrowDir, width, endArrowLinePos)
     else
       arrowEndData := nil;
     hasStart := length(arrowStartData)>0;
@@ -1033,6 +1048,7 @@ var
   pt1,pt2,pt3,pt4: TPointF;
   linePos: single;
   startArrowDone,endArrowDone: boolean;
+  wantedStartArrowPos,wantedEndArrowPos: single;
 
 begin
   Result := nil;
@@ -1042,7 +1058,7 @@ begin
   for i := 0 to high(linepts) do
     if isEmptyPointF(linepts[i]) then
     begin
-      result := ComputeWidePolyPolylinePoints(linepts,width,pencolor,linecap,joinstyle,penstyle,options,miterLimit);
+      result := ComputeWidePolyPolylinePoints(linepts,width,pencolor,linecap,joinstyle,penstyle,options,miterLimit,arrow);
       exit;
     end;
 
@@ -1067,7 +1083,7 @@ begin
       pts[nbPts]:= linePts[i];
       inc(nbPts);
     end;
-  if (nbPts > 1) and
+  if (nbPts > 1) and (plCycle in options) and
       (pts[nbPts-1] = pts[0]) then dec(nbPts);
   if (plCycle in options) and (nbPts > 2) then
   begin
@@ -1095,8 +1111,20 @@ begin
   startArrowPos := EmptyPointF;
   endArrowDir := EmptyPointF;
   endArrowPos := EmptyPointF;
-  startArrowDone := @arrowStart = nil;
-  endArrowDone := @arrowEnd = nil;
+  if Assigned(arrow) then
+  begin
+    wantedStartArrowPos:= arrow.StartOffsetX;
+    wantedEndArrowPos:= arrow.EndOffsetX;
+    startArrowDone := not arrow.IsStartDefined;
+    endArrowDone := not arrow.IsEndDefined;
+  end
+  else
+  begin
+    wantedStartArrowPos:= 0;
+    wantedEndArrowPos:= 0;
+    startArrowDone := true;
+    endArrowDone := true;
+  end;
 
   //init computed points arrays
   setlength(compPts, length(pts)*2+4);
@@ -1411,7 +1439,7 @@ end;
 function ComputeWidePolyPolylinePoints(const linepts: array of TPointF;
   width: single; pencolor: TBGRAPixel; linecap: TPenEndCap;
   joinstyle: TPenJoinStyle; const penstyle: TBGRAPenStyle;
-  options: TBGRAPolyLineOptions; miterLimit: single; arrowStart: TComputeArrowHeadProc; arrowStartPos: single; arrowEnd: TComputeArrowHeadProc; arrowEndPos: single): ArrayOfTPointF;
+  options: TBGRAPolyLineOptions; miterLimit: single; arrow: TBGRACustomArrow): ArrayOfTPointF;
 
 var
   results: array of array of TPointF;
@@ -1428,7 +1456,7 @@ var
       setlength(subPts,endIndexP1-startIndex);
       for j := startIndex to endIndexP1-1 do
         subPts[j-startIndex] := linepts[j];
-      tempWidePolyline := ComputeWidePolylinePoints(subPts,width,pencolor,linecap,joinstyle,penstyle,options,miterLimit,arrowStart,arrowStartPos,arrowEnd,arrowEndPos);
+      tempWidePolyline := ComputeWidePolylinePoints(subPts,width,pencolor,linecap,joinstyle,penstyle,options,miterLimit,arrow);
       if length(results) = nbresults then
         setlength(results,(nbresults+1)*2);
       results[nbResults] := tempWidePolyline;
@@ -1468,6 +1496,84 @@ begin
       inc(start);
     end;
   end;
+end;
+
+{ TBGRAPenStroker }
+
+procedure TBGRAPenStroker.SetCustomPenStyle(AValue: TBGRAPenStyle);
+begin
+  if FCustomPenStyle=AValue then Exit;
+  FCustomPenStyle:=AValue;
+  if IsSolidPenStyle(AValue) then FPenStyle := psSolid
+  else if IsClearPenStyle(AValue) then FPenStyle:= psClear
+  else if AValue = DashPenStyle then FPenStyle:= psDash
+  else if AValue = DotPenStyle then FPenStyle := psDot
+  else if AValue = DashDotPenStyle then FPenStyle:= psDashDot
+  else if AValue = DashDotDotPenStyle then FPenStyle:= psDashDotDot
+  else FPenStyle := psPattern;
+end;
+
+procedure TBGRAPenStroker.SetPenStyle(AValue: TPenStyle);
+begin
+  if FPenStyle=AValue then Exit;
+  Case AValue of
+  psSolid: FCustomPenStyle := SolidPenStyle;
+  psDash: FCustomPenStyle := DashPenStyle;
+  psDot: FCustomPenStyle := DotPenStyle;
+  psDashDot: FCustomPenStyle := DashDotPenStyle;
+  psDashDotDot: FCustomPenStyle := DashDotDotPenStyle;
+  else FCustomPenStyle := ClearPenStyle;
+  end;
+  FPenStyle := AValue;
+end;
+
+constructor TBGRAPenStroker.Create;
+begin
+  PenStyle := psSolid;
+  LineCap := pecRound;
+  JoinStyle := pjsBevel;
+  MiterLimit := 2;
+end;
+
+destructor TBGRAPenStroker.Destroy;
+begin
+  if ArrowOwned then FreeAndNil(FArrow);
+  inherited Destroy;
+end;
+
+function TBGRAPenStroker.ComputePolyline(const APoints: array of TPointF;
+  AWidth: single; AClosedCap: boolean): ArrayOfTPointF;
+var
+  c: TBGRAPixel;
+begin
+  if not AClosedCap then
+    c := BGRAWhite //needed for alpha junction
+  else
+    c := BGRAPixelTransparent;
+  result := ComputePolyline(APoints,AWidth,c,AClosedCap);
+end;
+
+function TBGRAPenStroker.ComputePolyline(const APoints: array of TPointF;
+  AWidth: single; APenColor: TBGRAPixel; AClosedCap: boolean): ArrayOfTPointF;
+var options: TBGRAPolyLineOptions;
+begin
+  options := [];
+  if Assigned(Arrow) and Arrow.IsStartDefined then options += [plNoStartCap];
+  if Assigned(Arrow) and Arrow.IsEndDefined then options += [plNoEndCap];
+  if not AClosedCap then options += [plRoundCapOpen];
+  result := BGRAPen.ComputeWidePolylinePoints(APoints, AWidth, APenColor, LineCap, JoinStyle, CustomPenStyle, options, MiterLimit, Arrow);
+end;
+
+function TBGRAPenStroker.ComputePolylineAutocycle(
+  const APoints: array of TPointF; AWidth: single): ArrayOfTPointF;
+begin
+  result := BGRAPen.ComputeWidePolylinePoints(APoints, AWidth, BGRAPixelTransparent, LineCap, JoinStyle, CustomPenStyle, [plAutoCycle], MiterLimit, Arrow);
+end;
+
+function TBGRAPenStroker.ComputePolygon(const APoints: array of TPointF;
+  AWidth: single): ArrayOfTPointF;
+begin
+  result := BGRAPen.ComputeWidePolylinePoints(APoints, AWidth, BGRAPixelTransparent, LineCap, JoinStyle, CustomPenStyle, [plCycle], MiterLimit);
 end;
 
 initialization

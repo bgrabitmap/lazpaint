@@ -294,9 +294,8 @@ type
 
   TBGLPath = class(TBGRAPath)
   private
-    FGLDrawProcColor: TBGRAPixel;
-    FGLDrawProcCanvas: TBGLCustomCanvas;
-    procedure GLDrawProc(const APoints: array of TPointF; AClosed: boolean);
+    procedure GLDrawProc(const APoints: array of TPointF; AClosed: boolean; AData: pointer);
+    procedure GLFillProc(const APoints: array of TPointF; AData: pointer);
   public
     procedure stroke(ACanvas: TBGLCustomCanvas; AColor: TBGRAPixel; AAcceptedDeviation: single = 0.1); overload;
     procedure fillConvex(ACanvas: TBGLCustomCanvas; AColor: TBGRAPixel; AAcceptedDeviation: single = 0.1; APixelCenteredCoordinates: boolean = true);
@@ -305,6 +304,17 @@ type
 implementation
 
 uses Math, Types, BGRAGradientScanner;
+
+type
+  TGLStrokeData = record
+    Color: TBGRAPixel;
+    Canvas: TBGLCustomCanvas;
+  end;
+  TGLFillData = record
+    Color: TBGRAPixel;
+    Canvas: TBGLCustomCanvas;
+    PixelCenteredCoordinates: boolean;
+  end;
 
 { TAttributeVariable }
 
@@ -388,25 +398,37 @@ end;
 
 { TBGLPath }
 
-procedure TBGLPath.GLDrawProc(const APoints: array of TPointF; AClosed: boolean
-  );
+procedure TBGLPath.GLDrawProc(const APoints: array of TPointF;
+  AClosed: boolean; AData: pointer);
 begin
+  with TGLStrokeData(AData^) do
   if AClosed then
-    FGLDrawProcCanvas.Polygons(APoints, FGLDrawProcColor)
+    Canvas.Polygons(APoints, Color)
   else
-    FGLDrawProcCanvas.Polylines(APoints, FGLDrawProcColor);
+    Canvas.Polylines(APoints, Color);
+end;
+
+procedure TBGLPath.GLFillProc(const APoints: array of TPointF; AData: pointer);
+begin
+  with TGLFillData(AData^) do
+    Canvas.FillPolyConvex(APoints,Color,PixelCenteredCoordinates);
 end;
 
 procedure TBGLPath.stroke(ACanvas: TBGLCustomCanvas; AColor: TBGRAPixel; AAcceptedDeviation: single);
+var data: TGLStrokeData;
 begin
-  FGLDrawProcColor := AColor;
-  FGLDrawProcCanvas := ACanvas;
-  InternalDraw(@GLDrawProc, AAcceptedDeviation);
+  data.Color := AColor;
+  data.Canvas := ACanvas;
+  stroke(@GLDrawProc, AffineMatrixIdentity, AAcceptedDeviation, @data);
 end;
 
 procedure TBGLPath.fillConvex(ACanvas: TBGLCustomCanvas; AColor: TBGRAPixel; AAcceptedDeviation: single; APixelCenteredCoordinates: boolean);
+var data: TGLFillData;
 begin
-  ACanvas.FillPolyConvex(ToPoints(AAcceptedDeviation),AColor,APixelCenteredCoordinates);
+  data.Color := AColor;
+  data.Canvas := ACanvas;
+  data.PixelCenteredCoordinates := APixelCenteredCoordinates;
+  fill(@GLFillProc, AffineMatrixIdentity, AAcceptedDeviation, @data);
 end;
 
 { TBGLCustomCanvas }

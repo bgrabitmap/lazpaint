@@ -8,10 +8,9 @@ uses
   Classes, SysUtils, BGRABitmapTypes, BGRAGraphics;
 
 type
-
   { TBGRAArrow }
 
-  TBGRAArrow = class
+  TBGRAArrow = class(TBGRACustomArrow)
   private
     FLineCap: TPenEndCap;
     FWidth : single;
@@ -37,31 +36,30 @@ type
     function ComputeData(AStyle: TBGRAArrowStyle; const ASizeFactor: TPointF;
         ATipStyle: TPenJoinStyle; ALineCap: TPenEndCap; const AWidth: single; AOffsetX: single;
         ARepeatCount: integer; ARelativePenWidth: single; ATriangleBackOffset: single): ArrayOfTPointF;
-    function GetIsEndDefined: boolean;
-    function GetIsStartDefined: boolean;
-    procedure SetEndOffsetX(AValue: single);
     procedure SetEndRepeatCount(AValue: integer);
     procedure SetEndSizeFactor(AValue: TPointF);
-    procedure SetLineCap(AValue: TPenEndCap);
-    procedure SetStartOffsetX(AValue: single);
     procedure SetStartRepeatCount(AValue: integer);
     procedure SetStartSizeFactor(AValue: TPointF);
     procedure SetWidth(AValue: single);
+  protected
+    function GetIsEndDefined: boolean; override;
+    function GetIsStartDefined: boolean; override;
+    function GetEndOffsetX: single; override;
+    function GetStartOffsetX: single; override;
+    procedure SetStartOffsetX(AValue: single); override;
+    procedure SetEndOffsetX(AValue: single); override;
+    function GetLineCap: TPenEndCap; override;
+    procedure SetLineCap(AValue: TPenEndCap); override;
   public
     constructor Create;
     procedure SetStart(AStyle: TBGRAArrowStyle; ATipStyle: TPenJoinStyle;
         ARelativePenWidth: single; ATriangleBackOffset: single);
     procedure SetEnd(AStyle: TBGRAArrowStyle; ATipStyle: TPenJoinStyle;
         ARelativePenWidth: single; ATriangleBackOffset: single);
-    function ComputeStartAt(const APosition: TPointF; const ADirection: TPointF; const AWidth: single; const ACurrentPos: single): ArrayOfTPointF;
-    function ComputeEndAt(const APosition: TPointF; const ADirection: TPointF; const AWidth: single; const ACurrentPos: single): ArrayOfTPointF;
-    property IsStartDefined: boolean read GetIsStartDefined;
-    property IsEndDefined: boolean read GetIsEndDefined;
-    property LineCap: TPenEndCap read FLineCap write SetLineCap;
+    function ComputeStartAt(const APosition: TPointF; const ADirection: TPointF; const AWidth: single; const ACurrentPos: single): ArrayOfTPointF; override;
+    function ComputeEndAt(const APosition: TPointF; const ADirection: TPointF; const AWidth: single; const ACurrentPos: single): ArrayOfTPointF; override;
     property StartSize: TPointF read FStartSizeFactor write SetStartSizeFactor;
     property EndSize: TPointF read FEndSizeFactor write SetEndSizeFactor;
-    property StartOffsetX: single read FStartOffsetX write SetStartOffsetX;
-    property EndOffsetX: single read FEndOffsetX write SetEndOffsetX;
     property StartRepeatCount: integer read FStartRepeatCount write SetStartRepeatCount;
     property EndRepeatCount: integer read FEndRepeatCount write SetEndRepeatCount;
   end;
@@ -257,12 +255,27 @@ begin
   result := FStartStyle <> asNone;
 end;
 
+function TBGRAArrow.GetEndOffsetX: single;
+begin
+  result := FEndOffsetX;
+end;
+
+function TBGRAArrow.GetStartOffsetX: single;
+begin
+  result := FStartOffsetX;
+end;
+
 procedure TBGRAArrow.SetEndOffsetX(AValue: single);
 begin
   if FEndOffsetX=AValue then Exit;
   FEndOffsetX:=AValue;
   FEndComputed:= false;
   FEnd := nil;
+end;
+
+function TBGRAArrow.GetLineCap: TPenEndCap;
+begin
+  result := FLineCap;
 end;
 
 procedure TBGRAArrow.SetEndRepeatCount(AValue: integer);

@@ -11,7 +11,7 @@ uses
 
 type
   { Contains an affine matrix, i.e. a matrix to transform linearly and translate TPointF coordinates }
-  TAffineMatrix = array[1..2,1..3] of single;
+  TAffineMatrix = BGRABitmapTypes.TAffineMatrix;
 
   { TAffineBox }
 
@@ -359,17 +359,29 @@ end;
 
 operator*(M: TAffineMatrix; V: TPointF): TPointF;
 begin
-  result.X := V.X*M[1,1]+V.Y*M[1,2]+M[1,3];
-  result.Y := V.X*M[2,1]+V.Y*M[2,2]+M[2,3];
+  if isEmptyPointF(V) then
+    result := EmptyPointF
+  else
+  begin
+    result.X := V.X*M[1,1]+V.Y*M[1,2]+M[1,3];
+    result.Y := V.X*M[2,1]+V.Y*M[2,2]+M[2,3];
+  end;
 end;
 
 operator*(M: TAffineMatrix; A: ArrayOfTPointF): ArrayOfTPointF;
 var
   i: NativeInt;
+  ofs: TPointF;
 begin
   setlength(result, length(A));
-  for i := 0 to high(A) do
-    result[i] := M*A[i];
+  if IsAffineMatrixTranslation(M) then
+  begin
+    ofs := PointF(M[1,3],M[2,3]);
+    for i := 0 to high(A) do
+      result[i] := A[i]+ofs;
+  end else
+    for i := 0 to high(A) do
+      result[i] := M*A[i];
 end;
 
 function IsAffineMatrixInversible(M: TAffineMatrix): boolean;
@@ -525,7 +537,7 @@ end;
 
 function TBGRAScannerOffset.ScanAt(X, Y: Single): TBGRAPixel;
 begin
-  Result:=FSource.ScanAt(X, Y);
+  Result:=FSource.ScanAt(X - FOffset.X, Y - FOffset.Y);
 end;
 
 function TBGRAScannerOffset.IsScanPutPixelsDefined: boolean;
