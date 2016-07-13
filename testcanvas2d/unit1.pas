@@ -14,11 +14,12 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
-    CheckBox_Antialiasing: TCheckBox;
-    VirtualScreen: TBGRAVirtualScreen;
     Button_toDataURL: TButton;
+    CheckBox_Antialiasing: TCheckBox;
     CheckBox_PixelCentered: TCheckBox;
+    Panel1: TPanel;
     SpinEdit1: TSpinEdit;
+    VirtualScreen: TBGRAVirtualScreen;
     Timer1: TTimer;
     procedure Button_toDataURLClick(Sender: TObject);
     procedure CheckBox_AntialiasingChange(Sender: TObject);
@@ -68,7 +69,7 @@ var
 
 implementation
 
-uses BGRAGradientScanner, Math;
+uses BGRAGradientScanner, Math, BGRASVG;
 
 {$R *.lfm}
 
@@ -149,16 +150,16 @@ procedure TForm1.VirtualScreenMouseMove(Sender: TObject; Shift: TShiftState; X,
 begin
   mx := X;
   my := Y;
+  if SpinEdit1.Value = 1 then UpdateIn(10);
 end;
 
 procedure TForm1.VirtualScreenRedraw(Sender: TObject; Bitmap: TBGRABitmap);
-var content: TBGRABitmap;
-    ctx: TBGRACanvas2D;
+var ctx: TBGRACanvas2D;
 begin
-  content := TBGRABitmap.Create(Bitmap.Width,Bitmap.Height,BGRAPixelTransparent);
-  ctx := content.Canvas2D;
+  ctx := Bitmap.Canvas2D;
   ctx.antialiasing := CheckBox_Antialiasing.Checked;
   ctx.pixelCenteredCoordinates := CheckBox_PixelCentered.Checked;
+  ctx.save;
   case SpinEdit1.Value of
     1: Test1(ctx);
     2: Test2(ctx);
@@ -180,9 +181,7 @@ begin
    18: Test18(ctx);
    19: Test19(ctx);
   end;
-
-  Bitmap.PutImage(0,0,content,dmDrawWithTransparency);
-  content.free;
+  ctx.restore;
 end;
 
 procedure TForm1.UpdateIn(ms: integer);
@@ -210,44 +209,48 @@ begin
   ctx.shadowBlur := 4;
   ctx.fillRect (mx-100, my-100, 200, 200);
   colors.Free;
-
-  UpdateIn(10);
 end;
 
 procedure TForm1.Test2(ctx: TBGRACanvas2D);
+var layer: TBGRABitmap;
 begin
-  ctx.fillStyle('rgb(1000,0,0)'); // fond de couleur rouge
-  ctx.beginPath;
-  ctx.roundRect(25,25,ctx.Width-50,ctx.Height-50,25); // remplissage d un carré 250x250
-  ctx.fill;
+  layer := TBGRABitmap.Create(ctx.width,ctx.height);
+  with layer.Canvas2D do
+  begin
+    fillStyle('rgb(1000,0,0)'); // fond de couleur rouge
+    beginPath;
+    roundRect(25,25,Width-50,Height-50,25); // remplissage d un carré 250x250
+    fill;
 
-  ctx.clearRect(ctx.Width-mx-25,ctx.Height-my-25,50,50); // effacement d un carré
+    clearRect(Width-mx-25,Height-my-25,50,50); // effacement d un carré
 
-  ctx.beginPath;
-  ctx.arc(mx,my,30,0,2*Pi);
-  ctx.clearPath;
+    beginPath;
+    arc(mx,my,30,0,2*Pi);
+    clearPath;
 
-  ctx.strokeStyle ('rgb(0,0,1000)'); // contour de couleur bleue
-  ctx.strokeRect(100,100,20,20); // contour d un carré
+    strokeStyle ('rgb(0,0,1000)'); // contour de couleur bleue
+    strokeRect(100,100,20,20); // contour d un carré
 
-  ctx.shadowOffset := PointF(3,3);
-  ctx.shadowColor('rgba(0,0,0,0.5)');
-  ctx.shadowBlur := 4;
+    shadowOffset := PointF(3,3);
+    shadowColor('rgba(0,0,0,0.5)');
+    shadowBlur := 4;
 
-  ctx.beginPath;
-  ctx.lineWidth := 3;
-  ctx.moveTo(20,160);
-  ctx.lineTo(200,160);
-  ctx.lineStyle([3,1]);
-  ctx.stroke;
+    beginPath;
+    lineWidth := 3;
+    moveTo(20,160);
+    lineTo(200,160);
+    lineStyle([3,1]);
+    stroke;
 
-  ctx.beginPath;
-  ctx.moveTo(20,180);
-  ctx.lineTo(220,180);
-  ctx.lineTo(240,160);
-  ctx.lineStyle([1,1,2,2]);
-  ctx.stroke;
-
+    beginPath;
+    moveTo(20,180);
+    lineTo(220,180);
+    lineTo(240,160);
+    lineStyle([1,1,2,2]);
+    stroke;
+  end;
+  ctx.surface.PutImage(0,0,layer,dmDrawWithTransparency);
+  layer.Free;
   UpdateIn(10);
 end;
 
@@ -292,7 +295,7 @@ begin
   inc(test4pos);
   angle := test4pos*2*Pi/400;
   ctx.translate((ctx.Width-300)/2,(ctx.height-300)/2);
-  ctx.transform(1,0, sin(angle)/2,1, 0,0);
+  ctx.skewx( sin(angle) );
 
   ctx.beginPath;
   ctx.rect (0, 0, 300, 300);
@@ -338,27 +341,35 @@ begin
 end;
 
 procedure TForm1.Test5(ctx: TBGRACanvas2D);
+var svg: TBGRASVG;
 begin
   inc(test5pos);
-  ctx.rotate(sin(test5pos*2*Pi/360)*10*Pi/180);
 
-  ctx.fillStyle ('rgb(1000,1000,1000)');
-  ctx.fillRect (0, 0, 300, 300);
-// Exemple de courbes quadratriques
-  ctx.fillStyle ('rgb(1000,0,0)');
-  ctx.strokeStyle ('rgb(0,0,1000)');
-  ctx.beginPath();
-  ctx.moveTo(100,100);
-  ctx.quadraticCurveTo(150,150,200,200);
-  ctx.quadraticCurveTo(250,250,200,150);
-  ctx.quadraticCurveTo(150,150,100,100);
-  ctx.fill();
-  ctx.stroke();
+  svg := TBGRASVG.Create;
+  svg.LoadFromFile('Amsterdammertje-icoon.svg');
+  svg.StretchDraw(ctx, taCenter,tlCenter, 0,0,ctx.Width/3,ctx.Height);
+
+  svg.LoadFromFile('BespectacledMaleUser.svg');
+  svg.StretchDraw(ctx, ctx.Width/3,0,ctx.Width*2/3,ctx.Height/2);
+
+  ctx.save;
   ctx.beginPath;
-  ctx.spline([PointF(20,50),PointF(30,80),PointF(60,120),PointF(40,200),PointF(80,250),PointF(150,280),PointF(250,250)]);
-  ctx.splineTo([PointF(280,20), PointF(20,0)]);
-  ctx.spline([PointF(20,20),PointF(40,20),PointF(40,40),PointF(20,40),PointF(20,20)]);
-  ctx.stroke();
+  ctx.rect(ctx.Width/3,ctx.Height/2,ctx.Width*2/3,ctx.Height/2);
+  ctx.clip;
+  svg.LoadFromFile('Blue_gyroelongated_pentagonal_pyramid.svg');
+  svg.Draw(ctx, taCenter,tlCenter, ctx.Width*2/3,ctx.Height*3/4);
+  ctx.restore;
+
+  svg.Free;
+
+  ctx.beginPath;
+  ctx.lineWidth:= 1;
+  ctx.strokeStyle(BGRABlack);
+  ctx.moveTo(ctx.Width/3,0);
+  ctx.lineTo(ctx.Width/3,ctx.Height);
+  ctx.moveTo(ctx.Width/3,ctx.Height/2);
+  ctx.lineTo(ctx.Width,ctx.Height/2);
+  ctx.stroke;
 
   UpdateIn(20);
 end;
@@ -573,13 +584,11 @@ const vitesse = 1;
 begin
   ctx.fillStyle ('#000');
   ctx.fillRect (0, 0, 800, 400);
-  ctx.save();
   ctx.clearRect(0, 0, 800, 400);
   ctx.fillRect (0, 0, 800, 400);
   ctx.setTransform(-0.55, 0.85, -1, 0.10, 100, 50+img.width*0.5);
   ctx.rotate(PI*2*(Test13pos/360)*vitesse );
   ctx.drawImage(img, img.width*(-0.5)-200, img.height*(-0.8));
-  ctx.restore();
   Test13pos+=1;
   if (Test13pos=360) then Test13pos := 0;
   UpdateIn(10);
@@ -717,7 +726,6 @@ begin
   zoom := (sin(test16pos*2*Pi/400)+1.1)*min(ctx.width,ctx.height)/300;
   with ctx do
   begin
-    save;
     translate(center.X,center.Y);
     scale(zoom,zoom);
     rotate(angle);
@@ -771,7 +779,6 @@ begin
     else
       fillStyle ('#3f5e99');
     fill();
-    restore;
   end;
   UpdateIn(10);
 end;
@@ -799,6 +806,7 @@ begin
   ctx.strokeStyle(grad);
   ctx.lineWidth := 5;
 
+  ctx.beginPath;
   ctx.moveto(0,0);
   ctx.arc(0,0,1,Pi/6,-Pi/6,false);
   ctx.fill();
@@ -811,7 +819,6 @@ procedure TForm1.Test18(ctx: TBGRACanvas2D);
 var pat: TBGRABitmap;
 begin
   inc(test18pos);
-  ctx.save;
   ctx.translate(ctx.width div 2, ctx.height div 2);
   ctx.rotate(test18pos*2*Pi/360);
   ctx.scale(3,3);
@@ -830,8 +837,6 @@ begin
   ctx.fillStyle(ctx.createPattern(pat,'repeat-y'));
   ctx.fillRect(0,0,ctx.width,ctx.height);
   pat.free;
-
-  ctx.restore;
 
   UpdateIn(10);
 end;
