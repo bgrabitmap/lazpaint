@@ -211,31 +211,77 @@ type
 
   TBGRACustomArrow = class
   protected
+    function GetEndOffsetX: single; virtual; abstract;
+    function GetEndRepeatCount: integer; virtual; abstract;
+    function GetEndSizeFactor: TPointF; virtual; abstract;
     function GetIsEndDefined: boolean; virtual; abstract;
     function GetIsStartDefined: boolean; virtual; abstract;
-    function GetEndOffsetX: single; virtual; abstract;
     function GetStartOffsetX: single; virtual; abstract;
+    function GetStartRepeatCount: integer; virtual; abstract;
+    function GetStartSizeFactor: TPointF; virtual; abstract;
     procedure SetEndOffsetX(AValue: single); virtual; abstract;
+    procedure SetEndRepeatCount(AValue: integer); virtual; abstract;
+    procedure SetEndSizeFactor(AValue: TPointF); virtual; abstract;
     procedure SetStartOffsetX(AValue: single); virtual; abstract;
+    procedure SetStartRepeatCount(AValue: integer); virtual; abstract;
+    procedure SetStartSizeFactor(AValue: TPointF); virtual; abstract;
     function GetLineCap: TPenEndCap; virtual; abstract;
     procedure SetLineCap(AValue: TPenEndCap); virtual; abstract;
   public
     function ComputeStartAt(const APosition: TPointF; const ADirection: TPointF; const AWidth: single; const ACurrentPos: single): ArrayOfTPointF; virtual; abstract;
     function ComputeEndAt(const APosition: TPointF; const ADirection: TPointF; const AWidth: single; const ACurrentPos: single): ArrayOfTPointF; virtual; abstract;
+    procedure StartAsNone; virtual; abstract;
+    procedure StartAsClassic(AFlipped: boolean = false; ACut: boolean = false; ARelativePenWidth: single = 1); virtual; abstract;
+    procedure StartAsTriangle(ABackOffset: single = 0; ARounded: boolean = false; AHollow: boolean = false; AHollowPenWidth: single = 0.5); virtual; abstract;
+    procedure StartAsTail; virtual; abstract;
+    procedure EndAsNone; virtual; abstract;
+    procedure EndAsClassic(AFlipped: boolean = false; ACut: boolean = false; ARelativePenWidth: single = 1); virtual; abstract;
+    procedure EndAsTriangle(ABackOffset: single = 0; ARounded: boolean = false; AHollow: boolean = false; AHollowPenWidth: single = 0.5); virtual; abstract;
+    procedure EndAsTail; virtual; abstract;
     property IsStartDefined: boolean read GetIsStartDefined;
     property IsEndDefined: boolean read GetIsEndDefined;
     property StartOffsetX: single read GetStartOffsetX write SetStartOffsetX;
     property EndOffsetX: single read GetEndOffsetX write SetEndOffsetX;
     property LineCap: TPenEndCap read GetLineCap write SetLineCap;
+    property StartSize: TPointF read GetStartSizeFactor write SetStartSizeFactor;
+    property EndSize: TPointF read GetEndSizeFactor write SetEndSizeFactor;
+    property StartRepeatCount: integer read GetStartRepeatCount write SetStartRepeatCount;
+    property EndRepeatCount: integer read GetEndRepeatCount write SetEndRepeatCount;
   end;
 
   { TBGRACustomPenStroker }
 
   TBGRACustomPenStroker = class
+  protected
+      function GetArrow: TBGRACustomArrow; virtual; abstract;
+      function GetArrowOwned: boolean; virtual; abstract;
+      function GetCustomPenStyle: TBGRAPenStyle; virtual; abstract;
+      function GetJoinStyle: TPenJoinStyle; virtual; abstract;
+      function GetLineCap: TPenEndCap; virtual; abstract;
+      function GetMiterLimit: single; virtual; abstract;
+      function GetPenStyle: TPenStyle; virtual; abstract;
+      function GetStrokeMatrix: TAffineMatrix; virtual; abstract;
+      procedure SetArrow(AValue: TBGRACustomArrow); virtual; abstract;
+      procedure SetArrowOwned(AValue: boolean); virtual; abstract;
+      procedure SetCustomPenStyle(AValue: TBGRAPenStyle); virtual; abstract;
+      procedure SetJoinStyle(AValue: TPenJoinStyle); virtual; abstract;
+      procedure SetLineCap(AValue: TPenEndCap); virtual; abstract;
+      procedure SetMiterLimit(AValue: single); virtual; abstract;
+      procedure SetPenStyle(AValue: TPenStyle); virtual; abstract;
+      procedure SetStrokeMatrix(const AValue: TAffineMatrix); virtual; abstract;
+  public
       function ComputePolyline(const APoints: array of TPointF; AWidth: single; AClosedCap: boolean = true): ArrayOfTPointF; virtual; abstract;
       function ComputePolyline(const APoints: array of TPointF; AWidth: single; APenColor: TBGRAPixel; AClosedCap: boolean = true): ArrayOfTPointF; virtual; abstract;
       function ComputePolylineAutoCycle(const APoints: array of TPointF; AWidth: single): ArrayOfTPointF; virtual; abstract;
       function ComputePolygon(const APoints: array of TPointF; AWidth: single): ArrayOfTPointF; virtual; abstract;
+      property Style: TPenStyle read GetPenStyle write SetPenStyle;
+      property CustomPenStyle: TBGRAPenStyle read GetCustomPenStyle write SetCustomPenStyle;
+      property Arrow: TBGRACustomArrow read GetArrow write SetArrow;
+      property ArrowOwned: boolean read GetArrowOwned write SetArrowOwned;
+      property StrokeMatrix: TAffineMatrix read GetStrokeMatrix write SetStrokeMatrix;
+      property LineCap: TPenEndCap read GetLineCap write SetLineCap;
+      property JoinStyle: TPenJoinStyle read GetJoinStyle write SetJoinStyle;
+      property MiterLimit: single read GetMiterLimit write SetMiterLimit;
   end;
 
 type

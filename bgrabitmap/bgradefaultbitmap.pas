@@ -199,8 +199,6 @@ type
     function InternalGetPixelCycle256(ix,iy: int32or64; iFactX,iFactY: int32or64): TBGRAPixel;
     function InternalGetPixel256(ix,iy: int32or64; iFactX,iFactY: int32or64; smoothBorder: boolean): TBGRAPixel;
     function GetArrow: TBGRAArrow;
-    procedure SetArrowStart(AStyle: TBGRAArrowStyle; ATipStyle: TPenJoinStyle = pjsMiter; ARelativePenWidth: single = 1; ATriangleBackOffset: single = 0); override;
-    procedure SetArrowEnd(AStyle: TBGRAArrowStyle; ATipStyle: TPenJoinStyle = pjsMiter; ARelativePenWidth: single = 1; ATriangleBackOffset: single = 0); override;
     procedure InternalTextOutCurved(ACursor: TBGRACustomPathCursor; sUTF8: string; AColor: TBGRAPixel; ATexture: IBGRAScanner; AAlign: TAlignment; ALetterSpacing: single);
 
     function CheckClippedRectBounds(var x,y,x2,y2: integer): boolean;
@@ -681,6 +679,16 @@ type
     procedure FillPath(APath: IBGRAPath; AMatrix: TAffineMatrix; AFillTexture: IBGRAScanner); override;
     procedure ErasePath(APath: IBGRAPath; AMatrix: TAffineMatrix; alpha: byte); override;
 
+    procedure ArrowStartAsNone; override;
+    procedure ArrowStartAsClassic(AFlipped: boolean = false; ACut: boolean = false; ARelativePenWidth: single = 1); override;
+    procedure ArrowStartAsTriangle(ABackOffset: single = 0; ARounded: boolean = false; AHollow: boolean = false; AHollowPenWidth: single = 0.5); override;
+    procedure ArrowStartAsTail; override;
+
+    procedure ArrowEndAsNone; override;
+    procedure ArrowEndAsClassic(AFlipped: boolean = false; ACut: boolean = false; ARelativePenWidth: single = 1); override;
+    procedure ArrowEndAsTriangle(ABackOffset: single = 0; ARounded: boolean = false; AHollow: boolean = false; AHollowPenWidth: single = 0.5); override;
+    procedure ArrowEndAsTail; override;
+
     { Draws the UTF8 encoded string, with color c.
       If align is taLeftJustify, (x,y) is the top-left corner.
       If align is taCenter, (x,y) is at the top and middle of the text.
@@ -1010,12 +1018,12 @@ end;
 
 procedure TBGRADefaultBitmap.SetPenStyle(const AValue: TPenStyle);
 begin
-  FPenStroker.PenStyle := AValue;
+  FPenStroker.Style := AValue;
 end;
 
 function TBGRADefaultBitmap.GetPenStyle: TPenStyle;
 begin
-  Result:= FPenStroker.PenStyle;
+  Result:= FPenStroker.Style;
 end;
 
 function TBGRADefaultBitmap.GetLineCap: TPenEndCap;
@@ -2145,6 +2153,9 @@ begin
   ScanOffset := Point(0,0);
 
   FPenStroker := TBGRAPenStroker.Create;
+  FPenStroker.Arrow := TBGRAArrow.Create;
+  FPenStroker.Arrow.LineCap := LineCap;
+  FPenStroker.ArrowOwned := true;
 end;
 
 procedure TBGRADefaultBitmap.SetInternalColor(x, y: integer; const Value: TFPColor);
@@ -2412,18 +2423,6 @@ begin
   if not CheckHorizLineBounds(x,y,x2) then exit;
   DrawPixelsInlineDiff(scanline[y] + x, c, x2 - x + 1, compare, maxDiff);
   InvalidateBitmap;
-end;
-
-procedure TBGRADefaultBitmap.SetArrowStart(AStyle: TBGRAArrowStyle;
-  ATipStyle: TPenJoinStyle; ARelativePenWidth: single; ATriangleBackOffset: single);
-begin
-  GetArrow.SetStart(AStyle,ATipStyle,ARelativePenWidth,ATriangleBackOffset);
-end;
-
-procedure TBGRADefaultBitmap.SetArrowEnd(AStyle: TBGRAArrowStyle;
-  ATipStyle: TPenJoinStyle; ARelativePenWidth: single; ATriangleBackOffset: single);
-begin
-  GetArrow.SetEnd(AStyle,ATipStyle,ARelativePenWidth,ATriangleBackOffset);
 end;
 
 procedure TBGRADefaultBitmap.InternalTextOutCurved(
@@ -2864,6 +2863,50 @@ procedure TBGRADefaultBitmap.ErasePath(APath: IBGRAPath;
   AMatrix: TAffineMatrix; alpha: byte);
 begin
   ErasePolyAntialias(APath.getPoints(AMatrix),alpha);
+end;
+
+procedure TBGRADefaultBitmap.ArrowStartAsNone;
+begin
+  GetArrow.StartAsNone;
+end;
+
+procedure TBGRADefaultBitmap.ArrowStartAsClassic(AFlipped: boolean;
+  ACut: boolean; ARelativePenWidth: single);
+begin
+  GetArrow.StartAsClassic(AFlipped,ACut,ARelativePenWidth);
+end;
+
+procedure TBGRADefaultBitmap.ArrowStartAsTriangle(ABackOffset: single;
+  ARounded: boolean; AHollow: boolean; AHollowPenWidth: single);
+begin
+  GetArrow.StartAsTriangle(ABackOffset,ARounded,AHollow,AHollowPenWidth);
+end;
+
+procedure TBGRADefaultBitmap.ArrowStartAsTail;
+begin
+  GetArrow.StartAsTail;
+end;
+
+procedure TBGRADefaultBitmap.ArrowEndAsNone;
+begin
+  GetArrow.EndAsNone;
+end;
+
+procedure TBGRADefaultBitmap.ArrowEndAsClassic(AFlipped: boolean;
+  ACut: boolean; ARelativePenWidth: single);
+begin
+  GetArrow.EndAsClassic(AFlipped,ACut,ARelativePenWidth);
+end;
+
+procedure TBGRADefaultBitmap.ArrowEndAsTriangle(ABackOffset: single;
+  ARounded: boolean; AHollow: boolean; AHollowPenWidth: single);
+begin
+  GetArrow.EndAsTriangle(ABackOffset,ARounded,AHollow,AHollowPenWidth);
+end;
+
+procedure TBGRADefaultBitmap.ArrowEndAsTail;
+begin
+  GetArrow.EndAsTail;
 end;
 
 {------------------------ Shapes ----------------------------------------------}

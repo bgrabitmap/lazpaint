@@ -137,8 +137,6 @@ type
      procedure SetClipRect(const AValue: TRect); virtual; abstract;
      function GetFontPixelMetric: TFontPixelMetric; virtual; abstract;
      procedure ClearTransparentPixels; virtual; abstract;
-     procedure SetArrowStart(AStyle: TBGRAArrowStyle; ATipStyle: TPenJoinStyle = pjsMiter; ARelativePenWidth: single = 1; ATriangleBackOffset: single = 0); virtual; abstract;
-     procedure SetArrowEnd(AStyle: TBGRAArrowStyle; ATipStyle: TPenJoinStyle = pjsMiter; ARelativePenWidth: single = 1; ATriangleBackOffset: single = 0); virtual; abstract;
 
      procedure InternalArc(cx,cy,rx,ry: single; const StartPoint,EndPoint: TPointF; ABorderColor: TBGRAPixel; w: single; AFillColor: TBGRAPixel; AOptions: TArcOptions; ADrawChord: boolean = false; ATexture: IBGRAScanner = nil); overload;
      procedure InternalArc(cx,cy,rx,ry: single; StartAngleRad,EndAngleRad: Single; ABorderColor: TBGRAPixel; w: single; AFillColor: TBGRAPixel; AOptions: TArcOptions; ADrawChord: boolean = false; ATexture: IBGRAScanner = nil); overload; virtual; abstract;
@@ -245,7 +243,7 @@ type
      {** How to draw the ends of a line }
      property LineCap: TPenEndCap read GetLineCap write SetLineCap;
      {** You can use this class to generate strokes polygonal representations }
-     property PenStroker: TBGRACustomPenStroker read GetPenStroker;
+     property Pen: TBGRACustomPenStroker read GetPenStroker;
 
      {** Size of arrows at the start of the line }
      property ArrowStartSize: TPointF read GetArrowStartSize write SetArrowStartSize;
@@ -430,15 +428,15 @@ type
      procedure DrawPath(APath: IBGRAPath; AMatrix: TAffineMatrix; AStrokeColor: TBGRAPixel; AWidth: single); virtual; abstract;
      procedure DrawPath(APath: IBGRAPath; AMatrix: TAffineMatrix; AStrokeTexture: IBGRAScanner; AWidth: single); virtual; abstract;
 
-     procedure ArrowStartAsNone;
-     procedure ArrowStartAsClassic(AFlipped: boolean = false; ACut: boolean = false; ARelativePenWidth: single = 1);
-     procedure ArrowStartAsTriangle(ABackOffset: single = 0; ARounded: boolean = false; AHollow: boolean = false; AHollowPenWidth: single = 0.5);
-     procedure ArrowStartAsTail;
+     procedure ArrowStartAsNone; virtual; abstract;
+     procedure ArrowStartAsClassic(AFlipped: boolean = false; ACut: boolean = false; ARelativePenWidth: single = 1); virtual; abstract;
+     procedure ArrowStartAsTriangle(ABackOffset: single = 0; ARounded: boolean = false; AHollow: boolean = false; AHollowPenWidth: single = 0.5); virtual; abstract;
+     procedure ArrowStartAsTail; virtual; abstract;
 
-     procedure ArrowEndAsNone;
-     procedure ArrowEndAsClassic(AFlipped: boolean = false; ACut: boolean = false; ARelativePenWidth: single = 1);
-     procedure ArrowEndAsTriangle(ABackOffset: single = 0; ARounded: boolean = false; AHollow: boolean = false; AHollowPenWidth: single = 0.5);
-     procedure ArrowEndAsTail;
+     procedure ArrowEndAsNone; virtual; abstract;
+     procedure ArrowEndAsClassic(AFlipped: boolean = false; ACut: boolean = false; ARelativePenWidth: single = 1); virtual; abstract;
+     procedure ArrowEndAsTriangle(ABackOffset: single = 0; ARounded: boolean = false; AHollow: boolean = false; AHollowPenWidth: single = 0.5); virtual; abstract;
+     procedure ArrowEndAsTail; virtual; abstract;
 
      procedure DrawLine(x1, y1, x2, y2: integer; c: TBGRAPixel; DrawLastPixel: boolean; ADrawMode: TDrawMode= dmDrawWithTransparency); virtual; abstract;
      procedure DrawLineAntialias(x1, y1, x2, y2: integer; c: TBGRAPixel; DrawLastPixel: boolean); virtual; abstract; overload;
@@ -1184,88 +1182,6 @@ begin
     dmLinearBlend: FastBlendVertLine(x,y,y2,c);
     dmDrawWithTransparency: DrawVertLine(x,y,y2,c);
   end;
-end;
-
-procedure TBGRACustomBitmap.ArrowStartAsNone;
-begin
-  SetArrowStart(asNone);
-end;
-
-procedure TBGRACustomBitmap.ArrowStartAsClassic(AFlipped: boolean; ACut: boolean; ARelativePenWidth: single);
-var join: TPenJoinStyle;
-begin
-  if (LineCap = pecRound) and not ACut then join := pjsRound else join := pjsMiter;
-  if ACut then
-  begin
-    if AFlipped then
-      SetArrowStart(asFlippedCut,join,ARelativePenWidth)
-    else
-      SetArrowStart(asCut,join,ARelativePenWidth)
-  end
-  else
-  begin
-    if AFlipped then
-      SetArrowStart(asFlipped,join,ARelativePenWidth)
-    else
-      SetArrowStart(asNormal,join,ARelativePenWidth)
-  end;
-end;
-
-procedure TBGRACustomBitmap.ArrowStartAsTriangle(ABackOffset: single; ARounded: boolean; AHollow: boolean;
-  AHollowPenWidth: single);
-var join: TPenJoinStyle;
-begin
-  if ARounded then join := pjsRound else join := pjsMiter;
-  if AHollow then
-    SetArrowStart(asHollowTriangle, join,AHollowPenWidth, ABackOffset)
-  else
-    SetArrowStart(asTriangle, join,1,ABackOffset);
-end;
-
-procedure TBGRACustomBitmap.ArrowStartAsTail;
-begin
-  SetArrowStart(asTail);
-end;
-
-procedure TBGRACustomBitmap.ArrowEndAsNone;
-begin
-  SetArrowEnd(asNone);
-end;
-
-procedure TBGRACustomBitmap.ArrowEndAsClassic(AFlipped: boolean; ACut: boolean; ARelativePenWidth: single);
-var join: TPenJoinStyle;
-begin
-  if (LineCap = pecRound) and not ACut then join := pjsRound else join := pjsMiter;
-  if ACut then
-  begin
-    if AFlipped then
-      SetArrowEnd(asFlippedCut,join,ARelativePenWidth)
-    else
-      SetArrowEnd(asCut,join,ARelativePenWidth)
-  end
-  else
-  begin
-    if AFlipped then
-      SetArrowEnd(asFlipped,join,ARelativePenWidth)
-    else
-      SetArrowEnd(asNormal,join,ARelativePenWidth)
-  end;
-end;
-
-procedure TBGRACustomBitmap.ArrowEndAsTriangle(ABackOffset: single; ARounded: boolean; AHollow: boolean;
-  AHollowPenWidth: single);
-var join: TPenJoinStyle;
-begin
-  if ARounded then join := pjsRound else join := pjsMiter;
-  if AHollow then
-    SetArrowEnd(asHollowTriangle, join,AHollowPenWidth, ABackOffset)
-  else
-    SetArrowEnd(asTriangle, join,1, ABackOffset);
-end;
-
-procedure TBGRACustomBitmap.ArrowEndAsTail;
-begin
-  SetArrowEnd(asTail);
 end;
 
 procedure TBGRACustomBitmap.DrawPolyLine(const points: array of TPoint;

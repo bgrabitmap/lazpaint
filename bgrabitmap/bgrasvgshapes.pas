@@ -413,7 +413,7 @@ begin
   end;
   if not isStrokeNone then
   begin
-    ACanvas2d.strokeStyle(strokeColor);
+    ApplyStrokeStyle(ACanvas2D,AUnit);
     ACanvas2d.stroke;
   end;
 end;
@@ -532,7 +532,7 @@ begin
     end;
     if not isStrokeNone then
     begin
-      ACanvas2d.strokeStyle(strokeColor);
+      ApplyStrokeStyle(ACanvas2D,AUnit);
       ACanvas2d.stroke;
     end;
   end;
@@ -628,7 +628,7 @@ begin
     end;
     if not isStrokeNone then
     begin
-      ACanvas2d.strokeStyle(strokeColor);
+      ApplyStrokeStyle(ACanvas2D,AUnit);
       ACanvas2d.stroke;
     end;
   end;
@@ -716,7 +716,7 @@ begin
     end;
     if not isStrokeNone then
     begin
-      ACanvas2d.strokeStyle(strokeColor);
+      ApplyStrokeStyle(ACanvas2D,AUnit);
       ACanvas2d.stroke;
     end;
   end;
@@ -784,7 +784,7 @@ begin
     end;
     if not isStrokeNone then
     begin
-      ACanvas2d.strokeStyle(strokeColor);
+      ApplyStrokeStyle(ACanvas2D,AUnit);
       ACanvas2d.stroke;
     end;
   end;
@@ -841,7 +841,7 @@ begin
     end;
     if not isStrokeNone then
     begin
-      ACanvas2d.strokeStyle(strokeColor);
+      ApplyStrokeStyle(ACanvas2D,AUnit);
       ACanvas2d.stroke;
     end;
   end;
@@ -898,7 +898,7 @@ procedure TSVGLine.InternalDraw(ACanvas2d: TBGRACanvas2D; AUnit: TCSSUnit);
 begin
   if not isStrokeNone then
   begin
-    ACanvas2d.strokeStyle(strokeColor);
+    ApplyStrokeStyle(ACanvas2D,AUnit);
     ACanvas2d.beginPath;
     ACanvas2d.moveTo(Units.ConvertWidth(x1,AUnit).value,Units.ConvertWidth(y1,AUnit).value);
     ACanvas2d.lineTo(Units.ConvertWidth(x2,AUnit).value,Units.ConvertWidth(y2,AUnit).value);

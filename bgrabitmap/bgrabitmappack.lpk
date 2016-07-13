@@ -17,15 +17,10 @@
       </Parsing>
       <CodeGeneration>
         <Optimizations>
-          <OptimizationLevel Value="3"/>
+          <OptimizationLevel Value="0"/>
           <VariablesInRegisters Value="True"/>
         </Optimizations>
       </CodeGeneration>
-      <Linking>
-        <Debugging>
-          <GenerateDebugInfo Value="False"/>
-        </Debugging>
-      </Linking>
     </CompilerOptions>
     <Description Value="Drawing routines with alpha blending and antialiasing"/>
     <License Value="modified LGPL"/>

@@ -5,7 +5,8 @@ unit BGRASVG;
 interface
 
 uses
-  Classes, SysUtils, BGRABitmapTypes, laz2_DOM, BGRAUnits, BGRASVGShapes, BGRACanvas2D;
+  Classes, SysUtils, BGRABitmapTypes, laz2_DOM, BGRAUnits, BGRASVGShapes,
+  BGRACanvas2D;
 
 type
   TSVGViewBox = record
@@ -63,6 +64,7 @@ type
     function GetHeightAsInch: single;
     function GetPreserveAspectRatio: string;
     function GetViewBox: TSVGViewBox;
+    function GetViewBox(AUnit: TCSSUnit): TSVGViewBox;
     function GetWidth: TFloatWithCSSUnit;
     function GetWidthAsCm: single;
     function GetWidthAsInch: single;
@@ -86,8 +88,7 @@ type
     FDefaultDpi: single;
     FContent: TSVGContent;
     procedure Init(ACreateEmpty: boolean);
-    procedure InternalDraw(ACanvas2d: TBGRACanvas2D; x,y: single; AUnit: TCSSUnit; destDpi: TPointF); overload;
-    procedure InternalDraw(ACanvas2d: TBGRACanvas2D; x,y: single; AUnit: TCSSUnit; destDpi: single); overload;
+    function GetViewBoxAlignment(AHorizAlign: TAlignment; AVertAlign: TTextLayout): TPointF;
   public
     constructor Create; overload;
     constructor Create(AWidth,AHeight: single; AUnit: TCSSUnit); overload;
@@ -99,9 +100,14 @@ type
     procedure LoadFromStream(AStream: TStream);
     procedure SaveToFile(AFilenameUTF8: string);
     procedure SaveToStream(AStream: TStream);
+    procedure Draw(ACanvas2d: TBGRACanvas2D; AHorizAlign: TAlignment; AVertAlign: TTextLayout; x,y: single; AUnit: TCSSUnit = cuPixel); overload;
+    procedure Draw(ACanvas2d: TBGRACanvas2D; AHorizAlign: TAlignment; AVertAlign: TTextLayout; x,y: single; destDpi: single); overload;
+    procedure Draw(ACanvas2d: TBGRACanvas2D; AHorizAlign: TAlignment; AVertAlign: TTextLayout; x,y: single; destDpi: TPointF); overload;
+    procedure Draw(ACanvas2d: TBGRACanvas2D; x,y: single; AUnit: TCSSUnit = cuPixel); overload;
     procedure Draw(ACanvas2d: TBGRACanvas2D; x,y: single; destDpi: single); overload;
     procedure Draw(ACanvas2d: TBGRACanvas2D; x,y: single; destDpi: TPointF); overload;
-    procedure Draw(ACanvas2d: TBGRACanvas2D; x,y: single; AUnit: TCSSUnit); overload;
+    procedure StretchDraw(ACanvas2d: TBGRACanvas2D; x,y,w,h: single); overload;
+    procedure StretchDraw(ACanvas2d: TBGRACanvas2D; AHorizAlign: TAlignment; AVertAlign: TTextLayout; x,y,w,h: single); overload;
     property Units: TSVGUnits read FUnits;
     property Width: TFloatWithCSSUnit read GetWidth write SetWidth;
     property Height: TFloatWithCSSUnit read GetHeight write SetHeight;
@@ -111,6 +117,7 @@ type
     property HeightAsInch: single read GetHeightAsInch write SetHeightAsInch;
     property Zoomable: boolean read GetZoomable write SetZoomable;
     property ViewBox: TSVGViewBox read GetViewBox write SetViewBox;
+    property ViewBoxInUnit[AUnit: TCSSUnit]: TSVGViewBox read GetViewBox;
     property Attribute[AName: string]: string read GetAttribute write SetAttribute;
     property DefaultDpi: single read FDefaultDpi write SetDefaultDpi; //this is not saved in the SVG file
     property CustomDpi: TPointF read GetCustomDpi write SetCustomDpi;
@@ -120,7 +127,7 @@ type
 
 implementation
 
-uses laz2_XMLRead, laz2_XMLWrite, BGRAUTF8, BGRATransform;
+uses laz2_XMLRead, laz2_XMLWrite, BGRAUTF8;
 
 const SvgNamespace = 'http://www.w3.org/2000/svg';
 
@@ -167,7 +174,7 @@ var viewBoxStr: string;
 
   function parseNextFloat: single;
   var
-    idxSpace,errPos: integer;
+    idxSpace,{%H-}errPos: integer;
   begin
     idxSpace:= pos(' ',viewBoxStr);
     if idxSpace <> 0 then
@@ -334,6 +341,15 @@ begin
   result := FUnits.ViewBox;
 end;
 
+function TBGRASVG.GetViewBox(AUnit: TCSSUnit): TSVGViewBox;
+begin
+  with ViewBox do
+  begin
+    result.min := FUnits.ConvertCoord(min,cuCustom,AUnit);
+    result.size := FUnits.ConvertCoord(size,cuCustom,AUnit);
+  end;
+end;
+
 function TBGRASVG.GetWidth: TFloatWithCSSUnit;
 begin
   result := TCSSUnitConverter.parseValue(Attribute['width'],FloatWithCSSUnit(0,cuCustom));
@@ -442,6 +458,26 @@ begin
   end;
 end;
 
+function TBGRASVG.GetViewBoxAlignment(AHorizAlign: TAlignment;
+  AVertAlign: TTextLayout): TPointF;
+begin
+  with ViewBoxInUnit[cuPixel] do
+  begin
+    case AHorizAlign of
+      taCenter: result.x := -(min.x+size.x*0.5);
+      taRightJustify: result.x := -(min.x+size.x);
+    else
+      {taLeftJustify:} result.x := -min.x;
+    end;
+    case AVertAlign of
+      tlCenter: result.y := -(min.y+size.y*0.5);
+      tlBottom: result.y := -(min.y+size.y);
+    else
+      {tlTop:} result.y := -min.y;
+    end;
+  end;
+end;
+
 constructor TBGRASVG.Create;
 begin
   Init(True);
@@ -546,46 +582,116 @@ begin
   WriteXMLFile(FXml, AStream);
 end;
 
-procedure TBGRASVG.Draw(ACanvas2d: TBGRACanvas2D; x, y: single; AUnit: TCSSUnit);
+procedure TBGRASVG.Draw(ACanvas2d: TBGRACanvas2D; AHorizAlign: TAlignment;
+  AVertAlign: TTextLayout; x, y: single; AUnit: TCSSUnit);
 var prevMatrix: TAffineMatrix;
 begin
-  if (x<>0) or (y<>0) then
-  begin
-    prevMatrix := ACanvas2d.matrix;
-    ACanvas2d.translate(x,y);
-    Content.Draw(ACanvas2d,AUnit);
-    ACanvas2d.matrix := prevMatrix;
-  end else
-    Content.Draw(ACanvas2d,AUnit);
+  prevMatrix := ACanvas2d.matrix;
+  ACanvas2d.translate(x,y);
+  with GetViewBoxAlignment(AHorizAlign,AVertAlign) do ACanvas2d.translate(x,y);
+  Draw(ACanvas2d, 0,0, AUnit);
+  ACanvas2d.matrix := prevMatrix;
 end;
 
-procedure TBGRASVG.Draw(ACanvas2d: TBGRACanvas2D; x, y: single; destDpi: TPointF);
+procedure TBGRASVG.Draw(ACanvas2d: TBGRACanvas2D; AHorizAlign: TAlignment;
+  AVertAlign: TTextLayout; x, y: single; destDpi: single);
 begin
-  InternalDraw(ACanvas2d,x,y,cuPixel,destDpi);
+  Draw(ACanvas2d, AHorizAlign,AVertAlign, x,y, PointF(destDpi,destDpi));
+end;
+
+procedure TBGRASVG.Draw(ACanvas2d: TBGRACanvas2D; AHorizAlign: TAlignment;
+  AVertAlign: TTextLayout; x, y: single; destDpi: TPointF);
+begin
+  ACanvas2d.save;
+  ACanvas2d.translate(x,y);
+  ACanvas2d.scale(destDpi.x/Units.DpiX,destDpi.y/Units.DpiY);
+  ACanvas2d.strokeResetTransform;
+  ACanvas2d.strokeScale(destDpi.x/Units.DpiX,destDpi.y/Units.DpiY);
+  with GetViewBoxAlignment(AHorizAlign,AVertAlign) do ACanvas2d.translate(x,y);
+  Draw(ACanvas2d, 0,0, cuPixel);
+  ACanvas2d.restore;
+end;
+
+procedure TBGRASVG.Draw(ACanvas2d: TBGRACanvas2D; x, y: single; AUnit: TCSSUnit);
+var prevLinearBlend: boolean;
+begin
+  prevLinearBlend:= ACanvas2d.linearBlend;
+  acanvas2d.linearBlend := true;
+  ACanvas2d.save;
+  ACanvas2d.translate(x,y);
+  Content.Draw(ACanvas2d,AUnit);
+  ACanvas2d.restore;
+  ACanvas2d.linearBlend := prevLinearBlend;
 end;
 
 procedure TBGRASVG.Draw(ACanvas2d: TBGRACanvas2D; x, y: single; destDpi: single);
 begin
-  InternalDraw(ACanvas2d,x,y,cuPixel,destDpi);
+  Draw(ACanvas2d, x,y, PointF(destDpi,destDpi));
 end;
 
-procedure TBGRASVG.InternalDraw(ACanvas2d: TBGRACanvas2D; x, y: single;
-  AUnit: TCSSUnit; destDpi: TPointF);
-var prevMatrix: TAffineMatrix;
+procedure TBGRASVG.Draw(ACanvas2d: TBGRACanvas2D; x, y: single; destDpi: TPointF);
 begin
-  if (Units.DpiX = 0) or (Units.DpiY = 0) then exit;
-  prevMatrix := ACanvas2d.matrix;
+  ACanvas2d.save;
   ACanvas2d.translate(x,y);
-  if AUnit = cuPixel then
-    ACanvas2d.scale(destDpi.x/Units.DpiX,destDpi.y/Units.DpiY);
-  Content.Draw(ACanvas2d,AUnit);
-  ACanvas2d.matrix := prevMatrix;
+  ACanvas2d.scale(destDpi.x/Units.DpiX,destDpi.y/Units.DpiY);
+  ACanvas2d.strokeResetTransform;
+  ACanvas2d.strokeScale(destDpi.x/Units.DpiX,destDpi.y/Units.DpiY);
+  Draw(ACanvas2d, 0,0, cuPixel);
+  ACanvas2d.restore;
 end;
 
-procedure TBGRASVG.InternalDraw(ACanvas2d: TBGRACanvas2D; x, y: single;
-  AUnit: TCSSUnit; destDpi: single);
+procedure TBGRASVG.StretchDraw(ACanvas2d: TBGRACanvas2D; x, y, w, h: single);
 begin
-  InternalDraw(ACanvas2d,x,y,AUnit,PointF(destDpi,destDpi));
+  ACanvas2d.save;
+  ACanvas2d.translate(x,y);
+  ACanvas2d.strokeResetTransform;
+  with ViewBoxInUnit[cuPixel] do
+  begin
+    ACanvas2d.translate(-min.x,-min.y);
+    if size.x <> 0 then
+    begin
+      ACanvas2d.scale(w/size.x,1);
+      ACanvas2d.strokeScale(w/size.x,1);
+    end;
+    if size.y <> 0 then
+    begin
+      ACanvas2d.scale(1,h/size.y);
+      ACanvas2d.strokeScale(1,h/size.y);
+    end;
+  end;
+  Draw(ACanvas2d, 0,0);
+  ACanvas2d.restore;
+end;
+
+procedure TBGRASVG.StretchDraw(ACanvas2d: TBGRACanvas2D;
+  AHorizAlign: TAlignment; AVertAlign: TTextLayout; x, y, w, h: single);
+var ratio,stretchRatio,zoom: single;
+  vb: TSVGViewBox;
+  sx,sy,sw,sh: single;
+begin
+  vb := ViewBoxInUnit[cuPixel];
+  if (h = 0) or (w = 0) or (vb.size.x = 0) or (vb.size.y = 0) then exit;
+  ratio := vb.size.x/vb.size.y;
+  stretchRatio := w/h;
+  if ratio > stretchRatio then
+    zoom := w / vb.size.x
+  else
+    zoom := h / vb.size.y;
+
+  sx := x;
+  sy := y;
+  sw := vb.size.x*zoom;
+  sh := vb.size.y*zoom;
+
+  case AHorizAlign of
+    taCenter: sx += (w - sw)/2;
+    taRightJustify: sx += w - sw;
+  end;
+  case AVertAlign of
+    tlCenter: sy += (h - sh)/2;
+    tlBottom: sy += h - sh;
+  end;
+  StretchDraw(ACanvas2d, sx,sy,sw,sh);
 end;
 
 end.

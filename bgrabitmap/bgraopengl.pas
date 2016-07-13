@@ -23,7 +23,14 @@ type
   TBGLCustomElementArray = BGRACanvasGL.TBGLCustomElementArray;
   TBGLCustomArray = BGRACanvasGL.TBGLCustomArray;
   TOpenGLPrimitive = BGRAOpenGLType.TOpenGLPrimitive;
+  TTextLayout = BGRAGraphics.TTextLayout;
 
+const
+  tlTop = BGRAGraphics.tlTop;
+  tlCenter = BGRAGraphics.tlCenter;
+  tlBottom = BGRAGraphics.tlBottom;
+
+type
   { TBGLContext }
 
   TBGLContext = object

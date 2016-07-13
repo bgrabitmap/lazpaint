@@ -191,10 +191,11 @@ function AffineMatrix(m11,m12,m13,m21,m22,m23: single): TAffineMatrix;
 
 //matrix multiplication
 operator *(M,N: TAffineMatrix): TAffineMatrix;
+operator =(M,N: TAffineMatrix): boolean;
 
 //matrix multiplication by a vector (apply transformation to that vector)
 operator *(M: TAffineMatrix; V: TPointF): TPointF;
-operator *(M: TAffineMatrix; A: ArrayOfTPointF): ArrayOfTPointF;
+operator *(M: TAffineMatrix; A: array of TPointF): ArrayOfTPointF;
 
 //check if matrix is inversible
 function IsAffineMatrixInversible(M: TAffineMatrix): boolean;
@@ -216,6 +217,11 @@ function AffineMatrixTranslation(OfsX,OfsY: Single): TAffineMatrix;
 
 //define a scaling matrix
 function AffineMatrixScale(sx,sy: single): TAffineMatrix;
+
+function AffineMatrixSkewXDeg(AngleCW: single): TAffineMatrix;
+function AffineMatrixSkewYDeg(AngleCW: single): TAffineMatrix;
+function AffineMatrixSkewXRad(AngleCCW: single): TAffineMatrix;
+function AffineMatrixSkewYRad(AngleCCW: single): TAffineMatrix;
 
 //define a linear matrix
 function AffineMatrixLinear(v1,v2: TPointF): TAffineMatrix;
@@ -334,7 +340,7 @@ type
 
 implementation
 
-uses BGRABlend;
+uses BGRABlend, Math;
 
 function AffineMatrix(m11, m12, m13, m21, m22, m23: single): TAffineMatrix;
 begin
@@ -357,6 +363,11 @@ begin
   result[2,3] := M[2,1]*N[1,3] + M[2,2]*N[2,3] + M[2,3];
 end;
 
+operator=(M, N: TAffineMatrix): boolean;
+begin
+  result := CompareMem(@M,@N,SizeOf(TAffineMatrix));
+end;
+
 operator*(M: TAffineMatrix; V: TPointF): TPointF;
 begin
   if isEmptyPointF(V) then
@@ -368,7 +379,7 @@ begin
   end;
 end;
 
-operator*(M: TAffineMatrix; A: ArrayOfTPointF): ArrayOfTPointF;
+operator*(M: TAffineMatrix; A: array of TPointF): ArrayOfTPointF;
 var
   i: NativeInt;
   ofs: TPointF;
@@ -391,7 +402,7 @@ end;
 
 function IsAffineMatrixTranslation(M: TAffineMatrix): boolean;
 begin
-  result := (m[1,1]=1) and (m[1,2]=0) and (m[2,1] = 1) and (m[2,2]=0);
+  result := (m[1,1]=1) and (m[1,2]=0) and (m[2,1] = 0) and (m[2,2]=1);
 end;
 
 function IsAffineMatrixScale(M: TAffineMatrix): boolean;
@@ -426,8 +437,33 @@ end;
 
 function AffineMatrixScale(sx, sy: single): TAffineMatrix;
 begin
-  result := AffineMatrix(sx, 0,    0,
-                         0,  sy, 0);
+  result := AffineMatrix(sx, 0,   0,
+                         0,  sy,  0);
+end;
+
+function AffineMatrixSkewXDeg(AngleCW: single): TAffineMatrix;
+begin
+  result := AffineMatrix(1,tan(AngleCW*Pi/180),0,
+                         0,        1,          0);
+end;
+
+function AffineMatrixSkewYDeg(AngleCW: single): TAffineMatrix;
+begin
+  result := AffineMatrix(1,           0, 0,
+                 tan(AngleCW*Pi/180), 1, 0)
+end;
+
+function AffineMatrixSkewXRad(AngleCCW: single): TAffineMatrix;
+begin
+
+  result := AffineMatrix(1,tan(-AngleCCW),0,
+                         0,      1,       0);
+end;
+
+function AffineMatrixSkewYRad(AngleCCW: single): TAffineMatrix;
+begin
+  result := AffineMatrix(1,          0, 0,
+                    tan(-angleCCW),  1, 0)
 end;
 
 function AffineMatrixLinear(v1,v2: TPointF): TAffineMatrix;

@@ -5,7 +5,7 @@ unit BGRASpriteGL;
 interface
 
 uses
-  Classes, SysUtils, BGRAGraphics, BGRAOpenGLType,
+  Classes, SysUtils, BGRAOpenGLType,
   BGRABitmapTypes;
 
 type

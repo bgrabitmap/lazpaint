@@ -11,7 +11,7 @@ interface
   A poly-polyline consists in a series of polylines, defined by polyline points separated by empty points (see EmptyPointF) }
 
 uses
-  SysUtils, BGRAGraphics, BGRABitmapTypes;
+  SysUtils, BGRAGraphics, BGRABitmapTypes, BGRATransform;
 
 var   //predefined pen styles
   SolidPenStyle, DashPenStyle, DotPenStyle, DashDotPenStyle, DashDotDotPenStyle, ClearPenStyle: TBGRAPenStyle;
@@ -21,8 +21,6 @@ type
   { TBGRAPenStroker }
 
   TBGRAPenStroker = class(TBGRACustomPenStroker)
-  private
-    FArrowOwned: boolean;
     protected
       { Pen style can be defined by PenStyle property of by CustomPenStyle property.
       When PenStyle property is assigned, CustomPenStyle property is assigned the actual
@@ -30,14 +28,31 @@ type
       FCustomPenStyle: TBGRAPenStyle;
       FPenStyle: TPenStyle;
       FArrow: TBGRACustomArrow;
+      FArrowOwned: boolean;
+      FOriginalStrokeMatrix,FStrokeMatrix,FStrokeMatrixInverse: TAffineMatrix;
+      FStrokeZoom: single;
+      FStrokeMatrixIdentity: boolean;
+      FLineCap: TPenEndCap;
+      FJoinStyle: TPenJoinStyle;
+      FMiterLimit: single;
 
-      procedure SetPenStyle(AValue: TPenStyle);
-      procedure SetCustomPenStyle(AValue: TBGRAPenStyle);
+      function GetArrow: TBGRACustomArrow; override;
+      function GetArrowOwned: boolean; override;
+      function GetCustomPenStyle: TBGRAPenStyle; override;
+      function GetJoinStyle: TPenJoinStyle; override;
+      function GetLineCap: TPenEndCap; override;
+      function GetMiterLimit: single; override;
+      function GetPenStyle: TPenStyle; override;
+      function GetStrokeMatrix: TAffineMatrix; override;
+      procedure SetArrow(AValue: TBGRACustomArrow); override;
+      procedure SetArrowOwned(AValue: boolean); override;
+      procedure SetCustomPenStyle(AValue: TBGRAPenStyle); override;
+      procedure SetJoinStyle(AValue: TPenJoinStyle); override;
+      procedure SetLineCap(AValue: TPenEndCap); override;
+      procedure SetMiterLimit(AValue: single); override;
+      procedure SetPenStyle(AValue: TPenStyle); override;
+      procedure SetStrokeMatrix(const AValue: TAffineMatrix); override;
     public
-      LineCap: TPenEndCap;
-      JoinStyle: TPenJoinStyle;
-      MiterLimit: single;
-
       constructor Create;
       destructor Destroy; override;
       function ComputePolyline(const APoints: array of TPointF; AWidth: single; AClosedCap: boolean = true): ArrayOfTPointF; override;
@@ -45,10 +60,6 @@ type
       function ComputePolylineAutocycle(const APoints: array of TPointF; AWidth: single): ArrayOfTPointF; override;
       function ComputePolygon(const APoints: array of TPointF; AWidth: single): ArrayOfTPointF; override;
 
-      property PenStyle: TPenStyle read FPenStyle write SetPenStyle;
-      property CustomPenStyle: TBGRAPenStyle read FCustomPenStyle write SetCustomPenStyle;
-      property Arrow: TBGRACustomArrow read FArrow write FArrow;
-      property ArrowOwned: boolean read FArrowOwned write FArrowOwned;
   end;
 
   TBGRAPolyLineOption = (plRoundCapOpen, //specifies that the line ending is opened
@@ -1500,17 +1511,101 @@ end;
 
 { TBGRAPenStroker }
 
+function TBGRAPenStroker.GetArrow: TBGRACustomArrow;
+begin
+  result := FArrow;
+end;
+
+function TBGRAPenStroker.GetArrowOwned: boolean;
+begin
+  result := FArrowOwned;
+end;
+
+function TBGRAPenStroker.GetCustomPenStyle: TBGRAPenStyle;
+begin
+  result := FCustomPenStyle;
+end;
+
+function TBGRAPenStroker.GetJoinStyle: TPenJoinStyle;
+begin
+  result := FJoinStyle;
+end;
+
+function TBGRAPenStroker.GetLineCap: TPenEndCap;
+begin
+  result := FLineCap;
+end;
+
+function TBGRAPenStroker.GetMiterLimit: single;
+begin
+  result := FMiterLimit;
+end;
+
+function TBGRAPenStroker.GetPenStyle: TPenStyle;
+begin
+  result := FPenStyle;
+end;
+
+function TBGRAPenStroker.GetStrokeMatrix: TAffineMatrix;
+begin
+  result := FOriginalStrokeMatrix;
+end;
+
+procedure TBGRAPenStroker.SetArrow(AValue: TBGRACustomArrow);
+begin
+  FArrow := AValue;
+end;
+
+procedure TBGRAPenStroker.SetArrowOwned(AValue: boolean);
+begin
+  FArrowOwned := AValue;
+end;
+
 procedure TBGRAPenStroker.SetCustomPenStyle(AValue: TBGRAPenStyle);
 begin
   if FCustomPenStyle=AValue then Exit;
   FCustomPenStyle:=AValue;
-  if IsSolidPenStyle(AValue) then FPenStyle := psSolid
-  else if IsClearPenStyle(AValue) then FPenStyle:= psClear
+  if AValue = SolidPenStyle then FPenStyle := psSolid
+  else if AValue = ClearPenStyle then FPenStyle:= psClear
   else if AValue = DashPenStyle then FPenStyle:= psDash
   else if AValue = DotPenStyle then FPenStyle := psDot
   else if AValue = DashDotPenStyle then FPenStyle:= psDashDot
   else if AValue = DashDotDotPenStyle then FPenStyle:= psDashDotDot
-  else FPenStyle := psPattern;
+  else
+  begin
+    FPenStyle := psPattern;
+    FCustomPenStyle:= DuplicatePenStyle(AValue);
+  end;
+end;
+
+procedure TBGRAPenStroker.SetJoinStyle(AValue: TPenJoinStyle);
+begin
+  FJoinStyle:= AValue;
+end;
+
+procedure TBGRAPenStroker.SetLineCap(AValue: TPenEndCap);
+begin
+  FLineCap:= AValue;
+end;
+
+procedure TBGRAPenStroker.SetMiterLimit(AValue: single);
+begin
+  FMiterLimit := AValue;
+end;
+
+procedure TBGRAPenStroker.SetStrokeMatrix(const AValue: TAffineMatrix);
+begin
+  if FOriginalStrokeMatrix=AValue then Exit;
+  FOriginalStrokeMatrix:=AValue;
+  FStrokeMatrix := AValue;
+  FStrokeMatrix[1,3] := 0;
+  FStrokeMatrix[2,3] := 0;
+  FStrokeZoom := max(VectLen(PointF(FStrokeMatrix[1,1],FStrokeMatrix[2,1])),
+          VectLen(PointF(FStrokeMatrix[1,2],FStrokeMatrix[2,2])));
+  if FStrokeZoom > 0 then
+    FStrokeMatrix *= AffineMatrixScale(1/FStrokeZoom,1/FStrokeZoom);
+  FStrokeMatrixIdentity := IsAffineMatrixIdentity(FStrokeMatrix);
+  FStrokeMatrixInverse := AffineMatrixInverse(FStrokeMatrix);
 end;
 
 procedure TBGRAPenStroker.SetPenStyle(AValue: TPenStyle);
@@ -1529,10 +1624,12 @@ end;
 
 constructor TBGRAPenStroker.Create;
 begin
-  PenStyle := psSolid;
+  Style := psSolid;
   LineCap := pecRound;
   JoinStyle := pjsBevel;
   MiterLimit := 2;
+  fillchar(FOriginalStrokeMatrix,sizeof(FOriginalStrokeMatrix),0);
+  StrokeMatrix := AffineMatrixIdentity;
 end;
 
 destructor TBGRAPenStroker.Destroy;
@@ -1550,7 +1647,11 @@ begin
     c := BGRAWhite //needed for alpha junction
   else
     c := BGRAPixelTransparent;
-  result := ComputePolyline(APoints,AWidth,c,AClosedCap);
+
+  if FStrokeMatrixIdentity then
+    result := ComputePolyline(APoints,AWidth*FStrokeZoom,c,AClosedCap)
+  else
+    result := FStrokeMatrix*ComputePolyline(FStrokeMatrixInverse*APoints,AWidth*FStrokeZoom,c,AClosedCap);
 end;
 
 function TBGRAPenStroker.ComputePolyline(const APoints: array of TPointF;
@@ -1561,19 +1662,32 @@ begin
   if Assigned(Arrow) and Arrow.IsStartDefined then options += [plNoStartCap];
   if Assigned(Arrow) and Arrow.IsEndDefined then options += [plNoEndCap];
   if not AClosedCap then options += [plRoundCapOpen];
-  result := BGRAPen.ComputeWidePolylinePoints(APoints, AWidth, APenColor, LineCap, JoinStyle, CustomPenStyle, options, MiterLimit, Arrow);
+  if FStrokeMatrixIdentity then
+    result := BGRAPen.ComputeWidePolylinePoints(APoints, AWidth*FStrokeZoom, APenColor, LineCap, JoinStyle, CustomPenStyle, options, MiterLimit, Arrow)
+  else
+    result := FStrokeMatrix*BGRAPen.ComputeWidePolylinePoints(FStrokeMatrixInverse*APoints, AWidth*FStrokeZoom, APenColor, LineCap, JoinStyle, CustomPenStyle, options, MiterLimit, Arrow);
 end;
 
 function TBGRAPenStroker.ComputePolylineAutocycle(
   const APoints: array of TPointF; AWidth: single): ArrayOfTPointF;
+var options: TBGRAPolyLineOptions;
 begin
-  result := BGRAPen.ComputeWidePolylinePoints(APoints, AWidth, BGRAPixelTransparent, LineCap, JoinStyle, CustomPenStyle, [plAutoCycle], MiterLimit, Arrow);
+  options := [plAutoCycle];
+  if Assigned(Arrow) and Arrow.IsStartDefined then options += [plNoStartCap];
+  if Assigned(Arrow) and Arrow.IsEndDefined then options += [plNoEndCap];
+  if FStrokeMatrixIdentity then
+    result := BGRAPen.ComputeWidePolylinePoints(APoints, AWidth*FStrokeZoom, BGRAPixelTransparent, LineCap, JoinStyle, CustomPenStyle, options, MiterLimit, Arrow)
+  else
+    result := FStrokeMatrix*BGRAPen.ComputeWidePolylinePoints(FStrokeMatrixInverse*APoints, AWidth*FStrokeZoom, BGRAPixelTransparent, LineCap, JoinStyle, CustomPenStyle, options, MiterLimit, Arrow)
 end;
 
 function TBGRAPenStroker.ComputePolygon(const APoints: array of TPointF;
   AWidth: single): ArrayOfTPointF;
 begin
-  result := BGRAPen.ComputeWidePolylinePoints(APoints, AWidth, BGRAPixelTransparent, LineCap, JoinStyle, CustomPenStyle, [plCycle], MiterLimit);
+  if FStrokeMatrixIdentity then
+    result := BGRAPen.ComputeWidePolylinePoints(APoints, AWidth*FStrokeZoom, BGRAPixelTransparent, LineCap, JoinStyle, CustomPenStyle, [plCycle], MiterLimit)
+  else
+    result := FStrokeMatrix*BGRAPen.ComputeWidePolylinePoints(FStrokeMatrixInverse*APoints, AWidth*FStrokeZoom, BGRAPixelTransparent, LineCap, JoinStyle, CustomPenStyle, [plCycle], MiterLimit);
 end;
 
 initialization

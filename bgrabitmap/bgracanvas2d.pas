@@ -42,6 +42,11 @@ type
   { TBGRACanvasState2D }
 
   TBGRACanvasState2D = class
+  private
+    FClipMask: TBGRACustomBitmap;
+    FClipMaskOwned: boolean;
+    function GetClipMaskReadWrite: TBGRACustomBitmap;
+  public
     strokeColor: TBGRAPixel;
     strokeTextureProvider: IBGRACanvasTextureProvider2D;
     fillColor: TBGRAPixel;
@@ -62,10 +67,12 @@ type
     shadowFastest: boolean;
 
     matrix: TAffineMatrix;
-    clipMask: TBGRACustomBitmap;
-    constructor Create(AMatrix: TAffineMatrix; AClipMask: TBGRACustomBitmap);
+    constructor Create(AMatrix: TAffineMatrix; AClipMask: TBGRACustomBitmap; AClipMaskOwned: boolean);
     function Duplicate: TBGRACanvasState2D;
     destructor Destroy; override;
+    procedure SetClipMask(AClipMask: TBGRACustomBitmap; AOwned: boolean);
+    property clipMaskReadOnly: TBGRACustomBitmap read FClipMask;
+    property clipMaskReadWrite: TBGRACustomBitmap read GetClipMaskReadWrite;
   end;
 
   TCanvas2dTextSize = record
@@ -107,6 +114,7 @@ type
     function GetShadowOffset: TPointF;
     function GetShadowOffsetX: single;
     function GetShadowOffsetY: single;
+    function GetStrokeMatrix: TAffineMatrix;
     function GetTextAlign: string;
     function GetTextAlignLCL: TAlignment;
     function GetTextBaseline: string;
@@ -132,6 +140,7 @@ type
     procedure SetShadowOffset(const AValue: TPointF);
     procedure SetShadowOffsetX(const AValue: single);
     procedure SetShadowOffsetY(const AValue: single);
+    procedure SetStrokeMatrix(AValue: TAffineMatrix);
     procedure SetTextAlign(AValue: string);
     procedure SetTextAlignLCL(AValue: TAlignment);
     procedure SetTextBaseine(AValue: string);
@@ -165,10 +174,18 @@ type
     procedure scale(factor: single); overload;
     procedure rotate(angleRadCW: single);
     procedure translate(x,y: single);
-    procedure transform(a,b,c,d,e,f: single); overload;
+    procedure skewx(angleRadCW: single);
+    procedure skewy(angleRadCW: single);
+    procedure transform(m11,m21, m12,m22, m13,m23: single); overload;
     procedure transform(AMatrix: TAffineMatrix); overload;
-    procedure setTransform(a,b,c,d,e,f: single);
+    procedure setTransform(m11,m21, m12,m22, m13,m23: single);
     procedure resetTransform;
+
+    procedure strokeScale(x,y: single);
+    procedure strokeSkewx(angleRadCW: single);
+    procedure strokeSkewy(angleRadCW: single);
+    procedure strokeResetTransform;
+
     procedure strokeStyle(color: TBGRAPixel); overload;
     procedure strokeStyle(color: TColor); overload;
     procedure strokeStyle(color: string); overload;
@@ -256,6 +273,7 @@ type
     property pixelCenteredCoordinates: boolean read GetPixelCenteredCoordinates write SetPixelCenteredCoordinates;
     property globalAlpha: single read GetGlobalAlpha write SetGlobalAlpha;
     property matrix: TAffineMatrix read GetMatrix write SetMatrix;
+    property strokeMatrix: TAffineMatrix read GetStrokeMatrix write SetStrokeMatrix;
 
     property lineWidth: single read GetLineWidth write SetLineWidth;
     property lineCap: string read GetLineCap write SetLineCap;
@@ -524,8 +542,19 @@ end;
 
 { TBGRACanvasState2D }
 
+function TBGRACanvasState2D.GetClipMaskReadWrite: TBGRACustomBitmap;
+begin
+  if not FClipMaskOwned then
+  begin
+    if FClipMask <> nil then
+      FClipMask := FClipMask.Duplicate;
+    FClipMaskOwned := true;
+  end;
+  result := FClipMask;
+end;
+
 constructor TBGRACanvasState2D.Create(AMatrix: TAffineMatrix;
-  AClipMask: TBGRACustomBitmap);
+  AClipMask: TBGRACustomBitmap; AClipMaskOwned: boolean);
 begin
   strokeColor := BGRABlack;
   fillColor := BGRABlack;
@@ -543,6 +572,7 @@ begin
   penStroker.JoinStyle := pjsMiter;
   penStroker.CustomPenStyle := DuplicatePenStyle(SolidPenStyle);
   penStroker.MiterLimit := 10;
+  penStroker.StrokeMatrix := AffineMatrixIdentity;
 
   shadowOffsetX := 0;
   shadowOffsetY := 0;
@@ -551,15 +581,14 @@ begin
   shadowFastest:= false;
 
   matrix := AMatrix;
-  if AClipMask = nil then
-    clipMask := nil
-  else
-    clipMask := AClipMask.Duplicate;
+  FClipMask := nil;
+  FClipMaskOwned := true;
+  SetClipMask(AClipMask,AClipMaskOwned);
 end;
 
 function TBGRACanvasState2D.Duplicate: TBGRACanvasState2D;
 begin
-  result := TBGRACanvasState2D.Create(matrix,clipMask);
+  result := TBGRACanvasState2D.Create(matrix,clipMaskReadOnly,false);
   result.strokeColor := strokeColor;
   result.strokeTextureProvider := strokeTextureProvider;
   result.fillColor := fillColor;
@@ -571,11 +600,11 @@ begin
   result.fontStyle := fontStyle;
 
   result.lineWidth := lineWidth;
-  result.penStroker := TBGRAPenStroker.Create;
   result.penStroker.LineCap := penStroker.LineCap;
   result.penStroker.JoinStyle := penStroker.JoinStyle;
   result.penStroker.CustomPenStyle := DuplicatePenStyle(penStroker.CustomPenStyle);
   result.penStroker.MiterLimit := penStroker.MiterLimit;
+  result.penStroker.StrokeMatrix := penStroker.StrokeMatrix;
 
   result.shadowOffsetX := shadowOffsetX;
   result.shadowOffsetY := shadowOffsetY;
@@ -586,9 +615,18 @@ end;
 
 destructor TBGRACanvasState2D.Destroy;
 begin
-  clipMask.Free;
+  if FClipMaskOwned and Assigned(FClipMask) then
+    FClipMask.Free;
   penStroker.Free;
   inherited Destroy;
+end;
+
+procedure TBGRACanvasState2D.SetClipMask(AClipMask: TBGRACustomBitmap;
+  AOwned: boolean);
+begin
+  if FClipMaskOwned and Assigned(FClipMask) then FreeAndNil(FClipMask);
+  FClipMask := AClipMask;
+  FClipMaskOwned := AOwned;
 end;
 
 { TBGRACanvas2D }
@@ -677,6 +715,11 @@ end;
 function TBGRACanvas2D.GetShadowOffsetY: single;
 begin
   result := currentState.shadowOffsetY;
+end;
+
+function TBGRACanvas2D.GetStrokeMatrix: TAffineMatrix;
+begin
+  result := currentState.penStroker.StrokeMatrix;
 end;
 
 function TBGRACanvas2D.GetTextAlign: string;
@@ -905,12 +948,12 @@ var
 begin
   if (length(points) = 0) or (surface = nil) then exit;
   If hasShadow then DrawShadow(points,[]);
-  if currentState.clipMask <> nil then
+  if currentState.clipMaskReadOnly <> nil then
   begin
     if currentState.fillTextureProvider <> nil then
-      tempScan := TBGRATextureMaskScanner.Create(currentState.clipMask,Point(0,0),currentState.fillTextureProvider.texture,currentState.globalAlpha)
+      tempScan := TBGRATextureMaskScanner.Create(currentState.clipMaskReadOnly,Point(0,0),currentState.fillTextureProvider.texture,currentState.globalAlpha)
     else
-      tempScan := TBGRASolidColorMaskScanner.Create(currentState.clipMask,Point(0,0),ApplyGlobalAlpha(currentState.fillColor));
+      tempScan := TBGRASolidColorMaskScanner.Create(currentState.clipMaskReadOnly,Point(0,0),ApplyGlobalAlpha(currentState.fillColor));
     if self.antialiasing then
       BGRAPolygon.FillPolyAntialiasWithTexture(surface, points, tempScan, true, linearBlend)
     else
@@ -959,12 +1002,12 @@ begin
   tempScan2 := nil;
   multi := TBGRAMultishapeFiller.Create;
   multi.FillMode := fmWinding;
-  if currentState.clipMask <> nil then
+  if currentState.clipMaskReadOnly <> nil then
   begin
     if currentState.fillTextureProvider <> nil then
-      tempScan := TBGRATextureMaskScanner.Create(currentState.clipMask,Point(0,0),currentState.fillTextureProvider.texture,currentState.globalAlpha)
+      tempScan := TBGRATextureMaskScanner.Create(currentState.clipMaskReadOnly,Point(0,0),currentState.fillTextureProvider.texture,currentState.globalAlpha)
     else
-      tempScan := TBGRASolidColorMaskScanner.Create(currentState.clipMask,Point(0,0),ApplyGlobalAlpha(currentState.fillColor));
+      tempScan := TBGRASolidColorMaskScanner.Create(currentState.clipMaskReadOnly,Point(0,0),ApplyGlobalAlpha(currentState.fillColor));
     multi.AddPolygon(points, tempScan);
   end else
   begin
@@ -985,12 +1028,12 @@ begin
   begin
     contour := currentState.penStroker.ComputePolylineAutocycle(points,currentState.lineWidth);
 
-    if currentState.clipMask <> nil then
+    if currentState.clipMaskReadOnly <> nil then
     begin
       if currentState.strokeTextureProvider <> nil then
-        tempScan2 := TBGRATextureMaskScanner.Create(currentState.clipMask,Point(0,0),currentState.strokeTextureProvider.texture,currentState.globalAlpha)
+        tempScan2 := TBGRATextureMaskScanner.Create(currentState.clipMaskReadOnly,Point(0,0),currentState.strokeTextureProvider.texture,currentState.globalAlpha)
       else
-        tempScan2 := TBGRASolidColorMaskScanner.Create(currentState.clipMask,Point(0,0),ApplyGlobalAlpha(currentState.strokeColor));
+        tempScan2 := TBGRASolidColorMaskScanner.Create(currentState.clipMaskReadOnly,Point(0,0),ApplyGlobalAlpha(currentState.strokeColor));
       multi.AddPolygon(contour,tempScan);
     end else
     begin
@@ -1105,6 +1148,11 @@ begin
   currentState.shadowOffsetY := AValue;
 end;
 
+procedure TBGRACanvas2D.SetStrokeMatrix(AValue: TAffineMatrix);
+begin
+  currentState.penStroker.strokeMatrix := AValue;
+end;
+
 procedure TBGRACanvas2D.SetTextAlign(AValue: string);
 begin
   AValue := trim(LowerCase(AValue));
@@ -1136,12 +1184,12 @@ begin
   contour := currentState.penStroker.ComputePolylineAutocycle(points,currentState.lineWidth);
 
   If hasShadow then DrawShadow(contour,[]);
-  if currentState.clipMask <> nil then
+  if currentState.clipMaskReadOnly <> nil then
   begin
     if currentState.strokeTextureProvider <> nil then
-      tempScan := TBGRATextureMaskScanner.Create(currentState.clipMask,Point(0,0),currentState.strokeTextureProvider.texture,currentState.globalAlpha)
+      tempScan := TBGRATextureMaskScanner.Create(currentState.clipMaskReadOnly,Point(0,0),currentState.strokeTextureProvider.texture,currentState.globalAlpha)
     else
-      tempScan := TBGRASolidColorMaskScanner.Create(currentState.clipMask,Point(0,0),ApplyGlobalAlpha(currentState.strokeColor));
+      tempScan := TBGRASolidColorMaskScanner.Create(currentState.clipMaskReadOnly,Point(0,0),ApplyGlobalAlpha(currentState.strokeColor));
     if self.antialiasing then
       BGRAPolygon.FillPolyAntialiasWithTexture(Surface,contour,tempScan,True, linearBlend)
     else
@@ -1209,7 +1257,7 @@ begin
     ofsPts2[i] := points2[i]+offset;
 
   maxRect := Types.Rect(0,0,width,height);
-  if currentState.clipMask <> nil then
+  if currentState.clipMaskReadOnly <> nil then
     foundRect := maxRect
   else
   begin
@@ -1253,8 +1301,8 @@ begin
       tempBmp := blurred;
     end;
   end;
-  if currentState.clipMask <> nil then
-    tempBmp.ApplyMask(currentState.clipMask);
+  if currentState.clipMaskReadOnly <> nil then
+    tempBmp.ApplyMask(currentState.clipMaskReadOnly);
   surface.PutImage(foundRect.Left,foundRect.Top,tempBmp,GetDrawMode,currentState.globalAlpha);
   tempBmp.Free;
 end;
@@ -1383,7 +1431,7 @@ begin
   FPathPointCount := 0;
   FLastCoord := EmptyPointF;
   FStartCoord := EmptyPointF;
-  currentState := TBGRACanvasState2D.Create(AffineMatrixIdentity,nil);
+  currentState := TBGRACanvasState2D.Create(AffineMatrixIdentity,nil,true);
   pixelCenteredCoordinates := false;
   antialiasing := true;
 end;
@@ -1475,9 +1523,20 @@ begin
   currentState.matrix *= AffineMatrixTranslation(x,y);
 end;
 
-procedure TBGRACanvas2D.transform(a, b, c, d, e, f: single);
+procedure TBGRACanvas2D.skewx(angleRadCW: single);
 begin
-  currentState.matrix *= AffineMatrix(a,c,e,b,d,f);
+  currentState.matrix *= AffineMatrixSkewXRad(-angleRadCW);
+end;
+
+procedure TBGRACanvas2D.skewy(angleRadCW: single);
+begin
+  currentState.matrix *= AffineMatrixSkewYRad(-angleRadCW);
+end;
+
+procedure TBGRACanvas2D.transform(m11,m21, m12,m22, m13,m23: single);
+begin
+  currentState.matrix *= AffineMatrix(m11,m12,m13,
+                                      m21,m22,m23);
 end;
 
 procedure TBGRACanvas2D.transform(AMatrix: TAffineMatrix);
@@ -1485,14 +1544,35 @@ begin
   currentState.matrix *= AMatrix;
 end;
 
-procedure TBGRACanvas2D.setTransform(a, b, c, d, e, f: single);
+procedure TBGRACanvas2D.setTransform(m11,m21, m12,m22, m13,m23: single);
 begin
-  currentState.matrix := AffineMatrix(a,c,e,b,d,f);
+  currentState.matrix := AffineMatrix(m11,m12,m13,
+                                      m21,m22,m23);
 end;
 
 procedure TBGRACanvas2D.resetTransform;
 begin
   currentState.matrix := AffineMatrixIdentity;
+end;
+
+procedure TBGRACanvas2D.strokeScale(x, y: single);
+begin
+  currentState.penStroker.strokeMatrix := currentState.penStroker.strokeMatrix * AffineMatrixScale(x,y);
+end;
+
+procedure TBGRACanvas2D.strokeSkewx(angleRadCW: single);
+begin
+  currentState.penStroker.strokeMatrix := currentState.penStroker.strokeMatrix * AffineMatrixSkewXRad(-angleRadCW);
+end;
+
+procedure TBGRACanvas2D.strokeSkewy(angleRadCW: single);
+begin
+  currentState.penStroker.strokeMatrix := currentState.penStroker.strokeMatrix * AffineMatrixSkewYRad(-angleRadCW);
+end;
+
+procedure TBGRACanvas2D.strokeResetTransform;
+begin
+  currentState.penStroker.strokeMatrix := AffineMatrixIdentity;
 end;
 
 procedure TBGRACanvas2D.strokeStyle(color: TBGRAPixel);
@@ -2099,30 +2179,30 @@ var
 begin
   if FPathPointCount = 0 then
   begin
-    currentState.clipMask.Fill(BGRABlack);
+    currentState.clipMaskReadWrite.Fill(BGRABlack);
     exit;
   end;
-  if currentState.clipMask = nil then
-    currentState.clipMask := surface.NewBitmap(width,height,BGRAWhite);
+  if currentState.clipMaskReadOnly = nil then
+    currentState.SetClipMask(surface.NewBitmap(width,height,BGRAWhite),True);
   tempBmp := surface.NewBitmap(width,height,BGRABlack);
   if antialiasing then
     tempBmp.FillPolyAntialias(slice(FPathPoints,FPathPointCount),BGRAWhite)
   else
     tempBmp.FillPoly(slice(FPathPoints,FPathPointCount),BGRAWhite,dmSet);
-  currentState.clipMask.BlendImage(0,0,tempBmp,boDarken);
+  currentState.clipMaskReadWrite.BlendImage(0,0,tempBmp,boDarken);
   tempBmp.Free;
 end;
 
 procedure TBGRACanvas2D.unclip;
 begin
   if FPathPointCount = 0 then exit;
-  if currentState.clipMask = nil then exit;
+  if currentState.clipMaskReadOnly = nil then exit;
   if antialiasing then
-    currentState.clipMask.FillPolyAntialias(slice(FPathPoints,FPathPointCount),BGRAWhite)
+    currentState.clipMaskReadWrite.FillPolyAntialias(slice(FPathPoints,FPathPointCount),BGRAWhite)
   else
-    currentState.clipMask.FillPoly(slice(FPathPoints,FPathPointCount),BGRAWhite,dmSet);
-  if currentState.clipMask.Equals(BGRAWhite) then
-    FreeAndNil(currentState.clipMask);
+    currentState.clipMaskReadWrite.FillPoly(slice(FPathPoints,FPathPointCount),BGRAWhite,dmSet);
+  if currentState.clipMaskReadOnly.Equals(BGRAWhite) then
+    currentState.SetClipMask(nil,true);
 end;
 
 function TBGRACanvas2D.isPointInPath(x, y: single): boolean;

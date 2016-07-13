@@ -25,10 +25,14 @@ type
       function GetIsFillNone: boolean;
       function GetIsStrokeNone: boolean;
       function GetMatrix(AUnit: TCSSUnit): TAffineMatrix;
+      function GetOpacity: single;
       function GetOrthoAttributeOrStyleWithUnit(AName: string
         ): TFloatWithCSSUnit;
       function GetStroke: string;
       function GetStrokeColor: TBGRAPixel;
+      function GetStrokeLineCap: string;
+      function GetStrokeLineJoin: string;
+      function GetStrokeMiterLimit: single;
       function GetStrokeOpacity: single;
       function GetStrokeWidth: TFloatWithCSSUnit;
       function GetStyle(const AName: string): string;
@@ -49,8 +53,12 @@ type
       procedure SetFillOpacity(AValue: single);
       procedure SetHorizAttributeWithUnit(AName: string; AValue: TFloatWithCSSUnit);
       procedure SetMatrix(AUnit: TCSSUnit; const AValue: TAffineMatrix);
+      procedure SetOpacity(AValue: single);
       procedure SetStroke(AValue: string);
       procedure SetStrokeColor(AValue: TBGRAPixel);
+      procedure SetStrokeLineCap(AValue: string);
+      procedure SetStrokeLineJoin(AValue: string);
+      procedure SetStrokeMiterLimit(AValue: single);
       procedure SetStrokeOpacity(AValue: single);
       procedure SetStrokeWidth(AValue: TFloatWithCSSUnit);
       procedure SetStyle(AName: string; AValue: string);
@@ -65,6 +73,7 @@ type
       procedure Init({%H-}ADocument: TXMLDocument; AElement: TDOMElement; AUnits: TCSSUnitConverter); overload;
       procedure InternalDraw({%H-}ACanvas2d: TBGRACanvas2D; {%H-}AUnit: TCSSUnit); virtual;
       procedure LocateStyleDeclaration(AText: string; AProperty: string; out AStartPos,AColonPos,AValueLength: integer);
+      procedure ApplyStrokeStyle(ACanvas2D: TBGRACanvas2D; AUnit: TCSSUnit);
     public
       constructor Create({%H-}ADocument: TXMLDocument; AElement: TDOMElement; AUnits: TCSSUnitConverter); virtual;
       constructor Create({%H-}ADocument: TXMLDocument; {%H-}AUnits: TCSSUnitConverter); virtual;
@@ -92,9 +101,13 @@ type
       property strokeWidth: TFloatWithCSSUnit read GetStrokeWidth write SetStrokeWidth;
       property strokeColor: TBGRAPixel read GetStrokeColor write SetStrokeColor;
       property strokeOpacity: single read GetStrokeOpacity write SetStrokeOpacity;
+      property strokeMiterLimit: single read GetStrokeMiterLimit write SetStrokeMiterLimit;
+      property strokeLineJoin: string read GetStrokeLineJoin write SetStrokeLineJoin;
+      property strokeLineCap: string read GetStrokeLineCap write SetStrokeLineCap;
       property fill: string read GetFill write SetFill;
       property fillColor: TBGRAPixel read GetFillColor write SetFillColor;
       property fillOpacity: single read GetFillOpacity write SetFillOpacity;
+      property opacity: single read GetOpacity write SetOpacity;
   end;
 
   { TSVGParser }
@@ -121,8 +134,6 @@ type
   end;
 
 implementation
-
-uses Math;
 
 { TSVGParser }
 
@@ -263,7 +274,7 @@ end;
 function TSVGElement.GetFillColor: TBGRAPixel;
 begin
   result := StrToBGRA(fill,BGRABlack);
-  result.alpha := round(result.alpha*fillOpacity);
+  result.alpha := round(result.alpha*fillOpacity*opacity);
   if result.alpha = 0 then result := BGRAPixelTransparent;
 end;
 
@@ -358,20 +369,27 @@ begin
     if compareText(kind,'skewx')=0 then
     begin
       angle := parser.ParseFloat;
-      result *= AffineMatrix(1,tan(angle*Pi/180),0,
-                             0,        1,        0);
+      result *= AffineMatrixSkewXDeg(angle);
     end else
     if compareText(kind,'skewy')=0 then
     begin
       angle := parser.ParseFloat;
-      result *= AffineMatrix(1,         0        ,0,
-                     tan(angle*Pi/180), 1,        0);
+      result *= AffineMatrixSkewYDeg(angle);
     end;
     parser.SkipUpToSymbol(')');
   end;
   parser.free;
   result[1,3] := Units.ConvertWidth(result[1,3],cuCustom,AUnit);
   result[2,3] := Units.ConvertHeight(result[2,3],cuCustom,AUnit);
+end;
+
+function TSVGElement.GetOpacity: single;
+var errPos: integer;
+begin
+  val(AttributeOrStyle['opacity'], result, errPos);
+  if errPos <> 0 then result := 1 else
+    if result < 0 then result := 0 else
+      if result > 1 then result := 1;
 end;
 
 function TSVGElement.GetOrthoAttributeOrStyleWithUnit(AName: string
@@ -389,8 +407,28 @@ end;
 function TSVGElement.GetStrokeColor: TBGRAPixel;
 begin
   result := StrToBGRA(stroke);
-  result.alpha := round(result.alpha*strokeOpacity);
+  result.alpha := round(result.alpha*strokeOpacity*opacity);
   if result.alpha = 0 then result := BGRAPixelTransparent;
+end;
+
+function TSVGElement.GetStrokeLineCap: string;
+begin
+  result := AttributeOrStyle['stroke-linecap'];
+  if result = '' then result := 'butt';
+end;
+
+function TSVGElement.GetStrokeLineJoin: string;
+begin
+  result := AttributeOrStyle['stroke-linejoin'];
+  if result = '' then result := 'miter';
+end;
+
+function TSVGElement.GetStrokeMiterLimit: single;
+var errPos: integer;
+begin
+  val(AttributeOrStyle['stroke-miterlimit'], result, errPos);
+  if errPos <> 0 then result := 4 else
+    if result < 1 then result := 1;
 end;
 
 function TSVGElement.GetStrokeOpacity: single;
@@ -404,7 +442,7 @@ end;
 
 function TSVGElement.GetStrokeWidth: TFloatWithCSSUnit;
 begin
-  result := HorizAttributeOrStyleWithUnit['stroke-width'];
+  result := OrthoAttributeOrStyleWithUnit['stroke-width'];
 end;
 
 function TSVGElement.GetStyle(const AName: string): string;
@@ -524,6 +562,12 @@ begin
   end;
 end;
 
+procedure TSVGElement.SetOpacity(AValue: single);
+begin
+  Attribute['opacity'] := Units.formatValue(AValue);
+  RemoveStyle('opacity');
+end;
+
 procedure TSVGElement.SetStroke(AValue: string);
 begin
   Attribute['stroke'] := AValue;
@@ -535,6 +579,25 @@ begin
   strokeOpacity:= AValue.alpha/255;
   AValue.alpha:= 255;
   stroke := BGRAToStr(AValue, CSSColors);
+end;
+
+procedure TSVGElement.SetStrokeLineCap(AValue: string);
+begin
+  Attribute['stroke-linecap'] := AValue;
+  RemoveStyle('stroke-linecap');
+end;
+
+procedure TSVGElement.SetStrokeLineJoin(AValue: string);
+begin
+  Attribute['stroke-linejoin'] := AValue;
+  RemoveStyle('stroke-linejoin');
+end;
+
+procedure TSVGElement.SetStrokeMiterLimit(AValue: single);
+begin
+  if AValue < 1 then AValue := 1;
+  Attribute['stroke-miterlimit'] := Units.formatValue(AValue);
+  RemoveStyle('stroke-miterlimit');
 end;
 
 procedure TSVGElement.SetStrokeOpacity(AValue: single);
@@ -670,7 +733,7 @@ begin
     end else
     if AText[i] = ';' then
     begin
-      curValueLength := i-curColon;
+      curValueLength := i-(curColon+1);
       if CheckShouldReturnResult then exit;
       curStart := -1;
       curColon := -1;
@@ -679,9 +742,18 @@ begin
   end;
   if curColon <> -1 then
   begin
-    curValueLength:= length(AText)-curColon;
+    curValueLength:= length(AText)-(curColon+1)+1;
     if CheckShouldReturnResult then exit;
   end;
+end;
+
+procedure TSVGElement.ApplyStrokeStyle(ACanvas2D: TBGRACanvas2D; AUnit: TCSSUnit);
+begin
+  ACanvas2d.strokeStyle(strokeColor);
+  ACanvas2d.lineWidth := Units.ConvertWidth(strokeWidth,AUnit).value;
+  ACanvas2d.lineCap := strokeLineCap;
+  ACanvas2d.lineJoin := strokeLineJoin;
+  ACanvas2d.miterLimit := strokeMiterLimit;
 end;
 
 constructor TSVGElement.Create(ADocument: TXMLDocument; AElement: TDOMElement;

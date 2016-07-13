@@ -74,6 +74,13 @@ type
   TEmbossOption = (eoTransparent, eoPreserveHue);
   TEmbossOptions = set of TEmbossOption;
 
+  TTextLayout = BGRAGraphics.TTextLayout;
+
+const
+  tlTop = BGRAGraphics.tlTop;
+  tlCenter = BGRAGraphics.tlCenter;
+  tlBottom = BGRAGraphics.tlBottom;
+
   // checks the bounds of an image in the given clipping rectangle
   function CheckPutImageBounds(x, y, tx, ty: integer; out minxb, minyb, maxxb, maxyb, ignoreleft: integer; const cliprect: TRect): boolean;
 
