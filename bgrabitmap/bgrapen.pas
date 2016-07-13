@@ -1096,7 +1096,8 @@ begin
       inc(nbPts);
     end;
   if (nbPts > 1) and (plCycle in options) and
-      (pts[nbPts-1] = pts[0]) then dec(nbPts);
+      (abs(pts[0].x-pts[nbPts-1].x)<=oneOver512) and
+      (abs(pts[0].y-pts[nbPts-1].y)<=oneOver512) then dec(nbPts);
   if (plCycle in options) and (nbPts > 2) then
   begin
     if (pts[nbPts-1] <> pts[0]) then
@@ -1106,7 +1107,6 @@ begin
     end;
     pts[nbPts] := pts[1];
     inc(nbPts);
-    linecap := pecRound;
   end else
     options -= [plCycle];
 
