@@ -787,6 +787,7 @@ end;
 function ComputeWidePolylinePoints(const linepts: array of TPointF; width: single;
           pencolor: TBGRAPixel; linecap: TPenEndCap; joinstyle: TPenJoinStyle; const penstyle: TBGRAPenStyle;
           options: TBGRAPolyLineOptions; miterLimit: single; arrow: TBGRACustomArrow): ArrayOfTPointF;
+const oneOver512 = 1/512;
 var
   startArrowPos, startArrowDir, endArrowPos, endArrowDir: TPointF;
   startArrowLinePos, endArrowLinePos: single;
@@ -1089,7 +1090,7 @@ begin
   nbPts := 0;
   setlength(pts, length(linepts)+2);
   for i := 0 to high(linepts) do
-    if (nbPts = 0) or (linepts[i] <> pts[nbPts-1]) then
+    if (nbPts = 0) or (abs(linepts[i].x-pts[nbPts-1].x)>oneOver512) or (abs(linepts[i].y-pts[nbPts-1].y)>oneOver512) then
     begin
       pts[nbPts]:= linePts[i];
       inc(nbPts);
