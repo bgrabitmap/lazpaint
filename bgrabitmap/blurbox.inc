@@ -281,7 +281,7 @@ var
           end;
           sumAlpha3 := sumAlpha*factMainX + sumAlpha2*factExtraX;
           sumCount3 := sumCount*factMainX + sumCount2*factExtraX;
-          if (sumAlpha3 >= (sumCount3+1) shr 1) then
+          if (sumAlpha3 >= (sumCount3+1) shr 1) and (sumCount3 > 0) then
           begin
             sumRed3 := sumRed*factMainX + sumRed2*factExtraX;
             sumGreen3 := sumGreen*factMainX + sumGreen2*factExtraX;
