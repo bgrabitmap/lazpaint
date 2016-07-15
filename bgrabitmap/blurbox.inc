@@ -1,7 +1,5 @@
 type
-  TVertical = record red,green,blue,alpha,count,
-              topRed,topGreen,topBlue,topAlpha,topCount,
-              bottomRed,bottomGreen,bottomBlue,bottomAlpha,bottomCount: TAccumulator; end;
+  TVertical = record red,green,blue,alpha,count: TAccumulator; end;
   PVertical = ^TVertical;
 var
   verticals: PVertical;
@@ -64,15 +62,18 @@ var
           inc(pvert^.count, factMainY);
           PByte(p) += delta;
         end;
-        if (iRadiusY < height) and (factExtraY<>0) then
+        if iRadiusY < height then
         begin
-          a2 := p^.alpha * factExtraY;
-          {$HINTS OFF}
-          pvert^.red += p^.red * a2;
-          pvert^.green += p^.green * a2;
-          pvert^.blue += p^.blue * a2;
-          pvert^.alpha += a2;
-          {$HINTS ON}
+          if p^.alpha <> 0 then
+          begin
+            a2 := p^.alpha * factExtraY;
+            {$HINTS OFF}
+            pvert^.red += p^.red * a2;
+            pvert^.green += p^.green * a2;
+            pvert^.blue += p^.blue * a2;
+            pvert^.alpha += a2;
+            {$HINTS ON}
+          end;
           inc(pvert^.count, factExtraY);
         end;
         inc(pvert);
@@ -88,12 +89,12 @@ var
     a2: NativeUInt;
   begin
     pvert := verticals;
-    if y-iRadiusY-1 >= 0 then
-      psrc1 := FSource.ScanLine[y-iRadiusY-1]
+    if y-iRadiusY-1 >= FBounds.Top then
+      psrc1 := FSource.ScanLine[y-iRadiusY-1]+left
     else
       psrc1 := nil;
-    if y+iRadiusY < FSource.Height then
-      psrc2 := FSource.ScanLine[y+iRadiusY]
+    if y+iRadiusY < FBounds.Bottom then
+      psrc2 := FSource.ScanLine[y+iRadiusY]+left
     else
       psrc2 := nil;
     if factExtraY = 0 then
@@ -132,12 +133,12 @@ var
       end;
     end else
     begin
-      if y-iRadiusY-2 >= 0 then
-        psrc0 := FSource.ScanLine[y-iRadiusY-2]
+      if y-iRadiusY-2 >= FBounds.Top then
+        psrc0 := FSource.ScanLine[y-iRadiusY-2]+left
       else
         psrc0 := nil;
-      if y+iRadiusY+1 < FSource.Height then
-        psrc3 := FSource.ScanLine[y+iRadiusY+1]
+      if y+iRadiusY+1 < FBounds.Bottom then
+        psrc3 := FSource.ScanLine[y+iRadiusY+1]+left
       else
         psrc3 := nil;
       for xb := width-1 downto 0 do
@@ -336,6 +337,7 @@ begin
   iRadiusY := floor(FRadiusY+0.5/factMainY);
   factExtraX := trunc(frac(FRadiusX+0.5/factMainX)*factMainX);
   factExtraY := trunc(frac(FRadiusY+0.5/factMainY)*factMainY);
+
   if (iRadiusX <= 0) and (iRadiusY <= 0) and (factExtraX <= 0) and (factExtraY <= 0) then
   begin
     Destination.PutImagePart(FBounds.Left,FBounds.Top,FSource,FBounds,dmSet);
