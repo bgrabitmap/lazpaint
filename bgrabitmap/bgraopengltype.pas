@@ -438,6 +438,8 @@ function GetPowerOfTwo( Value : Integer ) : Integer;
 
 implementation
 
+uses BGRAFilterScanner;
+
 function OrthoProjectionToOpenGL(AMinX, AMinY, AMaxX, AMaxY: Single): TMatrix4D;
 begin
   result[1,1] := 2/(AMaxX-AMinX); result[2,1] := 0;                result[3,1] := 0;   result[4,1] := -1;
@@ -1506,10 +1508,14 @@ end;
 
 procedure TBGLCustomBitmap.SwapRedBlueWithoutInvalidate(ARect: TRect);
 var y: NativeInt;
+    p: PBGRAPixel;
 begin
   if not CheckClippedRectBounds(ARect.Left,ARect.Top,ARect.Right,ARect.Bottom) then exit;
   for y := ARect.Top to ARect.Bottom-1 do
-    InternalSwapRedBlue(GetScanlineFast(y)+ARect.Left, ARect.Right-ARect.Left);
+  begin
+    p := GetScanlineFast(y)+ARect.Left;
+    TBGRAFilterScannerSwapRedBlue.ComputeFilterAt(p,p, ARect.Right-ARect.Left, False);
+  end;
 end;
 
 procedure TBGLCustomBitmap.InvalidateBitmap;

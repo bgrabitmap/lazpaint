@@ -130,7 +130,7 @@ function FilterPlane(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
 
 implementation
 
-uses Math, BGRATransform, Types, SysUtils;
+uses Math, BGRATransform, Types, SysUtils, BGRAFilterScanner;
 
 type
   { TGrayscaleTask }
@@ -1430,7 +1430,10 @@ begin
           tempPixel.alpha := highlight.alpha;
       end;
 
-      pdest^ := tempPixel;
+      if tempPixel.alpha = 0 then
+        pdest^ := BGRAPixelTransparent
+      else
+        pdest^ := tempPixel;
       Inc(pdest);
     end;
   end;
@@ -1447,273 +1450,40 @@ end;
   to make it use the full range of values }
 function FilterNormalize(bmp: TBGRACustomBitmap; ABounds: TRect;
   eachChannel: boolean = True): TBGRACustomBitmap;
-var
-  psrc, pdest: PBGRAPixel;
-  c: TExpandedPixel;
-  xcount,xb,yb: int32or64;
-  minValRed, maxValRed, minValGreen, maxValGreen, minValBlue, maxValBlue,
-  minAlpha, maxAlpha, addValRed, addValGreen, addValBlue, addAlpha: word;
-  factorValRed, factorValGreen, factorValBlue, factorAlpha: int32or64;
+var scanner: TBGRAFilterScannerNormalize;
 begin
-  if not IntersectRect(ABounds,ABounds,rect(0,0,bmp.Width,bmp.Height)) then exit;
   Result := bmp.NewBitmap(bmp.Width, bmp.Height);
-  bmp.LoadFromBitmapIfNeeded;
-  maxValRed := 0;
-  minValRed := 65535;
-  maxValGreen := 0;
-  minValGreen := 65535;
-  maxValBlue := 0;
-  minValBlue := 65535;
-  maxAlpha  := 0;
-  minAlpha  := 65535;
-  xcount := ABounds.Right-ABounds.Left;
-  for yb := ABounds.Top to ABounds.Bottom-1 do
-  begin
-    psrc := bmp.ScanLine[yb]+ABounds.Left;
-    for xb := xcount-1 downto 0 do
-    begin
-      c := GammaExpansion(psrc^);
-      Inc(psrc);
-      if c.red > maxValRed then
-        maxValRed := c.red;
-      if c.green > maxValGreen then
-        maxValGreen := c.green;
-      if c.blue > maxValBlue then
-        maxValBlue := c.blue;
-      if c.red < minValRed then
-        minValRed := c.red;
-      if c.green < minValGreen then
-        minValGreen := c.green;
-      if c.blue < minValBlue then
-        minValBlue := c.blue;
-
-      if c.alpha > maxAlpha then
-        maxAlpha := c.alpha;
-      if c.alpha < minAlpha then
-        minAlpha := c.alpha;
-    end;
-  end;
-  if not eachChannel then
-  begin
-    minValRed   := min(min(minValRed, minValGreen), minValBlue);
-    maxValRed   := max(max(maxValRed, maxValGreen), maxValBlue);
-    minValGreen := minValRed;
-    maxValGreen := maxValRed;
-    minValBlue  := minValBlue;
-    maxValBlue  := maxValBlue;
-  end;
-  if maxValRed > minValRed then
-  begin
-    factorValRed := 268431360 div (maxValRed - minValRed);
-    addValRed    := 0;
-  end
-  else
-  begin
-    factorValRed := 0;
-    if minValRed = 0 then
-      addValRed := 0
-    else
-      addValRed := 65535;
-  end;
-  if maxValGreen > minValGreen then
-  begin
-    factorValGreen := 268431360 div (maxValGreen - minValGreen);
-    addValGreen    := 0;
-  end
-  else
-  begin
-    factorValGreen := 0;
-    if minValGreen = 0 then
-      addValGreen := 0
-    else
-      addValGreen := 65535;
-  end;
-  if maxValBlue > minValBlue then
-  begin
-    factorValBlue := 268431360 div (maxValBlue - minValBlue);
-    addValBlue    := 0;
-  end
-  else
-  begin
-    factorValBlue := 0;
-    if minValBlue = 0 then
-      addValBlue := 0
-    else
-      addValBlue := 65535;
-  end;
-  if maxAlpha > minAlpha then
-  begin
-    factorAlpha := 268431360 div (maxAlpha - minAlpha);
-    addAlpha    := 0;
-  end
-  else
-  begin
-    factorAlpha := 0;
-    if minAlpha = 0 then
-      addAlpha := 0
-    else
-      addAlpha := 65535;
-  end;
-
-  for yb := ABounds.Top to ABounds.Bottom-1 do
-  begin
-    psrc := bmp.ScanLine[yb]+ABounds.Left;
-    pdest := Result.ScanLine[yb]+ABounds.Left;
-    for xb := xcount-1 downto 0 do
-    begin
-      c := GammaExpansion(psrc^);
-      Inc(psrc);
-      c.red   := ((c.red - minValRed) * factorValRed + 2047) shr 12 + addValRed;
-      c.green := ((c.green - minValGreen) * factorValGreen + 2047) shr 12 + addValGreen;
-      c.blue  := ((c.blue - minValBlue) * factorValBlue + 2047) shr 12 + addValBlue;
-      c.alpha := ((c.alpha - minAlpha) * factorAlpha + 2047) shr 12 + addAlpha;
-      pdest^  := GammaCompression(c);
-      Inc(pdest);
-    end;
-  end;
-  Result.InvalidateBitmap;
+  if not IntersectRect(ABounds,ABounds,rect(0,0,bmp.Width,bmp.Height)) then exit;
+  scanner := TBGRAFilterScannerNormalize.Create(bmp,Point(0,0),ABounds,eachChannel);
+  result.FillRect(ABounds,scanner,dmSet);
+  scanner.Free;
 end;
 
 { Rotates the image. To do this, loop through the destination and
   calculates the position in the source bitmap with an affine transformation }
 function FilterRotate(bmp: TBGRACustomBitmap; origin: TPointF;
   angle: single; correctBlur: boolean): TBGRACustomBitmap;
-var
-  bounds:     TRect;
-  pdest:      PBGRAPixel;
-  xsrc, ysrc: single;
-  savexysrc, pt: TPointF;
-  dx, dy:     single;
-  xb, yb:     int32or64;
-  minx, miny, maxx, maxy: single;
-  rf : TResampleFilter;
-
-  function RotatePos(x, y: single): TPointF;
-  var
-    px, py: single;
-  begin
-    px     := x - origin.x;
-    py     := y - origin.y;
-    Result := PointF(origin.x + px * dx + py * dy, origin.y - px * dy + py * dx);
-  end;
-
 begin
-  bounds := bmp.GetImageBounds;
-  if (bounds.Right <= bounds.Left) or (bounds.Bottom <= Bounds.Top) then
-  begin
-    Result := bmp.NewBitmap(bmp.Width, bmp.Height);
-    exit;
-  end;
-
   Result := bmp.NewBitmap(bmp.Width, bmp.Height);
-  if correctBlur then rf := rfHalfCosine else rf := rfLinear;
-
-  //compute new bounding rectangle
-  dx   := cos(angle * Pi / 180);
-  dy   := -sin(angle * Pi / 180);
-  pt   := RotatePos(bounds.left, bounds.top);
-  minx := pt.x;
-  miny := pt.y;
-  maxx := pt.x;
-  maxy := pt.y;
-  pt   := RotatePos(bounds.Right - 1, bounds.top);
-  if pt.x < minx then
-    minx := pt.x
-  else
-  if pt.x > maxx then
-    maxx := pt.x;
-  if pt.y < miny then
-    miny := pt.y
-  else
-  if pt.y > maxy then
-    maxy := pt.y;
-  pt     := RotatePos(bounds.Right - 1, bounds.bottom - 1);
-  if pt.x < minx then
-    minx := pt.x
-  else
-  if pt.x > maxx then
-    maxx := pt.x;
-  if pt.y < miny then
-    miny := pt.y
-  else
-  if pt.y > maxy then
-    maxy := pt.y;
-  pt     := RotatePos(bounds.left, bounds.bottom - 1);
-  if pt.x < minx then
-    minx := pt.x
-  else
-  if pt.x > maxx then
-    maxx := pt.x;
-  if pt.y < miny then
-    miny := pt.y
-  else
-  if pt.y > maxy then
-    maxy := pt.y;
-
-  bounds.left   := max(0, floor(minx));
-  bounds.top    := max(0, floor(miny));
-  bounds.right  := min(bmp.Width, ceil(maxx) + 1);
-  bounds.bottom := min(bmp.Height, ceil(maxy) + 1);
-
-  //reciproqual
-  dy   := -dy;
-  pt   := RotatePos(bounds.left, bounds.top);
-  xsrc := pt.x;
-  ysrc := pt.y;
-  for yb := bounds.Top to bounds.bottom - 1 do
-  begin
-    pdest     := Result.scanline[yb] + bounds.left;
-    savexysrc := pointf(xsrc, ysrc);
-    for xb := bounds.left to bounds.right - 1 do
-    begin
-      pdest^ := bmp.GetPixel(xsrc, ysrc, rf);
-      Inc(pdest);
-      xsrc += dx;
-      ysrc -= dy;
-    end;
-    xsrc := savexysrc.x + dy;
-    ysrc := savexysrc.y + dx;
-  end;
-  Result.InvalidateBitmap;
+  Result.PutImageAngle(0,0,bmp,angle,origin.x,origin.y,255,true,correctBlur);
 end;
 
 { Filter grayscale applies BGRAToGrayscale function to all pixels }
-procedure FilterGrayscale(bmp: TBGRACustomBitmap; ABounds: TRect; ADestination: TBGRACustomBitmap; ACheckShouldStop: TCheckShouldStopFunc);
-var
-  pdest, psrc: PBGRAPixel;
-  xb, yb:      int32or64;
-
-begin
-  if IsRectEmpty(ABounds) then exit;
-
-  for yb := ABounds.Top to ABounds.bottom - 1 do
-  begin
-    if Assigned(ACheckShouldStop) and ACheckShouldStop(yb) then break;
-    pdest := ADestination.scanline[yb] + ABounds.left;
-    psrc  := bmp.scanline[yb] + ABounds.left;
-    for xb := ABounds.left to ABounds.right - 1 do
-    begin
-      pdest^ := BGRAToGrayscale(psrc^);
-      Inc(pdest);
-      Inc(psrc);
-    end;
-  end;
-  ADestination.InvalidateBitmap;
-end;
-
 function FilterGrayscale(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
 begin
-  result := FilterGrayscale(bmp, rect(0,0,bmp.width,bmp.Height));
+  result := FilterGrayscale(bmp,rect(0,0,bmp.width,bmp.Height));
 end;
 
 function FilterGrayscale(bmp: TBGRACustomBitmap; ABounds: TRect): TBGRACustomBitmap;
+var scanner: TBGRAFilterScannerGrayscale;
 begin
   result := bmp.NewBitmap(bmp.Width,bmp.Height);
-  FilterGrayscale(bmp,ABounds,result,nil);
+  scanner := TBGRAFilterScannerGrayscale.Create(bmp,Point(0,0),True);
+  result.FillRect(ABounds,scanner,dmSet);
+  scanner.Free;
 end;
 
-function CreateGrayscaleTask(bmp: TBGRACustomBitmap; ABounds: TRect
-  ): TFilterTask;
+function CreateGrayscaleTask(bmp: TBGRACustomBitmap; ABounds: TRect): TFilterTask;
 begin
   result := TGrayscaleTask.Create(bmp,ABounds);
 end;
@@ -1840,35 +1610,15 @@ end;
   to determine a distance from the center in the source bitmap }
 function FilterSphere(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
 var
-  cx, cy, x, y, len, fact: single;
-  xb, yb: int32or64;
-  mask:   TBGRACustomBitmap;
+  cx, cy: single;
+  scanner: TBGRASphereDeformationScanner;
 begin
   Result := bmp.NewBitmap(bmp.Width, bmp.Height);
   cx     := bmp.Width / 2 - 0.5;
   cy     := bmp.Height / 2 - 0.5;
-  for yb := 0 to Result.Height - 1 do
-    for xb := 0 to Result.Width - 1 do
-    begin
-      x   := (xb - cx) / (cx + 0.5);
-      y   := (yb - cy) / (cy + 0.5);
-      len := sqrt(sqr(x) + sqr(y));
-      if (len <= 1) then
-      begin
-        if (len > 0) then
-        begin
-          fact := 1 / len * arcsin(len) / (Pi / 2);
-          x    *= fact;
-          y    *= fact;
-        end;
-        Result.setpixel(xb, yb, bmp.Getpixel(x * cx + cx, y * cy + cy));
-      end;
-    end;
-  mask := bmp.NewBitmap(bmp.Width, bmp.Height);
-  Mask.Fill(BGRABlack);
-  Mask.FillEllipseAntialias(cx, cy, cx, cy, BGRAWhite);
-  Result.ApplyMask(mask);
-  Mask.Free;
+  scanner := TBGRASphereDeformationScanner.Create(bmp,PointF(cx,cy),bmp.Width/2,bmp.Height/2);
+  result.FillEllipseAntialias(cx,cy,bmp.Width/2-0.5,bmp.Height/2-0.5,scanner);
+  scanner.Free;
 end;
 
 { Applies twirl scanner. See TBGRATwirlScanner }
@@ -1892,28 +1642,14 @@ end;
   to determine a distance from the vertical axis in the source bitmap }
 function FilterCylinder(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
 var
-  cx, cy, x, y, len, fact: single;
-  xb, yb: int32or64;
+  cx: single;
+  scanner: TBGRAVerticalCylinderDeformationScanner;
 begin
   Result := bmp.NewBitmap(bmp.Width, bmp.Height);
   cx     := bmp.Width / 2 - 0.5;
-  cy     := bmp.Height / 2 - 0.5;
-  for yb := 0 to Result.Height - 1 do
-    for xb := 0 to Result.Width - 1 do
-    begin
-      x   := (xb - cx) / (cx + 0.5);
-      y   := (yb - cy) / (cy + 0.5);
-      len := abs(x);
-      if (len <= 1) then
-      begin
-        if (len > 0) then
-        begin
-          fact := 1 / len * arcsin(len) / (Pi / 2);
-          x    *= fact;
-        end;
-        Result.setpixel(xb, yb, bmp.Getpixel(x * cx + cx, y * cy + cy));
-      end;
-    end;
+  scanner := TBGRAVerticalCylinderDeformationScanner.Create(bmp,cx,bmp.Width/2);
+  result.Fill(scanner);
+  scanner.Free;
 end;
 
 function FilterPlane(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
@@ -2198,8 +1934,17 @@ begin
 end;
 
 procedure TGrayscaleTask.DoExecute;
+var
+  yb: LongInt;
 begin
-  FilterGrayscale(FSource,FBounds,Destination,@GetShouldStop);
+  if IsRectEmpty(FBounds) then exit;
+  for yb := FBounds.Top to FBounds.bottom - 1 do
+  begin
+    if GetShouldStop(yb) then break;
+    TBGRAFilterScannerGrayscale.ComputeFilterAt(FSource.scanline[yb] + FBounds.left,
+            Destination.scanline[yb] + FBounds.left, FBounds.right-FBounds.left, true);
+  end;
+  Destination.InvalidateBitmap;
 end;
 
 { TCustomBlurTask }

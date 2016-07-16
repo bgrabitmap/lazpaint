@@ -204,7 +204,6 @@ type
     function CheckClippedRectBounds(var x,y,x2,y2: integer): boolean;
     procedure InternalArc(cx,cy,rx,ry: single; StartAngleRad,EndAngleRad: Single; ABorderColor: TBGRAPixel; w: single;
       AFillColor: TBGRAPixel; AOptions: TArcOptions; ADrawChord: boolean = false; ATexture: IBGRAScanner = nil); override;
-    procedure InternalSwapRedBlue(AData: PBGRAPixel; ACount: integer);
 
   public
     {** Provides a canvas with opacity and antialiasing }
@@ -818,8 +817,10 @@ type
     procedure NegativeRect(ABounds: TRect); override;
     procedure LinearNegative; override;
     procedure LinearNegativeRect(ABounds: TRect); override;
-    procedure InplaceGrayscale; override;
-    procedure InplaceGrayscale(ABounds: TRect); override;
+    procedure InplaceGrayscale(AGammaCorrection: boolean = true); override;
+    procedure InplaceGrayscale(ABounds: TRect; AGammaCorrection: boolean = true); override;
+    procedure InplaceNormalize(AEachChannel: boolean = True); override;
+    procedure InplaceNormalize(ABounds: TRect; AEachChannel: boolean = True); override;
     procedure SwapRedBlue; override;
     procedure SwapRedBlue(ARect: TRect); override;
     procedure GrayscaleToAlpha; override;
@@ -925,7 +926,7 @@ uses Math, BGRAUTF8, BGRABlend, BGRAFilters, BGRAGradientScanner,
   BGRAResample, BGRAPolygon, BGRAPolygonAliased,
   BGRAPath, FPReadPcx, FPWritePcx, FPReadXPM, FPWriteXPM,
   BGRAReadBMP, BGRAReadJpeg,
-  BGRADithering;
+  BGRADithering, BGRAFilterScanner;
 
 { TBitmapTracker }
 
@@ -1465,10 +1466,10 @@ begin
   lHeight := NtoLE(Height);
   AStream.Write(lWidth,sizeof(lWidth));
   AStream.Write(lHeight,sizeof(lHeight));
-  If TBGRAPixel_RGBAOrder then InternalSwapRedBlue(FData, FNbPixels);
+  If TBGRAPixel_RGBAOrder then TBGRAFilterScannerSwapRedBlue.ComputeFilterAt(FData,FData,FNbPixels,False);
   for y := 0 to Height-1 do
     AStream.Write(ScanLine[y]^, Width*sizeof(TBGRAPixel));
-  If TBGRAPixel_RGBAOrder then InternalSwapRedBlue(FData, FNbPixels);
+  If TBGRAPixel_RGBAOrder then TBGRAFilterScannerSwapRedBlue.ComputeFilterAt(FData,FData,FNbPixels,False);
 end;
 
 procedure TBGRADefaultBitmap.Deserialize(AStream: TStream);
@@ -1481,7 +1482,7 @@ begin
   SetSize(lWidth,lHeight);
   for y := 0 to Height-1 do
     AStream.Read(ScanLine[y]^, Width*sizeof(TBGRAPixel));
-  If TBGRAPixel_RGBAOrder then InternalSwapRedBlue(FData, FNbPixels);
+  If TBGRAPixel_RGBAOrder then TBGRAFilterScannerSwapRedBlue.ComputeFilterAt(FData,FData,FNbPixels,False);
   InvalidateBitmap;
 end;
 
@@ -2525,70 +2526,6 @@ begin
   multi.Antialiasing := true;
   multi.Draw(self);
   multi.Free;
-end;
-
-procedure TBGRADefaultBitmap.InternalSwapRedBlue(AData: PBGRAPixel;
-  ACount: integer);
-const RedMask = 255 shl TBGRAPixel_RedShift;
-      BlueMask = 255 shl TBGRAPixel_BlueShift;
-      GreenAndAlphaMask = (255 shl TBGRAPixel_GreenShift) or (255 shl TBGRAPixel_AlphaShift);
-      RedMask64 = RedMask or (RedMask shl 32);
-      BlueMask64 = BlueMask or (BlueMask shl 32);
-      GreenAndAlphaMask64 = GreenAndAlphaMask or (GreenAndAlphaMask shl 32);
-var
-  n: NativeInt;
-  p: PLongword;
-  temp: longword;
-  temp64: QWord;
-  oddN: boolean;
-begin
-  {$PUSH}{$WARNINGS OFF}
-  p := PLongWord(AData);
-  n := ACount;
-  if n = 0 then
-    exit;
-  oddN := odd(n);
-  n := n shr 1;
-  if TBGRAPixel_RedShift > TBGRAPixel_BlueShift then
-    while n > 0 do
-    begin
-      temp64 := PQWord(p)^;
-      PQWord(p)^ := ((temp64 and BlueMask64) shl (TBGRAPixel_RedShift-TBGRAPixel_BlueShift)) or
-                    ((temp64 and RedMask64) shr (TBGRAPixel_RedShift-TBGRAPixel_BlueShift)) or
-                    (temp64 and GreenAndAlphaMask64);
-      dec(n);
-      inc(p,2);
-    end else
-    while n > 0 do
-    begin
-      temp64 := PQWord(p)^;
-      PQWord(p)^ := ((temp64 and BlueMask64) shr (TBGRAPixel_BlueShift-TBGRAPixel_RedShift)) or
-                    ((temp64 and RedMask64) shl (TBGRAPixel_BlueShift-TBGRAPixel_RedShift)) or
-                    (temp64 and GreenAndAlphaMask64);
-      dec(n);
-      inc(p,2);
-    end;
-  n := NativeInt(oddN);
-  if TBGRAPixel_RedShift > TBGRAPixel_BlueShift then
-    while n > 0 do
-    begin
-      temp := p^;
-      p^ := ((temp and BlueMask) shl (TBGRAPixel_RedShift-TBGRAPixel_BlueShift)) or
-            ((temp and RedMask) shr (TBGRAPixel_RedShift-TBGRAPixel_BlueShift)) or
-            (temp and GreenAndAlphaMask);
-      dec(n);
-      inc(p);
-    end else
-    while n > 0 do
-    begin
-      temp := p^;
-      p^ := ((temp and BlueMask) shr (TBGRAPixel_BlueShift-TBGRAPixel_RedShift)) or
-            ((temp and RedMask) shl (TBGRAPixel_BlueShift-TBGRAPixel_RedShift)) or
-            (temp and GreenAndAlphaMask);
-      dec(n);
-      inc(p);
-    end;
-  {$POP}
 end;
 
 {---------------------------- Lines ---------------------------------}
@@ -5513,105 +5450,54 @@ end;
 
   It is NOT EXACTLY an involution, when applied twice, some color information is lost }
 procedure TBGRADefaultBitmap.Negative;
-var
-  p: PBGRAPixel;
-  n: integer;
 begin
-  LoadFromBitmapIfNeeded;
-  p := Data;
-  for n := NbPixels - 1 downto 0 do
-  begin
-    if p^.alpha <> 0 then
-    begin
-      p^.red   := GammaCompressionTab[not GammaExpansionTab[p^.red]];
-      p^.green := GammaCompressionTab[not GammaExpansionTab[p^.green]];
-      p^.blue  := GammaCompressionTab[not GammaExpansionTab[p^.blue]];
-    end;
-    Inc(p);
-  end;
-  InvalidateBitmap;
+  TBGRAFilterScannerNegative.ComputeFilterInplace(self, rect(0,0,FWidth,FHeight), True);
 end;
 
 procedure TBGRADefaultBitmap.NegativeRect(ABounds: TRect);
-var p: PBGRAPixel;
-  xb,yb,xcount: integer;
 begin
   if not IntersectRect(ABounds,ABounds,ClipRect) then exit;
-  xcount := ABounds.Right-ABounds.Left;
-  for yb := ABounds.Top to ABounds.Bottom-1 do
-  begin
-    p := ScanLine[yb]+ABounds.Left;
-    for xb := xcount-1 downto 0 do
-    begin
-      if p^.alpha <> 0 then
-      begin
-        p^.red   := GammaCompressionTab[not GammaExpansionTab[p^.red]];
-        p^.green := GammaCompressionTab[not GammaExpansionTab[p^.green]];
-        p^.blue  := GammaCompressionTab[not GammaExpansionTab[p^.blue]];
-      end;
-      Inc(p);
-    end;
-  end;
+  TBGRAFilterScannerNegative.ComputeFilterInplace(self, ABounds, True);
 end;
 
 { Compute negative without gamma correction.
 
   It is an involution, i.e it does nothing when applied twice }
 procedure TBGRADefaultBitmap.LinearNegative;
-var
-  p: PBGRAPixel;
-  n: integer;
 begin
-  LoadFromBitmapIfNeeded;
-  p := Data;
-  for n := NbPixels - 1 downto 0 do
-  begin
-    if p^.alpha <> 0 then
-    begin
-      p^.red   := not p^.red;
-      p^.green := not p^.green;
-      p^.blue  := not p^.blue;
-    end;
-    Inc(p);
-  end;
-  InvalidateBitmap;
+  TBGRAFilterScannerNegative.ComputeFilterInplace(self, rect(0,0,FWidth,FHeight), False);
 end;
 
 procedure TBGRADefaultBitmap.LinearNegativeRect(ABounds: TRect);
-var p: PBGRAPixel;
-  xb,yb,xcount: integer;
 begin
   if not IntersectRect(ABounds,ABounds,ClipRect) then exit;
-  xcount := ABounds.Right-ABounds.Left;
-  for yb := ABounds.Top to ABounds.Bottom-1 do
-  begin
-    p := ScanLine[yb]+ABounds.Left;
-    for xb := xcount-1 downto 0 do
-    begin
-      if p^.alpha <> 0 then
-      begin
-        p^.red   := not p^.red;
-        p^.green := not p^.green;
-        p^.blue  := not p^.blue;
-      end;
-      Inc(p);
-    end;
-  end;
+  TBGRAFilterScannerNegative.ComputeFilterInplace(self, ABounds, False);
 end;
 
-procedure TBGRADefaultBitmap.InplaceGrayscale;
+procedure TBGRADefaultBitmap.InplaceGrayscale(AGammaCorrection: boolean = true);
 begin
-  InplaceGrayscale(rect(0,0,Width,Height));
+  TBGRAFilterScannerGrayscale.ComputeFilterInplace(self, rect(0,0,FWidth,FHeight), AGammaCorrection);
 end;
 
-procedure TBGRADefaultBitmap.InplaceGrayscale(ABounds: TRect);
-var
-  task: TFilterTask;
+procedure TBGRADefaultBitmap.InplaceGrayscale(ABounds: TRect; AGammaCorrection: boolean = true);
 begin
-  task := CreateGrayscaleTask(self, ABounds);
-  task.Destination := self;
-  task.Execute;
-  task.Free;
+  if not IntersectRect(ABounds,ABounds,ClipRect) then exit;
+  TBGRAFilterScannerGrayscale.ComputeFilterInplace(self, ABounds, AGammaCorrection);
+end;
+
+procedure TBGRADefaultBitmap.InplaceNormalize(AEachChannel: boolean);
+begin
+  InplaceNormalize(rect(0,0,Width,Height),AEachChannel);
+end;
+
+procedure TBGRADefaultBitmap.InplaceNormalize(ABounds: TRect;
+  AEachChannel: boolean);
+var scanner: TBGRAFilterScannerNormalize;
+begin
+  if not IntersectRect(ABounds,ABounds,ClipRect) then exit;
+  scanner := TBGRAFilterScannerNormalize.Create(self,Point(0,0),ABounds,AEachChannel);
+  FillRect(ABounds,scanner,dmSet);
+  scanner.Free;
 end;
 
 { Swap red and blue channels. Useful when RGB order is swapped.
@@ -5619,26 +5505,19 @@ end;
   It is an involution, i.e it does nothing when applied twice }
 procedure TBGRADefaultBitmap.SwapRedBlue;
 begin
-  LoadFromBitmapIfNeeded;
-  InternalSwapRedBlue(Data, NbPixels);
-  InvalidateBitmap;
+  TBGRAFilterScannerSwapRedBlue.ComputeFilterInplace(self, rect(0,0,FWidth,FHeight), False);
 end;
 
 procedure TBGRADefaultBitmap.SwapRedBlue(ARect: TRect);
-var y: NativeInt;
 begin
   if not CheckClippedRectBounds(ARect.Left,ARect.Top,ARect.Right,ARect.Bottom) then exit;
-  LoadFromBitmapIfNeeded;
-  for y := ARect.Top to ARect.Bottom-1 do
-    InternalSwapRedBlue(GetScanlineFast(y)+ARect.Left, ARect.Right-ARect.Left);
-  InvalidateBitmap;
+  TBGRAFilterScannerSwapRedBlue.ComputeFilterInplace(self, ARect, False);
 end;
 
 { Convert a grayscale image into a black image with alpha value }
 procedure TBGRADefaultBitmap.GrayscaleToAlpha;
 var
   n:    integer;
-  temp: longword;
   p:    PLongword;
 begin
   LoadFromBitmapIfNeeded;
@@ -5647,8 +5526,7 @@ begin
   if n = 0 then
     exit;
   repeat
-    temp := LEtoN(p^);
-    p^   := NtoLE((temp and $FF) shl 24);
+    p^   := (p^ shr TBGRAPixel_RedShift and $FF) shl TBGRAPixel_AlphaShift;
     Inc(p);
     Dec(n);
   until n = 0;

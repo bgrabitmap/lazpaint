@@ -338,6 +338,36 @@ type
     property Exponent: Single read FExponent;
   end;
 
+  { TBGRASphereDeformationScanner }
+
+  TBGRASphereDeformationScanner = Class(TBGRACustomScanner)
+  protected
+    FScanner: IBGRAScanner;
+    FScanAtFunc: TScanAtFunction;
+    FCenter: TPointF;
+    FRadiusX, FRadiusY: Single;
+  public
+    constructor Create(AScanner: IBGRAScanner; ACenter: TPointF; ARadiusX,ARadiusY: single);
+    function ScanAt(X, Y: Single): TBGRAPixel; override;
+    property RadiusX: Single read FRadiusX;
+    property RadiusY: Single read FRadiusY;
+  end;
+
+  { TBGRAVerticalCylinderDeformationScanner }
+
+  TBGRAVerticalCylinderDeformationScanner = Class(TBGRACustomScanner)
+  protected
+    FScanner: IBGRAScanner;
+    FScanAtFunc: TScanAtFunction;
+    FCenterX: single;
+    FRadiusX: Single;
+  public
+    constructor Create(AScanner: IBGRAScanner; ACenterX: single; ARadiusX: single);
+    function ScanAt(X, Y: Single): TBGRAPixel; override;
+    property RadiusX: Single read FRadiusX;
+  end;
+
+
 implementation
 
 uses BGRABlend, Math;
@@ -493,6 +523,69 @@ end;
 function IsAffineMatrixOrthogonal(M: TAffineMatrix): boolean;
 begin
   result := PointF(M[1,1],M[2,1])*PointF(M[1,2],M[2,2]) = 0;
+end;
+
+{ TBGRAVerticalCylinderDeformationScanner }
+
+constructor TBGRAVerticalCylinderDeformationScanner.Create(
+  AScanner: IBGRAScanner; ACenterX: single; ARadiusX: single);
+begin
+  FScanner := AScanner;
+  FScanAtFunc := @FScanner.ScanAt;
+  FCenterX := ACenterX;
+  FRadiusX := ARadiusX;
+end;
+
+function TBGRAVerticalCylinderDeformationScanner.ScanAt(X, Y: Single): TBGRAPixel;
+var
+  xn,len,fact: Single;
+begin
+  xn   := (x - FCenterX) / FRadiusX;
+  len := abs(xn);
+  if (len <= 1) then
+  begin
+    if (len > 0) then
+    begin
+      fact := 1 / len * arcsin(len) / (Pi / 2);
+      xn    *= fact;
+    end;
+    result := FScanAtFunc(xn * FRadiusX + FCenterX, y);
+  end
+  else
+    result := BGRAPixelTransparent;
+end;
+
+{ TBGRASphereDeformationScanner }
+
+constructor TBGRASphereDeformationScanner.Create(AScanner: IBGRAScanner;
+  ACenter: TPointF; ARadiusX, ARadiusY: single);
+begin
+  FScanner := AScanner;
+  FScanAtFunc := @FScanner.ScanAt;
+  FCenter := ACenter;
+  FRadiusX := ARadiusX;
+  FRadiusY := ARadiusY;
+end;
+
+function TBGRASphereDeformationScanner.ScanAt(X, Y: Single): TBGRAPixel;
+var
+  xn, yn, len,fact: Single;
+begin
+  xn   := (x - FCenter.X) / FRadiusX;
+  yn   := (y - FCenter.Y) / FRadiusY;
+  len := sqrt(sqr(xn) + sqr(yn));
+  if (len <= 1) then
+  begin
+    if (len > 0) then
+    begin
+      fact := 1 / len * arcsin(len) / (Pi / 2);
+      xn    *= fact;
+      yn    *= fact;
+    end;
+    result := FScanAtFunc(xn * FRadiusX + FCenter.X, yn * FRadiusY + FCenter.Y);
+  end
+  else
+    result := BGRAPixelTransparent;
 end;
 
 { TBGRAExtendedBorderScanner }

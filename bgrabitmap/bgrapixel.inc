@@ -88,6 +88,7 @@ const
   function CombineLightness(lightness1,lightness2: Int32or64): Int32or64;
   {** Converts a color into grayscale }
   function BGRAToGrayscale(c: TBGRAPixel): TBGRAPixel;
+  function BGRAToGrayscaleLinear(c: TBGRAPixel): TBGRAPixel;
   {** Create a gray color with the given ''lightness'' }
   function GrayscaleToBGRA(lightness: word): TBGRAPixel;
   {** Merge two colors without gamma correction }
@@ -1048,6 +1049,25 @@ begin
   Result.red := cgray;
   Result.green := cgray;
   Result.blue := cgray;
+  Result.alpha := c.alpha;
+end;
+
+function BGRAToGrayscaleLinear(c: TBGRAPixel): TBGRAPixel;
+var
+  gray:  byte;
+begin
+  if c.alpha = 0 then
+  begin
+    result := BGRAPixelTransparent;
+    exit;
+  end;
+  //gray composition
+  gray  := (c.red * redWeightShl10 + c.green * greenWeightShl10 +
+    c.blue * blueWeightShl10 + 512) shr 10;
+  //gamma compression
+  Result.red := gray;
+  Result.green := gray;
+  Result.blue := gray;
   Result.alpha := c.alpha;
 end;
 

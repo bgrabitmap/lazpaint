@@ -727,8 +727,10 @@ type
      procedure NegativeRect(ABounds: TRect); virtual; abstract;
      procedure LinearNegative; virtual; abstract;
      procedure LinearNegativeRect(ABounds: TRect); virtual; abstract;
-     procedure InplaceGrayscale; virtual; abstract;
-     procedure InplaceGrayscale(ABounds: TRect); virtual; abstract;
+     procedure InplaceGrayscale(AGammaCorrection: boolean = true); virtual; abstract;
+     procedure InplaceGrayscale(ABounds: TRect; AGammaCorrection: boolean = true); virtual; abstract;
+     procedure InplaceNormalize(AEachChannel: boolean = True); virtual; abstract;
+     procedure InplaceNormalize(ABounds: TRect; AEachChannel: boolean = True); virtual; abstract;
      procedure ConvertToLinearRGB; virtual; abstract;
      procedure ConvertFromLinearRGB; virtual; abstract;
      procedure SwapRedBlue; virtual; abstract; overload;
