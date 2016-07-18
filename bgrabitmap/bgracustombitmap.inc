@@ -1615,8 +1615,10 @@ begin
 end;
 
 procedure TBGRACustomBitmap.Fill(c: TColor);
+var bgraColor: TBGRAPixel;
 begin
-  Fill(ColorToBGRA(c));
+  bgraColor := ColorToBGRA(c);
+  Fill(bgraColor);
 end;
 
 procedure TBGRACustomBitmap.Fill(c: TBGRAPixel);
