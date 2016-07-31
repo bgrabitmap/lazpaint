@@ -4,6 +4,18 @@ unit BGRAText;
 
 interface
 
+{$IFDEF LINUX}
+  {$DEFINE LCL_RENDERER_IS_FINE}
+  {$DEFINE LCL_CLEARTYPE_RENDERER_IS_FINE}
+{$ENDIF}
+{$IFDEF FREEBSD}
+  {$DEFINE LCL_RENDERER_IS_FINE}
+  {$DEFINE LCL_CLEARTYPE_RENDERER_IS_FINE}
+{$ENDIF}
+{$IFDEF DARWIN}
+  {$DEFINE LCL_RENDERER_IS_FINE}
+{$ENDIF}
+
 {
   Font rendering units : BGRAText, BGRATextFX, BGRAVectorize, BGRAFreeType
 
@@ -91,8 +103,8 @@ procedure BGRAFillClearTypeGrayscaleMask(dest: TBGRACustomBitmap; x,y: integer; 
 procedure BGRAFillClearTypeMask(dest: TBGRACustomBitmap; x,y: integer; xThird: integer; mask: TBGRACustomBitmap; color: TBGRAPixel; texture: IBGRAScanner = nil; RGBOrder: boolean=true);
 procedure BGRAFillClearTypeRGBMask(dest: TBGRACustomBitmap; x,y: integer; mask: TBGRACustomBitmap; color: TBGRAPixel; texture: IBGRAScanner = nil; KeepRGBOrder: boolean=true);
 
-const FontAntialiasingLevel = {$IFDEF LINUX}3{$ELSE}{$IFDEF FREEBSD}3{$ELSE}6{$ENDIF}{$ENDIF}; //linux and freebsd rendering is already great
-const FontDefaultQuality = fqProof;
+const FontAntialiasingLevel = {$IFDEF LCL_RENDERER_IS_FINE}3{$ELSE}6{$ENDIF}; //linux and freebsd rendering is already great
+const FontDefaultQuality = fqAntialiased;
 
 function GetLCLFontPixelMetric(AFont: TFont): TFontPixelMetric;
 
