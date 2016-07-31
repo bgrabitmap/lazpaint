@@ -107,9 +107,9 @@ begin
                       ((PByte(psrc)+2)^ shl TBGRAPixel_GreenShift) or
                       ((PByte(psrc)+1)^ shl TBGRAPixel_RedShift) or
                       (DefaultOpacity shl TBGRAPixel_AlphaShift);
-    inc(psrc);
+    inc(psrc, sourcePixelSize);
     inc(pdest);
-    dec(count, sourcePixelSize);
+    dec(count);
   end;
 end;
 
