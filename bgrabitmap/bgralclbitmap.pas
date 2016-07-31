@@ -200,18 +200,11 @@ begin
 end;
 
 procedure CopyFrom32Bit_SwapRedBlue_SetAlpha(psrc: PByte; pdest: PBGRAPixel; count: NativeInt; sourcePixelSize: PtrInt; defaultOpacity: byte);
-var srcValue: NativeUInt;
-    OpacityOrMask: NativeUInt;
+var OpacityOrMask: NativeUInt;
 begin
   OpacityOrMask := DefaultOpacity shl TBGRAPixel_AlphaShift;
   while count > 0 do
   begin
-    srcValue := PDWord(psrc)^;
-    PDWord(pdest)^ := (srcValue and not (BGRA_RedMask or BGRA_BlueMask or BGRA_AlphaMask))
-                   or (((srcValue and BGRA_RedMask) shr TBGRAPixel_RedShift) shl TBGRAPixel_BlueShift)
-                   or (((srcValue and BGRA_BlueMask) shr TBGRAPixel_BlueShift) shl TBGRAPixel_RedShift)
-                   or OpacityOrMask;
-
     pdest^.red := PBGRAPixel(psrc)^.blue;
     pdest^.green := PBGRAPixel(psrc)^.green;
     pdest^.blue := PBGRAPixel(psrc)^.red;
