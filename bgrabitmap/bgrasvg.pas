@@ -65,6 +65,7 @@ type
     function GetPreserveAspectRatio: string;
     function GetViewBox: TSVGViewBox;
     function GetViewBox(AUnit: TCSSUnit): TSVGViewBox;
+    procedure GetViewBoxIndirect(AUnit: TCSSUnit; out AViewBox: TSVGViewBox);
     function GetWidth: TFloatWithCSSUnit;
     function GetWidthAsCm: single;
     function GetWidthAsInch: single;
@@ -343,10 +344,15 @@ end;
 
 function TBGRASVG.GetViewBox(AUnit: TCSSUnit): TSVGViewBox;
 begin
-  with ViewBox do
+  GetViewBoxIndirect(AUnit,result);
+end;
+
+procedure TBGRASVG.GetViewBoxIndirect(AUnit: TCSSUnit; out AViewBox: TSVGViewBox);
+begin
+  with FUnits.ViewBox do
   begin
-    result.min := FUnits.ConvertCoord(min,cuCustom,AUnit);
-    result.size := FUnits.ConvertCoord(size,cuCustom,AUnit);
+    AViewBox.min := FUnits.ConvertCoord(min,cuCustom,AUnit);
+    AViewBox.size := FUnits.ConvertCoord(size,cuCustom,AUnit);
   end;
 end;
 
@@ -460,8 +466,10 @@ end;
 
 function TBGRASVG.GetViewBoxAlignment(AHorizAlign: TAlignment;
   AVertAlign: TTextLayout): TPointF;
+var vb: TSVGViewBox;
 begin
-  with ViewBoxInUnit[cuPixel] do
+  GetViewBoxIndirect(cuPixel, vb);
+  with vb do
   begin
     case AHorizAlign of
       taCenter: result.x := -(min.x+size.x*0.5);
@@ -641,11 +649,13 @@ begin
 end;
 
 procedure TBGRASVG.StretchDraw(ACanvas2d: TBGRACanvas2D; x, y, w, h: single);
+var vb: TSVGViewBox;
 begin
   ACanvas2d.save;
   ACanvas2d.translate(x,y);
   ACanvas2d.strokeResetTransform;
-  with ViewBoxInUnit[cuPixel] do
+  GetViewBoxIndirect(cuPixel,vb);
+  with vb do
   begin
     ACanvas2d.translate(-min.x,-min.y);
     if size.x <> 0 then
@@ -669,7 +679,7 @@ var ratio,stretchRatio,zoom: single;
   vb: TSVGViewBox;
   sx,sy,sw,sh: single;
 begin
-  vb := ViewBoxInUnit[cuPixel];
+  GetViewBoxIndirect(cuPixel,vb);
   if (h = 0) or (w = 0) or (vb.size.x = 0) or (vb.size.y = 0) then exit;
   ratio := vb.size.x/vb.size.y;
   stretchRatio := w/h;
