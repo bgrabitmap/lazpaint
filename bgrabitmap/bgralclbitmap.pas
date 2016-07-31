@@ -200,9 +200,7 @@ begin
 end;
 
 procedure CopyFrom32Bit_SwapRedBlue_SetAlpha(psrc: PByte; pdest: PBGRAPixel; count: NativeInt; sourcePixelSize: PtrInt; defaultOpacity: byte);
-var OpacityOrMask: NativeUInt;
 begin
-  OpacityOrMask := DefaultOpacity shl TBGRAPixel_AlphaShift;
   while count > 0 do
   begin
     pdest^.red := PBGRAPixel(psrc)^.blue;
