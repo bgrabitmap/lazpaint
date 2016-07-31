@@ -361,13 +361,12 @@ begin
     end
     else
     begin
-      if RaiseErrorOnInvalidPixelFormat then
-        raise Exception.Create('Invalid raw image format')
-      else
-      begin
-        result := false;
-        exit;
-      end;
+      result := FormatError('BitsPerPixel: ' + IntToStr(ARawImage.Description.BitsPerPixel) + ', '
+        + 'RedShit: ' + IntToStr(ARawImage.Description.RedShift) + ', '
+        + 'GreenShit: ' + IntToStr(ARawImage.Description.GreenShift) + ', '
+        + 'BlueShift: ' + IntToStr(ARawImage.Description.BlueShift) + ', '
+        + 'AlphaShift: ' + IntToStr(ARawImage.Description.AlphaShift) );
+      exit;
     end;
 
     if not mustSwapRedBlue then
