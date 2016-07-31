@@ -104,7 +104,7 @@ procedure BGRAFillClearTypeGrayscaleMask(dest: TBGRACustomBitmap; x,y: integer; 
 procedure BGRAFillClearTypeMask(dest: TBGRACustomBitmap; x,y: integer; xThird: integer; mask: TBGRACustomBitmap; color: TBGRAPixel; texture: IBGRAScanner = nil; RGBOrder: boolean=true);
 procedure BGRAFillClearTypeRGBMask(dest: TBGRACustomBitmap; x,y: integer; mask: TBGRACustomBitmap; color: TBGRAPixel; texture: IBGRAScanner = nil; KeepRGBOrder: boolean=true);
 
-const FontAntialiasingLevel = {$IFDEF LCL_RENDERER_IS_FINE}3{$ELSE}6{$ENDIF}; //linux and freebsd rendering is already great
+const FontAntialiasingLevel = {$IFDEF LCL_RENDERER_IS_FINE}3{$ELSE}6{$ENDIF};
 const FontDefaultQuality = fqAntialiased;
 
 function GetLCLFontPixelMetric(AFont: TFont): TFontPixelMetric;
@@ -632,11 +632,14 @@ begin
     exit;
   end;
 
-  {$IFDEF LINUX}
-  if (BGRATextSize(Font, fqSystem, 'Hg', 1).cy >= 13) then
+  {$IFDEF LCL_RENDERER_IS_FINE}
+  if (Quality in [fqFineAntialiasing, fqFineClearTypeRGB, fqFineClearTypeBGR]) and
+     (BGRATextSize(Font, fqSystem, 'Hg', 1).cy >= 13) then
   begin
     if Quality = fqFineAntialiasing then Quality := fqSystem;
+    {$IFDEF LCL_CLEARTYPE_RENDERER_IS_FINE}
     if Quality = GetFineClearTypeAuto then Quality := fqSystemClearType;
+    {$ENDIF}
   end;
   {$ENDIF}
 
@@ -843,11 +846,14 @@ begin
   if (tx <= 0) or (ty <= 0) then
     exit;
 
-  {$IFDEF LINUX}
-  if (BGRATextSize(Font, fqSystem, 'Hg', 1).cy >= 13) then
+  {$IFDEF LCL_RENDERER_IS_FINE}
+  if (Quality in [fqFineAntialiasing, fqFineClearTypeRGB, fqFineClearTypeBGR]) and
+     (BGRATextSize(Font, fqSystem, 'Hg', 1).cy >= 13) then
   begin
     if Quality = fqFineAntialiasing then Quality := fqSystem;
+    {$IFDEF LCL_CLEARTYPE_RENDERER_IS_FINE}
     if Quality = GetFineClearTypeAuto then Quality := fqSystemClearType;
+    {$ENDIF}
   end;
   {$ENDIF}
 
@@ -1167,9 +1173,13 @@ begin
 end;
 
 function TCustomLCLFontRenderer.TextSize(sUTF8: string): TSize;
+var oldOrientation: integer;
 begin
+  oldOrientation:= FontOrientation;
+  FontOrientation:= 0;
   UpdateFont;
   result := TextSizeNoUpdateFont(sUTF8);
+  FontOrientation:= oldOrientation;
 end;
 
 constructor TCustomLCLFontRenderer.Create;
