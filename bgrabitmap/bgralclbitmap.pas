@@ -330,6 +330,21 @@ begin
       else
         copyProc := @CopyFromARGB_ReplaceZeroAlpha;
     end
+  else //channels are in ARGB order but alpha is not used
+  if (ARawImage.Description.BitsPerPixel >= 32) and
+     (ARawImage.Description.AlphaPrec = 0) and
+    (((ARawImage.Description.RedShift = 8) and
+    (ARawImage.Description.GreenShift = 16) and
+    (ARawImage.Description.BlueShift = 24) and
+    (ARawImage.Description.ByteOrder = riboLSBFirst)) or
+    ((ARawImage.Description.RedShift = ARawImage.Description.BitsPerPixel - 16) and
+    (ARawImage.Description.GreenShift = ARawImage.Description.BitsPerPixel - 24) and
+    (ARawImage.Description.BlueShift = ARawImage.Description.BitsPerPixel - 32) and
+    (ARawImage.Description.ByteOrder = riboMSBFirst))) then
+    begin
+      DefaultOpacity := 255;
+      copyProc := @CopyFromARGB_SetAlpha;
+    end
   else
   begin
     //channels are in RGB order (alpha channel may follow)
@@ -362,10 +377,10 @@ begin
     else
     begin
       result := FormatError('BitsPerPixel: ' + IntToStr(ARawImage.Description.BitsPerPixel) + ', '
-        + 'RedShit: ' + IntToStr(ARawImage.Description.RedShift) + ', '
-        + 'GreenShit: ' + IntToStr(ARawImage.Description.GreenShift) + ', '
-        + 'BlueShift: ' + IntToStr(ARawImage.Description.BlueShift) + ', '
-        + 'AlphaShift: ' + IntToStr(ARawImage.Description.AlphaShift) );
+        + 'RedShit: ' + IntToStr(ARawImage.Description.RedShift) + ', Prec: ' + IntToStr(ARawImage.Description.RedPrec)+ ', '
+        + 'GreenShit: ' + IntToStr(ARawImage.Description.GreenShift) + ', Prec: ' + IntToStr(ARawImage.Description.GreenPrec)+ ', '
+        + 'BlueShift: ' + IntToStr(ARawImage.Description.BlueShift) + ', Prec: ' + IntToStr(ARawImage.Description.BluePrec)+ ', '
+        + 'AlphaShift: ' + IntToStr(ARawImage.Description.AlphaShift) + ', Prec: ' + IntToStr(ARawImage.Description.AlphaPrec) );
       exit;
     end;
 
