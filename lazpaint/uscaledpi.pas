@@ -54,7 +54,7 @@ begin
 
   for i := 0 to high(TempBGRA) do
   begin
-    {$IFDEF WINDOWS}
+    {$IFDEF LCLWin32}
     If TBGRAPixel_RGBAOrder then TempBGRA[i].SwapRedBlue;
     {$ENDIF}
     TargetList.Add(TempBGRA[i].Bitmap,nil);
