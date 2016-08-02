@@ -43,9 +43,6 @@ type
       override;
     procedure Draw(ACanvas: TCanvas; x, y: integer; Opaque: boolean = True); override;
     procedure Draw(ACanvas: TCanvas; Rect: TRect; Opaque: boolean = True); override;
-    procedure DataDrawOpaque(ACanvas: TCanvas; Rect: TRect; AData: Pointer;
-      ALineOrder: TRawImageLineOrder; AWidth, AHeight: integer);
-      override;
     procedure GetImageFromCanvas(CanvasSource: TCanvas; x, y: integer); override;
   end;
 
@@ -92,37 +89,6 @@ begin
     DataDrawOpaque(ACanvas, Rect, Data, FLineOrder, FWidth, FHeight)
   else
     SlowDrawTransparent(Self, ACanvas, Rect);
-end;
-
-procedure TBGRAQtBitmap.DataDrawOpaque(ACanvas: TCanvas; Rect: TRect;
-  AData: Pointer; ALineOrder: TRawImageLineOrder; AWidth, AHeight: integer);
-var
-  Temp:     TBitmap;
-  RawImage: TRawImage;
-  BitmapHandle, MaskHandle: HBitmap;
-  CreateSuccess: boolean;
-begin
-  if (AHeight = 0) or (AWidth = 0) then
-    exit;
-
-  RawImage.Init;
-  if TBGRAPixel_RGBAOrder then
-    RawImage.Description.Init_BPP32_R8G8B8_BIO_TTB(AWidth, AHeight)
-  else
-    RawImage.Description.Init_BPP32_B8G8R8_BIO_TTB(AWidth, AHeight);
-  RawImage.Description.LineOrder := ALineOrder;
-  RawImage.Description.LineEnd := rileDWordBoundary;
-  RawImage.Data     := PByte(AData);
-  RawImage.DataSize := AWidth * AHeight * Sizeof(TBGRAPixel);
-  CreateSuccess     := RawImage_CreateBitmaps(RawImage, BitmapHandle, MaskHandle, False);
-
-  if not CreateSuccess then
-    raise FPImageException.Create('Failed to create bitmap handle');
-  Temp := TBitmap.Create;
-  Temp.Handle := BitmapHandle;
-  Temp.MaskHandle := MaskHandle;
-  ACanvas.StretchDraw(Rect, Temp);
-  Temp.Free;
 end;
 
 procedure TBGRAQtBitmap.GetImageFromCanvas(CanvasSource: TCanvas; x, y: integer);
