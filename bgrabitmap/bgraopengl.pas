@@ -178,8 +178,9 @@ type
     FFlipX,FFlipY: Boolean;
 
     function GetOpenGLMaxTexSize: integer; override;
-    function CreateOpenGLTexture(ARGBAData: PDWord; AAllocatedWidth, AAllocatedHeight, AActualWidth, AActualHeight: integer): TBGLTextureHandle; override;
-    procedure UpdateOpenGLTexture(ATexture: TBGLTextureHandle; ARGBAData: PDWord; AAllocatedWidth, AAllocatedHeight, AActualWidth,AActualHeight: integer); override;
+    function CreateOpenGLTexture(ARGBAData: PDWord; AAllocatedWidth, AAllocatedHeight, AActualWidth, AActualHeight: integer; RGBAOrder: boolean): TBGLTextureHandle; override;
+    procedure UpdateOpenGLTexture(ATexture: TBGLTextureHandle; ARGBAData: PDWord; AAllocatedWidth, AAllocatedHeight, AActualWidth,AActualHeight: integer; RGBAOrder: boolean); override;
+    class function SupportsBGRAOrder: boolean; override;
     procedure SetOpenGLTextureSize(ATexture: TBGLTextureHandle; AAllocatedWidth, AAllocatedHeight, AActualWidth, AActualHeight: integer); override;
     procedure ComputeOpenGLFramesCoord(ATexture: TBGLTextureHandle; FramesX: Integer=1; FramesY: Integer=1); override;
     function GetOpenGLFrameCount(ATexture: TBGLTextureHandle): integer; override;
@@ -1049,10 +1050,12 @@ begin
 end;
 
 function TBGLTexture.CreateOpenGLTexture(ARGBAData: PDWord;
-  AAllocatedWidth, AAllocatedHeight, AActualWidth, AActualHeight: integer
-  ): TBGLTextureHandle;
+  AAllocatedWidth, AAllocatedHeight, AActualWidth, AActualHeight: integer;
+  RGBAOrder: boolean): TBGLTextureHandle;
 var p: POpenGLTexture;
+  providedFormat: GLenum;
 begin
+  if RGBAOrder then providedFormat:= GL_RGBA else providedFormat:= GL_BGRA;
   New(p);
   p^.AllocatedWidth := AAllocatedWidth;
   p^.AllocatedHeight := AAllocatedHeight;
@@ -1063,18 +1066,24 @@ begin
   glBindTexture( GL_TEXTURE_2D, p^.ID );
   glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
   glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-  glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, AAllocatedWidth, AAllocatedHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, ARGBAData );
-
+  glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, AAllocatedWidth, AAllocatedHeight, 0, providedFormat, GL_UNSIGNED_BYTE, ARGBAData );
   result := p;
 end;
 
 procedure TBGLTexture.UpdateOpenGLTexture(ATexture: TBGLTextureHandle;
   ARGBAData: PDWord; AAllocatedWidth, AAllocatedHeight, AActualWidth,
-  AActualHeight: integer);
+  AActualHeight: integer; RGBAOrder: boolean);
+var providedFormat: GLenum;
 begin
+  if RGBAOrder then providedFormat:= GL_RGBA else providedFormat:= GL_BGRA;
   SetOpenGLTextureSize(ATexture, AAllocatedWidth,AAllocatedHeight, AActualWidth,AActualHeight);
   glBindTexture( GL_TEXTURE_2D, TOpenGLTexture(ATexture^).ID );
-  glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, AAllocatedWidth, AAllocatedHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, ARGBAData );
+  glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, AAllocatedWidth, AAllocatedHeight, 0, providedFormat, GL_UNSIGNED_BYTE, ARGBAData );
+end;
+
+class function TBGLTexture.SupportsBGRAOrder: boolean;
+begin
+  Result:= true;
 end;
 
 procedure TBGLTexture.SetOpenGLTextureSize(ATexture: TBGLTextureHandle;

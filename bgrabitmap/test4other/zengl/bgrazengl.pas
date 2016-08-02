@@ -192,8 +192,8 @@ type
     function GetFlags: LongWord; virtual;
 
     function GetOpenGLMaxTexSize: integer; override;
-    function CreateOpenGLTexture(ARGBAData: PDWord; AAllocatedWidth, AAllocatedHeight, AActualWidth, AActualHeight: integer): TBGLTextureHandle; override;
-    procedure UpdateOpenGLTexture(ATexture: TBGLTextureHandle; ARGBAData: PDWord; AAllocatedWidth, AAllocatedHeight, AActualWidth,AActualHeight: integer); override;
+    function CreateOpenGLTexture(ARGBAData: PDWord; AAllocatedWidth, AAllocatedHeight, AActualWidth, AActualHeight: integer; RGBAOrder: boolean): TBGLTextureHandle; override;
+    procedure UpdateOpenGLTexture(ATexture: TBGLTextureHandle; ARGBAData: PDWord; AAllocatedWidth, AAllocatedHeight, AActualWidth,AActualHeight: integer; RGBAOrder: boolean); override;
     procedure SetOpenGLTextureSize(ATexture: TBGLTextureHandle; AAllocatedWidth, AAllocatedHeight, AActualWidth, AActualHeight: integer); override;
     procedure ComputeOpenGLFramesCoord(ATexture: TBGLTextureHandle; FramesX: Integer=1; FramesY: Integer=1); override;
     function GetOpenGLFrameCount(ATexture: TBGLTextureHandle): integer; override;
@@ -498,7 +498,7 @@ end;
 
 procedure TBGLZenCanvas.InternalSetColorF(const AColor: TColorF);
 begin
-  glColor4fv(@AColor[1]);
+  glColor4f(AColor[1],AColor[2],AColor[3],AColor[4]);
 end;
 
 procedure TBGLZenCanvas.InternalStartPutPixel(const pt: TPointF);
@@ -1216,7 +1216,7 @@ end;
 
 procedure TBGLTexture.UpdateOpenGLTexture(ATexture: TBGLTextureHandle;
   ARGBAData: PDWord; AAllocatedWidth, AAllocatedHeight, AActualWidth,
-  AActualHeight: integer);
+  AActualHeight: integer; RGBAOrder: boolean);
 begin
   batch2d_Flush;
   SetOpenGLTextureSize(ATexture, AAllocatedWidth,AAllocatedHeight, AActualWidth,AActualHeight);
@@ -1245,7 +1245,9 @@ begin
   result := oglMaxTexSize;
 end;
 
-function TBGLTexture.CreateOpenGLTexture(ARGBAData: PDWord; AAllocatedWidth, AAllocatedHeight, AActualWidth, AActualHeight: integer): TBGLTextureHandle;
+function TBGLTexture.CreateOpenGLTexture(ARGBAData: PDWord; AAllocatedWidth,
+  AAllocatedHeight, AActualWidth, AActualHeight: integer;
+  RGBAOrder: boolean): TBGLTextureHandle;
 var tex: zglPTexture;
 begin
   tex := tex_Add;
