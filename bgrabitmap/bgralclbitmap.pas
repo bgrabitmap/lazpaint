@@ -477,80 +477,25 @@ var
   Temp:      TBitmap;
   RawImage:  TRawImage;
   BitmapHandle, MaskHandle: HBitmap;
-  TempData:  Pointer;
-  x, y:      integer;
-  PTempData: PByte;
-  PSource:   PByte;
-  ADataSize: integer;
-  ALineEndMargin: integer;
   CreateResult: boolean;
-  swapRedBlueWhenCopying: boolean;
-  {$IFDEF DARWIN}
-  TempShift: Byte;
-  {$ENDIF}
+  tempShift: byte;
 begin
   if (AHeight = 0) or (AWidth = 0) then
     exit;
 
-  //by default, we provide data in BGR order
-  swapRedBlueWhenCopying := TBGRAPixel_RGBAOrder;
-
   RawImage.Init;
-  RawImage.Description.Init_BPP24_B8G8R8_BIO_TTB(AWidth, AHeight);
-{$IFDEF DARWIN}
-  //on MacOS, we provide data in RGB order
-  TempShift := RawImage.Description.RedShift;
-  RawImage.Description.RedShift := RawImage.Description.BlueShift;
-  RawImage.Description.BlueShift := TempShift;
-  swapRedBlueWhenCopying := not swapRedBlueWhenCopying;
-{$ENDIF}
+  RawImage.Description.Init_BPP32_B8G8R8_BIO_TTB(AWidth,AHeight);
   RawImage.Description.LineOrder := ALineOrder;
   RawImage.Description.LineEnd := rileDWordBoundary;
-
-  ALineEndMargin := (4 - ((AWidth * 3) and 3)) and 3;
-  ADataSize      := (AWidth * 3 + ALineEndMargin) * AHeight;
-
-  if integer(RawImage.Description.BytesPerLine) <> AWidth * 3 + ALineEndMargin then
-    raise FPImageException.Create('Line size is inconsistant');
-
-  PSource   := AData;
-  GetMem({%H-}TempData, ADataSize);
-  PTempData := TempData;
-
-  if swapRedBlueWhenCopying then
+  RawImage.Data := PByte(AData);
+  RawImage.DataSize:= AWidth*AHeight*sizeof(TBGRAPixel);
+  if TBGRAPixel_RGBAOrder then
   begin
-    for y := 0 to AHeight - 1 do
-    begin
-      for x := 0 to AWidth - 1 do
-      begin
-        PTempData^ := (PSource+2)^;
-        (PTempData+1)^ := (PSource+1)^;
-        (PTempData+2)^ := PSource^;
-        inc(PTempData,3);
-        inc(PSource,4);
-      end;
-      Inc(PTempData, ALineEndMargin);
-    end;
-  end else
-  begin
-    for y := 0 to AHeight - 1 do
-    begin
-      for x := 0 to AWidth - 1 do
-      begin
-        PWord(PTempData)^ := PWord(PSource)^;
-        (PTempData+2)^ := (PSource+2)^;
-        Inc(PTempData,3);
-        Inc(PSource, 4);
-      end;
-      Inc(PTempData, ALineEndMargin);
-    end;
+    tempShift := RawImage.Description.RedShift;
+    RawImage.Description.RedShift := RawImage.Description.BlueShift;
+    RawImage.Description.BlueShift := tempShift;
   end;
-
-  RawImage.Data     := PByte(TempData);
-  RawImage.DataSize := ADataSize;
-
   CreateResult := RawImage_CreateBitmaps(RawImage, BitmapHandle, MaskHandle, False);
-  FreeMem(TempData);
 
   if not CreateResult then
     raise FPImageException.Create('Failed to create bitmap handle');
