@@ -1521,7 +1521,7 @@ begin
   for y := ARect.Top to ARect.Bottom-1 do
   begin
     p := GetScanlineFast(y)+ARect.Left;
-    TBGRASwapRedBlueScanner.ComputeFilterAt(p,p, ARect.Right-ARect.Left, False);
+    TBGRAFilterScannerSwapRedBlue.ComputeFilterAt(p,p, ARect.Right-ARect.Left, False);
   end;
 end;
 
