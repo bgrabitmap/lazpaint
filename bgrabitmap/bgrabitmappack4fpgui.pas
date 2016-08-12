@@ -21,7 +21,7 @@ uses
   BGRATypewriter, BGRASVG, BGRASVGShapes, BGRASVGType, BGRAPalette, 
   BGRAColorQuantization, BGRADithering, BGRAFreeType, BGRACustomTextFX, 
   BGRAWritePNG, BGRAGifFormat, BGRASceneTypes, BGRARenderer3D, 
-  BGRAWriteBmpMioMap;
+  BGRAWriteBmpMioMap, BGRAPhoxo, BGRAFilterScanner;
 
 implementation
 
