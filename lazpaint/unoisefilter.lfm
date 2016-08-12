@@ -1,25 +1,32 @@
 object FNoiseFilter: TFNoiseFilter
   Left = 367
-  Height = 123
+  Height = 110
   Top = 354
-  Width = 172
+  Width = 241
+  AutoSize = True
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Noise filter'
-  ClientHeight = 123
-  ClientWidth = 172
+  ChildSizing.LeftRightSpacing = 8
+  ChildSizing.TopBottomSpacing = 8
+  ChildSizing.HorizontalSpacing = 8
+  ChildSizing.VerticalSpacing = 8
+  ChildSizing.Layout = cclLeftToRightThenTopToBottom
+  ChildSizing.ControlsPerLine = 2
+  ClientHeight = 110
+  ClientWidth = 241
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnHide = FormHide
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.0.10.0'
+  LCLVersion = '1.6.0.4'
   object Radio_RGBNoise: TRadioButton
-    Left = 16
-    Height = 19
+    Left = 8
+    Height = 24
     Top = 8
-    Width = 73
+    Width = 91
     Caption = 'RGB noise'
     Checked = True
     OnChange = Radio_NoiseChange
@@ -27,18 +34,26 @@ object FNoiseFilter: TFNoiseFilter
     TabStop = True
   end
   object Radio_GrayscaleNoise: TRadioButton
-    Left = 16
-    Height = 19
-    Top = 32
-    Width = 101
+    Left = 107
+    Height = 24
+    Top = 8
+    Width = 126
     Caption = 'Grayscale noise'
     TabOrder = 0
   end
+  object Label_Opacity: TLabel
+    Left = 8
+    Height = 28
+    Top = 40
+    Width = 91
+    Caption = 'Opacity:'
+    ParentColor = False
+  end
   object SpinEdit_Alpha: TSpinEdit
-    Left = 85
-    Height = 23
-    Top = 56
-    Width = 56
+    Left = 107
+    Height = 28
+    Top = 40
+    Width = 126
     Increment = 32
     MaxValue = 255
     MinValue = 1
@@ -46,29 +61,23 @@ object FNoiseFilter: TFNoiseFilter
     TabOrder = 1
     Value = 255
   end
-  object Label_Opacity: TLabel
-    Left = 17
-    Height = 16
-    Top = 59
-    Width = 45
-    Caption = 'Opacity:'
-    ParentColor = False
-  end
   object Button_OK: TButton
-    Left = 16
-    Height = 22
-    Top = 88
-    Width = 59
+    Left = 8
+    Height = 30
+    Top = 76
+    Width = 91
+    AutoSize = True
     Caption = 'OK'
     Default = True
     OnClick = Button_OKClick
     TabOrder = 2
   end
   object Button_Cancel: TButton
-    Left = 80
-    Height = 22
-    Top = 88
-    Width = 73
+    Left = 107
+    Height = 30
+    Top = 76
+    Width = 126
+    AutoSize = True
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
