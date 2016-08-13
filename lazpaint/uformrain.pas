@@ -19,6 +19,8 @@ type
     Label_Wind: TLabel;
     Label_Quantity: TLabel;
     PaintBox_Wind: TPaintBox;
+    Panel1: TPanel;
+    Panel2: TPanel;
     Timer1: TTimer;
     TrackBar_Quantity: TTrackBar;
     procedure Button_OKClick(Sender: TObject);

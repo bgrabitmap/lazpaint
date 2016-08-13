@@ -457,7 +457,6 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UTwirl"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
         <TopLine Value="73"/>
         <CursorPos X="3" Y="75"/>
@@ -1341,9 +1340,14 @@
         <ComponentName Value="FRain"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <TopLine Value="191"/>
-        <CursorPos X="51" Y="198"/>
+        <UnitName Value="UFormRain"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="193"/>
+        <CursorPos X="51" Y="200"/>
         <UsageCount Value="115"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit152>
       <Unit153>
         <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\win\wininc\struct.inc"/>
@@ -1750,11 +1754,19 @@
         <UsageCount Value="11"/>
       </Unit212>
     </Units>
-    <JumpHistory Count="1">
+    <JumpHistory Count="3" HistoryIndex="2">
       <Position1>
         <Filename Value="lazpaintmainform.pas"/>
         <Caret Line="858" Column="3" TopLine="856"/>
       </Position1>
+      <Position2>
+        <Filename Value="uformrain.pas"/>
+        <Caret Line="198" Column="51" TopLine="191"/>
+      </Position2>
+      <Position3>
+        <Filename Value="uformrain.pas"/>
+        <Caret Line="199" Column="51" TopLine="192"/>
+      </Position3>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
