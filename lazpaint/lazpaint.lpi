@@ -423,6 +423,7 @@
         <ComponentName Value="FAbout"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="UAbout"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="121"/>
         <CursorPos X="78" Y="129"/>
@@ -697,9 +698,14 @@
         <ComponentName Value="FSharpen"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <TopLine Value="82"/>
-        <CursorPos X="52" Y="113"/>
+        <UnitName Value="USharpen"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="89"/>
+        <CursorPos X="52" Y="115"/>
         <UsageCount Value="200"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit59>
       <Unit60>
         <Filename Value="uphongfilter.pas"/>
@@ -1249,7 +1255,7 @@
         <IsPartOfProject Value="True"/>
         <TopLine Value="289"/>
         <CursorPos X="8" Y="299"/>
-        <UsageCount Value="187"/>
+        <UsageCount Value="188"/>
       </Unit138>
       <Unit139>
         <Filename Value="C:\lazarus\lcl\controls.pp"/>
@@ -1307,7 +1313,7 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <CursorPos X="37" Y="6"/>
-        <UsageCount Value="152"/>
+        <UsageCount Value="153"/>
       </Unit147>
       <Unit148>
         <Filename Value="C:\lazarus\fpc\2.6.2\source\packages\fcl-base\src\inifiles.pp"/>
@@ -1332,7 +1338,7 @@
         <IsPartOfProject Value="True"/>
         <TopLine Value="116"/>
         <CursorPos X="3" Y="123"/>
-        <UsageCount Value="115"/>
+        <UsageCount Value="116"/>
       </Unit151>
       <Unit152>
         <Filename Value="uformrain.pas"/>
@@ -1341,11 +1347,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UFormRain"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
         <TopLine Value="193"/>
         <CursorPos X="51" Y="200"/>
-        <UsageCount Value="115"/>
+        <UsageCount Value="116"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit152>
@@ -1372,7 +1377,7 @@
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="18"/>
-        <UsageCount Value="106"/>
+        <UsageCount Value="107"/>
       </Unit156>
       <Unit157>
         <Filename Value="C:\lazarus\lcl\extctrls.pp"/>
@@ -1754,7 +1759,7 @@
         <UsageCount Value="11"/>
       </Unit212>
     </Units>
-    <JumpHistory Count="3" HistoryIndex="2">
+    <JumpHistory Count="5" HistoryIndex="4">
       <Position1>
         <Filename Value="lazpaintmainform.pas"/>
         <Caret Line="858" Column="3" TopLine="856"/>
@@ -1767,6 +1772,14 @@
         <Filename Value="uformrain.pas"/>
         <Caret Line="199" Column="51" TopLine="192"/>
       </Position3>
+      <Position4>
+        <Filename Value="usharpen.pas"/>
+        <Caret Line="113" Column="52" TopLine="82"/>
+      </Position4>
+      <Position5>
+        <Filename Value="usharpen.pas"/>
+        <Caret Line="114" Column="52" TopLine="88"/>
+      </Position5>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
