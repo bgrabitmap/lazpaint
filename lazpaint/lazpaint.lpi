@@ -248,6 +248,8 @@
         <ComponentName Value="FNewImage"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="UNewimage"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="126"/>
         <CursorPos X="31" Y="149"/>
         <UsageCount Value="201"/>
@@ -305,7 +307,6 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UMotionBlur"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="6"/>
         <TopLine Value="205"/>
         <CursorPos X="75" Y="228"/>
@@ -319,8 +320,12 @@
         <ComponentName Value="FEmboss"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="-1"/>
+        <UnitName Value="UEmboss"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="7"/>
         <UsageCount Value="203"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit15>
       <Unit16>
         <Filename Value="uclipboard.pas"/>
@@ -1765,7 +1770,7 @@
         <UsageCount Value="11"/>
       </Unit212>
     </Units>
-    <JumpHistory Count="12" HistoryIndex="11">
+    <JumpHistory Count="13" HistoryIndex="12">
       <Position1>
         <Filename Value="lazpaintmainform.pas"/>
         <Caret Line="858" Column="3" TopLine="856"/>
@@ -1814,6 +1819,9 @@
         <Filename Value="umotionblur.pas"/>
         <Caret Line="227" Column="75" TopLine="204"/>
       </Position12>
+      <Position13>
+        <Filename Value="uemboss.pas"/>
+      </Position13>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>

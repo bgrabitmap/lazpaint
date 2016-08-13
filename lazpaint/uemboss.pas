@@ -20,6 +20,8 @@ type
     CheckBox_PreserveColors: TCheckBox;
     Label_Direction: TLabel;
     PaintBox1: TPaintBox;
+    Panel1: TPanel;
+    Panel2: TPanel;
     TrackBar_Strength: TTrackBar;
     procedure Button_OKClick(Sender: TObject);
     procedure CheckBox_Change(Sender: TObject);
