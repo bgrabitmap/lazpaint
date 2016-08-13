@@ -14,7 +14,7 @@ object FCustomBlur: TFCustomBlur
   OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.2.4.0'
+  LCLVersion = '1.6.0.4'
   object Image1: TImage
     Left = 8
     Height = 216
@@ -25,7 +25,7 @@ object FCustomBlur: TFCustomBlur
     Stretch = True
   end
   object Button_OK: TButton
-    Left = 124
+    Left = 128
     Height = 22
     Top = 272
     Width = 59
@@ -35,7 +35,7 @@ object FCustomBlur: TFCustomBlur
     TabOrder = 0
   end
   object Button_Cancel: TButton
-    Left = 195
+    Left = 194
     Height = 22
     Top = 272
     Width = 81
@@ -76,4 +76,4 @@ object FCustomBlur: TFCustomBlur
     left = 308
     top = 230
   end
-end
+end

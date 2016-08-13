@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, Spin, BGRABitmap, BGRABitmapTypes, UFilterConnector;
+  StdCtrls, Spin, ExtCtrls, BGRABitmap, BGRABitmapTypes, UFilterConnector;
 
 type
   { TFNoiseFilter }
@@ -15,8 +15,11 @@ type
     Button_Cancel: TButton;
     Button_OK: TButton;
     Label_Opacity: TLabel;
-    Radio_RGBNoise: TRadioButton;
+    Panel1: TPanel;
+    Panel2: TPanel;
+    Panel3: TPanel;
     Radio_GrayscaleNoise: TRadioButton;
+    Radio_RGBNoise: TRadioButton;
     SpinEdit_Alpha: TSpinEdit;
     procedure Button_OKClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var {%H-}CanClose: boolean);
