@@ -17,6 +17,8 @@ type
     Button_OK: TButton;
     Button_Cancel: TButton;
     Checkbox_Oriented: TCheckBox;
+    Panel1: TPanel;
+    Panel2: TPanel;
     SpinEdit_Distance: TFloatSpinEdit;
     Label_Distance: TLabel;
     PaintBox1: TPaintBox;
