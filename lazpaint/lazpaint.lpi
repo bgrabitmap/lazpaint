@@ -238,6 +238,8 @@
         <ComponentName Value="FResample"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="UResample"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="38"/>
         <CursorPos Y="76"/>
         <UsageCount Value="200"/>
@@ -260,6 +262,7 @@
         <ComponentName Value="FToolbox"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="UToolbox"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="48"/>
         <CursorPos X="56" Y="65"/>
@@ -295,7 +298,6 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="URadialBlur"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="8"/>
         <TopLine Value="121"/>
         <CursorPos Y="130"/>
@@ -861,9 +863,13 @@
         <ComponentName Value="FPosterize"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <TopLine Value="79"/>
-        <CursorPos X="103" Y="85"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="9"/>
+        <TopLine Value="81"/>
+        <CursorPos X="103" Y="87"/>
         <UsageCount Value="201"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit77>
       <Unit78>
         <Filename Value="umyslv.pas"/>
@@ -1774,7 +1780,7 @@
         <UsageCount Value="11"/>
       </Unit212>
     </Units>
-    <JumpHistory Count="15" HistoryIndex="14">
+    <JumpHistory Count="17" HistoryIndex="16">
       <Position1>
         <Filename Value="lazpaintmainform.pas"/>
         <Caret Line="858" Column="3" TopLine="856"/>
@@ -1834,6 +1840,14 @@
         <Filename Value="uradialblur.pas"/>
         <Caret Line="129" TopLine="120"/>
       </Position15>
+      <Position16>
+        <Filename Value="uposterize.pas"/>
+        <Caret Line="85" Column="103" TopLine="79"/>
+      </Position16>
+      <Position17>
+        <Filename Value="uposterize.pas"/>
+        <Caret Line="86" Column="103" TopLine="80"/>
+      </Position17>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
