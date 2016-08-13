@@ -554,9 +554,14 @@
         <ComponentName Value="FPixelate"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <TopLine Value="81"/>
-        <CursorPos Y="114"/>
+        <UnitName Value="UPixelate"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="5"/>
+        <TopLine Value="92"/>
+        <CursorPos Y="118"/>
         <UsageCount Value="287"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit41>
       <Unit42>
         <Filename Value="utoolphong.pas"/>
@@ -699,7 +704,6 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="USharpen"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="4"/>
         <TopLine Value="89"/>
         <CursorPos X="52" Y="115"/>
@@ -1759,7 +1763,7 @@
         <UsageCount Value="11"/>
       </Unit212>
     </Units>
-    <JumpHistory Count="5" HistoryIndex="4">
+    <JumpHistory Count="10" HistoryIndex="9">
       <Position1>
         <Filename Value="lazpaintmainform.pas"/>
         <Caret Line="858" Column="3" TopLine="856"/>
@@ -1780,6 +1784,26 @@
         <Filename Value="usharpen.pas"/>
         <Caret Line="114" Column="52" TopLine="88"/>
       </Position5>
+      <Position6>
+        <Filename Value="upixelate.pas"/>
+        <Caret Line="114" TopLine="81"/>
+      </Position6>
+      <Position7>
+        <Filename Value="upixelate.pas"/>
+        <Caret Line="116" TopLine="90"/>
+      </Position7>
+      <Position8>
+        <Filename Value="upixelate.pas"/>
+        <Caret Line="117" TopLine="91"/>
+      </Position8>
+      <Position9>
+        <Filename Value="upixelate.pas"/>
+        <Caret Line="118" TopLine="92"/>
+      </Position9>
+      <Position10>
+        <Filename Value="upixelate.pas"/>
+        <Caret Line="117" TopLine="91"/>
+      </Position10>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>

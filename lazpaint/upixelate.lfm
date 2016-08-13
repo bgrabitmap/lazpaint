@@ -1,72 +1,121 @@
 object FPixelate: TFPixelate
   Left = 607
-  Height = 104
+  Height = 125
   Top = 313
-  Width = 202
+  Width = 179
+  AutoSize = True
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Pixelate'
-  ClientHeight = 104
-  ClientWidth = 202
+  ChildSizing.LeftRightSpacing = 8
+  ChildSizing.TopBottomSpacing = 8
+  ChildSizing.HorizontalSpacing = 8
+  ChildSizing.VerticalSpacing = 8
+  ChildSizing.Layout = cclLeftToRightThenTopToBottom
+  ChildSizing.ControlsPerLine = 1
+  ClientHeight = 125
+  ClientWidth = 179
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.1'
-  object Label_PixelSize: TLabel
+  LCLVersion = '1.6.0.4'
+  object Panel1: TPanel
     Left = 8
-    Height = 15
-    Top = 11
-    Width = 52
-    Caption = 'Pixel size :'
-    ParentColor = False
-  end
-  object Button_OK: TButton
-    Left = 21
-    Height = 22
-    Top = 72
-    Width = 59
-    Caption = 'OK'
-    Default = True
-    OnClick = Button_OKClick
-    TabOrder = 0
-  end
-  object Button_Cancel: TButton
-    Left = 85
-    Height = 22
-    Top = 72
-    Width = 73
-    Cancel = True
-    Caption = 'Cancel'
-    ModalResult = 2
-    TabOrder = 1
-  end
-  object SpinEdit_PixelSize: TSpinEdit
-    Left = 88
-    Height = 23
+    Height = 28
     Top = 8
-    Width = 79
-    MaxValue = 10000
-    MinValue = 1
-    OnChange = SpinEdit_PixelSizeChange
-    TabOrder = 2
-    Value = 5
+    Width = 162
+    BevelOuter = bvNone
+    ChildSizing.HorizontalSpacing = 8
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 2
+    ClientHeight = 28
+    ClientWidth = 162
+    TabOrder = 0
+    object Label_PixelSize: TLabel
+      Left = 0
+      Height = 28
+      Top = 0
+      Width = 67
+      Caption = 'Pixel size :'
+      ParentColor = False
+    end
+    object SpinEdit_PixelSize: TSpinEdit
+      Left = 75
+      Height = 28
+      Top = 0
+      Width = 65
+      Constraints.MinWidth = 65
+      MaxValue = 10000
+      MinValue = 1
+      OnChange = SpinEdit_PixelSizeChange
+      TabOrder = 0
+      Value = 5
+    end
   end
-  object Label_Quality: TLabel
+  object Panel2: TPanel
     Left = 8
-    Height = 15
-    Top = 43
-    Width = 44
-    Caption = 'Quality :'
-    ParentColor = False
+    Height = 28
+    Top = 44
+    Width = 162
+    BevelOuter = bvNone
+    ChildSizing.HorizontalSpacing = 8
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 2
+    ClientHeight = 28
+    ClientWidth = 162
+    TabOrder = 1
+    object Label_Quality: TLabel
+      Left = 0
+      Height = 28
+      Top = 0
+      Width = 54
+      Caption = 'Quality :'
+      ParentColor = False
+    end
+    object ComboBox_Quality: TComboBox
+      Left = 62
+      Height = 28
+      Top = 0
+      Width = 100
+      ItemHeight = 20
+      OnChange = ComboBox_QualityChange
+      Style = csDropDownList
+      TabOrder = 0
+    end
   end
-  object ComboBox_Quality: TComboBox
-    Left = 88
-    Height = 23
-    Top = 40
-    Width = 105
-    ItemHeight = 15
-    OnChange = ComboBox_QualityChange
-    Style = csDropDownList
-    TabOrder = 3
+  object Panel3: TPanel
+    Left = 8
+    Height = 30
+    Top = 80
+    Width = 162
+    BevelOuter = bvNone
+    ChildSizing.HorizontalSpacing = 8
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 2
+    ClientHeight = 30
+    ClientWidth = 162
+    TabOrder = 2
+    object Button_OK: TButton
+      Left = 0
+      Height = 30
+      Top = 0
+      Width = 46
+      AutoSize = True
+      Caption = 'OK'
+      Default = True
+      OnClick = Button_OKClick
+      TabOrder = 0
+    end
+    object Button_Cancel: TButton
+      Left = 54
+      Height = 30
+      Top = 0
+      Width = 70
+      AutoSize = True
+      Cancel = True
+      Caption = 'Cancel'
+      ModalResult = 2
+      TabOrder = 1
+    end
   end
 end

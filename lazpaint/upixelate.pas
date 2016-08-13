@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, Spin, BGRABitmap, LazPaintType, uscaledpi, ufilterconnector;
+  StdCtrls, Spin, ExtCtrls, BGRABitmap, LazPaintType, uscaledpi,
+  ufilterconnector;
 
 type
 
@@ -18,6 +19,9 @@ type
     ComboBox_Quality: TComboBox;
     Label_Quality: TLabel;
     Label_PixelSize: TLabel;
+    Panel1: TPanel;
+    Panel2: TPanel;
+    Panel3: TPanel;
     SpinEdit_PixelSize: TSpinEdit;
     procedure Button_OKClick(Sender: TObject);
     procedure ComboBox_QualityChange(Sender: TObject);
