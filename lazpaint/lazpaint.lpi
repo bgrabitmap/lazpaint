@@ -295,10 +295,13 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="URadialBlur"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="119"/>
-        <CursorPos Y="128"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="8"/>
+        <TopLine Value="121"/>
+        <CursorPos Y="130"/>
         <UsageCount Value="200"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit13>
       <Unit14>
         <Filename Value="umotionblur.pas"/>
@@ -321,7 +324,6 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UEmboss"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="7"/>
         <UsageCount Value="203"/>
         <Loaded Value="True"/>
@@ -411,6 +413,8 @@
         <ComponentName Value="FColorize"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="UColorize"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="79"/>
         <CursorPos X="3" Y="81"/>
         <UsageCount Value="202"/>
@@ -1770,7 +1774,7 @@
         <UsageCount Value="11"/>
       </Unit212>
     </Units>
-    <JumpHistory Count="13" HistoryIndex="12">
+    <JumpHistory Count="15" HistoryIndex="14">
       <Position1>
         <Filename Value="lazpaintmainform.pas"/>
         <Caret Line="858" Column="3" TopLine="856"/>
@@ -1822,6 +1826,14 @@
       <Position13>
         <Filename Value="uemboss.pas"/>
       </Position13>
+      <Position14>
+        <Filename Value="uradialblur.pas"/>
+        <Caret Line="128" TopLine="119"/>
+      </Position14>
+      <Position15>
+        <Filename Value="uradialblur.pas"/>
+        <Caret Line="129" TopLine="120"/>
+      </Position15>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
