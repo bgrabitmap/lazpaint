@@ -18,6 +18,8 @@ type
     Label_Radius: TLabel;
     Label_Angle: TLabel;
     PaintBox1: TPaintBox;
+    Panel1: TPanel;
+    Panel2: TPanel;
     SpinEdit_Angle: TSpinEdit;
     SpinEdit_Radius: TSpinEdit;
     Timer1: TTimer;
