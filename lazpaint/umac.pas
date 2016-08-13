@@ -34,12 +34,12 @@ end;
 procedure CheckOKCancelBtns(OKBtn     : TControl;
                             CancelBtn : TControl);
  {Swap OK and Cancel button positions on Mac.}
-{ $IFDEF DARWIN}
+{$IFDEF DARWIN}
 var
   Margin, MarginRight : Integer;
-{ $ENDIF}
+{$ENDIF}
 begin
-  { $IFDEF DARWIN}
+  {$IFDEF DARWIN}
   if OKBtn.Left < CancelBtn.Left then
   begin
     Margin := CancelBtn.Left - OKBtn.Left - OKBtn.Width;
@@ -52,7 +52,7 @@ begin
     OKBtn.Anchors := OKBtn.Anchors - [akLeft] + [akRight];
     CancelBtn.Anchors := CancelBtn.Anchors - [akLeft] + [akRight];
   end;
-  { $ENDIF}
+  {$ENDIF}
 end;
 {$hints on}
 
