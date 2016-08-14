@@ -89,7 +89,7 @@ begin
   ScaleDPI(Self,OriginalDPI);
 
   blurType := rbNormal;
-  CheckOKCancelBtns(Button_OK,Button_Cancel);
+  CheckOKCancelBtns(Button_OK{,Button_Cancel});
   CheckFloatSpinEdit(SpinEdit_Radius);
 end;
 

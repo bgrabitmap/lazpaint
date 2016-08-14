@@ -79,7 +79,7 @@ begin
   ScaleDPI(Self,OriginalDPI);
 
   InPaintBoxMouseMove := false;
-  CheckOKCancelBtns(Button_OK,Button_Cancel);
+  CheckOKCancelBtns(Button_OK{,Button_Cancel});
 end;
 
 procedure TFEmboss.FormDestroy(Sender: TObject);

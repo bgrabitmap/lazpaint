@@ -98,7 +98,7 @@ procedure TFNoiseFilter.FormCreate(Sender: TObject);
 begin
   ScaleDPI(Self,OriginalDPI);
 
-  CheckOKCancelBtns(Button_OK,Button_Cancel);
+  CheckOKCancelBtns(Button_OK{,Button_Cancel});
   CheckSpinEdit(SpinEdit_Alpha);
 end;
 

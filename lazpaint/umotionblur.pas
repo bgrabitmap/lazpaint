@@ -180,7 +180,7 @@ begin
   ScaleDPI(Self,OriginalDPI);
 
   InPaintBoxMouseMove := false;
-  CheckOKCancelBtns(Button_OK,Button_Cancel);
+  CheckOKCancelBtns(Button_OK{,Button_Cancel});
   CheckFloatSpinEdit(SpinEdit_Distance);
 end;
 

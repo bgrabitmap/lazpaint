@@ -76,7 +76,7 @@ begin
 
   CheckSpinEdit(SpinEdit_Radius);
   CheckSpinEdit(SpinEdit_Angle);
-  CheckOKCancelBtns(Button_OK,Button_Cancel);
+  CheckOKCancelBtns(Button_OK{,Button_Cancel});
 
   FCenter := PointF(0.5,0.5);
 end;

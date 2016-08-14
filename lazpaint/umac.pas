@@ -11,6 +11,8 @@ uses
 procedure CheckQuitMenu(MenuItem_Quit : TMenuItem;
                         MenuItem_QuitSeparator : TMenuItem);
 
+procedure CheckOKCancelBtns(OKBtn: TControl);
+
 procedure CheckOKCancelBtns(OKBtn     : TControl;
                             CancelBtn : TControl);
 
@@ -31,6 +33,14 @@ end;
 {$hints on}
 
 {$hints off}
+
+procedure CheckOKCancelBtns(OKBtn: TControl);
+begin
+  {$IFDEF DARWIN}
+  OKBtn.BringToFront;
+  {$ENDIF}
+end;
+
 procedure CheckOKCancelBtns(OKBtn     : TControl;
                             CancelBtn : TControl);
  {Swap OK and Cancel button positions on Mac.}

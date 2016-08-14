@@ -85,7 +85,7 @@ end;
 procedure TFRain.FormCreate(Sender: TObject);
 begin
   ScaleDPI(Self,OriginalDPI);
-  CheckOKCancelBtns(Button_OK,Button_Cancel);
+  CheckOKCancelBtns(Button_OK{,Button_Cancel});
 end;
 
 procedure TFRain.Button_OKClick(Sender: TObject);
