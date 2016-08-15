@@ -39,6 +39,7 @@ object FMotionBlur: TFMotionBlur
       Top = 0
       Width = 51
       Caption = 'Distance :'
+      Layout = tlCenter
       ParentColor = False
     end
     object SpinEdit_Distance: TFloatSpinEdit
@@ -58,7 +59,7 @@ object FMotionBlur: TFMotionBlur
   end
   object Checkbox_Oriented: TCheckBox
     Left = 8
-    Height = 23
+    Height = 19
     Top = 39
     Width = 124
     Caption = 'Oriented'
@@ -70,7 +71,7 @@ object FMotionBlur: TFMotionBlur
   object PaintBox1: TPaintBox
     Left = 8
     Height = 105
-    Top = 70
+    Top = 66
     Width = 124
     OnMouseDown = PaintBox1MouseDown
     OnMouseMove = PaintBox1MouseMove
@@ -80,7 +81,7 @@ object FMotionBlur: TFMotionBlur
   object Panel2: TPanel
     Left = 8
     Height = 25
-    Top = 183
+    Top = 179
     Width = 124
     BevelOuter = bvNone
     ChildSizing.HorizontalSpacing = 8

@@ -21,27 +21,28 @@ object FSharpen: TFSharpen
   LCLVersion = '1.6.0.4'
   object Panel1: TPanel
     Left = 8
-    Height = 28
+    Height = 23
     Top = 8
-    Width = 133
+    Width = 123
     BevelOuter = bvNone
     ChildSizing.HorizontalSpacing = 8
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 2
-    ClientHeight = 28
-    ClientWidth = 133
+    ClientHeight = 23
+    ClientWidth = 123
     TabOrder = 0
     object Label_Amount: TLabel
       Left = 0
-      Height = 28
+      Height = 23
       Top = 0
-      Width = 60
+      Width = 50
       Caption = 'Amount :'
+      Layout = tlCenter
       ParentColor = False
     end
     object SpinEdit_Amount: TSpinEdit
-      Left = 68
-      Height = 28
+      Left = 58
+      Height = 23
       Top = 0
       Width = 65
       Constraints.MinWidth = 65
@@ -55,21 +56,21 @@ object FSharpen: TFSharpen
   end
   object Panel2: TPanel
     Left = 8
-    Height = 30
-    Top = 44
-    Width = 133
+    Height = 25
+    Top = 39
+    Width = 123
     BevelOuter = bvNone
     ChildSizing.HorizontalSpacing = 8
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 2
-    ClientHeight = 30
-    ClientWidth = 133
+    ClientHeight = 25
+    ClientWidth = 123
     TabOrder = 1
     object Button_OK: TButton
       Left = 0
-      Height = 30
+      Height = 25
       Top = 0
-      Width = 46
+      Width = 42
       AutoSize = True
       Caption = 'OK'
       Default = True
@@ -77,10 +78,10 @@ object FSharpen: TFSharpen
       TabOrder = 0
     end
     object Button_Cancel: TButton
-      Left = 54
-      Height = 30
+      Left = 50
+      Height = 25
       Top = 0
-      Width = 70
+      Width = 62
       AutoSize = True
       Cancel = True
       Caption = 'Cancel'

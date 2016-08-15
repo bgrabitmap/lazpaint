@@ -40,6 +40,7 @@ object FTwirl: TFTwirl
       Top = 0
       Width = 41
       Caption = 'Radius :'
+      Layout = tlCenter
       ParentColor = False
     end
     object SpinEdit_Radius: TSpinEdit
@@ -61,6 +62,7 @@ object FTwirl: TFTwirl
       Top = 31
       Width = 41
       Caption = 'Angle :'
+      Layout = tlCenter
       ParentColor = False
     end
     object SpinEdit_Angle: TSpinEdit

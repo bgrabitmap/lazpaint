@@ -39,6 +39,7 @@ object FRadialBlur: TFRadialBlur
       Top = 0
       Width = 41
       Caption = 'Radius :'
+      Layout = tlCenter
       ParentColor = False
     end
     object SpinEdit_Radius: TFloatSpinEdit
