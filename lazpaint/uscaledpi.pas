@@ -114,6 +114,13 @@ begin
 
   if Control is TWinControl then begin
     WinControl:=TWinControl(Control);
+    with WinControl.ChildSizing do
+    begin
+      HorizontalSpacing := DoScaleX(HorizontalSpacing, FromDPI, ToDPI_X);
+      LeftRightSpacing := DoScaleX(LeftRightSpacing, FromDPI, ToDPI_X);
+      TopBottomSpacing := DoScaleY(TopBottomSpacing, FromDPI, ToDPI_Y);
+      VerticalSpacing := DoScaleY(VerticalSpacing, FromDPI, ToDPI_Y);
+    end;
     if WinControl.ControlCount > 0 then begin
       for n:=0 to WinControl.ControlCount-1 do begin
         if WinControl.Controls[n] is TControl then begin

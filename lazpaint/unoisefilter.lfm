@@ -1,77 +1,128 @@
 object FNoiseFilter: TFNoiseFilter
   Left = 367
-  Height = 123
+  Height = 125
   Top = 354
-  Width = 172
+  Width = 154
+  AutoSize = True
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Noise filter'
-  ClientHeight = 123
-  ClientWidth = 172
+  ChildSizing.LeftRightSpacing = 8
+  ChildSizing.TopBottomSpacing = 8
+  ChildSizing.HorizontalSpacing = 8
+  ChildSizing.VerticalSpacing = 8
+  ChildSizing.Layout = cclLeftToRightThenTopToBottom
+  ChildSizing.ControlsPerLine = 1
+  ClientHeight = 125
+  ClientWidth = 154
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnHide = FormHide
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.0.10.0'
-  object Radio_RGBNoise: TRadioButton
-    Left = 16
-    Height = 19
+  LCLVersion = '1.6.0.4'
+  object Panel3: TPanel
+    Left = 8
+    Height = 48
     Top = 8
-    Width = 73
-    Caption = 'RGB noise'
-    Checked = True
-    OnChange = Radio_NoiseChange
-    TabOrder = 4
-    TabStop = True
-  end
-  object Radio_GrayscaleNoise: TRadioButton
-    Left = 16
-    Height = 19
-    Top = 32
-    Width = 101
-    Caption = 'Grayscale noise'
-    TabOrder = 0
-  end
-  object SpinEdit_Alpha: TSpinEdit
-    Left = 85
-    Height = 23
-    Top = 56
-    Width = 56
-    Increment = 32
-    MaxValue = 255
-    MinValue = 1
-    OnChange = SpinEdit_AlphaChange
-    TabOrder = 1
-    Value = 255
-  end
-  object Label_Opacity: TLabel
-    Left = 17
-    Height = 16
-    Top = 59
-    Width = 45
-    Caption = 'Opacity:'
-    ParentColor = False
-  end
-  object Button_OK: TButton
-    Left = 16
-    Height = 22
-    Top = 88
-    Width = 59
-    Caption = 'OK'
-    Default = True
-    OnClick = Button_OKClick
+    Width = 127
+    BevelOuter = bvNone
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 1
+    ClientHeight = 48
+    ClientWidth = 127
     TabOrder = 2
+    object Radio_GrayscaleNoise: TRadioButton
+      Left = 0
+      Height = 24
+      Top = 0
+      Width = 126
+      Caption = 'Grayscale noise'
+      TabOrder = 0
+    end
+    object Radio_RGBNoise: TRadioButton
+      Left = 0
+      Height = 24
+      Top = 24
+      Width = 126
+      Caption = 'RGB noise'
+      Checked = True
+      OnChange = Radio_NoiseChange
+      TabOrder = 1
+      TabStop = True
+    end
   end
-  object Button_Cancel: TButton
-    Left = 80
-    Height = 22
-    Top = 88
-    Width = 73
-    Cancel = True
-    Caption = 'Cancel'
-    ModalResult = 2
-    TabOrder = 3
+  object Panel1: TPanel
+    Left = 8
+    Height = 28
+    Top = 64
+    Width = 127
+    AutoSize = True
+    BevelOuter = bvNone
+    ChildSizing.HorizontalSpacing = 8
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 2
+    ClientHeight = 28
+    ClientWidth = 127
+    TabOrder = 0
+    object Label_Opacity: TLabel
+      Left = 0
+      Height = 28
+      Top = 0
+      Width = 54
+      Caption = 'Opacity:'
+      Layout = tlCenter
+      ParentColor = False
+    end
+    object SpinEdit_Alpha: TSpinEdit
+      Left = 62
+      Height = 28
+      Top = 0
+      Width = 65
+      Constraints.MinWidth = 65
+      Increment = 32
+      MaxValue = 255
+      MinValue = 1
+      OnChange = SpinEdit_AlphaChange
+      TabOrder = 0
+      Value = 255
+    end
+  end
+  object Panel2: TPanel
+    Left = 8
+    Height = 30
+    Top = 100
+    Width = 127
+    AutoSize = True
+    BevelOuter = bvNone
+    ChildSizing.HorizontalSpacing = 8
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 2
+    ClientHeight = 30
+    ClientWidth = 127
+    TabOrder = 1
+    object Button_OK: TButton
+      Left = 0
+      Height = 30
+      Top = 0
+      Width = 46
+      AutoSize = True
+      Caption = 'OK'
+      Default = True
+      OnClick = Button_OKClick
+      TabOrder = 0
+    end
+    object Button_Cancel: TButton
+      Left = 54
+      Height = 30
+      Top = 0
+      Width = 70
+      AutoSize = True
+      Cancel = True
+      Caption = 'Cancel'
+      ModalResult = 2
+      TabOrder = 1
+    end
   end
 end

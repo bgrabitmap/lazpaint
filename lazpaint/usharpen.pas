@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, Spin, UFilterConnector;
+  StdCtrls, Spin, ExtCtrls, UFilterConnector;
 
 type
   TSharpenMode = (smSharpen);
@@ -17,6 +17,8 @@ type
     Button_Cancel: TButton;
     Button_OK: TButton;
     Label_Amount: TLabel;
+    Panel1: TPanel;
+    Panel2: TPanel;
     SpinEdit_Amount: TSpinEdit;
     procedure Button_OKClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -68,7 +70,7 @@ procedure TFSharpen.FormCreate(Sender: TObject);
 begin
   ScaleDPI(Self,OriginalDPI);
 
-  CheckOKCancelBtns(Button_OK,Button_Cancel);
+  CheckOKCancelBtns(Button_OK{,Button_Cancel});
   CheckSpinEdit(SpinEdit_Amount);
   FMode := smSharpen;
 end;

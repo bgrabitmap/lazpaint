@@ -17,6 +17,8 @@ type
     Button_OK: TButton;
     Button_Cancel: TButton;
     Button3: TButton;
+    Panel1: TPanel;
+    Panel2: TPanel;
     SpinEdit_Radius: TFloatSpinEdit;
     Image1: TImage;
     Label_Radius: TLabel;
@@ -87,7 +89,7 @@ begin
   ScaleDPI(Self,OriginalDPI);
 
   blurType := rbNormal;
-  CheckOKCancelBtns(Button_OK,Button_Cancel);
+  CheckOKCancelBtns(Button_OK{,Button_Cancel});
   CheckFloatSpinEdit(SpinEdit_Radius);
 end;
 

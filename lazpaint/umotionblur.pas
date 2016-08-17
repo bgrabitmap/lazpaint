@@ -17,6 +17,8 @@ type
     Button_OK: TButton;
     Button_Cancel: TButton;
     Checkbox_Oriented: TCheckBox;
+    Panel1: TPanel;
+    Panel2: TPanel;
     SpinEdit_Distance: TFloatSpinEdit;
     Label_Distance: TLabel;
     PaintBox1: TPaintBox;
@@ -178,7 +180,7 @@ begin
   ScaleDPI(Self,OriginalDPI);
 
   InPaintBoxMouseMove := false;
-  CheckOKCancelBtns(Button_OK,Button_Cancel);
+  CheckOKCancelBtns(Button_OK{,Button_Cancel});
   CheckFloatSpinEdit(SpinEdit_Distance);
 end;
 

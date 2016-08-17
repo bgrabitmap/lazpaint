@@ -19,6 +19,8 @@ type
     Label_Wind: TLabel;
     Label_Quantity: TLabel;
     PaintBox_Wind: TPaintBox;
+    Panel1: TPanel;
+    Panel2: TPanel;
     Timer1: TTimer;
     TrackBar_Quantity: TTrackBar;
     procedure Button_OKClick(Sender: TObject);
@@ -83,7 +85,7 @@ end;
 procedure TFRain.FormCreate(Sender: TObject);
 begin
   ScaleDPI(Self,OriginalDPI);
-  CheckOKCancelBtns(Button_OK,Button_Cancel);
+  CheckOKCancelBtns(Button_OK{,Button_Cancel});
 end;
 
 procedure TFRain.Button_OKClick(Sender: TObject);

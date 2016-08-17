@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, Spin, UFilterConnector, UScripting, LazPaintType;
+  StdCtrls, Spin, ExtCtrls, UFilterConnector, UScripting, LazPaintType;
 
 type
 
@@ -17,6 +17,8 @@ type
     Button_OK: TButton;
     CheckBox_ByLightness: TCheckBox;
     Label_Levels: TLabel;
+    Panel1: TPanel;
+    Panel2: TPanel;
     SpinEdit_Levels: TSpinEdit;
     procedure Button_OKClick(Sender: TObject);
     procedure CheckBox_ByLightnessChange(Sender: TObject);
@@ -72,7 +74,7 @@ procedure TFPosterize.FormCreate(Sender: TObject);
 begin
   ScaleDPI(Self,OriginalDPI);
 
-  CheckOKCancelBtns(Button_OK,Button_Cancel);
+  CheckOKCancelBtns(Button_OK{,Button_Cancel});
   CheckSpinEdit(SpinEdit_Levels);
 end;
 

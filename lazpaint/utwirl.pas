@@ -18,6 +18,8 @@ type
     Label_Radius: TLabel;
     Label_Angle: TLabel;
     PaintBox1: TPaintBox;
+    Panel1: TPanel;
+    Panel2: TPanel;
     SpinEdit_Angle: TSpinEdit;
     SpinEdit_Radius: TSpinEdit;
     Timer1: TTimer;
@@ -74,7 +76,7 @@ begin
 
   CheckSpinEdit(SpinEdit_Radius);
   CheckSpinEdit(SpinEdit_Angle);
-  CheckOKCancelBtns(Button_OK,Button_Cancel);
+  CheckOKCancelBtns(Button_OK{,Button_Cancel});
 
   FCenter := PointF(0.5,0.5);
 end;

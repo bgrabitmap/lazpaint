@@ -1,55 +1,92 @@
 object FSharpen: TFSharpen
   Left = 734
-  Height = 72
+  Height = 94
   Top = 206
   Width = 173
+  AutoSize = True
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Sharpen/Smooth'
-  ClientHeight = 72
+  ChildSizing.LeftRightSpacing = 8
+  ChildSizing.TopBottomSpacing = 8
+  ChildSizing.HorizontalSpacing = 8
+  ChildSizing.VerticalSpacing = 8
+  ChildSizing.Layout = cclLeftToRightThenTopToBottom
+  ChildSizing.ControlsPerLine = 1
+  ClientHeight = 94
   ClientWidth = 173
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '1.1'
-  object Label_Amount: TLabel
-    Left = 18
-    Height = 15
-    Top = 11
-    Width = 50
-    Caption = 'Amount :'
-    ParentColor = False
-  end
-  object Button_OK: TButton
-    Left = 17
-    Height = 22
-    Top = 45
-    Width = 59
-    Caption = 'OK'
-    Default = True
-    OnClick = Button_OKClick
-    TabOrder = 0
-  end
-  object Button_Cancel: TButton
-    Left = 81
-    Height = 22
-    Top = 45
-    Width = 73
-    Cancel = True
-    Caption = 'Cancel'
-    ModalResult = 2
-    TabOrder = 1
-  end
-  object SpinEdit_Amount: TSpinEdit
-    Left = 96
+  LCLVersion = '1.6.0.4'
+  object Panel1: TPanel
+    Left = 8
     Height = 23
     Top = 8
-    Width = 61
-    Increment = 10
-    MaxValue = 1000
-    MinValue = 1
-    OnChange = SpinEdit_AmountChange
-    TabOrder = 2
-    Value = 100
+    Width = 123
+    BevelOuter = bvNone
+    ChildSizing.HorizontalSpacing = 8
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 2
+    ClientHeight = 23
+    ClientWidth = 123
+    TabOrder = 0
+    object Label_Amount: TLabel
+      Left = 0
+      Height = 23
+      Top = 0
+      Width = 50
+      Caption = 'Amount :'
+      Layout = tlCenter
+      ParentColor = False
+    end
+    object SpinEdit_Amount: TSpinEdit
+      Left = 58
+      Height = 23
+      Top = 0
+      Width = 65
+      Constraints.MinWidth = 65
+      Increment = 10
+      MaxValue = 1000
+      MinValue = 1
+      OnChange = SpinEdit_AmountChange
+      TabOrder = 0
+      Value = 100
+    end
+  end
+  object Panel2: TPanel
+    Left = 8
+    Height = 25
+    Top = 39
+    Width = 123
+    BevelOuter = bvNone
+    ChildSizing.HorizontalSpacing = 8
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 2
+    ClientHeight = 25
+    ClientWidth = 123
+    TabOrder = 1
+    object Button_OK: TButton
+      Left = 0
+      Height = 25
+      Top = 0
+      Width = 42
+      AutoSize = True
+      Caption = 'OK'
+      Default = True
+      OnClick = Button_OKClick
+      TabOrder = 0
+    end
+    object Button_Cancel: TButton
+      Left = 50
+      Height = 25
+      Top = 0
+      Width = 62
+      AutoSize = True
+      Cancel = True
+      Caption = 'Cancel'
+      ModalResult = 2
+      TabOrder = 1
+    end
   end
 end
