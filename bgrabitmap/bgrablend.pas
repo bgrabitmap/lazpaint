@@ -19,6 +19,8 @@ procedure DrawPixelInlineExpandedOrNotWithAlphaCheck(dest: PBGRAPixel; const ec:
 procedure DrawPixelInlineNoAlphaCheck(dest: PBGRAPixel; const c: TBGRAPixel); inline; overload;
 procedure DrawExpandedPixelInlineNoAlphaCheck(dest: PBGRAPixel; const ec: TExpandedPixel; calpha: byte); inline; overload;
 procedure ClearTypeDrawPixel(pdest: PBGRAPixel; Cr, Cg, Cb: byte; Color: TBGRAPixel); inline;
+procedure InterpolateBilinear(pUpLeft,pUpRight,pDownLeft,pDownRight: PBGRAPixel;
+                iFactX,iFactY: Integer; ADest: PBGRAPixel);
 
 procedure CopyPixelsWithOpacity(dest,src: PBGRAPixel; opacity: byte; Count: integer); inline;
 function ApplyOpacity(opacity1,opacity2: byte): byte; inline;
@@ -356,6 +358,85 @@ begin
       merge.alpha := mergeClearType.alpha + ApplyOpacity(merge.alpha, not mergeClearType.alpha);
     end;
     pdest^ := merge;
+  end;
+end;
+
+procedure InterpolateBilinear(pUpLeft, pUpRight, pDownLeft,
+  pDownRight: PBGRAPixel; iFactX,iFactY: Integer; ADest: PBGRAPixel);
+var
+  w1,w2,w3,w4,alphaW: cardinal;
+  rSum, gSum, bSum: cardinal; //rgbDiv = aSum
+  aSum, aDiv: cardinal;
+begin
+  rSum   := 0;
+  gSum   := 0;
+  bSum   := 0;
+  aSum   := 0;
+  aDiv   := 0;
+
+  w4 := (iFactX*iFactY+127) shr 8;
+  w3 := iFactY-w4;
+  {$PUSH}{$HINTS OFF}
+  w1 := (256-iFactX)-w3;
+  {$POP}
+  w2 := iFactX-w4;
+
+  { For each pixel around the coordinate, compute
+    the weight for it and multiply values by it before
+    adding to the sum }
+  if pUpLeft <> nil then
+  with pUpLeft^ do
+  begin
+    alphaW := alpha * w1;
+    aDiv   += w1;
+    aSum   += alphaW;
+    rSum   += red * alphaW;
+    gSum   += green * alphaW;
+    bSum   += blue * alphaW;
+  end;
+  if pUpRight <> nil then
+  with pUpRight^ do
+  begin
+    alphaW := alpha * w2;
+    aDiv   += w2;
+    aSum   += alphaW;
+    rSum   += red * alphaW;
+    gSum   += green * alphaW;
+    bSum   += blue * alphaW;
+  end;
+  if pDownLeft <> nil then
+  with pDownLeft^ do
+  begin
+    alphaW := alpha * w3;
+    aDiv   += w3;
+    aSum   += alphaW;
+    rSum   += red * alphaW;
+    gSum   += green * alphaW;
+    bSum   += blue * alphaW;
+  end;
+  if pDownRight <> nil then
+  with pDownRight^ do
+  begin
+    alphaW := alpha * w4;
+    aDiv   += w4;
+    aSum   += alphaW;
+    rSum   += red * alphaW;
+    gSum   += green * alphaW;
+    bSum   += blue * alphaW;
+  end;
+
+  if aSum < 128 then //if there is no alpha
+    ADest^ := BGRAPixelTransparent
+  else
+  with ADest^ do
+  begin
+    red   := (rSum + aSum shr 1) div aSum;
+    green := (gSum + aSum shr 1) div aSum;
+    blue  := (bSum + aSum shr 1) div aSum;
+    if aDiv = 256 then
+      alpha := (aSum + 128) shr 8
+    else
+      alpha := (aSum + aDiv shr 1) div aDiv;
   end;
 end;
 

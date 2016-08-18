@@ -1567,174 +1567,91 @@ end;
 function TBGRADefaultBitmap.InternalGetPixelCycle256(ix, iy: int32or64; iFactX,
   iFactY: int32or64): TBGRAPixel;
 var
-  ixMod1,ixMod2: int32or64;
-  w1,w2,w3,w4,alphaW: UInt32or64;
-  bSum, gSum, rSum: UInt32or64;
-  aSum: UInt32or64;
-
-  c:    TBGRAPixel;
+  ixMod2: int32or64;
+  pUpLeft, pUpRight, pDownLeft, pDownRight: PBGRAPixel;
   scan: PBGRAPixel;
 begin
-  w4 := (iFactX*iFactY+127) shr 8;
-  w3 := iFactY-w4;
-  w1 := cardinal(256-iFactX)-w3;
-  w2 := iFactX-w4;
-
-  rSum   := 0;
-  gSum   := 0;
-  bSum   := 0;
-  aSum   := 0;
-
   scan := GetScanlineFast(iy);
 
-  ixMod1 := ix;
-  c      := (scan + ix)^;
-  alphaW := c.alpha * w1;
-  aSum   += alphaW;
-
-  rSum   += c.red * alphaW;
-  gSum   += c.green * alphaW;
-  bSum   += c.blue * alphaW;
-
+  pUpLeft := (scan + ix);
   ixMod2 := ix+1;
   if ixMod2=Width then ixMod2 := 0;
-  c      := (scan + ixMod2)^;
-  alphaW := c.alpha * w2;
-  aSum   += alphaW;
-
-  rSum   += c.red * alphaW;
-  gSum   += c.green * alphaW;
-  bSum   += c.blue * alphaW;
+  pUpRight := (scan + ixMod2);
 
   Inc(iy);
   if iy = Height then iy := 0;
   scan := GetScanlineFast(iy);
+  pDownLeft := (scan + ix);
+  pDownRight := (scan + ixMod2);
 
-  c      := (scan + ixMod2)^;
-  alphaW := c.alpha * w4;
-  aSum   += alphaW;
-
-  rSum   += c.red * alphaW;
-  gSum   += c.green * alphaW;
-  bSum   += c.blue * alphaW;
-
-  c      := (scan + ixMod1)^;
-  alphaW := c.alpha * w3;
-  aSum   += alphaW;
-
-  rSum   += c.red * alphaW;
-  gSum   += c.green * alphaW;
-  bSum   += c.blue * alphaW;
-
-  if (aSum < 128) then
-    Result := BGRAPixelTransparent
-  else
-  begin
-    Result.red   := (rSum + aSum shr 1) div aSum;
-    Result.green := (gSum + aSum shr 1) div aSum;
-    Result.blue  := (bSum + aSum shr 1) div aSum;
-    Result.alpha := (aSum + 128) shr 8;
-  end;
+  InterpolateBilinear(pUpLeft, pUpRight, pDownLeft,
+          pDownRight, iFactX, iFactY, @result);
 end;
 
 function TBGRADefaultBitmap.InternalGetPixel256(ix, iy: int32or64; iFactX,
   iFactY: int32or64; smoothBorder: boolean): TBGRAPixel;
 var
-  w1,w2,w3,w4,alphaW: cardinal;
-  rSum, gSum, bSum: cardinal; //rgbDiv = aSum
-  aSum, aDiv: cardinal;
-  c:    TBGRAPixel;
+  pUpLeft, pUpRight, pDownLeft, pDownRight: PBGRAPixel;
   scan: PBGRAPixel;
 begin
-  rSum   := 0;
-  gSum   := 0;
-  bSum   := 0;
-  aSum   := 0;
-  aDiv   := 0;
-
-  w4 := (iFactX*iFactY+127) shr 8;
-  w3 := iFactY-w4;
-  {$PUSH}{$HINTS OFF}
-  w1 := (256-iFactX)-w3;
-  {$POP}
-  w2 := iFactX-w4;
-
-  { For each pixel around the coordinate, compute
-    the weight for it and multiply values by it before
-    adding to the sum }
   if (iy >= 0) and (iy < Height) then
   begin
     scan := GetScanlineFast(iy);
 
     if (ix >= 0) and (ix < Width) then
-    begin
-      c      := (scan + ix)^;
-      alphaW := c.alpha * w1;
-      aDiv   += w1;
-      aSum   += alphaW;
-      rSum   += c.red * alphaW;
-      gSum   += c.green * alphaW;
-      bSum   += c.blue * alphaW;
-    end;
-
-    Inc(ix);
-    if (ix >= 0) and (ix < Width) then
-    begin
-      c      := (scan + ix)^;
-      alphaW := c.alpha * w2;
-      aDiv   += w2;
-      aSum   += alphaW;
-      rSum   += c.red * alphaW;
-      gSum   += c.green * alphaW;
-      bSum   += c.blue * alphaW;
-    end;
-  end
-  else
-  begin
-    Inc(ix);
-  end;
-
-  Inc(iy);
-  if (iy >= 0) and (iy < Height) then
-  begin
-    scan := GetScanlineFast(iy);
-
-    if (ix >= 0) and (ix < Width) then
-    begin
-      c      := (scan + ix)^;
-      alphaW := c.alpha * w4;
-      aDiv   += w4;
-      aSum   += alphaW;
-      rSum   += c.red * alphaW;
-      gSum   += c.green * alphaW;
-      bSum   += c.blue * alphaW;
-    end;
-
-    Dec(ix);
-    if (ix >= 0) and (ix < Width) then
-    begin
-      c      := (scan + ix)^;
-      alphaW := c.alpha * w3;
-      aDiv   += w3;
-      aSum   += alphaW;
-      rSum   += c.red * alphaW;
-      gSum   += c.green * alphaW;
-      bSum   += c.blue * alphaW;
-    end;
-  end;
-
-  if aSum < 128 then //if there is no alpha
-    Result := BGRAPixelTransparent
-  else
-  begin
-    Result.red   := (rSum + aSum shr 1) div aSum;
-    Result.green := (gSum + aSum shr 1) div aSum;
-    Result.blue  := (bSum + aSum shr 1) div aSum;
-    if smoothBorder or (aDiv = 256) then
-      Result.alpha := (aSum + 128) shr 8
+      pUpLeft := scan+ix
+    else if smoothBorder then
+      pUpLeft := @BGRAPixelTransparent
     else
-      Result.alpha := (aSum + aDiv shr 1) div aDiv;
+      pUpLeft := nil;
+
+    if (ix+1 >= 0) and (ix+1 < Width) then
+      pUpRight := scan+(ix+1)
+    else if smoothBorder then
+      pUpRight := @BGRAPixelTransparent
+    else
+      pUpRight := nil;
+  end else
+  if smoothBorder then
+  begin
+    pUpLeft := @BGRAPixelTransparent;
+    pUpRight := @BGRAPixelTransparent;
+  end else
+  begin
+    pUpLeft := nil;
+    pUpRight := nil;
   end;
+
+  if (iy+1 >= 0) and (iy+1 < Height) then
+  begin
+    scan := GetScanlineFast(iy+1);
+
+    if (ix >= 0) and (ix < Width) then
+      pDownLeft := scan+ix
+    else if smoothBorder then
+      pDownLeft := @BGRAPixelTransparent
+    else
+      pDownLeft := nil;
+
+    if (ix+1 >= 0) and (ix+1 < Width) then
+      pDownRight := scan+(ix+1)
+    else if smoothBorder then
+      pDownRight := @BGRAPixelTransparent
+    else
+      pDownRight := nil;
+  end else
+  if smoothBorder then
+  begin
+    pDownLeft := @BGRAPixelTransparent;
+    pDownRight := @BGRAPixelTransparent;
+  end else
+  begin
+    pDownLeft := nil;
+    pDownRight := nil;
+  end;
+
+  InterpolateBilinear(pUpLeft, pUpRight, pDownLeft,
+          pDownRight, iFactX, iFactY, @result);
 end;
 
 function TBGRADefaultBitmap.GetArrow: TBGRAArrow;
