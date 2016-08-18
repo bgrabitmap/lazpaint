@@ -274,7 +274,8 @@ type
     procedure RotateRad(angleCCW: single); virtual;
     procedure ResetTransform; virtual;
 
-    procedure UseOrthoProjection; virtual;
+    procedure UseOrthoProjection; virtual; overload;
+    procedure UseOrthoProjection(AMinX,AMinY,AMaxX,AMaxY: single); virtual; overload;
     procedure StartZBuffer; virtual;
     procedure EndZBuffer; virtual;
     procedure WaitForGPU({%H-}AOption: TWaitForGPUOption); virtual;
@@ -1761,6 +1762,11 @@ end;
 procedure TBGLCustomCanvas.UseOrthoProjection;
 begin
   ProjectionMatrix := OrthoProjectionToOpenGL(0,0,Width,Height);
+end;
+
+procedure TBGLCustomCanvas.UseOrthoProjection(AMinX, AMinY, AMaxX, AMaxY: single);
+begin
+  ProjectionMatrix := OrthoProjectionToOpenGL(AMinX,AMinY,AMaxX,AMaxY);
 end;
 
 procedure TBGLCustomCanvas.StartZBuffer;

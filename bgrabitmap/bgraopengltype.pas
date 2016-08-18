@@ -442,11 +442,14 @@ implementation
 uses BGRAFilterScanner;
 
 function OrthoProjectionToOpenGL(AMinX, AMinY, AMaxX, AMaxY: Single): TMatrix4D;
+var sx,sy: single;
 begin
-  result[1,1] := 2/(AMaxX-AMinX); result[2,1] := 0;                result[3,1] := 0;   result[4,1] := -1;
-  result[1,2] := 0;               result[2,2] := -2/(AMaxY-AMinY); result[3,2] := 0;   result[4,2] := 1;
-  result[1,3] := 0;               result[2,3] := 0;                result[3,3] := -1;  result[4,3] := 0;
-  result[1,4] := 0;               result[2,4] := 0;                result[3,4] := 0;   result[4,4] := 1;
+  sx := 2/(AMaxX-AMinX);
+  sy := 2/(AMaxY-AMinY);
+  result[1,1] := sx;   result[2,1] := 0;     result[3,1] := 0;   result[4,1] := -1 - AMinX*sx;
+  result[1,2] := 0;    result[2,2] := -sy;   result[3,2] := 0;   result[4,2] := 1 + AMinY*sy;
+  result[1,3] := 0;    result[2,3] := 0;     result[3,3] := -1;  result[4,3] := 0;
+  result[1,4] := 0;    result[2,4] := 0;     result[3,4] := 0;   result[4,4] := 1;
 end;
 
 function GetPowerOfTwo( Value : Integer ) : Integer;
