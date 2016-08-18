@@ -12,7 +12,7 @@ object FBlendOp: TFBlendOp
   OnResize = FormResize
   OnShow = FormShow
   Position = poMainFormCenter
-  LCLVersion = '1.0.10.0'
+  LCLVersion = '1.6.0.4'
   object ListBox_PatternUnder: TListBox
     Left = 8
     Height = 248
@@ -108,7 +108,7 @@ object FBlendOp: TFBlendOp
     Color = clBtnFace
     Items.Strings = (
       'Overlay'
-      'SoftLight'
+      'SvgSoftLight'
       'Lighten'
       'Screen'
       'LinearAdd'
@@ -195,6 +195,7 @@ object FBlendOp: TFBlendOp
       'Additive'
       'LinearNegation'
       'Negation'
+      'SoftLight'
       'NiceGlow'
       'Reflect'
       'SubtractInverse'
@@ -228,18 +229,18 @@ object FBlendOp: TFBlendOp
   end
   object Label_SelectedBlendOp: TLabel
     Left = 8
-    Height = 18
-    Top = 292
-    Width = 177
+    Height = 15
+    Top = 295
+    Width = 137
     Anchors = [akLeft, akBottom]
     Caption = 'Selected blend operation :'
     ParentColor = False
   end
   object Label_BlendOpValue: TLabel
     Left = 152
-    Height = 18
-    Top = 292
-    Width = 5
+    Height = 15
+    Top = 295
+    Width = 3
     Anchors = [akLeft, akBottom]
     Caption = '.'
     ParentColor = False
@@ -307,4 +308,4 @@ object FBlendOp: TFBlendOp
     left = 382
     top = 288
   end
-end
+end
