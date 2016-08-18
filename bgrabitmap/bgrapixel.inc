@@ -293,7 +293,9 @@ type
     {** Negation blend modes }
     boNegation, boLinearNegation,
     {** Xor blend mode. It is sightly different from ''dmXor'' because the alpha value is used like in other blends modes }
-    boXor);
+    boXor,
+    {** Additional blend modes **}
+    boSvgSoftLight);
 
 const
   {** Alias to glow that express that this blend mode masks the part where the top layer is black }
@@ -310,7 +312,7 @@ const
      'Lighten', 'Screen', 'Additive', 'LinearAdd', 'ColorDodge', 'Divide', 'NiceGlow', 'SoftLight', 'HardLight',
      'Glow', 'Reflect', 'Overlay', 'DarkOverlay', 'Darken', 'Multiply', 'ColorBurn',
      'Difference', 'LinearDifference', 'Exclusion', 'LinearExclusion', 'Subtract', 'LinearSubtract', 'SubtractInverse', 'LinearSubtractInverse',
-     'Negation', 'LinearNegation', 'Xor');
+     'Negation', 'LinearNegation', 'Xor', 'SvgSoftLight');
 
   {** Returns the blend mode expressed by the string }
   function StrToBlendOperation(str: string): TBlendOperation;

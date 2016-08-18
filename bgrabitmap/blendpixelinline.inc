@@ -913,14 +913,6 @@ end;
 function ByteSoftLightInline(a,b: byte): byte; inline;
 begin
   result := ((not a)*b shr 7 + a)*a div 255;
-{ SVG specification would be :
-
-  if b <= 128 then
-    result := a - (((256 - b-b)*a shr 8)*(not a) shr 8)
-  else if a <= 64 then
-    result := a + ((b+b - 256)*((((a shl 2)*(a shl 2 + 256) shr 8)*integer(a - 256) shr 8) + a*7) shr 8)
-  else
-    result := a + ((b+b - 255)*(ByteSqrt(a)-a) shr 8);}
 end;
 
 procedure SoftLightPixelInline(dest: PBGRAPixel; c: TBGRAPixel); inline;
@@ -945,6 +937,43 @@ begin
     dest^.green := (ByteSoftLightInline(dest^.green, c.green) * destalpha +
       c.green * (not destalpha)) shr 8;
     dest^.blue  := (ByteSoftLightInline(dest^.blue, c.blue) * destalpha +
+      c.blue * (not destalpha)) shr 8;
+    dest^.alpha := c.alpha;
+  end;
+end;
+
+function ByteSvgSoftLightInline(a,b: byte): byte; inline;
+begin
+  if b <= 128 then
+    result := a - (((256 - b-b)*a shr 8)*(not a) shr 8)
+  else if a <= 64 then
+    result := a + ((b+b - 256)*((((a shl 2)*(a shl 2 + 256) shr 8)*integer(a - 256) shr 8) + a*7) shr 8)
+  else
+    result := a + ((b+b - 255)*(ByteSqrt(a)-a) shr 8);
+end;
+
+procedure SvgSoftLightPixelInline(dest: PBGRAPixel; c: TBGRAPixel); inline;
+var
+  destalpha: byte;
+begin
+  destalpha   := dest^.alpha;
+  if destalpha = 0 then
+  begin
+    dest^ := c
+  end else
+  if destalpha = 255 then
+  begin
+    dest^.red := ByteSvgSoftLightInline(dest^.red, c.red);
+    dest^.green := ByteSvgSoftLightInline(dest^.green, c.green);
+    dest^.blue  := ByteSvgSoftLightInline(dest^.blue, c.blue);
+    dest^.alpha := c.alpha;
+  end else
+  begin
+    dest^.red   := (ByteSvgSoftLightInline(dest^.red, c.red) * destalpha +
+      c.red * (not destalpha)) shr 8;
+    dest^.green := (ByteSvgSoftLightInline(dest^.green, c.green) * destalpha +
+      c.green * (not destalpha)) shr 8;
+    dest^.blue  := (ByteSvgSoftLightInline(dest^.blue, c.blue) * destalpha +
       c.blue * (not destalpha)) shr 8;
     dest^.alpha := c.alpha;
   end;

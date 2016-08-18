@@ -304,7 +304,7 @@ begin
             if opstr = 'svg:overlay' then
               BlendOperation[idx] := boOverlay else
             if opstr = 'svg:soft-light' then
-              BlendOperation[idx] := boSoftLight else
+              BlendOperation[idx] := boSvgSoftLight else
             if opstr = 'svg:hard-light' then
               BlendOperation[idx] := boHardLight else
             if opstr = 'svg:difference' then
@@ -321,6 +321,8 @@ begin
               BlendOperation[idx] := boLinearExclusion else
             if opstr = 'krita:divide' then
               BlendOperation[idx] := boDivide else
+            if opstr = 'bgra:soft-light' then
+              BlendOperation[idx] := boSoftLight else
             if opstr = 'bgra:nice-glow' then
               BlendOperation[idx] := boNiceGlow else
             if opstr = 'bgra:glow' then
@@ -410,7 +412,7 @@ begin
         boDarken: strval := 'svg:darken';
         boMultiply: strval := 'svg:multiply';
         boOverlay, boDarkOverlay: strval := 'svg:overlay';
-        boSoftLight: strval := 'svg:soft-light';
+        boSoftLight: strval := 'bgra:soft-light';
         boHardLight: strval := 'svg:hard-light';
         boDifference,boLinearDifference: strval := 'svg:difference';
         boLinearSubtractInverse, boSubtractInverse: strval := 'krita:inverse_subtract';
@@ -422,6 +424,7 @@ begin
         boReflect: strval := 'bgra:reflect';
         boLinearNegation,boNegation: strval := 'bgra:negation';
         boXor: strval := 'bgra:xor';
+        boSvgSoftLight: strval := 'svg:soft-light';
         else strval := 'svg:src-over';
       end;
       layerNode.SetAttribute('composite-op',strval);

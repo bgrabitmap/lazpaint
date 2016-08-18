@@ -99,6 +99,7 @@ procedure LightenPixelInline(dest: PBGRAPixel; c: TBGRAPixel); inline;
 procedure DarkenPixelInline(dest: PBGRAPixel; c: TBGRAPixel); inline;
 procedure ScreenPixelInline(dest: PBGRAPixel; c: TBGRAPixel); inline;
 procedure SoftLightPixelInline(dest: PBGRAPixel; c: TBGRAPixel); inline;
+procedure SvgSoftLightPixelInline(dest: PBGRAPixel; c: TBGRAPixel); inline;
 procedure HardLightPixelInline(dest: PBGRAPixel; c: TBGRAPixel); inline;
 procedure BlendXorPixelInline(dest: PBGRAPixel; c: TBGRAPixel); inline;
 procedure BGRAFillClearTypeMask(dest: TBGRACustomBitmap; x,y: integer; xThird: integer; mask: TBGRACustomBitmap; color: TBGRAPixel; texture: IBGRAScanner; RGBOrder: boolean);

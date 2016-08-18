@@ -295,6 +295,17 @@ begin
         end;
 end;
 
+procedure SvgSoftLightPixels(pdest: PBGRAPixel; psrc: PBGRAPixel; Count: integer);
+begin
+  while Count > 0 do
+        begin
+          SvgSoftLightPixelInline(pdest, psrc^);
+          Inc(pdest);
+          Inc(psrc);
+          Dec(Count);
+        end;
+end;
+
 procedure HardLightPixels(pdest: PBGRAPixel; psrc: PBGRAPixel; Count: integer);
 begin
   while Count > 0 do
@@ -326,7 +337,7 @@ const
       @LightenPixels, @ScreenPixels, @AddPixels, @LinearAddPixels, @ColorDodgePixels, @DividePixels, @NiceGlowPixels, @SoftLightPixels, @HardLightPixels,
       @GlowPixels, @ReflectPixels, @LinearOverlayPixels, @OverlayPixels, @DarkenPixels, @LinearMultiplyPixels, @ColorBurnPixels,
       @DifferencePixels, @LinearDifferencePixels, @ExclusionPixels, @LinearExclusionPixels, @SubtractPixels, @LinearSubtractPixels,
-      @SubtractInversePixels, @LinearSubtractInversePixels, @NegationPixels, @LinearNegationPixels, @BlendXorPixels);
+      @SubtractInversePixels, @LinearSubtractInversePixels, @NegationPixels, @LinearNegationPixels, @BlendXorPixels, @SvgSoftLightPixels);
 
 procedure BlendPixels(pdest: PBGRAPixel; psrc: PBGRAPixel;
   blendOp: TBlendOperation; Count: integer);

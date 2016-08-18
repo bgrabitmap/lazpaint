@@ -708,6 +708,20 @@ begin
         end;
 end;
 
+procedure SvgSoftLightPixelsLinearOver(pdest: PBGRAPixel; psrc: PBGRAPixel; Count: integer; Opacity: byte);
+var temp: TBGRAPixel;
+begin
+  while Count > 0 do
+        begin
+          temp := pdest^;
+          SvgSoftLightPixelInline(@temp, psrc^);
+          FastBlendPixelInline(pdest, temp, opacity);
+          Inc(pdest);
+          Inc(psrc);
+          Dec(Count);
+        end;
+end;
+
 procedure SoftLightPixelsDrawOver(pdest: PBGRAPixel; psrc: PBGRAPixel; Count: integer; Opacity: byte);
 var temp: TBGRAPixel;
 begin
@@ -715,6 +729,20 @@ begin
         begin
           temp := pdest^;
           SoftLightPixelInline(@temp, psrc^);
+          DrawPixelInlineWithAlphaCheck(pdest, temp, opacity);
+          Inc(pdest);
+          Inc(psrc);
+          Dec(Count);
+        end;
+end;
+
+procedure SvgSoftLightPixelsDrawOver(pdest: PBGRAPixel; psrc: PBGRAPixel; Count: integer; Opacity: byte);
+var temp: TBGRAPixel;
+begin
+  while Count > 0 do
+        begin
+          temp := pdest^;
+          SvgSoftLightPixelInline(@temp, psrc^);
           DrawPixelInlineWithAlphaCheck(pdest, temp, opacity);
           Inc(pdest);
           Inc(psrc);
@@ -789,12 +817,12 @@ const
       @LightenPixelsDrawOver, @ScreenPixelsDrawOver, @AddPixelsDrawOver, @LinearAddPixelsDrawOver, @ColorDodgePixelsDrawOver, @DividePixelsDrawOver, @NiceGlowPixelsDrawOver, @SoftLightPixelsDrawOver, @HardLightPixelsDrawOver,
       @GlowPixelsDrawOver, @ReflectPixelsDrawOver, @LinearOverlayPixelsDrawOver, @OverlayPixelsDrawOver, @DarkenPixelsDrawOver, @LinearMultiplyPixelsDrawOver, @ColorBurnPixelsDrawOver,
       @DifferencePixelsDrawOver, @LinearDifferencePixelsDrawOver, @ExclusionPixelsDrawOver, @LinearExclusionPixelsDrawOver, @SubtractPixelsDrawOver, @LinearSubtractPixelsDrawOver,
-      @SubtractInversePixelsDrawOver, @LinearSubtractInversePixelsDrawOver, @NegationPixelsDrawOver, @LinearNegationPixelsDrawOver, @BlendXorPixelsDrawOver),
+      @SubtractInversePixelsDrawOver, @LinearSubtractInversePixelsDrawOver, @NegationPixelsDrawOver, @LinearNegationPixelsDrawOver, @BlendXorPixelsDrawOver, @SvgSoftLightPixelsDrawOver),
       (@FastBlendPixelsWithOpacity, @FastBlendPixelsWithOpacity,
       @LightenPixelsLinearOver, @ScreenPixelsLinearOver, @AddPixelsLinearOver, @LinearAddPixelsLinearOver, @ColorDodgePixelsLinearOver, @DividePixelsLinearOver, @NiceGlowPixelsLinearOver, @SoftLightPixelsLinearOver, @HardLightPixelsLinearOver,
       @GlowPixelsLinearOver, @ReflectPixelsLinearOver, @LinearOverlayPixelsLinearOver, @OverlayPixelsLinearOver, @DarkenPixelsLinearOver, @LinearMultiplyPixelsLinearOver, @ColorBurnPixelsLinearOver,
       @DifferencePixelsLinearOver, @LinearDifferencePixelsLinearOver, @ExclusionPixelsLinearOver, @LinearExclusionPixelsLinearOver, @SubtractPixelsLinearOver, @LinearSubtractPixelsLinearOver,
-      @SubtractInversePixelsLinearOver, @LinearSubtractInversePixelsLinearOver, @NegationPixelsLinearOver, @LinearNegationPixelsLinearOver, @BlendXorPixelsLinearOver));
+      @SubtractInversePixelsLinearOver, @LinearSubtractInversePixelsLinearOver, @NegationPixelsLinearOver, @LinearNegationPixelsLinearOver, @BlendXorPixelsLinearOver, @SvgSoftLightPixelsLinearOver));
 
 {************************* calling procedure ***************************}
 
