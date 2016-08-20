@@ -389,7 +389,7 @@ begin
       if ARawImage.Description.BitsPerPixel = 24 then
         copyProc := @CopyFrom24Bit
       else
-      if AlwaysReplaceAlpha then
+      if AlwaysReplaceAlpha or (ARawImage.Description.AlphaPrec = 0) then
         copyProc := @CopyFrom32Bit_SetAlpha
       else if DefaultOpacity = 0 then
         copyProc := @CopyFrom32Bit_KeepAlpha
@@ -400,7 +400,7 @@ begin
       if ARawImage.Description.BitsPerPixel = 24 then
         copyProc := @CopyFrom24Bit_SwapRedBlue
       else
-      if AlwaysReplaceAlpha then
+      if AlwaysReplaceAlpha or (ARawImage.Description.AlphaPrec = 0) then
         copyProc := @CopyFrom32Bit_SwapRedBlue_SetAlpha
       else if DefaultOpacity = 0 then
         copyProc := @CopyFrom32Bit_SwapRedBlue_KeepAlpha
