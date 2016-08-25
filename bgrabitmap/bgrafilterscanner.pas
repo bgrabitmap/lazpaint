@@ -59,7 +59,7 @@ type
     end;
 
   { TBGRAFilterScannerGrayscale }
-
+  { Grayscale converts colored pixel into grayscale with same luminosity }
   TBGRAFilterScannerGrayscale = class(TBGRAFilterScannerPixelwise)
     class procedure ComputeFilterAt(ASource: PBGRAPixel; ADest: PBGRAPixel;
       ACount: integer; AGammaCorrection: boolean); override;
@@ -80,7 +80,8 @@ type
   end;
 
   { TBGRAFilterScannerNormalize }
-
+  { Normalize compute min-max of specified channel and apply an affine transformation
+    to make it use the full range of values }
   TBGRAFilterScannerNormalize = class(TBGRAFilterScannerPixelwise)
   private
     minValRed, maxValRed, minValGreen, maxValGreen,
@@ -241,7 +242,7 @@ class procedure TBGRAFilterScannerNormalize.ComputeFilterAt(
   ASource: PBGRAPixel; ADest: PBGRAPixel; ACount: integer;
   AGammaCorrection: boolean);
 begin
-  raise exception.Create('Normalize filter cannot be called as a class procedure');
+  raise exception.Create('Normalize filter scanner cannot be called as a class procedure');
 end;
 
 { TBGRAFilterScannerSwapRedBlue }
