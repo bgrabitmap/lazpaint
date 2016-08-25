@@ -119,6 +119,8 @@ const
       taking into account all dimensions, including transparency. The
       result ranges from 0 to 255 }
   function BGRADiff(c1, c2: TBGRAPixel): byte;
+  function FastBGRALinearDiff(c1,c2: TBGRAPixel): byte;
+  function FastBGRAExpandedDiff(c1,c2: TBGRAPixel): word;
 
   function Color16BitToBGRA(AColor: Word): TBGRAPixel;
   function BGRAToColor16Bit(const AColor: TBGRAPixel): Word;
@@ -1371,6 +1373,24 @@ end;
 function BGRADiff(c1,c2: TBGRAPixel): byte;
 begin
   result := ExpandedDiff(GammaExpansion(c1),GammaExpansion(c2)) shr 8;
+end;
+
+function FastBGRALinearDiff(c1, c2: TBGRAPixel): byte;
+begin
+  result := max(min((abs(c1.red-c2.red)+(abs(c1.green-c2.green) shl 1)+abs(c1.blue-c2.blue)) shr 2,
+             min(c1.alpha,c2.alpha)), abs(c1.alpha-c2.alpha));
+end;
+
+function FastBGRAExpandedDiff(c1, c2: TBGRAPixel): word;
+var wa1,wa2: word;
+begin
+  wa1 := c1.alpha shl 8 + c1.alpha;
+  wa2 := (c2.alpha shl 8) + c2.alpha;
+  result := max(min((abs(GammaExpansionTab[c1.red]-GammaExpansionTab[c2.red])+
+               (abs(GammaExpansionTab[c1.green]-GammaExpansionTab[c2.green]) shl 1)+
+               abs(GammaExpansionTab[c1.blue]-GammaExpansionTab[c2.blue])) shr 2,
+             min(wa1,wa2)),
+             abs(wa1-wa2));
 end;
 
 function BGRAToColorF(c: TBGRAPixel; AGammaExpansion: boolean): TColorF;
