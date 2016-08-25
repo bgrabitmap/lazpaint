@@ -5,55 +5,12 @@ unit BGRAFilterScanner;
 interface
 
 uses
-  Classes, BGRABitmapTypes;
+  Classes, BGRABitmapTypes, BGRAFilterType;
 
 const
     FilterScannerChunkSize = 16;
 
 type
-  { TBGRAFilterScanner }
-
-  TBGRAFilterScanner = class(TBGRACustomScanner)
-  private
-    FCurX,FCurY: integer;
-    FSource: IBGRAScanner;
-    FOffset: TPoint;
-    FVariablePixelBuffer: TBGRAPixelBuffer;
-    FPixelBuffer: packed array[0..FilterScannerChunkSize-1] of TBGRAPixel;
-    FPixelBufferPos: integer;
-  public
-    constructor Create(ASource: IBGRAScanner; AOffset: TPoint);
-    procedure ComputeFilter(ASource: IBGRAScanner; X,Y: Integer; ADest: PBGRAPixel; ACount: integer); virtual; abstract;
-    function ScanAtInteger(X,Y: integer): TBGRAPixel; override;
-    procedure ScanMoveTo(X,Y: Integer); override;
-    function ScanNextPixel: TBGRAPixel; override;
-    procedure ScanPutPixels(pdest: PBGRAPixel; count: integer; mode: TDrawMode); override;
-    function IsScanPutPixelsDefined: boolean; override;
-    function ScanAt(X,Y: Single): TBGRAPixel; override;
-    property Source: IBGRAScanner read FSource;
-    property Offset: TPoint read FOffset;
-  end;
-
-  { TBGRAFilterScannerPixelwise }
-
-  TBGRAFilterScannerPixelwise = class(TBGRAFilterScanner)
-    private
-      FBuffer: TBGRAPixelBuffer;
-      FGammaCorrection: boolean;
-    protected
-      procedure DoComputeFilterAt(ASource: PBGRAPixel; ADest: PBGRAPixel;
-              ACount: integer; AGammaCorrection: boolean); virtual;
-    public
-      constructor Create(ASource: IBGRAScanner; AOffset: TPoint; AGammaCorrection: boolean = true);
-      procedure ComputeFilter(ASource: IBGRAScanner; X, Y: Integer; ADest: PBGRAPixel;
-        ACount: integer); override;
-      class procedure ComputeFilterAt(ASource: PBGRAPixel; ADest: PBGRAPixel;
-        ACount: integer; AGammaCorrection: boolean); virtual; abstract;
-      class procedure ComputeFilterInplace(ABitmap: TBGRACustomBitmap; ABounds: TRect;
-        AGammaCorrection: boolean);
-      property GammaCorrection: boolean read FGammaCorrection write FGammaCorrection;
-    end;
-
   { TBGRAFilterScannerGrayscale }
   { Grayscale converts colored pixel into grayscale with same luminosity }
   TBGRAFilterScannerGrayscale = class(TBGRAFilterScannerPixelwise)
@@ -301,49 +258,6 @@ begin
   {$POP}
 end;
 
-{ TBGRAFilterScannerPixelwise }
-
-procedure TBGRAFilterScannerPixelwise.DoComputeFilterAt(ASource: PBGRAPixel;
-  ADest: PBGRAPixel; ACount: integer; AGammaCorrection: boolean);
-begin
-  ComputeFilterAt(ASource,ADest,ACount,AGammaCorrection);
-end;
-
-constructor TBGRAFilterScannerPixelwise.Create(ASource: IBGRAScanner;
-  AOffset: TPoint; AGammaCorrection: boolean);
-begin
-  inherited Create(ASource,AOffset);
-  GammaCorrection := AGammaCorrection;
-end;
-
-procedure TBGRAFilterScannerPixelwise.ComputeFilter(ASource: IBGRAScanner; X,
-  Y: Integer; ADest: PBGRAPixel; ACount: integer);
-begin
-  AllocateBGRAPixelBuffer(FBuffer, ACount);
-  ASource.ScanMoveTo(X,Y);
-  ASource.ScanPutPixels(@FBuffer[0], ACount, dmSet);
-  DoComputeFilterAt(@FBuffer[0],ADest,ACount,GammaCorrection);
-end;
-
-class procedure TBGRAFilterScannerPixelwise.ComputeFilterInplace(
-  ABitmap: TBGRACustomBitmap; ABounds: TRect; AGammaCorrection: boolean);
-var
-  yb: LongInt;
-  p: Pointer;
-begin
-  ABitmap.LoadFromBitmapIfNeeded;
-  if (ABounds.Left = 0) and (ABounds.Top = 0) and
-     (ABounds.Right = ABitmap.Width) and (ABounds.Bottom = ABitmap.Height) then
-    ComputeFilterAt(ABitmap.Data,ABitmap.Data,ABitmap.NbPixels,AGammaCorrection)
-  else
-    for yb := ABounds.Top to ABounds.Bottom-1 do
-    begin
-      p := ABitmap.ScanLine[yb]+ABounds.Left;
-      ComputeFilterAt(p,p,ABounds.Right-ABounds.Left,AGammaCorrection);
-    end;
-  ABitmap.InvalidateBitmap;
-end;
-
 { TBGRAFilterScannerNegative }
 
 class procedure TBGRAFilterScannerNegative.ComputeFilterAt(
@@ -441,66 +355,6 @@ begin
         Inc(ADest);
         dec(ACount);
       end;
-end;
-
-{ TBGRAFilterScanner }
-
-constructor TBGRAFilterScanner.Create(ASource: IBGRAScanner; AOffset: TPoint);
-begin
-  FSource := ASource;
-  FOffset := AOffset;
-  FPixelBufferPos := FilterScannerChunkSize;
-end;
-
-function TBGRAFilterScanner.ScanAtInteger(X, Y: integer): TBGRAPixel;
-begin
-  ScanMoveTo(X,Y);
-  result := ScanNextPixel;
-end;
-
-procedure TBGRAFilterScanner.ScanMoveTo(X, Y: Integer);
-begin
-  FCurX := X;
-  FCurY := Y;
-  FPixelBufferPos := FilterScannerChunkSize;
-end;
-
-function TBGRAFilterScanner.ScanNextPixel: TBGRAPixel;
-begin
-  if FPixelBufferPos >= FilterScannerChunkSize then
-  begin
-    ComputeFilter(FSource,FCurX+FOffset.X,FCurY+FOffset.Y,@FPixelBuffer[0],FilterScannerChunkSize);
-    FPixelBufferPos := 0;
-  end;
-  Result:= FPixelBuffer[FPixelBufferPos];
-  inc(FPixelBufferPos);
-  inc(FCurX);
-end;
-
-procedure TBGRAFilterScanner.ScanPutPixels(pdest: PBGRAPixel; count: integer;
-  mode: TDrawMode);
-begin
-  if mode = dmSet then
-  begin
-    ComputeFilter(FSource,FCurX+FOffset.X,FCurY+FOffset.Y,pdest,count);
-    inc(FCurX,count);
-  end else
-  begin
-    AllocateBGRAPixelBuffer(FVariablePixelBuffer, count);
-    ComputeFilter(FSource,FCurX+FOffset.X,FCurY+FOffset.Y,@FVariablePixelBuffer[0],count);
-    inc(FCurX,count);
-    PutPixels(pdest, @FVariablePixelBuffer[0], count, mode, 255);
-  end;
-end;
-
-function TBGRAFilterScanner.IsScanPutPixelsDefined: boolean;
-begin
-  Result:= true;
-end;
-
-function TBGRAFilterScanner.ScanAt(X, Y: Single): TBGRAPixel;
-begin
-  result := ScanAtInteger(round(X),round(Y));
 end;
 
 end.

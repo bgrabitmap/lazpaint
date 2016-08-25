@@ -5,7 +5,7 @@ unit BGRADithering;
 interface
 
 uses
-  Classes, SysUtils, BGRAFilters, BGRAPalette, BGRABitmapTypes;
+  Classes, SysUtils, BGRAFilterType, BGRAPalette, BGRABitmapTypes;
 
 type
   TOutputPixelProc = procedure(X,Y: NativeInt; AColorIndex: NativeInt; AColor: TBGRAPixel) of object;

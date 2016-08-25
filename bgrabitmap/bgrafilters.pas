@@ -9,36 +9,10 @@ interface
   a result. }
 
 uses
-  Classes, BGRABitmapTypes;
+  Classes, BGRABitmapTypes, BGRAFilterType;
 
 type
-  TCheckShouldStopFunc = function(ACurrentY: integer) : boolean of object;
-
-  { TFilterTask }
-
-  TFilterTask = class
-  private
-    FCheckShouldStop: TCheckShouldStopFunc;
-    procedure SetDestination(AValue: TBGRACustomBitmap);
-  protected
-    FDestination: TBGRACustomBitmap;
-    FSource: TBGRACustomBitmap;
-    FSourceScanner: IBGRAScanner;
-    FCurrentY: integer;
-    function GetShouldStop(ACurrentY: integer): boolean;
-    procedure DoExecute; virtual; abstract;
-    function RequestSourceScanLine(X,Y,Count: Integer): PBGRAPixel;
-    procedure ReleaseSourceScanLine(P: PBGRAPixel);
-    function RequestSourceExpandedScanLine(X,Y,Count: Integer): PExpandedPixel;
-    procedure ReleaseSourceExpandedScanLine(P: PExpandedPixel);
-    procedure SetSource(ABitmap: TBGRACustomBitmap); overload;
-    procedure SetSource(AScanner: IBGRAScanner); overload;
-  public
-    function Execute: TBGRACustomBitmap;
-    property Destination: TBGRACustomBitmap read FDestination write SetDestination;
-    property CheckShouldStop: TCheckShouldStopFunc read FCheckShouldStop write FCheckShouldStop;
-    property CurrentY: integer read FCurrentY;
-  end;
+  TFilterTask = BGRAFilterType.TFilterTask;
 
 { The median filter consist in calculating the median value of pixels. Here
   a square of 9x9 pixel is considered. The median allow to select the most
@@ -2029,114 +2003,6 @@ end;
 procedure TRadialBlurTask.DoExecute;
 begin
   FilterBlurRadial(FSource,FBounds,FRadiusX,FRadiusY,FBlurType,Destination,@GetShouldStop);
-end;
-
-{ TFilterTask }
-
-function TFilterTask.GetShouldStop(ACurrentY: integer): boolean;
-begin
-  FCurrentY:= ACurrentY;
-  if Assigned(FCheckShouldStop) then
-    result := FCheckShouldStop(ACurrentY)
-  else
-    result := false;
-end;
-
-function TFilterTask.RequestSourceScanLine(X, Y, Count: Integer): PBGRAPixel;
-begin
-  if FSource <> nil then
-    result := FSource.ScanLine[y]+x
-  else
-  begin
-    getmem(result, sizeof(TBGRAPixel)*Count);
-    FSourceScanner.ScanPutPixels(result,count,dmSet);
-  end;
-end;
-
-procedure TFilterTask.ReleaseSourceScanLine(P: PBGRAPixel);
-begin
-  if FSource = nil then
-    if p <> nil then freemem(p);
-end;
-
-function TFilterTask.RequestSourceExpandedScanLine(X, Y, Count: Integer
-  ): PExpandedPixel;
-var p: PBGRAPixel;
-   pexp: PExpandedPixel;
-begin
-  getmem(result, sizeof(TExpandedPixel)*Count);
-  if FSource <> nil then
-  begin
-    p := FSource.ScanLine[Y]+x;
-    pexp := result;
-    while Count > 0 do
-    begin
-      pexp^ := GammaExpansion(p^);
-      inc(pexp);
-      inc(p);
-      dec(Count);
-    end;
-  end else
-  begin
-    FSourceScanner.ScanMoveTo(X,Y);
-    pexp := result;
-    while Count > 0 do
-    begin
-      pexp^ := FSourceScanner.ScanNextExpandedPixel;
-      inc(pexp);
-      dec(Count);
-    end;
-  end;
-end;
-
-procedure TFilterTask.ReleaseSourceExpandedScanLine(P: PExpandedPixel);
-begin
-  if p <> nil then freemem(p);
-end;
-
-procedure TFilterTask.SetSource(ABitmap: TBGRACustomBitmap);
-begin
-  FSource := ABitmap;
-  FSourceScanner := nil;
-end;
-
-procedure TFilterTask.SetSource(AScanner: IBGRAScanner);
-begin
-  FSource := nil;
-  FSourceScanner := AScanner;
-end;
-
-function TFilterTask.Execute: TBGRACustomBitmap;
-var DestinationOwned: boolean;
-begin
-  FCurrentY := 0;
-  if Destination = nil then
-  begin
-    if FSource = nil then //using default factory
-      FDestination := BGRABitmapFactory.create(FSource.Width,FSource.Height)
-    else
-      FDestination := FSource.NewBitmap(FSource.Width,FSource.Height);
-    DestinationOwned:= true;
-  end else
-    DestinationOwned:= false;
-  try
-    DoExecute;
-    result := Destination;
-    FDestination := nil;
-  except
-    on ex: exception do
-    begin
-      if DestinationOwned then FreeAndNil(FDestination);
-      raise ex;
-    end;
-  end;
-end;
-
-procedure TFilterTask.SetDestination(AValue: TBGRACustomBitmap);
-begin
-  if FDestination <> nil then
-    raise exception.Create('Destination is already defined');
-  FDestination := AValue;
 end;
 
 end.
