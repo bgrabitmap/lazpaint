@@ -11,8 +11,6 @@ const
     FilterScannerChunkSize = 16;
 
 type
-  TBGRAPixelBuffer = packed array of TBGRAPixel;
-
   { TBGRAFilterScanner }
 
   TBGRAFilterScanner = class(TBGRACustomScanner)
@@ -23,8 +21,6 @@ type
     FVariablePixelBuffer: TBGRAPixelBuffer;
     FPixelBuffer: packed array[0..FilterScannerChunkSize-1] of TBGRAPixel;
     FPixelBufferPos: integer;
-  protected
-    procedure AllocateBuffer(var ABuffer: TBGRAPixelBuffer; ASize: integer);
   public
     constructor Create(ASource: IBGRAScanner; AOffset: TPoint);
     procedure ComputeFilter(ASource: IBGRAScanner; X,Y: Integer; ADest: PBGRAPixel; ACount: integer); virtual; abstract;
@@ -131,7 +127,7 @@ begin
   minValBlue := 65535;
   maxAlpha  := 0;
   minAlpha  := 65535;
-  AllocateBuffer(buffer, ABounds.Right-ABounds.Left);
+  AllocateBGRAPixelBuffer(buffer, ABounds.Right-ABounds.Left);
   for yb := ABounds.Top to ABounds.Bottom do
   begin
     Source.ScanMoveTo(ABounds.Left,yb);
@@ -323,7 +319,7 @@ end;
 procedure TBGRAFilterScannerPixelwise.ComputeFilter(ASource: IBGRAScanner; X,
   Y: Integer; ADest: PBGRAPixel; ACount: integer);
 begin
-  AllocateBuffer(FBuffer, ACount);
+  AllocateBGRAPixelBuffer(FBuffer, ACount);
   ASource.ScanMoveTo(X,Y);
   ASource.ScanPutPixels(@FBuffer[0], ACount, dmSet);
   DoComputeFilterAt(@FBuffer[0],ADest,ACount,GammaCorrection);
@@ -449,13 +445,6 @@ end;
 
 { TBGRAFilterScanner }
 
-procedure TBGRAFilterScanner.AllocateBuffer(var ABuffer: TBGRAPixelBuffer;
-  ASize: integer);
-begin
-  if ASize > length(ABuffer) then
-    setlength(ABuffer, max(length(ABuffer)*2,ASize));
-end;
-
 constructor TBGRAFilterScanner.Create(ASource: IBGRAScanner; AOffset: TPoint);
 begin
   FSource := ASource;
@@ -497,7 +486,7 @@ begin
     inc(FCurX,count);
   end else
   begin
-    AllocateBuffer(FVariablePixelBuffer, count);
+    AllocateBGRAPixelBuffer(FVariablePixelBuffer, count);
     ComputeFilter(FSource,FCurX+FOffset.X,FCurY+FOffset.Y,@FVariablePixelBuffer[0],count);
     inc(FCurX,count);
     PutPixels(pdest, @FVariablePixelBuffer[0], count, mode, 255);

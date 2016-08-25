@@ -32,6 +32,9 @@ type
   TBGRAPixel = packed record blue, green, red, alpha: byte;
                end;
   {$ENDIF}
+  TBGRAPixelBuffer = packed array of TBGRAPixel;
+
+procedure AllocateBGRAPixelBuffer(var ABuffer: TBGRAPixelBuffer; ASize: integer);
 
 const
   {$IFDEF BGRABITMAP_RGBAPIXEL}
@@ -136,6 +139,9 @@ type
   {* Stores a gamma expanded RGB color. Values range from 0 to 65535 }
   TExpandedPixel = packed record red, green, blue, alpha: word;
                    end;
+  TExpandedPixelBuffer = packed array of TExpandedPixel;
+
+procedure AllocateExpandedPixelBuffer(var ABuffer: TExpandedPixelBuffer; ASize: integer);
 
   {** Converts a pixel from sRGB to gamma expanded RGB }
   function GammaExpansion(c: TBGRAPixel): TExpandedPixel; inline;
@@ -1005,6 +1011,13 @@ begin
   result := BGRAToHSLA(GSBAToBGRA(c));
 end;
 
+procedure AllocateExpandedPixelBuffer(var ABuffer: TExpandedPixelBuffer;
+  ASize: integer);
+begin
+  if ASize > length(ABuffer) then
+    setlength(ABuffer, max(length(ABuffer)*2,ASize));
+end;
+
 { Apply gamma correction using conversion tables }
 function GammaExpansion(c: TBGRAPixel): TExpandedPixel;
 begin
@@ -1245,6 +1258,12 @@ begin
     Result.blue  := (int64(ec1.blue) * ec1.alpha + int64(ec2.blue) * ec2.alpha + c12 shr 1) div c12;
     Result.alpha := (c12 + 1) shr 1;
   end;
+end;
+
+procedure AllocateBGRAPixelBuffer(var ABuffer: TBGRAPixelBuffer; ASize: integer);
+begin
+  if ASize > length(ABuffer) then
+    setlength(ABuffer, max(length(ABuffer)*2,ASize));
 end;
 
 function BGRA(red, green, blue, alpha: byte): TBGRAPixel;
