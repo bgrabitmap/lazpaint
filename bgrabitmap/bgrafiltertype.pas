@@ -19,6 +19,8 @@ type
   private
     FCheckShouldStop: TCheckShouldStopFunc;
     procedure SetDestination(AValue: TBGRACustomBitmap);
+    function GetInplace: boolean;
+    procedure SetInplace(AValue: boolean);
   protected
     FDestination: TBGRACustomBitmap;
     FSource: TBGRACustomBitmap;
@@ -37,6 +39,7 @@ type
     property Destination: TBGRACustomBitmap read FDestination write SetDestination;
     property CheckShouldStop: TCheckShouldStopFunc read FCheckShouldStop write FCheckShouldStop;
     property CurrentY: integer read FCurrentY;
+    property Inplace: boolean read GetInplace write SetInplace;
   end;
 
   { TBGRAFilterScanner }
@@ -192,6 +195,19 @@ begin
   if FDestination <> nil then
     raise exception.Create('Destination is already defined');
   FDestination := AValue;
+end;
+
+function TFilterTask.GetInplace: boolean;
+begin
+  result := (Destination = FSource) and (FSource <> nil);
+end;
+
+procedure TFilterTask.SetInplace(AValue: boolean);
+begin
+  if AValue = InPlace then exit;
+  if AValue and (FSource = nil) then
+     raise exception.Create('Inplace is valid only when source image is defined');
+  Destination := FSource;
 end;
 
 { TBGRAFilterScanner }

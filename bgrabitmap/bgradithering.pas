@@ -13,9 +13,6 @@ type
   { TDitheringTask }
 
   TDitheringTask = class(TFilterTask)
-  private
-    function GetInplace: boolean;
-    procedure SetInplace(AValue: boolean);
   protected
     FBounds: TRect;
     FIgnoreAlpha: boolean;
@@ -31,7 +28,6 @@ type
     constructor Create(bmp: TBGRACustomBitmap; APalette: TBGRACustomApproxPalette; AInPlace: boolean; AIgnoreAlpha: boolean; ABounds: TRect); overload;
     constructor Create(bmp: TBGRACustomBitmap; APalette: TBGRACustomApproxPalette; AInPlace: boolean; AIgnoreAlpha: boolean); overload;
     property OnOutputPixel: TOutputPixelProc read FOutputPixel write FOutputPixel;
-    property Inplace: boolean read GetInplace write SetInplace;
     property DrawMode: TDrawMode read FDrawMode write FDrawMode;
   end;
 
@@ -365,19 +361,6 @@ begin
 end;
 
 { TDitheringTask }
-
-function TDitheringTask.GetInplace: boolean;
-begin
-  result := (Destination = FSource) and (FSource <> nil);
-end;
-
-procedure TDitheringTask.SetInplace(AValue: boolean);
-begin
-  if AValue = InPlace then exit;
-  if AValue and (FSource = nil) then
-     raise exception.Create('Inplace is valid only when source image is defined');
-  Destination := FSource;
-end;
 
 procedure TDitheringTask.OutputPixel(X, Y: NativeInt; AColorIndex: NativeInt;
   AColor: TBGRAPixel);
