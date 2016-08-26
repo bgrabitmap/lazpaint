@@ -800,10 +800,6 @@ type
     procedure CopyPropertiesTo(ABitmap: TBGRADefaultBitmap);
     function Equals(comp: TBGRACustomBitmap): boolean; override;
     function Equals(comp: TBGRAPixel): boolean; override;
-    function GetImageBounds(Channel: TChannel = cAlpha; ANothingValue: Byte = 0): TRect; override;
-    function GetImageBounds(Channels: TChannels; ANothingValue: Byte = 0): TRect; override;
-    function GetImageBoundsWithin(const ARect: TRect; Channel: TChannel = cAlpha; ANothingValue: Byte = 0): TRect; override;
-    function GetImageBoundsWithin(const ARect: TRect; Channels: TChannels; ANothingValue: Byte = 0): TRect; override;
     function GetDifferenceBounds(ABitmap: TBGRACustomBitmap): TRect; override;
     function MakeBitmapCopy(BackgroundColor: TColor): TBitmap; override;
 
@@ -5623,110 +5619,6 @@ begin
     inc(pbyte(pdest),delta);
   end;
   self.InvalidateBitmap;
-end;
-
-{ Get bounds of non zero values of specified channel }
-function TBGRADefaultBitmap.GetImageBounds(Channel: TChannel = cAlpha; ANothingValue: Byte = 0): TRect;
-begin
-  result := GetImageBounds([Channel], ANothingValue);
-end;
-
-function TBGRADefaultBitmap.GetImageBounds(Channels: TChannels; ANothingValue: Byte = 0): TRect;
-begin
-  result := GetImageBoundsWithin(rect(0,0,Width,Height),Channels,ANothingValue);
-end;
-
-function TBGRADefaultBitmap.GetImageBoundsWithin(const ARect: TRect;
-  Channel: TChannel; ANothingValue: Byte): TRect;
-begin
-  result := GetImageBoundsWithin(ARect,[Channel], ANothingValue);
-end;
-
-function TBGRADefaultBitmap.GetImageBoundsWithin(const ARect: TRect;
-  Channels: TChannels; ANothingValue: Byte): TRect;
-var
-  minx, miny, maxx, maxy: integer;
-  xb, xb2, yb: integer;
-  p:      PDWord;
-  colorMask, colorZeros: DWord;
-  actualRect: TRect;
-begin
-  actualRect := EmptyRect;
-  IntersectRect(actualRect,ARect,rect(0,0,Width,Height));
-  maxx := actualRect.Left-1;
-  maxy := actualRect.Top-1;
-  minx := actualRect.Right;
-  miny := actualRect.Bottom;
-  colorMask := 0;
-  colorZeros := 0;
-  if cBlue in Channels then
-  begin
-    colorMask := colorMask or longword(BGRA(0,0,255,0));
-    colorZeros:= colorZeros or longword(BGRA(0,0,ANothingValue,0));
-  end;
-  if cGreen in Channels then
-  begin
-    colorMask := colorMask or longword(BGRA(0,255,0,0));
-    colorZeros:= colorZeros or longword(BGRA(0,ANothingValue,0,0));
-  end;
-  if cRed in Channels then
-  begin
-    colorMask := colorMask or longword(BGRA(255,0,0,0));
-    colorZeros:= colorZeros or longword(BGRA(ANothingValue,0,0,0));
-  end;
-  if cAlpha in Channels then
-  begin
-    colorMask := colorMask or longword(BGRA(0,0,0,255));
-    colorZeros:= colorZeros or longword(BGRA(0,0,0,ANothingValue));
-  end;
-  colorMask := NtoLE(colorMask);
-  colorZeros := NtoLE(colorZeros);
-  for yb := actualRect.Top to actualRect.Bottom-1 do
-  begin
-    p := PDWord(self.ScanLine[yb])+actualRect.Left;
-    for xb := actualRect.Left to actualRect.Right - 1 do
-    begin
-      if (p^ and colorMask) <> colorZeros then
-      begin
-        if xb < minx then
-          minx := xb;
-        if yb < miny then
-          miny := yb;
-        if xb > maxx then
-          maxx := xb;
-        if yb > maxy then
-          maxy := yb;
-
-        inc(p, actualRect.Right-1-xb);
-        for xb2 := actualRect.Right-1 downto xb+1 do
-        begin
-          if (p^ and colorMask) <> colorZeros then
-          begin
-            if xb2 > maxx then
-              maxx := xb2;
-            break;
-          end;
-          dec(p);
-        end;
-        break;
-      end;
-      Inc(p);
-    end;
-  end;
-  if minx > maxx then
-  begin
-    Result.left   := 0;
-    Result.top    := 0;
-    Result.right  := 0;
-    Result.bottom := 0;
-  end
-  else
-  begin
-    Result.left   := minx;
-    Result.top    := miny;
-    Result.right  := maxx + 1;
-    Result.bottom := maxy + 1;
-  end;
 end;
 
 function TBGRADefaultBitmap.GetDifferenceBounds(ABitmap: TBGRACustomBitmap): TRect;
