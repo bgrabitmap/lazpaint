@@ -7,9 +7,6 @@ interface
 uses
   Classes, BGRABitmapTypes, BGRAFilterType;
 
-const
-    FilterScannerChunkSize = 16;
-
 type
   { TBGRAFilterScannerGrayscale }
   { Grayscale converts colored pixel into grayscale with same luminosity }
