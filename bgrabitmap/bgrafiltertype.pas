@@ -52,8 +52,8 @@ type
     FSource: IBGRAScanner;
     FOffset: TPoint;
     FVariablePixelBuffer: TBGRAPixelBuffer;
-    FPixelBuffer: packed array[0..FilterScannerChunkSize-1] of TBGRAPixel;
-    FPixelBufferPos: integer;
+    FOutputBuffer: packed array[0..FilterScannerChunkSize-1] of TBGRAPixel;
+    FOutputBufferPos: integer;
   public
     constructor Create(ASource: IBGRAScanner; AOffset: TPoint);
     procedure ComputeFilter(ASource: IBGRAScanner; X,Y: Integer; ADest: PBGRAPixel; ACount: integer); virtual; abstract;
@@ -219,7 +219,7 @@ constructor TBGRAFilterScanner.Create(ASource: IBGRAScanner; AOffset: TPoint);
 begin
   FSource := ASource;
   FOffset := AOffset;
-  FPixelBufferPos := FilterScannerChunkSize;
+  FOutputBufferPos := FilterScannerChunkSize;
 end;
 
 function TBGRAFilterScanner.ScanAtInteger(X, Y: integer): TBGRAPixel;
@@ -232,18 +232,18 @@ procedure TBGRAFilterScanner.ScanMoveTo(X, Y: Integer);
 begin
   FCurX := X;
   FCurY := Y;
-  FPixelBufferPos := FilterScannerChunkSize;
+  FOutputBufferPos := FilterScannerChunkSize;
 end;
 
 function TBGRAFilterScanner.ScanNextPixel: TBGRAPixel;
 begin
-  if FPixelBufferPos >= FilterScannerChunkSize then
+  if FOutputBufferPos >= FilterScannerChunkSize then
   begin
-    ComputeFilter(FSource,FCurX+FOffset.X,FCurY+FOffset.Y,@FPixelBuffer[0],FilterScannerChunkSize);
-    FPixelBufferPos := 0;
+    ComputeFilter(FSource,FCurX+FOffset.X,FCurY+FOffset.Y,@FOutputBuffer[0],FilterScannerChunkSize);
+    FOutputBufferPos := 0;
   end;
-  Result:= FPixelBuffer[FPixelBufferPos];
-  inc(FPixelBufferPos);
+  Result:= FOutputBuffer[FOutputBufferPos];
+  inc(FOutputBufferPos);
   inc(FCurX);
 end;
 
