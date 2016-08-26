@@ -21,7 +21,8 @@ uses
   BGRASVG, BGRASVGShapes, BGRASVGType, BGRAPalette, BGRAColorQuantization, 
   BGRADithering, BGRAFreeType, BGRACustomTextFX, BGRAWritePNG, BGRAGifFormat, 
   BGRANoGUIBitmap, BGRASceneTypes, BGRARenderer3D, BGRAWriteBmpMioMap, 
-  BGRASpriteGL, BGRAOpenGLType, BGRAOpenGL, BGRACanvasGL;
+  BGRASpriteGL, BGRAOpenGLType, BGRAOpenGL, BGRACanvasGL, BGRAPhoxo, 
+  BGRAFilterScanner, BGRAFilterType;
 
 implementation
 
