@@ -107,7 +107,7 @@ type
     function GetAsArrayOfWeightedColor: ArrayOfWeightedColor; override;
   end;
 
-  TIsChannelStrictlyGreaterFunc = function (p1,p2 : PBGRAPixel): boolean;
+  TIsChannelStrictlyGreaterFunc = TBGRAPixelComparer;
   TIsChannelGreaterThanOrEqualToValueFunc = function (p : PBGRAPixel; v: UInt32): boolean;
 
   TColorBoxBounds = array[TColorDimension] of TDimensionMinMax;
@@ -134,15 +134,14 @@ type
     function GetSuperiorColor: TBGRAPixel;
     procedure Init(AColors: ArrayOfWeightedColor; AOwner: boolean);
     procedure SortBy(ADimension: TColorDimension);
-    procedure InsertionSort(AComparer: TIsChannelStrictlyGreaterFunc; AMinIndex, AMaxIndex: NativeInt);
-    procedure QuickSort(AComparer: TIsChannelStrictlyGreaterFunc; AMinIndex, AMaxIndex: NativeInt);
     function GetMedianIndex(ADimension : TColorDimension; AMinValue, AMaxValue: UInt32): integer;
   public
     constructor Create(ADimensions: TColorDimensions; AColors: ArrayOfWeightedColor; AOwner: boolean); overload;
-    constructor Create(ADimensions: TColorDimensions; AColors: ArrayOfTBGRAPixel); overload;
+    constructor Create(ADimensions: TColorDimensions; const AColors: ArrayOfTBGRAPixel; AAlpha: TAlphaChannelPaletteOption = acFullChannelInPalette); overload;
     constructor Create(ADimensions: TColorDimensions; ABounds: TColorBoxBounds); overload;
     constructor Create(ADimensions: TColorDimensions; APalette: TBGRACustomPalette); overload;
     constructor Create(ADimensions: TColorDimensions; ABitmap: TBGRACustomBitmap; AAlpha: TAlphaChannelPaletteOption); overload;
+    constructor Create(ADimensions: TColorDimensions; AColors: PBGRAPixel; ANbPixels: integer; AAlpha: TAlphaChannelPaletteOption); overload;
     function BoundsContain(AColor: TBGRAPixel): boolean;
     function MedianCut(ADimension: TColorDimension; out SuperiorMiddle: UInt32): TBGRAColorBox;
     function Duplicate : TBGRAColorBox;
@@ -536,7 +535,6 @@ begin
 end;
 
 const
-  InsertionSortLimit = 10;
   ApproxPaletteDimensions = [cdAlpha,cdRInvG,cdGInvB,cdRInvB,cdRInvGB,cdGInvRB,cdBInvRG,cdRGB];
 
 { TBGRAApproxPaletteViaLargerPalette }
@@ -1771,78 +1769,7 @@ var comparer: TIsChannelStrictlyGreaterFunc;
 begin
   comparer := GetPixelStrictComparer(ADimension);
   if comparer = nil then exit;
-  if Length(FColors) > InsertionSortLimit then
-    QuickSort(comparer,0,high(FColors))
-  else
-    InsertionSort(comparer,0,high(FColors));
-end;
-
-procedure TBGRAColorBox.InsertionSort(AComparer: TIsChannelStrictlyGreaterFunc; AMinIndex,
-  AMaxIndex: NativeInt);
-var i,j,insertPos: NativeInt;
-  compared: TBGRAWeightedPaletteEntry;
-begin
-  for i := AMinIndex+1 to AMaxIndex do
-  begin
-    insertPos := i;
-    compared := FColors[i];
-    while (insertPos > AMinIndex) and AComparer(@FColors[insertPos-1].Color,@compared.Color) do
-      dec(insertPos);
-    if insertPos <> i then
-    begin
-      for j := i downto insertPos+1 do
-        FColors[j] := FColors[j-1];
-      FColors[insertPos] := compared;
-    end;
-  end;
-end;
-
-procedure TBGRAColorBox.QuickSort(AComparer: TIsChannelStrictlyGreaterFunc; AMinIndex,
-  AMaxIndex: NativeInt);
-var Pivot: TBGRAPixel;
-  CurMin,CurMax,i : NativeInt;
-
-  procedure Swap(a,b: NativeInt);
-  var Temp: TBGRAWeightedPaletteEntry;
-  begin
-    if a = b then exit;
-    Temp := FColors[a];
-    FColors[a] := FColors[b];
-    FColors[b] := Temp;
-  end;
-begin
-  if AMaxIndex-AMinIndex+1 <= InsertionSortLimit then
-  begin
-    InsertionSort(AComparer,AMinIndex,AMaxIndex);
-    exit;
-  end;
-  Pivot := FColors[(AMinIndex+AMaxIndex) shr 1].Color;
-  CurMin := AMinIndex;
-  CurMax := AMaxIndex;
-  i := CurMin;
-  while i < CurMax do
-  begin
-    if AComparer(@FColors[i].Color, @Pivot) then
-    begin
-      Swap(i, CurMax);
-      dec(CurMax);
-    end else
-    begin
-      if AComparer(@Pivot, @FColors[i].Color) then
-      begin
-        Swap(i, CurMin);
-        inc(CurMin);
-      end;
-      inc(i);
-    end;
-  end;
-  if AComparer(@Pivot, @FColors[i].Color) then
-  begin
-    Swap(i, CurMin);
-    inc(CurMin);
-  end;
-  if CurMin > AMinIndex then QuickSort(AComparer,AMinIndex,CurMin);
-  if CurMax < AMaxIndex then QuickSort(AComparer,CurMax,AMaxIndex);
+  ArrayOfWeightedColor_InsertionSort(FColors,0,high(FColors),comparer)
 end;
 
 function TBGRAColorBox.GetMedianIndex(ADimension: TColorDimension;
@@ -1906,19 +1833,23 @@ begin
 end;
 
 constructor TBGRAColorBox.Create(ADimensions: TColorDimensions;
-  AColors: ArrayOfTBGRAPixel);
+  const AColors: ArrayOfTBGRAPixel; AAlpha: TAlphaChannelPaletteOption = acFullChannelInPalette);
 var weightedColors: ArrayOfWeightedColor;
   i: Integer;
 begin
-  FDimensions:= ADimensions;
-  setlength(weightedColors, length(AColors));
-  for i := 0 to high(weightedColors) do
-  with weightedColors[i] do
+  if AAlpha = acFullChannelInPalette then
   begin
-    color := AColors[i];
-    Weight:= 1;
-  end;
-  Init(weightedColors,True);
+    FDimensions:= ADimensions;
+    setlength(weightedColors, length(AColors));
+    for i := 0 to high(weightedColors) do
+    with weightedColors[i] do
+    begin
+      color := AColors[i];
+      Weight:= 1;
+    end;
+    Init(weightedColors,True);
+  end else
+    Create(ADimensions, @AColors[0], length(AColors), AAlpha);
 end;
 
 constructor TBGRAColorBox.Create(ADimensions: TColorDimensions; ABounds: TColorBoxBounds);
@@ -1935,7 +1866,13 @@ begin
   Init(APalette.GetAsArrayOfWeightedColor,False);
 end;
 
-constructor TBGRAColorBox.Create(ADimensions: TColorDimensions; ABitmap: TBGRACustomBitmap; AAlpha: TAlphaChannelPaletteOption);
+constructor TBGRAColorBox.Create(ADimensions: TColorDimensions;
+  ABitmap: TBGRACustomBitmap; AAlpha: TAlphaChannelPaletteOption);
+begin
+  Create(ADimensions, ABitmap.Data, ABitmap.NbPixels, AAlpha);
+end;
+
+constructor TBGRAColorBox.Create(ADimensions: TColorDimensions; AColors: PBGRAPixel; ANbPixels: integer; AAlpha: TAlphaChannelPaletteOption);
 var i,j,prev,idx: integer;
   p: PBGRAPixel;
   skip: boolean;
@@ -1948,12 +1885,12 @@ begin
     alphaMask := 0;
   FDimensions:= ADimensions;
   transp := false;
-  SetLength(FColors,ABitmap.NbPixels);
+  SetLength(FColors,ANbPixels);
   if length(FColors)>0 then
   begin
-    p := ABitmap.Data;
+    p := AColors;
     idx := 0;
-    for i := 0 to ABitmap.NbPixels-1 do
+    for i := 0 to ANbPixels-1 do
     begin
       if (p^.alpha = 0) or ((AAlpha = acTransparentEntry) and (p^.alpha < 128)) then
       begin
@@ -2002,7 +1939,7 @@ begin
     end;
     setLength(FColors, idx);
 
-    QuickSort(@IsDWordGreater,0,high(FColors));
+    ArrayOfWeightedColor_QuickSort(FColors,0,high(FColors),@IsDWordGreater);
     prev := 0;
     for i := 1 to high(FColors) do
     begin

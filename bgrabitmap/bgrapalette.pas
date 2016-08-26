@@ -35,6 +35,8 @@ type
   PBGRAWeightedPaletteEntry = ^TBGRAWeightedPaletteEntry;
   ArrayOfWeightedColor = array of TBGRAWeightedPaletteEntry;
 
+  TBGRAPixelComparer = function (p1,p2 : PBGRAPixel): boolean;
+
   { TBGRACustomPalette }
 
   TBGRACustomPalette = class
@@ -229,9 +231,169 @@ procedure BGRARegisterPaletteFormat(AFormatIndex: TBGRAPaletteFormat; AExtension
   AReadProc: TPaletteReaderProc; AWriteProc: TPaletteWriterProc; ACheckFormatProc: TCheckPaletteFormatProc);
 function BGRARegisteredPaletteFormatFilter(AAllSupportedDescription: string) : string;
 
+procedure ArrayOfWeightedColor_QuickSort(AColors: ArrayOfWeightedColor; AMinIndex,
+  AMaxIndex: NativeInt; AComparer: TBGRAPixelComparer = nil);
+
+procedure ArrayOfWeightedColor_InsertionSort(AColors: ArrayOfWeightedColor; AMinIndex,
+  AMaxIndex: NativeInt; AComparer: TBGRAPixelComparer = nil);
+
+procedure ArrayOfTBGRAPixel_QuickSort(AColors: ArrayOfTBGRAPixel; AMinIndex,
+  AMaxIndex: NativeInt; AComparer: TBGRAPixelComparer = nil);
+
+procedure ArrayOfTBGRAPixel_InsertionSort(AColors: ArrayOfTBGRAPixel; AMinIndex,
+  AMaxIndex: NativeInt; AComparer: TBGRAPixelComparer = nil);
+
 implementation
 
 uses BGRAUTF8, bufstream;
+
+function IsDWordGreater(p1, p2: PBGRAPixel): boolean;
+begin
+  result := DWord(p1^) > DWord(p2^);
+end;
+
+const
+  InsertionSortLimit = 10;
+
+procedure ArrayOfWeightedColor_InsertionSort(AColors: ArrayOfWeightedColor; AMinIndex,
+  AMaxIndex: NativeInt; AComparer: TBGRAPixelComparer = nil);
+var i,j,insertPos: NativeInt;
+  compared: TBGRAWeightedPaletteEntry;
+begin
+  if AComparer = nil then AComparer := @IsDWordGreater;
+  for i := AMinIndex+1 to AMaxIndex do
+  begin
+    insertPos := i;
+    compared := AColors[i];
+    while (insertPos > AMinIndex) and AComparer(@AColors[insertPos-1].Color,@compared.Color) do
+      dec(insertPos);
+    if insertPos <> i then
+    begin
+      for j := i downto insertPos+1 do
+        AColors[j] := AColors[j-1];
+      AColors[insertPos] := compared;
+    end;
+  end;
+end;
+
+procedure ArrayOfWeightedColor_QuickSort(AColors: ArrayOfWeightedColor; AMinIndex,
+  AMaxIndex: NativeInt; AComparer: TBGRAPixelComparer = nil);
+var Pivot: TBGRAPixel;
+  CurMin,CurMax,i : NativeInt;
+
+  procedure Swap(a,b: NativeInt);
+  var Temp: TBGRAWeightedPaletteEntry;
+  begin
+    if a = b then exit;
+    Temp := AColors[a];
+    AColors[a] := AColors[b];
+    AColors[b] := Temp;
+  end;
+begin
+  if AComparer = nil then AComparer := @IsDWordGreater;
+  if AMaxIndex-AMinIndex+1 <= InsertionSortLimit then
+  begin
+    ArrayOfWeightedColor_InsertionSort(AColors,AMinIndex,AMaxIndex,AComparer);
+    exit;
+  end;
+  Pivot := AColors[(AMinIndex+AMaxIndex) shr 1].Color;
+  CurMin := AMinIndex;
+  CurMax := AMaxIndex;
+  i := CurMin;
+  while i < CurMax do
+  begin
+    if AComparer(@AColors[i].Color, @Pivot) then
+    begin
+      Swap(i, CurMax);
+      dec(CurMax);
+    end else
+    begin
+      if AComparer(@Pivot, @AColors[i].Color) then
+      begin
+        Swap(i, CurMin);
+        inc(CurMin);
+      end;
+      inc(i);
+    end;
+  end;
+  if AComparer(@Pivot, @AColors[i].Color) then
+  begin
+    Swap(i, CurMin);
+    inc(CurMin);
+  end;
+  if CurMin > AMinIndex then ArrayOfWeightedColor_QuickSort(AColors,AMinIndex,CurMin,AComparer);
+  if CurMax < AMaxIndex then ArrayOfWeightedColor_QuickSort(AColors,CurMax,AMaxIndex,AComparer);
+end;
+
+procedure ArrayOfTBGRAPixel_InsertionSort(AColors: ArrayOfTBGRAPixel; AMinIndex,
+  AMaxIndex: NativeInt; AComparer: TBGRAPixelComparer = nil);
+var i,j,insertPos: NativeInt;
+  compared: TBGRAPixel;
+begin
+  if AComparer = nil then AComparer := @IsDWordGreater;
+  for i := AMinIndex+1 to AMaxIndex do
+  begin
+    insertPos := i;
+    compared := AColors[i];
+    while (insertPos > AMinIndex) and AComparer(@AColors[insertPos-1],@compared) do
+      dec(insertPos);
+    if insertPos <> i then
+    begin
+      for j := i downto insertPos+1 do
+        AColors[j] := AColors[j-1];
+      AColors[insertPos] := compared;
+    end;
+  end;
+end;
+
+procedure ArrayOfTBGRAPixel_QuickSort(AColors: ArrayOfTBGRAPixel; AMinIndex,
+  AMaxIndex: NativeInt; AComparer: TBGRAPixelComparer = nil);
+var Pivot: TBGRAPixel;
+  CurMin,CurMax,i : NativeInt;
+
+  procedure Swap(a,b: NativeInt);
+  var Temp: TBGRAPixel;
+  begin
+    if a = b then exit;
+    Temp := AColors[a];
+    AColors[a] := AColors[b];
+    AColors[b] := Temp;
+  end;
+begin
+  if AComparer = nil then AComparer := @IsDWordGreater;
+  if AMaxIndex-AMinIndex+1 <= InsertionSortLimit then
+  begin
+    ArrayOfTBGRAPixel_InsertionSort(AColors,AMinIndex,AMaxIndex,AComparer);
+    exit;
+  end;
+  Pivot := AColors[(AMinIndex+AMaxIndex) shr 1];
+  CurMin := AMinIndex;
+  CurMax := AMaxIndex;
+  i := CurMin;
+  while i < CurMax do
+  begin
+    if AComparer(@AColors[i], @Pivot) then
+    begin
+      Swap(i, CurMax);
+      dec(CurMax);
+    end else
+    begin
+      if AComparer(@Pivot, @AColors[i]) then
+      begin
+        Swap(i, CurMin);
+        inc(CurMin);
+      end;
+      inc(i);
+    end;
+  end;
+  if AComparer(@Pivot, @AColors[i]) then
+  begin
+    Swap(i, CurMin);
+    inc(CurMin);
+  end;
+  if CurMin > AMinIndex then ArrayOfTBGRAPixel_QuickSort(AColors,AMinIndex,CurMin,AComparer);
+  if CurMax < AMaxIndex then ArrayOfTBGRAPixel_QuickSort(AColors,CurMax,AMaxIndex,AComparer);
+end;
 
 {$i paletteformats.inc}
 
