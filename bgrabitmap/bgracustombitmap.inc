@@ -36,6 +36,8 @@ type
     function IsScanPutPixelsDefined: boolean;
     {** Returns the corresponding OpenGL texture. The value is ''nil'' if no texture is associated. **}
     function GetTextureGL: IUnknown;
+    function ProvidesScanline(ARect: TRect): boolean;
+    function GetScanlineAt(X,Y: integer): PBGRAPixel;
   end;
 
   {** A type of function of a scanner that returns the content at floating point coordinates }
@@ -61,6 +63,8 @@ type
     procedure ScanPutPixels(pdest: PBGRAPixel; count: integer; mode: TDrawMode); virtual;
     function IsScanPutPixelsDefined: boolean; virtual;
     function GetTextureGL: IUnknown; virtual;
+    function ProvidesScanline({%H-}ARect: TRect): boolean; virtual;
+    function GetScanlineAt({%H-}X,{%H-}Y: integer): PBGRAPixel; virtual;
   protected
     function QueryInterface({$IFDEF FPC_HAS_CONSTREF}constref{$ELSE}const{$ENDIF} IID: TGUID; out Obj): HResult; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
     function _AddRef: Integer; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
@@ -790,6 +794,8 @@ type
      function ScanAtExpanded(X,Y: Single): TExpandedPixel; virtual;
      procedure ScanPutPixels(pdest: PBGRAPixel; count: integer; mode: TDrawMode); virtual;
      function IsScanPutPixelsDefined: boolean; virtual;
+     function ProvidesScanline(ARect: TRect): boolean; virtual;
+     function GetScanlineAt(X, Y: integer): PBGRAPixel; virtual;
   protected
      //interface
      function QueryInterface({$IFDEF FPC_HAS_CONSTREF}constref{$ELSE}const{$ENDIF} IID: TGUID; out Obj): HResult; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
@@ -859,6 +865,16 @@ begin
 end;
 
 function TBGRACustomScanner.GetTextureGL: IUnknown;
+begin
+  result := nil;
+end;
+
+function TBGRACustomScanner.ProvidesScanline(ARect: TRect): boolean;
+begin
+  result := false;
+end;
+
+function TBGRACustomScanner.GetScanlineAt(X, Y: integer): PBGRAPixel;
 begin
   result := nil;
 end;
@@ -1977,4 +1993,16 @@ function TBGRACustomBitmap.IsScanPutPixelsDefined: boolean;
 begin
   result := False;
 end;
+
+function TBGRACustomBitmap.ProvidesScanline(ARect: TRect): boolean;
+begin
+  result := (ARect.Left+ScanOffset.x >= 0) and (ARect.Top+ScanOffset.y >= 0) and
+      (ARect.Right+ScanOffset.x <= Width) and (ARect.Bottom+ScanOffset.y <= Height);
+end;
+
+function TBGRACustomBitmap.GetScanlineAt(X, Y: integer): PBGRAPixel;
+begin
+  result := ScanLine[y+ScanOffset.y]+x+ScanOffset.x;
+end;
+
 {$ENDIF}
