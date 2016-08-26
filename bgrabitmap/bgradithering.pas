@@ -368,7 +368,7 @@ begin
   if Y <> FCurrentOutputY then
   begin
     FCurrentOutputY := Y;
-    FCurrentOutputScanline := FDestination.ScanLine[y];
+    FCurrentOutputScanline := Destination.ScanLine[y];
   end;
   PutPixels(FCurrentOutputScanline+x, @AColor, 1, FDrawMode, 255);
 end;
@@ -407,8 +407,8 @@ begin
   FIgnoreAlpha:= AIgnoreAlpha;
   FCurrentOutputY := -1;
   FCurrentOutputScanline:= nil;
-  FOutputPixel:= @OutputPixel;
-  FDestination := ADestination;
+  OnOutputPixel:= @OutputPixel;
+  Destination := ADestination;
   FDrawMode:= dmSet;
 end;
 
@@ -422,7 +422,7 @@ begin
   FIgnoreAlpha:= AIgnoreAlpha;
   FCurrentOutputY := -1;
   FCurrentOutputScanline:= nil;
-  FOutputPixel:= @OutputPixel;
+  OnOutputPixel:= @OutputPixel;
   InPlace := AInPlace;
   FDrawMode:= dmSet;
 end;
@@ -436,7 +436,7 @@ begin
   FIgnoreAlpha:= AIgnoreAlpha;
   FCurrentOutputY := -1;
   FCurrentOutputScanline:= nil;
-  FOutputPixel:= @OutputPixel;
+  OnOutputPixel:= @OutputPixel;
   InPlace := AInPlace;
   FDrawMode:= dmSet;
 end;
@@ -584,7 +584,7 @@ begin
                 AddError(nextLine[i+1], diff, 3);
             end;
           end;
-          FOutputPixel(destX,destY,approxIndex,approx);
+          OnOutputPixel(destX,destY,approxIndex,approx);
         end;
       end
     end
@@ -639,7 +639,7 @@ begin
               AddError(nextLine[i+1], diff, 1);
           end;
         end;
-        FOutputPixel(destX,destY,approxIndex,approx);
+        OnOutputPixel(destX,destY,approxIndex,approx);
       end;
       inc(p);
       inc(destX);
@@ -661,7 +661,7 @@ begin
   end;
   ReleaseSourceExpandedScanLine(curScan);
   ReleaseSourceExpandedScanLine(nextScan);
-  FDestination.InvalidateBitmap;
+  Destination.InvalidateBitmap;
 end;
 
 { TNearestColorTask }
@@ -680,12 +680,12 @@ begin
     for xb := FBounds.Left to FBounds.Right-1 do
     begin
       ApproximateColor(psrc^, colorValue, colorIndex);
-      FOutputPixel(xb,yb,colorIndex,colorValue);
+      OnOutputPixel(xb,yb,colorIndex,colorValue);
       inc(psrc);
     end;
     ReleaseSourceScanLine(curScan);
   end;
-  FDestination.InvalidateBitmap;
+  Destination.InvalidateBitmap;
 end;
 
 end.
