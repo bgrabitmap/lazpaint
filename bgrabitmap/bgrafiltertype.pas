@@ -89,6 +89,30 @@ type
     property GammaCorrection: boolean read FGammaCorrection write FGammaCorrection;
   end;
 
+  { TBGRAFilterScannerMultipixel }
+
+  TBGRAFilterScannerMultipixel = class(TBGRAFilterScanner)
+  private
+    FSourceBounds: TRect;
+    FKernelWidth,FKernelHeight: integer;
+    FCurBufferY: integer;
+    FCurBufferYDefined: boolean;
+    FBuffers: array of TBGRAPixelBuffer;
+    FPBuffers: array of PBGRAPixel;
+  protected
+    procedure DoComputeFilter(BufferX: Integer; const Buffers: array of PBGRAPixel;
+      BufferWidth: integer; ADest: PBGRAPixel; ACount: integer); virtual; abstract;
+    procedure LoadBuffer(ASource: IBGRAScanner; X,Y: Integer; BufferIndex: Integer; ACount: integer); virtual;
+  public
+    constructor Create(ASource: IBGRAScanner; ASourceBounds: TRect; AOffset: TPoint;
+      AKernelWidth,AKernelHeight: Integer);
+    procedure ComputeFilter(ASource: IBGRAScanner; X, Y: Integer; ADest: PBGRAPixel;
+      ACount: integer); override;
+    property KernelWidth: integer read FKernelWidth;
+    property KernelHeight: integer read FKernelHeight;
+    property SourceBounds: TRect read FSourceBounds;
+  end;
+
 implementation
 
 uses Types, SysUtils, BGRABlend;
@@ -328,6 +352,104 @@ begin
       ComputeFilterAt(p,p,ABounds.Right-ABounds.Left,AGammaCorrection);
     end;
   ABitmap.InvalidateBitmap;
+end;
+
+{ TBGRAFilterScannerMultipixel }
+
+procedure TBGRAFilterScannerMultipixel.LoadBuffer(ASource: IBGRAScanner; X,
+  Y: Integer; BufferIndex: Integer; ACount: integer);
+begin
+  if (Y < FSourceBounds.Top) or (Y >= FSourceBounds.Bottom) then
+    FPBuffers[BufferIndex] := nil
+  else
+  if AllowDirectRead and ASource.ProvidesScanline(rect(x,y,x+ACount,y+1)) then
+  begin
+    FPBuffers[BufferIndex] := ASource.GetScanlineAt(X,Y);
+  end else
+  begin
+    AllocateBGRAPixelBuffer(FBuffers[BufferIndex], ACount);
+    ASource.ScanMoveTo(X,Y);
+    FPBuffers[BufferIndex] := @(FBuffers[BufferIndex][0]);
+    ASource.ScanPutPixels(FPBuffers[BufferIndex], ACount, dmSet);
+  end;
+end;
+
+constructor TBGRAFilterScannerMultipixel.Create(ASource: IBGRAScanner;
+  ASourceBounds: TRect; AOffset: TPoint; AKernelWidth, AKernelHeight: Integer);
+var
+  temp: Integer;
+begin
+  inherited Create(ASource,AOffset);
+  FSourceBounds := ASourceBounds;
+  if FSourceBounds.Left > FSourceBounds.Right then
+  begin
+    temp := FSourceBounds.Left;
+    FSourceBounds.Left := FSourceBounds.Right;
+    FSourceBounds.Right := temp;
+  end;
+  if FSourceBounds.Top > FSourceBounds.Bottom then
+  begin
+    temp := FSourceBounds.Top;
+    FSourceBounds.Top := FSourceBounds.Bottom;
+    FSourceBounds.Bottom := temp;
+  end;
+  FKernelWidth := AKernelWidth;
+  FKernelHeight:= AKernelHeight;
+  SetLength(FBuffers, FKernelHeight);
+  SetLength(FPBuffers, FKernelHeight);
+  FCurBufferYDefined := false;
+  //it is not sure that direct read can be used, because if the destination
+  //is equal to the source, the output will change the input buffers
+  AllowDirectRead := false;
+end;
+
+procedure TBGRAFilterScannerMultipixel.ComputeFilter(ASource: IBGRAScanner; X,
+  Y: Integer; ADest: PBGRAPixel; ACount: integer);
+var
+  yb,dy: Integer;
+  temp: TBGRAPixelBuffer;
+  p: PBGRAPixel;
+begin
+  if not FCurBufferYDefined or (Abs(Y-FCurBufferY)>=FKernelHeight) then
+  begin
+    FCurBufferY := y;
+    FCurBufferYDefined := true;
+    for yb := 0 to FKernelHeight-1 do
+      LoadBuffer(ASource,FSourceBounds.Left,Y+yb,yb,SourceBounds.Right-FSourceBounds.Left);
+  end else
+  if Y < FCurBufferY then
+  begin
+    dy := FCurBufferY-y;
+    for yb := FKernelHeight-1 downto dy do
+    begin
+      temp := FBuffers[yb];
+      FBuffers[yb] := FBuffers[yb-dy];
+      FBuffers[yb-dy] := temp;
+      p := FPBuffers[yb];
+      FPBuffers[yb] := FPBuffers[yb-dy];
+      FPBuffers[yb-dy] := p;
+    end;
+    for yb := 0 to dy-1 do
+      LoadBuffer(ASource,FSourceBounds.Left,Y+yb,yb,FSourceBounds.Right-FSourceBounds.Left);
+    FCurBufferY := y;
+  end else
+  if Y > FCurBufferY then
+  begin
+    dy := y-FCurBufferY;
+    for yb := 0 to FKernelHeight-1-dy do
+    begin
+      temp := FBuffers[yb];
+      FBuffers[yb] := FBuffers[yb+dy];
+      FBuffers[yb+dy] := temp;
+      p := FPBuffers[yb];
+      FPBuffers[yb] := FPBuffers[yb+dy];
+      FPBuffers[yb+dy] := p;
+    end;
+    for yb := FKernelHeight-1-dy+1 to FKernelHeight-1 do
+      LoadBuffer(ASource,FSourceBounds.Left,Y+yb,yb,FSourceBounds.Right-FSourceBounds.Left);
+    FCurBufferY := y;
+  end;
+  DoComputeFilter(X-FSourceBounds.Left,FPBuffers,FSourceBounds.Right-FSourceBounds.Left,ADest,ACount);
 end;
 
 end.
