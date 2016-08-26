@@ -18,6 +18,7 @@ type
   TFilterTask = class
   private
     FCheckShouldStop: TCheckShouldStopFunc;
+    FScanOffset: TPoint;
     procedure SetDestination(AValue: TBGRACustomBitmap);
     function GetInplace: boolean;
     procedure SetInplace(AValue: boolean);
@@ -39,6 +40,7 @@ type
     property Destination: TBGRACustomBitmap read FDestination write SetDestination;
     property CheckShouldStop: TCheckShouldStopFunc read FCheckShouldStop write FCheckShouldStop;
     property CurrentY: integer read FCurrentY;
+    property ScanOffset: TPoint read FScanOffset write FScanOffset;
     property Inplace: boolean read GetInplace write SetInplace;
   end;
 
@@ -107,6 +109,7 @@ begin
   else
   begin
     getmem(result, sizeof(TBGRAPixel)*Count);
+    FSourceScanner.ScanMoveTo(X+FScanOffset.X,Y+FScanOffset.Y);
     FSourceScanner.ScanPutPixels(result,count,dmSet);
   end;
 end;
