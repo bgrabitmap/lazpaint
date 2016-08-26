@@ -362,120 +362,13 @@ end;
   of the square. Finally the difference is added to the new pixel, exagerating
   its difference with its neighbours. }
 function FilterSharpen(bmp: TBGRACustomBitmap; ABounds: TRect; AAmount: integer = 256): TBGRACustomBitmap;
-var
-  yb, xcount: Int32or64;
-  dx, dy: Int32or64;
-  a_pixels: array[-2..1,-2..1] of PBGRAPixel;
-  sumR, sumG, sumB, sumA, {RGBdiv, }nbA: UInt32or64;
-  refPixel: TBGRAPixel;
-  pdest,ptempPixel:    PBGRAPixel;
-  bounds:   TRect;
-  Amount256: boolean;
-  lastXincluded: boolean;
-  alpha,rgbDivShr1: uint32or64;
+var scanner: TBGRAFilterScanner;
 begin
   Result := bmp.NewBitmap(bmp.Width, bmp.Height);
   if IsRectEmpty(ABounds) then exit;
-
-  Amount256 := AAmount = 256;
-
-  //determine where pixels are in the bitmap
-  bounds := bmp.GetImageBounds;
-  if not IntersectRect(bounds, bounds,ABounds) then exit;
-  bounds.Left   := max(0, bounds.Left - 1);
-  bounds.Top    := max(0, bounds.Top - 1);
-  bounds.Right  := min(bmp.Width, bounds.Right + 1);
-  bounds.Bottom := min(bmp.Height, bounds.Bottom + 1);
-  lastXincluded:= bounds.Right < bmp.Width;
-
-  //loop through the destination bitmap
-  for yb := bounds.Top to bounds.Bottom - 1 do
-  begin
-    pdest := Result.scanline[yb] + bounds.Left;
-    fillchar({%H-}a_pixels,sizeof(a_pixels),0);
-    for dy := -1 to 1 do
-      if (yb+dy >= bounds.Top) and (yb+dy < bounds.Bottom) then
-        a_pixels[dy,1] := bmp.ScanLine[yb+dy]+bounds.Left else
-          a_pixels[dy,1] := nil;
-    xcount := bounds.right-bounds.left;
-    while xcount > 0 do
-    begin
-      dec(xcount);
-
-      //for each pixel, read eight surrounding pixels in the source bitmap
-      for dy := -1 to 1 do
-        for dx := -1 to 0 do
-          a_pixels[dy,dx] := a_pixels[dy,dx+1];
-      if (xcount > 0) or lastXincluded then
-      begin
-        for dy := -1 to 1 do
-          if a_pixels[dy,0] <> nil then a_pixels[dy,1] := a_pixels[dy,0]+1;
-      end;
-
-      //compute sum
-      sumR   := 0;
-      sumG   := 0;
-      sumB   := 0;
-      sumA   := 0;
-      //RGBdiv := 0;
-      nbA    := 0;
-
-       {$hints off}
-      for dy := -1 to 1 do
-        for dx := -1 to 1 do
-        if (dx<>0) or (dy<>0) then
-        begin
-          ptempPixel := a_pixels[dy,dx];
-          if ptempPixel <> nil then
-          begin
-            alpha := ptempPixel^.alpha;
-            sumR      += ptempPixel^.red * alpha;
-            sumG      += ptempPixel^.green * alpha;
-            sumB      += ptempPixel^.blue * alpha;
-            //RGBdiv    += alpha;
-            sumA      += alpha;
-            Inc(nbA);
-          end;
-        end;
-       {$hints on}
-
-      //we finally have an average pixel
-      if ({RGBdiv}sumA = 0) then
-        refPixel := BGRAPixelTransparent
-      else
-      begin
-        rgbDivShr1:= {RGBDiv}sumA shr 1;
-        refPixel.red   := (sumR + rgbDivShr1) div {RGBdiv}sumA;
-        refPixel.green := (sumG + rgbDivShr1) div {RGBdiv}sumA;
-        refPixel.blue  := (sumB + rgbDivShr1) div {RGBdiv}sumA;
-        refPixel.alpha := (sumA + nbA shr 1) div nbA;
-      end;
-
-      //read the pixel at the center of the square
-      ptempPixel := a_pixels[0,0];
-      if refPixel <> BGRAPixelTransparent then
-      begin
-        //compute sharpened pixel by adding the difference
-        if not Amount256 then
-          pdest^ := BGRA( max(0, min($FFFF, Int32or64(ptempPixel^.red shl 8) +
-            AAmount*(ptempPixel^.red - refPixel.red))) shr 8,
-              max(0, min($FFFF, Int32or64(ptempPixel^.green shl 8) +
-            AAmount*(ptempPixel^.green - refPixel.green))) shr 8,
-             max(0, min($FFFF, Int32or64(ptempPixel^.blue shl 8) +
-            AAmount*(ptempPixel^.blue - refPixel.blue))) shr 8,
-             max(0, min($FFFF, Int32or64(ptempPixel^.alpha shl 8) +
-            AAmount*(ptempPixel^.alpha - refPixel.alpha))) shr 8 )
-        else
-          pdest^ := BGRA( max(0, min(255, (ptempPixel^.red shl 1) - refPixel.red)),
-             max(0, min(255, (ptempPixel^.green shl 1) - refPixel.green)),
-             max(0, min(255, (ptempPixel^.blue shl 1) - refPixel.blue)),
-             max(0, min(255, (ptempPixel^.alpha shl 1) - refPixel.alpha)));
-      end else
-        pdest^ := ptempPixel^;
-      Inc(pdest);
-    end;
-  end;
-  Result.InvalidateBitmap;
+  scanner := TBGRASharpenScanner.Create(bmp,ABounds,AAmount);
+  result.FillRect(ABounds,scanner,dmSet);
+  scanner.Free;
 end;
 
 function FilterSharpen(bmp: TBGRACustomBitmap; AAmount: integer
@@ -1466,117 +1359,12 @@ end;
   calculates the difference with surrounding pixels (in intensity and alpha)
   and draw black pixels when there is a difference }
 function FilterContour(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
-var
-  yb, xb: int32or64;
-  c:      array[0..8] of TBGRAPixel;
-
-  i, bmpWidth, bmpHeight: int32or64;
-  slope: byte;
-  sum:   int32or64;
-  tempPixel: TBGRAPixel;
-  pdest, psrcUp, psrc, psrcDown: PBGRAPixel;
-
-  bounds: TRect;
-  gray:   TBGRACustomBitmap;
+var scanner: TBGRAContourScanner;
 begin
-  bmpWidth  := bmp.Width;
-  bmpHeight := bmp.Height;
-  Result    := bmp.NewBitmap(bmpWidth, bmpHeight);
-  gray      := bmp.FilterGrayscale;
-
-  bounds := rect(0, 0, bmp.Width, bmp.Height);
-  for yb := bounds.Top to bounds.Bottom - 1 do
-  begin
-    pdest := Result.scanline[yb] + bounds.Left;
-
-    if yb > 0 then
-      psrcUp := gray.Scanline[yb - 1] + bounds.Left
-    else
-      psrcUp := nil;
-    psrc := gray.scanline[yb] + bounds.Left;
-    if yb < bmpHeight - 1 then
-      psrcDown := gray.scanline[yb + 1] + bounds.Left
-    else
-      psrcDown := nil;
-
-    for xb := bounds.Left to bounds.Right - 1 do
-    begin
-      c[0] := psrc^;
-      if (xb = 0) then
-      begin
-        c[1] := c[0];
-        c[2] := c[0];
-        c[4] := c[0];
-      end
-      else
-      begin
-        if psrcUp <> nil then
-          c[1] := (psrcUp - 1)^
-        else
-          c[1] := c[0];
-        c[2] := (psrc - 1)^;
-        if psrcDown <> nil then
-          c[4] := (psrcDown - 1)^
-        else
-          c[4] := c[0];
-      end;
-      if psrcUp <> nil then
-      begin
-        c[3] := psrcUp^;
-        Inc(psrcUp);
-      end
-      else
-        c[3] := c[0];
-
-      if (xb = bmpWidth - 1) then
-      begin
-        c[5] := c[0];
-        c[6] := c[0];
-        c[8] := c[0];
-      end
-      else
-      begin
-        if psrcDown <> nil then
-          c[5] := (psrcDown + 1)^
-        else
-          c[5] := c[0];
-        c[6] := (psrc + 1)^;
-        if psrcUp <> nil then
-          c[8] := psrcUp^
-        else //+1 before
-          c[8] := c[0];
-      end;
-      if psrcDown <> nil then
-      begin
-        c[7] := psrcDown^;
-        Inc(psrcDown);
-      end
-      else
-        c[7] := c[0];
-      Inc(psrc);
-
-      sum := 0;
-      for i := 1 to 4 do
-        sum += abs(c[i].red - c[i + 4].red) + abs(c[i].alpha - c[i + 4].alpha);
-
-      if sum > 255 then
-        slope := 255
-      else
-      if sum < 0 then
-        slope := 0
-      else
-        slope := sum;
-
-      tempPixel.red := 255 - slope;
-      tempPixel.green := 255 - slope;
-      tempPixel.blue := 255 - slope;
-      tempPixel.alpha := 255;
-      pdest^ := tempPixel;
-      Inc(pdest);
-    end;
-  end;
-  Result.InvalidateBitmap;
-  gray.Free;
+  result := bmp.NewBitmap(bmp.Width, bmp.Height);
+  scanner := TBGRAContourScanner.Create(bmp,rect(0,0,bmp.width,bmp.height));
+  result.Fill(scanner);
+  scanner.Free;
 end;
 
 { Compute the distance for each pixel to the center of the bitmap,
