@@ -334,6 +334,7 @@ end;
 procedure TBGRAFilterScannerNormalize.DetermineNormalizationFactors(ABounds: TRect; AEachChannel: boolean);
 var
   buffer: TBGRAPixelBuffer;
+  p: PBGRAPixel;
   c: TExpandedPixel;
   yb, xb: LongInt;
 begin
@@ -357,14 +358,21 @@ begin
   minValBlue := 65535;
   maxAlpha  := 0;
   minAlpha  := 65535;
-  AllocateBGRAPixelBuffer(buffer, ABounds.Right-ABounds.Left);
+  buffer := nil;
   for yb := ABounds.Top to ABounds.Bottom do
   begin
-    Source.ScanMoveTo(ABounds.Left,yb);
-    ScannerPutPixels(Source,@buffer[0],ABounds.Right-ABounds.Left,dmSet);
+    if Source.ProvidesScanline(rect(ABounds.Left,yb,ABounds.Right,yb+1)) then
+      p := Source.GetScanlineAt(ABounds.Left,yb)
+    else
+    begin
+      Source.ScanMoveTo(ABounds.Left,yb);
+      AllocateBGRAPixelBuffer(buffer, ABounds.Right-ABounds.Left);
+      p := @buffer[0];
+      ScannerPutPixels(Source,p,ABounds.Right-ABounds.Left,dmSet);
+    end;
     for xb := ABounds.Right-ABounds.Left-1 downto 0 do
     begin
-      c := GammaExpansion(buffer[xb]);
+      c := GammaExpansion(p[xb]);
       if c.red > maxValRed then
         maxValRed := c.red;
       if c.green > maxValGreen then
