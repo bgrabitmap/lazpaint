@@ -36,6 +36,8 @@ type
     function IsScanPutPixelsDefined: boolean;
     {** Returns the corresponding OpenGL texture. The value is ''nil'' if no texture is associated. **}
     function GetTextureGL: IUnknown;
+    function GetImageBoundsWithin(const ARect: TRect; Channel: TChannel = cAlpha; ANothingValue: Byte = 0): TRect;
+    function GetImageBoundsWithin(const ARect: TRect; Channels: TChannels; ANothingValue: Byte = 0): TRect;
     function ProvidesScanline(ARect: TRect): boolean;
     function GetScanlineAt(X,Y: integer): PBGRAPixel;
   end;
@@ -63,6 +65,8 @@ type
     procedure ScanPutPixels(pdest: PBGRAPixel; count: integer; mode: TDrawMode); virtual;
     function IsScanPutPixelsDefined: boolean; virtual;
     function GetTextureGL: IUnknown; virtual;
+    function GetImageBoundsWithin(const ARect: TRect; Channel: TChannel = cAlpha; ANothingValue: Byte = 0): TRect; virtual;
+    function GetImageBoundsWithin(const ARect: TRect; Channels: TChannels; ANothingValue: Byte = 0): TRect; virtual;
     function ProvidesScanline({%H-}ARect: TRect): boolean; virtual;
     function GetScanlineAt({%H-}X,{%H-}Y: integer): PBGRAPixel; virtual;
   protected
@@ -744,10 +748,10 @@ type
      procedure ApplyMask(mask: TBGRACustomBitmap); overload;
      procedure ApplyMask(mask: TBGRACustomBitmap; ARect: TRect); overload;
      procedure ApplyMask(mask: TBGRACustomBitmap; ARect: TRect; AMaskRectTopLeft: TPoint); virtual; abstract; overload;
-     function GetImageBounds(Channel: TChannel = cAlpha; ANothingValue: Byte = 0): TRect; virtual; abstract;
-     function GetImageBounds(Channels: TChannels; ANothingValue: Byte = 0): TRect; virtual; abstract;
-     function GetImageBoundsWithin(const ARect: TRect; Channel: TChannel = cAlpha; ANothingValue: Byte = 0): TRect; virtual; abstract;
-     function GetImageBoundsWithin(const ARect: TRect; Channels: TChannels; ANothingValue: Byte = 0): TRect; virtual; abstract;
+     function GetImageBounds(Channel: TChannel = cAlpha; ANothingValue: Byte = 0): TRect; virtual;
+     function GetImageBounds(Channels: TChannels; ANothingValue: Byte = 0): TRect; virtual;
+     function GetImageBoundsWithin(const ARect: TRect; Channel: TChannel = cAlpha; ANothingValue: Byte = 0): TRect; virtual;
+     function GetImageBoundsWithin(const ARect: TRect; Channels: TChannels; ANothingValue: Byte = 0): TRect; virtual;
      function GetDifferenceBounds(ABitmap: TBGRACustomBitmap): TRect; virtual; abstract;
      function MakeBitmapCopy(BackgroundColor: TColor): TBitmap; virtual; abstract;
 
@@ -813,6 +817,115 @@ var
 
 {$IFDEF INCLUDE_IMPLEMENTATION}
 {$UNDEF INCLUDE_IMPLEMENTATION}
+function InternalGetImageBoundsWithin(ASourceBitmap: TBGRACustomBitmap; ASourceTexture: IBGRAScanner;
+  const ARect: TRect; Channels: TChannels; ANothingValue: Byte): TRect;
+var
+  minx, miny, maxx, maxy: integer;
+  xb, xb2, yb: integer;
+  p:      PDWord;
+  colorMask, colorZeros: DWord;
+  actualRect: TRect;
+  pixelBuffer: TBGRAPixelBuffer;
+begin
+  pixelBuffer := nil;
+  if ASourceBitmap <> nil then
+  begin
+    actualRect := EmptyRect;
+    IntersectRect(actualRect,ARect,rect(0,0,ASourceBitmap.Width,ASourceBitmap.Height))
+  end
+  else if ASourceTexture <> nil then
+  begin
+    actualRect := ARect;
+    AllocateBGRAPixelBuffer(pixelBuffer, ARect.Right-ARect.Left)
+  end
+  else
+  begin
+    result := EmptyRect;
+    exit;
+  end;
+  maxx := actualRect.Left-1;
+  maxy := actualRect.Top-1;
+  minx := actualRect.Right;
+  miny := actualRect.Bottom;
+  colorMask := 0;
+  colorZeros := 0;
+  if cBlue in Channels then
+  begin
+    colorMask := colorMask or longword(BGRA(0,0,255,0));
+    colorZeros:= colorZeros or longword(BGRA(0,0,ANothingValue,0));
+  end;
+  if cGreen in Channels then
+  begin
+    colorMask := colorMask or longword(BGRA(0,255,0,0));
+    colorZeros:= colorZeros or longword(BGRA(0,ANothingValue,0,0));
+  end;
+  if cRed in Channels then
+  begin
+    colorMask := colorMask or longword(BGRA(255,0,0,0));
+    colorZeros:= colorZeros or longword(BGRA(ANothingValue,0,0,0));
+  end;
+  if cAlpha in Channels then
+  begin
+    colorMask := colorMask or longword(BGRA(0,0,0,255));
+    colorZeros:= colorZeros or longword(BGRA(0,0,0,ANothingValue));
+  end;
+  colorMask := NtoLE(colorMask);
+  colorZeros := NtoLE(colorZeros);
+  for yb := actualRect.Top to actualRect.Bottom-1 do
+  begin
+    if ASourceBitmap <> nil then
+      p := PDWord(ASourceBitmap.ScanLine[yb])+actualRect.Left
+    else
+    begin
+      p := @pixelBuffer[0];
+      ASourceTexture.ScanMoveTo(actualRect.Left,actualRect.Top);
+      ASourceTexture.ScanPutPixels(PBGRAPixel(p),ARect.Right-ARect.Left, dmSet);
+    end;
+    for xb := actualRect.Left to actualRect.Right - 1 do
+    begin
+      if (p^ and colorMask) <> colorZeros then
+      begin
+        if xb < minx then
+          minx := xb;
+        if yb < miny then
+          miny := yb;
+        if xb > maxx then
+          maxx := xb;
+        if yb > maxy then
+          maxy := yb;
+
+        inc(p, actualRect.Right-1-xb);
+        for xb2 := actualRect.Right-1 downto xb+1 do
+        begin
+          if (p^ and colorMask) <> colorZeros then
+          begin
+            if xb2 > maxx then
+              maxx := xb2;
+            break;
+          end;
+          dec(p);
+        end;
+        break;
+      end;
+      Inc(p);
+    end;
+  end;
+  if minx > maxx then
+  begin
+    Result.left   := 0;
+    Result.top    := 0;
+    Result.right  := 0;
+    Result.bottom := 0;
+  end
+  else
+  begin
+    Result.left   := minx;
+    Result.top    := miny;
+    Result.right  := maxx + 1;
+    Result.bottom := maxy + 1;
+  end;
+end;
+
 { TBGRACustomScanner }
 { The abstract class record the position so that a derived class
   need only to redefine ScanAt }
@@ -867,6 +980,18 @@ end;
 function TBGRACustomScanner.GetTextureGL: IUnknown;
 begin
   result := nil;
+end;
+
+function TBGRACustomScanner.GetImageBoundsWithin(const ARect: TRect;
+  Channel: TChannel; ANothingValue: Byte): TRect;
+begin
+  result := InternalGetImageBoundsWithin(nil,self,ARect,[Channel],ANothingValue);
+end;
+
+function TBGRACustomScanner.GetImageBoundsWithin(const ARect: TRect;
+  Channels: TChannels; ANothingValue: Byte): TRect;
+begin
+  result := InternalGetImageBoundsWithin(nil,self,ARect,Channels,ANothingValue);
 end;
 
 function TBGRACustomScanner.ProvidesScanline(ARect: TRect): boolean;
@@ -1944,6 +2069,30 @@ end;
 procedure TBGRACustomBitmap.ApplyMask(mask: TBGRACustomBitmap; ARect: TRect);
 begin
   ApplyMask(mask, ARect, ARect.TopLeft);
+end;
+
+function TBGRACustomBitmap.GetImageBounds(Channel: TChannel; ANothingValue: Byte
+  ): TRect;
+begin
+  result := InternalGetImageBoundsWithin(self,nil,rect(0,0,Width,Height),[Channel],ANothingValue);
+end;
+
+function TBGRACustomBitmap.GetImageBounds(Channels: TChannels;
+  ANothingValue: Byte): TRect;
+begin
+  result := InternalGetImageBoundsWithin(self,nil,rect(0,0,Width,Height),Channels,ANothingValue);
+end;
+
+function TBGRACustomBitmap.GetImageBoundsWithin(const ARect: TRect;
+  Channel: TChannel; ANothingValue: Byte): TRect;
+begin
+  result := InternalGetImageBoundsWithin(self,nil,ARect,[Channel],ANothingValue);
+end;
+
+function TBGRACustomBitmap.GetImageBoundsWithin(const ARect: TRect;
+  Channels: TChannels; ANothingValue: Byte): TRect;
+begin
+  result := InternalGetImageBoundsWithin(self,nil,ARect,Channels,ANothingValue);
 end;
 
 function TBGRACustomBitmap.ScanAtIntegerExpanded(X, Y: integer): TExpandedPixel;
