@@ -545,8 +545,8 @@ type
     procedure FillRect(x, y, x2, y2: integer; c: TBGRAPixel; mode: TDrawMode); override; overload;
     {** Fills completely a rectangle, without any border, with the specified ''texture'' and
         with the specified ''mode'' }
-    procedure FillRect(x, y, x2, y2: integer; texture: IBGRAScanner; mode: TDrawMode); override; overload;
-    procedure FillRect(x, y, x2, y2: integer; texture: IBGRAScanner; mode: TDrawMode; ditheringAlgorithm: TDitheringAlgorithm); override; overload;
+    procedure FillRect(x, y, x2, y2: integer; texture: IBGRAScanner; mode: TDrawMode; AScanOffset: TPoint); override; overload;
+    procedure FillRect(x, y, x2, y2: integer; texture: IBGRAScanner; mode: TDrawMode; AScanOffset: TPoint; ditheringAlgorithm: TDitheringAlgorithm); override; overload;
     {** Sets the alpha value within the specified rectangle }
     procedure AlphaFillRect(x, y, x2, y2: integer; alpha: byte); override;
     {** Draws a filled round rectangle, with corners having an elliptical diameter of ''DX'' and ''DY'' }
@@ -3544,7 +3544,7 @@ begin
 end;
 
 procedure TBGRADefaultBitmap.FillRect(x, y, x2, y2: integer;
-  texture: IBGRAScanner; mode: TDrawMode);
+  texture: IBGRAScanner; mode: TDrawMode; AScanOffset: TPoint);
 var
   yb, tx, delta: integer;
   p: PBGRAPixel;
@@ -3562,7 +3562,7 @@ begin
 
   for yb := y to y2 do
   begin
-    texture.ScanMoveTo(x,yb);
+    texture.ScanMoveTo(x+AScanOffset.X,yb+AScanOffset.Y);
     ScannerPutPixels(texture, p, tx, mode);
     Inc(p, delta);
   end;
@@ -3571,11 +3571,12 @@ begin
 end;
 
 procedure TBGRADefaultBitmap.FillRect(x, y, x2, y2: integer;
-  texture: IBGRAScanner; mode: TDrawMode; ditheringAlgorithm: TDitheringAlgorithm);
+  texture: IBGRAScanner; mode: TDrawMode; AScanOffset: TPoint; ditheringAlgorithm: TDitheringAlgorithm);
 var dither: TDitheringTask;
 begin
   if not CheckClippedRectBounds(x,y,x2,y2) then exit;
   dither := CreateDitheringTask(ditheringAlgorithm, texture, self, rect(x,y,x2,y2));
+  dither.ScanOffset := AScanOffset;
   dither.DrawMode := mode;
   dither.Execute;
   dither.Free;

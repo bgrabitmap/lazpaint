@@ -583,10 +583,15 @@ type
      procedure FillRect(r: TRect; c: TColor); virtual; overload;
      procedure FillRect(r: TRect; c: TBGRAPixel; mode: TDrawMode); virtual; overload;
      procedure FillRect(r: TRect; texture: IBGRAScanner; mode: TDrawMode); virtual; overload;
+     procedure FillRect(r: TRect; texture: IBGRAScanner; mode: TDrawMode; AScanOffset: TPoint); virtual; overload;
+     procedure FillRect(r: TRect; texture: IBGRAScanner; mode: TDrawMode; ditheringAlgorithm: TDitheringAlgorithm); virtual; overload;
+     procedure FillRect(r: TRect; texture: IBGRAScanner; mode: TDrawMode; AScanOffset: TPoint; ditheringAlgorithm: TDitheringAlgorithm); virtual; overload;
      procedure FillRect(x, y, x2, y2: integer; c: TColor); virtual; overload;
      procedure FillRect(x, y, x2, y2: integer; c: TBGRAPixel; mode: TDrawMode); virtual; abstract; overload;
-     procedure FillRect(x, y, x2, y2: integer; texture: IBGRAScanner; mode: TDrawMode); virtual; abstract; overload;
-     procedure FillRect(x, y, x2, y2: integer; texture: IBGRAScanner; mode: TDrawMode; ditheringAlgorithm: TDitheringAlgorithm); virtual; abstract; overload;
+     procedure FillRect(x, y, x2, y2: integer; texture: IBGRAScanner; mode: TDrawMode); virtual; overload;
+     procedure FillRect(x, y, x2, y2: integer; texture: IBGRAScanner; mode: TDrawMode; AScanOffset: TPoint); virtual; abstract; overload;
+     procedure FillRect(x, y, x2, y2: integer; texture: IBGRAScanner; mode: TDrawMode; ditheringAlgorithm: TDitheringAlgorithm); virtual; overload;
+     procedure FillRect(x, y, x2, y2: integer; texture: IBGRAScanner; mode: TDrawMode; AScanOffset: TPoint; ditheringAlgorithm: TDitheringAlgorithm); virtual; abstract; overload;
      procedure FillRectAntialias(x, y, x2, y2: single; c: TBGRAPixel; pixelCenteredCoordinates: boolean = true); virtual; abstract;
      procedure FillRectAntialias(x, y, x2, y2: single; texture: IBGRAScanner; pixelCenteredCoordinates: boolean = true); virtual; abstract;
      procedure EraseRectAntialias(x, y, x2, y2: single; alpha: byte; pixelCenteredCoordinates: boolean = true); virtual; abstract;
@@ -1646,9 +1651,40 @@ begin
   FillRect(r.Left, r.top, r.right, r.bottom, texture, mode);
 end;
 
+procedure TBGRACustomBitmap.FillRect(r: TRect; texture: IBGRAScanner;
+  mode: TDrawMode; AScanOffset: TPoint);
+begin
+  FillRect(r.Left,r.Top,r.Right,r.Bottom, texture, mode, AScanOffset);
+end;
+
+procedure TBGRACustomBitmap.FillRect(r: TRect; texture: IBGRAScanner;
+  mode: TDrawMode; ditheringAlgorithm: TDitheringAlgorithm);
+begin
+  FillRect(r.Left,r.Top,r.Right,r.Bottom, texture, mode, ditheringAlgorithm);
+end;
+
+procedure TBGRACustomBitmap.FillRect(r: TRect; texture: IBGRAScanner;
+  mode: TDrawMode; AScanOffset: TPoint; ditheringAlgorithm: TDitheringAlgorithm);
+begin
+  FillRect(r.Left,r.Top,r.Right,r.Bottom, texture, mode, AScanOffset, ditheringAlgorithm);
+end;
+
 procedure TBGRACustomBitmap.FillRect(x, y, x2, y2: integer; c: TColor);
 begin
   FillRect(x, y, x2, y2, ColorToBGRA(c), dmSet);
+end;
+
+procedure TBGRACustomBitmap.FillRect(x, y, x2, y2: integer;
+  texture: IBGRAScanner; mode: TDrawMode);
+begin
+  FillRect(x,y,x2,y2,texture,mode,Point(0,0));
+end;
+
+procedure TBGRACustomBitmap.FillRect(x, y, x2, y2: integer;
+  texture: IBGRAScanner; mode: TDrawMode;
+  ditheringAlgorithm: TDitheringAlgorithm);
+begin
+  FillRect(x,y,x2,y2,texture,mode,Point(0,0),ditheringAlgorithm);
 end;
 
 procedure TBGRACustomBitmap.TextOutCurved(APath: IBGRAPath; sUTF8: string;
