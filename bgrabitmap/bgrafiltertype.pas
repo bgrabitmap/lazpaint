@@ -48,6 +48,7 @@ type
 
   TBGRAFilterScanner = class(TBGRACustomScanner)
   private
+    FAllowDirectRead: boolean;
     FCurX,FCurY: integer;
     FSource: IBGRAScanner;
     FOffset: TPoint;
@@ -65,6 +66,7 @@ type
     function ScanAt(X,Y: Single): TBGRAPixel; override;
     property Source: IBGRAScanner read FSource;
     property Offset: TPoint read FOffset;
+    property AllowDirectRead: boolean read FAllowDirectRead write FAllowDirectRead;
   end;
 
   { TBGRAFilterScannerPixelwise }
@@ -286,15 +288,27 @@ constructor TBGRAFilterScannerPixelwise.Create(ASource: IBGRAScanner;
 begin
   inherited Create(ASource,AOffset);
   GammaCorrection := AGammaCorrection;
+  //it is most likely that direct read can be used, the only exception being
+  //that the destination would be equal to the source and that there would
+  //be an offset
+  AllowDirectRead := true;
 end;
 
 procedure TBGRAFilterScannerPixelwise.ComputeFilter(ASource: IBGRAScanner; X,
   Y: Integer; ADest: PBGRAPixel; ACount: integer);
+var p: PBGRAPixel;
 begin
-  AllocateBGRAPixelBuffer(FBuffer, ACount);
-  ASource.ScanMoveTo(X,Y);
-  ASource.ScanPutPixels(@FBuffer[0], ACount, dmSet);
-  DoComputeFilterAt(@FBuffer[0],ADest,ACount,GammaCorrection);
+  if AllowDirectRead and ASource.ProvidesScanline(rect(x,y,x+ACount,y+1)) then
+  begin
+    p := ASource.GetScanlineAt(x,y);
+  end else
+  begin
+    AllocateBGRAPixelBuffer(FBuffer, ACount);
+    ASource.ScanMoveTo(X,Y);
+    p := @FBuffer[0];
+    ASource.ScanPutPixels(p, ACount, dmSet);
+  end;
+  DoComputeFilterAt(p,ADest,ACount,GammaCorrection);
 end;
 
 class procedure TBGRAFilterScannerPixelwise.ComputeFilterInplace(
