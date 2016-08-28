@@ -39,6 +39,26 @@ function FilterNormalize(bmp: TBGRACustomBitmap;
 function FilterNormalize(bmp: TBGRACustomBitmap; ABounds: TRect;
   eachChannel: boolean = True): TBGRACustomBitmap;
 
+////////////////////// 3X3 FILTERS ////////////////////////////////////////////
+
+{ Sharpen filter add more contrast between pixels }
+function FilterSharpen(bmp: TBGRACustomBitmap; AAmount: integer = 256): TBGRACustomBitmap;
+function FilterSharpen(bmp: TBGRACustomBitmap; ABounds: TRect; AAmount: integer = 256): TBGRACustomBitmap;
+
+{ Compute a contour, as if the image was drawn with a 2 pixels-wide black pencil }
+function FilterContour(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
+
+{ Emboss filter compute a color difference in the angle direction }
+function FilterEmboss(bmp: TBGRACustomBitmap; angle: single; AStrength: integer= 64; AOptions: TEmbossOptions = []): TBGRACustomBitmap;
+function FilterEmboss(bmp: TBGRACustomBitmap; angle: single; ABounds: TRect; AStrength: integer= 64; AOptions: TEmbossOptions = []): TBGRACustomBitmap;
+
+{ Emboss highlight computes a sort of emboss with 45 degrees angle and
+  with standard selection color (white/black and filled with blue) }
+function FilterEmbossHighlight(bmp: TBGRACustomBitmap;
+  FillSelection: boolean; DefineBorderColor: TBGRAPixel): TBGRACustomBitmap;
+function FilterEmbossHighlightOffset(bmp: TBGRACustomBitmap;
+  FillSelection: boolean; DefineBorderColor: TBGRAPixel; var Offset: TPoint): TBGRACustomBitmap;
+
 { The median filter consist in calculating the median value of pixels. Here
   a square of 9x9 pixel is considered. The median allow to select the most
   representative colors. The option parameter allow to choose to smooth the
@@ -50,10 +70,6 @@ function FilterMedian(bmp: TBGRACustomBitmap;
   pixels that could be logically expected (horizontal, vertical, diagonal lines) }
 function FilterSmartZoom3(bmp: TBGRACustomBitmap;
   Option: TMedianOption): TBGRACustomBitmap;
-
-{ Sharpen filter add more contrast between pixels }
-function FilterSharpen(bmp: TBGRACustomBitmap; AAmount: integer = 256): TBGRACustomBitmap;
-function FilterSharpen(bmp: TBGRACustomBitmap; ABounds: TRect; AAmount: integer = 256): TBGRACustomBitmap;
 
 { A radial blur applies a blur with a circular influence, i.e, each pixel
   is merged with pixels within the specified radius. There is an exception
@@ -84,23 +100,9 @@ function CreateBlurTask(ABmp: TBGRACustomBitmap; ABounds: TRect; AMask: TBGRACus
 
 function FilterPixelate(bmp: TBGRACustomBitmap; pixelSize: integer; useResample: boolean; filter: TResampleFilter = rfLinear): TBGRACustomBitmap;
 
-{ Emboss filter compute a color difference in the angle direction }
-function FilterEmboss(bmp: TBGRACustomBitmap; angle: single; AStrength: integer= 64; AOptions: TEmbossOptions = []): TBGRACustomBitmap;
-function FilterEmboss(bmp: TBGRACustomBitmap; angle: single; ABounds: TRect; AStrength: integer= 64; AOptions: TEmbossOptions = []): TBGRACustomBitmap;
-
-{ Emboss highlight computes a sort of emboss with 45 degrees angle and
-  with standard selection color (white/black and filled with blue) }
-function FilterEmbossHighlight(bmp: TBGRACustomBitmap;
-  FillSelection: boolean; DefineBorderColor: TBGRAPixel): TBGRACustomBitmap;
-function FilterEmbossHighlightOffset(bmp: TBGRACustomBitmap;
-  FillSelection: boolean; DefineBorderColor: TBGRAPixel; var Offset: TPoint): TBGRACustomBitmap;
-
 { Rotate filter rotate the image and clip it in the bounding rectangle }
 function FilterRotate(bmp: TBGRACustomBitmap; origin: TPointF;
   angle: single; correctBlur: boolean = false): TBGRACustomBitmap;
-
-{ Compute a contour, as if the image was drawn with a 2 pixels-wide black pencil }
-function FilterContour(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
 
 { Distort the image as if it were on a sphere }
 function FilterSphere(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
@@ -161,6 +163,426 @@ end;
 function CreateGrayscaleTask(bmp: TBGRACustomBitmap; ABounds: TRect): TFilterTask;
 begin
   result := TGrayscaleTask.Create(bmp,ABounds);
+end;
+
+////////////////////// 3X3 FILTERS ////////////////////////////////////////////
+
+{ This filter compute for each pixel the mean of the eight surrounding pixels,
+  then the difference between this average pixel and the pixel at the center
+  of the square. Finally the difference is added to the new pixel, exagerating
+  its difference with its neighbours. }
+function FilterSharpen(bmp: TBGRACustomBitmap; ABounds: TRect; AAmount: integer = 256): TBGRACustomBitmap;
+var scanner: TBGRAFilterScanner;
+begin
+  Result := bmp.NewBitmap(bmp.Width, bmp.Height);
+  if IsRectEmpty(ABounds) then exit;
+  scanner := TBGRASharpenScanner.Create(bmp,ABounds,AAmount);
+  result.FillRect(ABounds,scanner,dmSet);
+  scanner.Free;
+end;
+
+function FilterSharpen(bmp: TBGRACustomBitmap; AAmount: integer
+  ): TBGRACustomBitmap;
+begin
+  result := FilterSharpen(bmp,rect(0,0,bmp.Width,bmp.Height),AAmount);
+end;
+
+{ Filter contour computes for each pixel
+  the grayscale difference with surrounding pixels (in intensity and alpha)
+  and draw black pixels when there is a difference }
+function FilterContour(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
+var scanner: TBGRAContourScanner;
+begin
+  result := bmp.NewBitmap(bmp.Width, bmp.Height);
+  scanner := TBGRAContourScanner.Create(bmp,rect(0,0,bmp.width,bmp.height));
+  result.Fill(scanner);
+  scanner.Free;
+end;
+
+function FilterEmboss(bmp: TBGRACustomBitmap; angle: single; AStrength: integer; AOptions: TEmbossOptions): TBGRACustomBitmap;
+begin
+  result := FilterEmboss(bmp, angle, rect(0,0,bmp.Width,bmp.Height), AStrength, AOptions);
+end;
+
+{ Emboss filter computes the difference between each pixel and the surrounding pixels
+  in the specified direction. }
+function FilterEmboss(bmp: TBGRACustomBitmap; angle: single; ABounds: TRect; AStrength: integer; AOptions: TEmbossOptions): TBGRACustomBitmap;
+var
+  yb, xb: NativeInt;
+  dx, dy: single;
+  idx, idy: NativeInt;
+  x256,y256: NativeInt;
+  cMiddle: TBGRAPixel;
+  hMiddle: THSLAPixel;
+
+  tempPixel, refPixel: TBGRAPixel;
+  pdest: PBGRAPixel;
+
+  bounds: TRect;
+  psrc: PBGRAPixel;
+  redDiff,greenDiff,blueDiff: NativeUInt;
+  diff: NativeInt;
+begin
+  if IsRectEmpty(ABounds) then exit;
+  //compute pixel position and weight
+  dx   := cos(angle * Pi / 180);
+  dy   := sin(angle * Pi / 180);
+  idx := floor(dx);
+  idy := floor(dy);
+  x256 := trunc((dx-idx)*256);
+  y256 := trunc((dy-idy)*256);
+
+  Result := bmp.NewBitmap(bmp.Width, bmp.Height);
+
+  bounds := bmp.GetImageBounds;
+
+  if not IntersectRect(bounds, bounds, ABounds) then exit;
+  bounds.Left   := max(0, bounds.Left - 1);
+  bounds.Top    := max(0, bounds.Top - 1);
+  bounds.Right  := min(bmp.Width, bounds.Right + 1);
+  bounds.Bottom := min(bmp.Height, bounds.Bottom + 1);
+
+  if not (eoTransparent in AOptions) then
+  begin
+    if eoPreserveHue in AOptions then
+      Result.PutImagePart(ABounds.left,ABounds.top,bmp,ABounds,dmSet)
+    else
+      Result.FillRect(ABounds,BGRA(128, 128, 128, 255),dmSet);
+  end;
+
+  //loop through destination
+  for yb := bounds.Top to bounds.bottom - 1 do
+  begin
+    pdest := Result.scanline[yb] + bounds.Left;
+    psrc := bmp.ScanLine[yb]+bounds.Left;
+
+    for xb := bounds.Left+idx to bounds.Right-1+idx do
+    begin
+      refPixel := bmp.GetPixel256(xb,yb+idy,x256,y256);
+      cMiddle := psrc^;
+      inc(psrc);
+
+      if eoPreserveHue in AOptions then
+      begin
+        {$push}{$hints off}
+        diff := ((refPixel.red * refPixel.alpha - cMiddle.red * cMiddle.alpha)+
+                 (refPixel.green * refPixel.alpha - cMiddle.green * cMiddle.alpha)+
+                 (refPixel.blue * refPixel.alpha - cMiddle.blue * cMiddle.alpha))* AStrength div 128;
+        {$pop}
+        if diff > 0 then
+          hMiddle := BGRAToHSLA(refPixel)
+        else
+          hMiddle := BGRAToHSLA(cMiddle);
+        hMiddle.lightness := min(65535,max(0,hMiddle.lightness+diff));
+        if eoTransparent in AOptions then
+          hMiddle.alpha := min(65535,abs(diff));
+        pdest^ := HSLAToBGRA(hMiddle);
+      end else
+      begin
+        {$push}{$hints off}
+        redDiff := NativeUInt(max(0, 65536 + (refPixel.red * refPixel.alpha - cMiddle.red * cMiddle.alpha) * AStrength div 64)) shr 9;
+        greenDiff := NativeUInt(max(0, 65536 + (refPixel.green * refPixel.alpha - cMiddle.green * cMiddle.alpha) * AStrength div 64)) shr 9;
+        blueDiff := NativeUInt(max(0, 65536 + (refPixel.blue * refPixel.alpha - cMiddle.blue * cMiddle.alpha) * AStrength div 64)) shr 9;
+        {$pop}
+        if (redDiff <> 128) or (greenDiff <> 128) or (blueDiff <> 128) then
+        begin
+          tempPixel.red := min(255, redDiff);
+          tempPixel.green := min(255, greenDiff);
+          tempPixel.blue := min(255, blueDiff);
+          if eoTransparent in AOptions then
+          begin
+            tempPixel.alpha := min(255,abs(NativeInt(redDiff-128))+abs(NativeInt(greenDiff-128))+abs(NativeInt(blueDiff-128)));
+            pdest^ := tempPixel;
+          end else
+          begin
+            tempPixel.alpha := 255;
+            pdest^ := tempPixel;
+          end;
+        end;
+      end;
+
+      Inc(pdest);
+    end;
+  end;
+  Result.InvalidateBitmap;
+end;
+
+{ Like general emboss, but with fixed direction and automatic color with transparency }
+function FilterEmbossHighlight(bmp: TBGRACustomBitmap;
+  FillSelection: boolean; DefineBorderColor: TBGRAPixel): TBGRACustomBitmap;
+var
+  yb, xb: Int32or64;
+  c0,c1,c2,c3,c4,c5,c6: Int32or64;
+
+  bmpWidth, bmpHeight: Int32or64;
+  slope, h: byte;
+  sum:      Int32or64;
+  tempPixel, highlight: TBGRAPixel;
+  pdest, psrcUp, psrc, psrcDown: PBGRAPixel;
+
+  bounds: TRect;
+  borderColorOverride: boolean;
+  borderColorLevel: Int32or64;
+
+  currentBorderColor: Int32or64;
+begin
+  borderColorOverride := DefineBorderColor.alpha <> 0;
+  borderColorLevel := DefineBorderColor.red;
+
+  bmpWidth  := bmp.Width;
+  bmpHeight := bmp.Height;
+  Result    := bmp.NewBitmap(bmpWidth, bmpHeight);
+
+  if borderColorOverride then
+    bounds := bmp.GetImageBounds(cRed, borderColorLevel)
+  else
+    bounds := bmp.GetImageBounds(cRed);
+  if (bounds.Right <= bounds.Left) or (bounds.Bottom <= Bounds.Top) then
+    exit;
+  bounds.Left   := max(0, bounds.Left - 1);
+  bounds.Top    := max(0, bounds.Top - 1);
+  bounds.Right  := min(bmpWidth, bounds.Right + 1);
+  bounds.Bottom := min(bmpHeight, bounds.Bottom + 1);
+
+  currentBorderColor := borderColorLevel;
+  for yb := bounds.Top to bounds.Bottom - 1 do
+  begin
+    pdest := Result.scanline[yb] + bounds.Left;
+
+    if yb > 0 then
+      psrcUp := bmp.Scanline[yb - 1] + bounds.Left
+    else
+      psrcUp := nil;
+    psrc := bmp.scanline[yb] + bounds.Left;
+    if yb < bmpHeight - 1 then
+      psrcDown := bmp.scanline[yb + 1] + bounds.Left
+    else
+      psrcDown := nil;
+
+    for xb := bounds.Left to bounds.Right - 1 do
+    begin
+      c0 := pbyte(psrc)^;
+      if not borderColorOverride then currentBorderColor := c0;
+      if (xb = 0) then
+      begin
+        c1 := currentBorderColor;
+        c2 := currentBorderColor;
+      end
+      else
+      begin
+        if psrcUp <> nil then
+          c1 := pbyte(psrcUp - 1)^
+        else
+          c1 := currentBorderColor;
+        c2 := pbyte(psrc - 1)^;
+      end;
+      if psrcUp <> nil then
+      begin
+        c3 := pbyte(psrcUp)^;
+        Inc(psrcUp);
+      end
+      else
+       c3 := currentBorderColor;
+
+      if (xb = bmpWidth - 1) then
+      begin
+        c4 := currentBorderColor;
+        c5 := currentBorderColor;
+      end
+      else
+      begin
+        if psrcDown <> nil then
+          c4 := pbyte(psrcDown + 1)^
+        else
+          c4 := currentBorderColor;
+        c5 := pbyte(psrc + 1)^;
+      end;
+      if psrcDown <> nil then
+      begin
+        c6 := pbyte(psrcDown)^;
+        Inc(psrcDown);
+      end
+      else
+        c6 := currentBorderColor;
+      Inc(psrc);
+
+      sum := c4+c5+c6-c1-c2-c3;
+      sum := 128 + sum div 3;
+      if sum > 255 then
+        slope := 255
+      else
+      if sum < 1 then
+        slope := 1
+      else
+        slope := sum;
+      h := c0;
+
+      tempPixel.red   := slope;
+      tempPixel.green := slope;
+      tempPixel.blue  := slope;
+      tempPixel.alpha := abs(slope - 128) * 2;
+
+      if fillSelection then
+      begin
+        highlight := BGRA(h shr 2, h shr 1, h, h shr 1);
+        if tempPixel.red < highlight.red then
+          tempPixel.red := highlight.red;
+        if tempPixel.green < highlight.green then
+          tempPixel.green := highlight.green;
+        if tempPixel.blue < highlight.blue then
+          tempPixel.blue := highlight.blue;
+        if tempPixel.alpha < highlight.alpha then
+          tempPixel.alpha := highlight.alpha;
+      end;
+
+      pdest^ := tempPixel;
+      Inc(pdest);
+    end;
+  end;
+  Result.InvalidateBitmap;
+end;
+
+function FilterEmbossHighlightOffset(bmp: TBGRACustomBitmap;
+  FillSelection: boolean; DefineBorderColor: TBGRAPixel; var Offset: TPoint): TBGRACustomBitmap;
+var
+  yb, xb: int32or64;
+  c0,c1,c2,c3,c4,c5,c6: int32or64;
+
+  bmpWidth, bmpHeight: int32or64;
+  slope, h: byte;
+  sum:      int32or64;
+  tempPixel, highlight: TBGRAPixel;
+  pdest, psrcUp, psrc, psrcDown: PBGRAPixel;
+
+  bounds: TRect;
+  borderColorOverride: boolean;
+  borderColorLevel: int32or64;
+
+  currentBorderColor: int32or64;
+begin
+  borderColorOverride := DefineBorderColor.alpha <> 0;
+  borderColorLevel := DefineBorderColor.red;
+
+  bmpWidth  := bmp.Width;
+  bmpHeight := bmp.Height;
+
+  if borderColorOverride then
+    bounds := bmp.GetImageBounds(cRed, borderColorLevel)
+  else
+    bounds := bmp.GetImageBounds(cRed);
+  if (bounds.Right <= bounds.Left) or (bounds.Bottom <= Bounds.Top) then
+  begin
+    Result    := bmp.NewBitmap(0, 0);
+    exit;
+  end;
+  bounds.Left   := max(0, bounds.Left - 1);
+  bounds.Top    := max(0, bounds.Top - 1);
+  bounds.Right  := min(bmpWidth, bounds.Right + 1);
+  bounds.Bottom := min(bmpHeight, bounds.Bottom + 1);
+
+  Result    := bmp.NewBitmap(bounds.Right-Bounds.Left+1, bounds.Bottom-Bounds.Top+1);
+  inc(Offset.X, bounds.Left);
+  inc(Offset.Y, bounds.Top);
+
+  currentBorderColor := borderColorLevel;
+  for yb := bounds.Top to bounds.Bottom - 1 do
+  begin
+    pdest := Result.scanline[yb-Bounds.Top];
+
+    if yb > 0 then
+      psrcUp := bmp.Scanline[yb - 1] + bounds.Left
+    else
+      psrcUp := nil;
+    psrc := bmp.scanline[yb] + bounds.Left;
+    if yb < bmpHeight - 1 then
+      psrcDown := bmp.scanline[yb + 1] + bounds.Left
+    else
+      psrcDown := nil;
+
+    for xb := bounds.Left to bounds.Right - 1 do
+    begin
+      c0 := pbyte(psrc)^;
+      if not borderColorOverride then currentBorderColor := c0;
+      if (xb = 0) then
+      begin
+        c1 := currentBorderColor;
+        c2 := currentBorderColor;
+      end
+      else
+      begin
+        if psrcUp <> nil then
+          c1 := pbyte(psrcUp - 1)^
+        else
+          c1 := currentBorderColor;
+        c2 := pbyte(psrc - 1)^;
+      end;
+      if psrcUp <> nil then
+      begin
+        c3 := pbyte(psrcUp)^;
+        Inc(psrcUp);
+      end
+      else
+       c3 := currentBorderColor;
+
+      if (xb = bmpWidth - 1) then
+      begin
+        c4 := currentBorderColor;
+        c5 := currentBorderColor;
+      end
+      else
+      begin
+        if psrcDown <> nil then
+          c4 := pbyte(psrcDown + 1)^
+        else
+          c4 := currentBorderColor;
+        c5 := pbyte(psrc + 1)^;
+      end;
+      if psrcDown <> nil then
+      begin
+        c6 := pbyte(psrcDown)^;
+        Inc(psrcDown);
+      end
+      else
+        c6 := currentBorderColor;
+      Inc(psrc);
+
+      sum := c4+c5+c6-c1-c2-c3;
+      sum := 128 + sum div 3;
+      if sum > 255 then
+        slope := 255
+      else
+      if sum < 1 then
+        slope := 1
+      else
+        slope := sum;
+      h := c0;
+
+      tempPixel.red   := slope;
+      tempPixel.green := slope;
+      tempPixel.blue  := slope;
+      tempPixel.alpha := abs(slope - 128) * 2;
+
+      if fillSelection then
+      begin
+        highlight := BGRA(h shr 2, h shr 1, h, h shr 1);
+        if tempPixel.red < highlight.red then
+          tempPixel.red := highlight.red;
+        if tempPixel.green < highlight.green then
+          tempPixel.green := highlight.green;
+        if tempPixel.blue < highlight.blue then
+          tempPixel.blue := highlight.blue;
+        if tempPixel.alpha < highlight.alpha then
+          tempPixel.alpha := highlight.alpha;
+      end;
+
+      if tempPixel.alpha = 0 then
+        pdest^ := BGRAPixelTransparent
+      else
+        pdest^ := tempPixel;
+      Inc(pdest);
+    end;
+  end;
+  Result.InvalidateBitmap;
 end;
 
 type
@@ -401,26 +823,6 @@ begin
     end;
 
   median.Free;
-end;
-
-{ This filter compute for each pixel the mean of the eight surrounding pixels,
-  then the difference between this average pixel and the pixel at the center
-  of the square. Finally the difference is added to the new pixel, exagerating
-  its difference with its neighbours. }
-function FilterSharpen(bmp: TBGRACustomBitmap; ABounds: TRect; AAmount: integer = 256): TBGRACustomBitmap;
-var scanner: TBGRAFilterScanner;
-begin
-  Result := bmp.NewBitmap(bmp.Width, bmp.Height);
-  if IsRectEmpty(ABounds) then exit;
-  scanner := TBGRASharpenScanner.Create(bmp,ABounds,AAmount);
-  result.FillRect(ABounds,scanner,dmSet);
-  scanner.Free;
-end;
-
-function FilterSharpen(bmp: TBGRACustomBitmap; AAmount: integer
-  ): TBGRACustomBitmap;
-begin
-  result := FilterSharpen(bmp,rect(0,0,bmp.Width,bmp.Height),AAmount);
 end;
 
 { Precise blur builds a blur mask with a gradient fill and use
@@ -967,391 +1369,6 @@ procedure FilterBlurBigMask(bmp: TBGRACustomBitmap;
   end;
 
   {$I blurnormal.inc}
-function FilterEmboss(bmp: TBGRACustomBitmap; angle: single; AStrength: integer; AOptions: TEmbossOptions): TBGRACustomBitmap;
-begin
-  result := FilterEmboss(bmp, angle, rect(0,0,bmp.Width,bmp.Height), AStrength, AOptions);
-end;
-
-{ Emboss filter computes the difference between each pixel and the surrounding pixels
-  in the specified direction. }
-function FilterEmboss(bmp: TBGRACustomBitmap; angle: single; ABounds: TRect; AStrength: integer; AOptions: TEmbossOptions): TBGRACustomBitmap;
-var
-  yb, xb: NativeInt;
-  dx, dy: single;
-  idx, idy: NativeInt;
-  x256,y256: NativeInt;
-  cMiddle: TBGRAPixel;
-  hMiddle: THSLAPixel;
-
-  tempPixel, refPixel: TBGRAPixel;
-  pdest: PBGRAPixel;
-
-  bounds: TRect;
-  psrc: PBGRAPixel;
-  redDiff,greenDiff,blueDiff: NativeUInt;
-  diff: NativeInt;
-begin
-  if IsRectEmpty(ABounds) then exit;
-  //compute pixel position and weight
-  dx   := cos(angle * Pi / 180);
-  dy   := sin(angle * Pi / 180);
-  idx := floor(dx);
-  idy := floor(dy);
-  x256 := trunc((dx-idx)*256);
-  y256 := trunc((dy-idy)*256);
-
-  Result := bmp.NewBitmap(bmp.Width, bmp.Height);
-
-  bounds := bmp.GetImageBounds;
-
-  if not IntersectRect(bounds, bounds, ABounds) then exit;
-  bounds.Left   := max(0, bounds.Left - 1);
-  bounds.Top    := max(0, bounds.Top - 1);
-  bounds.Right  := min(bmp.Width, bounds.Right + 1);
-  bounds.Bottom := min(bmp.Height, bounds.Bottom + 1);
-
-  if not (eoTransparent in AOptions) then
-  begin
-    if eoPreserveHue in AOptions then
-      Result.PutImagePart(ABounds.left,ABounds.top,bmp,ABounds,dmSet)
-    else
-      Result.FillRect(ABounds,BGRA(128, 128, 128, 255),dmSet);
-  end;
-
-  //loop through destination
-  for yb := bounds.Top to bounds.bottom - 1 do
-  begin
-    pdest := Result.scanline[yb] + bounds.Left;
-    psrc := bmp.ScanLine[yb]+bounds.Left;
-
-    for xb := bounds.Left+idx to bounds.Right-1+idx do
-    begin
-      refPixel := bmp.GetPixel256(xb,yb+idy,x256,y256);
-      cMiddle := psrc^;
-      inc(psrc);
-
-      if eoPreserveHue in AOptions then
-      begin
-        {$push}{$hints off}
-        diff := ((refPixel.red * refPixel.alpha - cMiddle.red * cMiddle.alpha)+
-                 (refPixel.green * refPixel.alpha - cMiddle.green * cMiddle.alpha)+
-                 (refPixel.blue * refPixel.alpha - cMiddle.blue * cMiddle.alpha))* AStrength div 128;
-        {$pop}
-        if diff > 0 then
-          hMiddle := BGRAToHSLA(refPixel)
-        else
-          hMiddle := BGRAToHSLA(cMiddle);
-        hMiddle.lightness := min(65535,max(0,hMiddle.lightness+diff));
-        if eoTransparent in AOptions then
-          hMiddle.alpha := min(65535,abs(diff));
-        pdest^ := HSLAToBGRA(hMiddle);
-      end else
-      begin
-        {$push}{$hints off}
-        redDiff := NativeUInt(max(0, 65536 + (refPixel.red * refPixel.alpha - cMiddle.red * cMiddle.alpha) * AStrength div 64)) shr 9;
-        greenDiff := NativeUInt(max(0, 65536 + (refPixel.green * refPixel.alpha - cMiddle.green * cMiddle.alpha) * AStrength div 64)) shr 9;
-        blueDiff := NativeUInt(max(0, 65536 + (refPixel.blue * refPixel.alpha - cMiddle.blue * cMiddle.alpha) * AStrength div 64)) shr 9;
-        {$pop}
-        if (redDiff <> 128) or (greenDiff <> 128) or (blueDiff <> 128) then
-        begin
-          tempPixel.red := min(255, redDiff);
-          tempPixel.green := min(255, greenDiff);
-          tempPixel.blue := min(255, blueDiff);
-          if eoTransparent in AOptions then
-          begin
-            tempPixel.alpha := min(255,abs(NativeInt(redDiff-128))+abs(NativeInt(greenDiff-128))+abs(NativeInt(blueDiff-128)));
-            pdest^ := tempPixel;
-          end else
-          begin
-            tempPixel.alpha := 255;
-            pdest^ := tempPixel;
-          end;
-        end;
-      end;
-
-      Inc(pdest);
-    end;
-  end;
-  Result.InvalidateBitmap;
-end;
-
-{ Like general emboss, but with fixed direction and automatic color with transparency }
-function FilterEmbossHighlight(bmp: TBGRACustomBitmap;
-  FillSelection: boolean; DefineBorderColor: TBGRAPixel): TBGRACustomBitmap;
-var
-  yb, xb: Int32or64;
-  c0,c1,c2,c3,c4,c5,c6: Int32or64;
-
-  bmpWidth, bmpHeight: Int32or64;
-  slope, h: byte;
-  sum:      Int32or64;
-  tempPixel, highlight: TBGRAPixel;
-  pdest, psrcUp, psrc, psrcDown: PBGRAPixel;
-
-  bounds: TRect;
-  borderColorOverride: boolean;
-  borderColorLevel: Int32or64;
-
-  currentBorderColor: Int32or64;
-begin
-  borderColorOverride := DefineBorderColor.alpha <> 0;
-  borderColorLevel := DefineBorderColor.red;
-
-  bmpWidth  := bmp.Width;
-  bmpHeight := bmp.Height;
-  Result    := bmp.NewBitmap(bmpWidth, bmpHeight);
-
-  if borderColorOverride then
-    bounds := bmp.GetImageBounds(cRed, borderColorLevel)
-  else
-    bounds := bmp.GetImageBounds(cRed);
-  if (bounds.Right <= bounds.Left) or (bounds.Bottom <= Bounds.Top) then
-    exit;
-  bounds.Left   := max(0, bounds.Left - 1);
-  bounds.Top    := max(0, bounds.Top - 1);
-  bounds.Right  := min(bmpWidth, bounds.Right + 1);
-  bounds.Bottom := min(bmpHeight, bounds.Bottom + 1);
-
-  currentBorderColor := borderColorLevel;
-  for yb := bounds.Top to bounds.Bottom - 1 do
-  begin
-    pdest := Result.scanline[yb] + bounds.Left;
-
-    if yb > 0 then
-      psrcUp := bmp.Scanline[yb - 1] + bounds.Left
-    else
-      psrcUp := nil;
-    psrc := bmp.scanline[yb] + bounds.Left;
-    if yb < bmpHeight - 1 then
-      psrcDown := bmp.scanline[yb + 1] + bounds.Left
-    else
-      psrcDown := nil;
-
-    for xb := bounds.Left to bounds.Right - 1 do
-    begin
-      c0 := pbyte(psrc)^;
-      if not borderColorOverride then currentBorderColor := c0;
-      if (xb = 0) then
-      begin
-        c1 := currentBorderColor;
-        c2 := currentBorderColor;
-      end
-      else
-      begin
-        if psrcUp <> nil then
-          c1 := pbyte(psrcUp - 1)^
-        else
-          c1 := currentBorderColor;
-        c2 := pbyte(psrc - 1)^;
-      end;
-      if psrcUp <> nil then
-      begin
-        c3 := pbyte(psrcUp)^;
-        Inc(psrcUp);
-      end
-      else
-       c3 := currentBorderColor;
-
-      if (xb = bmpWidth - 1) then
-      begin
-        c4 := currentBorderColor;
-        c5 := currentBorderColor;
-      end
-      else
-      begin
-        if psrcDown <> nil then
-          c4 := pbyte(psrcDown + 1)^
-        else
-          c4 := currentBorderColor;
-        c5 := pbyte(psrc + 1)^;
-      end;
-      if psrcDown <> nil then
-      begin
-        c6 := pbyte(psrcDown)^;
-        Inc(psrcDown);
-      end
-      else
-        c6 := currentBorderColor;
-      Inc(psrc);
-
-      sum := c4+c5+c6-c1-c2-c3;
-      sum := 128 + sum div 3;
-      if sum > 255 then
-        slope := 255
-      else
-      if sum < 1 then
-        slope := 1
-      else
-        slope := sum;
-      h := c0;
-
-      tempPixel.red   := slope;
-      tempPixel.green := slope;
-      tempPixel.blue  := slope;
-      tempPixel.alpha := abs(slope - 128) * 2;
-
-      if fillSelection then
-      begin
-        highlight := BGRA(h shr 2, h shr 1, h, h shr 1);
-        if tempPixel.red < highlight.red then
-          tempPixel.red := highlight.red;
-        if tempPixel.green < highlight.green then
-          tempPixel.green := highlight.green;
-        if tempPixel.blue < highlight.blue then
-          tempPixel.blue := highlight.blue;
-        if tempPixel.alpha < highlight.alpha then
-          tempPixel.alpha := highlight.alpha;
-      end;
-
-      pdest^ := tempPixel;
-      Inc(pdest);
-    end;
-  end;
-  Result.InvalidateBitmap;
-end;
-
-function FilterEmbossHighlightOffset(bmp: TBGRACustomBitmap;
-  FillSelection: boolean; DefineBorderColor: TBGRAPixel; var Offset: TPoint): TBGRACustomBitmap;
-var
-  yb, xb: int32or64;
-  c0,c1,c2,c3,c4,c5,c6: int32or64;
-
-  bmpWidth, bmpHeight: int32or64;
-  slope, h: byte;
-  sum:      int32or64;
-  tempPixel, highlight: TBGRAPixel;
-  pdest, psrcUp, psrc, psrcDown: PBGRAPixel;
-
-  bounds: TRect;
-  borderColorOverride: boolean;
-  borderColorLevel: int32or64;
-
-  currentBorderColor: int32or64;
-begin
-  borderColorOverride := DefineBorderColor.alpha <> 0;
-  borderColorLevel := DefineBorderColor.red;
-
-  bmpWidth  := bmp.Width;
-  bmpHeight := bmp.Height;
-
-  if borderColorOverride then
-    bounds := bmp.GetImageBounds(cRed, borderColorLevel)
-  else
-    bounds := bmp.GetImageBounds(cRed);
-  if (bounds.Right <= bounds.Left) or (bounds.Bottom <= Bounds.Top) then
-  begin
-    Result    := bmp.NewBitmap(0, 0);
-    exit;
-  end;
-  bounds.Left   := max(0, bounds.Left - 1);
-  bounds.Top    := max(0, bounds.Top - 1);
-  bounds.Right  := min(bmpWidth, bounds.Right + 1);
-  bounds.Bottom := min(bmpHeight, bounds.Bottom + 1);
-
-  Result    := bmp.NewBitmap(bounds.Right-Bounds.Left+1, bounds.Bottom-Bounds.Top+1);
-  inc(Offset.X, bounds.Left);
-  inc(Offset.Y, bounds.Top);
-
-  currentBorderColor := borderColorLevel;
-  for yb := bounds.Top to bounds.Bottom - 1 do
-  begin
-    pdest := Result.scanline[yb-Bounds.Top];
-
-    if yb > 0 then
-      psrcUp := bmp.Scanline[yb - 1] + bounds.Left
-    else
-      psrcUp := nil;
-    psrc := bmp.scanline[yb] + bounds.Left;
-    if yb < bmpHeight - 1 then
-      psrcDown := bmp.scanline[yb + 1] + bounds.Left
-    else
-      psrcDown := nil;
-
-    for xb := bounds.Left to bounds.Right - 1 do
-    begin
-      c0 := pbyte(psrc)^;
-      if not borderColorOverride then currentBorderColor := c0;
-      if (xb = 0) then
-      begin
-        c1 := currentBorderColor;
-        c2 := currentBorderColor;
-      end
-      else
-      begin
-        if psrcUp <> nil then
-          c1 := pbyte(psrcUp - 1)^
-        else
-          c1 := currentBorderColor;
-        c2 := pbyte(psrc - 1)^;
-      end;
-      if psrcUp <> nil then
-      begin
-        c3 := pbyte(psrcUp)^;
-        Inc(psrcUp);
-      end
-      else
-       c3 := currentBorderColor;
-
-      if (xb = bmpWidth - 1) then
-      begin
-        c4 := currentBorderColor;
-        c5 := currentBorderColor;
-      end
-      else
-      begin
-        if psrcDown <> nil then
-          c4 := pbyte(psrcDown + 1)^
-        else
-          c4 := currentBorderColor;
-        c5 := pbyte(psrc + 1)^;
-      end;
-      if psrcDown <> nil then
-      begin
-        c6 := pbyte(psrcDown)^;
-        Inc(psrcDown);
-      end
-      else
-        c6 := currentBorderColor;
-      Inc(psrc);
-
-      sum := c4+c5+c6-c1-c2-c3;
-      sum := 128 + sum div 3;
-      if sum > 255 then
-        slope := 255
-      else
-      if sum < 1 then
-        slope := 1
-      else
-        slope := sum;
-      h := c0;
-
-      tempPixel.red   := slope;
-      tempPixel.green := slope;
-      tempPixel.blue  := slope;
-      tempPixel.alpha := abs(slope - 128) * 2;
-
-      if fillSelection then
-      begin
-        highlight := BGRA(h shr 2, h shr 1, h, h shr 1);
-        if tempPixel.red < highlight.red then
-          tempPixel.red := highlight.red;
-        if tempPixel.green < highlight.green then
-          tempPixel.green := highlight.green;
-        if tempPixel.blue < highlight.blue then
-          tempPixel.blue := highlight.blue;
-        if tempPixel.alpha < highlight.alpha then
-          tempPixel.alpha := highlight.alpha;
-      end;
-
-      if tempPixel.alpha = 0 then
-        pdest^ := BGRAPixelTransparent
-      else
-        pdest^ := tempPixel;
-      Inc(pdest);
-    end;
-  end;
-  Result.InvalidateBitmap;
-end;
 
 function FilterNormalize(bmp: TBGRACustomBitmap; eachChannel: boolean
   ): TBGRACustomBitmap;
@@ -1379,18 +1396,6 @@ function FilterRotate(bmp: TBGRACustomBitmap; origin: TPointF;
 begin
   Result := bmp.NewBitmap(bmp.Width, bmp.Height);
   Result.PutImageAngle(0,0,bmp,angle,origin.x,origin.y,255,true,correctBlur);
-end;
-
-{ Filter contour compute a grayscale image, then for each pixel
-  calculates the difference with surrounding pixels (in intensity and alpha)
-  and draw black pixels when there is a difference }
-function FilterContour(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
-var scanner: TBGRAContourScanner;
-begin
-  result := bmp.NewBitmap(bmp.Width, bmp.Height);
-  scanner := TBGRAContourScanner.Create(bmp,rect(0,0,bmp.width,bmp.height));
-  result.Fill(scanner);
-  scanner.Free;
 end;
 
 { Compute the distance for each pixel to the center of the bitmap,
