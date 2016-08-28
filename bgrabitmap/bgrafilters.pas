@@ -59,6 +59,25 @@ function FilterEmbossHighlight(bmp: TBGRACustomBitmap;
 function FilterEmbossHighlightOffset(bmp: TBGRACustomBitmap;
   FillSelection: boolean; DefineBorderColor: TBGRAPixel; var Offset: TPoint): TBGRACustomBitmap;
 
+//////////////////////// DEFORMATION FILTERS /////////////////////////////////
+
+{ Distort the image as if it were on a sphere }
+function FilterSphere(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
+
+{ Twirl distortion, i.e. a progressive rotation }
+function FilterTwirl(bmp: TBGRACustomBitmap; ACenter: TPoint; ARadius: Single; ATurn: Single=1; AExponent: Single=3): TBGRACustomBitmap;
+function FilterTwirl(bmp: TBGRACustomBitmap; ABounds: TRect; ACenter: TPoint; ARadius: Single; ATurn: Single=1; AExponent: Single=3): TBGRACustomBitmap;
+
+{ Distort the image as if it were on a vertical cylinder }
+function FilterCylinder(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
+
+{ Compute a plane projection towards infinity (SLOW) }
+function FilterPlane(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
+
+{ Rotate filter rotate the image and clip it in the bounding rectangle }
+function FilterRotate(bmp: TBGRACustomBitmap; origin: TPointF;
+  angle: single; correctBlur: boolean = false): TBGRACustomBitmap;
+
 { The median filter consist in calculating the median value of pixels. Here
   a square of 9x9 pixel is considered. The median allow to select the most
   representative colors. The option parameter allow to choose to smooth the
@@ -99,23 +118,6 @@ function FilterBlur(bmp: TBGRACustomBitmap; blurMask: TBGRACustomBitmap): TBGRAC
 function CreateBlurTask(ABmp: TBGRACustomBitmap; ABounds: TRect; AMask: TBGRACustomBitmap; AMaskIsThreadSafe: boolean = false): TFilterTask;
 
 function FilterPixelate(bmp: TBGRACustomBitmap; pixelSize: integer; useResample: boolean; filter: TResampleFilter = rfLinear): TBGRACustomBitmap;
-
-{ Rotate filter rotate the image and clip it in the bounding rectangle }
-function FilterRotate(bmp: TBGRACustomBitmap; origin: TPointF;
-  angle: single; correctBlur: boolean = false): TBGRACustomBitmap;
-
-{ Distort the image as if it were on a sphere }
-function FilterSphere(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
-
-{ Twirl distortion, i.e. a progressive rotation }
-function FilterTwirl(bmp: TBGRACustomBitmap; ACenter: TPoint; ARadius: Single; ATurn: Single=1; AExponent: Single=3): TBGRACustomBitmap;
-function FilterTwirl(bmp: TBGRACustomBitmap; ABounds: TRect; ACenter: TPoint; ARadius: Single; ATurn: Single=1; AExponent: Single=3): TBGRACustomBitmap;
-
-{ Distort the image as if it were on a vertical cylinder }
-function FilterCylinder(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
-
-{ Compute a plane projection towards infinity (SLOW) }
-function FilterPlane(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
 
 implementation
 
@@ -603,6 +605,133 @@ begin
   end;
   Result.InvalidateBitmap;
 end;
+
+//////////////////////// DEFORMATION FILTERS /////////////////////////////////
+
+{ Compute the distance for each pixel to the center of the bitmap,
+  calculate the corresponding angle with arcsin, use this angle
+  to determine a distance from the center in the source bitmap }
+function FilterSphere(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
+var
+  cx, cy: single;
+  scanner: TBGRASphereDeformationScanner;
+begin
+  Result := bmp.NewBitmap(bmp.Width, bmp.Height);
+  cx     := bmp.Width / 2 - 0.5;
+  cy     := bmp.Height / 2 - 0.5;
+  scanner := TBGRASphereDeformationScanner.Create(bmp,PointF(cx,cy),bmp.Width/2,bmp.Height/2);
+  result.FillEllipseAntialias(cx,cy,bmp.Width/2-0.5,bmp.Height/2-0.5,scanner);
+  scanner.Free;
+end;
+
+{ Applies twirl scanner. See TBGRATwirlScanner }
+function FilterTwirl(bmp: TBGRACustomBitmap; ABounds: TRect; ACenter: TPoint; ARadius: Single; ATurn: Single=1; AExponent: Single=3): TBGRACustomBitmap;
+var twirl: TBGRATwirlScanner;
+begin
+  twirl := TBGRATwirlScanner.Create(bmp,ACenter,ARadius,ATurn,AExponent);
+  Result := bmp.NewBitmap(bmp.Width, bmp.Height);
+  result.FillRect(ABounds, twirl, dmSet);
+  twirl.free;
+end;
+
+function FilterTwirl(bmp: TBGRACustomBitmap; ACenter: TPoint;
+  ARadius: Single; ATurn: Single; AExponent: Single): TBGRACustomBitmap;
+begin
+  result := FilterTwirl(bmp,rect(0,0,bmp.Width,bmp.Height),ACenter,ARadius,ATurn,AExponent);
+end;
+
+{ Compute the distance for each pixel to the vertical axis of the bitmap,
+  calculate the corresponding angle with arcsin, use this angle
+  to determine a distance from the vertical axis in the source bitmap }
+function FilterCylinder(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
+var
+  cx: single;
+  scanner: TBGRAVerticalCylinderDeformationScanner;
+begin
+  Result := bmp.NewBitmap(bmp.Width, bmp.Height);
+  cx     := bmp.Width / 2 - 0.5;
+  scanner := TBGRAVerticalCylinderDeformationScanner.Create(bmp,cx,bmp.Width/2);
+  result.Fill(scanner);
+  scanner.Free;
+end;
+
+function FilterPlane(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
+const resampleGap=0.6;
+var
+  cy, x1, x2, y1, y2, z1, z2, h: single;
+  yb: int32or64;
+  resampledBmp: TBGRACustomBitmap;
+  resampledBmpWidth: int32or64;
+  resampledFactor,newResampleFactor: single;
+  sub,resampledSub: TBGRACustomBitmap;
+  partRect: TRect;
+  resampleSizeY : int32or64;
+begin
+  resampledBmp := bmp.Resample(bmp.Width*2,bmp.Height*2,rmSimpleStretch);
+  resampledBmpWidth := resampledBmp.Width;
+  resampledFactor := 2;
+  Result := bmp.NewBitmap(bmp.Width, bmp.Height*2);
+  cy     := result.Height / 2 - 0.5;
+  h      := 1;
+  for yb := 0 to ((Result.Height-1) div 2) do
+  begin
+    y1 := (cy - (yb-0.5)) / (cy+0.5);
+    y2 := (cy - (yb+0.5)) / (cy+0.5);
+    if y2 <= 0 then continue;
+    z1 := h/y1;
+    z2 := h/y2;
+    newResampleFactor := 1/(z2-z1)*1.5;
+
+    x1 := (z1+1)/2;
+    x2 := (z2+1)/2;
+    if newResampleFactor <= resampledFactor*resampleGap then
+    begin
+      resampledFactor := newResampleFactor;
+      if resampledBmp <> bmp then resampledBmp.Free;
+      if (x2-x1 >= 1) then resampleSizeY := 1 else
+        resampleSizeY := round(1+((x2-x1)-1)/(1/bmp.Height-1)*(bmp.Height-1));
+      resampledBmp := bmp.Resample(max(1,round(bmp.Width*resampledFactor)),resampleSizeY,rmSimpleStretch);
+      resampledBmpWidth := resampledBmp.Width;
+    end;
+
+    partRect := Rect(round(-resampledBmpWidth/2*z1+resampledBmpWidth/2),floor(x1*resampledBmp.Height),
+       round(resampledBmpWidth/2*z1+resampledBmpWidth/2),floor(x2*resampledBmp.Height)+1);
+    if x2-x1 > 1 then
+    begin
+      partRect.Top := 0;
+      partRect.Bottom := 1;
+    end;
+    sub := resampledBmp.GetPart(partRect);
+    if sub <> nil then
+    begin
+      resampledSub := sub.Resample(bmp.Width,1,rmFineResample);
+      result.PutImage(0,yb,resampledSub,dmSet);
+      result.PutImage(0,Result.Height-1-yb,resampledSub,dmSet);
+      resampledSub.free;
+      sub.free;
+    end;
+  end;
+  if resampledBmp <> bmp then resampledBmp.Free;
+
+  if result.Height <> bmp.Height then
+  begin
+    resampledBmp := result.Resample(bmp.Width,bmp.Height,rmSimpleStretch);
+    result.free;
+    result := resampledBmp;
+  end;
+end;
+
+{ Rotates the image. To do this, loop through the destination and
+  calculates the position in the source bitmap with an affine transformation }
+function FilterRotate(bmp: TBGRACustomBitmap; origin: TPointF;
+  angle: single; correctBlur: boolean): TBGRACustomBitmap;
+begin
+  Result := bmp.NewBitmap(bmp.Width, bmp.Height);
+  Result.PutImageAngle(0,0,bmp,angle,origin.x,origin.y,255,true,correctBlur);
+end;
+
+
+
 
 type
   { TBoxBlurTask }
@@ -1388,128 +1517,6 @@ procedure FilterBlurBigMask(bmp: TBGRACustomBitmap;
   end;
 
   {$I blurnormal.inc}
-
-{ Rotates the image. To do this, loop through the destination and
-  calculates the position in the source bitmap with an affine transformation }
-function FilterRotate(bmp: TBGRACustomBitmap; origin: TPointF;
-  angle: single; correctBlur: boolean): TBGRACustomBitmap;
-begin
-  Result := bmp.NewBitmap(bmp.Width, bmp.Height);
-  Result.PutImageAngle(0,0,bmp,angle,origin.x,origin.y,255,true,correctBlur);
-end;
-
-{ Compute the distance for each pixel to the center of the bitmap,
-  calculate the corresponding angle with arcsin, use this angle
-  to determine a distance from the center in the source bitmap }
-function FilterSphere(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
-var
-  cx, cy: single;
-  scanner: TBGRASphereDeformationScanner;
-begin
-  Result := bmp.NewBitmap(bmp.Width, bmp.Height);
-  cx     := bmp.Width / 2 - 0.5;
-  cy     := bmp.Height / 2 - 0.5;
-  scanner := TBGRASphereDeformationScanner.Create(bmp,PointF(cx,cy),bmp.Width/2,bmp.Height/2);
-  result.FillEllipseAntialias(cx,cy,bmp.Width/2-0.5,bmp.Height/2-0.5,scanner);
-  scanner.Free;
-end;
-
-{ Applies twirl scanner. See TBGRATwirlScanner }
-function FilterTwirl(bmp: TBGRACustomBitmap; ABounds: TRect; ACenter: TPoint; ARadius: Single; ATurn: Single=1; AExponent: Single=3): TBGRACustomBitmap;
-var twirl: TBGRATwirlScanner;
-begin
-  twirl := TBGRATwirlScanner.Create(bmp,ACenter,ARadius,ATurn,AExponent);
-  Result := bmp.NewBitmap(bmp.Width, bmp.Height);
-  result.FillRect(ABounds, twirl, dmSet);
-  twirl.free;
-end;
-
-function FilterTwirl(bmp: TBGRACustomBitmap; ACenter: TPoint;
-  ARadius: Single; ATurn: Single; AExponent: Single): TBGRACustomBitmap;
-begin
-  result := FilterTwirl(bmp,rect(0,0,bmp.Width,bmp.Height),ACenter,ARadius,ATurn,AExponent);
-end;
-
-{ Compute the distance for each pixel to the vertical axis of the bitmap,
-  calculate the corresponding angle with arcsin, use this angle
-  to determine a distance from the vertical axis in the source bitmap }
-function FilterCylinder(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
-var
-  cx: single;
-  scanner: TBGRAVerticalCylinderDeformationScanner;
-begin
-  Result := bmp.NewBitmap(bmp.Width, bmp.Height);
-  cx     := bmp.Width / 2 - 0.5;
-  scanner := TBGRAVerticalCylinderDeformationScanner.Create(bmp,cx,bmp.Width/2);
-  result.Fill(scanner);
-  scanner.Free;
-end;
-
-function FilterPlane(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
-const resampleGap=0.6;
-var
-  cy, x1, x2, y1, y2, z1, z2, h: single;
-  yb: int32or64;
-  resampledBmp: TBGRACustomBitmap;
-  resampledBmpWidth: int32or64;
-  resampledFactor,newResampleFactor: single;
-  sub,resampledSub: TBGRACustomBitmap;
-  partRect: TRect;
-  resampleSizeY : int32or64;
-begin
-  resampledBmp := bmp.Resample(bmp.Width*2,bmp.Height*2,rmSimpleStretch);
-  resampledBmpWidth := resampledBmp.Width;
-  resampledFactor := 2;
-  Result := bmp.NewBitmap(bmp.Width, bmp.Height*2);
-  cy     := result.Height / 2 - 0.5;
-  h      := 1;
-  for yb := 0 to ((Result.Height-1) div 2) do
-  begin
-    y1 := (cy - (yb-0.5)) / (cy+0.5);
-    y2 := (cy - (yb+0.5)) / (cy+0.5);
-    if y2 <= 0 then continue;
-    z1 := h/y1;
-    z2 := h/y2;
-    newResampleFactor := 1/(z2-z1)*1.5;
-
-    x1 := (z1+1)/2;
-    x2 := (z2+1)/2;
-    if newResampleFactor <= resampledFactor*resampleGap then
-    begin
-      resampledFactor := newResampleFactor;
-      if resampledBmp <> bmp then resampledBmp.Free;
-      if (x2-x1 >= 1) then resampleSizeY := 1 else
-        resampleSizeY := round(1+((x2-x1)-1)/(1/bmp.Height-1)*(bmp.Height-1));
-      resampledBmp := bmp.Resample(max(1,round(bmp.Width*resampledFactor)),resampleSizeY,rmSimpleStretch);
-      resampledBmpWidth := resampledBmp.Width;
-    end;
-
-    partRect := Rect(round(-resampledBmpWidth/2*z1+resampledBmpWidth/2),floor(x1*resampledBmp.Height),
-       round(resampledBmpWidth/2*z1+resampledBmpWidth/2),floor(x2*resampledBmp.Height)+1);
-    if x2-x1 > 1 then
-    begin
-      partRect.Top := 0;
-      partRect.Bottom := 1;
-    end;
-    sub := resampledBmp.GetPart(partRect);
-    if sub <> nil then
-    begin
-      resampledSub := sub.Resample(bmp.Width,1,rmFineResample);
-      result.PutImage(0,yb,resampledSub,dmSet);
-      result.PutImage(0,Result.Height-1-yb,resampledSub,dmSet);
-      resampledSub.free;
-      sub.free;
-    end;
-  end;
-  if resampledBmp <> bmp then resampledBmp.Free;
-
-  if result.Height <> bmp.Height then
-  begin
-    resampledBmp := result.Resample(bmp.Width,bmp.Height,rmSimpleStretch);
-    result.free;
-    result := resampledBmp;
-  end;
-end;
 
 { For each component, sort values to get the median }
 function FilterMedian(bmp: TBGRACustomBitmap;
