@@ -165,6 +165,25 @@ begin
   result := TGrayscaleTask.Create(bmp,ABounds);
 end;
 
+function FilterNormalize(bmp: TBGRACustomBitmap; eachChannel: boolean
+  ): TBGRACustomBitmap;
+begin
+  result := FilterNormalize(bmp, rect(0,0,bmp.Width,bmp.Height), eachChannel);
+end;
+
+{ Normalize compute min-max of specified channel and apply an affine transformation
+  to make it use the full range of values }
+function FilterNormalize(bmp: TBGRACustomBitmap; ABounds: TRect;
+  eachChannel: boolean = True): TBGRACustomBitmap;
+var scanner: TBGRAFilterScannerNormalize;
+begin
+  Result := bmp.NewBitmap(bmp.Width, bmp.Height);
+  if not IntersectRect(ABounds,ABounds,rect(0,0,bmp.Width,bmp.Height)) then exit;
+  scanner := TBGRAFilterScannerNormalize.Create(bmp,Point(0,0),ABounds,eachChannel);
+  result.FillRect(ABounds,scanner,dmSet);
+  scanner.Free;
+end;
+
 ////////////////////// 3X3 FILTERS ////////////////////////////////////////////
 
 { This filter compute for each pixel the mean of the eight surrounding pixels,
@@ -1369,25 +1388,6 @@ procedure FilterBlurBigMask(bmp: TBGRACustomBitmap;
   end;
 
   {$I blurnormal.inc}
-
-function FilterNormalize(bmp: TBGRACustomBitmap; eachChannel: boolean
-  ): TBGRACustomBitmap;
-begin
-  result := FilterNormalize(bmp, rect(0,0,bmp.Width,bmp.Height), eachChannel);
-end;
-
-{ Normalize compute min-max of specified channel and apply an affine transformation
-  to make it use the full range of values }
-function FilterNormalize(bmp: TBGRACustomBitmap; ABounds: TRect;
-  eachChannel: boolean = True): TBGRACustomBitmap;
-var scanner: TBGRAFilterScannerNormalize;
-begin
-  Result := bmp.NewBitmap(bmp.Width, bmp.Height);
-  if not IntersectRect(ABounds,ABounds,rect(0,0,bmp.Width,bmp.Height)) then exit;
-  scanner := TBGRAFilterScannerNormalize.Create(bmp,Point(0,0),ABounds,eachChannel);
-  result.FillRect(ABounds,scanner,dmSet);
-  scanner.Free;
-end;
 
 { Rotates the image. To do this, loop through the destination and
   calculates the position in the source bitmap with an affine transformation }
