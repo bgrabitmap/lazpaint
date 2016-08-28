@@ -14,6 +14,31 @@ uses
 type
   TFilterTask = BGRAFilterType.TFilterTask;
 
+/////////////////////// PIXELWISE FILTERS ////////////////////////////////
+type
+  { TGrayscaleTask }
+  { Grayscale converts colored pixel into grayscale with same luminosity }
+  TGrayscaleTask = class(TFilterTask)
+  private
+    FBounds: TRect;
+  public
+    constructor Create(bmp: TBGRACustomBitmap; ABounds: TRect);
+  protected
+    procedure DoExecute; override;
+  end;
+
+{ Grayscale converts colored pixel into grayscale with same luminosity }
+function FilterGrayscale(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
+function FilterGrayscale(bmp: TBGRACustomBitmap; ABounds: TRect): TBGRACustomBitmap;
+function CreateGrayscaleTask(bmp: TBGRACustomBitmap; ABounds: TRect): TFilterTask;
+
+{ Normalize use the whole available range of values, making dark colors darkest possible
+  and light colors lightest possible }
+function FilterNormalize(bmp: TBGRACustomBitmap;
+  eachChannel: boolean = True): TBGRACustomBitmap;
+function FilterNormalize(bmp: TBGRACustomBitmap; ABounds: TRect;
+  eachChannel: boolean = True): TBGRACustomBitmap;
+
 { The median filter consist in calculating the median value of pixels. Here
   a square of 9x9 pixel is considered. The median allow to select the most
   representative colors. The option parameter allow to choose to smooth the
@@ -70,21 +95,9 @@ function FilterEmbossHighlight(bmp: TBGRACustomBitmap;
 function FilterEmbossHighlightOffset(bmp: TBGRACustomBitmap;
   FillSelection: boolean; DefineBorderColor: TBGRAPixel; var Offset: TPoint): TBGRACustomBitmap;
 
-{ Normalize use the whole available range of values, making dark colors darkest possible
-  and light colors lightest possible }
-function FilterNormalize(bmp: TBGRACustomBitmap;
-  eachChannel: boolean = True): TBGRACustomBitmap;
-function FilterNormalize(bmp: TBGRACustomBitmap; ABounds: TRect;
-  eachChannel: boolean = True): TBGRACustomBitmap;
-
 { Rotate filter rotate the image and clip it in the bounding rectangle }
 function FilterRotate(bmp: TBGRACustomBitmap; origin: TPointF;
   angle: single; correctBlur: boolean = false): TBGRACustomBitmap;
-
-{ Grayscale converts colored pixel into grayscale with same luminosity }
-function FilterGrayscale(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
-function FilterGrayscale(bmp: TBGRACustomBitmap; ABounds: TRect): TBGRACustomBitmap;
-function CreateGrayscaleTask(bmp: TBGRACustomBitmap; ABounds: TRect): TFilterTask;
 
 { Compute a contour, as if the image was drawn with a 2 pixels-wide black pencil }
 function FilterContour(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
@@ -106,18 +119,51 @@ implementation
 
 uses Math, BGRATransform, Types, SysUtils, BGRAFilterScanner;
 
-type
-  { TGrayscaleTask }
+/////////////////////// PIXELWISE FILTERS ////////////////////////////////
 
-  TGrayscaleTask = class(TFilterTask)
-  private
-    FBounds: TRect;
-  public
-    constructor Create(bmp: TBGRACustomBitmap; ABounds: TRect);
-  protected
-    procedure DoExecute; override;
+{ TGrayscaleTask }
+
+constructor TGrayscaleTask.Create(bmp: TBGRACustomBitmap; ABounds: TRect);
+begin
+  SetSource(bmp);
+  FBounds := ABounds;
+end;
+
+procedure TGrayscaleTask.DoExecute;
+var
+  yb: LongInt;
+begin
+  if IsRectEmpty(FBounds) then exit;
+  for yb := FBounds.Top to FBounds.bottom - 1 do
+  begin
+    if GetShouldStop(yb) then break;
+    TBGRAFilterScannerGrayscale.ComputeFilterAt(FSource.scanline[yb] + FBounds.left,
+            Destination.scanline[yb] + FBounds.left, FBounds.right-FBounds.left, true);
   end;
+  Destination.InvalidateBitmap;
+end;
 
+{ Filter grayscale applies BGRAToGrayscale function to all pixels }
+function FilterGrayscale(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
+begin
+  result := FilterGrayscale(bmp,rect(0,0,bmp.width,bmp.Height));
+end;
+
+function FilterGrayscale(bmp: TBGRACustomBitmap; ABounds: TRect): TBGRACustomBitmap;
+var scanner: TBGRAFilterScannerGrayscale;
+begin
+  result := bmp.NewBitmap(bmp.Width,bmp.Height);
+  scanner := TBGRAFilterScannerGrayscale.Create(bmp,Point(0,0),True);
+  result.FillRect(ABounds,scanner,dmSet);
+  scanner.Free;
+end;
+
+function CreateGrayscaleTask(bmp: TBGRACustomBitmap; ABounds: TRect): TFilterTask;
+begin
+  result := TGrayscaleTask.Create(bmp,ABounds);
+end;
+
+type
   { TBoxBlurTask }
 
   TBoxBlurTask = class(TFilterTask)
@@ -1335,26 +1381,6 @@ begin
   Result.PutImageAngle(0,0,bmp,angle,origin.x,origin.y,255,true,correctBlur);
 end;
 
-{ Filter grayscale applies BGRAToGrayscale function to all pixels }
-function FilterGrayscale(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
-begin
-  result := FilterGrayscale(bmp,rect(0,0,bmp.width,bmp.Height));
-end;
-
-function FilterGrayscale(bmp: TBGRACustomBitmap; ABounds: TRect): TBGRACustomBitmap;
-var scanner: TBGRAFilterScannerGrayscale;
-begin
-  result := bmp.NewBitmap(bmp.Width,bmp.Height);
-  scanner := TBGRAFilterScannerGrayscale.Create(bmp,Point(0,0),True);
-  result.FillRect(ABounds,scanner,dmSet);
-  scanner.Free;
-end;
-
-function CreateGrayscaleTask(bmp: TBGRACustomBitmap; ABounds: TRect): TFilterTask;
-begin
-  result := TGrayscaleTask.Create(bmp,ABounds);
-end;
-
 { Filter contour compute a grayscale image, then for each pixel
   calculates the difference with surrounding pixels (in intensity and alpha)
   and draw black pixels when there is a difference }
@@ -1688,26 +1714,6 @@ begin
     DoExecuteNormal;
 end;
 {$ENDIF}
-
-constructor TGrayscaleTask.Create(bmp: TBGRACustomBitmap; ABounds: TRect);
-begin
-  SetSource(bmp);
-  FBounds := ABounds;
-end;
-
-procedure TGrayscaleTask.DoExecute;
-var
-  yb: LongInt;
-begin
-  if IsRectEmpty(FBounds) then exit;
-  for yb := FBounds.Top to FBounds.bottom - 1 do
-  begin
-    if GetShouldStop(yb) then break;
-    TBGRAFilterScannerGrayscale.ComputeFilterAt(FSource.scanline[yb] + FBounds.left,
-            Destination.scanline[yb] + FBounds.left, FBounds.right-FBounds.left, true);
-  end;
-  Destination.InvalidateBitmap;
-end;
 
 { TCustomBlurTask }
 
