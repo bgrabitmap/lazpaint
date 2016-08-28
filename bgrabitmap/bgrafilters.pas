@@ -59,6 +59,12 @@ function FilterEmbossHighlight(bmp: TBGRACustomBitmap;
 function FilterEmbossHighlightOffset(bmp: TBGRACustomBitmap;
   FillSelection: boolean; DefineBorderColor: TBGRAPixel; var Offset: TPoint): TBGRACustomBitmap;
 
+{ The median filter consist in calculating the median value of pixels. Here
+  a square of 9x9 pixel is considered. The median allow to select the most
+  representative colors. The option parameter allow to choose to smooth the
+  result or not. }
+function FilterMedian(bmp: TBGRACustomBitmap; Option: TMedianOption): TBGRACustomBitmap;
+
 //////////////////////// DEFORMATION FILTERS /////////////////////////////////
 
 { Distort the image as if it were on a sphere }
@@ -77,13 +83,6 @@ function FilterPlane(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
 { Rotate filter rotate the image and clip it in the bounding rectangle }
 function FilterRotate(bmp: TBGRACustomBitmap; origin: TPointF;
   angle: single; correctBlur: boolean = false): TBGRACustomBitmap;
-
-{ The median filter consist in calculating the median value of pixels. Here
-  a square of 9x9 pixel is considered. The median allow to select the most
-  representative colors. The option parameter allow to choose to smooth the
-  result or not. }
-function FilterMedian(bmp: TBGRACustomBitmap;
-  Option: TMedianOption): TBGRACustomBitmap;
 
 { SmartZoom x3 is a filter that upsizes 3 times the picture and add
   pixels that could be logically expected (horizontal, vertical, diagonal lines) }
@@ -604,6 +603,154 @@ begin
     end;
   end;
   Result.InvalidateBitmap;
+end;
+
+{ For each component, sort values to get the median }
+function FilterMedian(bmp: TBGRACustomBitmap;
+  Option: TMedianOption): TBGRACustomBitmap;
+
+  function ComparePixLt(p1, p2: TBGRAPixel): boolean;
+  begin
+    if (p1.red + p1.green + p1.blue = p2.red + p2.green + p2.blue) then
+      Result := (int32or64(p1.red) shl 8) + (int32or64(p1.green) shl 16) +
+        int32or64(p1.blue) < (int32or64(p2.red) shl 8) + (int32or64(p2.green) shl 16) +
+        int32or64(p2.blue)
+    else
+      Result := (p1.red + p1.green + p1.blue) < (p2.red + p2.green + p2.blue);
+  end;
+
+const
+  nbpix = 9;
+var
+  yb, xb:    int32or64;
+  dx, dy, n, i, j, k: int32or64;
+  a_pixels:  array[0..nbpix - 1] of TBGRAPixel;
+  tempPixel, refPixel: TBGRAPixel;
+  tempValue: byte;
+  sumR, sumG, sumB, sumA, BGRAdiv, nbA: uint32or64;
+  tempAlpha: word;
+  bounds:    TRect;
+  pdest:     PBGRAPixel;
+begin
+  Result := bmp.NewBitmap(bmp.Width, bmp.Height);
+
+  bounds := bmp.GetImageBounds;
+  if (bounds.Right <= bounds.Left) or (bounds.Bottom <= Bounds.Top) then
+    exit;
+  bounds.Left   := max(0, bounds.Left - 1);
+  bounds.Top    := max(0, bounds.Top - 1);
+  bounds.Right  := min(bmp.Width, bounds.Right + 1);
+  bounds.Bottom := min(bmp.Height, bounds.Bottom + 1);
+
+  for yb := bounds.Top to bounds.bottom - 1 do
+  begin
+    pdest := Result.scanline[yb] + bounds.left;
+    for xb := bounds.left to bounds.right - 1 do
+    begin
+      n := 0;
+      for dy := -1 to 1 do
+        for dx := -1 to 1 do
+        begin
+          a_pixels[n] := bmp.GetPixel(xb + dx, yb + dy);
+          if a_pixels[n].alpha = 0 then
+            a_pixels[n] := BGRAPixelTransparent;
+          Inc(n);
+        end;
+      for i := 1 to n - 1 do
+      begin
+        j := i;
+        while (j > 1) and (a_pixels[j].alpha < a_pixels[j - 1].alpha) do
+        begin
+          tempValue := a_pixels[j].alpha;
+          a_pixels[j].alpha := a_pixels[j - 1].alpha;
+          a_pixels[j - 1].alpha := tempValue;
+          Dec(j);
+        end;
+        j := i;
+        while (j > 1) and (a_pixels[j].red < a_pixels[j - 1].red) do
+        begin
+          tempValue := a_pixels[j].red;
+          a_pixels[j].red := a_pixels[j - 1].red;
+          a_pixels[j - 1].red := tempValue;
+          Dec(j);
+        end;
+        j := i;
+        while (j > 1) and (a_pixels[j].green < a_pixels[j - 1].green) do
+        begin
+          tempValue := a_pixels[j].green;
+          a_pixels[j].green := a_pixels[j - 1].green;
+          a_pixels[j - 1].green := tempValue;
+          Dec(j);
+        end;
+        j := i;
+        while (j > 1) and (a_pixels[j].blue < a_pixels[j - 1].blue) do
+        begin
+          tempValue := a_pixels[j].blue;
+          a_pixels[j].blue := a_pixels[j - 1].blue;
+          a_pixels[j - 1].blue := tempValue;
+          Dec(j);
+        end;
+      end;
+
+      refPixel := a_pixels[n div 2];
+
+      if option in [moLowSmooth, moMediumSmooth, moHighSmooth] then
+      begin
+        sumR    := 0;
+        sumG    := 0;
+        sumB    := 0;
+        sumA    := 0;
+        BGRAdiv := 0;
+        nbA     := 0;
+
+        case option of
+          moHighSmooth, moMediumSmooth:
+          begin
+            j := 2;
+            k := 2;
+          end;
+          else
+          begin
+            j := 1;
+            k := 1;
+          end;
+        end;
+
+         {$hints off}
+        for i := -k to j do
+        begin
+          tempPixel := a_pixels[n div 2 + i];
+          tempAlpha := tempPixel.alpha;
+          if (option = moMediumSmooth) and ((i = -k) or (i = j)) then
+            tempAlpha := tempAlpha div 2;
+
+          sumR    += tempPixel.red * tempAlpha;
+          sumG    += tempPixel.green * tempAlpha;
+          sumB    += tempPixel.blue * tempAlpha;
+          BGRAdiv += tempAlpha;
+
+          sumA += tempAlpha;
+          Inc(nbA);
+        end;
+         {$hints on}
+        if option = moMediumSmooth then
+          Dec(nbA);
+
+        if (BGRAdiv = 0) then
+          refPixel := BGRAPixelTransparent
+        else
+        begin
+          refPixel.red   := round(sumR / BGRAdiv);
+          refPixel.green := round(sumG / BGRAdiv);
+          refPixel.blue  := round(sumB / BGRAdiv);
+          refPixel.alpha := round(sumA / nbA);
+        end;
+      end;
+
+      pdest^ := refPixel;
+      Inc(pdest);
+    end;
+  end;
 end;
 
 //////////////////////// DEFORMATION FILTERS /////////////////////////////////
@@ -1517,154 +1664,6 @@ procedure FilterBlurBigMask(bmp: TBGRACustomBitmap;
   end;
 
   {$I blurnormal.inc}
-
-{ For each component, sort values to get the median }
-function FilterMedian(bmp: TBGRACustomBitmap;
-  Option: TMedianOption): TBGRACustomBitmap;
-
-  function ComparePixLt(p1, p2: TBGRAPixel): boolean;
-  begin
-    if (p1.red + p1.green + p1.blue = p2.red + p2.green + p2.blue) then
-      Result := (int32or64(p1.red) shl 8) + (int32or64(p1.green) shl 16) +
-        int32or64(p1.blue) < (int32or64(p2.red) shl 8) + (int32or64(p2.green) shl 16) +
-        int32or64(p2.blue)
-    else
-      Result := (p1.red + p1.green + p1.blue) < (p2.red + p2.green + p2.blue);
-  end;
-
-const
-  nbpix = 9;
-var
-  yb, xb:    int32or64;
-  dx, dy, n, i, j, k: int32or64;
-  a_pixels:  array[0..nbpix - 1] of TBGRAPixel;
-  tempPixel, refPixel: TBGRAPixel;
-  tempValue: byte;
-  sumR, sumG, sumB, sumA, BGRAdiv, nbA: uint32or64;
-  tempAlpha: word;
-  bounds:    TRect;
-  pdest:     PBGRAPixel;
-begin
-  Result := bmp.NewBitmap(bmp.Width, bmp.Height);
-
-  bounds := bmp.GetImageBounds;
-  if (bounds.Right <= bounds.Left) or (bounds.Bottom <= Bounds.Top) then
-    exit;
-  bounds.Left   := max(0, bounds.Left - 1);
-  bounds.Top    := max(0, bounds.Top - 1);
-  bounds.Right  := min(bmp.Width, bounds.Right + 1);
-  bounds.Bottom := min(bmp.Height, bounds.Bottom + 1);
-
-  for yb := bounds.Top to bounds.bottom - 1 do
-  begin
-    pdest := Result.scanline[yb] + bounds.left;
-    for xb := bounds.left to bounds.right - 1 do
-    begin
-      n := 0;
-      for dy := -1 to 1 do
-        for dx := -1 to 1 do
-        begin
-          a_pixels[n] := bmp.GetPixel(xb + dx, yb + dy);
-          if a_pixels[n].alpha = 0 then
-            a_pixels[n] := BGRAPixelTransparent;
-          Inc(n);
-        end;
-      for i := 1 to n - 1 do
-      begin
-        j := i;
-        while (j > 1) and (a_pixels[j].alpha < a_pixels[j - 1].alpha) do
-        begin
-          tempValue := a_pixels[j].alpha;
-          a_pixels[j].alpha := a_pixels[j - 1].alpha;
-          a_pixels[j - 1].alpha := tempValue;
-          Dec(j);
-        end;
-        j := i;
-        while (j > 1) and (a_pixels[j].red < a_pixels[j - 1].red) do
-        begin
-          tempValue := a_pixels[j].red;
-          a_pixels[j].red := a_pixels[j - 1].red;
-          a_pixels[j - 1].red := tempValue;
-          Dec(j);
-        end;
-        j := i;
-        while (j > 1) and (a_pixels[j].green < a_pixels[j - 1].green) do
-        begin
-          tempValue := a_pixels[j].green;
-          a_pixels[j].green := a_pixels[j - 1].green;
-          a_pixels[j - 1].green := tempValue;
-          Dec(j);
-        end;
-        j := i;
-        while (j > 1) and (a_pixels[j].blue < a_pixels[j - 1].blue) do
-        begin
-          tempValue := a_pixels[j].blue;
-          a_pixels[j].blue := a_pixels[j - 1].blue;
-          a_pixels[j - 1].blue := tempValue;
-          Dec(j);
-        end;
-      end;
-
-      refPixel := a_pixels[n div 2];
-
-      if option in [moLowSmooth, moMediumSmooth, moHighSmooth] then
-      begin
-        sumR    := 0;
-        sumG    := 0;
-        sumB    := 0;
-        sumA    := 0;
-        BGRAdiv := 0;
-        nbA     := 0;
-
-        case option of
-          moHighSmooth, moMediumSmooth:
-          begin
-            j := 2;
-            k := 2;
-          end;
-          else
-          begin
-            j := 1;
-            k := 1;
-          end;
-        end;
-
-         {$hints off}
-        for i := -k to j do
-        begin
-          tempPixel := a_pixels[n div 2 + i];
-          tempAlpha := tempPixel.alpha;
-          if (option = moMediumSmooth) and ((i = -k) or (i = j)) then
-            tempAlpha := tempAlpha div 2;
-
-          sumR    += tempPixel.red * tempAlpha;
-          sumG    += tempPixel.green * tempAlpha;
-          sumB    += tempPixel.blue * tempAlpha;
-          BGRAdiv += tempAlpha;
-
-          sumA += tempAlpha;
-          Inc(nbA);
-        end;
-         {$hints on}
-        if option = moMediumSmooth then
-          Dec(nbA);
-
-        if (BGRAdiv = 0) then
-          refPixel := BGRAPixelTransparent
-        else
-        begin
-          refPixel.red   := round(sumR / BGRAdiv);
-          refPixel.green := round(sumG / BGRAdiv);
-          refPixel.blue  := round(sumB / BGRAdiv);
-          refPixel.alpha := round(sumA / nbA);
-        end;
-      end;
-
-      pdest^ := refPixel;
-      Inc(pdest);
-    end;
-  end;
-end;
 
 constructor TBoxBlurTask.Create(bmp: TBGRACustomBitmap; ABounds: TRect;
   radius: single);
