@@ -84,22 +84,15 @@ function FilterPlane(bmp: TBGRACustomBitmap): TBGRACustomBitmap;
 function FilterRotate(bmp: TBGRACustomBitmap; origin: TPointF;
   angle: single; correctBlur: boolean = false): TBGRACustomBitmap;
 
-{ SmartZoom x3 is a filter that upsizes 3 times the picture and add
-  pixels that could be logically expected (horizontal, vertical, diagonal lines) }
-function FilterSmartZoom3(bmp: TBGRACustomBitmap;
-  Option: TMedianOption): TBGRACustomBitmap;
+///////////////////////// BLUR FILTERS //////////////////////////////////////
 
 { A radial blur applies a blur with a circular influence, i.e, each pixel
   is merged with pixels within the specified radius. There is an exception
   with rbFast blur, the optimization entails an hyperbolic shape. }
-function FilterBlurRadial(bmp: TBGRACustomBitmap; radius: single;
-  blurType: TRadialBlurType): TBGRACustomBitmap;
-function FilterBlurRadial(bmp: TBGRACustomBitmap; radiusX: single; radiusY: single;
-  blurType: TRadialBlurType): TBGRACustomBitmap;
-function CreateRadialBlurTask(ABmp: TBGRACustomBitmap; ABounds: TRect; ARadius: single;
-  ABlurType: TRadialBlurType): TFilterTask;
-function CreateRadialBlurTask(ABmp: TBGRACustomBitmap; ABounds: TRect; ARadiusX,ARadiusY: single;
-  ABlurType: TRadialBlurType): TFilterTask;
+function FilterBlurRadial(bmp: TBGRACustomBitmap; radius: single; blurType: TRadialBlurType): TBGRACustomBitmap;
+function FilterBlurRadial(bmp: TBGRACustomBitmap; radiusX: single; radiusY: single; blurType: TRadialBlurType): TBGRACustomBitmap;
+function CreateRadialBlurTask(ABmp: TBGRACustomBitmap; ABounds: TRect; ARadius: single; ABlurType: TRadialBlurType): TFilterTask;
+function CreateRadialBlurTask(ABmp: TBGRACustomBitmap; ABounds: TRect; ARadiusX,ARadiusY: single; ABlurType: TRadialBlurType): TFilterTask;
 
 { The precise blur allow to specify the blur radius with subpixel accuracy }
 function FilterBlurRadialPrecise(bmp: TBGRACustomBitmap; radius: single): TBGRACustomBitmap;
@@ -107,14 +100,19 @@ function CreateRadialPreciseBlurTask(ABmp: TBGRACustomBitmap; ABounds: TRect; AR
 
 { Motion blur merge pixels in a direction. The oriented parameter specifies
   if the weights of the pixels are the same along the line or not. }
-function FilterBlurMotion(bmp: TBGRACustomBitmap; distance: single;
-  angle: single; oriented: boolean): TBGRACustomBitmap;
+function FilterBlurMotion(bmp: TBGRACustomBitmap; distance: single; angle: single; oriented: boolean): TBGRACustomBitmap;
 function CreateMotionBlurTask(ABmp: TBGRACustomBitmap; ABounds: TRect; ADistance,AAngle: single; AOriented: boolean): TFilterTask;
 
 { General purpose blur filter, with a blur mask as parameter to describe
   how pixels influence each other }
 function FilterBlur(bmp: TBGRACustomBitmap; blurMask: TBGRACustomBitmap): TBGRACustomBitmap;
 function CreateBlurTask(ABmp: TBGRACustomBitmap; ABounds: TRect; AMask: TBGRACustomBitmap; AMaskIsThreadSafe: boolean = false): TFilterTask;
+////////////////////////////// OTHER FILTERS /////////////////////////////////
+
+{ SmartZoom x3 is a filter that upsizes 3 times the picture and add
+  pixels that could be logically expected (horizontal, vertical, diagonal lines) }
+function FilterSmartZoom3(bmp: TBGRACustomBitmap;
+  Option: TMedianOption): TBGRACustomBitmap;
 
 function FilterPixelate(bmp: TBGRACustomBitmap; pixelSize: integer; useResample: boolean; filter: TResampleFilter = rfLinear): TBGRACustomBitmap;
 
@@ -877,8 +875,7 @@ begin
   Result.PutImageAngle(0,0,bmp,angle,origin.x,origin.y,255,true,correctBlur);
 end;
 
-
-
+///////////////////////// BLUR FILTERS //////////////////////////////////////
 
 type
   { TBoxBlurTask }
@@ -963,162 +960,6 @@ procedure FilterBlurMotion(bmp: TBGRACustomBitmap; ABounds: TRect; distance: sin
   angle: single; oriented: boolean; ADestination: TBGRACustomBitmap; ACheckShouldStop: TCheckShouldStopFunc); forward;
 procedure FilterBlur(bmp: TBGRACustomBitmap; ABounds: TRect;
    blurMask: TBGRACustomBitmap; ADestination: TBGRACustomBitmap; ACheckShouldStop: TCheckShouldStopFunc); forward;
-
-function FilterSmartZoom3(bmp: TBGRACustomBitmap;
-  Option: TMedianOption): TBGRACustomBitmap;
-type
-  TSmartDiff = record
-    d, cd, sd, b, a: single;
-  end;
-
-var
-  xb, yb: Int32or64;
-  diag1, diag2, h1, h2, v1, v2: TSmartDiff;
-  c,c1,c2:      TBGRAPixel;
-  temp, median: TBGRACustomBitmap;
-
-  function ColorDiff(c1, c2: TBGRAPixel): single;
-  var
-    max1, max2: Int32or64;
-  begin
-    if (c1.alpha = 0) and (c2.alpha = 0) then
-    begin
-      Result := 0;
-      exit;
-    end
-    else
-    if (c1.alpha = 0) or (c2.alpha = 0) then
-    begin
-      Result := 1;
-      exit;
-    end;
-    max1 := c1.red;
-    if c1.green > max1 then
-      max1 := c1.green;
-    if c1.blue > max1 then
-      max1 := c1.blue;
-
-    max2 := c2.red;
-    if c2.green > max2 then
-      max2 := c2.green;
-    if c2.blue > max2 then
-      max2 := c2.blue;
-
-    if (max1 = 0) or (max2 = 0) then
-    begin
-      Result := 0;
-      exit;
-    end;
-    Result := (abs(c1.red / max1 - c2.red / max2) +
-      abs(c1.green / max1 - c2.green / max2) + abs(c1.blue / max1 - c2.blue / max2)) / 3;
-  end;
-
-  function RGBDiff(c1, c2: TBGRAPixel): single;
-  begin
-    if (c1.alpha = 0) and (c2.alpha = 0) then
-    begin
-      Result := 0;
-      exit;
-    end
-    else
-    if (c1.alpha = 0) or (c2.alpha = 0) then
-    begin
-      Result := 1;
-      exit;
-    end;
-    Result := (abs(c1.red - c2.red) + abs(c1.green - c2.green) +
-      abs(c1.blue - c2.blue)) / 3 / 255;
-  end;
-
-  function smartDiff(x1, y1, x2, y2: Int32or64): TSmartDiff;
-  var
-    c1, c2, c1m, c2m: TBGRAPixel;
-  begin
-    c1  := bmp.GetPixel(x1, y1);
-    c2  := bmp.GetPixel(x2, y2);
-    c1m := median.GetPixel(x1, y1);
-    c2m := median.GetPixel(x2, y2);
-    Result.d := RGBDiff(c1, c2);
-    Result.cd := ColorDiff(c1, c2);
-    Result.a := c1.alpha / 255 * c2.alpha / 255;
-    Result.d := Result.d * Result.a + (1 - Result.a) *
-      (1 + abs(c1.alpha - c2.alpha) / 255) / 5;
-    Result.b := RGBDiff(c1, c1m) * c1.alpha / 255 * c1m.alpha / 255 +
-      RGBDiff(c2, c2m) * c2.alpha / 255 * c2m.alpha / 255 +
-      (abs(c1.alpha - c1m.alpha) + abs(c2.alpha - c2m.alpha)) / 255 / 4;
-    Result.sd := Result.d + Result.cd * 3;
-  end;
-
-var
-  diff: single;
-
-begin
-  median := FilterMedian(bmp, moNone);
-
-  temp   := bmp.Resample(bmp.Width * 3, bmp.Height * 3, rmSimpleStretch);
-  Result := FilterMedian(temp, Option);
-  temp.Free;
-
-  for yb := 0 to bmp.Height - 2 do
-    for xb := 0 to bmp.Width - 2 do
-    begin
-      diag1 := smartDiff(xb, yb, xb + 1, yb + 1);
-      diag2 := smartDiff(xb, yb + 1, xb + 1, yb);
-
-      h1 := smartDiff(xb, yb, xb + 1, yb);
-      h2 := smartDiff(xb, yb + 1, xb + 1, yb + 1);
-      v1 := smartDiff(xb, yb, xb, yb + 1);
-      v2 := smartDiff(xb + 1, yb, xb + 1, yb + 1);
-
-      diff := diag1.sd - diag2.sd;
-      if abs(diff) < 3 then
-        diff -= (diag1.b - diag2.b) * (3 - abs(diff)) / 2;
-      //which diagonal to highlight?
-      if abs(diff) < 0.2 then
-        diff := 0;
-
-      if diff < 0 then
-      begin
-        //same color?
-        if diag1.cd < 0.3 then
-        begin
-          c1 := bmp.GetPixel(xb, yb);
-          c2 := bmp.GetPixel(xb + 1, yb + 1);
-          c := MergeBGRA(c1, c2);
-          //restore
-          Result.SetPixel(xb * 3 + 2, yb * 3 + 2, bmp.GetPixel(xb, yb));
-          Result.SetPixel(xb * 3 + 3, yb * 3 + 3, bmp.GetPixel(xb + 1, yb + 1));
-
-          if (diag1.sd < h1.sd) and (diag1.sd < v2.sd) then
-            Result.SetPixel(xb * 3 + 3, yb * 3 + 2, c);
-          if (diag1.sd < h2.sd) and (diag1.sd < v1.sd) then
-            Result.SetPixel(xb * 3 + 2, yb * 3 + 3, c);
-        end;
-      end
-      else
-      if diff > 0 then
-      begin
-        //same color?
-        if diag2.cd < 0.3 then
-        begin
-          c1 := bmp.GetPixel(xb, yb + 1);
-          c2 := bmp.GetPixel(xb + 1, yb);
-          c := MergeBGRA(c1, c2);
-          //restore
-          Result.SetPixel(xb * 3 + 3, yb * 3 + 2, bmp.GetPixel(xb + 1, yb));
-          Result.SetPixel(xb * 3 + 2, yb * 3 + 3, bmp.GetPixel(xb, yb + 1));
-
-          if (diag2.sd < h1.sd) and (diag2.sd < v1.sd) then
-            Result.SetPixel(xb * 3 + 2, yb * 3 + 2, c);
-          if (diag2.sd < h2.sd) and (diag2.sd < v2.sd) then
-            Result.SetPixel(xb * 3 + 3, yb * 3 + 3, c);
-
-        end;
-      end;
-    end;
-
-  median.Free;
-end;
 
 { Precise blur builds a blur mask with a gradient fill and use
   general purpose blur }
@@ -1464,63 +1305,6 @@ begin
     result := value;
 end;
 
-function FilterPixelate(bmp: TBGRACustomBitmap; pixelSize: integer;
-  useResample: boolean; filter: TResampleFilter): TBGRACustomBitmap;
-var yb,xb, xs,ys, tx,ty: Int32or64;
-    psrc,pdest: PBGRAPixel;
-    temp,stretched: TBGRACustomBitmap;
-    oldfilter: TResampleFilter;
-begin
-  if pixelSize < 1 then
-  begin
-    result := bmp.Duplicate;
-    exit;
-  end;
-  result := bmp.NewBitmap(bmp.Width,bmp.Height);
-
-  tx := (bmp.Width+pixelSize-1) div pixelSize;
-  ty := (bmp.Height+pixelSize-1) div pixelSize;
-  if not useResample then
-  begin
-    temp := bmp.NewBitmap(tx,ty);
-
-    xs := (bmp.Width mod pixelSize) div 2;
-    ys := (bmp.Height mod pixelSize) div 2;
-
-    for yb := 0 to temp.height-1 do
-    begin
-      pdest := temp.ScanLine[yb];
-      psrc := bmp.scanline[ys]+xs;
-      inc(ys,pixelSize);
-      for xb := temp.width-1 downto 0 do
-      begin
-        pdest^ := psrc^;
-        inc(pdest);
-        inc(psrc,pixelSize);
-      end;
-    end;
-    temp.InvalidateBitmap;
-  end else
-  begin
-    oldfilter := bmp.ResampleFilter;
-    bmp.ResampleFilter := filter;
-    temp := bmp.Resample(tx,ty,rmFineResample);
-    bmp.ResampleFilter := oldfilter;
-  end;
-  stretched := temp.Resample(temp.Width*pixelSize,temp.Height*pixelSize,rmSimpleStretch);
-  temp.free;
-  if bmp.Width mod pixelSize = 0 then
-    xs := 0
-  else
-    xs := (-pixelSize+(bmp.Width mod pixelSize)) div 2;
-  if bmp.Height mod pixelSize = 0 then
-    ys := 0
-  else
-    ys := (-pixelSize+(bmp.Height mod pixelSize)) div 2;
-  result.PutImage(xs,ys,stretched,dmSet);
-  stretched.Free;
-end;
-
 function FilterBlur(bmp: TBGRACustomBitmap; blurMask: TBGRACustomBitmap): TBGRACustomBitmap;
 begin
   result := bmp.NewBitmap(bmp.Width,bmp.Height);
@@ -1808,6 +1592,221 @@ end;
 procedure TRadialBlurTask.DoExecute;
 begin
   FilterBlurRadial(FSource,FBounds,FRadiusX,FRadiusY,FBlurType,Destination,@GetShouldStop);
+end;
+
+///////////////////////////////////// OTHER FILTERS ///////////////////////////
+
+function FilterSmartZoom3(bmp: TBGRACustomBitmap;
+  Option: TMedianOption): TBGRACustomBitmap;
+type
+  TSmartDiff = record
+    d, cd, sd, b, a: single;
+  end;
+
+var
+  xb, yb: Int32or64;
+  diag1, diag2, h1, h2, v1, v2: TSmartDiff;
+  c,c1,c2:      TBGRAPixel;
+  temp, median: TBGRACustomBitmap;
+
+  function ColorDiff(c1, c2: TBGRAPixel): single;
+  var
+    max1, max2: Int32or64;
+  begin
+    if (c1.alpha = 0) and (c2.alpha = 0) then
+    begin
+      Result := 0;
+      exit;
+    end
+    else
+    if (c1.alpha = 0) or (c2.alpha = 0) then
+    begin
+      Result := 1;
+      exit;
+    end;
+    max1 := c1.red;
+    if c1.green > max1 then
+      max1 := c1.green;
+    if c1.blue > max1 then
+      max1 := c1.blue;
+
+    max2 := c2.red;
+    if c2.green > max2 then
+      max2 := c2.green;
+    if c2.blue > max2 then
+      max2 := c2.blue;
+
+    if (max1 = 0) or (max2 = 0) then
+    begin
+      Result := 0;
+      exit;
+    end;
+    Result := (abs(c1.red / max1 - c2.red / max2) +
+      abs(c1.green / max1 - c2.green / max2) + abs(c1.blue / max1 - c2.blue / max2)) / 3;
+  end;
+
+  function RGBDiff(c1, c2: TBGRAPixel): single;
+  begin
+    if (c1.alpha = 0) and (c2.alpha = 0) then
+    begin
+      Result := 0;
+      exit;
+    end
+    else
+    if (c1.alpha = 0) or (c2.alpha = 0) then
+    begin
+      Result := 1;
+      exit;
+    end;
+    Result := (abs(c1.red - c2.red) + abs(c1.green - c2.green) +
+      abs(c1.blue - c2.blue)) / 3 / 255;
+  end;
+
+  function smartDiff(x1, y1, x2, y2: Int32or64): TSmartDiff;
+  var
+    c1, c2, c1m, c2m: TBGRAPixel;
+  begin
+    c1  := bmp.GetPixel(x1, y1);
+    c2  := bmp.GetPixel(x2, y2);
+    c1m := median.GetPixel(x1, y1);
+    c2m := median.GetPixel(x2, y2);
+    Result.d := RGBDiff(c1, c2);
+    Result.cd := ColorDiff(c1, c2);
+    Result.a := c1.alpha / 255 * c2.alpha / 255;
+    Result.d := Result.d * Result.a + (1 - Result.a) *
+      (1 + abs(c1.alpha - c2.alpha) / 255) / 5;
+    Result.b := RGBDiff(c1, c1m) * c1.alpha / 255 * c1m.alpha / 255 +
+      RGBDiff(c2, c2m) * c2.alpha / 255 * c2m.alpha / 255 +
+      (abs(c1.alpha - c1m.alpha) + abs(c2.alpha - c2m.alpha)) / 255 / 4;
+    Result.sd := Result.d + Result.cd * 3;
+  end;
+
+var
+  diff: single;
+
+begin
+  median := FilterMedian(bmp, moNone);
+
+  temp   := bmp.Resample(bmp.Width * 3, bmp.Height * 3, rmSimpleStretch);
+  Result := FilterMedian(temp, Option);
+  temp.Free;
+
+  for yb := 0 to bmp.Height - 2 do
+    for xb := 0 to bmp.Width - 2 do
+    begin
+      diag1 := smartDiff(xb, yb, xb + 1, yb + 1);
+      diag2 := smartDiff(xb, yb + 1, xb + 1, yb);
+
+      h1 := smartDiff(xb, yb, xb + 1, yb);
+      h2 := smartDiff(xb, yb + 1, xb + 1, yb + 1);
+      v1 := smartDiff(xb, yb, xb, yb + 1);
+      v2 := smartDiff(xb + 1, yb, xb + 1, yb + 1);
+
+      diff := diag1.sd - diag2.sd;
+      if abs(diff) < 3 then
+        diff -= (diag1.b - diag2.b) * (3 - abs(diff)) / 2;
+      //which diagonal to highlight?
+      if abs(diff) < 0.2 then
+        diff := 0;
+
+      if diff < 0 then
+      begin
+        //same color?
+        if diag1.cd < 0.3 then
+        begin
+          c1 := bmp.GetPixel(xb, yb);
+          c2 := bmp.GetPixel(xb + 1, yb + 1);
+          c := MergeBGRA(c1, c2);
+          //restore
+          Result.SetPixel(xb * 3 + 2, yb * 3 + 2, bmp.GetPixel(xb, yb));
+          Result.SetPixel(xb * 3 + 3, yb * 3 + 3, bmp.GetPixel(xb + 1, yb + 1));
+
+          if (diag1.sd < h1.sd) and (diag1.sd < v2.sd) then
+            Result.SetPixel(xb * 3 + 3, yb * 3 + 2, c);
+          if (diag1.sd < h2.sd) and (diag1.sd < v1.sd) then
+            Result.SetPixel(xb * 3 + 2, yb * 3 + 3, c);
+        end;
+      end
+      else
+      if diff > 0 then
+      begin
+        //same color?
+        if diag2.cd < 0.3 then
+        begin
+          c1 := bmp.GetPixel(xb, yb + 1);
+          c2 := bmp.GetPixel(xb + 1, yb);
+          c := MergeBGRA(c1, c2);
+          //restore
+          Result.SetPixel(xb * 3 + 3, yb * 3 + 2, bmp.GetPixel(xb + 1, yb));
+          Result.SetPixel(xb * 3 + 2, yb * 3 + 3, bmp.GetPixel(xb, yb + 1));
+
+          if (diag2.sd < h1.sd) and (diag2.sd < v1.sd) then
+            Result.SetPixel(xb * 3 + 2, yb * 3 + 2, c);
+          if (diag2.sd < h2.sd) and (diag2.sd < v2.sd) then
+            Result.SetPixel(xb * 3 + 3, yb * 3 + 3, c);
+
+        end;
+      end;
+    end;
+
+  median.Free;
+end;
+
+function FilterPixelate(bmp: TBGRACustomBitmap; pixelSize: integer;
+  useResample: boolean; filter: TResampleFilter): TBGRACustomBitmap;
+var yb,xb, xs,ys, tx,ty: Int32or64;
+    psrc,pdest: PBGRAPixel;
+    temp,stretched: TBGRACustomBitmap;
+    oldfilter: TResampleFilter;
+begin
+  if pixelSize < 1 then
+  begin
+    result := bmp.Duplicate;
+    exit;
+  end;
+  result := bmp.NewBitmap(bmp.Width,bmp.Height);
+
+  tx := (bmp.Width+pixelSize-1) div pixelSize;
+  ty := (bmp.Height+pixelSize-1) div pixelSize;
+  if not useResample then
+  begin
+    temp := bmp.NewBitmap(tx,ty);
+
+    xs := (bmp.Width mod pixelSize) div 2;
+    ys := (bmp.Height mod pixelSize) div 2;
+
+    for yb := 0 to temp.height-1 do
+    begin
+      pdest := temp.ScanLine[yb];
+      psrc := bmp.scanline[ys]+xs;
+      inc(ys,pixelSize);
+      for xb := temp.width-1 downto 0 do
+      begin
+        pdest^ := psrc^;
+        inc(pdest);
+        inc(psrc,pixelSize);
+      end;
+    end;
+    temp.InvalidateBitmap;
+  end else
+  begin
+    oldfilter := bmp.ResampleFilter;
+    bmp.ResampleFilter := filter;
+    temp := bmp.Resample(tx,ty,rmFineResample);
+    bmp.ResampleFilter := oldfilter;
+  end;
+  stretched := temp.Resample(temp.Width*pixelSize,temp.Height*pixelSize,rmSimpleStretch);
+  temp.free;
+  if bmp.Width mod pixelSize = 0 then
+    xs := 0
+  else
+    xs := (-pixelSize+(bmp.Width mod pixelSize)) div 2;
+  if bmp.Height mod pixelSize = 0 then
+    ys := 0
+  else
+    ys := (-pixelSize+(bmp.Height mod pixelSize)) div 2;
+  result.PutImage(xs,ys,stretched,dmSet);
+  stretched.Free;
 end;
 
 end.
