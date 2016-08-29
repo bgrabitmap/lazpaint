@@ -59,8 +59,6 @@ procedure FilterBlur(bmp: TBGRACustomBitmap; ABounds: TRect;
    blurMask: TBGRACustomBitmap; ADestination: TBGRACustomBitmap; ACheckShouldStop: TCheckShouldStopFunc); forward;
 procedure FilterBlurMotion(bmp: TBGRACustomBitmap; ABounds: TRect; distance: single;
   angle: single; oriented: boolean; ADestination: TBGRACustomBitmap; ACheckShouldStop: TCheckShouldStopFunc); forward;
-procedure FilterBlurRadialPrecise(bmp: TBGRACustomBitmap; ABounds: TRect;
-  radius: single; ADestination: TBGRACustomBitmap; ACheckShouldStop: TCheckShouldStopFunc); forward;
 procedure FilterBlurRadial(bmp: TBGRACustomBitmap; ABounds: TRect; radiusX,radiusY: single;
   blurType: TRadialBlurType; ADestination: TBGRACustomBitmap; ACheckShouldStop: TCheckShouldStopFunc); forward;
 
@@ -153,35 +151,6 @@ end;
 procedure TRadialBlurTask.DoExecute;
 begin
   FilterBlurRadial(FSource,FBounds,FRadiusX,FRadiusY,FBlurType,Destination,@GetShouldStop);
-end;
-
-{ Precise blur builds a blur mask with a gradient fill and use
-  general purpose blur }
-procedure FilterBlurRadialPrecise(bmp: TBGRACustomBitmap;
-  ABounds: TRect; radius: single; ADestination: TBGRACustomBitmap; ACheckShouldStop: TCheckShouldStopFunc);
-var
-  blurShape: TBGRACustomBitmap;
-  intRadius: integer;
-begin
-  if radius = 0 then
-  begin
-    ADestination.PutImagePart(ABounds.Left,ABounds.Top,bmp,ABounds,dmSet);
-    exit;
-  end;
-  intRadius := ceil(radius);
-  blurShape := bmp.NewBitmap(2 * intRadius + 1, 2 * intRadius + 1);
-  blurShape.GradientFill(0, 0, blurShape.Width, blurShape.Height, BGRAWhite,
-    BGRABlack, gtRadial, pointF(intRadius, intRadius), pointF(
-    intRadius - radius - 1, intRadius), dmSet);
-  FilterBlur(bmp, ABounds, blurShape, ADestination, ACheckShouldStop);
-  blurShape.Free;
-end;
-
-function FilterBlurRadialPrecise(bmp: TBGRACustomBitmap; radius: single
-  ): TBGRACustomBitmap;
-begin
-  result := bmp.NewBitmap(bmp.Width,bmp.Height);
-  FilterBlurRadialPrecise(bmp, rect(0,0,bmp.Width,bmp.Height), radius, result, nil);
 end;
 
 function FilterBlurBox(bmp: TBGRACustomBitmap; ABounds: TRect; radiusX,radiusY: single;
@@ -352,7 +321,7 @@ begin
     rbDisk:    FilterBlurDisk(bmp, ABounds, radius,radius, ADestination, ACheckShouldStop);
     rbNormal:  FilterBlurRadialNormal(bmp, ABounds, radius,radius, ADestination, ACheckShouldStop);
     rbFast:    FilterBlurFast(bmp, ABounds, radius,radius, ADestination, ACheckShouldStop);
-    rbPrecise: FilterBlurRadialPrecise(bmp, ABounds, radius / 10, ADestination, ACheckShouldStop);
+    rbPrecise: FilterBlurRadialNormal(bmp, ABounds, radius / 10 + 0.5, radius / 10 + 0.5, ADestination, ACheckShouldStop);
     rbBox:     FilterBlurBox(bmp, ABounds, radius,radius, ADestination, ACheckShouldStop);
   end;
 end;
@@ -372,7 +341,7 @@ begin
     rbDisk:    FilterBlurDisk(bmp, ABounds, radiusX,radiusY, ADestination, ACheckShouldStop);
     rbNormal:  FilterBlurRadialNormal(bmp, ABounds, radiusX,radiusY, ADestination, ACheckShouldStop);
     rbFast:    FilterBlurFast(bmp, ABounds, radiusX,radiusY, ADestination, ACheckShouldStop);
-    rbPrecise: FilterBlurRadialPrecise(bmp, ABounds, radiusX / 10, radiusY/10, ADestination, ACheckShouldStop);
+    rbPrecise: FilterBlurRadialNormal(bmp, ABounds, radiusX / 10 + 0.5, radiusY/10 + 0.5, ADestination, ACheckShouldStop);
     rbBox:     FilterBlurBox(bmp, ABounds, radiusX,radiusY, ADestination, ACheckShouldStop);
   end;
 end;
