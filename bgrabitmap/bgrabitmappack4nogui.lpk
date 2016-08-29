@@ -36,7 +36,7 @@
     <Description Value="Drawing routines with alpha blending and antialiasing"/>
     <License Value="modified LGPL"/>
     <Version Major="9" Minor="1"/>
-    <Files Count="96">
+    <Files Count="97">
       <Item1>
         <Filename Value="bgraanimatedgif.pas"/>
         <UnitName Value="BGRAAnimatedGif"/>
@@ -421,6 +421,10 @@
         <Filename Value="bgrafiltertype.pas"/>
         <UnitName Value="BGRAFilterType"/>
       </Item96>
+      <Item97>
+        <Filename Value="bgrafilterblur.pas"/>
+        <UnitName Value="BGRAFilterBlur"/>
+      </Item97>
     </Files>
     <RequiredPkgs Count="2">
       <Item1>
