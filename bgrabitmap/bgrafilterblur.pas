@@ -372,7 +372,7 @@ begin
     rbDisk:    FilterBlurDisk(bmp, ABounds, radiusX,radiusY, ADestination, ACheckShouldStop);
     rbNormal:  FilterBlurRadialNormal(bmp, ABounds, radiusX,radiusY, ADestination, ACheckShouldStop);
     rbFast:    FilterBlurFast(bmp, ABounds, radiusX,radiusY, ADestination, ACheckShouldStop);
-    rbPrecise: FilterBlurRadialNormal(bmp, ABounds, radiusX / 10, radiusY/10, ADestination, ACheckShouldStop);
+    rbPrecise: FilterBlurRadialPrecise(bmp, ABounds, radiusX / 10, radiusY/10, ADestination, ACheckShouldStop);
     rbBox:     FilterBlurBox(bmp, ABounds, radiusX,radiusY, ADestination, ACheckShouldStop);
   end;
 end;
