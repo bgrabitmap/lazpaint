@@ -96,8 +96,8 @@ function CreateRadialBlurTask(ABmp: TBGRACustomBitmap; ABounds: TRect; ARadius: 
 function CreateRadialBlurTask(ABmp: TBGRACustomBitmap; ABounds: TRect; ARadiusX,ARadiusY: single; ABlurType: TRadialBlurType): TRadialBlurTask;
 
 { The precise blur allow to specify the blur radius with subpixel accuracy }
-function FilterBlurRadialPrecise(bmp: TBGRACustomBitmap; radius: single): TBGRACustomBitmap;
-function CreateRadialPreciseBlurTask(ABmp: TBGRACustomBitmap; ABounds: TRect; ARadius: single): TRadialBlurTask;
+function FilterBlurRadialPrecise(bmp: TBGRACustomBitmap; radius: single): TBGRACustomBitmap; deprecated 'Use FilterBlurRadial with blurType:=rbPrecise and radius multiplied by 10';
+function CreateRadialPreciseBlurTask(ABmp: TBGRACustomBitmap; ABounds: TRect; ARadius: single): TRadialBlurTask; deprecated 'Use CreateRadialBlurTask with blurType:=rbPrecise and radius multiplied by 10';
 
 { Motion blur merge pixels in a direction. The oriented parameter specifies
   if the weights of the pixels are the same along the line or not. }
