@@ -1773,7 +1773,7 @@ var comparer: TIsChannelStrictlyGreaterFunc;
 begin
   comparer := GetPixelStrictComparer(ADimension);
   if comparer = nil then exit;
-  ArrayOfWeightedColor_InsertionSort(FColors,0,high(FColors),comparer)
+  ArrayOfWeightedColor_QuickSort(FColors,0,high(FColors),comparer)
 end;
 
 function TBGRAColorBox.GetMedianIndex(ADimension: TColorDimension;
