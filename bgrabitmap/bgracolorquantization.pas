@@ -67,10 +67,11 @@ type
   TBGRAApproxPalette = class(TBGRACustomApproxPalette)
   private
     FTree: TBGRAColorTree;
-    FColors: ArrayOfTBGRAPixel;
+    FColors: ArrayOfWeightedColor;
   protected
     function GetCount: integer; override;
     function GetColorByIndex(AIndex: integer): TBGRAPixel; override;
+    function GetWeightByIndex(AIndex: Integer): UInt32; override;
     procedure Init(const AColors: ArrayOfTBGRAPixel);
   public
     constructor Create(const AColors: ArrayOfTBGRAPixel); overload;
@@ -95,7 +96,7 @@ type
       approxColorIndex: integer;
     end;
     FLargerOwned: boolean;
-    FWeights: array of UInt32;
+    FTransparentColorIndex: integer;
   protected
     function FindNearestLargerColorIndex(AValue: TBGRAPixel): integer; virtual;
     function SlowFindNearestColorIndex(AValue: TBGRAPixel): integer;
@@ -552,14 +553,14 @@ var diff,curDiff: NativeInt;
 begin
   if AValue.alpha = 0 then
   begin
-    result := -1;
+    result := FTransparentColorIndex;
     exit;
   end;
-  diff := BGRAWordDiff(AValue, FColors[0]);
+  diff := BGRAWordDiff(AValue, FColors[0].Color);
   result := 0;
   for i := 0 to high(FColors) do
   begin
-    curDiff := BGRAWordDiff(AValue, FColors[i]);
+    curDiff := BGRAWordDiff(AValue, FColors[i].Color);
     if curDiff < diff then
     begin
       result := i;
@@ -574,9 +575,12 @@ var i: integer;
   largeWeighted: ArrayOfWeightedColor;
 begin
   inherited Create(AColors);
-  setlength(FWeights, length(FColors));
-  for i := 0 to high(FWeights) do
-    FWeights[i] := 0;
+  FTransparentColorIndex:= -1;
+  for i := 0 to high(FColors) do
+  begin
+    FColors[i].Weight := 0;
+    if FColors[i].Color.alpha = 0 then FTransparentColorIndex:= i;
+  end;
   FLarger := ALarger;
   FLargerOwned := ALargerOwned;
   largeWeighted := FLarger.GetAsArrayOfWeightedColor;
@@ -589,8 +593,8 @@ begin
       approxColor := BGRAPixelTransparent
     else
     begin
-      approxColor := FColors[approxColorIndex];
-      inc(FWeights[approxColorIndex]);
+      approxColor := FColors[approxColorIndex].Color;
+      inc(FColors[approxColorIndex].Weight, largeWeighted[i].Weight);
     end;
   end;
 end;
@@ -629,10 +633,7 @@ var
 begin
   setlength(result, length(FColors));
   for i := 0 to high(FColors) do
-  begin
-    result[i].Color := FColors[i];
-    result[i].Weight := FWeights[i];
-  end;
+    result[i] := FColors[i];
 end;
 
 { TBGRAApproxPalette }
@@ -646,7 +647,14 @@ function TBGRAApproxPalette.GetColorByIndex(AIndex: integer): TBGRAPixel;
 begin
   if (AIndex < 0) or (AIndex >= length(FColors)) then
     raise ERangeError.Create('Index out of bounds');
-  result := FColors[AIndex];
+  result := FColors[AIndex].Color;
+end;
+
+function TBGRAApproxPalette.GetWeightByIndex(AIndex: Integer): UInt32;
+begin
+  if (AIndex < 0) or (AIndex >= length(FColors)) then
+    raise ERangeError.Create('Index out of bounds');
+  result := FColors[AIndex].Weight;
 end;
 
 procedure TBGRAApproxPalette.Init(const AColors: ArrayOfTBGRAPixel);
@@ -664,7 +672,7 @@ begin
   FTree := TBGRAColorTree.Create(TBGRAColorBox.Create(ApproxPaletteDimensions,weightedColors,True),True);
   FTree.SplitIntoPalette(length(AColors),blApparentInterval,lcAverage);
 
-  FColors := FTree.GetAsArrayOfApproximatedColors;
+  FColors := FTree.GetAsArrayOfWeightedColors;
 end;
 
 constructor TBGRAApproxPalette.Create(const AColors: ArrayOfTBGRAPixel);
@@ -677,13 +685,13 @@ begin
   FTree := TBGRAColorTree.Create(TBGRAColorBox.Create(ApproxPaletteDimensions,AColors,True),True);
   FTree.SplitIntoPalette(length(AColors),blApparentInterval,lcAverage);
 
-  FColors := FTree.GetAsArrayOfApproximatedColors;
+  FColors := FTree.GetAsArrayOfWeightedColors;
 end;
 
 constructor TBGRAApproxPalette.Create(AOwnedSplitTree: TBGRAColorTree);
 begin
   FTree := AOwnedSplitTree;
-  FColors := FTree.GetAsArrayOfApproximatedColors;
+  FColors := FTree.GetAsArrayOfWeightedColors;
 end;
 
 destructor TBGRAApproxPalette.Destroy;
@@ -700,7 +708,7 @@ end;
 function TBGRAApproxPalette.IndexOfColor(AValue: TBGRAPixel): integer;
 begin
   result := FTree.ApproximateColorIndex(AValue);
-  if (result <> -1) and not (DWord(FColors[result]) = DWord(AValue)) then result := -1;
+  if (result <> -1) and not (DWord(FColors[result].Color) = DWord(AValue)) then result := -1;
 end;
 
 function TBGRAApproxPalette.FindNearestColor(AValue: TBGRAPixel): TBGRAPixel;
@@ -719,7 +727,7 @@ var
 begin
   setlength(result, length(FColors));
   for i := 0 to high(result) do
-    result[i] := FColors[i];
+    result[i] := FColors[i].Color;
 end;
 
 function TBGRAApproxPalette.GetAsArrayOfWeightedColor: ArrayOfWeightedColor;
@@ -732,11 +740,7 @@ begin
   begin
     setlength(result, length(FColors));
     for i := 0 to high(result) do
-    with result[i] do
-    begin
-      Color := FColors[i];
-      Weight:= 1;
-    end;
+      result[i] := FColors[i];
   end;
 end;
 
@@ -889,12 +893,12 @@ var
   tree: TBGRAColorTree;
 
   procedure MakeTreeErrorDiffusionFriendly;
-  var moreColors: ArrayOfTBGRAPixel;
+  var moreColors: ArrayOfWeightedColor;
     box: TBGRAColorBox;
   begin
-    moreColors := tree.GetAsArrayOfApproximatedColors;
+    moreColors := tree.GetAsArrayOfWeightedColors;
     tree.free;
-    box := TBGRAColorBox.Create([cdRed,cdGreen,cdBlue,cdAlpha],moreColors);
+    box := TBGRAColorBox.Create([cdRed,cdGreen,cdBlue,cdAlpha],moreColors,True);
     tree := TBGRAColorTree.Create(box,True);
     tree.SplitIntoPalette(box.ColorCount[true], blApparentInterval, lcAverage);
   end;
@@ -1463,7 +1467,7 @@ begin
         result := infLeaf
       else
         result := supLeaf;
-    blMix:
+    else{blMix:}
       if (sqrt(infLeaf.Weight/FWeight)*(infLeaf.LargestApparentInterval/LargestApparentInterval) >=
           sqrt(supLeaf.Weight/FWeight)*(supLeaf.LargestApparentInterval/LargestApparentInterval) ) then
         result := infLeaf
@@ -1759,7 +1763,7 @@ begin
         FColors[idx] := AColors[i];
       inc(idx);
     end else
-      inc(FPureTransparentColorCount);
+      inc(FPureTransparentColorCount, Weight);
   end;
   setlength(FColors,idx);
 end;
@@ -1877,14 +1881,14 @@ var i,j,prev,idx: integer;
   p: PBGRAPixel;
   skip: boolean;
   alphaMask: DWord;
-  transp: boolean;
+  transpIndex: integer;
 begin
   if AAlpha <> acFullChannelInPalette then
     alphaMask := LEtoN($FF000000)
   else
     alphaMask := 0;
   FDimensions:= ADimensions;
-  transp := false;
+  transpIndex := -1;
   SetLength(FColors,ANbPixels);
   if length(FColors)>0 then
   begin
@@ -1895,15 +1899,19 @@ begin
       if (p^.alpha = 0) or ((AAlpha = acTransparentEntry) and (p^.alpha < 128)) then
       begin
         skip := true;
-        if not transp and not (AAlpha = acIgnore) then
+        if not (AAlpha = acIgnore) then
         begin
-          with FColors[idx] do
+          if (transpIndex=-1) then
           begin
-            Color := BGRAPixelTransparent;
-            Weight:= 1;
-          end;
-          transp := true;
-          inc(idx);
+            transpIndex := idx;
+            with FColors[idx] do
+            begin
+              Color := BGRAPixelTransparent;
+              Weight:= 1;
+            end;
+            inc(idx);
+          end else
+            inc(FColors[transpIndex].Weight);
         end;
         if (p^.alpha = 0) then
         begin

@@ -159,11 +159,14 @@ type
   private
     function FindNearestColorIgnoreAlpha(AValue: TBGRAPixel): TBGRAPixel; inline;
     function FindNearestColorIndexIgnoreAlpha(AValue: TBGRAPixel): integer; inline;
+  protected
+    function GetWeightByIndex({%H-}AIndex: Integer): UInt32; virtual;
   public
     function FindNearestColor(AValue: TBGRAPixel; AIgnoreAlpha: boolean): TBGRAPixel; overload;
     function FindNearestColor(AValue: TBGRAPixel): TBGRAPixel; virtual; abstract; overload;
     function FindNearestColorIndex(AValue: TBGRAPixel; AIgnoreAlpha: boolean): integer; overload;
     function FindNearestColorIndex(AValue: TBGRAPixel): integer; virtual; abstract; overload;
+    property Weight[AIndex: Integer]: UInt32 read GetWeightByIndex;
   end;
 
   { TBGRA16BitPalette }
@@ -728,6 +731,11 @@ begin
   begin
     result := FindNearestColorIndex(TBGRAPixel(DWord(AValue) or AlphaMask));
   end;
+end;
+
+function TBGRACustomApproxPalette.GetWeightByIndex(AIndex: Integer): UInt32;
+begin
+  result := 1;
 end;
 
 function TBGRACustomApproxPalette.FindNearestColor(AValue: TBGRAPixel; AIgnoreAlpha: boolean): TBGRAPixel;
