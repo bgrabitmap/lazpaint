@@ -332,27 +332,15 @@ end;
 function FilterEmbossHighlight(bmp: TBGRACustomBitmap;
   FillSelection: boolean; DefineBorderColor: TBGRAPixel): TBGRACustomBitmap;
 var
-  yb, xb: Int32or64;
-  c0,c1,c2,c3,c4,c5,c6: Int32or64;
-
-  bmpWidth, bmpHeight: Int32or64;
-  slope, h: byte;
-  sum:      Int32or64;
-  tempPixel, highlight: TBGRAPixel;
-  pdest, psrcUp, psrc, psrcDown: PBGRAPixel;
-
   bounds: TRect;
   borderColorOverride: boolean;
   borderColorLevel: Int32or64;
-
-  currentBorderColor: Int32or64;
+  scan: TBGRAEmbossHightlightScanner;
 begin
   borderColorOverride := DefineBorderColor.alpha <> 0;
   borderColorLevel := DefineBorderColor.red;
 
-  bmpWidth  := bmp.Width;
-  bmpHeight := bmp.Height;
-  Result    := bmp.NewBitmap(bmpWidth, bmpHeight);
+  Result    := bmp.NewBitmap(bmp.Width, bmp.Height);
 
   if borderColorOverride then
     bounds := bmp.GetImageBounds(cRed, borderColorLevel)
@@ -362,130 +350,26 @@ begin
     exit;
   bounds.Left   := max(0, bounds.Left - 1);
   bounds.Top    := max(0, bounds.Top - 1);
-  bounds.Right  := min(bmpWidth, bounds.Right + 1);
-  bounds.Bottom := min(bmpHeight, bounds.Bottom + 1);
+  bounds.Right  := min(bmp.Width, bounds.Right + 1);
+  bounds.Bottom := min(bmp.Height, bounds.Bottom + 1);
 
-  currentBorderColor := borderColorLevel;
-  for yb := bounds.Top to bounds.Bottom - 1 do
-  begin
-    pdest := Result.scanline[yb] + bounds.Left;
-
-    if yb > 0 then
-      psrcUp := bmp.Scanline[yb - 1] + bounds.Left
-    else
-      psrcUp := nil;
-    psrc := bmp.scanline[yb] + bounds.Left;
-    if yb < bmpHeight - 1 then
-      psrcDown := bmp.scanline[yb + 1] + bounds.Left
-    else
-      psrcDown := nil;
-
-    for xb := bounds.Left to bounds.Right - 1 do
-    begin
-      c0 := pbyte(psrc)^;
-      if not borderColorOverride then currentBorderColor := c0;
-      if (xb = 0) then
-      begin
-        c1 := currentBorderColor;
-        c2 := currentBorderColor;
-      end
-      else
-      begin
-        if psrcUp <> nil then
-          c1 := pbyte(psrcUp - 1)^
-        else
-          c1 := currentBorderColor;
-        c2 := pbyte(psrc - 1)^;
-      end;
-      if psrcUp <> nil then
-      begin
-        c3 := pbyte(psrcUp)^;
-        Inc(psrcUp);
-      end
-      else
-       c3 := currentBorderColor;
-
-      if (xb = bmpWidth - 1) then
-      begin
-        c4 := currentBorderColor;
-        c5 := currentBorderColor;
-      end
-      else
-      begin
-        if psrcDown <> nil then
-          c4 := pbyte(psrcDown + 1)^
-        else
-          c4 := currentBorderColor;
-        c5 := pbyte(psrc + 1)^;
-      end;
-      if psrcDown <> nil then
-      begin
-        c6 := pbyte(psrcDown)^;
-        Inc(psrcDown);
-      end
-      else
-        c6 := currentBorderColor;
-      Inc(psrc);
-
-      sum := c4+c5+c6-c1-c2-c3;
-      sum := 128 + sum div 3;
-      if sum > 255 then
-        slope := 255
-      else
-      if sum < 1 then
-        slope := 1
-      else
-        slope := sum;
-      h := c0;
-
-      tempPixel.red   := slope;
-      tempPixel.green := slope;
-      tempPixel.blue  := slope;
-      tempPixel.alpha := abs(slope - 128) * 2;
-
-      if fillSelection then
-      begin
-        highlight := BGRA(h shr 2, h shr 1, h, h shr 1);
-        if tempPixel.red < highlight.red then
-          tempPixel.red := highlight.red;
-        if tempPixel.green < highlight.green then
-          tempPixel.green := highlight.green;
-        if tempPixel.blue < highlight.blue then
-          tempPixel.blue := highlight.blue;
-        if tempPixel.alpha < highlight.alpha then
-          tempPixel.alpha := highlight.alpha;
-      end;
-
-      pdest^ := tempPixel;
-      Inc(pdest);
-    end;
-  end;
-  Result.InvalidateBitmap;
+  scan := TBGRAEmbossHightlightScanner.Create(bmp, bounds, borderColorOverride);
+  scan.FillSelection := FillSelection;
+  if borderColorOverride then scan.SourceBorderColor := DefineBorderColor;
+  Result.FillRect(bounds, scan, dmSet);
+  scan.Free;
 end;
 
 function FilterEmbossHighlightOffset(bmp: TBGRACustomBitmap;
   FillSelection: boolean; DefineBorderColor: TBGRAPixel; var Offset: TPoint): TBGRACustomBitmap;
 var
-  yb, xb: int32or64;
-  c0,c1,c2,c3,c4,c5,c6: int32or64;
-
-  bmpWidth, bmpHeight: int32or64;
-  slope, h: byte;
-  sum:      int32or64;
-  tempPixel, highlight: TBGRAPixel;
-  pdest, psrcUp, psrc, psrcDown: PBGRAPixel;
-
   bounds: TRect;
   borderColorOverride: boolean;
   borderColorLevel: int32or64;
-
-  currentBorderColor: int32or64;
+  scan: TBGRAEmbossHightlightScanner;
 begin
   borderColorOverride := DefineBorderColor.alpha <> 0;
   borderColorLevel := DefineBorderColor.red;
-
-  bmpWidth  := bmp.Width;
-  bmpHeight := bmp.Height;
 
   if borderColorOverride then
     bounds := bmp.GetImageBounds(cRed, borderColorLevel)
@@ -498,112 +382,18 @@ begin
   end;
   bounds.Left   := max(0, bounds.Left - 1);
   bounds.Top    := max(0, bounds.Top - 1);
-  bounds.Right  := min(bmpWidth, bounds.Right + 1);
-  bounds.Bottom := min(bmpHeight, bounds.Bottom + 1);
+  bounds.Right  := min(bmp.Width, bounds.Right + 1);
+  bounds.Bottom := min(bmp.Height, bounds.Bottom + 1);
 
   Result    := bmp.NewBitmap(bounds.Right-Bounds.Left+1, bounds.Bottom-Bounds.Top+1);
   inc(Offset.X, bounds.Left);
   inc(Offset.Y, bounds.Top);
 
-  currentBorderColor := borderColorLevel;
-  for yb := bounds.Top to bounds.Bottom - 1 do
-  begin
-    pdest := Result.scanline[yb-Bounds.Top];
-
-    if yb > 0 then
-      psrcUp := bmp.Scanline[yb - 1] + bounds.Left
-    else
-      psrcUp := nil;
-    psrc := bmp.scanline[yb] + bounds.Left;
-    if yb < bmpHeight - 1 then
-      psrcDown := bmp.scanline[yb + 1] + bounds.Left
-    else
-      psrcDown := nil;
-
-    for xb := bounds.Left to bounds.Right - 1 do
-    begin
-      c0 := pbyte(psrc)^;
-      if not borderColorOverride then currentBorderColor := c0;
-      if (xb = 0) then
-      begin
-        c1 := currentBorderColor;
-        c2 := currentBorderColor;
-      end
-      else
-      begin
-        if psrcUp <> nil then
-          c1 := pbyte(psrcUp - 1)^
-        else
-          c1 := currentBorderColor;
-        c2 := pbyte(psrc - 1)^;
-      end;
-      if psrcUp <> nil then
-      begin
-        c3 := pbyte(psrcUp)^;
-        Inc(psrcUp);
-      end
-      else
-       c3 := currentBorderColor;
-
-      if (xb = bmpWidth - 1) then
-      begin
-        c4 := currentBorderColor;
-        c5 := currentBorderColor;
-      end
-      else
-      begin
-        if psrcDown <> nil then
-          c4 := pbyte(psrcDown + 1)^
-        else
-          c4 := currentBorderColor;
-        c5 := pbyte(psrc + 1)^;
-      end;
-      if psrcDown <> nil then
-      begin
-        c6 := pbyte(psrcDown)^;
-        Inc(psrcDown);
-      end
-      else
-        c6 := currentBorderColor;
-      Inc(psrc);
-
-      sum := c4+c5+c6-c1-c2-c3;
-      sum := 128 + sum div 3;
-      if sum > 255 then
-        slope := 255
-      else
-      if sum < 1 then
-        slope := 1
-      else
-        slope := sum;
-      h := c0;
-
-      tempPixel.red   := slope;
-      tempPixel.green := slope;
-      tempPixel.blue  := slope;
-      tempPixel.alpha := abs(slope - 128) * 2;
-
-      if fillSelection then
-      begin
-        highlight := BGRA(h shr 2, h shr 1, h, h shr 1);
-        if tempPixel.red < highlight.red then
-          tempPixel.red := highlight.red;
-        if tempPixel.green < highlight.green then
-          tempPixel.green := highlight.green;
-        if tempPixel.blue < highlight.blue then
-          tempPixel.blue := highlight.blue;
-        if tempPixel.alpha < highlight.alpha then
-          tempPixel.alpha := highlight.alpha;
-      end;
-
-      if tempPixel.alpha = 0 then
-        pdest^ := BGRAPixelTransparent
-      else
-        pdest^ := tempPixel;
-      Inc(pdest);
-    end;
-  end;
-  Result.InvalidateBitmap;
+  scan := TBGRAEmbossHightlightScanner.Create(bmp, bounds, borderColorOverride);
+  scan.FillSelection := FillSelection;
+  if borderColorOverride then scan.SourceBorderColor := DefineBorderColor;
+  Result.FillRect(rect(0,0,result.Width,result.Height), scan, dmSet, Offset);
+  scan.Free;
 end;
 
 { For each component, sort values to get the median }
