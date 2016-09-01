@@ -232,18 +232,24 @@ begin
       Inc(ADest);
     end;
   end else
+  begin
+    if not AutoSourceBorderColor then
+    begin
+      FillDWord(TopLine,3,DWord(FSourceBorderColor));
+      FillDWord(BottomLine,3,DWord(FSourceBorderColor));
+    end;
     while (ACount > 0) and (MiddleX+1 < BufferWidth) do
     begin
       PMiddle:= @Buffers[1][MiddleX-1];
       if Buffers[0] = nil then
       begin
-        FillDWord(TopLine,3,DWord(PMiddle[1]));
+        if AutoSourceBorderColor then FillDWord(TopLine,3,DWord(PMiddle[1]));
         PTop := @TopLine;
       end
       else PTop := @Buffers[0][MiddleX-1];
       if Buffers[2] = nil then
       begin
-        FillDWord(BottomLine,3,DWord(PMiddle[1]));
+        if AutoSourceBorderColor then FillDWord(BottomLine,3,DWord(PMiddle[1]));
         PBottom := @BottomLine;
       end
       else PBottom := @Buffers[2][MiddleX-1];
@@ -252,6 +258,7 @@ begin
       Dec(ACount);
       Inc(ADest);
     end;
+  end;
   if (ACount > 0) and (MiddleX < BufferWidth) then
   begin
     MiddleLine[1] := Buffers[1][MiddleX];
