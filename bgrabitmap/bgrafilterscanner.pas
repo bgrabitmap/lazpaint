@@ -49,6 +49,23 @@ type
             {%H-}ACount: integer; {%H-}AGammaCorrection: boolean); override;
   end;
 
+  { TBGRA3X3FilterScanner }
+
+  TBGRA3X3FilterScanner = class(TBGRAFilterScannerMultipixel)
+  protected
+    FSourceBorderColor,FDestinationBorderColor: TBGRAPixel;
+    FAutoSourceBorderColor: boolean;
+    function DoFilter3X3(PTop,PMiddle,PBottom: PBGRAPixel): TBGRAPixel; virtual; abstract;
+    procedure DoComputeFilter(BufferX: Integer;
+      const Buffers: array of PBGRAPixel; BufferWidth: integer;
+      ADest: PBGRAPixel; ACount: integer); override;
+  public
+    constructor Create(ASource: IBGRAScanner; ABounds: TRect);
+    property SourceBorderColor: TBGRAPixel read FSourceBorderColor write FSourceBorderColor;
+    property DestinationBorderColor: TBGRAPixel read FDestinationBorderColor write FDestinationBorderColor;
+    property AutoSourceBorderColor: boolean read FAutoSourceBorderColor write FAutoSourceBorderColor;
+  end;
+
   { TBGRAContourScanner }
   { Filter contour compute a grayscale image, then for each pixel
     calculates the difference with surrounding pixels (in intensity and alpha)
@@ -80,6 +97,130 @@ type
 implementation
 
 uses BGRABlend, math, SysUtils;
+
+{ TBGRA3X3FilterScanner }
+
+procedure TBGRA3X3FilterScanner.DoComputeFilter(BufferX: Integer;
+  const Buffers: array of PBGRAPixel; BufferWidth: integer; ADest: PBGRAPixel;
+  ACount: integer);
+var MiddleX: Integer;
+  TopLine,MiddleLine,BottomLine: array[0..2] of TBGRAPixel;
+  PTop,PMiddle,PBottom: PBGRAPixel;
+  borderColor: TBGRAPixel;
+begin
+  if Buffers[1] = nil then
+  begin
+    FillDWord(ADest^, ACount, DWord(FDestinationBorderColor));
+    exit;
+  end;
+  MiddleX := BufferX+1;
+  while (ACount > 0) and (MiddleX < 0) do
+  begin
+    ADest^ := FDestinationBorderColor;
+    Dec(ACount);
+    Inc(ADest);
+    Inc(MiddleX);
+  end;
+  if (ACount > 0) and (MiddleX = 0) and (MiddleX < BufferWidth) then
+  begin
+    MiddleLine[1] := Buffers[1][MiddleX];
+    if AutoSourceBorderColor then borderColor := MiddleLine[1]
+    else borderColor := FSourceBorderColor;
+
+    TopLine[0] := borderColor;
+    MiddleLine[0] := borderColor;
+    BottomLine[0] := borderColor;
+    if Buffers[0] = nil then TopLine[1] := borderColor else TopLine[1] := Buffers[0][MiddleX];
+    if Buffers[2] = nil then BottomLine[1] := borderColor else BottomLine[1] := Buffers[2][MiddleX];
+    inc(MiddleX);
+    if MiddleX >= BufferWidth then
+    begin
+      TopLine[2] := borderColor;
+      MiddleLine[2] := borderColor;
+      BottomLine[2] := borderColor;
+    end else
+    begin
+      if Buffers[0] = nil then TopLine[2] := borderColor else TopLine[2] := Buffers[0][MiddleX];
+      MiddleLine[2] := Buffers[1][MiddleX];
+      if Buffers[2] = nil then BottomLine[2] := borderColor else BottomLine[2] := Buffers[2][MiddleX];
+    end;
+    ADest^ := DoFilter3X3(@TopLine,@MiddleLine,@BottomLine);
+    Dec(ACount);
+    Inc(ADest);
+  end;
+  if (Buffers[0]<>nil) and (Buffers[2]<>nil) then
+  begin
+    while (ACount > 0) and (MiddleX+1 < BufferWidth) do
+    begin
+      ADest^ := DoFilter3X3(@Buffers[0][MiddleX-1],@Buffers[1][MiddleX-1],@Buffers[2][MiddleX-1]);
+      Inc(MiddleX);
+      Dec(ACount);
+      Inc(ADest);
+    end;
+  end else
+    while (ACount > 0) and (MiddleX+1 < BufferWidth) do
+    begin
+      PMiddle:= @Buffers[1][MiddleX-1];
+      if Buffers[0] = nil then
+      begin
+        FillDWord(TopLine,3,DWord(PMiddle[1]));
+        PTop := @TopLine;
+      end
+      else PTop := @Buffers[0][MiddleX-1];
+      if Buffers[2] = nil then
+      begin
+        FillDWord(BottomLine,3,DWord(PMiddle[1]));
+        PBottom := @BottomLine;
+      end
+      else PBottom := @Buffers[2][MiddleX-1];
+      ADest^ := DoFilter3X3(PTop,PMiddle,PBottom);
+      Inc(MiddleX);
+      Dec(ACount);
+      Inc(ADest);
+    end;
+  if (ACount > 0) and (MiddleX < BufferWidth) then
+  begin
+    MiddleLine[1] := Buffers[1][MiddleX];
+    if AutoSourceBorderColor then borderColor := MiddleLine[1]
+    else borderColor := FSourceBorderColor;
+
+    if Buffers[0] = nil then TopLine[0] := borderColor else TopLine[0] := Buffers[0][MiddleX-1];
+    MiddleLine[0] := Buffers[1][MiddleX-1];
+    if Buffers[2] = nil then BottomLine[0] := borderColor else BottomLine[0] := Buffers[2][MiddleX-1];
+    if Buffers[0] = nil then TopLine[1] := borderColor else TopLine[1] := Buffers[0][MiddleX];
+    if Buffers[2] = nil then BottomLine[1] := borderColor else BottomLine[1] := Buffers[2][MiddleX];
+    inc(MiddleX);
+    if MiddleX >= BufferWidth then
+    begin
+      TopLine[2] := borderColor;
+      MiddleLine[2] := borderColor;
+      BottomLine[2] := borderColor;
+    end else
+    begin
+      if Buffers[0] = nil then TopLine[2] := borderColor else TopLine[2] := Buffers[0][MiddleX];
+      MiddleLine[2] := Buffers[1][MiddleX];
+      if Buffers[2] = nil then BottomLine[2] := borderColor else BottomLine[2] := Buffers[2][MiddleX];
+    end;
+    ADest^ := DoFilter3X3(@TopLine,@MiddleLine,@BottomLine);
+    Dec(ACount);
+    Inc(ADest);
+  end;
+  while (ACount > 0) do
+  begin
+    ADest^ := FDestinationBorderColor;
+    Dec(ACount);
+    Inc(ADest);
+  end;
+end;
+
+constructor TBGRA3X3FilterScanner.Create(ASource: IBGRAScanner;
+  ABounds: TRect);
+begin
+  inherited Create(ASource,ABounds,Point(-1,-1),3,3);
+  FSourceBorderColor := BGRAPixelTransparent;
+  FDestinationBorderColor := BGRAPixelTransparent;
+  FAutoSourceBorderColor := False;
+end;
 
 { TBGRASharpenScanner }
 
