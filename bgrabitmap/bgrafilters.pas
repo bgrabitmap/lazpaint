@@ -354,6 +354,7 @@ begin
   bounds.Bottom := min(bmp.Height, bounds.Bottom + 1);
 
   scan := TBGRAEmbossHightlightScanner.Create(bmp, bounds, borderColorOverride);
+  scan.AllowDirectRead := true;
   scan.FillSelection := FillSelection;
   if borderColorOverride then scan.SourceBorderColor := DefineBorderColor;
   Result.FillRect(bounds, scan, dmSet);
@@ -390,6 +391,7 @@ begin
   inc(Offset.Y, bounds.Top);
 
   scan := TBGRAEmbossHightlightScanner.Create(bmp, bounds, borderColorOverride);
+  scan.AllowDirectRead := true;
   scan.FillSelection := FillSelection;
   if borderColorOverride then scan.SourceBorderColor := DefineBorderColor;
   Result.FillRect(rect(0,0,result.Width,result.Height), scan, dmSet, Offset);

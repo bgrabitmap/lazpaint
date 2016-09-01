@@ -61,6 +61,7 @@ type
       ADest: PBGRAPixel; ACount: integer); override;
   public
     constructor Create(ASource: IBGRAScanner; ABounds: TRect);
+    constructor Create(ASource: TBGRACustomBitmap);
     property SourceBorderColor: TBGRAPixel read FSourceBorderColor write FSourceBorderColor;
     property DestinationBorderColor: TBGRAPixel read FDestinationBorderColor write FDestinationBorderColor;
     property AutoSourceBorderColor: boolean read FAutoSourceBorderColor write FAutoSourceBorderColor;
@@ -78,6 +79,8 @@ type
   public
     constructor Create(ASource: IBGRAScanner; ABounds: TRect;
                        AGammaCorrection: boolean = False);
+    constructor Create(ASource: TBGRACustomBitmap;
+                       AGammaCorrection: boolean = False);
     property Opacity: Byte read FOpacity write FOpacity;
   end;
 
@@ -89,6 +92,8 @@ type
     function DoFilter3X3(PTop,PMiddle,PBottom: PBGRAPixel): TBGRAPixel; override;
   public
     constructor Create(ASource: IBGRAScanner; ABounds: TRect;
+                       AAmount: integer = 256);
+    constructor Create(ASource: TBGRACustomBitmap;
                        AAmount: integer = 256);
   end;
 
@@ -103,6 +108,7 @@ type
     procedure SetSourceChannel(AValue: TChannel);
   public
     constructor Create(ASource: IBGRAScanner; ABounds: TRect; ABoundsVisible: Boolean);
+    constructor Create(ASource: TBGRACustomBitmap; ABoundsVisible: Boolean);
     property FillSelection: boolean read FFillSelection write FFillSelection;
     property SourceChannel: TChannel read FSourceChannel write SetSourceChannel;
   end;
@@ -167,6 +173,15 @@ constructor TBGRAEmbossHightlightScanner.Create(ASource: IBGRAScanner;
   ABounds: TRect; ABoundsVisible: Boolean);
 begin
   inherited Create(ASource,ABounds);
+  SourceChannel := cGreen;
+  FillSelection:= true;
+  AutoSourceBorderColor := not ABoundsVisible;
+end;
+
+constructor TBGRAEmbossHightlightScanner.Create(ASource: TBGRACustomBitmap;
+  ABoundsVisible: Boolean);
+begin
+  inherited Create(ASource);
   SourceChannel := cGreen;
   FillSelection:= true;
   AutoSourceBorderColor := not ABoundsVisible;
@@ -303,6 +318,15 @@ begin
   FAutoSourceBorderColor := False;
 end;
 
+constructor TBGRA3X3FilterScanner.Create(ASource: TBGRACustomBitmap);
+begin
+  inherited Create(ASource,Rect(0,0,ASource.Width,ASource.Height),Point(-1,-1),3,3);
+  FSourceBorderColor := BGRAPixelTransparent;
+  FDestinationBorderColor := BGRAPixelTransparent;
+  FAutoSourceBorderColor := False;
+  AllowDirectRead := true;
+end;
+
 { TBGRASharpenScanner }
 
 function TBGRASharpenScanner.DoFilter3X3(PTop, PMiddle, PBottom: PBGRAPixel): TBGRAPixel;
@@ -379,6 +403,13 @@ begin
   FAmount:= AAmount;
 end;
 
+constructor TBGRASharpenScanner.Create(ASource: TBGRACustomBitmap;
+  AAmount: integer);
+begin
+  inherited Create(ASource);
+  FAmount:= AAmount;
+end;
+
 { TBGRAContourScanner }
 
 function TBGRAContourScanner.DoFilter3X3(PTop, PMiddle, PBottom: PBGRAPixel): TBGRAPixel;
@@ -417,6 +448,15 @@ constructor TBGRAContourScanner.Create(ASource: IBGRAScanner;
   ABounds: TRect; AGammaCorrection: boolean);
 begin
   inherited Create(ASource,ABounds);
+  FGammaCorrection := AGammaCorrection;
+  AutoSourceBorderColor:= True;
+  FOpacity:= 255;
+end;
+
+constructor TBGRAContourScanner.Create(ASource: TBGRACustomBitmap;
+  AGammaCorrection: boolean);
+begin
+  inherited Create(ASource);
   FGammaCorrection := AGammaCorrection;
   AutoSourceBorderColor:= True;
   FOpacity:= 255;
