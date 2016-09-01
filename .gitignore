@@ -7,3 +7,4 @@ lib
 debug
 *.res
 *.lrt
+/bgrabitmap/lib4nogui
