@@ -386,7 +386,7 @@ begin
     end;
     if not image.SelectionEmpty then
     begin
-      r := image.SelectionBounds[False];
+      r := image.SelectionBounds;
       if (r.left = 0) and (r.Top = 0) and (r.right = image.width) and (r.Bottom =image.height) then exit;
       cropped := image.MakeLayeredBitmapAndSelectionCopy;
       selectedLayer := image.currentImageLayerIndex;
@@ -500,7 +500,7 @@ begin
         if not Image.CheckNoAction then exit;
         LayerAction := TLayerAction.Create(Image);
         LayerAction.AllChangesNotified := true;
-        bounds := Image.SelectionBounds[false];
+        bounds := Image.SelectionBounds;
         LayerAction.currentSelection.HorizontalFlip(bounds);
         LayerAction.NotifyChange(LayerAction.currentSelection,bounds);
         Image.SelectionMayChange(bounds);
@@ -544,7 +544,7 @@ begin
         ChooseTool(ptMoveSelection);
         if not Image.CheckNoAction then exit;
         LayerAction := TLayerAction.Create(Image);
-        bounds := Image.SelectionBounds[False];
+        bounds := Image.SelectionBounds;
         LayerAction.currentSelection.VerticalFlip(bounds);
         LayerAction.NotifyChange(LayerAction.currentSelection,bounds);
         Image.SelectionMayChange(bounds);
@@ -639,7 +639,7 @@ begin
   LayerAction := nil;
   try
     if not image.CheckNoAction then exit;
-    bounds := Image.SelectionBounds[False];
+    bounds := Image.SelectionBounds;
     if IsRectEmpty(bounds) then exit;
     LayerAction := TLayerAction.Create(Image);
     LayerAction.ApplySelectionMask;
@@ -802,11 +802,11 @@ begin
       Image.SelectionMayChange(bounds);
     end else
     begin
-      bounds := image.SelectionLayerBounds[False];
+      bounds := image.SelectionLayerBounds;
       Image.SelectionMayChange(bounds);
       LayerAction.ApplySelectionMask;
       LayerAction.NotifyChange(LayerAction.GetSelectionLayerIfExists, bounds);
-      bounds := image.SelectionBounds[False];
+      bounds := image.SelectionBounds;
       Image.SelectionMayChange(bounds);
     end;
 

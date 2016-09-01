@@ -361,7 +361,7 @@ var bounds: TRect;
 begin
   if not FImage.SelectionEmpty then
   begin
-    bounds := FImage.SelectionBounds[False];
+    bounds := FImage.SelectionBounds;
     NeedSelectionBackup;
     NotifyChange(FImage.CurrentSelection, bounds);
     if FImage.GetSelectionLayerIfExists <> nil then

@@ -275,8 +275,8 @@ begin
   begin
     handMoving := true;
     handOrigin := pt;
-    selectBounds := Manager.Image.SelectionBounds[False];
-    IntersectRect(contentBounds, selectBounds, Manager.Image.SelectionLayerBounds[False]);
+    selectBounds := Manager.Image.SelectionBounds;
+    IntersectRect(contentBounds, selectBounds, Manager.Image.SelectionLayerBounds);
   end;
   result := EmptyRect;
 end;

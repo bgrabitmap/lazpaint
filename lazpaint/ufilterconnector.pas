@@ -110,7 +110,7 @@ begin
   ApplyOnSelectionLayer:= not FLazPaintInstance.Image.SelectionLayerIsEmpty;
   sel := CurrentSelection;
   if sel <> nil then
-    FWorkArea := FLazPaintInstance.Image.SelectionBounds[false]
+    FWorkArea := FLazPaintInstance.Image.SelectionBounds
   else
     FWorkArea := rect(0,0,ActiveLayer.Width,ActiveLayer.Height);
   FWorkAreaFullySelected := true;
