@@ -83,12 +83,10 @@ type
 
   { TBGRASharpenScanner }
 
-  TBGRASharpenScanner = class(TBGRAFilterScannerMultipixel)
+  TBGRASharpenScanner = class(TBGRA3X3FilterScanner)
   protected
     FAmount: integer;
-    procedure DoComputeFilter(BufferX: Integer;
-      const Buffers: array of PBGRAPixel; BufferWidth: integer;
-      ADest: PBGRAPixel; ACount: integer); override;
+    function DoFilter3X3(PTop,PMiddle,PBottom: PBGRAPixel): TBGRAPixel; override;
   public
     constructor Create(ASource: IBGRAScanner; ABounds: TRect;
                        AAmount: integer = 256);
@@ -224,141 +222,77 @@ end;
 
 { TBGRASharpenScanner }
 
-procedure TBGRASharpenScanner.DoComputeFilter(BufferX: Integer;
-  const Buffers: array of PBGRAPixel; BufferWidth: integer; ADest: PBGRAPixel;
-  ACount: integer);
+function TBGRASharpenScanner.DoFilter3X3(PTop, PMiddle, PBottom: PBGRAPixel): TBGRAPixel;
 var
-  c: array[0..8] of TBGRAPixel;
-  sumR, sumG, sumB, sumA, nbA, i: NativeUInt;
+  sumR, sumG, sumB, sumA, nbA: NativeUInt;
   refPixel: TBGRAPixel;
   rgbDivShr1: NativeUint;
 begin
-  if Buffers[1] = nil then
+  if FAmount = 0 then
   begin
-    FillDWord(ADest^, ACount, DWord(BGRAPixelTransparent));
+    result := PMiddle[1];
     exit;
   end;
-  Inc(BufferX);
-  while (ACount > 0) and (BufferX < 0) do
+  //compute sum
+  sumR   := 0;
+  sumG   := 0;
+  sumB   := 0;
+  sumA   := 0;
+  //RGBdiv := 0;
+  nbA    := 0;
+
+  {$hints off}
+  with PTop[0] do if alpha <> 0 then begin sumR += red * alpha; sumG += green * alpha; sumB += blue * alpha; sumA += alpha; inc(nbA); end;
+  with PTop[1] do if alpha <> 0 then begin sumR += red * alpha; sumG += green * alpha; sumB += blue * alpha; sumA += alpha; inc(nbA); end;
+  with PTop[2] do if alpha <> 0 then begin sumR += red * alpha; sumG += green * alpha; sumB += blue * alpha; sumA += alpha; inc(nbA); end;
+  with PMiddle[0] do if alpha <> 0 then begin sumR += red * alpha; sumG += green * alpha; sumB += blue * alpha; sumA += alpha; inc(nbA); end;
+  with PMiddle[2] do if alpha <> 0 then begin sumR += red * alpha; sumG += green * alpha; sumB += blue * alpha; sumA += alpha; inc(nbA); end;
+  with PBottom[0] do if alpha <> 0 then begin sumR += red * alpha; sumG += green * alpha; sumB += blue * alpha; sumA += alpha; inc(nbA); end;
+  with PBottom[1] do if alpha <> 0 then begin sumR += red * alpha; sumG += green * alpha; sumB += blue * alpha; sumA += alpha; inc(nbA); end;
+  with PBottom[2] do if alpha <> 0 then begin sumR += red * alpha; sumG += green * alpha; sumB += blue * alpha; sumA += alpha; inc(nbA); end;
+   {$hints on}
+
+  //we finally have an average pixel
+  if (sumA = 0) then
+    refPixel := BGRAPixelTransparent
+  else
   begin
-    ADest^ := BGRAPixelTransparent;
-    Dec(ACount);
-    Inc(ADest);
-    Inc(BufferX);
+    rgbDivShr1:= sumA shr 1;
+    refPixel.red   := (sumR + rgbDivShr1) div sumA;
+    refPixel.green := (sumG + rgbDivShr1) div sumA;
+    refPixel.blue  := (sumB + rgbDivShr1) div sumA;
+    refPixel.alpha := (sumA + nbA shr 1) div nbA;
   end;
-  while (ACount > 0) and (BufferX < BufferWidth) do
+
+  //read the pixel at the center of the square
+  if refPixel <> BGRAPixelTransparent then
   begin
-    c[0] := Buffers[1][BufferX];
-    if (BufferX = 0) then
-    begin
-      c[1] := BGRAPixelTransparent;
-      c[2] := BGRAPixelTransparent;
-      c[4] := BGRAPixelTransparent;
-    end else
-    begin
-      if Buffers[0] <> nil then
-        c[1] := Buffers[0][BufferX-1]
-      else c[1] := BGRAPixelTransparent;
-      c[2] := Buffers[1][BufferX-1];
-      if Buffers[2] <> nil then
-        c[4] := Buffers[2][BufferX-1]
-      else c[4] := BGRAPixelTransparent;
-    end;
-    if Buffers[0] <> nil then
-      c[3] := Buffers[0][BufferX]
-    else c[3] := BGRAPixelTransparent;
-    if Buffers[2] <> nil then
-      c[7] := Buffers[2][BufferX]
-    else c[7] := BGRAPixelTransparent;
-
-    Inc(BufferX);
-    if BufferX >= BufferWidth then
-    begin
-      c[5] := BGRAPixelTransparent;
-      c[6] := BGRAPixelTransparent;
-      c[8] := BGRAPixelTransparent;
-    end else
-    begin
-      if Buffers[2] <> nil then
-        c[5] := Buffers[2][BufferX]
-      else c[5] := BGRAPixelTransparent;
-      c[6] := Buffers[1][BufferX];
-      if Buffers[0] <> nil then
-        c[8] := Buffers[0][BufferX]
-      else c[8] := BGRAPixelTransparent;
-    end;
-
-    //compute sum
-    sumR   := 0;
-    sumG   := 0;
-    sumB   := 0;
-    sumA   := 0;
-    //RGBdiv := 0;
-    nbA    := 0;
-
-    {$hints off}
-    for i := 1 to 8 do
-    with c[i] do
-    begin
-      if alpha <> 0 then
-      begin
-        sumR      += red * alpha;
-        sumG      += green * alpha;
-        sumB      += blue * alpha;
-        sumA      += alpha;
-        Inc(nbA);
-      end;
-    end;
-     {$hints on}
-
-    //we finally have an average pixel
-    if (sumA = 0) then
-      refPixel := BGRAPixelTransparent
-    else
-    begin
-      rgbDivShr1:= sumA shr 1;
-      refPixel.red   := (sumR + rgbDivShr1) div sumA;
-      refPixel.green := (sumG + rgbDivShr1) div sumA;
-      refPixel.blue  := (sumB + rgbDivShr1) div sumA;
-      refPixel.alpha := (sumA + nbA shr 1) div nbA;
-    end;
-
-    //read the pixel at the center of the square
-    if refPixel <> BGRAPixelTransparent then
+    with PMiddle[1] do
     begin
       //compute sharpened pixel by adding the difference
       if FAmount<>256 then
-        ADest^ := BGRA( max(0, min($FFFF, Int32or64(c[0].red shl 8) +
-          FAmount*(c[0].red - refPixel.red))) shr 8,
-            max(0, min($FFFF, Int32or64(c[0].green shl 8) +
-          FAmount*(c[0].green - refPixel.green))) shr 8,
-           max(0, min($FFFF, Int32or64(c[0].blue shl 8) +
-          FAmount*(c[0].blue - refPixel.blue))) shr 8,
-           max(0, min($FFFF, Int32or64(c[0].alpha shl 8) +
-          FAmount*(c[0].alpha - refPixel.alpha))) shr 8 )
+        result := BGRA( max(0, min($FFFF, Int32or64(red shl 8) +
+          FAmount*(red - refPixel.red))) shr 8,
+            max(0, min($FFFF, Int32or64(green shl 8) +
+          FAmount*(green - refPixel.green))) shr 8,
+           max(0, min($FFFF, Int32or64(blue shl 8) +
+          FAmount*(blue - refPixel.blue))) shr 8,
+           max(0, min($FFFF, Int32or64(alpha shl 8) +
+          FAmount*(alpha - refPixel.alpha))) shr 8 )
       else
-        ADest^ := BGRA( max(0, min(255, (c[0].red shl 1) - refPixel.red)),
-           max(0, min(255, (c[0].green shl 1) - refPixel.green)),
-           max(0, min(255, (c[0].blue shl 1) - refPixel.blue)),
-           max(0, min(255, (c[0].alpha shl 1) - refPixel.alpha)));
-    end else
-      ADest^ := c[0];
-
-    Dec(ACount);
-    Inc(ADest);
-  end;
-  while (ACount > 0) do
-  begin
-    ADest^ := BGRAPixelTransparent;
-    Dec(ACount);
-    Inc(ADest);
-  end;
+        result := BGRA( max(0, min(255, (red shl 1) - refPixel.red)),
+           max(0, min(255, (green shl 1) - refPixel.green)),
+           max(0, min(255, (blue shl 1) - refPixel.blue)),
+           max(0, min(255, (alpha shl 1) - refPixel.alpha)));
+    end;
+  end else
+    result := PMiddle[1];
 end;
 
 constructor TBGRASharpenScanner.Create(ASource: IBGRAScanner;
   ABounds: TRect; AAmount: integer);
 begin
-  inherited Create(ASource,ABounds,Point(-1,-1),3,3);
+  inherited Create(ASource,ABounds);
   FAmount:= AAmount;
 end;
 
