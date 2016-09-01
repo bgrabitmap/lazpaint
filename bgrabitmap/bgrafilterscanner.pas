@@ -70,15 +70,15 @@ type
   { Filter contour compute a grayscale image, then for each pixel
     calculates the difference with surrounding pixels (in intensity and alpha)
     and draw black pixels when there is a difference }
-  TBGRAContourScanner = class(TBGRAFilterScannerMultipixel)
+  TBGRAContourScanner = class(TBGRA3X3FilterScanner)
   protected
     FGammaCorrection: boolean;
-    procedure DoComputeFilter(BufferX: Integer;
-      const Buffers: array of PBGRAPixel; BufferWidth: integer;
-      ADest: PBGRAPixel; ACount: integer); override;
+    FOpacity: byte;
+    function DoFilter3X3(PTop,PMiddle,PBottom: PBGRAPixel): TBGRAPixel; override;
   public
     constructor Create(ASource: IBGRAScanner; ABounds: TRect;
                        AGammaCorrection: boolean = False);
+    property Opacity: Byte read FOpacity write FOpacity;
   end;
 
   { TBGRASharpenScanner }
@@ -364,110 +364,45 @@ end;
 
 { TBGRAContourScanner }
 
-procedure TBGRAContourScanner.DoComputeFilter(BufferX: Integer;
-  const Buffers: array of PBGRAPixel; BufferWidth: integer; ADest: PBGRAPixel;
-  ACount: integer);
+function TBGRAContourScanner.DoFilter3X3(PTop, PMiddle, PBottom: PBGRAPixel): TBGRAPixel;
 var
-  c: array[0..8] of TBGRAPixel;
   sum: NativeInt;
   slope: byte;
 begin
-  if Buffers[1] = nil then
+  if FGammaCorrection then
   begin
-    FillDWord(ADest^, ACount, DWord(BGRAPixelTransparent));
-    exit;
-  end;
-  Inc(BufferX);
-  while (ACount > 0) and (BufferX < 0) do
+    sum := (FastBGRAExpandedDiff(PTop[0],PBottom[2]) + FastBGRAExpandedDiff(PTop[1],PBottom[1]) +
+        FastBGRAExpandedDiff(PTop[2],PBottom[0]) + FastBGRAExpandedDiff(PMiddle[0],PMiddle[2])) div 3;
+
+    if sum >= 65535 then
+      slope := 0
+    else if sum <= 0 then
+      slope := 255
+    else slope := GammaCompressionTab[65535-sum];
+  end else
   begin
-    ADest^ := BGRAPixelTransparent;
-    Dec(ACount);
-    Inc(ADest);
-    Inc(BufferX);
+      sum := (FastBGRALinearDiff(PTop[0],PBottom[2]) + FastBGRALinearDiff(PTop[1],PBottom[1]) +
+        FastBGRALinearDiff(PTop[2],PBottom[0]) + FastBGRALinearDiff(PMiddle[0],PMiddle[2])) div 3;
+
+    if sum >= 255 then
+      slope := 0
+    else if sum < 0 then
+      slope := 255
+    else slope := 255-sum;
   end;
-  while (ACount > 0) and (BufferX < BufferWidth) do
-  begin
-    c[0] := Buffers[1][BufferX];
-    if (BufferX = 0) then
-    begin
-      c[1] := c[0];
-      c[2] := c[0];
-      c[4] := c[0];
-    end else
-    begin
-      if Buffers[0] <> nil then
-        c[1] := Buffers[0][BufferX-1]
-      else c[1] := c[0];
-      c[2] := Buffers[1][BufferX-1];
-      if Buffers[2] <> nil then
-        c[4] := Buffers[2][BufferX-1]
-      else c[4] := c[0];
-    end;
-    if Buffers[0] <> nil then
-      c[3] := Buffers[0][BufferX]
-    else c[3] := c[0];
-    if Buffers[2] <> nil then
-      c[7] := Buffers[2][BufferX]
-    else c[7] := c[0];
-
-    Inc(BufferX);
-    if BufferX >= BufferWidth then
-    begin
-      c[5] := c[0];
-      c[6] := c[0];
-      c[8] := c[0];
-    end else
-    begin
-      if Buffers[2] <> nil then
-        c[5] := Buffers[2][BufferX]
-      else c[5] := c[0];
-      c[6] := Buffers[1][BufferX];
-      if Buffers[0] <> nil then
-        c[8] := Buffers[0][BufferX]
-      else c[8] := c[0];
-    end;
-
-    if FGammaCorrection then
-    begin
-      sum := (FastBGRAExpandedDiff(c[1],c[5]) + FastBGRAExpandedDiff(c[2],c[6]) +
-          FastBGRAExpandedDiff(c[3],c[7]) + FastBGRAExpandedDiff(c[4],c[8])) div 3;
-
-      if sum >= 65535 then
-        slope := 0
-      else if sum <= 0 then
-        slope := 255
-      else slope := GammaCompressionTab[65535-sum];
-    end else
-    begin
-        sum := (FastBGRALinearDiff(c[1],c[5]) + FastBGRALinearDiff(c[2],c[6]) +
-            FastBGRALinearDiff(c[3],c[7]) + FastBGRALinearDiff(c[4],c[8])) div 3;
-
-      if sum >= 255 then
-        slope := 0
-      else if sum < 0 then
-        slope := 255
-      else slope := 255-sum;
-    end;
-    ADest^.red := slope;
-    ADest^.green := slope;
-    ADest^.blue := slope;
-    ADest^.alpha := 255;
-    Dec(ACount);
-    Inc(ADest);
-  end;
-  while (ACount > 0) do
-  begin
-    ADest^ := BGRAPixelTransparent;
-    Dec(ACount);
-    Inc(ADest);
-  end;
+  result.red := slope;
+  result.green := slope;
+  result.blue := slope;
+  result.alpha := FOpacity;
 end;
 
 constructor TBGRAContourScanner.Create(ASource: IBGRAScanner;
   ABounds: TRect; AGammaCorrection: boolean);
 begin
-  inherited Create(ASource,ABounds,Point(-1,-1),3,3);
+  inherited Create(ASource,ABounds);
   FGammaCorrection := AGammaCorrection;
+  AutoSourceBorderColor:= True;
+  FOpacity:= 255;
 end;
 
 { TBGRAFilterScannerNormalize }
