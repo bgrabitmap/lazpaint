@@ -92,9 +92,85 @@ type
                        AAmount: integer = 256);
   end;
 
+  { TBGRAEmbossHightlightScanner }
+
+  TBGRAEmbossHightlightScanner = class(TBGRA3X3FilterScanner)
+  protected
+    FFillSelection: boolean;
+    FSourceChannel: TChannel;
+    FChannelOffset: Byte;
+    function DoFilter3X3(PTop,PMiddle,PBottom: PBGRAPixel): TBGRAPixel; override;
+    procedure SetSourceChannel(AValue: TChannel);
+  public
+    constructor Create(ASource: IBGRAScanner; ABounds: TRect; ABoundsVisible: Boolean);
+    property FillSelection: boolean read FFillSelection write FFillSelection;
+    property SourceChannel: TChannel read FSourceChannel write SetSourceChannel;
+  end;
+
 implementation
 
 uses BGRABlend, math, SysUtils;
+
+{ TBGRAEmbossHightlightScanner }
+
+procedure TBGRAEmbossHightlightScanner.SetSourceChannel(AValue: TChannel);
+begin
+  FSourceChannel:=AValue;
+  case FSourceChannel of
+  cRed: FChannelOffset:= TBGRAPixel_RedByteOffset;
+  cGreen: FChannelOffset:= TBGRAPixel_GreenByteOffset;
+  cBlue: FChannelOffset:= TBGRAPixel_BlueByteOffset;
+  else {cAlpha:} FChannelOffset:= TBGRAPixel_AlphaByteOffset;
+  end;
+end;
+
+function TBGRAEmbossHightlightScanner.DoFilter3X3(PTop, PMiddle,
+  PBottom: PBGRAPixel): TBGRAPixel;
+var
+  sum: NativeInt;
+  slope,h: byte;
+  highlight: TBGRAPixel;
+begin
+  sum := (PByte(PTop)+FChannelOffset)^ + (PByte(PTop+1)+FChannelOffset)^+
+         (PByte(PMiddle)+FChannelOffset)^ - (PByte(PMiddle+2)+FChannelOffset)^ -
+         (PByte(PBottom+1)+FChannelOffset)^ - (PByte(PBottom+2)+FChannelOffset)^;
+  sum := 128 - sum div 3;
+  if sum > 255 then
+    slope := 255
+  else
+  if sum < 1 then
+    slope := 1
+  else
+    slope := sum;
+  h := (PByte(PMiddle+1)+FChannelOffset)^;
+
+  result.red   := slope;
+  result.green := slope;
+  result.blue  := slope;
+  result.alpha := abs(slope - 128) * 2;
+
+  if FFillSelection then
+  begin
+    highlight := BGRA(h shr 2, h shr 1, h, h shr 1);
+    if result.red < highlight.red then
+      result.red := highlight.red;
+    if result.green < highlight.green then
+      result.green := highlight.green;
+    if result.blue < highlight.blue then
+      result.blue := highlight.blue;
+    if result.alpha < highlight.alpha then
+      result.alpha := highlight.alpha;
+  end;
+end;
+
+constructor TBGRAEmbossHightlightScanner.Create(ASource: IBGRAScanner;
+  ABounds: TRect; ABoundsVisible: Boolean);
+begin
+  inherited Create(ASource,ABounds);
+  SourceChannel := cGreen;
+  FillSelection:= true;
+  AutoSourceBorderColor := not ABoundsVisible;
+end;
 
 { TBGRA3X3FilterScanner }
 
