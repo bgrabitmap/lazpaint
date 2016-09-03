@@ -107,7 +107,7 @@ begin
     end;
     toolDest.ClipRect := result;
     source.ScanOffset := Point(sourcePosition.x, sourcePosition.y);
-    toolDest.FillMask(round(x),round(y),BrushInfo.BrushImage,source,dmDrawWithTransparency);
+    toolDest.FillMask(round(x),round(y),BrushInfo.BrushImage,source,dmDrawWithTransparency,round(Manager.ToolPressure*255));
     source.ScanOffset := Point(0,0);
     toolDest.NoClip;
   end;
@@ -184,9 +184,9 @@ begin
   result := rect(floor(x-0.5),floor(y-0.5),ceil(x+0.5)+coloredBrushImage.Width,ceil(y+0.5)+coloredBrushImage.Height);
   toolDest.ClipRect := result;
   if not SubPixelAccuracy then
-    toolDest.PutImage(round(x),round(y),coloredBrushImage,dmDrawWithTransparency)
+    toolDest.PutImage(round(x),round(y),coloredBrushImage,dmDrawWithTransparency,round(Manager.ToolPressure*255))
   else
-    toolDest.PutImageSubpixel(x,y,coloredBrushImage);
+    toolDest.PutImageSubpixel(x,y,coloredBrushImage,round(Manager.ToolPressure*255));
   toolDest.NoClip;
 end;
 

@@ -17,7 +17,9 @@ uses
 
   LazPaintType, UMainFormLayout, UTool, UImage, UImageAction, ULayerAction, UZoom,
   UImageObservation, UConfig, UScaleDPI, UResourceStrings,
-  UMenu, uscripting, ubrowseimages, UToolPolygon, UBarUpDown;
+  UMenu, uscripting, ubrowseimages, UToolPolygon, UBarUpDown,
+
+  laztablet;
 
 const
   MinPenWidthValue = 10;
@@ -665,6 +667,8 @@ type
     FSaveImage: TFBrowseImages;
     FSaveSelection: TFBrowseImages;
 
+    FTablet: TLazTablet;
+
     FSaveInitialDir: string;
     FSaveSelectionInitialFilename: string;
     FInTextFont: boolean;
@@ -714,6 +718,7 @@ type
        selectionHighlightOffset: TPoint;
     end;
 
+    function GetCurrentPressure: single;
     function GetUseImageBrowser: boolean;
     procedure UpdateStatusText;
     procedure CreateToolbarElements;
@@ -841,6 +846,7 @@ type
     property ToolManager: TToolManager read GetToolManager;
     property Layout: TMainFormLayout read FLayout;
     property UseImageBrowser: boolean read GetUseImageBrowser;
+    property CurrentPressure: single read GetCurrentPressure;
   end;
 
 implementation
@@ -898,6 +904,7 @@ begin
   btnLeftDown := false;
   btnRightDown := false;
   btnMiddleDown:= false;
+  FTablet := TLazTablet.Create(self);
 
   //recursive calls
   InFormMouseMove:= false;
@@ -966,6 +973,8 @@ begin
   FreeAndNil(FOnlineUpdater);
 
   DestroyMenuAndToolbar;
+
+  FreeAndNil(FTablet);
 
   FreeAndNil(FBrowseSelections);
   FreeAndNil(FBrowseImages);
@@ -1101,7 +1110,7 @@ begin
     btnMiddleDown:= true;
     if not ToolManager.ToolSleeping then ToolManager.ToolSleep;
   end;
-  if ToolManager.ToolDown(FormToBitmap(X,Y),btnRightDown) then
+  if ToolManager.ToolDown(FormToBitmap(X,Y),btnRightDown,CurrentPressure) then
       PaintPictureNow;
   UpdateToolbar;
 end;
@@ -1143,7 +1152,7 @@ begin
     UpdateStatusText;
   end;
   updateForVSCursor:= false;
-  if ToolManager.ToolMove(BmpPos) then
+  if ToolManager.ToolMove(BmpPos,CurrentPressure) then
   begin
     virtualScreenPenCursorPosBefore := virtualScreenPenCursorPos;
     virtualScreenPenCursorPos := GetVSCursorPosition;
@@ -1174,7 +1183,7 @@ procedure TFMain.FormMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 var redraw: boolean;
 begin
-  redraw := ToolManager.ToolMove(FormToBitmap(X,Y));
+  redraw := ToolManager.ToolMove(FormToBitmap(X,Y),CurrentPressure);
   if (btnLeftDown and (Button = mbLeft)) or (btnRightDown and (Button=mbRight))
     or (btnMiddleDown and (Button = mbMiddle)) then
   begin
@@ -3551,6 +3560,14 @@ end;
 function TFMain.GetUseImageBrowser: boolean;
 begin
   result := Config.DefaultUseImageBrowser;
+end;
+
+function TFMain.GetCurrentPressure: single;
+begin
+  if Assigned(FTablet) and FTablet.Present and FTablet.Entering and (FTablet.Max > 0) then
+    result := FTablet.Pressure/FTablet.Max
+  else
+    result := 0.5;
 end;
 
 function TFMain.GetScriptContext: TScriptContext;

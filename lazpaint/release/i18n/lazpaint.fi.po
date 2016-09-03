@@ -1,6 +1,14 @@
 ﻿msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
+#: tablet.getprocfailed
+msgid "Procedure %s failed to load properly."
+msgstr ""
+
+#: tablet.openfailed
+msgid "Tablet context failed to open."
+msgstr ""
+
 #: tfabout.button_donate.caption
 msgctxt "TFABOUT.BUTTON_DONATE.CAPTION"
 msgid "Donate..."

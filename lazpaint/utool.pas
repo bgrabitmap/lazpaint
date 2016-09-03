@@ -186,11 +186,14 @@ type
     ToolTextAlign: TAlignment;
     ToolBrushInfoIndex: integer;
     ToolBrushSpacing: integer;
+    ToolPressure: single;
 
     constructor Create(AImage: TLazPaintImage; AConfigProvider: IConfigProvider; ABitmapToVirtualScreen: TBitmapToVirtualScreenFunction = nil; ABlackAndWhite : boolean = false);
     destructor Destroy; override;
     procedure ReloadBrushes;
     procedure SaveBrushes;
+    function ApplyPressure(AColor: TBGRAPixel): TBGRAPixel;
+    procedure SetPressure(APressure: single);
 
     function GetCurrentToolType: TPaintToolType;
     function SetCurrentToolType(tool: TPaintToolType): boolean;
@@ -198,11 +201,11 @@ type
     procedure ToolWakeUp;
     procedure ToolSleep;
 
-    function ToolDown(X,Y: single; rightBtn: boolean): boolean; overload;
-    function ToolMove(X,Y: single): boolean; overload;
+    function ToolDown(X,Y: single; ARightBtn: boolean; APressure: single): boolean; overload;
+    function ToolMove(X,Y: single; APressure: single): boolean; overload;
     procedure ToolMoveAfter(X,Y: single); overload;
-    function ToolDown(coord: TPointF; rightBtn: boolean): boolean; overload;
-    function ToolMove(coord: TPointF): boolean; overload;
+    function ToolDown(ACoord: TPointF; ARightBtn: boolean; APressure: single): boolean; overload;
+    function ToolMove(ACoord: TPointF; APressure: single): boolean; overload;
     procedure ToolMoveAfter(coord: TPointF); overload;
     function ToolKeyDown(var key: Word): boolean;
     function ToolKeyUp(var key: Word): boolean;
@@ -956,6 +959,31 @@ begin
   FToolBrushInfoListChanged := false;
 end;
 
+function TToolManager.ApplyPressure(AColor: TBGRAPixel): TBGRAPixel;
+var alpha: integer;
+begin
+  alpha := round(AColor.alpha*ToolPressure);
+  if alpha <= 0 then
+    result := BGRAPixelTransparent
+  else if alpha >= 255 then
+    result := AColor
+  else
+  begin
+    result := AColor;
+    result.alpha := alpha;
+  end;
+end;
+
+procedure TToolManager.SetPressure(APressure: single);
+begin
+  if APressure <= 0 then
+    ToolPressure := 0
+  else if APressure >= 1 then
+    ToolPressure := 1
+  else
+    ToolPressure:= APressure;
+end;
+
 procedure TToolManager.InternalSetCurrentToolType(tool: TPaintToolType);
 var showPenwidth, showShape, showLineCap, showJoinStyle, showSplineStyle, showEraserOption, showTolerance, showGradient, showDeformation,
     showText, showPhong, showAltitude, showPerspective, showColor, showTexture, showBrush: boolean;
@@ -1156,11 +1184,13 @@ begin
   end;
 end;
 
-function TToolManager.ToolDown(X,Y: single; rightBtn: boolean): boolean; overload;
+function TToolManager.ToolDown(X, Y: single; ARightBtn: boolean;
+  APressure: single): boolean;
 var changed: TRect;
 begin
+  SetPressure(APressure);
   if ToolCanBeUsed then
-    changed := currentTool.ToolDown(X,Y,rightBtn)
+    changed := currentTool.ToolDown(X,Y,ARightBtn)
   else
     changed := EmptyRect;
   result := not IsRectEmpty(changed);
@@ -1170,9 +1200,10 @@ begin
   if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
 end;
 
-function TToolManager.ToolMove(X,Y: single): boolean; overload;
+function TToolManager.ToolMove(X, Y: single; APressure: single): boolean;
 var changed: TRect;
 begin
+  SetPressure(APressure);
   if ToolCanBeUsed then
     changed := currentTool.ToolMove(X,Y)
   else
@@ -1372,14 +1403,15 @@ begin
     result := EmptyRect;
 end;
 
-function TToolManager.ToolDown(coord: TPointF; rightBtn: boolean): boolean; overload;
+function TToolManager.ToolDown(ACoord: TPointF; ARightBtn: boolean;
+  APressure: single): boolean;
 begin
-  result := ToolDown(coord.x,coord.y,rightBtn)
+  result := ToolDown(ACoord.x,ACoord.y,ARightBtn,APressure)
 end;
 
-function TToolManager.ToolMove(coord: TPointF): boolean; overload;
+function TToolManager.ToolMove(ACoord: TPointF; APressure: single): boolean;
 begin
-  result := ToolMove(coord.x,coord.y)
+  result := ToolMove(ACoord.x,ACoord.y,APressure)
 end;
 
 procedure TToolManager.ToolMoveAfter(coord: TPointF); overload;

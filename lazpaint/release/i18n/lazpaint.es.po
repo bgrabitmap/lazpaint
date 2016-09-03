@@ -11,6 +11,14 @@ msgstr ""
 "X-Generator: Poedit 1.8.8\n"
 "Language: es\n"
 
+#: tablet.getprocfailed
+msgid "Procedure %s failed to load properly."
+msgstr ""
+
+#: tablet.openfailed
+msgid "Tablet context failed to open."
+msgstr ""
+
 #: tfabout.button_donate.caption
 msgctxt "tfabout.button_donate.caption"
 msgid "Donate..."
@@ -3331,3 +3339,4 @@ msgstr "Comando desconocido: "
 #: uresourcestrings.rsyes
 msgid "Yes"
 msgstr "Sí"
+

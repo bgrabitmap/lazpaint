@@ -17,6 +17,14 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: tablet.getprocfailed
+msgid "Echec de chargement de la procedure %s."
+msgstr ""
+
+#: tablet.openfailed
+msgid "Echec de l'ouverture du contexte de la tablette."
+msgstr ""
+
 #: tfabout.button_donate.caption
 msgctxt "tfabout.button_donate.caption"
 msgid "Donate..."

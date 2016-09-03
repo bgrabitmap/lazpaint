@@ -744,7 +744,7 @@ begin
       mask := TBGRABitmap.Create(result.Right-result.left,result.bottom-result.top, BGRABlack);
       mask.LinearAntialiasing := true;
       mask.DrawLineAntialias(ptF.X-result.left,ptF.Y-result.top,ptF.X-result.left,ptF.Y-result.top,
-        BGRA(255,255,255,255),
+        Manager.ApplyPressure(BGRA(255,255,255,255)),
         Manager.ToolPenWidth,True);
       mask.ScanOffset := Point(-result.left,-result.top);
       areaCopy.ScanOffset := Point(-result.left,-result.top);
@@ -759,12 +759,12 @@ begin
     begin
       ix := round(ptF.X);
       iy := round(ptF.Y);
-      toolDest.ErasePixel(ix,iy,Manager.ToolEraserAlpha);
+      toolDest.ErasePixel(ix,iy,round(Manager.ToolEraserAlpha*Manager.ToolPressure));
       result := rect(ix,iy,ix+1,iy+1);
     end
     else
     begin
-      toolDest.EraseLineAntialias(ptF.X,ptF.Y,ptF.X,ptF.Y,Manager.ToolEraserAlpha,Manager.ToolPenWidth,True);
+      toolDest.EraseLineAntialias(ptF.X,ptF.Y,ptF.X,ptF.Y,round(Manager.ToolEraserAlpha*Manager.ToolPressure),Manager.ToolPenWidth,True);
       result := GetShapeBounds([ptF],Manager.ToolPenWidth);
     end;
   end;
@@ -785,7 +785,7 @@ begin
       mask := TBGRABitmap.Create(result.Right-result.left,result.bottom-result.top, BGRABlack);
       mask.LinearAntialiasing := true;
       mask.DrawLineAntialias(destF.X-result.left,destF.Y-result.top,originF.X-result.left,originF.Y-result.top,
-        BGRA(255,255,255,255),
+        Manager.ApplyPressure(BGRA(255,255,255,255)),
         Manager.ToolPenWidth,false);
       mask.ScanOffset := Point(-result.left,-result.top);
       areaCopy.ScanOffset := Point(-result.left,-result.top);
@@ -797,11 +797,11 @@ begin
   end else
   if snapToPixel and (Manager.ToolPenWidth = 1) then
   begin
-    toolDest.EraseLineAntialias(round(destF.X),round(destF.Y),round(originF.X),round(originF.Y),Manager.ToolEraserAlpha,false);
+    toolDest.EraseLineAntialias(round(destF.X),round(destF.Y),round(originF.X),round(originF.Y),round(Manager.ToolEraserAlpha*Manager.ToolPressure),false);
     result := GetShapeBounds([destF,originF],1);
   end else
   begin
-    toolDest.EraseLineAntialias(destF.X,destF.Y,originF.X,originF.Y,Manager.ToolEraserAlpha,Manager.ToolPenWidth,False);
+    toolDest.EraseLineAntialias(destF.X,destF.Y,originF.X,originF.Y,round(Manager.ToolEraserAlpha*Manager.ToolPressure),Manager.ToolPenWidth,False);
     result := GetShapeBounds([destF,originF],Manager.ToolPenWidth);
   end;
   Action.NotifyChange(toolDest, result);
@@ -829,14 +829,14 @@ begin
   begin
     ix := round(ptF.X);
     iy := round(ptF.Y);
-    toolDest.DrawPixel(ix,iy,penColor);
+    toolDest.DrawPixel(ix,iy,Manager.ApplyPressure(penColor));
     result := rect(ix,iy,ix+1,iy+1);
   end else
   begin
      if Manager.GetToolTextureAfterAlpha <> nil then
        toolDest.FillEllipseAntialias(ptF.X,ptF.Y,Manager.ToolPenWidth/2,Manager.ToolPenWidth/2,Manager.GetToolTextureAfterAlpha)
      else
-       toolDest.FillEllipseAntialias(ptF.X,ptF.Y,Manager.ToolPenWidth/2,Manager.ToolPenWidth/2,penColor);
+       toolDest.FillEllipseAntialias(ptF.X,ptF.Y,Manager.ToolPenWidth/2,Manager.ToolPenWidth/2,Manager.ApplyPressure(penColor));
      result := GetShapeBounds([ptF],Manager.ToolPenWidth);
   end;
   Action.NotifyChange(toolDest, result);
@@ -846,14 +846,14 @@ function TToolPen.ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF
 begin
   if snapToPixel and (Manager.ToolPenWidth = 1) and (Manager.GetToolTexture = nil) then
   begin
-    toolDest.DrawLineAntialias(round(destF.X),round(destF.Y),round(originF.X),round(originF.Y),penColor,false);
+    toolDest.DrawLineAntialias(round(destF.X),round(destF.Y),round(originF.X),round(originF.Y),Manager.ApplyPressure(penColor),false);
     result := GetShapeBounds([destF,originF],1);
   end else
   begin
      if Manager.GetToolTextureAfterAlpha <> nil then
        toolDest.DrawLineAntialias(destF.X,destF.Y,originF.X,originF.Y,Manager.GetToolTextureAfterAlpha,Manager.ToolPenWidth,False)
      else
-       toolDest.DrawLineAntialias(destF.X,destF.Y,originF.X,originF.Y,penColor,Manager.ToolPenWidth,False);
+       toolDest.DrawLineAntialias(destF.X,destF.Y,originF.X,originF.Y,Manager.ApplyPressure(penColor),Manager.ToolPenWidth,False);
      result := GetShapeBounds([destF,originF],Manager.ToolPenWidth+1);
   end;
   Action.NotifyChange(toolDest, result);
