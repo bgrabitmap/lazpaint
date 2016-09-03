@@ -3567,7 +3567,7 @@ begin
   if Assigned(FTablet) and FTablet.Present and FTablet.Entering and (FTablet.Max > 0) then
     result := FTablet.Pressure/FTablet.Max
   else
-    result := 0.5;
+    result := 1;
 end;
 
 function TFMain.GetScriptContext: TScriptContext;
