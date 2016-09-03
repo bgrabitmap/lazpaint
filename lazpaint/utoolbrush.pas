@@ -184,9 +184,9 @@ begin
   result := rect(floor(x-0.5),floor(y-0.5),ceil(x+0.5)+coloredBrushImage.Width,ceil(y+0.5)+coloredBrushImage.Height);
   toolDest.ClipRect := result;
   if not SubPixelAccuracy then
-    toolDest.PutImage(round(x),round(y),coloredBrushImage,dmDrawWithTransparency,round(Manager.ToolPressure*255))
+    toolDest.PutImage(round(x),round(y),coloredBrushImage,dmDrawWithTransparency,GetBrushAlpha(round(Manager.ToolPressure*255)))
   else
-    toolDest.PutImageSubpixel(x,y,coloredBrushImage,round(Manager.ToolPressure*255));
+    toolDest.PutImageSubpixel(x,y,coloredBrushImage,GetBrushAlpha(round(Manager.ToolPressure*255)));
   toolDest.NoClip;
 end;
 
