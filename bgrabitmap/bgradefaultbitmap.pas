@@ -642,8 +642,8 @@ type
     procedure FillQuadPerspectiveMapping(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; ACleanBorders: TRect; ADrawMode: TDrawMode = dmDrawWithTransparency); override;
     procedure FillQuadPerspectiveMappingAntialias(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF); override;
     procedure FillQuadPerspectiveMappingAntialias(pt1,pt2,pt3,pt4: TPointF; texture: IBGRAScanner; tex1, tex2, tex3, tex4: TPointF; ACleanBorders: TRect); override;
-    procedure FillQuadAffineMapping(Orig,HAxis,VAxis: TPointF; AImage: TBGRACustomBitmap; APixelCenteredCoordinates: boolean = true; ADrawMode: TDrawMode = dmDrawWithTransparency); override;
-    procedure FillQuadAffineMappingAntialias(Orig,HAxis,VAxis: TPointF; AImage: TBGRACustomBitmap; APixelCenteredCoordinates: boolean = true); override;
+    procedure FillQuadAffineMapping(Orig,HAxis,VAxis: TPointF; AImage: TBGRACustomBitmap; APixelCenteredCoordinates: boolean = true; ADrawMode: TDrawMode = dmDrawWithTransparency; AOpacity: byte = 255); override;
+    procedure FillQuadAffineMappingAntialias(Orig,HAxis,VAxis: TPointF; AImage: TBGRACustomBitmap; APixelCenteredCoordinates: boolean = true; AOpacity: byte = 255); override;
 
     procedure FillPolyLinearMapping(const points: array of TPointF; texture: IBGRAScanner; texCoords: array of TPointF; TextureInterpolation: Boolean); override;
     procedure FillPolyLinearMappingLightness(const points: array of TPointF; texture: IBGRAScanner; texCoords: array of TPointF; lightnesses: array of word; TextureInterpolation: Boolean); override;
@@ -2935,7 +2935,7 @@ begin
 end;
 
 procedure TBGRADefaultBitmap.FillQuadAffineMapping(Orig, HAxis, VAxis: TPointF;
-  AImage: TBGRACustomBitmap; APixelCenteredCoordinates: boolean; ADrawMode: TDrawMode);
+  AImage: TBGRACustomBitmap; APixelCenteredCoordinates: boolean; ADrawMode: TDrawMode; AOpacity: byte);
 var pts3: TPointF;
   affine: TBGRAAffineBitmapTransform;
 begin
@@ -2947,13 +2947,14 @@ begin
   end;
   pts3 := HAxis+(VAxis-Orig);
   affine := TBGRAAffineBitmapTransform.Create(AImage,False,AImage.ScanInterpolationFilter,not APixelCenteredCoordinates);
+  affine.GlobalOpacity:= AOpacity;
   affine.Fit(Orig,HAxis,VAxis);
   FillPoly([Orig,HAxis,pts3,VAxis],affine,ADrawMode);
   affine.Free;
 end;
 
 procedure TBGRADefaultBitmap.FillQuadAffineMappingAntialias(Orig, HAxis,
-  VAxis: TPointF; AImage: TBGRACustomBitmap; APixelCenteredCoordinates: boolean);
+  VAxis: TPointF; AImage: TBGRACustomBitmap; APixelCenteredCoordinates: boolean; AOpacity: byte);
 var pts3: TPointF;
   affine: TBGRAAffineBitmapTransform;
 begin
@@ -2965,6 +2966,7 @@ begin
   end;
   pts3 := HAxis+(VAxis-Orig);
   affine := TBGRAAffineBitmapTransform.Create(AImage,False,AImage.ScanInterpolationFilter,not APixelCenteredCoordinates);
+  affine.GlobalOpacity:= AOpacity;
   affine.Fit(Orig,HAxis,VAxis);
   FillPolyAntialias([Orig,HAxis,pts3,VAxis],affine);
   affine.Free;

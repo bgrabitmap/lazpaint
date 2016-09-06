@@ -1407,6 +1407,13 @@ begin
   h := FBitmap.Height;
   if (w = 0) or (h = 0) then exit;
 
+  if GlobalOpacity = 0 then
+  begin
+    if mode = dmSet then
+      FillDWord(pdest^, count, DWord(BGRAPixelTransparent));
+    exit;
+  end;
+
   posX4096 := round(FCurX*4096);
   deltaX4096:= round(FMatrix[1,1]*4096);
   posY4096 := round(FCurY*4096);
@@ -1503,6 +1510,20 @@ begin
       posY4096 += deltaY4096;
     end;
    end;
+  end;
+
+  if GlobalOpacity < 255 then
+  begin
+    if mode = dmSet then
+      p := pdest
+    else
+      p := FBuffer;
+    for n := count-1 downto 0 do
+    begin
+      p^.alpha := ApplyOpacity(p^.alpha,GlobalOpacity);
+      if p^.alpha = 0 then p^ := BGRAPixelTransparent;
+      inc(p);
+    end;
   end;
 
   if mode <> dmSet then PutPixels(pdest,FBuffer,count,mode,255);
