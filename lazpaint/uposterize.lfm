@@ -39,7 +39,6 @@ object FPosterize: TFPosterize
       Caption = 'Levels :'
       Layout = tlCenter
       ParentColor = False
-      OnClick = Label_LevelsClick
     end
     object SpinEdit_Levels: TSpinEdit
       Left = 46
