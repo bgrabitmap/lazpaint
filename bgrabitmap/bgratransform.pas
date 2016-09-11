@@ -1395,13 +1395,15 @@ end;
 
 procedure TBGRAAffineBitmapTransform.ScanPutPixels(pdest: PBGRAPixel;
   count: integer; mode: TDrawMode);
+const PrecisionShift = {$IFDEF CPU64}24{$ELSE}12{$ENDIF};
+      Precision = 1 shl PrecisionShift;
 var p: PBGRAPixel;
   n: integer;
-  posX4096, posY4096: Int32or64;
-  deltaX4096,deltaY4096: Int32or64;
-  ix,iy,shrMask,w,h: Int32or64;
+  posXPrecision, posYPrecision: NativeInt;
+  deltaXPrecision,deltaYPrecision: NativeInt;
+  ix,iy,shrMask,w,h: NativeInt;
   py0: PByte;
-  deltaRow: Int32or64;
+  deltaRow: NativeInt;
 begin
   w := FBitmap.Width;
   h := FBitmap.Height;
@@ -1414,12 +1416,12 @@ begin
     exit;
   end;
 
-  posX4096 := round(FCurX*4096);
-  deltaX4096:= round(FMatrix[1,1]*4096);
-  posY4096 := round(FCurY*4096);
-  deltaY4096:= round(FMatrix[2,1]*4096);
+  posXPrecision := round(FCurX*Precision);
+  deltaXPrecision:= round(FMatrix[1,1]*Precision);
+  posYPrecision := round(FCurY*Precision);
+  deltaYPrecision:= round(FMatrix[2,1]*Precision);
   shrMask := -1;
-  shrMask := shrMask shr 12;
+  shrMask := shrMask shr PrecisionShift;
   shrMask := not shrMask;
 
   if mode = dmSet then
@@ -1436,8 +1438,8 @@ begin
 
   if FResampleFilter = rfBox then
   begin
-    posX4096 += 2048;
-    posY4096 += 2048;
+    posXPrecision += Precision shr 1;
+    posYPrecision += Precision shr 1;
     py0 := PByte(FBitmap.ScanLine[0]);
     if FBitmap.LineOrder = riloTopToBottom then
       deltaRow := FBitmap.Width*sizeof(TBGRAPixel) else
@@ -1446,8 +1448,8 @@ begin
     begin
       for n := count-1 downto 0 do
       begin
-        if posX4096 < 0 then ix := (posX4096 shr 12) or shrMask else ix := posX4096 shr 12;
-        if posY4096 < 0 then iy := (posY4096 shr 12) or shrMask else iy := posY4096 shr 12;
+        if posXPrecision < 0 then ix := (posXPrecision shr PrecisionShift) or shrMask else ix := posXPrecision shr PrecisionShift;
+        if posYPrecision < 0 then iy := (posYPrecision shr PrecisionShift) or shrMask else iy := posYPrecision shr PrecisionShift;
         if FRepeatImageX then ix := PositiveMod(ix,w);
         if FRepeatImageY then iy := PositiveMod(iy,h);
         if (ix < 0) or (iy < 0) or (ix >= w) or (iy >= h) then
@@ -1455,22 +1457,22 @@ begin
         else
           p^ := (PBGRAPixel(py0 + iy*deltaRow)+ix)^;
         inc(p);
-        posX4096 += deltaX4096;
-        posY4096 += deltaY4096;
+        posXPrecision += deltaXPrecision;
+        posYPrecision += deltaYPrecision;
       end;
     end else
     begin
      for n := count-1 downto 0 do
      begin
-       if posX4096 < 0 then ix := (posX4096 shr 12) or shrMask else ix := posX4096 shr 12;
-       if posY4096 < 0 then iy := (posY4096 shr 12) or shrMask else iy := posY4096 shr 12;
+       if posXPrecision < 0 then ix := (posXPrecision shr PrecisionShift) or shrMask else ix := posXPrecision shr PrecisionShift;
+       if posYPrecision < 0 then iy := (posYPrecision shr PrecisionShift) or shrMask else iy := posYPrecision shr PrecisionShift;
        if (ix < 0) or (iy < 0) or (ix >= w) or (iy >= h) then
          p^ := BGRAPixelTransparent
        else
          p^ := (PBGRAPixel(py0 + iy*deltaRow)+ix)^;
        inc(p);
-       posX4096 += deltaX4096;
-       posY4096 += deltaY4096;
+       posXPrecision += deltaXPrecision;
+       posYPrecision += deltaYPrecision;
      end;
     end;
   end else
@@ -1479,35 +1481,35 @@ begin
    begin
      for n := count-1 downto 0 do
      begin
-       if posX4096 < 0 then ix := (posX4096 shr 12) or shrMask else ix := posX4096 shr 12;
-       if posY4096 < 0 then iy := (posY4096 shr 12) or shrMask else iy := posY4096 shr 12;
-       p^ := FBitmap.GetPixelCycle256(ix,iy, (posX4096 shr 4) and 255, (posY4096 shr 4) and 255,FResampleFilter);
+       if posXPrecision < 0 then ix := (posXPrecision shr PrecisionShift) or shrMask else ix := posXPrecision shr PrecisionShift;
+       if posYPrecision < 0 then iy := (posYPrecision shr PrecisionShift) or shrMask else iy := posYPrecision shr PrecisionShift;
+       p^ := FBitmap.GetPixelCycle256(ix,iy, (posXPrecision shr (PrecisionShift-8)) and 255, (posYPrecision shr (PrecisionShift-8)) and 255,FResampleFilter);
        inc(p);
-       posX4096 += deltaX4096;
-       posY4096 += deltaY4096;
+       posXPrecision += deltaXPrecision;
+       posYPrecision += deltaYPrecision;
      end;
    end else
    if FRepeatImageX or FRepeatImageY then
    begin
      for n := count-1 downto 0 do
      begin
-       if posX4096 < 0 then ix := (posX4096 shr 12) or shrMask else ix := posX4096 shr 12;
-       if posY4096 < 0 then iy := (posY4096 shr 12) or shrMask else iy := posY4096 shr 12;
-       p^ := FBitmap.GetPixelCycle256(ix,iy, (posX4096 shr 4) and 255, (posY4096 shr 4) and 255,FResampleFilter, FRepeatImageX,FRepeatImageY);
+       if posXPrecision < 0 then ix := (posXPrecision shr PrecisionShift) or shrMask else ix := posXPrecision shr PrecisionShift;
+       if posYPrecision < 0 then iy := (posYPrecision shr PrecisionShift) or shrMask else iy := posYPrecision shr PrecisionShift;
+       p^ := FBitmap.GetPixelCycle256(ix,iy, (posXPrecision shr (PrecisionShift-8)) and 255, (posYPrecision shr (PrecisionShift-8)) and 255,FResampleFilter, FRepeatImageX,FRepeatImageY);
        inc(p);
-       posX4096 += deltaX4096;
-       posY4096 += deltaY4096;
+       posXPrecision += deltaXPrecision;
+       posYPrecision += deltaYPrecision;
      end;
    end else
    begin
     for n := count-1 downto 0 do
     begin
-      if posX4096 < 0 then ix := (posX4096 shr 12) or shrMask else ix := posX4096 shr 12;
-      if posY4096 < 0 then iy := (posY4096 shr 12) or shrMask else iy := posY4096 shr 12;
-      p^ := FBitmap.GetPixel256(ix,iy, (posX4096 shr 4) and 255, (posY4096 shr 4) and 255,FResampleFilter);
+      if posXPrecision < 0 then ix := (posXPrecision shr PrecisionShift) or shrMask else ix := posXPrecision shr PrecisionShift;
+      if posYPrecision < 0 then iy := (posYPrecision shr PrecisionShift) or shrMask else iy := posYPrecision shr PrecisionShift;
+      p^ := FBitmap.GetPixel256(ix,iy, (posXPrecision shr (PrecisionShift-8)) and 255, (posYPrecision shr (PrecisionShift-8)) and 255,FResampleFilter);
       inc(p);
-      posX4096 += deltaX4096;
-      posY4096 += deltaY4096;
+      posXPrecision += deltaXPrecision;
+      posYPrecision += deltaYPrecision;
     end;
    end;
   end;
