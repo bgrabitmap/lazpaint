@@ -714,7 +714,9 @@ type
      procedure PutImageAffine(AMatrix: TAffineMatrix; Source: TBGRACustomBitmap; AOutputBounds: TRect; AResampleFilter: TResampleFilter; AMode: TDrawMode; AOpacity: Byte=255); virtual; abstract; overload;
      procedure PutImageAffine(AMatrix: TAffineMatrix; Source: TBGRACustomBitmap; AOutputBounds: TRect; AOpacity: Byte=255; ACorrectBlur: Boolean = false); overload;
      function GetImageAffineBounds(Origin,HAxis,VAxis: TPointF; Source: TBGRACustomBitmap): TRect; overload;
+     function GetImageAffineBounds(Origin,HAxis,VAxis: TPointF; ASourceWidth, ASourceHeight: integer; const ASourceBounds: TRect): TRect; overload;
      function GetImageAffineBounds(AMatrix: TAffineMatrix; Source: TBGRACustomBitmap): TRect; virtual; abstract; overload;
+     function GetImageAffineBounds(AMatrix: TAffineMatrix; SourceBounds: TRect): TRect; virtual; abstract; overload;
      procedure PutImageAngle(x,y: single; Source: TBGRACustomBitmap; angle: single; AOutputBounds: TRect; imageCenterX: single = 0; imageCenterY: single = 0; AOpacity: Byte=255; ARestoreOffsetAfterRotation: boolean = false; ACorrectBlur: Boolean = false); overload;
      procedure PutImageAngle(x,y: single; Source: TBGRACustomBitmap; angle: single; imageCenterX: single = 0; imageCenterY: single = 0; AOpacity: Byte=255; ARestoreOffsetAfterRotation: boolean = false; ACorrectBlur: Boolean = false); overload;
      procedure PutImageAngle(x,y: single; Source: TBGRACustomBitmap; angle: single; AOutputBounds: TRect; AResampleFilter: TResampleFilter; imageCenterX: single = 0; imageCenterY: single = 0; AOpacity: Byte=255; ARestoreOffsetAfterRotation: boolean = false); overload;
@@ -1936,9 +1938,17 @@ end;
 { Returns the area that contains the affine transformed image }
 function TBGRACustomBitmap.GetImageAffineBounds(Origin, HAxis, VAxis: TPointF;
   Source: TBGRACustomBitmap): TRect;
+begin
+  if Source = nil then
+    result := EmptyRect
+  else
+    result := GetImageAffineBounds(Origin,HAxis,VAxis,Source.Width,Source.Height,Source.GetImageBounds);
+end;
+
+function TBGRACustomBitmap.GetImageAffineBounds(Origin, HAxis, VAxis: TPointF;
+  ASourceWidth, ASourceHeight: integer; const ASourceBounds: TRect): TRect;
 var minx,miny,maxx,maxy: integer;
     vx,vy,pt1: TPointF;
-    sourceBounds: TRect;
 
   //include specified point in the bounds
   procedure Include(pt: TPointF);
@@ -1951,31 +1961,30 @@ var minx,miny,maxx,maxy: integer;
 
 begin
   result := EmptyRect;
-  if (Source = nil) then exit;
-  sourceBounds := source.GetImageBounds;
-  if IsRectEmpty(sourceBounds) then exit;
+  if (ASourceWidth = 0) or (ASourceHeight = 0) then exit;
+  if IsRectEmpty(ASourceBounds) then exit;
 
   if (abs(Origin.x-round(Origin.x))<1e-6) and (abs(Origin.y-round(Origin.Y))<1e-6) and
-     (abs(HAxis.x-(Origin.x+Source.Width-1))<1e-6) and (abs(HAxis.y-origin.y)<1e-6) and
-     (abs(VAxis.x-Origin.x)<1e-6) and (abs(VAxis.y-(Origin.y+Source.Height-1))<1e-6) then
+     (abs(HAxis.x-(Origin.x+ASourceWidth-1))<1e-6) and (abs(HAxis.y-origin.y)<1e-6) and
+     (abs(VAxis.x-Origin.x)<1e-6) and (abs(VAxis.y-(Origin.y+ASourceHeight-1))<1e-6) then
   begin
-    result := sourceBounds;
+    result := ASourceBounds;
     OffsetRect(result,round(origin.x),round(origin.y));
     IntersectRect(result,result,ClipRect);
     exit;
   end;
 
   { Compute bounds }
-  vx := (HAxis-Origin)*(1/(Source.Width-1));
-  vy := (VAxis-Origin)*(1/(Source.Height-1));
-  pt1 := Origin+vx*(-0.4999)+vy*(-0.4999);
+  vx := (HAxis-Origin)*(1/(ASourceWidth-1));
+  vy := (VAxis-Origin)*(1/(ASourceHeight-1));
+  pt1 := Origin+vx*(ASourceBounds.Left-0.4999)+vy*(ASourceBounds.Top-0.4999);
   minx := round(pt1.X);
   miny := round(pt1.Y);
   maxx := round(pt1.X);
   maxy := round(pt1.Y);
-  Include(Origin+vx*(Source.Width-0.5001)+vy*(-0.4999));
-  Include(Origin+vx*(Source.Width-0.5001)+vy*(Source.Height-0.5001));
-  Include(Origin+vx*(-0.4999)+vy*(Source.Height-0.5001));
+  Include(Origin+vx*(ASourceBounds.Right-0.5001)+vy*(ASourceBounds.Top-0.4999));
+  Include(Origin+vx*(ASourceBounds.Right-0.5001)+vy*(ASourceBounds.Bottom-0.5001));
+  Include(Origin+vx*(ASourceBounds.Left-0.4999)+vy*(ASourceBounds.Bottom-0.5001));
 
   result := rect(minx,miny,maxx+1,maxy+1);
   IntersectRect(result,result,ClipRect);

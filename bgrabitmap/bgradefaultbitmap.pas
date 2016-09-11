@@ -787,6 +787,7 @@ type
     procedure PutImageAffine(AMatrix: TAffineMatrix; Source: TBGRACustomBitmap; AResampleFilter: TResampleFilter; AOpacity: Byte=255); override; overload;
     procedure PutImageAffine(AMatrix: TAffineMatrix; Source: TBGRACustomBitmap; AOutputBounds: TRect; AResampleFilter: TResampleFilter; AMode: TDrawMode; AOpacity: Byte=255); override; overload;
     function GetImageAffineBounds(AMatrix: TAffineMatrix; Source: TBGRACustomBitmap): TRect; override; overload;
+    function GetImageAffineBounds(AMatrix: TAffineMatrix; SourceBounds: TRect): TRect; override; overload;
 
     procedure StretchPutImage(ARect: TRect; Source: TBGRACustomBitmap; mode: TDrawMode; AOpacity: byte = 255); override;
 
@@ -4826,6 +4827,13 @@ function TBGRADefaultBitmap.GetImageAffineBounds(AMatrix: TAffineMatrix;
 begin
   result := GetImageAffineBounds(AMatrix*PointF(0,0), AMatrix*PointF(Source.Width-1,0),
                                  AMatrix*PointF(0,Source.Height-1), Source);
+end;
+
+function TBGRADefaultBitmap.GetImageAffineBounds(AMatrix: TAffineMatrix;
+  SourceBounds: TRect): TRect;
+begin
+  result := GetImageAffineBounds(AMatrix*PointF(0,0), AMatrix*PointF(255,0),
+                                 AMatrix*PointF(0,255), 256,256, SourceBounds);
 end;
 
 procedure TBGRADefaultBitmap.StretchPutImage(ARect: TRect;
