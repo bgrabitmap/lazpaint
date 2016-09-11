@@ -4785,8 +4785,8 @@ begin
   if IsRectEmpty(AOutputBounds) then exit;
 
   if (abs(Origin.x-round(Origin.x))<1e-6) and (abs(Origin.y-round(Origin.Y))<1e-6) and
-     (abs(HAxis.x-(Origin.x+Source.Width))<1e-6) and (abs(HAxis.y-origin.y)<1e-6) and
-     (abs(VAxis.x-Origin.x)<1e-6) and (abs(VAxis.y-(Origin.y+Source.Height))<1e-6) then
+     (abs(HAxis.x-(Origin.x+Source.Width-1))<1e-6) and (abs(HAxis.y-origin.y)<1e-6) and
+     (abs(VAxis.x-Origin.x)<1e-6) and (abs(VAxis.y-(Origin.y+Source.Height-1))<1e-6) then
   begin
     SourceBounds := AOutputBounds;
     OffsetRect(SourceBounds, -round(origin.x),-round(origin.y));
@@ -4806,8 +4806,8 @@ end;
 procedure TBGRADefaultBitmap.PutImageAffine(AMatrix: TAffineMatrix;
   Source: TBGRACustomBitmap; AResampleFilter: TResampleFilter; AOpacity: Byte);
 begin
-  PutImageAffine(AMatrix*PointF(0,0), AMatrix*PointF(Source.Width,0),
-                 AMatrix*PointF(0,Source.Height),
+  PutImageAffine(AMatrix*PointF(0,0), AMatrix*PointF(Source.Width-1,0),
+                 AMatrix*PointF(0,Source.Height-1),
                  Source, AResampleFilter,AOpacity);
 end;
 
@@ -4815,8 +4815,8 @@ procedure TBGRADefaultBitmap.PutImageAffine(AMatrix: TAffineMatrix;
   Source: TBGRACustomBitmap; AOutputBounds: TRect;
   AResampleFilter: TResampleFilter; AMode: TDrawMode; AOpacity: Byte);
 begin
-  PutImageAffine(AMatrix*PointF(0,0), AMatrix*PointF(Source.Width,0),
-                 AMatrix*PointF(0,Source.Height),
+  PutImageAffine(AMatrix*PointF(0,0), AMatrix*PointF(Source.Width-1,0),
+                 AMatrix*PointF(0,Source.Height-1),
                  Source, AOutputBounds,
                  AResampleFilter, AMode, AOpacity);
 end;
@@ -4824,9 +4824,8 @@ end;
 function TBGRADefaultBitmap.GetImageAffineBounds(AMatrix: TAffineMatrix;
   Source: TBGRACustomBitmap): TRect;
 begin
-  result := GetImageAffineBounds(AMatrix*PointF(0,0), AMatrix*PointF(Source.Width,0),
-                                 AMatrix*PointF(0,Source.Height),
-                                 Source);
+  result := GetImageAffineBounds(AMatrix*PointF(0,0), AMatrix*PointF(Source.Width-1,0),
+                                 AMatrix*PointF(0,Source.Height-1), Source);
 end;
 
 procedure TBGRADefaultBitmap.StretchPutImage(ARect: TRect;
