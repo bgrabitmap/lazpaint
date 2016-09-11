@@ -1894,8 +1894,8 @@ var outputBounds: TRect;
 begin
   if (Source = nil) or (AOpacity = 0) then exit;
   if (abs(Origin.x-round(Origin.x))<1e-6) and (abs(Origin.y-round(Origin.Y))<1e-6) and
-     (abs(HAxis.x-(Origin.x+Source.Width))<1e-6) and (abs(HAxis.y-origin.y)<1e-6) and
-     (abs(VAxis.x-Origin.x)<1e-6) and (abs(VAxis.y-(Origin.y+Source.Height))<1e-6) then
+     (abs(HAxis.x-(Origin.x+Source.Width-1))<1e-6) and (abs(HAxis.y-origin.y)<1e-6) and
+     (abs(VAxis.x-Origin.x)<1e-6) and (abs(VAxis.y-(Origin.y+Source.Height-1))<1e-6) then
   begin
     PutImage(round(origin.x),round(origin.y),Source,dmDrawWithTransparency,AOpacity);
     exit;
@@ -1943,10 +1943,10 @@ var minx,miny,maxx,maxy: integer;
   //include specified point in the bounds
   procedure Include(pt: TPointF);
   begin
-    if floor(pt.X) < minx then minx := floor(pt.X);
-    if floor(pt.Y) < miny then miny := floor(pt.Y);
-    if ceil(pt.X) > maxx then maxx := ceil(pt.X);
-    if ceil(pt.Y) > maxy then maxy := ceil(pt.Y);
+    if round(pt.X) < minx then minx := round(pt.X);
+    if round(pt.Y) < miny then miny := round(pt.Y);
+    if round(pt.X) > maxx then maxx := round(pt.X);
+    if round(pt.Y) > maxy then maxy := round(pt.Y);
   end;
 
 begin
@@ -1956,8 +1956,8 @@ begin
   if IsRectEmpty(sourceBounds) then exit;
 
   if (abs(Origin.x-round(Origin.x))<1e-6) and (abs(Origin.y-round(Origin.Y))<1e-6) and
-     (abs(HAxis.x-(Origin.x+Source.Width))<1e-6) and (abs(HAxis.y-origin.y)<1e-6) and
-     (abs(VAxis.x-Origin.x)<1e-6) and (abs(VAxis.y-(Origin.y+Source.Height))<1e-6) then
+     (abs(HAxis.x-(Origin.x+Source.Width-1))<1e-6) and (abs(HAxis.y-origin.y)<1e-6) and
+     (abs(VAxis.x-Origin.x)<1e-6) and (abs(VAxis.y-(Origin.y+Source.Height-1))<1e-6) then
   begin
     result := sourceBounds;
     OffsetRect(result,round(origin.x),round(origin.y));
@@ -1966,16 +1966,16 @@ begin
   end;
 
   { Compute bounds }
-  vx := (HAxis-Origin)*(1/source.Width);
-  vy := (VAxis-Origin)*(1/source.Height);
-  pt1 := Origin+vx*sourceBounds.Left+vy*sourceBounds.Top;
-  minx := floor(pt1.X);
-  miny := floor(pt1.Y);
-  maxx := ceil(pt1.X);
-  maxy := ceil(pt1.Y);
-  Include(Origin+vx*sourceBounds.Right+vy*sourceBounds.Top);
-  Include(Origin+vx*sourceBounds.Right+vy*sourceBounds.Bottom);
-  Include(Origin+vx*sourceBounds.Left+vy*sourceBounds.Bottom);
+  vx := (HAxis-Origin)*(1/(Source.Width-1));
+  vy := (VAxis-Origin)*(1/(Source.Height-1));
+  pt1 := Origin+vx*(-0.4999)+vy*(-0.4999);
+  minx := round(pt1.X);
+  miny := round(pt1.Y);
+  maxx := round(pt1.X);
+  maxy := round(pt1.Y);
+  Include(Origin+vx*(Source.Width-0.5001)+vy*(-0.4999));
+  Include(Origin+vx*(Source.Width-0.5001)+vy*(Source.Height-0.5001));
+  Include(Origin+vx*(-0.4999)+vy*(Source.Height-0.5001));
 
   result := rect(minx,miny,maxx+1,maxy+1);
   IntersectRect(result,result,ClipRect);
