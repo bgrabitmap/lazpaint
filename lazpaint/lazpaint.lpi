@@ -11,6 +11,7 @@
         <DpiAware Value="True"/>
       </XPManifest>
       <Icon Value="0"/>
+      <ActiveWindowIndexAtStart Value="1"/>
     </General>
     <i18n>
       <EnableI18N Value="True"/>
@@ -56,11 +57,6 @@
               <StripSymbols Value="True"/>
             </Debugging>
             <LinkSmart Value="True"/>
-            <Options>
-              <Win32>
-                <GraphicApplication Value="True"/>
-              </Win32>
-            </Options>
           </Linking>
         </CompilerOptions>
       </Item2>
@@ -170,7 +166,7 @@
         <PackageName Value="LCL"/>
       </Item4>
     </RequiredPackages>
-    <Units Count="218">
+    <Units Count="220">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -186,8 +182,9 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="LazpaintMainForm"/>
-        <TopLine Value="23"/>
-        <CursorPos X="35" Y="28"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="916"/>
+        <CursorPos X="32" Y="926"/>
         <UsageCount Value="204"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -210,7 +207,7 @@
       <Unit4>
         <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
         <UnitName Value="BGRADefaultBitmap"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="5"/>
         <TopLine Value="3944"/>
         <CursorPos X="78" Y="3950"/>
         <UsageCount Value="115"/>
@@ -220,7 +217,7 @@
         <Filename Value="utool.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UTool"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="9"/>
         <UsageCount Value="204"/>
         <Loaded Value="True"/>
       </Unit5>
@@ -272,7 +269,7 @@
         <Filename Value="uimage.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImage"/>
-        <EditorIndex Value="23"/>
+        <EditorIndex Value="26"/>
         <TopLine Value="1400"/>
         <CursorPos X="66" Y="1427"/>
         <UsageCount Value="203"/>
@@ -300,7 +297,7 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="URadialBlur"/>
-        <EditorIndex Value="17"/>
+        <EditorIndex Value="20"/>
         <TopLine Value="79"/>
         <CursorPos X="46" Y="92"/>
         <UsageCount Value="200"/>
@@ -314,7 +311,7 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UMotionBlur"/>
-        <EditorIndex Value="15"/>
+        <EditorIndex Value="18"/>
         <TopLine Value="163"/>
         <CursorPos X="46" Y="183"/>
         <UsageCount Value="202"/>
@@ -328,7 +325,7 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UEmboss"/>
-        <EditorIndex Value="16"/>
+        <EditorIndex Value="19"/>
         <TopLine Value="61"/>
         <CursorPos X="46" Y="82"/>
         <UsageCount Value="203"/>
@@ -357,7 +354,7 @@
         <Filename Value="umac.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UMac"/>
-        <EditorIndex Value="19"/>
+        <EditorIndex Value="22"/>
         <CursorPos X="4" Y="41"/>
         <UsageCount Value="200"/>
         <Loaded Value="True"/>
@@ -476,7 +473,7 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UTwirl"/>
-        <EditorIndex Value="11"/>
+        <EditorIndex Value="14"/>
         <TopLine Value="73"/>
         <CursorPos X="46" Y="79"/>
         <UsageCount Value="200"/>
@@ -519,7 +516,7 @@
         <Filename Value="utoolselect.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolSelect"/>
-        <EditorIndex Value="9"/>
+        <EditorIndex Value="12"/>
         <TopLine Value="256"/>
         <CursorPos X="55" Y="270"/>
         <UsageCount Value="203"/>
@@ -537,7 +534,7 @@
         <Filename Value="utoolfloodfill.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolFloodFill"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="11"/>
         <TopLine Value="5"/>
         <CursorPos X="14" Y="27"/>
         <UsageCount Value="203"/>
@@ -547,7 +544,7 @@
         <Filename Value="utoolbasic.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolBasic"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="10"/>
         <TopLine Value="700"/>
         <CursorPos X="48" Y="718"/>
         <UsageCount Value="200"/>
@@ -557,10 +554,11 @@
         <Filename Value="uscaledpi.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UScaleDPI"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="44"/>
-        <CursorPos X="81" Y="44"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="110"/>
+        <CursorPos X="37" Y="88"/>
         <UsageCount Value="221"/>
+        <Loaded Value="True"/>
       </Unit39>
       <Unit40>
         <Filename Value="uresourcestrings.pas"/>
@@ -578,7 +576,7 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UPixelate"/>
-        <EditorIndex Value="14"/>
+        <EditorIndex Value="17"/>
         <TopLine Value="62"/>
         <CursorPos X="46" Y="69"/>
         <UsageCount Value="287"/>
@@ -726,7 +724,7 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="USharpen"/>
-        <EditorIndex Value="13"/>
+        <EditorIndex Value="16"/>
         <TopLine Value="56"/>
         <CursorPos X="46" Y="73"/>
         <UsageCount Value="200"/>
@@ -783,7 +781,7 @@
         <Filename Value="uscripting.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UScripting"/>
-        <EditorIndex Value="24"/>
+        <EditorIndex Value="27"/>
         <TopLine Value="949"/>
         <CursorPos X="16" Y="977"/>
         <UsageCount Value="200"/>
@@ -856,7 +854,7 @@
         <Filename Value="ulayeraction.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ULayerAction"/>
-        <EditorIndex Value="25"/>
+        <EditorIndex Value="28"/>
         <TopLine Value="357"/>
         <CursorPos X="37" Y="364"/>
         <UsageCount Value="200"/>
@@ -875,7 +873,7 @@
         <ComponentName Value="FPosterize"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="18"/>
+        <EditorIndex Value="21"/>
         <TopLine Value="63"/>
         <CursorPos X="46" Y="77"/>
         <UsageCount Value="201"/>
@@ -913,7 +911,7 @@
         <ComponentName Value="FNoiseFilter"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="10"/>
+        <EditorIndex Value="13"/>
         <TopLine Value="97"/>
         <CursorPos X="46" Y="101"/>
         <UsageCount Value="203"/>
@@ -1018,8 +1016,7 @@
         <Filename Value="utoolbrush.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolBrush"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="4"/>
         <TopLine Value="78"/>
         <CursorPos X="122" Y="110"/>
         <UsageCount Value="287"/>
@@ -1164,10 +1161,11 @@
       <Unit119>
         <Filename Value="maintoolbar.inc"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="1234"/>
-        <CursorPos Y="1244"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="401"/>
+        <CursorPos X="3" Y="369"/>
         <UsageCount Value="202"/>
+        <Loaded Value="True"/>
       </Unit119>
       <Unit120>
         <Filename Value="lazpaintdialogs.inc"/>
@@ -1185,15 +1183,18 @@
       </Unit121>
       <Unit122>
         <Filename Value="C:\lazarus\lcl\graphtype.pp"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="182"/>
-        <CursorPos X="3" Y="195"/>
+        <UnitName Value="GraphType"/>
+        <EditorIndex Value="3"/>
+        <WindowIndex Value="1"/>
+        <TopLine Value="35"/>
+        <CursorPos X="5" Y="49"/>
         <UsageCount Value="23"/>
+        <Loaded Value="True"/>
       </Unit122>
       <Unit123>
         <Filename Value="..\bgrabitmap\bgrapalette.pas"/>
         <UnitName Value="BGRAPalette"/>
-        <EditorIndex Value="22"/>
+        <EditorIndex Value="25"/>
         <TopLine Value="114"/>
         <CursorPos X="87" Y="126"/>
         <UsageCount Value="63"/>
@@ -1202,7 +1203,7 @@
       <Unit124>
         <Filename Value="..\bgrabitmap\bgracolorquantization.pas"/>
         <UnitName Value="BGRAColorQuantization"/>
-        <EditorIndex Value="21"/>
+        <EditorIndex Value="24"/>
         <TopLine Value="1909"/>
         <CursorPos X="72" Y="1915"/>
         <UsageCount Value="48"/>
@@ -1295,14 +1296,16 @@
         <IsPartOfProject Value="True"/>
         <TopLine Value="289"/>
         <CursorPos X="8" Y="299"/>
-        <UsageCount Value="191"/>
+        <UsageCount Value="192"/>
       </Unit138>
       <Unit139>
         <Filename Value="C:\lazarus\lcl\controls.pp"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="186"/>
-        <CursorPos X="13" Y="222"/>
+        <UnitName Value="Controls"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="1859"/>
+        <CursorPos X="3" Y="1871"/>
         <UsageCount Value="50"/>
+        <Loaded Value="True"/>
       </Unit139>
       <Unit140>
         <Filename Value="..\bgrabitmap\bgratext.pas"/>
@@ -1353,7 +1356,7 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <CursorPos X="37" Y="6"/>
-        <UsageCount Value="156"/>
+        <UsageCount Value="157"/>
       </Unit147>
       <Unit148>
         <Filename Value="C:\lazarus\fpc\2.6.2\source\packages\fcl-base\src\inifiles.pp"/>
@@ -1378,7 +1381,7 @@
         <IsPartOfProject Value="True"/>
         <TopLine Value="116"/>
         <CursorPos X="3" Y="123"/>
-        <UsageCount Value="119"/>
+        <UsageCount Value="120"/>
       </Unit151>
       <Unit152>
         <Filename Value="uformrain.pas"/>
@@ -1387,10 +1390,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UFormRain"/>
-        <EditorIndex Value="12"/>
+        <EditorIndex Value="15"/>
         <TopLine Value="73"/>
         <CursorPos X="46" Y="88"/>
-        <UsageCount Value="119"/>
+        <UsageCount Value="120"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit152>
@@ -1416,10 +1419,10 @@
         <Filename Value="upalettetoolbar.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UPaletteToolbar"/>
-        <EditorIndex Value="20"/>
+        <EditorIndex Value="23"/>
         <TopLine Value="79"/>
         <CursorPos X="18"/>
-        <UsageCount Value="110"/>
+        <UsageCount Value="111"/>
         <Loaded Value="True"/>
       </Unit156>
       <Unit157>
@@ -1561,7 +1564,7 @@
       </Unit178>
       <Unit179>
         <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="6"/>
         <TopLine Value="643"/>
         <CursorPos X="110" Y="663"/>
         <UsageCount Value="29"/>
@@ -1569,7 +1572,7 @@
       </Unit179>
       <Unit180>
         <Filename Value="..\bgrabitmap\bgrapixel.inc"/>
-        <EditorIndex Value="26"/>
+        <EditorIndex Value="29"/>
         <TopLine Value="111"/>
         <CursorPos X="3" Y="133"/>
         <UsageCount Value="11"/>
@@ -1584,10 +1587,13 @@
       </Unit181>
       <Unit182>
         <Filename Value="C:\lazarus\lcl\imglist.pp"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="164"/>
-        <CursorPos X="15" Y="186"/>
+        <UnitName Value="ImgList"/>
+        <EditorIndex Value="2"/>
+        <WindowIndex Value="1"/>
+        <TopLine Value="162"/>
+        <CursorPos X="15" Y="173"/>
         <UsageCount Value="26"/>
+        <Loaded Value="True"/>
       </Unit182>
       <Unit183>
         <Filename Value="C:\lazarus\lcl\include\imglist.inc"/>
@@ -1806,9 +1812,9 @@
       <Unit213>
         <Filename Value="tablet\laztablet.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="7"/>
         <CursorPos X="3" Y="16"/>
-        <UsageCount Value="21"/>
+        <UsageCount Value="22"/>
         <Loaded Value="True"/>
       </Unit213>
       <Unit214>
@@ -1818,15 +1824,15 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="21"/>
+        <UsageCount Value="22"/>
       </Unit214>
       <Unit215>
         <Filename Value="tablet\laztabletwin.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="8"/>
         <TopLine Value="14"/>
         <CursorPos X="6" Y="41"/>
-        <UsageCount Value="21"/>
+        <UsageCount Value="22"/>
         <Loaded Value="True"/>
       </Unit215>
       <Unit216>
@@ -1836,7 +1842,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="21"/>
+        <UsageCount Value="22"/>
       </Unit216>
       <Unit217>
         <Filename Value="tablet\WintabConsts.pas"/>
@@ -1845,126 +1851,149 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="21"/>
+        <UsageCount Value="22"/>
       </Unit217>
+      <Unit218>
+        <Filename Value="udarktheme.pas"/>
+        <IsVisibleTab Value="True"/>
+        <WindowIndex Value="1"/>
+        <TopLine Value="77"/>
+        <CursorPos X="51" Y="85"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit218>
+      <Unit219>
+        <Filename Value="..\..\bgracontrols\bgracustomdrawn.pas"/>
+        <UnitName Value="BGRACustomDrawn"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="1"/>
+        <TopLine Value="189"/>
+        <CursorPos X="7" Y="199"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit219>
     </Units>
-    <JumpHistory Count="29" HistoryIndex="28">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="utool.pas"/>
-        <Caret Line="1383" Column="49" TopLine="1351"/>
+        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="749" Column="15" TopLine="727"/>
       </Position1>
       <Position2>
-        <Filename Value="utool.pas"/>
-        <Caret Line="1164" Column="43" TopLine="1144"/>
+        <Filename Value="lazpaintmainform.pas"/>
+        <Caret Line="22" Column="24"/>
       </Position2>
       <Position3>
-        <Filename Value="utoolbasic.pas"/>
-        <Caret Line="835" Column="102" TopLine="823"/>
+        <Filename Value="lazpaintmainform.pas"/>
+        <Caret Line="926" Column="16" TopLine="908"/>
       </Position3>
       <Position4>
-        <Filename Value="utool.pas"/>
-        <Caret Line="1118" Column="25" TopLine="1104"/>
+        <Filename Value="udarktheme.pas"/>
+        <Caret Line="16" Column="16" TopLine="4"/>
       </Position4>
       <Position5>
-        <Filename Value="utool.pas"/>
-        <Caret Line="121" Column="24" TopLine="99"/>
+        <Filename Value="lazpaintmainform.pas"/>
+        <Caret Line="926" Column="30" TopLine="915"/>
       </Position5>
       <Position6>
-        <Filename Value="utool.pas"/>
-        <Caret Line="680" Column="34" TopLine="658"/>
+        <Filename Value="udarktheme.pas"/>
+        <Caret Line="147" Column="5" TopLine="124"/>
       </Position6>
       <Position7>
-        <Filename Value="utool.pas"/>
-        <Caret Line="682" Column="22" TopLine="658"/>
+        <Filename Value="udarktheme.pas"/>
+        <Caret Line="41" Column="53" TopLine="29"/>
       </Position7>
       <Position8>
-        <Filename Value="utool.pas"/>
-        <Caret Line="791" Column="32" TopLine="769"/>
+        <Filename Value="udarktheme.pas"/>
+        <Caret Line="17" Column="30" TopLine="5"/>
       </Position8>
       <Position9>
-        <Filename Value="utool.pas"/>
-        <Caret Line="845" Column="22" TopLine="809"/>
+        <Filename Value="udarktheme.pas"/>
+        <Caret Line="61" Column="15" TopLine="50"/>
       </Position9>
       <Position10>
-        <Filename Value="utoolbasic.pas"/>
-        <Caret Line="832" Column="30" TopLine="817"/>
+        <Filename Value="lazpaintmainform.pas"/>
+        <Caret Line="925" Column="59" TopLine="851"/>
       </Position10>
       <Position11>
-        <Filename Value="utool.pas"/>
-        <Caret Line="195" Column="60" TopLine="176"/>
+        <Filename Value="udarktheme.pas"/>
+        <Caret Line="40" Column="13" TopLine="26"/>
       </Position11>
       <Position12>
-        <Filename Value="lazpaintmainform.pas"/>
-        <Caret Line="734" Column="26" TopLine="725"/>
+        <Filename Value="udarktheme.pas"/>
+        <Caret Line="50" Column="3" TopLine="46"/>
       </Position12>
       <Position13>
         <Filename Value="lazpaintmainform.pas"/>
-        <Caret Line="849" Column="62" TopLine="823"/>
+        <Caret Line="1069" Column="17" TopLine="1060"/>
       </Position13>
       <Position14>
         <Filename Value="lazpaintmainform.pas"/>
-        <Caret Line="3567" Column="35" TopLine="3565"/>
+        <Caret Line="1069" Column="27" TopLine="1060"/>
       </Position14>
       <Position15>
-        <Filename Value="lazpaintmainform.pas"/>
-        <Caret Line="3568" Column="39" TopLine="3546"/>
+        <Filename Value="udarktheme.pas"/>
+        <Caret Line="36" Column="17" TopLine="32"/>
       </Position15>
       <Position16>
-        <Filename Value="lazpaintmainform.pas"/>
-        <Caret Line="3567" Column="58" TopLine="3545"/>
+        <Filename Value="udarktheme.pas"/>
+        <Caret Line="43" Column="12" TopLine="29"/>
       </Position16>
       <Position17>
-        <Filename Value="lazpaintmainform.pas"/>
-        <Caret Line="3570" Column="18" TopLine="3551"/>
+        <Filename Value="uscaledpi.pas"/>
+        <Caret Line="121" Column="45" TopLine="110"/>
       </Position17>
       <Position18>
-        <Filename Value="lazpaintmainform.pas"/>
-        <Caret Line="1155" Column="49" TopLine="1134"/>
+        <Filename Value="uscaledpi.pas"/>
+        <Caret Line="88" Column="37" TopLine="74"/>
       </Position18>
       <Position19>
-        <Filename Value="utoolbrush.pas"/>
-        <Caret Line="189" Column="31" TopLine="170"/>
+        <Filename Value="lazpaintmainform.pas"/>
+        <Caret Line="1068" Column="33" TopLine="1060"/>
       </Position19>
       <Position20>
-        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
-        <Caret Line="1844" Column="3" TopLine="1842"/>
+        <Filename Value="udarktheme.pas"/>
+        <Caret Line="145" Column="27" TopLine="132"/>
       </Position20>
       <Position21>
-        <Filename Value="..\bgrabitmap\bgracustombitmap.inc"/>
-        <Caret Line="1842" Column="87" TopLine="1830"/>
+        <Filename Value="C:\lazarus\lcl\imglist.pp"/>
+        <Caret Line="173" Column="15" TopLine="162"/>
       </Position21>
       <Position22>
-        <Filename Value="utool.pas"/>
-        <Caret Line="196" Column="46" TopLine="175"/>
+        <Filename Value="udarktheme.pas"/>
+        <Caret Line="16" Column="20"/>
       </Position22>
       <Position23>
-        <Filename Value="utoolbrush.pas"/>
-        <Caret Line="185" Column="57" TopLine="71"/>
+        <Filename Value="udarktheme.pas"/>
+        <Caret Line="65" Column="43" TopLine="57"/>
       </Position23>
       <Position24>
-        <Filename Value="utool.pas"/>
-        <Caret Line="1207" TopLine="1187"/>
+        <Filename Value="udarktheme.pas"/>
+        <Caret Line="16" Column="24" TopLine="8"/>
       </Position24>
       <Position25>
-        <Filename Value="utoolbrush.pas"/>
-        <Caret Line="279" Column="28" TopLine="272"/>
+        <Filename Value="udarktheme.pas"/>
+        <Caret Line="60" Column="24" TopLine="38"/>
       </Position25>
       <Position26>
-        <Filename Value="utoolbrush.pas"/>
-        <Caret Line="110" Column="64" TopLine="78"/>
+        <Filename Value="udarktheme.pas"/>
+        <Caret Line="84" Column="28" TopLine="24"/>
       </Position26>
       <Position27>
-        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
-        <Caret Line="749" Column="109" TopLine="729"/>
+        <Filename Value="..\..\bgracontrols\bgracustomdrawn.pas"/>
+        <Caret Line="53" Column="18" TopLine="40"/>
       </Position27>
       <Position28>
-        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
-        <Caret Line="748" Column="15" TopLine="727"/>
+        <Filename Value="..\..\bgracontrols\bgracustomdrawn.pas"/>
+        <Caret Line="902" Column="5" TopLine="849"/>
       </Position28>
       <Position29>
-        <Filename Value="..\bgrabitmap\bgradefaultbitmap.pas"/>
-        <Caret Line="749" Column="15" TopLine="727"/>
+        <Filename Value="udarktheme.pas"/>
+        <Caret Line="85" Column="39" TopLine="66"/>
       </Position29>
+      <Position30>
+        <Filename Value="udarktheme.pas"/>
+        <Caret Line="29" Column="53" TopLine="16"/>
+      </Position30>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
