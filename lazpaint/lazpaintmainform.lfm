@@ -5,7 +5,7 @@ object FMain: TFMain
   Width = 739
   AllowDropFiles = True
   Caption = 'LazPaint'
-  ClientHeight = 558
+  ClientHeight = 553
   ClientWidth = 739
   Color = 15258043
   Constraints.MinWidth = 320
@@ -1460,7 +1460,7 @@ object FMain: TFMain
   end
   object PaintBox_Picture: TPaintBox
     Left = 608
-    Height = 90
+    Height = 85
     Top = 72
     Width = 120
     Anchors = [akTop, akLeft, akRight, akBottom]

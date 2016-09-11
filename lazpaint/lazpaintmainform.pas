@@ -19,7 +19,7 @@ uses
   UImageObservation, UConfig, UScaleDPI, UResourceStrings,
   UMenu, uscripting, ubrowseimages, UToolPolygon, UBarUpDown,
 
-  laztablet;
+  laztablet, udarktheme;
 
 const
   MinPenWidthValue = 10;
@@ -923,6 +923,7 @@ begin
   {$ENDIF}
 
   FLayout.OnPictureAreaChange := @LayoutPictureAreaChange;
+  DarkTheme.SetDarkTheme(Self);
   initialized := true;
   FirstPaint := true;
 end;
