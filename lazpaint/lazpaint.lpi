@@ -57,6 +57,11 @@
               <StripSymbols Value="True"/>
             </Debugging>
             <LinkSmart Value="True"/>
+            <Options>
+              <Win32>
+                <GraphicApplication Value="True"/>
+              </Win32>
+            </Options>
           </Linking>
         </CompilerOptions>
       </Item2>
@@ -1858,7 +1863,7 @@
         <IsVisibleTab Value="True"/>
         <WindowIndex Value="1"/>
         <TopLine Value="77"/>
-        <CursorPos X="51" Y="85"/>
+        <CursorPos X="32" Y="87"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit218>
