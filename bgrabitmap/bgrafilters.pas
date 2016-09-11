@@ -178,11 +178,13 @@ end;
 function FilterNormalize(bmp: TBGRACustomBitmap; ABounds: TRect;
   eachChannel: boolean = True): TBGRACustomBitmap;
 var scanner: TBGRAFilterScannerNormalize;
+  remain: TRect;
 begin
   Result := bmp.NewBitmap(bmp.Width, bmp.Height);
-  if not IntersectRect(ABounds,ABounds,rect(0,0,bmp.Width,bmp.Height)) then exit;
-  scanner := TBGRAFilterScannerNormalize.Create(bmp,Point(0,0),ABounds,eachChannel);
-  result.FillRect(ABounds,scanner,dmSet);
+  remain := EmptyRect;
+  if not IntersectRect(remain,ABounds,rect(0,0,bmp.Width,bmp.Height)) then exit;
+  scanner := TBGRAFilterScannerNormalize.Create(bmp,Point(0,0),remain,eachChannel);
+  result.FillRect(remain,scanner,dmSet);
   scanner.Free;
 end;
 
@@ -244,7 +246,6 @@ var
   redDiff,greenDiff,blueDiff: NativeUInt;
   diff: NativeInt;
 begin
-  if IsRectEmpty(ABounds) then exit;
   //compute pixel position and weight
   dx   := cos(angle * Pi / 180);
   dy   := sin(angle * Pi / 180);
@@ -254,6 +255,7 @@ begin
   y256 := trunc((dy-idy)*256);
 
   Result := bmp.NewBitmap(bmp.Width, bmp.Height);
+  if IsRectEmpty(ABounds) then exit;
 
   bounds := bmp.GetImageBounds;
 
@@ -704,7 +706,7 @@ end;
 function FilterBlurRadialPrecise(bmp: TBGRACustomBitmap; radius: single): TBGRACustomBitmap;
 var task: TRadialBlurTask;
 begin
-  task := CreateRadialPreciseBlurTask(bmp,rect(0,0,bmp.Width,bmp.Height),radius);
+  task := CreateRadialBlurTask(bmp,rect(0,0,bmp.Width,bmp.Height),radius*10,rbPrecise);
   result := task.Execute;
   task.Free;
 end;
