@@ -250,21 +250,35 @@ begin
   begin
     if not AutoSourceBorderColor then
     begin
-      FillDWord(TopLine,3,DWord(FSourceBorderColor));
-      FillDWord(BottomLine,3,DWord(FSourceBorderColor));
+      TopLine[0] := FSourceBorderColor;
+      TopLine[1] := FSourceBorderColor;
+      TopLine[2] := FSourceBorderColor;
+      BottomLine[0] := FSourceBorderColor;
+      BottomLine[1] := FSourceBorderColor;
+      BottomLine[2] := FSourceBorderColor;
     end;
     while (ACount > 0) and (MiddleX+1 < BufferWidth) do
     begin
       PMiddle:= @Buffers[1][MiddleX-1];
       if Buffers[0] = nil then
       begin
-        if AutoSourceBorderColor then FillDWord(TopLine,3,DWord(PMiddle[1]));
+        if AutoSourceBorderColor then
+        begin
+          TopLine[0] := PMiddle[1];
+          TopLine[1] := PMiddle[1];
+          TopLine[2] := PMiddle[1];
+        end;
         PTop := @TopLine;
       end
       else PTop := @Buffers[0][MiddleX-1];
       if Buffers[2] = nil then
       begin
-        if AutoSourceBorderColor then FillDWord(BottomLine,3,DWord(PMiddle[1]));
+        if AutoSourceBorderColor then
+        begin
+          BottomLine[0] := PMiddle[1];
+          BottomLine[1] := PMiddle[1];
+          BottomLine[2] := PMiddle[1];
+        end;
         PBottom := @BottomLine;
       end
       else PBottom := @Buffers[2][MiddleX-1];

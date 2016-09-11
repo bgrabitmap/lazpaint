@@ -1262,6 +1262,7 @@ begin
   else
   begin
     firstFound := true;
+    foundRect := EmptyRect;
     for i := 0 to high(ofsPts) do
       AddPt(ofsPts[i]);
     for i := 0 to high(ofsPts2) do
