@@ -48,6 +48,8 @@ type
     FMatrix: TAffineMatrix;
     procedure SetMatrix(AMatrix: TAffineMatrix);
     function InternalScanCurrentPixel: TBGRAPixel; virtual;
+    function GetViewMatrix: TAffineMatrix;
+    procedure SetViewMatrix(AValue: TAffineMatrix);
   public
     GlobalOpacity: Byte;
     constructor Create(AScanner: IBGRAScanner);
@@ -65,6 +67,7 @@ type
     function ScanNextPixel: TBGRAPixel; override;
     function ScanAt(X, Y: Single): TBGRAPixel; override;
     property Matrix: TAffineMatrix read FMatrix write SetMatrix;
+    property ViewMatrix: TAffineMatrix read GetViewMatrix write SetViewMatrix;
   end;
 
   { If you don't want the bitmap to repeats itself, or want to specify the
@@ -818,6 +821,20 @@ begin
   if not FEmptyMatrix and IsAffineMatrixInversible(FMatrix) then
     FMatrix := AffineMatrixInverse(FMatrix) else
       FEmptyMatrix := True;
+end;
+
+function TBGRAAffineScannerTransform.GetViewMatrix: TAffineMatrix;
+begin
+  if FEmptyMatrix then
+    result := AffineMatrixIdentity
+  else
+    result := AffineMatrixInverse(FMatrix);
+end;
+
+procedure TBGRAAffineScannerTransform.SetViewMatrix(AValue: TAffineMatrix);
+begin
+  Matrix := AValue;
+  Invert;
 end;
 
 procedure TBGRAAffineScannerTransform.SetMatrix(AMatrix: TAffineMatrix);

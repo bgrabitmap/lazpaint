@@ -150,6 +150,7 @@ type
      procedure InternalArc(cx,cy,rx,ry: single; StartAngleRad,EndAngleRad: Single; ABorderColor: TBGRAPixel; w: single; AFillColor: TBGRAPixel; AOptions: TArcOptions; ADrawChord: boolean = false; ATexture: IBGRAScanner = nil); overload; virtual; abstract;
      procedure InternalArcInRect(r: TRect; StartAngleRad,EndAngleRad: Single; ABorderColor : TBGRAPixel; w: single; AFillColor: TBGRAPixel; AOptions: TArcOptions; ADrawChord: boolean = false; ATexture: IBGRAScanner = nil);
      procedure InternalFillArcInRect(r: TRect; StartAngleRad,EndAngleRad: Single; AFillColor: TBGRAPixel; AOptions: TArcOptions; ATexture: IBGRAScanner = nil);
+     function IsAffineRoughlyIdentity(AMatrix: TAffineMatrix; ASourceBounds: TRect): boolean; virtual; abstract;
 
      function GetTextureGL: IUnknown; virtual;
 
@@ -707,16 +708,16 @@ type
      procedure PutImagePart(x,y: integer; Source: TBGRACustomBitmap; SourceRect: TRect; mode: TDrawMode; AOpacity: byte = 255);
      procedure PutImageAffine(Origin,HAxis,VAxis: TPointF; Source: TBGRACustomBitmap; AOpacity: Byte=255; ACorrectBlur: Boolean = false); overload;
      procedure PutImageAffine(Origin,HAxis,VAxis: TPointF; Source: TBGRACustomBitmap; AResampleFilter: TResampleFilter; AOpacity: Byte=255); overload;
-     procedure PutImageAffine(Origin,HAxis,VAxis: TPointF; Source: TBGRACustomBitmap; AOutputBounds: TRect; AResampleFilter: TResampleFilter; AMode: TDrawMode; AOpacity: Byte=255); virtual; abstract; overload;
+     procedure PutImageAffine(Origin,HAxis,VAxis: TPointF; Source: TBGRACustomBitmap; AOutputBounds: TRect; AResampleFilter: TResampleFilter; AMode: TDrawMode; AOpacity: Byte=255); overload;
      procedure PutImageAffine(Origin,HAxis,VAxis: TPointF; Source: TBGRACustomBitmap; AOutputBounds: TRect; AOpacity: Byte=255; ACorrectBlur: Boolean = false); overload;
      procedure PutImageAffine(AMatrix: TAffineMatrix; Source: TBGRACustomBitmap; AOpacity: Byte=255; ACorrectBlur: Boolean = false); overload;
-     procedure PutImageAffine(AMatrix: TAffineMatrix; Source: TBGRACustomBitmap; AResampleFilter: TResampleFilter; AOpacity: Byte=255); virtual; abstract; overload;
+     procedure PutImageAffine(AMatrix: TAffineMatrix; Source: TBGRACustomBitmap; AResampleFilter: TResampleFilter; AOpacity: Byte=255); overload;
      procedure PutImageAffine(AMatrix: TAffineMatrix; Source: TBGRACustomBitmap; AOutputBounds: TRect; AResampleFilter: TResampleFilter; AMode: TDrawMode; AOpacity: Byte=255); virtual; abstract; overload;
      procedure PutImageAffine(AMatrix: TAffineMatrix; Source: TBGRACustomBitmap; AOutputBounds: TRect; AOpacity: Byte=255; ACorrectBlur: Boolean = false); overload;
      function GetImageAffineBounds(Origin,HAxis,VAxis: TPointF; Source: TBGRACustomBitmap): TRect; overload;
-     function GetImageAffineBounds(Origin,HAxis,VAxis: TPointF; ASourceWidth, ASourceHeight: integer; const ASourceBounds: TRect): TRect; overload;
-     function GetImageAffineBounds(AMatrix: TAffineMatrix; Source: TBGRACustomBitmap): TRect; virtual; abstract; overload;
-     function GetImageAffineBounds(AMatrix: TAffineMatrix; SourceBounds: TRect): TRect; virtual; abstract; overload;
+     function GetImageAffineBounds(Origin,HAxis,VAxis: TPointF; ASourceWidth, ASourceHeight: integer; const ASourceBounds: TRect; AClipOutput: boolean = true): TRect; overload;
+     function GetImageAffineBounds(AMatrix: TAffineMatrix; Source: TBGRACustomBitmap): TRect; overload;
+     function GetImageAffineBounds(AMatrix: TAffineMatrix; ASourceBounds: TRect; AClipOutput: boolean = true): TRect; virtual; abstract; overload;
      procedure PutImageAngle(x,y: single; Source: TBGRACustomBitmap; angle: single; AOutputBounds: TRect; imageCenterX: single = 0; imageCenterY: single = 0; AOpacity: Byte=255; ARestoreOffsetAfterRotation: boolean = false; ACorrectBlur: Boolean = false); overload;
      procedure PutImageAngle(x,y: single; Source: TBGRACustomBitmap; angle: single; imageCenterX: single = 0; imageCenterY: single = 0; AOpacity: Byte=255; ARestoreOffsetAfterRotation: boolean = false; ACorrectBlur: Boolean = false); overload;
      procedure PutImageAngle(x,y: single; Source: TBGRACustomBitmap; angle: single; AOutputBounds: TRect; AResampleFilter: TResampleFilter; imageCenterX: single = 0; imageCenterY: single = 0; AOpacity: Byte=255; ARestoreOffsetAfterRotation: boolean = false); overload;
@@ -1892,18 +1893,20 @@ end;
 
 procedure TBGRACustomBitmap.PutImageAffine(Origin, HAxis, VAxis: TPointF;
   Source: TBGRACustomBitmap; AResampleFilter: TResampleFilter; AOpacity: Byte);
-var outputBounds: TRect;
 begin
-  if (Source = nil) or (AOpacity = 0) then exit;
-  if (abs(Origin.x-round(Origin.x))<1e-6) and (abs(Origin.y-round(Origin.Y))<1e-6) and
-     (abs(HAxis.x-(Origin.x+Source.Width-1))<1e-6) and (abs(HAxis.y-origin.y)<1e-6) and
-     (abs(VAxis.x-Origin.x)<1e-6) and (abs(VAxis.y-(Origin.y+Source.Height-1))<1e-6) then
-  begin
-    PutImage(round(origin.x),round(origin.y),Source,dmDrawWithTransparency,AOpacity);
-    exit;
-  end;
-  outputBounds := GetImageAffineBounds(Origin,HAxis,VAxis,Source);
-  PutImageAffine(Origin,HAxis,VAxis,Source,outputBounds,AResampleFilter,dmDrawWithTransparency,AOpacity);
+  if (Source = nil) or (Source.Width = 0) or (Source.Height = 0) or (AOpacity = 0) then exit;
+  PutImageAffine(Origin,HAxis,VAxis,Source,GetImageAffineBounds(Origin,HAxis,VAxis,Source),AResampleFilter,dmDrawWithTransparency,AOpacity);
+end;
+
+procedure TBGRACustomBitmap.PutImageAffine(Origin, HAxis, VAxis: TPointF;
+  Source: TBGRACustomBitmap; AOutputBounds: TRect;
+  AResampleFilter: TResampleFilter; AMode: TDrawMode; AOpacity: Byte);
+var m: TAffineMatrix;
+begin
+  if (Source = nil) or (Source.Width = 0) or (Source.Height = 0) or (AOpacity = 0) then exit;
+  m[1,1] := (HAxis.x-Origin.x)/(Source.Width-1); m[1,2] := (VAxis.x-Origin.x)/(Source.Height-1); m[1,3] := Origin.x;
+  m[2,1] := (HAxis.y-Origin.y)/(Source.Width-1); m[2,2] := (VAxis.y-Origin.y)/(Source.Height-1); m[2,3] := Origin.y;
+  PutImageAffine(m,Source,AOutputBounds,AResampleFilter,AMode,AOpacity);
 end;
 
 procedure TBGRACustomBitmap.PutImageAffine(Origin, HAxis, VAxis: TPointF;
@@ -1911,7 +1914,7 @@ procedure TBGRACustomBitmap.PutImageAffine(Origin, HAxis, VAxis: TPointF;
   ACorrectBlur: Boolean);
 begin
   if ACorrectBlur then
-    PutImageAffine(Origin,HAxis,VAxis,Source,AOutputBounds,rfCosine,dmDrawWithTransparency, AOpacity)
+    PutImageAffine(Origin,HAxis,VAxis,Source,AOutputBounds,rfCosine,dmDrawWithTransparency,AOpacity)
   else
     PutImageAffine(Origin,HAxis,VAxis,Source,AOutputBounds,rfLinear,dmDrawWithTransparency,AOpacity);
 end;
@@ -1923,6 +1926,13 @@ begin
     PutImageAffine(AMatrix,Source,rfCosine,AOpacity)
   else
     PutImageAffine(AMatrix,Source,rfLinear,AOpacity);
+end;
+
+procedure TBGRACustomBitmap.PutImageAffine(AMatrix: TAffineMatrix;
+  Source: TBGRACustomBitmap; AResampleFilter: TResampleFilter; AOpacity: Byte);
+begin
+  if (Source = nil) or (Source.Width = 0) or (Source.Height = 0) or (AOpacity = 0) then exit;
+  PutImageAffine(AMatrix, Source, GetImageAffineBounds(AMatrix,Source),AResampleFilter,dmDrawWithTransparency,AOpacity);
 end;
 
 procedure TBGRACustomBitmap.PutImageAffine(AMatrix: TAffineMatrix;
@@ -1946,48 +1956,23 @@ begin
 end;
 
 function TBGRACustomBitmap.GetImageAffineBounds(Origin, HAxis, VAxis: TPointF;
-  ASourceWidth, ASourceHeight: integer; const ASourceBounds: TRect): TRect;
-var minx,miny,maxx,maxy: integer;
-    vx,vy,pt1: TPointF;
-
-  //include specified point in the bounds
-  procedure Include(pt: TPointF);
-  begin
-    if round(pt.X) < minx then minx := round(pt.X);
-    if round(pt.Y) < miny then miny := round(pt.Y);
-    if round(pt.X) > maxx then maxx := round(pt.X);
-    if round(pt.Y) > maxy then maxy := round(pt.Y);
-  end;
-
+  ASourceWidth, ASourceHeight: integer; const ASourceBounds: TRect; AClipOutput: boolean): TRect;
+var m: TAffineMatrix;
 begin
-  result := EmptyRect;
-  if (ASourceWidth = 0) or (ASourceHeight = 0) then exit;
-  if IsRectEmpty(ASourceBounds) then exit;
-
-  if (abs(Origin.x-round(Origin.x))<1e-6) and (abs(Origin.y-round(Origin.Y))<1e-6) and
-     (abs(HAxis.x-(Origin.x+ASourceWidth-1))<1e-6) and (abs(HAxis.y-origin.y)<1e-6) and
-     (abs(VAxis.x-Origin.x)<1e-6) and (abs(VAxis.y-(Origin.y+ASourceHeight-1))<1e-6) then
+  if (ASourceWidth = 0) or (ASourceHeight = 0) then
+    result := EmptyRect
+  else
   begin
-    result := ASourceBounds;
-    OffsetRect(result,round(origin.x),round(origin.y));
-    IntersectRect(result,result,ClipRect);
-    exit;
+    m[1,1] := (HAxis.x-Origin.x)/(ASourceWidth-1); m[1,2] := (VAxis.x-Origin.x)/(ASourceHeight-1); m[1,3] := Origin.x;
+    m[2,1] := (HAxis.y-Origin.y)/(ASourceWidth-1); m[2,2] := (VAxis.y-Origin.y)/(ASourceHeight-1); m[2,3] := Origin.y;
+    result := GetImageAffineBounds(m, ASourceBounds, AClipOutput);
   end;
+end;
 
-  { Compute bounds }
-  vx := (HAxis-Origin)*(1/(ASourceWidth-1));
-  vy := (VAxis-Origin)*(1/(ASourceHeight-1));
-  pt1 := Origin+vx*(ASourceBounds.Left-0.4999)+vy*(ASourceBounds.Top-0.4999);
-  minx := round(pt1.X);
-  miny := round(pt1.Y);
-  maxx := round(pt1.X);
-  maxy := round(pt1.Y);
-  Include(Origin+vx*(ASourceBounds.Right-0.5001)+vy*(ASourceBounds.Top-0.4999));
-  Include(Origin+vx*(ASourceBounds.Right-0.5001)+vy*(ASourceBounds.Bottom-0.5001));
-  Include(Origin+vx*(ASourceBounds.Left-0.4999)+vy*(ASourceBounds.Bottom-0.5001));
-
-  result := rect(minx,miny,maxx+1,maxy+1);
-  IntersectRect(result,result,ClipRect);
+function TBGRACustomBitmap.GetImageAffineBounds(AMatrix: TAffineMatrix;
+  Source: TBGRACustomBitmap): TRect;
+begin
+  result := GetImageAffineBounds(AMatrix, Source.GetImageBounds);
 end;
 
 procedure TBGRACustomBitmap.PutImageAngle(x, y: single;
