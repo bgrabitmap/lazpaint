@@ -1128,8 +1128,8 @@ procedure TBGRAReaderPNG.DoDecompress;
     begin
       diag := (pPrev-bw)^;
       left := (p - bw)^;
-      dl := pPrev^ - diag;
-      dp := left - diag;
+      dl := pPrev^ - NativeInt(diag);
+      dp := NativeInt(left) - NativeInt(diag);
       dlp := abs(dl+dp);
       if dl < 0 then dl := -dl;
       if dp < 0 then dp := -dp;
