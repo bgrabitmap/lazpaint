@@ -204,7 +204,6 @@ type
     function CheckClippedRectBounds(var x,y,x2,y2: integer): boolean;
     procedure InternalArc(cx,cy,rx,ry: single; StartAngleRad,EndAngleRad: Single; ABorderColor: TBGRAPixel; w: single;
       AFillColor: TBGRAPixel; AOptions: TArcOptions; ADrawChord: boolean = false; ATexture: IBGRAScanner = nil); override;
-    function IsAffineRoughlyIdentity(AMatrix: TAffineMatrix; ASourceBounds: TRect): boolean; override;
 
   public
     {** Provides a canvas with opacity and antialiasing }
@@ -786,6 +785,7 @@ type
     procedure PutImage(x, y: integer; Source: TBGRACustomBitmap; mode: TDrawMode; AOpacity: byte = 255); override;
     procedure PutImageAffine(AMatrix: TAffineMatrix; Source: TBGRACustomBitmap; AOutputBounds: TRect; AResampleFilter: TResampleFilter; AMode: TDrawMode; AOpacity: Byte=255); override; overload;
     function GetImageAffineBounds(AMatrix: TAffineMatrix; ASourceBounds: TRect; AClipOutput: boolean = true): TRect; override; overload;
+    function IsAffineRoughlyTranslation(AMatrix: TAffineMatrix; ASourceBounds: TRect): boolean; override;
 
     procedure StretchPutImage(ARect: TRect; Source: TBGRACustomBitmap; mode: TDrawMode; AOpacity: byte = 255); override;
 
@@ -2440,7 +2440,7 @@ begin
   multi.Free;
 end;
 
-function TBGRADefaultBitmap.IsAffineRoughlyIdentity(AMatrix: TAffineMatrix; ASourceBounds: TRect): boolean;
+function TBGRADefaultBitmap.IsAffineRoughlyTranslation(AMatrix: TAffineMatrix; ASourceBounds: TRect): boolean;
 const oneOver512 = 1/512;
 var Orig,HAxis,VAxis: TPointF;
 begin
@@ -4812,7 +4812,7 @@ begin
   IntersectRect(AOutputBounds,AOutputBounds,ClipRect);
   if IsRectEmpty(AOutputBounds) then exit;
 
-  if IsAffineRoughlyIdentity(AMatrix, rect(0,0,Source.Width,Source.Height)) then
+  if IsAffineRoughlyTranslation(AMatrix, rect(0,0,Source.Width,Source.Height)) then
   begin
     sourceBounds := AOutputBounds;
     OffsetRect(sourceBounds, -round(AMatrix[1,3]),-round(AMatrix[2,3]));
@@ -4852,7 +4852,7 @@ const pointMargin = 0.5 - 1/512;
 begin
   result := EmptyRect;
   if IsRectEmpty(ASourceBounds) then exit;
-  if IsAffineRoughlyIdentity(AMatrix,ASourceBounds) then
+  if IsAffineRoughlyTranslation(AMatrix,ASourceBounds) then
   begin
     result := ASourceBounds;
     OffsetRect(result,round(AMatrix[1,3]),round(AMatrix[2,3]));
