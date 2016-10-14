@@ -363,11 +363,26 @@ const
   greenWeightShl10 = 601; // = 0.587
   blueWeightShl10  = 117; // = 0.114
 
+procedure BGRANoGamma;
+var i: integer;
+begin
+  GammaExpFactor := 1;
+  for i := 0 to 255 do
+    GammaExpansionTab[i] := (i shl 8) + i;
+  for i := 0 to 65535 do
+    GammaCompressionTab[i] := i shr 8;
+end;
+
 procedure BGRASetGamma(AGamma: single);
 var
   GammaLinearFactor: single;
   i,j,prevpos,nextpos,midpos: NativeInt;
 begin
+  if AGamma = 1 then
+  begin
+    BGRANoGamma;
+    exit;
+  end;
   GammaExpFactor := AGamma;
   //the linear factor is used to normalize expanded values in the range 0..65535
   GammaLinearFactor := 65535 / power(255, GammaExpFactor);
