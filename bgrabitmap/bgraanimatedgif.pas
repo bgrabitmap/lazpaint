@@ -743,10 +743,10 @@ begin
             FPreviousVirtualScreen.Fill(BGRAPixelTransparent);
           end;
 
-          PChangePix  := PLongWord(FPreviousVirtualScreen.ScanLine[0]);
-          PNewPix     := PLongWord(FStretchedVirtualScreen.ScanLine[0]);
-          PBackground := PLongWord(FBackgroundImage.ScanLine[0]);
-          PNewBackground := PLongWord(NewBackgroundImage.ScanLine[0]);
+          PChangePix  := PLongWord(FPreviousVirtualScreen.Data);
+          PNewPix     := PLongWord(FStretchedVirtualScreen.Data);
+          PBackground := PLongWord(FBackgroundImage.Data);
+          PNewBackground := PLongWord(NewBackgroundImage.Data);
           for n := FStretchedVirtualScreen.NbPixels - 1 downto 0 do
           begin
             oldpix := PChangePix^;
@@ -793,9 +793,9 @@ begin
           end
           else
           begin
-            PChangePix  := PLongWord(FPreviousVirtualScreen.ScanLine[0]);
-            PNewPix     := PLongWord(FStretchedVirtualScreen.ScanLine[0]);
-            PBackground := PLongWord(FBackgroundImage.ScanLine[0]);
+            PChangePix  := PLongWord(FPreviousVirtualScreen.Data);
+            PNewPix     := PLongWord(FStretchedVirtualScreen.Data);
+            PBackground := PLongWord(FBackgroundImage.Data);
             for n := FStretchedVirtualScreen.NbPixels - 1 downto 0 do
             begin
               newpix := PNewPix^;
@@ -852,7 +852,7 @@ begin
       if FPreviousVirtualScreen <> nil then
       begin
         shape := TBGRABitmap(FPreviousVirtualScreen.Duplicate);
-        p     := shape.ScanLine[0];
+        p     := shape.Data;
         for n := shape.NbPixels - 1 downto 0 do
         begin
           if p^.alpha <> 0 then
@@ -870,8 +870,8 @@ begin
       if (FPreviousVirtualScreen <> nil) and (FBackgroundImage <> nil) then
       begin
         shape := TBGRABitmap(FPreviousVirtualScreen.Duplicate);
-        p     := shape.ScanLine[0];
-        pback := FBackgroundImage.ScanLine[0];
+        p     := shape.Data;
+        pback := FBackgroundImage.Data;
         for n := shape.NbPixels - 1 downto 0 do
         begin
           if p^.alpha <> 0 then
@@ -925,8 +925,8 @@ begin
     end
     else
     begin
-      PChangePix := PLongWord(FPreviousVirtualScreen.ScanLine[0]);
-      PNewPix    := PLongWord(FStretchedVirtualScreen.ScanLine[0]);
+      PChangePix := PLongWord(FPreviousVirtualScreen.Data);
+      PNewPix    := PLongWord(FStretchedVirtualScreen.Data);
       for n := FStretchedVirtualScreen.NbPixels - 1 downto 0 do
       begin
         newpix := PNewPix^;
