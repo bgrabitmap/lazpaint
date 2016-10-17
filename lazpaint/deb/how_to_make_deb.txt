@@ -1,0 +1,11 @@
+1) Change the version number in the file /DEBIAN/control with a text editor, ensure that has the proper architecture (i386 / amd64).
+2) Copy binary, models, i18n and readme in the folder /usr/share/lazpaint.
+3) Change the name of the directory to include version:
+- A) lazpaint_linux32 to lazpaint_6.4.1_linux32
+- B) lazpaint_linux64 to lazpaint_6.4.1_linux64
+4) Run this command:
+- A) dpkg-deb --build lazpaint_6.4.1_linux32
+- B) dpkg-deb --build lazpaint_6.4.1_linux64
+5) Test the package:
+- A) sudo dpkg -i lazpaint_6.4.1_linux32.deb
+- B) sudo dpkg -i lazpaint_6.4.1_linux64.deb
