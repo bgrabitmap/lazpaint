@@ -77,28 +77,28 @@ uses
 
 type
 {$IFDEF BGRABITMAP_USE_FPGUI}
-  TBGRABitmap = TBGRAfpGUIBitmap;
+  TBGRABitmap = class(TBGRAfpGUIBitmap);
 {$ELSE}
     {$IFDEF BGRABITMAP_USE_LCL}
       {$IFDEF LCLwin32}
-        TBGRABitmap = TBGRAWinBitmap;
+        TBGRABitmap = class(TBGRAWinBitmap);
       {$ELSE}
         {$IFDEF LCLgtk}
-        TBGRABitmap = TBGRAGtkBitmap;
+        TBGRABitmap = class(TBGRAGtkBitmap);
         {$ELSE}
           {$IFDEF LCLgtk2}
-        TBGRABitmap = TBGRAGtkBitmap;
+        TBGRABitmap = class(TBGRAGtkBitmap);
           {$ELSE}
             {$IFDEF LCLqt}
-        TBGRABitmap = TBGRAQtBitmap;
+        TBGRABitmap = class(TBGRAQtBitmap);
             {$ELSE}
-        TBGRABitmap = TBGRALCLBitmap;
+        TBGRABitmap = class(TBGRALCLBitmap);
             {$ENDIF}
           {$ENDIF}
         {$ENDIF}
       {$ENDIF}
     {$ELSE}
-      TBGRABitmap = TBGRANoGUIBitmap;
+      TBGRABitmap = class(TBGRANoGUIBitmap);
     {$ENDIF}
 {$ENDIF}
 
