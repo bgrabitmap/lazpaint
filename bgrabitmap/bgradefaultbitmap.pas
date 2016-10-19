@@ -4421,6 +4421,12 @@ var
   i,nbCopy: Integer;
   c: TBGRAPixel;
 begin
+  if (FScanWidth <= 0) or (FScanHeight <= 0) then
+  begin
+    if mode = dmSet then
+      FillDWord(pdest^, count, DWord(BGRAPixelTransparent));
+    exit;
+  end;
   case mode of
     dmLinearBlend:
       for i := 0 to count-1 do
