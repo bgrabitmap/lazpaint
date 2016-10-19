@@ -21,17 +21,40 @@ type
     {$ENDIF}
   {$ENDIF}
 
-  {$IFDEF BGRABITMAP_RGBAPIXEL}
-  TBGRAPixel = packed record red, green, blue, alpha: byte;
-               end;
-  {$ELSE}
   {* Each pixel is a sequence of 4 bytes containing blue, green, red and alpha channel.
      Values range from 0 to 255, color is in sRGB colorspace. The alpha value of 0
      is transparent and 255 is opaque. In the bitmap data, when the pixel is fully transparent,
 	 the RGB values are supposed to be set to zero. }
-  TBGRAPixel = packed record blue, green, red, alpha: byte;
-               end;
-  {$ENDIF}
+
+  { TBGRAPixel }
+
+  TBGRAPixel = packed record
+  private
+    function GetClassIntensity: word;
+    function GetClassLightness: word;
+    procedure SetClassIntensity(AValue: word);
+    procedure SetClassLightness(AValue: word);
+  public
+    {$IFDEF BGRABITMAP_RGBAPIXEL}
+    red, green, blue, alpha: byte;
+    {$ELSE}
+    blue, green, red, alpha: byte;
+    {$ENDIF}
+    procedure FromRGB(ARed,AGreen,ABlue: Byte; AAlpha: Byte = 255);
+    procedure FromColor(AColor: TColor; AAlpha: Byte = 255);
+    procedure FromString(AStr: string);
+    procedure FromFPColor(AColor: TFPColor);
+    procedure ToRGB(out ARed,AGreen,ABlue,AAlpha: Byte); overload;
+    procedure ToRGB(out ARed,AGreen,ABlue: Byte); overload;
+    function ToColor: TColor;
+    function ToString: string;
+    function ToGrayscale(AGammaCorrection: boolean = true): TBGRAPixel;
+    function ToFPColor: TFPColor;
+    class Operator := (Source: TBGRAPixel): TColor;
+    class Operator := (Source: TColor): TBGRAPixel;
+    property Intensity: word read GetClassIntensity write SetClassIntensity;
+    property Lightness: word read GetClassLightness write SetClassLightness;
+  end;
   TBGRAPixelBuffer = packed array of TBGRAPixel;
 
 procedure AllocateBGRAPixelBuffer(var ABuffer: TBGRAPixelBuffer; ASize: integer);
@@ -422,6 +445,108 @@ begin
 end;
 
 {************************** Color functions **************************}
+
+{ TBGRAPixel }
+
+function TBGRAPixel.GetClassIntensity: word;
+begin
+  result := GetIntensity(self);
+end;
+
+function TBGRAPixel.GetClassLightness: word;
+begin
+  result := GetLightness(self);
+end;
+
+procedure TBGRAPixel.SetClassIntensity(AValue: word);
+begin
+  self := SetIntensity(self, AValue);
+end;
+
+procedure TBGRAPixel.SetClassLightness(AValue: word);
+begin
+  self := SetLightness(self, AValue);
+end;
+
+procedure TBGRAPixel.FromRGB(ARed, AGreen, ABlue: Byte; AAlpha: Byte);
+begin
+  red := ARed;
+  green := AGreen;
+  blue := ABlue;
+  alpha := AAlpha;
+end;
+
+procedure TBGRAPixel.FromColor(AColor: TColor; AAlpha: Byte);
+begin
+  if AColor = clNone then
+    Self := BGRAPixelTransparent
+  else
+  begin
+    RedGreenBlue(ColorToRGB(AColor), red,green,blue);
+    alpha := AAlpha;
+  end;
+end;
+
+procedure TBGRAPixel.FromString(AStr: string);
+begin
+  Self := StrToBGRA(AStr);
+end;
+
+procedure TBGRAPixel.FromFPColor(AColor: TFPColor);
+begin
+  self := FPColorToBGRA(AColor);
+end;
+
+procedure TBGRAPixel.ToRGB(out ARed, AGreen, ABlue, AAlpha: Byte);
+begin
+  ARed := red;
+  AGreen := green;
+  ABlue := blue;
+  AAlpha := alpha;
+end;
+
+procedure TBGRAPixel.ToRGB(out ARed, AGreen, ABlue: Byte);
+begin
+  ARed := red;
+  AGreen := green;
+  ABlue := blue
+end;
+
+function TBGRAPixel.ToColor: TColor;
+begin
+  if alpha = 0 then
+    result := clNone
+  else
+    result := RGBToColor(red,green,blue);
+end;
+
+function TBGRAPixel.ToString: string;
+begin
+  result := BGRAToStr(Self, CSSColors);
+end;
+
+function TBGRAPixel.ToGrayscale(AGammaCorrection: boolean): TBGRAPixel;
+begin
+  if AGammaCorrection then
+    result := BGRAToGrayscale(self)
+  else
+    result := BGRAToGrayscaleLinear(self);
+end;
+
+function TBGRAPixel.ToFPColor: TFPColor;
+begin
+  result := BGRAToFPColor(Self);
+end;
+
+class operator TBGRAPixel.:=(Source: TBGRAPixel): TColor;
+begin
+  result := Source.ToColor;
+end;
+
+class operator TBGRAPixel.:=(Source: TColor): TBGRAPixel;
+begin
+  result.FromColor(Source);
+end;
 
 { The intensity is defined here as the maximum value of any color component }
 function GetIntensity(const c: TExpandedPixel): word; inline;
