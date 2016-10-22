@@ -394,7 +394,9 @@ begin
   FData := nil;
   dataIndex := 0;
   Files := TStringList.Create;
+  Files.OwnsObjects := true;
   Dirs := TStringList.Create;
+  Dirs.OwnsObjects := true;
   try
     if FRoot = ':' then
     begin
