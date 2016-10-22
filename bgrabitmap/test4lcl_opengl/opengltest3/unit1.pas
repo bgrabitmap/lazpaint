@@ -3,7 +3,7 @@ unit Unit1;
 {
 -So lets put things together and play with masks
 -Just read the code, it should be clear
--As you can see this demo will uses more cpu becuase it create mask every time it paints but still it is very fast
+-As you can see this demo will uses more cpu because it create mask every time it paints but still it is very fast
 }
 {$mode objfpc}{$H+}
 
