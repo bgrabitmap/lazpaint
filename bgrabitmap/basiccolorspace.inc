@@ -138,10 +138,10 @@ type
   TBGRAPixelHelper = record helper for TBGRAPixel
     function ToExpanded: TExpandedPixel;
     procedure FromExpanded(const AValue: TExpandedPixel);
-    function ToHSL: THSLAPixel;
-    procedure FromHSL(const AValue: THSLAPixel);
-    function ToGSB: TGSBAPixel;
-    procedure FromGSB(const AValue: TGSBAPixel);
+    function ToHSLA: THSLAPixel;
+    procedure FromHSLA(const AValue: THSLAPixel);
+    function ToGSBA: TGSBAPixel;
+    procedure FromGSBA(const AValue: TGSBAPixel);
     function ToColorF(AGammaExpansion: boolean): TColorF;
     procedure FromColorF(const AValue: TColorF; AGammaCompression: boolean);
   end;
@@ -149,17 +149,17 @@ type
   { TExpandedPixelHelper }
 
   TExpandedPixelHelper = record helper for TExpandedPixel
-    function ToRGB: TBGRAPixel;
-    procedure FromRGB(AValue: TBGRAPixel);
-    function ToHSL: THSLAPixel;
-    procedure FromHSL(AValue: THSLAPixel);
+    function ToBGRAPixel: TBGRAPixel;
+    procedure FromBGRAPixel(AValue: TBGRAPixel);
+    function ToHSLA: THSLAPixel;
+    procedure FromHSLA(AValue: THSLAPixel);
   end;
 
   { THSLAPixelHelper }
 
   THSLAPixelHelper = record helper for THSLAPixel
-    function ToRGB: TBGRAPixel;
-    procedure FromRGB(AValue: TBGRAPixel);
+    function ToBGRAPixel: TBGRAPixel;
+    procedure FromBGRAPixel(AValue: TBGRAPixel);
     function ToExpanded: TExpandedPixel;
     procedure FromExpanded(AValue: TExpandedPixel);
   end;
@@ -1030,22 +1030,22 @@ begin
   Self := GammaCompression(AValue);
 end;
 
-function TBGRAPixelHelper.ToHSL: THSLAPixel;
+function TBGRAPixelHelper.ToHSLA: THSLAPixel;
 begin
   result := BGRAToHSLA(Self);
 end;
 
-procedure TBGRAPixelHelper.FromHSL(const AValue: THSLAPixel);
+procedure TBGRAPixelHelper.FromHSLA(const AValue: THSLAPixel);
 begin
   Self := HSLAToBGRA(AValue);
 end;
 
-function TBGRAPixelHelper.ToGSB: TGSBAPixel;
+function TBGRAPixelHelper.ToGSBA: TGSBAPixel;
 begin
   result := BGRAToGSBA(Self);
 end;
 
-procedure TBGRAPixelHelper.FromGSB(const AValue: TGSBAPixel);
+procedure TBGRAPixelHelper.FromGSBA(const AValue: TGSBAPixel);
 begin
   Self := GSBAToBGRA(AValue);
 end;
@@ -1063,22 +1063,22 @@ end;
 
 { TExpandedPixelHelper }
 
-function TExpandedPixelHelper.ToRGB: TBGRAPixel;
+function TExpandedPixelHelper.ToBGRAPixel: TBGRAPixel;
 begin
   result := GammaCompression(Self);
 end;
 
-procedure TExpandedPixelHelper.FromRGB(AValue: TBGRAPixel);
+procedure TExpandedPixelHelper.FromBGRAPixel(AValue: TBGRAPixel);
 begin
   Self := GammaExpansion(AValue);
 end;
 
-function TExpandedPixelHelper.ToHSL: THSLAPixel;
+function TExpandedPixelHelper.ToHSLA: THSLAPixel;
 begin
   result := ExpandedToHSLA(Self);
 end;
 
-procedure TExpandedPixelHelper.FromHSL(AValue: THSLAPixel);
+procedure TExpandedPixelHelper.FromHSLA(AValue: THSLAPixel);
 begin
   Self := HSLAToExpanded(AValue);
 end;
@@ -1090,12 +1090,12 @@ end;
 
 { THSLAPixelHelper }
 
-function THSLAPixelHelper.ToRGB: TBGRAPixel;
+function THSLAPixelHelper.ToBGRAPixel: TBGRAPixel;
 begin
   result := HSLAToBGRA(self);
 end;
 
-procedure THSLAPixelHelper.FromRGB(AValue: TBGRAPixel);
+procedure THSLAPixelHelper.FromBGRAPixel(AValue: TBGRAPixel);
 begin
   self := BGRAToHSLA(AValue);
 end;
