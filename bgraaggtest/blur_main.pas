@@ -148,14 +148,14 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  image := TBGRABitmap.Create(200,250);
+  image := TBGRABitmap.Create(160,200);
   image.FontName := 'Times New Roman';
   image.FontHeight := 300;
   image.FontAntialias:= true;
-  image.TextOut(100,-100,'a',BGRA(128,192,128,240),taCenter);
-  shadowBase := TBGRABitmap.Create(200,200,BGRAWhite);
+  image.TextOut(image.Width div 2,-100,'a',BGRA(128,192,128,240),taCenter);
+  shadowBase := TBGRABitmap.Create(image.Width,image.Height,BGRAWhite);
   image.CopyPropertiesTo(shadowBase);
-  shadowBase.TextOut(100,-100,'a',BGRA(64,128,64),taCenter);
+  shadowBase.TextOut(shadowBase.Width div 2,-100,'a',BGRA(64,128,64),taCenter);
   UpdateLabelRadius;
   timer := TEpikTimer.Create(Self);
 end;
