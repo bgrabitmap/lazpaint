@@ -319,6 +319,7 @@ begin
     for j := prevpos to nextpos-1 do
       GammaCompressionTab[j] := i;
   end;
+  GammaCompressionTab[0] := 0;
 end;
 
 function BGRAGetGamma: single;
