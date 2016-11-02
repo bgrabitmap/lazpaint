@@ -387,6 +387,7 @@ begin
   szLightScale: begin
                    SetColorLight(max(0,min(65535,65535-round((Y-lightscale.Bounds.Top)/(lightscale.Bounds.Bottom-1-lightscale.Bounds.top)*65535))));
                 end;
+  else exit;
   end;
   LazPaintInstance.ColorFromFChooseColor;
 end;
