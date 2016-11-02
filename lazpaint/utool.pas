@@ -91,6 +91,16 @@ type
     property StatusText: string read GetStatusText;
   end;
 
+  { TGenericTransformTool }
+
+  TGenericTransformTool = class(TGenericTool)
+  protected
+    function GetKeepTransformOnDestroy: boolean; virtual; abstract;
+    procedure SetKeepTransformOnDestroy(AValue: boolean); virtual; abstract;
+  public
+    property KeepTransformOnDestroy: boolean read GetKeepTransformOnDestroy write SetKeepTransformOnDestroy;
+  end;
+
   TToolClass = class of TGenericTool;
 
   TToolPopupMessage= (tpmNone,tpmHoldShiftForSquare, tpmHoldCtrlSnapToPixel,
@@ -225,6 +235,7 @@ type
     procedure HintReturnValidates;
 
     function IsSelectingTool: boolean;
+    function DisplayFilledSelection: boolean;
     procedure QueryExitTool;
 
     procedure RenderTool(formBitmap: TBGRABitmap);
@@ -987,13 +998,31 @@ end;
 procedure TToolManager.InternalSetCurrentToolType(tool: TPaintToolType);
 var showPenwidth, showShape, showLineCap, showJoinStyle, showSplineStyle, showEraserOption, showTolerance, showGradient, showDeformation,
     showText, showPhong, showAltitude, showPerspective, showColor, showTexture, showBrush: boolean;
+    newTool: TGenericTool;
 begin
   if (tool <> FCurrentToolType) or (FCurrentTool=nil) then
   begin
-    FreeAndNil(FCurrentTool);
+    if Assigned(FCurrentTool) and (FCurrentTool is TGenericTransformTool) then
+    begin
+      if PaintTools[tool] <> nil then
+        newTool := PaintTools[tool].Create(self)
+      else
+        newTool := nil;
+
+      if Assigned(newTool) and (newTool is TGenericTransformTool) then
+        TGenericTransformTool(FCurrentTool).KeepTransformOnDestroy := true;
+      FreeAndNil(FCurrentTool);
+
+      FCurrentTool := newTool;
+    end else
+    begin
+      FreeAndNil(FCurrentTool);
+      if PaintTools[tool] <> nil then
+        FCurrentTool := PaintTools[tool].Create(self)
+      else
+        FCurrentTool := nil;
+    end;
     FCurrentToolType:= tool;
-    if PaintTools[FCurrentToolType] <> nil then
-      FCurrentTool := PaintTools[FCurrentToolType].Create(self);
   end;
 
   showColor:= true;
@@ -1382,6 +1411,11 @@ begin
     result := currentTool.IsSelectingTool
   else
     result := false;
+end;
+
+function TToolManager.DisplayFilledSelection: boolean;
+begin
+  result := IsSelectingTool;
 end;
 
 procedure TToolManager.QueryExitTool;

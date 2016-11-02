@@ -16,7 +16,7 @@ uses
   BGRABitmap, BGRABitmapTypes, BGRALayers,
 
   LazPaintType, UMainFormLayout, UTool, UImage, UImageAction, ULayerAction, UZoom,
-  UImageObservation, UConfig, UScaleDPI, UResourceStrings,
+  UImageObservation, UConfig, UScaleDPI, UResourceStrings, USelectionHighlight,
   UMenu, uscripting, ubrowseimages, UToolPolygon, UBarUpDown,
 
   laztablet, udarktheme;
@@ -699,24 +699,16 @@ type
     FCoordinatesCaptionCount: NativeInt;
     FLastPictureParameters: record
        defined: boolean;
-       actualZoomFactorX,actualZoomFactorY: double;
-       pictureArea: TRect;
+       workArea: TRect;
+       scaledArea: TRect;
+       virtualScreenArea: TRect;
+       originInVS: TPoint;
+       zoomFactorX,zoomFactorY: double;
        imageOffset: TPoint;
        imageWidth,imageHeight: integer;
     end;
 
-    selectionHighlightInfo : record
-       formArea: TRect;
-       ImageOffset: TPoint;
-       zoomFactorX,zoomFactorY: single;
-       selectionHighlight: TBGRABitmap;
-       selecting : boolean;
-       selectionRotateAngle: single;
-       selectionRotateCenter: TPointF;
-       selectionOffset: TPoint;
-       partialSelectionHighlight: boolean;
-       selectionHighlightOffset: TPoint;
-    end;
+    FSelectionHighlight: TSelectionHighlight;
 
     function GetCurrentPressure: single;
     function GetUseImageBrowser: boolean;
@@ -746,13 +738,6 @@ type
     procedure OnZoomChanged({%H-}sender: TZoom; {%H-}ANewZoom: single);
     procedure SetLazPaintInstance(const AValue: TLazPaintCustomInstance);
     procedure SetShowSelectionNormal(const AValue: boolean);
-    function RetrieveSelectionHighlight(pFormArea: TRect; pImageOffset: TPoint; pSelectionRotateAngle: single;
-        pSelectionRotateCenter: TPointF;pZoomFactorX, pZoomFactorY: single; selecting: boolean; pSelectionOffset: TPoint;
-        out pPartialSelectionHighlight: boolean; out pSelectionHighlightOffset: TPoint): TBGRABitmap;
-    procedure StoreSelectionHighlight(pFormArea: TRect; pImageOffset: TPoint; pSelectionRotateAngle: single;
-        pSelectionRotateCenter: TPointF;pZoomFactorX, pZoomFactorY: single; selecting: boolean; pSelectionOffset: TPoint;
-        pSelectionHighlight: TBGRABitmap; pPartialSelectionHighlight: boolean; pSelectionHighlightOffset: TPoint);
-    procedure ForgetSelectionHightlight;
     procedure ToggleToolwindowsVisible;
     procedure UpdateTextSizeIncrement;
     procedure UpdateToolImage;
@@ -766,6 +751,7 @@ type
     procedure ShowColorDialogForBack;
     procedure ShowPenPreview(ShouldRepaint: boolean= False);
     procedure HidePenPreview(TimeMs: Integer = 300);
+    procedure ComputePictureParams;
     procedure PaintPictureImplementation; //do not call directly
     procedure PaintVirtualScreenImplementation; //do not call directly
     procedure PaintBlueAreaImplementation;
@@ -781,7 +767,7 @@ type
     procedure UpdateCurveMode;
     function ShowOpenTextureDialog: boolean;
     procedure ShowNoPicture;
-    function GetRenderUpdateRect(AIncludeLastToolState: boolean): TRect;
+    function GetRenderUpdateRectVS(AIncludeLastToolState: boolean): TRect;
     procedure SetCurveMode(AMode: TToolSplineMode);
     procedure IncreasePenSize;
     procedure DecreasePenSize;
@@ -812,7 +798,6 @@ type
 
   public
     { public declarations }
-    pictureOrigin, pictureOffset, pictureViewSize, pictureActualSize: TPoint;
     FormBackgroundColor: TColor;
     virtualScreen : TBGRABitmap;
     virtualScreenPenCursor: boolean;
@@ -835,7 +820,7 @@ type
     procedure UpdateLineCapBar;
     procedure UpdateToolbar;
     function ChooseTool(Tool : TPaintToolType): boolean;
-    procedure PictureSelectionChanged({%H-}sender: TLazPaintImage; AOffsetOnly: boolean);
+    procedure PictureSelectionChanged({%H-}sender: TLazPaintImage; const ARect: TRect);
     procedure PictureSelectedLayerIndexChanged({%H-}sender: TLazPaintImage);
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
     procedure UpdateEditPicture(ADelayed: boolean = false);
@@ -853,7 +838,7 @@ implementation
 
 uses LCLIntf, BGRAUTF8, ugraph, math, umac, uclipboard, ucursors,
    ufilters, ULoadImage, ULoading, UFileExtensions, UBrushType,
-   ugeometricbrush;
+   ugeometricbrush, BGRATransform;
 
 const PenWidthFactor = 10;
 
@@ -896,8 +881,8 @@ begin
 
   Zoom := TZoom.Create(Label_CurrentZoom,Edit_Zoom,FLayout);
   Zoom.OnZoomChanged:= @OnZoomChanged;
-  pictureOrigin := Point(0,0);
   virtualScreen := nil;
+  FLastPictureParameters.defined:= false;
   previousToolImg:= -1;
 
   //mouse status
@@ -968,7 +953,7 @@ begin
     if ToolManager.OnToolChanged = @OnToolChanged then
       ToolManager.OnToolChanged := nil;
   end;
-  ForgetSelectionHightlight;
+  FreeAndNil(FSelectionHighlight);
   FreeAndNil(Zoom);
   FreeAndNil(virtualScreen);
   FreeAndNil(FOnlineUpdater);
@@ -1010,6 +995,7 @@ begin
   FImageActions := TImageActions.Create(LazPaintInstance);
   LazPaintInstance.EmbeddedResult := mrNone;
 
+  FSelectionHighlight := TSelectionHighlight.Create(Image);
   Image.OnSelectionChanged := @PictureSelectionChanged;
   Image.OnSelectedLayerIndexChanged:= @PictureSelectedLayerIndexChanged;
   Image.CurrentFilenameUTF8 := '';
@@ -2590,7 +2576,9 @@ begin
       exit;
     end;
     try
-      ToolManager.ToolCloseDontReopen;
+      if not ((Tool in [ptMoveSelection,ptRotateSelection]) and
+        (CurrentTool in [ptMoveSelection,ptRotateSelection])) then
+        ToolManager.ToolCloseDontReopen;
       if self.Visible then
       begin
         case Tool of
@@ -2713,6 +2701,7 @@ begin
         end;
       end;
       ToolManager.SetCurrentToolType(Tool);
+      FSelectionHighlight.FillSelection := ToolManager.DisplayFilledSelection and not FShowSelectionNormal;
     except
       on ex:Exception do
       begin
@@ -3156,16 +3145,22 @@ begin
   InShowNoPicture:= false;
 end;
 
-function TFMain.GetRenderUpdateRect(AIncludeLastToolState: boolean): TRect;
+function TFMain.GetRenderUpdateRectVS(AIncludeLastToolState: boolean): TRect;
 const displayMargin = 1;
 begin
   result := Image.RenderUpdateRectInPicCoord;
   if not IsRectEmpty(result) then
   begin
-    result := rect(floor((-PictureOffset.X+result.Left)*FLastPictureParameters.actualZoomFactorX)-displayMargin,
-    floor((-PictureOffset.Y+result.Top)*FLastPictureParameters.actualZoomFactorY)-displayMargin,
-     ceil((-PictureOffset.X+result.Right)*FLastPictureParameters.actualZoomFactorX)+displayMargin,
-     ceil((-PictureOffset.Y+result.Bottom)*FLastPictureParameters.actualZoomFactorY)+displayMargin);
+    with BitmapToVirtualScreen(result.Left,result.Top) do
+    begin
+      result.Left := floor(X) - displayMargin;
+      result.Top := floor(Y) - displayMargin;
+    end;
+    with BitmapToVirtualScreen(result.Right,result.Bottom) do
+    begin
+      result.Right := ceil(X) + displayMargin;
+      result.Bottom := ceil(Y) + displayMargin;
+    end;
   end;
   result := RectUnion(result, Image.RenderUpdateRectInVSCoord);
   if AIncludeLastToolState and Assigned(virtualScreen) then
@@ -3308,7 +3303,7 @@ begin
    if InFormPaint then exit;
    InFormPaint := true;
    if QueryPaintVirtualScreen and (FLastPictureParameters.defined and
-     IsRectEmpty(GetRenderUpdateRect(False))) then
+     IsRectEmpty(GetRenderUpdateRectVS(False))) then
      PaintVirtualScreenImplementation
    else
      PaintPictureImplementation;
@@ -3339,16 +3334,17 @@ var
   curPicArea: TRect;
 begin
     curPicArea := FLayout.PictureArea;
-    if not InShowNoPicture and not AInvalidateAll and FLastPictureParameters.defined and (FLastPictureParameters.actualZoomFactorX > 0) and (FLastPictureParameters.actualZoomFactorY > 0) and
+    if not InShowNoPicture and not AInvalidateAll and FLastPictureParameters.defined and
       (FLastPictureParameters.imageWidth = image.Width) and (FLastPictureParameters.imageHeight = image.Height) and
       (FLastPictureParameters.imageOffset.x = Image.ImageOffset.x) and (FLastPictureParameters.imageOffset.y = Image.ImageOffset.y) and
-      (FLastPictureParameters.pictureArea.Left = curPicArea.Left) and (FLastPictureParameters.pictureArea.Top = curPicArea.Top) and
-      (FLastPictureParameters.pictureArea.Right = curPicArea.Right) and (FLastPictureParameters.pictureArea.Bottom = curPicArea.Bottom) then
+      (FLastPictureParameters.workArea.Left = curPicArea.Left) and (FLastPictureParameters.workArea.Top = curPicArea.Top) and
+      (FLastPictureParameters.workArea.Right = curPicArea.Right) and (FLastPictureParameters.workArea.Bottom = curPicArea.Bottom) then
     begin
-      area := GetRenderUpdateRect(True);
+      area := GetRenderUpdateRectVS(True);
       area := RectUnion(area,virtualScreenPenCursorPosBefore.bounds);
       area := RectUnion(area,virtualScreenPenCursorPos.bounds);
-      OffsetRect(area, pictureOrigin.x,pictureOrigin.y);
+      OffsetRect(area, FLastPictureParameters.virtualScreenArea.Left,
+                       FLastPictureParameters.virtualScreenArea.Top);
     end
     else
     begin
@@ -3370,20 +3366,15 @@ end;
 
 procedure TFMain.OnZoomChanged(sender: TZoom; ANewZoom: single);
 Var
-  NewOfs: TPointF;
-  pa: TRect;
+  NewBitmapPos: TPointF;
 begin
   if sender.PositionDefined then
   begin
-    pa := FLayout.PictureArea;
-    PictureActualSize := point(image.Width,image.Height);
-    pictureViewSize := point(round(PictureActualSize.X*Zoom.Factor),round(PictureActualSize.Y*Zoom.Factor));
-    PictureOrigin := Point((pa.Left+pa.Right-PictureViewSize.X) div 2+round(image.ImageOffset.X*Zoom.Factor),
-        (pa.Top+pa.Bottom-PictureViewSize.Y) div 2+round(image.ImageOffset.Y*Zoom.Factor));
-    PictureOffset := Point(0,0);
-    NewOfs := FormToBitmap(sender.MousePosition.X,sender.MousePosition.Y);
-    image.ImageOffset:= point(image.ImageOffset.X+round(NewOfs.X-sender.BitmapPosition.X),
-         image.ImageOffset.Y+round(NewOfs.Y-sender.BitmapPosition.Y));
+    ComputePictureParams;
+    NewBitmapPos := FormToBitmap(sender.MousePosition.X,sender.MousePosition.Y);
+    image.ImageOffset:= point(image.ImageOffset.X + round(NewBitmapPos.X-sender.BitmapPosition.X),
+                              image.ImageOffset.Y + round(NewBitmapPos.Y-sender.BitmapPosition.Y));
+    virtualScreenPenCursorPos := GetVSCursorPosition;
   end;
   FLastPictureParameters.defined := false;
   UpdateToolbar;
@@ -3402,66 +3393,6 @@ begin
   {$ENDIF}
 end;
 
-function TFMain.RetrieveSelectionHighlight(pFormArea: TRect;
-  pImageOffset: TPoint; pSelectionRotateAngle: single; pSelectionRotateCenter: TPointF;
-   pZoomFactorX, pZoomFactorY: single; selecting: boolean; pSelectionOffset: TPoint;
-  out pPartialSelectionHighlight: boolean; out pSelectionHighlightOffset: TPoint): TBGRABitmap;
-begin
-  if (selectionHighlightInfo.zoomFactorX = pZoomFactorX) and
-     (selectionHighlightInfo.zoomFactorY = pZoomFactorY) and
-     (not selectionHighlightInfo.partialSelectionHighlight or
-     ((selectionHighlightInfo.formArea.Left = pFormArea.Left) and
-     (selectionHighlightInfo.formArea.Right = pFormArea.Right) and
-     (selectionHighlightInfo.formArea.Top = pFormArea.Top) and
-     (selectionHighlightInfo.formArea.Bottom = pFormArea.Bottom) and
-     (selectionHighlightInfo.SelectionOffset.X = pSelectionOffset.X) and
-     (selectionHighlightInfo.SelectionOffset.Y = pSelectionOffset.Y) and
-     (selectionHighlightInfo.ImageOffset.X = pImageOffset.X) and
-     (selectionHighlightInfo.ImageOffset.Y = pImageOffset.Y))) and
-     (selectionHighlightInfo.selecting = selecting) and
-     (selectionHighlightInfo.selectionRotateAngle = pSelectionRotateAngle) and
-     ((selectionHighlightInfo.selectionRotateAngle = 0) or (selectionHighlightInfo.selectionRotateCenter = pSelectionRotateCenter)) then
-     begin
-       result := selectionHighlightInfo.selectionHighlight;
-       pPartialSelectionHighlight := selectionHighlightInfo.partialSelectionHighlight;
-       pSelectionHighlightOffset := selectionHighlightInfo.selectionHighlightOffset;
-     end else
-     begin
-       result := nil;
-       pPartialSelectionHighlight := false;
-       pSelectionHighlightOffset := Point(0,0);
-     end;
-end;
-
-procedure TFMain.StoreSelectionHighlight(pFormArea: TRect;
-  pImageOffset: TPoint; pSelectionRotateAngle: single; pSelectionRotateCenter: TPointF; pZoomFactorX,pZoomFactorY: single;
-  selecting: boolean; pSelectionOffset: TPoint; pSelectionHighlight: TBGRABitmap;
-  pPartialSelectionHighlight: boolean; pSelectionHighlightOffset: TPoint);
-begin
-   ForgetSelectionHightlight;
-   selectionHighlightInfo.formArea.Left := pFormArea.Left;
-   selectionHighlightInfo.formArea.Right := pFormArea.Right;
-   selectionHighlightInfo.formArea.Top := pFormArea.Top;
-   selectionHighlightInfo.formArea.Bottom := pFormArea.Bottom;
-   selectionHighlightInfo.ImageOffset.X := pImageOffset.X;
-   selectionHighlightInfo.ImageOffset.Y := pImageOffset.Y;
-   selectionHighlightInfo.selectionOffset := pSelectionOffset;
-   selectionHighlightInfo.selectionRotateAngle := pSelectionRotateAngle;
-   selectionHighlightInfo.selectionRotateCenter := pSelectionRotateCenter;
-   selectionHighlightInfo.zoomFactorX := pZoomFactorX;
-   selectionHighlightInfo.zoomFactorY := pZoomFactorY;
-   selectionHighlightInfo.selecting := selecting;
-   selectionHighlightInfo.selectionHighlight := pSelectionHighlight;
-   selectionHighlightInfo.partialSelectionHighlight := pPartialSelectionHighlight;
-   selectionHighlightInfo.selectionHighlightOffset := pSelectionHighlightOffset;
-end;
-
-procedure TFMain.ForgetSelectionHightlight;
-begin
-   if selectionHighlightInfo.selectionHighlight <> nil then
-     FreeAndNil(selectionHighlightInfo.selectionHighlight);
-end;
-
 procedure TFMain.FormPaint(Sender: TObject);
 begin
   {$IFNDEF USEPAINTBOXPICTURE}
@@ -3469,9 +3400,9 @@ begin
   {$ENDIF}
 end;
 
-procedure TFMain.PictureSelectionChanged(sender: TLazPaintImage; AOffsetOnly: boolean);
+procedure TFMain.PictureSelectionChanged(sender: TLazPaintImage; const ARect: TRect);
 begin
-  if not AOffsetOnly or selectionHighlightInfo.partialSelectionHighlight then ForgetSelectionHightlight;
+  if Assigned(FSelectionHighlight) then FSelectionHighlight.NotifyChange(ARect);
 end;
 
 procedure TFMain.PictureSelectedLayerIndexChanged(sender: TLazPaintImage);
@@ -3482,19 +3413,18 @@ end;
 
 procedure TFMain.SetShowSelectionNormal(const AValue: boolean);
 begin
-  if FShowSelectionNormal=AValue then exit;
-  FShowSelectionNormal:=AValue;
-  ForgetSelectionHightlight;
+  FShowSelectionNormal := AValue;
+  FSelectionHighlight.FillSelection := ToolManager.DisplayFilledSelection and not FShowSelectionNormal;
 end;
 
 function TFMain.FormToBitmap(X, Y: Integer): TPointF;
 begin
-  if PictureViewSize.X = 0 then
+  if not FLastPictureParameters.defined then
     result.X := 0 else
-     result.x := (x+0.5-pictureOrigin.X)/PictureViewSize.X*PictureActualSize.X+PictureOffset.X-0.5;
-  if PictureViewSize.Y = 0 then
+     result.x := (x+0.5-FLastPictureParameters.scaledArea.Left)/FLastPictureParameters.zoomFactorX - 0.5;
+  if not FLastPictureParameters.defined then
     result.Y := 0 else
-     result.y := (y+0.5-pictureOrigin.Y)/PictureViewSize.Y*PictureActualSize.Y+PictureOffset.Y-0.5;
+     result.y := (y+0.5-FLastPictureParameters.scaledArea.Top)/FLastPictureParameters.zoomFactorY - 0.5;
 end;
 
 function TFMain.FormToBitmap(pt: TPoint): TPointF;
@@ -3504,12 +3434,12 @@ end;
 
 function TFMain.BitmapToForm(X, Y: Single): TPointF;
 begin
-  if PictureActualSize.X = 0 then
+  if not FLastPictureParameters.defined then
     result.X := 0 else
-     result.X := (X+0.5-PictureOffset.X)/PictureActualSize.X*PictureViewSize.X+PictureOrigin.X;
-  if PictureActualSize.Y = 0 then
+     result.X := (X+0.5)*FLastPictureParameters.zoomFactorX + FLastPictureParameters.scaledArea.Left-0.5;
+  if not FLastPictureParameters.defined then
     result.Y := 0 else
-     result.Y := (Y+0.5-PictureOffset.Y)/PictureActualSize.Y*PictureViewSize.Y+PictureOrigin.Y;
+     result.Y := (Y+0.5)*FLastPictureParameters.zoomFactorY + FLastPictureParameters.scaledArea.Top-0.5;
 end;
 
 function TFMain.BitmapToForm(pt: TPointF): TPointF;
@@ -3519,7 +3449,7 @@ end;
 
 function TFMain.BitmapToVirtualScreen(X, Y: Single): TPointF;
 begin
-  result := BitmapToForm(X,Y) - PointF(pictureOrigin.X,pictureOrigin.Y);
+  result := BitmapToForm(X,Y) - PointF(FLastPictureParameters.virtualScreenArea.Left, FLastPictureParameters.virtualScreenArea.Top);
 end;
 
 function TFMain.BitmapToVirtualScreen(ptF: TPointF): TPointF;
@@ -3534,7 +3464,8 @@ begin
   area := virtualScreenPenCursorPos.bounds;
   virtualScreenPenCursorPos := GetVSCursorPosition;
   area := RectUnion(area, virtualScreenPenCursorPos.bounds);
-  OffsetRect(area, pictureOrigin.x,pictureOrigin.y);
+  OffsetRect(area, FLastPictureParameters.virtualScreenArea.Left,
+                   FLastPictureParameters.virtualScreenArea.Top);
   InvalidateRect(Handle,@area,False);
   self.Update;
   QueryPaintVirtualScreen := False;
@@ -3596,9 +3527,9 @@ var virtualScreenPenCursorBefore: boolean;
 
   function UseVSPenCursor: boolean;
   begin
-    if (ToolManager.ToolPenWidth * Zoom.Factor > 6) and (X >= pictureOrigin.X) and (Y >= pictureOrigin.Y) and
-                (X < pictureOrigin.X+pictureViewSize.X) and
-                (Y < pictureOrigin.Y+pictureViewSize.Y) then
+    if FLastPictureParameters.Defined and
+      (ToolManager.ToolPenWidth * FLastPictureParameters.zoomFactorX > 6) and
+      PtInRect(FLastPictureParameters.scaledArea, Point(X,Y)) then
     begin
       virtualScreenPenCursor := True;
       wantedCursor := crNone;
@@ -3625,14 +3556,13 @@ end;
 function TFMain.GetVSCursorPosition: TVSCursorPosition;
 const margin = 2;
 var
-  orig,tl,br: TPointF;
+  tl,br: TPointF;
 begin
-  orig := PointF(pictureOrigin.X,pictureOrigin.Y);
   with ToolManager do
   begin
-    result.c := self.BitmapToForm(ToolCurrentCursorPos) - orig;
-    tl := self.BitmapToForm(ToolCurrentCursorPos.X-ToolPenWidth/2,ToolCurrentCursorPos.Y-ToolPenWidth/2) - orig;
-    br := self.BitmapToForm(ToolCurrentCursorPos.X+ToolPenWidth/2,ToolCurrentCursorPos.Y+ToolPenWidth/2) - orig;
+    result.c := self.BitmapToVirtualScreen(ToolCurrentCursorPos);
+    tl := self.BitmapToVirtualScreen(ToolCurrentCursorPos.X-ToolPenWidth/2,ToolCurrentCursorPos.Y-ToolPenWidth/2);
+    br := self.BitmapToVirtualScreen(ToolCurrentCursorPos.X+ToolPenWidth/2,ToolCurrentCursorPos.Y+ToolPenWidth/2);
   end;
   result.rx := (br.x-tl.x)/2-0.5;
   result.ry := (br.y-tl.y)/2-0.5;
@@ -3659,12 +3589,12 @@ var cursorBack: TBGRABitmap;
     rectBack: TRect;
     cursorPos: TVSCursorPosition;
 begin
-  if virtualscreen = nil then exit;
+  if (virtualscreen = nil) or not FLastPictureParameters.defined then exit;
   DelayedPaintPicture := false;
   DestCanvas := PictureCanvas;
   DrawOfs := PictureCanvasOfs;
-  Inc(DrawOfs.X,pictureOrigin.X);
-  inc(DrawOfs.Y,pictureOrigin.Y);
+  Inc(DrawOfs.X, FLastPictureParameters.virtualScreenArea.Left);
+  inc(DrawOfs.Y, FLastPictureParameters.virtualScreenArea.Top);
 
   cursorPos := virtualScreenPenCursorPos;
   if virtualScreenPenCursor and not IsRectEmpty(cursorPos.bounds) then
@@ -3702,238 +3632,114 @@ begin
   end;
 end;
 
-procedure TFMain.PaintPictureImplementation;
-var //layout
-    formArea: TRect;
-    visualLeft, visualTop: integer;
-    visualWidth, visualHeight: integer;
-    maxOffset, minOffset: TPoint; temp: integer;
+procedure TFMain.ComputePictureParams;
+var
+  workArea, scaledArea, croppedArea: TRect;
+begin
+  FLastPictureParameters.imageWidth:= Image.Width;
+  FLastPictureParameters.imageHeight:= Image.Height;
+  FLastPictureParameters.zoomFactorX := ZoomFactor;
+  FLastPictureParameters.zoomFactorY := ZoomFactor;
+  FLastPictureParameters.scaledArea := EmptyRect;
+  FLastPictureParameters.imageOffset := Image.ImageOffset;
+  FLastPictureParameters.originInVS := Point(0,0);
+  FLastPictureParameters.virtualScreenArea := EmptyRect;
 
-    //partial drawing
-    topLeftCorner,bottomRightCorner: TPoint;
-    topLeftCornerF,bottomRightCornerF: TPointF;
-    imageClipped: boolean;
-    renderRect: TRect;
-
-  procedure DrawSelectionHighlight;
-  var
-    shownSelection, resampledSelection, selectionHighlight: TBGRABitmap;
-    partialSelectionHighlight,okForCompleteSelection: boolean;
-    highlightOffset: TPoint;
-    ofs: TPoint;
-    selectionBounds: TRect;
+  workArea := FLayout.PictureArea;
+  FLastPictureParameters.workArea := workArea;
+  if (workArea.Right <= workArea.Left) or (workArea.Bottom <= workArea.Top) or not Assigned(Zoom) then
   begin
-    selectionHighlight := RetrieveSelectionHighlight(formArea,image.ImageOffset,image.GetSelectionRotateAngle,
-         image.GetSelectionRotateCenter,
-         FLastPictureParameters.actualZoomFactorX, FLastPictureParameters.actualZoomFactorY,ToolManager.IsSelectingTool, image.GetSelectionOffset,
-         partialSelectionHighlight,highlightOffset);
+    FLastPictureParameters.defined := false;
+    exit;
+  end;
 
-    //if selection highlight has not been computed yet, then compute shown selection
-    selectionBounds := EmptyRect;
-    shownSelection := nil;
-    if selectionHighlight = nil then
-    begin
-      if not image.SelectionNil then
-      begin
-        if image.GetSelectionRotateAngle <> 0 then
-        begin
-          if image.SelectionLayerIsEmpty then
-          begin
-            shownSelection := image.ComputeRotatedSelection;
-            if Assigned(shownSelection) then
-              selectionBounds := shownSelection.GetImageBounds(cRed);
-          end;
-        end else
-          if not (image.SelectionEmptyComputed and image.SelectionEmpty) then
-          begin
-            shownSelection := image.SelectionReadonly;
-            selectionBounds := image.SelectionBounds;
-          end;
-      end;
-    end;
+  scaledArea := Zoom.GetScaledArea(workArea, image.Width, image.Height, image.ImageOffset);
+  FLastPictureParameters.scaledArea := scaledArea;
+  croppedArea := RectInter(scaledArea,workArea);
+  if IsRectEmpty(croppedArea) then
+  begin
+    FLastPictureParameters.defined := false;
+    exit;
+  end;
 
-    //compute selection highlight if needed
-    if (selectionHighlight = nil) and (shownSelection <> nil) and
-      not IsRectEmpty(selectionBounds) then
-    begin
-      InflateRect(selectionBounds,1,1);
-      okForCompleteSelection := false;
-      if imageClipped then
-      begin
-        if ((selectionBounds.right-selectionBounds.left)*FLastPictureParameters.actualZoomFactorX <= visualWidth) and
-            ((selectionBounds.bottom-selectionBounds.top)*FLastPictureParameters.actualZoomFactorY <= visualHeight) then
-              okForCompleteSelection:= true;
-      end;
-      if imageClipped and not okForCompleteSelection then
-      begin
-        resampledSelection := TBGRABitmap.Create(visualWidth,visualHeight,BGRABlack);
-        ofs := Point(-PictureOffset.X+image.GetSelectionOffset.X,-PictureOffset.Y+image.GetSelectionOffset.Y);
-        partialSelectionHighlight:= true;
-        resampledSelection.StretchPutImage(rect(round(ofs.x*FLastPictureParameters.actualZoomFactorX),
-           round(ofs.y*FLastPictureParameters.actualZoomFactorY),
-           round((ofs.x+Image.Width)*FLastPictureParameters.actualZoomFactorX),
-           round((ofs.y+Image.Height)*FLastPictureParameters.actualZoomFactorY)),shownSelection,dmSet);
-        highlightOffset := Point(0,0);
-        selectionHighlight := resampledSelection.FilterEmbossHighlight(
-               ToolManager.IsSelectingTool and not ShowSelectionNormal, BGRABlack, highlightOffset) as TBGRABitmap;
-        StoreSelectionHighlight(formArea,image.ImageOffset,image.GetSelectionRotateAngle,image.GetSelectionRotateCenter,
-          FLastPictureParameters.actualZoomFactorX, FLastPictureParameters.actualZoomFactorY,
-          ToolManager.IsSelectingTool,image.GetSelectionOffset,selectionHighlight,partialSelectionHighlight,highlightOffset);
-        FreeAndNil(resampledSelection);
-      end else
-      begin
-        partialSelectionHighlight:= false;
-        highlightOffset := Point(0,0);
-        if (FLastPictureParameters.actualZoomFactorX <> 1) or (FLastPictureParameters.actualZoomFactorY <> 1) then
-        begin
-          highlightOffset := Point(round(selectionBounds.Left*FLastPictureParameters.actualZoomFactorX),
-            round(selectionBounds.Top*FLastPictureParameters.actualZoomFactorY));
-          resampledSelection := TBGRABitmap.Create(round((selectionBounds.Right-selectionBounds.Left)*FLastPictureParameters.actualZoomFactorX),
-               round((selectionBounds.Bottom-selectionBounds.Top)*FLastPictureParameters.actualZoomFactorY));
-          resampledSelection.StretchPutImage(rect(-highlightOffset.X,-highlightOffset.Y,
-             round((-selectionBounds.Left+shownSelection.Width)*FLastPictureParameters.actualZoomFactorX),
-             round((-selectionBounds.Top+shownSelection.Height)*FLastPictureParameters.actualZoomFactorY)),shownSelection,dmSet);
-          selectionHighlight := resampledSelection.FilterEmbossHighlight(
-                 ToolManager.IsSelectingTool and not ShowSelectionNormal, BGRABlack, highlightOffset) as TBGRABitmap;
-          FreeAndNil(resampledSelection);
-        end else
-          selectionHighlight := shownSelection.FilterEmbossHighlight(
-                 ToolManager.IsSelectingTool and not ShowSelectionNormal, BGRABlack, highlightOffset) as TBGRABitmap;
-        StoreSelectionHighlight(formArea,image.ImageOffset,image.GetSelectionRotateAngle,image.GetSelectionRotateCenter,
-          FLastPictureParameters.actualZoomFactorX, FLastPictureParameters.actualZoomFactorY,
-          ToolManager.IsSelectingTool,image.GetSelectionOffset,selectionHighlight,partialSelectionHighlight,highlightOffset);
-      end;
-    end;
+  FLastPictureParameters.zoomFactorX := (scaledArea.Right-scaledArea.Left)/Image.Width;
+  FLastPictureParameters.zoomFactorY := (scaledArea.Bottom-scaledArea.Top)/Image.Height;
 
-    if selectionHighlight <> nil then
+  FLastPictureParameters.virtualScreenArea := croppedArea;
+
+  FLastPictureParameters.originInVS.X := scaledArea.Left - FLastPictureParameters.virtualScreenArea.Left;
+  FLastPictureParameters.originInVS.Y := scaledArea.Top  - FLastPictureParameters.virtualScreenArea.Top;
+  FLastPictureParameters.defined := true;
+end;
+
+procedure TFMain.PaintPictureImplementation;
+var
+  renderRect: TRect;
+  picParamWereDefined: boolean;
+
+  procedure DrawSelectionHighlight(ARenderRect: TRect);
+  var renderVisibleBounds: TRect;
+    transform, invTransform: TAffineMatrix;
+  begin
+    if Assigned(FSelectionHighlight) then
     begin
-      //draw previously stored highlight
-      if partialSelectionHighlight then
-        virtualScreen.PutImage(highlightOffset.X,highlightOffset.y,selectionHighlight,dmFastBlend)
-      else
-        virtualScreen.PutImage(highlightOffset.X+integer(round((-PictureOffset.x+image.GetSelectionOffset.X)*zoom.Factor)),
-          highlightOffset.Y+integer(round((-PictureOffset.Y+image.GetSelectionOffset.Y)*zoom.Factor)),selectionHighlight,dmFastBlend);
+      renderVisibleBounds := rect(0,0,virtualScreen.Width,virtualScreen.Height);
+      transform := AffineMatrixTranslation(ARenderRect.Left,ARenderRect.Top)
+           * AffineMatrixScale((ARenderRect.Right-ARenderRect.Left)/Image.Width,
+             (ARenderRect.Bottom-ARenderRect.Top)/Image.Height) * Image.SelectionTransform *
+             AffineMatrixScale(Image.Width/(ARenderRect.Right-ARenderRect.Left),
+             Image.Height/(ARenderRect.Bottom-ARenderRect.Top));
+      try
+        invTransform := AffineMatrixInverse(transform);
+        renderVisibleBounds := virtualScreen.GetImageAffineBounds(invTransform, renderVisibleBounds,False);
+        FSelectionHighlight.Update(ARenderRect.Right-ARenderRect.Left,ARenderRect.Bottom-ARenderRect.Top, renderVisibleBounds);
+      except
+      end;
+      FSelectionHighlight.DrawAffine(virtualScreen, transform, rfBox);
     end;
-    if shownSelection <> image.SelectionReadonly then shownSelection.Free;
   end;
 
 begin
-  formArea := FLayout.PictureArea;
-  if (formArea.Right <= formArea.Left) or (formArea.Bottom <= formArea.Top)
-    then exit;
-
-  if not InFormPaint then
-  begin
-     Repaint;
-     exit;
-  end;
-
-  visualWidth := round(image.Width*Zoom.Factor);
-  if visualWidth = 0 then visualWidth := 1;
-  visualHeight := round(image.Height*Zoom.Factor);
-  if visualHeight = 0 then visualHeight := 1;
-  visualLeft := (formArea.Left+formArea.Right-visualWidth) div 2;
-  visualTop := (formArea.Top+formArea.Bottom-visualHeight) div 2;
-
-  maxOffset := point(floor((formArea.Right-(visualLeft+visualWidth))/Zoom.Factor),
-       floor((formArea.Bottom-(visualTop+visualHeight))/Zoom.Factor));
-  minOffset := point(ceil((formArea.Left-visualLeft)/Zoom.Factor),
-               ceil((formArea.Top-visualTop)/Zoom.Factor));
-  if maxOffset.X < minOffset.X then
-  begin
-    temp := maxOffset.X;
-    maxOffset.X := minOffset.X;
-    minOffset.X := temp;
-  end;
-  if maxOffset.Y < minOffset.Y then
-  begin
-    temp := maxOffset.Y;
-    maxOffset.Y := minOffset.Y;
-    minOffset.Y := temp;
-  end;
-  if image.ImageOffset.X < minOffset.X then image.ImageOffset.X := minOffset.X else
-  if image.ImageOffset.X > maxOffset.X then image.ImageOffset.X := maxOffset.X;
-
-  if image.ImageOffset.Y < minOffset.Y then image.ImageOffset.Y := minOffset.Y else
-  if image.ImageOffset.Y > maxOffset.Y then image.ImageOffset.Y := maxOffset.Y;
-
-  if image.width <> 0 then
-    visualLeft += round(image.ImageOffset.X*visualWidth/image.Width);
-  if image.height <> 0 then
-    visualTop += round(image.ImageOffset.Y*visualHeight/image.Height);
-
-  if (visualLeft < formArea.left) or (visualTop < formArea.Top) or
-    (visualLeft+visualWidth > formArea.Right) or (visualTop+visualHeight > formArea.Bottom) then
-  begin
-    imageClipped:= true;
-    TopLeftCornerF := PointF((formArea.Left-visualLeft)/visualWidth*image.Width,
-       (formArea.Top-visualTop)/visualHeight*image.Height);
-    BottomRightCornerF := PointF((formArea.Right-visualLeft)/visualWidth*image.Width,
-       (formArea.Bottom-visualTop)/visualHeight*image.Height);
-    TopLeftCorner := Point(floor(topLeftCornerF.X),floor(topLeftCornerF.Y));
-    bottomRightCorner := Point(ceil(bottomRightCornerF.X),ceil(bottomRightCornerF.Y));
-
-    TopLeftCorner.x := max(0, TopLeftCorner.x);
-    TopLeftCorner.y := max(0, TopLeftCorner.y);
-    BottomRightCorner.x := min(image.Width, BottomRightCorner.x);
-    BottomRightCorner.y := min(image.Height, BottomRightCorner.y);
-
-    PictureActualSize := Point(BottomRightCorner.x-TopLeftCorner.x, BottomRightCorner.Y-TopLeftCorner.Y);
-    PictureOffset := Point(TopLeftCorner.x,TopLeftCorner.Y);
-
-    visualLeft := visualLeft + round(TopLeftCorner.x/image.width*visualWidth);
-    visualTop := visualTop + round(TopLeftCorner.y/image.height*visualHeight);
-    visualWidth := round(PictureActualSize.X*Zoom.Factor);
-    if visualWidth = 0 then visualWidth := 1;
-    visualHeight := round(PictureActualSize.Y*Zoom.Factor);
-    if visualHeight = 0 then visualHeight := 1;
-  end else
-  begin
-    imageClipped := false;
-    PictureActualSize.X := image.width;
-    PictureActualSize.Y := image.Height;
-    PictureOffset := Point(0,0);
-  end;
-  if pictureActualSize.X = 0 then
-    FLastPictureParameters.actualZoomFactorX:= 1
-  else
-    FLastPictureParameters.actualZoomFactorX:= visualWidth/PictureActualSize.X;
-  if pictureActualSize.Y = 0 then
-    FLastPictureParameters.actualZoomFactorY:= 1
-  else
-    FLastPictureParameters.actualZoomFactorY:= visualHeight/PictureActualSize.Y;
-  FLastPictureParameters.pictureArea := FLayout.PictureArea;
-  FLastPictureParameters.imageOffset := Image.ImageOffset;
-  FLastPictureParameters.imageWidth := Image.Width;
-  FLastPictureParameters.imageHeight := Image.Height;
-
-  //create or resize virtual screen if needed
-  if (virtualscreen = nil) or (virtualScreen.Width <> visualWidth) or (virtualScreen.Height <> visualHeight) then
+  picParamWereDefined := FLastPictureParameters.defined;
+  ComputePictureParams;
+  if not FLastPictureParameters.defined then
   begin
     FreeAndNil(virtualScreen);
-    virtualScreen := TBGRABitmap.Create(visualWidth, visualHeight);
-  end else
-    if FLastPictureParameters.defined then
-      virtualScreen.ClipRect := GetRenderUpdateRect(False);
+    exit;
+  end;
+
+  if Assigned(virtualscreen) and ((virtualScreen.Width <> FLastPictureParameters.virtualScreenArea.Right-FLastPictureParameters.virtualScreenArea.Left) or
+     (virtualScreen.Height <> FLastPictureParameters.virtualScreenArea.Bottom-FLastPictureParameters.virtualScreenArea.Top)) then
+  begin
+    FreeAndNil(virtualScreen);
+    FLastPictureParameters.defined := false;
+  end;
+
+  if not Assigned(virtualScreen) then
+  begin
+    virtualScreen := TBGRABitmap.Create(FLastPictureParameters.virtualScreenArea.Right-FLastPictureParameters.virtualScreenArea.Left,
+                                        FLastPictureParameters.virtualScreenArea.Bottom-FLastPictureParameters.virtualScreenArea.Top);
+    FLastPictureParameters.defined := false;
+  end;
+
+  if picParamWereDefined then virtualScreen.ClipRect := GetRenderUpdateRectVS(False);
   Image.ResetRenderUpdateRect;
   FLastPictureParameters.defined := true;
 
-  renderRect := rect(round(-PictureOffset.X*FLastPictureParameters.actualZoomFactorX),round(-PictureOffset.Y*FLastPictureParameters.actualZoomFactorY),
-     round((-PictureOffset.X+Image.Width)*FLastPictureParameters.actualZoomFactorX),
-     round((-PictureOffset.Y+Image.Height)*FLastPictureParameters.actualZoomFactorY));
+  renderRect := FLastPictureParameters.scaledArea;
+  OffsetRect(renderRect, -FLastPictureParameters.virtualScreenArea.Left,
+                         -FLastPictureParameters.virtualScreenArea.Top);
+
   DrawCheckers(virtualScreen, renderRect);
 
   //draw image (with merged selection)
   virtualScreen.StretchPutImage(renderRect,Image.RenderedImage,dmDrawWithTransparency);
   if (Zoom.Factor > MinZoomForGrid) and LazPaintInstance.GridVisible then
-    DrawGrid(virtualScreen,FLastPictureParameters.actualZoomFactorX,FLastPictureParameters.actualZoomFactorY);
+    DrawGrid(virtualScreen,FLastPictureParameters.zoomFactorX,FLastPictureParameters.zoomFactorY,
+       FLastPictureParameters.originInVS.X,FLastPictureParameters.originInVS.Y);
 
-  DrawSelectionHighlight;
+  DrawSelectionHighlight(renderRect);
   virtualScreen.NoClip;
-
-  //define picture view
-  pictureOrigin := Point(visualLeft,visualTop);
-  pictureViewSize := Point(visualWidth,visualHeight);
 
   //show tools info
   ToolManager.RenderTool(virtualScreen);
@@ -3944,39 +3750,42 @@ end;
 procedure TFMain.PaintBlueAreaImplementation;
 var
   DrawOfs: TPoint;
-  formArea: TRect;
+  workArea, scaledArea: TRect;
 begin
-  formArea := FLayout.PictureArea;
-  if (formArea.Right <= formArea.Left) or (formArea.Bottom <= formArea.Top)
-      then exit;
-  with PictureCanvas do
+  if FLastPictureParameters.defined then
   begin
-    Brush.Color := FormBackgroundColor;
-    DrawOfs := PictureCanvasOfs;
-    if pictureOrigin.X > formArea.Left then
-      FillRect(formArea.Left+DrawOfs.X,formArea.Top+DrawOfs.Y,pictureOrigin.X+DrawOfs.X,formArea.Bottom+DrawOfs.Y);
-    if pictureOrigin.Y > formArea.Top then
-      FillRect(formArea.Left+DrawOfs.X,formArea.Top+DrawOfs.Y,formArea.Right+DrawOfs.X,pictureOrigin.Y+DrawOfs.Y);
-    if pictureOrigin.X+pictureViewSize.x < formArea.Right then
-      FillRect(pictureOrigin.X+pictureViewSize.x+DrawOfs.X,formArea.Top+DrawOfs.Y,formArea.Right+DrawOfs.X,formArea.Bottom+DrawOfs.Y);
-    if pictureOrigin.Y+pictureViewSize.y < formArea.Bottom then
-      FillRect(formArea.Left+DrawOfs.X,pictureOrigin.Y+pictureViewSize.y+DrawOfs.Y,formArea.Right+DrawOfs.X,formArea.Bottom+DrawOfs.Y);
-  end;
+    workArea := FLastPictureParameters.workArea;
+    if (workArea.Right <= workArea.Left) or (workArea.Bottom <= workArea.Top) then exit;
+    scaledArea := FLastPictureParameters.scaledArea;
+    with PictureCanvas do
+    begin
+      Brush.Color := FormBackgroundColor;
+      DrawOfs := PictureCanvasOfs;
+      if scaledArea.Left > workArea.Left then
+        FillRect(workArea.Left+DrawOfs.X,scaledArea.Top+DrawOfs.Y,scaledArea.Left+DrawOfs.X,scaledArea.Bottom+DrawOfs.Y);
+      if scaledArea.Top > workArea.Top then
+        FillRect(workArea.Left+DrawOfs.X,workArea.Top+DrawOfs.Y,workArea.Right+DrawOfs.X,scaledArea.Top+DrawOfs.Y);
+      if scaledArea.Right < workArea.Right then
+        FillRect(scaledArea.Right+DrawOfs.X,scaledArea.Top+DrawOfs.Y,workArea.Right+DrawOfs.X,scaledArea.Bottom+DrawOfs.Y);
+      if scaledArea.Bottom < workArea.Bottom then
+        FillRect(workArea.Left+DrawOfs.X,scaledArea.Bottom+DrawOfs.Y,workArea.Right+DrawOfs.X,workArea.Bottom+DrawOfs.Y);
+    end;
+  end else
+    PaintBlueAreaOnly;
 end;
 
 procedure TFMain.PaintBlueAreaOnly;
 var
-  formArea: TRect;
+  workArea: TRect;
   DrawOfs: TPoint;
 begin
-  formArea := FLayout.PictureArea;
-  if (formArea.Right <= formArea.Left) or (formArea.Bottom <= formArea.Top)
-      then exit;
+  workArea := FLayout.PictureArea;
+  if (workArea.Right <= workArea.Left) or (workArea.Bottom <= workArea.Top) then exit;
   with PictureCanvas do
   begin
     Brush.Color := FormBackgroundColor;
     DrawOfs := PictureCanvasOfs;
-    FillRect(formArea.Left+DrawOfs.X,formArea.Top+DrawOfs.Y,formArea.Right+DrawOfs.X,formArea.Bottom+DrawOfs.Y);
+    FillRect(workArea.Left+DrawOfs.X,workArea.Top+DrawOfs.Y,workArea.Right+DrawOfs.X,workArea.Bottom+DrawOfs.Y);
   end;
   FLastPictureParameters.defined := false;
 end;

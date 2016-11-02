@@ -12,11 +12,12 @@ const FrameDashLength = 4;
   NicePointMaxRadius = 4;
 
 function RectUnion(const rect1,Rect2: TRect): TRect;
+function RectInter(const rect1,Rect2: TRect): TRect;
 function RectOfs(const ARect: TRect; ofsX,ofsY: integer): TRect;
 function GetShapeBounds(const pts: array of TPointF; width: single): TRect;
 function DoPixelate(source: TBGRABitmap; pixelSize: integer; quality: string): TBGRABitmap;
 procedure DrawCheckers(bmp : TBGRABitmap; ARect: TRect);
-procedure DrawGrid(bmp: TBGRABitmap; sizex,sizey: single);
+procedure DrawGrid(bmp: TBGRABitmap; sizex,sizey: single; ofsx,ofsy: single);
 function ComputeAngle(dx,dy: single): single;
 function GetSelectionCenter(bmp: TBGRABitmap): TPointF;
 procedure ComputeSelectionMask(image: TBGRABitmap; destMask: TBGRABitmap; ARect: TRect);
@@ -149,6 +150,12 @@ begin
   end;
 end;
 
+function RectInter(const rect1, Rect2: TRect): TRect;
+begin
+  result := EmptyRect;
+  IntersectRect(result,rect1,rect2);
+end;
+
 function RectOfs(const ARect: TRect; ofsX, ofsY: integer): TRect;
 begin
   result := ARect;
@@ -200,24 +207,33 @@ begin
   bmp.DrawCheckers(ARect,BGRA(255,255,255),BGRA(220,220,220));
 end; 
 
-procedure DrawGrid(bmp: TBGRABitmap; sizex, sizey: single);
+procedure DrawGrid(bmp: TBGRABitmap; sizex, sizey: single; ofsx,ofsy: single);
 var xb,yb: integer;
     imgGrid: TBGRABitmap;
     alpha: byte;
 begin
+    ofsx := ofsx - floor(ofsx/sizex)*sizex;
+    ofsy := ofsy - floor(ofsy/sizey)*sizey;
+
     imgGrid := TBGRABitmap.Create(bmp.Width,1);
     alpha := min(96,round((abs(sizex)+abs(sizey))*(96/16/2)));
     imgGrid.DrawLineAntialias(0,0,imgGrid.width-1,0,BGRA(255,255,255,alpha),BGRA(0,0,0,alpha),
         min(3,max(1,round(sizex/8))),true);
-    for yb := 1 to trunc(bmp.Height/sizey) do
-     bmp.PutImage(0,round(yb*sizey),imgGrid,dmFastBlend);
+    for yb := 1 to ceil(bmp.Height/sizey) do
+    begin
+      bmp.PutImage(0,round(ofsy),imgGrid,dmFastBlend);
+      ofsy += sizey;
+    end;
     imgGrid.Free;
 
     imgGrid := TBGRABitmap.Create(1,bmp.Height);
     imgGrid.DrawLineAntialias(0,0,0,imgGrid.height-1,BGRA(0,0,0,alpha),BGRA(255,255,255,alpha),
       min(3,max(1,round(sizey/8))),true);
-    for xb := 1 to trunc(bmp.Width/sizex) do
-     bmp.PutImage(round(xb*sizex),0,imgGrid,dmFastBlend);
+    for xb := 1 to ceil(bmp.Width/sizex) do
+    begin
+      bmp.PutImage(round(ofsx),0,imgGrid,dmFastBlend);
+      ofsx += sizex;
+    end;
     imgGrid.Free;
 end;
 

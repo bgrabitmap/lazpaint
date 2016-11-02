@@ -78,11 +78,23 @@ type
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
   end;
 
+  { TToolTransformSelection }
+
+  TToolTransformSelection = class(TGenericTransformTool)
+  protected
+    FKeepTransformOnDestroy: boolean;
+    function GetKeepTransformOnDestroy: boolean; override;
+    procedure SetKeepTransformOnDestroy(AValue: boolean); override;
+  public
+    procedure SelectionTransformChange;
+    constructor Create(AManager: TToolManager); override;
+    destructor Destroy; override;
+  end;
+
   { TToolMoveSelection }
 
-  TToolMoveSelection = class(TGenericTool)
+  TToolMoveSelection = class(TToolTransformSelection)
   protected
-    contentBounds,selectBounds: TRect;
     handMoving: boolean;
     handOrigin: TPoint;
     function GetIsSelectingTool: boolean; override;
@@ -97,19 +109,22 @@ type
 
   { TToolRotateSelection }
 
-  TToolRotateSelection = class(TGenericTool)
+  TToolRotateSelection = class(TToolTransformSelection)
   protected
     class var HintShowed: boolean;
     handMoving: boolean;
     handOrigin: TPointF;
     snapRotate: boolean;
     snapAngle: single;
-    FOriginalAngle: single;
+    FOriginalTransform: TAffineMatrix;
+    FCurrentAngle: single;
+    FCurrentCenter: TPointF;
     function GetIsSelectingTool: boolean; override;
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
       rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect; override;
     function GetStatusText: string; override;
+    procedure UpdateTransform;
   public
     constructor Create(AManager: TToolManager); override;
     function ToolKeyDown(var key: Word): TRect; override;
@@ -121,7 +136,48 @@ type
 
 implementation
 
-uses types, ugraph, LCLType, BGRATypewriter, LazPaintType, Math;
+uses types, ugraph, LCLType, BGRATypewriter, LazPaintType, Math, BGRATransform;
+
+{ TToolTransformSelection }
+
+function TToolTransformSelection.GetKeepTransformOnDestroy: boolean;
+begin
+  result := FKeepTransformOnDestroy;
+end;
+
+procedure TToolTransformSelection.SetKeepTransformOnDestroy(AValue: boolean);
+begin
+  FKeepTransformOnDestroy:= AValue;
+end;
+
+procedure TToolTransformSelection.SelectionTransformChange;
+var selectionChangeRect: TRect;
+begin
+  selectionChangeRect := Manager.Image.TransformedSelectionBounds;
+  if not Manager.Image.SelectionLayerIsEmpty then
+    Manager.Image.ImageMayChange(selectionChangeRect,False);
+  if not IsRectEmpty(selectionChangeRect) then
+  begin
+    InflateRect(selectionChangeRect,1,1);
+    Manager.Image.RenderMayChange(selectionChangeRect,true);
+  end;
+end;
+
+constructor TToolTransformSelection.Create(AManager: TToolManager);
+begin
+  inherited Create(AManager);
+  FKeepTransformOnDestroy:= False;
+end;
+
+destructor TToolTransformSelection.Destroy;
+begin
+  if not FKeepTransformOnDestroy and not IsAffineMatrixIdentity(Manager.Image.SelectionTransform) then
+  begin
+    Action.ApplySelectionTransform;
+    ValidateAction;
+  end;
+  inherited Destroy;
+end;
 
 { TToolRotateSelection }
 
@@ -138,9 +194,19 @@ begin
   begin
     if rightBtn then
     begin
-      if Action.SelectionRotateAngle <> 0 then Manager.Image.ImageMayChange(rect(0,0,Manager.Image.Width,Manager.Image.Height),false);
-      Action.SelectionRotateAngle := 0;
-      Action.SelectionRotateCenter := ptF;
+      if FCurrentAngle <> 0 then
+      begin
+        SelectionTransformChange;
+        FCurrentAngle := 0;
+        FCurrentCenter := ptF;
+        UpdateTransform;
+        SelectionTransformChange;
+      end else
+      begin
+        FCurrentAngle := 0;
+        FCurrentCenter := ptF;
+        UpdateTransform;
+      end;
       result := OnlyRenderChange;
     end else
     begin
@@ -161,17 +227,19 @@ begin
   end;
   if handMoving and ((handOrigin.X <> ptF.X) or (handOrigin.Y <> ptF.Y)) then
   begin
-    angleDiff := ComputeAngle(ptF.X-Manager.Image.GetSelectionRotateCenter.X,ptF.Y-Manager.Image.GetSelectionRotateCenter.Y)-
-                 ComputeAngle(handOrigin.X-Manager.Image.GetSelectionRotateCenter.X,handOrigin.Y-Manager.Image.GetSelectionRotateCenter.Y);
+    SelectionTransformChange;
+    angleDiff := ComputeAngle(ptF.X-FCurrentCenter.X,ptF.Y-FCurrentCenter.Y)-
+                 ComputeAngle(handOrigin.X-FCurrentCenter.X,handOrigin.Y-FCurrentCenter.Y);
     if snapRotate then
     begin
       snapAngle += angleDiff;
-      Action.SelectionRotateAngle := round(snapAngle/15)*15;
+      FCurrentAngle := round(snapAngle/15)*15;
     end
      else
-       Action.SelectionRotateAngle := Action.SelectionRotateAngle + angleDiff;
+       FCurrentAngle := FCurrentAngle + angleDiff;
+    UpdateTransform;
+    SelectionTransformChange;
     handOrigin := ptF;
-    Manager.Image.ImageMayChange(rect(0,0,Manager.Image.Width,Manager.Image.Height),false);
     result := OnlyRenderChange;
   end else
     result := EmptyRect;
@@ -179,14 +247,22 @@ end;
 
 function TToolRotateSelection.GetStatusText: string;
 begin
-  Result:= 'α = '+FloatToStrF(Manager.Image.GetSelectionRotateAngle,ffFixed,5,1);
+  Result:= 'α = '+FloatToStrF(FCurrentAngle,ffFixed,5,1);
+end;
+
+procedure TToolRotateSelection.UpdateTransform;
+begin
+  Manager.Image.SelectionTransform := AffineMatrixTranslation(FCurrentCenter.X,FCurrentCenter.Y)*
+                                   AffineMatrixRotationDeg(FCurrentAngle)*
+                                   AffineMatrixTranslation(-FCurrentCenter.X,-FCurrentCenter.Y)*FOriginalTransform;
 end;
 
 constructor TToolRotateSelection.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
-  Action.SelectionRotateCenter := Manager.Image.GetSelectionCenter;
-  FOriginalAngle := Manager.Image.GetSelectionRotateAngle;
+  FCurrentCenter := Manager.Image.SelectionTransform * Manager.Image.GetSelectionCenter;
+  FOriginalTransform := Manager.Image.SelectionTransform;
+  FCurrentAngle := 0;
 end;
 
 function TToolRotateSelection.ToolKeyDown(var key: Word): TRect;
@@ -197,12 +273,14 @@ begin
     if not snapRotate then
     begin
       snapRotate := true;
-      snapAngle := Manager.Image.GetSelectionRotateAngle;
+      snapAngle := FCurrentAngle;
 
       if handMoving then
       begin
-        Action.SelectionRotateAngle := round(snapAngle/15)*15;
-        Manager.Image.ImageMayChange(rect(0,0,Manager.Image.Width,Manager.Image.Height),false);
+        SelectionTransformChange;
+        FCurrentAngle := round(snapAngle/15)*15;
+        UpdateTransform;
+        SelectionTransformChange;
         result := OnlyRenderChange;
       end;
     end;
@@ -210,10 +288,19 @@ begin
   end else
   if key = VK_ESCAPE then
   begin
-    if action.SelectionRotateAngle <> 0 then
-      Manager.Image.ImageMayChange(rect(0,0,Manager.Image.Width,Manager.Image.Height),false);
-    Action.SelectionRotateAngle := FOriginalAngle;
-    result := OnlyRenderChange;
+    if FCurrentAngle <> 0 then
+    begin
+      SelectionTransformChange;
+      FCurrentAngle := 0;
+      UpdateTransform;
+      SelectionTransformChange;
+      result := OnlyRenderChange;
+    end else
+    begin
+      FCurrentAngle := 0;
+      UpdateTransform;
+      result := OnlyRenderChange;
+    end;
     Key := 0;
   end;
 end;
@@ -238,26 +325,13 @@ function TToolRotateSelection.Render(VirtualScreen: TBGRABitmap;
   VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
 var pictureRotateCenter: TPointF;
 begin
-  pictureRotateCenter := BitmapToVirtualScreen(Manager.image.GetSelectionRotateCenter);
+  pictureRotateCenter := BitmapToVirtualScreen(FCurrentCenter);
   result := NicePoint(VirtualScreen, pictureRotateCenter.X,pictureRotateCenter.Y);
 end;
 
 destructor TToolRotateSelection.Destroy;
 begin
   if handMoving then handMoving := false;
-  if (Manager.Image.GetSelectionOffset.X <> 0) or (Manager.Image.GetSelectionOffset.Y <> 0) or (Manager.Image.GetSelectionRotateAngle <> 0) then
-  begin
-    if Action.GetSelectionLayerIfExists = nil then
-      Action.ApplySelectionTransform
-    else
-    begin
-      Action.ApplySelectionMask;
-      Action.ApplySelectionTransform(False);
-      ComputeSelectionMask(Action.GetOrCreateSelectionLayer,Action.CurrentSelection,rect(0,0,Manager.Image.Width,Manager.Image.Height));
-      Manager.Image.SelectionMayChangeCompletely;
-    end;
-    ValidateAction;
-  end;
   inherited Destroy;
 end;
 
@@ -275,8 +349,6 @@ begin
   begin
     handMoving := true;
     handOrigin := pt;
-    selectBounds := Manager.Image.SelectionBounds;
-    IntersectRect(contentBounds, selectBounds, Manager.Image.SelectionLayerBounds);
   end;
   result := EmptyRect;
 end;
@@ -284,39 +356,16 @@ end;
 function TToolMoveSelection.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF): TRect;
 var dx,dy: integer;
-  prevBounds,newBounds,mergedBounds: TRect;
 begin
   result := EmptyRect;
   if handMoving and ((handOrigin.X <> pt.X) or (handOrigin.Y <> pt.Y)) then
   begin
-    prevBounds := selectBounds;
-    OffsetRect(prevBounds,Action.SelectionOffset.X,Action.SelectionOffset.Y);
-    if not IsRectEmpty(prevBounds) then
-    begin
-      InflateRect(prevBounds,1,1);
-      Manager.Image.RenderMayChange(prevBounds,True);
-    end;
-
-    prevBounds := contentBounds;
-    OffsetRect(prevBounds,Action.SelectionOffset.X,Action.SelectionOffset.Y);
+    SelectionTransformChange;
     dx := pt.X-HandOrigin.X;
     dy := pt.Y-HandOrigin.Y;
-    Action.SelectionOffset := Point(Action.SelectionOffset.X+dx,
-                                   Action.SelectionOffset.Y+dy);
-    newBounds := contentBounds;
-    OffsetRect(newBounds,Action.SelectionOffset.X,Action.SelectionOffset.Y);
-    mergedBounds := RectUnion(prevBounds,newBounds);
-    if not Manager.Image.SelectionLayerIsEmpty then
-      Manager.Image.ImageMayChange(mergedBounds);
-
-    newBounds := selectBounds;
-    OffsetRect(newBounds,Action.SelectionOffset.X,Action.SelectionOffset.Y);
-    if not IsRectEmpty(newBounds) then
-    begin
-      InflateRect(newBounds,1,1);
-      Manager.Image.RenderMayChange(newBounds,True);
-    end;
-    Result := OnlyRenderChange;
+    Manager.Image.SelectionTransform := AffineMatrixTranslation(dx,dy) * Manager.Image.SelectionTransform;
+    SelectionTransformChange;
+    result := OnlyRenderChange;
   end;
 end;
 
@@ -334,11 +383,6 @@ end;
 destructor TToolMoveSelection.Destroy;
 begin
   if handMoving then handMoving := false;
-  if (Manager.Image.GetSelectionOffset.X <> 0) or (Manager.Image.GetSelectionOffset.Y <> 0) or (Manager.Image.GetSelectionRotateAngle <> 0) then
-  begin
-    Action.ApplySelectionTransform;
-    ValidateAction;
-  end;
   inherited Destroy;
 end;
 

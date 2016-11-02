@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, BGRABitmap, BGRABitmapTypes, types,
   UImageState, UStateType, Graphics, BGRALayers, UImageObservation, FPWriteBMP,
-  UImageType, BGRALzpCommon, UZoom;
+  UImageType, BGRALzpCommon, UZoom, BGRATransform;
 
 const
   MaxLayersToAdd = 99;
@@ -25,7 +25,7 @@ type
       end;
 
   TLazPaintImage = class;
-  TOnCurrentSelectionChanged = procedure(ASender: TLazPaintImage; AOffsetOnly: boolean) of object;
+  TOnCurrentSelectionChanged = procedure(ASender: TLazPaintImage; const ARect: TRect) of object;
   TOnSelectedLayerIndexChanged = procedure(ASender: TLazPaintImage) of object;
   TOnStackChanged = procedure(ASender: TLazPaintImage; AScrollIntoView: boolean) of object;
   TImageExceptionHandler = procedure(AFunctionName: string; AException: Exception) of object;
@@ -54,10 +54,7 @@ type
     FRenderUpdateRectInPicCoord, FRenderUpdateRectInVSCoord: TRect;
     FOnCurrentFilenameChanged: TOnCurrentFilenameChanged;
 
-    FSelectionOffset: TPoint;
-    FSelectionRotateAngle: Single;
-    FSelectionRotateCenter: TPointF;
-    FDisplayedSelectionBounds: TRect;
+    FSelectionTransform: TAffineMatrix;
     FSelectionLayerAfterMask: TBGRABitmap;
     FSelectionLayerAfterMaskOffset: TPoint;
     FSelectionLayerAfterMaskDefined: boolean;
@@ -65,6 +62,7 @@ type
     procedure DiscardSelectionLayerAfterMask;
     function GetLayerBitmapById(AId: integer): TBGRABitmap;
     function GetLayerId(AIndex: integer): integer;
+    function GetTransformedSelectionBounds: TRect;
     procedure NeedSelectionLayerAfterMask;
     function GetBlendOperation(AIndex: integer): TBlendOperation;
     function GetCurrentFilenameUTF8: string;
@@ -97,10 +95,9 @@ type
     procedure SetLayerVisible(AIndex: integer; AValue: boolean);
     procedure LayerBlendMayChange(AIndex: integer);
     function GetDrawingLayer: TBGRABitmap;
-    procedure SelectionOffsetChanged;
     procedure CompressUndoIfNecessary;
     procedure NotifyException(AFunctionName: string; AException: Exception);
-    procedure SetSelectionOffset(AValue: TPoint);
+    procedure SetSelectionTransform(ATransform: TAffineMatrix);
     procedure ClearUndoAfter;
 
   public
@@ -143,11 +140,6 @@ type
     property SelectedLayerPixel[X,Y: Integer]: TBGRAPixel read GetSelectedLayerPixel;
     function GetSelectionCenter: TPointF;
     procedure SaveSelectionToFileUTF8(AFilename: string);
-    procedure SetSelectionRotateCenter(ACenter: TPointF);
-    procedure SetSelectionRotateAngle(AValue: single);
-    function GetSelectionRotateAngle: Single;
-    function GetSelectionRotateCenter: TPointF;
-    function GetSelectionOffset: TPoint;
     function SelectionReadonly: TBGRABitmap;
     function SelectionLayerReadonly: TBGRABitmap;
     function SelectedImageLayerReadOnly: TBGRABitmap;
@@ -175,7 +167,7 @@ type
         APreviousSelection: TBGRABitmap; APreviousSelectionChangeRect:TRect;
         APreviousSelectionLayer: TBGRABitmap; APreviousSelectionLayerChangeRect:TRect); overload;
 
-    function ComputeRotatedSelection: TBGRABitmap;
+    function ComputeTransformedSelection: TBGRABitmap;
     function ApplySmartZoom3: boolean;
     procedure Resample(AWidth, AHeight: integer; filter: TResampleFilter);
     procedure LoadFromFileUTF8(AFilename: string);
@@ -241,7 +233,8 @@ type
     property OnCurrentFilenameChanged: TOnCurrentFilenameChanged read FOnCurrentFilenameChanged write FOnCurrentFilenameChanged;
     property RenderUpdateRectInPicCoord: TRect read FRenderUpdateRectInPicCoord;
     property RenderUpdateRectInVSCoord: TRect read FRenderUpdateRectInVSCoord;
-    property SelectionOffset: TPoint read FSelectionOffset write SetSelectionOffset;
+    property SelectionTransform: TAffineMatrix read FSelectionTransform write SetSelectionTransform;
+    property TransformedSelectionBounds: TRect read GetTransformedSelectionBounds;
     property ZoomFactor: single read GetZoomFactor;
     constructor Create;
     destructor Destroy; override;
@@ -315,15 +308,18 @@ begin
     end;
     ImageMayChangeCompletely;
   end else
+  begin
+    if (bmp = nil) then FreeAndNil(FCurrentState.selectionLayer);
     if AOwned and (bmp <>nil) then bmp.Free; //ignore if there is no active selection
+  end;
 end;
 
-function TLazPaintImage.ComputeRotatedSelection: TBGRABitmap;
+function TLazPaintImage.ComputeTransformedSelection: TBGRABitmap;
 begin
     if currentSelection = nil then result := nil else
     begin
       currentSelection.GrayscaleToAlpha;
-      result := currentSelection.FilterRotate(FSelectionRotateCenter,FSelectionRotateAngle,False) as TBGRABitmap;
+      result := currentSelection.FilterAffine(FSelectionTransform,False) as TBGRABitmap;
       currentSelection.AlphaToGrayscale;
       result.AlphaToGrayscale;
       result.AlphaFill(255);
@@ -333,35 +329,16 @@ end;
 procedure TLazPaintImage.ApplySelectionTransform(ApplyToMask: boolean= true);
 var temp: TBGRABitmap;
 begin
-  if FSelectionRotateAngle <> 0 then
+  if not IsAffineMatrixIdentity(FSelectionTransform) then
   begin
     if ApplyToMask and (currentSelection <> nil) then
-      ReplaceCurrentSelection(ComputeRotatedSelection);
-
+      ReplaceCurrentSelection(ComputeTransformedSelection);
     if GetSelectionLayerIfExists <> nil then
     begin
-      temp := GetSelectionLayerIfExists.FilterRotate(FSelectionRotateCenter,FSelectionRotateAngle,True) as TBGRABitmap;
+      temp := GetSelectionLayerIfExists.FilterAffine(FSelectionTransform,True) as TBGRABitmap;
       ReplaceSelectionLayer(temp, True);
     end;
-
-    FSelectionRotateAngle := 0;
-  end;
-
-  if (SelectionOffset.X <> 0) or (SelectionOffset.Y <> 0) then
-  begin
-    if currentSelection <> nil then
-    begin
-      temp := TBGRABitmap.Create(Width,Height, BGRABlack);
-      temp.PutImage(SelectionOffset.X, SelectionOffset.Y, currentSelection, dmFastBlend);
-      ReplaceCurrentSelection(temp);
-    end;
-    if GetSelectionLayerIfExists <> nil then
-    begin
-      temp := TBGRABitmap.Create(Width,Height);
-      temp.PutImage(SelectionOffset.X, SelectionOffset.Y, GetSelectionLayerIfExists, dmSet);
-      ReplaceSelectionLayer(temp,true);
-    end;
-    FSelectionOffset := point(0,0);
+    FSelectionTransform := AffineMatrixIdentity;
   end;
 end;
 
@@ -770,13 +747,11 @@ begin
     MessageDlg(AFunctionName,AException.Message,mtError,[mbOk],0);
 end;
 
-procedure TLazPaintImage.SetSelectionOffset(AValue: TPoint);
+procedure TLazPaintImage.SetSelectionTransform(ATransform: TAffineMatrix);
 begin
-  if (FSelectionOffset.X <> AValue.X) or
-    (FSelectionOffset.Y <> AValue.Y) then
+  if not CompareMem(@ATransform, @FSelectionTransform, sizeof(FSelectionTransform)) then
   begin
-    FSelectionOffset := AValue;
-    SelectionOffsetChanged;
+    FSelectionTransform := ATransform;
   end;
 end;
 
@@ -1019,14 +994,11 @@ begin
   if IsRectEmpty(ARect) then exit;
 
   DiscardSelectionLayerAfterMask;
-  if not IsRectEmpty(ARect) then
-  begin
-    temp := ARect;
-    InflateRect(temp,1,1);
-    FRenderUpdateRectInPicCoord := RectUnion(FRenderUpdateRectInPicCoord,temp);
-  end;
+  temp := ARect;
+  InflateRect(temp,1,1);
+  FRenderUpdateRectInPicCoord := RectUnion(FRenderUpdateRectInPicCoord,temp);
   FLastSelectionBoundsIsDefined := false;
-  if Assigned(FOnSelectionChanged) then FOnSelectionChanged(self,False);
+  if Assigned(FOnSelectionChanged) then FOnSelectionChanged(self, ARect);
   if GetSelectionLayerIfExists <> nil then
     LayerMayChange(GetSelectionLayerIfExists, ARect)
   else
@@ -1052,11 +1024,6 @@ begin
   r := FCurrentState.LayerBitmap[AIndex].GetImageBounds;
   with LayerOffset[AIndex] do OffsetRect(r, x,y);
   ImageMayChange(r);
-end;
-
-procedure TLazPaintImage.SelectionOffsetChanged;
-begin
-  if Assigned(FOnSelectionChanged) then FOnSelectionChanged(self,True);
 end;
 
 function TLazPaintImage.MakeLayeredBitmapAndSelectionCopy: TLayeredBitmapAndSelection;
@@ -1153,21 +1120,43 @@ begin
   result := FCurrentState.LayerId[AIndex];
 end;
 
+function TLazPaintImage.GetTransformedSelectionBounds: TRect;
+begin
+  if SelectionEmpty then
+    result := EmptyRect
+  else
+  begin
+    result := SelectionReadonly.GetImageAffineBounds(SelectionTransform, SelectionBounds);
+  end;
+end;
+
 procedure TLazPaintImage.NeedSelectionLayerAfterMask;
-var r: TRect;
+var
+  bounds,
+  boundsAfter: TRect;
 begin
   if not FSelectionLayerAfterMaskDefined then
   begin
-    FSelectionLayerAfterMask := (SelectionLayerReadonly.Duplicate) as TBGRABitmap;
-    if FSelectionLayerAfterMask <> nil then
+    if SelectionEmpty or SelectionLayerIsEmpty then
+      FreeAndNil(FSelectionLayerAfterMask)
+    else
     begin
-      if Assigned(CurrentSelection) then FSelectionLayerAfterMask.ApplyMask(CurrentSelection);
-      r := FSelectionLayerAfterMask.GetImageBounds;
-      FSelectionLayerAfterMaskOffset := Point(r.left,r.top);
-      if IsRectEmpty(r) then FreeAndNil(FSelectionLayerAfterMask) else
-      if (r.left <> 0) or (r.right <> FSelectionLayerAfterMask.Width) or
-       (r.top <> 0) or (r.bottom <> FSelectionLayerAfterMask.Height) then
-        BGRAReplace(FSelectionLayerAfterMask, FSelectionLayerAfterMask.GetPart(r));
+      bounds := SelectionLayerBounds;
+      FSelectionLayerAfterMask := SelectionLayerReadonly.GetPart(bounds) as TBGRABitmap;
+      FSelectionLayerAfterMask.ApplyMask(CurrentSelection,
+          Rect(0,0,FSelectionLayerAfterMask.Width,FSelectionLayerAfterMask.Height),
+          bounds.TopLeft);
+      FSelectionLayerAfterMaskOffset := bounds.TopLeft;
+
+      boundsAfter := FSelectionLayerAfterMask.GetImageBounds;
+      if IsRectEmpty(boundsAfter) then FreeAndNil(FSelectionLayerAfterMask) else
+      if (boundsAfter.left > FSelectionLayerAfterMask.Width div 10) or (boundsAfter.right < FSelectionLayerAfterMask.Width*9 div 10) or
+         (boundsAfter.top > FSelectionLayerAfterMask.Height div 10) or (boundsAfter.bottom < FSelectionLayerAfterMask.Height*9 div 10) then
+      begin
+        BGRAReplace(FSelectionLayerAfterMask, FSelectionLayerAfterMask.GetPart(boundsAfter));
+        FSelectionLayerAfterMaskOffset.x += boundsAfter.Left;
+        FSelectionLayerAfterMaskOffset.y += boundsAfter.Top;
+      end;
     end;
     FSelectionLayerAfterMaskDefined := true;
   end;
@@ -1319,8 +1308,8 @@ var
   backupCurrentLayer : TBGRABitmap;
   backupTopLeft: TPoint;
   shownSelectionLayer : TBGRABitmap;
-  rectOutput,rectSelectionLayer: TRect;
-  actualOffset: TPoint;
+  rectOutput: TRect;
+  actualTransformation: TAffineMatrix;
 begin
   if (FRenderedImage = nil) or ((FRenderedImageInvalidated.Right > FRenderedImageInvalidated.Left) and
      (FRenderedImageInvalidated.Bottom > FRenderedImageInvalidated.Top)) then
@@ -1335,57 +1324,51 @@ begin
 
     backupCurrentLayer := nil;
     backupTopLeft := Point(0,0);
-    FDisplayedSelectionBounds := EmptyRect;
     //if there is an overlapping selection, then we must draw it on current layer
     if (currentSelection <> nil) and (GetSelectedImageLayer <> nil) then
     begin
-      actualOffset := LayerOffset[currentImageLayerIndex];
-      actualOffset := Point(SelectionOffset.X-actualOffset.X,SelectionOffset.Y-actualOffset.Y);
       shownSelectionLayer := GetSelectionLayerIfExists;
       if shownSelectionLayer <> nil then
       begin
-         if FSelectionRotateAngle <> 0 then
+         if not IsAffineMatrixIdentity(SelectionTransform) then
          begin
            NeedSelectionLayerAfterMask;
+           with LayerOffset[currentImageLayerIndex] do
+             actualTransformation := AffineMatrixTranslation(-X,-Y)*SelectionTransform*
+                                  AffineMatrixTranslation(FSelectionLayerAfterMaskOffset.X,FSelectionLayerAfterMaskOffset.Y);
            if FSelectionLayerAfterMask <> nil then
+             shownSelectionLayer := FSelectionLayerAfterMask;
+           if shownSelectionLayer <> nil then
            begin
-             rectOutput := GetSelectedImageLayer.GetImageAngleBounds(
-                actualOffset.X+FSelectionLayerAfterMaskOffset.x,actualOffset.Y+FSelectionLayerAfterMaskOffset.Y,FSelectionLayerAfterMask,
-                FSelectionRotateAngle,FSelectionRotateCenter.X-FSelectionLayerAfterMaskOffset.X,
-                FSelectionRotateCenter.Y-FSelectionLayerAfterMaskOffset.Y,True);
-             FDisplayedSelectionBounds := rectOutput;
+             rectOutput := GetSelectedImageLayer.GetImageAffineBounds(
+                actualTransformation, FSelectionLayerAfterMask);
              IntersectRect(rectOutput,rectOutput,FRenderedImageInvalidated);
              if not IsRectEmpty(rectOutput) then
              begin
                backupCurrentLayer := GetSelectedImageLayer.GetPart(rectOutput) as TBGRABitmap;
                backupTopLeft := rectoutput.TopLeft;
-               GetSelectedImageLayer.PutImageAngle(
-                 actualOffset.X+FSelectionLayerAfterMaskOffset.X,actualOffset.Y+FSelectionLayerAfterMaskOffset.Y,FSelectionLayerAfterMask,
-                 FSelectionRotateAngle,rectOutput,FSelectionRotateCenter.X-FSelectionLayerAfterMaskOffset.X,
-                FSelectionRotateCenter.Y-FSelectionLayerAfterMaskOffset.Y,255,True,True);
+               GetSelectedImageLayer.PutImageAffine(
+                 actualTransformation, FSelectionLayerAfterMask,
+                 rectOutput,255,True);
              end;
            end;
          end else
          begin
            DiscardSelectionLayerAfterMask;
-           FDisplayedSelectionBounds := rect(0,0,Width,Height);
-           rectSelectionLayer := FRenderedImageInvalidated;
-           OffsetRect(rectSelectionLayer, -SelectionOffset.X,-SelectionOffset.Y);
-           IntersectRect(rectSelectionLayer, rectSelectionLayer, rect(0,0,shownSelectionLayer.Width,shownSelectionLayer.Height));
-           if not IsRectEmpty(rectSelectionLayer) then
+           rectoutput := FRenderedImageInvalidated;
+           with LayerOffset[currentImageLayerIndex] do
+             OffsetRect(rectoutput, -X,-Y);
+           IntersectRect(rectoutput, rectoutput, SelectionLayerBounds);
+           IntersectRect(rectoutput, rectoutput, SelectionBounds);
+           if not IsRectEmpty(rectoutput) then
            begin
-             shownSelectionLayer := shownSelectionLayer.GetPart(rectSelectionLayer) as TBGRABitmap;
-             shownSelectionLayer.ApplyMask(CurrentSelection,rect(0,0,shownSelectionLayer.Width,shownSelectionLayer.Height),
-               Point(rectSelectionLayer.Left,rectSelectionLayer.Top));
-             if not shownSelectionLayer.Empty then
-             begin
-               OffsetRect(rectSelectionLayer, actualOffset.X,actualOffset.Y);
-               backupCurrentLayer := GetSelectedImageLayer.GetPart(rectSelectionLayer) as TBGRABitmap;
-               backupTopLeft := Point(rectSelectionLayer.Left,rectSelectionLayer.Top);
-               GetSelectedImageLayer.PutImage(rectSelectionLayer.Left,rectSelectionLayer.Top,
-                 shownSelectionLayer,dmDrawWithTransparency);
-             end;
-             FreeAndNil(shownSelectionLayer);
+             backupTopLeft := rectOutput.TopLeft;
+             backupCurrentLayer := GetSelectedImageLayer.GetPart(rectoutput) as TBGRABitmap;
+             shownSelectionLayer.ScanOffset := Point(0,0);
+             CurrentSelection.ScanOffset := Point(0,0);
+             GetSelectedImageLayer.ClipRect := rectOutput;
+             GetSelectedImageLayer.FillMask(0,0,CurrentSelection, shownSelectionLayer, dmDrawWithTransparency);
+             GetSelectedImageLayer.NoClip;
            end;
          end;
       end;
@@ -1787,9 +1770,9 @@ begin
    if currentSelection <> nil then
    begin
       ApplySelectionMask;
+      ReplaceCurrentSelection(nil);
       ApplySelectionTransform(False);
       MergeWithSelection(False);
-      ReplaceCurrentSelection(nil);
    end;
 end;
 
@@ -1847,32 +1830,6 @@ begin
   end;
 end;
 
-procedure TLazPaintImage.SetSelectionRotateCenter(ACenter: TPointF);
-begin
-  if FSelectionRotateAngle = 0 then
-    FSelectionRotateCenter := ACenter;
-end;
-
-procedure TLazPaintImage.SetSelectionRotateAngle(AValue: single);
-begin
-  FSelectionRotateAngle := AValue;
-end;
-
-function TLazPaintImage.GetSelectionRotateAngle: Single;
-begin
-  result := FSelectionRotateAngle;
-end;
-
-function TLazPaintImage.GetSelectionRotateCenter: TPointF;
-begin
-  result := FSelectionRotateCenter;
-end;
-
-function TLazPaintImage.GetSelectionOffset: TPoint;
-begin
-  result := SelectionOffset;
-end;
-
 function TLazPaintImage.SelectionReadonly: TBGRABitmap;
 begin
   result := CurrentSelection;
@@ -1914,10 +1871,7 @@ begin
 
   //current transform
   ImageOffset := Point(0,0);
-  FSelectionOffset := Point(0,0);
-  FSelectionRotateCenter := PointF(0,0);
-  FSelectionRotateAngle := 0;
-  FDisplayedSelectionBounds := EmptyRect;
+  FSelectionTransform := AffineMatrixIdentity;
 
   FLastSelectionBoundsIsDefined := false;
   FLastSelectionLayerBoundsIsDefined := false;

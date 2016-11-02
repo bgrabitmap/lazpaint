@@ -55,6 +55,7 @@ type
     procedure SetPosition(ABitmapPosition: TPointF; AMousePosition: TPoint);
     procedure ClearPosition;
     procedure DoAction(const AName: string);
+    function GetScaledArea(const AWorkArea: TRect; AImageWidth, AImageHeight: integer; var AViewOffset: TPoint): TRect;
     property EditingZoom: boolean read GetEditingZoom write SetEditingZoom;
     property Factor: single read GetZoomFactor write SetZoomFactor;
     property OnZoomChanged: TOnZoomChangedHandler read FOnZoomChangedHandler write FOnZoomChangedHandler;
@@ -272,6 +273,53 @@ begin
   if AName = 'ViewZoomIn' then ZoomIn else
   if AName = 'ViewZoomOriginal' then ZoomOriginal else
   if AName = 'ViewZoomOut' then ZoomOut;
+end;
+
+function TZoom.GetScaledArea(const AWorkArea: TRect; AImageWidth, AImageHeight: integer; var AViewOffset: TPoint): TRect;
+var
+  scaledWidth,scaledHeight: integer;
+  maxOffset, minOffset: TPoint;
+  temp: integer;
+begin
+  scaledWidth := round(AImageWidth*Factor);
+  if scaledWidth = 0 then scaledWidth := 1;
+  scaledHeight := round(AImageHeight*Factor);
+  if scaledHeight = 0 then scaledHeight := 1;
+  result.Left := (AWorkArea.Left+AWorkArea.Right-scaledWidth) div 2;
+  result.Top := (AWorkArea.Top+AWorkArea.Bottom-scaledHeight) div 2;
+
+  maxOffset := point(floor((AWorkArea.Right-(result.Left+scaledWidth))/Factor),
+       floor((AWorkArea.Bottom-(result.Top+scaledHeight))/Factor));
+  minOffset := point(ceil((AWorkArea.Left-result.Left)/Factor),
+               ceil((AWorkArea.Top-result.Top)/Factor));
+  if maxOffset.X < minOffset.X then
+  begin
+    temp := maxOffset.X;
+    maxOffset.X := minOffset.X;
+    minOffset.X := temp;
+  end;
+  if maxOffset.Y < minOffset.Y then
+  begin
+    temp := maxOffset.Y;
+    maxOffset.Y := minOffset.Y;
+    minOffset.Y := temp;
+  end;
+
+  if minOffset.X > -AImageWidth div 2 then minOffset.X := -AImageWidth div 2;
+  if minOffset.Y > -AImageHeight div 2 then minOffset.Y := -AImageHeight div 2;
+  if maxOffset.X < AImageWidth div 2 then maxOffset.X := AImageWidth div 2;
+  if maxOffset.Y < AImageHeight div 2 then maxOffset.Y := AImageHeight div 2;
+
+  if AViewOffset.X < minOffset.X then AViewOffset.X := minOffset.X else
+  if AViewOffset.X > maxOffset.X then AViewOffset.X := maxOffset.X;
+
+  if AViewOffset.Y < minOffset.Y then AViewOffset.Y := minOffset.Y else
+  if AViewOffset.Y > maxOffset.Y then AViewOffset.Y := maxOffset.Y;
+
+  if AImageWidth <> 0 then result.Left += round(AViewOffset.X*scaledWidth/AImageWidth);
+  if AImageHeight <> 0 then result.Top += round(AViewOffset.Y*scaledHeight/AImageHeight);
+  result.Right := result.Left + scaledWidth;
+  result.Bottom := result.Top + scaledHeight;
 end;
 
 end.

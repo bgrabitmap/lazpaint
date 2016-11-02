@@ -115,6 +115,7 @@ type
      bounds: TRect;
      c: TPointF;
      rx,ry: single;
+     defined: boolean;
   end;
 
 const

@@ -34,7 +34,8 @@ uses
   UToolPhong, UToolText, UScripting, UMenu, UColorFilters, uadjustcurves,
   UScriptType, ULayerAction, UImageType, uposterize, UMySLV, UToolLayer,
   unoisefilter, uprint, uimagelist, UBarUpDown, UFileExtensions, UFileSystem, UToolBrush, UMainFormLayout, USaveOption, UBrushType, 
-  ugeometricbrush, URainType, UFormRain, UPaletteToolbar;
+  ugeometricbrush, URainType, UFormRain, UPaletteToolbar, 
+  uselectionhighlight, UGridBitmap;
 
 //sometimes LResources disappear in the uses clause
 

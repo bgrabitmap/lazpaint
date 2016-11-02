@@ -26,17 +26,13 @@ type
     function GetCurrentSelection: TBGRABitmap;
     function GetSelectedImageLayer: TBGRABitmap;
     function GetDrawingLayer: TBGRABitmap;
-    function GetSelectionOffset: TPoint;
-    function GetSelectionRotateAngle: Single;
-    function GetSelectionRotateCenter: TPointF;
-    procedure SetSelectionOffset(AValue: TPoint);
-    procedure SetSelectionRotateAngle(AValue: Single);
-    procedure SetSelectionRotateCenter(AValue: TPointF);
   protected
     procedure Cancel;
     procedure NeedSelectionBackup;
     procedure NeedSelectedLayerBackup;
     procedure NeedSelectionLayerBackup;
+    function GetSelectionTransform: TAffineMatrix;
+    procedure SetSelectionTransform(AValue: TAffineMatrix);
   public
     constructor Create(AImage: TLazPaintImage);
     procedure Validate;
@@ -70,14 +66,12 @@ type
     property SelectedImageLayer: TBGRABitmap read GetSelectedImageLayer;
     property DrawingLayer: TBGRABitmap read GetDrawingLayer;
     property CurrentSelection: TBGRABitmap read GetCurrentSelection;
-    property SelectionOffset: TPoint read GetSelectionOffset write SetSelectionOffset;
-    property SelectionRotateCenter: TPointF read GetSelectionRotateCenter write SetSelectionRotateCenter;
-    property SelectionRotateAngle: Single read GetSelectionRotateAngle write SetSelectionRotateAngle;
     property BackupSelection: TBGRABitmap read GetBackupSelection;
     property BackupSelectionLayer: TBGRABitmap read GetBackupSelectionLayer;
     property BackupSelectedLayer: TBGRABitmap read GetBackupSelectedLayer;
     property BackupDrawingLayer: TBGRABitmap read GetBackupDrawingLayer;
     property OnTryStop: TOnTryStopEventHandler read FOnTryStop write FOnTryStop;
+    property SelectionTransform: TAffineMatrix read GetSelectionTransform write SetSelectionTransform;
     property Done: boolean read FDone;
     property AllChangesNotified: boolean read FAllChangesNotified write FAllChangesNotified;
   end;
@@ -130,34 +124,14 @@ begin
     result := GetOrCreateSelectionLayer;
 end;
 
-function TLayerAction.GetSelectionOffset: TPoint;
+function TLayerAction.GetSelectionTransform: TAffineMatrix;
 begin
-  result := FImage.SelectionOffset;
+  result := FImage.SelectionTransform;
 end;
 
-function TLayerAction.GetSelectionRotateAngle: Single;
+procedure TLayerAction.SetSelectionTransform(AValue: TAffineMatrix);
 begin
-  result := FImage.GetSelectionRotateAngle;
-end;
-
-function TLayerAction.GetSelectionRotateCenter: TPointF;
-begin
-  result := FImage.GetSelectionRotateCenter;
-end;
-
-procedure TLayerAction.SetSelectionOffset(AValue: TPoint);
-begin
-  FImage.SelectionOffset := AValue;
-end;
-
-procedure TLayerAction.SetSelectionRotateAngle(AValue: Single);
-begin
-  FImage.SetSelectionRotateAngle(AValue);
-end;
-
-procedure TLayerAction.SetSelectionRotateCenter(AValue: TPointF);
-begin
-  FImage.SetSelectionRotateCenter(AValue);
+  FImage.SelectionTransform := AValue;
 end;
 
 procedure TLayerAction.Cancel;
