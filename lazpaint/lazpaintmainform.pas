@@ -908,7 +908,7 @@ begin
   {$ENDIF}
 
   FLayout.OnPictureAreaChange := @LayoutPictureAreaChange;
-  DarkTheme.SetDarkTheme(Self);
+  //DarkTheme.SetDarkTheme(Self);
   initialized := true;
   FirstPaint := true;
 end;
@@ -3153,8 +3153,8 @@ begin
   begin
     with BitmapToVirtualScreen(result.Left,result.Top) do
     begin
-      result.Left := floor(X) - displayMargin;
-      result.Top := floor(Y) - displayMargin;
+      result.Left := Math.floor(X) - displayMargin;
+      result.Top := Math.floor(Y) - displayMargin;
     end;
     with BitmapToVirtualScreen(result.Right,result.Bottom) do
     begin
