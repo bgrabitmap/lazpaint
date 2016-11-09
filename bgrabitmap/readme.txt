@@ -1,6 +1,6 @@
-BGRABitmap - Drawing routines with alpha blending and antialiasing with Lazarus.
+BGRABitmap - Drawing routines with transparency and antialiasing with Lazarus. Offers also various transforms.
 
-These routines allow to manipulate 32bit images in BGRA format.
+These routines allow to manipulate 32bit images in BGRA format or RGBA format (depending on the platform).
 
 This code is under modified LGPL (see COPYING.modifiedLGPL.txt). This means that you can link this library inside your programs for any purpose. Only the included part of the code must remain LGPL.
 
