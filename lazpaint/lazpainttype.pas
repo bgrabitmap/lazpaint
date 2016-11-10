@@ -42,13 +42,10 @@ const
   Integrate tools in window (partly done)
   Hue/color blend mode
   Acquisition (Twain)
-  Graphic tablet support : http://forum.lazarus.freepascal.org/index.php/topic,20489.0.html
 
   Format:
   - TIM image format
   - load/save image DPI
-  - saving GIF
-  - saving BMP IGO
   - load/save RAW
 
   Filters:
