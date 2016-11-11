@@ -269,7 +269,7 @@ end;
 
 class operator TBGRAPixel.:=(Source: TColor): TBGRAPixel;
 begin
-  result.FromColor(Source);
+  {%H-}result.FromColor(Source);
 end;
 
 { The gamma correction is approximated here by a power function }

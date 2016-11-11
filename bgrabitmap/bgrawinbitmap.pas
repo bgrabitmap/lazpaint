@@ -225,7 +225,7 @@ end;
 
 function TBGRAWinBitmap.DIBitmapInfo(AWidth, AHeight: integer): TBitmapInfo;
 begin
-  with Result.bmiHeader do
+  with {%H-}Result.bmiHeader do
   begin
     biSize      := sizeof(Result.bmiHeader);
     biWidth     := AWidth;

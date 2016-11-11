@@ -323,7 +323,7 @@ function LoadFromStreamAsAdobeSwatchExchange(APalette: TBGRAPalette; AStream: TS
   function ReadInt32: int32;
   begin
     {$PUSH}{$HINTS OFF}
-    AStream.Read({%H-}result, sizeof(result));
+    AStream.Read(result, sizeof(result));
     {$POP}
     result := BEtoN(result);
   end;
@@ -336,7 +336,7 @@ function LoadFromStreamAsAdobeSwatchExchange(APalette: TBGRAPalette; AStream: TS
   function ReadSingle: single;
   begin
     {$PUSH}{$HINTS OFF}
-    AStream.Read({%H-}Result, sizeof(result));
+    AStream.Read(Result, sizeof(result));
     {$POP}
     DWord(Result) := BEtoN(DWord(Result));
   end;

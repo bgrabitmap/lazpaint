@@ -482,6 +482,7 @@ begin
 
   kernel := CreateInterpolator(style);
   setlength(Result, nb);
+  idx := 0;
   for i := 0 to high(points) do
   begin
     ptPrev2 := points[(i + length(points) - 1) mod length(points)];
@@ -490,10 +491,9 @@ begin
     ptNext2 := points[(i + 2) mod length(points)];
     pre     := ComputeCurvePartPrecision(ptPrev2, ptPrev, ptNext, ptNext2, AAcceptedDeviation);
     if i=0 then
-    begin
-      j := 0;
-      idx := 0;
-    end else j := 1;
+      j := 0
+    else
+      j := 1;
     while j <= pre do
     begin
       t := j/pre;
@@ -888,6 +888,8 @@ begin
           (FCurrentElementPoints[FCurrentSegment+1]-
            FCurrentElementPoints[FCurrentSegment])*FCurrentSegmentPos;
       end;
+    else
+      raise Exception.Create('Unknown element type');
   end;
 end;
 
@@ -1319,7 +1321,11 @@ var
   newArcPos: Single;
   step: Single;
 begin
-  if ADistance = 0 then exit;
+  if ADistance = 0 then
+  begin
+    result := 0;
+    exit;
+  end;
   if ADistance < 0 then
   begin
     result := -MoveForward(-ADistance, ACanJump);
@@ -1496,6 +1502,7 @@ var empty: boolean;
 
 begin
   empty := true;
+  result := RectF(0,0,0,0);
   pos := 0;
   repeat
     GetElementAt(pos, elemType, elem);
@@ -2443,13 +2450,13 @@ begin
   peCubicBezierTo: with PCubicBezierToElement(elem)^ do
       result := BGRABitmapTypes.BezierCurve(GetElementStartCoord(APos),ControlPoint1,ControlPoint2,Destination).ComputeLength(AAcceptedDeviation);
   peArc: begin
-      result += VectLen(ArcStartPoint(PArcElement(elem)^) - GetElementStartCoord(APos));
+      result := VectLen(ArcStartPoint(PArcElement(elem)^) - GetElementStartCoord(APos));
       result += PolylineLen(ComputeArc(PArcElement(elem)^, 0.1/AAcceptedDeviation));
     end;
   peClosedSpline,peOpenedSpline:
     begin
       pts := GetPolygonalApprox(APos, AAcceptedDeviation, true);
-      result += PolylineLen(pts) + VectLen(pts[0]-GetElementStartCoord(APos));
+      result := PolylineLen(pts) + VectLen(pts[0]-GetElementStartCoord(APos));
     end
   else
     result := 0;

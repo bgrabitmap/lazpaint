@@ -4979,7 +4979,7 @@ end;
 
 function TBGRADefaultBitmap.FilterSmooth: TBGRACustomBitmap;
 begin
-  Result := BGRAFilters.FilterBlurRadialPrecise(self, 0.3);
+  Result := BGRAFilters.FilterBlurRadial(self, 3, rbPrecise);
 end;
 
 function TBGRADefaultBitmap.FilterSphere: TBGRACustomBitmap;

@@ -337,7 +337,8 @@ begin
                Row := 2;
                Every := 4;
              end;
-         4 : begin
+         else{4}
+             begin
                Row := 1;
                Every := 2;
              end;
