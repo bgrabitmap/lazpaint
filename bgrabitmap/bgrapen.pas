@@ -1085,6 +1085,8 @@ begin
   pjsBevel,pjsRound: maxMiter := hw*1.001;
   pjsMiter: if miterLimit < 1.001 then maxMiter := hw*1.001 else
                maxMiter := hw*miterLimit;
+  else
+    raise Exception.Create('Unknown join style');
   end;
 
   roundPrecision := round(hw)+2;

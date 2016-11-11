@@ -946,10 +946,14 @@ function ByteSvgSoftLightInline(a,b: byte): byte; inline;
 begin
   if b <= 128 then
     result := a - (((256 - b-b)*a shr 8)*(not a) shr 8)
-  else if a <= 64 then
-    result := a + ((b+b - 256)*((((a shl 2)*(a shl 2 + 256) shr 8)*integer(a - 256) shr 8) + a*7) shr 8)
   else
-    result := a + ((b+b - 255)*(ByteSqrt(a)-a) shr 8);
+  begin
+    dec(b, 128);
+    if a <= 64 then
+      result := a + ((b+b)   * NativeUInt(a*7 - ((a shl 2)*(a shl 2 + 256)*NativeUInt(256 - a) shr 16)) shr 8)
+    else
+      result := a + ((b+b+1) * NativeUInt(ByteSqrt(a)-a) shr 8);
+  end;
 end;
 
 procedure SvgSoftLightPixelInline(dest: PBGRAPixel; c: TBGRAPixel); inline;
