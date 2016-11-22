@@ -3623,7 +3623,7 @@ begin
   else
     Zoom.MinFactor := max(8/image.Width, 8/image.Height);
   with FLayout.PictureArea do
-    Zoom.MaxFactor := max(1,min((right-left)/8,(bottom-top)/8));
+    Zoom.MaxFactor := min(32,max(1,min((right-left)/8,(bottom-top)/8)));
 
   if FActiveSpinEdit <> nil then
   begin
