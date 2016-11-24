@@ -46,6 +46,8 @@ type
     SpinEdit_Width: TSpinEdit;
     procedure BGRAShapeClick(Sender: TObject);
     procedure ComboBox_RatioChange(Sender: TObject);
+    procedure ComboBox_RatioEnter(Sender: TObject);
+    procedure ComboBox_RatioExit(Sender: TObject);
     procedure SpinEdit_HeightChange(Sender: TObject);
     procedure ToolButton23Click(Sender: TObject);
     procedure vsPreviewRedraw(Sender: TObject; Bitmap: TBGRABitmap);
@@ -56,6 +58,7 @@ type
   private
     FLastEnteredValue: TLastEnteredValue;
     FRatio: double;
+    FRatioWasChanged: boolean;
     FRecomputing: boolean;
     FBackColor: TBGRAPixel;
     procedure UpdatePreview;
@@ -178,40 +181,31 @@ begin
 end;
 
 procedure TFNewImage.ComboBox_RatioChange(Sender: TObject);
-var s: string;
-  idxCol: integer;
-  num,denom: double;
-  errPos: integer;
 begin
   if FRecomputing then exit;
-  s := stringreplace(ComboBox_Ratio.Text,FormatSettings.DecimalSeparator,'.',[rfReplaceAll]);
-  if s = '' then
-  begin
-    FRatio := 0;
-    exit;
-  end;
+  FRatio := ComputeRatio(ComboBox_Ratio.Text);
+  if FRatio = 0 then exit;
 
-  idxCol := pos(':',s);
-  if idxCol = 0 then exit;
-  val(copy(s,1,idxCol-1),num,errPos);
-  if errPos <> 0 then exit;
-  if num < 0 then exit;
-  val(copy(s,idxCol+1,length(s)-idxCol),denom,errPos);
-  if errPos <> 0 then exit;
-  if denom <= 0 then exit;
-  FRatio := num/denom;
-
+  FRatioWasChanged := true;
   FRecomputing:= true;
-  if FRatio <> 0 then
-  begin
-    if FLastEnteredValue = valHeight then
-      SpinEdit_Width.Value := round(SpinEdit_Height.Value*FRatio)
-    else
-      SpinEdit_Height.Value := round(SpinEdit_Width.Value/FRatio);
-  end else
-    FLastEnteredValue:= valRatio;
+  if FLastEnteredValue = valHeight then
+    SpinEdit_Width.Value := round(SpinEdit_Height.Value*FRatio)
+  else
+    SpinEdit_Height.Value := round(SpinEdit_Width.Value/FRatio);
   FRecomputing:= false;
+
   UpdatePreview;
+end;
+
+procedure TFNewImage.ComboBox_RatioEnter(Sender: TObject);
+begin
+  FRatioWasChanged := false;
+end;
+
+procedure TFNewImage.ComboBox_RatioExit(Sender: TObject);
+begin
+  if FRatioWasChanged then
+    FLastEnteredValue := valRatio;
 end;
 
 procedure TFNewImage.BGRAShapeClick(Sender: TObject);
@@ -230,13 +224,12 @@ begin
     SpinEdit_Width.Value := round(SpinEdit_Height.Value*FRatio);
   end else
   begin
-    FLastEnteredValue := valWidth;
+    FLastEnteredValue:= valHeight;
     FRatio := 0;
     ComboBox_Ratio.Text := '';
   end;
   FRecomputing:= false;
   UpdatePreview;
-  FLastEnteredValue:= valHeight;
 end;
 
 procedure TFNewImage.FormCreate(Sender: TObject);
@@ -285,7 +278,6 @@ begin
   end;
   FRecomputing:= false;
   UpdatePreview;
-  FLastEnteredValue:= valWidth;
 end;
 
 procedure TFNewImage.UpdatePreview;

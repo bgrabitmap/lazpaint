@@ -132,6 +132,8 @@ object FNewImage: TFNewImage
     )
     MaxLength = 12
     OnChange = ComboBox_RatioChange
+    OnEnter = ComboBox_RatioEnter
+    OnExit = ComboBox_RatioExit
     TabOrder = 6
   end
   object BGRAShape1: TBGRAShape

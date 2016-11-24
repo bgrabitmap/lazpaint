@@ -11,6 +11,8 @@ uses
 const FrameDashLength = 4;
   NicePointMaxRadius = 4;
 
+function ComputeRatio(ARatio: string): single;
+
 function RectUnion(const rect1,Rect2: TRect): TRect;
 function RectInter(const rect1,Rect2: TRect): TRect;
 function RectOfs(const ARect: TRect; ofsX,ofsY: integer): TRect;
@@ -132,6 +134,26 @@ begin
     BCAssignSystemState(StateHover, HoverColor(clBtnText), HoverColor(clBtnFace), HoverColor(highlight), HoverColor(clBtnFace), HoverColor(clBtnShadow), HoverColor(clBtnShadow));
     BCAssignSystemState(StateClicked, HoverColor(clBtnText), HoverColor(MergeColor(clBtnFace,clBtnShadow)), HoverColor(clBtnFace), HoverColor(MergeColor(clBtnFace,clBtnShadow)), HoverColor(clBtnShadow), HoverColor(clBtnShadow));
   end;
+end;
+
+function ComputeRatio(ARatio: string): single;
+var
+  idxCol,errPos: Integer;
+  num,denom: double;
+begin
+  result := 0;
+  ARatio := stringreplace(ARatio,FormatSettings.DecimalSeparator,'.',[rfReplaceAll]);
+  if ARatio = '' then exit;
+
+  idxCol := pos(':',ARatio);
+  if idxCol = 0 then exit;
+  val(copy(ARatio,1,idxCol-1),num,errPos);
+  if errPos <> 0 then exit;
+  if num < 0 then exit;
+  val(copy(ARatio,idxCol+1,length(ARatio)-idxCol),denom,errPos);
+  if errPos <> 0 then exit;
+  if denom <= 0 then exit;
+  result := num/denom;
 end;
 
 function RectUnion(const rect1, Rect2: TRect): TRect;
