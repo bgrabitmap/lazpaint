@@ -187,6 +187,7 @@
       <Unit2>
         <Filename Value="ugraph.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UGraph"/>
       </Unit2>
       <Unit3>
         <Filename Value="utool.pas"/>
@@ -249,6 +250,7 @@
       <Unit11>
         <Filename Value="uclipboard.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UClipboard"/>
       </Unit11>
       <Unit12>
         <Filename Value="ucustomblur.pas"/>
@@ -272,6 +274,7 @@
         <ComponentName Value="FChooseColor"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="UChooseColor"/>
       </Unit15>
       <Unit16>
         <Filename Value="ucanvassize.pas"/>
@@ -279,6 +282,7 @@
         <ComponentName Value="FCanvasSize"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="UCanvassize"/>
       </Unit16>
       <Unit17>
         <Filename Value="ucolorintensity.pas"/>
@@ -432,6 +436,7 @@
         <ComponentName Value="FBlendOp"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="UBlendOp"/>
       </Unit43>
       <Unit44>
         <Filename Value="uimageobservation.pas"/>
@@ -505,6 +510,7 @@
       <Unit57>
         <Filename Value="uonline.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UOnline"/>
       </Unit57>
       <Unit58>
         <Filename Value="uscripting.pas"/>
@@ -518,6 +524,7 @@
       <Unit60>
         <Filename Value="ucolorfilters.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UColorFilters"/>
       </Unit60>
       <Unit61>
         <Filename Value="uadjustcurves.pas"/>
@@ -590,6 +597,7 @@
       <Unit73>
         <Filename Value="ubarupdown.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UBarUpDown"/>
       </Unit73>
       <Unit74>
         <Filename Value="ufileextensions.pas"/>
@@ -627,6 +635,7 @@
       <Unit81>
         <Filename Value="ubrushtype.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UBrushType"/>
       </Unit81>
       <Unit82>
         <Filename Value="ugeometricbrush.pas"/>
