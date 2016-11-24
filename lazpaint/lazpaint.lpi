@@ -451,6 +451,7 @@
       <Unit47>
         <Filename Value="uzoom.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UZoom"/>
       </Unit47>
       <Unit48>
         <Filename Value="ufilters.pas"/>
@@ -552,6 +553,7 @@
       <Unit67>
         <Filename Value="umyslv.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UMySLV"/>
       </Unit67>
       <Unit68>
         <Filename Value="ubrowseimages.pas"/>
@@ -596,6 +598,7 @@
       <Unit75>
         <Filename Value="ufilesystem.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UFileSystem"/>
       </Unit75>
       <Unit76>
         <Filename Value="utoolbrush.pas"/>
