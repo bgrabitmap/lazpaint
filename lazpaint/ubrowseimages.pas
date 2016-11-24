@@ -7,7 +7,8 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs,
   ComCtrls, ExtCtrls, Buttons, StdCtrls, BGRAVirtualScreen, BGRABitmap,
-  BGRABitmapTypes, BGRAAnimatedGif, UMySLV, LazPaintType, Masks, LCLType;
+  BGRABitmapTypes, BGRAAnimatedGif, UMySLV, LazPaintType, Masks, LCLType,
+  UFileSystem;
 
 const
   MaxIconCacheCount = 512;
@@ -82,6 +83,7 @@ type
     FInShowPreview,FInHidePreview: boolean;
     FSavedDetailsViewWidth: integer;
     FLastDirectory: string;
+    FFileSystems: TFileSystemArray;
     FFilename: string;
     FBmpIcon: TBGRABitmap;
     FLastBigIcon: boolean;
@@ -143,7 +145,7 @@ uses BGRAThumbnail, BGRAPaintNet, BGRAOpenRaster, BGRAReadLzp,
     BGRAWriteLzp, FPimage,
     Types, UResourceStrings,
     UConfig, bgrareadjpeg, FPReadJPEG,
-    UFileExtensions, BGRAUTF8, LazFileUtils, UFileSystem;
+    UFileExtensions, BGRAUTF8, LazFileUtils;
 
 var
   IconCache: TStringList;
@@ -271,7 +273,8 @@ begin
   BGRAPaintNet.RegisterPaintNetFormat;
   BGRAOpenRaster.RegisterOpenRasterFormat;
 
-  if length(GetFileSystems)>0 then
+  FFileSystems := GetFileSystems;
+  if length(FFileSystems)>0 then
   begin
     Tool_SelectDrive.Visible := true;
     delta := ImageListToolbar.Width+Toolbar1.Indent;
@@ -960,19 +963,32 @@ end;
 
 procedure TFBrowseImages.GoDirUp;
 var dir: string;
+  itemToSelect: string;
   idx: integer;
 begin
   dir := DirectoryEdit1.Text;
-  idx := length(dir);
-  if (idx > 1) and (dir[idx] = PathDelim) and (dir[idx-1] <> PathDelim) then dec(idx);
-  while (idx >= 1) and (dir[idx] <> PathDelim) do dec(idx);
-  if (idx > 0) and (idx < length(dir)) then DirectoryEdit1.Text := copy(dir,1,idx) else
-    if Tool_SelectDrive.Visible then DirectoryEdit1.Text := ':';
+  RemoveLastPathElement(dir, itemToSelect);
+  if dir = '' then
+  begin
+    FFileSystems:= GetFileSystems;
+    if length(FFileSystems)>0 then DirectoryEdit1.Text := ':';
+    itemToSelect := '';
+  end else
+    DirectoryEdit1.Text := dir;
   ShellListView1.SetFocus;
   UpdatePreview('');
   InFilenameChange := true;
   Edit_Filename.text := '';
   InFilenameChange := false;
+  idx := ShellListView1.IndexByName(itemToSelect, {$IFNDEF WINDOWS}True{$ELSE}False{$ENDIF});
+  if (idx <> -1) then
+  begin
+    ShellListView1.SelectedIndex := idx;
+    ShellListView1.MakeItemVisible(idx);
+    InFilenameChange := true;
+    Edit_Filename.text := ShellListView1.ItemName[idx];
+    InFilenameChange := false;
+  end;
 end;
 
 procedure TFBrowseImages.InitComboExt;

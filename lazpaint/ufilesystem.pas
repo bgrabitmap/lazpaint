@@ -55,6 +55,8 @@ type
 
   TFileSystemArray = array of TFileSystemInfo;
 
+function RemovePathTrail(ADir: string): string;
+procedure RemoveLastPathElement(var ADir: string; out ALastElement: string);
 function GetFileSystems: TFileSystemArray;
 function MoveToTrash(AForm: TForm; const AFilenamesUTF8: array of string; AConfirmationCallback: TDeleteConfirmationFunction): boolean;
 
@@ -215,6 +217,31 @@ begin
 
 end;
 {$ENDIF}
+
+function RemovePathTrail(ADir: string): string;
+begin
+  if (length(ADir)>=1) and (ADir[length(ADir)]=PathDelim) then
+  begin
+    if (length(ADir)>=2) and (ADir[length(ADir)-1]=PathDelim) then
+      result := copy(ADir,1,length(ADir)-2)
+    else
+      result := copy(ADir,1,length(ADir)-1);
+  end
+  else
+    result := ADir;
+end;
+
+procedure RemoveLastPathElement(var ADir: string; out ALastElement: string);
+var
+  idx, idxEnd: Integer;
+begin
+  ADir := RemovePathTrail(ADir);
+  idx := length(ADir);
+  idxEnd := idx;
+  while (idx >= 1) and (ADir[idx] <> PathDelim) do dec(idx);
+  ALastElement:= copy(ADir,idx+1,idxEnd-idx);
+  ADir := copy(ADir,1,idx);
+end;
 
 function GetFileSystems: TFileSystemArray;
 begin

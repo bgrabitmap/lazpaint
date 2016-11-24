@@ -124,6 +124,7 @@ type
     procedure DeselectAll;
     procedure Sort;
     procedure RemoveItemFromList(AIndex: integer);
+    function IndexByName(AName: string; ACaseSensitive: boolean): integer;
     { Properties }
     property Mask: string read FMask write SetMask; // Can be used to conect to other controls
     property ObjectTypes: TObjectTypes read FObjectTypes write FObjectTypes;
@@ -1223,6 +1224,27 @@ begin
     FData[i] := FData[i+1];
   setlength(FData, ItemCount-1);
   FVirtualScreen.DiscardBitmap;
+end;
+
+function TMyShellListView.IndexByName(AName: string; ACaseSensitive: boolean
+  ): integer;
+var
+  i: Integer;
+begin
+  for i := 0 to ItemCount-1 do
+  begin
+    if ACaseSensitive and (UTF8CompareStr(AName, ItemName[i])=0) then
+    begin
+      result := i;
+      exit;
+    end else
+    if not ACaseSensitive and (UTF8CompareText(AName, ItemName[i])=0) then
+    begin
+      result := i;
+      exit;
+    end;
+  end;
+  result := -1;
 end;
 
 function TMyShellListView.GetItemAt(X, Y: Integer): integer;
