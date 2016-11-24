@@ -32,6 +32,7 @@ type
     function RenderAllCornerPositions: boolean; override;
     function LeaveMovingPoint: TRect; override;
     function GetStatusText: string; override;
+    function ConstraintEnabled: boolean; override;
   public
     function Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
   end;
@@ -108,6 +109,11 @@ begin
     'Δ = '+inttostr(round(sqrt(sqr(rectDest.x-rectOrigin.x)+sqr(rectDest.y-rectOrigin.y))))
   else
     Result:=inherited GetStatusText;
+end;
+
+function TToolGradient.ConstraintEnabled: boolean;
+begin
+  Result:= False;
 end;
 
 function TToolGradient.Render(VirtualScreen: TBGRABitmap;

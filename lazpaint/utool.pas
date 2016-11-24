@@ -159,7 +159,7 @@ type
     LineCapControls, GradientControls, DeformationControls,
     TextControls, PhongControls, AltitudeControls,
     PerspectiveControls,PenColorControls,TextureControls,
-    BrushControls: TList;
+    BrushControls, RatioControls: TList;
 
     BlackAndWhite: boolean;
 
@@ -197,6 +197,7 @@ type
     ToolBrushInfoIndex: integer;
     ToolBrushSpacing: integer;
     ToolPressure: single;
+    ToolRatio: Single;
 
     constructor Create(AImage: TLazPaintImage; AConfigProvider: IConfigProvider; ABitmapToVirtualScreen: TBitmapToVirtualScreenFunction = nil; ABlackAndWhite : boolean = false);
     destructor Destroy; override;
@@ -879,6 +880,7 @@ begin
   PenColorControls := TList.Create;
   TextureControls := TList.Create;
   BrushControls := TList.Create;
+  RatioControls := TList.Create;
 
   FCurrentToolType := ptHand;
   FCurrentTool := PaintTools[ptHand].Create(Self);
@@ -907,6 +909,7 @@ begin
   PenColorControls.Free;
   TextureControls.Free;
   BrushControls.Free;
+  RatioControls.Free;
 
   for i := 0 to ToolBrushCount do
     ToolBrushAt[i].Free;
@@ -1091,6 +1094,7 @@ begin
   SetControlsVisible(PenColorControls, showColor);
   SetControlsVisible(TextureControls, showTexture);
   SetControlsVisible(BrushControls, showBrush);
+  SetControlsVisible(RatioControls, FCurrentToolType in[ptSelectRect,ptSelectEllipse]);
 
   Image.RenderMayChange(rect(0,0,Image.Width,Image.Height),True);
   If Assigned(FOnToolChangedHandler) then

@@ -1186,6 +1186,10 @@ msgctxt "TFMAIN.LABEL_PHONGBORDER.CAPTION"
 msgid "Border"
 msgstr "Borda"
 
+#: tfmain.label_ratio.caption
+msgid "Ratio"
+msgstr ""
+
 #: tfmain.label_shadowoffset.caption
 msgctxt "TFMAIN.LABEL_SHADOWOFFSET.CAPTION"
 msgid "Offset"

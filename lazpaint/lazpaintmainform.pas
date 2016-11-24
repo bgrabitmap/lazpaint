@@ -28,9 +28,12 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    Combo_Ratio: TComboBox;
     FileUseImageBrowser: TAction;
     Combo_GradientColorspace: TComboBox;
     ItemUseImageBrowser: TMenuItem;
+    Label_Ratio: TLabel;
+    Panel_Ratio: TPanel;
     ViewPalette: TAction;
     ViewStatusBar: TAction;
     ImageList24: TBGRAImageList;
@@ -422,6 +425,7 @@ type
     procedure ComboBox_BrushSelectChange(Sender: TObject);
     procedure ComboBox_BrushSelectDrawItem({%H-}Control: TWinControl;
       Index: Integer; ARect: TRect; State: TOwnerDrawState);
+    procedure Combo_RatioChange(Sender: TObject);
     procedure EditCopyExecute(Sender: TObject);
     procedure EditCopyUpdate(Sender: TObject);
     procedure EditCutExecute(Sender: TObject);
@@ -924,7 +928,7 @@ begin
   m.Toolbars([Panel_Embedded,Panel_File,Panel_Zoom,Panel_Undo,Panel_CopyPaste,Panel_Coordinates,
     Panel_Tool,Panel_Color,Panel_Texture,Panel_Grid,Panel_PenWidth,Panel_ShapeOption,Panel_LineCap,Panel_JoinStyle,
     Panel_PenStyle,Panel_SplineStyle,Panel_Eraser,Panel_Tolerance,Panel_GradientType,Panel_Text,Panel_TextOutline,
-    Panel_PhongShape,Panel_Altitude,Panel_PerspectiveOption,Panel_Brush],Panel_ToolbarBackground);
+    Panel_PhongShape,Panel_Altitude,Panel_PerspectiveOption,Panel_Brush,Panel_Ratio],Panel_ToolbarBackground);
   m.Apply;
   FLayout.Menu := m;
 

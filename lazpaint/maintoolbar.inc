@@ -67,6 +67,7 @@ begin
   TimerHidePenPreview.OnTimer := @TimerHidePenPreviewTimer;
   ComboBox_BrushSelect.OnChange := @ComboBox_BrushSelectChange;
   ComboBox_BrushSelect.OnDrawItem := @ComboBox_BrushSelectDrawItem;
+  Combo_Ratio.OnChange := @Combo_RatioChange;
 
   Panel_LineCap_FullSize := Panel_LineCap.Width;
   SpinEdit_PenOpacity := TBarUpDown.Create(vsPenOpacity,0,255,255);
@@ -294,6 +295,7 @@ begin
   ToolManager.PenColorControls.Add(Panel_Color);
   ToolManager.TextureControls.Add(Panel_Texture);
   ToolManager.BrushControls.Add(Panel_Brush);
+  ToolManager.RatioControls.Add(Panel_Ratio);
 end;
 
 procedure TFMain.InitToolbarElements;
@@ -1499,6 +1501,14 @@ begin
   begin
     if ToolManager.ToolBrushSpacing = SpinEdit_BrushSpacing.Value then exit;
     ToolManager.ToolBrushSpacing := SpinEdit_BrushSpacing.Value;
+  end;
+end;
+
+procedure TFMain.Combo_RatioChange(Sender: TObject);
+begin
+  if initialized then
+  begin
+    ToolManager.ToolRatio := ComputeRatio(Combo_Ratio.Text);
   end;
 end;
 

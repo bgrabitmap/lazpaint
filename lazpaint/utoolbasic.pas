@@ -112,6 +112,7 @@ type
     function RoundCoordinate(ptF: TPointF): TPointF; virtual;
     function LeaveMovingPoint: TRect; virtual;
     function GetStatusText: string; override;
+    function ConstraintEnabled: boolean; virtual;
   public
     constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
@@ -130,6 +131,7 @@ type
     function UpdateShape(toolDest: TBGRABitmap): TRect; override;
     function FinishShape(toolDest: TBGRABitmap): TRect;  override;
     function ShouldFinishShapeWhenFirstMouseUp: boolean; override;
+    function ConstraintEnabled: boolean; override;
   end;
 
   { TToolEllipse }
@@ -149,7 +151,7 @@ type
 
 implementation
 
-uses Types, BGRAPolygon, Graphics, LCLType, ugraph, Controls, math, LazPaintType,
+uses Types, BGRAPolygon, Graphics, LCLType, ugraph, Controls, LazPaintType,
   UResourceStrings;
 
 { TToolEllipse }
@@ -286,6 +288,11 @@ end;
 function TToolRectangle.ShouldFinishShapeWhenFirstMouseUp: boolean;
 begin
   result := false;
+end;
+
+function TToolRectangle.ConstraintEnabled: boolean;
+begin
+  Result:= False;
 end;
 
 { TToolRectangular }
@@ -639,40 +646,50 @@ begin
 end;
 
 procedure TToolRectangular.ApplyConstraint(px, py: PSingle);
-var a: Single;
+var tx,ty: Single;
   px2,py2: PSingle;
+  ratio: single;
 begin
-  if squareConstraint then
+  if not ConstraintEnabled then exit;
+  if squareConstraint then ratio := 1
+  else ratio := Manager.ToolRatio;
+  if ratio <= 0 then exit;
+
+  if px <> nil then
+    tx := abs(rectDest.X-rectOrigin.X) else tx := -1;
+  if py <> nil then
+    ty := abs(rectDest.Y-rectOrigin.Y) else ty := -1;
+
+  if (tx <> -1) and (ty <> -1) then
   begin
-    if px <> nil then
-      a := abs(rectDest.X-rectOrigin.X) else a := 0;
-    if py <> nil then
-      a := max(a,abs(rectDest.Y-rectOrigin.Y));
+    if ty*ratio > tx then tx := -1 else ty := -1;
+  end;
+  if (tx = -1) and (ty <> -1) then tx := ty*ratio;
+  if (ty = -1) and (tx <> -1) then ty := tx/ratio;
 
-    if px = nil then
-    begin
-      if py = @rectDest.Y then px := @rectDest.X;
-      if py = @rectOrigin.Y then px := @rectOrigin.X;
-    end;
-    if py = nil then
-    begin
-      if px = @rectDest.X then py := @rectDest.Y;
-      if px = @rectOrigin.X then py := @rectOrigin.Y;
-    end;
+  if px = nil then
+  begin
+    if py = @rectDest.Y then px := @rectDest.X;
+    if py = @rectOrigin.Y then px := @rectOrigin.X;
+  end;
+  if py = nil then
+  begin
+    if px = @rectDest.X then py := @rectDest.Y;
+    if px = @rectOrigin.X then py := @rectOrigin.Y;
+  end;
 
-    if py = @rectOrigin.Y then py2 := @rectDest.Y else
-    if py = @rectDest.Y then py2 := @rectOrigin.Y else py2 := nil;
-    if px = @rectOrigin.X then px2 := @rectDest.X else
-    if px = @rectDest.X then px2 := @rectOrigin.X else px2 := nil;
+  if py = @rectOrigin.Y then py2 := @rectDest.Y else
+  if py = @rectDest.Y then py2 := @rectOrigin.Y else py2 := nil;
+  if px = @rectOrigin.X then px2 := @rectDest.X else
+  if px = @rectDest.X then px2 := @rectOrigin.X else px2 := nil;
 
-    if (px <> nil) and (px2 <> nil) then
-    begin
-      if px^ >= px2^ then px^ := px2^+a else px^ := px2^-a;
-    end;
-    if (py <> nil) and (py2 <> nil) then
-    begin
-      if py^ >= py2^ then py^ := py2^+a else py^ := py2^-a;
-    end;
+  if (px <> nil) and (px2 <> nil) then
+  begin
+    if px^ >= px2^ then px^ := px2^+tx else px^ := px2^-tx;
+  end;
+  if (py <> nil) and (py2 <> nil) then
+  begin
+    if py^ >= py2^ then py^ := py2^+ty else py^ := py2^-ty;
   end;
 end;
 
@@ -694,6 +711,11 @@ begin
     'Δx = '+inttostr(abs(round(rectDest.x-rectOrigin.x))+1)+'|Δy = '+inttostr(abs(round(rectDest.y-rectOrigin.y))+1)
   else
     Result:=inherited GetStatusText;
+end;
+
+function TToolRectangular.ConstraintEnabled: boolean;
+begin
+  result := true;
 end;
 
 constructor TToolRectangular.Create(AManager: TToolManager);
