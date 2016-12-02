@@ -259,7 +259,8 @@ end;
 
 {$IFDEF WINDOWS}
 type
-  SHFILEOPSTRUCTW = packed record
+  {$PUSH}{$PACKRECORDS C}
+  SHFILEOPSTRUCTW = record
      hwnd : HWND;
      wFunc : UINT;
      pFrom : LPCWSTR;
@@ -269,6 +270,7 @@ type
      hNameMappings : LPVOID;
      lpszProgressTitle : LPCWSTR;
   end;
+  {$POP}
 function SHFileOperationW(Var para1: SHFILEOPSTRUCTW):longint; stdcall; external 'shell32' name 'SHFileOperationW';
 
 function MoveToTrashOnWindows(AForm: TForm; const AFilenamesUTF8: array of string; {%H-}AConfirmationCallback: TDeleteConfirmationFunction): boolean;
