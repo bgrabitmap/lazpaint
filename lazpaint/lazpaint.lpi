@@ -258,6 +258,7 @@
         <ComponentName Value="FCustomBlur"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="UCustomblur"/>
       </Unit12>
       <Unit13>
         <Filename Value="umac.pas"/>
@@ -267,6 +268,7 @@
       <Unit14>
         <Filename Value="ucursors.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UCursors"/>
       </Unit14>
       <Unit15>
         <Filename Value="uchoosecolor.pas"/>
@@ -331,6 +333,7 @@
       <Unit23>
         <Filename Value="ucommandline.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UCommandline"/>
       </Unit23>
       <Unit24>
         <Filename Value="utwirl.pas"/>
@@ -407,10 +410,12 @@
       <Unit38>
         <Filename Value="uimagestate.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UImageState"/>
       </Unit38>
       <Unit39>
         <Filename Value="ustatetype.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UStateType"/>
       </Unit39>
       <Unit40>
         <Filename Value="uobject3d.pas"/>
@@ -418,6 +423,7 @@
         <ComponentName Value="FObject3D"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="UObject3D"/>
       </Unit40>
       <Unit41>
         <Filename Value="ulayerstack.pas"/>
@@ -470,6 +476,7 @@
       <Unit50>
         <Filename Value="uloadimage.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="ULoadImage"/>
       </Unit50>
       <Unit51>
         <Filename Value="uimagediff.pas"/>
@@ -506,6 +513,7 @@
       <Unit56>
         <Filename Value="utranslation.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UTranslation"/>
       </Unit56>
       <Unit57>
         <Filename Value="uonline.pas"/>
@@ -602,6 +610,7 @@
       <Unit74>
         <Filename Value="ufileextensions.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UFileExtensions"/>
       </Unit74>
       <Unit75>
         <Filename Value="ufilesystem.pas"/>
@@ -631,6 +640,7 @@
         <ComponentName Value="FSaveOption"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="USaveOption"/>
       </Unit80>
       <Unit81>
         <Filename Value="ubrushtype.pas"/>
@@ -709,7 +719,7 @@
     </Linking>
   </CompilerOptions>
   <Debugging>
-    <Exceptions Count="8">
+    <Exceptions Count="9">
       <Item1>
         <Name Value="EAbort"/>
       </Item1>
@@ -734,6 +744,9 @@
       <Item8>
         <Name Value="EExprScanner"/>
       </Item8>
+      <Item9>
+        <Name Value="EConvertError"/>
+      </Item9>
     </Exceptions>
   </Debugging>
 </CONFIG>
