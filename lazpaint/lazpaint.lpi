@@ -316,6 +316,7 @@
         <ComponentName Value="FMultiImage"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="UMultiImage"/>
       </Unit20>
       <Unit21>
         <Filename Value="uabout.pas"/>
@@ -472,6 +473,7 @@
       <Unit49>
         <Filename Value="uimageaction.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UImageAction"/>
       </Unit49>
       <Unit50>
         <Filename Value="uloadimage.pas"/>
@@ -481,6 +483,7 @@
       <Unit51>
         <Filename Value="uimagediff.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UImageDiff"/>
       </Unit51>
       <Unit52>
         <Filename Value="usharpen.pas"/>
