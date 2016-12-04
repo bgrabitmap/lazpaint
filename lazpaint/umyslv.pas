@@ -64,6 +64,7 @@ type
     function GetItemCount: integer;
     function GetItemDevice(AIndex: integer): string;
     function GetItemIsFolder(AIndex: integer): boolean;
+    function GetItemLastModification(AIndex: integer): TDateTime;
     function GetItemName(AIndex: integer): string;
     function GetItemSelected(AIndex: integer): boolean;
     function GetItemType(AIndex: integer): string;
@@ -142,6 +143,7 @@ type
     property Height: integer read GetHeight;
     property ItemCaption[AIndex: integer]: string read GetItemCaption;
     property ItemFullName[AIndex: integer]: string read GetItemFullName;
+    property ItemLastModification[AIndex: integer]: TDateTime read GetItemLastModification;
     property ItemName[AIndex: integer]: string read GetItemName;
     property ItemDisplayRect[AIndex: integer]: TRect read GetItemDisplayRect;
     property ItemSelected[AIndex: integer]: boolean read GetItemSelected write SetItemSelected;
@@ -278,6 +280,14 @@ begin
     result := FData[AIndex].isFolder;
 end;
 
+function TMyShellListView.GetItemLastModification(AIndex: integer): TDateTime;
+begin
+  if (AIndex < 0) or (AIndex >= ItemCount) then
+    result := 0
+  else
+    result := FData[AIndex].modification;
+end;
+
 function TMyShellListView.GetItemName(AIndex: integer): string;
 begin
   if (AIndex < 0) or (AIndex >= ItemCount) then
@@ -352,11 +362,10 @@ end;
 procedure TMyShellListView.PopulateWithRoot;
 var
   i,j: Integer;
-  Dirs,Files: TStringList;
-  CurFileName, CurFilePath, fileType: string;
+  Dirs,Files: TFileInfoList;
+  CurFileName, fileType: string;
   CurFileSize: Int64;
   dataIndex: integer;
-  age: longint;
 
   function NewItem: integer;
   begin
@@ -394,17 +403,15 @@ begin
 
   FData := nil;
   dataIndex := 0;
-  Files := TStringList.Create;
-  Files.OwnsObjects := true;
-  Dirs := TStringList.Create;
-  Dirs.OwnsObjects := true;
+  Files := TFileInfoList.Create;
+  Dirs := TFileInfoList.Create;
   try
     if FRoot = ':' then
     begin
       if FIndexDate <> -1 then FColumns[FIndexDate].Name := rsStorageDevice;
       if FObjectTypes * [otFolders] <> [] then
       begin
-        drives := GetFileSystems;
+        drives := FileManager.GetFileSystems;
         setlength(FData, length(drives));
         for i := 0 to high(drives) do
         with FData[NewItem] do
@@ -422,16 +429,15 @@ begin
     end else
     begin
       if FIndexDate <> -1 then FColumns[FIndexDate].Name := rsFileDate;
-      if FObjectTypes * [otFolders] <> [] then TCustomShellTreeView.GetFilesInDir(FRoot, '', FObjectTypes * [otFolders], Dirs, fstAlphabet);
-      if FObjectTypes - [otFolders] <> [] then TCustomShellTreeView.GetFilesInDir(FRoot, FMask, FObjectTypes - [otFolders], Files, fstAlphabet);
+      if FObjectTypes * [otFolders] <> [] then FileManager.GetDirectoryElements(FRoot, '', FObjectTypes * [otFolders], Dirs, fstAlphabet);
+      if FObjectTypes - [otFolders] <> [] then FileManager.GetDirectoryElements(FRoot, FMask, FObjectTypes - [otFolders], Files, fstAlphabet);
       setlength(FData, Dirs.Count+Files.Count);
       fileType := rsFolder;
       if Assigned(FOnFormatType) then FOnFormatType(self, fileType);
       for i := 0 to Dirs.Count - 1 do
-      if (Dirs.Strings[i] <> '') and (Dirs.Strings[i][1] <> '.') then
+      if (Dirs.Items[i].Filename <> '') and (Dirs.Items[i].Filename[1] <> '.') then
       begin
-        CurFileName := Dirs.Strings[i];
-        CurFilePath := IncludeTrailingPathDelimiter(FRoot) + CurFileName;
+        CurFileName := Dirs.Items[i].Filename;
         with FData[NewItem] do
         begin
           isFolder := true;
@@ -444,17 +450,12 @@ begin
       for i := 0 to Files.Count - 1 do
       begin
         j := NewItem;
-        CurFileName := Files.Strings[i];
-        CurFilePath := IncludeTrailingPathDelimiter(FRoot) + CurFileName;
-        CurFileSize := FileSizeUtf8(CurFilePath); // in Bytes
+        CurFileName := Files.Items[i].Filename;
+        CurFileSize := Files.Items[i].Size; // in bytes
         FData[j].isFolder := false;
         FData[j].filename := CurFileName;
         FData[j].caption := ChangeFileExt(CurFileName,'');
-        age := FileAgeUTF8(CurFilePath);
-        try
-          FData[j].modification := FileDateToDateTime(age);
-        except
-        end;
+        FData[j].modification := Files.Items[i].LastModification;
         FData[j].fileSize:= CurFileSize;
 
         // Second column - Size

@@ -124,7 +124,7 @@ type
 
 implementation
 
-uses BGRAStreamLayers, UImageDiff, BGRALzpCommon;
+uses BGRAStreamLayers, UImageDiff, BGRALzpCommon, UFileSystem;
 
 { TBGRAReaderLazPaintWithLayers }
 
@@ -513,9 +513,18 @@ begin
 end;
 
 procedure TImageState.SaveToFile(AFilenameUTF8: string);
+var
+  s: TStream;
 begin
   if currentLayeredBitmap <> nil then
-    currentLayeredBitmap.SaveToFile(AFilenameUTF8);
+  begin
+    s := FileManager.CreateFileStream(AFilenameUTF8, fmCreate);
+    try
+      currentLayeredBitmap.SaveToStream(s);
+    finally
+      s.Free;
+    end;
+  end;
 end;
 
 procedure TImageState.AdaptLayers;

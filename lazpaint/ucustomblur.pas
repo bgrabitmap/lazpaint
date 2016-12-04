@@ -48,7 +48,7 @@ type
 
 implementation
 
-uses umac,BGRABitmapTypes, BGRAFilters, BGRAUTF8;
+uses umac,BGRABitmapTypes, BGRAFilters, UFileSystem;
 
 { TFCustomBlur }
 
@@ -77,8 +77,14 @@ end;
 procedure TFCustomBlur.LoadMask(filenameUTF8: string);
 var loadedImg, grayscale: TBGRABitmap;
     bmp: TBitmap;
+    s: TStream;
 begin
-  loadedImg := TBGRABitmap.Create(filenameUTF8,True);
+  s := FileManager.CreateFileStream(filenameUTF8, fmOpenRead or fmShareDenyWrite);
+  try
+    loadedImg := TBGRABitmap.Create(s);
+  finally
+    s.Free;
+  end;
   grayscale := loadedImg.FilterGrayscale as TBGRABitmap;
   loadedImg.Free;
 
@@ -123,7 +129,7 @@ var
 begin
   FLazPaintInstance := AValue;
   defaultMaskFilenameUTF8 := LazPaintInstance.Config.DefaultCustomBlurMaskUTF8;
-  if (defaultMaskFilenameUTF8 = '') or not FileExistsUTF8(defaultMaskFilenameUTF8) then
+  if (defaultMaskFilenameUTF8 = '') or not FileManager.FileExists(defaultMaskFilenameUTF8) then
     GenerateDefaultMask else
   begin
     try

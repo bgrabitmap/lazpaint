@@ -123,7 +123,7 @@ implementation
 
 {$R *.lfm}
 
-uses LCLType, UFileExtensions, LazFileUtils;
+uses LCLType, UFileExtensions, LazFileUtils, UFileSystem;
 
 { TFImageList }
 
@@ -160,7 +160,7 @@ end;
 function TFImageList.OpenImage (FileName: string): boolean;
 begin
   Result:=False;
-  if not FileExistsUTF8(FileName) then begin QuestionDlg (rsError, rsFileNotFound, mtError, [mrOk, rsOkay],''); exit; end;
+  if not FileManager.FileExists(FileName) then begin QuestionDlg (rsError, rsFileNotFound, mtError, [mrOk, rsOkay],''); exit; end;
   if not LazPaintInstance.OpenImage(FileName,False) then
      begin QuestionDlg (rsError, rsCannotOpenFile, mtError, [mrOk, rsOkay],''); Exit; end
      else Result:=True;
@@ -423,7 +423,7 @@ var
 begin
   needRenumber := false;
   for i:=StringGrid1.RowCount-1 downto 1 do
-   if not FileExistsUTF8(StringGrid1.Cells[ColLongFname,i])
+   if not FileManager.FileExists(StringGrid1.Cells[ColLongFname,i])
       then begin DeleteRow(StringGrid1,i); needRenumber :=true; end;
   if needRenumber then Renumber;
   EnableButtons;
@@ -482,7 +482,7 @@ var
 i: integer;
 begin
   for i:= 1 to StringGrid1.RowCount-1 do
-     if not FileExistsUTF8(StringGrid1.Cells[ColLongFname,i])
+     if not FileManager.FileExists(StringGrid1.Cells[ColLongFname,i])
          then StringGrid1.Cells[ColCB,i]:='0';
   EnableButtons;
 end;

@@ -273,7 +273,7 @@ begin
   BGRAPaintNet.RegisterPaintNetFormat;
   BGRAOpenRaster.RegisterOpenRasterFormat;
 
-  FFileSystems := GetFileSystems;
+  FFileSystems := FileManager.GetFileSystems;
   if length(FFileSystems)>0 then
   begin
     Tool_SelectDrive.Visible := true;
@@ -473,6 +473,7 @@ var i: integer;
     cacheIndex: integer;
     found: boolean;
     mem: TMemoryStream;
+    s: TStream;
   begin
     result := false;
     if ShellListView1.GetItemImage(i) = FImageFileNotChecked then
@@ -482,7 +483,7 @@ var i: integer;
       else
       begin
         itemPath := ShellListView1.ItemFullName[i];
-        cacheName := itemPath+':'+Inttostr(FileAgeUTF8(itemPath));
+        cacheName := itemPath+':'+FloatToStr(ShellListView1.ItemLastModification[i]);
         cacheIndex := IconCache.IndexOf(cacheName);
         if not Assigned(FBmpIcon) then FBmpIcon := TBGRABitmap.Create;
         if cacheIndex <> -1 then
@@ -493,7 +494,16 @@ var i: integer;
         end
         else
         begin
-          found := GetFileThumbnail(itemPath,ShellListView1.LargeIconSize,ShellListView1.LargeIconSize, BGRAPixelTransparent, True, FBmpIcon) <> nil;
+          try
+            s := FileManager.CreateFileStream(itemPath, fmOpenRead or fmShareDenyWrite);
+            try
+              found := GetStreamThumbnail(s,ShellListView1.LargeIconSize,ShellListView1.LargeIconSize, BGRAPixelTransparent, True, ExtractFileExt(itemPath), FBmpIcon) <> nil;
+            finally
+              s.Free;
+            end;
+          except
+            found := false;
+          end;
           if found then
           begin
             if IconCache.Count >= MaxIconCacheCount then IconCache.Delete(0);
@@ -788,6 +798,7 @@ procedure TFBrowseImages.UpdatePreview;
 var reader: TFPCustomImageReader;
   jpegReader: TBGRAReaderJpeg;
   format: TBGRAImageFormat;
+  source: TStream;
 begin
   FreeAndNil(FCurrentImage);
   FreeAndNil(FCurrentAnimatedGif);
@@ -805,39 +816,44 @@ begin
   Label_Size.Caption := rsLoading+'...';
   Label_Size.Update;
   try
-    format := DetectFileFormat(FPreviewFilename);
-    if format = ifGif then
-    begin
-      try
-        FCurrentAnimatedGif := TBGRAAnimatedGif.Create(FPreviewFilename);
-      except
-      end;
-    end;
-    if FCurrentAnimatedGif = nil then
-    begin
-      if format = ifJpeg then
+    source := FileManager.CreateFileStream(FPreviewFilename, fmOpenRead or fmShareDenyWrite);
+    try
+      format := DetectFileFormat(source,ExtractFileExt(FPreviewFilename));
+      if format = ifGif then
       begin
-        jpegReader := TBGRAReaderJpeg.Create;
-        jpegReader.Performance := jpBestSpeed;
-        jpegReader.MinWidth := Screen.Width;
-        jpegReader.MinHeight := Screen.Height;
-        reader := jpegReader;
-      end else
-        reader := CreateBGRAImageReader(format);
-      try
-        FCurrentImage := TBGRABitmap.Create;
         try
-          FCurrentImage.LoadFromFileUTF8(FPreviewFilename,reader);
-          FCurrentImageNbLayers := 1;
-          if reader is TFPReaderOpenRaster then FCurrentImageNbLayers := TFPReaderOpenRaster(reader).NbLayers else
-          if reader is TFPReaderPaintDotNet then FCurrentImageNbLayers := TFPReaderPaintDotNet(reader).NbLayers else
-          if reader is TBGRAReaderLazPaint then FCurrentImageNbLayers := TBGRAReaderLazPaint(reader).NbLayers;
+          FCurrentAnimatedGif := TBGRAAnimatedGif.Create(source);
         except
-          FreeAndNil(FCurrentImage);
         end;
-      finally
-        reader.Free;
       end;
+      if FCurrentAnimatedGif = nil then
+      begin
+        if format = ifJpeg then
+        begin
+          jpegReader := TBGRAReaderJpeg.Create;
+          jpegReader.Performance := jpBestSpeed;
+          jpegReader.MinWidth := Screen.Width;
+          jpegReader.MinHeight := Screen.Height;
+          reader := jpegReader;
+        end else
+          reader := CreateBGRAImageReader(format);
+        try
+          FCurrentImage := TBGRABitmap.Create;
+          try
+            FCurrentImage.LoadFromStream(source,reader);
+            FCurrentImageNbLayers := 1;
+            if reader is TFPReaderOpenRaster then FCurrentImageNbLayers := TFPReaderOpenRaster(reader).NbLayers else
+            if reader is TFPReaderPaintDotNet then FCurrentImageNbLayers := TFPReaderPaintDotNet(reader).NbLayers else
+            if reader is TBGRAReaderLazPaint then FCurrentImageNbLayers := TBGRAReaderLazPaint(reader).NbLayers;
+          except
+            FreeAndNil(FCurrentImage);
+          end;
+        finally
+          reader.Free;
+        end;
+      end;
+    finally
+      source.Free;
     end;
   except
   end;
@@ -941,7 +957,7 @@ begin
     end;
   end else
     if IsSaveDialog and (Trim(Edit_Filename.Text)<>'') and (DirectoryEdit1.Text <> ':') and
-      DirectoryExistsUTF8(trim(DirectoryEdit1.Text)) then
+      FileManager.IsDirectory(trim(DirectoryEdit1.Text)) then
     begin
       FFilename:= IncludeTrailingPathDelimiter(trim(DirectoryEdit1.Text))+Edit_Filename.Text;
       if (ExtractFileExt(FFilename)='') then
@@ -951,7 +967,7 @@ begin
         else if DefaultExtension <> '' then
           FFilename += DefaultExtension;
       end;
-      if FileExistsUTF8(FFilename) and IsSaveDialog and OverwritePrompt then
+      if FileManager.FileExists(FFilename) and IsSaveDialog and OverwritePrompt then
       begin
         if QuestionDlg(rsSave, rsOverwriteFile, mtConfirmation, [mrOk, rsOkay, mrCancel, rsCancel],0) <> mrOk then exit;
       end;
@@ -967,10 +983,10 @@ var dir: string;
   idx: integer;
 begin
   dir := DirectoryEdit1.Text;
-  RemoveLastPathElement(dir, itemToSelect);
+  FileManager.RemoveLastPathElement(dir, itemToSelect);
   if dir = '' then
   begin
-    FFileSystems:= GetFileSystems;
+    FFileSystems:= FileManager.GetFileSystems;
     if length(FFileSystems)>0 then DirectoryEdit1.Text := ':';
     itemToSelect := '';
   end else
@@ -1039,13 +1055,13 @@ begin
       end;
 
     self.Enabled := false;
-    MoveToTrash(self, filesToDelete, @OnDeleteConfirmation);
+    FileManager.MoveToTrash(self, filesToDelete, @OnDeleteConfirmation);
     self.Enabled := true;
 
     for i := ShellListView1.ItemCount-1 downto 0 do
       if ShellListView1.ItemSelected[i] and not ShellListView1.ItemIsFolder[i] then
       begin
-        if not FileExistsUTF8(ShellListView1.ItemFullName[i]) then
+        if not FileManager.FileExists(ShellListView1.ItemFullName[i]) then
         begin
           if ShellListView1.ItemFullName[i] = FPreviewFilename then
             UpdatePreview('');

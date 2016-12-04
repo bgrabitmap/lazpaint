@@ -96,7 +96,7 @@ implementation
 
 uses UScaleDPI, Graphics, Forms, UGraph,
   UResourceStrings, BGRAColorQuantization,
-  ULayerAction, UCursors;
+  ULayerAction, UCursors, UFileSystem;
 
 { TPaletteToolbar }
 
@@ -544,13 +544,23 @@ end;
 procedure TPaletteToolbar.TryLoadPaletteFrom(AFilename: string);
 var tempPal: TBGRAPalette;
   i: Integer;
+  source: TStream;
+  palFormat: TBGRAPaletteFormat;
 begin
   if not FMergePalette then FColors.Clear;
   tempPal:= TBGRAPalette.Create;
   try
-    tempPal.LoadFromFile(AFilename);
-    for i := 0 to tempPal.Count-1 do
-      AddColor(tempPal.Color[i]);
+    source := FileManager.CreateFileStream(AFilename, fmOpenRead or fmShareDenyWrite);
+    try
+      palFormat := tempPal.DetectPaletteFormat(source);
+      if palFormat = palUnknown then
+        palFormat := tempPal.SuggestPaletteFormat(AFilename);
+      tempPal.LoadFromStream(source, palFormat);
+      for i := 0 to tempPal.Count-1 do
+        AddColor(tempPal.Color[i]);
+    finally
+      source.Free;
+    end;
   except
     on ex:Exception do
       ShowMessage(ex.Message);
@@ -560,9 +570,16 @@ begin
 end;
 
 procedure TPaletteToolbar.TrySavePaletteTo(AFilename: string);
+var
+  s: TStream;
 begin
   try
-    FColors.SaveToFile(AFilename);
+    s := FileManager.CreateFileStream(AFilename, fmCreate);
+    try
+      FColors.SaveToStream(s, FColors.SuggestPaletteFormat(AFilename));
+    finally
+      s.Free;
+    end;
   except
     on ex:Exception do
       ShowMessage(ex.Message);

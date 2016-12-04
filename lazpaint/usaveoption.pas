@@ -105,8 +105,8 @@ function ShowSaveOptionDialog(AInstance: TLazPaintCustomInstance; AOutputFilenam
 
 implementation
 
-uses UGraph, FPWriteJPEG, UResourceStrings, lazutf8classes, FPWriteBMP, BMPcomn,
-  UMySLV, BGRAWriteBmpMioMap, BGRADithering;
+uses UGraph, FPWriteJPEG, UResourceStrings, FPWriteBMP, BMPcomn,
+  UMySLV, BGRAWriteBmpMioMap, BGRADithering, UFileSystem;
 
 function ShowSaveOptionDialog(AInstance: TLazPaintCustomInstance; AOutputFilenameUTF8: string): boolean;
 var f: TFSaveOption;
@@ -306,11 +306,11 @@ end;
 
 procedure TFSaveOption.Button_OKClick(Sender: TObject);
   procedure SavePng;
-  var outputStream: TFileStreamUTF8;
+  var outputStream: TStream;
   begin
     if assigned(FPngStream) then
     begin
-      outputStream := TFileStreamUTF8.Create(FOutputFilename,fmCreate);
+      outputStream := FileManager.CreateFileStream(FOutputFilename,fmCreate);
       try
         FPngStream.Position := 0;
         outputStream.CopyFrom(FPngStream, FPngStream.Size);
@@ -320,23 +320,28 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
       end;
     end else
     begin
-      if QuantizerNeeded then
-        Quantizer.SaveBitmapToFile(GetDitheringAlgorithm,FFlattenedOriginal,FOutputFilename,ImageFormat)
-      else
-        FFlattenedOriginal.SaveToFileUTF8(FOutputFilename);
-      if FLazPaintInstance.Image.NbLayers = 1 then FLazPaintInstance.Image.SetSavedFlag;
+      outputStream := FileManager.CreateFileStream(FOutputFilename,fmCreate);
+      try
+        if QuantizerNeeded then
+          Quantizer.SaveBitmapToStream(GetDitheringAlgorithm,FFlattenedOriginal,outputStream,ImageFormat)
+        else
+          FFlattenedOriginal.SaveToStreamAsPng(outputStream);
+        if FLazPaintInstance.Image.NbLayers = 1 then FLazPaintInstance.Image.SetSavedFlag;
+      finally
+        outputStream.Free;
+      end;
     end;
   end;
 
   procedure SaveBmp;
   var writer: TFPWriterBMP;
     dithered: TBGRACustomBitmap;
-    outputStream: TFileStreamUTF8;
+    outputStream: TStream;
   begin
     MakeBmpStreamIfNeeded;
     if Assigned(FBmpStream) then
     begin
-      outputStream := TFileStreamUTF8.Create(FOutputFilename,fmCreate);
+      outputStream := FileManager.CreateFileStream(FOutputFilename,fmCreate);
       try
         FBmpStream.Position := 0;
         outputStream.CopyFrom(FBmpStream, FBmpStream.Size);
@@ -347,29 +352,39 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
     end else
     if QuantizerNeeded then
     begin
-      dithered := Quantizer.GetDitheredBitmap(GetDitheringAlgorithm, FFlattenedOriginal);
-      Quantizer.ReducedPalette.AssignTo(dithered);
-      writer := TFPWriterBMP.Create;
-      writer.BitsPerPixel := WantedBitsPerPixel;
+      outputStream := FileManager.CreateFileStream(FOutputFilename,fmCreate);
       try
-        dithered.SaveToFileUTF8(FOutputFilename, writer);
-        if FLazPaintInstance.Image.NbLayers = 1 then FLazPaintInstance.Image.SetSavedFlag;
+        dithered := Quantizer.GetDitheredBitmap(GetDitheringAlgorithm, FFlattenedOriginal);
+        Quantizer.ReducedPalette.AssignTo(dithered);
+        writer := TFPWriterBMP.Create;
+        writer.BitsPerPixel := WantedBitsPerPixel;
+        try
+          dithered.SaveToStream(outputStream, writer);
+          if FLazPaintInstance.Image.NbLayers = 1 then FLazPaintInstance.Image.SetSavedFlag;
+        finally
+          writer.Free;
+          dithered.Free;
+        end;
       finally
-        writer.Free;
-        dithered.Free;
+        outputStream.Free;
       end;
     end else
     begin
-      FFlattenedOriginal.SaveToFileUTF8(FOutputFilename);
-      if FLazPaintInstance.Image.NbLayers = 1 then FLazPaintInstance.Image.SetSavedFlag;
+      outputStream := FileManager.CreateFileStream(FOutputFilename,fmCreate);
+      try
+        FFlattenedOriginal.SaveToStreamAs(outputStream, ifBmp);
+        if FLazPaintInstance.Image.NbLayers = 1 then FLazPaintInstance.Image.SetSavedFlag;
+      finally
+        outputStream.Free;
+      end;
     end;
   end;
 
   procedure SaveJpeg;
-  var outputStream: TFileStreamUTF8;
+  var outputStream: TStream;
   begin
     RequireJpegStream;
-    outputStream := TFileStreamUTF8.Create(FOutputFilename,fmCreate);
+    outputStream := FileManager.CreateFileStream(FOutputFilename,fmCreate);
     try
       FJpegStream.Position := 0;
       outputStream.CopyFrom(FJpegStream, FJpegStream.Size);

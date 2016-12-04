@@ -170,6 +170,7 @@ type
     function ComputeTransformedSelection: TBGRABitmap;
     function ApplySmartZoom3: boolean;
     procedure Resample(AWidth, AHeight: integer; filter: TResampleFilter);
+    function DetectImageFormat(AFilename: string): TBGRAImageFormat;
     procedure LoadFromFileUTF8(AFilename: string);
     procedure LoadFromStreamAsLZP(AStream: TStream);
     procedure Assign(const AValue: TBGRABitmap; AOwned: boolean; AUndoable: boolean); overload;
@@ -246,8 +247,8 @@ implementation
 
 uses UGraph, UResourceStrings, Dialogs,
     BGRAOpenRaster, BGRAPhoxo, BGRAPaintNet, UImageDiff, ULoading,
-    BGRAWriteLzp, lazutf8classes, BGRAUTF8,
-    BGRAPalette, BGRAColorQuantization;
+    BGRAWriteLzp, BGRAUTF8,
+    BGRAPalette, BGRAColorQuantization, UFileSystem;
 
 function ComputeAcceptableImageSize(AWidth, AHeight: integer): TSize;
 var ratio,newRatio: single;
@@ -429,6 +430,18 @@ begin
   end;
 end;
 
+function TLazPaintImage.DetectImageFormat(AFilename: string): TBGRAImageFormat;
+var
+  s: TStream;
+begin
+  s := FileManager.CreateFileStream(AFilename, fmOpenRead);
+  try
+    result := DetectFileFormat(s, ExtractFileExt(AFilename));
+  finally
+    s.Free;
+  end;
+end;
+
 function TLazPaintImage.AbleToSaveAsUTF8(AFilename: string): boolean;
 var format: TBGRAImageFormat;
 begin
@@ -456,13 +469,13 @@ begin
 end;
 
 procedure TLazPaintImage.SaveToFileUTF8(AFilename: string);
-var s: TFileStreamUTF8;
+var s: TStream;
   format: TBGRAImageFormat;
 begin
   format := SuggestImageFormat(AFilename);
   if format = ifLazPaint then
   begin
-    s := TFileStreamUTF8.Create(AFilename, fmCreate);
+    s := FileManager.CreateFileStream(AFilename, fmCreate);
     try
       SaveToStreamAsLZP(s);
     finally
@@ -472,18 +485,28 @@ begin
   end else
   if format in[ifOpenRaster,ifPhoxo] then
   begin
-    FCurrentState.SaveToFile(AFilename);
+    s := FileManager.CreateFileStream(AFilename, fmCreate);
+    try
+      FCurrentState.SaveToStream(s);
+    finally
+      s.Free;
+    end;
     SetSavedFlag;
   end else
   begin
     if RenderedImage = nil then exit;
-    RenderedImage.SaveToFileUTF8(AFilename);
+    s := FileManager.CreateFileStream(AFilename, fmCreate);
+    try
+      RenderedImage.SaveToStreamAs(s, SuggestImageFormat(AFilename));
+    finally
+      s.Free;
+    end;
     if NbLayers = 1 then SetSavedFlag;
   end;
 end;
 
 procedure TLazPaintImage.LoadFromFileUTF8(AFilename: string);
-var s: TFileStreamUTF8;
+var s: TStream;
   ext: string;
   bmp: TBGRALayeredBitmap;
 begin
@@ -491,7 +514,7 @@ begin
   ext := UTF8LowerCase(ExtractFileExt(AFilename));
   if ext = '.lzp' then
   begin
-    s := TFileStreamUTF8.Create(AFilename, fmOpenRead or fmShareDenyWrite);
+    s := FileManager.CreateFileStream(AFilename, fmOpenRead or fmShareDenyWrite);
     try
       LoadFromStreamAsLZP(s);
     finally
@@ -501,7 +524,12 @@ begin
   begin
     bmp := TBGRALayeredBitmap.Create;
     try
-      bmp.LoadFromFile(AFilename);
+      s := FileManager.CreateFileStream(AFilename, fmOpenRead or fmShareDenyWrite);
+      try
+        bmp.LoadFromStream(s);
+      finally
+        s.Free;
+      end;
       with ComputeAcceptableImageSize(bmp.Width,bmp.Height) do
         if (cx < bmp.Width) or (cy < bmp.Height) then
           bmp.Resample(cx,cy,rmFineResample);
@@ -1822,10 +1850,16 @@ begin
 end;
 
 procedure TLazPaintImage.SaveSelectionToFileUTF8(AFilename: string);
+var s: TStream;
 begin
   if CurrentSelection = nil then exit;
   try
-    CurrentSelection.SaveToFileUTF8(AFilename);
+    s := FileManager.CreateFileStream(AFilename, fmCreate);
+    try
+      CurrentSelection.SaveToStreamAs(s, SuggestImageFormat(AFilename));
+    finally
+      s.Free;
+    end;
   except on ex: exception do NotifyException('SaveSelectionToFile',ex);
   end;
 end;

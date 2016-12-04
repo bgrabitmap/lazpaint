@@ -152,7 +152,7 @@ type
 
 implementation
 
-uses Math, BGRALzpCommon;
+uses Math, BGRALzpCommon, UFileSystem;
 
 { TGrayscaleImageDiff }
 
@@ -161,8 +161,8 @@ begin
   if FSavedFilename <> '' then
   begin
     try
-      if FileExists(FSavedFilename) then
-        DeleteFile(FSavedFilename);
+      if FileManager.FileExists(FSavedFilename) then
+        FileManager.DeleteFile(FSavedFilename);
     except on ex:exception do begin end;
     end;
     FSavedFilename:= '';
@@ -175,14 +175,14 @@ begin
 end;
 
 procedure TGrayscaleImageDiff.Decompress;
-var stream: TFileStream;
+var stream: TStream;
 begin
   if (FCompressedData = nil) and (FSavedFilename <> '') then
   begin
     FCompressedData := TMemoryStream.Create;
     stream := nil;
     try
-      stream := TFileStream.Create(FSavedFilename,fmOpenRead or fmShareDenyWrite);
+      stream := FileManager.CreateFileStream(FSavedFilename,fmOpenRead or fmShareDenyWrite);
       FCompressedData.CopyFrom(stream, stream.Size);
     except
     end;
@@ -326,7 +326,7 @@ end;
 
 function TGrayscaleImageDiff.Compress: boolean;
 var
-  FSavedFile: TFileStream;
+  FSavedFile: TStream;
 begin
   if (FUncompressedData.data0 <> nil) and
     ((FCompressedData <> nil) or (FSavedFilename <> '')) then
@@ -353,7 +353,7 @@ begin
     begin
       FSavedFilename := GetTempFileName;
       try
-        FSavedFile := TFileStream.Create(FSavedFilename,fmCreate);
+        FSavedFile := FileManager.CreateFileStream(FSavedFilename,fmCreate);
         try
           FCompressedData.Position := 0;
           FSavedFile.CopyFrom(FCompressedData, FCompressedData.Size);
@@ -364,7 +364,7 @@ begin
       except
         on ex: exception do
         begin
-          if FileExists(FSavedFilename) then DeleteFile(FSavedFilename);
+          if FileManager.FileExists(FSavedFilename) then FileManager.DeleteFile(FSavedFilename);
           FSavedFilename := '';
           result := false;
         end;
@@ -620,8 +620,8 @@ begin
   if FSavedFilename <> '' then
   begin
     try
-      if FileExists(FSavedFilename) then
-        DeleteFile(FSavedFilename);
+      if FileManager.FileExists(FSavedFilename) then
+        FileManager.DeleteFile(FSavedFilename);
     except on ex:exception do begin end;
     end;
     FSavedFilename:= '';
@@ -634,14 +634,14 @@ begin
 end;
 
 procedure TImageDiff.Decompress;
-var stream: TFileStream;
+var stream: TStream;
 begin
   if (FCompressedData = nil) and (FSavedFilename <> '') then
   begin
     FCompressedData := TMemoryStream.Create;
     stream := nil;
     try
-      stream := TFileStream.Create(FSavedFilename,fmOpenRead or fmShareDenyWrite);
+      stream := FileManager.CreateFileStream(FSavedFilename,fmOpenRead or fmShareDenyWrite);
       FCompressedData.CopyFrom(stream, stream.Size);
     except
     end;
@@ -799,7 +799,7 @@ end;
 
 function TImageDiff.Compress: boolean;
 var
-  FSavedFile: TFileStream;
+  FSavedFile: TStream;
 begin
   if ((FUncompressedData.data0 <> nil) or (FUncompressedData.data1 <> nil) or
     (FUncompressedData.data2 <> nil) or (FUncompressedData.data3 <> nil)) and
@@ -836,7 +836,7 @@ begin
     begin
       FSavedFilename := GetTempFileName;
       try
-        FSavedFile := TFileStream.Create(FSavedFilename,fmCreate);
+        FSavedFile := FileManager.CreateFileStream(FSavedFilename,fmCreate);
         try
           FCompressedData.Position := 0;
           FSavedFile.CopyFrom(FCompressedData, FCompressedData.Size);
@@ -847,7 +847,7 @@ begin
       except
         on ex: exception do
         begin
-          if FileExists(FSavedFilename) then DeleteFile(FSavedFilename);
+          if FileManager.FileExists(FSavedFilename) then FileManager.DeleteFile(FSavedFilename);
           FSavedFilename := '';
           result := false;
         end;

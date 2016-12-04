@@ -280,7 +280,7 @@ var
 
 implementation
 
-uses forms, uparse, LCLProc, BGRAUTF8, LazFileUtils;
+uses forms, uparse, LCLProc, BGRAUTF8, LazFileUtils, UFileSystem;
 
 const maxRecentFiles = 10;
       maxRecentDirectories = 10;
@@ -1060,14 +1060,14 @@ begin
   for i := 0 to recentFiles.Count-1 do
     recentFiles[i] := iniOptions.ReadString('RecentFiles',recentFiles[i],'');
   for i := recentFiles.Count-1 downto 0 do
-    if not FileExistsUTF8(recentFiles[i]) then recentFiles.Delete(i);
+    if not FileManager.FileExists(recentFiles[i]) then recentFiles.Delete(i);
 
   recentDirs := TStringList.Create;
   iniOptions.ReadSection('RecentDirectories',recentDirs);
   for i := 0 to recentDirs.Count-1 do
     recentDirs[i] := iniOptions.ReadString('RecentDirectories',recentDirs[i],'');
   for i := recentDirs.Count-1 downto 0 do
-    if not DirectoryExistsUTF8(recentDirs[i]) then recentDirs.Delete(i);
+    if not FileManager.IsDirectory(recentDirs[i]) then recentDirs.Delete(i);
 end;
 
 procedure TLazPaintConfig.FinalizeRecentFiles;
