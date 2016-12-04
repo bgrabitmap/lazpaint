@@ -57,7 +57,7 @@ type
     procedure SaveToStream(AStream: TStream);
     procedure SaveToFile(AFilenameUTF8: string);
     procedure AdaptLayers;
-    function AddNewLayer(ALayer: TBGRABitmap; AName: string): TCustomImageDifference;
+    function AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation): TCustomImageDifference;
     function DuplicateLayer: TCustomImageDifference;
     function MergerLayerOver(ALayerOverIndex: integer): TCustomImageDifference;
     function MoveLayer(AFromIndex,AToIndex: integer): TCustomImageDifference;
@@ -425,6 +425,8 @@ begin
 end;
 
 procedure TImageState.Assign(AValue: TBGRABitmap; AOwned: boolean);
+var
+  xorMask: TBGRABitmap;
 begin
   if currentLayeredBitmap = nil then
     currentLayeredBitmap := TBGRALayeredBitmap.Create;
@@ -432,9 +434,28 @@ begin
   currentLayeredBitmap.Clear;
   currentLayeredBitmap.SetSize(AValue.Width,AValue.Height);
   if AOwned then
-    currentLayeredBitmap.AddOwnedLayer(AValue)
+  begin
+    currentLayeredBitmap.AddOwnedLayer(AValue);
+    if Assigned(AValue.XorMask) then
+    begin
+      xorMask := AValue.XorMask.Duplicate as TBGRABitmap;
+      xorMask.AlphaFill(255);
+      xorMask.ReplaceColor(BGRABlack,BGRAPixelTransparent);
+      currentLayeredBitmap.AddOwnedLayer(xorMask,boXor);
+      AValue.DiscardXorMask;
+    end;
+  end
   else
+  begin
     currentLayeredBitmap.AddLayer(AValue);
+    if Assigned(AValue.XorMask) then
+    begin
+      xorMask := AValue.XorMask.Duplicate as TBGRABitmap;
+      xorMask.AlphaFill(255);
+      xorMask.ReplaceColor(BGRABlack,BGRAPixelTransparent);
+      currentLayeredBitmap.AddOwnedLayer(xorMask,boXor);
+    end;
+  end;
   currentLayerIndex := 0;
 end;
 
@@ -546,17 +567,17 @@ begin
     end;
 end;
 
-function TImageState.AddNewLayer(ALayer: TBGRABitmap; AName: string): TCustomImageDifference;
+function TImageState.AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation): TCustomImageDifference;
 begin
   //no undo if no previous image
   if currentLayeredBitmap = nil then
   begin
     currentLayeredBitmap := TBGRALayeredBitmap.Create;
-    currentLayeredBitmap.AddOwnedLayer(ALayer);
+    currentLayeredBitmap.AddOwnedLayer(ALayer, ABlendOp);
     result := nil;
   end else
   begin
-    result := TAddLayerStateDifference.Create(self, ALayer, AName);
+    result := TAddLayerStateDifference.Create(self, ALayer, AName, ABlendOp);
     ALayer.Free;
   end;
 end;

@@ -158,11 +158,12 @@ type
     content: TStoredImage;
     previousActiveLayerId: integer;
     name: ansistring;
+    blendOp: TBlendOperation;
     function UsedMemory: int64; override;
     function TryCompress: boolean; override;
     procedure ApplyTo(AState: TState); override;
     procedure UnapplyTo(AState: TState); override;
-    constructor Create(ADestination: TState; AContent: TBGRABitmap; AName: ansistring);
+    constructor Create(ADestination: TState; AContent: TBGRABitmap; AName: ansistring; ABlendOp: TBlendOperation);
     destructor Destroy; override;
   end;
 
@@ -1120,6 +1121,7 @@ begin
     idx := currentLayeredBitmap.AddOwnedLayer(bmp);
     currentLayeredBitmap.LayerUniqueId[idx] := self.layerId;
     currentLayeredBitmap.LayerName[idx] := name;
+    currentLayeredBitmap.BlendOperation[idx] := self.blendOp;
     currentLayerIndex := idx;
   end;
 end;
@@ -1137,7 +1139,7 @@ begin
 end;
 
 constructor TAddLayerStateDifference.Create(ADestination: TState;
-  AContent: TBGRABitmap; AName: ansistring);
+  AContent: TBGRABitmap; AName: ansistring; ABlendOp: TBlendOperation);
 var idx: integer;
   imgDest: TImageState;
 begin
@@ -1147,6 +1149,7 @@ begin
     raise exception.Create('Layered bitmap not created');
   self.content := TStoredImage.Create(AContent);
   self.name := AName;
+  self.blendOp:= AblendOp;
   self.previousActiveLayerId := imgDest.currentLayeredBitmap.LayerUniqueId[imgDest.currentLayerIndex];
   idx := imgDest.currentLayeredBitmap.AddLayer(AContent);
   imgDest.currentLayeredBitmap.LayerName[idx] := name;

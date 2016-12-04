@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, LazPaintType, BGRABitmap, UImage, UTool, UScripting,
-  ULayerAction, UImageType;
+  ULayerAction, UImageType, BGRABitmapTypes;
 
 type
 
@@ -47,7 +47,7 @@ type
     procedure SelectAll;
     procedure SelectionFit;
     procedure NewLayer;
-    procedure NewLayer(ALayer: TBGRABitmap; AName: string);
+    procedure NewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation);
     procedure DuplicateLayer;
     procedure MergeLayerOver;
     procedure RemoveLayer;
@@ -63,7 +63,7 @@ type
 
 implementation
 
-uses Controls, Dialogs, BGRABitmapTypes, UResourceStrings, UObject3D,
+uses Controls, Dialogs, UResourceStrings, UObject3D,
      ULoadImage, UGraph, UClipboard, Types;
 
 { TImageActions }
@@ -286,7 +286,7 @@ begin
     if image3D <> nil then
     begin
       if image3D.NbPixels <> 0 then
-        NewLayer(image3d, ExtractFileName(AFilenameUTF8))
+        NewLayer(image3d, ExtractFileName(AFilenameUTF8), boTransparent)
       else
         image3D.Free;
     end;
@@ -442,6 +442,7 @@ function TImageActions.AddLayerFromBitmap(ABitmap: TBGRABitmap; AName: string
 var
   layeraction: TLayerAction;
   ratio: single;
+  xorMask: TBGRABitmap;
 begin
   if (ABitmap <> nil) and (ABitmap.Width > 0) and (ABitmap.Height > 0) then
   begin
@@ -464,7 +465,18 @@ begin
         ABitmap.ResampleFilter := rfBestQuality;
         BGRAReplace(ABitmap, ABitmap.Resample(round(ABitmap.Width*ratio),round(ABitmap.Height*ratio)));
       end;
-      NewLayer(ABitmap, AName);
+      if Assigned(ABitmap.XorMask) then
+      begin
+        xorMask := ABitmap.XorMask.Duplicate as TBGRABitmap;
+        xorMask.AlphaFill(255);
+        xorMask.ReplaceColor(BGRABlack,BGRAPixelTransparent);
+        ABitmap.DiscardXorMask;
+      end
+      else
+        xorMask := nil;
+      NewLayer(ABitmap, AName, boTransparent);
+      if Assigned(xorMask) then
+        NewLayer(xorMask, AName + ' (xor)', boXor);
       result := true;
     end else
     begin
@@ -851,11 +863,11 @@ begin
   end;
 end;
 
-procedure TImageActions.NewLayer(ALayer: TBGRABitmap; AName: string);
+procedure TImageActions.NewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation);
 begin
   if image.NbLayers < MaxLayersToAdd then
   begin
-    Image.AddNewLayer(ALayer, AName);
+    Image.AddNewLayer(ALayer, AName, ABlendOp);
     FInstance.ScrollLayerStackOnItem(Image.currentImageLayerIndex);
   end;
 end;

@@ -47,6 +47,7 @@ begin
     result[0] := TBGRABitmap.Create;
     result[0].Assign(ico);
     result[0].Caption := IntTostr(maxWidth)+'x'+IntToStr(maxHeight)+'x'+IntToStr(PIXELFORMAT_BPP[maxFormat]);
+    if Assigned(result[0].XorMask) then result[0].XorMask.Caption := result[0].Caption + ' (xor)';
     resIdx := 1;
     for i := 0 to ico.Count-1 do
     if i <> maxIdx then
@@ -56,6 +57,7 @@ begin
       result[resIdx] := TBGRABitmap.Create;
       result[resIdx].Assign(ico);
       result[resIdx].Caption := IntTostr(width)+'x'+IntToStr(height)+'x'+IntToStr(PIXELFORMAT_BPP[format]);
+      if Assigned(result[resIdx].XorMask) then result[resIdx].XorMask.Caption := result[resIdx].Caption + ' (xor)';
       inc(resIdx);
     end;
   end;

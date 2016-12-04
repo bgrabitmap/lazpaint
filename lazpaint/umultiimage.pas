@@ -93,7 +93,7 @@ begin
   if mr = mrOK then
   begin
     if (selectedIndex <> -1) and (selectedIndex <= length(images)) then
-      result := images[selectedIndex].Duplicate as TBGRABitmap else
+      result := images[selectedIndex].Duplicate(False,True) as TBGRABitmap else
         result := nil;
   end else
     result := nil;

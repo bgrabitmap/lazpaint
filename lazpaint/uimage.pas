@@ -192,7 +192,7 @@ type
 
     procedure Draw(ADest: TBGRABitmap; x,y: integer);
     procedure AddNewLayer;
-    procedure AddNewLayer(ALayer: TBGRABitmap; AName: string);
+    procedure AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation);
     procedure DuplicateLayer;
     procedure MergeLayerOver;
     procedure MoveLayer(AFromIndex,AToIndex: integer);
@@ -1478,6 +1478,7 @@ end;
 
 procedure TLazPaintImage.Assign(const AValue: TBGRABitmap; AOwned: boolean; AUndoable: boolean);
 var layeredBmp: TBGRALayeredBitmap;
+  mask: TBGRABitmap;
 begin
   if not CheckNoAction then exit;
   if not AUndoable then
@@ -1493,9 +1494,28 @@ begin
   begin
     layeredBmp := TBGRALayeredBitmap.Create(AValue.Width,AValue.Height);
     if AOwned then
-      layeredBmp.AddOwnedLayer(AValue)
+    begin
+      layeredBmp.AddOwnedLayer(AValue);
+      if Assigned(AValue.XorMask) then
+      begin
+        mask := AValue.XorMask.Duplicate as TBGRABitmap;
+        mask.AlphaFill(255);
+        mask.ReplaceColor(BGRABlack,BGRAPixelTransparent);
+        layeredBmp.AddOwnedLayer(mask,boXor);
+        AValue.DiscardXorMask;
+      end;
+    end
     else
+    begin
       layeredBmp.AddLayer(AValue);
+      if Assigned(AValue.XorMask) then
+      begin
+        mask := AValue.XorMask.Duplicate as TBGRABitmap;
+        mask.AlphaFill(255);
+        mask.ReplaceColor(BGRABlack,BGRAPixelTransparent);
+        layeredBmp.AddOwnedLayer(mask,boXor);
+      end;
+    end;
     Assign(layeredBmp,True,AUndoable);
   end;
 end;
@@ -1600,13 +1620,13 @@ procedure TLazPaintImage.AddNewLayer;
 begin
   if not CheckNoAction then exit;
   try
-    AddUndo(FCurrentState.AddNewLayer(TBGRABitmap.Create(Width,Height),''));
+    AddUndo(FCurrentState.AddNewLayer(TBGRABitmap.Create(Width,Height),'',boTransparent));
   except on ex: exception do NotifyException('AddNewLayer',ex);
   end;
   OnImageChanged.NotifyObservers;
 end;
 
-procedure TLazPaintImage.AddNewLayer(ALayer: TBGRABitmap; AName: string);
+procedure TLazPaintImage.AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation);
 var temp: TBGRAbitmap;
 begin
   if not CheckNoAction then exit;
@@ -1618,7 +1638,7 @@ begin
       ALayer.Free;
       ALayer := temp;
     end;
-    AddUndo(FCurrentState.AddNewLayer(ALayer, AName));
+    AddUndo(FCurrentState.AddNewLayer(ALayer, AName,ABlendOp));
     ImageMayChangeCompletely;
   except on ex: exception do NotifyException('AddNewLayer',ex);
   end;
