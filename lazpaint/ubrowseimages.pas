@@ -459,6 +459,8 @@ begin
     format := SuggestImageFormat(AType);
     if format = ifPng then AType := 'PNG' //too long to write explicitely
     else if format = ifGIF then AType := 'GIF' //do not know if animated or not
+    else if format = ifIco then AType := 'Icon'
+    else if format = ifCur then AType := 'Cursor'
     else AType := GetImageFormatName(format);
   end;
 end;

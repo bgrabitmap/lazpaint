@@ -3256,7 +3256,7 @@ begin
   finalFilenameUTF8 := filenameUTF8;
   try
     format := Image.DetectImageFormat(filenameUTF8);
-    if format in[ifIco,ifGif] then
+    if format in[ifIco,ifCur,ifGif] then
     begin
       newPicture := LoadFlatImageUTF8(FilenameUTF8, finalFilenameUTF8, '.lzp');
     end else

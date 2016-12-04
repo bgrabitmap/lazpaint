@@ -15,14 +15,14 @@ implementation
 
 uses FileUtil, BGRAAnimatedGif, Graphics, UMultiImage,
   BGRAReadLzp, LCLProc, BGRABitmapTypes, BGRAReadPng,
-  UFileSystem;
+  UFileSystem, BGRAReadIco;
 
-function LoadIcoMultiImageFromStream(AStream: TStream): ArrayOfBGRABitmap;
-var ico: TIcon; i,resIdx,maxIdx: integer;
+function LoadIcoMultiImageFromStream(AStream: TStream; AClass: TCustomIconClass): ArrayOfBGRABitmap;
+var ico: TCustomIcon; i,resIdx,maxIdx: integer;
     height,width: word; format:TPixelFormat;
     maxHeight,maxWidth: word; maxFormat: TPixelFormat;
 begin
-  ico := TIcon.Create;
+  ico := AClass.Create;
   ico.LoadFromStream(AStream);
   maxIdx := 0;
   maxHeight := 0;
@@ -32,7 +32,7 @@ begin
   begin
     ico.GetDescription(i,format,height,width);
     if (height > maxHeight) or (width > maxWidth) or
-    ((height = maxHeight) or (width = maxWidth) and (format > maxFormat)) then
+    ((height = maxHeight) and (width = maxWidth) and (format > maxFormat)) then
     begin
       maxIdx := i;
       maxHeight := height;
@@ -44,8 +44,8 @@ begin
   begin
     setlength(result,ico.Count);
     ico.Current := maxIdx;
-    result[0] := TBGRABitmap.Create(maxWidth,maxHeight);
-    result[0].GetImageFromCanvas(ico.Canvas,0,0);
+    result[0] := TBGRABitmap.Create;
+    result[0].Assign(ico);
     result[0].Caption := IntTostr(maxWidth)+'x'+IntToStr(maxHeight)+'x'+IntToStr(PIXELFORMAT_BPP[maxFormat]);
     resIdx := 1;
     for i := 0 to ico.Count-1 do
@@ -53,8 +53,8 @@ begin
     begin
       ico.Current := i;
       ico.GetDescription(i,format,height,width);
-      result[resIdx] := TBGRABitmap.Create(width,height);
-      result[resIdx].GetImageFromCanvas(ico.Canvas,0,0);
+      result[resIdx] := TBGRABitmap.Create;
+      result[resIdx].Assign(ico);
       result[resIdx].Caption := IntTostr(width)+'x'+IntToStr(height)+'x'+IntToStr(PIXELFORMAT_BPP[format]);
       inc(resIdx);
     end;
@@ -166,7 +166,19 @@ begin
     result := nil;
     if format = ifIco then
     begin
-      multi := LoadIcoMultiImageFromStream(s);
+      multi := LoadIcoMultiImageFromStream(s, TIcon);
+      if ASkipDialog then
+      begin
+        result := multi[0];
+        multi[0] := nil;
+        FreeMultiImage(multi);
+      end
+      else
+        ChooseMulti;
+    end else
+    if format = ifCur then
+    begin
+      multi := LoadIcoMultiImageFromStream(s, TCursorImage);
       if ASkipDialog then
       begin
         result := multi[0];
