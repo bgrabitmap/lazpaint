@@ -709,6 +709,7 @@ var p: string;
   fullname: string;
   age: LongInt;
   i: Integer;
+  entry: TMultiFileEntry;
 begin
   if AMask = '' then AMask := '*';
   p := ExcludeTrailingPathDelimiter(ABaseDir);
@@ -727,12 +728,20 @@ begin
         end;
 
         for i := 0 to CurrentMultiFile.Count-1 do
-        if MaskAccepts(AMask, CurrentMultiFile.Entry[i].Name, CurrentMultiFile.Entry[i].Extension) then
         begin
-          fi.IsDirectory := false;
-          fi.Filename := CurrentMultiFile.Entry[i].Name+'.'+CurrentMultiFile.Entry[i].Extension;
-          fi.Size := CurrentMultiFile.Entry[i].FileSize;
-          AResult.Add(fi)
+          entry := CurrentMultiFile.Entry[i];
+          if entry is TCustomResourceEntry then
+          begin
+            if TCustomResourceEntry(entry).LanguageId <> 0 then continue;
+          end;
+          if MaskAccepts(AMask, entry.Name, entry.Extension) then
+          begin
+            fi.IsDirectory := false;
+            fi.Filename := entry.Name+'.'+entry.Extension;
+            fi.Size := entry.FileSize;
+            AResult.Add(fi)
+          end;
+
         end;
       end;
     except
