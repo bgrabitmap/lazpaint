@@ -18,11 +18,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: tablet.getprocfailed
-msgid "Echec de chargement de la procedure %s."
+msgid "Procedure %s failed to load properly."
 msgstr ""
 
 #: tablet.openfailed
-msgid "Echec de l'ouverture du contexte de la tablette."
+msgid "Tablet context failed to open."
 msgstr ""
 
 #: tfabout.button_donate.caption
@@ -2756,6 +2756,14 @@ msgstr "Fermeture"
 msgctxt "uresourcestrings.rscolors"
 msgid "Colors"
 msgstr "Couleurs"
+
+#: uresourcestrings.rsconfirmdeletefromcontainer
+msgid "Are you sure you want to delete this file from the container?"
+msgstr "Etes-vous sûr de vouloir supprimer ce fichier du conteneur ?"
+
+#: uresourcestrings.rsconfirmdeletemultiplefromcontainer
+msgid "Are you sure you want to delete these %1 files from the container?"
+msgstr "Etes-vous sûr de vouloir supprimer ces %1 fichiers du conteneur ?"
 
 #: uresourcestrings.rsconfirmmovemultipletotrash
 msgid "Are you sure you want to move these %1 files to the trash?"

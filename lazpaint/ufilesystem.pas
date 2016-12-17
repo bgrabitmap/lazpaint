@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, UResourceStrings, LazUTF8, Forms, BGRAMultiFileType, ShellCtrls, fgl;
 
 type
-  TDeleteConfirmationFunction = function(AForm: TForm; const AFiles: array of string): boolean of object;
+  TDeleteConfirmationFunction = function(AForm: TForm; const AFiles: array of string; AContained: boolean): boolean of object;
 
 const
   //Windows file systems
@@ -347,7 +347,7 @@ const gvfsTrash = '/usr/bin/gvfs-trash';
     result := false;
     if Assigned(AConfirmationCallback) then
     begin
-      if not AConfirmationCallback(AForm, AFilenamesUTF8) then exit;
+      if not AConfirmationCallback(AForm, AFilenamesUTF8, False) then exit;
     end;
     try
       p := TProcess.Create(nil);
@@ -430,7 +430,7 @@ begin
   setlength(containedFiles, nbContainedFiles);
   if nbContainedFiles > 0 then
   begin
-    if not AConfirmationCallback(AForm, containedFiles) then exit;
+    if not AConfirmationCallback(AForm, containedFiles, True) then exit;
     for i := 0 to high(containedFiles) do
       DeleteFile(containedFiles[i]);
   end;

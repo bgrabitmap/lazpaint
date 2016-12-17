@@ -65,7 +65,7 @@ type
     procedure ToolButton_ViewBigIconClick(Sender: TObject);
     procedure Tool_SelectDriveClick(Sender: TObject);
     procedure vsPreviewRedraw(Sender: TObject; Bitmap: TBGRABitmap);
-    function OnDeleteConfirmation({%H-}AForm:TForm; const AFiles: array of string): boolean;
+    function OnDeleteConfirmation({%H-}AForm:TForm; const AFiles: array of string; AContained: boolean): boolean;
     procedure vsPreviewResize(Sender: TObject);
   private
     FDefaultExtension: string;
@@ -684,8 +684,15 @@ begin
 end;
 
 function TFBrowseImages.OnDeleteConfirmation(AForm: TForm;
-  const AFiles: array of string): boolean;
+  const AFiles: array of string; AContained: boolean): boolean;
 begin
+  if AContained then
+  begin
+    if length(AFiles)=1 then
+      result := QuestionDlg(rsDeleteFile,rsConfirmDeleteFromContainer,mtConfirmation,[mrOK,rsOkay,mrCancel,rsCancel],0)=mrOk else
+    if length(AFiles)>1 then
+      result := QuestionDlg(rsDeleteFile,StringReplace(rsConfirmDeleteMultipleFromContainer,'%1',IntToStr(length(AFiles)),[]),mtConfirmation,[mrOK,rsOkay,mrCancel,rsCancel],0)=mrOk
+  end else
   if length(AFiles)=1 then
     result := QuestionDlg(rsDeleteFile,rsConfirmMoveToTrash,mtConfirmation,[mrOK,rsOkay,mrCancel,rsCancel],0)=mrOk else
   if length(AFiles)>1 then

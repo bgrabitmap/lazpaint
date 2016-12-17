@@ -181,6 +181,8 @@ resourcestring
   rsDeleteFile = 'Delete';
   rsConfirmMoveToTrash = 'Are you sure you want to move this file to the trash?';
   rsConfirmMoveMultipleToTrash = 'Are you sure you want to move these %1 files to the trash?';
+  rsConfirmDeleteFromContainer = 'Are you sure you want to delete this file from the container?';
+  rsConfirmDeleteMultipleFromContainer = 'Are you sure you want to delete these %1 files from the container?';
   rsEnterFolderOrContainerName = 'Enter name for new folder or container (using RES or LRS extension):';
   rsFolderOrContainerAlreadyExists = 'Folder or container already exists.';
   rsInvalidName = 'Invalid name';

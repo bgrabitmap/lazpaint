@@ -2779,6 +2779,14 @@ msgctxt "uresourcestrings.rscolors"
 msgid "Colors"
 msgstr "Kleuren"
 
+#: uresourcestrings.rsconfirmdeletefromcontainer
+msgid "Are you sure you want to delete this file from the container?"
+msgstr ""
+
+#: uresourcestrings.rsconfirmdeletemultiplefromcontainer
+msgid "Are you sure you want to delete these %1 files from the container?"
+msgstr ""
+
 #: uresourcestrings.rsconfirmmovemultipletotrash
 msgid "Are you sure you want to move these %1 files to the trash?"
 msgstr ""
