@@ -140,7 +140,7 @@ var
   format : TBGRAImageFormat;
   s: TStream;
 
-  procedure ChooseMulti;
+  procedure ChooseMulti(AStretch: boolean);
   begin
     if length(multi)=1 then
     begin
@@ -150,7 +150,7 @@ var
     begin
       formMultiImage := TFMultiImage.Create(nil);
       try
-        result := formMultiImage.ShowAndChoose(multi);
+        result := formMultiImage.ShowAndChoose(multi,AStretch);
       finally
         formMultiImage.Free;
       end;
@@ -176,7 +176,7 @@ begin
         FreeMultiImage(multi);
       end
       else
-        ChooseMulti;
+        ChooseMulti(False);
     end else
     if format = ifCur then
     begin
@@ -188,12 +188,12 @@ begin
         FreeMultiImage(multi);
       end
       else
-        ChooseMulti;
+        ChooseMulti(False);
     end else
     if (format = ifGif) and not ASkipDialog then
     begin
       multi := LoadGifMultiImageFromStream(s);
-      ChooseMulti;
+      ChooseMulti(True);
     end else
     if format = ifLazPaint then
     begin

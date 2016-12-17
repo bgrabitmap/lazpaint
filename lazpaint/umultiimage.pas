@@ -27,7 +27,7 @@ type
     selectedIndex : integer;
   public
     { public declarations }
-    function ShowAndChoose(images: ArrayOfBGRABitmap): TBGRABitmap;
+    function ShowAndChoose(images: ArrayOfBGRABitmap; AStretch: boolean): TBGRABitmap;
   end; 
 
 implementation
@@ -67,8 +67,9 @@ begin
   end;
 end;
 
-function TFMultiImage.ShowAndChoose(images: ArrayOfBGRABitmap): TBGRABitmap;
+function TFMultiImage.ShowAndChoose(images: ArrayOfBGRABitmap; AStretch: boolean): TBGRABitmap;
 var i: integer; thumb : TBGRABitmap; mr: integer;
+  x,y: integer;
 begin
   ListView1.Clear;
   ImageList1.Clear;
@@ -76,8 +77,18 @@ begin
   thumb := TBGRABitmap.Create(ImageList1.Width,ImageList1.Height);
   for i := 0 to high(images) do
   begin
-    if GetBitmapThumbnail(images[i],thumb.Width,thumb.Height,BGRAPixelTransparent,True,thumb) <> nil then
-      ImageList1.Add(thumb.Bitmap,nil);
+    if AStretch or (images[i].Width > thumb.width) or (images[i].Height > thumb.Height) then
+    begin
+      GetBitmapThumbnail(images[i],thumb.Width,thumb.Height,BGRAPixelTransparent,True,thumb);
+    end else
+    begin
+      thumb.FillTransparent;
+      x := (thumb.width-images[i].Width) div 2;
+      y := (thumb.Height-images[i].Height) div 2;
+      DrawThumbnailCheckers(thumb, rect(x,y,x+images[i].Width,y+images[i].Height));
+      thumb.PutImage(x,y,images[i],dmDrawWithTransparency);
+    end;
+    ImageList1.Add(thumb.Bitmap,nil);
   end;
   thumb.free;
 
