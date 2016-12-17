@@ -176,6 +176,10 @@ msgstr "Explorar imágenes"
 msgid "Size: "
 msgstr "Tamaño:"
 
+#: tfbrowseimages.toolbutton_createfolderorcontainer.hint
+msgid "Create folder or container"
+msgstr ""
+
 #: tfbrowseimages.toolbutton_goup.hint
 msgid "Go one directory up"
 msgstr "Ir a la carpeta raíz"
@@ -2798,6 +2802,10 @@ msgctxt "uresourcestrings.rsdeletefile"
 msgid "Delete"
 msgstr "Eliminar"
 
+#: uresourcestrings.rsdirectorynotempty
+msgid "Directory is not empty"
+msgstr ""
+
 #: uresourcestrings.rsditherlayerusingpalette
 msgid "Dither layer using palette"
 msgstr "Entramado de capa usando paleta"
@@ -2823,6 +2831,10 @@ msgstr "La capa esta vacia"
 #: uresourcestrings.rsemptyselection
 msgid "Selection is empty"
 msgstr "La selección está vacia"
+
+#: uresourcestrings.rsenterfolderorcontainername
+msgid "Enter name for new folder or container (using RES or LRS extension):"
+msgstr ""
 
 #: uresourcestrings.rsenterlayername
 msgid "Enter layer name:"
@@ -2903,6 +2915,10 @@ msgstr "Fijo"
 msgid "Folder"
 msgstr "Carpeta"
 
+#: uresourcestrings.rsfolderorcontaineralreadyexists
+msgid "Folder or container already exists."
+msgstr ""
+
 #: uresourcestrings.rsfollowingerrorsoccured
 msgid "Following errors occured:"
 msgstr "Estos errores han ocurrido:"
@@ -2963,6 +2979,10 @@ msgstr "Intensidad"
 #: uresourcestrings.rsinternalerror
 msgid "Internal error"
 msgstr "Error interno"
+
+#: uresourcestrings.rsinvalidname
+msgid "Invalid name"
+msgstr ""
 
 #: uresourcestrings.rsinvalidopacity
 msgid "Invalid opacity : "

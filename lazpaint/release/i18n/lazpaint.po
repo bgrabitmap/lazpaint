@@ -166,6 +166,10 @@ msgstr ""
 msgid "Size: "
 msgstr ""
 
+#: tfbrowseimages.toolbutton_createfolderorcontainer.hint
+msgid "Create folder or container"
+msgstr ""
+
 #: tfbrowseimages.toolbutton_goup.hint
 msgid "Go one directory up"
 msgstr ""
@@ -2785,6 +2789,10 @@ msgctxt "uresourcestrings.rsdeletefile"
 msgid "Delete"
 msgstr ""
 
+#: uresourcestrings.rsdirectorynotempty
+msgid "Directory is not empty"
+msgstr ""
+
 #: uresourcestrings.rsditherlayerusingpalette
 msgid "Dither layer using palette"
 msgstr ""
@@ -2807,6 +2815,10 @@ msgstr ""
 
 #: uresourcestrings.rsemptyselection
 msgid "Selection is empty"
+msgstr ""
+
+#: uresourcestrings.rsenterfolderorcontainername
+msgid "Enter name for new folder or container (using RES or LRS extension):"
 msgstr ""
 
 #: uresourcestrings.rsenterlayername
@@ -2885,6 +2897,10 @@ msgstr ""
 msgid "Folder"
 msgstr ""
 
+#: uresourcestrings.rsfolderorcontaineralreadyexists
+msgid "Folder or container already exists."
+msgstr ""
+
 #: uresourcestrings.rsfollowingerrorsoccured
 msgid "Following errors occured:"
 msgstr ""
@@ -2943,6 +2959,10 @@ msgstr ""
 
 #: uresourcestrings.rsinternalerror
 msgid "Internal error"
+msgstr ""
+
+#: uresourcestrings.rsinvalidname
+msgid "Invalid name"
 msgstr ""
 
 #: uresourcestrings.rsinvalidopacity

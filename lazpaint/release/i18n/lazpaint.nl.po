@@ -203,6 +203,10 @@ msgstr "Blader door beelden"
 msgid "Size: "
 msgstr "Grootte:"
 
+#: tfbrowseimages.toolbutton_createfolderorcontainer.hint
+msgid "Create folder or container"
+msgstr ""
+
 #: tfbrowseimages.toolbutton_goup.hint
 msgid "Go one directory up"
 msgstr "Een directory omhoog gaan"
@@ -2826,6 +2830,10 @@ msgctxt "uresourcestrings.rsdeletefile"
 msgid "Delete"
 msgstr "Verwijder"
 
+#: uresourcestrings.rsdirectorynotempty
+msgid "Directory is not empty"
+msgstr ""
+
 #: uresourcestrings.rsditherlayerusingpalette
 msgid "Dither layer using palette"
 msgstr ""
@@ -2849,6 +2857,10 @@ msgstr "Laag is leeg"
 #: uresourcestrings.rsemptyselection
 msgid "Selection is empty"
 msgstr "Selectie is leeg"
+
+#: uresourcestrings.rsenterfolderorcontainername
+msgid "Enter name for new folder or container (using RES or LRS extension):"
+msgstr ""
 
 #: uresourcestrings.rsenterlayername
 msgid "Enter layer name:"
@@ -2926,6 +2938,10 @@ msgstr ""
 msgid "Folder"
 msgstr "Folder"
 
+#: uresourcestrings.rsfolderorcontaineralreadyexists
+msgid "Folder or container already exists."
+msgstr ""
+
 #: uresourcestrings.rsfollowingerrorsoccured
 msgid "Following errors occured:"
 msgstr ""
@@ -2985,6 +3001,10 @@ msgstr "Intensiteit"
 #: uresourcestrings.rsinternalerror
 msgid "Internal error"
 msgstr "Interne fout"
+
+#: uresourcestrings.rsinvalidname
+msgid "Invalid name"
+msgstr ""
 
 #: uresourcestrings.rsinvalidopacity
 msgid "Invalid opacity : "

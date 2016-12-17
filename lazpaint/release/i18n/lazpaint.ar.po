@@ -184,6 +184,10 @@ msgstr "تصفح الصور"
 msgid "Size: "
 msgstr "الحجم :"
 
+#: tfbrowseimages.toolbutton_createfolderorcontainer.hint
+msgid "Create folder or container"
+msgstr ""
+
 #: tfbrowseimages.toolbutton_goup.hint
 msgid "Go one directory up"
 msgstr "الصعود بمجلد"
@@ -2812,6 +2816,10 @@ msgctxt "uresourcestrings.rsdeletefile"
 msgid "Delete"
 msgstr "حذف"
 
+#: uresourcestrings.rsdirectorynotempty
+msgid "Directory is not empty"
+msgstr ""
+
 #: uresourcestrings.rsditherlayerusingpalette
 msgid "Dither layer using palette"
 msgstr ""
@@ -2835,6 +2843,10 @@ msgstr "الطبقة فارغة"
 #: uresourcestrings.rsemptyselection
 msgid "Selection is empty"
 msgstr "التحديد فارغ"
+
+#: uresourcestrings.rsenterfolderorcontainername
+msgid "Enter name for new folder or container (using RES or LRS extension):"
+msgstr ""
 
 #: uresourcestrings.rsenterlayername
 msgid "Enter layer name:"
@@ -2912,6 +2924,10 @@ msgstr ""
 msgid "Folder"
 msgstr "مجلد"
 
+#: uresourcestrings.rsfolderorcontaineralreadyexists
+msgid "Folder or container already exists."
+msgstr ""
+
 #: uresourcestrings.rsfollowingerrorsoccured
 msgid "Following errors occured:"
 msgstr ""
@@ -2971,6 +2987,10 @@ msgstr "كثافة"
 #: uresourcestrings.rsinternalerror
 msgid "Internal error"
 msgstr "خطأ داخلي"
+
+#: uresourcestrings.rsinvalidname
+msgid "Invalid name"
+msgstr ""
 
 #: uresourcestrings.rsinvalidopacity
 msgid "Invalid opacity : "

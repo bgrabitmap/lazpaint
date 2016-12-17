@@ -178,6 +178,10 @@ msgstr "Procházet obrázky"
 msgid "Size: "
 msgstr "Velikost:"
 
+#: tfbrowseimages.toolbutton_createfolderorcontainer.hint
+msgid "Create folder or container"
+msgstr ""
+
 #: tfbrowseimages.toolbutton_goup.hint
 msgid "Go one directory up"
 msgstr "Jít o adresář výše"
@@ -2799,6 +2803,10 @@ msgctxt "uresourcestrings.rsdeletefile"
 msgid "Delete"
 msgstr "Smazat"
 
+#: uresourcestrings.rsdirectorynotempty
+msgid "Directory is not empty"
+msgstr ""
+
 #: uresourcestrings.rsditherlayerusingpalette
 msgid "Dither layer using palette"
 msgstr ""
@@ -2822,6 +2830,10 @@ msgstr "Vrstva je prázdná"
 #: uresourcestrings.rsemptyselection
 msgid "Selection is empty"
 msgstr "Výběr je prázdný"
+
+#: uresourcestrings.rsenterfolderorcontainername
+msgid "Enter name for new folder or container (using RES or LRS extension):"
+msgstr ""
 
 #: uresourcestrings.rsenterlayername
 msgid "Enter layer name:"
@@ -2899,6 +2911,10 @@ msgstr ""
 msgid "Folder"
 msgstr "Složka"
 
+#: uresourcestrings.rsfolderorcontaineralreadyexists
+msgid "Folder or container already exists."
+msgstr ""
+
 #: uresourcestrings.rsfollowingerrorsoccured
 msgid "Following errors occured:"
 msgstr ""
@@ -2958,6 +2974,10 @@ msgstr "Jas"
 #: uresourcestrings.rsinternalerror
 msgid "Internal error"
 msgstr "Vnitřní chyba"
+
+#: uresourcestrings.rsinvalidname
+msgid "Invalid name"
+msgstr ""
 
 #: uresourcestrings.rsinvalidopacity
 msgid "Invalid opacity : "

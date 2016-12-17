@@ -181,6 +181,10 @@ resourcestring
   rsDeleteFile = 'Delete';
   rsConfirmMoveToTrash = 'Are you sure you want to move this file to the trash?';
   rsConfirmMoveMultipleToTrash = 'Are you sure you want to move these %1 files to the trash?';
+  rsEnterFolderOrContainerName = 'Enter name for new folder or container (using RES or LRS extension):';
+  rsFolderOrContainerAlreadyExists = 'Folder or container already exists.';
+  rsInvalidName = 'Invalid name';
+  rsDirectoryNotEmpty = 'Directory is not empty';
 
   rsClearPalette = 'Clear palette';
   rsDefaultPalette = 'Default palette';

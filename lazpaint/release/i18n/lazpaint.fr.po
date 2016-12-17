@@ -182,6 +182,10 @@ msgstr "Parcourir les images"
 msgid "Size: "
 msgstr "Dimensions : "
 
+#: tfbrowseimages.toolbutton_createfolderorcontainer.hint
+msgid "Create folder or container"
+msgstr "Créer dossier ou conteneur"
+
 #: tfbrowseimages.toolbutton_goup.hint
 msgid "Go one directory up"
 msgstr "Répertoire parent"
@@ -2805,6 +2809,10 @@ msgctxt "uresourcestrings.rsdeletefile"
 msgid "Delete"
 msgstr "Supprimer"
 
+#: uresourcestrings.rsdirectorynotempty
+msgid "Directory is not empty"
+msgstr "Le dossier n'est pas vide"
+
 #: uresourcestrings.rsditherlayerusingpalette
 msgid "Dither layer using palette"
 msgstr "Tramer le calque en utilisant la palette"
@@ -2830,6 +2838,10 @@ msgstr "Le calque est vide"
 #: uresourcestrings.rsemptyselection
 msgid "Selection is empty"
 msgstr "La sélection est vide"
+
+#: uresourcestrings.rsenterfolderorcontainername
+msgid "Enter name for new folder or container (using RES or LRS extension):"
+msgstr "Entrez le nom pour le nouveau dossier ou conteneur (en utilisant l'extension RES ou LRS) :"
 
 #: uresourcestrings.rsenterlayername
 msgid "Enter layer name:"
@@ -2910,6 +2922,10 @@ msgstr "Fixe"
 msgid "Folder"
 msgstr "Dossier"
 
+#: uresourcestrings.rsfolderorcontaineralreadyexists
+msgid "Folder or container already exists."
+msgstr "Le dossier ou conteneur existe déjà"
+
 #: uresourcestrings.rsfollowingerrorsoccured
 msgid "Following errors occured:"
 msgstr "Les erreurs suivantes sont survenues :"
@@ -2970,6 +2986,10 @@ msgstr "Intensifier"
 #: uresourcestrings.rsinternalerror
 msgid "Internal error"
 msgstr "Erreur interne"
+
+#: uresourcestrings.rsinvalidname
+msgid "Invalid name"
+msgstr "Nom invalide"
 
 #: uresourcestrings.rsinvalidopacity
 msgid "Invalid opacity : "

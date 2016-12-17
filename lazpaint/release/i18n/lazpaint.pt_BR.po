@@ -188,6 +188,10 @@ msgstr "Navegue nas imagens"
 msgid "Size: "
 msgstr "Tamanho: "
 
+#: tfbrowseimages.toolbutton_createfolderorcontainer.hint
+msgid "Create folder or container"
+msgstr ""
+
 #: tfbrowseimages.toolbutton_goup.hint
 msgid "Go one directory up"
 msgstr "Ir para um diretório acima"
@@ -2811,6 +2815,10 @@ msgctxt "uresourcestrings.rsdeletefile"
 msgid "Delete"
 msgstr "Excluir"
 
+#: uresourcestrings.rsdirectorynotempty
+msgid "Directory is not empty"
+msgstr ""
+
 #: uresourcestrings.rsditherlayerusingpalette
 msgid "Dither layer using palette"
 msgstr ""
@@ -2834,6 +2842,10 @@ msgstr "Camada está vazia"
 #: uresourcestrings.rsemptyselection
 msgid "Selection is empty"
 msgstr "Seleção está vazia"
+
+#: uresourcestrings.rsenterfolderorcontainername
+msgid "Enter name for new folder or container (using RES or LRS extension):"
+msgstr ""
 
 #: uresourcestrings.rsenterlayername
 msgid "Enter layer name:"
@@ -2911,6 +2923,10 @@ msgstr ""
 msgid "Folder"
 msgstr "Pasta"
 
+#: uresourcestrings.rsfolderorcontaineralreadyexists
+msgid "Folder or container already exists."
+msgstr ""
+
 #: uresourcestrings.rsfollowingerrorsoccured
 msgid "Following errors occured:"
 msgstr ""
@@ -2970,6 +2986,10 @@ msgstr "Intensidade"
 #: uresourcestrings.rsinternalerror
 msgid "Internal error"
 msgstr "Erro interno"
+
+#: uresourcestrings.rsinvalidname
+msgid "Invalid name"
+msgstr ""
 
 #: uresourcestrings.rsinvalidopacity
 msgid "Invalid opacity : "

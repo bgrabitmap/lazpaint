@@ -19,6 +19,7 @@ type
 
   TFBrowseImages = class(TForm)
     DirectoryEdit1: TEdit;
+    ToolButton_CreateFolderOrContainer: TToolButton;
     Tool_SelectDrive: TToolButton;
     ToolButtonSeparator: TToolButton;
     ToolButton_OpenSelectedFiles: TToolButton;
@@ -57,6 +58,7 @@ type
     procedure ShellListView1OnSort(Sender: TObject);
     procedure ShellListView1OnFormatType(Sender: Tobject; var AType:string);
     procedure Timer1Timer(Sender: TObject);
+    procedure ToolButton_CreateFolderOrContainerClick(Sender: TObject);
     procedure ToolButton_OpenSelectedFilesClick(Sender: TObject);
     procedure ToolButton_ViewDetailsClick(Sender: TObject);
     procedure ToolButton_GoUpClick(Sender: TObject);
@@ -91,6 +93,7 @@ type
     FImageHardDrive, FImageCdRom, FImageUsbStick, FImageRamDrive, FImageNetworkDrive: TBGRABitmap;
     InFilenameChange: boolean;
     FSelectedFiles: array of string;
+    FCreateFolderOrContainerCaption: string;
     function GetCurrentExtensionFilter: string;
     function GetInitialFilename: string;
     function GetOpenLayerIcon: boolean;
@@ -100,7 +103,7 @@ type
     function GetAllowMultiSelect: boolean;
     function GetSelectedFile(AIndex: integer): string;
     function GetSelectedFileCount: integer;
-    procedure ResetDirectory(AFocus: boolean);
+    procedure ResetDirectory(AFocus: boolean; AForceReload: boolean = false);
     procedure ClearThumbnails;
     procedure SetAllowMultiSelect(AValue: boolean);
     procedure SetIsSaveDialog(AValue: boolean);
@@ -118,6 +121,7 @@ type
     procedure InitComboExt;
     procedure SetShellMask;
     procedure DeleteSelectedFiles;
+    procedure SelectFile(AName: string);
   public
     { public declarations }
     LazPaintInstance: TLazPaintCustomInstance;
@@ -277,11 +281,17 @@ begin
   if length(FFileSystems)>0 then
   begin
     Tool_SelectDrive.Visible := true;
+  end else
+  begin
+    Tool_SelectDrive.Visible := false;
     delta := ImageListToolbar.Width+Toolbar1.Indent;
-    ToolBar1.Width := ToolBar1.Width+delta;
-    DirectoryEdit1.Left := DirectoryEdit1.Left+delta;
-    DirectoryEdit1.Width := DirectoryEdit1.Width-delta;
+    ToolBar1.Width := ToolBar1.Width-delta;
+    DirectoryEdit1.Left := DirectoryEdit1.Left-delta;
+    DirectoryEdit1.Width := DirectoryEdit1.Width+delta;
   end;
+
+  FCreateFolderOrContainerCaption := ToolButton_CreateFolderOrContainer.Hint;
+  ToolButton_CreateFolderOrContainer.Hint := ToolButton_CreateFolderOrContainer.Hint + '...';
 end;
 
 procedure TFBrowseImages.FormDestroy(Sender: TObject);
@@ -559,6 +569,50 @@ begin
   Timer1.Enabled:= true;
 end;
 
+procedure TFBrowseImages.ToolButton_CreateFolderOrContainerClick(Sender: TObject);
+var
+  newName: String;
+  newFullname: string;
+begin
+  if pos(PathDelim, DirectoryEdit1.Text) = 0 then exit;
+  newName := InputBox(FCreateFolderOrContainerCaption, rsEnterFolderOrContainerName, '');
+  if (pos(':',newName) <> 0) or (pos('\',newName) <> 0) then
+    MessageDlg(rsInvalidName, mtError, [mbOK], 0) else
+  begin
+    newFullname := ChompPathDelim(DirectoryEdit1.Text)+PathDelim+newName;
+    if FileManager.IsDirectory(newFullname) then
+      MessageDlg(rsFolderOrContainerAlreadyExists, mtInformation, [mbOK], 0)
+    else
+    begin
+      if FileManager.FileExists(newFullname) then
+      begin
+        if MessageDlg(rsOverwriteFile, mtConfirmation, [mbYes,mbNo], 0) = mrYes then
+        begin
+          try
+            FileManager.DeleteFile(newFullname);
+          except
+            on ex:exception do
+            begin
+              MessageDlg(ex.Message, mtError, [mbOk], 0);
+              exit;
+            end;
+          end;
+        end
+        else exit;
+      end;
+      try
+        FileManager.CreateDirectory(newFullname);
+      except
+        on ex:exception do
+          MessageDlg(ex.Message, mtError, [mbOk], 0);
+      end;
+      ResetDirectory(True,True);
+      SelectFile(newName);
+    end;
+  end;
+
+end;
+
 procedure TFBrowseImages.ToolButton_OpenSelectedFilesClick(Sender: TObject);
 begin
   ValidateFileOrDir;
@@ -683,12 +737,17 @@ begin
     ToolButton_OpenSelectedFiles.ImageIndex := 5;
 end;
 
-procedure TFBrowseImages.ResetDirectory(AFocus: boolean);
+procedure TFBrowseImages.ResetDirectory(AFocus: boolean; AForceReload: boolean);
+var newDir: string;
 begin
-  if DirectoryEdit1.Text <> ShellListView1.Root then
+  newDir := DirectoryEdit1.Text;
+  if (newDir <> ShellListView1.Root) or AForceReload then
   begin
     ClearThumbnails;
-    ShellListView1.Root := DirectoryEdit1.Text;
+    if newDir = ShellListView1.Root then
+      ShellListView1.Reload
+    else
+      ShellListView1.Root := newDir;
     StartThumbnails;
     if AFocus then ShellListView1.SetFocus;
     if ShellListView1.ItemCount <> 0 then
@@ -696,6 +755,7 @@ begin
       ShellListView1.MakeItemVisible(0);
     end;
     SelectCurrentDir;
+    ToolButton_CreateFolderOrContainer.Enabled := pos(PathDelim, newDir) <> 0;
   end;
 end;
 
@@ -982,7 +1042,6 @@ end;
 procedure TFBrowseImages.GoDirUp;
 var dir: string;
   itemToSelect: string;
-  idx: integer;
 begin
   dir := DirectoryEdit1.Text;
   FileManager.RemoveLastPathElement(dir, itemToSelect);
@@ -998,15 +1057,7 @@ begin
   InFilenameChange := true;
   Edit_Filename.text := '';
   InFilenameChange := false;
-  idx := ShellListView1.IndexByName(itemToSelect, {$IFNDEF WINDOWS}True{$ELSE}False{$ENDIF});
-  if (idx <> -1) then
-  begin
-    ShellListView1.SelectedIndex := idx;
-    ShellListView1.MakeItemVisible(idx);
-    InFilenameChange := true;
-    Edit_Filename.text := ShellListView1.ItemName[idx];
-    InFilenameChange := false;
-  end;
+  SelectFile(itemToSelect);
 end;
 
 procedure TFBrowseImages.InitComboExt;
@@ -1043,25 +1094,47 @@ var filesToDelete: array of string;
 begin
   deleteCount := 0;
   for i := 0 to ShellListView1.ItemCount-1 do
-    if ShellListView1.ItemSelected[i] and not ShellListView1.ItemIsFolder[i] then
+    if ShellListView1.ItemSelected[i] then
+    begin
+      if FileManager.FileExists(ShellListView1.ItemFullName[i]) then
+        inc(deleteCount)
+      else
+      begin
+        if ShellListView1.ItemFullName[i] = FPreviewFilename then UpdatePreview('');
+        ShellListView1.ItemSelected[i] := false;
+        if FileManager.IsDirectory(ShellListView1.ItemFullName[i]) then
+        begin
+          if FileManager.IsDirectoryEmpty(ShellListView1.ItemFullName[i]) then
+          begin
+            try
+              FileManager.DeleteDirectory(ShellListView1.ItemFullName[i]);
+              ShellListView1.RemoveItemFromList(i);
+            except on ex:Exception do
+              MessageDlg(rsDeleteFile, ex.Message, mtError, [mbOk], 0);
+            end;
+          end else
+            MessageDlg(rsDeleteFile, rsDirectoryNotEmpty, mtError, [mbOk], 0);
+        end;
+      end;
+    end;
+
+  setlength(filesToDelete, deleteCount);
+  deleteCount := 0;
+  for i := 0 to ShellListView1.ItemCount-1 do
+    if ShellListView1.ItemSelected[i] then
+    begin
+      filesToDelete[deleteCount] := ShellListView1.ItemFullName[i];
       inc(deleteCount);
+    end;
+
   if deleteCount > 0 then
   begin
-    setlength(filesToDelete, deleteCount);
-    deleteCount := 0;
-    for i := 0 to ShellListView1.ItemCount-1 do
-      if ShellListView1.ItemSelected[i] and not ShellListView1.ItemIsFolder[i] then
-      begin
-        filesToDelete[deleteCount] := ShellListView1.ItemFullName[i];
-        inc(deleteCount);
-      end;
-
     self.Enabled := false;
     FileManager.MoveToTrash(self, filesToDelete, @OnDeleteConfirmation);
     self.Enabled := true;
 
     for i := ShellListView1.ItemCount-1 downto 0 do
-      if ShellListView1.ItemSelected[i] and not ShellListView1.ItemIsFolder[i] then
+      if ShellListView1.ItemSelected[i] then
       begin
         if not FileManager.FileExists(ShellListView1.ItemFullName[i]) then
         begin
@@ -1070,6 +1143,21 @@ begin
           ShellListView1.RemoveItemFromList(i);
         end;
       end;
+  end;
+end;
+
+procedure TFBrowseImages.SelectFile(AName: string);
+var
+  idx: Integer;
+begin
+  idx := ShellListView1.IndexByName(AName, {$IFNDEF WINDOWS}True{$ELSE}False{$ENDIF});
+  if (idx <> -1) then
+  begin
+    ShellListView1.SelectedIndex := idx;
+    ShellListView1.MakeItemVisible(idx);
+    InFilenameChange := true;
+    Edit_Filename.text := ShellListView1.ItemName[idx];
+    InFilenameChange := false;
   end;
 end;
 
