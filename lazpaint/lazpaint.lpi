@@ -722,7 +722,7 @@
     </Linking>
   </CompilerOptions>
   <Debugging>
-    <Exceptions Count="9">
+    <Exceptions Count="10">
       <Item1>
         <Name Value="EAbort"/>
       </Item1>
@@ -750,6 +750,9 @@
       <Item9>
         <Name Value="EConvertError"/>
       </Item9>
+      <Item10>
+        <Name Value="FPImageException"/>
+      </Item10>
     </Exceptions>
   </Debugging>
 </CONFIG>
