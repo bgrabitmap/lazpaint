@@ -67,6 +67,8 @@ type
 
   TFileInfoList = specialize TFPGList<TFileInfo>;
 
+  { TFileManager }
+
   TFileManager = class
     function RemovePathTrail(ADir: string): string;
     procedure RemoveLastPathElement(var ADir: string; out ALastElement: string);
@@ -78,6 +80,9 @@ type
           AMask: string; AObjectTypes: TObjectTypes;
           AResult: TFileInfoList; AFileSortType: TFileSortType = fstNone);
     function IsDirectory(APathUTF8: string): boolean;
+    function IsDirectoryEmpty(APathUTF8: string): boolean;
+    procedure CreateDirectory(APathUTF8: string);
+    function DeleteDirectory(APathUTF8: string): boolean;
     function FileExists(AFilenameUTF8: string): boolean;
     procedure DeleteFile(AFilenameUTF8: string);
   end;
@@ -368,12 +373,17 @@ begin
 end;
 {$ENDIF}
 
-function IsMultiFileContainer(AFilenameUTF8: string): boolean;
+function IsMultiFileContainerName(AFilenameUTF8: string): boolean;
 var
   ext: String;
 begin
   ext := UTF8LowerCase(ExtractFileExt(AFilenameUTF8));
-  result := ((ext = '.lrs') or (ext = '.res')) and FileExistsUTF8(AFilenameUTF8);
+  result := ((ext = '.lrs') or (ext = '.res'));
+end;
+
+function IsMultiFileContainer(AFilenameUTF8: string): boolean;
+begin
+  result := IsMultiFileContainerName(AFilenameUTF8) and FileExistsUTF8(AFilenameUTF8);
 end;
 
 function ParseExtendedFilename(AFilenameUTF8: string): TExtendedFilename;
@@ -795,6 +805,40 @@ end;
 function TFileManager.IsDirectory(APathUTF8: string): boolean;
 begin
   result := IsMultiFileContainer(RemovePathTrail(APathUTF8)) or DirectoryExistsUTF8(APathUTF8);
+end;
+
+function TFileManager.IsDirectoryEmpty(APathUTF8: string): boolean;
+var searchRec: TSearchRec;
+begin
+  if FindFirstUTF8(AppendPathDelim(APathUTF8) + '*.*', faAnyFile, searchRec) = 0 then
+  repeat
+    if (searchRec.Name <> '.') and (searchRec.Name <> '..') then
+    begin
+      result := false;
+      FindCloseUTF8(searchRec);
+      exit;
+    end;
+  until FindNextUTF8(searchRec)<>0;
+  FindCloseUTF8(searchRec);
+  result := true;
+end;
+
+procedure TFileManager.CreateDirectory(APathUTF8: string);
+var
+  str: TStream;
+begin
+  if not IsMultiFileContainerName(APathUTF8) then
+    CreateDirUTF8(APathUTF8)
+  else
+  begin
+    str := CreateFileStream(APathUTF8, fmCreate);
+    str.Free;
+  end;
+end;
+
+function TFileManager.DeleteDirectory(APathUTF8: string): boolean;
+begin
+  result := RemoveDirUTF8(APathUTF8);
 end;
 
 function TFileManager.FileExists(AFilenameUTF8: string): boolean;
