@@ -9,7 +9,7 @@ interface
 {$ENDIF}
 
 uses
-  Classes, LMessages, SysUtils, FileUtil, LResources, Forms,
+  Classes, LMessages, SysUtils, LazFileUtils, LResources, Forms,
   Controls, Graphics, Dialogs, Menus, ExtDlgs, ComCtrls, ActnList, StdCtrls,
   ExtCtrls, Buttons, types, LCLType, BGRAImageList, BGRAVirtualScreen,
 
@@ -3684,22 +3684,24 @@ var
   procedure DrawSelectionHighlight(ARenderRect: TRect);
   var renderVisibleBounds: TRect;
     transform, invTransform: TAffineMatrix;
+    renderWidth, renderHeight: integer;
   begin
     if Assigned(FSelectionHighlight) then
     begin
       renderVisibleBounds := rect(0,0,virtualScreen.Width,virtualScreen.Height);
-      transform := AffineMatrixTranslation(ARenderRect.Left,ARenderRect.Top)
-           * AffineMatrixScale((ARenderRect.Right-ARenderRect.Left)/Image.Width,
-             (ARenderRect.Bottom-ARenderRect.Top)/Image.Height) * Image.SelectionTransform *
-             AffineMatrixScale(Image.Width/(ARenderRect.Right-ARenderRect.Left),
-             Image.Height/(ARenderRect.Bottom-ARenderRect.Top));
+      renderWidth := ARenderRect.Right-ARenderRect.Left;
+      renderHeight := ARenderRect.Bottom-ARenderRect.Top;
+      transform := AffineMatrixTranslation(ARenderRect.Left,ARenderRect.Top) *
+             AffineMatrixScale(renderWidth/Image.Width, renderHeight/Image.Height) *
+             Image.SelectionTransform *
+             AffineMatrixScale(Image.Width/renderWidth, Image.Height/renderHeight);
       try
         invTransform := AffineMatrixInverse(transform);
         renderVisibleBounds := virtualScreen.GetImageAffineBounds(invTransform, renderVisibleBounds,False);
         FSelectionHighlight.Update(ARenderRect.Right-ARenderRect.Left,ARenderRect.Bottom-ARenderRect.Top, renderVisibleBounds);
       except
       end;
-      FSelectionHighlight.DrawAffine(virtualScreen, transform, rfBox);
+      FSelectionHighlight.DrawAffine(virtualScreen, transform, rfBox, dmLinearBlend);
     end;
   end;
 
