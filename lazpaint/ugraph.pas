@@ -57,7 +57,8 @@ procedure BCAssignSystemStyle(AButton: TBCButton);
 implementation
 
 uses GraphType, math, Types, BGRAUTF8, FileUtil, dialogs, BGRAAnimatedGif,
-  BGRAGradients, BGRATextFX, uresourcestrings, uscaledpi, BCTypes;
+  BGRAGradients, BGRATextFX, uresourcestrings, uscaledpi, BCTypes,
+  BGRAThumbnail;
 
 procedure BCAssignSystemState(AState: TBCButtonState; AFontColor, ATopColor, AMiddleTopColor, AMiddleBottomColor, ABottomColor, ABorderColor: TColor);
 begin
@@ -226,7 +227,7 @@ end;
 
 procedure DrawCheckers(bmp: TBGRABitmap; ARect: TRect);
 begin
-  bmp.DrawCheckers(ARect,BGRA(255,255,255),BGRA(220,220,220));
+  DrawThumbnailCheckers(bmp, ARect, False);
 end; 
 
 procedure DrawGrid(bmp: TBGRABitmap; sizex, sizey: single; ofsx,ofsy: single);
@@ -1217,7 +1218,7 @@ begin
         if angle < 240 then
         begin
           ec.red := $0000;
-          ec.green := $FFFFF-round((angle-180)/60*$FFFF);
+          ec.green := $FFFF-round((angle-180)/60*$FFFF);
           ec.blue := $FFFF;
         end else
         if angle < 300 then
@@ -1229,7 +1230,7 @@ begin
         begin
           ec.red := $FFFF;
           ec.green := $0000;
-          ec.blue := $FFFFF-round((angle-300)/60*$FFFF);
+          ec.blue := $FFFF-round((angle-300)/60*$FFFF);
         end;
         gray := min($FFFF,max(0,$FFFF - round((sqrt(sqr((xb-xc)/(tx/2))+sqr((yb-yc)/(ty/2)))*1.2-0.1)*$FFFF)));
         level := max(max(ec.red,ec.green),ec.blue);

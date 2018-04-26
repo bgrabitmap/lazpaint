@@ -37,7 +37,6 @@ type
 
   TLazPaintImage = class
   private
-
     FLastSelectionBoundsIsDefined,
     FLastSelectionLayerBoundsIsDefined: boolean;
     FLastSelectionBounds, FLastSelectionLayerBounds: TRect;
@@ -60,6 +59,7 @@ type
     FSelectionLayerAfterMaskDefined: boolean;
 
     procedure DiscardSelectionLayerAfterMask;
+    function GetIsIconCursor: boolean;
     function GetLayerBitmapById(AId: integer): TBGRABitmap;
     function GetLayerId(AIndex: integer): integer;
     function GetTransformedSelectionBounds: TRect;
@@ -105,7 +105,10 @@ type
     OnException: TImageExceptionHandler;
     ImageOffset: TPoint;
     Zoom: TZoom;
+    CursorHotSpot: TPoint;
+    BPP: integer;
 
+    procedure DrawBackground(ABmp: TBGRABitmap; ARect: TRect);
     procedure DiscardSelectionBounds;
     procedure DiscardSelectionLayerBounds;
     function MakeLayeredBitmapCopy: TBGRALayeredBitmap;
@@ -181,14 +184,15 @@ type
     function AbleToSaveAsUTF8(AFilename: string): boolean;
     function AbleToSaveSelectionAsUTF8(AFilename: string): boolean;
     procedure SaveToFileUTF8(AFilename: string);
+    procedure UpdateIconFileUTF8(AFilename: string; AOutputFilename: string = '');
     procedure SaveToStreamAsLZP(AStream: TStream);
-    procedure SetSavedFlag;
+    procedure SetSavedFlag(ASavedBPP: integer = 0);
     function IsFileModified: boolean;
     function IsFileModifiedAndSaved: boolean;
     function FlatImageEquals(ABitmap: TBGRABitmap): boolean;
     procedure Flatten;
     procedure PrepareForRendering;
-    function ComputeFlatImage(AFromLayer,AToLayer: integer): TBGRABitmap;
+    function ComputeFlatImage(AFromLayer,AToLayer: integer; ASeparateXorMask: boolean): TBGRABitmap;
 
     procedure Draw(ADest: TBGRABitmap; x,y: integer);
     procedure AddNewLayer;
@@ -237,6 +241,7 @@ type
     property SelectionTransform: TAffineMatrix read FSelectionTransform write SetSelectionTransform;
     property TransformedSelectionBounds: TRect read GetTransformedSelectionBounds;
     property ZoomFactor: single read GetZoomFactor;
+    property IsIconCursor: boolean read GetIsIconCursor;
     constructor Create;
     destructor Destroy; override;
   end;
@@ -248,7 +253,8 @@ implementation
 uses UGraph, UResourceStrings, Dialogs,
     BGRAOpenRaster, BGRAPhoxo, BGRAPaintNet, UImageDiff, ULoading,
     BGRAWriteLzp, BGRAUTF8,
-    BGRAPalette, BGRAColorQuantization, UFileSystem;
+    BGRAPalette, BGRAColorQuantization, UFileSystem,
+    BGRAThumbnail, BGRAIconCursor;
 
 function ComputeAcceptableImageSize(AWidth, AHeight: integer): TSize;
 var ratio,newRatio: single;
@@ -446,7 +452,7 @@ function TLazPaintImage.AbleToSaveAsUTF8(AFilename: string): boolean;
 var format: TBGRAImageFormat;
 begin
   format := SuggestImageFormat(AFilename);
-  result := DefaultBGRAImageWriter[format] <> nil;
+  result := (DefaultBGRAImageWriter[format] <> nil) or (format in [ifIco,ifCur]);
   if result and (format = ifXPixMap) then
   begin
     if (Width > 256) or (Height > 256) then
@@ -502,6 +508,53 @@ begin
       s.Free;
     end;
     if NbLayers = 1 then SetSavedFlag;
+  end;
+end;
+
+procedure TLazPaintImage.UpdateIconFileUTF8(AFilename: string; AOutputFilename: string);
+var
+  s: TStream;
+  icoCur: TBGRAIconCursor;
+  frame: TBGRABitmap;
+begin
+  if bpp = 0 then
+  begin
+    if RenderedImage.HasTransparentPixels then
+      bpp := 32
+    else
+      bpp := 24;
+  end;
+
+  if AOutputFilename = '' then AOutputFilename := AFilename;
+
+  frame := BGRADitherIconCursor(RenderedImage, bpp, daFloydSteinberg) as TBGRABitmap;
+  icoCur := TBGRAIconCursor.Create;
+
+  try
+    if FileManager.FileExists(AFilename) then
+    begin
+      s := FileManager.CreateFileStream(AFilename,fmOpenRead or fmShareDenyWrite);
+      try
+        icoCur.LoadFromStream(s);
+      finally
+        s.Free;
+      end;
+    end;
+
+    icoCur.Add(frame, bpp, true);
+    icoCur.FileType:= SuggestImageFormat(AOutputFilename);
+
+    s := FileManager.CreateFileStream(AOutputFilename,fmCreate);
+    try
+      icoCur.SaveToStream(s);
+      SetSavedFlag(bpp);
+    finally
+      s.Free;
+    end;
+  finally
+
+    frame.free;
+    icoCur.Free;
   end;
 end;
 
@@ -604,17 +657,20 @@ begin
     reader.Free;
   end;
   ClearUndo;
+  CursorHotSpot := Point(0,0);
 end;
 
-procedure TLazPaintImage.SetSavedFlag;
+procedure TLazPaintImage.SetSavedFlag(ASavedBPP: integer);
 var i: integer;
 begin
   FCurrentState.saved := true;
+  self.BPP := ASavedBPP;
   for i := 0 to FUndoList.Count-1 do
   begin
     TCustomImageDifference(FUndoList[i]).SavedBefore := (i = FUndoPos+1);
     TCustomImageDifference(FUndoList[i]).SavedAfter := (i = FUndoPos);
   end;
+  OnImageChanged.NotifyObservers;
 end;
 
 function TLazPaintImage.IsFileModified: boolean;
@@ -791,6 +847,11 @@ begin
     TObject(FUndoList[i]).Free;
     FUndoList.Delete(i);
   end;
+end;
+
+procedure TLazPaintImage.DrawBackground(ABmp: TBGRABitmap; ARect: TRect);
+begin
+  DrawThumbnailCheckers(ABmp,ARect,IsIconCursor);
 end;
 
 procedure TLazPaintImage.DiscardSelectionBounds;
@@ -1138,6 +1199,11 @@ begin
   end;
 end;
 
+function TLazPaintImage.GetIsIconCursor: boolean;
+begin
+  result := SuggestImageFormat(currentFilenameUTF8) in [ifIco,ifCur];
+end;
+
 function TLazPaintImage.GetLayerBitmapById(AId: integer): TBGRABitmap;
 begin
   result := FCurrentState.LayerBitmapById[AId];
@@ -1230,8 +1296,11 @@ begin
 end;
 
 procedure TLazPaintImage.SetCurrentFilenameUTF8(AValue: string);
+var oldIsIco: boolean;
 begin
+  oldIsIco := IsIconCursor;
   FCurrentState.filenameUTF8 := AValue;
+  if oldIsIco <> IsIconCursor then ImageMayChangeCompletely;
   if Assigned(FOnCurrentFilenameChanged) then
     FOnCurrentFilenameChanged(self);
 end;
@@ -1335,7 +1404,7 @@ function TLazPaintImage.GetRenderedImage: TBGRABitmap;
 var
   backupCurrentLayer : TBGRABitmap;
   backupTopLeft: TPoint;
-  shownSelectionLayer : TBGRABitmap;
+  shownSelectionLayer , temp: TBGRABitmap;
   rectOutput: TRect;
   actualTransformation: TAffineMatrix;
 begin
@@ -1404,14 +1473,26 @@ begin
 
     if (FRenderedImage <> nil) and ((FRenderedImage.Width <> Width) or (FRenderedImage.Height <> Height)) then
       FreeAndNil(FRenderedImage);
-    if FRenderedImage = nil then
+
+    if FRenderedImage = nil then FRenderedImage := TBGRABitmap.Create(Width,Height);
+
+    if IsIconCursor then
     begin
-      FRenderedImage := FCurrentState.ComputeFlatImageWithoutSelection;
+      temp := FCurrentState.ComputeFlatImage(FRenderedImageInvalidated,0,NbLayers-1,True);
+      FRenderedImage.PutImage(FRenderedImageInvalidated.Left,FRenderedImageInvalidated.Top, temp, dmSet);
+      if temp.XorMask <> nil then
+      begin
+        FRenderedImage.NeedXorMask;
+        FRenderedImage.XorMask.PutImage(FRenderedImageInvalidated.Left,FRenderedImageInvalidated.Top, temp.XorMask, dmSet);
+      end else
+        FRenderedImage.DiscardXorMask;
+      temp.Free;
     end else
     begin
       FRenderedImage.ClipRect := FRenderedImageInvalidated;
       FRenderedImage.FillRect(FRenderedImageInvalidated,BGRAPixelTransparent,dmSet);
-      FCurrentState.DrawLayers(FRenderedImage,0,0);
+      FRenderedImage.DiscardXorMask;
+      FCurrentState.DrawLayers(FRenderedImage,0,0,False);
     end;
 
     //restore
@@ -1481,6 +1562,7 @@ var layeredBmp: TBGRALayeredBitmap;
   mask: TBGRABitmap;
 begin
   if not CheckNoAction then exit;
+  CursorHotSpot := AValue.HotSpot;
   if not AUndoable then
   begin
     FCurrentState.Assign(AValue, AOwned);
@@ -1501,7 +1583,7 @@ begin
         mask := AValue.XorMask.Duplicate as TBGRABitmap;
         mask.AlphaFill(255);
         mask.ReplaceColor(BGRABlack,BGRAPixelTransparent);
-        layeredBmp.AddOwnedLayer(mask,boXor);
+        layeredBmp.LayerName[layeredBmp.AddOwnedLayer(mask,boXor)] := 'Xor';
         AValue.DiscardXorMask;
       end;
     end
@@ -1513,7 +1595,7 @@ begin
         mask := AValue.XorMask.Duplicate as TBGRABitmap;
         mask.AlphaFill(255);
         mask.ReplaceColor(BGRABlack,BGRAPixelTransparent);
-        layeredBmp.AddOwnedLayer(mask,boXor);
+        layeredBmp.LayerName[layeredBmp.AddOwnedLayer(mask,boXor)] := 'Xor';
       end;
     end;
     Assign(layeredBmp,True,AUndoable);
@@ -1604,7 +1686,7 @@ begin
   if (NbLayers = 1) and ((currentSelection = nil) or (GetSelectedImageLayer = nil)) then
   begin
     if FCurrentState <> nil then
-      FCurrentState.DrawLayers(ADest,x,y);
+      FCurrentState.DrawLayers(ADest,x,y,IsIconCursor);
   end else
   begin
     bmp := RenderedImage;
@@ -1680,10 +1762,10 @@ begin
   result := FCurrentState.GetLayeredBitmapCopy;
 end;
 
-function TLazPaintImage.ComputeFlatImage(AFromLayer, AToLayer: integer
-  ): TBGRABitmap;
+function TLazPaintImage.ComputeFlatImage(AFromLayer, AToLayer: integer;
+  ASeparateXorMask: boolean): TBGRABitmap;
 begin
-  result := FCurrentState.ComputeFlatImage(AFromLayer,AToLayer);
+  result := FCurrentState.ComputeFlatImage(AFromLayer,AToLayer,ASeparateXorMask);
 end;
 
 procedure TLazPaintImage.MoveLayer(AFromIndex, AToIndex: integer);

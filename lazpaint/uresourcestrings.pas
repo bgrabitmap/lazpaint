@@ -75,6 +75,7 @@ resourcestring
   rsBlendOpNotUsedForBackground = 'The blend operation is applied only if there is a layer underneath';
   rsRightClickForSource = 'Use RIGHT click to define source';
 
+  rsFileCannotBeEmpty = 'File cannot be empty';
   rsEmptySelection='Selection is empty';
   rsEmptyLayer='Layer is empty';
   rsKeepEmptySpace='Keep empty space around opaque pixels?';
@@ -107,6 +108,11 @@ resourcestring
 
   rsIntensity='Intensity';
   rsLightness='Lightness';
+
+  rsHotSpot='Hot spot';
+  rsEntries='Entries';
+  rsLayers='Layers';
+  rsFrames='Frames';
 
   rsEditMask='Edit mask';
 
@@ -179,6 +185,8 @@ resourcestring
   rsStorageDevice = 'Device';
   rsOverwriteFile = 'File already exists. Do you want to overwrite it?';
   rsDeleteFile = 'Delete';
+  rsDeleteIconImage = 'Delete selected icon image?';
+  rsIconImageAlreadyExists = 'There is already an image with this size and depth.';
   rsConfirmMoveToTrash = 'Are you sure you want to move this file to the trash?';
   rsConfirmMoveMultipleToTrash = 'Are you sure you want to move these %1 files to the trash?';
   rsConfirmDeleteFromContainer = 'Are you sure you want to delete this file from the container?';

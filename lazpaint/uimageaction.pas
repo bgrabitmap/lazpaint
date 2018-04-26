@@ -53,9 +53,9 @@ type
     procedure RemoveLayer;
     procedure EditSelection(ACallback: TModifyImageCallback);
     procedure Import3DObject(AFilenameUTF8: string);
-    function TryAddLayerFromFile(AFilenameUTF8: string): boolean;
+    function TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: TBGRABitmap = nil): boolean;
     function AddLayerFromBitmap(ABitmap: TBGRABitmap; AName: string): boolean;
-    function LoadSelection(AFilenameUTF8: string): boolean;
+    function LoadSelection(AFilenameUTF8: string; ALoadedImage: PImageEntry = nil): boolean;
     property Image: TLazPaintImage read GetImage;
     property ToolManager: TToolManager read GetToolManager;
     property CurrentTool: TPaintToolType read GetCurrentTool;
@@ -296,7 +296,7 @@ begin
   end;
 end;
 
-function TImageActions.LoadSelection(AFilenameUTF8: string): boolean;
+function TImageActions.LoadSelection(AFilenameUTF8: string; ALoadedImage: PImageEntry = nil): boolean;
 var
   newSelection: TBGRABitmap;
   LayerAction: TLayerAction;
@@ -305,7 +305,13 @@ begin
   LayerAction := nil;
   result := false;
   try
-    newSelection := LoadFlatImageUTF8(AFilenameUTF8,outFilename,'');
+    if Assigned(ALoadedImage) and Assigned(ALoadedImage^.bmp) then
+    begin
+      newSelection := ALoadedImage^.bmp;
+      ALoadedImage^.FreeAndNil;
+    end
+    else
+      newSelection := LoadFlatImageUTF8(AFilenameUTF8,outFilename,'').bmp;
     newSelection.InplaceGrayscale;
     if not (CurrentTool in[ptDeformation,ptTextureMapping,ptLayerMapping,ptMoveSelection,ptRotateSelection]) then
       ChooseTool(ptMoveSelection);
@@ -317,7 +323,6 @@ begin
       LayerAction.CurrentSelection.Fill(BGRABlack);
       LayerAction.CurrentSelection.PutImage(0,0,newSelection,dmSet);
       Image.SelectionMayChangeCompletely;
-      newSelection.Free;
       LayerAction.Validate;
       result := true;
     end;
@@ -325,6 +330,7 @@ begin
     on ex: exception do
       FInstance.ShowError('LoadSelection',ex.Message);
   end;
+  FreeAndNil(newSelection);
   LayerAction.Free;
 end;
 
@@ -417,7 +423,7 @@ begin
   end;
 end;
 
-function TImageActions.TryAddLayerFromFile(AFilenameUTF8: string): boolean;
+function TImageActions.TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: TBGRABitmap = nil): boolean;
 var
   newPicture: TBGRABitmap;
   finalFilename: string;
@@ -426,10 +432,14 @@ begin
   if not AbleToLoadUTF8(AFilenameUTF8) then
   begin
     FInstance.ShowMessage(rsOpen,rsFileExtensionNotSupported);
+    FreeAndNil(ALoadedImage);
     exit;
   end;
   try
-    newPicture := LoadFlatImageUTF8(AFilenameUTF8, finalFilename, '');
+    if Assigned(ALoadedImage) then
+      newPicture := ALoadedImage
+    else
+      newPicture := LoadFlatImageUTF8(AFilenameUTF8, finalFilename, '').bmp;
     AddLayerFromBitmap(newPicture, ExtractFileName(finalFilename));
   except
     on ex: Exception do

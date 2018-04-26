@@ -7,64 +7,33 @@ interface
 uses
   Classes, SysUtils, LazPaintType, BGRABitmap;
 
-function LoadFlatImageUTF8(AFilename: string; out AFinalFilename: string; AAppendFrame: string; ASkipDialog: boolean = false): TBGRABitmap;
-procedure FreeMultiImage(var images: ArrayOfBGRABitmap);
+function LoadFlatImageUTF8(AFilename: string; out AFinalFilename: string; AAppendFrame: string; ASkipDialog: boolean = false): TImageEntry;
+procedure FreeMultiImage(var images: ArrayOfImageEntry);
 function AbleToLoadUTF8(AFilename: string): boolean;
 
 implementation
 
 uses FileUtil, BGRAAnimatedGif, Graphics, UMultiImage,
   BGRAReadLzp, LCLProc, BGRABitmapTypes, BGRAReadPng,
-  UFileSystem, BGRAReadIco;
+  UFileSystem, BGRAIconCursor;
 
-function LoadIcoMultiImageFromStream(AStream: TStream; AClass: TCustomIconClass): ArrayOfBGRABitmap;
-var ico: TCustomIcon; i,resIdx,maxIdx: integer;
-    height,width: word; format:TPixelFormat;
-    maxHeight,maxWidth: word; maxFormat: TPixelFormat;
+function LoadIcoMultiImageFromStream(AStream: TStream): ArrayOfImageEntry;
+var ico: TBGRAIconCursor; i: integer;
 begin
-  ico := AClass.Create;
+  ico := TBGRAIconCursor.Create;
   ico.LoadFromStream(AStream);
-  maxIdx := 0;
-  maxHeight := 0;
-  maxWidth := 0;
-  maxFormat := pfDevice;
+  setlength(result,ico.Count);
   for i := 0 to ico.Count-1 do
   begin
-    ico.GetDescription(i,format,height,width);
-    if (height > maxHeight) or (width > maxWidth) or
-    ((height = maxHeight) and (width = maxWidth) and (format > maxFormat)) then
-    begin
-      maxIdx := i;
-      maxHeight := height;
-      maxWidth := width;
-      maxFormat := format;
-    end;
-  end;
-  if (maxWidth = 0) or (maxHeight = 0) then result := nil else
-  begin
-    setlength(result,ico.Count);
-    ico.Current := maxIdx;
-    result[0] := TBGRABitmap.Create;
-    result[0].Assign(ico);
-    result[0].Caption := IntTostr(maxWidth)+'x'+IntToStr(maxHeight)+'x'+IntToStr(PIXELFORMAT_BPP[maxFormat]);
-    if Assigned(result[0].XorMask) then result[0].XorMask.Caption := result[0].Caption + ' (xor)';
-    resIdx := 1;
-    for i := 0 to ico.Count-1 do
-    if i <> maxIdx then
-    begin
-      ico.Current := i;
-      ico.GetDescription(i,format,height,width);
-      result[resIdx] := TBGRABitmap.Create;
-      result[resIdx].Assign(ico);
-      result[resIdx].Caption := IntTostr(width)+'x'+IntToStr(height)+'x'+IntToStr(PIXELFORMAT_BPP[format]);
-      if Assigned(result[resIdx].XorMask) then result[resIdx].XorMask.Caption := result[resIdx].Caption + ' (xor)';
-      inc(resIdx);
-    end;
+    result[i].bmp := ico.GetBitmap(i) as TBGRABitmap;
+    result[i].bmp.Caption := IntTostr(ico.Width[i])+'x'+IntToStr(ico.Height[i])+' '+IntToStr(ico.BitDepth[i])+'bit';
+    if Assigned(result[i].bmp.XorMask) then result[i].bmp.XorMask.Caption := result[i].bmp.Caption + ' (xor)';
+    result[i].bpp := ico.BitDepth[i];
   end;
   ico.Free;
 end;
 
-function LoadGifMultiImageFromStream(AStream: TStream): ArrayOfBGRABitmap;
+function LoadGifMultiImageFromStream(AStream: TStream): ArrayOfImageEntry;
 var gif: TBGRAAnimatedGif; i: integer;
 begin
   gif := TBGRAAnimatedGif.Create(AStream);
@@ -73,8 +42,9 @@ begin
     for i := 0 to gif.Count-1 do
     begin
       gif.CurrentImage:= i;
-      result[i] := gif.MemBitmap.Duplicate as TBGRABitmap;
-      result[i].Caption:= 'Frame'+IntToStr(i);
+      result[i].bmp := gif.MemBitmap.Duplicate as TBGRABitmap;
+      result[i].bmp.Caption := 'Frame'+IntToStr(i);
+      result[i].bpp := 0;
     end;
   finally
     gif.Free;
@@ -113,11 +83,11 @@ begin
   reader.Free;
 end;
 
-procedure FreeMultiImage(var images: ArrayOfBGRABitmap);
+procedure FreeMultiImage(var images: ArrayOfImageEntry);
 var i: integer;
 begin
   for i := 0 to high(images) do
-    images[i].Free;
+    images[i].bmp.Free;
   images := nil;
 end;
 
@@ -133,10 +103,10 @@ begin
   end;
 end;
 
-function LoadFlatImageUTF8(AFilename: string; out AFinalFilename: string; AAppendFrame: string; ASkipDialog: boolean): TBGRABitmap;
+function LoadFlatImageUTF8(AFilename: string; out AFinalFilename: string; AAppendFrame: string; ASkipDialog: boolean): TImageEntry;
 var
   formMultiImage: TFMultiImage;
-  multi: ArrayOfBGRABitmap;
+  multi: ArrayOfImageEntry;
   format : TBGRAImageFormat;
   s: TStream;
 
@@ -150,41 +120,30 @@ var
     begin
       formMultiImage := TFMultiImage.Create(nil);
       try
-        result := formMultiImage.ShowAndChoose(multi,AStretch);
+        result := formMultiImage.ShowAndChoose(multi,AStretch, format);
       finally
         formMultiImage.Free;
       end;
       FreeMultiImage(multi);
-      if result <> nil then
-        AFinalFilename += '.'+result.Caption+AAppendFrame;
+      if (result.bmp <> nil) and (format = ifGif) then
+        AFinalFilename += '.'+result.bmp.Caption+AAppendFrame;
     end;
   end;
 
 begin
+  result := TImageEntry.Empty;
+
   s := FileManager.CreateFileStream(AFilename, fmOpenRead or fmShareDenyWrite);
   try
     format := DetectFileFormat(s, ExtractFileExt(AFilename));
     AFinalFilename:= AFilename;
-    result := nil;
-    if format = ifIco then
+    if format in[ifIco,ifCur] then
     begin
-      multi := LoadIcoMultiImageFromStream(s, TIcon);
+      multi := LoadIcoMultiImageFromStream(s);
       if ASkipDialog then
       begin
         result := multi[0];
-        multi[0] := nil;
-        FreeMultiImage(multi);
-      end
-      else
-        ChooseMulti(False);
-    end else
-    if format = ifCur then
-    begin
-      multi := LoadIcoMultiImageFromStream(s, TCursorImage);
-      if ASkipDialog then
-      begin
-        result := multi[0];
-        multi[0] := nil;
+        multi[0] := TImageEntry.Empty;
         FreeMultiImage(multi);
       end
       else
@@ -197,13 +156,18 @@ begin
     end else
     if format = ifLazPaint then
     begin
-      result := LoadFlatLzpFromStream(s);
+      result.bmp := LoadFlatLzpFromStream(s);
+      result.bpp := 32; //always 32-bit
     end else
     if format = ifPng then
     begin
-      result := LoadPngFromStream(s);
+      result.bmp := LoadPngFromStream(s);
+      result.bpp := 0;
     end else
-      result := TBGRABitmap.Create(s);
+    begin
+      result.bmp := TBGRABitmap.Create(s);
+      result.bpp := 0;
+    end;
   finally
     s.Free;
   end;

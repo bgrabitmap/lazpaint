@@ -75,6 +75,7 @@ type
     function GetFileSystems: TFileSystemArray;
     function MoveToTrash(AForm: TForm; const AFilenamesUTF8: array of string; AConfirmationCallback: TDeleteConfirmationFunction): boolean;
     function CreateFileStream(AFilenameUTF8: string; AMode: Word): TStream; overload;
+    procedure CancelStreamAndFree(AStream: TStream);
     destructor Destroy; override;
     procedure GetDirectoryElements(const ABaseDir: string;
           AMask: string; AObjectTypes: TObjectTypes;
@@ -450,6 +451,19 @@ end;
 
 
 type
+
+  { TStreamOverwriter }
+
+  TStreamOverwriter = class(TFileStreamUTF8)
+  protected
+    FTempFilename: string;
+    FFinalFilename: string;
+  public
+    constructor Create(AFilename: string);
+    procedure Cancel;
+    destructor Destroy; override;
+  end;
+
   TOnDestroyStreamInsideMultifile = procedure(ASender: TObject);
 
   { TStreamInsideMultifile }
@@ -546,7 +560,12 @@ var
   index: Integer;
 begin
   if AExtendedFilename.SubFilename = '' then
-    result := TFileStreamUTF8.Create(AExtendedFilename.Filename, AMode)
+  begin
+    if ((AMode and not $00F0) = fmCreate) and (FileExistsUTF8(AExtendedFilename.Filename)) then
+      result := TStreamOverwriter.Create(AExtendedFilename.Filename)
+    else
+      result := TFileStreamUTF8.Create(AExtendedFilename.Filename, AMode);
+  end
   else
   begin
     SetCurrentMultiFile(AExtendedFilename.Filename);
@@ -583,9 +602,60 @@ begin
   end;
 end;
 
+{ TStreamOverwriter }
+
+constructor TStreamOverwriter.Create(AFilename: string);
+begin
+  FTempFilename:= SysUtils.GetTempFileName(ExtractFilePath(AFilename), '');
+  FFinalFilename := AFilename;
+  inherited Create(FTempFilename, fmCreate);
+end;
+
+procedure TStreamOverwriter.Cancel;
+begin
+  FFinalFilename:= '';
+end;
+
+destructor TStreamOverwriter.Destroy;
+begin
+  inherited Destroy;
+  if FFinalFilename <> '' then
+  begin
+    if FileExistsUTF8(FFinalFilename) then DeleteFileUTF8(FFinalFilename);
+    RenameFileUTF8(FTempFilename, FFinalFilename);
+  end else
+    DeleteFileUTF8(FTempFilename);
+end;
+
 function TFileManager.CreateFileStream(AFilenameUTF8: string; AMode: Word): TStream;
 begin
   result := InternalCreateFileStream(ParseExtendedFilename(AFilenameUTF8), AMode);
+end;
+
+procedure TFileManager.CancelStreamAndFree(AStream: TStream);
+var
+  i, j: Integer;
+begin
+  if AStream is TStreamInsideMultifile then
+    with TStreamInsideMultifile(AStream) do
+    begin
+      OnDestroy:= nil;
+
+      for i := 0 to High(CurrentStreams) do
+        if CurrentStreams[i] = AStream then
+        begin
+          for j := i to High(CurrentStreams)-1 do
+            CurrentStreams[j] := CurrentStreams[j+1];
+          setlength(CurrentStreams, length(CurrentStreams)-1);
+          break;
+        end;
+    end else
+  if AStream is TStreamOverwriter then
+    with TStreamOverwriter(AStream) do
+    begin
+      Cancel;
+    end;
+  AStream.Free;
 end;
 
 destructor TFileManager.Destroy;

@@ -35,7 +35,7 @@ uses
   UScriptType, ULayerAction, UImageType, uposterize, UMySLV, UToolLayer,
   unoisefilter, uprint, uimagelist, UBarUpDown, UFileExtensions, UFileSystem, UToolBrush, UMainFormLayout, USaveOption, UBrushType, 
   ugeometricbrush, URainType, UFormRain, UPaletteToolbar, 
-  uselectionhighlight, UGridBitmap;
+  uselectionhighlight, UGridBitmap, UToolIcon, UImagePreview, UPreviewDialog;
 
 //sometimes LResources disappear in the uses clause
 

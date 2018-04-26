@@ -304,7 +304,7 @@ initialization
   RegisterPicExt(rsLayeredImage,'lzp;ora;oXo', [eoWritable]);
   RegisterPicExt(rsBitmap,'bmp', [eoReadable,eoWritable]);
   RegisterPicExt(rsAnimatedGIF,'gif', [eoReadable,eoWritable]);
-  RegisterPicExt(rsIconOrCursor,'ico;cur', [eoReadable]);
+  RegisterPicExt(rsIconOrCursor,'ico;cur', [eoReadable,eoWritable]);
   RegisterPicExt('JPEG','jpg;jpeg', [eoReadable,eoWritable]);
   RegisterPicExt(rsLazPaint,'lzp', [eoReadable,eoWritable]);
   RegisterPicExt(rsOpenRaster,'ora', [eoReadable,eoWritable]);

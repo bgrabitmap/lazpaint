@@ -178,9 +178,10 @@ msgstr "Modes de fusion de base disponibles dans presque tous les logiciels"
 msgid "Browse images"
 msgstr "Parcourir les images"
 
-#: tfbrowseimages.label_size.caption
-msgid "Size: "
-msgstr "Dimensions : "
+#: tfbrowseimages.label_status.caption
+msgctxt "tfbrowseimages.label_status.caption"
+msgid "."
+msgstr "."
 
 #: tfbrowseimages.toolbutton_createfolderorcontainer.hint
 msgid "Create folder or container"
@@ -736,6 +737,14 @@ msgstr "Valider"
 msgid "Validate modifications"
 msgstr "Valider les modifications"
 
+#: tfmain.filechooseframe.caption
+msgid "Choose frame..."
+msgstr "Choisir une image du fichier"
+
+#: tfmain.filechooseframe.hint
+msgid "Choose frame within file"
+msgstr "Choisir une image du fichier"
+
 #: tfmain.fileimport3d.caption
 msgid "Import 3D object..."
 msgstr "Importer un objet 3D..."
@@ -1074,11 +1083,6 @@ msgstr ""
 msgid "auto"
 msgstr ""
 
-#: tfmain.itemquitseparator.caption
-msgctxt "tfmain.itemquitseparator.caption"
-msgid "-"
-msgstr "-"
-
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
 msgid "Use image browser"
@@ -1322,11 +1326,6 @@ msgctxt "tfmain.menuimage.caption"
 msgid "Image"
 msgstr "Image"
 
-#: tfmain.menuitem1.caption
-msgctxt "tfmain.menuitem1.caption"
-msgid "-"
-msgstr "-"
-
 #: tfmain.menulanguage.caption
 msgctxt "tfmain.menulanguage.caption"
 msgid "Language"
@@ -1550,6 +1549,15 @@ msgstr "Main"
 #: tfmain.toolhand.hint
 msgid "Move and scroll picture"
 msgstr "Déplacer l'image"
+
+#: tfmain.toolhotspot.caption
+msgctxt "tfmain.toolhotspot.caption"
+msgid "Hot spot"
+msgstr "Point sensible"
+
+#: tfmain.toolhotspot.hint
+msgid "Choose hot spot of a cursor"
+msgstr "Choisir le point sensible du curseur"
 
 #: tfmain.toollayermapping.hint
 msgctxt "tfmain.toollayermapping.hint"
@@ -2089,6 +2097,14 @@ msgctxt "tfnewimage.caption"
 msgid "New image"
 msgstr "Nouvelle image"
 
+#: tfnewimage.combobox_bitdepth.text
+msgid "32"
+msgstr ""
+
+#: tfnewimage.label_bitdepth.caption
+msgid "Bit depth :"
+msgstr "Bits par pixel :"
+
 #: tfnewimage.label_height.caption
 msgctxt "tfnewimage.label_height.caption"
 msgid "Height :"
@@ -2380,6 +2396,15 @@ msgstr "Par intensité"
 #: tfposterize.label_levels.caption
 msgid "Levels :"
 msgstr "Niveaux :"
+
+#: tfpreviewdialog.caption
+msgid "Preview"
+msgstr "Aperçu"
+
+#: tfpreviewdialog.lstatus.caption
+msgctxt "tfpreviewdialog.lstatus.caption"
+msgid "."
+msgstr "."
 
 #: tfprint.button_configureprinter.caption
 msgid "Configure..."
@@ -2817,6 +2842,10 @@ msgctxt "uresourcestrings.rsdeletefile"
 msgid "Delete"
 msgstr "Supprimer"
 
+#: uresourcestrings.rsdeleteiconimage
+msgid "Delete selected icon image?"
+msgstr "Supprimer l'image d'icône sélectionnée ?"
+
 #: uresourcestrings.rsdirectorynotempty
 msgid "Directory is not empty"
 msgstr "Le dossier n'est pas vide"
@@ -2855,6 +2884,10 @@ msgstr "Entrez le nom pour le nouveau dossier ou conteneur (en utilisant l'exten
 msgid "Enter layer name:"
 msgstr "Entrez le nom du calque :"
 
+#: uresourcestrings.rsentries
+msgid "Entries"
+msgstr "Entrées"
+
 #: uresourcestrings.rserror
 msgid "Error"
 msgstr "Erreur"
@@ -2884,6 +2917,10 @@ msgstr "attend N paramètres : "
 msgctxt "uresourcestrings.rsfast"
 msgid "Fast"
 msgstr "Rapide"
+
+#: uresourcestrings.rsfilecannotbeempty
+msgid "File cannot be empty"
+msgstr "Le fichier ne peut pas être vide"
 
 #: uresourcestrings.rsfiledate
 msgid "Date"
@@ -2938,6 +2975,10 @@ msgstr "Le dossier ou conteneur existe déjà"
 msgid "Following errors occured:"
 msgstr "Les erreurs suivantes sont survenues :"
 
+#: uresourcestrings.rsframes
+msgid "Frames"
+msgstr "Images contenues"
+
 #: uresourcestrings.rsfunctionnotdefined
 msgid "The function %1 is not defined."
 msgstr "La fonction %1 n'est pas définie."
@@ -2959,6 +3000,11 @@ msgstr "Maintenir CTRL pour aligner aux pixels"
 msgid "Hold SHIFT to draw a square or a circle"
 msgstr "Maintenir MAJ pour dessiner un carré ou un cercle"
 
+#: uresourcestrings.rshotspot
+msgctxt "uresourcestrings.rshotspot"
+msgid "Hot spot"
+msgstr "Point sensible"
+
 #: uresourcestrings.rshue
 msgctxt "uresourcestrings.rshue"
 msgid "Hue"
@@ -2973,6 +3019,10 @@ msgstr "Teinte antihoraire"
 msgctxt "uresourcestrings.rshuecw"
 msgid "Hue CW"
 msgstr "Teinte horaire"
+
+#: uresourcestrings.rsiconimagealreadyexists
+msgid "There is already an image with this size and depth."
+msgstr "Il y a déjà une image avec cette taille et ce nombre de couleurs."
 
 #: uresourcestrings.rsiconorcursor
 msgid "Icon/cursor"
@@ -3035,6 +3085,11 @@ msgstr "La dernière version de LazPaint disponible en ligne est la"
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
 msgstr "Image avec calques"
+
+#: uresourcestrings.rslayers
+msgctxt "uresourcestrings.rslayers"
+msgid "Layers"
+msgstr "Calques"
 
 #: uresourcestrings.rslazpaint
 msgctxt "uresourcestrings.rslazpaint"

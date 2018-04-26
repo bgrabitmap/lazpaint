@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, Graphics, BGRABitmap, BGRABitmapTypes, uimage,
   UImageType, ULayerAction, LCLType, Controls, UBrushType, UConfig;
 
-type TPaintToolType = (ptHand, ptMoveLayer,ptRotateLayer, ptPen, ptBrush, ptClone, ptColorPicker, ptEraser,
+type TPaintToolType = (ptHand,ptHotSpot, ptMoveLayer,ptRotateLayer, ptPen, ptBrush, ptClone, ptColorPicker, ptEraser,
                    ptRect, ptEllipse, ptPolygon, ptSpline,
                    ptFloodFill, ptGradient, ptPhong,
                    ptSelectPen, ptSelectRect, ptSelectEllipse, ptSelectPoly, ptSelectSpline,
@@ -16,7 +16,7 @@ type TPaintToolType = (ptHand, ptMoveLayer,ptRotateLayer, ptPen, ptBrush, ptClon
                    ptText);
 
 const
-  PaintToolTypeStr : array[TPaintToolType] of string = ('Hand', 'MoveLayer', 'RotateLayer', 'Pen', 'Brush', 'Clone', 'ColorPicker', 'Eraser',
+  PaintToolTypeStr : array[TPaintToolType] of string = ('Hand','HotSpot', 'MoveLayer', 'RotateLayer', 'Pen', 'Brush', 'Clone', 'ColorPicker', 'Eraser',
                    'Rect', 'Ellipse', 'Polygon', 'Spline',
                    'FloodFill', 'Gradient', 'Phong',
                    'SelectPen', 'SelectRect', 'SelectEllipse', 'SelectPoly', 'SelectSpline',
@@ -99,6 +99,16 @@ type
     procedure SetKeepTransformOnDestroy(AValue: boolean); virtual; abstract;
   public
     property KeepTransformOnDestroy: boolean read GetKeepTransformOnDestroy write SetKeepTransformOnDestroy;
+  end;
+
+  { TReadonlyTool }
+
+  TReadonlyTool = class(TGenericTool)
+  protected
+    function GetAction: TLayerAction; override;
+    function GetIsSelectingTool: boolean; override;
+  public
+    function GetToolDrawingLayer: TBGRABitmap; override;
   end;
 
   TToolClass = class of TGenericTool;
@@ -337,6 +347,26 @@ begin
   else
     result := '';
   end;
+end;
+
+{ TReadonlyTool }
+
+function TReadonlyTool.GetAction: TLayerAction;
+begin
+  Result:= nil;
+end;
+
+function TReadonlyTool.GetIsSelectingTool: boolean;
+begin
+  result := false;
+end;
+
+function TReadonlyTool.GetToolDrawingLayer: TBGRABitmap;
+begin
+  if Manager.Image.SelectionEmpty or not assigned(Manager.Image.SelectionLayerReadonly) then
+    Result:= Manager.Image.SelectedImageLayerReadOnly
+  else
+    Result:= Manager.Image.SelectionLayerReadonly;
 end;
 
 procedure TToolManager.HintReturnValidates;

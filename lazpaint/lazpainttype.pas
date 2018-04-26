@@ -125,6 +125,17 @@ type
     TColorTarget = (ctForeColor, ctBackColor);
     TFlipOption = (foAuto, foWholePicture, foSelection, foCurrentLayer);
 
+    PImageEntry = ^TImageEntry;
+
+    { TImageEntry }
+
+    TImageEntry = object
+      bmp: TBGRABitmap;
+      bpp: integer;
+      class function Empty: TImageEntry;
+      procedure FreeAndNil;
+    end;
+    ArrayOfImageEntry = array of TImageEntry;
 
 type
     TLatestVersionUpdateHandler = procedure(ANewVersion: string) of object;
@@ -486,6 +497,20 @@ end;
 function GetWindowTopLeftCorner(AForm: TForm): TPoint;
 begin
   result := Point(AForm.Left,AForm.Top);
+end;
+
+{ TImageEntry }
+
+class function TImageEntry.Empty: TImageEntry;
+begin
+  result.bmp := nil;
+  result.bpp := 0;
+end;
+
+procedure TImageEntry.FreeAndNil;
+begin
+  SysUtils.FreeAndNil(bmp);
+  bpp := 0;
 end;
 
 { Interface gateway }

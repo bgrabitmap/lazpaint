@@ -12,28 +12,24 @@ type
 
   { TToolHand }
 
-  TToolHand = class(TGenericTool)
+  TToolHand = class(TReadonlyTool)
   protected
     handMoving: boolean;
     handOrigin: TPoint;
-    function GetAction: TLayerAction; override;
-    function GetIsSelectingTool: boolean; override;
     function DoToolDown({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF;
       {%H-}rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF): TRect; override;
     procedure DoToolMoveAfter(pt: TPoint; {%H-}ptF: TPointF); override;
     function GetStatusText: string; override;
   public
-    function GetToolDrawingLayer: TBGRABitmap; override;
     function ToolUp: TRect; override;
   end;
 
   { TToolColorPicker }
 
-  TToolColorPicker = class(TGenericTool)
+  TToolColorPicker = class(TReadonlyTool)
   protected
     colorpicking,colorpickingRight: boolean;
-    function GetIsSelectingTool: boolean; override;
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;
       rightBtn: boolean): TRect; override;
     function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF): TRect; override;
@@ -956,11 +952,6 @@ end;
 
 { TToolColorPicker }
 
-function TToolColorPicker.GetIsSelectingTool: boolean;
-begin
-  Result:=false;
-end;
-
 function TToolColorPicker.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
 begin
@@ -994,16 +985,6 @@ begin
 end;
 
 { TToolHand }
-
-function TToolHand.GetAction: TLayerAction;
-begin
-  Result:=nil;
-end;
-
-function TToolHand.GetIsSelectingTool: boolean;
-begin
-  result := false;
-end;
 
 function TToolHand.DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;
   rightBtn: boolean): TRect;
@@ -1067,11 +1048,6 @@ begin
     if (smallestNum <> 0) then
       result += ' = ' + inttostr(smallestNum)+'/'+inttostr(smallestDenom);
   end;
-end;
-
-function TToolHand.GetToolDrawingLayer: TBGRABitmap;
-begin
-  Result:= Manager.Image.SelectedImageLayerReadOnly;   //do not create a selection layer
 end;
 
 function TToolHand.ToolUp: TRect;

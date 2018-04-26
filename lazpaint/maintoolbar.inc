@@ -193,33 +193,8 @@ end;
 function TFMain.GetCurrentToolAction: TAction;
 begin
   Case CurrentTool of
-  ptHand: result := ToolHand;
-  ptPen: result := ToolPen;
-  ptBrush: result := ToolBrush;
-  ptClone: result := ToolClone;
-  ptColorPicker: result := ToolColorPicker;
-  ptEraser: result := ToolEraser;
-  ptRect: result := ToolRect;
-  ptEllipse: result := ToolEllipse;
-  ptPolygon: result := ToolPolygon;
-  ptSpline: result := ToolSpline;
-  ptFloodFill: result := ToolFloodfill;
-  ptGradient: result := ToolGradient;
-  ptSelectRect: result := ToolSelectRect;
-  ptSelectEllipse: result := ToolSelectEllipse;
-  ptSelectPoly: result := ToolSelectPoly;
-  ptSelectSpline: result := ToolSelectSpline;
-  ptSelectPen: result := ToolSelectPen;
-  ptMoveSelection: result := ToolMoveSelection;
-  ptRotateSelection: result := ToolRotateSelection;
-  ptMagicWand: result := ToolMagicWand;
-  ptText: result := ToolText;
-  ptDeformation: result := ToolDeformation;
-  ptTextureMapping: result := ToolTextureMapping;
-  ptLayerMapping: result := ToolLayerMapping;
-  ptPhong: result := ToolPhong;
   ptMoveLayer: result := LayerMove;
-  else result := nil;
+  else result := ActionList1.ActionByName('Tool'+PaintToolTypeStr[CurrentTool]) as TAction;
   end;
 end;
 
@@ -1209,6 +1184,11 @@ begin
   if Layout.ToolBoxDocking = twLeft then
     Layout.ToolBoxDocking := twRight else
     Layout.ToolBoxDocking := twLeft;
+end;
+
+procedure TFMain.ToolHotSpotUpdate(Sender: TObject);
+begin
+  ToolHotSpot.Visible := UTF8CompareText(ExtractFileExt(Image.currentFilenameUTF8),'.cur')=0;
 end;
 
 procedure TFMain.Tool_LinearGradientClick(Sender: TObject);

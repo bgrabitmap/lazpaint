@@ -176,9 +176,11 @@ msgstr "Sapludunāšana veidi, kuri pieejami gandrīz visos attēlu redaktoros"
 msgid "Browse images"
 msgstr "Caurskatīt attēlus"
 
-#: tfbrowseimages.label_size.caption
-msgid "Size: "
-msgstr "Izmērs:"
+#: tfbrowseimages.label_status.caption
+#, fuzzy
+msgctxt "tfbrowseimages.label_status.caption"
+msgid "."
+msgstr "."
 
 #: tfbrowseimages.toolbutton_createfolderorcontainer.hint
 msgid "Create folder or container"
@@ -734,6 +736,14 @@ msgstr "Pārbaudīt"
 msgid "Validate modifications"
 msgstr "Pārbaudīt izmaiņas"
 
+#: tfmain.filechooseframe.caption
+msgid "Choose frame..."
+msgstr ""
+
+#: tfmain.filechooseframe.hint
+msgid "Choose frame within file"
+msgstr ""
+
 #: tfmain.fileimport3d.caption
 msgid "Import 3D object..."
 msgstr "Ielasīt 3D veidojumu ..."
@@ -1074,11 +1084,6 @@ msgstr ""
 msgid "auto"
 msgstr ""
 
-#: tfmain.itemquitseparator.caption
-msgctxt "TFMAIN.ITEMQUITSEPARATOR.CAPTION"
-msgid "-"
-msgstr "-"
-
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
 msgid "Use image browser"
@@ -1322,11 +1327,6 @@ msgctxt "TFMAIN.MENUIMAGE.CAPTION"
 msgid "Image"
 msgstr "Attēls"
 
-#: tfmain.menuitem1.caption
-msgctxt "TFMAIN.MENUITEM1.CAPTION"
-msgid "-"
-msgstr "-"
-
 #: tfmain.menulanguage.caption
 msgctxt "TFMAIN.MENULANGUAGE.CAPTION"
 msgid "Language"
@@ -1548,6 +1548,15 @@ msgstr "Roka"
 #: tfmain.toolhand.hint
 msgid "Move and scroll picture"
 msgstr "Pārvieto attēlu pa skata lauku"
+
+#: tfmain.toolhotspot.caption
+msgctxt "tfmain.toolhotspot.caption"
+msgid "Hot spot"
+msgstr ""
+
+#: tfmain.toolhotspot.hint
+msgid "Choose hot spot of a cursor"
+msgstr ""
 
 #: tfmain.toollayermapping.hint
 msgctxt "TFMAIN.TOOLLAYERMAPPING.HINT"
@@ -2087,6 +2096,14 @@ msgctxt "TFNEWIMAGE.CAPTION"
 msgid "New image"
 msgstr "Jauns attēls"
 
+#: tfnewimage.combobox_bitdepth.text
+msgid "32"
+msgstr ""
+
+#: tfnewimage.label_bitdepth.caption
+msgid "Bit depth :"
+msgstr ""
+
 #: tfnewimage.label_height.caption
 msgctxt "TFNEWIMAGE.LABEL_HEIGHT.CAPTION"
 msgid "Height :"
@@ -2378,6 +2395,16 @@ msgstr "Pēc gaišuma"
 #: tfposterize.label_levels.caption
 msgid "Levels :"
 msgstr "Līmeņi:"
+
+#: tfpreviewdialog.caption
+msgid "Preview"
+msgstr ""
+
+#: tfpreviewdialog.lstatus.caption
+#, fuzzy
+msgctxt "tfpreviewdialog.lstatus.caption"
+msgid "."
+msgstr "."
 
 #: tfprint.button_configureprinter.caption
 msgid "Configure..."
@@ -2812,6 +2839,10 @@ msgctxt "uresourcestrings.rsdeletefile"
 msgid "Delete"
 msgstr "Dzēst"
 
+#: uresourcestrings.rsdeleteiconimage
+msgid "Delete selected icon image?"
+msgstr ""
+
 #: uresourcestrings.rsdirectorynotempty
 msgid "Directory is not empty"
 msgstr ""
@@ -2848,6 +2879,10 @@ msgstr ""
 msgid "Enter layer name:"
 msgstr "Ieraksti slāna vārdu:"
 
+#: uresourcestrings.rsentries
+msgid "Entries"
+msgstr ""
+
 #: uresourcestrings.rserror
 msgid "Error"
 msgstr "Kļūda"
@@ -2875,6 +2910,10 @@ msgstr "vajadzīgi N parametri: "
 #: uresourcestrings.rsfast
 msgid "Fast"
 msgstr "Ātri"
+
+#: uresourcestrings.rsfilecannotbeempty
+msgid "File cannot be empty"
+msgstr ""
 
 #: uresourcestrings.rsfiledate
 msgid "Date"
@@ -2928,6 +2967,10 @@ msgstr ""
 msgid "Following errors occured:"
 msgstr "Kļūda:"
 
+#: uresourcestrings.rsframes
+msgid "Frames"
+msgstr ""
+
 #: uresourcestrings.rsfunctionnotdefined
 msgid "The function %1 is not defined."
 msgstr "Funkcija %1 nav izveidota."
@@ -2948,6 +2991,11 @@ msgstr "Turi [CTRL], lai pieliptu pikseļiem"
 msgid "Hold SHIFT to draw a square or a circle"
 msgstr "Turi [SHIFT} lai zīmētu kvadrātu vai apli"
 
+#: uresourcestrings.rshotspot
+msgctxt "uresourcestrings.rshotspot"
+msgid "Hot spot"
+msgstr ""
+
 #: uresourcestrings.rshue
 msgctxt "uresourcestrings.rshue"
 msgid "Hue"
@@ -2961,6 +3009,10 @@ msgstr ""
 #: uresourcestrings.rshuecw
 msgctxt "uresourcestrings.rshuecw"
 msgid "Hue CW"
+msgstr ""
+
+#: uresourcestrings.rsiconimagealreadyexists
+msgid "There is already an image with this size and depth."
 msgstr ""
 
 #: uresourcestrings.rsiconorcursor
@@ -3023,6 +3075,12 @@ msgstr "Tīmeklī piejamā LazPaint versija ir"
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
 msgstr "Attēls ar slāņiem"
+
+#: uresourcestrings.rslayers
+#, fuzzy
+msgctxt "uresourcestrings.rslayers"
+msgid "Layers"
+msgstr "Slaņi"
 
 #: uresourcestrings.rslazpaint
 msgctxt "uresourcestrings.rslazpaint"

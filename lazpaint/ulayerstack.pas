@@ -56,7 +56,7 @@ type
     FCompletelyResizeable: boolean;
     { private declarations }
     UpdatingComboBlendOp : boolean;
-    background: TBGRABitmap;
+    background,iconBackground: TBGRABitmap;
     ZoomFactor: single;
     renaming: boolean;
     LayerRectWidth,LayerRectHeight, StackWidth,StackHeight: integer;
@@ -96,7 +96,7 @@ type
 
 implementation
 
-uses BGRAFillInfo,uscaledpi,uresourcestrings,ublendop, uimage, utool, BGRAText;
+uses BGRAFillInfo,uscaledpi,uresourcestrings,ublendop, uimage, utool, BGRAText, BGRAThumbnail;
 
 function TFLayerStack.DrawLayerItem(ABitmap: TBGRABitmap; layerPos: TPoint; layerIndex: integer; ASelected: boolean): TDrawLayerItemResult;
 var LayerBmp: TBGRABitmap;
@@ -119,7 +119,11 @@ begin
   result.PreviewPts[1].y += 0.5;
   result.PreviewPts[2].y -= 0.5;
   result.PreviewPts[3].y -= 0.5;
-  ABitmap.FillPolyAntialias(result.PreviewPts,background);
+  if LazPaintInstance.Image.IsIconCursor then
+    ABitmap.FillPolyAntialias(result.PreviewPts,iconBackground)
+  else
+    ABitmap.FillPolyAntialias(result.PreviewPts,background);
+
   layerBmp := LazPaintInstance.Image.LayerBitmap[layerIndex];
   ABitmap.FillPolyLinearMapping( result.PreviewPts, layerBmp, [pointf(-0.49,-0.49),pointf(layerBmp.Width-0.51,-0.49),
     pointf(layerBmp.Width-0.51,layerBmp.Height-0.51),pointf(-0.49,layerBmp.Height-0.51)],False);
@@ -167,9 +171,13 @@ begin
   VolatileVertScrollBar := nil;
   changingLayerOpacity:= -1;
   self.EnsureVisible(False);
-  background := TBGRABitmap.Create(4,4,ColorToBGRA(ColorToRGB(clWindow)));
-  background.FillRect(0,0,2,2,BGRA(0,0,0,64),dmDrawWithTransparency);
-  background.FillRect(2,2,4,4,BGRA(0,0,0,64),dmDrawWithTransparency);
+  background := TBGRABitmap.Create(4,4,ImageCheckersColor1);
+  background.FillRect(0,0,2,2,ImageCheckersColor2,dmDrawWithTransparency);
+  background.FillRect(2,2,4,4,ImageCheckersColor2,dmDrawWithTransparency);
+  iconBackground := TBGRABitmap.Create(4,4,IconCheckersColor1);
+  iconBackground.FillRect(0,0,2,2,IconCheckersColor2,dmDrawWithTransparency);
+  iconBackground.FillRect(2,2,4,4,IconCheckersColor2,dmDrawWithTransparency);
+
   renaming := false;
   Visible := false;
   movingItemStart := false;
@@ -185,6 +193,7 @@ end;
 procedure TFLayerStack.FormDestroy(Sender: TObject);
 begin
   background.Free;
+  iconBackground.Free;
   FreeAndNil(movingItem);
   FreeAndNil(VolatileHorzScrollBar);
   FreeAndNil(VolatileVertScrollBar);
@@ -672,7 +681,7 @@ begin
   blendOp := boTransparent;
   topmostInfo := LazPaintInstance.HideTopmost;
   if LazPaintInstance.Image.currentImageLayerIndex > 0 then
-    tempUnder := LazPaintInstance.Image.ComputeFlatImage(0,LazPaintInstance.Image.currentImageLayerIndex-1)
+    tempUnder := LazPaintInstance.Image.ComputeFlatImage(0,LazPaintInstance.Image.currentImageLayerIndex-1,False)
   else
     tempUnder := TBGRABitmap.Create(1,1);
   if ublendop.ShowBlendOpDialog(LazPaintInstance, blendOp, tempUnder,LazPaintInstance.Image.SelectedImageLayerReadOnly) then

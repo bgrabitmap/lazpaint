@@ -17,7 +17,7 @@ object FBrowseImages: TFBrowseImages
   OnUTF8KeyPress = FormUTF8KeyPress
   Position = poScreenCenter
   ShowInTaskBar = stAlways
-  LCLVersion = '1.6.0.4'
+  LCLVersion = '1.8.2.0'
   object Panel1: TPanel
     Left = 464
     Height = 300
@@ -27,12 +27,12 @@ object FBrowseImages: TFBrowseImages
     ClientHeight = 300
     ClientWidth = 108
     TabOrder = 0
-    object Label_Size: TLabel
+    object Label_Status: TLabel
       Left = 3
       Height = 15
       Top = 8
-      Width = 26
-      Caption = 'Size: '
+      Width = 3
+      Caption = '.'
       ParentColor = False
     end
     object vsPreview: TBGRAVirtualScreen
@@ -40,13 +40,11 @@ object FBrowseImages: TFBrowseImages
       Height = 270
       Top = 26
       Width = 102
-      OnRedraw = vsPreviewRedraw
       Alignment = taLeftJustify
       Anchors = [akTop, akLeft, akRight, akBottom]
-      Color = clBtnFace
+      Color = clAppWorkspace
       ParentColor = False
       TabOrder = 0
-      OnResize = vsPreviewResize
     end
     object ListBox_RecentDirs: TListBox
       Left = 3

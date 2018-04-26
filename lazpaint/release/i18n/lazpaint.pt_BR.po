@@ -184,9 +184,10 @@ msgstr "Operações de mesclagem básicas que estão disponíveis em praticament
 msgid "Browse images"
 msgstr "Navegue nas imagens"
 
-#: tfbrowseimages.label_size.caption
-msgid "Size: "
-msgstr "Tamanho: "
+#: tfbrowseimages.label_status.caption
+msgctxt "tfbrowseimages.label_status.caption"
+msgid "."
+msgstr ""
 
 #: tfbrowseimages.toolbutton_createfolderorcontainer.hint
 msgid "Create folder or container"
@@ -742,6 +743,14 @@ msgstr "Validar"
 msgid "Validate modifications"
 msgstr "Validar modificações"
 
+#: tfmain.filechooseframe.caption
+msgid "Choose frame..."
+msgstr ""
+
+#: tfmain.filechooseframe.hint
+msgid "Choose frame within file"
+msgstr ""
+
 #: tfmain.fileimport3d.caption
 msgid "Import 3D object..."
 msgstr "Importar objeto 3D..."
@@ -1082,11 +1091,6 @@ msgstr ""
 msgid "auto"
 msgstr ""
 
-#: tfmain.itemquitseparator.caption
-msgctxt "TFMAIN.ITEMQUITSEPARATOR.CAPTION"
-msgid "-"
-msgstr ""
-
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
 msgid "Use image browser"
@@ -1330,11 +1334,6 @@ msgctxt "TFMAIN.MENUIMAGE.CAPTION"
 msgid "Image"
 msgstr "Imagem"
 
-#: tfmain.menuitem1.caption
-msgctxt "tfmain.menuitem1.caption"
-msgid "-"
-msgstr ""
-
 #: tfmain.menulanguage.caption
 msgctxt "tfmain.menulanguage.caption"
 msgid "Language"
@@ -1559,6 +1558,15 @@ msgstr "Mão"
 #: tfmain.toolhand.hint
 msgid "Move and scroll picture"
 msgstr "Mover e rolar imagem"
+
+#: tfmain.toolhotspot.caption
+msgctxt "tfmain.toolhotspot.caption"
+msgid "Hot spot"
+msgstr ""
+
+#: tfmain.toolhotspot.hint
+msgid "Choose hot spot of a cursor"
+msgstr ""
 
 #: tfmain.toollayermapping.hint
 msgctxt "TFMAIN.TOOLLAYERMAPPING.HINT"
@@ -2098,6 +2106,14 @@ msgctxt "TFNEWIMAGE.CAPTION"
 msgid "New image"
 msgstr "Nova imagem"
 
+#: tfnewimage.combobox_bitdepth.text
+msgid "32"
+msgstr ""
+
+#: tfnewimage.label_bitdepth.caption
+msgid "Bit depth :"
+msgstr ""
+
 #: tfnewimage.label_height.caption
 msgctxt "TFNEWIMAGE.LABEL_HEIGHT.CAPTION"
 msgid "Height :"
@@ -2389,6 +2405,15 @@ msgstr "Por luminosidade"
 #: tfposterize.label_levels.caption
 msgid "Levels :"
 msgstr "Níveis :"
+
+#: tfpreviewdialog.caption
+msgid "Preview"
+msgstr ""
+
+#: tfpreviewdialog.lstatus.caption
+msgctxt "tfpreviewdialog.lstatus.caption"
+msgid "."
+msgstr ""
 
 #: tfprint.button_configureprinter.caption
 msgid "Configure..."
@@ -2823,6 +2848,10 @@ msgctxt "uresourcestrings.rsdeletefile"
 msgid "Delete"
 msgstr "Excluir"
 
+#: uresourcestrings.rsdeleteiconimage
+msgid "Delete selected icon image?"
+msgstr ""
+
 #: uresourcestrings.rsdirectorynotempty
 msgid "Directory is not empty"
 msgstr ""
@@ -2859,6 +2888,10 @@ msgstr ""
 msgid "Enter layer name:"
 msgstr "Digite o nome da camada:"
 
+#: uresourcestrings.rsentries
+msgid "Entries"
+msgstr ""
+
 #: uresourcestrings.rserror
 msgid "Error"
 msgstr ""
@@ -2886,6 +2919,10 @@ msgstr "espera-se N parâmetros : "
 #: uresourcestrings.rsfast
 msgid "Fast"
 msgstr "Rápido"
+
+#: uresourcestrings.rsfilecannotbeempty
+msgid "File cannot be empty"
+msgstr ""
 
 #: uresourcestrings.rsfiledate
 msgid "Date"
@@ -2939,6 +2976,10 @@ msgstr ""
 msgid "Following errors occured:"
 msgstr ""
 
+#: uresourcestrings.rsframes
+msgid "Frames"
+msgstr ""
+
 #: uresourcestrings.rsfunctionnotdefined
 msgid "The function %1 is not defined."
 msgstr "A função %1 não está definida."
@@ -2959,6 +3000,11 @@ msgstr "Segurar CTRL para tirar pixels"
 msgid "Hold SHIFT to draw a square or a circle"
 msgstr "Segurar SHIFT para desenhar um quadrado ou um círculo"
 
+#: uresourcestrings.rshotspot
+msgctxt "uresourcestrings.rshotspot"
+msgid "Hot spot"
+msgstr ""
+
 #: uresourcestrings.rshue
 msgctxt "uresourcestrings.rshue"
 msgid "Hue"
@@ -2972,6 +3018,10 @@ msgstr ""
 #: uresourcestrings.rshuecw
 msgctxt "uresourcestrings.rshuecw"
 msgid "Hue CW"
+msgstr ""
+
+#: uresourcestrings.rsiconimagealreadyexists
+msgid "There is already an image with this size and depth."
 msgstr ""
 
 #: uresourcestrings.rsiconorcursor
@@ -3034,6 +3084,12 @@ msgstr "A última versão do LazPaint disponível on-line é"
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
 msgstr ""
+
+#: uresourcestrings.rslayers
+#, fuzzy
+msgctxt "uresourcestrings.rslayers"
+msgid "Layers"
+msgstr "Camadas"
 
 #: uresourcestrings.rslazpaint
 msgctxt "uresourcestrings.rslazpaint"

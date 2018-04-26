@@ -746,6 +746,7 @@ begin
       for i := 0 to high(fileNames) do
         fileNames[i] := FBrowseImages.SelectedFile[i];
       AddFiles(Filenames);
+      FBrowseImages.FreeChosenImage;
     end;
   end else
   begin

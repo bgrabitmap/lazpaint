@@ -238,7 +238,7 @@ function TScene.FetchTextureAsBitmap(AName: string; ARelativePath: boolean): TBG
   begin
     bmp := nil;
     try
-      bmp := LoadFlatImageUTF8(AFilename,dummy,'');
+      bmp := LoadFlatImageUTF8(AFilename,dummy,'').bmp;
     except
       on ex:exception do ShowMessage(ex.Message);
     end;

@@ -168,7 +168,7 @@ begin
     FSourceImage := nil;
     try
       if FileName <> '' then
-        FSourceImage := LoadFlatImageUTF8(FileName, finalFilename, '', True)
+        FSourceImage := LoadFlatImageUTF8(FileName, finalFilename, '', True).bmp
       else
       if Stream64<> '' then
       begin

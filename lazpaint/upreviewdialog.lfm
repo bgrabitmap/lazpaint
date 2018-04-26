@@ -1,0 +1,45 @@
+object FPreviewDialog: TFPreviewDialog
+  Left = 392
+  Height = 363
+  Top = 143
+  Width = 439
+  BorderIcons = [biSystemMenu, biMaximize]
+  Caption = 'Preview'
+  ClientHeight = 363
+  ClientWidth = 439
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  Position = poMainFormCenter
+  LCLVersion = '1.8.2.0'
+  object vsPreview: TBGRAVirtualScreen
+    Left = 0
+    Height = 339
+    Top = 24
+    Width = 439
+    Align = alClient
+    Alignment = taLeftJustify
+    Color = clAppWorkspace
+    ParentColor = False
+    TabOrder = 0
+    TabStop = True
+  end
+  object Panel1: TPanel
+    Left = 0
+    Height = 24
+    Top = 0
+    Width = 439
+    Align = alTop
+    BevelOuter = bvNone
+    ClientHeight = 24
+    ClientWidth = 439
+    TabOrder = 1
+    object LStatus: TLabel
+      Left = 8
+      Height = 15
+      Top = 6
+      Width = 3
+      Caption = '.'
+      ParentColor = False
+    end
+  end
+end

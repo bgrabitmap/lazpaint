@@ -18,7 +18,7 @@ object FLayerStack: TFLayerStack
   OnHide = FormHide
   OnShow = FormShow
   ShowInTaskBar = stNever
-  LCLVersion = '1.4.0.4'
+  LCLVersion = '1.8.2.0'
   object BGRALayerStack: TBGRAVirtualScreen
     Left = 0
     Height = 37

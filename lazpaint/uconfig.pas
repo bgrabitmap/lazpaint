@@ -89,6 +89,15 @@ type
     procedure SetDefaultImageHeight(value: integer);
     procedure SetDefaultImageBackgroundColor(value: TBGRAPixel);
 
+    function DefaultIconImageWidth: integer;
+    function DefaultIconImageHeight: integer;
+    function DefaultIconImageBitDepth: integer;
+    function DefaultIconImageBackgroundColor: TBGRAPixel;
+    procedure SetDefaultIconImageWidth(value: integer);
+    procedure SetDefaultIconImageHeight(value: integer);
+    procedure SetDefaultIconImageBitDepth(value: integer);
+    procedure SetDefaultIconImageBackgroundColor(value: TBGRAPixel);
+
 
     //resample config
     function DefaultResampleKeepAspectRatio: boolean;
@@ -368,6 +377,46 @@ end;
 function TLazPaintConfig.DefaultImageBackgroundColor: TBGRAPixel;
 begin
   result := StrToBGRA(iniOptions.ReadString('General','DefaultImageBackColor','00000000'));
+end;
+
+function TLazPaintConfig.DefaultIconImageWidth: integer;
+begin
+  result := iniOptions.ReadInteger('General','DefaultIconImageWidth',128);
+end;
+
+function TLazPaintConfig.DefaultIconImageHeight: integer;
+begin
+  result := iniOptions.ReadInteger('General','DefaultIconImageHeight',128);
+end;
+
+function TLazPaintConfig.DefaultIconImageBitDepth: integer;
+begin
+  result := iniOptions.ReadInteger('General','DefaultIconImageBitDepth',32);
+end;
+
+procedure TLazPaintConfig.SetDefaultIconImageWidth(value: integer);
+begin
+  iniOptions.WriteInteger('General','DefaultIconImageWidth',value);
+end;
+
+procedure TLazPaintConfig.SetDefaultIconImageHeight(value: integer);
+begin
+  iniOptions.WriteInteger('General','DefaultIconImageHeight',value);
+end;
+
+procedure TLazPaintConfig.SetDefaultIconImageBitDepth(value: integer);
+begin
+  iniOptions.WriteInteger('General','DefaultIconImageBitDepth',value);
+end;
+
+procedure TLazPaintConfig.SetDefaultIconImageBackgroundColor(value: TBGRAPixel);
+begin
+  iniOptions.WriteString('General','DefaultIconImageBackColor',BGRAToStr(value));
+end;
+
+function TLazPaintConfig.DefaultIconImageBackgroundColor: TBGRAPixel;
+begin
+  result := StrToBGRA(iniOptions.ReadString('General','DefaultIconImageBackColor','00000000'));
 end;
 
 function TLazPaintConfig.DefaultResampleKeepAspectRatio: boolean;

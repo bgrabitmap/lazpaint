@@ -45,7 +45,7 @@ type
     procedure SetLayerBitmap(layer: integer; ABitmap: TBGRABitmap; AOwned: boolean);
     procedure SetSize(AWidth,AHeight: integer);
     procedure PrepareForRendering;
-    function ComputeFlatImageWithoutSelection: TBGRABitmap;
+    function ComputeFlatImageWithoutSelection(ASeparateXorMask: boolean): TBGRABitmap;
     procedure Assign(AValue: TBGRABitmap; AOwned: boolean);
     procedure Assign(AValue: TBGRALayeredBitmap; AOwned: boolean);
     procedure Assign(AValue: TImageState; AOwned: boolean);
@@ -76,13 +76,14 @@ type
         APreviousSelection: TBGRABitmap; APreviousSelectionChangeRect: TRect;
         APreviousSelectionLayer: TBGRABitmap; APreviousSelectionLayerChangeRect: TRect): TCustomImageDifference; overload;
     function GetLayeredBitmapCopy: TBGRALayeredBitmap;
-    function ComputeFlatImage(AFromLayer, AToLayer: integer): TBGRABitmap;
+    function ComputeFlatImage(AFromLayer, AToLayer: integer; ASeparateXorMask: boolean): TBGRABitmap;
+    function ComputeFlatImage(ARect: TRect; AFromLayer, AToLayer: integer; ASeparateXorMask: boolean): TBGRABitmap;
     function SetLayerName(Index: integer; AValue: string): TCustomImageDifference;
     function SetLayerOpacity(Index: integer; AValue: byte): TCustomImageDifference;
     function SetLayerVisible(Index: integer; AValue: boolean): TCustomImageDifference;
     function SetLayerOffset(Index: integer; AValue: TPoint): TCustomImageDifference;
     function SetBlendOp(Index: integer; AValue: TBlendOperation): TCustomImageDifference;
-    procedure DrawLayers(ADest: TBGRABitmap; X,Y: Integer);
+    procedure DrawLayers(ADest: TBGRABitmap; X,Y: Integer; AIconCursor: boolean);
     property currentLayer: TBGRABitmap read GetCurrentLayer write SetCurrentLayer;
     property currentLayerIndex: integer read GetCurrentLayerIndex write SetCurrentLayerIndex;
     property LayerBitmap[Index: integer]: TBGRABitmap read GetLayerBitmap;
@@ -416,10 +417,10 @@ begin
     currentLayeredBitmap.FreezeExceptOneLayer(currentLayerIndex);
 end;
 
-function TImageState.ComputeFlatImageWithoutSelection: TBGRABitmap;
+function TImageState.ComputeFlatImageWithoutSelection(ASeparateXorMask: boolean): TBGRABitmap;
 begin
   if currentLayeredBitmap <> nil then
-    result := currentLayeredBitmap.ComputeFlatImage
+    result := currentLayeredBitmap.ComputeFlatImage(ASeparateXorMask)
   else
     result := TBGRABitmap.Create(Width,Height);
 end;
@@ -438,10 +439,10 @@ begin
     currentLayeredBitmap.AddOwnedLayer(AValue);
     if Assigned(AValue.XorMask) then
     begin
-      xorMask := AValue.XorMask.Duplicate as TBGRABitmap;
+      xorMask := TBGRABitmap.Create(AValue.XorMask);
       xorMask.AlphaFill(255);
       xorMask.ReplaceColor(BGRABlack,BGRAPixelTransparent);
-      currentLayeredBitmap.AddOwnedLayer(xorMask,boXor);
+      currentLayeredBitmap.LayerName[currentLayeredBitmap.AddOwnedLayer(xorMask,boXor)] := 'Xor';
       AValue.DiscardXorMask;
     end;
   end
@@ -453,7 +454,7 @@ begin
       xorMask := AValue.XorMask.Duplicate as TBGRABitmap;
       xorMask.AlphaFill(255);
       xorMask.ReplaceColor(BGRABlack,BGRAPixelTransparent);
-      currentLayeredBitmap.AddOwnedLayer(xorMask,boXor);
+      currentLayeredBitmap.LayerName[currentLayeredBitmap.AddOwnedLayer(xorMask,boXor)] := 'Xor';
     end;
   end;
   currentLayerIndex := 0;
@@ -696,16 +697,21 @@ begin
   result := currentLayeredBitmap.Duplicate;
 end;
 
-function TImageState.ComputeFlatImage(AFromLayer, AToLayer: integer
-  ): TBGRABitmap;
+function TImageState.ComputeFlatImage(AFromLayer, AToLayer: integer; ASeparateXorMask: boolean): TBGRABitmap;
 begin
-  result := currentLayeredBitmap.ComputeFlatImage(AFromLayer,AToLayer);
+  result := currentLayeredBitmap.ComputeFlatImage(AFromLayer,AToLayer,ASeparateXorMask);
 end;
 
-procedure TImageState.DrawLayers(ADest: TBGRABitmap; X, Y: Integer);
+function TImageState.ComputeFlatImage(ARect: TRect; AFromLayer,
+  AToLayer: integer; ASeparateXorMask: boolean): TBGRABitmap;
+begin
+  result := currentLayeredBitmap.ComputeFlatImage(ARect,AFromLayer,AToLayer,ASeparateXorMask);
+end;
+
+procedure TImageState.DrawLayers(ADest: TBGRABitmap; X, Y: Integer; AIconCursor: boolean);
 begin
   if currentLayeredBitmap <> nil then
-    currentLayeredBitmap.Draw(ADest,X,Y);
+    currentLayeredBitmap.Draw(ADest,X,Y, AIconCursor);
 end;
 
 constructor TImageState.Create;

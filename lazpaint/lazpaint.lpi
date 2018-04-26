@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="9"/>
+    <Version Value="10"/>
     <PathDelim Value="\"/>
     <General>
       <SessionStorage Value="InProjectDir"/>
@@ -23,7 +23,7 @@
       <MinorVersionNr Value="4"/>
       <RevisionNr Value="1"/>
       <CharSet Value="04B0"/>
-      <StringTable CompanyName="http://sourceforge.net/projects/lazpaint/" ProductName="LazPaint" InternalName="lazpaint" ProductVersion="" OriginalFilename="lazpaint.exe"/>
+      <StringTable CompanyName="http://sourceforge.net/projects/lazpaint/" ProductName="LazPaint" InternalName="lazpaint" OriginalFilename="lazpaint.exe"/>
     </VersionInfo>
     <BuildModes Count="4">
       <Item1 Name="Debug" Default="True"/>
@@ -171,7 +171,7 @@
         <PackageName Value="LCL"/>
       </Item4>
     </RequiredPackages>
-    <Units Count="91">
+    <Units Count="94">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -371,6 +371,7 @@
       <Unit30>
         <Filename Value="utoolpolygon.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UToolPolygon"/>
       </Unit30>
       <Unit31>
         <Filename Value="utoolfloodfill.pas"/>
@@ -407,6 +408,7 @@
       <Unit37>
         <Filename Value="utooltext.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UToolText"/>
       </Unit37>
       <Unit38>
         <Filename Value="uimagestate.pas"/>
@@ -432,10 +434,12 @@
         <ComponentName Value="FLayerStack"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ULayerstack"/>
       </Unit41>
       <Unit42>
         <Filename Value="uvolatilescrollbar.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UVolatileScrollBar"/>
       </Unit42>
       <Unit43>
         <Filename Value="ublendop.pas"/>
@@ -448,6 +452,7 @@
       <Unit44>
         <Filename Value="uimageobservation.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UImageObservation"/>
       </Unit44>
       <Unit45>
         <Filename Value="uloading.pas"/>
@@ -531,6 +536,7 @@
       <Unit59>
         <Filename Value="umenu.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UMenu"/>
       </Unit59>
       <Unit60>
         <Filename Value="ucolorfilters.pas"/>
@@ -551,6 +557,7 @@
       <Unit63>
         <Filename Value="uscripttype.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UScriptType"/>
       </Unit63>
       <Unit64>
         <Filename Value="ulayeraction.pas"/>
@@ -694,6 +701,24 @@
         <Filename Value="tablet\WintabConsts.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit90>
+      <Unit91>
+        <Filename Value="utoolicon.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UToolIcon"/>
+      </Unit91>
+      <Unit92>
+        <Filename Value="uimagepreview.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UImagePreview"/>
+      </Unit92>
+      <Unit93>
+        <Filename Value="upreviewdialog.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FPreviewDialog"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="UPreviewDialog"/>
+      </Unit93>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -705,6 +730,12 @@
       <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <CodeGeneration>
+      <Checks>
+        <RangeChecks Value="True"/>
+        <OverflowChecks Value="True"/>
+        <StackChecks Value="True"/>
+      </Checks>
+      <VerifyObjMethodCallValidity Value="True"/>
       <Optimizations>
         <OptimizationLevel Value="0"/>
       </Optimizations>

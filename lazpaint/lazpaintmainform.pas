@@ -28,6 +28,9 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    FileChooseFrame: TAction;
+    ToolButton8: TToolButton;
+    ToolHotSpot: TAction;
     Combo_Ratio: TComboBox;
     FileUseImageBrowser: TAction;
     Combo_GradientColorspace: TComboBox;
@@ -433,6 +436,8 @@ type
     procedure EditDeleteSelectionUpdate(Sender: TObject);
     procedure EditPasteExecute(Sender: TObject);
     procedure EditSelectionUpdate(Sender: TObject);
+    procedure FileChooseFrameExecute(Sender: TObject);
+    procedure FileChooseFrameUpdate(Sender: TObject);
     procedure FileImport3DUpdate(Sender: TObject);
     procedure FilePrintExecute(Sender: TObject);
     procedure FileSaveAsInSameFolderExecute(Sender: TObject);
@@ -550,6 +555,7 @@ type
     procedure TimerUpdateTimer(Sender: TObject);
     procedure TimerHidePenPreviewTimer(Sender: TObject);
     procedure ToolChangeDockingExecute(Sender: TObject);
+    procedure ToolHotSpotUpdate(Sender: TObject);
     procedure ToolRotateSelectionUpdate(Sender: TObject);
     procedure Tool_CurveModeAngleClick(Sender: TObject);
     procedure Tool_CurveModeAutoClick(Sender: TObject);
@@ -660,7 +666,7 @@ type
     SpinEdit_PhongBorderSize, SpinEdit_ShapeAltitude: TBarUpDown;
 
     FActiveSpinEdit: TBarUpDown;
-    FLastWidth,FLastHeight: integer;
+    FLastWidth,FLastHeight,FLastBPP: integer;
     {$IFDEF LINUX}
     FTopMostHiddenMinimised: TTopMostInfo;
     {$ENDIF}
@@ -812,7 +818,7 @@ type
 
     procedure PaintPictureNow;
     procedure PaintVirtualScreenCursor;
-    function TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean=True): Boolean;
+    function TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean=True; ALoadedImage: PImageEntry = nil): Boolean;
     function FormToBitmap(X,Y: Integer): TPointF;
     function FormToBitmap(pt: TPoint): TPointF;
     function BitmapToForm(X,Y: Single): TPointF;
@@ -842,7 +848,7 @@ implementation
 
 uses LCLIntf, BGRAUTF8, ugraph, math, umac, uclipboard, ucursors,
    ufilters, ULoadImage, ULoading, UFileExtensions, UBrushType,
-   ugeometricbrush, BGRATransform;
+   ugeometricbrush, BGRATransform, UPreviewDialog;
 
 const PenWidthFactor = 10;
 
@@ -1055,6 +1061,7 @@ begin
   if Position = poDefault then LazPaintInstance.RestoreMainWindowPosition;
 
   FLayout.Arrange;
+  UpdateToolImage;
   UpdateToolBar;
   shouldArrangeOnResize := true;
 end;
@@ -1198,7 +1205,9 @@ var vFilename: TScriptVariableReference;
     i: integer;
     cancelled: boolean;
     chosenFiles: array of string;
+    loadedImage: TImageEntry;
 begin
+  loadedImage := TImageEntry.Empty;
   try
     topInfo.defined:= false;
     if Image.IsFileModified then
@@ -1249,6 +1258,7 @@ begin
             setlength(chosenFiles, FBrowseImages.SelectedFileCount);
             for i := 0 to high(chosenFiles) do
               chosenFiles[i] := FBrowseImages.SelectedFile[i];
+            loadedImage := FBrowseImages.GetChosenImage;
             cancelled := false
           end
           else
@@ -1274,7 +1284,7 @@ begin
         begin
           if length(chosenFiles) = 1 then
           begin
-            if TryOpenFileUTF8(chosenFiles[0]) then
+            if TryOpenFileUTF8(chosenFiles[0],true,@loadedImage) then
             begin
               result := srOk;
               if Assigned(Scripting.RecordingFunctionParameters) then
@@ -1302,6 +1312,7 @@ begin
       result := srException;
     end;
   end;
+  loadedImage.FreeAndNil;
 end;
 
 procedure TFMain.FileQuitExecute(Sender: TObject);
@@ -1312,6 +1323,7 @@ end;
 function TFMain.ScriptFileSaveAs(AVars: TVariableSet): TScriptResult;
 
   function DoSaveAs(filename: string): TScriptResult;
+  var saved: boolean;
   begin
     if not Image.AbleToSaveAsUTF8(filename) then
     begin
@@ -1320,9 +1332,22 @@ function TFMain.ScriptFileSaveAs(AVars: TVariableSet): TScriptResult;
     end else
     begin
       try
-        if not LazPaintInstance.ShowSaveOptionDlg(nil,filename) then
-          result := srCancelledByUser
+        saved := false;
+        if (Image.currentFilenameUTF8 <> '') and (SuggestImageFormat(Image.currentFilenameUTF8) in [ifIco,ifCur])
+           and (SuggestImageFormat(filename) in [ifIco,ifCur]) then
+        begin
+           Image.UpdateIconFileUTF8(Image.currentFilenameUTF8, filename);
+           saved := true;
+        end
         else
+        begin
+          if not LazPaintInstance.ShowSaveOptionDlg(nil,filename) then
+            result := srCancelledByUser
+          else
+            saved := true;
+        end;
+
+        if saved then
         begin
           Config.AddRecentFile(filename);
           Config.AddRecentDirectory(ExtractFilePath(filename));
@@ -1345,6 +1370,7 @@ function TFMain.ScriptFileSaveAs(AVars: TVariableSet): TScriptResult;
 var filename: string;
     vFileName: TScriptVariableReference;
     topMost: TTopMostInfo;
+    defaultExt: string;
 begin
   AskMergeSelection(rsSave);
   filename := ExtractFileName(Image.CurrentFilenameUTF8);
@@ -1360,6 +1386,17 @@ begin
   end;
   SavePictureDialog1.FileName := filename;
   topMost := LazPaintInstance.HideTopmost;
+
+  case SuggestImageFormat(Image.CurrentFilenameUTF8) of
+  ifCur: defaultExt := '.cur';
+  ifIco: defaultExt := '.ico';
+  else
+    begin
+      if Image.NbLayers > 1 then defaultExt := '.lzp' else
+        defaultExt := '.png';
+    end;
+  end;
+
   if UseImageBrowser then
   begin
     if not assigned(FSaveImage) then
@@ -1370,8 +1407,7 @@ begin
       FSaveImage.Caption := SavePictureDialog1.Title;
     end;
     FSaveImage.InitialFilename := filename;
-    if Image.NbLayers > 1 then FSaveImage.DefaultExtension := '.lzp' else
-      FSaveImage.DefaultExtension := '.png';
+    FSaveImage.DefaultExtension := defaultExt;
     FSaveImage.InitialDirectory:= FSaveInitialDir;
     if FSaveImage.ShowModal = mrOK then
       result := DoSaveAs(FSaveImage.FileName)
@@ -1379,8 +1415,7 @@ begin
       result := srCancelledByUser;
   end else
   begin
-    if Image.NbLayers > 1 then SavePictureDialog1.DefaultExt := '.lzp' else
-      SavePictureDialog1.DefaultExt := '.png';
+    SavePictureDialog1.DefaultExt := defaultExt;
     SavePictureDialog1.InitialDir:= FSaveInitialDir;
     if SavePictureDialog1.Execute then
     begin
@@ -1398,15 +1433,23 @@ begin
     begin
       AskMergeSelection(rsSave);
       try
-        if LazPaintInstance.ShowSaveOptionDlg(nil,Image.currentFilenameUTF8) then
-          result := srOk
+        if SuggestImageFormat(Image.currentFilenameUTF8) in [ifIco,ifCur] then
+        begin
+           Image.UpdateIconFileUTF8(Image.currentFilenameUTF8);
+           result := srOk;
+        end
         else
-          result := srCancelledByUser;
-        result := srOk;
+        begin
+          if LazPaintInstance.ShowSaveOptionDlg(nil,Image.currentFilenameUTF8) then
+            result := srOk
+          else
+            result := srCancelledByUser;
+        end;
+
       except
         on ex: Exception do
         begin
-          LazPaintInstance.ShowError('FileSave',ex.Message);
+          LazPaintInstance.ShowError(rsSave,ex.Message);
           result := srException;
         end;
       end;
@@ -1603,7 +1646,9 @@ function TFMain.ScriptFileLoadSelection(AVars: TVariableSet): TScriptResult;
 var selectionFileName: string;
     vFileName: TScriptVariableReference;
     topmost: TTopMostInfo;
+    loadedImage: TImageEntry;
 begin
+  loadedImage := TImageEntry.Empty;
   vFileName := AVars.GetVariable('FileName');
   if AVars.IsReferenceDefined(vFileName) then
     selectionFileName := AVars.GetString(vFileName)
@@ -1625,6 +1670,7 @@ begin
         begin
           LazPaintInstance.ShowTopmost(topmost);
           selectionFileName := FBrowseSelections.Filename;
+          loadedImage := FBrowseSelections.GetChosenImage;
           Config.AddRecentDirectory(ExtractFilePath(selectionFileName));
         end else
         begin
@@ -1650,7 +1696,7 @@ begin
       end;
     end;
   end;
-  if FImageActions.LoadSelection(selectionFileName) then
+  if FImageActions.LoadSelection(selectionFileName, @loadedImage) then
   begin
     FSaveSelectionInitialFilename := selectionFileName;
     if Assigned(Scripting.RecordingFunctionParameters) then
@@ -1658,6 +1704,7 @@ begin
     result := srOk;
   end
   else result := srException;
+  loadedImage.FreeAndNil;
 end;
 
 function TFMain.ScriptFileReload(AVars: TVariableSet): TScriptResult;
@@ -1818,7 +1865,7 @@ begin
                 try
                   MessagePopupForever(rsLoading + ' ' + inttostr(i+1) + '/' + inttostr(length(FileNames)));
                   LazPaintInstance.UpdateWindows;
-                  loadedLayers[i].bmp := LoadFlatImageUTF8(Filenames[i], loadedLayers[i].filename, '');
+                  loadedLayers[i].bmp := LoadFlatImageUTF8(Filenames[i], loadedLayers[i].filename, '').bmp;
                   if loadedLayers[i].bmp.Width > tx then tx := loadedLayers[i].bmp.Width;
                   if loadedLayers[i].bmp.Height > ty then ty := loadedLayers[i].bmp.Height;
                   MessagePopupHide;
@@ -1997,6 +2044,7 @@ var i: integer;
     topmostInfo: TTopMostInfo;
     layerLoaded:boolean;
     chosenFiles: array of string;
+    loadedImage: TBGRABitmap;
 begin
   if not image.SelectionLayerIsEmpty then
   begin
@@ -2005,6 +2053,7 @@ begin
   end;
   topmostInfo := LazPaintInstance.HideTopmost;
   chosenFiles := nil;
+  loadedImage := nil;
   if UseImageBrowser then
   begin
     if not assigned(FBrowseImages) then
@@ -2021,6 +2070,7 @@ begin
         setlength(chosenFiles, FBrowseImages.SelectedFileCount);
         for i := 0 to high(chosenFiles) do
           chosenFiles[i] := FBrowseImages.SelectedFile[i];
+        loadedImage := FBrowseImages.GetChosenImage.bmp;
       end;
     except
       on ex: Exception do
@@ -2043,11 +2093,19 @@ begin
     end;
     OpenPictureDialog1.Options := OpenPictureDialog1.Options - [ofAllowMultiSelect];
   end;
-  for i := 0 to high(chosenFiles) do
-    begin
-      if FImageActions.TryAddLayerFromFile(chosenFiles[i]) then
-        layerLoaded := true;
-    end;
+  if Assigned(loadedImage) and (length(chosenFiles)=1) then
+  begin
+    layerLoaded := FImageActions.TryAddLayerFromFile(chosenFiles[0], loadedImage);
+  end else
+  begin
+    FreeAndNil(loadedImage);
+    for i := 0 to high(chosenFiles) do
+      begin
+        if FImageActions.TryAddLayerFromFile(chosenFiles[i]) then
+          layerLoaded := true;
+      end;
+  end;
+
   LazPaintInstance.ShowTopmost(topmostInfo);
   if layerLoaded and not LazPaintInstance.LayerWindowVisible then
     LazPaintInstance.LayerWindowVisible := true;
@@ -2773,6 +2831,21 @@ begin
   EditSelection.Enabled := not Scripting.Recording;
 end;
 
+procedure TFMain.FileChooseFrameExecute(Sender: TObject);
+var
+  openParams: TVariableSet;
+begin
+  openParams := TVariableSet.Create('FileOpen');
+  openParams.AddString('FileName',Image.currentFilenameUTF8);
+  Scripting.CallScriptFunction(openParams);
+  openParams.Free;
+end;
+
+procedure TFMain.FileChooseFrameUpdate(Sender: TObject);
+begin
+  FileChooseFrame.Enabled := Image.IsIconCursor;
+end;
+
 procedure TFMain.EditCopyExecute(Sender: TObject);
 begin
   if not ToolManager.ToolCopy then
@@ -3037,6 +3110,7 @@ var newTex: TBGRABitmap;
   topMostInfo: TTopMostInfo;
 begin
   result := false;
+  newTex := nil;
   topMostInfo := LazPaintInstance.HideTopmost;
   try
     texFilename := '';
@@ -3053,7 +3127,10 @@ begin
       try
         FBrowseTextures.InitialDirectory := Config.DefaultTextureDirectory;
         if FBrowseTextures.ShowModal = mrOK then
+        begin
           texFilename := FBrowseTextures.Filename;
+          newTex := FBrowseTextures.GetChosenImage.bmp;
+        end;
       finally
         self.Show;
       end;
@@ -3066,10 +3143,12 @@ begin
     if texFilename <> '' then
     begin
       try
-        newTex := LoadFlatImageUTF8(texFilename, finalFilename, '');
+        if not Assigned(newTex) then
+          newTex := LoadFlatImageUTF8(texFilename, finalFilename, '').bmp;
         if LazPaintInstance.BlackAndWhite then
           newTex.InplaceGrayscale;
         ToolManager.SetToolTexture(newTex);
+        newTex := nil;
         result := true;
         UpdateTextureIcon;
         UpdateEditPicture;
@@ -3083,6 +3162,7 @@ begin
     on ex:Exception do
       LazPaintInstance.ShowError('ShowOpenTextureDialog',ex.Message);
   end;
+  FreeAndNil(newTex);
   LazPaintInstance.ShowTopmost(topMostInfo);
 end;
 
@@ -3094,6 +3174,7 @@ var newBrushBmp: TBGRABitmap;
 begin
   result := false;
   topMostInfo := LazPaintInstance.HideTopmost;
+  newBrushBmp := nil;
   try
     brushFilename := '';
     if UseImageBrowser then
@@ -3109,7 +3190,10 @@ begin
       try
         FBrowseBrushes.InitialDirectory := Config.DefaultBrushDirectory;
         if FBrowseBrushes.ShowModal = mrOK then
+        begin
           brushFilename := FBrowseBrushes.Filename;
+          newBrushBmp := FBrowseBrushes.GetChosenImage.bmp;
+        end;
       finally
         self.Show;
       end;
@@ -3122,10 +3206,11 @@ begin
     if brushFilename <> '' then
     begin
       try
-        newBrushBmp := LoadFlatImageUTF8(brushFilename, finalFilename, '');
+        if not assigned(newBrushBmp) then
+          newBrushBmp := LoadFlatImageUTF8(brushFilename, finalFilename, '').bmp;
         newBrush := TLazPaintBrush.Create;
         newBrush.AssignBrushImage(newBrushBmp);
-        newBrushBmp.Free;
+        FreeAndNil(newBrushBmp);
         ToolManager.AddBrush(newBrush);
         result := true;
         UpdateBrush;
@@ -3139,6 +3224,7 @@ begin
     on ex:Exception do
       LazPaintInstance.ShowError('ShowOpenBrushDialog',ex.Message);
   end;
+  FreeAndNil(newBrushBmp);
   LazPaintInstance.ShowTopmost(topMostInfo);
 end;
 
@@ -3172,11 +3258,16 @@ begin
 end;
 
 procedure TFMain.UpdateWindowCaption;
+var bppStr: string;
 begin
-  if Image.CurrentFilenameUTF8 = '' then
-    self.Caption := inttostr(Image.Width)+'x'+inttostr(Image.Height) + ' - ' + LazPaintInstance.Title
+  if Image.bpp = 0 then
+    bppStr := ''
   else
-    self.Caption := inttostr(Image.Width)+'x'+inttostr(Image.Height) + ' - ' + image.CurrentFilenameUTF8;
+    bppStr := ' '+inttostr(Image.bpp)+'bit';
+  if Image.CurrentFilenameUTF8 = '' then
+    self.Caption := inttostr(Image.Width)+'x'+inttostr(Image.Height) + bppStr + ' - ' + LazPaintInstance.Title
+  else
+    self.Caption := inttostr(Image.Width)+'x'+inttostr(Image.Height) + bppStr + ' - ' + image.CurrentFilenameUTF8;
 end;
 
 procedure TFMain.ImageCurrentFilenameChanged(sender: TLazPaintImage);
@@ -3215,19 +3306,21 @@ begin
       ViewZoomFit.Execute;
 end;
 
-function TFMain.TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean=True): Boolean;
+function TFMain.TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean=True;
+     ALoadedImage: PImageEntry = nil): Boolean;
 var
-  newPicture: TBGRABitmap;
+  newPicture: TImageEntry;
   finalFilenameUTF8: string;
   format: TBGRAImageFormat;
 
   procedure StartImport;
   begin
     ToolManager.ToolCloseDontReopen;
-    if CurrentTool in [ptDeformation,ptRotateSelection,ptMoveSelection,ptTextureMapping,ptLayerMapping] then
+    if (CurrentTool in [ptDeformation,ptRotateSelection,ptMoveSelection,ptTextureMapping,ptLayerMapping])
+     or ((CurrentTool = ptHotSpot) and (format <> ifCur)) then
       ChooseTool(ptHand);
   end;
-  procedure EndImport;
+  procedure EndImport(BPP: integer = 0);
   begin
     if AddToRecent then
     begin
@@ -3236,10 +3329,23 @@ var
     end;
     Image.CurrentFilenameUTF8 := finalFilenameUTF8;
     image.ClearUndo;
-    image.SetSavedFlag;
+    image.SetSavedFlag(BPP);
     ToolManager.ToolOpen;
     ZoomFitIfTooBig;
     result := true;
+  end;
+  procedure ImportNewPicture;
+  begin
+    if (newPicture.bmp <> nil) and (newPicture.bmp.Width > 0) and (newPicture.bmp.Height > 0) then
+    begin
+      StartImport;
+      with ComputeAcceptableImageSize(newPicture.bmp.Width,newPicture.bmp.Height) do
+        if (cx < newPicture.bmp.Width) or (cy < newPicture.bmp.Height) then
+          BGRAReplace(newPicture.bmp, newPicture.bmp.Resample(cx,cy,rmFineResample));
+      FImageActions.SetCurrentBitmap(newPicture.bmp, False); //image owned
+      newPicture.bmp := nil;
+      EndImport(newPicture.bpp);
+    end else FreeAndNil(newPicture.bmp);
   end;
 
 begin
@@ -3254,30 +3360,37 @@ begin
   ShowNoPicture;
   Image.OnImageChanged.NotifyObservers;
   finalFilenameUTF8 := filenameUTF8;
+  newPicture := TImageEntry.Empty;
   try
     format := Image.DetectImageFormat(filenameUTF8);
-    if format in[ifIco,ifCur,ifGif] then
+    if Assigned(ALoadedImage) and Assigned(ALoadedImage^.bmp) then
+    begin
+      newPicture := ALoadedImage^;
+      ALoadedImage^.bmp := nil;
+      ImportNewPicture;
+    end
+    else
+    if format in[ifIco,ifCur] then
+    begin
+      newPicture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8, rsIconOrCursor);
+      ImportNewPicture;
+    end
+    else
+    if format = ifGif then
     begin
       newPicture := LoadFlatImageUTF8(FilenameUTF8, finalFilenameUTF8, '.lzp');
+      ImportNewPicture;
     end else
     begin
       StartImport;
       image.LoadFromFileUTF8(filenameUTF8);
       EndImport;
-      newPicture := nil;
     end;
-    if (newPicture <> nil) and (newPicture.Width > 0) and (newPicture.Height > 0) then
-    begin
-      StartImport;
-      with ComputeAcceptableImageSize(newPicture.Width,newPicture.Height) do
-        if (cx < newPicture.Width) or (cy < newPicture.Height) then
-          BGRAReplace(newPicture, newPicture.Resample(cx,cy,rmFineResample));
-      FImageActions.SetCurrentBitmap(newPicture, False);
-      EndImport;
-    end else newPicture.Free;
+
   except
     on ex: Exception do
     begin
+      newPicture.FreeAndNil;
       ToolManager.ToolOpen;
       Image.OnImageChanged.NotifyObservers;
       LazPaintInstance.ShowError(rsOpen,ex.Message);
@@ -3319,10 +3432,12 @@ end;
 procedure TFMain.OnImageChangedHandler(AEvent: TLazPaintImageObservationEvent);
 begin
   InvalidatePicture(False);
-  if (image.Width <> FLastWidth) or (image.Height <> FLastHeight) then
+  if (image.Width <> FLastWidth) or (image.Height <> FLastHeight)
+   or (image.BPP <> FLastBPP) then
   begin
     FLastWidth:= image.Width;
     FLastHeight:= image.Height;
+    FLastBPP := image.BPP;
     UpdateWindowCaption;
   end;
   if not image.CurrentLayerVisible and not ToolManager.ToolCanBeUsed then
@@ -3736,7 +3851,7 @@ begin
   OffsetRect(renderRect, -FLastPictureParameters.virtualScreenArea.Left,
                          -FLastPictureParameters.virtualScreenArea.Top);
 
-  DrawCheckers(virtualScreen, renderRect);
+  Image.DrawBackground(virtualScreen, renderRect);
 
   //draw image (with merged selection)
   virtualScreen.StretchPutImage(renderRect,Image.RenderedImage,dmDrawWithTransparency);
