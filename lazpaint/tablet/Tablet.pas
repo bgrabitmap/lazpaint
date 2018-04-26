@@ -476,7 +476,7 @@ end;
 
 function TTablet.GetContext: TLogContext;
 begin
-  if FPresent and (FContextHandle <> 0) then WTGet(FContextHandle, Result);
+  if FPresent and (FContextHandle <> 0) then WTGet(FContextHandle, {%H-}Result);
 end;
 
 function TTablet.GetDeviceName: string;

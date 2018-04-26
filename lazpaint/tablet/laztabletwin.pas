@@ -21,9 +21,9 @@ type
     FPressure: integer;
     FTablet: TTablet;
   protected
-    procedure TabletPacket(Sender: TObject; PacketNumber, ContextHandle: HCtx;
+    procedure TabletPacket(Sender: TObject; {%H-}PacketNumber, {%H-}ContextHandle: HCtx;
       pPacket: Pointer);
-    procedure TabletProximity(Sender: TObject; ContextHandle: HCtx;
+    procedure TabletProximity(Sender: TObject; {%H-}ContextHandle: HCtx;
       Entering: boolean);
   public
     constructor Create(AOwner: TComponent); override;
@@ -98,7 +98,7 @@ begin
       FCoords := Point(0, 0);
       Exit;
     end;
-    DefaultContext(AContext);
+    DefaultContext({%H-}AContext);
     Options := Options or lcOptions;
     PktData := lcPktData;
     BtnDnMask := lcBtnMask;
