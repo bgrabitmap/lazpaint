@@ -3241,12 +3241,12 @@ begin
   result := Image.RenderUpdateRectInPicCoord;
   if not IsRectEmpty(result) then
   begin
-    with BitmapToVirtualScreen(result.Left,result.Top) do
+    with BitmapToVirtualScreen(result.Left-0.5,result.Top-0.5) do
     begin
       result.Left := Math.floor(X) - displayMargin;
       result.Top := Math.floor(Y) - displayMargin;
     end;
-    with BitmapToVirtualScreen(result.Right,result.Bottom) do
+    with BitmapToVirtualScreen(result.Right-0.5,result.Bottom-0.5) do
     begin
       result.Right := ceil(X) + displayMargin;
       result.Bottom := ceil(Y) + displayMargin;
