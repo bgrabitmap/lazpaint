@@ -38,6 +38,7 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure FormHide(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
+    procedure FormShow(Sender: TObject);
     procedure TabControl1Change(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure ToolButton_PosterizeClick(Sender: TObject);
@@ -290,6 +291,11 @@ begin
   begin
     TryRemovePoint;
   end;
+end;
+
+procedure TFAdjustCurves.FormShow(Sender: TObject);
+begin
+  vsChart.DiscardBitmap;
 end;
 
 procedure TFAdjustCurves.TabControl1Change(Sender: TObject);
