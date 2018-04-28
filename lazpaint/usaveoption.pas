@@ -669,6 +669,8 @@ end;
 function TFSaveOption.GetJpegQuality: integer;
 begin
   result := TrackBar_Quality.Position;
+  if result < low(TJPEGQualityRange) then result := low(TJPEGQualityRange);
+  if result > high(TJPEGQualityRange) then result := high(TJPEGQualityRange);
 end;
 
 procedure TFSaveOption.SetBitsPerPixelVisible(AValue: boolean);
