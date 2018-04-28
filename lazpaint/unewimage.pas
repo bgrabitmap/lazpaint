@@ -89,6 +89,7 @@ begin
   result := false;
   NewImage := nil;
   try
+    Application.ProcessMessages; //avoid unexpected exit on linux
     NewImage:= TFNewImage.Create(nil);
     NewImage.LazPaintInstance := AInstance;
     NewImage.ForIcon := AForIcon;
