@@ -95,7 +95,7 @@ implementation
 
 uses BGRAUTF8, BGRAWinResource, BGRALazResource, LazFileUtils, Dialogs
 {$IFDEF WINDOWS}, Windows{$ENDIF}
-{$IFDEF LINUX}, BGRAUTF8{$ENDIF}
+{$IFDEF LINUX}, Process{$ENDIF}
 ;
 
 type
