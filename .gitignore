@@ -8,3 +8,7 @@ debug
 *.res
 *.lrt
 /lazpaint/*.lrj
+
+lazpaint/backup/
+
+*.lrj
