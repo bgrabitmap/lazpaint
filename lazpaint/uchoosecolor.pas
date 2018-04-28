@@ -348,7 +348,7 @@ begin
     Bitmap.Rectangle(x-colorxysize-1,y-colorxysize-1,x+colorxysize+2,y+colorxysize+2,BGRA(0,0,0,cursorxyopacity),dmDrawWithTransparency);
     Bitmap.Rectangle(x-colorxysize,y-colorxysize,x+colorxysize+1,y+colorxysize+1,BGRA(255,255,255,cursorxyopacity),dmDrawWithTransparency);
     Bitmap.Rectangle(x-colorxysize+1,y-colorxysize+1,x+colorxysize,y+colorxysize,BGRA(0,0,0,cursorxyopacity),dmDrawWithTransparency);
-    size := (ColorCircle.bounds.Bottom-ColorCircle.bounds.Top)/10;
+    size := round(barwidth*0.9);
     c := GetCurrentColor;
     c.alpha := 255;
     Bitmap.RoundRectAntialias(0,colorCircle.bounds.Bottom-1-size,size,colorCircle.bounds.Bottom-1,
