@@ -50,8 +50,8 @@ type
     destructor Destroy; override;
     procedure ZoomOriginal;
     procedure ZoomFit(AImageWidth,AImageHeight: integer);
-    procedure ZoomIn;
-    procedure ZoomOut;
+    procedure ZoomIn(AFine: boolean = false);
+    procedure ZoomOut(AFine: boolean = false);
     procedure SetPosition(ABitmapPosition: TPointF; AMousePosition: TPoint);
     procedure ClearPosition;
     procedure DoAction(const AName: string);
@@ -241,17 +241,21 @@ begin
   end;
 end;
 
-procedure TZoom.ZoomIn;
+procedure TZoom.ZoomIn(AFine: boolean);
 begin
-  if RoundZoom(Factor) > Factor then
+  if AFine then
+    Factor := Factor*1.1
+  else if RoundZoom(Factor) > Factor then
     Factor := RoundZoom(Factor)
   else
     Factor := RoundZoom(Factor*sqrt(2));
 end;
 
-procedure TZoom.ZoomOut;
+procedure TZoom.ZoomOut(AFine: boolean);
 begin
-  if RoundZoom(Factor) < Factor then
+  if AFine then
+    Factor := Factor/1.1
+  else if RoundZoom(Factor) < Factor then
     Factor := RoundZoom(Factor)
   else
     Factor := RoundZoom(Factor/sqrt(2));

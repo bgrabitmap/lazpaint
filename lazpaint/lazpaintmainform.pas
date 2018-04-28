@@ -2282,8 +2282,8 @@ procedure TFMain.FormMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin
   Zoom.SetPosition(FormToBitmap(MousePos.X,MousePos.Y), MousePos);
-  if WheelDelta > 0 then Zoom.ZoomIn else
-  if WheelDelta < 0 then Zoom.ZoomOut;
+  if WheelDelta > 0 then Zoom.ZoomIn(ssCtrl in Shift) else
+  if WheelDelta < 0 then Zoom.ZoomOut(ssCtrl in Shift);
   Zoom.ClearPosition;
   Handled := True;
 end;
