@@ -2597,6 +2597,10 @@ msgstr "256 väriä"
 msgid "2 colors"
 msgstr "2 väriä"
 
+#: tfsaveoption.radiobutton_32bitsperpixel.caption
+msgid "32 bits"
+msgstr ""
+
 #: tfsaveoption.radiobutton_miomap.caption
 msgid "MioMap"
 msgstr ""

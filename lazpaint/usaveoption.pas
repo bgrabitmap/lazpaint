@@ -29,6 +29,7 @@ type
     Panel_Quality: TPanel;
     Panel_BitsPerPixel: TPanel;
     Panel_Option: TPanel;
+    RadioButton_32BitsPerPixel: TRadioButton;
     RadioButton_MioMap: TRadioButton;
     RadioButton_2Colors: TRadioButton;
     RadioButton_16Colors: TRadioButton;
@@ -255,7 +256,7 @@ begin
   if QuantizerNeeded then
   begin
     mustFreePic:= true;
-    if ImageFormat in [ifCur,ifIco] then
+    if (ImageFormat in [ifCur,ifIco]) and not PngStreamNeeded then
       picture := BGRADitherIconCursor(FFlattenedOriginal, WantedBitsPerPixel, GetDitheringAlgorithm) as TBGRABitmap
     else
       picture := Quantizer.GetDitheredBitmap(GetDitheringAlgorithm, FFlattenedOriginal) as TBGRABitmap;
@@ -355,8 +356,14 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
       end;
     end else
     begin
-      FFlattenedOriginal.SaveToStreamAs(outputStream, ifBmp);
-      if FLazPaintInstance.Image.NbLayers = 1 then
+      writer := TFPWriterBMP.Create;
+      writer.BitsPerPixel := WantedBitsPerPixel;
+      try
+        FFlattenedOriginal.SaveToStream(outputStream, writer);
+        if FLazPaintInstance.Image.NbLayers = 1 then FLazPaintInstance.Image.SetSavedFlag;
+      finally
+        writer.Free;
+      end;
     end;
   end;
 
@@ -606,8 +613,10 @@ begin
     result := 8
   else if RadioButton_MioMap.Checked then
     result := 16
+  else if RadioButton_24BitsPerPixel.Checked then
+    result := 24
   else
-    result := 24;
+    result := 32;
 end;
 
 procedure TFSaveOption.SetJpegQuality(AValue: integer);
@@ -632,14 +641,14 @@ begin
          UpdateFileSizeTo(FBmpStream.Size);
     end else
     begin
-      size := int64((FFlattenedOriginal.Width*WantedBitsPerPixel+7) div 8)*FFlattenedOriginal.Height;
+      size := int64((FFlattenedOriginal.Width*WantedBitsPerPixel+31) div 32)*4*FFlattenedOriginal.Height;
       if QuantizerNeeded then size += int64(1 shl WantedBitsPerPixel)*4;
       size += sizeof(TBitMapFileHeader)+sizeof(TBitMapInfoHeader);
       UpdateFileSizeTo(size);
     end;
   ifIco,ifCur: if FPngStream = nil then
     begin
-      size := int64((FFlattenedOriginal.Width*WantedBitsPerPixel+7) div 8)*FFlattenedOriginal.Height;
+      size := int64((FFlattenedOriginal.Width*WantedBitsPerPixel+31) div 32)*4*FFlattenedOriginal.Height;
       if QuantizerNeeded then size += int64(1 shl WantedBitsPerPixel)*4;
       size += sizeof(TIconFileDirEntry)+sizeof(TBitMapInfoHeader);
       UpdateFileSizeTo(size);
@@ -696,17 +705,37 @@ begin
     RadioButton_16Colors.Enabled := false;
     RadioButton_256Colors.Enabled := true;
     RadioButton_MioMap.Enabled := false;
+    if FFlattenedOriginal.HasTransparentPixels then
+    begin
+      RadioButton_24BitsPerPixel.Enabled := false;
+      RadioButton_32BitsPerPixel.Enabled := true;
+    end
+    else
+    begin
+      RadioButton_24BitsPerPixel.Enabled := true;
+      RadioButton_32BitsPerPixel.Enabled := false;
+    end;
+
     if origBPP > 8 then
-      RadioButton_24BitsPerPixel.Checked := true
+    begin
+      if RadioButton_24BitsPerPixel.Enabled then
+        RadioButton_24BitsPerPixel.Checked := true
+      else
+        RadioButton_32BitsPerPixel.Checked := true;
+    end
     else
       RadioButton_256Colors.Checked := true;
   end else
-  if FImageFormat in[ifBmp,ifIco,ifCur] then
+  if FImageFormat in[ifIco,ifCur] then
   begin
-    //if HasSemiTransparentPixels(FFlattenedOriginal) then
     RadioButton_2Colors.Enabled := true;
     RadioButton_16Colors.Enabled := true;
     RadioButton_256Colors.Enabled := true;
+    RadioButton_24BitsPerPixel.Enabled := true;
+    RadioButton_32BitsPerPixel.Enabled := true;
+
+    if FFlattenedOriginal.HasSemiTransparentPixels then
+      RadioButton_32BitsPerPixel.Checked := true else
     if origBPP > 8 then
       RadioButton_24BitsPerPixel.Checked := true else
     if origBPP > 4 then
@@ -715,7 +744,34 @@ begin
       RadioButton_16Colors.Checked := true else
       RadioButton_2Colors.Checked := true;
 
-    RadioButton_MioMap.Enabled := (FImageFormat = ifBmp);
+    RadioButton_MioMap.Enabled := false;
+  end else
+  if FImageFormat = ifBmp then
+  begin
+    if FFlattenedOriginal.HasTransparentPixels then
+    begin
+      RadioButton_2Colors.Enabled := false;
+      RadioButton_16Colors.Enabled := false;
+      RadioButton_256Colors.Enabled := false;
+      RadioButton_24BitsPerPixel.Enabled := false;
+      RadioButton_32BitsPerPixel.Enabled := true;
+      RadioButton_32BitsPerPixel.Checked := true;
+    end else
+    begin
+      RadioButton_2Colors.Enabled := true;
+      RadioButton_16Colors.Enabled := true;
+      RadioButton_256Colors.Enabled := true;
+      RadioButton_24BitsPerPixel.Enabled := true;
+      RadioButton_32BitsPerPixel.Enabled := true;
+      if origBPP > 8 then
+        RadioButton_24BitsPerPixel.Checked := true else
+      if origBPP > 4 then
+        RadioButton_256Colors.Checked := true else
+      if origBPP > 1 then
+        RadioButton_16Colors.Checked := true else
+        RadioButton_2Colors.Checked := true;
+    end;
+    RadioButton_MioMap.Enabled := true;
   end;
   LayoutRadioButtonDepth;
   UpdateDitheringCheckbox;
@@ -775,7 +831,8 @@ end;
 
 procedure TFSaveOption.UpdateDitheringCheckbox;
 begin
-  CheckBox_Dithering.Enabled := not RadioButton_24BitsPerPixel.Checked;
+  CheckBox_Dithering.Enabled := not RadioButton_24BitsPerPixel.Checked and
+                                not RadioButton_32BitsPerPixel.Checked;
 end;
 
 function TFSaveOption.GetOriginalBitDepth: integer;
@@ -825,6 +882,7 @@ begin
   LayoutItem(RadioButton_256Colors, RadioButton_256Colors.Enabled);
   LayoutItem(RadioButton_MioMap, RadioButton_MioMap.Enabled);
   LayoutItem(RadioButton_24BitsPerPixel, RadioButton_24BitsPerPixel.Enabled);
+  LayoutItem(RadioButton_32BitsPerPixel, RadioButton_32BitsPerPixel.Enabled);
   LayoutItem(CheckBox_Dithering, true);
   Panel_BitsPerPixel.Height := y+DoScaleY(1,96);
 end;
