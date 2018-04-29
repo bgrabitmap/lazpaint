@@ -375,10 +375,6 @@ begin
         bitmap.DrawLineAntialias(DeleteArea.Left+4,DeleteArea.Top+4-scrollPos,DeleteArea.Right-5,DeleteArea.Bottom-5-scrollPos,CSSRed,4);
         textRight := DeleteArea.Left;
       end;
-    end
-    else
-    begin
-      bitmap.FillRect(Area.Left, Area.Top-scrollPos, Area.Right, Area.Bottom-scrollPos, ColorToRGB(clAppWorkspace));
     end;
 
     x := IconArea.left;
@@ -522,6 +518,9 @@ begin
   FSurface := ASurface;
   FStatus := AStatus;
   FSelectedMenuIndex := -1;
+  {$IFDEF WINDOWS}
+  ASurface.Color := clAppWorkspace;
+  {$ENDIF}
   FSurface.OnRedraw:= @SurfaceRedraw;
   FSurface.OnMouseDown:= @SurfaceMouseDown;
   FSurface.OnMouseMove:= @SurfaceMouseMove;

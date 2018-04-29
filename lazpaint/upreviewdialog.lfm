@@ -1,7 +1,7 @@
 object FPreviewDialog: TFPreviewDialog
-  Left = 392
+  Left = 393
   Height = 363
-  Top = 143
+  Top = 168
   Width = 439
   BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'Preview'
@@ -18,7 +18,7 @@ object FPreviewDialog: TFPreviewDialog
     Width = 439
     Align = alClient
     Alignment = taLeftJustify
-    Color = clAppWorkspace
+    Color = clGray
     ParentColor = False
     TabOrder = 0
     TabStop = True
@@ -35,7 +35,7 @@ object FPreviewDialog: TFPreviewDialog
     TabOrder = 1
     object LStatus: TLabel
       Left = 8
-      Height = 15
+      Height = 17
       Top = 6
       Width = 3
       Caption = '.'

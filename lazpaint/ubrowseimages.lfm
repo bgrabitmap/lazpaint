@@ -1,7 +1,7 @@
 object FBrowseImages: TFBrowseImages
-  Left = 422
+  Left = 423
   Height = 300
-  Top = 24
+  Top = 49
   Width = 572
   Caption = 'Browse images'
   ClientHeight = 300
@@ -29,7 +29,7 @@ object FBrowseImages: TFBrowseImages
     TabOrder = 0
     object Label_Status: TLabel
       Left = 3
-      Height = 15
+      Height = 17
       Top = 8
       Width = 3
       Caption = '.'
@@ -42,7 +42,7 @@ object FBrowseImages: TFBrowseImages
       Width = 102
       Alignment = taLeftJustify
       Anchors = [akTop, akLeft, akRight, akBottom]
-      Color = clAppWorkspace
+      Color = clGray
       ParentColor = False
       TabOrder = 0
     end
@@ -56,6 +56,7 @@ object FBrowseImages: TFBrowseImages
       OnClick = ListBox_RecentDirsClick
       ScrollWidth = 98
       TabOrder = 1
+      TopIndex = -1
     end
   end
   object Splitter1: TSplitter
@@ -143,10 +144,10 @@ object FBrowseImages: TFBrowseImages
       end
       object ComboBox_FileExtension: TComboBox
         Left = 5
-        Height = 23
+        Height = 31
         Top = 40
         Width = 211
-        ItemHeight = 15
+        ItemHeight = 0
         OnChange = ComboBox_FileExtensionChange
         Style = csDropDownList
         TabOrder = 1
@@ -154,7 +155,7 @@ object FBrowseImages: TFBrowseImages
       end
       object Edit_Filename: TEdit
         Left = 224
-        Height = 23
+        Height = 27
         Top = 40
         Width = 224
         Anchors = [akTop, akLeft, akRight]
@@ -163,7 +164,7 @@ object FBrowseImages: TFBrowseImages
       end
       object DirectoryEdit1: TEdit
         Left = 224
-        Height = 23
+        Height = 27
         Top = 5
         Width = 224
         Anchors = [akTop, akLeft, akRight]
