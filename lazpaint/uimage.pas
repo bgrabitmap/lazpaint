@@ -493,7 +493,7 @@ begin
   begin
     s := FileManager.CreateFileStream(AFilename, fmCreate);
     try
-      FCurrentState.SaveToStream(s);
+      FCurrentState.SaveToStreamAs(s, format);
     finally
       s.Free;
     end;

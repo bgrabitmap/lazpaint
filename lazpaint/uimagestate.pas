@@ -55,6 +55,7 @@ type
     function GetUndoAfterAssign(ABackup: TImageState): TCustomImageDifference;
     procedure LoadFromStream(AStream: TStream);
     procedure SaveToStream(AStream: TStream);
+    procedure SaveToStreamAs(AStream: TStream; AFormat: TBGRAImageFormat);
     procedure SaveToFile(AFilenameUTF8: string);
     procedure AdaptLayers;
     function AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation): TCustomImageDifference;
@@ -532,6 +533,12 @@ end;
 procedure TImageState.SaveToStream(AStream: TStream);
 begin
   SaveLayersToStream(AStream, currentLayeredBitmap, currentLayerIndex, lzpRLE);
+end;
+
+procedure TImageState.SaveToStreamAs(AStream: TStream; AFormat: TBGRAImageFormat);
+begin
+  if currentLayeredBitmap <> nil then
+    currentLayeredBitmap.SaveToStreamAs(AStream, SuggestImageExtension(AFormat));
 end;
 
 procedure TImageState.SaveToFile(AFilenameUTF8: string);
