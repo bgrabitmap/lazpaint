@@ -7,7 +7,8 @@ interface
 uses
   Classes, SysUtils, LazPaintType, BGRABitmap;
 
-function LoadFlatImageUTF8(AFilename: string; out AFinalFilename: string; AAppendFrame: string; ASkipDialog: boolean = false): TImageEntry;
+function LoadFlatImageUTF8(AFilename: string; out AFinalFilename: string;
+   AAppendFrame: string; ASkipDialog: boolean = false): TImageEntry;
 procedure FreeMultiImage(var images: ArrayOfImageEntry);
 function AbleToLoadUTF8(AFilename: string): boolean;
 
@@ -15,7 +16,8 @@ implementation
 
 uses FileUtil, BGRAAnimatedGif, Graphics, UMultiImage,
   BGRAReadLzp, LCLProc, BGRABitmapTypes, BGRAReadPng,
-  UFileSystem, BGRAIconCursor;
+  UFileSystem, BGRAIconCursor, BGRAReadTiff,
+  Dialogs, UResourceStrings;
 
 function LoadIcoMultiImageFromStream(AStream: TStream): ArrayOfImageEntry;
 var ico: TBGRAIconCursor; i: integer;
@@ -48,6 +50,25 @@ begin
     end;
   finally
     gif.Free;
+  end;
+end;
+
+function LoadTiffMultiImageFromStream(AStream: TStream): ArrayOfImageEntry;
+var tiff: TBGRAReaderTiff;
+  i: Integer;
+begin
+  tiff := TBGRAReaderTiff.Create;
+  try
+    tiff.LoadFromStream(AStream);
+    setlength(result,tiff.ImageCount);
+    for i := 0 to tiff.ImageCount-1 do
+    begin
+      result[i].bmp := (tiff.Images[i].Img as TBGRABitmap).Duplicate as TBGRABitmap;
+      result[i].bmp.Caption := 'Image'+IntToStr(i);
+      result[i].bpp := 0;
+    end;
+  finally
+    tiff.Free;
   end;
 end;
 
@@ -103,7 +124,8 @@ begin
   end;
 end;
 
-function LoadFlatImageUTF8(AFilename: string; out AFinalFilename: string; AAppendFrame: string; ASkipDialog: boolean): TImageEntry;
+function LoadFlatImageUTF8(AFilename: string; out AFinalFilename: string;
+     AAppendFrame: string; ASkipDialog: boolean): TImageEntry;
 var
   formMultiImage: TFMultiImage;
   multi: ArrayOfImageEntry;
@@ -152,6 +174,11 @@ begin
     if (format = ifGif) and not ASkipDialog then
     begin
       multi := LoadGifMultiImageFromStream(s);
+      ChooseMulti(True);
+    end else
+    if (format = ifTiff) and not ASkipDialog then
+    begin
+      multi := LoadTiffMultiImageFromStream(s);
       ChooseMulti(True);
     end else
     if format = ifLazPaint then

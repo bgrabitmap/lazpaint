@@ -28,7 +28,7 @@ type
   { TFMain }
 
   TFMain = class(TForm)
-    FileChooseFrame: TAction;
+    FileChooseEntry: TAction;
     ToolButton8: TToolButton;
     ToolHotSpot: TAction;
     Combo_Ratio: TComboBox;
@@ -436,8 +436,8 @@ type
     procedure EditDeleteSelectionUpdate(Sender: TObject);
     procedure EditPasteExecute(Sender: TObject);
     procedure EditSelectionUpdate(Sender: TObject);
-    procedure FileChooseFrameExecute(Sender: TObject);
-    procedure FileChooseFrameUpdate(Sender: TObject);
+    procedure FileChooseEntryExecute(Sender: TObject);
+    procedure FileChooseEntryUpdate(Sender: TObject);
     procedure FileImport3DUpdate(Sender: TObject);
     procedure FilePrintExecute(Sender: TObject);
     procedure FileSaveAsInSameFolderExecute(Sender: TObject);
@@ -1233,7 +1233,7 @@ begin
     if AVars.IsReferenceDefined(vFileName) then
     begin
       FLazPaintInstance.ShowTopmost(topInfo);
-      if TryOpenFileUTF8(AVars.GetString(vFilename)) then
+      if TryOpenFileUTF8(AVars.GetString(vFilename), true, nil) then
         result := srOk
       else
         result := srException;
@@ -2831,7 +2831,7 @@ begin
   EditSelection.Enabled := not Scripting.Recording;
 end;
 
-procedure TFMain.FileChooseFrameExecute(Sender: TObject);
+procedure TFMain.FileChooseEntryExecute(Sender: TObject);
 var
   openParams: TVariableSet;
 begin
@@ -2841,9 +2841,9 @@ begin
   openParams.Free;
 end;
 
-procedure TFMain.FileChooseFrameUpdate(Sender: TObject);
+procedure TFMain.FileChooseEntryUpdate(Sender: TObject);
 begin
-  FileChooseFrame.Enabled := Image.IsIconCursor;
+  FileChooseEntry.Enabled := Image.IsIconCursor or Image.IsTiff;
 end;
 
 procedure TFMain.EditCopyExecute(Sender: TObject);
@@ -3306,8 +3306,8 @@ begin
       ViewZoomFit.Execute;
 end;
 
-function TFMain.TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean=True;
-     ALoadedImage: PImageEntry = nil): Boolean;
+function TFMain.TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean;
+     ALoadedImage: PImageEntry): Boolean;
 var
   newPicture: TImageEntry;
   finalFilenameUTF8: string;
@@ -3376,9 +3376,15 @@ begin
       ImportNewPicture;
     end
     else
+    if format in[ifIco,ifTiff] then
+    begin
+      newPicture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8, 'TIFF');
+      ImportNewPicture;
+    end
+    else
     if format = ifGif then
     begin
-      newPicture := LoadFlatImageUTF8(FilenameUTF8, finalFilenameUTF8, '.lzp');
+      newPicture := LoadFlatImageUTF8(FilenameUTF8, finalFilenameUTF8, '.lzp', false);
       ImportNewPicture;
     end else
     begin

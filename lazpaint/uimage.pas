@@ -60,6 +60,7 @@ type
 
     procedure DiscardSelectionLayerAfterMask;
     function GetIsIconCursor: boolean;
+    function GetIsTiff: boolean;
     function GetLayerBitmapById(AId: integer): TBGRABitmap;
     function GetLayerId(AIndex: integer): integer;
     function GetTransformedSelectionBounds: TRect;
@@ -242,6 +243,7 @@ type
     property TransformedSelectionBounds: TRect read GetTransformedSelectionBounds;
     property ZoomFactor: single read GetZoomFactor;
     property IsIconCursor: boolean read GetIsIconCursor;
+    property IsTiff: boolean read GetIsTiff;
     constructor Create;
     destructor Destroy; override;
   end;
@@ -1202,6 +1204,11 @@ end;
 function TLazPaintImage.GetIsIconCursor: boolean;
 begin
   result := SuggestImageFormat(currentFilenameUTF8) in [ifIco,ifCur];
+end;
+
+function TLazPaintImage.GetIsTiff: boolean;
+begin
+  result := SuggestImageFormat(currentFilenameUTF8) = ifTiff;
 end;
 
 function TLazPaintImage.GetLayerBitmapById(AId: integer): TBGRABitmap;

@@ -7,7 +7,8 @@ interface
 uses
   Classes, SysUtils, StdCtrls, Graphics, Controls, BGRAVirtualScreen,
   LazPaintType, UGraph, UResourceStrings, UFileSystem, Forms, UVolatileScrollBar,
-  BGRABitmap, BGRAAnimatedGif, BGRAIconCursor, BGRABitmapTypes, BGRAThumbnail;
+  BGRABitmap, BGRAAnimatedGif, BGRAIconCursor, BGRABitmapTypes, BGRAThumbnail,
+  BGRAReadTiff;
 
 type
 
@@ -15,28 +16,35 @@ type
 
   TImagePreview = class
   protected
-    FSelectedMenuIndex: integer;
     FSurface: TBGRAVirtualScreen;
-    FStatus: TLabel;
-    FFilename: string;
-    FCurrentImage: TBGRABitmap;
-    FCurrentAnimatedGif: TBGRAAnimatedGif;
-    FCurrentIconCursor: TBGRAIconCursor;
-    FCurrentImageFormat: TBGRAImageFormat;
-    FCurrentImageNbLayers: integer;
-    FCurrentImageError: string;
-    FCurrentImageMenu: array of record
-                           Area, IconArea: TRect;
-                           DeleteArea: TRect;
-                           FrameIndex: integer;
-                           IsNew: boolean;
-                         end;
     FScrollbar: TVolatileScrollBar;
     FScrolling: boolean;
+    FStatus: TLabel;
+
+    FFilename: string;
+    FLoadError: string;
+
+    FImageFormat: TBGRAImageFormat;
+    FImageNbLayers: integer;
+    FSingleImage: TBGRABitmap;
+    FAnimatedGif: TBGRAAnimatedGif;        //has frames
+    FTiff: TBGRAReaderTiff;                //has entries
+    FIconCursor: TBGRAIconCursor;   //has entries
+
+    FSelectedMenuIndex: integer;
+    FImageMenu: array of record
+                 Area, IconArea: TRect;
+                 DeleteArea: TRect;
+                 FrameIndex: integer;
+                 IsNew: boolean;
+               end;
+
     FOnValidate: TNotifyEvent;
     FOnEscape: TNotifyEvent;
+
     function GetPreviewDataLoss: boolean;
     procedure SetFilename(AValue: string);
+
     procedure SurfaceRedraw(Sender: TObject; Bitmap: TBGRABitmap);
     procedure SurfaceMouseDown(Sender: TObject; {%H-}Button: TMouseButton; {%H-}Shift: TShiftState; X, Y: Integer);
     procedure SurfaceMouseMove(Sender: TObject; {%H-}Shift: TShiftState; X, Y: Integer);
@@ -45,11 +53,22 @@ type
                          WheelDelta: Integer; {%H-}MousePos: TPoint; var Handled: Boolean);
     procedure SurfaceDblClick(Sender: TObject);
     procedure SurfaceKeyDown(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
-    procedure DrawCurrentFrame(Bitmap: TBGRABitmap);
-    procedure DrawIcons(Bitmap: TBGRABitmap);
-    function TryIconLayout(AWidth: integer): integer;
-    procedure DeleteFrame(i: integer);
+
+    procedure DrawMenu(Bitmap: TBGRABitmap);
+    function TryMenuLayout(AWidth: integer; AColCount, ABottom: integer): integer;
     procedure ScrollToSelectedMenu;
+
+    function CanAddNewEntry: boolean;
+    function CanDeleteEntry(index: integer): boolean;
+    procedure DeleteEntry(i: integer);
+    function GetEntryCount: integer;
+    function GetEntryWidth(index: integer): integer;
+    function GetEntryHeight(index: integer): integer;
+    function GetEntryBitDepth(index: integer): integer;
+    function GetEntryThumbnail(index: integer; stretchWidth, stretchHeight: integer): TBGRABitmap;
+
+    procedure DrawCurrentFrame(Bitmap: TBGRABitmap);
+    function GetCurrentFrameBitmap: TBGRABitmap;
   public
     LazPaintInstance: TLazPaintCustomInstance;
     constructor Create(ASurface: TBGRAVirtualScreen; AStatus: TLabel);
@@ -72,8 +91,11 @@ uses FPimage, BGRAReadJpeg, BGRAOpenRaster, BGRAPaintNet, BGRAReadLzp, Dialogs, 
 
 function TImagePreview.GetPreviewDataLoss: boolean;
 begin
-  result := (FCurrentImageFormat in[ifJpeg, ifLazPaint, ifOpenRaster])
-  or (Assigned(FCurrentAnimatedGif) and (FCurrentAnimatedGif.Count > 1));
+  result := (FImageFormat in[ifJpeg,     {compression loss}
+                             ifLazPaint, {layer loss}
+                             ifOpenRaster,
+                             ifPhoxo])
+         or (Assigned(FAnimatedGif) and (FAnimatedGif.Count > 1)); {frame loss}
 end;
 
 procedure TImagePreview.SetFilename(AValue: string);
@@ -85,12 +107,15 @@ end;
 
 procedure TImagePreview.SurfaceRedraw(Sender: TObject; Bitmap: TBGRABitmap);
 begin
-  if (Bitmap.Width = 0) or (Bitmap.Height = 0) then exit;
-  if Assigned(FCurrentImage) or Assigned(FCurrentAnimatedGif) then
-    DrawCurrentFrame(Bitmap)
+  if (Bitmap.Width = 0) or (Bitmap.Height = 0) then
+  begin
+    FImageMenu := nil;
+    exit;
+  end;
+  if CanAddNewEntry or (GetEntryCount > 1) then
+    DrawMenu(Bitmap)
   else
-  if Assigned(FCurrentIconCursor) then
-    DrawIcons(Bitmap);
+    DrawCurrentFrame(Bitmap);
 end;
 
 
@@ -110,15 +135,15 @@ begin
       scrollPos := FScrollbar.Position
     else scrollPos := 0;
 
-    for i := 0 to high(FCurrentImageMenu) do
-      if PtInRect(Point(x,y+scrollPos), FCurrentImageMenu[i].DeleteArea) then
+    for i := 0 to high(FImageMenu) do
+      if PtInRect(Point(x,y+scrollPos), FImageMenu[i].DeleteArea) then
       begin
-        DeleteFrame(FCurrentImageMenu[i].FrameIndex);
+        DeleteEntry(FImageMenu[i].FrameIndex);
         exit;
       end;
 
-    for i := 0 to high(FCurrentImageMenu) do
-      if PtInRect(Point(x,y+scrollPos), FCurrentImageMenu[i].Area) then
+    for i := 0 to high(FImageMenu) do
+      if PtInRect(Point(x,y+scrollPos), FImageMenu[i].Area) then
       begin
         FSelectedMenuIndex:= i;
         ScrollToSelectedMenu;
@@ -139,8 +164,8 @@ begin
       scrollPos := FScrollbar.Position
     else scrollPos := 0;
 
-    for i := 0 to high(FCurrentImageMenu) do
-      if PtInRect(Point(x,y+scrollPos), FCurrentImageMenu[i].DeleteArea) then
+    for i := 0 to high(FImageMenu) do
+      if PtInRect(Point(x,y+scrollPos), FImageMenu[i].DeleteArea) then
       begin
         FSurface.Cursor := crHandPoint;
         exit;
@@ -190,7 +215,7 @@ begin
   if Key = VK_DOWN then
   begin
     Key := 0;
-    if FSelectedMenuIndex < High(FCurrentImageMenu) then
+    if FSelectedMenuIndex < High(FImageMenu) then
     begin
       inc(FSelectedMenuIndex);
       ScrollToSelectedMenu;
@@ -199,7 +224,7 @@ begin
   if Key = VK_HOME then
   begin
     Key := 0;
-    if (FSelectedMenuIndex <> 0) and (length(FCurrentImageMenu) > 0) then
+    if (FSelectedMenuIndex <> 0) and (length(FImageMenu) > 0) then
     begin
       FSelectedMenuIndex:= 0;
       ScrollToSelectedMenu;
@@ -208,9 +233,9 @@ begin
   if Key = VK_END then
   begin
     Key := 0;
-    if (FSelectedMenuIndex <> high(FCurrentImageMenu)) and (length(FCurrentImageMenu) > 0) then
+    if (FSelectedMenuIndex <> high(FImageMenu)) and (length(FImageMenu) > 0) then
     begin
-      FSelectedMenuIndex:= high(FCurrentImageMenu);
+      FSelectedMenuIndex:= high(FImageMenu);
       ScrollToSelectedMenu;
     end;
   end else
@@ -227,29 +252,27 @@ begin
   if Key = VK_DELETE then
   begin
     Key := 0;
-    if (FSelectedMenuIndex >= 0) and (FSelectedMenuIndex <= high(FCurrentImageMenu)) and
-      not FCurrentImageMenu[FSelectedMenuIndex].IsNew then
+    if (FSelectedMenuIndex >= 0) and (FSelectedMenuIndex <= high(FImageMenu)) and
+      not FImageMenu[FSelectedMenuIndex].IsNew then
     begin
-      DeleteFrame(FCurrentImageMenu[FSelectedMenuIndex].FrameIndex);
+      DeleteEntry(FImageMenu[FSelectedMenuIndex].FrameIndex);
     end;
   end;
 end;
 
 procedure TImagePreview.DrawCurrentFrame(Bitmap: TBGRABitmap);
 var x,y,w,h,ofs: integer;
-  temp: TBGRABitmap;
+  frame: TBGRABitmap;
 begin
-  if Assigned(FCurrentImage) then
+  FImageMenu := nil;
+  frame := GetCurrentFrameBitmap;
+  if Assigned(frame) then
   begin
-    w := FCurrentImage.Width;
-    h := FCurrentImage.Height;
-  end else
-  if Assigned(FCurrentAnimatedGif) then
-  begin
-    w := FCurrentAnimatedGif.Width;
-    h := FCurrentAnimatedGif.Height;
-  end else
-      exit;
+    w := frame.Width;
+    h := frame.Height;
+  end
+  else
+    exit;
 
   if w > bitmap.Width then
   begin
@@ -268,32 +291,22 @@ begin
   if h < ofs then ofs := h;
   bitmap.FillRect(rect(x+w,y+ofs,x+ofs+w,y+ofs+h), BGRA(0,0,0,128),dmDrawWithTransparency);
   bitmap.FillRect(rect(x+ofs,y+h,x+w,y+ofs+h), BGRA(0,0,0,128),dmDrawWithTransparency);
-  if (FCurrentImageFormat in [ifCur,ifIco]) and Assigned(FCurrentImage) then
-  begin
-    temp := GetBitmapThumbnail(FCurrentImage, FCurrentImageFormat, w,h, BGRAPixelTransparent, True);
-    bitmap.PutImage(x,y, temp, dmSet);
-    temp.Free;
-  end else
-  begin
-    DrawThumbnailCheckers(Bitmap, rect(x,y,x+w,y+h));
-    if Assigned(FCurrentImage) then
-      bitmap.StretchPutImage(rect(x,y,x+w,y+h), FCurrentImage, dmDrawWithTransparency)
-    else
-    if Assigned(FCurrentAnimatedGif) then
-      bitmap.StretchPutImage(rect(x,y,x+w,y+h), FCurrentAnimatedGif.MemBitmap, dmDrawWithTransparency)
-  end;
+
+  DrawThumbnailCheckers(Bitmap, rect(x,y,x+w,y+h));
+  bitmap.StretchPutImage(rect(x,y,x+w,y+h), frame, dmDrawWithTransparency)
 end;
 
-procedure TImagePreview.DrawIcons(Bitmap: TBGRABitmap);
+procedure TImagePreview.DrawMenu(Bitmap: TBGRABitmap);
 var scrollPos, totalHeight, maxScroll, availableWidth: integer;
   i,j: integer;
-  temp,entry: TBGRABitmap;
+  temp: TBGRABitmap;
   x,y,sw,sh: integer;
-  textRight: integer;
+  textRight, bpp: integer;
   iconCaption: string;
   ptsF,ptsF2: ArrayOfTPointF;
+  scrolledArea, inter: TRect;
 begin
-  if (Bitmap.Width < 8) or (Bitmap.Height < 8) or not Assigned(FCurrentIconCursor) then exit;
+  if (Bitmap.Width < 8) or (Bitmap.Height < 8) or (GetEntryCount = 0) then exit;
 
   if Assigned(FScrollbar) then
   begin
@@ -305,7 +318,11 @@ begin
   begin
     FreeAndNil(FScrollbar);
     availableWidth := Bitmap.Width;
-    totalHeight := TryIconLayout(availableWidth);
+    totalHeight := TryMenuLayout(availableWidth, 1, 0);
+    if (totalHeight > Bitmap.Height) and (GetEntryCount > 1) and (Bitmap.Width >= 500) then
+    begin
+      totalHeight := TryMenuLayout(availableWidth, 2, totalHeight div 2);
+    end;
     maxScroll := totalHeight-Bitmap.Height;
     if maxScroll < 0 then maxScroll := 0;
     if scrollPos > maxScroll then scrollPos := maxScroll;
@@ -316,7 +333,11 @@ begin
       availableWidth -= VolatileScrollBarSize;
       FScrollbar := TVolatileScrollBar.Create(availableWidth,0,VolatileScrollBarSize,Bitmap.Height,sbVertical,
                                               scrollPos,0,maxScroll);
-      totalHeight := TryIconLayout(availableWidth);
+      totalHeight := TryMenuLayout(availableWidth, 1, 0);
+      if (totalHeight > Bitmap.Height) and (GetEntryCount > 1) and (Bitmap.Width >= 500) then
+      begin
+        totalHeight := TryMenuLayout(availableWidth, 2, totalHeight div 2);
+      end;
     end else
     begin
       scrollPos := 0;
@@ -328,35 +349,29 @@ begin
       availableWidth -= VolatileScrollBarSize;
   end;
 
-  if FSelectedMenuIndex >= length(FCurrentImageMenu) then
+  if FSelectedMenuIndex >= length(FImageMenu) then
     FSelectedMenuIndex:= -1;
-  if (FSelectedMenuIndex = -1) and (length(FCurrentImageMenu) > 0) then
+  if (FSelectedMenuIndex = -1) and (length(FImageMenu) > 0) then
   begin
-    if length(FCurrentImageMenu)>=2 then
-      FSelectedMenuIndex:= 1 //if there is an existing frame
+    if (length(FImageMenu)>=2) and FImageMenu[0].IsNew then
+      FSelectedMenuIndex:= 1 //do not select "add new" entry by default
     else
-      FSelectedMenuIndex:= 0; //otherwise new frame
+      FSelectedMenuIndex:= 0;
   end;
 
-  for i := 0 to high(FCurrentImageMenu) do
-  with FCurrentImageMenu[i] do
+  for i := 0 to high(FImageMenu) do
+  with FImageMenu[i] do
   begin
-    try
-      if IsNew then
-        entry := nil
-      else
-        entry := FCurrentIconCursor.GetBitmap(FrameIndex) as TBGRABitmap;
-    except
-      entry := nil;
-    end;
-
     DeleteArea := EmptyRect;
     textRight := availableWidth;
+    scrolledArea := rect(Area.Left, Area.Top-scrollPos, Area.Right, Area.Bottom-scrollPos);
+    inter := RectInter(scrolledArea, bitmap.ClipRect);
+    if (inter.Width = 0) or (inter.Height = 0) then continue;
 
     if i = FSelectedMenuIndex then
     begin
-      bitmap.FillRect(Area.Left, Area.Top-scrollPos, Area.Right, Area.Bottom-scrollPos, ColorToRGB(clHighlight));
-      if not IsNew and (Area.Right - IconArea.Right > 32) then
+      bitmap.FillRect(scrolledArea, ColorToRGB(clHighlight));
+      if not IsNew and (Area.Right - IconArea.Right > 32) and CanDeleteEntry(FrameIndex) then
       begin
         sh := (Area.Right - IconArea.Right - 8) div 4;
         if sh < 16 then sh := 16;
@@ -383,10 +398,10 @@ begin
     sh := IconArea.Bottom-y;
     y -= scrollPos;
 
-    if Assigned(entry) then
+    if not IsNew then
     begin
       bitmap.FillRect(rect(x+2,y+2, x+sw+2,y+sh+2), BGRA(0,0,0,96), dmDrawWithTransparency);
-      temp := GetBitmapThumbnail(entry, FCurrentIconCursor.FileType, sw, sh, BGRAWhite,true);
+      temp := GetEntryThumbnail(FrameIndex, sw,sh);
       bitmap.PutImage(x,y, temp, dmDrawWithTransparency);
       temp.free;
     end else
@@ -403,78 +418,201 @@ begin
     end;
 
     if IsNew then iconCaption := rsNewImage else
-       iconCaption := inttostr(FCurrentIconCursor.Width[FrameIndex])+'x'+inttostr(FCurrentIconCursor.Height[FrameIndex])+
-                       ' '+inttostr(FCurrentIconCursor.BitDepth[FrameIndex])+'bit';
+    begin
+       iconCaption := inttostr(GetEntryWidth(FrameIndex))+'x'+inttostr(GetEntryHeight(FrameIndex));
+       bpp := GetEntryBitDepth(FrameIndex);
+       if bpp <> 0 then iconCaption += ' '+inttostr(bpp)+'bit';
+    end;
 
     if (y+16 < bitmap.height) and (y+sh-16 > 0) then
       NiceText(bitmap, x+sw+4,y+sh div 2, textRight,bitmap.height,
                        iconCaption, taLeftJustify, tlCenter);
-
-    entry.Free;
   end;
 
   if Assigned(FScrollbar) then FScrollbar.Draw(Bitmap);
 end;
 
-function TImagePreview.TryIconLayout(AWidth: integer): integer;
+function TImagePreview.TryMenuLayout(AWidth: integer; AColCount, ABottom: integer): integer;
 var x,y,i,frameIndex,h,w,sw,sh: integer;
-begin
-  x := 2;
-  y := 2;
-  FCurrentImageMenu := nil;
-  setlength(FCurrentImageMenu, FCurrentIconCursor.Count+1);
-  for i := 0 to FCurrentIconCursor.Count do
-  begin
+  newItem, colLeft,colRight, maxWidth, maxHeight: integer;
+  currentCol: integer;
 
-    if i = 0 then
+  procedure ComputeColumn;
+  begin
+    colLeft := (AWidth*currentCol) div AColCount;
+    colRight := (AWidth*(currentCol+1)) div AColCount;
+    x := colLeft+2;
+    y := 2;
+    maxWidth := colRight-colLeft-8;
+
+    if maxWidth > 128 then maxWidth := 128;
+    maxHeight := 128;
+  end;
+
+begin
+  FImageMenu := nil;
+  currentCol := 0;
+
+  ComputeColumn;
+  result := y+2;
+
+  if CanAddNewEntry then NewItem := 1 else NewItem := 0;
+  setlength(FImageMenu, GetEntryCount + NewItem);
+  for i := 0 to GetEntryCount-1 + NewItem do
+  begin
+    if (NewItem = 1) and (i = 0) then
     begin
-      frameIndex := FCurrentIconCursor.Count;
-      FCurrentImageMenu[i].IsNew := true;
+      frameIndex := GetEntryCount;
+      FImageMenu[i].IsNew := true;
       w := 32;
       h := 32;
     end
     else
     begin
-      frameIndex := i-1;
-      w := FCurrentIconCursor.Width[frameIndex];
-      h := FCurrentIconCursor.Height[frameIndex];
+      frameIndex := i-NewItem;
+      w := GetEntryWidth(frameIndex);
+      h := GetEntryHeight(frameIndex);
     end;
-    if w > AWidth-8 then
+    if w > maxWidth then
     begin
-      sw := AWidth-8;
-      sh := round(h/w*(AWidth-8));
+      sw := maxWidth;
+      sh := round(h/w*maxWidth);
+      if (sh = 0) and (h <> 0) then sh := 1;
     end else
     begin
       sw := w;
       sh := h;
     end;
+    if sh > maxHeight then
+    begin
+      sw := round(sw/sh*maxHeight);
+      sh := maxHeight;
+      if (sw = 0) and (w <> 0) then sw := 1;
+    end;
 
-    FCurrentImageMenu[i].FrameIndex:= frameIndex;
-    FCurrentImageMenu[i].Area := rect(x,y,AWidth-2,y+sh+4);
-    FCurrentImageMenu[i].IconArea := rect(x+2,y+2,x+2+sw,y+2+sh);
+    FImageMenu[i].FrameIndex:= frameIndex;
+    FImageMenu[i].Area := rect(x,y,colRight-2,y+sh+4);
+    FImageMenu[i].IconArea := rect(x+2,y+2,x+2+sw,y+2+sh);
 
     y += sh+4;
+    if y+2 > result then result := y+2;
+    if (y+2 > ABottom) and (currentCol+1 < AColCount) then
+    begin
+      currentCol += 1;
+      ComputeColumn;
+    end;
   end;
 
   result := y+2;
 end;
 
-procedure TImagePreview.DeleteFrame(i: integer);
+function TImagePreview.CanAddNewEntry: boolean;
+begin
+  result := Assigned(FIconCursor);
+end;
+
+function TImagePreview.GetEntryCount: integer;
+begin
+  if Assigned(FIconCursor) then
+    result := FIconCursor.Count
+  else if Assigned(FTiff) then
+    result := FTiff.ImageCount
+  else
+    result := 1;
+end;
+
+function TImagePreview.GetEntryWidth(index: integer): integer;
+begin
+  if Assigned(FIconCursor) then
+    result := FIconCursor.Width[index]
+  else if Assigned(FTiff) then
+    result := FTiff.Images[index].ImageWidth
+  else if Assigned(FAnimatedGif) then
+    result := FAnimatedGif.Width
+  else if Assigned(FSingleImage) then
+    result := FSingleImage.Width;
+end;
+
+function TImagePreview.GetEntryHeight(index: integer): integer;
+begin
+  if Assigned(FIconCursor) then
+    result := FIconCursor.Height[index]
+  else if Assigned(FTiff) then
+    result := FTiff.Images[index].ImageHeight
+  else if Assigned(FAnimatedGif) then
+    result := FAnimatedGif.Height
+  else if Assigned(FSingleImage) then
+    result := FSingleImage.Height;
+end;
+
+function TImagePreview.GetEntryBitDepth(index: integer): integer;
+begin
+  if Assigned(FIconCursor) then
+    result := FIconCursor.BitDepth[index]
+  else if Assigned(FTiff) then
+  begin
+    with FTiff.Images[index] do
+      result := RedBits + GreenBits + BlueBits + GrayBits + AlphaBits;
+  end
+  else
+    result := 0;
+end;
+
+function TImagePreview.GetEntryThumbnail(index: integer; stretchWidth, stretchHeight: integer): TBGRABitmap;
+var
+  entry: TBGRABitmap;
+begin
+  if Assigned(FIconCursor) then
+  begin
+    entry := FIconCursor.GetBitmap(index) as TBGRABitmap;
+    try
+      result := GetBitmapThumbnail(entry, FIconCursor.FileType, stretchWidth, stretchHeight, BGRAPixelTransparent,true);
+    finally
+      entry.free;
+    end;
+  end else
+  if Assigned(FTiff) then
+  begin
+    result := GetBitmapThumbnail(FTiff.Images[index].Img as TBGRABitmap, stretchWidth,stretchHeight, BGRAPixelTransparent,true);
+  end else
+    result := nil;
+end;
+
+function TImagePreview.CanDeleteEntry(index: integer): boolean;
+begin
+  result := Assigned(FIconCursor) and
+            (index >= 0) and (index < FIconCursor.Count) and
+            (FIconCursor.Count > 1);
+end;
+
+function TImagePreview.GetCurrentFrameBitmap: TBGRABitmap;
+begin
+  if Assigned(FSingleImage) then
+    result := FSingleImage
+  else if Assigned(FAnimatedGif) then
+    result := FAnimatedGif.MemBitmap
+  else if Assigned(FTiff) then
+    result := FTiff.GetBiggestImage.Img as TBGRABitmap
+  else
+    result := nil;
+end;
+
+procedure TImagePreview.DeleteEntry(i: integer);
 var outputStream: TStream;
 begin
-  if assigned(FCurrentIconCursor) and (i < FCurrentIconCursor.Count) and (i >= 0) then
+  if assigned(FIconCursor) and (i < FIconCursor.Count) and (i >= 0) then
   begin
-    if FCurrentIconCursor.Count = 1 then
+    if FIconCursor.Count = 1 then
     begin
       ShowMessage(rsFileCannotBeEmpty);
     end else
     if QuestionDlg (rsDeleteFile,rsDeleteIconImage,mtConfirmation,[mrOk,rsOkay,mrCancel,rsCancel],'') = mrOk then
     begin
       try
-        FCurrentIconCursor.Delete(i);
+        FIconCursor.Delete(i);
         outputStream := FileManager.CreateFileStream(Filename, fmCreate);
         try
-          FCurrentIconCursor.SaveToStream(outputStream);
+          FIconCursor.SaveToStream(outputStream);
           outputStream.Free;
         except on ex: Exception do
           begin
@@ -482,8 +620,8 @@ begin
             ShowMessage(ex.Message);
           end;
         end;
-        if FSelectedMenuIndex >= FCurrentIconCursor.Count then
-          FSelectedMenuIndex := FCurrentIconCursor.Count-1;
+        if FSelectedMenuIndex >= FIconCursor.Count then
+          FSelectedMenuIndex := FIconCursor.Count-1;
         FSurface.RedrawBitmap;
       except
         on ex:exception do
@@ -502,12 +640,12 @@ begin
     scrollPos := FScrollbar.Position
   else scrollPos := 0;
 
-  if (FSelectedMenuIndex >= 0) and (FSelectedMenuIndex <= high(FCurrentImageMenu)) then
+  if (FSelectedMenuIndex >= 0) and (FSelectedMenuIndex <= high(FImageMenu)) then
   begin
-    if scrollPos < FCurrentImageMenu[FSelectedMenuIndex].Area.Bottom-FSurface.Height then
-      scrollPos := FCurrentImageMenu[FSelectedMenuIndex].Area.Bottom-FSurface.Height;
-    if scrollPos > FCurrentImageMenu[FSelectedMenuIndex].Area.Top then
-      scrollPos := FCurrentImageMenu[FSelectedMenuIndex].Area.Top;
+    if scrollPos < FImageMenu[FSelectedMenuIndex].Area.Bottom-FSurface.Height then
+      scrollPos := FImageMenu[FSelectedMenuIndex].Area.Bottom-FSurface.Height;
+    if scrollPos > FImageMenu[FSelectedMenuIndex].Area.Top then
+      scrollPos := FImageMenu[FSelectedMenuIndex].Area.Top;
     if Assigned(FScrollbar) then FScrollbar.Position := scrollPos;
     FSurface.DiscardBitmap;
   end;
@@ -528,9 +666,10 @@ begin
   FSurface.OnMouseWheel:= @SurfaceMouseWheel;
   FSurface.OnDblClick:= @SurfaceDblClick;
   FSurface.OnKeyDown:= @SurfaceKeyDown;
-  FCurrentImage := nil;
-  FCurrentAnimatedGif := nil;
-  FCurrentIconCursor := nil;
+  FSingleImage := nil;
+  FAnimatedGif := nil;
+  FIconCursor := nil;
+  FTiff := nil;
   FOnValidate := nil;
   FScrollbar := nil;
   FScrolling:= false;
@@ -545,9 +684,10 @@ begin
   if FSurface.OnMouseWheel = @SurfaceMouseWheel then FSurface.OnMouseWheel:= nil;
   if FSurface.OnDblClick = @SurfaceDblClick then FSurface.OnDblClick := nil;
   if FSurface.OnKeyDown = @SurfaceKeyDown then FSurface.OnKeyDown := nil;
-  FreeAndNil(FCurrentImage);
-  FreeAndNil(FCurrentAnimatedGif);
-  FreeAndNil(FCurrentIconCursor);
+  FreeAndNil(FSingleImage);
+  FreeAndNil(FTiff);
+  FreeAndNil(FAnimatedGif);
+  FreeAndNil(FIconCursor);
   FreeAndNil(FScrollbar);
   inherited Destroy;
 end;
@@ -557,98 +697,146 @@ var reader: TFPCustomImageReader;
   jpegReader: TBGRAReaderJpeg;
   source: TStream;
 begin
-  FreeAndNil(FCurrentImage);
-  FreeAndNil(FCurrentAnimatedGif);
-  FreeAndNil(FCurrentIconCursor);
-  FCurrentImageNbLayers := 0;
-  FCurrentImageFormat:= ifUnknown;
-  FCurrentImageError := '';
-  FCurrentImageMenu := nil;
+  FreeAndNil(FSingleImage);
+  FreeAndNil(FTiff);
+  FreeAndNil(FAnimatedGif);
+  FreeAndNil(FIconCursor);
+  FImageNbLayers := 0;
+  FImageFormat:= ifUnknown;
+  FLoadError := '';
+  FImageMenu := nil;
   FreeAndNil(FScrollbar);
   FSelectedMenuIndex := -1;
   FSurface.RedrawBitmap;
   FStatus.Caption := rsLoading+'...';
   FStatus.Update;
+  {$IFDEF LINUX}
+  Application.ProcessMessages;
+  {$ENDIF}
+  source := nil;
   try
     source := FileManager.CreateFileStream(FFilename, fmOpenRead or fmShareDenyWrite);
-    try
-      FCurrentImageFormat := DetectFileFormat(source,ExtractFileExt(FFilename));
-      if FCurrentImageFormat = ifGif then
+    FImageFormat := DetectFileFormat(source,ExtractFileExt(FFilename));
+    case FImageFormat of
+    ifGif:
       begin
         try
-          FCurrentAnimatedGif := TBGRAAnimatedGif.Create(source);
-        except
-        end;
-      end else
-      if FCurrentImageFormat in [ifIco,ifCur] then
-      begin
-        FCurrentIconCursor := TBGRAIconCursor.Create;
-        try
-          FCurrentIconCursor.LoadFromStream(source);
+          FAnimatedGif := TBGRAAnimatedGif.Create;
+          FAnimatedGif.LoadFromStream(source);
+          FImageNbLayers := 1;
         except
           on ex: Exception do
           begin
-            FCurrentImageError:= ex.Message;
-            FreeAndNil(FCurrentIconCursor);
+            FLoadError := ex.Message;
+            FreeAndNil(FAnimatedGif);
           end;
         end;
       end;
-
-      if (FCurrentAnimatedGif = nil) and (FCurrentIconCursor = nil) and (FCurrentImageError = '') then
+    ifTiff:
       begin
-        if FCurrentImageFormat = ifJpeg then
-        begin
-          jpegReader := TBGRAReaderJpeg.Create;
-          jpegReader.Performance := jpBestSpeed;
-          jpegReader.MinWidth := Screen.Width;
-          jpegReader.MinHeight := Screen.Height;
-          reader := jpegReader;
-        end else
-          reader := CreateBGRAImageReader(FCurrentImageFormat);
         try
-          FCurrentImage := TBGRABitmap.Create;
-          try
-            FCurrentImage.LoadFromStream(source,reader);
-            FCurrentImageNbLayers := 1;
-            if reader is TFPReaderOpenRaster then FCurrentImageNbLayers := TFPReaderOpenRaster(reader).NbLayers else
-            if reader is TFPReaderPaintDotNet then FCurrentImageNbLayers := TFPReaderPaintDotNet(reader).NbLayers else
-            if reader is TBGRAReaderLazPaint then FCurrentImageNbLayers := TBGRAReaderLazPaint(reader).NbLayers;
-          except
-            on ex: Exception do
-            begin
-              FCurrentImageError:= ex.Message;
-              FreeAndNil(FCurrentImage);
-            end;
+          FTiff := TBGRAReaderTiff.Create;
+          FTiff.LoadFromStream(source);
+          FImageNbLayers := 1;
+          if FTiff.ImageCount = 0 then
+          begin
+            FreeAndNil(FTiff);
+            FLoadError := rsFileCannotBeEmpty;
           end;
-        finally
-          reader.Free;
+        except
+          on ex: Exception do
+          begin
+            FLoadError := ex.Message;
+            FreeAndNil(FTiff);
+          end;
         end;
       end;
-    finally
-      source.Free;
+    ifIco,ifCur:
+      begin
+        FIconCursor := TBGRAIconCursor.Create;
+        try
+          FIconCursor.LoadFromStream(source);
+          FImageNbLayers := 1;
+        except
+          on ex: Exception do
+          begin
+            FLoadError:= ex.Message;
+            FreeAndNil(FIconCursor);
+          end;
+        end;
+      end;
+    ifJpeg:
+      begin
+        jpegReader := TBGRAReaderJpeg.Create;
+        jpegReader.Performance := jpBestSpeed;
+        jpegReader.MinWidth := Screen.Width;
+        jpegReader.MinHeight := Screen.Height;
+        try
+          FSingleImage := TBGRABitmap.Create;
+          FSingleImage.LoadFromStream(source,jpegReader);
+          FImageNbLayers := 1;
+        except
+          on ex: Exception do
+          begin
+            FLoadError:= ex.Message;
+            FreeAndNil(FSingleImage);
+          end;
+        end;
+        jpegReader.Free;
+      end;
+    else
+      begin
+        reader := CreateBGRAImageReader(FImageFormat);
+        try
+          FSingleImage := TBGRABitmap.Create;
+          FSingleImage.LoadFromStream(source,reader);
+          if reader is TFPReaderOpenRaster then FImageNbLayers := TFPReaderOpenRaster(reader).NbLayers else
+          if reader is TFPReaderPaintDotNet then FImageNbLayers := TFPReaderPaintDotNet(reader).NbLayers else
+          if reader is TBGRAReaderLazPaint then FImageNbLayers := TBGRAReaderLazPaint(reader).NbLayers else
+            FImageNbLayers := 1;
+        except
+          on ex: Exception do
+          begin
+            FLoadError:= ex.Message;
+            FreeAndNil(FSingleImage);
+          end;
+        end;
+        reader.Free;
+      end;
     end;
   except
+    on ex: Exception do
+      FLoadError:= ex.Message;
   end;
-  if Assigned(FCurrentIconCursor) then
+  source.Free;
+
+  if Assigned(FIconCursor) then
   begin
-    if FCurrentIconCursor.Count > 0 then
-      FStatus.Caption := rsCanvasSize + ': ' + IntToStr(FCurrentIconCursor.Width[0])+'x'+IntToStr(FCurrentIconCursor.Height[0])
-                            + ', ' + rsEntries + ': ' + IntToStr(FCurrentIconCursor.Count)
+    if FIconCursor.Count > 0 then
+      FStatus.Caption := rsCanvasSize + ': ' + IntToStr(FIconCursor.Width[0])+'x'+IntToStr(FIconCursor.Height[0])+ ', ' +
+                         rsEntries + ': ' + IntToStr(FIconCursor.Count)
     else
-      FStatus.Caption := rsEntries + ': ' + IntToStr(FCurrentIconCursor.Count);
+      FStatus.Caption := rsEntries + ': ' + IntToStr(FIconCursor.Count);
   end else
-  if Assigned(FCurrentAnimatedGif) then
+  if Assigned(FAnimatedGif) then
   begin
-    FStatus.Caption := rsCanvasSize + ': ' + IntToStr(FCurrentAnimatedGif.Width)+'x'+IntToStr(FCurrentAnimatedGif.Height)+', '+
-                       rsFrames+': '+IntToStr(FCurrentAnimatedGif.Count);
+    FStatus.Caption := rsCanvasSize + ': ' + IntToStr(FAnimatedGif.Width)+'x'+IntToStr(FAnimatedGif.Height)+', '+
+                       rsFrames+': '+IntToStr(FAnimatedGif.Count);
   end else
-  if Assigned(FCurrentImage) then
+  if Assigned(FTiff) then
   begin
-    FStatus.Caption := rsCanvasSize + ': ' + IntToStr(FCurrentImage.Width)+'x'+IntToStr(FCurrentImage.Height)+', '+rsLayers+': '+IntToStr(FCurrentImageNbLayers);
+    with FTiff.GetBiggestImage do
+      FStatus.Caption := rsCanvasSize + ': ' + IntToStr(ImageWidth)+'x'+IntToStr(ImageHeight)+', '+
+                         rsEntries+': '+IntToStr(FTiff.ImageCount);
   end else
-  if FCurrentImageError <> '' then
+  if Assigned(FSingleImage) then
   begin
-    FStatus.Caption := FCurrentImageError;
+    FStatus.Caption := rsCanvasSize + ': ' + IntToStr(FSingleImage.Width)+'x'+IntToStr(FSingleImage.Height)+', '+
+                       rsLayers+': '+IntToStr(FImageNbLayers);
+  end else
+  if FLoadError <> '' then
+  begin
+    FStatus.Caption := FLoadError;
   end else
     FStatus.Caption := '';
   FSurface.RedrawBitmap;
@@ -656,7 +844,7 @@ end;
 
 procedure TImagePreview.HandleTimer;
 begin
-  if assigned(FCurrentAnimatedGif) and (FCurrentAnimatedGif.TimeUntilNextImageMs <= 0) then
+  if assigned(FAnimatedGif) and (FAnimatedGif.TimeUntilNextImageMs <= 0) then
     FSurface.RedrawBitmap;
 end;
 
@@ -665,15 +853,15 @@ var tx,ty,bpp, frameIndex: integer; back: TBGRAPixel;
 begin
   result := TImageEntry.Empty;
 
-  if Assigned(FCurrentIconCursor) then
+  if Assigned(FIconCursor) then
   begin
-    if (FSelectedMenuIndex >= 0) and (FSelectedMenuIndex < length(FCurrentImageMenu)) then
+    if (FSelectedMenuIndex >= 0) and (FSelectedMenuIndex < length(FImageMenu)) then
     begin
-      if FCurrentImageMenu[FSelectedMenuIndex].IsNew then
+      if FImageMenu[FSelectedMenuIndex].IsNew then
       begin
         if Assigned(LazPaintInstance) and ShowNewImageDlg(LazPaintInstance, true, tx,ty,bpp, back) then
         begin
-          if FCurrentIconCursor.IndexOf(tx,ty,bpp)<>-1 then
+          if FIconCursor.IndexOf(tx,ty,bpp)<>-1 then
             LazPaintInstance.ShowMessage(rsNewImage, rsIconImageAlreadyExists)
           else
           begin
@@ -683,19 +871,45 @@ begin
         end;
       end else
       begin
-        frameIndex := FCurrentImageMenu[FSelectedMenuIndex].FrameIndex;
-        result.bmp := FCurrentIconCursor.GetBitmap(frameIndex) as TBGRABitmap;
-        result.bpp := FCurrentIconCursor.BitDepth[frameIndex];
+        frameIndex := FImageMenu[FSelectedMenuIndex].FrameIndex;
+        result.bmp := FIconCursor.GetBitmap(frameIndex) as TBGRABitmap;
+        result.bpp := FIconCursor.BitDepth[frameIndex];
       end;
     end;
   end else
-  if Assigned(FCurrentImage) then
+  if Assigned(FTiff) then
   begin
-    result.bmp := FCurrentImage;
+    if FImageMenu <> nil then
+    begin
+      if (FSelectedMenuIndex >= 0) and (FSelectedMenuIndex < length(FImageMenu)) then
+      begin
+        if FImageMenu[FSelectedMenuIndex].IsNew then
+        begin
+          if Assigned(LazPaintInstance) and ShowNewImageDlg(LazPaintInstance, false, tx,ty,bpp, back) then
+            result.bmp := TBGRABitmap.Create(tx,ty,back);
+        end else
+        begin
+          frameIndex := FImageMenu[FSelectedMenuIndex].FrameIndex;
+          result.bmp := FTiff.Images[frameIndex].Img as TBGRABitmap;
+          FTiff.Images[frameIndex].Img := nil;
+        end;
+      end;
+    end else
+    if FTiff.ImageCount > 0 then
+    begin
+      frameIndex := 0;
+      result.bmp := FTiff.Images[frameIndex].Img as TBGRABitmap;
+      FTiff.Images[frameIndex].Img := nil;
+    end;
   end else
-  if Assigned(FCurrentAnimatedGif) and (FCurrentAnimatedGif.Count = 1) then
+  if Assigned(FSingleImage) then
   begin
-    result.bmp := FCurrentAnimatedGif.MemBitmap.Duplicate as TBGRABitmap;
+    result.bmp := FSingleImage;
+    FSingleImage := nil;
+  end else
+  if Assigned(FAnimatedGif) and (FAnimatedGif.Count = 1) then
+  begin
+    result.bmp := FAnimatedGif.MemBitmap.Duplicate as TBGRABitmap;
   end;
 end;
 

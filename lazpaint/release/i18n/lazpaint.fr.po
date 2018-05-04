@@ -737,13 +737,13 @@ msgstr "Valider"
 msgid "Validate modifications"
 msgstr "Valider les modifications"
 
-#: tfmain.filechooseframe.caption
-msgid "Choose frame..."
-msgstr "Choisir une image du fichier"
+#: tfmain.filechooseentry.caption
+msgid "Choose entry..."
+msgstr "Choisir une entrée..."
 
-#: tfmain.filechooseframe.hint
-msgid "Choose frame within file"
-msgstr "Choisir une image du fichier"
+#: tfmain.filechooseentry.hint
+msgid "Choose entry within file"
+msgstr "Choisir une entrée dans le fichier"
 
 #: tfmain.fileimport3d.caption
 msgid "Import 3D object..."

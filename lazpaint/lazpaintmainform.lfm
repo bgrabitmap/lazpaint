@@ -5,7 +5,7 @@ object FMain: TFMain
   Width = 739
   AllowDropFiles = True
   Caption = 'LazPaint'
-  ClientHeight = 558
+  ClientHeight = 555
   ClientWidth = 739
   Color = 15258043
   Constraints.MinWidth = 320
@@ -84,7 +84,7 @@ object FMain: TFMain
       object ToolButton8: TToolButton
         Left = 93
         Top = 0
-        Action = FileChooseFrame
+        Action = FileChooseEntry
       end
     end
   end
@@ -170,7 +170,7 @@ object FMain: TFMain
     end
     object Edit_Zoom: TEdit
       Left = 3
-      Height = 23
+      Height = 27
       Top = 24
       Width = 38
       MaxLength = 5
@@ -532,10 +532,10 @@ object FMain: TFMain
     end
     object Combo_GradientColorspace: TComboBox
       Left = 125
-      Height = 23
+      Height = 31
       Top = 1
       Width = 118
-      ItemHeight = 15
+      ItemHeight = 0
       Style = csDropDownList
       TabOrder = 1
     end
@@ -683,7 +683,7 @@ object FMain: TFMain
     end
     object ComboBox_ArrowStart: TComboBox
       Left = 100
-      Height = 23
+      Height = 31
       Top = 1
       Width = 45
       DropDownCount = 12
@@ -708,7 +708,7 @@ object FMain: TFMain
     end
     object ComboBox_ArrowEnd: TComboBox
       Left = 146
-      Height = 23
+      Height = 31
       Top = 1
       Width = 45
       DropDownCount = 12
@@ -1005,10 +1005,10 @@ object FMain: TFMain
     TabOrder = 19
     object Combo_SplineStyle: TComboBox
       Left = 48
-      Height = 23
+      Height = 31
       Top = 1
       Width = 118
-      ItemHeight = 15
+      ItemHeight = 0
       Items.Strings = (
         'Inside'
         'Inside + ends'
@@ -1465,7 +1465,7 @@ object FMain: TFMain
   end
   object PaintBox_Picture: TPaintBox
     Left = 608
-    Height = 70
+    Height = 67
     Top = 72
     Width = 120
     Anchors = [akTop, akLeft, akRight, akBottom]
@@ -1509,7 +1509,7 @@ object FMain: TFMain
     end
     object ComboBox_BrushSelect: TComboBox
       Left = 117
-      Height = 23
+      Height = 31
       Top = 1
       Width = 45
       DropDownCount = 12
@@ -1567,10 +1567,10 @@ object FMain: TFMain
     TabOrder = 27
     object Combo_Ratio: TComboBox
       Left = 48
-      Height = 23
+      Height = 29
       Top = 1
       Width = 96
-      ItemHeight = 15
+      ItemHeight = 0
       Items.Strings = (
         ''
         '2:1'
@@ -6405,13 +6405,13 @@ object FMain: TFMain
       OnExecute = ToolAnyExecute
       OnUpdate = ToolHotSpotUpdate
     end
-    object FileChooseFrame: TAction
+    object FileChooseEntry: TAction
       Category = 'File'
-      Caption = 'Choose frame...'
-      Hint = 'Choose frame within file'
+      Caption = 'Choose entry...'
+      Hint = 'Choose entry within file'
       ImageIndex = 121
-      OnExecute = FileChooseFrameExecute
-      OnUpdate = FileChooseFrameUpdate
+      OnExecute = FileChooseEntryExecute
+      OnUpdate = FileChooseEntryUpdate
       ShortCut = 49231
     end
   end

@@ -102,6 +102,7 @@ function TFLayerStack.DrawLayerItem(ABitmap: TBGRABitmap; layerPos: TPoint; laye
 var LayerBmp: TBGRABitmap;
     lColor,lColorTransp: TBGRAPixel;
     barwidth: integer;
+    sourceCoords: Array Of TPointF;
 begin
   if ASelected then
     lColor := ColorToBGRA(ColorToRGB(clHighlightText))
@@ -125,8 +126,9 @@ begin
     ABitmap.FillPolyAntialias(result.PreviewPts,background);
 
   layerBmp := LazPaintInstance.Image.LayerBitmap[layerIndex];
-  ABitmap.FillPolyLinearMapping( result.PreviewPts, layerBmp, [pointf(-0.49,-0.49),pointf(layerBmp.Width-0.51,-0.49),
-    pointf(layerBmp.Width-0.51,layerBmp.Height-0.51),pointf(-0.49,layerBmp.Height-0.51)],False);
+  sourceCoords := PointsF([pointf(-0.49,-0.49),pointf(layerBmp.Width-0.51,-0.49),
+            pointf(layerBmp.Width-0.51,layerBmp.Height-0.51),pointf(-0.49,layerBmp.Height-0.51)]);
+  ABitmap.FillPolyLinearMapping( result.PreviewPts, layerBmp, sourceCoords, False);
   result.PreviewPts[0].y -= 0.5;
   result.PreviewPts[1].y -= 0.5;
   result.PreviewPts[2].y += 0.5;

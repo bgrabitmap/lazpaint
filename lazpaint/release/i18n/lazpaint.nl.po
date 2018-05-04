@@ -759,12 +759,12 @@ msgstr "Valideren"
 msgid "Validate modifications"
 msgstr "Wijzigingen valideren"
 
-#: tfmain.filechooseframe.caption
-msgid "Choose frame..."
+#: tfmain.filechooseentry.caption
+msgid "Choose entry..."
 msgstr ""
 
-#: tfmain.filechooseframe.hint
-msgid "Choose frame within file"
+#: tfmain.filechooseentry.hint
+msgid "Choose entry within file"
 msgstr ""
 
 #: tfmain.fileimport3d.caption
