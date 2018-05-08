@@ -149,7 +149,7 @@ type
     destructor Destroy; override;
     procedure NotifyImageChange(RepaintNow: boolean; ARect: TRect); override;
     procedure NotifyImageChangeCompletely(RepaintNow: boolean); override;
-    function TryOpenFileUTF8(filename: string): boolean; override;
+    function TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean = false): boolean; override;
     function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): boolean; override;
     procedure ColorFromFChooseColor; override;
     procedure ColorToFChooseColor; override;
@@ -1187,10 +1187,10 @@ begin
   If RepaintNow then FMain.Update;
 end;
 
-function TLazPaintInstance.TryOpenFileUTF8(filename: string): boolean;
+function TLazPaintInstance.TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean): boolean;
 begin
   FormsNeeded;
-  result := FMain.TryOpenFileUTF8(filename);
+  result := FMain.TryOpenFileUTF8(filename, true, nil, skipDialogIfSingleImage);
 end;
 
 function TLazPaintInstance.ExecuteFilter(filter: TPictureFilter;

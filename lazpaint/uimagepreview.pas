@@ -79,6 +79,7 @@ type
     property PreviewDataLoss: boolean read GetPreviewDataLoss;
     property OnValidate: TNotifyEvent read FOnValidate write FOnValidate;
     property OnEscape: TNotifyEvent read FOnEscape write FOnEscape;
+    property EntryCount: integer read GetEntryCount;
     function GetPreviewBitmap: TImageEntry;
   end;
 
@@ -855,26 +856,35 @@ begin
 
   if Assigned(FIconCursor) then
   begin
-    if (FSelectedMenuIndex >= 0) and (FSelectedMenuIndex < length(FImageMenu)) then
+    if Assigned(FImageMenu) then
     begin
-      if FImageMenu[FSelectedMenuIndex].IsNew then
+      if (FSelectedMenuIndex >= 0) and (FSelectedMenuIndex < length(FImageMenu)) then
       begin
-        if Assigned(LazPaintInstance) and ShowNewImageDlg(LazPaintInstance, true, tx,ty,bpp, back) then
+        if FImageMenu[FSelectedMenuIndex].IsNew then
         begin
-          if FIconCursor.IndexOf(tx,ty,bpp)<>-1 then
-            LazPaintInstance.ShowMessage(rsNewImage, rsIconImageAlreadyExists)
-          else
+          if Assigned(LazPaintInstance) and ShowNewImageDlg(LazPaintInstance, true, tx,ty,bpp, back) then
           begin
-            result.bmp := TBGRABitmap.Create(tx,ty,back);
-            result.bpp := bpp;
+            if FIconCursor.IndexOf(tx,ty,bpp)<>-1 then
+              LazPaintInstance.ShowMessage(rsNewImage, rsIconImageAlreadyExists)
+            else
+            begin
+              result.bmp := TBGRABitmap.Create(tx,ty,back);
+              result.bpp := bpp;
+            end;
           end;
+        end else
+        begin
+          frameIndex := FImageMenu[FSelectedMenuIndex].FrameIndex;
+          result.bmp := FIconCursor.GetBitmap(frameIndex) as TBGRABitmap;
+          result.bpp := FIconCursor.BitDepth[frameIndex];
         end;
-      end else
-      begin
-        frameIndex := FImageMenu[FSelectedMenuIndex].FrameIndex;
-        result.bmp := FIconCursor.GetBitmap(frameIndex) as TBGRABitmap;
-        result.bpp := FIconCursor.BitDepth[frameIndex];
       end;
+    end else
+    if FIconCursor.Count > 0 then
+    begin
+      frameIndex := 0;
+      result.bmp := FIconCursor.GetBitmap(frameIndex) as TBGRABitmap;
+      result.bpp := FIconCursor.BitDepth[frameIndex]
     end;
   end else
   if Assigned(FTiff) then

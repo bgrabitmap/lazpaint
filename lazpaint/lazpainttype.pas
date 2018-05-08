@@ -238,7 +238,7 @@ type
     procedure NotifyImageChange(RepaintNow: boolean; ARect: TRect); virtual; abstract;
     procedure NotifyImageChangeCompletely(RepaintNow: boolean); virtual; abstract;
     procedure NotifyStackChange; virtual; abstract;
-    function TryOpenFileUTF8(filename: string): boolean; virtual; abstract;
+    function TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean = false): boolean; virtual; abstract;
     function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): boolean; virtual; abstract;
     procedure ColorFromFChooseColor; virtual; abstract;
     procedure ColorToFChooseColor; virtual; abstract;

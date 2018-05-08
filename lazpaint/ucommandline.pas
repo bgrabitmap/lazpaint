@@ -62,7 +62,7 @@ begin
     if not (InputFilename[1] in commandPrefix) then
     begin
       iStart := 1;
-      if not instance.TryOpenFileUTF8(ExpandFileNameUTF8(InputFilename)) then
+      if not instance.TryOpenFileUTF8(ExpandFileNameUTF8(InputFilename), true) then
       begin
         instance.ShowError(rsOpen, rsUnableToLoadFile+InputFilename);
         errorEncountered := true;

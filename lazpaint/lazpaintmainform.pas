@@ -818,7 +818,8 @@ type
 
     procedure PaintPictureNow;
     procedure PaintVirtualScreenCursor;
-    function TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean=True; ALoadedImage: PImageEntry = nil): Boolean;
+    function TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean=True; ALoadedImage: PImageEntry = nil;
+      ASkipDialogIfSingleImage: boolean = false): Boolean;
     function FormToBitmap(X,Y: Integer): TPointF;
     function FormToBitmap(pt: TPoint): TPointF;
     function BitmapToForm(X,Y: Single): TPointF;
@@ -3307,7 +3308,7 @@ begin
 end;
 
 function TFMain.TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean;
-     ALoadedImage: PImageEntry): Boolean;
+     ALoadedImage: PImageEntry; ASkipDialogIfSingleImage: boolean): Boolean;
 var
   newPicture: TImageEntry;
   finalFilenameUTF8: string;
@@ -3372,13 +3373,13 @@ begin
     else
     if format in[ifIco,ifCur] then
     begin
-      newPicture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8, rsIconOrCursor);
+      newPicture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8, rsIconOrCursor, ASkipDialogIfSingleImage);
       ImportNewPicture;
     end
     else
     if format in[ifIco,ifTiff] then
     begin
-      newPicture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8, 'TIFF');
+      newPicture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8, 'TIFF', ASkipDialogIfSingleImage);
       ImportNewPicture;
     end
     else
