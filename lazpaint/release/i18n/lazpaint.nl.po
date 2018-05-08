@@ -963,6 +963,14 @@ msgstr "Bol"
 msgid "Twirl..."
 msgstr "Wervelen..."
 
+#: tfmain.forgetdialoganswers.caption
+msgid "Forget dialog box answers"
+msgstr ""
+
+#: tfmain.forgetdialoganswers.hint
+msgid "Forget answers given to dialog boxes"
+msgstr ""
+
 #: tfmain.helpabout.caption
 msgid "About..."
 msgstr "Over..."
@@ -2502,6 +2510,20 @@ msgstr "Bovenkant:"
 #: tfprint.label_width.caption
 msgid "Width:"
 msgstr "Breedte:"
+
+#: tfquestion.caption
+msgid "Question"
+msgstr ""
+
+#: tfquestion.checkbox_rememberchoice.caption
+msgid "Remember this choice"
+msgstr ""
+
+#: tfquestion.label_message.caption
+#, fuzzy
+msgctxt "tfquestion.label_message.caption"
+msgid "."
+msgstr "."
 
 #: tfradialblur.button_cancel.caption
 msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"

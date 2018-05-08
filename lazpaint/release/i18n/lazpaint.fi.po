@@ -925,6 +925,14 @@ msgstr ""
 msgid "Twirl..."
 msgstr "Pyörre"
 
+#: tfmain.forgetdialoganswers.caption
+msgid "Forget dialog box answers"
+msgstr ""
+
+#: tfmain.forgetdialoganswers.hint
+msgid "Forget answers given to dialog boxes"
+msgstr ""
+
 #: tfmain.helpabout.caption
 msgid "About..."
 msgstr "Tietoja..."
@@ -2460,6 +2468,19 @@ msgstr "Yläreuna:"
 #: tfprint.label_width.caption
 msgid "Width:"
 msgstr "Leveys:"
+
+#: tfquestion.caption
+msgid "Question"
+msgstr ""
+
+#: tfquestion.checkbox_rememberchoice.caption
+msgid "Remember this choice"
+msgstr ""
+
+#: tfquestion.label_message.caption
+msgctxt "tfquestion.label_message.caption"
+msgid "."
+msgstr ""
 
 #: tfradialblur.button_cancel.caption
 msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"

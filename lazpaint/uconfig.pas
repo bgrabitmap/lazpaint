@@ -5,7 +5,8 @@ unit UConfig;
 interface
 
 uses
-  Classes, SysUtils, IniFiles, BGRABitmapTypes, Graphics, LCLType, uscripting;
+  Classes, SysUtils, IniFiles, BGRABitmapTypes, Graphics, LCLType, uscripting,
+  Forms;
 
 type
   TLazPaintConfig = class;
@@ -208,6 +209,11 @@ type
     function DefaultToolShapeType: string;
     procedure SetDefaultToolShapeType(value: string);
 
+    function DefaultRetrieveSelectionAnswer: TModalResult;
+    procedure SetDefaultRetrieveSelectionAnswer(value: TModalResult);
+    function DefaultTransformSelectionAnswer: TModalResult;
+    procedure SetDefaultTransformSelectionAnswer(value: TModalResult);
+
     //radial blur config
     function DefaultBlurRadius: single;
     procedure SetDefaultBlurRadius(value: single);
@@ -289,7 +295,7 @@ var
 
 implementation
 
-uses forms, uparse, LCLProc, BGRAUTF8, LazFileUtils, UFileSystem;
+uses uparse, LCLProc, BGRAUTF8, LazFileUtils, UFileSystem;
 
 const maxRecentFiles = 10;
       maxRecentDirectories = 10;
@@ -929,6 +935,26 @@ end;
 procedure TLazPaintConfig.SetDefaultToolShapeType(value: string);
 begin
   iniOptions.WriteString('Filter','ShapeType',value);
+end;
+
+function TLazPaintConfig.DefaultRetrieveSelectionAnswer: TModalResult;
+begin
+  result := iniOptions.ReadInteger('Tool','RetrieveSelectionAnswer', 0);
+end;
+
+procedure TLazPaintConfig.SetDefaultRetrieveSelectionAnswer(value: TModalResult);
+begin
+  iniOptions.WriteInteger('Tool','RetrieveSelectionAnswer', value);
+end;
+
+function TLazPaintConfig.DefaultTransformSelectionAnswer: TModalResult;
+begin
+  result := iniOptions.ReadInteger('Tool','TransformSelectionAnswer', 0);
+end;
+
+procedure TLazPaintConfig.SetDefaultTransformSelectionAnswer(value: TModalResult);
+begin
+  iniOptions.WriteInteger('Tool','TransformSelectionAnswer', value);
 end;
 
 function TLazPaintConfig.DefaultBlurRadius: single;

@@ -33,9 +33,10 @@ uses
   UToolDeformationGrid, UToolSelect, UToolPolygon, UToolFloodFill, UToolBasic,
   UToolPhong, UToolText, UScripting, UMenu, UColorFilters, uadjustcurves,
   UScriptType, ULayerAction, UImageType, uposterize, UMySLV, UToolLayer,
-  unoisefilter, uprint, uimagelist, UBarUpDown, UFileExtensions, UFileSystem, UToolBrush, UMainFormLayout, USaveOption, UBrushType, 
-  ugeometricbrush, URainType, UFormRain, UPaletteToolbar, 
-  uselectionhighlight, UGridBitmap, UToolIcon, UImagePreview, UPreviewDialog;
+  unoisefilter, uprint, uimagelist, UBarUpDown, UFileExtensions, UFileSystem,
+  UToolBrush, UMainFormLayout, USaveOption, UBrushType, ugeometricbrush,
+  URainType, UFormRain, UPaletteToolbar, uselectionhighlight, UGridBitmap,
+  UToolIcon, UImagePreview, UPreviewDialog, UQuestion;
 
 //sometimes LResources disappear in the uses clause
 
@@ -109,6 +110,7 @@ begin
   if not LazpaintApplication.ProcessCommandLine then
   begin
     LazpaintApplication.Show;
+  Application.CreateForm(TFQuestion, FQuestion);
     Application.Run;
   end;
   LazpaintApplication.Hide;

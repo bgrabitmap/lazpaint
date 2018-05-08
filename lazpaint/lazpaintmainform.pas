@@ -28,6 +28,7 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    ForgetDialogAnswers: TAction;
     FileChooseEntry: TAction;
     ToolButton8: TToolButton;
     ToolHotSpot: TAction;
@@ -444,6 +445,7 @@ type
     procedure FileSaveAsInSameFolderUpdate(Sender: TObject);
     procedure FileUseImageBrowserExecute(Sender: TObject);
     procedure FileUseImageBrowserUpdate(Sender: TObject);
+    procedure ForgetDialogAnswersExecute(Sender: TObject);
     procedure FormClose(Sender: TObject; var {%H-}CloseAction: TCloseAction);
     procedure FormMouseLeave(Sender: TObject);
     procedure FormWindowStateChange(Sender: TObject);
@@ -849,7 +851,8 @@ implementation
 
 uses LCLIntf, BGRAUTF8, ugraph, math, umac, uclipboard, ucursors,
    ufilters, ULoadImage, ULoading, UFileExtensions, UBrushType,
-   ugeometricbrush, BGRATransform, UPreviewDialog;
+   ugeometricbrush, BGRATransform, UPreviewDialog,
+   UQuestion;
 
 const PenWidthFactor = 10;
 
@@ -2623,9 +2626,9 @@ var toolName: string;
   Tool: TPaintToolType;
   LayerAction: TLayerAction;
   topmostInfo: TTopMostInfo;
-  res: integer;
   useSelection: boolean;
   newTexture: TBGRABitmap;
+  res: TQuestionResult;
 begin
   if ToolManager.ToolSleeping then exit;
   toolName := AVars.Strings['Name'];
@@ -2652,9 +2655,16 @@ begin
             if not image.SelectionEmpty and not image.SelectionLayerIsEmpty then
             begin
               topmostInfo := LazPaintInstance.HideTopmost;
-              res := MessageDlg(rsTextureMapping,rsTransformSelectionContent,mtConfirmation,[mbYes,mbNo],0);
+              if Config.DefaultTransformSelectionAnswer <> mrNone then
+                res := QuestionResult(Config.DefaultTransformSelectionAnswer)
+              else
+              begin
+                res := ShowQuestionDialog(rsTextureMapping,rsTransformSelectionContent,[mbYes,mbNo],true);
+                if res.Remember and (res.ButtonResult in [mrYes,mrNo]) then
+                  Config.SetDefaultTransformSelectionAnswer(res.ButtonResult);
+              end;
               LazPaintInstance.ShowTopmost(topmostInfo);
-              case res of
+              case res.ButtonResult of
                 mrYes: begin
                   useSelection:= true;
                   if image.SelectionLayerReadonly <> nil then
@@ -2740,9 +2750,16 @@ begin
             if image.CurrentLayerVisible and not image.SelectionEmpty and image.SelectionLayerIsEmpty and not image.SelectedLayerEmpty then
             begin
               topmostInfo := LazPaintInstance.HideTopmost;
-              res := MessageDlg(rsMovingOrRotatingSelection,rsRetrieveSelectedArea,mtConfirmation,[mbYes,mbNo],0);
+              if Config.DefaultRetrieveSelectionAnswer <> mrNone then
+                res := QuestionResult(Config.DefaultRetrieveSelectionAnswer)
+              else
+              begin
+                res := ShowQuestionDialog(rsMovingOrRotatingSelection,rsRetrieveSelectedArea,[mbYes,mbNo],true);
+                if res.Remember and (res.ButtonResult in [mrYes,mrNo]) then
+                  Config.SetDefaultRetrieveSelectionAnswer(res.ButtonResult);
+              end;
               LazPaintInstance.ShowTopmost(topmostInfo);
-              case res of
+              case res.ButtonResult of
                 mrYes: begin
                   LayerAction := nil;
                   try
@@ -2911,6 +2928,12 @@ end;
 procedure TFMain.FileUseImageBrowserUpdate(Sender: TObject);
 begin
   FileUseImageBrowser.Checked := UseImageBrowser;
+end;
+
+procedure TFMain.ForgetDialogAnswersExecute(Sender: TObject);
+begin
+  Config.SetDefaultTransformSelectionAnswer(0);
+  Config.SetDefaultRetrieveSelectionAnswer(0);
 end;
 
 procedure TFMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);

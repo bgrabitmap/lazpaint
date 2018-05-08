@@ -941,6 +941,14 @@ msgstr "Sphère"
 msgid "Twirl..."
 msgstr "Torsion..."
 
+#: tfmain.forgetdialoganswers.caption
+msgid "Forget dialog box answers"
+msgstr "Oublier les choix aux boites de dialogue"
+
+#: tfmain.forgetdialoganswers.hint
+msgid "Forget answers given to dialog boxes"
+msgstr "Oublier les choix donnés aux boites de dialgue"
+
 #: tfmain.helpabout.caption
 msgid "About..."
 msgstr "À propos..."
@@ -2477,6 +2485,19 @@ msgstr "Haute :"
 #: tfprint.label_width.caption
 msgid "Width:"
 msgstr "Largeur :"
+
+#: tfquestion.caption
+msgid "Question"
+msgstr ""
+
+#: tfquestion.checkbox_rememberchoice.caption
+msgid "Remember this choice"
+msgstr "Se souvenir du choix"
+
+#: tfquestion.label_message.caption
+msgctxt "tfquestion.label_message.caption"
+msgid "."
+msgstr "."
 
 #: tfradialblur.button_cancel.caption
 msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"

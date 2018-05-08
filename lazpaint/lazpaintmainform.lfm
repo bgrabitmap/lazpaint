@@ -1,7 +1,7 @@
 object FMain: TFMain
-  Left = 466
+  Left = 467
   Height = 578
-  Top = 68
+  Top = 93
   Width = 739
   AllowDropFiles = True
   Caption = 'LazPaint'
@@ -6413,6 +6413,12 @@ object FMain: TFMain
       OnExecute = FileChooseEntryExecute
       OnUpdate = FileChooseEntryUpdate
       ShortCut = 49231
+    end
+    object ForgetDialogAnswers: TAction
+      Category = 'File'
+      Caption = 'Forget dialog box answers'
+      Hint = 'Forget answers given to dialog boxes'
+      OnExecute = ForgetDialogAnswersExecute
     end
   end
   object ColorDialog1: TColorDialog
