@@ -17,7 +17,7 @@ implementation
 uses FileUtil, BGRAAnimatedGif, Graphics, UMultiImage,
   BGRAReadLzp, LCLProc, BGRABitmapTypes, BGRAReadPng,
   UFileSystem, BGRAIconCursor, BGRAReadTiff,
-  Dialogs, UResourceStrings;
+  Dialogs;
 
 function LoadIcoMultiImageFromStream(AStream: TStream): ArrayOfImageEntry;
 var ico: TBGRAIconCursor; i: integer;
