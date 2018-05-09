@@ -223,6 +223,8 @@ begin
   tbRemoveItem.Enabled:=TF;
   tbCheckAll.Enabled:=TF;
   tbUncheckAll.Enabled:=TF;
+  StringGrid1.Enabled := TF;
+
   if TF= true then
     begin
     TF:= False;
