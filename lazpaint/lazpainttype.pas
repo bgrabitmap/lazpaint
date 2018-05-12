@@ -132,7 +132,9 @@ type
     TImageEntry = object
       bmp: TBGRABitmap;
       bpp: integer;
+      frameIndex: integer;
       class function Empty: TImageEntry;
+      class function NewFrameIndex: integer;
       procedure FreeAndNil;
     end;
     ArrayOfImageEntry = array of TImageEntry;
@@ -505,6 +507,12 @@ class function TImageEntry.Empty: TImageEntry;
 begin
   result.bmp := nil;
   result.bpp := 0;
+  result.frameIndex := 0;
+end;
+
+class function TImageEntry.NewFrameIndex: integer;
+begin
+  result := -1;
 end;
 
 procedure TImageEntry.FreeAndNil;

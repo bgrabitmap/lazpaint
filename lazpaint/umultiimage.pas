@@ -110,6 +110,7 @@ begin
     begin
       result.bmp := images[selectedIndex].bmp.Duplicate(AFormat = ifCur,True) as TBGRABitmap;
       result.bpp := images[selectedIndex].bpp;
+      result.frameIndex := images[selectedIndex].frameIndex;
     end;
   end;
 end;

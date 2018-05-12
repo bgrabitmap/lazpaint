@@ -185,7 +185,7 @@ resourcestring
   rsStorageDevice = 'Device';
   rsOverwriteFile = 'File already exists. Do you want to overwrite it?';
   rsDeleteFile = 'Delete';
-  rsDeleteIconImage = 'Delete selected icon image?';
+  rsDeleteImageEntry = 'Delete selected image entry?';
   rsIconImageAlreadyExists = 'There is already an image with this size and depth.';
   rsConfirmMoveToTrash = 'Are you sure you want to move this file to the trash?';
   rsConfirmMoveMultipleToTrash = 'Are you sure you want to move these %1 files to the trash?';

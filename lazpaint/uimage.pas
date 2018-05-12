@@ -100,6 +100,8 @@ type
     procedure NotifyException(AFunctionName: string; AException: Exception);
     procedure SetSelectionTransform(ATransform: TAffineMatrix);
     procedure ClearUndoAfter;
+    procedure UpdateIconFileUTF8(AFilename: string; AOutputFilename: string = '');
+    procedure UpdateTiffFileUTF8(AFilename: string; AOutputFilename: string = '');
 
   public
     ActionInProgress: TCustomLayerAction;
@@ -107,7 +109,7 @@ type
     ImageOffset: TPoint;
     Zoom: TZoom;
     CursorHotSpot: TPoint;
-    BPP: integer;
+    BPP, FrameIndex: integer;
 
     procedure DrawBackground(ABmp: TBGRABitmap; ARect: TRect);
     procedure DiscardSelectionBounds;
@@ -185,9 +187,9 @@ type
     function AbleToSaveAsUTF8(AFilename: string): boolean;
     function AbleToSaveSelectionAsUTF8(AFilename: string): boolean;
     procedure SaveToFileUTF8(AFilename: string);
-    procedure UpdateIconFileUTF8(AFilename: string; AOutputFilename: string = '');
+    procedure UpdateMultiImage(AOutputFilename: string = '');
     procedure SaveToStreamAsLZP(AStream: TStream);
-    procedure SetSavedFlag(ASavedBPP: integer = 0);
+    procedure SetSavedFlag(ASavedBPP: integer = 0; ASavedFrameIndex: integer = 0);
     function IsFileModified: boolean;
     function IsFileModifiedAndSaved: boolean;
     function FlatImageEquals(ABitmap: TBGRABitmap): boolean;
@@ -256,7 +258,7 @@ uses UGraph, UResourceStrings, Dialogs,
     BGRAOpenRaster, BGRAPhoxo, BGRAPaintNet, UImageDiff, ULoading,
     BGRAWriteLzp, BGRAUTF8,
     BGRAPalette, BGRAColorQuantization, UFileSystem,
-    BGRAThumbnail, BGRAIconCursor;
+    BGRAThumbnail, BGRAIconCursor, UTiff, LazPaintType;
 
 function ComputeAcceptableImageSize(AWidth, AHeight: integer): TSize;
 var ratio,newRatio: single;
@@ -513,11 +515,22 @@ begin
   end;
 end;
 
+procedure TLazPaintImage.UpdateMultiImage(AOutputFilename: string = '');
+begin
+  if IsIconCursor then
+    UpdateIconFileUTF8(currentFilenameUTF8, AOutputFilename)
+  else if IsTiff then
+    UpdateTiffFileUTF8(currentFilenameUTF8, AOutputFilename)
+  else
+    ShowMessage(rsFileExtensionNotSupported);
+end;
+
 procedure TLazPaintImage.UpdateIconFileUTF8(AFilename: string; AOutputFilename: string);
 var
   s: TStream;
   icoCur: TBGRAIconCursor;
   frame: TBGRABitmap;
+  newFrameIndex: integer;
 begin
   if bpp = 0 then
   begin
@@ -543,13 +556,13 @@ begin
       end;
     end;
 
-    icoCur.Add(frame, bpp, true);
+    newFrameIndex := icoCur.Add(frame, bpp, true);
     icoCur.FileType:= SuggestImageFormat(AOutputFilename);
 
     s := FileManager.CreateFileStream(AOutputFilename,fmCreate);
     try
       icoCur.SaveToStream(s);
-      SetSavedFlag(bpp);
+      SetSavedFlag(bpp, newFrameIndex);
     finally
       s.Free;
     end;
@@ -558,6 +571,61 @@ begin
     frame.free;
     icoCur.Free;
   end;
+end;
+
+procedure TLazPaintImage.UpdateTiffFileUTF8(AFilename: string;
+  AOutputFilename: string);
+var
+  s, sAdded: TStream;
+  tiff, addedTiff: TTiff;
+  newFrameIndex: integer;
+begin
+  if AOutputFilename = '' then AOutputFilename := AFilename;
+
+  tiff := TTiff.Create;
+  addedTiff := TTiff.Create;
+  sAdded := nil;
+  s := nil;
+  try
+    if FileManager.FileExists(AFilename) then
+    begin
+      s := FileManager.CreateFileStream(AFilename,fmOpenRead or fmShareDenyWrite);
+      if tiff.LoadFromStream(s) <> teNone then
+        raise Exception.Create(StringReplace(rsErrorOnOpeningFile,'%1', AFilename, []));
+      FreeAndNil(s);
+    end;
+
+    sAdded := TMemoryStream.Create;
+    RenderedImage.SaveToStreamAs(sAdded, ifTiff);
+    sAdded.Position:= 0;
+    if addedTiff.LoadFromStream(sAdded) <> teNone then
+      raise Exception.Create(rsInternalError);
+    FreeAndNil(sAdded);
+
+    if FrameIndex = TImageEntry.NewFrameIndex then
+      newFrameIndex := tiff.Move(addedTiff,0)
+    else
+    begin
+      newFrameIndex := FrameIndex;
+      tiff.Delete(newFrameIndex);
+      tiff.Move(addedTiff,0,newFrameIndex);
+    end;
+
+    s := FileManager.CreateFileStream(AOutputFilename,fmCreate);
+    try
+      tiff.SaveToStream(s);
+      SetSavedFlag(bpp, newFrameIndex);
+    finally
+      FreeAndNil(s);
+    end;
+  finally
+
+    addedTiff.Free;
+    sAdded.Free;
+    tiff.Free;
+    s.Free;
+  end;
+
 end;
 
 procedure TLazPaintImage.LoadFromFileUTF8(AFilename: string);
@@ -662,11 +730,12 @@ begin
   CursorHotSpot := Point(0,0);
 end;
 
-procedure TLazPaintImage.SetSavedFlag(ASavedBPP: integer);
+procedure TLazPaintImage.SetSavedFlag(ASavedBPP: integer; ASavedFrameIndex: integer);
 var i: integer;
 begin
   FCurrentState.saved := true;
   self.BPP := ASavedBPP;
+  self.FrameIndex := ASavedFrameIndex;
   for i := 0 to FUndoList.Count-1 do
   begin
     TCustomImageDifference(FUndoList[i]).SavedBefore := (i = FUndoPos+1);

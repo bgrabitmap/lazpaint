@@ -171,7 +171,7 @@
         <PackageName Value="LCL"/>
       </Item4>
     </RequiredPackages>
-    <Units Count="95">
+    <Units Count="96">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -726,6 +726,11 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UQuestion"/>
       </Unit94>
+      <Unit95>
+        <Filename Value="utiff.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UTiff"/>
+      </Unit95>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

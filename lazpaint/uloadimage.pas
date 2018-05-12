@@ -31,6 +31,7 @@ begin
     result[i].bmp.Caption := IntTostr(ico.Width[i])+'x'+IntToStr(ico.Height[i])+' '+IntToStr(ico.BitDepth[i])+'bit';
     if Assigned(result[i].bmp.XorMask) then result[i].bmp.XorMask.Caption := result[i].bmp.Caption + ' (xor)';
     result[i].bpp := ico.BitDepth[i];
+    result[i].frameIndex:= i;
   end;
   ico.Free;
 end;
@@ -47,6 +48,7 @@ begin
       result[i].bmp := gif.MemBitmap.Duplicate as TBGRABitmap;
       result[i].bmp.Caption := 'Frame'+IntToStr(i);
       result[i].bpp := 0;
+      result[i].frameIndex := i;
     end;
   finally
     gif.Free;
@@ -66,6 +68,7 @@ begin
       result[i].bmp := (tiff.Images[i].Img as TBGRABitmap).Duplicate as TBGRABitmap;
       result[i].bmp.Caption := 'Image'+IntToStr(i);
       result[i].bpp := 0;
+      result[i].frameIndex:= i;
     end;
   finally
     tiff.Free;

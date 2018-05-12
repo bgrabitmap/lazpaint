@@ -36,7 +36,7 @@ uses
   unoisefilter, uprint, uimagelist, UBarUpDown, UFileExtensions, UFileSystem,
   UToolBrush, UMainFormLayout, USaveOption, UBrushType, ugeometricbrush,
   URainType, UFormRain, UPaletteToolbar, uselectionhighlight, UGridBitmap,
-  UToolIcon, UImagePreview, UPreviewDialog, UQuestion;
+  UToolIcon, UImagePreview, UPreviewDialog, UQuestion, UTiff;
 
 //sometimes LResources disappear in the uses clause
 

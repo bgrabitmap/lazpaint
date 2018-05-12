@@ -668,7 +668,7 @@ type
     SpinEdit_PhongBorderSize, SpinEdit_ShapeAltitude: TBarUpDown;
 
     FActiveSpinEdit: TBarUpDown;
-    FLastWidth,FLastHeight,FLastBPP: integer;
+    FLastWidth,FLastHeight,FLastBPP,FLastFrameIndex: integer;
     {$IFDEF LINUX}
     FTopMostHiddenMinimised: TTopMostInfo;
     {$ENDIF}
@@ -1337,10 +1337,13 @@ function TFMain.ScriptFileSaveAs(AVars: TVariableSet): TScriptResult;
     begin
       try
         saved := false;
-        if (Image.currentFilenameUTF8 <> '') and (SuggestImageFormat(Image.currentFilenameUTF8) in [ifIco,ifCur])
-           and (SuggestImageFormat(filename) in [ifIco,ifCur]) then
+        if (Image.currentFilenameUTF8 <> '') and
+          ( ((SuggestImageFormat(Image.currentFilenameUTF8) in [ifIco,ifCur])
+           and (SuggestImageFormat(filename) in [ifIco,ifCur])) or
+           ((SuggestImageFormat(Image.currentFilenameUTF8) = ifTiff)
+           and (SuggestImageFormat(filename) = ifTiff)) ) then
         begin
-           Image.UpdateIconFileUTF8(Image.currentFilenameUTF8, filename);
+           Image.UpdateMultiImage(filename);
            saved := true;
         end
         else
@@ -1437,9 +1440,9 @@ begin
     begin
       AskMergeSelection(rsSave);
       try
-        if SuggestImageFormat(Image.currentFilenameUTF8) in [ifIco,ifCur] then
+        if SuggestImageFormat(Image.currentFilenameUTF8) in [ifIco,ifCur,ifTiff] then
         begin
-           Image.UpdateIconFileUTF8(Image.currentFilenameUTF8);
+           Image.UpdateMultiImage;
            result := srOk;
         end
         else
@@ -3284,10 +3287,18 @@ end;
 procedure TFMain.UpdateWindowCaption;
 var bppStr: string;
 begin
-  if Image.bpp = 0 then
-    bppStr := ''
-  else
-    bppStr := ' '+inttostr(Image.bpp)+'bit';
+  if Image.IsTiff then
+  begin
+    if Image.FrameIndex = TImageEntry.NewFrameIndex then
+      bppStr := ' : '+rsNewImage
+    else
+      bppStr := ' : '+inttostr(Image.FrameIndex+1);
+  end else
+    if Image.bpp = 0 then
+      bppStr := ''
+    else
+      bppStr := ' '+inttostr(Image.bpp)+'bit';
+
   if Image.CurrentFilenameUTF8 = '' then
     self.Caption := inttostr(Image.Width)+'x'+inttostr(Image.Height) + bppStr + ' - ' + LazPaintInstance.Title
   else
@@ -3343,8 +3354,10 @@ var
     if (CurrentTool in [ptDeformation,ptRotateSelection,ptMoveSelection,ptTextureMapping,ptLayerMapping])
      or ((CurrentTool = ptHotSpot) and (format <> ifCur)) then
       ChooseTool(ptHand);
+    ShowNoPicture;
+    Image.OnImageChanged.NotifyObservers;
   end;
-  procedure EndImport(BPP: integer = 0);
+  procedure EndImport(BPP: integer = 0; frameIndex: integer = 0);
   begin
     if AddToRecent then
     begin
@@ -3353,7 +3366,7 @@ var
     end;
     Image.CurrentFilenameUTF8 := finalFilenameUTF8;
     image.ClearUndo;
-    image.SetSavedFlag(BPP);
+    image.SetSavedFlag(BPP, frameIndex);
     ToolManager.ToolOpen;
     ZoomFitIfTooBig;
     result := true;
@@ -3368,7 +3381,7 @@ var
           BGRAReplace(newPicture.bmp, newPicture.bmp.Resample(cx,cy,rmFineResample));
       FImageActions.SetCurrentBitmap(newPicture.bmp, False); //image owned
       newPicture.bmp := nil;
-      EndImport(newPicture.bpp);
+      EndImport(newPicture.bpp, newPicture.frameIndex);
     end else FreeAndNil(newPicture.bmp);
   end;
 
@@ -3381,8 +3394,6 @@ begin
     LazPaintInstance.ShowMessage(rsOpen,rsFileFormatNotRecognized);
     exit;
   end;
-  ShowNoPicture;
-  Image.OnImageChanged.NotifyObservers;
   finalFilenameUTF8 := filenameUTF8;
   newPicture := TImageEntry.Empty;
   try
@@ -3463,11 +3474,12 @@ procedure TFMain.OnImageChangedHandler(AEvent: TLazPaintImageObservationEvent);
 begin
   InvalidatePicture(False);
   if (image.Width <> FLastWidth) or (image.Height <> FLastHeight)
-   or (image.BPP <> FLastBPP) then
+   or (image.BPP <> FLastBPP) or (image.FrameIndex <> FLastFrameIndex) then
   begin
     FLastWidth:= image.Width;
     FLastHeight:= image.Height;
     FLastBPP := image.BPP;
+    FLastFrameIndex:= image.FrameIndex;
     UpdateWindowCaption;
   end;
   if not image.CurrentLayerVisible and not ToolManager.ToolCanBeUsed then

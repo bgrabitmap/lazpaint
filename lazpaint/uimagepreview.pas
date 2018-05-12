@@ -8,9 +8,10 @@ uses
   Classes, SysUtils, StdCtrls, Graphics, Controls, BGRAVirtualScreen,
   LazPaintType, UGraph, UResourceStrings, UFileSystem, Forms, UVolatileScrollBar,
   BGRABitmap, BGRAAnimatedGif, BGRAIconCursor, BGRABitmapTypes, BGRAThumbnail,
-  BGRAReadTiff;
+  UTiff, fgl;
 
 type
+  TBGRABitmapList = specialize TFPGObjectList<TBGRABitmap>;
 
   { TImagePreview }
 
@@ -27,9 +28,10 @@ type
     FImageFormat: TBGRAImageFormat;
     FImageNbLayers: integer;
     FSingleImage: TBGRABitmap;
-    FAnimatedGif: TBGRAAnimatedGif;        //has frames
-    FTiff: TBGRAReaderTiff;                //has entries
-    FIconCursor: TBGRAIconCursor;   //has entries
+    FAnimatedGif: TBGRAAnimatedGif;   //has frames
+    FTiff: TTiff;                     //has entries
+    FIconCursor: TBGRAIconCursor;     //has entries
+    FThumbnails: TBGRABitmapList;
 
     FSelectedMenuIndex: integer;
     FImageMenu: array of record
@@ -65,10 +67,13 @@ type
     function GetEntryWidth(index: integer): integer;
     function GetEntryHeight(index: integer): integer;
     function GetEntryBitDepth(index: integer): integer;
+    function GetEntryBitmap(index: integer): TImageEntry;
     function GetEntryThumbnail(index: integer; stretchWidth, stretchHeight: integer): TBGRABitmap;
 
     procedure DrawCurrentFrame(Bitmap: TBGRABitmap);
     function GetCurrentFrameBitmap: TBGRABitmap;
+    procedure ClearMenu;
+    procedure ClearThumbnails;
   public
     LazPaintInstance: TLazPaintCustomInstance;
     constructor Create(ASurface: TBGRAVirtualScreen; AStatus: TLabel);
@@ -110,7 +115,7 @@ procedure TImagePreview.SurfaceRedraw(Sender: TObject; Bitmap: TBGRABitmap);
 begin
   if (Bitmap.Width = 0) or (Bitmap.Height = 0) then
   begin
-    FImageMenu := nil;
+    ClearMenu;
     exit;
   end;
   if CanAddNewEntry or (GetEntryCount > 1) then
@@ -265,7 +270,7 @@ procedure TImagePreview.DrawCurrentFrame(Bitmap: TBGRABitmap);
 var x,y,w,h,ofs: integer;
   frame: TBGRABitmap;
 begin
-  FImageMenu := nil;
+  ClearMenu;
   frame := GetCurrentFrameBitmap;
   if Assigned(frame) then
   begin
@@ -300,7 +305,6 @@ end;
 procedure TImagePreview.DrawMenu(Bitmap: TBGRABitmap);
 var scrollPos, totalHeight, maxScroll, availableWidth: integer;
   i,j: integer;
-  temp: TBGRABitmap;
   x,y,sw,sh: integer;
   textRight, bpp: integer;
   iconCaption: string;
@@ -402,9 +406,7 @@ begin
     if not IsNew then
     begin
       bitmap.FillRect(rect(x+2,y+2, x+sw+2,y+sh+2), BGRA(0,0,0,96), dmDrawWithTransparency);
-      temp := GetEntryThumbnail(FrameIndex, sw,sh);
-      bitmap.PutImage(x,y, temp, dmDrawWithTransparency);
-      temp.free;
+      bitmap.StretchPutImage(rect(x,y,x+sw,y+sh), GetEntryThumbnail(FrameIndex, sw,sh), dmDrawWithTransparency);
     end else
     begin
       ptsF := PointsF([PointF(x+sw*0.20,y+sh*0.1),PointF(x+sw*0.55,y+sh*0.1),PointF(x+sw*0.75,y+sh*0.3),
@@ -421,8 +423,12 @@ begin
     if IsNew then iconCaption := rsNewImage else
     begin
        iconCaption := inttostr(GetEntryWidth(FrameIndex))+'x'+inttostr(GetEntryHeight(FrameIndex));
-       bpp := GetEntryBitDepth(FrameIndex);
-       if bpp <> 0 then iconCaption += ' '+inttostr(bpp)+'bit';
+       if Assigned(FTiff) then iconCaption += ' : ' + inttostr(FrameIndex+1)
+       else
+       begin
+         bpp := GetEntryBitDepth(FrameIndex);
+         if bpp <> 0 then iconCaption += ' '+inttostr(bpp)+'bit';
+       end;
     end;
 
     if (y+16 < bitmap.height) and (y+sh-16 > 0) then
@@ -451,7 +457,7 @@ var x,y,i,frameIndex,h,w,sw,sh: integer;
   end;
 
 begin
-  FImageMenu := nil;
+  ClearMenu;
   currentCol := 0;
 
   ComputeColumn;
@@ -503,13 +509,11 @@ begin
       ComputeColumn;
     end;
   end;
-
-  result := y+2;
 end;
 
 function TImagePreview.CanAddNewEntry: boolean;
 begin
-  result := Assigned(FIconCursor);
+  result := Assigned(FIconCursor) or Assigned(FTiff);
 end;
 
 function TImagePreview.GetEntryCount: integer;
@@ -517,7 +521,7 @@ begin
   if Assigned(FIconCursor) then
     result := FIconCursor.Count
   else if Assigned(FTiff) then
-    result := FTiff.ImageCount
+    result := FTiff.Count
   else
     result := 1;
 end;
@@ -527,7 +531,7 @@ begin
   if Assigned(FIconCursor) then
     result := FIconCursor.Width[index]
   else if Assigned(FTiff) then
-    result := FTiff.Images[index].ImageWidth
+    result := FTiff.Entry[index].Width
   else if Assigned(FAnimatedGif) then
     result := FAnimatedGif.Width
   else if Assigned(FSingleImage) then
@@ -539,7 +543,7 @@ begin
   if Assigned(FIconCursor) then
     result := FIconCursor.Height[index]
   else if Assigned(FTiff) then
-    result := FTiff.Images[index].ImageHeight
+    result := FTiff.Entry[index].Height
   else if Assigned(FAnimatedGif) then
     result := FAnimatedGif.Height
   else if Assigned(FSingleImage) then
@@ -551,39 +555,82 @@ begin
   if Assigned(FIconCursor) then
     result := FIconCursor.BitDepth[index]
   else if Assigned(FTiff) then
-  begin
-    with FTiff.Images[index] do
-      result := RedBits + GreenBits + BlueBits + GrayBits + AlphaBits;
-  end
+    result := FTiff.Entry[index].BitDepth
   else
     result := 0;
 end;
 
+function TImagePreview.GetEntryBitmap(index: integer): TImageEntry;
+var
+  mem: TMemoryStream;
+begin
+  if (index < 0) or (index >= GetEntryCount) then
+    raise exception.Create('Index out of bounds');
+  result := TImageEntry.Empty;
+  try
+    if Assigned(FIconCursor) then
+    begin
+      result.bmp := FIconCursor.GetBitmap(index) as TBGRABitmap;
+      result.bpp := FIconCursor.BitDepth[index];
+      result.frameIndex := index;
+    end
+    else
+    if Assigned(FTiff) then
+    begin
+      mem := TMemoryStream.Create;
+      try
+        FTiff.SaveToStream(mem, [index]);
+        mem.Position:= 0;
+        result.bmp := TBGRABitmap.Create(mem);
+        result.bpp := FTiff.Entry[index].BitDepth;
+        result.frameIndex := index;
+      finally
+        mem.Free;
+      end;
+    end;
+  except on ex:exception do
+    begin
+      if result.bmp = nil then
+      begin
+        result.bmp := TBGRABitmap.Create(GetEntryWidth(index), GetEntryHeight(index), BGRAWhite);
+        result.bpp := GetEntryBitDepth(index);
+        result.frameIndex:= index;
+      end;
+    end;
+  end;
+end;
+
 function TImagePreview.GetEntryThumbnail(index: integer; stretchWidth, stretchHeight: integer): TBGRABitmap;
 var
-  entry: TBGRABitmap;
+  entry: TImageEntry;
 begin
-  if Assigned(FIconCursor) then
+  if (index < FThumbnails.Count) and Assigned(FThumbnails[index]) then
   begin
-    entry := FIconCursor.GetBitmap(index) as TBGRABitmap;
+    result := FThumbnails[index];
+    exit;
+  end;
+  entry := GetEntryBitmap(index);
+  if Assigned(entry.bmp) then
+  begin
     try
-      result := GetBitmapThumbnail(entry, FIconCursor.FileType, stretchWidth, stretchHeight, BGRAPixelTransparent,true);
+      if Assigned(FIconCursor) then
+        result := GetBitmapThumbnail(entry.bmp, FIconCursor.FileType,stretchWidth,stretchHeight, BGRAPixelTransparent,true)
+      else
+        result := GetBitmapThumbnail(entry.bmp, stretchWidth,stretchHeight, BGRAPixelTransparent,true);
+      while FThumbnails.Count < index+1 do FThumbnails.Add(nil);
+      FThumbnails[index] := result;
     finally
-      entry.free;
+      entry.bmp.free;
     end;
-  end else
-  if Assigned(FTiff) then
-  begin
-    result := GetBitmapThumbnail(FTiff.Images[index].Img as TBGRABitmap, stretchWidth,stretchHeight, BGRAPixelTransparent,true);
   end else
     result := nil;
 end;
 
 function TImagePreview.CanDeleteEntry(index: integer): boolean;
 begin
-  result := Assigned(FIconCursor) and
-            (index >= 0) and (index < FIconCursor.Count) and
-            (FIconCursor.Count > 1);
+  result := (Assigned(FIconCursor) or Assigned(FTiff)) and
+            (index >= 0) and (index < GetEntryCount) and
+            (GetEntryCount > 1);
 end;
 
 function TImagePreview.GetCurrentFrameBitmap: TBGRABitmap;
@@ -593,36 +640,67 @@ begin
   else if Assigned(FAnimatedGif) then
     result := FAnimatedGif.MemBitmap
   else if Assigned(FTiff) then
-    result := FTiff.GetBiggestImage.Img as TBGRABitmap
+  begin
+    FSingleImage := GetEntryBitmap(0).bmp;
+    result := FSingleImage;
+  end
   else
     result := nil;
+end;
+
+procedure TImagePreview.ClearMenu;
+begin
+  FImageMenu := nil;
+end;
+
+procedure TImagePreview.ClearThumbnails;
+begin
+  FThumbnails.Clear;
 end;
 
 procedure TImagePreview.DeleteEntry(i: integer);
 var outputStream: TStream;
 begin
-  if assigned(FIconCursor) and (i < FIconCursor.Count) and (i >= 0) then
+  if (assigned(FIconCursor) or assigned(FTiff)) and (i < GetEntryCount) and (i >= 0) then
   begin
-    if FIconCursor.Count = 1 then
+    if GetEntryCount = 1 then
     begin
       ShowMessage(rsFileCannotBeEmpty);
     end else
-    if QuestionDlg (rsDeleteFile,rsDeleteIconImage,mtConfirmation,[mrOk,rsOkay,mrCancel,rsCancel],'') = mrOk then
+    if QuestionDlg (rsDeleteFile,rsDeleteImageEntry,mtConfirmation,[mrOk,rsOkay,mrCancel,rsCancel],'') = mrOk then
     begin
       try
-        FIconCursor.Delete(i);
+        if assigned(FIconCursor) then
+          FIconCursor.Delete(i)
+        else
+          FTiff.Delete(i);
+        if FThumbnails.Count >= i+1 then
+          FThumbnails.Delete(i);
         outputStream := FileManager.CreateFileStream(Filename, fmCreate);
         try
-          FIconCursor.SaveToStream(outputStream);
+          if assigned(FIconCursor) then
+            FIconCursor.SaveToStream(outputStream)
+          else
+            FTiff.SaveToStream(outputStream);
           outputStream.Free;
+
+          if (LazPaintInstance.Image.currentFilenameUTF8 = Filename) and
+             (LazPaintInstance.Image.FrameIndex >= i) then
+          begin
+            if LazPaintInstance.Image.FrameIndex > i then
+              dec(LazPaintInstance.Image.FrameIndex)
+            else
+              LazPaintInstance.Image.FrameIndex := TImageEntry.NewFrameIndex;
+            LazPaintInstance.Image.OnImageChanged.NotifyObservers;
+          end;
         except on ex: Exception do
           begin
             FileManager.CancelStreamAndFree(outputStream);
             ShowMessage(ex.Message);
           end;
         end;
-        if FSelectedMenuIndex >= FIconCursor.Count then
-          FSelectedMenuIndex := FIconCursor.Count-1;
+        if FSelectedMenuIndex = high(FImageMenu) then
+          dec(FSelectedMenuIndex);
         FSurface.RedrawBitmap;
       except
         on ex:exception do
@@ -671,6 +749,7 @@ begin
   FAnimatedGif := nil;
   FIconCursor := nil;
   FTiff := nil;
+  FThumbnails := TBGRABitmapList.Create;
   FOnValidate := nil;
   FScrollbar := nil;
   FScrolling:= false;
@@ -678,6 +757,8 @@ end;
 
 destructor TImagePreview.Destroy;
 begin
+  ClearMenu;
+  ClearThumbnails;
   if FSurface.OnRedraw = @SurfaceRedraw then FSurface.OnRedraw:= nil;
   if FSurface.OnMouseDown = @SurfaceMouseDown then FSurface.OnMouseDown:= nil;
   if FSurface.OnMouseMove = @SurfaceMouseMove then FSurface.OnMouseMove:= nil;
@@ -689,6 +770,7 @@ begin
   FreeAndNil(FTiff);
   FreeAndNil(FAnimatedGif);
   FreeAndNil(FIconCursor);
+  FreeAndNil(FThumbnails);
   FreeAndNil(FScrollbar);
   inherited Destroy;
 end;
@@ -698,6 +780,7 @@ var reader: TFPCustomImageReader;
   jpegReader: TBGRAReaderJpeg;
   source: TStream;
 begin
+  ClearThumbnails;
   FreeAndNil(FSingleImage);
   FreeAndNil(FTiff);
   FreeAndNil(FAnimatedGif);
@@ -705,7 +788,7 @@ begin
   FImageNbLayers := 0;
   FImageFormat:= ifUnknown;
   FLoadError := '';
-  FImageMenu := nil;
+  ClearMenu;
   FreeAndNil(FScrollbar);
   FSelectedMenuIndex := -1;
   FSurface.RedrawBitmap;
@@ -736,10 +819,12 @@ begin
     ifTiff:
       begin
         try
-          FTiff := TBGRAReaderTiff.Create;
-          FTiff.LoadFromStream(source);
+          FTiff := TTiff.Create;
+          if FTiff.LoadFromStream(source) <> teNone then
+            raise exception.Create(rsCannotOpenFile);
+
           FImageNbLayers := 1;
-          if FTiff.ImageCount = 0 then
+          if FTiff.Count = 0 then
           begin
             FreeAndNil(FTiff);
             FLoadError := rsFileCannotBeEmpty;
@@ -827,8 +912,8 @@ begin
   if Assigned(FTiff) then
   begin
     with FTiff.GetBiggestImage do
-      FStatus.Caption := rsCanvasSize + ': ' + IntToStr(ImageWidth)+'x'+IntToStr(ImageHeight)+', '+
-                         rsEntries+': '+IntToStr(FTiff.ImageCount);
+      FStatus.Caption := rsCanvasSize + ': ' + IntToStr(Width)+'x'+IntToStr(Height)+', '+
+                         rsEntries+': '+IntToStr(FTiff.Count);
   end else
   if Assigned(FSingleImage) then
   begin
@@ -850,7 +935,7 @@ begin
 end;
 
 function TImagePreview.GetPreviewBitmap: TImageEntry;
-var tx,ty,bpp, frameIndex: integer; back: TBGRAPixel;
+var tx,ty,bpp: integer; back: TBGRAPixel;
 begin
   result := TImageEntry.Empty;
 
@@ -870,22 +955,15 @@ begin
             begin
               result.bmp := TBGRABitmap.Create(tx,ty,back);
               result.bpp := bpp;
+              result.frameIndex:= TImageEntry.NewFrameIndex;
             end;
           end;
         end else
-        begin
-          frameIndex := FImageMenu[FSelectedMenuIndex].FrameIndex;
-          result.bmp := FIconCursor.GetBitmap(frameIndex) as TBGRABitmap;
-          result.bpp := FIconCursor.BitDepth[frameIndex];
-        end;
+          result := GetEntryBitmap(FImageMenu[FSelectedMenuIndex].FrameIndex);
       end;
     end else
-    if FIconCursor.Count > 0 then
-    begin
-      frameIndex := 0;
-      result.bmp := FIconCursor.GetBitmap(frameIndex) as TBGRABitmap;
-      result.bpp := FIconCursor.BitDepth[frameIndex]
-    end;
+    if GetEntryCount > 0 then
+      result := GetEntryBitmap(0);
   end else
   if Assigned(FTiff) then
   begin
@@ -896,21 +974,16 @@ begin
         if FImageMenu[FSelectedMenuIndex].IsNew then
         begin
           if Assigned(LazPaintInstance) and ShowNewImageDlg(LazPaintInstance, false, tx,ty,bpp, back) then
+          begin
             result.bmp := TBGRABitmap.Create(tx,ty,back);
+            result.frameIndex:= TImageEntry.NewFrameIndex;
+          end;
         end else
-        begin
-          frameIndex := FImageMenu[FSelectedMenuIndex].FrameIndex;
-          result.bmp := FTiff.Images[frameIndex].Img as TBGRABitmap;
-          FTiff.Images[frameIndex].Img := nil;
-        end;
+          result := GetEntryBitmap(FImageMenu[FSelectedMenuIndex].FrameIndex);
       end;
     end else
-    if FTiff.ImageCount > 0 then
-    begin
-      frameIndex := 0;
-      result.bmp := FTiff.Images[frameIndex].Img as TBGRABitmap;
-      FTiff.Images[frameIndex].Img := nil;
-    end;
+    if GetEntryCount > 0 then
+      result := GetEntryBitmap(0);
   end else
   if Assigned(FSingleImage) then
   begin

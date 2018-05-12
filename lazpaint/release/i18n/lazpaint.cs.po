@@ -2864,8 +2864,8 @@ msgctxt "uresourcestrings.rsdeletefile"
 msgid "Delete"
 msgstr "Smazat"
 
-#: uresourcestrings.rsdeleteiconimage
-msgid "Delete selected icon image?"
+#: uresourcestrings.rsdeleteimageentry
+msgid "Delete selected image entry?"
 msgstr ""
 
 #: uresourcestrings.rsdirectorynotempty
