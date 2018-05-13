@@ -38,11 +38,12 @@ type
                  Area, IconArea: TRect;
                  DeleteArea: TRect;
                  FrameIndex: integer;
-                 IsNew: boolean;
+                 IsNew,IsLoopCount: boolean;
                end;
 
     FOnValidate: TNotifyEvent;
     FOnEscape: TNotifyEvent;
+    FAnimate: boolean;
 
     function GetPreviewDataLoss: boolean;
     procedure SetFilename(AValue: string);
@@ -74,9 +75,11 @@ type
     function GetCurrentFrameBitmap: TBGRABitmap;
     procedure ClearMenu;
     procedure ClearThumbnails;
+    procedure DoValidate;
+    procedure SetLoopCount;
   public
     LazPaintInstance: TLazPaintCustomInstance;
-    constructor Create(ASurface: TBGRAVirtualScreen; AStatus: TLabel);
+    constructor Create(ASurface: TBGRAVirtualScreen; AStatus: TLabel; AAnimate: boolean);
     destructor Destroy; override;
     procedure UpdatePreview;
     procedure HandleTimer;
@@ -101,7 +104,7 @@ begin
                              ifLazPaint, {layer loss}
                              ifOpenRaster,
                              ifPhoxo])
-         or (Assigned(FAnimatedGif) and (FAnimatedGif.Count > 1)); {frame loss}
+         or (FAnimate and Assigned(FAnimatedGif) and (FAnimatedGif.Count > 1)); {frame loss}
 end;
 
 procedure TImagePreview.SetFilename(AValue: string);
@@ -118,7 +121,7 @@ begin
     ClearMenu;
     exit;
   end;
-  if CanAddNewEntry or (GetEntryCount > 1) then
+  if (CanAddNewEntry or (GetEntryCount > 1)) and not (Assigned(FAnimatedGif) and FAnimate) then
     DrawMenu(Bitmap)
   else
     DrawCurrentFrame(Bitmap);
@@ -203,7 +206,7 @@ end;
 
 procedure TImagePreview.SurfaceDblClick(Sender: TObject);
 begin
-  if Assigned(FOnValidate) then FOnValidate(self);
+  DoValidate;
 end;
 
 procedure TImagePreview.SurfaceKeyDown(Sender: TObject; var Key: Word;
@@ -248,7 +251,7 @@ begin
   if Key = VK_RETURN then
   begin
     Key := 0;
-    if Assigned(FOnValidate) then FOnValidate(self);
+    DoValidate;
   end else
   if Key = VK_ESCAPE then
   begin
@@ -376,7 +379,7 @@ begin
     if i = FSelectedMenuIndex then
     begin
       bitmap.FillRect(scrolledArea, ColorToRGB(clHighlight));
-      if not IsNew and (Area.Right - IconArea.Right > 32) and CanDeleteEntry(FrameIndex) then
+      if not IsNew and not IsLoopCount and (Area.Right - IconArea.Right > 32) and CanDeleteEntry(FrameIndex) then
       begin
         sh := (Area.Right - IconArea.Right - 8) div 4;
         if sh < 16 then sh := 16;
@@ -403,11 +406,12 @@ begin
     sh := IconArea.Bottom-y;
     y -= scrollPos;
 
-    if not IsNew then
+    if IsLoopCount then
     begin
-      bitmap.FillRect(rect(x+2,y+2, x+sw+2,y+sh+2), BGRA(0,0,0,96), dmDrawWithTransparency);
-      bitmap.StretchPutImage(rect(x,y,x+sw,y+sh), GetEntryThumbnail(FrameIndex, sw,sh), dmDrawWithTransparency);
+      bitmap.EllipseAntialias(x+sw*0.5,y+sw*0.5, sw*0.3,sh*0.3, BGRABlack, sw*0.2);
+      bitmap.EllipseAntialias(x+sw*0.5,y+sw*0.5, sw*0.3,sh*0.3, CSSGreen, sw*0.1);
     end else
+    if IsNew then
     begin
       ptsF := PointsF([PointF(x+sw*0.20,y+sh*0.1),PointF(x+sw*0.55,y+sh*0.1),PointF(x+sw*0.75,y+sh*0.3),
                        PointF(x+sw*0.75,y+sh*0.9),PointF(x+sw*0.20,y+sh*0.9)]);
@@ -418,16 +422,34 @@ begin
       bitmap.FillPolyAntialias(ptsF, BGRAWhite);
       bitmap.DrawPolygonAntialias(ptsF, BGRABlack, 1.5);
       bitmap.DrawPolyLineAntialias([PointF(x+sw*0.55,y+sh*0.1),PointF(x+sw*0.55,y+sh*0.3),PointF(x+sw*0.75,y+sh*0.3)], BGRABlack,1.5);
+    end else
+    begin
+      bitmap.FillRect(rect(x+2,y+2, x+sw+2,y+sh+2), BGRA(0,0,0,96), dmDrawWithTransparency);
+      bitmap.StretchPutImage(rect(x,y,x+sw,y+sh), GetEntryThumbnail(FrameIndex, sw,sh), dmDrawWithTransparency);
     end;
 
     if IsNew then iconCaption := rsNewImage else
+    if IsLoopCount then
     begin
-       iconCaption := inttostr(GetEntryWidth(FrameIndex))+'x'+inttostr(GetEntryHeight(FrameIndex));
-       if Assigned(FTiff) then iconCaption += ' : ' + inttostr(FrameIndex+1)
-       else
+      iconCaption:= rsLoopCount+': ';
+      if FAnimatedGif.LoopCount = 0 then
+        iconCaption += rsInfinity
+      else
+        iconCaption += inttostr(FAnimatedGif.LoopCount);
+    end else
+    begin
+       if Assigned(FAnimatedGif) then
        begin
-         bpp := GetEntryBitDepth(FrameIndex);
-         if bpp <> 0 then iconCaption += ' '+inttostr(bpp)+'bit';
+         iconCaption := '#' + inttostr(FrameIndex+1) + ', ' + inttostr(FAnimatedGif.FrameDelayMs[FrameIndex])+' ms';
+       end else
+       begin
+         iconCaption := inttostr(GetEntryWidth(FrameIndex))+'x'+inttostr(GetEntryHeight(FrameIndex));
+         if Assigned(FTiff) then iconCaption += ' #' + inttostr(FrameIndex+1)
+         else if Assigned(FIconCursor) then
+         begin
+           bpp := GetEntryBitDepth(FrameIndex);
+           if bpp <> 0 then iconCaption += ' '+inttostr(bpp)+'bit';
+         end;
        end;
     end;
 
@@ -441,7 +463,7 @@ end;
 
 function TImagePreview.TryMenuLayout(AWidth: integer; AColCount, ABottom: integer): integer;
 var x,y,i,frameIndex,h,w,sw,sh: integer;
-  newItem, colLeft,colRight, maxWidth, maxHeight: integer;
+  newItem, LoopCountItem, colLeft,colRight, maxWidth, maxHeight: integer;
   currentCol: integer;
 
   procedure ComputeColumn;
@@ -463,11 +485,19 @@ begin
   ComputeColumn;
   result := y+2;
 
+  if Assigned(FAnimatedGif) then LoopCountItem := 1 else LoopCountItem:= 0;
   if CanAddNewEntry then NewItem := 1 else NewItem := 0;
-  setlength(FImageMenu, GetEntryCount + NewItem);
-  for i := 0 to GetEntryCount-1 + NewItem do
+  setlength(FImageMenu, GetEntryCount + NewItem + LoopCountItem);
+  for i := 0 to GetEntryCount-1 + NewItem + LoopCountItem do
   begin
-    if (NewItem = 1) and (i = 0) then
+    if (LoopCountItem = 1) and (i = 0) then
+    begin
+      frameIndex := -1;
+      FImageMenu[i].IsLoopCount := true;
+      w := 32;
+      h := 32;
+    end else
+    if (NewItem = 1) and (i = LoopCountItem) then
     begin
       frameIndex := GetEntryCount;
       FImageMenu[i].IsNew := true;
@@ -476,7 +506,7 @@ begin
     end
     else
     begin
-      frameIndex := i-NewItem;
+      frameIndex := i-NewItem-LoopCountItem;
       w := GetEntryWidth(frameIndex);
       h := GetEntryHeight(frameIndex);
     end;
@@ -513,7 +543,7 @@ end;
 
 function TImagePreview.CanAddNewEntry: boolean;
 begin
-  result := Assigned(FIconCursor) or Assigned(FTiff);
+  result := Assigned(FIconCursor) or Assigned(FTiff) or Assigned(FAnimatedGif);
 end;
 
 function TImagePreview.GetEntryCount: integer;
@@ -522,6 +552,8 @@ begin
     result := FIconCursor.Count
   else if Assigned(FTiff) then
     result := FTiff.Count
+  else if Assigned(FAnimatedGif) and not FAnimate then
+    result := FAnimatedGif.Count
   else
     result := 1;
 end;
@@ -587,6 +619,12 @@ begin
       finally
         mem.Free;
       end;
+    end else
+    if Assigned(FAnimatedGif) and not FAnimate then
+    begin
+      FAnimatedGif.CurrentImage := index;
+      result.bmp := FAnimatedGif.MemBitmap.Duplicate as TBGRABitmap;
+      result.frameIndex := index;
     end;
   except on ex:exception do
     begin
@@ -628,7 +666,7 @@ end;
 
 function TImagePreview.CanDeleteEntry(index: integer): boolean;
 begin
-  result := (Assigned(FIconCursor) or Assigned(FTiff)) and
+  result := (Assigned(FIconCursor) or Assigned(FTiff) or Assigned(FAnimatedGif)) and
             (index >= 0) and (index < GetEntryCount) and
             (GetEntryCount > 1);
 end;
@@ -658,10 +696,55 @@ begin
   FThumbnails.Clear;
 end;
 
+procedure TImagePreview.DoValidate;
+begin
+  if (FSelectedMenuIndex >= 0) and (FSelectedMenuIndex < length(FImageMenu)) and
+     FImageMenu[FSelectedMenuIndex].IsLoopCount then
+  begin
+    SetLoopCount;
+  end else
+    if Assigned(FOnValidate) then FOnValidate(self);
+end;
+
+procedure TImagePreview.SetLoopCount;
+var newLoopCount: Word;
+  errPos: integer;
+  outputStream: TStream;
+begin
+  if Assigned(FAnimatedGif) then
+  begin
+    val(InputBox(rsAnimatedGIF, rsLoopCount+' (0='+ rsInfinity+'):', inttostr(FAnimatedGif.LoopCount)), newLoopCount, errPos);
+    if errPos = 0 then
+    begin
+      if newLoopCount > 65534 then newLoopCount:= 0;
+
+      if newLoopCount <> FAnimatedGif.LoopCount then
+      begin
+        FAnimatedGif.LoopCount := newLoopCount;
+        outputStream := nil;
+        try
+          outputStream := FileManager.CreateFileStream(Filename, fmCreate);
+          FAnimatedGif.SaveToStream(outputStream);
+          FreeAndNil(outputStream);
+        except
+          on ex:exception do
+          begin
+            if Assigned(outputStream) then
+              FileManager.CancelStreamAndFree(outputStream);
+            ShowMessage(ex.Message);
+          end;
+        end;
+        outputStream.Free;
+        FSurface.DiscardBitmap;
+      end;
+    end;
+  end;
+end;
+
 procedure TImagePreview.DeleteEntry(i: integer);
 var outputStream: TStream;
 begin
-  if (assigned(FIconCursor) or assigned(FTiff)) and (i < GetEntryCount) and (i >= 0) then
+  if (assigned(FIconCursor) or assigned(FTiff) or assigned(FAnimatedGif)) and (i < GetEntryCount) and (i >= 0) then
   begin
     if GetEntryCount = 1 then
     begin
@@ -672,16 +755,21 @@ begin
       try
         if assigned(FIconCursor) then
           FIconCursor.Delete(i)
-        else
-          FTiff.Delete(i);
+        else if assigned(FTiff) then
+          FTiff.Delete(i)
+        else if assigned(FAnimatedGif) then
+          FAnimatedGif.DeleteFrame(i, true);
+
         if FThumbnails.Count >= i+1 then
           FThumbnails.Delete(i);
         outputStream := FileManager.CreateFileStream(Filename, fmCreate);
         try
           if assigned(FIconCursor) then
             FIconCursor.SaveToStream(outputStream)
-          else
-            FTiff.SaveToStream(outputStream);
+          else if assigned(FTiff) then
+            FTiff.SaveToStream(outputStream)
+          else if assigned(FAnimatedGif) then
+            FAnimatedGif.SaveToStream(outputStream);
           outputStream.Free;
 
           if (LazPaintInstance.Image.currentFilenameUTF8 = Filename) and
@@ -730,10 +818,11 @@ begin
   end;
 end;
 
-constructor TImagePreview.Create(ASurface: TBGRAVirtualScreen; AStatus: TLabel);
+constructor TImagePreview.Create(ASurface: TBGRAVirtualScreen; AStatus: TLabel; AAnimate: boolean);
 begin
   FSurface := ASurface;
   FStatus := AStatus;
+  FAnimate:= AAnimate;
   FSelectedMenuIndex := -1;
   {$IFDEF WINDOWS}
   ASurface.Color := clAppWorkspace;
@@ -931,7 +1020,7 @@ end;
 
 procedure TImagePreview.HandleTimer;
 begin
-  if assigned(FAnimatedGif) and (FAnimatedGif.TimeUntilNextImageMs <= 0) then
+  if FAnimate and assigned(FAnimatedGif) and (FAnimatedGif.TimeUntilNextImageMs <= 0) then
     FSurface.RedrawBitmap;
 end;
 
@@ -991,9 +1080,28 @@ begin
     result.bmp := FSingleImage;
     FSingleImage := nil;
   end else
-  if Assigned(FAnimatedGif) and (FAnimatedGif.Count = 1) then
+  if Assigned(FAnimatedGif) then
   begin
-    result.bmp := FAnimatedGif.MemBitmap.Duplicate as TBGRABitmap;
+    if FAnimate and (FAnimatedGif.Count = 1) then
+      result.bmp := FAnimatedGif.MemBitmap.Duplicate as TBGRABitmap
+    else
+    if not FAnimate then
+    begin
+      if FImageMenu <> nil then
+      begin
+        if (FSelectedMenuIndex >= 0) and (FSelectedMenuIndex < length(FImageMenu)) then
+        begin
+          if FImageMenu[FSelectedMenuIndex].IsNew then
+          begin
+              result.bmp := TBGRABitmap.Create(FAnimatedGif.Width,FAnimatedGif.Height,BGRAPixelTransparent);
+              result.frameIndex:= TImageEntry.NewFrameIndex;
+          end else
+            result := GetEntryBitmap(FImageMenu[FSelectedMenuIndex].FrameIndex);
+        end;
+      end else
+      if GetEntryCount > 0 then
+        result := GetEntryBitmap(0);
+    end;
   end;
 end;
 

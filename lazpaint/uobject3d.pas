@@ -234,11 +234,10 @@ end;
 function TScene.FetchTextureAsBitmap(AName: string; ARelativePath: boolean): TBGRABitmap;
   function AddTexture(AFilename: string): TBGRABitmap;
   var bmp: TBGRABitmap;
-    dummy: string;
   begin
     bmp := nil;
     try
-      bmp := LoadFlatImageUTF8(AFilename,dummy,'').bmp;
+      bmp := LoadFlatImageUTF8(AFilename).bmp;
     except
       on ex:exception do ShowMessage(ex.Message);
     end;

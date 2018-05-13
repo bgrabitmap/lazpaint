@@ -61,6 +61,7 @@ type
     procedure DiscardSelectionLayerAfterMask;
     function GetIsIconCursor: boolean;
     function GetIsTiff: boolean;
+    function GetIsGif: boolean;
     function GetLayerBitmapById(AId: integer): TBGRABitmap;
     function GetLayerId(AIndex: integer): integer;
     function GetTransformedSelectionBounds: TRect;
@@ -102,6 +103,7 @@ type
     procedure ClearUndoAfter;
     procedure UpdateIconFileUTF8(AFilename: string; AOutputFilename: string = '');
     procedure UpdateTiffFileUTF8(AFilename: string; AOutputFilename: string = '');
+    procedure UpdateGifFileUTF8(AFilename: string; AOutputFilename: string = '');
 
   public
     ActionInProgress: TCustomLayerAction;
@@ -244,6 +246,7 @@ type
     property ZoomFactor: single read GetZoomFactor;
     property IsIconCursor: boolean read GetIsIconCursor;
     property IsTiff: boolean read GetIsTiff;
+    property IsGif: boolean read GetIsGif;
     constructor Create;
     destructor Destroy; override;
   end;
@@ -257,7 +260,7 @@ uses UGraph, UResourceStrings, Dialogs,
     BGRAWriteLzp, BGRAUTF8,
     BGRAPalette, BGRAColorQuantization, UFileSystem,
     BGRAThumbnail, BGRAIconCursor, UTiff, LazPaintType,
-    BGRALazPaint;
+    BGRALazPaint, BGRAAnimatedGif;
 
 function ComputeAcceptableImageSize(AWidth, AHeight: integer): TSize;
 var ratio,newRatio: single;
@@ -510,6 +513,8 @@ begin
     UpdateIconFileUTF8(currentFilenameUTF8, AOutputFilename)
   else if IsTiff then
     UpdateTiffFileUTF8(currentFilenameUTF8, AOutputFilename)
+  else if IsGif then
+    UpdateGifFileUTF8(currentFilenameUTF8, AOutputFilename)
   else
     ShowMessage(rsFileExtensionNotSupported);
 end;
@@ -612,6 +617,48 @@ begin
     addedTiff.Free;
     sAdded.Free;
     tiff.Free;
+    s.Free;
+  end;
+
+end;
+
+procedure TLazPaintImage.UpdateGifFileUTF8(AFilename: string;
+  AOutputFilename: string);
+var
+  s: TStream;
+  gif: TBGRAAnimatedGif;
+  newFrameIndex: integer;
+begin
+  if AOutputFilename = '' then AOutputFilename := AFilename;
+
+  gif := TBGRAAnimatedGif.Create;
+  s := nil;
+  try
+    if FileManager.FileExists(AFilename) then
+    begin
+      s := FileManager.CreateFileStream(AFilename,fmOpenRead or fmShareDenyWrite);
+      gif.LoadFromStream(s);
+      FreeAndNil(s);
+    end;
+
+    if FrameIndex = TImageEntry.NewFrameIndex then
+      newFrameIndex := gif.AddFullFrame(RenderedImage, gif.AverageDelayMs)
+    else
+    begin
+      newFrameIndex := FrameIndex;
+      gif.ReplaceFullFrame(newFrameIndex, RenderedImage, gif.FrameDelayMs[newFrameIndex]);
+    end;
+
+    s := FileManager.CreateFileStream(AOutputFilename,fmCreate);
+    try
+      gif.SaveToStream(s);
+      SetSavedFlag(bpp, newFrameIndex);
+    finally
+      FreeAndNil(s);
+    end;
+  finally
+
+    gif.Free;
     s.Free;
   end;
 
@@ -1205,6 +1252,11 @@ end;
 function TLazPaintImage.GetIsTiff: boolean;
 begin
   result := SuggestImageFormat(currentFilenameUTF8) = ifTiff;
+end;
+
+function TLazPaintImage.GetIsGif: boolean;
+begin
+  result := SuggestImageFormat(currentFilenameUTF8) = ifGif;
 end;
 
 function TLazPaintImage.GetLayerBitmapById(AId: integer): TBGRABitmap;

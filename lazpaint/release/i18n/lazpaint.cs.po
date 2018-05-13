@@ -3048,6 +3048,11 @@ msgstr ""
 msgid "Image is too big"
 msgstr "Obrázek je příliš velký"
 
+#: uresourcestrings.rsinfinity
+msgctxt "uresourcestrings.rsinfinity"
+msgid "Infinity"
+msgstr ""
+
 #: uresourcestrings.rsinformation
 msgid "Information"
 msgstr "Informace"
@@ -3147,6 +3152,10 @@ msgstr "Načítání"
 
 #: uresourcestrings.rsloadpalette
 msgid "Load palette..."
+msgstr ""
+
+#: uresourcestrings.rsloopcount
+msgid "Loop count"
 msgstr ""
 
 #: uresourcestrings.rsmakencolorspalettefrombitmap

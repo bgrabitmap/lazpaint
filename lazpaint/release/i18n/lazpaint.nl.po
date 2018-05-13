@@ -3075,6 +3075,11 @@ msgstr ""
 msgid "Image is too big"
 msgstr "Afbeelding is te groot"
 
+#: uresourcestrings.rsinfinity
+msgctxt "uresourcestrings.rsinfinity"
+msgid "Infinity"
+msgstr ""
+
 #: uresourcestrings.rsinformation
 msgid "Information"
 msgstr "Informatie"
@@ -3174,6 +3179,10 @@ msgstr "Bezig met laden…"
 
 #: uresourcestrings.rsloadpalette
 msgid "Load palette..."
+msgstr ""
+
+#: uresourcestrings.rsloopcount
+msgid "Loop count"
 msgstr ""
 
 #: uresourcestrings.rsmakencolorspalettefrombitmap

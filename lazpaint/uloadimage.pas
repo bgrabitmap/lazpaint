@@ -7,8 +7,7 @@ interface
 uses
   Classes, SysUtils, LazPaintType, BGRABitmap;
 
-function LoadFlatImageUTF8(AFilename: string; out AFinalFilename: string;
-   AAppendFrame: string; ASkipDialog: boolean = false): TImageEntry;
+function LoadFlatImageUTF8(AFilename: string; ASkipDialog: boolean = false): TImageEntry;
 procedure FreeMultiImage(var images: ArrayOfImageEntry);
 function AbleToLoadUTF8(AFilename: string): boolean;
 
@@ -127,8 +126,7 @@ begin
   end;
 end;
 
-function LoadFlatImageUTF8(AFilename: string; out AFinalFilename: string;
-     AAppendFrame: string; ASkipDialog: boolean): TImageEntry;
+function LoadFlatImageUTF8(AFilename: string; ASkipDialog: boolean): TImageEntry;
 var
   formMultiImage: TFMultiImage;
   multi: ArrayOfImageEntry;
@@ -150,8 +148,6 @@ var
         formMultiImage.Free;
       end;
       FreeMultiImage(multi);
-      if (result.bmp <> nil) and (format = ifGif) then
-        AFinalFilename += '.'+result.bmp.Caption+AAppendFrame;
     end;
   end;
 
@@ -161,7 +157,6 @@ begin
   s := FileManager.CreateFileStream(AFilename, fmOpenRead or fmShareDenyWrite);
   try
     format := DetectFileFormat(s, ExtractFileExt(AFilename));
-    AFinalFilename:= AFilename;
     if format in[ifIco,ifCur] then
     begin
       multi := LoadIcoMultiImageFromStream(s);

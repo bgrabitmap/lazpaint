@@ -300,7 +300,6 @@ function TImageActions.LoadSelection(AFilenameUTF8: string; ALoadedImage: PImage
 var
   newSelection: TBGRABitmap;
   LayerAction: TLayerAction;
-  outFilename: string;
 begin
   LayerAction := nil;
   result := false;
@@ -311,7 +310,7 @@ begin
       ALoadedImage^.FreeAndNil;
     end
     else
-      newSelection := LoadFlatImageUTF8(AFilenameUTF8,outFilename,'').bmp;
+      newSelection := LoadFlatImageUTF8(AFilenameUTF8).bmp;
     newSelection.InplaceGrayscale;
     if not (CurrentTool in[ptDeformation,ptTextureMapping,ptLayerMapping,ptMoveSelection,ptRotateSelection]) then
       ChooseTool(ptMoveSelection);
@@ -426,7 +425,6 @@ end;
 function TImageActions.TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: TBGRABitmap = nil): boolean;
 var
   newPicture: TBGRABitmap;
-  finalFilename: string;
 begin
   result := false;
   if not AbleToLoadUTF8(AFilenameUTF8) then
@@ -439,8 +437,8 @@ begin
     if Assigned(ALoadedImage) then
       newPicture := ALoadedImage
     else
-      newPicture := LoadFlatImageUTF8(AFilenameUTF8, finalFilename, '').bmp;
-    AddLayerFromBitmap(newPicture, ExtractFileName(finalFilename));
+      newPicture := LoadFlatImageUTF8(AFilenameUTF8).bmp;
+    AddLayerFromBitmap(newPicture, ExtractFileName(AFilenameUTF8));
   except
     on ex: Exception do
       FInstance.ShowError('TryAddLayerFromFile',ex.Message);

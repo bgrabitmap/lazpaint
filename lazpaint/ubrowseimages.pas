@@ -245,7 +245,7 @@ begin
   FOverwritePrompt:= true;
   FOpenButtonHint:= ToolButton_OpenSelectedFiles.Hint;
 
-  FPreview := TImagePreview.Create(vsPreview, Label_Status);
+  FPreview := TImagePreview.Create(vsPreview, Label_Status, true);
   FPreview.OnValidate:= @PreviewValidate;
   FChosenImage := TImageEntry.Empty;
 

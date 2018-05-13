@@ -1440,7 +1440,7 @@ begin
     begin
       AskMergeSelection(rsSave);
       try
-        if SuggestImageFormat(Image.currentFilenameUTF8) in [ifIco,ifCur,ifTiff] then
+        if SuggestImageFormat(Image.currentFilenameUTF8) in [ifIco,ifCur,ifTiff,ifGif] then
         begin
            Image.UpdateMultiImage;
            result := srOk;
@@ -1872,7 +1872,8 @@ begin
                 try
                   MessagePopupForever(rsLoading + ' ' + inttostr(i+1) + '/' + inttostr(length(FileNames)));
                   LazPaintInstance.UpdateWindows;
-                  loadedLayers[i].bmp := LoadFlatImageUTF8(Filenames[i], loadedLayers[i].filename, '').bmp;
+                  loadedLayers[i].filename := Filenames[i];
+                  loadedLayers[i].bmp := LoadFlatImageUTF8(Filenames[i]).bmp;
                   if loadedLayers[i].bmp.Width > tx then tx := loadedLayers[i].bmp.Width;
                   if loadedLayers[i].bmp.Height > ty then ty := loadedLayers[i].bmp.Height;
                   MessagePopupHide;
@@ -2864,7 +2865,7 @@ end;
 
 procedure TFMain.FileChooseEntryUpdate(Sender: TObject);
 begin
-  FileChooseEntry.Enabled := Image.IsIconCursor or Image.IsTiff;
+  FileChooseEntry.Enabled := Image.IsIconCursor or Image.IsTiff or Image.IsGif;
 end;
 
 procedure TFMain.EditCopyExecute(Sender: TObject);
@@ -3133,7 +3134,7 @@ end;
 
 function TFMain.ShowOpenTextureDialog: boolean;
 var newTex: TBGRABitmap;
-  texFilename,finalFilename: string;
+  texFilename: string;
   topMostInfo: TTopMostInfo;
 begin
   result := false;
@@ -3171,7 +3172,7 @@ begin
     begin
       try
         if not Assigned(newTex) then
-          newTex := LoadFlatImageUTF8(texFilename, finalFilename, '').bmp;
+          newTex := LoadFlatImageUTF8(texFilename).bmp;
         if LazPaintInstance.BlackAndWhite then
           newTex.InplaceGrayscale;
         ToolManager.SetToolTexture(newTex);
@@ -3196,7 +3197,7 @@ end;
 function TFMain.ShowOpenBrushDialog: boolean;
 var newBrushBmp: TBGRABitmap;
   newBrush: TLazPaintBrush;
-  brushFilename,finalFilename: string;
+  brushFilename: string;
   topMostInfo: TTopMostInfo;
 begin
   result := false;
@@ -3234,7 +3235,7 @@ begin
     begin
       try
         if not assigned(newBrushBmp) then
-          newBrushBmp := LoadFlatImageUTF8(brushFilename, finalFilename, '').bmp;
+          newBrushBmp := LoadFlatImageUTF8(brushFilename).bmp;
         newBrush := TLazPaintBrush.Create;
         newBrush.AssignBrushImage(newBrushBmp);
         FreeAndNil(newBrushBmp);
@@ -3287,12 +3288,12 @@ end;
 procedure TFMain.UpdateWindowCaption;
 var bppStr: string;
 begin
-  if Image.IsTiff then
+  if Image.IsTiff or Image.IsGif then
   begin
     if Image.FrameIndex = TImageEntry.NewFrameIndex then
-      bppStr := ' : '+rsNewImage
+      bppStr := ' '+rsNewImage
     else
-      bppStr := ' : '+inttostr(Image.FrameIndex+1);
+      bppStr := ' #'+inttostr(Image.FrameIndex+1);
   end else
     if Image.bpp = 0 then
       bppStr := ''
@@ -3345,7 +3346,6 @@ function TFMain.TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean;
      ALoadedImage: PImageEntry; ASkipDialogIfSingleImage: boolean): Boolean;
 var
   newPicture: TImageEntry;
-  finalFilenameUTF8: string;
   format: TBGRAImageFormat;
 
   procedure StartImport;
@@ -3364,7 +3364,7 @@ var
       Config.AddRecentFile(filenameUTF8);
       Config.AddRecentDirectory(ExtractFilePath(filenameUTF8));
     end;
-    Image.CurrentFilenameUTF8 := finalFilenameUTF8;
+    Image.CurrentFilenameUTF8 := filenameUTF8;
     image.ClearUndo;
     image.SetSavedFlag(BPP, frameIndex);
     ToolManager.ToolOpen;
@@ -3394,7 +3394,6 @@ begin
     LazPaintInstance.ShowMessage(rsOpen,rsFileFormatNotRecognized);
     exit;
   end;
-  finalFilenameUTF8 := filenameUTF8;
   newPicture := TImageEntry.Empty;
   try
     format := Image.DetectImageFormat(filenameUTF8);
@@ -3419,7 +3418,7 @@ begin
     else
     if format = ifGif then
     begin
-      newPicture := LoadFlatImageUTF8(FilenameUTF8, finalFilenameUTF8, '.lzp', false);
+      newPicture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8, rsAnimatedGIF, ASkipDialogIfSingleImage);
       ImportNewPicture;
     end else
     begin

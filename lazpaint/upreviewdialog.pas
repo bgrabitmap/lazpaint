@@ -67,7 +67,7 @@ end;
 
 procedure TFPreviewDialog.FormCreate(Sender: TObject);
 begin
-  FPreview := TImagePreview.Create(vsPreview, LStatus);
+  FPreview := TImagePreview.Create(vsPreview, LStatus, false);
   FPreview.OnValidate:= @PreviewValidate;
   FPreview.OnEscape:= @PreviewEscape;
 end;

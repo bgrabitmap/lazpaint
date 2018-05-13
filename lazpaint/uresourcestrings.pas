@@ -113,6 +113,8 @@ resourcestring
   rsEntries='Entries';
   rsLayers='Layers';
   rsFrames='Frames';
+  rsLoopCount='Loop count';
+  rsInfinity='Infinity';
 
   rsEditMask='Edit mask';
 
