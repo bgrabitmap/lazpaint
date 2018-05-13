@@ -101,80 +101,9 @@ type
     property LayerVisible[Index: integer]: boolean read GetLayerVisible;
   end;
 
-  { TBGRAWriterLazPaintWithLayers }
-
-  TBGRAWriterLazPaintWithLayers = class(TBGRAWriterLazPaint)
-    protected
-      FState: TImageState;
-      function GetNbLayers: integer; override;
-      function InternalWriteLayers(Str: TStream; {%H-}Img: TFPCustomImage): boolean; override;
-    public
-      constructor Create(AState: TImageState); overload;
-  end;
-
-  { TBGRAReaderLazPaintWithLayers }
-
-  TBGRAReaderLazPaintWithLayers = class(TBGRAReaderLazPaint)
-    protected
-      FState: TImageState;
-      FLayersLoaded: boolean;
-      procedure InternalReadLayers(str: TStream; {%H-}Img: TFPCustomImage); override;
-    public
-      constructor Create(AState: TImageState); overload;
-      property LayersLoaded: boolean read FLayersLoaded;
-  end;
-
 implementation
 
 uses BGRAStreamLayers, UImageDiff, BGRALzpCommon, UFileSystem;
-
-{ TBGRAReaderLazPaintWithLayers }
-
-procedure TBGRAReaderLazPaintWithLayers.InternalReadLayers(str: TStream;
-  Img: TFPCustomImage);
-begin
-  if Assigned(FState) then
-  begin
-    if (Caption = 'Preview') and CheckStreamForLayers(str) then
-    begin
-      FState.LoadFromStream(str);
-      FLayersLoaded := true;
-    end;
-  end;
-end;
-
-constructor TBGRAReaderLazPaintWithLayers.Create(AState: TImageState);
-begin
-  FLayersLoaded := false;
-  FState := AState;
-end;
-
-{ TBGRAWriterLazPaintWithLayers }
-
-function TBGRAWriterLazPaintWithLayers.GetNbLayers: integer;
-begin
-  if Assigned(FState) then
-    Result:= FState.NbLayers
-  else
-    Result := 1;
-end;
-
-function TBGRAWriterLazPaintWithLayers.InternalWriteLayers(Str: TStream;
-  Img: TFPCustomImage): boolean;
-begin
-  If Assigned(FState) then
-  begin
-    FState.SaveToStream(Str);
-    Result:=true;
-  end
-  else result := False;
-end;
-
-constructor TBGRAWriterLazPaintWithLayers.Create(AState: TImageState);
-begin
-  inherited Create;
-  FState := AState;
-end;
 
 { TImageState }
 

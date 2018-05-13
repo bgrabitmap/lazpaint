@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, BGRABitmap, BGRABitmapTypes, types,
   UImageState, UStateType, Graphics, BGRALayers, UImageObservation, FPWriteBMP,
-  UImageType, BGRALzpCommon, UZoom, BGRATransform;
+  UImageType, UZoom, BGRATransform;
 
 const
   MaxLayersToAdd = 99;
@@ -178,7 +178,6 @@ type
     procedure Resample(AWidth, AHeight: integer; filter: TResampleFilter);
     function DetectImageFormat(AFilename: string): TBGRAImageFormat;
     procedure LoadFromFileUTF8(AFilename: string);
-    procedure LoadFromStreamAsLZP(AStream: TStream);
     procedure Assign(const AValue: TBGRABitmap; AOwned: boolean; AUndoable: boolean); overload;
     procedure Assign(const AValue: TBGRALayeredBitmap; AOwned: boolean; AUndoable: boolean); overload;
     procedure Assign(const AValue: TLayeredBitmapAndSelection; AOwned: boolean; AUndoable: boolean); overload;
@@ -188,7 +187,6 @@ type
     function AbleToSaveSelectionAsUTF8(AFilename: string): boolean;
     procedure SaveToFileUTF8(AFilename: string);
     procedure UpdateMultiImage(AOutputFilename: string = '');
-    procedure SaveToStreamAsLZP(AStream: TStream);
     procedure SetSavedFlag(ASavedBPP: integer = 0; ASavedFrameIndex: integer = 0);
     function IsFileModified: boolean;
     function IsFileModifiedAndSaved: boolean;
@@ -258,7 +256,8 @@ uses UGraph, UResourceStrings, Dialogs,
     BGRAOpenRaster, BGRAPhoxo, BGRAPaintNet, UImageDiff, ULoading,
     BGRAWriteLzp, BGRAUTF8,
     BGRAPalette, BGRAColorQuantization, UFileSystem,
-    BGRAThumbnail, BGRAIconCursor, UTiff, LazPaintType;
+    BGRAThumbnail, BGRAIconCursor, UTiff, LazPaintType,
+    BGRALazPaint;
 
 function ComputeAcceptableImageSize(AWidth, AHeight: integer): TSize;
 var ratio,newRatio: single;
@@ -483,17 +482,7 @@ var s: TStream;
   format: TBGRAImageFormat;
 begin
   format := SuggestImageFormat(AFilename);
-  if format = ifLazPaint then
-  begin
-    s := FileManager.CreateFileStream(AFilename, fmCreate);
-    try
-      SaveToStreamAsLZP(s);
-    finally
-      s.Free;
-    end;
-    SetSavedFlag;
-  end else
-  if format in[ifOpenRaster,ifPhoxo] then
+  if format in[ifOpenRaster,ifPhoxo,ifLazPaint] then
   begin
     s := FileManager.CreateFileStream(AFilename, fmCreate);
     try
@@ -631,103 +620,41 @@ end;
 procedure TLazPaintImage.LoadFromFileUTF8(AFilename: string);
 var s: TStream;
   ext: string;
-  bmp: TBGRALayeredBitmap;
-begin
-  if not CheckNoAction then exit;
-  ext := UTF8LowerCase(ExtractFileExt(AFilename));
-  if ext = '.lzp' then
-  begin
-    s := FileManager.CreateFileStream(AFilename, fmOpenRead or fmShareDenyWrite);
-    try
-      LoadFromStreamAsLZP(s);
-    finally
-      s.Free;
-    end;
-  end else
-  begin
-    bmp := TBGRALayeredBitmap.Create;
-    try
-      s := FileManager.CreateFileStream(AFilename, fmOpenRead or fmShareDenyWrite);
-      try
-        bmp.LoadFromStream(s);
-      finally
-        s.Free;
-      end;
-      with ComputeAcceptableImageSize(bmp.Width,bmp.Height) do
-        if (cx < bmp.Width) or (cy < bmp.Height) then
-          bmp.Resample(cx,cy,rmFineResample);
-      Assign(bmp,true,false);
-      bmp := nil;
-    finally
-      bmp.Free;
-    end;
-  end;
-end;
-
-procedure TLazPaintImage.SaveToStreamAsLZP(AStream: TStream);
-var
-  writer: TBGRAWriterLazPaint;
-begin
-  if (RenderedImage = nil) or (NbLayers = 0) or (Width = 0) or (Height = 0) then exit;
-
-  if (NbLayers > 1) or (LayerOpacity[0] <> 255) or not LayerVisible[0] or (BlendOperation[0]<>boTransparent) then
-  begin
-    writer := TBGRAWriterLazPaintWithLayers.Create(FCurrentState);
-    writer.IncludeThumbnail := true;// (Width*Height >= 262144);
-    writer.Caption := 'Preview';
-    RenderedImage.SaveToStream(AStream, writer);
-    writer.free;
-  end else
-  begin
-    writer := TBGRAWriterLazPaint.Create;
-    writer.IncludeThumbnail := true;// (Width*Height >= 262144);
-    writer.Caption := LayerName[0];
-    RenderedImage.SaveToStream(AStream, writer);
-    writer.free;
-  end;
-end;
-
-procedure TLazPaintImage.LoadFromStreamAsLZP(AStream: TStream);
-var
-  {%H-}header: TLazPaintImageHeader;
   bmp: TBGRABitmap;
-  reader: TBGRAReaderLazPaintWithLayers;
+  layeredBmp: TBGRALayeredBitmap;
 begin
   if not CheckNoAction then exit;
-  RemoveSelection;
 
-  AStream.ReadBuffer({%H-}header, sizeof(header));
-  LazPaintImageHeader_SwapEndianIfNeeded(header);
-  AStream.Position:= AStream.Position-sizeof(header);
+  ext := UTF8LowerCase(ExtractFileExt(AFilename));
+  bmp := nil;
+  s := nil;
+  try
+    s := FileManager.CreateFileStream(AFilename, fmOpenRead or fmShareDenyWrite);
 
-  //use shortcut if possible
-  if (header.magic = LAZPAINT_MAGIC_HEADER) and (header.zero1 = 0)
-   and (header.layersOffset >= sizeof(header)) then
-  begin
-    AStream.Position:= AStream.Position+header.layersOffset;
-    FCurrentState.LoadFromStream(AStream);
-    ImageMayChangeCompletely;
-  end else
-  begin
-    reader := TBGRAReaderLazPaintWithLayers.Create(FCurrentState);
-    bmp := TBGRABitmap.Create;
-    bmp.LoadFromStream(AStream, reader);
-    if reader.LayersLoaded then
+    layeredBmp := TryCreateLayeredBitmapReader(ext) as TBGRALayeredBitmap;
+    if Assigned(layeredBmp) then
     begin
-      bmp.Free;
-      ImageMayChangeCompletely;
+      layeredBmp.LoadFromStream(s);
+      with ComputeAcceptableImageSize(layeredBmp.Width,layeredBmp.Height) do
+        if (cx < layeredBmp.Width) or (cy < layeredBmp.Height) then
+          layeredBmp.Resample(cx,cy,rmFineResample);
+      CursorHotSpot := Point(0,0);
+      Assign(layeredBmp,true,false);
+      if layeredBmp is TBGRALazPaintImage then
+        SetCurrentImageLayerIndex(TBGRALazPaintImage(layeredBmp).SelectedLayerIndex);
+      layeredBmp := nil;
     end else
     begin
-      with ComputeAcceptableImageSize(bmp.Width,bmp.Height) do
-        if (cx < bmp.Width) or (cy < bmp.Height) then
-          BGRAReplace(bmp,bmp.Resample(cx,cy,rmFineResample));
-      Assign(bmp, true,false);
-      LayerName[0] := reader.Caption;
+      bmp := TBGRABitmap.Create;
+      bmp.LoadFromStream(s);
+      Assign(bmp,true,false);
+      bmp := nil;
     end;
-    reader.Free;
+
+  finally
+    bmp.Free;
+    s.Free;
   end;
-  ClearUndo;
-  CursorHotSpot := Point(0,0);
 end;
 
 procedure TLazPaintImage.SetSavedFlag(ASavedBPP: integer; ASavedFrameIndex: integer);
@@ -2105,6 +2032,7 @@ initialization
   RegisterPaintNetFormat;
   RegisterOpenRasterFormat;
   RegisterPhoxoFormat;
+  RegisterLazPaintFormat;
   BGRAColorQuantizerFactory := TBGRAColorQuantizer;
 
 end.
