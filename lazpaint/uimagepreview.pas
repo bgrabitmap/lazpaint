@@ -91,7 +91,7 @@ type
 implementation
 
 uses FPimage, BGRAReadJpeg, BGRAOpenRaster, BGRAPaintNet, BGRAReadLzp, Dialogs, UNewimage,
-  LCLType;
+  LCLType, BGRAPhoxo;
 
 { TImagePreview }
 
@@ -879,6 +879,7 @@ begin
           if reader is TFPReaderOpenRaster then FImageNbLayers := TFPReaderOpenRaster(reader).NbLayers else
           if reader is TFPReaderPaintDotNet then FImageNbLayers := TFPReaderPaintDotNet(reader).NbLayers else
           if reader is TBGRAReaderLazPaint then FImageNbLayers := TBGRAReaderLazPaint(reader).NbLayers else
+          if reader is TBGRAReaderOXO then FImageNbLayers := TBGRAReaderOXO(reader).NbLayers else
             FImageNbLayers := 1;
         except
           on ex: Exception do
