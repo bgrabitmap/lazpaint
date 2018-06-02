@@ -473,8 +473,7 @@ begin
     end;
 
   for i := 0 to clipboard.FormatCount-1 do
-    if (Clipboard.Formats[i] = PredefinedClipboardFormat(pcfDelphiBitmap)) or
-       (Clipboard.Formats[i] = PredefinedClipboardFormat(pcfBitmap)) then
+    if (Clipboard.Formats[i] = PredefinedClipboardFormat(pcfBitmap)) then
     begin
        Stream := TMemoryStream.Create;
        Clipboard.GetFormat(Clipboard.Formats[i],Stream);
