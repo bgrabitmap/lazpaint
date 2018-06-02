@@ -31,7 +31,7 @@ object FMain: TFMain
   OnUTF8KeyPress = FormUTF8KeyPress
   Position = poDefault
   ShowHint = True
-  LCLVersion = '1.8.2.0'
+  LCLVersion = '1.8.0.6'
   object Panel_ToolbarBackground: TPanel
     Left = 8
     Height = 36

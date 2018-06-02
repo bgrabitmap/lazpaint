@@ -45,9 +45,9 @@ type
     procedure SetToolBoxVisible(AValue: boolean);
     function GetDefaultToolboxDocking: TToolWindowDocking;
   protected
-    FLastPictureArea: TRect;
-    function GetPictureArea: TRect; override;
-    function GetPictureAreaAt(AStage: TLayoutStage): TRect;
+    FLastWorkArea: TRect;
+    function GetWorkArea: TRect; override;
+    function GetWorkAreaAt(AStage: TLayoutStage): TRect;
     procedure RaisePictureAreaChange;
     procedure DoArrange;
   public
@@ -280,12 +280,12 @@ begin
   result := StrToToolWindowDocking(FLazPaintInstance.Config.DefaultToolboxDocking);
 end;
 
-function TMainFormLayout.GetPictureArea: TRect;
+function TMainFormLayout.GetWorkArea: TRect;
 begin
-  result := GetPictureAreaAt(high(TLayoutStage));
+  result := GetWorkAreaAt(high(TLayoutStage));
 end;
 
-function TMainFormLayout.GetPictureAreaAt(AStage: TLayoutStage): TRect;
+function TMainFormLayout.GetWorkAreaAt(AStage: TLayoutStage): TRect;
 begin
   result := Rect(0,0,FForm.ClientWidth,FForm.ClientHeight);
 
@@ -307,7 +307,7 @@ end;
 procedure TMainFormLayout.RaisePictureAreaChange;
 begin
   if Assigned(FOnPictureAreaChange) then
-    FOnPictureAreaChange(self, PictureArea);
+    FOnPictureAreaChange(self, WorkArea);
 end;
 
 procedure TMainFormLayout.DoArrange;
@@ -316,7 +316,7 @@ begin
   FMenu.ArrangeToolbars(FForm.ClientWidth);
   if FToolBoxDocking in [twLeft,twRight] then
   begin
-    with GetPictureAreaAt(lsAfterTopToolbar) do
+    with GetWorkAreaAt(lsAfterTopToolbar) do
     begin
       if FToolBoxDocking = twLeft then FDockedToolBoxToolBar.Align:= alLeft
       else FDockedToolBoxToolBar.Align:= alRight;
@@ -336,11 +336,11 @@ begin
   end else
     FPanelToolBox.Visible := false;
   if PaletteVisible then
-    with GetPictureAreaAt(lsAfterDockedToolBox) do
+    with GetWorkAreaAt(lsAfterDockedToolBox) do
       FPaletteToolbar.SetBounds(Right - FPaletteToolbar.Width,Top,FPaletteToolbar.Width,Bottom-Top);
   if StatusBarVisible then
   begin
-    with GetPictureAreaAt(lsAfterPaletteToolbar) do
+    with GetWorkAreaAt(lsAfterPaletteToolbar) do
       FStatusBar.SetBounds(Left,Bottom-FStatusBar.Height,Right-Left,FStatusBar.Height);
     if not FStatusBar.SimplePanel then
     begin
@@ -356,20 +356,20 @@ end;
 procedure TMainFormLayout.Arrange;
 var picAreaBeforeArrange,newPicArea: TRect;
 begin
-  picAreaBeforeArrange := PictureArea;
+  picAreaBeforeArrange := WorkArea;
   DoArrange;
-  newPicArea := PictureArea;
+  newPicArea := WorkArea;
   if (newPicArea.Left <> picAreaBeforeArrange.Left) or
      (newPicArea.Top <> picAreaBeforeArrange.Top) or
      (newPicArea.Right <> picAreaBeforeArrange.Right) or
      (newPicArea.Bottom <> picAreaBeforeArrange.Bottom) or
-     (newPicArea.Left <> FLastPictureArea.Left) or
-     (newPicArea.Top <> FLastPictureArea.Top) or
-     (newPicArea.Right <> FLastPictureArea.Right) or
-     (newPicArea.Bottom <> FLastPictureArea.Bottom) then
+     (newPicArea.Left <> FLastWorkArea.Left) or
+     (newPicArea.Top <> FLastWorkArea.Top) or
+     (newPicArea.Right <> FLastWorkArea.Right) or
+     (newPicArea.Bottom <> FLastWorkArea.Bottom) then
   begin
     RaisePictureAreaChange;
-    FLastPictureArea := newPicArea;
+    FLastWorkArea := newPicArea;
   end;
   FMenu.RepaintToolbar;
 end;

@@ -171,7 +171,7 @@
         <PackageName Value="LCL"/>
       </Item4>
     </RequiredPackages>
-    <Units Count="96">
+    <Units Count="97">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -590,6 +590,7 @@
       <Unit69>
         <Filename Value="utoollayer.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UToolLayer"/>
       </Unit69>
       <Unit70>
         <Filename Value="unoisefilter.pas"/>
@@ -635,6 +636,7 @@
       <Unit77>
         <Filename Value="umainformlayout.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UMainFormLayout"/>
       </Unit77>
       <Unit78>
         <Filename Value="maintoolbar.inc"/>
@@ -731,6 +733,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UTiff"/>
       </Unit95>
+      <Unit96>
+        <Filename Value="uimageview.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UImageView"/>
+      </Unit96>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

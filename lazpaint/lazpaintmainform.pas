@@ -15,8 +15,8 @@ uses
 
   BGRABitmap, BGRABitmapTypes, BGRALayers,
 
-  LazPaintType, UMainFormLayout, UTool, UImage, UImageAction, ULayerAction, UZoom,
-  UImageObservation, UConfig, UScaleDPI, UResourceStrings, USelectionHighlight,
+  LazPaintType, UMainFormLayout, UTool, UImage, UImageAction, ULayerAction, UZoom, UImageView,
+  UImageObservation, UConfig, UScaleDPI, UResourceStrings,
   UMenu, uscripting, ubrowseimages, UToolPolygon, UBarUpDown,
 
   laztablet, udarktheme;
@@ -649,6 +649,8 @@ type
     procedure WMEraseBkgnd(var {%H-}Message: TLMEraseBkgnd); message LM_ERASEBKGND;
 
   private
+    function GetImage: TLazPaintImage;
+  private
     { private declarations }
     FLayout: TMainFormLayout;
     SpinEdit_PenOpacity, SpinEdit_BackOpacity, SpinEdit_TextureOpacity,
@@ -698,7 +700,6 @@ type
     FShowSelectionNormal: boolean;
     FLazPaintInstance: TLazPaintCustomInstance;
     Config: TLazPaintConfig;
-    Image: TLazPaintImage;
     FImageActions: TImageActions;
     StartDirectory: string;
     previousToolImg: integer;
@@ -709,18 +710,7 @@ type
     Panel_LineCap_FullSize: integer;
     FCoordinatesCaption: string;
     FCoordinatesCaptionCount: NativeInt;
-    FLastPictureParameters: record
-       defined: boolean;
-       workArea: TRect;
-       scaledArea: TRect;
-       virtualScreenArea: TRect;
-       originInVS: TPoint;
-       zoomFactorX,zoomFactorY: double;
-       imageOffset: TPoint;
-       imageWidth,imageHeight: integer;
-    end;
-
-    FSelectionHighlight: TSelectionHighlight;
+    FImageView: TImageView;
 
     function GetCurrentPressure: single;
     function GetUseImageBrowser: boolean;
@@ -740,8 +730,6 @@ type
     procedure LayoutPictureAreaChange({%H-}ASender: TObject; {%H-}ANewArea: TRect);
     procedure UpdatePanelTextWidth;
     function GetCurrentTool: TPaintToolType;
-    function GetVSCursorPosition: TVSCursorPosition;
-    function GetZoomFactor: single;
     procedure SwitchColors;
     procedure Init;
     procedure OnLatestVersionUpdate(ANewVersion: string);
@@ -758,19 +746,12 @@ type
     procedure ToggleImageListVisible;
     procedure ToggleColorsVisible;
     procedure ToggleLayersVisible;
-    function UpdateCursor(X,Y: integer): boolean;
     procedure ShowColorDialogForPen;
     procedure ShowColorDialogForBack;
     procedure ShowPenPreview(ShouldRepaint: boolean= False);
     procedure HidePenPreview(TimeMs: Integer = 300);
-    procedure ComputePictureParams;
-    procedure PaintPictureImplementation; //do not call directly
-    procedure PaintVirtualScreenImplementation; //do not call directly
-    procedure PaintBlueAreaImplementation;
-    procedure PaintBlueAreaOnly;
     procedure OnPaintHandler;
     procedure OnImageChangedHandler({%H-}AEvent: TLazPaintImageObservationEvent);
-    procedure InvalidatePicture(AInvalidateAll: boolean);
     procedure UpdateTextureIcon;
     procedure LabelAutosize(ALabel: TLabel);
     procedure AskMergeSelection(ACaption: string);
@@ -779,7 +760,6 @@ type
     procedure UpdateCurveMode;
     function ShowOpenTextureDialog: boolean;
     procedure ShowNoPicture;
-    function GetRenderUpdateRectVS(AIncludeLastToolState: boolean): TRect;
     procedure SetCurveMode(AMode: TToolSplineMode);
     procedure IncreasePenSize;
     procedure DecreasePenSize;
@@ -807,40 +787,27 @@ type
     procedure CallScriptFunction(AParams:TVariableSet); overload;
     procedure ZoomFitIfTooBig;
     property Scripting: TScriptContext read GetScriptContext;
+    property Image: TLazPaintImage read GetImage;
 
   public
     { public declarations }
     FormBackgroundColor: TColor;
-    virtualScreen : TBGRABitmap;
-    virtualScreenPenCursor: boolean;
-    virtualScreenPenCursorPos,virtualScreenPenCursorPosBefore: TVSCursorPosition;
-    QueryPaintVirtualScreen: boolean;
     StackNeedUpdate: boolean;
     Zoom: TZoom;
 
     procedure PaintPictureNow;
-    procedure PaintVirtualScreenCursor;
     function TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean=True; ALoadedImage: PImageEntry = nil;
       ASkipDialogIfSingleImage: boolean = false): Boolean;
-    function FormToBitmap(X,Y: Integer): TPointF;
-    function FormToBitmap(pt: TPoint): TPointF;
-    function BitmapToForm(X,Y: Single): TPointF;
-    function BitmapToForm(pt: TPointF): TPointF;
-    function BitmapToVirtualScreen(X,Y: Single): TPointF;
-    function BitmapToVirtualScreen(ptF: TPointF): TPointF;
-    function PictureCanvas: TCanvas;
     function PictureCanvasOfs: TPoint;
     procedure UpdateLineCapBar;
     procedure UpdateToolbar;
     function ChooseTool(Tool : TPaintToolType): boolean;
-    procedure PictureSelectionChanged({%H-}sender: TLazPaintImage; const ARect: TRect);
     procedure PictureSelectedLayerIndexChanged({%H-}sender: TLazPaintImage);
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
     procedure UpdateEditPicture(ADelayed: boolean = false);
     property CurrentTool: TPaintToolType read GetCurrentTool;
     property CurrentToolAction: TAction read GetCurrentToolAction;
     property ShowSelectionNormal: boolean read FShowSelectionNormal write SetShowSelectionNormal;
-    property ZoomFactor: single read GetZoomFactor;
     property ToolManager: TToolManager read GetToolManager;
     property Layout: TMainFormLayout read FLayout;
     property UseImageBrowser: boolean read GetUseImageBrowser;
@@ -851,8 +818,7 @@ implementation
 
 uses LCLIntf, BGRAUTF8, ugraph, math, umac, uclipboard, ucursors,
    ufilters, ULoadImage, ULoading, UFileExtensions, UBrushType,
-   ugeometricbrush, BGRATransform, UPreviewDialog,
-   UQuestion;
+   ugeometricbrush, UPreviewDialog, UQuestion;
 
 const PenWidthFactor = 10;
 
@@ -865,6 +831,7 @@ begin
   initialized := false;
 
   FLayout := TMainFormLayout.Create(self);
+  FImageView := nil;
 
   ScaleDPI(Self,OriginalDPI);
 
@@ -895,8 +862,6 @@ begin
 
   Zoom := TZoom.Create(Label_CurrentZoom,Edit_Zoom,FLayout);
   Zoom.OnZoomChanged:= @OnZoomChanged;
-  virtualScreen := nil;
-  FLastPictureParameters.defined:= false;
   previousToolImg:= -1;
 
   //mouse status
@@ -967,9 +932,7 @@ begin
     if ToolManager.OnToolChanged = @OnToolChanged then
       ToolManager.OnToolChanged := nil;
   end;
-  FreeAndNil(FSelectionHighlight);
   FreeAndNil(Zoom);
-  FreeAndNil(virtualScreen);
   FreeAndNil(FOnlineUpdater);
 
   DestroyMenuAndToolbar;
@@ -983,6 +946,7 @@ begin
   FreeAndNil(FSaveImage);
   FreeAndNil(FSaveSelection);
 
+  FreeAndNil(FImageView);
   FreeAndNil(FLayout);
 end;
 
@@ -1005,12 +969,13 @@ begin
 
   MainMenu1.Images := LazPaintInstance.Icons[DoScaleX(20,OriginalDPI)];
 
-  Image := LazPaintInstance.Image;
+  FImageView := TImageView.Create(LazPaintInstance, Zoom,
+                {$IFDEF USEPAINTBOXPICTURE}PaintBox_Picture.Canvas{$ELSE}self.Canvas{$ENDIF},
+                FormBackgroundColor);
+
   FImageActions := TImageActions.Create(LazPaintInstance);
   LazPaintInstance.EmbeddedResult := mrNone;
 
-  FSelectionHighlight := TSelectionHighlight.Create(Image);
-  Image.OnSelectionChanged := @PictureSelectionChanged;
   Image.OnSelectedLayerIndexChanged:= @PictureSelectedLayerIndexChanged;
   Image.CurrentFilenameUTF8 := '';
 
@@ -1097,6 +1062,7 @@ end;
 procedure TFMain.FormMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
+  if not Assigned(FImageView) then exit;
   ReleaseMouseButtons(Shift);
   if not (Button in[mbLeft,mbRight,mbMiddle]) then exit;
   CanCompressOrUpdateStack := false;
@@ -1112,7 +1078,7 @@ begin
     btnMiddleDown:= true;
     if not ToolManager.ToolSleeping then ToolManager.ToolSleep;
   end;
-  if ToolManager.ToolDown(FormToBitmap(X,Y),btnRightDown,CurrentPressure) then
+  if ToolManager.ToolDown(FImageView.FormToBitmap(X,Y),btnRightDown,CurrentPressure) then
       PaintPictureNow;
   UpdateToolbar;
 end;
@@ -1121,11 +1087,11 @@ procedure TFMain.FormMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 var BmpPos: TPointF;
     updateForVSCursor: boolean;
-    virtualScreenPenCursorBefore: boolean;
 
 //var tickstart:DWord;
 begin
   //tickstart := GetTickCount;
+  if not Assigned(FImageView) then exit;
 
   ReleaseMouseButtons(Shift);
   HidePenPreview;
@@ -1143,7 +1109,7 @@ begin
   InFormMouseMove := True;
   //Application.ProcessMessages; //empty message stack
 
-  BmpPos := FormToBitmap(FormMouseMovePos);
+  BmpPos := FImageView.FormToBitmap(FormMouseMovePos);
   FCoordinatesCaption := IntToStr(round(BmpPos.X))+','+IntToStr(round(BmpPos.Y));
   Inc(FCoordinatesCaptionCount);
   if FCoordinatesCaptionCount > 8 then
@@ -1156,36 +1122,33 @@ begin
   updateForVSCursor:= false;
   if ToolManager.ToolMove(BmpPos,CurrentPressure) then
   begin
-    virtualScreenPenCursorPosBefore := virtualScreenPenCursorPos;
-    virtualScreenPenCursorPos := GetVSCursorPosition;
-    PaintPictureNow;
-    virtualScreenPenCursorPosBefore.bounds := EmptyRect;
-    ToolManager.ToolMoveAfter(FormToBitmap(FormMouseMovePos)); //new BmpPos after repaint
+    FImageView.UpdatePicture(PictureCanvasOfs, FLayout.WorkArea,
+                             {$IFDEF USEPAINTBOXPICTURE}PaintBox_Picture{$ELSE}self{$ENDIF});
+    ToolManager.ToolMoveAfter(FImageView.FormToBitmap(FormMouseMovePos)); //new BmpPos after repaint
   end else
     updateForVSCursor := true;
   UpdateToolbar;
 
-  virtualScreenPenCursorBefore := virtualScreenPenCursor;
   if updateForVSCursor then
-  begin
-    UpdateCursor(X,Y);
-    if (virtualScreenPenCursor or virtualScreenPenCursorBefore) then
-      PaintVirtualScreenCursor;
-  end;
+    FImageView.UpdateCursor(X,Y, PictureCanvasOfs, FLayout.WorkArea,
+                            {$IFDEF USEPAINTBOXPICTURE}PaintBox_Picture{$ELSE}self{$ENDIF},
+                            Point(0,0), self);
 
   if ToolManager.ToolSleeping and not spacePressed and not btnLeftDown and not btnRightDown
     and not btnMiddleDown then
     ToolManager.ToolWakeUp;
 
   InFormMouseMove := False;
-  //Canvas.TextOut(FLayout.PictureArea.Left,FLayout.PictureArea.Top,inttostr(GetTickCount-tickstart)+'     ');
+  //Canvas.TextOut(FLayout.WorkArea.Left,FLayout.WorkArea.Top,inttostr(GetTickCount-tickstart)+'     ');
 end;
 
 procedure TFMain.FormMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 var redraw: boolean;
 begin
-  redraw := ToolManager.ToolMove(FormToBitmap(X,Y),CurrentPressure);
+  if not Assigned(FImageView) then exit;
+
+  redraw := ToolManager.ToolMove(FImageView.FormToBitmap(X,Y),CurrentPressure);
   if (btnLeftDown and (Button = mbLeft)) or (btnRightDown and (Button=mbRight))
     or (btnMiddleDown and (Button = mbMiddle)) then
   begin
@@ -2289,7 +2252,8 @@ end;
 procedure TFMain.FormMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin
-  Zoom.SetPosition(FormToBitmap(MousePos.X,MousePos.Y), MousePos);
+  if not Assigned(FImageView) then exit;
+  Zoom.SetPosition(FImageView.FormToBitmap(MousePos.X,MousePos.Y), MousePos);
   if WheelDelta > 0 then Zoom.ZoomIn(ssCtrl in Shift) else
   if WheelDelta < 0 then Zoom.ZoomOut(ssCtrl in Shift);
   Zoom.ClearPosition;
@@ -2585,7 +2549,7 @@ begin
    {$IFDEF USEPAINTBOXPICTURE}
    PaintBox_Picture.SetBounds(ANewArea.Left,ANewArea.Top,ANewArea.Right-ANewArea.Left,ANewArea.Bottom-ANewArea.Top);
    {$ENDIF}
-   InvalidatePicture(True);
+   if Assigned(FImageView) then FImageView.InvalidatePicture(True, ANewArea, Point(0,0), self);
 end;
 
 procedure TFMain.ToggleGridVisible;
@@ -2785,7 +2749,8 @@ begin
         end;
       end;
       ToolManager.SetCurrentToolType(Tool);
-      FSelectionHighlight.FillSelection := ToolManager.DisplayFilledSelection and not FShowSelectionNormal;
+      if Assigned(FImageView) then
+        FImageView.FillSelectionHighlight := ToolManager.DisplayFilledSelection and not FShowSelectionNormal;
     except
       on ex:Exception do
       begin
@@ -3263,28 +3228,6 @@ begin
   InShowNoPicture:= false;
 end;
 
-function TFMain.GetRenderUpdateRectVS(AIncludeLastToolState: boolean): TRect;
-const displayMargin = 1;
-begin
-  result := Image.RenderUpdateRectInPicCoord;
-  if not IsRectEmpty(result) then
-  begin
-    with BitmapToVirtualScreen(result.Left-0.5,result.Top-0.5) do
-    begin
-      result.Left := Math.floor(X) - displayMargin;
-      result.Top := Math.floor(Y) - displayMargin;
-    end;
-    with BitmapToVirtualScreen(result.Right-0.5,result.Bottom-0.5) do
-    begin
-      result.Right := ceil(X) + displayMargin;
-      result.Bottom := ceil(Y) + displayMargin;
-    end;
-  end;
-  result := RectUnion(result, Image.RenderUpdateRectInVSCoord);
-  if AIncludeLastToolState and Assigned(virtualScreen) then
-    result := RectUnion(result, ToolManager.GetRenderBounds(virtualScreen.Width,virtualScreen.Height));
-end;
-
 procedure TFMain.UpdateWindowCaption;
 var bppStr: string;
 begin
@@ -3337,9 +3280,12 @@ end;
 
 procedure TFMain.ZoomFitIfTooBig;
 begin
-  with FLayout.PictureArea do
-    if (image.Width*ZoomFactor > right-left) or (image.Height*ZoomFactor > bottom-top) then
-      ViewZoomFit.Execute;
+  if Assigned(Zoom) then
+  begin
+    with FLayout.WorkArea do
+      if (image.Width*Zoom.Factor > right-left) or (image.Height*Zoom.Factor > bottom-top) then
+        ViewZoomFit.Execute;
+  end;
 end;
 
 function TFMain.TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean;
@@ -3447,31 +3393,30 @@ end;
 
 procedure TFMain.OnPaintHandler;
 begin
-   if InShowNoPicture then
-   begin
-     PaintBlueAreaOnly;
-     exit;
-   end;
-   if FirstPaint then
-   begin
-     LoadToolwindow := True;
-     FirstPaint := false;
-   end;
-   if InFormPaint then exit;
-   InFormPaint := true;
-   if QueryPaintVirtualScreen and (FLastPictureParameters.defined and
-     IsRectEmpty(GetRenderUpdateRectVS(False))) then
-     PaintVirtualScreenImplementation
-   else
-     PaintPictureImplementation;
-   PaintBlueAreaImplementation;
+  if FirstPaint then
+  begin
+    LoadToolwindow := True;
+    FirstPaint := false;
+  end;
+  if InFormPaint then exit;
+  InFormPaint := true;
 
-   InFormPaint := false;
+  if Assigned(FImageView) then FImageView.DoPaint(PictureCanvasOfs, FLayout.WorkArea, InShowNoPicture);
+  DelayedPaintPicture:= false;
+  if FActiveSpinEdit <> nil then
+  begin
+    FActiveSpinEdit.DelayTimer;
+    FActiveSpinEdit := nil;
+  end;
+
+  InFormPaint := false;
 end;
 
 procedure TFMain.OnImageChangedHandler(AEvent: TLazPaintImageObservationEvent);
 begin
-  InvalidatePicture(False);
+  if Assigned(FImageView) then
+    FImageView.InvalidatePicture(False, FLayout.WorkArea, Point(0,0), self);
+
   if (image.Width <> FLastWidth) or (image.Height <> FLastHeight)
    or (image.BPP <> FLastBPP) or (image.FrameIndex <> FLastFrameIndex) then
   begin
@@ -3488,32 +3433,6 @@ begin
   end;
 end;
 
-procedure TFMain.InvalidatePicture(AInvalidateAll: boolean);
-var
-  area: TRect;
-  curPicArea: TRect;
-begin
-    curPicArea := FLayout.PictureArea;
-    if not InShowNoPicture and not AInvalidateAll and FLastPictureParameters.defined and
-      (FLastPictureParameters.imageWidth = image.Width) and (FLastPictureParameters.imageHeight = image.Height) and
-      (FLastPictureParameters.imageOffset.x = Image.ImageOffset.x) and (FLastPictureParameters.imageOffset.y = Image.ImageOffset.y) and
-      (FLastPictureParameters.workArea.Left = curPicArea.Left) and (FLastPictureParameters.workArea.Top = curPicArea.Top) and
-      (FLastPictureParameters.workArea.Right = curPicArea.Right) and (FLastPictureParameters.workArea.Bottom = curPicArea.Bottom) then
-    begin
-      area := GetRenderUpdateRectVS(True);
-      area := RectUnion(area,virtualScreenPenCursorPosBefore.bounds);
-      area := RectUnion(area,virtualScreenPenCursorPos.bounds);
-      OffsetRect(area, FLastPictureParameters.virtualScreenArea.Left,
-                       FLastPictureParameters.virtualScreenArea.Top);
-    end
-    else
-    begin
-      FLastPictureParameters.defined:=false;
-      area:= FLayout.PictureArea;
-    end;
-    InvalidateRect(Handle,@area,False);
-end;
-
 procedure TFMain.UpdateEditPicture(ADelayed: boolean = false);
 begin
   if ToolManager.ToolUpdate then
@@ -3525,18 +3444,8 @@ begin
 end;
 
 procedure TFMain.OnZoomChanged(sender: TZoom; ANewZoom: single);
-Var
-  NewBitmapPos: TPointF;
 begin
-  if sender.PositionDefined then
-  begin
-    ComputePictureParams;
-    NewBitmapPos := FormToBitmap(sender.MousePosition.X,sender.MousePosition.Y);
-    image.ImageOffset:= point(image.ImageOffset.X + round(NewBitmapPos.X-sender.BitmapPosition.X),
-                              image.ImageOffset.Y + round(NewBitmapPos.Y-sender.BitmapPosition.Y));
-    virtualScreenPenCursorPos := GetVSCursorPosition;
-  end;
-  FLastPictureParameters.defined := false;
+  if Assigned(FImageView) then FImageView.OnZoomChanged(sender, ANewZoom, FLayout.WorkArea);
   UpdateToolbar;
   PaintPictureNow;
 end;
@@ -3546,11 +3455,7 @@ begin
   if not visible then exit;
   StackNeedUpdate := true;
   Image.OnImageChanged.NotifyObservers;
-  {$IFDEF USEPAINTBOXPICTURE}
-    PaintBox_Picture.Update;
-  {$ELSE}
-    self.Update;
-  {$ENDIF}
+  {$IFDEF USEPAINTBOXPICTURE}PaintBox_Picture{$ELSE}self{$ENDIF}.Update;
 end;
 
 procedure TFMain.FormPaint(Sender: TObject);
@@ -3558,11 +3463,6 @@ begin
   {$IFNDEF USEPAINTBOXPICTURE}
   OnPaintHandler;
   {$ENDIF}
-end;
-
-procedure TFMain.PictureSelectionChanged(sender: TLazPaintImage; const ARect: TRect);
-begin
-  if Assigned(FSelectionHighlight) then FSelectionHighlight.NotifyChange(ARect);
 end;
 
 procedure TFMain.PictureSelectedLayerIndexChanged(sender: TLazPaintImage);
@@ -3574,67 +3474,19 @@ end;
 procedure TFMain.SetShowSelectionNormal(const AValue: boolean);
 begin
   FShowSelectionNormal := AValue;
-  FSelectionHighlight.FillSelection := ToolManager.DisplayFilledSelection and not FShowSelectionNormal;
-end;
-
-function TFMain.FormToBitmap(X, Y: Integer): TPointF;
-begin
-  if not FLastPictureParameters.defined then
-    result.X := 0 else
-     result.x := (x+0.5-FLastPictureParameters.scaledArea.Left)/FLastPictureParameters.zoomFactorX - 0.5;
-  if not FLastPictureParameters.defined then
-    result.Y := 0 else
-     result.y := (y+0.5-FLastPictureParameters.scaledArea.Top)/FLastPictureParameters.zoomFactorY - 0.5;
-end;
-
-function TFMain.FormToBitmap(pt: TPoint): TPointF;
-begin
-  result := FormToBitmap(pt.X,pt.Y);
-end;
-
-function TFMain.BitmapToForm(X, Y: Single): TPointF;
-begin
-  if not FLastPictureParameters.defined then
-    result.X := 0 else
-     result.X := (X+0.5)*FLastPictureParameters.zoomFactorX + FLastPictureParameters.scaledArea.Left-0.5;
-  if not FLastPictureParameters.defined then
-    result.Y := 0 else
-     result.Y := (Y+0.5)*FLastPictureParameters.zoomFactorY + FLastPictureParameters.scaledArea.Top-0.5;
-end;
-
-function TFMain.BitmapToForm(pt: TPointF): TPointF;
-begin
-  result := BitmapToForm(pt.x,pt.y);
-end;
-
-function TFMain.BitmapToVirtualScreen(X, Y: Single): TPointF;
-begin
-  result := BitmapToForm(X,Y) - PointF(FLastPictureParameters.virtualScreenArea.Left, FLastPictureParameters.virtualScreenArea.Top);
-end;
-
-function TFMain.BitmapToVirtualScreen(ptF: TPointF): TPointF;
-begin
-  result := BitmapToVirtualScreen(ptF.X,ptF.Y);
-end;
-
-procedure TFMain.PaintVirtualScreenCursor;
-var area: TRect;
-begin
-  QueryPaintVirtualScreen := True;
-  area := virtualScreenPenCursorPos.bounds;
-  virtualScreenPenCursorPos := GetVSCursorPosition;
-  area := RectUnion(area, virtualScreenPenCursorPos.bounds);
-  OffsetRect(area, FLastPictureParameters.virtualScreenArea.Left,
-                   FLastPictureParameters.virtualScreenArea.Top);
-  InvalidateRect(Handle,@area,False);
-  self.Update;
-  QueryPaintVirtualScreen := False;
+  if Assigned(FImageView) then
+    FImageView.FillSelectionHighlight := ToolManager.DisplayFilledSelection and not FShowSelectionNormal;
 end;
 
 procedure TFMain.WMEraseBkgnd(var Message: TLMEraseBkgnd);
 begin
    //  block Erasing background
    //  inherited EraseBackground(DC);
+end;
+
+function TFMain.GetImage: TLazPaintImage;
+begin
+  result := LazPaintInstance.Image;
 end;
 
 procedure TFMain.UpdateStatusText;
@@ -3679,286 +3531,6 @@ begin
   case Scripting.CallScriptFunction(AParams) of
     srFunctionNotDefined: LazPaintInstance.ShowMessage(rsScript,StringReplace(rsFunctionNotDefined,'%1',AParams.FunctionName,[]));
   end;
-end;
-
-function TFMain.UpdateCursor(X,Y: integer): boolean;
-var virtualScreenPenCursorBefore: boolean;
-    wantedCursor: TCursor;
-
-  function UseVSPenCursor: boolean;
-  begin
-    if FLastPictureParameters.Defined and
-      (ToolManager.ToolPenWidth * FLastPictureParameters.zoomFactorX > 6) and
-      PtInRect(FLastPictureParameters.scaledArea, Point(X,Y)) then
-    begin
-      virtualScreenPenCursor := True;
-      wantedCursor := crNone;
-      result := true;
-    end else
-      result := false;
-  end;
-
-begin
-  result := false;
-  virtualScreenPenCursorBefore := virtualScreenPenCursor;
-  virtualScreenPenCursor := false;
-  wantedCursor := ToolManager.Cursor;
-  if CurrentTool in[ptPen,ptEraser,ptBrush,ptClone] then UseVSPenCursor;
-  {$IFNDEF USEPAINTBOXPICTURE}
-  if not PtInRect(FLayout.PictureArea, Point(X,Y)) then
-    wantedCursor:= crDefault;
-  if cursor <> wantedCursor then Cursor := wantedCursor;
-  {$ENDIF}
-  if PaintBox_Picture.Cursor <> wantedCursor then PaintBox_Picture.Cursor := wantedCursor;
-  result := (virtualScreenPenCursorBefore <> virtualScreenPenCursor);
-end;
-
-function TFMain.GetVSCursorPosition: TVSCursorPosition;
-const margin = 2;
-var
-  tl,br: TPointF;
-begin
-  with ToolManager do
-  begin
-    result.c := self.BitmapToVirtualScreen(ToolCurrentCursorPos);
-    tl := self.BitmapToVirtualScreen(ToolCurrentCursorPos.X-ToolPenWidth/2,ToolCurrentCursorPos.Y-ToolPenWidth/2);
-    br := self.BitmapToVirtualScreen(ToolCurrentCursorPos.X+ToolPenWidth/2,ToolCurrentCursorPos.Y+ToolPenWidth/2);
-  end;
-  result.rx := (br.x-tl.x)/2-0.5;
-  result.ry := (br.y-tl.y)/2-0.5;
-  if virtualScreenPenCursor then
-  begin
-    result.bounds.left := floor(tl.x)-margin;
-    result.bounds.top := floor(tl.y)-margin;
-    result.bounds.right := ceil(br.x)+1+2*margin;
-    result.bounds.bottom := ceil(br.y)+1+2*margin;
-  end else
-    result.bounds := EmptyRect;
-end;
-
-function TFMain.GetZoomFactor: single;
-begin
-  if Assigned(Zoom) then result := zoom.Factor else result := 1;
-end;
-
-procedure TFMain.PaintVirtualScreenImplementation;
-var cursorBack: TBGRABitmap;
-    DestCanvas: TCanvas;
-    DrawOfs: TPoint;
-    cursorContourF: array of TPointF;
-    rectBack: TRect;
-    cursorPos: TVSCursorPosition;
-begin
-  if (virtualscreen = nil) or not FLastPictureParameters.defined then exit;
-  DelayedPaintPicture := false;
-  DestCanvas := PictureCanvas;
-  DrawOfs := PictureCanvasOfs;
-  Inc(DrawOfs.X, FLastPictureParameters.virtualScreenArea.Left);
-  inc(DrawOfs.Y, FLastPictureParameters.virtualScreenArea.Top);
-
-  cursorPos := virtualScreenPenCursorPos;
-  if virtualScreenPenCursor and not IsRectEmpty(cursorPos.bounds) then
-  begin
-    rectBack := cursorPos.bounds;
-    IntersectRect(rectBack,rectBack,rect(0,0,virtualScreen.Width,virtualScreen.Height));
-    if not IsRectEmpty(rectBack) then
-    begin
-      cursorBack := virtualScreen.GetPart(rectBack) as TBGRABitmap;
-
-      cursorContourF := virtualscreen.ComputeEllipseContour(cursorPos.c.x,cursorPos.c.y,cursorPos.rx,cursorPos.ry);
-      virtualscreen.PenStyle := psSolid;
-      virtualscreen.DrawPolygonAntialias(cursorcontourF,BGRA(0,0,0,192),3);
-      virtualscreen.DrawPolygonAntialias(cursorcontourF,BGRA(255,255,255,255),1);
-      virtualscreen.Draw(DestCanvas, DrawOfs.X, DrawOfs.Y, True);
-
-      virtualScreen.PutImage(rectBack.left,rectBack.Top,cursorBack,dmSet);
-      cursorBack.Free;
-    end else
-      virtualscreen.Draw(DestCanvas, DrawOfs.X, DrawOfs.Y, True);
-  end else
-    virtualscreen.Draw(DestCanvas, DrawOfs.X, DrawOfs.Y, True);
-
-  if (image.Width = 0) or (image.Height = 0) then
-    Zoom.MinFactor := 1
-  else
-    Zoom.MinFactor := max(8/image.Width, 8/image.Height);
-  with FLayout.PictureArea do
-    Zoom.MaxFactor := min(32,max(1,min((right-left)/8,(bottom-top)/8)));
-
-  if FActiveSpinEdit <> nil then
-  begin
-    FActiveSpinEdit.DelayTimer;
-    FActiveSpinEdit := nil;
-  end;
-end;
-
-procedure TFMain.ComputePictureParams;
-var
-  workArea, scaledArea, croppedArea: TRect;
-begin
-  FLastPictureParameters.imageWidth:= Image.Width;
-  FLastPictureParameters.imageHeight:= Image.Height;
-  FLastPictureParameters.zoomFactorX := ZoomFactor;
-  FLastPictureParameters.zoomFactorY := ZoomFactor;
-  FLastPictureParameters.scaledArea := EmptyRect;
-  FLastPictureParameters.imageOffset := Image.ImageOffset;
-  FLastPictureParameters.originInVS := Point(0,0);
-  FLastPictureParameters.virtualScreenArea := EmptyRect;
-
-  workArea := FLayout.PictureArea;
-  FLastPictureParameters.workArea := workArea;
-  if (workArea.Right <= workArea.Left) or (workArea.Bottom <= workArea.Top) or not Assigned(Zoom) then
-  begin
-    FLastPictureParameters.defined := false;
-    exit;
-  end;
-
-  scaledArea := Zoom.GetScaledArea(workArea, image.Width, image.Height, image.ImageOffset);
-  FLastPictureParameters.scaledArea := scaledArea;
-  croppedArea := RectInter(scaledArea,workArea);
-  if IsRectEmpty(croppedArea) then
-  begin
-    FLastPictureParameters.defined := false;
-    exit;
-  end;
-
-  FLastPictureParameters.zoomFactorX := (scaledArea.Right-scaledArea.Left)/Image.Width;
-  FLastPictureParameters.zoomFactorY := (scaledArea.Bottom-scaledArea.Top)/Image.Height;
-
-  FLastPictureParameters.virtualScreenArea := croppedArea;
-
-  FLastPictureParameters.originInVS.X := scaledArea.Left - FLastPictureParameters.virtualScreenArea.Left;
-  FLastPictureParameters.originInVS.Y := scaledArea.Top  - FLastPictureParameters.virtualScreenArea.Top;
-  FLastPictureParameters.defined := true;
-end;
-
-procedure TFMain.PaintPictureImplementation;
-var
-  renderRect: TRect;
-  picParamWereDefined: boolean;
-
-  procedure DrawSelectionHighlight(ARenderRect: TRect);
-  var renderVisibleBounds: TRect;
-    transform, invTransform: TAffineMatrix;
-    renderWidth, renderHeight: integer;
-  begin
-    if Assigned(FSelectionHighlight) then
-    begin
-      renderVisibleBounds := rect(0,0,virtualScreen.Width,virtualScreen.Height);
-      renderWidth := ARenderRect.Right-ARenderRect.Left;
-      renderHeight := ARenderRect.Bottom-ARenderRect.Top;
-      transform := AffineMatrixTranslation(ARenderRect.Left,ARenderRect.Top) *
-             AffineMatrixScale(renderWidth/Image.Width, renderHeight/Image.Height) *
-             Image.SelectionTransform *
-             AffineMatrixScale(Image.Width/renderWidth, Image.Height/renderHeight);
-      try
-        invTransform := AffineMatrixInverse(transform);
-        renderVisibleBounds := virtualScreen.GetImageAffineBounds(invTransform, renderVisibleBounds,False);
-        FSelectionHighlight.Update(ARenderRect.Right-ARenderRect.Left,ARenderRect.Bottom-ARenderRect.Top, renderVisibleBounds);
-      except
-      end;
-      FSelectionHighlight.DrawAffine(virtualScreen, transform, rfBox, dmLinearBlend);
-    end;
-  end;
-
-begin
-  picParamWereDefined := FLastPictureParameters.defined;
-  ComputePictureParams;
-  if not FLastPictureParameters.defined then
-  begin
-    FreeAndNil(virtualScreen);
-    exit;
-  end;
-
-  if Assigned(virtualscreen) and ((virtualScreen.Width <> FLastPictureParameters.virtualScreenArea.Right-FLastPictureParameters.virtualScreenArea.Left) or
-     (virtualScreen.Height <> FLastPictureParameters.virtualScreenArea.Bottom-FLastPictureParameters.virtualScreenArea.Top)) then
-  begin
-    FreeAndNil(virtualScreen);
-    FLastPictureParameters.defined := false;
-  end;
-
-  if not Assigned(virtualScreen) then
-  begin
-    virtualScreen := TBGRABitmap.Create(FLastPictureParameters.virtualScreenArea.Right-FLastPictureParameters.virtualScreenArea.Left,
-                                        FLastPictureParameters.virtualScreenArea.Bottom-FLastPictureParameters.virtualScreenArea.Top);
-    FLastPictureParameters.defined := false;
-  end;
-
-  if picParamWereDefined then virtualScreen.ClipRect := GetRenderUpdateRectVS(False);
-  Image.ResetRenderUpdateRect;
-  FLastPictureParameters.defined := true;
-
-  renderRect := FLastPictureParameters.scaledArea;
-  OffsetRect(renderRect, -FLastPictureParameters.virtualScreenArea.Left,
-                         -FLastPictureParameters.virtualScreenArea.Top);
-
-  Image.DrawBackground(virtualScreen, renderRect);
-
-  //draw image (with merged selection)
-  virtualScreen.StretchPutImage(renderRect,Image.RenderedImage,dmDrawWithTransparency);
-  if (Zoom.Factor > MinZoomForGrid) and LazPaintInstance.GridVisible then
-    DrawGrid(virtualScreen,FLastPictureParameters.zoomFactorX,FLastPictureParameters.zoomFactorY,
-       FLastPictureParameters.originInVS.X,FLastPictureParameters.originInVS.Y);
-
-  DrawSelectionHighlight(renderRect);
-  virtualScreen.NoClip;
-
-  //show tools info
-  ToolManager.RenderTool(virtualScreen);
-
-  PaintVirtualScreenImplementation;
-end;
-
-procedure TFMain.PaintBlueAreaImplementation;
-var
-  DrawOfs: TPoint;
-  workArea, scaledArea: TRect;
-begin
-  if FLastPictureParameters.defined then
-  begin
-    workArea := FLastPictureParameters.workArea;
-    if (workArea.Right <= workArea.Left) or (workArea.Bottom <= workArea.Top) then exit;
-    scaledArea := FLastPictureParameters.scaledArea;
-    with PictureCanvas do
-    begin
-      Brush.Color := FormBackgroundColor;
-      DrawOfs := PictureCanvasOfs;
-      if scaledArea.Left > workArea.Left then
-        FillRect(workArea.Left+DrawOfs.X,scaledArea.Top+DrawOfs.Y,scaledArea.Left+DrawOfs.X,scaledArea.Bottom+DrawOfs.Y);
-      if scaledArea.Top > workArea.Top then
-        FillRect(workArea.Left+DrawOfs.X,workArea.Top+DrawOfs.Y,workArea.Right+DrawOfs.X,scaledArea.Top+DrawOfs.Y);
-      if scaledArea.Right < workArea.Right then
-        FillRect(scaledArea.Right+DrawOfs.X,scaledArea.Top+DrawOfs.Y,workArea.Right+DrawOfs.X,scaledArea.Bottom+DrawOfs.Y);
-      if scaledArea.Bottom < workArea.Bottom then
-        FillRect(workArea.Left+DrawOfs.X,scaledArea.Bottom+DrawOfs.Y,workArea.Right+DrawOfs.X,workArea.Bottom+DrawOfs.Y);
-    end;
-  end else
-    PaintBlueAreaOnly;
-end;
-
-procedure TFMain.PaintBlueAreaOnly;
-var
-  workArea: TRect;
-  DrawOfs: TPoint;
-begin
-  workArea := FLayout.PictureArea;
-  if (workArea.Right <= workArea.Left) or (workArea.Bottom <= workArea.Top) then exit;
-  with PictureCanvas do
-  begin
-    Brush.Color := FormBackgroundColor;
-    DrawOfs := PictureCanvasOfs;
-    FillRect(workArea.Left+DrawOfs.X,workArea.Top+DrawOfs.Y,workArea.Right+DrawOfs.X,workArea.Bottom+DrawOfs.Y);
-  end;
-  FLastPictureParameters.defined := false;
-end;
-
-function TFMain.PictureCanvas: TCanvas;
-begin
-  {$IFDEF USEPAINTBOXPICTURE}
-  result := PaintBox_Picture.Canvas;
-  {$ELSE}
-  result := Canvas;
-  {$ENDIF}
 end;
 
 function TFMain.PictureCanvasOfs: TPoint;

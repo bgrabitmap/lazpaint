@@ -1147,7 +1147,7 @@ begin
   bmp := TBGRABitmap.Create(PaintBox_PenPreview.Width,PaintBox_PenPreview.Height,ColorToBGRA(ColorToRGB(clBtnFace)));
   x := round(PaintBox_PenPreview.Width/2);
   y := round(PaintBox_PenPreview.Height/2);
-  visualSize := ToolManager.ToolPenWidth * ZoomFactor;
+  if Assigned(Zoom) then visualSize := ToolManager.ToolPenWidth * Zoom.Factor else visualSize := ToolManager.ToolPenWidth;
   if (CurrentTool in[ptBrush,ptClone]) and (visualSize <= 2*bmp.width) and (visualSize <= 2*bmp.Height) then
   begin
     bi := ToolManager.ToolBrushInfo;

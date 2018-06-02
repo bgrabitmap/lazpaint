@@ -14,9 +14,9 @@ type
 
   TCustomMainFormLayout = class
   protected
-    function GetPictureArea: TRect; virtual; abstract;
+    function GetWorkArea: TRect; virtual; abstract;
   public
-    property PictureArea: TRect read GetPictureArea;
+    property WorkArea: TRect read GetWorkArea;
   end;
 
   { TZoom }
@@ -228,7 +228,7 @@ const pixelMargin = 0;
 var zx,zy: single;
   pictureArea: TRect;
 begin
-  pictureArea := FLayout.PictureArea;
+  pictureArea := FLayout.WorkArea;
   if (AImageWidth = 0) or (AImageHeight = 0) or (pictureArea.right-pictureArea.Left <= pixelMargin)
     or (pictureArea.Bottom-pictureArea.top <= pixelMargin) then exit;
   try

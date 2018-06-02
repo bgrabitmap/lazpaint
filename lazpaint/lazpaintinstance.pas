@@ -313,7 +313,6 @@ begin
   FInFormsNeeded := true;
   Application.CreateForm(TFMain, FMain);
   FMain.LazPaintInstance := self;
-  ToolManager.BitmapToVirtualScreen := @FMain.BitmapToVirtualScreen;
 
   CreateLayerStack;
 
@@ -661,8 +660,8 @@ end;
 
 function TLazPaintInstance.GetZoomFactor: single;
 begin
-  if Assigned(FMain) then
-    Result:=FMain.ZoomFactor else
+  if Assigned(FMain) and Assigned(FMain.Zoom) then
+    Result:=FMain.Zoom.Factor else
       result := inherited GetZoomFactor;
 end;
 
