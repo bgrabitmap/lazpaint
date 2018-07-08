@@ -1020,11 +1020,11 @@ msgstr "Bild resamplen"
 
 #: tfmain.imagerotateccw.caption
 msgid "Rotate 90° CCW"
-msgstr "Drehung 90° Uhrzeigersinn"
+msgstr "Drehung 90° Gegenuhrzeigersinn"
 
 #: tfmain.imagerotatecw.caption
 msgid "Rotate 90° CW"
-msgstr "Drehung 90° Gegenzeigersinn"
+msgstr "Drehung 90° Uhrzeigersinn"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
