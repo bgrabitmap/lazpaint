@@ -1719,13 +1719,15 @@ end;
 
 procedure TLazPaintImage.ReplaceSelectedLayer(AValue: TBGRABitmap; AOwned: boolean);
 var dest: TBGRABitmap;
+  r: TRect;
 begin
   dest := GetSelectedImageLayer;
   if dest = nil then exit;
   if (AValue.Width = dest.Width) and (AValue.Height = dest.Height) then
   begin
+    r := AValue.GetDifferenceBounds(dest);
     dest.PutImage(0,0,AValue,dmSet);
-    LayerMayChange(dest, AValue.GetDifferenceBounds(dest));
+    LayerMayChange(dest, r);
   end else
   begin
     dest.FillTransparent;
