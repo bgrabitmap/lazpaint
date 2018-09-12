@@ -1,0 +1,121 @@
+object Form1: TForm1
+  Left = 542
+  Height = 410
+  Top = 164
+  Width = 627
+  Caption = 'Vector Edit'
+  ClientHeight = 410
+  ClientWidth = 627
+  KeyPreview = True
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnKeyDown = FormKeyDown
+  LCLVersion = '1.6.0.4'
+  object Panel1: TPanel
+    Left = 0
+    Height = 42
+    Top = 0
+    Width = 627
+    Align = alTop
+    ClientHeight = 42
+    ClientWidth = 627
+    TabOrder = 0
+    object ShapePenColor: TShape
+      Left = 72
+      Height = 25
+      Top = 8
+      Width = 27
+      OnMouseUp = ShapePenColorMouseUp
+    end
+    object ShapeBackColor: TShape
+      Left = 307
+      Height = 25
+      Top = 8
+      Width = 27
+      OnMouseUp = ShapeBackColorMouseUp
+    end
+    object Label3: TLabel
+      Left = 112
+      Height = 17
+      Top = 12
+      Width = 32
+      Caption = 'Width'
+      ParentColor = False
+    end
+    object FloatSpinEditPenWidth: TFloatSpinEdit
+      Left = 154
+      Height = 27
+      Top = 8
+      Width = 72
+      DecimalPlaces = 1
+      Increment = 1
+      MaxValue = 100
+      MinValue = 1
+      OnChange = FloatSpinEditPenWidthChange
+      TabOrder = 0
+      Value = 1
+    end
+    object CheckBoxPen: TCheckBox
+      Left = 8
+      Height = 22
+      Top = 10
+      Width = 45
+      Caption = 'Pen'
+      Checked = True
+      State = cbChecked
+      TabOrder = 1
+    end
+    object CheckBoxBack: TCheckBox
+      Left = 240
+      Height = 22
+      Top = 10
+      Width = 51
+      Caption = 'Back'
+      Checked = True
+      State = cbChecked
+      TabOrder = 2
+    end
+  end
+  object BGRAVirtualScreen1: TBGRAVirtualScreen
+    Left = 0
+    Height = 368
+    Top = 42
+    Width = 627
+    OnRedraw = BGRAVirtualScreen1Redraw
+    Align = alClient
+    Alignment = taLeftJustify
+    Color = clGray
+    ParentColor = False
+    TabOrder = 1
+    OnMouseDown = BGRAVirtualScreen1MouseDown
+    OnMouseMove = BGRAVirtualScreen1MouseMove
+    OnMouseUp = BGRAVirtualScreen1MouseUp
+  end
+  object ColorDialog1: TColorDialog
+    Color = clBlack
+    CustomColors.Strings = (
+      'ColorA=000000'
+      'ColorB=000080'
+      'ColorC=008000'
+      'ColorD=008080'
+      'ColorE=800000'
+      'ColorF=800080'
+      'ColorG=808000'
+      'ColorH=808080'
+      'ColorI=C0C0C0'
+      'ColorJ=0000FF'
+      'ColorK=00FF00'
+      'ColorL=00FFFF'
+      'ColorM=FF0000'
+      'ColorN=FF00FF'
+      'ColorO=FFFF00'
+      'ColorP=FFFFFF'
+      'ColorQ=C0DCC0'
+      'ColorR=F0CAA6'
+      'ColorS=F0FBFF'
+      'ColorT=A4A0A0'
+    )
+    left = 196
+    top = 157
+  end
+end
