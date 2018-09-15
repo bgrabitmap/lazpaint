@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 542
+  Left = 541
   Height = 410
-  Top = 164
+  Top = 139
   Width = 627
   Caption = 'Vector Edit'
   ClientHeight = 410
@@ -62,6 +62,7 @@ object Form1: TForm1
       Width = 45
       Caption = 'Pen'
       Checked = True
+      OnChange = CheckBoxPenChange
       State = cbChecked
       TabOrder = 1
     end
@@ -72,6 +73,7 @@ object Form1: TForm1
       Width = 51
       Caption = 'Back'
       Checked = True
+      OnChange = CheckBoxBackChange
       State = cbChecked
       TabOrder = 2
     end

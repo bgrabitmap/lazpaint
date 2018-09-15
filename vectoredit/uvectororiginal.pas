@@ -76,6 +76,7 @@ type
     procedure SetPenColor(AValue: TBGRAPixel); override;
     procedure SetPenWidth(AValue: single); override;
     function PenVisible: boolean;
+    function BackVisible: boolean;
   public
     constructor Create;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
@@ -87,7 +88,7 @@ type
     class function StorageClassName: RawByteString; override;
   end;
 
-  TVectorOriginalSelectShapeEvent = procedure(ASender: TObject; AShape: TVectorShape) of object;
+  TVectorOriginalSelectShapeEvent = procedure(ASender: TObject; AShape: TVectorShape; APreviousShape: TVectorShape) of object;
 
   { TVectorOriginal }
 
@@ -109,6 +110,7 @@ type
     destructor Destroy; override;
     procedure Clear;
     function AddShape(AShape: TVectorShape): integer;
+    function RemoveShape(AShape: TVectorShape): boolean;
     procedure SelectShape(AIndex: integer);
     procedure DeselectShape;
     procedure MouseClick(APoint: TPointF);
@@ -375,6 +377,11 @@ begin
   result := (FPenWidth>0) and (FPenColor.alpha>0);
 end;
 
+function TRectShape.BackVisible: boolean;
+begin
+  result := FBackColor.alpha <> 0;
+end;
+
 constructor TRectShape.Create;
 begin
   FPenColor := BGRAPixelTransparent;
@@ -391,10 +398,13 @@ begin
   pts := GetAffineBox(AMatrix, true).AsPolygon;
 
   multi := TBGRAMultishapeFiller.Create;
+  multi.PolygonOrder:= poLastOnTop;
   multi.FillMode:= fmWinding;
   multi.Antialiasing:= not ADraft;
-  if FBackColor.alpha > 0 then
+  If BackVisible then
+  begin
     multi.AddPolygon(pts, FBackColor);
+  end;
   if PenVisible then
   begin
     pts := ComputeStroke(pts,true);
@@ -406,13 +416,18 @@ end;
 
 function TRectShape.GetRenderBounds(AMatrix: TAffineMatrix): TRectF;
 begin
-  result := inherited GetRenderBounds(AMatrix);
-  if PenVisible then
+  if not BackVisible and not PenVisible then
+    result:= EmptyRectF
+  else
   begin
-    result.Left -= PenWidth*0.5;
-    result.Top -= PenWidth*0.5;
-    result.Right += PenWidth*0.5;
-    result.Bottom += PenWidth*0.5;
+    result := inherited GetRenderBounds(AMatrix);
+    if PenVisible then
+    begin
+      result.Left -= PenWidth*0.5;
+      result.Top -= PenWidth*0.5;
+      result.Right += PenWidth*0.5;
+      result.Bottom += PenWidth*0.5;
+    end;
   end;
 end;
 
@@ -422,13 +437,13 @@ var
   box: TAffineBox;
 begin
   box := GetAffineBox(AffineMatrixIdentity, true);
-  if box.Contains(APoint) then exit(true);
-  if not result and PenVisible then
+  if BackVisible and box.Contains(APoint) then
+    result := true else
+  if PenVisible then
   begin
     pts := ComputeStroke(box.AsPolygon, true);
     result:= IsPointInPolygon(pts, APoint, true);
-  end
-  else
+  end else
     result := false;
 end;
 
@@ -572,29 +587,50 @@ begin
   NotifyChange(AShape.GetRenderBounds(AffineMatrixIdentity));
 end;
 
+function TVectorOriginal.RemoveShape(AShape: TVectorShape): boolean;
+var
+  idx: LongInt;
+  r: TRectF;
+begin
+  idx := FShapes.IndexOf(AShape);
+  if idx = -1 then exit(false);
+  if AShape = SelectedShape then DeselectShape;
+  r := AShape.GetRenderBounds(AffineMatrixIdentity);
+  FShapes.Delete(idx);
+  FDeletedShapes.Add(AShape);
+  DiscardFrozenShapes;
+  NotifyChange(r);
+end;
+
 procedure TVectorOriginal.SelectShape(AIndex: integer);
+var
+  prev: TVectorShape;
 begin
   if (AIndex < 0) or (AIndex >= FShapes.Count) then
     raise ERangeError.Create('Index out of bounds');
   if FSelectedShape <> FShapes[AIndex] then
   begin
+    prev := FSelectedShape;
     FSelectedShape := FShapes[AIndex];
     DiscardFrozenShapes;
     NotifyEditorChange;
     if Assigned(FOnSelectShape) then
-      FOnSelectShape(self, FSelectedShape);
+      FOnSelectShape(self, FSelectedShape, prev);
   end;
 end;
 
 procedure TVectorOriginal.DeselectShape;
+var
+  prev: TVectorShape;
 begin
   if FSelectedShape <> nil then
   begin
+    prev := FSelectedShape;
     FSelectedShape := nil;
     DiscardFrozenShapes;
     NotifyEditorChange;
     if Assigned(FOnSelectShape) then
-      FOnSelectShape(self, FSelectedShape);
+      FOnSelectShape(self, FSelectedShape, prev);
   end;
 end;
 
