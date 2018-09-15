@@ -9,6 +9,9 @@ uses
   ExtCtrls, StdCtrls, Spin, BGRAVirtualScreen, BGRALazPaint, BGRABitmap,
   BGRABitmapTypes, BGRATransform, BGRALayerOriginal, uvectororiginal;
 
+const
+  EditorPointSize = 8;
+
 type
 
   { TForm1 }
@@ -42,7 +45,12 @@ type
       Shift: TShiftState; X, Y: Integer);
   private
     FPenColor, FBackColor: TBGRAPixel;
+    FPenWidth: single;
     FFlattened: TBGRABitmap;
+    FLastEditorBounds: TRect;
+    FUpdatingFromShape: boolean;
+    FUpdatingSpinEditPenWidth: boolean;
+
     function GetBackColor: TBGRAPixel;
     function GetPenColor: TBGRAPixel;
     function GetPenWidth: single;
@@ -57,6 +65,7 @@ type
     procedure UpdateViewCursor(ACursor: TOriginalEditorCursor);
     procedure RenderAndUpdate(ADraft: boolean);
     procedure UpdateFlattenedImage(ARect: TRect);
+    procedure UpdateView(AImageChangeRect: TRect);
     { private declarations }
   public
     { public declarations }
@@ -88,16 +97,17 @@ uses math, LCLType;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  img := TBGRALazPaintImage.Create(800,600);
+  img := TBGRALazPaintImage.Create(1600,1200);
   vectorOriginal := TVectorOriginal.Create;
   vectorLayer := img.AddLayerFromOwnedOriginal(vectorOriginal);
   vectorOriginal.OnSelectShape:= @OnSelectShape;
-  zoom := AffineMatrixScale(4,4);
+  zoom := AffineMatrixScale(1,1);
   img.OnOriginalEditingChange:= @OnEditingChange;
   img.OnOriginalChange:= @OnOriginalChange;
   newShape:= nil;
   penColor := BGRABlack;
   backColor := CSSDodgerBlue;
+  penWidth := 1;
 end;
 
 procedure TForm1.BGRAVirtualScreen1Redraw(Sender: TObject; Bitmap: TBGRABitmap);
@@ -113,7 +123,7 @@ begin
   if FFlattened = nil then
     UpdateFlattenedImage(rect(0,0,img.Width,img.Height));
   Bitmap.StretchPutImage(zoomBounds, FFlattened, dmDrawWithTransparency);
-  img.DrawEditor(Bitmap, vectorLayer, zoom, 8);
+  FLastEditorBounds := img.DrawEditor(Bitmap, vectorLayer, zoom, EditorPointSize);
 end;
 
 procedure TForm1.CheckBoxBackChange(Sender: TObject);
@@ -121,7 +131,7 @@ begin
   if not CheckBoxBack.Checked and (FBackColor.alpha > 0) then
     FBackColor := BGRA(FBackColor.red,FBackColor.green,FBackColor.blue,0)
   else if CheckBoxBack.Checked and (FBackColor.alpha = 0) then
-    FBackColor := BGRA(FBackColor.red,FBackColor.green,FBackColor.blue,255);
+    FBackColor := ColorToBGRA(ShapeBackColor.Brush.Color,255);
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
     vectorOriginal.SelectedShape.BackColor:= FBackColor;
 end;
@@ -131,15 +141,15 @@ begin
   if not CheckBoxPen.Checked and (FPenColor.alpha > 0) then
     FPenColor:= BGRA(FPenColor.red,FPenColor.green,FPenColor.blue,0)
   else if CheckBoxPen.Checked and (FPenColor.alpha = 0) then
-    FPenColor:= BGRA(FPenColor.red,FPenColor.green,FPenColor.blue,255);
+    FPenColor:= ColorToBGRA(ShapePenColor.Brush.Color,255);
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
     vectorOriginal.SelectedShape.PenColor:= FPenColor;
 end;
 
 procedure TForm1.FloatSpinEditPenWidthChange(Sender: TObject);
 begin
-  if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
-    vectorOriginal.SelectedShape.PenWidth:= penWidth;
+  if FUpdatingSpinEditPenWidth then exit;
+  penWidth := FloatSpinEditPenWidth.Value;
 end;
 
 procedure TForm1.BGRAVirtualScreen1MouseDown(Sender: TObject;
@@ -296,7 +306,7 @@ end;
 
 function TForm1.GetPenWidth: single;
 begin
-  result := FloatSpinEditPenWidth.Value;
+  result := FPenWidth;
 end;
 
 function TForm1.GetVectorTransform: TAffineMatrix;
@@ -309,30 +319,32 @@ end;
 
 procedure TForm1.ImageChange(ARectF: TRectF);
 var
-  r, vr: TRect;
-  viewRectF: TRectF;
+  changeRect: TRect;
 begin
   if not IsEmptyRectF(ARectF) then
   begin
-    r := rect(floor(ARectF.Left),floor(ARectF.Top),ceil(ARectF.Right),ceil(ARectF.Bottom));
-    UpdateFlattenedImage(r);
-
-    viewRectF := RectF(zoom* PointF(r.Left,r.Top), zoom* PointF(r.Right,r.Bottom));
-    vr := rect(floor(viewRectF.Left),floor(viewRectF.Top),ceil(viewRectF.Right),ceil(viewRectF.Bottom));
-    vr.Inflate(1,1);
-    BGRAVirtualScreen1.RedrawBitmap(vR);
+    changeRect := rect(floor(ARectF.Left),floor(ARectF.Top),ceil(ARectF.Right),ceil(ARectF.Bottom));
+    UpdateFlattenedImage(changeRect);
   end;
 end;
 
 procedure TForm1.OnEditingChange(ASender: TObject;
   AOriginal: TBGRALayerCustomOriginal);
 begin
-  BGRAVirtualScreen1.DiscardBitmap;
+  UpdateView(EmptyRect);
 end;
 
 procedure TForm1.OnOriginalChange(ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
+var
+  slowShape: boolean;
 begin
-  RenderAndUpdate(mouseState * [ssLeft,ssRight] <> []);
+  slowShape := false;
+  if mouseState * [ssLeft,ssRight] <> [] then
+  begin
+    if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+      slowShape := vectorOriginal.SelectedShape.GetIsSlow(vectorTransform);
+  end;
+  RenderAndUpdate(slowShape);
 end;
 
 procedure TForm1.OnSelectShape(ASender: TObject; AShape: TVectorShape;
@@ -340,9 +352,11 @@ procedure TForm1.OnSelectShape(ASender: TObject; AShape: TVectorShape;
 begin
   if AShape <> nil then
   begin
+    FUpdatingFromShape := true;
     penColor := AShape.PenColor;
     backColor := AShape.BackColor;
     penWidth:= AShape.PenWidth;
+    FUpdatingFromShape := false;
   end;
   if APreviousShape <> nil then
     if IsEmptyRectF(APreviousShape.GetRenderBounds(vectorTransform)) then
@@ -362,7 +376,7 @@ begin
     CheckBoxBack.Checked := true;
     ShapeBackColor.Brush.Color := AValue.ToColor;
   end;
-  if Assigned(vectorOriginal) then
+  if not FUpdatingFromShape and Assigned(vectorOriginal) then
   begin
     if Assigned(vectorOriginal.SelectedShape) then
       vectorOriginal.SelectedShape.BackColor := AValue;
@@ -379,7 +393,7 @@ begin
     CheckBoxPen.Checked := true;
     ShapePenColor.Brush.Color := AValue.ToColor;
   end;
-  if Assigned(vectorOriginal) then
+  if not FUpdatingFromShape and Assigned(vectorOriginal) then
   begin
     if Assigned(vectorOriginal.SelectedShape) then
       vectorOriginal.SelectedShape.PenColor := AValue;
@@ -387,8 +401,19 @@ begin
 end;
 
 procedure TForm1.SetPenWidth(AValue: single);
+var
+  cur: single;
 begin
-  FloatSpinEditPenWidth.Value := AValue;
+  FPenWidth := AValue;
+  cur := FloatSpinEditPenWidth.Value;
+  if AValue <> cur then
+  begin
+    FUpdatingSpinEditPenWidth:= true;
+    FloatSpinEditPenWidth.Value := AValue;
+    FUpdatingSpinEditPenWidth:= false;
+  end;
+  if not FUpdatingFromShape and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+    vectorOriginal.SelectedShape.PenWidth:= penWidth;
 end;
 
 procedure TForm1.UpdateViewCursor(ACursor: TOriginalEditorCursor);
@@ -401,25 +426,17 @@ end;
 
 procedure TForm1.RenderAndUpdate(ADraft: boolean);
 var
-  renderedRect, vR: TRect;
-  viewRectF: TRectF;
+  renderedRect: TRect;
 begin
   renderedRect := img.RenderOriginalsIfNecessary(ADraft);
   if not IsRectEmpty(renderedRect) then
-  begin
     UpdateFlattenedImage(renderedRect);
-    with renderedRect do
-      viewRectF := RectF(zoom* PointF(Left,Top), zoom* PointF(Right,Bottom));
-    vR := rect(floor(viewRectF.Left),floor(viewRectF.Top),ceil(viewRectF.Right),ceil(viewRectF.Bottom));
-    vR.Inflate(1,1);
-    BGRAVirtualScreen1.RedrawBitmap(vR);
-  end;
 end;
 
 procedure TForm1.UpdateFlattenedImage(ARect: TRect);
 var
-  rF: TRectF;
-  r: TRect;
+  shapeRectF: TRectF;
+  shapeRect: TRect;
 begin
   if FFlattened = nil then
     FFlattened := img.ComputeFlatImage
@@ -433,13 +450,54 @@ begin
 
   if Assigned(newShape) then
   begin
-    rF := newShape.GetRenderBounds(vectorTransform);
-    with rF do
-      r := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
-    IntersectRect(r, r, ARect);
-    FFlattened.ClipRect := r;
+    shapeRectF := newShape.GetRenderBounds(vectorTransform);
+    with shapeRectF do
+      shapeRect := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
+    IntersectRect(shapeRect, shapeRect, ARect);
+    FFlattened.ClipRect := shapeRect;
     newShape.Render(FFlattened, vectorTransform, false);
     FFlattened.NoClip;
+  end;
+
+  UpdateView(ARect);
+end;
+
+procedure TForm1.UpdateView(AImageChangeRect: TRect);
+var
+  viewRectF: TRectF;
+  viewRect, newEditorBounds: TRect;
+begin
+  if IsRectEmpty(AImageChangeRect) then
+  begin
+    viewRectF := EmptyRectF;
+    viewRect := EmptyRect;
+  end
+  else
+  begin
+    with AImageChangeRect do
+      viewRectF := RectF(zoom* PointF(Left,Top), zoom* PointF(Right,Bottom));
+    viewRect := rect(floor(viewRectF.Left),floor(viewRectF.Top),ceil(viewRectF.Right),ceil(viewRectF.Bottom));
+  end;
+
+  if not IsRectEmpty(FLastEditorBounds) then
+  begin
+    if IsRectEmpty(viewRect) then viewRect := FLastEditorBounds else
+      UnionRect(viewRect,viewRect,FLastEditorBounds);
+  end;
+  if Assigned(img) then
+  begin
+    newEditorBounds := img.GetEditorBounds(vectorLayer, zoom, EditorPointSize);
+    if not IsRectEmpty(newEditorBounds) then
+    begin
+      if IsRectEmpty(viewRect) then viewRect := newEditorBounds else
+        UnionRect(viewRect,viewRect,newEditorBounds);
+    end;
+  end;
+
+  if not IsRectEmpty(viewRect) then
+  begin
+    viewRect.Inflate(1,1);
+    BGRAVirtualScreen1.RedrawBitmap(viewRect);
   end;
 end;
 

@@ -35,6 +35,7 @@ type
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); virtual; abstract;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); virtual; abstract;
     class function StorageClassName: RawByteString; virtual; abstract;
+    function GetIsSlow(AMatrix: TAffineMatrix): boolean; virtual;
     property OnChange: TShapeChangeEvent read FOnChange write FOnChange;
     property PenColor: TBGRAPixel read GetPenColor write SetPenColor;
     property BackColor: TBGRAPixel read GetBackColor write SetBackColor;
@@ -85,6 +86,7 @@ type
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
+    function GetIsSlow(AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
   end;
 
@@ -353,6 +355,8 @@ end;
 
 procedure TRectShape.SetBackColor(AValue: TBGRAPixel);
 begin
+  if AValue.alpha = 0 then AValue := BGRAPixelTransparent;
+  if FBackColor = AValue then exit;
   BeginUpdate;
   FBackColor := AValue;
   EndUpdate;
@@ -360,6 +364,8 @@ end;
 
 procedure TRectShape.SetPenColor(AValue: TBGRAPixel);
 begin
+  if AValue.alpha = 0 then AValue := BGRAPixelTransparent;
+  if FPenColor = AValue then exit;
   BeginUpdate;
   FPenColor := AValue;
   EndUpdate;
@@ -367,6 +373,7 @@ end;
 
 procedure TRectShape.SetPenWidth(AValue: single);
 begin
+  if FPenWidth = AValue then exit;
   BeginUpdate;
   FPenWidth := AValue;
   EndUpdate;
@@ -380,6 +387,30 @@ end;
 function TRectShape.BackVisible: boolean;
 begin
   result := FBackColor.alpha <> 0;
+end;
+
+function TRectShape.GetIsSlow(AMatrix: TAffineMatrix): boolean;
+var
+  ab: TAffineBox;
+  backSurface, totalSurface, penSurface: Single;
+begin
+  if not PenVisible and not BackVisible then
+    result := false
+  else
+  begin
+    ab := GetAffineBox(AMatrix, true);
+    backSurface := ab.Surface;
+    if PenVisible then
+    begin
+      penSurface := (ab.Width+ab.Height)*2*PenWidth;
+      if BackVisible then
+        totalSurface:= backSurface+penSurface/2
+      else
+        totalSurface := penSurface;
+    end else
+      totalSurface := backSurface;
+    result := totalSurface > 800*600;
+  end;
 end;
 
 constructor TRectShape.Create;
@@ -488,6 +519,11 @@ begin
 end;
 
 { TVectorShape }
+
+function TVectorShape.GetIsSlow(AMatrix: TAffineMatrix): boolean;
+begin
+  result := false;
+end;
 
 procedure TVectorShape.BeginUpdate;
 begin
@@ -686,6 +722,8 @@ begin
           FShapes[i].Render(FFrozenShapesOverSelection, AMatrix, false);
         ADest.PutImage(0,0,FFrozenShapesOverSelection, dmDrawWithTransparency);
       end;
+      FFrozenShapesComputed := true;
+      FFrozenShapeMatrix := AMatrix;
     end else
     begin
       for i:= 0 to FShapes.Count-1 do
