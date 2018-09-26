@@ -6,8 +6,9 @@ interface
 
 uses
   Classes, SysUtils, Types, FileUtil, Forms, Controls, Graphics, Dialogs,
-  ExtCtrls, StdCtrls, Spin, BGRAVirtualScreen, BGRALazPaint, BGRABitmap,
-  BGRABitmapTypes, BGRATransform, BGRALayerOriginal, uvectororiginal;
+  ExtCtrls, StdCtrls, Spin, ComCtrls, BGRAVirtualScreen, BCTrackbarUpdown,
+  BCPanel, BGRAImageList, BGRALazPaint, BGRABitmap, BGRABitmapTypes,
+  BGRATransform, BGRALayerOriginal, uvectororiginal;
 
 const
   EditorPointSize = 8;
@@ -17,15 +18,22 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    BCPanel1: TBCPanel;
+    BCPanel2: TBCPanel;
+    BGRAImageList1: TBGRAImageList;
     BGRAVirtualScreen1: TBGRAVirtualScreen;
-    CheckBoxPen: TCheckBox;
     CheckBoxBack: TCheckBox;
     ColorDialog1: TColorDialog;
+    ComboBoxPenStyle: TComboBox;
     FloatSpinEditPenWidth: TFloatSpinEdit;
+    Label1: TLabel;
     Label3: TLabel;
-    Panel1: TPanel;
-    ShapePenColor: TShape;
     ShapeBackColor: TShape;
+    ShapePenColor: TShape;
+    ToolBar1: TToolBar;
+    ToolButtonRect: TToolButton;
+    ToolButtonEllipse: TToolButton;
+    UpDownPenAlpha: TBCTrackbarUpdown;
     procedure BGRAVirtualScreen1MouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure BGRAVirtualScreen1MouseMove(Sender: TObject; Shift: TShiftState;
@@ -34,7 +42,7 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure BGRAVirtualScreen1Redraw(Sender: TObject; Bitmap: TBGRABitmap);
     procedure CheckBoxBackChange(Sender: TObject);
-    procedure CheckBoxPenChange(Sender: TObject);
+    procedure ComboBoxPenStyleChange(Sender: TObject);
     procedure FloatSpinEditPenWidthChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -43,29 +51,36 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure ShapePenColorMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure ToolButtonClick(Sender: TObject);
+    procedure UpDownPenAlphaChange(Sender: TObject; AByUser: boolean);
   private
     FPenColor, FBackColor: TBGRAPixel;
     FPenWidth: single;
+    FPenStyle: TBGRAPenStyle;
     FFlattened: TBGRABitmap;
     FLastEditorBounds: TRect;
     FUpdatingFromShape: boolean;
-    FUpdatingSpinEditPenWidth: boolean;
-
+    FUpdatingComboBoxPenStyle, FUpdatingSpinEditPenWidth: boolean;
+    FCurrentTool: TVectorShapeAny;
     function GetBackColor: TBGRAPixel;
     function GetPenColor: TBGRAPixel;
+    function GetPenStyle: TBGRAPenStyle;
     function GetPenWidth: single;
     function GetVectorTransform: TAffineMatrix;
     procedure ImageChange(ARectF: TRectF);
-    procedure OnEditingChange(ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
-    procedure OnOriginalChange(ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
+    procedure OnEditingChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
+    procedure OnOriginalChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
     procedure OnSelectShape(ASender: TObject; AShape: TVectorShape; APreviousShape: TVectorShape);
     procedure SetBackColor(AValue: TBGRAPixel);
+    procedure SetCurrentTool(AValue: TVectorShapeAny);
     procedure SetPenColor(AValue: TBGRAPixel);
+    procedure SetPenStyle(AValue: TBGRAPenStyle);
     procedure SetPenWidth(AValue: single);
     procedure UpdateViewCursor(ACursor: TOriginalEditorCursor);
     procedure RenderAndUpdate(ADraft: boolean);
     procedure UpdateFlattenedImage(ARect: TRect);
     procedure UpdateView(AImageChangeRect: TRect);
+    procedure UpdateToolbarFromShape(AShape: TVectorShape);
     { private declarations }
   public
     { public declarations }
@@ -82,6 +97,8 @@ type
     property penColor: TBGRAPixel read GetPenColor write SetPenColor;
     property backColor: TBGRAPixel read GetBackColor write SetBackColor;
     property penWidth: single read GetPenWidth write SetPenWidth;
+    property penStyle: TBGRAPenStyle read GetPenStyle write SetPenStyle;
+    property currentTool: TVectorShapeAny read FCurrentTool write SetCurrentTool;
   end;
 
 var
@@ -89,7 +106,7 @@ var
 
 implementation
 
-uses math, LCLType;
+uses math, LCLType, BGRAPen;
 
 {$R *.lfm}
 
@@ -100,6 +117,7 @@ begin
   img := TBGRALazPaintImage.Create(1600,1200);
   vectorOriginal := TVectorOriginal.Create;
   vectorLayer := img.AddLayerFromOwnedOriginal(vectorOriginal);
+  img.LayerOriginalMatrix[vectorLayer] := AffineMatrixScale(1,1);
   vectorOriginal.OnSelectShape:= @OnSelectShape;
   zoom := AffineMatrixScale(1,1);
   img.OnOriginalEditingChange:= @OnEditingChange;
@@ -107,14 +125,15 @@ begin
   newShape:= nil;
   penColor := BGRABlack;
   backColor := CSSDodgerBlue;
-  penWidth := 1;
+  penWidth := 5;
+  penStyle := SolidPenStyle;
+  currentTool:= TRectShape;
 end;
 
 procedure TForm1.BGRAVirtualScreen1Redraw(Sender: TObject; Bitmap: TBGRABitmap);
 var
   topLeftF, bottomRightF: TPointF;
-  zoomBounds, r: TRect;
-  rF: TRectF;
+  zoomBounds: TRect;
 begin
   topLeftF := zoom*PointF(0,0);
   bottomRightF := zoom*PointF(img.Width,img.Height);
@@ -136,14 +155,17 @@ begin
     vectorOriginal.SelectedShape.BackColor:= FBackColor;
 end;
 
-procedure TForm1.CheckBoxPenChange(Sender: TObject);
+procedure TForm1.ComboBoxPenStyleChange(Sender: TObject);
 begin
-  if not CheckBoxPen.Checked and (FPenColor.alpha > 0) then
-    FPenColor:= BGRA(FPenColor.red,FPenColor.green,FPenColor.blue,0)
-  else if CheckBoxPen.Checked and (FPenColor.alpha = 0) then
-    FPenColor:= ColorToBGRA(ShapePenColor.Brush.Color,255);
-  if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
-    vectorOriginal.SelectedShape.PenColor:= FPenColor;
+  if FUpdatingComboBoxPenStyle then exit;
+  case ComboBoxPenStyle.Text of
+    'Clear': penStyle := ClearPenStyle;
+    'Solid': penStyle := SolidPenStyle;
+    'Dash': penStyle := DashPenStyle;
+    'Dot': penStyle := DotPenStyle;
+    'DashDot': penStyle := DashDotPenStyle;
+    'DashDotDot': penStyle := DashDotDotPenStyle;
+  end;
 end;
 
 procedure TForm1.FloatSpinEditPenWidthChange(Sender: TObject);
@@ -191,20 +213,21 @@ begin
   if justDown and not Assigned(newShape) then
   begin
     vectorOriginal.DeselectShape;
-    newShape := TRectShape.Create;
+    newShape := currentTool.Create;
     newShape.penColor := penColor;
     newShape.backColor := backColor;
     newShape.penWidth := penWidth;
+    newShape.PenStyle := penStyle;
     newShape.QuickDefine(newStartPoint,ptF);
-    rF := newShape.GetRenderBounds(vectorTransform);
+    rF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
     ImageChange(rF);
     justDown := false;
   end else
   if Assigned(newShape) then
   begin
-    prevRF := newShape.GetRenderBounds(vectorTransform);
+    prevRF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
     newShape.QuickDefine(newStartPoint,ptF);
-    rF := newShape.GetRenderBounds(vectorTransform);
+    rF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
     ImageChange(rF.Union(prevRF, true));
   end;
 end;
@@ -217,6 +240,7 @@ var
   imgPtF: TPointF;
   handled: boolean;
   cur: TOriginalEditorCursor;
+  addedShape: TVectorShape;
 begin
   mouseState:= Shift;
   imgPtF := AffineMatrixInverse(zoom)*PointF(X,Y);
@@ -231,17 +255,16 @@ begin
   end
   else if Assigned(newShape) and (Button = newButton) then
   begin
-    rF := newShape.GetRenderBounds(vectorTransform);
+    rF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
     if not IsEmptyRectF(rF) then
     begin
-      idxShape := vectorOriginal.AddShape(newShape);
-      RenderAndUpdate(false);
+      addedShape := newShape;
+      newShape := nil;
+      idxShape := vectorOriginal.AddShape(addedShape);
       vectorOriginal.SelectShape(idxShape);
     end
     else
-      newShape.Free;
-
-    newShape := nil;
+      FreeAndNil(newShape);
   end;
 end;
 
@@ -294,6 +317,24 @@ begin
   end;
 end;
 
+procedure TForm1.ToolButtonClick(Sender: TObject);
+begin
+  if ToolButtonEllipse.Down then currentTool:= TEllipseShape;
+  if ToolButtonRect.Down then currentTool:= TRectShape;
+  if Assigned(vectorOriginal) and (vectorOriginal.SelectedShape <> nil) then vectorOriginal.DeselectShape
+  else UpdateToolbarFromShape(nil);
+end;
+
+procedure TForm1.UpDownPenAlphaChange(Sender: TObject; AByUser: boolean);
+begin
+  if AByUser then
+  begin
+    FPenColor:= ColorToBGRA(ShapePenColor.Brush.Color, UpDownPenAlpha.Value);
+    if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+      vectorOriginal.SelectedShape.PenColor:= FPenColor;
+  end;
+end;
+
 function TForm1.GetBackColor: TBGRAPixel;
 begin
   result := FBackColor;
@@ -302,6 +343,11 @@ end;
 function TForm1.GetPenColor: TBGRAPixel;
 begin
   result := FPenColor;
+end;
+
+function TForm1.GetPenStyle: TBGRAPenStyle;
+begin
+  result := FPenStyle;
 end;
 
 function TForm1.GetPenWidth: single;
@@ -331,6 +377,7 @@ end;
 procedure TForm1.OnEditingChange(ASender: TObject;
   AOriginal: TBGRALayerCustomOriginal);
 begin
+  if AOriginal <> vectorOriginal then exit;
   UpdateView(EmptyRect);
 end;
 
@@ -338,6 +385,7 @@ procedure TForm1.OnOriginalChange(ASender: TObject; AOriginal: TBGRALayerCustomO
 var
   slowShape: boolean;
 begin
+  if AOriginal <> vectorOriginal then exit;
   slowShape := false;
   if mouseState * [ssLeft,ssRight] <> [] then
   begin
@@ -350,16 +398,10 @@ end;
 procedure TForm1.OnSelectShape(ASender: TObject; AShape: TVectorShape;
   APreviousShape: TVectorShape);
 begin
-  if AShape <> nil then
-  begin
-    FUpdatingFromShape := true;
-    penColor := AShape.PenColor;
-    backColor := AShape.BackColor;
-    penWidth:= AShape.PenWidth;
-    FUpdatingFromShape := false;
-  end;
+  if ASender <> vectorOriginal then exit;
+  UpdateToolbarFromShape(AShape);
   if APreviousShape <> nil then
-    if IsEmptyRectF(APreviousShape.GetRenderBounds(vectorTransform)) then
+    if IsEmptyRectF(APreviousShape.GetRenderBounds(InfiniteRect, vectorTransform)) then
     begin
       vectorOriginal.RemoveShape(APreviousShape);
       ShowMessage('Empty shape has been deleted');
@@ -383,21 +425,42 @@ begin
   end;
 end;
 
+procedure TForm1.SetCurrentTool(AValue: TVectorShapeAny);
+begin
+  if FCurrentTool=AValue then Exit;
+  FCurrentTool:=AValue;
+  ToolButtonRect.Down := FCurrentTool = TRectShape;
+  ToolButtonEllipse.Down := FCurrentTool = TEllipseShape;
+end;
+
 procedure TForm1.SetPenColor(AValue: TBGRAPixel);
 begin
   FPenColor := AValue;
-  if FPenColor.alpha = 0 then
-    CheckBoxPen.Checked := false
-  else
-  begin
-    CheckBoxPen.Checked := true;
-    ShapePenColor.Brush.Color := AValue.ToColor;
-  end;
+  ShapePenColor.Brush.Color := BGRA(AValue.red,AValue.green,AValue.blue).ToColor;
+  UpDownPenAlpha.Value := AValue.alpha;
   if not FUpdatingFromShape and Assigned(vectorOriginal) then
   begin
     if Assigned(vectorOriginal.SelectedShape) then
       vectorOriginal.SelectedShape.PenColor := AValue;
   end;
+end;
+
+procedure TForm1.SetPenStyle(AValue: TBGRAPenStyle);
+var cur: string;
+begin
+  FPenStyle := AValue;
+  if IsSolidPenStyle(AValue) then cur:= 'Solid' else
+  if IsClearPenStyle(AValue) then cur:= 'Clear' else
+  if AValue = DashPenStyle then cur := 'Dash' else
+  if AValue = DotPenStyle then cur := 'Dot' else
+  if AValue = DashDotPenStyle then cur := 'DashDot' else
+  if AValue = DashDotDotPenStyle then cur := 'DashDotDot' else
+    cur := '?';
+  FUpdatingComboBoxPenStyle := true;
+  ComboBoxPenStyle.ItemIndex := ComboBoxPenStyle.Items.IndexOf(cur);
+  FUpdatingComboBoxPenStyle := false;
+  if not FUpdatingFromShape and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+    vectorOriginal.SelectedShape.PenStyle := FPenStyle;
 end;
 
 procedure TForm1.SetPenWidth(AValue: single);
@@ -450,7 +513,7 @@ begin
 
   if Assigned(newShape) then
   begin
-    shapeRectF := newShape.GetRenderBounds(vectorTransform);
+    shapeRectF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
     with shapeRectF do
       shapeRect := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
     IntersectRect(shapeRect, shapeRect, ARect);
@@ -498,6 +561,35 @@ begin
   begin
     viewRect.Inflate(1,1);
     BGRAVirtualScreen1.RedrawBitmap(viewRect);
+  end;
+end;
+
+procedure TForm1.UpdateToolbarFromShape(AShape: TVectorShape);
+begin
+  if AShape <> nil then
+  begin
+    FUpdatingFromShape := true;
+    if vsfPenColor in AShape.Fields then penColor := AShape.PenColor;
+    if vsfPenWidth in AShape.Fields then
+    begin
+      penWidth:= AShape.PenWidth;
+      FloatSpinEditPenWidth.Enabled := true;
+    end else
+      FloatSpinEditPenWidth.Enabled := false;
+    if vsfPenStyle in currentTool.Fields then
+    begin
+      penStyle:= AShape.PenStyle;
+      ComboBoxPenStyle.Enabled:= true;
+    end else
+      ComboBoxPenStyle.Enabled:= false;
+
+    if vsfBackColor in AShape.Fields then backColor := AShape.BackColor;
+
+    FUpdatingFromShape := false;
+  end else
+  begin
+    FloatSpinEditPenWidth.Enabled := vsfPenWidth in currentTool.Fields;
+    ComboBoxPenStyle.Enabled:= vsfPenStyle in currentTool.Fields;
   end;
 end;
 

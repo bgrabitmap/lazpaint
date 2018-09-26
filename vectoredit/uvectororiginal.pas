@@ -5,41 +5,62 @@ unit uvectororiginal;
 interface
 
 uses
-  Classes, SysUtils, BGRABitmap, BGRALayerOriginal, fgl, BGRAGradientOriginal, BGRABitmapTypes;
+  Classes, SysUtils, BGRABitmap, BGRALayerOriginal, fgl, BGRAGradientOriginal, BGRABitmapTypes,
+  BGRAPen;
+
+const
+  InfiniteRect : TRect = (Left: -MaxLongInt; Top: -MaxLongInt; Right: MaxLongInt; Bottom: MaxLongInt);
 
 type
   TShapeChangeEvent = procedure(ASender: TObject; ABounds: TRectF) of object;
+  TVectorShapeField = (vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackColor);
+  TVectorShapeFields = set of TVectorShapeField;
 
   { TVectorShape }
 
   TVectorShape = class
-  protected
+  private
     FOnChange: TShapeChangeEvent;
     FUpdateCount: integer;
     FBoundsBeforeUpdate: TRectF;
+    FPenColor,FBackColor: TBGRAPixel;
+    FPenWidth: single;
+    FStroker: TBGRAPenStroker;
+  protected
     procedure BeginUpdate;
     procedure EndUpdate;
-    function GetBackColor: TBGRAPixel; virtual; abstract;
-    function GetPenColor: TBGRAPixel; virtual; abstract;
-    function GetPenWidth: single; virtual; abstract;
-    procedure SetBackColor(AValue: TBGRAPixel); virtual; abstract;
-    procedure SetPenColor(AValue: TBGRAPixel); virtual; abstract;
-    procedure SetPenWidth(AValue: single); virtual; abstract;
-    function ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean): ArrayOfTPointF;
+    function GetPenColor: TBGRAPixel; virtual;
+    function GetPenWidth: single; virtual;
+    function GetPenStyle: TBGRAPenStyle; virtual;
+    function GetJoinStyle: TPenJoinStyle;
+    function GetBackColor: TBGRAPixel; virtual;
+    procedure SetPenColor(AValue: TBGRAPixel); virtual;
+    procedure SetPenWidth(AValue: single); virtual;
+    procedure SetPenStyle({%H-}AValue: TBGRAPenStyle); virtual;
+    procedure SetJoinStyle(AValue: TPenJoinStyle);
+    procedure SetBackColor(AValue: TBGRAPixel); virtual;
+    function ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean; AStrokeMatrix: TAffineMatrix): ArrayOfTPointF;
+    function GetStroker: TBGRAPenStroker;
+    property Stroker: TBGRAPenStroker read GetStroker;
   public
+    constructor Create;
+    destructor Destroy; override;
     procedure QuickDefine(const APoint1,APoint2: TPointF); virtual; abstract;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); virtual; abstract;
-    function GetRenderBounds(AMatrix: TAffineMatrix): TRectF; virtual; abstract;
+    function GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix): TRectF; virtual; abstract;
     function PointInShape(APoint: TPointF): boolean; virtual; abstract;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); virtual; abstract;
-    procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); virtual; abstract;
-    procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); virtual; abstract;
+    procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); virtual;
+    procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); virtual;
     class function StorageClassName: RawByteString; virtual; abstract;
-    function GetIsSlow(AMatrix: TAffineMatrix): boolean; virtual;
+    function GetIsSlow({%H-}AMatrix: TAffineMatrix): boolean; virtual;
+    class function Fields: TVectorShapeFields; virtual;
     property OnChange: TShapeChangeEvent read FOnChange write FOnChange;
     property PenColor: TBGRAPixel read GetPenColor write SetPenColor;
     property BackColor: TBGRAPixel read GetBackColor write SetBackColor;
     property PenWidth: single read GetPenWidth write SetPenWidth;
+    property PenStyle: TBGRAPenStyle read GetPenStyle write SetPenStyle;
+    property JoinStyle: TPenJoinStyle read GetJoinStyle write SetJoinStyle;
   end;
   TVectorShapes = specialize TFPGList<TVectorShape>;
   TVectorShapeAny = class of TVectorShape;
@@ -52,40 +73,48 @@ type
     FOriginBackup,FXUnitBackup,FYUnitBackup,
     FXAxisBackup,FYAxisBackup: TPointF;
     FXSizeBackup,FYSizeBackup: single;
-    procedure OnMoveOrigin(ASender: TObject; APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
-    procedure OnMoveXAxis(ASender: TObject; APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
-    procedure OnMoveYAxis(ASender: TObject; APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
-    procedure OnMoveXAxisNeg(ASender: TObject; APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
-    procedure OnMoveYAxisNeg(ASender: TObject; APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
-    procedure OnStartMove(ASender: TObject; APointIndex: integer; AShift: TShiftState);
+    procedure OnMoveOrigin({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; {%H-}AShift: TShiftState);
+    procedure OnMoveXAxis({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveYAxis({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveXAxisNeg({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveYAxisNeg({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnStartMove({%H-}ASender: TObject; {%H-}APointIndex: integer; {%H-}AShift: TShiftState);
     function GetAffineBox(AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
   public
     procedure QuickDefine(const APoint1,APoint2: TPointF); override;
-    function GetRenderBounds(AMatrix: TAffineMatrix): TRectF; override;
+    procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
+    procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
+    function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix): TRectF; override;
+    procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
   end;
 
   { TRectShape }
 
   TRectShape = class(TCustomRectShape)
   protected
-    FPenColor,FBackColor: TBGRAPixel;
-    FPenWidth: single;
-    function GetBackColor: TBGRAPixel; override;
-    function GetPenColor: TBGRAPixel; override;
-    function GetPenWidth: single; override;
-    procedure SetBackColor(AValue: TBGRAPixel); override;
-    procedure SetPenColor(AValue: TBGRAPixel); override;
-    procedure SetPenWidth(AValue: single); override;
+    function PenVisible: boolean;
+    function BackVisible: boolean;
+  public
+    class function Fields: TVectorShapeFields; override;
+    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
+    function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix): TRectF; override;
+    function PointInShape(APoint: TPointF): boolean; override;
+    function GetIsSlow(AMatrix: TAffineMatrix): boolean; override;
+    class function StorageClassName: RawByteString; override;
+  end;
+
+  { TEllipseShape }
+
+  TEllipseShape = class(TCustomRectShape)
+  protected
     function PenVisible: boolean;
     function BackVisible: boolean;
   public
     constructor Create;
+    class function Fields: TVectorShapeFields; override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
-    function GetRenderBounds(AMatrix: TAffineMatrix): TRectF; override;
+    function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; override;
-    procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
-    procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
-    procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     function GetIsSlow(AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
   end;
@@ -131,7 +160,7 @@ function GetVectorShapeByStorageClassName(AName: string): TVectorShapeAny;
 
 implementation
 
-uses math, BGRATransform, BGRAFillInfo, BGRAPen, BGRAGraphics, BGRAPolygon;
+uses math, BGRATransform, BGRAFillInfo, BGRAGraphics, BGRAPath;
 
 var
   VectorShapeClasses: array of TVectorShapeAny;
@@ -163,6 +192,121 @@ begin
     raise exception.Create('Duplicate class name "'+AClass.StorageClassName+'" for vector shape');
   setlength(VectorShapeClasses, length(VectorShapeClasses)+1);
   VectorShapeClasses[high(VectorShapeClasses)] := AClass;
+end;
+
+{ TEllipseShape }
+
+function TEllipseShape.PenVisible: boolean;
+begin
+  result := (PenWidth>0) and (PenColor.alpha>0) and not IsClearPenStyle(PenStyle);
+end;
+
+function TEllipseShape.BackVisible: boolean;
+begin
+  result := BackColor.alpha <> 0;
+end;
+
+constructor TEllipseShape.Create;
+begin
+  inherited Create;
+  inherited SetJoinStyle(pjsRound);
+end;
+
+class function TEllipseShape.Fields: TVectorShapeFields;
+begin
+  Result:= [vsfPenColor, vsfPenWidth, vsfPenStyle, vsfBackColor];
+end;
+
+procedure TEllipseShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
+  ADraft: boolean);
+var
+  pts: Array of TPointF;
+begin
+  //pts := ComputeEllipse(AMatrix*FOrigin, AMatrix*FXAxis, AMatrix*FYAxis);
+  ADest.FillEllipseLinearColorAntialias(AMatrix*FOrigin, AMatrix*FXAxis, AMatrix*FYAxis, PenColor, BackColor);
+  //ADest.EllipseAntialias(AMatrix*FOrigin, AMatrix*FXAxis, AMatrix*FYAxis, PenColor, PenWidth, BackColor);
+{  If BackVisible then
+  begin
+    ADest.FillEllipseAntialias(AMatrix*FOrigin, AMatrix*FXAxis, AMatrix*FYAxis, BackColor);
+{    if ADraft then
+      ADest.FillPoly(pts, BackColor, dmDrawWithTransparency)
+    else
+      ADest.FillPolyAntialias(pts, BackColor);}
+  end;
+  if PenVisible then
+  begin
+    ADest.EllipseAntialias(AMatrix*FOrigin, AMatrix*FXAxis, AMatrix*FYAxis, PenColor, PenWidth);
+{    pts := ComputeStroke(pts,true, AMatrix);
+    if ADraft and (PenWidth > 4) then
+      ADest.FillPoly(pts, PenColor, dmDrawWithTransparency)
+    else
+      ADest.FillPolyAntialias(pts, PenColor);}
+  end;}
+end;
+
+function TEllipseShape.GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix): TRectF;
+var
+  xMargin, yMargin: single;
+begin
+  if not BackVisible and not PenVisible then
+    result:= EmptyRectF
+  else
+  begin
+    result := inherited GetRenderBounds(ADestRect, AMatrix);
+    if PenVisible then
+    begin
+      xMargin := (abs(AMatrix[1,1])+abs(AMatrix[1,2]))*PenWidth*0.5;
+      yMargin := (abs(AMatrix[2,1])+abs(AMatrix[2,2]))*PenWidth*0.5;
+      result.Left -= xMargin;
+      result.Top -= yMargin;
+      result.Right += xMargin;
+      result.Bottom += yMargin;
+    end;
+  end;
+end;
+
+function TEllipseShape.PointInShape(APoint: TPointF): boolean;
+var
+  pts: ArrayOfTPointF;
+begin
+  pts := ComputeEllipse(FOrigin, FXAxis, FYAxis);
+  if BackVisible and IsPointInPolygon(pts, APoint, true) then
+    result := true else
+  if PenVisible then
+  begin
+    pts := ComputeStroke(pts, true, AffineMatrixIdentity);
+    result:= IsPointInPolygon(pts, APoint, true);
+  end else
+    result := false;
+end;
+
+function TEllipseShape.GetIsSlow(AMatrix: TAffineMatrix): boolean;
+var
+  ab: TAffineBox;
+  backSurface, totalSurface, penSurface: Single;
+begin
+  if not PenVisible and not BackVisible then
+    result := false
+  else
+  begin
+    ab := GetAffineBox(AMatrix, true);
+    backSurface := ab.Surface*Pi/4;
+    if PenVisible then
+    begin
+      penSurface := (ab.Width+ab.Height)*(Pi/2)*PenWidth;
+      if BackVisible then
+        totalSurface:= backSurface+penSurface/2
+      else
+        totalSurface := penSurface;
+    end else
+      totalSurface := backSurface;
+    result := totalSurface > 800*600;
+  end;
+end;
+
+class function TEllipseShape.StorageClassName: RawByteString;
+begin
+  result := 'ellipse';
 end;
 
 { TCustomRectShape }
@@ -331,62 +475,49 @@ begin
   EndUpdate;
 end;
 
-function TCustomRectShape.GetRenderBounds(AMatrix: TAffineMatrix): TRectF;
+procedure TCustomRectShape.LoadFromStorage(AStorage: TBGRACustomOriginalStorage);
+begin
+  BeginUpdate;
+  inherited LoadFromStorage(AStorage);
+  FOrigin := AStorage.PointF['origin'];
+  FXAxis := AStorage.PointF['x-axis'];
+  FYAxis := AStorage.PointF['y-axis'];
+  EndUpdate;
+end;
+
+procedure TCustomRectShape.SaveToStorage(AStorage: TBGRACustomOriginalStorage);
+begin
+  inherited SaveToStorage(AStorage);
+  AStorage.PointF['origin'] := FOrigin;
+  AStorage.PointF['x-axis'] := FXAxis;
+  AStorage.PointF['y-axis'] := FYAxis;
+end;
+
+function TCustomRectShape.GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix): TRectF;
 begin
   result := GetAffineBox(AMatrix, false).RectBoundsF;
 end;
 
+procedure TCustomRectShape.ConfigureEditor(AEditor: TBGRAOriginalEditor);
+begin
+  AEditor.AddStartMoveHandler(@OnStartMove);
+  AEditor.AddPoint(FOrigin, @OnMoveOrigin, true);
+  AEditor.AddArrow(FOrigin, FXAxis, @OnMoveXAxis);
+  AEditor.AddArrow(FOrigin, FYAxis, @OnMoveYAxis);
+  AEditor.AddArrow(FOrigin, FOrigin - (FXAxis-FOrigin), @OnMoveXAxisNeg);
+  AEditor.AddArrow(FOrigin, FOrigin - (FYAxis-FOrigin), @OnMoveYAxisNeg);
+end;
+
 { TRectShape }
-
-function TRectShape.GetBackColor: TBGRAPixel;
-begin
-  result := FBackColor;
-end;
-
-function TRectShape.GetPenColor: TBGRAPixel;
-begin
-  result := FPenColor;
-end;
-
-function TRectShape.GetPenWidth: single;
-begin
-  result := FPenWidth;
-end;
-
-procedure TRectShape.SetBackColor(AValue: TBGRAPixel);
-begin
-  if AValue.alpha = 0 then AValue := BGRAPixelTransparent;
-  if FBackColor = AValue then exit;
-  BeginUpdate;
-  FBackColor := AValue;
-  EndUpdate;
-end;
-
-procedure TRectShape.SetPenColor(AValue: TBGRAPixel);
-begin
-  if AValue.alpha = 0 then AValue := BGRAPixelTransparent;
-  if FPenColor = AValue then exit;
-  BeginUpdate;
-  FPenColor := AValue;
-  EndUpdate;
-end;
-
-procedure TRectShape.SetPenWidth(AValue: single);
-begin
-  if FPenWidth = AValue then exit;
-  BeginUpdate;
-  FPenWidth := AValue;
-  EndUpdate;
-end;
 
 function TRectShape.PenVisible: boolean;
 begin
-  result := (FPenWidth>0) and (FPenColor.alpha>0);
+  result := (PenWidth>0) and (PenColor.alpha>0) and not IsClearPenStyle(PenStyle);
 end;
 
 function TRectShape.BackVisible: boolean;
 begin
-  result := FBackColor.alpha <> 0;
+  result := BackColor.alpha <> 0;
 end;
 
 function TRectShape.GetIsSlow(AMatrix: TAffineMatrix): boolean;
@@ -413,51 +544,66 @@ begin
   end;
 end;
 
-constructor TRectShape.Create;
+class function TRectShape.Fields: TVectorShapeFields;
 begin
-  FPenColor := BGRAPixelTransparent;
-  FBackColor := BGRABlack;
-  FPenWidth := 0;
+  Result:= [vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackColor];
 end;
 
 procedure TRectShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
   ADraft: boolean);
 var
   pts: Array of TPointF;
-  multi: TBGRAMultishapeFiller;
 begin
   pts := GetAffineBox(AMatrix, true).AsPolygon;
-
-  multi := TBGRAMultishapeFiller.Create;
-  multi.PolygonOrder:= poLastOnTop;
-  multi.FillMode:= fmWinding;
-  multi.Antialiasing:= not ADraft;
   If BackVisible then
   begin
-    multi.AddPolygon(pts, FBackColor);
+    if ADraft then
+      ADest.FillPoly(pts, BackColor, dmDrawWithTransparency)
+    else
+      ADest.FillPolyAntialias(pts, BackColor);
   end;
   if PenVisible then
   begin
-    pts := ComputeStroke(pts,true);
-    multi.AddPolygon(pts, FPenColor);
+    pts := ComputeStroke(pts,true, AMatrix);
+    if ADraft and (PenWidth > 4) then
+      ADest.FillPoly(pts, PenColor, dmDrawWithTransparency)
+    else
+      ADest.FillPolyAntialias(pts, PenColor);
   end;
-  multi.Draw(ADest);
-  multi.Free;
 end;
 
-function TRectShape.GetRenderBounds(AMatrix: TAffineMatrix): TRectF;
+function TRectShape.GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix): TRectF;
+var
+  i: Integer;
+  pts: ArrayOfTPointF;
+  xMargin, yMargin: single;
 begin
   if not BackVisible and not PenVisible then
     result:= EmptyRectF
   else
   begin
-    result := inherited GetRenderBounds(AMatrix);
+    result := inherited GetRenderBounds(ADestRect, AMatrix);
     if PenVisible then
     begin
-      result.Left -= PenWidth*0.5;
-      result.Top -= PenWidth*0.5;
-      result.Right += PenWidth*0.5;
-      result.Bottom += PenWidth*0.5;
+      if (JoinStyle <> pjsMiter) or (Stroker.MiterLimit <= 1) then
+      begin
+        xMargin := (abs(AMatrix[1,1])+abs(AMatrix[1,2]))*PenWidth*0.5;
+        yMargin := (abs(AMatrix[2,1])+abs(AMatrix[2,2]))*PenWidth*0.5;
+        result.Left -= xMargin;
+        result.Top -= yMargin;
+        result.Right += xMargin;
+        result.Bottom += yMargin;
+      end else
+      begin
+        pts := ComputeStroke(GetAffineBox(AMatrix, false).AsPolygon, true, AMatrix);
+        for i := 0 to high(pts) do
+        begin
+          if pts[i].x < result.Left then result.Left := pts[i].x;
+          if pts[i].x > result.Right then result.Right := pts[i].x;
+          if pts[i].y < result.Top then result.Top := pts[i].y;
+          if pts[i].y > result.Bottom then result.Bottom := pts[i].y;
+        end;
+      end;
     end;
   end;
 end;
@@ -472,45 +618,10 @@ begin
     result := true else
   if PenVisible then
   begin
-    pts := ComputeStroke(box.AsPolygon, true);
+    pts := ComputeStroke(box.AsPolygon, true, AffineMatrixIdentity);
     result:= IsPointInPolygon(pts, APoint, true);
   end else
     result := false;
-end;
-
-procedure TRectShape.ConfigureEditor(AEditor: TBGRAOriginalEditor);
-begin
-  AEditor.AddStartMoveHandler(@OnStartMove);
-  AEditor.AddPoint(FOrigin, @OnMoveOrigin, true);
-  AEditor.AddArrow(FOrigin, FXAxis, @OnMoveXAxis);
-  AEditor.AddArrow(FOrigin, FYAxis, @OnMoveYAxis);
-  AEditor.AddArrow(FOrigin, FOrigin - (FXAxis-FOrigin), @OnMoveXAxisNeg);
-  AEditor.AddArrow(FOrigin, FOrigin - (FYAxis-FOrigin), @OnMoveYAxisNeg);
-end;
-
-procedure TRectShape.LoadFromStorage(AStorage: TBGRACustomOriginalStorage);
-begin
-  BeginUpdate;
-  FOrigin := AStorage.PointF['origin'];
-  FXAxis := AStorage.PointF['x-axis'];
-  FYAxis := AStorage.PointF['y-axis'];
-  FPenColor := AStorage.Color['pen-color'];
-  FBackColor := AStorage.Color['back-color'];
-  FPenWidth:= AStorage.Float['pen-width'];
-  EndUpdate;
-end;
-
-procedure TRectShape.SaveToStorage(AStorage: TBGRACustomOriginalStorage);
-begin
-  AStorage.PointF['origin'] := FOrigin;
-  AStorage.PointF['x-axis'] := FXAxis;
-  AStorage.PointF['y-axis'] := FYAxis;
-  AStorage.Color['pen-color'] := FPenColor;
-  AStorage.Color['back-color'] := FBackColor;
-  if PenVisible then
-    AStorage.Float['pen-width'] := FPenWidth
-  else
-    AStorage.Float['pen-width'] := 0;
 end;
 
 class function TRectShape.StorageClassName: RawByteString;
@@ -525,10 +636,28 @@ begin
   result := false;
 end;
 
+class function TVectorShape.Fields: TVectorShapeFields;
+begin
+  result := [];
+end;
+
+function TVectorShape.GetJoinStyle: TPenJoinStyle;
+begin
+  result := Stroker.JoinStyle;
+end;
+
+procedure TVectorShape.SetJoinStyle(AValue: TPenJoinStyle);
+begin
+  BeginUpdate;
+  Stroker.JoinStyle := AValue;
+  EndUpdate;
+end;
+
 procedure TVectorShape.BeginUpdate;
 begin
+  if FUpdateCount = 0 then
+    FBoundsBeforeUpdate := GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
   FUpdateCount += 1;
-  FBoundsBeforeUpdate := GetRenderBounds(AffineMatrixIdentity);
 end;
 
 procedure TVectorShape.EndUpdate;
@@ -542,19 +671,133 @@ begin
     begin
       if Assigned(FOnChange) then
       begin
-        boundsAfter := GetRenderBounds(AffineMatrixIdentity);
+        boundsAfter := GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
         FOnChange(self, boundsAfter.Union(FBoundsBeforeUpdate, true));
       end;
     end;
   end;
 end;
 
-function TVectorShape.ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean): ArrayOfTPointF;
-var
-  opt: TBGRAPolyLineOptions;
+function TVectorShape.GetPenColor: TBGRAPixel;
 begin
-  if AClosed then opt := [plCycle] else opt := [];
-  result := ComputeWidePolylinePoints(APoints, PenWidth, PenColor, pecRound, pjsRound, SolidPenStyle, opt);
+  result := FPenColor;
+end;
+
+function TVectorShape.GetPenWidth: single;
+begin
+  result := FPenWidth;
+end;
+
+function TVectorShape.GetPenStyle: TBGRAPenStyle;
+begin
+  result := Stroker.CustomPenStyle;
+end;
+
+function TVectorShape.GetBackColor: TBGRAPixel;
+begin
+  result := FBackColor;
+end;
+
+function TVectorShape.ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean; AStrokeMatrix: TAffineMatrix): ArrayOfTPointF;
+begin
+  Stroker.StrokeMatrix := AStrokeMatrix;
+  if AClosed then
+    result := Stroker.ComputePolygon(APoints, PenWidth)
+  else
+    result := Stroker.ComputePolyline(APoints, PenWidth, PenColor);
+end;
+
+function TVectorShape.GetStroker: TBGRAPenStroker;
+begin
+  if FStroker = nil then FStroker := TBGRAPenStroker.Create;
+  result := FStroker;
+end;
+
+procedure TVectorShape.SetPenColor(AValue: TBGRAPixel);
+begin
+  if AValue.alpha = 0 then AValue := BGRAPixelTransparent;
+  if FPenColor = AValue then exit;
+  BeginUpdate;
+  FPenColor := AValue;
+  EndUpdate;
+end;
+
+procedure TVectorShape.SetPenWidth(AValue: single);
+begin
+  if AValue < 0 then AValue := 0;
+  if FPenWidth = AValue then exit;
+  BeginUpdate;
+  FPenWidth := AValue;
+  EndUpdate;
+end;
+
+procedure TVectorShape.SetPenStyle(AValue: TBGRAPenStyle);
+begin
+  BeginUpdate;
+  Stroker.CustomPenStyle := AValue;
+  EndUpdate;
+end;
+
+procedure TVectorShape.SetBackColor(AValue: TBGRAPixel);
+begin
+  if AValue.alpha = 0 then AValue := BGRAPixelTransparent;
+  if FBackColor = AValue then exit;
+  BeginUpdate;
+  FBackColor := AValue;
+  EndUpdate;
+end;
+
+constructor TVectorShape.Create;
+begin
+  FPenColor := BGRAPixelTransparent;
+  FPenWidth := 1;
+  FBackColor := BGRAPixelTransparent;
+  FStroker := nil;
+end;
+
+destructor TVectorShape.Destroy;
+begin
+  FreeAndNil(FStroker);
+  inherited Destroy;
+end;
+
+procedure TVectorShape.LoadFromStorage(AStorage: TBGRACustomOriginalStorage);
+var
+  f: TVectorShapeFields;
+begin
+  f := Fields;
+  if f <> [] then
+  begin
+    BeginUpdate;
+    if vsfPenColor in f then PenColor := AStorage.Color['pen-color'];
+    if vsfPenWidth in f then PenWidth := AStorage.FloatDef['pen-width', 0];
+    if vsfPenStyle in f then PenStyle := AStorage.FloatArray['pen-style'];
+    if vsfJoinStyle in f then
+      case AStorage.RawString['join-style'] of
+      'round': JoinStyle := pjsRound;
+      'bevel': JoinStyle := pjsBevel;
+      else JoinStyle := pjsMiter;
+      end;
+    if vsfBackColor in f then BackColor := AStorage.Color['back-color'];
+    EndUpdate;
+  end;
+end;
+
+procedure TVectorShape.SaveToStorage(AStorage: TBGRACustomOriginalStorage);
+var
+  f: TVectorShapeFields;
+begin
+  f := Fields;
+  if vsfPenColor in f then AStorage.Color['pen-color'] := PenColor;
+  if vsfPenWidth in f then AStorage.Float['pen-width'] := PenWidth;
+  if vsfPenStyle in f then AStorage.FloatArray['pen-style'] := PenStyle;
+  if vsfJoinStyle in f then
+    case JoinStyle of
+    pjsRound: AStorage.RawString['join-style'] := 'round';
+    pjsBevel: AStorage.RawString['join-style'] := 'bevel';
+    else AStorage.RawString['join-style'] := 'miter';
+    end;
+  if vsfBackColor in f then AStorage.Color['back-color'] := BackColor;
 end;
 
 { TVectorOriginal }
@@ -620,7 +863,7 @@ begin
   result:= FShapes.Add(AShape);
   AShape.OnChange := @OnShapeChange;
   DiscardFrozenShapes;
-  NotifyChange(AShape.GetRenderBounds(AffineMatrixIdentity));
+  NotifyChange(AShape.GetRenderBounds(InfiniteRect, AffineMatrixIdentity));
 end;
 
 function TVectorOriginal.RemoveShape(AShape: TVectorShape): boolean;
@@ -631,7 +874,7 @@ begin
   idx := FShapes.IndexOf(AShape);
   if idx = -1 then exit(false);
   if AShape = SelectedShape then DeselectShape;
-  r := AShape.GetRenderBounds(AffineMatrixIdentity);
+  r := AShape.GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
   FShapes.Delete(idx);
   FDeletedShapes.Add(AShape);
   DiscardFrozenShapes;
@@ -759,7 +1002,7 @@ begin
 
   for i:= 0 to FShapes.Count-1 do
   begin
-    shapeArea := FShapes[i].GetRenderBounds(AMatrix);
+    shapeArea := FShapes[i].GetRenderBounds(ADestRect, AMatrix);
     area := area.Union(shapeArea, true);
   end;
 
