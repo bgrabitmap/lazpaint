@@ -31,6 +31,8 @@ type
     ShapeBackColor: TShape;
     ShapePenColor: TShape;
     ToolBar1: TToolBar;
+    ToolButtonCurvedPoly: TToolButton;
+    ToolButtonPoly: TToolButton;
     ToolButtonRect: TToolButton;
     ToolButtonEllipse: TToolButton;
     UpDownPenAlpha: TBCTrackbarUpdown;
@@ -81,6 +83,7 @@ type
     procedure UpdateFlattenedImage(ARect: TRect);
     procedure UpdateView(AImageChangeRect: TRect);
     procedure UpdateToolbarFromShape(AShape: TVectorShape);
+    function CreateShape(const APoint1, APoint2: TPointF): TVectorShape;
     { private declarations }
   public
     { public declarations }
@@ -177,7 +180,7 @@ end;
 procedure TForm1.BGRAVirtualScreen1MouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
-  imgPtF,ptF: TPointF;
+  imgPtF: TPointF;
   cur: TOriginalEditorCursor;
   handled: boolean;
 begin
@@ -189,8 +192,7 @@ begin
 
   if not justDown and not Assigned(newShape) then
   begin
-    ptF := AffineMatrixInverse(vectorTransform)*imgPtF;
-    newStartPoint := ptF;
+    newStartPoint := AffineMatrixInverse(vectorTransform)*imgPtF;
     newButton := Button;
     justDown := true;
   end;
@@ -213,12 +215,7 @@ begin
   if justDown and not Assigned(newShape) then
   begin
     vectorOriginal.DeselectShape;
-    newShape := currentTool.Create;
-    newShape.penColor := penColor;
-    newShape.backColor := backColor;
-    newShape.penWidth := penWidth;
-    newShape.PenStyle := penStyle;
-    newShape.QuickDefine(newStartPoint,ptF);
+    newShape := CreateShape(newStartPoint,ptF);
     rF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
     ImageChange(rF);
     justDown := false;
@@ -236,7 +233,6 @@ procedure TForm1.BGRAVirtualScreen1MouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   rF: TRectF;
-  idxShape: Integer;
   imgPtF: TPointF;
   handled: boolean;
   cur: TOriginalEditorCursor;
@@ -250,18 +246,21 @@ begin
 
   if justDown and (Button = newButton) then
   begin
-    vectorOriginal.MouseClick(newStartPoint);
+    if vsuCreate in currentTool.Usermodes then
+    begin
+      vectorOriginal.AddShape(CreateShape(newStartPoint,newStartPoint), vsuCreate);
+    end else
+      vectorOriginal.MouseClick(newStartPoint);
     justDown:= false;
   end
   else if Assigned(newShape) and (Button = newButton) then
   begin
     rF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
-    if not IsEmptyRectF(rF) then
+    if not IsEmptyRectF(rF) or (vsuCreate in newShape.Usermodes) then
     begin
       addedShape := newShape;
       newShape := nil;
-      idxShape := vectorOriginal.AddShape(addedShape);
-      vectorOriginal.SelectShape(idxShape);
+      vectorOriginal.AddShape(addedShape, vsuCreate);
     end
     else
       FreeAndNil(newShape);
@@ -321,6 +320,7 @@ procedure TForm1.ToolButtonClick(Sender: TObject);
 begin
   if ToolButtonEllipse.Down then currentTool:= TEllipseShape;
   if ToolButtonRect.Down then currentTool:= TRectShape;
+  if ToolButtonPoly.Down then currentTool:= TPolygonShape;
   if Assigned(vectorOriginal) and (vectorOriginal.SelectedShape <> nil) then vectorOriginal.DeselectShape
   else UpdateToolbarFromShape(nil);
 end;
@@ -431,6 +431,7 @@ begin
   FCurrentTool:=AValue;
   ToolButtonRect.Down := FCurrentTool = TRectShape;
   ToolButtonEllipse.Down := FCurrentTool = TEllipseShape;
+  ToolButtonPoly.Down := FCurrentTool = TPolygonShape;
 end;
 
 procedure TForm1.SetPenColor(AValue: TBGRAPixel);
@@ -492,8 +493,7 @@ var
   renderedRect: TRect;
 begin
   renderedRect := img.RenderOriginalsIfNecessary(ADraft);
-  if not IsRectEmpty(renderedRect) then
-    UpdateFlattenedImage(renderedRect);
+  UpdateFlattenedImage(renderedRect);
 end;
 
 procedure TForm1.UpdateFlattenedImage(ARect: TRect);
@@ -504,6 +504,7 @@ begin
   if FFlattened = nil then
     FFlattened := img.ComputeFlatImage
   else
+  if not IsRectEmpty(ARect) then
   begin
     FFlattened.FillRect(ARect,BGRAPixelTransparent,dmSet);
     FFlattened.ClipRect := ARect;
@@ -511,15 +512,17 @@ begin
     FFlattened.NoClip;
   end;
 
-  if Assigned(newShape) then
+  if Assigned(newShape) and not IsRectEmpty(ARect) then
   begin
     shapeRectF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
     with shapeRectF do
       shapeRect := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
-    IntersectRect(shapeRect, shapeRect, ARect);
-    FFlattened.ClipRect := shapeRect;
-    newShape.Render(FFlattened, vectorTransform, false);
-    FFlattened.NoClip;
+    if IntersectRect(shapeRect, shapeRect, ARect) then
+    begin
+      FFlattened.ClipRect := shapeRect;
+      newShape.Render(FFlattened, vectorTransform, false);
+      FFlattened.NoClip;
+    end;
   end;
 
   UpdateView(ARect);
@@ -591,6 +594,16 @@ begin
     FloatSpinEditPenWidth.Enabled := vsfPenWidth in currentTool.Fields;
     ComboBoxPenStyle.Enabled:= vsfPenStyle in currentTool.Fields;
   end;
+end;
+
+function TForm1.CreateShape(const APoint1,APoint2: TPointF): TVectorShape;
+begin
+  result := currentTool.Create;
+  result.PenColor := penColor;
+  result.BackColor := backColor;
+  result.PenWidth := penWidth;
+  result.PenStyle := penStyle;
+  result.QuickDefine(APoint1,APoint2);
 end;
 
 end.

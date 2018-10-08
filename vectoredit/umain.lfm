@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 539
+  Left = 536
   Height = 410
-  Top = 89
+  Top = 14
   Width = 627
   Caption = 'Vector Edit'
   ClientHeight = 410
@@ -119,6 +119,25 @@ object Form1: TForm1
         ImageIndex = 20
         OnClick = ToolButtonClick
         Style = tbsCheck
+      end
+      object ToolButtonPoly: TToolButton
+        Left = 1
+        Top = 110
+        Caption = 'ToolButtonPoly'
+        Grouped = True
+        ImageIndex = 21
+        OnClick = ToolButtonClick
+        Style = tbsCheck
+      end
+      object ToolButtonCurvedPoly: TToolButton
+        Left = 1
+        Top = 165
+        Caption = 'ToolButtonCurvedPoly'
+        Grouped = True
+        ImageIndex = 22
+        OnClick = ToolButtonClick
+        Style = tbsCheck
+        Visible = False
       end
     end
   end

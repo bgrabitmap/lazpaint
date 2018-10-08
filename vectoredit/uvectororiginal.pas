@@ -13,19 +13,25 @@ const
 
 type
   TShapeChangeEvent = procedure(ASender: TObject; ABounds: TRectF) of object;
+  TShapeEditingChangeEvent = procedure(ASender: TObject) of object;
+
   TVectorShapeField = (vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackColor);
   TVectorShapeFields = set of TVectorShapeField;
+  TVectorShapeUsermode = (vsuEdit, vsuCreate);
+  TVectorShapeUsermodes = set of TVectorShapeUsermode;
 
   { TVectorShape }
 
   TVectorShape = class
   private
     FOnChange: TShapeChangeEvent;
+    FOnEditingChange: TShapeEditingChangeEvent;
     FUpdateCount: integer;
     FBoundsBeforeUpdate: TRectF;
     FPenColor,FBackColor: TBGRAPixel;
     FPenWidth: single;
     FStroker: TBGRAPenStroker;
+    FUsermode: TVectorShapeUsermode;
   protected
     procedure BeginUpdate;
     procedure EndUpdate;
@@ -39,6 +45,7 @@ type
     procedure SetPenStyle({%H-}AValue: TBGRAPenStyle); virtual;
     procedure SetJoinStyle(AValue: TPenJoinStyle);
     procedure SetBackColor(AValue: TBGRAPixel); virtual;
+    procedure SetUsermode(AValue: TVectorShapeUsermode); virtual;
     function ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean; AStrokeMatrix: TAffineMatrix): ArrayOfTPointF;
     function GetStroker: TBGRAPenStroker;
     property Stroker: TBGRAPenStroker read GetStroker;
@@ -52,15 +59,21 @@ type
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); virtual; abstract;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); virtual;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); virtual;
+    procedure MouseMove(Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); virtual;
+    procedure MouseDown(RightButton: boolean; Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); virtual;
+    procedure MouseUp(RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); virtual;
     class function StorageClassName: RawByteString; virtual; abstract;
     function GetIsSlow({%H-}AMatrix: TAffineMatrix): boolean; virtual;
     class function Fields: TVectorShapeFields; virtual;
+    class function Usermodes: TVectorShapeUsermodes; virtual;
     property OnChange: TShapeChangeEvent read FOnChange write FOnChange;
+    property OnEditingChange: TShapeEditingChangeEvent read FOnEditingChange write FOnEditingChange;
     property PenColor: TBGRAPixel read GetPenColor write SetPenColor;
     property BackColor: TBGRAPixel read GetBackColor write SetBackColor;
     property PenWidth: single read GetPenWidth write SetPenWidth;
     property PenStyle: TBGRAPenStyle read GetPenStyle write SetPenStyle;
     property JoinStyle: TPenJoinStyle read GetJoinStyle write SetJoinStyle;
+    property Usermode: TVectorShapeUsermode read FUsermode write SetUsermode;
   end;
   TVectorShapes = specialize TFPGList<TVectorShape>;
   TVectorShapeAny = class of TVectorShape;
@@ -73,13 +86,21 @@ type
     FOriginBackup,FXUnitBackup,FYUnitBackup,
     FXAxisBackup,FYAxisBackup: TPointF;
     FXSizeBackup,FYSizeBackup: single;
+    procedure DoMoveXAxis(ANewCoord: TPointF; AShift: TShiftState; AFactor: single);
+    procedure DoMoveYAxis(ANewCoord: TPointF; AShift: TShiftState; AFactor: single);
+    procedure DoMoveXYCorner(ANewCoord: TPointF; AShift: TShiftState; AFactorX, AFactorY: single);
     procedure OnMoveOrigin({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; {%H-}AShift: TShiftState);
     procedure OnMoveXAxis({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnMoveYAxis({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnMoveXAxisNeg({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnMoveYAxisNeg({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveXYCorner({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveXNegYCorner({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveXYNegCorner({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveXNegYNegCorner({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnStartMove({%H-}ASender: TObject; {%H-}APointIndex: integer; {%H-}AShift: TShiftState);
     function GetAffineBox(AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
+    function GetCornerPositition: single; virtual; abstract;
   public
     procedure QuickDefine(const APoint1,APoint2: TPointF); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
@@ -94,6 +115,7 @@ type
   protected
     function PenVisible: boolean;
     function BackVisible: boolean;
+    function GetCornerPositition: single; override;
   public
     class function Fields: TVectorShapeFields; override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
@@ -109,6 +131,7 @@ type
   protected
     function PenVisible: boolean;
     function BackVisible: boolean;
+    function GetCornerPositition: single; override;
   public
     constructor Create;
     class function Fields: TVectorShapeFields; override;
@@ -119,7 +142,59 @@ type
     class function StorageClassName: RawByteString; override;
   end;
 
+  { TCustomPolypointShape }
+
+  TCustomPolypointShape = class(TVectorShape)
+  private
+    function GetPoint(AIndex: integer): TPointF;
+    function GetPointCount: integer;
+    procedure SetPoint(AIndex: integer; AValue: TPointF);
+  protected
+    FPoints: array of record
+               coord: TPointF;
+               editorIndex: integer;
+             end;
+    FCurPoint: integer;
+    FAddingPoint: boolean;
+    FMousePos: TPointF;
+    procedure OnMovePoint({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; {%H-}AShift: TShiftState);
+    procedure OnStartMove({%H-}ASender: TObject; APointIndex: integer; {%H-}AShift: TShiftState);
+    function GetCurve(AMatrix: TAffineMatrix): ArrayOfTPointF; virtual;
+    procedure SetUsermode(AValue: TVectorShapeUsermode); override;
+    function PointsEqual(const APoint1, APoint2: TPointF): boolean;
+  public
+    constructor Create;
+    procedure AddPoint(const APoint: TPointF);
+    procedure MouseMove(Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); override;
+    procedure MouseDown(RightButton: boolean; Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); override;
+    procedure QuickDefine(const APoint1,APoint2: TPointF); override;
+    procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
+    procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
+    function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix): TRectF; override;
+    procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
+    class function Usermodes: TVectorShapeUsermodes; override;
+    property Points[AIndex:integer]: TPointF read GetPoint write SetPoint;
+    property PointCount: integer read GetPointCount;
+  end;
+
+  { TPolygonShape }
+
+  TPolygonShape = class(TCustomPolypointShape)
+  protected
+    function PenVisible: boolean;
+    function BackVisible: boolean;
+  public
+    class function Fields: TVectorShapeFields; override;
+    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
+    function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix): TRectF; override;
+    function PointInShape(APoint: TPointF): boolean; override;
+    function GetIsSlow({%H-}AMatrix: TAffineMatrix): boolean; override;
+    class function StorageClassName: RawByteString; override;
+  end;
+
   TVectorOriginalSelectShapeEvent = procedure(ASender: TObject; AShape: TVectorShape; APreviousShape: TVectorShape) of object;
+
+  TVectorOriginalEditor = class;
 
   { TVectorOriginal }
 
@@ -135,24 +210,40 @@ type
     FOnSelectShape: TVectorOriginalSelectShapeEvent;
     procedure FreeDeletedShapes;
     procedure OnShapeChange(ASender: TObject; ABounds: TRectF);
+    procedure OnShapeEditingChange(ASender: TObject);
     procedure DiscardFrozenShapes;
   public
     constructor Create; override;
     destructor Destroy; override;
     procedure Clear;
-    function AddShape(AShape: TVectorShape): integer;
+    function AddShape(AShape: TVectorShape): integer; overload;
+    function AddShape(AShape: TVectorShape; AUsermode: TVectorShapeUsermode): integer; overload;
     function RemoveShape(AShape: TVectorShape): boolean;
-    procedure SelectShape(AIndex: integer);
+    procedure SelectShape(AIndex: integer); overload;
+    procedure SelectShape(AShape: TVectorShape); overload;
     procedure DeselectShape;
     procedure MouseClick(APoint: TPointF);
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
+    function CreateEditor: TBGRAOriginalEditor; override;
     function GetRenderBounds(ADestRect: TRect; {%H-}AMatrix: TAffineMatrix): TRect; override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     class function StorageClassName: RawByteString; override;
     property OnSelectShape: TVectorOriginalSelectShapeEvent read FOnSelectShape write FOnSelectShape;
     property SelectedShape: TVectorShape read FSelectedShape;
+  end;
+
+  { TVectorOriginalEditor }
+
+  TVectorOriginalEditor = class(TBGRAOriginalEditor)
+  protected
+    FOriginal: TVectorOriginal;
+  public
+    constructor Create(AOriginal: TVectorOriginal);
+    procedure MouseMove(Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); override;
+    procedure MouseDown(RightButton: boolean; Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); override;
+    procedure MouseUp(RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); override;
   end;
 
 procedure RegisterVectorShape(AClass: TVectorShapeAny);
@@ -194,6 +285,375 @@ begin
   VectorShapeClasses[high(VectorShapeClasses)] := AClass;
 end;
 
+{ TVectorOriginalEditor }
+
+constructor TVectorOriginalEditor.Create(AOriginal: TVectorOriginal);
+begin
+  inherited Create;
+  FOriginal := AOriginal;
+end;
+
+procedure TVectorOriginalEditor.MouseMove(Shift: TShiftState; X, Y: single; out
+  ACursor: TOriginalEditorCursor; out AHandled: boolean);
+begin
+  inherited MouseMove(Shift, X, Y, ACursor, AHandled);
+  if not AHandled and Assigned(FOriginal.SelectedShape) then
+    FOriginal.SelectedShape.MouseMove(Shift, X,Y, ACursor, AHandled);
+end;
+
+procedure TVectorOriginalEditor.MouseDown(RightButton: boolean;
+  Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out
+  AHandled: boolean);
+begin
+  inherited MouseDown(RightButton, Shift, X, Y, ACursor, AHandled);
+  if not AHandled and Assigned(FOriginal.SelectedShape) then
+    FOriginal.SelectedShape.MouseDown(RightButton, Shift, X,Y, ACursor, AHandled);
+end;
+
+procedure TVectorOriginalEditor.MouseUp(RightButton: boolean;
+  Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out
+  AHandled: boolean);
+begin
+  inherited MouseUp(RightButton, Shift, X, Y, ACursor, AHandled);
+  if not AHandled and Assigned(FOriginal.SelectedShape) then
+    FOriginal.SelectedShape.MouseUp(RightButton, Shift, X,Y, ACursor, AHandled);
+end;
+
+{ TPolygonShape }
+
+function TPolygonShape.PenVisible: boolean;
+begin
+  result := (PenWidth>0) and (PenColor.alpha>0) and not IsClearPenStyle(PenStyle);
+end;
+
+function TPolygonShape.BackVisible: boolean;
+begin
+  result := BackColor.alpha <> 0;
+end;
+
+class function TPolygonShape.Fields: TVectorShapeFields;
+begin
+  Result:= [vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackColor];
+end;
+
+procedure TPolygonShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
+  ADraft: boolean);
+var
+  pts: array of TPointF;
+begin
+  if not BackVisible and not PenVisible then exit;
+  pts := GetCurve(AMatrix);
+  if BackVisible then
+  begin
+    if ADraft then
+      ADest.FillPoly(pts, BackColor, dmDrawWithTransparency)
+    else
+      ADest.FillPolyAntialias(pts, BackColor);
+  end;
+  if PenVisible then
+  begin
+    pts := ComputeStroke(pts, true, AMatrix);
+    if ADraft and (PenWidth > 4) then
+      ADest.FillPoly(pts, PenColor, dmDrawWithTransparency)
+    else
+      ADest.FillPolyAntialias(pts, PenColor);
+  end;
+end;
+
+function TPolygonShape.GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix): TRectF;
+var
+  i: Integer;
+  pts: ArrayOfTPointF;
+  xMargin, yMargin: single;
+begin
+  if not BackVisible and not PenVisible then
+    result:= EmptyRectF
+  else
+  begin
+    if PenVisible then
+    begin
+      if (JoinStyle <> pjsMiter) or (Stroker.MiterLimit <= 1) then
+      begin
+        xMargin := (abs(AMatrix[1,1])+abs(AMatrix[1,2]))*PenWidth*0.5;
+        yMargin := (abs(AMatrix[2,1])+abs(AMatrix[2,2]))*PenWidth*0.5;
+        result := inherited GetRenderBounds(ADestRect, AMatrix);
+        result.Left -= xMargin;
+        result.Top -= yMargin;
+        result.Right += xMargin;
+        result.Bottom += yMargin;
+      end else
+      begin
+        pts := ComputeStroke(GetCurve(AMatrix), true, AMatrix);
+        for i := 0 to high(pts) do
+        begin
+          if pts[i].x < result.Left then result.Left := pts[i].x;
+          if pts[i].x > result.Right then result.Right := pts[i].x;
+          if pts[i].y < result.Top then result.Top := pts[i].y;
+          if pts[i].y > result.Bottom then result.Bottom := pts[i].y;
+        end;
+      end;
+    end
+    else
+      result := inherited GetRenderBounds(ADestRect, AMatrix);
+  end;
+end;
+
+function TPolygonShape.PointInShape(APoint: TPointF): boolean;
+var
+  pts: ArrayOfTPointF;
+begin
+  if not BackVisible and not PenVisible then exit;
+  pts := GetCurve(AffineMatrixIdentity);
+  if BackVisible and IsPointInPolygon(pts, APoint, true) then exit(true);
+  if PenVisible then
+  begin
+    pts := ComputeStroke(pts, true, AffineMatrixIdentity);
+    if IsPointInPolygon(pts, APoint, true) then exit(true);
+  end;
+  result := false;
+end;
+
+function TPolygonShape.GetIsSlow(AMatrix: TAffineMatrix): boolean;
+begin
+  Result:= PointCount > 40;
+end;
+
+class function TPolygonShape.StorageClassName: RawByteString;
+begin
+  result := 'polygon';
+end;
+
+{ TCustomPolypointShape }
+
+function TCustomPolypointShape.GetPoint(AIndex: integer): TPointF;
+begin
+  if (AIndex < 0) or (AIndex >= length(FPoints)) then
+    raise ERangeError.Create('Index out of bounds');
+  result := FPoints[AIndex].coord;
+end;
+
+function TCustomPolypointShape.GetPointCount: integer;
+begin
+  result:= length(FPoints);
+end;
+
+procedure TCustomPolypointShape.SetPoint(AIndex: integer; AValue: TPointF);
+begin
+  if (AIndex < 0) or (AIndex > length(FPoints)) then
+    raise ERangeError.Create('Index out of bounds');
+  BeginUpdate;
+  if AIndex = length(FPoints) then
+  begin
+    setlength(FPoints, length(FPoints)+1);
+    FPoints[high(FPoints)].coord := AValue;
+    FPoints[high(FPoints)].editorIndex := -1;
+  end
+  else
+    FPoints[AIndex].coord := AValue;
+  EndUpdate;
+end;
+
+procedure TCustomPolypointShape.OnMovePoint(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  if FCurPoint = -1 then exit;
+  BeginUpdate;
+  Points[FCurPoint] := ANewCoord;
+  EndUpdate;
+end;
+
+procedure TCustomPolypointShape.OnStartMove(ASender: TObject; APointIndex: integer;
+  AShift: TShiftState);
+var
+  i: Integer;
+begin
+  FCurPoint:= -1;
+  for i:= 0 to high(FPoints) do
+    if FPoints[i].editorIndex = APointIndex then
+    begin
+      FCurPoint:= i;
+      break;
+    end;
+end;
+
+function TCustomPolypointShape.GetCurve(AMatrix: TAffineMatrix): ArrayOfTPointF;
+var
+  i: Integer;
+begin
+  setlength(result, PointCount);
+  for i := 0 to PointCount-1 do
+    result[i] := AMatrix*Points[i];
+end;
+
+class function TCustomPolypointShape.Usermodes: TVectorShapeUsermodes;
+begin
+  Result:=[vsuEdit,vsuCreate];
+end;
+
+procedure TCustomPolypointShape.SetUsermode(AValue: TVectorShapeUsermode);
+var
+  add: Boolean;
+begin
+  add := AValue = vsuCreate;
+  if add and (length(FPoints) = 0) then exit;
+  if FAddingPoint and not add then
+  begin
+    if (length(FPoints)>1) and PointsEqual(FPoints[high(FPoints)].coord,FPoints[high(FPoints)-1].coord) then
+    begin
+      BeginUpdate;
+      setlength(FPoints, length(FPoints)-1);
+      EndUpdate;
+    end;
+    FAddingPoint:= add;
+  end else
+  if not FAddingPoint and add then
+  begin
+    if not isEmptyPointF(FMousePos) then
+      AddPoint(FMousePos)
+    else
+      AddPoint(Points[PointCount-1]);
+    FAddingPoint:= add;
+  end;
+  inherited SetUsermode(AValue);
+end;
+
+function TCustomPolypointShape.PointsEqual(const APoint1, APoint2: TPointF
+  ): boolean;
+begin
+  if isEmptyPointF(APoint1) then
+    exit(isEmptyPointF(APoint2))
+  else
+  if isEmptyPointF(APoint2) then exit(false)
+  else
+    exit((APoint1.x = APoint2.x) and (APoint1.y = APoint2.y));
+end;
+
+constructor TCustomPolypointShape.Create;
+begin
+  inherited Create;
+  FMousePos := EmptyPointF;
+end;
+
+procedure TCustomPolypointShape.AddPoint(const APoint: TPointF);
+begin
+  Points[PointCount] := APoint;
+end;
+
+procedure TCustomPolypointShape.MouseMove(Shift: TShiftState; X, Y: single; out
+  ACursor: TOriginalEditorCursor; out AHandled: boolean);
+begin
+  FMousePos := PointF(X,Y);
+  if FAddingPoint then
+  begin
+    BeginUpdate;
+    FPoints[high(FPoints)].coord := FMousePos;
+    EndUpdate;
+  end;
+end;
+
+procedure TCustomPolypointShape.MouseDown(RightButton: boolean;
+  Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out
+  AHandled: boolean);
+begin
+  if FAddingPoint then
+  begin
+    if not RightButton then
+    begin
+      if (length(FPoints)>1) and not PointsEqual(FPoints[high(FPoints)].coord,FPoints[high(FPoints)-1].coord) then
+        AddPoint(FPoints[high(FPoints)].coord);
+    end else
+      Usermode := vsuEdit;
+    AHandled:= true;
+  end;
+end;
+
+procedure TCustomPolypointShape.QuickDefine(const APoint1, APoint2: TPointF);
+begin
+  BeginUpdate;
+  FPoints := nil;
+  AddPoint(APoint1);
+  if not PointsEqual(APoint1,APoint2) then
+    AddPoint(APoint2);
+  EndUpdate;
+  FMousePos := APoint2;
+end;
+
+procedure TCustomPolypointShape.LoadFromStorage(AStorage: TBGRACustomOriginalStorage);
+var
+  x,y: Array of Single;
+  i: Integer;
+begin
+  BeginUpdate;
+  inherited LoadFromStorage(AStorage);
+  x := AStorage.FloatArray['x'];
+  y := AStorage.FloatArray['y'];
+  setlength(FPoints, max(length(x),length(y)));
+  for i := 0 to high(FPoints) do
+  begin
+    FPoints[i].coord := PointF(x[i],y[i]);
+    FPoints[i].editorIndex := -1;
+  end;
+  EndUpdate;
+end;
+
+procedure TCustomPolypointShape.SaveToStorage(AStorage: TBGRACustomOriginalStorage);
+var
+  x,y: Array of Single;
+  i: Integer;
+begin
+  inherited SaveToStorage(AStorage);
+  setlength(x, PointCount);
+  setlength(y, PointCount);
+  for i:= 0 to PointCount-1 do
+  begin
+    x[i] := Points[i].x;
+    y[i] := Points[i].y;
+  end;
+  AStorage.FloatArray['x'] := x;
+  AStorage.FloatArray['y'] := y;
+end;
+
+function TCustomPolypointShape.GetRenderBounds(ADestRect: TRect;
+  AMatrix: TAffineMatrix): TRectF;
+var
+  i: Integer;
+  pts: ArrayOfTPointF;
+  firstPoint: Boolean;
+begin
+  result:= EmptyRectF;
+  firstPoint := true;
+  pts := GetCurve(AMatrix);
+  for i:= 0 to high(pts) do
+    if not isEmptyPointF(pts[i]) then
+    begin
+      if firstPoint then
+      begin
+        result.TopLeft := pts[i];
+        result.BottomRight := pts[i];
+        firstPoint := false;
+      end else
+      with pts[i] do
+      begin
+        if x < result.Left then result.Left := x
+        else if x > result.right then result.right := x;
+        if y < result.top then result.top := y
+        else if y > result.bottom then result.bottom := y;
+      end;
+    end;
+end;
+
+procedure TCustomPolypointShape.ConfigureEditor(AEditor: TBGRAOriginalEditor);
+var
+  i: Integer;
+begin
+  AEditor.AddStartMoveHandler(@OnStartMove);
+  for i:= 0 to PointCount-1 do
+    if (FAddingPoint and ((i = 0) or (i = PointCount-1))) or isEmptyPointF(Points[i]) then
+      FPoints[i].editorIndex := -1
+    else
+      FPoints[i].editorIndex := AEditor.AddPoint(Points[i], @OnMovePoint, false);
+end;
+
 { TEllipseShape }
 
 function TEllipseShape.PenVisible: boolean;
@@ -204,6 +664,11 @@ end;
 function TEllipseShape.BackVisible: boolean;
 begin
   result := BackColor.alpha <> 0;
+end;
+
+function TEllipseShape.GetCornerPositition: single;
+begin
+  result := sqrt(2)/2;
 end;
 
 constructor TEllipseShape.Create;
@@ -222,26 +687,22 @@ procedure TEllipseShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
 var
   pts: Array of TPointF;
 begin
-  //pts := ComputeEllipse(AMatrix*FOrigin, AMatrix*FXAxis, AMatrix*FYAxis);
-  ADest.FillEllipseLinearColorAntialias(AMatrix*FOrigin, AMatrix*FXAxis, AMatrix*FYAxis, PenColor, BackColor);
-  //ADest.EllipseAntialias(AMatrix*FOrigin, AMatrix*FXAxis, AMatrix*FYAxis, PenColor, PenWidth, BackColor);
-{  If BackVisible then
+  pts := ComputeEllipse(AMatrix*FOrigin, AMatrix*FXAxis, AMatrix*FYAxis);
+  If BackVisible then
   begin
-    ADest.FillEllipseAntialias(AMatrix*FOrigin, AMatrix*FXAxis, AMatrix*FYAxis, BackColor);
-{    if ADraft then
+    if ADraft then
       ADest.FillPoly(pts, BackColor, dmDrawWithTransparency)
     else
-      ADest.FillPolyAntialias(pts, BackColor);}
+      ADest.FillPolyAntialias(pts, BackColor);
   end;
   if PenVisible then
   begin
-    ADest.EllipseAntialias(AMatrix*FOrigin, AMatrix*FXAxis, AMatrix*FYAxis, PenColor, PenWidth);
-{    pts := ComputeStroke(pts,true, AMatrix);
+    pts := ComputeStroke(pts,true, AMatrix);
     if ADraft and (PenWidth > 4) then
       ADest.FillPoly(pts, PenColor, dmDrawWithTransparency)
     else
-      ADest.FillPolyAntialias(pts, PenColor);}
-  end;}
+      ADest.FillPolyAntialias(pts, PenColor);
+  end;
 end;
 
 function TEllipseShape.GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix): TRectF;
@@ -311,6 +772,89 @@ end;
 
 { TCustomRectShape }
 
+procedure TCustomRectShape.DoMoveXAxis(ANewCoord: TPointF; AShift: TShiftState; AFactor: single);
+var
+  newSize: Single;
+begin
+  BeginUpdate;
+  if (ssAlt in AShift) or (FXUnitBackup = PointF(0,0)) then
+  begin
+    FXAxis := FOriginBackup + AFactor*(ANewCoord - FOriginBackup);
+    FYAxis := FYAxisBackup;
+    FOrigin := FOriginBackup;
+  end
+  else
+  begin
+    newSize := AFactor*FXUnitBackup*(ANewCoord-FOriginBackup);
+    if ssShift in AShift then
+    begin
+      FXAxis := FOriginBackup+FXUnitBackup*newSize;
+      FYAxis := FYAxisBackup;
+      FOrigin := FOriginBackup;
+    end else
+    begin
+      FXAxis := FXAxisBackup + ((AFactor+1)*0.5)*(newSize-FXSizeBackup)*FXUnitBackup;
+      FYAxis := FYAxisBackup + AFactor*(newSize-FXSizeBackup)*0.5*FXUnitBackup;
+      FOrigin := FOriginBackup + AFactor*(newSize-FXSizeBackup)*0.5*FXUnitBackup;
+    end;
+  end;
+  EndUpdate;
+end;
+
+procedure TCustomRectShape.DoMoveYAxis(ANewCoord: TPointF; AShift: TShiftState;
+  AFactor: single);
+var
+  newSizeY: Single;
+begin
+  BeginUpdate;
+  if (ssAlt in AShift) or (FYUnitBackup = PointF(0,0)) then
+  begin
+    FYAxis := FOriginBackup + AFactor*(ANewCoord - FOriginBackup);
+    FXAxis := FXAxisBackup;
+    FOrigin := FOriginBackup;
+  end
+  else
+  begin
+    newSizeY := AFactor*FYUnitBackup*(ANewCoord-FOriginBackup);
+    if ssShift in AShift then
+    begin
+      FYAxis := FOriginBackup+FYUnitBackup*newSizeY;
+      FXAxis := FXAxisBackup;
+      FOrigin := FOriginBackup;
+    end else
+    begin
+      FYAxis := FYAxisBackup + ((AFactor+1)*0.5)*(newSizeY-FYSizeBackup)*FYUnitBackup;
+      FXAxis := FXAxisBackup + AFactor*(newSizeY-FYSizeBackup)*0.5*FYUnitBackup;
+      FOrigin := FOriginBackup + AFactor*(newSizeY-FYSizeBackup)*0.5*FYUnitBackup;
+    end;
+  end;
+  EndUpdate;
+end;
+
+procedure TCustomRectShape.DoMoveXYCorner(ANewCoord: TPointF;
+  AShift: TShiftState; AFactorX, AFactorY: single);
+var
+  ratio, d: single;
+  m: TAffineMatrix;
+  newSize: TPointF;
+begin
+  BeginUpdate;
+  d := GetCornerPositition;
+  m := AffineMatrixInverse(AffineMatrix(AFactorX*FXUnitBackup*d,AFactorY*FYUnitBackup*d,FOriginBackup));
+  newSize := m*ANewCoord;
+  if (ssShift in AShift) and (FXSizeBackup <> 0) and (FYSizeBackup <> 0) then
+  begin
+    ratio := (newSize.X/FXSizeBackup + newSize.Y/FYSizeBackup)/2;
+    newSize.X := ratio*FXSizeBackup;
+    newSize.Y := ratio*FYSizeBackup;
+  end;
+  FXAxis := FXAxisBackup + (AFactorX+1)*0.5*FXUnitBackup*(newSize.X-FXSizeBackup) + AFactorY*(newSize.Y-FYSizeBackup)*0.5*FYUnitBackup;
+  FYAxis := FYAxisBackup + (AFactorY+1)*0.5*FYUnitBackup*(newSize.Y-FYSizeBackup) + AFactorX*(newSize.X-FXSizeBackup)*0.5*FXUnitBackup;
+  FOrigin := FOriginBackup + AFactorX*(newSize.X-FXSizeBackup)*0.5*FXUnitBackup
+                           + AFactorY*(newSize.Y-FYSizeBackup)*0.5*FYUnitBackup;
+  EndUpdate;
+end;
+
 procedure TCustomRectShape.OnMoveOrigin(ASender: TObject; APrevCoord,
   ANewCoord: TPointF; AShift: TShiftState);
 var
@@ -326,118 +870,50 @@ end;
 
 procedure TCustomRectShape.OnMoveXAxis(ASender: TObject; APrevCoord,
   ANewCoord: TPointF; AShift: TShiftState);
-var newSize: single;
 begin
-  BeginUpdate;
-  if (ssAlt in AShift) or (FXUnitBackup = PointF(0,0)) then
-  begin
-    FXAxis := ANewCoord;
-    FYAxis := FYAxisBackup;
-    FOrigin := FOriginBackup;
-  end
-  else
-  begin
-    newSize := FXUnitBackup*(ANewCoord-FOriginBackup);
-    if ssShift in AShift then
-    begin
-      FXAxis := FOrigin+FXUnitBackup*newSize;
-      FYAxis := FYAxisBackup;
-      FOrigin := FOriginBackup;
-    end else
-    begin
-      FXAxis := FOriginBackup+FXUnitBackup*newSize;
-      FYAxis := FYAxisBackup + (newSize-FXSizeBackup)*0.5*FXUnitBackup;
-      FOrigin := FOriginBackup + (newSize-FXSizeBackup)*0.5*FXUnitBackup;
-    end;
-  end;
-  EndUpdate;
+  DoMoveXAxis(ANewCoord, AShift, 1);
 end;
 
 procedure TCustomRectShape.OnMoveYAxis(ASender: TObject; APrevCoord,
   ANewCoord: TPointF; AShift: TShiftState);
-var newSize: single;
 begin
-  BeginUpdate;
-  if (ssAlt in AShift) or (FYUnitBackup = PointF(0,0)) then
-  begin
-    FYAxis := ANewCoord;
-    FXAxis := FXAxisBackup;
-    FOrigin := FOriginBackup;
-  end
-  else
-  begin
-    newSize := FYUnitBackup*(ANewCoord-FOriginBackup);
-    if ssShift in AShift then
-    begin
-      FYAxis := FOrigin+FYUnitBackup*newSize;
-      FXAxis := FXAxisBackup;
-      FOrigin := FOriginBackup;
-    end else
-    begin
-      FYAxis := FOriginBackup+FYUnitBackup*newSize;
-      FXAxis := FXAxisBackup + (newSize-FYSizeBackup)*0.5*FYUnitBackup;
-      FOrigin := FOriginBackup + (newSize-FYSizeBackup)*0.5*FYUnitBackup;
-    end;
-  end;
-  EndUpdate;
+  DoMoveYAxis(ANewCoord, AShift, 1);
 end;
 
 procedure TCustomRectShape.OnMoveXAxisNeg(ASender: TObject; APrevCoord,
   ANewCoord: TPointF; AShift: TShiftState);
-var newSize: single;
 begin
-  BeginUpdate;
-  if (ssAlt in AShift) or (FXUnitBackup = PointF(0,0)) then
-  begin
-    FXAxis := FOriginBackup - (ANewCoord - FOriginBackup);
-    FYAxis := FYAxisBackup;
-    FOrigin := FOriginBackup;
-  end
-  else
-  begin
-    newSize := -FXUnitBackup*(ANewCoord-FOriginBackup);
-    if ssShift in AShift then
-    begin
-      FXAxis := FOrigin+FXUnitBackup*newSize;
-      FYAxis := FYAxisBackup;
-      FOrigin := FOriginBackup;
-    end else
-    begin
-      FXAxis := FXAxisBackup;
-      FYAxis := FYAxisBackup - (newSize-FXSizeBackup)*0.5*FXUnitBackup;
-      FOrigin := FOriginBackup - (newSize-FXSizeBackup)*0.5*FXUnitBackup;
-    end;
-  end;
-  EndUpdate;
+  DoMoveXAxis(ANewCoord, AShift, -1);
 end;
 
 procedure TCustomRectShape.OnMoveYAxisNeg(ASender: TObject; APrevCoord,
   ANewCoord: TPointF; AShift: TShiftState);
-var newSize: single;
 begin
-  BeginUpdate;
-  if (ssAlt in AShift) or (FYUnitBackup = PointF(0,0)) then
-  begin
-    FYAxis := FOriginBackup - (ANewCoord - FOriginBackup);
-    FXAxis := FXAxisBackup;
-    FOrigin := FOriginBackup;
-  end
-  else
-  begin
-    newSize := -FYUnitBackup*(ANewCoord-FOriginBackup);
-    if ssShift in AShift then
-    begin
-      FYAxis := FOrigin+FYUnitBackup*newSize;
-      FXAxis := FXAxisBackup;
-      FOrigin := FOriginBackup;
-    end else
-    begin
-      FYAxis := FYAxisBackup;
-      FXAxis := FXAxisBackup - (newSize-FYSizeBackup)*0.5*FYUnitBackup;
-      FOrigin := FOriginBackup - (newSize-FYSizeBackup)*0.5*FYUnitBackup;
-    end;
-  end;
-  EndUpdate;
+  DoMoveYAxis(ANewCoord, AShift, -1);
+end;
+
+procedure TCustomRectShape.OnMoveXYCorner(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  DoMoveXYCorner(ANewCoord, AShift, 1, 1);
+end;
+
+procedure TCustomRectShape.OnMoveXNegYCorner(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  DoMoveXYCorner(ANewCoord, AShift, -1, 1);
+end;
+
+procedure TCustomRectShape.OnMoveXYNegCorner(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  DoMoveXYCorner(ANewCoord, AShift, 1, -1);
+end;
+
+procedure TCustomRectShape.OnMoveXNegYNegCorner(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  DoMoveXYCorner(ANewCoord, AShift, -1, -1);
 end;
 
 procedure TCustomRectShape.OnStartMove(ASender: TObject; APointIndex: integer;
@@ -499,13 +975,26 @@ begin
 end;
 
 procedure TCustomRectShape.ConfigureEditor(AEditor: TBGRAOriginalEditor);
+var
+  d: Single;
+  u, v: TPointF;
 begin
+  u := FXAxis - FOrigin;
+  v := FYAxis - FOrigin;
   AEditor.AddStartMoveHandler(@OnStartMove);
   AEditor.AddPoint(FOrigin, @OnMoveOrigin, true);
   AEditor.AddArrow(FOrigin, FXAxis, @OnMoveXAxis);
   AEditor.AddArrow(FOrigin, FYAxis, @OnMoveYAxis);
-  AEditor.AddArrow(FOrigin, FOrigin - (FXAxis-FOrigin), @OnMoveXAxisNeg);
-  AEditor.AddArrow(FOrigin, FOrigin - (FYAxis-FOrigin), @OnMoveYAxisNeg);
+  AEditor.AddArrow(FOrigin, FOrigin - u, @OnMoveXAxisNeg);
+  AEditor.AddArrow(FOrigin, FOrigin - v, @OnMoveYAxisNeg);
+  d := GetCornerPositition;
+  if d <> 0 then
+  begin
+    AEditor.AddPoint(FOrigin + (u+v)*d, @OnMoveXYCorner, false);
+    AEditor.AddPoint(FOrigin + (-u+v)*d, @OnMoveXNegYCorner, false);
+    AEditor.AddPoint(FOrigin + (u-v)*d, @OnMoveXYNegCorner, false);
+    AEditor.AddPoint(FOrigin + (-u-v)*d, @OnMoveXNegYNegCorner, false);
+  end;
 end;
 
 { TRectShape }
@@ -518,6 +1007,11 @@ end;
 function TRectShape.BackVisible: boolean;
 begin
   result := BackColor.alpha <> 0;
+end;
+
+function TRectShape.GetCornerPositition: single;
+begin
+  result := 1;
 end;
 
 function TRectShape.GetIsSlow(AMatrix: TAffineMatrix): boolean;
@@ -653,6 +1147,18 @@ begin
   EndUpdate;
 end;
 
+procedure TVectorShape.SetUsermode(AValue: TVectorShapeUsermode);
+begin
+  if FUsermode=AValue then Exit;
+  FUsermode:=AValue;
+  if Assigned(FOnEditingChange) then FOnEditingChange(self);
+end;
+
+class function TVectorShape.Usermodes: TVectorShapeUsermodes;
+begin
+  result := [vsuEdit];
+end;
+
 procedure TVectorShape.BeginUpdate;
 begin
   if FUpdateCount = 0 then
@@ -753,6 +1259,9 @@ begin
   FPenWidth := 1;
   FBackColor := BGRAPixelTransparent;
   FStroker := nil;
+  FOnChange := nil;
+  FOnEditingChange := nil;
+  FUsermode:= vsuEdit;
 end;
 
 destructor TVectorShape.Destroy;
@@ -800,6 +1309,24 @@ begin
   if vsfBackColor in f then AStorage.Color['back-color'] := BackColor;
 end;
 
+procedure TVectorShape.MouseMove(Shift: TShiftState; X, Y: single; out
+  ACursor: TOriginalEditorCursor; out AHandled: boolean);
+begin
+  //nothing
+end;
+
+procedure TVectorShape.MouseDown(RightButton: boolean; Shift: TShiftState; X,
+  Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean);
+begin
+  //nothing
+end;
+
+procedure TVectorShape.MouseUp(RightButton: boolean; Shift: TShiftState; X,
+  Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean);
+begin
+  //nothing
+end;
+
 { TVectorOriginal }
 
 procedure TVectorOriginal.FreeDeletedShapes;
@@ -815,6 +1342,11 @@ procedure TVectorOriginal.OnShapeChange(ASender: TObject; ABounds: TRectF);
 begin
   if ASender <> FSelectedShape then DiscardFrozenShapes;
   NotifyChange(ABounds);
+end;
+
+procedure TVectorOriginal.OnShapeEditingChange(ASender: TObject);
+begin
+  NotifyEditorChange;
 end;
 
 procedure TVectorOriginal.DiscardFrozenShapes;
@@ -862,8 +1394,17 @@ function TVectorOriginal.AddShape(AShape: TVectorShape): integer;
 begin
   result:= FShapes.Add(AShape);
   AShape.OnChange := @OnShapeChange;
+  AShape.OnEditingChange := @OnShapeEditingChange;
   DiscardFrozenShapes;
   NotifyChange(AShape.GetRenderBounds(InfiniteRect, AffineMatrixIdentity));
+end;
+
+function TVectorOriginal.AddShape(AShape: TVectorShape;
+  AUsermode: TVectorShapeUsermode): integer;
+begin
+  result := AddShape(AShape);
+  AShape.Usermode:= AUsermode;
+  SelectShape(result);
 end;
 
 function TVectorOriginal.RemoveShape(AShape: TVectorShape): boolean;
@@ -874,6 +1415,8 @@ begin
   idx := FShapes.IndexOf(AShape);
   if idx = -1 then exit(false);
   if AShape = SelectedShape then DeselectShape;
+  AShape.OnChange := nil;
+  AShape.OnEditingChange := nil;
   r := AShape.GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
   FShapes.Delete(idx);
   FDeletedShapes.Add(AShape);
@@ -882,15 +1425,24 @@ begin
 end;
 
 procedure TVectorOriginal.SelectShape(AIndex: integer);
-var
-  prev: TVectorShape;
 begin
   if (AIndex < 0) or (AIndex >= FShapes.Count) then
     raise ERangeError.Create('Index out of bounds');
-  if FSelectedShape <> FShapes[AIndex] then
+  SelectShape(FShapes[AIndex]);
+end;
+
+procedure TVectorOriginal.SelectShape(AShape: TVectorShape);
+var
+  prev: TVectorShape;
+begin
+  if FSelectedShape <> AShape then
   begin
+    if AShape <> nil then
+      if FShapes.IndexOf(AShape)=-1 then
+        raise exception.Create('Shape not found');
     prev := FSelectedShape;
-    FSelectedShape := FShapes[AIndex];
+    if Assigned(prev) then prev.Usermode := vsuEdit;
+    FSelectedShape := AShape;
     DiscardFrozenShapes;
     NotifyEditorChange;
     if Assigned(FOnSelectShape) then
@@ -899,18 +1451,8 @@ begin
 end;
 
 procedure TVectorOriginal.DeselectShape;
-var
-  prev: TVectorShape;
 begin
-  if FSelectedShape <> nil then
-  begin
-    prev := FSelectedShape;
-    FSelectedShape := nil;
-    DiscardFrozenShapes;
-    NotifyEditorChange;
-    if Assigned(FOnSelectShape) then
-      FOnSelectShape(self, FSelectedShape, prev);
-  end;
+  SelectShape(nil);
 end;
 
 procedure TVectorOriginal.MouseClick(APoint: TPointF);
@@ -992,6 +1534,11 @@ begin
   FreeDeletedShapes;
 end;
 
+function TVectorOriginal.CreateEditor: TBGRAOriginalEditor;
+begin
+  Result:= TVectorOriginalEditor.Create(self);
+end;
+
 function TVectorOriginal.GetRenderBounds(ADestRect: TRect;
   AMatrix: TAffineMatrix): TRect;
 var
@@ -1035,6 +1582,7 @@ begin
       shape := shapeClass.Create;
       shape.LoadFromStorage(obj);
       shape.OnChange := @OnShapeChange;
+      shape.OnEditingChange := @OnShapeEditingChange;
       FShapes.Add(shape);
       obj.Free;
     end;
