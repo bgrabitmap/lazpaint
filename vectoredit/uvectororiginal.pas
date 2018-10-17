@@ -101,6 +101,7 @@ type
     procedure OnStartMove({%H-}ASender: TObject; {%H-}APointIndex: integer; {%H-}AShift: TShiftState);
     function GetAffineBox(AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
     function GetCornerPositition: single; virtual; abstract;
+    function GetOrthoRect(AMatrix: TAffineMatrix; out ARect: TRectF): boolean;
   public
     procedure QuickDefine(const APoint1,APoint2: TPointF); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
@@ -721,22 +722,62 @@ procedure TEllipseShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
   ADraft: boolean);
 var
   pts: Array of TPointF;
+  orthoRect: TRectF;
+  center, radius: TPointF;
+  draftPen, isOrtho: Boolean;
 begin
-  pts := ComputeEllipse(AMatrix*FOrigin, AMatrix*FXAxis, AMatrix*FYAxis);
-  If BackVisible then
+  isOrtho := GetOrthoRect(AMatrix, orthoRect);
+  if isOrtho then
   begin
-    if ADraft then
-      ADest.FillPoly(pts, BackColor, dmDrawWithTransparency)
-    else
-      ADest.FillPolyAntialias(pts, BackColor);
-  end;
-  if PenVisible then
+    center := (orthoRect.TopLeft+orthoRect.BottomRight)*0.5;
+    radius := (orthoRect.BottomRight-orthoRect.TopLeft)*0.5;
+    If BackVisible then
+    begin
+      if ADraft then
+        ADest.FillEllipseInRect(rect(round(orthoRect.Left),round(orthoRect.Top),round(orthoRect.Right),round(orthoRect.Bottom)),
+                                BackColor, dmDrawWithTransparency)
+      else
+        ADest.FillEllipseAntialias(center.x, center.y, radius.x, radius.y, BackColor);
+    end;
+    if PenVisible then
+    begin
+      if IsAffineMatrixScaledRotation(AMatrix) then
+      begin
+        ADest.CustomPenStyle := PenStyle;
+        draftPen := ADraft and (PenWidth > 4);
+        if draftPen then
+          ADest.Ellipse(center.x, center.y, radius.x, radius.y, PenColor, PenWidth, dmDrawWithTransparency)
+        else
+          ADest.EllipseAntialias(center.x, center.y, radius.x, radius.y, PenColor, PenWidth);
+        ADest.PenStyle := psSolid;
+      end else
+      begin
+        pts := ComputeEllipse(AMatrix*FOrigin, AMatrix*FXAxis, AMatrix*FYAxis);
+        pts := ComputeStroke(pts,true, AMatrix);
+        if ADraft and (PenWidth > 4) then
+          ADest.FillPoly(pts, PenColor, dmDrawWithTransparency)
+        else
+          ADest.FillPolyAntialias(pts, PenColor);
+      end;
+    end;
+  end else
   begin
-    pts := ComputeStroke(pts,true, AMatrix);
-    if ADraft and (PenWidth > 4) then
-      ADest.FillPoly(pts, PenColor, dmDrawWithTransparency)
-    else
-      ADest.FillPolyAntialias(pts, PenColor);
+    pts := ComputeEllipse(AMatrix*FOrigin, AMatrix*FXAxis, AMatrix*FYAxis);
+    If BackVisible then
+    begin
+      if ADraft then
+        ADest.FillPoly(pts, BackColor, dmDrawWithTransparency)
+      else
+        ADest.FillPolyAntialias(pts, BackColor);
+    end;
+    if PenVisible then
+    begin
+      pts := ComputeStroke(pts,true, AMatrix);
+      if ADraft and (PenWidth > 4) then
+        ADest.FillPoly(pts, PenColor, dmDrawWithTransparency)
+      else
+        ADest.FillPolyAntialias(pts, PenColor);
+    end;
   end;
 end;
 
@@ -796,7 +837,7 @@ begin
         totalSurface := penSurface;
     end else
       totalSurface := backSurface;
-    result := totalSurface > 800*600;
+    result := totalSurface > 640*480;
   end;
 end;
 
@@ -891,8 +932,6 @@ begin
 
       u2 := PointF(newCornerVect*u1, newCornerVect*v1);
       v2 := PointF(-u2.y,u2.x);
-
-      //writeln(u2.x,' ',u2.y,' - ',v2.x,' ',v2.y);
 
       m := AffineMatrixTranslation(FOriginBackup.x,FOriginBackup.y)*
            AffineMatrixScale(scale,scale)*
@@ -1008,6 +1047,27 @@ begin
       FXAxis - (FYAxis - FOrigin), FYAxis - (FXAxis - FOrigin));
 end;
 
+function TCustomRectShape.GetOrthoRect(AMatrix: TAffineMatrix; out ARect: TRectF): boolean;
+var
+  sx,sy: single;
+  o,ox,oy: TPointF;
+begin
+  o := AMatrix*FOrigin;
+  ox := AMatrix*FXAxis;
+  oy := AMatrix*FYAxis;
+  if (abs(ox.y-o.y)<1e-4) and (abs(oy.x-o.x)<1e-4) then
+  begin
+    sx := abs(ox.x-o.x);
+    sy := abs(oy.y-o.y);
+    ARect := RectF(o.x - sx, o.y - sy, o.x + sx, o.y + sy);
+    exit(true);
+  end else
+  begin
+    ARect := EmptyRectF;
+    exit(false);
+  end;
+end;
+
 procedure TCustomRectShape.QuickDefine(const APoint1, APoint2: TPointF);
 begin
   BeginUpdate;
@@ -1113,14 +1173,24 @@ procedure TRectShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
   ADraft: boolean);
 var
   pts: Array of TPointF;
+  orthoRect: TRectF;
 begin
   pts := GetAffineBox(AMatrix, true).AsPolygon;
   If BackVisible then
   begin
-    if ADraft then
-      ADest.FillPoly(pts, BackColor, dmDrawWithTransparency)
-    else
-      ADest.FillPolyAntialias(pts, BackColor);
+    if GetOrthoRect(AMatrix, orthoRect) then
+    begin
+      if ADraft then
+        ADest.FillRect(round(orthoRect.Left),round(orthoRect.Top),round(orthoRect.Right),round(orthoRect.Bottom), BackColor, dmDrawWithTransparency)
+      else
+        ADest.FillRectAntialias(orthoRect, BackColor);
+    end else
+    begin
+      if ADraft then
+        ADest.FillPoly(pts, BackColor, dmDrawWithTransparency)
+      else
+        ADest.FillPolyAntialias(pts, BackColor);
+    end;
   end;
   if PenVisible then
   begin
