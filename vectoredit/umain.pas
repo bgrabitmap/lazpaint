@@ -31,6 +31,7 @@ type
     ShapeBackColor: TShape;
     ShapePenColor: TShape;
     ToolBar1: TToolBar;
+    ToolButtonMove: TToolButton;
     ToolButtonCurvedPoly: TToolButton;
     ToolButtonPoly: TToolButton;
     ToolButtonRect: TToolButton;
@@ -212,7 +213,7 @@ begin
   UpdateViewCursor(cur);
 
   ptF := AffineMatrixInverse(vectorTransform)*imgPtF;
-  if justDown and not Assigned(newShape) then
+  if justDown and not Assigned(newShape) and Assigned(currentTool) then
   begin
     vectorOriginal.DeselectShape;
     newShape := CreateShape(newStartPoint,ptF);
@@ -246,7 +247,7 @@ begin
 
   if justDown and (Button = newButton) then
   begin
-    if vsuCreate in currentTool.Usermodes then
+    if Assigned(currentTool) and (vsuCreate in currentTool.Usermodes) then
     begin
       vectorOriginal.AddShape(CreateShape(newStartPoint,newStartPoint), vsuCreate);
     end else
@@ -318,11 +319,15 @@ end;
 
 procedure TForm1.ToolButtonClick(Sender: TObject);
 begin
+  currentTool := nil;
   if ToolButtonEllipse.Down then currentTool:= TEllipseShape;
   if ToolButtonRect.Down then currentTool:= TRectShape;
   if ToolButtonPoly.Down then currentTool:= TPolygonShape;
-  if Assigned(vectorOriginal) and (vectorOriginal.SelectedShape <> nil) then vectorOriginal.DeselectShape
-  else UpdateToolbarFromShape(nil);
+  if Assigned(currentTool) then
+  begin
+    if Assigned(vectorOriginal) and (vectorOriginal.SelectedShape <> nil) then vectorOriginal.DeselectShape
+    else UpdateToolbarFromShape(nil);
+  end;
 end;
 
 procedure TForm1.UpDownPenAlphaChange(Sender: TObject; AByUser: boolean);
@@ -568,6 +573,8 @@ begin
 end;
 
 procedure TForm1.UpdateToolbarFromShape(AShape: TVectorShape);
+var
+  f: TVectorShapeFields;
 begin
   if AShape <> nil then
   begin
@@ -579,7 +586,7 @@ begin
       FloatSpinEditPenWidth.Enabled := true;
     end else
       FloatSpinEditPenWidth.Enabled := false;
-    if vsfPenStyle in currentTool.Fields then
+    if vsfPenStyle in AShape.Fields then
     begin
       penStyle:= AShape.PenStyle;
       ComboBoxPenStyle.Enabled:= true;
@@ -591,13 +598,16 @@ begin
     FUpdatingFromShape := false;
   end else
   begin
-    FloatSpinEditPenWidth.Enabled := vsfPenWidth in currentTool.Fields;
-    ComboBoxPenStyle.Enabled:= vsfPenStyle in currentTool.Fields;
+    if Assigned(currentTool) then f := currentTool.Fields else f := [];
+    FloatSpinEditPenWidth.Enabled := vsfPenWidth in f;
+    ComboBoxPenStyle.Enabled:= vsfPenStyle in f;
   end;
 end;
 
 function TForm1.CreateShape(const APoint1,APoint2: TPointF): TVectorShape;
 begin
+  if not Assigned(currentTool) then
+    raise exception.Create('No shape type selected');
   result := currentTool.Create;
   result.PenColor := penColor;
   result.BackColor := backColor;

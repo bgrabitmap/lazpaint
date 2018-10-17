@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 536
+  Left = 535
   Height = 410
-  Top = 14
+  Top = 0
   Width = 627
   Caption = 'Vector Edit'
   ClientHeight = 410
@@ -104,7 +104,7 @@ object Form1: TForm1
       TabOrder = 0
       object ToolButtonRect: TToolButton
         Left = 1
-        Top = 0
+        Top = 55
         Caption = 'Rectangle'
         Grouped = True
         ImageIndex = 19
@@ -113,7 +113,7 @@ object Form1: TForm1
       end
       object ToolButtonEllipse: TToolButton
         Left = 1
-        Top = 55
+        Top = 110
         Caption = 'Ellipse'
         Grouped = True
         ImageIndex = 20
@@ -122,7 +122,7 @@ object Form1: TForm1
       end
       object ToolButtonPoly: TToolButton
         Left = 1
-        Top = 110
+        Top = 165
         Caption = 'ToolButtonPoly'
         Grouped = True
         ImageIndex = 21
@@ -131,13 +131,22 @@ object Form1: TForm1
       end
       object ToolButtonCurvedPoly: TToolButton
         Left = 1
-        Top = 165
+        Top = 220
         Caption = 'ToolButtonCurvedPoly'
         Grouped = True
         ImageIndex = 22
         OnClick = ToolButtonClick
         Style = tbsCheck
         Visible = False
+      end
+      object ToolButtonMove: TToolButton
+        Left = 1
+        Top = 0
+        Caption = 'Move'
+        Grouped = True
+        ImageIndex = 15
+        OnClick = ToolButtonClick
+        Style = tbsCheck
       end
     end
   end
