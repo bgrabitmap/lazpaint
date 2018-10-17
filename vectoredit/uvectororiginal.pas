@@ -154,10 +154,13 @@ type
                coord: TPointF;
                editorIndex: integer;
              end;
+    FCenterPoint: TPointF;
+    FCenterPointEditorIndex: integer;
     FCurPoint: integer;
     FAddingPoint: boolean;
     FMousePos: TPointF;
     procedure OnMovePoint({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; {%H-}AShift: TShiftState);
+    procedure OnMoveCenterPoint({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; {%H-}AShift: TShiftState);
     procedure OnStartMove({%H-}ASender: TObject; APointIndex: integer; {%H-}AShift: TShiftState);
     function GetCurve(AMatrix: TAffineMatrix): ArrayOfTPointF; virtual;
     procedure SetUsermode(AValue: TVectorShapeUsermode); override;
@@ -462,6 +465,19 @@ begin
   EndUpdate;
 end;
 
+procedure TCustomPolypointShape.OnMoveCenterPoint(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+var
+  i: Integer;
+  delta: TPointF;
+begin
+  BeginUpdate;
+  delta := ANewCoord - APrevCoord;
+  for i := 0 to PointCount-1 do
+    Points[i] := Points[i]+delta;
+  EndUpdate;
+end;
+
 procedure TCustomPolypointShape.OnStartMove(ASender: TObject; APointIndex: integer;
   AShift: TShiftState);
 var
@@ -644,14 +660,33 @@ end;
 
 procedure TCustomPolypointShape.ConfigureEditor(AEditor: TBGRAOriginalEditor);
 var
-  i: Integer;
+  i, nb: Integer;
 begin
   AEditor.AddStartMoveHandler(@OnStartMove);
+  nb := 0;
+  FCenterPoint := PointF(0,0);
   for i:= 0 to PointCount-1 do
-    if (FAddingPoint and ((i = 0) or (i = PointCount-1))) or isEmptyPointF(Points[i]) then
+    if isEmptyPointF(Points[i]) then
       FPoints[i].editorIndex := -1
+    else if (FAddingPoint and ((i = 0) or (i = PointCount-1))) then
+    begin
+      FPoints[i].editorIndex := -1;
+      FCenterPoint += Points[i];
+      inc(nb);
+    end
     else
+    begin
       FPoints[i].editorIndex := AEditor.AddPoint(Points[i], @OnMovePoint, false);
+      FCenterPoint += Points[i];
+      inc(nb);
+    end;
+
+  if nb > 0 then
+  begin
+    FCenterPoint *= 1/nb;
+    FCenterPointEditorIndex := AEditor.AddPoint(FCenterPoint, @OnMoveCenterPoint, true);
+  end;
+
 end;
 
 { TEllipseShape }
@@ -834,24 +869,55 @@ end;
 procedure TCustomRectShape.DoMoveXYCorner(ANewCoord: TPointF;
   AShift: TShiftState; AFactorX, AFactorY: single);
 var
-  ratio, d: single;
+  ratio, d, newScale, prevScale, scale: single;
   m: TAffineMatrix;
-  newSize: TPointF;
+  newSize, prevCornerVect, newCornerVect, u1,v1,u2,v2: TPointF;
 begin
   BeginUpdate;
-  d := GetCornerPositition;
-  m := AffineMatrixInverse(AffineMatrix(AFactorX*FXUnitBackup*d,AFactorY*FYUnitBackup*d,FOriginBackup));
-  newSize := m*ANewCoord;
-  if (ssShift in AShift) and (FXSizeBackup <> 0) and (FYSizeBackup <> 0) then
+  if (ssAlt in AShift) and (VectDet(FXUnitBackup,FYUnitBackup)<>0) and (FXSizeBackup<>0) and (FYSizeBackup<>0) then
   begin
-    ratio := (newSize.X/FXSizeBackup + newSize.Y/FYSizeBackup)/2;
-    newSize.X := ratio*FXSizeBackup;
-    newSize.Y := ratio*FYSizeBackup;
+    prevCornerVect := AFactorX*(FXAxisBackup - FOriginBackup) + AFactorY*(FYAxisBackup - FOriginBackup);
+    newCornerVect := (ANewCoord - FOriginBackup)*(1/GetCornerPositition);
+    newScale := VectLen(newCornerVect);
+    prevScale := VectLen(prevCornerVect);
+    if (prevScale > 0) then
+    begin
+      prevCornerVect *= 1/prevScale;
+      if newScale > 0 then newCornerVect *= 1/newScale;
+      scale := newScale/prevScale;
+
+      u1 := prevCornerVect;
+      v1 := PointF(-u1.y,u1.x);
+
+      u2 := PointF(newCornerVect*u1, newCornerVect*v1);
+      v2 := PointF(-u2.y,u2.x);
+
+      //writeln(u2.x,' ',u2.y,' - ',v2.x,' ',v2.y);
+
+      m := AffineMatrixTranslation(FOriginBackup.x,FOriginBackup.y)*
+           AffineMatrixScale(scale,scale)*
+           AffineMatrix(u2,v2,PointF(0,0))*
+           AffineMatrixTranslation(-FOriginBackup.x,-FOriginBackup.y);
+      FOrigin := FOriginBackup;
+      FXAxis := m * FXAxisBackup;
+      FYAxis := m * FYAxisBackup;
+    end;
+  end else
+  begin
+    d := GetCornerPositition;
+    m := AffineMatrixInverse(AffineMatrix(AFactorX*FXUnitBackup*d,AFactorY*FYUnitBackup*d,FOriginBackup));
+    newSize := m*ANewCoord;
+    if (ssShift in AShift) and (FXSizeBackup <> 0) and (FYSizeBackup <> 0) then
+    begin
+      ratio := (newSize.X/FXSizeBackup + newSize.Y/FYSizeBackup)/2;
+      newSize.X := ratio*FXSizeBackup;
+      newSize.Y := ratio*FYSizeBackup;
+    end;
+    FXAxis := FXAxisBackup + (AFactorX+1)*0.5*sqrt(d)*(newSize.X-FXSizeBackup)*FXUnitBackup + AFactorY*(newSize.Y-FYSizeBackup)*0.5*sqrt(d)*FYUnitBackup;
+    FYAxis := FYAxisBackup + (AFactorY+1)*0.5*sqrt(d)*(newSize.Y-FYSizeBackup)*FYUnitBackup + AFactorX*(newSize.X-FXSizeBackup)*0.5*sqrt(d)*FXUnitBackup;
+    FOrigin := FOriginBackup + AFactorX*(newSize.X-FXSizeBackup)*0.5*sqrt(d)*FXUnitBackup
+                             + AFactorY*(newSize.Y-FYSizeBackup)*0.5*sqrt(d)*FYUnitBackup;
   end;
-  FXAxis := FXAxisBackup + (AFactorX+1)*0.5*FXUnitBackup*(newSize.X-FXSizeBackup) + AFactorY*(newSize.Y-FYSizeBackup)*0.5*FYUnitBackup;
-  FYAxis := FYAxisBackup + (AFactorY+1)*0.5*FYUnitBackup*(newSize.Y-FYSizeBackup) + AFactorX*(newSize.X-FXSizeBackup)*0.5*FXUnitBackup;
-  FOrigin := FOriginBackup + AFactorX*(newSize.X-FXSizeBackup)*0.5*FXUnitBackup
-                           + AFactorY*(newSize.Y-FYSizeBackup)*0.5*FYUnitBackup;
   EndUpdate;
 end;
 
