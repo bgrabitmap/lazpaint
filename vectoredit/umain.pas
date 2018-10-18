@@ -14,7 +14,15 @@ const
   EditorPointSize = 8;
 
 type
+  TPaintTool = (ptHand, ptRectangle, ptEllipse, ptPolyline, ptCurve, ptPolygon, ptClosedCurve);
 
+const
+  PaintToolClass : array[TPaintTool] of TVectorShapeAny =
+    (nil, TRectShape, TEllipseShape, TPolylineShape, TCurveShape, TPolylineShape, TCurveShape);
+
+function IsCreateShapeTool(ATool: TPaintTool): boolean;
+
+type
   { TForm1 }
 
   TForm1 = class(TForm)
@@ -32,9 +40,9 @@ type
     ShapePenColor: TShape;
     ToolBar1: TToolBar;
     ToolButtonMove: TToolButton;
-    ToolButtonCurvedPoly: TToolButton;
-    ToolButtonPoly: TToolButton;
-    ToolButtonRect: TToolButton;
+    ToolButtonClosedCurve: TToolButton;
+    ToolButtonPolygon: TToolButton;
+    ToolButtonRectangle: TToolButton;
     ToolButtonEllipse: TToolButton;
     UpDownPenAlpha: TBCTrackbarUpdown;
     procedure BGRAVirtualScreen1MouseDown(Sender: TObject;
@@ -64,7 +72,7 @@ type
     FLastEditorBounds: TRect;
     FUpdatingFromShape: boolean;
     FUpdatingComboBoxPenStyle, FUpdatingSpinEditPenWidth: boolean;
-    FCurrentTool: TVectorShapeAny;
+    FCurrentTool: TPaintTool;
     function GetBackColor: TBGRAPixel;
     function GetPenColor: TBGRAPixel;
     function GetPenStyle: TBGRAPenStyle;
@@ -75,7 +83,7 @@ type
     procedure OnOriginalChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
     procedure OnSelectShape(ASender: TObject; AShape: TVectorShape; APreviousShape: TVectorShape);
     procedure SetBackColor(AValue: TBGRAPixel);
-    procedure SetCurrentTool(AValue: TVectorShapeAny);
+    procedure SetCurrentTool(AValue: TPaintTool);
     procedure SetPenColor(AValue: TBGRAPixel);
     procedure SetPenStyle(AValue: TBGRAPenStyle);
     procedure SetPenWidth(AValue: single);
@@ -102,7 +110,7 @@ type
     property backColor: TBGRAPixel read GetBackColor write SetBackColor;
     property penWidth: single read GetPenWidth write SetPenWidth;
     property penStyle: TBGRAPenStyle read GetPenStyle write SetPenStyle;
-    property currentTool: TVectorShapeAny read FCurrentTool write SetCurrentTool;
+    property currentTool: TPaintTool read FCurrentTool write SetCurrentTool;
   end;
 
 var
@@ -111,6 +119,11 @@ var
 implementation
 
 uses math, LCLType, BGRAPen;
+
+function IsCreateShapeTool(ATool: TPaintTool): boolean;
+begin
+  result := PaintToolClass[ATool] <> nil;
+end;
 
 {$R *.lfm}
 
@@ -131,7 +144,7 @@ begin
   backColor := CSSDodgerBlue;
   penWidth := 5;
   penStyle := SolidPenStyle;
-  currentTool:= TRectShape;
+  currentTool:= ptRectangle;
 end;
 
 procedure TForm1.BGRAVirtualScreen1Redraw(Sender: TObject; Bitmap: TBGRABitmap);
@@ -213,7 +226,7 @@ begin
   UpdateViewCursor(cur);
 
   ptF := AffineMatrixInverse(vectorTransform)*imgPtF;
-  if justDown and not Assigned(newShape) and Assigned(currentTool) then
+  if justDown and not Assigned(newShape) and IsCreateShapeTool(currentTool) then
   begin
     vectorOriginal.DeselectShape;
     newShape := CreateShape(newStartPoint,ptF);
@@ -247,7 +260,7 @@ begin
 
   if justDown and (Button = newButton) then
   begin
-    if Assigned(currentTool) and (vsuCreate in currentTool.Usermodes) then
+    if IsCreateShapeTool(currentTool) and (vsuCreate in PaintToolClass[currentTool].Usermodes) then
     begin
       vectorOriginal.AddShape(CreateShape(newStartPoint,newStartPoint), vsuCreate);
     end else
@@ -319,11 +332,12 @@ end;
 
 procedure TForm1.ToolButtonClick(Sender: TObject);
 begin
-  currentTool := nil;
-  if ToolButtonEllipse.Down then currentTool:= TEllipseShape;
-  if ToolButtonRect.Down then currentTool:= TRectShape;
-  if ToolButtonPoly.Down then currentTool:= TPolygonShape;
-  if Assigned(currentTool) then
+  currentTool := ptHand;
+  if ToolButtonEllipse.Down then currentTool:= ptEllipse;
+  if ToolButtonRectangle.Down then currentTool:= ptRectangle;
+  if ToolButtonPolygon.Down then currentTool:= ptPolygon;
+  if ToolButtonClosedCurve.Down then currentTool:= ptClosedCurve;
+  if IsCreateShapeTool(currentTool) then
   begin
     if Assigned(vectorOriginal) and (vectorOriginal.SelectedShape <> nil) then vectorOriginal.DeselectShape
     else UpdateToolbarFromShape(nil);
@@ -430,13 +444,14 @@ begin
   end;
 end;
 
-procedure TForm1.SetCurrentTool(AValue: TVectorShapeAny);
+procedure TForm1.SetCurrentTool(AValue: TPaintTool);
 begin
   if FCurrentTool=AValue then Exit;
   FCurrentTool:=AValue;
-  ToolButtonRect.Down := FCurrentTool = TRectShape;
-  ToolButtonEllipse.Down := FCurrentTool = TEllipseShape;
-  ToolButtonPoly.Down := FCurrentTool = TPolygonShape;
+  ToolButtonRectangle.Down := FCurrentTool = ptRectangle;
+  ToolButtonEllipse.Down := FCurrentTool = ptEllipse;
+  ToolButtonPolygon.Down := FCurrentTool = ptPolygon;
+  ToolButtonClosedCurve.Down := FCurrentTool = ptClosedCurve;
 end;
 
 procedure TForm1.SetPenColor(AValue: TBGRAPixel);
@@ -598,7 +613,7 @@ begin
     FUpdatingFromShape := false;
   end else
   begin
-    if Assigned(currentTool) then f := currentTool.Fields else f := [];
+    if IsCreateShapeTool(currentTool) then f := PaintToolClass[currentTool].Fields else f := [];
     FloatSpinEditPenWidth.Enabled := vsfPenWidth in f;
     ComboBoxPenStyle.Enabled:= vsfPenStyle in f;
   end;
@@ -606,13 +621,15 @@ end;
 
 function TForm1.CreateShape(const APoint1,APoint2: TPointF): TVectorShape;
 begin
-  if not Assigned(currentTool) then
+  if not IsCreateShapeTool(currentTool) then
     raise exception.Create('No shape type selected');
-  result := currentTool.Create;
+  result := PaintToolClass[currentTool].Create;
   result.PenColor := penColor;
   result.BackColor := backColor;
   result.PenWidth := penWidth;
   result.PenStyle := penStyle;
+  if currentTool in[ptClosedCurve,ptPolygon] then
+    TCustomPolypointShape(result).Closed := true;
   result.QuickDefine(APoint1,APoint2);
 end;
 

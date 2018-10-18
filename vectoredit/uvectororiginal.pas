@@ -147,6 +147,7 @@ type
 
   TCustomPolypointShape = class(TVectorShape)
   private
+    FClosed: boolean;
     function GetPoint(AIndex: integer): TPointF;
     function GetPointCount: integer;
     procedure SetPoint(AIndex: integer; AValue: TPointF);
@@ -165,6 +166,8 @@ type
     procedure OnStartMove({%H-}ASender: TObject; APointIndex: integer; {%H-}AShift: TShiftState);
     function GetCurve(AMatrix: TAffineMatrix): ArrayOfTPointF; virtual;
     procedure SetUsermode(AValue: TVectorShapeUsermode); override;
+    function GetClosed: boolean; virtual;
+    procedure SetClosed(AValue: boolean); virtual;
     function PointsEqual(const APoint1, APoint2: TPointF): boolean;
   public
     constructor Create;
@@ -179,11 +182,12 @@ type
     class function Usermodes: TVectorShapeUsermodes; override;
     property Points[AIndex:integer]: TPointF read GetPoint write SetPoint;
     property PointCount: integer read GetPointCount;
+    property Closed: boolean read GetClosed write SetClosed;
   end;
 
-  { TPolygonShape }
+  { TPolylineShape }
 
-  TPolygonShape = class(TCustomPolypointShape)
+  TPolylineShape = class(TCustomPolypointShape)
   protected
     function PenVisible: boolean;
     function BackVisible: boolean;
@@ -193,6 +197,15 @@ type
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; override;
     function GetIsSlow({%H-}AMatrix: TAffineMatrix): boolean; override;
+    class function StorageClassName: RawByteString; override;
+  end;
+
+  { TCurveShape }
+
+  TCurveShape = class(TPolylineShape)
+  protected
+    function GetCurve(AMatrix: TAffineMatrix): ArrayOfTPointF; override;
+  public
     class function StorageClassName: RawByteString; override;
   end;
 
@@ -289,6 +302,22 @@ begin
   VectorShapeClasses[high(VectorShapeClasses)] := AClass;
 end;
 
+{ TCurveShape }
+
+function TCurveShape.GetCurve(AMatrix: TAffineMatrix): ArrayOfTPointF;
+var
+  pts: array of TPointF;
+begin
+  pts := inherited GetCurve(AMatrix);
+  if Closed then result := ComputeClosedSpline(pts, ssCrossingWithEnds)
+  else result := ComputeOpenedSpline(pts, ssCrossingWithEnds);
+end;
+
+class function TCurveShape.StorageClassName: RawByteString;
+begin
+  Result:= 'curve';
+end;
+
 { TVectorOriginalEditor }
 
 constructor TVectorOriginalEditor.Create(AOriginal: TVectorOriginal);
@@ -323,24 +352,24 @@ begin
     FOriginal.SelectedShape.MouseUp(RightButton, Shift, X,Y, ACursor, AHandled);
 end;
 
-{ TPolygonShape }
+{ TPolylineShape }
 
-function TPolygonShape.PenVisible: boolean;
+function TPolylineShape.PenVisible: boolean;
 begin
   result := (PenWidth>0) and (PenColor.alpha>0) and not IsClearPenStyle(PenStyle);
 end;
 
-function TPolygonShape.BackVisible: boolean;
+function TPolylineShape.BackVisible: boolean;
 begin
   result := BackColor.alpha <> 0;
 end;
 
-class function TPolygonShape.Fields: TVectorShapeFields;
+class function TPolylineShape.Fields: TVectorShapeFields;
 begin
   Result:= [vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackColor];
 end;
 
-procedure TPolygonShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
+procedure TPolylineShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
   ADraft: boolean);
 var
   pts: array of TPointF;
@@ -364,7 +393,7 @@ begin
   end;
 end;
 
-function TPolygonShape.GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix): TRectF;
+function TPolylineShape.GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix): TRectF;
 var
   i: Integer;
   pts: ArrayOfTPointF;
@@ -402,7 +431,7 @@ begin
   end;
 end;
 
-function TPolygonShape.PointInShape(APoint: TPointF): boolean;
+function TPolylineShape.PointInShape(APoint: TPointF): boolean;
 var
   pts: ArrayOfTPointF;
 begin
@@ -417,17 +446,22 @@ begin
   result := false;
 end;
 
-function TPolygonShape.GetIsSlow(AMatrix: TAffineMatrix): boolean;
+function TPolylineShape.GetIsSlow(AMatrix: TAffineMatrix): boolean;
 begin
   Result:= PointCount > 40;
 end;
 
-class function TPolygonShape.StorageClassName: RawByteString;
+class function TPolylineShape.StorageClassName: RawByteString;
 begin
-  result := 'polygon';
+  result := 'polyline';
 end;
 
 { TCustomPolypointShape }
+
+function TCustomPolypointShape.GetClosed: boolean;
+begin
+  result := FClosed;
+end;
 
 function TCustomPolypointShape.GetPoint(AIndex: integer): TPointF;
 begin
@@ -439,6 +473,14 @@ end;
 function TCustomPolypointShape.GetPointCount: integer;
 begin
   result:= length(FPoints);
+end;
+
+procedure TCustomPolypointShape.SetClosed(AValue: boolean);
+begin
+  if AValue = FClosed then exit;
+  BeginUpdate;
+  FClosed := AValue;
+  EndUpdate;
 end;
 
 procedure TCustomPolypointShape.SetPoint(AIndex: integer; AValue: TPointF);
@@ -549,6 +591,7 @@ constructor TCustomPolypointShape.Create;
 begin
   inherited Create;
   FMousePos := EmptyPointF;
+  FClosed:= false;
 end;
 
 procedure TCustomPolypointShape.AddPoint(const APoint: TPointF);
@@ -610,6 +653,7 @@ begin
     FPoints[i].coord := PointF(x[i],y[i]);
     FPoints[i].editorIndex := -1;
   end;
+  FClosed:= AStorage.Bool['closed'];
   EndUpdate;
 end;
 
@@ -628,6 +672,7 @@ begin
   end;
   AStorage.FloatArray['x'] := x;
   AStorage.FloatArray['y'] := y;
+  AStorage.Bool['closed'] := Closed;
 end;
 
 function TCustomPolypointShape.GetRenderBounds(ADestRect: TRect;

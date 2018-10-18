@@ -1,5 +1,5 @@
 object Form1: TForm1
-  Left = 535
+  Left = 534
   Height = 410
   Top = 0
   Width = 627
@@ -102,7 +102,7 @@ object Form1: TForm1
       EdgeOuter = esNone
       Images = BGRAImageList1
       TabOrder = 0
-      object ToolButtonRect: TToolButton
+      object ToolButtonRectangle: TToolButton
         Left = 1
         Top = 55
         Caption = 'Rectangle'
@@ -120,24 +120,23 @@ object Form1: TForm1
         OnClick = ToolButtonClick
         Style = tbsCheck
       end
-      object ToolButtonPoly: TToolButton
+      object ToolButtonPolygon: TToolButton
         Left = 1
         Top = 165
-        Caption = 'ToolButtonPoly'
+        Caption = 'Polygon'
         Grouped = True
         ImageIndex = 21
         OnClick = ToolButtonClick
         Style = tbsCheck
       end
-      object ToolButtonCurvedPoly: TToolButton
+      object ToolButtonClosedCurve: TToolButton
         Left = 1
         Top = 220
-        Caption = 'ToolButtonCurvedPoly'
+        Caption = 'Closed curve'
         Grouped = True
         ImageIndex = 22
         OnClick = ToolButtonClick
         Style = tbsCheck
-        Visible = False
       end
       object ToolButtonMove: TToolButton
         Left = 1
