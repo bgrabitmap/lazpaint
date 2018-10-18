@@ -525,7 +525,7 @@ begin
     if IntersectRect(shapeRect, shapeRect, ARect) then
     begin
       FFlattened.ClipRect := shapeRect;
-      newShape.Render(FFlattened, vectorTransform, false);
+      newShape.Render(FFlattened, vectorTransform, newShape.GetIsSlow(vectorTransform));
       FFlattened.NoClip;
     end;
   end;
