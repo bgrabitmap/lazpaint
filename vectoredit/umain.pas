@@ -39,6 +39,8 @@ type
     ShapeBackColor: TShape;
     ShapePenColor: TShape;
     ToolBar1: TToolBar;
+    ToolButtonPolyline: TToolButton;
+    ToolButtonCurve: TToolButton;
     ToolButtonMove: TToolButton;
     ToolButtonClosedCurve: TToolButton;
     ToolButtonPolygon: TToolButton;
@@ -335,12 +337,16 @@ begin
   currentTool := ptHand;
   if ToolButtonEllipse.Down then currentTool:= ptEllipse;
   if ToolButtonRectangle.Down then currentTool:= ptRectangle;
+  if ToolButtonPolyline.Down then currentTool:= ptPolyline;
+  if ToolButtonCurve.Down then currentTool:= ptCurve;
   if ToolButtonPolygon.Down then currentTool:= ptPolygon;
   if ToolButtonClosedCurve.Down then currentTool:= ptClosedCurve;
   if IsCreateShapeTool(currentTool) then
   begin
     if Assigned(vectorOriginal) and (vectorOriginal.SelectedShape <> nil) then vectorOriginal.DeselectShape
     else UpdateToolbarFromShape(nil);
+
+    if currentTool in [ptPolyline, ptCurve] then backColor := BGRAPixelTransparent;
   end;
 end;
 
@@ -452,6 +458,8 @@ begin
   ToolButtonEllipse.Down := FCurrentTool = ptEllipse;
   ToolButtonPolygon.Down := FCurrentTool = ptPolygon;
   ToolButtonClosedCurve.Down := FCurrentTool = ptClosedCurve;
+  ToolButtonPolyline.Down := FCurrentTool = ptPolyline;
+  ToolButtonCurve.Down := FCurrentTool = ptCurve;
 end;
 
 procedure TForm1.SetPenColor(AValue: TBGRAPixel);

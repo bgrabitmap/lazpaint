@@ -385,7 +385,7 @@ begin
   end;
   if PenVisible then
   begin
-    pts := ComputeStroke(pts, true, AMatrix);
+    pts := ComputeStroke(pts, Closed, AMatrix);
     if ADraft and (PenWidth > 4) then
       ADest.FillPoly(pts, PenColor, dmDrawWithTransparency)
     else
@@ -416,7 +416,7 @@ begin
         result.Bottom += yMargin;
       end else
       begin
-        pts := ComputeStroke(GetCurve(AMatrix), true, AMatrix);
+        pts := ComputeStroke(GetCurve(AMatrix), Closed, AMatrix);
         for i := 0 to high(pts) do
         begin
           if pts[i].x < result.Left then result.Left := pts[i].x;
@@ -440,7 +440,7 @@ begin
   if BackVisible and IsPointInPolygon(pts, APoint, true) then exit(true);
   if PenVisible then
   begin
-    pts := ComputeStroke(pts, true, AffineMatrixIdentity);
+    pts := ComputeStroke(pts, Closed, AffineMatrixIdentity);
     if IsPointInPolygon(pts, APoint, true) then exit(true);
   end;
   result := false;
