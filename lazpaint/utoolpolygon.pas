@@ -5,7 +5,7 @@ unit UToolPolygon;
 interface
 
 uses
-  Classes, SysUtils, utool, BGRABitmap, BGRABitmapTypes, ULayerAction, BGRATypewriter;
+  Classes, SysUtils, utool, BGRABitmap, BGRABitmapTypes, ULayerAction;
 
 const
   EasyBezierMinimumDotProduct = 0.5;
@@ -89,23 +89,23 @@ type
   TToolGenericSpline = class(TToolGenericPolygon)
   private
     function GetCurrentMode: TToolSplineMode;
-    function GetDefaultCurveMode: TGlyphPointCurveMode;
+    function GetDefaultCurveMode: TEasyBezierCurveMode;
     procedure SetCurrentMode(AValue: TToolSplineMode);
-    procedure SetDefaultCurveMode(AValue: TGlyphPointCurveMode);
+    procedure SetDefaultCurveMode(AValue: TEasyBezierCurveMode);
   protected
     FCurrentMousePos: TPointF;
-    FCurveMode: array of TGlyphPointCurveMode;
+    FCurveMode: array of TEasyBezierCurveMode;
     FCurveModeHintShown: boolean;
     FCurrentMode: TToolSplineMode;
     procedure NeedCurveMode;
-    function GetCurveMode(AIndex: integer): TGlyphPointCurveMode;
-    procedure SetCurveMode(AIndex: integer; AValue: TGlyphPointCurveMode);
+    function GetCurveMode(AIndex: integer): TEasyBezierCurveMode;
+    procedure SetCurveMode(AIndex: integer; AValue: TEasyBezierCurveMode);
     procedure OnFinishHandDrawing; override;
     procedure OnAddPoint(AIndex: integer); override;
     procedure OnDeletePoint(AIndex: integer); override;
-    function EndsMode(AMode: TGlyphPointCurveMode): TGlyphPointCurveMode;
+    function EndsMode(AMode: TEasyBezierCurveMode): TEasyBezierCurveMode;
     function MustUpdateOnAddPoint: boolean; override;
-    property DefaultCurveMode: TGlyphPointCurveMode read GetDefaultCurveMode
+    property DefaultCurveMode: TEasyBezierCurveMode read GetDefaultCurveMode
       write SetDefaultCurveMode;
     procedure OnValidatePolygon; override;
   public
@@ -115,7 +115,7 @@ type
     function DoToolMove(toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect; override;
     function ToolKeyDown(var key: Word): TRect; override;
     function AddLastClickedPoint: boolean; override;
-    property CurveMode[AIndex: integer]: TGlyphPointCurveMode read GetCurveMode write SetCurveMode;
+    property CurveMode[AIndex: integer]: TEasyBezierCurveMode read GetCurveMode write SetCurveMode;
     property CurrentMode: TToolSplineMode read GetCurrentMode write SetCurrentMode;
   end;
 
@@ -132,7 +132,7 @@ type
 implementation
 
 uses Types, Graphics, LCLType, ugraph, Dialogs, Controls, LazPaintType,
-  BGRAFillInfo;
+  BGRAFillInfo, BGRAPath;
 
 { TToolGenericSpline }
 
@@ -141,7 +141,7 @@ begin
   result := FCurrentMode;
 end;
 
-function TToolGenericSpline.GetDefaultCurveMode: TGlyphPointCurveMode;
+function TToolGenericSpline.GetDefaultCurveMode: TEasyBezierCurveMode;
 begin
   if CurrentMode = tsmCurveModeAngle then
     result := cmAngle else
@@ -159,7 +159,7 @@ begin
   FCurrentMode := AValue;
 end;
 
-procedure TToolGenericSpline.SetDefaultCurveMode(AValue: TGlyphPointCurveMode);
+procedure TToolGenericSpline.SetDefaultCurveMode(AValue: TEasyBezierCurveMode);
 begin
   if AValue = cmAngle then CurrentMode := tsmCurveModeAngle else
   if AValue = cmCurve then CurrentMode := tsmCurveModeSpline else
@@ -172,7 +172,7 @@ begin
     setlength(FCurveMode, length(polygonPoints));
 end;
 
-function TToolGenericSpline.GetCurveMode(AIndex: integer): TGlyphPointCurveMode;
+function TToolGenericSpline.GetCurveMode(AIndex: integer): TEasyBezierCurveMode;
 begin
   NeedCurveMode;
   if (AIndex < 0) or (AIndex >= length(FCurveMode)) then
@@ -180,7 +180,7 @@ begin
 end;
 
 procedure TToolGenericSpline.SetCurveMode(AIndex: integer;
-  AValue: TGlyphPointCurveMode);
+  AValue: TEasyBezierCurveMode);
 begin
   NeedCurveMode;
   if (AIndex < 0) or (AIndex >= length(FCurveMode)) then exit;
@@ -218,8 +218,8 @@ begin
   inherited OnDeletePoint(AIndex);
 end;
 
-function TToolGenericSpline.EndsMode(AMode: TGlyphPointCurveMode
-  ): TGlyphPointCurveMode;
+function TToolGenericSpline.EndsMode(AMode: TEasyBezierCurveMode
+  ): TEasyBezierCurveMode;
 begin
   result := AMode;
 end;
@@ -294,7 +294,7 @@ end;
 
 function TToolGenericSpline.ToolKeyDown(var key: Word): TRect;
 var idx: integer;
-   newCurveMode: TGlyphPointCurveMode;
+   newCurveMode: TEasyBezierCurveMode;
 begin
   if Key = VK_Z then
   begin
@@ -364,7 +364,7 @@ begin
   if Manager.ToolSplineEasyBezier then
   begin
     NeedCurveMode;
-    splinePoints := ComputeEasyBezier(polygonPoints,FCurveMode,Manager.ToolOptionCloseShape,EasyBezierMinimumDotProduct);
+    splinePoints := ComputeEasyBezier(EasyBezierCurve(polygonPoints,Manager.ToolOptionCloseShape,FCurveMode,EasyBezierMinimumDotProduct));
   end else
   begin
     if Manager.ToolOptionCloseShape then

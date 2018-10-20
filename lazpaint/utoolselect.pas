@@ -136,7 +136,7 @@ type
 
 implementation
 
-uses types, ugraph, LCLType, BGRATypewriter, LazPaintType, Math, BGRATransform;
+uses types, ugraph, LCLType, LazPaintType, Math, BGRATransform, BGRAPath;
 
 { TToolTransformSelection }
 
@@ -606,7 +606,7 @@ begin
   if Manager.ToolSplineEasyBezier then
   begin
     NeedCurveMode;
-    splinePoints := ComputeEasyBezier(polygonPoints,FCurveMode,True, EasyBezierMinimumDotProduct);
+    splinePoints := ComputeEasyBezier(EasyBezierCurve(polygonPoints,True,FCurveMode,EasyBezierMinimumDotProduct));
   end else
     splinePoints := toolDest.ComputeClosedSpline(polygonPoints,Manager.ToolSplineStyle);
   FRenderedPolygonPoints := splinePoints;
