@@ -22,12 +22,16 @@ const
 
 function IsCreateShapeTool(ATool: TPaintTool): boolean;
 
+const
+  SplineStyleToStr : array[TSplineStyle] of string =
+    ('Inside','Inside + ends','Crossing','Crossing + ends','Outside','Round outside','Vertex to side','Easy Bézier');
+
 type
   { TForm1 }
 
   TForm1 = class(TForm)
-    BCPanel1: TBCPanel;
-    BCPanel2: TBCPanel;
+    BCPanelToolChoice: TBCPanel;
+    BCPanelToolbar: TBCPanel;
     BGRAImageList1: TBGRAImageList;
     BGRAVirtualScreen1: TBGRAVirtualScreen;
     CheckBoxBack: TCheckBox;
@@ -75,10 +79,15 @@ type
     FUpdatingFromShape: boolean;
     FUpdatingComboBoxPenStyle, FUpdatingSpinEditPenWidth: boolean;
     FCurrentTool: TPaintTool;
+    FSplineStyle: TSplineStyle;
+    FComboboxSplineStyle: TComboBox;
+    FUpdatingComboboxSplineStyle : boolean;
+    procedure ComboBoxSplineStyleChange(Sender: TObject);
     function GetBackColor: TBGRAPixel;
     function GetPenColor: TBGRAPixel;
     function GetPenStyle: TBGRAPenStyle;
     function GetPenWidth: single;
+    function GetSplineStyle: TSplineStyle;
     function GetVectorTransform: TAffineMatrix;
     procedure ImageChange(ARectF: TRectF);
     procedure OnEditingChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
@@ -89,6 +98,7 @@ type
     procedure SetPenColor(AValue: TBGRAPixel);
     procedure SetPenStyle(AValue: TBGRAPenStyle);
     procedure SetPenWidth(AValue: single);
+    procedure SetSplineStyle(AValue: TSplineStyle);
     procedure UpdateViewCursor(ACursor: TOriginalEditorCursor);
     procedure RenderAndUpdate(ADraft: boolean);
     procedure UpdateFlattenedImage(ARect: TRect);
@@ -112,6 +122,7 @@ type
     property backColor: TBGRAPixel read GetBackColor write SetBackColor;
     property penWidth: single read GetPenWidth write SetPenWidth;
     property penStyle: TBGRAPenStyle read GetPenStyle write SetPenStyle;
+    property splineStyle: TSplineStyle read GetSplineStyle write SetSplineStyle;
     property currentTool: TPaintTool read FCurrentTool write SetCurrentTool;
   end;
 
@@ -147,6 +158,7 @@ begin
   penWidth := 5;
   penStyle := SolidPenStyle;
   currentTool:= ptRectangle;
+  splineStyle:= ssEasyBezier;
 end;
 
 procedure TForm1.BGRAVirtualScreen1Redraw(Sender: TObject; Bitmap: TBGRABitmap);
@@ -360,6 +372,13 @@ begin
   end;
 end;
 
+procedure TForm1.ComboBoxSplineStyleChange(Sender: TObject);
+begin
+  if FUpdatingComboboxSplineStyle then exit;
+  if FComboboxSplineStyle.ItemIndex <> -1 then
+    splineStyle:= TSplineStyle(FComboboxSplineStyle.ItemIndex);
+end;
+
 function TForm1.GetBackColor: TBGRAPixel;
 begin
   result := FBackColor;
@@ -378,6 +397,11 @@ end;
 function TForm1.GetPenWidth: single;
 begin
   result := FPenWidth;
+end;
+
+function TForm1.GetSplineStyle: TSplineStyle;
+begin
+  result := FSplineStyle;
 end;
 
 function TForm1.GetVectorTransform: TAffineMatrix;
@@ -508,6 +532,20 @@ begin
     vectorOriginal.SelectedShape.PenWidth:= penWidth;
 end;
 
+procedure TForm1.SetSplineStyle(AValue: TSplineStyle);
+begin
+  FSplineStyle := AValue;
+  if Assigned(FComboboxSplineStyle) then
+  begin
+    FUpdatingComboboxSplineStyle := true;
+    FComboboxSplineStyle.ItemIndex:= ord(FSplineStyle);
+    FUpdatingComboboxSplineStyle := false;
+  end;
+  if not FUpdatingFromShape and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
+    (vectorOriginal.SelectedShape is TCurveShape) then
+    TCurveShape(vectorOriginal.SelectedShape).SplineStyle := FSplineStyle;
+end;
+
 procedure TForm1.UpdateViewCursor(ACursor: TOriginalEditorCursor);
 begin
   case ACursor of
@@ -596,34 +634,64 @@ begin
 end;
 
 procedure TForm1.UpdateToolbarFromShape(AShape: TVectorShape);
+const ControlMargin = 8;
 var
   f: TVectorShapeFields;
+  showSplineStyle: boolean;
+  nextControlPos: TPoint;
+  s: TSplineStyle;
 begin
+  if Assigned(FComboboxSplineStyle) then
+  begin
+    BCPanelToolbar.RemoveControl(FComboboxSplineStyle);
+    FreeAndNil(FComboboxSplineStyle);
+  end;
+
   if AShape <> nil then
   begin
     FUpdatingFromShape := true;
-    if vsfPenColor in AShape.Fields then penColor := AShape.PenColor;
-    if vsfPenWidth in AShape.Fields then
+    f := AShape.Fields;
+    if vsfPenColor in f then penColor := AShape.PenColor;
+    if vsfPenWidth in f then penWidth:= AShape.PenWidth;
+    if vsfPenStyle in f then penStyle:= AShape.PenStyle;
+    if vsfBackColor in f then backColor := AShape.BackColor;
+    if AShape is TCurveShape then
     begin
-      penWidth:= AShape.PenWidth;
-      FloatSpinEditPenWidth.Enabled := true;
+      showSplineStyle:= true;
+      splineStyle:= TCurveShape(AShape).SplineStyle;
     end else
-      FloatSpinEditPenWidth.Enabled := false;
-    if vsfPenStyle in AShape.Fields then
-    begin
-      penStyle:= AShape.PenStyle;
-      ComboBoxPenStyle.Enabled:= true;
-    end else
-      ComboBoxPenStyle.Enabled:= false;
-
-    if vsfBackColor in AShape.Fields then backColor := AShape.BackColor;
-
+      showSplineStyle:= false;
     FUpdatingFromShape := false;
   end else
   begin
-    if IsCreateShapeTool(currentTool) then f := PaintToolClass[currentTool].Fields else f := [];
-    FloatSpinEditPenWidth.Enabled := vsfPenWidth in f;
-    ComboBoxPenStyle.Enabled:= vsfPenStyle in f;
+    if IsCreateShapeTool(currentTool) then
+    begin
+      f := PaintToolClass[currentTool].Fields;
+      showSplineStyle:= PaintToolClass[currentTool] = TCurveShape;
+    end
+    else
+    begin
+      f := [];
+      showSplineStyle:= false;
+    end;
+  end;
+  FloatSpinEditPenWidth.Enabled := vsfPenWidth in f;
+  ComboBoxPenStyle.Enabled:= vsfPenStyle in f;
+
+  nextControlPos := Point(ShapeBackColor.Left+ShapeBackColor.Width+ControlMargin,ShapeBackColor.Top);
+  if showSplineStyle then
+  begin
+    FComboboxSplineStyle := TComboBox.Create(nil);
+    FComboboxSplineStyle.Style := csDropDownList;
+    FComboboxSplineStyle.Left := nextControlPos.X;
+    FComboboxSplineStyle.Top := nextControlPos.Y;
+    for s := low(SplineStyleToStr) to high(SplineStyleToStr) do
+      FComboboxSplineStyle.Items.Add(SplineStyleToStr[s]);
+    FComboboxSplineStyle.ItemIndex := ord(splineStyle);
+    FComboboxSplineStyle.Width := 120;
+    FComboboxSplineStyle.OnChange:= @ComboBoxSplineStyleChange;
+    BCPanelToolbar.InsertControl(FComboboxSplineStyle);
+    nextControlPos.X := FComboboxSplineStyle.Left + FComboboxSplineStyle.Width + ControlMargin;
   end;
 end;
 
@@ -638,6 +706,7 @@ begin
   result.PenStyle := penStyle;
   if currentTool in[ptClosedCurve,ptPolygon] then
     TCustomPolypointShape(result).Closed := true;
+  if result is TCurveShape then TCurveShape(result).SplineStyle:= splineStyle;
   result.QuickDefine(APoint1,APoint2);
 end;
 

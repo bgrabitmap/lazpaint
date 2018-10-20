@@ -203,10 +203,15 @@ type
   { TCurveShape }
 
   TCurveShape = class(TPolylineShape)
+  private
+    FSplineStyle: TSplineStyle;
+    procedure SetSplineStyle(AValue: TSplineStyle);
   protected
     function GetCurve(AMatrix: TAffineMatrix): ArrayOfTPointF; override;
   public
+    constructor Create;
     class function StorageClassName: RawByteString; override;
+    property SplineStyle: TSplineStyle read FSplineStyle write SetSplineStyle;
   end;
 
   TVectorOriginalSelectShapeEvent = procedure(ASender: TObject; AShape: TVectorShape; APreviousShape: TVectorShape) of object;
@@ -304,13 +309,27 @@ end;
 
 { TCurveShape }
 
+procedure TCurveShape.SetSplineStyle(AValue: TSplineStyle);
+begin
+  if FSplineStyle=AValue then Exit;
+  BeginUpdate;
+  FSplineStyle:=AValue;
+  EndUpdate;
+end;
+
 function TCurveShape.GetCurve(AMatrix: TAffineMatrix): ArrayOfTPointF;
 var
   pts: array of TPointF;
 begin
   pts := inherited GetCurve(AMatrix);
-  if Closed then result := ComputeClosedSpline(pts, ssCrossingWithEnds)
-  else result := ComputeOpenedSpline(pts, ssCrossingWithEnds);
+  if Closed then result := ComputeClosedSpline(pts, FSplineStyle)
+  else result := ComputeOpenedSpline(pts, FSplineStyle);
+end;
+
+constructor TCurveShape.Create;
+begin
+  inherited Create;
+  FSplineStyle:= ssEasyBezier;
 end;
 
 class function TCurveShape.StorageClassName: RawByteString;

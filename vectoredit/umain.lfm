@@ -1,5 +1,5 @@
 object Form1: TForm1
-  Left = 533
+  Left = 531
   Height = 475
   Top = 0
   Width = 627
@@ -26,7 +26,7 @@ object Form1: TForm1
     OnMouseMove = BGRAVirtualScreen1MouseMove
     OnMouseUp = BGRAVirtualScreen1MouseUp
   end
-  object BCPanel1: TBCPanel
+  object BCPanelToolChoice: TBCPanel
     Left = 0
     Height = 431
     Top = 44
@@ -167,7 +167,7 @@ object Form1: TForm1
       end
     end
   end
-  object BCPanel2: TBCPanel
+  object BCPanelToolbar: TBCPanel
     Left = 0
     Height = 44
     Top = 0
