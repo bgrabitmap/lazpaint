@@ -606,7 +606,7 @@ begin
   if Manager.ToolSplineEasyBezier then
   begin
     NeedCurveMode;
-    splinePoints := ComputeEasyBezier(EasyBezierCurve(polygonPoints,True,FCurveMode,EasyBezierMinimumDotProduct));
+    splinePoints := EasyBezierCurve(polygonPoints,True,FCurveMode,EasyBezierMinimumDotProduct).ToPoints;
   end else
     splinePoints := toolDest.ComputeClosedSpline(polygonPoints,Manager.ToolSplineStyle);
   FRenderedPolygonPoints := splinePoints;

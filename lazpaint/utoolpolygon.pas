@@ -364,7 +364,7 @@ begin
   if Manager.ToolSplineEasyBezier then
   begin
     NeedCurveMode;
-    splinePoints := ComputeEasyBezier(EasyBezierCurve(polygonPoints,Manager.ToolOptionCloseShape,FCurveMode,EasyBezierMinimumDotProduct));
+    splinePoints := EasyBezierCurve(polygonPoints,Manager.ToolOptionCloseShape,FCurveMode,EasyBezierMinimumDotProduct).ToPoints;
   end else
   begin
     if Manager.ToolOptionCloseShape then
