@@ -51,6 +51,7 @@ type
     ToolButtonRectangle: TToolButton;
     ToolButtonEllipse: TToolButton;
     UpDownPenAlpha: TBCTrackbarUpdown;
+    UpDownBackAlpha: TBCTrackbarUpdown;
     procedure BGRAVirtualScreen1MouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure BGRAVirtualScreen1MouseMove(Sender: TObject; Shift: TShiftState;
@@ -69,6 +70,7 @@ type
     procedure ShapePenColorMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure ToolButtonClick(Sender: TObject);
+    procedure UpDownBackAlphaChange(Sender: TObject; AByUser: boolean);
     procedure UpDownPenAlphaChange(Sender: TObject; AByUser: boolean);
   private
     FPenColor, FBackColor: TBGRAPixel;
@@ -362,6 +364,16 @@ begin
   end;
 end;
 
+procedure TForm1.UpDownBackAlphaChange(Sender: TObject; AByUser: boolean);
+begin
+  if AByUser then
+  begin
+    FBackColor:= ColorToBGRA(ShapeBackColor.Brush.Color, UpDownBackAlpha.Value);
+    if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+      vectorOriginal.SelectedShape.BackColor:= FBackColor;
+  end;
+end;
+
 procedure TForm1.UpDownPenAlphaChange(Sender: TObject; AByUser: boolean);
 begin
   if AByUser then
@@ -466,6 +478,7 @@ begin
   begin
     CheckBoxBack.Checked := true;
     ShapeBackColor.Brush.Color := AValue.ToColor;
+    UpDownBackAlpha.Value := AValue.alpha;
   end;
   if not FUpdatingFromShape and Assigned(vectorOriginal) then
   begin
@@ -551,6 +564,14 @@ begin
   case ACursor of
     oecDefault: BGRAVirtualScreen1.Cursor := crDefault;
     oecMove: BGRAVirtualScreen1.Cursor := crSizeAll;
+    oecMoveN: BGRAVirtualScreen1.Cursor := crSizeN;
+    oecMoveS: BGRAVirtualScreen1.Cursor := crSizeS;
+    oecMoveE: BGRAVirtualScreen1.Cursor := crSizeE;
+    oecMoveW: BGRAVirtualScreen1.Cursor := crSizeW;
+    oecMoveNE: BGRAVirtualScreen1.Cursor := crSizeNE;
+    oecMoveSW: BGRAVirtualScreen1.Cursor := crSizeSW;
+    oecMoveNW: BGRAVirtualScreen1.Cursor := crSizeNW;
+    oecMoveSE: BGRAVirtualScreen1.Cursor := crSizeSE;
   end;
 end;
 
