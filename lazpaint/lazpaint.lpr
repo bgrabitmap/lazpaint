@@ -110,7 +110,6 @@ begin
   if not LazpaintApplication.ProcessCommandLine then
   begin
     LazpaintApplication.Show;
-  Application.CreateForm(TFQuestion, FQuestion);
     Application.Run;
   end;
   LazpaintApplication.Hide;
