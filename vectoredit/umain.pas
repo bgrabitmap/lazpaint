@@ -6,9 +6,10 @@ interface
 
 uses
   Classes, SysUtils, Types, FileUtil, Forms, Controls, Graphics, Dialogs,
-  ExtCtrls, StdCtrls, Spin, ComCtrls, BGRAVirtualScreen, BCTrackbarUpdown,
-  BCPanel, BGRAImageList, BGRALazPaint, BGRABitmap, BGRABitmapTypes,
-  BGRATransform, BGRALayerOriginal, uvectororiginal;
+  ExtCtrls, StdCtrls, Spin, ComCtrls, ExtDlgs, BGRAVirtualScreen,
+  BCTrackbarUpdown, BCPanel, BGRAImageList, BCButton, BGRALazPaint, BGRABitmap,
+  BGRABitmapTypes, BGRATransform, BGRALayerOriginal, BGRAGraphics,
+  uvectororiginal;
 
 const
   EditorPointSize = 8;
@@ -30,6 +31,8 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    ButtonLoadTex: TBCButton;
+    ButtonNoTex: TBCButton;
     BCPanelToolChoice: TBCPanel;
     BCPanelToolbar: TBCPanel;
     BGRAImageList1: TBGRAImageList;
@@ -38,8 +41,10 @@ type
     ColorDialog1: TColorDialog;
     ComboBoxPenStyle: TComboBox;
     FloatSpinEditPenWidth: TFloatSpinEdit;
+    BackImage: TImage;
     Label1: TLabel;
     Label3: TLabel;
+    OpenPictureDialog1: TOpenPictureDialog;
     ShapeBackColor: TShape;
     ShapePenColor: TShape;
     ToolBar1: TToolBar;
@@ -52,6 +57,7 @@ type
     ToolButtonEllipse: TToolButton;
     UpDownPenAlpha: TBCTrackbarUpdown;
     UpDownBackAlpha: TBCTrackbarUpdown;
+    procedure BackImageClick(Sender: TObject);
     procedure BGRAVirtualScreen1MouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure BGRAVirtualScreen1MouseMove(Sender: TObject; Shift: TShiftState;
@@ -59,21 +65,24 @@ type
     procedure BGRAVirtualScreen1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure BGRAVirtualScreen1Redraw(Sender: TObject; Bitmap: TBGRABitmap);
+    procedure ButtonLoadTexClick(Sender: TObject);
+    procedure ButtonNoTexClick(Sender: TObject);
     procedure CheckBoxBackChange(Sender: TObject);
     procedure ComboBoxPenStyleChange(Sender: TObject);
     procedure FloatSpinEditPenWidthChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure ShapeBackColorMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
-    procedure ShapePenColorMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
+    procedure ShapeBackColorMouseUp(Sender: TObject; {%H-}Button: TMouseButton;
+      {%H-}Shift: TShiftState; X, Y: Integer);
+    procedure ShapePenColorMouseUp(Sender: TObject; {%H-}Button: TMouseButton;
+      {%H-}Shift: TShiftState; X, Y: Integer);
     procedure ToolButtonClick(Sender: TObject);
     procedure UpDownBackAlphaChange(Sender: TObject; AByUser: boolean);
     procedure UpDownPenAlphaChange(Sender: TObject; AByUser: boolean);
   private
     FPenColor, FBackColor: TBGRAPixel;
+    FBackTexture: TBGRABitmap;
     FPenWidth: single;
     FPenStyle: TBGRAPenStyle;
     FFlattened: TBGRABitmap;
@@ -86,6 +95,7 @@ type
     FUpdatingComboboxSplineStyle : boolean;
     procedure ComboBoxSplineStyleChange(Sender: TObject);
     function GetBackColor: TBGRAPixel;
+    function GetBackTexture: TBGRABitmap;
     function GetPenColor: TBGRAPixel;
     function GetPenStyle: TBGRAPenStyle;
     function GetPenWidth: single;
@@ -96,6 +106,7 @@ type
     procedure OnOriginalChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
     procedure OnSelectShape(ASender: TObject; AShape: TVectorShape; APreviousShape: TVectorShape);
     procedure SetBackColor(AValue: TBGRAPixel);
+    procedure SetBackTexture(AValue: TBGRABitmap);
     procedure SetCurrentTool(AValue: TPaintTool);
     procedure SetPenColor(AValue: TBGRAPixel);
     procedure SetPenStyle(AValue: TBGRAPenStyle);
@@ -122,6 +133,7 @@ type
     property vectorTransform: TAffineMatrix read GetVectorTransform;
     property penColor: TBGRAPixel read GetPenColor write SetPenColor;
     property backColor: TBGRAPixel read GetBackColor write SetBackColor;
+    property backTexture: TBGRABitmap read GetBackTexture write SetBackTexture;
     property penWidth: single read GetPenWidth write SetPenWidth;
     property penStyle: TBGRAPenStyle read GetPenStyle write SetPenStyle;
     property splineStyle: TSplineStyle read GetSplineStyle write SetSplineStyle;
@@ -133,7 +145,7 @@ var
 
 implementation
 
-uses math, LCLType, BGRAPen;
+uses math, LCLType, BGRAPen, BGRAThumbnail, BGRAGradientScanner;
 
 function IsCreateShapeTool(ATool: TPaintTool): boolean;
 begin
@@ -176,6 +188,27 @@ begin
     UpdateFlattenedImage(rect(0,0,img.Width,img.Height));
   Bitmap.StretchPutImage(zoomBounds, FFlattened, dmDrawWithTransparency);
   FLastEditorBounds := img.DrawEditor(Bitmap, vectorLayer, zoom, EditorPointSize);
+end;
+
+procedure TForm1.ButtonLoadTexClick(Sender: TObject);
+var
+  newTex: TBGRABitmap;
+begin
+  if OpenPictureDialog1.Execute then
+  begin
+    try
+      newTex := TBGRABitmap.Create(OpenPictureDialog1.FileName, true);
+      backTexture := newTex;
+    except
+      on ex: exception do
+        ShowMessage(ex.Message);
+    end;
+  end;
+end;
+
+procedure TForm1.ButtonNoTexClick(Sender: TObject);
+begin
+  backTexture := nil;
 end;
 
 procedure TForm1.CheckBoxBackChange(Sender: TObject);
@@ -225,6 +258,21 @@ begin
     newStartPoint := AffineMatrixInverse(vectorTransform)*imgPtF;
     newButton := Button;
     justDown := true;
+  end;
+end;
+
+procedure TForm1.BackImageClick(Sender: TObject);
+var
+  texId: Integer;
+begin
+  if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+  begin
+    texId:= vectorOriginal.AddTexture(backTexture);
+    if vectorOriginal.SelectedShape.BackTexture = texId then
+      vectorOriginal.SelectedShape.BackTexture := EmptyTextureId
+    else
+      vectorOriginal.SelectedShape.BackTexture := texId;
+    vectorOriginal.RemoveUnusedTextures;
   end;
 end;
 
@@ -301,6 +349,7 @@ procedure TForm1.FormDestroy(Sender: TObject);
 begin
   img.Free;
   FFlattened.Free;
+  FBackTexture.Free;
 end;
 
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState
@@ -396,6 +445,11 @@ begin
   result := FBackColor;
 end;
 
+function TForm1.GetBackTexture: TBGRABitmap;
+begin
+  result := FBackTexture;
+end;
+
 function TForm1.GetPenColor: TBGRAPixel;
 begin
   result := FPenColor;
@@ -484,6 +538,44 @@ begin
   begin
     if Assigned(vectorOriginal.SelectedShape) then
       vectorOriginal.SelectedShape.BackColor := AValue;
+  end;
+end;
+
+procedure TForm1.SetBackTexture(AValue: TBGRABitmap);
+var
+  thumb: TBGRABitmap;
+  bmpThumb: TBitmap;
+begin
+  if Assigned(AValue) and Assigned(FBackTexture) and AValue.Equals(FBackTexture) then exit;
+  if AValue = FBackTexture then exit;
+  FreeAndNil(FBackTexture);
+  FBackTexture := AValue;
+  if Assigned(FBackTexture) then
+  begin
+    thumb := GetBitmapThumbnail(FBackTexture, BackImage.Width,BackImage.Height,BGRAPixelTransparent,true);
+    try
+      bmpThumb := thumb.MakeBitmapCopy(clBtnFace);
+      try
+        BackImage.Picture.Assign(bmpThumb);
+      finally
+        bmpThumb.Free;
+      end;
+    finally
+      thumb.Free;
+    end;
+    BackImage.Visible := true;
+  end else
+  begin
+    BackImage.Picture.Clear;
+    BackImage.Visible := false;
+  end;
+  if not FUpdatingFromShape and Assigned(vectorOriginal) then
+  begin
+    if Assigned(vectorOriginal.SelectedShape) then
+    begin
+      vectorOriginal.SelectedShape.BackTexture := vectorOriginal.AddTexture(FBackTexture);
+      vectorOriginal.RemoveUnusedTextures;
+    end;
   end;
 end;
 
@@ -676,6 +768,11 @@ begin
     if vsfPenWidth in f then penWidth:= AShape.PenWidth;
     if vsfPenStyle in f then penStyle:= AShape.PenStyle;
     if vsfBackColor in f then backColor := AShape.BackColor;
+    if vsfBackTexture in f then
+    begin
+      if AShape.BackTexture <> EmptyTextureId then
+        backTexture := vectorOriginal.GetTexture(AShape.BackTexture).Duplicate as TBGRABitmap;
+    end;
     if AShape is TCurveShape then
     begin
       showSplineStyle:= true;
@@ -683,6 +780,7 @@ begin
     end else
       showSplineStyle:= false;
     FUpdatingFromShape := false;
+    BackImage.Cursor:= crHandPoint;
   end else
   begin
     if IsCreateShapeTool(currentTool) then
@@ -695,6 +793,7 @@ begin
       f := [];
       showSplineStyle:= false;
     end;
+    BackImage.Cursor:= crDefault;
   end;
   FloatSpinEditPenWidth.Enabled := vsfPenWidth in f;
   ComboBoxPenStyle.Enabled:= vsfPenStyle in f;
@@ -720,9 +819,10 @@ function TForm1.CreateShape(const APoint1,APoint2: TPointF): TVectorShape;
 begin
   if not IsCreateShapeTool(currentTool) then
     raise exception.Create('No shape type selected');
-  result := PaintToolClass[currentTool].Create;
+  result := PaintToolClass[currentTool].Create(vectorOriginal);
   result.PenColor := penColor;
   result.BackColor := backColor;
+  if vsfBackTexture in Result.Fields then result.BackTexture := vectorOriginal.AddTexture(backTexture);
   result.PenWidth := penWidth;
   result.PenStyle := penStyle;
   if currentTool in[ptClosedCurve,ptPolygon] then

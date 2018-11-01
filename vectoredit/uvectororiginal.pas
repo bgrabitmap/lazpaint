@@ -10,12 +10,15 @@ uses
 
 const
   InfiniteRect : TRect = (Left: -MaxLongInt; Top: -MaxLongInt; Right: MaxLongInt; Bottom: MaxLongInt);
+  EmptyTextureId = 0;
 
 type
+  TVectorOriginal = class;
+
   TShapeChangeEvent = procedure(ASender: TObject; ABounds: TRectF) of object;
   TShapeEditingChangeEvent = procedure(ASender: TObject) of object;
 
-  TVectorShapeField = (vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackColor);
+  TVectorShapeField = (vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackColor, vsfBackTexture);
   TVectorShapeFields = set of TVectorShapeField;
   TVectorShapeUsermode = (vsuEdit, vsuCreate);
   TVectorShapeUsermodes = set of TVectorShapeUsermode;
@@ -29,9 +32,12 @@ type
     FUpdateCount: integer;
     FBoundsBeforeUpdate: TRectF;
     FPenColor,FBackColor: TBGRAPixel;
+    FBackTexture: integer;
     FPenWidth: single;
     FStroker: TBGRAPenStroker;
     FUsermode: TVectorShapeUsermode;
+    FContainer: TVectorOriginal;
+    procedure SetContainer(AValue: TVectorOriginal);
   protected
     procedure BeginUpdate;
     procedure EndUpdate;
@@ -40,17 +46,19 @@ type
     function GetPenStyle: TBGRAPenStyle; virtual;
     function GetJoinStyle: TPenJoinStyle;
     function GetBackColor: TBGRAPixel; virtual;
+    function GetBackTexture: integer; virtual;
     procedure SetPenColor(AValue: TBGRAPixel); virtual;
     procedure SetPenWidth(AValue: single); virtual;
     procedure SetPenStyle({%H-}AValue: TBGRAPenStyle); virtual;
     procedure SetJoinStyle(AValue: TPenJoinStyle);
     procedure SetBackColor(AValue: TBGRAPixel); virtual;
+    procedure SetBackTexture(AValue: integer); virtual;
     procedure SetUsermode(AValue: TVectorShapeUsermode); virtual;
     function ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean; AStrokeMatrix: TAffineMatrix): ArrayOfTPointF;
     function GetStroker: TBGRAPenStroker;
     property Stroker: TBGRAPenStroker read GetStroker;
   public
-    constructor Create;
+    constructor Create(AContainer: TVectorOriginal);
     destructor Destroy; override;
     procedure QuickDefine(const APoint1,APoint2: TPointF); virtual; abstract;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); virtual; abstract;
@@ -59,9 +67,9 @@ type
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); virtual; abstract;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); virtual;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); virtual;
-    procedure MouseMove(Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); virtual;
-    procedure MouseDown(RightButton: boolean; Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); virtual;
-    procedure MouseUp(RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); virtual;
+    procedure MouseMove({%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); virtual;
+    procedure MouseDown({%H-}RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); virtual;
+    procedure MouseUp({%H-}RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); virtual;
     class function StorageClassName: RawByteString; virtual; abstract;
     function GetIsSlow({%H-}AMatrix: TAffineMatrix): boolean; virtual;
     class function Fields: TVectorShapeFields; virtual;
@@ -70,10 +78,12 @@ type
     property OnEditingChange: TShapeEditingChangeEvent read FOnEditingChange write FOnEditingChange;
     property PenColor: TBGRAPixel read GetPenColor write SetPenColor;
     property BackColor: TBGRAPixel read GetBackColor write SetBackColor;
+    property BackTexture: integer read GetBackTexture write SetBackTexture;
     property PenWidth: single read GetPenWidth write SetPenWidth;
     property PenStyle: TBGRAPenStyle read GetPenStyle write SetPenStyle;
     property JoinStyle: TPenJoinStyle read GetJoinStyle write SetJoinStyle;
     property Usermode: TVectorShapeUsermode read FUsermode write SetUsermode;
+    property Container: TVectorOriginal read FContainer write SetContainer;
   end;
   TVectorShapes = specialize TFPGList<TVectorShape>;
   TVectorShapeAny = class of TVectorShape;
@@ -134,7 +144,7 @@ type
     function BackVisible: boolean;
     function GetCornerPositition: single; override;
   public
-    constructor Create;
+    constructor Create(AContainer: TVectorOriginal);
     class function Fields: TVectorShapeFields; override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix): TRectF; override;
@@ -170,10 +180,10 @@ type
     procedure SetClosed(AValue: boolean); virtual;
     function PointsEqual(const APoint1, APoint2: TPointF): boolean;
   public
-    constructor Create;
+    constructor Create(AContainer: TVectorOriginal);
     procedure AddPoint(const APoint: TPointF);
-    procedure MouseMove(Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); override;
-    procedure MouseDown(RightButton: boolean; Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); override;
+    procedure MouseMove({%H-}Shift: TShiftState; X, Y: single; var {%H-}ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
+    procedure MouseDown(RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
     procedure QuickDefine(const APoint1,APoint2: TPointF); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
@@ -209,7 +219,7 @@ type
   protected
     function GetCurve(AMatrix: TAffineMatrix): ArrayOfTPointF; override;
   public
-    constructor Create;
+    constructor Create(AContainer: TVectorOriginal);
     class function StorageClassName: RawByteString; override;
     property SplineStyle: TSplineStyle read FSplineStyle write SetSplineStyle;
   end;
@@ -230,14 +240,26 @@ type
     FFrozenShapesComputed: boolean;
     FFrozenShapeMatrix: TAffineMatrix;
     FOnSelectShape: TVectorOriginalSelectShapeEvent;
+    FTextures: array of record
+                 Bitmap: TBGRABitmap;
+                 Id, Counter: integer;
+               end;
+    FTextureCount: integer;
+    FLastTextureId: integer;
     procedure FreeDeletedShapes;
     procedure OnShapeChange(ASender: TObject; ABounds: TRectF);
-    procedure OnShapeEditingChange(ASender: TObject);
+    procedure OnShapeEditingChange({%H-}ASender: TObject);
     procedure DiscardFrozenShapes;
+    function GetTextureId(ABitmap: TBGRABitmap): integer;
+    function IndexOfTexture(AId: integer): integer;
+    procedure AddTextureWithId(ATexture: TBGRABitmap; AId: integer);
   public
     constructor Create; override;
     destructor Destroy; override;
     procedure Clear;
+    function AddTexture(ATexture: TBGRABitmap): integer;
+    function GetTexture(AId: integer): TBGRABitmap;
+    procedure RemoveUnusedTextures;
     function AddShape(AShape: TVectorShape): integer; overload;
     function AddShape(AShape: TVectorShape; AUsermode: TVectorShapeUsermode): integer; overload;
     function RemoveShape(AShape: TVectorShape): boolean;
@@ -326,9 +348,9 @@ begin
   else result := ComputeOpenedSpline(pts, FSplineStyle);
 end;
 
-constructor TCurveShape.Create;
+constructor TCurveShape.Create(AContainer: TVectorOriginal);
 begin
-  inherited Create;
+  inherited Create(AContainer);
   FSplineStyle:= ssEasyBezier;
 end;
 
@@ -380,12 +402,13 @@ end;
 
 function TPolylineShape.BackVisible: boolean;
 begin
-  result := BackColor.alpha <> 0;
+  result := ((BackTexture = EmptyTextureId) and (BackColor.alpha <> 0)) or
+            ((BackTexture <> EmptyTextureId) and Assigned(Container));
 end;
 
 class function TPolylineShape.Fields: TVectorShapeFields;
 begin
-  Result:= [vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackColor];
+  Result:= [vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackColor, vsfBackTexture];
 end;
 
 procedure TPolylineShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
@@ -398,9 +421,17 @@ begin
   if BackVisible then
   begin
     if ADraft then
-      ADest.FillPoly(pts, BackColor, dmDrawWithTransparency)
+    begin
+      if BackTexture <> EmptyTextureId then
+        ADest.FillPoly(pts, Container.GetTexture(BackTexture), dmDrawWithTransparency) else
+        ADest.FillPoly(pts, BackColor, dmDrawWithTransparency);
+    end
     else
-      ADest.FillPolyAntialias(pts, BackColor);
+    begin
+      if BackTexture <> EmptyTextureId then
+        ADest.FillPolyAntialias(pts, Container.GetTexture(BackTexture)) else
+        ADest.FillPolyAntialias(pts, BackColor);
+    end;
   end;
   if PenVisible then
   begin
@@ -606,9 +637,9 @@ begin
     exit((APoint1.x = APoint2.x) and (APoint1.y = APoint2.y));
 end;
 
-constructor TCustomPolypointShape.Create;
+constructor TCustomPolypointShape.Create(AContainer: TVectorOriginal);
 begin
-  inherited Create;
+  inherited Create(AContainer);
   FMousePos := EmptyPointF;
   FClosed:= false;
 end;
@@ -618,8 +649,8 @@ begin
   Points[PointCount] := APoint;
 end;
 
-procedure TCustomPolypointShape.MouseMove(Shift: TShiftState; X, Y: single; out
-  ACursor: TOriginalEditorCursor; out AHandled: boolean);
+procedure TCustomPolypointShape.MouseMove(Shift: TShiftState; X, Y: single; var
+  ACursor: TOriginalEditorCursor; var AHandled: boolean);
 begin
   FMousePos := PointF(X,Y);
   if FAddingPoint then
@@ -627,11 +658,12 @@ begin
     BeginUpdate;
     FPoints[high(FPoints)].coord := FMousePos;
     EndUpdate;
+    AHandled:= true;
   end;
 end;
 
 procedure TCustomPolypointShape.MouseDown(RightButton: boolean;
-  Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out
+  Shift: TShiftState; X, Y: single; var ACursor: TOriginalEditorCursor; var
   AHandled: boolean);
 begin
   if FAddingPoint then
@@ -763,7 +795,8 @@ end;
 
 function TEllipseShape.BackVisible: boolean;
 begin
-  result := BackColor.alpha <> 0;
+  result := ((BackTexture = EmptyTextureId) and (BackColor.alpha <> 0)) or
+            ((BackTexture <> EmptyTextureId) and Assigned(Container));
 end;
 
 function TEllipseShape.GetCornerPositition: single;
@@ -771,15 +804,15 @@ begin
   result := sqrt(2)/2;
 end;
 
-constructor TEllipseShape.Create;
+constructor TEllipseShape.Create(AContainer: TVectorOriginal);
 begin
-  inherited Create;
+  inherited Create(AContainer);
   inherited SetJoinStyle(pjsRound);
 end;
 
 class function TEllipseShape.Fields: TVectorShapeFields;
 begin
-  Result:= [vsfPenColor, vsfPenWidth, vsfPenStyle, vsfBackColor];
+  Result:= [vsfPenColor, vsfPenWidth, vsfPenStyle, vsfBackColor, vsfBackTexture];
 end;
 
 procedure TEllipseShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
@@ -789,6 +822,7 @@ var
   orthoRect: TRectF;
   center, radius: TPointF;
   draftPen, isOrtho: Boolean;
+  r: TRect;
 begin
   isOrtho := GetOrthoRect(AMatrix, orthoRect);
   if isOrtho then
@@ -798,10 +832,18 @@ begin
     If BackVisible then
     begin
       if ADraft then
-        ADest.FillEllipseInRect(rect(round(orthoRect.Left),round(orthoRect.Top),round(orthoRect.Right),round(orthoRect.Bottom)),
-                                BackColor, dmDrawWithTransparency)
+      begin
+        r := rect(round(orthoRect.Left),round(orthoRect.Top),round(orthoRect.Right),round(orthoRect.Bottom));
+        if BackTexture <> EmptyTextureId then
+          ADest.FillEllipseInRect(r, Container.GetTexture(BackTexture), dmDrawWithTransparency) else
+          ADest.FillEllipseInRect(r, BackColor, dmDrawWithTransparency)
+      end
       else
-        ADest.FillEllipseAntialias(center.x, center.y, radius.x, radius.y, BackColor);
+      begin
+        if BackTexture <> EmptyTextureId then
+          ADest.FillEllipseAntialias(center.x, center.y, radius.x, radius.y, Container.GetTexture(BackTexture)) else
+          ADest.FillEllipseAntialias(center.x, center.y, radius.x, radius.y, BackColor);
+       end;
     end;
     if PenVisible then
     begin
@@ -830,9 +872,17 @@ begin
     If BackVisible then
     begin
       if ADraft then
-        ADest.FillPoly(pts, BackColor, dmDrawWithTransparency)
+      begin
+        if BackTexture <> EmptyTextureId then
+          ADest.FillPoly(pts, Container.GetTexture(BackTexture), dmDrawWithTransparency) else
+          ADest.FillPoly(pts, BackColor, dmDrawWithTransparency)
+      end
       else
-        ADest.FillPolyAntialias(pts, BackColor);
+      begin
+        if BackTexture <> EmptyTextureId then
+          ADest.FillPolyAntialias(pts, Container.GetTexture(BackTexture)) else
+          ADest.FillPolyAntialias(pts, BackColor)
+      end;
     end;
     if PenVisible then
     begin
@@ -1172,7 +1222,6 @@ begin
   u := FXAxis - FOrigin;
   v := FYAxis - FOrigin;
   AEditor.AddStartMoveHandler(@OnStartMove);
-  AEditor.AddPoint(FOrigin, @OnMoveOrigin, true);
   AEditor.AddArrow(FOrigin, FXAxis, @OnMoveXAxis);
   AEditor.AddArrow(FOrigin, FYAxis, @OnMoveYAxis);
   AEditor.AddArrow(FOrigin, FOrigin - u, @OnMoveXAxisNeg);
@@ -1185,6 +1234,7 @@ begin
     AEditor.AddPoint(FOrigin + (u-v)*d, @OnMoveXYNegCorner, false);
     AEditor.AddPoint(FOrigin + (-u-v)*d, @OnMoveXNegYNegCorner, false);
   end;
+  AEditor.AddPoint(FOrigin, @OnMoveOrigin, true);
 end;
 
 { TRectShape }
@@ -1196,7 +1246,8 @@ end;
 
 function TRectShape.BackVisible: boolean;
 begin
-  result := BackColor.alpha <> 0;
+  result := ((BackTexture = EmptyTextureId) and (BackColor.alpha <> 0)) or
+            ((BackTexture <> EmptyTextureId) and Assigned(Container));
 end;
 
 function TRectShape.GetCornerPositition: single;
@@ -1230,7 +1281,7 @@ end;
 
 class function TRectShape.Fields: TVectorShapeFields;
 begin
-  Result:= [vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackColor];
+  Result:= [vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackColor, vsfBackTexture];
 end;
 
 procedure TRectShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
@@ -1238,6 +1289,7 @@ procedure TRectShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
 var
   pts: Array of TPointF;
   orthoRect: TRectF;
+  r: TRect;
 begin
   pts := GetAffineBox(AMatrix, true).AsPolygon;
   If BackVisible then
@@ -1245,15 +1297,32 @@ begin
     if GetOrthoRect(AMatrix, orthoRect) then
     begin
       if ADraft then
-        ADest.FillRect(round(orthoRect.Left),round(orthoRect.Top),round(orthoRect.Right),round(orthoRect.Bottom), BackColor, dmDrawWithTransparency)
+      begin
+        r:= rect(round(orthoRect.Left),round(orthoRect.Top),round(orthoRect.Right),round(orthoRect.Bottom));
+        if BackTexture <> EmptyTextureId then
+          ADest.FillRect(r, Container.GetTexture(BackTexture), dmDrawWithTransparency) else
+          ADest.FillRect(r, BackColor, dmDrawWithTransparency)
+      end
       else
-        ADest.FillRectAntialias(orthoRect, BackColor);
+      begin
+        if BackTexture <> EmptyTextureId then
+          ADest.FillRectAntialias(orthoRect, Container.GetTexture(BackTexture)) else
+          ADest.FillRectAntialias(orthoRect, BackColor);
+      end;
     end else
     begin
       if ADraft then
-        ADest.FillPoly(pts, BackColor, dmDrawWithTransparency)
+      begin
+        if BackTexture <> EmptyTextureId then
+          ADest.FillPoly(pts, Container.GetTexture(BackTexture), dmDrawWithTransparency) else
+          ADest.FillPoly(pts, BackColor, dmDrawWithTransparency)
+      end
       else
-        ADest.FillPolyAntialias(pts, BackColor);
+      begin
+        if BackTexture <> EmptyTextureId then
+          ADest.FillPolyAntialias(pts, Container.GetTexture(BackTexture)) else
+          ADest.FillPolyAntialias(pts, BackColor);
+      end;
     end;
   end;
   if PenVisible then
@@ -1359,6 +1428,26 @@ begin
   result := [vsuEdit];
 end;
 
+function TVectorShape.GetBackTexture: integer;
+begin
+  result := FBackTexture;
+end;
+
+procedure TVectorShape.SetBackTexture(AValue: integer);
+begin
+  if FBackTexture = AValue then exit;
+  BeginUpdate;
+  FBackTexture := AValue;
+  EndUpdate;
+end;
+
+procedure TVectorShape.SetContainer(AValue: TVectorOriginal);
+begin
+  if FContainer=AValue then Exit;
+  if Assigned(FContainer) then raise exception.Create('Container already assigned');
+  FContainer:=AValue;
+end;
+
 procedure TVectorShape.BeginUpdate;
 begin
   if FUpdateCount = 0 then
@@ -1453,8 +1542,9 @@ begin
   EndUpdate;
 end;
 
-constructor TVectorShape.Create;
+constructor TVectorShape.Create(AContainer: TVectorOriginal);
 begin
+  FContainer := AContainer;
   FPenColor := BGRAPixelTransparent;
   FPenWidth := 1;
   FBackColor := BGRAPixelTransparent;
@@ -1509,20 +1599,20 @@ begin
   if vsfBackColor in f then AStorage.Color['back-color'] := BackColor;
 end;
 
-procedure TVectorShape.MouseMove(Shift: TShiftState; X, Y: single; out
-  ACursor: TOriginalEditorCursor; out AHandled: boolean);
+procedure TVectorShape.MouseMove(Shift: TShiftState; X, Y: single; var
+  ACursor: TOriginalEditorCursor; var AHandled: boolean);
 begin
   //nothing
 end;
 
 procedure TVectorShape.MouseDown(RightButton: boolean; Shift: TShiftState; X,
-  Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean);
+  Y: single; var ACursor: TOriginalEditorCursor; var AHandled: boolean);
 begin
   //nothing
 end;
 
 procedure TVectorShape.MouseUp(RightButton: boolean; Shift: TShiftState; X,
-  Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean);
+  Y: single; var ACursor: TOriginalEditorCursor; var AHandled: boolean);
 begin
   //nothing
 end;
@@ -1556,6 +1646,36 @@ begin
   FreeAndNil(FFrozenShapesOverSelection);
 end;
 
+function TVectorOriginal.GetTextureId(ABitmap: TBGRABitmap): integer;
+var
+  i: Integer;
+begin
+  if (ABitmap = nil) or (ABitmap.NbPixels = 0) then exit(EmptyTextureId);
+  for i := 0 to FTextureCount-1 do
+    if FTextures[i].Bitmap.Equals(ABitmap) then exit(FTextures[i].Id);
+  exit(-1);
+end;
+
+function TVectorOriginal.IndexOfTexture(AId: integer): integer;
+var
+  i: Integer;
+begin
+  if AId = EmptyTextureId then exit(-1);
+  for i := 0 to FTextureCount-1 do
+    if FTextures[i].Id = AId then exit(i);
+  exit(-1);
+end;
+
+procedure TVectorOriginal.AddTextureWithId(ATexture: TBGRABitmap; AId: integer);
+begin
+  if FTextureCount >= length(FTextures) then
+    setlength(FTextures, FTextureCount*2+2);
+  if AId > FLastTextureId then FLastTextureId:= AId;
+  FTextures[FTextureCount].Bitmap := ATexture.Duplicate as TBGRABitmap;
+  FTextures[FTextureCount].Id := AId;
+  inc(FTextureCount);
+end;
+
 constructor TVectorOriginal.Create;
 begin
   inherited Create;
@@ -1565,6 +1685,7 @@ begin
   FFrozenShapesUnderSelection := nil;
   FFrozenShapesOverSelection := nil;
   FFrozenShapesComputed:= false;
+  FLastTextureId:= EmptyTextureId;
 end;
 
 destructor TVectorOriginal.Destroy;
@@ -1586,12 +1707,68 @@ begin
     for i := 0 to FShapes.Count-1 do
       FDeletedShapes.Add(FShapes[i]);
     FShapes.Clear;
+    for i := 0 to FTextureCount-1 do
+      FreeAndNil(FTextures[i].Bitmap);
+    FTextureCount := 0;
+    FTextures := nil;
+    FLastTextureId:= EmptyTextureId;
     NotifyChange;
   end;
 end;
 
+function TVectorOriginal.AddTexture(ATexture: TBGRABitmap): integer;
+begin
+  result := GetTextureId(ATexture);
+  if result <> -1 then exit;
+  result:= FLastTextureId+1;
+  AddTextureWithId(ATexture, result);
+end;
+
+function TVectorOriginal.GetTexture(AId: integer): TBGRABitmap;
+var
+  index: Integer;
+begin
+  index := IndexOfTexture(AId);
+  if index = -1 then
+    result := nil
+  else
+    result := FTextures[index].Bitmap;
+end;
+
+procedure TVectorOriginal.RemoveUnusedTextures;
+var
+  i, j: Integer;
+  f: TVectorShapeFields;
+begin
+  for i := 0 to FTextureCount-1 do
+    FTextures[i].Counter:= 0;
+  for i := 0 to FShapes.Count-1 do
+  begin
+    f:= FShapes[i].Fields;
+    if (vsfBackTexture in f) and (FShapes[i].BackTexture<>0) then
+      inc(FTextures[IndexOfTexture(FShapes[i].BackTexture)].Counter);
+  end;
+  for i := FTextureCount-1 downto 0 do
+    if FTextures[i].Counter = 0 then
+    begin
+      FreeAndNil(FTextures[i].Bitmap);
+      for j := i to FTextureCount-2 do
+        FTextures[j] := FTextures[j+1];
+      dec(FTextureCount);
+    end;
+  if FTextureCount < length(FTextures) div 2 then
+    setlength(FTextures, FTextureCount);
+end;
+
 function TVectorOriginal.AddShape(AShape: TVectorShape): integer;
 begin
+  if AShape.Container <> self then
+  begin
+    if AShape.Container = nil then
+      AShape.Container := self
+    else
+      raise exception.Create('Container mismatch');
+  end;
   result:= FShapes.Add(AShape);
   AShape.OnChange := @OnShapeChange;
   AShape.OnEditingChange := @OnShapeEditingChange;
@@ -1763,28 +1940,56 @@ procedure TVectorOriginal.LoadFromStorage(AStorage: TBGRACustomOriginalStorage);
 var
   nb: LongInt;
   i: Integer;
-  obj: TBGRACustomOriginalStorage;
-  objClassName: String;
+  shapeObj, texObj: TBGRACustomOriginalStorage;
+  objClassName, texName: String;
   shapeClass: TVectorShapeAny;
   shape: TVectorShape;
+  idList: array of single;
+  mem: TMemoryStream;
+  texId: integer;
 begin
   Clear;
   nb := AStorage.Int['count'];
   for i:= 0 to nb-1 do
   begin
-    obj := AStorage.OpenObject('shape'+inttostr(i+1));
-    if obj <> nil then
-    begin
-      objClassName := obj.RawString['class'];
+    shapeObj := AStorage.OpenObject('shape'+inttostr(i+1));
+    if shapeObj <> nil then
+    try
+      objClassName := shapeObj.RawString['class'];
       if objClassName = '' then raise exception.Create('Shape class not defined');
       shapeClass:= GetVectorShapeByStorageClassName(objClassName);
       if shapeClass = nil then raise exception.Create('Unknown shape class "'+objClassName+'"');
-      shape := shapeClass.Create;
-      shape.LoadFromStorage(obj);
+      shape := shapeClass.Create(self);
+      shape.LoadFromStorage(shapeObj);
       shape.OnChange := @OnShapeChange;
       shape.OnEditingChange := @OnShapeEditingChange;
       FShapes.Add(shape);
-      obj.Free;
+    finally
+      shapeObj.Free;
+    end;
+  end;
+  texObj := AStorage.OpenObject('textures');
+  if Assigned(texObj) then
+  begin
+    try
+      idList := texObj.FloatArray['id'];
+      for i := 0 to high(idList) do
+      begin
+        texId:= round(idList[i]);
+        texName:= 'tex'+inttostr(texId);
+        mem := TMemoryStream.Create;
+        try
+          if not texObj.ReadFile(texName+'.png', mem) and
+             not texObj.ReadFile(texName+'.jpg', mem) then
+             raise exception.Create('Unable to find texture');
+          mem.Position:= 0;
+          AddTextureWithId(TBGRABitmap.Create(mem), texId);
+        finally
+          mem.Free;
+        end;
+      end;
+    finally
+      texObj.Free;
     end;
   end;
   NotifyChange;
@@ -1793,8 +1998,12 @@ end;
 procedure TVectorOriginal.SaveToStorage(AStorage: TBGRACustomOriginalStorage);
 var
   nb: LongInt;
-  i: Integer;
-  obj: TBGRACustomOriginalStorage;
+  i, texIndex: Integer;
+  shapeObj, texObj: TBGRACustomOriginalStorage;
+  idList: array of single;
+  texName: String;
+  mem: TMemoryStream;
+  texId: integer;
 begin
   nb := AStorage.Int['count'];
   for i := 0 to nb-1 do AStorage.RemoveObject('shape'+inttostr(i+1));
@@ -1802,12 +2011,57 @@ begin
 
   for i := 0 to FShapes.Count-1 do
   begin
-    obj := AStorage.CreateObject('shape'+inttostr(i+1));
+    shapeObj := AStorage.CreateObject('shape'+inttostr(i+1));
     try
-      FShapes[i].SaveToStorage(obj);
+      FShapes[i].SaveToStorage(shapeObj);
       AStorage.Int['count'] := i+1;
     finally
-      obj.Free;
+      shapeObj.Free;
+    end;
+  end;
+
+  RemoveUnusedTextures;
+  if FTextureCount = 0 then
+    AStorage.RemoveObject('textures')
+  else
+  begin
+    texObj := nil;
+    try
+      texObj := AStorage.OpenObject('textures');
+      if texObj = nil then
+        texObj := AStorage.CreateObject('textures');
+
+      for i := 0 to FTextureCount-1 do
+        FTextures[i].Counter:= 0;
+
+      idList := texObj.FloatArray['id'];
+      for i := 0 to high(idList) do
+      begin
+        texId := round(idList[i]);
+        texIndex:= IndexOfTexture(texId);
+        if texIndex=-1 then
+        begin
+          texName := 'tex'+inttostr(texId);
+          texObj.RemoveFile(texName+'.png');
+          texObj.RemoveFile(texName+'.jpg');
+        end else
+          inc(FTextures[texIndex].Counter);
+      end;
+
+      for i := 0 to FTextureCount-1 do
+        if FTextures[i].Counter = 0 then
+        begin
+          texName := 'tex'+inttostr(FTextures[i].Id);
+          mem := TMemoryStream.Create;
+          try
+            FTextures[i].Bitmap.SaveToStreamAsPng(mem);
+            texObj.WriteFile(texName+'.png', mem, false);
+          finally
+            mem.Free;
+          end;
+        end;
+    finally
+      texObj.Free;
     end;
   end;
 
