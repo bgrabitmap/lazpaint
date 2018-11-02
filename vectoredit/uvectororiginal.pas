@@ -220,6 +220,8 @@ type
     function GetCurve(AMatrix: TAffineMatrix): ArrayOfTPointF; override;
   public
     constructor Create(AContainer: TVectorOriginal);
+    procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
+    procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     class function StorageClassName: RawByteString; override;
     property SplineStyle: TSplineStyle read FSplineStyle write SetSplineStyle;
   end;
@@ -352,6 +354,42 @@ constructor TCurveShape.Create(AContainer: TVectorOriginal);
 begin
   inherited Create(AContainer);
   FSplineStyle:= ssEasyBezier;
+end;
+
+procedure TCurveShape.LoadFromStorage(AStorage: TBGRACustomOriginalStorage);
+begin
+  BeginUpdate;
+  inherited LoadFromStorage(AStorage);
+  case AStorage.RawString['spline-style'] of
+  'inside': SplineStyle := ssInside;
+  'inside+ends': SplineStyle := ssInsideWithEnds;
+  'crossing': SplineStyle := ssCrossing;
+  'crossing+ends': SplineStyle := ssCrossingWithEnds;
+  'outside': SplineStyle := ssOutside;
+  'round-outside': SplineStyle := ssRoundOutside;
+  'vertex-to-side': SplineStyle := ssVertexToSide;
+  else
+    {'easy-bezier'} SplineStyle := ssEasyBezier;
+  end;
+  EndUpdate;
+end;
+
+procedure TCurveShape.SaveToStorage(AStorage: TBGRACustomOriginalStorage);
+var s: string;
+begin
+  inherited SaveToStorage(AStorage);
+  case SplineStyle of
+    ssInside: s := 'inside';
+    ssInsideWithEnds: s := 'inside+ends';
+    ssCrossing: s := 'crossing';
+    ssCrossingWithEnds: s := 'crossing+ends';
+    ssOutside: s := 'outside';
+    ssRoundOutside: s := 'round-outside';
+    ssVertexToSide: s := 'vertex-to-side';
+    ssEasyBezier: s := 'easy-bezier';
+  else s := '';
+  end;
+  AStorage.RawString['spline-style'] := s;
 end;
 
 class function TCurveShape.StorageClassName: RawByteString;
@@ -1551,6 +1589,7 @@ begin
   FStroker := nil;
   FOnChange := nil;
   FOnEditingChange := nil;
+  FBackTexture:= EmptyTextureId;
   FUsermode:= vsuEdit;
 end;
 
@@ -1578,6 +1617,7 @@ begin
       else JoinStyle := pjsMiter;
       end;
     if vsfBackColor in f then BackColor := AStorage.Color['back-color'];
+    if vsfBackTexture in f then BackTexture := AStorage.Int['back-texture'];
     EndUpdate;
   end;
 end;
@@ -1597,6 +1637,7 @@ begin
     else AStorage.RawString['join-style'] := 'miter';
     end;
   if vsfBackColor in f then AStorage.Color['back-color'] := BackColor;
+  if vsfBackTexture in f then AStorage.Int['back-texture'] := BackTexture;
 end;
 
 procedure TVectorShape.MouseMove(Shift: TShiftState; X, Y: single; var
@@ -2012,6 +2053,7 @@ begin
   for i := 0 to FShapes.Count-1 do
   begin
     shapeObj := AStorage.CreateObject('shape'+inttostr(i+1));
+    shapeObj.RawString['class'] := FShapes[i].StorageClassName;
     try
       FShapes[i].SaveToStorage(shapeObj);
       AStorage.Int['count'] := i+1;
@@ -2048,7 +2090,9 @@ begin
           inc(FTextures[texIndex].Counter);
       end;
 
+      setlength(idList, FTextureCount);
       for i := 0 to FTextureCount-1 do
+      begin
         if FTextures[i].Counter = 0 then
         begin
           texName := 'tex'+inttostr(FTextures[i].Id);
@@ -2060,6 +2104,9 @@ begin
             mem.Free;
           end;
         end;
+        idList[i] := FTextures[i].Id;
+      end;
+      texObj.FloatArray['id'] := idList;
     finally
       texObj.Free;
     end;
@@ -2071,6 +2118,14 @@ class function TVectorOriginal.StorageClassName: RawByteString;
 begin
   result := 'vector';
 end;
+
+initialization
+
+  RegisterLayerOriginal(TVectorOriginal);
+  RegisterVectorShape(TRectShape);
+  RegisterVectorShape(TEllipseShape);
+  RegisterVectorShape(TPolylineShape);
+  RegisterVectorShape(TCurveShape);
 
 end.
 

@@ -31,20 +31,29 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
-    ButtonLoadTex: TBCButton;
-    ButtonNoTex: TBCButton;
+    BackImage: TImage;
+    PanelBasicStyle: TBCPanel;
+    PanelFile: TBCPanel;
+    PanelExtendedStyle: TBCPanel;
     BCPanelToolChoice: TBCPanel;
     BCPanelToolbar: TBCPanel;
     BGRAImageList1: TBGRAImageList;
     BGRAVirtualScreen1: TBGRAVirtualScreen;
+    ButtonLoadTex: TBCButton;
+    ButtonOpenFile: TBCButton;
+    ButtonSaveFile: TBCButton;
+    ButtonSaveAs: TBCButton;
+    ButtonNewFile: TBCButton;
+    ButtonNoTex: TBCButton;
     CheckBoxBack: TCheckBox;
     ColorDialog1: TColorDialog;
     ComboBoxPenStyle: TComboBox;
     FloatSpinEditPenWidth: TFloatSpinEdit;
-    BackImage: TImage;
     Label1: TLabel;
     Label3: TLabel;
+    OpenDialog1: TOpenDialog;
     OpenPictureDialog1: TOpenPictureDialog;
+    SaveDialog1: TSaveDialog;
     ShapeBackColor: TShape;
     ShapePenColor: TShape;
     ToolBar1: TToolBar;
@@ -55,8 +64,8 @@ type
     ToolButtonPolygon: TToolButton;
     ToolButtonRectangle: TToolButton;
     ToolButtonEllipse: TToolButton;
-    UpDownPenAlpha: TBCTrackbarUpdown;
     UpDownBackAlpha: TBCTrackbarUpdown;
+    UpDownPenAlpha: TBCTrackbarUpdown;
     procedure BackImageClick(Sender: TObject);
     procedure BGRAVirtualScreen1MouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -66,7 +75,11 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure BGRAVirtualScreen1Redraw(Sender: TObject; Bitmap: TBGRABitmap);
     procedure ButtonLoadTexClick(Sender: TObject);
+    procedure ButtonNewFileClick(Sender: TObject);
     procedure ButtonNoTexClick(Sender: TObject);
+    procedure ButtonOpenFileClick(Sender: TObject);
+    procedure ButtonSaveAsClick(Sender: TObject);
+    procedure ButtonSaveFileClick(Sender: TObject);
     procedure CheckBoxBackChange(Sender: TObject);
     procedure ComboBoxPenStyleChange(Sender: TObject);
     procedure FloatSpinEditPenWidthChange(Sender: TObject);
@@ -117,11 +130,14 @@ type
     procedure UpdateFlattenedImage(ARect: TRect);
     procedure UpdateView(AImageChangeRect: TRect);
     procedure UpdateToolbarFromShape(AShape: TVectorShape);
+    procedure UpdateTitleBar;
+    procedure ImageChangesCompletely;
     function CreateShape(const APoint1, APoint2: TPointF): TVectorShape;
     { private declarations }
   public
     { public declarations }
     img: TBGRALazPaintImage;
+    filename: string;
     vectorOriginal: TVectorOriginal;
     zoom: TAffineMatrix;
     newShape: TVectorShape;
@@ -130,6 +146,7 @@ type
     newButton: TMouseButton;
     vectorLayer: Integer;
     mouseState: TShiftState;
+    baseCaption: string;
     property vectorTransform: TAffineMatrix read GetVectorTransform;
     property penColor: TBGRAPixel read GetPenColor write SetPenColor;
     property backColor: TBGRAPixel read GetBackColor write SetBackColor;
@@ -158,14 +175,16 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
+  baseCaption:= Caption;
   img := TBGRALazPaintImage.Create(1600,1200);
+  filename := '';
   vectorOriginal := TVectorOriginal.Create;
   vectorLayer := img.AddLayerFromOwnedOriginal(vectorOriginal);
   img.LayerOriginalMatrix[vectorLayer] := AffineMatrixScale(1,1);
   vectorOriginal.OnSelectShape:= @OnSelectShape;
-  zoom := AffineMatrixScale(1,1);
   img.OnOriginalEditingChange:= @OnEditingChange;
   img.OnOriginalChange:= @OnOriginalChange;
+  zoom := AffineMatrixScale(1,1);
   newShape:= nil;
   penColor := BGRABlack;
   backColor := CSSDodgerBlue;
@@ -173,6 +192,7 @@ begin
   penStyle := SolidPenStyle;
   currentTool:= ptRectangle;
   splineStyle:= ssEasyBezier;
+  UpdateTitleBar;
 end;
 
 procedure TForm1.BGRAVirtualScreen1Redraw(Sender: TObject; Bitmap: TBGRABitmap);
@@ -186,7 +206,7 @@ begin
   Bitmap.DrawCheckers(zoomBounds, CSSWhite,CSSSilver);
   if FFlattened = nil then
     UpdateFlattenedImage(rect(0,0,img.Width,img.Height));
-  Bitmap.StretchPutImage(zoomBounds, FFlattened, dmDrawWithTransparency);
+  Bitmap.StretchPutImage(zoomBounds, FFlattened, dmLinearBlend);
   FLastEditorBounds := img.DrawEditor(Bitmap, vectorLayer, zoom, EditorPointSize);
 end;
 
@@ -206,9 +226,86 @@ begin
   end;
 end;
 
+procedure TForm1.ButtonNewFileClick(Sender: TObject);
+begin
+  if Assigned(vectorOriginal) then
+  begin
+    vectorOriginal.Clear;
+    filename := '';
+    UpdateTitleBar;
+  end;
+end;
+
 procedure TForm1.ButtonNoTexClick(Sender: TObject);
 begin
   backTexture := nil;
+end;
+
+procedure TForm1.ButtonOpenFileClick(Sender: TObject);
+var
+  openedImg: TBGRALazPaintImage;
+  openedLayer: Integer;
+  openedLayerOriginal: TBGRALayerCustomOriginal;
+begin
+  if OpenDialog1.Execute then
+  begin
+    openedImg := TBGRALazPaintImage.Create;
+    try
+      openedImg.LoadFromFile(OpenDialog1.FileName);
+      if openedImg.NbLayers <> 1 then raise exception.Create('Expecting one layer only');
+      openedLayer := 0;
+      openedLayerOriginal := openedImg.LayerOriginal[openedLayer];
+      if (openedLayerOriginal = nil) or not (openedLayerOriginal is TVectorOriginal) then
+        raise exception.Create('Not a vectorial image');
+
+      img.Free;
+      img := openedImg;
+      openedImg := nil;
+      vectorLayer:= openedLayer;
+      vectorOriginal := TVectorOriginal(openedLayerOriginal);
+      vectorOriginal.OnSelectShape:= @OnSelectShape;
+      img.OnOriginalEditingChange:= @OnEditingChange;
+      img.OnOriginalChange:= @OnOriginalChange;
+      filename:= OpenDialog1.FileName;
+      UpdateTitleBar;
+      ImageChangesCompletely;
+    except
+      on ex: exception do
+        ShowMessage(ex.Message);
+    end;
+    openedImg.Free;
+  end;
+end;
+
+procedure TForm1.ButtonSaveAsClick(Sender: TObject);
+begin
+  if not Assigned(img) then exit;
+  if SaveDialog1.Execute then
+  begin
+    try
+      img.SaveToFile(SaveDialog1.FileName);
+      filename := SaveDialog1.FileName;
+      UpdateTitleBar;
+    except
+      on ex: exception do
+        ShowMessage(ex.Message);
+    end;
+  end;
+end;
+
+procedure TForm1.ButtonSaveFileClick(Sender: TObject);
+begin
+  if filename = '' then
+    ButtonSaveAsClick(Sender)
+  else
+  begin
+    try
+      img.SaveToFile(filename);
+    except
+      on ex: exception do
+        ShowMessage(ex.Message);
+    end;
+  end;
 end;
 
 procedure TForm1.CheckBoxBackChange(Sender: TObject);
@@ -224,13 +321,13 @@ end;
 procedure TForm1.ComboBoxPenStyleChange(Sender: TObject);
 begin
   if FUpdatingComboBoxPenStyle then exit;
-  case ComboBoxPenStyle.Text of
-    'Clear': penStyle := ClearPenStyle;
-    'Solid': penStyle := SolidPenStyle;
-    'Dash': penStyle := DashPenStyle;
-    'Dot': penStyle := DotPenStyle;
-    'DashDot': penStyle := DashDotPenStyle;
-    'DashDotDot': penStyle := DashDotDotPenStyle;
+  case ComboBoxPenStyle.ItemIndex of
+    0: penStyle := ClearPenStyle;
+    1: penStyle := SolidPenStyle;
+    2: penStyle := DashPenStyle;
+    3: penStyle := DotPenStyle;
+    4: penStyle := DashDotPenStyle;
+    5: penStyle := DashDotDotPenStyle;
   end;
 end;
 
@@ -604,18 +701,20 @@ begin
 end;
 
 procedure TForm1.SetPenStyle(AValue: TBGRAPenStyle);
-var cur: string;
+var cur: integer;
 begin
   FPenStyle := AValue;
-  if IsSolidPenStyle(AValue) then cur:= 'Solid' else
-  if IsClearPenStyle(AValue) then cur:= 'Clear' else
-  if AValue = DashPenStyle then cur := 'Dash' else
-  if AValue = DotPenStyle then cur := 'Dot' else
-  if AValue = DashDotPenStyle then cur := 'DashDot' else
-  if AValue = DashDotDotPenStyle then cur := 'DashDotDot' else
-    cur := '?';
+  case BGRAToPenStyle(AValue) of
+    psClear: cur:= 0;
+    psSolid: cur:= 1;
+    psDash: cur := 2;
+    psDot: cur := 3;
+    psDashDot: cur := 4;
+    psDashDotDot: cur := 5;
+    else cur := 6;
+  end;
   FUpdatingComboBoxPenStyle := true;
-  ComboBoxPenStyle.ItemIndex := ComboBoxPenStyle.Items.IndexOf(cur);
+  ComboBoxPenStyle.ItemIndex := cur;
   FUpdatingComboBoxPenStyle := false;
   if not FUpdatingFromShape and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
     vectorOriginal.SelectedShape.PenStyle := FPenStyle;
@@ -753,10 +852,11 @@ var
   showSplineStyle: boolean;
   nextControlPos: TPoint;
   s: TSplineStyle;
+  texSource: TBGRABitmap;
 begin
   if Assigned(FComboboxSplineStyle) then
   begin
-    BCPanelToolbar.RemoveControl(FComboboxSplineStyle);
+    PanelExtendedStyle.RemoveControl(FComboboxSplineStyle);
     FreeAndNil(FComboboxSplineStyle);
   end;
 
@@ -771,7 +871,11 @@ begin
     if vsfBackTexture in f then
     begin
       if AShape.BackTexture <> EmptyTextureId then
-        backTexture := vectorOriginal.GetTexture(AShape.BackTexture).Duplicate as TBGRABitmap;
+      begin
+        texSource := vectorOriginal.GetTexture(AShape.BackTexture);
+        if Assigned(texSource) then
+          backTexture := texSource.Duplicate as TBGRABitmap;
+      end;
     end;
     if AShape is TCurveShape then
     begin
@@ -798,7 +902,7 @@ begin
   FloatSpinEditPenWidth.Enabled := vsfPenWidth in f;
   ComboBoxPenStyle.Enabled:= vsfPenStyle in f;
 
-  nextControlPos := Point(ShapeBackColor.Left+ShapeBackColor.Width+ControlMargin,ShapeBackColor.Top);
+  nextControlPos := Point(ControlMargin,ShapeBackColor.Top);
   if showSplineStyle then
   begin
     FComboboxSplineStyle := TComboBox.Create(nil);
@@ -810,9 +914,23 @@ begin
     FComboboxSplineStyle.ItemIndex := ord(splineStyle);
     FComboboxSplineStyle.Width := 120;
     FComboboxSplineStyle.OnChange:= @ComboBoxSplineStyleChange;
-    BCPanelToolbar.InsertControl(FComboboxSplineStyle);
+    PanelExtendedStyle.InsertControl(FComboboxSplineStyle);
     nextControlPos.X := FComboboxSplineStyle.Left + FComboboxSplineStyle.Width + ControlMargin;
   end;
+end;
+
+procedure TForm1.UpdateTitleBar;
+begin
+  if filename = '' then
+    Caption := baseCaption + ' - New image - ' + inttostr(img.Width)+'x'+inttostr(img.Height)
+  else
+    Caption := baseCaption + ' - ' + filename + ' - ' + inttostr(img.Width)+'x'+inttostr(img.Height);
+end;
+
+procedure TForm1.ImageChangesCompletely;
+begin
+  FreeAndNil(FFlattened);
+  BGRAVirtualScreen1.DiscardBitmap;
 end;
 
 function TForm1.CreateShape(const APoint1,APoint2: TPointF): TVectorShape;
