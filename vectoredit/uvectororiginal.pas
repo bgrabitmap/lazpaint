@@ -187,7 +187,6 @@ type
     procedure QuickDefine(const APoint1,APoint2: TPointF); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
-    function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix): TRectF; override;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
     class function Usermodes: TVectorShapeUsermodes; override;
     property Points[AIndex:integer]: TPointF read GetPoint write SetPoint;
@@ -308,6 +307,26 @@ begin
   if APointF.x > ARectF.Right then ARectF.Right := APointF.x;
   if APointF.y < ARectF.Top then ARectF.Top := APointF.y;
   if APointF.y > ARectF.Bottom then ARectF.Bottom := APointF.y;
+end;
+
+function GetPointsBoundsF(const APoints: array of TPointF): TRectF;
+var
+  i: Integer;
+  firstPoint: Boolean;
+begin
+  result:= EmptyRectF;
+  firstPoint := true;
+  for i:= 0 to high(APoints) do
+    if not isEmptyPointF(APoints[i]) then
+    begin
+      if firstPoint then
+      begin
+        result.TopLeft := APoints[i];
+        result.BottomRight := APoints[i];
+        firstPoint := false;
+      end else
+        IncludePointF(result, APoints[i]);
+    end;
 end;
 
 function GetVectorShapeByStorageClassName(AName: string): TVectorShapeAny;
@@ -486,37 +505,37 @@ var
   i: Integer;
   pts: ArrayOfTPointF;
   xMargin, yMargin: single;
+  fillBounds, penBounds: TRectF;
 begin
   if not BackVisible and not PenVisible then
     result:= EmptyRectF
   else
   begin
+    pts := GetCurve(AMatrix);
     if PenVisible then
     begin
       if (JoinStyle <> pjsMiter) or (Stroker.MiterLimit <= 1) then
       begin
         xMargin := (abs(AMatrix[1,1])+abs(AMatrix[1,2]))*PenWidth*0.5;
         yMargin := (abs(AMatrix[2,1])+abs(AMatrix[2,2]))*PenWidth*0.5;
-        result := inherited GetRenderBounds(ADestRect, AMatrix);
+        result := GetPointsBoundsF(pts);
         result.Left -= xMargin;
         result.Top -= yMargin;
         result.Right += xMargin;
         result.Bottom += yMargin;
       end else
       begin
-        pts := ComputeStroke(GetCurve(AMatrix), Closed, AMatrix);
-        for i := 0 to high(pts) do
-        begin
-          if pts[i].x < result.Left then result.Left := pts[i].x;
-          if pts[i].x > result.Right then result.Right := pts[i].x;
-          if pts[i].y < result.Top then result.Top := pts[i].y;
-          if pts[i].y > result.Bottom then result.Bottom := pts[i].y;
-        end;
+        if BackVisible then fillBounds := GetPointsBoundsF(pts)
+        else fillBounds := EmptyRectF;
+        pts := ComputeStroke(pts, Closed, AMatrix);
+        penBounds := GetPointsBoundsF(pts);
+        result := fillBounds.Union(penBounds, true);
       end;
     end
     else
-      result := inherited GetRenderBounds(ADestRect, AMatrix);
+      result := GetPointsBoundsF(pts);
   end;
+  result.Offset(0.5,0.5);
 end;
 
 function TPolylineShape.PointInShape(APoint: TPointF): boolean;
@@ -762,35 +781,6 @@ begin
   AStorage.FloatArray['x'] := x;
   AStorage.FloatArray['y'] := y;
   AStorage.Bool['closed'] := Closed;
-end;
-
-function TCustomPolypointShape.GetRenderBounds(ADestRect: TRect;
-  AMatrix: TAffineMatrix): TRectF;
-var
-  i: Integer;
-  pts: ArrayOfTPointF;
-  firstPoint: Boolean;
-begin
-  result:= EmptyRectF;
-  firstPoint := true;
-  pts := GetCurve(AMatrix);
-  for i:= 0 to high(pts) do
-    if not isEmptyPointF(pts[i]) then
-    begin
-      if firstPoint then
-      begin
-        result.TopLeft := pts[i];
-        result.BottomRight := pts[i];
-        firstPoint := false;
-      end else
-      with pts[i] do
-      begin
-        if x < result.Left then result.Left := x
-        else if x > result.right then result.right := x;
-        if y < result.top then result.top := y
-        else if y > result.bottom then result.bottom := y;
-      end;
-    end;
 end;
 
 procedure TCustomPolypointShape.ConfigureEditor(AEditor: TBGRAOriginalEditor);
