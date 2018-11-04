@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 356
+  Left = 354
   Height = 475
-  Top = 131
+  Top = 81
   Width = 981
   Caption = 'Vector Edit'
   ClientHeight = 475
@@ -230,10 +230,10 @@ object Form1: TForm1
     Rounding.RoundOptions = []
     TabOrder = 2
     object PanelBasicStyle: TBCPanel
-      Left = 142
+      Left = 139
       Height = 43
       Top = 0
-      Width = 576
+      Width = 693
       Align = alLeft
       Background.Color = clBtnFace
       Background.ColorOpacity = 255
@@ -449,39 +449,28 @@ object Form1: TForm1
         Width = 72
         ItemHeight = 0
         Items.Strings = (
-          'Clear'
-          'Solid'
-          '- - - - -'
-          '· · · · · ·'
-          '- · - · - ·'
-          '- · · - · ·'
+          ''
+          '─────'
+          '─ ─ ─ ─'
+          '···············'
+          '─ · ─ · ─'
+          '─ · · ─ · ·'
         )
         OnChange = ComboBoxPenStyleChange
         Style = csDropDownList
         TabOrder = 2
       end
-      object CheckBoxBack: TCheckBox
-        Left = 320
-        Height = 22
-        Top = 10
-        Width = 51
-        Caption = 'Back'
-        Checked = True
-        OnChange = CheckBoxBackChange
-        State = cbChecked
-        TabOrder = 3
-      end
       object ShapeBackColor: TShape
-        Left = 387
+        Left = 464
         Height = 25
-        Top = 8
+        Top = 7
         Width = 27
         OnMouseUp = ShapeBackColorMouseUp
       end
       object UpDownBackAlpha: TBCTrackbarUpdown
-        Left = 413
+        Left = 490
         Height = 25
-        Top = 8
+        Top = 7
         Width = 48
         BarExponent = 1
         Increment = 1
@@ -589,14 +578,14 @@ object Form1: TForm1
         Font.Name = 'Arial'
         HasTrackBar = True
         ArrowColor = clBtnText
-        TabOrder = 4
+        TabOrder = 3
         TabStop = True
         UseDockManager = False
       end
       object ButtonLoadTex: TBCButton
-        Left = 472
+        Left = 592
         Height = 25
-        Top = 8
+        Top = 7
         Width = 28
         StateClicked.Background.Color = clBlack
         StateClicked.Background.ColorOpacity = 255
@@ -798,17 +787,16 @@ object Form1: TForm1
         MemoryUsage = bmuHigh
       end
       object BackImage: TImage
-        Left = 506
+        Left = 656
         Height = 25
-        Top = 8
+        Top = 7
         Width = 27
-        OnClick = BackImageClick
         Visible = False
       end
       object ButtonNoTex: TBCButton
-        Left = 539
+        Left = 624
         Height = 25
-        Top = 8
+        Top = 7
         Width = 29
         StateClicked.Background.Color = clBlack
         StateClicked.Background.ColorOpacity = 255
@@ -1009,12 +997,49 @@ object Form1: TForm1
         TextApplyGlobalOpacity = False
         MemoryUsage = bmuHigh
       end
+      object Label2: TLabel
+        Left = 320
+        Height = 17
+        Top = 12
+        Width = 27
+        Caption = 'Back'
+        ParentColor = False
+      end
+      object RadioButtonSolid: TRadioButton
+        Left = 408
+        Height = 22
+        Top = 10
+        Width = 51
+        Caption = 'Solid'
+        Checked = True
+        OnChange = RadioButtonBackChange
+        TabOrder = 6
+        TabStop = True
+      end
+      object RadioButtonTex: TRadioButton
+        Left = 544
+        Height = 22
+        Top = 10
+        Width = 44
+        Caption = 'Tex'
+        OnChange = RadioButtonBackChange
+        TabOrder = 4
+      end
+      object RadioButtonNone: TRadioButton
+        Left = 352
+        Height = 22
+        Top = 10
+        Width = 54
+        Caption = 'None'
+        OnChange = RadioButtonBackChange
+        TabOrder = 5
+      end
     end
     object PanelFile: TBCPanel
       Left = 0
       Height = 43
       Top = 0
-      Width = 142
+      Width = 139
       Align = alLeft
       Background.Color = clBtnFace
       Background.ColorOpacity = 255
@@ -1890,10 +1915,10 @@ object Form1: TForm1
       end
     end
     object PanelExtendedStyle: TBCPanel
-      Left = 718
+      Left = 832
       Height = 43
       Top = 0
-      Width = 263
+      Width = 149
       Align = alClient
       Background.Color = clBtnFace
       Background.ColorOpacity = 255
