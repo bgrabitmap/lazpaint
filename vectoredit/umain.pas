@@ -130,13 +130,14 @@ type
     procedure SetSplineStyle(AValue: TSplineStyle);
     procedure UpdateViewCursor(ACursor: TOriginalEditorCursor);
     procedure RenderAndUpdate(ADraft: boolean);
-    procedure UpdateFlattenedImage(ARect: TRect);
+    procedure UpdateFlattenedImage(ARect: TRect; AUpdateView: boolean = true);
     procedure UpdateView(AImageChangeRect: TRect);
     procedure UpdateToolbarFromShape(AShape: TVectorShape);
     procedure UpdateTitleBar;
     procedure ImageChangesCompletely;
     function CreateShape(const APoint1, APoint2: TPointF): TVectorShape;
     function CreateBackFill: TVectorialFill;
+    procedure RemoveExtendedStyleControls;
     { private declarations }
   public
     { public declarations }
@@ -210,7 +211,7 @@ begin
   zoomBounds := Rect(round(topLeftF.X),round(topLeftF.Y),round(bottomRightF.X),round(bottomRightF.Y));
   Bitmap.DrawCheckers(zoomBounds, CSSWhite,CSSSilver);
   if FFlattened = nil then
-    UpdateFlattenedImage(rect(0,0,img.Width,img.Height));
+    UpdateFlattenedImage(rect(0,0,img.Width,img.Height), false);
   Bitmap.StretchPutImage(zoomBounds, FFlattened, dmLinearBlend);
   FLastEditorBounds := img.DrawEditor(Bitmap, vectorLayer, zoom, EditorPointSize);
 end;
@@ -429,6 +430,7 @@ end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
+  RemoveExtendedStyleControls;
   img.Free;
   FFlattened.Free;
   FBackTexture.FreeReference;
@@ -809,7 +811,7 @@ begin
   UpdateFlattenedImage(renderedRect);
 end;
 
-procedure TForm1.UpdateFlattenedImage(ARect: TRect);
+procedure TForm1.UpdateFlattenedImage(ARect: TRect; AUpdateView: boolean);
 var
   shapeRectF: TRectF;
   shapeRect: TRect;
@@ -838,7 +840,8 @@ begin
     end;
   end;
 
-  UpdateView(ARect);
+  if AUpdateView then
+    UpdateView(ARect);
 end;
 
 procedure TForm1.UpdateView(AImageChangeRect: TRect);
@@ -889,11 +892,7 @@ var
   s: TSplineStyle;
   texSource: TBGRABitmap;
 begin
-  if Assigned(FComboboxSplineStyle) then
-  begin
-    PanelExtendedStyle.RemoveControl(FComboboxSplineStyle);
-    FreeAndNil(FComboboxSplineStyle);
-  end;
+  RemoveExtendedStyleControls;
 
   if AShape <> nil then
   begin
@@ -1019,6 +1018,15 @@ begin
     result := TVectorialFill.CreateAsGradient(grad, true);
   end
   else result := nil; //none
+end;
+
+procedure TForm1.RemoveExtendedStyleControls;
+begin
+  if Assigned(FComboboxSplineStyle) then
+  begin
+    PanelExtendedStyle.RemoveControl(FComboboxSplineStyle);
+    FreeAndNil(FComboboxSplineStyle);
+  end;
 end;
 
 end.
