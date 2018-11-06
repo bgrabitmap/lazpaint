@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 354
+  Left = 353
   Height = 475
-  Top = 81
+  Top = 56
   Width = 981
   Caption = 'Vector Edit'
   ClientHeight = 475
@@ -233,7 +233,7 @@ object Form1: TForm1
       Left = 139
       Height = 43
       Top = 0
-      Width = 693
+      Width = 773
       Align = alLeft
       Background.Color = clBtnFace
       Background.ColorOpacity = 255
@@ -1033,6 +1033,15 @@ object Form1: TForm1
         Caption = 'None'
         OnChange = RadioButtonBackChange
         TabOrder = 5
+      end
+      object RadioButtonGradient: TRadioButton
+        Left = 691
+        Height = 22
+        Top = 10
+        Width = 73
+        Caption = 'Gradient'
+        OnChange = RadioButtonBackChange
+        TabOrder = 7
       end
     end
     object PanelFile: TBCPanel
@@ -1915,10 +1924,10 @@ object Form1: TForm1
       end
     end
     object PanelExtendedStyle: TBCPanel
-      Left = 832
+      Left = 912
       Height = 43
       Top = 0
-      Width = 149
+      Width = 69
       Align = alClient
       Background.Color = clBtnFace
       Background.ColorOpacity = 255

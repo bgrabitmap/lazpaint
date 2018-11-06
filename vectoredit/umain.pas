@@ -9,7 +9,7 @@ uses
   ExtCtrls, StdCtrls, Spin, ComCtrls, ExtDlgs, BGRAVirtualScreen,
   BCTrackbarUpdown, BCPanel, BGRAImageList, BCButton, BGRALazPaint, BGRABitmap,
   BGRABitmapTypes, BGRATransform, BGRALayerOriginal, BGRAGraphics,
-  uvectororiginal;
+  uvectororiginal, uvectorialfill;
 
 const
   EditorPointSize = 8;
@@ -53,6 +53,7 @@ type
     Label3: TLabel;
     OpenDialog1: TOpenDialog;
     OpenPictureDialog1: TOpenPictureDialog;
+    RadioButtonGradient: TRadioButton;
     RadioButtonSolid: TRadioButton;
     RadioButtonNone: TRadioButton;
     RadioButtonTex: TRadioButton;
@@ -135,6 +136,7 @@ type
     procedure UpdateTitleBar;
     procedure ImageChangesCompletely;
     function CreateShape(const APoint1, APoint2: TPointF): TVectorShape;
+    function CreateBackFill: TVectorialFill;
     { private declarations }
   public
     { public declarations }
@@ -164,7 +166,8 @@ var
 
 implementation
 
-uses math, LCLType, BGRAPen, BGRAThumbnail, BGRAGradientScanner;
+uses math, LCLType, BGRAPen, BGRAThumbnail, BGRAGradientScanner,
+  BGRAGradientOriginal;
 
 function IsCreateShapeTool(ATool: TPaintTool): boolean;
 begin
@@ -221,6 +224,7 @@ begin
     try
       newTex := TBGRABitmap.Create(OpenPictureDialog1.FileName, true);
       backTexture := newTex;
+      newTex.FreeReference;
       RadioButtonTex.Checked:= true;
     except
       on ex: exception do
@@ -244,6 +248,7 @@ end;
 procedure TForm1.ButtonNoTexClick(Sender: TObject);
 begin
   backTexture := nil;
+  if RadioButtonTex.Checked then RadioButtonNone.Checked := true;
 end;
 
 procedure TForm1.ButtonOpenFileClick(Sender: TObject);
@@ -426,7 +431,7 @@ procedure TForm1.FormDestroy(Sender: TObject);
 begin
   img.Free;
   FFlattened.Free;
-  FBackTexture.Free;
+  FBackTexture.FreeReference;
 end;
 
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState
@@ -448,24 +453,19 @@ end;
 
 procedure TForm1.RadioButtonBackChange(Sender: TObject);
 var
-  texId: Integer;
+  vectorFill: TVectorialFill;
+  grad: TBGRALayerGradientOriginal;
 begin
   if FUpdatingFromShape then exit;
-  if (Sender = RadioButtonNone) and RadioButtonNone.Checked then
+  if ((Sender = RadioButtonNone) and RadioButtonNone.Checked) or
+     ((Sender = RadioButtonSolid) and RadioButtonSolid.Checked) or
+     ((Sender = RadioButtonGradient) and RadioButtonGradient.Checked) then
   begin
     if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
     begin
-      vectorOriginal.SelectedShape.BackTexture := EmptyTextureId;
-      vectorOriginal.SelectedShape.BackColor := BGRAPixelTransparent;
-      vectorOriginal.RemoveUnusedTextures;
-    end;
-  end else
-  if (Sender = RadioButtonSolid) and RadioButtonSolid.Checked then
-  begin
-    if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
-    begin
-      vectorOriginal.SelectedShape.BackTexture := EmptyTextureId;
-      vectorOriginal.SelectedShape.BackColor := FBackColor;
+      vectorFill := CreateBackFill;
+      vectorOriginal.SelectedShape.BackFill := vectorFill;
+      vectorFill.Free;
       vectorOriginal.RemoveUnusedTextures;
     end;
   end else
@@ -476,9 +476,9 @@ begin
     else
     if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
     begin
-      texId:= vectorOriginal.AddTexture(backTexture);
-      vectorOriginal.SelectedShape.BackTexture := texId;
-      vectorOriginal.SelectedShape.BackColor := BGRAPixelTransparent;
+      vectorFill := CreateBackFill;
+      vectorOriginal.SelectedShape.BackFill := vectorFill;
+      vectorFill.Free;
       vectorOriginal.RemoveUnusedTextures;
     end;
   end;
@@ -530,12 +530,18 @@ begin
 end;
 
 procedure TForm1.UpDownBackAlphaChange(Sender: TObject; AByUser: boolean);
+var
+  vectorFill: TVectorialFill;
 begin
   if AByUser then
   begin
     FBackColor:= ColorToBGRA(ShapeBackColor.Brush.Color, UpDownBackAlpha.Value);
-    if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
-      vectorOriginal.SelectedShape.BackColor:= FBackColor;
+    if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and RadioButtonSolid.Checked then
+    begin
+      vectorFill := CreateBackFill;
+      vectorOriginal.SelectedShape.BackFill:= vectorFill;
+      vectorFill.Free;
+    end;
   end;
 end;
 
@@ -640,6 +646,8 @@ begin
 end;
 
 procedure TForm1.SetBackColor(AValue: TBGRAPixel);
+var
+  vectorFill: TVectorialFill;
 begin
   FBackColor := AValue;
   ShapeBackColor.Brush.Color := AValue.ToColor;
@@ -647,7 +655,11 @@ begin
   if not FUpdatingFromShape and Assigned(vectorOriginal) and RadioButtonSolid.Checked then
   begin
     if Assigned(vectorOriginal.SelectedShape) then
-      vectorOriginal.SelectedShape.BackColor := AValue;
+    begin
+      vectorFill := CreateBackFill;
+      vectorOriginal.SelectedShape.BackFill := vectorFill;
+      vectorFill.Free;
+    end;
   end;
 end;
 
@@ -655,11 +667,18 @@ procedure TForm1.SetBackTexture(AValue: TBGRABitmap);
 var
   thumb: TBGRABitmap;
   bmpThumb: TBitmap;
+  vectorFill: TVectorialFill;
 begin
-  if Assigned(AValue) and Assigned(FBackTexture) and AValue.Equals(FBackTexture) then exit;
   if AValue = FBackTexture then exit;
-  FreeAndNil(FBackTexture);
-  FBackTexture := AValue;
+
+  if Assigned(FBackTexture) then
+  begin
+    FBackTexture.FreeReference;
+    FBackTexture := nil;
+  end;
+  if Assigned(AValue) then
+    FBackTexture := AValue.NewReference as TBGRABitmap;
+
   if Assigned(FBackTexture) then
   begin
     thumb := GetBitmapThumbnail(FBackTexture, BackImage.Width,BackImage.Height,BGRAPixelTransparent,true);
@@ -679,11 +698,14 @@ begin
     BackImage.Picture.Clear;
     BackImage.Visible := false;
   end;
+
   if not FUpdatingFromShape and Assigned(vectorOriginal) and RadioButtonTex.Checked then
   begin
     if Assigned(vectorOriginal.SelectedShape) then
     begin
-      vectorOriginal.SelectedShape.BackTexture := vectorOriginal.AddTexture(FBackTexture);
+      vectorFill := TVectorialFill.CreateAsTexture(FBackTexture, vectorOriginal.SelectedShape.BackFill.TextureMatrix);
+      vectorOriginal.SelectedShape.BackFill := vectorFill;
+      vectorFill.Free;
       vectorOriginal.RemoveUnusedTextures;
     end;
   end;
@@ -881,19 +903,25 @@ begin
     if vsfPenWidth in f then penWidth:= AShape.PenWidth;
     if vsfPenStyle in f then penStyle:= AShape.PenStyle;
 
-    if (vsfBackTexture in f) and (AShape.BackTexture <> EmptyTextureId) then
+    if vsfBackFill in f then
     begin
-      texSource := vectorOriginal.GetTexture(AShape.BackTexture);
-      if Assigned(texSource) then
-        backTexture := texSource.Duplicate as TBGRABitmap;
-      RadioButtonTex.Checked := true;
-    end else
-    if (vsfBackColor in f) and (AShape.BackColor.alpha <> 0) then
-    begin
-      backColor := AShape.BackColor;
-      RadioButtonSolid.Checked := true;
-    end else
-      RadioButtonNone.Checked := true;
+      if AShape.BackFill.IsTexture then
+      begin
+        texSource := AShape.BackFill.Texture;
+        if Assigned(texSource) then backTexture := texSource;
+        RadioButtonTex.Checked := true;
+      end else
+      if AShape.BackFill.IsSolid and (AShape.BackFill.SolidColor.alpha <> 0) then
+      begin
+        backColor := AShape.BackFill.SolidColor;
+        RadioButtonSolid.Checked := true;
+      end else
+      if AShape.BackFill.IsGradient then
+      begin
+        RadioButtonGradient.Checked := true;
+      end else
+        RadioButtonNone.Checked := true;
+    end;
 
     if AShape is TCurveShape then
     begin
@@ -950,18 +978,20 @@ begin
 end;
 
 function TForm1.CreateShape(const APoint1,APoint2: TPointF): TVectorShape;
+var
+  vectorFill: TVectorialFill;
 begin
   if not IsCreateShapeTool(currentTool) then
     raise exception.Create('No shape type selected');
   result := PaintToolClass[currentTool].Create(vectorOriginal);
   result.PenColor := penColor;
 
-  if RadioButtonSolid.Checked then
-    result.BackColor := backColor
-  else if (vsfBackTexture in Result.Fields) and RadioButtonTex.Checked then
-    result.BackTexture := vectorOriginal.AddTexture(backTexture)
-  else
-    result.BackColor := BGRAPixelTransparent;
+  if vsfBackFill in result.Fields then
+  begin
+    vectorFill := CreateBackFill;
+    result.BackFill := vectorFill;
+    vectorFill.Free;
+  end;
 
   result.PenWidth := penWidth;
   result.PenStyle := penStyle;
@@ -969,6 +999,26 @@ begin
     TCustomPolypointShape(result).Closed := true;
   if result is TCurveShape then TCurveShape(result).SplineStyle:= splineStyle;
   result.QuickDefine(APoint1,APoint2);
+end;
+
+function TForm1.CreateBackFill: TVectorialFill;
+var
+  grad: TBGRALayerGradientOriginal;
+begin
+  if RadioButtonSolid.Checked then
+    result := TVectorialFill.CreateAsSolid(FBackColor)
+  else if RadioButtonTex.Checked then
+    result := TVectorialFill.CreateAsTexture(backTexture, AffineMatrixIdentity)
+  else if RadioButtonGradient.Checked then
+  begin
+    grad := TBGRALayerGradientOriginal.Create;
+    grad.Origin := PointF(0,0);
+    grad.XAxis := PointF(img.Width,img.Height);
+    grad.StartColor := BGRAWhite;
+    grad.EndColor := BGRABlack;
+    result := TVectorialFill.CreateAsGradient(grad, true);
+  end
+  else result := nil; //none
 end;
 
 end.

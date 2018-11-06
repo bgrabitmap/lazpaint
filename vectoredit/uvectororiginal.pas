@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, BGRABitmap, BGRALayerOriginal, fgl, BGRAGradientOriginal, BGRABitmapTypes,
-  BGRAPen;
+  BGRAPen, uvectorialfill;
 
 const
   InfiniteRect : TRect = (Left: -MaxLongInt; Top: -MaxLongInt; Right: MaxLongInt; Bottom: MaxLongInt);
@@ -18,7 +18,7 @@ type
   TShapeChangeEvent = procedure(ASender: TObject; ABounds: TRectF) of object;
   TShapeEditingChangeEvent = procedure(ASender: TObject) of object;
 
-  TVectorShapeField = (vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackColor, vsfBackTexture);
+  TVectorShapeField = (vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill);
   TVectorShapeFields = set of TVectorShapeField;
   TVectorShapeUsermode = (vsuEdit, vsuCreate);
   TVectorShapeUsermodes = set of TVectorShapeUsermode;
@@ -31,8 +31,8 @@ type
     FOnEditingChange: TShapeEditingChangeEvent;
     FUpdateCount: integer;
     FBoundsBeforeUpdate: TRectF;
-    FPenColor,FBackColor: TBGRAPixel;
-    FBackTexture: integer;
+    FPenColor: TBGRAPixel;
+    FBackFill: TVectorialFill;
     FPenWidth: single;
     FStroker: TBGRAPenStroker;
     FUsermode: TVectorShapeUsermode;
@@ -45,15 +45,15 @@ type
     function GetPenWidth: single; virtual;
     function GetPenStyle: TBGRAPenStyle; virtual;
     function GetJoinStyle: TPenJoinStyle;
-    function GetBackColor: TBGRAPixel; virtual;
-    function GetBackTexture: integer; virtual;
+    function GetBackFill: TVectorialFill; virtual;
     procedure SetPenColor(AValue: TBGRAPixel); virtual;
     procedure SetPenWidth(AValue: single); virtual;
     procedure SetPenStyle({%H-}AValue: TBGRAPenStyle); virtual;
     procedure SetJoinStyle(AValue: TPenJoinStyle);
-    procedure SetBackColor(AValue: TBGRAPixel); virtual;
-    procedure SetBackTexture(AValue: integer); virtual;
+    procedure SetBackFill(AValue: TVectorialFill); virtual;
     procedure SetUsermode(AValue: TVectorShapeUsermode); virtual;
+    procedure LoadFill(AStorage: TBGRACustomOriginalStorage; AObjectName: string; var AValue: TVectorialFill);
+    procedure SaveFill(AStorage: TBGRACustomOriginalStorage; AObjectName: string; AValue: TVectorialFill);
     function ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean; AStrokeMatrix: TAffineMatrix): ArrayOfTPointF;
     function GetStroker: TBGRAPenStroker;
     property Stroker: TBGRAPenStroker read GetStroker;
@@ -77,8 +77,7 @@ type
     property OnChange: TShapeChangeEvent read FOnChange write FOnChange;
     property OnEditingChange: TShapeEditingChangeEvent read FOnEditingChange write FOnEditingChange;
     property PenColor: TBGRAPixel read GetPenColor write SetPenColor;
-    property BackColor: TBGRAPixel read GetBackColor write SetBackColor;
-    property BackTexture: integer read GetBackTexture write SetBackTexture;
+    property BackFill: TVectorialFill read GetBackFill write SetBackFill;
     property PenWidth: single read GetPenWidth write SetPenWidth;
     property PenStyle: TBGRAPenStyle read GetPenStyle write SetPenStyle;
     property JoinStyle: TPenJoinStyle read GetJoinStyle write SetJoinStyle;
@@ -254,6 +253,7 @@ type
     function GetTextureId(ABitmap: TBGRABitmap): integer;
     function IndexOfTexture(AId: integer): integer;
     procedure AddTextureWithId(ATexture: TBGRABitmap; AId: integer);
+    procedure ClearTextures;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -459,36 +459,42 @@ end;
 
 function TPolylineShape.BackVisible: boolean;
 begin
-  result := ((BackTexture = EmptyTextureId) and (BackColor.alpha <> 0)) or
-            ((BackTexture <> EmptyTextureId) and Assigned(Container));
+  result := BackFill.IsGradient or BackFill.IsTexture or
+            (BackFill.IsSolid and (BackFill.SolidColor.alpha <> 0));
 end;
 
 class function TPolylineShape.Fields: TVectorShapeFields;
 begin
-  Result:= [vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackColor, vsfBackTexture];
+  Result:= [vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill];
 end;
 
 procedure TPolylineShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
   ADraft: boolean);
 var
   pts: array of TPointF;
+  backScan: TBGRACustomScanner;
 begin
   if not BackVisible and not PenVisible then exit;
   pts := GetCurve(AMatrix);
   if BackVisible then
   begin
+    if BackFill.IsSolid then backScan := nil
+    else backScan := BackFill.CreateScanner(AMatrix, ADraft);
+
     if ADraft then
     begin
-      if BackTexture <> EmptyTextureId then
-        ADest.FillPoly(pts, Container.GetTexture(BackTexture), dmDrawWithTransparency) else
-        ADest.FillPoly(pts, BackColor, dmDrawWithTransparency);
+      if Assigned(backScan) then
+        ADest.FillPoly(pts, backScan, dmDrawWithTransparency) else
+        ADest.FillPoly(pts, BackFill.SolidColor, dmDrawWithTransparency);
     end
     else
     begin
-      if BackTexture <> EmptyTextureId then
-        ADest.FillPolyAntialias(pts, Container.GetTexture(BackTexture)) else
-        ADest.FillPolyAntialias(pts, BackColor);
+      if Assigned(backScan) then
+        ADest.FillPolyAntialias(pts, backScan) else
+        ADest.FillPolyAntialias(pts, BackFill.SolidColor);
     end;
+
+    backScan.Free;
   end;
   if PenVisible then
   begin
@@ -823,8 +829,8 @@ end;
 
 function TEllipseShape.BackVisible: boolean;
 begin
-  result := ((BackTexture = EmptyTextureId) and (BackColor.alpha <> 0)) or
-            ((BackTexture <> EmptyTextureId) and Assigned(Container));
+  result := BackFill.IsGradient or BackFill.IsTexture or
+            (BackFill.IsSolid and (BackFill.SolidColor.alpha <> 0));
 end;
 
 function TEllipseShape.GetCornerPositition: single;
@@ -840,7 +846,7 @@ end;
 
 class function TEllipseShape.Fields: TVectorShapeFields;
 begin
-  Result:= [vsfPenColor, vsfPenWidth, vsfPenStyle, vsfBackColor, vsfBackTexture];
+  Result:= [vsfPenColor, vsfPenWidth, vsfPenStyle, vsfBackFill];
 end;
 
 procedure TEllipseShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
@@ -851,6 +857,7 @@ var
   center, radius: TPointF;
   draftPen, isOrtho: Boolean;
   r: TRect;
+  backScan: TBGRACustomScanner;
 begin
   isOrtho := GetOrthoRect(AMatrix, orthoRect);
   if isOrtho then
@@ -859,19 +866,24 @@ begin
     radius := (orthoRect.BottomRight-orthoRect.TopLeft)*0.5;
     If BackVisible then
     begin
+      if BackFill.IsSolid then backScan := nil
+      else backScan := BackFill.CreateScanner(AMatrix, ADraft);
+
       if ADraft then
       begin
         r := rect(round(orthoRect.Left),round(orthoRect.Top),round(orthoRect.Right),round(orthoRect.Bottom));
-        if BackTexture <> EmptyTextureId then
-          ADest.FillEllipseInRect(r, Container.GetTexture(BackTexture), dmDrawWithTransparency) else
-          ADest.FillEllipseInRect(r, BackColor, dmDrawWithTransparency)
+        if Assigned(backScan) then
+          ADest.FillEllipseInRect(r, backScan, dmDrawWithTransparency) else
+          ADest.FillEllipseInRect(r, BackFill.SolidColor, dmDrawWithTransparency)
       end
       else
       begin
-        if BackTexture <> EmptyTextureId then
-          ADest.FillEllipseAntialias(center.x, center.y, radius.x, radius.y, Container.GetTexture(BackTexture)) else
-          ADest.FillEllipseAntialias(center.x, center.y, radius.x, radius.y, BackColor);
+        if Assigned(backScan) then
+          ADest.FillEllipseAntialias(center.x, center.y, radius.x, radius.y, backScan) else
+          ADest.FillEllipseAntialias(center.x, center.y, radius.x, radius.y, BackFill.SolidColor);
        end;
+
+      backScan.Free;
     end;
     if PenVisible then
     begin
@@ -899,18 +911,23 @@ begin
     pts := ComputeEllipse(AMatrix*FOrigin, AMatrix*FXAxis, AMatrix*FYAxis);
     If BackVisible then
     begin
+      if BackFill.IsSolid then backScan := nil
+      else backScan := BackFill.CreateScanner(AMatrix, ADraft);
+
       if ADraft then
       begin
-        if BackTexture <> EmptyTextureId then
-          ADest.FillPoly(pts, Container.GetTexture(BackTexture), dmDrawWithTransparency) else
-          ADest.FillPoly(pts, BackColor, dmDrawWithTransparency)
+        if Assigned(backScan) then
+          ADest.FillPoly(pts, backScan, dmDrawWithTransparency) else
+          ADest.FillPoly(pts, BackFill.SolidColor, dmDrawWithTransparency)
       end
       else
       begin
-        if BackTexture <> EmptyTextureId then
-          ADest.FillPolyAntialias(pts, Container.GetTexture(BackTexture)) else
-          ADest.FillPolyAntialias(pts, BackColor)
+        if Assigned(backScan) then
+          ADest.FillPolyAntialias(pts, backScan) else
+          ADest.FillPolyAntialias(pts, BackFill.SolidColor)
       end;
+
+      backScan.Free;
     end;
     if PenVisible then
     begin
@@ -979,7 +996,7 @@ begin
         totalSurface := penSurface;
     end else
       totalSurface := backSurface;
-    result := totalSurface > 640*480;
+    result := (totalSurface > 640*480) or ((totalSurface > 320*240) and BackFill.IsSlow(AMatrix));
   end;
 end;
 
@@ -1274,8 +1291,8 @@ end;
 
 function TRectShape.BackVisible: boolean;
 begin
-  result := ((BackTexture = EmptyTextureId) and (BackColor.alpha <> 0)) or
-            ((BackTexture <> EmptyTextureId) and Assigned(Container));
+  result := BackFill.IsGradient or BackFill.IsTexture or
+            (BackFill.IsSolid and (BackFill.SolidColor.alpha <> 0));
 end;
 
 function TRectShape.GetCornerPositition: single;
@@ -1303,13 +1320,13 @@ begin
         totalSurface := penSurface;
     end else
       totalSurface := backSurface;
-    result := totalSurface > 800*600;
+    result := (totalSurface > 800*600) or ((totalSurface > 320*240) and BackFill.IsSlow(AMatrix));
   end;
 end;
 
 class function TRectShape.Fields: TVectorShapeFields;
 begin
-  Result:= [vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackColor, vsfBackTexture];
+  Result:= [vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill];
 end;
 
 procedure TRectShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
@@ -1318,40 +1335,46 @@ var
   pts: Array of TPointF;
   orthoRect: TRectF;
   r: TRect;
+  backScan: TBGRACustomScanner;
 begin
   pts := GetAffineBox(AMatrix, true).AsPolygon;
   If BackVisible then
   begin
+    if BackFill.IsSolid then backScan := nil
+    else backScan := BackFill.CreateScanner(AMatrix, ADraft);
+
     if GetOrthoRect(AMatrix, orthoRect) then
     begin
       if ADraft then
       begin
         r:= rect(round(orthoRect.Left),round(orthoRect.Top),round(orthoRect.Right),round(orthoRect.Bottom));
-        if BackTexture <> EmptyTextureId then
-          ADest.FillRect(r, Container.GetTexture(BackTexture), dmDrawWithTransparency) else
-          ADest.FillRect(r, BackColor, dmDrawWithTransparency)
+        if Assigned(backScan) then
+          ADest.FillRect(r, backScan, dmDrawWithTransparency) else
+          ADest.FillRect(r, BackFill.SolidColor, dmDrawWithTransparency)
       end
       else
       begin
-        if BackTexture <> EmptyTextureId then
-          ADest.FillRectAntialias(orthoRect, Container.GetTexture(BackTexture)) else
-          ADest.FillRectAntialias(orthoRect, BackColor);
+        if Assigned(backScan) then
+          ADest.FillRectAntialias(orthoRect, backScan) else
+          ADest.FillRectAntialias(orthoRect, BackFill.SolidColor);
       end;
     end else
     begin
       if ADraft then
       begin
-        if BackTexture <> EmptyTextureId then
-          ADest.FillPoly(pts, Container.GetTexture(BackTexture), dmDrawWithTransparency) else
-          ADest.FillPoly(pts, BackColor, dmDrawWithTransparency)
+        if Assigned(backScan) then
+          ADest.FillPoly(pts, backScan, dmDrawWithTransparency) else
+          ADest.FillPoly(pts, BackFill.SolidColor, dmDrawWithTransparency)
       end
       else
       begin
-        if BackTexture <> EmptyTextureId then
-          ADest.FillPolyAntialias(pts, Container.GetTexture(BackTexture)) else
-          ADest.FillPolyAntialias(pts, BackColor);
+        if Assigned(backScan) then
+          ADest.FillPolyAntialias(pts, backScan) else
+          ADest.FillPolyAntialias(pts, BackFill.SolidColor);
       end;
     end;
+
+    backScan.Free;
   end;
   if PenVisible then
   begin
@@ -1451,22 +1474,94 @@ begin
   if Assigned(FOnEditingChange) then FOnEditingChange(self);
 end;
 
+procedure TVectorShape.LoadFill(AStorage: TBGRACustomOriginalStorage;
+  AObjectName: string; var AValue: TVectorialFill);
+var
+  obj: TBGRACustomOriginalStorage;
+  texId: LongInt;
+  origin, xAxis, yAxis: TPointF;
+  grad: TBGRALayerGradientOriginal;
+begin
+  if AValue = nil then
+    AValue := TVectorialFill.Create
+  else
+    AValue.Clear;
+  obj := AStorage.OpenObject(AObjectName+'-fill');
+  if obj = nil then
+  begin
+    AValue.SetSolid(AStorage.Color[AObjectName+'-color']);
+    exit;
+  end;
+  try
+     case obj.RawString['class'] of
+       'solid': AValue.SetSolid(obj.Color['color']);
+       'texture': begin
+           texId:= obj.Int['tex-id'];
+           origin := obj.PointF['origin'];
+           xAxis := obj.PointF['x-axis'];
+           yAxis := obj.PointF['y-axis'];
+           AValue.SetTexture(Container.GetTexture(texId), AffineMatrix(xAxis,yAxis,origin));
+         end;
+       'gradient': begin
+           grad := TBGRALayerGradientOriginal.Create;
+           grad.LoadFromStorage(obj);
+           AValue.SetGradient(grad,true);
+         end;
+     end;
+  finally
+    obj.Free;
+  end;
+end;
+
+procedure TVectorShape.SaveFill(AStorage: TBGRACustomOriginalStorage;
+  AObjectName: string; AValue: TVectorialFill);
+var
+  obj: TBGRACustomOriginalStorage;
+  m: TAffineMatrix;
+begin
+  AStorage.RemoveObject(AObjectName+'-fill');
+  AStorage.RemoveObject(AObjectName+'-color');
+  if Assigned(AValue) then
+  begin
+    if AValue.IsSolid then
+    begin
+      AStorage.Color[AObjectName+'-color'] := AValue.SolidColor;
+      exit;
+    end else
+    if not AValue.IsTexture and not AValue.IsGradient then exit;
+
+    obj := AStorage.CreateObject(AObjectName+'-fill');
+    try
+      if AValue.IsSolid then
+      begin
+        obj.RawString['class'] := 'solid';
+        obj.Color['color'] := AValue.SolidColor;
+      end
+      else
+      if AValue.IsTexture then
+      begin
+        obj.RawString['class'] := 'texture';
+        obj.Int['tex-id'] := Container.GetTextureId(AValue.Texture);
+        m := AValue.TextureMatrix;
+        obj.PointF['origin'] := PointF(m[1,3],m[2,3]);
+        obj.PointF['x-axis'] := PointF(m[1,1],m[2,1]);
+        obj.PointF['y-axis'] := PointF(m[1,2],m[2,2]);
+      end else
+      if AValue.IsGradient then
+      begin
+        obj.RawString['class'] := 'gradient';
+        AValue.Gradient.SaveToStorage(obj);
+      end else
+        obj.RawString['class'] := 'none';
+    finally
+      obj.Free;
+    end;
+  end;
+end;
+
 class function TVectorShape.Usermodes: TVectorShapeUsermodes;
 begin
   result := [vsuEdit];
-end;
-
-function TVectorShape.GetBackTexture: integer;
-begin
-  result := FBackTexture;
-end;
-
-procedure TVectorShape.SetBackTexture(AValue: integer);
-begin
-  if FBackTexture = AValue then exit;
-  BeginUpdate;
-  FBackTexture := AValue;
-  EndUpdate;
 end;
 
 procedure TVectorShape.SetContainer(AValue: TVectorOriginal);
@@ -1516,9 +1611,10 @@ begin
   result := Stroker.CustomPenStyle;
 end;
 
-function TVectorShape.GetBackColor: TBGRAPixel;
+function TVectorShape.GetBackFill: TVectorialFill;
 begin
-  result := FBackColor;
+  if FBackFill = nil then FBackFill := TVectorialFill.Create;
+  result := FBackFill;
 end;
 
 function TVectorShape.ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean; AStrokeMatrix: TAffineMatrix): ArrayOfTPointF;
@@ -1561,12 +1657,18 @@ begin
   EndUpdate;
 end;
 
-procedure TVectorShape.SetBackColor(AValue: TBGRAPixel);
+procedure TVectorShape.SetBackFill(AValue: TVectorialFill);
 begin
-  if AValue.alpha = 0 then AValue := BGRAPixelTransparent;
-  if FBackColor = AValue then exit;
+  if FBackFill.Equals(AValue) then exit;
   BeginUpdate;
-  FBackColor := AValue;
+  FreeAndNil(FBackFill);
+  if Assigned(AValue) then
+  begin
+    if AValue.IsTexture and Assigned(Container) then
+      FBackFill := TVectorialFill.CreateAsTexture(Container.GetTexture(Container.AddTexture(AValue.Texture)), AValue.TextureMatrix)
+    else
+      FBackFill := AValue.Duplicate;
+  end;
   EndUpdate;
 end;
 
@@ -1575,17 +1677,17 @@ begin
   FContainer := AContainer;
   FPenColor := BGRAPixelTransparent;
   FPenWidth := 1;
-  FBackColor := BGRAPixelTransparent;
   FStroker := nil;
   FOnChange := nil;
   FOnEditingChange := nil;
-  FBackTexture:= EmptyTextureId;
+  FBackFill := nil;
   FUsermode:= vsuEdit;
 end;
 
 destructor TVectorShape.Destroy;
 begin
   FreeAndNil(FStroker);
+  FreeAndNil(FBackFill);
   inherited Destroy;
 end;
 
@@ -1606,8 +1708,7 @@ begin
       'bevel': JoinStyle := pjsBevel;
       else JoinStyle := pjsMiter;
       end;
-    if vsfBackColor in f then BackColor := AStorage.Color['back-color'];
-    if vsfBackTexture in f then BackTexture := AStorage.Int['back-texture'];
+    if vsfBackFill in f then LoadFill(AStorage, 'back', FBackFill);
     EndUpdate;
   end;
 end;
@@ -1626,8 +1727,7 @@ begin
     pjsBevel: AStorage.RawString['join-style'] := 'bevel';
     else AStorage.RawString['join-style'] := 'miter';
     end;
-  if vsfBackColor in f then AStorage.Color['back-color'] := BackColor;
-  if vsfBackTexture in f then AStorage.Int['back-texture'] := BackTexture;
+  if vsfBackFill in f then SaveFill(AStorage, 'back', FBackFill);
 end;
 
 procedure TVectorShape.MouseMove(Shift: TShiftState; X, Y: single; var
@@ -1683,6 +1783,8 @@ var
 begin
   if (ABitmap = nil) or (ABitmap.NbPixels = 0) then exit(EmptyTextureId);
   for i := 0 to FTextureCount-1 do
+    if FTextures[i].Bitmap = ABitmap then exit(FTextures[i].Id);
+  for i := 0 to FTextureCount-1 do
     if FTextures[i].Bitmap.Equals(ABitmap) then exit(FTextures[i].Id);
   exit(-1);
 end;
@@ -1702,9 +1804,25 @@ begin
   if FTextureCount >= length(FTextures) then
     setlength(FTextures, FTextureCount*2+2);
   if AId > FLastTextureId then FLastTextureId:= AId;
-  FTextures[FTextureCount].Bitmap := ATexture.Duplicate as TBGRABitmap;
+  FTextures[FTextureCount].Bitmap := ATexture.NewReference as TBGRABitmap;
   FTextures[FTextureCount].Id := AId;
   inc(FTextureCount);
+end;
+
+procedure TVectorOriginal.ClearTextures;
+var
+  i: Integer;
+begin
+  if Assigned(FShapes) and (FShapes.Count > 0) then
+    raise exception.Create('There are still shapes that could use textures');
+  for i := 0 to FTextureCount-1 do
+  begin
+    FTextures[i].Bitmap.FreeReference;
+    FTextures[i].Bitmap := nil;
+  end;
+  FTextureCount := 0;
+  FTextures := nil;
+  FLastTextureId:= EmptyTextureId;
 end;
 
 constructor TVectorOriginal.Create;
@@ -1720,12 +1838,18 @@ begin
 end;
 
 destructor TVectorOriginal.Destroy;
+var
+  i: Integer;
 begin
+  FSelectedShape := nil;
+  for i := 0 to FShapes.Count-1 do
+    FShapes[i].Free;
   FreeAndNil(FShapes);
+  FreeDeletedShapes;
   FreeAndNil(FDeletedShapes);
   FreeAndNil(FFrozenShapesUnderSelection);
   FreeAndNil(FFrozenShapesOverSelection);
-  FSelectedShape := nil;
+  ClearTextures;
   inherited Destroy;
 end;
 
@@ -1735,14 +1859,11 @@ var
 begin
   if FShapes.Count > 0 then
   begin
+    FSelectedShape := nil;
     for i := 0 to FShapes.Count-1 do
       FDeletedShapes.Add(FShapes[i]);
     FShapes.Clear;
-    for i := 0 to FTextureCount-1 do
-      FreeAndNil(FTextures[i].Bitmap);
-    FTextureCount := 0;
-    FTextures := nil;
-    FLastTextureId:= EmptyTextureId;
+    ClearTextures;
     NotifyChange;
   end;
 end;
@@ -1770,19 +1891,24 @@ procedure TVectorOriginal.RemoveUnusedTextures;
 var
   i, j: Integer;
   f: TVectorShapeFields;
+  tex: TBGRABitmap;
 begin
   for i := 0 to FTextureCount-1 do
     FTextures[i].Counter:= 0;
   for i := 0 to FShapes.Count-1 do
   begin
     f:= FShapes[i].Fields;
-    if (vsfBackTexture in f) and (FShapes[i].BackTexture<>0) then
-      inc(FTextures[IndexOfTexture(FShapes[i].BackTexture)].Counter);
+    if (vsfBackFill in f) and FShapes[i].BackFill.IsTexture then
+    begin
+      tex := FShapes[i].BackFill.Texture;
+      inc(FTextures[IndexOfTexture(GetTextureId(tex))].Counter);
+    end;
   end;
   for i := FTextureCount-1 downto 0 do
     if FTextures[i].Counter = 0 then
     begin
-      FreeAndNil(FTextures[i].Bitmap);
+      FTextures[i].Bitmap.FreeReference;
+      FTextures[i].Bitmap := nil;
       for j := i to FTextureCount-2 do
         FTextures[j] := FTextures[j+1];
       dec(FTextureCount);
@@ -1978,8 +2104,37 @@ var
   idList: array of single;
   mem: TMemoryStream;
   texId: integer;
+  bmp: TBGRABitmap;
 begin
   Clear;
+
+  texObj := AStorage.OpenObject('textures');
+  if Assigned(texObj) then
+  begin
+    try
+      idList := texObj.FloatArray['id'];
+      for i := 0 to high(idList) do
+      begin
+        texId:= round(idList[i]);
+        texName:= 'tex'+inttostr(texId);
+        mem := TMemoryStream.Create;
+        try
+          if not texObj.ReadFile(texName+'.png', mem) and
+             not texObj.ReadFile(texName+'.jpg', mem) then
+             raise exception.Create('Unable to find texture');
+          mem.Position:= 0;
+          bmp := TBGRABitmap.Create(mem);
+          AddTextureWithId(bmp, texId);
+          bmp.FreeReference;
+        finally
+          mem.Free;
+        end;
+      end;
+    finally
+      texObj.Free;
+    end;
+  end;
+
   nb := AStorage.Int['count'];
   for i:= 0 to nb-1 do
   begin
@@ -1997,30 +2152,6 @@ begin
       FShapes.Add(shape);
     finally
       shapeObj.Free;
-    end;
-  end;
-  texObj := AStorage.OpenObject('textures');
-  if Assigned(texObj) then
-  begin
-    try
-      idList := texObj.FloatArray['id'];
-      for i := 0 to high(idList) do
-      begin
-        texId:= round(idList[i]);
-        texName:= 'tex'+inttostr(texId);
-        mem := TMemoryStream.Create;
-        try
-          if not texObj.ReadFile(texName+'.png', mem) and
-             not texObj.ReadFile(texName+'.jpg', mem) then
-             raise exception.Create('Unable to find texture');
-          mem.Position:= 0;
-          AddTextureWithId(TBGRABitmap.Create(mem), texId);
-        finally
-          mem.Free;
-        end;
-      end;
-    finally
-      texObj.Free;
     end;
   end;
   NotifyChange;
