@@ -426,28 +426,43 @@ end;
 
 procedure TVectorOriginalEditor.MouseMove(Shift: TShiftState; X, Y: single; out
   ACursor: TOriginalEditorCursor; out AHandled: boolean);
+var
+  ptF: TPointF;
 begin
   inherited MouseMove(Shift, X, Y, ACursor, AHandled);
   if not AHandled and Assigned(FOriginal.SelectedShape) then
-    FOriginal.SelectedShape.MouseMove(Shift, X,Y, ACursor, AHandled);
+  begin
+    ptF := FMatrixInverse*PointF(X,Y);
+    with ptF do FOriginal.SelectedShape.MouseMove(Shift, X,Y, ACursor, AHandled);
+  end;
 end;
 
 procedure TVectorOriginalEditor.MouseDown(RightButton: boolean;
   Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out
   AHandled: boolean);
+var
+  ptF: TPointF;
 begin
   inherited MouseDown(RightButton, Shift, X, Y, ACursor, AHandled);
   if not AHandled and Assigned(FOriginal.SelectedShape) then
-    FOriginal.SelectedShape.MouseDown(RightButton, Shift, X,Y, ACursor, AHandled);
+  begin
+    ptF := FMatrixInverse*PointF(X,Y);
+    with ptF do FOriginal.SelectedShape.MouseDown(RightButton, Shift, X,Y, ACursor, AHandled);
+  end;
 end;
 
 procedure TVectorOriginalEditor.MouseUp(RightButton: boolean;
   Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out
   AHandled: boolean);
+var
+  ptF: TPointF;
 begin
   inherited MouseUp(RightButton, Shift, X, Y, ACursor, AHandled);
   if not AHandled and Assigned(FOriginal.SelectedShape) then
-    FOriginal.SelectedShape.MouseUp(RightButton, Shift, X,Y, ACursor, AHandled);
+  begin
+    ptF := FMatrixInverse*PointF(X,Y);
+    with ptF do FOriginal.SelectedShape.MouseUp(RightButton, Shift, X,Y, ACursor, AHandled);
+  end;
 end;
 
 { TPolylineShape }
@@ -520,7 +535,7 @@ begin
     pts := GetCurve(AMatrix);
     if PenVisible then
     begin
-      if (JoinStyle <> pjsMiter) or (Stroker.MiterLimit <= 1) then
+      if JoinStyle = pjsRound then
       begin
         xMargin := (abs(AMatrix[1,1])+abs(AMatrix[1,2]))*PenWidth*0.5;
         yMargin := (abs(AMatrix[2,1])+abs(AMatrix[2,2]))*PenWidth*0.5;
@@ -858,6 +873,7 @@ var
   draftPen, isOrtho: Boolean;
   r: TRect;
   backScan: TBGRACustomScanner;
+  penZoom: Single;
 begin
   isOrtho := GetOrthoRect(AMatrix, orthoRect);
   if isOrtho then
@@ -889,12 +905,13 @@ begin
     begin
       if IsAffineMatrixScaledRotation(AMatrix) then
       begin
+        penZoom := VectLen(AMatrix[1,1],AMatrix[2,1]);
         ADest.CustomPenStyle := PenStyle;
         draftPen := ADraft and (PenWidth > 4);
         if draftPen then
-          ADest.Ellipse(center.x, center.y, radius.x, radius.y, PenColor, PenWidth, dmDrawWithTransparency)
+          ADest.Ellipse(center.x, center.y, radius.x, radius.y, PenColor, PenWidth*penZoom, dmDrawWithTransparency)
         else
-          ADest.EllipseAntialias(center.x, center.y, radius.x, radius.y, PenColor, PenWidth);
+          ADest.EllipseAntialias(center.x, center.y, radius.x, radius.y, PenColor, PenWidth*penZoom);
         ADest.PenStyle := psSolid;
       end else
       begin
@@ -2007,8 +2024,10 @@ procedure TVectorOriginal.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
 var
   i: Integer;
   idxSelected: LongInt;
+  m: TAffineMatrix;
 begin
-  if AMatrix <> FFrozenShapeMatrix then DiscardFrozenShapes;
+  m := AffineMatrixTranslation(-0.5,-0.5) * AMatrix * AffineMatrixTranslation(0.5,0.5);
+  if m <> FFrozenShapeMatrix then DiscardFrozenShapes;
   idxSelected := FShapes.IndexOf(FSelectedShape);
   if idxSelected = -1 then
   begin
@@ -2018,7 +2037,7 @@ begin
   if FFrozenShapesComputed then
   begin
     ADest.PutImage(0,0,FFrozenShapesUnderSelection, dmSet);
-    FSelectedShape.Render(ADest, AMatrix, ADraft);
+    FSelectedShape.Render(ADest, m, ADraft);
     ADest.PutImage(0,0,FFrozenShapesOverSelection, dmDrawWithTransparency);
   end else
   begin
@@ -2029,24 +2048,24 @@ begin
         FreeAndNil(FFrozenShapesUnderSelection);
         FFrozenShapesUnderSelection := TBGRABitmap.Create(ADest.Width,ADest.Height);
         for i:= 0 to idxSelected-1 do
-          FShapes[i].Render(FFrozenShapesUnderSelection, AMatrix, false);
+          FShapes[i].Render(FFrozenShapesUnderSelection, m, false);
         ADest.PutImage(0,0,FFrozenShapesUnderSelection, dmSet);
       end;
-      FSelectedShape.Render(ADest, AMatrix, ADraft);
+      FSelectedShape.Render(ADest, m, ADraft);
       if idxSelected < FShapes.Count-1 then
       begin
         FreeAndNil(FFrozenShapesOverSelection);
         FFrozenShapesOverSelection := TBGRABitmap.Create(ADest.Width,ADest.Height);
         for i:= idxSelected+1 to FShapes.Count-1 do
-          FShapes[i].Render(FFrozenShapesOverSelection, AMatrix, false);
+          FShapes[i].Render(FFrozenShapesOverSelection, m, false);
         ADest.PutImage(0,0,FFrozenShapesOverSelection, dmDrawWithTransparency);
       end;
       FFrozenShapesComputed := true;
-      FFrozenShapeMatrix := AMatrix;
+      FFrozenShapeMatrix := m;
     end else
     begin
       for i:= 0 to FShapes.Count-1 do
-        FShapes[i].Render(ADest, AMatrix, ADraft);
+        FShapes[i].Render(ADest, m, ADraft);
     end;
   end;
 end;
@@ -2078,12 +2097,14 @@ function TVectorOriginal.GetRenderBounds(ADestRect: TRect;
 var
   area, shapeArea: TRectF;
   i: Integer;
+  m: TAffineMatrix;
 begin
   area:= EmptyRectF;
+  m := AffineMatrixTranslation(-0.5,-0.5) * AMatrix * AffineMatrixTranslation(0.5,0.5);
 
   for i:= 0 to FShapes.Count-1 do
   begin
-    shapeArea := FShapes[i].GetRenderBounds(ADestRect, AMatrix);
+    shapeArea := FShapes[i].GetRenderBounds(ADestRect, m);
     area := area.Union(shapeArea, true);
   end;
 

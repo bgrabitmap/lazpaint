@@ -597,7 +597,7 @@ end;
 function TForm1.GetVectorTransform: TAffineMatrix;
 begin
   if vectorLayer<>-1 then
-    result:= img.LayerOriginalMatrix[vectorLayer]
+    result:= AffineMatrixTranslation(-0.5,-0.5)*img.LayerOriginalMatrix[vectorLayer]*AffineMatrixTranslation(0.5,0.5)
   else
     result:= AffineMatrixIdentity;
 end;
