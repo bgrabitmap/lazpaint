@@ -7,8 +7,8 @@ interface
 uses
   Classes, SysUtils, Types, FileUtil, Forms, Controls, Graphics, Dialogs,
   ExtCtrls, StdCtrls, ComCtrls, ExtDlgs, Menus, BGRAVirtualScreen,
-  BCTrackbarUpdown, BCPanel, BGRAImageList, BCButton, BGRALazPaint, BGRABitmap,
-  BGRABitmapTypes, BGRATransform, BGRALayerOriginal, BGRAGraphics,
+  BCTrackbarUpdown, BCPanel, BGRAImageList, BCButton, BCToolBar, BGRALazPaint,
+  BGRABitmap, BGRABitmapTypes, BGRATransform, BGRALayerOriginal, BGRAGraphics,
   uvectororiginal, uvectorialfill;
 
 const
@@ -33,19 +33,25 @@ type
 
   TForm1 = class(TForm)
     BackImage: TImage;
+    BGRAImageList16: TBGRAImageList;
     ButtonLoadTex: TBCButton;
     ButtonNoTex: TBCButton;
-    ButtonSwapGradColor: TBCButton;
     ButtonPenStyle: TBCButton;
+    ButtonSwapGradColor: TBCButton;
     Label2: TLabel;
+    PanelBackFillGrad: TPanel;
     PanelBackFill: TBCPanel;
-    RadioButtonGradient: TRadioButton;
-    RadioButtonNone: TRadioButton;
-    RadioButtonSolid: TRadioButton;
-    RadioButtonTex: TRadioButton;
     ShapeBackColor: TShape;
     ShapeBackEndColor: TShape;
     ShapeBackStartColor: TShape;
+    ToolBar2: TToolBar;
+    ToolButtonBackFillNone: TToolButton;
+    ToolButtonBackFillSolid: TToolButton;
+    ToolButtonBackFillLinear: TToolButton;
+    ToolButtonBackFillReflected: TToolButton;
+    ToolButtonBackFillDiamond: TToolButton;
+    ToolButtonBackFillRadial: TToolButton;
+    ToolButtonBackFillTexture: TToolButton;
     UpDownBackAlpha: TBCTrackbarUpdown;
     UpDownBackEndAlpha: TBCTrackbarUpdown;
     UpDownBackStartAlpha: TBCTrackbarUpdown;
@@ -55,7 +61,7 @@ type
     PanelExtendedStyle: TBCPanel;
     BCPanelToolChoice: TBCPanel;
     BCPanelToolbar: TBCPanel;
-    BGRAImageList1: TBGRAImageList;
+    BGRAImageList48: TBGRAImageList;
     BGRAVirtualScreen1: TBGRAVirtualScreen;
     ButtonOpenFile: TBCButton;
     ButtonSaveFile: TBCButton;
@@ -98,7 +104,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
-    procedure RadioButtonBackChange(Sender: TObject);
+    procedure ToolButtonBackFillChange(Sender: TObject);
     procedure ShapeBackColorMouseUp(Sender: TObject; {%H-}Button: TMouseButton;
       {%H-}Shift: TShiftState; X, Y: Integer);
     procedure ShapePenColorMouseUp(Sender: TObject; {%H-}Button: TMouseButton;
@@ -154,6 +160,7 @@ type
     procedure RemoveExtendedStyleControls;
     procedure UpdateBackComponentsVisibility;
     procedure UpdateShapeBackFill;
+    function ToolButtonBackFillGradDown: boolean;
     { private declarations }
   public
     { public declarations }
@@ -263,14 +270,15 @@ begin
       newTex := TBGRABitmap.Create(OpenPictureDialog1.FileName, true);
       backTexture := newTex;
       newTex.FreeReference;
-      RadioButtonTex.Checked:= true;
+      ToolButtonBackFillTexture.Down:= true;
+      UpdateBackComponentsVisibility;
     except
       on ex: exception do
         ShowMessage(ex.Message);
     end;
   end;
-  if RadioButtonTex.Checked and (backTexture = nil) then
-    RadioButtonNone.Checked:= true;
+  if ToolButtonBackFillTexture.Down and (backTexture = nil) then
+    ToolButtonBackFillNone.Down:= true;
 end;
 
 procedure TForm1.ButtonNewFileClick(Sender: TObject);
@@ -286,7 +294,7 @@ end;
 procedure TForm1.ButtonNoTexClick(Sender: TObject);
 begin
   backTexture := nil;
-  if RadioButtonTex.Checked then RadioButtonNone.Checked := true;
+  if ToolButtonBackFillTexture.Down then ToolButtonBackFillNone.Down := true;
 end;
 
 procedure TForm1.ButtonOpenFileClick(Sender: TObject);
@@ -420,7 +428,7 @@ begin
       FBackGradEndColor.alpha := (Sender as TBCTrackbarUpdown).Value
     else
       FBackGradStartColor.alpha := (Sender as TBCTrackbarUpdown).Value;
-    if RadioButtonGradient.Checked then UpdateShapeBackFill;
+    if ToolButtonBackFillGradDown then UpdateShapeBackFill;
   end;
 end;
 
@@ -519,23 +527,22 @@ begin
   end;
 end;
 
-procedure TForm1.RadioButtonBackChange(Sender: TObject);
+procedure TForm1.ToolButtonBackFillChange(Sender: TObject);
 begin
   if FUpdatingFromShape then exit;
-  if ((Sender = RadioButtonNone) and RadioButtonNone.Checked) or
-     ((Sender = RadioButtonSolid) and RadioButtonSolid.Checked) or
-     ((Sender = RadioButtonGradient) and RadioButtonGradient.Checked) then
+
+  if (Sender = ToolButtonBackFillTexture) and ToolButtonBackFillTexture.Down
+    and (backTexture = nil) then
   begin
-    UpdateShapeBackFill;
-  end else
-  if (Sender = RadioButtonTex) and RadioButtonTex.Checked then
-  begin
-    if backTexture = nil then
-      ButtonLoadTexClick(Sender)
-    else
-    UpdateShapeBackFill;
+    ButtonLoadTexClick(Sender);
+    exit;
   end;
-  UpdateBackComponentsVisibility;
+
+  if (Sender as TToolButton).Down then
+  begin
+    UpdateShapeBackFill;
+    UpdateBackComponentsVisibility;
+  end;
 end;
 
 procedure TForm1.ShapeBackColorMouseUp(Sender: TObject; Button: TMouseButton;
@@ -579,7 +586,7 @@ begin
     else UpdateToolbarFromShape(nil);
 
     if currentTool in [ptPolyline, ptCurve] then
-      RadioButtonNone.Checked := true;
+      ToolButtonBackFillNone.Down := true;
   end;
 end;
 
@@ -588,7 +595,7 @@ begin
   if AByUser then
   begin
     FBackColor:= ColorToBGRA(ShapeBackColor.Brush.Color, UpDownBackAlpha.Value);
-    if RadioButtonSolid.Checked then UpdateShapeBackFill;
+    if ToolButtonBackFillSolid.Down then UpdateShapeBackFill;
   end;
 end;
 
@@ -704,7 +711,7 @@ begin
   FBackColor := AValue;
   ShapeBackColor.Brush.Color := AValue.ToColor;
   UpDownBackAlpha.Value := AValue.alpha;
-  if not FUpdatingFromShape and RadioButtonSolid.Checked then
+  if not FUpdatingFromShape and ToolButtonBackFillSolid.Down then
     UpdateShapeBackFill;
 end;
 
@@ -714,7 +721,7 @@ begin
   UpDownBackEndAlpha.Value := AValue.alpha;
   AValue.alpha := 255;
   ShapeBackEndColor.Brush.Color := AValue.ToColor;
-  if not FUpdatingFromShape and RadioButtonGradient.Checked then
+  if not FUpdatingFromShape and ToolButtonBackFillGradDown then
     UpdateShapeBackFill;
 end;
 
@@ -724,7 +731,7 @@ begin
   UpDownBackStartAlpha.Value := AValue.alpha;
   AValue.alpha := 255;
   ShapeBackStartColor.Brush.Color := AValue.ToColor;
-  if not FUpdatingFromShape and RadioButtonGradient.Checked then
+  if not FUpdatingFromShape and ToolButtonBackFillGradDown then
     UpdateShapeBackFill;
 end;
 
@@ -763,7 +770,7 @@ begin
     BackImage.Visible := false;
   end;
 
-  if not FUpdatingFromShape and RadioButtonTex.Checked then
+  if not FUpdatingFromShape and ToolButtonBackFillTexture.Down then
     UpdateShapeBackFill;
 end;
 
@@ -950,20 +957,25 @@ begin
       begin
         texSource := AShape.BackFill.Texture;
         if Assigned(texSource) then backTexture := texSource;
-        RadioButtonTex.Checked := true;
+        ToolButtonBackFillTexture.Down := true;
       end else
       if AShape.BackFill.IsSolid and (AShape.BackFill.SolidColor.alpha <> 0) then
       begin
         backColor := AShape.BackFill.SolidColor;
-        RadioButtonSolid.Checked := true;
+        ToolButtonBackFillSolid.Down := true;
       end else
       if AShape.BackFill.IsGradient then
       begin
         backGradStartColor := AShape.BackFill.Gradient.StartColor;
         backGradEndColor := AShape.BackFill.Gradient.EndColor;
-        RadioButtonGradient.Checked := true;
+        case AShape.BackFill.Gradient.GradientType of
+          gtReflected: ToolButtonBackFillReflected.Down := true;
+          gtDiamond: ToolButtonBackFillDiamond.Down := true;
+          gtRadial: ToolButtonBackFillRadial.Down := true;
+        else{gtLinear} ToolButtonBackFillLinear.Down := true;
+        end;
       end else
-        RadioButtonNone.Checked := true;
+        ToolButtonBackFillNone.Down := true;
       UpdateBackComponentsVisibility;
     end;
 
@@ -1049,17 +1061,21 @@ function TForm1.CreateBackFill: TVectorialFill;
 var
   grad: TBGRALayerGradientOriginal;
 begin
-  if RadioButtonSolid.Checked then
+  if ToolButtonBackFillSolid.Down then
     result := TVectorialFill.CreateAsSolid(FBackColor)
-  else if RadioButtonTex.Checked then
+  else if ToolButtonBackFillTexture.Down then
     result := TVectorialFill.CreateAsTexture(backTexture, AffineMatrixIdentity)
-  else if RadioButtonGradient.Checked then
+  else if ToolButtonBackFillGradDown then
   begin
     grad := TBGRALayerGradientOriginal.Create;
     grad.Origin := PointF(0,0);
     grad.XAxis := PointF(img.Width,img.Height);
     grad.StartColor := FBackGradStartColor;
     grad.EndColor := FBackGradEndColor;
+    if ToolButtonBackFillLinear.Down then grad.GradientType:= gtLinear;
+    if ToolButtonBackFillReflected.Down then grad.GradientType:= gtReflected;
+    if ToolButtonBackFillDiamond.Down then grad.GradientType:= gtDiamond;
+    if ToolButtonBackFillRadial.Down then grad.GradientType:= gtRadial;
     result := TVectorialFill.CreateAsGradient(grad, true);
   end
   else result := nil; //none
@@ -1076,16 +1092,12 @@ end;
 
 procedure TForm1.UpdateBackComponentsVisibility;
 begin
-  ShapeBackColor.Visible := RadioButtonSolid.Checked;
-  UpDownBackAlpha.Visible := RadioButtonSolid.Checked;
-  ShapeBackStartColor.Visible := RadioButtonGradient.Checked;
-  UpDownBackStartAlpha.Visible := RadioButtonGradient.Checked;
-  ButtonSwapGradColor.Visible := RadioButtonGradient.Checked;
-  ShapeBackEndColor.Visible := RadioButtonGradient.Checked;
-  UpDownBackEndAlpha.Visible := RadioButtonGradient.Checked;
-  ButtonLoadTex.Visible := RadioButtonTex.Checked;
-  ButtonNoTex.Visible := RadioButtonTex.Checked;
-  BackImage.Visible := RadioButtonTex.Checked;
+  ShapeBackColor.Visible := ToolButtonBackFillSolid.Down;
+  UpDownBackAlpha.Visible := ToolButtonBackFillSolid.Down;
+  PanelBackFillGrad.Visible:= ToolButtonBackFillGradDown;
+  ButtonLoadTex.Visible := ToolButtonBackFillTexture.Down;
+  ButtonNoTex.Visible := ToolButtonBackFillTexture.Down;
+  BackImage.Visible := ToolButtonBackFillTexture.Down;
 end;
 
 procedure TForm1.UpdateShapeBackFill;
@@ -1096,13 +1108,17 @@ begin
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
     (vsfBackFill in vectorOriginal.SelectedShape.Fields) then
   begin
-    if RadioButtonTex.Checked and vectorOriginal.SelectedShape.BackFill.IsTexture then
+    if ToolButtonBackFillTexture.Down and vectorOriginal.SelectedShape.BackFill.IsTexture then
       vectorFill := TVectorialFill.CreateAsTexture(FBackTexture, vectorOriginal.SelectedShape.BackFill.TextureMatrix)
-    else if RadioButtonGradient.Checked and vectorOriginal.SelectedShape.BackFill.IsGradient then
+    else if ToolButtonBackFillGradDown and vectorOriginal.SelectedShape.BackFill.IsGradient then
     begin
       vectorFill := vectorOriginal.SelectedShape.BackFill.Duplicate;
       vectorFill.Gradient.StartColor := FBackGradStartColor;
       vectorFill.Gradient.EndColor := FBackGradEndColor;
+      if ToolButtonBackFillLinear.Down then vectorFill.Gradient.GradientType:= gtLinear;
+      if ToolButtonBackFillReflected.Down then vectorFill.Gradient.GradientType:= gtReflected;
+      if ToolButtonBackFillDiamond.Down then vectorFill.Gradient.GradientType:= gtDiamond;
+      if ToolButtonBackFillRadial.Down then vectorFill.Gradient.GradientType:= gtRadial;
     end else
       vectorFill := CreateBackFill;
 
@@ -1111,6 +1127,12 @@ begin
     if wasTex or (Assigned(vectorFill) and vectorFill.IsTexture) then vectorOriginal.RemoveUnusedTextures;
     vectorFill.Free;
   end;
+end;
+
+function TForm1.ToolButtonBackFillGradDown: boolean;
+begin
+  result := ToolButtonBackFillLinear.Down or ToolButtonBackFillReflected.Down or
+            ToolButtonBackFillDiamond.Down or ToolButtonBackFillRadial.Down;
 end;
 
 end.
