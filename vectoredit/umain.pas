@@ -16,11 +16,11 @@ const
   PenStyleToStr : array[TPenStyle] of string = ('─────', '─ ─ ─ ─', '···············', '─ · ─ · ─', '─ ·· ─ ·· ╴', 'InsideFrame', 'Pattern', 'Clear');
 
 type
-  TPaintTool = (ptHand, ptRectangle, ptEllipse, ptPolyline, ptCurve, ptPolygon, ptClosedCurve);
+  TPaintTool = (ptHand, ptMoveBackGradientPoint, ptRectangle, ptEllipse, ptPolyline, ptCurve, ptPolygon, ptClosedCurve);
 
 const
   PaintToolClass : array[TPaintTool] of TVectorShapeAny =
-    (nil, TRectShape, TEllipseShape, TPolylineShape, TCurveShape, TPolylineShape, TCurveShape);
+    (nil, nil, TRectShape, TEllipseShape, TPolylineShape, TCurveShape, TPolylineShape, TCurveShape);
 
 function IsCreateShapeTool(ATool: TPaintTool): boolean;
 
@@ -38,6 +38,7 @@ type
     ButtonNoTex: TBCButton;
     ButtonPenStyle: TBCButton;
     ButtonSwapGradColor: TBCButton;
+    ButtonMoveBackGradPoint: TBCButton;
     Label2: TLabel;
     PanelBackFillGrad: TPanel;
     PanelBackFill: TBCPanel;
@@ -74,7 +75,7 @@ type
     OpenPictureDialog1: TOpenPictureDialog;
     SaveDialog1: TSaveDialog;
     ShapePenColor: TShape;
-    ToolBar1: TToolBar;
+    ToolBarTools: TToolBar;
     ToolButtonPolyline: TToolButton;
     ToolButtonCurve: TToolButton;
     ToolButtonMove: TToolButton;
@@ -156,10 +157,11 @@ type
     procedure UpdateTitleBar;
     procedure ImageChangesCompletely;
     function CreateShape(const APoint1, APoint2: TPointF): TVectorShape;
-    function CreateBackFill: TVectorialFill;
+    function CreateBackFill(AShape: TVectorShape): TVectorialFill;
     procedure RemoveExtendedStyleControls;
     procedure UpdateBackComponentsVisibility;
     procedure UpdateShapeBackFill;
+    procedure UpdateShapeUserMode;
     function ToolButtonBackFillGradDown: boolean;
     { private declarations }
   public
@@ -240,7 +242,7 @@ begin
   backGradEndColor := CSSYellow;
   penWidth := 5;
   penStyle := SolidPenStyle;
-  currentTool:= ptRectangle;
+  currentTool:= ptHand;
   splineStyle:= ssEasyBezier;
   UpdateTitleBar;
 end;
@@ -439,6 +441,7 @@ var
   prevRF, rF: TRectF;
   cur: TOriginalEditorCursor;
   handled: boolean;
+  vectorFill: TVectorialFill;
 begin
   mouseState:= Shift;
   imgPtF := AffineMatrixInverse(zoom)*PointF(X,Y);
@@ -458,6 +461,12 @@ begin
   begin
     prevRF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
     newShape.QuickDefine(newStartPoint,ptF);
+    if (vsfBackFill in newShape.Fields) and newShape.BackFill.IsGradient then
+    begin
+      vectorFill := CreateBackFill(newShape);
+      newShape.BackFill := vectorFill;
+      vectorFill.Free;
+    end;
     rF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
     ImageChange(rF.Union(prevRF, true));
   end;
@@ -573,13 +582,24 @@ end;
 
 procedure TForm1.ToolButtonClick(Sender: TObject);
 begin
-  currentTool := ptHand;
-  if ToolButtonEllipse.Down then currentTool:= ptEllipse;
-  if ToolButtonRectangle.Down then currentTool:= ptRectangle;
-  if ToolButtonPolyline.Down then currentTool:= ptPolyline;
-  if ToolButtonCurve.Down then currentTool:= ptCurve;
-  if ToolButtonPolygon.Down then currentTool:= ptPolygon;
-  if ToolButtonClosedCurve.Down then currentTool:= ptClosedCurve;
+  if Sender = ButtonMoveBackGradPoint then
+  begin
+    ButtonMoveBackGradPoint.Down := not ButtonMoveBackGradPoint.Down;
+    if ButtonMoveBackGradPoint.Down then ToolButtonMove.Down := true;
+  end;
+
+  FCurrentTool := ptHand;
+  if ButtonMoveBackGradPoint.Down then FCurrentTool:= ptMoveBackGradientPoint;
+  if ToolButtonEllipse.Down then FCurrentTool:= ptEllipse;
+  if ToolButtonRectangle.Down then FCurrentTool:= ptRectangle;
+  if ToolButtonPolyline.Down then FCurrentTool:= ptPolyline;
+  if ToolButtonCurve.Down then FCurrentTool:= ptCurve;
+  if ToolButtonPolygon.Down then FCurrentTool:= ptPolygon;
+  if ToolButtonClosedCurve.Down then FCurrentTool:= ptClosedCurve;
+
+  if currentTool <> ptMoveBackGradientPoint then
+    ButtonMoveBackGradPoint.Down := false;
+
   if IsCreateShapeTool(currentTool) then
   begin
     if Assigned(vectorOriginal) and (vectorOriginal.SelectedShape <> nil) then vectorOriginal.DeselectShape
@@ -588,6 +608,8 @@ begin
     if currentTool in [ptPolyline, ptCurve] then
       ToolButtonBackFillNone.Down := true;
   end;
+
+  UpdateShapeUserMode;
 end;
 
 procedure TForm1.UpDownBackAlphaChange(Sender: TObject; AByUser: boolean);
@@ -686,6 +708,14 @@ procedure TForm1.OnSelectShape(ASender: TObject; AShape: TVectorShape;
 begin
   if ASender <> vectorOriginal then exit;
   UpdateToolbarFromShape(AShape);
+  if currentTool = ptMoveBackGradientPoint then
+  begin
+    if Assigned(AShape) and (vsuEditBackGradient in AShape.Usermodes) and
+      AShape.BackFill.IsGradient then
+      AShape.Usermode:= vsuEditBackGradient
+    else
+      currentTool:= ptHand;
+  end;
   if APreviousShape <> nil then
     if IsEmptyRectF(APreviousShape.GetRenderBounds(InfiniteRect, vectorTransform)) then
     begin
@@ -776,14 +806,16 @@ end;
 
 procedure TForm1.SetCurrentTool(AValue: TPaintTool);
 begin
-  if FCurrentTool=AValue then Exit;
   FCurrentTool:=AValue;
+  ToolButtonMove.Down := FCurrentTool = ptHand;
   ToolButtonRectangle.Down := FCurrentTool = ptRectangle;
   ToolButtonEllipse.Down := FCurrentTool = ptEllipse;
   ToolButtonPolygon.Down := FCurrentTool = ptPolygon;
   ToolButtonClosedCurve.Down := FCurrentTool = ptClosedCurve;
   ToolButtonPolyline.Down := FCurrentTool = ptPolyline;
   ToolButtonCurve.Down := FCurrentTool = ptCurve;
+  ButtonMoveBackGradPoint.Down := FCurrentTool = ptMoveBackGradientPoint;
+  UpdateShapeUserMode;
 end;
 
 procedure TForm1.SetPenColor(AValue: TBGRAPixel);
@@ -986,6 +1018,7 @@ begin
     end else
       showSplineStyle:= false;
     FUpdatingFromShape := false;
+    ButtonMoveBackGradPoint.Enabled:= true;
   end else
   begin
     if IsCreateShapeTool(currentTool) then
@@ -998,6 +1031,7 @@ begin
       f := [];
       showSplineStyle:= false;
     end;
+    ButtonMoveBackGradPoint.Enabled:= false;
   end;
   UpDownPenWidth.Enabled := vsfPenWidth in f;
   ButtonPenStyle.Enabled:= vsfPenStyle in f;
@@ -1040,26 +1074,27 @@ begin
   if not IsCreateShapeTool(currentTool) then
     raise exception.Create('No shape type selected');
   result := PaintToolClass[currentTool].Create(vectorOriginal);
+  if (result is TCustomPolypointShape) and ToolButtonBackFillGradDown then
+    ToolButtonBackFillSolid.Down := true;
   result.PenColor := penColor;
-
-  if vsfBackFill in result.Fields then
-  begin
-    vectorFill := CreateBackFill;
-    result.BackFill := vectorFill;
-    vectorFill.Free;
-  end;
-
   result.PenWidth := penWidth;
   result.PenStyle := penStyle;
   if currentTool in[ptClosedCurve,ptPolygon] then
     TCustomPolypointShape(result).Closed := true;
   if result is TCurveShape then TCurveShape(result).SplineStyle:= splineStyle;
   result.QuickDefine(APoint1,APoint2);
+  if vsfBackFill in result.Fields then
+  begin
+    vectorFill := CreateBackFill(result);
+    result.BackFill := vectorFill;
+    vectorFill.Free;
+  end;
 end;
 
-function TForm1.CreateBackFill: TVectorialFill;
+function TForm1.CreateBackFill(AShape: TVectorShape): TVectorialFill;
 var
   grad: TBGRALayerGradientOriginal;
+  rF: TRectF;
 begin
   if ToolButtonBackFillSolid.Down then
     result := TVectorialFill.CreateAsSolid(FBackColor)
@@ -1068,14 +1103,25 @@ begin
   else if ToolButtonBackFillGradDown then
   begin
     grad := TBGRALayerGradientOriginal.Create;
-    grad.Origin := PointF(0,0);
-    grad.XAxis := PointF(img.Width,img.Height);
     grad.StartColor := FBackGradStartColor;
     grad.EndColor := FBackGradEndColor;
+    if Assigned(AShape) then
+      rF := AShape.GetRenderBounds(rect(0,0,img.Width,img.Height),vectorTransform)
+    else
+      rF := rectF(0,0,img.Width,img.Height);
     if ToolButtonBackFillLinear.Down then grad.GradientType:= gtLinear;
     if ToolButtonBackFillReflected.Down then grad.GradientType:= gtReflected;
     if ToolButtonBackFillDiamond.Down then grad.GradientType:= gtDiamond;
     if ToolButtonBackFillRadial.Down then grad.GradientType:= gtRadial;
+    if grad.GradientType = gtLinear then
+    begin
+      grad.Origin := rF.TopLeft;
+      grad.XAxis := rF.BottomRight;
+    end else
+    begin
+      grad.Origin := (rF.TopLeft + rF.BottomRight)*0.5;
+      grad.XAxis := rF.BottomRight;
+    end;
     result := TVectorialFill.CreateAsGradient(grad, true);
   end
   else result := nil; //none
@@ -1098,6 +1144,8 @@ begin
   ButtonLoadTex.Visible := ToolButtonBackFillTexture.Down;
   ButtonNoTex.Visible := ToolButtonBackFillTexture.Down;
   BackImage.Visible := ToolButtonBackFillTexture.Down;
+  if (currentTool = ptMoveBackGradientPoint) and not ToolButtonBackFillGradDown then
+    currentTool:= ptHand;
 end;
 
 procedure TForm1.UpdateShapeBackFill;
@@ -1120,12 +1168,29 @@ begin
       if ToolButtonBackFillDiamond.Down then vectorFill.Gradient.GradientType:= gtDiamond;
       if ToolButtonBackFillRadial.Down then vectorFill.Gradient.GradientType:= gtRadial;
     end else
-      vectorFill := CreateBackFill;
+      vectorFill := CreateBackFill(vectorOriginal.SelectedShape);
 
     wasTex := vectorOriginal.SelectedShape.BackFill.IsTexture;
     vectorOriginal.SelectedShape.BackFill:= vectorFill;
     if wasTex or (Assigned(vectorFill) and vectorFill.IsTexture) then vectorOriginal.RemoveUnusedTextures;
     vectorFill.Free;
+  end;
+end;
+
+procedure TForm1.UpdateShapeUserMode;
+begin
+  if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+  begin
+    if (currentTool = ptMoveBackGradientPoint)  and
+       (vsfBackFill in vectorOriginal.SelectedShape.Fields) and vectorOriginal.SelectedShape.BackFill.IsGradient then
+    begin
+      if vectorOriginal.SelectedShape.Usermode <> vsuEditBackGradient then
+        vectorOriginal.SelectedShape.Usermode := vsuEditBackGradient;
+    end else
+    begin
+      if vectorOriginal.SelectedShape.Usermode = vsuEditBackGradient then
+        vectorOriginal.SelectedShape.Usermode := vsuEdit;
+    end;
   end;
 end;
 

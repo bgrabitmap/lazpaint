@@ -20,7 +20,7 @@ type
 
   TVectorShapeField = (vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill);
   TVectorShapeFields = set of TVectorShapeField;
-  TVectorShapeUsermode = (vsuEdit, vsuCreate);
+  TVectorShapeUsermode = (vsuEdit, vsuCreate, vsuEditBackGradient);
   TVectorShapeUsermodes = set of TVectorShapeUsermode;
 
   { TVectorShape }
@@ -57,6 +57,7 @@ type
     function ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean; AStrokeMatrix: TAffineMatrix): ArrayOfTPointF;
     function GetStroker: TBGRAPenStroker;
     property Stroker: TBGRAPenStroker read GetStroker;
+    procedure GradientChange(ASender: TObject; ABounds: PRectF = nil); virtual;
   public
     constructor Create(AContainer: TVectorOriginal);
     destructor Destroy; override;
@@ -646,6 +647,8 @@ begin
   delta := ANewCoord - APrevCoord;
   for i := 0 to PointCount-1 do
     Points[i] := Points[i]+delta;
+  if (vsfBackFill in Fields) and BackFill.IsGradient then
+    BackFill.Gradient.Transform(AffineMatrixTranslation(delta.x, delta.y));
   EndUpdate;
 end;
 
@@ -674,7 +677,7 @@ end;
 
 class function TCustomPolypointShape.Usermodes: TVectorShapeUsermodes;
 begin
-  Result:=[vsuEdit,vsuCreate];
+  Result:= inherited Usermodes + [vsuCreate];
 end;
 
 procedure TCustomPolypointShape.SetUsermode(AValue: TVectorShapeUsermode);
@@ -1146,6 +1149,8 @@ begin
   FOrigin := ANewCoord;
   FXAxis += delta;
   FYAxis += delta;
+  if (vsfBackFill in Fields) and BackFill.IsGradient then
+    BackFill.Gradient.Transform(AffineMatrixTranslation(delta.x, delta.y));
   EndUpdate;
 end;
 
@@ -1522,6 +1527,7 @@ begin
        'gradient': begin
            grad := TBGRALayerGradientOriginal.Create;
            grad.LoadFromStorage(obj);
+           grad.OnChange:= @GradientChange;
            AValue.SetGradient(grad,true);
          end;
      end;
@@ -1579,6 +1585,7 @@ end;
 class function TVectorShape.Usermodes: TVectorShapeUsermodes;
 begin
   result := [vsuEdit];
+  if vsfBackFill in Fields then result += [vsuEditBackGradient];
 end;
 
 procedure TVectorShape.SetContainer(AValue: TVectorOriginal);
@@ -1649,6 +1656,12 @@ begin
   result := FStroker;
 end;
 
+procedure TVectorShape.GradientChange(ASender: TObject; ABounds: PRectF);
+begin
+  if Assigned(FOnChange) and (FUpdateCount = 0) then
+    FOnChange(ASender, GetRenderBounds(InfiniteRect, AffineMatrixIdentity));
+end;
+
 procedure TVectorShape.SetPenColor(AValue: TBGRAPixel);
 begin
   if AValue.alpha = 0 then AValue := BGRAPixelTransparent;
@@ -1685,6 +1698,9 @@ begin
       FBackFill := TVectorialFill.CreateAsTexture(Container.GetTexture(Container.AddTexture(AValue.Texture)), AValue.TextureMatrix)
     else
       FBackFill := AValue.Duplicate;
+
+    if FBackFill.IsGradient and Assigned(Container) then
+      FBackFill.Gradient.OnChange:= @GradientChange;
   end;
   EndUpdate;
 end;
@@ -1784,7 +1800,8 @@ end;
 
 procedure TVectorOriginal.OnShapeEditingChange(ASender: TObject);
 begin
-  NotifyEditorChange;
+  if ASender = FSelectedShape then
+    NotifyEditorChange;
 end;
 
 procedure TVectorOriginal.DiscardFrozenShapes;
@@ -1985,6 +2002,7 @@ end;
 procedure TVectorOriginal.SelectShape(AShape: TVectorShape);
 var
   prev: TVectorShape;
+  prevMode: TVectorShapeUsermode;
 begin
   if FSelectedShape <> AShape then
   begin
@@ -1992,7 +2010,15 @@ begin
       if FShapes.IndexOf(AShape)=-1 then
         raise exception.Create('Shape not found');
     prev := FSelectedShape;
-    if Assigned(prev) then prev.Usermode := vsuEdit;
+    FSelectedShape := nil;
+    if Assigned(prev) then
+    begin
+      prevMode := prev.Usermode;
+      prev.Usermode := vsuEdit;
+    end else
+      prevMode := vsuEdit;
+    if Assigned(AShape) and (prevMode = vsuEditBackGradient) and (prevMode in AShape.Usermodes) and
+       AShape.BackFill.IsGradient then AShape.Usermode:= prevMode;
     FSelectedShape := AShape;
     DiscardFrozenShapes;
     NotifyEditorChange;
@@ -2081,7 +2107,12 @@ begin
       DiscardFrozenShapes;
     end
     else
-      FSelectedShape.ConfigureEditor(AEditor);
+    begin
+      if (FSelectedShape.Usermode = vsuEditBackGradient) and FSelectedShape.BackFill.IsGradient then
+        FSelectedShape.BackFill.Gradient.ConfigureEditor(AEditor)
+      else
+        FSelectedShape.ConfigureEditor(AEditor);
+    end;
   end;
   //no more reference to event handlers
   FreeDeletedShapes;
