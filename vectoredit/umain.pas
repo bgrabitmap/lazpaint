@@ -6,13 +6,14 @@ interface
 
 uses
   Classes, SysUtils, Types, FileUtil, Forms, Controls, Graphics, Dialogs,
-  ExtCtrls, StdCtrls, Spin, ComCtrls, ExtDlgs, BGRAVirtualScreen,
+  ExtCtrls, StdCtrls, ComCtrls, ExtDlgs, Menus, BGRAVirtualScreen,
   BCTrackbarUpdown, BCPanel, BGRAImageList, BCButton, BGRALazPaint, BGRABitmap,
   BGRABitmapTypes, BGRATransform, BGRALayerOriginal, BGRAGraphics,
   uvectororiginal, uvectorialfill;
 
 const
   EditorPointSize = 8;
+  PenStyleToStr : array[TPenStyle] of string = ('─────', '─ ─ ─ ─', '···············', '─ · ─ · ─', '─ ·· ─ ·· ╴', 'InsideFrame', 'Pattern', 'Clear');
 
 type
   TPaintTool = (ptHand, ptRectangle, ptEllipse, ptPolyline, ptCurve, ptPolygon, ptClosedCurve);
@@ -32,7 +33,23 @@ type
 
   TForm1 = class(TForm)
     BackImage: TImage;
+    ButtonLoadTex: TBCButton;
+    ButtonNoTex: TBCButton;
+    ButtonSwapGradColor: TBCButton;
+    ButtonPenStyle: TBCButton;
     Label2: TLabel;
+    PanelBackFill: TBCPanel;
+    RadioButtonGradient: TRadioButton;
+    RadioButtonNone: TRadioButton;
+    RadioButtonSolid: TRadioButton;
+    RadioButtonTex: TRadioButton;
+    ShapeBackColor: TShape;
+    ShapeBackEndColor: TShape;
+    ShapeBackStartColor: TShape;
+    UpDownBackAlpha: TBCTrackbarUpdown;
+    UpDownBackEndAlpha: TBCTrackbarUpdown;
+    UpDownBackStartAlpha: TBCTrackbarUpdown;
+    UpDownPenWidth: TBCTrackbarUpdown;
     PanelBasicStyle: TBCPanel;
     PanelFile: TBCPanel;
     PanelExtendedStyle: TBCPanel;
@@ -40,25 +57,16 @@ type
     BCPanelToolbar: TBCPanel;
     BGRAImageList1: TBGRAImageList;
     BGRAVirtualScreen1: TBGRAVirtualScreen;
-    ButtonLoadTex: TBCButton;
     ButtonOpenFile: TBCButton;
     ButtonSaveFile: TBCButton;
     ButtonSaveAs: TBCButton;
     ButtonNewFile: TBCButton;
-    ButtonNoTex: TBCButton;
     ColorDialog1: TColorDialog;
-    ComboBoxPenStyle: TComboBox;
-    FloatSpinEditPenWidth: TFloatSpinEdit;
     Label1: TLabel;
     Label3: TLabel;
     OpenDialog1: TOpenDialog;
     OpenPictureDialog1: TOpenPictureDialog;
-    RadioButtonGradient: TRadioButton;
-    RadioButtonSolid: TRadioButton;
-    RadioButtonNone: TRadioButton;
-    RadioButtonTex: TRadioButton;
     SaveDialog1: TSaveDialog;
-    ShapeBackColor: TShape;
     ShapePenColor: TShape;
     ToolBar1: TToolBar;
     ToolButtonPolyline: TToolButton;
@@ -68,8 +76,12 @@ type
     ToolButtonPolygon: TToolButton;
     ToolButtonRectangle: TToolButton;
     ToolButtonEllipse: TToolButton;
-    UpDownBackAlpha: TBCTrackbarUpdown;
     UpDownPenAlpha: TBCTrackbarUpdown;
+    procedure ButtonSwapGradColorClick(Sender: TObject);
+    procedure ShapeBackGradColorMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure UpDownBackGradAlphaChange(Sender: TObject; AByUser: boolean);
+    procedure UpDownPenWidthChange(Sender: TObject; AByUser: boolean);
     procedure BGRAVirtualScreen1MouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure BGRAVirtualScreen1MouseMove(Sender: TObject; Shift: TShiftState;
@@ -83,8 +95,6 @@ type
     procedure ButtonOpenFileClick(Sender: TObject);
     procedure ButtonSaveAsClick(Sender: TObject);
     procedure ButtonSaveFileClick(Sender: TObject);
-    procedure ComboBoxPenStyleChange(Sender: TObject);
-    procedure FloatSpinEditPenWidthChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
@@ -98,19 +108,20 @@ type
     procedure UpDownPenAlphaChange(Sender: TObject; AByUser: boolean);
   private
     FPenColor, FBackColor: TBGRAPixel;
+    FBackGradStartColor, FBackGradEndColor: TBGRAPixel;
     FBackTexture: TBGRABitmap;
     FPenWidth: single;
     FPenStyle: TBGRAPenStyle;
     FFlattened: TBGRABitmap;
     FLastEditorBounds: TRect;
     FUpdatingFromShape: boolean;
-    FUpdatingComboBoxPenStyle, FUpdatingSpinEditPenWidth: boolean;
+    FUpdatingSpinEditPenWidth: boolean;
     FCurrentTool: TPaintTool;
     FSplineStyle: TSplineStyle;
     FComboboxSplineStyle: TComboBox;
     FUpdatingComboboxSplineStyle : boolean;
+    FPenStyleMenu: TPopupMenu;
     procedure ComboBoxSplineStyleChange(Sender: TObject);
-    function GetBackColor: TBGRAPixel;
     function GetBackTexture: TBGRABitmap;
     function GetPenColor: TBGRAPixel;
     function GetPenStyle: TBGRAPenStyle;
@@ -121,7 +132,10 @@ type
     procedure OnEditingChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
     procedure OnOriginalChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
     procedure OnSelectShape(ASender: TObject; AShape: TVectorShape; APreviousShape: TVectorShape);
+    procedure OnClickPenStyle(ASender: TObject);
     procedure SetBackColor(AValue: TBGRAPixel);
+    procedure SetBackGradEndColor(AValue: TBGRAPixel);
+    procedure SetBackGradStartColor(AValue: TBGRAPixel);
     procedure SetBackTexture(AValue: TBGRABitmap);
     procedure SetCurrentTool(AValue: TPaintTool);
     procedure SetPenColor(AValue: TBGRAPixel);
@@ -138,6 +152,8 @@ type
     function CreateShape(const APoint1, APoint2: TPointF): TVectorShape;
     function CreateBackFill: TVectorialFill;
     procedure RemoveExtendedStyleControls;
+    procedure UpdateBackComponentsVisibility;
+    procedure UpdateShapeBackFill;
     { private declarations }
   public
     { public declarations }
@@ -154,7 +170,9 @@ type
     baseCaption: string;
     property vectorTransform: TAffineMatrix read GetVectorTransform;
     property penColor: TBGRAPixel read GetPenColor write SetPenColor;
-    property backColor: TBGRAPixel read GetBackColor write SetBackColor;
+    property backColor: TBGRAPixel read FBackColor write SetBackColor;
+    property backGradStartColor: TBGRAPixel read FBackGradStartColor write SetBackGradStartColor;
+    property backGradEndColor: TBGRAPixel read FBackGradEndColor write SetBackGradEndColor;
     property backTexture: TBGRABitmap read GetBackTexture write SetBackTexture;
     property penWidth: single read GetPenWidth write SetPenWidth;
     property penStyle: TBGRAPenStyle read GetPenStyle write SetPenStyle;
@@ -180,9 +198,13 @@ end;
 { TForm1 }
 
 procedure TForm1.FormCreate(Sender: TObject);
+var
+  item: TMenuItem;
+  ps: TPenStyle;
 begin
   baseCaption:= Caption;
-  img := TBGRALazPaintImage.Create(1600,1200);
+
+  img := TBGRALazPaintImage.Create(640,480);
   filename := '';
   vectorOriginal := TVectorOriginal.Create;
   vectorLayer := img.AddLayerFromOwnedOriginal(vectorOriginal);
@@ -190,10 +212,25 @@ begin
   vectorOriginal.OnSelectShape:= @OnSelectShape;
   img.OnOriginalEditingChange:= @OnEditingChange;
   img.OnOriginalChange:= @OnOriginalChange;
+
   zoom := AffineMatrixScale(1,1);
+  FPenStyleMenu := TPopupMenu.Create(nil);
+  item:= TMenuItem.Create(FPenStyleMenu); item.Caption := 'Clear';
+  item.OnClick := @OnClickPenStyle;       item.Tag := ord(psClear);
+  FPenStyleMenu.Items.Add(item);
+  for ps := psSolid to psDashDotDot do
+  begin
+    item:= TMenuItem.Create(FPenStyleMenu); item.Caption := PenStyleToStr[ps];
+    item.OnClick := @OnClickPenStyle;       item.Tag := ord(ps);
+    FPenStyleMenu.Items.Add(item);
+  end;
+  ButtonPenStyle.DropDownMenu := FPenStyleMenu;
+
   newShape:= nil;
   penColor := BGRABlack;
   backColor := CSSDodgerBlue;
+  backGradStartColor := CSSRed;
+  backGradEndColor := CSSYellow;
   penWidth := 5;
   penStyle := SolidPenStyle;
   currentTool:= ptRectangle;
@@ -319,25 +356,6 @@ begin
   end;
 end;
 
-procedure TForm1.ComboBoxPenStyleChange(Sender: TObject);
-begin
-  if FUpdatingComboBoxPenStyle then exit;
-  case ComboBoxPenStyle.ItemIndex of
-    0: penStyle := ClearPenStyle;
-    1: penStyle := SolidPenStyle;
-    2: penStyle := DashPenStyle;
-    3: penStyle := DotPenStyle;
-    4: penStyle := DashDotPenStyle;
-    5: penStyle := DashDotDotPenStyle;
-  end;
-end;
-
-procedure TForm1.FloatSpinEditPenWidthChange(Sender: TObject);
-begin
-  if FUpdatingSpinEditPenWidth then exit;
-  penWidth := FloatSpinEditPenWidth.Value;
-end;
-
 procedure TForm1.BGRAVirtualScreen1MouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
@@ -356,6 +374,53 @@ begin
     newStartPoint := AffineMatrixInverse(vectorTransform)*imgPtF;
     newButton := Button;
     justDown := true;
+  end;
+end;
+
+procedure TForm1.UpDownPenWidthChange(Sender: TObject; AByUser: boolean);
+begin
+  if FUpdatingSpinEditPenWidth then exit;
+  penWidth := UpDownPenWidth.Value*0.1;
+end;
+
+procedure TForm1.ShapeBackGradColorMouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  ColorDialog1.Color := (Sender as TShape).Brush.Color;
+  if ColorDialog1.Execute then
+  begin
+    if Sender = ShapeBackEndColor then
+      backGradEndColor := ColorToBGRA(ColorDialog1.Color, backGradEndColor.alpha)
+    else
+      backGradStartColor := ColorToBGRA(ColorDialog1.Color, backGradStartColor.alpha);
+  end;
+end;
+
+procedure TForm1.ButtonSwapGradColorClick(Sender: TObject);
+var
+  temp, c: TBGRAPixel;
+begin
+  temp := FBackGradStartColor;
+  FBackGradStartColor := FBackGradEndColor;
+  FBackGradEndColor := temp;
+  c := FBackGradStartColor; c.alpha:= 255;
+  ShapeBackStartColor.Brush.Color := c.ToColor;
+  UpDownBackStartAlpha.Value:= FBackGradStartColor.alpha;
+  c := FBackGradEndColor; c.alpha:= 255;
+  ShapeBackEndColor.Brush.Color := c.ToColor;
+  UpDownBackEndAlpha.Value:= FBackGradEndColor.alpha;
+  UpdateShapeBackFill;
+end;
+
+procedure TForm1.UpDownBackGradAlphaChange(Sender: TObject; AByUser: boolean);
+begin
+  if AByUser then
+  begin
+    if Sender = UpDownBackEndAlpha then
+      FBackGradEndColor.alpha := (Sender as TBCTrackbarUpdown).Value
+    else
+      FBackGradStartColor.alpha := (Sender as TBCTrackbarUpdown).Value;
+    if RadioButtonGradient.Checked then UpdateShapeBackFill;
   end;
 end;
 
@@ -434,6 +499,7 @@ begin
   img.Free;
   FFlattened.Free;
   FBackTexture.FreeReference;
+  FPenStyleMenu.Free;
 end;
 
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState
@@ -454,36 +520,22 @@ begin
 end;
 
 procedure TForm1.RadioButtonBackChange(Sender: TObject);
-var
-  vectorFill: TVectorialFill;
-  grad: TBGRALayerGradientOriginal;
 begin
   if FUpdatingFromShape then exit;
   if ((Sender = RadioButtonNone) and RadioButtonNone.Checked) or
      ((Sender = RadioButtonSolid) and RadioButtonSolid.Checked) or
      ((Sender = RadioButtonGradient) and RadioButtonGradient.Checked) then
   begin
-    if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
-    begin
-      vectorFill := CreateBackFill;
-      vectorOriginal.SelectedShape.BackFill := vectorFill;
-      vectorFill.Free;
-      vectorOriginal.RemoveUnusedTextures;
-    end;
+    UpdateShapeBackFill;
   end else
   if (Sender = RadioButtonTex) and RadioButtonTex.Checked then
   begin
     if backTexture = nil then
       ButtonLoadTexClick(Sender)
     else
-    if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
-    begin
-      vectorFill := CreateBackFill;
-      vectorOriginal.SelectedShape.BackFill := vectorFill;
-      vectorFill.Free;
-      vectorOriginal.RemoveUnusedTextures;
-    end;
+    UpdateShapeBackFill;
   end;
+  UpdateBackComponentsVisibility;
 end;
 
 procedure TForm1.ShapeBackColorMouseUp(Sender: TObject; Button: TMouseButton;
@@ -532,18 +584,11 @@ begin
 end;
 
 procedure TForm1.UpDownBackAlphaChange(Sender: TObject; AByUser: boolean);
-var
-  vectorFill: TVectorialFill;
 begin
   if AByUser then
   begin
     FBackColor:= ColorToBGRA(ShapeBackColor.Brush.Color, UpDownBackAlpha.Value);
-    if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and RadioButtonSolid.Checked then
-    begin
-      vectorFill := CreateBackFill;
-      vectorOriginal.SelectedShape.BackFill:= vectorFill;
-      vectorFill.Free;
-    end;
+    if RadioButtonSolid.Checked then UpdateShapeBackFill;
   end;
 end;
 
@@ -562,11 +607,6 @@ begin
   if FUpdatingComboboxSplineStyle then exit;
   if FComboboxSplineStyle.ItemIndex <> -1 then
     splineStyle:= TSplineStyle(FComboboxSplineStyle.ItemIndex);
-end;
-
-function TForm1.GetBackColor: TBGRAPixel;
-begin
-  result := FBackColor;
 end;
 
 function TForm1.GetBackTexture: TBGRABitmap;
@@ -647,29 +687,51 @@ begin
     end;
 end;
 
+procedure TForm1.OnClickPenStyle(ASender: TObject);
+begin
+  Case TPenStyle((ASender as TMenuItem).Tag) of
+  psSolid: penStyle := SolidPenStyle;
+  psDash: penStyle := DashPenStyle;
+  psDot: penStyle := DotPenStyle;
+  psDashDot: penStyle := DashDotPenStyle;
+  psDashDotDot: penStyle := DashDotDotPenStyle;
+  else penStyle := ClearPenStyle;
+  end;
+end;
+
 procedure TForm1.SetBackColor(AValue: TBGRAPixel);
-var
-  vectorFill: TVectorialFill;
 begin
   FBackColor := AValue;
   ShapeBackColor.Brush.Color := AValue.ToColor;
   UpDownBackAlpha.Value := AValue.alpha;
-  if not FUpdatingFromShape and Assigned(vectorOriginal) and RadioButtonSolid.Checked then
-  begin
-    if Assigned(vectorOriginal.SelectedShape) then
-    begin
-      vectorFill := CreateBackFill;
-      vectorOriginal.SelectedShape.BackFill := vectorFill;
-      vectorFill.Free;
-    end;
-  end;
+  if not FUpdatingFromShape and RadioButtonSolid.Checked then
+    UpdateShapeBackFill;
+end;
+
+procedure TForm1.SetBackGradEndColor(AValue: TBGRAPixel);
+begin
+  FBackGradEndColor := AValue;
+  UpDownBackEndAlpha.Value := AValue.alpha;
+  AValue.alpha := 255;
+  ShapeBackEndColor.Brush.Color := AValue.ToColor;
+  if not FUpdatingFromShape and RadioButtonGradient.Checked then
+    UpdateShapeBackFill;
+end;
+
+procedure TForm1.SetBackGradStartColor(AValue: TBGRAPixel);
+begin
+  FBackGradStartColor := AValue;
+  UpDownBackStartAlpha.Value := AValue.alpha;
+  AValue.alpha := 255;
+  ShapeBackStartColor.Brush.Color := AValue.ToColor;
+  if not FUpdatingFromShape and RadioButtonGradient.Checked then
+    UpdateShapeBackFill;
 end;
 
 procedure TForm1.SetBackTexture(AValue: TBGRABitmap);
 var
   thumb: TBGRABitmap;
   bmpThumb: TBitmap;
-  vectorFill: TVectorialFill;
 begin
   if AValue = FBackTexture then exit;
 
@@ -701,16 +763,8 @@ begin
     BackImage.Visible := false;
   end;
 
-  if not FUpdatingFromShape and Assigned(vectorOriginal) and RadioButtonTex.Checked then
-  begin
-    if Assigned(vectorOriginal.SelectedShape) then
-    begin
-      vectorFill := TVectorialFill.CreateAsTexture(FBackTexture, vectorOriginal.SelectedShape.BackFill.TextureMatrix);
-      vectorOriginal.SelectedShape.BackFill := vectorFill;
-      vectorFill.Free;
-      vectorOriginal.RemoveUnusedTextures;
-    end;
-  end;
+  if not FUpdatingFromShape and RadioButtonTex.Checked then
+    UpdateShapeBackFill;
 end;
 
 procedure TForm1.SetCurrentTool(AValue: TPaintTool);
@@ -738,21 +792,9 @@ begin
 end;
 
 procedure TForm1.SetPenStyle(AValue: TBGRAPenStyle);
-var cur: integer;
 begin
   FPenStyle := AValue;
-  case BGRAToPenStyle(AValue) of
-    psClear: cur:= 0;
-    psSolid: cur:= 1;
-    psDash: cur := 2;
-    psDot: cur := 3;
-    psDashDot: cur := 4;
-    psDashDotDot: cur := 5;
-    else cur := 6;
-  end;
-  FUpdatingComboBoxPenStyle := true;
-  ComboBoxPenStyle.ItemIndex := cur;
-  FUpdatingComboBoxPenStyle := false;
+  ButtonPenStyle.Caption:= PenStyleToStr[BGRAToPenStyle(AValue)];
   if not FUpdatingFromShape and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
     vectorOriginal.SelectedShape.PenStyle := FPenStyle;
 end;
@@ -762,11 +804,11 @@ var
   cur: single;
 begin
   FPenWidth := AValue;
-  cur := FloatSpinEditPenWidth.Value;
+  cur := UpDownPenWidth.Value*0.1;
   if AValue <> cur then
   begin
     FUpdatingSpinEditPenWidth:= true;
-    FloatSpinEditPenWidth.Value := AValue;
+    UpDownPenWidth.Value := Round(AValue*10);
     FUpdatingSpinEditPenWidth:= false;
   end;
   if not FUpdatingFromShape and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
@@ -917,9 +959,12 @@ begin
       end else
       if AShape.BackFill.IsGradient then
       begin
+        backGradStartColor := AShape.BackFill.Gradient.StartColor;
+        backGradEndColor := AShape.BackFill.Gradient.EndColor;
         RadioButtonGradient.Checked := true;
       end else
         RadioButtonNone.Checked := true;
+      UpdateBackComponentsVisibility;
     end;
 
     if AShape is TCurveShape then
@@ -942,8 +987,8 @@ begin
       showSplineStyle:= false;
     end;
   end;
-  FloatSpinEditPenWidth.Enabled := vsfPenWidth in f;
-  ComboBoxPenStyle.Enabled:= vsfPenStyle in f;
+  UpDownPenWidth.Enabled := vsfPenWidth in f;
+  ButtonPenStyle.Enabled:= vsfPenStyle in f;
 
   nextControlPos := Point(ControlMargin,ShapeBackColor.Top);
   if showSplineStyle then
@@ -1013,8 +1058,8 @@ begin
     grad := TBGRALayerGradientOriginal.Create;
     grad.Origin := PointF(0,0);
     grad.XAxis := PointF(img.Width,img.Height);
-    grad.StartColor := BGRAWhite;
-    grad.EndColor := BGRABlack;
+    grad.StartColor := FBackGradStartColor;
+    grad.EndColor := FBackGradEndColor;
     result := TVectorialFill.CreateAsGradient(grad, true);
   end
   else result := nil; //none
@@ -1026,6 +1071,45 @@ begin
   begin
     PanelExtendedStyle.RemoveControl(FComboboxSplineStyle);
     FreeAndNil(FComboboxSplineStyle);
+  end;
+end;
+
+procedure TForm1.UpdateBackComponentsVisibility;
+begin
+  ShapeBackColor.Visible := RadioButtonSolid.Checked;
+  UpDownBackAlpha.Visible := RadioButtonSolid.Checked;
+  ShapeBackStartColor.Visible := RadioButtonGradient.Checked;
+  UpDownBackStartAlpha.Visible := RadioButtonGradient.Checked;
+  ButtonSwapGradColor.Visible := RadioButtonGradient.Checked;
+  ShapeBackEndColor.Visible := RadioButtonGradient.Checked;
+  UpDownBackEndAlpha.Visible := RadioButtonGradient.Checked;
+  ButtonLoadTex.Visible := RadioButtonTex.Checked;
+  ButtonNoTex.Visible := RadioButtonTex.Checked;
+  BackImage.Visible := RadioButtonTex.Checked;
+end;
+
+procedure TForm1.UpdateShapeBackFill;
+var
+  vectorFill: TVectorialFill;
+  wasTex: Boolean;
+begin
+  if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
+    (vsfBackFill in vectorOriginal.SelectedShape.Fields) then
+  begin
+    if RadioButtonTex.Checked and vectorOriginal.SelectedShape.BackFill.IsTexture then
+      vectorFill := TVectorialFill.CreateAsTexture(FBackTexture, vectorOriginal.SelectedShape.BackFill.TextureMatrix)
+    else if RadioButtonGradient.Checked and vectorOriginal.SelectedShape.BackFill.IsGradient then
+    begin
+      vectorFill := vectorOriginal.SelectedShape.BackFill.Duplicate;
+      vectorFill.Gradient.StartColor := FBackGradStartColor;
+      vectorFill.Gradient.EndColor := FBackGradEndColor;
+    end else
+      vectorFill := CreateBackFill;
+
+    wasTex := vectorOriginal.SelectedShape.BackFill.IsTexture;
+    vectorOriginal.SelectedShape.BackFill:= vectorFill;
+    if wasTex or (Assigned(vectorFill) and vectorFill.IsTexture) then vectorOriginal.RemoveUnusedTextures;
+    vectorFill.Free;
   end;
 end;
 
