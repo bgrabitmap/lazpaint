@@ -58,6 +58,7 @@ type
     ToolButtonBackFillRadial: TToolButton;
     ToolButtonBackFillTexture: TToolButton;
     UpDownBackAlpha: TBCTrackbarUpdown;
+    UpDownBackTexAlpha: TBCTrackbarUpdown;
     UpDownBackEndAlpha: TBCTrackbarUpdown;
     UpDownBackStartAlpha: TBCTrackbarUpdown;
     UpDownPenWidth: TBCTrackbarUpdown;
@@ -95,6 +96,7 @@ type
     procedure ShapeBackGradColorMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure UpDownBackGradAlphaChange(Sender: TObject; AByUser: boolean);
+    procedure UpDownBackTexAlphaChange(Sender: TObject; AByUser: boolean);
     procedure UpDownPenWidthChange(Sender: TObject; AByUser: boolean);
     procedure BGRAVirtualScreen1MouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -492,6 +494,11 @@ begin
       FBackGradStartColor.alpha := (Sender as TBCTrackbarUpdown).Value;
     if ToolButtonBackFillGradDown then UpdateShapeBackFill;
   end;
+end;
+
+procedure TForm1.UpDownBackTexAlphaChange(Sender: TObject; AByUser: boolean);
+begin
+  if AByUser and ToolButtonBackFillTexture.Down then UpdateShapeBackFill;
 end;
 
 procedure TForm1.BGRAVirtualScreen1MouseMove(Sender: TObject;
@@ -1099,6 +1106,7 @@ begin
       begin
         texSource := AShape.BackFill.Texture;
         if Assigned(texSource) then backTexture := texSource;
+        UpDownBackTexAlpha.Value := AShape.BackFill.TextureOpacity;
         ToolButtonBackFillTexture.Down := true;
       end else
       if AShape.BackFill.IsSolid and (AShape.BackFill.SolidColor.alpha <> 0) then
@@ -1211,7 +1219,7 @@ begin
   if ToolButtonBackFillSolid.Down then
     result := TVectorialFill.CreateAsSolid(FBackColor)
   else if ToolButtonBackFillTexture.Down then
-    result := TVectorialFill.CreateAsTexture(backTexture, AffineMatrixIdentity)
+    result := TVectorialFill.CreateAsTexture(backTexture, AffineMatrixIdentity, UpDownBackTexAlpha.Value)
   else if ToolButtonBackFillGradDown then
   begin
     grad := TBGRALayerGradientOriginal.Create;
@@ -1258,6 +1266,7 @@ begin
   ButtonLoadTex.Visible := ToolButtonBackFillTexture.Down;
   ButtonNoTex.Visible := ToolButtonBackFillTexture.Down;
   BackImage.Visible := ToolButtonBackFillTexture.Down;
+  UpDownBackTexAlpha.Visible := ToolButtonBackFillTexture.Down;
   if (currentTool = ptMoveBackGradientPoint) and not ToolButtonBackFillGradDown then
     currentTool:= ptHand;
 end;
@@ -1270,8 +1279,11 @@ begin
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
     (vsfBackFill in vectorOriginal.SelectedShape.Fields) then
   begin
+    if ToolButtonBackFillTexture.Down and (UpDownBackTexAlpha.Value = 0) then
+      vectorFill := nil else
     if ToolButtonBackFillTexture.Down and vectorOriginal.SelectedShape.BackFill.IsTexture then
-      vectorFill := TVectorialFill.CreateAsTexture(FBackTexture, vectorOriginal.SelectedShape.BackFill.TextureMatrix)
+      vectorFill := TVectorialFill.CreateAsTexture(FBackTexture, vectorOriginal.SelectedShape.BackFill.TextureMatrix,
+                                                   UpDownBackTexAlpha.Value)
     else if ToolButtonBackFillGradDown and vectorOriginal.SelectedShape.BackFill.IsGradient then
     begin
       vectorFill := vectorOriginal.SelectedShape.BackFill.Duplicate;

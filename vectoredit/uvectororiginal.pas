@@ -1500,7 +1500,7 @@ procedure TVectorShape.LoadFill(AStorage: TBGRACustomOriginalStorage;
   AObjectName: string; var AValue: TVectorialFill);
 var
   obj: TBGRACustomOriginalStorage;
-  texId: LongInt;
+  texId, texOpacity: integer;
   origin, xAxis, yAxis: TPointF;
   grad: TBGRALayerGradientOriginal;
 begin
@@ -1522,7 +1522,10 @@ begin
            origin := obj.PointF['origin'];
            xAxis := obj.PointF['x-axis'];
            yAxis := obj.PointF['y-axis'];
-           AValue.SetTexture(Container.GetTexture(texId), AffineMatrix(xAxis,yAxis,origin));
+           texOpacity := obj.IntDef['opacity',255];
+           if texOpacity < 0 then texOpacity:= 0;
+           if texOpacity > 255 then texOpacity:= 255;
+           AValue.SetTexture(Container.GetTexture(texId), AffineMatrix(xAxis,yAxis,origin), texOpacity);
          end;
        'gradient': begin
            grad := TBGRALayerGradientOriginal.Create;
@@ -1569,6 +1572,8 @@ begin
         obj.PointF['origin'] := PointF(m[1,3],m[2,3]);
         obj.PointF['x-axis'] := PointF(m[1,1],m[2,1]);
         obj.PointF['y-axis'] := PointF(m[1,2],m[2,2]);
+        if AValue.TextureOpacity<>255 then
+          obj.Int['opacity'] := AValue.TextureOpacity;
       end else
       if AValue.IsGradient then
       begin
@@ -1695,7 +1700,8 @@ begin
   if Assigned(AValue) then
   begin
     if AValue.IsTexture and Assigned(Container) then
-      FBackFill := TVectorialFill.CreateAsTexture(Container.GetTexture(Container.AddTexture(AValue.Texture)), AValue.TextureMatrix)
+      FBackFill := TVectorialFill.CreateAsTexture(Container.GetTexture(Container.AddTexture(AValue.Texture)),
+                                  AValue.TextureMatrix, AValue.TextureOpacity)
     else
       FBackFill := AValue.Duplicate;
 
