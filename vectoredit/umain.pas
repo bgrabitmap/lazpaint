@@ -9,11 +9,12 @@ uses
   ExtCtrls, StdCtrls, ComCtrls, ExtDlgs, Menus, BGRAVirtualScreen,
   BCTrackbarUpdown, BCPanel, BGRAImageList, BCButton, BCToolBar, BGRALazPaint,
   BGRABitmap, BGRABitmapTypes, BGRATransform, BGRALayerOriginal, BGRAGraphics,
-  uvectororiginal, uvectorialfill;
+  uvectororiginal, uvectorialfill, BGRAGradientScanner;
 
 const
   EditorPointSize = 8;
   PenStyleToStr : array[TPenStyle] of string = ('─────', '─ ─ ─ ─', '···············', '─ · ─ · ─', '─ ·· ─ ·· ╴', 'InsideFrame', 'Pattern', 'Clear');
+  GradRepetitionToStr : array[TBGRAGradientRepetition] of string = ('Pad', 'Repeat', 'Reflect', 'Sine');
 
 type
   TPaintTool = (ptHand, ptMoveBackGradientPoint, ptRectangle, ptEllipse, ptPolyline, ptCurve, ptPolygon, ptClosedCurve);
@@ -35,9 +36,10 @@ type
     BackImage: TImage;
     BGRAImageList16: TBGRAImageList;
     ButtonLoadTex: TBCButton;
+    ButtonBackGradRepetion: TBCButton;
     ButtonNoTex: TBCButton;
     ButtonPenStyle: TBCButton;
-    ButtonSwapGradColor: TBCButton;
+    ButtonBackSwapGradColor: TBCButton;
     ButtonMoveBackGradPoint: TBCButton;
     Label2: TLabel;
     PanelBackFillGrad: TPanel;
@@ -84,8 +86,9 @@ type
     ToolButtonRectangle: TToolButton;
     ToolButtonEllipse: TToolButton;
     UpDownPenAlpha: TBCTrackbarUpdown;
+    procedure ButtonBackGradRepetionClick(Sender: TObject);
     procedure ButtonPenStyleClick(Sender: TObject);
-    procedure ButtonSwapGradColorClick(Sender: TObject);
+    procedure ButtonBackSwapGradColorClick(Sender: TObject);
     procedure ShapeBackGradColorMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure UpDownBackGradAlphaChange(Sender: TObject; AByUser: boolean);
@@ -117,6 +120,8 @@ type
   private
     FPenColor, FBackColor: TBGRAPixel;
     FBackGradStartColor, FBackGradEndColor: TBGRAPixel;
+    FBackGradRepetition: TBGRAGradientRepetition;
+    FBackGradRepetitionMenu: TPopupMenu;
     FBackTexture: TBGRABitmap;
     FPenWidth: single;
     FPenStyle: TBGRAPenStyle;
@@ -141,8 +146,10 @@ type
     procedure OnOriginalChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
     procedure OnSelectShape(ASender: TObject; AShape: TVectorShape; APreviousShape: TVectorShape);
     procedure OnClickPenStyle(ASender: TObject);
+    procedure OnClickBackGradRepeat(ASender: TObject);
     procedure SetBackColor(AValue: TBGRAPixel);
     procedure SetBackGradEndColor(AValue: TBGRAPixel);
+    procedure SetBackGradRepetition(AValue: TBGRAGradientRepetition);
     procedure SetBackGradStartColor(AValue: TBGRAPixel);
     procedure SetBackTexture(AValue: TBGRABitmap);
     procedure SetCurrentTool(AValue: TPaintTool);
@@ -183,6 +190,7 @@ type
     property backColor: TBGRAPixel read FBackColor write SetBackColor;
     property backGradStartColor: TBGRAPixel read FBackGradStartColor write SetBackGradStartColor;
     property backGradEndColor: TBGRAPixel read FBackGradEndColor write SetBackGradEndColor;
+    property backGradRepetition: TBGRAGradientRepetition read FBackGradRepetition write SetBackGradRepetition;
     property backTexture: TBGRABitmap read GetBackTexture write SetBackTexture;
     property penWidth: single read GetPenWidth write SetPenWidth;
     property penStyle: TBGRAPenStyle read GetPenStyle write SetPenStyle;
@@ -195,8 +203,7 @@ var
 
 implementation
 
-uses math, LCLType, BGRAPen, BGRAThumbnail, BGRAGradientScanner,
-  BGRAGradientOriginal;
+uses math, LCLType, BGRAPen, BGRAThumbnail, BGRAGradientOriginal;
 
 function IsCreateShapeTool(ATool: TPaintTool): boolean;
 begin
@@ -211,6 +218,7 @@ procedure TForm1.FormCreate(Sender: TObject);
 var
   item: TMenuItem;
   ps: TPenStyle;
+  gr: TBGRAGradientRepetition;
 begin
   baseCaption:= Caption;
 
@@ -235,6 +243,15 @@ begin
     FPenStyleMenu.Items.Add(item);
   end;
 
+  FBackGradRepetitionMenu := TPopupMenu.Create(nil);
+  FBackGradRepetitionMenu.Images := BGRAImageList16;
+  for gr := low(TBGRAGradientRepetition) to high(TBGRAGradientRepetition) do
+  begin
+    item := TMenuItem.Create(FBackGradRepetitionMenu); item.Caption := GradRepetitionToStr[gr];
+    item.OnClick := @OnClickBackGradRepeat;        item.Tag := ord(gr);
+    FBackGradRepetitionMenu.Items.Add(item);
+  end;
+
   newShape:= nil;
   penColor := BGRABlack;
   backColor := CSSDodgerBlue;
@@ -244,6 +261,7 @@ begin
   penStyle := SolidPenStyle;
   currentTool:= ptHand;
   splineStyle:= ssEasyBezier;
+  backGradRepetition:= grPad;
   UpdateTitleBar;
 end;
 
@@ -406,7 +424,7 @@ begin
   end;
 end;
 
-procedure TForm1.ButtonSwapGradColorClick(Sender: TObject);
+procedure TForm1.ButtonBackSwapGradColorClick(Sender: TObject);
 var
   temp, c: TBGRAPixel;
 begin
@@ -427,6 +445,13 @@ begin
   if Assigned(FPenStyleMenu) then
     with ButtonPenStyle.ClientToScreen(Point(0,ButtonPenStyle.Height)) do
       FPenStyleMenu.PopUp(X,Y);
+end;
+
+procedure TForm1.ButtonBackGradRepetionClick(Sender: TObject);
+begin
+  if Assigned(FBackGradRepetitionMenu) then
+    with ButtonBackGradRepetion.ClientToScreen(Point(0,ButtonBackGradRepetion.Height)) do
+      FBackGradRepetitionMenu.PopUp(X,Y);
 end;
 
 procedure TForm1.UpDownBackGradAlphaChange(Sender: TObject; AByUser: boolean);
@@ -524,6 +549,7 @@ begin
   FFlattened.Free;
   FBackTexture.FreeReference;
   FPenStyleMenu.Free;
+  FBackGradRepetitionMenu.Free;
 end;
 
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState
@@ -743,6 +769,11 @@ begin
   end;
 end;
 
+procedure TForm1.OnClickBackGradRepeat(ASender: TObject);
+begin
+  backGradRepetition := TBGRAGradientRepetition((ASender as TMenuItem).Tag);
+end;
+
 procedure TForm1.SetBackColor(AValue: TBGRAPixel);
 begin
   FBackColor := AValue;
@@ -758,6 +789,25 @@ begin
   UpDownBackEndAlpha.Value := AValue.alpha;
   AValue.alpha := 255;
   ShapeBackEndColor.Brush.Color := AValue.ToColor;
+  if not FUpdatingFromShape and ToolButtonBackFillGradDown then
+    UpdateShapeBackFill;
+end;
+
+procedure TForm1.SetBackGradRepetition(AValue: TBGRAGradientRepetition);
+var
+  glyph: Graphics.TBitmap;
+begin
+  If FBackGradRepetition=AValue then exit;
+  FBackGradRepetition:=AValue;
+  glyph := TBitmap.Create;
+  glyph.Width := BGRAImageList16.Width;
+  glyph.Height := BGRAImageList16.Height;
+  glyph.Canvas.Brush.Color := MergeBGRA(ColorToBGRA(ButtonBackGradRepetion.StateNormal.Background.Gradient1.EndColor),
+                                        ColorToBGRA(ButtonBackGradRepetion.StateNormal.Background.Gradient2.StartColor));
+  glyph.Canvas.FillRect(0,0,glyph.Width,glyph.Height);
+  BGRAImageList16.Draw(glyph.Canvas,0,0,7+ord(FBackGradRepetition));
+  ButtonBackGradRepetion.Glyph.Assign(glyph);
+  glyph.Free;
   if not FUpdatingFromShape and ToolButtonBackFillGradDown then
     UpdateShapeBackFill;
 end;
@@ -1013,6 +1063,7 @@ begin
           gtRadial: ToolButtonBackFillRadial.Down := true;
         else{gtLinear} ToolButtonBackFillLinear.Down := true;
         end;
+        backGradRepetition:= AShape.BackFill.Gradient.Repetition;
       end else
         ToolButtonBackFillNone.Down := true;
       UpdateBackComponentsVisibility;
@@ -1120,6 +1171,7 @@ begin
     if ToolButtonBackFillReflected.Down then grad.GradientType:= gtReflected;
     if ToolButtonBackFillDiamond.Down then grad.GradientType:= gtDiamond;
     if ToolButtonBackFillRadial.Down then grad.GradientType:= gtRadial;
+    grad.Repetition := FBackGradRepetition;
     if grad.GradientType = gtLinear then
     begin
       grad.Origin := rF.TopLeft;
@@ -1174,6 +1226,7 @@ begin
       if ToolButtonBackFillReflected.Down then vectorFill.Gradient.GradientType:= gtReflected;
       if ToolButtonBackFillDiamond.Down then vectorFill.Gradient.GradientType:= gtDiamond;
       if ToolButtonBackFillRadial.Down then vectorFill.Gradient.GradientType:= gtRadial;
+      vectorFill.Gradient.Repetition := FBackGradRepetition;
     end else
       vectorFill := CreateBackFill(vectorOriginal.SelectedShape);
 
