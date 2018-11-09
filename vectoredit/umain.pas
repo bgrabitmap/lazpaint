@@ -84,6 +84,7 @@ type
     ToolButtonRectangle: TToolButton;
     ToolButtonEllipse: TToolButton;
     UpDownPenAlpha: TBCTrackbarUpdown;
+    procedure ButtonPenStyleClick(Sender: TObject);
     procedure ButtonSwapGradColorClick(Sender: TObject);
     procedure ShapeBackGradColorMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -233,7 +234,6 @@ begin
     item.OnClick := @OnClickPenStyle;       item.Tag := ord(ps);
     FPenStyleMenu.Items.Add(item);
   end;
-  ButtonPenStyle.DropDownMenu := FPenStyleMenu;
 
   newShape:= nil;
   penColor := BGRABlack;
@@ -420,6 +420,13 @@ begin
   ShapeBackEndColor.Brush.Color := c.ToColor;
   UpDownBackEndAlpha.Value:= FBackGradEndColor.alpha;
   UpdateShapeBackFill;
+end;
+
+procedure TForm1.ButtonPenStyleClick(Sender: TObject);
+begin
+  if Assigned(FPenStyleMenu) then
+    with ButtonPenStyle.ClientToScreen(Point(0,ButtonPenStyle.Height)) do
+      FPenStyleMenu.PopUp(X,Y);
 end;
 
 procedure TForm1.UpDownBackGradAlphaChange(Sender: TObject; AByUser: boolean);

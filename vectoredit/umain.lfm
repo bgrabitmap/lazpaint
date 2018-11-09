@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 386
+  Left = 385
   Height = 475
-  Top = 166
+  Top = 141
   Width = 981
   Caption = 'Vector Edit'
   ClientHeight = 475
@@ -710,6 +710,7 @@ object Form1: TForm1
         DropDownArrowSize = 8
         GlobalOpacity = 255
         InnerMargin = 0
+        OnClick = ButtonPenStyleClick
         ParentColor = False
         Rounding.RoundX = 3
         Rounding.RoundY = 3
@@ -717,7 +718,6 @@ object Form1: TForm1
         RoundingDropDown.RoundX = 1
         RoundingDropDown.RoundY = 1
         RoundingDropDown.RoundOptions = []
-        Style = bbtDropDown
         TextApplyGlobalOpacity = False
         DropDownStyle = bdsCommon
         MemoryUsage = bmuHigh
