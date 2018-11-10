@@ -1340,7 +1340,13 @@ begin
     end else
     begin
       grad.Origin := (rF.TopLeft + rF.BottomRight)*0.5;
-      grad.XAxis := rF.BottomRight;
+      if grad.GradientType = gtReflected then
+        grad.XAxis := rF.BottomRight
+      else
+      begin
+        grad.XAxis := PointF(rF.Right,grad.Origin.y);
+        grad.YAxis := PointF(grad.Origin.x,rF.Bottom);
+      end;
     end;
     result := TVectorialFill.CreateAsGradient(grad, true);
   end
