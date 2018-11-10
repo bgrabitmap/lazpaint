@@ -37,6 +37,8 @@ type
     FStroker: TBGRAPenStroker;
     FUsermode: TVectorShapeUsermode;
     FContainer: TVectorOriginal;
+    function GetIsBack: boolean;
+    function GetIsFront: boolean;
     procedure SetContainer(AValue: TVectorOriginal);
   protected
     procedure BeginUpdate;
@@ -71,6 +73,10 @@ type
     procedure MouseMove({%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); virtual;
     procedure MouseDown({%H-}RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); virtual;
     procedure MouseUp({%H-}RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); virtual;
+    procedure BringToFront;
+    procedure SendToBack;
+    procedure MoveUp(APassNonIntersectingShapes: boolean);
+    procedure MoveDown(APassNonIntersectingShapes: boolean);
     class function StorageClassName: RawByteString; virtual; abstract;
     function GetIsSlow({%H-}AMatrix: TAffineMatrix): boolean; virtual;
     class function Fields: TVectorShapeFields; virtual;
@@ -84,6 +90,8 @@ type
     property JoinStyle: TPenJoinStyle read GetJoinStyle write SetJoinStyle;
     property Usermode: TVectorShapeUsermode read FUsermode write SetUsermode;
     property Container: TVectorOriginal read FContainer write SetContainer;
+    property IsFront: boolean read GetIsFront;
+    property IsBack: boolean read GetIsBack;
   end;
   TVectorShapes = specialize TFPGList<TVectorShape>;
   TVectorShapeAny = class of TVectorShape;
@@ -232,6 +240,8 @@ type
   { TVectorOriginal }
 
   TVectorOriginal = class(TBGRALayerCustomOriginal)
+  private
+    function GetShape(AIndex: integer): TVectorShape;
   protected
     FShapes: TVectorShapes;
     FDeletedShapes: TVectorShapes;
@@ -255,6 +265,7 @@ type
     function IndexOfTexture(AId: integer): integer;
     procedure AddTextureWithId(ATexture: TBGRABitmap; AId: integer);
     procedure ClearTextures;
+    function GetShapeCount: integer;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -275,9 +286,13 @@ type
     function GetRenderBounds(ADestRect: TRect; {%H-}AMatrix: TAffineMatrix): TRect; override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
+    function IndexOfShape(AShape: TVectorShape): integer;
+    procedure MoveShapeToIndex(AFromIndex: integer; AToIndex: integer);
     class function StorageClassName: RawByteString; override;
     property OnSelectShape: TVectorOriginalSelectShapeEvent read FOnSelectShape write FOnSelectShape;
     property SelectedShape: TVectorShape read FSelectedShape;
+    property ShapeCount: integer read GetShapeCount;
+    property Shape[AIndex: integer]: TVectorShape read GetShape;
   end;
 
   { TVectorOriginalEditor }
@@ -297,7 +312,7 @@ function GetVectorShapeByStorageClassName(AName: string): TVectorShapeAny;
 
 implementation
 
-uses math, BGRATransform, BGRAFillInfo, BGRAGraphics, BGRAPath;
+uses math, BGRATransform, BGRAFillInfo, BGRAGraphics, BGRAPath, Types;
 
 var
   VectorShapeClasses: array of TVectorShapeAny;
@@ -1503,6 +1518,9 @@ var
   texId, texOpacity: integer;
   origin, xAxis, yAxis: TPointF;
   grad: TBGRALayerGradientOriginal;
+  texName: String;
+  mem: TMemoryStream;
+  bmp: TBGRABitmap;
 begin
   if AValue = nil then
     AValue := TVectorialFill.Create
@@ -1525,7 +1543,8 @@ begin
            texOpacity := obj.IntDef['opacity',255];
            if texOpacity < 0 then texOpacity:= 0;
            if texOpacity > 255 then texOpacity:= 255;
-           AValue.SetTexture(Container.GetTexture(texId), AffineMatrix(xAxis,yAxis,origin), texOpacity);
+           if Assigned(Container) then
+             AValue.SetTexture(Container.GetTexture(texId), AffineMatrix(xAxis,yAxis,origin), texOpacity);
          end;
        'gradient': begin
            grad := TBGRALayerGradientOriginal.Create;
@@ -1600,6 +1619,16 @@ begin
   FContainer:=AValue;
 end;
 
+function TVectorShape.GetIsBack: boolean;
+begin
+  result := Assigned(Container) and (Container.IndexOfShape(self)=0);
+end;
+
+function TVectorShape.GetIsFront: boolean;
+begin
+  result := Assigned(Container) and (Container.IndexOfShape(self)=Container.ShapeCount-1);
+end;
+
 procedure TVectorShape.BeginUpdate;
 begin
   if FUpdateCount = 0 then
@@ -1664,7 +1693,7 @@ end;
 procedure TVectorShape.GradientChange(ASender: TObject; ABounds: PRectF);
 begin
   if Assigned(FOnChange) and (FUpdateCount = 0) then
-    FOnChange(ASender, GetRenderBounds(InfiniteRect, AffineMatrixIdentity));
+    FOnChange(self, GetRenderBounds(InfiniteRect, AffineMatrixIdentity));
 end;
 
 procedure TVectorShape.SetPenColor(AValue: TBGRAPixel);
@@ -1787,7 +1816,81 @@ begin
   //nothing
 end;
 
+procedure TVectorShape.BringToFront;
+begin
+  if Assigned(Container) then
+    Container.MoveShapeToIndex(Container.IndexOfShape(self),Container.ShapeCount-1);
+end;
+
+procedure TVectorShape.SendToBack;
+begin
+  if Assigned(Container) then
+    Container.MoveShapeToIndex(Container.IndexOfShape(self),0);
+end;
+
+procedure TVectorShape.MoveUp(APassNonIntersectingShapes: boolean);
+var
+  movedShapeBounds, otherShapeBounds, inter: TRect;
+  sourceIdx,idx: integer;
+begin
+  if not Assigned(Container) then exit;
+  sourceIdx := Container.IndexOfShape(self);
+  if sourceIdx = Container.ShapeCount-1 then exit;
+  idx := sourceIdx;
+  if APassNonIntersectingShapes then
+  begin
+    with self.GetRenderBounds(InfiniteRect, AffineMatrixIdentity) do
+      movedShapeBounds := Rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
+    inter := EmptyRect;
+    while idx < Container.ShapeCount-2 do
+    begin
+      with Container.Shape[idx+1].GetRenderBounds(InfiniteRect, AffineMatrixIdentity) do
+        otherShapeBounds := Rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
+      if IntersectRect(inter, movedShapeBounds, otherShapeBounds) then break;
+      inc(idx);
+    end;
+  end;
+  inc(idx);
+  Container.MoveShapeToIndex(sourceIdx, idx);
+end;
+
+procedure TVectorShape.MoveDown(APassNonIntersectingShapes: boolean);
+var
+  movedShapeBounds, otherShapeBounds, inter: TRect;
+  sourceIdx,idx: integer;
+begin
+  if not Assigned(Container) then exit;
+  sourceIdx := Container.IndexOfShape(self);
+  if sourceIdx = 0 then exit;
+  idx := sourceIdx;
+  if APassNonIntersectingShapes then
+  begin
+    with self.GetRenderBounds(InfiniteRect, AffineMatrixIdentity) do
+      movedShapeBounds := Rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
+    inter := EmptyRect;
+    while idx > 1 do
+    begin
+      with Container.Shape[idx-1].GetRenderBounds(InfiniteRect, AffineMatrixIdentity) do
+        otherShapeBounds := Rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
+      if IntersectRect(inter, movedShapeBounds, otherShapeBounds) then break;
+      dec(idx);
+    end;
+  end;
+  dec(idx);
+  Container.MoveShapeToIndex(sourceIdx, idx);
+end;
+
 { TVectorOriginal }
+
+function TVectorOriginal.GetShapeCount: integer;
+begin
+  result := FShapes.Count;
+end;
+
+function TVectorOriginal.GetShape(AIndex: integer): TVectorShape;
+begin
+  result := FShapes[AIndex];
+end;
 
 procedure TVectorOriginal.FreeDeletedShapes;
 var
@@ -2158,7 +2261,7 @@ var
   shapeObj, texObj: TBGRACustomOriginalStorage;
   objClassName, texName: String;
   shapeClass: TVectorShapeAny;
-  shape: TVectorShape;
+  loadedShape: TVectorShape;
   idList: array of single;
   mem: TMemoryStream;
   texId: integer;
@@ -2203,11 +2306,11 @@ begin
       if objClassName = '' then raise exception.Create('Shape class not defined');
       shapeClass:= GetVectorShapeByStorageClassName(objClassName);
       if shapeClass = nil then raise exception.Create('Unknown shape class "'+objClassName+'"');
-      shape := shapeClass.Create(self);
-      shape.LoadFromStorage(shapeObj);
-      shape.OnChange := @OnShapeChange;
-      shape.OnEditingChange := @OnShapeEditingChange;
-      FShapes.Add(shape);
+      loadedShape := shapeClass.Create(self);
+      loadedShape.LoadFromStorage(shapeObj);
+      loadedShape.OnChange := @OnShapeChange;
+      loadedShape.OnEditingChange := @OnShapeEditingChange;
+      FShapes.Add(loadedShape);
     finally
       shapeObj.Free;
     end;
@@ -2291,6 +2394,22 @@ begin
     end;
   end;
 
+end;
+
+function TVectorOriginal.IndexOfShape(AShape: TVectorShape): integer;
+begin
+  result := FShapes.IndexOf(AShape);
+end;
+
+procedure TVectorOriginal.MoveShapeToIndex(AFromIndex: integer; AToIndex: integer);
+var
+  movedShape: TVectorShape;
+begin
+  if AFromIndex = AToIndex then exit;
+  movedShape := FShapes[AFromIndex];
+  FShapes.Move(AFromIndex,AToIndex);
+  DiscardFrozenShapes;
+  NotifyChange(movedShape.GetRenderBounds(InfiniteRect, AffineMatrixIdentity));
 end;
 
 class function TVectorOriginal.StorageClassName: RawByteString;

@@ -35,17 +35,26 @@ type
 
   TForm1 = class(TForm)
     BackImage: TImage;
-    BGRAImageList16: TBGRAImageList;
+    BGRAFillImageList16: TBGRAImageList;
     ButtonBackGradInterp: TBCButton;
+    ButtonShapePaste: TBCButton;
     ButtonLoadTex: TBCButton;
     ButtonBackGradRepetion: TBCButton;
+    ButtonShapeCut: TBCButton;
+    ButtonShapeMoveUp: TBCButton;
+    ButtonShapeCopy: TBCButton;
     ButtonNoTex: TBCButton;
+    ButtonShapeBringToFront: TBCButton;
     ButtonPenStyle: TBCButton;
     ButtonBackSwapGradColor: TBCButton;
     ButtonMoveBackGradPoint: TBCButton;
+    ButtonShapeSendToBack: TBCButton;
+    ButtonShapeMoveDown: TBCButton;
+    ButtonShapeDelete: TBCButton;
     Label2: TLabel;
     PanelBackFillGrad: TPanel;
     PanelBackFill: TBCPanel;
+    PanelShape: TBCPanel;
     ShapeBackColor: TShape;
     ShapeBackEndColor: TShape;
     ShapeBackStartColor: TShape;
@@ -93,6 +102,10 @@ type
     procedure ButtonBackGradRepetionClick(Sender: TObject);
     procedure ButtonPenStyleClick(Sender: TObject);
     procedure ButtonBackSwapGradColorClick(Sender: TObject);
+    procedure ButtonShapeBringToFrontClick(Sender: TObject);
+    procedure ButtonShapeMoveDownClick(Sender: TObject);
+    procedure ButtonShapeMoveUpClick(Sender: TObject);
+    procedure ButtonShapeSendToBackClick(Sender: TObject);
     procedure ShapeBackGradColorMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure UpDownBackGradAlphaChange(Sender: TObject; AByUser: boolean);
@@ -179,6 +192,7 @@ type
     procedure UpdateBackComponentsVisibility;
     procedure UpdateShapeBackFill;
     procedure UpdateShapeUserMode;
+    procedure UpdateShapeActions(AShape: TVectorShape);
     function ToolButtonBackFillGradDown: boolean;
     { private declarations }
   public
@@ -255,7 +269,7 @@ begin
   end;
 
   FBackGradRepetitionMenu := TPopupMenu.Create(nil);
-  FBackGradRepetitionMenu.Images := BGRAImageList16;
+  FBackGradRepetitionMenu.Images := BGRAFillImageList16;
   for gr := low(TBGRAGradientRepetition) to high(TBGRAGradientRepetition) do
   begin
     item := TMenuItem.Create(FBackGradRepetitionMenu); item.Caption := GradRepetitionToStr[gr];
@@ -265,7 +279,7 @@ begin
   end;
 
   FBackGradInterpMenu := TPopupMenu.Create(nil);
-  FBackGradInterpMenu.Images := BGRAImageList16;
+  FBackGradInterpMenu.Images := BGRAFillImageList16;
   for ci := low(TBGRAColorInterpolation) to high(TBGRAColorInterpolation) do
   begin
     item := TMenuItem.Create(FBackGradInterpMenu); item.Caption := ColorInterpToStr[ci];
@@ -461,6 +475,46 @@ begin
   ShapeBackEndColor.Brush.Color := c.ToColor;
   UpDownBackEndAlpha.Value:= FBackGradEndColor.alpha;
   UpdateShapeBackFill;
+end;
+
+procedure TForm1.ButtonShapeBringToFrontClick(Sender: TObject);
+begin
+  if Assigned(vectorOriginal) and
+     Assigned(vectorOriginal.SelectedShape) then
+  begin
+    vectorOriginal.SelectedShape.BringToFront;
+    UpdateShapeActions(vectorOriginal.SelectedShape);
+  end;
+end;
+
+procedure TForm1.ButtonShapeMoveDownClick(Sender: TObject);
+begin
+  if Assigned(vectorOriginal) and
+     Assigned(vectorOriginal.SelectedShape) then
+  begin
+    vectorOriginal.SelectedShape.MoveDown(true);
+    UpdateShapeActions(vectorOriginal.SelectedShape);
+  end;
+end;
+
+procedure TForm1.ButtonShapeMoveUpClick(Sender: TObject);
+begin
+  if Assigned(vectorOriginal) and
+     Assigned(vectorOriginal.SelectedShape) then
+  begin
+    vectorOriginal.SelectedShape.MoveUp(true);
+    UpdateShapeActions(vectorOriginal.SelectedShape);
+  end;
+end;
+
+procedure TForm1.ButtonShapeSendToBackClick(Sender: TObject);
+begin
+  if Assigned(vectorOriginal) and
+     Assigned(vectorOriginal.SelectedShape) then
+  begin
+    vectorOriginal.SelectedShape.SendToBack;
+    UpdateShapeActions(vectorOriginal.SelectedShape);
+  end;
 end;
 
 procedure TForm1.ButtonPenStyleClick(Sender: TObject);
@@ -785,6 +839,9 @@ begin
     else
       currentTool:= ptHand;
   end;
+
+  UpdateShapeActions(AShape);
+
   if APreviousShape <> nil then
     if IsEmptyRectF(APreviousShape.GetRenderBounds(InfiniteRect, vectorTransform)) then
     begin
@@ -841,12 +898,12 @@ begin
   If FBackGradInterp=AValue then exit;
   FBackGradInterp:=AValue;
   glyph := TBitmap.Create;
-  glyph.Width := BGRAImageList16.Width;
-  glyph.Height := BGRAImageList16.Height;
+  glyph.Width := BGRAFillImageList16.Width;
+  glyph.Height := BGRAFillImageList16.Height;
   glyph.Canvas.Brush.Color := MergeBGRA(ColorToBGRA(ButtonBackGradInterp.StateNormal.Background.Gradient1.EndColor),
                                         ColorToBGRA(ButtonBackGradInterp.StateNormal.Background.Gradient2.StartColor));
   glyph.Canvas.FillRect(0,0,glyph.Width,glyph.Height);
-  BGRAImageList16.Draw(glyph.Canvas,0,0,11+ord(FBackGradInterp));
+  BGRAFillImageList16.Draw(glyph.Canvas,0,0,11+ord(FBackGradInterp));
   ButtonBackGradInterp.Glyph.Assign(glyph);
   glyph.Free;
   if not FUpdatingFromShape and ToolButtonBackFillGradDown then
@@ -860,12 +917,12 @@ begin
   If FBackGradRepetition=AValue then exit;
   FBackGradRepetition:=AValue;
   glyph := TBitmap.Create;
-  glyph.Width := BGRAImageList16.Width;
-  glyph.Height := BGRAImageList16.Height;
+  glyph.Width := BGRAFillImageList16.Width;
+  glyph.Height := BGRAFillImageList16.Height;
   glyph.Canvas.Brush.Color := MergeBGRA(ColorToBGRA(ButtonBackGradRepetion.StateNormal.Background.Gradient1.EndColor),
                                         ColorToBGRA(ButtonBackGradRepetion.StateNormal.Background.Gradient2.StartColor));
   glyph.Canvas.FillRect(0,0,glyph.Width,glyph.Height);
-  BGRAImageList16.Draw(glyph.Canvas,0,0,7+ord(FBackGradRepetition));
+  BGRAFillImageList16.Draw(glyph.Canvas,0,0,7+ord(FBackGradRepetition));
   ButtonBackGradRepetion.Glyph.Assign(glyph);
   glyph.Free;
   if not FUpdatingFromShape and ToolButtonBackFillGradDown then
@@ -1320,6 +1377,17 @@ begin
         vectorOriginal.SelectedShape.Usermode := vsuEdit;
     end;
   end;
+end;
+
+procedure TForm1.UpdateShapeActions(AShape: TVectorShape);
+begin
+  ButtonShapeBringToFront.Enabled := (AShape <> nil) and not AShape.IsFront;
+  ButtonShapeSendToBack.Enabled := (AShape <> nil) and not AShape.IsBack;
+  ButtonShapeMoveUp.Enabled := (AShape <> nil) and not AShape.IsFront;
+  ButtonShapeMoveDown.Enabled := (AShape <> nil) and not ASHape.IsBack;
+  ButtonShapeCopy.Enabled := AShape <> nil;
+  ButtonShapeCut.Enabled := AShape <> nil;
+  ButtonShapeDelete.Enabled := AShape <> nil;
 end;
 
 function TForm1.ToolButtonBackFillGradDown: boolean;
