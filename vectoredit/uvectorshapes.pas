@@ -1061,12 +1061,11 @@ begin
       inc(nb);
     end;
 
-  if nb > 0 then
+  if (FAddingPoint and (nb > 2)) or (not FAddingPoint and (nb > 1)) then
   begin
     FCenterPoint *= 1/nb;
     FCenterPointEditorIndex := AEditor.AddPoint(FCenterPoint, @OnMoveCenterPoint, true);
   end;
-
 end;
 
 { TPolylineShape }
