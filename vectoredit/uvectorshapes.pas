@@ -1127,7 +1127,6 @@ end;
 
 function TPolylineShape.GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix): TRectF;
 var
-  i: Integer;
   pts: ArrayOfTPointF;
   xMargin, yMargin: single;
   fillBounds, penBounds: TRectF;

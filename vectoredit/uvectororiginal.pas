@@ -290,9 +290,6 @@ var
   texId, texOpacity: integer;
   origin, xAxis, yAxis: TPointF;
   grad: TBGRALayerGradientOriginal;
-  texName: String;
-  mem: TMemoryStream;
-  bmp: TBGRABitmap;
 begin
   if AValue = nil then
   begin

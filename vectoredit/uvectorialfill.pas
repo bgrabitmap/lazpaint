@@ -20,7 +20,7 @@ type
     FTextureOpacity: byte;
     FGradient: TBGRALayerGradientOriginal;
     FOnChange: TNotifyEvent;
-    procedure GradientChange(ASender: TObject; ABounds: PRectF=nil);
+    procedure GradientChange({%H-}ASender: TObject; {%H-}ABounds: PRectF=nil);
     procedure Init; virtual;
     function GetIsGradient: boolean;
     function GetIsTexture: boolean;

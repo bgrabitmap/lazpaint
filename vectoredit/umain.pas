@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Types, FileUtil, Forms, Controls, Graphics, Dialogs,
   ExtCtrls, StdCtrls, ComCtrls, ExtDlgs, Menus, BGRAVirtualScreen,
-  BCTrackbarUpdown, BCPanel, BGRAImageList, BCButton, BCToolBar, BGRALazPaint,
+  BCTrackbarUpdown, BCPanel, BGRAImageList, BCButton, BGRALazPaint,
   BGRABitmap, BGRABitmapTypes, BGRATransform, BGRALayerOriginal, BGRAGraphics,
   uvectororiginal, uvectorialfill, uvectorshapes, BGRAGradientScanner;
 
@@ -1378,7 +1378,6 @@ end;
 procedure TForm1.UpdateShapeBackFill;
 var
   vectorFill: TVectorialFill;
-  wasTex: Boolean;
 begin
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
     (vsfBackFill in vectorOriginal.SelectedShape.Fields) then
@@ -1402,7 +1401,6 @@ begin
     end else
       vectorFill := CreateBackFill(vectorOriginal.SelectedShape);
 
-    wasTex := vectorOriginal.SelectedShape.BackFill.IsTexture;
     vectorOriginal.SelectedShape.BackFill:= vectorFill;
     vectorFill.Free;
   end;
