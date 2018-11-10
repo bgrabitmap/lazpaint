@@ -953,10 +953,8 @@ procedure TVectorOriginal.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
 var
   i: Integer;
   idxSelected: LongInt;
-  m: TAffineMatrix;
 begin
-  m := AffineMatrixTranslation(-0.5,-0.5) * AMatrix * AffineMatrixTranslation(0.5,0.5);
-  if m <> FFrozenShapeMatrix then DiscardFrozenShapes;
+  if AMatrix <> FFrozenShapeMatrix then DiscardFrozenShapes;
   idxSelected := FShapes.IndexOf(FSelectedShape);
   if idxSelected = -1 then
   begin
@@ -966,7 +964,7 @@ begin
   if FFrozenShapesComputed then
   begin
     ADest.PutImage(0,0,FFrozenShapesUnderSelection, dmSet);
-    FSelectedShape.Render(ADest, m, ADraft);
+    FSelectedShape.Render(ADest, AMatrix, ADraft);
     ADest.PutImage(0,0,FFrozenShapesOverSelection, dmDrawWithTransparency);
   end else
   begin
@@ -977,24 +975,24 @@ begin
         FreeAndNil(FFrozenShapesUnderSelection);
         FFrozenShapesUnderSelection := TBGRABitmap.Create(ADest.Width,ADest.Height);
         for i:= 0 to idxSelected-1 do
-          FShapes[i].Render(FFrozenShapesUnderSelection, m, false);
+          FShapes[i].Render(FFrozenShapesUnderSelection, AMatrix, false);
         ADest.PutImage(0,0,FFrozenShapesUnderSelection, dmSet);
       end;
-      FSelectedShape.Render(ADest, m, ADraft);
+      FSelectedShape.Render(ADest, AMatrix, ADraft);
       if idxSelected < FShapes.Count-1 then
       begin
         FreeAndNil(FFrozenShapesOverSelection);
         FFrozenShapesOverSelection := TBGRABitmap.Create(ADest.Width,ADest.Height);
         for i:= idxSelected+1 to FShapes.Count-1 do
-          FShapes[i].Render(FFrozenShapesOverSelection, m, false);
+          FShapes[i].Render(FFrozenShapesOverSelection, AMatrix, false);
         ADest.PutImage(0,0,FFrozenShapesOverSelection, dmDrawWithTransparency);
       end;
       FFrozenShapesComputed := true;
-      FFrozenShapeMatrix := m;
+      FFrozenShapeMatrix := AMatrix;
     end else
     begin
       for i:= 0 to FShapes.Count-1 do
-        FShapes[i].Render(ADest, m, ADraft);
+        FShapes[i].Render(ADest, AMatrix, ADraft);
     end;
   end;
 end;
@@ -1031,14 +1029,11 @@ function TVectorOriginal.GetRenderBounds(ADestRect: TRect;
 var
   area, shapeArea: TRectF;
   i: Integer;
-  m: TAffineMatrix;
 begin
   area:= EmptyRectF;
-  m := AffineMatrixTranslation(-0.5,-0.5) * AMatrix * AffineMatrixTranslation(0.5,0.5);
-
   for i:= 0 to FShapes.Count-1 do
   begin
-    shapeArea := FShapes[i].GetRenderBounds(ADestRect, m);
+    shapeArea := FShapes[i].GetRenderBounds(ADestRect, AMatrix);
     area := area.Union(shapeArea, true);
   end;
 

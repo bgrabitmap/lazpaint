@@ -149,6 +149,11 @@ implementation
 
 uses BGRAPen, BGRAGraphics, BGRAFillInfo, BGRAPath, math;
 
+function MatrixForPixelCentered(const AMatrix: TAffineMatrix): TAffineMatrix;
+begin
+  result := AffineMatrixTranslation(-0.5,-0.5) * AMatrix * AffineMatrixTranslation(0.5,0.5);
+end;
+
 procedure IncludePointF(var ARectF: TRectF; APointF: TPointF);
 begin
   if APointF.x < ARectF.Left then ARectF.Left := APointF.x;
@@ -373,9 +378,9 @@ var
   m: TAffineMatrix;
 begin
   if not APixelCentered then
-    m := AffineMatrixTranslation(0.5,0.5) * AMatrix
+    m := AffineMatrixTranslation(0.5,0.5) * MatrixForPixelCentered(AMatrix)
   else
-    m := AMatrix;
+    m := MatrixForPixelCentered(AMatrix);
   result := m * TAffineBox.AffineBox(FOrigin - (FXAxis - FOrigin) - (FYAxis - FOrigin),
       FXAxis - (FYAxis - FOrigin), FYAxis - (FXAxis - FOrigin));
 end;
@@ -384,10 +389,12 @@ function TCustomRectShape.GetOrthoRect(AMatrix: TAffineMatrix; out ARect: TRectF
 var
   sx,sy: single;
   o,ox,oy: TPointF;
+  m: TAffineMatrix;
 begin
-  o := AMatrix*FOrigin;
-  ox := AMatrix*FXAxis;
-  oy := AMatrix*FYAxis;
+  m := MatrixForPixelCentered(AMatrix);
+  o := m*FOrigin;
+  ox := m*FXAxis;
+  oy := m*FYAxis;
   if (abs(ox.y-o.y)<1e-4) and (abs(oy.x-o.x)<1e-4) then
   begin
     sx := abs(ox.x-o.x);
@@ -656,6 +663,7 @@ var
   r: TRect;
   backScan: TBGRACustomScanner;
   penZoom: Single;
+  m: TAffineMatrix;
 begin
   isOrtho := GetOrthoRect(AMatrix, orthoRect);
   if isOrtho then
@@ -697,7 +705,8 @@ begin
         ADest.PenStyle := psSolid;
       end else
       begin
-        pts := ComputeEllipse(AMatrix*FOrigin, AMatrix*FXAxis, AMatrix*FYAxis);
+        m:= MatrixForPixelCentered(AMatrix);
+        pts := ComputeEllipse(m*FOrigin, m*FXAxis, m*FYAxis);
         pts := ComputeStroke(pts,true, AMatrix);
         if ADraft and (PenWidth > 4) then
           ADest.FillPoly(pts, PenColor, dmDrawWithTransparency)
@@ -707,7 +716,8 @@ begin
     end;
   end else
   begin
-    pts := ComputeEllipse(AMatrix*FOrigin, AMatrix*FXAxis, AMatrix*FYAxis);
+    m:= MatrixForPixelCentered(AMatrix);
+    pts := ComputeEllipse(m*FOrigin, m*FXAxis, m*FYAxis);
     If BackVisible then
     begin
       if BackFill.IsSolid then backScan := nil
@@ -888,10 +898,12 @@ end;
 function TCustomPolypointShape.GetCurve(AMatrix: TAffineMatrix): ArrayOfTPointF;
 var
   i: Integer;
+  m: TAffineMatrix;
 begin
   setlength(result, PointCount);
+  m:= MatrixForPixelCentered(AMatrix);
   for i := 0 to PointCount-1 do
-    result[i] := AMatrix*Points[i];
+    result[i] := m*Points[i];
 end;
 
 class function TCustomPolypointShape.Usermodes: TVectorShapeUsermodes;
