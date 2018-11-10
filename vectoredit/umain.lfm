@@ -1,5 +1,5 @@
 object Form1: TForm1
-  Left = 379
+  Left = 378
   Height = 475
   Top = 0
   Width = 981
@@ -4651,6 +4651,7 @@ object Form1: TForm1
           0000000000000000000000000000000000000000000000000000
         }
         InnerMargin = 0
+        OnClick = ButtonShapeCopyClick
         ParentColor = False
         Rounding.RoundX = 3
         Rounding.RoundY = 3
@@ -4856,6 +4857,7 @@ object Form1: TForm1
           43FF009BC6FF0088B9FF0082B540FFFFFF00FFFFFF00FFFFFF00
         }
         InnerMargin = 0
+        OnClick = ButtonShapePasteClick
         ParentColor = False
         Rounding.RoundX = 3
         Rounding.RoundY = 3
@@ -5062,6 +5064,7 @@ object Form1: TForm1
           000000008000000077050000780A000000000000340000000000
         }
         InnerMargin = 0
+        OnClick = ButtonShapeDeleteClick
         ParentColor = False
         Rounding.RoundX = 3
         Rounding.RoundY = 3
@@ -5268,6 +5271,7 @@ object Form1: TForm1
           000000000000000000007C7A791C8A8786E37A7877CE00000000
         }
         InnerMargin = 0
+        OnClick = ButtonShapeCutClick
         ParentColor = False
         Rounding.RoundX = 3
         Rounding.RoundY = 3

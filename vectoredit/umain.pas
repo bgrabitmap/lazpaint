@@ -103,8 +103,12 @@ type
     procedure ButtonPenStyleClick(Sender: TObject);
     procedure ButtonBackSwapGradColorClick(Sender: TObject);
     procedure ButtonShapeBringToFrontClick(Sender: TObject);
+    procedure ButtonShapeCopyClick(Sender: TObject);
+    procedure ButtonShapeCutClick(Sender: TObject);
+    procedure ButtonShapeDeleteClick(Sender: TObject);
     procedure ButtonShapeMoveDownClick(Sender: TObject);
     procedure ButtonShapeMoveUpClick(Sender: TObject);
+    procedure ButtonShapePasteClick(Sender: TObject);
     procedure ButtonShapeSendToBackClick(Sender: TObject);
     procedure ShapeBackGradColorMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -194,7 +198,6 @@ type
     procedure UpdateShapeUserMode;
     procedure UpdateShapeActions(AShape: TVectorShape);
     function ToolButtonBackFillGradDown: boolean;
-    { private declarations }
   public
     { public declarations }
     img: TBGRALazPaintImage;
@@ -208,6 +211,10 @@ type
     vectorLayer: Integer;
     mouseState: TShiftState;
     baseCaption: string;
+    procedure DoCopy;
+    procedure DoCut;
+    procedure DoPaste;
+    procedure DoDelete;
     property vectorTransform: TAffineMatrix read GetVectorTransform;
     property penColor: TBGRAPixel read GetPenColor write SetPenColor;
     property backColor: TBGRAPixel read FBackColor write SetBackColor;
@@ -227,7 +234,7 @@ var
 
 implementation
 
-uses math, LCLType, BGRAPen, BGRAThumbnail, BGRAGradientOriginal;
+uses math, LCLType, BGRAPen, BGRAThumbnail, BGRAGradientOriginal, uvectorclipboard;
 
 function IsCreateShapeTool(ATool: TPaintTool): boolean;
 begin
@@ -487,6 +494,21 @@ begin
   end;
 end;
 
+procedure TForm1.ButtonShapeCopyClick(Sender: TObject);
+begin
+  DoCopy;
+end;
+
+procedure TForm1.ButtonShapeCutClick(Sender: TObject);
+begin
+  DoCut;
+end;
+
+procedure TForm1.ButtonShapeDeleteClick(Sender: TObject);
+begin
+  DoDelete;
+end;
+
 procedure TForm1.ButtonShapeMoveDownClick(Sender: TObject);
 begin
   if Assigned(vectorOriginal) and
@@ -505,6 +527,11 @@ begin
     vectorOriginal.SelectedShape.MoveUp(true);
     UpdateShapeActions(vectorOriginal.SelectedShape);
   end;
+end;
+
+procedure TForm1.ButtonShapePasteClick(Sender: TObject);
+begin
+  DoPaste;
 end;
 
 procedure TForm1.ButtonShapeSendToBackClick(Sender: TObject);
@@ -651,11 +678,25 @@ begin
     if Assigned(vectorOriginal) then
       vectorOriginal.DeselectShape;
   end else
+  if (Key = VK_X) and (ssCtrl in Shift) then
+  begin
+    Key := 0;
+    DoCut;
+  end else
+  if (Key = VK_C) and (ssCtrl in Shift) then
+  begin
+    Key := 0;
+    DoCopy;
+  end else
+  if (Key = VK_V) and (ssCtrl in Shift) then
+  begin
+    Key := 0;
+    DoPaste;
+  end else
   if Key = VK_DELETE then
   begin
     Key := 0;
-    if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
-      vectorOriginal.RemoveShape(vectorOriginal.SelectedShape);
+    DoDelete;
   end;
 end;
 
@@ -1394,6 +1435,33 @@ function TForm1.ToolButtonBackFillGradDown: boolean;
 begin
   result := ToolButtonBackFillLinear.Down or ToolButtonBackFillReflected.Down or
             ToolButtonBackFillDiamond.Down or ToolButtonBackFillRadial.Down;
+end;
+
+procedure TForm1.DoCopy;
+begin
+  if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+    CopyShapesToClipboard([vectorOriginal.SelectedShape]);
+end;
+
+procedure TForm1.DoCut;
+begin
+  if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+  begin
+    if CopyShapesToClipboard([vectorOriginal.SelectedShape]) then
+      vectorOriginal.SelectedShape.Remove;
+  end;
+end;
+
+procedure TForm1.DoPaste;
+begin
+  if Assigned(vectorOriginal) then
+    PasteShapesFromClipboard(vectorOriginal);
+end;
+
+procedure TForm1.DoDelete;
+begin
+  if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+    vectorOriginal.SelectedShape.Remove;
 end;
 
 end.

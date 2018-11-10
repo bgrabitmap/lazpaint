@@ -77,6 +77,8 @@ type
     procedure SendToBack;
     procedure MoveUp(APassNonIntersectingShapes: boolean);
     procedure MoveDown(APassNonIntersectingShapes: boolean);
+    procedure Remove;
+    function Duplicate: TVectorShape;
     class function StorageClassName: RawByteString; virtual; abstract;
     function GetIsSlow({%H-}AMatrix: TAffineMatrix): boolean; virtual;
     class function Fields: TVectorShapeFields; virtual;
@@ -650,6 +652,27 @@ begin
   Container.MoveShapeToIndex(sourceIdx, idx);
 end;
 
+procedure TVectorShape.Remove;
+begin
+  if Assigned(Container) then Container.RemoveShape(self)
+  else raise exception.Create('Shape does not have a container');
+end;
+
+function TVectorShape.Duplicate: TVectorShape;
+var temp: TBGRAMemOriginalStorage;
+  shapeClass: TVectorShapeAny;
+begin
+  shapeClass:= GetVectorShapeByStorageClassName(StorageClassName);
+  if shapeClass = nil then raise exception.Create('Shape class "'+StorageClassName+'" not registered');
+
+  temp := TBGRAMemOriginalStorage.Create;
+  SaveToStorage(temp);
+  result := shapeClass.Create(Container);
+  result.LoadFromStorage(temp);
+  temp.Free;
+  result.FContainer := nil;
+end;
+
 { TVectorOriginal }
 
 function TVectorOriginal.GetShapeCount: integer;
@@ -840,6 +863,7 @@ begin
       raise exception.Create('Container mismatch');
   end;
   result:= FShapes.Add(AShape);
+  if (vsfBackFill in AShape.Fields) and AShape.BackFill.IsTexture then AddTexture(AShape.BackFill.Texture);
   AShape.OnChange := @OnShapeChange;
   AShape.OnEditingChange := @OnShapeEditingChange;
   DiscardFrozenShapes;
