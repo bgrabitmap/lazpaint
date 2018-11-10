@@ -1398,7 +1398,6 @@ begin
 
     wasTex := vectorOriginal.SelectedShape.BackFill.IsTexture;
     vectorOriginal.SelectedShape.BackFill:= vectorFill;
-    if wasTex or (Assigned(vectorFill) and vectorFill.IsTexture) then vectorOriginal.RemoveUnusedTextures;
     vectorFill.Free;
   end;
 end;

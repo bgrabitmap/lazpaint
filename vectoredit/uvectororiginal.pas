@@ -59,7 +59,7 @@ type
     function ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean; AStrokeMatrix: TAffineMatrix): ArrayOfTPointF;
     function GetStroker: TBGRAPenStroker;
     property Stroker: TBGRAPenStroker read GetStroker;
-    procedure GradientChange(ASender: TObject; ABounds: PRectF = nil); virtual;
+    procedure FillChange({%H-}ASender: TObject); virtual;
   public
     constructor Create(AContainer: TVectorOriginal);
     destructor Destroy; override;
@@ -137,7 +137,7 @@ type
     procedure Clear;
     function AddTexture(ATexture: TBGRABitmap): integer;
     function GetTexture(AId: integer): TBGRABitmap;
-    procedure RemoveUnusedTextures;
+    procedure DiscardUnusedTextures;
     function AddShape(AShape: TVectorShape): integer; overload;
     function AddShape(AShape: TVectorShape; AUsermode: TVectorShapeUsermode): integer; overload;
     function RemoveShape(AShape: TVectorShape): boolean;
@@ -295,9 +295,11 @@ var
   bmp: TBGRABitmap;
 begin
   if AValue = nil then
-    AValue := TVectorialFill.Create
-  else
-    AValue.Clear;
+  begin
+    AValue := TVectorialFill.Create;
+    AValue.OnChange := @FillChange;
+  end;
+
   obj := AStorage.OpenObject(AObjectName+'-fill');
   if obj = nil then
   begin
@@ -316,14 +318,16 @@ begin
            if texOpacity < 0 then texOpacity:= 0;
            if texOpacity > 255 then texOpacity:= 255;
            if Assigned(Container) then
-             AValue.SetTexture(Container.GetTexture(texId), AffineMatrix(xAxis,yAxis,origin), texOpacity);
+             AValue.SetTexture(Container.GetTexture(texId), AffineMatrix(xAxis,yAxis,origin), texOpacity)
+           else
+             AValue.Clear;
          end;
        'gradient': begin
            grad := TBGRALayerGradientOriginal.Create;
            grad.LoadFromStorage(obj);
-           grad.OnChange:= @GradientChange;
            AValue.SetGradient(grad,true);
          end;
+       else AValue.Clear;
      end;
   finally
     obj.Free;
@@ -443,7 +447,11 @@ end;
 
 function TVectorShape.GetBackFill: TVectorialFill;
 begin
-  if FBackFill = nil then FBackFill := TVectorialFill.Create;
+  if FBackFill = nil then
+  begin
+    FBackFill := TVectorialFill.Create;
+    FBackFill.OnChange := @FillChange;
+  end;
   result := FBackFill;
 end;
 
@@ -462,7 +470,7 @@ begin
   result := FStroker;
 end;
 
-procedure TVectorShape.GradientChange(ASender: TObject; ABounds: PRectF);
+procedure TVectorShape.FillChange(ASender: TObject);
 begin
   if Assigned(FOnChange) and (FUpdateCount = 0) then
     FOnChange(self, GetRenderBounds(InfiniteRect, AffineMatrixIdentity));
@@ -494,21 +502,25 @@ begin
 end;
 
 procedure TVectorShape.SetBackFill(AValue: TVectorialFill);
+var
+  sharedTex: TBGRABitmap;
+  freeTex: Boolean;
 begin
   if FBackFill.Equals(AValue) then exit;
   BeginUpdate;
-  FreeAndNil(FBackFill);
-  if Assigned(AValue) then
+  freeTex := Assigned(FBackFill) and Assigned(FBackFill.Texture) and
+    not (Assigned(AValue) and AValue.IsTexture and (AValue.Texture = FBackFill.Texture));
+  if AValue = nil then FreeAndNil(FBackFill) else
+  if AValue.IsTexture then
   begin
-    if AValue.IsTexture and Assigned(Container) then
-      FBackFill := TVectorialFill.CreateAsTexture(Container.GetTexture(Container.AddTexture(AValue.Texture)),
-                                  AValue.TextureMatrix, AValue.TextureOpacity)
+    if Assigned(Container) then
+      sharedTex := Container.GetTexture(Container.AddTexture(AValue.Texture))
     else
-      FBackFill := AValue.Duplicate;
-
-    if FBackFill.IsGradient and Assigned(Container) then
-      FBackFill.Gradient.OnChange:= @GradientChange;
-  end;
+      sharedTex := AValue.Texture;
+    BackFill.SetTexture(sharedTex, AValue.TextureMatrix, AValue.TextureOpacity);
+  end else
+    BackFill.Assign(AValue);
+  if Assigned(Container) and freeTex then Container.DiscardUnusedTextures;
   EndUpdate;
 end;
 
@@ -823,7 +835,7 @@ begin
     result := FTextures[index].Bitmap;
 end;
 
-procedure TVectorOriginal.RemoveUnusedTextures;
+procedure TVectorOriginal.DiscardUnusedTextures;
 var
   i, j: Integer;
   f: TVectorShapeFields;
@@ -1133,7 +1145,6 @@ begin
     end;
   end;
 
-  RemoveUnusedTextures;
   if FTextureCount = 0 then
     AStorage.RemoveObject('textures')
   else
