@@ -9,7 +9,7 @@ uses
   ExtCtrls, StdCtrls, ComCtrls, ExtDlgs, Menus, BGRAVirtualScreen,
   BCTrackbarUpdown, BCPanel, BGRAImageList, BCButton, BCToolBar, BGRALazPaint,
   BGRABitmap, BGRABitmapTypes, BGRATransform, BGRALayerOriginal, BGRAGraphics,
-  uvectororiginal, uvectorialfill, BGRAGradientScanner;
+  uvectororiginal, uvectorialfill, uvectorshapes, BGRAGradientScanner;
 
 const
   EditorPointSize = 8;
