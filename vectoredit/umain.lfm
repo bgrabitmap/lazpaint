@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 378
+  Left = 376
   Height = 475
-  Top = 0
+  Top = 25
   Width = 981
   Caption = 'Vector Edit'
   ClientHeight = 475
@@ -1736,6 +1736,122 @@ object Form1: TForm1
       Rounding.RoundY = 1
       Rounding.RoundOptions = []
       TabOrder = 3
+      object UpDownBackTexAlpha: TBCTrackbarUpdown
+        Left = 104
+        Height = 25
+        Top = 29
+        Width = 48
+        BarExponent = 1
+        Increment = 1
+        LongTimeInterval = 400
+        MinValue = 0
+        MaxValue = 255
+        OnChange = UpDownBackTexAlphaChange
+        Value = 255
+        ShortTimeInterval = 100
+        Background.Color = clWindow
+        Background.ColorOpacity = 255
+        Background.Gradient1.StartColor = clWhite
+        Background.Gradient1.StartColorOpacity = 255
+        Background.Gradient1.DrawMode = dmSet
+        Background.Gradient1.EndColor = clBlack
+        Background.Gradient1.EndColorOpacity = 255
+        Background.Gradient1.ColorCorrection = True
+        Background.Gradient1.GradientType = gtLinear
+        Background.Gradient1.Point1XPercent = 0
+        Background.Gradient1.Point1YPercent = 0
+        Background.Gradient1.Point2XPercent = 0
+        Background.Gradient1.Point2YPercent = 100
+        Background.Gradient1.Sinus = False
+        Background.Gradient2.StartColor = clWhite
+        Background.Gradient2.StartColorOpacity = 255
+        Background.Gradient2.DrawMode = dmSet
+        Background.Gradient2.EndColor = clBlack
+        Background.Gradient2.EndColorOpacity = 255
+        Background.Gradient2.ColorCorrection = True
+        Background.Gradient2.GradientType = gtLinear
+        Background.Gradient2.Point1XPercent = 0
+        Background.Gradient2.Point1YPercent = 0
+        Background.Gradient2.Point2XPercent = 0
+        Background.Gradient2.Point2YPercent = 100
+        Background.Gradient2.Sinus = False
+        Background.Gradient1EndPercent = 35
+        Background.Style = bbsColor
+        ButtonBackground.Color = clBlack
+        ButtonBackground.ColorOpacity = 255
+        ButtonBackground.Gradient1.StartColor = clBtnShadow
+        ButtonBackground.Gradient1.StartColorOpacity = 255
+        ButtonBackground.Gradient1.DrawMode = dmSet
+        ButtonBackground.Gradient1.EndColor = clBtnFace
+        ButtonBackground.Gradient1.EndColorOpacity = 255
+        ButtonBackground.Gradient1.ColorCorrection = True
+        ButtonBackground.Gradient1.GradientType = gtLinear
+        ButtonBackground.Gradient1.Point1XPercent = 0
+        ButtonBackground.Gradient1.Point1YPercent = -50
+        ButtonBackground.Gradient1.Point2XPercent = 0
+        ButtonBackground.Gradient1.Point2YPercent = 50
+        ButtonBackground.Gradient1.Sinus = False
+        ButtonBackground.Gradient2.StartColor = clBtnFace
+        ButtonBackground.Gradient2.StartColorOpacity = 255
+        ButtonBackground.Gradient2.DrawMode = dmSet
+        ButtonBackground.Gradient2.EndColor = clBtnShadow
+        ButtonBackground.Gradient2.EndColorOpacity = 255
+        ButtonBackground.Gradient2.ColorCorrection = True
+        ButtonBackground.Gradient2.GradientType = gtLinear
+        ButtonBackground.Gradient2.Point1XPercent = 0
+        ButtonBackground.Gradient2.Point1YPercent = 50
+        ButtonBackground.Gradient2.Point2XPercent = 0
+        ButtonBackground.Gradient2.Point2YPercent = 150
+        ButtonBackground.Gradient2.Sinus = False
+        ButtonBackground.Gradient1EndPercent = 50
+        ButtonBackground.Style = bbsGradient
+        ButtonDownBackground.Color = clBtnShadow
+        ButtonDownBackground.ColorOpacity = 255
+        ButtonDownBackground.Gradient1.StartColor = clWhite
+        ButtonDownBackground.Gradient1.StartColorOpacity = 255
+        ButtonDownBackground.Gradient1.DrawMode = dmSet
+        ButtonDownBackground.Gradient1.EndColor = clBlack
+        ButtonDownBackground.Gradient1.EndColorOpacity = 255
+        ButtonDownBackground.Gradient1.ColorCorrection = True
+        ButtonDownBackground.Gradient1.GradientType = gtLinear
+        ButtonDownBackground.Gradient1.Point1XPercent = 0
+        ButtonDownBackground.Gradient1.Point1YPercent = 0
+        ButtonDownBackground.Gradient1.Point2XPercent = 0
+        ButtonDownBackground.Gradient1.Point2YPercent = 100
+        ButtonDownBackground.Gradient1.Sinus = False
+        ButtonDownBackground.Gradient2.StartColor = clWhite
+        ButtonDownBackground.Gradient2.StartColorOpacity = 255
+        ButtonDownBackground.Gradient2.DrawMode = dmSet
+        ButtonDownBackground.Gradient2.EndColor = clBlack
+        ButtonDownBackground.Gradient2.EndColorOpacity = 255
+        ButtonDownBackground.Gradient2.ColorCorrection = True
+        ButtonDownBackground.Gradient2.GradientType = gtLinear
+        ButtonDownBackground.Gradient2.Point1XPercent = 0
+        ButtonDownBackground.Gradient2.Point1YPercent = 0
+        ButtonDownBackground.Gradient2.Point2XPercent = 0
+        ButtonDownBackground.Gradient2.Point2YPercent = 100
+        ButtonDownBackground.Gradient2.Sinus = False
+        ButtonDownBackground.Gradient1EndPercent = 35
+        ButtonDownBackground.Style = bbsColor
+        Border.Color = clWindowText
+        Border.ColorOpacity = 255
+        Border.LightColor = clWhite
+        Border.LightOpacity = 255
+        Border.LightWidth = 0
+        Border.Style = bboSolid
+        Border.Width = 1
+        Rounding.RoundX = 1
+        Rounding.RoundY = 1
+        Rounding.RoundOptions = []
+        Font.Color = clWindowText
+        Font.Name = 'Arial'
+        HasTrackBar = True
+        ArrowColor = clBtnText
+        TabOrder = 3
+        TabStop = True
+        UseDockManager = False
+        Visible = False
+      end
       object Label2: TLabel
         Left = 6
         Height = 17
@@ -1746,14 +1862,14 @@ object Form1: TForm1
         ParentFont = False
       end
       object ShapeBackColor: TShape
-        Left = 40
+        Left = 31
         Height = 25
         Top = 29
         Width = 27
         OnMouseUp = ShapeBackColorMouseUp
       end
       object UpDownBackAlpha: TBCTrackbarUpdown
-        Left = 66
+        Left = 57
         Height = 25
         Top = 29
         Width = 48
@@ -2370,25 +2486,25 @@ object Form1: TForm1
         end
       end
       object PanelBackFillGrad: TPanel
-        Left = 3
+        Left = 30
         Height = 27
         Top = 28
-        Width = 265
+        Width = 236
         Anchors = [akTop, akLeft, akRight]
         BevelOuter = bvNone
         ClientHeight = 27
-        ClientWidth = 265
+        ClientWidth = 236
         TabOrder = 2
         Visible = False
         object ShapeBackStartColor: TShape
-          Left = 28
+          Left = 1
           Height = 25
           Top = 1
           Width = 27
           OnMouseUp = ShapeBackGradColorMouseUp
         end
         object UpDownBackStartAlpha: TBCTrackbarUpdown
-          Left = 54
+          Left = 27
           Height = 25
           Top = 1
           Width = 48
@@ -2503,7 +2619,7 @@ object Form1: TForm1
           UseDockManager = False
         end
         object ButtonBackSwapGradColor: TBCButton
-          Left = 104
+          Left = 77
           Height = 25
           Hint = 'Swap gradient colors'
           Top = 1
@@ -2709,14 +2825,14 @@ object Form1: TForm1
           MemoryUsage = bmuHigh
         end
         object ShapeBackEndColor: TShape
-          Left = 132
+          Left = 105
           Height = 25
           Top = 1
           Width = 27
           OnMouseUp = ShapeBackGradColorMouseUp
         end
         object UpDownBackEndAlpha: TBCTrackbarUpdown
-          Left = 158
+          Left = 131
           Height = 25
           Top = 1
           Width = 48
@@ -2830,214 +2946,8 @@ object Form1: TForm1
           TabStop = True
           UseDockManager = False
         end
-        object ButtonMoveBackGradPoint: TBCButton
-          Left = 0
-          Height = 25
-          Hint = 'Move gradient points'
-          Top = 1
-          Width = 26
-          StateClicked.Background.Color = clBlack
-          StateClicked.Background.ColorOpacity = 255
-          StateClicked.Background.Gradient1.StartColor = 16577765
-          StateClicked.Background.Gradient1.StartColorOpacity = 255
-          StateClicked.Background.Gradient1.DrawMode = dmSet
-          StateClicked.Background.Gradient1.EndColor = 16180676
-          StateClicked.Background.Gradient1.EndColorOpacity = 255
-          StateClicked.Background.Gradient1.ColorCorrection = True
-          StateClicked.Background.Gradient1.GradientType = gtLinear
-          StateClicked.Background.Gradient1.Point1XPercent = 0
-          StateClicked.Background.Gradient1.Point1YPercent = 0
-          StateClicked.Background.Gradient1.Point2XPercent = 0
-          StateClicked.Background.Gradient1.Point2YPercent = 100
-          StateClicked.Background.Gradient1.Sinus = False
-          StateClicked.Background.Gradient2.StartColor = 15716760
-          StateClicked.Background.Gradient2.StartColorOpacity = 255
-          StateClicked.Background.Gradient2.DrawMode = dmSet
-          StateClicked.Background.Gradient2.EndColor = 14398312
-          StateClicked.Background.Gradient2.EndColorOpacity = 255
-          StateClicked.Background.Gradient2.ColorCorrection = True
-          StateClicked.Background.Gradient2.GradientType = gtLinear
-          StateClicked.Background.Gradient2.Point1XPercent = 0
-          StateClicked.Background.Gradient2.Point1YPercent = 0
-          StateClicked.Background.Gradient2.Point2XPercent = 0
-          StateClicked.Background.Gradient2.Point2YPercent = 100
-          StateClicked.Background.Gradient2.Sinus = False
-          StateClicked.Background.Gradient1EndPercent = 55
-          StateClicked.Background.Style = bbsGradient
-          StateClicked.Border.Color = 9134636
-          StateClicked.Border.ColorOpacity = 255
-          StateClicked.Border.LightColor = clBlack
-          StateClicked.Border.LightOpacity = 100
-          StateClicked.Border.LightWidth = 1
-          StateClicked.Border.Style = bboSolid
-          StateClicked.Border.Width = 1
-          StateClicked.FontEx.Color = clBlack
-          StateClicked.FontEx.EndEllipsis = False
-          StateClicked.FontEx.FontQuality = fqSystemClearType
-          StateClicked.FontEx.Height = 0
-          StateClicked.FontEx.SingleLine = True
-          StateClicked.FontEx.Shadow = False
-          StateClicked.FontEx.ShadowColor = clBlack
-          StateClicked.FontEx.ShadowColorOpacity = 255
-          StateClicked.FontEx.ShadowRadius = 5
-          StateClicked.FontEx.ShadowOffsetX = 5
-          StateClicked.FontEx.ShadowOffsetY = 5
-          StateClicked.FontEx.Style = []
-          StateClicked.FontEx.TextAlignment = bcaCenter
-          StateClicked.FontEx.WordBreak = False
-          StateHover.Background.Color = clBlack
-          StateHover.Background.ColorOpacity = 255
-          StateHover.Background.Gradient1.StartColor = 16643818
-          StateHover.Background.Gradient1.StartColorOpacity = 255
-          StateHover.Background.Gradient1.DrawMode = dmSet
-          StateHover.Background.Gradient1.EndColor = 16576729
-          StateHover.Background.Gradient1.EndColorOpacity = 255
-          StateHover.Background.Gradient1.ColorCorrection = True
-          StateHover.Background.Gradient1.GradientType = gtLinear
-          StateHover.Background.Gradient1.Point1XPercent = 0
-          StateHover.Background.Gradient1.Point1YPercent = 0
-          StateHover.Background.Gradient1.Point2XPercent = 0
-          StateHover.Background.Gradient1.Point2YPercent = 100
-          StateHover.Background.Gradient1.Sinus = False
-          StateHover.Background.Gradient2.StartColor = 16639678
-          StateHover.Background.Gradient2.StartColorOpacity = 255
-          StateHover.Background.Gradient2.DrawMode = dmSet
-          StateHover.Background.Gradient2.EndColor = 16112039
-          StateHover.Background.Gradient2.EndColorOpacity = 255
-          StateHover.Background.Gradient2.ColorCorrection = True
-          StateHover.Background.Gradient2.GradientType = gtLinear
-          StateHover.Background.Gradient2.Point1XPercent = 0
-          StateHover.Background.Gradient2.Point1YPercent = 0
-          StateHover.Background.Gradient2.Point2XPercent = 0
-          StateHover.Background.Gradient2.Point2YPercent = 100
-          StateHover.Background.Gradient2.Sinus = False
-          StateHover.Background.Gradient1EndPercent = 50
-          StateHover.Background.Style = bbsGradient
-          StateHover.Border.Color = 11632444
-          StateHover.Border.ColorOpacity = 255
-          StateHover.Border.LightColor = clWhite
-          StateHover.Border.LightOpacity = 200
-          StateHover.Border.LightWidth = 1
-          StateHover.Border.Style = bboSolid
-          StateHover.Border.Width = 1
-          StateHover.FontEx.Color = clBlack
-          StateHover.FontEx.EndEllipsis = False
-          StateHover.FontEx.FontQuality = fqSystemClearType
-          StateHover.FontEx.Height = 0
-          StateHover.FontEx.SingleLine = True
-          StateHover.FontEx.Shadow = False
-          StateHover.FontEx.ShadowColor = clBlack
-          StateHover.FontEx.ShadowColorOpacity = 255
-          StateHover.FontEx.ShadowRadius = 5
-          StateHover.FontEx.ShadowOffsetX = 5
-          StateHover.FontEx.ShadowOffsetY = 5
-          StateHover.FontEx.Style = []
-          StateHover.FontEx.TextAlignment = bcaCenter
-          StateHover.FontEx.WordBreak = False
-          StateNormal.Background.Color = clBlack
-          StateNormal.Background.ColorOpacity = 255
-          StateNormal.Background.Gradient1.StartColor = 15921906
-          StateNormal.Background.Gradient1.StartColorOpacity = 255
-          StateNormal.Background.Gradient1.DrawMode = dmSet
-          StateNormal.Background.Gradient1.EndColor = 15461355
-          StateNormal.Background.Gradient1.EndColorOpacity = 255
-          StateNormal.Background.Gradient1.ColorCorrection = True
-          StateNormal.Background.Gradient1.GradientType = gtLinear
-          StateNormal.Background.Gradient1.Point1XPercent = 0
-          StateNormal.Background.Gradient1.Point1YPercent = 0
-          StateNormal.Background.Gradient1.Point2XPercent = 0
-          StateNormal.Background.Gradient1.Point2YPercent = 100
-          StateNormal.Background.Gradient1.Sinus = False
-          StateNormal.Background.Gradient2.StartColor = 14540253
-          StateNormal.Background.Gradient2.StartColorOpacity = 255
-          StateNormal.Background.Gradient2.DrawMode = dmSet
-          StateNormal.Background.Gradient2.EndColor = 13619151
-          StateNormal.Background.Gradient2.EndColorOpacity = 255
-          StateNormal.Background.Gradient2.ColorCorrection = True
-          StateNormal.Background.Gradient2.GradientType = gtLinear
-          StateNormal.Background.Gradient2.Point1XPercent = 0
-          StateNormal.Background.Gradient2.Point1YPercent = 0
-          StateNormal.Background.Gradient2.Point2XPercent = 0
-          StateNormal.Background.Gradient2.Point2YPercent = 100
-          StateNormal.Background.Gradient2.Sinus = False
-          StateNormal.Background.Gradient1EndPercent = 50
-          StateNormal.Background.Style = bbsGradient
-          StateNormal.Border.Color = 7368816
-          StateNormal.Border.ColorOpacity = 255
-          StateNormal.Border.LightColor = clWhite
-          StateNormal.Border.LightOpacity = 200
-          StateNormal.Border.LightWidth = 1
-          StateNormal.Border.Style = bboSolid
-          StateNormal.Border.Width = 1
-          StateNormal.FontEx.Color = clBlack
-          StateNormal.FontEx.EndEllipsis = False
-          StateNormal.FontEx.FontQuality = fqSystemClearType
-          StateNormal.FontEx.Height = 0
-          StateNormal.FontEx.SingleLine = True
-          StateNormal.FontEx.Shadow = False
-          StateNormal.FontEx.ShadowColor = clBlack
-          StateNormal.FontEx.ShadowColorOpacity = 255
-          StateNormal.FontEx.ShadowRadius = 5
-          StateNormal.FontEx.ShadowOffsetX = 5
-          StateNormal.FontEx.ShadowOffsetY = 5
-          StateNormal.FontEx.Style = []
-          StateNormal.FontEx.TextAlignment = bcaCenter
-          StateNormal.FontEx.WordBreak = False
-          Color = clNone
-          DropDownWidth = 16
-          DropDownArrowSize = 8
-          GlobalOpacity = 255
-          Glyph.Data = {
-            36040000424D3604000000000000360000002800000010000000100000000100
-            2000000000000004000064000000640000000000000000000000000000000000
-            0000000000000000000000000000000000000000000000000016000000020000
-            0000000000000000000000000000000000000000000000000000000000000000
-            000000000000000000000000000000000000000000041C1C1CED171717FA2A2A
-            2AD4000000400000000000000000000000000000000000000000000000000000
-            0000FF746DFFFF7069FFFF7069FFFF7069FFB04D48FF494444FFDADADAFF0C0C
-            0CFFE6655EFFFF7069FFFF7069FFFF7770FF0000000000000000000000000000
-            0000FF7069FFFFA096FFE08F85FFFCA49AFF644D4AFFADADADFFB6B6B6FF5C4B
-            48FFFFB5AAFFFFB9ACFFFFBBB0FFFF7069FF0000000000000000000000000000
-            0000FF7069FFFF9C92FF090909FF131212FF131313FFEEEEEEFF615D5DFF845A
-            55FFF1A99DFFFFB6AAFFFFB9ACFFFF7069FF0000000000000000000000000000
-            0000FF7069FFFF998FFF0C0C0CFFDCDCDCFFE0E0E0FFF1F1F1FF4D4C4BFF1616
-            16FF0A0909FFFFB3A7FFFFB5AAFFFF7069FF0000000000000000000000000000
-            0000FF7069FFFF968CFF0C0C0CFFEEEEEEFFFFFFFFFFFFFFFFFFD6D6D6FF2624
-            24FFFFACA1FFFFAFA4FFFFB3A7FFFF7069FF0000000000000000000000000000
-            0000FF7069FFFF9289FF0C0C0CFFEEEEEEFFFFFFFFFFD6D6D6FF242222FFFFA6
-            9BFFFFAA9FFFFFADA1FFFFAFA4FFFF7069FF0000000000000000000000000000
-            0000FF7069FFFF8F85FF0C0C0CFFEEEEEEFFD6D6D6FF242222FFFFA095FFFFA3
-            99FFFFA69BFFFFA99FFFFFADA1FFFF7069FF0000000000000000000000000000
-            0000FF7069FFFF8B82FF0C0C0CFFC3C3C3FF242222FFFF998FFFFF9C93FFFFA0
-            95FFFFA398FFFFA69CFFFFA99EFFFF7069FF0000000000000000000000000000
-            0022391917FF020101FF0C0C0CFF171716FFFF9289FFFF968CFFFF998FFFFF9C
-            92FFFFA096FFFFA398FFFFA69CFFFF7069FF0000000000000000000000000000
-            00C4B2B2B2FFFBFBFBFF0B0B0BFF3A201DFFFF8F86FFFF9289FFFF968CFFFF99
-            8FFFFF9C93FFFFA095FFFFA398FFFF7069FF0000000000000000000000000000
-            00FBFBFBFBFFFFFFFFFFFBFBFBFF030201FFFF8B83FFFF8F85FFFF9289FFFF96
-            8CFFFF998FFFFF9C92FFFFA096FFFF7069FF0000000000000000000000000000
-            00C4B2B2B2FFFBFBFBFFB2B2B2FF3A1918FFFF7069FFFF7069FFFF7069FFFF70
-            69FFFF7069FFFF7069FFFF7069FFFF746DFF0000000000000000000000000000
-            0022000000C5000000FC000000C5000000220000000000000000000000000000
-            0000000000000000000000000000000000000000000000000000000000000000
-            0000000000000000000000000000000000000000000000000000000000000000
-            0000000000000000000000000000000000000000000000000000
-          }
-          InnerMargin = 0
-          OnClick = ToolButtonClick
-          ParentColor = False
-          Rounding.RoundX = 3
-          Rounding.RoundY = 3
-          Rounding.RoundOptions = []
-          RoundingDropDown.RoundX = 1
-          RoundingDropDown.RoundY = 1
-          RoundingDropDown.RoundOptions = []
-          ShowHint = True
-          TextApplyGlobalOpacity = False
-          MemoryUsage = bmuHigh
-        end
         object ButtonBackGradRepetion: TBCButton
-          Left = 208
+          Left = 181
           Height = 25
           Hint = 'Gradient repetition...'
           Top = 1
@@ -3243,7 +3153,7 @@ object Form1: TForm1
           MemoryUsage = bmuHigh
         end
         object ButtonBackGradInterp: TBCButton
-          Left = 236
+          Left = 209
           Height = 25
           Hint = 'Gradient repetition...'
           Top = 1
@@ -3449,121 +3359,212 @@ object Form1: TForm1
           MemoryUsage = bmuHigh
         end
       end
-      object UpDownBackTexAlpha: TBCTrackbarUpdown
-        Left = 104
+      object ButtonMoveBackFillPoints: TBCButton
+        Left = 3
         Height = 25
+        Hint = 'Move gradient/texture points'
         Top = 29
-        Width = 48
-        BarExponent = 1
-        Increment = 1
-        LongTimeInterval = 400
-        MinValue = 0
-        MaxValue = 255
-        OnChange = UpDownBackTexAlphaChange
-        Value = 255
-        ShortTimeInterval = 100
-        Background.Color = clWindow
-        Background.ColorOpacity = 255
-        Background.Gradient1.StartColor = clWhite
-        Background.Gradient1.StartColorOpacity = 255
-        Background.Gradient1.DrawMode = dmSet
-        Background.Gradient1.EndColor = clBlack
-        Background.Gradient1.EndColorOpacity = 255
-        Background.Gradient1.ColorCorrection = True
-        Background.Gradient1.GradientType = gtLinear
-        Background.Gradient1.Point1XPercent = 0
-        Background.Gradient1.Point1YPercent = 0
-        Background.Gradient1.Point2XPercent = 0
-        Background.Gradient1.Point2YPercent = 100
-        Background.Gradient1.Sinus = False
-        Background.Gradient2.StartColor = clWhite
-        Background.Gradient2.StartColorOpacity = 255
-        Background.Gradient2.DrawMode = dmSet
-        Background.Gradient2.EndColor = clBlack
-        Background.Gradient2.EndColorOpacity = 255
-        Background.Gradient2.ColorCorrection = True
-        Background.Gradient2.GradientType = gtLinear
-        Background.Gradient2.Point1XPercent = 0
-        Background.Gradient2.Point1YPercent = 0
-        Background.Gradient2.Point2XPercent = 0
-        Background.Gradient2.Point2YPercent = 100
-        Background.Gradient2.Sinus = False
-        Background.Gradient1EndPercent = 35
-        Background.Style = bbsColor
-        ButtonBackground.Color = clBlack
-        ButtonBackground.ColorOpacity = 255
-        ButtonBackground.Gradient1.StartColor = clBtnShadow
-        ButtonBackground.Gradient1.StartColorOpacity = 255
-        ButtonBackground.Gradient1.DrawMode = dmSet
-        ButtonBackground.Gradient1.EndColor = clBtnFace
-        ButtonBackground.Gradient1.EndColorOpacity = 255
-        ButtonBackground.Gradient1.ColorCorrection = True
-        ButtonBackground.Gradient1.GradientType = gtLinear
-        ButtonBackground.Gradient1.Point1XPercent = 0
-        ButtonBackground.Gradient1.Point1YPercent = -50
-        ButtonBackground.Gradient1.Point2XPercent = 0
-        ButtonBackground.Gradient1.Point2YPercent = 50
-        ButtonBackground.Gradient1.Sinus = False
-        ButtonBackground.Gradient2.StartColor = clBtnFace
-        ButtonBackground.Gradient2.StartColorOpacity = 255
-        ButtonBackground.Gradient2.DrawMode = dmSet
-        ButtonBackground.Gradient2.EndColor = clBtnShadow
-        ButtonBackground.Gradient2.EndColorOpacity = 255
-        ButtonBackground.Gradient2.ColorCorrection = True
-        ButtonBackground.Gradient2.GradientType = gtLinear
-        ButtonBackground.Gradient2.Point1XPercent = 0
-        ButtonBackground.Gradient2.Point1YPercent = 50
-        ButtonBackground.Gradient2.Point2XPercent = 0
-        ButtonBackground.Gradient2.Point2YPercent = 150
-        ButtonBackground.Gradient2.Sinus = False
-        ButtonBackground.Gradient1EndPercent = 50
-        ButtonBackground.Style = bbsGradient
-        ButtonDownBackground.Color = clBtnShadow
-        ButtonDownBackground.ColorOpacity = 255
-        ButtonDownBackground.Gradient1.StartColor = clWhite
-        ButtonDownBackground.Gradient1.StartColorOpacity = 255
-        ButtonDownBackground.Gradient1.DrawMode = dmSet
-        ButtonDownBackground.Gradient1.EndColor = clBlack
-        ButtonDownBackground.Gradient1.EndColorOpacity = 255
-        ButtonDownBackground.Gradient1.ColorCorrection = True
-        ButtonDownBackground.Gradient1.GradientType = gtLinear
-        ButtonDownBackground.Gradient1.Point1XPercent = 0
-        ButtonDownBackground.Gradient1.Point1YPercent = 0
-        ButtonDownBackground.Gradient1.Point2XPercent = 0
-        ButtonDownBackground.Gradient1.Point2YPercent = 100
-        ButtonDownBackground.Gradient1.Sinus = False
-        ButtonDownBackground.Gradient2.StartColor = clWhite
-        ButtonDownBackground.Gradient2.StartColorOpacity = 255
-        ButtonDownBackground.Gradient2.DrawMode = dmSet
-        ButtonDownBackground.Gradient2.EndColor = clBlack
-        ButtonDownBackground.Gradient2.EndColorOpacity = 255
-        ButtonDownBackground.Gradient2.ColorCorrection = True
-        ButtonDownBackground.Gradient2.GradientType = gtLinear
-        ButtonDownBackground.Gradient2.Point1XPercent = 0
-        ButtonDownBackground.Gradient2.Point1YPercent = 0
-        ButtonDownBackground.Gradient2.Point2XPercent = 0
-        ButtonDownBackground.Gradient2.Point2YPercent = 100
-        ButtonDownBackground.Gradient2.Sinus = False
-        ButtonDownBackground.Gradient1EndPercent = 35
-        ButtonDownBackground.Style = bbsColor
-        Border.Color = clWindowText
-        Border.ColorOpacity = 255
-        Border.LightColor = clWhite
-        Border.LightOpacity = 255
-        Border.LightWidth = 0
-        Border.Style = bboSolid
-        Border.Width = 1
-        Rounding.RoundX = 1
-        Rounding.RoundY = 1
+        Width = 26
+        StateClicked.Background.Color = clBlack
+        StateClicked.Background.ColorOpacity = 255
+        StateClicked.Background.Gradient1.StartColor = 16577765
+        StateClicked.Background.Gradient1.StartColorOpacity = 255
+        StateClicked.Background.Gradient1.DrawMode = dmSet
+        StateClicked.Background.Gradient1.EndColor = 16180676
+        StateClicked.Background.Gradient1.EndColorOpacity = 255
+        StateClicked.Background.Gradient1.ColorCorrection = True
+        StateClicked.Background.Gradient1.GradientType = gtLinear
+        StateClicked.Background.Gradient1.Point1XPercent = 0
+        StateClicked.Background.Gradient1.Point1YPercent = 0
+        StateClicked.Background.Gradient1.Point2XPercent = 0
+        StateClicked.Background.Gradient1.Point2YPercent = 100
+        StateClicked.Background.Gradient1.Sinus = False
+        StateClicked.Background.Gradient2.StartColor = 15716760
+        StateClicked.Background.Gradient2.StartColorOpacity = 255
+        StateClicked.Background.Gradient2.DrawMode = dmSet
+        StateClicked.Background.Gradient2.EndColor = 14398312
+        StateClicked.Background.Gradient2.EndColorOpacity = 255
+        StateClicked.Background.Gradient2.ColorCorrection = True
+        StateClicked.Background.Gradient2.GradientType = gtLinear
+        StateClicked.Background.Gradient2.Point1XPercent = 0
+        StateClicked.Background.Gradient2.Point1YPercent = 0
+        StateClicked.Background.Gradient2.Point2XPercent = 0
+        StateClicked.Background.Gradient2.Point2YPercent = 100
+        StateClicked.Background.Gradient2.Sinus = False
+        StateClicked.Background.Gradient1EndPercent = 55
+        StateClicked.Background.Style = bbsGradient
+        StateClicked.Border.Color = 9134636
+        StateClicked.Border.ColorOpacity = 255
+        StateClicked.Border.LightColor = clBlack
+        StateClicked.Border.LightOpacity = 100
+        StateClicked.Border.LightWidth = 1
+        StateClicked.Border.Style = bboSolid
+        StateClicked.Border.Width = 1
+        StateClicked.FontEx.Color = clBlack
+        StateClicked.FontEx.EndEllipsis = False
+        StateClicked.FontEx.FontQuality = fqSystemClearType
+        StateClicked.FontEx.Height = 0
+        StateClicked.FontEx.SingleLine = True
+        StateClicked.FontEx.Shadow = False
+        StateClicked.FontEx.ShadowColor = clBlack
+        StateClicked.FontEx.ShadowColorOpacity = 255
+        StateClicked.FontEx.ShadowRadius = 5
+        StateClicked.FontEx.ShadowOffsetX = 5
+        StateClicked.FontEx.ShadowOffsetY = 5
+        StateClicked.FontEx.Style = []
+        StateClicked.FontEx.TextAlignment = bcaCenter
+        StateClicked.FontEx.WordBreak = False
+        StateHover.Background.Color = clBlack
+        StateHover.Background.ColorOpacity = 255
+        StateHover.Background.Gradient1.StartColor = 16643818
+        StateHover.Background.Gradient1.StartColorOpacity = 255
+        StateHover.Background.Gradient1.DrawMode = dmSet
+        StateHover.Background.Gradient1.EndColor = 16576729
+        StateHover.Background.Gradient1.EndColorOpacity = 255
+        StateHover.Background.Gradient1.ColorCorrection = True
+        StateHover.Background.Gradient1.GradientType = gtLinear
+        StateHover.Background.Gradient1.Point1XPercent = 0
+        StateHover.Background.Gradient1.Point1YPercent = 0
+        StateHover.Background.Gradient1.Point2XPercent = 0
+        StateHover.Background.Gradient1.Point2YPercent = 100
+        StateHover.Background.Gradient1.Sinus = False
+        StateHover.Background.Gradient2.StartColor = 16639678
+        StateHover.Background.Gradient2.StartColorOpacity = 255
+        StateHover.Background.Gradient2.DrawMode = dmSet
+        StateHover.Background.Gradient2.EndColor = 16112039
+        StateHover.Background.Gradient2.EndColorOpacity = 255
+        StateHover.Background.Gradient2.ColorCorrection = True
+        StateHover.Background.Gradient2.GradientType = gtLinear
+        StateHover.Background.Gradient2.Point1XPercent = 0
+        StateHover.Background.Gradient2.Point1YPercent = 0
+        StateHover.Background.Gradient2.Point2XPercent = 0
+        StateHover.Background.Gradient2.Point2YPercent = 100
+        StateHover.Background.Gradient2.Sinus = False
+        StateHover.Background.Gradient1EndPercent = 50
+        StateHover.Background.Style = bbsGradient
+        StateHover.Border.Color = 11632444
+        StateHover.Border.ColorOpacity = 255
+        StateHover.Border.LightColor = clWhite
+        StateHover.Border.LightOpacity = 200
+        StateHover.Border.LightWidth = 1
+        StateHover.Border.Style = bboSolid
+        StateHover.Border.Width = 1
+        StateHover.FontEx.Color = clBlack
+        StateHover.FontEx.EndEllipsis = False
+        StateHover.FontEx.FontQuality = fqSystemClearType
+        StateHover.FontEx.Height = 0
+        StateHover.FontEx.SingleLine = True
+        StateHover.FontEx.Shadow = False
+        StateHover.FontEx.ShadowColor = clBlack
+        StateHover.FontEx.ShadowColorOpacity = 255
+        StateHover.FontEx.ShadowRadius = 5
+        StateHover.FontEx.ShadowOffsetX = 5
+        StateHover.FontEx.ShadowOffsetY = 5
+        StateHover.FontEx.Style = []
+        StateHover.FontEx.TextAlignment = bcaCenter
+        StateHover.FontEx.WordBreak = False
+        StateNormal.Background.Color = clBlack
+        StateNormal.Background.ColorOpacity = 255
+        StateNormal.Background.Gradient1.StartColor = 15921906
+        StateNormal.Background.Gradient1.StartColorOpacity = 255
+        StateNormal.Background.Gradient1.DrawMode = dmSet
+        StateNormal.Background.Gradient1.EndColor = 15461355
+        StateNormal.Background.Gradient1.EndColorOpacity = 255
+        StateNormal.Background.Gradient1.ColorCorrection = True
+        StateNormal.Background.Gradient1.GradientType = gtLinear
+        StateNormal.Background.Gradient1.Point1XPercent = 0
+        StateNormal.Background.Gradient1.Point1YPercent = 0
+        StateNormal.Background.Gradient1.Point2XPercent = 0
+        StateNormal.Background.Gradient1.Point2YPercent = 100
+        StateNormal.Background.Gradient1.Sinus = False
+        StateNormal.Background.Gradient2.StartColor = 14540253
+        StateNormal.Background.Gradient2.StartColorOpacity = 255
+        StateNormal.Background.Gradient2.DrawMode = dmSet
+        StateNormal.Background.Gradient2.EndColor = 13619151
+        StateNormal.Background.Gradient2.EndColorOpacity = 255
+        StateNormal.Background.Gradient2.ColorCorrection = True
+        StateNormal.Background.Gradient2.GradientType = gtLinear
+        StateNormal.Background.Gradient2.Point1XPercent = 0
+        StateNormal.Background.Gradient2.Point1YPercent = 0
+        StateNormal.Background.Gradient2.Point2XPercent = 0
+        StateNormal.Background.Gradient2.Point2YPercent = 100
+        StateNormal.Background.Gradient2.Sinus = False
+        StateNormal.Background.Gradient1EndPercent = 50
+        StateNormal.Background.Style = bbsGradient
+        StateNormal.Border.Color = 7368816
+        StateNormal.Border.ColorOpacity = 255
+        StateNormal.Border.LightColor = clWhite
+        StateNormal.Border.LightOpacity = 200
+        StateNormal.Border.LightWidth = 1
+        StateNormal.Border.Style = bboSolid
+        StateNormal.Border.Width = 1
+        StateNormal.FontEx.Color = clBlack
+        StateNormal.FontEx.EndEllipsis = False
+        StateNormal.FontEx.FontQuality = fqSystemClearType
+        StateNormal.FontEx.Height = 0
+        StateNormal.FontEx.SingleLine = True
+        StateNormal.FontEx.Shadow = False
+        StateNormal.FontEx.ShadowColor = clBlack
+        StateNormal.FontEx.ShadowColorOpacity = 255
+        StateNormal.FontEx.ShadowRadius = 5
+        StateNormal.FontEx.ShadowOffsetX = 5
+        StateNormal.FontEx.ShadowOffsetY = 5
+        StateNormal.FontEx.Style = []
+        StateNormal.FontEx.TextAlignment = bcaCenter
+        StateNormal.FontEx.WordBreak = False
+        Color = clNone
+        DropDownWidth = 16
+        DropDownArrowSize = 8
+        Enabled = False
+        GlobalOpacity = 255
+        Glyph.Data = {
+          36040000424D3604000000000000360000002800000010000000100000000100
+          2000000000000004000064000000640000000000000000000000000000000000
+          0000000000000000000000000000000000000000000000000016000000020000
+          0000000000000000000000000000000000000000000000000000000000000000
+          000000000000000000000000000000000000000000041C1C1CED171717FA2A2A
+          2AD4000000400000000000000000000000000000000000000000000000000000
+          0000FF746DFFFF7069FFFF7069FFFF7069FFB04D48FF494444FFDADADAFF0C0C
+          0CFFE6655EFFFF7069FFFF7069FFFF7770FF0000000000000000000000000000
+          0000FF7069FFFFA096FFE08F85FFFCA49AFF644D4AFFADADADFFB6B6B6FF5C4B
+          48FFFFB5AAFFFFB9ACFFFFBBB0FFFF7069FF0000000000000000000000000000
+          0000FF7069FFFF9C92FF090909FF131212FF131313FFEEEEEEFF615D5DFF845A
+          55FFF1A99DFFFFB6AAFFFFB9ACFFFF7069FF0000000000000000000000000000
+          0000FF7069FFFF998FFF0C0C0CFFDCDCDCFFE0E0E0FFF1F1F1FF4D4C4BFF1616
+          16FF0A0909FFFFB3A7FFFFB5AAFFFF7069FF0000000000000000000000000000
+          0000FF7069FFFF968CFF0C0C0CFFEEEEEEFFFFFFFFFFFFFFFFFFD6D6D6FF2624
+          24FFFFACA1FFFFAFA4FFFFB3A7FFFF7069FF0000000000000000000000000000
+          0000FF7069FFFF9289FF0C0C0CFFEEEEEEFFFFFFFFFFD6D6D6FF242222FFFFA6
+          9BFFFFAA9FFFFFADA1FFFFAFA4FFFF7069FF0000000000000000000000000000
+          0000FF7069FFFF8F85FF0C0C0CFFEEEEEEFFD6D6D6FF242222FFFFA095FFFFA3
+          99FFFFA69BFFFFA99FFFFFADA1FFFF7069FF0000000000000000000000000000
+          0000FF7069FFFF8B82FF0C0C0CFFC3C3C3FF242222FFFF998FFFFF9C93FFFFA0
+          95FFFFA398FFFFA69CFFFFA99EFFFF7069FF0000000000000000000000000000
+          0022391917FF020101FF0C0C0CFF171716FFFF9289FFFF968CFFFF998FFFFF9C
+          92FFFFA096FFFFA398FFFFA69CFFFF7069FF0000000000000000000000000000
+          00C4B2B2B2FFFBFBFBFF0B0B0BFF3A201DFFFF8F86FFFF9289FFFF968CFFFF99
+          8FFFFF9C93FFFFA095FFFFA398FFFF7069FF0000000000000000000000000000
+          00FBFBFBFBFFFFFFFFFFFBFBFBFF030201FFFF8B83FFFF8F85FFFF9289FFFF96
+          8CFFFF998FFFFF9C92FFFFA096FFFF7069FF0000000000000000000000000000
+          00C4B2B2B2FFFBFBFBFFB2B2B2FF3A1918FFFF7069FFFF7069FFFF7069FFFF70
+          69FFFF7069FFFF7069FFFF7069FFFF746DFF0000000000000000000000000000
+          0022000000C5000000FC000000C5000000220000000000000000000000000000
+          0000000000000000000000000000000000000000000000000000000000000000
+          0000000000000000000000000000000000000000000000000000000000000000
+          0000000000000000000000000000000000000000000000000000
+        }
+        InnerMargin = 0
+        OnClick = ToolButtonClick
+        ParentColor = False
+        Rounding.RoundX = 3
+        Rounding.RoundY = 3
         Rounding.RoundOptions = []
-        Font.Color = clWindowText
-        Font.Name = 'Arial'
-        HasTrackBar = True
-        ArrowColor = clBtnText
-        TabOrder = 3
-        TabStop = True
-        UseDockManager = False
-        Visible = False
+        RoundingDropDown.RoundX = 1
+        RoundingDropDown.RoundY = 1
+        RoundingDropDown.RoundOptions = []
+        ShowHint = True
+        TextApplyGlobalOpacity = False
+        MemoryUsage = bmuHigh
       end
     end
     object PanelShape: TBCPanel

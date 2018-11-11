@@ -36,7 +36,7 @@ type
     procedure QuickDefine(const APoint1,APoint2: TPointF); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
-    function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix): TRectF; override;
+    function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; {%H-}AOptions: TRenderBoundsOptions = []): TRectF; override;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
   end;
 
@@ -44,13 +44,13 @@ type
 
   TRectShape = class(TCustomRectShape)
   protected
-    function PenVisible: boolean;
+    function PenVisible(AAssumePenFill: boolean = false): boolean;
     function BackVisible: boolean;
     function GetCornerPositition: single; override;
   public
     class function Fields: TVectorShapeFields; override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
-    function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix): TRectF; override;
+    function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; override;
     function GetIsSlow(AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
@@ -60,14 +60,14 @@ type
 
   TEllipseShape = class(TCustomRectShape)
   protected
-    function PenVisible: boolean;
+    function PenVisible(AAssumePenFill: boolean = false): boolean;
     function BackVisible: boolean;
     function GetCornerPositition: single; override;
   public
     constructor Create(AContainer: TVectorOriginal);
     class function Fields: TVectorShapeFields; override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
-    function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix): TRectF; override;
+    function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; override;
     function GetIsSlow(AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
@@ -118,12 +118,12 @@ type
 
   TPolylineShape = class(TCustomPolypointShape)
   protected
-    function PenVisible: boolean;
+    function PenVisible(AAssumePenFill: boolean = false): boolean;
     function BackVisible: boolean;
   public
     class function Fields: TVectorShapeFields; override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
-    function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix): TRectF; override;
+    function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; override;
     function GetIsSlow({%H-}AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
@@ -419,7 +419,7 @@ begin
   AStorage.PointF['y-axis'] := FYAxis;
 end;
 
-function TCustomRectShape.GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix): TRectF;
+function TCustomRectShape.GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions): TRectF;
 begin
   result := GetAffineBox(AMatrix, false).RectBoundsF;
 end;
@@ -449,9 +449,9 @@ end;
 
 { TRectShape }
 
-function TRectShape.PenVisible: boolean;
+function TRectShape.PenVisible(AAssumePenFill: boolean): boolean;
 begin
-  result := (PenWidth>0) and (PenColor.alpha>0) and not IsClearPenStyle(PenStyle);
+  result := (PenWidth>0) and not IsClearPenStyle(PenStyle) and ((PenColor.alpha>0) or AAssumePenFill);
 end;
 
 function TRectShape.BackVisible: boolean;
@@ -551,18 +551,18 @@ begin
   end;
 end;
 
-function TRectShape.GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix): TRectF;
+function TRectShape.GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions): TRectF;
 var
   i: Integer;
   pts: ArrayOfTPointF;
   xMargin, yMargin: single;
 begin
-  if not BackVisible and not PenVisible then
+  if not (BackVisible or (rboAssumeBackFill in AOptions)) and not PenVisible(rboAssumePenFill in AOptions) then
     result:= EmptyRectF
   else
   begin
-    result := inherited GetRenderBounds(ADestRect, AMatrix);
-    if PenVisible then
+    result := inherited GetRenderBounds(ADestRect, AMatrix, AOptions);
+    if PenVisible(rboAssumePenFill in AOptions) then
     begin
       if (JoinStyle <> pjsMiter) or (Stroker.MiterLimit <= 1) then
       begin
@@ -610,9 +610,9 @@ end;
 
 { TEllipseShape }
 
-function TEllipseShape.PenVisible: boolean;
+function TEllipseShape.PenVisible(AAssumePenFill: boolean): boolean;
 begin
-  result := (PenWidth>0) and (PenColor.alpha>0) and not IsClearPenStyle(PenStyle);
+  result := (PenWidth>0) and not IsClearPenStyle(PenStyle) and ((PenColor.alpha>0) or AAssumePenFill);
 end;
 
 function TEllipseShape.BackVisible: boolean;
@@ -733,16 +733,16 @@ begin
   end;
 end;
 
-function TEllipseShape.GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix): TRectF;
+function TEllipseShape.GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions): TRectF;
 var
   xMargin, yMargin: single;
 begin
-  if not BackVisible and not PenVisible then
+  if not (BackVisible or (rboAssumeBackFill in AOptions)) and not PenVisible(rboAssumePenFill in AOptions) then
     result:= EmptyRectF
   else
   begin
-    result := inherited GetRenderBounds(ADestRect, AMatrix);
-    if PenVisible then
+    result := inherited GetRenderBounds(ADestRect, AMatrix, AOptions);
+    if PenVisible(rboAssumePenFill in AOptions) then
     begin
       xMargin := (abs(AMatrix[1,1])+abs(AMatrix[1,2]))*PenWidth*0.5;
       yMargin := (abs(AMatrix[2,1])+abs(AMatrix[2,2]))*PenWidth*0.5;
@@ -1054,9 +1054,9 @@ end;
 
 { TPolylineShape }
 
-function TPolylineShape.PenVisible: boolean;
+function TPolylineShape.PenVisible(AAssumePenFill: boolean): boolean;
 begin
-  result := (PenWidth>0) and (PenColor.alpha>0) and not IsClearPenStyle(PenStyle);
+  result := (PenWidth>0) and not IsClearPenStyle(PenStyle) and ((PenColor.alpha>0) or AAssumePenFill);
 end;
 
 function TPolylineShape.BackVisible: boolean;
@@ -1108,18 +1108,18 @@ begin
   end;
 end;
 
-function TPolylineShape.GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix): TRectF;
+function TPolylineShape.GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions): TRectF;
 var
   pts: ArrayOfTPointF;
   xMargin, yMargin: single;
   fillBounds, penBounds: TRectF;
 begin
-  if not BackVisible and not PenVisible then
+  if not (BackVisible or (rboAssumeBackFill in AOptions)) and not PenVisible(rboAssumePenFill in AOptions) then
     result:= EmptyRectF
   else
   begin
     pts := GetCurve(AMatrix);
-    if PenVisible then
+    if PenVisible(rboAssumePenFill in AOptions) then
     begin
       if JoinStyle = pjsRound then
       begin
@@ -1132,7 +1132,7 @@ begin
         result.Bottom += yMargin;
       end else
       begin
-        if BackVisible then fillBounds := GetPointsBoundsF(pts)
+        if BackVisible or (rboAssumeBackFill in AOptions) then fillBounds := GetPointsBoundsF(pts)
         else fillBounds := EmptyRectF;
         pts := ComputeStroke(pts, Closed, AMatrix);
         penBounds := GetPointsBoundsF(pts);

@@ -18,6 +18,8 @@ type
   TShapeChangeEvent = procedure(ASender: TObject; ABounds: TRectF) of object;
   TShapeEditingChangeEvent = procedure(ASender: TObject) of object;
 
+  TRenderBoundsOption = (rboAssumePenFill, rboAssumeBackFill);
+  TRenderBoundsOptions = set of TRenderBoundsOption;
   TVectorShapeField = (vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill);
   TVectorShapeFields = set of TVectorShapeField;
   TVectorShapeUsermode = (vsuEdit, vsuCreate, vsuEditBackFill);
@@ -65,7 +67,7 @@ type
     destructor Destroy; override;
     procedure QuickDefine(const APoint1,APoint2: TPointF); virtual; abstract;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); virtual; abstract;
-    function GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix): TRectF; virtual; abstract;
+    function GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; virtual; abstract;
     function PointInShape(APoint: TPointF): boolean; virtual; abstract;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); virtual; abstract;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); virtual;
