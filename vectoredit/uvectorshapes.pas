@@ -246,37 +246,21 @@ end;
 procedure TCustomRectShape.DoMoveXYCorner(ANewCoord: TPointF;
   AShift: TShiftState; AFactorX, AFactorY: single);
 var
-  ratio, d, newScale, prevScale, scale: single;
+  ratio, d: single;
   m: TAffineMatrix;
-  newSize, prevCornerVect, newCornerVect, u1,v1,u2,v2: TPointF;
+  newSize, prevCornerVect, newCornerVect: TPointF;
 begin
   BeginUpdate;
   if (ssAlt in AShift) and (VectDet(FXUnitBackup,FYUnitBackup)<>0) and (FXSizeBackup<>0) and (FYSizeBackup<>0) then
   begin
     prevCornerVect := AFactorX*(FXAxisBackup - FOriginBackup) + AFactorY*(FYAxisBackup - FOriginBackup);
     newCornerVect := (ANewCoord - FOriginBackup)*(1/GetCornerPositition);
-    newScale := VectLen(newCornerVect);
-    prevScale := VectLen(prevCornerVect);
-    if (prevScale > 0) then
-    begin
-      prevCornerVect *= 1/prevScale;
-      if newScale > 0 then newCornerVect *= 1/newScale;
-      scale := newScale/prevScale;
-
-      u1 := prevCornerVect;
-      v1 := PointF(-u1.y,u1.x);
-
-      u2 := PointF(newCornerVect*u1, newCornerVect*v1);
-      v2 := PointF(-u2.y,u2.x);
-
-      m := AffineMatrixTranslation(FOriginBackup.x,FOriginBackup.y)*
-           AffineMatrixScale(scale,scale)*
-           AffineMatrix(u2,v2,PointF(0,0))*
-           AffineMatrixTranslation(-FOriginBackup.x,-FOriginBackup.y);
-      FOrigin := FOriginBackup;
-      FXAxis := m * FXAxisBackup;
-      FYAxis := m * FYAxisBackup;
-    end;
+    m := AffineMatrixTranslation(FOriginBackup.x,FOriginBackup.y)*
+         AffineMatrixScaledRotation(prevCornerVect, newCornerVect)*
+         AffineMatrixTranslation(-FOriginBackup.x,-FOriginBackup.y);
+    FOrigin := FOriginBackup;
+    FXAxis := m * FXAxisBackup;
+    FYAxis := m * FYAxisBackup;
   end else
   begin
     d := GetCornerPositition;
@@ -306,8 +290,8 @@ begin
   FOrigin := ANewCoord;
   FXAxis += delta;
   FYAxis += delta;
-  if (vsfBackFill in Fields) and BackFill.IsGradient then
-    BackFill.Gradient.Transform(AffineMatrixTranslation(delta.x, delta.y));
+  if vsfBackFill in Fields then
+    BackFill.Transform(AffineMatrixTranslation(delta.x, delta.y));
   EndUpdate;
 end;
 
@@ -876,8 +860,8 @@ begin
   delta := ANewCoord - APrevCoord;
   for i := 0 to PointCount-1 do
     Points[i] := Points[i]+delta;
-  if (vsfBackFill in Fields) and BackFill.IsGradient then
-    BackFill.Gradient.Transform(AffineMatrixTranslation(delta.x, delta.y));
+  if vsfBackFill in Fields then
+    BackFill.Transform(AffineMatrixTranslation(delta.x, delta.y));
   EndUpdate;
 end;
 

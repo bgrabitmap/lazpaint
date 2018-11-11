@@ -20,7 +20,7 @@ type
 
   TVectorShapeField = (vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill);
   TVectorShapeFields = set of TVectorShapeField;
-  TVectorShapeUsermode = (vsuEdit, vsuCreate, vsuEditBackGradient);
+  TVectorShapeUsermode = (vsuEdit, vsuCreate, vsuEditBackFill);
   TVectorShapeUsermodes = set of TVectorShapeUsermode;
 
   { TVectorShape }
@@ -382,7 +382,7 @@ end;
 class function TVectorShape.Usermodes: TVectorShapeUsermodes;
 begin
   result := [vsuEdit];
-  if vsfBackFill in Fields then result += [vsuEditBackGradient];
+  if vsfBackFill in Fields then result += [vsuEditBackFill];
 end;
 
 procedure TVectorShape.SetContainer(AValue: TVectorOriginal);
@@ -929,7 +929,7 @@ begin
       prev.Usermode := vsuEdit;
     end else
       prevMode := vsuEdit;
-    if Assigned(AShape) and (prevMode = vsuEditBackGradient) and (prevMode in AShape.Usermodes) and
+    if Assigned(AShape) and (prevMode = vsuEditBackFill) and (prevMode in AShape.Usermodes) and
        AShape.BackFill.IsGradient then AShape.Usermode:= prevMode;
     FSelectedShape := AShape;
     DiscardFrozenShapes;
@@ -1018,8 +1018,9 @@ begin
     end
     else
     begin
-      if (FSelectedShape.Usermode = vsuEditBackGradient) and FSelectedShape.BackFill.IsGradient then
-        FSelectedShape.BackFill.Gradient.ConfigureEditor(AEditor)
+      if (FSelectedShape.Usermode = vsuEditBackFill) and
+         (FSelectedShape.BackFill.IsGradient or FSelectedShape.BackFill.IsTexture) then
+        FSelectedShape.BackFill.ConfigureEditor(AEditor)
       else
         FSelectedShape.ConfigureEditor(AEditor);
     end;

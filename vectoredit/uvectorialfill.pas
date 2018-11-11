@@ -20,6 +20,7 @@ type
     FIsSolid: boolean;
     FTexture: TBGRABitmap;
     FTextureMatrix: TAffineMatrix;
+    FTextureMatrixBackup: TAffineMatrix;
     FTextureOpacity: byte;
     FGradient: TBGRALayerGradientOriginal;
     FOnChange: TNotifyEvent;
@@ -34,12 +35,14 @@ type
     procedure InternalClear;
     procedure Changed;
     procedure ConfigureTextureEditor(AEditor: TBGRAOriginalEditor);
-    procedure TextureMoveOrigin(ASender: TObject; APrevCoord,
+    procedure TextureMoveOrigin({%H-}ASender: TObject; {%H-}APrevCoord,
+      ANewCoord: TPointF; {%H-}AShift: TShiftState);
+    procedure TextureMoveXAxis({%H-}ASender: TObject; {%H-}APrevCoord,
       ANewCoord: TPointF; AShift: TShiftState);
-    procedure TextureMoveXAxis(ASender: TObject; APrevCoord,
+    procedure TextureMoveYAxis({%H-}ASender: TObject; {%H-}APrevCoord,
       ANewCoord: TPointF; AShift: TShiftState);
-    procedure TextureMoveYAxis(ASender: TObject; APrevCoord,
-      ANewCoord: TPointF; AShift: TShiftState);
+    procedure TextureStartMove(ASender: TObject; AIndex: integer;
+      AShift: TShiftState);
   public
     constructor Create;
     procedure Clear;
@@ -52,6 +55,7 @@ type
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor);
     function CreateScanner(AMatrix: TAffineMatrix; ADraft: boolean): TBGRACustomScanner;
     function IsSlow(AMatrix: TAffineMatrix): boolean;
+    procedure Transform(AMatrix: TAffineMatrix);
     function Duplicate: TVectorialFill; virtual;
     destructor Destroy; override;
     function Equals(Obj: TObject): boolean; override;
@@ -143,6 +147,7 @@ begin
       AEditor.AddArrow(origin, origin+xAxisRel*FTexture.Width, @TextureMoveXAxis);
     if FTexture.Height > 0 then
       AEditor.AddArrow(origin, origin+yAxisRel*FTexture.Height, @TextureMoveYAxis);
+    AEditor.AddStartMoveHandler(@TextureStartMove);
   end;
 end;
 
@@ -159,10 +164,18 @@ procedure TVectorialFill.TextureMoveXAxis(ASender: TObject; APrevCoord,
 var
   origin, xAxisRel: TPointF;
 begin
+  FTextureMatrix := FTextureMatrixBackup;
   origin := PointF(FTextureMatrix[1,3],FTextureMatrix[2,3]);
   xAxisRel := (ANewCoord - origin)*(1/FTexture.Width);
-  FTextureMatrix[1,1] := xAxisRel.x;
-  FTextureMatrix[2,1] := xAxisRel.y;
+  if ssAlt in AShift then
+  begin
+    FTextureMatrix[1,1] := xAxisRel.x;
+    FTextureMatrix[2,1] := xAxisRel.y;
+  end
+  else
+    FTextureMatrix := AffineMatrixTranslation(origin.x,origin.y)*
+                     AffineMatrixScaledRotation(PointF(FTextureMatrix[1,1],FTextureMatrix[2,1]), xAxisRel)*
+                     AffineMatrixLinear(FTextureMatrix);
   Changed;
 end;
 
@@ -171,11 +184,25 @@ procedure TVectorialFill.TextureMoveYAxis(ASender: TObject; APrevCoord,
 var
   origin, yAxisRel: TPointF;
 begin
+  FTextureMatrix := FTextureMatrixBackup;
   origin := PointF(FTextureMatrix[1,3],FTextureMatrix[2,3]);
   yAxisRel := (ANewCoord - origin)*(1/FTexture.Height);
-  FTextureMatrix[1,2] := yAxisRel.x;
-  FTextureMatrix[2,2] := yAxisRel.y;
+  if ssAlt in AShift then
+  begin
+    FTextureMatrix[1,2] := yAxisRel.x;
+    FTextureMatrix[2,2] := yAxisRel.y;
+  end
+  else
+    FTextureMatrix := AffineMatrixTranslation(origin.x,origin.y)*
+                     AffineMatrixScaledRotation(PointF(FTextureMatrix[1,2],FTextureMatrix[2,2]), yAxisRel)*
+                     AffineMatrixLinear(FTextureMatrix);
   Changed;
+end;
+
+procedure TVectorialFill.TextureStartMove(ASender: TObject; AIndex: integer;
+  AShift: TShiftState);
+begin
+  FTextureMatrixBackup := FTextureMatrix;
 end;
 
 procedure TVectorialFill.Init;
@@ -310,6 +337,16 @@ begin
     result := not TBGRABitmap.IsAffineRoughlyTranslation(m, rect(0,0,FTexture.Width,FTexture.Height));
   end else
     result := false;
+end;
+
+procedure TVectorialFill.Transform(AMatrix: TAffineMatrix);
+begin
+  if IsGradient then Gradient.Transform(AMatrix)
+  else if IsTexture then
+  begin
+    FTextureMatrix := AMatrix*FTextureMatrix;
+    Changed;
+  end;
 end;
 
 function TVectorialFill.Duplicate: TVectorialFill;
