@@ -292,6 +292,7 @@ var
   texId, texOpacity: integer;
   origin, xAxis, yAxis: TPointF;
   grad: TBGRALayerGradientOriginal;
+  repetition: TTextureRepetition;
 begin
   if AValue = nil then
   begin
@@ -316,8 +317,14 @@ begin
            texOpacity := obj.IntDef['opacity',255];
            if texOpacity < 0 then texOpacity:= 0;
            if texOpacity > 255 then texOpacity:= 255;
+           case obj.RawString['repetition'] of
+             'none': repetition := trNone;
+             'repeat-x': repetition := trRepeatX;
+             'repeat-y': repetition := trRepeatY;
+             else repetition := trRepeatBoth;
+           end;
            if Assigned(Container) then
-             AValue.SetTexture(Container.GetTexture(texId), AffineMatrix(xAxis,yAxis,origin), texOpacity)
+             AValue.SetTexture(Container.GetTexture(texId), AffineMatrix(xAxis,yAxis,origin), texOpacity, repetition)
            else
              AValue.Clear;
          end;
@@ -368,6 +375,12 @@ begin
         obj.PointF['y-axis'] := PointF(m[1,2],m[2,2]);
         if AValue.TextureOpacity<>255 then
           obj.Int['opacity'] := AValue.TextureOpacity;
+        case AValue.TextureRepetition of
+          trNone: obj.RawString['repetition'] := 'none';
+          trRepeatX: obj.RawString['repetition'] := 'repeat-x';
+          trRepeatY: obj.RawString['repetition'] := 'repeat-y';
+          trRepeatBoth: obj.RemoveAttribute('repetition');
+        end;
       end else
       if AValue.IsGradient then
       begin
@@ -516,7 +529,7 @@ begin
       sharedTex := Container.GetTexture(Container.AddTexture(AValue.Texture))
     else
       sharedTex := AValue.Texture;
-    BackFill.SetTexture(sharedTex, AValue.TextureMatrix, AValue.TextureOpacity);
+    BackFill.SetTexture(sharedTex, AValue.TextureMatrix, AValue.TextureOpacity, AValue.TextureRepetition);
   end else
     BackFill.Assign(AValue);
   if Assigned(Container) and freeTex then Container.DiscardUnusedTextures;

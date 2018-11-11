@@ -9,12 +9,11 @@ uses
   BGRALayerOriginal;
 
 type
+  TTextureRepetition = (trNone, trRepeatX, trRepeatY, trRepeatBoth);
 
   { TVectorialFill }
 
   TVectorialFill = class
-  private
-    function GetIsEditable: boolean;
   protected
     FColor: TBGRAPixel;
     FIsSolid: boolean;
@@ -22,6 +21,7 @@ type
     FTextureMatrix: TAffineMatrix;
     FTextureMatrixBackup: TAffineMatrix;
     FTextureOpacity: byte;
+    FTextureRepetition: TTextureRepetition;
     FGradient: TBGRALayerGradientOriginal;
     FOnChange: TNotifyEvent;
     procedure GradientChange({%H-}ASender: TObject; {%H-}ABounds: PRectF=nil);
@@ -29,9 +29,11 @@ type
     function GetIsGradient: boolean;
     function GetIsTexture: boolean;
     function GetIsNone: boolean;
+    function GetIsEditable: boolean;
     procedure SetOnChange(AValue: TNotifyEvent);
     procedure SetTextureMatrix(AValue: TAffineMatrix);
     procedure SetTextureOpacity(AValue: byte);
+    procedure SetTextureRepetition(AValue: TTextureRepetition);
     procedure InternalClear;
     procedure Changed;
     procedure ConfigureTextureEditor(AEditor: TBGRAOriginalEditor);
@@ -47,10 +49,12 @@ type
     constructor Create;
     procedure Clear;
     constructor CreateAsSolid(AColor: TBGRAPixel);
-    constructor CreateAsTexture(ATexture: TBGRABitmap; AMatrix: TAffineMatrix; AOpacity: byte = 255);
+    constructor CreateAsTexture(ATexture: TBGRABitmap; AMatrix: TAffineMatrix; AOpacity: byte = 255;
+                                ATextureRepetition: TTextureRepetition = trRepeatBoth);
     constructor CreateAsGradient(AGradient: TBGRALayerGradientOriginal; AOwned: boolean);
     procedure SetSolid(AColor: TBGRAPixel);
-    procedure SetTexture(ATexture: TBGRABitmap; AMatrix: TAffineMatrix; AOpacity: byte = 255);
+    procedure SetTexture(ATexture: TBGRABitmap; AMatrix: TAffineMatrix; AOpacity: byte = 255;
+                         ATextureRepetition: TTextureRepetition = trRepeatBoth);
     procedure SetGradient(AGradient: TBGRALayerGradientOriginal; AOwned: boolean);
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor);
     function CreateScanner(AMatrix: TAffineMatrix; ADraft: boolean): TBGRACustomScanner;
@@ -70,6 +74,7 @@ type
     property Texture: TBGRABitmap read FTexture;
     property TextureMatrix: TAffineMatrix read FTextureMatrix write SetTextureMatrix;
     property TextureOpacity: byte read FTextureOpacity write SetTextureOpacity;
+    property TextureRepetition: TTextureRepetition read FTextureRepetition write SetTextureRepetition;
     property OnChange: TNotifyEvent read FOnChange write SetOnChange;
   end;
 
@@ -126,6 +131,7 @@ begin
   FIsSolid := false;
   FColor := BGRAPixelTransparent;
   FTextureMatrix := AffineMatrixIdentity;
+  FTextureRepetition:= trRepeatBoth;
 end;
 
 procedure TVectorialFill.Changed;
@@ -225,6 +231,14 @@ begin
   result:= IsGradient or IsTexture;
 end;
 
+procedure TVectorialFill.SetTextureRepetition(AValue: TTextureRepetition);
+begin
+  if not IsTexture then raise exception.Create('Not a texture fill');
+  if FTextureRepetition=AValue then Exit;
+  FTextureRepetition:=AValue;
+  Changed;
+end;
+
 procedure TVectorialFill.GradientChange(ASender: TObject; ABounds: PRectF=nil);
 begin
   Changed;
@@ -251,10 +265,10 @@ begin
 end;
 
 constructor TVectorialFill.CreateAsTexture(ATexture: TBGRABitmap;
-  AMatrix: TAffineMatrix; AOpacity: byte);
+  AMatrix: TAffineMatrix; AOpacity: byte; ATextureRepetition: TTextureRepetition);
 begin
   Init;
-  SetTexture(ATexture,AMatrix,AOpacity);
+  SetTexture(ATexture,AMatrix,AOpacity,ATextureRepetition);
 end;
 
 constructor TVectorialFill.CreateAsGradient(
@@ -275,12 +289,13 @@ begin
 end;
 
 procedure TVectorialFill.SetTexture(ATexture: TBGRABitmap;
-  AMatrix: TAffineMatrix; AOpacity: byte);
+  AMatrix: TAffineMatrix; AOpacity: byte; ATextureRepetition: TTextureRepetition);
 begin
   InternalClear;
   FTexture := ATexture.NewReference as TBGRABitmap;
   FTextureMatrix := AMatrix;
   FTextureOpacity:= AOpacity;
+  FTextureRepetition:= ATextureRepetition;
   Changed;
 end;
 
@@ -312,7 +327,9 @@ begin
     m := AMatrix*FTextureMatrix;
     if ADraft or TBGRABitmap.IsAffineRoughlyTranslation(m, rect(0,0,FTexture.Width,FTexture.Height)) then filter := rfBox
     else filter := rfHalfCosine;
-    bmpTransf := TBGRAAffineBitmapTransform.Create(FTexture,true,filter);
+    bmpTransf := TBGRAAffineBitmapTransform.Create(FTexture,
+                    FTextureRepetition in[trRepeatX,trRepeatBoth],
+                    FTextureRepetition in[trRepeatY,trRepeatBoth], filter);
     bmpTransf.ViewMatrix := m;
     if FTextureOpacity <> 255 then
       result:= TBGRAOpacityScanner.Create(bmpTransf, FTextureOpacity, true)
@@ -381,7 +398,8 @@ begin
       if other.IsSolid then result := IsSolid and (other.SolidColor = SolidColor) else
       if other.IsGradient then result := IsGradient and (other.Gradient.Equals(Gradient)) else
       if other.IsTexture then result := IsTexture and (other.Texture = Texture) and
-                       (other.TextureMatrix = TextureMatrix) and (other.TextureOpacity = TextureOpacity) else
+                       (other.TextureMatrix = TextureMatrix) and (other.TextureOpacity = TextureOpacity)
+                       and (other.TextureRepetition = TextureRepetition) else
         result := IsNone;
     end;
   end else
@@ -398,7 +416,7 @@ begin
     other := TVectorialFill(Obj);
     if other.IsSolid then SetSolid(other.SolidColor) else
     if other.IsGradient then SetGradient(other.Gradient,false) else
-    if other.IsTexture then SetTexture(other.Texture,other.TextureMatrix,other.TextureOpacity) else
+    if other.IsTexture then SetTexture(other.Texture,other.TextureMatrix,other.TextureOpacity,other.TextureRepetition) else
       Clear;
   end else
     raise exception.Create('Incompatible type');
