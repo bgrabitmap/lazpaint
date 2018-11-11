@@ -5,13 +5,16 @@ unit uvectorialfill;
 interface
 
 uses
-  Classes, SysUtils, BGRATransform, BGRAGradientOriginal, BGRABitmap, BGRABitmapTypes;
+  Classes, SysUtils, BGRATransform, BGRAGradientOriginal, BGRABitmap, BGRABitmapTypes,
+  BGRALayerOriginal;
 
 type
 
   { TVectorialFill }
 
   TVectorialFill = class
+  private
+    function GetIsEditable: boolean;
   protected
     FColor: TBGRAPixel;
     FIsSolid: boolean;
@@ -26,20 +29,27 @@ type
     function GetIsTexture: boolean;
     function GetIsNone: boolean;
     procedure SetOnChange(AValue: TNotifyEvent);
-    procedure SetSolid(AValue: TBGRAPixel);
     procedure SetTextureMatrix(AValue: TAffineMatrix);
     procedure SetTextureOpacity(AValue: byte);
     procedure InternalClear;
     procedure Changed;
+    procedure ConfigureTextureEditor(AEditor: TBGRAOriginalEditor);
+    procedure TextureMoveOrigin(ASender: TObject; APrevCoord,
+      ANewCoord: TPointF; AShift: TShiftState);
+    procedure TextureMoveXAxis(ASender: TObject; APrevCoord,
+      ANewCoord: TPointF; AShift: TShiftState);
+    procedure TextureMoveYAxis(ASender: TObject; APrevCoord,
+      ANewCoord: TPointF; AShift: TShiftState);
   public
     constructor Create;
     procedure Clear;
     constructor CreateAsSolid(AColor: TBGRAPixel);
     constructor CreateAsTexture(ATexture: TBGRABitmap; AMatrix: TAffineMatrix; AOpacity: byte = 255);
     constructor CreateAsGradient(AGradient: TBGRALayerGradientOriginal; AOwned: boolean);
-    constructor SetSolid(AColor: TBGRAPixel);
-    constructor SetTexture(ATexture: TBGRABitmap; AMatrix: TAffineMatrix; AOpacity: byte = 255);
-    constructor SetGradient(AGradient: TBGRALayerGradientOriginal; AOwned: boolean);
+    procedure SetSolid(AColor: TBGRAPixel);
+    procedure SetTexture(ATexture: TBGRABitmap; AMatrix: TAffineMatrix; AOpacity: byte = 255);
+    procedure SetGradient(AGradient: TBGRALayerGradientOriginal; AOwned: boolean);
+    procedure ConfigureEditor(AEditor: TBGRAOriginalEditor);
     function CreateScanner(AMatrix: TAffineMatrix; ADraft: boolean): TBGRACustomScanner;
     function IsSlow(AMatrix: TAffineMatrix): boolean;
     function Duplicate: TVectorialFill; virtual;
@@ -50,6 +60,7 @@ type
     property IsSolid: boolean read FIsSolid;
     property IsTexture: boolean read GetIsTexture;
     property IsGradient: boolean read GetIsGradient;
+    property IsEditable: boolean read GetIsEditable;
     property Gradient: TBGRALayerGradientOriginal read FGradient;
     property SolidColor: TBGRAPixel read FColor write SetSolid;
     property Texture: TBGRABitmap read FTexture;
@@ -78,13 +89,6 @@ procedure TVectorialFill.SetOnChange(AValue: TNotifyEvent);
 begin
   if FOnChange=AValue then Exit;
   FOnChange:=AValue;
-end;
-
-procedure TVectorialFill.SetSolid(AValue: TBGRAPixel);
-begin
-  if FColor=AValue then Exit;
-  FColor:=AValue;
-  FIsSolid:= true;
 end;
 
 procedure TVectorialFill.SetTextureMatrix(AValue: TAffineMatrix);
@@ -125,6 +129,55 @@ begin
   if Assigned(OnChange) then OnChange(self);
 end;
 
+procedure TVectorialFill.ConfigureTextureEditor(AEditor: TBGRAOriginalEditor);
+var
+  origin, xAxisRel, yAxisRel: TPointF;
+begin
+  if Assigned(FTexture) then
+  begin
+    origin := PointF(FTextureMatrix[1,3],FTextureMatrix[2,3]);
+    xAxisRel := PointF(FTextureMatrix[1,1],FTextureMatrix[2,1]);
+    yAxisRel := PointF(FTextureMatrix[1,2],FTextureMatrix[2,2]);
+    AEditor.AddPoint(origin, @TextureMoveOrigin, true);
+    if FTexture.Width > 0 then
+      AEditor.AddArrow(origin, origin+xAxisRel*FTexture.Width, @TextureMoveXAxis);
+    if FTexture.Height > 0 then
+      AEditor.AddArrow(origin, origin+yAxisRel*FTexture.Height, @TextureMoveYAxis);
+  end;
+end;
+
+procedure TVectorialFill.TextureMoveOrigin(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  FTextureMatrix[1,3] := ANewCoord.x;
+  FTextureMatrix[2,3] := ANewCoord.y;
+  Changed;
+end;
+
+procedure TVectorialFill.TextureMoveXAxis(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+var
+  origin, xAxisRel: TPointF;
+begin
+  origin := PointF(FTextureMatrix[1,3],FTextureMatrix[2,3]);
+  xAxisRel := (ANewCoord - origin)*(1/FTexture.Width);
+  FTextureMatrix[1,1] := xAxisRel.x;
+  FTextureMatrix[2,1] := xAxisRel.y;
+  Changed;
+end;
+
+procedure TVectorialFill.TextureMoveYAxis(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+var
+  origin, yAxisRel: TPointF;
+begin
+  origin := PointF(FTextureMatrix[1,3],FTextureMatrix[2,3]);
+  yAxisRel := (ANewCoord - origin)*(1/FTexture.Height);
+  FTextureMatrix[1,2] := yAxisRel.x;
+  FTextureMatrix[2,2] := yAxisRel.y;
+  Changed;
+end;
+
 procedure TVectorialFill.Init;
 begin
   FColor := BGRAPixelTransparent;
@@ -138,6 +191,11 @@ end;
 function TVectorialFill.GetIsNone: boolean;
 begin
   result:= not IsSolid and not IsGradient and not IsTexture;
+end;
+
+function TVectorialFill.GetIsEditable: boolean;
+begin
+  result:= IsGradient or IsTexture;
 end;
 
 procedure TVectorialFill.GradientChange(ASender: TObject; ABounds: PRectF=nil);
@@ -179,8 +237,9 @@ begin
   SetGradient(AGradient,AOwned);
 end;
 
-constructor TVectorialFill.SetSolid(AColor: TBGRAPixel);
+procedure TVectorialFill.SetSolid(AColor: TBGRAPixel);
 begin
+  if IsSolid and (SolidColor = AColor) then exit;
   InternalClear;
   if AColor.alpha = 0 then AColor := BGRAPixelTransparent;
   FColor := AColor;
@@ -188,7 +247,7 @@ begin
   Changed;
 end;
 
-constructor TVectorialFill.SetTexture(ATexture: TBGRABitmap;
+procedure TVectorialFill.SetTexture(ATexture: TBGRABitmap;
   AMatrix: TAffineMatrix; AOpacity: byte);
 begin
   InternalClear;
@@ -198,7 +257,7 @@ begin
   Changed;
 end;
 
-constructor TVectorialFill.SetGradient(AGradient: TBGRALayerGradientOriginal;
+procedure TVectorialFill.SetGradient(AGradient: TBGRALayerGradientOriginal;
   AOwned: boolean);
 begin
   InternalClear;
@@ -206,6 +265,12 @@ begin
   else FGradient := AGradient.Duplicate as TBGRALayerGradientOriginal;
   FGradient.OnChange:=@GradientChange;
   Changed;
+end;
+
+procedure TVectorialFill.ConfigureEditor(AEditor: TBGRAOriginalEditor);
+begin
+  if IsGradient then Gradient.ConfigureEditor(AEditor) else
+  if IsTexture then ConfigureTextureEditor(AEditor);
 end;
 
 function TVectorialFill.CreateScanner(AMatrix: TAffineMatrix; ADraft: boolean
