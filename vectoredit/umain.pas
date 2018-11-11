@@ -41,7 +41,6 @@ type
     ButtonBackLoadTex: TBCButton;
     ButtonBackTexRepeat: TBCButton;
     ButtonBackTexAdjust: TBCButton;
-    ButtonMoveBackFillPoints: TBCButton;
     ButtonBackNoTex: TBCButton;
     ButtonShapePaste: TBCButton;
     ButtonBackGradRepetion: TBCButton;
@@ -63,6 +62,8 @@ type
     ShapeBackEndColor: TShape;
     ShapeBackStartColor: TShape;
     ToolBar2: TToolBar;
+    ButtonMoveBackFillPoints: TToolButton;
+    ToolButton2: TToolButton;
     ToolButtonBackFillNone: TToolButton;
     ToolButtonBackFillSolid: TToolButton;
     ToolButtonBackFillLinear: TToolButton;
@@ -383,7 +384,11 @@ end;
 procedure TForm1.ButtonBackNoTexClick(Sender: TObject);
 begin
   backTexture := nil;
-  if ToolButtonBackFillTexture.Down then ToolButtonBackFillNone.Down := true;
+  if ToolButtonBackFillTexture.Down then
+  begin
+    ToolButtonBackFillNone.Down := true;
+    UpdateBackComponentsVisibility;
+  end;
 end;
 
 procedure TForm1.ButtonOpenFileClick(Sender: TObject);
@@ -792,10 +797,7 @@ end;
 procedure TForm1.ToolButtonClick(Sender: TObject);
 begin
   if Sender = ButtonMoveBackFillPoints then
-  begin
-    ButtonMoveBackFillPoints.Down := not ButtonMoveBackFillPoints.Down;
     if ButtonMoveBackFillPoints.Down then ToolButtonMove.Down := true;
-  end;
 
   FCurrentTool := ptHand;
   if ButtonMoveBackFillPoints.Down then FCurrentTool:= ptMoveBackFillPoint;
@@ -1381,7 +1383,7 @@ var
 begin
   if ToolButtonBackFillSolid.Down then
     result := TVectorialFill.CreateAsSolid(FBackColor)
-  else if ToolButtonBackFillTexture.Down then
+  else if ToolButtonBackFillTexture.Down and Assigned(backTexture) then
   begin
     rF := AShape.GetRenderBounds(InfiniteRect,AffineMatrixIdentity,[rboAssumeBackFill]);
     if not (FBackTexRepetition in [trRepeatX,trRepeatBoth]) and (rF.Width <> 0) and (backTexture.Width > 0) then
