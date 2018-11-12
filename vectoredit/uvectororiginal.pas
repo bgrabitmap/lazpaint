@@ -22,7 +22,8 @@ type
   TRenderBoundsOptions = set of TRenderBoundsOption;
   TVectorShapeField = (vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill);
   TVectorShapeFields = set of TVectorShapeField;
-  TVectorShapeUsermode = (vsuEdit, vsuCreate, vsuEditBackFill);
+  TVectorShapeUsermode = (vsuEdit, vsuCreate, vsuEditBackFill,
+                          vsuCurveSetAuto, vsuCurveSetCurve, vsuCurveSetAngle);
   TVectorShapeUsermodes = set of TVectorShapeUsermode;
 
   { TVectorShape }

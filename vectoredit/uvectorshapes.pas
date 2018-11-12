@@ -85,6 +85,7 @@ type
     FPoints: array of record
                coord: TPointF;
                editorIndex: integer;
+               data: pointer;
              end;
     FCenterPoint: TPointF;
     FCenterPointEditorIndex: integer;
@@ -101,11 +102,17 @@ type
     procedure SetClosed(AValue: boolean); virtual;
     function PointsEqual(const APoint1, APoint2: TPointF): boolean;
     procedure OnHoverPoint({%H-}ASender: TObject; APointIndex: integer); virtual;
+    procedure OnClickPoint({%H-}ASender: TObject; APointIndex: integer; {%H-}AShift: TShiftState); virtual;
+    procedure DoClickPoint(APointIndex: integer; {%H-}AShift: TShiftState); virtual;
+    function CanMovePoints: boolean; virtual;
     procedure InsertPointAuto;
   public
     constructor Create(AContainer: TVectorOriginal); override;
-    procedure AddPoint(const APoint: TPointF);
+    procedure Clear;
+    destructor Destroy; override;
+    function AddPoint(const APoint: TPointF): integer;
     function RemovePoint(AIndex: integer): boolean;
+    procedure RemovePointRange(AFromIndex, AToIndexPlus1: integer);
     procedure InsertPoint(AIndex: integer; APoint: TPointF);
     procedure MouseMove({%H-}Shift: TShiftState; X, Y: single; var {%H-}ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
     procedure MouseDown(RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
@@ -141,15 +148,22 @@ type
   TCurveShape = class(TPolylineShape)
   private
     FSplineStyle: TSplineStyle;
+    function GetCurveMode(AIndex: integer): TEasyBezierCurveMode;
+    procedure SetCurveMode(AIndex: integer; AValue: TEasyBezierCurveMode);
     procedure SetSplineStyle(AValue: TSplineStyle);
   protected
     function GetCurve(AMatrix: TAffineMatrix): ArrayOfTPointF; override;
+    function CanMovePoints: boolean; override;
+    procedure DoClickPoint(APointIndex: integer; {%H-}AShift: TShiftState); override;
   public
+    class function Usermodes: TVectorShapeUsermodes; override;
     constructor Create(AContainer: TVectorOriginal); override;
+    procedure KeyPress(UTF8Key: string; var AHandled: boolean); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     class function StorageClassName: RawByteString; override;
     property SplineStyle: TSplineStyle read FSplineStyle write SetSplineStyle;
+    property CurveMode[AIndex: integer]: TEasyBezierCurveMode read GetCurveMode write SetCurveMode;
   end;
 
 implementation
@@ -840,8 +854,9 @@ begin
   if AIndex = length(FPoints) then
   begin
     setlength(FPoints, length(FPoints)+1);
-    FPoints[high(FPoints)].coord := AValue;
-    FPoints[high(FPoints)].editorIndex := -1;
+    FPoints[AIndex].coord := AValue;
+    FPoints[AIndex].editorIndex := -1;
+    FPoints[AIndex].data := nil;
   end
   else
     FPoints[AIndex].coord := AValue;
@@ -878,7 +893,7 @@ var
   i: Integer;
 begin
   FCurPoint:= -1;
-  for i:= 0 to high(FPoints) do
+  for i:= 0 to PointCount-1 do
     if FPoints[i].editorIndex = APointIndex then
     begin
       FCurPoint:= i;
@@ -907,15 +922,11 @@ var
   add: Boolean;
 begin
   add := AValue = vsuCreate;
-  if add and (length(FPoints) = 0) then exit;
+  if add and (PointCount = 0) then exit;
   if FAddingPoint and not add then
   begin
-    if (length(FPoints)>1) and PointsEqual(FPoints[high(FPoints)].coord,FPoints[high(FPoints)-1].coord) then
-    begin
-      BeginUpdate;
-      setlength(FPoints, length(FPoints)-1);
-      EndUpdate;
-    end;
+    if (PointCount>1) and PointsEqual(Points[PointCount-1],Points[PointCount-2]) then
+      RemovePoint(PointCount-1);
     FAddingPoint:= add;
   end else
   if not FAddingPoint and add then
@@ -948,13 +959,40 @@ begin
   FHoverPoint:= -1;
   if APointIndex <> -1 then
   begin
-    for i:= 0 to high(FPoints) do
+    for i:= 0 to PointCount-1 do
       if FPoints[i].editorIndex = APointIndex then
       begin
         FHoverPoint:= i;
         break;
       end;
   end;
+end;
+
+procedure TCustomPolypointShape.OnClickPoint(ASender: TObject;
+  APointIndex: integer; AShift: TShiftState);
+var
+  i: Integer;
+begin
+  if APointIndex <> -1 then
+  begin
+    for i:= 0 to PointCount-1 do
+      if FPoints[i].editorIndex = APointIndex then
+      begin
+        DoClickPoint(i, AShift);
+        break;
+      end;
+  end;
+end;
+
+procedure TCustomPolypointShape.DoClickPoint(APointIndex: integer;
+  AShift: TShiftState);
+begin
+  //nothing
+end;
+
+function TCustomPolypointShape.CanMovePoints: boolean;
+begin
+  result := true;
 end;
 
 procedure TCustomPolypointShape.InsertPointAuto;
@@ -1008,22 +1046,54 @@ begin
   FHoverPoint:= -1;
 end;
 
-procedure TCustomPolypointShape.AddPoint(const APoint: TPointF);
+procedure TCustomPolypointShape.Clear;
 begin
-  Points[PointCount] := APoint;
+  RemovePointRange(0, PointCount);
 end;
 
-function TCustomPolypointShape.RemovePoint(AIndex: integer): boolean;
+destructor TCustomPolypointShape.Destroy;
 var
   i: Integer;
 begin
+  for i := 0 to PointCount-1 do
+  begin
+    FreeMem(FPoints[i].data);
+    FPoints[i].data := nil;
+  end;
+  inherited Destroy;
+end;
+
+function TCustomPolypointShape.AddPoint(const APoint: TPointF): integer;
+begin
+  result := PointCount;
+  Points[result] := APoint;
+end;
+
+function TCustomPolypointShape.RemovePoint(AIndex: integer): boolean;
+begin
   if (AIndex < 0) or (AIndex >= PointCount) then exit(false);
-  BeginUpdate;
-  for i := AIndex to PointCount-2 do
-    FPoints[i] := FPoints[i+1];
-  setlength(FPoints, PointCount-1);
-  EndUpdate;
+  RemovePointRange(AIndex,AIndex+1);
   result := true;
+end;
+
+procedure TCustomPolypointShape.RemovePointRange(AFromIndex, AToIndexPlus1: integer);
+var
+  i, delCount: Integer;
+begin
+  if AFromIndex < 0 then AFromIndex:= 0;
+  if AToIndexPlus1 > PointCount then AToIndexPlus1:= PointCount;
+  if AFromIndex >= AToIndexPlus1 then exit;
+  BeginUpdate;
+  for i := AFromIndex to AToIndexPlus1-1 do
+  begin
+    freemem(FPoints[i].data);
+    FPoints[i].data := nil;
+  end;
+  delCount := AToIndexPlus1-AFromIndex;
+  for i := AFromIndex to PointCount-DelCount-1 do
+    FPoints[i] := FPoints[i+delCount];
+  setlength(FPoints, PointCount-delCount);
+  EndUpdate;
 end;
 
 procedure TCustomPolypointShape.InsertPoint(AIndex: integer; APoint: TPointF);
@@ -1037,6 +1107,7 @@ begin
     FPoints[i] := FPoints[i-1];
   FPoints[AIndex].coord := APoint;
   FPoints[AIndex].editorIndex:= -1;
+  FPoints[AIndex].data := nil;
   EndUpdate;
 end;
 
@@ -1046,9 +1117,7 @@ begin
   FMousePos := PointF(X,Y);
   if FAddingPoint then
   begin
-    BeginUpdate;
-    FPoints[high(FPoints)].coord := FMousePos;
-    EndUpdate;
+    Points[PointCount-1] := FMousePos;
     AHandled:= true;
   end;
 end;
@@ -1061,8 +1130,8 @@ begin
   begin
     if not RightButton then
     begin
-      if (length(FPoints)>1) and not PointsEqual(FPoints[high(FPoints)].coord,FPoints[high(FPoints)-1].coord) then
-        AddPoint(FPoints[high(FPoints)].coord);
+      if (PointCount>1) and not PointsEqual(Points[PointCount-1],Points[PointCount-2]) then
+        AddPoint(Points[PointCount-1]);
     end else
       Usermode := vsuEdit;
     AHandled:= true;
@@ -1078,7 +1147,7 @@ begin
     begin
       BeginUpdate;
       RemovePoint(FHoverPoint);
-      if (FHoverPoint < PointCount) and IsEmptyPointF(FPoints[FHoverPoint].coord) then RemovePoint(FHoverPoint);
+      if (FHoverPoint < PointCount) and IsEmptyPointF(Points[FHoverPoint]) then RemovePoint(FHoverPoint);
       EndUpdate;
       if PointCount = 0 then self.Remove;
     end;
@@ -1087,11 +1156,9 @@ begin
   if (Key = skBackspace) and FAddingPoint then
   begin
     If PointCount <= 2 then self.Remove else
-    If isEmptyPointF(FPoints[PointCount-3].coord) then
+    If isEmptyPointF(Points[PointCount-3]) then
     begin
-      BeginUpdate;
-      setlength(FPoints, PointCount-3);
-      EndUpdate;
+      RemovePointRange(PointCount-3, PointCount);
       Usermode:= vsuEdit;
     end else
       RemovePoint(PointCount-2);
@@ -1118,6 +1185,7 @@ var
 begin
   BeginUpdate;
   inherited LoadFromStorage(AStorage);
+  Clear;
   x := AStorage.FloatArray['x'];
   y := AStorage.FloatArray['y'];
   setlength(FPoints, max(length(x),length(y)));
@@ -1125,6 +1193,7 @@ begin
   begin
     FPoints[i].coord := PointF(x[i],y[i]);
     FPoints[i].editorIndex := -1;
+    FPoints[i].data := nil;
   end;
   FClosed:= AStorage.Bool['closed'];
   EndUpdate;
@@ -1153,6 +1222,7 @@ var
   i, nb: Integer;
 begin
   AEditor.AddStartMoveHandler(@OnStartMove);
+  AEditor.AddClickPointHandler(@OnClickPoint);
   AEditor.AddHoverPointHandler(@OnHoverPoint);
   nb := 0;
   FCenterPoint := PointF(0,0);
@@ -1167,7 +1237,10 @@ begin
     end
     else
     begin
-      FPoints[i].editorIndex := AEditor.AddPoint(Points[i], @OnMovePoint, false);
+      if CanMovePoints then
+        FPoints[i].editorIndex := AEditor.AddPoint(Points[i], @OnMovePoint, false)
+      else
+        FPoints[i].editorIndex := AEditor.AddFixedPoint(Points[i], false);
       FCenterPoint += Points[i];
       inc(nb);
     end;
@@ -1307,13 +1380,66 @@ begin
   EndUpdate;
 end;
 
+function TCurveShape.GetCurveMode(AIndex: integer): TEasyBezierCurveMode;
+begin
+  if (AIndex < 0) or (AIndex >= PointCount) then exit(cmCurve);
+  if Assigned(FPoints[AIndex].data) then
+    result := TEasyBezierCurveMode(FPoints[AIndex].data^)
+  else
+    result := cmAuto;
+end;
+
+procedure TCurveShape.SetCurveMode(AIndex: integer; AValue: TEasyBezierCurveMode);
+begin
+  if (AIndex < 0) or (AIndex >= PointCount) then exit;
+  if CurveMode[AIndex] = AValue then exit;
+  BeginUpdate;
+  if FPoints[AIndex].data = nil then FPoints[AIndex].data := getmem(sizeof(TEasyBezierCurveMode));
+  TEasyBezierCurveMode(FPoints[AIndex].data^) := AValue;
+  EndUpdate
+end;
+
 function TCurveShape.GetCurve(AMatrix: TAffineMatrix): ArrayOfTPointF;
 var
   pts: array of TPointF;
+  cm: array of TEasyBezierCurveMode;
+  i: Integer;
+  eb: TEasyBezierCurve;
 begin
   pts := inherited GetCurve(AMatrix);
-  if Closed then result := ComputeClosedSpline(pts, FSplineStyle)
-  else result := ComputeOpenedSpline(pts, FSplineStyle);
+  if FSplineStyle = ssEasyBezier then
+  begin
+    setlength(cm, PointCount);
+    for i := 0 to PointCount-1 do
+      cm[i] := CurveMode[i];
+    eb := EasyBezierCurve(pts, Closed, cm);
+    result := eb.ToPoints;
+  end else
+  begin
+    if Closed then result := ComputeClosedSpline(pts, FSplineStyle)
+    else result := ComputeOpenedSpline(pts, FSplineStyle);
+  end;
+end;
+
+function TCurveShape.CanMovePoints: boolean;
+begin
+  Result:= Usermode in [vsuCreate,vsuEdit];
+end;
+
+procedure TCurveShape.DoClickPoint(APointIndex: integer; AShift: TShiftState);
+begin
+  case Usermode of
+  vsuCurveSetAuto: CurveMode[APointIndex] := cmAuto;
+  vsuCurveSetCurve: CurveMode[APointIndex] := cmCurve;
+  vsuCurveSetAngle: CurveMode[APointIndex] := cmAngle;
+  else
+    inherited DoClickPoint(APointIndex, AShift);
+  end;
+end;
+
+class function TCurveShape.Usermodes: TVectorShapeUsermodes;
+begin
+  Result:=inherited Usermodes + [vsuCurveSetAuto, vsuCurveSetCurve, vsuCurveSetAngle];
 end;
 
 constructor TCurveShape.Create(AContainer: TVectorOriginal);
@@ -1322,7 +1448,34 @@ begin
   FSplineStyle:= ssEasyBezier;
 end;
 
+procedure TCurveShape.KeyPress(UTF8Key: string; var AHandled: boolean);
+begin
+  if (FHoverPoint >= 0) and (FHoverPoint < PointCount) then
+  begin
+    if (UTF8Key = 'A') or (UTF8Key = 'a') then
+    begin
+      CurveMode[FHoverPoint] := cmAuto;
+      AHandled := true;
+    end else
+    if (UTF8Key = 'S') or (UTF8Key = 's') then
+    begin
+      CurveMode[FHoverPoint] := cmCurve;
+      AHandled:= true;
+    end else
+    if (UTF8Key = 'X') or (UTF8Key = 'x') then
+    begin
+      CurveMode[FHoverPoint] := cmAngle;
+      AHandled:= true;
+    end;
+  end;
+  if not AHandled then
+    inherited KeyPress(UTF8Key, AHandled);
+end;
+
 procedure TCurveShape.LoadFromStorage(AStorage: TBGRACustomOriginalStorage);
+var
+  i: Integer;
+  cm: array of Single;
 begin
   BeginUpdate;
   inherited LoadFromStorage(AStorage);
@@ -1337,11 +1490,25 @@ begin
   else
     {'easy-bezier'} SplineStyle := ssEasyBezier;
   end;
+  if SplineStyle = ssEasyBezier then
+  begin
+    cm := AStorage.FloatArray['curve-mode'];
+    for i := 0 to min(high(cm),PointCount-1) do
+      case round(cm[i]) of
+      1: CurveMode[i] := cmCurve;
+      2: CurveMode[i] := cmAngle;
+      end;
+    if length(cm) < PointCount then
+      for i:= length(cm) to PointCount-1 do
+        CurveMode[i] := cmCurve;
+  end;
   EndUpdate;
 end;
 
 procedure TCurveShape.SaveToStorage(AStorage: TBGRACustomOriginalStorage);
 var s: string;
+  cm: array of single;
+  i: Integer;
 begin
   inherited SaveToStorage(AStorage);
   case SplineStyle of
@@ -1356,6 +1523,13 @@ begin
   else s := '';
   end;
   AStorage.RawString['spline-style'] := s;
+  if SplineStyle = ssEasyBezier then
+  begin
+    setlength(cm, PointCount);
+    for i := 0 to PointCount-1 do
+      cm[i] := ord(CurveMode[i]);
+    AStorage.FloatArray['curve-mode'] := cm;
+  end;
 end;
 
 class function TCurveShape.StorageClassName: RawByteString;

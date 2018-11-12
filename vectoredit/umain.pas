@@ -37,6 +37,7 @@ type
   TForm1 = class(TForm)
     BackImage: TImage;
     BGRAFillImageList16: TBGRAImageList;
+    CurveImageList: TBGRAImageList;
     ButtonBackGradInterp: TBCButton;
     ButtonBackLoadTex: TBCButton;
     ButtonBackTexRepeat: TBCButton;
@@ -166,11 +167,12 @@ type
     FUpdatingSpinEditPenWidth: boolean;
     FCurrentTool: TPaintTool;
     FSplineStyle: TSplineStyle;
-    FComboboxSplineStyle: TComboBox;
-    FUpdatingComboboxSplineStyle : boolean;
+    FSplineStyleMenu: TPopupMenu;
+    FComboboxSplineStyle: TBCButton;
+    FSplineToolbar: TToolBar;
     FPenStyleMenu: TPopupMenu;
     FInRemoveShapeIfEmpty: Boolean;
-    procedure ComboBoxSplineStyleChange(Sender: TObject);
+    procedure ComboBoxSplineStyleClick(Sender: TObject);
     function GetBackTexture: TBGRABitmap;
     function GetPenColor: TBGRAPixel;
     function GetPenStyle: TBGRAPenStyle;
@@ -178,6 +180,7 @@ type
     function GetSplineStyle: TSplineStyle;
     function GetVectorTransform: TAffineMatrix;
     procedure ImageChange(ARectF: TRectF);
+    procedure OnClickSplineStyleItem(ASender: TObject);
     procedure OnEditingChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
     procedure OnOriginalChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
     procedure OnSelectShape(ASender: TObject; AShape: TVectorShape; APreviousShape: TVectorShape);
@@ -196,6 +199,7 @@ type
     procedure SetPenStyle(AValue: TBGRAPenStyle);
     procedure SetPenWidth(AValue: single);
     procedure SetSplineStyle(AValue: TSplineStyle);
+    procedure SplineToolbarClick(Sender: TObject);
     procedure UpdateViewCursor(ACursor: TOriginalEditorCursor);
     procedure RenderAndUpdate(ADraft: boolean);
     procedure UpdateFlattenedImage(ARect: TRect; AUpdateView: boolean = true);
@@ -252,6 +256,22 @@ implementation
 
 uses math, BGRAPen, BGRAThumbnail, BGRAGradientOriginal, uvectorclipboard;
 
+procedure AddToolbarCheckButton(AToolbar: TToolbar; ACaption: string; AImageIndex: integer;
+          AOnClick: TNotifyEvent; ADown: boolean; AGrouped: boolean = true);
+var
+  btn: TToolButton;
+begin
+  btn := TToolButton.Create(AToolbar);
+  btn.Style := tbsCheck;
+  btn.Caption := ACaption;
+  btn.Hint := ACaption;
+  btn.ImageIndex := AImageIndex;
+  btn.Down:= ADown;
+  btn.Grouped := AGrouped;
+  btn.OnClick:= AOnClick;
+  btn.Parent := AToolbar;
+end;
+
 function LCLKeyToSpecialKey(Key: Word): TSpecialKey;
 var
   sk: TSpecialKey;
@@ -277,6 +297,7 @@ var
   gr: TBGRAGradientRepetition;
   ci: TBGRAColorInterpolation;
   tr: TTextureRepetition;
+  ss: TSplineStyle;
 begin
   baseCaption:= Caption;
 
@@ -319,6 +340,15 @@ begin
     item.OnClick := @OnClickBackGradInterp;        item.Tag := ord(ci);
     item.ImageIndex:= 11+ord(ci);
     FBackGradInterpMenu.Items.Add(item);
+  end;
+
+  FSplineStyleMenu := TPopupMenu.Create(nil);
+  for ss := low(TSplineStyle) to high(TSplineStyle) do
+  begin
+    item := TMenuItem.Create(FSplineStyleMenu); item.Caption := SplineStyleToStr[ss];
+    item.OnClick:=@OnClickSplineStyleItem;
+        item.Tag := ord(ss);
+    FSplineStyleMenu.Items.Add(item);
   end;
 
   FBackTexRepetitionMenu := TPopupMenu.Create(nil);
@@ -736,6 +766,7 @@ begin
   FBackGradRepetitionMenu.Free;
   FBackGradInterpMenu.Free;
   FBackTexRepetitionMenu.Free;
+  FSplineStyleMenu.Free;
 end;
 
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -883,11 +914,11 @@ begin
   end;
 end;
 
-procedure TForm1.ComboBoxSplineStyleChange(Sender: TObject);
+procedure TForm1.ComboBoxSplineStyleClick(Sender: TObject);
 begin
-  if FUpdatingComboboxSplineStyle then exit;
-  if FComboboxSplineStyle.ItemIndex <> -1 then
-    splineStyle:= TSplineStyle(FComboboxSplineStyle.ItemIndex);
+  if Assigned(FSplineStyleMenu) then
+    with FComboboxSplineStyle.ClientToScreen(Point(0,FComboboxSplineStyle.Height)) do
+      FSplineStyleMenu.PopUp(X,Y);
 end;
 
 function TForm1.GetBackTexture: TBGRABitmap;
@@ -932,6 +963,11 @@ begin
     changeRect := rect(floor(ARectF.Left),floor(ARectF.Top),ceil(ARectF.Right),ceil(ARectF.Bottom));
     UpdateFlattenedImage(changeRect);
   end;
+end;
+
+procedure TForm1.OnClickSplineStyleItem(ASender: TObject);
+begin
+  splineStyle := TSplineStyle((ASender as TMenuItem).Tag);
 end;
 
 procedure TForm1.OnEditingChange(ASender: TObject;
@@ -1174,14 +1210,30 @@ procedure TForm1.SetSplineStyle(AValue: TSplineStyle);
 begin
   FSplineStyle := AValue;
   if Assigned(FComboboxSplineStyle) then
-  begin
-    FUpdatingComboboxSplineStyle := true;
-    FComboboxSplineStyle.ItemIndex:= ord(FSplineStyle);
-    FUpdatingComboboxSplineStyle := false;
-  end;
+    FComboboxSplineStyle.Caption:= SplineStyleToStr[FSplineStyle];
   if not FUpdatingFromShape and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
     (vectorOriginal.SelectedShape is TCurveShape) then
     TCurveShape(vectorOriginal.SelectedShape).SplineStyle := FSplineStyle;
+end;
+
+procedure TForm1.SplineToolbarClick(Sender: TObject);
+var
+  btn: TToolButton;
+  mode: TVectorShapeUsermode;
+begin
+  if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
+     (vectorOriginal.SelectedShape is TCurveShape) then
+  begin
+    btn := Sender as TToolButton;
+    if btn.Down then
+    begin
+      if btn.ImageIndex = 0 then mode := vsuEdit
+      else if btn.ImageIndex = 1 then mode := vsuCurveSetAuto
+      else if btn.ImageIndex = 2 then mode := vsuCurveSetCurve
+      else if btn.ImageIndex = 3 then mode := vsuCurveSetAngle;
+      vectorOriginal.SelectedShape.Usermode := mode;
+    end;
+  end;
 end;
 
 procedure TForm1.UpdateViewCursor(ACursor: TOriginalEditorCursor);
@@ -1197,6 +1249,7 @@ begin
     oecMoveSW: BGRAVirtualScreen1.Cursor := crSizeSW;
     oecMoveNW: BGRAVirtualScreen1.Cursor := crSizeNW;
     oecMoveSE: BGRAVirtualScreen1.Cursor := crSizeSE;
+    oecHandPoint: BGRAVirtualScreen1.Cursor := crHandPoint;
   end;
 end;
 
@@ -1281,19 +1334,22 @@ begin
 end;
 
 procedure TForm1.UpdateToolbarFromShape(AShape: TVectorShape);
-const ControlMargin = 8;
+const ControlMargin = 6;
 var
   f: TVectorShapeFields;
   showSplineStyle: boolean;
   nextControlPos: TPoint;
   s: TSplineStyle;
   texSource: TBGRABitmap;
+  btn: TToolButton;
+  mode: TVectorShapeUsermode;
 begin
   RemoveExtendedStyleControls;
 
   if AShape <> nil then
   begin
     FUpdatingFromShape := true;
+    mode := AShape.Usermode;
     f := AShape.Fields;
     if vsfPenColor in f then penColor := AShape.PenColor;
     if vsfPenWidth in f then penWidth:= AShape.PenWidth;
@@ -1340,6 +1396,7 @@ begin
     FUpdatingFromShape := false;
   end else
   begin
+    mode := vsuEdit;
     if IsCreateShapeTool(currentTool) then
     begin
       f := PaintToolClass[currentTool].Fields;
@@ -1355,19 +1412,38 @@ begin
   UpDownPenWidth.Enabled := vsfPenWidth in f;
   ButtonPenStyle.Enabled:= vsfPenStyle in f;
 
-  nextControlPos := Point(ControlMargin,ShapeBackColor.Top);
+  nextControlPos := Point(ControlMargin,4);
   if showSplineStyle then
   begin
-    FComboboxSplineStyle := TComboBox.Create(nil);
-    FComboboxSplineStyle.Style := csDropDownList;
+    FSplineToolbar := TToolBar.Create(nil);
+    FSplineToolbar.Align := alNone;
+    FSplineToolbar.Left := nextControlPos.X;
+    FSplineToolbar.Top := nextControlPos.Y;
+    FSplineToolbar.Height := 25;
+    FSplineToolbar.Width := 120;
+    FSplineToolbar.ShowHint:= true;
+    FSplineToolbar.ShowCaptions:= false;
+    FSplineToolbar.Images := CurveImageList;
+    AddToolbarCheckButton(FSplineToolbar, 'Move spline points', 0, @SplineToolbarClick, mode in [vsuEdit, vsuCreate]);
+    AddToolbarCheckButton(FSplineToolbar, 'Set to autodetect angle (A)', 1, @SplineToolbarClick, mode = vsuCurveSetAuto);
+    AddToolbarCheckButton(FSplineToolbar, 'Set to curve (S)', 2, @SplineToolbarClick, mode = vsuCurveSetCurve);
+    AddToolbarCheckButton(FSplineToolbar, 'Set to angle (X)', 3, @SplineToolbarClick, mode = vsuCurveSetAngle);
+    PanelExtendedStyle.InsertControl(FSplineToolbar);
+
+    FComboboxSplineStyle := TBCButton.Create(nil);
+    FComboboxSplineStyle.Style := bbtButton;
     FComboboxSplineStyle.Left := nextControlPos.X;
-    FComboboxSplineStyle.Top := nextControlPos.Y;
-    for s := low(SplineStyleToStr) to high(SplineStyleToStr) do
-      FComboboxSplineStyle.Items.Add(SplineStyleToStr[s]);
-    FComboboxSplineStyle.ItemIndex := ord(splineStyle);
+    FComboboxSplineStyle.Top := nextControlPos.Y + FSplineToolbar.Height;
+    FComboboxSplineStyle.Caption:= SplineStyleToStr[splineStyle];
     FComboboxSplineStyle.Width := 120;
-    FComboboxSplineStyle.OnChange:= @ComboBoxSplineStyleChange;
+    FComboboxSplineStyle.Height := ButtonPenStyle.Height;
+    FComboboxSplineStyle.OnClick:=@ComboBoxSplineStyleClick;
+    FComboboxSplineStyle.StateNormal.Assign(ButtonPenStyle.StateNormal);
+    FComboboxSplineStyle.StateHover.Assign(ButtonPenStyle.StateHover);
+    FComboboxSplineStyle.StateClicked.Assign(ButtonPenStyle.StateClicked);
+    FComboboxSplineStyle.Rounding.Assign(ButtonPenStyle.Rounding);
     PanelExtendedStyle.InsertControl(FComboboxSplineStyle);
+
     nextControlPos.X := FComboboxSplineStyle.Left + FComboboxSplineStyle.Width + ControlMargin;
   end;
 end;
@@ -1475,6 +1551,11 @@ begin
   begin
     PanelExtendedStyle.RemoveControl(FComboboxSplineStyle);
     FreeAndNil(FComboboxSplineStyle);
+  end;
+  if Assigned(FSplineToolbar) then
+  begin
+    PanelExtendedStyle.RemoveControl(FSplineToolbar);
+    FreeAndNil(FSplineToolbar);
   end;
 end;
 
