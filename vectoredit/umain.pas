@@ -650,7 +650,8 @@ begin
   UpdateViewCursor(cur);
 
   ptF := AffineMatrixInverse(vectorTransform)*imgPtF;
-  if justDown and not Assigned(newShape) and IsCreateShapeTool(currentTool) then
+  if justDown and not Assigned(newShape) and IsCreateShapeTool(currentTool) and
+    (VectLen(ptF-newStartPoint) >= EditorPointSize) then
   begin
     vectorOriginal.DeselectShape;
     newShape := CreateShape(newStartPoint,ptF);
