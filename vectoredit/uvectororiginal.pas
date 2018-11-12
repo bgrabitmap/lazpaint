@@ -626,7 +626,7 @@ end;
 
 procedure TVectorShape.MoveUp(APassNonIntersectingShapes: boolean);
 var
-  movedShapeBounds, otherShapeBounds, inter: TRect;
+  movedShapeBounds, otherShapeBounds: TRectF;
   sourceIdx,idx: integer;
 begin
   if not Assigned(Container) then exit;
@@ -635,14 +635,11 @@ begin
   idx := sourceIdx;
   if APassNonIntersectingShapes then
   begin
-    with self.GetRenderBounds(InfiniteRect, AffineMatrixIdentity) do
-      movedShapeBounds := Rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
-    inter := EmptyRect;
+    movedShapeBounds := self.GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
     while idx < Container.ShapeCount-2 do
     begin
-      with Container.Shape[idx+1].GetRenderBounds(InfiniteRect, AffineMatrixIdentity) do
-        otherShapeBounds := Rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
-      if IntersectRect(inter, movedShapeBounds, otherShapeBounds) then break;
+      otherShapeBounds := Container.Shape[idx+1].GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
+      if movedShapeBounds.IntersectsWith(otherShapeBounds) then break;
       inc(idx);
     end;
   end;
@@ -652,7 +649,7 @@ end;
 
 procedure TVectorShape.MoveDown(APassNonIntersectingShapes: boolean);
 var
-  movedShapeBounds, otherShapeBounds, inter: TRect;
+  movedShapeBounds, otherShapeBounds: TRectF;
   sourceIdx,idx: integer;
 begin
   if not Assigned(Container) then exit;
@@ -661,14 +658,11 @@ begin
   idx := sourceIdx;
   if APassNonIntersectingShapes then
   begin
-    with self.GetRenderBounds(InfiniteRect, AffineMatrixIdentity) do
-      movedShapeBounds := Rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
-    inter := EmptyRect;
+    movedShapeBounds := self.GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
     while idx > 1 do
     begin
-      with Container.Shape[idx-1].GetRenderBounds(InfiniteRect, AffineMatrixIdentity) do
-        otherShapeBounds := Rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
-      if IntersectRect(inter, movedShapeBounds, otherShapeBounds) then break;
+      otherShapeBounds := Container.Shape[idx-1].GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
+      if movedShapeBounds.IntersectsWith(otherShapeBounds) then break;
       dec(idx);
     end;
   end;

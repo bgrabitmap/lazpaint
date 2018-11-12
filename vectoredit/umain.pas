@@ -167,6 +167,7 @@ type
     FComboboxSplineStyle: TComboBox;
     FUpdatingComboboxSplineStyle : boolean;
     FPenStyleMenu: TPopupMenu;
+    FInRemoveShapeIfEmpty: Boolean;
     procedure ComboBoxSplineStyleChange(Sender: TObject);
     function GetBackTexture: TBGRABitmap;
     function GetPenColor: TBGRAPixel;
@@ -209,6 +210,7 @@ type
     procedure UpdateShapeActions(AShape: TVectorShape);
     function ToolButtonBackFillGradDown: boolean;
     procedure OnClickBackTexRepeat(ASender: TObject);
+    procedure RemoveShapeIfEmpty(AShape: TVectorShape);
   public
     { public declarations }
     img: TBGRALazPaintImage;
@@ -433,6 +435,7 @@ begin
   if SaveDialog1.Execute then
   begin
     try
+      if Assigned(vectorOriginal) then RemoveShapeIfEmpty(vectorOriginal.SelectedShape);
       img.SaveToFile(SaveDialog1.FileName);
       filename := SaveDialog1.FileName;
       UpdateTitleBar;
@@ -450,6 +453,7 @@ begin
   else
   begin
     try
+      if Assigned(vectorOriginal) then RemoveShapeIfEmpty(vectorOriginal.SelectedShape);
       img.SaveToFile(filename);
     except
       on ex: exception do
@@ -703,7 +707,10 @@ begin
       vectorOriginal.AddShape(addedShape, vsuCreate);
     end
     else
+    begin
       FreeAndNil(newShape);
+      ShowMessage('Shape is empty and was not added');
+    end;
   end;
 end;
 
@@ -929,13 +936,7 @@ begin
   end;
 
   UpdateShapeActions(AShape);
-
-  if APreviousShape <> nil then
-    if IsEmptyRectF(APreviousShape.GetRenderBounds(InfiniteRect, vectorTransform)) then
-    begin
-      vectorOriginal.RemoveShape(APreviousShape);
-      ShowMessage('Empty shape has been deleted');
-    end;
+  RemoveShapeIfEmpty(APreviousShape);
 end;
 
 procedure TForm1.OnClickPenStyle(ASender: TObject);
@@ -1530,6 +1531,29 @@ end;
 procedure TForm1.OnClickBackTexRepeat(ASender: TObject);
 begin
   backTextureRepetition := TTextureRepetition((ASender as TMenuItem).Tag);
+end;
+
+procedure TForm1.RemoveShapeIfEmpty(AShape: TVectorShape);
+var
+  rF: TRectF;
+begin
+  if FInRemoveShapeIfEmpty then exit;
+  FInRemoveShapeIfEmpty := true;
+  if AShape <> nil then
+  begin
+    rF := AShape.GetRenderBounds(InfiniteRect, vectorTransform);
+    if IsEmptyRectF(rF) then
+    begin
+      vectorOriginal.RemoveShape(AShape);
+      ShowMessage('Shape is empty and has been deleted');
+    end else
+    if not rF.IntersectsWith(RectF(0,0,img.Width,img.Height)) then
+    begin
+      vectorOriginal.RemoveShape(AShape);
+      ShowMessage('Shape is outside of picture and has been deleted');
+    end;
+  end;
+  FInRemoveShapeIfEmpty := false;
 end;
 
 procedure TForm1.DoCopy;
