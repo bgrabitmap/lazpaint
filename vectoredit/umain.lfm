@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 376
+  Left = 374
   Height = 475
-  Top = 25
+  Top = 0
   Width = 981
   Caption = 'Vector Edit'
   ClientHeight = 475
@@ -10,6 +10,8 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
+  OnKeyUp = FormKeyUp
+  OnUTF8KeyPress = FormUTF8KeyPress
   LCLVersion = '1.6.0.4'
   object BGRAVirtualScreen1: TBGRAVirtualScreen
     Left = 60

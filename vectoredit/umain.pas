@@ -9,7 +9,7 @@ uses
   ExtCtrls, StdCtrls, ComCtrls, ExtDlgs, Menus, BGRAVirtualScreen,
   BCTrackbarUpdown, BCPanel, BGRAImageList, BCButton, BGRALazPaint,
   BGRABitmap, BGRABitmapTypes, BGRATransform, BGRALayerOriginal, BGRAGraphics,
-  uvectororiginal, uvectorialfill, uvectorshapes, BGRAGradientScanner;
+  uvectororiginal, uvectorialfill, uvectorshapes, BGRAGradientScanner, LCLType;
 
 const
   EditorPointSize = 7;
@@ -138,6 +138,8 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
+    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FormUTF8KeyPress(Sender: TObject; var UTF8Key: TUTF8Char);
     procedure ToolButtonBackFillChange(Sender: TObject);
     procedure ShapeBackColorMouseUp(Sender: TObject; {%H-}Button: TMouseButton;
       {%H-}Shift: TShiftState; X, Y: Integer);
@@ -248,7 +250,16 @@ var
 
 implementation
 
-uses math, LCLType, BGRAPen, BGRAThumbnail, BGRAGradientOriginal, uvectorclipboard;
+uses math, BGRAPen, BGRAThumbnail, BGRAGradientOriginal, uvectorclipboard;
+
+function LCLKeyToSpecialKey(Key: Word): TSpecialKey;
+var
+  sk: TSpecialKey;
+begin
+  for sk := low(TSpecialKey) to high(TSpecialKey) do
+    if Key = SpecialKeyToLCL[sk] then exit(sk);
+  exit(skUnknown);
+end;
 
 function IsCreateShapeTool(ATool: TPaintTool): boolean;
 begin
@@ -727,15 +738,16 @@ begin
   FBackTexRepetitionMenu.Free;
 end;
 
-procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState
-  );
+procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+var
+  AHandled: boolean;
 begin
-  if Key = VK_RETURN then
+  if Assigned(img) then
   begin
-    Key := 0;
-    if Assigned(vectorOriginal) then
-      vectorOriginal.DeselectShape;
-  end else
+    img.KeyDown(Shift, LCLKeyToSpecialKey(Key), AHandled);
+    if AHandled then Key := 0;
+  end;
+
   if (Key = VK_X) and (ssCtrl in Shift) then
   begin
     Key := 0;
@@ -755,6 +767,27 @@ begin
   begin
     Key := 0;
     DoDelete;
+  end;
+end;
+
+procedure TForm1.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+var
+  AHandled: boolean;
+begin
+  if Assigned(img) then
+  begin
+    img.KeyUp(Shift, LCLKeyToSpecialKey(Key), AHandled);
+    if AHandled then Key:= 0;
+  end;
+end;
+
+procedure TForm1.FormUTF8KeyPress(Sender: TObject; var UTF8Key: TUTF8Char);
+var AHandled: boolean;
+begin
+  if Assigned(img) then
+  begin
+    img.KeyPress(UTF8Key, AHandled);
+    if AHandled then UTF8Key:= '';
   end;
 end;
 

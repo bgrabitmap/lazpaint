@@ -75,6 +75,9 @@ type
     procedure MouseMove({%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); virtual;
     procedure MouseDown({%H-}RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); virtual;
     procedure MouseUp({%H-}RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); virtual;
+    procedure KeyDown({%H-}Shift: TShiftState; {%H-}Key: TSpecialKey; var {%H-}AHandled: boolean); virtual;
+    procedure KeyUp({%H-}Shift: TShiftState; {%H-}Key: TSpecialKey; var {%H-}AHandled: boolean); virtual;
+    procedure KeyPress({%H-}UTF8Key: string; var {%H-}AHandled: boolean); virtual;
     procedure BringToFront;
     procedure SendToBack;
     procedure MoveUp(APassNonIntersectingShapes: boolean);
@@ -172,6 +175,9 @@ type
     procedure MouseMove(Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); override;
     procedure MouseDown(RightButton: boolean; Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); override;
     procedure MouseUp(RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); override;
+    procedure KeyDown(Shift: TShiftState; Key: TSpecialKey; out AHandled: boolean); override;
+    procedure KeyUp(Shift: TShiftState; Key: TSpecialKey; out AHandled: boolean); override;
+    procedure KeyPress(UTF8Key: string; out AHandled: boolean); override;
   end;
 
 procedure RegisterVectorShape(AClass: TVectorShapeAny);
@@ -252,6 +258,58 @@ begin
     ptF := FMatrixInverse*PointF(X,Y);
     with ptF do FOriginal.SelectedShape.MouseUp(RightButton, Shift, X,Y, ACursor, AHandled);
   end;
+end;
+
+procedure TVectorOriginalEditor.KeyDown(Shift: TShiftState; Key: TSpecialKey; out
+  AHandled: boolean);
+begin
+  if Assigned(FOriginal.SelectedShape) then
+  begin
+    if (Key = skReturn) and ([ssShift,ssCtrl,ssAlt]*Shift = []) then
+    begin
+      FOriginal.DeselectShape;
+      AHandled := true;
+      exit;
+    end else
+    if (Key = skEscape) and ([ssShift,ssCtrl,ssAlt]*Shift = []) and (FOriginal.SelectedShape.Usermode = vsuCreate) then
+    begin
+     FOriginal.SelectedShape.Remove;
+     AHandled:= true;
+    end else
+    begin
+      AHandled := false;
+      FOriginal.SelectedShape.KeyDown(Shift, Key, AHandled);
+      if AHandled then exit;
+    end;
+  end;
+
+  inherited KeyDown(Shift, Key, AHandled);
+end;
+
+procedure TVectorOriginalEditor.KeyUp(Shift: TShiftState; Key: TSpecialKey; out
+  AHandled: boolean);
+begin
+  if Assigned(FOriginal.SelectedShape) then
+  begin
+    AHandled := false;
+    FOriginal.SelectedShape.KeyUp(Shift, Key, AHandled);
+    if AHandled then exit;
+  end;
+
+  inherited KeyUp(Shift, Key, AHandled);
+end;
+
+procedure TVectorOriginalEditor.KeyPress(UTF8Key: string; out
+  AHandled: boolean);
+begin
+  if Assigned(FOriginal.SelectedShape) then
+  begin
+    AHandled := false;
+    FOriginal.SelectedShape.KeyPress(UTF8Key, AHandled);
+    if AHandled then exit;
+  end;
+
+  inherited KeyPress(UTF8Key, AHandled);
 end;
 
 { TVectorShape }
@@ -608,6 +666,23 @@ end;
 
 procedure TVectorShape.MouseUp(RightButton: boolean; Shift: TShiftState; X,
   Y: single; var ACursor: TOriginalEditorCursor; var AHandled: boolean);
+begin
+  //nothing
+end;
+
+procedure TVectorShape.KeyDown(Shift: TShiftState; Key: TSpecialKey;
+  var AHandled: boolean);
+begin
+  //nothing
+end;
+
+procedure TVectorShape.KeyUp(Shift: TShiftState; Key: TSpecialKey;
+  var AHandled: boolean);
+begin
+  //nothing
+end;
+
+procedure TVectorShape.KeyPress(UTF8Key: string; var AHandled: boolean);
 begin
   //nothing
 end;
