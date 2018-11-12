@@ -39,6 +39,7 @@ type
     FStroker: TBGRAPenStroker;
     FUsermode: TVectorShapeUsermode;
     FContainer: TVectorOriginal;
+    FRemoving: boolean;
     function GetIsBack: boolean;
     function GetIsFront: boolean;
     procedure SetContainer(AValue: TVectorOriginal);
@@ -63,7 +64,7 @@ type
     property Stroker: TBGRAPenStroker read GetStroker;
     procedure FillChange({%H-}ASender: TObject); virtual;
   public
-    constructor Create(AContainer: TVectorOriginal);
+    constructor Create(AContainer: TVectorOriginal); virtual;
     destructor Destroy; override;
     procedure QuickDefine(const APoint1,APoint2: TPointF); virtual; abstract;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); virtual; abstract;
@@ -99,6 +100,7 @@ type
     property Container: TVectorOriginal read FContainer write SetContainer;
     property IsFront: boolean read GetIsFront;
     property IsBack: boolean read GetIsBack;
+    property IsRemoving: boolean read FRemoving;
   end;
   TVectorShapes = specialize TFPGList<TVectorShape>;
   TVectorShapeAny = class of TVectorShape;
@@ -604,6 +606,7 @@ begin
   FOnEditingChange := nil;
   FBackFill := nil;
   FUsermode:= vsuEdit;
+  FRemoving:= false;
 end;
 
 destructor TVectorShape.Destroy;
@@ -976,8 +979,10 @@ var
   idx: LongInt;
   r: TRectF;
 begin
+  if AShape.FRemoving then exit;
   idx := FShapes.IndexOf(AShape);
   if idx = -1 then exit(false);
+  AShape.FRemoving := true;
   if AShape = SelectedShape then DeselectShape;
   AShape.OnChange := nil;
   AShape.OnEditingChange := nil;
@@ -986,6 +991,7 @@ begin
   FDeletedShapes.Add(AShape);
   DiscardFrozenShapes;
   NotifyChange(r);
+  AShape.FRemoving := false;
 end;
 
 procedure TVectorOriginal.SelectShape(AIndex: integer);

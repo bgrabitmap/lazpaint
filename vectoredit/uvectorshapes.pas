@@ -64,7 +64,7 @@ type
     function BackVisible: boolean;
     function GetCornerPositition: single; override;
   public
-    constructor Create(AContainer: TVectorOriginal);
+    constructor Create(AContainer: TVectorOriginal); override;
     class function Fields: TVectorShapeFields; override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
@@ -91,6 +91,7 @@ type
     FCurPoint: integer;
     FAddingPoint: boolean;
     FMousePos: TPointF;
+    FHoverPoint: integer;
     procedure OnMovePoint({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; {%H-}AShift: TShiftState);
     procedure OnMoveCenterPoint({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; {%H-}AShift: TShiftState);
     procedure OnStartMove({%H-}ASender: TObject; APointIndex: integer; {%H-}AShift: TShiftState);
@@ -99,11 +100,16 @@ type
     function GetClosed: boolean; virtual;
     procedure SetClosed(AValue: boolean); virtual;
     function PointsEqual(const APoint1, APoint2: TPointF): boolean;
+    procedure OnHoverPoint({%H-}ASender: TObject; APointIndex: integer); virtual;
+    procedure InsertPointAuto;
   public
-    constructor Create(AContainer: TVectorOriginal);
+    constructor Create(AContainer: TVectorOriginal); override;
     procedure AddPoint(const APoint: TPointF);
+    function RemovePoint(AIndex: integer): boolean;
+    procedure InsertPoint(AIndex: integer; APoint: TPointF);
     procedure MouseMove({%H-}Shift: TShiftState; X, Y: single; var {%H-}ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
     procedure MouseDown(RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
+    procedure KeyDown({%H-}Shift: TShiftState; Key: TSpecialKey; var AHandled: boolean); override;
     procedure QuickDefine(const APoint1,APoint2: TPointF); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
@@ -112,6 +118,7 @@ type
     property Points[AIndex:integer]: TPointF read GetPoint write SetPoint;
     property PointCount: integer read GetPointCount;
     property Closed: boolean read GetClosed write SetClosed;
+    property HoverPoint: integer read FHoverPoint;
   end;
 
   { TPolylineShape }
@@ -138,7 +145,7 @@ type
   protected
     function GetCurve(AMatrix: TAffineMatrix): ArrayOfTPointF; override;
   public
-    constructor Create(AContainer: TVectorOriginal);
+    constructor Create(AContainer: TVectorOriginal); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     class function StorageClassName: RawByteString; override;
@@ -933,16 +940,104 @@ begin
     exit((APoint1.x = APoint2.x) and (APoint1.y = APoint2.y));
 end;
 
+procedure TCustomPolypointShape.OnHoverPoint(ASender: TObject;
+  APointIndex: integer);
+var
+  i: Integer;
+begin
+  FHoverPoint:= -1;
+  if APointIndex <> -1 then
+  begin
+    for i:= 0 to high(FPoints) do
+      if FPoints[i].editorIndex = APointIndex then
+      begin
+        FHoverPoint:= i;
+        break;
+      end;
+  end;
+end;
+
+procedure TCustomPolypointShape.InsertPointAuto;
+var
+  bestSegmentIndex, i: Integer;
+  bestSegmentDist, segmentLen, segmentPos: single;
+  u, n: TPointF;
+  segmentDist: single;
+begin
+  if isEmptyPointF(FMousePos) then exit;
+
+  for i := 0 to PointCount-1 do
+    if (Points[i] = FMousePos) and not (FAddingPoint and (i = PointCount-1)) then exit;
+
+  bestSegmentIndex := -1;
+  bestSegmentDist := MaxSingle;
+  for i := 0 to PointCount-1 do
+  if FAddingPoint and (i >= PointCount-2) then break else
+  begin
+    if (i = PointCount-1) and not Closed then break;
+    u := Points[(i+1) mod PointCount] - Points[i];
+    segmentLen := VectLen(u);
+    if segmentLen > 0 then
+    begin
+      u *= 1/segmentLen;
+      segmentPos := (FMousePos-Points[i])*u;
+      if (segmentPos > 0) and (segmentPos< segmentLen) then
+      begin
+        n := PointF(u.y,-u.x);
+        segmentDist := abs((FMousePos-Points[i])*n);
+        if segmentDist <= bestSegmentDist then
+        begin
+          bestSegmentDist := segmentDist;
+          bestSegmentIndex := i;
+        end;
+      end;
+    end;
+  end;
+  if bestSegmentIndex <> -1 then
+  begin
+    InsertPoint(bestSegmentIndex+1, FMousePos);
+    FHoverPoint:= bestSegmentIndex+1;
+  end;
+end;
+
 constructor TCustomPolypointShape.Create(AContainer: TVectorOriginal);
 begin
   inherited Create(AContainer);
   FMousePos := EmptyPointF;
   FClosed:= false;
+  FHoverPoint:= -1;
 end;
 
 procedure TCustomPolypointShape.AddPoint(const APoint: TPointF);
 begin
   Points[PointCount] := APoint;
+end;
+
+function TCustomPolypointShape.RemovePoint(AIndex: integer): boolean;
+var
+  i: Integer;
+begin
+  if (AIndex < 0) or (AIndex >= PointCount) then exit(false);
+  BeginUpdate;
+  for i := AIndex to PointCount-2 do
+    FPoints[i] := FPoints[i+1];
+  setlength(FPoints, PointCount-1);
+  EndUpdate;
+  result := true;
+end;
+
+procedure TCustomPolypointShape.InsertPoint(AIndex: integer; APoint: TPointF);
+var
+  i: Integer;
+begin
+  if (AIndex < 0) or (AIndex > PointCount) then raise exception.Create('Index out of bounds');
+  BeginUpdate;
+  setlength(FPoints, PointCount+1);
+  for i := PointCount-1 downto AIndex+1 do
+    FPoints[i] := FPoints[i-1];
+  FPoints[AIndex].coord := APoint;
+  FPoints[AIndex].editorIndex:= -1;
+  EndUpdate;
 end;
 
 procedure TCustomPolypointShape.MouseMove(Shift: TShiftState; X, Y: single; var
@@ -972,6 +1067,37 @@ begin
       Usermode := vsuEdit;
     AHandled:= true;
   end;
+end;
+
+procedure TCustomPolypointShape.KeyDown(Shift: TShiftState; Key: TSpecialKey;
+  var AHandled: boolean);
+begin
+  if (Key = skDelete) and (FAddingPoint or ((FHoverPoint >= 0) and (FHoverPoint < PointCount))) then
+  begin
+    if (FHoverPoint >= 0) and (FHoverPoint < PointCount) then
+    begin
+      BeginUpdate;
+      RemovePoint(FHoverPoint);
+      if (FHoverPoint < PointCount) and IsEmptyPointF(FPoints[FHoverPoint].coord) then RemovePoint(FHoverPoint);
+      EndUpdate;
+      if PointCount = 0 then self.Remove;
+    end;
+    AHandled:= true;
+  end else
+  if (Key = skBackspace) and FAddingPoint then
+  begin
+    If PointCount <= 2 then self.Remove else
+    If isEmptyPointF(FPoints[PointCount-3].coord) then
+    begin
+      BeginUpdate;
+      setlength(FPoints, PointCount-3);
+      EndUpdate;
+      Usermode:= vsuEdit;
+    end else
+      RemovePoint(PointCount-2);
+  end else
+  if (Key = skInsert) then InsertPointAuto else
+    inherited KeyDown(Shift, Key, AHandled);
 end;
 
 procedure TCustomPolypointShape.QuickDefine(const APoint1, APoint2: TPointF);
@@ -1027,6 +1153,7 @@ var
   i, nb: Integer;
 begin
   AEditor.AddStartMoveHandler(@OnStartMove);
+  AEditor.AddHoverPointHandler(@OnHoverPoint);
   nb := 0;
   FCenterPoint := PointF(0,0);
   for i:= 0 to PointCount-1 do

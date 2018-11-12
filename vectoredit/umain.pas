@@ -1573,7 +1573,7 @@ var
 begin
   if FInRemoveShapeIfEmpty then exit;
   FInRemoveShapeIfEmpty := true;
-  if AShape <> nil then
+  if (AShape <> nil) and not AShape.IsRemoving then
   begin
     rF := AShape.GetRenderBounds(InfiniteRect, vectorTransform);
     if IsEmptyRectF(rF) then
