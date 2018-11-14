@@ -217,6 +217,7 @@ type
     function ToolButtonBackFillGradDown: boolean;
     procedure OnClickBackTexRepeat(ASender: TObject);
     procedure RemoveShapeIfEmpty(AShape: TVectorShape);
+    procedure DoLoadTex;
   public
     { public declarations }
     img: TBGRALazPaintImage;
@@ -394,24 +395,8 @@ begin
 end;
 
 procedure TForm1.ButtonBackLoadTexClick(Sender: TObject);
-var
-  newTex: TBGRABitmap;
 begin
-  if OpenPictureDialog1.Execute then
-  begin
-    try
-      newTex := TBGRABitmap.Create(OpenPictureDialog1.FileName, true);
-      backTexture := newTex;
-      newTex.FreeReference;
-      ToolButtonBackFillTexture.Down:= true;
-      UpdateBackComponentsVisibility;
-    except
-      on ex: exception do
-        ShowMessage(ex.Message);
-    end;
-  end;
-  if ToolButtonBackFillTexture.Down and (backTexture = nil) then
-    ToolButtonBackFillNone.Down:= true;
+  DoLoadTex;
 end;
 
 procedure TForm1.ButtonNewFileClick(Sender: TObject);
@@ -829,7 +814,7 @@ begin
   if (Sender = ToolButtonBackFillTexture) and ToolButtonBackFillTexture.Down
     and (backTexture = nil) then
   begin
-    ButtonBackLoadTexClick(Sender);
+    DoLoadTex;
     exit;
   end;
 
@@ -1669,6 +1654,35 @@ begin
     end;
   end;
   FInRemoveShapeIfEmpty := false;
+end;
+
+procedure TForm1.DoLoadTex;
+var
+  newTex: TBGRABitmap;
+begin
+  if OpenPictureDialog1.Execute then
+  begin
+    try
+      newTex := TBGRABitmap.Create(OpenPictureDialog1.FileName, true);
+      backTexture := newTex;
+      newTex.FreeReference;
+      ToolButtonBackFillTexture.Down:= true;
+      UpdateBackComponentsVisibility;
+    except
+      on ex: exception do
+        ShowMessage(ex.Message);
+    end;
+  end;
+  if ToolButtonBackFillTexture.Down and (backTexture = nil) then
+  begin
+    if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+      UpdateToolbarFromShape(vectorOriginal.SelectedShape)
+    else
+    begin
+      ToolButtonBackFillNone.Down:= true;
+      ToolButtonBackFillChange(ToolButtonBackFillNone);
+    end;
+  end;
 end;
 
 procedure TForm1.DoCopy;
