@@ -539,7 +539,11 @@ end;
 
 function TVectorShape.GetStroker: TBGRAPenStroker;
 begin
-  if FStroker = nil then FStroker := TBGRAPenStroker.Create;
+  if FStroker = nil then
+  begin
+    FStroker := TBGRAPenStroker.Create;
+    FStroker.MiterLimit:= sqrt(2);
+  end;
   result := FStroker;
 end;
 

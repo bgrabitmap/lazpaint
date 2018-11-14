@@ -37,6 +37,7 @@ type
   TForm1 = class(TForm)
     BackImage: TImage;
     BGRAFillImageList16: TBGRAImageList;
+    PenStyleImageList: TBGRAImageList;
     CurveImageList: TBGRAImageList;
     ButtonBackGradInterp: TBCButton;
     ButtonBackLoadTex: TBCButton;
@@ -64,7 +65,11 @@ type
     ShapeBackStartColor: TShape;
     ToolBar2: TToolBar;
     ButtonMoveBackFillPoints: TToolButton;
+    ToolBarJoinStyle: TToolBar;
+    ToolButtonJoinRound: TToolButton;
     ToolButton2: TToolButton;
+    ToolButtonJoinBevel: TToolButton;
+    ToolButtonJoinMiter: TToolButton;
     ToolButtonBackFillNone: TToolButton;
     ToolButtonBackFillSolid: TToolButton;
     ToolButtonBackFillLinear: TToolButton;
@@ -120,6 +125,7 @@ type
     procedure ButtonShapeSendToBackClick(Sender: TObject);
     procedure ShapeBackGradColorMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure ToolButtonJoinClick(Sender: TObject);
     procedure UpDownBackGradAlphaChange(Sender: TObject; AByUser: boolean);
     procedure UpDownBackTexAlphaChange(Sender: TObject; AByUser: boolean);
     procedure UpDownPenWidthChange(Sender: TObject; AByUser: boolean);
@@ -161,6 +167,7 @@ type
     FBackTexture: TBGRABitmap;
     FPenWidth: single;
     FPenStyle: TBGRAPenStyle;
+    FPenJoinStyle: TPenJoinStyle;
     FFlattened: TBGRABitmap;
     FLastEditorBounds: TRect;
     FUpdatingFromShape: boolean;
@@ -196,6 +203,7 @@ type
     procedure SetBackTexture(AValue: TBGRABitmap);
     procedure SetCurrentTool(AValue: TPaintTool);
     procedure SetPenColor(AValue: TBGRAPixel);
+    procedure SetPenJoinStyle(AValue: TPenJoinStyle);
     procedure SetPenStyle(AValue: TBGRAPenStyle);
     procedure SetPenWidth(AValue: single);
     procedure SetSplineStyle(AValue: TSplineStyle);
@@ -248,6 +256,7 @@ type
     property penStyle: TBGRAPenStyle read GetPenStyle write SetPenStyle;
     property splineStyle: TSplineStyle read GetSplineStyle write SetSplineStyle;
     property currentTool: TPaintTool read FCurrentTool write SetCurrentTool;
+    property joinStyle: TPenJoinStyle read FPenJoinStyle write SetPenJoinStyle;
   end;
 
 var
@@ -271,6 +280,14 @@ begin
   btn.Grouped := AGrouped;
   btn.OnClick:= AOnClick;
   btn.Parent := AToolbar;
+end;
+
+procedure EnableDisableToolButtons(AButtons: array of TToolButton; AEnabled: boolean);
+var
+  i: Integer;
+begin
+  for i := 0 to high(AButtons) do
+    AButtons[i].Enabled:= AEnabled;
 end;
 
 function LCLKeyToSpecialKey(Key: Word): TSpecialKey;
@@ -370,6 +387,7 @@ begin
   backGradEndColor := CSSYellow;
   penWidth := 5;
   penStyle := SolidPenStyle;
+  joinStyle:= pjsBevel;
   currentTool:= ptHand;
   splineStyle:= ssEasyBezier;
   FBackGradRepetition:= grPad;
@@ -525,6 +543,16 @@ begin
       backGradEndColor := ColorToBGRA(ColorDialog1.Color, backGradEndColor.alpha)
     else
       backGradStartColor := ColorToBGRA(ColorDialog1.Color, backGradStartColor.alpha);
+  end;
+end;
+
+procedure TForm1.ToolButtonJoinClick(Sender: TObject);
+begin
+  if (Sender as TToolButton).Down then
+  begin
+    if Sender = ToolButtonJoinRound then joinStyle := pjsRound else
+    if Sender = ToolButtonJoinBevel then joinStyle := pjsBevel else
+    if Sender = ToolButtonJoinMiter then joinStyle := pjsMiter;
   end;
 end;
 
@@ -1167,6 +1195,20 @@ begin
   end;
 end;
 
+procedure TForm1.SetPenJoinStyle(AValue: TPenJoinStyle);
+begin
+  if FPenJoinStyle=AValue then Exit;
+  FPenJoinStyle:=AValue;
+  ToolButtonJoinRound.Down:= FPenJoinStyle = pjsRound;
+  ToolButtonJoinBevel.Down:= FPenJoinStyle = pjsBevel;
+  ToolButtonJoinMiter.Down:= FPenJoinStyle = pjsMiter;
+  if not FUpdatingFromShape and Assigned(vectorOriginal) then
+  begin
+    if Assigned(vectorOriginal.SelectedShape) then
+      vectorOriginal.SelectedShape.JoinStyle := FPenJoinStyle;
+  end;
+end;
+
 procedure TForm1.SetPenStyle(AValue: TBGRAPenStyle);
 begin
   FPenStyle := AValue;
@@ -1339,6 +1381,7 @@ begin
     if vsfPenColor in f then penColor := AShape.PenColor;
     if vsfPenWidth in f then penWidth:= AShape.PenWidth;
     if vsfPenStyle in f then penStyle:= AShape.PenStyle;
+    if vsfJoinStyle in f then joinStyle:= AShape.JoinStyle;
 
     if vsfBackFill in f then
     begin
@@ -1396,6 +1439,7 @@ begin
   UpdateBackComponentsVisibility;
   UpDownPenWidth.Enabled := vsfPenWidth in f;
   ButtonPenStyle.Enabled:= vsfPenStyle in f;
+  EnableDisableToolButtons([ToolButtonJoinRound,ToolButtonJoinBevel,ToolButtonJoinMiter], vsfJoinStyle in f);
 
   nextControlPos := Point(ControlMargin,4);
   if showSplineStyle then
@@ -1459,6 +1503,7 @@ begin
   result.PenColor := penColor;
   result.PenWidth := penWidth;
   result.PenStyle := penStyle;
+  if vsfJoinStyle in result.Fields then result.JoinStyle := joinStyle;
   if currentTool in[ptClosedCurve,ptPolygon] then
     TCustomPolypointShape(result).Closed := true;
   if result is TCurveShape then TCurveShape(result).SplineStyle:= splineStyle;
