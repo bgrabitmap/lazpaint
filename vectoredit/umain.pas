@@ -17,13 +17,17 @@ const
   GradRepetitionToStr : array[TBGRAGradientRepetition] of string = ('Pad', 'Repeat', 'Reflect', 'Sine');
   ColorInterpToStr : array[TBGRAColorInterpolation] of string = ('sRGB', 'RGB', 'HSL CW', 'HSL CCW', 'Corr. HSL CW', 'Corr. HSL CCW');
   TextureRepetitionToStr: array[TTextureRepetition] of string = ('No repetition', 'Repeat X', 'Repeat Y', 'Repeat both');
+  PhongShapeKindToStr: array[TPhongShapeKind] of string = ('Rectangle', 'Round rectangle', 'Half sphere', 'Cone top', 'Cone side',
+                     'Horizontal cylinder', 'Vertical cylinder');
 
 type
-  TPaintTool = (ptHand, ptMoveBackFillPoint, ptRectangle, ptEllipse, ptPolyline, ptCurve, ptPolygon, ptClosedCurve);
+  TPaintTool = (ptHand, ptMoveBackFillPoint, ptRectangle, ptEllipse, ptPolyline, ptCurve, ptPolygon, ptClosedCurve,
+                ptPhongShape);
 
 const
   PaintToolClass : array[TPaintTool] of TVectorShapeAny =
-    (nil, nil, TRectShape, TEllipseShape, TPolylineShape, TCurveShape, TPolylineShape, TCurveShape);
+    (nil, nil, TRectShape, TEllipseShape, TPolylineShape, TCurveShape, TPolylineShape, TCurveShape,
+     TPhongShape);
 
 function IsCreateShapeTool(ATool: TPaintTool): boolean;
 
@@ -37,6 +41,7 @@ type
   TForm1 = class(TForm)
     BackImage: TImage;
     BGRAFillImageList16: TBGRAImageList;
+    PhongImageList: TBGRAImageList;
     PenStyleImageList: TBGRAImageList;
     CurveImageList: TBGRAImageList;
     ButtonBackGradInterp: TBCButton;
@@ -66,6 +71,7 @@ type
     ToolBar2: TToolBar;
     ButtonMoveBackFillPoints: TToolButton;
     ToolBarJoinStyle: TToolBar;
+    ToolButtonPhongShape: TToolButton;
     ToolButtonJoinRound: TToolButton;
     ToolButton2: TToolButton;
     ToolButtonJoinBevel: TToolButton;
@@ -178,6 +184,11 @@ type
     FComboboxSplineStyle: TBCButton;
     FSplineToolbar: TToolBar;
     FPenStyleMenu: TPopupMenu;
+    FPhongShapeKind: TPhongShapeKind;
+    FPhongShapeKindToolbar: TToolBar;
+    FPhongShapeAltitude,FPhongBorderSize: single;
+    FUpDownPhongShapeAltitude,
+    FUpDownPhongBorderSize: TBCTrackbarUpdown;
     FInRemoveShapeIfEmpty: Boolean;
     procedure ComboBoxSplineStyleClick(Sender: TObject);
     function GetBackTexture: TBGRABitmap;
@@ -190,10 +201,13 @@ type
     procedure OnClickSplineStyleItem(ASender: TObject);
     procedure OnEditingChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
     procedure OnOriginalChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
+    procedure OnPhongBorderSizeChange(Sender: TObject; AByUser: boolean);
+    procedure OnPhongShapeAltitudeChange(Sender: TObject; AByUser: boolean);
     procedure OnSelectShape(ASender: TObject; AShape: TVectorShape; APreviousShape: TVectorShape);
     procedure OnClickPenStyle(ASender: TObject);
     procedure OnClickBackGradRepeat(ASender: TObject);
     procedure OnClickBackGradInterp(ASender: TObject);
+    procedure PhongShapeKindClick(Sender: TObject);
     procedure SetBackColor(AValue: TBGRAPixel);
     procedure SetBackGradEndColor(AValue: TBGRAPixel);
     procedure SetBackGradInterp(AValue: TBGRAColorInterpolation);
@@ -206,6 +220,7 @@ type
     procedure SetPenJoinStyle(AValue: TPenJoinStyle);
     procedure SetPenStyle(AValue: TBGRAPenStyle);
     procedure SetPenWidth(AValue: single);
+    procedure SetPhongShapeKind(AValue: TPhongShapeKind);
     procedure SetSplineStyle(AValue: TSplineStyle);
     procedure SplineToolbarClick(Sender: TObject);
     procedure UpdateViewCursor(ACursor: TOriginalEditorCursor);
@@ -257,6 +272,7 @@ type
     property splineStyle: TSplineStyle read GetSplineStyle write SetSplineStyle;
     property currentTool: TPaintTool read FCurrentTool write SetCurrentTool;
     property joinStyle: TPenJoinStyle read FPenJoinStyle write SetPenJoinStyle;
+    property phongShapeKind: TPhongShapeKind read FPhongShapeKind write SetPhongShapeKind;
   end;
 
 var
@@ -266,8 +282,18 @@ implementation
 
 uses math, BGRAPen, BGRAThumbnail, BGRAGradientOriginal, uvectorclipboard;
 
+function CreateToolBar(AImages: TImageList): TToolbar;
+begin
+  result := TToolBar.Create(nil);
+  result.Align := alNone;
+  result.Height := AImages.Height + 9;
+  result.ShowHint:= true;
+  result.ShowCaptions:= false;
+  result.Images := AImages;
+end;
+
 procedure AddToolbarCheckButton(AToolbar: TToolbar; ACaption: string; AImageIndex: integer;
-          AOnClick: TNotifyEvent; ADown: boolean; AGrouped: boolean = true);
+          AOnClick: TNotifyEvent; ADown: boolean; AGrouped: boolean = true; ATag: PtrInt = 0);
 var
   btn: TToolButton;
 begin
@@ -280,6 +306,7 @@ begin
   btn.Grouped := AGrouped;
   btn.OnClick:= AOnClick;
   btn.Parent := AToolbar;
+  btn.Tag:= ATag;
 end;
 
 procedure EnableDisableToolButtons(AButtons: array of TToolButton; AEnabled: boolean);
@@ -393,6 +420,8 @@ begin
   FBackGradRepetition:= grPad;
   FBackGradInterp:= ciLinearRGB;
   FBackTexRepetition:= trRepeatBoth;
+  FPhongShapeAltitude := DefaultPhongShapeAltitudePercent;
+  FPhongBorderSize := DefaultPhongBorderSizePercent;
   UpdateTitleBar;
   UpdateBackComponentsVisibility;
 end;
@@ -892,6 +921,7 @@ begin
   if ToolButtonCurve.Down then FCurrentTool:= ptCurve;
   if ToolButtonPolygon.Down then FCurrentTool:= ptPolygon;
   if ToolButtonClosedCurve.Down then FCurrentTool:= ptClosedCurve;
+  if ToolButtonPhongShape.Down then FCurrentTool:= ptPhongShape;
 
   if currentTool <> ptMoveBackFillPoint then
     ButtonMoveBackFillPoints.Down := false;
@@ -1004,6 +1034,22 @@ begin
   RenderAndUpdate(slowShape);
 end;
 
+procedure TForm1.OnPhongBorderSizeChange(Sender: TObject; AByUser: boolean);
+begin
+  FPhongBorderSize:= FUpDownPhongBorderSize.Value;
+  if AByUser and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
+    (vectorOriginal.SelectedShape is TPhongShape) then
+    TPhongShape(vectorOriginal.SelectedShape).BorderSizePercent:= FPhongBorderSize;
+end;
+
+procedure TForm1.OnPhongShapeAltitudeChange(Sender: TObject; AByUser: boolean);
+begin
+  FPhongShapeAltitude:= FUpDownPhongShapeAltitude.Value;
+  if AByUser and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
+    (vectorOriginal.SelectedShape is TPhongShape) then
+    TPhongShape(vectorOriginal.SelectedShape).ShapeAltitudePercent:= FPhongShapeAltitude;
+end;
+
 procedure TForm1.OnSelectShape(ASender: TObject; AShape: TVectorShape;
   APreviousShape: TVectorShape);
 begin
@@ -1042,6 +1088,12 @@ end;
 procedure TForm1.OnClickBackGradInterp(ASender: TObject);
 begin
   backGradInterp := TBGRAColorInterpolation((ASender as TMenuItem).Tag);
+end;
+
+procedure TForm1.PhongShapeKindClick(Sender: TObject);
+begin
+  if (Sender as TToolButton).Down then
+    phongShapeKind:= TPhongShapeKind((Sender as TToolButton).Tag);
 end;
 
 procedure TForm1.SetBackColor(AValue: TBGRAPixel);
@@ -1179,6 +1231,7 @@ begin
   ToolButtonClosedCurve.Down := FCurrentTool = ptClosedCurve;
   ToolButtonPolyline.Down := FCurrentTool = ptPolyline;
   ToolButtonCurve.Down := FCurrentTool = ptCurve;
+  ToolButtonPhongShape.Down:= FCurrentTool = ptPhongShape;
   ButtonMoveBackFillPoints.Down := FCurrentTool = ptMoveBackFillPoint;
   UpdateShapeUserMode;
 end;
@@ -1231,6 +1284,29 @@ begin
   end;
   if not FUpdatingFromShape and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
     vectorOriginal.SelectedShape.PenWidth:= penWidth;
+end;
+
+procedure TForm1.SetPhongShapeKind(AValue: TPhongShapeKind);
+var
+  btn: TToolButton;
+  i: Integer;
+begin
+  if FPhongShapeKind=AValue then Exit;
+  FPhongShapeKind:=AValue;
+  if Assigned(FPhongShapeKindToolbar) then
+    for i := 0 to FPhongShapeKindToolbar.ButtonCount-1 do
+    begin
+      btn := FPhongShapeKindToolbar.Buttons[i];
+      if btn.Tag = ord(FPhongShapeKind) then btn.Down := true;
+    end;
+  if Assigned(FUpDownPhongBorderSize) then
+    FUpDownPhongBorderSize.Enabled:= (FPhongShapeKind = pskRoundRectangle);
+
+  if not FUpdatingFromShape and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+  begin
+    if vectorOriginal.SelectedShape is TPhongShape then
+      TPhongShape(vectorOriginal.SelectedShape).ShapeKind:= FPhongShapeKind;
+  end;
 end;
 
 procedure TForm1.SetSplineStyle(AValue: TSplineStyle);
@@ -1364,12 +1440,12 @@ procedure TForm1.UpdateToolbarFromShape(AShape: TVectorShape);
 const ControlMargin = 6;
 var
   f: TVectorShapeFields;
-  showSplineStyle: boolean;
+  showSplineStyle, showPhongStyle: boolean;
   nextControlPos: TPoint;
   s: TSplineStyle;
   texSource: TBGRABitmap;
-  btn: TToolButton;
   mode: TVectorShapeUsermode;
+  sk: TPhongShapeKind;
 begin
   RemoveExtendedStyleControls;
 
@@ -1421,6 +1497,16 @@ begin
       splineStyle:= TCurveShape(AShape).SplineStyle;
     end else
       showSplineStyle:= false;
+
+    if AShape is TPhongShape then
+    begin
+      showPhongStyle := true;
+      phongShapeKind:= TPhongShape(AShape).ShapeKind;
+      FPhongShapeAltitude:= TPhongShape(AShape).ShapeAltitudePercent;
+      FPhongBorderSize:= TPhongShape(AShape).BorderSizePercent;
+    end else
+      showPhongStyle := false;
+
     FUpdatingFromShape := false;
   end else
   begin
@@ -1429,11 +1515,13 @@ begin
     begin
       f := PaintToolClass[currentTool].Fields;
       showSplineStyle:= PaintToolClass[currentTool] = TCurveShape;
+      showPhongStyle := PaintToolClass[currentTool] = TPhongShape;
     end
     else
     begin
       f := [];
       showSplineStyle:= false;
+      showPhongStyle:= false;
     end;
   end;
   UpdateBackComponentsVisibility;
@@ -1444,15 +1532,10 @@ begin
   nextControlPos := Point(ControlMargin,4);
   if showSplineStyle then
   begin
-    FSplineToolbar := TToolBar.Create(nil);
-    FSplineToolbar.Align := alNone;
+    FSplineToolbar := CreateToolBar(CurveImageList);
     FSplineToolbar.Left := nextControlPos.X;
     FSplineToolbar.Top := nextControlPos.Y;
-    FSplineToolbar.Height := 25;
     FSplineToolbar.Width := 120;
-    FSplineToolbar.ShowHint:= true;
-    FSplineToolbar.ShowCaptions:= false;
-    FSplineToolbar.Images := CurveImageList;
     AddToolbarCheckButton(FSplineToolbar, 'Move spline points', 0, @SplineToolbarClick, mode in [vsuEdit, vsuCreate]);
     AddToolbarCheckButton(FSplineToolbar, 'Set to autodetect angle (A)', 1, @SplineToolbarClick, mode = vsuCurveSetAuto);
     AddToolbarCheckButton(FSplineToolbar, 'Set to curve (S)', 2, @SplineToolbarClick, mode = vsuCurveSetCurve);
@@ -1474,6 +1557,45 @@ begin
     PanelExtendedStyle.InsertControl(FComboboxSplineStyle);
 
     nextControlPos.X := FComboboxSplineStyle.Left + FComboboxSplineStyle.Width + ControlMargin;
+  end;
+  if showPhongStyle then
+  begin
+    FPhongShapeKindToolbar := CreateToolBar(PhongImageList);
+    FPhongShapeKindToolbar.Left := nextControlPos.X;
+    FPhongShapeKindToolbar.Top := nextControlPos.Y;
+    FPhongShapeKindToolbar.Width := 120;
+    for sk := low(TPhongShapeKind) to high(TPhongShapeKind) do
+      AddToolbarCheckButton(FPhongShapeKindToolbar, PhongShapeKindToStr[sk], ord(sk), @PhongShapeKindClick, FPhongShapeKind = sk, true, ord(sk));
+    PanelExtendedStyle.InsertControl(FPhongShapeKindToolbar);
+
+    FUpDownPhongShapeAltitude := TBCTrackbarUpdown.Create(nil);
+    FUpDownPhongShapeAltitude.Left := nextControlPos.X;
+    FUpDownPhongShapeAltitude.Top := nextControlPos.Y+FPhongShapeKindToolbar.Height;
+    FUpDownPhongShapeAltitude.Width := UpDownPenWidth.Width;
+    FUpDownPhongShapeAltitude.Height:= UpDownPenWidth.Height;
+    FUpDownPhongShapeAltitude.MinValue := 0;
+    FUpDownPhongShapeAltitude.MaxValue := 100;
+    FUpDownPhongShapeAltitude.Value := round(FPhongShapeAltitude);
+    FUpDownPhongShapeAltitude.Hint := 'Altitude';
+    FUpDownPhongShapeAltitude.ShowHint:= true;
+    FUpDownPhongShapeAltitude.OnChange:=@OnPhongShapeAltitudeChange;
+    PanelExtendedStyle.InsertControl(FUpDownPhongShapeAltitude);
+
+    FUpDownPhongBorderSize := TBCTrackbarUpdown.Create(nil);
+    FUpDownPhongBorderSize.Left := FUpDownPhongShapeAltitude.Left + FUpDownPhongShapeAltitude.Width + ControlMargin;
+    FUpDownPhongBorderSize.Top := nextControlPos.Y+FPhongShapeKindToolbar.Height;
+    FUpDownPhongBorderSize.Width := UpDownPenWidth.Width;
+    FUpDownPhongBorderSize.Height:= UpDownPenWidth.Height;
+    FUpDownPhongBorderSize.MinValue := 0;
+    FUpDownPhongBorderSize.MaxValue := 100;
+    FUpDownPhongBorderSize.Value := round(FPhongBorderSize);
+    FUpDownPhongBorderSize.Enabled:= (phongShapeKind in[pskRectangle,pskRoundRectangle]);
+    FUpDownPhongBorderSize.Hint := 'Border size';
+    FUpDownPhongBorderSize.ShowHint:= true;
+    FUpDownPhongBorderSize.OnChange:=@OnPhongBorderSizeChange;
+    PanelExtendedStyle.InsertControl(FUpDownPhongBorderSize);
+
+    nextControlPos.X := FPhongShapeKindToolbar.Left + FPhongShapeKindToolbar.Width + ControlMargin;
   end;
 end;
 
@@ -1507,6 +1629,15 @@ begin
   if currentTool in[ptClosedCurve,ptPolygon] then
     TCustomPolypointShape(result).Closed := true;
   if result is TCurveShape then TCurveShape(result).SplineStyle:= splineStyle;
+  if result is TPhongShape then
+  begin
+    with TPhongShape(result) do
+    begin
+      ShapeKind:= FPhongShapeKind;
+      ShapeAltitudePercent:= FPhongShapeAltitude;
+      BorderSizePercent:= FPhongBorderSize;
+    end;
+  end;
   result.QuickDefine(APoint1,APoint2);
   if vsfBackFill in result.Fields then
   begin
@@ -1586,6 +1717,21 @@ begin
   begin
     PanelExtendedStyle.RemoveControl(FSplineToolbar);
     FreeAndNil(FSplineToolbar);
+  end;
+  if Assigned(FPhongShapeKindToolbar) then
+  begin
+    PanelExtendedStyle.RemoveControl(FPhongShapeKindToolbar);
+    FreeAndNil(FPhongShapeKindToolbar);
+  end;
+  if Assigned(FUpDownPhongShapeAltitude) then
+  begin
+    PanelExtendedStyle.RemoveControl(FUpDownPhongShapeAltitude);
+    FreeAndNil(FUpDownPhongShapeAltitude);
+  end;
+  if Assigned(FUpDownPhongBorderSize) then
+  begin
+    PanelExtendedStyle.RemoveControl(FUpDownPhongBorderSize);
+    FreeAndNil(FUpDownPhongBorderSize);
   end;
 end;
 

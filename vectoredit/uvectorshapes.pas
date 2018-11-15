@@ -5,7 +5,8 @@ unit uvectorshapes;
 interface
 
 uses
-  Classes, SysUtils, uvectororiginal, BGRABitmapTypes, BGRALayerOriginal, BGRABitmap, BGRATransform;
+  Classes, SysUtils, Types, uvectororiginal, BGRABitmapTypes, BGRALayerOriginal,
+  BGRABitmap, BGRATransform, BGRAGradients;
 
 type
   { TCustomRectShape }
@@ -32,6 +33,7 @@ type
     function GetAffineBox(AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
     function GetCornerPositition: single; virtual; abstract;
     function GetOrthoRect(AMatrix: TAffineMatrix; out ARect: TRectF): boolean;
+    function AllowShearTransform: boolean; virtual;
   public
     procedure QuickDefine(const APoint1,APoint2: TPointF); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
@@ -103,7 +105,7 @@ type
     function PointsEqual(const APoint1, APoint2: TPointF): boolean;
     procedure OnHoverPoint({%H-}ASender: TObject; APointIndex: integer); virtual;
     procedure OnClickPoint({%H-}ASender: TObject; APointIndex: integer; {%H-}AShift: TShiftState); virtual;
-    procedure DoClickPoint(APointIndex: integer; {%H-}AShift: TShiftState); virtual;
+    procedure DoClickPoint({%H-}APointIndex: integer; {%H-}AShift: TShiftState); virtual;
     function CanMovePoints: boolean; virtual;
     procedure InsertPointAuto;
   public
@@ -166,6 +168,49 @@ type
     property CurveMode[AIndex: integer]: TEasyBezierCurveMode read GetCurveMode write SetCurveMode;
   end;
 
+  TPhongShapeKind = (pskRectangle, pskRoundRectangle, pskHalfSphere, pskConeTop, pskConeSide,
+                     pskHorizCylinder, pskVertCylinder);
+
+const
+  DefaultPhongShapeAltitudePercent = 20;
+  DefaultPhongBorderSizePercent = 20;
+
+type
+  { TPhongShape }
+
+  TPhongShape = class(TCustomRectShape)
+  private
+    FShapeKind: TPhongShapeKind;
+    FLightPosition: TPointF;
+    FShapeAltitudePercent: single;
+    FBorderSizePercent: single;
+    procedure OnMoveLightPos({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF;
+      {%H-}AShift: TShiftState);
+    procedure SetBorderSizePercent(AValue: single);
+    procedure SetLightPosition(AValue: TPointF);
+    procedure SetShapeAltitudePercent(AValue: single);
+    procedure SetShapeKind(AValue: TPhongShapeKind);
+    function BackVisible: boolean;
+    function AllowShearTransform: boolean; override;
+  public
+    constructor Create(AContainer: TVectorOriginal); override;
+    destructor Destroy; override;
+    function GetCornerPositition: single; override;
+    class function Fields: TVectorShapeFields; override;
+    procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
+    procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
+    procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
+    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
+    function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
+    function PointInShape(APoint: TPointF): boolean; override;
+    function GetIsSlow(AMatrix: TAffineMatrix): boolean; override;
+    class function StorageClassName: RawByteString; override;
+    property ShapeKind: TPhongShapeKind read FShapeKind write SetShapeKind;
+    property LightPosition: TPointF read FLightPosition write SetLightPosition;
+    property ShapeAltitudePercent: single read FShapeAltitudePercent write SetShapeAltitudePercent;
+    property BorderSizePercent: single read FBorderSizePercent write SetBorderSizePercent;
+  end;
+
 implementation
 
 uses BGRAPen, BGRAGraphics, BGRAFillInfo, BGRAPath, math;
@@ -208,15 +253,22 @@ end;
 procedure TCustomRectShape.DoMoveXAxis(ANewCoord: TPointF; AShift: TShiftState; AFactor: single);
 var
   newSize: Single;
+  u: TPointF;
 begin
   BeginUpdate;
-  if (ssAlt in AShift) or (FXUnitBackup = PointF(0,0)) then
+  if AllowShearTransform and ((ssAlt in AShift) or (FXUnitBackup = PointF(0,0))) then
   begin
     FXAxis := FOriginBackup + AFactor*(ANewCoord - FOriginBackup);
     FYAxis := FYAxisBackup;
     FOrigin := FOriginBackup;
-  end
-  else
+  end else
+  if FXUnitBackup = PointF(0,0) then
+  begin
+    u := ANewCoord - FOriginBackup;
+    FXAxis := FOriginBackup + u;
+    FYAxis := FOriginBackup + PointF(-u.y,u.x);
+    FOrigin := FOriginBackup;
+  end else
   begin
     newSize := AFactor*FXUnitBackup*(ANewCoord-FOriginBackup);
     if ssShift in AShift then
@@ -238,15 +290,22 @@ procedure TCustomRectShape.DoMoveYAxis(ANewCoord: TPointF; AShift: TShiftState;
   AFactor: single);
 var
   newSizeY: Single;
+  u: TPointF;
 begin
   BeginUpdate;
-  if (ssAlt in AShift) or (FYUnitBackup = PointF(0,0)) then
+  if AllowShearTransform and ((ssAlt in AShift) or (FYUnitBackup = PointF(0,0))) then
   begin
     FYAxis := FOriginBackup + AFactor*(ANewCoord - FOriginBackup);
     FXAxis := FXAxisBackup;
     FOrigin := FOriginBackup;
-  end
-  else
+  end else
+  if FYUnitBackup = PointF(0,0) then
+  begin
+    u := ANewCoord - FOriginBackup;
+    FXAxis := FOriginBackup + PointF(u.y,-u.x);
+    FYAxis := FOriginBackup + u;
+    FOrigin := FOriginBackup;
+  end else
   begin
     newSizeY := AFactor*FYUnitBackup*(ANewCoord-FOriginBackup);
     if ssShift in AShift then
@@ -411,6 +470,11 @@ begin
     ARect := EmptyRectF;
     exit(false);
   end;
+end;
+
+function TCustomRectShape.AllowShearTransform: boolean;
+begin
+  result := true;
 end;
 
 procedure TCustomRectShape.QuickDefine(const APoint1, APoint2: TPointF);
@@ -1537,12 +1601,320 @@ begin
   Result:= 'curve';
 end;
 
+{ TPhongShape }
+
+procedure TPhongShape.SetShapeKind(AValue: TPhongShapeKind);
+begin
+  if FShapeKind=AValue then Exit;
+  BeginUpdate;
+  FShapeKind:=AValue;
+  EndUpdate;
+end;
+
+procedure TPhongShape.OnMoveLightPos(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  LightPosition := ANewCoord;
+end;
+
+procedure TPhongShape.SetBorderSizePercent(AValue: single);
+begin
+  if FBorderSizePercent=AValue then Exit;
+  BeginUpdate;
+  FBorderSizePercent:=AValue;
+  EndUpdate;
+end;
+
+procedure TPhongShape.SetLightPosition(AValue: TPointF);
+begin
+  if FLightPosition=AValue then Exit;
+  BeginUpdate;
+  FLightPosition:=AValue;
+  EndUpdate;
+end;
+
+procedure TPhongShape.SetShapeAltitudePercent(AValue: single);
+begin
+  if FShapeAltitudePercent=AValue then Exit;
+  BeginUpdate;
+  FShapeAltitudePercent:=AValue;
+  EndUpdate;
+end;
+
+function TPhongShape.BackVisible: boolean;
+begin
+  result := BackFill.IsGradient or BackFill.IsTexture or
+            (BackFill.IsSolid and (BackFill.SolidColor.alpha <> 0));
+end;
+
+function TPhongShape.AllowShearTransform: boolean;
+begin
+  Result:= false;
+end;
+
+constructor TPhongShape.Create(AContainer: TVectorOriginal);
+begin
+  inherited Create(AContainer);
+  FShapeKind:= pskRectangle;
+  FLightPosition := PointF(0,0);
+  FShapeAltitudePercent:= DefaultPhongShapeAltitudePercent;
+  FBorderSizePercent:= DefaultPhongBorderSizePercent;
+end;
+
+destructor TPhongShape.Destroy;
+begin
+  inherited Destroy;
+end;
+
+function TPhongShape.GetCornerPositition: single;
+begin
+  if ShapeKind in [pskHalfSphere,pskConeTop] then
+    result := sqrt(2)/2
+  else
+    result := 1;
+end;
+
+class function TPhongShape.Fields: TVectorShapeFields;
+begin
+  Result:= [vsfBackFill];
+end;
+
+procedure TPhongShape.ConfigureEditor(AEditor: TBGRAOriginalEditor);
+begin
+  inherited ConfigureEditor(AEditor);
+  AEditor.AddPoint(FLightPosition, @OnMoveLightPos, true);
+end;
+
+procedure TPhongShape.LoadFromStorage(AStorage: TBGRACustomOriginalStorage);
+begin
+  BeginUpdate;
+  inherited LoadFromStorage(AStorage);
+  LightPosition := AStorage.PointF['light-pos'];
+  if isEmptyPointF(LightPosition) then LightPosition := PointF(0,0);
+  case AStorage.RawString['shape-kind'] of
+    'round-rectangle': ShapeKind:= pskRoundRectangle;
+    'half-sphere': ShapeKind := pskHalfSphere;
+    'cone-top': ShapeKind := pskConeTop;
+    'cone-side': ShapeKind := pskConeSide;
+    'horizontal-cylinder': ShapeKind := pskHorizCylinder;
+    'vertical-cylinder': ShapeKind := pskVertCylinder;
+  else
+    {'rectangle'} ShapeKind:= pskRectangle;
+  end;
+  ShapeAltitudePercent := AStorage.FloatDef['shape-altitude-percent', DefaultPhongShapeAltitudePercent];
+  if ShapeKind = pskRoundRectangle then
+    BorderSizePercent := AStorage.FloatDef['border-size-percent', DefaultPhongBorderSizePercent]
+  else
+    BorderSizePercent := DefaultPhongBorderSizePercent;
+  EndUpdate;
+end;
+
+procedure TPhongShape.SaveToStorage(AStorage: TBGRACustomOriginalStorage);
+begin
+  inherited SaveToStorage(AStorage);
+  AStorage.PointF['light-pos'] := LightPosition;
+  case ShapeKind of
+    pskRectangle: AStorage.RawString['shape-kind'] := 'rectangle';
+    pskRoundRectangle: AStorage.RawString['shape-kind'] := 'round-rectangle';
+    pskHalfSphere: AStorage.RawString['shape-kind'] := 'half-sphere';
+    pskConeTop: AStorage.RawString['shape-kind'] := 'cone-top';
+    pskConeSide: AStorage.RawString['shape-kind'] := 'cone-side';
+    pskHorizCylinder: AStorage.RawString['shape-kind'] := 'horizontal-cylinder';
+    pskVertCylinder: AStorage.RawString['shape-kind'] := 'vertical-cylinder';
+  end;
+  AStorage.Float['shape-altitude-percent'] := ShapeAltitudePercent;
+  if ShapeKind = pskRoundRectangle then
+    AStorage.Float['border-size-percent'] := FBorderSizePercent;
+end;
+
+procedure TPhongShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
+  ADraft: boolean);
+var
+  ab,abRaster: TAffineBox;
+  mapWidth,mapHeight: integer;
+  shader: TPhongShading;
+  approxFactor,borderSize: single;
+  m: TAffineMatrix;
+  h: single;
+  map,raster: TBGRABitmap;
+  u,v,lightPosF: TPointF;
+  scan: TBGRACustomScanner;
+  rectRenderF,rectRasterF: TRectF;
+  rectRender,rectRaster, prevClip: TRect;
+begin
+  if not BackVisible then exit;
+
+  //determine final render bounds
+  rectRenderF := GetRenderBounds(InfiniteRect,AMatrix);
+  if IsEmptyRectF(rectRenderF) then exit;
+
+  rectRender := rect(floor(rectRenderF.Left),floor(rectRenderF.Top),ceil(rectRenderF.Right),ceil(rectRenderF.Bottom));
+  rectRender.Intersect(ADest.ClipRect);
+  if IsRectEmpty(rectRender) then exit;
+
+  //determine map size before transform
+  ab := GetAffineBox(AMatrix, false);
+  if ab.Width > ab.Height then
+  begin
+    if ab.Width = 0 then exit;
+    mapWidth := ceil(ab.Width);
+    mapHeight := ceil(ab.Surface/ab.Width);
+  end else
+  begin
+    mapWidth := ceil(ab.Surface/ab.Height);
+    mapHeight := ceil(ab.Height);
+  end;
+  approxFactor := 1;
+  if ADraft then
+  begin
+    if mapWidth > 300 then approxFactor:= min(approxFactor, 300/mapWidth);
+    if mapHeight > 300 then approxFactor:= min(approxFactor, 300/mapHeight);
+  end;
+  mapWidth:= ceil(mapWidth*approxFactor);
+  mapHeight:= ceil(mapHeight*approxFactor);
+
+  //determine map transform
+  u := (ab.TopRight-ab.TopLeft)*(1/ab.Width);
+  v := (ab.BottomLeft-ab.TopLeft)*(1/ab.Height);
+  m := AffineMatrix(u,v,ab.TopLeft)*AffineMatrixScale(ab.Width/mapWidth,ab.Height/mapHeight);
+  borderSize := FBorderSizePercent/200*min(ab.Width,ab.Height);
+
+  try
+    //create height map
+    map := nil;
+
+    case ShapeKind of
+      pskRoundRectangle: begin
+        map := CreateRoundRectanglePreciseMap(mapWidth,mapHeight,
+                      round(borderSize*mapWidth/ab.Width),
+                      round(borderSize*mapHeight/ab.Height),[]);
+        h := FShapeAltitudePercent*approxFactor;
+      end;
+      pskHalfSphere: begin
+        map := CreateSpherePreciseMap(mapWidth,mapHeight);
+        h := FShapeAltitudePercent/100*sqrt(mapWidth*mapHeight);
+      end;
+      pskConeTop: begin
+        map := CreateConePreciseMap(mapWidth,mapHeight);
+        h := FShapeAltitudePercent/100*sqrt(mapWidth*mapHeight);
+      end;
+      pskConeSide: begin
+        map := CreateVerticalConePreciseMap(mapWidth,mapHeight);
+        h := FShapeAltitudePercent/100*mapWidth;
+      end;
+      pskHorizCylinder: begin
+        map := CreateHorizontalCylinderPreciseMap(mapWidth,mapHeight);
+        h := FShapeAltitudePercent/100*mapHeight;
+      end;
+      pskVertCylinder: begin
+        map := CreateVerticalCylinderPreciseMap(mapWidth,mapHeight);
+        h := FShapeAltitudePercent/100*mapWidth;
+      end;
+    else
+      {pskRectangle: }begin
+        map := CreateRectanglePreciseMap(mapWidth,mapHeight,
+                      round(borderSize*mapWidth/ab.Width),
+                      round(borderSize*mapHeight/ab.Height),[]);
+        h := FShapeAltitudePercent*approxFactor;
+      end;
+    end;
+
+    abRaster := AffineMatrixInverse(m)*TAffineBox.AffineBox(rectRenderF);
+    rectRasterF := abRaster.RectBoundsF;
+    rectRaster := rect(floor(rectRasterF.Left),floor(rectRasterF.Top),ceil(rectRasterF.Right),ceil(rectRasterF.Bottom));
+
+    raster := nil;
+    shader := nil;
+    if IntersectRect(rectRaster, rectRaster, rect(0,0,mapWidth,mapHeight)) then
+    try
+      shader:= TPhongShading.Create;
+      lightPosF := AffineMatrixTranslation(-rectRaster.Left,-rectRaster.Top)
+                    *AffineMatrixInverse(m)*AMatrix
+                    *PointF(FLightPosition.x,FLightPosition.y);
+      shader.LightPosition := Point(round(lightPosF.x),round(lightPosF.y));
+      shader.LightPositionZ := round(100*power(approxFactor,1.18));
+      if h*3/2 > shader.LightPositionZ then
+       shader.LightPositionZ := round(h*3/2);
+
+      raster := TBGRABitmap.Create(rectRaster.Width,rectRaster.Height);
+      if BackFill.IsSolid then
+        shader.Draw(raster,map,round(h),-rectRaster.Left,-rectRaster.Top,BackFill.SolidColor)
+      else
+      begin
+        scan := BackFill.CreateScanner(AffineMatrixTranslation(-rectRaster.left,-rectRaster.top)*AffineMatrixInverse(m)*AMatrix,ADraft);
+        shader.DrawScan(raster,map,round(h),-rectRaster.Left,-rectRaster.Top,scan);
+        scan.Free;
+      end;
+
+      prevClip := ADest.ClipRect;
+      ADest.ClipRect := rectRender;
+      if ADraft then
+        ADest.PutImageAffine(m*AffineMatrixTranslation(rectRaster.Left,rectRaster.Top),raster,rfBox,dmDrawWithTransparency)
+      else
+        ADest.PutImageAffine(m*AffineMatrixTranslation(rectRaster.Left,rectRaster.Top),raster,rfHalfCosine,dmDrawWithTransparency);
+      ADest.ClipRect := prevClip;
+
+    finally
+      raster.Free;
+      shader.Free;
+    end;
+  finally
+    map.Free;
+  end;
+end;
+
+function TPhongShape.GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix;
+  AOptions: TRenderBoundsOptions): TRectF;
+begin
+  if not (BackVisible or (rboAssumeBackFill in AOptions)) then
+    result:= EmptyRectF
+  else
+    result := inherited GetRenderBounds(ADestRect, AMatrix, AOptions);
+end;
+
+function TPhongShape.PointInShape(APoint: TPointF): boolean;
+var
+  box: TAffineBox;
+  pts: ArrayOfTPointF;
+begin
+  if not BackVisible then exit(false);
+  if ShapeKind in [pskHalfSphere, pskConeTop] then
+  begin
+    pts := ComputeEllipse(FOrigin, FXAxis, FYAxis);
+    result := IsPointInPolygon(pts, APoint, true);
+  end else
+  if ShapeKind = pskConeSide then
+  begin
+    pts:= PointsF([FOrigin - (FYAxis-FOrigin), FYAxis + (FXAxis-FOrigin), FYAxis - (FXAxis-FOrigin)]);
+    result := IsPointInPolygon(pts, APoint, true);
+  end else
+  begin
+    box := GetAffineBox(AffineMatrixIdentity, true);
+    result:= box.Contains(APoint);
+  end;
+end;
+
+function TPhongShape.GetIsSlow(AMatrix: TAffineMatrix): boolean;
+var
+  ab: TAffineBox;
+begin
+  if not BackVisible then exit(false);
+  ab := GetAffineBox(AMatrix, true);
+  result := ab.Surface > 320*240;
+end;
+
+class function TPhongShape.StorageClassName: RawByteString;
+begin
+  result := 'phong';
+end;
+
 initialization
 
   RegisterVectorShape(TRectShape);
   RegisterVectorShape(TEllipseShape);
   RegisterVectorShape(TPolylineShape);
   RegisterVectorShape(TCurveShape);
+  RegisterVectorShape(TPhongShape);
 
 end.
 
