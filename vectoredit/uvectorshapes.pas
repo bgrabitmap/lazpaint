@@ -1702,7 +1702,7 @@ begin
     {'rectangle'} ShapeKind:= pskRectangle;
   end;
   ShapeAltitudePercent := AStorage.FloatDef['shape-altitude-percent', DefaultPhongShapeAltitudePercent];
-  if ShapeKind = pskRoundRectangle then
+  if ShapeKind in[pskRectangle,pskRoundRectangle] then
     BorderSizePercent := AStorage.FloatDef['border-size-percent', DefaultPhongBorderSizePercent]
   else
     BorderSizePercent := DefaultPhongBorderSizePercent;
@@ -1723,7 +1723,7 @@ begin
     pskVertCylinder: AStorage.RawString['shape-kind'] := 'vertical-cylinder';
   end;
   AStorage.Float['shape-altitude-percent'] := ShapeAltitudePercent;
-  if ShapeKind = pskRoundRectangle then
+  if ShapeKind in[pskRectangle,pskRoundRectangle] then
     AStorage.Float['border-size-percent'] := FBorderSizePercent;
 end;
 

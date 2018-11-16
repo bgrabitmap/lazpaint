@@ -967,6 +967,9 @@ begin
   end;
 
   UpdateShapeUserMode;
+
+  if not Assigned(vectorOriginal) or (vectorOriginal.SelectedShape = nil) then
+    UpdateToolbarFromShape(nil);
 end;
 
 procedure TForm1.UpDownBackAlphaChange(Sender: TObject; AByUser: boolean);
