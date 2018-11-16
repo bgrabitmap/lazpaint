@@ -41,7 +41,21 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    ShapeSendToBack: TAction;
+    ShapeBringToFront: TAction;
+    ShapeMoveDown: TAction;
+    ShapeMoveUp: TAction;
+    ActionImageList: TBGRAImageList;
+    ActionList: TActionList;
     BackImage: TImage;
+    EditCopy: TAction;
+    EditCut: TAction;
+    EditDelete: TAction;
+    EditPaste: TAction;
+    FileNew: TAction;
+    FileOpen: TAction;
+    FileSave: TAction;
+    FileSaveAs: TAction;
     FillImageList16: TBGRAImageList;
     ButtonBackGradInterp: TBCButton;
     ButtonBackGradRepetion: TBCButton;
@@ -51,19 +65,7 @@ type
     ButtonBackTexAdjust: TBCButton;
     ButtonBackTexRepeat: TBCButton;
     ButtonMoveBackFillPoints: TToolButton;
-    ButtonNewFile: TBCButton;
-    ButtonOpenFile: TBCButton;
     ButtonPenStyle: TBCButton;
-    ButtonSaveAs: TBCButton;
-    ButtonSaveFile: TBCButton;
-    ButtonShapeBringToFront: TBCButton;
-    ButtonShapeCopy: TBCButton;
-    ButtonShapeCut: TBCButton;
-    ButtonShapeDelete: TBCButton;
-    ButtonShapeMoveDown: TBCButton;
-    ButtonShapeMoveUp: TBCButton;
-    ButtonShapePaste: TBCButton;
-    ButtonShapeSendToBack: TBCButton;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
@@ -81,10 +83,24 @@ type
     ShapeBackEndColor: TShape;
     ShapeBackStartColor: TShape;
     ShapePenColor: TShape;
+    ToolBarFile: TToolBar;
+    ToolBarEdit: TToolBar;
     ToolBarTop: TToolBar;
     ToolBar2: TToolBar;
     ToolBarJoinStyle: TToolBar;
+    ToolButton1: TToolButton;
+    ToolButton10: TToolButton;
+    ToolButton11: TToolButton;
+    ToolButton12: TToolButton;
+    ToolButton13: TToolButton;
     ToolButton2: TToolButton;
+    ToolButton3: TToolButton;
+    ToolButton4: TToolButton;
+    ToolButton5: TToolButton;
+    ToolButton6: TToolButton;
+    ToolButton7: TToolButton;
+    ToolButton8: TToolButton;
+    ToolButton9: TToolButton;
     ToolButtonBackFillDiamond: TToolButton;
     ToolButtonBackFillLinear: TToolButton;
     ToolButtonBackFillNone: TToolButton;
@@ -126,16 +142,22 @@ type
     procedure ButtonBackTexRepeatClick(Sender: TObject);
     procedure ButtonPenStyleClick(Sender: TObject);
     procedure ButtonBackSwapGradColorClick(Sender: TObject);
-    procedure ButtonShapeBringToFrontClick(Sender: TObject);
-    procedure ButtonShapeCopyClick(Sender: TObject);
-    procedure ButtonShapeCutClick(Sender: TObject);
-    procedure ButtonShapeDeleteClick(Sender: TObject);
-    procedure ButtonShapeMoveDownClick(Sender: TObject);
-    procedure ButtonShapeMoveUpClick(Sender: TObject);
-    procedure ButtonShapePasteClick(Sender: TObject);
-    procedure ButtonShapeSendToBackClick(Sender: TObject);
+    procedure EditCopyExecute(Sender: TObject);
+    procedure EditCutExecute(Sender: TObject);
+    procedure EditDeleteExecute(Sender: TObject);
+    procedure EditPasteExecute(Sender: TObject);
+    procedure FileNewExecute(Sender: TObject);
+    procedure FileOpenExecute(Sender: TObject);
+    procedure FileSaveAsExecute(Sender: TObject);
+    procedure FileSaveExecute(Sender: TObject);
+    procedure PanelFileResize(Sender: TObject);
+    procedure PanelShapeResize(Sender: TObject);
     procedure ShapeBackGradColorMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure ShapeBringToFrontExecute(Sender: TObject);
+    procedure ShapeMoveDownExecute(Sender: TObject);
+    procedure ShapeMoveUpExecute(Sender: TObject);
+    procedure ShapeSendToBackExecute(Sender: TObject);
     procedure ToolButtonJoinClick(Sender: TObject);
     procedure UpDownBackGradAlphaChange(Sender: TObject; AByUser: boolean);
     procedure UpDownBackTexAlphaChange(Sender: TObject; AByUser: boolean);
@@ -148,11 +170,7 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure BGRAVirtualScreen1Redraw(Sender: TObject; Bitmap: TBGRABitmap);
     procedure ButtonBackLoadTexClick(Sender: TObject);
-    procedure ButtonNewFileClick(Sender: TObject);
     procedure ButtonBackNoTexClick(Sender: TObject);
-    procedure ButtonOpenFileClick(Sender: TObject);
-    procedure ButtonSaveAsClick(Sender: TObject);
-    procedure ButtonSaveFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
@@ -297,20 +315,20 @@ begin
   result.Images := AImages;
 end;
 
-function GetToolbarSize(AToolbar: TToolbar): TSize;
+function GetToolbarSize(AToolbar: TToolbar; APadding: integer = 1): TSize;
 var
   i: Integer;
   r: TRect;
 begin
-  result := Size(1,1);
+  result := Size(APadding,APadding);
   for i := 0 to AToolbar.ControlCount-1 do
   begin
     r := AToolbar.Controls[i].BoundsRect;
     if r.Right > result.cx then result.cx := r.Right;
     if r.Bottom > result.cy then result.cy := r.Bottom;
   end;
-  result.cx += 1;
-  result.cy += 1;
+  result.cx += APadding;
+  result.cy += APadding;
 end;
 
 procedure AddToolbarCheckButton(AToolbar: TToolbar; ACaption: string; AImageIndex: integer;
@@ -365,6 +383,7 @@ var
   tr: TTextureRepetition;
   ss: TSplineStyle;
   toolImageList: TBGRAImageList;
+  i: Integer;
 begin
   baseCaption:= Caption;
   if ToolIconSize <> ToolImageList48.Width then
@@ -376,7 +395,11 @@ begin
     ToolBarTools.ButtonHeight:= toolImageList.Height+4;
   end;
 
-  img := TBGRALazPaintImage.Create(16,16);
+  for i := 0 to ActionList.ActionCount-1 do
+    with (ActionList.Actions[i] as TAction) do
+      if Hint = '' then Hint := Caption;
+
+  img := TBGRALazPaintImage.Create(640,480);
   filename := '';
   vectorOriginal := TVectorOriginal.Create;
   vectorLayer := img.AddLayerFromOwnedOriginal(vectorOriginal);
@@ -385,7 +408,7 @@ begin
   img.OnOriginalEditingChange:= @OnEditingChange;
   img.OnOriginalChange:= @OnOriginalChange;
 
-  zoom := AffineMatrixScale(10,10);
+  zoom := AffineMatrixScale(1,1);
   FPenStyleMenu := TPopupMenu.Create(nil);
   item:= TMenuItem.Create(FPenStyleMenu); item.Caption := PenStyleToStr[psClear];
   item.OnClick := @OnClickPenStyle;       item.Tag := ord(psClear);
@@ -476,16 +499,6 @@ begin
   DoLoadTex;
 end;
 
-procedure TForm1.ButtonNewFileClick(Sender: TObject);
-begin
-  if Assigned(vectorOriginal) then
-  begin
-    vectorOriginal.Clear;
-    filename := '';
-    UpdateTitleBar;
-  end;
-end;
-
 procedure TForm1.ButtonBackNoTexClick(Sender: TObject);
 begin
   backTexture := nil;
@@ -493,75 +506,6 @@ begin
   begin
     ToolButtonBackFillNone.Down := true;
     UpdateBackComponentsVisibility;
-  end;
-end;
-
-procedure TForm1.ButtonOpenFileClick(Sender: TObject);
-var
-  openedImg: TBGRALazPaintImage;
-  openedLayer: Integer;
-  openedLayerOriginal: TBGRALayerCustomOriginal;
-begin
-  if OpenDialog1.Execute then
-  begin
-    openedImg := TBGRALazPaintImage.Create;
-    try
-      openedImg.LoadFromFile(OpenDialog1.FileName);
-      if openedImg.NbLayers <> 1 then raise exception.Create('Expecting one layer only');
-      openedLayer := 0;
-      openedLayerOriginal := openedImg.LayerOriginal[openedLayer];
-      if (openedLayerOriginal = nil) or not (openedLayerOriginal is TVectorOriginal) then
-        raise exception.Create('Not a vectorial image');
-
-      img.Free;
-      img := openedImg;
-      openedImg := nil;
-      vectorLayer:= openedLayer;
-      vectorOriginal := TVectorOriginal(openedLayerOriginal);
-      vectorOriginal.OnSelectShape:= @OnSelectShape;
-      img.OnOriginalEditingChange:= @OnEditingChange;
-      img.OnOriginalChange:= @OnOriginalChange;
-      filename:= OpenDialog1.FileName;
-      UpdateTitleBar;
-      ImageChangesCompletely;
-    except
-      on ex: exception do
-        ShowMessage(ex.Message);
-    end;
-    openedImg.Free;
-  end;
-end;
-
-procedure TForm1.ButtonSaveAsClick(Sender: TObject);
-begin
-  if not Assigned(img) then exit;
-  if SaveDialog1.Execute then
-  begin
-    try
-      if Assigned(vectorOriginal) then RemoveShapeIfEmpty(vectorOriginal.SelectedShape);
-      img.SaveToFile(SaveDialog1.FileName);
-      filename := SaveDialog1.FileName;
-      UpdateTitleBar;
-    except
-      on ex: exception do
-        ShowMessage(ex.Message);
-    end;
-  end;
-end;
-
-procedure TForm1.ButtonSaveFileClick(Sender: TObject);
-begin
-  if filename = '' then
-    ButtonSaveAsClick(Sender)
-  else
-  begin
-    try
-      if Assigned(vectorOriginal) then RemoveShapeIfEmpty(vectorOriginal.SelectedShape);
-      img.SaveToFile(filename);
-    except
-      on ex: exception do
-        ShowMessage(ex.Message);
-    end;
   end;
 end;
 
@@ -605,6 +549,46 @@ begin
   end;
 end;
 
+procedure TForm1.ShapeBringToFrontExecute(Sender: TObject);
+begin
+  if Assigned(vectorOriginal) and
+     Assigned(vectorOriginal.SelectedShape) then
+  begin
+    vectorOriginal.SelectedShape.BringToFront;
+    UpdateShapeActions(vectorOriginal.SelectedShape);
+  end;
+end;
+
+procedure TForm1.ShapeMoveDownExecute(Sender: TObject);
+begin
+  if Assigned(vectorOriginal) and
+     Assigned(vectorOriginal.SelectedShape) then
+  begin
+    vectorOriginal.SelectedShape.MoveDown(true);
+    UpdateShapeActions(vectorOriginal.SelectedShape);
+  end;
+end;
+
+procedure TForm1.ShapeMoveUpExecute(Sender: TObject);
+begin
+  if Assigned(vectorOriginal) and
+     Assigned(vectorOriginal.SelectedShape) then
+  begin
+    vectorOriginal.SelectedShape.MoveUp(true);
+    UpdateShapeActions(vectorOriginal.SelectedShape);
+  end;
+end;
+
+procedure TForm1.ShapeSendToBackExecute(Sender: TObject);
+begin
+  if Assigned(vectorOriginal) and
+     Assigned(vectorOriginal.SelectedShape) then
+  begin
+    vectorOriginal.SelectedShape.SendToBack;
+    UpdateShapeActions(vectorOriginal.SelectedShape);
+  end;
+end;
+
 procedure TForm1.ToolButtonJoinClick(Sender: TObject);
 begin
   if (Sender as TToolButton).Down then
@@ -631,64 +615,115 @@ begin
   UpdateShapeBackFill;
 end;
 
-procedure TForm1.ButtonShapeBringToFrontClick(Sender: TObject);
-begin
-  if Assigned(vectorOriginal) and
-     Assigned(vectorOriginal.SelectedShape) then
-  begin
-    vectorOriginal.SelectedShape.BringToFront;
-    UpdateShapeActions(vectorOriginal.SelectedShape);
-  end;
-end;
-
-procedure TForm1.ButtonShapeCopyClick(Sender: TObject);
+procedure TForm1.EditCopyExecute(Sender: TObject);
 begin
   DoCopy;
 end;
 
-procedure TForm1.ButtonShapeCutClick(Sender: TObject);
+procedure TForm1.EditCutExecute(Sender: TObject);
 begin
   DoCut;
 end;
 
-procedure TForm1.ButtonShapeDeleteClick(Sender: TObject);
+procedure TForm1.EditDeleteExecute(Sender: TObject);
 begin
   DoDelete;
 end;
 
-procedure TForm1.ButtonShapeMoveDownClick(Sender: TObject);
-begin
-  if Assigned(vectorOriginal) and
-     Assigned(vectorOriginal.SelectedShape) then
-  begin
-    vectorOriginal.SelectedShape.MoveDown(true);
-    UpdateShapeActions(vectorOriginal.SelectedShape);
-  end;
-end;
-
-procedure TForm1.ButtonShapeMoveUpClick(Sender: TObject);
-begin
-  if Assigned(vectorOriginal) and
-     Assigned(vectorOriginal.SelectedShape) then
-  begin
-    vectorOriginal.SelectedShape.MoveUp(true);
-    UpdateShapeActions(vectorOriginal.SelectedShape);
-  end;
-end;
-
-procedure TForm1.ButtonShapePasteClick(Sender: TObject);
+procedure TForm1.EditPasteExecute(Sender: TObject);
 begin
   DoPaste;
 end;
 
-procedure TForm1.ButtonShapeSendToBackClick(Sender: TObject);
+procedure TForm1.FileNewExecute(Sender: TObject);
 begin
-  if Assigned(vectorOriginal) and
-     Assigned(vectorOriginal.SelectedShape) then
+  if Assigned(vectorOriginal) then
   begin
-    vectorOriginal.SelectedShape.SendToBack;
-    UpdateShapeActions(vectorOriginal.SelectedShape);
+    vectorOriginal.Clear;
+    filename := '';
+    UpdateTitleBar;
   end;
+end;
+
+procedure TForm1.FileOpenExecute(Sender: TObject);
+var
+  openedImg: TBGRALazPaintImage;
+  openedLayer: Integer;
+  openedLayerOriginal: TBGRALayerCustomOriginal;
+begin
+  if OpenDialog1.Execute then
+  begin
+    openedImg := TBGRALazPaintImage.Create;
+    try
+      openedImg.LoadFromFile(OpenDialog1.FileName);
+      if openedImg.NbLayers <> 1 then raise exception.Create('Expecting one layer only');
+      openedLayer := 0;
+      openedLayerOriginal := openedImg.LayerOriginal[openedLayer];
+      if (openedLayerOriginal = nil) or not (openedLayerOriginal is TVectorOriginal) then
+        raise exception.Create('Not a vectorial image');
+
+      img.Free;
+      img := openedImg;
+      openedImg := nil;
+      vectorLayer:= openedLayer;
+      vectorOriginal := TVectorOriginal(openedLayerOriginal);
+      vectorOriginal.OnSelectShape:= @OnSelectShape;
+      img.OnOriginalEditingChange:= @OnEditingChange;
+      img.OnOriginalChange:= @OnOriginalChange;
+      filename:= OpenDialog1.FileName;
+      UpdateTitleBar;
+      ImageChangesCompletely;
+    except
+      on ex: exception do
+        ShowMessage(ex.Message);
+    end;
+    openedImg.Free;
+  end;
+end;
+
+procedure TForm1.FileSaveAsExecute(Sender: TObject);
+begin
+  if not Assigned(img) then exit;
+  if SaveDialog1.Execute then
+  begin
+    try
+      if Assigned(vectorOriginal) then RemoveShapeIfEmpty(vectorOriginal.SelectedShape);
+      img.SaveToFile(SaveDialog1.FileName);
+      filename := SaveDialog1.FileName;
+      UpdateTitleBar;
+    except
+      on ex: exception do
+        ShowMessage(ex.Message);
+    end;
+  end;
+end;
+
+procedure TForm1.FileSaveExecute(Sender: TObject);
+begin
+  if filename = '' then
+    FileSaveAs.Execute
+  else
+  begin
+    try
+      if Assigned(vectorOriginal) then RemoveShapeIfEmpty(vectorOriginal.SelectedShape);
+      img.SaveToFile(filename);
+    except
+      on ex: exception do
+        ShowMessage(ex.Message);
+    end;
+  end;
+end;
+
+procedure TForm1.PanelFileResize(Sender: TObject);
+begin
+  ToolBarFile.Width := GetToolbarSize(ToolBarFile).cx;
+  PanelFile.Width := ToolBarFile.Width+3;
+end;
+
+procedure TForm1.PanelShapeResize(Sender: TObject);
+begin
+  ToolBarEdit.Width := GetToolbarSize(ToolBarEdit).cx;
+  PanelShape.Width := ToolBarEdit.Width+3;
 end;
 
 procedure TForm1.ButtonPenStyleClick(Sender: TObject);
@@ -739,7 +774,7 @@ end;
 
 procedure TForm1.BCPanelToolbarResize(Sender: TObject);
 begin
-  ToolBarTop.Height := GetToolbarSize(ToolBarTop).cy;
+  ToolBarTop.Height := GetToolbarSize(ToolBarTop,0).cy;
   BCPanelToolbar.Height := ToolBarTop.Height;
 end;
 
@@ -1854,13 +1889,13 @@ end;
 
 procedure TForm1.UpdateShapeActions(AShape: TVectorShape);
 begin
-  ButtonShapeBringToFront.Enabled := (AShape <> nil) and not AShape.IsFront;
-  ButtonShapeSendToBack.Enabled := (AShape <> nil) and not AShape.IsBack;
-  ButtonShapeMoveUp.Enabled := (AShape <> nil) and not AShape.IsFront;
-  ButtonShapeMoveDown.Enabled := (AShape <> nil) and not ASHape.IsBack;
-  ButtonShapeCopy.Enabled := AShape <> nil;
-  ButtonShapeCut.Enabled := AShape <> nil;
-  ButtonShapeDelete.Enabled := AShape <> nil;
+  ShapeBringToFront.Enabled := (AShape <> nil) and not AShape.IsFront;
+  ShapeSendToBack.Enabled := (AShape <> nil) and not AShape.IsBack;
+  ShapeMoveUp.Enabled := (AShape <> nil) and not AShape.IsFront;
+  ShapeMoveDown.Enabled := (AShape <> nil) and not ASHape.IsBack;
+  EditCopy.Enabled := AShape <> nil;
+  EditCut.Enabled := AShape <> nil;
+  EditDelete.Enabled := AShape <> nil;
 end;
 
 function TForm1.ToolButtonBackFillGradDown: boolean;
