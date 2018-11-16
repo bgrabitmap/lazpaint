@@ -38,7 +38,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="6">
+    <Units Count="7">
       <Unit0>
         <Filename Value="vectoredit.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -66,6 +66,11 @@
         <Filename Value="uvectorclipboard.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit5>
+      <Unit6>
+        <Filename Value="../lazpaint/uscaledpi.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UScaleDPI"/>
+      </Unit6>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

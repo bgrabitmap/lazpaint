@@ -7,11 +7,13 @@ interface
 uses
   Classes, SysUtils, Types, FileUtil, Forms, Controls, Graphics, Dialogs,
   ExtCtrls, StdCtrls, ComCtrls, ExtDlgs, Menus, BGRAVirtualScreen,
-  BCTrackbarUpdown, BCPanel, BGRAImageList, BCButton, BGRALazPaint,
-  BGRABitmap, BGRABitmapTypes, BGRATransform, BGRALayerOriginal, BGRAGraphics,
-  uvectororiginal, uvectorialfill, uvectorshapes, BGRAGradientScanner, LCLType;
+  BCTrackbarUpdown, BCPanel, BCButton, BGRAImageList, BGRALazPaint, BGRABitmap,
+  BGRABitmapTypes, BGRATransform, BGRALayerOriginal, BGRAGraphics,
+  uvectororiginal, uvectorialfill, uvectorshapes, BGRAGradientScanner, LCLType,
+  ActnList, uscaledpi;
 
 const
+  ToolIconSize = 36;
   EditorPointSize = 7;
   PenStyleToStr : array[TPenStyle] of string = ('─────', '─ ─ ─ ─', '···············', '─ · ─ · ─', '─ ·· ─ ·· ╴', 'InsideFrame', 'Pattern', 'Clear');
   GradRepetitionToStr : array[TBGRAGradientRepetition] of string = ('Pad', 'Repeat', 'Reflect', 'Sine');
@@ -40,7 +42,7 @@ type
 
   TForm1 = class(TForm)
     BackImage: TImage;
-    BGRAFillImageList16: TBGRAImageList;
+    FillImageList16: TBGRAImageList;
     ButtonBackGradInterp: TBCButton;
     ButtonBackGradRepetion: TBCButton;
     ButtonBackLoadTex: TBCButton;
@@ -96,7 +98,7 @@ type
     ToolButtonPhongShape: TToolButton;
     BCPanelToolChoice: TBCPanel;
     BCPanelToolbar: TBCPanel;
-    BGRAImageList48: TBGRAImageList;
+    ToolImageList48: TBGRAImageList;
     BGRAVirtualScreen1: TBGRAVirtualScreen;
     ColorDialog1: TColorDialog;
     OpenDialog1: TOpenDialog;
@@ -362,10 +364,19 @@ var
   ci: TBGRAColorInterpolation;
   tr: TTextureRepetition;
   ss: TSplineStyle;
+  toolImageList: TBGRAImageList;
 begin
   baseCaption:= Caption;
+  if ToolIconSize <> ToolImageList48.Width then
+  begin
+    toolImageList := TBGRAImageList.Create(self);
+    ScaleImageList(ToolImageList48, ToolIconSize,ToolIconSize, toolImageList);
+    ToolBarTools.Images := toolImageList;
+    ToolBarTools.ButtonWidth:= toolImageList.Width+5;
+    ToolBarTools.ButtonHeight:= toolImageList.Height+4;
+  end;
 
-  img := TBGRALazPaintImage.Create(640,480);
+  img := TBGRALazPaintImage.Create(16,16);
   filename := '';
   vectorOriginal := TVectorOriginal.Create;
   vectorLayer := img.AddLayerFromOwnedOriginal(vectorOriginal);
@@ -374,7 +385,7 @@ begin
   img.OnOriginalEditingChange:= @OnEditingChange;
   img.OnOriginalChange:= @OnOriginalChange;
 
-  zoom := AffineMatrixScale(1,1);
+  zoom := AffineMatrixScale(10,10);
   FPenStyleMenu := TPopupMenu.Create(nil);
   item:= TMenuItem.Create(FPenStyleMenu); item.Caption := PenStyleToStr[psClear];
   item.OnClick := @OnClickPenStyle;       item.Tag := ord(psClear);
@@ -387,7 +398,7 @@ begin
   end;
 
   FBackGradRepetitionMenu := TPopupMenu.Create(nil);
-  FBackGradRepetitionMenu.Images := BGRAFillImageList16;
+  FBackGradRepetitionMenu.Images := FillImageList16;
   for gr := low(TBGRAGradientRepetition) to high(TBGRAGradientRepetition) do
   begin
     item := TMenuItem.Create(FBackGradRepetitionMenu); item.Caption := GradRepetitionToStr[gr];
@@ -397,7 +408,7 @@ begin
   end;
 
   FBackGradInterpMenu := TPopupMenu.Create(nil);
-  FBackGradInterpMenu.Images := BGRAFillImageList16;
+  FBackGradInterpMenu.Images := FillImageList16;
   for ci := low(TBGRAColorInterpolation) to high(TBGRAColorInterpolation) do
   begin
     item := TMenuItem.Create(FBackGradInterpMenu); item.Caption := ColorInterpToStr[ci];
@@ -416,7 +427,7 @@ begin
   end;
 
   FBackTexRepetitionMenu := TPopupMenu.Create(nil);
-  FBackTexRepetitionMenu.Images := BGRAFillImageList16;
+  FBackTexRepetitionMenu.Images := FillImageList16;
   for tr := low(TTextureRepetition) to high(TTextureRepetition) do
   begin
     item := TMenuItem.Create(FBackTexRepetitionMenu); item.Caption := TextureRepetitionToStr[tr];
@@ -1156,12 +1167,12 @@ begin
   If FBackGradInterp=AValue then exit;
   FBackGradInterp:=AValue;
   glyph := TBitmap.Create;
-  glyph.Width := BGRAFillImageList16.Width;
-  glyph.Height := BGRAFillImageList16.Height;
+  glyph.Width := FillImageList16.Width;
+  glyph.Height := FillImageList16.Height;
   glyph.Canvas.Brush.Color := MergeBGRA(ColorToBGRA(ButtonBackGradInterp.StateNormal.Background.Gradient1.EndColor),
                                         ColorToBGRA(ButtonBackGradInterp.StateNormal.Background.Gradient2.StartColor));
   glyph.Canvas.FillRect(0,0,glyph.Width,glyph.Height);
-  BGRAFillImageList16.Draw(glyph.Canvas,0,0,11+ord(FBackGradInterp));
+  FillImageList16.Draw(glyph.Canvas,0,0,11+ord(FBackGradInterp));
   ButtonBackGradInterp.Glyph.Assign(glyph);
   glyph.Free;
   if not FUpdatingFromShape and ToolButtonBackFillGradDown then
@@ -1175,12 +1186,12 @@ begin
   If FBackGradRepetition=AValue then exit;
   FBackGradRepetition:=AValue;
   glyph := TBitmap.Create;
-  glyph.Width := BGRAFillImageList16.Width;
-  glyph.Height := BGRAFillImageList16.Height;
+  glyph.Width := FillImageList16.Width;
+  glyph.Height := FillImageList16.Height;
   glyph.Canvas.Brush.Color := MergeBGRA(ColorToBGRA(ButtonBackGradRepetion.StateNormal.Background.Gradient1.EndColor),
                                         ColorToBGRA(ButtonBackGradRepetion.StateNormal.Background.Gradient2.StartColor));
   glyph.Canvas.FillRect(0,0,glyph.Width,glyph.Height);
-  BGRAFillImageList16.Draw(glyph.Canvas,0,0,7+ord(FBackGradRepetition));
+  FillImageList16.Draw(glyph.Canvas,0,0,7+ord(FBackGradRepetition));
   ButtonBackGradRepetion.Glyph.Assign(glyph);
   glyph.Free;
   if not FUpdatingFromShape and ToolButtonBackFillGradDown then
@@ -1204,12 +1215,12 @@ begin
   if FBackTexRepetition=AValue then Exit;
   FBackTexRepetition:=AValue;
   glyph := TBitmap.Create;
-  glyph.Width := BGRAFillImageList16.Width;
-  glyph.Height := BGRAFillImageList16.Height;
+  glyph.Width := FillImageList16.Width;
+  glyph.Height := FillImageList16.Height;
   glyph.Canvas.Brush.Color := MergeBGRA(ColorToBGRA(ButtonBackGradInterp.StateNormal.Background.Gradient1.EndColor),
                                         ColorToBGRA(ButtonBackGradInterp.StateNormal.Background.Gradient2.StartColor));
   glyph.Canvas.FillRect(0,0,glyph.Width,glyph.Height);
-  BGRAFillImageList16.Draw(glyph.Canvas,0,0,17+ord(FBackTexRepetition));
+  FillImageList16.Draw(glyph.Canvas,0,0,17+ord(FBackTexRepetition));
   ButtonBackTexRepeat.Glyph.Assign(glyph);
   glyph.Free;
   if not FUpdatingFromShape and ToolButtonBackFillTexture.Down then

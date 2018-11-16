@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 483
+  Left = 481
   Height = 622
-  Top = 132
+  Top = 82
   Width = 981
   Caption = 'Vector Edit'
   ClientHeight = 622
@@ -97,12 +97,12 @@ object Form1: TForm1
       Top = 1
       Width = 55
       Align = alLeft
-      ButtonHeight = 55
-      ButtonWidth = 54
+      ButtonHeight = 52
+      ButtonWidth = 53
       EdgeBorders = []
       EdgeInner = esNone
       EdgeOuter = esNone
-      Images = BGRAImageList48
+      Images = ToolImageList48
       ParentColor = False
       ParentShowHint = False
       ShowHint = True
@@ -110,7 +110,7 @@ object Form1: TForm1
       object ToolButtonRectangle: TToolButton
         Left = 1
         Hint = 'Rectangle'
-        Top = 55
+        Top = 52
         Caption = 'Rectangle'
         Grouped = True
         ImageIndex = 19
@@ -120,7 +120,7 @@ object Form1: TForm1
       object ToolButtonEllipse: TToolButton
         Left = 1
         Hint = 'Ellipse'
-        Top = 110
+        Top = 104
         Caption = 'Ellipse'
         Grouped = True
         ImageIndex = 20
@@ -130,7 +130,7 @@ object Form1: TForm1
       object ToolButtonPolygon: TToolButton
         Left = 1
         Hint = 'Polygon'
-        Top = 275
+        Top = 260
         Caption = 'Polygon'
         Grouped = True
         ImageIndex = 21
@@ -140,7 +140,7 @@ object Form1: TForm1
       object ToolButtonClosedCurve: TToolButton
         Left = 1
         Hint = 'Closed curve'
-        Top = 330
+        Top = 312
         Caption = 'Closed curve'
         Grouped = True
         ImageIndex = 22
@@ -160,7 +160,7 @@ object Form1: TForm1
       object ToolButtonPolyline: TToolButton
         Left = 1
         Hint = 'Polyline'
-        Top = 165
+        Top = 156
         Caption = 'ToolButtonPolyline'
         Grouped = True
         ImageIndex = 122
@@ -170,7 +170,7 @@ object Form1: TForm1
       object ToolButtonCurve: TToolButton
         Left = 1
         Hint = 'Curve'
-        Top = 220
+        Top = 208
         Caption = 'ToolButtonCurve'
         Grouped = True
         ImageIndex = 123
@@ -180,7 +180,7 @@ object Form1: TForm1
       object ToolButtonPhongShape: TToolButton
         Left = 1
         Hint = 'Phong-shaded shape'
-        Top = 385
+        Top = 364
         Caption = 'ToolButtonPhongShape'
         Grouped = True
         ImageIndex = 70
@@ -2750,7 +2750,7 @@ object Form1: TForm1
           Align = alNone
           Caption = 'ToolBar2'
           EdgeBorders = [ebLeft, ebBottom]
-          Images = BGRAFillImageList16
+          Images = FillImageList16
           ParentShowHint = False
           ShowHint = True
           TabOrder = 1
@@ -5619,7 +5619,7 @@ object Form1: TForm1
     left = 104
     top = 96
   end
-  object BGRAImageList48: TBGRAImageList
+  object ToolImageList48: TBGRAImageList
     Height = 48
     Width = 48
     left = 104
@@ -41356,7 +41356,7 @@ object Form1: TForm1
     left = 392
     top = 96
   end
-  object BGRAFillImageList16: TBGRAImageList
+  object FillImageList16: TBGRAImageList
     left = 536
     top = 96
     Bitmap = {
