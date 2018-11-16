@@ -41,71 +41,67 @@ type
   TForm1 = class(TForm)
     BackImage: TImage;
     BGRAFillImageList16: TBGRAImageList;
+    ButtonBackGradInterp: TBCButton;
+    ButtonBackGradRepetion: TBCButton;
+    ButtonBackLoadTex: TBCButton;
+    ButtonBackNoTex: TBCButton;
+    ButtonBackSwapGradColor: TBCButton;
+    ButtonBackTexAdjust: TBCButton;
+    ButtonBackTexRepeat: TBCButton;
+    ButtonMoveBackFillPoints: TToolButton;
+    ButtonNewFile: TBCButton;
+    ButtonOpenFile: TBCButton;
+    ButtonPenStyle: TBCButton;
+    ButtonSaveAs: TBCButton;
+    ButtonSaveFile: TBCButton;
+    ButtonShapeBringToFront: TBCButton;
+    ButtonShapeCopy: TBCButton;
+    ButtonShapeCut: TBCButton;
+    ButtonShapeDelete: TBCButton;
+    ButtonShapeMoveDown: TBCButton;
+    ButtonShapeMoveUp: TBCButton;
+    ButtonShapePaste: TBCButton;
+    ButtonShapeSendToBack: TBCButton;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    PanelBackFill: TBCPanel;
+    PanelBackFillGrad: TPanel;
+    PanelBackFillTex: TPanel;
+    PanelBasicStyle: TBCPanel;
+    PanelExtendedStyle: TBCPanel;
+    PanelFile: TBCPanel;
+    PanelShape: TBCPanel;
     PhongImageList: TBGRAImageList;
     PenStyleImageList: TBGRAImageList;
     CurveImageList: TBGRAImageList;
-    ButtonBackGradInterp: TBCButton;
-    ButtonBackLoadTex: TBCButton;
-    ButtonBackTexRepeat: TBCButton;
-    ButtonBackTexAdjust: TBCButton;
-    ButtonBackNoTex: TBCButton;
-    ButtonShapePaste: TBCButton;
-    ButtonBackGradRepetion: TBCButton;
-    ButtonShapeCut: TBCButton;
-    ButtonShapeMoveUp: TBCButton;
-    ButtonShapeCopy: TBCButton;
-    ButtonShapeBringToFront: TBCButton;
-    ButtonPenStyle: TBCButton;
-    ButtonBackSwapGradColor: TBCButton;
-    ButtonShapeSendToBack: TBCButton;
-    ButtonShapeMoveDown: TBCButton;
-    ButtonShapeDelete: TBCButton;
-    Label2: TLabel;
-    PanelBackFillTex: TPanel;
-    PanelBackFillGrad: TPanel;
-    PanelBackFill: TBCPanel;
-    PanelShape: TBCPanel;
     ShapeBackColor: TShape;
     ShapeBackEndColor: TShape;
     ShapeBackStartColor: TShape;
+    ShapePenColor: TShape;
+    ToolBarTop: TToolBar;
     ToolBar2: TToolBar;
-    ButtonMoveBackFillPoints: TToolButton;
     ToolBarJoinStyle: TToolBar;
-    ToolButtonPhongShape: TToolButton;
-    ToolButtonJoinRound: TToolButton;
     ToolButton2: TToolButton;
+    ToolButtonBackFillDiamond: TToolButton;
+    ToolButtonBackFillLinear: TToolButton;
+    ToolButtonBackFillNone: TToolButton;
+    ToolButtonBackFillRadial: TToolButton;
+    ToolButtonBackFillReflected: TToolButton;
+    ToolButtonBackFillSolid: TToolButton;
+    ToolButtonBackFillTexture: TToolButton;
     ToolButtonJoinBevel: TToolButton;
     ToolButtonJoinMiter: TToolButton;
-    ToolButtonBackFillNone: TToolButton;
-    ToolButtonBackFillSolid: TToolButton;
-    ToolButtonBackFillLinear: TToolButton;
-    ToolButtonBackFillReflected: TToolButton;
-    ToolButtonBackFillDiamond: TToolButton;
-    ToolButtonBackFillRadial: TToolButton;
-    ToolButtonBackFillTexture: TToolButton;
-    UpDownBackAlpha: TBCTrackbarUpdown;
-    UpDownBackEndAlpha: TBCTrackbarUpdown;
-    UpDownBackStartAlpha: TBCTrackbarUpdown;
-    UpDownBackTexAlpha: TBCTrackbarUpdown;
-    UpDownPenWidth: TBCTrackbarUpdown;
-    PanelBasicStyle: TBCPanel;
-    PanelFile: TBCPanel;
-    PanelExtendedStyle: TBCPanel;
+    ToolButtonJoinRound: TToolButton;
+    ToolButtonPhongShape: TToolButton;
     BCPanelToolChoice: TBCPanel;
     BCPanelToolbar: TBCPanel;
     BGRAImageList48: TBGRAImageList;
     BGRAVirtualScreen1: TBGRAVirtualScreen;
-    ButtonOpenFile: TBCButton;
-    ButtonSaveFile: TBCButton;
-    ButtonSaveAs: TBCButton;
-    ButtonNewFile: TBCButton;
     ColorDialog1: TColorDialog;
-    Label1: TLabel;
-    Label3: TLabel;
     OpenDialog1: TOpenDialog;
     OpenPictureDialog1: TOpenPictureDialog;
     SaveDialog1: TSaveDialog;
-    ShapePenColor: TShape;
     ToolBarTools: TToolBar;
     ToolButtonPolyline: TToolButton;
     ToolButtonCurve: TToolButton;
@@ -114,7 +110,14 @@ type
     ToolButtonPolygon: TToolButton;
     ToolButtonRectangle: TToolButton;
     ToolButtonEllipse: TToolButton;
+    UpDownBackAlpha: TBCTrackbarUpdown;
+    UpDownBackEndAlpha: TBCTrackbarUpdown;
+    UpDownBackStartAlpha: TBCTrackbarUpdown;
+    UpDownBackTexAlpha: TBCTrackbarUpdown;
     UpDownPenAlpha: TBCTrackbarUpdown;
+    UpDownPenWidth: TBCTrackbarUpdown;
+    procedure BCPanelToolbarResize(Sender: TObject);
+    procedure BCPanelToolChoiceResize(Sender: TObject);
     procedure ButtonBackGradInterpClick(Sender: TObject);
     procedure ButtonBackGradRepetionClick(Sender: TObject);
     procedure ButtonBackTexAdjustClick(Sender: TObject);
@@ -290,6 +293,22 @@ begin
   result.ShowHint:= true;
   result.ShowCaptions:= false;
   result.Images := AImages;
+end;
+
+function GetToolbarSize(AToolbar: TToolbar): TSize;
+var
+  i: Integer;
+  r: TRect;
+begin
+  result := Size(1,1);
+  for i := 0 to AToolbar.ControlCount-1 do
+  begin
+    r := AToolbar.Controls[i].BoundsRect;
+    if r.Right > result.cx then result.cx := r.Right;
+    if r.Bottom > result.cy then result.cy := r.Bottom;
+  end;
+  result.cx += 1;
+  result.cy += 1;
 end;
 
 procedure AddToolbarCheckButton(AToolbar: TToolbar; ACaption: string; AImageIndex: integer;
@@ -699,6 +718,18 @@ begin
   if Assigned(FBackGradInterpMenu) then
     with ButtonBackGradInterp.ClientToScreen(Point(0,ButtonBackGradInterp.Height)) do
       FBackGradInterpMenu.PopUp(X,Y);
+end;
+
+procedure TForm1.BCPanelToolChoiceResize(Sender: TObject);
+begin
+  ToolbarTools.Width := GetToolbarSize(ToolbarTools).cx;
+  BCPanelToolChoice.Width := ToolbarTools.Width+3;
+end;
+
+procedure TForm1.BCPanelToolbarResize(Sender: TObject);
+begin
+  ToolBarTop.Height := GetToolbarSize(ToolBarTop).cy;
+  BCPanelToolbar.Height := ToolBarTop.Height;
 end;
 
 procedure TForm1.UpDownBackGradAlphaChange(Sender: TObject; AByUser: boolean);
@@ -1300,7 +1331,7 @@ begin
       if btn.Tag = ord(FPhongShapeKind) then btn.Down := true;
     end;
   if Assigned(FUpDownPhongBorderSize) then
-    FUpDownPhongBorderSize.Enabled:= (FPhongShapeKind = pskRoundRectangle);
+    FUpDownPhongBorderSize.Enabled:= (FPhongShapeKind in[pskRectangle,pskRoundRectangle]);
 
   if not FUpdatingFromShape and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
   begin
@@ -1442,7 +1473,6 @@ var
   f: TVectorShapeFields;
   showSplineStyle, showPhongStyle: boolean;
   nextControlPos: TPoint;
-  s: TSplineStyle;
   texSource: TBGRABitmap;
   mode: TVectorShapeUsermode;
   sk: TPhongShapeKind;
@@ -1529,9 +1559,12 @@ begin
   ButtonPenStyle.Enabled:= vsfPenStyle in f;
   EnableDisableToolButtons([ToolButtonJoinRound,ToolButtonJoinBevel,ToolButtonJoinMiter], vsfJoinStyle in f);
 
+  PanelExtendedStyle.Visible := false;
   nextControlPos := Point(ControlMargin,4);
   if showSplineStyle then
   begin
+    PanelExtendedStyle.Visible := true;
+
     FSplineToolbar := CreateToolBar(CurveImageList);
     FSplineToolbar.Left := nextControlPos.X;
     FSplineToolbar.Top := nextControlPos.Y;
@@ -1560,6 +1593,8 @@ begin
   end;
   if showPhongStyle then
   begin
+    PanelExtendedStyle.Visible := true;
+
     FPhongShapeKindToolbar := CreateToolBar(PhongImageList);
     FPhongShapeKindToolbar.Left := nextControlPos.X;
     FPhongShapeKindToolbar.Top := nextControlPos.Y;
@@ -1597,6 +1632,7 @@ begin
 
     nextControlPos.X := FPhongShapeKindToolbar.Left + FPhongShapeKindToolbar.Width + ControlMargin;
   end;
+  PanelExtendedStyle.Width := nextControlPos.X;
 end;
 
 procedure TForm1.UpdateTitleBar;
