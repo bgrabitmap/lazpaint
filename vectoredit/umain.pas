@@ -10,7 +10,7 @@ uses
   BCTrackbarUpdown, BCPanel, BCButton, BGRAImageList, BGRALazPaint, BGRABitmap,
   BGRABitmapTypes, BGRATransform, BGRALayerOriginal, BGRAGraphics,
   uvectororiginal, uvectorialfill, uvectorshapes, BGRAGradientScanner, LCLType,
-  ActnList, uscaledpi;
+  ActnList, uscaledpi in {$IFDEF WINDOWS}'..\lazpaint\uscaledpi.pas'{$ELSE}'../lazpaint/uscaledpi.pas'{$ENDIF};
 
 const
   ToolIconSize = 36;
