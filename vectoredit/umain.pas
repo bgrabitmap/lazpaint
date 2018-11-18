@@ -220,6 +220,7 @@ type
     function GetPenWidth: single;
     function GetSplineStyle: TSplineStyle;
     function GetVectorTransform: TAffineMatrix;
+    function GetZoomFactor: single;
     procedure ImageChange(ARectF: TRectF);
     procedure OnClickSplineStyleItem(ASender: TObject);
     procedure OnEditingChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
@@ -264,6 +265,8 @@ type
     procedure OnClickBackTexRepeat(ASender: TObject);
     procedure RemoveShapeIfEmpty(AShape: TVectorShape);
     procedure DoLoadTex;
+    function VirtualScreenToImgCoord(X,Y: Integer): TPointF;
+    procedure SetEditorGrid(AActive: boolean);
   public
     { public declarations }
     img: TBGRALazPaintImage;
@@ -296,6 +299,7 @@ type
     property currentTool: TPaintTool read FCurrentTool write SetCurrentTool;
     property joinStyle: TPenJoinStyle read FPenJoinStyle write SetPenJoinStyle;
     property phongShapeKind: TPhongShapeKind read FPhongShapeKind write SetPhongShapeKind;
+    property zoomFactor: single read GetZoomFactor;
   end;
 
 var
@@ -517,7 +521,8 @@ var
   handled: boolean;
 begin
   mouseState:= Shift;
-  imgPtF := AffineMatrixInverse(zoom)*PointF(X,Y);
+  imgPtF := VirtualScreenToImgCoord(X,Y);
+  SetEditorGrid(ssCtrl in Shift);
   img.MouseDown(Button=mbRight, Shift, imgPtF.x, imgPtF.y, cur, handled);
   UpdateViewCursor(cur);
   if handled then exit;
@@ -805,7 +810,8 @@ var
   vectorFill: TVectorialFill;
 begin
   mouseState:= Shift;
-  imgPtF := AffineMatrixInverse(zoom)*PointF(X,Y);
+  imgPtF := VirtualScreenToImgCoord(X,Y);
+  SetEditorGrid(ssCtrl in Shift);
   img.MouseMove(Shift, imgPtF.X, imgPtF.Y, cur, handled);
   UpdateViewCursor(cur);
 
@@ -844,7 +850,8 @@ var
   addedShape: TVectorShape;
 begin
   mouseState:= Shift;
-  imgPtF := AffineMatrixInverse(zoom)*PointF(X,Y);
+  imgPtF := VirtualScreenToImgCoord(X,Y);
+  SetEditorGrid(ssCtrl in Shift);
   img.MouseUp(Button = mbRight, Shift, imgPtF.X, imgPtF.Y, cur, handled);
   if handled then RenderAndUpdate(false);
   UpdateViewCursor(cur);
@@ -1075,6 +1082,11 @@ begin
     result:= img.LayerOriginalMatrix[vectorLayer]
   else
     result:= AffineMatrixIdentity;
+end;
+
+function TForm1.GetZoomFactor: single;
+begin
+  result := (VectLen(PointF(zoom[1,1],zoom[2,1]))+VectLen(PointF(zoom[1,2],zoom[2,2])))/2;
 end;
 
 procedure TForm1.ImageChange(ARectF: TRectF);
@@ -1958,6 +1970,27 @@ begin
       ToolButtonBackFillNone.Down:= true;
       ToolButtonBackFillChange(ToolButtonBackFillNone);
     end;
+  end;
+end;
+
+function TForm1.VirtualScreenToImgCoord(X, Y: Integer): TPointF;
+begin
+  result := AffineMatrixTranslation(-0.5,-0.5)*AffineMatrixInverse(zoom)*AffineMatrixTranslation(0.5,0.5)*PointF(X,Y);
+end;
+
+procedure TForm1.SetEditorGrid(AActive: boolean);
+begin
+  if Assigned(img) and Assigned(img.OriginalEditor) then
+  begin
+    if zoomFactor > 4 then
+      img.OriginalEditor.GridMatrix := AffineMatrixTranslation(-0.5,-0.5)*
+                                       vectorTransform*AffineMatrixTranslation(0.5,0.5)*
+                                       AffineMatrixScale(0.5,0.5)
+    else
+      img.OriginalEditor.GridMatrix := AffineMatrixTranslation(-0.5,-0.5)*
+                                       vectorTransform*AffineMatrixTranslation(0.5,0.5);
+
+    img.OriginalEditor.GridActive := AActive;
   end;
 end;
 
