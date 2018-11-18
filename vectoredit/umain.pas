@@ -481,6 +481,7 @@ begin
   FPhongBorderSize := DefaultPhongBorderSizePercent;
   UpdateTitleBar;
   UpdateBackComponentsVisibility;
+  UpdateShapeActions(nil);
 end;
 
 procedure TForm1.BGRAVirtualScreen1Redraw(Sender: TObject; Bitmap: TBGRABitmap);
