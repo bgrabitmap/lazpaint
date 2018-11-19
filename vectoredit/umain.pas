@@ -530,7 +530,7 @@ begin
 
   if not justDown and not Assigned(newShape) then
   begin
-    newStartPoint := AffineMatrixInverse(vectorTransform)*imgPtF;
+    newStartPoint := AffineMatrixInverse(AffineMatrixTranslation(-0.5,-0.5)*vectorTransform*AffineMatrixTranslation(0.5,0.5))*imgPtF;
     newButton := Button;
     justDown := true;
   end;
@@ -816,7 +816,7 @@ begin
   img.MouseMove(Shift, imgPtF.X, imgPtF.Y, cur, handled);
   UpdateViewCursor(cur);
 
-  ptF := AffineMatrixInverse(vectorTransform)*imgPtF;
+  ptF := AffineMatrixInverse(AffineMatrixTranslation(-0.5,-0.5)*vectorTransform*AffineMatrixTranslation(0.5,0.5))*imgPtF;
   if justDown and not Assigned(newShape) and IsCreateShapeTool(currentTool) and
     (VectLen(ptF-newStartPoint) >= EditorPointSize) then
   begin
