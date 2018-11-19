@@ -597,7 +597,7 @@ begin
     begin
       if ADraft then
       begin
-        r:= rect(round(orthoRect.Left),round(orthoRect.Top),round(orthoRect.Right),round(orthoRect.Bottom));
+        r:= rect(round(orthoRect.Left+0.5),round(orthoRect.Top+0.5),round(orthoRect.Right+0.5),round(orthoRect.Bottom+0.5));
         if Assigned(backScan) then
           ADest.FillRect(r, backScan, dmDrawWithTransparency) else
           ADest.FillRect(r, BackFill.SolidColor, dmDrawWithTransparency)
