@@ -14,6 +14,7 @@ uses
 
 const
   ToolIconSize = 36;
+  ActionIconSize = 24;
   EditorPointSize = 7;
   PenStyleToStr : array[TPenStyle] of string = ('─────', '─ ─ ─ ─', '···············', '─ · ─ · ─', '─ ·· ─ ·· ╴', 'InsideFrame', 'Pattern', 'Clear');
   GradRepetitionToStr : array[TBGRAGradientRepetition] of string = ('Pad', 'Repeat', 'Reflect', 'Sine');
@@ -45,7 +46,7 @@ type
     ShapeBringToFront: TAction;
     ShapeMoveDown: TAction;
     ShapeMoveUp: TAction;
-    ActionImageList: TBGRAImageList;
+    VectorImageList24: TBGRAImageList;
     ActionList: TActionList;
     BackImage: TImage;
     EditCopy: TAction;
@@ -222,6 +223,7 @@ type
     function GetVectorTransform: TAffineMatrix;
     function GetZoomFactor: single;
     procedure ImageChange(ARectF: TRectF);
+    procedure LoadVectorImages;
     procedure OnClickSplineStyleItem(ASender: TObject);
     procedure OnEditingChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
     procedure OnOriginalChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
@@ -307,7 +309,9 @@ var
 
 implementation
 
-uses math, BGRAPen, BGRAThumbnail, BGRAGradientOriginal, uvectorclipboard;
+uses math, BGRAPen, BGRAThumbnail, BGRAGradientOriginal, uvectorclipboard, LResources;
+
+{$R *.lfm}
 
 function CreateToolBar(AImages: TImageList): TToolbar;
 begin
@@ -333,6 +337,58 @@ begin
   end;
   result.cx += APadding;
   result.cy += APadding;
+end;
+
+procedure SetToolbarImages(AToolbar: TToolbar; AImages: TImageList);
+begin
+  AToolbar.Images := AImages;
+  AToolbar.ButtonWidth:= AImages.Width+5;
+  AToolbar.ButtonHeight:= AImages.Height+4;
+end;
+
+function GetResourceStream(AFilename: string): TLazarusResourceStream;
+var
+  ext: RawByteString;
+begin
+  ext := UpperCase(ExtractFileExt(AFilename));
+  if (ext<>'') and (ext[1]='.') then Delete(ext,1,1);
+  result := TLazarusResourceStream.Create(ChangeFileExt(AFilename,''), pchar(ext));
+end;
+
+function GetResourceString(AFilename: string): string;
+var
+  res: TLResource;
+  ext: RawByteString;
+begin
+  ext := UpperCase(ExtractFileExt(AFilename));
+  if (ext<>'') and (ext[1]='.') then Delete(ext,1,1);
+  res := LazarusResources.Find(ChangeFileExt(AFilename,''), ext);
+  if assigned(res) then result:= res.Value else result:= '';
+end;
+
+procedure LoadToolIcon(AImages: TImageList; AIndex: integer; AFilename: string);
+var
+  iconImg: TBGRALazPaintImage;
+  iconFlat: TBGRABitmap;
+  res: TLazarusResourceStream;
+  mem: TMemoryStream;
+begin
+  iconImg := TBGRALazPaintImage.Create;
+  res := GetResourceStream(AFilename);
+  mem:= TMemoryStream.Create;
+  res.SaveToStream(mem);
+  res.Free;
+  mem.Position:= 0;
+  iconImg.LoadFromStream(mem);
+  iconImg.Resample(AImages.Width,AImages.Height,rmFineResample,rfBestQuality);
+  iconFlat := TBGRABitmap.Create(iconImg.Width,iconImg.Height);
+  iconImg.Draw(iconFlat,0,0);
+  if AImages.Count < AIndex then
+    AImages.Replace(AIndex, iconFlat.Bitmap,nil)
+  else
+    AImages.Add(iconFlat.Bitmap,nil);
+  iconFlat.Free;
+  iconImg.Free;
 end;
 
 procedure AddToolbarCheckButton(AToolbar: TToolbar; ACaption: string; AImageIndex: integer;
@@ -374,7 +430,26 @@ begin
   result := PaintToolClass[ATool] <> nil;
 end;
 
-{$R *.lfm}
+procedure TForm1.LoadVectorImages;
+var
+  vectorImageList: TBGRAImageList;
+  lst: TStringList;
+  i: Integer;
+begin
+  if VectorImageList24.Height = ActionIconSize then exit;
+
+  vectorImageList:= TBGRAImageList.Create(self);
+  vectorImageList.Width := ActionIconSize;
+  vectorImageList.Height := ActionIconSize;
+  lst := TStringList.Create;
+  lst.CommaText := GetResourceString('vectorimages.lst');
+  for i := 0 to lst.Count-1 do
+    LoadToolIcon(vectorImageList, i, lst[i]);
+  lst.Free;
+
+  SetToolbarImages(ToolBarFile, vectorImageList);
+  SetToolbarImages(ToolBarEdit, vectorImageList);
+end;
 
 { TForm1 }
 
@@ -394,10 +469,10 @@ begin
   begin
     toolImageList := TBGRAImageList.Create(self);
     ScaleImageList(ToolImageList48, ToolIconSize,ToolIconSize, toolImageList);
-    ToolBarTools.Images := toolImageList;
-    ToolBarTools.ButtonWidth:= toolImageList.Width+5;
-    ToolBarTools.ButtonHeight:= toolImageList.Height+4;
+    SetToolbarImages(ToolBarTools, toolImageList);
   end;
+
+  LoadVectorImages;
 
   for i := 0 to ActionList.ActionCount-1 do
     with (ActionList.Actions[i] as TAction) do

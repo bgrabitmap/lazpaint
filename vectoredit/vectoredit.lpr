@@ -7,12 +7,14 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, umain, uvectororiginal, uvectorialfill, uvectorshapes, uvectorclipboard
+  Forms, umain, uvectororiginal, uvectorialfill, uvectorshapes, uvectorclipboard,
+  LResources
   { you can add units after this };
 
 {$R *.res}
 
 begin
+  {$I vectorimages.lrs}
   RequireDerivedFormResource:=True;
   Application.Initialize;
   Application.CreateForm(TForm1, Form1);
