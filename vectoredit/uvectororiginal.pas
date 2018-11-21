@@ -544,27 +544,29 @@ procedure TVectorShape.SaveFill(AStorage: TBGRACustomOriginalStorage;
 var
   obj: TBGRACustomOriginalStorage;
   m: TAffineMatrix;
+  ft: TVectorialFillType;
 begin
   AStorage.RemoveObject(AObjectName+'-fill');
   AStorage.RemoveObject(AObjectName+'-color');
   if Assigned(AValue) then
   begin
-    if AValue.IsSolid then
+    ft := AValue.FillType;
+    if ft = vftSolid then
     begin
       AStorage.Color[AObjectName+'-color'] := AValue.SolidColor;
       exit;
     end else
-    if not AValue.IsTexture and not AValue.IsGradient then exit;
+    if not (ft in [vftTexture,vftGradient]) then exit;
 
     obj := AStorage.CreateObject(AObjectName+'-fill');
     try
-      if AValue.IsSolid then
+      if ft = vftSolid then
       begin
         obj.RawString['class'] := 'solid';
         obj.Color['color'] := AValue.SolidColor;
       end
       else
-      if AValue.IsTexture then
+      if ft = vftTexture then
       begin
         obj.RawString['class'] := 'texture';
         obj.Int['tex-id'] := Container.GetTextureId(AValue.Texture);
@@ -581,7 +583,7 @@ begin
           trRepeatBoth: obj.RemoveAttribute('repetition');
         end;
       end else
-      if AValue.IsGradient then
+      if ft = vftGradient then
       begin
         obj.RawString['class'] := 'gradient';
         AValue.Gradient.SaveToStorage(obj);
@@ -724,9 +726,9 @@ begin
   if FBackFill.Equals(AValue) then exit;
   BeginUpdate;
   freeTex := Assigned(FBackFill) and Assigned(FBackFill.Texture) and
-    not (Assigned(AValue) and AValue.IsTexture and (AValue.Texture = FBackFill.Texture));
+    not (Assigned(AValue) and (AValue.FillType = vftTexture) and (AValue.Texture = FBackFill.Texture));
   if AValue = nil then FreeAndNil(FBackFill) else
-  if AValue.IsTexture then
+  if AValue.FillType = vftTexture then
   begin
     if Assigned(Container) then
       sharedTex := Container.GetTexture(Container.AddTexture(AValue.Texture))
@@ -1073,7 +1075,7 @@ begin
   for i := 0 to FShapes.Count-1 do
   begin
     f:= FShapes[i].Fields;
-    if (vsfBackFill in f) and FShapes[i].BackFill.IsTexture then
+    if (vsfBackFill in f) and (FShapes[i].BackFill.FillType = vftTexture) then
     begin
       tex := FShapes[i].BackFill.Texture;
       inc(FTextures[IndexOfTexture(GetTextureId(tex))].Counter);
@@ -1102,7 +1104,7 @@ begin
       raise exception.Create('Container mismatch');
   end;
   result:= FShapes.Add(AShape);
-  if (vsfBackFill in AShape.Fields) and AShape.BackFill.IsTexture then AddTexture(AShape.BackFill.Texture);
+  if (vsfBackFill in AShape.Fields) and (AShape.BackFill.FillType = vftTexture) then AddTexture(AShape.BackFill.Texture);
   AShape.OnChange := @OnShapeChange;
   AShape.OnEditingChange := @OnShapeEditingChange;
   DiscardFrozenShapes;
@@ -1163,7 +1165,7 @@ begin
     end else
       prevMode := vsuEdit;
     if Assigned(AShape) and (prevMode = vsuEditBackFill) and (prevMode in AShape.Usermodes) and
-       AShape.BackFill.IsGradient then AShape.Usermode:= prevMode;
+       (AShape.BackFill.FillType in[vftGradient,vftTexture]) then AShape.Usermode:= prevMode;
     FSelectedShape := AShape;
     DiscardFrozenShapes;
     NotifyEditorChange;
@@ -1252,7 +1254,7 @@ begin
     else
     begin
       if (FSelectedShape.Usermode = vsuEditBackFill) and
-         (FSelectedShape.BackFill.IsGradient or FSelectedShape.BackFill.IsTexture) then
+         (FSelectedShape.BackFill.FillType in [vftGradient,vftTexture]) then
         FSelectedShape.BackFill.ConfigureEditor(AEditor)
       else
         FSelectedShape.ConfigureEditor(AEditor);

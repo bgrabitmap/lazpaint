@@ -213,7 +213,7 @@ type
 
 implementation
 
-uses BGRAPen, BGRAGraphics, BGRAFillInfo, BGRAPath, math;
+uses BGRAPen, BGRAGraphics, BGRAFillInfo, BGRAPath, math, uvectorialfill;
 
 function MatrixForPixelCentered(const AMatrix: TAffineMatrix): TAffineMatrix;
 begin
@@ -541,8 +541,7 @@ end;
 
 function TRectShape.BackVisible: boolean;
 begin
-  result := BackFill.IsGradient or BackFill.IsTexture or
-            (BackFill.IsSolid and (BackFill.SolidColor.alpha <> 0));
+  result := not BackFill.IsFullyTransparent;
 end;
 
 function TRectShape.GetCornerPositition: single;
@@ -590,7 +589,7 @@ begin
   pts := GetAffineBox(AMatrix, true).AsPolygon;
   If BackVisible then
   begin
-    if BackFill.IsSolid then backScan := nil
+    if (BackFill.FillType = vftSolid) then backScan := nil
     else backScan := BackFill.CreateScanner(AMatrix, ADraft);
 
     if GetOrthoRect(AMatrix, orthoRect) then
@@ -702,8 +701,7 @@ end;
 
 function TEllipseShape.BackVisible: boolean;
 begin
-  result := BackFill.IsGradient or BackFill.IsTexture or
-            (BackFill.IsSolid and (BackFill.SolidColor.alpha <> 0));
+  result := not BackFill.IsFullyTransparent;
 end;
 
 function TEllipseShape.GetCornerPositition: single;
@@ -741,7 +739,7 @@ begin
     radius := (orthoRect.BottomRight-orthoRect.TopLeft)*0.5;
     If BackVisible then
     begin
-      if BackFill.IsSolid then backScan := nil
+      if BackFill.FillType = vftSolid then backScan := nil
       else backScan := BackFill.CreateScanner(AMatrix, ADraft);
 
       if ADraft then
@@ -789,7 +787,7 @@ begin
     pts := ComputeEllipse(m*FOrigin, m*FXAxis, m*FYAxis);
     If BackVisible then
     begin
-      if BackFill.IsSolid then backScan := nil
+      if BackFill.FillType = vftSolid then backScan := nil
       else backScan := BackFill.CreateScanner(AMatrix, ADraft);
 
       if ADraft then
@@ -1325,8 +1323,7 @@ end;
 
 function TPolylineShape.BackVisible: boolean;
 begin
-  result := BackFill.IsGradient or BackFill.IsTexture or
-            (BackFill.IsSolid and (BackFill.SolidColor.alpha <> 0));
+  result := not BackFill.IsFullyTransparent;
 end;
 
 class function TPolylineShape.Fields: TVectorShapeFields;
@@ -1344,7 +1341,7 @@ begin
   pts := GetCurve(AMatrix);
   if BackVisible then
   begin
-    if BackFill.IsSolid then backScan := nil
+    if BackFill.FillType = vftSolid then backScan := nil
     else backScan := BackFill.CreateScanner(AMatrix, ADraft);
 
     if ADraft then
@@ -1643,8 +1640,7 @@ end;
 
 function TPhongShape.BackVisible: boolean;
 begin
-  result := BackFill.IsGradient or BackFill.IsTexture or
-            (BackFill.IsSolid and (BackFill.SolidColor.alpha <> 0));
+  result := not BackFill.IsFullyTransparent;
 end;
 
 function TPhongShape.AllowShearTransform: boolean;
@@ -1841,7 +1837,7 @@ begin
        shader.LightPositionZ := round(h*3/2);
 
       raster := TBGRABitmap.Create(rectRaster.Width,rectRaster.Height);
-      if BackFill.IsSolid then
+      if BackFill.FillType = vftSolid then
         shader.Draw(raster,map,round(h),-rectRaster.Left,-rectRaster.Top,BackFill.SolidColor)
       else
       begin

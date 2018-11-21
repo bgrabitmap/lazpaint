@@ -17,6 +17,7 @@ const
   ActionIconSize = 24;
   EditorPointSize = 7;
   PenStyleToStr : array[TPenStyle] of string = ('─────', '─ ─ ─ ─', '···············', '─ · ─ · ─', '─ ·· ─ ·· ╴', 'InsideFrame', 'Pattern', 'Clear');
+  GradTypeToStr : array[TGradientType] of string = ('Linear','Reflected','Diamond','Radial');
   GradRepetitionToStr : array[TBGRAGradientRepetition] of string = ('Pad', 'Repeat', 'Reflect', 'Sine');
   ColorInterpToStr : array[TBGRAColorInterpolation] of string = ('sRGB', 'RGB', 'HSL CW', 'HSL CCW', 'Corr. HSL CW', 'Corr. HSL CCW');
   TextureRepetitionToStr: array[TTextureRepetition] of string = ('No repetition', 'Repeat X', 'Repeat Y', 'Repeat both');
@@ -46,6 +47,7 @@ type
     ShapeBringToFront: TAction;
     ShapeMoveDown: TAction;
     ShapeMoveUp: TAction;
+    ToolButtonBackFillGrad: TToolButton;
     VectorImageList24: TBGRAImageList;
     ActionList: TActionList;
     BackImage: TImage;
@@ -61,7 +63,6 @@ type
     ButtonBackGradInterp: TBCButton;
     ButtonBackGradRepetion: TBCButton;
     ButtonBackLoadTex: TBCButton;
-    ButtonBackNoTex: TBCButton;
     ButtonBackSwapGradColor: TBCButton;
     ButtonBackTexAdjust: TBCButton;
     ButtonBackTexRepeat: TBCButton;
@@ -102,11 +103,7 @@ type
     ToolButton7: TToolButton;
     ToolButton8: TToolButton;
     ToolButton9: TToolButton;
-    ToolButtonBackFillDiamond: TToolButton;
-    ToolButtonBackFillLinear: TToolButton;
     ToolButtonBackFillNone: TToolButton;
-    ToolButtonBackFillRadial: TToolButton;
-    ToolButtonBackFillReflected: TToolButton;
     ToolButtonBackFillSolid: TToolButton;
     ToolButtonBackFillTexture: TToolButton;
     ToolButtonJoinBevel: TToolButton;
@@ -159,6 +156,7 @@ type
     procedure ShapeMoveDownExecute(Sender: TObject);
     procedure ShapeMoveUpExecute(Sender: TObject);
     procedure ShapeSendToBackExecute(Sender: TObject);
+    procedure ToolButtonBackFillGradClick(Sender: TObject);
     procedure ToolButtonJoinClick(Sender: TObject);
     procedure UpDownBackGradAlphaChange(Sender: TObject; AByUser: boolean);
     procedure UpDownBackTexAlphaChange(Sender: TObject; AByUser: boolean);
@@ -171,7 +169,6 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure BGRAVirtualScreen1Redraw(Sender: TObject; Bitmap: TBGRABitmap);
     procedure ButtonBackLoadTexClick(Sender: TObject);
-    procedure ButtonBackNoTexClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
@@ -188,6 +185,9 @@ type
   private
     FPenColor, FBackColor: TBGRAPixel;
     FBackGradStartColor, FBackGradEndColor: TBGRAPixel;
+    FBackFillType: TVectorialFillType;
+    FBackGradType: TGradientType;
+    FBackGradTypeMenu: TPopupMenu;
     FBackGradRepetition: TBGRAGradientRepetition;
     FBackGradRepetitionMenu: TPopupMenu;
     FBackGradInterp: TBGRAColorInterpolation;
@@ -224,6 +224,7 @@ type
     function GetZoomFactor: single;
     procedure ImageChange(ARectF: TRectF);
     procedure LoadVectorImages;
+    procedure OnClickBackGradType(ASender: TObject);
     procedure OnClickSplineStyleItem(ASender: TObject);
     procedure OnEditingChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
     procedure OnOriginalChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
@@ -235,10 +236,12 @@ type
     procedure OnClickBackGradInterp(ASender: TObject);
     procedure PhongShapeKindClick(Sender: TObject);
     procedure SetBackColor(AValue: TBGRAPixel);
+    procedure SetBackFillType(AValue: TVectorialFillType);
     procedure SetBackGradEndColor(AValue: TBGRAPixel);
     procedure SetBackGradInterp(AValue: TBGRAColorInterpolation);
     procedure SetBackGradRepetition(AValue: TBGRAGradientRepetition);
     procedure SetBackGradStartColor(AValue: TBGRAPixel);
+    procedure SetBackGradType(AValue: TGradientType);
     procedure SetBackTexRepetition(AValue: TTextureRepetition);
     procedure SetBackTexture(AValue: TBGRABitmap);
     procedure SetCurrentTool(AValue: TPaintTool);
@@ -263,7 +266,6 @@ type
     procedure UpdateShapeBackFill;
     procedure UpdateShapeUserMode;
     procedure UpdateShapeActions(AShape: TVectorShape);
-    function ToolButtonBackFillGradDown: boolean;
     procedure OnClickBackTexRepeat(ASender: TObject);
     procedure RemoveShapeIfEmpty(AShape: TVectorShape);
     procedure DoLoadTex;
@@ -291,6 +293,8 @@ type
     property backColor: TBGRAPixel read FBackColor write SetBackColor;
     property backGradStartColor: TBGRAPixel read FBackGradStartColor write SetBackGradStartColor;
     property backGradEndColor: TBGRAPixel read FBackGradEndColor write SetBackGradEndColor;
+    property backFillType: TVectorialFillType read FBackFillType write SetBackFillType;
+    property backGradType: TGradientType read FBackGradType write SetBackGradType;
     property backGradRepetition: TBGRAGradientRepetition read FBackGradRepetition write SetBackGradRepetition;
     property backGradInterp: TBGRAColorInterpolation read FBackGradInterp write SetBackGradInterp;
     property backTexture: TBGRABitmap read GetBackTexture write SetBackTexture;
@@ -451,6 +455,12 @@ begin
   SetToolbarImages(ToolBarEdit, vectorImageList);
 end;
 
+procedure TForm1.OnClickBackGradType(ASender: TObject);
+begin
+  backGradType := TGradientType((ASender as TMenuItem).Tag);
+  if backFillType <> vftGradient then backFillType:= vftGradient;
+end;
+
 { TForm1 }
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -463,6 +473,7 @@ var
   ss: TSplineStyle;
   toolImageList: TBGRAImageList;
   i: Integer;
+  gt: TGradientType;
 begin
   baseCaption:= Caption;
   if ToolIconSize <> ToolImageList48.Width then
@@ -497,6 +508,16 @@ begin
     item:= TMenuItem.Create(FPenStyleMenu); item.Caption := PenStyleToStr[ps];
     item.OnClick := @OnClickPenStyle;       item.Tag := ord(ps);
     FPenStyleMenu.Items.Add(item);
+  end;
+
+  FBackGradTypeMenu := TPopupMenu.Create(nil);
+  FBackGradTypeMenu.Images := FillImageList16;
+  for gt := low(TGradientType) to high(TGradientType) do
+  begin
+    item := TMenuItem.Create(FBackGradTypeMenu); item.Caption := GradTypeToStr[gt];
+    item.OnClick:=@OnClickBackGradType;          item.Tag := ord(gt);
+    item.ImageIndex:= 2+ord(gt);
+    FBackGradTypeMenu.Items.Add(item);
   end;
 
   FBackGradRepetitionMenu := TPopupMenu.Create(nil);
@@ -549,6 +570,7 @@ begin
   joinStyle:= pjsBevel;
   currentTool:= ptHand;
   splineStyle:= ssEasyBezier;
+  FBackFillType:= vftSolid;
   FBackGradRepetition:= grPad;
   FBackGradInterp:= ciLinearRGB;
   FBackTexRepetition:= trRepeatBoth;
@@ -577,16 +599,6 @@ end;
 procedure TForm1.ButtonBackLoadTexClick(Sender: TObject);
 begin
   DoLoadTex;
-end;
-
-procedure TForm1.ButtonBackNoTexClick(Sender: TObject);
-begin
-  backTexture := nil;
-  if ToolButtonBackFillTexture.Down then
-  begin
-    ToolButtonBackFillNone.Down := true;
-    UpdateBackComponentsVisibility;
-  end;
 end;
 
 procedure TForm1.BGRAVirtualScreen1MouseDown(Sender: TObject;
@@ -668,6 +680,14 @@ begin
     vectorOriginal.SelectedShape.SendToBack;
     UpdateShapeActions(vectorOriginal.SelectedShape);
   end;
+end;
+
+procedure TForm1.ToolButtonBackFillGradClick(Sender: TObject);
+begin
+  if Assigned(FBackGradTypeMenu) then
+    with ToolButtonBackFillGrad.ClientToScreen(Point(0,ToolButtonBackFillGrad.Height)) do
+      FBackGradTypeMenu.PopUp(X,Y);
+  ToolButtonBackFillGrad.Down := FBackFillType = vftGradient;
 end;
 
 procedure TForm1.ToolButtonJoinClick(Sender: TObject);
@@ -867,13 +887,13 @@ begin
       FBackGradEndColor.alpha := (Sender as TBCTrackbarUpdown).Value
     else
       FBackGradStartColor.alpha := (Sender as TBCTrackbarUpdown).Value;
-    if ToolButtonBackFillGradDown then UpdateShapeBackFill;
+    if backFillType = vftGradient then UpdateShapeBackFill;
   end;
 end;
 
 procedure TForm1.UpDownBackTexAlphaChange(Sender: TObject; AByUser: boolean);
 begin
-  if AByUser and ToolButtonBackFillTexture.Down then UpdateShapeBackFill;
+  if AByUser and (backFillType = vftTexture) then UpdateShapeBackFill;
 end;
 
 procedure TForm1.BGRAVirtualScreen1MouseMove(Sender: TObject;
@@ -905,7 +925,7 @@ begin
   begin
     prevRF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
     newShape.QuickDefine(newStartPoint,ptF);
-    if (vsfBackFill in newShape.Fields) and newShape.BackFill.IsGradient or newShape.BackFill.IsTexture then
+    if (vsfBackFill in newShape.Fields) and (newShape.BackFill.FillType in [vftGradient, vftTexture]) then
     begin
       vectorFill := CreateBackFill(newShape);
       newShape.BackFill := vectorFill;
@@ -965,6 +985,7 @@ begin
   FFlattened.Free;
   FBackTexture.FreeReference;
   FPenStyleMenu.Free;
+  FBackGradTypeMenu.Free;
   FBackGradRepetitionMenu.Free;
   FBackGradInterpMenu.Free;
   FBackTexRepetitionMenu.Free;
@@ -1028,8 +1049,7 @@ procedure TForm1.ToolButtonBackFillChange(Sender: TObject);
 begin
   if FUpdatingFromShape then exit;
 
-  if (Sender = ToolButtonBackFillTexture) and ToolButtonBackFillTexture.Down
-    and (backTexture = nil) then
+  if (Sender = ToolButtonBackFillTexture) and (backTexture = nil) then
   begin
     DoLoadTex;
     exit;
@@ -1037,8 +1057,22 @@ begin
 
   if (Sender as TToolButton).Down then
   begin
-    UpdateShapeBackFill;
-    UpdateBackComponentsVisibility;
+    if Sender = ToolButtonBackFillNone then backFillType := vftNone;
+    if Sender = ToolButtonBackFillSolid then backFillType := vftSolid;
+    if Sender = ToolButtonBackFillGrad then backFillType := vftGradient;
+    if Sender = ToolButtonBackFillTexture then backFillType := vftTexture;
+  end else
+  begin
+    if not ToolButtonBackFillNone.Down and
+       not ToolButtonBackFillSolid.Down and
+       not ToolButtonBackFillGrad.Down and
+       not ToolButtonBackFillTexture.Down then
+    begin
+      ToolButtonBackFillNone.Down := (backFillType = vftNone);
+      ToolButtonBackFillSolid.Down := (backFillType = vftSolid);
+      ToolButtonBackFillGrad.Down := (backFillType = vftGradient);
+      ToolButtonBackFillTexture.Down := (backFillType = vftTexture);
+    end;
   end;
 end;
 
@@ -1092,7 +1126,7 @@ begin
     else UpdateToolbarFromShape(nil);
 
     if currentTool in [ptPolyline, ptCurve] then
-      ToolButtonBackFillNone.Down := true;
+      backFillType := vftNone;
   end;
 
   UpdateShapeUserMode;
@@ -1106,7 +1140,7 @@ begin
   if AByUser then
   begin
     FBackColor:= ColorToBGRA(ShapeBackColor.Brush.Color, UpDownBackAlpha.Value);
-    if ToolButtonBackFillSolid.Down then UpdateShapeBackFill;
+    if backFillType = vftSolid then UpdateShapeBackFill;
   end;
 end;
 
@@ -1269,8 +1303,20 @@ begin
   FBackColor := AValue;
   ShapeBackColor.Brush.Color := AValue.ToColor;
   UpDownBackAlpha.Value := AValue.alpha;
-  if not FUpdatingFromShape and ToolButtonBackFillSolid.Down then
+  if not FUpdatingFromShape and (backFillType = vftSolid) then
     UpdateShapeBackFill;
+end;
+
+procedure TForm1.SetBackFillType(AValue: TVectorialFillType);
+begin
+  if FBackFillType=AValue then Exit;
+  FBackFillType:=AValue;
+  ToolButtonBackFillNone.Down := (FBackFillType = vftNone);
+  ToolButtonBackFillSolid.Down := (FBackFillType = vftSolid);
+  ToolButtonBackFillGrad.Down := (FBackFillType = vftGradient);
+  ToolButtonBackFillTexture.Down := (FBackFillType = vftTexture);
+  if not FUpdatingFromShape then UpdateShapeBackFill;
+  UpdateBackComponentsVisibility;
 end;
 
 procedure TForm1.SetBackGradEndColor(AValue: TBGRAPixel);
@@ -1279,7 +1325,7 @@ begin
   UpDownBackEndAlpha.Value := AValue.alpha;
   AValue.alpha := 255;
   ShapeBackEndColor.Brush.Color := AValue.ToColor;
-  if not FUpdatingFromShape and ToolButtonBackFillGradDown then
+  if not FUpdatingFromShape and (backFillType = vftGradient) then
     UpdateShapeBackFill;
 end;
 
@@ -1298,7 +1344,7 @@ begin
   FillImageList16.Draw(glyph.Canvas,0,0,11+ord(FBackGradInterp));
   ButtonBackGradInterp.Glyph.Assign(glyph);
   glyph.Free;
-  if not FUpdatingFromShape and ToolButtonBackFillGradDown then
+  if not FUpdatingFromShape and (backFillType = vftGradient) then
     UpdateShapeBackFill;
 end;
 
@@ -1317,7 +1363,7 @@ begin
   FillImageList16.Draw(glyph.Canvas,0,0,7+ord(FBackGradRepetition));
   ButtonBackGradRepetion.Glyph.Assign(glyph);
   glyph.Free;
-  if not FUpdatingFromShape and ToolButtonBackFillGradDown then
+  if not FUpdatingFromShape and (backFillType = vftGradient) then
     UpdateShapeBackFill;
 end;
 
@@ -1327,13 +1373,22 @@ begin
   UpDownBackStartAlpha.Value := AValue.alpha;
   AValue.alpha := 255;
   ShapeBackStartColor.Brush.Color := AValue.ToColor;
-  if not FUpdatingFromShape and ToolButtonBackFillGradDown then
+  if not FUpdatingFromShape and (backFillType = vftGradient) then
+    UpdateShapeBackFill;
+end;
+
+procedure TForm1.SetBackGradType(AValue: TGradientType);
+begin
+  if FBackGradType=AValue then Exit;
+  FBackGradType:=AValue;
+  ToolButtonBackFillGrad.ImageIndex := 2+ord(FBackGradType);
+  if not FUpdatingFromShape and (backFillType = vftGradient) then
     UpdateShapeBackFill;
 end;
 
 procedure TForm1.SetBackTexRepetition(AValue: TTextureRepetition);
 var
-  glyph: Graphics.TBitmap;
+  glyph: TBitmap;
 begin
   if FBackTexRepetition=AValue then Exit;
   FBackTexRepetition:=AValue;
@@ -1346,7 +1401,7 @@ begin
   FillImageList16.Draw(glyph.Canvas,0,0,17+ord(FBackTexRepetition));
   ButtonBackTexRepeat.Glyph.Assign(glyph);
   glyph.Free;
-  if not FUpdatingFromShape and ToolButtonBackFillTexture.Down then
+  if not FUpdatingFromShape and (backFillType = vftTexture) then
     UpdateShapeBackFill;
 end;
 
@@ -1385,7 +1440,7 @@ begin
     BackImage.Visible := false;
   end;
 
-  if not FUpdatingFromShape and ToolButtonBackFillTexture.Down then
+  if not FUpdatingFromShape and (backFillType = vftTexture) then
     UpdateShapeBackFill;
 end;
 
@@ -1628,33 +1683,25 @@ begin
 
     if vsfBackFill in f then
     begin
-      if AShape.BackFill.IsTexture then
-      begin
-        texSource := AShape.BackFill.Texture;
-        if Assigned(texSource) then backTexture := texSource;
-        UpDownBackTexAlpha.Value := AShape.BackFill.TextureOpacity;
-        backTextureRepetition:= AShape.BackFill.TextureRepetition;
-        ToolButtonBackFillTexture.Down := true;
-      end else
-      if AShape.BackFill.IsSolid and (AShape.BackFill.SolidColor.alpha <> 0) then
-      begin
-        backColor := AShape.BackFill.SolidColor;
-        ToolButtonBackFillSolid.Down := true;
-      end else
-      if AShape.BackFill.IsGradient then
-      begin
-        backGradStartColor := AShape.BackFill.Gradient.StartColor;
-        backGradEndColor := AShape.BackFill.Gradient.EndColor;
-        case AShape.BackFill.Gradient.GradientType of
-          gtReflected: ToolButtonBackFillReflected.Down := true;
-          gtDiamond: ToolButtonBackFillDiamond.Down := true;
-          gtRadial: ToolButtonBackFillRadial.Down := true;
-        else{gtLinear} ToolButtonBackFillLinear.Down := true;
-        end;
-        backGradRepetition:= AShape.BackFill.Gradient.Repetition;
-        backGradInterp := AShape.BackFill.Gradient.ColorInterpolation;
-      end else
-        ToolButtonBackFillNone.Down := true;
+      backFillType:= AShape.BackFill.FillType;
+      case backFillType of
+        vftTexture:
+          begin
+            texSource := AShape.BackFill.Texture;
+            if Assigned(texSource) then backTexture := texSource;
+            UpDownBackTexAlpha.Value := AShape.BackFill.TextureOpacity;
+            backTextureRepetition:= AShape.BackFill.TextureRepetition;
+          end;
+        vftSolid: backColor := AShape.BackFill.SolidColor;
+        vftGradient:
+          begin
+            backGradStartColor := AShape.BackFill.Gradient.StartColor;
+            backGradEndColor := AShape.BackFill.Gradient.EndColor;
+            backGradType:= AShape.BackFill.Gradient.GradientType;
+            backGradRepetition:= AShape.BackFill.Gradient.Repetition;
+            backGradInterp := AShape.BackFill.Gradient.ColorInterpolation;
+          end;
+      end;
       UpdateBackComponentsVisibility;
     end;
 
@@ -1793,8 +1840,7 @@ begin
   if not IsCreateShapeTool(currentTool) then
     raise exception.Create('No shape type selected');
   result := PaintToolClass[currentTool].Create(vectorOriginal);
-  if (result is TCustomPolypointShape) and ToolButtonBackFillGradDown then
-    ToolButtonBackFillSolid.Down := true;
+  if (result is TCustomPolypointShape) and (backFillType = vftGradient) then backFillType := vftSolid;
   result.PenColor := penColor;
   result.PenWidth := penWidth;
   result.PenStyle := penStyle;
@@ -1826,9 +1872,9 @@ var
   rF: TRectF;
   sx,sy: single;
 begin
-  if ToolButtonBackFillSolid.Down then
+  if backFillType = vftSolid then
     result := TVectorialFill.CreateAsSolid(FBackColor)
-  else if ToolButtonBackFillTexture.Down and Assigned(backTexture) then
+  else if (backFillType = vftTexture) and Assigned(backTexture) then
   begin
     rF := AShape.GetRenderBounds(InfiniteRect,AffineMatrixIdentity,[rboAssumeBackFill]);
     if not (FBackTexRepetition in [trRepeatX,trRepeatBoth]) and (rF.Width <> 0) and (backTexture.Width > 0) then
@@ -1841,7 +1887,7 @@ begin
                  AffineMatrixScale(sx,sy),
                  UpDownBackTexAlpha.Value, FBackTexRepetition);
   end
-  else if ToolButtonBackFillGradDown then
+  else if backFillType = vftGradient then
   begin
     grad := TBGRALayerGradientOriginal.Create;
     grad.StartColor := FBackGradStartColor;
@@ -1853,10 +1899,7 @@ begin
     end
     else
       rF := rectF(0,0,img.Width,img.Height);
-    if ToolButtonBackFillLinear.Down then grad.GradientType:= gtLinear;
-    if ToolButtonBackFillReflected.Down then grad.GradientType:= gtReflected;
-    if ToolButtonBackFillDiamond.Down then grad.GradientType:= gtDiamond;
-    if ToolButtonBackFillRadial.Down then grad.GradientType:= gtRadial;
+    grad.GradientType:= FBackGradType;
     grad.Repetition := FBackGradRepetition;
     grad.ColorInterpolation:= FBackGradInterp;
     if grad.GradientType = gtLinear then
@@ -1912,16 +1955,16 @@ procedure TForm1.UpdateBackComponentsVisibility;
 var
   canEdit: Boolean;
 begin
-  ShapeBackColor.Visible := ToolButtonBackFillSolid.Down;
-  UpDownBackAlpha.Visible := ToolButtonBackFillSolid.Down;
-  PanelBackFillGrad.Visible:= ToolButtonBackFillGradDown;
-  PanelBackFillTex.Visible := ToolButtonBackFillTexture.Down;
-  UpDownBackTexAlpha.Visible := ToolButtonBackFillTexture.Down;
-  canEdit := (ToolButtonBackFillGradDown or ToolButtonBackFillTexture.Down) and
+  ShapeBackColor.Visible := backFillType = vftSolid;
+  UpDownBackAlpha.Visible := backFillType = vftSolid;
+  PanelBackFillGrad.Visible:= backFillType = vftGradient;
+  PanelBackFillTex.Visible := backFillType = vftTexture;
+  canEdit := (backFillType in[vftGradient,vftTexture]) and
     Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape);
   ButtonMoveBackFillPoints.Enabled := canEdit;
   ButtonBackTexAdjust.Enabled := canEdit;
   if (currentTool = ptMoveBackFillPoint) and not canEdit then currentTool:= ptHand;
+  if backFillType <> vftTexture then backTexture := nil;
 end;
 
 procedure TForm1.UpdateShapeBackFill;
@@ -1931,22 +1974,19 @@ begin
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
     (vsfBackFill in vectorOriginal.SelectedShape.Fields) then
   begin
-    if ToolButtonBackFillTexture.Down and (UpDownBackTexAlpha.Value = 0) then
+    if (backFillType = vftTexture) and (UpDownBackTexAlpha.Value = 0) then
       vectorFill := nil else
-    if ToolButtonBackFillTexture.Down and vectorOriginal.SelectedShape.BackFill.IsTexture then
+    if (backFillType = vftTexture) and (vectorOriginal.SelectedShape.BackFill.FillType = vftTexture) then
     begin
       vectorFill := TVectorialFill.CreateAsTexture(FBackTexture, vectorOriginal.SelectedShape.BackFill.TextureMatrix,
                                                    UpDownBackTexAlpha.Value, FBackTexRepetition);
     end
-    else if ToolButtonBackFillGradDown and vectorOriginal.SelectedShape.BackFill.IsGradient then
+    else if (backFillType = vftGradient) and (vectorOriginal.SelectedShape.BackFill.FillType = vftGradient) then
     begin
       vectorFill := vectorOriginal.SelectedShape.BackFill.Duplicate;
       vectorFill.Gradient.StartColor := FBackGradStartColor;
       vectorFill.Gradient.EndColor := FBackGradEndColor;
-      if ToolButtonBackFillLinear.Down then vectorFill.Gradient.GradientType:= gtLinear;
-      if ToolButtonBackFillReflected.Down then vectorFill.Gradient.GradientType:= gtReflected;
-      if ToolButtonBackFillDiamond.Down then vectorFill.Gradient.GradientType:= gtDiamond;
-      if ToolButtonBackFillRadial.Down then vectorFill.Gradient.GradientType:= gtRadial;
+      vectorFill.Gradient.GradientType := FBackGradType;
       vectorFill.Gradient.Repetition := FBackGradRepetition;
       vectorFill.Gradient.ColorInterpolation:= FBackGradInterp;
     end else
@@ -1984,12 +2024,6 @@ begin
   EditCopy.Enabled := AShape <> nil;
   EditCut.Enabled := AShape <> nil;
   EditDelete.Enabled := AShape <> nil;
-end;
-
-function TForm1.ToolButtonBackFillGradDown: boolean;
-begin
-  result := ToolButtonBackFillLinear.Down or ToolButtonBackFillReflected.Down or
-            ToolButtonBackFillDiamond.Down or ToolButtonBackFillRadial.Down;
 end;
 
 procedure TForm1.OnClickBackTexRepeat(ASender: TObject);
@@ -2030,22 +2064,18 @@ begin
       newTex := TBGRABitmap.Create(OpenPictureDialog1.FileName, true);
       backTexture := newTex;
       newTex.FreeReference;
-      ToolButtonBackFillTexture.Down:= true;
-      UpdateBackComponentsVisibility;
+      backFillType:= vftTexture;
     except
       on ex: exception do
         ShowMessage(ex.Message);
     end;
   end;
-  if ToolButtonBackFillTexture.Down and (backTexture = nil) then
+  if (backFillType = vftTexture) and (backTexture = nil) then
   begin
     if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
       UpdateToolbarFromShape(vectorOriginal.SelectedShape)
     else
-    begin
-      ToolButtonBackFillNone.Down:= true;
-      ToolButtonBackFillChange(ToolButtonBackFillNone);
-    end;
+      backFillType:= vftNone;
   end;
 end;
 

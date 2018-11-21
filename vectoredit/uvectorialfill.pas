@@ -10,6 +10,7 @@ uses
 
 type
   TTextureRepetition = (trNone, trRepeatX, trRepeatY, trRepeatBoth);
+  TVectorialFillType = (vftNone, vftSolid, vftGradient, vftTexture);
 
   { TVectorialFill }
 
@@ -26,9 +27,7 @@ type
     FOnChange: TNotifyEvent;
     procedure GradientChange({%H-}ASender: TObject; {%H-}ABounds: PRectF=nil);
     procedure Init; virtual;
-    function GetIsGradient: boolean;
-    function GetIsTexture: boolean;
-    function GetIsNone: boolean;
+    function GetFillType: TVectorialFillType;
     function GetIsEditable: boolean;
     procedure SetOnChange(AValue: TNotifyEvent);
     procedure SetTextureMatrix(AValue: TAffineMatrix);
@@ -59,15 +58,13 @@ type
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor);
     function CreateScanner(AMatrix: TAffineMatrix; ADraft: boolean): TBGRACustomScanner;
     function IsSlow(AMatrix: TAffineMatrix): boolean;
+    function IsFullyTransparent: boolean;
     procedure Transform(AMatrix: TAffineMatrix);
     function Duplicate: TVectorialFill; virtual;
     destructor Destroy; override;
     function Equals(Obj: TObject): boolean; override;
     procedure Assign(Obj: TObject);
-    property IsNone: boolean read GetIsNone;
-    property IsSolid: boolean read FIsSolid;
-    property IsTexture: boolean read GetIsTexture;
-    property IsGradient: boolean read GetIsGradient;
+    property FillType: TVectorialFillType read GetFillType;
     property IsEditable: boolean read GetIsEditable;
     property Gradient: TBGRALayerGradientOriginal read FGradient;
     property SolidColor: TBGRAPixel read FColor write SetSolid;
@@ -84,16 +81,6 @@ uses BGRAGradientScanner;
 
 { TVectorialFill }
 
-function TVectorialFill.GetIsGradient: boolean;
-begin
-  result:= Assigned(FGradient);
-end;
-
-function TVectorialFill.GetIsTexture: boolean;
-begin
-  result:= Assigned(FTexture);
-end;
-
 procedure TVectorialFill.SetOnChange(AValue: TNotifyEvent);
 begin
   if FOnChange=AValue then Exit;
@@ -102,7 +89,7 @@ end;
 
 procedure TVectorialFill.SetTextureMatrix(AValue: TAffineMatrix);
 begin
-  if not IsTexture then raise exception.Create('Not a texture fill');
+  if FillType <> vftTexture then raise exception.Create('Not a texture fill');
   if FTextureMatrix=AValue then Exit;
   FTextureMatrix:=AValue;
   Changed;
@@ -110,7 +97,7 @@ end;
 
 procedure TVectorialFill.SetTextureOpacity(AValue: byte);
 begin
-  if not IsTexture then raise exception.Create('Not a texture fill');
+  if FillType <> vftTexture then raise exception.Create('Not a texture fill');
   if FTextureOpacity=AValue then Exit;
   FTextureOpacity:=AValue;
   Changed;
@@ -221,22 +208,25 @@ begin
   FIsSolid := false;
 end;
 
-function TVectorialFill.GetIsNone: boolean;
-begin
-  result:= not IsSolid and not IsGradient and not IsTexture;
-end;
-
 function TVectorialFill.GetIsEditable: boolean;
 begin
-  result:= IsGradient or IsTexture;
+  result:= FillType in [vftGradient, vftTexture];
 end;
 
 procedure TVectorialFill.SetTextureRepetition(AValue: TTextureRepetition);
 begin
-  if not IsTexture then raise exception.Create('Not a texture fill');
+  if FillType <> vftTexture then raise exception.Create('Not a texture fill');
   if FTextureRepetition=AValue then Exit;
   FTextureRepetition:=AValue;
   Changed;
+end;
+
+function TVectorialFill.GetFillType: TVectorialFillType;
+begin
+  if FIsSolid then result:= vftSolid
+  else if Assigned(FGradient) then result := vftGradient
+  else if Assigned(FTexture) then result := vftTexture
+  else result := vftNone;
 end;
 
 procedure TVectorialFill.GradientChange(ASender: TObject; ABounds: PRectF=nil);
@@ -253,7 +243,7 @@ procedure TVectorialFill.Clear;
 var
   notify: Boolean;
 begin
-  notify := IsSolid or IsGradient or IsTexture;
+  notify := FillType <> vftNone;
   InternalClear;
   if notify then Changed;
 end;
@@ -280,7 +270,7 @@ end;
 
 procedure TVectorialFill.SetSolid(AColor: TBGRAPixel);
 begin
-  if IsSolid and (SolidColor = AColor) then exit;
+  if (FillType = vftSolid) and (SolidColor = AColor) then exit;
   InternalClear;
   if AColor.alpha = 0 then AColor := BGRAPixelTransparent;
   FColor := AColor;
@@ -311,8 +301,10 @@ end;
 
 procedure TVectorialFill.ConfigureEditor(AEditor: TBGRAOriginalEditor);
 begin
-  if IsGradient then Gradient.ConfigureEditor(AEditor) else
-  if IsTexture then ConfigureTextureEditor(AEditor);
+  case FillType of
+  vftGradient: Gradient.ConfigureEditor(AEditor);
+  vftTexture: ConfigureTextureEditor(AEditor);
+  end;
 end;
 
 function TVectorialFill.CreateScanner(AMatrix: TAffineMatrix; ADraft: boolean
@@ -356,13 +348,24 @@ begin
     result := false;
 end;
 
+function TVectorialFill.IsFullyTransparent: boolean;
+begin
+  case FillType of
+  vftNone: result := true;
+  vftSolid: result:= SolidColor.alpha = 0;
+  else result:= false;
+  end;
+end;
+
 procedure TVectorialFill.Transform(AMatrix: TAffineMatrix);
 begin
-  if IsGradient then Gradient.Transform(AMatrix)
-  else if IsTexture then
-  begin
-    FTextureMatrix := AMatrix*FTextureMatrix;
-    Changed;
+  case FillType of
+  vftGradient: Gradient.Transform(AMatrix);
+  vftTexture:
+    begin
+      FTextureMatrix := AMatrix*FTextureMatrix;
+      Changed;
+    end;
   end;
 end;
 
@@ -386,21 +389,24 @@ begin
     result := true
   else
   if Obj = nil then
-    result := IsNone
+    result := (FillType = vftNone)
   else
   if Obj is TVectorialFill then
   begin
     other := TVectorialFill(Obj);
     if Self = nil then
-      result := other.IsNone
+      result := (other.FillType = vftNone)
     else
     begin
-      if other.IsSolid then result := IsSolid and (other.SolidColor = SolidColor) else
-      if other.IsGradient then result := IsGradient and (other.Gradient.Equals(Gradient)) else
-      if other.IsTexture then result := IsTexture and (other.Texture = Texture) and
+      case other.FillType of
+      vftSolid: result := (FillType = vftSolid) and (other.SolidColor = SolidColor);
+      vftGradient: result := (FillType = vftGradient) and (other.Gradient.Equals(Gradient));
+      vftTexture: result := (FillType = vftTexture) and (other.Texture = Texture) and
                        (other.TextureMatrix = TextureMatrix) and (other.TextureOpacity = TextureOpacity)
-                       and (other.TextureRepetition = TextureRepetition) else
-        result := IsNone;
+                       and (other.TextureRepetition = TextureRepetition);
+      else
+        result := FillType = vftNone;
+      end;
     end;
   end else
     result:= false;
@@ -414,10 +420,12 @@ begin
   if Obj is TVectorialFill then
   begin
     other := TVectorialFill(Obj);
-    if other.IsSolid then SetSolid(other.SolidColor) else
-    if other.IsGradient then SetGradient(other.Gradient,false) else
-    if other.IsTexture then SetTexture(other.Texture,other.TextureMatrix,other.TextureOpacity,other.TextureRepetition) else
-      Clear;
+    case other.FillType of
+    vftSolid: SetSolid(other.SolidColor);
+    vftGradient: SetGradient(other.Gradient,false);
+    vftTexture: SetTexture(other.Texture,other.TextureMatrix,other.TextureOpacity,other.TextureRepetition);
+    else Clear;
+    end;
   end else
     raise exception.Create('Incompatible type');
 end;
