@@ -175,9 +175,9 @@ type
     FOriginal: TVectorOriginal;
   public
     constructor Create(AOriginal: TVectorOriginal);
-    procedure MouseMove(Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); override;
-    procedure MouseDown(RightButton: boolean; Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); override;
-    procedure MouseUp(RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); override;
+    procedure MouseMove(Shift: TShiftState; ViewX, ViewY: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); override;
+    procedure MouseDown(RightButton: boolean; Shift: TShiftState; ViewX, ViewY: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); override;
+    procedure MouseUp(RightButton: boolean; {%H-}Shift: TShiftState; {%H-}ViewX, {%H-}ViewY: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); override;
     procedure KeyDown(Shift: TShiftState; Key: TSpecialKey; out AHandled: boolean); override;
     procedure KeyUp(Shift: TShiftState; Key: TSpecialKey; out AHandled: boolean); override;
     procedure KeyPress(UTF8Key: string; out AHandled: boolean); override;
@@ -222,43 +222,46 @@ begin
   FOriginal := AOriginal;
 end;
 
-procedure TVectorOriginalEditor.MouseMove(Shift: TShiftState; X, Y: single; out
+procedure TVectorOriginalEditor.MouseMove(Shift: TShiftState; ViewX, ViewY: single; out
   ACursor: TOriginalEditorCursor; out AHandled: boolean);
 var
   ptF: TPointF;
 begin
-  inherited MouseMove(Shift, X, Y, ACursor, AHandled);
+  inherited MouseMove(Shift, ViewX, ViewY, ACursor, AHandled);
   if not AHandled and Assigned(FOriginal.SelectedShape) then
   begin
-    ptF := FMatrixInverse*PointF(X,Y);
+    ptF := ViewCoordToOriginal(PointF(ViewX,ViewY));
+    if GridActive then ptF := SnapToGrid(ptF, False);
     with ptF do FOriginal.SelectedShape.MouseMove(Shift, X,Y, ACursor, AHandled);
   end;
 end;
 
 procedure TVectorOriginalEditor.MouseDown(RightButton: boolean;
-  Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out
+  Shift: TShiftState; ViewX, ViewY: single; out ACursor: TOriginalEditorCursor; out
   AHandled: boolean);
 var
   ptF: TPointF;
 begin
-  inherited MouseDown(RightButton, Shift, X, Y, ACursor, AHandled);
+  inherited MouseDown(RightButton, Shift, ViewX, ViewY, ACursor, AHandled);
   if not AHandled and Assigned(FOriginal.SelectedShape) then
   begin
-    ptF := FMatrixInverse*PointF(X,Y);
+    ptF := ViewCoordToOriginal(PointF(ViewX,ViewY));
+    if GridActive then ptF := SnapToGrid(ptF, False);
     with ptF do FOriginal.SelectedShape.MouseDown(RightButton, Shift, X,Y, ACursor, AHandled);
   end;
 end;
 
 procedure TVectorOriginalEditor.MouseUp(RightButton: boolean;
-  Shift: TShiftState; X, Y: single; out ACursor: TOriginalEditorCursor; out
+  Shift: TShiftState; ViewX, ViewY: single; out ACursor: TOriginalEditorCursor; out
   AHandled: boolean);
 var
   ptF: TPointF;
 begin
-  inherited MouseUp(RightButton, Shift, X, Y, ACursor, AHandled);
+  inherited MouseUp(RightButton, Shift, ViewX, ViewY, ACursor, AHandled);
   if not AHandled and Assigned(FOriginal.SelectedShape) then
   begin
-    ptF := FMatrixInverse*PointF(X,Y);
+    ptF := ViewCoordToOriginal(PointF(ViewX,ViewY));
+    if GridActive then ptF := SnapToGrid(ptF, False);
     with ptF do FOriginal.SelectedShape.MouseUp(RightButton, Shift, X,Y, ACursor, AHandled);
   end;
 end;
