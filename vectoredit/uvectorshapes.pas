@@ -1680,9 +1680,13 @@ begin
 end;
 
 procedure TPhongShape.ConfigureEditor(AEditor: TBGRAOriginalEditor);
+var
+  idxLight: Integer;
 begin
   inherited ConfigureEditor(AEditor);
-  AEditor.AddPoint(FLightPosition, @OnMoveLightPos, true);
+  idxLight := AEditor.AddPoint(FLightPosition, @OnMoveLightPos, true);
+  if AEditor is TVectorOriginalEditor then
+    TVectorOriginalEditor(AEditor).AddLabel(idxLight, 'Light position', taCenter, tlTop);
 end;
 
 procedure TPhongShape.LoadFromStorage(AStorage: TBGRACustomOriginalStorage);

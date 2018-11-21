@@ -173,8 +173,23 @@ type
   TVectorOriginalEditor = class(TBGRAOriginalEditor)
   protected
     FOriginal: TVectorOriginal;
+    FLabels: array of record
+      Coord: TPointF;
+      Text: string;
+      HorizAlign: TAlignment;
+      VertAlign: TTextLayout;
+      Padding: integer;
+    end;
+    function NiceText(ADest: TBGRABitmap; x, y: integer; const ALayoutRect: TRect;
+                      AText: string; AHorizAlign: TAlignment; AVertAlign: TTextLayout;
+                      APadding: integer): TRect;
   public
     constructor Create(AOriginal: TVectorOriginal);
+    procedure Clear; override;
+    function Render(ADest: TBGRABitmap; const ALayoutRect: TRect): TRect; override;
+    function GetRenderBounds(const ALayoutRect: TRect): TRect; override;
+    procedure AddLabel(const ACoord: TPointF; AText: string; AHorizAlign: TAlignment; AVertAlign: TTextLayout);
+    procedure AddLabel(APointIndex: integer; AText: string; AHorizAlign: TAlignment; AVertAlign: TTextLayout);
     procedure MouseMove(Shift: TShiftState; ViewX, ViewY: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); override;
     procedure MouseDown(RightButton: boolean; Shift: TShiftState; ViewX, ViewY: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); override;
     procedure MouseUp(RightButton: boolean; {%H-}Shift: TShiftState; {%H-}ViewX, {%H-}ViewY: single; out ACursor: TOriginalEditorCursor; out AHandled: boolean); override;
@@ -188,7 +203,8 @@ function GetVectorShapeByStorageClassName(AName: string): TVectorShapeAny;
 
 implementation
 
-uses math, BGRATransform, BGRAFillInfo, BGRAGraphics, BGRAPath, Types;
+uses math, BGRATransform, BGRAFillInfo, BGRAGraphics, BGRAPath, Types,
+  BGRAText, BGRATextFX;
 
 var
   VectorShapeClasses: array of TVectorShapeAny;
@@ -220,6 +236,125 @@ constructor TVectorOriginalEditor.Create(AOriginal: TVectorOriginal);
 begin
   inherited Create;
   FOriginal := AOriginal;
+end;
+
+procedure TVectorOriginalEditor.Clear;
+begin
+  inherited Clear;
+  FLabels:= nil;
+end;
+
+function TVectorOriginalEditor.Render(ADest: TBGRABitmap;
+  const ALayoutRect: TRect): TRect;
+var
+  i: Integer;
+  ptF: TPointF;
+  r: Classes.TRect;
+begin
+  Result:=inherited Render(ADest, ALayoutRect);
+  for i := 0 to high(FLabels) do
+    if not isEmptyPointF(FLabels[i].Coord) then
+    begin
+      ptF := OriginalCoordToView(FLabels[i].Coord);
+      r := NiceText(ADest, round(ptF.x),round(ptF.y), ALayoutRect, FLabels[i].Text, FLabels[i].HorizAlign, FLabels[i].VertAlign, FLabels[i].Padding);
+      if not IsRectEmpty(r) then
+      begin
+        if IsRectEmpty(result) then result:= r
+        else UnionRect(result, result, r);
+      end;
+    end;
+end;
+
+function TVectorOriginalEditor.GetRenderBounds(const ALayoutRect: TRect): TRect;
+var
+  i: Integer;
+  ptF: TPointF;
+  r: Classes.TRect;
+begin
+  Result:=inherited GetRenderBounds(ALayoutRect);
+  for i := 0 to high(FLabels) do
+    if not isEmptyPointF(FLabels[i].Coord) then
+    begin
+      ptF := OriginalCoordToView(FLabels[i].Coord);
+      r := NiceText(nil, round(ptF.x),round(ptF.y), ALayoutRect, FLabels[i].Text, FLabels[i].HorizAlign, FLabels[i].VertAlign, FLabels[i].Padding);
+      if not IsRectEmpty(r) then
+      begin
+        if IsRectEmpty(result) then result:= r
+        else UnionRect(result, result, r);
+      end;
+    end;
+end;
+
+procedure TVectorOriginalEditor.AddLabel(const ACoord: TPointF; AText: string;
+  AHorizAlign: TAlignment; AVertAlign: TTextLayout);
+begin
+  setlength(FLabels, length(FLabels)+1);
+  with FLabels[high(FLabels)] do
+  begin
+    Coord := ACoord;
+    Text:= AText;
+    HorizAlign:= AHorizAlign;
+    VertAlign:= AVertAlign;
+    Padding := 0;
+  end;
+end;
+
+procedure TVectorOriginalEditor.AddLabel(APointIndex: integer; AText: string;
+  AHorizAlign: TAlignment; AVertAlign: TTextLayout);
+begin
+  setlength(FLabels, length(FLabels)+1);
+  with FLabels[high(FLabels)] do
+  begin
+    Coord := PointCoord[APointIndex];
+    Text:= AText;
+    HorizAlign:= AHorizAlign;
+    VertAlign:= AVertAlign;
+    Padding := round(PointSize);
+  end;
+end;
+
+function TVectorOriginalEditor.NiceText(ADest: TBGRABitmap; x, y: integer;
+      const ALayoutRect: TRect; AText: string; AHorizAlign: TAlignment;
+      AVertAlign: TTextLayout; APadding: integer): TRect;
+var fx: TBGRATextEffect;
+    f: TFont;
+    previousClip: TRect;
+    shadowRadius: integer;
+begin
+  f := TFont.Create;
+  f.Name := 'default';
+  f.Height := round(PointSize*2.5);
+  fx := TBGRATextEffect.Create(AText,f,true);
+
+  if (AVertAlign = tlTop) and (AHorizAlign = taCenter) and (y+APadding+fx.TextSize.cy > ALayoutRect.Bottom) then AVertAlign:= tlBottom;
+  if (AVertAlign = tlBottom) and (AHorizAlign = taCenter) and (y-APadding-fx.TextSize.cy < ALayoutRect.Top) then AVertAlign:= tlTop;
+  if (AHorizAlign = taLeftJustify) and (AVertAlign = tlCenter) and (x+APadding+fx.TextSize.cx > ALayoutRect.Right) then AHorizAlign:= taRightJustify;
+  if (AHorizAlign = taRightJustify) and (AVertAlign = tlCenter) and (x-APadding-fx.TextSize.cx < ALayoutRect.Left) then AHorizAlign:= taLeftJustify;
+
+  if AVertAlign = tlBottom then y := y-APadding-fx.TextSize.cy else
+  if AVertAlign = tlCenter then y := y-fx.TextSize.cy div 2 else inc(y,APadding);
+  if y+fx.TextSize.cy > ALayoutRect.Bottom then y := ALayoutRect.Bottom-fx.TextSize.cy;
+  if y < ALayoutRect.Top then y := ALayoutRect.Top;
+
+  if AHorizAlign = taRightJustify then x := x-APadding-fx.TextSize.cx else
+  if AHorizAlign = taCenter then x := x-fx.TextSize.cx div 2 else inc(x,APadding);
+  if x+fx.TextSize.cx > ALayoutRect.Right then x := ALayoutRect.Right-fx.TextSize.cx;
+  if x < ALayoutRect.Left then x := ALayoutRect.Left;
+
+  shadowRadius:= round(PointSize*0.5);
+  result := rect(x,y,x+fx.TextWidth+2*shadowRadius,y+fx.TextHeight+2*shadowRadius);
+  if Assigned(ADest) then
+  begin
+    previousClip := ADest.ClipRect;
+    ADest.ClipRect := result;
+    if shadowRadius <> 0 then
+      fx.DrawShadow(ADest,x+shadowRadius,y+shadowRadius,shadowRadius,BGRABlack);
+    fx.DrawOutline(ADest,x,y,BGRABlack);
+    fx.Draw(ADest,x,y,BGRAWhite);
+    ADest.ClipRect := previousClip;
+  end;
+  fx.Free;
+  f.Free;
 end;
 
 procedure TVectorOriginalEditor.MouseMove(Shift: TShiftState; ViewX, ViewY: single; out
