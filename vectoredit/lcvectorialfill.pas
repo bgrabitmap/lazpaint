@@ -1,4 +1,4 @@
-unit uvectorialfill;
+unit LCVectorialFill;
 
 {$mode objfpc}{$H+}
 

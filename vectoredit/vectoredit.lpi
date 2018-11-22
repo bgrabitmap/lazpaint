@@ -38,7 +38,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="7">
+    <Units Count="8">
       <Unit0>
         <Filename Value="vectoredit.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -51,16 +51,19 @@
         <ResourceBaseClass Value="Form"/>
       </Unit1>
       <Unit2>
-        <Filename Value="uvectororiginal.pas"/>
+        <Filename Value="lcvectororiginal.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="LCVectorOriginal"/>
       </Unit2>
       <Unit3>
-        <Filename Value="uvectorialfill.pas"/>
+        <Filename Value="lcvectorialfill.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="LCVectorialFill"/>
       </Unit3>
       <Unit4>
-        <Filename Value="uvectorshapes.pas"/>
+        <Filename Value="lcvectorshapes.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="LCVectorShapes"/>
       </Unit4>
       <Unit5>
         <Filename Value="uvectorclipboard.pas"/>
@@ -71,6 +74,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UScaleDPI"/>
       </Unit6>
+      <Unit7>
+        <Filename Value="lcvectorpolyshapes.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="LCVectorPolyShapes"/>
+      </Unit7>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

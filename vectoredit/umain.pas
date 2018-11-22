@@ -6,11 +6,12 @@ interface
 
 uses
   Classes, SysUtils, Types, FileUtil, Forms, Controls, Graphics, Dialogs,
-  ExtCtrls, StdCtrls, ComCtrls, ExtDlgs, Menus, BGRAVirtualScreen,
-  BCTrackbarUpdown, BCPanel, BCButton, BGRAImageList, BGRALazPaint, BGRABitmap,
-  BGRABitmapTypes, BGRATransform, BGRALayerOriginal, BGRAGraphics,
-  uvectororiginal, uvectorialfill, uvectorshapes, BGRAGradientScanner, LCLType,
-  ActnList, uscaledpi in {$IFDEF WINDOWS}'..\lazpaint\uscaledpi.pas'{$ELSE}'../lazpaint/uscaledpi.pas'{$ENDIF};
+  LCLType, ExtCtrls, StdCtrls, ComCtrls, ExtDlgs, Menus, ActnList,
+  uscaledpi in {$IFDEF WINDOWS}'..\lazpaint\uscaledpi.pas'{$ELSE}'../lazpaint/uscaledpi.pas'{$ENDIF},
+  BCTrackbarUpdown, BCPanel, BCButton, BGRAVirtualScreen, BGRAImageList,
+  BGRABitmap, BGRABitmapTypes, BGRAGraphics, BGRALazPaint, BGRALayerOriginal,
+  BGRATransform, BGRAGradientScanner, LCVectorOriginal, LCVectorialFill,
+  LCVectorShapes, LCVectorPolyShapes;
 
 const
   ToolIconSize = 36;

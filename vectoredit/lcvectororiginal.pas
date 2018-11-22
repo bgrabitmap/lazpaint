@@ -1,4 +1,4 @@
-unit uvectororiginal;
+unit LCVectorOriginal;
 
 {$mode objfpc}{$H+}
 
@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, BGRABitmap, BGRALayerOriginal, fgl, BGRAGradientOriginal, BGRABitmapTypes,
-  BGRAPen, uvectorialfill;
+  BGRAPen, LCVectorialFill;
 
 const
   InfiniteRect : TRect = (Left: -MaxLongInt; Top: -MaxLongInt; Right: MaxLongInt; Bottom: MaxLongInt);
@@ -198,6 +198,8 @@ type
     procedure KeyPress(UTF8Key: string; out AHandled: boolean); override;
   end;
 
+function MatrixForPixelCentered(const AMatrix: TAffineMatrix): TAffineMatrix;
+
 procedure RegisterVectorShape(AClass: TVectorShapeAny);
 function GetVectorShapeByStorageClassName(AName: string): TVectorShapeAny;
 
@@ -205,6 +207,11 @@ implementation
 
 uses math, BGRATransform, BGRAFillInfo, BGRAGraphics, BGRAPath, Types,
   BGRAText, BGRATextFX;
+
+function MatrixForPixelCentered(const AMatrix: TAffineMatrix): TAffineMatrix;
+begin
+  result := AffineMatrixTranslation(-0.5,-0.5) * AMatrix * AffineMatrixTranslation(0.5,0.5);
+end;
 
 var
   VectorShapeClasses: array of TVectorShapeAny;

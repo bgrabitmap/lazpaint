@@ -7,7 +7,9 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, umain, uvectororiginal, uvectorialfill, uvectorshapes, uvectorclipboard,
+  Forms, umain, 
+  LCVectororiginal, LCVectorialFill, LCVectorshapes, LCVectorPolyShapes,
+  uvectorclipboard,
   LResources
   { you can add units after this };
 
