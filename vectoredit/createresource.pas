@@ -10,7 +10,7 @@ uses
   BGRABitmap, BGRALazPaint, BGRABitmapTypes,
   BGRALazResource, BGRAMultiFileType,
   LazFileUtils, LazUTF8Classes, SysUtils,
-  uvectororiginal, uvectorshapes;
+  LCVectorOriginal, LCVectorShapes, LCVectorPolyShapes;
 
 {$R *.res}
 
