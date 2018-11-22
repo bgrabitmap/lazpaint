@@ -38,7 +38,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="8">
+    <Units Count="9">
       <Unit0>
         <Filename Value="vectoredit.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -79,6 +79,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="LCVectorPolyShapes"/>
       </Unit7>
+      <Unit8>
+        <Filename Value="lctoolbars.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="LCToolbars"/>
+      </Unit8>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

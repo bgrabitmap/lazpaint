@@ -10,7 +10,7 @@ uses
   Forms, umain, 
   LCVectororiginal, LCVectorialFill, LCVectorshapes, LCVectorPolyShapes,
   uvectorclipboard,
-  LResources
+  LResources, LCToolbars
   { you can add units after this };
 
 {$R *.res}
