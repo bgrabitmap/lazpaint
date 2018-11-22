@@ -39979,6 +39979,7 @@ object Form1: TForm1
       Caption = 'Paste'
       ImageIndex = 9
       OnExecute = EditPasteExecute
+      OnUpdate = EditPasteUpdate
     end
     object EditCut: TAction
       Category = 'Edit'

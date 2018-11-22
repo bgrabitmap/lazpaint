@@ -5,10 +5,11 @@ unit uvectorclipboard;
 interface
 
 uses
-  Classes, SysUtils, Clipbrd, LCLType, uvectororiginal;
+  Classes, SysUtils, Clipbrd, LCLType, lcvectororiginal;
 
 function CopyShapesToClipboard(AShapes: array of TVectorShape): boolean;
 procedure PasteShapesFromClipboard(ATargetContainer: TVectorOriginal);
+function ClipboardHasShapes: boolean;
 
 implementation
 
@@ -66,6 +67,11 @@ begin
       mem.Free;
     end;
   end;
+end;
+
+function ClipboardHasShapes: boolean;
+begin
+ result := Clipboard.HasFormat(vectorClipboardFormat);
 end;
 
 initialization

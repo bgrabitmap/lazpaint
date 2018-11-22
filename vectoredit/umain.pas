@@ -144,6 +144,7 @@ type
     procedure EditCutExecute(Sender: TObject);
     procedure EditDeleteExecute(Sender: TObject);
     procedure EditPasteExecute(Sender: TObject);
+    procedure EditPasteUpdate(Sender: TObject);
     procedure FileNewExecute(Sender: TObject);
     procedure FileOpenExecute(Sender: TObject);
     procedure FileSaveAsExecute(Sender: TObject);
@@ -734,6 +735,11 @@ end;
 procedure TForm1.EditPasteExecute(Sender: TObject);
 begin
   DoPaste;
+end;
+
+procedure TForm1.EditPasteUpdate(Sender: TObject);
+begin
+  EditPaste.Enabled := ClipboardHasShapes;
 end;
 
 procedure TForm1.FileNewExecute(Sender: TObject);
