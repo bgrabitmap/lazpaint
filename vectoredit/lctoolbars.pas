@@ -11,17 +11,19 @@ function CreateToolBar(AImages: TImageList; AOwner: TComponent = nil): TToolbar;
 function GetToolbarSize(AToolbar: TToolbar; APadding: integer = 1): TSize;
 procedure SetToolbarImages(AToolbar: TToolbar; AImages: TImageList);
 procedure EnableDisableToolButtons(AButtons: array of TToolButton; AEnabled: boolean);
+procedure ShowAppendToolButtons(AButtons: array of TControl);
 function AddToolbarCheckButton(AToolbar: TToolbar; ACaption: string; AImageIndex: integer;
           AOnClick: TNotifyEvent; ADown: boolean; AGrouped: boolean = true; ATag: PtrInt = 0): TToolButton;
 function AddToolbarButton(AToolbar: TToolbar; ACaption: string; AImageIndex: integer;
           AOnClick: TNotifyEvent; ATag: PtrInt = 0): TToolButton;
+procedure AddToolbarControl(AToolbar: TToolbar; AControl: TControl);
 function GetResourceStream(AFilename: string): TLazarusResourceStream;
 function GetResourceString(AFilename: string): string;
 procedure LoadToolbarImage(AImages: TImageList; AIndex: integer; AFilename: string);
 
 implementation
 
-uses BGRALazPaint, BGRABitmap, BGRABitmapTypes;
+uses BGRALazPaint, BGRABitmap, BGRABitmapTypes, math;
 
 function CreateToolBar(AImages: TImageList; AOwner: TComponent): TToolbar;
 begin
@@ -31,6 +33,7 @@ begin
   result.ShowHint:= true;
   result.ShowCaptions:= false;
   result.Images := AImages;
+  result.ParentColor := false;
 end;
 
 function GetToolbarSize(AToolbar: TToolbar; APadding: integer = 1): TSize;
@@ -40,6 +43,7 @@ var
 begin
   result := Size(APadding,APadding);
   for i := 0 to AToolbar.ControlCount-1 do
+  if AToolbar.Controls[i].Visible then
   begin
     r := AToolbar.Controls[i].BoundsRect;
     if r.Right > result.cx then result.cx := r.Right;
@@ -114,6 +118,7 @@ begin
   btn.Down:= ADown;
   btn.Grouped := AGrouped;
   btn.OnClick:= AOnClick;
+  btn.Left:= AToolbar.ButtonCount*AToolbar.ButtonWidth;
   btn.Parent := AToolbar;
   btn.Tag:= ATag;
   result := btn;
@@ -130,9 +135,16 @@ begin
   btn.Hint := ACaption;
   btn.ImageIndex := AImageIndex;
   btn.OnClick:= AOnClick;
+  btn.Left:= AToolbar.ControlCount*AToolbar.ButtonWidth;
   btn.Parent := AToolbar;
   btn.Tag:= ATag;
   result := btn;
+end;
+
+procedure AddToolbarControl(AToolbar: TToolbar; AControl: TControl);
+begin
+  AControl.Left := AToolbar.ControlCount*AToolbar.ButtonWidth;
+  AToolbar.InsertControl(AControl);
 end;
 
 procedure EnableDisableToolButtons(AButtons: array of TToolButton; AEnabled: boolean);
@@ -141,6 +153,34 @@ var
 begin
   for i := 0 to high(AButtons) do
     AButtons[i].Enabled:= AEnabled;
+end;
+
+procedure ShowAppendToolButtons(AButtons: array of TControl);
+var btnCount,x,y, i: integer;
+  toolbar: TToolBar;
+begin
+  if length(AButtons) = 0 then exit;
+  toolbar := AButtons[0].Parent as TToolBar;
+  x := 0;
+  y := 0;
+  btnCount := 0;
+  for i := 0 to toolbar.ControlCount-1 do
+    if toolbar.Controls[i].Visible then
+    begin
+      x := max(toolbar.Controls[i].Left+toolbar.Controls[i].Width,x);
+      y := max(toolbar.Controls[i].Top+toolbar.Controls[i].Height,y);
+      inc(btnCount);
+    end;
+
+  toolbar.BeginUpdate;
+  x:= max(btnCount * toolbar.ButtonWidth,x);
+  for i := 0 to high(AButtons) do
+  begin
+    AButtons[i].Left := x;
+    AButtons[i].Visible:= true;
+    x += toolbar.ButtonWidth;
+  end;
+  toolbar.EndUpdate;
 end;
 
 end.
