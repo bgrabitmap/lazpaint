@@ -16,7 +16,6 @@ const
   ImageListHeight = 16;
 
 const
-  GradTypeToStr : array[TGradientType] of string = ('Linear','Reflected','Diamond','Radial');
   GradRepetitionToStr : array[TBGRAGradientRepetition] of string = ('Pad', 'Repeat', 'Reflect', 'Sine');
   ColorInterpToStr : array[TBGRAColorInterpolation] of string = ('sRGB', 'RGB', 'HSL CW', 'HSL CCW', 'Corr. HSL CW', 'Corr. HSL CCW');
   TextureRepetitionToStr: array[TTextureRepetition] of string = ('No repetition', 'Repeat X', 'Repeat Y', 'Repeat both');
@@ -775,7 +774,7 @@ begin
   FButtonFillNone := AddToolbarCheckButton(FToolbar, 'No fill', 0, @ButtonFillChange, False, False);
   FButtonFillSolid := AddToolbarCheckButton(FToolbar, 'Solid color', 1, @ButtonFillChange, False, False);
   FButtonFillGradient := AddToolbarButton(FToolbar, 'Gradient fill', 2+ord(FGradType), @ButtonFillGradClick);
-  FButtonFillTexture := AddToolbarButton(FToolbar, 'Texture fill', 6, @ButtonFillTexClick);
+  FButtonFillTexture := AddToolbarButton(FToolbar, 'Texture fill', 24, @ButtonFillTexClick);
   FButtonFillTexture.Wrap := true;
 
   //menu to access gradient interface
@@ -783,7 +782,7 @@ begin
   FGradTypeMenu.Images := FImageList;
   for gt := low(TGradientType) to high(TGradientType) do
   begin
-    item := TMenuItem.Create(FGradTypeMenu);  item.Caption := GradTypeToStr[gt];
+    item := TMenuItem.Create(FGradTypeMenu);  item.Caption := GradientTypeStr[gt];
     item.OnClick:=@OnClickBackGradType;       item.Tag := ord(gt);
     item.ImageIndex:= 2+ord(gt);
     FGradTypeMenu.Items.Add(item);
