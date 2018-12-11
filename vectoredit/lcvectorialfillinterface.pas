@@ -377,6 +377,9 @@ begin
   c.alpha := 255;
   if Assigned(FShapeEndColor) then FShapeEndColor.Brush.Color := c;
   if Assigned(FUpDownEndAlpha) then FUpDownEndAlpha.Value := GradEndColor.alpha;
+
+  if Assigned(FButtonGradRepetition) then FButtonGradRepetition.ImageIndex := 7+ord(FGradRepetition);
+  if Assigned(FButtonGradInterp) then FButtonGradInterp.ImageIndex := 11+ord(FGradInterp);
 end;
 
 procedure TVectorialFillInterface.UpDownEndAlphaChange(Sender: TObject;
