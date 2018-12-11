@@ -18,6 +18,7 @@ const
   imgWidth = 24;
   imgHeight = 24;
 
+procedure MakeResource(AVectorImagesPath: string; AListFile: string; AResourceFile: string; ACombinedImage: string);
 var
   path: String;
   search: TSearchRec;
@@ -29,7 +30,7 @@ var
   mem: TMemoryStreamUTF8;
   combineList: TStringListUTF8;
 begin
-  path := StringReplace('../lazpaint/buttons/vector/','/',PathDelim,[rfReplaceAll]);
+  path := StringReplace(AVectorImagesPath,'/',PathDelim,[rfReplaceAll]);
   if FindFirstUTF8(path+'*.lzp', faAnyFile, search)=0 then
   begin
     res := TLazResourceContainer.Create;
@@ -43,19 +44,19 @@ begin
     FindClose(search);
 
     combineList:= TStringListUTF8.Create;
-    if FileExists('vectorimages.lst') then
-      combineList.LoadFromFile('vectorimages.lst')
+    if FileExists(AListFile) then
+      combineList.LoadFromFile(AListFile)
     else
     begin
       for i := 0 to res.Count-1 do
         combineList.Add(res.Entry[i].Name+'.'+res.Entry[i].Extension);
-      combineList.SaveToFile('vectorimages.lst');
+      combineList.SaveToFile(AListFile);
     end;
     for i := combineList.Count-1 downto 0 do
       if combineList[i]='' then combineList.Delete(i);
-    res.RawStringByFilename['vectorimages.lst'] := combineList.CommaText;
+    res.RawStringByFilename[AListFile] := combineList.CommaText;
 
-    res.SaveToFile('vectorimages.lrs');
+    res.SaveToFile(AResourceFile);
     writeln('Done Resource');
     lzp := TBGRALazPaintImage.Create;
     bigImg := TBGRABitmap.Create(imgWidth, imgHeight*combineList.Count);
@@ -79,9 +80,15 @@ begin
     combineList.Free;
     res.Free;
 
-    bigImg.SaveToFileUTF8('vectorimages'+inttostr(imgHeight)+'.png');
+    bigImg.SaveToFileUTF8(ACombinedImage);
     writeln('Done PNG');
     bigImg.Free;
   end;
+end;
+
+
+begin
+  MakeResource('../lazpaint/buttons/vector/', 'vectorimages.lst', 'vectorimages.lrs', 'vectorimages'+inttostr(imgHeight)+'.png');
+  MakeResource('../lazpaint/buttons/vector/fill/', 'fillimages.lst', 'fillimages.lrs', 'fillimages'+inttostr(imgHeight)+'.png');
 end.
 

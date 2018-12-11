@@ -12,10 +12,6 @@ uses
   BGRAGradientScanner, Graphics, BGRAGraphics;
 
 const
-  ImageListWidth = 16;
-  ImageListHeight = 16;
-
-const
   GradRepetitionToStr : array[TBGRAGradientRepetition] of string = ('Pad', 'Repeat', 'Reflect', 'Sine');
   ColorInterpToStr : array[TBGRAColorInterpolation] of string = ('sRGB', 'RGB', 'HSL CW', 'HSL CCW', 'Corr. HSL CW', 'Corr. HSL CCW');
   TextureRepetitionToStr: array[TTextureRepetition] of string = ('No repetition', 'Repeat X', 'Repeat Y', 'Repeat both');
@@ -79,7 +75,7 @@ type
     procedure ButtonLoadTextureClick(Sender: TObject);
     procedure ButtonSwapColorClick(Sender: TObject);
     procedure ButtonTexRepeatClick(Sender: TObject);
-    procedure LoadImageList;
+    procedure LoadImageList(AImageListWidth,AImageListHeight: integer);
     procedure Changed;
     procedure OnClickBackGradType(ASender: TObject);
     procedure OnClickBackTexRepeat(ASender: TObject);
@@ -120,8 +116,10 @@ type
     procedure HideSolidColorInterface;
     procedure HideGradientInterface;
     procedure HideTextureInterface;
+    procedure Init(AImageListWidth,AImageListHeight: Integer);
   public
     constructor Create(AOwner: TComponent); override;
+    constructor Create(AOwner: TComponent; AImageListWidth,AImageListHeight: Integer);
     destructor Destroy; override;
     procedure LoadTexture;
     procedure AdjustControlSize;
@@ -151,38 +149,22 @@ uses LCToolbars, Toolwin, BGRAThumbnail, LResources;
 
 { TVectorialFillInterface }
 
-procedure TVectorialFillInterface.LoadImageList;
+procedure TVectorialFillInterface.LoadImageList(AImageListWidth,
+  AImageListHeight: integer);
 var
-  allImages: TBGRABitmap;
-  oneImage: TBGRABitmap;
-  r: TRect;
   i: Integer;
-  res: TLazarusResourceStream;
+  lst: TStringList;
 begin
   if FImageList = nil then FImageList := TBGRAImageList.Create(self);
   FImageList.Clear;
-  FImageList.Width := ImageListWidth;
-  FImageList.Height := ImageListHeight;
+  FImageList.Width := AImageListWidth;
+  FImageList.Height := AImageListHeight;
 
-  allImages := nil;
-  oneImage := nil;
-  try
-    res := TLazarusResourceStream.Create('fillimages16','PNG');
-    allImages := TBGRABitmap.Create(res);
-    res.Free;
-    oneImage := TBGRABitmap.Create(ImageListWidth,ImageListHeight);
-    r := rect(0,0,ImageListWidth,ImageListHeight);
-    for i := 0 to (allImages.Height div ImageListHeight) -1 do
-    begin
-      oneImage.PutImagePart(0,0, allImages, r, dmSet);
-      FImageList.Add(oneImage.Bitmap,nil);
-      OffsetRect(r, 0, ImageListHeight);
-    end;
-  except
-    //ignore
-  end;
-  oneImage.Free;
-  allImages.Free;
+  lst := TStringList.Create;
+  lst.CommaText := GetResourceString('fillimages.lst');
+  for i := 0 to lst.Count-1 do
+    LoadToolbarImage(FImageList, i, lst[i]);
+  lst.Free;
 end;
 
 procedure TVectorialFillInterface.Changed;
@@ -565,6 +547,64 @@ begin
   FTexturePreview.Visible := false;
 end;
 
+procedure TVectorialFillInterface.Init(AImageListWidth,
+  AImageListHeight: Integer);
+var
+  gt: TGradientType;
+  item: TMenuItem;
+begin
+  FContainer := nil;
+
+  FFillType:= vftSolid;
+  FSolidColor:= BGRAWhite;
+  FGradStartColor:= CSSRed;
+  FGradEndColor:= CSSYellow;
+  FGradType:= gtLinear;
+  FGradRepetition:= grPad;
+  FGradInterp:= ciLinearRGB;
+  FTexture:= nil;
+  FTexRepetition:= trRepeatBoth;
+  FTexOpacity:= 255;
+  FCanAdjustToShape:= true;
+
+  FImageList := nil;
+  LoadImageList(AImageListWidth,AImageListHeight);
+
+  FOpenPictureDlg := TOpenPictureDialog.Create(self);
+  FColorDlg:= TColorDialog.Create(self);
+
+  FOnFillChange:= nil;
+  FOnTextureChange:= nil;
+
+  FToolbar := CreateToolBar(FImageList);
+  FToolbar.EdgeBorders:= [];
+  FToolbar.EdgeInner:= esNone;
+  FToolbar.EdgeOuter:= esNone;
+  FToolbar.Wrapable := false;
+  FButtonFillNone := AddToolbarCheckButton(FToolbar, 'No fill', 0, @ButtonFillChange, False, False);
+  FButtonFillSolid := AddToolbarCheckButton(FToolbar, 'Solid color', 1, @ButtonFillChange, False, False);
+  FButtonFillGradient := AddToolbarButton(FToolbar, 'Gradient fill', 2+ord(FGradType), @ButtonFillGradClick);
+  FButtonFillTexture := AddToolbarButton(FToolbar, 'Texture fill', 24, @ButtonFillTexClick);
+  FButtonFillTexture.Wrap := true;
+
+  //menu to access gradient interface
+  FGradTypeMenu := TPopupMenu.Create(self);
+  FGradTypeMenu.Images := FImageList;
+  for gt := low(TGradientType) to high(TGradientType) do
+  begin
+    item := TMenuItem.Create(FGradTypeMenu);  item.Caption := GradientTypeStr[gt];
+    item.OnClick:=@OnClickBackGradType;       item.Tag := ord(gt);
+    item.ImageIndex:= 2+ord(gt);
+    FGradTypeMenu.Items.Add(item);
+  end;
+
+  FSolidColorInterfaceCreated := false;
+  FGradientInterfaceCreated:= false;
+  FTextureInterfaceCreated:= false;
+
+  UpdateAccordingToFillType;
+end;
+
 procedure TVectorialFillInterface.SetSolidColor(AValue: TBGRAPixel);
 begin
   if FSolidColor=AValue then Exit;
@@ -741,61 +781,16 @@ begin
 end;
 
 constructor TVectorialFillInterface.Create(AOwner: TComponent);
-var
-  gt: TGradientType;
-  item: TMenuItem;
 begin
   inherited Create(AOwner);
-  FContainer := nil;
+  Init(16,16);
+end;
 
-  FFillType:= vftSolid;
-  FSolidColor:= BGRAWhite;
-  FGradStartColor:= CSSRed;
-  FGradEndColor:= CSSYellow;
-  FGradType:= gtLinear;
-  FGradRepetition:= grPad;
-  FGradInterp:= ciLinearRGB;
-  FTexture:= nil;
-  FTexRepetition:= trRepeatBoth;
-  FTexOpacity:= 255;
-  FCanAdjustToShape:= true;
-
-  FImageList := nil;
-  LoadImageList;
-
-  FOpenPictureDlg := TOpenPictureDialog.Create(self);
-  FColorDlg:= TColorDialog.Create(self);
-
-  FOnFillChange:= nil;
-  FOnTextureChange:= nil;
-
-  FToolbar := CreateToolBar(FImageList);
-  FToolbar.EdgeBorders:= [];
-  FToolbar.EdgeInner:= esNone;
-  FToolbar.EdgeOuter:= esNone;
-  FToolbar.Wrapable := false;
-  FButtonFillNone := AddToolbarCheckButton(FToolbar, 'No fill', 0, @ButtonFillChange, False, False);
-  FButtonFillSolid := AddToolbarCheckButton(FToolbar, 'Solid color', 1, @ButtonFillChange, False, False);
-  FButtonFillGradient := AddToolbarButton(FToolbar, 'Gradient fill', 2+ord(FGradType), @ButtonFillGradClick);
-  FButtonFillTexture := AddToolbarButton(FToolbar, 'Texture fill', 24, @ButtonFillTexClick);
-  FButtonFillTexture.Wrap := true;
-
-  //menu to access gradient interface
-  FGradTypeMenu := TPopupMenu.Create(self);
-  FGradTypeMenu.Images := FImageList;
-  for gt := low(TGradientType) to high(TGradientType) do
-  begin
-    item := TMenuItem.Create(FGradTypeMenu);  item.Caption := GradientTypeStr[gt];
-    item.OnClick:=@OnClickBackGradType;       item.Tag := ord(gt);
-    item.ImageIndex:= 2+ord(gt);
-    FGradTypeMenu.Items.Add(item);
-  end;
-
-  FSolidColorInterfaceCreated := false;
-  FGradientInterfaceCreated:= false;
-  FTextureInterfaceCreated:= false;
-
-  UpdateAccordingToFillType;
+constructor TVectorialFillInterface.Create(AOwner: TComponent; AImageListWidth,
+  AImageListHeight: Integer);
+begin
+  inherited Create(AOwner);
+  Init(AImageListWidth,AImageListHeight);
 end;
 
 destructor TVectorialFillInterface.Destroy;
@@ -824,6 +819,6 @@ begin
 end;
 
 begin
-  {$i fillimages16.lrs}
+  {$i fillimages.lrs}
 end.
 

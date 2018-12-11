@@ -334,7 +334,7 @@ begin
     FPenStyleMenu.Items.Add(item);
   end;
 
-  FBackFillIntf := TVectorialFillInterface.Create(nil);
+  FBackFillIntf := TVectorialFillInterface.Create(nil, ActionIconSize,ActionIconSize);
   FBackFillIntf.SolidColor := CSSDodgerBlue;
   FBackFillIntf.OnFillChange:=@RequestBackFillUpdate;
   FBackFillIntf.OnAdjustToShape:=@RequestBackFillAdjustToShape;
