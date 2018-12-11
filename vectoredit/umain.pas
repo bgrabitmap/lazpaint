@@ -933,7 +933,11 @@ end;
 
 procedure TForm1.RequestBackFillUpdate(Sender: TObject);
 begin
-  if not FUpdatingFromShape then UpdateShapeBackFill;
+  if not FUpdatingFromShape then
+  begin
+    UpdateShapeBackFill;
+    UpdateBackToolFillPoints;
+  end;
 end;
 
 procedure TForm1.OnBackFillChange(ASender: TObject);
