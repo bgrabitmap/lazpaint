@@ -29,10 +29,12 @@ function CreateToolBar(AImages: TImageList; AOwner: TComponent): TToolbar;
 begin
   result := TToolBar.Create(AOwner);
   result.Align := alNone;
-  result.Height := AImages.Height + 9;
+  result.Height := AImages.Height+4;
   result.ShowHint:= true;
   result.ShowCaptions:= false;
   result.Images := AImages;
+  result.ButtonWidth := AImages.Width+5;
+  result.ButtonHeight := AImages.Height+4;
   result.ParentColor := false;
 end;
 

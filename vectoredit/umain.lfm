@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 617
+  Left = 616
   Height = 622
-  Top = 117
+  Top = 92
   Width = 981
   Caption = 'Vector Edit'
   ClientHeight = 622
@@ -952,51 +952,67 @@ object Form1: TForm1
         Rounding.RoundY = 1
         Rounding.RoundOptions = []
         TabOrder = 2
-        object Label2: TLabel
-          Left = 7
-          Height = 17
-          Top = 6
-          Width = 27
-          Caption = 'Back'
-          ParentColor = False
-          ParentFont = False
-        end
-        object ToolBar1: TToolBar
-          Left = 6
-          Height = 28
-          Top = 28
-          Width = 28
-          Align = alNone
-          ButtonHeight = 28
-          ButtonWidth = 28
-          Caption = 'ToolBar1'
-          EdgeBorders = []
-          EdgeInner = esNone
-          EdgeOuter = esNone
-          Images = VectorImageList24
-          Indent = 0
-          ParentColor = False
-          ParentShowHint = False
-          ShowHint = True
-          TabOrder = 0
-          object ButtonMoveBackFillPoints: TToolButton
-            Left = 0
-            Hint = 'Move gradient/texture points'
-            Top = 0
-            Caption = 'ButtonMoveBackFillPoints'
-            ImageIndex = 12
-            OnClick = ToolButtonClick
-            Style = tbsCheck
-          end
-        end
         object PanelBackFillIntf: TPanel
-          Left = 42
-          Height = 55
+          Left = 32
+          Height = 58
           Top = 1
           Width = 22
+          Align = alLeft
           BevelOuter = bvNone
+          TabOrder = 0
+          OnResize = PanelBackFillIntfResize
+        end
+        object PanelBackFillHead: TPanel
+          Left = 1
+          Height = 58
+          Top = 1
+          Width = 31
+          Align = alLeft
+          BevelOuter = bvNone
+          ClientHeight = 58
+          ClientWidth = 31
           TabOrder = 1
           OnResize = PanelBackFillIntfResize
+          object LBack: TLabel
+            Left = 0
+            Height = 28
+            Top = 0
+            Width = 31
+            Align = alTop
+            AutoSize = False
+            Caption = 'Back'
+            Layout = tlCenter
+            ParentColor = False
+            ParentFont = False
+          end
+          object ToolBarBackFill: TToolBar
+            Left = 0
+            Height = 30
+            Top = 28
+            Width = 31
+            Align = alClient
+            ButtonHeight = 28
+            ButtonWidth = 28
+            Caption = 'ToolBarBackFill'
+            EdgeBorders = []
+            EdgeInner = esNone
+            EdgeOuter = esNone
+            Images = VectorImageList24
+            Indent = 0
+            ParentColor = False
+            ParentShowHint = False
+            ShowHint = True
+            TabOrder = 0
+            object ButtonMoveBackFillPoints: TToolButton
+              Left = 0
+              Hint = 'Move gradient/texture points'
+              Top = 0
+              Caption = 'ButtonMoveBackFillPoints'
+              ImageIndex = 12
+              OnClick = ToolButtonClick
+              Style = tbsCheck
+            end
+          end
         end
       end
       object PanelShape: TBCPanel

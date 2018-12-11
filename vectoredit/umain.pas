@@ -41,12 +41,14 @@ type
 
   TForm1 = class(TForm)
     ButtonMoveBackFillPoints: TToolButton;
+    LBack: TLabel;
+    PanelBackFillHead: TPanel;
     PanelBackFillIntf: TPanel;
     ShapeSendToBack: TAction;
     ShapeBringToFront: TAction;
     ShapeMoveDown: TAction;
     ShapeMoveUp: TAction;
-    ToolBar1: TToolBar;
+    ToolBarBackFill: TToolBar;
     VectorImageList24: TBGRAImageList;
     ActionList: TActionList;
     EditCopy: TAction;
@@ -59,7 +61,6 @@ type
     FileSaveAs: TAction;
     ButtonPenStyle: TBCButton;
     Label1: TLabel;
-    Label2: TLabel;
     Label3: TLabel;
     PanelBackFill: TBCPanel;
     PanelBasicStyle: TBCPanel;
@@ -267,7 +268,7 @@ procedure TForm1.LoadVectorImages;
 var
   vectorImageList: TBGRAImageList;
   lst: TStringList;
-  i: Integer;
+  i, fullIconHeight: Integer;
 begin
   if VectorImageList24.Height = ActionIconSize then exit;
 
@@ -282,6 +283,10 @@ begin
 
   SetToolbarImages(ToolBarFile, vectorImageList);
   SetToolbarImages(ToolBarEdit, vectorImageList);
+  SetToolBarImages(ToolBarBackFill, vectorImageList);
+  fullIconHeight := ActionIconSize+4;
+  ToolbarTop.ButtonHeight:= 2*fullIconHeight+4;
+  LBack.Height := fullIconHeight;
 end;
 
 { TForm1 }
