@@ -1,5 +1,5 @@
 object Form1: TForm1
-  Left = 608
+  Left = 606
   Height = 622
   Top = 0
   Width = 981
@@ -363,10 +363,10 @@ object Form1: TForm1
         end
       end
       object PanelBasicStyle: TBCPanel
-        Left = 65
+        Left = 216
         Height = 60
         Top = 0
-        Width = 220
+        Width = 185
         Background.Color = clBtnFace
         Background.ColorOpacity = 255
         Background.Gradient1.StartColor = clWhite
@@ -423,138 +423,8 @@ object Form1: TForm1
         Rounding.RoundY = 1
         Rounding.RoundOptions = []
         TabOrder = 1
-        object Label1: TLabel
-          Left = 8
-          Height = 17
-          Top = 20
-          Width = 21
-          Caption = 'Pen'
-          ParentColor = False
-        end
-        object ShapePenColor: TShape
-          Left = 140
-          Height = 25
-          Top = 29
-          Width = 27
-          OnMouseUp = ShapePenColorMouseUp
-        end
-        object UpDownPenAlpha: TBCTrackbarUpdown
-          Left = 166
-          Height = 25
-          Top = 29
-          Width = 48
-          BarExponent = 1
-          Increment = 1
-          LongTimeInterval = 400
-          MinValue = 0
-          MaxValue = 255
-          OnChange = UpDownPenAlphaChange
-          Value = 255
-          ShortTimeInterval = 100
-          Background.Color = clWindow
-          Background.ColorOpacity = 255
-          Background.Gradient1.StartColor = clWhite
-          Background.Gradient1.StartColorOpacity = 255
-          Background.Gradient1.DrawMode = dmSet
-          Background.Gradient1.EndColor = clBlack
-          Background.Gradient1.EndColorOpacity = 255
-          Background.Gradient1.ColorCorrection = True
-          Background.Gradient1.GradientType = gtLinear
-          Background.Gradient1.Point1XPercent = 0
-          Background.Gradient1.Point1YPercent = 0
-          Background.Gradient1.Point2XPercent = 0
-          Background.Gradient1.Point2YPercent = 100
-          Background.Gradient1.Sinus = False
-          Background.Gradient2.StartColor = clWhite
-          Background.Gradient2.StartColorOpacity = 255
-          Background.Gradient2.DrawMode = dmSet
-          Background.Gradient2.EndColor = clBlack
-          Background.Gradient2.EndColorOpacity = 255
-          Background.Gradient2.ColorCorrection = True
-          Background.Gradient2.GradientType = gtLinear
-          Background.Gradient2.Point1XPercent = 0
-          Background.Gradient2.Point1YPercent = 0
-          Background.Gradient2.Point2XPercent = 0
-          Background.Gradient2.Point2YPercent = 100
-          Background.Gradient2.Sinus = False
-          Background.Gradient1EndPercent = 35
-          Background.Style = bbsColor
-          ButtonBackground.Color = clBlack
-          ButtonBackground.ColorOpacity = 255
-          ButtonBackground.Gradient1.StartColor = clBtnShadow
-          ButtonBackground.Gradient1.StartColorOpacity = 255
-          ButtonBackground.Gradient1.DrawMode = dmSet
-          ButtonBackground.Gradient1.EndColor = clBtnFace
-          ButtonBackground.Gradient1.EndColorOpacity = 255
-          ButtonBackground.Gradient1.ColorCorrection = True
-          ButtonBackground.Gradient1.GradientType = gtLinear
-          ButtonBackground.Gradient1.Point1XPercent = 0
-          ButtonBackground.Gradient1.Point1YPercent = -50
-          ButtonBackground.Gradient1.Point2XPercent = 0
-          ButtonBackground.Gradient1.Point2YPercent = 50
-          ButtonBackground.Gradient1.Sinus = False
-          ButtonBackground.Gradient2.StartColor = clBtnFace
-          ButtonBackground.Gradient2.StartColorOpacity = 255
-          ButtonBackground.Gradient2.DrawMode = dmSet
-          ButtonBackground.Gradient2.EndColor = clBtnShadow
-          ButtonBackground.Gradient2.EndColorOpacity = 255
-          ButtonBackground.Gradient2.ColorCorrection = True
-          ButtonBackground.Gradient2.GradientType = gtLinear
-          ButtonBackground.Gradient2.Point1XPercent = 0
-          ButtonBackground.Gradient2.Point1YPercent = 50
-          ButtonBackground.Gradient2.Point2XPercent = 0
-          ButtonBackground.Gradient2.Point2YPercent = 150
-          ButtonBackground.Gradient2.Sinus = False
-          ButtonBackground.Gradient1EndPercent = 50
-          ButtonBackground.Style = bbsGradient
-          ButtonDownBackground.Color = clBtnShadow
-          ButtonDownBackground.ColorOpacity = 255
-          ButtonDownBackground.Gradient1.StartColor = clWhite
-          ButtonDownBackground.Gradient1.StartColorOpacity = 255
-          ButtonDownBackground.Gradient1.DrawMode = dmSet
-          ButtonDownBackground.Gradient1.EndColor = clBlack
-          ButtonDownBackground.Gradient1.EndColorOpacity = 255
-          ButtonDownBackground.Gradient1.ColorCorrection = True
-          ButtonDownBackground.Gradient1.GradientType = gtLinear
-          ButtonDownBackground.Gradient1.Point1XPercent = 0
-          ButtonDownBackground.Gradient1.Point1YPercent = 0
-          ButtonDownBackground.Gradient1.Point2XPercent = 0
-          ButtonDownBackground.Gradient1.Point2YPercent = 100
-          ButtonDownBackground.Gradient1.Sinus = False
-          ButtonDownBackground.Gradient2.StartColor = clWhite
-          ButtonDownBackground.Gradient2.StartColorOpacity = 255
-          ButtonDownBackground.Gradient2.DrawMode = dmSet
-          ButtonDownBackground.Gradient2.EndColor = clBlack
-          ButtonDownBackground.Gradient2.EndColorOpacity = 255
-          ButtonDownBackground.Gradient2.ColorCorrection = True
-          ButtonDownBackground.Gradient2.GradientType = gtLinear
-          ButtonDownBackground.Gradient2.Point1XPercent = 0
-          ButtonDownBackground.Gradient2.Point1YPercent = 0
-          ButtonDownBackground.Gradient2.Point2XPercent = 0
-          ButtonDownBackground.Gradient2.Point2YPercent = 100
-          ButtonDownBackground.Gradient2.Sinus = False
-          ButtonDownBackground.Gradient1EndPercent = 35
-          ButtonDownBackground.Style = bbsColor
-          Border.Color = clWindowText
-          Border.ColorOpacity = 255
-          Border.LightColor = clWhite
-          Border.LightOpacity = 255
-          Border.LightWidth = 0
-          Border.Style = bboSolid
-          Border.Width = 1
-          Rounding.RoundX = 1
-          Rounding.RoundY = 1
-          Rounding.RoundOptions = []
-          Font.Color = clWindowText
-          Font.Name = 'Arial'
-          HasTrackBar = True
-          ArrowColor = clBtnText
-          TabOrder = 0
-          TabStop = True
-          UseDockManager = False
-        end
         object Label3: TLabel
-          Left = 38
+          Left = 5
           Height = 17
           Top = 33
           Width = 32
@@ -562,7 +432,7 @@ object Form1: TForm1
           ParentColor = False
         end
         object UpDownPenWidth: TBCTrackbarUpdown
-          Left = 78
+          Left = 45
           Height = 25
           Top = 29
           Width = 56
@@ -672,12 +542,12 @@ object Form1: TForm1
           Font.Name = 'Arial'
           HasTrackBar = True
           ArrowColor = clBtnText
-          TabOrder = 1
+          TabOrder = 0
           TabStop = True
           UseDockManager = False
         end
         object ButtonPenStyle: TBCButton
-          Left = 37
+          Left = 4
           Height = 25
           Hint = 'Pen style...'
           Top = 1
@@ -848,7 +718,7 @@ object Form1: TForm1
           MemoryUsage = bmuHigh
         end
         object ToolBarJoinStyle: TToolBar
-          Left = 140
+          Left = 107
           Height = 26
           Top = 1
           Width = 74
@@ -857,7 +727,7 @@ object Form1: TForm1
           Images = PenStyleImageList
           ParentShowHint = False
           ShowHint = True
-          TabOrder = 2
+          TabOrder = 1
           object ToolButtonJoinRound: TToolButton
             Left = 3
             Hint = 'Round join'
@@ -892,7 +762,7 @@ object Form1: TForm1
         end
       end
       object PanelBackFill: TBCPanel
-        Left = 285
+        Left = 401
         Height = 60
         Top = 0
         Width = 151
@@ -1014,7 +884,7 @@ object Form1: TForm1
         end
       end
       object PanelShape: TBCPanel
-        Left = 436
+        Left = 552
         Height = 60
         Top = 0
         Width = 122
@@ -1134,7 +1004,7 @@ object Form1: TForm1
         end
       end
       object PanelExtendedStyle: TBCPanel
-        Left = 558
+        Left = 674
         Height = 60
         Top = 0
         Width = 162
@@ -1195,6 +1065,128 @@ object Form1: TForm1
         Rounding.RoundOptions = []
         TabOrder = 4
         Visible = False
+      end
+      object PanelPenFill: TBCPanel
+        Left = 65
+        Height = 60
+        Top = 0
+        Width = 151
+        Background.Color = clBtnFace
+        Background.ColorOpacity = 255
+        Background.Gradient1.StartColor = clWhite
+        Background.Gradient1.StartColorOpacity = 255
+        Background.Gradient1.DrawMode = dmSet
+        Background.Gradient1.EndColor = clBlack
+        Background.Gradient1.EndColorOpacity = 255
+        Background.Gradient1.ColorCorrection = True
+        Background.Gradient1.GradientType = gtLinear
+        Background.Gradient1.Point1XPercent = 0
+        Background.Gradient1.Point1YPercent = 0
+        Background.Gradient1.Point2XPercent = 0
+        Background.Gradient1.Point2YPercent = 100
+        Background.Gradient1.Sinus = False
+        Background.Gradient2.StartColor = clWhite
+        Background.Gradient2.StartColorOpacity = 255
+        Background.Gradient2.DrawMode = dmSet
+        Background.Gradient2.EndColor = clBlack
+        Background.Gradient2.EndColorOpacity = 255
+        Background.Gradient2.ColorCorrection = True
+        Background.Gradient2.GradientType = gtLinear
+        Background.Gradient2.Point1XPercent = 0
+        Background.Gradient2.Point1YPercent = 0
+        Background.Gradient2.Point2XPercent = 0
+        Background.Gradient2.Point2YPercent = 100
+        Background.Gradient2.Sinus = False
+        Background.Gradient1EndPercent = 35
+        Background.Style = bbsColor
+        BevelInner = bvNone
+        BevelOuter = bvRaised
+        BevelWidth = 1
+        Border.Color = clBlack
+        Border.ColorOpacity = 255
+        Border.LightColor = clWhite
+        Border.LightOpacity = 255
+        Border.LightWidth = 0
+        Border.Style = bboNone
+        Border.Width = 1
+        FontEx.Color = clDefault
+        FontEx.EndEllipsis = False
+        FontEx.FontQuality = fqFineAntialiasing
+        FontEx.Height = 0
+        FontEx.SingleLine = True
+        FontEx.Shadow = False
+        FontEx.ShadowColor = clBlack
+        FontEx.ShadowColorOpacity = 255
+        FontEx.ShadowRadius = 5
+        FontEx.ShadowOffsetX = 5
+        FontEx.ShadowOffsetY = 5
+        FontEx.Style = []
+        FontEx.TextAlignment = bcaCenter
+        FontEx.WordBreak = False
+        Rounding.RoundX = 1
+        Rounding.RoundY = 1
+        Rounding.RoundOptions = []
+        TabOrder = 5
+        object PanelPenFillHead: TPanel
+          Left = 1
+          Height = 58
+          Top = 1
+          Width = 31
+          Align = alLeft
+          BevelOuter = bvNone
+          ClientHeight = 58
+          ClientWidth = 31
+          TabOrder = 0
+          object LPen: TLabel
+            Left = 0
+            Height = 28
+            Top = 0
+            Width = 31
+            Align = alTop
+            AutoSize = False
+            Caption = 'Pen'
+            Layout = tlCenter
+            ParentColor = False
+            ParentFont = False
+          end
+          object ToolBarPenFill: TToolBar
+            Left = 0
+            Height = 30
+            Top = 28
+            Width = 31
+            Align = alClient
+            ButtonHeight = 28
+            ButtonWidth = 28
+            Caption = 'ToolBarBackFill'
+            EdgeBorders = []
+            EdgeInner = esNone
+            EdgeOuter = esNone
+            Images = VectorImageList24
+            Indent = 0
+            ParentColor = False
+            ParentShowHint = False
+            ShowHint = True
+            TabOrder = 0
+            object ButtonMovePenFillPoints: TToolButton
+              Left = 0
+              Hint = 'Move gradient/texture points'
+              Top = 0
+              Caption = 'ButtonMoveBackFillPoints'
+              ImageIndex = 12
+              OnClick = ToolButtonClick
+              Style = tbsCheck
+            end
+          end
+        end
+        object PenFillControl: TLCVectorialFillControl
+          Left = 32
+          Height = 58
+          Top = 1
+          Width = 117
+          AutoSize = True
+          Align = alLeft
+          ToolIconSize = 24
+        end
       end
     end
   end

@@ -247,6 +247,8 @@ begin
   FYAxis += delta;
   if vsfBackFill in Fields then
     BackFill.Transform(AffineMatrixTranslation(delta.x, delta.y));
+  if vsfPenFill in Fields then
+    PenFill.Transform(AffineMatrixTranslation(delta.x, delta.y));
   EndUpdate;
 end;
 
@@ -411,7 +413,7 @@ end;
 
 function TRectShape.PenVisible(AAssumePenFill: boolean): boolean;
 begin
-  result := (PenWidth>0) and not IsClearPenStyle(PenStyle) and ((PenColor.alpha>0) or AAssumePenFill);
+  result := (PenWidth>0) and not IsClearPenStyle(PenStyle) and (not PenFill.IsFullyTransparent or AAssumePenFill);
 end;
 
 function TRectShape.BackVisible: boolean;
@@ -450,7 +452,7 @@ end;
 
 class function TRectShape.Fields: TVectorShapeFields;
 begin
-  Result:= [vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill];
+  Result:= [vsfPenFill, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill];
 end;
 
 procedure TRectShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
@@ -459,7 +461,7 @@ var
   pts: Array of TPointF;
   orthoRect: TRectF;
   r: TRect;
-  backScan: TBGRACustomScanner;
+  backScan, penScan: TBGRACustomScanner;
 begin
   pts := GetAffineBox(AMatrix, true).AsPolygon;
   If BackVisible then
@@ -502,11 +504,24 @@ begin
   end;
   if PenVisible then
   begin
+    if (PenFill.FillType = vftSolid) then penScan := nil
+    else penScan := PenFill.CreateScanner(AMatrix, ADraft);
+
     pts := ComputeStroke(pts,true, AMatrix);
     if ADraft and (PenWidth > 4) then
-      ADest.FillPoly(pts, PenColor, dmDrawWithTransparency)
+    begin
+      if Assigned(penScan) then
+        ADest.FillPoly(pts, penScan, dmDrawWithTransparency) else
+        ADest.FillPoly(pts, PenColor, dmDrawWithTransparency)
+    end
     else
-      ADest.FillPolyAntialias(pts, PenColor);
+    begin
+      if Assigned(penScan) then
+        ADest.FillPolyAntialias(pts, penScan) else
+        ADest.FillPolyAntialias(pts, PenColor);
+    end;
+
+    penScan.Free;
   end;
 end;
 
@@ -571,7 +586,7 @@ end;
 
 function TEllipseShape.PenVisible(AAssumePenFill: boolean): boolean;
 begin
-  result := (PenWidth>0) and not IsClearPenStyle(PenStyle) and ((PenColor.alpha>0) or AAssumePenFill);
+  result := (PenWidth>0) and not IsClearPenStyle(PenStyle) and (not PenFill.IsFullyTransparent or AAssumePenFill);
 end;
 
 function TEllipseShape.BackVisible: boolean;
@@ -592,7 +607,7 @@ end;
 
 class function TEllipseShape.Fields: TVectorShapeFields;
 begin
-  Result:= [vsfPenColor, vsfPenWidth, vsfPenStyle, vsfBackFill];
+  Result:= [vsfPenFill, vsfPenWidth, vsfPenStyle, vsfBackFill];
 end;
 
 procedure TEllipseShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
@@ -603,7 +618,7 @@ var
   center, radius: TPointF;
   draftPen, isOrtho: Boolean;
   r: TRect;
-  backScan: TBGRACustomScanner;
+  backScan, penScan: TBGRACustomScanner;
   penZoom: Single;
   m: TAffineMatrix;
 begin
@@ -635,26 +650,43 @@ begin
     end;
     if PenVisible then
     begin
-      if IsAffineMatrixScaledRotation(AMatrix) then
+      if PenFill.FillType = vftSolid then penScan := nil
+      else penScan := PenFill.CreateScanner(AMatrix, ADraft);
+      draftPen := ADraft and (PenWidth > 4);
+
+      if IsAffineMatrixScaledRotation(AMatrix) and not (draftPen and Assigned(penScan)) then
       begin
         penZoom := VectLen(AMatrix[1,1],AMatrix[2,1]);
         ADest.CustomPenStyle := PenStyle;
-        draftPen := ADraft and (PenWidth > 4);
         if draftPen then
           ADest.Ellipse(center.x, center.y, radius.x, radius.y, PenColor, PenWidth*penZoom, dmDrawWithTransparency)
         else
-          ADest.EllipseAntialias(center.x, center.y, radius.x, radius.y, PenColor, PenWidth*penZoom);
+        begin
+          if Assigned(penScan) then
+            ADest.EllipseAntialias(center.x, center.y, radius.x, radius.y, penScan, PenWidth*penZoom) else
+            ADest.EllipseAntialias(center.x, center.y, radius.x, radius.y, PenColor, PenWidth*penZoom);
+        end;
         ADest.PenStyle := psSolid;
       end else
       begin
         m:= MatrixForPixelCentered(AMatrix);
         pts := ComputeEllipse(m*FOrigin, m*FXAxis, m*FYAxis);
         pts := ComputeStroke(pts,true, AMatrix);
-        if ADraft and (PenWidth > 4) then
-          ADest.FillPoly(pts, PenColor, dmDrawWithTransparency)
+        if draftPen then
+        begin
+          if Assigned(penScan) then
+            ADest.FillPoly(pts, penScan, dmDrawWithTransparency) else
+            ADest.FillPoly(pts, PenColor, dmDrawWithTransparency)
+        end
         else
-          ADest.FillPolyAntialias(pts, PenColor);
+        begin
+          if Assigned(penScan) then
+            ADest.FillPolyAntialias(pts, penScan) else
+            ADest.FillPolyAntialias(pts, PenColor);
+        end;
       end;
+
+      penScan.Free;
     end;
   end else
   begin
@@ -682,11 +714,24 @@ begin
     end;
     if PenVisible then
     begin
+      if PenFill.FillType = vftSolid then penScan := nil
+      else penScan := PenFill.CreateScanner(AMatrix, ADraft);
+
       pts := ComputeStroke(pts,true, AMatrix);
       if ADraft and (PenWidth > 4) then
-        ADest.FillPoly(pts, PenColor, dmDrawWithTransparency)
+      begin
+        if Assigned(penScan) then
+          ADest.FillPoly(pts, penScan, dmDrawWithTransparency) else
+          ADest.FillPoly(pts, PenColor, dmDrawWithTransparency)
+      end
       else
-        ADest.FillPolyAntialias(pts, PenColor);
+      begin
+        if Assigned(penScan) then
+          ADest.FillPolyAntialias(pts, penScan) else
+          ADest.FillPolyAntialias(pts, PenColor);
+      end;
+
+      penScan.Free;
     end;
   end;
 end;

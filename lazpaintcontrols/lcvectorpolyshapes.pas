@@ -199,6 +199,8 @@ begin
     Points[i] := Points[i]+delta;
   if vsfBackFill in Fields then
     BackFill.Transform(AffineMatrixTranslation(delta.x, delta.y));
+  if vsfPenFill in Fields then
+    PenFill.Transform(AffineMatrixTranslation(delta.x, delta.y));
   EndUpdate;
 end;
 
@@ -571,7 +573,7 @@ end;
 
 function TPolylineShape.PenVisible(AAssumePenFill: boolean): boolean;
 begin
-  result := (PenWidth>0) and not IsClearPenStyle(PenStyle) and ((PenColor.alpha>0) or AAssumePenFill);
+  result := (PenWidth>0) and not IsClearPenStyle(PenStyle) and (not PenFill.IsFullyTransparent or AAssumePenFill);
 end;
 
 function TPolylineShape.BackVisible: boolean;
@@ -581,14 +583,14 @@ end;
 
 class function TPolylineShape.Fields: TVectorShapeFields;
 begin
-  Result:= [vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill];
+  Result:= [vsfPenFill, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill];
 end;
 
 procedure TPolylineShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
   ADraft: boolean);
 var
   pts: array of TPointF;
-  backScan: TBGRACustomScanner;
+  backScan, penScan: TBGRACustomScanner;
 begin
   if not BackVisible and not PenVisible then exit;
   pts := GetCurve(AMatrix);
@@ -614,11 +616,22 @@ begin
   end;
   if PenVisible then
   begin
+    if PenFill.FillType = vftSolid then penScan := nil
+    else penScan := PenFill.CreateScanner(AMatrix, ADraft);
+
     pts := ComputeStroke(pts, Closed, AMatrix);
     if ADraft and (PenWidth > 4) then
-      ADest.FillPoly(pts, PenColor, dmDrawWithTransparency)
+    begin
+      if Assigned(penScan) then
+        ADest.FillPoly(pts, penScan, dmDrawWithTransparency) else
+        ADest.FillPoly(pts, PenColor, dmDrawWithTransparency);
+    end
     else
-      ADest.FillPolyAntialias(pts, PenColor);
+    begin
+      if Assigned(penScan) then
+        ADest.FillPolyAntialias(pts, penScan) else
+        ADest.FillPolyAntialias(pts, PenColor);
+    end;
   end;
 end;
 

@@ -22,12 +22,12 @@ const
                      'Horizontal cylinder', 'Vertical cylinder');
 
 type
-  TPaintTool = (ptHand, ptMoveBackFillPoint, ptRectangle, ptEllipse, ptPolyline, ptCurve, ptPolygon, ptClosedCurve,
+  TPaintTool = (ptHand, ptMovePenFillPoint, ptMoveBackFillPoint, ptRectangle, ptEllipse, ptPolyline, ptCurve, ptPolygon, ptClosedCurve,
                 ptPhongShape);
 
 const
   PaintToolClass : array[TPaintTool] of TVectorShapeAny =
-    (nil, nil, TRectShape, TEllipseShape, TPolylineShape, TCurveShape, TPolylineShape, TCurveShape,
+    (nil, nil, nil, TRectShape, TEllipseShape, TPolylineShape, TCurveShape, TPolylineShape, TCurveShape,
      TPhongShape);
 
 function IsCreateShapeTool(ATool: TPaintTool): boolean;
@@ -40,15 +40,21 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    PenFillControl: TLCVectorialFillControl;
     ButtonMoveBackFillPoints: TToolButton;
+    ButtonMovePenFillPoints: TToolButton;
     LBack: TLabel;
     BackFillControl: TLCVectorialFillControl;
+    LPen: TLabel;
+    PanelPenFill: TBCPanel;
     PanelBackFillHead: TPanel;
+    PanelPenFillHead: TPanel;
     ShapeSendToBack: TAction;
     ShapeBringToFront: TAction;
     ShapeMoveDown: TAction;
     ShapeMoveUp: TAction;
     ToolBarBackFill: TToolBar;
+    ToolBarPenFill: TToolBar;
     VectorImageList24: TBGRAImageList;
     ActionList: TActionList;
     EditCopy: TAction;
@@ -60,7 +66,6 @@ type
     FileSave: TAction;
     FileSaveAs: TAction;
     ButtonPenStyle: TBCButton;
-    Label1: TLabel;
     Label3: TLabel;
     PanelBackFill: TBCPanel;
     PanelBasicStyle: TBCPanel;
@@ -70,7 +75,6 @@ type
     PhongImageList: TBGRAImageList;
     PenStyleImageList: TBGRAImageList;
     CurveImageList: TBGRAImageList;
-    ShapePenColor: TShape;
     ToolBarFile: TToolBar;
     ToolBarEdit: TToolBar;
     ToolBarTop: TToolBar;
@@ -107,7 +111,6 @@ type
     ToolButtonPolygon: TToolButton;
     ToolButtonRectangle: TToolButton;
     ToolButtonEllipse: TToolButton;
-    UpDownPenAlpha: TBCTrackbarUpdown;
     UpDownPenWidth: TBCTrackbarUpdown;
     procedure BCPanelToolbarResize(Sender: TObject);
     procedure BCPanelToolChoiceResize(Sender: TObject);
@@ -142,12 +145,9 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormUTF8KeyPress(Sender: TObject; var UTF8Key: TUTF8Char);
-    procedure ShapePenColorMouseUp(Sender: TObject; {%H-}Button: TMouseButton;
-      {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure ToolButtonClick(Sender: TObject);
     procedure UpDownPenAlphaChange(Sender: TObject; AByUser: boolean);
   private
-    FPenColor: TBGRAPixel;
     FPenWidth: single;
     FPenStyle: TBGRAPenStyle;
     FPenJoinStyle: TPenJoinStyle;
@@ -168,7 +168,6 @@ type
     FUpDownPhongBorderSize: TBCTrackbarUpdown;
     FInRemoveShapeIfEmpty: Boolean;
     procedure ComboBoxSplineStyleClick(Sender: TObject);
-    function GetPenColor: TBGRAPixel;
     function GetPenStyle: TBGRAPenStyle;
     function GetPenWidth: single;
     function GetSplineStyle: TSplineStyle;
@@ -187,7 +186,6 @@ type
     procedure RequestBackFillUpdate(Sender: TObject);
     procedure OnBackFillChange({%H-}ASender: TObject);
     procedure SetCurrentTool(AValue: TPaintTool);
-    procedure SetPenColor(AValue: TBGRAPixel);
     procedure SetPenJoinStyle(AValue: TPenJoinStyle);
     procedure SetPenStyle(AValue: TBGRAPenStyle);
     procedure SetPenWidth(AValue: single);
@@ -204,13 +202,18 @@ type
     function CreateShape(const APoint1, APoint2: TPointF): TVectorShape;
     procedure RemoveExtendedStyleControls;
     procedure UpdateBackToolFillPoints;
+    procedure UpdatePenToolFillPoints;
     procedure UpdateShapeBackFill;
+    procedure UpdateShapePenFill;
     procedure UpdateShapeUserMode;
     procedure UpdateShapeActions(AShape: TVectorShape);
     procedure RemoveShapeIfEmpty(AShape: TVectorShape);
     function VirtualScreenToImgCoord(X,Y: Integer): TPointF;
     procedure SetEditorGrid(AActive: boolean);
     procedure RequestBackFillAdjustToShape(Sender: TObject);
+    procedure PenFillControlResize(Sender: TObject);
+    procedure RequestPenFillAdjustToShape(Sender: TObject);
+    procedure RequestPenFillUpdate(Sender: TObject);
   public
     { public declarations }
     img: TBGRALazPaintImage;
@@ -229,7 +232,6 @@ type
     procedure DoPaste;
     procedure DoDelete;
     property vectorTransform: TAffineMatrix read GetVectorTransform;
-    property penColor: TBGRAPixel read GetPenColor write SetPenColor;
     property penWidth: single read GetPenWidth write SetPenWidth;
     property penStyle: TBGRAPenStyle read GetPenStyle write SetPenStyle;
     property splineStyle: TSplineStyle read GetSplineStyle write SetSplineStyle;
@@ -332,8 +334,18 @@ begin
     FPenStyleMenu.Items.Add(item);
   end;
 
+  PenFillControl.ToolIconSize:= ActionIconSize;
+  PenFillControl.SolidColor := BGRABlack;
+  PenFillControl.GradStartColor := BGRAWhite;
+  PenFillControl.GradEndColor := BGRABlack;
+  PenFillControl.OnFillChange:=@RequestPenFillUpdate;
+  PenFillControl.OnAdjustToShape:=@RequestPenFillAdjustToShape;
+  PenFillControl.OnResize:=@PenFillControlResize;
+
   BackFillControl.ToolIconSize:= ActionIconSize;
   BackFillControl.SolidColor := CSSDodgerBlue;
+  BackFillControl.GradStartColor := MergeBGRA(CSSDodgerBlue,BGRAWhite);
+  BackFillControl.GradEndColor := MergeBGRA(CSSDodgerBlue,BGRABlack);
   BackFillControl.OnFillChange:= @RequestBackFillUpdate;
   BackFillControl.OnAdjustToShape:= @RequestBackFillAdjustToShape;
   BackFillControl.OnResize:= @BackFillControlResize;
@@ -348,7 +360,6 @@ begin
   end;
 
   newShape:= nil;
-  penColor := BGRABlack;
   penWidth := 5;
   penStyle := SolidPenStyle;
   joinStyle:= pjsBevel;
@@ -358,6 +369,7 @@ begin
   FPhongBorderSize := DefaultPhongBorderSizePercent;
   UpdateTitleBar;
   UpdateBackToolFillPoints;
+  UpdatePenToolFillPoints;
   UpdateShapeActions(nil);
 end;
 
@@ -629,6 +641,12 @@ begin
       newShape.BackFill := vectorFill;
       vectorFill.Free;
     end;
+    if (vsfPenFill in newShape.Fields) and (newShape.PenFill.FillType in [vftGradient, vftTexture]) then
+    begin
+      vectorFill := PenFillControl.CreateShapeFill(newShape);
+      newShape.PenFill := vectorFill;
+      vectorFill.Free;
+    end;
     rF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
     ImageChange(rF.Union(prevRF, true));
   end;
@@ -738,26 +756,24 @@ begin
   end;
 end;
 
-procedure TForm1.ShapePenColorMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
-begin
-  ColorDialog1.Color := ShapePenColor.Brush.Color;
-  if ColorDialog1.Execute then
-  begin
-    if penColor.alpha <> 0 then
-      penColor := ColorToBGRA(ColorDialog1.Color, penColor.alpha)
-    else
-      penColor := ColorDialog1.Color;
-  end;
-end;
-
 procedure TForm1.ToolButtonClick(Sender: TObject);
 begin
   if Sender = ButtonMoveBackFillPoints then
-    if ButtonMoveBackFillPoints.Down then ToolButtonMove.Down := true;
+    if ButtonMoveBackFillPoints.Down then
+    begin
+      ToolButtonMove.Down := true;
+      ButtonMovePenFillPoints.Down := false;
+    end;
+  if Sender = ButtonMovePenFillPoints then
+    if ButtonMovePenFillPoints.Down then
+    begin
+      ToolButtonMove.Down := true;
+      ButtonMoveBackFillPoints.Down := false;
+    end;
 
   FCurrentTool := ptHand;
   if ButtonMoveBackFillPoints.Down then FCurrentTool:= ptMoveBackFillPoint;
+  if ButtonMovePenFillPoints.Down then FCurrentTool:= ptMovePenFillPoint;
   if ToolButtonEllipse.Down then FCurrentTool:= ptEllipse;
   if ToolButtonRectangle.Down then FCurrentTool:= ptRectangle;
   if ToolButtonPolyline.Down then FCurrentTool:= ptPolyline;
@@ -766,8 +782,8 @@ begin
   if ToolButtonClosedCurve.Down then FCurrentTool:= ptClosedCurve;
   if ToolButtonPhongShape.Down then FCurrentTool:= ptPhongShape;
 
-  if currentTool <> ptMoveBackFillPoint then
-    ButtonMoveBackFillPoints.Down := false;
+  if currentTool <> ptMoveBackFillPoint then ButtonMoveBackFillPoints.Down := false;
+  if currentTool <> ptMovePenFillPoint then ButtonMovePenFillPoints.Down := false;
 
   if IsCreateShapeTool(currentTool) then
   begin
@@ -786,12 +802,7 @@ end;
 
 procedure TForm1.UpDownPenAlphaChange(Sender: TObject; AByUser: boolean);
 begin
-  if AByUser then
-  begin
-    FPenColor:= ColorToBGRA(ShapePenColor.Brush.Color, UpDownPenAlpha.Value);
-    if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
-      vectorOriginal.SelectedShape.PenColor:= FPenColor;
-  end;
+
 end;
 
 procedure TForm1.ComboBoxSplineStyleClick(Sender: TObject);
@@ -799,11 +810,6 @@ begin
   if Assigned(FSplineStyleMenu) then
     with FComboboxSplineStyle.ClientToScreen(Point(0,FComboboxSplineStyle.Height)) do
       FSplineStyleMenu.PopUp(X,Y);
-end;
-
-function TForm1.GetPenColor: TBGRAPixel;
-begin
-  result := FPenColor;
 end;
 
 function TForm1.GetPenStyle: TBGRAPenStyle;
@@ -892,13 +898,23 @@ procedure TForm1.OnSelectShape(ASender: TObject; AShape: TVectorShape;
 begin
   if ASender <> vectorOriginal then exit;
   UpdateToolbarFromShape(AShape);
-  if currentTool = ptMoveBackFillPoint then
-  begin
-    if Assigned(AShape) and (vsuEditBackFill in AShape.Usermodes) and
-       AShape.BackFill.IsEditable then
-      AShape.Usermode:= vsuEditBackFill
-    else
-      currentTool:= ptHand;
+  case currentTool of
+    ptMoveBackFillPoint:
+    begin
+      if Assigned(AShape) and (vsuEditBackFill in AShape.Usermodes) and
+         AShape.BackFill.IsEditable then
+        AShape.Usermode:= vsuEditBackFill
+      else
+        currentTool:= ptHand;
+    end;
+    ptMovePenFillPoint:
+    begin
+      if Assigned(AShape) and (vsuEditPenFill in AShape.Usermodes) and
+         AShape.PenFill.IsEditable then
+        AShape.Usermode:= vsuEditPenFill
+      else
+        currentTool:= ptHand;
+    end;
   end;
 
   UpdateShapeActions(AShape);
@@ -950,19 +966,8 @@ begin
   ToolButtonCurve.Down := FCurrentTool = ptCurve;
   ToolButtonPhongShape.Down:= FCurrentTool = ptPhongShape;
   ButtonMoveBackFillPoints.Down := FCurrentTool = ptMoveBackFillPoint;
+  ButtonMovePenFillPoints.Down := FCurrentTool = ptMovePenFillPoint;
   UpdateShapeUserMode;
-end;
-
-procedure TForm1.SetPenColor(AValue: TBGRAPixel);
-begin
-  FPenColor := AValue;
-  ShapePenColor.Brush.Color := BGRA(AValue.red,AValue.green,AValue.blue).ToColor;
-  UpDownPenAlpha.Value := AValue.alpha;
-  if not FUpdatingFromShape and Assigned(vectorOriginal) then
-  begin
-    if Assigned(vectorOriginal.SelectedShape) then
-      vectorOriginal.SelectedShape.PenColor := AValue;
-  end;
 end;
 
 procedure TForm1.SetPenJoinStyle(AValue: TPenJoinStyle);
@@ -1169,7 +1174,7 @@ begin
     FUpdatingFromShape := true;
     mode := AShape.Usermode;
     f := AShape.Fields;
-    if vsfPenColor in f then penColor := AShape.PenColor;
+    if vsfPenFill in f then PenFillControl.AssignFill(AShape.PenFill);
     if vsfPenWidth in f then penWidth:= AShape.PenWidth;
     if vsfPenStyle in f then penStyle:= AShape.PenStyle;
     if vsfJoinStyle in f then joinStyle:= AShape.JoinStyle;
@@ -1210,6 +1215,7 @@ begin
     end;
   end;
   UpdateBackToolFillPoints;
+  UpdatePenToolFillPoints;
   UpDownPenWidth.Enabled := vsfPenWidth in f;
   ButtonPenStyle.Enabled:= vsfPenStyle in f;
   EnableDisableToolButtons([ToolButtonJoinRound,ToolButtonJoinBevel,ToolButtonJoinMiter], vsfJoinStyle in f);
@@ -1312,7 +1318,7 @@ begin
     raise exception.Create('No shape type selected');
   result := PaintToolClass[currentTool].Create(vectorOriginal);
   if (result is TCustomPolypointShape) and (BackFillControl.FillType = vftGradient) then BackFillControl.FillType := vftSolid;
-  result.PenColor := penColor;
+  if (result is TCustomPolypointShape) and (PenFillControl.FillType = vftGradient) then PenFillControl.FillType := vftSolid;
   result.PenWidth := penWidth;
   result.PenStyle := penStyle;
   if vsfJoinStyle in result.Fields then result.JoinStyle := joinStyle;
@@ -1333,6 +1339,12 @@ begin
   begin
     vectorFill := BackFillControl.CreateShapeFill(result);
     result.BackFill := vectorFill;
+    vectorFill.Free;
+  end;
+  if vsfPenFill in result.Fields then
+  begin
+    vectorFill := PenFillControl.CreateShapeFill(result);
+    result.PenFill := vectorFill;
     vectorFill.Free;
   end;
 end;
@@ -1376,11 +1388,28 @@ begin
   if (currentTool = ptMoveBackFillPoint) and not canEdit then currentTool:= ptHand;
 end;
 
+procedure TForm1.UpdatePenToolFillPoints;
+var
+  canEdit: Boolean;
+begin
+  canEdit := (PenFillControl.FillType in[vftGradient,vftTexture]) and
+    Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape);
+  ButtonMovePenFillPoints.Enabled := canEdit;
+  if (currentTool = ptMovePenFillPoint) and not canEdit then currentTool:= ptHand;
+end;
+
 procedure TForm1.UpdateShapeBackFill;
 begin
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
     (vsfBackFill in vectorOriginal.SelectedShape.Fields) then
-    BackFillControl.UpdateShapeFill(vectorOriginal.SelectedShape);
+    BackFillControl.UpdateShapeFill(vectorOriginal.SelectedShape, True);
+end;
+
+procedure TForm1.UpdateShapePenFill;
+begin
+  if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
+    (vsfPenFill in vectorOriginal.SelectedShape.Fields) then
+    PenFillControl.UpdateShapeFill(vectorOriginal.SelectedShape, FAlse);
 end;
 
 procedure TForm1.UpdateShapeUserMode;
@@ -1394,8 +1423,15 @@ begin
       if vectorOriginal.SelectedShape.Usermode <> vsuEditBackFill then
         vectorOriginal.SelectedShape.Usermode := vsuEditBackFill;
     end else
+    if (currentTool = ptMovePenFillPoint) and
+       (vsfPenFill in vectorOriginal.SelectedShape.Fields) and
+       vectorOriginal.SelectedShape.PenFill.IsEditable then
     begin
-      if vectorOriginal.SelectedShape.Usermode = vsuEditBackFill then
+      if vectorOriginal.SelectedShape.Usermode <> vsuEditPenFill then
+        vectorOriginal.SelectedShape.Usermode := vsuEditPenFill;
+    end else
+    begin
+      if vectorOriginal.SelectedShape.Usermode in[vsuEditPenFill,vsuEditBackFill] then
         vectorOriginal.SelectedShape.Usermode := vsuEdit;
     end;
   end;
@@ -1411,6 +1447,7 @@ begin
   EditCut.Enabled := AShape <> nil;
   EditDelete.Enabled := AShape <> nil;
   BackFillControl.CanAdjustToShape := AShape <> nil;
+  PenFillControl.CanAdjustToShape := AShape <> nil;
 end;
 
 procedure TForm1.RemoveShapeIfEmpty(AShape: TVectorShape);
@@ -1466,6 +1503,32 @@ begin
     vectorFill := BackFillControl.CreateShapeFill(vectorOriginal.SelectedShape);
     vectorOriginal.SelectedShape.BackFill := vectorFill;
     vectorFill.Free;
+  end;
+end;
+
+procedure TForm1.PenFillControlResize(Sender: TObject);
+begin
+  PanelPenFill.ClientWidth := PanelPenFillHead.Width+PenFillControl.Width+2;
+end;
+
+procedure TForm1.RequestPenFillAdjustToShape(Sender: TObject);
+var
+  vectorFill: TVectorialFill;
+begin
+  if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+  begin
+    vectorFill := PenFillControl.CreateShapeFill(vectorOriginal.SelectedShape);
+    vectorOriginal.SelectedShape.PenFill := vectorFill;
+    vectorFill.Free;
+  end;
+end;
+
+procedure TForm1.RequestPenFillUpdate(Sender: TObject);
+begin
+  if not FUpdatingFromShape then
+  begin
+    UpdateShapePenFill;
+    UpdatePenToolFillPoints;
   end;
 end;
 

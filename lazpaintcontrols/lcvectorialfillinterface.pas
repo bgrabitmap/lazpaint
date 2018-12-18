@@ -129,7 +129,7 @@ type
     function GetTextureThumbnail(AWidth, AHeight: integer; ABackColor: TColor): TBitmap;
     procedure AssignFill(AFill: TVectorialFill);
     function CreateShapeFill(AShape: TVectorShape): TVectorialFill;
-    procedure UpdateShapeFill(AShape: TVectorShape);
+    procedure UpdateShapeFill(AShape: TVectorShape; ABackFill: boolean);
     property FillType: TVectorialFillType read FFillType write SetFillType;
     property SolidColor: TBGRAPixel read FSolidColor write SetSolidColor;
     property GradientType: TGradientType read FGradType write SetGradientType;
@@ -922,20 +922,26 @@ begin
   else result := nil; //none
 end;
 
-procedure TVectorialFillInterface.UpdateShapeFill(AShape: TVectorShape);
+procedure TVectorialFillInterface.UpdateShapeFill(AShape: TVectorShape; ABackFill: boolean);
 var
   vectorFill: TVectorialFill;
+  curFill: TVectorialFill;
 begin
+  if ABackFill then
+    curFill:= AShape.BackFill
+  else
+    curFill:= AShape.PenFill;
+
   if (FillType = vftTexture) and (TextureOpacity = 0) then
     vectorFill := nil else
-  if (FillType = vftTexture) and (AShape.BackFill.FillType = vftTexture) then
+  if (FillType = vftTexture) and (curFill.FillType = vftTexture) then
   begin
-    vectorFill := TVectorialFill.CreateAsTexture(Texture, AShape.BackFill.TextureMatrix,
+    vectorFill := TVectorialFill.CreateAsTexture(Texture, curFill.TextureMatrix,
                                                  TextureOpacity, TextureRepetition);
   end
-  else if (FillType = vftGradient) and (AShape.BackFill.FillType = vftGradient) then
+  else if (FillType = vftGradient) and (curFill.FillType = vftGradient) then
   begin
-    vectorFill := AShape.BackFill.Duplicate;
+    vectorFill := curFill.Duplicate;
     vectorFill.Gradient.StartColor := GradStartColor;
     vectorFill.Gradient.EndColor := GradEndColor;
     vectorFill.Gradient.GradientType := GradientType;
@@ -944,7 +950,10 @@ begin
   end else
     vectorFill := CreateShapeFill(AShape);
 
-  AShape.BackFill:= vectorFill;
+  if ABackFill then
+    AShape.BackFill:= vectorFill
+  else
+    AShape.PenFill:= vectorFill;
   vectorFill.Free;
 end;
 

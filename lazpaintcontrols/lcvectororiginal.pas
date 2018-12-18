@@ -20,9 +20,9 @@ type
 
   TRenderBoundsOption = (rboAssumePenFill, rboAssumeBackFill);
   TRenderBoundsOptions = set of TRenderBoundsOption;
-  TVectorShapeField = (vsfPenColor, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill);
+  TVectorShapeField = (vsfPenFill, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill);
   TVectorShapeFields = set of TVectorShapeField;
-  TVectorShapeUsermode = (vsuEdit, vsuCreate, vsuEditBackFill,
+  TVectorShapeUsermode = (vsuEdit, vsuCreate, vsuEditPenFill, vsuEditBackFill,
                           vsuCurveSetAuto, vsuCurveSetCurve, vsuCurveSetAngle);
   TVectorShapeUsermodes = set of TVectorShapeUsermode;
 
@@ -34,8 +34,7 @@ type
     FOnEditingChange: TShapeEditingChangeEvent;
     FUpdateCount: integer;
     FBoundsBeforeUpdate: TRectF;
-    FPenColor: TBGRAPixel;
-    FBackFill: TVectorialFill;
+    FPenFill, FBackFill: TVectorialFill;
     FPenWidth: single;
     FStroker: TBGRAPenStroker;
     FUsermode: TVectorShapeUsermode;
@@ -52,11 +51,13 @@ type
     function GetPenStyle: TBGRAPenStyle; virtual;
     function GetJoinStyle: TPenJoinStyle;
     function GetBackFill: TVectorialFill; virtual;
+    function GetPenFill: TVectorialFill; virtual;
     procedure SetPenColor(AValue: TBGRAPixel); virtual;
     procedure SetPenWidth(AValue: single); virtual;
     procedure SetPenStyle({%H-}AValue: TBGRAPenStyle); virtual;
     procedure SetJoinStyle(AValue: TPenJoinStyle);
     procedure SetBackFill(AValue: TVectorialFill); virtual;
+    procedure SetPenFill(AValue: TVectorialFill); virtual;
     procedure SetUsermode(AValue: TVectorShapeUsermode); virtual;
     procedure LoadFill(AStorage: TBGRACustomOriginalStorage; AObjectName: string; var AValue: TVectorialFill);
     procedure SaveFill(AStorage: TBGRACustomOriginalStorage; AObjectName: string; AValue: TVectorialFill);
@@ -93,6 +94,7 @@ type
     property OnChange: TShapeChangeEvent read FOnChange write FOnChange;
     property OnEditingChange: TShapeEditingChangeEvent read FOnEditingChange write FOnEditingChange;
     property PenColor: TBGRAPixel read GetPenColor write SetPenColor;
+    property PenFill: TVectorialFill read GetPenFill write SetPenFill;
     property BackFill: TVectorialFill read GetBackFill write SetBackFill;
     property PenWidth: single read GetPenWidth write SetPenWidth;
     property PenStyle: TBGRAPenStyle read GetPenStyle write SetPenStyle;
@@ -606,6 +608,7 @@ class function TVectorShape.Usermodes: TVectorShapeUsermodes;
 begin
   result := [vsuEdit];
   if vsfBackFill in Fields then result += [vsuEditBackFill];
+  if vsfPenFill in Fields then result += [vsuEditPenFill];
 end;
 
 procedure TVectorShape.SetContainer(AValue: TVectorOriginal);
@@ -652,7 +655,10 @@ end;
 
 function TVectorShape.GetPenColor: TBGRAPixel;
 begin
-  result := FPenColor;
+  if Assigned(FPenFill) then
+    result := FPenFill.SolidColor
+  else
+    result := BGRAPixelTransparent;
 end;
 
 function TVectorShape.GetPenWidth: single;
@@ -673,6 +679,16 @@ begin
     FBackFill.OnChange := @FillChange;
   end;
   result := FBackFill;
+end;
+
+function TVectorShape.GetPenFill: TVectorialFill;
+begin
+  if FPenFill = nil then
+  begin
+    FPenFill := TVectorialFill.Create;
+    FPenFill.OnChange := @FillChange;
+  end;
+  result := FPenFill;
 end;
 
 function TVectorShape.ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean; AStrokeMatrix: TAffineMatrix): ArrayOfTPointF;
@@ -701,12 +717,12 @@ begin
 end;
 
 procedure TVectorShape.SetPenColor(AValue: TBGRAPixel);
+var
+  vf: TVectorialFill;
 begin
-  if AValue.alpha = 0 then AValue := BGRAPixelTransparent;
-  if FPenColor = AValue then exit;
-  BeginUpdate;
-  FPenColor := AValue;
-  EndUpdate;
+  vf := TVectorialFill.CreateAsSolid(AValue);
+  PenFill := vf;
+  vf.Free;
 end;
 
 procedure TVectorShape.SetPenWidth(AValue: single);
@@ -748,10 +764,33 @@ begin
   EndUpdate;
 end;
 
+procedure TVectorShape.SetPenFill(AValue: TVectorialFill);
+var
+  sharedTex: TBGRABitmap;
+  freeTex: Boolean;
+begin
+  if FPenFill.Equals(AValue) then exit;
+  BeginUpdate;
+  freeTex := Assigned(FPenFill) and Assigned(FPenFill.Texture) and
+    not (Assigned(AValue) and (AValue.FillType = vftTexture) and (AValue.Texture = FPenFill.Texture));
+  if AValue = nil then FreeAndNil(FPenFill) else
+  if AValue.FillType = vftTexture then
+  begin
+    if Assigned(Container) then
+      sharedTex := Container.GetTexture(Container.AddTexture(AValue.Texture))
+    else
+      sharedTex := AValue.Texture;
+    PenFill.SetTexture(sharedTex, AValue.TextureMatrix, AValue.TextureOpacity, AValue.TextureRepetition);
+  end else
+    PenFill.Assign(AValue);
+  if Assigned(Container) and freeTex then Container.DiscardUnusedTextures;
+  EndUpdate;
+end;
+
 constructor TVectorShape.Create(AContainer: TVectorOriginal);
 begin
   FContainer := AContainer;
-  FPenColor := BGRAPixelTransparent;
+  FPenFill := nil;
   FPenWidth := 1;
   FStroker := nil;
   FOnChange := nil;
@@ -764,6 +803,7 @@ end;
 destructor TVectorShape.Destroy;
 begin
   FreeAndNil(FStroker);
+  FreeAndNil(FPenFill);
   FreeAndNil(FBackFill);
   inherited Destroy;
 end;
@@ -776,7 +816,7 @@ begin
   if f <> [] then
   begin
     BeginUpdate;
-    if vsfPenColor in f then PenColor := AStorage.Color['pen-color'];
+    if vsfPenFill in f then LoadFill(AStorage, 'pen', FPenFill);
     if vsfPenWidth in f then PenWidth := AStorage.FloatDef['pen-width', 0];
     if vsfPenStyle in f then PenStyle := AStorage.FloatArray['pen-style'];
     if vsfJoinStyle in f then
@@ -795,7 +835,7 @@ var
   f: TVectorShapeFields;
 begin
   f := Fields;
-  if vsfPenColor in f then AStorage.Color['pen-color'] := PenColor;
+  if vsfPenFill in f then SaveFill(AStorage, 'pen', FPenFill);
   if vsfPenWidth in f then AStorage.Float['pen-width'] := PenWidth;
   if vsfPenStyle in f then AStorage.FloatArray['pen-style'] := PenStyle;
   if vsfJoinStyle in f then
@@ -1172,7 +1212,9 @@ begin
     end else
       prevMode := vsuEdit;
     if Assigned(AShape) and (prevMode = vsuEditBackFill) and (prevMode in AShape.Usermodes) and
-       (AShape.BackFill.FillType in[vftGradient,vftTexture]) then AShape.Usermode:= prevMode;
+       AShape.BackFill.IsEditable then AShape.Usermode:= prevMode;
+    if Assigned(AShape) and (prevMode = vsuEditPenFill) and (prevMode in AShape.Usermodes) and
+       AShape.PenFill.IsEditable then AShape.Usermode:= prevMode;
     FSelectedShape := AShape;
     DiscardFrozenShapes;
     NotifyEditorChange;
@@ -1260,9 +1302,11 @@ begin
     end
     else
     begin
-      if (FSelectedShape.Usermode = vsuEditBackFill) and
-         (FSelectedShape.BackFill.FillType in [vftGradient,vftTexture]) then
+      if (FSelectedShape.Usermode = vsuEditBackFill) and FSelectedShape.BackFill.IsEditable then
         FSelectedShape.BackFill.ConfigureEditor(AEditor)
+      else
+      if (FSelectedShape.Usermode = vsuEditPenFill) and FSelectedShape.PenFill.IsEditable then
+        FSelectedShape.PenFill.ConfigureEditor(AEditor)
       else
         FSelectedShape.ConfigureEditor(AEditor);
     end;
