@@ -623,8 +623,16 @@ end;
 
 procedure TVectorialFillInterface.ButtonFillChange(Sender: TObject);
 begin
-  if Sender = FButtonFillNone then FillType:= vftNone
-  else if Sender = FButtonFillSolid then FillType:= vftSolid;
+  if Sender = FButtonFillNone then
+  begin
+    FillType:= vftNone;
+    FButtonFillNone.Down := true;
+  end
+  else if Sender = FButtonFillSolid then
+  begin
+    FillType:= vftSolid;
+    FButtonFillSolid.Down := true;
+  end;
 end;
 
 procedure TVectorialFillInterface.SetTextureRepetition(
