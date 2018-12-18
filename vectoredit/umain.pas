@@ -146,7 +146,7 @@ type
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormUTF8KeyPress(Sender: TObject; var UTF8Key: TUTF8Char);
     procedure ToolButtonClick(Sender: TObject);
-    procedure UpDownPenAlphaChange(Sender: TObject; AByUser: boolean);
+    procedure UpDownPenAlphaChange(Sender: TObject; {%H-}AByUser: boolean);
   private
     FPenWidth: single;
     FPenStyle: TBGRAPenStyle;
@@ -162,11 +162,12 @@ type
     FSplineToolbar: TToolBar;
     FPenStyleMenu: TPopupMenu;
     FPhongShapeKind: TPhongShapeKind;
-    FPhongShapeKindToolbar: TToolBar;
-    FPhongShapeAltitude,FPhongBorderSize: single;
-    FUpDownPhongShapeAltitude,
+    FPhongShapeKindToolbar, FPhongShapeKindToolbar2: TToolBar;
     FUpDownPhongBorderSize: TBCTrackbarUpdown;
+    FPhongShapeAltitude,FPhongBorderSize: single;
     FInRemoveShapeIfEmpty: Boolean;
+    FFullIconHeight: integer;
+    FVectorImageList: TBGRAImageList;
     procedure ComboBoxSplineStyleClick(Sender: TObject);
     function GetPenStyle: TBGRAPenStyle;
     function GetPenWidth: single;
@@ -214,6 +215,7 @@ type
     procedure PenFillControlResize(Sender: TObject);
     procedure RequestPenFillAdjustToShape(Sender: TObject);
     procedure RequestPenFillUpdate(Sender: TObject);
+    procedure AdjustToolbarTop;
   public
     { public declarations }
     img: TBGRALazPaintImage;
@@ -266,27 +268,32 @@ end;
 
 procedure TForm1.LoadVectorImages;
 var
-  vectorImageList: TBGRAImageList;
   lst: TStringList;
-  i, fullIconHeight: Integer;
+  i: Integer;
 begin
-  if VectorImageList24.Height = ActionIconSize then exit;
+  FFullIconHeight := ActionIconSize+4;
+  if VectorImageList24.Height = ActionIconSize then
+  begin
+    FVectorImageList := VectorImageList24;
+    exit;
+  end;
 
-  vectorImageList:= TBGRAImageList.Create(self);
-  vectorImageList.Width := ActionIconSize;
-  vectorImageList.Height := ActionIconSize;
+  FVectorImageList:= TBGRAImageList.Create(self);
+  FVectorImageList.Width := ActionIconSize;
+  FVectorImageList.Height := ActionIconSize;
   lst := TStringList.Create;
   lst.CommaText := GetResourceString('vectorimages.lst');
   for i := 0 to lst.Count-1 do
-    LoadToolbarImage(vectorImageList, i, lst[i]);
+    LoadToolbarImage(FVectorImageList, i, lst[i]);
   lst.Free;
 
-  SetToolbarImages(ToolBarFile, vectorImageList);
-  SetToolbarImages(ToolBarEdit, vectorImageList);
-  SetToolBarImages(ToolBarBackFill, vectorImageList);
-  fullIconHeight := ActionIconSize+4;
-  ToolbarTop.ButtonHeight:= 2*fullIconHeight+4;
-  LBack.Height := fullIconHeight;
+  SetToolbarImages(ToolBarFile, FVectorImageList);
+  SetToolbarImages(ToolBarEdit, FVectorImageList);
+  SetToolBarImages(ToolBarBackFill, FVectorImageList);
+  SetToolBarImages(ToolBarPenFill, FVectorImageList);
+  ToolbarTop.ButtonHeight:= 2*FFullIconHeight+4;
+  LBack.Height := FFullIconHeight;
+  LPen.Height := FFullIconHeight;
 end;
 
 { TForm1 }
@@ -602,8 +609,7 @@ end;
 
 procedure TForm1.BCPanelToolbarResize(Sender: TObject);
 begin
-  ToolBarTop.Height := GetToolbarSize(ToolBarTop,0).cy;
-  BCPanelToolbar.Height := ToolBarTop.Height;
+  AdjustToolbarTop;
 end;
 
 procedure TForm1.BGRAVirtualScreen1MouseMove(Sender: TObject;
@@ -879,7 +885,7 @@ end;
 
 procedure TForm1.OnPhongBorderSizeChange(Sender: TObject; AByUser: boolean);
 begin
-  FPhongBorderSize:= FUpDownPhongBorderSize.Value;
+  FPhongBorderSize:= (Sender as TBCTrackbarUpdown).Value;
   if AByUser and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
     (vectorOriginal.SelectedShape is TPhongShape) then
     TPhongShape(vectorOriginal.SelectedShape).BorderSizePercent:= FPhongBorderSize;
@@ -887,7 +893,7 @@ end;
 
 procedure TForm1.OnPhongShapeAltitudeChange(Sender: TObject; AByUser: boolean);
 begin
-  FPhongShapeAltitude:= FUpDownPhongShapeAltitude.Value;
+  FPhongShapeAltitude:= (Sender as TBCTrackbarUpdown).Value;
   if AByUser and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
     (vectorOriginal.SelectedShape is TPhongShape) then
     TPhongShape(vectorOriginal.SelectedShape).ShapeAltitudePercent:= FPhongShapeAltitude;
@@ -1159,13 +1165,15 @@ begin
 end;
 
 procedure TForm1.UpdateToolbarFromShape(AShape: TVectorShape);
-const ControlMargin = 6;
 var
   f: TVectorShapeFields;
   showSplineStyle, showPhongStyle: boolean;
   nextControlPos: TPoint;
   mode: TVectorShapeUsermode;
   sk: TPhongShapeKind;
+  upDownShapeAltitude: TBCTrackbarUpdown;
+  lbl: TLabel;
+  w: Integer;
 begin
   RemoveExtendedStyleControls;
 
@@ -1198,6 +1206,8 @@ begin
       showPhongStyle := false;
 
     FUpdatingFromShape := false;
+    PanelPenFill.Visible := vsfPenFill in f;
+    PanelBackFill.Visible := vsfBackFill in f;
   end else
   begin
     mode := vsuEdit;
@@ -1213,15 +1223,18 @@ begin
       showSplineStyle:= false;
       showPhongStyle:= false;
     end;
+    PanelPenFill.Visible := true;
+    PanelBackFill.Visible := true;
   end;
   UpdateBackToolFillPoints;
   UpdatePenToolFillPoints;
   UpDownPenWidth.Enabled := vsfPenWidth in f;
   ButtonPenStyle.Enabled:= vsfPenStyle in f;
   EnableDisableToolButtons([ToolButtonJoinRound,ToolButtonJoinBevel,ToolButtonJoinMiter], vsfJoinStyle in f);
+  PanelBasicStyle.Visible := [vsfPenWidth,vsfPenStyle,vsfJoinStyle]*f <> [];
 
   PanelExtendedStyle.Visible := false;
-  nextControlPos := Point(ControlMargin,4);
+  nextControlPos := Point(0,0);
   if showSplineStyle then
   begin
     PanelExtendedStyle.Visible := true;
@@ -1239,7 +1252,7 @@ begin
     FComboboxSplineStyle := TBCButton.Create(nil);
     FComboboxSplineStyle.Style := bbtButton;
     FComboboxSplineStyle.Left := nextControlPos.X;
-    FComboboxSplineStyle.Top := nextControlPos.Y + FSplineToolbar.Height;
+    FComboboxSplineStyle.Top := nextControlPos.Y + FFullIconHeight;
     FComboboxSplineStyle.Caption:= SplineStyleToStr[splineStyle];
     FComboboxSplineStyle.Width := 120;
     FComboboxSplineStyle.Height := ButtonPenStyle.Height;
@@ -1250,38 +1263,67 @@ begin
     FComboboxSplineStyle.Rounding.Assign(ButtonPenStyle.Rounding);
     PanelExtendedStyle.InsertControl(FComboboxSplineStyle);
 
-    nextControlPos.X := FComboboxSplineStyle.Left + FComboboxSplineStyle.Width + ControlMargin;
+    nextControlPos.X := FComboboxSplineStyle.Left + FComboboxSplineStyle.Width;
   end;
   if showPhongStyle then
   begin
     PanelExtendedStyle.Visible := true;
 
-    FPhongShapeKindToolbar := CreateToolBar(PhongImageList);
+    FPhongShapeKindToolbar := CreateToolBar(FVectorImageList);
+    FPhongShapeKindToolbar.Images := PhongImageList;
     FPhongShapeKindToolbar.Left := nextControlPos.X;
     FPhongShapeKindToolbar.Top := nextControlPos.Y;
     FPhongShapeKindToolbar.Width := 120;
+
+    lbl := TLabel.Create(FPhongShapeKindToolbar);
+    lbl.Layout := tlCenter;
+    lbl.Caption := 'Shape';
+    lbl.Width := FPhongShapeKindToolbar.ButtonWidth;
+    lbl.Height := FPhongShapeKindToolbar.ButtonHeight;
+    lbl.AutoSize := true;
+    AddToolbarControl(FPhongShapeKindToolbar, lbl);
+
     for sk := low(TPhongShapeKind) to high(TPhongShapeKind) do
       AddToolbarCheckButton(FPhongShapeKindToolbar, PhongShapeKindToStr[sk], ord(sk), @PhongShapeKindClick, FPhongShapeKind = sk, true, ord(sk));
     PanelExtendedStyle.InsertControl(FPhongShapeKindToolbar);
 
-    FUpDownPhongShapeAltitude := TBCTrackbarUpdown.Create(nil);
-    FUpDownPhongShapeAltitude.Left := nextControlPos.X;
-    FUpDownPhongShapeAltitude.Top := nextControlPos.Y+FPhongShapeKindToolbar.Height;
-    FUpDownPhongShapeAltitude.Width := UpDownPenWidth.Width;
-    FUpDownPhongShapeAltitude.Height:= UpDownPenWidth.Height;
-    FUpDownPhongShapeAltitude.MinValue := 0;
-    FUpDownPhongShapeAltitude.MaxValue := 100;
-    FUpDownPhongShapeAltitude.Value := round(FPhongShapeAltitude);
-    FUpDownPhongShapeAltitude.Hint := 'Altitude';
-    FUpDownPhongShapeAltitude.ShowHint:= true;
-    FUpDownPhongShapeAltitude.OnChange:=@OnPhongShapeAltitudeChange;
-    PanelExtendedStyle.InsertControl(FUpDownPhongShapeAltitude);
+    FPhongShapeKindToolbar2 := CreateToolBar(FVectorImageList);
+    FPhongShapeKindToolbar.ButtonHeight:= FPhongShapeKindToolbar2.ButtonHeight;
+    FPhongShapeKindToolbar2.Left := nextControlPos.X;
+    FPhongShapeKindToolbar2.Top := nextControlPos.Y + FFullIconHeight;
+    FPhongShapeKindToolbar2.Width := 250;
+    PanelExtendedStyle.InsertControl(FPhongShapeKindToolbar2);
 
-    FUpDownPhongBorderSize := TBCTrackbarUpdown.Create(nil);
-    FUpDownPhongBorderSize.Left := FUpDownPhongShapeAltitude.Left + FUpDownPhongShapeAltitude.Width + ControlMargin;
-    FUpDownPhongBorderSize.Top := nextControlPos.Y+FPhongShapeKindToolbar.Height;
-    FUpDownPhongBorderSize.Width := UpDownPenWidth.Width;
-    FUpDownPhongBorderSize.Height:= UpDownPenWidth.Height;
+    lbl := TLabel.Create(FPhongShapeKindToolbar2);
+    lbl.Layout := tlCenter;
+    lbl.Caption := 'Alt.';
+    lbl.Width := FPhongShapeKindToolbar2.ButtonWidth;
+    lbl.Height := FPhongShapeKindToolbar2.ButtonHeight;
+    lbl.AutoSize := true;
+    AddToolbarControl(FPhongShapeKindToolbar2, lbl);
+
+    upDownShapeAltitude := TBCTrackbarUpdown.Create(FPhongShapeKindToolbar2);
+    upDownShapeAltitude.Width := FPhongShapeKindToolbar2.ButtonWidth*2;
+    upDownShapeAltitude.Height:= FPhongShapeKindToolbar2.ButtonHeight;
+    upDownShapeAltitude.MinValue := 0;
+    upDownShapeAltitude.MaxValue := 100;
+    upDownShapeAltitude.Value := round(FPhongShapeAltitude);
+    upDownShapeAltitude.Hint := 'Altitude';
+    upDownShapeAltitude.ShowHint:= true;
+    upDownShapeAltitude.OnChange:=@OnPhongShapeAltitudeChange;
+    AddToolbarControl(FPhongShapeKindToolbar2, upDownShapeAltitude);
+
+    lbl := TLabel.Create(FPhongShapeKindToolbar2);
+    lbl.Layout := tlCenter;
+    lbl.Caption := 'Bord.';
+    lbl.Width := FPhongShapeKindToolbar2.ButtonWidth*2;
+    lbl.Height := FPhongShapeKindToolbar2.ButtonHeight;
+    lbl.AutoSize := true;
+    AddToolbarControl(FPhongShapeKindToolbar2, lbl);
+
+    FUpDownPhongBorderSize := TBCTrackbarUpdown.Create(FPhongShapeKindToolbar2);
+    FUpDownPhongBorderSize.Width := FPhongShapeKindToolbar2.ButtonWidth*2;
+    FUpDownPhongBorderSize.Height:= FPhongShapeKindToolbar2.ButtonHeight;
     FUpDownPhongBorderSize.MinValue := 0;
     FUpDownPhongBorderSize.MaxValue := 100;
     FUpDownPhongBorderSize.Value := round(FPhongBorderSize);
@@ -1289,11 +1331,18 @@ begin
     FUpDownPhongBorderSize.Hint := 'Border size';
     FUpDownPhongBorderSize.ShowHint:= true;
     FUpDownPhongBorderSize.OnChange:=@OnPhongBorderSizeChange;
-    PanelExtendedStyle.InsertControl(FUpDownPhongBorderSize);
+    AddToolbarControl(FPhongShapeKindToolbar2, FUpDownPhongBorderSize);
 
-    nextControlPos.X := FPhongShapeKindToolbar.Left + FPhongShapeKindToolbar.Width + ControlMargin;
+    w := max(GetToolbarSize(FPhongShapeKindToolbar,0).cx,
+             GetToolbarSize(FPhongShapeKindToolbar2,0).cx);
+    FPhongShapeKindToolbar.Width := w;
+    FPhongShapeKindToolbar2.Width := w;
+
+    nextControlPos.X := FPhongShapeKindToolbar.Left + max(FPhongShapeKindToolbar.Width, FPhongShapeKindToolbar2.Width);
   end;
-  PanelExtendedStyle.Width := nextControlPos.X;
+  PanelExtendedStyle.Width := nextControlPos.X+2;
+
+  AdjustToolbarTop;
 end;
 
 procedure TForm1.UpdateTitleBar;
@@ -1366,15 +1415,11 @@ begin
     PanelExtendedStyle.RemoveControl(FPhongShapeKindToolbar);
     FreeAndNil(FPhongShapeKindToolbar);
   end;
-  if Assigned(FUpDownPhongShapeAltitude) then
+  if Assigned(FPhongShapeKindToolbar2) then
   begin
-    PanelExtendedStyle.RemoveControl(FUpDownPhongShapeAltitude);
-    FreeAndNil(FUpDownPhongShapeAltitude);
-  end;
-  if Assigned(FUpDownPhongBorderSize) then
-  begin
-    PanelExtendedStyle.RemoveControl(FUpDownPhongBorderSize);
-    FreeAndNil(FUpDownPhongBorderSize);
+    PanelExtendedStyle.RemoveControl(FPhongShapeKindToolbar2);
+    FreeAndNil(FPhongShapeKindToolbar2);
+    FUpDownPhongBorderSize := nil;
   end;
 end;
 
@@ -1530,6 +1575,12 @@ begin
     UpdateShapePenFill;
     UpdatePenToolFillPoints;
   end;
+end;
+
+procedure TForm1.AdjustToolbarTop;
+begin
+  ToolBarTop.Height := GetToolbarSize(ToolBarTop,0).cy;
+  BCPanelToolbar.Height := ToolBarTop.Height;
 end;
 
 procedure TForm1.DoCopy;

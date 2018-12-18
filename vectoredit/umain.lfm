@@ -1,5 +1,5 @@
 object Form1: TForm1
-  Left = 606
+  Left = 605
   Height = 622
   Top = 0
   Width = 981
@@ -261,12 +261,13 @@ object Form1: TForm1
       Caption = 'ToolBarTop'
       EdgeInner = esNone
       EdgeOuter = esNone
+      Indent = 0
       TabOrder = 0
       object PanelFile: TBCPanel
-        Left = 1
+        Left = 0
         Height = 60
         Top = 0
-        Width = 64
+        Width = 62
         Background.Color = clBtnFace
         Background.ColorOpacity = 255
         Background.Gradient1.StartColor = clWhite
@@ -363,7 +364,7 @@ object Form1: TForm1
         end
       end
       object PanelBasicStyle: TBCPanel
-        Left = 216
+        Left = 213
         Height = 60
         Top = 0
         Width = 185
@@ -762,7 +763,7 @@ object Form1: TForm1
         end
       end
       object PanelBackFill: TBCPanel
-        Left = 401
+        Left = 398
         Height = 60
         Top = 0
         Width = 151
@@ -884,10 +885,10 @@ object Form1: TForm1
         end
       end
       object PanelShape: TBCPanel
-        Left = 552
+        Left = 549
         Height = 60
         Top = 0
-        Width = 122
+        Width = 120
         Background.Color = clBtnFace
         Background.ColorOpacity = 255
         Background.Gradient1.StartColor = clWhite
@@ -1004,7 +1005,7 @@ object Form1: TForm1
         end
       end
       object PanelExtendedStyle: TBCPanel
-        Left = 674
+        Left = 669
         Height = 60
         Top = 0
         Width = 162
@@ -1067,7 +1068,7 @@ object Form1: TForm1
         Visible = False
       end
       object PanelPenFill: TBCPanel
-        Left = 65
+        Left = 62
         Height = 60
         Top = 0
         Width = 151

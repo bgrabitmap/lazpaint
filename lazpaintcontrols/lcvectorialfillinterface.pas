@@ -589,9 +589,6 @@ begin
   FOnTextureChange:= nil;
 
   FToolbar := CreateToolBar(FImageList);
-  FToolbar.EdgeBorders:= [];
-  FToolbar.EdgeInner:= esNone;
-  FToolbar.EdgeOuter:= esNone;
   FToolbar.Wrapable := false;
   FButtonFillNone := AddToolbarCheckButton(FToolbar, 'No fill', 0, @ButtonFillChange, False, False);
   FButtonFillSolid := AddToolbarCheckButton(FToolbar, 'Solid color', 1, @ButtonFillChange, False, False);

@@ -23,7 +23,7 @@ procedure LoadToolbarImage(AImages: TImageList; AIndex: integer; AFilename: stri
 
 implementation
 
-uses BGRALazPaint, BGRABitmap, BGRABitmapTypes, math;
+uses BGRALazPaint, BGRABitmap, BGRABitmapTypes, math, Toolwin;
 
 function CreateToolBar(AImages: TImageList; AOwner: TComponent): TToolbar;
 begin
@@ -36,6 +36,9 @@ begin
   result.ButtonWidth := AImages.Width+5;
   result.ButtonHeight := AImages.Height+4;
   result.ParentColor := false;
+  result.EdgeBorders:= [];
+  result.EdgeInner:= esNone;
+  result.EdgeOuter:= esNone;
 end;
 
 function GetToolbarSize(AToolbar: TToolbar; APadding: integer = 1): TSize;
