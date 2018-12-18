@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 616
+  Left = 608
   Height = 622
-  Top = 92
+  Top = 0
   Width = 981
   Caption = 'Vector Edit'
   ClientHeight = 622
@@ -895,7 +895,7 @@ object Form1: TForm1
         Left = 285
         Height = 60
         Top = 0
-        Width = 70
+        Width = 151
         Background.Color = clBtnFace
         Background.ColorOpacity = 255
         Background.Gradient1.StartColor = clWhite
@@ -952,16 +952,6 @@ object Form1: TForm1
         Rounding.RoundY = 1
         Rounding.RoundOptions = []
         TabOrder = 2
-        object PanelBackFillIntf: TPanel
-          Left = 32
-          Height = 58
-          Top = 1
-          Width = 22
-          Align = alLeft
-          BevelOuter = bvNone
-          TabOrder = 0
-          OnResize = PanelBackFillIntfResize
-        end
         object PanelBackFillHead: TPanel
           Left = 1
           Height = 58
@@ -971,8 +961,7 @@ object Form1: TForm1
           BevelOuter = bvNone
           ClientHeight = 58
           ClientWidth = 31
-          TabOrder = 1
-          OnResize = PanelBackFillIntfResize
+          TabOrder = 0
           object LBack: TLabel
             Left = 0
             Height = 28
@@ -1014,9 +1003,18 @@ object Form1: TForm1
             end
           end
         end
+        object BackFillControl: TLCVectorialFillControl
+          Left = 32
+          Height = 58
+          Top = 1
+          Width = 117
+          AutoSize = True
+          Align = alLeft
+          ToolIconSize = 24
+        end
       end
       object PanelShape: TBCPanel
-        Left = 355
+        Left = 436
         Height = 60
         Top = 0
         Width = 122
@@ -1136,7 +1134,7 @@ object Form1: TForm1
         end
       end
       object PanelExtendedStyle: TBCPanel
-        Left = 477
+        Left = 558
         Height = 60
         Top = 0
         Width = 162

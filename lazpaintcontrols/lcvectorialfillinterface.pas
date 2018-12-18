@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Types,
-  Controls, StdCtrls, ComCtrls, Menus, Dialogs, ExtDlgs, ExtCtrls,
+  Controls, ComCtrls, Menus, Dialogs, ExtDlgs, ExtCtrls,
   BGRAImageList, BCTrackbarUpdown,
   BGRABitmap, BGRABitmapTypes, LCVectorialFill,
   BGRAGradientScanner, Graphics, BGRAGraphics;
@@ -65,6 +65,8 @@ type
 
     FToolbar: TToolBar;
     FImageList: TBGRAImageList;
+    FImageListLoaded: boolean;
+    FImageListSize: TSize;
 
     procedure AdjustToShapeClick(Sender: TObject);
     procedure ButtonFillChange(Sender: TObject);
@@ -75,7 +77,6 @@ type
     procedure ButtonLoadTextureClick(Sender: TObject);
     procedure ButtonSwapColorClick(Sender: TObject);
     procedure ButtonTexRepeatClick(Sender: TObject);
-    procedure LoadImageList(AImageListWidth,AImageListHeight: integer);
     procedure Changed;
     procedure OnClickBackGradType(ASender: TObject);
     procedure OnClickBackTexRepeat(ASender: TObject);
@@ -91,6 +92,7 @@ type
     procedure SetGradStartColor(AValue: TBGRAPixel);
     procedure SetGradRepetition(AValue: TBGRAGradientRepetition);
     procedure SetGradInterpolation(AValue: TBGRAColorInterpolation);
+    procedure SetImageListSize(AValue: TSize);
     procedure SetTexture(AValue: TBGRABitmap);
     procedure SetTextureRepetition(AValue: TTextureRepetition);
     procedure SetTextureOpacity(AValue: byte);
@@ -122,7 +124,8 @@ type
     constructor Create(AOwner: TComponent; AImageListWidth,AImageListHeight: Integer);
     destructor Destroy; override;
     procedure LoadTexture;
-    procedure AdjustControlSize;
+    procedure LoadImageList;
+    procedure ContainerSizeChanged;
     function GetTextureThumbnail(AWidth, AHeight: integer; ABackColor: TColor): TBitmap;
     property FillType: TVectorialFillType read FFillType write SetFillType;
     property SolidColor: TBGRAPixel read FSolidColor write SetSolidColor;
@@ -134,37 +137,50 @@ type
     property Texture: TBGRABitmap read FTexture write SetTexture;
     property TextureRepetition: TTextureRepetition read FTexRepetition write SetTextureRepetition;
     property TextureOpacity: byte read FTexOpacity write SetTextureOpacity;
+    property CanAdjustToShape: boolean read FCanAdjustToShape write SetCanAdjustToShape;
     property OnFillChange: TNotifyEvent read FOnFillChange write FOnFillChange;
     property OnTextureChange: TNotifyEvent read FOnTextureChange write FOnTextureChange;
     property OnAdjustToShape: TNotifyEvent read FOnAdjustToShape write FOnAdjustToShape;
-    property CanAdjustToShape: boolean read FCanAdjustToShape write SetCanAdjustToShape;
     property OnFillTypeChange: TNotifyEvent read FOnFillTypeChange write FOnFillTypeChange;
     property Container: TWinControl read FContainer write SetContainer;
+    property ImageListSize: TSize read FImageListSize write SetImageListSize;
     property PreferredSize: TSize read GetPreferredSize;
   end;
 
 implementation
 
-uses LCToolbars, Toolwin, BGRAThumbnail, LResources;
+uses LCToolbars, Toolwin, BGRAThumbnail, LResources,
+  LCVectorOriginal, LCVectorShapes, LCVectorPolyShapes;
 
 { TVectorialFillInterface }
 
-procedure TVectorialFillInterface.LoadImageList(AImageListWidth,
-  AImageListHeight: integer);
+procedure TVectorialFillInterface.LoadImageList;
 var
   i: Integer;
   lst: TStringList;
 begin
   if FImageList = nil then FImageList := TBGRAImageList.Create(self);
+  if FImageListLoaded and (FImageList.Width=FImageListSize.cx) and (FImageList.Height=FImageListSize.cy) then exit;
   FImageList.Clear;
-  FImageList.Width := AImageListWidth;
-  FImageList.Height := AImageListHeight;
+  FImageList.Width := FImageListSize.cx;
+  FImageList.Height := FImageListSize.cy;
 
   lst := TStringList.Create;
   lst.CommaText := GetResourceString('fillimages.lst');
   for i := 0 to lst.Count-1 do
     LoadToolbarImage(FImageList, i, lst[i]);
   lst.Free;
+
+  FImageListLoaded := true;
+  if Assigned(FToolbar) then
+  begin
+    SetToolbarImages(FToolbar, FImageList);
+    for i := 0 to FToolbar.ControlCount-1 do
+      if FToolbar.Controls[i] is TBCTrackbarUpdown then
+        FToolbar.Controls[i].Width := FToolbar.ButtonWidth*2
+      else if FToolbar.Controls[i] is TShape then
+        FToolbar.Controls[i].Width := FToolbar.ButtonWidth;
+  end;
 end;
 
 procedure TVectorialFillInterface.Changed;
@@ -229,17 +245,10 @@ begin
   end;
 end;
 
-procedure TVectorialFillInterface.AdjustControlSize;
+procedure TVectorialFillInterface.ContainerSizeChanged;
 begin
-  with PreferredSize do
-  begin
-    if Assigned(Container) then
-    begin
-      Container.Width := cx;
-      Container.Height := cy;
-    end;
-    FToolbar.Height := cy;
-  end;
+  FToolbar.Align:= alTop;
+  FToolbar.Height := FContainer.Height;
 end;
 
 procedure TVectorialFillInterface.SetFillType(AValue: TVectorialFillType);
@@ -311,8 +320,6 @@ begin
                            FButtonLoadTexture,FTexturePreview]);
     end;
   end;
-
-  AdjustControlSize;
 end;
 
 procedure TVectorialFillInterface.UpdateShapeSolidColor;
@@ -567,8 +574,9 @@ begin
   FTexOpacity:= 255;
   FCanAdjustToShape:= true;
 
-  FImageList := nil;
-  LoadImageList(AImageListWidth,AImageListHeight);
+  FImageList := TBGRAImageList.Create(self);
+  FImageListLoaded:= false;
+  FImageListSize := Size(AImageListWidth,AImageListHeight);
 
   FOpenPictureDlg := TOpenPictureDialog.Create(self);
   FColorDlg:= TColorDialog.Create(self);
@@ -700,8 +708,7 @@ begin
   if Assigned(FContainer) then
   begin
     FContainer.InsertControl(FToolBar);
-    FToolbar.Align:= alTop;
-    FToolbar.Height := FContainer.Height;
+    ContainerSizeChanged;
   end;
 end;
 
@@ -716,6 +723,13 @@ begin
   FCanAdjustToShape:=AValue;
   if FTextureInterfaceCreated then
     FButtonAdjustToTexture.Enabled := AValue;
+end;
+
+procedure TVectorialFillInterface.SetImageListSize(AValue: TSize);
+begin
+  if (FImageListSize.cx=AValue.cx) and (FImageListSize.cy=AValue.cy) then Exit;
+  FImageListSize:=AValue;
+  if FImageListLoaded then LoadImageList;
 end;
 
 procedure TVectorialFillInterface.AdjustToShapeClick(Sender: TObject);

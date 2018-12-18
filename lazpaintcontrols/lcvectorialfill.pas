@@ -42,8 +42,8 @@ type
       ANewCoord: TPointF; AShift: TShiftState);
     procedure TextureMoveYAxis({%H-}ASender: TObject; {%H-}APrevCoord,
       ANewCoord: TPointF; AShift: TShiftState);
-    procedure TextureStartMove(ASender: TObject; AIndex: integer;
-      AShift: TShiftState);
+    procedure TextureStartMove({%H-}ASender: TObject; {%H-}AIndex: integer;
+      {%H-}AShift: TShiftState);
   public
     constructor Create;
     procedure Clear;

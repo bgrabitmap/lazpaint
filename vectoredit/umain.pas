@@ -11,7 +11,7 @@ uses
   BCTrackbarUpdown, BCPanel, BCButton, BGRAVirtualScreen, BGRAImageList,
   BGRABitmap, BGRABitmapTypes, BGRAGraphics, BGRALazPaint, BGRALayerOriginal,
   BGRATransform, BGRAGradientScanner, LCVectorOriginal, LCVectorialFill,
-  LCVectorShapes, LCVectorPolyShapes, LCVectorialFillInterface;
+  LCVectorShapes, LCVectorPolyShapes, LCVectorialFillControl;
 
 const
   ToolIconSize = 36;
@@ -42,8 +42,8 @@ type
   TForm1 = class(TForm)
     ButtonMoveBackFillPoints: TToolButton;
     LBack: TLabel;
+    BackFillControl: TLCVectorialFillControl;
     PanelBackFillHead: TPanel;
-    PanelBackFillIntf: TPanel;
     ShapeSendToBack: TAction;
     ShapeBringToFront: TAction;
     ShapeMoveDown: TAction;
@@ -121,7 +121,7 @@ type
     procedure FileOpenExecute(Sender: TObject);
     procedure FileSaveAsExecute(Sender: TObject);
     procedure FileSaveExecute(Sender: TObject);
-    procedure PanelBackFillIntfResize(Sender: TObject);
+    procedure BackFillControlResize(Sender: TObject);
     procedure PanelFileResize(Sender: TObject);
     procedure PanelShapeResize(Sender: TObject);
    procedure ShapeBringToFrontExecute(Sender: TObject);
@@ -151,7 +151,6 @@ type
     FPenWidth: single;
     FPenStyle: TBGRAPenStyle;
     FPenJoinStyle: TPenJoinStyle;
-    FBackFillIntf: TVectorialFillInterface;
     FFlattened: TBGRABitmap;
     FLastEditorBounds: TRect;
     FUpdatingFromShape: boolean;
@@ -322,7 +321,7 @@ begin
   img.OnOriginalEditingChange:= @OnEditingChange;
   img.OnOriginalChange:= @OnOriginalChange;
 
-  zoom := AffineMatrixScale(20,20);
+  zoom := AffineMatrixScale(1,1);
   FPenStyleMenu := TPopupMenu.Create(nil);
   item:= TMenuItem.Create(FPenStyleMenu); item.Caption := PenStyleToStr[psClear];
   item.OnClick := @OnClickPenStyle;       item.Tag := ord(psClear);
@@ -334,11 +333,11 @@ begin
     FPenStyleMenu.Items.Add(item);
   end;
 
-  FBackFillIntf := TVectorialFillInterface.Create(nil, ActionIconSize,ActionIconSize);
-  FBackFillIntf.SolidColor := CSSDodgerBlue;
-  FBackFillIntf.OnFillChange:=@RequestBackFillUpdate;
-  FBackFillIntf.OnAdjustToShape:=@RequestBackFillAdjustToShape;
-  FBackFillIntf.Container := PanelBackFillIntf;
+  BackFillControl.ToolIconSize:= ActionIconSize;
+  BackFillControl.SolidColor := CSSDodgerBlue;
+  BackFillControl.OnFillChange:= @RequestBackFillUpdate;
+  BackFillControl.OnAdjustToShape:= @RequestBackFillAdjustToShape;
+  BackFillControl.OnResize:= @BackFillControlResize;
 
   FSplineStyleMenu := TPopupMenu.Create(nil);
   for ss := low(TSplineStyle) to high(TSplineStyle) do
@@ -560,14 +559,9 @@ begin
   end;
 end;
 
-procedure TForm1.PanelBackFillIntfResize(Sender: TObject);
+procedure TForm1.BackFillControlResize(Sender: TObject);
 begin
-  with FBackFillIntf.PreferredSize do
-  begin
-    PanelBackFillIntf.Width := cx;
-    PanelBackFillIntf.Height := cy;
-  end;
-  PanelBackFill.Width := PanelBackFillIntf.Left+PanelBackFillIntf.Width+1;
+  PanelBackFill.ClientWidth := PanelBackFillHead.Width+BackFillControl.Width+2;
 end;
 
 procedure TForm1.PanelFileResize(Sender: TObject);
@@ -686,7 +680,6 @@ end;
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
   RemoveExtendedStyleControls;
-  FBackFillIntf.Free;
   img.Free;
   FFlattened.Free;
   FPenStyleMenu.Free;
@@ -783,7 +776,7 @@ begin
     else UpdateToolbarFromShape(nil);
 
     if currentTool in [ptPolyline, ptCurve] then
-      FBackFillIntf.FillType := vftNone;
+      BackFillControl.FillType := vftNone;
   end;
 
   UpdateShapeUserMode;
@@ -1185,23 +1178,23 @@ begin
 
     if vsfBackFill in f then
     begin
-      FBackFillIntf.FillType := AShape.BackFill.FillType;
-      case FBackFillIntf.FillType of
+      BackFillControl.FillType := AShape.BackFill.FillType;
+      case BackFillControl.FillType of
         vftTexture:
           begin
             texSource := AShape.BackFill.Texture;
-            if Assigned(texSource) then FBackFillIntf.Texture := texSource;
-            FBackFillIntf.TextureOpacity:= AShape.BackFill.TextureOpacity;
-            FBackFillIntf.TextureRepetition:= AShape.BackFill.TextureRepetition;
+            if Assigned(texSource) then BackFillControl.Texture := texSource;
+            BackFillControl.TextureOpacity:= AShape.BackFill.TextureOpacity;
+            BackFillControl.TextureRepetition:= AShape.BackFill.TextureRepetition;
           end;
-        vftSolid: FBackFillIntf.SolidColor := AShape.BackFill.SolidColor;
+        vftSolid: BackFillControl.SolidColor := AShape.BackFill.SolidColor;
         vftGradient:
           begin
-            FBackFillIntf.GradStartColor := AShape.BackFill.Gradient.StartColor;
-            FBackFillIntf.GradEndColor := AShape.BackFill.Gradient.EndColor;
-            FBackFillIntf.GradientType:= AShape.BackFill.Gradient.GradientType;
-            FBackFillIntf.GradRepetition:= AShape.BackFill.Gradient.Repetition;
-            FBackFillIntf.GradInterpolation := AShape.BackFill.Gradient.ColorInterpolation;
+            BackFillControl.GradStartColor := AShape.BackFill.Gradient.StartColor;
+            BackFillControl.GradEndColor := AShape.BackFill.Gradient.EndColor;
+            BackFillControl.GradientType:= AShape.BackFill.Gradient.GradientType;
+            BackFillControl.GradRepetition:= AShape.BackFill.Gradient.Repetition;
+            BackFillControl.GradInterpolation := AShape.BackFill.Gradient.ColorInterpolation;
           end;
       end;
     end;
@@ -1341,7 +1334,7 @@ begin
   if not IsCreateShapeTool(currentTool) then
     raise exception.Create('No shape type selected');
   result := PaintToolClass[currentTool].Create(vectorOriginal);
-  if (result is TCustomPolypointShape) and (FBackFillIntf.FillType = vftGradient) then FBackFillIntf.FillType := vftSolid;
+  if (result is TCustomPolypointShape) and (BackFillControl.FillType = vftGradient) then BackFillControl.FillType := vftSolid;
   result.PenColor := penColor;
   result.PenWidth := penWidth;
   result.PenStyle := penStyle;
@@ -1373,26 +1366,26 @@ var
   rF: TRectF;
   sx,sy: single;
 begin
-  if FBackFillIntf.FillType = vftSolid then
-    result := TVectorialFill.CreateAsSolid(FBackFillIntf.SolidColor)
-  else if (FBackFillIntf.FillType = vftTexture) and Assigned(FBackFillIntf.Texture) then
+  if BackFillControl.FillType = vftSolid then
+    result := TVectorialFill.CreateAsSolid(BackFillControl.SolidColor)
+  else if (BackFillControl.FillType = vftTexture) and Assigned(BackFillControl.Texture) then
   begin
     rF := AShape.GetRenderBounds(InfiniteRect,AffineMatrixIdentity,[rboAssumeBackFill]);
-    if not (FBackFillIntf.TextureRepetition in [trRepeatX,trRepeatBoth]) and (rF.Width <> 0) and (FBackFillIntf.Texture.Width > 0) then
-      sx:= rF.Width/FBackFillIntf.Texture.Width else sx:= 1;
-    if not (FBackFillIntf.TextureRepetition in [trRepeatY,trRepeatBoth]) and (rF.Height <> 0) and (FBackFillIntf.Texture.Height > 0) then
-      sy:= rF.Height/FBackFillIntf.Texture.Height else sy:= 1;
+    if not (BackFillControl.TextureRepetition in [trRepeatX,trRepeatBoth]) and (rF.Width <> 0) and (BackFillControl.Texture.Width > 0) then
+      sx:= rF.Width/BackFillControl.Texture.Width else sx:= 1;
+    if not (BackFillControl.TextureRepetition in [trRepeatY,trRepeatBoth]) and (rF.Height <> 0) and (BackFillControl.Texture.Height > 0) then
+      sy:= rF.Height/BackFillControl.Texture.Height else sy:= 1;
 
-    result := TVectorialFill.CreateAsTexture(FBackFillIntf.Texture,
+    result := TVectorialFill.CreateAsTexture(BackFillControl.Texture,
                  AffineMatrixTranslation(rF.TopLeft.x,rF.TopLeft.y)*
                  AffineMatrixScale(sx,sy),
-                 FBackFillIntf.TextureOpacity, FBackFillIntf.TextureRepetition);
+                 BackFillControl.TextureOpacity, BackFillControl.TextureRepetition);
   end
-  else if FBackFillIntf.FillType = vftGradient then
+  else if BackFillControl.FillType = vftGradient then
   begin
     grad := TBGRALayerGradientOriginal.Create;
-    grad.StartColor := FBackFillIntf.GradStartColor;
-    grad.EndColor := FBackFillIntf.GradEndColor;
+    grad.StartColor := BackFillControl.GradStartColor;
+    grad.EndColor := BackFillControl.GradEndColor;
     if Assigned(AShape) then
     begin
       rF := AShape.GetRenderBounds(rect(0,0,img.Width,img.Height),vectorTransform,[rboAssumeBackFill]);
@@ -1400,9 +1393,9 @@ begin
     end
     else
       rF := rectF(0,0,img.Width,img.Height);
-    grad.GradientType:= FBackFillIntf.GradientType;
-    grad.Repetition := FBackFillIntf.GradRepetition;
-    grad.ColorInterpolation:= FBackFillIntf.GradInterpolation;
+    grad.GradientType:= BackFillControl.GradientType;
+    grad.Repetition := BackFillControl.GradRepetition;
+    grad.ColorInterpolation:= BackFillControl.GradInterpolation;
     if grad.GradientType = gtLinear then
     begin
       grad.Origin := rF.TopLeft;
@@ -1456,7 +1449,7 @@ procedure TForm1.UpdateBackToolFillPoints;
 var
   canEdit: Boolean;
 begin
-  canEdit := (FBackFillIntf.FillType in[vftGradient,vftTexture]) and
+  canEdit := (BackFillControl.FillType in[vftGradient,vftTexture]) and
     Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape);
   ButtonMoveBackFillPoints.Enabled := canEdit;
   if (currentTool = ptMoveBackFillPoint) and not canEdit then currentTool:= ptHand;
@@ -1469,21 +1462,21 @@ begin
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
     (vsfBackFill in vectorOriginal.SelectedShape.Fields) then
   begin
-    if (FBackFillIntf.FillType = vftTexture) and (FBackFillIntf.TextureOpacity = 0) then
+    if (BackFillControl.FillType = vftTexture) and (BackFillControl.TextureOpacity = 0) then
       vectorFill := nil else
-    if (FBackFillIntf.FillType = vftTexture) and (vectorOriginal.SelectedShape.BackFill.FillType = vftTexture) then
+    if (BackFillControl.FillType = vftTexture) and (vectorOriginal.SelectedShape.BackFill.FillType = vftTexture) then
     begin
-      vectorFill := TVectorialFill.CreateAsTexture(FBackFillIntf.Texture, vectorOriginal.SelectedShape.BackFill.TextureMatrix,
-                                                   FBackFillIntf.TextureOpacity, FBackFillIntf.TextureRepetition);
+      vectorFill := TVectorialFill.CreateAsTexture(BackFillControl.Texture, vectorOriginal.SelectedShape.BackFill.TextureMatrix,
+                                                   BackFillControl.TextureOpacity, BackFillControl.TextureRepetition);
     end
-    else if (FBackFillIntf.FillType = vftGradient) and (vectorOriginal.SelectedShape.BackFill.FillType = vftGradient) then
+    else if (BackFillControl.FillType = vftGradient) and (vectorOriginal.SelectedShape.BackFill.FillType = vftGradient) then
     begin
       vectorFill := vectorOriginal.SelectedShape.BackFill.Duplicate;
-      vectorFill.Gradient.StartColor := FBackFillIntf.GradStartColor;
-      vectorFill.Gradient.EndColor := FBackFillIntf.GradEndColor;
-      vectorFill.Gradient.GradientType := FBackFillIntf.GradientType;
-      vectorFill.Gradient.Repetition := FBackFillIntf.GradRepetition;
-      vectorFill.Gradient.ColorInterpolation:= FBackFillIntf.GradInterpolation;
+      vectorFill.Gradient.StartColor := BackFillControl.GradStartColor;
+      vectorFill.Gradient.EndColor := BackFillControl.GradEndColor;
+      vectorFill.Gradient.GradientType := BackFillControl.GradientType;
+      vectorFill.Gradient.Repetition := BackFillControl.GradRepetition;
+      vectorFill.Gradient.ColorInterpolation:= BackFillControl.GradInterpolation;
     end else
       vectorFill := CreateBackFill(vectorOriginal.SelectedShape);
 
@@ -1519,7 +1512,7 @@ begin
   EditCopy.Enabled := AShape <> nil;
   EditCut.Enabled := AShape <> nil;
   EditDelete.Enabled := AShape <> nil;
-  FBackFillIntf.CanAdjustToShape := AShape <> nil;
+  BackFillControl.CanAdjustToShape := AShape <> nil;
 end;
 
 procedure TForm1.RemoveShapeIfEmpty(AShape: TVectorShape);

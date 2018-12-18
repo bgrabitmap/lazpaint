@@ -20,7 +20,6 @@ const
 
 procedure MakeResource(AVectorImagesPath: string; AListFile: string; AResourceFile: string; ACombinedImage: string);
 var
-  path: String;
   search: TSearchRec;
   res: TMultiFileContainer;
   fs: TFileStreamUTF8;
@@ -30,13 +29,16 @@ var
   mem: TMemoryStreamUTF8;
   combineList: TStringListUTF8;
 begin
-  path := StringReplace(AVectorImagesPath,'/',PathDelim,[rfReplaceAll]);
-  if FindFirstUTF8(path+'*.lzp', faAnyFile, search)=0 then
+  AVectorImagesPath := StringReplace(AVectorImagesPath,'/',PathDelim,[rfReplaceAll]);
+  AListFile := StringReplace(AListFile,'/',PathDelim,[rfReplaceAll]);
+  AResourceFile := StringReplace(AResourceFile,'/',PathDelim,[rfReplaceAll]);
+  ACombinedImage := StringReplace(ACombinedImage,'/',PathDelim,[rfReplaceAll]);
+  if FindFirstUTF8(AVectorImagesPath+'*.lzp', faAnyFile, search)=0 then
   begin
     res := TLazResourceContainer.Create;
     writeln('Adding files to resource...');
     repeat
-      fs := TFileStreamUTF8.Create(path+search.name, fmOpenRead);
+      fs := TFileStreamUTF8.Create(AVectorImagesPath+search.name, fmOpenRead);
       res.Add(EntryFilename(search.name), fs, false, false);
       fs.Free;
       writeln(search.Name);
@@ -54,7 +56,7 @@ begin
     end;
     for i := combineList.Count-1 downto 0 do
       if combineList[i]='' then combineList.Delete(i);
-    res.RawStringByFilename[AListFile] := combineList.CommaText;
+    res.RawStringByFilename[ExtractFilename(AListFile)] := combineList.CommaText;
 
     res.SaveToFile(AResourceFile);
     writeln('Done Resource');
@@ -89,6 +91,6 @@ end;
 
 begin
   MakeResource('../lazpaint/buttons/vector/', 'vectorimages.lst', 'vectorimages.lrs', 'vectorimages'+inttostr(imgHeight)+'.png');
-  MakeResource('../lazpaint/buttons/vector/fill/', 'fillimages.lst', 'fillimages.lrs', 'fillimages'+inttostr(imgHeight)+'.png');
+  MakeResource('../lazpaint/buttons/vector/fill/', '../lazpaintcontrols/fillimages.lst', '../lazpaintcontrols/fillimages.lrs', '../lazpaintcontrols/fillimages'+inttostr(imgHeight)+'.png');
 end.
 

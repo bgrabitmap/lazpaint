@@ -98,6 +98,7 @@ type
     procedure SetShapeAltitudePercent(AValue: single);
     procedure SetShapeKind(AValue: TPhongShapeKind);
     function BackVisible: boolean;
+  protected
     function AllowShearTransform: boolean; override;
   public
     constructor Create(AContainer: TVectorOriginal); override;

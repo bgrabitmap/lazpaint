@@ -8,10 +8,8 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms, umain, 
-  LCVectororiginal, LCVectorialFill, LCVectorshapes, LCVectorPolyShapes,
   uvectorclipboard,
-  LResources, LCToolbars
-  { you can add units after this };
+  LResources;
 
 {$R *.res}
 

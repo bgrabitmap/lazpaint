@@ -27,18 +27,21 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="3">
+    <RequiredPackages Count="4">
       <Item1>
-        <PackageName Value="BGRABitmapPack"/>
+        <PackageName Value="lazpaintcontrols"/>
       </Item1>
       <Item2>
-        <PackageName Value="bgracontrols"/>
+        <PackageName Value="BGRABitmapPack"/>
       </Item2>
       <Item3>
-        <PackageName Value="LCL"/>
+        <PackageName Value="bgracontrols"/>
       </Item3>
+      <Item4>
+        <PackageName Value="LCL"/>
+      </Item4>
     </RequiredPackages>
-    <Units Count="9">
+    <Units Count="4">
       <Unit0>
         <Filename Value="vectoredit.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -51,39 +54,14 @@
         <ResourceBaseClass Value="Form"/>
       </Unit1>
       <Unit2>
-        <Filename Value="lcvectororiginal.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="LCVectorOriginal"/>
-      </Unit2>
-      <Unit3>
-        <Filename Value="lcvectorialfill.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="LCVectorialFill"/>
-      </Unit3>
-      <Unit4>
-        <Filename Value="lcvectorshapes.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="LCVectorShapes"/>
-      </Unit4>
-      <Unit5>
         <Filename Value="uvectorclipboard.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit5>
-      <Unit6>
+      </Unit2>
+      <Unit3>
         <Filename Value="../lazpaint/uscaledpi.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UScaleDPI"/>
-      </Unit6>
-      <Unit7>
-        <Filename Value="lcvectorpolyshapes.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="LCVectorPolyShapes"/>
-      </Unit7>
-      <Unit8>
-        <Filename Value="lctoolbars.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="LCToolbars"/>
-      </Unit8>
+      </Unit3>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

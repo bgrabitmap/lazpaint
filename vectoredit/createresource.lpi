@@ -27,37 +27,22 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="2">
+    <RequiredPackages Count="3">
       <Item1>
-        <PackageName Value="BGRABitmapPack"/>
+        <PackageName Value="lazpaintcontrols"/>
       </Item1>
       <Item2>
-        <PackageName Value="LCL"/>
+        <PackageName Value="BGRABitmapPack"/>
       </Item2>
+      <Item3>
+        <PackageName Value="LCL"/>
+      </Item3>
     </RequiredPackages>
-    <Units Count="5">
+    <Units Count="1">
       <Unit0>
         <Filename Value="createresource.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
-      <Unit1>
-        <Filename Value="lcvectorialfill.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit1>
-      <Unit2>
-        <Filename Value="lcvectororiginal.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="LCVectorOriginal"/>
-      </Unit2>
-      <Unit3>
-        <Filename Value="lcvectorpolyshapes.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit3>
-      <Unit4>
-        <Filename Value="lcvectorshapes.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="LCVectorShapes"/>
-      </Unit4>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
