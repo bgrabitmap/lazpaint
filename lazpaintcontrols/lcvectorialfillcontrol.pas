@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Controls, LCVectorialFillInterface,
-  LCVectorialFill, BGRABitmap, BGRABitmapTypes, BGRAGradientScanner;
+  LCVectorialFill, BGRABitmap, BGRABitmapTypes, BGRAGradientScanner,
+  LCVectorOriginal;
 
 type
   { TLCVectorialFillControl }
@@ -53,6 +54,9 @@ type
   public
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
+    procedure AssignFill(AFill: TVectorialFill);
+    function CreateShapeFill(AShape: TVectorShape): TVectorialFill;
+    procedure UpdateShapeFill(AShape: TVectorShape);
     property FillType: TVectorialFillType read GetFillType write SetFillType;
     property SolidColor: TBGRAPixel read GetSolidColor write SetSolidColor;
     property GradientType: TGradientType read GetGradType write SetGradientType;
@@ -266,6 +270,21 @@ destructor TLCVectorialFillControl.Destroy;
 begin
   FreeAndNil(FInterface);
   inherited Destroy;
+end;
+
+procedure TLCVectorialFillControl.AssignFill(AFill: TVectorialFill);
+begin
+  FInterface.AssignFill(AFill);
+end;
+
+function TLCVectorialFillControl.CreateShapeFill(AShape: TVectorShape): TVectorialFill;
+begin
+  result := FInterface.CreateShapeFill(AShape);
+end;
+
+procedure TLCVectorialFillControl.UpdateShapeFill(AShape: TVectorShape);
+begin
+  FInterface.UpdateShapeFill(AShape);
 end;
 
 end.

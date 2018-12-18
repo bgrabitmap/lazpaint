@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, Types,
   Controls, ComCtrls, Menus, Dialogs, ExtDlgs, ExtCtrls,
   BGRAImageList, BCTrackbarUpdown,
-  BGRABitmap, BGRABitmapTypes, LCVectorialFill,
+  BGRABitmap, BGRABitmapTypes, LCVectorialFill, LCVectorOriginal,
   BGRAGradientScanner, Graphics, BGRAGraphics;
 
 const
@@ -127,6 +127,9 @@ type
     procedure LoadImageList;
     procedure ContainerSizeChanged;
     function GetTextureThumbnail(AWidth, AHeight: integer; ABackColor: TColor): TBitmap;
+    procedure AssignFill(AFill: TVectorialFill);
+    function CreateShapeFill(AShape: TVectorShape): TVectorialFill;
+    procedure UpdateShapeFill(AShape: TVectorShape);
     property FillType: TVectorialFillType read FFillType write SetFillType;
     property SolidColor: TBGRAPixel read FSolidColor write SetSolidColor;
     property GradientType: TGradientType read FGradType write SetGradientType;
@@ -150,7 +153,8 @@ type
 implementation
 
 uses LCToolbars, Toolwin, BGRAThumbnail, LResources,
-  LCVectorOriginal, LCVectorShapes, LCVectorPolyShapes;
+  LCVectorShapes, LCVectorPolyShapes,
+  BGRAGradientOriginal, BGRATransform;
 
 { TVectorialFillInterface }
 
@@ -838,6 +842,110 @@ begin
   finally
     thumb.Free;
   end;
+end;
+
+procedure TVectorialFillInterface.AssignFill(AFill: TVectorialFill);
+begin
+  FillType := AFill.FillType;
+  case FillType of
+    vftTexture:
+      begin
+        Texture := AFill.Texture;
+        TextureOpacity:= AFill.TextureOpacity;
+        TextureRepetition:= AFill.TextureRepetition;
+      end;
+    vftSolid: SolidColor := AFill.SolidColor;
+    vftGradient:
+      begin
+        GradStartColor := AFill.Gradient.StartColor;
+        GradEndColor := AFill.Gradient.EndColor;
+        GradientType:= AFill.Gradient.GradientType;
+        GradRepetition:= AFill.Gradient.Repetition;
+        GradInterpolation := AFill.Gradient.ColorInterpolation;
+      end;
+  end;
+end;
+
+function TVectorialFillInterface.CreateShapeFill(AShape: TVectorShape): TVectorialFill;
+var
+  grad: TBGRALayerGradientOriginal;
+  rF: TRectF;
+  sx,sy: single;
+begin
+  if FillType = vftSolid then
+    result := TVectorialFill.CreateAsSolid(SolidColor)
+  else if (FillType = vftTexture) and Assigned(Texture) then
+  begin
+    rF := AShape.GetRenderBounds(InfiniteRect,AffineMatrixIdentity,[rboAssumeBackFill]);
+    if not (TextureRepetition in [trRepeatX,trRepeatBoth]) and (rF.Width <> 0) and (Texture.Width > 0) then
+      sx:= rF.Width/Texture.Width else sx:= 1;
+    if not (TextureRepetition in [trRepeatY,trRepeatBoth]) and (rF.Height <> 0) and (Texture.Height > 0) then
+      sy:= rF.Height/Texture.Height else sy:= 1;
+
+    result := TVectorialFill.CreateAsTexture(Texture,
+                 AffineMatrixTranslation(rF.TopLeft.x,rF.TopLeft.y)*
+                 AffineMatrixScale(sx,sy),
+                 TextureOpacity, TextureRepetition);
+  end
+  else if FillType = vftGradient then
+  begin
+    if Assigned(AShape) then
+    begin
+      rF := AShape.GetRenderBounds(InfiniteRect,AffineMatrixIdentity,[rboAssumeBackFill]);
+      if IsEmptyRectF(rF) then exit(nil);
+    end
+    else
+      exit(nil);
+    grad := TBGRALayerGradientOriginal.Create;
+    grad.StartColor := GradStartColor;
+    grad.EndColor := GradEndColor;
+    grad.GradientType:= GradientType;
+    grad.Repetition := GradRepetition;
+    grad.ColorInterpolation:= GradInterpolation;
+    if grad.GradientType = gtLinear then
+    begin
+      grad.Origin := rF.TopLeft;
+      grad.XAxis := rF.BottomRight;
+    end else
+    begin
+      grad.Origin := (rF.TopLeft + rF.BottomRight)*0.5;
+      if grad.GradientType = gtReflected then
+        grad.XAxis := rF.BottomRight
+      else
+      begin
+        grad.XAxis := PointF(rF.Right,grad.Origin.y);
+        grad.YAxis := PointF(grad.Origin.x,rF.Bottom);
+      end;
+    end;
+    result := TVectorialFill.CreateAsGradient(grad, true);
+  end
+  else result := nil; //none
+end;
+
+procedure TVectorialFillInterface.UpdateShapeFill(AShape: TVectorShape);
+var
+  vectorFill: TVectorialFill;
+begin
+  if (FillType = vftTexture) and (TextureOpacity = 0) then
+    vectorFill := nil else
+  if (FillType = vftTexture) and (AShape.BackFill.FillType = vftTexture) then
+  begin
+    vectorFill := TVectorialFill.CreateAsTexture(Texture, AShape.BackFill.TextureMatrix,
+                                                 TextureOpacity, TextureRepetition);
+  end
+  else if (FillType = vftGradient) and (AShape.BackFill.FillType = vftGradient) then
+  begin
+    vectorFill := AShape.BackFill.Duplicate;
+    vectorFill.Gradient.StartColor := GradStartColor;
+    vectorFill.Gradient.EndColor := GradEndColor;
+    vectorFill.Gradient.GradientType := GradientType;
+    vectorFill.Gradient.Repetition := GradRepetition;
+    vectorFill.Gradient.ColorInterpolation:= GradInterpolation;
+  end else
+    vectorFill := CreateShapeFill(AShape);
+
+  AShape.BackFill:= vectorFill;
+  vectorFill.Free;
 end;
 
 begin
