@@ -867,7 +867,7 @@ begin
   matFile := ChangeFileExt(filenameUTF8,'.mtl');
   if FileManager.FileExists(matFile) then
   begin
-    s := FileManager.CreateFileStream(matFile, fmOpenRead or fmShareDenyRead);
+    s := FileManager.CreateFileStream(matFile, fmOpenRead);
     try
       scene.LoadMaterialsFromStream(s);
     finally
@@ -876,7 +876,7 @@ begin
     for i := 0 to scene.MaterialCount-1 do
       scene.QueryTextureReference(scene.Material[i].Texture);
   end;
-  s := FileManager.CreateFileStream(filenameUTF8, fmOpenRead or fmShareDenyRead);
+  s := FileManager.CreateFileStream(filenameUTF8, fmOpenRead);
   try
     obj := scene.LoadObjectFromStream(s);
   finally
