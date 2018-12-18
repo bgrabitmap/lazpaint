@@ -96,6 +96,7 @@ begin
   res.Free;
   mem.Position:= 0;
   iconImg.LoadFromStream(mem);
+  mem.Free;
   iconImg.Resample(AImages.Width,AImages.Height,rmFineResample,rfBestQuality);
   iconFlat := TBGRABitmap.Create(iconImg.Width,iconImg.Height);
   iconImg.Draw(iconFlat,0,0);
