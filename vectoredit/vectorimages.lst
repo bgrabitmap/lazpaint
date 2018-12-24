@@ -11,3 +11,11 @@ paste32.LZP
 cut32.LZP
 delete32.LZP
 movegradpoint32.LZP
+phongrect32.LZP
+phongroundrect32.LZP
+phonghalfsphere32.LZP
+phongconetop32.LZP
+phongconeside32.LZP
+phonghorizcylinder32.LZP
+phongvertcylinder32.LZP
+

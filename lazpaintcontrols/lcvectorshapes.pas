@@ -1031,6 +1031,8 @@ begin
     if IntersectRect(rectRaster, rectRaster, rect(0,0,mapWidth,mapHeight)) then
     try
       shader:= TPhongShading.Create;
+      shader.AmbientFactor := 0.5;
+      shader.NegativeDiffusionFactor := 0.15;
       lightPosF := AffineMatrixTranslation(-rectRaster.Left,-rectRaster.Top)
                     *AffineMatrixInverse(m)*AMatrix
                     *PointF(FLightPosition.x,FLightPosition.y);

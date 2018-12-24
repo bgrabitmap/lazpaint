@@ -5,17 +5,19 @@ unit LCToolbars;
 interface
 
 uses
-  Classes, SysUtils, Controls, ComCtrls, Types, LResources;
+  Classes, SysUtils, Controls, ComCtrls, Types, LResources, StdCtrls, BCTrackbarUpdown;
 
 function CreateToolBar(AImages: TImageList; AOwner: TComponent = nil): TToolbar;
 function GetToolbarSize(AToolbar: TToolbar; APadding: integer = 1): TSize;
 procedure SetToolbarImages(AToolbar: TToolbar; AImages: TImageList);
 procedure EnableDisableToolButtons(AButtons: array of TToolButton; AEnabled: boolean);
 procedure ShowAppendToolButtons(AButtons: array of TControl);
+function AddToolbarLabel(AToolbar: TToolbar; ACaption: string; AExistingContainer: TCustomControl): TLabel;
 function AddToolbarCheckButton(AToolbar: TToolbar; ACaption: string; AImageIndex: integer;
           AOnClick: TNotifyEvent; ADown: boolean; AGrouped: boolean = true; ATag: PtrInt = 0): TToolButton;
 function AddToolbarButton(AToolbar: TToolbar; ACaption: string; AImageIndex: integer;
           AOnClick: TNotifyEvent; ATag: PtrInt = 0): TToolButton;
+function AddToolbarUpDown(AToolbar: TToolbar; ACaption: string; AMin,AMax,AValue: Integer; AOnChange: TTrackBarUpDownChangeEvent): TBCTrackbarUpdown;
 procedure AddToolbarControl(AToolbar: TToolbar; AControl: TControl);
 function GetResourceStream(AFilename: string): TLazarusResourceStream;
 function GetResourceString(AFilename: string): string;
@@ -111,6 +113,22 @@ begin
   iconImg.Free;
 end;
 
+function AddToolbarLabel(AToolbar: TToolbar; ACaption: string;
+  AExistingContainer: TCustomControl): TLabel;
+var
+  lbl: TLabel;
+begin
+  lbl := TLabel.Create(AToolbar);
+  lbl.AutoSize:= false;
+  lbl.Alignment:= taCenter;
+  lbl.Layout := tlCenter;
+  lbl.Caption := ACaption;
+  lbl.Width := AExistingContainer.Canvas.TextWidth(lbl.Caption)+(AToolbar.ButtonHeight div 4);
+  lbl.Height := AToolbar.ButtonHeight;
+  AddToolbarControl(AToolbar, lbl);
+  result := lbl;
+end;
+
 function AddToolbarCheckButton(AToolbar: TToolbar; ACaption: string; AImageIndex: integer;
           AOnClick: TNotifyEvent; ADown: boolean; AGrouped: boolean = true; ATag: PtrInt = 0): TToolButton;
 var
@@ -124,9 +142,8 @@ begin
   btn.Down:= ADown;
   btn.Grouped := AGrouped;
   btn.OnClick:= AOnClick;
-  btn.Left:= AToolbar.ButtonCount*AToolbar.ButtonWidth;
-  btn.Parent := AToolbar;
   btn.Tag:= ATag;
+  AddToolbarControl(AToolbar, btn);
   result := btn;
 end;
 
@@ -141,16 +158,48 @@ begin
   btn.Hint := ACaption;
   btn.ImageIndex := AImageIndex;
   btn.OnClick:= AOnClick;
-  btn.Left:= AToolbar.ControlCount*AToolbar.ButtonWidth;
-  btn.Parent := AToolbar;
   btn.Tag:= ATag;
+  AddToolbarControl(AToolbar, btn);
   result := btn;
 end;
 
-procedure AddToolbarControl(AToolbar: TToolbar; AControl: TControl);
+function AddToolbarUpDown(AToolbar: TToolbar; ACaption: string; AMin,
+  AMax, AValue: Integer; AOnChange: TTrackBarUpDownChangeEvent): TBCTrackbarUpdown;
 begin
-  AControl.Left := AToolbar.ControlCount*AToolbar.ButtonWidth;
-  AToolbar.InsertControl(AControl);
+  result := TBCTrackbarUpdown.Create(AToolbar);
+  result.Width := AToolbar.ButtonWidth*2;
+  result.Height:= AToolbar.ButtonHeight;
+  result.MinValue := AMin;
+  result.MaxValue := AMax;
+  result.Value := AValue;
+  result.Hint := ACaption;
+  result.ShowHint:= true;
+  result.OnChange:= AOnChange;
+  AddToolbarControl(AToolbar, result);
+end;
+
+procedure AddToolbarControl(AToolbar: TToolbar; AControl: TControl);
+var
+  x,y, i: Integer;
+begin
+  x := AToolbar.Indent;
+  y := 0;
+  for i := 0 to AToolbar.ControlCount-1 do
+  begin
+    if AToolbar.Controls[i] is TToolButton then
+    begin
+      inc(x, AToolbar.ButtonWidth);
+      if TToolButton(AToolbar.Controls[i]).Wrap then
+      begin
+        x := 0;
+        inc(y, AToolbar.ButtonHeight);
+      end;
+    end
+    else inc(x, AToolbar.Controls[i].Width);
+  end;
+  AControl.Left := x;
+  AControl.Top := y;
+  AControl.Parent := AToolbar;
 end;
 
 procedure EnableDisableToolButtons(AButtons: array of TToolButton; AEnabled: boolean);

@@ -72,7 +72,6 @@ type
     PanelExtendedStyle: TBCPanel;
     PanelFile: TBCPanel;
     PanelShape: TBCPanel;
-    PhongImageList: TBGRAImageList;
     PenStyleImageList: TBGRAImageList;
     CurveImageList: TBGRAImageList;
     ToolBarFile: TToolBar;
@@ -114,6 +113,8 @@ type
     UpDownPenWidth: TBCTrackbarUpdown;
     procedure BCPanelToolbarResize(Sender: TObject);
     procedure BCPanelToolChoiceResize(Sender: TObject);
+    procedure BGRAVirtualScreen1MouseWheel(Sender: TObject; Shift: TShiftState;
+      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure ButtonPenStyleClick(Sender: TObject);
     procedure EditCopyExecute(Sender: TObject);
     procedure EditCutExecute(Sender: TObject);
@@ -162,7 +163,7 @@ type
     FSplineToolbar: TToolBar;
     FPenStyleMenu: TPopupMenu;
     FPhongShapeKind: TPhongShapeKind;
-    FPhongShapeKindToolbar, FPhongShapeKindToolbar2: TToolBar;
+    FPhongShapeKindToolbar: TToolBar;
     FUpDownPhongBorderSize: TBCTrackbarUpdown;
     FPhongShapeAltitude,FPhongBorderSize: single;
     FInRemoveShapeIfEmpty: Boolean;
@@ -192,6 +193,7 @@ type
     procedure SetPenWidth(AValue: single);
     procedure SetPhongShapeKind(AValue: TPhongShapeKind);
     procedure SetSplineStyle(AValue: TSplineStyle);
+    procedure SetZoomFactor(AValue: single);
     procedure SplineToolbarClick(Sender: TObject);
     procedure UpdateViewCursor(ACursor: TOriginalEditorCursor);
     procedure RenderAndUpdate(ADraft: boolean);
@@ -240,7 +242,7 @@ type
     property currentTool: TPaintTool read FCurrentTool write SetCurrentTool;
     property joinStyle: TPenJoinStyle read FPenJoinStyle write SetPenJoinStyle;
     property phongShapeKind: TPhongShapeKind read FPhongShapeKind write SetPhongShapeKind;
-    property zoomFactor: single read GetZoomFactor;
+    property zoomFactor: single read GetZoomFactor write SetZoomFactor;
   end;
 
 var
@@ -272,6 +274,10 @@ var
   i: Integer;
 begin
   FFullIconHeight := ActionIconSize+4;
+  ToolbarTop.ButtonHeight:= 2*FFullIconHeight+3;
+  LBack.Height := FFullIconHeight;
+  LPen.Height := FFullIconHeight;
+
   if VectorImageList24.Height = ActionIconSize then
   begin
     FVectorImageList := VectorImageList24;
@@ -291,9 +297,6 @@ begin
   SetToolbarImages(ToolBarEdit, FVectorImageList);
   SetToolBarImages(ToolBarBackFill, FVectorImageList);
   SetToolBarImages(ToolBarPenFill, FVectorImageList);
-  ToolbarTop.ButtonHeight:= 2*FFullIconHeight+4;
-  LBack.Height := FFullIconHeight;
-  LPen.Height := FFullIconHeight;
 end;
 
 { TForm1 }
@@ -605,6 +608,13 @@ procedure TForm1.BCPanelToolChoiceResize(Sender: TObject);
 begin
   ToolbarTools.Width := GetToolbarSize(ToolbarTools).cx;
   BCPanelToolChoice.Width := ToolbarTools.Width+3;
+end;
+
+procedure TForm1.BGRAVirtualScreen1MouseWheel(Sender: TObject;
+  Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint;
+  var Handled: Boolean);
+begin
+  zoomFactor := zoomFactor*power(2, WheelDelta/240);
 end;
 
 procedure TForm1.BCPanelToolbarResize(Sender: TObject);
@@ -1047,6 +1057,12 @@ begin
     TCurveShape(vectorOriginal.SelectedShape).SplineStyle := FSplineStyle;
 end;
 
+procedure TForm1.SetZoomFactor(AValue: single);
+begin
+  zoom := AffineMatrixScale(AValue,AValue);
+  BGRAVirtualScreen1.DiscardBitmap;
+end;
+
 procedure TForm1.SplineToolbarClick(Sender: TObject);
 var
   btn: TToolButton;
@@ -1174,6 +1190,7 @@ var
   upDownShapeAltitude: TBCTrackbarUpdown;
   lbl: TLabel;
   w: Integer;
+  btn: TToolButton;
 begin
   RemoveExtendedStyleControls;
 
@@ -1234,7 +1251,7 @@ begin
   PanelBasicStyle.Visible := [vsfPenWidth,vsfPenStyle,vsfJoinStyle]*f <> [];
 
   PanelExtendedStyle.Visible := false;
-  nextControlPos := Point(0,0);
+  nextControlPos := Point(1,1);
   if showSplineStyle then
   begin
     PanelExtendedStyle.Visible := true;
@@ -1243,6 +1260,7 @@ begin
     FSplineToolbar.Left := nextControlPos.X;
     FSplineToolbar.Top := nextControlPos.Y;
     FSplineToolbar.Width := 120;
+    FSplineToolbar.Wrapable := false;
     AddToolbarCheckButton(FSplineToolbar, 'Move spline points', 0, @SplineToolbarClick, mode in [vsuEdit, vsuCreate]);
     AddToolbarCheckButton(FSplineToolbar, 'Set to autodetect angle (A)', 1, @SplineToolbarClick, mode = vsuCurveSetAuto);
     AddToolbarCheckButton(FSplineToolbar, 'Set to curve (S)', 2, @SplineToolbarClick, mode = vsuCurveSetCurve);
@@ -1270,77 +1288,35 @@ begin
     PanelExtendedStyle.Visible := true;
 
     FPhongShapeKindToolbar := CreateToolBar(FVectorImageList);
-    FPhongShapeKindToolbar.Images := PhongImageList;
     FPhongShapeKindToolbar.Left := nextControlPos.X;
     FPhongShapeKindToolbar.Top := nextControlPos.Y;
-    FPhongShapeKindToolbar.Width := 120;
+    FPhongShapeKindToolbar.Wrapable := false;
 
-    lbl := TLabel.Create(FPhongShapeKindToolbar);
-    lbl.Layout := tlCenter;
-    lbl.Caption := 'Shape';
-    lbl.Width := FPhongShapeKindToolbar.ButtonWidth;
-    lbl.Height := FPhongShapeKindToolbar.ButtonHeight;
-    lbl.AutoSize := true;
-    AddToolbarControl(FPhongShapeKindToolbar, lbl);
+    AddToolbarLabel(FPhongShapeKindToolbar, 'Shape', self);
 
     for sk := low(TPhongShapeKind) to high(TPhongShapeKind) do
-      AddToolbarCheckButton(FPhongShapeKindToolbar, PhongShapeKindToStr[sk], ord(sk), @PhongShapeKindClick, FPhongShapeKind = sk, true, ord(sk));
-    PanelExtendedStyle.InsertControl(FPhongShapeKindToolbar);
+    begin
+      btn := AddToolbarCheckButton(FPhongShapeKindToolbar, PhongShapeKindToStr[sk], 13+ord(sk), @PhongShapeKindClick, FPhongShapeKind = sk, true, ord(sk));
+      if sk = high(TPhongShapeKind) then btn.Wrap:= true;
+    end;
 
-    FPhongShapeKindToolbar2 := CreateToolBar(FVectorImageList);
-    FPhongShapeKindToolbar.ButtonHeight:= FPhongShapeKindToolbar2.ButtonHeight;
-    FPhongShapeKindToolbar2.Left := nextControlPos.X;
-    FPhongShapeKindToolbar2.Top := nextControlPos.Y + FFullIconHeight;
-    FPhongShapeKindToolbar2.Width := 250;
-    PanelExtendedStyle.InsertControl(FPhongShapeKindToolbar2);
+    AddToolbarLabel(FPhongShapeKindToolbar, 'Altitude', self);
+    AddToolbarUpdown(FPhongShapeKindToolbar, 'Altitude', 0, 100, round(FPhongShapeAltitude), @OnPhongShapeAltitudeChange);
 
-    lbl := TLabel.Create(FPhongShapeKindToolbar2);
-    lbl.Layout := tlCenter;
-    lbl.Caption := 'Alt.';
-    lbl.Width := FPhongShapeKindToolbar2.ButtonWidth;
-    lbl.Height := FPhongShapeKindToolbar2.ButtonHeight;
-    lbl.AutoSize := true;
-    AddToolbarControl(FPhongShapeKindToolbar2, lbl);
-
-    upDownShapeAltitude := TBCTrackbarUpdown.Create(FPhongShapeKindToolbar2);
-    upDownShapeAltitude.Width := FPhongShapeKindToolbar2.ButtonWidth*2;
-    upDownShapeAltitude.Height:= FPhongShapeKindToolbar2.ButtonHeight;
-    upDownShapeAltitude.MinValue := 0;
-    upDownShapeAltitude.MaxValue := 100;
-    upDownShapeAltitude.Value := round(FPhongShapeAltitude);
-    upDownShapeAltitude.Hint := 'Altitude';
-    upDownShapeAltitude.ShowHint:= true;
-    upDownShapeAltitude.OnChange:=@OnPhongShapeAltitudeChange;
-    AddToolbarControl(FPhongShapeKindToolbar2, upDownShapeAltitude);
-
-    lbl := TLabel.Create(FPhongShapeKindToolbar2);
-    lbl.Layout := tlCenter;
-    lbl.Caption := 'Bord.';
-    lbl.Width := FPhongShapeKindToolbar2.ButtonWidth*2;
-    lbl.Height := FPhongShapeKindToolbar2.ButtonHeight;
-    lbl.AutoSize := true;
-    AddToolbarControl(FPhongShapeKindToolbar2, lbl);
-
-    FUpDownPhongBorderSize := TBCTrackbarUpdown.Create(FPhongShapeKindToolbar2);
-    FUpDownPhongBorderSize.Width := FPhongShapeKindToolbar2.ButtonWidth*2;
-    FUpDownPhongBorderSize.Height:= FPhongShapeKindToolbar2.ButtonHeight;
-    FUpDownPhongBorderSize.MinValue := 0;
-    FUpDownPhongBorderSize.MaxValue := 100;
-    FUpDownPhongBorderSize.Value := round(FPhongBorderSize);
+    AddToolbarLabel(FPhongShapeKindToolbar, 'Border', self);
+    FUpDownPhongBorderSize := AddToolbarUpdown(FPhongShapeKindToolbar, 'Border size', 0, 100, round(FPhongBorderSize), @OnPhongBorderSizeChange);
     FUpDownPhongBorderSize.Enabled:= (phongShapeKind in[pskRectangle,pskRoundRectangle]);
-    FUpDownPhongBorderSize.Hint := 'Border size';
-    FUpDownPhongBorderSize.ShowHint:= true;
-    FUpDownPhongBorderSize.OnChange:=@OnPhongBorderSizeChange;
-    AddToolbarControl(FPhongShapeKindToolbar2, FUpDownPhongBorderSize);
 
-    w := max(GetToolbarSize(FPhongShapeKindToolbar,0).cx,
-             GetToolbarSize(FPhongShapeKindToolbar2,0).cx);
-    FPhongShapeKindToolbar.Width := w;
-    FPhongShapeKindToolbar2.Width := w;
+    PanelExtendedStyle.InsertControl(FPhongShapeKindToolbar);
+    with GetToolbarSize(FPhongShapeKindToolbar,0) do
+    begin
+      FPhongShapeKindToolbar.Width := cx+1;
+      FPhongShapeKindToolbar.Height := cy+1;
+    end;
 
-    nextControlPos.X := FPhongShapeKindToolbar.Left + max(FPhongShapeKindToolbar.Width, FPhongShapeKindToolbar2.Width);
+    nextControlPos.X := FPhongShapeKindToolbar.Left + FPhongShapeKindToolbar.Width;
   end;
-  PanelExtendedStyle.Width := nextControlPos.X+2;
+  PanelExtendedStyle.Width := nextControlPos.X+1;
 
   AdjustToolbarTop;
 end;
@@ -1414,11 +1390,6 @@ begin
   begin
     PanelExtendedStyle.RemoveControl(FPhongShapeKindToolbar);
     FreeAndNil(FPhongShapeKindToolbar);
-  end;
-  if Assigned(FPhongShapeKindToolbar2) then
-  begin
-    PanelExtendedStyle.RemoveControl(FPhongShapeKindToolbar2);
-    FreeAndNil(FPhongShapeKindToolbar2);
     FUpDownPhongBorderSize := nil;
   end;
 end;
