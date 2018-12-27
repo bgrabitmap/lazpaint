@@ -90,7 +90,7 @@ end;
 
 
 begin
-  MakeResource('../lazpaint/buttons/vector/', 'vectorimages.lst', 'vectorimages.lrs', 'vectorimages'+inttostr(imgHeight)+'.png');
-  MakeResource('../lazpaint/buttons/vector/fill/', '../lazpaintcontrols/fillimages.lst', '../lazpaintcontrols/fillimages.lrs', '../lazpaintcontrols/fillimages'+inttostr(imgHeight)+'.png');
+  MakeResource('../vector/', '../vectorimages.lst', '../vectorimages.lrs', '../vectorimages'+inttostr(imgHeight)+'.png');
+  MakeResource('../vector/fill/', '../fillimages.lst', '../fillimages.lrs', '../fillimages'+inttostr(imgHeight)+'.png');
 end.
 

@@ -152,7 +152,7 @@ type
 
 implementation
 
-uses LCToolbars, Toolwin, BGRAThumbnail, LResources,
+uses LCToolbars, BGRAThumbnail, LResources,
   LCVectorShapes, LCVectorPolyShapes,
   BGRAGradientOriginal, BGRATransform;
 
