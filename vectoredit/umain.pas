@@ -10,8 +10,8 @@ uses
   uscaledpi in {$IFDEF WINDOWS}'..\lazpaint\uscaledpi.pas'{$ELSE}'../lazpaint/uscaledpi.pas'{$ENDIF},
   BCTrackbarUpdown, BCPanel, BCButton, BGRAVirtualScreen, BGRAImageList,
   BGRABitmap, BGRABitmapTypes, BGRAGraphics, BGRALazPaint, BGRALayerOriginal,
-  BGRATransform, BGRAGradientScanner, LCVectorOriginal, LCVectorialFill,
-  LCVectorShapes, LCVectorPolyShapes, LCVectorialFillControl;
+  BGRATransform, BGRAGradientScanner, LCVectorOriginal, LCVectorShapes,
+  LCVectorRectShapes, LCVectorPolyShapes, LCVectorialFillControl, LCVectorialFill;
 
 const
   ToolIconSize = 36;

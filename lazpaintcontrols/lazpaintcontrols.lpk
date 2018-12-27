@@ -11,7 +11,7 @@
       </SearchPaths>
     </CompilerOptions>
     <Version Minor="1"/>
-    <Files Count="7">
+    <Files Count="8">
       <Item1>
         <Filename Value="lctoolbars.pas"/>
         <UnitName Value="LCToolbars"/>
@@ -33,14 +33,18 @@
         <UnitName Value="LCVectorPolyShapes"/>
       </Item5>
       <Item6>
-        <Filename Value="lcvectorshapes.pas"/>
-        <UnitName Value="LCVectorShapes"/>
+        <Filename Value="lcvectorrectshapes.pas"/>
+        <UnitName Value="lcvectorrectshapes"/>
       </Item6>
       <Item7>
         <Filename Value="lcvectorialfillcontrol.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="LCVectorialFillControl"/>
       </Item7>
+      <Item8>
+        <Filename Value="lcvectorshapes.pas"/>
+        <UnitName Value="lcvectorshapes"/>
+      </Item8>
     </Files>
     <RequiredPkgs Count="4">
       <Item1>

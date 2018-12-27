@@ -153,8 +153,7 @@ type
 implementation
 
 uses LCToolbars, BGRAThumbnail, LResources,
-  LCVectorShapes, LCVectorPolyShapes,
-  BGRAGradientOriginal, BGRATransform;
+  LCVectorShapes, BGRAGradientOriginal, BGRATransform;
 
 { TVectorialFillInterface }
 

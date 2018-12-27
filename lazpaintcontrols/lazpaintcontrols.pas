@@ -8,8 +8,8 @@ interface
 
 uses
   LCToolbars, LCVectorialFill, LCVectorialFillInterface, LCVectorOriginal, 
-  LCVectorPolyShapes, LCVectorShapes, LCVectorialFillControl, 
-  LazarusPackageIntf;
+  LCVectorPolyShapes, LCVectorRectShapes, LCVectorialFillControl, 
+  LCVectorShapes, LazarusPackageIntf;
 
 implementation
 
