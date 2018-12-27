@@ -687,6 +687,7 @@ begin
   begin
     if IsCreateShapeTool(currentTool) and (vsuCreate in PaintToolClass[currentTool].Usermodes) then
     begin
+      vectorOriginal.DeselectShape;
       vectorOriginal.AddShape(CreateShape(newStartPoint,newStartPoint), vsuCreate);
     end else
       vectorOriginal.MouseClick(newStartPoint);
