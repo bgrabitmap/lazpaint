@@ -8,6 +8,7 @@ uses
   Classes, SysUtils, Controls, ComCtrls, Types, LResources, StdCtrls, BCTrackbarUpdown;
 
 function CreateToolBar(AImages: TImageList; AOwner: TComponent = nil): TToolbar;
+procedure ReorderToolbarContent(AToolbar: TToolbar);
 function GetToolbarSize(AToolbar: TToolbar; APadding: integer = 1): TSize;
 procedure SetToolbarImages(AToolbar: TToolbar; AImages: TImageList);
 procedure EnableDisableToolButtons(AButtons: array of TToolButton; AEnabled: boolean);
@@ -41,6 +42,36 @@ begin
   result.EdgeBorders:= [];
   result.EdgeInner:= esNone;
   result.EdgeOuter:= esNone;
+end;
+
+procedure ReorderToolbarContent(AToolbar: TToolbar);
+var
+  i,x,y: Integer;
+begin
+  AToolbar.BeginUpdate;
+  x := AToolbar.Indent;
+  y := 0;
+  for i := 0 to AToolbar.ControlCount-1 do
+  begin
+    with AToolbar.Controls[i] do
+    begin
+      if (x+Width > AToolbar.Width) and AToolbar.Wrapable then
+      begin
+        x := AToolbar.Indent;
+        y += AToolbar.ButtonHeight;
+      end;
+      Left := x;
+      Top := y;
+      x += Width;
+    end;
+    if (AToolbar.Controls[i] is TToolButton) and
+      TToolButton(AToolbar.Controls[i]).Wrap then
+    begin
+      x := AToolbar.Indent;
+      y += AToolbar.ButtonHeight;
+    end;
+  end;
+  AToolbar.EndUpdate;
 end;
 
 function GetToolbarSize(AToolbar: TToolbar; APadding: integer = 1): TSize;

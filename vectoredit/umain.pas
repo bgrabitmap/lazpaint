@@ -146,7 +146,6 @@ type
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormUTF8KeyPress(Sender: TObject; var UTF8Key: TUTF8Char);
     procedure ToolButtonClick(Sender: TObject);
-    procedure UpDownPenAlphaChange(Sender: TObject; {%H-}AByUser: boolean);
   private
     FPenWidth: single;
     FPenStyle: TBGRAPenStyle;
@@ -814,11 +813,6 @@ begin
 
   if not Assigned(vectorOriginal) or (vectorOriginal.SelectedShape = nil) then
     UpdateToolbarFromShape(nil);
-end;
-
-procedure TForm1.UpDownPenAlphaChange(Sender: TObject; AByUser: boolean);
-begin
-
 end;
 
 procedure TForm1.ComboBoxSplineStyleClick(Sender: TObject);
@@ -1553,6 +1547,8 @@ end;
 
 procedure TForm1.AdjustToolbarTop;
 begin
+  ReorderToolbarContent(ToolbarTop);
+
   ToolBarTop.Height := GetToolbarSize(ToolBarTop,0).cy;
   BCPanelToolbar.Height := ToolBarTop.Height;
 end;
