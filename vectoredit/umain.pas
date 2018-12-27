@@ -73,7 +73,6 @@ type
     PanelFile: TBCPanel;
     PanelShape: TBCPanel;
     PenStyleImageList: TBGRAImageList;
-    CurveImageList: TBGRAImageList;
     ToolBarFile: TToolBar;
     ToolBarEdit: TToolBar;
     ToolBarTop: TToolBar;
@@ -113,8 +112,8 @@ type
     UpDownPenWidth: TBCTrackbarUpdown;
     procedure BCPanelToolbarResize(Sender: TObject);
     procedure BCPanelToolChoiceResize(Sender: TObject);
-    procedure BGRAVirtualScreen1MouseWheel(Sender: TObject; Shift: TShiftState;
-      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+    procedure BGRAVirtualScreen1MouseWheel(Sender: TObject; {%H-}Shift: TShiftState;
+      WheelDelta: Integer; {%H-}MousePos: TPoint; var {%H-}Handled: Boolean);
     procedure ButtonPenStyleClick(Sender: TObject);
     procedure EditCopyExecute(Sender: TObject);
     procedure EditCutExecute(Sender: TObject);
@@ -218,6 +217,7 @@ type
     procedure RequestPenFillAdjustToShape(Sender: TObject);
     procedure RequestPenFillUpdate(Sender: TObject);
     procedure AdjustToolbarTop;
+    procedure UpdateSplineToolbar;
   public
     { public declarations }
     img: TBGRALazPaintImage;
@@ -822,10 +822,18 @@ begin
 end;
 
 procedure TForm1.ComboBoxSplineStyleClick(Sender: TObject);
+var
+  btn: TControl;
+  i: Integer;
 begin
   if Assigned(FSplineStyleMenu) then
-    with FComboboxSplineStyle.ClientToScreen(Point(0,FComboboxSplineStyle.Height)) do
+  begin
+    btn := Sender as TControl;
+    for i := 0 to FSplineStyleMenu.Items.Count-1 do
+      FSplineStyleMenu.Items[i].Checked:= FSplineStyleMenu.Items[i].Tag=ord(FSplineStyle);
+    with btn.ClientToScreen(Point(0,btn.Height)) do
       FSplineStyleMenu.PopUp(X,Y);
+  end;
 end;
 
 function TForm1.GetPenStyle: TBGRAPenStyle;
@@ -870,6 +878,7 @@ end;
 procedure TForm1.OnClickSplineStyleItem(ASender: TObject);
 begin
   splineStyle := TSplineStyle((ASender as TMenuItem).Tag);
+  UpdateSplineToolbar;
 end;
 
 procedure TForm1.OnEditingChange(ASender: TObject;
@@ -1066,20 +1075,13 @@ end;
 procedure TForm1.SplineToolbarClick(Sender: TObject);
 var
   btn: TToolButton;
-  mode: TVectorShapeUsermode;
 begin
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
      (vectorOriginal.SelectedShape is TCurveShape) then
   begin
     btn := Sender as TToolButton;
     if btn.Down then
-    begin
-      if btn.ImageIndex = 0 then mode := vsuEdit
-      else if btn.ImageIndex = 1 then mode := vsuCurveSetAuto
-      else if btn.ImageIndex = 2 then mode := vsuCurveSetCurve
-      else if btn.ImageIndex = 3 then mode := vsuCurveSetAngle;
-      vectorOriginal.SelectedShape.Usermode := mode;
-    end;
+      vectorOriginal.SelectedShape.Usermode := TVectorShapeUsermode(btn.Tag);
   end;
 end;
 
@@ -1187,9 +1189,6 @@ var
   nextControlPos: TPoint;
   mode: TVectorShapeUsermode;
   sk: TPhongShapeKind;
-  upDownShapeAltitude: TBCTrackbarUpdown;
-  lbl: TLabel;
-  w: Integer;
   btn: TToolButton;
 begin
   RemoveExtendedStyleControls;
@@ -1233,15 +1232,17 @@ begin
       f := PaintToolClass[currentTool].Fields;
       showSplineStyle:= PaintToolClass[currentTool] = TCurveShape;
       showPhongStyle := PaintToolClass[currentTool] = TPhongShape;
+      PanelPenFill.Visible := vsfPenFill in f;
+      PanelBackFill.Visible := vsfBackFill in f;
     end
     else
     begin
       f := [];
       showSplineStyle:= false;
       showPhongStyle:= false;
+      PanelPenFill.Visible := true;
+      PanelBackFill.Visible := true;
     end;
-    PanelPenFill.Visible := true;
-    PanelBackFill.Visible := true;
   end;
   UpdateBackToolFillPoints;
   UpdatePenToolFillPoints;
@@ -1256,32 +1257,38 @@ begin
   begin
     PanelExtendedStyle.Visible := true;
 
-    FSplineToolbar := CreateToolBar(CurveImageList);
+    FSplineToolbar := CreateToolBar(FVectorImageList);
     FSplineToolbar.Left := nextControlPos.X;
     FSplineToolbar.Top := nextControlPos.Y;
-    FSplineToolbar.Width := 120;
     FSplineToolbar.Wrapable := false;
-    AddToolbarCheckButton(FSplineToolbar, 'Move spline points', 0, @SplineToolbarClick, mode in [vsuEdit, vsuCreate]);
-    AddToolbarCheckButton(FSplineToolbar, 'Set to autodetect angle (A)', 1, @SplineToolbarClick, mode = vsuCurveSetAuto);
-    AddToolbarCheckButton(FSplineToolbar, 'Set to curve (S)', 2, @SplineToolbarClick, mode = vsuCurveSetCurve);
-    AddToolbarCheckButton(FSplineToolbar, 'Set to angle (X)', 3, @SplineToolbarClick, mode = vsuCurveSetAngle);
-    PanelExtendedStyle.InsertControl(FSplineToolbar);
 
-    FComboboxSplineStyle := TBCButton.Create(nil);
+    AddToolbarCheckButton(FSplineToolbar, 'Move spline points', 20, @SplineToolbarClick, mode in [vsuEdit, vsuCreate], true, ord(vsuEdit));
+    AddToolbarCheckButton(FSplineToolbar, 'Set to autodetect angle (A)', 21, @SplineToolbarClick, mode = vsuCurveSetAuto, true, ord(vsuCurveSetAuto));
+    AddToolbarCheckButton(FSplineToolbar, 'Set to smooth (S)', 22, @SplineToolbarClick, mode = vsuCurveSetCurve, true, ord(vsuCurveSetCurve));
+    AddToolbarCheckButton(FSplineToolbar, 'Set to angle (X)', 23, @SplineToolbarClick, mode = vsuCurveSetAngle, true, ord(vsuCurveSetAngle)).Wrap:= true;
+
+    FComboboxSplineStyle := TBCButton.Create(FSplineToolbar);
     FComboboxSplineStyle.Style := bbtButton;
-    FComboboxSplineStyle.Left := nextControlPos.X;
-    FComboboxSplineStyle.Top := nextControlPos.Y + FFullIconHeight;
     FComboboxSplineStyle.Caption:= SplineStyleToStr[splineStyle];
-    FComboboxSplineStyle.Width := 120;
-    FComboboxSplineStyle.Height := ButtonPenStyle.Height;
+    FComboboxSplineStyle.Width := 4*FSplineToolbar.ButtonWidth;
+    FComboboxSplineStyle.Height := FSplineToolbar.ButtonHeight;
     FComboboxSplineStyle.OnClick:=@ComboBoxSplineStyleClick;
     FComboboxSplineStyle.StateNormal.Assign(ButtonPenStyle.StateNormal);
     FComboboxSplineStyle.StateHover.Assign(ButtonPenStyle.StateHover);
     FComboboxSplineStyle.StateClicked.Assign(ButtonPenStyle.StateClicked);
     FComboboxSplineStyle.Rounding.Assign(ButtonPenStyle.Rounding);
-    PanelExtendedStyle.InsertControl(FComboboxSplineStyle);
+    AddToolbarControl(FSplineToolbar, FComboboxSplineStyle);
 
-    nextControlPos.X := FComboboxSplineStyle.Left + FComboboxSplineStyle.Width;
+    UpdateSplineToolbar;
+    PanelExtendedStyle.InsertControl(FSplineToolbar);
+
+    with GetToolbarSize(FSplineToolbar,0) do
+    begin
+      FSplineToolbar.Width := cx+1;
+      FSplineToolbar.Height := cy+1;
+    end;
+
+    nextControlPos.X := FSplineToolbar.Left + FSplineToolbar.Width;
   end;
   if showPhongStyle then
   begin
@@ -1376,15 +1383,11 @@ end;
 
 procedure TForm1.RemoveExtendedStyleControls;
 begin
-  if Assigned(FComboboxSplineStyle) then
-  begin
-    PanelExtendedStyle.RemoveControl(FComboboxSplineStyle);
-    FreeAndNil(FComboboxSplineStyle);
-  end;
   if Assigned(FSplineToolbar) then
   begin
     PanelExtendedStyle.RemoveControl(FSplineToolbar);
     FreeAndNil(FSplineToolbar);
+    FComboboxSplineStyle := nil;
   end;
   if Assigned(FPhongShapeKindToolbar) then
   begin
@@ -1552,6 +1555,31 @@ procedure TForm1.AdjustToolbarTop;
 begin
   ToolBarTop.Height := GetToolbarSize(ToolBarTop,0).cy;
   BCPanelToolbar.Height := ToolBarTop.Height;
+end;
+
+procedure TForm1.UpdateSplineToolbar;
+var
+  i: Integer;
+begin
+  for i := 0 to FSplineToolbar.ButtonCount-1 do
+  begin
+    if FSplineStyle = ssEasyBezier then
+    begin
+      FSplineToolbar.Buttons[i].Enabled:= true;
+    end else
+    begin
+      if FSplineToolbar.Buttons[i].Tag = ord(vsuEdit) then
+      begin
+        if not FSplineToolbar.Buttons[i].Down then
+        begin
+          FSplineToolbar.Buttons[i].Down := true;
+          FSplineToolbar.Buttons[i].OnClick(FSplineToolbar.Buttons[i]);
+        end;
+      end
+      else
+        FSplineToolbar.Buttons[i].Enabled:= false;
+    end;
+  end;
 end;
 
 procedure TForm1.DoCopy;
