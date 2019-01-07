@@ -217,6 +217,8 @@ type
     procedure RequestPenFillUpdate(Sender: TObject);
     procedure AdjustToolbarTop;
     procedure UpdateSplineToolbar;
+    function SnapToGrid(APoint: TPointF): TPointF;
+    function ImgCoordToOriginalCoord(APoint: TPointF): TPointF;
   public
     { public declarations }
     img: TBGRALazPaintImage;
@@ -413,7 +415,7 @@ begin
 
   if not justDown and not Assigned(newShape) then
   begin
-    newStartPoint := AffineMatrixInverse(AffineMatrixTranslation(-0.5,-0.5)*vectorTransform*AffineMatrixTranslation(0.5,0.5))*imgPtF;
+    newStartPoint := ImgCoordToOriginalCoord(imgPtF);
     newButton := Button;
     justDown := true;
   end;
@@ -636,7 +638,7 @@ begin
   img.MouseMove(Shift, imgPtF.X, imgPtF.Y, cur, handled);
   UpdateViewCursor(cur);
 
-  ptF := AffineMatrixInverse(AffineMatrixTranslation(-0.5,-0.5)*vectorTransform*AffineMatrixTranslation(0.5,0.5))*imgPtF;
+  ptF := ImgCoordToOriginalCoord(imgPtF);
   if justDown and not Assigned(newShape) and IsCreateShapeTool(currentTool) and
     (VectLen(ptF-newStartPoint) >= EditorPointSize) then
   begin
@@ -1493,18 +1495,27 @@ begin
 end;
 
 procedure TForm1.SetEditorGrid(AActive: boolean);
+var pixelCentered: boolean;
 begin
   if Assigned(img) and Assigned(img.OriginalEditor) then
   begin
-    if zoomFactor > 4 then
+    if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+      pixelCentered:= vectorOriginal.SelectedShape.PreferPixelCentered
+    else if PaintToolClass[currentTool]<>nil then
+      pixelCentered:= PaintToolClass[currentTool].PreferPixelCentered;
+
+    if zoomFactor >= 2.1 then
       img.OriginalEditor.GridMatrix := AffineMatrixTranslation(-0.5,-0.5)*
                                        vectorTransform*AffineMatrixTranslation(0.5,0.5)*
                                        AffineMatrixScale(0.5,0.5)
     else
+    if pixelCentered then
       img.OriginalEditor.GridMatrix := AffineMatrixTranslation(-0.5,-0.5)*
-                                       vectorTransform*AffineMatrixTranslation(0.5,0.5);
+                                       vectorTransform*AffineMatrixTranslation(0.5,0.5)
+    else
+      img.OriginalEditor.GridMatrix := AffineMatrixTranslation(-0.5,-0.5)*vectorTransform;
 
-    img.OriginalEditor.GridActive := AActive;
+    img.OriginalEditor.GridActive := AActive or (zoomFactor < 2.1);
   end;
 end;
 
@@ -1577,6 +1588,22 @@ begin
         FSplineToolbar.Buttons[i].Enabled:= false;
     end;
   end;
+end;
+
+function TForm1.SnapToGrid(APoint: TPointF): TPointF;
+begin
+  if Assigned(img) and Assigned(img.OriginalEditor) and img.OriginalEditor.GridActive then
+    result := img.OriginalEditor.SnapToGrid(APoint, false)
+  else
+    result := APoint;
+end;
+
+function TForm1.ImgCoordToOriginalCoord(APoint: TPointF): TPointF;
+begin
+  if Assigned(img) and Assigned(img.OriginalEditor) and img.OriginalEditor.GridActive then
+    result := SnapToGrid(AffineMatrixInverse(vectorTransform)*APoint)
+  else
+    result := SnapToGrid(AffineMatrixInverse(AffineMatrixTranslation(-0.5,-0.5)*vectorTransform*AffineMatrixTranslation(0.5,0.5))*APoint);
 end;
 
 procedure TForm1.DoCopy;

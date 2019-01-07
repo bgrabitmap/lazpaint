@@ -105,6 +105,7 @@ type
     destructor Destroy; override;
     function GetCornerPositition: single; override;
     class function Fields: TVectorShapeFields; override;
+    class function PreferPixelCentered: boolean; override;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
@@ -876,6 +877,11 @@ end;
 class function TPhongShape.Fields: TVectorShapeFields;
 begin
   Result:= [vsfBackFill];
+end;
+
+class function TPhongShape.PreferPixelCentered: boolean;
+begin
+  Result:= false;
 end;
 
 procedure TPhongShape.ConfigureEditor(AEditor: TBGRAOriginalEditor);

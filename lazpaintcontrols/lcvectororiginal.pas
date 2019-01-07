@@ -91,6 +91,7 @@ type
     function GetIsSlow({%H-}AMatrix: TAffineMatrix): boolean; virtual;
     class function Fields: TVectorShapeFields; virtual;
     class function Usermodes: TVectorShapeUsermodes; virtual;
+    class function PreferPixelCentered: boolean; virtual;
     property OnChange: TShapeChangeEvent read FOnChange write FOnChange;
     property OnEditingChange: TShapeEditingChangeEvent read FOnEditingChange write FOnEditingChange;
     property PenColor: TBGRAPixel read GetPenColor write SetPenColor;
@@ -609,6 +610,11 @@ begin
   result := [vsuEdit];
   if vsfBackFill in Fields then result += [vsuEditBackFill];
   if vsfPenFill in Fields then result += [vsuEditPenFill];
+end;
+
+class function TVectorShape.PreferPixelCentered: boolean;
+begin
+  result := true;
 end;
 
 procedure TVectorShape.SetContainer(AValue: TVectorOriginal);
