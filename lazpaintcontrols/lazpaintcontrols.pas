@@ -9,7 +9,7 @@ interface
 uses
   LCToolbars, LCVectorialFill, LCVectorialFillInterface, LCVectorOriginal, 
   LCVectorPolyShapes, LCVectorRectShapes, LCVectorialFillControl, 
-  LCVectorShapes, LazarusPackageIntf;
+  LCVectorShapes, LCVectorTextShapes, LazarusPackageIntf;
 
 implementation
 

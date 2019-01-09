@@ -92,6 +92,7 @@ type
     class function Fields: TVectorShapeFields; virtual;
     class function Usermodes: TVectorShapeUsermodes; virtual;
     class function PreferPixelCentered: boolean; virtual;
+    class function CreateEmpty: boolean; virtual; //create shape even if empty?
     property OnChange: TShapeChangeEvent read FOnChange write FOnChange;
     property OnEditingChange: TShapeEditingChangeEvent read FOnEditingChange write FOnEditingChange;
     property PenColor: TBGRAPixel read GetPenColor write SetPenColor;
@@ -416,6 +417,10 @@ procedure TVectorOriginalEditor.KeyDown(Shift: TShiftState; Key: TSpecialKey; ou
 begin
   if Assigned(FOriginal.SelectedShape) then
   begin
+    AHandled := false;
+    FOriginal.SelectedShape.KeyDown(Shift, Key, AHandled);
+    if AHandled then exit;
+
     if (Key = skReturn) and ([ssShift,ssCtrl,ssAlt]*Shift = []) then
     begin
       FOriginal.DeselectShape;
@@ -426,11 +431,6 @@ begin
     begin
      FOriginal.SelectedShape.Remove;
      AHandled:= true;
-    end else
-    begin
-      AHandled := false;
-      FOriginal.SelectedShape.KeyDown(Shift, Key, AHandled);
-      if AHandled then exit;
     end;
   end;
 
@@ -615,6 +615,11 @@ end;
 class function TVectorShape.PreferPixelCentered: boolean;
 begin
   result := true;
+end;
+
+class function TVectorShape.CreateEmpty: boolean;
+begin
+  result := false;
 end;
 
 procedure TVectorShape.SetContainer(AValue: TVectorOriginal);

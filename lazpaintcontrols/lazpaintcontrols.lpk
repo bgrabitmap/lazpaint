@@ -11,7 +11,7 @@
       </SearchPaths>
     </CompilerOptions>
     <Version Minor="1"/>
-    <Files Count="8">
+    <Files Count="9">
       <Item1>
         <Filename Value="lctoolbars.pas"/>
         <UnitName Value="LCToolbars"/>
@@ -34,7 +34,7 @@
       </Item5>
       <Item6>
         <Filename Value="lcvectorrectshapes.pas"/>
-        <UnitName Value="lcvectorrectshapes"/>
+        <UnitName Value="LCVectorRectShapes"/>
       </Item6>
       <Item7>
         <Filename Value="lcvectorialfillcontrol.pas"/>
@@ -43,8 +43,12 @@
       </Item7>
       <Item8>
         <Filename Value="lcvectorshapes.pas"/>
-        <UnitName Value="lcvectorshapes"/>
+        <UnitName Value="LCVectorShapes"/>
       </Item8>
+      <Item9>
+        <Filename Value="lcvectortextshapes.pas"/>
+        <UnitName Value="lcvectortextshapes"/>
+      </Item9>
     </Files>
     <RequiredPkgs Count="4">
       <Item1>

@@ -11,7 +11,8 @@ uses
   BCTrackbarUpdown, BCPanel, BCButton, BGRAVirtualScreen, BGRAImageList,
   BGRABitmap, BGRABitmapTypes, BGRAGraphics, BGRALazPaint, BGRALayerOriginal,
   BGRATransform, BGRAGradientScanner, LCVectorOriginal, LCVectorShapes,
-  LCVectorRectShapes, LCVectorPolyShapes, LCVectorialFillControl, LCVectorialFill;
+  LCVectorRectShapes, LCVectorPolyShapes, LCVectorTextShapes,
+  LCVectorialFillControl, LCVectorialFill;
 
 const
   ToolIconSize = 36;
@@ -23,12 +24,12 @@ const
 
 type
   TPaintTool = (ptHand, ptMovePenFillPoint, ptMoveBackFillPoint, ptRectangle, ptEllipse, ptPolyline, ptCurve, ptPolygon, ptClosedCurve,
-                ptPhongShape);
+                ptPhongShape, ptText);
 
 const
   PaintToolClass : array[TPaintTool] of TVectorShapeAny =
     (nil, nil, nil, TRectShape, TEllipseShape, TPolylineShape, TCurveShape, TPolylineShape, TCurveShape,
-     TPhongShape);
+     TPhongShape, TTextShape);
 
 function IsCreateShapeTool(ATool: TPaintTool): boolean;
 
@@ -55,6 +56,7 @@ type
     ShapeMoveUp: TAction;
     ToolBarBackFill: TToolBar;
     ToolBarPenFill: TToolBar;
+    ToolButtonTextShape: TToolButton;
     VectorImageList24: TBGRAImageList;
     ActionList: TActionList;
     EditCopy: TAction;
@@ -226,7 +228,7 @@ type
     vectorOriginal: TVectorOriginal;
     zoom: TAffineMatrix;
     newShape: TVectorShape;
-    justDown: boolean;
+    justDown, shapeAdded: boolean;
     newStartPoint: TPointF;
     newButton: TMouseButton;
     vectorLayer: Integer;
@@ -644,9 +646,18 @@ begin
   begin
     vectorOriginal.DeselectShape;
     newShape := CreateShape(newStartPoint,ptF);
+    shapeAdded := false;
     rF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
     ImageChange(rF);
     justDown := false;
+    if IsEmptyRectF(rF) and newShape.CreateEmpty then
+    begin
+      vectorOriginal.DeselectShape;
+      vectorOriginal.AddShape(newShape);
+      vectorOriginal.SelectShape(newShape);
+      currentTool:= ptHand;
+      shapeAdded := true;
+    end;
   end else
   if Assigned(newShape) then
   begin
@@ -692,22 +703,35 @@ begin
       vectorOriginal.DeselectShape;
       vectorOriginal.AddShape(CreateShape(newStartPoint,newStartPoint), vsuCreate);
     end else
+    if IsCreateShapeTool(currentTool) and PaintToolClass[currentTool].CreateEmpty then
+    begin
+      vectorOriginal.DeselectShape;
+      addedShape := CreateShape(newStartPoint,newStartPoint);
+      vectorOriginal.AddShape(addedShape);
+      vectorOriginal.SelectShape(addedShape);
+      currentTool:= ptHand;
+    end else
       vectorOriginal.MouseClick(newStartPoint);
     justDown:= false;
   end
   else if Assigned(newShape) and (Button = newButton) then
   begin
-    rF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
-    if not IsEmptyRectF(rF) or (vsuCreate in newShape.Usermodes) then
-    begin
-      addedShape := newShape;
-      newShape := nil;
-      vectorOriginal.AddShape(addedShape, vsuCreate);
-    end
+    if shapeAdded then
+      newShape := nil
     else
     begin
-      FreeAndNil(newShape);
-      ShowMessage('Shape is empty and was not added');
+      rF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
+      if not IsEmptyRectF(rF) or (vsuCreate in newShape.Usermodes) then
+      begin
+        addedShape := newShape;
+        newShape := nil;
+        vectorOriginal.AddShape(addedShape, vsuCreate);
+      end
+      else
+      begin
+        FreeAndNil(newShape);
+        ShowMessage('Shape is empty and was not added');
+      end;
     end;
   end;
 end;
@@ -715,6 +739,7 @@ end;
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
   RemoveExtendedStyleControls;
+  if (newShape <> nil) and not shapeAdded then FreeAndNil(newShape);
   img.Free;
   FFlattened.Free;
   FPenStyleMenu.Free;
@@ -799,6 +824,7 @@ begin
   if ToolButtonPolygon.Down then FCurrentTool:= ptPolygon;
   if ToolButtonClosedCurve.Down then FCurrentTool:= ptClosedCurve;
   if ToolButtonPhongShape.Down then FCurrentTool:= ptPhongShape;
+  if ToolButtonTextShape.Down then FCurrentTool:= ptText;
 
   if currentTool <> ptMoveBackFillPoint then ButtonMoveBackFillPoints.Down := false;
   if currentTool <> ptMovePenFillPoint then ButtonMovePenFillPoints.Down := false;

@@ -34,6 +34,7 @@ type
     function GetCornerPositition: single; virtual; abstract;
     function GetOrthoRect(AMatrix: TAffineMatrix; out ARect: TRectF): boolean;
     function AllowShearTransform: boolean; virtual;
+    function ShowArrows: boolean; virtual;
   public
     procedure QuickDefine(const APoint1,APoint2: TPointF); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
@@ -355,6 +356,11 @@ begin
   result := true;
 end;
 
+function TCustomRectShape.ShowArrows: boolean;
+begin
+  result := true;
+end;
+
 procedure TCustomRectShape.QuickDefine(const APoint1, APoint2: TPointF);
 begin
   BeginUpdate;
@@ -395,10 +401,19 @@ begin
   u := FXAxis - FOrigin;
   v := FYAxis - FOrigin;
   AEditor.AddStartMoveHandler(@OnStartMove);
-  AEditor.AddArrow(FOrigin, FXAxis, @OnMoveXAxis);
-  AEditor.AddArrow(FOrigin, FYAxis, @OnMoveYAxis);
-  AEditor.AddArrow(FOrigin, FOrigin - u, @OnMoveXAxisNeg);
-  AEditor.AddArrow(FOrigin, FOrigin - v, @OnMoveYAxisNeg);
+  if ShowArrows then
+  begin
+    AEditor.AddArrow(FOrigin, FXAxis, @OnMoveXAxis);
+    AEditor.AddArrow(FOrigin, FYAxis, @OnMoveYAxis);
+    AEditor.AddArrow(FOrigin, FOrigin - u, @OnMoveXAxisNeg);
+    AEditor.AddArrow(FOrigin, FOrigin - v, @OnMoveYAxisNeg);
+  end else
+  begin
+    AEditor.AddPoint(FXAxis, @OnMoveXAxis);
+    AEditor.AddPoint(FYAxis, @OnMoveYAxis);
+    AEditor.AddPoint(FOrigin - u, @OnMoveXAxisNeg);
+    AEditor.AddPoint(FOrigin - v, @OnMoveYAxisNeg);
+  end;
   d := GetCornerPositition;
   if d <> 0 then
   begin

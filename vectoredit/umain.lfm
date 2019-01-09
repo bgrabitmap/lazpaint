@@ -1,5 +1,5 @@
 object Form1: TForm1
-  Left = 597
+  Left = 594
   Height = 622
   Top = 0
   Width = 981
@@ -185,6 +185,16 @@ object Form1: TForm1
         Caption = 'ToolButtonPhongShape'
         Grouped = True
         ImageIndex = 70
+        OnClick = ToolButtonClick
+        Style = tbsCheck
+      end
+      object ToolButtonTextShape: TToolButton
+        Left = 1
+        Hint = 'Text in rectangle'
+        Top = 416
+        Caption = 'ToolButtonTextShape'
+        Grouped = True
+        ImageIndex = 60
         OnClick = ToolButtonClick
         Style = tbsCheck
       end
