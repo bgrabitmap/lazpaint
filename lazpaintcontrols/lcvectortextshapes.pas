@@ -294,7 +294,7 @@ begin
   begin
     delCount := GetTextLayoutIgnoreMatrix.DeleteTextBefore(selLeft, ACount);
     FText := GetTextLayoutIgnoreMatrix.TextUTF8;
-    dec(selLeft,ACount);
+    dec(selLeft,delCount);
   end;
   FSelStart := selLeft;
   FSelEnd := selLeft;
@@ -311,7 +311,7 @@ begin
   begin
     delCount := GetTextLayoutIgnoreMatrix.DeleteText(selRight, ACount);
     FText := GetTextLayoutIgnoreMatrix.TextUTF8;
-    inc(selRight,ACount);
+    inc(selRight,delCount);
   end;
   FSelStart := selRight;
   FSelEnd := selRight;
