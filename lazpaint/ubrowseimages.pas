@@ -475,6 +475,7 @@ begin
     else if format = ifGIF then AType := 'GIF' //do not know if animated or not
     else if format = ifIco then AType := 'Icon'
     else if format = ifCur then AType := 'Cursor'
+    else if format = ifSvg then AType := 'SVG'  //too long to write explicitely
     else AType := GetImageFormatName(format);
   end;
 end;
