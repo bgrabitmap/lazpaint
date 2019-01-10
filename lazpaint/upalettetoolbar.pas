@@ -448,8 +448,6 @@ begin
 
     FMenuButton := TBCButton.Create(FPanelPalette);
     FMenuButton.Cursor := crArrow;
-    FMenuButton.Rounding.RoundX := 6;
-    FMenuButton.Rounding.RoundY := 6;
     BCAssignSystemStyle(FMenuButton);
     FMenuButton.DropDownArrow := true;
     FMenuButton.DropDownArrowSize := DoScaleY(FPaletteItemHeight div 2, OriginalDPI);
