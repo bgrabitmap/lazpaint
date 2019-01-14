@@ -26,6 +26,7 @@ type
     function GetCurrentSelection: TBGRABitmap;
     function GetSelectedImageLayer: TBGRABitmap;
     function GetDrawingLayer: TBGRABitmap;
+    function GetSelectedImageLayerOffset: TPoint;
   protected
     procedure Cancel;
     procedure NeedSelectionBackup;
@@ -64,6 +65,7 @@ type
     function GetOrCreateSelectionLayer: TBGRABitmap;
     function GetSelectionLayerIfExists: TBGRABitmap;
     property SelectedImageLayer: TBGRABitmap read GetSelectedImageLayer;
+    property SelectedImageLayerOffset: TPoint read GetSelectedImageLayerOffset;
     property DrawingLayer: TBGRABitmap read GetDrawingLayer;
     property CurrentSelection: TBGRABitmap read GetCurrentSelection;
     property BackupSelection: TBGRABitmap read GetBackupSelection;
@@ -122,6 +124,11 @@ function TLayerAction.GetDrawingLayer: TBGRABitmap;
 begin
   if FImage.SelectionEmpty then result := GetSelectedImageLayer else
     result := GetOrCreateSelectionLayer;
+end;
+
+function TLayerAction.GetSelectedImageLayerOffset: TPoint;
+begin
+  result := FImage.LayerOffset[FImage.currentImageLayerIndex];
 end;
 
 function TLayerAction.GetSelectionTransform: TAffineMatrix;

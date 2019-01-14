@@ -24,6 +24,7 @@ type
     FWorkAreaFullySelected: boolean;
     FParameters: TVariableSet;
     function GetActionDone: boolean;
+    function GetActiveLayeOffset: TPoint;
     function GetActiveLayer: TBGRABitmap;
     function GetBackupLayer: TBGRABitmap;
     function GetCurrentSelection: TBGRABitmap;
@@ -50,6 +51,7 @@ type
     property ActionDone: boolean read GetActionDone;
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance;
     property ActiveLayer: TBGRABitmap read GetActiveLayer;
+    property ActiveLayerOffset: TPoint read GetActiveLayeOffset;
     property WorkArea: TRect read FWorkArea;
     property Parameters: TVariableSet read FParameters;
   end;
@@ -74,6 +76,14 @@ begin
     result := false
   else
     result := FAction.Done;
+end;
+
+function TFilterConnector.GetActiveLayeOffset: TPoint;
+begin
+  if ApplyOnSelectionLayer then
+    result := Point(0,0)
+  else
+    result := FAction.SelectedImageLayerOffset;
 end;
 
 function TFilterConnector.GetBackupLayer: TBGRABitmap;
@@ -189,6 +199,7 @@ end;
 procedure TFilterConnector.PutImage(AFilteredLayer: TBGRABitmap;
   AModifiedRect: TRect; AMayBeColored: boolean; AOwner: boolean);
 var AMine: boolean;
+  imgRect: TRect;
 begin
   if IntersectRect(AModifiedRect,AModifiedRect,FWorkArea) then
   begin
@@ -213,7 +224,10 @@ begin
     end;
     ActiveLayer.PutImagePart(AModifiedRect.Left,AModifiedRect.Top,AFilteredLayer,AModifiedRect,dmSet);
     if AMine then AFilteredLayer.Free;
-    FLazPaintInstance.NotifyImageChange(True, AModifiedRect);
+    imgRect := AModifiedRect;
+    with ActiveLayerOffset do
+      OffsetRect(imgRect, X,Y);
+    FLazPaintInstance.NotifyImageChange(True, imgRect);
   end;
 end;
 
