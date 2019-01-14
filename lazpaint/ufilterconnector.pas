@@ -182,13 +182,17 @@ end;
 
 procedure TFilterConnector.InvalidateActiveLayer;
 begin
-  FLazPaintInstance.NotifyImageChange(True, FWorkArea);
+  InvalidateActiveLayer(FWorkArea);
 end;
 
 procedure TFilterConnector.InvalidateActiveLayer(ARect: TRect);
 begin
   if IntersectRect(ARect, ARect, FWorkArea) then
+  begin
+    with FLazPaintInstance.Image.LayerOffset[FLazPaintInstance.Image.currentImageLayerIndex] do
+      OffsetRect(ARect, X,Y);
     FLazPaintInstance.NotifyImageChange(True, ARect);
+  end;
 end;
 
 procedure TFilterConnector.PutImage(AFilteredLayer: TBGRABitmap; AMayBeColored: boolean; AOwner: boolean);
