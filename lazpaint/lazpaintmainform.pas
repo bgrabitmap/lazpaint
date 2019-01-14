@@ -992,8 +992,10 @@ begin
 
   ViewGrid.Checked := LazPaintInstance.GridVisible;
   ItemViewGrid.Checked:= LazPaintInstance.GridVisible;
+  ColorCurves.Visible := not LazPaintInstance.BlackAndWhite;
   ColorColorize.Visible := not LazPaintInstance.BlackAndWhite;
   ColorShiftColors.Visible := not LazPaintInstance.BlackAndWhite;
+  FilterComplementaryColor.Visible := not LazPaintInstance.BlackAndWhite;
   ColorIntensity.Visible := not LazPaintInstance.BlackAndWhite;
   FilterGrayscale.Visible := not LazPaintInstance.BlackAndWhite;
   FilterClearType.Visible := not LazPaintInstance.BlackAndWhite;
