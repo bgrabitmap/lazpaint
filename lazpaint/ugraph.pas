@@ -1235,9 +1235,9 @@ begin
         gray := min($FFFF,max(0,$FFFF - round((sqrt(sqr((xb-xc)/(tx/2))+sqr((yb-yc)/(ty/2)))*1.2-0.1)*$FFFF)));
         level := max(max(ec.red,ec.green),ec.blue);
         {$hints off}
-        ec.red := (ec.red*($FFFF-gray)+level*gray) shr 16;
-        ec.green := (ec.green*($FFFF-gray)+level*gray) shr 16;
-        ec.blue := (ec.blue*($FFFF-gray)+level*gray) shr 16;
+        ec.red := (ec.red*(not gray)+level*gray) shr 16;
+        ec.green := (ec.green*(not gray)+level*gray) shr 16;
+        ec.blue := (ec.blue*(not gray)+level*gray) shr 16;
         {$hints on}
         ec.red := (ec.red*light) shr 16;
         ec.green := (ec.green*light) shr 16;
