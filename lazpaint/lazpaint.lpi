@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="10"/>
+    <Version Value="9"/>
     <PathDelim Value="\"/>
     <General>
       <SessionStorage Value="InProjectDir"/>
@@ -23,7 +23,7 @@
       <MinorVersionNr Value="4"/>
       <RevisionNr Value="1"/>
       <CharSet Value="04B0"/>
-      <StringTable CompanyName="http://sourceforge.net/projects/lazpaint/" ProductName="LazPaint" InternalName="lazpaint" OriginalFilename="lazpaint.exe"/>
+      <StringTable CompanyName="http://sourceforge.net/projects/lazpaint/" ProductName="LazPaint" InternalName="lazpaint" OriginalFilename="lazpaint.exe" ProductVersion=""/>
     </VersionInfo>
     <BuildModes Count="4">
       <Item1 Name="Debug" Default="True"/>
@@ -157,19 +157,22 @@
         <LaunchingApplication PathPlusParams="\usr\X11R6\bin\xterm -T 'Lazarus Run Output' -e $(LazarusDir)\tools\runwait.sh $(TargetCmdLine)"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="4">
+    <RequiredPackages Count="5">
       <Item1>
-        <PackageName Value="BGRABitmapPack"/>
+        <PackageName Value="lazpaintcontrols"/>
       </Item1>
       <Item2>
-        <PackageName Value="Printer4Lazarus"/>
+        <PackageName Value="BGRABitmapPack"/>
       </Item2>
       <Item3>
-        <PackageName Value="bgracontrols"/>
+        <PackageName Value="Printer4Lazarus"/>
       </Item3>
       <Item4>
-        <PackageName Value="LCL"/>
+        <PackageName Value="bgracontrols"/>
       </Item4>
+      <Item5>
+        <PackageName Value="LCL"/>
+      </Item5>
     </RequiredPackages>
     <Units Count="97">
       <Unit0>
@@ -404,6 +407,7 @@
       <Unit36>
         <Filename Value="utoolphong.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UToolPhong"/>
       </Unit36>
       <Unit37>
         <Filename Value="utooltext.pas"/>
@@ -460,10 +464,12 @@
         <ComponentName Value="FLoading"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ULoading"/>
       </Unit45>
       <Unit46>
         <Filename Value="ufilterconnector.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UFilterConnector"/>
       </Unit46>
       <Unit47>
         <Filename Value="uzoom.pas"/>
@@ -725,6 +731,7 @@
         <Filename Value="uquestion.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FQuestion"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UQuestion"/>
       </Unit94>

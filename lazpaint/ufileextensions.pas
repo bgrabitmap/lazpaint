@@ -39,7 +39,9 @@ function GetImageFormatName(AFormat: TBGRAImageFormat): string;
 
 implementation
 
-uses Masks, LazUTF8, UResourceStrings, BGRASVG;
+uses Masks, LazUTF8, UResourceStrings, BGRASVG,
+     BGRALayerOriginal, BGRASVGOriginal, BGRAGradientOriginal,
+     LCVectorOriginal, LCVectorShapes;
 
 function GetSelectedFilterExtensions(const Filter: string;
   FilterIndex: integer; ARemoveLeadingDot: boolean): TStringList;

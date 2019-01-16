@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, BGRABitmap, BGRABitmapTypes, types,
   UImageState, UStateType, Graphics, BGRALayers, UImageObservation, FPWriteBMP,
-  UImageType, UZoom, BGRATransform;
+  UImageType, UZoom, BGRATransform, BGRALayerOriginal;
 
 const
   MaxLayersToAdd = 99;
@@ -64,6 +64,9 @@ type
     function GetIsGif: boolean;
     function GetLayerBitmapById(AId: integer): TBGRABitmap;
     function GetLayerId(AIndex: integer): integer;
+    function GetLayerOriginal(AIndex: integer): TBGRALayerCustomOriginal;
+    function GetLayerOriginalDefined(AIndex: integer): boolean;
+    function GetLayerOriginalMatrix(AIndex: integer): TAffineMatrix;
     function GetTransformedSelectionBounds: TRect;
     procedure NeedSelectionLayerAfterMask;
     function GetBlendOperation(AIndex: integer): TBlendOperation;
@@ -170,10 +173,14 @@ type
     procedure AddUndo(AUndoAction: TCustomImageDifference);
     procedure AddLayerUndo(APreviousImage: TBGRABitmap; APreviousImageDefined: boolean;
         APreviousSelection: TBGRABitmap; APreviousSelectionDefined: boolean;
-        APreviousSelectionLayer: TBGRABitmap; APreviousSelectionLayerDefined: boolean); overload;
+        APreviousSelectionLayer: TBGRABitmap; APreviousSelectionLayerDefined: boolean;
+        APreviousLayerOriginalData: TStream;
+        APreviousLayerOriginalMatrix: TAffineMatrix); overload;
     procedure AddLayerUndo(APreviousImage: TBGRABitmap; APreviousImageChangeRect:TRect;
         APreviousSelection: TBGRABitmap; APreviousSelectionChangeRect:TRect;
-        APreviousSelectionLayer: TBGRABitmap; APreviousSelectionLayerChangeRect:TRect); overload;
+        APreviousSelectionLayer: TBGRABitmap; APreviousSelectionLayerChangeRect:TRect;
+        APreviousLayerOriginalData: TStream;
+        APreviousLayerOriginalMatrix: TAffineMatrix); overload;
 
     function ComputeTransformedSelection: TBGRABitmap;
     function ApplySmartZoom3: boolean;
@@ -199,15 +206,20 @@ type
 
     procedure Draw(ADest: TBGRABitmap; x,y: integer);
     procedure AddNewLayer;
+    procedure AddNewLayer(AOriginal: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation);
     procedure AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation);
     procedure DuplicateLayer;
     procedure MergeLayerOver;
     procedure MoveLayer(AFromIndex,AToIndex: integer);
     procedure RemoveLayer;
+    procedure DiscardOriginal(ASaveUndo: boolean = true);
     procedure SwapRedBlue;
     procedure LinearNegativeAll;
-    procedure HorizontalFlip;
-    procedure VerticalFlip;
+    procedure NegativeAll;
+    procedure HorizontalFlip; overload;
+    procedure HorizontalFlip(ALayerIndex: integer); overload;
+    procedure VerticalFlip; overload;
+    procedure VerticalFlip(ALayerIndex: integer); overload;
     procedure RotateCW;
     procedure RotateCCW;
     function CheckCurrentLayerVisible: boolean;
@@ -231,6 +243,9 @@ type
     property LayerName[AIndex: integer]: string read GetLayerName write SetLayerName;
     property LayerBitmap[AIndex: integer]: TBGRABitmap read GetLayerBitmap;
     property LayerBitmapById[AIndex: integer]: TBGRABitmap read GetLayerBitmapById;
+    property LayerOriginal[AIndex: integer]: TBGRALayerCustomOriginal read GetLayerOriginal;
+    property LayerOriginalDefined[AIndex: integer]: boolean read GetLayerOriginalDefined;
+    property LayerOriginalMatrix[AIndex: integer]: TAffineMatrix read GetLayerOriginalMatrix;
     property LayerId[AIndex: integer]: integer read GetLayerId;
     property LayerVisible[AIndex: integer]: boolean read GetLayerVisible write SetLayerVisible;
     property LayerOpacity[AIndex: integer]: byte read GetLayerOpacity write SetLayerOpacity;
@@ -395,16 +410,28 @@ begin
 end;
 
 function TLazPaintImage.ApplySmartZoom3: boolean;
-var i: integer;
+var i, idx: integer;
   zoomed: TLayeredBitmapAndSelection;
+  ofs: TPoint;
+  withOfs: TBGRABitmap;
 begin
   result := false;
   if not CheckNoAction then exit;
   try
-    zoomed.layeredBitmap := TBGRALayeredBitmap.Create(Width,Height);
+    zoomed.layeredBitmap := TBGRALayeredBitmap.Create(Width*3,Height*3);
     for i := 0 to NbLayers-1 do
-      zoomed.layeredBitmap.AddOwnedLayer(FCurrentState.LayerBitmap[i].FilterSmartZoom3(moMediumSmooth) as TBGRABitmap,
+    begin
+      idx := zoomed.layeredBitmap.AddOwnedLayer(FCurrentState.LayerBitmap[i].FilterSmartZoom3(moMediumSmooth) as TBGRABitmap,
         FCurrentState.BlendOperation[i], FCurrentState.LayerOpacity[i]);
+      ofs := FCurrentState.LayerOffset[i];
+      if (ofs.x <> 0) or (ofs.y <> 0) or (zoomed.layeredBitmap.LayerBitmap[idx].Width <> zoomed.layeredBitmap.Width)
+        or (zoomed.layeredBitmap.LayerBitmap[idx].Height <> zoomed.layeredBitmap.Height) then
+      begin
+        withOfs := TBGRABitmap.Create(zoomed.layeredBitmap.Width, zoomed.layeredBitmap.Height);
+        withOfs.PutImage(ofs.x*3,ofs.y*3, zoomed.layeredBitmap.LayerBitmap[idx], dmSet);
+        zoomed.layeredBitmap.SetLayerBitmap(idx, withOfs, true);
+      end;
+    end;
     if currentSelection <> nil then
       zoomed.selection:= currentSelection.FilterSmartZoom3(moMediumSmooth) as TBGRABitmap
     else zoomed.Selection := nil;
@@ -826,12 +853,15 @@ end;
 procedure TLazPaintImage.AddLayerUndo(APreviousImage: TBGRABitmap;
   APreviousImageDefined: boolean; APreviousSelection: TBGRABitmap;
   APreviousSelectionDefined: boolean; APreviousSelectionLayer: TBGRABitmap;
-  APreviousSelectionLayerDefined: boolean);
+  APreviousSelectionLayerDefined: boolean;
+  APreviousLayerOriginalData: TStream;
+  APreviousLayerOriginalMatrix: TAffineMatrix);
 var diff: TCustomImageDifference;
 begin
   diff := FCurrentState.ComputeLayerDifference(APreviousImage,APreviousImageDefined,
     APreviousSelection,APreviousSelectionDefined,
-    APreviousSelectionLayer,APreviousSelectionLayerDefined);
+    APreviousSelectionLayer,APreviousSelectionLayerDefined,
+    APreviousLayerOriginalData, APreviousLayerOriginalMatrix);
   if diff.IsIdentity then
   begin
     diff.free;
@@ -843,12 +873,15 @@ end;
 procedure TLazPaintImage.AddLayerUndo(APreviousImage: TBGRABitmap;
   APreviousImageChangeRect: TRect; APreviousSelection: TBGRABitmap;
   APreviousSelectionChangeRect: TRect; APreviousSelectionLayer: TBGRABitmap;
-  APreviousSelectionLayerChangeRect: TRect);
+  APreviousSelectionLayerChangeRect: TRect;
+  APreviousLayerOriginalData: TStream;
+  APreviousLayerOriginalMatrix: TAffineMatrix);
 var diff: TCustomImageDifference;
 begin
   diff := FCurrentState.ComputeLayerDifference(APreviousImage,APreviousImageChangeRect,
     APreviousSelection,APreviousSelectionChangeRect,
-    APreviousSelectionLayer,APreviousSelectionLayerChangeRect);
+    APreviousSelectionLayer,APreviousSelectionLayerChangeRect,
+    APreviousLayerOriginalData, APreviousLayerOriginalMatrix);
   if diff.IsIdentity then
   begin
     diff.free;
@@ -1085,18 +1118,7 @@ begin
 end;
 
 procedure TLazPaintImage.ImageMayChangeCompletely;
-var i,w,h: integer;
 begin
-  w := 0;
-  h := 0;
-  for i := 0 to NbLayers-1 do
-    with FCurrentState.LayerBitmap[i] do
-    begin
-      if Width > w then w := Width;
-      if Height > h then h := Height;
-    end;
-  if (Width <> w) or (Height <> h) then
-    FCurrentState.SetSize(w,h);
   ImageMayChange(rect(0,0,Width,Height));
 end;
 
@@ -1267,6 +1289,21 @@ end;
 function TLazPaintImage.GetLayerId(AIndex: integer): integer;
 begin
   result := FCurrentState.LayerId[AIndex];
+end;
+
+function TLazPaintImage.GetLayerOriginal(AIndex: integer): TBGRALayerCustomOriginal;
+begin
+  result := FCurrentState.LayerOriginal[AIndex];
+end;
+
+function TLazPaintImage.GetLayerOriginalDefined(AIndex: integer): boolean;
+begin
+  result := FCurrentState.LayerOriginalDefined[AIndex];
+end;
+
+function TLazPaintImage.GetLayerOriginalMatrix(AIndex: integer): TAffineMatrix;
+begin
+  result := FCurrentState.LayerOriginalMatrix[AIndex];
 end;
 
 function TLazPaintImage.GetTransformedSelectionBounds: TRect;
@@ -1548,6 +1585,7 @@ begin
       FRenderedImage.FillRect(FRenderedImageInvalidated,BGRAPixelTransparent,dmSet);
       FRenderedImage.DiscardXorMask;
       FCurrentState.DrawLayers(FRenderedImage,0,0,False);
+      FRenderedImage.NoClip;
     end;
 
     //restore
@@ -1765,6 +1803,18 @@ begin
   OnImageChanged.NotifyObservers;
 end;
 
+procedure TLazPaintImage.AddNewLayer(AOriginal: TBGRALayerCustomOriginal;
+  AName: string; ABlendOp: TBlendOperation);
+begin
+  if not CheckNoAction then exit;
+  try
+    AddUndo(FCurrentState.AddNewLayer(AOriginal,AName,ABlendOp));
+    ImageMayChangeCompletely;
+  except on ex: exception do NotifyException('AddNewLayer',ex);
+  end;
+  OnImageChanged.NotifyObservers;
+end;
+
 procedure TLazPaintImage.AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation);
 var temp: TBGRAbitmap;
 begin
@@ -1849,6 +1899,19 @@ begin
   ImageMayChangeCompletely;
 end;
 
+procedure TLazPaintImage.DiscardOriginal(ASaveUndo: boolean);
+begin
+  if ASaveUndo then
+  begin
+    try
+      AddUndo(FCurrentState.DiscardOriginal(true));
+    except on ex: exception do NotifyException('RemoveLayer',ex);
+    end;
+  end else
+    FCurrentState.DiscardOriginal(false);
+  FCurrentState.currentLayeredBitmap.RemoveUnusedOriginals;
+end;
+
 procedure TLazPaintImage.SwapRedBlue;
 begin
   if not CheckNoAction then exit;
@@ -1869,6 +1932,16 @@ begin
   ImageMayChangeCompletely;
 end;
 
+procedure TLazPaintImage.NegativeAll;
+begin
+  if not CheckNoAction then exit;
+  try
+    AddUndo(FCurrentState.Negative);
+  except on ex: exception do NotifyException('NegativeAll',ex);
+  end;
+  ImageMayChangeCompletely;
+end;
+
 procedure TLazPaintImage.HorizontalFlip;
 begin
   if not CheckNoAction then exit;
@@ -1879,11 +1952,31 @@ begin
   ImageMayChangeCompletely;
 end;
 
+procedure TLazPaintImage.HorizontalFlip(ALayerIndex: integer);
+begin
+  if not CheckNoAction then exit;
+  try
+    AddUndo(FCurrentState.HorizontalFlip(ALayerIndex));
+  except on ex: exception do NotifyException('HorizontalFlip',ex);
+  end;
+  ImageMayChangeCompletely;
+end;
+
 procedure TLazPaintImage.VerticalFlip;
 begin
   if not CheckNoAction then exit;
   try
     AddUndo(FCurrentState.VerticalFlip);
+  except on ex: exception do NotifyException('VerticalFlip',ex);
+  end;
+  ImageMayChangeCompletely;
+end;
+
+procedure TLazPaintImage.VerticalFlip(ALayerIndex: integer);
+begin
+  if not CheckNoAction then exit;
+  try
+    AddUndo(FCurrentState.VerticalFlip(ALayerIndex));
   except on ex: exception do NotifyException('VerticalFlip',ex);
   end;
   ImageMayChangeCompletely;

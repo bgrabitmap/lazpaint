@@ -241,6 +241,7 @@ type
     procedure NotifyStackChange; virtual; abstract;
     function TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean = false): boolean; virtual; abstract;
     function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): boolean; virtual; abstract;
+    function ApplyLayerOffset: boolean; virtual;
     procedure ColorFromFChooseColor; virtual; abstract;
     procedure ColorToFChooseColor; virtual; abstract;
     function ShowSaveOptionDlg(AParameters: TVariableSet; AOutputFilenameUTF8: string): boolean; virtual; abstract;
@@ -556,6 +557,11 @@ end;
 function TLazPaintCustomInstance.GetZoomFactor: single;
 begin
   result := 1;
+end;
+
+function TLazPaintCustomInstance.ApplyLayerOffset: boolean;
+begin
+  result := false;
 end;
 
 procedure TLazPaintCustomInstance.SetBlackAndWhite(AValue: boolean);

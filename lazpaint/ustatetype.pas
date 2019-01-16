@@ -64,16 +64,16 @@ type
     BlendOp: TBlendOperation;
     Name: string;
     Opactiy: byte;
+    Offset: TPoint;
   end;
 
 procedure ApplyLayerInfo(AInfo: TLayerInfo; ALayeredBitmap: TBGRALayeredBitmap; AIndex: integer);
-procedure ApplyLayerInfo(AInfo: TLayerInfo; ALayeredBitmap: TBGRALayeredBitmap);
 function GetLayerInfo(ALayeredBitmap: TBGRALayeredBitmap; AIndex: integer): TLayerInfo;
 
 {*********** Inversible **************}
 
 type
-  TInversibleAction = (iaHorizontalFlip, iaVerticalFlip, iaRotateCW, iaRotateCCW, iaRotate180, iaSwapRedBlue, iaLinearNegative);
+  TInversibleAction = (iaHorizontalFlip, iaHorizontalFlipLayer, iaVerticalFlip, iaVerticalFlipLayer, iaRotateCW, iaRotateCCW, iaRotate180, iaSwapRedBlue, iaLinearNegative);
 
 function GetInverseAction(AAction: TInversibleAction): TInversibleAction;
 function CanCombineInversibleAction(AAction1, AAction2: TInversibleAction; out
@@ -148,6 +148,25 @@ type
   public
     constructor Create(ABitmap: TBGRABitmap);
     function GetBitmap: TBGRABitmap;
+  end;
+
+  { TStoredLayer }
+
+  TStoredLayer = class(TStoredImage)
+  private
+    function GetId: integer;
+  protected
+    FInfo: TLayerInfo;
+    FIndex: integer;
+    FOriginalData: TMemoryStream;
+    FOriginalMatrix: TAffineMatrix;
+    FOriginalDraft: boolean;
+  public
+    constructor Create(ALayeredImage: TBGRALayeredBitmap; AIndex: integer);
+    procedure Restore(ALayeredImage: TBGRALayeredBitmap);
+    procedure Replace(ALayeredImage: TBGRALayeredBitmap);
+    property LayerIndex: integer read FIndex;
+    property LayerId: integer read GetId;
   end;
 
 implementation
@@ -518,15 +537,8 @@ begin
   ALayeredBitmap.BlendOperation[AIndex] := AInfo.BlendOp;
   ALayeredBitmap.LayerName[AIndex] := AInfo.Name;
   ALayeredBitmap.LayerOpacity[AIndex] := AInfo.Opactiy;
-end;
-
-procedure ApplyLayerInfo(AInfo: TLayerInfo; ALayeredBitmap: TBGRALayeredBitmap);
-var idx: integer;
-begin
-  idx := ALayeredBitmap.GetLayerIndexFromId(AInfo.Id);
-  if idx = -1 then
-    raise exception.Create('Layer not found');
-  ApplyLayerInfo(AInfo, ALayeredBitmap, idx);
+  if ALayeredBitmap.LayerOriginalGuid[AIndex] = GUID_NULL then
+    ALayeredBitmap.LayerOffset[AIndex] := AInfo.Offset;
 end;
 
 function GetLayerInfo(ALayeredBitmap: TBGRALayeredBitmap; AIndex: integer): TLayerInfo;
@@ -538,6 +550,7 @@ begin
   result.BlendOp := ALayeredBitmap.BlendOperation[AIndex];
   result.Name := ALayeredBitmap.LayerName[AIndex];
   result.Opactiy := ALayeredBitmap.LayerOpacity[AIndex];
+  result.Offset := ALayeredBitmap.LayerOffset[AIndex];
 end;
 
 {*********** Inversible **************}
@@ -883,13 +896,78 @@ end;
 
 constructor TStoredImage.Create(ABitmap: TBGRABitmap);
 begin
-  inherited Create(nil,ABitmap,rect(0,0,ABitmap.Width,ABitmap.Height));
+  if Assigned(ABitmap) then
+    inherited Create(nil,ABitmap,rect(0,0,ABitmap.Width,ABitmap.Height))
+  else
+    inherited Create(nil,ABitmap,EmptyRect)
 end;
 
 function TStoredImage.GetBitmap: TBGRABitmap;
 begin
   result := TBGRABitmap.Create(SizeAfter.cx, SizeAfter.cy);
   Apply(result,false);
+end;
+
+{ TStoredLayer }
+
+function TStoredLayer.GetId: integer;
+begin
+  result := FInfo.Id;
+end;
+
+constructor TStoredLayer.Create(ALayeredImage: TBGRALayeredBitmap;
+  AIndex: integer);
+begin
+  FIndex := AIndex;
+  FInfo := GetLayerInfo(ALayeredImage, AIndex);
+  if (ALayeredImage.LayerOriginalGuid[AIndex]<>GUID_NULL) and
+     ALayeredImage.LayerOriginalKnown[AIndex] then
+  begin
+    inherited Create(nil);
+    FOriginalData := TMemoryStream.Create;
+    ALayeredImage.LayerOriginal[AIndex].SaveToStream(FOriginalData);
+    FOriginalMatrix := ALayeredImage.LayerOriginalMatrix[AIndex];
+    FOriginalDraft := ALayeredImage.LayerOriginalRenderStatus[AIndex] in[orsDraft,orsPartialDraft];
+  end else
+  begin
+    inherited Create(ALayeredImage.LayerBitmap[AIndex]);
+    FOriginalData := nil;
+  end;
+end;
+
+procedure TStoredLayer.Restore(ALayeredImage: TBGRALayeredBitmap);
+var
+  tempIdx, idxOrig: Integer;
+begin
+  if Assigned(FOriginalData) then
+  begin
+    FOriginalData.Position:= 0;
+    idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData);
+    tempIdx := ALayeredImage.AddLayerFromOriginal(ALayeredImage.Original[idxOrig].Guid, FOriginalMatrix);
+    ALayeredImage.RenderLayerFromOriginal(tempIdx, FOriginalDraft);
+  end else
+    tempIdx := ALayeredImage.AddOwnedLayer(GetBitmap);
+
+  ApplyLayerInfo(FInfo,ALayeredImage,tempIdx);
+  ALayeredImage.InsertLayer(FIndex,tempIdx);
+end;
+
+procedure TStoredLayer.Replace(ALayeredImage: TBGRALayeredBitmap);
+var
+  tempIdx, idxOrig: Integer;
+begin
+  if Assigned(FOriginalData) then
+  begin
+    FOriginalData.Position:= 0;
+    idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData);
+    ALayeredImage.LayerOriginalGuid[FIndex] := ALayeredImage.Original[idxOrig].Guid;
+    ALayeredImage.LayerOriginalMatrix[FIndex] := FOriginalMatrix;
+    ALayeredImage.RenderLayerFromOriginal(FIndex, FOriginalDraft);
+  end else
+    ALayeredImage.SetLayerBitmap(FIndex,GetBitmap,True);
+  ALayeredImage.RemoveUnusedOriginals;
+
+  ApplyLayerInfo(FInfo,ALayeredImage,FIndex);
 end;
 
 end.

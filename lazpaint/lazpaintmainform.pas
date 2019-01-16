@@ -28,6 +28,9 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    ImageSwapRedBlue: TAction;
+    ImageLinearNegative: TAction;
+    ImageNegative: TAction;
     ForgetDialogAnswers: TAction;
     FileChooseEntry: TAction;
     ToolButton8: TToolButton;

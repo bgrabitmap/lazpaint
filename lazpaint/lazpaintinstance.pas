@@ -151,6 +151,7 @@ type
     procedure NotifyImageChangeCompletely(RepaintNow: boolean); override;
     function TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean = false): boolean; override;
     function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): boolean; override;
+    function ApplyLayerOffset: boolean; override;
     procedure ColorFromFChooseColor; override;
     procedure ColorToFChooseColor; override;
     function ShowSaveOptionDlg({%H-}AParameters: TVariableSet; AOutputFilenameUTF8: string): boolean; override;
@@ -1205,6 +1206,31 @@ begin
   vars.AddString('Name',PictureFilterStr[filter]);
   Result:= UFilters.ExecuteFilter(self, filter, vars, skipDialog);
   vars.Free;
+end;
+
+function TLazPaintInstance.ApplyLayerOffset: boolean;
+var bmp: TBGRABitmap;
+  curOfs: TPoint;
+  topmostInfo: TTopMostInfo;
+  idx: Integer;
+  res: TModalResult;
+begin
+  idx := Image.currentImageLayerIndex;
+  curOfs := Image.LayerOffset[idx];
+  bmp := Image.LayerBitmap[idx];
+  if (curOfs.X <> 0) or (curOfs.Y <> 0) or (bmp.Width <> Image.Width) or
+     (bmp.Height <> Image.Height) then
+  begin
+    if Image.LayerOriginalDefined[idx] then
+    begin
+      topmostInfo:= HideTopmost;
+      res := MessageDlg(rsLazPaint,rsWillRateriseDiscardOriginal,mtConfirmation,[mbOk,mbCancel],0);
+      ShowTopmost(topmostInfo);
+      if res <> mrOK then exit(false);
+    end;
+    Image.ApplyLayerOffset(curOfs.X,curOfs.Y);
+  end;
+  result := true;
 end;
 
 procedure TLazPaintInstance.ColorFromFChooseColor;

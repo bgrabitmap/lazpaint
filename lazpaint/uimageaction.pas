@@ -37,6 +37,8 @@ type
     procedure RotateCW;
     procedure RotateCCW;
     procedure LinearNegativeAll;
+    procedure NegativeAll;
+    procedure SwapRedBlueAll;
     procedure InvertSelection;
     procedure Deselect;
     procedure CopySelection;
@@ -64,7 +66,7 @@ type
 implementation
 
 uses Controls, Dialogs, UResourceStrings, UObject3D,
-     ULoadImage, UGraph, UClipboard, Types;
+     ULoadImage, UGraph, UClipboard, Types, BGRAGradientOriginal;
 
 { TImageActions }
 
@@ -103,6 +105,9 @@ begin
   Scripting.RegisterScriptFunction('ImageFillBackground',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageRotateCW',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageRotateCCW',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('ImageLinearNegative',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('ImageNegative',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('ImageSwapRedBlue',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditUndo',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditRedo',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditInvertSelection',@GenericScriptFunction,ARegister);
@@ -153,6 +158,9 @@ begin
   if f = 'ImageFillBackground' then FillBackground else
   if f = 'ImageRotateCW' then RotateCW else
   if f = 'ImageRotateCCW' then RotateCCW else
+  if f = 'ImageLinearNegative' then LinearNegativeAll else
+  if f = 'ImageNegative' then NegativeAll else
+  if f = 'ImageSwapRedBlue' then SwapRedBlueAll else
   if f = 'EditUndo' then Undo else
   if f = 'EditRedo' then Redo else
   if f = 'EditInvertSelection' then InvertSelection else
@@ -504,14 +512,7 @@ var bounds: TRect;
 begin
   try
     if (AOption = foCurrentLayer) then
-    begin
-      if not Image.CheckNoAction then exit;
-      LayerAction := TLayerAction.Create(Image);
-      LayerAction.SelectedImageLayer.HorizontalFlip;
-      Image.LayerMayChangeCompletely(LayerAction.SelectedImageLayer);
-      LayerAction.Validate;
-      LayerAction.Free;
-    end else
+      image.HorizontalFlip(Image.currentImageLayerIndex) else
     if ((AOption = foAuto) and not image.SelectionEmpty) or (AOption = foSelection) then
     begin
       if not image.SelectionEmpty then
@@ -549,14 +550,7 @@ var bounds: TRect;
 begin
   try
     if (AOption = foCurrentLayer) then
-    begin
-      if not Image.CheckNoAction then exit;
-      LayerAction := TLayerAction.Create(Image);
-      LayerAction.SelectedImageLayer.VerticalFlip;
-      Image.LayerMayChangeCompletely(LayerAction.SelectedImageLayer);
-      LayerAction.Validate;
-      LayerAction.Free;
-    end else
+      image.VerticalFlip(Image.currentImageLayerIndex) else
     if ((AOption = foAuto) and not image.SelectionEmpty) or (AOption = foSelection) then
     begin
       if not image.SelectionEmpty then
@@ -600,6 +594,16 @@ end;
 procedure TImageActions.LinearNegativeAll;
 begin
   Image.LinearNegativeAll;
+end;
+
+procedure TImageActions.NegativeAll;
+begin
+  Image.NegativeAll;
+end;
+
+procedure TImageActions.SwapRedBlueAll;
+begin
+  Image.SwapRedBlue;
 end;
 
 procedure TImageActions.InvertSelection;
@@ -856,6 +860,7 @@ end;
 procedure TImageActions.NewLayer;
 var top: TTopMostInfo;
     res: integer;
+    grad: TBGRALayerGradientOriginal;
 begin
   if not image.SelectionLayerIsEmpty then
   begin

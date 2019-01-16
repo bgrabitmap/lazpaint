@@ -80,7 +80,7 @@ type
 
 implementation
 
-uses UResourceStrings, UGraph, Types, Dialogs;
+uses UResourceStrings, UGraph, Types, Dialogs, BGRATransform, BGRALayerOriginal;
 
 { TLayerAction }
 
@@ -445,6 +445,9 @@ begin
 end;
 
 procedure TLayerAction.PartialValidate(ADiscardBackup: boolean = false);
+var prevLayerOriginal: TBGRALayerCustomOriginal;
+  prevLayerOriginalMatrix: TAffineMatrix;
+  prevLayerOriginaData: TStream;
 begin
   if FBackupSelectedLayerDefined or FBackupSelectionDefined or FBackupSelectionLayerDefined then
   begin
@@ -466,14 +469,29 @@ begin
         FImage.ReplaceCurrentSelection(nil);
       end;
     end;
+    //original will be backed up if there are changes in the raster image of the selected layer
+    prevLayerOriginal:= FImage.LayerOriginal[FImage.currentImageLayerIndex];
+    if Assigned(prevLayerOriginal) and (FBackupSelectedLayerDefined or not IsRectEmpty(FSelectedLayerChangedArea)) then
+    begin
+      prevLayerOriginaData:= TMemoryStream.Create;
+      prevLayerOriginal.SaveToStream(prevLayerOriginaData);
+      prevLayerOriginalMatrix:= FImage.LayerOriginalMatrix[FImage.currentImageLayerIndex];
+      FImage.DiscardOriginal(false);
+    end else
+    begin
+      prevLayerOriginaData := nil;
+      prevLayerOriginalMatrix:= AffineMatrixIdentity;
+    end;
     if AllChangesNotified then
       FImage.AddLayerUndo(FBackupSelectedLayer, FSelectedLayerChangedArea,
         FBackupSelection, FSelectionChangedArea,
-        FBackupSelectionLayer, FSelectionLayerChangedArea)
-      else
+        FBackupSelectionLayer, FSelectionLayerChangedArea,
+        prevLayerOriginaData, prevLayerOriginalMatrix)
+    else
       FImage.AddLayerUndo(FBackupSelectedLayer, FBackupSelectedLayerDefined,
         FBackupSelection, FBackupSelectionDefined,
-        FBackupSelectionLayer, FBackupSelectionLayerDefined);
+        FBackupSelectionLayer, FBackupSelectionLayerDefined,
+        prevLayerOriginaData, prevLayerOriginalMatrix);
 
     FImage.OnImageChanged.NotifyObservers;
 
