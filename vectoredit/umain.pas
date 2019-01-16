@@ -116,7 +116,6 @@ type
     procedure BCPanelToolChoiceResize(Sender: TObject);
     procedure BGRAVirtualScreen1MouseWheel(Sender: TObject; {%H-}Shift: TShiftState;
       WheelDelta: Integer; {%H-}MousePos: TPoint; var {%H-}Handled: Boolean);
-    procedure ButtonPenStyleClick(Sender: TObject);
     procedure EditCopyExecute(Sender: TObject);
     procedure EditCutExecute(Sender: TObject);
     procedure EditDeleteExecute(Sender: TObject);
@@ -346,6 +345,7 @@ begin
     item.OnClick := @OnClickPenStyle;       item.Tag := ord(ps);
     FPenStyleMenu.Items.Add(item);
   end;
+  ButtonPenStyle.DropDownMenu := FPenStyleMenu;
 
   PenFillControl.ToolIconSize:= ActionIconSize;
   PenFillControl.SolidColor := BGRABlack;
@@ -600,13 +600,6 @@ begin
   PanelShape.Width := ToolBarEdit.Width+3;
 end;
 
-procedure TForm1.ButtonPenStyleClick(Sender: TObject);
-begin
-  if Assigned(FPenStyleMenu) then
-    with ButtonPenStyle.ClientToScreen(Point(0,ButtonPenStyle.Height)) do
-      FPenStyleMenu.PopUp(X,Y);
-end;
-
 procedure TForm1.BCPanelToolChoiceResize(Sender: TObject);
 begin
   ToolbarTools.Width := GetToolbarSize(ToolbarTools).cx;
@@ -742,6 +735,7 @@ begin
   if (newShape <> nil) and not shapeAdded then FreeAndNil(newShape);
   img.Free;
   FFlattened.Free;
+  ButtonPenStyle.DropDownMenu := nil;
   FPenStyleMenu.Free;
   FSplineStyleMenu.Free;
 end;
@@ -1300,6 +1294,8 @@ begin
     FComboboxSplineStyle.StateHover.Assign(ButtonPenStyle.StateHover);
     FComboboxSplineStyle.StateClicked.Assign(ButtonPenStyle.StateClicked);
     FComboboxSplineStyle.Rounding.Assign(ButtonPenStyle.Rounding);
+    FComboboxSplineStyle.DropDownArrow:= ButtonPenStyle.DropDownArrow;
+    FComboboxSplineStyle.DropDownArrowSize:= ButtonPenStyle.DropDownArrowSize;
     AddToolbarControl(FSplineToolbar, FComboboxSplineStyle);
 
     UpdateSplineToolbar;

@@ -835,19 +835,19 @@ object Form1: TForm1
           StateNormal.FontEx.WordBreak = False
           Color = clNone
           DropDownWidth = 16
-          DropDownArrowSize = 8
+          DropDownArrowSize = 6
           GlobalOpacity = 255
           InnerMargin = 0
-          OnClick = ButtonPenStyleClick
           ParentColor = False
-          Rounding.RoundX = 5
-          Rounding.RoundY = 5
+          Rounding.RoundX = 6
+          Rounding.RoundY = 6
           Rounding.RoundOptions = []
           RoundingDropDown.RoundX = 1
           RoundingDropDown.RoundY = 1
           RoundingDropDown.RoundOptions = []
           ShowHint = True
           TextApplyGlobalOpacity = False
+          DropDownArrow = True
           DropDownStyle = bdsCommon
           MemoryUsage = bmuHigh
         end
