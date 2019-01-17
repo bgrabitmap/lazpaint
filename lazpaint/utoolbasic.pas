@@ -766,7 +766,6 @@ begin
         Manager.ToolPenWidth,True);
       mask.ScanOffset := Point(-result.left,-result.top);
       areaCopy.ScanOffset := Point(-result.left,-result.top);
-      toolDest.ScanOffset := Point(0,0);
       toolDest.CrossFade(result,toolDest,areaCopy,mask,dmSet);
       mask.Free;
       areaCopy.Free;
@@ -807,7 +806,6 @@ begin
         Manager.ToolPenWidth,false);
       mask.ScanOffset := Point(-result.left,-result.top);
       areaCopy.ScanOffset := Point(-result.left,-result.top);
-      toolDest.ScanOffset := Point(0,0);
       toolDest.CrossFade(result,toolDest,areaCopy,mask,dmSet);
       mask.Free;
       areaCopy.Free;

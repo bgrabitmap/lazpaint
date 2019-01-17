@@ -1379,22 +1379,22 @@ procedure TLazPaintImage.MergeWithSelection(AApplyMask: boolean);
 var offs: TPoint;
   sourceRect,destRect: TRect;
 begin
-    if not SelectionLayerIsEmpty and not (AApplyMask and SelectionEmpty) then
+  if not SelectionLayerIsEmpty and not (AApplyMask and SelectionEmpty) then
+  begin
+    sourceRect := SelectionLayerBounds;
+    if AApplyMask then
     begin
-      sourceRect := SelectionLayerBounds;
-      if AApplyMask then
-      begin
-        GetSelectionLayerIfExists.ApplyMask(CurrentSelectionMask,SelectionLayerBounds);
-        IntersectRect(sourceRect,sourceRect,SelectionMaskBounds);
-        LayerMayChange(GetSelectionLayerIfExists,SelectionLayerBounds);
-      end;
-      offs := LayerOffset[currentImageLayerIndex];
-      destRect := sourceRect;
-      OffsetRect(destRect, -offs.x,-offs.y);
-      GetSelectedImageLayer.PutImagePart(destRect.left,destRect.top,GetSelectionLayerIfExists,sourceRect,dmDrawWithTransparency);
-      LayerMayChange(GetSelectedImageLayer,destRect);
-      ReplaceSelectionLayer(nil,true);
+      GetSelectionLayerIfExists.ApplyMask(CurrentSelectionMask,SelectionLayerBounds);
+      IntersectRect(sourceRect,sourceRect,SelectionMaskBounds);
+      LayerMayChange(GetSelectionLayerIfExists,SelectionLayerBounds);
     end;
+    offs := LayerOffset[currentImageLayerIndex];
+    destRect := sourceRect;
+    OffsetRect(destRect, -offs.x,-offs.y);
+    GetSelectedImageLayer.PutImagePart(destRect.left,destRect.top,GetSelectionLayerIfExists,sourceRect,dmDrawWithTransparency);
+    LayerMayChange(GetSelectedImageLayer,destRect);
+    ReplaceSelectionLayer(nil,true);
+  end;
 end;
 
 procedure TLazPaintImage.SetBlendOperation(AIndex: integer;
@@ -1512,9 +1512,9 @@ end;
 function TLazPaintImage.GetRenderedImage: TBGRABitmap;
 var
   backupCurrentLayer : TBGRABitmap;
-  backupTopLeft: TPoint;
+  backupTopLeft, ofs: TPoint;
   shownSelectionLayer , temp: TBGRABitmap;
-  rectOutput: TRect;
+  rectOutput, invalidatedRect: TRect;
   actualTransformation: TAffineMatrix;
 begin
   if (FRenderedImage = nil) or ((FRenderedImageInvalidated.Right > FRenderedImageInvalidated.Left) and
@@ -1539,16 +1539,18 @@ begin
          if not IsAffineMatrixIdentity(SelectionTransform) then
          begin
            NeedSelectionLayerAfterMask;
-           with LayerOffset[currentImageLayerIndex] do
-             actualTransformation := AffineMatrixTranslation(-X,-Y)*SelectionTransform*
-                                  AffineMatrixTranslation(FSelectionLayerAfterMaskOffset.X,FSelectionLayerAfterMaskOffset.Y);
+           ofs := LayerOffset[currentImageLayerIndex];
+           actualTransformation := AffineMatrixTranslation(-ofs.X,-ofs.Y)*SelectionTransform*
+                                AffineMatrixTranslation(FSelectionLayerAfterMaskOffset.X,FSelectionLayerAfterMaskOffset.Y);
            if FSelectionLayerAfterMask <> nil then
              shownSelectionLayer := FSelectionLayerAfterMask;
            if shownSelectionLayer <> nil then
            begin
              rectOutput := GetSelectedImageLayer.GetImageAffineBounds(
                 actualTransformation, FSelectionLayerAfterMask);
-             IntersectRect(rectOutput,rectOutput,FRenderedImageInvalidated);
+             invalidatedRect := FRenderedImageInvalidated;
+             OffsetRect(invalidatedRect, -ofs.x,-ofs.y);
+             IntersectRect(rectOutput,rectOutput,invalidatedRect);
              if not IsRectEmpty(rectOutput) then
              begin
                backupCurrentLayer := GetSelectedImageLayer.GetPart(rectOutput) as TBGRABitmap;
@@ -1562,18 +1564,18 @@ begin
          begin
            DiscardSelectionLayerAfterMask;
            rectoutput := FRenderedImageInvalidated;
-           with LayerOffset[currentImageLayerIndex] do
-             OffsetRect(rectoutput, -X,-Y);
            IntersectRect(rectoutput, rectoutput, SelectionLayerBounds);
            IntersectRect(rectoutput, rectoutput, SelectionMaskBounds);
+           ofs := LayerOffset[currentImageLayerIndex];
+           OffsetRect(rectoutput, -ofs.X,-ofs.Y);
            if not IsRectEmpty(rectoutput) then
            begin
              backupTopLeft := rectOutput.TopLeft;
              backupCurrentLayer := GetSelectedImageLayer.GetPart(rectoutput) as TBGRABitmap;
-             shownSelectionLayer.ScanOffset := Point(0,0);
-             CurrentSelectionMask.ScanOffset := Point(0,0);
+             shownSelectionLayer.ScanOffset := Point(ofs.x,ofs.y);
              GetSelectedImageLayer.ClipRect := rectOutput;
-             GetSelectedImageLayer.FillMask(0,0,CurrentSelectionMask, shownSelectionLayer, dmDrawWithTransparency);
+             GetSelectedImageLayer.FillMask(-ofs.X,-ofs.Y,CurrentSelectionMask, shownSelectionLayer, dmDrawWithTransparency);
+             shownSelectionLayer.ScanOffset := Point(0,0);
              GetSelectedImageLayer.NoClip;
            end;
          end;
