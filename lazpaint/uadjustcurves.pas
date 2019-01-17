@@ -818,7 +818,7 @@ var
 begin
   tempParameters := AParameters.Duplicate;
   try
-    FFilterConnector := TFilterConnector.Create(AInstance, tempParameters);
+    FFilterConnector := TFilterConnector.Create(AInstance, tempParameters, false);
     FFilterConnector.OnTryStopAction := @OnTryStopAction;
   except
     on ex: Exception do

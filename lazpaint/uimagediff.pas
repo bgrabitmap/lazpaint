@@ -45,6 +45,7 @@ type
         APreviousLayerOriginalMatrix: TAffineMatrix);
   public
     layerId: integer;
+    imageOfs: TPoint;
     imageDiff, selectionLayerDiff: TImageDiff;
     selectionDiff: TGrayscaleImageDiff;
     layerOriginalChange: boolean;
@@ -128,6 +129,8 @@ type
   protected
     function GetImageDifferenceKind: TImageDifferenceKind; override;
     function GetIsIdentity: boolean; override;
+    function GetChangingBoundsDefined: boolean; override;
+    function GetChangingBounds: TRect; override;
   public
     constructor Create(ADestination: TState; ALayerId: integer; AOffsetX, AOffsetY: integer; AApplyNow: boolean);
     destructor Destroy; override;
@@ -506,13 +509,23 @@ end;
 
 function TApplyLayerOffsetStateDifference.GetImageDifferenceKind: TImageDifferenceKind;
 begin
-  Result:= idkChangeLayer;
+  Result:= idkChangeImage;
 end;
 
 function TApplyLayerOffsetStateDifference.GetIsIdentity: boolean;
 begin
   Result:= (previousBounds.Left = nextBounds.Left) and (previousBounds.Top = nextBounds.Top) and
      (previousBounds.right = nextBounds.Right) and (previousBounds.bottom = nextBounds.Bottom);
+end;
+
+function TApplyLayerOffsetStateDifference.GetChangingBoundsDefined: boolean;
+begin
+  Result:= true;
+end;
+
+function TApplyLayerOffsetStateDifference.GetChangingBounds: TRect;
+begin
+  Result:= EmptyRect;
 end;
 
 constructor TApplyLayerOffsetStateDifference.Create(ADestination: TState;
@@ -1367,7 +1380,7 @@ begin
     else if selectionLayerDiff <> nil then
       result := idkChangeImage
     else
-      result := idkChangeLayer;
+      result := idkChangeImage;
   end
   else if selectionDiff <> nil then
     result := idkChangeSelection
@@ -1388,9 +1401,16 @@ begin
 end;
 
 function TImageLayerStateDifference.GetChangingBounds: TRect;
+var
+  r: TRect;
 begin
   result := EmptyRect;
-  if imageDiff <> nil then result := RectUnion(result, imageDiff.ChangeRect);
+  if imageDiff <> nil then
+  begin
+    r := imageDiff.ChangeRect;
+    OffsetRect(r, imageOfs.x, imageOfs.y);
+    result := RectUnion(result, r);
+  end;
   if selectionLayerDiff <> nil then result := RectUnion(result, selectionLayerDiff.ChangeRect);
   if selectionDiff <> nil then result := RectUnion(result, selectionDiff.ChangeRect);
 end;
@@ -1408,6 +1428,7 @@ begin
   inherited Create((AToState as TImageState).saved,false);
   layerId := -1;
   imageDiff := nil;
+  imageOfs := Point(0,0);
   selectionDiff := nil;
   selectionLayerDiff := nil;
   prevLayerOriginalData := nil;
@@ -1427,7 +1448,10 @@ begin
   else
   begin
     if not IsRectEmpty(APreviousImageChangeRect) then
+    begin
       imageDiff := TImageDiff.Create(APreviousImage,next.LayerBitmap[curIdx],APreviousImageChangeRect);
+      imageOfs := next.LayerOffset[curIdx];
+    end;
     if not IsRectEmpty(APreviousSelectionChangeRect) then
       selectionDiff := TGrayscaleImageDiff.Create(APreviousSelection,next.currentSelection,APreviousSelectionChangeRect);
     if not IsRectEmpty(APreviousSelectionLayerChangeRect) then
@@ -1543,6 +1567,7 @@ begin
   inherited Create(AFromState,AToState);
   layerId := -1;
   imageDiff := nil;
+  imageOfs := Point(0,0);
   selectionDiff := nil;
   selectionLayerDiff := nil;
   prevLayerOriginalData := nil;
@@ -1565,6 +1590,7 @@ begin
   else
   begin
     imageDiff := TImageDiff.Create(prev.LayerBitmap[prevIdx],next.LayerBitmap[curIdx]);
+    imageOfs := next.LayerOffset[curIdx];
     selectionDiff := TGrayscaleImageDiff.Create(prev.currentSelection,next.currentSelection);
     selectionLayerDiff := TImageDiff.Create(prev.selectionLayer,next.selectionLayer);
     prevOrig := prev.LayerOriginal[prevIdx];

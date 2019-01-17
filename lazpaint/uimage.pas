@@ -127,7 +127,7 @@ type
     function CanRedo: boolean;
     procedure Undo;
     procedure Redo;
-    procedure ChangeState(AStateDiff: TStateDifference);
+    procedure ChangeState(AStateDiff: TStateDifference; AInverse: boolean = false);
     procedure ClearUndo;
     procedure CompressUndo;
     function UsedMemory: int64;
@@ -1074,9 +1074,12 @@ begin
   end;
 end;
 
-procedure TLazPaintImage.ChangeState(AStateDiff: TStateDifference);
+procedure TLazPaintImage.ChangeState(AStateDiff: TStateDifference; AInverse: boolean = false);
 begin
-  AStateDiff.ApplyTo(FCurrentState);
+  if AInverse then
+    AStateDiff.UnapplyTo(FCurrentState)
+  else
+    AStateDiff.ApplyTo(FCurrentState);
 end;
 
 procedure TLazPaintImage.ClearUndo;

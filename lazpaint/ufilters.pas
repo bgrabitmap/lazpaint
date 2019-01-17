@@ -87,6 +87,7 @@ var
 
 var
   layer: TBGRABitmap;
+  applyOfsBefore: Boolean;
 
 begin
   result := false;
@@ -100,13 +101,14 @@ begin
       exit;
   end;
 
+  applyOfsBefore:= false;
   if not (filter in[pfSharpen, pfSmooth, pfClearType, pfClearTypeInverse, pfNormalize, pfMedian,
             pfNegative, pfLinearNegative, pfComplementaryColor, pfGrayscale]) then
     if AInstance.Image.SelectionLayerIsEmpty then
-      if not AInstance.ApplyLayerOffset then exit;
+      applyOfsBefore := true;
 
   try
-    FilterConnector := TFilterConnector.Create(AInstance, AParameters);
+    FilterConnector := TFilterConnector.Create(AInstance, AParameters, applyOfsBefore);
     layer := FilterConnector.ActiveLayer;
 
     filteredLayer := nil;

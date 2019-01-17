@@ -15,6 +15,7 @@ type
   private
     FAllChangesNotified: boolean;
     FImage: TLazPaintImage;
+    FPrediff: TCustomImageDifference;
     FBackupSelectedLayer, FBackupSelectionLayer, FBackupSelection: TBGRABitmap;
     FBackupSelectedLayerDefined, FBackupSelectionLayerDefined, FBackupSelectionDefined: boolean;
     FSelectedLayerChangedArea, FSelectionLayerChangedArea, FSelectionChangedArea: TRect;
@@ -36,7 +37,7 @@ type
     function GetSelectionTransform: TAffineMatrix;
     procedure SetSelectionTransform(AValue: TAffineMatrix);
   public
-    constructor Create(AImage: TLazPaintImage);
+    constructor Create(AImage: TLazPaintImage; AApplyOfsBefore: boolean = false);
     procedure Validate;
     procedure PartialValidate(ADiscardBackup: boolean = false);
     procedure PartialCancel;
@@ -148,6 +149,11 @@ begin
   RestoreSelectedLayer;
   RestoreSelectionLayer;
   RestoreSelection;
+  if Assigned(FPrediff) then
+  begin
+    FImage.ChangeState(FPrediff,true);
+    FreeAndNil(FPrediff);
+  end;
   FDone := true;
 end;
 
@@ -178,7 +184,7 @@ begin
   end;
 end;
 
-constructor TLayerAction.Create(AImage: TLazPaintImage);
+constructor TLayerAction.Create(AImage: TLazPaintImage; AApplyOfsBefore: boolean = false);
 begin
   if AImage <> nil then
   begin
@@ -197,6 +203,14 @@ begin
   FSelectionLayerChangedArea := EmptyRect;
   FSelectionChangedArea := EmptyRect;
   FDone := false;
+  if AApplyOfsBefore then
+  begin
+    with AImage.LayerOffset[AImage.currentImageLayerIndex] do
+      FPrediff := AImage.ComputeLayerOffsetDifference(X,Y);
+    if FPrediff.IsIdentity then FreeAndNil(FPrediff)
+    else FImage.ChangeState(FPreDiff);
+  end else
+    FPrediff := nil;
 end;
 
 destructor TLayerAction.Destroy;
@@ -449,10 +463,11 @@ procedure TLayerAction.PartialValidate(ADiscardBackup: boolean = false);
 var prevLayerOriginal: TBGRALayerCustomOriginal;
   prevLayerOriginalMatrix: TAffineMatrix;
   prevLayerOriginaData: TStream;
-  diff: TImageLayerStateDifference;
+  imgDiff: TImageLayerStateDifference;
   composedDiff: TComposedImageDifference;
   ofs: TPoint;
   applyOfs: TCustomImageDifference;
+  appendOfs: boolean;
 begin
   if FBackupSelectedLayerDefined or FBackupSelectionDefined or FBackupSelectionLayerDefined then
   begin
@@ -489,12 +504,12 @@ begin
     end;
 
     if AllChangesNotified then
-      diff := FImage.ComputeLayerDifference(FBackupSelectedLayer, FSelectedLayerChangedArea,
+      imgDiff := FImage.ComputeLayerDifference(FBackupSelectedLayer, FSelectedLayerChangedArea,
         FBackupSelection, FSelectionChangedArea,
         FBackupSelectionLayer, FSelectionLayerChangedArea,
         prevLayerOriginaData, prevLayerOriginalMatrix) as TImageLayerStateDifference
     else
-      diff := FImage.ComputeLayerDifference(FBackupSelectedLayer, FBackupSelectedLayerDefined,
+      imgDiff := FImage.ComputeLayerDifference(FBackupSelectedLayer, FBackupSelectedLayerDefined,
         FBackupSelection, FBackupSelectionDefined,
         FBackupSelectionLayer, FBackupSelectionLayerDefined,
         prevLayerOriginaData, prevLayerOriginalMatrix) as TImageLayerStateDifference;
@@ -508,17 +523,7 @@ begin
       FBackupSelectedLayerDefined := false;
       FBackupSelectionDefined := false;
 
-      if diff.ChangeImageLayer then
-      begin
-        composedDiff := TComposedImageDifference.Create;
-        composedDiff.Add(diff);
-        ofs := FImage.LayerOffset[FImage.currentImageLayerIndex];
-        applyOfs:= FImage.ComputeLayerOffsetDifference(ofs.x, ofs.y);
-        composedDiff.Add(applyOfs);
-        FImage.ChangeState(applyOfs);
-        FImage.AddUndo(composedDiff);
-      end else
-        FImage.AddUndo(diff);
+      appendOfs:= imgDiff.ChangeImageLayer;
     end else
     begin
       if FBackupSelectionLayerDefined then
@@ -568,10 +573,41 @@ begin
         FSelectionChangedArea := EmptyRect;
       end;
 
-      FImage.AddUndo(diff);
+      appendOfs := false;
     end;
 
+    if appendOfs or Assigned(FPrediff) then
+    begin
+      composedDiff := TComposedImageDifference.Create;
+      if Assigned(FPrediff) then
+      begin
+        composedDiff.Add(FPrediff);
+        FPrediff := nil;
+      end;
+      composedDiff.Add(imgDiff);
+      if appendOfs then
+      begin
+        ofs := FImage.LayerOffset[FImage.currentImageLayerIndex];
+        applyOfs:= FImage.ComputeLayerOffsetDifference(ofs.x, ofs.y);
+        if not applyOfs.IsIdentity then
+        begin
+          composedDiff.Add(applyOfs);
+          FImage.ChangeState(applyOfs);
+        end else
+          applyOfs.Free;
+      end;
+      FImage.AddUndo(composedDiff);
+    end else
+      FImage.AddUndo(imgDiff);
+
     FImage.OnImageChanged.NotifyObservers;
+  end else
+  begin
+    if Assigned(FPrediff) then
+    begin
+      FImage.AddUndo(FPrediff);
+      FPrediff := nil;
+    end;
   end;
 end;
 
