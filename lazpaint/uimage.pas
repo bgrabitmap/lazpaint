@@ -66,6 +66,7 @@ type
     function GetLayerId(AIndex: integer): integer;
     function GetLayerOriginal(AIndex: integer): TBGRALayerCustomOriginal;
     function GetLayerOriginalDefined(AIndex: integer): boolean;
+    function GetLayerOriginalKnown(AIndex: integer): boolean;
     function GetLayerOriginalMatrix(AIndex: integer): TAffineMatrix;
     function GetTransformedSelectionBounds: TRect;
     procedure NeedSelectionLayerAfterMask;
@@ -247,6 +248,7 @@ type
     property LayerBitmapById[AIndex: integer]: TBGRABitmap read GetLayerBitmapById;
     property LayerOriginal[AIndex: integer]: TBGRALayerCustomOriginal read GetLayerOriginal;
     property LayerOriginalDefined[AIndex: integer]: boolean read GetLayerOriginalDefined;
+    property LayerOriginalKnown[AIndex: integer]: boolean read GetLayerOriginalKnown;
     property LayerOriginalMatrix[AIndex: integer]: TAffineMatrix read GetLayerOriginalMatrix;
     property LayerId[AIndex: integer]: integer read GetLayerId;
     property LayerVisible[AIndex: integer]: boolean read GetLayerVisible write SetLayerVisible;
@@ -1309,6 +1311,11 @@ end;
 function TLazPaintImage.GetLayerOriginalDefined(AIndex: integer): boolean;
 begin
   result := FCurrentState.LayerOriginalDefined[AIndex];
+end;
+
+function TLazPaintImage.GetLayerOriginalKnown(AIndex: integer): boolean;
+begin
+  result := FCurrentState.LayerOriginalKnown[AIndex];
 end;
 
 function TLazPaintImage.GetLayerOriginalMatrix(AIndex: integer): TAffineMatrix;

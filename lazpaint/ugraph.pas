@@ -30,7 +30,8 @@ function NicePoint(bmp: TBGRABitmap; ptF: TPointF; alpha: byte = 192):TRect; ove
 procedure NiceLine(bmp: TBGRABitmap; x1,y1,x2,y2: single; alpha: byte = 192);
 function NiceText(bmp: TBGRABitmap; x,y,bmpWidth,bmpHeight: integer; s: string; align: TAlignment = taLeftJustify; valign: TTextLayout = tlTop): TRect;
 function ComputeColorCircle(tx,ty: integer; light: word; hueCorrection: boolean = true): TBGRABitmap;
-function ChangeCanvasSize(bmp: TBGRABitmap; newWidth,newHeight: integer; anchor: string; background: TBGRAPixel; repeatImage: boolean; flipMode: boolean = false): TBGRABitmap; overload;
+function ChangeCanvasSizeOrigin(oldWidth,oldHeight,newWidth, newHeight: integer; anchor: string): TPoint;
+function ChangeCanvasSize(bmp: TBGRABitmap; ofs: TPoint; oldWidth,oldHeight,newWidth,newHeight: integer; anchor: string; background: TBGRAPixel; repeatImage: boolean; flipMode: boolean = false): TBGRABitmap; overload;
 
 procedure RenderCloudsOn(bmp: TBGRABitmap; color: TBGRAPixel);
 procedure RenderWaterOn(bmp: TBGRABitmap; waterColor, skyColor: TBGRAPixel);
@@ -1251,7 +1252,20 @@ begin
   end;
 end;
 
-function ChangeCanvasSize(bmp: TBGRABitmap; newWidth, newHeight: integer;
+function ChangeCanvasSizeOrigin(oldWidth,oldHeight,newWidth, newHeight: integer; anchor: string): TPoint;
+var
+  origin: TPoint;
+begin
+  origin := Point((newWidth div 2)-(oldWidth div 2),(newHeight div 2)-(oldHeight div 2));
+  anchor := UTF8LowerCase(anchor);
+  if (anchor='topleft') or (anchor='top') or (anchor='topright') then origin.Y := 0;
+  if (anchor='bottomleft') or (anchor='bottom') or (anchor='bottomright') then origin.Y := newHeight-oldHeight;
+  if (anchor='topleft') or (anchor='left') or (anchor='bottomleft') then origin.X := 0;
+  if (anchor='topright') or (anchor='right') or (anchor='bottomright') then origin.X := newWidth-oldWidth;
+  result := origin;
+end;
+
+function ChangeCanvasSize(bmp: TBGRABitmap; ofs: TPoint; oldWidth,oldHeight,newWidth, newHeight: integer;
   anchor: string; background: TBGRAPixel; repeatImage: boolean; flipMode: boolean = false): TBGRABitmap;
 var origin: TPoint;
     xb,yb: integer;
@@ -1261,21 +1275,19 @@ var origin: TPoint;
 begin
    if (newWidth < 1) or (newHeight < 1) then
      raise exception.Create('Invalid canvas size');
-   origin := Point((newWidth-bmp.Width) div 2,(newHeight-bmp.Height) div 2);
-   anchor := UTF8LowerCase(anchor);
-   if (anchor='topleft') or (anchor='top') or (anchor='topright') then origin.Y := 0;
-   if (anchor='bottomleft') or (anchor='bottom') or (anchor='bottomright') then origin.Y := newHeight-bmp.Height;
-   if (anchor='topleft') or (anchor='left') or (anchor='bottomleft') then origin.X := 0;
-   if (anchor='topright') or (anchor='right') or (anchor='bottomright') then origin.X := newWidth-bmp.Width;
+   origin := ChangeCanvasSizeOrigin(oldWidth, oldHeight, newWidth, newHeight, anchor);
+   inc(origin.x, ofs.x);
+   inc(origin.y, ofs.y);
+
    result := TBGRABitmap.Create(newWidth,newHeight, background);
-   dx := bmp.Width;
-   dy := bmp.Height;
+   dx := oldWidth;
+   dy := oldHeight;
    if repeatImage then
    begin
-     minx := (0-origin.X-bmp.Width+1) div bmp.Width;
-     miny := (0-origin.Y-bmp.Height+1) div bmp.Height;
-     maxx := (newWidth-origin.X+bmp.Width-1) div bmp.Width;
-     maxy := (newHeight-origin.Y+bmp.Height-1) div bmp.Height;
+     minx := (0-origin.X-oldWidth+1) div oldWidth;
+     miny := (0-origin.Y-oldHeight+1) div oldHeight;
+     maxx := (newWidth-origin.X+oldWidth-1) div oldWidth;
+     maxy := (newHeight-origin.Y+oldHeight-1) div oldHeight;
    end else
    begin
      minx := 0;

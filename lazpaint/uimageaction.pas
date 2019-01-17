@@ -192,7 +192,7 @@ begin
   try
     c := ToolManager.ToolBackColor;
     c.alpha := 255;
-    LayerAction := TLayerAction.Create(Image);
+    LayerAction := TLayerAction.Create(Image,true);
     LayerAction.SelectedImageLayer.ReplaceColor(BGRAPixelTransparent,c);
     p := LayerAction.SelectedImageLayer.Data;
     for n := LayerAction.SelectedImageLayer.NbPixels-1 downto 0 do
@@ -220,7 +220,7 @@ begin
   try
     c := ToolManager.ToolBackColor;
     c.alpha := 255;
-    LayerAction := TLayerAction.Create(Image);
+    LayerAction := TLayerAction.Create(Image,True);
     tempBmp := TBGRABitmap.Create(image.Width,image.Height,c);
     tempBmp.PutImage(0,0,LayerAction.SelectedImageLayer,dmDrawWithTransparency);
     LayerAction.ReplaceSelectedLayer(tempBmp, True);
@@ -860,7 +860,6 @@ end;
 procedure TImageActions.NewLayer;
 var top: TTopMostInfo;
     res: integer;
-    grad: TBGRALayerGradientOriginal;
 begin
   if not image.SelectionLayerIsEmpty then
   begin
