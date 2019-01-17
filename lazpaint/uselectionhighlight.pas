@@ -68,8 +68,8 @@ var filter: TBGRAEmbossHightlightScanner;
   selectionBounds: TRect;
   gridCoverage, extendedGridCoverage: TRect;
 begin
-  selection := FImage.SelectionReadonly;
-  selectionBounds := FImage.SelectionBounds;
+  selection := FImage.SelectionMaskReadonly;
+  selectionBounds := FImage.SelectionMaskBounds;
   if (selection = nil) or (selection.Width = 0) or (selection.Width = 0) or
      IsRectEmpty(selectionBounds) then
   begin

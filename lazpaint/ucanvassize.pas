@@ -124,8 +124,8 @@ begin
 
       canvasSizeResult.layeredBitmap := ChangeLayeredImageCanvasSize(LazPaintInstance.Image,
          tx,ty,SelectedAnchor,BGRAPixelTransparent, repeatImage, CheckBox_FlipMode.Checked);
-      if LazPaintInstance.Image.SelectionReadonly <> nil then
-        canvasSizeResult.selection := ChangeCanvasSize(LazPaintInstance.Image.SelectionReadonly,
+      if LazPaintInstance.Image.SelectionMaskReadonly <> nil then
+        canvasSizeResult.selection := ChangeCanvasSize(LazPaintInstance.Image.SelectionMaskReadonly,
           Point(0,0),LazPaintInstance.Image.Width,LazPaintInstance.Image.Height,
           tx,ty,SelectedAnchor,BGRABlack, repeatImage, CheckBox_FlipMode.Checked);
       if LazPaintInstance.Image.SelectionLayerReadonly <> nil then

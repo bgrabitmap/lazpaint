@@ -101,7 +101,7 @@ begin
     result := nil
   else
   begin
-    result := FLazPaintInstance.Image.SelectionReadonly;
+    result := FLazPaintInstance.Image.SelectionMaskReadonly;
     if (result.Width <> ActiveLayer.Width) or (result.Height <> ActiveLayer.Height) then
       result := nil;
   end;
@@ -126,7 +126,7 @@ begin
 
   sel := CurrentSelection;
   if sel <> nil then
-    FWorkArea := FLazPaintInstance.Image.SelectionBounds
+    FWorkArea := FLazPaintInstance.Image.SelectionMaskBounds
   else
     FWorkArea := rect(0,0,ActiveLayer.Width,ActiveLayer.Height);
   FWorkAreaFullySelected := true;

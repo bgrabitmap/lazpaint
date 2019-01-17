@@ -399,7 +399,7 @@ begin
     end;
     if not image.SelectionEmpty then
     begin
-      r := image.SelectionBounds;
+      r := image.SelectionMaskBounds;
       if (r.left = 0) and (r.Top = 0) and (r.right = image.width) and (r.Bottom =image.height) then exit;
       cropped := image.MakeLayeredBitmapAndSelectionCopy;
       selectedLayer := image.currentImageLayerIndex;
@@ -521,7 +521,7 @@ begin
         if not Image.CheckNoAction then exit;
         LayerAction := TLayerAction.Create(Image);
         LayerAction.AllChangesNotified := true;
-        bounds := Image.SelectionBounds;
+        bounds := Image.SelectionMaskBounds;
         LayerAction.currentSelection.HorizontalFlip(bounds);
         LayerAction.NotifyChange(LayerAction.currentSelection,bounds);
         Image.SelectionMayChange(bounds);
@@ -558,7 +558,7 @@ begin
         ChooseTool(ptMoveSelection);
         if not Image.CheckNoAction then exit;
         LayerAction := TLayerAction.Create(Image);
-        bounds := Image.SelectionBounds;
+        bounds := Image.SelectionMaskBounds;
         LayerAction.currentSelection.VerticalFlip(bounds);
         LayerAction.NotifyChange(LayerAction.currentSelection,bounds);
         Image.SelectionMayChange(bounds);
@@ -663,7 +663,7 @@ begin
   LayerAction := nil;
   try
     if not image.CheckNoAction then exit;
-    bounds := Image.SelectionBounds;
+    bounds := Image.SelectionMaskBounds;
     if IsRectEmpty(bounds) then exit;
     LayerAction := TLayerAction.Create(Image);
     LayerAction.ApplySelectionMask;
@@ -830,7 +830,7 @@ begin
       Image.SelectionMayChange(bounds);
       LayerAction.ApplySelectionMask;
       LayerAction.NotifyChange(LayerAction.GetSelectionLayerIfExists, bounds);
-      bounds := image.SelectionBounds;
+      bounds := image.SelectionMaskBounds;
       Image.SelectionMayChange(bounds);
     end;
 

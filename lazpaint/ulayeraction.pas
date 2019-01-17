@@ -95,7 +95,7 @@ end;
 function TLayerAction.GetCurrentSelection: TBGRABitmap;
 begin
   NeedSelectionBackup;
-  result := fImage.currentSelection;
+  result := fImage.CurrentSelectionMask;
 end;
 
 function TLayerAction.GetBackupSelectedLayer: TBGRABitmap;
@@ -161,7 +161,7 @@ procedure TLayerAction.NeedSelectionBackup;
 begin
   if not FBackupSelectionDefined then
   begin
-    FBackupSelection := DuplicateBitmap(FImage.currentSelection);
+    FBackupSelection := DuplicateBitmap(FImage.CurrentSelectionMask);
     FBackupSelectionDefined := true;
   end;
 end;
@@ -235,12 +235,12 @@ end;
 procedure TLayerAction.ReplaceCurrentSelection(AValue: TBGRABitmap);
 begin
   NeedSelectionBackup;
-  if (AValue.Width = FImage.CurrentSelection.Width) and
-    (AValue.Height = FImage.CurrentSelection.Height) then
-    NotifyChange(FImage.CurrentSelection, AValue.GetDifferenceBounds(FImage.CurrentSelection))
+  if (AValue.Width = FImage.CurrentSelectionMask.Width) and
+    (AValue.Height = FImage.CurrentSelectionMask.Height) then
+    NotifyChange(FImage.CurrentSelectionMask, AValue.GetDifferenceBounds(FImage.CurrentSelectionMask))
   else
   begin
-    NotifyChange(FImage.CurrentSelection, rect(0,0,FImage.CurrentSelection.Width,FImage.CurrentSelection.Height));
+    NotifyChange(FImage.CurrentSelectionMask, rect(0,0,FImage.CurrentSelectionMask.Width,FImage.CurrentSelectionMask.Height));
     NotifyChange(AValue, rect(0,0,AValue.Width,AValue.Height));
   end;
   FImage.ReplaceCurrentSelection(AValue);
@@ -250,7 +250,7 @@ procedure TLayerAction.NotifyChange(ADest: TBGRABitmap; ARect: TRect);
 begin
   if ADest = nil then exit;
   if not IntersectRect(ARect, ARect, rect(0,0,FImage.Width,FImage.Height)) then exit;
-  if ADest = FImage.CurrentSelection then
+  if ADest = FImage.CurrentSelectionMask then
     FSelectionChangedArea := RectUnion(FSelectionChangedArea, ARect)
   else if ADest = FImage.GetSelectedImageLayer then
     FSelectedLayerChangedArea := RectUnion(FSelectedLayerChangedArea, ARect)
@@ -265,13 +265,13 @@ begin
   begin
     if not AllChangesNotified then FSelectionChangedArea := rect(0,0,FImage.Width,FImage.Height);
     if IsRectEmpty(FSelectionChangedArea) then exit;
-    prevClip := FImage.CurrentSelection.ClipRect;
-    FImage.CurrentSelection.ClipRect := FSelectionChangedArea;
+    prevClip := FImage.CurrentSelectionMask.ClipRect;
+    FImage.CurrentSelectionMask.ClipRect := FSelectionChangedArea;
     if Assigned(FBackupSelection) then
-      FImage.CurrentSelection.PutImage(0,0,FBackupSelection,dmSet)
+      FImage.CurrentSelectionMask.PutImage(0,0,FBackupSelection,dmSet)
     else
-      FImage.CurrentSelection.FillRect(0,0,FImage.Width,FImage.Height,BGRABlack,dmSet);
-    FImage.CurrentSelection.ClipRect := prevClip;
+      FImage.CurrentSelectionMask.FillRect(0,0,FImage.Width,FImage.Height,BGRABlack,dmSet);
+    FImage.CurrentSelectionMask.ClipRect := prevClip;
     FImage.SelectionMayChange(FSelectionChangedArea);
     FSelectionChangedArea := EmptyRect;
   end;
@@ -357,9 +357,9 @@ var bounds: TRect;
 begin
   if not FImage.SelectionEmpty then
   begin
-    bounds := FImage.SelectionBounds;
+    bounds := FImage.SelectionMaskBounds;
     NeedSelectionBackup;
-    NotifyChange(FImage.CurrentSelection, bounds);
+    NotifyChange(FImage.CurrentSelectionMask, bounds);
     if FImage.GetSelectionLayerIfExists <> nil then
     begin
       NeedSelectedLayerBackup;
@@ -556,16 +556,16 @@ begin
       end;
       if FBackupSelectionDefined then
       begin
-        if (FBackupSelection = nil) and (FImage.CurrentSelection <> nil) then
+        if (FBackupSelection = nil) and (FImage.CurrentSelectionMask <> nil) then
         begin
           if not FImage.SelectionEmpty then
-            FBackupSelection := Fimage.CurrentSelection.Duplicate as TBGRABitmap;
+            FBackupSelection := Fimage.CurrentSelectionMask.Duplicate as TBGRABitmap;
         end else
         if (FBackupSelection <> nil) then
         begin
           if AllChangesNotified then FBackupSelection.ClipRect := FSelectionChangedArea;
-          if Assigned(FImage.CurrentSelection) then
-            FBackupSelection.PutImage(0,0,FImage.CurrentSelection,dmSet)
+          if Assigned(FImage.CurrentSelectionMask) then
+            FBackupSelection.PutImage(0,0,FImage.CurrentSelectionMask,dmSet)
           else
             FBackupSelection.FillRect(0,0,FImage.Width,FImage.Height,BGRABlack,dmSet);
           FBackupSelection.NoClip;

@@ -2643,7 +2643,7 @@ begin
                   if image.SelectionLayerReadonly <> nil then
                   begin
                     newTexture := image.SelectionLayerReadonly.Duplicate as TBGRABitmap;
-                    newTexture.ApplyMask(image.SelectionReadonly, image.SelectionLayerBounds);
+                    newTexture.ApplyMask(image.SelectionMaskReadonly, image.SelectionLayerBounds);
                     if newTexture.Empty then
                       MessagePopup(rsNothingToBeRetrieved,2000)
                     else
@@ -2739,8 +2739,8 @@ begin
                     LayerAction := TLayerAction.Create(Image);
                     if LayerAction.RetrieveSelectionIfLayerEmpty(True) then
                     begin
-                      ComputeSelectionMask(LayerAction.GetOrCreateSelectionLayer,LayerAction.CurrentSelection,Image.SelectionBounds);
-                      Image.SelectionMayChange(Image.SelectionBounds);
+                      ComputeSelectionMask(LayerAction.GetOrCreateSelectionLayer,LayerAction.CurrentSelection,Image.SelectionMaskBounds);
+                      Image.SelectionMayChange(Image.SelectionMaskBounds);
                       LayerAction.Validate;
                     end;
                     if image.SelectionLayerIsEmpty then MessagePopup(rsNothingToBeRetrieved,2000);
