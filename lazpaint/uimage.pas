@@ -127,6 +127,7 @@ type
     function CanRedo: boolean;
     procedure Undo;
     procedure Redo;
+    procedure ChangeState(AStateDiff: TStateDifference);
     procedure ClearUndo;
     procedure CompressUndo;
     function UsedMemory: int64;
@@ -171,16 +172,16 @@ type
     procedure ApplySelectionMask;
     procedure ReplaceSelectedLayer(AValue: TBGRABitmap; AOwned: boolean);
     procedure AddUndo(AUndoAction: TCustomImageDifference);
-    procedure AddLayerUndo(APreviousImage: TBGRABitmap; APreviousImageDefined: boolean;
+    function ComputeLayerDifference(APreviousImage: TBGRABitmap; APreviousImageDefined: boolean;
         APreviousSelection: TBGRABitmap; APreviousSelectionDefined: boolean;
         APreviousSelectionLayer: TBGRABitmap; APreviousSelectionLayerDefined: boolean;
         APreviousLayerOriginalData: TStream;
-        APreviousLayerOriginalMatrix: TAffineMatrix); overload;
-    procedure AddLayerUndo(APreviousImage: TBGRABitmap; APreviousImageChangeRect:TRect;
+        APreviousLayerOriginalMatrix: TAffineMatrix): TCustomImageDifference; overload;
+    function ComputeLayerDifference(APreviousImage: TBGRABitmap; APreviousImageChangeRect:TRect;
         APreviousSelection: TBGRABitmap; APreviousSelectionChangeRect:TRect;
         APreviousSelectionLayer: TBGRABitmap; APreviousSelectionLayerChangeRect:TRect;
         APreviousLayerOriginalData: TStream;
-        APreviousLayerOriginalMatrix: TAffineMatrix); overload;
+        APreviousLayerOriginalMatrix: TAffineMatrix): TCustomImageDifference; overload;
 
     function ComputeTransformedSelection: TBGRABitmap;
     function ApplySmartZoom3: boolean;
@@ -190,6 +191,7 @@ type
     procedure Assign(const AValue: TBGRABitmap; AOwned: boolean; AUndoable: boolean); overload;
     procedure Assign(const AValue: TBGRALayeredBitmap; AOwned: boolean; AUndoable: boolean); overload;
     procedure Assign(const AValue: TLayeredBitmapAndSelection; AOwned: boolean; AUndoable: boolean); overload;
+    function ComputeLayerOffsetDifference(AOffsetX, AOffsetY: integer): TCustomImageDifference;
     procedure ApplyLayerOffset(AOffsetX, AOffsetY: integer);
 
     function AbleToSaveAsUTF8(AFilename: string): boolean;
@@ -850,12 +852,12 @@ begin
   end;
 end;
 
-procedure TLazPaintImage.AddLayerUndo(APreviousImage: TBGRABitmap;
+function TLazPaintImage.ComputeLayerDifference(APreviousImage: TBGRABitmap;
   APreviousImageDefined: boolean; APreviousSelection: TBGRABitmap;
   APreviousSelectionDefined: boolean; APreviousSelectionLayer: TBGRABitmap;
   APreviousSelectionLayerDefined: boolean;
   APreviousLayerOriginalData: TStream;
-  APreviousLayerOriginalMatrix: TAffineMatrix);
+  APreviousLayerOriginalMatrix: TAffineMatrix): TCustomImageDifference;
 var diff: TCustomImageDifference;
 begin
   diff := FCurrentState.ComputeLayerDifference(APreviousImage,APreviousImageDefined,
@@ -865,17 +867,17 @@ begin
   if diff.IsIdentity then
   begin
     diff.free;
-    exit;
+    exit(nil);
   end;
-  AddUndo(diff);
+  exit(diff);
 end;
 
-procedure TLazPaintImage.AddLayerUndo(APreviousImage: TBGRABitmap;
+function TLazPaintImage.ComputeLayerDifference(APreviousImage: TBGRABitmap;
   APreviousImageChangeRect: TRect; APreviousSelection: TBGRABitmap;
   APreviousSelectionChangeRect: TRect; APreviousSelectionLayer: TBGRABitmap;
   APreviousSelectionLayerChangeRect: TRect;
   APreviousLayerOriginalData: TStream;
-  APreviousLayerOriginalMatrix: TAffineMatrix);
+  APreviousLayerOriginalMatrix: TAffineMatrix): TCustomImageDifference;
 var diff: TCustomImageDifference;
 begin
   diff := FCurrentState.ComputeLayerDifference(APreviousImage,APreviousImageChangeRect,
@@ -885,9 +887,9 @@ begin
   if diff.IsIdentity then
   begin
     diff.free;
-    exit;
+    exit(nil);
   end;
-  AddUndo(diff);
+  exit(diff);
 end;
 
 procedure TLazPaintImage.CompressUndoIfNecessary;
@@ -1070,6 +1072,11 @@ begin
     end;
     CompressUndoIfNecessary;
   end;
+end;
+
+procedure TLazPaintImage.ChangeState(AStateDiff: TStateDifference);
+begin
+  AStateDiff.ApplyTo(FCurrentState);
 end;
 
 procedure TLazPaintImage.ClearUndo;
@@ -1750,9 +1757,24 @@ begin
   OnImageChanged.NotifyObservers;
 end;
 
-procedure TLazPaintImage.ApplyLayerOffset(AOffsetX,AOffsetY: integer);
+function TLazPaintImage.ComputeLayerOffsetDifference(AOffsetX, AOffsetY: integer): TCustomImageDifference;
 begin
-  AddUndo(FCurrentState.ApplyLayerOffset(AOffsetX,AOffsetY));
+  result := FCurrentState.ComputeLayerOffsetDifference(AOffsetX,AOffsetY);
+end;
+
+procedure TLazPaintImage.ApplyLayerOffset(AOffsetX, AOffsetY: integer);
+var
+  diff: TCustomImageDifference;
+begin
+  with LayerOffset[currentImageLayerIndex] do
+    diff := ComputeLayerOffsetDifference(AOffsetX,AOffsetY);
+  if diff.IsIdentity then
+  begin
+    diff.Free;
+    exit;
+  end;
+  diff.ApplyTo(FCurrentState);
+  AddUndo(diff);
 end;
 
 procedure TLazPaintImage.ReplaceSelectedLayer(AValue: TBGRABitmap; AOwned: boolean);

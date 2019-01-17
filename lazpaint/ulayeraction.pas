@@ -5,7 +5,8 @@ unit ULayerAction;
 interface
 
 uses
-  Classes, SysUtils, UImage, BGRABitmap, BGRABitmapTypes, UImageType;
+  Classes, SysUtils, UImage, BGRABitmap, BGRABitmapTypes, UImageType,
+  UStateType;
 
 type
   { TLayerAction }
@@ -80,7 +81,7 @@ type
 
 implementation
 
-uses UResourceStrings, UGraph, Types, Dialogs, BGRATransform, BGRALayerOriginal;
+uses UResourceStrings, UGraph, Types, Dialogs, BGRATransform, BGRALayerOriginal, UImageDiff;
 
 { TLayerAction }
 
@@ -448,6 +449,10 @@ procedure TLayerAction.PartialValidate(ADiscardBackup: boolean = false);
 var prevLayerOriginal: TBGRALayerCustomOriginal;
   prevLayerOriginalMatrix: TAffineMatrix;
   prevLayerOriginaData: TStream;
+  diff: TImageLayerStateDifference;
+  composedDiff: TComposedImageDifference;
+  ofs: TPoint;
+  applyOfs: TCustomImageDifference;
 begin
   if FBackupSelectedLayerDefined or FBackupSelectionDefined or FBackupSelectionLayerDefined then
   begin
@@ -482,18 +487,17 @@ begin
       prevLayerOriginaData := nil;
       prevLayerOriginalMatrix:= AffineMatrixIdentity;
     end;
+
     if AllChangesNotified then
-      FImage.AddLayerUndo(FBackupSelectedLayer, FSelectedLayerChangedArea,
+      diff := FImage.ComputeLayerDifference(FBackupSelectedLayer, FSelectedLayerChangedArea,
         FBackupSelection, FSelectionChangedArea,
         FBackupSelectionLayer, FSelectionLayerChangedArea,
-        prevLayerOriginaData, prevLayerOriginalMatrix)
+        prevLayerOriginaData, prevLayerOriginalMatrix) as TImageLayerStateDifference
     else
-      FImage.AddLayerUndo(FBackupSelectedLayer, FBackupSelectedLayerDefined,
+      diff := FImage.ComputeLayerDifference(FBackupSelectedLayer, FBackupSelectedLayerDefined,
         FBackupSelection, FBackupSelectionDefined,
         FBackupSelectionLayer, FBackupSelectionLayerDefined,
-        prevLayerOriginaData, prevLayerOriginalMatrix);
-
-    FImage.OnImageChanged.NotifyObservers;
+        prevLayerOriginaData, prevLayerOriginalMatrix) as TImageLayerStateDifference;
 
     if ADiscardBackup then
     begin
@@ -503,6 +507,18 @@ begin
       FBackupSelectedLayerDefined := false;
       FBackupSelectedLayerDefined := false;
       FBackupSelectionDefined := false;
+
+      if diff.ChangeImageLayer then
+      begin
+        composedDiff := TComposedImageDifference.Create;
+        composedDiff.Add(diff);
+        ofs := FImage.LayerOffset[FImage.currentImageLayerIndex];
+        applyOfs:= FImage.ComputeLayerOffsetDifference(ofs.x, ofs.y);
+        composedDiff.Add(applyOfs);
+        FImage.ChangeState(applyOfs);
+        FImage.AddUndo(composedDiff);
+      end else
+        FImage.AddUndo(diff);
     end else
     begin
       if FBackupSelectionLayerDefined then
@@ -551,7 +567,11 @@ begin
         end;
         FSelectionChangedArea := EmptyRect;
       end;
+
+      FImage.AddUndo(diff);
     end;
+
+    FImage.OnImageChanged.NotifyObservers;
   end;
 end;
 

@@ -1209,27 +1209,9 @@ begin
 end;
 
 function TLazPaintInstance.ApplyLayerOffset: boolean;
-var bmp: TBGRABitmap;
-  curOfs: TPoint;
-  topmostInfo: TTopMostInfo;
-  idx: Integer;
-  res: TModalResult;
 begin
-  idx := Image.currentImageLayerIndex;
-  curOfs := Image.LayerOffset[idx];
-  bmp := Image.LayerBitmap[idx];
-  if (curOfs.X <> 0) or (curOfs.Y <> 0) or (bmp.Width <> Image.Width) or
-     (bmp.Height <> Image.Height) then
-  begin
-    if Image.LayerOriginalDefined[idx] then
-    begin
-      topmostInfo:= HideTopmost;
-      res := MessageDlg(rsLazPaint,rsWillRateriseDiscardOriginal,mtConfirmation,[mbOk,mbCancel],0);
-      ShowTopmost(topmostInfo);
-      if res <> mrOK then exit(false);
-    end;
-    Image.ApplyLayerOffset(curOfs.X,curOfs.Y);
-  end;
+  with Image.LayerOffset[Image.currentImageLayerIndex] do
+    Image.ApplyLayerOffset(X,Y);
   result := true;
 end;
 

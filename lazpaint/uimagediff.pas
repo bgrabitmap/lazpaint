@@ -31,6 +31,8 @@ type
   { TImageLayerStateDifference }
 
   TImageLayerStateDifference = class(TCustomImageDifference)
+  private
+    function GetChangeImageLayer: boolean;
   protected
     function GetImageDifferenceKind: TImageDifferenceKind; override;
     function GetIsIdentity: boolean; override;
@@ -64,6 +66,7 @@ type
         APreviousLayerOriginalData: TStream;
         APreviousLayerOriginalMatrix: TAffineMatrix); overload;
     destructor Destroy; override;
+    property ChangeImageLayer: boolean read GetChangeImageLayer;
   end;
 
   { TSetLayerNameStateDifference }
@@ -126,7 +129,7 @@ type
     function GetImageDifferenceKind: TImageDifferenceKind; override;
     function GetIsIdentity: boolean; override;
   public
-    constructor Create(ADestination: TState; ALayerId: integer; AOffsetX, AOffsetY: integer);
+    constructor Create(ADestination: TState; ALayerId: integer; AOffsetX, AOffsetY: integer; AApplyNow: boolean);
     destructor Destroy; override;
     procedure ApplyTo(AState: TState); override;
     procedure UnapplyTo(AState: TState); override;
@@ -513,11 +516,12 @@ begin
 end;
 
 constructor TApplyLayerOffsetStateDifference.Create(ADestination: TState;
-  ALayerId: integer; AOffsetX, AOffsetY: integer);
+  ALayerId: integer; AOffsetX, AOffsetY: integer; AApplyNow: boolean);
 var idx: integer;
   layers: TBGRALayeredBitmap;
   clippedImage: TBGRABitmap;
 begin
+  inherited Create(ADestination);
   FDestination := ADestination;
   layerId:= ALayerId;
   layers := (FDestination as TImageState).currentLayeredBitmap;
@@ -548,7 +552,7 @@ begin
     TBGRAWriterLazPaint.WriteRLEImage(clippedData, clippedImage);
     clippedImage.Free;
   end;
-  ApplyTo(ADestination);
+  if AApplyNow then ApplyTo(ADestination);
 end;
 
 destructor TApplyLayerOffsetStateDifference.Destroy;
@@ -1348,6 +1352,11 @@ begin
 end;
 
 { TImageLayerStateDifference }
+
+function TImageLayerStateDifference.GetChangeImageLayer: boolean;
+begin
+  result := imageDiff <> nil;
+end;
 
 function TImageLayerStateDifference.GetImageDifferenceKind: TImageDifferenceKind;
 begin

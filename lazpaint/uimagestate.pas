@@ -79,7 +79,7 @@ type
     function Negative: TCustomImageDifference;
     function RotateCW: TCustomImageDifference;
     function RotateCCW: TCustomImageDifference;
-    function ApplyLayerOffset(AOffsetX, AOffsetY: integer): TCustomImageDifference;
+    function ComputeLayerOffsetDifference(AOffsetX, AOffsetY: integer): TCustomImageDifference;
     function ComputeLayerDifference(APreviousImage: TBGRABitmap; APreviousImageDefined: boolean;
         APreviousSelection: TBGRABitmap; APreviousSelectionDefined: boolean;
         APreviousSelectionLayer: TBGRABitmap; APreviousSelectionLayerDefined: boolean;
@@ -766,9 +766,9 @@ begin
   result := TInversibleStateDifference.Create(self, iaRotateCCW);
 end;
 
-function TImageState.ApplyLayerOffset(AOffsetX,AOffsetY: integer): TCustomImageDifference;
+function TImageState.ComputeLayerOffsetDifference(AOffsetX, AOffsetY: integer): TCustomImageDifference;
 begin
-  result := TApplyLayerOffsetStateDifference.Create(self, currentLayeredBitmap.LayerUniqueId[currentLayerIndex], AOffsetX,AOffsetY);
+  result := TApplyLayerOffsetStateDifference.Create(self, currentLayeredBitmap.LayerUniqueId[currentLayerIndex], AOffsetX,AOffsetY, false);
 end;
 
 function TImageState.ComputeLayerDifference(APreviousImage: TBGRABitmap;

@@ -5,7 +5,7 @@ unit UStateType;
 interface
 
 uses
-  Types, Classes, SysUtils, BGRABitmap, BGRABitmapTypes, BGRALayers;
+  Types, Classes, SysUtils, BGRABitmap, BGRABitmapTypes, BGRALayers, fgl;
 
 const MinSizeToCompress = 512; //set to 1 if you want always compression
 const MinSerializedSize = 16384;
@@ -53,6 +53,24 @@ type
     property ChangingBounds: TRect read GetChangingBounds;
     property ChangingBoundsDefined: boolean read GetChangingBoundsDefined;
     property IsIdentity: boolean read GetIsIdentity;
+  end;
+
+  TImageDifferenceList = specialize TFPGObjectList<TCustomImageDifference>;
+
+  { TComposedImageDifference }
+
+  TComposedImageDifference = class(TCustomImageDifference)
+  protected
+    FDiffs: TImageDifferenceList;
+    function GetIsIdentity: boolean; override;
+    function GetImageDifferenceKind: TImageDifferenceKind; override;
+    function GetChangingBounds: TRect; override;
+    function GetChangingBoundsDefined: boolean; override;
+  public
+    constructor Create;
+    procedure Add(ADiff: TCustomImageDifference);
+    procedure ApplyTo(AState: TState); override;
+    procedure UnapplyTo(AState: TState); override;
   end;
 
 {*********** Layer info *************}
@@ -172,6 +190,90 @@ type
 implementation
 
 uses Math, BGRALzpCommon, UFileSystem;
+
+{ TComposedImageDifference }
+
+function TComposedImageDifference.GetIsIdentity: boolean;
+var
+  i: Integer;
+begin
+  for i := 0 to FDiffs.Count-1 do
+    if not FDiffs[i].GetIsIdentity then exit(false);
+  exit(true);
+end;
+
+function TComposedImageDifference.GetImageDifferenceKind: TImageDifferenceKind;
+var
+  i: Integer;
+begin
+  result := idkChangeStack;
+  for i := 0 to FDiffs.Count-1 do
+    case FDiffs[i].GetImageDifferenceKind of
+      idkChangeImageAndSelection: result := idkChangeImageAndSelection;
+      idkChangeSelection: if result in[idkChangeImage,idkChangeLayer,idkChangeImageAndSelection] then
+                            result := idkChangeImageAndSelection
+                          else result := idkChangeSelection;
+      idkChangeImage: if result in[idkChangeImageAndSelection,idkChangeSelection] then
+                            result := idkChangeImageAndSelection
+                          else result := idkChangeImage;
+      idkChangeLayer: if result in[idkChangeImageAndSelection,idkChangeSelection] then
+                            result := idkChangeImageAndSelection
+                      else if result = idkChangeStack then
+                        result := idkChangeLayer;
+    end;
+end;
+
+function TComposedImageDifference.GetChangingBounds: TRect;
+var
+  i: Integer;
+  r: TRect;
+begin
+  result:= EmptyRect;
+  for i := 0 to FDiffs.Count-1 do
+  begin
+    r := FDiffs[i].GetChangingBounds;
+    if not IsRectEmpty(r) then
+    begin
+      if IsRectEmpty(result) then result:= r
+      else UnionRect(result, result,r);
+    end;
+  end;
+end;
+
+function TComposedImageDifference.GetChangingBoundsDefined: boolean;
+var
+  i: Integer;
+begin
+  for i := 0 to FDiffs.Count-1 do
+    if not FDiffs[i].GetChangingBoundsDefined then exit(false);
+  exit(true);
+end;
+
+constructor TComposedImageDifference.Create;
+begin
+  FDiffs := TImageDifferenceList.Create;
+end;
+
+procedure TComposedImageDifference.Add(ADiff: TCustomImageDifference);
+begin
+  FDiffs.Add(ADiff);
+end;
+
+procedure TComposedImageDifference.ApplyTo(AState: TState);
+var
+  i: Integer;
+begin
+  for i := 0 to FDiffs.Count-1 do
+    FDiffs[i].ApplyTo(AState);
+end;
+
+procedure TComposedImageDifference.UnapplyTo(AState: TState);
+var
+  i: Integer;
+begin
+  for i := FDiffs.Count-1 downto 0 do
+    FDiffs[i].UnapplyTo(AState);
+end;
 
 { TGrayscaleImageDiff }
 
