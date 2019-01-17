@@ -117,9 +117,8 @@ type
   private
     previousBounds,nextBounds,unchangedBounds: TRect;
     clippedData: TMemoryStream;
-    previousOriginalData: TMemoryStream;
-    previousOriginalMatrix: TAffineMatrix;
-    previousOriginalDraft: boolean;
+    useOriginal: boolean;
+    previousOriginalRenderStatus: TOriginalRenderStatus;
     layerId: integer;
     FDestination: TState;
     previousLayerOffset: TPoint;
@@ -533,29 +532,21 @@ begin
   if IsIdentity then
   begin
     clippedData := nil;
-    previousOriginalData := nil;
+    useOriginal := false;
     unchangedBounds := previousBounds;
   end else
   begin
     unchangedBounds := previousBounds;
     IntersectRect(unchangedBounds, unchangedBounds, nextBounds);
     OffsetRect(unchangedBounds, -AOffsetX, -AOffsetY);
-    if (layers.LayerOriginalGuid[idx]<>GUID_NULL) and (layers.LayerOriginalKnown[idx]) then
-    begin
-      clippedData := nil;
-      previousOriginalData := TMemoryStream.Create;
-      layers.LayerOriginal[idx].SaveToStream(previousOriginalData);
-      previousOriginalDraft:= layers.LayerOriginalRenderStatus[idx] in [orsDraft,orsPartialDraft];
-      previousOriginalMatrix:= layers.LayerOriginalMatrix[idx];
-    end else
-    begin
-      previousOriginalData := nil;
-      clippedImage := layers.LayerBitmap[idx].Duplicate as TBGRABitmap;
-      clippedImage.FillRect(unchangedBounds,BGRAPixelTransparent,dmSet);
-      clippedData := TMemoryStream.Create;
-      TBGRAWriterLazPaint.WriteRLEImage(clippedData, clippedImage);
-      clippedImage.Free;
-    end;
+    useOriginal:= (layers.LayerOriginalGuid[idx]<>GUID_NULL) and (layers.LayerOriginalKnown[idx]);
+    previousOriginalRenderStatus:= layers.LayerOriginalRenderStatus[idx];
+
+    clippedImage := layers.LayerBitmap[idx].Duplicate as TBGRABitmap;
+    clippedImage.FillRect(unchangedBounds,BGRAPixelTransparent,dmSet);
+    clippedData := TMemoryStream.Create;
+    TBGRAWriterLazPaint.WriteRLEImage(clippedData, clippedImage);
+    clippedImage.Free;
   end;
   ApplyTo(ADestination);
 end;
@@ -563,26 +554,17 @@ end;
 destructor TApplyLayerOffsetStateDifference.Destroy;
 begin
   FreeAndNil(clippedData);
-  FreeAndNil(previousOriginalData);
   inherited Destroy;
 end;
 
 procedure TApplyLayerOffsetStateDifference.ApplyTo(AState: TState);
 var idx: integer;
-  newContent: TBGRABitmap;
-  layers: TBGRALayeredBitmap;
 begin
   inherited ApplyTo(AState);
   if IsIdentity then exit;
-  layers := (AState as TImageState).currentLayeredBitmap;
-  idx := layers.GetLayerIndexFromId(layerId);
-  if idx =-1 then
-    raise exception.Create('Layer not found');
-  newContent := TBGRABitmap.Create(nextBounds.right-nextBounds.left,nextBounds.bottom-nextBounds.top);
-  newContent.PutImage(previousBounds.Left-nextBounds.Left,previousBounds.Top-nextBounds.Top,layers.LayerBitmap[idx],dmSet);
-  layers.SetLayerBitmap(idx,newContent,True);
-  layers.LayerOffset[idx] := point(0,0);
-  layers.RemoveUnusedOriginals;
+  idx := (AState as TImageState).currentLayeredBitmap.GetLayerIndexFromId(layerId);
+  if idx =-1 then raise exception.Create('Layer not found');
+  (AState as TImageState).currentLayeredBitmap.ApplyLayerOffset(idx, true);
 end;
 
 procedure TApplyLayerOffsetStateDifference.UnapplyTo(AState: TState);
@@ -591,7 +573,8 @@ var idx: integer;
   layers: TBGRALayeredBitmap;
   shifted: TRect;
   dummyCaption: ansistring;
-  newGuid: TGuid;
+  guid: TGuid;
+  m: TAffineMatrix;
 begin
   inherited ApplyTo(AState);
   if IsIdentity then exit;
@@ -599,23 +582,22 @@ begin
   idx := layers.GetLayerIndexFromId(layerId);
   if idx =-1 then
     raise exception.Create('Layer not found');
-  if Assigned(previousOriginalData) then
+
+  newContent := TBGRABitmap.Create;
+  clippedData.Position:= 0;
+  TBGRAReaderLazPaint.LoadRLEImage(clippedData,newContent,dummyCaption);
+  shifted := unchangedBounds;
+  OffsetRect(shifted, previousBounds.left-nextBounds.left,previousBounds.top-nextBounds.top);
+  newContent.PutImagePart(unchangedBounds.Left,unchangedBounds.Top, layers.LayerBitmap[idx],shifted, dmSet);
+  layers.SetLayerBitmap(idx,newContent,True);
+  guid := layers.LayerOriginalGuid[idx];
+  m := layers.LayerOriginalMatrix[idx];
+  layers.LayerOffset[idx] := previousLayerOffset;
+  if useOriginal then
   begin
-    previousOriginalData.Position:= 0;
-    newGuid := layers.Original[layers.AddOriginalFromStream(previousOriginalData)].Guid;
-    layers.LayerOriginalGuid[idx] := newGuid;
-    layers.LayerOriginalMatrix[idx] := previousOriginalMatrix;
-    layers.RenderLayerFromOriginal(idx, previousOriginalDraft);
-  end else
-  begin
-    newContent := TBGRABitmap.Create;
-    clippedData.Position:= 0;
-    TBGRAReaderLazPaint.LoadRLEImage(clippedData,newContent,dummyCaption);
-    shifted := unchangedBounds;
-    OffsetRect(shifted, previousBounds.left-nextBounds.left,previousBounds.top-nextBounds.top);
-    newContent.PutImagePart(unchangedBounds.Left,unchangedBounds.Top, layers.LayerBitmap[idx],shifted, dmSet);
-    layers.SetLayerBitmap(idx,newContent,True);
-    layers.LayerOffset[idx] := previousLayerOffset;
+    layers.LayerOriginalGuid[idx] := guid;
+    layers.LayerOriginalMatrix[idx] := m;
+    layers.LayerOriginalRenderStatus[idx] := previousOriginalRenderStatus;
   end;
 end;
 

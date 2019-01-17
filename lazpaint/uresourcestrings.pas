@@ -53,7 +53,6 @@ resourcestring
   rsNothingToBeRetrieved='There is nothing to be retrieved';
   rsCrop='Crop';
   rsMergeSelection='Do you want to merge selection?';
-  rsWillRateriseDiscardOriginal='Layer will be rasterised. It''s original data will be discarded.';
   rsSave='Save';
   rsNewImage='New image';
   rsOpen='Open';

@@ -554,7 +554,6 @@ end;
 procedure TImageState.AdaptLayers;
 var
   i: integer;
-  newbmp: TBGRABitmap;
 begin
   with currentLayeredBitmap do
   for i := 0 to NbLayers-1 do
@@ -563,12 +562,7 @@ begin
       (LayerOffset[i].x <> 0) or
       (LayerOffset[i].y <> 0)) and
       not (LayerOriginalDefined[i] and LayerOriginalKnown[i]) then
-    begin
-      newbmp := TBGRABitmap.Create(Width,Height);
-      newbmp.PutImage(LayerOffset[i].x,LayerOffset[i].y,LayerBitmap[i],dmSet);
-      SetLayerBitmap(i,newbmp,true);
-      LayerOffset[i] := Point(0,0);
-    end;
+      currentLayeredBitmap.ApplyLayerOffset(i,true);
 end;
 
 function TImageState.AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation): TCustomImageDifference;

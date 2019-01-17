@@ -101,7 +101,7 @@ begin
   end;
 
   if not (filter in[pfSharpen, pfSmooth, pfClearType, pfClearTypeInverse, pfNormalize, pfMedian,
-            pfNegative, pfLinearNegative, pfComplementaryColor]) then
+            pfNegative, pfLinearNegative, pfComplementaryColor, pfGrayscale]) then
     if AInstance.Image.SelectionLayerIsEmpty then
       if not AInstance.ApplyLayerOffset then exit;
 
