@@ -896,6 +896,7 @@ msgid "Median"
 msgstr "Médiane"
 
 #: tfmain.filternegative.caption
+msgctxt "tfmain.filternegative.caption"
 msgid "Negative"
 msgstr "Négatif"
 
@@ -991,6 +992,16 @@ msgctxt "tfmain.imagehorizontalflip.hint"
 msgid "Flip image horizontally"
 msgstr "Retournement vertical"
 
+#: tfmain.imagelinearnegative.caption
+msgctxt "tfmain.imagelinearnegative.caption"
+msgid "Linear negative"
+msgstr "Négatif linéaire"
+
+#: tfmain.imagenegative.caption
+msgctxt "tfmain.imagenegative.caption"
+msgid "Negative"
+msgstr "Négatif"
+
 #: tfmain.imagerepeat.caption
 msgid "Repeat..."
 msgstr "Répéter..."
@@ -1014,6 +1025,10 @@ msgstr "Rotation 90° (horloge)"
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
 msgstr "Zoom intelligent x3"
+
+#: tfmain.imageswapredblue.caption
+msgid "Swap red and blue channels"
+msgstr "Echanger les canaux rouge et bleu"
 
 #: tfmain.imageverticalflip.caption
 msgctxt "tfmain.imageverticalflip.caption"
@@ -1090,6 +1105,11 @@ msgstr ""
 #: tfmain.itemiconsizeauto.caption
 msgid "auto"
 msgstr ""
+
+#: tfmain.itemquitseparator.caption
+msgctxt "tfmain.itemquitseparator.caption"
+msgid "-"
+msgstr "-"
 
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
@@ -1333,6 +1353,11 @@ msgstr "Taille d'icône"
 msgctxt "tfmain.menuimage.caption"
 msgid "Image"
 msgstr "Image"
+
+#: tfmain.menuitem1.caption
+msgctxt "tfmain.menuitem1.caption"
+msgid "-"
+msgstr "-"
 
 #: tfmain.menulanguage.caption
 msgctxt "tfmain.menulanguage.caption"

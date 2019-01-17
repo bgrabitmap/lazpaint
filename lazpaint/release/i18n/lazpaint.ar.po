@@ -903,6 +903,7 @@ msgid "Median"
 msgstr "متوسط"
 
 #: tfmain.filternegative.caption
+msgctxt "tfmain.filternegative.caption"
 msgid "Negative"
 msgstr "سلبي"
 
@@ -1000,6 +1001,16 @@ msgctxt "tfmain.imagehorizontalflip.hint"
 msgid "Flip image horizontally"
 msgstr "قلب الصورة افقيا"
 
+#: tfmain.imagelinearnegative.caption
+msgctxt "tfmain.imagelinearnegative.caption"
+msgid "Linear negative"
+msgstr "خط السلبية"
+
+#: tfmain.imagenegative.caption
+msgctxt "tfmain.imagenegative.caption"
+msgid "Negative"
+msgstr "سلبي"
+
 #: tfmain.imagerepeat.caption
 msgid "Repeat..."
 msgstr "تكرار..."
@@ -1023,6 +1034,10 @@ msgstr "تدوير 90° CW"
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
 msgstr "التكبير الذكي x3"
+
+#: tfmain.imageswapredblue.caption
+msgid "Swap red and blue channels"
+msgstr ""
 
 #: tfmain.imageverticalflip.caption
 msgctxt "tfmain.imageverticalflip.caption"
@@ -1100,6 +1115,11 @@ msgstr ""
 #: tfmain.itemiconsizeauto.caption
 msgid "auto"
 msgstr ""
+
+#: tfmain.itemquitseparator.caption
+msgctxt "tfmain.itemquitseparator.caption"
+msgid "-"
+msgstr "-"
 
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
@@ -1343,6 +1363,11 @@ msgstr ""
 msgctxt "tfmain.menuimage.caption"
 msgid "Image"
 msgstr "صورة"
+
+#: tfmain.menuitem1.caption
+msgctxt "tfmain.menuitem1.caption"
+msgid "-"
+msgstr "-"
 
 #: tfmain.menulanguage.caption
 msgctxt "tfmain.menulanguage.caption"
