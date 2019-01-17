@@ -999,8 +999,15 @@ begin
         if imgState.LayerOriginalDefined[i] then
           raise exception.Create('Cannot do an inversible raster action with layer originals');
       case AAction of
-        iaSwapRedBlue: for i := 0 to imgState.NbLayers-1 do imgState.LayerBitmap[i].SwapRedBlue;
-        iaLinearNegative: for i := 0 to imgState.NbLayers-1 do imgState.LayerBitmap[i].LinearNegative;
+        iaSwapRedBlue: begin
+                         imgState.currentLayeredBitmap.Unfreeze;
+                         for i := 0 to imgState.NbLayers-1 do imgState.LayerBitmap[i].SwapRedBlue;
+                       end;
+        iaLinearNegative:
+           begin
+             imgState.currentLayeredBitmap.Unfreeze;
+             for i := 0 to imgState.NbLayers-1 do imgState.LayerBitmap[i].LinearNegative;
+           end
       else
         raise exception.Create('Unhandled case');
       end;
