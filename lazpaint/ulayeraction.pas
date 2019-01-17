@@ -523,7 +523,7 @@ begin
       FBackupSelectedLayerDefined := false;
       FBackupSelectionDefined := false;
 
-      appendOfs:= imgDiff.ChangeImageLayer;
+      appendOfs:= Assigned(imgDiff) and imgDiff.ChangeImageLayer;
     end else
     begin
       if FBackupSelectionLayerDefined then
