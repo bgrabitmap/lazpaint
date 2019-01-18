@@ -216,6 +216,7 @@ type
     procedure MoveLayer(AFromIndex,AToIndex: integer);
     procedure RemoveLayer;
     procedure DiscardOriginal(ASaveUndo: boolean = true);
+    procedure SaveOriginalToStream(AStream: TStream);
     procedure SwapRedBlue;
     procedure LinearNegativeAll;
     procedure NegativeAll;
@@ -1975,6 +1976,13 @@ begin
   end else
     FCurrentState.DiscardOriginal(false);
   FCurrentState.currentLayeredBitmap.RemoveUnusedOriginals;
+end;
+
+procedure TLazPaintImage.SaveOriginalToStream(AStream: TStream);
+begin
+  FCurrentState.currentLayeredBitmap.SaveOriginalToStream(
+    FCurrentState.currentLayeredBitmap.LayerOriginalGuid[currentImageLayerIndex],
+    AStream);
 end;
 
 procedure TLazPaintImage.SwapRedBlue;

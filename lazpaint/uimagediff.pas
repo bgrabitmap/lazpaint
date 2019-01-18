@@ -1558,8 +1558,8 @@ begin
     if nextLayerOriginalData <> nil then
     begin
       nextLayerOriginalData.Position := 0;
-      origIdx := lState.currentLayeredBitmap.AddOriginalFromStream(nextLayerOriginalData);
-      lState.currentLayeredBitmap.LayerOriginalGuid[idx] := lState.currentLayeredBitmap.Original[origIdx].Guid;
+      origIdx := lState.currentLayeredBitmap.AddOriginalFromStream(nextLayerOriginalData, true);
+      lState.currentLayeredBitmap.LayerOriginalGuid[idx] := lState.currentLayeredBitmap.OriginalGuid[origIdx];
       lState.currentLayeredBitmap.LayerOriginalMatrix[idx] := nextLayerOriginalMatrix;
       lState.currentLayeredBitmap.LayerOriginalRenderStatus[idx] := orsProof;
     end else
@@ -1592,8 +1592,8 @@ begin
     if prevLayerOriginalData <> nil then
     begin
       prevLayerOriginalData.Position:= 0;
-      origIdx := lState.currentLayeredBitmap.AddOriginalFromStream(prevLayerOriginalData);
-      lState.currentLayeredBitmap.LayerOriginalGuid[idx] := lState.currentLayeredBitmap.Original[origIdx].Guid;
+      origIdx := lState.currentLayeredBitmap.AddOriginalFromStream(prevLayerOriginalData, true);
+      lState.currentLayeredBitmap.LayerOriginalGuid[idx] := lState.currentLayeredBitmap.OriginalGuid[origIdx];
       lState.currentLayeredBitmap.LayerOriginalMatrix[idx] := prevLayerOriginalMatrix;
       lState.currentLayeredBitmap.LayerOriginalRenderStatus[idx] := orsProof;
     end else
