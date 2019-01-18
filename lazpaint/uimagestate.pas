@@ -62,7 +62,6 @@ type
     procedure SaveToStream(AStream: TStream);
     procedure SaveToStreamAs(AStream: TStream; AFormat: TBGRAImageFormat);
     procedure SaveToFile(AFilenameUTF8: string);
-    procedure AdaptLayers;
     function AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation): TCustomImageDifference;
     function AddNewLayer(AOriginal: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation): TCustomImageDifference;
     function DuplicateLayer: TCustomImageDifference;
@@ -549,20 +548,6 @@ begin
       s.Free;
     end;
   end;
-end;
-
-procedure TImageState.AdaptLayers;
-var
-  i: integer;
-begin
-  with currentLayeredBitmap do
-  for i := 0 to NbLayers-1 do
-    if ((LayerBitmap[i].Width <> Width) or
-      (LayerBitmap[i].Height <> Height) or
-      (LayerOffset[i].x <> 0) or
-      (LayerOffset[i].y <> 0)) and
-      not (LayerOriginalDefined[i] and LayerOriginalKnown[i]) then
-      currentLayeredBitmap.ApplyLayerOffset(i,true);
 end;
 
 function TImageState.AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation): TCustomImageDifference;

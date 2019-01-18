@@ -1108,6 +1108,7 @@ begin
     end else
     begin
       ALayeredImage.SetLayerBitmap(FIndex,GetBitmap,True);
+      ALayeredImage.LayerOffset[FIndex] := FInfo.Offset;
       ALayeredImage.LayerOriginalGuid[FIndex] := ALayeredImage.OriginalGuid[idxOrig];
       ALayeredImage.LayerOriginalMatrix[FIndex] := FOriginalMatrix;
       ALayeredImage.LayerOriginalRenderStatus[FIndex] := FOriginalRenderStatus;

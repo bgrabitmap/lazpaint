@@ -597,7 +597,7 @@ begin
     unchangedBounds := previousBounds;
     IntersectRect(unchangedBounds, unchangedBounds, nextBounds);
     OffsetRect(unchangedBounds, -AOffsetX, -AOffsetY);
-    useOriginal:= (layers.LayerOriginalGuid[idx]<>GUID_NULL) and (layers.LayerOriginalKnown[idx]);
+    useOriginal:= layers.LayerOriginalGuid[idx]<>GUID_NULL;
     previousOriginalRenderStatus:= layers.LayerOriginalRenderStatus[idx];
 
     clippedImage := layers.LayerBitmap[idx].Duplicate as TBGRABitmap;

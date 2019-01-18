@@ -794,7 +794,6 @@ end;
 procedure TLazPaintImage.LayeredBitmapReplaced;
 begin
   FreeAndNil(FRenderedImage);
-  FCurrentState.AdaptLayers;
   if FCurrentState.NbLayers = 0 then
     raise Exception.Create('No layer')
   else
