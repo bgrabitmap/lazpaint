@@ -27,6 +27,19 @@ type
     property LayerIndex: integer read FLayerIndex;
   end;
 
+  { TSelectCurrentLayer }
+
+  TSelectCurrentLayer = class(TCustomImageDifference)
+  private
+    FPrevLayerIndex, FNewLayerIndex: integer;
+  protected
+    function GetImageDifferenceKind: TImageDifferenceKind; override;
+  public
+    constructor Create(AState: TState; ANewLayerIndex: integer);
+    procedure ApplyTo(AState: TState); override;
+    procedure UnApplyTo(AState: TState); override;
+  end;
+
 type
   { TImageLayerStateDifference }
 
@@ -390,6 +403,30 @@ begin
   end
   else
     result := false;
+end;
+
+{ TSelectCurrentLayer }
+
+function TSelectCurrentLayer.GetImageDifferenceKind: TImageDifferenceKind;
+begin
+  Result:= idkChangeImage; //selection layer can affect image
+end;
+
+constructor TSelectCurrentLayer.Create(AState: TState; ANewLayerIndex: integer);
+begin
+  inherited Create(AState.saved, AState.saved);
+  FPrevLayerIndex:= (AState as TImageState).currentLayerIndex;
+  FNewLayerIndex:= ANewLayerIndex;
+end;
+
+procedure TSelectCurrentLayer.ApplyTo(AState: TState);
+begin
+  (AState as TImageState).currentLayerIndex:= FNewLayerIndex;
+end;
+
+procedure TSelectCurrentLayer.UnApplyTo(AState: TState);
+begin
+  (AState as TImageState).currentLayerIndex:= FPrevLayerIndex;
 end;
 
 { TAddLayerFromOwnedOriginalStateDifference }

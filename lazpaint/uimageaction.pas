@@ -745,7 +745,7 @@ begin
       if partial.NbPixels <> 0 then
       begin
         ToolManager.ToolCloseDontReopen;
-        layeraction := TLayerAction.Create(Image);
+        layeraction := TLayerAction.Create(Image, true);
         layeraction.ReleaseSelection;
         layeraction.QuerySelection;
         pastePos := Point((image.Width - partial.Width) div 2 - image.ImageOffset.X,
@@ -858,16 +858,16 @@ begin
 end;
 
 procedure TImageActions.NewLayer;
-var top: TTopMostInfo;
-    res: integer;
+{var top: TTopMostInfo;
+    res: integer;}
 begin
-  if not image.SelectionLayerIsEmpty then
+  {if not image.SelectionLayerIsEmpty then
   begin
     top := FInstance.HideTopmost;
     res := MessageDlg(rsTransferSelectionToOtherLayer,mtConfirmation,[mbOk,mbCancel],0);
     FInstance.ShowTopmost(top);
     if res <> mrOk then exit;
-  end;
+  end;}
   if image.NbLayers < MaxLayersToAdd then
   begin
     Image.AddNewLayer;

@@ -1076,7 +1076,7 @@ end;
 
 procedure TStoredLayer.Replace(ALayeredImage: TBGRALayeredBitmap);
 var
-  tempIdx, idxOrig: Integer;
+  idxOrig: Integer;
 begin
   if Assigned(FOriginalData) then
   begin
