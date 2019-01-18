@@ -402,7 +402,7 @@ function TGenericTool.GetAction: TLayerAction;
 begin
   if not Assigned(FAction) then
   begin
-    FAction := TLayerAction.Create(Manager.Image);
+    FAction := TLayerAction.Create(Manager.Image, not IsSelectingTool And Manager.Image.SelectionEmpty);
     FAction.OnTryStop := @OnTryStop;
   end;
   result := FAction;
