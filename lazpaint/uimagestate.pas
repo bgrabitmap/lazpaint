@@ -697,7 +697,7 @@ begin
         newLayer.PutImage(LayerOffset[i].x,LayerOffset[i].y, LayerBitmap[i], dmSet);
         newLayer.SwapRedBlue;
         idxLayer := newImg.AddOwnedLayer(newLayer, BlendOperation[i], LayerOpacity[i]);
-        newImg.LayerName[i] := LayerName[i];
+        newImg.LayerName[idxLayer] := LayerName[i];
       end;
       result := AssignWithUndo(newImg, true, currentLayerIndex);
     end else
@@ -724,7 +724,7 @@ begin
         newLayer.PutImage(LayerOffset[i].x,LayerOffset[i].y, LayerBitmap[i], dmSet);
         newLayer.LinearNegative;
         idxLayer := newImg.AddOwnedLayer(newLayer, BlendOperation[i], LayerOpacity[i]);
-        newImg.LayerName[i] := LayerName[i];
+        newImg.LayerName[idxLayer] := LayerName[i];
       end;
       result := AssignWithUndo(newImg, true, currentLayerIndex);
     end else
@@ -745,7 +745,7 @@ begin
     newLayer.PutImage(LayerOffset[i].x,LayerOffset[i].y, LayerBitmap[i], dmSet);
     newLayer.Negative;
     idxLayer := newImg.AddOwnedLayer(newLayer, BlendOperation[i], LayerOpacity[i]);
-    newImg.LayerName[i] := LayerName[i];
+    newImg.LayerName[idxLayer] := LayerName[i];
   end;
   result := AssignWithUndo(newImg, true, currentLayerIndex);
 end;

@@ -1074,7 +1074,6 @@ begin
 end;
 
 procedure TRemoveLayerStateDifference.UnapplyTo(AState: TState);
-var idx: integer;
 begin
   inherited UnapplyTo(AState);
   with AState as TImageState do
