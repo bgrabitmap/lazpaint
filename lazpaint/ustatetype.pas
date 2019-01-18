@@ -179,6 +179,8 @@ type
     FInfo: TLayerInfo;
     FIndex: integer;
     FOriginalData: TMemoryStream;
+    FOriginalKnown: boolean;
+    FOriginalRenderStatus: TOriginalRenderStatus;
     FOriginalMatrix: TAffineMatrix;
     FOriginalDraft: boolean;
   public
@@ -1042,12 +1044,18 @@ constructor TStoredLayer.Create(ALayeredImage: TBGRALayeredBitmap;
 begin
   FIndex := AIndex;
   FInfo := GetLayerInfo(ALayeredImage, AIndex);
-  if (ALayeredImage.LayerOriginalGuid[AIndex]<>GUID_NULL) and
-     ALayeredImage.LayerOriginalKnown[AIndex] then
+  if ALayeredImage.LayerOriginalGuid[AIndex]<>GUID_NULL then
   begin
-    inherited Create(nil);
+    FOriginalKnown := ALayeredImage.LayerOriginalKnown[AIndex];
+    FOriginalRenderStatus:= ALayeredImage.LayerOriginalRenderStatus[AIndex];
+
+    if FOriginalKnown then
+      inherited Create(nil)
+    else
+      inherited Create(ALayeredImage.LayerBitmap[AIndex]);
+
     FOriginalData := TMemoryStream.Create;
-    ALayeredImage.LayerOriginal[AIndex].SaveToStream(FOriginalData);
+    ALayeredImage.SaveOriginalToStream(ALayeredImage.LayerOriginalGuid[AIndex], FOriginalData);
     FOriginalMatrix := ALayeredImage.LayerOriginalMatrix[AIndex];
     FOriginalDraft := ALayeredImage.LayerOriginalRenderStatus[AIndex] in[orsDraft,orsPartialDraft];
   end else
@@ -1064,9 +1072,19 @@ begin
   if Assigned(FOriginalData) then
   begin
     FOriginalData.Position:= 0;
-    idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData);
-    tempIdx := ALayeredImage.AddLayerFromOriginal(ALayeredImage.Original[idxOrig].Guid, FOriginalMatrix);
-    ALayeredImage.RenderLayerFromOriginal(tempIdx, FOriginalDraft);
+    idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData, true);
+
+    if FOriginalKnown then
+    begin
+      tempIdx := ALayeredImage.AddLayerFromOriginal(ALayeredImage.Original[idxOrig].Guid, FOriginalMatrix);
+      ALayeredImage.RenderLayerFromOriginal(tempIdx, FOriginalDraft);
+    end else
+    begin
+      tempIdx := ALayeredImage.AddOwnedLayer(GetBitmap);
+      ALayeredImage.LayerOriginalGuid[tempIdx] := ALayeredImage.OriginalGuid[idxOrig];
+      ALayeredImage.LayerOriginalMatrix[tempIdx] := FOriginalMatrix;
+      ALayeredImage.LayerOriginalRenderStatus[tempIdx] := FOriginalRenderStatus;
+    end;
   end else
     tempIdx := ALayeredImage.AddOwnedLayer(GetBitmap);
 
@@ -1081,10 +1099,19 @@ begin
   if Assigned(FOriginalData) then
   begin
     FOriginalData.Position:= 0;
-    idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData);
-    ALayeredImage.LayerOriginalGuid[FIndex] := ALayeredImage.Original[idxOrig].Guid;
-    ALayeredImage.LayerOriginalMatrix[FIndex] := FOriginalMatrix;
-    ALayeredImage.RenderLayerFromOriginal(FIndex, FOriginalDraft);
+    idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData, true);
+    if FOriginalKnown then
+    begin
+      ALayeredImage.LayerOriginalGuid[FIndex] := ALayeredImage.OriginalGuid[idxOrig];
+      ALayeredImage.LayerOriginalMatrix[FIndex] := FOriginalMatrix;
+      ALayeredImage.RenderLayerFromOriginal(FIndex, FOriginalDraft);
+    end else
+    begin
+      ALayeredImage.SetLayerBitmap(FIndex,GetBitmap,True);
+      ALayeredImage.LayerOriginalGuid[FIndex] := ALayeredImage.OriginalGuid[idxOrig];
+      ALayeredImage.LayerOriginalMatrix[FIndex] := FOriginalMatrix;
+      ALayeredImage.LayerOriginalRenderStatus[FIndex] := FOriginalRenderStatus;
+    end;
   end else
     ALayeredImage.SetLayerBitmap(FIndex,GetBitmap,True);
   ALayeredImage.RemoveUnusedOriginals;

@@ -573,6 +573,7 @@
       <Unit65>
         <Filename Value="uimagetype.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UImageType"/>
       </Unit65>
       <Unit66>
         <Filename Value="uposterize.pas"/>
