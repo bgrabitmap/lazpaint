@@ -647,9 +647,9 @@ begin
   shifted := unchangedBounds;
   OffsetRect(shifted, previousBounds.left-nextBounds.left,previousBounds.top-nextBounds.top);
   newContent.PutImagePart(unchangedBounds.Left,unchangedBounds.Top, layers.LayerBitmap[idx],shifted, dmSet);
-  layers.SetLayerBitmap(idx,newContent,True);
   guid := layers.LayerOriginalGuid[idx];
   m := layers.LayerOriginalMatrix[idx];
+  layers.SetLayerBitmap(idx,newContent,True);
   layers.LayerOffset[idx] := previousLayerOffset;
   if useOriginal then
   begin
