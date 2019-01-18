@@ -622,7 +622,10 @@ begin
   if currentLayeredBitmap = nil then
     result := nil
   else
+  begin
     result := TRemoveLayerStateDifference.Create(self);
+    result.ApplyTo(self);
+  end;
 end;
 
 function TImageState.DiscardOriginal(ACreateUndo: boolean): TCustomImageDifference;

@@ -1106,6 +1106,7 @@ begin
   begin
     idx := currentLayeredBitmap.GetLayerIndexFromId(content.LayerId);
     currentLayeredBitmap.RemoveLayer(idx);
+    currentLayeredBitmap.RemoveUnusedOriginals;
     currentLayerIndex := currentLayeredBitmap.GetLayerIndexFromId(self.nextActiveLayerId);
   end;
 end;
@@ -1137,8 +1138,6 @@ begin
   if idx+1 < imgState.NbLayers then
     nextIdx := idx+1 else nextIdx := idx-1;
   self.nextActiveLayerId := imgState.currentLayeredBitmap.LayerUniqueId[nextIdx];
-  imgState.currentLayeredBitmap.RemoveLayer(idx);
-  imgState.currentLayerIndex:= imgState.currentLayeredBitmap.GetLayerIndexFromId(self.nextActiveLayerId);
 end;
 
 destructor TRemoveLayerStateDifference.Destroy;
