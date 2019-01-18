@@ -628,17 +628,19 @@ end;
 function TImageState.DiscardOriginal(ACreateUndo: boolean): TCustomImageDifference;
 var
   prevOriginal: TBGRALayerCustomOriginal;
-  prevOriginalMatrix: BGRABitmapTypes.TAffineMatrix;
+  prevOriginalMatrix: TAffineMatrix;
   prevOriginalData: TStream;
+  prevOriginalGuid: TGuid;
 begin
-  prevOriginal:= currentLayeredBitmap.LayerOriginal[currentLayerIndex];
-  if prevOriginal = nil then exit(nil);
+  prevOriginalGuid := currentLayeredBitmap.LayerOriginalGuid[currentLayerIndex];
+  if prevOriginalGuid=GUID_NULL then exit;
   prevOriginalMatrix:= currentLayeredBitmap.LayerOriginalMatrix[currentLayerIndex];
   currentLayeredBitmap.LayerOriginalGuid[currentLayerIndex] := GUID_NULL;
   currentLayeredBitmap.LayerOriginalMatrix[currentLayerIndex] := AffineMatrixIdentity;
   if ACreateUndo then
   begin
     prevOriginalData:= TMemoryStream.Create;
+    prevOriginal := currentLayeredBitmap.Original[currentLayeredBitmap.IndexOfOriginal(prevOriginalGuid)];
     prevOriginal.SaveToStream(prevOriginalData);
     result := TImageLayerStateDifference.Create(self, nil,false,nil,false,nil,false,prevOriginalData,prevOriginalMatrix);
   end

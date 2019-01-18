@@ -490,18 +490,23 @@ begin
       end;
     end;
     //original will be backed up if there are changes in the raster image of the selected layer
-    prevLayerOriginal:= FImage.LayerOriginal[FImage.currentImageLayerIndex];
+    prevLayerOriginal := nil;
+    if FImage.LayerOriginalDefined[FImage.currentImageLayerIndex] then
+    begin
+      if FImage.LayerOriginalKnown[FImage.currentImageLayerIndex] then
+        prevLayerOriginal:= FImage.LayerOriginal[FImage.currentImageLayerIndex];
+    end;
     if Assigned(prevLayerOriginal) and (FBackupSelectedLayerDefined or not IsRectEmpty(FSelectedLayerChangedArea)) then
     begin
       prevLayerOriginaData:= TMemoryStream.Create;
       prevLayerOriginal.SaveToStream(prevLayerOriginaData);
       prevLayerOriginalMatrix:= FImage.LayerOriginalMatrix[FImage.currentImageLayerIndex];
-      FImage.DiscardOriginal(false);
     end else
     begin
       prevLayerOriginaData := nil;
       prevLayerOriginalMatrix:= AffineMatrixIdentity;
     end;
+    FImage.DiscardOriginal(false);
 
     if AllChangesNotified then
       imgDiff := FImage.ComputeLayerDifference(FBackupSelectedLayer, FSelectedLayerChangedArea,
