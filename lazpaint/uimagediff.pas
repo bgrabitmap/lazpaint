@@ -33,6 +33,8 @@ type
   TImageLayerStateDifference = class(TCustomImageDifference)
   private
     function GetChangeImageLayer: boolean;
+    function GetChangeSelectionLayer: boolean;
+    function GetChangeSelectionMask: boolean;
   protected
     function GetImageDifferenceKind: TImageDifferenceKind; override;
     function GetIsIdentity: boolean; override;
@@ -47,7 +49,7 @@ type
     layerId: integer;
     imageOfs: TPoint;
     imageDiff, selectionLayerDiff: TImageDiff;
-    selectionDiff: TGrayscaleImageDiff;
+    selectionMaskDiff: TGrayscaleImageDiff;
     layerOriginalChange: boolean;
     prevLayerOriginalData, nextLayerOriginalData: TStream;
     prevLayerOriginalMatrix, nextLayerOriginalMatrix: TAffineMatrix;
@@ -68,6 +70,8 @@ type
         APreviousLayerOriginalMatrix: TAffineMatrix); overload;
     destructor Destroy; override;
     property ChangeImageLayer: boolean read GetChangeImageLayer;
+    property ChangeSelectionMask: boolean read GetChangeSelectionMask;
+    property ChangeSelectionLayer: boolean read GetChangeSelectionLayer;
   end;
 
   { TSetLayerNameStateDifference }
@@ -1375,21 +1379,31 @@ end;
 
 function TImageLayerStateDifference.GetChangeImageLayer: boolean;
 begin
-  result := imageDiff <> nil;
+  result := (imageDiff <> nil) and not imageDiff.IsIdentity;
+end;
+
+function TImageLayerStateDifference.GetChangeSelectionLayer: boolean;
+begin
+  result := (selectionLayerDiff <> nil) and not selectionLayerDiff.IsIdentity;
+end;
+
+function TImageLayerStateDifference.GetChangeSelectionMask: boolean;
+begin
+  result := (selectionMaskDiff <> nil) and not selectionMaskDiff.IsIdentity;
 end;
 
 function TImageLayerStateDifference.GetImageDifferenceKind: TImageDifferenceKind;
 begin
-  if (imageDiff <> nil) or (selectionLayerDiff <> nil) then
+  if ChangeImageLayer or ChangeSelectionLayer then
   begin
-    if selectionDiff <> nil then
+    if ChangeSelectionMask then
       result := idkChangeImageAndSelection
-    else if selectionLayerDiff <> nil then
+    else if ChangeSelectionLayer then
       result := idkChangeImage
     else
       result := idkChangeImage;
   end
-  else if selectionDiff <> nil then
+  else if ChangeSelectionMask then
     result := idkChangeSelection
   else
     result := idkChangeStack; //some default value
@@ -1397,9 +1411,9 @@ end;
 
 function TImageLayerStateDifference.GetIsIdentity: boolean;
 begin
-  Result:= ((imageDiff= nil) or imageDiff.IsIdentity) and
-    ((selectionDiff= nil) or selectionDiff.IsIdentity) and
-    ((selectionLayerDiff= nil) or selectionLayerDiff.IsIdentity);
+  Result:= not ChangeImageLayer and
+          not ChangeSelectionMask and
+          not ChangeSelectionLayer;
 end;
 
 function TImageLayerStateDifference.GetChangingBoundsDefined: boolean;
@@ -1412,14 +1426,14 @@ var
   r: TRect;
 begin
   result := EmptyRect;
-  if imageDiff <> nil then
+  if ChangeImageLayer then
   begin
     r := imageDiff.ChangeRect;
     OffsetRect(r, imageOfs.x, imageOfs.y);
     result := RectUnion(result, r);
   end;
-  if selectionLayerDiff <> nil then result := RectUnion(result, selectionLayerDiff.ChangeRect);
-  if selectionDiff <> nil then result := RectUnion(result, selectionDiff.ChangeRect);
+  if ChangeSelectionLayer then result := RectUnion(result, selectionLayerDiff.ChangeRect);
+  if ChangeSelectionMask then result := RectUnion(result, selectionMaskDiff.ChangeRect);
 end;
 
 procedure TImageLayerStateDifference.Init(AToState: TState; APreviousImage: TBGRABitmap; APreviousImageChangeRect: TRect;
@@ -1436,7 +1450,7 @@ begin
   layerId := -1;
   imageDiff := nil;
   imageOfs := Point(0,0);
-  selectionDiff := nil;
+  selectionMaskDiff := nil;
   selectionLayerDiff := nil;
   prevLayerOriginalData := nil;
   nextLayerOriginalData := nil;
@@ -1460,7 +1474,7 @@ begin
       imageOfs := next.LayerOffset[curIdx];
     end;
     if not IsRectEmpty(APreviousSelectionChangeRect) then
-      selectionDiff := TGrayscaleImageDiff.Create(APreviousSelection,next.currentSelection,APreviousSelectionChangeRect);
+      selectionMaskDiff := TGrayscaleImageDiff.Create(APreviousSelection,next.currentSelection,APreviousSelectionChangeRect);
     if not IsRectEmpty(APreviousSelectionLayerChangeRect) then
       selectionLayerDiff := TImageDiff.Create(APreviousSelectionLayer,next.selectionLayer,APreviousSelectionLayerChangeRect);
     prevLayerOriginalMatrix := APreviousLayerOriginalMatrix;
@@ -1484,9 +1498,9 @@ end;
 function TImageLayerStateDifference.TryCompress: boolean;
 begin
   result := false;
-  if imageDiff <> nil then result := result or imageDiff.Compress;
-  if selectionDiff <> nil then result := result or selectionDiff.Compress;
-  if selectionLayerDiff <> nil then result := result or selectionLayerDiff.Compress;
+  if Assigned(imageDiff) then result := result or imageDiff.Compress;
+  if Assigned(selectionMaskDiff) then result := result or selectionMaskDiff.Compress;
+  if Assigned(selectionLayerDiff) then result := result or selectionLayerDiff.Compress;
 end;
 
 procedure TImageLayerStateDifference.ApplyTo(AState: TState);
@@ -1500,7 +1514,7 @@ begin
   begin
     idx := lState.currentLayeredBitmap.GetLayerIndexFromId(layerId);
     if idx = -1 then raise exception.Create('Layer not found');
-    if imageDiff <> nil then
+    if ChangeImageLayer then
     begin
       lState.currentLayeredBitmap.SetLayerBitmap(idx, ComputeFromImageDiff(lState.LayerBitmap[idx],imageDiff,False), True);
       lState.currentLayeredBitmap.RemoveUnusedOriginals;
@@ -1518,8 +1532,8 @@ begin
       lState.currentLayeredBitmap.LayerOriginalMatrix[idx] := nextLayerOriginalMatrix;
       lState.currentLayeredBitmap.LayerOriginalRenderStatus[idx] := orsProof;
     end;
-    if selectionDiff <> nil then ApplyGrayscaleImageDiffAndReplace(lState.currentSelection,selectionDiff,False);
-    if selectionLayerDiff <> nil then ApplyImageDiffAndReplace(lState.selectionLayer,selectionLayerDiff,False);
+    if ChangeSelectionMask then ApplyGrayscaleImageDiffAndReplace(lState.currentSelection,selectionMaskDiff,False);
+    if ChangeSelectionLayer then ApplyImageDiffAndReplace(lState.selectionLayer,selectionLayerDiff,False);
   end;
 end;
 
@@ -1534,7 +1548,7 @@ begin
   begin
     idx := lState.currentLayeredBitmap.GetLayerIndexFromId(layerId);
     if idx = -1 then raise exception.Create('Layer not found');
-    if imageDiff <> nil then
+    if ChangeImageLayer then
     begin
       lState.currentLayeredBitmap.SetLayerBitmap(idx, ComputeFromImageDiff(lState.LayerBitmap[idx],imageDiff,True), True);
       lState.currentLayeredBitmap.RemoveUnusedOriginals;
@@ -1552,8 +1566,8 @@ begin
       lState.currentLayeredBitmap.LayerOriginalMatrix[idx] := prevLayerOriginalMatrix;
       lState.currentLayeredBitmap.LayerOriginalRenderStatus[idx] := orsProof;
     end;
-    if selectionDiff <> nil then ApplyGrayscaleImageDiffAndReplace(lState.currentSelection,selectionDiff,True);
-    if selectionLayerDiff <> nil then ApplyImageDiffAndReplace(lState.selectionLayer,selectionLayerDiff,True);
+    if ChangeSelectionMask then ApplyGrayscaleImageDiffAndReplace(lState.currentSelection,selectionMaskDiff,True);
+    if ChangeSelectionLayer then ApplyImageDiffAndReplace(lState.selectionLayer,selectionLayerDiff,True);
   end;
 end;
 
@@ -1561,7 +1575,7 @@ function TImageLayerStateDifference.UsedMemory: int64;
 begin
   Result:= 0;
   if Assigned(imageDiff) then result += imageDiff.UsedMemory;
-  if Assigned(selectionDiff) then result += selectionDiff.UsedMemory;
+  if Assigned(selectionMaskDiff) then result += selectionMaskDiff.UsedMemory;
   if Assigned(selectionLayerDiff) then result += selectionLayerDiff.UsedMemory;
 end;
 
@@ -1575,7 +1589,7 @@ begin
   layerId := -1;
   imageDiff := nil;
   imageOfs := Point(0,0);
-  selectionDiff := nil;
+  selectionMaskDiff := nil;
   selectionLayerDiff := nil;
   prevLayerOriginalData := nil;
   nextLayerOriginalData := nil;
@@ -1598,7 +1612,7 @@ begin
   begin
     imageDiff := TImageDiff.Create(prev.LayerBitmap[prevIdx],next.LayerBitmap[curIdx]);
     imageOfs := next.LayerOffset[curIdx];
-    selectionDiff := TGrayscaleImageDiff.Create(prev.currentSelection,next.currentSelection);
+    selectionMaskDiff := TGrayscaleImageDiff.Create(prev.currentSelection,next.currentSelection);
     selectionLayerDiff := TImageDiff.Create(prev.selectionLayer,next.selectionLayer);
     prevOrig := prev.LayerOriginal[prevIdx];
     prevLayerOriginalMatrix := prev.LayerOriginalMatrix[prevIdx];
@@ -1655,7 +1669,7 @@ end;
 destructor TImageLayerStateDifference.Destroy;
 begin
   imageDiff.Free;
-  selectionDiff.Free;
+  selectionMaskDiff.Free;
   selectionLayerDiff.Free;
   prevLayerOriginalData.Free;
   nextLayerOriginalData.Free;
