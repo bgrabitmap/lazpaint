@@ -399,10 +399,10 @@ begin
 
   InterruptorWidth := LayerRectHeight div 4;
   InterruptorHeight := LayerRectHeight div 4;
-  temp := ScaleY(20,OriginalDPI);
+  temp := ScaleY(28,OriginalDPI);
   if InterruptorWidth > temp then InterruptorWidth := temp;
   if InterruptorHeight > temp then InterruptorHeight := temp;
-  temp := ScaleY(10,OriginalDPI);
+  temp := ScaleY(7,OriginalDPI);
   if InterruptorHeight < temp then InterruptorHeight := temp;
   if InterruptorWidth < temp then InterruptorWidth := temp;
   StackWidth := InterruptorWidth+LayerRectWidth+ABitmap.TextSize('Some layer name').cx;
@@ -532,8 +532,8 @@ var i: integer;
   layerPos: TPoint;
   lSelected: boolean;
   y: integer;
-  clipping: TRect;
-  lColor: TBGRAPixel;
+  clipping, rKind: TRect;
+  lColor, lColorTrans: TBGRAPixel;
 begin
   if Layout then
   begin
@@ -563,8 +563,8 @@ begin
         end;
         if UpdateItem <> -1 then clipping := rect(layerPos.X,layerPos.Y,layerPos.X+StackWidth,layerPos.Y+LayerRectHeight);
 
-        interruptors[i] := rect(layerPos.X+InterruptorWidth div 5,layerpos.Y+(LayerRectHeight-InterruptorHeight) div 2,layerPos.X+InterruptorWidth,
-           layerpos.Y+(LayerRectHeight-InterruptorHeight) div 2+InterruptorHeight);
+        interruptors[i] := RectWithSize(layerPos.X+InterruptorWidth div 5,layerpos.Y+(LayerRectHeight-5*InterruptorHeight div 2) div 2,
+                                        InterruptorWidth, InterruptorHeight);
 
         if (layerpos.Y+LayerRectHeight > 0) and (layerpos.Y < Bitmap.Height) then
         begin
@@ -572,6 +572,9 @@ begin
             lColor := ColorToBGRA(ColorToRGB(clHighlightText))
           else
             lColor := ColorToBGRA(ColorToRGB(clWindowText));
+
+          lColorTrans := lColor;
+          lColorTrans.alpha := lColorTrans.alpha div 3;
 
           Bitmap.Rectangle(interruptors[i],lColor,dmDrawWithTransparency);
           if LayerVisible[i] then
@@ -584,6 +587,26 @@ begin
                BezierCurve(PointF((left+right-1)/2,bottom-3),
                   PointF((left+right-1)/2,(top*2+bottom-1)/3),
                   PointF(right-2,top-2))]),lColor,1.5);
+          end;
+
+          rKind := interruptors[i];
+          rKind.Offset(0, InterruptorHeight*3 div 2);
+          if LayerOriginalDefined[i] then
+          begin
+            if LayerOriginalKnown[i] then
+            begin
+              Bitmap.EllipseAntialias(rKind.Left+rKind.Width / 3, rKind.Top+rKind.Height / 3,rKind.Width / 3,rKind.Height / 3,
+                                      lColor, 1, lColorTrans);
+              Bitmap.DrawPolygonAntialias([PointF(rKind.Left+rKind.Width/4,rKind.Bottom),
+                                           PointF(rKind.Left+rKind.Width/2,rKind.Top+rKind.Height/4),
+                                           PointF(rKind.Right,rKind.Bottom)],lColor,1, lColorTrans);
+            end else
+              Bitmap.TextOut((rKind.Left+rKind.Right)/2, rKind.Top, '?', lColor, taCenter);
+          end else
+          begin
+            Bitmap.Rectangle(rKind, lColor,lColorTrans, dmDrawWithTransparency);
+            Bitmap.HorizLine(rKind.Left+1,rKind.Top+(rKind.Height-1) div 2,rKind.Right-2, lColor, dmDrawWithTransparency);
+            Bitmap.VertLine(rKind.Left+(rKind.Width-1) div 2,rKind.Top+1,rKind.Bottom-2, lColor, dmDrawWithTransparency);
           end;
 
           inc(layerPos.X,InterruptorWidth);
