@@ -20,7 +20,6 @@ function AddToolbarButton(AToolbar: TToolbar; ACaption: string; AImageIndex: int
           AOnClick: TNotifyEvent; ATag: PtrInt = 0): TToolButton;
 function AddToolbarUpDown(AToolbar: TToolbar; ACaption: string; AMin,AMax,AValue: Integer; AOnChange: TTrackBarUpDownChangeEvent): TBCTrackbarUpdown;
 procedure AddToolbarControl(AToolbar: TToolbar; AControl: TControl);
-function GetResourceStream(AFilename: string): TLazarusResourceStream;
 function GetResourceString(AFilename: string): string;
 procedure LoadToolbarImage(AImages: TImageList; AIndex: integer; AFilename: string);
 
@@ -98,41 +97,26 @@ begin
   AToolbar.ButtonHeight:= AImages.Height+4;
 end;
 
-function GetResourceStream(AFilename: string): TLazarusResourceStream;
-var
-  ext: RawByteString;
-begin
-  ext := UpperCase(ExtractFileExt(AFilename));
-  if (ext<>'') and (ext[1]='.') then Delete(ext,1,1);
-  result := TLazarusResourceStream.Create(ChangeFileExt(AFilename,''), pchar(ext));
-end;
-
 function GetResourceString(AFilename: string): string;
 var
-  res: TLResource;
-  ext: RawByteString;
+  strStream: TStringStream;
+  resStream: TStream;
 begin
-  ext := UpperCase(ExtractFileExt(AFilename));
-  if (ext<>'') and (ext[1]='.') then Delete(ext,1,1);
-  res := LazarusResources.Find(ChangeFileExt(AFilename,''), ext);
-  if assigned(res) then result:= res.Value else result:= '';
+  resStream := BGRAResource.GetResourceStream(AFilename);
+  strStream := TStringStream.Create('');
+  strStream.CopyFrom(resStream, resStream.Size);
+  resStream.Free;
+  result:= strStream.DataString;
+  strStream.Free;
 end;
 
 procedure LoadToolbarImage(AImages: TImageList; AIndex: integer; AFilename: string);
 var
   iconImg: TBGRALazPaintImage;
   iconFlat: TBGRABitmap;
-  res: TLazarusResourceStream;
-  mem: TMemoryStream;
 begin
   iconImg := TBGRALazPaintImage.Create;
-  res := GetResourceStream(AFilename);
-  mem:= TMemoryStream.Create;
-  res.SaveToStream(mem);
-  res.Free;
-  mem.Position:= 0;
-  iconImg.LoadFromStream(mem);
-  mem.Free;
+  iconImg.LoadFromResource(AFilename);
   iconImg.Resample(AImages.Width,AImages.Height,rmFineResample,rfBestQuality);
   iconFlat := TBGRABitmap.Create(iconImg.Width,iconImg.Height);
   iconImg.Draw(iconFlat,0,0);
