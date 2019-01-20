@@ -132,8 +132,8 @@ type
       bmp: TBGRABitmap;
       bpp: integer;
       frameIndex: integer;
-      class function Empty: TImageEntry;
-      class function NewFrameIndex: integer;
+      class function Empty: TImageEntry; static;
+      class function NewFrameIndex: integer; static;
       procedure FreeAndNil;
     end;
     ArrayOfImageEntry = array of TImageEntry;
