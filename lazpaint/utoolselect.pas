@@ -176,7 +176,7 @@ function TToolRotateSelection.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
 begin
   result := EmptyRect;
-  if not handMoving and not Manager.Image.SelectionEmpty then
+  if not handMoving and not Manager.Image.SelectionMaskEmpty then
   begin
     if rightBtn then
     begin
@@ -241,7 +241,7 @@ end;
 constructor TToolRotateSelection.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
-  FCurrentCenter := Manager.Image.SelectionTransform * Manager.Image.GetSelectionCenter;
+  FCurrentCenter := Manager.Image.SelectionTransform * Manager.Image.GetSelectionMaskCenter;
   FOriginalTransform := Manager.Image.SelectionTransform;
   FCurrentAngle := 0;
 end;

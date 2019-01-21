@@ -37,7 +37,7 @@ type
 
   TLazPaintImage = class
   private
-    FLastSelectionBoundsIsDefined,
+    FLastSelectionMaskBoundsIsDefined,
     FLastSelectionLayerBoundsIsDefined: boolean;
     FLastSelectionBounds, FLastSelectionLayerBounds: TRect;
     FOnSelectionChanged: TOnCurrentSelectionChanged;
@@ -108,6 +108,7 @@ type
     procedure UpdateIconFileUTF8(AFilename: string; AOutputFilename: string = '');
     procedure UpdateTiffFileUTF8(AFilename: string; AOutputFilename: string = '');
     procedure UpdateGifFileUTF8(AFilename: string; AOutputFilename: string = '');
+    procedure ReplaceCurrentSelectionWithoutUndo(const AValue: TBGRABitmap);
 
   public
     ActionInProgress: TCustomLayerAction;
@@ -117,21 +118,22 @@ type
     CursorHotSpot: TPoint;
     BPP, FrameIndex: integer;
 
-    procedure DrawBackground(ABmp: TBGRABitmap; ARect: TRect);
-    procedure DiscardSelectionBounds;
-    procedure DiscardSelectionLayerBounds;
+    // make copy
     function MakeLayeredBitmapCopy: TBGRALayeredBitmap;
     function MakeLayeredBitmapAndSelectionCopy: TLayeredBitmapAndSelection;
     function MakeBitmapCopy(backgroundColor: TColor): TBitmap;
     function MakeCroppedLayer: TBGRABitmap;
+
+    // undo/redo
     function CanUndo: boolean;
     function CanRedo: boolean;
     procedure Undo;
     procedure Redo;
-    procedure ChangeState(AStateDiff: TStateDifference; AInverse: boolean = false);
     procedure ClearUndo;
     procedure CompressUndo;
     function UsedMemory: int64;
+
+    // invalidating
     procedure ImageMayChange(ARect: TRect; ADiscardSelectionLayerAfterMask: boolean = true);
     procedure ImageMayChangeCompletely;
     procedure LayerMayChange(ALayer: TBGRABitmap; ARect: TRect);
@@ -140,29 +142,33 @@ type
     procedure SelectionMayChangeCompletely;
     procedure RenderMayChange(ARect: TRect; APicCoords: boolean = false);
     procedure ResetRenderUpdateRect;
-    function SetCurrentImageLayerIndex(AValue: integer): boolean;
-    procedure SetLayerOffset(AIndex: integer; AValue: TPoint; APrecomputedLayerBounds: TRect);
 
-    function SelectionEmpty: boolean;
-    function SelectionEmptyComputed: boolean;
-    function SelectionNil: boolean;
+    // selection mask
+    procedure DiscardSelectionMaskBounds;
+    function SelectionMaskEmpty: boolean;
+    function SelectionMaskEmptyComputed: boolean;
+    function SelectionMaskNil: boolean;
+    function GetSelectionMaskCenter: TPointF;
+    procedure SaveSelectionMaskToFileUTF8(AFilename: string);
+    function SelectionMaskReadonly: TBGRABitmap;
+    procedure ReleaseEmptySelectionMask;
+    procedure QuerySelectionMask;
+
+    // selection layer
+    procedure DiscardSelectionLayerBounds;
     function SelectionLayerIsEmpty: boolean;
-    procedure ReleaseEmptySelection;
+    function SelectionLayerReadonly: TBGRABitmap;
+    procedure ReplaceSelectionLayer(bmp: TBGRABitmap; AOwned: boolean);
+
+    // image layer
+    function SelectImageLayerByIndex(AValue: integer): boolean;
     function SelectedLayerEmpty: boolean;
     function SelectedLayerEquals(AColor: TBGRAPixel): boolean;
     property SelectedLayerPixel[X,Y: Integer]: TBGRAPixel read GetSelectedLayerPixel;
-    function GetSelectionCenter: TPointF;
-    procedure SaveSelectionToFileUTF8(AFilename: string);
-    function SelectionMaskReadonly: TBGRABitmap;
-    function SelectionLayerReadonly: TBGRABitmap;
+    procedure SetLayerOffset(AIndex: integer; AValue: TPoint; APrecomputedLayerBounds: TRect);
     function SelectedImageLayerReadOnly: TBGRABitmap;
-
     function GetSelectedImageLayer: TBGRABitmap;
-    function GetSelectionLayerIfExists: TBGRABitmap;
-    procedure ReplaceSelectionLayer(bmp: TBGRABitmap; AOwned: boolean);
-    procedure ReplaceCurrentSelection(const AValue: TBGRABitmap);
-    procedure ReplaceDrawingLayer(bmp: TBGRABitmap; AOwned: boolean);
-    procedure QuerySelection;
+
     procedure RemoveSelection;
     procedure EraseSelectionInBitmap;
     procedure ReleaseSelection;
@@ -171,7 +177,6 @@ type
     function GetOrCreateSelectionLayer: TBGRABitmap;
     procedure ApplySelectionTransform(ApplyToMask: boolean= true);
     procedure ApplySelectionMask;
-    procedure ReplaceSelectedLayer(AValue: TBGRABitmap; AOwned: boolean);
     procedure AddUndo(AUndoAction: TCustomImageDifference);
 
     function ComputeTransformedSelection: TBGRABitmap;
@@ -308,11 +313,6 @@ begin
     end;
 end;
 
-function TLazPaintImage.GetSelectionLayerIfExists: TBGRABitmap;
-begin
-  result := FCurrentState.SelectionLayer;
-end;
-
 procedure TLazPaintImage.ReplaceSelectionLayer(bmp: TBGRABitmap; AOwned: boolean);
 begin
   if (FCurrentState.SelectionMask <> nil) then
@@ -353,10 +353,10 @@ begin
   if not IsAffineMatrixIdentity(FSelectionTransform) then
   begin
     if ApplyToMask and (CurrentSelectionMask <> nil) then
-      ReplaceCurrentSelection(ComputeTransformedSelection);
-    if GetSelectionLayerIfExists <> nil then
+      ReplaceCurrentSelectionWithoutUndo(ComputeTransformedSelection);
+    if FCurrentState.SelectionLayer <> nil then
     begin
-      temp := GetSelectionLayerIfExists.FilterAffine(FSelectionTransform,True) as TBGRABitmap;
+      temp := FCurrentState.SelectionLayer.FilterAffine(FSelectionTransform,True) as TBGRABitmap;
       ReplaceSelectionLayer(temp, True);
     end;
     FSelectionTransform := AffineMatrixIdentity;
@@ -366,7 +366,7 @@ end;
 procedure TLazPaintImage.ApplySelectionMask;
 var r: TRect;
 begin
-  if (CurrentSelectionMask <> nil) and (GetSelectionLayerIfExists <> nil) then
+  if (CurrentSelectionMask <> nil) and (FCurrentState.SelectionLayer <> nil) then
   begin
     r := SelectionLayerBounds;
     if not IsRectEmpty(r) then
@@ -380,7 +380,7 @@ end;
 function TLazPaintImage.MakeCroppedLayer: TBGRABitmap;
 var r: TRect;
 begin
-  result := DuplicateBitmap(GetSelectionLayerIfExists);
+  result := DuplicateBitmap(FCurrentState.SelectionLayer);
   if (result <> nil) and (CurrentSelectionMask <> nil) then result.ApplyMask(CurrentSelectionMask);
   if (result <> nil) and result.Empty then FreeAndNil(result);
   if result = nil then
@@ -428,8 +428,8 @@ begin
     if CurrentSelectionMask <> nil then
       zoomed.selection:= CurrentSelectionMask.FilterSmartZoom3(moMediumSmooth) as TBGRABitmap
     else zoomed.Selection := nil;
-    if GetSelectionLayerIfExists <> nil then
-      zoomed.selectionLayer := GetSelectionLayerIfExists.FilterSmartZoom3(moMediumSmooth) as TBGRABitmap
+    if FCurrentState.SelectionLayer <> nil then
+      zoomed.selectionLayer := FCurrentState.SelectionLayer.FilterSmartZoom3(moMediumSmooth) as TBGRABitmap
     else
       zoomed.selectionLayer := nil;
     AddUndo(FCurrentState.AssignWithUndo(zoomed.layeredBitmap,true, FCurrentState.SelectedImageLayerIndex, zoomed.selection, zoomed.selectionLayer));
@@ -708,7 +708,7 @@ begin
       CursorHotSpot := Point(0,0);
       Assign(layeredBmp,true,false);
       if layeredBmp is TBGRALazPaintImage then
-        SetCurrentImageLayerIndex(TBGRALazPaintImage(layeredBmp).SelectedLayerIndex);
+        SelectImageLayerByIndex(TBGRALazPaintImage(layeredBmp).SelectedLayerIndex);
       layeredBmp := nil;
     end else
     begin
@@ -767,16 +767,8 @@ end;
 
 function TLazPaintImage.GetDrawingLayer: TBGRABitmap;
 begin
-   if SelectionEmpty then result := GetSelectedImageLayer else
+   if SelectionMaskEmpty then result := GetSelectedImageLayer else
      result := GetOrCreateSelectionLayer;
-end;
-
-procedure TLazPaintImage.ReplaceDrawingLayer(bmp: TBGRABitmap; AOwned: boolean);
-begin
-   if SelectionEmpty then
-     ReplaceSelectedLayer(bmp, AOwned)
-   else
-     ReplaceSelectionLayer(bmp, AOwned);
 end;
 
 procedure TLazPaintImage.LayeredBitmapReplaced;
@@ -895,14 +887,9 @@ begin
   end;
 end;
 
-procedure TLazPaintImage.DrawBackground(ABmp: TBGRABitmap; ARect: TRect);
+procedure TLazPaintImage.DiscardSelectionMaskBounds;
 begin
-  DrawThumbnailCheckers(ABmp,ARect,IsIconCursor);
-end;
-
-procedure TLazPaintImage.DiscardSelectionBounds;
-begin
-  FLastSelectionBoundsIsDefined := false;
+  FLastSelectionMaskBoundsIsDefined := false;
 end;
 
 procedure TLazPaintImage.DiscardSelectionLayerBounds;
@@ -1040,14 +1027,6 @@ begin
   end;
 end;
 
-procedure TLazPaintImage.ChangeState(AStateDiff: TStateDifference; AInverse: boolean = false);
-begin
-  if AInverse then
-    AStateDiff.UnapplyTo(FCurrentState)
-  else
-    AStateDiff.ApplyTo(FCurrentState);
-end;
-
 procedure TLazPaintImage.ClearUndo;
 var i: integer;
 begin
@@ -1129,10 +1108,10 @@ begin
   temp := ARect;
   InflateRect(temp,1,1);
   FRenderUpdateRectInPicCoord := RectUnion(FRenderUpdateRectInPicCoord,temp);
-  FLastSelectionBoundsIsDefined := false;
+  FLastSelectionMaskBoundsIsDefined := false;
   if Assigned(FOnSelectionChanged) then FOnSelectionChanged(self, ARect);
-  if GetSelectionLayerIfExists <> nil then
-    LayerMayChange(GetSelectionLayerIfExists, ARect)
+  if FCurrentState.SelectionLayer <> nil then
+    LayerMayChange(FCurrentState.SelectionLayer, ARect)
   else
     OnImageChanged.NotifyObservers;
 end;
@@ -1162,32 +1141,32 @@ function TLazPaintImage.MakeLayeredBitmapAndSelectionCopy: TLayeredBitmapAndSele
 begin
   result.layeredBitmap := FCurrentState.GetLayeredBitmapCopy;
   result.selection := DuplicateBitmap(CurrentSelectionMask);
-  result.selectionLayer := DuplicateBitmap(GetSelectionLayerIfExists);
+  result.selectionLayer := DuplicateBitmap(FCurrentState.SelectionLayer);
 end;
 
 {--------------------- Selection --------------------------------------}
 
-procedure TLazPaintImage.QuerySelection;
+procedure TLazPaintImage.QuerySelectionMask;
 begin
-    if CurrentSelectionMask = nil then
-    begin
-      ReplaceCurrentSelection(TBGRABitmap.Create(Width,Height, BGRABlack));
-      FLastSelectionBoundsIsDefined := true;
-      FLastSelectionBounds := EmptyRect;
-    end;
+  if CurrentSelectionMask = nil then
+  begin
+    ReplaceCurrentSelectionWithoutUndo(TBGRABitmap.Create(Width,Height, BGRABlack));
+    FLastSelectionMaskBoundsIsDefined := true;
+    FLastSelectionBounds := EmptyRect;
+  end;
 end;
 
-function TLazPaintImage.SelectionEmpty: boolean;
+function TLazPaintImage.SelectionMaskEmpty: boolean;
 begin
   result := IsRectEmpty(SelectionMaskBounds);
 end;
 
-function TLazPaintImage.SelectionEmptyComputed: boolean;
+function TLazPaintImage.SelectionMaskEmptyComputed: boolean;
 begin
-  result := FLastSelectionBoundsIsDefined;
+  result := FLastSelectionMaskBoundsIsDefined;
 end;
 
-function TLazPaintImage.SelectionNil: boolean;
+function TLazPaintImage.SelectionMaskNil: boolean;
 begin
   result := (CurrentSelectionMask = nil);
 end;
@@ -1202,7 +1181,7 @@ begin
   result := FCurrentState.SelectedImageLayer;
   if (result = nil) and (NbLayers > 0) then
   begin
-    SetCurrentImageLayerIndex(0);
+    SelectImageLayerByIndex(0);
     result := FCurrentState.SelectedImageLayer;
   end;
 end;
@@ -1212,7 +1191,7 @@ begin
   result := FCurrentState.SelectedImageLayerIndex;
   if (result = -1) and (NbLayers > 0) then
   begin
-    SetCurrentImageLayerIndex(0);
+    SelectImageLayerByIndex(0);
     result := 0;
   end;
 end;
@@ -1289,7 +1268,7 @@ end;
 
 function TLazPaintImage.GetTransformedSelectionBounds: TRect;
 begin
-  if SelectionEmpty then
+  if SelectionMaskEmpty then
     result := EmptyRect
   else
   begin
@@ -1304,7 +1283,7 @@ var
 begin
   if not FSelectionLayerAfterMaskDefined then
   begin
-    if SelectionEmpty or SelectionLayerIsEmpty then
+    if SelectionMaskEmpty or SelectionLayerIsEmpty then
       FreeAndNil(FSelectionLayerAfterMask)
     else
     begin
@@ -1343,19 +1322,19 @@ procedure TLazPaintImage.MergeWithSelection(AApplyMask: boolean);
 var offs: TPoint;
   sourceRect,destRect: TRect;
 begin
-  if not SelectionLayerIsEmpty and not (AApplyMask and SelectionEmpty) then
+  if not SelectionLayerIsEmpty and not (AApplyMask and SelectionMaskEmpty) then
   begin
     sourceRect := SelectionLayerBounds;
     if AApplyMask then
     begin
-      GetSelectionLayerIfExists.ApplyMask(CurrentSelectionMask,SelectionLayerBounds);
+      FCurrentState.SelectionLayer.ApplyMask(CurrentSelectionMask,SelectionLayerBounds);
       IntersectRect(sourceRect,sourceRect,SelectionMaskBounds);
-      LayerMayChange(GetSelectionLayerIfExists,SelectionLayerBounds);
+      LayerMayChange(FCurrentState.SelectionLayer,SelectionLayerBounds);
     end;
     offs := LayerOffset[currentImageLayerIndex];
     destRect := sourceRect;
     OffsetRect(destRect, -offs.x,-offs.y);
-    GetSelectedImageLayer.PutImagePart(destRect.left,destRect.top,GetSelectionLayerIfExists,sourceRect,dmDrawWithTransparency);
+    GetSelectedImageLayer.PutImagePart(destRect.left,destRect.top,FCurrentState.SelectionLayer,sourceRect,dmDrawWithTransparency);
     LayerMayChange(GetSelectedImageLayer,destRect);
     ReplaceSelectionLayer(nil,true);
   end;
@@ -1383,7 +1362,7 @@ begin
   FCurrentState.SelectedImageLayer := AValue;
 end;
 
-function TLazPaintImage.SetCurrentImageLayerIndex(AValue: integer): boolean;
+function TLazPaintImage.SelectImageLayerByIndex(AValue: integer): boolean;
 var
   composedDiff: TComposedImageDifference;
   changeIndex: TSelectCurrentLayer;
@@ -1527,7 +1506,7 @@ begin
     //if there is an overlapping selection, then we must draw it on current layer
     if (CurrentSelectionMask <> nil) and (GetSelectedImageLayer <> nil) then
     begin
-      shownSelectionLayer := GetSelectionLayerIfExists;
+      shownSelectionLayer := FCurrentState.SelectionLayer;
       if shownSelectionLayer <> nil then
       begin
          if not IsAffineMatrixIdentity(SelectionTransform) then
@@ -1619,19 +1598,19 @@ end;
 
 function TLazPaintImage.GetSelectionMaskBounds: TRect;
 begin
-  if FLastSelectionBoundsIsDefined then
+  if FLastSelectionMaskBoundsIsDefined then
     result := FLastSelectionBounds
   else
   if CurrentSelectionMask = nil then
   begin
     result := EmptyRect;
     FLastSelectionBounds := result;
-    FLastSelectionBoundsIsDefined := true;
+    FLastSelectionMaskBoundsIsDefined := true;
   end else
   begin
     result := CurrentSelectionMask.GetImageBounds(cGreen);
     FLastSelectionBounds := result;
-    FLastSelectionBoundsIsDefined := true;
+    FLastSelectionMaskBoundsIsDefined := true;
   end;
 end;
 
@@ -1640,14 +1619,14 @@ begin
   if FLastSelectionLayerBoundsIsDefined then
     result := FLastSelectionLayerBounds
   else
-  if GetSelectionLayerIfExists = nil then
+  if FCurrentState.SelectionLayer = nil then
   begin
     result := EmptyRect;
     FLastSelectionLayerBounds := result;
     FLastSelectionLayerBoundsIsDefined := true;
   end else
   begin
-    result := GetSelectionLayerIfExists.GetImageBounds;
+    result := FCurrentState.SelectionLayer.GetImageBounds;
     FLastSelectionLayerBounds := result;
     FLastSelectionLayerBoundsIsDefined := true;
   end;
@@ -1752,33 +1731,13 @@ begin
     begin
       Assign(layeredBitmap,AOwned,False);
       if not AOwned then
-        ReplaceCurrentSelection(selection.Duplicate(True) as TBGRABitmap)
+        ReplaceCurrentSelectionWithoutUndo(selection.Duplicate(True) as TBGRABitmap)
       else
-        ReplaceCurrentSelection(selection);
+        ReplaceCurrentSelectionWithoutUndo(selection);
       ReplaceSelectionLayer(selectionLayer,AOwned);
     end;
   end;
   OnImageChanged.NotifyObservers;
-end;
-
-procedure TLazPaintImage.ReplaceSelectedLayer(AValue: TBGRABitmap; AOwned: boolean);
-var dest: TBGRABitmap;
-  r: TRect;
-begin
-  dest := GetSelectedImageLayer;
-  if dest = nil then exit;
-  if (AValue.Width = dest.Width) and (AValue.Height = dest.Height) then
-  begin
-    r := AValue.GetDifferenceBounds(dest);
-    dest.PutImage(0,0,AValue,dmSet);
-    LayerMayChange(dest, r);
-  end else
-  begin
-    dest.FillTransparent;
-    dest.PutImage((dest.Width-AValue.Width) div 2,(dest.Height-AValue.Height) div 2,AValue,dmSet);
-    LayerMayChangeCompletely(dest);
-  end;
-  if AOwned then AValue.Free;
 end;
 
 procedure TLazPaintImage.Draw(ADest: TBGRABitmap; x, y: integer);
@@ -2011,7 +1970,7 @@ begin
     MessagePopup(rsMustShowLayer,2000);
 end;
 
-procedure TLazPaintImage.ReplaceCurrentSelection(const AValue: TBGRABitmap);
+procedure TLazPaintImage.ReplaceCurrentSelectionWithoutUndo(const AValue: TBGRABitmap);
 begin
   if FCurrentState.SelectionMask = AValue then exit;
   FCurrentState.SelectionMask.Free;
@@ -2026,7 +1985,7 @@ begin
    begin
       bounds := SelectionMaskBounds;
       ReplaceSelectionLayer(nil,true);
-      ReplaceCurrentSelection(nil);
+      ReplaceCurrentSelectionWithoutUndo(nil);
       SelectionMayChange(bounds);
    end;
 end;
@@ -2035,7 +1994,7 @@ procedure TLazPaintImage.EraseSelectionInBitmap;
 var offs: TPoint;
   r: TRect;
 begin
-  if not SelectionEmpty then
+  if not SelectionMaskEmpty then
   begin
     offs := LayerOffset[currentImageLayerIndex];
     r := SelectionMaskBounds;
@@ -2050,7 +2009,7 @@ begin
    if CurrentSelectionMask <> nil then
    begin
       ApplySelectionMask;
-      ReplaceCurrentSelection(nil);
+      ReplaceCurrentSelectionWithoutUndo(nil);
       ApplySelectionTransform(False);
       MergeWithSelection(False);
    end;
@@ -2072,7 +2031,7 @@ begin
       temp.PutImagePart(r.left+offs.x,r.top+offs.y,GetSelectedImageLayer,r,dmSet);
       temp.ApplyMask(CurrentSelectionMask,SelectionMaskBounds);
       BGRAReplace(FCurrentState.SelectionLayer,temp);
-      LayerMayChange(GetSelectionLayerIfExists,SelectionMaskBounds);
+      LayerMayChange(FCurrentState.SelectionLayer,SelectionMaskBounds);
     end;
 end;
 
@@ -2081,9 +2040,9 @@ begin
   result := IsRectEmpty(SelectionLayerBounds);
 end;
 
-procedure TLazPaintImage.ReleaseEmptySelection;
+procedure TLazPaintImage.ReleaseEmptySelectionMask;
 begin
-  if SelectionEmpty then ReleaseSelection;
+  if SelectionMaskEmpty then ReleaseSelection;
 end;
 
 function TLazPaintImage.SelectedLayerEmpty: boolean;
@@ -2096,12 +2055,12 @@ begin
   result := GetSelectedImageLayer.Equals(AColor);
 end;
 
-function TLazPaintImage.GetSelectionCenter: TPointF;
+function TLazPaintImage.GetSelectionMaskCenter: TPointF;
 begin
   result := ugraph.GetSelectionCenter(CurrentSelectionMask);
 end;
 
-procedure TLazPaintImage.SaveSelectionToFileUTF8(AFilename: string);
+procedure TLazPaintImage.SaveSelectionMaskToFileUTF8(AFilename: string);
 var s: TStream;
 begin
   if CurrentSelectionMask = nil then exit;
@@ -2123,7 +2082,7 @@ end;
 
 function TLazPaintImage.SelectionLayerReadonly: TBGRABitmap;
 begin
-  result := GetSelectionLayerIfExists;
+  result := FCurrentState.SelectionLayer;
 end;
 
 function TLazPaintImage.SelectedImageLayerReadOnly: TBGRABitmap;
@@ -2159,7 +2118,7 @@ begin
   ImageOffset := Point(0,0);
   FSelectionTransform := AffineMatrixIdentity;
 
-  FLastSelectionBoundsIsDefined := false;
+  FLastSelectionMaskBoundsIsDefined := false;
   FLastSelectionLayerBoundsIsDefined := false;
 end;
 

@@ -363,7 +363,7 @@ end;
 
 function TReadonlyTool.GetToolDrawingLayer: TBGRABitmap;
 begin
-  if Manager.Image.SelectionEmpty or not assigned(Manager.Image.SelectionLayerReadonly) then
+  if Manager.Image.SelectionMaskEmpty or not assigned(Manager.Image.SelectionLayerReadonly) then
     Result:= Manager.Image.SelectedImageLayerReadOnly
   else
     Result:= Manager.Image.SelectionLayerReadonly;
@@ -402,7 +402,7 @@ function TGenericTool.GetAction: TLayerAction;
 begin
   if not Assigned(FAction) then
   begin
-    FAction := TLayerAction.Create(Manager.Image, not IsSelectingTool And Manager.Image.SelectionEmpty);
+    FAction := TLayerAction.Create(Manager.Image, not IsSelectingTool And Manager.Image.SelectionMaskEmpty);
     FAction.OnTryStop := @OnTryStop;
   end;
   result := FAction;
@@ -1106,7 +1106,7 @@ begin
     showTexture:= true;
 
   if not IsSelectingTool then
-    Image.ReleaseEmptySelection;
+    Image.ReleaseEmptySelectionMask;
 
   SetControlsVisible(PenWidthControls, showPenwidth);
   SetControlsVisible(SplineStyleControls, showSplineStyle);

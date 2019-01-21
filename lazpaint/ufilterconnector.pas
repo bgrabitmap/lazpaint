@@ -97,7 +97,7 @@ end;
 
 function TFilterConnector.GetCurrentSelection: TBGRABitmap;
 begin
-  if ApplyOnSelectionLayer or FLazPaintInstance.Image.SelectionEmpty then
+  if ApplyOnSelectionLayer or FLazPaintInstance.Image.SelectionMaskEmpty then
     result := nil
   else
   begin

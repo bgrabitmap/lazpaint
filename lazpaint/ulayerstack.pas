@@ -316,7 +316,7 @@ begin
       LazPaintInstance.ShowTopmost(topmostInfo);
       if res = mrOk then
       begin
-        if LazPaintInstance.Image.SetCurrentImageLayerIndex(i) then
+        if LazPaintInstance.Image.SelectImageLayerByIndex(i) then
         begin
           renaming := false;
           BGRALayerStack.RedrawBitmap;
@@ -324,7 +324,7 @@ begin
       end;
       exit;
     end;
-    if LazPaintInstance.Image.SetCurrentImageLayerIndex(i) then
+    if LazPaintInstance.Image.SelectImageLayerByIndex(i) then
     begin
       renaming := false;
       movingItemStart := true;

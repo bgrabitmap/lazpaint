@@ -492,7 +492,7 @@ begin
   LayerAction := nil;
   try
     LayerAction := TLayerAction.Create(LazPaintInstance.Image);
-    LayerAction.ReplaceSelectedLayer(quant.GetDitheredBitmap(ADither,LayerAction.SelectedImageLayer) as TBGRABitmap, True);
+    quant.ApplyDitheringInplace(ADither,LayerAction.SelectedImageLayer);
     LazPaintInstance.image.LayerMayChangeCompletely(LayerAction.SelectedImageLayer);
     LayerAction.Validate;
   except

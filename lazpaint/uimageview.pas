@@ -71,7 +71,7 @@ type
 
 implementation
 
-uses BGRATransform, LCLIntf, Types, ugraph, math, UTool;
+uses BGRATransform, LCLIntf, Types, ugraph, math, UTool, BGRAThumbnail;
 
 function TImageView.GetFillSelectionHighlight: boolean;
 begin
@@ -151,7 +151,7 @@ begin
   OffsetRect(renderRect, -FLastPictureParameters.virtualScreenArea.Left,
                          -FLastPictureParameters.virtualScreenArea.Top);
 
-  Image.DrawBackground(FVirtualScreen, renderRect);
+  DrawThumbnailCheckers(FVirtualScreen,renderRect,Image.IsIconCursor);
 
   //draw image (with merged selection)
   FVirtualScreen.StretchPutImage(renderRect,Image.RenderedImage,dmDrawWithTransparency);

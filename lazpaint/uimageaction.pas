@@ -214,6 +214,7 @@ procedure TImageActions.FillBackground;
 var tempBmp: TBGRABitmap;
     c: TBGRAPixel;
     LayerAction: TLayerAction;
+    y: Integer;
 begin
   if not Image.CheckNoAction then exit;
   LayerAction := nil;
@@ -221,9 +222,14 @@ begin
     c := ToolManager.ToolBackColor;
     c.alpha := 255;
     LayerAction := TLayerAction.Create(Image,True);
-    tempBmp := TBGRABitmap.Create(image.Width,image.Height,c);
-    tempBmp.PutImage(0,0,LayerAction.SelectedImageLayer,dmDrawWithTransparency);
-    LayerAction.ReplaceSelectedLayer(tempBmp, True);
+    tempBmp := TBGRABitmap.Create(LayerAction.SelectedImageLayer.Width,1);
+    for y := 0 to LayerAction.SelectedImageLayer.Height-1 do
+    begin
+       tempBmp.Fill(c);
+       tempBmp.PutImage(0,-y,LayerAction.SelectedImageLayer,dmDrawWithTransparency);
+       LayerAction.SelectedImageLayer.PutImage(0,y,tempBmp,dmSet);
+    end;
+    tempBmp.Free;
     image.LayerMayChangeCompletely(LayerAction.SelectedImageLayer);
     LayerAction.Validate;
   except
@@ -347,7 +353,7 @@ begin
   if not image.CheckNoAction then exit;
   if not image.CheckCurrentLayerVisible then exit;
   try
-    if image.SelectionEmpty then
+    if image.SelectionMaskEmpty then
     begin
       FInstance.ShowMessage(rsCrop, rsEmptySelection);
       exit;
@@ -392,12 +398,12 @@ begin
     exit;
   end;
   try
-    if image.SelectionEmpty then
+    if image.SelectionMaskEmpty then
     begin
       FInstance.ShowMessage(rsCrop,rsEmptySelection);
       exit;
     end;
-    if not image.SelectionEmpty then
+    if not image.SelectionMaskEmpty then
     begin
       r := image.SelectionMaskBounds;
       if (r.left = 0) and (r.Top = 0) and (r.right = image.width) and (r.Bottom =image.height) then exit;
@@ -412,7 +418,7 @@ begin
       BGRAReplace(cropped.selection,cropped.selection.GetPart(r));
       if cropped.selectionLayer <> nil then BGRAReplace(cropped.selectionLayer,cropped.selectionLayer.GetPart(r));
       image.Assign(cropped,true,true);
-      image.SetCurrentImageLayerIndex(selectedLayer);
+      image.SelectImageLayerByIndex(selectedLayer);
     end;
   except
     on ex:Exception do
@@ -466,7 +472,7 @@ begin
       ChooseTool(ptHand);
     if image.CheckNoAction then
     begin
-      if not Image.SelectionEmpty then
+      if not Image.SelectionMaskEmpty then
       begin
         layeraction := TLayerAction.Create(image);
         layeraction.ReleaseSelection;
@@ -513,9 +519,9 @@ begin
   try
     if (AOption = foCurrentLayer) then
       image.HorizontalFlip(Image.currentImageLayerIndex) else
-    if ((AOption = foAuto) and not image.SelectionEmpty) or (AOption = foSelection) then
+    if ((AOption = foAuto) and not image.SelectionMaskEmpty) or (AOption = foSelection) then
     begin
-      if not image.SelectionEmpty then
+      if not image.SelectionMaskEmpty then
       begin
         ChooseTool(ptMoveSelection);
         if not Image.CheckNoAction then exit;
@@ -536,7 +542,7 @@ begin
       end else
         exit;
     end else
-    if ((AOption = foAuto) and image.SelectionEmpty) or (AOption = foWholePicture) then
+    if ((AOption = foAuto) and image.SelectionMaskEmpty) or (AOption = foWholePicture) then
       image.HorizontalFlip;
   except
     on ex:Exception do
@@ -551,9 +557,9 @@ begin
   try
     if (AOption = foCurrentLayer) then
       image.VerticalFlip(Image.currentImageLayerIndex) else
-    if ((AOption = foAuto) and not image.SelectionEmpty) or (AOption = foSelection) then
+    if ((AOption = foAuto) and not image.SelectionMaskEmpty) or (AOption = foSelection) then
     begin
-      if not image.SelectionEmpty then
+      if not image.SelectionMaskEmpty then
       begin
         ChooseTool(ptMoveSelection);
         if not Image.CheckNoAction then exit;
@@ -573,7 +579,7 @@ begin
       end else
         exit;
     end else
-    if ((AOption = foAuto) and image.SelectionEmpty) or (AOption = foWholePicture) then
+    if ((AOption = foAuto) and image.SelectionMaskEmpty) or (AOption = foWholePicture) then
       image.VerticalFlip;
   except
     on ex:Exception do
@@ -641,7 +647,7 @@ begin
   if not Image.CheckNoAction then exit;
   LayerAction := nil;
   try
-    if not image.SelectionEmpty then
+    if not image.SelectionMaskEmpty then
     begin
       LayerAction := TLayerAction.Create(Image);
       LayerAction.AllChangesNotified:= true;
@@ -693,7 +699,7 @@ begin
   if not image.CheckNoAction then exit;
   LayerAction := nil;
   try
-    if image.SelectionEmpty then exit;
+    if image.SelectionMaskEmpty then exit;
     CopySelection;
     LayerAction := TLayerAction.Create(Image);
     if (LayerAction.GetSelectionLayerIfExists = nil) or (LayerAction.GetSelectionLayerIfExists.Empty) then
@@ -716,7 +722,7 @@ begin
   if not image.CheckNoAction then exit;
   LayerAction := nil;
   try
-    if image.SelectionEmpty then exit;
+    if image.SelectionMaskEmpty then exit;
 
     LayerAction := TLayerAction.Create(Image);
     if Image.SelectionLayerIsEmpty then
@@ -817,7 +823,7 @@ begin
     LayerAction := TLayerAction.Create(Image);
     LayerAction.AllChangesNotified := true;
 
-    if image.SelectionEmpty then
+    if image.SelectionMaskEmpty then
     begin
       bounds := rect(0,0,Image.width,image.height);
       LayerAction.QuerySelection;
@@ -844,7 +850,7 @@ begin
     LayerAction.NotifyChange(LayerAction.GetOrCreateSelectionLayer, bounds);
     LayerAction.Validate;
     LayerAction.Free;
-    if image.SelectionEmpty then
+    if image.SelectionMaskEmpty then
     begin
       if (CurrentTool = ptRotateSelection) or
          (CurrentTool  = ptMoveSelection) then

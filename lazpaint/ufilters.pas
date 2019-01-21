@@ -94,7 +94,7 @@ begin
   if filter = pfNone then exit;
   if not AInstance.Image.CheckNoAction then exit;
   if not AInstance.image.CheckCurrentLayerVisible then exit;
-  if (filter = pfLinearNegative) and AInstance.Image.SelectionEmpty and (AInstance.Image.NbLayers = 1) then
+  if (filter = pfLinearNegative) and AInstance.Image.SelectionMaskEmpty and (AInstance.Image.NbLayers = 1) then
   begin
       AInstance.Image.LinearNegativeAll;
       result := true;

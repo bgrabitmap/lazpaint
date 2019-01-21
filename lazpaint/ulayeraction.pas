@@ -52,9 +52,7 @@ type
     procedure ApplySelectionTransform(ApplyToMask: boolean= true);
     procedure ApplySelectionMask;
 
-    procedure ReplaceSelectedLayer(AValue: TBGRABitmap; AOwned: boolean);
     procedure ReplaceSelectionLayer(bmp: TBGRABitmap; AOwned: boolean);
-    procedure ReplaceDrawingLayer(bmp: TBGRABitmap; AOwned: boolean);
     procedure ReplaceCurrentSelection(AValue: TBGRABitmap);
     procedure NotifyChange(ADest: TBGRABitmap; ARect: TRect);
     procedure RestoreSelectionMask;
@@ -112,7 +110,7 @@ end;
 
 function TLayerAction.GetBackupDrawingLayer: TBGRABitmap;
 begin
-  if FImage.SelectionEmpty then result := BackupSelectedLayer else
+  if FImage.SelectionMaskEmpty then result := BackupSelectedLayer else
     result := BackupSelectionLayer;
 end;
 
@@ -130,7 +128,7 @@ end;
 
 function TLayerAction.GetDrawingLayer: TBGRABitmap;
 begin
-  if FImage.SelectionEmpty then result := GetSelectedImageLayer else
+  if FImage.SelectionMaskEmpty then result := GetSelectedImageLayer else
     result := GetOrCreateSelectionLayer;
 end;
 
@@ -223,11 +221,6 @@ begin
   inherited Destroy;
 end;
 
-procedure TLayerAction.ReplaceDrawingLayer(bmp: TBGRABitmap; AOwned: boolean);
-begin
-  FImage.ReplaceDrawingLayer(bmp,AOwned);
-end;
-
 procedure TLayerAction.ReplaceCurrentSelection(AValue: TBGRABitmap);
 begin
   if AValue = CurrentState.SelectionMask then exit;
@@ -280,7 +273,7 @@ end;
 
 procedure TLayerAction.RestoreDrawingLayer;
 begin
-  if FImage.SelectionEmpty then RestoreSelectedLayer
+  if FImage.SelectionMaskEmpty then RestoreSelectedLayer
     else RestoreSelectionLayer;
 end;
 
@@ -331,12 +324,12 @@ end;
 procedure TLayerAction.QuerySelection;
 begin
   NeedSelectionMaskBackup;
-  FImage.QuerySelection;
+  FImage.QuerySelectionMask;
 end;
 
 procedure TLayerAction.RemoveSelection;
 begin
-  if not FImage.SelectionEmpty or (FImage.GetSelectionLayerIfExists <> nil) then
+  if not FImage.SelectionMaskEmpty or (FImage.SelectionLayerReadonly <> nil) then
   begin
     NeedSelectionMaskBackup;
     NeedSelectionLayerBackup;
@@ -346,7 +339,7 @@ end;
 
 procedure TLayerAction.EraseSelectionInBitmap;
 begin
-  if not FImage.SelectionEmpty then
+  if not FImage.SelectionMaskEmpty then
   begin
     NeedSelectedLayerBackup;
     FImage.EraseSelectionInBitmap;
@@ -356,7 +349,7 @@ end;
 procedure TLayerAction.ReleaseSelection;
 var bounds: TRect;
 begin
-  if not FImage.SelectionEmpty then
+  if not FImage.SelectionMaskEmpty then
   begin
     bounds := FImage.SelectionMaskBounds;
     NeedSelectionMaskBackup;
@@ -374,7 +367,7 @@ end;
 
 procedure TLayerAction.RetrieveSelection;
 begin
-  if not FImage.SelectionEmpty then
+  if not FImage.SelectionMaskEmpty then
   begin
     NeedSelectedLayerBackup;
     NeedSelectionLayerBackup;
@@ -430,22 +423,6 @@ begin
   FImage.ApplySelectionMask;
 end;
 
-procedure TLayerAction.ReplaceSelectedLayer(AValue: TBGRABitmap; AOwned: boolean);
-var dest: TBGRABitmap;
-begin
-  NeedSelectedLayerBackup;
-  dest := GetSelectedImageLayer;
-  if (dest <> nil) and (AValue.Width = dest.Width) and
-    (AValue.Height = dest.Height) then
-    NotifyChange(dest, AValue.GetDifferenceBounds(dest))
-  else
-  begin
-    if dest <> nil then NotifyChange(dest, rect(0,0,dest.Width,dest.Height));
-    NotifyChange(AValue, rect(0,0,AValue.Width,AValue.Height));
-  end;
-  FImage.ReplaceSelectedLayer(AValue, AOwned);
-end;
-
 procedure TLayerAction.Validate;
 begin
   if FDone then raise Exception.Create('Already done');
@@ -483,12 +460,9 @@ begin
     end;
     if FBackupSelectionDefined then
     begin
-      FImage.DiscardSelectionBounds;
-      if FImage.SelectionEmpty then
-      begin
-        FImage.ReplaceSelectionLayer(nil,true);
-        FImage.ReplaceCurrentSelection(nil);
-      end;
+      FImage.DiscardSelectionMaskBounds;
+      if FImage.SelectionMaskEmpty then
+        CurrentState.RemoveSelection;
     end;
     //original will be backed up if there are changes in the raster image of the selected layer
     if CurrentState.LayerOriginalDefined[CurrentState.SelectedImageLayerIndex] and
@@ -560,7 +534,7 @@ begin
       begin
         if (FBackupSelection = nil) and (CurrentState.SelectionMask <> nil) then
         begin
-          if not FImage.SelectionEmpty then
+          if not FImage.SelectionMaskEmpty then
             FBackupSelection := CurrentState.SelectionMask.Duplicate as TBGRABitmap;
         end else
         if (FBackupSelection <> nil) then
