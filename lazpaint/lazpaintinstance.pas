@@ -151,7 +151,6 @@ type
     procedure NotifyImageChangeCompletely(RepaintNow: boolean); override;
     function TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean = false): boolean; override;
     function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): boolean; override;
-    function ApplyLayerOffset: boolean; override;
     procedure ColorFromFChooseColor; override;
     procedure ColorToFChooseColor; override;
     function ShowSaveOptionDlg({%H-}AParameters: TVariableSet; AOutputFilenameUTF8: string): boolean; override;
@@ -1206,13 +1205,6 @@ begin
   vars.AddString('Name',PictureFilterStr[filter]);
   Result:= UFilters.ExecuteFilter(self, filter, vars, skipDialog);
   vars.Free;
-end;
-
-function TLazPaintInstance.ApplyLayerOffset: boolean;
-begin
-  with Image.LayerOffset[Image.currentImageLayerIndex] do
-    Image.ApplyLayerOffset(X,Y);
-  result := true;
 end;
 
 procedure TLazPaintInstance.ColorFromFChooseColor;

@@ -13,9 +13,11 @@ type
 
   TImageState = class(TState)
   private
+    FSelectionMask: TBGRABitmap;
     function GetBlendOp(Index: integer): TBlendOperation;
-    function GetCurrentLayer: TBGRABitmap;
+    function GetSelectedImageLayer: TBGRABitmap;
     function GetCurrentLayerIndex: integer;
+    function GetCurrentSelectionMask: TBGRABitmap;
     function GetHasOriginals: boolean;
     function GetHeight: integer;
     function GetLayerBitmap(Index: integer): TBGRABitmap;
@@ -32,12 +34,12 @@ type
     function GetLinearBlend: boolean;
     function GetNbLayers: integer;
     function GetWidth: integer;
-    procedure SetCurrentLayer(AValue: TBGRABitmap);
-    procedure SetCurrentLayerIndex(AValue: integer);
+    procedure SelectImageLayer(AValue: TBGRABitmap);
+    procedure SelectImageLayerByIndex(AValue: integer);
     procedure SetLinearBlend(AValue: boolean);
   public
     currentLayeredBitmap: TBGRALayeredBitmap;
-    currentSelection, selectionLayer: TBGRABitmap;
+    SelectionLayer: TBGRABitmap;
     selectedLayerId: integer;
     filenameUTF8: string;
     constructor Create;
@@ -54,6 +56,8 @@ type
     procedure Assign(AValue: TBGRABitmap; AOwned: boolean);
     procedure Assign(AValue: TBGRALayeredBitmap; AOwned: boolean);
     procedure Assign(AValue: TImageState; AOwned: boolean);
+    procedure RemoveSelection;
+    procedure ReplaceSelection(ASelectionMask, ASelectionLayer: TBGRABitmap);
     function AssignWithUndo(AValue: TBGRALayeredBitmap; AOwned: boolean; ASelectedLayerIndex: integer): TCustomImageDifference;
     function AssignWithUndo(AValue: TBGRALayeredBitmap; AOwned: boolean; ASelectedLayerIndex: integer; ACurrentSelection: TBGRABitmap; ASelectionLayer:TBGRABitmap): TCustomImageDifference;
     function AssignWithUndo(AState: TImageState; AOwned: boolean): TCustomImageDifference;
@@ -61,6 +65,7 @@ type
     procedure LoadFromStream(AStream: TStream);
     procedure SaveToStream(AStream: TStream);
     procedure SaveToStreamAs(AStream: TStream; AFormat: TBGRAImageFormat);
+    procedure SaveOriginalToStream(AStream: TStream);
     procedure SaveToFile(AFilenameUTF8: string);
     function AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation): TCustomImageDifference;
     function AddNewLayer(AOriginal: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation): TCustomImageDifference;
@@ -98,8 +103,8 @@ type
     function SetLayerOffset(Index: integer; AValue: TPoint): TCustomImageDifference;
     function SetBlendOp(Index: integer; AValue: TBlendOperation): TCustomImageDifference;
     procedure DrawLayers(ADest: TBGRABitmap; X,Y: Integer; AIconCursor: boolean);
-    property currentLayer: TBGRABitmap read GetCurrentLayer write SetCurrentLayer;
-    property currentLayerIndex: integer read GetCurrentLayerIndex write SetCurrentLayerIndex;
+    property SelectedImageLayer: TBGRABitmap read GetSelectedImageLayer write SelectImageLayer;
+    property SelectedImageLayerIndex: integer read GetCurrentLayerIndex write SelectImageLayerByIndex;
     property LayerOriginal[Index: integer]: TBGRALayerCustomOriginal read GetLayerOriginal;
     property LayerOriginalDefined[Index: integer]: boolean read GetLayerOriginalDefined;
     property LayerOriginalKnown[Index: integer]: boolean read GetLayerOriginalKnown;
@@ -117,6 +122,7 @@ type
     property LinearBlend: boolean read GetLinearBlend write SetLinearBlend;
     property LayerVisible[Index: integer]: boolean read GetLayerVisible;
     property HasOriginals: boolean read GetHasOriginals;
+    property SelectionMask: TBGRABitmap read GetCurrentSelectionMask write FSelectionMask;
   end;
 
 implementation
@@ -125,7 +131,7 @@ uses BGRAStreamLayers, UImageDiff, BGRALzpCommon, UFileSystem, BGRATransform;
 
 { TImageState }
 
-function TImageState.GetCurrentLayer: TBGRABitmap;
+function TImageState.GetSelectedImageLayer: TBGRABitmap;
 var idx: integer;
 begin
   if currentLayeredBitmap = nil then
@@ -155,6 +161,12 @@ begin
     result := -1;
   end else
     result := currentLayeredBitmap.GetLayerIndexFromId(selectedLayerId);
+end;
+
+function TImageState.GetCurrentSelectionMask: TBGRABitmap;
+begin
+  result := FSelectionMask;
+  if Assigned(result) then result.LinearAntialiasing := true;
 end;
 
 function TImageState.GetHasOriginals: boolean;
@@ -291,7 +303,7 @@ begin
     result := currentLayeredBitmap.Width;
 end;
 
-procedure TImageState.SetCurrentLayer(AValue: TBGRABitmap);
+procedure TImageState.SelectImageLayer(AValue: TBGRABitmap);
 var
   i: Integer;
 begin
@@ -306,7 +318,7 @@ begin
   selectedLayerId := -1;
 end;
 
-procedure TImageState.SetCurrentLayerIndex(AValue: integer);
+procedure TImageState.SelectImageLayerByIndex(AValue: integer);
 begin
   if (currentLayeredBitmap = nil) or (AValue < 0) or (AValue >= currentLayeredBitmap.NbLayers) then
   begin
@@ -409,7 +421,7 @@ end;
 procedure TImageState.PrepareForRendering;
 begin
   if currentLayeredBitmap <> nil then
-    currentLayeredBitmap.FreezeExceptOneLayer(currentLayerIndex);
+    currentLayeredBitmap.FreezeExceptOneLayer(SelectedImageLayerIndex);
 end;
 
 function TImageState.ComputeFlatImageWithoutSelection(ASeparateXorMask: boolean): TBGRABitmap;
@@ -452,7 +464,7 @@ begin
       currentLayeredBitmap.LayerName[currentLayeredBitmap.AddOwnedLayer(xorMask,boXor)] := 'Xor';
     end;
   end;
-  currentLayerIndex := 0;
+  SelectedImageLayerIndex := 0;
 end;
 
 procedure TImageState.Assign(AValue: TBGRALayeredBitmap; AOwned: boolean);
@@ -465,21 +477,42 @@ begin
     currentLayeredBitmap.Assign(AValue,true);
   if NbLayers > 0 then
   begin
-    currentLayerIndex := 0
+    SelectedImageLayerIndex := 0
   end
   else
-    currentLayerIndex := -1;
+    SelectedImageLayerIndex := -1;
 end;
 
 procedure TImageState.Assign(AValue: TImageState; AOwned: boolean);
 begin
   Assign(AValue.currentLayeredBitmap, AOwned);
   if AOwned then AValue.currentLayeredBitmap := nil;
-  BGRAReplace(currentSelection, AValue.currentSelection);
-  if AOwned then AValue.currentSelection := nil;
-  BGRAReplace(selectionLayer, AValue.selectionLayer);
-  if AOwned then AValue.selectionLayer := nil;
+  BGRAReplace(FSelectionMask, AValue.SelectionMask);
+  if AOwned then AValue.SelectionMask := nil;
+  BGRAReplace(SelectionLayer, AValue.SelectionLayer);
+  if AOwned then AValue.SelectionLayer := nil;
   if AOwned then AValue.Free;
+end;
+
+procedure TImageState.RemoveSelection;
+begin
+  FreeAndNil(SelectionLayer);
+  FreeAndNil(FSelectionMask);
+end;
+
+procedure TImageState.ReplaceSelection(ASelectionMask,
+  ASelectionLayer: TBGRABitmap);
+begin
+  if ASelectionMask<>FSelectionMask then
+  begin
+    FSelectionMask.Free;
+    FSelectionMask := ASelectionMask;
+  end;
+  if ASelectionLayer<>SelectionLayer then
+  begin
+    SelectionLayer.Free;
+    SelectionLayer := ASelectionLayer;
+  end;
 end;
 
 function TImageState.AssignWithUndo(AValue: TBGRALayeredBitmap;
@@ -503,7 +536,7 @@ end;
 
 function TImageState.AssignWithUndo(AState: TImageState; AOwned: boolean): TCustomImageDifference;
 begin
-  result := AssignWithUndo(AState.currentLayeredBitmap, AOwned, currentLayerIndex, AState.currentSelection, AState.selectionLayer);
+  result := AssignWithUndo(AState.currentLayeredBitmap, AOwned, SelectedImageLayerIndex, AState.SelectionMask, AState.SelectionLayer);
   if AOwned then AState.Free;
 end;
 
@@ -521,18 +554,25 @@ var loadedLayerIndex: integer;
 begin
   loadedLayeredBitmap := LoadLayersFromStream(AStream, loadedLayerIndex, False);
   Assign(loadedLayeredBitmap,True);
-  currentLayerIndex:= loadedLayerIndex;
+  SelectedImageLayerIndex:= loadedLayerIndex;
 end;
 
 procedure TImageState.SaveToStream(AStream: TStream);
 begin
-  SaveLayersToStream(AStream, currentLayeredBitmap, currentLayerIndex, lzpRLE);
+  SaveLayersToStream(AStream, currentLayeredBitmap, SelectedImageLayerIndex, lzpRLE);
 end;
 
 procedure TImageState.SaveToStreamAs(AStream: TStream; AFormat: TBGRAImageFormat);
 begin
   if currentLayeredBitmap <> nil then
     currentLayeredBitmap.SaveToStreamAs(AStream, SuggestImageExtension(AFormat));
+end;
+
+procedure TImageState.SaveOriginalToStream(AStream: TStream);
+begin
+  currentLayeredBitmap.SaveOriginalToStream(
+    currentLayeredBitmap.LayerOriginalGuid[SelectedImageLayerIndex],
+    AStream);
 end;
 
 procedure TImageState.SaveToFile(AFilenameUTF8: string);
@@ -620,11 +660,11 @@ var
   prevOriginalData: TStream;
   prevOriginalGuid: TGuid;
 begin
-  prevOriginalGuid := currentLayeredBitmap.LayerOriginalGuid[currentLayerIndex];
+  prevOriginalGuid := currentLayeredBitmap.LayerOriginalGuid[SelectedImageLayerIndex];
   if prevOriginalGuid=GUID_NULL then exit;
-  prevOriginalMatrix:= currentLayeredBitmap.LayerOriginalMatrix[currentLayerIndex];
-  currentLayeredBitmap.LayerOriginalGuid[currentLayerIndex] := GUID_NULL;
-  currentLayeredBitmap.LayerOriginalMatrix[currentLayerIndex] := AffineMatrixIdentity;
+  prevOriginalMatrix:= currentLayeredBitmap.LayerOriginalMatrix[SelectedImageLayerIndex];
+  currentLayeredBitmap.LayerOriginalGuid[SelectedImageLayerIndex] := GUID_NULL;
+  currentLayeredBitmap.LayerOriginalMatrix[SelectedImageLayerIndex] := AffineMatrixIdentity;
   if ACreateUndo then
   begin
     prevOriginalData:= TMemoryStream.Create;
@@ -634,6 +674,7 @@ begin
   end
   else
     result := nil;
+  currentLayeredBitmap.RemoveUnusedOriginals;
 end;
 
 function TImageState.HorizontalFlip: TCustomImageDifference;
@@ -689,7 +730,7 @@ begin
         idxLayer := newImg.AddOwnedLayer(newLayer, BlendOperation[i], LayerOpacity[i]);
         newImg.LayerName[idxLayer] := LayerName[i];
       end;
-      result := AssignWithUndo(newImg, true, currentLayerIndex);
+      result := AssignWithUndo(newImg, true, SelectedImageLayerIndex);
     end else
       result := TInversibleStateDifference.Create(self, iaSwapRedBlue);
   end;
@@ -716,7 +757,7 @@ begin
         idxLayer := newImg.AddOwnedLayer(newLayer, BlendOperation[i], LayerOpacity[i]);
         newImg.LayerName[idxLayer] := LayerName[i];
       end;
-      result := AssignWithUndo(newImg, true, currentLayerIndex);
+      result := AssignWithUndo(newImg, true, SelectedImageLayerIndex);
     end else
       result := TInversibleStateDifference.Create(self, iaLinearNegative);
   end;
@@ -737,7 +778,7 @@ begin
     idxLayer := newImg.AddOwnedLayer(newLayer, BlendOperation[i], LayerOpacity[i]);
     newImg.LayerName[idxLayer] := LayerName[i];
   end;
-  result := AssignWithUndo(newImg, true, currentLayerIndex);
+  result := AssignWithUndo(newImg, true, SelectedImageLayerIndex);
 end;
 
 function TImageState.RotateCW: TCustomImageDifference;
@@ -758,7 +799,7 @@ end;
 
 function TImageState.ComputeLayerOffsetDifference(AOffsetX, AOffsetY: integer): TCustomImageDifference;
 begin
-  result := TApplyLayerOffsetStateDifference.Create(self, currentLayeredBitmap.LayerUniqueId[currentLayerIndex], AOffsetX,AOffsetY, false);
+  result := TApplyLayerOffsetStateDifference.Create(self, currentLayeredBitmap.LayerUniqueId[SelectedImageLayerIndex], AOffsetX,AOffsetY, false);
 end;
 
 function TImageState.ComputeLayerDifference(APreviousImage: TBGRABitmap;
@@ -814,16 +855,16 @@ end;
 constructor TImageState.Create;
 begin
   currentLayeredBitmap := nil;
-  currentSelection := nil;
-  selectionLayer := nil;
+  SelectionMask := nil;
+  SelectionLayer := nil;
   selectedLayerId := -1;
 end;
 
 destructor TImageState.Destroy;
 begin
   currentLayeredBitmap.Free;
-  currentSelection.free;
-  selectionLayer.Free;
+  SelectionMask.free;
+  SelectionLayer.Free;
   inherited Destroy;
 end;
 
@@ -842,12 +883,12 @@ begin
       if (selectedLayerIndex <> -1) and (otherSelectedLayerIndex <> -1) then
         if not other.currentLayeredBitmap.LayerBitmap[otherSelectedLayerIndex].Equals(currentLayeredBitmap.LayerBitmap[selectedLayerIndex]) then exit;
     end;
-    if (other.currentSelection = nil) and (currentSelection <> nil) and not currentSelection.Equals(BGRABlack) then exit;
-    if (other.currentSelection <> nil) and (currentSelection = nil) and not other.currentSelection.Equals(BGRABlack) then exit;
-    if (other.currentSelection <> nil) and (currentSelection <> nil) and not other.currentSelection.Equals(currentSelection) then exit;
-    if (other.selectionLayer = nil) and (selectionLayer <> nil) and not selectionLayer.Empty then exit;
-    if (other.selectionLayer <> nil) and (selectionLayer = nil) and not other.selectionLayer.Empty then exit;
-    if (other.selectionLayer <> nil) and (selectionLayer <> nil) and not other.selectionLayer.Equals(selectionLayer) then exit;
+    if (other.SelectionMask = nil) and (SelectionMask <> nil) and not SelectionMask.Equals(BGRABlack) then exit;
+    if (other.SelectionMask <> nil) and (SelectionMask = nil) and not other.SelectionMask.Equals(BGRABlack) then exit;
+    if (other.SelectionMask <> nil) and (SelectionMask <> nil) and not other.SelectionMask.Equals(SelectionMask) then exit;
+    if (other.SelectionLayer = nil) and (SelectionLayer <> nil) and not SelectionLayer.Empty then exit;
+    if (other.SelectionLayer <> nil) and (SelectionLayer = nil) and not other.SelectionLayer.Empty then exit;
+    if (other.SelectionLayer <> nil) and (SelectionLayer <> nil) and not other.SelectionLayer.Equals(SelectionLayer) then exit;
     if (other.filenameUTF8 <> filenameUTF8) then exit;
     result := true;
   end
@@ -870,8 +911,8 @@ var copy: TImageState;
 begin
   copy := TImageState.Create;
   copy.currentLayeredBitmap := DuplicateLayeredBitmap(currentLayeredBitmap);
-  copy.currentSelection := DuplicateBitmap(currentSelection);
-  copy.selectionLayer := DuplicateBitmap(selectionLayer);
+  copy.SelectionMask := DuplicateBitmap(SelectionMask);
+  copy.SelectionLayer := DuplicateBitmap(SelectionLayer);
   copy.selectedLayerId := selectedLayerId;
   result := copy;
 end;
@@ -880,15 +921,15 @@ procedure TImageState.Resample(AWidth, AHeight: integer;
   AQuality: TResampleMode; AFilter: TResampleFilter);
 begin
   currentLayeredBitmap.Resample(AWidth,AHeight,AQuality,AFilter);
-  if currentSelection <> nil then
+  if SelectionMask <> nil then
   begin
-    currentSelection.ResampleFilter := AFilter;
-    BGRAReplace(currentSelection, currentSelection.Resample(AWidth, AHeight,AQuality));
+    SelectionMask.ResampleFilter := AFilter;
+    BGRAReplace(FSelectionMask, FSelectionMask.Resample(AWidth, AHeight,AQuality));
   end;
-  if selectionLayer <> nil then
+  if SelectionLayer <> nil then
   begin
-    selectionLayer.ResampleFilter := AFilter;
-    BGRAReplace(selectionLayer, selectionLayer.Resample(AWidth, AHeight,AQuality));
+    SelectionLayer.ResampleFilter := AFilter;
+    BGRAReplace(SelectionLayer, SelectionLayer.Resample(AWidth, AHeight,AQuality));
   end;
 end;
 

@@ -79,7 +79,7 @@ type
 
 implementation
 
-uses LazPaintType, ugraph, LCLType, Types;
+uses LazPaintType, ugraph, LCLType, Types, UImageDiff;
 
 { TToolRotateLayer }
 
@@ -306,7 +306,6 @@ begin
         FLayerBoundsDefined := true;
       end;
       FOriginalLayerOffset := Manager.Image.LayerOffset[idx];
-      GetAction;
     end;
   end;
 end;
@@ -338,15 +337,9 @@ begin
 end;
 
 procedure TToolMoveLayer.ApplyMoveLayer;
-var finalOffset: TPoint;
-  idx: integer;
 begin
   if FOriginalLayerOffsetDefined then
   begin
-    idx := Manager.Image.currentImageLayerIndex;
-    finalOffset := Manager.Image.LayerOffset[idx];
-    Manager.Image.SetLayerOffset(idx, FOriginalLayerOffset, FLayerBounds);
-    Manager.Image.ApplyLayerOffset(finalOffset.x,finalOffset.y);
     FOriginalLayerOffsetDefined := false;
   end;
 end;
@@ -382,7 +375,7 @@ begin
     if FOriginalLayerOffsetDefined then
     begin
       idx := Manager.Image.currentImageLayerIndex;
-      Manager.Image.LayerOffset[idx] := FOriginalLayerOffset;
+      Manager.Image.SetLayerOffset(idx, FOriginalLayerOffset, FLayerBounds);
       result := OnlyRenderChange;
     end else
       result := EmptyRect;
@@ -402,7 +395,6 @@ begin
   idx := Manager.Image.currentImageLayerIndex;
   if not FLayerBoundsDefined then
   begin
-    Action;
     FLayerBounds := Manager.Image.LayerBitmap[idx].GetImageBounds;
     FLayerBoundsDefined := true;
   end;

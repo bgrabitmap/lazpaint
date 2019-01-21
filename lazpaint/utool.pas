@@ -655,7 +655,7 @@ begin
   if Assigned(FAction) then
   begin
     if IsSelectingTool then
-      Action.RestoreSelection
+      Action.RestoreSelectionMask
     else
       Action.RestoreDrawingLayer;
   end;
