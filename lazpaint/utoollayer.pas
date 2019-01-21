@@ -79,7 +79,7 @@ type
 
 implementation
 
-uses LazPaintType, ugraph, LCLType, Types, UImageDiff;
+uses LazPaintType, ugraph, LCLType, Types;
 
 { TToolRotateLayer }
 

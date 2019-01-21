@@ -86,7 +86,6 @@ type
     function GetKeepTransformOnDestroy: boolean; override;
     procedure SetKeepTransformOnDestroy(AValue: boolean); override;
   public
-    procedure SelectionTransformChange;
     constructor Create(AManager: TToolManager); override;
     destructor Destroy; override;
   end;
@@ -150,19 +149,6 @@ begin
   FKeepTransformOnDestroy:= AValue;
 end;
 
-procedure TToolTransformSelection.SelectionTransformChange;
-var selectionChangeRect: TRect;
-begin
-  selectionChangeRect := Manager.Image.TransformedSelectionBounds;
-  if not Manager.Image.SelectionLayerIsEmpty then
-    Manager.Image.ImageMayChange(selectionChangeRect,False);
-  if not IsRectEmpty(selectionChangeRect) then
-  begin
-    InflateRect(selectionChangeRect,1,1);
-    Manager.Image.RenderMayChange(selectionChangeRect,true);
-  end;
-end;
-
 constructor TToolTransformSelection.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
@@ -196,14 +182,11 @@ begin
     begin
       if FCurrentAngle <> 0 then
       begin
-        SelectionTransformChange;
         FCurrentAngle := 0;
         FCurrentCenter := ptF;
         UpdateTransform;
-        SelectionTransformChange;
       end else
       begin
-        FCurrentAngle := 0;
         FCurrentCenter := ptF;
         UpdateTransform;
       end;
@@ -227,7 +210,6 @@ begin
   end;
   if handMoving and ((handOrigin.X <> ptF.X) or (handOrigin.Y <> ptF.Y)) then
   begin
-    SelectionTransformChange;
     angleDiff := ComputeAngle(ptF.X-FCurrentCenter.X,ptF.Y-FCurrentCenter.Y)-
                  ComputeAngle(handOrigin.X-FCurrentCenter.X,handOrigin.Y-FCurrentCenter.Y);
     if snapRotate then
@@ -238,7 +220,6 @@ begin
      else
        FCurrentAngle := FCurrentAngle + angleDiff;
     UpdateTransform;
-    SelectionTransformChange;
     handOrigin := ptF;
     result := OnlyRenderChange;
   end else
@@ -277,10 +258,8 @@ begin
 
       if handMoving then
       begin
-        SelectionTransformChange;
         FCurrentAngle := round(snapAngle/15)*15;
         UpdateTransform;
-        SelectionTransformChange;
         result := OnlyRenderChange;
       end;
     end;
@@ -289,13 +268,6 @@ begin
   if key = VK_ESCAPE then
   begin
     if FCurrentAngle <> 0 then
-    begin
-      SelectionTransformChange;
-      FCurrentAngle := 0;
-      UpdateTransform;
-      SelectionTransformChange;
-      result := OnlyRenderChange;
-    end else
     begin
       FCurrentAngle := 0;
       UpdateTransform;
@@ -360,11 +332,9 @@ begin
   result := EmptyRect;
   if handMoving and ((handOrigin.X <> pt.X) or (handOrigin.Y <> pt.Y)) then
   begin
-    SelectionTransformChange;
     dx := pt.X-HandOrigin.X;
     dy := pt.Y-HandOrigin.Y;
     Manager.Image.SelectionTransform := AffineMatrixTranslation(dx,dy) * Manager.Image.SelectionTransform;
-    SelectionTransformChange;
     result := OnlyRenderChange;
   end;
 end;

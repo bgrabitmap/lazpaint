@@ -35,8 +35,6 @@ type
     procedure NeedSelectionMaskBackup;
     procedure NeedSelectedLayerBackup;
     procedure NeedSelectionLayerBackup;
-    function GetSelectionTransform: TAffineMatrix;
-    procedure SetSelectionTransform(AValue: TAffineMatrix);
     property CurrentState: TImageState read GetCurrentState;
   public
     constructor Create(AImage: TLazPaintImage; AApplyOfsBefore: boolean = false);
@@ -77,7 +75,6 @@ type
     property BackupSelectedLayer: TBGRABitmap read GetBackupSelectedLayer;
     property BackupDrawingLayer: TBGRABitmap read GetBackupDrawingLayer;
     property OnTryStop: TOnTryStopEventHandler read FOnTryStop write FOnTryStop;
-    property SelectionTransform: TAffineMatrix read GetSelectionTransform write SetSelectionTransform;
     property Done: boolean read FDone;
     property AllChangesNotified: boolean read FAllChangesNotified write FAllChangesNotified;
   end;
@@ -140,16 +137,6 @@ end;
 function TLayerAction.GetSelectedImageLayerOffset: TPoint;
 begin
   result := CurrentState.LayerOffset[CurrentState.SelectedImageLayerIndex];
-end;
-
-function TLayerAction.GetSelectionTransform: TAffineMatrix;
-begin
-  result := FImage.SelectionTransform;
-end;
-
-procedure TLayerAction.SetSelectionTransform(AValue: TAffineMatrix);
-begin
-  FImage.SelectionTransform := AValue;
 end;
 
 procedure TLayerAction.Cancel;

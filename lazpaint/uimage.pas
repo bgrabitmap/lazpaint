@@ -862,10 +862,26 @@ begin
 end;
 
 procedure TLazPaintImage.SetSelectionTransform(ATransform: TAffineMatrix);
+
+  procedure InvalidateTransformedSelection;
+  var selectionChangeRect: TRect;
+  begin
+    selectionChangeRect := TransformedSelectionBounds;
+    if not SelectionLayerIsEmpty then
+      ImageMayChange(selectionChangeRect,False);
+    if not IsRectEmpty(selectionChangeRect) then
+    begin
+      InflateRect(selectionChangeRect,1,1);
+      RenderMayChange(selectionChangeRect,true);
+    end;
+  end;
+
 begin
   if not CompareMem(@ATransform, @FSelectionTransform, sizeof(FSelectionTransform)) then
   begin
+    InvalidateTransformedSelection;
     FSelectionTransform := ATransform;
+    InvalidateTransformedSelection;
   end;
 end;
 
