@@ -44,7 +44,7 @@ type
   TToolTextureMapping = class(TGenericTool)
   private
     class var FHintShowed: boolean;
-    FCurrentBounds,FMergedBounds: TRect;
+    FCurrentBounds: TRect;
     FAdaptedTexture: TBGRABitmap;
     FCanReadaptTexture: boolean;
     FHighQuality: boolean;
@@ -75,7 +75,6 @@ type
     procedure PrepareBackground({%H-}toolDest: TBGRABitmap; AFirstTime: boolean); virtual;
     function DefaultTextureCenter: TPointF; virtual;
     function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
-    function GetAction: TLayerAction; override;
     function GetStatusText: string; override;
   public
     constructor Create(AManager: TToolManager); override;
@@ -124,13 +123,18 @@ end;
 
 procedure TToolLayerMapping.PrepareBackground(toolDest: TBGRABitmap;
   AFirstTime: boolean);
+var
+  r: TRect;
 begin
-  toolDest.FillTransparent;
   if not FAlreadyDrawnOnce then
   begin
     FAlreadyDrawnOnce := true;
-    Manager.Image.LayerMayChangeCompletely(toolDest);
-  end;
+    r := toolDest.GetImageBounds;
+  end else
+    r := FCurrentBounds;
+
+  toolDest.FillRect(r, BGRAPixelTransparent, dmSet);
+  Action.NotifyChange(toolDest, r);
 end;
 
 function TToolLayerMapping.GetTexture: TBGRABitmap;
@@ -182,6 +186,7 @@ begin
       quadDefined:= true;
       PrepareBackground(GetToolDrawingLayer, True);
       DrawQuad;
+      Action.NotifyChange(GetToolDrawingLayer, FCurrentBounds);
     end;
   end;
 end;
@@ -198,10 +203,8 @@ begin
       DrawQuad;
       FCanReadaptTexture:= false;
       FHighQuality := false;
-      Manager.Image.LayerMayChange(GetToolDrawingLayer,FMergedBounds);
+      Action.NotifyChange(GetToolDrawingLayer, FCurrentBounds);
     end;
-    Action.AllChangesNotified := true;
-    Action.NotifyChange(GetToolDrawingLayer, FMergedBounds);
     ValidateAction;
     quadDefined := false;
     quad := nil;
@@ -210,7 +213,7 @@ end;
 
 procedure TToolTextureMapping.DrawQuad;
 const OversampleQuality = 2;
-var previousBounds: TRect;
+var
   tex: TBGRABitmap;
   persp: TBGRAPerspectiveScannerTransform;
   dest: TBGRABitmap;
@@ -233,23 +236,27 @@ begin
     tex := GetAdaptedTexture;
     if tex <> nil then
     begin
-      previousBounds := FCurrentBounds;
+
+      if Manager.ToolPerspectiveRepeat then
+        FCurrentBounds := rect(0,0,Manager.Image.Width,Manager.Image.Height)
+      else
+        FCurrentBounds := GetShapeBounds([quad[0],quad[1],quad[2],quad[3]],1);
 
       if FHighQuality then
       begin
-        dest := TBGRABitmap.Create(Manager.Image.Width*OversampleQuality,Manager.Image.Height*OversampleQuality);
+        dest := TBGRABitmap.Create(FCurrentBounds.Width*OversampleQuality,FCurrentBounds.Height*OversampleQuality);
         setlength(quadHQ, length(quad));
-        for i := 0 to high(quad) do quadHQ[i] := (quad[i]+PointF(0.5,0.5))*OversampleQuality - PointF(0.5,0.5);
+        for i := 0 to high(quad) do quadHQ[i] := (quad[i]+PointF(0.5,0.5))*OversampleQuality - PointF(0.5,0.5) - PointF(FCurrentBounds.TopLeft)*OversampleQuality;
       end
       else
       begin
         dest := GetToolDrawingLayer;
         quadHQ := quad;
+        dest.ClipRect := FCurrentBounds;
       end;
 
       if Manager.ToolPerspectiveRepeat then
       begin
-        FCurrentBounds := rect(0,0,Manager.Image.Width,Manager.Image.Height);
         persp := TBGRAPerspectiveScannerTransform.Create(tex,[PointF(-0.5,-0.5),PointF(tex.Width-0.5,-0.5),
           PointF(tex.Width-0.5,tex.Height-0.5),PointF(-0.5,tex.Height-0.5)],quadHQ);
         persp.IncludeOppositePlane := Manager.ToolPerspectiveTwoPlanes;
@@ -257,7 +264,6 @@ begin
         persp.Free;
       end else
       begin
-        FCurrentBounds := GetShapeBounds([quad[0],quad[1],quad[2],quad[3]],1);
         dest.FillQuadPerspectiveMappingAntialias(quadHQ[0],quadHQ[1],quadHQ[2],quadHQ[3],tex,PointF(-0.5,-0.5),PointF(tex.Width-0.5,-0.5),
           PointF(tex.Width-0.5,tex.Height-0.5),PointF(-0.5,tex.Height-0.5), rect(0,0,tex.Width,tex.Height));
       end;
@@ -266,14 +272,14 @@ begin
       begin
         BGRAReplace(dest, dest.Resample(dest.Width div OversampleQuality, dest.Height div OversampleQuality,rmSimpleStretch));
         BGRAReplace(dest, dest.FilterSharpen(96/256));
-        GetToolDrawingLayer.PutImage(0,0,dest,dmDrawWithTransparency);
+        GetToolDrawingLayer.PutImage(FCurrentBounds.Left,FCurrentBounds.Top,dest,dmDrawWithTransparency);
         FreeAndNil(dest);
-      end;
-      Action.NotifyChange(dest, FCurrentBounds);
-      FMergedBounds := RectUnion(previousBounds,FCurrentBounds);
-      Manager.Image.LayerMayChange(GetToolDrawingLayer,FMergedBounds);
+      end else
+        dest.NoClip;
     end;
-  end;
+  end
+  else
+    FCurrentBounds := EmptyRect;
 end;
 
 function TToolTextureMapping.GetAdaptedTexture: TBGRABitmap;
@@ -463,7 +469,7 @@ begin
       quad[quadMovingIndex] := SnapIfNecessary(quadMovingDelta + ptF);
     PrepareBackground(toolDest,False);
     DrawQuad;
-    result := FMergedBounds;
+    result := FCurrentBounds;
   end;
 end;
 
@@ -520,16 +526,10 @@ begin
   begin
     PrepareBackground(GetToolDrawingLayer,False);
     DrawQuad;
-    result := FMergedBounds;
+    result := FCurrentBounds;
   end
     else
       result := EmptyRect;
-end;
-
-function TToolTextureMapping.GetAction: TLayerAction;
-begin
-  Result:=inherited GetAction;
-  result.AllChangesNotified:= true;
 end;
 
 function TToolTextureMapping.GetStatusText: string;
@@ -665,7 +665,7 @@ begin
       FCanReadaptTexture:= true;
       DrawQuad;
       FCanReadaptTexture:= false;
-      result := FMergedBounds;
+      result := FCurrentBounds;
     end else
       result := EmptyRect;
     quadMoving := false;
@@ -777,7 +777,6 @@ begin
   begin
     DeformationGrid := nil;
     DeformationGridTexCoord := nil;
-    Manager.Image.LayerMayChange(GetToolDrawingLayer,FMergedBounds);
     ValidateAction;
     DoingDeformation := false;
   end;
@@ -937,7 +936,6 @@ begin
     result := FMergedBounds;
   end;
   deformationOrigin := ptF;
-
 end;
 
 function TToolDeformationGrid.GetIsSelectingTool: boolean;

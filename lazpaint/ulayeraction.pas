@@ -13,7 +13,7 @@ type
 
   TLayerAction = class(TCustomLayerAction)
   private
-    FAllChangesNotified: boolean;
+    FChangeBoundsNotified: boolean;
     FImage: TLazPaintImage;
     FPrediff: TCustomImageDifference;
     FBackupSelectedLayer, FBackupSelectionLayer, FBackupSelection: TBGRABitmap;
@@ -74,7 +74,7 @@ type
     property BackupDrawingLayer: TBGRABitmap read GetBackupDrawingLayer;
     property OnTryStop: TOnTryStopEventHandler read FOnTryStop write FOnTryStop;
     property Done: boolean read FDone;
-    property AllChangesNotified: boolean read FAllChangesNotified write FAllChangesNotified;
+    property ChangeBoundsNotified: boolean read FChangeBoundsNotified write FChangeBoundsNotified;
   end;
 
 implementation
@@ -250,6 +250,7 @@ begin
     FSelectedImageLayerChangedArea := RectUnion(FSelectedImageLayerChangedArea, ARect)
   else if ADest = CurrentState.SelectionLayer then
     FSelectionLayerChangedArea := RectUnion(FSelectionLayerChangedArea, ARect);
+  FImage.LayerMayChange(ADest, ARect);
 end;
 
 procedure TLayerAction.RestoreSelectionMask;
@@ -257,7 +258,7 @@ var prevClip: TRect;
 begin
   if FBackupSelectionDefined then
   begin
-    if not AllChangesNotified then FSelectionMaskChangedArea := rect(0,0,CurrentState.Width,CurrentState.Height);
+    if not ChangeBoundsNotified then FSelectionMaskChangedArea := rect(0,0,CurrentState.Width,CurrentState.Height);
     if IsRectEmpty(FSelectionMaskChangedArea) then exit;
     prevClip := CurrentState.SelectionMask.ClipRect;
     CurrentState.SelectionMask.ClipRect := FSelectionMaskChangedArea;
@@ -282,7 +283,7 @@ var prevClip: TRect;
 begin
   if FBackupSelectedLayerDefined then
   begin
-    if not AllChangesNotified then FSelectedImageLayerChangedArea := rect(0,0,CurrentState.Width,CurrentState.Height);
+    if not ChangeBoundsNotified then FSelectedImageLayerChangedArea := rect(0,0,CurrentState.Width,CurrentState.Height);
     if IsRectEmpty(FSelectedImageLayerChangedArea) then exit;
     prevClip := CurrentState.SelectedImageLayer.ClipRect;
     CurrentState.SelectedImageLayer.ClipRect := FSelectedImageLayerChangedArea;
@@ -301,7 +302,7 @@ var prevClip: TRect;
 begin
   if FBackupSelectionLayerDefined and (CurrentState.SelectionLayer <> nil) then
   begin
-    if not AllChangesNotified then FSelectionLayerChangedArea := rect(0,0,CurrentState.Width,CurrentState.Height);
+    if not ChangeBoundsNotified then FSelectionLayerChangedArea := rect(0,0,CurrentState.Width,CurrentState.Height);
     if IsRectEmpty(FSelectionLayerChangedArea) then exit;
     prevClip := CurrentState.SelectionLayer.ClipRect;
     CurrentState.SelectionLayer.ClipRect := FSelectionLayerChangedArea;
@@ -449,7 +450,7 @@ var
 begin
   if FBackupSelectedLayerDefined or FBackupSelectionDefined or FBackupSelectionLayerDefined then
   begin
-    if AllChangesNotified then
+    if ChangeBoundsNotified then
       if IsRectEmpty(FSelectedImageLayerChangedArea) and IsRectEmpty(FSelectionMaskChangedArea) and
          IsRectEmpty(FSelectionLayerChangedArea) then exit;
     if FBackupSelectionLayerDefined then
@@ -478,7 +479,7 @@ begin
       prevLayerOriginalMatrix:= AffineMatrixIdentity;
     end;
 
-    if AllChangesNotified then
+    if ChangeBoundsNotified then
       imgDiff := CurrentState.ComputeLayerDifference(FBackupSelectedLayer, FSelectedImageLayerChangedArea,
         FBackupSelection, FSelectionMaskChangedArea,
         FBackupSelectionLayer, FSelectionLayerChangedArea,
@@ -511,7 +512,7 @@ begin
         end else
         if Assigned(FBackupSelectionLayer) then
         begin
-          if AllChangesNotified then FBackupSelectionLayer.ClipRect := FSelectionLayerChangedArea;
+          if ChangeBoundsNotified then FBackupSelectionLayer.ClipRect := FSelectionLayerChangedArea;
           if Assigned(CurrentState.SelectionLayer) then
             FBackupSelectionLayer.PutImage(0,0,CurrentState.SelectionLayer,dmSet)
           else
@@ -522,7 +523,7 @@ begin
       end;
       if FBackupSelectedLayerDefined then
       begin
-        if AllChangesNotified then FBackupSelectedLayer.ClipRect := FSelectedImageLayerChangedArea;
+        if ChangeBoundsNotified then FBackupSelectedLayer.ClipRect := FSelectedImageLayerChangedArea;
         if Assigned(CurrentState.SelectedImageLayer) then
           FBackupSelectedLayer.PutImage(0,0,CurrentState.SelectedImageLayer,dmSet)
         else
@@ -539,7 +540,7 @@ begin
         end else
         if (FBackupSelection <> nil) then
         begin
-          if AllChangesNotified then FBackupSelection.ClipRect := FSelectionMaskChangedArea;
+          if ChangeBoundsNotified then FBackupSelection.ClipRect := FSelectionMaskChangedArea;
           if Assigned(CurrentState.SelectionMask) then
             FBackupSelection.PutImage(0,0,CurrentState.SelectionMask,dmSet)
           else

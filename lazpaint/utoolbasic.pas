@@ -46,7 +46,6 @@ type
     penOrigin: TPointF;
     penColor: TBGRAPixel;
     snapToPixel: boolean;
-    function GetAction: TLayerAction; override;
     function GetIsSelectingTool: boolean; override;
     function StartDrawing(toolDest: TBGRABitmap; ptF: TPointF; rightBtn: boolean): TRect; virtual;
     function ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF): TRect; virtual;
@@ -80,7 +79,6 @@ type
     swapedColor: boolean;
     rectDrawing,afterRectDrawing: boolean;
     rectOrigin, rectDest: TPointF;
-    previousRect: TRect;
     rectMovingPoint,rectMovingCenterPoint: boolean;
     rectMovingPointValueDiff: TPointF;
     rectMovingPointClick: TPointF;
@@ -88,7 +86,6 @@ type
     rectMovingX,rectMovingY: PSingle;
     lastMousePos: TPointF;
     squareConstraint: boolean;
-    function GetAction: TLayerAction; override;
     function GetFillColor: TBGRAPixel; virtual;
     function GetPenColor: TBGRAPixel; virtual;
     function GetIsSelectingTool: boolean; override;
@@ -175,6 +172,7 @@ begin
    if Manager.ToolOptionDrawShape then
    begin
      result := GetShapeBounds([PointF(rectOrigin.x-rx,rectOrigin.y-ry),PointF(rectOrigin.x+rx,rectOrigin.y+ry)],Manager.ToolPenWidth);
+     toolDest.ClipRect := result;
      if Manager.ToolPenStyle = psSolid then
      begin
        if not Manager.ToolOptionFillShape and (Manager.GetToolTextureAfterAlpha <> nil) then
@@ -197,6 +195,7 @@ begin
    end else
    begin
      result := GetShapeBounds([PointF(rectOrigin.x-rx,rectOrigin.y-ry),PointF(rectOrigin.x+rx,rectOrigin.y+ry)],1);
+     toolDest.ClipRect := result;
    end;
    if Manager.ToolOptionFillShape then
      if (rx>0) and (ry>0) then
@@ -208,6 +207,7 @@ begin
      end;
    multi.Draw(toolDest);
    multi.Free;
+   toolDest.NoClip;
 end;
 
 function TToolEllipse.RoundCoordinate(ptF: TPointF): TPointF;
@@ -257,21 +257,27 @@ begin
     if rectDest.X > rectOrigin.X then sx := 1 else sx := -1;
     if rectDest.Y > rectOrigin.Y then sy := 1 else sy := -1;
     result := GetShapeBounds([PointF(rectOrigin.x,rectOrigin.y),PointF(rectDest.x,rectDest.y)],1);
+    toolDest.ClipRect := result;
     if Manager.GetToolTextureAfterAlpha <> nil then
       toolDest.FillRectAntialias(rectOrigin.X-0.5*sx,rectOrigin.Y-0.5*sy,rectDest.X+0.5*sx,rectDest.Y+0.5*sy,Manager.GetToolTextureAfterAlpha) else
       toolDest.FillRectAntialias(rectOrigin.X-0.5*sx,rectOrigin.Y-0.5*sy,rectDest.X+0.5*sx,rectDest.Y+0.5*sy,fillColor);
+    toolDest.NoClip;
   end else
   if Manager.ToolOptionDrawShape and not Manager.ToolOptionFillShape then
   begin
     result := GetShapeBounds([PointF(rectOrigin.x,rectOrigin.y),PointF(rectDest.x,rectDest.y)],Manager.ToolPenWidth);
+    toolDest.ClipRect := result;
     if Manager.GetToolTextureAfterAlpha <> nil then
       toolDest.RectangleAntialias(rectOrigin.X,rectOrigin.Y,rectDest.X,rectDest.Y,Manager.GetToolTextureAfterAlpha,Manager.ToolPenWidth) else
-      toolDest.RectangleAntialias(rectOrigin.X,rectOrigin.Y,rectDest.X,rectDest.Y,penColor,Manager.ToolPenWidth)
+      toolDest.RectangleAntialias(rectOrigin.X,rectOrigin.Y,rectDest.X,rectDest.Y,penColor,Manager.ToolPenWidth);
+    toolDest.NoClip;
   end else
   if Manager.ToolOptionDrawShape and Manager.ToolOptionFillShape then
   begin
     result := GetShapeBounds([PointF(rectOrigin.x,rectOrigin.y),PointF(rectDest.x,rectDest.y)],Manager.ToolPenWidth);
+    toolDest.ClipRect := result;
     toolDest.RectangleAntialias(rectOrigin.X,rectOrigin.Y,rectDest.X,rectDest.Y,penColor,Manager.ToolPenWidth,fillColor);
+    toolDest.NoClip;
   end else
     result := EmptyRect;
 end;
@@ -292,12 +298,6 @@ begin
 end;
 
 { TToolRectangular }
-
-function TToolRectangular.GetAction: TLayerAction;
-begin
-  Result:=inherited GetAction;
-  Result.AllChangesNotified := true;
-end;
 
 function TToolRectangular.GetFillColor: TBGRAPixel;
 begin
@@ -429,7 +429,6 @@ begin
     rectOrigin := RoundCoordinate(ptF);
     rectDest := RoundCoordinate(ptF);
     PrepareDrawing(rightBtn);
-    previousRect := EmptyRect;
   end;
 end;
 
@@ -457,19 +456,13 @@ begin
       rectDest += delta;
     end;
     ApplyConstraint(rectMovingX,rectMovingY);
-    currentRect := FinishShape(toolDest);
-    Action.NotifyChange(toolDest, currentRect);
-    result := RectUnion(previousRect,currentRect);
-    previousRect := currentRect;
+    result := FinishShape(toolDest);
   end else
   if rectDrawing and (rectDest <> RoundCoordinate(ptF)) then
   begin
     rectDest := RoundCoordinate(ptF);
     ApplyConstraint(@rectDest.X,@rectDest.Y);
-    currentRect := UpdateShape(toolDest);
-    Action.NotifyChange(toolDest, currentRect);
-    result := RectUnion(previousRect,currentRect);
-    previousRect := currentRect;
+    result := UpdateShape(toolDest);
   end;
   UpdateCursor(ptF);
 end;
@@ -492,17 +485,9 @@ begin
   end else
   if rectDrawing then
   begin
-    currentRect := ValidateDrawing;
-    if IsOnlyRenderChange(previousRect) then
-    begin
-      if IsRectEmpty(currentRect) then
-        result := OnlyRenderChange
-      else
-        result := currentRect;
-    end
-    else
-      result := RectUnion(previousRect,currentRect);
-    previousRect := currentRect;
+    result := ValidateDrawing;
+    if IsRectEmpty(result) then
+      result := OnlyRenderChange;
     afterRectDrawing := true;
     UpdateCursor(lastMousePos);
   end
@@ -575,7 +560,6 @@ begin
   begin
     rectDrawing := false;
     result := FinishShape(GetToolDrawingLayer);
-    Action.NotifyChange(GetToolDrawingLayer, result);
     afterRectDrawing:= true;
   end else
     result := EmptyRect;
@@ -624,19 +608,10 @@ function TToolRectangular.DoToolUpdate(toolDest: TBGRABitmap): TRect;
 var currentRect: TRect;
 begin
   if rectDrawing then
-  begin
-    currentRect := UpdateShape(toolDest);
-    Action.NotifyChange(toolDest, currentRect);
-    result := RectUnion(previousRect,currentRect);
-    previousRect := currentRect;
-  end else
+    result := UpdateShape(toolDest)
+  else
   if afterRectDrawing then
-  begin
-    currentRect := FinishShape(toolDest);
-    Action.NotifyChange(toolDest, currentRect);
-    result := RectUnion(previousRect,currentRect);
-    previousRect := currentRect;
-  end
+    result := FinishShape(toolDest)
   else
     result := EmptyRect;
 end;
@@ -717,10 +692,9 @@ end;
 constructor TToolRectangular.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
-  Action.AllChangesNotified:= true;
+  Action.ChangeBoundsNotified:= true;
   rectMovingPoint := false;
   afterRectDrawing:= false;
-  previousRect := EmptyRect;
   squareConstraint := false;
 end;
 
@@ -781,11 +755,12 @@ begin
     end
     else
     begin
-      toolDest.EraseLineAntialias(ptF.X,ptF.Y,ptF.X,ptF.Y,round(Manager.ToolEraserAlpha*Manager.ToolPressure),Manager.ToolPenWidth,True);
       result := GetShapeBounds([ptF],Manager.ToolPenWidth);
+      toolDest.ClipRect := result;
+      toolDest.EraseLineAntialias(ptF.X,ptF.Y,ptF.X,ptF.Y,round(Manager.ToolEraserAlpha*Manager.ToolPressure),Manager.ToolPenWidth,True);
+      toolDest.NoClip;
     end;
   end;
-  Action.NotifyChange(toolDest, result);
 end;
 
 function TToolErase.ContinueDrawing(toolDest: TBGRABitmap; originF,
@@ -820,16 +795,9 @@ begin
     toolDest.EraseLineAntialias(destF.X,destF.Y,originF.X,originF.Y,round(Manager.ToolEraserAlpha*Manager.ToolPressure),Manager.ToolPenWidth,False);
     result := GetShapeBounds([destF,originF],Manager.ToolPenWidth);
   end;
-  Action.NotifyChange(toolDest, result);
 end;
 
 { TToolPen }
-
-function TToolPen.GetAction: TLayerAction;
-begin
-  Result:=inherited GetAction;
-  result.AllChangesNotified:= true;
-end;
 
 function TToolPen.GetIsSelectingTool: boolean;
 begin
@@ -849,13 +817,14 @@ begin
     result := rect(ix,iy,ix+1,iy+1);
   end else
   begin
+    result := GetShapeBounds([ptF],Manager.ToolPenWidth);
+    toolDest.ClipRect := result;
      if Manager.GetToolTextureAfterAlpha <> nil then
        toolDest.FillEllipseAntialias(ptF.X,ptF.Y,Manager.ToolPenWidth/2,Manager.ToolPenWidth/2,Manager.GetToolTextureAfterAlpha)
      else
        toolDest.FillEllipseAntialias(ptF.X,ptF.Y,Manager.ToolPenWidth/2,Manager.ToolPenWidth/2,Manager.ApplyPressure(penColor));
-     result := GetShapeBounds([ptF],Manager.ToolPenWidth);
+     toolDest.NoClip;
   end;
-  Action.NotifyChange(toolDest, result);
 end;
 
 function TToolPen.ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF): TRect;
@@ -866,13 +835,14 @@ begin
     result := GetShapeBounds([destF,originF],1);
   end else
   begin
-     if Manager.GetToolTextureAfterAlpha <> nil then
-       toolDest.DrawLineAntialias(destF.X,destF.Y,originF.X,originF.Y,Manager.GetToolTextureAfterAlpha,Manager.ToolPenWidth,False)
-     else
-       toolDest.DrawLineAntialias(destF.X,destF.Y,originF.X,originF.Y,Manager.ApplyPressure(penColor),Manager.ToolPenWidth,False);
-     result := GetShapeBounds([destF,originF],Manager.ToolPenWidth+1);
+    result := GetShapeBounds([destF,originF],Manager.ToolPenWidth+1);
+    toolDest.ClipRect := result;
+    if Manager.GetToolTextureAfterAlpha <> nil then
+      toolDest.DrawLineAntialias(destF.X,destF.Y,originF.X,originF.Y,Manager.GetToolTextureAfterAlpha,Manager.ToolPenWidth,False)
+    else
+      toolDest.DrawLineAntialias(destF.X,destF.Y,originF.X,originF.Y,Manager.ApplyPressure(penColor),Manager.ToolPenWidth,False);
+    toolDest.NoClip;
   end;
-  Action.NotifyChange(toolDest, result);
 end;
 
 function TToolPen.DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;

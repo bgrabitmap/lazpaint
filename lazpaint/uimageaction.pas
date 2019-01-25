@@ -526,7 +526,7 @@ begin
         ChooseTool(ptMoveSelection);
         if not Image.CheckNoAction then exit;
         LayerAction := TLayerAction.Create(Image);
-        LayerAction.AllChangesNotified := true;
+        LayerAction.ChangeBoundsNotified := true;
         bounds := Image.SelectionMaskBounds;
         LayerAction.currentSelection.HorizontalFlip(bounds);
         LayerAction.NotifyChange(LayerAction.currentSelection,bounds);
@@ -650,7 +650,7 @@ begin
     if not image.SelectionMaskEmpty then
     begin
       LayerAction := TLayerAction.Create(Image);
-      LayerAction.AllChangesNotified:= true;
+      LayerAction.ChangeBoundsNotified:= true;
       LayerAction.ReleaseSelection;
       LayerAction.Validate;
     end;
@@ -821,7 +821,7 @@ begin
   if not image.CheckNoAction then exit;
   try
     LayerAction := TLayerAction.Create(Image);
-    LayerAction.AllChangesNotified := true;
+    LayerAction.ChangeBoundsNotified := true;
 
     if image.SelectionMaskEmpty then
     begin

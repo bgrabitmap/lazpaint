@@ -153,6 +153,7 @@ type
     function SelectionMaskReadonly: TBGRABitmap;
     procedure ReleaseEmptySelectionMask;
     procedure QuerySelectionMask;
+    function ComputeTransformedSelectionMask: TBGRABitmap;
 
     // selection layer
     procedure DiscardSelectionLayerBounds;
@@ -179,9 +180,9 @@ type
     procedure ApplySelectionMask;
     procedure AddUndo(AUndoAction: TCustomImageDifference);
 
-    function ComputeTransformedSelection: TBGRABitmap;
     function ApplySmartZoom3: boolean;
     procedure Resample(AWidth, AHeight: integer; filter: TResampleFilter);
+
     function DetectImageFormat(AFilename: string): TBGRAImageFormat;
     procedure LoadFromFileUTF8(AFilename: string);
     procedure Assign(const AValue: TBGRABitmap; AOwned: boolean; AUndoable: boolean); overload;
@@ -335,16 +336,16 @@ begin
   end;
 end;
 
-function TLazPaintImage.ComputeTransformedSelection: TBGRABitmap;
+function TLazPaintImage.ComputeTransformedSelectionMask: TBGRABitmap;
 begin
-    if CurrentSelectionMask = nil then result := nil else
-    begin
-      CurrentSelectionMask.GrayscaleToAlpha;
-      result := CurrentSelectionMask.FilterAffine(FSelectionTransform,False) as TBGRABitmap;
-      CurrentSelectionMask.AlphaToGrayscale;
-      result.AlphaToGrayscale;
-      result.AlphaFill(255);
-    end;
+  if CurrentSelectionMask = nil then result := nil else
+  begin
+    CurrentSelectionMask.GrayscaleToAlpha;
+    result := CurrentSelectionMask.FilterAffine(FSelectionTransform,False) as TBGRABitmap;
+    CurrentSelectionMask.AlphaToGrayscale;
+    result.AlphaToGrayscale;
+    result.AlphaFill(255);
+  end;
 end;
 
 procedure TLazPaintImage.ApplySelectionTransform(ApplyToMask: boolean= true);
@@ -353,7 +354,7 @@ begin
   if not IsAffineMatrixIdentity(FSelectionTransform) then
   begin
     if ApplyToMask and (CurrentSelectionMask <> nil) then
-      ReplaceCurrentSelectionWithoutUndo(ComputeTransformedSelection);
+      ReplaceCurrentSelectionWithoutUndo(ComputeTransformedSelectionMask);
     if FCurrentState.SelectionLayer <> nil then
     begin
       temp := FCurrentState.SelectionLayer.FilterAffine(FSelectionTransform,True) as TBGRABitmap;
@@ -1981,13 +1982,13 @@ end;
 procedure TLazPaintImage.RemoveSelection;
 var bounds: TRect;
 begin
-   if CurrentSelectionMask <> nil then
-   begin
-      bounds := SelectionMaskBounds;
-      ReplaceSelectionLayer(nil,true);
-      ReplaceCurrentSelectionWithoutUndo(nil);
-      SelectionMayChange(bounds);
-   end;
+  if CurrentSelectionMask <> nil then
+  begin
+    bounds := SelectionMaskBounds;
+    ReplaceSelectionLayer(nil,true);
+    ReplaceCurrentSelectionWithoutUndo(nil);
+    SelectionMayChange(bounds);
+  end;
 end;
 
 procedure TLazPaintImage.EraseSelectionInBitmap;
@@ -2006,13 +2007,13 @@ end;
 
 procedure TLazPaintImage.ReleaseSelection;
 begin
-   if CurrentSelectionMask <> nil then
-   begin
-      ApplySelectionMask;
-      ReplaceCurrentSelectionWithoutUndo(nil);
-      ApplySelectionTransform(False);
-      MergeWithSelection(False);
-   end;
+  if CurrentSelectionMask <> nil then
+  begin
+    ApplySelectionMask;
+    ReplaceCurrentSelectionWithoutUndo(nil);
+    ApplySelectionTransform(False);
+    MergeWithSelection(False);
+  end;
 end;
 
 procedure TLazPaintImage.RetrieveSelection;

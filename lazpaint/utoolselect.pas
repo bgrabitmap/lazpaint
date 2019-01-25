@@ -623,7 +623,6 @@ begin
   if rightBtn then penColor := BGRABlack else penColor := BGRAWhite;
   toolDest.DrawLineAntialias(ptF.X,ptF.Y,ptF.X,ptF.Y,penColor,Manager.ToolPenWidth,True);
   result := GetShapeBounds([ptF],Manager.ToolPenWidth+1);
-  Action.NotifyChange(toolDest, result);
 end;
 
 function TToolSelectionPen.ContinueDrawing(toolDest: TBGRABitmap; originF,
@@ -631,7 +630,6 @@ function TToolSelectionPen.ContinueDrawing(toolDest: TBGRABitmap; originF,
 begin
   toolDest.DrawLineAntialias(destF.X,destF.Y,originF.X,originF.Y,penColor,Manager.ToolPenWidth,False);
   result := GetShapeBounds([destF,originF],Manager.ToolPenWidth+1);
-  Action.NotifyChange(toolDest, result);
 end;
 
 { TToolMagicWand }

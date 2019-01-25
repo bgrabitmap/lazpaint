@@ -270,7 +270,6 @@ begin
       end;
     end;
   end;
-  Action.NotifyChange(toolDest,result);
 end;
 
 function TToolGenericBrush.GetBrushAlpha(AAlpha: byte): byte;

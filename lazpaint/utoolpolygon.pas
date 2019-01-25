@@ -17,7 +17,6 @@ type
   TToolGenericPolygon = class(TGenericTool)
   strict private
     swapColorKey: boolean;
-    FCurrentBounds: TRect;
     lastMousePos: TPointF;
   protected
     class var HintShowed: boolean;
@@ -49,7 +48,6 @@ type
     function GetPenColor: TBGRAPixel; virtual;
     function FinishHandDrawing: TRect;
     function AddLastClickedPoint: boolean; virtual;
-    function GetAction: TLayerAction; override;
     procedure OnFinishHandDrawing; virtual;
     procedure OnAddPoint({%H-}AIndex: integer); virtual;
     procedure OnDeletePoint({%H-}AIndex: integer); virtual;
@@ -535,12 +533,6 @@ begin
   result := false;
 end;
 
-function TToolGenericPolygon.GetAction: TLayerAction;
-begin
-  Result:=inherited GetAction;
-  result.AllChangesNotified := true;
-end;
-
 procedure TToolGenericPolygon.OnFinishHandDrawing;
 begin
 
@@ -609,10 +601,10 @@ var r: TRect;
 begin
   if not FAfterHandDrawing then
   begin
+    RestoreBackupDrawingLayer;
     r := FinalPolygonView(toolDest);
     Action.NotifyChange(toolDest,r);
     setlength(polygonPoints,0);
-    Manager.Image.LayerMayChange(toolDest,r);
     FAfterHandDrawing:= True;
   end else
   begin
@@ -624,23 +616,17 @@ begin
 end;
 
 function TToolGenericPolygon.UpdatePolygonView(toolDest: TBGRABitmap): TRect;
-var
-   previousBounds : TRect;
 begin
-  previousBounds := FCurrentBounds;
   RestoreBackupDrawingLayer;
   if FAfterHandDrawing then
-    FCurrentBounds := FinalPolygonView(toolDest)
+    result := FinalPolygonView(toolDest)
   else
-    FCurrentBounds := HandDrawingPolygonView(toolDest);
-  Action.NotifyChange(toolDest, FCurrentBounds);
-  result := RectUnion(previousBounds,FCurrentBounds);
+    result := HandDrawingPolygonView(toolDest);
 end;
 
 procedure TToolGenericPolygon.StartPolygon(rightBtn: boolean);
 begin
   swapedColor := rightBtn;
-  FCurrentBounds := EmptyRect;
 end;
 
 function TToolGenericPolygon.SnapToPixelEdge: boolean;
@@ -887,9 +873,7 @@ begin
         begin
           RestoreBackupDrawingLayer;
           polygonPoints := nil;
-          result := FCurrentBounds;
-          if IsRectEmpty(result) then result := OnlyRenderChange;
-          FCurrentBounds := EmptyRect;
+          result := OnlyRenderChange;
         end else
           result := FinishHandDrawing
       end

@@ -404,6 +404,7 @@ begin
   begin
     FAction := TLayerAction.Create(Manager.Image, not IsSelectingTool And Manager.Image.SelectionMaskEmpty);
     FAction.OnTryStop := @OnTryStop;
+    FAction.ChangeBoundsNotified:= true;
   end;
   result := FAction;
 end;
@@ -741,12 +742,17 @@ procedure TToolManager.NotifyImageOrSelectionChanged(ALayer: TBGRABitmap; ARect:
 begin
   if (CurrentTool <> nil) and not IsRectEmpty(ARect) then
   begin
-    if CurrentTool.IsSelectingTool then
-      Image.SelectionMayChange(ARect)
-    else if ALayer <> nil then
-      Image.LayerMayChange(ALayer, ARect)
-    else
-      Image.ImageMayChange(AddLayerOffset(ARect))
+    if Assigned(CurrentTool.FAction) then
+      if not IsOnlyRenderChange(ARect) then
+        CurrentTool.FAction.NotifyChange(ALayer, ARect);
+
+    if ALayer = nil then
+    begin
+      if ALayer = Image.SelectedImageLayerReadOnly then
+        Image.ImageMayChange(AddLayerOffset(ARect))
+      else
+        Image.LayerMayChange(ALayer, ARect);
+    end
   end;
 end;
 
