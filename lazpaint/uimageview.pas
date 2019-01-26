@@ -80,7 +80,9 @@ end;
 
 procedure TImageView.SetFillSelectionHighlight(AValue: boolean);
 begin
+  if AValue = FSelectionHighlight.FillSelection then exit;
   FSelectionHighlight.FillSelection := AValue;
+  Image.ImageMayChangeCompletely;
 end;
 
 function TImageView.GetImage: TLazPaintImage;
