@@ -40,6 +40,7 @@ type
     FLastSelectionMaskBoundsIsDefined,
     FLastSelectionLayerBoundsIsDefined: boolean;
     FLastSelectionBounds, FLastSelectionLayerBounds: TRect;
+    FOnSelectedLayerIndexChanging: TOnSelectedLayerIndexChanged;
     FOnSelectionChanged: TOnCurrentSelectionChanged;
     FOnSelectedLayerIndexChanged: TOnSelectedLayerIndexChanged;
     FOnStackChanged: TOnStackChanged;
@@ -57,6 +58,7 @@ type
     FSelectionLayerAfterMask: TBGRABitmap;
     FSelectionLayerAfterMaskOffset: TPoint;
     FSelectionLayerAfterMaskDefined: boolean;
+    FDraftOriginal: boolean;
 
     procedure DiscardSelectionLayerAfterMask;
     function GetIsIconCursor: boolean;
@@ -95,9 +97,11 @@ type
     procedure SetCurrentFilenameUTF8(AValue: string);
     procedure SelectImageLayer(AValue: TBGRABitmap);
     procedure LayeredBitmapReplaced;
+    procedure SetDraftOriginal(AValue: boolean);
     procedure SetLayerName(AIndex: integer; AValue: string);
     procedure SetLayerOffset(AIndex: integer; AValue: TPoint);
     procedure SetLayerOpacity(AIndex: integer; AValue: byte);
+    procedure SetLayerOriginalMatrix(AIndex: integer; AValue: TAffineMatrix);
     procedure SetLayerVisible(AIndex: integer; AValue: boolean);
     procedure LayerBlendMayChange(AIndex: integer);
     function GetDrawingLayer: TBGRABitmap;
@@ -231,6 +235,7 @@ type
     property Width: integer read GetWidth;
     property Height: integer read GetHeight;
     property OnSelectionChanged: TOnCurrentSelectionChanged read FOnSelectionChanged write FOnSelectionChanged;
+    property OnSelectedLayerIndexChanging: TOnSelectedLayerIndexChanged read FOnSelectedLayerIndexChanging write FOnSelectedLayerIndexChanging;
     property OnSelectedLayerIndexChanged: TOnSelectedLayerIndexChanged read FOnSelectedLayerIndexChanged write FOnSelectedLayerIndexChanged;
     property OnStackChanged: TOnStackChanged read FOnStackChanged write FOnStackChanged;
     property OnImageChanged: TLazPaintImageObservable read FOnImageChanged;
@@ -244,7 +249,7 @@ type
     property LayerOriginal[AIndex: integer]: TBGRALayerCustomOriginal read GetLayerOriginal;
     property LayerOriginalDefined[AIndex: integer]: boolean read GetLayerOriginalDefined;
     property LayerOriginalKnown[AIndex: integer]: boolean read GetLayerOriginalKnown;
-    property LayerOriginalMatrix[AIndex: integer]: TAffineMatrix read GetLayerOriginalMatrix;
+    property LayerOriginalMatrix[AIndex: integer]: TAffineMatrix read GetLayerOriginalMatrix write SetLayerOriginalMatrix;
     property LayerId[AIndex: integer]: integer read GetLayerId;
     property LayerVisible[AIndex: integer]: boolean read GetLayerVisible write SetLayerVisible;
     property LayerOpacity[AIndex: integer]: byte read GetLayerOpacity write SetLayerOpacity;
@@ -258,6 +263,7 @@ type
     property SelectionTransform: TAffineMatrix read FSelectionTransform write SetSelectionTransform;
     property TransformedSelectionBounds: TRect read GetTransformedSelectionBounds;
     property ZoomFactor: single read GetZoomFactor;
+    property DraftOriginal: boolean read FDraftOriginal write SetDraftOriginal;
     property IsIconCursor: boolean read GetIsIconCursor;
     property IsTiff: boolean read GetIsTiff;
     property IsGif: boolean read GetIsGif;
@@ -786,6 +792,19 @@ begin
   ImageMayChangeCompletely;
 end;
 
+procedure TLazPaintImage.SetDraftOriginal(AValue: boolean);
+var
+  r: TRect;
+begin
+  if FDraftOriginal=AValue then Exit;
+  FDraftOriginal:=AValue;
+  if not FDraftOriginal then
+  begin
+    r := FCurrentState.LayeredBitmap.RenderOriginalsIfNecessary(FDraftOriginal);
+    ImageMayChange(r, false);
+  end;
+end;
+
 procedure TLazPaintImage.AddUndo(AUndoAction: TCustomImageDifference);
 var
   prevAction: TCustomImageDifference;
@@ -915,6 +934,26 @@ procedure TLazPaintImage.SetLayerOpacity(AIndex: integer; AValue: byte);
 begin
   AddUndo(FCurrentState.SetLayerOpacity(AIndex,AValue));
   LayerBlendMayChange(AIndex);
+end;
+
+procedure TLazPaintImage.SetLayerOriginalMatrix(AIndex: integer;
+  AValue: TAffineMatrix);
+var
+  prevMatrix: TAffineMatrix;
+  r: TRect;
+begin
+  if LayerOriginalDefined[AIndex] then
+  begin
+    if not LayerOriginalKnown[AIndex] then
+      raise exception.Create('Unknown original cannot be transformed');
+    prevMatrix := LayerOriginalMatrix[AIndex];
+    FCurrentState.LayeredBitmap.LayerOriginalMatrix[AIndex] := AValue;
+    r := FCurrentState.LayeredBitmap.RenderOriginalsIfNecessary(FDraftOriginal);
+    ImageMayChange(r, false);
+    AddUndo(FCurrentState.ComputeLayerMatrixDifference(AIndex, prevMatrix, AValue));
+  end else
+  if not IsAffineMatrixIdentity(AValue) then
+    raise exception.Create('Raster layer cannot have a matrix transform');
 end;
 
 procedure TLazPaintImage.SetLayerVisible(AIndex: integer; AValue: boolean);
@@ -1377,6 +1416,7 @@ begin
     exit;
   end;
 
+  if assigned(OnSelectedLayerIndexChanging) then OnSelectedLayerIndexChanging(self);
   if not SelectionLayerIsEmpty then
   begin
     composedDiff := TComposedImageDifference.Create;
@@ -1401,18 +1441,31 @@ begin
     end;
   end else
     FCurrentState.SelectedImageLayerIndex := AValue;
-
   if assigned(OnSelectedLayerIndexChanged) then OnSelectedLayerIndexChanged(self);
+  ImageMayChangeCompletely;
+
   result := true;
 end;
 
 procedure TLazPaintImage.SetLayerOffset(AIndex: integer; AValue: TPoint;
   APrecomputedLayerBounds: TRect);
+var
+  discardOrig: TDiscardOriginalStateDifference;
+  comb: TComposedImageDifference;
 begin
   OffsetRect(APrecomputedLayerBounds, LayerOffset[AIndex].x,LayerOffset[AIndex].y);
   ImageMayChange(APrecomputedLayerBounds);
   OffsetRect(APrecomputedLayerBounds, -LayerOffset[AIndex].x,-LayerOffset[AIndex].y);
-  AddUndo(FCurrentState.SetLayerOffset(AIndex,AValue));
+  if FCurrentState.LayerOriginalDefined[AIndex] then
+  begin
+    discardOrig := TDiscardOriginalStateDifference.Create(FCurrentState,AIndex);
+    discardOrig.ApplyTo(FCurrentState);
+    comb := TComposedImageDifference.Create;
+    comb.Add(discardOrig);
+    comb.Add(FCurrentState.SetLayerOffset(AIndex,AValue));
+    AddUndo(comb);
+  end else
+    AddUndo(FCurrentState.SetLayerOffset(AIndex,AValue));
   OffsetRect(APrecomputedLayerBounds, LayerOffset[AIndex].x,LayerOffset[AIndex].y);
   ImageMayChange(APrecomputedLayerBounds);
   OffsetRect(APrecomputedLayerBounds, -LayerOffset[AIndex].x,-LayerOffset[AIndex].y);
@@ -1867,8 +1920,8 @@ end;
 
 procedure TLazPaintImage.SaveOriginalToStream(AStream: TStream);
 begin
-  FCurrentState.currentLayeredBitmap.SaveOriginalToStream(
-    FCurrentState.currentLayeredBitmap.LayerOriginalGuid[currentImageLayerIndex],
+  FCurrentState.LayeredBitmap.SaveOriginalToStream(
+    FCurrentState.LayeredBitmap.LayerOriginalGuid[currentImageLayerIndex],
     AStream);
 end;
 

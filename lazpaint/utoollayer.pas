@@ -14,8 +14,9 @@ type
   protected
     handMoving: boolean;
     handOrigin: TPoint;
-    FOriginalLayerOffset: TPoint;
-    FOriginalLayerOffsetDefined: boolean;
+    FStartLayerOffset: TPoint;
+    FStartLayerMatrix: TAffineMatrix;
+    FStartLayerOffsetDefined: boolean;
     FLayerBounds: TRect;
     FLayerBoundsDefined: boolean;
     function GetIsSelectingTool: boolean; override;
@@ -24,9 +25,9 @@ type
     function DoToolMove({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF): TRect; override;
     procedure DoToolMoveAfter(pt: TPoint; {%H-}ptF: TPointF); override;
     procedure OnTryStop({%H-}sender: TCustomLayerAction); override;
-    procedure ApplyMoveLayer;
+    function UseOriginal: boolean;
+    procedure NeedLayerBounds;
   public
-    destructor Destroy; override;
     function GetToolDrawingLayer: TBGRABitmap; override;
     function ToolUp: TRect; override;
     function ToolKeyDown(var key: Word): TRect; override;
@@ -79,7 +80,7 @@ type
 
 implementation
 
-uses LazPaintType, ugraph, LCLType, Types;
+uses LazPaintType, ugraph, LCLType, Types, BGRATransform;
 
 { TToolRotateLayer }
 
@@ -296,16 +297,13 @@ begin
   begin
     handMoving := true;
     handOrigin := pt;
-    if not FOriginalLayerOffsetDefined then
+    if not FStartLayerOffsetDefined then
     begin
-      FOriginalLayerOffsetDefined := true;
+      FStartLayerOffsetDefined := true;
       idx := Manager.Image.currentImageLayerIndex;
-      if not FLayerBoundsDefined then
-      begin
-        FLayerBounds := Manager.Image.LayerBitmap[idx].GetImageBounds;
-        FLayerBoundsDefined := true;
-      end;
-      FOriginalLayerOffset := Manager.Image.LayerOffset[idx];
+      NeedLayerBounds;
+      FStartLayerOffset := Manager.Image.LayerOffset[idx];
+      FStartLayerMatrix := Manager.Image.LayerOriginalMatrix[idx];
     end;
   end;
 end;
@@ -318,10 +316,18 @@ begin
   if handMoving and ((handOrigin.X <> pt.X) or (handOrigin.Y <> pt.Y)) then
   begin
     idx := Manager.Image.currentImageLayerIndex;
-    prev := Manager.Image.LayerOffset[idx];
-    Manager.Image.SetLayerOffset(idx, Point(prev.X+pt.X-HandOrigin.X,
-                                       prev.Y+pt.Y-HandOrigin.Y), FLayerBounds);
-    result := OnlyRenderChange;
+    if UseOriginal then
+    begin
+      Manager.Image.LayerOriginalMatrix[idx] :=
+          AffineMatrixTranslation(pt.X-HandOrigin.X,pt.Y-HandOrigin.Y)*Manager.Image.LayerOriginalMatrix[idx];
+      result := OnlyRenderChange;
+    end else
+    begin
+      prev := Manager.Image.LayerOffset[idx];
+      Manager.Image.SetLayerOffset(idx, Point(prev.X+pt.X-HandOrigin.X,
+                                         prev.Y+pt.Y-HandOrigin.Y), FLayerBounds);
+      result := OnlyRenderChange;
+    end;
   end else
     result := EmptyRect;
 end;
@@ -336,18 +342,28 @@ begin
   //nothing
 end;
 
-procedure TToolMoveLayer.ApplyMoveLayer;
+function TToolMoveLayer.UseOriginal: boolean;
 begin
-  if FOriginalLayerOffsetDefined then
-  begin
-    FOriginalLayerOffsetDefined := false;
-  end;
+  with Manager.Image do
+    result := LayerOriginalDefined[currentImageLayerIndex] and
+              LayerOriginalKnown[currentImageLayerIndex];
 end;
 
-destructor TToolMoveLayer.Destroy;
+procedure TToolMoveLayer.NeedLayerBounds;
+var
+  idx: Integer;
 begin
-  ApplyMoveLayer;
-  inherited Destroy;
+  idx := Manager.Image.currentImageLayerIndex;
+  if not FLayerBoundsDefined then
+  begin
+    if UseOriginal then
+      FLayerBounds := Manager.Image.LayerOriginal[idx].GetRenderBounds(
+                        Rect(-maxLongint div 2,-maxLongint div 2,maxLongint div 2,maxLongint div 2),
+                        AffineMatrixLinear(Manager.Image.LayerOriginalMatrix[idx]))
+    else
+      FLayerBounds := Manager.Image.LayerBitmap[idx].GetImageBounds;
+    FLayerBoundsDefined := true;
+  end;
 end;
 
 function TToolMoveLayer.GetToolDrawingLayer: TBGRABitmap;
@@ -372,10 +388,13 @@ begin
   end
   else if key = VK_ESCAPE then
   begin
-    if FOriginalLayerOffsetDefined then
+    if FStartLayerOffsetDefined then
     begin
       idx := Manager.Image.currentImageLayerIndex;
-      Manager.Image.SetLayerOffset(idx, FOriginalLayerOffset, FLayerBounds);
+      if UseOriginal then
+        Manager.Image.LayerOriginalMatrix[idx] := FStartLayerMatrix
+      else
+        Manager.Image.SetLayerOffset(idx, FStartLayerOffset, FLayerBounds);
       result := OnlyRenderChange;
     end else
       result := EmptyRect;
@@ -389,18 +408,24 @@ function TToolMoveLayer.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,
   VirtualScreenHeight: integer;
   BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
 var pt1,pt2:TPoint;
-  ptF1,ptF2: TPointF;
+  ptF1,ptF2, ofs: TPointF;
   penWidth,i,idx: integer;
+  m: BGRABitmapTypes.TAffineMatrix;
 begin
   idx := Manager.Image.currentImageLayerIndex;
-  if not FLayerBoundsDefined then
-  begin
-    FLayerBounds := Manager.Image.LayerBitmap[idx].GetImageBounds;
-    FLayerBoundsDefined := true;
-  end;
+  NeedLayerBounds;
 
-  ptF1 := BitmapToVirtualScreen(PointF(FLayerBounds.Left-0.5,FLayerBounds.Top-0.5));
-  ptF2 := BitmapToVirtualScreen(PointF(FLayerBounds.Right-0.5,FLayerBounds.Bottom-0.5));
+  if UseOriginal then
+  begin
+    m := Manager.Image.LayerOriginalMatrix[idx];
+    ofs := PointF(m[1,3],m[2,3]);
+    with Manager.Image.LayerOffset[idx] do
+      ofs := ofs-PointF(x,y);
+  end
+  else
+    ofs := PointF(0,0);
+  ptF1 := BitmapToVirtualScreen(PointF(FLayerBounds.Left-0.5,FLayerBounds.Top-0.5)+ofs);
+  ptF2 := BitmapToVirtualScreen(PointF(FLayerBounds.Right-0.5,FLayerBounds.Bottom-0.5)+ofs);
   pt1 := point(round(ptF1.x),round(ptF1.y));
   pt2 := point(round(ptF2.X)-1,round(ptF2.Y)-1);
 

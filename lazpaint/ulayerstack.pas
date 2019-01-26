@@ -99,10 +99,12 @@ implementation
 uses BGRAFillInfo,uscaledpi,uresourcestrings,ublendop, uimage, utool, BGRAText, BGRAThumbnail;
 
 function TFLayerStack.DrawLayerItem(ABitmap: TBGRABitmap; layerPos: TPoint; layerIndex: integer; ASelected: boolean): TDrawLayerItemResult;
-var LayerBmp: TBGRABitmap;
-    lColor,lColorTransp: TBGRAPixel;
-    barwidth: integer;
-    sourceCoords: Array Of TPointF;
+var
+  lColor,lColorTransp: TBGRAPixel;
+  barwidth: integer;
+  sourceCoords: Array Of TPointF;
+  reduced: TBGRABitmap;
+  reducedBounds: TRect;
 begin
   if ASelected then
     lColor := ColorToBGRA(ColorToRGB(clHighlightText))
@@ -115,6 +117,16 @@ begin
      pointf(layerPos.X+0.9*LayerRectWidth,layerPos.Y+round(LayerRectHeight*0.1)),
     pointf(layerPos.X+0.7*LayerRectWidth,layerPos.Y+round(LayerRectHeight*0.9)),
     pointf(layerPos.X+0.05*LayerRectWidth,layerPos.Y+round(LayerRectHeight*0.9))]);
+  reduced := TBGRABitmap.Create(round(LayerRectWidth*0.65), round(LayerRectHeight*0.8));
+  reducedBounds := RectWithSize(LazPaintInstance.Image.LayerOffset[layerIndex].X,
+                        LazPaintInstance.Image.LayerOffset[layerIndex].Y,
+                        LazPaintInstance.Image.LayerBitmap[layerIndex].Width,
+                        LazPaintInstance.Image.LayerBitmap[layerIndex].Height);
+  reducedBounds.Left := round(reducedBounds.Left*reduced.Width/LazPaintInstance.Image.Width);
+  reducedBounds.Top := round(reducedBounds.Top*reduced.Height/LazPaintInstance.Image.Height);
+  reducedBounds.Right := round(reducedBounds.Right*reduced.Width/LazPaintInstance.Image.Width);
+  reducedBounds.Bottom := round(reducedBounds.Bottom*reduced.Height/LazPaintInstance.Image.Height);
+  reduced.StretchPutImage(reducedBounds, LazPaintInstance.Image.LayerBitmap[layerIndex], dmDrawWithTransparency);
 
   result.PreviewPts[0].y += 0.5;
   result.PreviewPts[1].y += 0.5;
@@ -125,10 +137,11 @@ begin
   else
     ABitmap.FillPolyAntialias(result.PreviewPts,background);
 
-  layerBmp := LazPaintInstance.Image.LayerBitmap[layerIndex];
-  sourceCoords := PointsF([pointf(-0.49,-0.49),pointf(layerBmp.Width-0.51,-0.49),
-            pointf(layerBmp.Width-0.51,layerBmp.Height-0.51),pointf(-0.49,layerBmp.Height-0.51)]);
-  ABitmap.FillPolyLinearMapping( result.PreviewPts, layerBmp, sourceCoords, False);
+  sourceCoords := PointsF([pointf(-0.49,-0.49),pointf(reduced.Width-0.51,-0.49),
+            pointf(reduced.Width-0.51,reduced.Height-0.51),pointf(-0.49,reduced.Height-0.51)]);
+  ABitmap.FillPolyLinearMapping(result.PreviewPts, reduced, sourceCoords, False);
+  reduced.Free;
+
   result.PreviewPts[0].y -= 0.5;
   result.PreviewPts[1].y -= 0.5;
   result.PreviewPts[2].y += 0.5;

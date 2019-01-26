@@ -714,6 +714,7 @@ type
     FCoordinatesCaption: string;
     FCoordinatesCaptionCount: NativeInt;
     FImageView: TImageView;
+    FUpdateStackWhenIdle: boolean;
 
     function GetCurrentPressure: single;
     function GetUseImageBrowser: boolean;
@@ -795,7 +796,7 @@ type
   public
     { public declarations }
     FormBackgroundColor: TColor;
-    StackNeedUpdate: boolean;
+    UpdateStackOnTimer: boolean;
     Zoom: TZoom;
 
     procedure PaintPictureNow;
@@ -806,6 +807,7 @@ type
     procedure UpdateToolbar;
     function ChooseTool(Tool : TPaintToolType): boolean;
     procedure PictureSelectedLayerIndexChanged({%H-}sender: TLazPaintImage);
+    procedure PictureSelectedLayerIndexChanging({%H-}sender: TLazPaintImage);
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
     procedure UpdateEditPicture(ADelayed: boolean = false);
     property CurrentTool: TPaintToolType read GetCurrentTool;
@@ -925,6 +927,7 @@ begin
   begin
     Image.OnSelectionChanged := nil;
     Image.OnSelectedLayerIndexChanged:= nil;
+    Image.OnSelectedLayerIndexChanging:= nil;
   end;
   FLayout.ToolBoxPopup := nil;
   RegisterScripts(False);
@@ -980,6 +983,7 @@ begin
   LazPaintInstance.EmbeddedResult := mrNone;
 
   Image.OnSelectedLayerIndexChanged:= @PictureSelectedLayerIndexChanged;
+  Image.OnSelectedLayerIndexChanging:= @PictureSelectedLayerIndexChanging;
   Image.CurrentFilenameUTF8 := '';
 
   RegisterToolbarElements;
@@ -1163,6 +1167,11 @@ begin
     btnMiddleDown:= false;
   end;
   if redraw then PaintPictureNow;
+  if FUpdateStackWhenIdle then
+  begin
+    UpdateStackOnTimer:= true;
+    FUpdateStackWhenIdle:= false;
+  end;
   UpdateToolbar;
   ReleaseMouseButtons(Shift);
 
@@ -2370,10 +2379,10 @@ begin
     Label_Coordinates.Update;
     FCoordinatesCaptionCount := 0;
   end;
-  if CanCompressOrUpdateStack and StackNeedUpdate then
+  if CanCompressOrUpdateStack and UpdateStackOnTimer then
   begin
     LazPaintInstance.NotifyStackChange;
-    StackNeedUpdate := false;
+    UpdateStackOnTimer := false;
   end else
   begin
     if CanCompressOrUpdateStack then image.CompressUndo;
@@ -3436,6 +3445,7 @@ begin
     ChooseTool(ptHand);
     MessagePopup(rsToolOnInvisibleLayer,5000);
   end;
+  if AEvent.DelayedStackUpdate then FUpdateStackWhenIdle := true;
 end;
 
 procedure TFMain.UpdateEditPicture(ADelayed: boolean = false);
@@ -3458,7 +3468,7 @@ end;
 procedure TFMain.PaintPictureNow;
 begin
   if not visible then exit;
-  StackNeedUpdate := true;
+  UpdateStackOnTimer := true;
   Image.OnImageChanged.NotifyObservers;
   {$IFDEF USEPAINTBOXPICTURE}PaintBox_Picture{$ELSE}self{$ENDIF}.Update;
 end;
@@ -3473,7 +3483,14 @@ end;
 procedure TFMain.PictureSelectedLayerIndexChanged(sender: TLazPaintImage);
 begin
   if not image.CurrentLayerVisible and not ToolManager.ToolCanBeUsed then
-    ChooseTool(ptHand);
+    ChooseTool(ptHand)
+  else
+    ToolManager.ToolOpen;
+end;
+
+procedure TFMain.PictureSelectedLayerIndexChanging(sender: TLazPaintImage);
+begin
+  ToolManager.ToolCloseDontReopen;
 end;
 
 procedure TFMain.SetShowSelectionNormal(const AValue: boolean);

@@ -1258,6 +1258,7 @@ function TToolManager.ToolDown(X, Y: single; ARightBtn: boolean;
 var changed: TRect;
 begin
   SetPressure(APressure);
+  Image.DraftOriginal := true;
   if ToolCanBeUsed then
     changed := currentTool.ToolDown(X,Y,ARightBtn)
   else
@@ -1383,6 +1384,7 @@ end;
 function TToolManager.ToolUp: boolean;
 var changed: TRect;
 begin
+  Image.DraftOriginal := false;
   if ToolCanBeUsed then
     changed := currentTool.ToolUp
   else

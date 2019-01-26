@@ -706,6 +706,7 @@ end;
 
 destructor TToolTextureMapping.Destroy;
 begin
+  ValidateAction;
   FreeAndNil(FAdaptedTexture);
   inherited Destroy;
 end;

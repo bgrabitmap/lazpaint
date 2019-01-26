@@ -13,6 +13,7 @@ type
 
   TImageState = class(TState)
   private
+    FLayeredBitmap: TBGRALayeredBitmap;
     FSelectionMask: TBGRABitmap;
     function GetBlendOp(Index: integer): TBlendOperation;
     function GetSelectedImageLayer: TBGRABitmap;
@@ -36,9 +37,9 @@ type
     function GetWidth: integer;
     procedure SelectImageLayer(AValue: TBGRABitmap);
     procedure SelectImageLayerByIndex(AValue: integer);
+    procedure SetLayeredBitmap(AValue: TBGRALayeredBitmap);
     procedure SetLinearBlend(AValue: boolean);
   public
-    currentLayeredBitmap: TBGRALayeredBitmap;
     SelectionLayer: TBGRABitmap;
     selectedLayerId: integer;
     filenameUTF8: string;
@@ -84,6 +85,7 @@ type
     function RotateCW: TCustomImageDifference;
     function RotateCCW: TCustomImageDifference;
     function ComputeLayerOffsetDifference(AOffsetX, AOffsetY: integer): TCustomImageDifference;
+    function ComputeLayerMatrixDifference(AIndex: integer; APrevMatrix, ANewMatrix: TAffineMatrix): TCustomImageDifference;
     function ComputeLayerDifference(APreviousImage: TBGRABitmap; APreviousImageDefined: boolean;
         APreviousSelection: TBGRABitmap; APreviousSelectionDefined: boolean;
         APreviousSelectionLayer: TBGRABitmap; APreviousSelectionLayerDefined: boolean;
@@ -123,6 +125,7 @@ type
     property LayerVisible[Index: integer]: boolean read GetLayerVisible;
     property HasOriginals: boolean read GetHasOriginals;
     property SelectionMask: TBGRABitmap read GetCurrentSelectionMask write FSelectionMask;
+    property LayeredBitmap: TBGRALayeredBitmap read FLayeredBitmap;
   end;
 
 implementation
@@ -134,33 +137,33 @@ uses BGRAStreamLayers, UImageDiff, BGRALzpCommon, UFileSystem, BGRATransform;
 function TImageState.GetSelectedImageLayer: TBGRABitmap;
 var idx: integer;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
   begin
     result := nil;
     exit;
   end else
   begin
-    idx := currentLayeredBitmap.GetLayerIndexFromId(selectedLayerId);
+    idx := LayeredBitmap.GetLayerIndexFromId(selectedLayerId);
     if idx = -1 then result := nil else
-      result := currentLayeredBitmap.LayerBitmap[idx]; //assume direct access to bitmap
+      result := LayeredBitmap.LayerBitmap[idx]; //assume direct access to bitmap
   end;
 end;
 
 function TImageState.GetBlendOp(Index: integer): TBlendOperation;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := boTransparent
   else
-    result := currentLayeredBitmap.BlendOperation[Index];
+    result := LayeredBitmap.BlendOperation[Index];
 end;
 
 function TImageState.GetCurrentLayerIndex: integer;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
   begin
     result := -1;
   end else
-    result := currentLayeredBitmap.GetLayerIndexFromId(selectedLayerId);
+    result := LayeredBitmap.GetLayerIndexFromId(selectedLayerId);
 end;
 
 function TImageState.GetCurrentSelectionMask: TBGRABitmap;
@@ -173,7 +176,7 @@ function TImageState.GetHasOriginals: boolean;
 var
   i: Integer;
 begin
-  if currentLayeredBitmap= nil then
+  if LayeredBitmap= nil then
     result := false
   else
   begin
@@ -186,133 +189,133 @@ end;
 
 function TImageState.GetHeight: integer;
 begin
-  if currentLayeredBitmap= nil then
+  if LayeredBitmap= nil then
     result := 0
   else
-    result := currentLayeredBitmap.Height;
+    result := LayeredBitmap.Height;
 end;
 
 function TImageState.GetLayerBitmap(Index: integer): TBGRABitmap;
 begin
-  result := currentLayeredBitmap.LayerBitmap[Index];
+  result := LayeredBitmap.LayerBitmap[Index];
 end;
 
 function TImageState.GetLayerBitmapById(AId: integer): TBGRABitmap;
 var idx: integer;
 begin
-  idx := currentLayeredBitmap.GetLayerIndexFromId(AId);
+  idx := LayeredBitmap.GetLayerIndexFromId(AId);
   if idx = -1 then
     result := nil
   else
-    result := currentLayeredBitmap.LayerBitmap[idx];
+    result := LayeredBitmap.LayerBitmap[idx];
 end;
 
 function TImageState.GetLayerId(Index: integer): integer;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := -1
   else
-    result := currentLayeredBitmap.LayerUniqueId[index];
+    result := LayeredBitmap.LayerUniqueId[index];
 end;
 
 function TImageState.GetLayerName(Index: integer): string;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := ''
   else
-    result := currentLayeredBitmap.LayerName[index];
+    result := LayeredBitmap.LayerName[index];
 end;
 
 function TImageState.GetLayerOffset(Index: integer): TPoint;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := point(0,0)
   else
-    result := currentLayeredBitmap.LayerOffset[index];
+    result := LayeredBitmap.LayerOffset[index];
 end;
 
 function TImageState.GetLayerOpacity(Index: integer): byte;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := 255
   else
-    result := currentLayeredBitmap.LayerOpacity[index];
+    result := LayeredBitmap.LayerOpacity[index];
 end;
 
 function TImageState.GetLayerOriginal(Index: integer): TBGRALayerCustomOriginal;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := nil
   else
-    result := currentLayeredBitmap.LayerOriginal[Index];
+    result := LayeredBitmap.LayerOriginal[Index];
 end;
 
 function TImageState.GetLayerOriginalDefined(Index: integer): boolean;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := false
   else
-    result := currentLayeredBitmap.LayerOriginalGuid[Index] <> GUID_NULL;
+    result := LayeredBitmap.LayerOriginalGuid[Index] <> GUID_NULL;
 end;
 
 function TImageState.GetLayerOriginalKnown(Index: integer): boolean;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := false
   else
-    result := currentLayeredBitmap.LayerOriginalKnown[Index];
+    result := LayeredBitmap.LayerOriginalKnown[Index];
 end;
 
 function TImageState.GetLayerOriginalMatrix(Index: integer): TAffineMatrix;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := AffineMatrixIdentity
   else
-    result := currentLayeredBitmap.LayerOriginalMatrix[Index];
+    result := LayeredBitmap.LayerOriginalMatrix[Index];
 end;
 
 function TImageState.GetLayerVisible(Index: integer): boolean;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := false
   else
-    result := currentLayeredBitmap.LayerVisible[Index];
+    result := LayeredBitmap.LayerVisible[Index];
 end;
 
 function TImageState.GetLinearBlend: boolean;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := true
   else
-    result := currentLayeredBitmap.LinearBlend;
+    result := LayeredBitmap.LinearBlend;
 end;
 
 function TImageState.GetNbLayers: integer;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := 0
   else
-    result := currentLayeredBitmap.NbLayers;
+    result := LayeredBitmap.NbLayers;
 end;
 
 function TImageState.GetWidth: integer;
 begin
-  if currentLayeredBitmap= nil then
+  if LayeredBitmap= nil then
     result := 0
   else
-    result := currentLayeredBitmap.Width;
+    result := LayeredBitmap.Width;
 end;
 
 procedure TImageState.SelectImageLayer(AValue: TBGRABitmap);
 var
   i: Integer;
 begin
-  if currentLayeredBitmap = nil then exit;
+  if LayeredBitmap = nil then exit;
 
   for i := 0 to NbLayers-1 do
-    if currentLayeredBitmap.LayerBitmap[i] = AValue then
+    if LayeredBitmap.LayerBitmap[i] = AValue then
     begin
-      selectedLayerId := currentLayeredBitmap.LayerUniqueId[i];
+      selectedLayerId := LayeredBitmap.LayerUniqueId[i];
       exit;
     end;
   selectedLayerId := -1;
@@ -320,22 +323,28 @@ end;
 
 procedure TImageState.SelectImageLayerByIndex(AValue: integer);
 begin
-  if (currentLayeredBitmap = nil) or (AValue < 0) or (AValue >= currentLayeredBitmap.NbLayers) then
+  if (LayeredBitmap = nil) or (AValue < 0) or (AValue >= LayeredBitmap.NbLayers) then
   begin
     selectedLayerId := -1;
   end else
   begin
-    selectedLayerId := currentLayeredBitmap.LayerUniqueId[AValue];
-    currentLayeredBitmap.Unfreeze(AValue);
+    selectedLayerId := LayeredBitmap.LayerUniqueId[AValue];
+    LayeredBitmap.Unfreeze(AValue);
   end;
+end;
+
+procedure TImageState.SetLayeredBitmap(AValue: TBGRALayeredBitmap);
+begin
+  if FLayeredBitmap=AValue then Exit;
+  FLayeredBitmap:=AValue;
 end;
 
 function TImageState.SetLayerName(Index: integer; AValue: string): TCustomImageDifference;
 begin
-  if currentLayeredBitmap <> nil then
+  if LayeredBitmap <> nil then
   begin
     if LayerName[Index] <> AValue then
-      result := TSetLayerNameStateDifference.Create(self,currentLayeredBitmap.LayerUniqueId[index],AValue)
+      result := TSetLayerNameStateDifference.Create(self,LayeredBitmap.LayerUniqueId[index],AValue)
     else
       result := nil;
   end
@@ -346,10 +355,10 @@ end;
 function TImageState.SetLayerOffset(Index: integer; AValue: TPoint
   ): TCustomImageDifference;
 begin
-  if currentLayeredBitmap <> nil then
+  if LayeredBitmap <> nil then
   begin
     if (LayerOffset[index].x <> AValue.x) or (LayerOffset[index].y <> AValue.y) then
-      result := TSetLayerOffsetStateDifference.Create(self,currentLayeredBitmap.LayerUniqueId[index],AValue)
+      result := TSetLayerOffsetStateDifference.Create(self,LayeredBitmap.LayerUniqueId[index],AValue)
     else
       result := nil;
   end
@@ -360,10 +369,10 @@ end;
 function TImageState.SetLayerOpacity(Index: integer; AValue: byte
   ): TCustomImageDifference;
 begin
-  if currentLayeredBitmap <> nil then
+  if LayeredBitmap <> nil then
   begin
     if LayerOpacity[index] <> AValue then
-      result := TSetLayerOpacityStateDifference.Create(self,currentLayeredBitmap.LayerUniqueId[index],AValue)
+      result := TSetLayerOpacityStateDifference.Create(self,LayeredBitmap.LayerUniqueId[index],AValue)
     else
       result := nil;
   end
@@ -374,10 +383,10 @@ end;
 function TImageState.SetLayerVisible(Index: integer; AValue: boolean
   ): TCustomImageDifference;
 begin
-  if currentLayeredBitmap <> nil then
+  if LayeredBitmap <> nil then
   begin
     if LayerVisible[Index] <> AValue then
-      result := TSetLayerVisibleStateDifference.Create(self,currentLayeredBitmap.LayerUniqueId[index],AValue)
+      result := TSetLayerVisibleStateDifference.Create(self,LayeredBitmap.LayerUniqueId[index],AValue)
     else
       result := nil;
   end
@@ -388,10 +397,10 @@ end;
 function TImageState.SetBlendOp(Index: integer; AValue: TBlendOperation
   ): TCustomImageDifference;
 begin
-  if currentLayeredBitmap <> nil then
+  if LayeredBitmap <> nil then
   begin
     if BlendOperation[index] <> Avalue then
-      result := TSetLayerBlendOpStateDifference.Create(self,currentLayeredBitmap.LayerUniqueId[index],AValue)
+      result := TSetLayerBlendOpStateDifference.Create(self,LayeredBitmap.LayerUniqueId[index],AValue)
     else
       result := nil;
   end
@@ -401,33 +410,33 @@ end;
 
 procedure TImageState.SetLinearBlend(AValue: boolean);
 begin
-  if currentLayeredBitmap <> nil then
-    currentLayeredBitmap.LinearBlend := AValue;
+  if LayeredBitmap <> nil then
+    LayeredBitmap.LinearBlend := AValue;
 end;
 
 procedure TImageState.SetLayerBitmap(layer: integer; ABitmap: TBGRABitmap;
   AOwned: boolean);
 begin
-  if currentLayeredBitmap <> nil then
-    currentLayeredBitmap.SetLayerBitmap(layer,ABitmap,AOwned);
+  if LayeredBitmap <> nil then
+    LayeredBitmap.SetLayerBitmap(layer,ABitmap,AOwned);
 end;
 
 procedure TImageState.SetSize(AWidth, AHeight: integer);
 begin
-  if currentLayeredBitmap <> nil then
-    currentLayeredBitmap.SetSize(AWidth,AHeight);
+  if LayeredBitmap <> nil then
+    LayeredBitmap.SetSize(AWidth,AHeight);
 end;
 
 procedure TImageState.PrepareForRendering;
 begin
-  if currentLayeredBitmap <> nil then
-    currentLayeredBitmap.FreezeExceptOneLayer(SelectedImageLayerIndex);
+  if LayeredBitmap <> nil then
+    LayeredBitmap.FreezeExceptOneLayer(SelectedImageLayerIndex);
 end;
 
 function TImageState.ComputeFlatImageWithoutSelection(ASeparateXorMask: boolean): TBGRABitmap;
 begin
-  if currentLayeredBitmap <> nil then
-    result := currentLayeredBitmap.ComputeFlatImage(ASeparateXorMask)
+  if LayeredBitmap <> nil then
+    result := LayeredBitmap.ComputeFlatImage(ASeparateXorMask)
   else
     result := TBGRABitmap.Create(Width,Height);
 end;
@@ -436,32 +445,32 @@ procedure TImageState.Assign(AValue: TBGRABitmap; AOwned: boolean);
 var
   xorMask: TBGRABitmap;
 begin
-  if currentLayeredBitmap = nil then
-    currentLayeredBitmap := TBGRALayeredBitmap.Create;
+  if LayeredBitmap = nil then
+    SetLayeredBitmap(TBGRALayeredBitmap.Create);
 
-  currentLayeredBitmap.Clear;
-  currentLayeredBitmap.SetSize(AValue.Width,AValue.Height);
+  LayeredBitmap.Clear;
+  LayeredBitmap.SetSize(AValue.Width,AValue.Height);
   if AOwned then
   begin
-    currentLayeredBitmap.AddOwnedLayer(AValue);
+    LayeredBitmap.AddOwnedLayer(AValue);
     if Assigned(AValue.XorMask) then
     begin
       xorMask := TBGRABitmap.Create(AValue.XorMask);
       xorMask.AlphaFill(255);
       xorMask.ReplaceColor(BGRABlack,BGRAPixelTransparent);
-      currentLayeredBitmap.LayerName[currentLayeredBitmap.AddOwnedLayer(xorMask,boXor)] := 'Xor';
+      LayeredBitmap.LayerName[LayeredBitmap.AddOwnedLayer(xorMask,boXor)] := 'Xor';
       AValue.DiscardXorMask;
     end;
   end
   else
   begin
-    currentLayeredBitmap.AddLayer(AValue);
+    LayeredBitmap.AddLayer(AValue);
     if Assigned(AValue.XorMask) then
     begin
       xorMask := AValue.XorMask.Duplicate as TBGRABitmap;
       xorMask.AlphaFill(255);
       xorMask.ReplaceColor(BGRABlack,BGRAPixelTransparent);
-      currentLayeredBitmap.LayerName[currentLayeredBitmap.AddOwnedLayer(xorMask,boXor)] := 'Xor';
+      LayeredBitmap.LayerName[LayeredBitmap.AddOwnedLayer(xorMask,boXor)] := 'Xor';
     end;
   end;
   SelectedImageLayerIndex := 0;
@@ -471,10 +480,10 @@ procedure TImageState.Assign(AValue: TBGRALayeredBitmap; AOwned: boolean);
 begin
   if AOwned then
   begin
-    currentLayeredBitmap.Free;
-    currentLayeredBitmap := AValue;
+    LayeredBitmap.Free;
+    SetLayeredBitmap(AValue);
   end else
-    currentLayeredBitmap.Assign(AValue,true);
+    LayeredBitmap.Assign(AValue,true);
   if NbLayers > 0 then
   begin
     SelectedImageLayerIndex := 0
@@ -484,9 +493,12 @@ begin
 end;
 
 procedure TImageState.Assign(AValue: TImageState; AOwned: boolean);
+var
+  layered: TBGRALayeredBitmap;
 begin
-  Assign(AValue.currentLayeredBitmap, AOwned);
-  if AOwned then AValue.currentLayeredBitmap := nil;
+  layered := AValue.LayeredBitmap;
+  Assign(layered, AOwned);
+  if AOwned then AValue.SetLayeredBitmap(nil);
   BGRAReplace(FSelectionMask, AValue.SelectionMask);
   if AOwned then AValue.SelectionMask := nil;
   BGRAReplace(SelectionLayer, AValue.SelectionLayer);
@@ -518,7 +530,7 @@ end;
 function TImageState.AssignWithUndo(AValue: TBGRALayeredBitmap;
   AOwned: boolean; ASelectedLayerIndex: integer): TCustomImageDifference;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := nil
   else
     result := TAssignStateDifference.Create(self, AValue, AOwned, ASelectedLayerIndex);
@@ -528,7 +540,7 @@ function TImageState.AssignWithUndo(AValue: TBGRALayeredBitmap;
   AOwned: boolean; ASelectedLayerIndex: integer; ACurrentSelection: TBGRABitmap;
   ASelectionLayer: TBGRABitmap): TCustomImageDifference;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := nil
   else
     result := TAssignStateDifference.Create(self, AValue, AOwned, ASelectedLayerIndex, ACurrentSelection, ASelectionLayer);
@@ -536,13 +548,13 @@ end;
 
 function TImageState.AssignWithUndo(AState: TImageState; AOwned: boolean): TCustomImageDifference;
 begin
-  result := AssignWithUndo(AState.currentLayeredBitmap, AOwned, SelectedImageLayerIndex, AState.SelectionMask, AState.SelectionLayer);
+  result := AssignWithUndo(AState.LayeredBitmap, AOwned, SelectedImageLayerIndex, AState.SelectionMask, AState.SelectionLayer);
   if AOwned then AState.Free;
 end;
 
 function TImageState.GetUndoAfterAssign(ABackup: TImageState): TCustomImageDifference;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := nil
   else
     result := TAssignStateDifferenceAfter.Create(self, ABackup);
@@ -559,19 +571,19 @@ end;
 
 procedure TImageState.SaveToStream(AStream: TStream);
 begin
-  SaveLayersToStream(AStream, currentLayeredBitmap, SelectedImageLayerIndex, lzpRLE);
+  SaveLayersToStream(AStream, LayeredBitmap, SelectedImageLayerIndex, lzpRLE);
 end;
 
 procedure TImageState.SaveToStreamAs(AStream: TStream; AFormat: TBGRAImageFormat);
 begin
-  if currentLayeredBitmap <> nil then
-    currentLayeredBitmap.SaveToStreamAs(AStream, SuggestImageExtension(AFormat));
+  if LayeredBitmap <> nil then
+    LayeredBitmap.SaveToStreamAs(AStream, SuggestImageExtension(AFormat));
 end;
 
 procedure TImageState.SaveOriginalToStream(AStream: TStream);
 begin
-  currentLayeredBitmap.SaveOriginalToStream(
-    currentLayeredBitmap.LayerOriginalGuid[SelectedImageLayerIndex],
+  LayeredBitmap.SaveOriginalToStream(
+    LayeredBitmap.LayerOriginalGuid[SelectedImageLayerIndex],
     AStream);
 end;
 
@@ -579,11 +591,11 @@ procedure TImageState.SaveToFile(AFilenameUTF8: string);
 var
   s: TStream;
 begin
-  if currentLayeredBitmap <> nil then
+  if LayeredBitmap <> nil then
   begin
     s := FileManager.CreateFileStream(AFilenameUTF8, fmCreate);
     try
-      currentLayeredBitmap.SaveToStream(s);
+      LayeredBitmap.SaveToStream(s);
     finally
       s.Free;
     end;
@@ -593,10 +605,10 @@ end;
 function TImageState.AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation): TCustomImageDifference;
 begin
   //no undo if no previous image
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
   begin
-    currentLayeredBitmap := TBGRALayeredBitmap.Create;
-    currentLayeredBitmap.AddOwnedLayer(ALayer, ABlendOp);
+    SetLayeredBitmap(TBGRALayeredBitmap.Create);
+    LayeredBitmap.AddOwnedLayer(ALayer, ABlendOp);
     result := nil;
   end else
   begin
@@ -609,10 +621,10 @@ function TImageState.AddNewLayer(AOriginal: TBGRALayerCustomOriginal;
   AName: string; ABlendOp: TBlendOperation): TCustomImageDifference;
 begin
   //no undo if no previous image
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
   begin
-    currentLayeredBitmap := TBGRALayeredBitmap.Create;
-    currentLayeredBitmap.AddLayerFromOwnedOriginal(AOriginal, ABlendOp);
+    SetLayeredBitmap(TBGRALayeredBitmap.Create);
+    LayeredBitmap.AddLayerFromOwnedOriginal(AOriginal, ABlendOp);
     result := nil;
   end else
     result := TAddLayerFromOwnedOriginalStateDifference.Create(self, AOriginal, AName, ABlendOp);
@@ -620,7 +632,7 @@ end;
 
 function TImageState.DuplicateLayer: TCustomImageDifference;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := nil
   else
     result := TDuplicateLayerStateDifference.Create(self);
@@ -628,7 +640,7 @@ end;
 
 function TImageState.MergerLayerOver(ALayerOverIndex: integer): TCustomImageDifference;
 begin
-  if (currentLayeredBitmap = nil) or (ALayerOverIndex <= 0) or (ALayerOverIndex >= currentLayeredBitmap.NbLayers) then
+  if (LayeredBitmap = nil) or (ALayerOverIndex <= 0) or (ALayerOverIndex >= LayeredBitmap.NbLayers) then
     result := nil
   else
     result := TMergeLayerOverStateDifference.Create(self, ALayerOverIndex);
@@ -636,7 +648,7 @@ end;
 
 function TImageState.MoveLayer(AFromIndex, AToIndex: integer): TCustomImageDifference;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := nil
   else
     result := TMoveLayerStateDifference.Create(self, AFromIndex, AToIndex);
@@ -644,7 +656,7 @@ end;
 
 function TImageState.RemoveLayer: TCustomImageDifference;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := nil
   else
   begin
@@ -660,26 +672,26 @@ var
   prevOriginalData: TStream;
   prevOriginalGuid: TGuid;
 begin
-  prevOriginalGuid := currentLayeredBitmap.LayerOriginalGuid[SelectedImageLayerIndex];
+  prevOriginalGuid := LayeredBitmap.LayerOriginalGuid[SelectedImageLayerIndex];
   if prevOriginalGuid=GUID_NULL then exit;
-  prevOriginalMatrix:= currentLayeredBitmap.LayerOriginalMatrix[SelectedImageLayerIndex];
-  currentLayeredBitmap.LayerOriginalGuid[SelectedImageLayerIndex] := GUID_NULL;
-  currentLayeredBitmap.LayerOriginalMatrix[SelectedImageLayerIndex] := AffineMatrixIdentity;
+  prevOriginalMatrix:= LayeredBitmap.LayerOriginalMatrix[SelectedImageLayerIndex];
+  LayeredBitmap.LayerOriginalGuid[SelectedImageLayerIndex] := GUID_NULL;
+  LayeredBitmap.LayerOriginalMatrix[SelectedImageLayerIndex] := AffineMatrixIdentity;
   if ACreateUndo then
   begin
     prevOriginalData:= TMemoryStream.Create;
-    prevOriginal := currentLayeredBitmap.Original[currentLayeredBitmap.IndexOfOriginal(prevOriginalGuid)];
+    prevOriginal := LayeredBitmap.Original[LayeredBitmap.IndexOfOriginal(prevOriginalGuid)];
     prevOriginal.SaveToStream(prevOriginalData);
     result := TImageLayerStateDifference.Create(self, nil,false,nil,false,nil,false,prevOriginalData,prevOriginalMatrix);
   end
   else
     result := nil;
-  currentLayeredBitmap.RemoveUnusedOriginals;
+  LayeredBitmap.RemoveUnusedOriginals;
 end;
 
 function TImageState.HorizontalFlip: TCustomImageDifference;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := nil
   else
     result := TInversibleStateDifference.Create(self, iaHorizontalFlip);
@@ -687,7 +699,7 @@ end;
 
 function TImageState.HorizontalFlip(ALayerIndex: integer): TCustomImageDifference;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := nil
   else
     result := TInversibleStateDifference.Create(self, iaHorizontalFlipLayer, ALayerIndex);
@@ -695,7 +707,7 @@ end;
 
 function TImageState.VerticalFlip: TCustomImageDifference;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := nil
   else
   result := TInversibleStateDifference.Create(self, iaVerticalFlip);
@@ -703,7 +715,7 @@ end;
 
 function TImageState.VerticalFlip(ALayerIndex: integer): TCustomImageDifference;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := nil
   else
     result := TInversibleStateDifference.Create(self, iaVerticalFlipLayer, ALayerIndex);
@@ -715,7 +727,7 @@ var
   newLayer: TBGRABitmap;
   idxLayer, i: Integer;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := nil
   else
   begin
@@ -742,7 +754,7 @@ var
   newLayer: TBGRABitmap;
   idxLayer, i: Integer;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := nil
   else
   begin
@@ -783,7 +795,7 @@ end;
 
 function TImageState.RotateCW: TCustomImageDifference;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := nil
   else
   result := TInversibleStateDifference.Create(self, iaRotateCW);
@@ -791,7 +803,7 @@ end;
 
 function TImageState.RotateCCW: TCustomImageDifference;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := nil
   else
   result := TInversibleStateDifference.Create(self, iaRotateCCW);
@@ -799,7 +811,13 @@ end;
 
 function TImageState.ComputeLayerOffsetDifference(AOffsetX, AOffsetY: integer): TCustomImageDifference;
 begin
-  result := TApplyLayerOffsetStateDifference.Create(self, currentLayeredBitmap.LayerUniqueId[SelectedImageLayerIndex], AOffsetX,AOffsetY, false);
+  result := TApplyLayerOffsetStateDifference.Create(self, LayeredBitmap.LayerUniqueId[SelectedImageLayerIndex], AOffsetX,AOffsetY, false);
+end;
+
+function TImageState.ComputeLayerMatrixDifference(AIndex: integer; APrevMatrix,
+  ANewMatrix: TAffineMatrix): TCustomImageDifference;
+begin
+  result := TSetLayerMatrixDifference.Create(self, LayeredBitmap.LayerUniqueId[AIndex], APrevMatrix,ANewMatrix);
 end;
 
 function TImageState.ComputeLayerDifference(APreviousImage: TBGRABitmap;
@@ -808,7 +826,7 @@ function TImageState.ComputeLayerDifference(APreviousImage: TBGRABitmap;
   APreviousSelectionLayerDefined: boolean; APreviousLayerOriginalData: TStream;
   APreviousLayerOriginalMatrix: TAffineMatrix): TCustomImageDifference;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := nil
   else
     result := TImageLayerStateDifference.Create(self, APreviousImage, APreviousImageDefined,
@@ -822,7 +840,7 @@ function TImageState.ComputeLayerDifference(APreviousImage: TBGRABitmap;
   APreviousSelectionLayerChangeRect: TRect; APreviousLayerOriginalData: TStream;
   APreviousLayerOriginalMatrix: TAffineMatrix): TCustomImageDifference;
 begin
-  if currentLayeredBitmap = nil then
+  if LayeredBitmap = nil then
     result := nil
   else
     result := TImageLayerStateDifference.Create(self, APreviousImage, APreviousImageChangeRect,
@@ -832,29 +850,29 @@ end;
 
 function TImageState.GetLayeredBitmapCopy: TBGRALayeredBitmap;
 begin
-  result := currentLayeredBitmap.Duplicate;
+  result := LayeredBitmap.Duplicate;
 end;
 
 function TImageState.ComputeFlatImage(AFromLayer, AToLayer: integer; ASeparateXorMask: boolean): TBGRABitmap;
 begin
-  result := currentLayeredBitmap.ComputeFlatImage(AFromLayer,AToLayer,ASeparateXorMask);
+  result := LayeredBitmap.ComputeFlatImage(AFromLayer,AToLayer,ASeparateXorMask);
 end;
 
 function TImageState.ComputeFlatImage(ARect: TRect; AFromLayer,
   AToLayer: integer; ASeparateXorMask: boolean): TBGRABitmap;
 begin
-  result := currentLayeredBitmap.ComputeFlatImage(ARect,AFromLayer,AToLayer,ASeparateXorMask);
+  result := LayeredBitmap.ComputeFlatImage(ARect,AFromLayer,AToLayer,ASeparateXorMask);
 end;
 
 procedure TImageState.DrawLayers(ADest: TBGRABitmap; X, Y: Integer; AIconCursor: boolean);
 begin
-  if currentLayeredBitmap <> nil then
-    currentLayeredBitmap.Draw(ADest,X,Y, AIconCursor);
+  if LayeredBitmap <> nil then
+    LayeredBitmap.Draw(ADest,X,Y, AIconCursor);
 end;
 
 constructor TImageState.Create;
 begin
-  currentLayeredBitmap := nil;
+  FLayeredBitmap := nil;
   SelectionMask := nil;
   SelectionLayer := nil;
   selectedLayerId := -1;
@@ -862,7 +880,7 @@ end;
 
 destructor TImageState.Destroy;
 begin
-  currentLayeredBitmap.Free;
+  LayeredBitmap.Free;
   SelectionMask.free;
   SelectionLayer.Free;
   inherited Destroy;
@@ -878,10 +896,10 @@ begin
     result := false;
     if selectedLayerId <> -1 then //compare active layer (where modifications are expected to be)
     begin
-      selectedLayerIndex := currentLayeredBitmap.GetLayerIndexFromId(selectedLayerId);
-      otherSelectedLayerIndex := other.currentLayeredBitmap.GetLayerIndexFromId(selectedLayerId);
+      selectedLayerIndex := LayeredBitmap.GetLayerIndexFromId(selectedLayerId);
+      otherSelectedLayerIndex := other.LayeredBitmap.GetLayerIndexFromId(selectedLayerId);
       if (selectedLayerIndex <> -1) and (otherSelectedLayerIndex <> -1) then
-        if not other.currentLayeredBitmap.LayerBitmap[otherSelectedLayerIndex].Equals(currentLayeredBitmap.LayerBitmap[selectedLayerIndex]) then exit;
+        if not other.LayeredBitmap.LayerBitmap[otherSelectedLayerIndex].Equals(LayeredBitmap.LayerBitmap[selectedLayerIndex]) then exit;
     end;
     if (other.SelectionMask = nil) and (SelectionMask <> nil) and not SelectionMask.Equals(BGRABlack) then exit;
     if (other.SelectionMask <> nil) and (SelectionMask = nil) and not other.SelectionMask.Equals(BGRABlack) then exit;
@@ -910,7 +928,7 @@ function TImageState.Duplicate: TState;
 var copy: TImageState;
 begin
   copy := TImageState.Create;
-  copy.currentLayeredBitmap := DuplicateLayeredBitmap(currentLayeredBitmap);
+  copy.SetLayeredBitmap(DuplicateLayeredBitmap(LayeredBitmap));
   copy.SelectionMask := DuplicateBitmap(SelectionMask);
   copy.SelectionLayer := DuplicateBitmap(SelectionLayer);
   copy.selectedLayerId := selectedLayerId;
@@ -920,7 +938,7 @@ end;
 procedure TImageState.Resample(AWidth, AHeight: integer;
   AQuality: TResampleMode; AFilter: TResampleFilter);
 begin
-  currentLayeredBitmap.Resample(AWidth,AHeight,AQuality,AFilter);
+  LayeredBitmap.Resample(AWidth,AHeight,AQuality,AFilter);
   if SelectionMask <> nil then
   begin
     SelectionMask.ResampleFilter := AFilter;
