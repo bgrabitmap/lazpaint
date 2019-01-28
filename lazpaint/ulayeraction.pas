@@ -46,6 +46,7 @@ type
     procedure QuerySelection;
     procedure RemoveSelection;
     procedure EraseSelectionInBitmap;
+    procedure MergeWithSelection(AApplyMask: boolean = true);
     procedure ReleaseSelection;
     procedure RetrieveSelection;
     function RetrieveSelectionIfLayerEmpty(removeFromBitmap: boolean = false): boolean;
@@ -325,25 +326,56 @@ end;
 procedure TLayerAction.QuerySelection;
 begin
   NeedSelectionMaskBackup;
-  FImage.QuerySelectionMask;
+  CurrentState.QuerySelectionMask;
 end;
 
 procedure TLayerAction.RemoveSelection;
+var bounds: TRect;
 begin
   if not FImage.SelectionMaskEmpty or (FImage.SelectionLayerReadonly <> nil) then
   begin
     NeedSelectionMaskBackup;
     NeedSelectionLayerBackup;
-    FImage.RemoveSelection;
+    bounds := CurrentState.GetSelectionMaskBounds;
+    CurrentState.RemoveSelection;
+    FImage.SelectionMayChange(bounds);
   end;
 end;
 
 procedure TLayerAction.EraseSelectionInBitmap;
+var offs: TPoint;
+  r: TRect;
 begin
-  if not FImage.SelectionMaskEmpty then
+  if not CurrentState.SelectionMaskEmpty then
   begin
     NeedSelectedLayerBackup;
-    FImage.EraseSelectionInBitmap;
+    offs := CurrentState.LayerOffset[CurrentState.SelectedImageLayerIndex];
+    r := CurrentState.GetSelectionMaskBounds;
+    SubstractMask(GetSelectedImageLayer,-offs.X+r.left,-offs.Y+r.top,CurrentState.SelectionMask,r);
+    OffsetRect(r,-offs.x,-offs.y);
+    NotifyChange(GetSelectedImageLayer,r);
+  end;
+end;
+
+procedure TLayerAction.MergeWithSelection(AApplyMask: boolean);
+var offs: TPoint;
+  sourceRect,destRect: TRect;
+begin
+  if not CurrentState.SelectionLayerEmpty and not (AApplyMask and CurrentState.SelectionMaskEmpty) then
+  begin
+    sourceRect := CurrentState.GetSelectionLayerBounds;
+    if AApplyMask then
+    begin
+      CurrentState.SelectionLayer.ApplyMask(CurrentState.SelectionMask,CurrentState.GetSelectionLayerBounds);
+      IntersectRect(sourceRect,sourceRect,CurrentState.GetSelectionMaskBounds);
+      NotifyChange(CurrentState.SelectionLayer,CurrentState.GetSelectionLayerBounds);
+    end;
+    offs := CurrentState.LayerOffset[CurrentState.SelectedImageLayerIndex];
+    destRect := sourceRect;
+    OffsetRect(destRect, -offs.x,-offs.y);
+    GetSelectedImageLayer.PutImagePart(destRect.left,destRect.top,CurrentState.SelectionLayer,sourceRect,dmDrawWithTransparency);
+    NotifyChange(GetSelectedImageLayer,destRect);
+    CurrentState.ReplaceSelectionLayer(nil,true);
   end;
 end;
 
@@ -362,32 +394,55 @@ begin
       NeedSelectionLayerBackup;
       NotifyChange(CurrentState.SelectionLayer, bounds);
     end;
-    FImage.ReleaseSelection;
+
+    ApplySelectionMask;
+    CurrentState.SelectionMask.Free;
+    CurrentState.SelectionMask := nil;
+    ApplySelectionTransform(False);
+    MergeWithSelection(False);
   end;
 end;
 
 procedure TLayerAction.RetrieveSelection;
+var temp : TBGRABitmap;
+  offs: TPoint;
+  r, maskBounds: TRect;
 begin
   if not FImage.SelectionMaskEmpty then
   begin
     NeedSelectedLayerBackup;
     NeedSelectionLayerBackup;
-    FImage.RetrieveSelection;
+    MergeWithSelection;
+    offs := CurrentState.LayerOffset[CurrentState.SelectedImageLayerIndex];
+    maskBounds := CurrentState.GetSelectionMaskBounds;
+    r := maskBounds;
+    OffsetRect(r, -offs.x, -offs.y);
+    IntersectRect(r, r, rect(0,0,GetSelectedImageLayer.Width,GetSelectedImageLayer.Height));
+    temp := TBGRABitmap.Create(CurrentState.Width,CurrentState.Height);
+    temp.PutImagePart(r.left+offs.x,r.top+offs.y,GetSelectedImageLayer,r,dmSet);
+    temp.ApplyMask(CurrentState.SelectionMask,maskBounds);
+    BGRAReplace(CurrentState.SelectionLayer,temp);
+    NotifyChange(CurrentState.SelectionLayer,maskBounds);
   end;
 end;
 
-function TLayerAction.RetrieveSelectionIfLayerEmpty(removeFromBitmap: boolean
-  ): boolean;
+function TLayerAction.RetrieveSelectionIfLayerEmpty(removeFromBitmap: boolean): boolean;
 begin
   NeedSelectedLayerBackup;
   NeedSelectionLayerBackup;
-  result := FImage.RetrieveSelectionIfLayerEmpty(removeFromBitmap);
+  if CurrentState.SelectionLayerEmpty then
+  begin
+    RetrieveSelection;
+    if removeFromBitmap then EraseSelectionInBitmap;
+    result := true;
+  end
+  else result := false;
 end;
 
 function TLayerAction.GetOrCreateSelectionLayer: TBGRABitmap;
 begin
   NeedSelectionLayerBackup;
-  result := FImage.GetOrCreateSelectionLayer;
+  result := CurrentState.GetOrCreateSelectionLayer;
 end;
 
 function TLayerAction.GetSelectionLayerIfExists: TBGRABitmap;
@@ -409,7 +464,7 @@ begin
     if dest <> nil then NotifyChange(dest, rect(0,0,dest.Width,dest.Height));
     if bmp <> nil then NotifyChange(bmp, rect(0,0,bmp.Width,bmp.Height));
   end;
-  FImage.ReplaceSelectionLayer(bmp,AOwned);
+  CurrentState.ReplaceSelectionLayer(bmp,AOwned);
 end;
 
 procedure TLayerAction.ApplySelectionTransform(ApplyToMask: boolean);
@@ -455,13 +510,13 @@ begin
          IsRectEmpty(FSelectionLayerChangedArea) then exit;
     if FBackupSelectionLayerDefined then
     begin
-      FImage.DiscardSelectionLayerBounds;
-      if FImage.SelectionLayerIsEmpty then
-        FImage.ReplaceSelectionLayer(nil,True);
+      CurrentState.DiscardSelectionLayerBounds;
+      if CurrentState.SelectionLayerEmpty then
+        CurrentState.ReplaceSelectionLayer(nil,True);
     end;
     if FBackupSelectionDefined then
     begin
-      FImage.DiscardSelectionMaskBounds;
+      CurrentState.DiscardSelectionMaskBounds;
       if FImage.SelectionMaskEmpty then
         CurrentState.RemoveSelection;
     end;
@@ -507,7 +562,7 @@ begin
       begin
         if (FBackupSelectionLayer = nil) and (CurrentState.SelectionLayer <> nil) then
         begin
-          if not FImage.SelectionLayerIsEmpty then
+          if not CurrentState.SelectionLayerEmpty then
             FBackupSelectionLayer := CurrentState.SelectionLayer.Duplicate as TBGRABitmap;
         end else
         if Assigned(FBackupSelectionLayer) then

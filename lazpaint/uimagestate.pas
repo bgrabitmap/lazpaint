@@ -15,6 +15,9 @@ type
   private
     FLayeredBitmap: TBGRALayeredBitmap;
     FSelectionMask: TBGRABitmap;
+    FLastSelectionMaskBoundsIsDefined,
+    FLastSelectionLayerBoundsIsDefined: boolean;
+    FLastSelectionMaskBounds, FLastSelectionLayerBounds: TRect;
     function GetBlendOp(Index: integer): TBlendOperation;
     function GetSelectedImageLayer: TBGRABitmap;
     function GetCurrentLayerIndex: integer;
@@ -43,22 +46,52 @@ type
     SelectionLayer: TBGRABitmap;
     selectedLayerId: integer;
     filenameUTF8: string;
+
+    // generic state functions
     constructor Create;
     destructor Destroy; override;
     function Equals(Obj: TObject): boolean; override;
     procedure ApplyDifference(ADifference: TStateDifference); override;
     procedure ReverseDifference(ADifference: TStateDifference); override;
     function Duplicate: TState; override;
-    procedure Resample(AWidth,AHeight: integer; AQuality: TResampleMode; AFilter: TResampleFilter);
-    procedure SetLayerBitmap(layer: integer; ABitmap: TBGRABitmap; AOwned: boolean);
+
+    // whole image
     procedure SetSize(AWidth,AHeight: integer);
-    procedure PrepareForRendering;
-    function ComputeFlatImageWithoutSelection(ASeparateXorMask: boolean): TBGRABitmap;
     procedure Assign(AValue: TBGRABitmap; AOwned: boolean);
     procedure Assign(AValue: TBGRALayeredBitmap; AOwned: boolean);
     procedure Assign(AValue: TImageState; AOwned: boolean);
-    procedure RemoveSelection;
+
+    function RotateCW: TCustomImageDifference;
+    function RotateCCW: TCustomImageDifference;
+    function HorizontalFlip: TCustomImageDifference; overload;
+    function VerticalFlip: TCustomImageDifference; overload;
+    procedure Resample(AWidth,AHeight: integer; AQuality: TResampleMode; AFilter: TResampleFilter);
+
+    // layer
+    procedure SetLayerBitmap(layer: integer; ABitmap: TBGRABitmap; AOwned: boolean);
+    function HorizontalFlip(ALayerIndex: integer): TCustomImageDifference; overload;
+    function VerticalFlip(ALayerIndex: integer): TCustomImageDifference; overload;
+
+    // selection mask
+    procedure QuerySelectionMask;
     procedure ReplaceSelection(ASelectionMask, ASelectionLayer: TBGRABitmap);
+    procedure RemoveSelection;
+
+    procedure DiscardSelectionMaskBounds;
+    function GetSelectionMaskBounds: TRect;
+    function SelectionMaskEmpty: boolean;
+    function SelectionMaskEmptyComputed: boolean;
+
+    // selection layer
+    function GetOrCreateSelectionLayer: TBGRABitmap;
+    procedure ReplaceSelectionLayer(bmp: TBGRABitmap; AOwned: boolean);
+
+    procedure DiscardSelectionLayerBounds;
+    function GetSelectionLayerBounds: TRect;
+    function SelectionLayerEmpty: boolean;
+
+    procedure PrepareForRendering;
+    function ComputeFlatImageWithoutSelection(ASeparateXorMask: boolean): TBGRABitmap;
     function AssignWithUndo(AValue: TBGRALayeredBitmap; AOwned: boolean; ASelectedLayerIndex: integer): TCustomImageDifference;
     function AssignWithUndo(AValue: TBGRALayeredBitmap; AOwned: boolean; ASelectedLayerIndex: integer; ACurrentSelection: TBGRABitmap; ASelectionLayer:TBGRABitmap): TCustomImageDifference;
     function AssignWithUndo(AState: TImageState; AOwned: boolean): TCustomImageDifference;
@@ -75,15 +108,9 @@ type
     function MoveLayer(AFromIndex,AToIndex: integer): TCustomImageDifference;
     function RemoveLayer: TCustomImageDifference;
     function DiscardOriginal(ACreateUndo: boolean): TCustomImageDifference;
-    function HorizontalFlip: TCustomImageDifference; overload;
-    function HorizontalFlip(ALayerIndex: integer): TCustomImageDifference; overload;
-    function VerticalFlip: TCustomImageDifference; overload;
-    function VerticalFlip(ALayerIndex: integer): TCustomImageDifference; overload;
     function SwapRedBlue: TCustomImageDifference;
     function LinearNegative: TCustomImageDifference;
     function Negative: TCustomImageDifference;
-    function RotateCW: TCustomImageDifference;
-    function RotateCCW: TCustomImageDifference;
     function ComputeLayerOffsetDifference(AOffsetX, AOffsetY: integer): TCustomImageDifference;
     function ComputeLayerMatrixDifference(AIndex: integer; APrevMatrix, ANewMatrix: TAffineMatrix): TCustomImageDifference;
     function ComputeLayerDifference(APreviousImage: TBGRABitmap; APreviousImageDefined: boolean;
@@ -130,7 +157,8 @@ type
 
 implementation
 
-uses BGRAStreamLayers, UImageDiff, BGRALzpCommon, UFileSystem, BGRATransform;
+uses BGRAStreamLayers, UImageDiff, BGRALzpCommon, UFileSystem, BGRATransform,
+  UResourceStrings;
 
 { TImageState }
 
@@ -419,6 +447,70 @@ procedure TImageState.SetLayerBitmap(layer: integer; ABitmap: TBGRABitmap;
 begin
   if LayeredBitmap <> nil then
     LayeredBitmap.SetLayerBitmap(layer,ABitmap,AOwned);
+end;
+
+function TImageState.GetOrCreateSelectionLayer: TBGRABitmap;
+begin
+    if SelectionMask = nil then
+      raise Exception.Create(rsNoActiveSelection) else
+    begin
+      if SelectionLayer = nil then
+      begin
+        SelectionLayer := TBGRABitmap.Create(Width,Height);
+        FLastSelectionLayerBounds := EmptyRect;
+        FLastSelectionLayerBoundsIsDefined := true;
+      end;
+      result := SelectionLayer;
+    end;
+end;
+
+procedure TImageState.ReplaceSelectionLayer(bmp: TBGRABitmap; AOwned: boolean);
+begin
+  if (SelectionMask <> nil) then
+  begin
+    if AOwned or (bmp= nil) then
+    begin
+      if (SelectionLayer <> nil) and (SelectionLayer <> bmp) then FreeAndNil(SelectionLayer);
+      SelectionLayer := bmp;
+    end
+    else
+    begin
+      if SelectionLayer <> nil then FreeAndNil(SelectionLayer);
+      SelectionLayer := bmp.Duplicate(True) as TBGRABitmap;
+    end;
+  end else
+  begin
+    if (bmp = nil) then FreeAndNil(SelectionLayer);
+    if AOwned and (bmp <>nil) then bmp.Free; //ignore if there is no active selection
+  end;
+end;
+
+procedure TImageState.DiscardSelectionLayerBounds;
+begin
+  FLastSelectionLayerBoundsIsDefined := false;
+end;
+
+function TImageState.GetSelectionLayerBounds: TRect;
+begin
+  if FLastSelectionLayerBoundsIsDefined then
+    result := FLastSelectionLayerBounds
+  else
+  if SelectionLayer = nil then
+  begin
+    result := EmptyRect;
+    FLastSelectionLayerBounds := result;
+    FLastSelectionLayerBoundsIsDefined := true;
+  end else
+  begin
+    result := SelectionLayer.GetImageBounds;
+    FLastSelectionLayerBounds := result;
+    FLastSelectionLayerBoundsIsDefined := true;
+  end;
+end;
+
+function TImageState.SelectionLayerEmpty: boolean;
+begin
+  result := IsRectEmpty(GetSelectionLayerBounds);
 end;
 
 procedure TImageState.SetSize(AWidth, AHeight: integer);
@@ -721,6 +813,49 @@ begin
     result := TInversibleStateDifference.Create(self, iaVerticalFlipLayer, ALayerIndex);
 end;
 
+procedure TImageState.QuerySelectionMask;
+begin
+  if SelectionMask = nil then
+  begin
+    SelectionMask := TBGRABitmap.Create(Width,Height, BGRABlack);
+    FLastSelectionMaskBoundsIsDefined := true;
+    FLastSelectionMaskBounds := EmptyRect;
+  end;
+end;
+
+procedure TImageState.DiscardSelectionMaskBounds;
+begin
+  FLastSelectionMaskBoundsIsDefined := false;
+end;
+
+function TImageState.GetSelectionMaskBounds: TRect;
+begin
+  if FLastSelectionMaskBoundsIsDefined then
+    result := FLastSelectionMaskBounds
+  else
+  if SelectionMask = nil then
+  begin
+    result := EmptyRect;
+    FLastSelectionMaskBounds := result;
+    FLastSelectionMaskBoundsIsDefined := true;
+  end else
+  begin
+    result := SelectionMask.GetImageBounds(cGreen);
+    FLastSelectionMaskBounds := result;
+    FLastSelectionMaskBoundsIsDefined := true;
+  end;
+end;
+
+function TImageState.SelectionMaskEmpty: boolean;
+begin
+  result := IsRectEmpty(GetSelectionMaskBounds);
+end;
+
+function TImageState.SelectionMaskEmptyComputed: boolean;
+begin
+  result := FLastSelectionMaskBoundsIsDefined;
+end;
+
 function TImageState.SwapRedBlue: TCustomImageDifference;
 var
   newImg: TBGRALayeredBitmap;
@@ -876,6 +1011,8 @@ begin
   SelectionMask := nil;
   SelectionLayer := nil;
   selectedLayerId := -1;
+  FLastSelectionMaskBoundsIsDefined := false;
+  FLastSelectionLayerBoundsIsDefined := false;
 end;
 
 destructor TImageState.Destroy;

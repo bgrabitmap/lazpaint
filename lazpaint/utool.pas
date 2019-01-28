@@ -1112,7 +1112,7 @@ begin
     showTexture:= true;
 
   if not IsSelectingTool then
-    Image.ReleaseEmptySelectionMask;
+    Image.ReleaseEmptySelection;
 
   SetControlsVisible(PenWidthControls, showPenwidth);
   SetControlsVisible(SplineStyleControls, showSplineStyle);
