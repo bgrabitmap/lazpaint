@@ -841,6 +841,7 @@ var
   r: TRect;
   xb,yb,w,offset: PtrUInt;
 begin
+  if ADest = nil then raise exception.Create('Unexpected nil reference');
   r := FChangeRect;
   w := FChangeRect.Right-FChangeRect.Left;
   if not IntersectRect(r, r,rect(0,0,ADest.Width,ADest.Height)) then exit;

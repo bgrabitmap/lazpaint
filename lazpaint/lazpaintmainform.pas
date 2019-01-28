@@ -2654,7 +2654,10 @@ begin
                     newTexture := image.SelectionLayerReadonly.Duplicate as TBGRABitmap;
                     newTexture.ApplyMask(image.SelectionMaskReadonly, image.SelectionLayerBounds);
                     if newTexture.Empty then
-                      MessagePopup(rsNothingToBeRetrieved,2000)
+                    begin
+                      newTexture.Free;
+                      MessagePopup(rsNothingToBeRetrieved,2000);
+                    end
                     else
                     begin
                       LayerAction := nil;
