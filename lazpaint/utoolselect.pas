@@ -650,9 +650,9 @@ begin
   end;
   if rightBtn then penColor := BGRABlack else penColor := BGRAWhite;
   Manager.Image.CurrentLayerReadOnly.ParallelFloodFill(pt.X,pt.Y,toolDest,penColor,fmDrawWithTransparency,Manager.ToolTolerance);
-  Manager.Image.SelectionMaskMayChangeCompletely;
+  result := rect(0,0,toolDest.Width,toolDest.Height);
+  Action.NotifyChange(toolDest, result);
   ValidateAction;
-  result := rect(0,0,Manager.Image.Width,Manager.Image.Height);
 end;
 
 { TToolSelectPoly }
