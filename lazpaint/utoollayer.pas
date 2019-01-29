@@ -300,7 +300,7 @@ begin
     if not FStartLayerOffsetDefined then
     begin
       FStartLayerOffsetDefined := true;
-      idx := Manager.Image.currentImageLayerIndex;
+      idx := Manager.Image.CurrentLayerIndex;
       NeedLayerBounds;
       FStartLayerOffset := Manager.Image.LayerOffset[idx];
       FStartLayerMatrix := Manager.Image.LayerOriginalMatrix[idx];
@@ -315,7 +315,7 @@ var idx: integer;
 begin
   if handMoving and ((handOrigin.X <> pt.X) or (handOrigin.Y <> pt.Y)) then
   begin
-    idx := Manager.Image.currentImageLayerIndex;
+    idx := Manager.Image.CurrentLayerIndex;
     if UseOriginal then
     begin
       Manager.Image.LayerOriginalMatrix[idx] :=
@@ -345,15 +345,15 @@ end;
 function TToolMoveLayer.UseOriginal: boolean;
 begin
   with Manager.Image do
-    result := LayerOriginalDefined[currentImageLayerIndex] and
-              LayerOriginalKnown[currentImageLayerIndex];
+    result := LayerOriginalDefined[CurrentLayerIndex] and
+              LayerOriginalKnown[CurrentLayerIndex];
 end;
 
 procedure TToolMoveLayer.NeedLayerBounds;
 var
   idx: Integer;
 begin
-  idx := Manager.Image.currentImageLayerIndex;
+  idx := Manager.Image.CurrentLayerIndex;
   if not FLayerBoundsDefined then
   begin
     if UseOriginal then
@@ -368,7 +368,7 @@ end;
 
 function TToolMoveLayer.GetToolDrawingLayer: TBGRABitmap;
 begin
-  Result:= Manager.Image.SelectedImageLayerReadOnly;   //do not create a selection layer
+  Result:= Manager.Image.CurrentLayerReadOnly;   //do not create a selection layer
 end;
 
 function TToolMoveLayer.ToolUp: TRect;
@@ -390,7 +390,7 @@ begin
   begin
     if FStartLayerOffsetDefined then
     begin
-      idx := Manager.Image.currentImageLayerIndex;
+      idx := Manager.Image.CurrentLayerIndex;
       if UseOriginal then
         Manager.Image.LayerOriginalMatrix[idx] := FStartLayerMatrix
       else
@@ -412,7 +412,7 @@ var pt1,pt2:TPoint;
   penWidth,i,idx: integer;
   m: BGRABitmapTypes.TAffineMatrix;
 begin
-  idx := Manager.Image.currentImageLayerIndex;
+  idx := Manager.Image.CurrentLayerIndex;
   NeedLayerBounds;
 
   if UseOriginal then

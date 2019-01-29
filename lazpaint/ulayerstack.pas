@@ -322,14 +322,14 @@ begin
   if i < LazPaintInstance.Image.NbLayers then
   begin
     if not LazPaintInstance.Image.SelectionLayerIsEmpty and
-        (i <> LazPaintInstance.Image.currentImageLayerIndex) then
+        (i <> LazPaintInstance.Image.CurrentLayerIndex) then
     begin
       topmostInfo := LazPaintInstance.HideTopmost;
       res := MessageDlg(rsTransferSelectionToOtherLayer,mtConfirmation,[mbOk,mbCancel],0);
       LazPaintInstance.ShowTopmost(topmostInfo);
       if res = mrOk then
       begin
-        if LazPaintInstance.Image.SelectImageLayerByIndex(i) then
+        if LazPaintInstance.Image.SetCurrentLayerByIndex(i) then
         begin
           renaming := false;
           BGRALayerStack.RedrawBitmap;
@@ -337,7 +337,7 @@ begin
       end;
       exit;
     end;
-    if LazPaintInstance.Image.SelectImageLayerByIndex(i) then
+    if LazPaintInstance.Image.SetCurrentLayerByIndex(i) then
     begin
       renaming := false;
       movingItemStart := true;
@@ -369,7 +369,7 @@ begin
       str := BlendOperationStr[BlendOperation[i]];
       if blendOps.IndexOf(str) = -1 then
         blendOps.Add(str);
-      if i = LazPaintInstance.Image.currentImageLayerIndex then
+      if i = LazPaintInstance.Image.CurrentLayerIndex then
         selectedStr := str;
     end;
   if selectedStr = BlendOperationStr[boTransparent] then
@@ -482,7 +482,7 @@ begin
   if ScrollStackItemIntoView then
   begin
     ScrollPos.X := 0;
-    ScrollPos.Y := (LazPaintInstance.Image.NbLayers-1-LazPaintInstance.Image.currentImageLayerIndex)*LayerRectHeight;
+    ScrollPos.Y := (LazPaintInstance.Image.NbLayers-1-LazPaintInstance.Image.CurrentLayerIndex)*LayerRectHeight;
     ScrollStackItemIntoView := false;
   end;
 
@@ -564,7 +564,7 @@ begin
     begin
       with LazPaintInstance.Image do
       begin
-        if i = currentImageLayerIndex then
+        if i = CurrentLayerIndex then
         begin
           Bitmap.FillRect(layerPos.X,layerPos.Y,layerPos.X+StackWidth,layerPos.Y+LayerRectHeight,ColorToBGRA(ColorToRGB(clHighlight)),dmSet);
           lSelected:= true;
@@ -718,20 +718,20 @@ var blendOp: TBlendOperation;
 begin
   blendOp := boTransparent;
   topmostInfo := LazPaintInstance.HideTopmost;
-  if LazPaintInstance.Image.currentImageLayerIndex > 0 then
-    tempUnder := LazPaintInstance.Image.ComputeFlatImage(0,LazPaintInstance.Image.currentImageLayerIndex-1,False)
+  if LazPaintInstance.Image.CurrentLayerIndex > 0 then
+    tempUnder := LazPaintInstance.Image.ComputeFlatImage(0,LazPaintInstance.Image.CurrentLayerIndex-1,False)
   else
     tempUnder := TBGRABitmap.Create(1,1);
-  if ublendop.ShowBlendOpDialog(LazPaintInstance, blendOp, tempUnder,LazPaintInstance.Image.SelectedImageLayerReadOnly) then
+  if ublendop.ShowBlendOpDialog(LazPaintInstance, blendOp, tempUnder,LazPaintInstance.Image.CurrentLayerReadOnly) then
   begin
     updatingImageOnly := true;
-    LazPaintInstance.Image.BlendOperation[LazPaintInstance.Image.currentImageLayerIndex] := blendOp;
+    LazPaintInstance.Image.BlendOperation[LazPaintInstance.Image.CurrentLayerIndex] := blendOp;
     updatingImageOnly := false;
     UpdateComboBlendOp;
   end;
   tempUnder.Free;
   LazPaintInstance.ShowTopmost(topmostInfo);
-  if LazPaintInstance.Image.currentImageLayerIndex = 0 then
+  if LazPaintInstance.Image.CurrentLayerIndex = 0 then
     LazPaintInstance.ToolManager.ToolPopup(tpmBlendOpBackground);
 end;
 
@@ -751,8 +751,8 @@ begin
         else
           blendOp := StrToBlendOperation(itemStr);
         updatingImageOnly := true;
-        LazPaintInstance.Image.BlendOperation[LazPaintInstance.Image.currentImageLayerIndex] := blendOp;
-        if LazPaintInstance.Image.currentImageLayerIndex = 0 then
+        LazPaintInstance.Image.BlendOperation[LazPaintInstance.Image.CurrentLayerIndex] := blendOp;
+        if LazPaintInstance.Image.CurrentLayerIndex = 0 then
           LazPaintInstance.ToolManager.ToolPopup(tpmBlendOpBackground);
         updatingImageOnly := false;
       end else
@@ -806,7 +806,7 @@ begin
       begin
         if i < LazPaintInstance.Image.NbLayers then
         begin
-          if (i <> LazPaintInstance.image.currentImageLayerIndex) and not renaming then
+          if (i <> LazPaintInstance.image.CurrentLayerIndex) and not renaming then
             HandleSelectLayer(i,x,y)
           else
           begin

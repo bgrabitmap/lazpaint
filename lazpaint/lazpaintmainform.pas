@@ -2098,7 +2098,7 @@ end;
 
 procedure TFMain.LayerMergeOverUpdate(Sender: TObject);
 begin
-  LayerMergeOver.Enabled := (image.currentImageLayerIndex > 0) and Image.CurrentLayerVisible;
+  LayerMergeOver.Enabled := (image.CurrentLayerIndex > 0) and Image.CurrentLayerVisible;
 end;
 
 procedure TFMain.LayerMoveExecute(Sender: TObject);
@@ -2699,7 +2699,7 @@ begin
           ptLayerMapping:
           begin
             EditDeselect.Execute;
-            if image.SelectedLayerEmpty then
+            if image.CurrentLayerEmpty then
             begin
               MessagePopup(rsEmptyLayer,2000);
               Tool := ptHand;
@@ -2708,7 +2708,7 @@ begin
           end;
           ptMoveLayer:
           begin
-            if image.SelectedLayerEquals(image.SelectedLayerPixel[0,0]) then
+            if image.CurrentLayerEquals(image.CurrentLayerPixel[0,0]) then
             begin
               LazPaintInstance.ShowMessage(rsLazPaint, rsEmptyLayer);
               Tool := ptHand;
@@ -2717,7 +2717,7 @@ begin
           end;
           ptDeformation:
           begin
-            if (image.SelectionMaskEmpty and image.SelectedLayerEquals(image.SelectedLayerPixel[0,0])) or
+            if (image.SelectionMaskEmpty and image.CurrentLayerEquals(image.CurrentLayerPixel[0,0])) or
                (not image.SelectionMaskEmpty and image.SelectionLayerIsEmpty) then
             begin
               LazPaintInstance.ShowMessage(rsLazPaint, rsNothingToBeDeformed);
@@ -2732,7 +2732,7 @@ begin
               result := srException;
               exit;
             end;
-            if image.CurrentLayerVisible and not image.SelectionMaskEmpty and image.SelectionLayerIsEmpty and not image.SelectedLayerEmpty then
+            if image.CurrentLayerVisible and not image.SelectionMaskEmpty and image.SelectionLayerIsEmpty and not image.CurrentLayerEmpty then
             begin
               topmostInfo := LazPaintInstance.HideTopmost;
               if Config.DefaultRetrieveSelectionAnswer <> mrNone then
@@ -2752,7 +2752,7 @@ begin
                     if LayerAction.RetrieveSelectionIfLayerEmpty(True) then
                     begin
                       ComputeSelectionMask(LayerAction.GetOrCreateSelectionLayer,LayerAction.CurrentSelection,Image.SelectionMaskBounds);
-                      Image.SelectionMayChange(Image.SelectionMaskBounds);
+                      Image.SelectionMaskMayChange(Image.SelectionMaskBounds);
                       LayerAction.Validate;
                     end;
                     if image.SelectionLayerIsEmpty then MessagePopup(rsNothingToBeRetrieved,2000);

@@ -434,7 +434,7 @@ end;
 
 function TToolRectangular.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF): TRect;
-var currentRect: TRect;
+var
   delta: TPointF;
 begin
   result := EmptyRect;
@@ -473,7 +473,6 @@ begin
 end;
 
 function TToolRectangular.ToolUp: TRect;
-var currentRect: TRect;
 begin
   if rectMovingPoint then
   begin
@@ -605,7 +604,6 @@ begin
 end;
 
 function TToolRectangular.DoToolUpdate(toolDest: TBGRABitmap): TRect;
-var currentRect: TRect;
 begin
   if rectDrawing then
     result := UpdateShape(toolDest)

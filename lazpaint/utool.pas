@@ -364,7 +364,7 @@ end;
 function TReadonlyTool.GetToolDrawingLayer: TBGRABitmap;
 begin
   if Manager.Image.SelectionMaskEmpty or not assigned(Manager.Image.SelectionLayerReadonly) then
-    Result:= Manager.Image.SelectedImageLayerReadOnly
+    Result:= Manager.Image.CurrentLayerReadOnly
   else
     Result:= Manager.Image.SelectionLayerReadonly;
 end;
@@ -387,8 +387,8 @@ begin
   if IsSelectingTool or not Assigned(Manager.Image) then
     result := Point(0,0)
   else
-    if GetToolDrawingLayer = Manager.Image.SelectedImageLayerReadOnly then
-      result := Manager.Image.LayerOffset[Manager.Image.currentImageLayerIndex]
+    if GetToolDrawingLayer = Manager.Image.CurrentLayerReadOnly then
+      result := Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex]
     else
       result := Point(0,0);
 end;
@@ -527,7 +527,7 @@ begin
   toolDest.JoinStyle := Manager.ToolJoinStyle;
   toolDest.LineCap := Manager.ToolLineCap;
   toolDest.PenStyle := Manager.ToolPenStyle;
-  if toolDest = Manager.Image.SelectedImageLayerReadOnly then
+  if toolDest = Manager.Image.CurrentLayerReadOnly then
   begin
     x -= LayerOffset.x;
     y -= LayerOffset.y;
@@ -552,7 +552,7 @@ begin
   toolDest.JoinStyle := Manager.ToolJoinStyle;
   toolDest.LineCap := Manager.ToolLineCap;
   toolDest.PenStyle := Manager.ToolPenStyle;
-  if toolDest = Manager.Image.SelectedImageLayerReadOnly then
+  if toolDest = Manager.Image.CurrentLayerReadOnly then
   begin
     x -= LayerOffset.x;
     y -= LayerOffset.y;
@@ -748,7 +748,7 @@ begin
 
     if ALayer = nil then
     begin
-      if ALayer = Image.SelectedImageLayerReadOnly then
+      if ALayer = Image.CurrentLayerReadOnly then
         Image.ImageMayChange(AddLayerOffset(ARect))
       else
         Image.LayerMayChange(ALayer, ARect);

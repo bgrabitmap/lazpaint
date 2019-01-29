@@ -195,7 +195,7 @@ procedure TFilterConnector.InvalidateActiveLayer(ARect: TRect);
 begin
   if IntersectRect(ARect, ARect, FWorkArea) then
   begin
-    with FLazPaintInstance.Image.LayerOffset[FLazPaintInstance.Image.currentImageLayerIndex] do
+    with FLazPaintInstance.Image.LayerOffset[FLazPaintInstance.Image.CurrentLayerIndex] do
       OffsetRect(ARect, X,Y);
     FLazPaintInstance.NotifyImageChange(True, ARect);
   end;

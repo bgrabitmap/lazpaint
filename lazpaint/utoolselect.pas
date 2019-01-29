@@ -649,8 +649,8 @@ begin
     exit;
   end;
   if rightBtn then penColor := BGRABlack else penColor := BGRAWhite;
-  Manager.Image.SelectedImageLayerReadOnly.ParallelFloodFill(pt.X,pt.Y,toolDest,penColor,fmDrawWithTransparency,Manager.ToolTolerance);
-  Manager.Image.SelectionMayChangeCompletely;
+  Manager.Image.CurrentLayerReadOnly.ParallelFloodFill(pt.X,pt.Y,toolDest,penColor,fmDrawWithTransparency,Manager.ToolTolerance);
+  Manager.Image.SelectionMaskMayChangeCompletely;
   ValidateAction;
   result := rect(0,0,Manager.Image.Width,Manager.Image.Height);
 end;

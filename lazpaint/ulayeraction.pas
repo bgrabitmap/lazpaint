@@ -200,7 +200,7 @@ begin
   FDone := false;
   if AApplyOfsBefore then
   begin
-    with AImage.LayerOffset[AImage.currentImageLayerIndex] do
+    with AImage.LayerOffset[AImage.CurrentLayerIndex] do
       FPrediff := CurrentState.ComputeLayerOffsetDifference(X,Y);
     if FPrediff.IsIdentity then FreeAndNil(FPrediff)
     else FPreDiff.ApplyTo(CurrentState);
@@ -268,7 +268,7 @@ begin
     else
       CurrentState.SelectionMask.FillRect(0,0,CurrentState.Width,CurrentState.Height,BGRABlack,dmSet);
     CurrentState.SelectionMask.ClipRect := prevClip;
-    FImage.SelectionMayChange(FSelectionMaskChangedArea);
+    FImage.SelectionMaskMayChange(FSelectionMaskChangedArea);
     FSelectionMaskChangedArea := EmptyRect;
   end;
 end;
@@ -338,7 +338,7 @@ begin
     NeedSelectionLayerBackup;
     bounds := CurrentState.GetSelectionMaskBounds;
     CurrentState.RemoveSelection;
-    FImage.SelectionMayChange(bounds);
+    FImage.SelectionMaskMayChange(bounds);
   end;
 end;
 

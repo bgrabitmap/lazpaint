@@ -335,7 +335,7 @@ begin
       LayerAction.QuerySelection;
       LayerAction.CurrentSelection.Fill(BGRABlack);
       LayerAction.CurrentSelection.PutImage(0,0,newSelection,dmSet);
-      Image.SelectionMayChangeCompletely;
+      Image.SelectionMaskMayChangeCompletely;
       LayerAction.Validate;
       result := true;
     end;
@@ -408,7 +408,7 @@ begin
       r := image.SelectionMaskBounds;
       if (r.left = 0) and (r.Top = 0) and (r.right = image.width) and (r.Bottom =image.height) then exit;
       cropped := image.MakeLayeredBitmapAndSelectionCopy;
-      selectedLayer := image.currentImageLayerIndex;
+      selectedLayer := image.CurrentLayerIndex;
       for i := 0 to cropped.layeredBitmap.NbLayers-1 do
       begin
         cropped.layeredBitmap.LayerBitmap[i].ApplyMask(cropped.selection);
@@ -418,7 +418,7 @@ begin
       BGRAReplace(cropped.selection,cropped.selection.GetPart(r));
       if cropped.selectionLayer <> nil then BGRAReplace(cropped.selectionLayer,cropped.selectionLayer.GetPart(r));
       image.Assign(cropped,true,true);
-      image.SelectImageLayerByIndex(selectedLayer);
+      image.SetCurrentLayerByIndex(selectedLayer);
     end;
   except
     on ex:Exception do
@@ -518,7 +518,7 @@ var bounds: TRect;
 begin
   try
     if (AOption = foCurrentLayer) then
-      image.HorizontalFlip(Image.currentImageLayerIndex) else
+      image.HorizontalFlip(Image.CurrentLayerIndex) else
     if ((AOption = foAuto) and not image.SelectionMaskEmpty) or (AOption = foSelection) then
     begin
       if not image.SelectionMaskEmpty then
@@ -530,7 +530,7 @@ begin
         bounds := Image.SelectionMaskBounds;
         LayerAction.currentSelection.HorizontalFlip(bounds);
         LayerAction.NotifyChange(LayerAction.currentSelection,bounds);
-        Image.SelectionMayChange(bounds);
+        Image.SelectionMaskMayChange(bounds);
         if LayerAction.DrawingLayer <> nil then
         begin
           LayerAction.DrawingLayer.HorizontalFlip(bounds);
@@ -556,7 +556,7 @@ var bounds: TRect;
 begin
   try
     if (AOption = foCurrentLayer) then
-      image.VerticalFlip(Image.currentImageLayerIndex) else
+      image.VerticalFlip(Image.CurrentLayerIndex) else
     if ((AOption = foAuto) and not image.SelectionMaskEmpty) or (AOption = foSelection) then
     begin
       if not image.SelectionMaskEmpty then
@@ -567,7 +567,7 @@ begin
         bounds := Image.SelectionMaskBounds;
         LayerAction.currentSelection.VerticalFlip(bounds);
         LayerAction.NotifyChange(LayerAction.currentSelection,bounds);
-        Image.SelectionMayChange(bounds);
+        Image.SelectionMaskMayChange(bounds);
         if LayerAction.DrawingLayer <> nil then
         begin
           LayerAction.DrawingLayer.VerticalFlip(bounds);
@@ -631,7 +631,7 @@ begin
     LayerAction.CurrentSelection.InvalidateBitmap;
     LayerAction.CurrentSelection.LinearNegative;
     LayerAction.Validate;
-    Image.SelectionMayChangeCompletely;
+    Image.SelectionMaskMayChangeCompletely;
   except
     on ex:Exception do
       FInstance.ShowError('InvertSelection',ex.Message);
@@ -763,7 +763,7 @@ begin
         layeraction.GetOrCreateSelectionLayer.PutImage(pastePos.x,pastePos.y,partial,dmFastBlend);
         ComputeSelectionMask(layeraction.GetOrCreateSelectionLayer,layeraction.currentSelection,
           rect(pastePos.x,pastePos.y,pastePos.x+partial.Width,pastePos.y+partial.Height));
-        Image.SelectionMayChange(rect(pastePos.x,pastePos.y,pastePos.x+partial.Width,pastePos.y+partial.Height));
+        Image.SelectionMaskMayChange(rect(pastePos.x,pastePos.y,pastePos.x+partial.Width,pastePos.y+partial.Height));
         layeraction.Validate;
         layeraction.Free;
         ChooseTool(ptMoveSelection);
@@ -805,7 +805,7 @@ begin
     LayerAction := TLayerAction.Create(Image);
     LayerAction.QuerySelection;
     LayerAction.currentSelection.Fill(BGRAWhite);
-    Image.SelectionMayChangeCompletely;
+    Image.SelectionMaskMayChangeCompletely;
     LayerAction.Validate;
     LayerAction.Free;
   except
@@ -829,15 +829,15 @@ begin
       LayerAction.QuerySelection;
       LayerAction.currentSelection.Fill(BGRAWhite);
       LayerAction.NotifyChange(LayerAction.currentSelection, bounds);
-      Image.SelectionMayChange(bounds);
+      Image.SelectionMaskMayChange(bounds);
     end else
     begin
       bounds := image.SelectionLayerBounds;
-      Image.SelectionMayChange(bounds);
+      Image.SelectionMaskMayChange(bounds);
       LayerAction.ApplySelectionMask;
       LayerAction.NotifyChange(LayerAction.GetSelectionLayerIfExists, bounds);
       bounds := image.SelectionMaskBounds;
-      Image.SelectionMayChange(bounds);
+      Image.SelectionMaskMayChange(bounds);
     end;
 
     if LayerAction.RetrieveSelectionIfLayerEmpty(True) then
@@ -877,7 +877,7 @@ begin
   if image.NbLayers < MaxLayersToAdd then
   begin
     Image.AddNewLayer;
-    FInstance.ScrollLayerStackOnItem(Image.currentImageLayerIndex);
+    FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
   end;
 end;
 
@@ -886,7 +886,7 @@ begin
   if image.NbLayers < MaxLayersToAdd then
   begin
     Image.AddNewLayer(ALayer, AName, ABlendOp);
-    FInstance.ScrollLayerStackOnItem(Image.currentImageLayerIndex);
+    FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
   end;
 end;
 
@@ -895,25 +895,25 @@ begin
   if image.NbLayers < MaxLayersToAdd then
   begin
     Image.DuplicateLayer;
-    FInstance.ScrollLayerStackOnItem(Image.currentImageLayerIndex);
+    FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
   end;
 end;
 
 procedure TImageActions.MergeLayerOver;
 begin
-  if (Image.currentImageLayerIndex <> -1) and (image.NbLayers > 1) then
+  if (Image.CurrentLayerIndex <> -1) and (image.NbLayers > 1) then
   begin
     Image.MergeLayerOver;
-    FInstance.ScrollLayerStackOnItem(Image.currentImageLayerIndex);
+    FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
   end;
 end;
 
 procedure TImageActions.RemoveLayer;
 var idx: integer;
 begin
-  if (Image.currentImageLayerIndex <> -1) and (Image.NbLayers > 1) then
+  if (Image.CurrentLayerIndex <> -1) and (Image.NbLayers > 1) then
   begin
-    idx := Image.currentImageLayerIndex;
+    idx := Image.CurrentLayerIndex;
     Image.RemoveLayer;
     FInstance.ScrollLayerStackOnItem(idx);
   end;
@@ -947,7 +947,7 @@ begin
       LayerAction.Validate;
     finally
       LayerAction.Free;
-      Image.SelectionMayChangeCompletely;
+      Image.SelectionMaskMayChangeCompletely;
     end;
   except on ex:Exception do FInstance.ShowError('EditSelection',ex.Message);
   end;
