@@ -5,7 +5,8 @@ unit UToolSelect;
 interface
 
 uses
-  Classes, SysUtils, Graphics, utool, utoolpolygon, utoolbasic, BGRABitmapTypes, BGRABitmap;
+  Classes, SysUtils, Graphics, utool, utoolpolygon, utoolbasic, BGRABitmapTypes, BGRABitmap,
+  ULayerAction;
 
 type
 
@@ -78,25 +79,23 @@ type
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
   end;
 
-  { TToolTransformSelection }
+  { TTransformSelectionTool }
 
-  TToolTransformSelection = class(TGenericTransformTool)
+  TTransformSelectionTool = class(TGenericTool)
   protected
-    FKeepTransformOnDestroy: boolean;
-    function GetKeepTransformOnDestroy: boolean; override;
-    procedure SetKeepTransformOnDestroy(AValue: boolean); override;
+    function GetIsSelectingTool: boolean; override;
+    function GetAction: TLayerAction; override;
+    function FixSelectionTransform: boolean; override;
   public
-    constructor Create(AManager: TToolManager); override;
-    destructor Destroy; override;
+    function GetToolDrawingLayer: TBGRABitmap; override;
   end;
 
   { TToolMoveSelection }
 
-  TToolMoveSelection = class(TToolTransformSelection)
+  TToolMoveSelection = class(TTransformSelectionTool)
   protected
     handMoving: boolean;
     handOrigin: TPoint;
-    function GetIsSelectingTool: boolean; override;
     function DoToolDown({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF;
       {%H-}rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF): TRect; override;
@@ -108,7 +107,7 @@ type
 
   { TToolRotateSelection }
 
-  TToolRotateSelection = class(TToolTransformSelection)
+  TToolRotateSelection = class(TTransformSelectionTool)
   protected
     class var HintShowed: boolean;
     handMoving: boolean;
@@ -118,7 +117,6 @@ type
     FOriginalTransform: TAffineMatrix;
     FCurrentAngle: single;
     FCurrentCenter: TPointF;
-    function GetIsSelectingTool: boolean; override;
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
       rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect; override;
@@ -137,40 +135,29 @@ implementation
 
 uses types, ugraph, LCLType, LazPaintType, Math, BGRATransform, BGRAPath;
 
-{ TToolTransformSelection }
+{ TTransformSelectionTool }
 
-function TToolTransformSelection.GetKeepTransformOnDestroy: boolean;
+function TTransformSelectionTool.GetIsSelectingTool: boolean;
 begin
-  result := FKeepTransformOnDestroy;
+  result := true;
 end;
 
-procedure TToolTransformSelection.SetKeepTransformOnDestroy(AValue: boolean);
+function TTransformSelectionTool.GetAction: TLayerAction;
 begin
-  FKeepTransformOnDestroy:= AValue;
+  Result:= nil;
 end;
 
-constructor TToolTransformSelection.Create(AManager: TToolManager);
+function TTransformSelectionTool.FixSelectionTransform: boolean;
 begin
-  inherited Create(AManager);
-  FKeepTransformOnDestroy:= False;
+  Result:= false;
 end;
 
-destructor TToolTransformSelection.Destroy;
+function TTransformSelectionTool.GetToolDrawingLayer: TBGRABitmap;
 begin
-  if not FKeepTransformOnDestroy and not IsAffineMatrixIdentity(Manager.Image.SelectionTransform) then
-  begin
-    Action.ApplySelectionTransform;
-    ValidateAction;
-  end;
-  inherited Destroy;
+  result := Manager.Image.SelectionMaskReadonly;
 end;
 
 { TToolRotateSelection }
-
-function TToolRotateSelection.GetIsSelectingTool: boolean;
-begin
-  Result:= true;
-end;
 
 function TToolRotateSelection.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
@@ -308,11 +295,6 @@ begin
 end;
 
 { TToolMoveSelection }
-
-function TToolMoveSelection.GetIsSelectingTool: boolean;
-begin
-  result := true;
-end;
 
 function TToolMoveSelection.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;

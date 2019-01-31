@@ -18,10 +18,11 @@ type
     FLastSelectionMaskBoundsIsDefined,
     FLastSelectionLayerBoundsIsDefined: boolean;
     FLastSelectionMaskBounds, FLastSelectionLayerBounds: TRect;
+    FSelectionTransform: TAffineMatrix;
     function GetBlendOp(Index: integer): TBlendOperation;
     function GetSelectedImageLayer: TBGRABitmap;
     function GetCurrentLayerIndex: integer;
-    function GetCurrentSelectionMask: TBGRABitmap;
+    function GetSelectionMask: TBGRABitmap;
     function GetHasOriginals: boolean;
     function GetHeight: integer;
     function GetLayerBitmap(Index: integer): TBGRABitmap;
@@ -42,6 +43,7 @@ type
     procedure SelectImageLayerByIndex(AValue: integer);
     procedure SetLayeredBitmap(AValue: TBGRALayeredBitmap);
     procedure SetLinearBlend(AValue: boolean);
+    procedure SetSelectionMask(AValue: TBGRABitmap);
   public
     SelectionLayer: TBGRABitmap;
     selectedLayerId: integer;
@@ -81,10 +83,13 @@ type
     function GetSelectionMaskBounds: TRect;
     function SelectionMaskEmpty: boolean;
     function SelectionMaskEmptyComputed: boolean;
+    function GetTransformedSelectionMaskBounds: TRect;
+    procedure ComputeTransformedSelectionMask(out ANewMask: TBGRABitmap; out ALeft,ATop: integer);
 
     // selection layer
     function GetOrCreateSelectionLayer: TBGRABitmap;
     procedure ReplaceSelectionLayer(bmp: TBGRABitmap; AOwned: boolean);
+    procedure ComputeTransformedSelectionLayer(out ANewLayer: TBGRABitmap; out ALeft,ATop: integer);
 
     procedure DiscardSelectionLayerBounds;
     function GetSelectionLayerBounds: TRect;
@@ -116,11 +121,13 @@ type
     function ComputeLayerDifference(APreviousImage: TBGRABitmap; APreviousImageDefined: boolean;
         APreviousSelection: TBGRABitmap; APreviousSelectionDefined: boolean;
         APreviousSelectionLayer: TBGRABitmap; APreviousSelectionLayerDefined: boolean;
+        APreviousSelectionTransform: TAffineMatrix;
         APreviousLayerOriginalData: TStream;
         APreviousLayerOriginalMatrix: TAffineMatrix): TCustomImageDifference; overload;
     function ComputeLayerDifference(APreviousImage: TBGRABitmap; APreviousImageChangeRect: TRect;
         APreviousSelection: TBGRABitmap; APreviousSelectionChangeRect: TRect;
         APreviousSelectionLayer: TBGRABitmap; APreviousSelectionLayerChangeRect: TRect;
+        APreviousSelectionTransform: TAffineMatrix;
         APreviousLayerOriginalData: TStream;
         APreviousLayerOriginalMatrix: TAffineMatrix): TCustomImageDifference; overload;
     function GetLayeredBitmapCopy: TBGRALayeredBitmap;
@@ -151,8 +158,9 @@ type
     property LinearBlend: boolean read GetLinearBlend write SetLinearBlend;
     property LayerVisible[Index: integer]: boolean read GetLayerVisible;
     property HasOriginals: boolean read GetHasOriginals;
-    property SelectionMask: TBGRABitmap read GetCurrentSelectionMask write FSelectionMask;
+    property SelectionMask: TBGRABitmap read GetSelectionMask write SetSelectionMask;
     property LayeredBitmap: TBGRALayeredBitmap read FLayeredBitmap;
+    property SelectionTransform: TAffineMatrix read FSelectionTransform write FSelectionTransform;
   end;
 
 implementation
@@ -194,7 +202,7 @@ begin
     result := LayeredBitmap.GetLayerIndexFromId(selectedLayerId);
 end;
 
-function TImageState.GetCurrentSelectionMask: TBGRABitmap;
+function TImageState.GetSelectionMask: TBGRABitmap;
 begin
   result := FSelectionMask;
   if Assigned(result) then result.LinearAntialiasing := true;
@@ -442,6 +450,13 @@ begin
     LayeredBitmap.LinearBlend := AValue;
 end;
 
+procedure TImageState.SetSelectionMask(AValue: TBGRABitmap);
+begin
+  If AValue = FSelectionMask then exit;
+  FSelectionMask := AValue;
+  DiscardSelectionMaskBounds;
+end;
+
 procedure TImageState.SetLayerBitmap(layer: integer; ABitmap: TBGRABitmap;
   AOwned: boolean);
 begin
@@ -482,6 +497,26 @@ begin
   begin
     if (bmp = nil) then FreeAndNil(SelectionLayer);
     if AOwned and (bmp <>nil) then bmp.Free; //ignore if there is no active selection
+  end;
+end;
+
+procedure TImageState.ComputeTransformedSelectionLayer(out
+  ANewLayer: TBGRABitmap; out ALeft, ATop: integer);
+var
+  r: TRect;
+begin
+  if SelectionLayer = nil then
+  begin
+    ANewLayer := nil;
+    ALeft := 0;
+    ATop := 0;
+  end else
+  begin
+    r := SelectionLayer.GetImageAffineBounds(FSelectionTransform, GetSelectionLayerBounds);
+    ANewLayer := TBGRABitmap.Create(r.Width,r.Height);
+    ANewLayer.PutImageAffine(AffineMatrixTranslation(-r.Left,-r.Top)*FSelectionTransform, SelectionLayer);
+    ALeft := r.Left;
+    ATop := r.Top;
   end;
 end;
 
@@ -602,6 +637,7 @@ procedure TImageState.RemoveSelection;
 begin
   FreeAndNil(SelectionLayer);
   FreeAndNil(FSelectionMask);
+  FSelectionTransform := AffineMatrixIdentity;
 end;
 
 procedure TImageState.ReplaceSelection(ASelectionMask,
@@ -774,7 +810,7 @@ begin
     prevOriginalData:= TMemoryStream.Create;
     prevOriginal := LayeredBitmap.Original[LayeredBitmap.IndexOfOriginal(prevOriginalGuid)];
     prevOriginal.SaveToStream(prevOriginalData);
-    result := TImageLayerStateDifference.Create(self, nil,false,nil,false,nil,false,prevOriginalData,prevOriginalMatrix);
+    result := TImageLayerStateDifference.Create(self, nil,false,nil,false,nil,false,SelectionTransform,prevOriginalData,prevOriginalMatrix);
   end
   else
     result := nil;
@@ -854,6 +890,35 @@ end;
 function TImageState.SelectionMaskEmptyComputed: boolean;
 begin
   result := FLastSelectionMaskBoundsIsDefined;
+end;
+
+function TImageState.GetTransformedSelectionMaskBounds: TRect;
+begin
+  if SelectionMaskEmpty then
+    result := EmptyRect
+  else
+  begin
+    result := SelectionMask.GetImageAffineBounds(SelectionTransform, GetSelectionMaskBounds);
+  end;
+end;
+
+procedure TImageState.ComputeTransformedSelectionMask(out ANewMask: TBGRABitmap; out ALeft,ATop: integer);
+var
+  r: TRect;
+begin
+  if SelectionMask = nil then
+  begin
+    ANewMask := nil;
+    ALeft := 0;
+    ATop := 0;
+  end else
+  begin
+    r := SelectionMask.GetImageAffineBounds(FSelectionTransform, GetSelectionMaskBounds);
+    ANewMask := TBGRABitmap.Create(r.Width,r.Height,BGRABlack);
+    ANewMask.PutImageAffine(AffineMatrixTranslation(-r.Left,-r.Top)*FSelectionTransform, SelectionMask);
+    ALeft := r.Left;
+    ATop := r.Top;
+  end;
 end;
 
 function TImageState.SwapRedBlue: TCustomImageDifference;
@@ -958,29 +1023,29 @@ end;
 function TImageState.ComputeLayerDifference(APreviousImage: TBGRABitmap;
   APreviousImageDefined: boolean; APreviousSelection: TBGRABitmap;
   APreviousSelectionDefined: boolean; APreviousSelectionLayer: TBGRABitmap;
-  APreviousSelectionLayerDefined: boolean; APreviousLayerOriginalData: TStream;
-  APreviousLayerOriginalMatrix: TAffineMatrix): TCustomImageDifference;
+  APreviousSelectionLayerDefined: boolean; APreviousSelectionTransform: TAffineMatrix;
+  APreviousLayerOriginalData: TStream; APreviousLayerOriginalMatrix: TAffineMatrix): TCustomImageDifference;
 begin
   if LayeredBitmap = nil then
     result := nil
   else
     result := TImageLayerStateDifference.Create(self, APreviousImage, APreviousImageDefined,
       APreviousSelection, APreviousSelectionDefined, APreviousSelectionLayer, APreviousSelectionLayerDefined,
-      APreviousLayerOriginalData, APreviousLayerOriginalMatrix);
+      APreviousSelectionTransform, APreviousLayerOriginalData, APreviousLayerOriginalMatrix);
 end;
 
 function TImageState.ComputeLayerDifference(APreviousImage: TBGRABitmap;
   APreviousImageChangeRect: TRect; APreviousSelection: TBGRABitmap;
   APreviousSelectionChangeRect: TRect; APreviousSelectionLayer: TBGRABitmap;
-  APreviousSelectionLayerChangeRect: TRect; APreviousLayerOriginalData: TStream;
-  APreviousLayerOriginalMatrix: TAffineMatrix): TCustomImageDifference;
+  APreviousSelectionLayerChangeRect: TRect; APreviousSelectionTransform: TAffineMatrix;
+  APreviousLayerOriginalData: TStream; APreviousLayerOriginalMatrix: TAffineMatrix): TCustomImageDifference;
 begin
   if LayeredBitmap = nil then
     result := nil
   else
     result := TImageLayerStateDifference.Create(self, APreviousImage, APreviousImageChangeRect,
       APreviousSelection, APreviousSelectionChangeRect, APreviousSelectionLayer, APreviousSelectionLayerChangeRect,
-      APreviousLayerOriginalData, APreviousLayerOriginalMatrix);
+      APreviousSelectionTransform, APreviousLayerOriginalData, APreviousLayerOriginalMatrix);
 end;
 
 function TImageState.GetLayeredBitmapCopy: TBGRALayeredBitmap;
@@ -1013,6 +1078,7 @@ begin
   selectedLayerId := -1;
   FLastSelectionMaskBoundsIsDefined := false;
   FLastSelectionLayerBoundsIsDefined := false;
+  FSelectionTransform := AffineMatrixIdentity;
 end;
 
 destructor TImageState.Destroy;

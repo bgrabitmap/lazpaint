@@ -16,6 +16,7 @@ type
   protected
     handMoving: boolean;
     handOrigin: TPoint;
+    function FixSelectionTransform: boolean; override;
     function DoToolDown({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF;
       {%H-}rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF): TRect; override;
@@ -951,6 +952,11 @@ begin
 end;
 
 { TToolHand }
+
+function TToolHand.FixSelectionTransform: boolean;
+begin
+  Result:= false;
+end;
 
 function TToolHand.DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;
   rightBtn: boolean): TRect;

@@ -2660,14 +2660,7 @@ begin
                     end
                     else
                     begin
-                      LayerAction := nil;
-                      try
-                        LayerAction := TLayerAction.Create(Image);
-                        LayerAction.RemoveSelection;
-                        LayerAction.Validate;
-                      except on ex:exception do LazPaintInstance.ShowError(rsTextureMapping,ex.Message);
-                      end;
-                      LayerAction.Free;
+                      FImageActions.RemoveSelection;
                       BGRAReplace(newTexture, newTexture.GetPart(newTexture.GetImageBounds));
                       ToolManager.SetToolTexture(newTexture);
                       UpdateTextureIcon;
@@ -2745,21 +2738,7 @@ begin
               end;
               LazPaintInstance.ShowTopmost(topmostInfo);
               case res.ButtonResult of
-                mrYes: begin
-                  LayerAction := nil;
-                  try
-                    LayerAction := TLayerAction.Create(Image);
-                    if LayerAction.RetrieveSelectionIfLayerEmpty(True) then
-                    begin
-                      ComputeSelectionMask(LayerAction.GetOrCreateSelectionLayer,LayerAction.CurrentSelection,Image.SelectionMaskBounds);
-                      Image.SelectionMaskMayChange(Image.SelectionMaskBounds);
-                      LayerAction.Validate;
-                    end;
-                    if image.SelectionLayerIsEmpty then MessagePopup(rsNothingToBeRetrieved,2000);
-                  except on ex:exception do LazPaintInstance.ShowError(rsMovingOrRotatingSelection,ex.Message);
-                  end;
-                  LayerAction.Free;
-                end;
+                mrYes: FImageActions.RetrieveSelection;
               end;
             end;
           end;

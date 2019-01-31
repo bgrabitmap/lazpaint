@@ -51,7 +51,6 @@ type
     FRenderUpdateRectInPicCoord, FRenderUpdateRectInVSCoord: TRect;
     FOnCurrentFilenameChanged: TOnCurrentFilenameChanged;
 
-    FSelectionTransform: TAffineMatrix;
     FSelectionLayerAfterMask: TBGRABitmap;
     FSelectionLayerAfterMaskOffset: TPoint;
     FSelectionLayerAfterMaskDefined: boolean;
@@ -70,7 +69,7 @@ type
     function GetSelectionLayerEmpty: boolean;
     function GetSelectionMaskBounds: TRect;
     function GetSelectionMaskEmpty: boolean;
-    function GetTransformedSelectionBounds: TRect;
+    function GetSelectionTransform: TAffineMatrix;
     procedure NeedSelectionLayerAfterMask;
     function GetBlendOperation(AIndex: integer): TBlendOperation;
     function GetCurrentFilenameUTF8: string;
@@ -127,6 +126,7 @@ type
     function MakeCroppedLayer: TBGRABitmap;
 
     // undo/redo
+    procedure AddUndo(AUndoAction: TCustomImageDifference);
     function CanUndo: boolean;
     function CanRedo: boolean;
     procedure Undo;
@@ -151,7 +151,6 @@ type
     procedure SaveSelectionMaskToFileUTF8(AFilename: string);
     function SelectionMaskReadonly: TBGRABitmap;
     procedure ReleaseEmptySelection;
-    function ComputeTransformedSelectionMask: TBGRABitmap;
 
     // selection layer
     function SelectionLayerReadonly: TBGRABitmap;
@@ -164,32 +163,6 @@ type
     procedure SetLayerOffset(AIndex: integer; AValue: TPoint; APrecomputedLayerBounds: TRect);
     function CurrentLayerReadOnly: TBGRABitmap;
 
-    procedure ApplySelectionTransform(ApplyToMask: boolean= true);
-    procedure ApplySelectionMask;
-    procedure AddUndo(AUndoAction: TCustomImageDifference);
-
-    function ApplySmartZoom3: boolean;
-    procedure Resample(AWidth, AHeight: integer; filter: TResampleFilter);
-
-    function DetectImageFormat(AFilename: string): TBGRAImageFormat;
-    procedure LoadFromFileUTF8(AFilename: string);
-    procedure Assign(const AValue: TBGRABitmap; AOwned: boolean; AUndoable: boolean); overload;
-    procedure Assign(const AValue: TBGRALayeredBitmap; AOwned: boolean; AUndoable: boolean); overload;
-    procedure Assign(const AValue: TLayeredBitmapAndSelection; AOwned: boolean; AUndoable: boolean); overload;
-
-    function AbleToSaveAsUTF8(AFilename: string): boolean;
-    function AbleToSaveSelectionAsUTF8(AFilename: string): boolean;
-    procedure SaveToFileUTF8(AFilename: string);
-    procedure UpdateMultiImage(AOutputFilename: string = '');
-    procedure SetSavedFlag(ASavedBPP: integer = 0; ASavedFrameIndex: integer = 0);
-    function IsFileModified: boolean;
-    function IsFileModifiedAndSaved: boolean;
-    function FlatImageEquals(ABitmap: TBGRABitmap): boolean;
-    procedure Flatten;
-    procedure PrepareForRendering;
-    function ComputeFlatImage(AFromLayer,AToLayer: integer; ASeparateXorMask: boolean): TBGRABitmap;
-
-    procedure Draw(ADest: TBGRABitmap; x,y: integer);
     procedure AddNewLayer;
     procedure AddNewLayer(AOriginal: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation);
     procedure AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation);
@@ -197,16 +170,43 @@ type
     procedure MergeLayerOver;
     procedure MoveLayer(AFromIndex,AToIndex: integer);
     procedure RemoveLayer;
-    procedure SaveOriginalToStream(AStream: TStream);
+
+    procedure HorizontalFlip(ALayerIndex: integer); overload;
+    procedure VerticalFlip(ALayerIndex: integer); overload;
+
+    // whole image
+    procedure Assign(const AValue: TBGRABitmap; AOwned: boolean; AUndoable: boolean); overload;
+    procedure Assign(const AValue: TBGRALayeredBitmap; AOwned: boolean; AUndoable: boolean); overload;
+    procedure Assign(const AValue: TLayeredBitmapAndSelection; AOwned: boolean; AUndoable: boolean); overload;
+
     procedure SwapRedBlue;
     procedure LinearNegativeAll;
     procedure NegativeAll;
     procedure HorizontalFlip; overload;
-    procedure HorizontalFlip(ALayerIndex: integer); overload;
     procedure VerticalFlip; overload;
-    procedure VerticalFlip(ALayerIndex: integer); overload;
     procedure RotateCW;
     procedure RotateCCW;
+    procedure Resample(AWidth, AHeight: integer; filter: TResampleFilter);
+    function ApplySmartZoom3: boolean;
+
+    procedure Flatten;
+    function FlatImageEquals(ABitmap: TBGRABitmap): boolean;
+    function ComputeFlatImage(AFromLayer,AToLayer: integer; ASeparateXorMask: boolean): TBGRABitmap;
+    procedure PrepareForRendering;
+    procedure Draw(ADest: TBGRABitmap; x,y: integer);
+
+    // input/output
+    function DetectImageFormat(AFilename: string): TBGRAImageFormat;
+    procedure LoadFromFileUTF8(AFilename: string);
+    function AbleToSaveAsUTF8(AFilename: string): boolean;
+    function AbleToSaveSelectionAsUTF8(AFilename: string): boolean;
+    procedure SaveToFileUTF8(AFilename: string);
+    procedure UpdateMultiImage(AOutputFilename: string = '');
+    procedure SetSavedFlag(ASavedBPP: integer = 0; ASavedFrameIndex: integer = 0);
+    function IsFileModified: boolean;
+    function IsFileModifiedAndSaved: boolean;
+    procedure SaveOriginalToStream(AStream: TStream);
+
     function CheckCurrentLayerVisible: boolean;
     function CheckNoAction(ASilent: boolean = false): boolean;
     procedure ZoomFit;
@@ -246,8 +246,7 @@ type
     property OnCurrentFilenameChanged: TOnCurrentFilenameChanged read FOnCurrentFilenameChanged write FOnCurrentFilenameChanged;
     property RenderUpdateRectInPicCoord: TRect read FRenderUpdateRectInPicCoord;
     property RenderUpdateRectInVSCoord: TRect read FRenderUpdateRectInVSCoord;
-    property SelectionTransform: TAffineMatrix read FSelectionTransform write SetSelectionTransform;
-    property TransformedSelectionBounds: TRect read GetTransformedSelectionBounds;
+    property SelectionTransform: TAffineMatrix read GetSelectionTransform write SetSelectionTransform;
     property ZoomFactor: single read GetZoomFactor;
     property DraftOriginal: boolean read FDraftOriginal write SetDraftOriginal;
     property IsIconCursor: boolean read GetIsIconCursor;
@@ -290,48 +289,6 @@ begin
 end;
 
 { TLazPaintImage }
-
-function TLazPaintImage.ComputeTransformedSelectionMask: TBGRABitmap;
-begin
-  if SelectionMask = nil then result := nil else
-  begin
-    SelectionMask.GrayscaleToAlpha;
-    result := SelectionMask.FilterAffine(FSelectionTransform,False) as TBGRABitmap;
-    SelectionMask.AlphaToGrayscale;
-    result.AlphaToGrayscale;
-    result.AlphaFill(255);
-  end;
-end;
-
-procedure TLazPaintImage.ApplySelectionTransform(ApplyToMask: boolean= true);
-var temp: TBGRABitmap;
-begin
-  if not IsAffineMatrixIdentity(FSelectionTransform) then
-  begin
-    if ApplyToMask and (SelectionMask <> nil) then
-      ReplaceCurrentSelectionWithoutUndo(ComputeTransformedSelectionMask);
-    if FCurrentState.SelectionLayer <> nil then
-    begin
-      temp := FCurrentState.SelectionLayer.FilterAffine(FSelectionTransform,True) as TBGRABitmap;
-      FCurrentState.ReplaceSelectionLayer(temp, True);
-    end;
-    FSelectionTransform := AffineMatrixIdentity;
-  end;
-end;
-
-procedure TLazPaintImage.ApplySelectionMask;
-var r: TRect;
-begin
-  if (SelectionMask <> nil) and (FCurrentState.SelectionLayer <> nil) then
-  begin
-    r := SelectionLayerBounds;
-    if not IsRectEmpty(r) then
-    begin
-      FCurrentState.GetOrCreateSelectionLayer.ApplyMask(SelectionMask,r);
-      LayerMayChange(FCurrentState.GetOrCreateSelectionLayer,r);
-    end;
-  end;
-end;
 
 function TLazPaintImage.MakeCroppedLayer: TBGRABitmap;
 var r: TRect;
@@ -770,6 +727,7 @@ begin
       prevAction := TObject(FUndoList[FUndoPos]) as TCustomImageDifference;
       if IsInverseImageDiff(AUndoAction,prevAction) then
       begin
+        writeln('Inverse');
         AUndoAction.Free;
         FCurrentState.saved := prevAction.SavedBefore;
         Dec(FUndoPos);
@@ -781,6 +739,7 @@ begin
         AUndoAction.Free;
         If prevAction.IsIdentity then
         begin
+          writeln('Inverse (combine)');
           FCurrentState.saved := prevAction.SavedBefore;
           Dec(FUndoPos);
           ClearUndoAfter;
@@ -798,6 +757,7 @@ begin
       FUndoList.Add(AUndoAction);
       inc(FUndoPos);
     end;
+    writeln(AUndoAction.ToString);
     FCurrentState.saved := AUndoAction.SavedAfter;
     CompressUndoIfNecessary;
   end;
@@ -827,7 +787,7 @@ procedure TLazPaintImage.SetSelectionTransform(ATransform: TAffineMatrix);
   procedure InvalidateTransformedSelection;
   var selectionChangeRect: TRect;
   begin
-    selectionChangeRect := TransformedSelectionBounds;
+    selectionChangeRect := FCurrentState.GetTransformedSelectionMaskBounds;
     if not SelectionLayerIsEmpty then
       ImageMayChange(selectionChangeRect,False);
     if not IsRectEmpty(selectionChangeRect) then
@@ -837,12 +797,16 @@ procedure TLazPaintImage.SetSelectionTransform(ATransform: TAffineMatrix);
     end;
   end;
 
+var
+  diff: TSetSelectionTransformDifference;
 begin
-  if not CompareMem(@ATransform, @FSelectionTransform, sizeof(FSelectionTransform)) then
+  if ATransform <> CurrentState.SelectionTransform then
   begin
     InvalidateTransformedSelection;
-    FSelectionTransform := ATransform;
+    diff := TSetSelectionTransformDifference.Create(FCurrentState, ATransform);
+    diff.ApplyTo(FCurrentState);
     InvalidateTransformedSelection;
+    AddUndo(diff);
   end;
 end;
 
@@ -1057,6 +1021,8 @@ begin
 end;
 
 procedure TLazPaintImage.LayerMayChange(ALayer: TBGRABitmap; ARect: TRect);
+var
+  ab: TAffineBox;
 begin
   If ALayer = nil then exit;
   if ALayer = SelectionMask then
@@ -1064,7 +1030,12 @@ begin
     SelectionMaskMayChange(ARect);
     exit;
   end;
-  if ALayer = SelectionLayerReadonly then DiscardSelectionLayerAfterMask;
+  if ALayer = SelectionLayerReadonly then
+  begin
+    DiscardSelectionLayerAfterMask;
+    ab := SelectionTransform*TAffineBox.AffineBox(rectF(ARect.Left,ARect.Top,ARect.Right,ARect.Bottom));
+    ARect := ab.RectBounds;
+  end;
   if ALayer = CurrentLayerReadOnly then
     with LayerOffset[CurrentLayerIndex] do
       OffsetRect(ARect,X,Y);
@@ -1079,14 +1050,18 @@ end;
 
 procedure TLazPaintImage.SelectionMaskMayChange(ARect: TRect);
 var temp: TRect;
+  ab: TAffineBox;
 begin
   IntersectRect(ARect, ARect, rect(0,0,Width,Height));
   if IsRectEmpty(ARect) then exit;
 
   DiscardSelectionLayerAfterMask;
-  temp := ARect;
+
+  ab := SelectionTransform*TAffineBox.AffineBox(rectF(ARect.Left,ARect.Top,ARect.Right,ARect.Bottom));
+  temp := ab.RectBounds;
   InflateRect(temp,1,1);
   FRenderUpdateRectInPicCoord := RectUnion(FRenderUpdateRectInPicCoord,temp);
+
   FCurrentState.DiscardSelectionMaskBounds;
   if Assigned(FOnSelectionMaskChanged) then FOnSelectionMaskChanged(self, ARect);
   if FCurrentState.SelectionLayer <> nil then
@@ -1240,14 +1215,9 @@ begin
   result := FCurrentState.SelectionMaskEmpty;
 end;
 
-function TLazPaintImage.GetTransformedSelectionBounds: TRect;
+function TLazPaintImage.GetSelectionTransform: TAffineMatrix;
 begin
-  if SelectionMaskEmpty then
-    result := EmptyRect
-  else
-  begin
-    result := SelectionMaskReadonly.GetImageAffineBounds(SelectionTransform, SelectionMaskBounds);
-  end;
+  result := FCurrentState.SelectionTransform;
 end;
 
 procedure TLazPaintImage.NeedSelectionLayerAfterMask;
@@ -1481,7 +1451,7 @@ begin
            if shownSelectionLayer <> nil then
            begin
              rectOutput := GetSelectedImageLayer.GetImageAffineBounds(
-                actualTransformation, FSelectionLayerAfterMask);
+                actualTransformation, shownSelectionLayer);
              invalidatedRect := FRenderedImageInvalidated;
              OffsetRect(invalidatedRect, -ofs.x,-ofs.y);
              IntersectRect(rectOutput,rectOutput,invalidatedRect);
@@ -1490,7 +1460,7 @@ begin
                backupCurrentLayer := GetSelectedImageLayer.GetPart(rectOutput) as TBGRABitmap;
                backupTopLeft := rectoutput.TopLeft;
                GetSelectedImageLayer.PutImageAffine(
-                 actualTransformation, FSelectionLayerAfterMask,
+                 actualTransformation, shownSelectionLayer,
                  rectOutput,255,True);
              end;
            end;
@@ -1970,10 +1940,7 @@ begin
   FOnImageChanged := TLazPaintImageObservable.Create(self);
   FUndoList := TList.Create;
   FUndoPos := -1;
-
-  //current transform
   ImageOffset := Point(0,0);
-  FSelectionTransform := AffineMatrixIdentity;
 end;
 
 destructor TLazPaintImage.Destroy;

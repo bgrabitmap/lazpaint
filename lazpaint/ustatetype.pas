@@ -20,6 +20,7 @@ type
     procedure ApplyTo(AState: TState); virtual; abstract;
     procedure UnapplyTo(AState: TState); virtual; abstract;
     function UsedMemory: int64; virtual;
+    function ToString: ansistring; override;
   end;
 
   TState = class
@@ -60,6 +61,8 @@ type
   { TComposedImageDifference }
 
   TComposedImageDifference = class(TCustomImageDifference)
+  private
+    function GetCount: integer;
   protected
     FDiffs: TImageDifferenceList;
     function GetIsIdentity: boolean; override;
@@ -71,8 +74,11 @@ type
     function TryCompress: boolean; override;
     function UsedMemory: int64; override;
     procedure Add(ADiff: TCustomImageDifference);
+    procedure AddRange(AComposed: TComposedImageDifference);
     procedure ApplyTo(AState: TState); override;
     procedure UnapplyTo(AState: TState); override;
+    function ToString: ansistring; override;
+    property Count: integer read GetCount;
   end;
 
 {*********** Layer info *************}
@@ -94,6 +100,10 @@ function GetLayerInfo(ALayeredBitmap: TBGRALayeredBitmap; AIndex: integer): TLay
 
 type
   TInversibleAction = (iaHorizontalFlip, iaHorizontalFlipLayer, iaVerticalFlip, iaVerticalFlipLayer, iaRotateCW, iaRotateCCW, iaRotate180, iaSwapRedBlue, iaLinearNegative);
+
+const
+  InversibleActionStr : array[TInversibleAction] of string =
+    ('HorizontalFlip', 'HorizontalFlipLayer', 'VerticalFlip', 'VerticalFlipLayer', 'RotateCW', 'RotateCCW', 'Rotate180', 'SwapRedBlue', 'LinearNegative');
 
 function GetInverseAction(AAction: TInversibleAction): TInversibleAction;
 function CanCombineInversibleAction(AAction1, AAction2: TInversibleAction; out
@@ -364,6 +374,11 @@ end;
 
 { TComposedImageDifference }
 
+function TComposedImageDifference.GetCount: integer;
+begin
+  result := FDiffs.Count;
+end;
+
 function TComposedImageDifference.GetIsIdentity: boolean;
 var
   i: Integer;
@@ -448,6 +463,14 @@ begin
   FDiffs.Add(ADiff);
 end;
 
+procedure TComposedImageDifference.AddRange(AComposed: TComposedImageDifference);
+var
+  i: Integer;
+begin
+  for i:= 0 to AComposed.Count-1 do
+    Add(AComposed.FDiffs[i]);
+end;
+
 procedure TComposedImageDifference.ApplyTo(AState: TState);
 var
   i: Integer;
@@ -462,6 +485,19 @@ var
 begin
   for i := FDiffs.Count-1 downto 0 do
     FDiffs[i].UnapplyTo(AState);
+end;
+
+function TComposedImageDifference.ToString: ansistring;
+var
+  i: Integer;
+begin
+  Result:= '[';
+  for i := 0 to Count-1 do
+  begin
+    if i <> 0 then result += ', ';
+    result += FDiffs[i].ToString;
+  end;
+  result += ']';
 end;
 
 { TGrayscaleImageDiff }
@@ -617,6 +653,11 @@ end;
 function TStateDifference.UsedMemory: int64;
 begin
   result := 0;
+end;
+
+function TStateDifference.ToString: ansistring;
+begin
+  Result:= ClassName;
 end;
 
 { TCustomImageDifference }
