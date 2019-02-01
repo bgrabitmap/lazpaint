@@ -5,7 +5,7 @@ unit UToolLayer;
 interface
 
 uses
-  Classes, SysUtils, UTool, BGRABitmap, BGRABitmapTypes, UImageType;
+  Classes, SysUtils, UTool, BGRABitmap, BGRABitmapTypes, UImageType, BGRATransform;
 
 type
   { TToolMoveLayer }
@@ -27,8 +27,8 @@ type
     procedure OnTryStop({%H-}sender: TCustomLayerAction); override;
     function UseOriginal: boolean;
     procedure NeedLayerBounds;
+    function DoGetToolDrawingLayer: TBGRABitmap; override;
   public
-    function GetToolDrawingLayer: TBGRABitmap; override;
     function ToolUp: TRect; override;
     function ToolKeyDown(var key: Word): TRect; override;
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth,
@@ -44,9 +44,11 @@ type
     function GetOriginalLayerBounds: TRect;
     function GetRotationCenter: TPointF;
     procedure SetRotationCenter(AValue: TPointF);
+    function UseOriginal: boolean;
   protected
-    FOriginalLayerBounds: TRect;
-    FOriginalLayerBoundsDefined: boolean;
+    FInitialOriginalMatrix: TAffineMatrix;
+    FInitialLayerBounds: TRect;
+    FInitialLayerBoundsDefined: boolean;
     FRotationCenter: TPointF;
     FRotationCenterDefined: boolean;
     FFilter: TResampleFilter;
@@ -64,9 +66,12 @@ type
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect;
       override;
     function UpdateRotation: TRect;
+    procedure CancelRotation;
+    procedure ValidateRotation;
     property RotationCenter: TPointF read GetRotationCenter write SetRotationCenter;
     property OriginalLayerBounds: TRect read GetOriginalLayerBounds;
     procedure OnTryStop({%H-}sender: TCustomLayerAction); override;
+    function DoGetToolDrawingLayer: TBGRABitmap; override;
   public
     constructor Create(AManager: TToolManager); override;
     destructor Destroy; override;
@@ -80,7 +85,7 @@ type
 
 implementation
 
-uses LazPaintType, ugraph, LCLType, Types, BGRATransform;
+uses LazPaintType, ugraph, LCLType, Types;
 
 { TToolRotateLayer }
 
@@ -94,12 +99,12 @@ end;
 
 function TToolRotateLayer.GetOriginalLayerBounds: TRect;
 begin
-  if not FOriginalLayerBoundsDefined then
+  if not FInitialLayerBoundsDefined then
   begin
-    FOriginalLayerBounds := GetToolDrawingLayer.GetImageBounds;
-    FOriginalLayerBoundsDefined := true;
+    FInitialLayerBounds := GetToolDrawingLayer.GetImageBounds;
+    FInitialLayerBoundsDefined := true;
   end;
-  result := FOriginalLayerBounds;
+  result := FInitialLayerBounds;
 end;
 
 function TToolRotateLayer.GetRotationCenter: TPointF;
@@ -109,8 +114,12 @@ begin
     if IsRectEmpty(OriginalLayerBounds) then
       FRotationCenter := PointF(Manager.Image.Width/2 - 0.5,Manager.Image.Height/2 - 0.5)
     else
-    with OriginalLayerBounds do
-      FRotationCenter := PointF((Left+Right)/2 - 0.5, (Top+Bottom)/2 - 0.5);
+    begin
+      with OriginalLayerBounds do
+        FRotationCenter := PointF((Left+Right)/2 - 0.5, (Top+Bottom)/2 - 0.5);
+      with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
+        FRotationCenter += PointF(X,Y);
+    end;
     FRotationCenterDefined := true;
   end;
   result := FRotationCenter;
@@ -121,9 +130,19 @@ begin
   FRotationCenter := AValue;
 end;
 
+function TToolRotateLayer.UseOriginal: boolean;
+begin
+  with Manager.Image do
+    result := LayerOriginalDefined[CurrentLayerIndex] and
+              LayerOriginalKnown[CurrentLayerIndex];
+end;
+
 function TToolRotateLayer.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
 begin
+  with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
+    ptF += PointF(X,Y);
+
   if not FRotating and not rightBtn then
   begin
     FRotating := true;
@@ -149,7 +168,10 @@ end;
 function TToolRotateLayer.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF): TRect;
 var angleDiff: single;
+  ofs: TPoint;
 begin
+  with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
+    ptF += PointF(X,Y);
   if FRotating then
   begin
     angleDiff := ComputeAngle(ptF.X-RotationCenter.X,ptF.Y-RotationCenter.Y)-
@@ -175,27 +197,60 @@ begin
   FPreviousRotationCenter := RotationCenter;
   FPreviousFilter := FFilter;
   result := EmptyRect;
-  if not FLastUpdateRectDefined then
+
+  if UseOriginal then
   begin
-    GetToolDrawingLayer.FillTransparent;
-    result := rect(0,0,GetToolDrawingLayer.Width,GetToolDrawingLayer.Height);
+    Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] :=
+      AffineMatrixTranslation(RotationCenter.X,RotationCenter.Y)*
+      AffineMatrixRotationDeg(FActualAngle)*
+      AffineMatrixTranslation(-RotationCenter.X,-RotationCenter.Y)*
+      FInitialOriginalMatrix;
   end else
-  if not IsRectEmpty(FLastUpdateRect) then
   begin
-    GetToolDrawingLayer.FillRect(FLastUpdateRect,BGRAPixelTransparent,dmSet);
-    result := FLastUpdateRect;
+    if not FLastUpdateRectDefined then
+    begin
+      GetToolDrawingLayer.FillTransparent;
+      result := rect(0,0,GetToolDrawingLayer.Width,GetToolDrawingLayer.Height);
+    end else
+    if not IsRectEmpty(FLastUpdateRect) then
+    begin
+      GetToolDrawingLayer.FillRect(FLastUpdateRect,BGRAPixelTransparent,dmSet);
+      result := FLastUpdateRect;
+    end;
+    FLastUpdateRect := GetToolDrawingLayer.GetImageAngleBounds(0,0,Action.BackupDrawingLayer,FActualAngle,RotationCenter.X,RotationCenter.Y,True);
+    FLastUpdateRectDefined:= true;
+    GetToolDrawingLayer.ComputeImageAngleAxes(0,0,Action.BackupDrawingLayer.Width,Action.BackupDrawingLayer.Height,FActualAngle,RotationCenter.X,RotationCenter.Y,True,
+    origin,haxis,vaxis);
+    GetToolDrawingLayer.PutImageAffine(origin,haxis,vaxis,Action.BackupDrawingLayer,FLastUpdateRect,FFilter,dmSet,255);
+    result := RectUnion(result,FLastUpdateRect);
   end;
-  FLastUpdateRect := GetToolDrawingLayer.GetImageAngleBounds(0,0,Action.BackupDrawingLayer,FActualAngle,RotationCenter.X,RotationCenter.Y,True);
-  FLastUpdateRectDefined:= true;
-  GetToolDrawingLayer.ComputeImageAngleAxes(0,0,Action.BackupDrawingLayer.Width,Action.BackupDrawingLayer.Height,FActualAngle,RotationCenter.X,RotationCenter.Y,True,
-  origin,haxis,vaxis);
-  GetToolDrawingLayer.PutImageAffine(origin,haxis,vaxis,Action.BackupDrawingLayer,FLastUpdateRect,FFilter,dmSet,255);
-  result := RectUnion(result,FLastUpdateRect);
+end;
+
+procedure TToolRotateLayer.CancelRotation;
+begin
+  if UseOriginal then
+    Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] := FInitialOriginalMatrix
+  else
+    CancelActionPartially;
+  Manager.QueryExitTool;
+end;
+
+procedure TToolRotateLayer.ValidateRotation;
+begin
+  Manager.QueryExitTool;
 end;
 
 procedure TToolRotateLayer.OnTryStop(sender: TCustomLayerAction);
 begin
   //nothing
+end;
+
+function TToolRotateLayer.DoGetToolDrawingLayer: TBGRABitmap;
+begin
+  if UseOriginal then
+    Result:= Manager.Image.CurrentLayerReadOnly   //do not modify layer data directly and ignore selection
+  else
+    Result:= Action.SelectedImageLayer;
 end;
 
 constructor TToolRotateLayer.Create(AManager: TToolManager);
@@ -204,16 +259,18 @@ begin
   FAngle:= 0;
   FPreviousActualAngle := 0;
   FCtrlDown:= false;
-  FOriginalLayerBoundsDefined:= false;
+  FInitialLayerBoundsDefined:= false;
   FRotationCenterDefined := false;
   FLastUpdateRectDefined:= false;
   FFilter := rfCosine;
   FPreviousFilter := FFilter;
+  FInitialOriginalMatrix := Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex];
 end;
 
 destructor TToolRotateLayer.Destroy;
 begin
-  ValidateActionPartially;
+  if not UseOriginal then
+    ValidateAction;
   inherited Destroy;
 end;
 
@@ -232,17 +289,15 @@ begin
   end else
   if Key = VK_RETURN then
   begin
-    if FActualAngle = 0 then CancelActionPartially
-     else ValidateActionPartially;
+    if FActualAngle = 0 then CancelRotation
+    else ValidateRotation;
     result := OnlyRenderChange;
-    manager.QueryExitTool;
     key := 0;
   end else
   if Key = VK_ESCAPE then
   begin
-    CancelActionPartially;
+    CancelRotation;
     result := OnlyRenderChange;
-    manager.QueryExitTool;
     key := 0;
   end else
     result := EmptyRect;
@@ -273,7 +328,8 @@ function TToolRotateLayer.Render(VirtualScreen: TBGRABitmap;
   VirtualScreenWidth, VirtualScreenHeight: integer;
   BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
 begin
-  Result:= NicePoint(VirtualScreen,BitmapToVirtualScreen(RotationCenter));
+  with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
+    Result:= NicePoint(VirtualScreen,BitmapToVirtualScreen(RotationCenter-PointF(X,Y)));
 end;
 
 function TToolRotateLayer.GetIsSelectingTool: boolean;
@@ -366,9 +422,9 @@ begin
   end;
 end;
 
-function TToolMoveLayer.GetToolDrawingLayer: TBGRABitmap;
+function TToolMoveLayer.DoGetToolDrawingLayer: TBGRABitmap;
 begin
-  Result:= Manager.Image.CurrentLayerReadOnly;   //do not create a selection layer
+  Result:= Manager.Image.CurrentLayerReadOnly;   //do not modify layer data directly and ignore selection
 end;
 
 function TToolMoveLayer.ToolUp: TRect;

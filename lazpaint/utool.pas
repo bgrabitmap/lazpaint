@@ -57,6 +57,7 @@ type
     procedure OnTryStop(sender: TCustomLayerAction); virtual;
     function SelectionMaxPointDistance: single;
     function GetStatusText: string; virtual;
+    function DoGetToolDrawingLayer: TBGRABitmap; virtual;
   public
     ToolUpdateNeeded: boolean;
     Cursor: TCursor;
@@ -82,7 +83,7 @@ type
     function ToolProvideCopy: boolean; virtual;
     function ToolProvideCut: boolean; virtual;
     function ToolProvidePaste: boolean; virtual;
-    function GetToolDrawingLayer: TBGRABitmap; virtual;
+    function GetToolDrawingLayer: TBGRABitmap;
     procedure RestoreBackupDrawingLayer;
     function GetBackupLayerIfExists: TBGRABitmap;
     function Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; virtual;
@@ -100,8 +101,7 @@ type
   protected
     function GetAction: TLayerAction; override;
     function GetIsSelectingTool: boolean; override;
-  public
-    function GetToolDrawingLayer: TBGRABitmap; override;
+    function DoGetToolDrawingLayer: TBGRABitmap; override;
   end;
 
   TToolClass = class of TGenericTool;
@@ -355,7 +355,7 @@ begin
   result := false;
 end;
 
-function TReadonlyTool.GetToolDrawingLayer: TBGRABitmap;
+function TReadonlyTool.DoGetToolDrawingLayer: TBGRABitmap;
 begin
   if Manager.Image.SelectionMaskEmpty or not assigned(Manager.Image.SelectionLayerReadonly) then
     Result:= Manager.Image.CurrentLayerReadOnly
@@ -390,6 +390,21 @@ end;
 function TGenericTool.GetStatusText: string;
 begin
   result := '';
+end;
+
+function TGenericTool.DoGetToolDrawingLayer: TBGRABitmap;
+begin
+  if Action = nil then
+    result := nil
+  else if IsSelectingTool then
+  begin
+    Action.QuerySelection;
+    result := Action.CurrentSelection;
+    if result = nil then
+      raise exception.Create('Selection not created');
+  end
+  else
+    result := Action.DrawingLayer;
 end;
 
 function TGenericTool.GetAction: TLayerAction;
@@ -649,21 +664,7 @@ end;
 
 function TGenericTool.GetToolDrawingLayer: TBGRABitmap;
 begin
-  if Action = nil then
-  begin
-    result := nil;
-  end else
-  if IsSelectingTool then
-  begin
-    Action.QuerySelection;
-    result := Action.CurrentSelection;
-    if result = nil then
-      raise exception.Create('Selection not created');
-  end
-  else
-  begin
-    result := Action.DrawingLayer;
-  end;
+  result := DoGetToolDrawingLayer;
   FLastToolDrawingLayer := result;
 end;
 

@@ -86,8 +86,7 @@ type
     function GetIsSelectingTool: boolean; override;
     function GetAction: TLayerAction; override;
     function FixSelectionTransform: boolean; override;
-  public
-    function GetToolDrawingLayer: TBGRABitmap; override;
+    function DoGetToolDrawingLayer: TBGRABitmap; override;
   end;
 
   { TToolMoveSelection }
@@ -152,7 +151,7 @@ begin
   Result:= false;
 end;
 
-function TTransformSelectionTool.GetToolDrawingLayer: TBGRABitmap;
+function TTransformSelectionTool.DoGetToolDrawingLayer: TBGRABitmap;
 begin
   result := Manager.Image.SelectionMaskReadonly;
 end;
