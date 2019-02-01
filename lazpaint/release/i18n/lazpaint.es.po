@@ -3458,6 +3458,10 @@ msgstr "Quedan: %1"
 msgid "Tool cannot be used on an invisible layer"
 msgstr "La herramienta no puede ser usada en una capa invisible"
 
+#: uresourcestrings.rstoomanylayers
+msgid "Too many layers"
+msgstr "Demasiado capas"
+
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"
 msgstr "Total: %1"

@@ -13,7 +13,7 @@ uses
   Controls, Graphics, Dialogs, Menus, ExtDlgs, ComCtrls, ActnList, StdCtrls,
   ExtCtrls, Buttons, types, LCLType, BGRAImageList, BGRAVirtualScreen,
 
-  BGRABitmap, BGRABitmapTypes, BGRALayers,
+  BGRABitmap, BGRABitmapTypes, BGRALayers, BGRASVGOriginal,
 
   LazPaintType, UMainFormLayout, UTool, UImage, UImageAction, ULayerAction, UZoom, UImageView,
   UImageObservation, UConfig, UScaleDPI, UResourceStrings,
@@ -823,7 +823,7 @@ implementation
 
 uses LCLIntf, BGRAUTF8, ugraph, math, umac, uclipboard, ucursors,
    ufilters, ULoadImage, ULoading, UFileExtensions, UBrushType,
-   ugeometricbrush, UPreviewDialog, UQuestion;
+   ugeometricbrush, UPreviewDialog, UQuestion, BGRALayerOriginal;
 
 const PenWidthFactor = 10;
 
@@ -1816,10 +1816,12 @@ var
   Errors: String='';
   loadedLayers: array of record
      bmp: TBGRABitmap;
+     orig: TBGRALayerCustomOriginal;
      filename: string;
   end;
   topmost: TTopMostInfo;
   choice: TModalResult;
+  svgOrig: TBGRALayerSVGOriginal;
 begin
   if Length(FileNames)<1 then exit;
   if Length(FileNames)= 1
@@ -1850,9 +1852,21 @@ begin
                   MessagePopupForever(rsLoading + ' ' + inttostr(i+1) + '/' + inttostr(length(FileNames)));
                   LazPaintInstance.UpdateWindows;
                   loadedLayers[i].filename := Filenames[i];
-                  loadedLayers[i].bmp := LoadFlatImageUTF8(Filenames[i]).bmp;
-                  if loadedLayers[i].bmp.Width > tx then tx := loadedLayers[i].bmp.Width;
-                  if loadedLayers[i].bmp.Height > ty then ty := loadedLayers[i].bmp.Height;
+                  case DetectFileFormat(Filenames[i]) of
+                   ifSvg:
+                     begin
+                       svgOrig := LoadSVGOriginalUTF8(Filenames[i]);
+                       loadedLayers[i].orig := svgOrig;
+                       if ceil(svgOrig.Width) > tx then tx := ceil(svgOrig.Width);
+                       if ceil(svgOrig.Height) > ty then ty := ceil(svgOrig.Height);
+                     end
+                   else
+                     begin
+                       loadedLayers[i].bmp := LoadFlatImageUTF8(Filenames[i]).bmp;
+                       if loadedLayers[i].bmp.Width > tx then tx := loadedLayers[i].bmp.Width;
+                       if loadedLayers[i].bmp.Height > ty then ty := loadedLayers[i].bmp.Height;
+                     end;
+                  end;
                   MessagePopupHide;
                 except on ex:exception do
                   //begin
@@ -1869,9 +1883,14 @@ begin
                   Image.Assign(TBGRABitmap.Create(tx,ty),true,false);
                   ZoomFitIfTooBig;
                   for i := 0 to high(loadedLayers) do
+                  if Assigned(loadedLayers[i].bmp) then
                   begin
                     FImageActions.AddLayerFromBitmap(loadedLayers[i].bmp,ExtractFileName(loadedLayers[i].filename));
                     loadedLayers[i].bmp := nil;
+                  end else
+                  begin
+                    FImageActions.AddLayerFromOriginal(loadedLayers[i].orig,ExtractFileName(loadedLayers[i].filename));
+                    loadedLayers[i].orig := nil;
                   end;
                 end;
               except on ex:exception do
@@ -1890,7 +1909,10 @@ begin
                 LazPaintInstance.ShowTopmost(topmost);
               end;
               for i := 0 to high(loadedLayers) do
+              begin
                 FreeAndNil(loadedLayers[i].bmp);
+                FreeAndNil(loadedLayers[i].orig);
+              end;
           end;  //OpenFilesAsLayers
        mrLast+2: begin
              if not LazPaintInstance.ImageListWindowVisible then
@@ -3321,10 +3343,20 @@ var
       with ComputeAcceptableImageSize(newPicture.bmp.Width,newPicture.bmp.Height) do
         if (cx < newPicture.bmp.Width) or (cy < newPicture.bmp.Height) then
           BGRAReplace(newPicture.bmp, newPicture.bmp.Resample(cx,cy,rmFineResample));
-      FImageActions.SetCurrentBitmap(newPicture.bmp, False); //image owned
+      image.Assign(newPicture.bmp,True, false);
       newPicture.bmp := nil;
       EndImport(newPicture.bpp, newPicture.frameIndex);
     end else FreeAndNil(newPicture.bmp);
+  end;
+
+  procedure ImportSvg;
+  var
+    layered: TBGRALayeredBitmap;
+  begin
+    StartImport;
+    layered := LoadSVGImageUTF8(filenameUTF8);
+    Image.Assign(layered,true, false);
+    EndImport;
   end;
 
 begin
@@ -3339,6 +3371,10 @@ begin
   newPicture := TImageEntry.Empty;
   try
     format := Image.DetectImageFormat(filenameUTF8);
+    if format = ifSvg then
+    begin
+      ImportSvg;
+    end else
     if Assigned(ALoadedImage) and Assigned(ALoadedImage^.bmp) then
     begin
       newPicture := ALoadedImage^;

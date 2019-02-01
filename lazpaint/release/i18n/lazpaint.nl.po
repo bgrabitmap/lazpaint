@@ -3469,6 +3469,10 @@ msgstr ""
 msgid "Tool cannot be used on an invisible layer"
 msgstr ""
 
+#: uresourcestrings.rstoomanylayers
+msgid "Too many layers"
+msgstr ""
+
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"
 msgstr ""

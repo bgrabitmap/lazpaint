@@ -747,12 +747,15 @@ end;
 
 function TImageState.AddNewLayer(AOriginal: TBGRALayerCustomOriginal;
   AName: string; ABlendOp: TBlendOperation): TCustomImageDifference;
+var
+  idx: Integer;
 begin
   //no undo if no previous image
   if LayeredBitmap = nil then
   begin
     SetLayeredBitmap(TBGRALayeredBitmap.Create);
-    LayeredBitmap.AddLayerFromOwnedOriginal(AOriginal, ABlendOp);
+    idx := LayeredBitmap.AddLayerFromOwnedOriginal(AOriginal, ABlendOp);
+    LayeredBitmap.RenderLayerFromOriginal(idx);
     result := nil;
   end else
     result := TAddLayerFromOwnedOriginalStateDifference.Create(self, AOriginal, AName, ABlendOp);

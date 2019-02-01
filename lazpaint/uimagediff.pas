@@ -741,6 +741,7 @@ begin
     idx := LayeredBitmap.AddLayerFromOriginal(LayeredBitmap.Original[origIdx].Guid, self.blendOp);
     LayeredBitmap.LayerUniqueId[idx] := self.layerId;
     LayeredBitmap.LayerName[idx] := name;
+    LayeredBitmap.RenderLayerFromOriginal(idx);
     SelectedImageLayerIndex := idx;
   end;
 end;
@@ -776,6 +777,7 @@ begin
   idx := imgDest.LayeredBitmap.AddLayerFromOwnedOriginal(AOriginal, ABlendOp);
   imgDest.LayeredBitmap.LayerName[idx] := name;
   self.layerId := imgDest.LayeredBitmap.LayerUniqueId[idx];
+  imgDest.LayeredBitmap.RenderLayerFromOriginal(idx);
   imgDest.SelectedImageLayerIndex := idx;
 end;
 

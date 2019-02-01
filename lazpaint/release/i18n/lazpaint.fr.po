@@ -3461,6 +3461,10 @@ msgstr "Images restantes : %1"
 msgid "Tool cannot be used on an invisible layer"
 msgstr "L'outil ne peut pas être utilisé sur un calque invisible"
 
+#: uresourcestrings.rstoomanylayers
+msgid "Too many layers"
+msgstr "Trop de calques"
+
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"
 msgstr "Nb. total d'images : %1"

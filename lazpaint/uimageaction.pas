@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, LazPaintType, BGRABitmap, UImage, UTool, UScripting,
-  ULayerAction, UImageType, BGRABitmapTypes;
+  ULayerAction, UImageType, BGRABitmapTypes, BGRALayerOriginal, BGRASVGOriginal;
 
 type
 
@@ -21,6 +21,7 @@ type
     procedure ChooseTool(ATool: TPaintToolType);
     procedure RegisterScripts(ARegister: Boolean);
     function GenericScriptFunction(AVars: TVariableSet): TScriptResult;
+    procedure ReleaseSelection;
   public
     constructor Create(AInstance: TLazPaintCustomInstance);
     destructor Destroy; override;
@@ -50,8 +51,9 @@ type
     procedure PasteAsNewLayer;
     procedure SelectAll;
     procedure SelectionFit;
-    procedure NewLayer;
-    procedure NewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation);
+    procedure NewLayer; overload;
+    function NewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation): boolean; overload;
+    function NewLayer(ALayer: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation): boolean; overload;
     procedure DuplicateLayer;
     procedure MergeLayerOver;
     procedure RemoveLayer;
@@ -59,6 +61,7 @@ type
     procedure Import3DObject(AFilenameUTF8: string);
     function TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: TBGRABitmap = nil): boolean;
     function AddLayerFromBitmap(ABitmap: TBGRABitmap; AName: string): boolean;
+    function AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal; AName: string): boolean;
     function LoadSelection(AFilenameUTF8: string; ALoadedImage: PImageEntry = nil): boolean;
     property Image: TLazPaintImage read GetImage;
     property ToolManager: TToolManager read GetToolManager;
@@ -445,6 +448,7 @@ end;
 function TImageActions.TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: TBGRABitmap = nil): boolean;
 var
   newPicture: TBGRABitmap;
+  svgOrig: TBGRALayerSVGOriginal;
 begin
   result := false;
   if not AbleToLoadUTF8(AFilenameUTF8) then
@@ -454,21 +458,34 @@ begin
     exit;
   end;
   try
-    if Assigned(ALoadedImage) then
-      newPicture := ALoadedImage
-    else
-      newPicture := LoadFlatImageUTF8(AFilenameUTF8).bmp;
-    AddLayerFromBitmap(newPicture, ExtractFileName(AFilenameUTF8));
+    if Image.DetectImageFormat(AFilenameUTF8) = ifSvg then
+    begin
+      svgOrig := LoadSVGOriginalUTF8(AFilenameUTF8);
+      AddLayerFromOriginal(svgOrig, ExtractFileName(AFilenameUTF8));
+      FreeAndNil(ALoadedImage);
+    end else
+    begin
+      if Assigned(ALoadedImage) then
+      begin
+        newPicture := ALoadedImage;
+        ALoadedImage := nil;
+      end
+      else
+        newPicture := LoadFlatImageUTF8(AFilenameUTF8).bmp;
+      AddLayerFromBitmap(newPicture, ExtractFileName(AFilenameUTF8));
+    end;
+
   except
     on ex: Exception do
+    begin
+      ALoadedImage.Free;
       FInstance.ShowError('TryAddLayerFromFile',ex.Message);
+    end;
   end;
 end;
 
-function TImageActions.AddLayerFromBitmap(ABitmap: TBGRABitmap; AName: string
-  ): boolean;
+function TImageActions.AddLayerFromBitmap(ABitmap: TBGRABitmap; AName: string): boolean;
 var
-  layeraction: TLayerAction;
   ratio: single;
   xorMask: TBGRABitmap;
 begin
@@ -478,13 +495,7 @@ begin
       ChooseTool(ptHand);
     if image.CheckNoAction then
     begin
-      if not Image.SelectionMaskEmpty then
-      begin
-        layeraction := image.CreateAction;
-        layeraction.ReleaseSelection;
-        layeraction.Validate;
-        layeraction.Free;
-      end;
+      if not Image.SelectionMaskEmpty then ReleaseSelection;
       if (ABitmap.Width > Image.Width) or (ABitmap.Height > Image.Height) then
       begin
         ratio := 1;
@@ -502,10 +513,17 @@ begin
       end
       else
         xorMask := nil;
-      NewLayer(ABitmap, AName, boTransparent);
-      if Assigned(xorMask) then
-        NewLayer(xorMask, AName + ' (xor)', boXor);
-      result := true;
+      if NewLayer(ABitmap, AName, boTransparent) then
+      begin
+        if Assigned(xorMask) then
+          result := NewLayer(xorMask, AName + ' (xor)', boXor)
+        else
+          result := true;
+      end else
+      begin
+        xorMask.Free;
+        result := false;
+      end;
     end else
     begin
       ABitmap.Free;
@@ -514,6 +532,29 @@ begin
   end else
   begin
     ABitmap.Free;
+    result := false;
+  end;
+end;
+
+function TImageActions.AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal;
+  AName: string): boolean;
+begin
+  if AOriginal <> nil then
+  begin
+    if CurrentTool in [ptDeformation,ptRotateSelection,ptMoveSelection,ptTextureMapping,ptLayerMapping] then
+      ChooseTool(ptHand);
+    if image.CheckNoAction then
+    begin
+      if not Image.SelectionMaskEmpty then ReleaseSelection;
+      result := NewLayer(AOriginal, AName, boTransparent);
+    end else
+    begin
+      AOriginal.Free;
+      result := false;
+    end;
+  end else
+  begin
+    AOriginal.Free;
     result := false;
   end;
 end;
@@ -625,13 +666,7 @@ begin
   if not Image.CheckNoAction then exit;
   LayerAction := nil;
   try
-    if not image.SelectionMaskEmpty then
-    begin
-      LayerAction := Image.CreateAction;
-      LayerAction.ChangeBoundsNotified:= true;
-      LayerAction.ReleaseSelection;
-      LayerAction.Validate;
-    end;
+    if not image.SelectionMaskEmpty then ReleaseSelection;
   except
     on ex:Exception do
       FInstance.ShowError('Deselect',ex.Message);
@@ -758,6 +793,16 @@ begin
   except on ex:exception do FInstance.ShowError('RemoveSelection',ex.Message);
   end;
   LayerAction.Free;
+end;
+
+procedure TImageActions.ReleaseSelection;
+var
+  layeraction: TLayerAction;
+begin
+  layeraction := image.CreateAction;
+  layeraction.ReleaseSelection;
+  layeraction.Validate;
+  layeraction.Free;
 end;
 
 procedure TImageActions.Paste;
@@ -902,12 +947,35 @@ begin
   end;
 end;
 
-procedure TImageActions.NewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation);
+function TImageActions.NewLayer(ALayer: TBGRABitmap; AName: string;
+  ABlendOp: TBlendOperation): boolean;
 begin
   if image.NbLayers < MaxLayersToAdd then
   begin
     Image.AddNewLayer(ALayer, AName, ABlendOp);
     FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
+    result := true;
+  end else
+  begin
+    FInstance.ShowMessage(rsLayers, rsTooManyLayers);
+    ALayer.Free;
+    result := false;
+  end;
+end;
+
+function TImageActions.NewLayer(ALayer: TBGRALayerCustomOriginal;
+  AName: string; ABlendOp: TBlendOperation): boolean;
+begin
+  if image.NbLayers < MaxLayersToAdd then
+  begin
+    Image.AddNewLayer(ALayer, AName, ABlendOp);
+    FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
+    result := true;
+  end else
+  begin
+    FInstance.ShowMessage(rsLayers, rsTooManyLayers);
+    ALayer.Free;
+    result := false;
   end;
 end;
 
