@@ -1265,7 +1265,7 @@ begin
         begin
           if length(chosenFiles) = 1 then
           begin
-            if TryOpenFileUTF8(chosenFiles[0],true,@loadedImage) then
+            if TryOpenFileUTF8(chosenFiles[0],true,@loadedImage,true) then
             begin
               result := srOk;
               if Assigned(Scripting.RecordingFunctionParameters) then
