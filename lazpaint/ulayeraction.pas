@@ -496,6 +496,7 @@ procedure TLayerAction.ApplySelectionTransform(ApplyToMask: boolean);
 var
   newBmp: TBGRABitmap;
   newLeft, newTop: integer;
+  r: TRect;
 begin
   if not IsAffineMatrixIdentity(CurrentState.SelectionTransform) then
   begin
@@ -503,7 +504,9 @@ begin
     begin
       NeedSelectionMaskBackup;
       CurrentState.ComputeTransformedSelectionMask(newBmp,newLeft,newTop);
-      CurrentState.SelectionMask.FillRect(CurrentState.GetSelectionMaskBounds, BGRABlack, dmSet);
+      r := CurrentState.GetSelectionMaskBounds;
+      CurrentState.SelectionMask.FillRect(r, BGRABlack, dmSet);
+      NotifyChange(CurrentState.SelectionMask, r);
       CurrentState.SelectionMask.PutImage(newLeft,newTop,newBmp,dmSet);
       newBmp.Free;
       CurrentState.DiscardSelectionMaskBounds;
@@ -512,7 +515,9 @@ begin
     begin
       NeedSelectionLayerBackup;
       CurrentState.ComputeTransformedSelectionLayer(newBmp,newLeft,newTop);
-      CurrentState.SelectionLayer.FillRect(CurrentState.GetSelectionLayerBounds, BGRABlack, dmSet);
+      r := CurrentState.GetSelectionLayerBounds;
+      CurrentState.SelectionLayer.FillRect(r, BGRAPixelTransparent, dmSet);
+      NotifyChange(CurrentState.SelectionLayer, r);
       CurrentState.SelectionLayer.PutImage(newLeft,newTop,newBmp,dmSet);
       newBmp.Free;
       CurrentState.DiscardSelectionLayerBounds;
