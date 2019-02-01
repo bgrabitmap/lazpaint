@@ -1965,9 +1965,42 @@ end;
 function TImageLayerStateDifference.ToString: ansistring;
 begin
   Result:= ClassName+'(';
-  If ChangeImageLayer then result += 'ImageLayer ';
-  If ChangeSelectionMask then result += 'SelectionMask ';
-  If ChangeSelectionLayer then result += 'SelectionLayer ';
+  If ChangeImageLayer then
+  begin
+    if (imageDiff.SizeBefore.cx = 0) or (imageDiff.SizeBefore.cy = 0) then
+      result += 'Create'
+    else
+    if (imageDiff.SizeAfter.cx = 0) or (imageDiff.SizeAfter.cy = 0) then
+      result += 'Remove'
+    else
+      result += 'Change';
+
+    result += 'ImageLayer ';
+  end;
+  If ChangeSelectionMask then
+  begin
+    if (selectionMaskDiff.SizeBefore.cx = 0) or (selectionMaskDiff.SizeBefore.cy = 0) then
+      result += 'Create'
+    else
+    if (selectionMaskDiff.SizeAfter.cx = 0) or (selectionMaskDiff.SizeAfter.cy = 0) then
+      result += 'Remove'
+    else
+      result += 'Change';
+
+    result += 'SelectionMask ';
+  end;
+  If ChangeSelectionLayer then
+  begin
+    if (selectionLayerDiff.SizeBefore.cx = 0) or (selectionLayerDiff.SizeBefore.cy = 0) then
+      result += 'Create'
+    else
+    if (selectionLayerDiff.SizeAfter.cx = 0) or (selectionLayerDiff.SizeAfter.cy = 0) then
+      result += 'Remove'
+    else
+      result += 'Change';
+
+    result += 'SelectionLayer ';
+  end;
   if nextSelectionTransform<>prevSelectionTransform then result += 'SelectionTransform ';
   result := trim(Result)+')';
 end;

@@ -727,7 +727,7 @@ begin
       prevAction := TObject(FUndoList[FUndoPos]) as TCustomImageDifference;
       if IsInverseImageDiff(AUndoAction,prevAction) then
       begin
-        writeln('Inverse');
+        //writeln('Inverse');
         AUndoAction.Free;
         FCurrentState.saved := prevAction.SavedBefore;
         Dec(FUndoPos);
@@ -739,7 +739,7 @@ begin
         AUndoAction.Free;
         If prevAction.IsIdentity then
         begin
-          writeln('Inverse (combine)');
+          //writeln('Inverse (combine)');
           FCurrentState.saved := prevAction.SavedBefore;
           Dec(FUndoPos);
           ClearUndoAfter;
@@ -757,7 +757,7 @@ begin
       FUndoList.Add(AUndoAction);
       inc(FUndoPos);
     end;
-    writeln(AUndoAction.ToString);
+    //writeln(AUndoAction.ToString);
     FCurrentState.saved := AUndoAction.SavedAfter;
     CompressUndoIfNecessary;
   end;
