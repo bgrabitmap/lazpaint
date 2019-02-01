@@ -398,7 +398,7 @@ var
 begin
   if not Assigned(FAction) then
   begin
-    FAction := TLayerAction.Create(Manager.Image, not IsSelectingTool And Manager.Image.SelectionMaskEmpty);
+    FAction := Manager.Image.CreateAction(not IsSelectingTool And Manager.Image.SelectionMaskEmpty);
     FAction.OnTryStop := @OnTryStop;
     FAction.ChangeBoundsNotified:= true;
     if IsSelectingTool or not Manager.Image.SelectionMaskEmpty then

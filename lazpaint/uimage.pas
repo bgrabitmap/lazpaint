@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, BGRABitmap, BGRABitmapTypes, types,
   UImageState, UStateType, Graphics, BGRALayers, UImageObservation, FPWriteBMP,
-  UImageType, UZoom, BGRATransform, BGRALayerOriginal;
+  UImageType, UZoom, BGRATransform, BGRALayerOriginal, ULayerAction;
 
 const
   MaxLayersToAdd = 99;
@@ -37,6 +37,7 @@ type
 
   TLazPaintImage = class
   private
+    FActionInProgress: TCustomLayerAction;
     FOnSelectedLayerIndexChanging: TOnCurrentLayerIndexChanged;
     FOnSelectionMaskChanged: TOnSelectionMaskChanged;
     FOnSelectedLayerIndexChanged: TOnCurrentLayerIndexChanged;
@@ -110,9 +111,10 @@ type
     procedure UpdateTiffFileUTF8(AFilename: string; AOutputFilename: string = '');
     procedure UpdateGifFileUTF8(AFilename: string; AOutputFilename: string = '');
     procedure ReplaceCurrentSelectionWithoutUndo(const AValue: TBGRABitmap);
-
+    procedure LayerActionNotifyChange(ASender: TObject; ALayer: TBGRABitmap; ARect: TRect);
+    procedure LayerActionDestroy(Sender: TObject);
+    procedure LayerActionNotifyUndo(ASender: TObject; AUndo: TCustomImageDifference; var Owned: boolean);
   public
-    ActionInProgress: TCustomLayerAction;
     OnException: TImageExceptionHandler;
     ImageOffset: TPoint;
     Zoom: TZoom;
@@ -134,6 +136,8 @@ type
     procedure ClearUndo;
     procedure CompressUndo;
     function UsedMemory: int64;
+
+    function CreateAction(AApplyOfsBefore: boolean=false): TLayerAction;
 
     // invalidating
     procedure ImageMayChange(ARect: TRect; ADiscardSelectionLayerAfterMask: boolean = true);
@@ -289,6 +293,14 @@ begin
 end;
 
 { TLazPaintImage }
+
+procedure TLazPaintImage.LayerActionNotifyUndo(ASender: TObject; AUndo: TCustomImageDifference;
+  var Owned: boolean);
+begin
+  AddUndo(AUndo);
+  Owned := true;
+  OnImageChanged.NotifyObservers;
+end;
 
 function TLazPaintImage.MakeCroppedLayer: TBGRABitmap;
 var r: TRect;
@@ -1002,6 +1014,17 @@ begin
       result += (TObject(FUndoList[i]) as TStateDifference).UsedMemory;
 end;
 
+function TLazPaintImage.CreateAction(AApplyOfsBefore: boolean=false): TLayerAction;
+begin
+  if not CheckNoAction(True) then
+    raise exception.Create(rsConflictingActions);
+  result := TLayerAction.Create(FCurrentState, AApplyOfsBefore);
+  result.OnNotifyChange:= @LayerActionNotifyChange;
+  result.OnDestroy:=@LayerActionDestroy;
+  result.OnNotifyUndo:=@LayerActionNotifyUndo;
+  FActionInProgress := result;
+end;
+
 procedure TLazPaintImage.ImageMayChange(ARect: TRect;
   ADiscardSelectionLayerAfterMask: boolean);
 begin
@@ -1351,14 +1374,14 @@ end;
 function TLazPaintImage.CheckNoAction(ASilent: boolean): boolean;
 begin
   result := true;
-  if ActionInProgress <> nil then
+  if FActionInProgress <> nil then
   begin
-    ActionInProgress.TryStop;
-    if ActionInProgress <> nil then
+    FActionInProgress.TryStop;
+    if FActionInProgress <> nil then
     begin
       if Assigned(FOnQueryExitToolHandler) then
         FOnQueryExitToolHandler(self);
-      if ActionInProgress <> nil then
+      if FActionInProgress <> nil then
       begin
         if not ASilent then MessagePopup(rsActionInProgress,2000);
         result := false;
@@ -1876,6 +1899,18 @@ begin
   FCurrentState.SelectionMask.Free;
   FCurrentState.SelectionMask := AValue;
   SelectionMaskMayChangeCompletely;
+end;
+
+procedure TLazPaintImage.LayerActionNotifyChange(ASender: TObject;
+  ALayer: TBGRABitmap; ARect: TRect);
+begin
+  LayerMayChange(ALayer, ARect);
+end;
+
+procedure TLazPaintImage.LayerActionDestroy(Sender: TObject);
+begin
+  if FActionInProgress = Sender then
+    FActionInProgress := nil;
 end;
 
 procedure TLazPaintImage.ReleaseEmptySelection;

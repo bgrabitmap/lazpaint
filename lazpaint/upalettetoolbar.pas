@@ -491,7 +491,7 @@ begin
   quant := TBGRAColorQuantizer.Create(FColors, not FTransparentPalette);
   LayerAction := nil;
   try
-    LayerAction := TLayerAction.Create(LazPaintInstance.Image);
+    LayerAction := LazPaintInstance.Image.CreateAction;
     quant.ApplyDitheringInplace(ADither,LayerAction.SelectedImageLayer);
     LazPaintInstance.image.LayerMayChangeCompletely(LayerAction.SelectedImageLayer);
     LayerAction.Validate;

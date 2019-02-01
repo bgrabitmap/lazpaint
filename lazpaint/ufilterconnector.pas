@@ -122,7 +122,7 @@ begin
   ApplyOnSelectionLayer:= not FLazPaintInstance.Image.SelectionLayerIsEmpty;
 
   if AAction = nil then
-    AAction := TLayerAction.Create(ALazPaintInstance.Image, AApplyOfsBefore and not ApplyOnSelectionLayer);
+    AAction := ALazPaintInstance.Image.CreateAction(AApplyOfsBefore and not ApplyOnSelectionLayer);
 
   if ApplyOnSelectionLayer and not IsAffineMatrixIdentity(AAction.SelectionTransform) then
   begin

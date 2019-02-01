@@ -198,7 +198,7 @@ begin
   try
     c := ToolManager.ToolBackColor;
     c.alpha := 255;
-    LayerAction := TLayerAction.Create(Image,true);
+    LayerAction := Image.CreateAction(true);
     LayerAction.SelectedImageLayer.ReplaceColor(BGRAPixelTransparent,c);
     p := LayerAction.SelectedImageLayer.Data;
     for n := LayerAction.SelectedImageLayer.NbPixels-1 downto 0 do
@@ -227,7 +227,7 @@ begin
   try
     c := ToolManager.ToolBackColor;
     c.alpha := 255;
-    LayerAction := TLayerAction.Create(Image,True);
+    LayerAction := Image.CreateAction(True);
     tempBmp := TBGRABitmap.Create(LayerAction.SelectedImageLayer.Width,1);
     for y := 0 to LayerAction.SelectedImageLayer.Height-1 do
     begin
@@ -337,7 +337,7 @@ begin
 
     if Image.CheckNoAction then
     begin
-      LayerAction := TLayerAction.Create(Image);
+      LayerAction := Image.CreateAction;
       LayerAction.RemoveSelection;
       LayerAction.QuerySelection;
       LayerAction.CurrentSelection.PutImage(0,0,newSelection,dmSet);
@@ -480,7 +480,7 @@ begin
     begin
       if not Image.SelectionMaskEmpty then
       begin
-        layeraction := TLayerAction.Create(image);
+        layeraction := image.CreateAction;
         layeraction.ReleaseSelection;
         layeraction.Validate;
         layeraction.Free;
@@ -597,7 +597,7 @@ begin
   LayerAction := nil;
   try
     if not (CurrentTool in[ptSelectRect,ptSelectEllipse]) then ChooseTool(ptSelectRect);
-    LayerAction := TLayerAction.Create(Image, false);
+    LayerAction := Image.CreateAction(false);
     LayerAction.QuerySelection;
     LayerAction.ApplySelectionTransform;
     p := LayerAction.CurrentSelection.Data;
@@ -627,7 +627,7 @@ begin
   try
     if not image.SelectionMaskEmpty then
     begin
-      LayerAction := TLayerAction.Create(Image);
+      LayerAction := Image.CreateAction;
       LayerAction.ChangeBoundsNotified:= true;
       LayerAction.ReleaseSelection;
       LayerAction.Validate;
@@ -649,7 +649,7 @@ begin
     if not image.CheckNoAction then exit;
     bounds := Image.SelectionMaskBounds;
     if IsRectEmpty(bounds) then exit;
-    LayerAction := TLayerAction.Create(Image);
+    LayerAction := Image.CreateAction;
     LayerAction.ApplySelectionMask;
     if Image.SelectionLayerIsEmpty then
       LayerAction.RetrieveSelection;
@@ -679,7 +679,7 @@ begin
   LayerAction := nil;
   try
     CopySelection;
-    LayerAction := TLayerAction.Create(Image);
+    LayerAction := Image.CreateAction;
     LayerAction.ApplySelectionTransform;
     if (LayerAction.GetSelectionLayerIfExists = nil) or (LayerAction.GetSelectionLayerIfExists.Empty) then
       LayerAction.EraseSelectionInBitmap;
@@ -703,7 +703,7 @@ begin
   if not image.CheckNoAction then exit;
   LayerAction := nil;
   try
-    LayerAction := TLayerAction.Create(Image, false);
+    LayerAction := Image.CreateAction(false);
     if LayerAction.RetrieveSelectionIfLayerEmpty(True) then
     begin
       r := Image.SelectionMaskBounds;
@@ -724,7 +724,7 @@ begin
   if not image.CheckNoAction then exit;
   LayerAction := nil;
   try
-    LayerAction := TLayerAction.Create(Image);
+    LayerAction := Image.CreateAction;
     if Image.SelectionLayerIsEmpty then
     begin
       LayerAction.ApplySelectionTransform;
@@ -749,7 +749,7 @@ begin
   if not image.CheckNoAction then exit;
   LayerAction := nil;
   try
-    LayerAction := TLayerAction.Create(Image);
+    LayerAction := Image.CreateAction;
     LayerAction.RemoveSelection;
     LayerAction.Validate;
     if (CurrentTool = ptRotateSelection) or
@@ -772,7 +772,7 @@ begin
       if partial.NbPixels <> 0 then
       begin
         ToolManager.ToolCloseDontReopen;
-        layeraction := TLayerAction.Create(Image, true);
+        layeraction := Image.CreateAction(true);
         layeraction.ReleaseSelection;
         layeraction.QuerySelection;
         pastePos := Point((image.Width - partial.Width) div 2 - image.ImageOffset.X,
@@ -823,7 +823,7 @@ var LayerAction : TLayerAction;
 begin
   try
     if not ToolManager.IsSelectingTool then ChooseTool(ptSelectRect);
-    LayerAction := TLayerAction.Create(Image);
+    LayerAction := Image.CreateAction;
     LayerAction.QuerySelection;
     LayerAction.currentSelection.Fill(BGRAWhite);
     Image.SelectionMaskMayChangeCompletely;
@@ -841,7 +841,7 @@ var LayerAction: TLayerAction;
 begin
   if not image.CheckNoAction then exit;
   try
-    LayerAction := TLayerAction.Create(Image);
+    LayerAction := Image.CreateAction;
     LayerAction.ChangeBoundsNotified := true;
 
     if image.SelectionMaskEmpty then
@@ -946,7 +946,7 @@ var lSelection,lTemp: TBGRABitmap;
 begin
   if not image.CheckNoAction then exit;
   try
-    LayerAction := TLayerAction.Create(Image);
+    LayerAction := Image.CreateAction;
     try
       LayerAction.QuerySelection;
       lSelection:= LayerAction.currentSelection.Duplicate as TBGRABitmap;
