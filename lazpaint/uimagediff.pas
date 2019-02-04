@@ -1780,8 +1780,7 @@ begin
         nextLayerOriginalData := TMemoryStream.Create;
         nextOrig.SaveToStream(nextLayerOriginalData);
       end;
-    end else
-      APreviousLayerOriginalData.Free;
+    end;
   end;
 end;
 
@@ -1808,6 +1807,7 @@ begin
     if ChangeImageLayer then
     begin
       lState.LayeredBitmap.SetLayerBitmap(idx, imageDiff.ApplyCanCreateNew(lState.LayerBitmap[idx],False), True);
+      lState.LayeredBitmap.LayerOriginalGuid[idx] := GUID_NULL;
       lState.LayeredBitmap.RemoveUnusedOriginals;
     end;
     if nextLayerOriginalData <> nil then
@@ -1845,6 +1845,7 @@ begin
     if ChangeImageLayer then
     begin
       lState.LayeredBitmap.SetLayerBitmap(idx, imageDiff.ApplyCanCreateNew(lState.LayerBitmap[idx],True), True);
+      lState.LayeredBitmap.LayerOriginalGuid[idx] := GUID_NULL;
       lState.LayeredBitmap.RemoveUnusedOriginals;
     end;
     if prevLayerOriginalData <> nil then
