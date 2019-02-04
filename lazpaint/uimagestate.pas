@@ -776,7 +776,7 @@ begin
   if LayeredBitmap = nil then
     result := nil
   else
-    result := TDuplicateLayerStateDifference.Create(self);
+    result := TDuplicateLayerStateDifference.Create(self, true);
 end;
 
 function TImageState.MergerLayerOver(ALayerOverIndex: integer): TCustomImageDifference;

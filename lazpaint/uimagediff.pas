@@ -327,9 +327,10 @@ type
   public
     sourceLayerId: integer;
     duplicateId: integer;
+    useOriginal: boolean;
     procedure ApplyTo(AState: TState); override;
     procedure UnapplyTo(AState: TState); override;
-    constructor Create(ADestination: TState);
+    constructor Create(ADestination: TState; AUseOriginal: boolean);
   end;
 
   { TMoveLayerStateDifference }
@@ -1551,6 +1552,12 @@ begin
       LayerName[copy] := LayerName[sourceLayerIndex];
       LayerOffset[copy] := LayerOffset[sourceLayerIndex];
       LayerVisible[copy] := LayerVisible[sourceLayerIndex];
+      if useOriginal then
+      begin
+        LayerOriginalGuid[copy] := LayerOriginalGuid[sourceLayerIndex];
+        LayerOriginalMatrix[copy] := LayerOriginalMatrix[sourceLayerIndex];
+        LayerOriginalRenderStatus[copy] := LayerOriginalRenderStatus[sourceLayerIndex];
+      end;
       LayerUniqueId[copy] := duplicateId;
       InsertLayer(duplicateIndex, copy);
     end;
@@ -1571,11 +1578,13 @@ begin
   end;
 end;
 
-constructor TDuplicateLayerStateDifference.Create(ADestination: TState);
+constructor TDuplicateLayerStateDifference.Create(ADestination: TState;
+  AUseOriginal: boolean);
 var imgDest: TImageState;
 begin
   inherited Create(ADestination);
   imgDest := ADestination as TImageState;
+  useOriginal:= AUseOriginal;
   with imgDest do
   begin
     self.sourceLayerId := LayeredBitmap.LayerUniqueId[SelectedImageLayerIndex];
