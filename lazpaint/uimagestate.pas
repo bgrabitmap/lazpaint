@@ -34,6 +34,7 @@ type
     function GetLayerOriginal(Index: integer): TBGRALayerCustomOriginal;
     function GetLayerOriginalDefined(Index: integer): boolean;
     function GetLayerOriginalKnown(Index: integer): boolean;
+    function GetLayerOriginalClass(Index: integer): TBGRALayerOriginalAny;
     function GetLayerOriginalMatrix(Index: integer): TAffineMatrix;
     function GetLayerVisible(Index: integer): boolean;
     function GetLinearBlend: boolean;
@@ -144,6 +145,7 @@ type
     property LayerOriginal[Index: integer]: TBGRALayerCustomOriginal read GetLayerOriginal;
     property LayerOriginalDefined[Index: integer]: boolean read GetLayerOriginalDefined;
     property LayerOriginalKnown[Index: integer]: boolean read GetLayerOriginalKnown;
+    property LayerOriginalClass[Index: integer]: TBGRALayerOriginalAny read GetLayerOriginalClass;
     property LayerOriginalMatrix[Index: integer]: TAffineMatrix read GetLayerOriginalMatrix;
     property LayerBitmap[Index: integer]: TBGRABitmap read GetLayerBitmap;
     property LayerBitmapById[AId: integer]: TBGRABitmap read GetLayerBitmapById;
@@ -191,6 +193,14 @@ begin
     result := boTransparent
   else
     result := LayeredBitmap.BlendOperation[Index];
+end;
+
+function TImageState.GetLayerOriginalClass(Index: integer): TBGRALayerOriginalAny;
+begin
+  if LayeredBitmap = nil then
+    result := nil
+  else
+    result := LayeredBitmap.LayerOriginalClass[Index];
 end;
 
 function TImageState.GetCurrentLayerIndex: integer;

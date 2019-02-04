@@ -64,6 +64,7 @@ type
     function GetLayerBitmapById(AId: integer): TBGRABitmap;
     function GetLayerId(AIndex: integer): integer;
     function GetLayerOriginal(AIndex: integer): TBGRALayerCustomOriginal;
+    function GetLayerOriginalClass(AIndex: integer): TBGRALayerOriginalAny;
     function GetLayerOriginalDefined(AIndex: integer): boolean;
     function GetLayerOriginalKnown(AIndex: integer): boolean;
     function GetLayerOriginalMatrix(AIndex: integer): TAffineMatrix;
@@ -239,6 +240,7 @@ type
     property LayerOriginal[AIndex: integer]: TBGRALayerCustomOriginal read GetLayerOriginal;
     property LayerOriginalDefined[AIndex: integer]: boolean read GetLayerOriginalDefined;
     property LayerOriginalKnown[AIndex: integer]: boolean read GetLayerOriginalKnown;
+    property LayerOriginalClass[AIndex: integer]: TBGRALayerOriginalAny read GetLayerOriginalClass;
     property LayerOriginalMatrix[AIndex: integer]: TAffineMatrix read GetLayerOriginalMatrix write SetLayerOriginalMatrix;
     property LayerId[AIndex: integer]: integer read GetLayerId;
     property LayerVisible[AIndex: integer]: boolean read GetLayerVisible write SetLayerVisible;
@@ -1206,6 +1208,11 @@ end;
 function TLazPaintImage.GetLayerOriginal(AIndex: integer): TBGRALayerCustomOriginal;
 begin
   result := FCurrentState.LayerOriginal[AIndex];
+end;
+
+function TLazPaintImage.GetLayerOriginalClass(AIndex: integer): TBGRALayerOriginalAny;
+begin
+  result := FCurrentState.LayerOriginalClass[AIndex];
 end;
 
 function TLazPaintImage.GetLayerOriginalDefined(AIndex: integer): boolean;
