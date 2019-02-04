@@ -24,6 +24,7 @@ type
 
     FFilename: string;
     FLoadError: string;
+    FInUpdatePreview: boolean;
 
     FImageFormat: TBGRAImageFormat;
     FImageNbLayers: integer;
@@ -77,6 +78,7 @@ type
     procedure ClearThumbnails;
     procedure DoValidate;
     procedure SetLoopCount;
+    procedure FinishUpdatePreview;
   public
     LazPaintInstance: TLazPaintCustomInstance;
     constructor Create(ASurface: TBGRAVirtualScreen; AStatus: TLabel; AAnimate: boolean);
@@ -100,6 +102,7 @@ uses FPimage, BGRAReadJpeg, BGRAOpenRaster, BGRAPaintNet, BGRAReadLzp, Dialogs, 
 
 function TImagePreview.GetPreviewDataLoss: boolean;
 begin
+  FinishUpdatePreview;
   result := (FImageFormat in[ifJpeg,     {compression loss}
                              ifLazPaint, {layer loss}
                              ifOpenRaster,
@@ -741,6 +744,148 @@ begin
   end;
 end;
 
+procedure TImagePreview.FinishUpdatePreview;
+var reader: TFPCustomImageReader;
+  jpegReader: TBGRAReaderJpeg;
+  source: TStream;
+begin
+  if FInUpdatePreview then
+  begin
+    source := nil;
+    try
+      source := FileManager.CreateFileStream(FFilename, fmOpenRead or fmShareDenyWrite);
+      FImageFormat := DetectFileFormat(source,ExtractFileExt(FFilename));
+      case FImageFormat of
+      ifGif:
+        begin
+          try
+            FAnimatedGif := TBGRAAnimatedGif.Create;
+            FAnimatedGif.LoadFromStream(source);
+            FImageNbLayers := 1;
+          except
+            on ex: Exception do
+            begin
+              FLoadError := ex.Message;
+              FreeAndNil(FAnimatedGif);
+            end;
+          end;
+        end;
+      ifTiff:
+        begin
+          try
+            FTiff := TTiff.Create;
+            if FTiff.LoadFromStream(source) <> teNone then
+              raise exception.Create(rsCannotOpenFile);
+
+            FImageNbLayers := 1;
+            if FTiff.Count = 0 then
+            begin
+              FreeAndNil(FTiff);
+              FLoadError := rsFileCannotBeEmpty;
+            end;
+          except
+            on ex: Exception do
+            begin
+              FLoadError := ex.Message;
+              FreeAndNil(FTiff);
+            end;
+          end;
+        end;
+      ifIco,ifCur:
+        begin
+          FIconCursor := TBGRAIconCursor.Create;
+          try
+            FIconCursor.LoadFromStream(source);
+            FImageNbLayers := 1;
+          except
+            on ex: Exception do
+            begin
+              FLoadError:= ex.Message;
+              FreeAndNil(FIconCursor);
+            end;
+          end;
+        end;
+      ifJpeg:
+        begin
+          jpegReader := TBGRAReaderJpeg.Create;
+          jpegReader.Performance := jpBestSpeed;
+          jpegReader.MinWidth := Screen.Width;
+          jpegReader.MinHeight := Screen.Height;
+          try
+            FSingleImage := TBGRABitmap.Create;
+            FSingleImage.LoadFromStream(source,jpegReader);
+            FImageNbLayers := 1;
+          except
+            on ex: Exception do
+            begin
+              FLoadError:= ex.Message;
+              FreeAndNil(FSingleImage);
+            end;
+          end;
+          jpegReader.Free;
+        end;
+      else
+        begin
+          reader := CreateBGRAImageReader(FImageFormat);
+          try
+            FSingleImage := TBGRABitmap.Create;
+            FSingleImage.LoadFromStream(source,reader);
+            if reader is TFPReaderOpenRaster then FImageNbLayers := TFPReaderOpenRaster(reader).NbLayers else
+            if reader is TFPReaderPaintDotNet then FImageNbLayers := TFPReaderPaintDotNet(reader).NbLayers else
+            if reader is TBGRAReaderLazPaint then FImageNbLayers := TBGRAReaderLazPaint(reader).NbLayers else
+            if reader is TBGRAReaderOXO then FImageNbLayers := TBGRAReaderOXO(reader).NbLayers else
+              FImageNbLayers := 1;
+          except
+            on ex: Exception do
+            begin
+              FLoadError:= ex.Message;
+              FreeAndNil(FSingleImage);
+            end;
+          end;
+          reader.Free;
+        end;
+      end;
+    except
+      on ex: Exception do
+        FLoadError:= ex.Message;
+    end;
+    source.Free;
+
+    if Assigned(FIconCursor) then
+    begin
+      if FIconCursor.Count > 0 then
+        FStatus.Caption := rsCanvasSize + ': ' + IntToStr(FIconCursor.Width[0])+'x'+IntToStr(FIconCursor.Height[0])+ ', ' +
+                           rsEntries + ': ' + IntToStr(FIconCursor.Count)
+      else
+        FStatus.Caption := rsEntries + ': ' + IntToStr(FIconCursor.Count);
+    end else
+    if Assigned(FAnimatedGif) then
+    begin
+      FStatus.Caption := rsCanvasSize + ': ' + IntToStr(FAnimatedGif.Width)+'x'+IntToStr(FAnimatedGif.Height)+', '+
+                         rsFrames+': '+IntToStr(FAnimatedGif.Count);
+    end else
+    if Assigned(FTiff) then
+    begin
+      with FTiff.GetBiggestImage do
+        FStatus.Caption := rsCanvasSize + ': ' + IntToStr(Width)+'x'+IntToStr(Height)+', '+
+                           rsEntries+': '+IntToStr(FTiff.Count);
+    end else
+    if Assigned(FSingleImage) then
+    begin
+      FStatus.Caption := rsCanvasSize + ': ' + IntToStr(FSingleImage.Width)+'x'+IntToStr(FSingleImage.Height)+', '+
+                         rsLayers+': '+IntToStr(FImageNbLayers);
+    end else
+    if FLoadError <> '' then
+    begin
+      FStatus.Caption := FLoadError;
+    end else
+      FStatus.Caption := '';
+
+    FInUpdatePreview := false;
+    FSurface.RedrawBitmap;
+  end;
+end;
+
 procedure TImagePreview.DeleteEntry(i: integer);
 var outputStream: TStream;
 begin
@@ -865,9 +1010,6 @@ begin
 end;
 
 procedure TImagePreview.UpdatePreview;
-var reader: TFPCustomImageReader;
-  jpegReader: TBGRAReaderJpeg;
-  source: TStream;
 begin
   ClearThumbnails;
   FreeAndNil(FSingleImage);
@@ -883,139 +1025,11 @@ begin
   FSurface.RedrawBitmap;
   FStatus.Caption := rsLoading+'...';
   FStatus.Update;
+  FInUpdatePreview := true;
   {$IFDEF LINUX}
   Application.ProcessMessages;
   {$ENDIF}
-  source := nil;
-  try
-    source := FileManager.CreateFileStream(FFilename, fmOpenRead or fmShareDenyWrite);
-    FImageFormat := DetectFileFormat(source,ExtractFileExt(FFilename));
-    case FImageFormat of
-    ifGif:
-      begin
-        try
-          FAnimatedGif := TBGRAAnimatedGif.Create;
-          FAnimatedGif.LoadFromStream(source);
-          FImageNbLayers := 1;
-        except
-          on ex: Exception do
-          begin
-            FLoadError := ex.Message;
-            FreeAndNil(FAnimatedGif);
-          end;
-        end;
-      end;
-    ifTiff:
-      begin
-        try
-          FTiff := TTiff.Create;
-          if FTiff.LoadFromStream(source) <> teNone then
-            raise exception.Create(rsCannotOpenFile);
-
-          FImageNbLayers := 1;
-          if FTiff.Count = 0 then
-          begin
-            FreeAndNil(FTiff);
-            FLoadError := rsFileCannotBeEmpty;
-          end;
-        except
-          on ex: Exception do
-          begin
-            FLoadError := ex.Message;
-            FreeAndNil(FTiff);
-          end;
-        end;
-      end;
-    ifIco,ifCur:
-      begin
-        FIconCursor := TBGRAIconCursor.Create;
-        try
-          FIconCursor.LoadFromStream(source);
-          FImageNbLayers := 1;
-        except
-          on ex: Exception do
-          begin
-            FLoadError:= ex.Message;
-            FreeAndNil(FIconCursor);
-          end;
-        end;
-      end;
-    ifJpeg:
-      begin
-        jpegReader := TBGRAReaderJpeg.Create;
-        jpegReader.Performance := jpBestSpeed;
-        jpegReader.MinWidth := Screen.Width;
-        jpegReader.MinHeight := Screen.Height;
-        try
-          FSingleImage := TBGRABitmap.Create;
-          FSingleImage.LoadFromStream(source,jpegReader);
-          FImageNbLayers := 1;
-        except
-          on ex: Exception do
-          begin
-            FLoadError:= ex.Message;
-            FreeAndNil(FSingleImage);
-          end;
-        end;
-        jpegReader.Free;
-      end;
-    else
-      begin
-        reader := CreateBGRAImageReader(FImageFormat);
-        try
-          FSingleImage := TBGRABitmap.Create;
-          FSingleImage.LoadFromStream(source,reader);
-          if reader is TFPReaderOpenRaster then FImageNbLayers := TFPReaderOpenRaster(reader).NbLayers else
-          if reader is TFPReaderPaintDotNet then FImageNbLayers := TFPReaderPaintDotNet(reader).NbLayers else
-          if reader is TBGRAReaderLazPaint then FImageNbLayers := TBGRAReaderLazPaint(reader).NbLayers else
-          if reader is TBGRAReaderOXO then FImageNbLayers := TBGRAReaderOXO(reader).NbLayers else
-            FImageNbLayers := 1;
-        except
-          on ex: Exception do
-          begin
-            FLoadError:= ex.Message;
-            FreeAndNil(FSingleImage);
-          end;
-        end;
-        reader.Free;
-      end;
-    end;
-  except
-    on ex: Exception do
-      FLoadError:= ex.Message;
-  end;
-  source.Free;
-
-  if Assigned(FIconCursor) then
-  begin
-    if FIconCursor.Count > 0 then
-      FStatus.Caption := rsCanvasSize + ': ' + IntToStr(FIconCursor.Width[0])+'x'+IntToStr(FIconCursor.Height[0])+ ', ' +
-                         rsEntries + ': ' + IntToStr(FIconCursor.Count)
-    else
-      FStatus.Caption := rsEntries + ': ' + IntToStr(FIconCursor.Count);
-  end else
-  if Assigned(FAnimatedGif) then
-  begin
-    FStatus.Caption := rsCanvasSize + ': ' + IntToStr(FAnimatedGif.Width)+'x'+IntToStr(FAnimatedGif.Height)+', '+
-                       rsFrames+': '+IntToStr(FAnimatedGif.Count);
-  end else
-  if Assigned(FTiff) then
-  begin
-    with FTiff.GetBiggestImage do
-      FStatus.Caption := rsCanvasSize + ': ' + IntToStr(Width)+'x'+IntToStr(Height)+', '+
-                         rsEntries+': '+IntToStr(FTiff.Count);
-  end else
-  if Assigned(FSingleImage) then
-  begin
-    FStatus.Caption := rsCanvasSize + ': ' + IntToStr(FSingleImage.Width)+'x'+IntToStr(FSingleImage.Height)+', '+
-                       rsLayers+': '+IntToStr(FImageNbLayers);
-  end else
-  if FLoadError <> '' then
-  begin
-    FStatus.Caption := FLoadError;
-  end else
-    FStatus.Caption := '';
-  FSurface.RedrawBitmap;
+  FinishUpdatePreview;
 end;
 
 procedure TImagePreview.HandleTimer;
@@ -1027,6 +1041,7 @@ end;
 function TImagePreview.GetPreviewBitmap: TImageEntry;
 var tx,ty,bpp: integer; back: TBGRAPixel;
 begin
+  FinishUpdatePreview;
   result := TImageEntry.Empty;
 
   if Assigned(FIconCursor) then
