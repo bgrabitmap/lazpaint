@@ -47,7 +47,7 @@ var FPosterize: TFPosterize;
 begin
   FPosterize := TFPosterize.Create(nil);
   try
-    FPosterize.FFilterConnector := TFilterConnector.Create(AInstance, AParameters);
+    FPosterize.FFilterConnector := TFilterConnector.Create(AInstance, AParameters, false);
     FPosterize.FFilterConnector.OnTryStopAction := @FPosterize.OnTryStopAction;
   except
     on ex: exception do

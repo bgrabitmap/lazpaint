@@ -194,6 +194,7 @@ function TFMain.GetCurrentToolAction: TAction;
 begin
   Case CurrentTool of
   ptMoveLayer: result := LayerMove;
+  ptRotateLayer: result := LayerRotate;
   else result := ActionList1.ActionByName('Tool'+PaintToolTypeStr[CurrentTool]) as TAction;
   end;
 end;

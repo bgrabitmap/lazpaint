@@ -45,8 +45,11 @@ type
   protected
     FManager: TToolManager;
     FLastToolDrawingLayer: TBGRABitmap;
+    FBackupDrawingLayerBounds: TRect;
+    FBackupDrawingLayer: TBGRABitmap;
     function GetAction: TLayerAction; virtual;
     function GetIsSelectingTool: boolean; virtual; abstract;
+    function FixSelectionTransform: boolean; virtual;
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF; rightBtn: boolean): TRect; virtual;
     function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect; virtual;
     procedure DoToolMoveAfter(pt: TPoint; ptF: TPointF); virtual;
@@ -54,6 +57,7 @@ type
     procedure OnTryStop(sender: TCustomLayerAction); virtual;
     function SelectionMaxPointDistance: single;
     function GetStatusText: string; virtual;
+    function DoGetToolDrawingLayer: TBGRABitmap; virtual;
   public
     ToolUpdateNeeded: boolean;
     Cursor: TCursor;
@@ -79,7 +83,7 @@ type
     function ToolProvideCopy: boolean; virtual;
     function ToolProvideCut: boolean; virtual;
     function ToolProvidePaste: boolean; virtual;
-    function GetToolDrawingLayer: TBGRABitmap; virtual;
+    function GetToolDrawingLayer: TBGRABitmap;
     procedure RestoreBackupDrawingLayer;
     function GetBackupLayerIfExists: TBGRABitmap;
     function Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; virtual;
@@ -91,24 +95,13 @@ type
     property StatusText: string read GetStatusText;
   end;
 
-  { TGenericTransformTool }
-
-  TGenericTransformTool = class(TGenericTool)
-  protected
-    function GetKeepTransformOnDestroy: boolean; virtual; abstract;
-    procedure SetKeepTransformOnDestroy(AValue: boolean); virtual; abstract;
-  public
-    property KeepTransformOnDestroy: boolean read GetKeepTransformOnDestroy write SetKeepTransformOnDestroy;
-  end;
-
   { TReadonlyTool }
 
   TReadonlyTool = class(TGenericTool)
   protected
     function GetAction: TLayerAction; override;
     function GetIsSelectingTool: boolean; override;
-  public
-    function GetToolDrawingLayer: TBGRABitmap; override;
+    function DoGetToolDrawingLayer: TBGRABitmap; override;
   end;
 
   TToolClass = class of TGenericTool;
@@ -284,7 +277,8 @@ function ToolPopupMessageToStr(AMessage :TToolPopupMessage): string;
 
 implementation
 
-uses Types, ugraph, uscaledpi, LazPaintType, UCursors, BGRATextFX, ULoading, uresourcestrings;
+uses Types, ugraph, uscaledpi, LazPaintType, UCursors, BGRATextFX, ULoading, uresourcestrings,
+  BGRATransform;
 
 function StrToPaintToolType(const s: ansistring): TPaintToolType;
 var pt: TPaintToolType;
@@ -361,10 +355,10 @@ begin
   result := false;
 end;
 
-function TReadonlyTool.GetToolDrawingLayer: TBGRABitmap;
+function TReadonlyTool.DoGetToolDrawingLayer: TBGRABitmap;
 begin
-  if Manager.Image.SelectionEmpty or not assigned(Manager.Image.SelectionLayerReadonly) then
-    Result:= Manager.Image.SelectedImageLayerReadOnly
+  if Manager.Image.SelectionMaskEmpty or not assigned(Manager.Image.SelectionLayerReadonly) then
+    Result:= Manager.Image.CurrentLayerReadOnly
   else
     Result:= Manager.Image.SelectionLayerReadonly;
 end;
@@ -387,8 +381,8 @@ begin
   if IsSelectingTool or not Assigned(Manager.Image) then
     result := Point(0,0)
   else
-    if GetToolDrawingLayer = Manager.Image.SelectedImageLayerReadOnly then
-      result := Manager.Image.LayerOffset[Manager.Image.currentImageLayerIndex]
+    if GetToolDrawingLayer = Manager.Image.CurrentLayerReadOnly then
+      result := Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex]
     else
       result := Point(0,0);
 end;
@@ -398,14 +392,50 @@ begin
   result := '';
 end;
 
+function TGenericTool.DoGetToolDrawingLayer: TBGRABitmap;
+begin
+  if Action = nil then
+    result := nil
+  else if IsSelectingTool then
+  begin
+    Action.QuerySelection;
+    result := Action.CurrentSelection;
+    if result = nil then
+      raise exception.Create('Selection not created');
+  end
+  else
+    result := Action.DrawingLayer;
+end;
+
 function TGenericTool.GetAction: TLayerAction;
+var
+  layer: TBGRABitmap;
 begin
   if not Assigned(FAction) then
   begin
-    FAction := TLayerAction.Create(Manager.Image);
+    FAction := Manager.Image.CreateAction(not IsSelectingTool And Manager.Image.SelectionMaskEmpty);
     FAction.OnTryStop := @OnTryStop;
+    FAction.ChangeBoundsNotified:= true;
+    if IsSelectingTool or not Manager.Image.SelectionMaskEmpty then
+    begin
+      FAction.ApplySelectionTransform;
+      layer := GetToolDrawingLayer;
+      if Assigned(layer) then
+      begin
+        if layer = Manager.Image.SelectionMaskReadonly then
+          FBackupDrawingLayerBounds:= layer.GetImageBounds(cGreen)
+        else
+          FBackupDrawingLayerBounds:= layer.GetImageBounds;
+        FBackupDrawingLayer := layer.GetPart(FBackupDrawingLayerBounds) as TBGRABitmap;
+      end;
+    end;
   end;
   result := FAction;
+end;
+
+function TGenericTool.FixSelectionTransform: boolean;
+begin
+  result:= true;
 end;
 
 function TGenericTool.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
@@ -517,7 +547,6 @@ end;
 function TGenericTool.ToolDown(X, Y: single; rightBtn: boolean): TRect;
 var
   toolDest: TBGRABitmap;
-  pt: TPoint;
   ptF: TPointF;
 begin
   result := EmptyRect;
@@ -526,23 +555,24 @@ begin
   toolDest.JoinStyle := Manager.ToolJoinStyle;
   toolDest.LineCap := Manager.ToolLineCap;
   toolDest.PenStyle := Manager.ToolPenStyle;
-  if toolDest = Manager.Image.SelectedImageLayerReadOnly then
-  begin
-    x -= LayerOffset.x;
-    y -= LayerOffset.y;
-  end;
-  pt := Point(round(x),round(y));
   ptF := PointF(x,y);
-  result := DoToolDown(toolDest,pt,ptF,rightBtn);
+  if toolDest = Manager.Image.CurrentLayerReadOnly then
+  begin
+    ptF.x -= LayerOffset.x;
+    ptF.y -= LayerOffset.y;
+  end else if FixSelectionTransform and ((toolDest = Manager.Image.SelectionMaskReadonly)
+    or (toolDest = Manager.Image.SelectionLayerReadonly)) and
+      IsAffineMatrixInversible(Manager.Image.SelectionTransform) then
+    ptF := AffineMatrixInverse(Manager.Image.SelectionTransform)*ptF;
+
+  result := DoToolDown(toolDest,ptF.Round,ptF,rightBtn);
 end;
 
 function TGenericTool.ToolMove(X, Y: single): TRect;
 var
   toolDest: TBGRABitmap;
-  pt: TPoint;
   ptF: TPointF;
 begin
-  pt := Point(round(x),round(y));
   ptF := PointF(x,y);
   Manager.ToolCurrentCursorPos := ptF;
   result := EmptyRect;
@@ -551,14 +581,16 @@ begin
   toolDest.JoinStyle := Manager.ToolJoinStyle;
   toolDest.LineCap := Manager.ToolLineCap;
   toolDest.PenStyle := Manager.ToolPenStyle;
-  if toolDest = Manager.Image.SelectedImageLayerReadOnly then
+  if toolDest = Manager.Image.CurrentLayerReadOnly then
   begin
-    x -= LayerOffset.x;
-    y -= LayerOffset.y;
-    pt := Point(round(x),round(y));
-    ptF := PointF(x,y);
-  end;
-  result := DoToolMove(toolDest,pt,ptF);
+    ptF.x -= LayerOffset.x;
+    ptF.y -= LayerOffset.y;
+  end else if FixSelectionTransform and ((toolDest = Manager.Image.SelectionMaskReadonly)
+    or (toolDest = Manager.Image.SelectionLayerReadonly)) and
+      IsAffineMatrixInversible(Manager.Image.SelectionTransform) then
+    ptF := AffineMatrixInverse(Manager.Image.SelectionTransform)*ptF;
+
+  result := DoToolMove(toolDest,ptF.Round,ptF);
 end;
 
 procedure TGenericTool.ToolMoveAfter(X, Y: single);
@@ -632,32 +664,35 @@ end;
 
 function TGenericTool.GetToolDrawingLayer: TBGRABitmap;
 begin
-  if Action = nil then
-  begin
-    result := nil;
-  end else
-  if IsSelectingTool then
-  begin
-    Action.QuerySelection;
-    result := Action.CurrentSelection;
-    if result = nil then
-      raise exception.Create('Selection not created');
-  end
-  else
-  begin
-    result := Action.DrawingLayer;
-  end;
+  result := DoGetToolDrawingLayer;
   FLastToolDrawingLayer := result;
 end;
 
 procedure TGenericTool.RestoreBackupDrawingLayer;
+var
+  layer: TBGRABitmap;
 begin
   if Assigned(FAction) then
   begin
-    if IsSelectingTool then
-      Action.RestoreSelection
-    else
-      Action.RestoreDrawingLayer;
+    if Assigned(FBackupDrawingLayer) then
+    begin
+      layer:= GetToolDrawingLayer;
+      if Assigned(layer) then
+      begin
+        if layer = Manager.Image.SelectionMaskReadonly then
+          layer.Fill(BGRABlack)
+        else
+          layer.FillTransparent;
+        layer.PutImage(FBackupDrawingLayerBounds.Left,FBackupDrawingLayerBounds.Top, FBackupDrawingLayer, dmSet);
+        Action.NotifyChange(layer, rect(0,0,layer.Width,layer.Height));
+      end;
+    end else
+    begin
+      if IsSelectingTool then
+        Action.RestoreSelectionMask
+      else
+        Action.RestoreDrawingLayer;
+    end;
   end;
 end;
 
@@ -741,12 +776,17 @@ procedure TToolManager.NotifyImageOrSelectionChanged(ALayer: TBGRABitmap; ARect:
 begin
   if (CurrentTool <> nil) and not IsRectEmpty(ARect) then
   begin
-    if CurrentTool.IsSelectingTool then
-      Image.SelectionMayChange(ARect)
-    else if ALayer <> nil then
-      Image.LayerMayChange(ALayer, ARect)
-    else
-      Image.ImageMayChange(AddLayerOffset(ARect))
+    if Assigned(CurrentTool.FAction) then
+      if not IsOnlyRenderChange(ARect) then
+        CurrentTool.FAction.NotifyChange(ALayer, ARect);
+
+    if ALayer = nil then
+    begin
+      if ALayer = Image.CurrentLayerReadOnly then
+        Image.ImageMayChange(AddLayerOffset(ARect))
+      else
+        Image.LayerMayChange(ALayer, ARect);
+    end
   end;
 end;
 
@@ -1031,30 +1071,15 @@ end;
 procedure TToolManager.InternalSetCurrentToolType(tool: TPaintToolType);
 var showPenwidth, showShape, showLineCap, showJoinStyle, showSplineStyle, showEraserOption, showTolerance, showGradient, showDeformation,
     showText, showPhong, showAltitude, showPerspective, showColor, showTexture, showBrush: boolean;
-    newTool: TGenericTool;
 begin
   if (tool <> FCurrentToolType) or (FCurrentTool=nil) then
   begin
-    if Assigned(FCurrentTool) and (FCurrentTool is TGenericTransformTool) then
-    begin
-      if PaintTools[tool] <> nil then
-        newTool := PaintTools[tool].Create(self)
-      else
-        newTool := nil;
+    FreeAndNil(FCurrentTool);
+    if PaintTools[tool] <> nil then
+      FCurrentTool := PaintTools[tool].Create(self)
+    else
+      FCurrentTool := nil;
 
-      if Assigned(newTool) and (newTool is TGenericTransformTool) then
-        TGenericTransformTool(FCurrentTool).KeepTransformOnDestroy := true;
-      FreeAndNil(FCurrentTool);
-
-      FCurrentTool := newTool;
-    end else
-    begin
-      FreeAndNil(FCurrentTool);
-      if PaintTools[tool] <> nil then
-        FCurrentTool := PaintTools[tool].Create(self)
-      else
-        FCurrentTool := nil;
-    end;
     FCurrentToolType:= tool;
   end;
 
@@ -1252,6 +1277,7 @@ function TToolManager.ToolDown(X, Y: single; ARightBtn: boolean;
 var changed: TRect;
 begin
   SetPressure(APressure);
+  Image.DraftOriginal := true;
   if ToolCanBeUsed then
     changed := currentTool.ToolDown(X,Y,ARightBtn)
   else
@@ -1377,6 +1403,7 @@ end;
 function TToolManager.ToolUp: boolean;
 var changed: TRect;
 begin
+  Image.DraftOriginal := false;
   if ToolCanBeUsed then
     changed := currentTool.ToolUp
   else

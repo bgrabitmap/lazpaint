@@ -220,7 +220,7 @@ var topmostInfo: TTopMostInfo;
 begin
   FMode := AMode;
   try
-    FFilterConnector := TFilterConnector.Create(AInstance,AParameters);
+    FFilterConnector := TFilterConnector.Create(AInstance,AParameters,false);
     FFilterConnector.OnTryStopAction := @OnTryStopAction;
   except
     on ex: exception do

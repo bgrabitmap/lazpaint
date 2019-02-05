@@ -55,7 +55,7 @@ type
     procedure OnZoomChanged({%H-}sender: TZoom; {%H-}ANewZoom: single; AWorkArea: TRect);
     procedure UpdateCursor(X,Y: integer; ACanvasOfs: TPoint; AWorkArea: TRect; AControl: TControl;
                           AWinControlOfs: TPoint; AWinControl: TWinControl);
-    procedure UpdatePicture(ACanvasOfs: TPoint; AWorkArea: TRect; AControl: TControl);
+    procedure UpdatePicture(ACanvasOfs: TPoint; AWorkArea: TRect; {%H-}AControl: TControl);
     function BitmapToForm(pt: TPointF): TPointF;
     function BitmapToForm(X, Y: Single): TPointF;
     function BitmapToVirtualScreen(ptF: TPointF): TPointF;
@@ -71,7 +71,7 @@ type
 
 implementation
 
-uses BGRATransform, LCLIntf, Types, ugraph, math, UTool;
+uses BGRATransform, LCLIntf, Types, ugraph, math, UTool, BGRAThumbnail;
 
 function TImageView.GetFillSelectionHighlight: boolean;
 begin
@@ -80,7 +80,9 @@ end;
 
 procedure TImageView.SetFillSelectionHighlight(AValue: boolean);
 begin
+  if AValue = FSelectionHighlight.FillSelection then exit;
   FSelectionHighlight.FillSelection := AValue;
+  Image.ImageMayChangeCompletely;
 end;
 
 function TImageView.GetImage: TLazPaintImage;
@@ -151,7 +153,7 @@ begin
   OffsetRect(renderRect, -FLastPictureParameters.virtualScreenArea.Left,
                          -FLastPictureParameters.virtualScreenArea.Top);
 
-  Image.DrawBackground(FVirtualScreen, renderRect);
+  DrawThumbnailCheckers(FVirtualScreen,renderRect,Image.IsIconCursor);
 
   //draw image (with merged selection)
   FVirtualScreen.StretchPutImage(renderRect,Image.RenderedImage,dmDrawWithTransparency);

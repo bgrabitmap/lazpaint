@@ -196,7 +196,7 @@ var gsbaOptionFromConfig: boolean;
     topmostInfo: TTopMostInfo;
 begin
   try
-    FFilterConnector := TFilterConnector.Create(AInstance,AParameters);
+    FFilterConnector := TFilterConnector.Create(AInstance,AParameters,false);
     FFilterConnector.OnTryStopAction := @OnTryStopAction;
   except
     on ex: exception do

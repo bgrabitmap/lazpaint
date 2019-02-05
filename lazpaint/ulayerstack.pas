@@ -96,13 +96,16 @@ type
 
 implementation
 
-uses BGRAFillInfo,uscaledpi,uresourcestrings,ublendop, uimage, utool, BGRAText, BGRAThumbnail;
+uses BGRAFillInfo,uscaledpi,uresourcestrings,ublendop, uimage, utool, BGRAText, BGRAThumbnail,
+   BGRALayerOriginal, math, BGRATransform, BGRASVGOriginal;
 
 function TFLayerStack.DrawLayerItem(ABitmap: TBGRABitmap; layerPos: TPoint; layerIndex: integer; ASelected: boolean): TDrawLayerItemResult;
-var LayerBmp: TBGRABitmap;
-    lColor,lColorTransp: TBGRAPixel;
-    barwidth: integer;
-    sourceCoords: Array Of TPointF;
+var
+  lColor,lColorTransp: TBGRAPixel;
+  barwidth: integer;
+  sourceCoords: Array Of TPointF;
+  reduced: TBGRABitmap;
+  reducedBounds: TRect;
 begin
   if ASelected then
     lColor := ColorToBGRA(ColorToRGB(clHighlightText))
@@ -115,6 +118,16 @@ begin
      pointf(layerPos.X+0.9*LayerRectWidth,layerPos.Y+round(LayerRectHeight*0.1)),
     pointf(layerPos.X+0.7*LayerRectWidth,layerPos.Y+round(LayerRectHeight*0.9)),
     pointf(layerPos.X+0.05*LayerRectWidth,layerPos.Y+round(LayerRectHeight*0.9))]);
+  reduced := TBGRABitmap.Create(round(LayerRectWidth*0.65), round(LayerRectHeight*0.8));
+  reducedBounds := RectWithSize(LazPaintInstance.Image.LayerOffset[layerIndex].X,
+                        LazPaintInstance.Image.LayerOffset[layerIndex].Y,
+                        LazPaintInstance.Image.LayerBitmap[layerIndex].Width,
+                        LazPaintInstance.Image.LayerBitmap[layerIndex].Height);
+  reducedBounds.Left := round(reducedBounds.Left*reduced.Width/LazPaintInstance.Image.Width);
+  reducedBounds.Top := round(reducedBounds.Top*reduced.Height/LazPaintInstance.Image.Height);
+  reducedBounds.Right := round(reducedBounds.Right*reduced.Width/LazPaintInstance.Image.Width);
+  reducedBounds.Bottom := round(reducedBounds.Bottom*reduced.Height/LazPaintInstance.Image.Height);
+  reduced.StretchPutImage(reducedBounds, LazPaintInstance.Image.LayerBitmap[layerIndex], dmDrawWithTransparency);
 
   result.PreviewPts[0].y += 0.5;
   result.PreviewPts[1].y += 0.5;
@@ -125,10 +138,11 @@ begin
   else
     ABitmap.FillPolyAntialias(result.PreviewPts,background);
 
-  layerBmp := LazPaintInstance.Image.LayerBitmap[layerIndex];
-  sourceCoords := PointsF([pointf(-0.49,-0.49),pointf(layerBmp.Width-0.51,-0.49),
-            pointf(layerBmp.Width-0.51,layerBmp.Height-0.51),pointf(-0.49,layerBmp.Height-0.51)]);
-  ABitmap.FillPolyLinearMapping( result.PreviewPts, layerBmp, sourceCoords, False);
+  sourceCoords := PointsF([pointf(-0.49,-0.49),pointf(reduced.Width-0.51,-0.49),
+            pointf(reduced.Width-0.51,reduced.Height-0.51),pointf(-0.49,reduced.Height-0.51)]);
+  ABitmap.FillPolyLinearMapping(result.PreviewPts, reduced, sourceCoords, False);
+  reduced.Free;
+
   result.PreviewPts[0].y -= 0.5;
   result.PreviewPts[1].y -= 0.5;
   result.PreviewPts[2].y += 0.5;
@@ -309,14 +323,14 @@ begin
   if i < LazPaintInstance.Image.NbLayers then
   begin
     if not LazPaintInstance.Image.SelectionLayerIsEmpty and
-        (i <> LazPaintInstance.Image.currentImageLayerIndex) then
+        (i <> LazPaintInstance.Image.CurrentLayerIndex) then
     begin
       topmostInfo := LazPaintInstance.HideTopmost;
       res := MessageDlg(rsTransferSelectionToOtherLayer,mtConfirmation,[mbOk,mbCancel],0);
       LazPaintInstance.ShowTopmost(topmostInfo);
       if res = mrOk then
       begin
-        if LazPaintInstance.Image.SetCurrentImageLayerIndex(i) then
+        if LazPaintInstance.Image.SetCurrentLayerByIndex(i) then
         begin
           renaming := false;
           BGRALayerStack.RedrawBitmap;
@@ -324,7 +338,7 @@ begin
       end;
       exit;
     end;
-    if LazPaintInstance.Image.SetCurrentImageLayerIndex(i) then
+    if LazPaintInstance.Image.SetCurrentLayerByIndex(i) then
     begin
       renaming := false;
       movingItemStart := true;
@@ -356,7 +370,7 @@ begin
       str := BlendOperationStr[BlendOperation[i]];
       if blendOps.IndexOf(str) = -1 then
         blendOps.Add(str);
-      if i = LazPaintInstance.Image.currentImageLayerIndex then
+      if i = LazPaintInstance.Image.CurrentLayerIndex then
         selectedStr := str;
     end;
   if selectedStr = BlendOperationStr[boTransparent] then
@@ -399,10 +413,10 @@ begin
 
   InterruptorWidth := LayerRectHeight div 4;
   InterruptorHeight := LayerRectHeight div 4;
-  temp := ScaleY(20,OriginalDPI);
+  temp := ScaleY(28,OriginalDPI);
   if InterruptorWidth > temp then InterruptorWidth := temp;
   if InterruptorHeight > temp then InterruptorHeight := temp;
-  temp := ScaleY(10,OriginalDPI);
+  temp := ScaleY(7,OriginalDPI);
   if InterruptorHeight < temp then InterruptorHeight := temp;
   if InterruptorWidth < temp then InterruptorWidth := temp;
   StackWidth := InterruptorWidth+LayerRectWidth+ABitmap.TextSize('Some layer name').cx;
@@ -469,7 +483,7 @@ begin
   if ScrollStackItemIntoView then
   begin
     ScrollPos.X := 0;
-    ScrollPos.Y := (LazPaintInstance.Image.NbLayers-1-LazPaintInstance.Image.currentImageLayerIndex)*LayerRectHeight;
+    ScrollPos.Y := (LazPaintInstance.Image.NbLayers-1-LazPaintInstance.Image.CurrentLayerIndex)*LayerRectHeight;
     ScrollStackItemIntoView := false;
   end;
 
@@ -532,8 +546,56 @@ var i: integer;
   layerPos: TPoint;
   lSelected: boolean;
   y: integer;
-  clipping: TRect;
-  lColor: TBGRAPixel;
+  clipping, rKind: TRect;
+  lColor, lColorTrans: TBGRAPixel;
+
+  procedure DrawKind(AClass: TBGRALayerOriginalAny);
+  var
+    eb: TEasyBezierCurve;
+    w: single;
+    i: integer;
+    m: TAffineMatrix;
+  begin
+    if AClass = TBGRALayerImageOriginal then
+    begin
+      Bitmap.Rectangle(rKind, lColor,lColorTrans, dmDrawWithTransparency);
+      Bitmap.HorizLine(rKind.Left+1,rKind.Top+(rKind.Height-1) div 2,rKind.Right-2, lColor, dmDrawWithTransparency);
+      Bitmap.VertLine(rKind.Left+(rKind.Width-1) div 2,rKind.Top+1,rKind.Bottom-2, lColor, dmDrawWithTransparency);
+    end else
+    if AClass = TBGRALayerSVGOriginal then
+    begin
+      m := AffineMatrixTranslation(rKind.Left,rKind.Top+rKind.Height*0.1)*AffineMatrixScale(rKind.Width,rKind.Height*0.8);
+      w := max(1,rKind.Height/10);
+      eb := EasyBezierCurve([PointF(0.28,0),PointF(0,0),PointF(0,0.5),PointF(0.28,0.5),PointF(1/3,1),PointF(0,1)],False,cmCurve);
+      for i := 0 to eb.PointCount-1 do eb.Point[i] := m*eb.Point[i];
+      Bitmap.DrawPolyLineAntialias(eb.ToPoints, lColor, w, true);
+      eb := EasyBezierCurve([PointF(0.33,0),PointF(0.47,1),PointF(0.6,0)],False,cmAngle);
+      for i := 0 to eb.PointCount-1 do eb.Point[i] := m*eb.Point[i];
+      Bitmap.DrawPolyLineAntialias(eb.ToPoints, lColor, w, true);
+      eb := EasyBezierCurve([PointF(1,0),PointF(0.7,0),PointF(2/3,1),PointF(1,1),PointF(1,0.5),PointF(5/6,0.5)],False,cmCurve);
+      eb.CurveMode[eb.PointCount-2] := cmAngle;
+      for i := 0 to eb.PointCount-1 do eb.Point[i] := m*eb.Point[i];
+      Bitmap.DrawPolyLineAntialias(eb.ToPoints, lColor, w, true);
+    end else
+    if AClass = nil then
+    begin
+      eb := EasyBezierCurve([PointF(0.25,0.25),PointF(0.32,0.07),PointF(0.5,0),PointF(0.68,0.07),PointF(0.75,0.20),
+                             PointF(0.75,0.30),PointF(0.70,0.40),PointF(0.5,0.5),PointF(0.5,0.70)],False,cmCurve);
+      m := AffineMatrixTranslation(rKind.Left,rKind.Top)*AffineMatrixScale(rKind.Width,rKind.Height);
+      for i := 0 to eb.PointCount-1 do eb.Point[i] := m*eb.Point[i];
+      w := max(1,rKind.Height/10);
+      Bitmap.DrawPolyLineAntialias(eb.ToPoints, lColor, w, true);
+      Bitmap.FillEllipseAntialias((rKind.Left+rKind.Right)/2, rKind.Bottom - 1 - (w-1)/2, w*0.6,w*0.6, lColor);
+    end else
+    begin
+      Bitmap.EllipseAntialias(rKind.Left+rKind.Width / 3, rKind.Top+rKind.Height / 3,rKind.Width / 3,rKind.Height / 3,
+                              lColor, 1, lColorTrans);
+      Bitmap.DrawPolygonAntialias([PointF(rKind.Left+rKind.Width/4,rKind.Bottom),
+                                   PointF(rKind.Left+rKind.Width/2,rKind.Top+rKind.Height/4),
+                                   PointF(rKind.Right,rKind.Bottom)],lColor,1, lColorTrans);
+    end;
+  end;
+
 begin
   if Layout then
   begin
@@ -551,7 +613,7 @@ begin
     begin
       with LazPaintInstance.Image do
       begin
-        if i = currentImageLayerIndex then
+        if i = CurrentLayerIndex then
         begin
           Bitmap.FillRect(layerPos.X,layerPos.Y,layerPos.X+StackWidth,layerPos.Y+LayerRectHeight,ColorToBGRA(ColorToRGB(clHighlight)),dmSet);
           lSelected:= true;
@@ -563,8 +625,8 @@ begin
         end;
         if UpdateItem <> -1 then clipping := rect(layerPos.X,layerPos.Y,layerPos.X+StackWidth,layerPos.Y+LayerRectHeight);
 
-        interruptors[i] := rect(layerPos.X+InterruptorWidth div 5,layerpos.Y+(LayerRectHeight-InterruptorHeight) div 2,layerPos.X+InterruptorWidth,
-           layerpos.Y+(LayerRectHeight-InterruptorHeight) div 2+InterruptorHeight);
+        interruptors[i] := RectWithSize(layerPos.X+InterruptorWidth div 5,layerpos.Y+(LayerRectHeight-5*InterruptorHeight div 2) div 2,
+                                        InterruptorWidth, InterruptorHeight);
 
         if (layerpos.Y+LayerRectHeight > 0) and (layerpos.Y < Bitmap.Height) then
         begin
@@ -572,6 +634,9 @@ begin
             lColor := ColorToBGRA(ColorToRGB(clHighlightText))
           else
             lColor := ColorToBGRA(ColorToRGB(clWindowText));
+
+          lColorTrans := lColor;
+          lColorTrans.alpha := lColorTrans.alpha div 3;
 
           Bitmap.Rectangle(interruptors[i],lColor,dmDrawWithTransparency);
           if LayerVisible[i] then
@@ -585,6 +650,18 @@ begin
                   PointF((left+right-1)/2,(top*2+bottom-1)/3),
                   PointF(right-2,top-2))]),lColor,1.5);
           end;
+
+          rKind := interruptors[i];
+          rKind.Offset(0, InterruptorHeight*3 div 2);
+          if LayerOriginalDefined[i] then
+          begin
+            if LayerOriginalKnown[i] then
+              DrawKind(LayerOriginalClass[i])
+            else
+              DrawKind(nil);
+          end
+          else
+            DrawKind(TBGRALayerImageOriginal);
 
           inc(layerPos.X,InterruptorWidth);
           if movingItemStart and (i= movingItemSourceIndex) then
@@ -682,20 +759,20 @@ var blendOp: TBlendOperation;
 begin
   blendOp := boTransparent;
   topmostInfo := LazPaintInstance.HideTopmost;
-  if LazPaintInstance.Image.currentImageLayerIndex > 0 then
-    tempUnder := LazPaintInstance.Image.ComputeFlatImage(0,LazPaintInstance.Image.currentImageLayerIndex-1,False)
+  if LazPaintInstance.Image.CurrentLayerIndex > 0 then
+    tempUnder := LazPaintInstance.Image.ComputeFlatImage(0,LazPaintInstance.Image.CurrentLayerIndex-1,False)
   else
     tempUnder := TBGRABitmap.Create(1,1);
-  if ublendop.ShowBlendOpDialog(LazPaintInstance, blendOp, tempUnder,LazPaintInstance.Image.SelectedImageLayerReadOnly) then
+  if ublendop.ShowBlendOpDialog(LazPaintInstance, blendOp, tempUnder,LazPaintInstance.Image.CurrentLayerReadOnly) then
   begin
     updatingImageOnly := true;
-    LazPaintInstance.Image.BlendOperation[LazPaintInstance.Image.currentImageLayerIndex] := blendOp;
+    LazPaintInstance.Image.BlendOperation[LazPaintInstance.Image.CurrentLayerIndex] := blendOp;
     updatingImageOnly := false;
     UpdateComboBlendOp;
   end;
   tempUnder.Free;
   LazPaintInstance.ShowTopmost(topmostInfo);
-  if LazPaintInstance.Image.currentImageLayerIndex = 0 then
+  if LazPaintInstance.Image.CurrentLayerIndex = 0 then
     LazPaintInstance.ToolManager.ToolPopup(tpmBlendOpBackground);
 end;
 
@@ -715,8 +792,8 @@ begin
         else
           blendOp := StrToBlendOperation(itemStr);
         updatingImageOnly := true;
-        LazPaintInstance.Image.BlendOperation[LazPaintInstance.Image.currentImageLayerIndex] := blendOp;
-        if LazPaintInstance.Image.currentImageLayerIndex = 0 then
+        LazPaintInstance.Image.BlendOperation[LazPaintInstance.Image.CurrentLayerIndex] := blendOp;
+        if LazPaintInstance.Image.CurrentLayerIndex = 0 then
           LazPaintInstance.ToolManager.ToolPopup(tpmBlendOpBackground);
         updatingImageOnly := false;
       end else
@@ -770,7 +847,7 @@ begin
       begin
         if i < LazPaintInstance.Image.NbLayers then
         begin
-          if (i <> LazPaintInstance.image.currentImageLayerIndex) and not renaming then
+          if (i <> LazPaintInstance.image.CurrentLayerIndex) and not renaming then
             HandleSelectLayer(i,x,y)
           else
           begin

@@ -886,6 +886,7 @@ msgid "Median"
 msgstr "Median"
 
 #: tfmain.filternegative.caption
+msgctxt "tfmain.filternegative.caption"
 msgid "Negative"
 msgstr "Negativ"
 
@@ -981,6 +982,16 @@ msgctxt "tfmain.imagehorizontalflip.hint"
 msgid "Flip image horizontally"
 msgstr "Vänd bild horisontalt"
 
+#: tfmain.imagelinearnegative.caption
+msgctxt "tfmain.imagelinearnegative.caption"
+msgid "Linear negative"
+msgstr "Linjär negativ"
+
+#: tfmain.imagenegative.caption
+msgctxt "tfmain.imagenegative.caption"
+msgid "Negative"
+msgstr "Negativ"
+
 #: tfmain.imagerepeat.caption
 msgid "Repeat..."
 msgstr "Upprepa..."
@@ -1004,6 +1015,10 @@ msgstr "Rotera 90° medurs"
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
 msgstr "Smart zoom x3"
+
+#: tfmain.imageswapredblue.caption
+msgid "Swap red and blue channels"
+msgstr ""
 
 #: tfmain.imageverticalflip.caption
 msgctxt "tfmain.imageverticalflip.caption"
@@ -1079,6 +1094,11 @@ msgstr ""
 
 #: tfmain.itemiconsizeauto.caption
 msgid "auto"
+msgstr ""
+
+#: tfmain.itemquitseparator.caption
+msgctxt "tfmain.itemquitseparator.caption"
+msgid "-"
 msgstr ""
 
 #: tfmain.itemuseimagebrowser.caption
@@ -1323,6 +1343,11 @@ msgstr ""
 msgctxt "tfmain.menuimage.caption"
 msgid "Image"
 msgstr "Bild"
+
+#: tfmain.menuitem1.caption
+msgctxt "tfmain.menuitem1.caption"
+msgid "-"
+msgstr ""
 
 #: tfmain.menulanguage.caption
 msgctxt "tfmain.menulanguage.caption"
@@ -3405,6 +3430,10 @@ msgstr ""
 
 #: uresourcestrings.rstooloninvisiblelayer
 msgid "Tool cannot be used on an invisible layer"
+msgstr ""
+
+#: uresourcestrings.rstoomanylayers
+msgid "Too many layers"
 msgstr ""
 
 #: uresourcestrings.rstotalimages

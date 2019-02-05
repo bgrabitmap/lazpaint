@@ -1,7 +1,7 @@
 object FMain: TFMain
-  Left = 467
+  Left = 462
   Height = 578
-  Top = 93
+  Top = 16
   Width = 739
   AllowDropFiles = True
   Caption = 'LazPaint'
@@ -31,7 +31,7 @@ object FMain: TFMain
   OnUTF8KeyPress = FormUTF8KeyPress
   Position = poDefault
   ShowHint = True
-  LCLVersion = '1.8.0.6'
+  LCLVersion = '1.6.0.4'
   object Panel_ToolbarBackground: TPanel
     Left = 8
     Height = 36
@@ -5504,6 +5504,7 @@ object FMain: TFMain
     }
   end
   object ActionList1: TActionList
+    Images = ImageList16
     left = 200
     top = 432
     object FileNew: TAction
@@ -6092,6 +6093,7 @@ object FMain: TFMain
     object ImageFlatten: TAction
       Category = 'Image'
       Caption = 'Flatten image'
+      ImageIndex = 83
       OnExecute = ImageFlattenExecute
       OnUpdate = ImageFlattenUpdate
       ShortCut = 24646
@@ -6419,6 +6421,23 @@ object FMain: TFMain
       Caption = 'Forget dialog box answers'
       Hint = 'Forget answers given to dialog boxes'
       OnExecute = ForgetDialogAnswersExecute
+    end
+    object ImageNegative: TAction
+      Category = 'Image'
+      Caption = 'Negative'
+      ImageIndex = 66
+      OnExecute = ScriptExecute
+    end
+    object ImageLinearNegative: TAction
+      Category = 'Image'
+      Caption = 'Linear negative'
+      ImageIndex = 66
+      OnExecute = ScriptExecute
+    end
+    object ImageSwapRedBlue: TAction
+      Category = 'Image'
+      Caption = 'Swap red and blue channels'
+      OnExecute = ScriptExecute
     end
   end
   object ColorDialog1: TColorDialog

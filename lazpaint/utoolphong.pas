@@ -138,10 +138,7 @@ begin
     rightBtnDown := true;
     Manager.ToolLightPosition := pt;
     if afterRectDrawing then
-    begin
-      result := FinishShape(toolDest);
-      Action.NotifyChange(toolDest, result);
-    end
+      result := FinishShape(toolDest)
     else
       result := OnlyRenderChange;
     exit;

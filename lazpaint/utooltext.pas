@@ -6,7 +6,7 @@ interface
 
 uses
   Types, Classes, SysUtils, utool, utoolbasic, LCLType, Graphics, BGRABitmap, BGRABitmapTypes, BGRATextFX,
-  BGRAGradients, ULayerAction;
+  BGRAGradients;
 
 type
 
@@ -39,7 +39,6 @@ type
     function TextSize: TSize;
     function TextSizeOf(s: string): TSize;
     procedure UpdateTextFX;
-    function GetAction: TLayerAction; override;
     function DeleteSelection: boolean;
     procedure SelectionFollows;
     procedure GetCaretPos(AIndex:integer; out caretTop,caretBottom:TPointF);
@@ -186,9 +185,7 @@ begin
   end else
     currentRect := EmptyRect;
 
-  Action.NotifyChange(toolDest,currentRect);
-  result := RectUnion(currentRect,previousRect);
-  previousRect := currentRect;
+  result := currentRect;
   if IsRectEmpty(result) then result := OnlyRenderChange; //no text but update caret
 end;
 
@@ -269,12 +266,6 @@ begin
 
   shader.LightPosition := Manager.ToolLightPosition;
   shader.LightPositionZ := Manager.ToolLightAltitude;
-end;
-
-function TToolText.GetAction: TLayerAction;
-begin
-  Result:=inherited GetAction;
-  result.AllChangesNotified:= true;
 end;
 
 function TToolText.DeleteSelection: boolean;

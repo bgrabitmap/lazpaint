@@ -156,7 +156,7 @@ begin
     if Manager.ToolFloodFillOptionProgressive then
       toolDest.FloodFill(pt.X,pt.Y,penColor,fmProgressive,Manager.ToolTolerance) else
         toolDest.FloodFill(pt.X,pt.Y,penColor,fmDrawWithTransparency,Manager.ToolTolerance);
-  Manager.Image.LayerMayChangeCompletely(toolDest);
+  Action.NotifyChange(toolDest, rect(0,0,toolDest.Width,toolDest.Height));
   ValidateAction;
   result := OnlyRenderChange;
 end;

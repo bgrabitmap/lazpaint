@@ -166,6 +166,7 @@ resourcestring
   rsOpenMultipleImageFiles='Open multiple image files';
   rsMoreThanOneFile='You are trying to open more than one file. How would you like these files to be opened?';
   rsOpenFilesAsLayers='Open files as layers in a single image';
+  rsTooManyLayers='Too many layers';
   rsAddToImageList='Add files to the image processing list';
   rsOpenFirstFileOnly='Open the first file only';
   rsLayeredImage = 'Layered image';

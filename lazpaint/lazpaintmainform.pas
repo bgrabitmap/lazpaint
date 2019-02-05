@@ -13,7 +13,7 @@ uses
   Controls, Graphics, Dialogs, Menus, ExtDlgs, ComCtrls, ActnList, StdCtrls,
   ExtCtrls, Buttons, types, LCLType, BGRAImageList, BGRAVirtualScreen,
 
-  BGRABitmap, BGRABitmapTypes, BGRALayers,
+  BGRABitmap, BGRABitmapTypes, BGRALayers, BGRASVGOriginal,
 
   LazPaintType, UMainFormLayout, UTool, UImage, UImageAction, ULayerAction, UZoom, UImageView,
   UImageObservation, UConfig, UScaleDPI, UResourceStrings,
@@ -28,6 +28,9 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    ImageSwapRedBlue: TAction;
+    ImageLinearNegative: TAction;
+    ImageNegative: TAction;
     ForgetDialogAnswers: TAction;
     FileChooseEntry: TAction;
     ToolButton8: TToolButton;
@@ -711,6 +714,7 @@ type
     FCoordinatesCaption: string;
     FCoordinatesCaptionCount: NativeInt;
     FImageView: TImageView;
+    FUpdateStackWhenIdle: boolean;
 
     function GetCurrentPressure: single;
     function GetUseImageBrowser: boolean;
@@ -792,7 +796,7 @@ type
   public
     { public declarations }
     FormBackgroundColor: TColor;
-    StackNeedUpdate: boolean;
+    UpdateStackOnTimer: boolean;
     Zoom: TZoom;
 
     procedure PaintPictureNow;
@@ -803,6 +807,7 @@ type
     procedure UpdateToolbar;
     function ChooseTool(Tool : TPaintToolType): boolean;
     procedure PictureSelectedLayerIndexChanged({%H-}sender: TLazPaintImage);
+    procedure PictureSelectedLayerIndexChanging({%H-}sender: TLazPaintImage);
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
     procedure UpdateEditPicture(ADelayed: boolean = false);
     property CurrentTool: TPaintToolType read GetCurrentTool;
@@ -818,7 +823,7 @@ implementation
 
 uses LCLIntf, BGRAUTF8, ugraph, math, umac, uclipboard, ucursors,
    ufilters, ULoadImage, ULoading, UFileExtensions, UBrushType,
-   ugeometricbrush, UPreviewDialog, UQuestion;
+   ugeometricbrush, UPreviewDialog, UQuestion, BGRALayerOriginal;
 
 const PenWidthFactor = 10;
 
@@ -922,6 +927,7 @@ begin
   begin
     Image.OnSelectionChanged := nil;
     Image.OnSelectedLayerIndexChanged:= nil;
+    Image.OnSelectedLayerIndexChanging:= nil;
   end;
   FLayout.ToolBoxPopup := nil;
   RegisterScripts(False);
@@ -977,6 +983,7 @@ begin
   LazPaintInstance.EmbeddedResult := mrNone;
 
   Image.OnSelectedLayerIndexChanged:= @PictureSelectedLayerIndexChanged;
+  Image.OnSelectedLayerIndexChanging:= @PictureSelectedLayerIndexChanging;
   Image.CurrentFilenameUTF8 := '';
 
   RegisterToolbarElements;
@@ -1160,6 +1167,11 @@ begin
     btnMiddleDown:= false;
   end;
   if redraw then PaintPictureNow;
+  if FUpdateStackWhenIdle then
+  begin
+    UpdateStackOnTimer:= true;
+    FUpdateStackWhenIdle:= false;
+  end;
   UpdateToolbar;
   ReleaseMouseButtons(Shift);
 
@@ -1253,7 +1265,7 @@ begin
         begin
           if length(chosenFiles) = 1 then
           begin
-            if TryOpenFileUTF8(chosenFiles[0],true,@loadedImage) then
+            if TryOpenFileUTF8(chosenFiles[0],true,@loadedImage,true) then
             begin
               result := srOk;
               if Assigned(Scripting.RecordingFunctionParameters) then
@@ -1578,8 +1590,8 @@ begin
   if Sender is TAction then
   begin
     actionName:= (Sender as TAction).Name;
-    if (actionName = 'ImageHorizontalFlip') and not image.SelectionEmpty then actionName := 'SelectionHorizontalFlip' else
-    if (actionName = 'ImageVerticalFlip') and not image.SelectionEmpty  then actionName := 'SelectionVerticalFlip';
+    if (actionName = 'ImageHorizontalFlip') and not image.SelectionMaskEmpty then actionName := 'SelectionHorizontalFlip' else
+    if (actionName = 'ImageVerticalFlip') and not image.SelectionMaskEmpty  then actionName := 'SelectionVerticalFlip';
     CallScriptFunction(actionName);
   end;
 end;
@@ -1713,7 +1725,7 @@ function TFMain.ScriptFileSaveSelectionAs(AVars: TVariableSet): TScriptResult;
 var filename: string;
     vFileName: TScriptVariableReference;
 begin
-  if Image.SelectionEmpty then
+  if Image.SelectionMaskEmpty then
   begin
     result := srOk;
     exit;
@@ -1762,7 +1774,7 @@ begin
     end else
     begin
       try
-        Image.SaveSelectionToFileUTF8(filename);
+        Image.SaveSelectionMaskToFileUTF8(filename);
         result := srOk;
         if Assigned(Scripting.RecordingFunctionParameters) then
            Scripting.RecordingFunctionParameters.AddString('FileName',filename);
@@ -1795,7 +1807,7 @@ end;
 
 procedure TFMain.FileSaveSelectionAsUpdate(Sender: TObject);
 begin
-  FileSaveSelectionAs.Enabled := not Image.SelectionEmpty;
+  FileSaveSelectionAs.Enabled := not Image.SelectionMaskEmpty;
 end;
 
 procedure TFMain.FormDropFiles(Sender: TObject; const FileNames: array of String);
@@ -1804,10 +1816,12 @@ var
   Errors: String='';
   loadedLayers: array of record
      bmp: TBGRABitmap;
+     orig: TBGRALayerCustomOriginal;
      filename: string;
   end;
   topmost: TTopMostInfo;
   choice: TModalResult;
+  svgOrig: TBGRALayerSVGOriginal;
 begin
   if Length(FileNames)<1 then exit;
   if Length(FileNames)= 1
@@ -1838,9 +1852,21 @@ begin
                   MessagePopupForever(rsLoading + ' ' + inttostr(i+1) + '/' + inttostr(length(FileNames)));
                   LazPaintInstance.UpdateWindows;
                   loadedLayers[i].filename := Filenames[i];
-                  loadedLayers[i].bmp := LoadFlatImageUTF8(Filenames[i]).bmp;
-                  if loadedLayers[i].bmp.Width > tx then tx := loadedLayers[i].bmp.Width;
-                  if loadedLayers[i].bmp.Height > ty then ty := loadedLayers[i].bmp.Height;
+                  case DetectFileFormat(Filenames[i]) of
+                   ifSvg:
+                     begin
+                       svgOrig := LoadSVGOriginalUTF8(Filenames[i]);
+                       loadedLayers[i].orig := svgOrig;
+                       if ceil(svgOrig.Width) > tx then tx := ceil(svgOrig.Width);
+                       if ceil(svgOrig.Height) > ty then ty := ceil(svgOrig.Height);
+                     end
+                   else
+                     begin
+                       loadedLayers[i].bmp := LoadFlatImageUTF8(Filenames[i]).bmp;
+                       if loadedLayers[i].bmp.Width > tx then tx := loadedLayers[i].bmp.Width;
+                       if loadedLayers[i].bmp.Height > ty then ty := loadedLayers[i].bmp.Height;
+                     end;
+                  end;
                   MessagePopupHide;
                 except on ex:exception do
                   //begin
@@ -1857,9 +1883,14 @@ begin
                   Image.Assign(TBGRABitmap.Create(tx,ty),true,false);
                   ZoomFitIfTooBig;
                   for i := 0 to high(loadedLayers) do
+                  if Assigned(loadedLayers[i].bmp) then
                   begin
                     FImageActions.AddLayerFromBitmap(loadedLayers[i].bmp,ExtractFileName(loadedLayers[i].filename));
                     loadedLayers[i].bmp := nil;
+                  end else
+                  begin
+                    FImageActions.AddLayerFromOriginal(loadedLayers[i].orig,ExtractFileName(loadedLayers[i].filename));
+                    loadedLayers[i].orig := nil;
                   end;
                 end;
               except on ex:exception do
@@ -1878,7 +1909,10 @@ begin
                 LazPaintInstance.ShowTopmost(topmost);
               end;
               for i := 0 to high(loadedLayers) do
+              begin
                 FreeAndNil(loadedLayers[i].bmp);
+                FreeAndNil(loadedLayers[i].orig);
+              end;
           end;  //OpenFilesAsLayers
        mrLast+2: begin
              if not LazPaintInstance.ImageListWindowVisible then
@@ -1986,7 +2020,7 @@ end;
 
 procedure TFMain.ImageCropLayerUpdate(Sender: TObject);
 begin
-  ImageCropLayer.Enabled := not image.SelectionEmpty;
+  ImageCropLayer.Enabled := not image.SelectionMaskEmpty;
   ImageCropLayer.Visible := (image.NbLayers > 1);
 end;
 
@@ -2086,7 +2120,7 @@ end;
 
 procedure TFMain.LayerMergeOverUpdate(Sender: TObject);
 begin
-  LayerMergeOver.Enabled := (image.currentImageLayerIndex > 0) and Image.CurrentLayerVisible;
+  LayerMergeOver.Enabled := (image.CurrentLayerIndex > 0) and Image.CurrentLayerVisible;
 end;
 
 procedure TFMain.LayerMoveExecute(Sender: TObject);
@@ -2096,7 +2130,7 @@ end;
 
 procedure TFMain.LayerMoveUpdate(Sender: TObject);
 begin
-  LayerMove.Enabled := Image.CurrentLayerVisible and Image.SelectionEmpty;
+  LayerMove.Enabled := Image.CurrentLayerVisible and Image.SelectionMaskEmpty;
 end;
 
 procedure TFMain.LayerRemoveCurrentUpdate(Sender: TObject);
@@ -2111,7 +2145,7 @@ end;
 
 procedure TFMain.LayerRotateUpdate(Sender: TObject);
 begin
-  LayerRotate.Enabled := Image.CurrentLayerVisible and Image.SelectionEmpty;
+  LayerRotate.Enabled := Image.CurrentLayerVisible and Image.SelectionMaskEmpty;
 end;
 
 procedure TFMain.ItemDonateClick(Sender: TObject);
@@ -2137,11 +2171,11 @@ end;
 procedure TFMain.MenuImageClick(Sender: TObject);
 begin
   ItemHorizFlipLayer.Visible := (image.NbLayers > 1) and not LazPaintInstance.LayerWindowVisible;
-  ItemHorizFlipSelection.Visible := not image.SelectionEmpty;
+  ItemHorizFlipSelection.Visible := not image.SelectionMaskEmpty;
   ImageHorizontalFlip.Visible := not ItemHorizFlipLayer.Visible and not ItemHorizFlipSelection.Visible;
   MenuHorizFlipSub.Visible := not ImageHorizontalFlip.Visible;
   ItemVertFlipLayer.Visible := (image.NbLayers > 1) and not LazPaintInstance.LayerWindowVisible;
-  ItemVertFlipSelection.Visible := not image.SelectionEmpty;
+  ItemVertFlipSelection.Visible := not image.SelectionMaskEmpty;
   ImageVerticalFlip.Visible := not ItemVertFlipLayer.Visible and not ItemVertFlipSelection.Visible;
   MenuVertFlipSub.Visible := not ImageVerticalFlip.Visible;
 end;
@@ -2279,7 +2313,7 @@ end;
 
 procedure TFMain.ImageCropUpdate(Sender: TObject);
 begin
-  ImageCrop.Enabled := not image.SelectionEmpty;
+  ImageCrop.Enabled := not image.SelectionMaskEmpty;
 end;
 
 procedure TFMain.ImageRepeatExecute(Sender: TObject);
@@ -2367,10 +2401,10 @@ begin
     Label_Coordinates.Update;
     FCoordinatesCaptionCount := 0;
   end;
-  if CanCompressOrUpdateStack and StackNeedUpdate then
+  if CanCompressOrUpdateStack and UpdateStackOnTimer then
   begin
     LazPaintInstance.NotifyStackChange;
-    StackNeedUpdate := false;
+    UpdateStackOnTimer := false;
   end else
   begin
     if CanCompressOrUpdateStack then image.CompressUndo;
@@ -2385,12 +2419,12 @@ end;
 
 procedure TFMain.ToolRotateSelectionUpdate(Sender: TObject);
 begin
-  ToolRotateSelection.Enabled := not image.SelectionEmpty;
+  ToolRotateSelection.Enabled := not image.SelectionMaskEmpty;
 end;
 
 procedure TFMain.ToolLayerMappingUpdate(Sender: TObject);
 begin
-  ToolLayerMapping.Enabled := Image.CurrentLayerVisible and Image.SelectionEmpty;
+  ToolLayerMapping.Enabled := Image.CurrentLayerVisible and Image.SelectionMaskEmpty;
 end;
 
 procedure TFMain.ToolLoadTextureExecute(Sender: TObject);
@@ -2622,7 +2656,7 @@ begin
           begin
             useSelection:= false;
             newTexture := nil;
-            if not image.SelectionEmpty and not image.SelectionLayerIsEmpty then
+            if not image.SelectionMaskEmpty and not image.SelectionLayerIsEmpty then
             begin
               topmostInfo := LazPaintInstance.HideTopmost;
               if Config.DefaultTransformSelectionAnswer <> mrNone then
@@ -2640,19 +2674,15 @@ begin
                   if image.SelectionLayerReadonly <> nil then
                   begin
                     newTexture := image.SelectionLayerReadonly.Duplicate as TBGRABitmap;
-                    newTexture.ApplyMask(image.SelectionReadonly, image.SelectionLayerBounds);
+                    newTexture.ApplyMask(image.SelectionMaskReadonly, image.SelectionLayerBounds);
                     if newTexture.Empty then
-                      MessagePopup(rsNothingToBeRetrieved,2000)
+                    begin
+                      newTexture.Free;
+                      MessagePopup(rsNothingToBeRetrieved,2000);
+                    end
                     else
                     begin
-                      LayerAction := nil;
-                      try
-                        LayerAction := TLayerAction.Create(Image);
-                        LayerAction.RemoveSelection;
-                        LayerAction.Validate;
-                      except on ex:exception do LazPaintInstance.ShowError(rsTextureMapping,ex.Message);
-                      end;
-                      LayerAction.Free;
+                      FImageActions.RemoveSelection;
                       BGRAReplace(newTexture, newTexture.GetPart(newTexture.GetImageBounds));
                       ToolManager.SetToolTexture(newTexture);
                       UpdateTextureIcon;
@@ -2684,7 +2714,7 @@ begin
           ptLayerMapping:
           begin
             EditDeselect.Execute;
-            if image.SelectedLayerEmpty then
+            if image.CurrentLayerEmpty then
             begin
               MessagePopup(rsEmptyLayer,2000);
               Tool := ptHand;
@@ -2693,7 +2723,7 @@ begin
           end;
           ptMoveLayer:
           begin
-            if image.SelectedLayerEquals(image.SelectedLayerPixel[0,0]) then
+            if image.CurrentLayerEquals(image.CurrentLayerPixel[0,0]) then
             begin
               LazPaintInstance.ShowMessage(rsLazPaint, rsEmptyLayer);
               Tool := ptHand;
@@ -2702,8 +2732,8 @@ begin
           end;
           ptDeformation:
           begin
-            if (image.SelectionEmpty and image.SelectedLayerEquals(image.SelectedLayerPixel[0,0])) or
-               (not image.SelectionEmpty and image.SelectionLayerIsEmpty) then
+            if (image.SelectionMaskEmpty and image.CurrentLayerEquals(image.CurrentLayerPixel[0,0])) or
+               (not image.SelectionMaskEmpty and image.SelectionLayerIsEmpty) then
             begin
               LazPaintInstance.ShowMessage(rsLazPaint, rsNothingToBeDeformed);
               Tool := ptHand;
@@ -2717,7 +2747,7 @@ begin
               result := srException;
               exit;
             end;
-            if image.CurrentLayerVisible and not image.SelectionEmpty and image.SelectionLayerIsEmpty and not image.SelectedLayerEmpty then
+            if image.CurrentLayerVisible and not image.SelectionMaskEmpty and image.SelectionLayerIsEmpty and not image.CurrentLayerEmpty then
             begin
               topmostInfo := LazPaintInstance.HideTopmost;
               if Config.DefaultRetrieveSelectionAnswer <> mrNone then
@@ -2730,21 +2760,7 @@ begin
               end;
               LazPaintInstance.ShowTopmost(topmostInfo);
               case res.ButtonResult of
-                mrYes: begin
-                  LayerAction := nil;
-                  try
-                    LayerAction := TLayerAction.Create(Image);
-                    if LayerAction.RetrieveSelectionIfLayerEmpty(True) then
-                    begin
-                      ComputeSelectionMask(LayerAction.GetOrCreateSelectionLayer,LayerAction.CurrentSelection,Image.SelectionBounds);
-                      Image.SelectionMayChange(Image.SelectionBounds);
-                      LayerAction.Validate;
-                    end;
-                    if image.SelectionLayerIsEmpty then MessagePopup(rsNothingToBeRetrieved,2000);
-                  except on ex:exception do LazPaintInstance.ShowError(rsMovingOrRotatingSelection,ex.Message);
-                  end;
-                  LayerAction.Free;
-                end;
+                mrYes: FImageActions.RetrieveSelection;
               end;
             end;
           end;
@@ -2843,7 +2859,7 @@ end;
 
 procedure TFMain.EditCopyUpdate(Sender: TObject);
 begin
-  EditCopy.Enabled := ToolManager.ToolProvideCopy or not image.SelectionEmpty;
+  EditCopy.Enabled := ToolManager.ToolProvideCopy or not image.SelectionMaskEmpty;
 end;
 
 procedure TFMain.EditCutExecute(Sender: TObject);
@@ -2854,12 +2870,12 @@ end;
 
 procedure TFMain.EditCutUpdate(Sender: TObject);
 begin
-  EditCut.Enabled := ToolManager.ToolProvideCut or not image.SelectionEmpty;
+  EditCut.Enabled := ToolManager.ToolProvideCut or not image.SelectionMaskEmpty;
 end;
 
 procedure TFMain.EditDeleteSelectionUpdate(Sender: TObject);
 begin
-  EditDeleteSelection.Enabled := not image.SelectionEmpty;
+  EditDeleteSelection.Enabled := not image.SelectionMaskEmpty;
 end;
 
 procedure TFMain.EditPasteExecute(Sender: TObject);
@@ -3040,8 +3056,8 @@ end;
 
 procedure TFMain.EditDeselectUpdate(Sender: TObject);
 begin
-  EditDeselect.Enabled := not image.SelectionEmpty;
-  if image.SelectionEmpty then FSaveSelectionInitialFilename := '';
+  EditDeselect.Enabled := not image.SelectionMaskEmpty;
+  if image.SelectionMaskEmpty then FSaveSelectionInitialFilename := '';
 end;
 
 procedure TFMain.EditRedoUpdate(Sender: TObject);
@@ -3060,8 +3076,8 @@ begin
   if Sender is TAction then
   begin
     actionName := (Sender as TAction).Name;
-    if (actionName = 'ImageHorizontalFlip') and not image.SelectionEmpty then actionName := 'SelectionHorizontalFlip' else
-    if (actionName = 'ImageVerticalFlip') and not image.SelectionEmpty  then actionName := 'SelectionVerticalFlip';
+    if (actionName = 'ImageHorizontalFlip') and not image.SelectionMaskEmpty then actionName := 'SelectionHorizontalFlip' else
+    if (actionName = 'ImageVerticalFlip') and not image.SelectionMaskEmpty  then actionName := 'SelectionVerticalFlip';
     CallScriptFunction(actionName);
   end;
 end;
@@ -3069,7 +3085,7 @@ end;
 procedure TFMain.AskMergeSelection(ACaption: string);
 var topmostInfo: TTopMostInfo; res: integer;
 begin
-  if not image.SelectionEmpty and not image.SelectionLayerIsEmpty then
+  if not image.SelectionMaskEmpty and not image.SelectionLayerIsEmpty then
   begin
     topmostInfo:= LazPaintInstance.HideTopmost;
     res := MessageDlg(ACaption,rsMergeSelection,mtConfirmation,[mbYes,mbNo],0);
@@ -3327,10 +3343,20 @@ var
       with ComputeAcceptableImageSize(newPicture.bmp.Width,newPicture.bmp.Height) do
         if (cx < newPicture.bmp.Width) or (cy < newPicture.bmp.Height) then
           BGRAReplace(newPicture.bmp, newPicture.bmp.Resample(cx,cy,rmFineResample));
-      FImageActions.SetCurrentBitmap(newPicture.bmp, False); //image owned
+      image.Assign(newPicture.bmp,True, false);
       newPicture.bmp := nil;
       EndImport(newPicture.bpp, newPicture.frameIndex);
     end else FreeAndNil(newPicture.bmp);
+  end;
+
+  procedure ImportSvg;
+  var
+    layered: TBGRALayeredBitmap;
+  begin
+    StartImport;
+    layered := LoadSVGImageUTF8(filenameUTF8);
+    Image.Assign(layered,true, false);
+    EndImport;
   end;
 
 begin
@@ -3345,6 +3371,10 @@ begin
   newPicture := TImageEntry.Empty;
   try
     format := Image.DetectImageFormat(filenameUTF8);
+    if format = ifSvg then
+    begin
+      ImportSvg;
+    end else
     if Assigned(ALoadedImage) and Assigned(ALoadedImage^.bmp) then
     begin
       newPicture := ALoadedImage^;
@@ -3388,7 +3418,7 @@ end;
 
 procedure TFMain.ToolMoveSelectionUpdate(Sender: TObject);
 begin
-  ToolMoveSelection.Enabled := not image.SelectionEmpty;
+  ToolMoveSelection.Enabled := not image.SelectionMaskEmpty;
 end;
 
 {****************************** Picture ************************}
@@ -3433,6 +3463,7 @@ begin
     ChooseTool(ptHand);
     MessagePopup(rsToolOnInvisibleLayer,5000);
   end;
+  if AEvent.DelayedStackUpdate then FUpdateStackWhenIdle := true;
 end;
 
 procedure TFMain.UpdateEditPicture(ADelayed: boolean = false);
@@ -3455,7 +3486,7 @@ end;
 procedure TFMain.PaintPictureNow;
 begin
   if not visible then exit;
-  StackNeedUpdate := true;
+  UpdateStackOnTimer := true;
   Image.OnImageChanged.NotifyObservers;
   {$IFDEF USEPAINTBOXPICTURE}PaintBox_Picture{$ELSE}self{$ENDIF}.Update;
 end;
@@ -3470,7 +3501,14 @@ end;
 procedure TFMain.PictureSelectedLayerIndexChanged(sender: TLazPaintImage);
 begin
   if not image.CurrentLayerVisible and not ToolManager.ToolCanBeUsed then
-    ChooseTool(ptHand);
+    ChooseTool(ptHand)
+  else
+    ToolManager.ToolOpen;
+end;
+
+procedure TFMain.PictureSelectedLayerIndexChanging(sender: TLazPaintImage);
+begin
+  ToolManager.ToolCloseDontReopen;
 end;
 
 procedure TFMain.SetShowSelectionNormal(const AValue: boolean);

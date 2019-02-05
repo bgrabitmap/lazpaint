@@ -23,12 +23,14 @@ type
     FWorkArea: TRect;
     FWorkAreaFullySelected: boolean;
     FParameters: TVariableSet;
+    FLayerBackupImage: TBGRABitmap;
     function GetActionDone: boolean;
     function GetActiveLayeOffset: TPoint;
     function GetActiveLayer: TBGRABitmap;
     function GetBackupLayer: TBGRABitmap;
     function GetCurrentSelection: TBGRABitmap;
-    procedure Init(ALazPaintInstance: TLazPaintCustomInstance; AAction: TLayerAction; AOwned: boolean; AParameters: TVariableSet);
+    procedure Init(ALazPaintInstance: TLazPaintCustomInstance; AAction: TLayerAction; AOwned: boolean;
+                   AParameters: TVariableSet; AApplyOfsBefore: boolean);
     procedure OnTryStop({%H-}sender: TCustomLayerAction);
     procedure DiscardAction;
     procedure ApplySelectionMaskOn(AFilteredLayer: TBGRABitmap);
@@ -36,7 +38,7 @@ type
   public
     ApplyOnSelectionLayer: boolean;
     Form: TForm;
-    constructor Create(ALazPaintInstance : TLazPaintCustomInstance; AParameters: TVariableSet);
+    constructor Create(ALazPaintInstance : TLazPaintCustomInstance; AParameters: TVariableSet; AApplyOfsBefore: boolean);
     constructor Create(ALazPaintInstance : TLazPaintCustomInstance; AParameters: TVariableSet; AAction: TLayerAction; AOwned: boolean);
     destructor Destroy; override;
     procedure ValidateAction;
@@ -58,7 +60,7 @@ type
 
 implementation
 
-uses Types, BGRABitmapTypes;
+uses Types, BGRABitmapTypes, BGRATransform;
 
 { TFilterConnector }
 
@@ -88,7 +90,9 @@ end;
 
 function TFilterConnector.GetBackupLayer: TBGRABitmap;
 begin
-  if ApplyOnSelectionLayer then
+  if Assigned(FLayerBackupImage) then
+    result := FLayerBackupImage
+  else if ApplyOnSelectionLayer then
     result := FAction.BackupSelectionLayer
   else
     result := FAction.BackupSelectedLayer;
@@ -96,17 +100,18 @@ end;
 
 function TFilterConnector.GetCurrentSelection: TBGRABitmap;
 begin
-  if ApplyOnSelectionLayer or FLazPaintInstance.Image.SelectionEmpty then
+  if ApplyOnSelectionLayer or FLazPaintInstance.Image.SelectionMaskEmpty then
     result := nil
   else
   begin
-    result := FLazPaintInstance.Image.SelectionReadonly;
+    result := FLazPaintInstance.Image.SelectionMaskReadonly;
     if (result.Width <> ActiveLayer.Width) or (result.Height <> ActiveLayer.Height) then
       result := nil;
   end;
 end;
 
-procedure TFilterConnector.Init(ALazPaintInstance: TLazPaintCustomInstance; AAction: TLayerAction; AOwned: boolean; AParameters: TVariableSet);
+procedure TFilterConnector.Init(ALazPaintInstance: TLazPaintCustomInstance; AAction: TLayerAction; AOwned: boolean;
+                                AParameters: TVariableSet; AApplyOfsBefore: boolean);
 var sel: TBGRABitmap;
   y,x: integer;
   p : PBGRAPixel;
@@ -114,13 +119,27 @@ var sel: TBGRABitmap;
 begin
   FLazPaintInstance := ALazPaintInstance;
   FParameters := AParameters;
+  ApplyOnSelectionLayer:= not FLazPaintInstance.Image.SelectionLayerIsEmpty;
+
+  if AAction = nil then
+    AAction := ALazPaintInstance.Image.CreateAction(AApplyOfsBefore and not ApplyOnSelectionLayer);
+
+  if ApplyOnSelectionLayer and not IsAffineMatrixIdentity(AAction.SelectionTransform) then
+  begin
+    AAction.ApplySelectionTransform;
+    FLayerBackupImage := AAction.GetOrCreateSelectionLayer.Duplicate as TBGRABitmap;
+  end else
+  begin
+    FLayerBackupImage := nil;
+  end;
+
   FAction := AAction;
   FActionOwned:= AOwned;
   FAction.OnTryStop := @OnTryStop;
-  ApplyOnSelectionLayer:= not FLazPaintInstance.Image.SelectionLayerIsEmpty;
+
   sel := CurrentSelection;
   if sel <> nil then
-    FWorkArea := FLazPaintInstance.Image.SelectionBounds
+    FWorkArea := FLazPaintInstance.Image.SelectionMaskBounds
   else
     FWorkArea := rect(0,0,ActiveLayer.Width,ActiveLayer.Height);
   FWorkAreaFullySelected := true;
@@ -159,19 +178,20 @@ begin
   end;
 end;
 
-constructor TFilterConnector.Create(ALazPaintInstance : TLazPaintCustomInstance; AParameters: TVariableSet);
+constructor TFilterConnector.Create(ALazPaintInstance : TLazPaintCustomInstance; AParameters: TVariableSet; AApplyOfsBefore: boolean);
 begin
-  Init(ALazPaintInstance,TLayerAction.Create(ALazPaintInstance.Image),True,AParameters);
+  Init(ALazPaintInstance,nil,True,AParameters,AApplyOfsBefore);
 end;
 
 constructor TFilterConnector.Create(ALazPaintInstance : TLazPaintCustomInstance; AParameters: TVariableSet; AAction: TLayerAction; AOwned: boolean);
 begin
-  Init(ALazPaintInstance,AAction,AOwned,AParameters);
+  Init(ALazPaintInstance,AAction,AOwned,AParameters,false);
 end;
 
 destructor TFilterConnector.Destroy;
 begin
   DiscardAction;
+  FLayerBackupImage.Free;
   inherited Destroy;
 end;
 
@@ -189,7 +209,7 @@ procedure TFilterConnector.InvalidateActiveLayer(ARect: TRect);
 begin
   if IntersectRect(ARect, ARect, FWorkArea) then
   begin
-    with FLazPaintInstance.Image.LayerOffset[FLazPaintInstance.Image.currentImageLayerIndex] do
+    with FLazPaintInstance.Image.LayerOffset[FLazPaintInstance.Image.CurrentLayerIndex] do
       OffsetRect(ARect, X,Y);
     FLazPaintInstance.NotifyImageChange(True, ARect);
   end;

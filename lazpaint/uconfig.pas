@@ -56,7 +56,7 @@ type
     procedure FinalizeColorizePresets;
 
     function DefaultLangage: string;
-    class function ClassGetDefaultLangage(AIni: TIniFile): string;
+    class function ClassGetDefaultLangage(AIni: TIniFile): string; static;
     procedure SetDefaultLangage(value: string);
 
     function GetLastUpdateCheck: TDateTime;
@@ -66,8 +66,8 @@ type
     procedure SetLatestVersion(value: string);
     procedure GetUpdatedLanguages(AList: TStringList);
     procedure SetUpdatedLanguages(AList: TStringList);
-    class procedure ClassGetUpdatedLanguages(AList: TStringList; AIni: TIniFile; AVersion: string);
-    class procedure ClassSetUpdatedLanguages(AList: TStringList; AIni: TIniFile; AVersion: string);
+    class procedure ClassGetUpdatedLanguages(AList: TStringList; AIni: TIniFile; AVersion: string); static;
+    class procedure ClassSetUpdatedLanguages(AList: TStringList; AIni: TIniFile; AVersion: string); static;
     procedure AddUpdatedLanguage(ALang: string);
 
     function Default3dObjectDirectory: string;

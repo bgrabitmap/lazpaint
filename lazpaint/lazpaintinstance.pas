@@ -1299,7 +1299,7 @@ begin
     FLayerStack.SetLayerStackScrollPosOnItem(AIndex);
     if FMain <> nil then
     begin
-      FMain.StackNeedUpdate := true;
+      FMain.UpdateStackOnTimer := true;
     end else
       NotifyStackChange;
   end;

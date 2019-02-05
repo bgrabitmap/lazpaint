@@ -5,7 +5,8 @@ unit UToolSelect;
 interface
 
 uses
-  Classes, SysUtils, Graphics, utool, utoolpolygon, utoolbasic, BGRABitmapTypes, BGRABitmap;
+  Classes, SysUtils, Graphics, utool, utoolpolygon, utoolbasic, BGRABitmapTypes, BGRABitmap,
+  ULayerAction;
 
 type
 
@@ -78,26 +79,22 @@ type
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
   end;
 
-  { TToolTransformSelection }
+  { TTransformSelectionTool }
 
-  TToolTransformSelection = class(TGenericTransformTool)
+  TTransformSelectionTool = class(TGenericTool)
   protected
-    FKeepTransformOnDestroy: boolean;
-    function GetKeepTransformOnDestroy: boolean; override;
-    procedure SetKeepTransformOnDestroy(AValue: boolean); override;
-  public
-    procedure SelectionTransformChange;
-    constructor Create(AManager: TToolManager); override;
-    destructor Destroy; override;
+    function GetIsSelectingTool: boolean; override;
+    function GetAction: TLayerAction; override;
+    function FixSelectionTransform: boolean; override;
+    function DoGetToolDrawingLayer: TBGRABitmap; override;
   end;
 
   { TToolMoveSelection }
 
-  TToolMoveSelection = class(TToolTransformSelection)
+  TToolMoveSelection = class(TTransformSelectionTool)
   protected
     handMoving: boolean;
     handOrigin: TPoint;
-    function GetIsSelectingTool: boolean; override;
     function DoToolDown({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF;
       {%H-}rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF): TRect; override;
@@ -109,7 +106,7 @@ type
 
   { TToolRotateSelection }
 
-  TToolRotateSelection = class(TToolTransformSelection)
+  TToolRotateSelection = class(TTransformSelectionTool)
   protected
     class var HintShowed: boolean;
     handMoving: boolean;
@@ -119,7 +116,6 @@ type
     FOriginalTransform: TAffineMatrix;
     FCurrentAngle: single;
     FCurrentCenter: TPointF;
-    function GetIsSelectingTool: boolean; override;
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
       rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect; override;
@@ -138,72 +134,45 @@ implementation
 
 uses types, ugraph, LCLType, LazPaintType, Math, BGRATransform, BGRAPath;
 
-{ TToolTransformSelection }
+{ TTransformSelectionTool }
 
-function TToolTransformSelection.GetKeepTransformOnDestroy: boolean;
+function TTransformSelectionTool.GetIsSelectingTool: boolean;
 begin
-  result := FKeepTransformOnDestroy;
+  result := true;
 end;
 
-procedure TToolTransformSelection.SetKeepTransformOnDestroy(AValue: boolean);
+function TTransformSelectionTool.GetAction: TLayerAction;
 begin
-  FKeepTransformOnDestroy:= AValue;
+  Result:= nil;
 end;
 
-procedure TToolTransformSelection.SelectionTransformChange;
-var selectionChangeRect: TRect;
+function TTransformSelectionTool.FixSelectionTransform: boolean;
 begin
-  selectionChangeRect := Manager.Image.TransformedSelectionBounds;
-  if not Manager.Image.SelectionLayerIsEmpty then
-    Manager.Image.ImageMayChange(selectionChangeRect,False);
-  if not IsRectEmpty(selectionChangeRect) then
-  begin
-    InflateRect(selectionChangeRect,1,1);
-    Manager.Image.RenderMayChange(selectionChangeRect,true);
-  end;
+  Result:= false;
 end;
 
-constructor TToolTransformSelection.Create(AManager: TToolManager);
+function TTransformSelectionTool.DoGetToolDrawingLayer: TBGRABitmap;
 begin
-  inherited Create(AManager);
-  FKeepTransformOnDestroy:= False;
-end;
-
-destructor TToolTransformSelection.Destroy;
-begin
-  if not FKeepTransformOnDestroy and not IsAffineMatrixIdentity(Manager.Image.SelectionTransform) then
-  begin
-    Action.ApplySelectionTransform;
-    ValidateAction;
-  end;
-  inherited Destroy;
+  result := Manager.Image.SelectionMaskReadonly;
 end;
 
 { TToolRotateSelection }
-
-function TToolRotateSelection.GetIsSelectingTool: boolean;
-begin
-  Result:= true;
-end;
 
 function TToolRotateSelection.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
 begin
   result := EmptyRect;
-  if not handMoving and not Manager.Image.SelectionEmpty then
+  if not handMoving and not Manager.Image.SelectionMaskEmpty then
   begin
     if rightBtn then
     begin
       if FCurrentAngle <> 0 then
       begin
-        SelectionTransformChange;
         FCurrentAngle := 0;
         FCurrentCenter := ptF;
         UpdateTransform;
-        SelectionTransformChange;
       end else
       begin
-        FCurrentAngle := 0;
         FCurrentCenter := ptF;
         UpdateTransform;
       end;
@@ -227,7 +196,6 @@ begin
   end;
   if handMoving and ((handOrigin.X <> ptF.X) or (handOrigin.Y <> ptF.Y)) then
   begin
-    SelectionTransformChange;
     angleDiff := ComputeAngle(ptF.X-FCurrentCenter.X,ptF.Y-FCurrentCenter.Y)-
                  ComputeAngle(handOrigin.X-FCurrentCenter.X,handOrigin.Y-FCurrentCenter.Y);
     if snapRotate then
@@ -238,7 +206,6 @@ begin
      else
        FCurrentAngle := FCurrentAngle + angleDiff;
     UpdateTransform;
-    SelectionTransformChange;
     handOrigin := ptF;
     result := OnlyRenderChange;
   end else
@@ -260,7 +227,7 @@ end;
 constructor TToolRotateSelection.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
-  FCurrentCenter := Manager.Image.SelectionTransform * Manager.Image.GetSelectionCenter;
+  FCurrentCenter := Manager.Image.SelectionTransform * Manager.Image.GetSelectionMaskCenter;
   FOriginalTransform := Manager.Image.SelectionTransform;
   FCurrentAngle := 0;
 end;
@@ -277,10 +244,8 @@ begin
 
       if handMoving then
       begin
-        SelectionTransformChange;
         FCurrentAngle := round(snapAngle/15)*15;
         UpdateTransform;
-        SelectionTransformChange;
         result := OnlyRenderChange;
       end;
     end;
@@ -289,13 +254,6 @@ begin
   if key = VK_ESCAPE then
   begin
     if FCurrentAngle <> 0 then
-    begin
-      SelectionTransformChange;
-      FCurrentAngle := 0;
-      UpdateTransform;
-      SelectionTransformChange;
-      result := OnlyRenderChange;
-    end else
     begin
       FCurrentAngle := 0;
       UpdateTransform;
@@ -337,11 +295,6 @@ end;
 
 { TToolMoveSelection }
 
-function TToolMoveSelection.GetIsSelectingTool: boolean;
-begin
-  result := true;
-end;
-
 function TToolMoveSelection.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
 begin
@@ -360,11 +313,9 @@ begin
   result := EmptyRect;
   if handMoving and ((handOrigin.X <> pt.X) or (handOrigin.Y <> pt.Y)) then
   begin
-    SelectionTransformChange;
     dx := pt.X-HandOrigin.X;
     dy := pt.Y-HandOrigin.Y;
     Manager.Image.SelectionTransform := AffineMatrixTranslation(dx,dy) * Manager.Image.SelectionTransform;
-    SelectionTransformChange;
     result := OnlyRenderChange;
   end;
 end;
@@ -653,7 +604,6 @@ begin
   if rightBtn then penColor := BGRABlack else penColor := BGRAWhite;
   toolDest.DrawLineAntialias(ptF.X,ptF.Y,ptF.X,ptF.Y,penColor,Manager.ToolPenWidth,True);
   result := GetShapeBounds([ptF],Manager.ToolPenWidth+1);
-  Action.NotifyChange(toolDest, result);
 end;
 
 function TToolSelectionPen.ContinueDrawing(toolDest: TBGRABitmap; originF,
@@ -661,7 +611,6 @@ function TToolSelectionPen.ContinueDrawing(toolDest: TBGRABitmap; originF,
 begin
   toolDest.DrawLineAntialias(destF.X,destF.Y,originF.X,originF.Y,penColor,Manager.ToolPenWidth,False);
   result := GetShapeBounds([destF,originF],Manager.ToolPenWidth+1);
-  Action.NotifyChange(toolDest, result);
 end;
 
 { TToolMagicWand }
@@ -681,10 +630,10 @@ begin
     exit;
   end;
   if rightBtn then penColor := BGRABlack else penColor := BGRAWhite;
-  Manager.Image.SelectedImageLayerReadOnly.ParallelFloodFill(pt.X,pt.Y,toolDest,penColor,fmDrawWithTransparency,Manager.ToolTolerance);
-  Manager.Image.SelectionMayChangeCompletely;
+  Manager.Image.CurrentLayerReadOnly.ParallelFloodFill(pt.X,pt.Y,toolDest,penColor,fmDrawWithTransparency,Manager.ToolTolerance);
+  result := rect(0,0,toolDest.Width,toolDest.Height);
+  Action.NotifyChange(toolDest, result);
   ValidateAction;
-  result := rect(0,0,Manager.Image.Width,Manager.Image.Height);
 end;
 
 { TToolSelectPoly }
