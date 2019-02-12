@@ -310,14 +310,15 @@ end;
 procedure TTextShape.DeleteTextAfter(ACount: integer);
 var
   delCount, selRight: Integer;
+  tl: TBidiTextLayout;
 begin
   BeginUpdate;
   selRight := Max(FSelStart,FSelEnd);
-  if selRight > 0 then
+  tl := GetTextLayoutIgnoreMatrix;
+  if selRight+ACount <= tl.CharCount then
   begin
     delCount := GetTextLayoutIgnoreMatrix.DeleteText(selRight, ACount);
     FText := GetTextLayoutIgnoreMatrix.TextUTF8;
-    inc(selRight,delCount);
   end;
   FSelStart := selRight;
   FSelEnd := selRight;
