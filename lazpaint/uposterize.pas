@@ -39,7 +39,7 @@ function ShowPosterizeDlg(AInstance: TLazPaintCustomInstance; AParameters: TVari
 
 implementation
 
-uses UScaleDPI, UMac, UColorFilters;
+uses LCScaleDPI, UMac, UColorFilters;
 
 function ShowPosterizeDlg(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): boolean;
 var FPosterize: TFPosterize;
@@ -72,7 +72,7 @@ end;
 
 procedure TFPosterize.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   CheckOKCancelBtns(Button_OK{,Button_Cancel});
   CheckSpinEdit(SpinEdit_Levels);

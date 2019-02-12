@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, Spin, ExtCtrls, BGRABitmap, BGRABitmapTypes, LazPaintType, UScaleDPI,
+  StdCtrls, Spin, ExtCtrls, BGRABitmap, BGRABitmapTypes, LazPaintType, LCScaleDPI,
   UFilterConnector, UFilterThread;
 
 type
@@ -86,7 +86,7 @@ end;
 
 procedure TFRadialBlur.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   blurType := rbNormal;
   CheckOKCancelBtns(Button_OK{,Button_Cancel});

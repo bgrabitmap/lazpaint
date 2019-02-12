@@ -11,7 +11,7 @@
       </SearchPaths>
     </CompilerOptions>
     <Version Minor="1"/>
-    <Files Count="9">
+    <Files Count="10">
       <Item1>
         <Filename Value="lctoolbars.pas"/>
         <UnitName Value="LCToolbars"/>
@@ -47,8 +47,12 @@
       </Item8>
       <Item9>
         <Filename Value="lcvectortextshapes.pas"/>
-        <UnitName Value="lcvectortextshapes"/>
+        <UnitName Value="LCVectorTextShapes"/>
       </Item9>
+      <Item10>
+        <Filename Value="lcscaledpi.pas"/>
+        <UnitName Value="LCScaleDPI"/>
+      </Item10>
     </Files>
     <RequiredPkgs Count="4">
       <Item1>

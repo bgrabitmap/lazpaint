@@ -6,8 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Types, FileUtil, Forms, Controls, Graphics, Dialogs,
-  LCLType, ExtCtrls, StdCtrls, ComCtrls, ExtDlgs, Menus, ActnList,
-  uscaledpi in {$IFDEF WINDOWS}'..\lazpaint\uscaledpi.pas'{$ELSE}'../lazpaint/uscaledpi.pas'{$ENDIF},
+  LCLType, ExtCtrls, StdCtrls, ComCtrls, ExtDlgs, Menus, ActnList, LCScaleDPI,
   BCTrackbarUpdown, BCPanel, BCButton, BGRAVirtualScreen, BGRAImageList,
   BGRABitmap, BGRABitmapTypes, BGRAGraphics, BGRALazPaint, BGRALayerOriginal,
   BGRATransform, BGRAGradientScanner, LCVectorOriginal, LCVectorShapes,

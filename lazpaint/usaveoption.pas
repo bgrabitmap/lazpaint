@@ -111,7 +111,7 @@ function ShowSaveOptionDialog(AInstance: TLazPaintCustomInstance; AOutputFilenam
 implementation
 
 uses UGraph, FPWriteJPEG, UResourceStrings, FPWriteBMP, BMPcomn,
-  UMySLV, BGRAWriteBmpMioMap, BGRADithering, UFileSystem, UScaleDPI,
+  UMySLV, BGRAWriteBmpMioMap, BGRADithering, UFileSystem, LCScaleDPI,
   BGRAThumbnail, BGRAIconCursor, BGRAWinResource;
 
 function ShowSaveOptionDialog(AInstance: TLazPaintCustomInstance; AOutputFilenameUTF8: string): boolean;

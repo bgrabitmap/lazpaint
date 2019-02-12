@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, ComCtrls, BGRABitmap, LazPaintType, uscaledpi, BGRABitmapTypes;
+  StdCtrls, ComCtrls, BGRABitmap, LazPaintType, LCScaleDPI, BGRABitmapTypes;
 
 type
 
@@ -38,7 +38,7 @@ uses umac, BGRAThumbnail;
 
 procedure TFMultiImage.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   CheckOKCancelBtns(Button_OK,Button_Cancel);
 end;

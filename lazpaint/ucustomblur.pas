@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, ExtCtrls, ExtDlgs,  bgrabitmap, LazPaintType, UScaleDPI,
+  StdCtrls, ExtCtrls, ExtDlgs,  bgrabitmap, LazPaintType, LCScaleDPI,
   UResourceStrings, UFilterConnector, UFilterThread, ubrowseimages;
 
 type
@@ -54,7 +54,7 @@ uses umac,BGRABitmapTypes, BGRAFilters, UFileSystem;
 
 procedure TFCustomBlur.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   CheckOKCancelBtns(Button_OK,Button_Cancel);
   subConfig := TStringStream.Create('[Tool]'+LineEnding+

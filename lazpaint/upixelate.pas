@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, Spin, ExtCtrls, BGRABitmap, LazPaintType, uscaledpi,
+  StdCtrls, Spin, ExtCtrls, BGRABitmap, LazPaintType, LCScaleDPI,
   ufilterconnector;
 
 type
@@ -64,7 +64,7 @@ end;
 
 procedure TFPixelate.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   CheckOKCancelBtns(Button_OK{,Button_Cancel});
   CheckSpinEdit(SpinEdit_PixelSize);

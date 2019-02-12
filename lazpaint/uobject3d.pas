@@ -152,7 +152,7 @@ function ShowObject3DDlg({%H-}Instance: TLazPaintCustomInstance; filenameUTF8: s
 
 implementation
 
-uses LazFileUtils, ugraph, uscaledpi, umac, ULoadImage, UFileSystem;
+uses LazFileUtils, ugraph, LCScaleDPI, umac, ULoadImage, UFileSystem;
 
 const PointLightDist = 80;
 
@@ -461,7 +461,7 @@ end;
 
 procedure TFObject3D.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   CheckOKCancelBtns(Button_OK,Button_Cancel);
   CheckSpinEdit(SpinEdit_ColorOpacity);

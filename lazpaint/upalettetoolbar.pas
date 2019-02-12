@@ -94,7 +94,7 @@ type
 
 implementation
 
-uses UScaleDPI, Graphics, Forms, UGraph,
+uses LCScaleDPI, Graphics, Forms, UGraph,
   UResourceStrings, BGRAColorQuantization,
   ULayerAction, UCursors, UFileSystem;
 

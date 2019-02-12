@@ -105,7 +105,7 @@ type
 
 implementation
 
-uses UResourceStrings, LCLType, UMac, Math, UScaleDPI, BGRAGradientScanner,
+uses UResourceStrings, LCLType, UMac, Math, LCScaleDPI, BGRAGradientScanner,
   UColorFilters;
 
 { TFAdjustCurves }
@@ -114,7 +114,7 @@ procedure TFAdjustCurves.FormCreate(Sender: TObject);
 var
   i: Integer;
 begin
-  ScaleDPI(Self, OriginalDPI);
+  ScaleControl(Self, OriginalDPI);
 
   CheckOKCancelBtns(Button_OK, Button_Cancel);
   FSelectedPoint:= -1;

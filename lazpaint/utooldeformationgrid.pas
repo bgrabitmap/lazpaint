@@ -102,7 +102,7 @@ type
 
 implementation
 
-uses LCLType, ugraph, uscaledpi, LazPaintType, BGRAFillInfo, BGRATransform;
+uses LCLType, ugraph, LCScaleDPI, LazPaintType, BGRAFillInfo, BGRATransform;
 
 { TToolLayerMapping }
 

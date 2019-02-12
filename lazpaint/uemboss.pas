@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  ExtCtrls, StdCtrls, ComCtrls, BGRABitmap, LazPaintType, uscaledpi,
+  ExtCtrls, StdCtrls, ComCtrls, BGRABitmap, LazPaintType, LCScaleDPI,
   ufilterconnector;
 
 type
@@ -76,7 +76,7 @@ end;
 
 procedure TFEmboss.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   InPaintBoxMouseMove := false;
   CheckOKCancelBtns(Button_OK{,Button_Cancel});

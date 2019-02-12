@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
   StdCtrls, Spin, Buttons, ComCtrls, ExtCtrls, BGRAVirtualScreen, BGRAShape,
-  uimage, LazPaintType, uscaledpi, BGRABitmap, BGRABitmapTypes;
+  uimage, LazPaintType, LCScaleDPI, BGRABitmap, BGRABitmapTypes;
 
 const
   shadowOffsetX = 3;
@@ -256,7 +256,7 @@ end;
 
 procedure TFNewImage.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   FRecomputing := true;
   SpinEdit_Width.MaxValue := MaxImageWidth;

@@ -72,7 +72,7 @@ function ShowFilterFunctionDlg(AFilterConnector: TObject):boolean;
 
 implementation
 
-uses UScaleDPI, UMac, LazPaintType;
+uses LCScaleDPI, UMac, LazPaintType;
 
 function ShowFilterFunctionDlg(AFilterConnector: TObject): boolean;
 var
@@ -95,7 +95,7 @@ end;
 
 procedure TFFilterFunction.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   CheckOKCancelBtns(Button_OK,Button_Cancel);
 

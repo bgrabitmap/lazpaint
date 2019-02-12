@@ -42,7 +42,7 @@ function ShowQuestionDialog(ATitle, AQuestion: string; AButtons: TMsgDlgButtons;
 
 implementation
 
-uses UScaleDPI, UResourceStrings;
+uses LCScaleDPI, UResourceStrings;
 
 function QuestionResult(AValue: TModalResult): TQuestionResult;
 begin
@@ -69,7 +69,7 @@ end;
 
 procedure TFQuestion.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(self, OriginalDPI);
+  ScaleControl(self, OriginalDPI);
 end;
 
 procedure TFQuestion.Init(ATitle, AQuestion: string; AButtons: TMsgDlgButtons; AShowRemember: boolean);

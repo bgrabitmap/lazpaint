@@ -44,7 +44,7 @@ function ShowNoiseFilterDlg(AFilterConnector: TObject):boolean;
 
 implementation
 
-uses BGRAGradientScanner, umac, UScaleDPI, LazPaintType;
+uses BGRAGradientScanner, umac, LCScaleDPI, LazPaintType;
 
 function ShowNoiseFilterDlg(AFilterConnector: TObject):boolean;
 var
@@ -96,7 +96,7 @@ end;
 
 procedure TFNoiseFilter.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   CheckOKCancelBtns(Button_OK{,Button_Cancel});
   CheckSpinEdit(SpinEdit_Alpha);

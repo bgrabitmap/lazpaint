@@ -96,7 +96,7 @@ type
 
 implementation
 
-uses BGRAFillInfo,uscaledpi,uresourcestrings,ublendop, uimage, utool, BGRAText, BGRAThumbnail,
+uses BGRAFillInfo,LCScaleDPI,uresourcestrings,ublendop, uimage, utool, BGRAText, BGRAThumbnail,
    BGRALayerOriginal, math, BGRATransform, BGRASVGOriginal;
 
 function TFLayerStack.DrawLayerItem(ABitmap: TBGRABitmap; layerPos: TPoint; layerIndex: integer; ASelected: boolean): TDrawLayerItemResult;
@@ -178,7 +178,7 @@ end;
 
 procedure TFLayerStack.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
   FCompletelyResizeable:= true;
   Position := poDesigned;
   ZoomFactor := 1;

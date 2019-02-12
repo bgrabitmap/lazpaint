@@ -58,7 +58,7 @@ procedure BCAssignSystemStyle(AButton: TBCButton);
 implementation
 
 uses GraphType, math, Types, BGRAUTF8, FileUtil, dialogs, BGRAAnimatedGif,
-  BGRAGradients, BGRATextFX, uresourcestrings, uscaledpi, BCTypes,
+  BGRAGradients, BGRATextFX, uresourcestrings, LCScaleDPI, BCTypes,
   BGRAThumbnail;
 
 procedure BCAssignSystemState(AState: TBCButtonState; AFontColor, ATopColor, AMiddleTopColor, AMiddleBottomColor, ABottomColor, ABorderColor: TColor);

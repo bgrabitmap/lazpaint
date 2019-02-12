@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  ExtCtrls, StdCtrls, Buttons, uscaledpi, BGRATextFX, BGRAGradients,
+  ExtCtrls, StdCtrls, Buttons, LCScaleDPI, BGRATextFX, BGRAGradients,
   LazPaintType;
 
 type
@@ -119,7 +119,7 @@ procedure TFAbout.FormCreate(Sender: TObject);
 var bmp: TBitmap;
     titlefont: TFont;
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   Self.DoubleBuffered:=True;
 

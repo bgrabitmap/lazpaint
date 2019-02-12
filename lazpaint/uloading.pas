@@ -35,7 +35,7 @@ procedure MessagePopupHide;
 
 implementation
 
-uses BGRALayers, BGRAReadLzp, UScaleDPI, LazPaintType, BGRABitmapTypes;
+uses BGRALayers, BGRAReadLzp, LCScaleDPI, LazPaintType, BGRABitmapTypes;
 
 const MarginTopBottom = 3;
       MarginLeftRight = 3;
@@ -142,4 +142,4 @@ finalization
   PopupWindow.Free;
 
 end.
-
+

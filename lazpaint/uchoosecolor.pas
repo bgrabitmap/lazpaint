@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
   ExtCtrls, BGRABitmap, BGRABitmapTypes, StdCtrls, Buttons,
-  BGRAVirtualScreen, BCButton, LazPaintType, uscaledpi, uresourcestrings;
+  BGRAVirtualScreen, BCButton, LazPaintType, LCScaleDPI, uresourcestrings;
 
 const externalMargin = 3;
 
@@ -99,7 +99,7 @@ begin
    BorderStyle:= bsDialog;
    {$ENDIF}
    ClientHeight := DoScaleY(160,OriginalDPI,TFChooseColor_CustomDPI);
-   ScaleDPI(Self,OriginalDPI,TFChooseColor_CustomDPI);
+   ScaleControl(Self,OriginalDPI,TFChooseColor_CustomDPI);
    EColor.Font.Height := FontFullHeightSign*DoScaleY(14,OriginalDPI,TFChooseColor_CustomDPI);
    LColor.Font.Height := FontFullHeightSign*DoScaleY(14,OriginalDPI,TFChooseColor_CustomDPI);
    EColor.AdjustSize;

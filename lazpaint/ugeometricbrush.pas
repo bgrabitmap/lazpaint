@@ -36,7 +36,7 @@ function ShowGeometricBrushDialog(AInstance: TLazPaintCustomInstance) : TLazPain
 
 implementation
 
-uses BGRABitmapTypes, UScaleDPI, umac;
+uses BGRABitmapTypes, LCScaleDPI, umac;
 
 function ShowGeometricBrushDialog(AInstance: TLazPaintCustomInstance): TLazPaintBrush;
 var f:TFGeometricBrush;
@@ -84,7 +84,7 @@ end;
 
 procedure TFGeometricBrush.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
   CheckOKCancelBtns(Button_OK,Button_Cancel);
 
   FBrush := TLazPaintBrush.Create;

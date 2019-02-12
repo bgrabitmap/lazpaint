@@ -16,7 +16,7 @@ uses
   BGRABitmap, BGRABitmapTypes, BGRALayers, BGRASVGOriginal,
 
   LazPaintType, UMainFormLayout, UTool, UImage, UImageAction, ULayerAction, UZoom, UImageView,
-  UImageObservation, UConfig, UScaleDPI, UResourceStrings,
+  UImageObservation, UConfig, LCScaleDPI, UResourceStrings,
   UMenu, uscripting, ubrowseimages, UToolPolygon, UBarUpDown,
 
   laztablet, udarktheme;
@@ -838,7 +838,7 @@ begin
   FLayout := TMainFormLayout.Create(self);
   FImageView := nil;
 
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   //use background color
   FormBackgroundColor := OutsideColor;

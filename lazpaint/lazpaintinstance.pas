@@ -208,7 +208,7 @@ uses LCLType, Types, Forms, Dialogs, FileUtil, LCLIntf, Math,
      UImageAction, USharpen, uposterize, UPhongFilter, UFilterFunction,
      uprint, USaveOption, UFormRain,
 
-     ugraph, UScaleDPI, ucommandline, uabout;
+     ugraph, LCScaleDPI, ucommandline, uabout;
 
 { TLazPaintInstance }
 

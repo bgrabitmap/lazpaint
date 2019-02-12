@@ -277,7 +277,7 @@ function ToolPopupMessageToStr(AMessage :TToolPopupMessage): string;
 
 implementation
 
-uses Types, ugraph, uscaledpi, LazPaintType, UCursors, BGRATextFX, ULoading, uresourcestrings,
+uses Types, ugraph, LCScaleDPI, LazPaintType, UCursors, BGRATextFX, ULoading, uresourcestrings,
   BGRATransform;
 
 function StrToPaintToolType(const s: ansistring): TPaintToolType;

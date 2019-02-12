@@ -15,7 +15,7 @@ uses
   LazPaintType, LazpaintInstance, LazpaintMainForm, UConfig, UOnline,
 
   UToolbox, UChooseColor, ULayerstack,  //tool windows
-  UMac, UScaleDPI, UVolatileScrollBar, UCursors, UTranslation, //interface
+  UMac, LCScaleDPI, UVolatileScrollBar, UCursors, UTranslation, //interface
 
   UGraph, UTool, UImage, UStateType, UImageState, UClipboard,
   UCommandline, UParse, UZoom, UResourceStrings, UImageObservation,

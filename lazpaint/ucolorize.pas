@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, ComCtrls, Spin, BGRABitmap, uscaledpi, lazpainttype,
+  StdCtrls, ComCtrls, Spin, BGRABitmap, LCScaleDPI, lazpainttype,
   ufilterconnector, uscripting;
 
 type
@@ -78,7 +78,7 @@ uses umac, BGRABitmapTypes, uresourcestrings, UColorFilters;
 
 procedure TFColorize.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   CheckOKCancelBtns(Button_OK,Button_Cancel);
   CheckFloatSpinEdit(FloatSpinEdit_Hue);

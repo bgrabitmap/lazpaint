@@ -75,7 +75,7 @@ function ShowBlendOpDialog(AInstance: TLazPaintCustomInstance; var BlendOp: TBle
 
 implementation
 
-uses LCLType,uscaledpi,umac,uresourcestrings,ugraph,BGRAThumbnail,Math, BGRATextFX;
+uses LCLType,LCScaleDPI,umac,uresourcestrings,ugraph,BGRAThumbnail,Math, BGRATextFX;
 
 function TFBlendOp.GetPattern(AWidth,AHeight: integer; APattern: string; ACheckers: boolean): TBGRABitmap;
 var lColor: TBGRAPixel;
@@ -269,7 +269,7 @@ end;
 
 procedure TFBlendOp.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(self,OriginalDPI);
+  ScaleControl(self,OriginalDPI);
   FListBoxInternalMargin:= ListBox_PatternUnder.Width - ListBox_PatternUnder.ClientWidth + ScrollBar1.Height;
   {$IFDEF LINUX}
   ListBox_PatternUnder.Style := lbOwnerDrawVariable;
