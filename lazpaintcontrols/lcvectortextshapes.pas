@@ -216,6 +216,7 @@ begin
   FTextLayout.AvailableHeight:= box.Height*zoom;
   for i := 0 to FTextLayout.ParagraphCount-1 do
     FTextLayout.ParagraphAlignment[i] := HorizotalAlignment;
+  FTextLayout.ParagraphSpacingBelow:= 0.5;
   result:= FTextLayout;
 end;
 
@@ -597,7 +598,7 @@ end;
 procedure TTextShape.KeyDown(Shift: TShiftState; Key: TSpecialKey;
   var AHandled: boolean);
 var
-  idxPara: Integer;
+  idxPara, newPos: Integer;
 begin
   if FTextLayout = nil then exit;
 
@@ -625,6 +626,21 @@ begin
       EndUpdate;
     end;
     AHandled := true;
+  end else
+  if Key in [skUp,skDown] then
+  begin
+    if Key = skUp then
+      newPos := GetTextLayoutIgnoreMatrix.FindTextAbove(FSelEnd)
+    else
+      newPos := GetTextLayoutIgnoreMatrix.FindTextBelow(FSelEnd);
+    if (newPos <> -1) or (not (ssShift in Shift) and (FSelStart <> FSelEnd)) then
+    begin
+      BeginUpdate;
+      FSelEnd := newPos;
+      if not (ssShift in Shift) then FSelStart := FSelEnd;
+      EndUpdate;
+    end;
+    AHandled:= true;
   end else
   if Key = skHome then
   begin
