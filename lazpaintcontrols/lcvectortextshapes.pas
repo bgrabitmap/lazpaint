@@ -88,7 +88,7 @@ function StrToFontBidiMode(AText: string): TFontBidiMode;
 
 implementation
 
-uses BGRATransform, BGRAText, LCVectorialFill, math, BGRAUTF8, BGRAUnicode, Graphics;
+uses BGRATransform, BGRAText, LCVectorialFill, math, BGRAUTF8, BGRAUnicode, Graphics, Clipbrd, LCLType, LCLIntf;
 
 function FontStyleToStr(AStyle: TFontStyles): string;
 begin
@@ -666,6 +666,7 @@ procedure TTextShape.KeyDown(Shift: TShiftState; Key: TSpecialKey;
   var AHandled: boolean);
 var
   idxPara, newPos: Integer;
+  stream: TStringStream;
 begin
   if FTextLayout = nil then exit;
 
@@ -749,44 +750,50 @@ begin
   begin
     InsertText(#9);
     AHandled := true;
-  end{ else
-  If (Key = VK_C) and (ssCtrl in Shift) then
-  begin
-    if SelLength> 0 then
-      SetClipboardAsText(GetTextLayoutIgnoreMatrix.CopyText(SelStart, SelLength));
-    Key := 0;
   end else
-  If (Key = VK_X) and (ssCtrl in Shift) then
+  if (Key in[skC,skX]) and (ssCtrl in Shift) then
   begin
-    if SelLength > 0 then
+    if FSelEnd <> FSelStart then
     begin
-      SetClipboardAsText(GetTextLayoutIgnoreMatrix.CopyText(SelStart, SelLength));
-      DeleteSelection;
+      stream := nil;
+      try
+        Clipboard.Clear;
+        stream := TStringStream.Create(GetTextLayoutIgnoreMatrix.CopyText(min(FSelStart,FSelEnd),abs(FSelEnd-FSelStart)));
+        Clipboard.SetFormat(PredefinedClipboardFormat(pcfText), stream);
+      finally
+        stream.Free;
+      end;
+      if Key = skX then DeleteSelectedText;
+      AHandled:= true;
     end;
-    Key := 0;
   end else
-  If (Key = VK_V) and (ssCtrl in Shift) then
+  if (Key = skV) and (ssCtrl in Shift) then
   begin
-    InsertText(Clipboard.AsText);
-    Key := 0;
+    if Clipboard.HasFormat(PredefinedClipboardFormat(pcfText)) then
+    begin
+      InsertText(Clipboard.AsText);
+      AHandled:= true;
+    end;
   end else
-  If (Key = VK_A) and (ssCtrl in Shift) then
+  if (Key = skA) and (ssCtrl in Shift) then
   begin
-    SelStart:= 0;
-    SelLength:= GetTextLayoutIgnoreMatrix.CharCount;
-    Key := 0;
-  end};
+    BeginUpdate;
+    FSelStart:= 0;
+    FSelEnd:= GetTextLayoutIgnoreMatrix.CharCount;
+    EndUpdate;
+  end;
 end;
 
 procedure TTextShape.KeyPress(UTF8Key: string; var AHandled: boolean);
+var
+  stream: TStringStream;
 begin
   if UTF8Key = #8 then
   begin
     if FSelEnd <> FSelStart then DeleteSelectedText
     else DeleteTextBefore(1);
     AHandled := true;
-  end
-  else
+  end else
   if UTF8Key >= ' ' then
   begin
     InsertText(UTF8Key);

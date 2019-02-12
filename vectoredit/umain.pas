@@ -255,15 +255,6 @@ uses math, BGRAPen, BGRAThumbnail, BGRAGradientOriginal, uvectorclipboard, LReso
 
 {$R *.lfm}
 
-function LCLKeyToSpecialKey(Key: Word): TSpecialKey;
-var
-  sk: TSpecialKey;
-begin
-  for sk := low(TSpecialKey) to high(TSpecialKey) do
-    if Key = SpecialKeyToLCL[sk] then exit(sk);
-  exit(skUnknown);
-end;
-
 function IsCreateShapeTool(ATool: TPaintTool): boolean;
 begin
   result := PaintToolClass[ATool] <> nil;
@@ -745,7 +736,7 @@ var
 begin
   if Assigned(img) then
   begin
-    img.KeyDown(Shift, LCLKeyToSpecialKey(Key), AHandled);
+    img.KeyDown(Shift, LCLKeyToSpecialKey(Key, Shift), AHandled);
     if AHandled then Key := 0;
   end;
 
@@ -777,7 +768,7 @@ var
 begin
   if Assigned(img) then
   begin
-    img.KeyUp(Shift, LCLKeyToSpecialKey(Key), AHandled);
+    img.KeyUp(Shift, LCLKeyToSpecialKey(Key, Shift), AHandled);
     if AHandled then Key:= 0;
   end;
 end;
