@@ -33,13 +33,15 @@ type
   protected
     FTextLayout: TBidiTextLayout;
     FFontRenderer: TBGRACustomFontRenderer;
+    FGlobalMatrix: TAffineMatrix;
+    procedure SetGlobalMatrix(AMatrix: TAffineMatrix);
     function PenVisible(AAssumePenFill: boolean = false): boolean;
     function AllowShearTransform: boolean; override;
     function ShowArrows: boolean; override;
-    function GetTextLayout(AMatrix: TAffineMatrix): TBidiTextLayout;
-    function GetTextLayoutIgnoreMatrix: TBidiTextLayout;
-    function GetFontRenderer(AMatrix: TAffineMatrix): TBGRACustomFontRenderer;
-    function GetTextRenderZoom(AMatrix: TAffineMatrix): single;
+    function GetTextLayout: TBidiTextLayout;
+    function GetFontRenderer: TBGRACustomFontRenderer;
+    function UpdateFontRenderer: boolean;
+    function GetTextRenderZoom: single;
     function GetUntransformedMatrix: TAffineMatrix; //matrix before render transform
     function IsTextMirrored(ABox: TAffineBox): boolean;
     procedure SetDefaultFont;
@@ -190,6 +192,12 @@ begin
   EndUpdate;
 end;
 
+procedure TTextShape.SetGlobalMatrix(AMatrix: TAffineMatrix);
+begin
+  if AMatrix = FGlobalMatrix then exit;
+  FGlobalMatrix := AMatrix;
+end;
+
 function TTextShape.PenVisible(AAssumePenFill: boolean): boolean;
 begin
   result := not PenFill.IsFullyTransparent or AAssumePenFill;
@@ -205,18 +213,21 @@ begin
   Result:= false;
 end;
 
-function TTextShape.GetTextLayout(AMatrix: TAffineMatrix): TBidiTextLayout;
+function TTextShape.GetTextLayout: TBidiTextLayout;
 var
   box: TAffineBox;
   i: Integer;
   zoom: Single;
 begin
   if FTextLayout = nil then
-    FTextLayout := TBidiTextLayout.Create(GetFontRenderer(AMatrix), FText);
-  box := GetAffineBox(AMatrix,false);
+    FTextLayout := TBidiTextLayout.Create(GetFontRenderer, FText)
+  else
+    if UpdateFontRenderer then FTextLayout.InvalidateLayout;
+
+  box := GetAffineBox(FGlobalMatrix,false);
   FTextLayout.FontBidiMode:= FontBidiMode;
   FTextLayout.TopLeft := PointF(0,0);
-  zoom := GetTextRenderZoom(AMatrix);
+  zoom := GetTextRenderZoom;
   FTextLayout.AvailableWidth:= box.Width*zoom;
   FTextLayout.AvailableHeight:= box.Height*zoom;
   for i := 0 to FTextLayout.ParagraphCount-1 do
@@ -225,31 +236,38 @@ begin
   result:= FTextLayout;
 end;
 
-function TTextShape.GetTextLayoutIgnoreMatrix: TBidiTextLayout;
-begin
-  if FTextLayout = nil then
-    result := GetTextLayout(AffineMatrixIdentity)
-  else
-    result := FTextLayout;
-end;
-
-function TTextShape.GetFontRenderer(AMatrix: TAffineMatrix): TBGRACustomFontRenderer;
+function TTextShape.GetFontRenderer: TBGRACustomFontRenderer;
 begin
   if FFontRenderer = nil then
     FFontRenderer := TLCLFontRenderer.Create;
-
-  FFontRenderer.FontEmHeight := Round(FontEmHeight*GetTextRenderZoom(AMatrix));
-  FFontRenderer.FontName:= FontName;
-  FFontRenderer.FontStyle:= FontStyle;
-  FFontRenderer.FontQuality:= fqFineAntialiasing;
+  UpdateFontRenderer;
   result := FFontRenderer;
 end;
 
-function TTextShape.GetTextRenderZoom(AMatrix: TAffineMatrix): single;
+function TTextShape.UpdateFontRenderer: boolean;
+var
+  newEmHeight: integer;
+begin
+  newEmHeight := Round(FontEmHeight*GetTextRenderZoom);
+  if (newEmHeight <> FFontRenderer.FontEmHeight) or
+     (FFontRenderer.FontName <> FontName) or
+     (FFontRenderer.FontStyle <> FontStyle) or
+     (FFontRenderer.FontQuality <> fqFineAntialiasing) then
+  begin
+    FFontRenderer.FontEmHeight := newEmHeight;
+    FFontRenderer.FontName:= FontName;
+    FFontRenderer.FontStyle:= FontStyle;
+    FFontRenderer.FontQuality:= fqFineAntialiasing;
+    exit(true);
+  end
+  else exit(false);
+end;
+
+function TTextShape.GetTextRenderZoom: single;
 begin
   //font to be rendered at a sufficient size to avoid stretching
-  result := max(VectLen(AMatrix[1,1],AMatrix[2,1]),
-                VectLen(AMatrix[1,2],AMatrix[2,2]));
+  result := max(VectLen(FGlobalMatrix[1,1],FGlobalMatrix[2,1]),
+                VectLen(FGlobalMatrix[1,2],FGlobalMatrix[2,2]));
 end;
 
 function TTextShape.GetUntransformedMatrix: TAffineMatrix;
@@ -298,8 +316,8 @@ begin
   selLeft := Min(FSelStart,FSelEnd);
   if selLeft > 0 then
   begin
-    delCount := GetTextLayoutIgnoreMatrix.DeleteTextBefore(selLeft, ACount);
-    FText := GetTextLayoutIgnoreMatrix.TextUTF8;
+    delCount := GetTextLayout.DeleteTextBefore(selLeft, ACount);
+    FText := GetTextLayout.TextUTF8;
     dec(selLeft,delCount);
   end;
   FSelStart := selLeft;
@@ -314,11 +332,11 @@ var
 begin
   BeginUpdate;
   selRight := Max(FSelStart,FSelEnd);
-  tl := GetTextLayoutIgnoreMatrix;
+  tl := GetTextLayout;
   if selRight+ACount <= tl.CharCount then
   begin
-    delCount := GetTextLayoutIgnoreMatrix.DeleteText(selRight, ACount);
-    FText := GetTextLayoutIgnoreMatrix.TextUTF8;
+    delCount := tl.DeleteText(selRight, ACount);
+    FText := tl.TextUTF8;
   end;
   FSelStart := selRight;
   FSelEnd := selRight;
@@ -333,8 +351,8 @@ begin
   begin
     BeginUpdate;
     selLeft := Min(FSelStart,FSelEnd);
-    GetTextLayoutIgnoreMatrix.DeleteText(selLeft, Abs(FSelEnd-FSelStart));
-    FText := GetTextLayoutIgnoreMatrix.TextUTF8;
+    GetTextLayout.DeleteText(selLeft, Abs(FSelEnd-FSelStart));
+    FText := GetTextLayout.TextUTF8;
     FSelStart := selLeft;
     FSelEnd := selLeft;
     EndUpdate;
@@ -347,8 +365,8 @@ var
 begin
   BeginUpdate;
   DeleteSelectedText;
-  insertCount := GetTextLayoutIgnoreMatrix.InsertText(ATextUTF8, FSelStart);
-  FText := GetTextLayoutIgnoreMatrix.TextUTF8;
+  insertCount := GetTextLayout.InsertText(ATextUTF8, FSelStart);
+  FText := GetTextLayout.TextUTF8;
   Inc(FSelStart, insertCount);
   FSelEnd := FSelStart;
   EndUpdate;
@@ -358,9 +376,11 @@ procedure TTextShape.SelectWithMouse(X, Y: single; AExtend: boolean);
 var
   newPos: Integer;
   tl: TBidiTextLayout;
+  zoom: Single;
 begin
-  tl := GetTextLayoutIgnoreMatrix;
-  newPos := tl.GetCharIndexAt(tl.Matrix*AffineMatrixInverse(GetUntransformedMatrix)*PointF(X,Y));
+  tl := GetTextLayout;
+  zoom := GetTextRenderZoom;
+  newPos := tl.GetCharIndexAt(AffineMatrixScale(zoom,zoom)*AffineMatrixInverse(GetUntransformedMatrix)*PointF(X,Y));
   if newPos<>-1 then
   begin
     if (newPos <> FSelEnd) or (not AExtend and (FSelStart <> FSelEnd)) then
@@ -382,13 +402,14 @@ begin
   FText := '';
   FSelStart := 0;
   FSelEnd := 0;
+  FGlobalMatrix := AffineMatrixIdentity;
 end;
 
 procedure TTextShape.QuickDefine(const APoint1, APoint2: TPointF);
 var minSize: single;
   p2: TPointF;
 begin
-  minSize := GetFontRenderer(AffineMatrixIdentity).TextSize('Hg').cy;
+  minSize := GetFontRenderer.TextSize('Hg').cy/GetTextRenderZoom;
   p2 := APoint2;
   if abs(APoint1.x-p2.x) < minSize then
   begin
@@ -479,12 +500,14 @@ var
   pts: Array Of TPointF;
   i: Integer;
   c: TBGRAPixel;
+  zoom: Single;
 begin
   inherited ConfigureEditor(AEditor);
   AEditor.AddPolyline(GetAffineBox(AffineMatrixIdentity,true).AsPolygon, true, opsDashWithShadow);
-  tl := GetTextLayout(AffineMatrixIdentity);
+  tl := GetTextLayout;
   caret:= tl.GetCaret(FSelEnd);
-  m := GetUntransformedMatrix;
+  zoom := GetTextRenderZoom;
+  m := GetUntransformedMatrix*AffineMatrixScale(1/zoom,1/zoom);
   if not isEmptyPointF(caret.PreviousTop) and (caret.PreviousRightToLeft<>caret.RightToLeft) then
   begin
     orientation := (caret.Bottom-caret.Top)*(1/10);
@@ -517,17 +540,18 @@ var
   tmpSource, tmpTransf: TBGRABitmap;
   scan: TBGRACustomScanner;
 begin
-  zoom := GetTextRenderZoom(AMatrix);
+  SetGlobalMatrix(AMatrix);
+  zoom := GetTextRenderZoom;
   if zoom = 0 then exit;
-  fr := GetFontRenderer(AMatrix);
+  fr := GetFontRenderer;
   if fr.FontEmHeight = 0 then exit;
   pad := fr.FontEmHeight div 2;
 
-  m := AMatrix*                             //global transform
+  m := FGlobalMatrix*                       //global transform
        GetUntransformedMatrix*              //transform according to shape rectangle
        AffineMatrixScale(1/zoom,1/zoom);    //shrink zoomed text if necessary
 
-  tl := GetTextLayout(AMatrix);
+  tl := GetTextLayout;
   sourceRect := RectF(-pad,-pad,tl.AvailableWidth+pad,tl.TotalTextHeight+pad);
 
   destF := RectF(ADest.ClipRect.Left,ADest.ClipRect.Top,ADest.ClipRect.Right,ADest.ClipRect.Bottom);
@@ -571,7 +595,7 @@ begin
                              tmpSource, rfHalfCosine, dmDrawWithTransparency);
     tmpSource.Free;
 
-    scan := PenFill.CreateScanner(AMatrix, ADraft);
+    scan := PenFill.CreateScanner(FGlobalMatrix, ADraft);
     ADest.FillMask(transfRect.Left, transfRect.Top, tmpTransf, scan, dmDrawWithTransparency);
     scan.Free;
     tmpTransf.Free;
@@ -668,6 +692,7 @@ procedure TTextShape.KeyDown(Shift: TShiftState; Key: TSpecialKey;
 var
   idxPara, newPos: Integer;
   stream: TStringStream;
+  tl: TBidiTextLayout;
 begin
   if FTextLayout = nil then exit;
 
@@ -679,18 +704,19 @@ begin
   end else
   if Key in [skLeft,skRight] then
   begin
-    if (Key = skLeft) xor GetTextLayoutIgnoreMatrix.ParagraphRightToLeft[GetTextLayoutIgnoreMatrix.GetParagraphAt(FSelEnd)] then
+    tl := GetTextLayout;
+    if (Key = skLeft) xor tl.ParagraphRightToLeft[tl.GetParagraphAt(FSelEnd)] then
     begin
       BeginUpdate;
       if FSelEnd > 0 then
-        Dec(FSelEnd, GetTextLayoutIgnoreMatrix.IncludeNonSpacingCharsBefore(FSelEnd,1) );
+        Dec(FSelEnd, tl.IncludeNonSpacingCharsBefore(FSelEnd,1) );
       if not (ssShift in Shift) then FSelStart := FSelEnd;
       EndUpdate;
     end else
     begin
       BeginUpdate;
-      if FSelEnd < GetTextLayoutIgnoreMatrix.CharCount then
-        Inc(FSelEnd, GetTextLayoutIgnoreMatrix.IncludeNonSpacingChars(FSelEnd,1) );
+      if FSelEnd < tl.CharCount then
+        Inc(FSelEnd, tl.IncludeNonSpacingChars(FSelEnd,1) );
       if not (ssShift in Shift) then FSelStart := FSelEnd;
       EndUpdate;
     end;
@@ -698,10 +724,11 @@ begin
   end else
   if Key in [skUp,skDown] then
   begin
+    tl := GetTextLayout;
     if Key = skUp then
-      newPos := GetTextLayoutIgnoreMatrix.FindTextAbove(FSelEnd)
+      newPos := tl.FindTextAbove(FSelEnd)
     else
-      newPos := GetTextLayoutIgnoreMatrix.FindTextBelow(FSelEnd);
+      newPos := tl.FindTextBelow(FSelEnd);
     if (newPos <> -1) or (not (ssShift in Shift) and (FSelStart <> FSelEnd)) then
     begin
       BeginUpdate;
@@ -713,13 +740,14 @@ begin
   end else
   if Key = skHome then
   begin
+    tl := GetTextLayout;
     BeginUpdate;
     if ssCtrl in Shift then
       FSelEnd := 0
     else
     begin
-      idxPara := GetTextLayoutIgnoreMatrix.GetParagraphAt(FSelEnd);
-      FSelEnd := GetTextLayoutIgnoreMatrix.ParagraphStartIndex[idxPara];
+      idxPara := tl.GetParagraphAt(FSelEnd);
+      FSelEnd := tl.ParagraphStartIndex[idxPara];
     end;
     if not (ssShift in Shift) then FSelStart := FSelEnd;
     EndUpdate;
@@ -727,13 +755,14 @@ begin
   end else
   if Key = skEnd then
   begin
+    tl := GetTextLayout;
     BeginUpdate;
     if ssCtrl in Shift then
-      FSelEnd := GetTextLayoutIgnoreMatrix.CharCount
+      FSelEnd := tl.CharCount
     else
     begin
-      idxPara := GetTextLayoutIgnoreMatrix.GetParagraphAt(FSelEnd);
-      FSelEnd := GetTextLayoutIgnoreMatrix.ParagraphEndIndexBeforeParagraphSeparator[idxPara];
+      idxPara := tl.GetParagraphAt(FSelEnd);
+      FSelEnd := tl.ParagraphEndIndexBeforeParagraphSeparator[idxPara];
     end;
     if not (ssShift in Shift) then FSelStart := FSelEnd;
     EndUpdate;
@@ -759,7 +788,7 @@ begin
       stream := nil;
       try
         Clipboard.Clear;
-        stream := TStringStream.Create(GetTextLayoutIgnoreMatrix.CopyText(min(FSelStart,FSelEnd),abs(FSelEnd-FSelStart)));
+        stream := TStringStream.Create(GetTextLayout.CopyText(min(FSelStart,FSelEnd),abs(FSelEnd-FSelStart)));
         Clipboard.SetFormat(PredefinedClipboardFormat(pcfText), stream);
       finally
         stream.Free;
@@ -780,7 +809,7 @@ begin
   begin
     BeginUpdate;
     FSelStart:= 0;
-    FSelEnd:= GetTextLayoutIgnoreMatrix.CharCount;
+    FSelEnd:= GetTextLayout.CharCount;
     EndUpdate;
   end;
 end;
