@@ -2628,7 +2628,6 @@ end;
 function TFMain.ScriptChooseTool(AVars: TVariableSet): TScriptResult;
 var toolName: string;
   Tool: TPaintToolType;
-  LayerAction: TLayerAction;
   topmostInfo: TTopMostInfo;
   useSelection: boolean;
   newTexture: TBGRABitmap;

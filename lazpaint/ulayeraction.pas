@@ -97,7 +97,7 @@ type
 
 implementation
 
-uses UResourceStrings, UGraph, Types, Dialogs, BGRATransform, BGRALayerOriginal, UImageDiff;
+uses UGraph, Types, Dialogs, BGRATransform, BGRALayerOriginal, UImageDiff;
 
 { TLayerAction }
 

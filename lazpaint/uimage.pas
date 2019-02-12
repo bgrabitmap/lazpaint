@@ -112,9 +112,9 @@ type
     procedure UpdateTiffFileUTF8(AFilename: string; AOutputFilename: string = '');
     procedure UpdateGifFileUTF8(AFilename: string; AOutputFilename: string = '');
     procedure ReplaceCurrentSelectionWithoutUndo(const AValue: TBGRABitmap);
-    procedure LayerActionNotifyChange(ASender: TObject; ALayer: TBGRABitmap; ARect: TRect);
+    procedure LayerActionNotifyChange({%H-}ASender: TObject; ALayer: TBGRABitmap; ARect: TRect);
     procedure LayerActionDestroy(Sender: TObject);
-    procedure LayerActionNotifyUndo(ASender: TObject; AUndo: TCustomImageDifference; var Owned: boolean);
+    procedure LayerActionNotifyUndo({%H-}ASender: TObject; AUndo: TCustomImageDifference; var Owned: boolean);
   public
     OnException: TImageExceptionHandler;
     ImageOffset: TPoint;

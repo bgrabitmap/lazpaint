@@ -168,7 +168,6 @@ end;
 function TToolRotateLayer.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF): TRect;
 var angleDiff: single;
-  ofs: TPoint;
 begin
   with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
     ptF += PointF(X,Y);
