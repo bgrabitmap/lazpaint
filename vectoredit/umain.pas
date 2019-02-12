@@ -1115,6 +1115,7 @@ begin
     oecMoveNW: BGRAVirtualScreen1.Cursor := crSizeNW;
     oecMoveSE: BGRAVirtualScreen1.Cursor := crSizeSE;
     oecHandPoint: BGRAVirtualScreen1.Cursor := crHandPoint;
+    oecText: BGRAVirtualScreen1.Cursor := crIBeam;
   end;
 end;
 

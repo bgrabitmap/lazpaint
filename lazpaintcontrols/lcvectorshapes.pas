@@ -5,7 +5,7 @@ unit LCVectorShapes;
 interface
 
 uses
-  LCVectorRectShapes, LCVectorPolyShapes;
+  LCVectorRectShapes, LCVectorPolyShapes, LCVectorTextShapes;
 
 implementation
 

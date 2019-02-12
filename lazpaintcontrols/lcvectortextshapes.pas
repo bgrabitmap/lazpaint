@@ -21,6 +21,7 @@ type
     FHorizAlign: TBidiTextAlignment;
     FText: string;
     FSelStart,FSelEnd: integer;
+    FMouseSelecting: boolean;
     FVertAlign: TTextLayout;
     procedure SetFontBidiMode(AValue: TFontBidiMode);
     procedure SetFontEmHeight(AValue: single);
@@ -47,6 +48,7 @@ type
     procedure DeleteTextAfter(ACount: integer);
     procedure DeleteSelectedText;
     procedure InsertText(ATextUTF8: string);
+    procedure SelectWithMouse(X,Y: single; AExtend: boolean);
   public
     constructor Create(AContainer: TVectorOriginal); override;
     procedure QuickDefine(const APoint1,APoint2: TPointF); override;
@@ -64,6 +66,9 @@ type
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; override;
     function GetIsSlow({%H-}AMatrix: TAffineMatrix): boolean; override;
+    procedure MouseMove({%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); override;
+    procedure MouseDown({%H-}RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); override;
+    procedure MouseUp({%H-}RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); override;
     procedure KeyDown({%H-}Shift: TShiftState; {%H-}Key: TSpecialKey; var {%H-}AHandled: boolean); override;
     procedure KeyPress({%H-}UTF8Key: string; var {%H-}AHandled: boolean); override;
     property Text: string read FText write SetText;
@@ -348,6 +353,25 @@ begin
   EndUpdate;
 end;
 
+procedure TTextShape.SelectWithMouse(X, Y: single; AExtend: boolean);
+var
+  newPos: Integer;
+  tl: TBidiTextLayout;
+begin
+  tl := GetTextLayoutIgnoreMatrix;
+  newPos := tl.GetCharIndexAt(tl.Matrix*AffineMatrixInverse(GetUntransformedMatrix)*PointF(X,Y));
+  if newPos<>-1 then
+  begin
+    if (newPos <> FSelEnd) or (not AExtend and (FSelStart <> FSelEnd)) then
+    begin
+      BeginUpdate;
+      FSelEnd:= newPos;
+      if not AExtend then FSelStart:= FSelEnd;
+      EndUpdate;
+    end;
+  end;
+end;
+
 constructor TTextShape.Create(AContainer: TVectorOriginal);
 begin
   inherited Create(AContainer);
@@ -499,7 +523,7 @@ begin
   pad := fr.FontEmHeight div 2;
 
   m := AMatrix*                             //global transform
-       GetUntransformedMatrix*              //transform accordng to shape rectangle
+       GetUntransformedMatrix*              //transform according to shape rectangle
        AffineMatrixScale(1/zoom,1/zoom);    //shrink zoomed text if necessary
 
   tl := GetTextLayout(AMatrix);
@@ -593,6 +617,49 @@ end;
 function TTextShape.GetIsSlow(AMatrix: TAffineMatrix): boolean;
 begin
   Result:= true;
+end;
+
+procedure TTextShape.MouseMove(Shift: TShiftState; X, Y: single;
+  var ACursor: TOriginalEditorCursor; var AHandled: boolean);
+begin
+  if FMouseSelecting then
+  begin
+    SelectWithMouse(X,Y, true);
+    ACursor := oecText;
+    AHandled:= true;
+  end else
+  begin
+    inherited MouseMove(Shift, X, Y, ACursor, AHandled);
+    if (ACursor = oecDefault) and PointInShape(PointF(X,Y)) then ACursor := oecText;
+  end;
+end;
+
+procedure TTextShape.MouseDown(RightButton: boolean; Shift: TShiftState; X,
+  Y: single; var ACursor: TOriginalEditorCursor; var AHandled: boolean);
+begin
+  inherited MouseDown(RightButton, Shift, X, Y, ACursor, AHandled);
+  if not AHandled and not RightButton and PointInShape(PointF(X,Y)) then
+  begin
+    FMouseSelecting:= true;
+    SelectWithMouse(X,Y, ssShift in Shift);
+    AHandled:= true;
+  end;
+  if (ACursor = oecDefault) and PointInShape(PointF(X,Y)) then ACursor := oecText;
+end;
+
+procedure TTextShape.MouseUp(RightButton: boolean; Shift: TShiftState; X,
+  Y: single; var ACursor: TOriginalEditorCursor; var AHandled: boolean);
+begin
+  if FMouseSelecting and not RightButton then
+  begin
+    FMouseSelecting:= false;
+    ACursor := oecText;
+    AHandled:= true;
+  end else
+  begin
+    inherited MouseUp(RightButton, Shift, X, Y, ACursor, AHandled);
+    if (ACursor = oecDefault) and PointInShape(PointF(X,Y)) then ACursor := oecText;
+  end;
 end;
 
 procedure TTextShape.KeyDown(Shift: TShiftState; Key: TSpecialKey;
