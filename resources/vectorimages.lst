@@ -29,4 +29,6 @@ textaligncenter32.LZP
 textalignright32.LZP
 textoutline32.LZP
 textshadow32.LZP
-
+textdirectionltr32.LZP
+textdirectionany32.LZP
+textdirectionrtl32.LZP
