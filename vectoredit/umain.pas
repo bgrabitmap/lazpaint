@@ -36,6 +36,9 @@ const
   SplineStyleToStr : array[TSplineStyle] of string =
     ('Inside','Inside + ends','Crossing','Crossing + ends','Outside','Round outside','Vertex to side','Easy Bézier');
 
+  FontBidiModeToStr : array[TFontBidiMode] of string =
+    ('Auto', 'Left to right', 'Right to left');
+
 type
   { TForm1 }
 
@@ -150,20 +153,31 @@ type
     FPenWidth: single;
     FPenStyle: TBGRAPenStyle;
     FPenJoinStyle: TPenJoinStyle;
+    FPenStyleMenu: TPopupMenu;
     FFlattened: TBGRABitmap;
     FLastEditorBounds: TRect;
     FUpdatingFromShape: boolean;
     FUpdatingSpinEditPenWidth: boolean;
     FCurrentTool: TPaintTool;
+
     FSplineStyle: TSplineStyle;
     FSplineStyleMenu: TPopupMenu;
     FComboboxSplineStyle: TBCButton;
     FSplineToolbar: TToolBar;
-    FPenStyleMenu: TPopupMenu;
+
     FPhongShapeKind: TPhongShapeKind;
     FPhongShapeKindToolbar: TToolBar;
     FUpDownPhongBorderSize: TBCTrackbarUpdown;
     FPhongShapeAltitude,FPhongBorderSize: single;
+
+    FTextToolbar: TToolbar;
+    FTextDirectionButton: TToolButton;
+    FTextFontHeight: single;
+    FTextAlign: TBidiTextAlignment;
+    FTextAlignButton: array[TAlignment] of TToolButton;
+    FTextDirection: TFontBidiMode;
+    FTextDirectionMenu: TPopupMenu;
+
     FInRemoveShapeIfEmpty: Boolean;
     FFullIconHeight: integer;
     FVectorImageList: TBGRAImageList;
@@ -219,6 +233,11 @@ type
     procedure UpdateSplineToolbar;
     function SnapToGrid(APoint: TPointF): TPointF;
     function ImgCoordToOriginalCoord(APoint: TPointF): TPointF;
+    procedure TextAlignClick(Sender: TObject);
+    procedure OnTextFontHeightChange(Sender: TObject; AByUser: boolean);
+    procedure TextDirClick(Sender: TObject);
+    procedure OnClickTextDirectionItem(Sender: TObject);
+    procedure UpdateTextAlignment;
   public
     { public declarations }
     img: TBGRALazPaintImage;
@@ -300,6 +319,7 @@ var
   ss: TSplineStyle;
   toolImageList: TBGRAImageList;
   i: Integer;
+  td: TFontBidiMode;
 begin
   baseCaption:= Caption;
   if ToolIconSize <> ToolImageList48.Width then
@@ -357,9 +377,18 @@ begin
   for ss := low(TSplineStyle) to high(TSplineStyle) do
   begin
     item := TMenuItem.Create(FSplineStyleMenu); item.Caption := SplineStyleToStr[ss];
-    item.OnClick:=@OnClickSplineStyleItem;
-        item.Tag := ord(ss);
+    item.OnClick:=@OnClickSplineStyleItem;      item.Tag := ord(ss);
     FSplineStyleMenu.Items.Add(item);
+  end;
+
+  FTextDirectionMenu := TPopupMenu.Create(nil);
+  FTextDirectionMenu.Images := VectorImageList24;
+  for td := low(TFontBidiMode) to high(TFontBidiMode) do
+  begin
+    item := TMenuItem.Create(FTextDirectionMenu); item.Caption := FontBidiModeToStr[td];
+    item.OnClick:=@OnClickTextDirectionItem;      item.Tag := ord(td);
+    item.ImageIndex:= 31+ord(td);
+    FTextDirectionMenu.Items.Add(item);
   end;
 
   newShape:= nil;
@@ -370,6 +399,9 @@ begin
   splineStyle:= ssEasyBezier;
   FPhongShapeAltitude := DefaultPhongShapeAltitudePercent;
   FPhongBorderSize := DefaultPhongBorderSizePercent;
+  FTextDirection:= fbmAuto;
+  FTextAlign:= btaNatural;
+  FTextFontHeight:= TTextShape.DefaultFontEmHeight;
   UpdateTitleBar;
   UpdateBackToolFillPoints;
   UpdatePenToolFillPoints;
@@ -403,7 +435,11 @@ begin
   SetEditorGrid(ssCtrl in Shift);
   img.MouseDown(Button=mbRight, Shift, imgPtF.x, imgPtF.y, cur, handled);
   UpdateViewCursor(cur);
-  if handled then exit;
+  if handled then
+  begin
+    UpdateTextAlignment;
+    exit;
+  end;
 
   if not justDown and not Assigned(newShape) then
   begin
@@ -621,6 +657,7 @@ begin
   imgPtF := VirtualScreenToImgCoord(X,Y);
   SetEditorGrid(ssCtrl in Shift);
   img.MouseMove(Shift, imgPtF.X, imgPtF.Y, cur, handled);
+  if handled then UpdateTextAlignment;
   UpdateViewCursor(cur);
 
   ptF := ImgCoordToOriginalCoord(imgPtF);
@@ -676,7 +713,11 @@ begin
   imgPtF := VirtualScreenToImgCoord(X,Y);
   SetEditorGrid(ssCtrl in Shift);
   img.MouseUp(Button = mbRight, Shift, imgPtF.X, imgPtF.Y, cur, handled);
-  if handled then RenderAndUpdate(false);
+  if handled then
+  begin
+    UpdateTextAlignment;
+    RenderAndUpdate(false);
+  end;
   UpdateViewCursor(cur);
 
   if justDown and (Button = newButton) then
@@ -728,6 +769,7 @@ begin
   ButtonPenStyle.DropDownMenu := nil;
   FPenStyleMenu.Free;
   FSplineStyleMenu.Free;
+  FTextDirectionMenu.Free;
 end;
 
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -737,7 +779,11 @@ begin
   if Assigned(img) then
   begin
     img.KeyDown(Shift, LCLKeyToSpecialKey(Key, Shift), AHandled);
-    if AHandled then Key := 0;
+    if AHandled then
+    begin
+      Key := 0;
+      UpdateTextAlignment;
+    end;
   end;
 
   if (Key = VK_X) and (ssCtrl in Shift) then
@@ -769,7 +815,11 @@ begin
   if Assigned(img) then
   begin
     img.KeyUp(Shift, LCLKeyToSpecialKey(Key, Shift), AHandled);
-    if AHandled then Key:= 0;
+    if AHandled then
+    begin
+      Key:= 0;
+      UpdateTextAlignment;
+    end;
   end;
 end;
 
@@ -779,7 +829,11 @@ begin
   if Assigned(img) then
   begin
     img.KeyPress(UTF8Key, AHandled);
-    if AHandled then UTF8Key:= '';
+    if AHandled then
+    begin
+      UTF8Key:= '';
+      UpdateTextAlignment;
+    end;
   end;
 end;
 
@@ -888,6 +942,34 @@ begin
   UpdateSplineToolbar;
 end;
 
+procedure TForm1.OnClickTextDirectionItem(Sender: TObject);
+var
+  itm: TMenuItem;
+  td: TFontBidiMode;
+begin
+  itm := TMenuItem(Sender);
+  td := TFontBidiMode(itm.Tag);
+  FTextDirection:= td;
+  if Assigned(FTextDirectionButton) then
+    FTextDirectionButton.ImageIndex:= 31 + ord(FTextDirection);
+  if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
+    (vectorOriginal.SelectedShape is TTextShape) then
+    TTextShape(vectorOriginal.SelectedShape).FontBidiMode:= td
+end;
+
+procedure TForm1.UpdateTextAlignment;
+var
+  alignment: TAlignment;
+begin
+  if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
+    (vectorOriginal.SelectedShape is TTextShape) then
+  begin
+    FTextAlign:= TTextShape(vectorOriginal.SelectedShape).BidiParagraphAlignment;
+    alignment := TTextShape(vectorOriginal.SelectedShape).ParagraphAlignment;
+    if Assigned(FTextAlignButton[alignment]) then FTextAlignButton[alignment].Down := true;
+  end;
+end;
+
 procedure TForm1.OnEditingChange(ASender: TObject;
   AOriginal: TBGRALayerCustomOriginal);
 begin
@@ -962,6 +1044,19 @@ begin
   psDashDot: penStyle := DashDotPenStyle;
   psDashDotDot: penStyle := DashDotDotPenStyle;
   else penStyle := ClearPenStyle;
+  end;
+end;
+
+procedure TForm1.OnTextFontHeightChange(Sender: TObject; AByUser: boolean);
+begin
+  if AByUser then
+  begin
+    FTextFontHeight:= TBCTrackbarUpdown(Sender).Value;
+    if not FUpdatingFromShape and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+    begin
+      if vectorOriginal.SelectedShape is TTextShape then
+        TTextShape(vectorOriginal.SelectedShape).FontEmHeight:= FTextFontHeight;
+    end;
   end;
 end;
 
@@ -1092,6 +1187,31 @@ begin
   end;
 end;
 
+procedure TForm1.TextDirClick(Sender: TObject);
+var
+  btn: TToolButton;
+begin
+  btn := TToolButton(Sender);
+  with btn.ClientToScreen(Point(0,btn.Height)) do
+    FTextDirectionMenu.PopUp(X,Y);
+end;
+
+procedure TForm1.TextAlignClick(Sender: TObject);
+var
+  alignment: TAlignment;
+begin
+  alignment := TAlignment(TToolButton(Sender).Tag);
+  FTextAlign:= AlignmentToBidiTextAlignment(alignment, FTextDirection=fbmRightToLeft);
+  if not FUpdatingFromShape and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+  begin
+    if vectorOriginal.SelectedShape is TTextShape then
+    begin
+      TTextShape(vectorOriginal.SelectedShape).ParagraphAlignment:= alignment;
+      FTextAlign:= TTextShape(vectorOriginal.SelectedShape).BidiParagraphAlignment;
+    end;
+  end;
+end;
+
 procedure TForm1.UpdateViewCursor(ACursor: TOriginalEditorCursor);
 begin
   case ACursor of
@@ -1193,19 +1313,22 @@ end;
 procedure TForm1.UpdateToolbarFromShape(AShape: TVectorShape);
 var
   f: TVectorShapeFields;
-  showSplineStyle, showPhongStyle: boolean;
   nextControlPos: TPoint;
   mode: TVectorShapeUsermode;
   sk: TPhongShapeKind;
   btn: TToolButton;
+  toolClass: TVectorShapeAny;
+  alignment : TAlignment;
 begin
   RemoveExtendedStyleControls;
+  alignment := BidiTextAlignmentToAlignment(FTextAlign, FTextDirection=fbmRightToLeft);
 
   if AShape <> nil then
   begin
     FUpdatingFromShape := true;
     mode := AShape.Usermode;
     f := AShape.Fields;
+    toolClass := TVectorShapeAny(AShape.ClassType);
     if vsfPenFill in f then PenFillControl.AssignFill(AShape.PenFill);
     if vsfPenWidth in f then penWidth:= AShape.PenWidth;
     if vsfPenStyle in f then penStyle:= AShape.PenStyle;
@@ -1214,40 +1337,38 @@ begin
     if vsfBackFill in f then BackFillControl.AssignFill(AShape.BackFill);
 
     if AShape is TCurveShape then
-    begin
-      showSplineStyle:= true;
       splineStyle:= TCurveShape(AShape).SplineStyle;
-    end else
-      showSplineStyle:= false;
 
     if AShape is TPhongShape then
     begin
-      showPhongStyle := true;
       phongShapeKind:= TPhongShape(AShape).ShapeKind;
       FPhongShapeAltitude:= TPhongShape(AShape).ShapeAltitudePercent;
       FPhongBorderSize:= TPhongShape(AShape).BorderSizePercent;
-    end else
-      showPhongStyle := false;
+    end;
+    if AShape is TTextShape then
+    begin
+      FTextAlign:= TTextShape(AShape).BidiParagraphAlignment;
+      alignment := TTextShape(AShape).ParagraphAlignment;
+      FTextFontHeight:= TTextShape(AShape).FontEmHeight;
+      FTextDirection:= TTextShape(AShape).FontBidiMode;
+    end;
 
     FUpdatingFromShape := false;
     PanelPenFill.Visible := vsfPenFill in f;
     PanelBackFill.Visible := vsfBackFill in f;
   end else
   begin
+    toolClass:= PaintToolClass[currentTool];
     mode := vsuEdit;
     if IsCreateShapeTool(currentTool) then
     begin
       f := PaintToolClass[currentTool].Fields;
-      showSplineStyle:= PaintToolClass[currentTool] = TCurveShape;
-      showPhongStyle := PaintToolClass[currentTool] = TPhongShape;
       PanelPenFill.Visible := vsfPenFill in f;
       PanelBackFill.Visible := vsfBackFill in f;
     end
     else
     begin
       f := [];
-      showSplineStyle:= false;
-      showPhongStyle:= false;
       PanelPenFill.Visible := true;
       PanelBackFill.Visible := true;
     end;
@@ -1261,7 +1382,8 @@ begin
 
   PanelExtendedStyle.Visible := false;
   nextControlPos := Point(1,1);
-  if showSplineStyle then
+
+  if toolClass = TCurveShape then
   begin
     PanelExtendedStyle.Visible := true;
 
@@ -1300,7 +1422,8 @@ begin
 
     nextControlPos.X := FSplineToolbar.Left + FSplineToolbar.Width;
   end;
-  if showPhongStyle then
+
+  if toolClass = TPhongShape then
   begin
     PanelExtendedStyle.Visible := true;
 
@@ -1333,6 +1456,36 @@ begin
 
     nextControlPos.X := FPhongShapeKindToolbar.Left + FPhongShapeKindToolbar.Width;
   end;
+
+  if toolClass = TTextShape then
+  begin
+    PanelExtendedStyle.Visible := true;
+
+    FTextToolbar := CreateToolBar(FVectorImageList);
+    FTextToolbar.Left := nextControlPos.X;
+    FTextToolbar.Top := nextControlPos.Y;
+    FTextToolbar.Wrapable := false;
+
+    AddToolbarLabel(FTextToolbar, 'Text', self);
+    FTextDirectionButton := AddToolbarButton(FTextToolbar, 'Text direction', 31 + ord(FTextDirection), @TextDirClick);
+    FTextAlignButton[taLeftJustify] := AddToolbarCheckButton(FTextToolbar, 'Left align', 26, @TextAlignClick, alignment = taLeftJustify, True, ord(taLeftJustify));
+    FTextAlignButton[taCenter] := AddToolbarCheckButton(FTextToolbar, 'Center', 27, @TextAlignClick, alignment = taCenter, True, ord(taCenter));
+    FTextAlignButton[taRightJustify] := AddToolbarCheckButton(FTextToolbar, 'Right align', 28, @TextAlignClick, alignment = taRightJustify, True, ord(taRightJustify));
+    FTextAlignButton[taRightJustify].Wrap:=true;
+
+    AddToolbarLabel(FTextToolbar, 'Height', self);
+    AddToolbarUpdown(FTextToolbar, 'Font height', 1, 900, round(FTextFontHeight), @OnTextFontHeightChange);
+
+    PanelExtendedStyle.InsertControl(FTextToolbar);
+    with GetToolbarSize(FTextToolbar,0) do
+    begin
+      FTextToolbar.Width := cx+1;
+      FTextToolbar.Height := cy+1;
+    end;
+
+    nextControlPos.X := FTextToolbar.Left + FTextToolbar.Width;
+  end;
+
   PanelExtendedStyle.Width := nextControlPos.X+1;
 
   AdjustToolbarTop;
@@ -1376,6 +1529,7 @@ begin
       BorderSizePercent:= FPhongBorderSize;
     end;
   end;
+  if result is TTextShape then TTextShape(result).FontEmHeight:= FTextFontHeight;
   result.QuickDefine(APoint1,APoint2);
   if vsfBackFill in result.Fields then
   begin
@@ -1392,6 +1546,8 @@ begin
 end;
 
 procedure TForm1.RemoveExtendedStyleControls;
+var
+  a: TAlignment;
 begin
   if Assigned(FSplineToolbar) then
   begin
@@ -1404,6 +1560,14 @@ begin
     PanelExtendedStyle.RemoveControl(FPhongShapeKindToolbar);
     FreeAndNil(FPhongShapeKindToolbar);
     FUpDownPhongBorderSize := nil;
+  end;
+  if Assigned(FTextToolbar) then
+  begin
+    PanelExtendedStyle.RemoveControl(FTextToolbar);
+    FreeAndNil(FTextToolbar);
+    FTextDirectionButton := nil;
+    for a := low(TAlignment) to high(TAlignment) do
+      FTextAlignButton[a] := nil;
   end;
 end;
 

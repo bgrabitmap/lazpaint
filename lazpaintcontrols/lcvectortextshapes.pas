@@ -18,16 +18,18 @@ type
     FFontEmHeight: single;
     FFontName: string;
     FFontStyle: TFontStyles;
-    FHorizAlign: TBidiTextAlignment;
     FText: string;
     FSelStart,FSelEnd: integer;
     FMouseSelecting: boolean;
     FVertAlign: TTextLayout;
+    function GetBidiParagraphAlignment: TBidiTextAlignment;
+    function GetParagraphAlignment: TAlignment;
     procedure SetFontBidiMode(AValue: TFontBidiMode);
     procedure SetFontEmHeight(AValue: single);
     procedure SetFontName(AValue: string);
     procedure SetFontStyle(AValue: TFontStyles);
-    procedure SetHorizAlign(AValue: TBidiTextAlignment);
+    procedure SetBidiParagraphAlignment(AValue: TBidiTextAlignment);
+    procedure SetParagraphAlignment(AValue: TAlignment);
     procedure SetText(AValue: string);
     procedure SetVertAlign(AValue: TTextLayout);
   protected
@@ -78,7 +80,8 @@ type
     property FontStyle: TFontStyles read FFontStyle write SetFontStyle;
     property FontEmHeight: single read FFontEmHeight write SetFontEmHeight;
     property FontBidiMode: TFontBidiMode read FFontBidiMode write SetFontBidiMode;
-    property HorizotalAlignment: TBidiTextAlignment read FHorizAlign write SetHorizAlign;
+    property BidiParagraphAlignment: TBidiTextAlignment read GetBidiParagraphAlignment write SetBidiParagraphAlignment;
+    property ParagraphAlignment: TAlignment read GetParagraphAlignment write SetParagraphAlignment;
     property VerticalAlignment: TTextLayout read FVertAlign write SetVertAlign;
   end;
 
@@ -152,11 +155,41 @@ begin
   EndUpdate;
 end;
 
+function TTextShape.GetBidiParagraphAlignment: TBidiTextAlignment;
+var
+  tl: TBidiTextLayout;
+  paraIndex: Integer;
+begin
+  tl := GetTextLayout;
+  paraIndex := tl.GetParagraphAt(FSelEnd);
+  result := tl.ParagraphAlignment[paraIndex];
+end;
+
+function TTextShape.GetParagraphAlignment: TAlignment;
+var
+  tl: TBidiTextLayout;
+  paraIndex: Integer;
+  rtl: Boolean;
+begin
+  tl := GetTextLayout;
+  paraIndex := tl.GetParagraphAt(FSelEnd);
+  rtl := tl.ParagraphRightToLeft[paraIndex];
+  case tl.ParagraphAlignment[paraIndex] of
+  btaCenter: result := taCenter;
+  btaRightJustify: result := taRightJustify;
+  btaNatural: if rtl then result := taRightJustify else result := taLeftJustify;
+  btaOpposite: if rtl then result := taLeftJustify else result := taRightJustify;
+  else {btaLeftJustify}
+    result := taLeftJustify;
+  end;
+end;
+
 procedure TTextShape.SetFontEmHeight(AValue: single);
 begin
   if FFontEmHeight=AValue then Exit;
   BeginUpdate;
   FFontEmHeight:=AValue;
+  GetTextLayout.InvalidateLayout;
   EndUpdate;
 end;
 
@@ -176,12 +209,60 @@ begin
   EndUpdate;
 end;
 
-procedure TTextShape.SetHorizAlign(AValue: TBidiTextAlignment);
+procedure TTextShape.SetBidiParagraphAlignment(AValue: TBidiTextAlignment);
+var
+  tl: TBidiTextLayout;
+  paraIndex, paraIndex2, i: Integer;
+  needUpdate: boolean;
 begin
-  if FHorizAlign=AValue then Exit;
-  BeginUpdate;
-  FHorizAlign:=AValue;
-  EndUpdate;
+  tl := GetTextLayout;
+  paraIndex := tl.GetParagraphAt(FSelStart);
+  paraIndex2 := tl.GetParagraphAt(FSelEnd);
+  needUpdate := false;
+  for i := min(paraIndex,paraIndex2) to max(paraIndex,paraIndex2) do
+  if tl.ParagraphAlignment[i] <> AValue then
+  begin
+    if not needUpdate then
+    begin
+      BeginUpdate;
+      needUpdate := true;
+    end;
+    tl.ParagraphAlignment[i] := AValue;
+  end;
+  if needUpdate then EndUpdate;
+end;
+
+procedure TTextShape.SetParagraphAlignment(AValue: TAlignment);
+var
+  tl: TBidiTextLayout;
+  paraIndex, paraIndex2, i: Integer;
+  bidiAlign: TBidiTextAlignment;
+  rtl, needUpdate: Boolean;
+begin
+  tl := GetTextLayout;
+  paraIndex := tl.GetParagraphAt(FSelStart);
+  paraIndex2 := tl.GetParagraphAt(FSelEnd);
+  needUpdate := false;
+  for i := min(paraIndex,paraIndex2) to max(paraIndex,paraIndex2) do
+  begin
+    rtl := tl.ParagraphRightToLeft[i];
+    case AValue of
+    taCenter: bidiAlign:= btaCenter;
+    taRightJustify: if rtl then bidiAlign := btaNatural else bidiAlign := btaOpposite;
+    else {taLeftJustify}
+      if rtl then bidiAlign := btaOpposite else bidiAlign := btaNatural;
+    end;
+    if tl.ParagraphAlignment[i] <> bidiAlign then
+    begin
+      if not needUpdate then
+      begin
+        BeginUpdate;
+        needUpdate := true;
+      end;
+      tl.ParagraphAlignment[i] := bidiAlign;
+    end;
+  end;
+  if needUpdate then EndUpdate;
 end;
 
 procedure TTextShape.SetVertAlign(AValue: TTextLayout);
@@ -216,7 +297,6 @@ end;
 function TTextShape.GetTextLayout: TBidiTextLayout;
 var
   box: TAffineBox;
-  i: Integer;
 begin
   if FTextLayout = nil then
     FTextLayout := TBidiTextLayout.Create(GetFontRenderer, FText)
@@ -226,8 +306,6 @@ begin
   box := GetAffineBox(FGlobalMatrix,false);
   FTextLayout.FontBidiMode:= FontBidiMode;
   FTextLayout.TopLeft := PointF(0,0);
-  for i := 0 to FTextLayout.ParagraphCount-1 do
-    FTextLayout.ParagraphAlignment[i] := HorizotalAlignment;
   FTextLayout.AvailableWidth:= box.Width;
   FTextLayout.AvailableHeight:= box.Height;
   FTextLayout.ParagraphSpacingBelow:= 0.5;
@@ -395,7 +473,6 @@ constructor TTextShape.Create(AContainer: TVectorOriginal);
 begin
   inherited Create(AContainer);
   SetDefaultFont;
-  FHorizAlign:= btaNatural;
   FVertAlign:= tlTop;
   FText := '';
   FSelStart := 0;
@@ -425,6 +502,10 @@ end;
 procedure TTextShape.LoadFromStorage(AStorage: TBGRACustomOriginalStorage);
 var
   font: TBGRACustomOriginalStorage;
+  tl: TBidiTextLayout;
+  paraAlignList: TStringList;
+  i: Integer;
+  alignment: TAlignment;
 begin
   BeginUpdate;
   inherited LoadFromStorage(AStorage);
@@ -439,12 +520,29 @@ begin
     font.Free;
   end else
     SetDefaultFont;
+
+  tl := GetTextLayout;
+  paraAlignList := TStringList.Create;
+  paraAlignList.DelimitedText:= AStorage.RawString['paragraph-align'];
+  for i := 0 to min(paraAlignList.Count, tl.ParagraphCount)-1 do
+  begin
+    case paraAlignList[i] of
+    'center': alignment := taCenter;
+    'right': alignment := taRightJustify;
+    else {'left'} alignment := taLeftJustify;
+    end;
+    tl.ParagraphAlignment[i] := AlignmentToBidiTextAlignment(alignment, tl.ParagraphRightToLeft[i]);
+  end;
+  paraAlignList.Free;
   EndUpdate;
 end;
 
 procedure TTextShape.SaveToStorage(AStorage: TBGRACustomOriginalStorage);
 var
   font: TBGRACustomOriginalStorage;
+  tl: TBidiTextLayout;
+  paraAlignList: TStringList;
+  i: Integer;
 begin
   inherited SaveToStorage(AStorage);
   AStorage.RawString['text'] := Text;
@@ -455,6 +553,20 @@ begin
   AStorage.RawString['bidi'] := FontBidiModeToStr(FontBidiMode);
   AStorage.RawString['style'] := FontStyleToStr(FontStyle);
   font.Free;
+
+  tl := GetTextLayout;
+  paraAlignList := TStringList.Create;
+  for i := 0 to tl.ParagraphCount-1 do
+    case tl.ParagraphAlignment[i] of
+    btaRightJustify: paraAlignList.Add('right');
+    btaCenter: paraAlignList.Add('center');
+    btaNatural: if tl.ParagraphRightToLeft[i] then paraAlignList.Add('right') else paraAlignList.Add('left');
+    btaOpposite: if tl.ParagraphRightToLeft[i] then paraAlignList.Add('left') else paraAlignList.Add('right');
+    else {btaLeftJustify}
+      paraAlignList.Add('left');
+    end;
+  AStorage.RawString['paragraph-align'] := paraAlignList.DelimitedText;
+  paraAlignList.Free;
 end;
 
 destructor TTextShape.Destroy;
@@ -691,6 +803,7 @@ var
   idxPara, newPos: Integer;
   stream: TStringStream;
   tl: TBidiTextLayout;
+  txt: String;
 begin
   if FTextLayout = nil then exit;
 
@@ -771,7 +884,7 @@ begin
     if ssShift in Shift then
       InsertText(UnicodeCharToUTF8(UNICODE_LINE_SEPARATOR))
     else
-      InsertText(LineEnding);
+      InsertText(#10);
     AHandled := true;
   end else
   if Key = skTab then
@@ -799,7 +912,13 @@ begin
   begin
     if Clipboard.HasFormat(PredefinedClipboardFormat(pcfText)) then
     begin
-      InsertText(Clipboard.AsText);
+      txt := Clipboard.AsText;
+      txt := StringReplace(txt, #13#10, #10, [rfReplaceAll]);
+      txt := StringReplace(txt, #10#13, #10, [rfReplaceAll]);
+      txt := StringReplace(txt, #13, #10, [rfReplaceAll]);
+      txt := StringReplace(txt, UnicodeCharToUTF8(UNICODE_PARAGRAPH_SEPARATOR), #10, [rfReplaceAll]);
+      txt := StringReplace(txt, UnicodeCharToUTF8(UNICODE_NEXT_LINE), #10, [rfReplaceAll]);
+      InsertText(txt);
       AHandled:= true;
     end;
   end else
