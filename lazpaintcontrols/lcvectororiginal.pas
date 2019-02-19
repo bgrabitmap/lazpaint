@@ -502,6 +502,7 @@ var
   origin, xAxis, yAxis: TPointF;
   grad: TBGRALayerGradientOriginal;
   repetition: TTextureRepetition;
+  c: TBGRAPixel;
 begin
   if AValue = nil then
   begin
@@ -512,7 +513,9 @@ begin
   obj := AStorage.OpenObject(AObjectName+'-fill');
   if obj = nil then
   begin
-    AValue.SetSolid(AStorage.Color[AObjectName+'-color']);
+    c := AStorage.Color[AObjectName+'-color'];
+    if c.alpha <> 0 then
+      AValue.SetSolid(c);
     exit;
   end;
   try
@@ -557,7 +560,7 @@ var
   ft: TVectorialFillType;
 begin
   AStorage.RemoveObject(AObjectName+'-fill');
-  AStorage.RemoveObject(AObjectName+'-color');
+  AStorage.RemoveAttribute(AObjectName+'-color');
   if Assigned(AValue) then
   begin
     ft := AValue.FillType;
