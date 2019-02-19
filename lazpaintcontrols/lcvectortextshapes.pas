@@ -217,7 +217,6 @@ function TTextShape.GetTextLayout: TBidiTextLayout;
 var
   box: TAffineBox;
   i: Integer;
-  zoom: Single;
 begin
   if FTextLayout = nil then
     FTextLayout := TBidiTextLayout.Create(GetFontRenderer, FText)
@@ -227,11 +226,10 @@ begin
   box := GetAffineBox(FGlobalMatrix,false);
   FTextLayout.FontBidiMode:= FontBidiMode;
   FTextLayout.TopLeft := PointF(0,0);
-  zoom := GetTextRenderZoom;
-  FTextLayout.AvailableWidth:= box.Width*zoom;
-  FTextLayout.AvailableHeight:= box.Height*zoom;
   for i := 0 to FTextLayout.ParagraphCount-1 do
     FTextLayout.ParagraphAlignment[i] := HorizotalAlignment;
+  FTextLayout.AvailableWidth:= box.Width;
+  FTextLayout.AvailableHeight:= box.Height;
   FTextLayout.ParagraphSpacingBelow:= 0.5;
   result:= FTextLayout;
 end;
