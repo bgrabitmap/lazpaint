@@ -24,6 +24,9 @@ object Form1: TForm1
     Color = clGray
     ParentColor = False
     TabOrder = 0
+    TabStop = True
+    OnEnter = BGRAVirtualScreen1Enter
+    OnExit = BGRAVirtualScreen1Exit
     OnMouseDown = BGRAVirtualScreen1MouseDown
     OnMouseMove = BGRAVirtualScreen1MouseMove
     OnMouseUp = BGRAVirtualScreen1MouseUp

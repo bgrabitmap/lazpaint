@@ -116,6 +116,8 @@ type
     UpDownPenWidth: TBCTrackbarUpdown;
     procedure BCPanelToolbarResize(Sender: TObject);
     procedure BCPanelToolChoiceResize(Sender: TObject);
+    procedure BGRAVirtualScreen1Enter(Sender: TObject);
+    procedure BGRAVirtualScreen1Exit(Sender: TObject);
     procedure BGRAVirtualScreen1MouseWheel(Sender: TObject; {%H-}Shift: TShiftState;
       WheelDelta: Integer; {%H-}MousePos: TPoint; var {%H-}Handled: Boolean);
     procedure EditCopyExecute(Sender: TObject);
@@ -150,6 +152,8 @@ type
     procedure FormUTF8KeyPress(Sender: TObject; var UTF8Key: TUTF8Char);
     procedure ToolButtonClick(Sender: TObject);
   private
+    FSpecialKeyPressed: array[TSpecialKey] of boolean;
+
     FPenWidth: single;
     FPenStyle: TBGRAPenStyle;
     FPenJoinStyle: TPenJoinStyle;
@@ -191,6 +195,7 @@ type
     procedure LoadVectorImages;
     procedure OnClickSplineStyleItem(ASender: TObject);
     procedure OnEditingChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
+    procedure OnEditorFocusChange(Sender: TObject);
     procedure OnOriginalChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
     procedure OnPhongBorderSizeChange(Sender: TObject; AByUser: boolean);
     procedure OnPhongShapeAltitudeChange(Sender: TObject; AByUser: boolean);
@@ -342,6 +347,7 @@ begin
   img.LayerOriginalMatrix[vectorLayer] := AffineMatrixScale(1,1);
   vectorOriginal.OnSelectShape:= @OnSelectShape;
   img.OnOriginalEditingChange:= @OnEditingChange;
+  img.OnEditorFocusChanged:=@OnEditorFocusChange;
   img.OnOriginalChange:= @OnOriginalChange;
 
   zoom := AffineMatrixScale(1,1);
@@ -430,6 +436,7 @@ var
   cur: TOriginalEditorCursor;
   handled: boolean;
 begin
+  if not BGRAVirtualScreen1.Focused then BGRAVirtualScreen1.SetFocus;
   mouseState:= Shift;
   imgPtF := VirtualScreenToImgCoord(X,Y);
   SetEditorGrid(ssCtrl in Shift);
@@ -565,6 +572,8 @@ begin
       vectorOriginal.OnSelectShape:= @OnSelectShape;
       img.OnOriginalEditingChange:= @OnEditingChange;
       img.OnOriginalChange:= @OnOriginalChange;
+      img.EditorFocused := BGRAVirtualScreen1.Focused;
+      img.OnEditorFocusChanged:=@OnEditorFocusChange;
       filename:= OpenDialog1.FileName;
       UpdateTitleBar;
       ImageChangesCompletely;
@@ -630,6 +639,16 @@ procedure TForm1.BCPanelToolChoiceResize(Sender: TObject);
 begin
   ToolbarTools.Width := GetToolbarSize(ToolbarTools).cx;
   BCPanelToolChoice.Width := ToolbarTools.Width+3;
+end;
+
+procedure TForm1.BGRAVirtualScreen1Enter(Sender: TObject);
+begin
+  if Assigned(img) then img.EditorFocused:= true;
+end;
+
+procedure TForm1.BGRAVirtualScreen1Exit(Sender: TObject);
+begin
+  if Assigned(img) then img.EditorFocused:= false;
 end;
 
 procedure TForm1.BGRAVirtualScreen1MouseWheel(Sender: TObject;
@@ -775,10 +794,13 @@ end;
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
   AHandled: boolean;
+  sk: TSpecialKey;
 begin
-  if Assigned(img) then
+  if Assigned(img) and img.EditorFocused then
   begin
-    img.KeyDown(Shift, LCLKeyToSpecialKey(Key, Shift), AHandled);
+    sk := LCLKeyToSpecialKey(Key, Shift);
+    FSpecialKeyPressed[sk] := true;
+    img.KeyDown(Shift, sk, AHandled);
     if AHandled then
     begin
       Key := 0;
@@ -811,10 +833,13 @@ end;
 procedure TForm1.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
   AHandled: boolean;
+  sk: TSpecialKey;
 begin
-  if Assigned(img) then
+  sk := LCLKeyToSpecialKey(Key, Shift);
+  if Assigned(img) and FSpecialKeyPressed[sk] then
   begin
-    img.KeyUp(Shift, LCLKeyToSpecialKey(Key, Shift), AHandled);
+    img.KeyUp(Shift, sk, AHandled);
+    FSpecialKeyPressed[sk] := false;
     if AHandled then
     begin
       Key:= 0;
@@ -826,7 +851,7 @@ end;
 procedure TForm1.FormUTF8KeyPress(Sender: TObject; var UTF8Key: TUTF8Char);
 var AHandled: boolean;
 begin
-  if Assigned(img) then
+  if Assigned(img) and img.EditorFocused then
   begin
     img.KeyPress(UTF8Key, AHandled);
     if AHandled then
@@ -977,6 +1002,11 @@ begin
   UpdateView(EmptyRect);
 end;
 
+procedure TForm1.OnEditorFocusChange(Sender: TObject);
+begin
+  UpdateView(EmptyRect);
+end;
+
 procedure TForm1.OnOriginalChange(ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
 var
   slowShape: boolean;
@@ -1013,24 +1043,9 @@ begin
   if ASender <> vectorOriginal then exit;
   UpdateToolbarFromShape(AShape);
   case currentTool of
-    ptMoveBackFillPoint:
-    begin
-      if Assigned(AShape) and (vsuEditBackFill in AShape.Usermodes) and
-         AShape.BackFill.IsEditable then
-        AShape.Usermode:= vsuEditBackFill
-      else
-        currentTool:= ptHand;
-    end;
-    ptMovePenFillPoint:
-    begin
-      if Assigned(AShape) and (vsuEditPenFill in AShape.Usermodes) and
-         AShape.PenFill.IsEditable then
-        AShape.Usermode:= vsuEditPenFill
-      else
-        currentTool:= ptHand;
-    end;
+    ptMoveBackFillPoint: if AShape.Usermode <> vsuEditBackFill then currentTool := ptHand;
+    ptMovePenFillPoint: if AShape.Usermode <> vsuEditPenFill then currentTool := ptHand;
   end;
-
   UpdateShapeActions(AShape);
   RemoveShapeIfEmpty(APreviousShape);
 end;
@@ -1529,7 +1544,12 @@ begin
       BorderSizePercent:= FPhongBorderSize;
     end;
   end;
-  if result is TTextShape then TTextShape(result).FontEmHeight:= FTextFontHeight;
+  if result is TTextShape then
+  begin
+    TTextShape(result).FontEmHeight:= FTextFontHeight;
+    TTextShape(result).FontBidiMode:= FTextDirection;
+    TTextShape(result).UserMode := vsuEditText;
+  end;
   result.QuickDefine(APoint1,APoint2);
   if vsfBackFill in result.Fields then
   begin
