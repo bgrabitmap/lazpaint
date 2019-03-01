@@ -65,6 +65,7 @@ type
     class function DefaultFontEmHeight: single;
     class function CreateEmpty: boolean; override;
     class function StorageClassName: RawByteString; override;
+    class function Usermodes: TVectorShapeUsermodes; override;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
@@ -75,6 +76,7 @@ type
     procedure MouseUp({%H-}RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); override;
     procedure KeyDown({%H-}Shift: TShiftState; {%H-}Key: TSpecialKey; var {%H-}AHandled: boolean); override;
     procedure KeyPress({%H-}UTF8Key: string; var {%H-}AHandled: boolean); override;
+    procedure SetFontNameAndStyle(AFontName: string; AFontStyle: TFontStyles);
     property Text: string read FText write SetText;
     property FontName: string read FFontName write SetFontName;
     property FontStyle: TFontStyles read FFontStyle write SetFontStyle;
@@ -189,7 +191,7 @@ begin
   if FFontEmHeight=AValue then Exit;
   BeginUpdate;
   FFontEmHeight:=AValue;
-  GetTextLayout.InvalidateLayout;
+  if Assigned(FTextLayout) then FTextLayout.InvalidateLayout;
   EndUpdate;
 end;
 
@@ -198,6 +200,7 @@ begin
   if FFontName=AValue then Exit;
   BeginUpdate;
   FFontName:=AValue;
+  if Assigned(FTextLayout) then FTextLayout.InvalidateLayout;
   EndUpdate;
 end;
 
@@ -206,6 +209,7 @@ begin
   if FFontStyle=AValue then Exit;
   BeginUpdate;
   FFontStyle:=AValue;
+  if Assigned(FTextLayout) then FTextLayout.InvalidateLayout;
   EndUpdate;
 end;
 
@@ -216,8 +220,15 @@ var
   needUpdate: boolean;
 begin
   tl := GetTextLayout;
-  paraIndex := tl.GetParagraphAt(FSelStart);
-  paraIndex2 := tl.GetParagraphAt(FSelEnd);
+  if Usermode <> vsuEditText then
+  begin
+    paraIndex := 0;
+    paraIndex2:= tl.ParagraphCount;
+  end else
+  begin
+    paraIndex := tl.GetParagraphAt(FSelStart);
+    paraIndex2 := tl.GetParagraphAt(FSelEnd);
+  end;
   needUpdate := false;
   for i := min(paraIndex,paraIndex2) to max(paraIndex,paraIndex2) do
   if tl.ParagraphAlignment[i] <> AValue then
@@ -240,8 +251,15 @@ var
   rtl, needUpdate: Boolean;
 begin
   tl := GetTextLayout;
-  paraIndex := tl.GetParagraphAt(FSelStart);
-  paraIndex2 := tl.GetParagraphAt(FSelEnd);
+  if UserMode <> vsuEditText then
+  begin
+    paraIndex := 0;
+    paraIndex2:= tl.ParagraphCount;
+  end else
+  begin
+    paraIndex := tl.GetParagraphAt(FSelStart);
+    paraIndex2 := tl.GetParagraphAt(FSelEnd);
+  end;
   needUpdate := false;
   for i := min(paraIndex,paraIndex2) to max(paraIndex,paraIndex2) do
   begin
@@ -388,6 +406,7 @@ procedure TTextShape.DeleteTextBefore(ACount: integer);
 var
   delCount, selLeft: Integer;
 begin
+  if UserMode <> vsuEditText then exit;
   BeginUpdate;
   selLeft := Min(FSelStart,FSelEnd);
   if selLeft > 0 then
@@ -406,6 +425,7 @@ var
   delCount, selRight: Integer;
   tl: TBidiTextLayout;
 begin
+  if UserMode <> vsuEditText then exit;
   BeginUpdate;
   selRight := Max(FSelStart,FSelEnd);
   tl := GetTextLayout;
@@ -423,6 +443,7 @@ procedure TTextShape.DeleteSelectedText;
 var
   selLeft: Integer;
 begin
+  if UserMode <> vsuEditText then exit;
   if FSelStart <> FSelEnd then
   begin
     BeginUpdate;
@@ -439,6 +460,7 @@ procedure TTextShape.InsertText(ATextUTF8: string);
 var
   insertCount: Integer;
 begin
+  if UserMode <> vsuEditText then exit;
   BeginUpdate;
   DeleteSelectedText;
   insertCount := GetTextLayout.InsertText(ATextUTF8, FSelStart);
@@ -459,11 +481,12 @@ begin
   newPos := tl.GetCharIndexAt(AffineMatrixScale(zoom,zoom)*AffineMatrixInverse(GetUntransformedMatrix)*PointF(X,Y));
   if newPos<>-1 then
   begin
-    if (newPos <> FSelEnd) or (not AExtend and (FSelStart <> FSelEnd)) then
+    if (newPos <> FSelEnd) or (not AExtend and (FSelStart <> FSelEnd)) or (UserMode <> vsuEditText) then
     begin
       BeginUpdate;
       FSelEnd:= newPos;
-      if not AExtend then FSelStart:= FSelEnd;
+      if not AExtend or (UserMode <> vsuEditText) then FSelStart:= FSelEnd;
+      UserMode := vsuEditText;
       EndUpdate;
     end;
   end;
@@ -614,26 +637,29 @@ var
 begin
   inherited ConfigureEditor(AEditor);
   AEditor.AddPolyline(GetAffineBox(AffineMatrixIdentity,true).AsPolygon, true, opsDashWithShadow);
-  tl := GetTextLayout;
-  caret:= tl.GetCaret(FSelEnd);
-  zoom := GetTextRenderZoom;
-  m := GetUntransformedMatrix*AffineMatrixScale(1/zoom,1/zoom);
-  if not isEmptyPointF(caret.PreviousTop) and (caret.PreviousRightToLeft<>caret.RightToLeft) then
+  if AEditor.Focused and (Usermode = vsuEditText) then
   begin
-    orientation := (caret.Bottom-caret.Top)*(1/10);
-    orientation := PointF(-orientation.y,orientation.x);
-    if caret.RightToLeft then orientation := -orientation;
-    AEditor.AddPolyline([m*caret.Bottom,m*caret.Top,m*(caret.Top+orientation)],false, opsSolid);
-  end else
-    AEditor.AddPolyline([m*caret.Bottom,m*caret.Top],false, opsSolid);
-  if FSelStart<>FSelEnd then
-  begin
-    pts := tl.GetTextEnveloppe(FSelStart, FSelEnd);
-    for i := 0 to high(pts) do
-      pts[i] := m*pts[i];
-    c:= clHighlight;
-    c.alpha := 96;
-    AEditor.AddPolyline(pts, true, opsDash, c);
+    tl := GetTextLayout;
+    caret:= tl.GetCaret(FSelEnd);
+    zoom := GetTextRenderZoom;
+    m := GetUntransformedMatrix*AffineMatrixScale(1/zoom,1/zoom);
+    if not isEmptyPointF(caret.PreviousTop) and (caret.PreviousRightToLeft<>caret.RightToLeft) then
+    begin
+      orientation := (caret.Bottom-caret.Top)*(1/10);
+      orientation := PointF(-orientation.y,orientation.x);
+      if caret.RightToLeft then orientation := -orientation;
+      AEditor.AddPolyline([m*caret.Bottom,m*caret.Top,m*(caret.Top+orientation)],false, opsSolid);
+    end else
+      AEditor.AddPolyline([m*caret.Bottom,m*caret.Top],false, opsSolid);
+    if FSelStart<>FSelEnd then
+    begin
+      pts := tl.GetTextEnveloppe(FSelStart, FSelEnd);
+      for i := 0 to high(pts) do
+        pts[i] := m*pts[i];
+      c:= clHighlight;
+      c.alpha := 96;
+      AEditor.AddPolyline(pts, true, opsDash, c);
+    end;
   end;
 end;
 
@@ -805,7 +831,7 @@ var
   tl: TBidiTextLayout;
   txt: String;
 begin
-  if FTextLayout = nil then exit;
+  if (FTextLayout = nil) or (Usermode <> vsuEditText) then exit;
 
   if Key = skDelete then
   begin
@@ -935,7 +961,7 @@ procedure TTextShape.KeyPress(UTF8Key: string; var AHandled: boolean);
 var
   stream: TStringStream;
 begin
-  if UTF8Key = #8 then
+  if (Usermode = vsuEditText) and (UTF8Key = #8) then
   begin
     if FSelEnd <> FSelStart then DeleteSelectedText
     else DeleteTextBefore(1);
@@ -943,14 +969,39 @@ begin
   end else
   if UTF8Key >= ' ' then
   begin
-    InsertText(UTF8Key);
+    if Usermode <> vsuEditText then
+    begin
+      if Text = '' then
+      begin
+        Usermode := vsuEditText;
+        InsertText(UTF8Key);
+      end;
+    end else
+      InsertText(UTF8Key);
     AHandled := true;
+  end;
+end;
+
+procedure TTextShape.SetFontNameAndStyle(AFontName: string;
+  AFontStyle: TFontStyles);
+begin
+  if (AFontName <> FFontName) or (AFontStyle <> FFontStyle) then
+  begin
+    BeginUpdate;
+    FFontName := AFontName;
+    FFontStyle:= AFontStyle;
+    EndUpdate;
   end;
 end;
 
 class function TTextShape.StorageClassName: RawByteString;
 begin
   result := 'text';
+end;
+
+class function TTextShape.Usermodes: TVectorShapeUsermodes;
+begin
+  Result:=inherited Usermodes + [vsuEditText];
 end;
 
 initialization

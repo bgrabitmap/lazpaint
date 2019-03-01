@@ -23,7 +23,8 @@ type
   TVectorShapeField = (vsfPenFill, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill);
   TVectorShapeFields = set of TVectorShapeField;
   TVectorShapeUsermode = (vsuEdit, vsuCreate, vsuEditPenFill, vsuEditBackFill,
-                          vsuCurveSetAuto, vsuCurveSetCurve, vsuCurveSetAngle);
+                          vsuCurveSetAuto, vsuCurveSetCurve, vsuCurveSetAngle,
+                          vsuEditText);
   TVectorShapeUsermodes = set of TVectorShapeUsermode;
 
   { TVectorShape }
@@ -1229,6 +1230,8 @@ begin
        AShape.BackFill.IsEditable then AShape.Usermode:= prevMode;
     if Assigned(AShape) and (prevMode = vsuEditPenFill) and (prevMode in AShape.Usermodes) and
        AShape.PenFill.IsEditable then AShape.Usermode:= prevMode;
+    if Assigned(AShape) and (prevMode = vsuEditText) and (prevMode in AShape.Usermodes) then
+      AShape.Usermode := prevMode;
     FSelectedShape := AShape;
     DiscardFrozenShapes;
     NotifyEditorChange;
