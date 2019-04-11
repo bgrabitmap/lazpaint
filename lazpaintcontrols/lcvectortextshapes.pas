@@ -422,7 +422,7 @@ end;
 
 procedure TTextShape.DeleteTextAfter(ACount: integer);
 var
-  delCount, selRight: Integer;
+  selRight: Integer;
   tl: TBidiTextLayout;
 begin
   if UserMode <> vsuEditText then exit;
@@ -431,7 +431,7 @@ begin
   tl := GetTextLayout;
   if selRight+ACount <= tl.CharCount then
   begin
-    delCount := tl.DeleteText(selRight, ACount);
+    tl.DeleteText(selRight, ACount);
     FText := tl.TextUTF8;
   end;
   FSelStart := selRight;
@@ -958,8 +958,6 @@ begin
 end;
 
 procedure TTextShape.KeyPress(UTF8Key: string; var AHandled: boolean);
-var
-  stream: TStringStream;
 begin
   if (Usermode = vsuEditText) and (UTF8Key = #8) then
   begin
