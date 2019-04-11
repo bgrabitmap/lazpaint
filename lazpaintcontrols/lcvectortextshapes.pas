@@ -681,14 +681,14 @@ begin
   if zoom = 0 then exit;
   fr := GetFontRenderer;
   if fr.FontEmHeight = 0 then exit;
-  pad := fr.FontEmHeight div 2;
+  pad := fr.FontEmHeight;
 
   m := FGlobalMatrix*                       //global transform
        GetUntransformedMatrix*              //transform according to shape rectangle
        AffineMatrixScale(1/zoom,1/zoom);    //shrink zoomed text if necessary
 
   tl := GetTextLayout;
-  sourceRect := RectF(-pad,-pad,tl.AvailableWidth+pad,tl.TotalTextHeight+pad);
+  sourceRect := RectF(-pad,0,tl.AvailableWidth+pad,min(tl.TotalTextHeight,tl.AvailableHeight));
 
   destF := RectF(ADest.ClipRect.Left,ADest.ClipRect.Top,ADest.ClipRect.Right,ADest.ClipRect.Bottom);
   transfRectF := (m*TAffineBox.AffineBox(sourceRect)).RectBoundsF;
@@ -742,8 +742,8 @@ function TTextShape.GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix;
   AOptions: TRenderBoundsOptions): TRectF;
 var
   ab: TAffineBox;
-  u, v: TPointF;
-  lenU, lenV: Single;
+  u: TPointF;
+  lenU: Single;
 begin
   if PenVisible(rboAssumePenFill in AOptions) and
     (Text <> '') then
@@ -753,17 +753,10 @@ begin
     u := ab.TopRight-ab.TopLeft;
     lenU := VectLen(u);
     if lenU<>0 then u *= (1/lenU);
-    u *=(FontEmHeight/2);
+    u *= FontEmHeight;
     ab.TopLeft -= u;
     ab.TopRight += u;
     ab.BottomLeft -= u;
-    v := ab.BottomLeft-ab.TopLeft;
-    lenV := VectLen(v);
-    if lenV<>0 then v *= (1/lenV);
-    v *= (FontEmHeight/2);
-    ab.TopLeft -= v;
-    ab.TopRight -= v;
-    ab.BottomLeft += v;
     result := ab.RectBoundsF;
   end
   else
