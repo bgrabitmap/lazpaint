@@ -3479,7 +3479,7 @@ msgstr "Voulez-vous transférer la sélection vers un autre calque ?"
 
 #: uresourcestrings.rstransformselectioncontent
 msgid "Do you want to transform content of the selection?"
-msgstr ""
+msgstr "Voulez-vous transformer le contenu de la sélection ?"
 
 #: uresourcestrings.rsunabletoapplyfilter
 msgid "Unable to apply filter : "
