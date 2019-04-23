@@ -398,7 +398,7 @@ begin
     end;
   end;
   if FLastBigIcon then ViewBigIcons;
-  if FLastDirectory = '' then
+  if (FLastDirectory = '') or not FileManager.IsDirectory(FLastDirectory) then
     DirectoryEdit1.Text := DefaultPicturesDirectory
   else
     DirectoryEdit1.Text := FLastDirectory;
