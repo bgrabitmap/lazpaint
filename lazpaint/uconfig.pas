@@ -42,6 +42,15 @@ type
     procedure AddRecentFile(filename: string);
     procedure AddRecentDirectory(dirname: string);
     procedure FinalizeRecentFiles;
+    function DefaultRememberStartupTargetDirectory: boolean;
+    procedure SetRememberStartupTargetDirectory(AValue: boolean);
+    function DefaultRememberStartupSourceDirectory: boolean;
+    procedure SetRememberStartupSourceDirectory(AValue: boolean);
+    function DefaultStartupSourceDirectory: string;
+    procedure SetStartupSourceDirectory(AValue: string);
+    function DefaultStartupTargetDirectory: string;
+    procedure SetStartupTargetDirectory(AValue: string);
+
     procedure SetBrushes(ABrushes: TStringList);
     function DefaultJpegQuality: integer;
     procedure SetDefaultJpegQuality(value: integer);
@@ -1157,6 +1166,46 @@ begin
   for i := 0 to recentDirs.Count-1 do
     iniOptions.WriteString('RecentDirectories','Dir'+inttostr(I+1),recentDirs[i]);
   recentDirs.Free;
+end;
+
+function TLazPaintConfig.DefaultRememberStartupTargetDirectory: boolean;
+begin
+  result := iniOptions.ReadBool('Startup', 'RememberTargetDirectory', false);
+end;
+
+procedure TLazPaintConfig.SetRememberStartupTargetDirectory(AValue: boolean);
+begin
+  iniOptions.WriteBool('Startup', 'RememberTargetDirectory', AValue);
+end;
+
+function TLazPaintConfig.DefaultRememberStartupSourceDirectory: boolean;
+begin
+  result := iniOptions.ReadBool('Startup', 'RememberSourceDirectory', false);
+end;
+
+procedure TLazPaintConfig.SetRememberStartupSourceDirectory(AValue: boolean);
+begin
+  iniOptions.WriteBool('Startup', 'RememberSourceDirectory', AValue);
+end;
+
+function TLazPaintConfig.DefaultStartupSourceDirectory: string;
+begin
+  result := iniOptions.ReadString('Startup', 'SourceDirectory', '');
+end;
+
+procedure TLazPaintConfig.SetStartupSourceDirectory(AValue: string);
+begin
+  iniOptions.WriteString('Startup', 'SourceDirectory', AValue);
+end;
+
+function TLazPaintConfig.DefaultStartupTargetDirectory: string;
+begin
+  result := iniOptions.ReadString('Startup', 'TargetDirectory', '');
+end;
+
+procedure TLazPaintConfig.SetStartupTargetDirectory(AValue: string);
+begin
+  iniOptions.WriteString('Startup', 'TargetDirectory', AValue);
 end;
 
 procedure TLazPaintConfig.SetBrushes(ABrushes: TStringList);

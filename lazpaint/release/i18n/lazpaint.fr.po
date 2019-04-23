@@ -178,6 +178,10 @@ msgstr "Modes de fusion de base disponibles dans presque tous les logiciels"
 msgid "Browse images"
 msgstr "Parcourir les images"
 
+#: tfbrowseimages.checkbox_usedirectoryonstartup.caption
+msgid "Use this directory on startup"
+msgstr "Utiliser ce dossier au démarrage"
+
 #: tfbrowseimages.label_status.caption
 msgctxt "tfbrowseimages.label_status.caption"
 msgid "."

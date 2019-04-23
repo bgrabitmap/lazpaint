@@ -18,6 +18,7 @@ type
   { TFBrowseImages }
 
   TFBrowseImages = class(TForm)
+    CheckBox_UseDirectoryOnStartup: TCheckBox;
     DirectoryEdit1: TEdit;
     ToolButton_CreateFolderOrContainer: TToolButton;
     Tool_SelectDrive: TToolButton;
@@ -40,6 +41,7 @@ type
     Panel2: TPanel;
     Splitter1: TSplitter;
     Timer1: TTimer;
+    procedure CheckBox_UseDirectoryOnStartupChange(Sender: TObject);
     procedure ComboBox_FileExtensionChange(Sender: TObject);
     procedure DirectoryEdit1Change(Sender: TObject);
     procedure Edit_FilenameChange(Sender: TObject);
@@ -123,6 +125,7 @@ type
     procedure PreviewValidate({%H-}ASender: TObject);
   public
     { public declarations }
+    ShowRememberStartupDirectory: boolean;
     function GetChosenImage: TImageEntry;
     procedure FreeChosenImage;
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
@@ -220,6 +223,14 @@ begin
       Edit_FilenameChange(nil);
   end else
     Edit_Filename.Text := '';
+end;
+
+procedure TFBrowseImages.CheckBox_UseDirectoryOnStartupChange(Sender: TObject);
+begin
+  if IsSaveDialog then
+    LazPaintInstance.Config.SetRememberStartupTargetDirectory(CheckBox_UseDirectoryOnStartup.Checked)
+  else
+    LazPaintInstance.Config.SetRememberStartupSourceDirectory(CheckBox_UseDirectoryOnStartup.Checked)
 end;
 
 procedure TFBrowseImages.FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -837,10 +848,17 @@ begin
     vsPreview.Visible := false;
     Label_Status.Caption := rsRecentDirectories;
     ListBox_RecentDirs.Visible := true;
+    if IsSaveDialog then
+      CheckBox_UseDirectoryOnStartup.Checked := FLazPaintInstance.Config.DefaultRememberStartupTargetDirectory
+    else
+      CheckBox_UseDirectoryOnStartup.Checked := FLazPaintInstance.Config.DefaultRememberStartupSourceDirectory;
+    CheckBox_UseDirectoryOnStartup.Left := Label_Status.Left+Label_Status.Width + 10;
+    CheckBox_UseDirectoryOnStartup.Visible := ShowRememberStartupDirectory;
     SelectCurrentDir;
   end else
   begin
     ListBox_RecentDirs.Visible := false;
+    CheckBox_UseDirectoryOnStartup.Visible := false;
     vsPreview.Visible := true;
     FPreview.Filename:= FPreviewFilename;
   end;

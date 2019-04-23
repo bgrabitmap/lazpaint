@@ -686,7 +686,7 @@ type
 
     FTablet: TLazTablet;
 
-    FSaveInitialDir: string;
+    FLoadInitialDir, FSaveInitialDir: string;
     FSaveSelectionInitialFilename: string;
     FInTextFont: boolean;
     FInPenWidthChange: boolean;
@@ -974,6 +974,10 @@ begin
     Config.SetDefault3dObjectDirectory(StartDirectory);
 
   MainMenu1.Images := LazPaintInstance.Icons[DoScaleX(20,OriginalDPI)];
+  if Config.DefaultRememberStartupTargetDirectory then
+    FSaveInitialDir := Config.DefaultStartupTargetDirectory;
+  if Config.DefaultRememberStartupSourceDirectory then
+    FLoadInitialDir := Config.DefaultStartupSourceDirectory;
 
   FImageView := TImageView.Create(LazPaintInstance, Zoom,
                 {$IFDEF USEPAINTBOXPICTURE}PaintBox_Picture.Canvas{$ELSE}self.Canvas{$ENDIF},
@@ -1227,6 +1231,7 @@ begin
         begin
           FBrowseImages := TFBrowseImages.Create(self);
           FBrowseImages.LazPaintInstance := LazPaintInstance;
+          FBrowseImages.ShowRememberStartupDirectory := true;
         end;
       end;
       try
@@ -1234,6 +1239,8 @@ begin
         if UseImageBrowser then
         begin
           self.Hide;
+          FBrowseImages.InitialDirectory:= FLoadInitialDir;
+          FBrowseImages.AllowMultiSelect:= true;
           if FBrowseImages.ShowModal = mrOK then
           begin
             setlength(chosenFiles, FBrowseImages.SelectedFileCount);
@@ -1247,8 +1254,11 @@ begin
             chosenFiles := nil;
             cancelled := true;
           end;
+          FBrowseImages.AllowMultiSelect:= false;
         end else
         begin
+          OpenPictureDialog1.InitialDir:= FLoadInitialDir;
+          OpenPictureDialog1.Options := OpenPictureDialog1.Options + [ofAllowMultiSelect];
           if OpenPictureDialog1.Execute then
           begin
             setlength(chosenFiles,1);
@@ -1260,6 +1270,7 @@ begin
             chosenFiles:= nil;
             cancelled:= true;
           end;
+          OpenPictureDialog1.Options := OpenPictureDialog1.Options - [ofAllowMultiSelect];
         end;
         if not cancelled then
         begin
@@ -1278,6 +1289,9 @@ begin
             result := srOk;
             FormDropFiles(self, chosenFiles);
           end;
+          FLoadInitialDir:= ExtractFilePath(chosenFiles[0]);
+          if Config.DefaultRememberStartupSourceDirectory then
+            Config.SetStartupSourceDirectory(FLoadInitialDir);
         end
         else
           result := srCancelledByUser;
@@ -1335,8 +1349,10 @@ function TFMain.ScriptFileSaveAs(AVars: TVariableSet): TScriptResult;
         begin
           Config.AddRecentFile(filename);
           Config.AddRecentDirectory(ExtractFilePath(filename));
-          Image.CurrentFilenameUTF8 := filename;
           FSaveInitialDir := extractFilePath(filename);
+          if Config.DefaultRememberStartupTargetDirectory then
+            Config.SetStartupTargetDirectory(FSaveInitialDir);
+          Image.CurrentFilenameUTF8 := filename;
           result := srOk;
           if Assigned(Scripting.RecordingFunctionParameters) then
              Scripting.RecordingFunctionParameters.AddString('FileName',filename);
@@ -1389,6 +1405,7 @@ begin
       FSaveImage.LazPaintInstance := LazPaintInstance;
       FSaveImage.IsSaveDialog := true;
       FSaveImage.Caption := SavePictureDialog1.Title;
+      FSaveImage.ShowRememberStartupDirectory:= true;
     end;
     FSaveImage.InitialFilename := filename;
     FSaveImage.DefaultExtension := defaultExt;
@@ -2067,8 +2084,10 @@ begin
     begin
       FBrowseImages := TFBrowseImages.Create(self);
       FBrowseImages.LazPaintInstance := LazPaintInstance;
+      FBrowseImages.ShowRememberStartupDirectory := true;
     end;
     self.Hide;
+    FBrowseImages.InitialDirectory:= FLoadInitialDir;
     FBrowseImages.AllowMultiSelect := true;
     FBrowseImages.OpenLayerIcon := true;
     try
@@ -2090,6 +2109,7 @@ begin
     self.Show;
   end else
   begin
+    OpenPictureDialog1.InitialDir:= FLoadInitialDir;
     OpenPictureDialog1.Options := OpenPictureDialog1.Options + [ofAllowMultiSelect];
     layerLoaded := false;
     if OpenPictureDialog1.Execute then
@@ -2100,17 +2120,23 @@ begin
     end;
     OpenPictureDialog1.Options := OpenPictureDialog1.Options - [ofAllowMultiSelect];
   end;
-  if Assigned(loadedImage) and (length(chosenFiles)=1) then
+  if chosenFiles <> nil then
   begin
-    layerLoaded := FImageActions.TryAddLayerFromFile(chosenFiles[0], loadedImage);
-  end else
-  begin
-    FreeAndNil(loadedImage);
-    for i := 0 to high(chosenFiles) do
-      begin
-        if FImageActions.TryAddLayerFromFile(chosenFiles[i]) then
-          layerLoaded := true;
-      end;
+    if Assigned(loadedImage) and (length(chosenFiles)=1) then
+    begin
+      layerLoaded := FImageActions.TryAddLayerFromFile(chosenFiles[0], loadedImage);
+    end else
+    begin
+      FreeAndNil(loadedImage);
+      for i := 0 to high(chosenFiles) do
+        begin
+          if FImageActions.TryAddLayerFromFile(chosenFiles[i]) then
+            layerLoaded := true;
+        end;
+    end;
+    FLoadInitialDir:= ExtractFilePath(chosenFiles[0]);
+    if Config.DefaultRememberStartupSourceDirectory then
+      Config.SetStartupSourceDirectory(FLoadInitialDir);
   end;
 
   LazPaintInstance.ShowTopmost(topmostInfo);
