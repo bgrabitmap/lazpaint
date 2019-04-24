@@ -642,12 +642,12 @@ begin
     tl := GetTextLayout;
     caret:= tl.GetCaret(FSelEnd);
     zoom := GetTextRenderZoom;
-    m := GetUntransformedMatrix*AffineMatrixScale(1/zoom,1/zoom);
+    m := AffineMatrixTranslation(-0.5,-0.5)*GetUntransformedMatrix*AffineMatrixScale(1/zoom,1/zoom);
     if FSelStart<>FSelEnd then
     begin
       pts := tl.GetTextEnveloppe(FSelStart, FSelEnd, false, true, true);
       for i := 0 to high(pts) do
-        pts[i] := m*pts[i]-PointF(0.5,0.5);
+        pts[i] := m*pts[i];
       c:= clHighlight;
       c.alpha := 96;
       AEditor.AddPolyline(pts, true, opsDash, c);
@@ -661,9 +661,9 @@ begin
       if not isEmptyPointF(caret.PreviousTop) and (caret.PreviousRightToLeft<>caret.RightToLeft) then
       begin
         if caret.RightToLeft then orientation := -orientation;
-        AEditor.AddPolyline([m*caret.Bottom-PointF(0.5,0.5),m*caret.Top-PointF(0.5,0.5),m*(caret.Top+orientation)-PointF(0.5,0.5)],false, opsSolid);
+        AEditor.AddPolyline([m*caret.Bottom,m*caret.Top,m*(caret.Top+orientation)],false, opsSolid);
       end else
-        AEditor.AddPolyline([m*caret.Bottom-PointF(0.5,0.5),m*caret.Top-PointF(0.5,0.5)],false, opsSolid);
+        AEditor.AddPolyline([m*caret.Bottom,m*caret.Top],false, opsSolid);
     end;
   end;
 end;
@@ -701,12 +701,14 @@ begin
 
   if not IsAffineMatrixInversible(m) then exit;
   sourceInvRect := (AffineMatrixInverse(m)*TAffineBox.AffineBox(transfRectF)).RectBoundsF;
+  sourceInvRect.Top := floor(sourceInvRect.Top);
+  sourceInvRect.Bottom := ceil(sourceInvRect.Bottom);
   sourceRect := TRectF.Intersect(sourceRect,sourceInvRect);
   if IsEmptyRectF(sourceRect) then exit;
   sourceRect.Left := floor(sourceRect.Left);
   sourceRect.Top := floor(sourceRect.Top);
   sourceRect.Right := floor(sourceRect.Right);
-  sourceRect.Bottom := floor(sourceRect.Bottom);
+  sourceRect.Bottom := sourceRect.Bottom;
 
   m := m*AffineMatrixTranslation(sourceRect.Left,sourceRect.Top);
   if tl.TotalTextHeight < tl.AvailableHeight then
@@ -718,22 +720,26 @@ begin
   tl.TopLeft := PointF(-sourceRect.Left,-sourceRect.Top);
   if PenFill.FillType = vftSolid then
   begin
-    tmpSource := TBGRABitmap.Create(round(sourceRect.Width),round(sourceRect.Height));
-    tl.DrawText(tmpSource, PenFill.SolidColor);
-    ADest.PutImageAffine(m, tmpSource, rfHalfCosine, dmDrawWithTransparency);
+    tmpSource := TBGRABitmap.Create(round(sourceRect.Width),ceil(sourceRect.Height));
+    tl.DrawText(tmpSource,PenFill.SolidColor);
+    if frac(sourceRect.Height) > 0 then
+      tmpSource.EraseLine(0,floor(sourceRect.Height),tmpSource.Width,floor(sourceRect.Height), round((1-frac(sourceRect.Height))*255), false);
+    ADest.PutImageAffine(m, tmpSource, rfHalfCosine, dmDrawWithTransparency, 255, false);
     tmpSource.Free;
   end
   else
   begin
-    tmpSource := TBGRABitmap.Create(round(sourceRect.Width),round(sourceRect.Height),BGRABlack);
-    tl.DrawText(tmpSource, BGRAWhite);
+    tmpSource := TBGRABitmap.Create(round(sourceRect.Width),ceil(sourceRect.Height),BGRABlack);
+    tl.DrawText(tmpSource,BGRAWhite);
+    if frac(sourceRect.Height) > 0 then
+      tmpSource.DrawLine(0,floor(sourceRect.Height),tmpSource.Width,floor(sourceRect.Height), BGRA(0,0,0,round((1-frac(sourceRect.Height))*255)), false);
     tmpSource.ConvertToLinearRGB;
 
     with transfRectF do
       transfRect := Rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
     tmpTransf := TBGRABitmap.Create(transfRect.Width,transfRect.Height,BGRABlack);
     tmpTransf.PutImageAffine(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*m,
-                             tmpSource, rfHalfCosine, dmDrawWithTransparency);
+                             tmpSource, rfHalfCosine, dmDrawWithTransparency, 255, false);
     tmpSource.Free;
 
     scan := PenFill.CreateScanner(FGlobalMatrix, ADraft);
