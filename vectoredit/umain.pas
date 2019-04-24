@@ -1022,7 +1022,10 @@ begin
     FTextDirectionButton.ImageIndex:= 31 + ord(FTextDirection);
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
     (vectorOriginal.SelectedShape is TTextShape) then
-    TTextShape(vectorOriginal.SelectedShape).FontBidiMode:= td
+  begin
+    TTextShape(vectorOriginal.SelectedShape).FontBidiMode:= td;
+    UpdateTextAlignment;
+  end;
 end;
 
 procedure TForm1.UpdateTextAlignment;
