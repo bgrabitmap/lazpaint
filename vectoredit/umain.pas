@@ -217,6 +217,7 @@ type
     procedure SplineToolbarClick(Sender: TObject);
     procedure UpdateViewCursor(ACursor: TOriginalEditorCursor);
     procedure RenderAndUpdate(ADraft: boolean);
+    procedure FocusView;
     procedure UpdateFlattenedImage(ARect: TRect; AUpdateView: boolean = true);
     procedure UpdateView(AImageChangeRect: TRect);
     procedure UpdateToolbarFromShape(AShape: TVectorShape);
@@ -366,6 +367,7 @@ begin
   img.LayerOriginalMatrix[vectorLayer] := AffineMatrixScale(1,1);
   vectorOriginal.OnSelectShape:= @OnSelectShape;
   img.OnOriginalEditingChange:= @OnEditingChange;
+  img.EditorFocused:= BGRAVirtualScreen1.Focused;
   img.OnEditorFocusChanged:=@OnEditorFocusChange;
   img.OnOriginalChange:= @OnOriginalChange;
 
@@ -459,7 +461,7 @@ var
   cur: TOriginalEditorCursor;
   handled: boolean;
 begin
-  if not BGRAVirtualScreen1.Focused then BGRAVirtualScreen1.SetFocus;
+  FocusView;
   mouseState:= Shift;
   imgPtF := VirtualScreenToImgCoord(X,Y);
   SetEditorGrid(ssCtrl in Shift);
@@ -1327,6 +1329,11 @@ var
 begin
   renderedRect := img.RenderOriginalsIfNecessary(ADraft);
   UpdateFlattenedImage(renderedRect);
+end;
+
+procedure TForm1.FocusView;
+begin
+  if not BGRAVirtualScreen1.Focused then BGRAVirtualScreen1.SetFocus;
 end;
 
 procedure TForm1.UpdateFlattenedImage(ARect: TRect; AUpdateView: boolean);
