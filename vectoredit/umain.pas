@@ -153,6 +153,7 @@ type
     procedure ToolButtonClick(Sender: TObject);
   private
     FSpecialKeyPressed: array[TSpecialKey] of boolean;
+    FLastBackspaceOrDel: boolean;
 
     FPenWidth: single;
     FPenStyle: TBGRAPenStyle;
@@ -177,13 +178,13 @@ type
     FTextToolbar: TToolbar;
     FTextDirectionButton: TToolButton;
     FTextFontName: string;
+    FTextFontNameEditing: boolean;
     FTextFontStyle: TFontStyles;
     FTextFontHeight: single;
     FTextAlign: TBidiTextAlignment;
     FTextAlignButton: array[TAlignment] of TToolButton;
     FTextDirection: TFontBidiMode;
     FTextDirectionMenu: TPopupMenu;
-    FTextFontNameMenu: TPopupMenu;
 
     FInRemoveShapeIfEmpty: Boolean;
     FFullIconHeight: integer;
@@ -247,10 +248,10 @@ type
     procedure TextDirClick(Sender: TObject);
     procedure OnClickTextDirectionItem(Sender: TObject);
     procedure UpdateTextAlignment;
-    procedure TextChooseFontClick(Sender: TObject);
-    function GetTextFontNameMenu: TPopupMenu;
-    procedure OnClickFontName(Sender: TObject);
     procedure TextStyleClick(Sender: TObject);
+    procedure TextFontTextBoxChange(Sender: TObject);
+    procedure TextFontTextBoxEnter(Sender: TObject);
+    procedure TextFontTextBoxExit(Sender: TObject);
   public
     { public declarations }
     img: TBGRALazPaintImage;
@@ -276,7 +277,6 @@ type
     property joinStyle: TPenJoinStyle read FPenJoinStyle write SetPenJoinStyle;
     property phongShapeKind: TPhongShapeKind read FPhongShapeKind write SetPhongShapeKind;
     property zoomFactor: single read GetZoomFactor write SetZoomFactor;
-    property TextFontNameMenu: TPopupMenu read GetTextFontNameMenu;
   end;
 
 var
@@ -285,7 +285,7 @@ var
 implementation
 
 uses math, BGRAPen, BGRAThumbnail, BGRAGradientOriginal, uvectorclipboard, LResources, LCToolbars,
-  BGRAText;
+  BGRAText, BGRAUTF8;
 
 {$R *.lfm}
 
@@ -323,16 +323,6 @@ begin
   SetToolbarImages(ToolBarEdit, FVectorImageList);
   SetToolBarImages(ToolBarBackFill, FVectorImageList);
   SetToolBarImages(ToolBarPenFill, FVectorImageList);
-end;
-
-procedure TForm1.OnClickFontName(Sender: TObject);
-var
-  itm: TMenuItem;
-begin
-  itm := TMenuItem(Sender);
-  if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
-    (vectorOriginal.SelectedShape is TTextShape) then
-    TTextShape(vectorOriginal.SelectedShape).FontName := itm.Caption;
 end;
 
 { TForm1 }
@@ -417,8 +407,6 @@ begin
     item.ImageIndex:= 31+ord(td);
     FTextDirectionMenu.Items.Add(item);
   end;
-
-  FTextFontNameMenu := nil; //created when necessary
 
   newShape:= nil;
   penWidth := 5;
@@ -814,7 +802,6 @@ begin
   FPenStyleMenu.Free;
   FSplineStyleMenu.Free;
   FTextDirectionMenu.Free;
-  FTextFontNameMenu.Free;
 end;
 
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -822,6 +809,17 @@ var
   AHandled: boolean;
   sk: TSpecialKey;
 begin
+  FLastBackspaceOrDel:= (Key=VK_BACK) or (Key=VK_DELETE);
+  if FTextFontNameEditing then
+  begin
+    if Key=VK_RETURN then
+    begin
+      FocusView;
+      Key := 0;
+    end;
+    exit;
+  end;
+
   if Assigned(img) and img.EditorFocused then
   begin
     sk := LCLKeyToSpecialKey(Key, Shift);
@@ -877,6 +875,8 @@ end;
 procedure TForm1.FormUTF8KeyPress(Sender: TObject; var UTF8Key: TUTF8Char);
 var AHandled: boolean;
 begin
+  FLastBackspaceOrDel:= (UTF8Key=#8);
+  if FTextFontNameEditing then exit;
   if Assigned(img) and img.EditorFocused then
   begin
     img.KeyPress(UTF8Key, AHandled);
@@ -961,25 +961,6 @@ end;
 function TForm1.GetSplineStyle: TSplineStyle;
 begin
   result := FSplineStyle;
-end;
-
-function TForm1.GetTextFontNameMenu: TPopupMenu;
-var
-  i: Integer;
-  itm: TMenuItem;
-begin
-  if FTextFontNameMenu = nil then
-  begin
-    FTextFontNameMenu := TPopupMenu.Create(nil);
-    for i := 0 to Screen.Fonts.Count-1 do
-    begin
-      itm := TMenuItem.Create(FTextFontNameMenu);
-      itm.Caption := Screen.Fonts[i];
-      itm.OnClick:=@OnClickFontName;
-      FTextFontNameMenu.Items.Add(itm);
-    end;
-  end;
-  result := FTextFontNameMenu;
 end;
 
 function TForm1.GetVectorTransform: TAffineMatrix;
@@ -1250,6 +1231,69 @@ begin
   end;
 end;
 
+procedure TForm1.TextFontTextBoxChange(Sender: TObject);
+var
+  i, prevSelStart, prevSelLen: Integer;
+  tb: TEdit;
+  fontFound: Boolean;
+  similarCount,similarIndex, nameLen: integer;
+  nameTyped: TCaption;
+begin
+  tb := Sender as TEdit;
+  fontFound := false;
+  similarCount := 0;
+  similarIndex := -1;
+  nameTyped := tb.Text;
+  nameLen := UTF8Length(nameTyped);
+  for i := 0 to Screen.Fonts.Count-1 do
+    if CompareText(nameTyped, Screen.Fonts[i])=0 then
+    begin
+      prevSelStart := tb.SelStart;
+      prevSelLen := tb.SelLength;
+      tb.Text := Screen.Fonts[i];
+      tb.SelStart := prevSelStart;
+      tb.SelLength := prevSelLen;
+      fontFound := true;
+      break;
+    end else
+    if (tb.SelStart = nameLen) and (CompareText(nameTyped, copy(Screen.Fonts[i],1,length(nameTyped)))=0) then
+    begin
+      inc(similarCount);
+      similarIndex := i;
+    end;
+
+  if not fontFound and (similarCount = 1) and not FLastBackspaceOrDel then
+  begin
+    tb.Text := Screen.Fonts[similarIndex];
+    tb.SelStart:= nameLen;
+    tb.SelLength:= UTF8Length(tb.Text)-nameLen;
+    fontFound := true;
+  end;
+
+  if fontFound then
+  begin
+    FTextFontName := tb.Text;
+
+    if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
+      (vectorOriginal.SelectedShape is TTextShape) then
+      TTextShape(vectorOriginal.SelectedShape).FontName := FTextFontName;
+  end;
+end;
+
+procedure TForm1.TextFontTextBoxEnter(Sender: TObject);
+begin
+  FTextFontNameEditing := true;
+end;
+
+procedure TForm1.TextFontTextBoxExit(Sender: TObject);
+var
+  tb: TEdit;
+begin
+  FTextFontNameEditing := false;
+  tb := Sender as TEdit;
+  tb.Text := FTextFontName;
+end;
+
 procedure TForm1.TextStyleClick(Sender: TObject);
 var
   btn: TToolButton;
@@ -1265,19 +1309,6 @@ begin
     if btn.Down then Include(FTextFontStyle, s);
     TTextShape(vectorOriginal.SelectedShape).FontStyle := FTextFontStyle;
   end;
-end;
-
-procedure TForm1.TextChooseFontClick(Sender: TObject);
-var
-  btn: TToolButton;
-  i: Integer;
-begin
-  btn := Sender as TToolButton;
-  if ActivePopupMenu = TextFontNameMenu then TextFontNameMenu.Close;
-  for i := 0 to TextFontNameMenu.Items.Count-1 do
-    TextFontNameMenu.Items[i].Checked := CompareText(TextFontNameMenu.Items[i].Caption, FTextFontName)=0;
-  with btn.ClientToScreen(Point(0,btn.Height)) do
-    TextFontNameMenu.PopUp(X,Y);
 end;
 
 procedure TForm1.TextDirClick(Sender: TObject);
@@ -1417,6 +1448,8 @@ var
   btn: TToolButton;
   toolClass: TVectorShapeAny;
   alignment : TAlignment;
+  tb: TEdit;
+  fh: TBCTrackbarUpdown;
 begin
   RemoveExtendedStyleControls;
   alignment := BidiTextAlignmentToAlignment(FTextAlign, FTextDirection=fbmRightToLeft);
@@ -1566,8 +1599,11 @@ begin
     FTextToolbar.Top := nextControlPos.Y;
     FTextToolbar.Wrapable := false;
 
-    AddToolbarLabel(FTextToolbar, 'Text', self);
-    AddToolbarButton(FTextToolbar, 'Choose font', 25, @TextChooseFontClick);
+    AddToolbarLabel(FTextToolbar, 'Font', self);
+    tb := AddToolbarTextBox(FTextToolbar, 'Font familiy', FTextFontName, @TextFontTextBoxChange);
+    tb.OnEnter:=@TextFontTextBoxEnter;
+    tb.OnExit:=@TextFontTextBoxExit;
+    //AddToolbarButton(FTextToolbar, 'Choose font', 25, @TextChooseFontClick);
     FTextDirectionButton := AddToolbarButton(FTextToolbar, 'Text direction', 31 + ord(FTextDirection), @TextDirClick);
     FTextAlignButton[taLeftJustify] := AddToolbarCheckButton(FTextToolbar, 'Left align', 26, @TextAlignClick, alignment = taLeftJustify, True, ord(taLeftJustify));
     FTextAlignButton[taCenter] := AddToolbarCheckButton(FTextToolbar, 'Center', 27, @TextAlignClick, alignment = taCenter, True, ord(taCenter));
@@ -1579,7 +1615,8 @@ begin
     AddToolbarCheckButton(FTextToolbar, 'Underline', 36, @TextStyleClick, fsUnderline in FTextFontStyle, false, ord(fsUnderline));
     AddToolbarCheckButton(FTextToolbar, 'Strike-out', 37, @TextStyleClick, fsStrikeOut in FTextFontStyle, false, ord(fsStrikeOut));
     AddToolbarLabel(FTextToolbar, 'Height', self);
-    AddToolbarUpdown(FTextToolbar, 'Font height', 1, 900, round(FTextFontHeight), @OnTextFontHeightChange);
+    fh := AddToolbarUpdown(FTextToolbar, 'Font height', 1, 900, round(FTextFontHeight), @OnTextFontHeightChange);
+    fh.BarExponent:= 3;
 
     PanelExtendedStyle.InsertControl(FTextToolbar);
     with GetToolbarSize(FTextToolbar,0) do

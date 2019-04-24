@@ -19,6 +19,7 @@ function AddToolbarCheckButton(AToolbar: TToolbar; ACaption: string; AImageIndex
 function AddToolbarButton(AToolbar: TToolbar; ACaption: string; AImageIndex: integer;
           AOnClick: TNotifyEvent; ATag: PtrInt = 0): TToolButton;
 function AddToolbarUpDown(AToolbar: TToolbar; ACaption: string; AMin,AMax,AValue: Integer; AOnChange: TTrackBarUpDownChangeEvent): TBCTrackbarUpdown;
+function AddToolbarTextBox(AToolbar: TToolbar; ACaption: string; AText: string; AOnChange: TNotifyEvent): TEdit;
 procedure AddToolbarControl(AToolbar: TToolbar; AControl: TControl);
 function GetResourceString(AFilename: string): string;
 procedure LoadToolbarImage(AImages: TImageList; AIndex: integer; AFilename: string);
@@ -189,6 +190,19 @@ begin
   result.Value := AValue;
   result.Hint := ACaption;
   result.ShowHint:= true;
+  result.OnChange:= AOnChange;
+  AddToolbarControl(AToolbar, result);
+end;
+
+function AddToolbarTextBox(AToolbar: TToolbar; ACaption: string; AText: string;
+  AOnChange: TNotifyEvent): TEdit;
+begin
+  result := TEdit.Create(AToolbar);
+  result.Width := AToolbar.ButtonWidth*5;
+  result.Font.Height := round(AToolbar.Height*0.5);
+  result.Hint := ACaption;
+  result.ShowHint:= true;
+  result.Text := AText;
   result.OnChange:= AOnChange;
   AddToolbarControl(AToolbar, result);
 end;
