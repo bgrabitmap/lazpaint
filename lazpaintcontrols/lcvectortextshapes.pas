@@ -643,22 +643,27 @@ begin
     caret:= tl.GetCaret(FSelEnd);
     zoom := GetTextRenderZoom;
     m := GetUntransformedMatrix*AffineMatrixScale(1/zoom,1/zoom);
-    if not isEmptyPointF(caret.PreviousTop) and (caret.PreviousRightToLeft<>caret.RightToLeft) then
-    begin
-      orientation := (caret.Bottom-caret.Top)*(1/10);
-      orientation := PointF(-orientation.y,orientation.x);
-      if caret.RightToLeft then orientation := -orientation;
-      AEditor.AddPolyline([m*caret.Bottom,m*caret.Top,m*(caret.Top+orientation)],false, opsSolid);
-    end else
-      AEditor.AddPolyline([m*caret.Bottom,m*caret.Top],false, opsSolid);
     if FSelStart<>FSelEnd then
     begin
-      pts := tl.GetTextEnveloppe(FSelStart, FSelEnd);
+      pts := tl.GetTextEnveloppe(FSelStart, FSelEnd, false, true, true);
       for i := 0 to high(pts) do
-        pts[i] := m*pts[i];
+        pts[i] := m*pts[i]-PointF(0.5,0.5);
       c:= clHighlight;
       c.alpha := 96;
       AEditor.AddPolyline(pts, true, opsDash, c);
+    end;
+    if (tl.AvailableHeight = EmptySingle) or (caret.Top.y < tl.AvailableHeight) then
+    begin
+      orientation := (caret.Bottom-caret.Top)*(1/10);
+      orientation := PointF(-orientation.y,orientation.x);
+      if (tl.AvailableHeight <> EmptySingle) and (caret.Bottom.y <> EmptySingle) and (caret.Bottom.y > tl.AvailableHeight) then caret.Bottom.y := tl.AvailableHeight;
+      if (tl.AvailableHeight <> EmptySingle) and (caret.PreviousBottom.y <> EmptySingle) and (caret.PreviousBottom.y > tl.AvailableHeight) then caret.PreviousBottom.y := tl.AvailableHeight;
+      if not isEmptyPointF(caret.PreviousTop) and (caret.PreviousRightToLeft<>caret.RightToLeft) then
+      begin
+        if caret.RightToLeft then orientation := -orientation;
+        AEditor.AddPolyline([m*caret.Bottom-PointF(0.5,0.5),m*caret.Top-PointF(0.5,0.5),m*(caret.Top+orientation)-PointF(0.5,0.5)],false, opsSolid);
+      end else
+        AEditor.AddPolyline([m*caret.Bottom-PointF(0.5,0.5),m*caret.Top-PointF(0.5,0.5)],false, opsSolid);
     end;
   end;
 end;
