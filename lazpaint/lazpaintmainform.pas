@@ -1050,7 +1050,7 @@ end;
 
 procedure TFMain.OnLatestVersionUpdate(ANewVersion: string);
 begin
-  if ANewVersion <> LazPaintCurrentVersionOnly then
+  if ANewVersion <> LazPaintVersionStr then
     LazPaintInstance.ShowMessage(rsLazPaint, rsLatestVersion + ' ' + ANewVersion);
 end;
 

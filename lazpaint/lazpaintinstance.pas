@@ -341,7 +341,7 @@ end;
 procedure TLazPaintInstance.UseConfig(ini: TInifile);
 begin
   FreeAndNil(FConfig);
-  FConfig := TLazPaintConfig.Create(ini,LazPaintCurrentVersionOnly);
+  FConfig := TLazPaintConfig.Create(ini,LazPaintVersionStr);
 
   ToolManager.ToolForeColor := Config.DefaultToolForeColor;
   ToolManager.ToolBackColor := Config.DefaultToolBackColor;

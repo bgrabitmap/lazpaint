@@ -165,7 +165,7 @@ begin
     If Assigned(OnLatestVersionUpdate) then
        OnLatestVersionUpdate(latestVersion);
   end;
-  if latestVersion = LazPaintCurrentVersionOnly then
+  if latestVersion = LazPaintVersionStr then
   begin
     onlineInfo := TStringList.Create;
     onlineInfo.SetText(@FHTTPBuffer[1]);

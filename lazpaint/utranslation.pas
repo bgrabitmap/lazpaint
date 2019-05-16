@@ -93,7 +93,7 @@ begin
   if Language = 'en' then exit;
 
   UpdatedLanguages := TStringList.Create;
-  TLazPaintConfig.ClassGetUpdatedLanguages(UpdatedLanguages,AConfig,LazPaintCurrentVersionOnly);
+  TLazPaintConfig.ClassGetUpdatedLanguages(UpdatedLanguages,AConfig,LazPaintVersionStr);
   if UpdatedLanguages.IndexOf(Language)<>-1 then
     POFile:=ActualConfigDirUTF8+LazPaintLanguageFile(Language) //updated file
   else

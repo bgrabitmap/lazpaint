@@ -10,9 +10,9 @@ uses
   {$IFDEF LINUX}, InterfaceBase{$ENDIF};
 
 const
-  //Version Number (to increment at each release)
-  //Also increment in project options > information on version
-  LazPaintCurrentVersionOnly = '6.4.1';
+  LazPaintVersion = 6040100;
+
+  function LazPaintVersionStr: string;
 
   {
 
@@ -67,13 +67,9 @@ const
   }
 
 const
-  {$IFDEF CPU64}
-    LazPaintProcessorInfo = ' (64-bit)';
-  {$ELSE}
-    LazPaintProcessorInfo = ' (32-bit)';
-  {$ENDIF}
-  LazPaintCurrentVersion : String=LazPaintCurrentVersionOnly + LazPaintProcessorInfo;
   OriginalDPI = 96;
+
+  function LazPaintCurrentVersion : String;
 
 type
   TPictureFilter = (pfNone,
@@ -350,6 +346,35 @@ function GetWindowTopLeftCorner(AForm: TForm): TPoint;
 implementation
 
 uses LCLType, BGRAUTF8, LCLIntf, FileUtil, UResourceStrings;
+
+function LazPaintVersionStr: string;
+var numbers: TStringList;
+  i,remaining: cardinal;
+begin
+  numbers := TStringList.Create;
+  remaining := LazPaintVersion;
+  for i := 1 to 4 do
+  begin
+    numbers.Insert(0, IntToStr(remaining mod 100));
+    remaining := remaining div 100;
+  end;
+  while (numbers.Count > 1) and (numbers[numbers.Count-1]='0') do
+    numbers.Delete(numbers.Count-1);
+  numbers.Delimiter:= '.';
+  result := numbers.DelimitedText;
+  numbers.Free;
+end;
+
+function LazPaintCurrentVersion: String;
+const
+{$IFDEF CPU64}
+  LazPaintProcessorInfo = ' (64-bit)';
+{$ELSE}
+  LazPaintProcessorInfo = ' (32-bit)';
+{$ENDIF}
+begin
+  result := LazPaintVersionStr + LazPaintProcessorInfo;
+end;
 
 function IsOnlyRenderChange(const ARect: TRect): boolean;
 begin
