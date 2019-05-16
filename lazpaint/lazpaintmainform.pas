@@ -15,7 +15,7 @@ uses
 
   BGRABitmap, BGRABitmapTypes, BGRALayers, BGRASVGOriginal,
 
-  LazPaintType, UMainFormLayout, UTool, UImage, UImageAction, ULayerAction, UZoom, UImageView,
+  LazPaintType, UMainFormLayout, UTool, UImage, UImageAction, UZoom, UImageView,
   UImageObservation, UConfig, LCScaleDPI, UResourceStrings,
   UMenu, uscripting, ubrowseimages, UToolPolygon, UBarUpDown,
 
