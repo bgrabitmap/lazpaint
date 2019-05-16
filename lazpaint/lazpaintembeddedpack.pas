@@ -4,6 +4,7 @@
 
 unit LazPaintEmbeddedPack;
 
+{$warn 5023 off : no warning about unused units}
 interface
 
 uses
@@ -11,12 +12,12 @@ uses
   UChooseColor, UClipboard, UColorintensity, UColorize, UCommandline, UConfig, 
   UCursors, UCustomblur, UEmboss, UGraph, UImage, UMac, UMotionBlur, 
   UMultiImage, UNewimage, UParse, URadialBlur, UResample, UShiftColors, UTool, 
-  UToolbox, UTwirl, UImageState, UPixelate, UResourceStrings, UScaleDPI, 
-  UToolBasic, UToolDeformationGrid, UToolFloodFill, UToolPolygon, UToolSelect, 
-  UToolText, UBlendOp, UImageAction, UImageDiff, UImageObservation, 
-  ULayerstack, ULoadImage, ULoading, UMenu, UObject3D, UPhongFilter, 
-  uscripting, USharpen, UToolPhong, UTranslation, UVolatileScrollBar, UZoom, 
-  LazarusPackageIntf;
+  UToolbox, UTwirl, UImageState, UPixelate, UResourceStrings, UToolBasic, 
+  UToolDeformationGrid, UToolFloodFill, UToolPolygon, UToolSelect, UToolText, 
+  UBlendOp, UImageAction, UImageDiff, UImageObservation, ULayerstack, 
+  ULoadImage, ULoading, UMenu, UObject3D, UPhongFilter, UScripting, USharpen, 
+  UToolPhong, UTranslation, UVolatileScrollBar, UZoom, laztablet, 
+  ugeometricbrush, LazarusPackageIntf;
 
 implementation
 

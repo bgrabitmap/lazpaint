@@ -1,19 +1,21 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <Package Version="4">
     <PathDelim Value="\"/>
     <Name Value="LazPaintEmbeddedPack"/>
+    <Type Value="RunAndDesignTime"/>
     <AddToProjectUsesSection Value="True"/>
     <CompilerOptions>
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
+        <OtherUnitFiles Value="tablet"/>
         <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
       <CodeGeneration>
         <Optimizations>
-          <VariablesInRegisters Value="True"/>
           <OptimizationLevel Value="2"/>
+          <VariablesInRegisters Value="True"/>
         </Optimizations>
       </CodeGeneration>
       <Linking>
@@ -22,12 +24,9 @@
           <DebugInfoType Value="dsStabs"/>
         </Debugging>
       </Linking>
-      <Other>
-        <CompilerPath Value="$(CompPath)"/>
-      </Other>
     </CompilerOptions>
-    <Version Major="5" Minor="7"/>
-    <Files Count="76">
+    <Version Major="6" Minor="4" Release="1"/>
+    <Files Count="78">
       <Item1>
         <Filename Value="lazpaintinstance.pas"/>
         <UnitName Value="LazpaintInstance"/>
@@ -217,137 +216,150 @@
         <UnitName Value="UResourceStrings"/>
       </Item47>
       <Item48>
-        <Filename Value="uscaledpi.pas"/>
-        <UnitName Value="UScaleDPI"/>
-      </Item48>
-      <Item49>
         <Filename Value="utoolbasic.pas"/>
         <UnitName Value="UToolBasic"/>
-      </Item49>
-      <Item50>
+      </Item48>
+      <Item49>
         <Filename Value="utooldeformationgrid.pas"/>
         <UnitName Value="UToolDeformationGrid"/>
-      </Item50>
-      <Item51>
+      </Item49>
+      <Item50>
         <Filename Value="utoolfloodfill.pas"/>
         <UnitName Value="UToolFloodFill"/>
-      </Item51>
-      <Item52>
+      </Item50>
+      <Item51>
         <Filename Value="utoolpolygon.pas"/>
         <UnitName Value="UToolPolygon"/>
-      </Item52>
-      <Item53>
+      </Item51>
+      <Item52>
         <Filename Value="utoolselect.pas"/>
         <UnitName Value="UToolSelect"/>
-      </Item53>
-      <Item54>
+      </Item52>
+      <Item53>
         <Filename Value="utooltext.pas"/>
         <UnitName Value="UToolText"/>
-      </Item54>
-      <Item55>
+      </Item53>
+      <Item54>
         <Filename Value="ublendop.lfm"/>
         <Type Value="LFM"/>
-      </Item55>
-      <Item56>
+      </Item54>
+      <Item55>
         <Filename Value="ublendop.pas"/>
         <UnitName Value="UBlendOp"/>
-      </Item56>
-      <Item57>
+      </Item55>
+      <Item56>
         <Filename Value="uimageaction.pas"/>
         <UnitName Value="UImageAction"/>
-      </Item57>
-      <Item58>
+      </Item56>
+      <Item57>
         <Filename Value="uimagediff.pas"/>
         <UnitName Value="UImageDiff"/>
-      </Item58>
-      <Item59>
+      </Item57>
+      <Item58>
         <Filename Value="uimageobservation.pas"/>
         <UnitName Value="UImageObservation"/>
-      </Item59>
-      <Item60>
+      </Item58>
+      <Item59>
         <Filename Value="ulayerstack.lfm"/>
         <Type Value="LFM"/>
-      </Item60>
-      <Item61>
+      </Item59>
+      <Item60>
         <Filename Value="ulayerstack.pas"/>
         <UnitName Value="ULayerstack"/>
-      </Item61>
-      <Item62>
+      </Item60>
+      <Item61>
         <Filename Value="uloadimage.pas"/>
         <UnitName Value="ULoadImage"/>
-      </Item62>
-      <Item63>
+      </Item61>
+      <Item62>
         <Filename Value="uloading.lfm"/>
         <Type Value="LFM"/>
-      </Item63>
-      <Item64>
+      </Item62>
+      <Item63>
         <Filename Value="uloading.pas"/>
         <UnitName Value="ULoading"/>
-      </Item64>
-      <Item65>
+      </Item63>
+      <Item64>
         <Filename Value="umenu.pas"/>
         <UnitName Value="UMenu"/>
-      </Item65>
-      <Item66>
+      </Item64>
+      <Item65>
         <Filename Value="uobject3d.lfm"/>
         <Type Value="LFM"/>
-      </Item66>
-      <Item67>
+      </Item65>
+      <Item66>
         <Filename Value="uobject3d.pas"/>
         <UnitName Value="UObject3D"/>
-      </Item67>
-      <Item68>
+      </Item66>
+      <Item67>
         <Filename Value="uphongfilter.lfm"/>
         <Type Value="LFM"/>
-      </Item68>
-      <Item69>
+      </Item67>
+      <Item68>
         <Filename Value="uphongfilter.pas"/>
         <UnitName Value="UPhongFilter"/>
+      </Item68>
+      <Item69>
+        <Filename Value="uscripting.pas"/>
+        <UnitName Value="UScripting"/>
       </Item69>
       <Item70>
-        <Filename Value="uscripting.pas"/>
-        <UnitName Value="uscripting"/>
-      </Item70>
-      <Item71>
         <Filename Value="usharpen.lfm"/>
         <Type Value="LFM"/>
-      </Item71>
-      <Item72>
+      </Item70>
+      <Item71>
         <Filename Value="usharpen.pas"/>
         <UnitName Value="USharpen"/>
-      </Item72>
-      <Item73>
+      </Item71>
+      <Item72>
         <Filename Value="utoolphong.pas"/>
         <UnitName Value="UToolPhong"/>
-      </Item73>
-      <Item74>
+      </Item72>
+      <Item73>
         <Filename Value="utranslation.pas"/>
         <UnitName Value="UTranslation"/>
-      </Item74>
-      <Item75>
+      </Item73>
+      <Item74>
         <Filename Value="uvolatilescrollbar.pas"/>
         <UnitName Value="UVolatileScrollBar"/>
-      </Item75>
-      <Item76>
+      </Item74>
+      <Item75>
         <Filename Value="uzoom.pas"/>
         <UnitName Value="UZoom"/>
+      </Item75>
+      <Item76>
+        <Filename Value="tablet\laztablet.pas"/>
+        <UnitName Value="laztablet"/>
       </Item76>
+      <Item77>
+        <Filename Value="ugeometricbrush.lfm"/>
+        <Type Value="LFM"/>
+      </Item77>
+      <Item78>
+        <Filename Value="ugeometricbrush.pas"/>
+        <UnitName Value="ugeometricbrush"/>
+      </Item78>
     </Files>
-    <Type Value="RunAndDesignTime"/>
-    <RequiredPkgs Count="4">
+    <RequiredPkgs Count="6">
       <Item1>
-        <PackageName Value="bgracontrols"/>
+        <PackageName Value="Printer4Lazarus"/>
       </Item1>
       <Item2>
-        <PackageName Value="bgrabitmappack"/>
+        <PackageName Value="lazpaintcontrols"/>
       </Item2>
       <Item3>
-        <PackageName Value="LCL"/>
+        <PackageName Value="bgracontrols"/>
       </Item3>
       <Item4>
+        <PackageName Value="bgrabitmappack"/>
+      </Item4>
+      <Item5>
+        <PackageName Value="LCL"/>
+      </Item5>
+      <Item6>
         <PackageName Value="FCL"/>
         <MinVersion Major="1" Valid="True"/>
-      </Item4>
+      </Item6>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>
