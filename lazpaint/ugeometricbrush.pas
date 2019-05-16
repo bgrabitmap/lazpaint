@@ -100,8 +100,7 @@ begin
   FreeAndNil(FBrush);
 end;
 
-initialization
-  {$I ugeometricbrush.lrs}
+{$R *.lfm}
 
 end.
 

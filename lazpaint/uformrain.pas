@@ -226,8 +226,7 @@ begin
   FilterConnector.PutImage(ComputeFilteredLayer,False,True);
 end;
 
-initialization
-  {$I uformrain.lrs}
+{$R *.lfm}
 
 end.
 

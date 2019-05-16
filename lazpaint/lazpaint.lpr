@@ -94,7 +94,7 @@ begin
   ActualConfig := GetActualConfig;
   TranslateLazPaint(ActualConfig);
 
-  Application.Title := 'LazPaint';
+  Application.Title:='LazPaint';
   Application.Initialize;
 
   LazpaintApplication := TMyLazPaintInstance.Create;

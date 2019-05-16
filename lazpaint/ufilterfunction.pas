@@ -557,8 +557,9 @@ begin
   UpdateExpr(FSaturationExpr,Edit_Saturation,FSaturationError);
 end;
 
+{$R *.lfm}
+
 initialization
-  {$I ufilterfunction.lrs}
 
   randomize;
 

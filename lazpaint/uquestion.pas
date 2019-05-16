@@ -154,8 +154,7 @@ begin
   FButtons := nil;
 end;
 
-initialization
-  {$I uquestion.lrs}
+{$R *.lfm}
 
 end.
 

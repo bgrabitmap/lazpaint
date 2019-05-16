@@ -120,8 +120,7 @@ begin
   result := FPreview.GetPreviewBitmap;
 end;
 
-initialization
-  {$I upreviewdialog.lrs}
+{$R *.lfm}
 
 end.
 

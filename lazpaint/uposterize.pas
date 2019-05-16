@@ -147,8 +147,7 @@ begin
   params.Free;
 end;
 
-initialization
-  {$I uposterize.lrs}
+{$R *.lfm}
 
 end.
 

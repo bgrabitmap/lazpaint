@@ -601,8 +601,9 @@ begin
 
 end;
 
+{$R *.lfm}
+
 initialization
-  {$I uprint.lrs}
 
   marginLeft := 10;
   marginTop := 10;

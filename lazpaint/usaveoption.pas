@@ -900,8 +900,7 @@ begin
   end;
 end;
 
-initialization
-  {$I usaveoption.lrs}
+{$R *.lfm}
 
 end.
 
