@@ -1,0 +1,5 @@
+cd ($LogicDir)/lazpaint
+project lazpaint.lpi
+package lazpaintembeddedpack.lpk
+const lazpainttype.pas LazPaintVersion
+
