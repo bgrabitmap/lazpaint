@@ -50,6 +50,7 @@ type
   protected
     procedure BeginUpdate;
     procedure EndUpdate;
+    procedure DoOnChange; virtual;
     function GetPenColor: TBGRAPixel; virtual;
     function GetPenWidth: single; virtual;
     function GetPenStyle: TBGRAPenStyle; virtual;
@@ -729,20 +730,23 @@ begin
 end;
 
 procedure TVectorShape.EndUpdate;
-var
-  boundsAfter: TRectF;
 begin
   if FUpdateCount > 0 then
   begin
     FUpdateCount -= 1;
     if FUpdateCount = 0 then
-    begin
-      if Assigned(FOnChange) then
-      begin
-        boundsAfter := GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
-        FOnChange(self, boundsAfter.Union(FBoundsBeforeUpdate, true));
-      end;
-    end;
+      DoOnChange;
+  end;
+end;
+
+procedure TVectorShape.DoOnChange;
+var
+  boundsAfter: TRectF;
+begin
+  if Assigned(FOnChange) then
+  begin
+    boundsAfter := GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
+    FOnChange(self, boundsAfter.Union(FBoundsBeforeUpdate, true));
   end;
 end;
 

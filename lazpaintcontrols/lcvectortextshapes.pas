@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, LCVectorRectShapes, BGRATextBidi, BGRABitmapTypes, LCVectorOriginal, BGRAGraphics,
-  BGRABitmap, BGRALayerOriginal;
+  BGRABitmap, BGRALayerOriginal, BGRACanvas2D;
 
 type
 
@@ -18,6 +18,7 @@ type
     FFontEmHeight: single;
     FFontName: string;
     FFontStyle: TFontStyles;
+    FOutlineWidth: single;
     FText: string;
     FSelStart,FSelEnd: integer;
     FMouseSelecting: boolean;
@@ -29,6 +30,7 @@ type
     procedure SetFontName(AValue: string);
     procedure SetFontStyle(AValue: TFontStyles);
     procedure SetBidiParagraphAlignment(AValue: TBidiTextAlignment);
+    procedure SetOutlineWidth(AValue: single);
     procedure SetParagraphAlignment(AValue: TAlignment);
     procedure SetText(AValue: string);
     procedure SetVertAlign(AValue: TTextLayout);
@@ -36,6 +38,7 @@ type
     FTextLayout: TBidiTextLayout;
     FFontRenderer: TBGRACustomFontRenderer;
     FGlobalMatrix: TAffineMatrix;
+    procedure DoOnChange; override;
     procedure SetGlobalMatrix(AMatrix: TAffineMatrix);
     function PenVisible(AAssumePenFill: boolean = false): boolean;
     function AllowShearTransform: boolean; override;
@@ -53,6 +56,7 @@ type
     procedure DeleteSelectedText;
     procedure InsertText(ATextUTF8: string);
     procedure SelectWithMouse(X,Y: single; AExtend: boolean);
+    function HasOutline: boolean;
   public
     constructor Create(AContainer: TVectorOriginal); override;
     procedure QuickDefine(const APoint1,APoint2: TPointF); override;
@@ -85,6 +89,7 @@ type
     property BidiParagraphAlignment: TBidiTextAlignment read GetBidiParagraphAlignment write SetBidiParagraphAlignment;
     property ParagraphAlignment: TAlignment read GetParagraphAlignment write SetParagraphAlignment;
     property VerticalAlignment: TTextLayout read FVertAlign write SetVertAlign;
+    property OutlineWidth: single read FOutlineWidth write SetOutlineWidth;
   end;
 
 function FontStyleToStr(AStyle: TFontStyles): string;
@@ -95,7 +100,8 @@ function StrToFontBidiMode(AText: string): TFontBidiMode;
 
 implementation
 
-uses BGRATransform, BGRAText, LCVectorialFill, math, BGRAUTF8, BGRAUnicode, Graphics, Clipbrd, LCLType, LCLIntf;
+uses BGRATransform, BGRAText, BGRAVectorize, LCVectorialFill, math,
+  BGRAUTF8, BGRAUnicode, Graphics, Clipbrd, LCLType, LCLIntf;
 
 function FontStyleToStr(AStyle: TFontStyles): string;
 begin
@@ -243,6 +249,15 @@ begin
   if needUpdate then EndUpdate;
 end;
 
+procedure TTextShape.SetOutlineWidth(AValue: single);
+begin
+  if AValue < 0 then AValue := 0;
+  if FOutlineWidth=AValue then Exit;
+  BeginUpdate;
+  FOutlineWidth:=AValue;
+  EndUpdate;
+end;
+
 procedure TTextShape.SetParagraphAlignment(AValue: TAlignment);
 var
   tl: TBidiTextLayout;
@@ -291,6 +306,31 @@ begin
   EndUpdate;
 end;
 
+procedure TTextShape.DoOnChange;
+var freeRenderer: boolean;
+begin
+  if Assigned(FFontRenderer) then
+  begin
+    freeRenderer := false;
+    if OutlineFill.FillType <> vftNone then
+    begin
+      if not (FFontRenderer is TBGRAVectorizedFontRenderer) then
+        freeRenderer:= true;
+    end else
+    begin
+      if not (FFontRenderer is TLCLFontRenderer) then
+        freeRenderer:= true;
+    end;
+    if freeRenderer then
+    begin
+      FreeAndNil(FFontRenderer);
+      if Assigned(FTextLayout) then
+        FTextLayout.FontRenderer := GetFontRenderer;
+    end;
+  end;
+  inherited DoOnChange;
+end;
+
 procedure TTextShape.SetGlobalMatrix(AMatrix: TAffineMatrix);
 begin
   if AMatrix = FGlobalMatrix then exit;
@@ -332,8 +372,6 @@ end;
 
 function TTextShape.GetFontRenderer: TBGRACustomFontRenderer;
 begin
-  if FFontRenderer = nil then
-    FFontRenderer := TLCLFontRenderer.Create;
   UpdateFontRenderer;
   result := FFontRenderer;
 end;
@@ -342,6 +380,13 @@ function TTextShape.UpdateFontRenderer: boolean;
 var
   newEmHeight: integer;
 begin
+  if FFontRenderer = nil then
+  begin
+    if OutlineFill.FillType <> vftNone then
+      FFontRenderer := TBGRAVectorizedFontRenderer.Create
+    else
+      FFontRenderer := TLCLFontRenderer.Create;
+  end;
   newEmHeight := Round(FontEmHeight*GetTextRenderZoom);
   if (newEmHeight <> FFontRenderer.FontEmHeight) or
      (FFontRenderer.FontName <> FontName) or
@@ -492,6 +537,11 @@ begin
   end;
 end;
 
+function TTextShape.HasOutline: boolean;
+begin
+  result := not OutlineFill.IsFullyTransparent and (OutlineWidth > 0);
+end;
+
 constructor TTextShape.Create(AContainer: TVectorOriginal);
 begin
   inherited Create(AContainer);
@@ -501,6 +551,7 @@ begin
   FSelStart := 0;
   FSelEnd := 0;
   FGlobalMatrix := AffineMatrixIdentity;
+  FOutlineWidth := 2;
 end;
 
 procedure TTextShape.QuickDefine(const APoint1, APoint2: TPointF);
@@ -544,6 +595,8 @@ begin
   end else
     SetDefaultFont;
 
+  OutlineWidth := AStorage.FloatDef['outline-width', 2];
+
   tl := GetTextLayout;
   paraAlignList := TStringList.Create;
   paraAlignList.DelimitedText:= AStorage.RawString['paragraph-align'];
@@ -575,6 +628,10 @@ begin
   AStorage.Float['em-height'] := FontEmHeight;
   AStorage.RawString['bidi'] := FontBidiModeToStr(FontBidiMode);
   AStorage.RawString['style'] := FontStyleToStr(FontStyle);
+  if OutlineFill.FillType <> vftNone then
+    AStorage.Float['outline-width'] := FOutlineWidth
+  else
+    AStorage.RemoveAttribute('outline-width');
   font.Free;
 
   tl := GetTextLayout;
@@ -601,7 +658,7 @@ end;
 
 class function TTextShape.Fields: TVectorShapeFields;
 begin
-  Result:= [vsfPenFill];
+  Result:= [vsfPenFill,vsfOutlineFill];
 end;
 
 class function TTextShape.PreferPixelCentered: boolean;
@@ -676,11 +733,13 @@ var
   tl: TBidiTextLayout;
   fr: TBGRACustomFontRenderer;
   pad: Integer;
-  sourceRect,transfRectF,sourceInvRect,destF: TRectF;
+  sourceRectF,transfRectF,sourceInvRect,destF: TRectF;
   transfRect: TRect;
-  tmpSource, tmpTransf: TBGRABitmap;
+  tmpSource, tmpTransf, tmpTransfMask: TBGRABitmap;
   scan: TBGRACustomScanner;
+  ctx: TBGRACanvas2D;
 begin
+  if PenFill.IsFullyTransparent and not HasOutline then exit;
   SetGlobalMatrix(AMatrix);
   zoom := GetTextRenderZoom;
   if zoom = 0 then exit;
@@ -693,60 +752,129 @@ begin
        AffineMatrixScale(1/zoom,1/zoom);    //shrink zoomed text if necessary
 
   tl := GetTextLayout;
-  sourceRect := RectF(-pad,0,tl.AvailableWidth+pad,min(tl.TotalTextHeight,tl.AvailableHeight));
+  sourceRectF := RectF(-pad,0,tl.AvailableWidth+pad,min(tl.TotalTextHeight,tl.AvailableHeight));
 
   destF := RectF(ADest.ClipRect.Left,ADest.ClipRect.Top,ADest.ClipRect.Right,ADest.ClipRect.Bottom);
-  transfRectF := (m*TAffineBox.AffineBox(sourceRect)).RectBoundsF;
+  transfRectF := (m*TAffineBox.AffineBox(sourceRectF)).RectBoundsF;
   transfRectF := TRectF.Intersect(transfRectF, destF);
 
   if not IsAffineMatrixInversible(m) then exit;
   sourceInvRect := (AffineMatrixInverse(m)*TAffineBox.AffineBox(transfRectF)).RectBoundsF;
   sourceInvRect.Top := floor(sourceInvRect.Top);
   sourceInvRect.Bottom := ceil(sourceInvRect.Bottom);
-  sourceRect := TRectF.Intersect(sourceRect,sourceInvRect);
-  if IsEmptyRectF(sourceRect) then exit;
-  sourceRect.Left := floor(sourceRect.Left);
-  sourceRect.Top := floor(sourceRect.Top);
-  sourceRect.Right := floor(sourceRect.Right);
-  sourceRect.Bottom := sourceRect.Bottom;
+  sourceRectF := TRectF.Intersect(sourceRectF,sourceInvRect);
+  if IsEmptyRectF(sourceRectF) then exit;
+  sourceRectF.Left := floor(sourceRectF.Left);
+  sourceRectF.Top := floor(sourceRectF.Top);
+  sourceRectF.Right := floor(sourceRectF.Right);
+  sourceRectF.Bottom := sourceRectF.Bottom;
 
-  m := m*AffineMatrixTranslation(sourceRect.Left,sourceRect.Top);
+  m := m*AffineMatrixTranslation(sourceRectF.Left,sourceRectF.Top);
   if tl.TotalTextHeight < tl.AvailableHeight then
   case VerticalAlignment of
   tlBottom: m *= AffineMatrixTranslation(0, tl.AvailableHeight-tl.TotalTextHeight);
   tlCenter: m *= AffineMatrixTranslation(0, (tl.AvailableHeight-tl.TotalTextHeight)/2);
   end;
 
-  tl.TopLeft := PointF(-sourceRect.Left,-sourceRect.Top);
-  if PenFill.FillType = vftSolid then
+  tl.TopLeft := PointF(-sourceRectF.Left,-sourceRectF.Top);
+  if HasOutline then
   begin
-    tmpSource := TBGRABitmap.Create(round(sourceRect.Width),ceil(sourceRect.Height));
-    tl.DrawText(tmpSource,PenFill.SolidColor);
-    if frac(sourceRect.Height) > 0 then
-      tmpSource.EraseLine(0,floor(sourceRect.Height),tmpSource.Width,floor(sourceRect.Height), round((1-frac(sourceRect.Height))*255), false);
-    ADest.PutImageAffine(m, tmpSource, rfHalfCosine, dmDrawWithTransparency, 255, false);
-    tmpSource.Free;
-  end
-  else
-  if PenFill.FillType <> vftNone then
-  begin
-    tmpSource := TBGRABitmap.Create(round(sourceRect.Width),ceil(sourceRect.Height),BGRABlack);
-    tl.DrawText(tmpSource,BGRAWhite);
-    if frac(sourceRect.Height) > 0 then
-      tmpSource.DrawLine(0,floor(sourceRect.Height),tmpSource.Width,floor(sourceRect.Height), BGRA(0,0,0,round((1-frac(sourceRect.Height))*255)), false);
-    tmpSource.ConvertToLinearRGB;
-
     with transfRectF do
       transfRect := Rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
-    tmpTransf := TBGRABitmap.Create(transfRect.Width,transfRect.Height,BGRABlack);
-    tmpTransf.PutImageAffine(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*m,
-                             tmpSource, rfHalfCosine, dmDrawWithTransparency, 255, false);
-    tmpSource.Free;
 
-    scan := PenFill.CreateScanner(FGlobalMatrix, ADraft);
-    ADest.FillMask(transfRect.Left, transfRect.Top, tmpTransf, scan, dmDrawWithTransparency);
-    scan.Free;
+    tmpTransf := TBGRABitmap.Create(transfRect.Width,transfRect.Height);
+    ctx := tmpTransf.Canvas2D;
+    ctx.transform(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*m);
+    ctx.beginPath;
+    tl.PathText(ctx);
+
+    tmpTransfMask := TBGRABitmap.Create(transfRect.Width,transfRect.Height, BGRABlack);
+    ctx := tmpTransfMask.Canvas2D;
+    ctx.linearBlend:= true;
+    ctx.transform(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*m);
+
+    if OutLineFill.FillType <> vftNone then
+    begin
+      ctx := tmpTransf.Canvas2D;
+      ctx.lineWidth := OutlineWidth;
+      ctx.lineJoinLCL:= pjsRound;
+      ctx.lineStyle(psSolid);
+      if OutlineFill.FillType = vftSolid then
+      begin
+        ctx.strokeStyle(OutlineFill.SolidColor);
+        ctx.stroke;
+      end else
+      if OutlineFill.FillType <> vftNone then
+      begin
+        scan := OutlineFill.CreateScanner(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*FGlobalMatrix, ADraft);
+        ctx.strokeStyle(scan);
+        ctx.stroke;
+        ctx.strokeStyle(BGRABlack);
+        scan.Free;
+      end;
+    end;
+
+    if not PenFill.IsFullyTransparent then
+    begin
+      ctx := tmpTransf.Canvas2D;
+      if PenFill.FillType = vftSolid then
+      begin
+        ctx.fillStyle(PenFill.SolidColor);
+        ctx.fill;
+      end else
+      if PenFill.FillType <> vftNone then
+      begin
+        scan := PenFill.CreateScanner(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*FGlobalMatrix, ADraft);
+        ctx.fillStyle(scan);
+        ctx.fill;
+        ctx.fillStyle(BGRABlack);
+        scan.Free;
+      end;
+    end;
+
+    ctx := tmpTransfMask.Canvas2D;
+    ctx.beginPath;
+    ctx.rect(0,0,sourceRectF.Width,sourceRectF.Height);
+    ctx.fillStyle(BGRAWhite);
+    ctx.fill;
+
+    tmpTransf.ApplyMask(tmpTransfMask);
+    ADest.PutImage(transfRect.Left, transfRect.Top, tmpTransf, dmDrawWithTransparency);
+
     tmpTransf.Free;
+    tmpTransfMask.Free;
+  end else
+  begin
+    if PenFill.FillType = vftSolid then
+    begin
+      tmpSource := TBGRABitmap.Create(round(sourceRectF.Width),ceil(sourceRectF.Height));
+      tl.DrawText(tmpSource,PenFill.SolidColor);
+      if frac(sourceRectF.Height) > 0 then
+        tmpSource.EraseLine(0,floor(sourceRectF.Height),tmpSource.Width,floor(sourceRectF.Height), round((1-frac(sourceRectF.Height))*255), false);
+      ADest.PutImageAffine(m, tmpSource, rfHalfCosine, dmDrawWithTransparency, 255, false);
+      tmpSource.Free;
+    end
+    else
+    if PenFill.FillType <> vftNone then
+    begin
+      tmpSource := TBGRABitmap.Create(round(sourceRectF.Width),ceil(sourceRectF.Height),BGRABlack);
+      tl.DrawText(tmpSource,BGRAWhite);
+      if frac(sourceRectF.Height) > 0 then
+        tmpSource.DrawLine(0,floor(sourceRectF.Height),tmpSource.Width,floor(sourceRectF.Height), BGRA(0,0,0,round((1-frac(sourceRectF.Height))*255)), false);
+      tmpSource.ConvertToLinearRGB;
+
+      with transfRectF do
+        transfRect := Rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
+      tmpTransfMask := TBGRABitmap.Create(transfRect.Width,transfRect.Height,BGRABlack);
+      tmpTransfMask.PutImageAffine(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*m,
+                               tmpSource, rfHalfCosine, dmDrawWithTransparency, 255, false);
+      tmpSource.Free;
+
+      scan := PenFill.CreateScanner(FGlobalMatrix, ADraft);
+      ADest.FillMask(transfRect.Left, transfRect.Top, tmpTransfMask, scan, dmDrawWithTransparency);
+      scan.Free;
+      tmpTransfMask.Free;
+    end;
   end;
 end;
 
@@ -755,9 +883,9 @@ function TTextShape.GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix;
 var
   ab: TAffineBox;
   u: TPointF;
-  lenU: Single;
+  lenU, margin: Single;
 begin
-  if PenVisible(rboAssumePenFill in AOptions) and
+  if (PenVisible(rboAssumePenFill in AOptions) or HasOutline) and
     (Text <> '') then
   begin
     ab := GetAffineBox(AMatrix, false);
@@ -765,7 +893,8 @@ begin
     u := ab.TopRight-ab.TopLeft;
     lenU := VectLen(u);
     if lenU<>0 then u *= (1/lenU);
-    u *= FontEmHeight;
+    margin := FontEmHeight;
+    u *= margin;
     ab.TopLeft -= u;
     ab.TopRight += u;
     ab.BottomLeft -= u;
