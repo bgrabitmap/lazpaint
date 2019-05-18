@@ -728,6 +728,7 @@ begin
     tmpSource.Free;
   end
   else
+  if PenFill.FillType <> vftNone then
   begin
     tmpSource := TBGRABitmap.Create(round(sourceRect.Width),ceil(sourceRect.Height),BGRABlack);
     tl.DrawText(tmpSource,BGRAWhite);

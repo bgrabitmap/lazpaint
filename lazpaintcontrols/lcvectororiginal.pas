@@ -14,6 +14,7 @@ const
 
 type
   TVectorOriginal = class;
+  ArrayOfBGRABitmap = array of TBGRABitmap;
 
   TShapeChangeEvent = procedure(ASender: TObject; ABounds: TRectF) of object;
   TShapeEditingChangeEvent = procedure(ASender: TObject) of object;
@@ -90,6 +91,7 @@ type
     function Duplicate: TVectorShape;
     class function StorageClassName: RawByteString; virtual; abstract;
     function GetIsSlow({%H-}AMatrix: TAffineMatrix): boolean; virtual;
+    function GetUsedTextures: ArrayOfBGRABitmap;
     class function Fields: TVectorShapeFields; virtual;
     class function Usermodes: TVectorShapeUsermodes; virtual;
     class function PreferPixelCentered: boolean; virtual;
@@ -469,6 +471,27 @@ end;
 function TVectorShape.GetIsSlow(AMatrix: TAffineMatrix): boolean;
 begin
   result := false;
+end;
+
+function TVectorShape.GetUsedTextures: ArrayOfBGRABitmap;
+var
+  f: TVectorShapeFields;
+  nb: integer;
+begin
+  f := Fields;
+  setlength(result, 3);
+  nb := 0;
+  if (vsfBackFill in f) and (BackFill.FillType = vftTexture) then
+  begin
+    result[nb] := BackFill.Texture;
+    inc(nb);
+  end;
+  if (vsfPenFill in f) and (PenFill.FillType = vftTexture) then
+  begin
+    result[nb] := PenFill.Texture;
+    inc(nb);
+  end;
+  setlength(result, nb);
 end;
 
 class function TVectorShape.Fields: TVectorShapeFields;
@@ -1130,18 +1153,15 @@ procedure TVectorOriginal.DiscardUnusedTextures;
 var
   i, j: Integer;
   f: TVectorShapeFields;
-  tex: TBGRABitmap;
+  texs: array Of TBGRABitmap;
 begin
   for i := 0 to FTextureCount-1 do
     FTextures[i].Counter:= 0;
   for i := 0 to FShapes.Count-1 do
   begin
-    f:= FShapes[i].Fields;
-    if (vsfBackFill in f) and (FShapes[i].BackFill.FillType = vftTexture) then
-    begin
-      tex := FShapes[i].BackFill.Texture;
-      inc(FTextures[IndexOfTexture(GetTextureId(tex))].Counter);
-    end;
+    texs := FShapes[i].GetUsedTextures;
+    for j := 0 to high(texs) do
+      inc(FTextures[IndexOfTexture(GetTextureId(texs[j]))].Counter);
   end;
   for i := FTextureCount-1 downto 0 do
     if FTextures[i].Counter = 0 then
@@ -1157,6 +1177,9 @@ begin
 end;
 
 function TVectorOriginal.AddShape(AShape: TVectorShape): integer;
+var
+  texs: ArrayOfBGRABitmap;
+  i: Integer;
 begin
   if AShape.Container <> self then
   begin
@@ -1166,7 +1189,8 @@ begin
       raise exception.Create('Container mismatch');
   end;
   result:= FShapes.Add(AShape);
-  if (vsfBackFill in AShape.Fields) and (AShape.BackFill.FillType = vftTexture) then AddTexture(AShape.BackFill.Texture);
+  texs := AShape.GetUsedTextures;
+  for i := 0 to high(texs) do AddTexture(texs[i]);
   AShape.OnChange := @OnShapeChange;
   AShape.OnEditingChange := @OnShapeEditingChange;
   DiscardFrozenShapes;
