@@ -17,6 +17,7 @@ const
   TextureRepetitionToStr: array[TTextureRepetition] of string = ('No repetition', 'Repeat X', 'Repeat Y', 'Repeat both');
 
 type
+  TLCFillTarget = (ftPen, ftBack, ftOutline);
 
   { TVectorialFillInterface }
 
@@ -129,7 +130,7 @@ type
     function GetTextureThumbnail(AWidth, AHeight: integer; ABackColor: TColor): TBitmap;
     procedure AssignFill(AFill: TVectorialFill);
     function CreateShapeFill(AShape: TVectorShape): TVectorialFill;
-    procedure UpdateShapeFill(AShape: TVectorShape; ABackFill: boolean);
+    procedure UpdateShapeFill(AShape: TVectorShape; ATarget: TLCFillTarget);
     property FillType: TVectorialFillType read FFillType write SetFillType;
     property SolidColor: TBGRAPixel read FSolidColor write SetSolidColor;
     property GradientType: TGradientType read FGradType write SetGradientType;
@@ -918,15 +919,17 @@ begin
   else result := nil; //none
 end;
 
-procedure TVectorialFillInterface.UpdateShapeFill(AShape: TVectorShape; ABackFill: boolean);
+procedure TVectorialFillInterface.UpdateShapeFill(AShape: TVectorShape;
+  ATarget: TLCFillTarget);
 var
   vectorFill: TVectorialFill;
   curFill: TVectorialFill;
 begin
-  if ABackFill then
-    curFill:= AShape.BackFill
-  else
-    curFill:= AShape.PenFill;
+  case ATarget of
+    ftPen: curFill:= AShape.PenFill;
+    ftBack: curFill := AShape.BackFill;
+    ftOutline: curFill := AShape.OutlineFill;
+  end;
 
   if (FillType = vftTexture) and (TextureOpacity = 0) then
     vectorFill := nil else
@@ -946,10 +949,11 @@ begin
   end else
     vectorFill := CreateShapeFill(AShape);
 
-  if ABackFill then
-    AShape.BackFill:= vectorFill
-  else
-    AShape.PenFill:= vectorFill;
+  case ATarget of
+    ftPen: AShape.PenFill:= vectorFill;
+    ftBack: AShape.BackFill:= vectorFill;
+    ftOutline: AShape.OutlineFill:= vectorFill;
+  end;
   vectorFill.Free;
 end;
 

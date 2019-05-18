@@ -21,9 +21,9 @@ type
 
   TRenderBoundsOption = (rboAssumePenFill, rboAssumeBackFill);
   TRenderBoundsOptions = set of TRenderBoundsOption;
-  TVectorShapeField = (vsfPenFill, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill);
+  TVectorShapeField = (vsfPenFill, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill, vsfOutlineFill);
   TVectorShapeFields = set of TVectorShapeField;
-  TVectorShapeUsermode = (vsuEdit, vsuCreate, vsuEditPenFill, vsuEditBackFill,
+  TVectorShapeUsermode = (vsuEdit, vsuCreate, vsuEditPenFill, vsuEditBackFill, vsuEditOutlineFill,
                           vsuCurveSetAuto, vsuCurveSetCurve, vsuCurveSetAngle,
                           vsuEditText);
   TVectorShapeUsermodes = set of TVectorShapeUsermode;
@@ -36,7 +36,7 @@ type
     FOnEditingChange: TShapeEditingChangeEvent;
     FUpdateCount: integer;
     FBoundsBeforeUpdate: TRectF;
-    FPenFill, FBackFill: TVectorialFill;
+    FPenFill, FBackFill, FOutlineFill: TVectorialFill;
     FPenWidth: single;
     FStroker: TBGRAPenStroker;
     FUsermode: TVectorShapeUsermode;
@@ -45,6 +45,8 @@ type
     function GetIsBack: boolean;
     function GetIsFront: boolean;
     procedure SetContainer(AValue: TVectorOriginal);
+    function GetFill(var AFillVariable: TVectorialFill): TVectorialFill;
+    procedure SetFill(var AFillVariable: TVectorialFill; AValue: TVectorialFill);
   protected
     procedure BeginUpdate;
     procedure EndUpdate;
@@ -54,12 +56,14 @@ type
     function GetJoinStyle: TPenJoinStyle;
     function GetBackFill: TVectorialFill; virtual;
     function GetPenFill: TVectorialFill; virtual;
+    function GetOutlineFill: TVectorialFill; virtual;
     procedure SetPenColor(AValue: TBGRAPixel); virtual;
     procedure SetPenWidth(AValue: single); virtual;
     procedure SetPenStyle({%H-}AValue: TBGRAPenStyle); virtual;
     procedure SetJoinStyle(AValue: TPenJoinStyle);
     procedure SetBackFill(AValue: TVectorialFill); virtual;
     procedure SetPenFill(AValue: TVectorialFill); virtual;
+    procedure SetOutlineFill(AValue: TVectorialFill); virtual;
     procedure SetUsermode(AValue: TVectorShapeUsermode); virtual;
     procedure LoadFill(AStorage: TBGRACustomOriginalStorage; AObjectName: string; var AValue: TVectorialFill);
     procedure SaveFill(AStorage: TBGRACustomOriginalStorage; AObjectName: string; AValue: TVectorialFill);
@@ -101,6 +105,7 @@ type
     property PenColor: TBGRAPixel read GetPenColor write SetPenColor;
     property PenFill: TVectorialFill read GetPenFill write SetPenFill;
     property BackFill: TVectorialFill read GetBackFill write SetBackFill;
+    property OutlineFill: TVectorialFill read GetOutlineFill write SetOutlineFill;
     property PenWidth: single read GetPenWidth write SetPenWidth;
     property PenStyle: TBGRAPenStyle read GetPenStyle write SetPenStyle;
     property JoinStyle: TPenJoinStyle read GetJoinStyle write SetJoinStyle;
@@ -491,6 +496,11 @@ begin
     result[nb] := PenFill.Texture;
     inc(nb);
   end;
+  if (vsfOutlineFill in f) and (OutlineFill.FillType = vftTexture) then
+  begin
+    result[nb] := OutlineFill.Texture;
+    inc(nb);
+  end;
   setlength(result, nb);
 end;
 
@@ -637,6 +647,7 @@ begin
   result := [vsuEdit];
   if vsfBackFill in Fields then result += [vsuEditBackFill];
   if vsfPenFill in Fields then result += [vsuEditPenFill];
+  if vsfOutlineFill in Fields then result += [vsuEditOutlineFill];
 end;
 
 class function TVectorShape.PreferPixelCentered: boolean;
@@ -656,6 +667,45 @@ begin
   FContainer:=AValue;
 end;
 
+function TVectorShape.GetFill(var AFillVariable: TVectorialFill): TVectorialFill;
+begin
+  if AFillVariable = nil then
+  begin
+    AFillVariable := TVectorialFill.Create;
+    AFillVariable.OnChange := @FillChange;
+  end;
+  result := AFillVariable;
+end;
+
+procedure TVectorShape.SetFill(var AFillVariable: TVectorialFill;
+  AValue: TVectorialFill);
+var
+  sharedTex: TBGRABitmap;
+  freeTex: Boolean;
+begin
+  if AFillVariable.Equals(AValue) then exit;
+  BeginUpdate;
+  freeTex := Assigned(AFillVariable) and Assigned(AFillVariable.Texture) and
+    not (Assigned(AValue) and (AValue.FillType = vftTexture) and (AValue.Texture = AFillVariable.Texture));
+  if AValue = nil then FreeAndNil(AFillVariable) else
+  if AValue.FillType = vftTexture then
+  begin
+    if Assigned(Container) then
+      sharedTex := Container.GetTexture(Container.AddTexture(AValue.Texture))
+    else
+      sharedTex := AValue.Texture;
+    GetFill(AFillVariable).SetTexture(sharedTex, AValue.TextureMatrix, AValue.TextureOpacity, AValue.TextureRepetition);
+  end else
+    GetFill(AFillVariable).Assign(AValue);
+  if Assigned(Container) and freeTex then Container.DiscardUnusedTextures;
+  EndUpdate;
+end;
+
+procedure TVectorShape.SetOutlineFill(AValue: TVectorialFill);
+begin
+  SetFill(FOutlineFill, AValue);
+end;
+
 function TVectorShape.GetIsBack: boolean;
 begin
   result := Assigned(Container) and (Container.IndexOfShape(self)=0);
@@ -664,6 +714,11 @@ end;
 function TVectorShape.GetIsFront: boolean;
 begin
   result := Assigned(Container) and (Container.IndexOfShape(self)=Container.ShapeCount-1);
+end;
+
+function TVectorShape.GetOutlineFill: TVectorialFill;
+begin
+  result := GetFill(FOutlineFill);
 end;
 
 procedure TVectorShape.BeginUpdate;
@@ -711,22 +766,12 @@ end;
 
 function TVectorShape.GetBackFill: TVectorialFill;
 begin
-  if FBackFill = nil then
-  begin
-    FBackFill := TVectorialFill.Create;
-    FBackFill.OnChange := @FillChange;
-  end;
-  result := FBackFill;
+  result := GetFill(FBackFill);
 end;
 
 function TVectorShape.GetPenFill: TVectorialFill;
 begin
-  if FPenFill = nil then
-  begin
-    FPenFill := TVectorialFill.Create;
-    FPenFill.OnChange := @FillChange;
-  end;
-  result := FPenFill;
+  result := GetFill(FPenFill);
 end;
 
 function TVectorShape.ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean; AStrokeMatrix: TAffineMatrix): ArrayOfTPointF;
@@ -780,49 +825,13 @@ begin
 end;
 
 procedure TVectorShape.SetBackFill(AValue: TVectorialFill);
-var
-  sharedTex: TBGRABitmap;
-  freeTex: Boolean;
 begin
-  if FBackFill.Equals(AValue) then exit;
-  BeginUpdate;
-  freeTex := Assigned(FBackFill) and Assigned(FBackFill.Texture) and
-    not (Assigned(AValue) and (AValue.FillType = vftTexture) and (AValue.Texture = FBackFill.Texture));
-  if AValue = nil then FreeAndNil(FBackFill) else
-  if AValue.FillType = vftTexture then
-  begin
-    if Assigned(Container) then
-      sharedTex := Container.GetTexture(Container.AddTexture(AValue.Texture))
-    else
-      sharedTex := AValue.Texture;
-    BackFill.SetTexture(sharedTex, AValue.TextureMatrix, AValue.TextureOpacity, AValue.TextureRepetition);
-  end else
-    BackFill.Assign(AValue);
-  if Assigned(Container) and freeTex then Container.DiscardUnusedTextures;
-  EndUpdate;
+  SetFill(FBackFill, AValue);
 end;
 
 procedure TVectorShape.SetPenFill(AValue: TVectorialFill);
-var
-  sharedTex: TBGRABitmap;
-  freeTex: Boolean;
 begin
-  if FPenFill.Equals(AValue) then exit;
-  BeginUpdate;
-  freeTex := Assigned(FPenFill) and Assigned(FPenFill.Texture) and
-    not (Assigned(AValue) and (AValue.FillType = vftTexture) and (AValue.Texture = FPenFill.Texture));
-  if AValue = nil then FreeAndNil(FPenFill) else
-  if AValue.FillType = vftTexture then
-  begin
-    if Assigned(Container) then
-      sharedTex := Container.GetTexture(Container.AddTexture(AValue.Texture))
-    else
-      sharedTex := AValue.Texture;
-    PenFill.SetTexture(sharedTex, AValue.TextureMatrix, AValue.TextureOpacity, AValue.TextureRepetition);
-  end else
-    PenFill.Assign(AValue);
-  if Assigned(Container) and freeTex then Container.DiscardUnusedTextures;
-  EndUpdate;
+  SetFill(FPenFill, AValue);
 end;
 
 constructor TVectorShape.Create(AContainer: TVectorOriginal);
@@ -834,6 +843,7 @@ begin
   FOnChange := nil;
   FOnEditingChange := nil;
   FBackFill := nil;
+  FOutlineFill := nil;
   FUsermode:= vsuEdit;
   FRemoving:= false;
 end;
@@ -843,6 +853,7 @@ begin
   FreeAndNil(FStroker);
   FreeAndNil(FPenFill);
   FreeAndNil(FBackFill);
+  FreeAndNil(FOutlineFill);
   inherited Destroy;
 end;
 
@@ -864,6 +875,7 @@ begin
       else JoinStyle := pjsMiter;
       end;
     if vsfBackFill in f then LoadFill(AStorage, 'back', FBackFill);
+    if vsfOutlineFill in f then LoadFill(AStorage, 'outline', FOutlineFill);
     EndUpdate;
   end;
 end;
@@ -883,6 +895,7 @@ begin
     else AStorage.RawString['join-style'] := 'miter';
     end;
   if vsfBackFill in f then SaveFill(AStorage, 'back', FBackFill);
+  if vsfOutlineFill in f then SaveFill(AStorage, 'outline', FOutlineFill);
 end;
 
 procedure TVectorShape.MouseMove(Shift: TShiftState; X, Y: single; var
@@ -1254,6 +1267,8 @@ begin
        AShape.BackFill.IsEditable then AShape.Usermode:= prevMode;
     if Assigned(AShape) and (prevMode = vsuEditPenFill) and (prevMode in AShape.Usermodes) and
        AShape.PenFill.IsEditable then AShape.Usermode:= prevMode;
+    if Assigned(AShape) and (prevMode = vsuEditOutlineFill) and (prevMode in AShape.Usermodes) and
+       AShape.OutlineFill.IsEditable then AShape.Usermode:= prevMode;
     if Assigned(AShape) and (prevMode = vsuEditText) and (prevMode in AShape.Usermodes) then
       AShape.Usermode := prevMode;
     FSelectedShape := AShape;
@@ -1348,6 +1363,9 @@ begin
       else
       if (FSelectedShape.Usermode = vsuEditPenFill) and FSelectedShape.PenFill.IsEditable then
         FSelectedShape.PenFill.ConfigureEditor(AEditor)
+      else
+      if (FSelectedShape.Usermode = vsuEditOutlineFill) and FSelectedShape.OutlineFill.IsEditable then
+        FSelectedShape.OutlineFill.ConfigureEditor(AEditor)
       else
         FSelectedShape.ConfigureEditor(AEditor);
     end;

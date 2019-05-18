@@ -22,12 +22,12 @@ const
                      'Horizontal cylinder', 'Vertical cylinder');
 
 type
-  TPaintTool = (ptHand, ptMovePenFillPoint, ptMoveBackFillPoint, ptRectangle, ptEllipse, ptPolyline, ptCurve, ptPolygon, ptClosedCurve,
+  TPaintTool = (ptHand, ptMovePenFillPoint, ptMoveBackFillPoint, ptMoveOutlineFillPoint, ptRectangle, ptEllipse, ptPolyline, ptCurve, ptPolygon, ptClosedCurve,
                 ptPhongShape, ptText);
 
 const
   PaintToolClass : array[TPaintTool] of TVectorShapeAny =
-    (nil, nil, nil, TRectShape, TEllipseShape, TPolylineShape, TCurveShape, TPolylineShape, TCurveShape,
+    (nil, nil, nil, nil, TRectShape, TEllipseShape, TPolylineShape, TCurveShape, TPolylineShape, TCurveShape,
      TPhongShape, TTextShape);
 
 function IsCreateShapeTool(ATool: TPaintTool): boolean;
@@ -43,6 +43,11 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    OutlineFillControl: TLCVectorialFillControl;
+    ButtonMoveOutlineFillPoints: TToolButton;
+    LOutline: TLabel;
+    PanelOutlineFill: TBCPanel;
+    PanelOutlineFillHead: TPanel;
     PenFillControl: TLCVectorialFillControl;
     ButtonMoveBackFillPoints: TToolButton;
     ButtonMovePenFillPoints: TToolButton;
@@ -57,6 +62,7 @@ type
     ShapeMoveDown: TAction;
     ShapeMoveUp: TAction;
     ToolBarBackFill: TToolBar;
+    ToolBarOutlineFill: TToolBar;
     ToolBarPenFill: TToolBar;
     ToolButtonTextShape: TToolButton;
     VectorImageList24: TBGRAImageList;
@@ -130,6 +136,7 @@ type
     procedure FileSaveAsExecute(Sender: TObject);
     procedure FileSaveExecute(Sender: TObject);
     procedure BackFillControlResize(Sender: TObject);
+    procedure OutlineFillControlResize(Sender: TObject);
     procedure PanelFileResize(Sender: TObject);
     procedure PanelShapeResize(Sender: TObject);
    procedure ShapeBringToFrontExecute(Sender: TObject);
@@ -207,6 +214,7 @@ type
     procedure OnClickPenStyle(ASender: TObject);
     procedure PhongShapeKindClick(Sender: TObject);
     procedure RequestBackFillUpdate(Sender: TObject);
+    procedure RequestOutlineFillUpdate(Sender: TObject);
     procedure OnBackFillChange({%H-}ASender: TObject);
     procedure SetCurrentTool(AValue: TPaintTool);
     procedure SetPenJoinStyle(AValue: TPenJoinStyle);
@@ -228,8 +236,10 @@ type
     procedure RemoveExtendedStyleControls;
     procedure UpdateBackToolFillPoints;
     procedure UpdatePenToolFillPoints;
+    procedure UpdateOutlineToolFillPoints;
     procedure UpdateShapeBackFill;
     procedure UpdateShapePenFill;
+    procedure UpdateShapeOutlineFill;
     procedure UpdateShapeUserMode;
     procedure UpdateShapeActions(AShape: TVectorShape);
     procedure RemoveShapeIfEmpty(AShape: TVectorShape);
@@ -239,6 +249,7 @@ type
     procedure PenFillControlResize(Sender: TObject);
     procedure RequestPenFillAdjustToShape(Sender: TObject);
     procedure RequestPenFillUpdate(Sender: TObject);
+    procedure RequestOutlineFillAdjustToShape(Sender: TObject);
     procedure AdjustToolbarTop;
     procedure UpdateSplineToolbar;
     function SnapToGrid(APoint: TPointF): TPointF;
@@ -303,6 +314,7 @@ begin
   ToolbarTop.ButtonHeight:= 2*FFullIconHeight+3;
   LBack.Height := FFullIconHeight;
   LPen.Height := FFullIconHeight;
+  LOutline.Height := FFullIconHeight;
 
   if VectorImageList24.Height = ActionIconSize then
   begin
@@ -323,6 +335,7 @@ begin
   SetToolbarImages(ToolBarEdit, FVectorImageList);
   SetToolBarImages(ToolBarBackFill, FVectorImageList);
   SetToolBarImages(ToolBarPenFill, FVectorImageList);
+  SetToolBarImages(ToolBarOutlineFill, FVectorImageList);
 end;
 
 { TForm1 }
@@ -390,6 +403,15 @@ begin
   BackFillControl.OnAdjustToShape:= @RequestBackFillAdjustToShape;
   BackFillControl.OnResize:= @BackFillControlResize;
 
+  OutlineFillControl.ToolIconSize:= ActionIconSize;
+  OutlineFillControl.SolidColor := CSSYellow;
+  OutlineFillControl.FillType:= vftNone;
+  OutlineFillControl.GradStartColor := BGRAWhite;
+  OutlineFillControl.GradEndColor := CSSYellow;
+  OutlineFillControl.OnFillChange:= @RequestOutlineFillUpdate;
+  OutlineFillControl.OnAdjustToShape:= @RequestOutlineFillAdjustToShape;
+  OutlineFillControl.OnResize:= @OutlineFillControlResize;
+
   FSplineStyleMenu := TPopupMenu.Create(nil);
   for ss := low(TSplineStyle) to high(TSplineStyle) do
   begin
@@ -424,6 +446,7 @@ begin
   UpdateTitleBar;
   UpdateBackToolFillPoints;
   UpdatePenToolFillPoints;
+  UpdateOutlineToolFillPoints;
   UpdateShapeActions(nil);
 end;
 
@@ -636,6 +659,11 @@ begin
   PanelBackFill.ClientWidth := PanelBackFillHead.Width+BackFillControl.Width+2;
 end;
 
+procedure TForm1.OutlineFillControlResize(Sender: TObject);
+begin
+  PanelOutlineFill.ClientWidth := PanelOutlineFillHead.Width+OutlineFillControl.Width+2;
+end;
+
 procedure TForm1.PanelFileResize(Sender: TObject);
 begin
   ToolBarFile.Width := GetToolbarSize(ToolBarFile).cx;
@@ -725,6 +753,12 @@ begin
     begin
       vectorFill := PenFillControl.CreateShapeFill(newShape);
       newShape.PenFill := vectorFill;
+      vectorFill.Free;
+    end;
+    if (vsfOutlineFill in newShape.Fields) and (newShape.OutlineFill.FillType in [vftGradient, vftTexture]) then
+    begin
+      vectorFill := OutlineFillControl.CreateShapeFill(newShape);
+      newShape.OutlineFill := vectorFill;
       vectorFill.Free;
     end;
     rF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
@@ -895,17 +929,27 @@ begin
     begin
       ToolButtonMove.Down := true;
       ButtonMovePenFillPoints.Down := false;
+      ButtonMoveOutlineFillPoints.Down := false;
     end;
   if Sender = ButtonMovePenFillPoints then
     if ButtonMovePenFillPoints.Down then
     begin
       ToolButtonMove.Down := true;
       ButtonMoveBackFillPoints.Down := false;
+      ButtonMoveOutlineFillPoints.Down := false;
+    end;
+  if Sender = ButtonMoveOutlineFillPoints then
+    if ButtonMoveOutlineFillPoints.Down then
+    begin
+      ToolButtonMove.Down := true;
+      ButtonMovePenFillPoints.Down := false;
+      ButtonMoveBackFillPoints.Down := false;
     end;
 
   FCurrentTool := ptHand;
   if ButtonMoveBackFillPoints.Down then FCurrentTool:= ptMoveBackFillPoint;
   if ButtonMovePenFillPoints.Down then FCurrentTool:= ptMovePenFillPoint;
+  if ButtonMoveOutlineFillPoints.Down then FCurrentTool:= ptMoveOutlineFillPoint;
   if ToolButtonEllipse.Down then FCurrentTool:= ptEllipse;
   if ToolButtonRectangle.Down then FCurrentTool:= ptRectangle;
   if ToolButtonPolyline.Down then FCurrentTool:= ptPolyline;
@@ -917,6 +961,7 @@ begin
 
   if currentTool <> ptMoveBackFillPoint then ButtonMoveBackFillPoints.Down := false;
   if currentTool <> ptMovePenFillPoint then ButtonMovePenFillPoints.Down := false;
+  if currentTool <> ptMoveOutlineFillPoint then ButtonMoveOutlineFillPoints.Down := false;
 
   if IsCreateShapeTool(currentTool) then
   begin
@@ -1074,6 +1119,7 @@ begin
   case currentTool of
     ptMoveBackFillPoint: if AShape.Usermode <> vsuEditBackFill then currentTool := ptHand;
     ptMovePenFillPoint: if AShape.Usermode <> vsuEditPenFill then currentTool := ptHand;
+    ptMoveOutlineFillPoint: if AShape.Usermode <> vsuEditOutlineFill then currentTool := ptHand;
   end;
   UpdateShapeActions(AShape);
   RemoveShapeIfEmpty(APreviousShape);
@@ -1119,6 +1165,15 @@ begin
   end;
 end;
 
+procedure TForm1.RequestOutlineFillUpdate(Sender: TObject);
+begin
+  if not FUpdatingFromShape then
+  begin
+    UpdateShapeOutlineFill;
+    UpdateOutlineToolFillPoints;
+  end;
+end;
+
 procedure TForm1.OnBackFillChange(ASender: TObject);
 begin
   if not FUpdatingFromShape then
@@ -1138,6 +1193,7 @@ begin
   ToolButtonPhongShape.Down:= FCurrentTool = ptPhongShape;
   ButtonMoveBackFillPoints.Down := FCurrentTool = ptMoveBackFillPoint;
   ButtonMovePenFillPoints.Down := FCurrentTool = ptMovePenFillPoint;
+  ButtonMoveOutlineFillPoints.Down := FCurrentTool = ptMoveOutlineFillPoint;
   UpdateShapeUserMode;
 end;
 
@@ -1466,6 +1522,7 @@ begin
     if vsfJoinStyle in f then joinStyle:= AShape.JoinStyle;
 
     if vsfBackFill in f then BackFillControl.AssignFill(AShape.BackFill);
+    if vsfOutlineFill in f then OutlineFillControl.AssignFill(AShape.OutlineFill);
 
     if AShape is TCurveShape then
       splineStyle:= TCurveShape(AShape).SplineStyle;
@@ -1489,6 +1546,7 @@ begin
     FUpdatingFromShape := false;
     PanelPenFill.Visible := vsfPenFill in f;
     PanelBackFill.Visible := vsfBackFill in f;
+    PanelOutlineFill.Visible := vsfOutlineFill in f;
   end else
   begin
     toolClass:= PaintToolClass[currentTool];
@@ -1498,16 +1556,19 @@ begin
       f := PaintToolClass[currentTool].Fields;
       PanelPenFill.Visible := vsfPenFill in f;
       PanelBackFill.Visible := vsfBackFill in f;
+      PanelOutlineFill.Visible := vsfOutlineFill in f;
     end
     else
     begin
       f := [];
       PanelPenFill.Visible := true;
       PanelBackFill.Visible := true;
+      PanelOutlineFill.Visible := true;
     end;
   end;
   UpdateBackToolFillPoints;
   UpdatePenToolFillPoints;
+  UpdateOutlineToolFillPoints;
   UpDownPenWidth.Enabled := vsfPenWidth in f;
   ButtonPenStyle.Enabled:= vsfPenStyle in f;
   EnableDisableToolButtons([ToolButtonJoinRound,ToolButtonJoinBevel,ToolButtonJoinMiter], vsfJoinStyle in f);
@@ -1656,6 +1717,7 @@ begin
   result := PaintToolClass[currentTool].Create(vectorOriginal);
   if (result is TCustomPolypointShape) and (BackFillControl.FillType = vftGradient) then BackFillControl.FillType := vftSolid;
   if (result is TCustomPolypointShape) and (PenFillControl.FillType = vftGradient) then PenFillControl.FillType := vftSolid;
+  if (result is TCustomPolypointShape) and (OutlineFillControl.FillType = vftGradient) then OutlineFillControl.FillType := vftSolid;
   result.PenWidth := penWidth;
   result.PenStyle := penStyle;
   if vsfJoinStyle in result.Fields then result.JoinStyle := joinStyle;
@@ -1690,6 +1752,12 @@ begin
   begin
     vectorFill := PenFillControl.CreateShapeFill(result);
     result.PenFill := vectorFill;
+    vectorFill.Free;
+  end;
+  if vsfOutlineFill in result.Fields then
+  begin
+    vectorFill := OutlineFillControl.CreateShapeFill(result);
+    result.OutlineFill := vectorFill;
     vectorFill.Free;
   end;
 end;
@@ -1740,18 +1808,35 @@ begin
   if (currentTool = ptMovePenFillPoint) and not canEdit then currentTool:= ptHand;
 end;
 
+procedure TForm1.UpdateOutlineToolFillPoints;
+var
+  canEdit: Boolean;
+begin
+  canEdit := (OutlineFillControl.FillType in[vftGradient,vftTexture]) and
+    Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape);
+  ButtonMoveOutlineFillPoints.Enabled := canEdit;
+  if (currentTool = ptMoveOutlineFillPoint) and not canEdit then currentTool:= ptHand;
+end;
+
 procedure TForm1.UpdateShapeBackFill;
 begin
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
     (vsfBackFill in vectorOriginal.SelectedShape.Fields) then
-    BackFillControl.UpdateShapeFill(vectorOriginal.SelectedShape, True);
+    BackFillControl.UpdateShapeFill(vectorOriginal.SelectedShape, ftBack);
 end;
 
 procedure TForm1.UpdateShapePenFill;
 begin
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
     (vsfPenFill in vectorOriginal.SelectedShape.Fields) then
-    PenFillControl.UpdateShapeFill(vectorOriginal.SelectedShape, FAlse);
+    PenFillControl.UpdateShapeFill(vectorOriginal.SelectedShape, ftPen);
+end;
+
+procedure TForm1.UpdateShapeOutlineFill;
+begin
+  if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
+    (vsfOutlineFill in vectorOriginal.SelectedShape.Fields) then
+    OutlineFillControl.UpdateShapeFill(vectorOriginal.SelectedShape, ftOutline);
 end;
 
 procedure TForm1.UpdateShapeUserMode;
@@ -1772,8 +1857,15 @@ begin
       if vectorOriginal.SelectedShape.Usermode <> vsuEditPenFill then
         vectorOriginal.SelectedShape.Usermode := vsuEditPenFill;
     end else
+    if (currentTool = ptMoveOutlineFillPoint) and
+       (vsfOutlineFill in vectorOriginal.SelectedShape.Fields) and
+       vectorOriginal.SelectedShape.OutlineFill.IsEditable then
     begin
-      if vectorOriginal.SelectedShape.Usermode in[vsuEditPenFill,vsuEditBackFill] then
+      if vectorOriginal.SelectedShape.Usermode <> vsuEditOutlineFill then
+        vectorOriginal.SelectedShape.Usermode := vsuEditOutlineFill;
+    end else
+    begin
+      if vectorOriginal.SelectedShape.Usermode in[vsuEditPenFill,vsuEditBackFill,vsuEditOutlineFill] then
         vectorOriginal.SelectedShape.Usermode := vsuEdit;
     end;
   end;
@@ -1790,6 +1882,7 @@ begin
   EditDelete.Enabled := AShape <> nil;
   BackFillControl.CanAdjustToShape := AShape <> nil;
   PenFillControl.CanAdjustToShape := AShape <> nil;
+  OutlineFillControl.CanAdjustToShape := AShape <> nil;
 end;
 
 procedure TForm1.RemoveShapeIfEmpty(AShape: TVectorShape);
@@ -1849,7 +1942,8 @@ procedure TForm1.RequestBackFillAdjustToShape(Sender: TObject);
 var
   vectorFill: TVectorialFill;
 begin
-  if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+  if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
+     (vsfBackFill in vectorOriginal.SelectedShape.Fields) then
   begin
     vectorFill := BackFillControl.CreateShapeFill(vectorOriginal.SelectedShape);
     vectorOriginal.SelectedShape.BackFill := vectorFill;
@@ -1866,7 +1960,8 @@ procedure TForm1.RequestPenFillAdjustToShape(Sender: TObject);
 var
   vectorFill: TVectorialFill;
 begin
-  if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+  if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
+     (vsfPenFill in vectorOriginal.SelectedShape.Fields) then
   begin
     vectorFill := PenFillControl.CreateShapeFill(vectorOriginal.SelectedShape);
     vectorOriginal.SelectedShape.PenFill := vectorFill;
@@ -1880,6 +1975,19 @@ begin
   begin
     UpdateShapePenFill;
     UpdatePenToolFillPoints;
+  end;
+end;
+
+procedure TForm1.RequestOutlineFillAdjustToShape(Sender: TObject);
+var
+  vectorFill: TVectorialFill;
+begin
+  if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
+     (vsfOutlineFill in vectorOriginal.SelectedShape.Fields) then
+  begin
+    vectorFill := OutlineFillControl.CreateShapeFill(vectorOriginal.SelectedShape);
+    vectorOriginal.SelectedShape.OutlineFill := vectorFill;
+    vectorFill.Free;
   end;
 end;
 

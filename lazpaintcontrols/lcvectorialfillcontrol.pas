@@ -10,6 +10,14 @@ uses
   LCVectorOriginal;
 
 type
+  TLCFillTarget = LCVectorialFillInterface.TLCFillTarget;
+
+const
+  ftPen = LCVectorialFillInterface.ftPen;
+  ftBack = LCVectorialFillInterface.ftBack;
+  ftOutline = LCVectorialFillInterface.ftOutline;
+
+type
   { TLCVectorialFillControl }
 
   TLCVectorialFillControl = class(TWinControl)
@@ -56,7 +64,7 @@ type
     destructor Destroy; override;
     procedure AssignFill(AFill: TVectorialFill);
     function CreateShapeFill(AShape: TVectorShape): TVectorialFill;
-    procedure UpdateShapeFill(AShape: TVectorShape; ABackFill: boolean);
+    procedure UpdateShapeFill(AShape: TVectorShape; ATarget: TLCFillTarget);
     property FillType: TVectorialFillType read GetFillType write SetFillType;
     property SolidColor: TBGRAPixel read GetSolidColor write SetSolidColor;
     property GradientType: TGradientType read GetGradType write SetGradientType;
@@ -283,9 +291,9 @@ begin
 end;
 
 procedure TLCVectorialFillControl.UpdateShapeFill(AShape: TVectorShape;
-  ABackFill: boolean);
+  ATarget: TLCFillTarget);
 begin
-  FInterface.UpdateShapeFill(AShape, ABackFill);
+  FInterface.UpdateShapeFill(AShape, ATarget);
 end;
 
 end.

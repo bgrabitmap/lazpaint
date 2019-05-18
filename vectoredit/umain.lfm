@@ -452,6 +452,7 @@ object Form1: TForm1
           object LPen: TLabel
             Left = 0
             Height = 28
+            Hint = 'Pen color'
             Top = 0
             Width = 31
             Align = alTop
@@ -460,6 +461,8 @@ object Form1: TForm1
             Layout = tlCenter
             ParentColor = False
             ParentFont = False
+            ParentShowHint = False
+            ShowHint = True
           end
           object ToolBarPenFill: TToolBar
             Left = 0
@@ -469,7 +472,6 @@ object Form1: TForm1
             Align = alClient
             ButtonHeight = 28
             ButtonWidth = 28
-            Caption = 'ToolBarBackFill'
             EdgeBorders = []
             EdgeInner = esNone
             EdgeOuter = esNone
@@ -483,7 +485,6 @@ object Form1: TForm1
               Left = 0
               Hint = 'Move gradient/texture points'
               Top = 0
-              Caption = 'ButtonMoveBackFillPoints'
               ImageIndex = 12
               OnClick = ToolButtonClick
               Style = tbsCheck
@@ -973,6 +974,7 @@ object Form1: TForm1
           object LBack: TLabel
             Left = 0
             Height = 28
+            Hint = 'Back color'
             Top = 0
             Width = 31
             Align = alTop
@@ -981,6 +983,8 @@ object Form1: TForm1
             Layout = tlCenter
             ParentColor = False
             ParentFont = False
+            ParentShowHint = False
+            ShowHint = True
           end
           object ToolBarBackFill: TToolBar
             Left = 0
@@ -990,7 +994,6 @@ object Form1: TForm1
             Align = alClient
             ButtonHeight = 28
             ButtonWidth = 28
-            Caption = 'ToolBarBackFill'
             EdgeBorders = []
             EdgeInner = esNone
             EdgeOuter = esNone
@@ -1004,7 +1007,6 @@ object Form1: TForm1
               Left = 0
               Hint = 'Move gradient/texture points'
               Top = 0
-              Caption = 'ButtonMoveBackFillPoints'
               ImageIndex = 12
               OnClick = ToolButtonClick
               Style = tbsCheck
@@ -1022,7 +1024,7 @@ object Form1: TForm1
         end
       end
       object PanelShape: TBCPanel
-        Left = 549
+        Left = 700
         Height = 59
         Top = 0
         Width = 120
@@ -1142,9 +1144,9 @@ object Form1: TForm1
         end
       end
       object PanelExtendedStyle: TBCPanel
-        Left = 669
+        Left = 0
         Height = 59
-        Top = 0
+        Top = 59
         Width = 162
         Background.Color = clBtnFace
         Background.ColorOpacity = 255
@@ -1203,6 +1205,129 @@ object Form1: TForm1
         Rounding.RoundOptions = []
         TabOrder = 4
         Visible = False
+      end
+      object PanelOutlineFill: TBCPanel
+        Left = 549
+        Height = 59
+        Top = 0
+        Width = 151
+        Background.Color = clBtnFace
+        Background.ColorOpacity = 255
+        Background.Gradient1.StartColor = clWhite
+        Background.Gradient1.StartColorOpacity = 255
+        Background.Gradient1.DrawMode = dmSet
+        Background.Gradient1.EndColor = clBlack
+        Background.Gradient1.EndColorOpacity = 255
+        Background.Gradient1.ColorCorrection = True
+        Background.Gradient1.GradientType = gtLinear
+        Background.Gradient1.Point1XPercent = 0
+        Background.Gradient1.Point1YPercent = 0
+        Background.Gradient1.Point2XPercent = 0
+        Background.Gradient1.Point2YPercent = 100
+        Background.Gradient1.Sinus = False
+        Background.Gradient2.StartColor = clWhite
+        Background.Gradient2.StartColorOpacity = 255
+        Background.Gradient2.DrawMode = dmSet
+        Background.Gradient2.EndColor = clBlack
+        Background.Gradient2.EndColorOpacity = 255
+        Background.Gradient2.ColorCorrection = True
+        Background.Gradient2.GradientType = gtLinear
+        Background.Gradient2.Point1XPercent = 0
+        Background.Gradient2.Point1YPercent = 0
+        Background.Gradient2.Point2XPercent = 0
+        Background.Gradient2.Point2YPercent = 100
+        Background.Gradient2.Sinus = False
+        Background.Gradient1EndPercent = 35
+        Background.Style = bbsColor
+        BevelInner = bvNone
+        BevelOuter = bvRaised
+        BevelWidth = 1
+        Border.Color = clBlack
+        Border.ColorOpacity = 255
+        Border.LightColor = clWhite
+        Border.LightOpacity = 255
+        Border.LightWidth = 0
+        Border.Style = bboNone
+        Border.Width = 1
+        FontEx.Color = clDefault
+        FontEx.EndEllipsis = False
+        FontEx.FontQuality = fqFineAntialiasing
+        FontEx.Height = 0
+        FontEx.SingleLine = True
+        FontEx.Shadow = False
+        FontEx.ShadowColor = clBlack
+        FontEx.ShadowColorOpacity = 255
+        FontEx.ShadowRadius = 5
+        FontEx.ShadowOffsetX = 5
+        FontEx.ShadowOffsetY = 5
+        FontEx.Style = []
+        FontEx.TextAlignment = bcaCenter
+        FontEx.WordBreak = False
+        Rounding.RoundX = 1
+        Rounding.RoundY = 1
+        Rounding.RoundOptions = []
+        TabOrder = 6
+        object PanelOutlineFillHead: TPanel
+          Left = 1
+          Height = 57
+          Top = 1
+          Width = 31
+          Align = alLeft
+          BevelOuter = bvNone
+          ClientHeight = 57
+          ClientWidth = 31
+          TabOrder = 0
+          object LOutline: TLabel
+            Left = 0
+            Height = 28
+            Hint = 'Outline color'
+            Top = 0
+            Width = 31
+            Align = alTop
+            AutoSize = False
+            Caption = 'Out'
+            Layout = tlCenter
+            ParentColor = False
+            ParentFont = False
+            ParentShowHint = False
+            ShowHint = True
+          end
+          object ToolBarOutlineFill: TToolBar
+            Left = 0
+            Height = 29
+            Top = 28
+            Width = 31
+            Align = alClient
+            ButtonHeight = 28
+            ButtonWidth = 28
+            EdgeBorders = []
+            EdgeInner = esNone
+            EdgeOuter = esNone
+            Images = VectorImageList24
+            Indent = 0
+            ParentColor = False
+            ParentShowHint = False
+            ShowHint = True
+            TabOrder = 0
+            object ButtonMoveOutlineFillPoints: TToolButton
+              Left = 0
+              Hint = 'Move gradient/texture points'
+              Top = 0
+              ImageIndex = 12
+              OnClick = ToolButtonClick
+              Style = tbsCheck
+            end
+          end
+        end
+        object OutlineFillControl: TLCVectorialFillControl
+          Left = 32
+          Height = 57
+          Top = 1
+          Width = 117
+          AutoSize = True
+          Align = alLeft
+          ToolIconSize = 24
+        end
       end
     end
   end
