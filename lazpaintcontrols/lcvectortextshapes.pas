@@ -385,7 +385,10 @@ begin
     if OutlineFill.FillType <> vftNone then
       FFontRenderer := TBGRAVectorizedFontRenderer.Create
     else
+    begin
       FFontRenderer := TLCLFontRenderer.Create;
+      TLCLFontRenderer(FFontRenderer).OverrideUnderlineDecoration:= true;
+    end;
   end;
   newEmHeight := Round(FontEmHeight*GetTextRenderZoom);
   if (newEmHeight <> FFontRenderer.FontEmHeight) or
@@ -785,6 +788,7 @@ begin
     tmpTransf := TBGRABitmap.Create(transfRect.Width,transfRect.Height);
     ctx := tmpTransf.Canvas2D;
     ctx.transform(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*m);
+    ctx.fillMode := fmWinding;
     ctx.beginPath;
     tl.PathText(ctx);
 
