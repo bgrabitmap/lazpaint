@@ -125,8 +125,8 @@ begin
   parsedDesc := TStringList.Create;
   try
     AssignFile(mtab,AMountsFile);
+    Reset(mtab);
     try
-      Reset(mtab);
       while not Eof(mtab) do
       begin
         ReadLn(mtab,desc);
@@ -190,12 +190,13 @@ begin
           end;
         end;
       end;
-    except
+    finally
       CloseFile(mtab);
     end;
   except
-    parsedDesc.Free;
+
   end;
+  parsedDesc.Free;
 end;
 {$ENDIF}
 
