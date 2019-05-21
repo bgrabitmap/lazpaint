@@ -824,8 +824,12 @@ end;
 
 procedure TVectorShape.FillChange(ASender: TObject);
 begin
-  if Assigned(FOnChange) and (FUpdateCount = 0) then
-    FOnChange(self, GetRenderBounds(InfiniteRect, AffineMatrixIdentity));
+  if FUpdateCount=0 then
+  begin
+    inc(FRenderIteration);
+    if Assigned(FOnChange) then
+      FOnChange(self, GetRenderBounds(InfiniteRect, AffineMatrixIdentity));
+  end;
 end;
 
 procedure TVectorShape.UpdateRenderStorage(ARenderBounds: TRect; AImage: TBGRACustomBitmap);
