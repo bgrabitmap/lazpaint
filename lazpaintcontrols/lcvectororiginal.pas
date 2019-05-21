@@ -78,6 +78,7 @@ type
     procedure QuickDefine(const APoint1,APoint2: TPointF); virtual; abstract;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); virtual; abstract;
     function GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; virtual; abstract;
+    function SuggestGradientBox(AMatrix: TAffineMatrix): TAffineBox; virtual;
     function PointInShape(APoint: TPointF): boolean; virtual; abstract;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); virtual; abstract;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); virtual;
@@ -859,6 +860,14 @@ begin
   FreeAndNil(FBackFill);
   FreeAndNil(FOutlineFill);
   inherited Destroy;
+end;
+
+function TVectorShape.SuggestGradientBox(AMatrix: TAffineMatrix): TAffineBox;
+var
+  rF: TRectF;
+begin
+  rF := GetRenderBounds(InfiniteRect, AMatrix, [rboAssumeBackFill]);
+  result := TAffineBox.AffineBox(rF);
 end;
 
 procedure TVectorShape.LoadFromStorage(AStorage: TBGRACustomOriginalStorage);

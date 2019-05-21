@@ -37,6 +37,7 @@ type
     function ShowArrows: boolean; virtual;
   public
     procedure QuickDefine(const APoint1,APoint2: TPointF); override;
+    function SuggestGradientBox(AMatrix: TAffineMatrix): TAffineBox; override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; {%H-}AOptions: TRenderBoundsOptions = []): TRectF; override;
@@ -368,6 +369,11 @@ begin
   FXAxis := PointF(APoint2.X,FOrigin.Y);
   FYAxis := PointF(FOrigin.X,APoint2.Y);
   EndUpdate;
+end;
+
+function TCustomRectShape.SuggestGradientBox(AMatrix: TAffineMatrix): TAffineBox;
+begin
+  Result:= GetAffineBox(AMatrix,False);
 end;
 
 procedure TCustomRectShape.LoadFromStorage(AStorage: TBGRACustomOriginalStorage);

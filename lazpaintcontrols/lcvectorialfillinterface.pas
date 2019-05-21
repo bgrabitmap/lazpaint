@@ -866,33 +866,28 @@ end;
 function TVectorialFillInterface.CreateShapeFill(AShape: TVectorShape): TVectorialFill;
 var
   grad: TBGRALayerGradientOriginal;
-  rF: TRectF;
   sx,sy: single;
+  box: TAffineBox;
+  u, v: TPointF;
 begin
   if FillType = vftSolid then
     result := TVectorialFill.CreateAsSolid(SolidColor)
   else if (FillType = vftTexture) and Assigned(Texture) then
   begin
-    rF := AShape.GetRenderBounds(InfiniteRect,AffineMatrixIdentity,[rboAssumeBackFill]);
-    if not (TextureRepetition in [trRepeatX,trRepeatBoth]) and (rF.Width <> 0) and (Texture.Width > 0) then
-      sx:= rF.Width/Texture.Width else sx:= 1;
-    if not (TextureRepetition in [trRepeatY,trRepeatBoth]) and (rF.Height <> 0) and (Texture.Height > 0) then
-      sy:= rF.Height/Texture.Height else sy:= 1;
+    box := AShape.SuggestGradientBox(AffineMatrixIdentity);
+    if not (TextureRepetition in [trRepeatX,trRepeatBoth]) and (Texture.Width > 0) then
+      sx:= 1/Texture.Width else if box.Width > 0 then sx:= 1/box.Width else sx := 1;
+    if not (TextureRepetition in [trRepeatY,trRepeatBoth]) and (Texture.Height > 0) then
+      sy:= 1/Texture.Height else if box.Height > 0 then sy:= 1/box.Height else sy := 1;
 
-    result := TVectorialFill.CreateAsTexture(Texture,
-                 AffineMatrixTranslation(rF.TopLeft.x,rF.TopLeft.y)*
-                 AffineMatrixScale(sx,sy),
-                 TextureOpacity, TextureRepetition);
+    u := (box.TopRight-box.TopLeft)*sx;
+    v := (box.BottomLeft-box.TopLeft)*sy;
+    result := TVectorialFill.CreateAsTexture(Texture,AffineMatrix(u,v,box.TopLeft),
+           TextureOpacity, TextureRepetition);
   end
   else if FillType = vftGradient then
   begin
-    if Assigned(AShape) then
-    begin
-      rF := AShape.GetRenderBounds(InfiniteRect,AffineMatrixIdentity,[rboAssumeBackFill]);
-      if IsEmptyRectF(rF) then exit(nil);
-    end
-    else
-      exit(nil);
+    box := AShape.SuggestGradientBox(AffineMatrixIdentity);
     grad := TBGRALayerGradientOriginal.Create;
     grad.StartColor := GradStartColor;
     grad.EndColor := GradEndColor;
@@ -901,17 +896,17 @@ begin
     grad.ColorInterpolation:= GradInterpolation;
     if grad.GradientType = gtLinear then
     begin
-      grad.Origin := rF.TopLeft;
-      grad.XAxis := rF.BottomRight;
+      grad.Origin := box.TopLeft;
+      grad.XAxis := box.BottomRight;
     end else
     begin
-      grad.Origin := (rF.TopLeft + rF.BottomRight)*0.5;
+      grad.Origin := (box.TopLeft + box.BottomRight)*0.5;
       if grad.GradientType = gtReflected then
-        grad.XAxis := rF.BottomRight
+        grad.XAxis := box.BottomRight
       else
       begin
-        grad.XAxis := PointF(rF.Right,grad.Origin.y);
-        grad.YAxis := PointF(grad.Origin.x,rF.Bottom);
+        grad.XAxis := (box.TopRight + box.BottomRight)*0.5;
+        grad.YAxis := (box.BottomLeft + box.BottomRight)*0.5;
       end;
     end;
     result := TVectorialFill.CreateAsGradient(grad, true);
