@@ -32,6 +32,8 @@ type
 
   TVectorShape = class
   private
+    FId: integer;
+    FRenderIteration: integer; // increased at each BeginUpdate
     FOnChange: TShapeChangeEvent;
     FOnEditingChange: TShapeEditingChangeEvent;
     FUpdateCount: integer;
@@ -47,6 +49,7 @@ type
     procedure SetContainer(AValue: TVectorOriginal);
     function GetFill(var AFillVariable: TVectorialFill): TVectorialFill;
     procedure SetFill(var AFillVariable: TVectorialFill; AValue: TVectorialFill);
+    procedure SetId(AValue: integer);
   protected
     procedure BeginUpdate;
     procedure EndUpdate;
@@ -72,11 +75,17 @@ type
     function GetStroker: TBGRAPenStroker;
     property Stroker: TBGRAPenStroker read GetStroker;
     procedure FillChange({%H-}ASender: TObject); virtual;
+    procedure UpdateRenderStorage(ARenderBounds: TRect; AImage: TBGRACustomBitmap = nil);
+    procedure DiscardRenderStorage;
+    procedure RetrieveRenderStorage(AMatrix: TAffineMatrix; out ARenderBounds: TRect; out AImage: TBGRABitmap);
+    function CanHaveRenderStorage: boolean;
   public
     constructor Create(AContainer: TVectorOriginal); virtual;
     destructor Destroy; override;
     procedure QuickDefine(const APoint1,APoint2: TPointF); virtual; abstract;
-    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); virtual; abstract;
+    //one of the two Render functions must be overriden
+    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); virtual;
+    procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); virtual;
     function GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; virtual; abstract;
     function SuggestGradientBox(AMatrix: TAffineMatrix): TAffineBox; virtual;
     function PointInShape(APoint: TPointF): boolean; virtual; abstract;
@@ -116,6 +125,7 @@ type
     property IsFront: boolean read GetIsFront;
     property IsBack: boolean read GetIsBack;
     property IsRemoving: boolean read FRemoving;
+    property Id: integer read FId write SetId;
   end;
   TVectorShapes = specialize TFPGList<TVectorShape>;
   TVectorShapeAny = class of TVectorShape;
@@ -135,6 +145,7 @@ type
     FSelectedShape: TVectorShape;
     FFrozenShapesUnderSelection,
     FFrozenShapesOverSelection: TBGRABitmap;
+    FFrozenShapesRenderOffset: TPoint;
     FFrozenShapesComputed: boolean;
     FFrozenShapeMatrix: TAffineMatrix;
     FOnSelectShape: TVectorOriginalSelectShapeEvent;
@@ -144,6 +155,7 @@ type
                end;
     FTextureCount: integer;
     FLastTextureId: integer;
+    FLastShapeId: integer;
     procedure FreeDeletedShapes;
     procedure OnShapeChange(ASender: TObject; ABounds: TRectF);
     procedure OnShapeEditingChange({%H-}ASender: TObject);
@@ -153,6 +165,9 @@ type
     procedure AddTextureWithId(ATexture: TBGRABitmap; AId: integer);
     procedure ClearTextures;
     function GetShapeCount: integer;
+    function OpenShapeRenderStorage(AShapeIndex: integer; ACreate: boolean): TBGRACustomOriginalStorage;
+    function FindShapeById(AId: integer): TVectorShape;
+    procedure DiscardUnusedRenderStorage;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -167,7 +182,7 @@ type
     procedure SelectShape(AShape: TVectorShape); overload;
     procedure DeselectShape;
     procedure MouseClick(APoint: TPointF);
-    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
+    procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); override;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
     function CreateEditor: TBGRAOriginalEditor; override;
     function GetRenderBounds(ADestRect: TRect; {%H-}AMatrix: TAffineMatrix): TRect; override;
@@ -703,6 +718,12 @@ begin
   EndUpdate;
 end;
 
+procedure TVectorShape.SetId(AValue: integer);
+begin
+  if FId=AValue then Exit;
+  FId:=AValue;
+end;
+
 procedure TVectorShape.SetOutlineFill(AValue: TVectorialFill);
 begin
   SetFill(FOutlineFill, AValue);
@@ -726,7 +747,10 @@ end;
 procedure TVectorShape.BeginUpdate;
 begin
   if FUpdateCount = 0 then
+  begin
     FBoundsBeforeUpdate := GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
+    Inc(FRenderIteration);
+  end;
   FUpdateCount += 1;
 end;
 
@@ -804,6 +828,68 @@ begin
     FOnChange(self, GetRenderBounds(InfiniteRect, AffineMatrixIdentity));
 end;
 
+procedure TVectorShape.UpdateRenderStorage(ARenderBounds: TRect; AImage: TBGRACustomBitmap);
+var
+  obj: TBGRACustomOriginalStorage;
+  imgStream: TMemoryStream;
+begin
+  if CanHaveRenderStorage then
+  begin
+    obj := Container.RenderStorage.CreateObject(inttostr(Id));
+    obj.Int['iteration'] := FRenderIteration;
+    obj.Rectangle['bounds'] := ARenderBounds;
+    if Assigned(AImage) then
+    begin
+      imgStream := TMemoryStream.Create;
+      AImage.Serialize(imgStream);
+      obj.WriteFile('image.data', imgStream, true, true);
+    end else
+      obj.RemoveFile('image.data');
+    obj.Free;
+  end;
+end;
+
+procedure TVectorShape.DiscardRenderStorage;
+begin
+  if CanHaveRenderStorage then
+    Container.RenderStorage.RemoveObject(inttostr(Id));
+end;
+
+procedure TVectorShape.RetrieveRenderStorage(AMatrix: TAffineMatrix; out
+  ARenderBounds: TRect; out AImage: TBGRABitmap);
+var
+  stream: TMemoryStream;
+  shapeStorage: TBGRACustomOriginalStorage;
+begin
+  ARenderBounds := EmptyRect;
+  AImage := nil;
+  if Assigned(Container) and Assigned(Container.RenderStorage) and (Container.RenderStorage.AffineMatrix['last-matrix']=AMatrix) then
+  begin
+    shapeStorage := Container.RenderStorage.OpenObject(inttostr(Id));
+    if Assigned(shapeStorage) then
+    begin
+      if shapeStorage.Int['iteration'] = FRenderIteration then
+      begin
+        ARenderBounds := shapeStorage.Rectangle['bounds'];
+        stream := TMemoryStream.Create;
+        if shapeStorage.ReadFile('image.data', stream) and (stream.Size>0) then
+        begin
+          stream.Position:= 0;
+          AImage := TBGRABitmap.Create;
+          AImage.Deserialize(stream);
+        end;
+        stream.Free;
+      end;
+      shapeStorage.Free;
+    end;
+  end;
+end;
+
+function TVectorShape.CanHaveRenderStorage: boolean;
+begin
+  result := (Id <> 0) and Assigned(Container) and Assigned(Container.RenderStorage);
+end;
+
 procedure TVectorShape.SetPenColor(AValue: TBGRAPixel);
 var
   vf: TVectorialFill;
@@ -851,6 +937,8 @@ begin
   FOutlineFill := nil;
   FUsermode:= vsuEdit;
   FRemoving:= false;
+  FId := 0;
+  FRenderIteration:= 0;
 end;
 
 destructor TVectorShape.Destroy;
@@ -860,6 +948,18 @@ begin
   FreeAndNil(FBackFill);
   FreeAndNil(FOutlineFill);
   inherited Destroy;
+end;
+
+procedure TVectorShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
+  ADraft: boolean);
+begin
+  Render(ADest, Point(0,0), AMatrix, ADraft);
+end;
+
+procedure TVectorShape.Render(ADest: TBGRABitmap; ARenderOffset: TPoint;
+  AMatrix: TAffineMatrix; ADraft: boolean);
+begin
+  Render(ADest, AffineMatrixTranslation(ARenderOffset.X,ARenderOffset.Y)*AMatrix, ADraft);
 end;
 
 function TVectorShape.SuggestGradientBox(AMatrix: TAffineMatrix): TAffineBox;
@@ -878,6 +978,8 @@ begin
   if f <> [] then
   begin
     BeginUpdate;
+    Id := AStorage.Int['id'];
+    FRenderIteration := AStorage.Int['iteration'];
     if vsfPenFill in f then LoadFill(AStorage, 'pen', FPenFill);
     if vsfPenWidth in f then PenWidth := AStorage.FloatDef['pen-width', 0];
     if vsfPenStyle in f then PenStyle := AStorage.FloatArray['pen-style'];
@@ -897,6 +999,8 @@ procedure TVectorShape.SaveToStorage(AStorage: TBGRACustomOriginalStorage);
 var
   f: TVectorShapeFields;
 begin
+  AStorage.Int['id'] := Id;
+  AStorage.Int['iteration'] := FRenderIteration;
   f := Fields;
   if vsfPenFill in f then SaveFill(AStorage, 'pen', FPenFill);
   if vsfPenWidth in f then AStorage.Float['pen-width'] := PenWidth;
@@ -1032,6 +1136,53 @@ begin
   result := FShapes.Count;
 end;
 
+function TVectorOriginal.OpenShapeRenderStorage(AShapeIndex: integer; ACreate: boolean): TBGRACustomOriginalStorage;
+var
+  shapeId: Integer;
+begin
+  if Assigned(RenderStorage) then
+  begin
+    shapeId := Shape[AShapeIndex].Id;
+    if ACreate then
+      result := RenderStorage.CreateObject(inttostr(shapeId))
+    else
+      result := RenderStorage.OpenObject(inttostr(shapeId));
+  end
+  else
+    result := nil;
+end;
+
+function TVectorOriginal.FindShapeById(AId: integer): TVectorShape;
+var
+  i: Integer;
+begin
+  for i := 0 to FShapes.Count-1 do
+    if FShapes[i].Id = AId then exit(FShapes[i]);
+  exit(nil);
+end;
+
+procedure TVectorOriginal.DiscardUnusedRenderStorage;
+var
+  objs: TStringList;
+  shapeId, errPos, i: integer;
+begin
+  if Assigned(RenderStorage) then
+  begin
+    objs := TStringList.Create;
+    RenderStorage.EnumerateObjects(objs);
+    for i := 0 to objs.Count-1 do
+    begin
+      val(objs[i], shapeId, errPos);
+      if errPos = 0 then
+      begin
+        if FindShapeById(shapeId) = nil then
+          RenderStorage.RemoveObject(objs[i]);
+      end;
+    end;
+    objs.Free;
+  end;
+end;
+
 function TVectorOriginal.GetShape(AIndex: integer): TVectorShape;
 begin
   result := FShapes[AIndex];
@@ -1123,6 +1274,7 @@ begin
   FFrozenShapesOverSelection := nil;
   FFrozenShapesComputed:= false;
   FLastTextureId:= EmptyTextureId;
+  FLastShapeId:= 0;
 end;
 
 destructor TVectorOriginal.Destroy;
@@ -1151,6 +1303,7 @@ begin
     for i := 0 to FShapes.Count-1 do
       FDeletedShapes.Add(FShapes[i]);
     FShapes.Clear;
+    FLastShapeId:= 0;
     ClearTextures;
     NotifyChange;
   end;
@@ -1215,6 +1368,8 @@ begin
       raise exception.Create('Container mismatch');
   end;
   result:= FShapes.Add(AShape);
+  inc(FLastShapeId);
+  AShape.Id := FLastShapeId;
   texs := AShape.GetUsedTextures;
   for i := 0 to high(texs) do AddTexture(texs[i]);
   AShape.OnChange := @OnShapeChange;
@@ -1310,7 +1465,7 @@ begin
   DeselectShape;
 end;
 
-procedure TVectorOriginal.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
+procedure TVectorOriginal.Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix;
   ADraft: boolean);
 var
   i: Integer;
@@ -1325,9 +1480,13 @@ begin
   end;
   if FFrozenShapesComputed then
   begin
-    ADest.PutImage(0,0,FFrozenShapesUnderSelection, dmSet);
-    FSelectedShape.Render(ADest, AMatrix, ADraft);
-    ADest.PutImage(0,0,FFrozenShapesOverSelection, dmDrawWithTransparency);
+    ADest.PutImage(ARenderOffset.X-FFrozenShapesRenderOffset.X,
+                   ARenderOffset.Y-FFrozenShapesRenderOffset.Y,
+                   FFrozenShapesUnderSelection, dmSet);
+    FSelectedShape.Render(ADest, ARenderOffset, AMatrix, ADraft);
+    ADest.PutImage(ARenderOffset.X-FFrozenShapesRenderOffset.X,
+                   ARenderOffset.Y-FFrozenShapesRenderOffset.Y,
+                   FFrozenShapesOverSelection, dmDrawWithTransparency);
   end else
   begin
     if idxSelected <> -1 then
@@ -1337,26 +1496,28 @@ begin
         FreeAndNil(FFrozenShapesUnderSelection);
         FFrozenShapesUnderSelection := TBGRABitmap.Create(ADest.Width,ADest.Height);
         for i:= 0 to idxSelected-1 do
-          FShapes[i].Render(FFrozenShapesUnderSelection, AMatrix, false);
+          FShapes[i].Render(FFrozenShapesUnderSelection, ARenderOffset, AMatrix, false);
         ADest.PutImage(0,0,FFrozenShapesUnderSelection, dmSet);
       end;
-      FSelectedShape.Render(ADest, AMatrix, ADraft);
+      FSelectedShape.Render(ADest, ARenderOffset, AMatrix, ADraft);
       if idxSelected < FShapes.Count-1 then
       begin
         FreeAndNil(FFrozenShapesOverSelection);
         FFrozenShapesOverSelection := TBGRABitmap.Create(ADest.Width,ADest.Height);
         for i:= idxSelected+1 to FShapes.Count-1 do
-          FShapes[i].Render(FFrozenShapesOverSelection, AMatrix, false);
+          FShapes[i].Render(FFrozenShapesOverSelection, ARenderOffset, AMatrix, false);
         ADest.PutImage(0,0,FFrozenShapesOverSelection, dmDrawWithTransparency);
       end;
+      FFrozenShapesRenderOffset := ARenderOffset;
       FFrozenShapesComputed := true;
       FFrozenShapeMatrix := AMatrix;
     end else
     begin
       for i:= 0 to FShapes.Count-1 do
-        FShapes[i].Render(ADest, AMatrix, ADraft);
+        FShapes[i].Render(ADest, ARenderOffset, AMatrix, ADraft);
     end;
   end;
+  DiscardUnusedRenderStorage;
 end;
 
 procedure TVectorOriginal.ConfigureEditor(AEditor: TBGRAOriginalEditor);
@@ -1397,10 +1558,29 @@ function TVectorOriginal.GetRenderBounds(ADestRect: TRect;
 var
   area, shapeArea: TRectF;
   i: Integer;
+  shapeDir: TBGRACustomOriginalStorage;
+  useStorage: Boolean;
+  iteration: LongInt;
 begin
   area:= EmptyRectF;
+  useStorage := Assigned(RenderStorage) and (RenderStorage.AffineMatrix['last-matrix']=AMatrix);
   for i:= 0 to FShapes.Count-1 do
   begin
+    if useStorage then
+    begin
+      shapeDir := OpenShapeRenderStorage(i, false);
+      if Assigned(shapeDir) then
+      begin
+        iteration := shapeDir.Int['iteration'];
+        if iteration = FShapes[i].FRenderIteration then
+        begin
+          shapeArea := shapeDir.RectangleF['bounds'];
+          area := area.Union(shapeArea, true);
+          shapeDir.Free;
+          continue;
+        end;
+      end;
+    end;
     shapeArea := FShapes[i].GetRenderBounds(ADestRect, AMatrix);
     area := area.Union(shapeArea, true);
   end;
@@ -1467,11 +1647,18 @@ begin
       loadedShape.LoadFromStorage(shapeObj);
       loadedShape.OnChange := @OnShapeChange;
       loadedShape.OnEditingChange := @OnShapeEditingChange;
+      if loadedShape.Id > FLastShapeId then FLastShapeId := loadedShape.Id;
       FShapes.Add(loadedShape);
     finally
       shapeObj.Free;
     end;
   end;
+  for i := 0 to ShapeCount-1 do
+    if Shape[i].Id = 0 then
+    begin
+      inc(FLastShapeId);
+      Shape[i].Id := FLastShapeId;
+    end;
   NotifyChange;
 end;
 

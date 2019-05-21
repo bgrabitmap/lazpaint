@@ -71,7 +71,7 @@ type
     class function StorageClassName: RawByteString; override;
     class function Usermodes: TVectorShapeUsermodes; override;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
-    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
+    procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; override;
     function GetIsSlow({%H-}AMatrix: TAffineMatrix): boolean; override;
@@ -728,7 +728,7 @@ begin
   end;
 end;
 
-procedure TTextShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
+procedure TTextShape.Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix;
   ADraft: boolean);
 var
   zoom: Single;
@@ -741,9 +741,19 @@ var
   tmpSource, tmpTransf, tmpTransfMask: TBGRABitmap;
   scan: TBGRACustomScanner;
   ctx: TBGRACanvas2D;
+  rf: TResampleFilter;
+  storeImage: Boolean;
 begin
+  RetrieveRenderStorage(AMatrix, transfRect, tmpTransf);
+  if Assigned(tmpTransf) then
+  begin
+    ADest.PutImage(transfRect.Left+ARenderOffset.X,transfRect.Top+ARenderOffset.Y, tmpTransf,dmDrawWithTransparency);
+    tmpTransf.Free;
+    exit;
+  end;
+
   if PenFill.IsFullyTransparent and not HasOutline then exit;
-  SetGlobalMatrix(AMatrix);
+  SetGlobalMatrix(AffineMatrixTranslation(ARenderOffset.X,ARenderOffset.Y)*AMatrix);
   zoom := GetTextRenderZoom;
   if zoom = 0 then exit;
   fr := GetFontRenderer;
@@ -757,7 +767,12 @@ begin
   tl := GetTextLayout;
   sourceRectF := RectF(-pad,0,tl.AvailableWidth+pad,min(tl.TotalTextHeight,tl.AvailableHeight));
 
-  destF := RectF(ADest.ClipRect.Left,ADest.ClipRect.Top,ADest.ClipRect.Right,ADest.ClipRect.Bottom);
+  storeImage := not ADraft and CanHaveRenderStorage;
+  if storeImage then
+    destF := rectF(0,0,ADest.Width,ADest.Height)
+  else
+    destF := RectF(ADest.ClipRect.Left,ADest.ClipRect.Top,ADest.ClipRect.Right,ADest.ClipRect.Bottom);
+
   transfRectF := (m*TAffineBox.AffineBox(sourceRectF)).RectBoundsF;
   transfRectF := TRectF.Intersect(transfRectF, destF);
 
@@ -780,17 +795,19 @@ begin
   end;
 
   tl.TopLeft := PointF(-sourceRectF.Left,-sourceRectF.Top);
+  with transfRectF do
+    transfRect := Rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
+
   if HasOutline then
   begin
-    with transfRectF do
-      transfRect := Rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
-
     tmpTransf := TBGRABitmap.Create(transfRect.Width,transfRect.Height);
     ctx := tmpTransf.Canvas2D;
     ctx.transform(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*m);
     ctx.fillMode := fmWinding;
+    ctx.antialiasing:= not ADraft;
     ctx.beginPath;
     tl.PathText(ctx);
+    ctx.resetTransform;
 
     tmpTransfMask := TBGRABitmap.Create(transfRect.Width,transfRect.Height, BGRABlack);
     ctx := tmpTransfMask.Canvas2D;
@@ -843,19 +860,27 @@ begin
     ctx.fill;
 
     tmpTransf.ApplyMask(tmpTransfMask);
-    ADest.PutImage(transfRect.Left, transfRect.Top, tmpTransf, dmDrawWithTransparency);
-
-    tmpTransf.Free;
     tmpTransfMask.Free;
+
+    ADest.PutImage(transfRect.Left, transfRect.Top, tmpTransf, dmDrawWithTransparency);
   end else
   begin
+    if ADraft then rf := rfBox else rf := rfHalfCosine;
+    if storeImage then
+      tmpTransf := TBGRABitmap.Create(transfRect.Width,transfRect.Height)
+    else
+      tmpTransf := nil;
+
     if PenFill.FillType = vftSolid then
     begin
       tmpSource := TBGRABitmap.Create(round(sourceRectF.Width),ceil(sourceRectF.Height));
       tl.DrawText(tmpSource,PenFill.SolidColor);
       if frac(sourceRectF.Height) > 0 then
         tmpSource.EraseLine(0,floor(sourceRectF.Height),tmpSource.Width,floor(sourceRectF.Height), round((1-frac(sourceRectF.Height))*255), false);
-      ADest.PutImageAffine(m, tmpSource, rfHalfCosine, dmDrawWithTransparency, 255, false);
+      if assigned(tmpTransf) then
+        tmpTransf.PutImageAffine(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*m, tmpSource, rf, dmDrawWithTransparency, 255, false)
+      else
+        ADest.PutImageAffine(m, tmpSource, rf, dmDrawWithTransparency, 255, false);
       tmpSource.Free;
     end
     else
@@ -867,19 +892,33 @@ begin
         tmpSource.DrawLine(0,floor(sourceRectF.Height),tmpSource.Width,floor(sourceRectF.Height), BGRA(0,0,0,round((1-frac(sourceRectF.Height))*255)), false);
       tmpSource.ConvertToLinearRGB;
 
-      with transfRectF do
-        transfRect := Rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
       tmpTransfMask := TBGRABitmap.Create(transfRect.Width,transfRect.Height,BGRABlack);
       tmpTransfMask.PutImageAffine(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*m,
-                               tmpSource, rfHalfCosine, dmDrawWithTransparency, 255, false);
+                               tmpSource, rf, dmDrawWithTransparency, 255, false);
       tmpSource.Free;
 
-      scan := PenFill.CreateScanner(FGlobalMatrix, ADraft);
-      ADest.FillMask(transfRect.Left, transfRect.Top, tmpTransfMask, scan, dmDrawWithTransparency);
+      if Assigned(tmpTransf) then
+      begin
+        scan := PenFill.CreateScanner(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*FGlobalMatrix, ADraft);
+        tmpTransf.FillMask(0, 0, tmpTransfMask, scan, dmDrawWithTransparency)
+      end
+      else
+      begin
+        scan := PenFill.CreateScanner(FGlobalMatrix, ADraft);
+        ADest.FillMask(transfRect.Left, transfRect.Top, tmpTransfMask, scan, dmDrawWithTransparency);
+      end;
       scan.Free;
       tmpTransfMask.Free;
     end;
+
+    if Assigned(tmpTransf) then
+      ADest.PutImage(transfRect.Left, transfRect.Top, tmpTransf, dmDrawWithTransparency);
   end;
+
+  transfRect.Offset(-ARenderOffset.X,-ARenderOffset.Y);
+  if storeImage then UpdateRenderStorage(transfRect, tmpTransf)
+  else UpdateRenderStorage(transfRect);
+  tmpTransf.Free;
 end;
 
 function TTextShape.GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix;
