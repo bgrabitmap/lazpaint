@@ -14,6 +14,7 @@ uses
   LCVectorialFillControl, LCVectorialFill;
 
 const
+  RenderDelayMs = 100; //minimum delay between the end of the last rendering and the beginning of the next rendering
   ToolIconSize = 36;
   ActionIconSize = 24;
   EditorPointSize = 7;
@@ -61,6 +62,7 @@ type
     ShapeBringToFront: TAction;
     ShapeMoveDown: TAction;
     ShapeMoveUp: TAction;
+    DelayedRenderTimer: TTimer;
     ToolBarBackFill: TToolBar;
     ToolBarOutlineFill: TToolBar;
     ToolBarPenFill: TToolBar;
@@ -126,6 +128,7 @@ type
     procedure BGRAVirtualScreen1Exit(Sender: TObject);
     procedure BGRAVirtualScreen1MouseWheel(Sender: TObject; {%H-}Shift: TShiftState;
       WheelDelta: Integer; {%H-}MousePos: TPoint; var {%H-}Handled: Boolean);
+    procedure DelayedRenderTimerTimer(Sender: TObject);
     procedure EditCopyExecute(Sender: TObject);
     procedure EditCutExecute(Sender: TObject);
     procedure EditDeleteExecute(Sender: TObject);
@@ -161,6 +164,8 @@ type
   private
     FSpecialKeyPressed: array[TSpecialKey] of boolean;
     FLastBackspaceOrDel: boolean;
+    FLastRenderDateTime: TDateTime;
+    FNextRenderDraft: boolean;
 
     FPenWidth: single;
     FPenStyle: TBGRAPenStyle;
@@ -226,6 +231,7 @@ type
     procedure SplineToolbarClick(Sender: TObject);
     procedure UpdateViewCursor(ACursor: TOriginalEditorCursor);
     procedure RenderAndUpdate(ADraft: boolean);
+    procedure DoRenderAndUpdate;
     procedure FocusView;
     procedure UpdateFlattenedImage(ARect: TRect; AUpdateView: boolean = true);
     procedure UpdateView(AImageChangeRect: TRect);
@@ -697,6 +703,12 @@ procedure TForm1.BGRAVirtualScreen1MouseWheel(Sender: TObject;
   var Handled: Boolean);
 begin
   zoomFactor := zoomFactor*power(2, WheelDelta/240);
+end;
+
+procedure TForm1.DelayedRenderTimerTimer(Sender: TObject);
+begin
+  DelayedRenderTimer.Enabled:= false;
+  DoRenderAndUpdate;
 end;
 
 procedure TForm1.BCPanelToolbarResize(Sender: TObject);
@@ -1411,11 +1423,34 @@ begin
 end;
 
 procedure TForm1.RenderAndUpdate(ADraft: boolean);
+const
+  MsInDay = 1000*60*60*24;
+  RenderDelayDateTime = RenderDelayMs/MsInDay;
+var
+  nowValue: TDateTime;
+begin
+  nowValue := Now;
+  FNextRenderDraft := ADraft;
+  if (FLastRenderDateTime = 0) or (nowValue - FLastRenderDateTime >= RenderDelayDateTime) then
+  begin
+    DoRenderAndUpdate;
+    DelayedRenderTimer.Enabled := false;
+  end
+  else
+  if not DelayedRenderTimer.Enabled then
+  begin
+    DelayedRenderTimer.Interval:= max(round(RenderDelayMs - (nowValue - FLastRenderDateTime)*MsInDay), 1);
+    DelayedRenderTimer.Enabled := true;
+  end;
+end;
+
+procedure TForm1.DoRenderAndUpdate;
 var
   renderedRect: TRect;
 begin
-  renderedRect := img.RenderOriginalsIfNecessary(ADraft);
+  renderedRect := img.RenderOriginalsIfNecessary(FNextRenderDraft);
   UpdateFlattenedImage(renderedRect);
+  FLastRenderDateTime:= Now;
 end;
 
 procedure TForm1.FocusView;

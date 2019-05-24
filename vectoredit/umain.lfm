@@ -40021,4 +40021,11 @@ object Form1: TForm1
       0000000000000000000000000000
     }
   end
+  object DelayedRenderTimer: TTimer
+    Enabled = False
+    Interval = 500
+    OnTimer = DelayedRenderTimerTimer
+    left = 208
+    top = 160
+  end
 end
