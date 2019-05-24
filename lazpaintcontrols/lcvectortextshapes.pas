@@ -531,11 +531,11 @@ begin
   begin
     if (newPos <> FSelEnd) or (not AExtend and (FSelStart <> FSelEnd)) or (UserMode <> vsuEditText) then
     begin
-      BeginUpdate;
+      BeginEditingUpdate;
       FSelEnd:= newPos;
       if not AExtend or (UserMode <> vsuEditText) then FSelStart:= FSelEnd;
       UserMode := vsuEditText;
-      EndUpdate;
+      EndEditingUpdate;
     end;
   end;
 end;
@@ -1021,18 +1021,18 @@ begin
     tl := GetTextLayout;
     if (Key = skLeft) xor tl.ParagraphRightToLeft[tl.GetParagraphAt(FSelEnd)] then
     begin
-      BeginUpdate;
+      BeginEditingUpdate;
       if FSelEnd > 0 then
         Dec(FSelEnd, tl.IncludeNonSpacingCharsBefore(FSelEnd,1) );
       if not (ssShift in Shift) then FSelStart := FSelEnd;
-      EndUpdate;
+      EndEditingUpdate;
     end else
     begin
-      BeginUpdate;
+      BeginEditingUpdate;
       if FSelEnd < tl.CharCount then
         Inc(FSelEnd, tl.IncludeNonSpacingChars(FSelEnd,1) );
       if not (ssShift in Shift) then FSelStart := FSelEnd;
-      EndUpdate;
+      EndEditingUpdate;
     end;
     AHandled := true;
   end else
@@ -1045,17 +1045,17 @@ begin
       newPos := tl.FindTextBelow(FSelEnd);
     if (newPos <> -1) or (not (ssShift in Shift) and (FSelStart <> FSelEnd)) then
     begin
-      BeginUpdate;
+      BeginEditingUpdate;
       FSelEnd := newPos;
       if not (ssShift in Shift) then FSelStart := FSelEnd;
-      EndUpdate;
+      EndEditingUpdate;
     end;
     AHandled:= true;
   end else
   if Key = skHome then
   begin
     tl := GetTextLayout;
-    BeginUpdate;
+    BeginEditingUpdate;
     if ssCtrl in Shift then
       FSelEnd := 0
     else
@@ -1064,13 +1064,13 @@ begin
       FSelEnd := tl.ParagraphStartIndex[idxPara];
     end;
     if not (ssShift in Shift) then FSelStart := FSelEnd;
-    EndUpdate;
+    EndEditingUpdate;
     AHandled := true;
   end else
   if Key = skEnd then
   begin
     tl := GetTextLayout;
-    BeginUpdate;
+    BeginEditingUpdate;
     if ssCtrl in Shift then
       FSelEnd := tl.CharCount
     else
@@ -1079,7 +1079,7 @@ begin
       FSelEnd := tl.ParagraphEndIndexBeforeParagraphSeparator[idxPara];
     end;
     if not (ssShift in Shift) then FSelStart := FSelEnd;
-    EndUpdate;
+    EndEditingUpdate;
     AHandled := true;
   end else
   if Key = skReturn then
@@ -1127,10 +1127,10 @@ begin
   end else
   if (Key = skA) and (ssCtrl in Shift) then
   begin
-    BeginUpdate;
+    BeginEditingUpdate;
     FSelStart:= 0;
     FSelEnd:= GetTextLayout.CharCount;
-    EndUpdate;
+    EndEditingUpdate;
   end;
 end;
 

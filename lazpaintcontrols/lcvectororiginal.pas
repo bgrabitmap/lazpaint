@@ -36,7 +36,7 @@ type
     FRenderIteration: integer; // increased at each BeginUpdate
     FOnChange: TShapeChangeEvent;
     FOnEditingChange: TShapeEditingChangeEvent;
-    FUpdateCount: integer;
+    FUpdateCount, FUpdateEditingCount: integer;
     FBoundsBeforeUpdate: TRectF;
     FPenFill, FBackFill, FOutlineFill: TVectorialFill;
     FPenWidth: single;
@@ -53,6 +53,8 @@ type
   protected
     procedure BeginUpdate;
     procedure EndUpdate;
+    procedure BeginEditingUpdate;
+    procedure EndEditingUpdate;
     procedure DoOnChange; virtual;
     function GetPenColor: TBGRAPixel; virtual;
     function GetPenWidth: single; virtual;
@@ -541,8 +543,9 @@ end;
 procedure TVectorShape.SetUsermode(AValue: TVectorShapeUsermode);
 begin
   if FUsermode=AValue then Exit;
+  BeginEditingUpdate;
   FUsermode:=AValue;
-  if Assigned(FOnEditingChange) then FOnEditingChange(self);
+  EndEditingUpdate;
 end;
 
 procedure TVectorShape.LoadFill(AStorage: TBGRACustomOriginalStorage;
@@ -751,16 +754,34 @@ begin
     FBoundsBeforeUpdate := GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
     Inc(FRenderIteration);
   end;
-  FUpdateCount += 1;
+  inc(FUpdateCount);
 end;
 
 procedure TVectorShape.EndUpdate;
 begin
   if FUpdateCount > 0 then
   begin
-    FUpdateCount -= 1;
+    dec(FUpdateCount);
     if FUpdateCount = 0 then
       DoOnChange;
+  end;
+end;
+
+procedure TVectorShape.BeginEditingUpdate;
+begin
+  inc(FUpdateEditingCount);
+end;
+
+procedure TVectorShape.EndEditingUpdate;
+begin
+  if FUpdateEditingCount > 0 then
+  begin
+    dec(FUpdateEditingCount);
+    if FUpdateEditingCount = 0 then
+    begin
+      if Assigned(FOnEditingChange) then
+        FOnEditingChange(self);
+    end;
   end;
 end;
 
