@@ -587,13 +587,29 @@ begin
   BeginUpdate;
   inherited LoadFromStorage(AStorage);
   Text := AStorage.RawString['text'];
-  Font := AStorage.OpenObject('font');
+  font := AStorage.OpenObject('font');
   if Assigned(font) then
   begin
-    FontName:= AStorage.RawString['name'];
-    FontEmHeight:= AStorage.FloatDef['em-height', DefaultFontEmHeight];
-    FontBidiMode:= StrToFontBidiMode(AStorage.RawString['bidi']);
-    FontStyle:= StrToFontStyle(AStorage.RawString['style']);
+    if font.HasAttribute('name') then
+      FontName:= font.RawString['name']
+    else
+      FontName:= AStorage.RawString['name']; //compatibility
+    if fontName = '' then fontName := DefaultFontName;
+
+    if font.HasAttribute('em-height') then
+      FontEmHeight:= font.FloatDef['em-height', DefaultFontEmHeight]
+    else
+      FontEmHeight:= AStorage.FloatDef['em-height', DefaultFontEmHeight]; //compatibility
+
+    if Font.HasAttribute('bidi') then
+      FontBidiMode:= StrToFontBidiMode(font.RawString['bidi'])
+    else
+      FontBidiMode:= StrToFontBidiMode(AStorage.RawString['bidi']); //compatibility
+
+    if font.HasAttribute('style') then
+      FontStyle:= StrToFontStyle(font.RawString['style'])
+    else
+      FontStyle:= StrToFontStyle(AStorage.RawString['style']); //compatibility
     font.Free;
   end else
     SetDefaultFont;
@@ -627,15 +643,16 @@ begin
   AStorage.RawString['text'] := Text;
   font := AStorage.OpenObject('font');
   if font = nil then font := AStorage.CreateObject('font');
-  AStorage.RawString['name'] := FontName;
-  AStorage.Float['em-height'] := FontEmHeight;
-  AStorage.RawString['bidi'] := FontBidiModeToStr(FontBidiMode);
-  AStorage.RawString['style'] := FontStyleToStr(FontStyle);
+  font.RawString['name'] := FontName;
+  font.Float['em-height'] := FontEmHeight;
+  font.RawString['bidi'] := FontBidiModeToStr(FontBidiMode);
+  font.RawString['style'] := FontStyleToStr(FontStyle);
+  font.Free;
+
   if OutlineFill.FillType <> vftNone then
     AStorage.Float['outline-width'] := FOutlineWidth
   else
     AStorage.RemoveAttribute('outline-width');
-  font.Free;
 
   tl := GetTextLayout;
   paraAlignList := TStringList.Create;
