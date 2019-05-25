@@ -18,7 +18,6 @@ type
     FFontEmHeight: single;
     FFontName: string;
     FFontStyle: TFontStyles;
-    FOutlineWidth: single;
     FText: string;
     FSelStart,FSelEnd: integer;
     FMouseSelecting: boolean;
@@ -30,7 +29,6 @@ type
     procedure SetFontName(AValue: string);
     procedure SetFontStyle(AValue: TFontStyles);
     procedure SetBidiParagraphAlignment(AValue: TBidiTextAlignment);
-    procedure SetOutlineWidth(AValue: single);
     procedure SetParagraphAlignment(AValue: TAlignment);
     procedure SetText(AValue: string);
     procedure SetVertAlign(AValue: TTextLayout);
@@ -89,7 +87,6 @@ type
     property BidiParagraphAlignment: TBidiTextAlignment read GetBidiParagraphAlignment write SetBidiParagraphAlignment;
     property ParagraphAlignment: TAlignment read GetParagraphAlignment write SetParagraphAlignment;
     property VerticalAlignment: TTextLayout read FVertAlign write SetVertAlign;
-    property OutlineWidth: single read FOutlineWidth write SetOutlineWidth;
   end;
 
 function FontStyleToStr(AStyle: TFontStyles): string;
@@ -247,15 +244,6 @@ begin
     tl.ParagraphAlignment[i] := AValue;
   end;
   if needUpdate then EndUpdate;
-end;
-
-procedure TTextShape.SetOutlineWidth(AValue: single);
-begin
-  if AValue < 0 then AValue := 0;
-  if FOutlineWidth=AValue then Exit;
-  BeginUpdate;
-  FOutlineWidth:=AValue;
-  EndUpdate;
 end;
 
 procedure TTextShape.SetParagraphAlignment(AValue: TAlignment);
@@ -554,7 +542,6 @@ begin
   FSelStart := 0;
   FSelEnd := 0;
   FGlobalMatrix := AffineMatrixIdentity;
-  FOutlineWidth := 2;
 end;
 
 procedure TTextShape.QuickDefine(const APoint1, APoint2: TPointF);
@@ -614,8 +601,6 @@ begin
   end else
     SetDefaultFont;
 
-  OutlineWidth := AStorage.FloatDef['outline-width', 2];
-
   tl := GetTextLayout;
   paraAlignList := TStringList.Create;
   paraAlignList.DelimitedText:= AStorage.RawString['paragraph-align'];
@@ -648,11 +633,6 @@ begin
   font.RawString['bidi'] := FontBidiModeToStr(FontBidiMode);
   font.RawString['style'] := FontStyleToStr(FontStyle);
   font.Free;
-
-  if OutlineFill.FillType <> vftNone then
-    AStorage.Float['outline-width'] := FOutlineWidth
-  else
-    AStorage.RemoveAttribute('outline-width');
 
   tl := GetTextLayout;
   paraAlignList := TStringList.Create;

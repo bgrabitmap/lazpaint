@@ -11,6 +11,7 @@ uses
 const
   InfiniteRect : TRect = (Left: -MaxLongInt; Top: -MaxLongInt; Right: MaxLongInt; Bottom: MaxLongInt);
   EmptyTextureId = 0;
+  DefaultShapeOutlineWidth = 2;
 
 type
   TVectorOriginal = class;
@@ -40,6 +41,7 @@ type
     FBoundsBeforeUpdate: TRectF;
     FPenFill, FBackFill, FOutlineFill: TVectorialFill;
     FPenWidth: single;
+    FOutlineWidth: single;
     FStroker: TBGRAPenStroker;
     FUsermode: TVectorShapeUsermode;
     FContainer: TVectorOriginal;
@@ -50,6 +52,7 @@ type
     function GetFill(var AFillVariable: TVectorialFill): TVectorialFill;
     procedure SetFill(var AFillVariable: TVectorialFill; AValue: TVectorialFill);
     procedure SetId(AValue: integer);
+    procedure SetOutlineWidth(AValue: single);
   protected
     procedure BeginUpdate;
     procedure EndUpdate;
@@ -121,6 +124,7 @@ type
     property OutlineFill: TVectorialFill read GetOutlineFill write SetOutlineFill;
     property PenWidth: single read GetPenWidth write SetPenWidth;
     property PenStyle: TBGRAPenStyle read GetPenStyle write SetPenStyle;
+    property OutlineWidth: single read FOutlineWidth write SetOutlineWidth;
     property JoinStyle: TPenJoinStyle read GetJoinStyle write SetJoinStyle;
     property Usermode: TVectorShapeUsermode read FUsermode write SetUsermode;
     property Container: TVectorOriginal read FContainer write SetContainer;
@@ -727,6 +731,15 @@ begin
   FId:=AValue;
 end;
 
+procedure TVectorShape.SetOutlineWidth(AValue: single);
+begin
+  if AValue < 0 then AValue := 0;
+  if FOutlineWidth=AValue then Exit;
+  BeginUpdate;
+  FOutlineWidth:=AValue;
+  EndUpdate;
+end;
+
 procedure TVectorShape.SetOutlineFill(AValue: TVectorialFill);
 begin
   SetFill(FOutlineFill, AValue);
@@ -955,6 +968,7 @@ begin
   FContainer := AContainer;
   FPenFill := nil;
   FPenWidth := 1;
+  FOutlineWidth := 2;
   FStroker := nil;
   FOnChange := nil;
   FOnEditingChange := nil;
@@ -1015,7 +1029,11 @@ begin
       else JoinStyle := pjsMiter;
       end;
     if vsfBackFill in f then LoadFill(AStorage, 'back', FBackFill);
-    if vsfOutlineFill in f then LoadFill(AStorage, 'outline', FOutlineFill);
+    if vsfOutlineFill in f then
+    begin
+      LoadFill(AStorage, 'outline', FOutlineFill);
+      OutlineWidth := AStorage.FloatDef['outline-width', 2];
+    end;
     EndUpdate;
   end;
 end;
@@ -1037,7 +1055,14 @@ begin
     else AStorage.RawString['join-style'] := 'miter';
     end;
   if vsfBackFill in f then SaveFill(AStorage, 'back', FBackFill);
-  if vsfOutlineFill in f then SaveFill(AStorage, 'outline', FOutlineFill);
+  if vsfOutlineFill in f then
+  begin
+    SaveFill(AStorage, 'outline', FOutlineFill);
+    if OutlineFill.FillType <> vftNone then
+      AStorage.Float['outline-width'] := FOutlineWidth
+    else
+      AStorage.RemoveAttribute('outline-width');
+  end;
 end;
 
 procedure TVectorShape.MouseMove(Shift: TShiftState; X, Y: single; var
