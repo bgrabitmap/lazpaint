@@ -968,7 +968,7 @@ begin
   FContainer := AContainer;
   FPenFill := nil;
   FPenWidth := 1;
-  FOutlineWidth := 2;
+  FOutlineWidth := DefaultShapeOutlineWidth;
   FStroker := nil;
   FOnChange := nil;
   FOnEditingChange := nil;
@@ -1032,7 +1032,7 @@ begin
     if vsfOutlineFill in f then
     begin
       LoadFill(AStorage, 'outline', FOutlineFill);
-      OutlineWidth := AStorage.FloatDef['outline-width', 2];
+      OutlineWidth := AStorage.FloatDef['outline-width', DefaultShapeOutlineWidth];
     end;
     EndUpdate;
   end;

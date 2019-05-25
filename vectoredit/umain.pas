@@ -67,6 +67,7 @@ type
     ToolBarOutlineFill: TToolBar;
     ToolBarPenFill: TToolBar;
     ToolButtonTextShape: TToolButton;
+    UpDownOutlineWidth: TBCTrackbarUpdown;
     VectorImageList24: TBGRAImageList;
     ActionList: TActionList;
     EditCopy: TAction;
@@ -147,6 +148,7 @@ type
     procedure ShapeMoveUpExecute(Sender: TObject);
     procedure ShapeSendToBackExecute(Sender: TObject);
     procedure ToolButtonJoinClick(Sender: TObject);
+    procedure UpDownOutlineWidthChange(Sender: TObject; AByUser: boolean);
     procedure UpDownPenWidthChange(Sender: TObject; AByUser: boolean);
     procedure BGRAVirtualScreen1MouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -171,6 +173,8 @@ type
     FPenStyle: TBGRAPenStyle;
     FPenJoinStyle: TPenJoinStyle;
     FPenStyleMenu: TPopupMenu;
+    FOutlineWidth: Single;
+
     FFlattened: TBGRABitmap;
     FLastEditorBounds: TRect;
     FUpdatingFromShape: boolean;
@@ -202,6 +206,7 @@ type
     FFullIconHeight: integer;
     FVectorImageList: TBGRAImageList;
     procedure ComboBoxSplineStyleClick(Sender: TObject);
+    function GetOutlineWidth: single;
     function GetPenStyle: TBGRAPenStyle;
     function GetPenWidth: single;
     function GetSplineStyle: TSplineStyle;
@@ -222,6 +227,7 @@ type
     procedure RequestOutlineFillUpdate(Sender: TObject);
     procedure OnBackFillChange({%H-}ASender: TObject);
     procedure SetCurrentTool(AValue: TPaintTool);
+    procedure SetOutlineWidth(AValue: single);
     procedure SetPenJoinStyle(AValue: TPenJoinStyle);
     procedure SetPenStyle(AValue: TBGRAPenStyle);
     procedure SetPenWidth(AValue: single);
@@ -289,6 +295,7 @@ type
     property vectorTransform: TAffineMatrix read GetVectorTransform;
     property penWidth: single read GetPenWidth write SetPenWidth;
     property penStyle: TBGRAPenStyle read GetPenStyle write SetPenStyle;
+    property outlineWidth: single read GetOutlineWidth write SetOutlineWidth;
     property splineStyle: TSplineStyle read GetSplineStyle write SetSplineStyle;
     property currentTool: TPaintTool read FCurrentTool write SetCurrentTool;
     property joinStyle: TPenJoinStyle read FPenJoinStyle write SetPenJoinStyle;
@@ -439,6 +446,7 @@ begin
   newShape:= nil;
   penWidth := 5;
   penStyle := SolidPenStyle;
+  outlineWidth := DefaultShapeOutlineWidth;
   joinStyle:= pjsBevel;
   currentTool:= ptHand;
   splineStyle:= ssEasyBezier;
@@ -552,6 +560,12 @@ begin
     if Sender = ToolButtonJoinBevel then joinStyle := pjsBevel else
     if Sender = ToolButtonJoinMiter then joinStyle := pjsMiter;
   end;
+end;
+
+procedure TForm1.UpDownOutlineWidthChange(Sender: TObject; AByUser: boolean);
+begin
+  if not AByUser then exit;
+  outlineWidth := UpDownOutlineWidth.Value/10;
 end;
 
 procedure TForm1.EditCopyExecute(Sender: TObject);
@@ -1005,6 +1019,11 @@ begin
   end;
 end;
 
+function TForm1.GetOutlineWidth: single;
+begin
+  result := FOutlineWidth;
+end;
+
 function TForm1.GetPenStyle: TBGRAPenStyle;
 begin
   result := FPenStyle;
@@ -1207,6 +1226,14 @@ begin
   ButtonMovePenFillPoints.Down := FCurrentTool = ptMovePenFillPoint;
   ButtonMoveOutlineFillPoints.Down := FCurrentTool = ptMoveOutlineFillPoint;
   UpdateShapeUserMode;
+end;
+
+procedure TForm1.SetOutlineWidth(AValue: single);
+begin
+  FOutlineWidth := AValue;
+  UpDownOutlineWidth.Value := round(AValue*10);
+  if not FUpdatingFromShape and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+    vectorOriginal.SelectedShape.OutlineWidth:= FOutlineWidth;
 end;
 
 procedure TForm1.SetPenJoinStyle(AValue: TPenJoinStyle);
@@ -1557,7 +1584,11 @@ begin
     if vsfJoinStyle in f then joinStyle:= AShape.JoinStyle;
 
     if vsfBackFill in f then BackFillControl.AssignFill(AShape.BackFill);
-    if vsfOutlineFill in f then OutlineFillControl.AssignFill(AShape.OutlineFill);
+    if vsfOutlineFill in f then
+    begin
+      OutlineFillControl.AssignFill(AShape.OutlineFill);
+      outlineWidth := AShape.OutlineWidth;
+    end;
 
     if AShape is TCurveShape then
       splineStyle:= TCurveShape(AShape).SplineStyle;
@@ -1794,6 +1825,7 @@ begin
     vectorFill := OutlineFillControl.CreateShapeFill(result);
     result.OutlineFill := vectorFill;
     vectorFill.Free;
+    result.OutlineWidth:= outlineWidth;
   end;
 end;
 
