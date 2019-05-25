@@ -805,7 +805,7 @@ var
   imgPtF: TPointF;
   handled: boolean;
   cur: TOriginalEditorCursor;
-  addedShape: TVectorShape;
+  addedShape, curShape: TVectorShape;
 begin
   mouseState:= Shift;
   imgPtF := VirtualScreenToImgCoord(X,Y);
@@ -854,6 +854,17 @@ begin
         FreeAndNil(newShape);
         ShowMessage('Shape is empty and was not added');
       end;
+    end;
+  end;
+
+  if Assigned(vectorOriginal) and
+     Assigned(vectorOriginal.SelectedShape) then
+  begin
+    curShape := vectorOriginal.SelectedShape;
+    case currentTool of
+      ptMoveBackFillPoint: if curShape.Usermode <> vsuEditBackFill then currentTool := ptHand;
+      ptMovePenFillPoint: if curShape.Usermode <> vsuEditPenFill then currentTool := ptHand;
+      ptMoveOutlineFillPoint: if curShape.Usermode <> vsuEditOutlineFill then currentTool := ptHand;
     end;
   end;
 end;
