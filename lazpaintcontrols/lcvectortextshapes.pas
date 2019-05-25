@@ -14,21 +14,29 @@ type
 
   TTextShape = class(TCustomRectShape)
   private
+    FAltitudePercent: single;
+    FPenPhong: boolean;
     FFontBidiMode: TFontBidiMode;
     FFontEmHeight: single;
     FFontName: string;
     FFontStyle: TFontStyles;
+    FLightPosition: TPointF;
     FText: string;
     FSelStart,FSelEnd: integer;
     FMouseSelecting: boolean;
     FVertAlign: TTextLayout;
     function GetBidiParagraphAlignment: TBidiTextAlignment;
     function GetParagraphAlignment: TAlignment;
+    procedure OnMoveLightPos({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF;
+      {%H-}AShift: TShiftState);
+    procedure SetAltitudePercent(AValue: single);
+    procedure SetPenPhong(AValue: boolean);
     procedure SetFontBidiMode(AValue: TFontBidiMode);
     procedure SetFontEmHeight(AValue: single);
     procedure SetFontName(AValue: string);
     procedure SetFontStyle(AValue: TFontStyles);
     procedure SetBidiParagraphAlignment(AValue: TBidiTextAlignment);
+    procedure SetLightPosition(AValue: TPointF);
     procedure SetParagraphAlignment(AValue: TAlignment);
     procedure SetText(AValue: string);
     procedure SetVertAlign(AValue: TTextLayout);
@@ -65,6 +73,7 @@ type
     class function PreferPixelCentered: boolean; override;
     class function DefaultFontName: string;
     class function DefaultFontEmHeight: single;
+    class function DefaultAltitudePercent: single;
     class function CreateEmpty: boolean; override;
     class function StorageClassName: RawByteString; override;
     class function Usermodes: TVectorShapeUsermodes; override;
@@ -87,6 +96,9 @@ type
     property BidiParagraphAlignment: TBidiTextAlignment read GetBidiParagraphAlignment write SetBidiParagraphAlignment;
     property ParagraphAlignment: TAlignment read GetParagraphAlignment write SetParagraphAlignment;
     property VerticalAlignment: TTextLayout read FVertAlign write SetVertAlign;
+    property PenPhong: boolean read FPenPhong write SetPenPhong;
+    property LightPosition: TPointF read FLightPosition write SetLightPosition;
+    property AltitudePercent: single read FAltitudePercent write SetAltitudePercent;
   end;
 
 function FontStyleToStr(AStyle: TFontStyles): string;
@@ -98,7 +110,8 @@ function StrToFontBidiMode(AText: string): TFontBidiMode;
 implementation
 
 uses BGRATransform, BGRAText, BGRAVectorize, LCVectorialFill, math,
-  BGRAUTF8, BGRAUnicode, Graphics, Clipbrd, LCLType, LCLIntf;
+  BGRAUTF8, BGRAUnicode, Graphics, Clipbrd, LCLType, LCLIntf,
+  BGRAGradients, BGRACustomTextFX;
 
 function FontStyleToStr(AStyle: TFontStyles): string;
 begin
@@ -189,6 +202,30 @@ begin
   end;
 end;
 
+procedure TTextShape.OnMoveLightPos(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  LightPosition := ANewCoord;
+end;
+
+procedure TTextShape.SetAltitudePercent(AValue: single);
+begin
+  if AValue < 0 then AValue := 0;
+  if AValue > 100 then AValue := 100;
+  if FAltitudePercent=AValue then Exit;
+  BeginUpdate;
+  FAltitudePercent:=AValue;
+  EndUpdate;
+end;
+
+procedure TTextShape.SetPenPhong(AValue: boolean);
+begin
+  if FPenPhong=AValue then Exit;
+  BeginUpdate;
+  FPenPhong:=AValue;
+  EndUpdate;
+end;
+
 procedure TTextShape.SetFontEmHeight(AValue: single);
 begin
   if FFontEmHeight=AValue then Exit;
@@ -244,6 +281,14 @@ begin
     tl.ParagraphAlignment[i] := AValue;
   end;
   if needUpdate then EndUpdate;
+end;
+
+procedure TTextShape.SetLightPosition(AValue: TPointF);
+begin
+  if FLightPosition=AValue then Exit;
+  BeginUpdate;
+  FLightPosition:=AValue;
+  EndUpdate;
 end;
 
 procedure TTextShape.SetParagraphAlignment(AValue: TAlignment);
@@ -542,6 +587,9 @@ begin
   FSelStart := 0;
   FSelEnd := 0;
   FGlobalMatrix := AffineMatrixIdentity;
+  FPenPhong:= false;
+  FAltitudePercent:= DefaultAltitudePercent;
+  FLightPosition := PointF(0,0);
 end;
 
 procedure TTextShape.QuickDefine(const APoint1, APoint2: TPointF);
@@ -565,7 +613,7 @@ end;
 
 procedure TTextShape.LoadFromStorage(AStorage: TBGRACustomOriginalStorage);
 var
-  font: TBGRACustomOriginalStorage;
+  font, phongObj: TBGRACustomOriginalStorage;
   tl: TBidiTextLayout;
   paraAlignList: TStringList;
   i: Integer;
@@ -601,6 +649,19 @@ begin
   end else
     SetDefaultFont;
 
+  phongObj := AStorage.OpenObject('pen-phong');
+  PenPhong := Assigned(phongObj);
+  if PenPhong then
+  begin
+    LightPosition := phongObj.PointF['light-pos'];
+    AltitudePercent:= phongObj.FloatDef['altitude-percent', DefaultAltitudePercent];
+    phongObj.Free;
+  end else
+  begin
+    LightPosition := PointF(0,0);
+    AltitudePercent:= DefaultAltitudePercent;
+  end;
+
   tl := GetTextLayout;
   paraAlignList := TStringList.Create;
   paraAlignList.DelimitedText:= AStorage.RawString['paragraph-align'];
@@ -619,7 +680,7 @@ end;
 
 procedure TTextShape.SaveToStorage(AStorage: TBGRACustomOriginalStorage);
 var
-  font: TBGRACustomOriginalStorage;
+  font, phongObj: TBGRACustomOriginalStorage;
   tl: TBidiTextLayout;
   paraAlignList: TStringList;
   i: Integer;
@@ -633,6 +694,16 @@ begin
   font.RawString['bidi'] := FontBidiModeToStr(FontBidiMode);
   font.RawString['style'] := FontStyleToStr(FontStyle);
   font.Free;
+
+  if PenPhong then
+  begin
+    phongObj := AStorage.OpenObject('pen-phong');
+    if phongObj=nil then phongObj := AStorage.CreateObject('pen-phong');
+    phongObj.PointF['light-pos'] := LightPosition;
+    phongObj.Float['altitude-percent'] := AltitudePercent;
+    phongObj.Free;
+  end else
+    AStorage.RemoveObject('pen-phong');
 
   tl := GetTextLayout;
   paraAlignList := TStringList.Create;
@@ -676,6 +747,11 @@ begin
   result := 20;
 end;
 
+class function TTextShape.DefaultAltitudePercent: single;
+begin
+  result := 30;
+end;
+
 class function TTextShape.CreateEmpty: boolean;
 begin
   Result:= true;
@@ -688,7 +764,7 @@ var
   m: TAffineMatrix;
   tl: TBidiTextLayout;
   pts: Array Of TPointF;
-  i: Integer;
+  i, idxLight: Integer;
   c: TBGRAPixel;
   zoom: Single;
 begin
@@ -723,10 +799,32 @@ begin
         AEditor.AddPolyline([m*caret.Bottom,m*caret.Top],false, opsSolid);
     end;
   end;
+  if PenPhong then
+  begin
+    idxLight := AEditor.AddPoint(FLightPosition, @OnMoveLightPos, true);
+    if AEditor is TVectorOriginalEditor then
+      TVectorOriginalEditor(AEditor).AddLabel(idxLight, 'Light position', taCenter, tlTop);
+  end;
 end;
 
 procedure TTextShape.Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix;
   ADraft: boolean);
+
+  function GetTextPhongHeight: integer;
+  begin
+    result := round(AltitudePercent/100 * FontEmHeight*0.15);
+  end;
+
+  function CreateShader(AOfsX,AOfsY: integer): TPhongShading;
+  begin
+    result := TPhongShading.Create;
+    result.AmbientFactor := 0.6;
+    result.NegativeDiffusionFactor := 0.15;
+    result.LightPosition := Point(round(LightPosition.x)+AOfsX+ARenderOffset.X,
+                                  round(LightPosition.y)+AOfsY+ARenderOffset.Y);
+    result.LightPositionZ := round(max(AltitudePercent, 1.2*GetTextPhongHeight));
+  end;
+
 var
   zoom: Single;
   m: TAffineMatrix;
@@ -740,6 +838,8 @@ var
   ctx: TBGRACanvas2D;
   rf: TResampleFilter;
   storeImage: Boolean;
+  shader: TPhongShading;
+  textFx: TBGRACustomTextEffect;
 begin
   RetrieveRenderStorage(AMatrix, transfRect, tmpTransf);
   if Assigned(tmpTransf) then
@@ -768,7 +868,16 @@ begin
   if storeImage then
     destF := rectF(0,0,ADest.Width,ADest.Height)
   else
+  begin
     destF := RectF(ADest.ClipRect.Left,ADest.ClipRect.Top,ADest.ClipRect.Right,ADest.ClipRect.Bottom);
+    if PenPhong then
+    begin
+      destF.Left -= 1;
+      destF.Top -= 1;
+      destF.Right += 1;
+      destF.Bottom += 1;
+    end;
+  end;
 
   transfRectF := (m*TAffineBox.AffineBox(sourceRectF)).RectBoundsF;
   transfRectF := TRectF.Intersect(transfRectF, destF);
@@ -811,6 +920,19 @@ begin
     ctx.linearBlend:= true;
     ctx.transform(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*m);
 
+    if PenPhong and not PenFill.IsFullyTransparent then
+    begin
+      ctx := tmpTransf.Canvas2D;
+      tmpTransf.Fill(BGRABlack);
+      ctx.linearBlend:= true;
+      ctx.fillStyle(BGRAWhite);
+      ctx.fill;
+      textFx := TBGRACustomTextEffect.Create(tmpTransf, false, tmpTransf.Width,tmpTransf.Height, Point(0,0));
+      tmpTransf.FillTransparent;
+      ctx.linearBlend:= false
+    end else
+      textFx := nil;
+
     if OutLineFill.FillType <> vftNone then
     begin
       ctx := tmpTransf.Canvas2D;
@@ -832,6 +954,15 @@ begin
       end;
     end;
 
+    if Assigned(textFx) then
+    begin
+      scan := PenFill.CreateScanner(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*FGlobalMatrix, ADraft);
+      shader:= CreateShader(-transfRect.Left, -transfRect.Top);
+      textFx.DrawShaded(tmpTransf, 0,0, shader, GetTextPhongHeight, scan);
+      shader.Free;
+      scan.Free;
+      textFx.Free;
+    end else
     if not PenFill.IsFullyTransparent then
     begin
       ctx := tmpTransf.Canvas2D;
@@ -868,7 +999,7 @@ begin
     else
       tmpTransf := nil;
 
-    if PenFill.FillType = vftSolid then
+    if not PenPhong and (PenFill.FillType = vftSolid) then
     begin
       tmpSource := TBGRABitmap.Create(round(sourceRectF.Width),ceil(sourceRectF.Height));
       tl.DrawText(tmpSource,PenFill.SolidColor);
@@ -884,10 +1015,10 @@ begin
     if PenFill.FillType <> vftNone then
     begin
       tmpSource := TBGRABitmap.Create(round(sourceRectF.Width),ceil(sourceRectF.Height),BGRABlack);
+      tmpSource.LinearAntialiasing:= true;
       tl.DrawText(tmpSource,BGRAWhite);
       if frac(sourceRectF.Height) > 0 then
         tmpSource.DrawLine(0,floor(sourceRectF.Height),tmpSource.Width,floor(sourceRectF.Height), BGRA(0,0,0,round((1-frac(sourceRectF.Height))*255)), false);
-      tmpSource.ConvertToLinearRGB;
 
       tmpTransfMask := TBGRABitmap.Create(transfRect.Width,transfRect.Height,BGRABlack);
       tmpTransfMask.PutImageAffine(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*m,
@@ -897,12 +1028,28 @@ begin
       if Assigned(tmpTransf) then
       begin
         scan := PenFill.CreateScanner(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*FGlobalMatrix, ADraft);
-        tmpTransf.FillMask(0, 0, tmpTransfMask, scan, dmDrawWithTransparency)
+        if PenPhong then
+        begin
+          shader:= CreateShader(-transfRect.Left, -transfRect.Top);
+          textFx := TBGRACustomTextEffect.Create(tmpTransfMask, false, tmpTransfMask.Width,tmpTransfMask.Height, Point(0,0));
+          textFx.DrawShaded(tmpTransf, 0,0, shader, GetTextPhongHeight, scan);
+          textFx.Free;
+          shader.Free;
+        end else
+          tmpTransf.FillMask(0, 0, tmpTransfMask, scan, dmDrawWithTransparency)
       end
       else
       begin
         scan := PenFill.CreateScanner(FGlobalMatrix, ADraft);
-        ADest.FillMask(transfRect.Left, transfRect.Top, tmpTransfMask, scan, dmDrawWithTransparency);
+        if PenPhong then
+        begin
+          shader:= CreateShader(0,0);
+          textFx := TBGRACustomTextEffect.Create(tmpTransfMask, false, tmpTransfMask.Width,tmpTransfMask.Height, Point(0,0));
+          textFx.DrawShaded(ADest, transfRect.Left, transfRect.Top, shader, GetTextPhongHeight, scan);
+          textFx.Free;
+          shader.Free;
+        end else
+          ADest.FillMask(transfRect.Left, transfRect.Top, tmpTransfMask, scan, dmDrawWithTransparency);
       end;
       scan.Free;
       tmpTransfMask.Free;

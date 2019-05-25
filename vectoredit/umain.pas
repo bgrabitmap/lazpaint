@@ -201,6 +201,8 @@ type
     FTextAlignButton: array[TAlignment] of TToolButton;
     FTextDirection: TFontBidiMode;
     FTextDirectionMenu: TPopupMenu;
+    FTextPenPhong: boolean;
+    FTextAltitudePercent: single;
 
     FInRemoveShapeIfEmpty: Boolean;
     FFullIconHeight: integer;
@@ -222,6 +224,7 @@ type
     procedure OnPhongShapeAltitudeChange(Sender: TObject; AByUser: boolean);
     procedure OnSelectShape(ASender: TObject; AShape: TVectorShape; APreviousShape: TVectorShape);
     procedure OnClickPenStyle(ASender: TObject);
+    procedure OnTextAltitudePercentChange(Sender: TObject; AByUser: boolean);
     procedure PhongShapeKindClick(Sender: TObject);
     procedure RequestBackFillUpdate(Sender: TObject);
     procedure RequestOutlineFillUpdate(Sender: TObject);
@@ -235,6 +238,7 @@ type
     procedure SetSplineStyle(AValue: TSplineStyle);
     procedure SetZoomFactor(AValue: single);
     procedure SplineToolbarClick(Sender: TObject);
+    procedure TextPenPhongClick(Sender: TObject);
     procedure UpdateViewCursor(ACursor: TOriginalEditorCursor);
     procedure RenderAndUpdate(ADraft: boolean);
     procedure DoRenderAndUpdate;
@@ -457,6 +461,8 @@ begin
   FTextFontName := TTextShape.DefaultFontName;
   FTextFontStyle:= [];
   FTextFontHeight:= TTextShape.DefaultFontEmHeight;
+  FTextPenPhong:= false;
+  FTextAltitudePercent:= TTextShape.DefaultAltitudePercent;
   UpdateTitleBar;
   UpdateBackToolFillPoints;
   UpdatePenToolFillPoints;
@@ -1168,6 +1174,19 @@ begin
   end;
 end;
 
+procedure TForm1.OnTextAltitudePercentChange(Sender: TObject; AByUser: boolean);
+begin
+  if AByUser then
+  begin
+    FTextAltitudePercent:= TBCTrackbarUpdown(Sender).Value;
+    if not FUpdatingFromShape and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+    begin
+      if vectorOriginal.SelectedShape is TTextShape then
+        TTextShape(vectorOriginal.SelectedShape).AltitudePercent:= FTextAltitudePercent;
+    end;
+  end;
+end;
+
 procedure TForm1.OnTextFontHeightChange(Sender: TObject; AByUser: boolean);
 begin
   if AByUser then
@@ -1324,6 +1343,17 @@ begin
     if btn.Down then
       vectorOriginal.SelectedShape.Usermode := TVectorShapeUsermode(btn.Tag);
   end;
+end;
+
+procedure TForm1.TextPenPhongClick(Sender: TObject);
+var
+  btn: TToolButton;
+begin
+  btn := Sender as TToolButton;
+  FTextPenPhong := btn.Down;
+  if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
+     (vectorOriginal.SelectedShape is TTextShape) then
+     TTextShape(vectorOriginal.SelectedShape).PenPhong:= FTextPenPhong;
 end;
 
 procedure TForm1.TextFontTextBoxChange(Sender: TObject);
@@ -1607,6 +1637,8 @@ begin
       FTextFontName:= TTextShape(AShape).FontName;
       FTextFontStyle:= TTextShape(AShape).FontStyle;
       FTextDirection:= TTextShape(AShape).FontBidiMode;
+      FTextPenPhong:= TTextShape(AShape).PenPhong;
+      FTextAltitudePercent:= TTextShape(AShape).AltitudePercent;
     end;
 
     FUpdatingFromShape := false;
@@ -1743,6 +1775,9 @@ begin
     AddToolbarCheckButton(FTextToolbar, 'Strike-out', 37, @TextStyleClick, fsStrikeOut in FTextFontStyle, false, ord(fsStrikeOut));
     AddToolbarLabel(FTextToolbar, 'Height', self);
     fh := AddToolbarUpdown(FTextToolbar, 'Font height', 1, 900, round(FTextFontHeight), @OnTextFontHeightChange);
+    fh.BarExponent:= 3;
+    AddToolbarCheckButton(FTextToolbar, 'Phong lighting', 15, @TextPenPhongClick, FTextPenPhong, false);
+    fh := AddToolbarUpdown(FTextToolbar, 'Altitude', 1, 100, round(FTextAltitudePercent), @OnTextAltitudePercentChange);
     fh.BarExponent:= 3;
 
     PanelExtendedStyle.InsertControl(FTextToolbar);
