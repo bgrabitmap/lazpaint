@@ -75,7 +75,7 @@ type
     FOpenButtonHint: string;
     FIsSaveDialog: boolean;
     FOverwritePrompt: boolean;
-    ShellListView1: TMyShellListView;
+    ShellListView1: TLCShellListView;
     FInFormShow: boolean;
     FChosenImage: TImageEntry;
     FPreview: TImagePreview;
@@ -282,7 +282,7 @@ begin
   bmp.Free;
   ImageList128.Clear;
 
-  ShellListView1 := TMyShellListView.Create(vsList);
+  ShellListView1 := TLCShellListView.Create(vsList);
   SetShellMask;
   ShellListView1.OnDblClick := @ShellListView1DblClick;
   ShellListView1.OnSelectItem := @ShellListView1SelectItem;
@@ -311,6 +311,7 @@ end;
 
 procedure TFBrowseImages.FormDestroy(Sender: TObject);
 begin
+  ShellListView1.VirtualScreenFreed;
   FreeAndNil(ShellListView1);
   FreeAndNil(FChosenImage.bmp);
   FreeAndNil(FPreview);
@@ -725,7 +726,7 @@ procedure TFBrowseImages.ResetDirectory(AFocus: boolean; AForceReload: boolean);
 var newDir: string;
 begin
   newDir := DirectoryEdit1.Text;
-  if (newDir <> ShellListView1.Root) or AForceReload then
+  if Assigned(ShellListView1) and ((newDir <> ShellListView1.Root) or AForceReload) then
   begin
     ClearThumbnails;
     if newDir = ShellListView1.Root then
