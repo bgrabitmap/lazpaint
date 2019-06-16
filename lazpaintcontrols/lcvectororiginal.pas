@@ -1381,7 +1381,6 @@ end;
 procedure TVectorOriginal.DiscardUnusedTextures;
 var
   i, j: Integer;
-  f: TVectorShapeFields;
   texs: array Of TBGRABitmap;
 begin
   for i := 0 to FTextureCount-1 do
