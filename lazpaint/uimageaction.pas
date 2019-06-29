@@ -744,6 +744,7 @@ begin
       r := Image.SelectionMaskBounds;
       ComputeSelectionMask(LayerAction.GetOrCreateSelectionLayer,LayerAction.CurrentSelection,r);
       LayerAction.NotifyChange(LayerAction.GetOrCreateSelectionLayer, r);
+      LayerAction.NotifyChange(LayerAction.CurrentSelection, r);
       LayerAction.Validate;
     end;
     if image.SelectionLayerIsEmpty then MessagePopup(rsNothingToBeRetrieved,2000);
