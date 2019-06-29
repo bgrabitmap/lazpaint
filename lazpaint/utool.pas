@@ -48,6 +48,7 @@ type
     FBackupDrawingLayerBounds: TRect;
     FBackupDrawingLayer: TBGRABitmap;
     function GetAction: TLayerAction; virtual;
+    function GetIdleAction: TLayerAction; virtual;
     function GetIsSelectingTool: boolean; virtual; abstract;
     function FixSelectionTransform: boolean; virtual;
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF; rightBtn: boolean): TRect; virtual;
@@ -429,6 +430,17 @@ begin
         FBackupDrawingLayer := layer.GetPart(FBackupDrawingLayerBounds) as TBGRABitmap;
       end;
     end;
+  end;
+  result := FAction;
+end;
+
+function TGenericTool.GetIdleAction: TLayerAction;
+begin
+  if not Assigned(FAction) then
+  begin
+    FAction := Manager.Image.CreateAction(false);
+    FAction.OnTryStop := @OnTryStop;
+    FAction.ChangeBoundsNotified:= true;
   end;
   result := FAction;
 end;

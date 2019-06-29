@@ -5,7 +5,8 @@ unit UToolLayer;
 interface
 
 uses
-  Classes, SysUtils, UTool, BGRABitmap, BGRABitmapTypes, UImageType, BGRATransform;
+  Classes, SysUtils, UTool, BGRABitmap, BGRABitmapTypes, UImageType, BGRATransform,
+  ULayerAction;
 
 type
   { TToolMoveLayer }
@@ -24,9 +25,9 @@ type
       {%H-}rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF): TRect; override;
     procedure DoToolMoveAfter(pt: TPoint; {%H-}ptF: TPointF); override;
-    procedure OnTryStop({%H-}sender: TCustomLayerAction); override;
     function UseOriginal: boolean;
     procedure NeedLayerBounds;
+    function GetAction: TLayerAction; override;
     function DoGetToolDrawingLayer: TBGRABitmap; override;
   public
     function ToolUp: TRect; override;
@@ -70,7 +71,7 @@ type
     procedure ValidateRotation;
     property RotationCenter: TPointF read GetRotationCenter write SetRotationCenter;
     property OriginalLayerBounds: TRect read GetOriginalLayerBounds;
-    procedure OnTryStop({%H-}sender: TCustomLayerAction); override;
+    function GetAction: TLayerAction; override;
     function DoGetToolDrawingLayer: TBGRABitmap; override;
   public
     constructor Create(AManager: TToolManager); override;
@@ -196,6 +197,7 @@ begin
   FPreviousRotationCenter := RotationCenter;
   FPreviousFilter := FFilter;
   result := EmptyRect;
+  GetAction;
 
   if UseOriginal then
   begin
@@ -239,9 +241,9 @@ begin
   Manager.QueryExitTool;
 end;
 
-procedure TToolRotateLayer.OnTryStop(sender: TCustomLayerAction);
+function TToolRotateLayer.GetAction: TLayerAction;
 begin
-  //nothing
+  result := GetIdleAction;
 end;
 
 function TToolRotateLayer.DoGetToolDrawingLayer: TBGRABitmap;
@@ -392,11 +394,6 @@ begin
   if handMoving then handOrigin := pt;
 end;
 
-procedure TToolMoveLayer.OnTryStop(sender: TCustomLayerAction);
-begin
-  //nothing
-end;
-
 function TToolMoveLayer.UseOriginal: boolean;
 begin
   with Manager.Image do
@@ -408,6 +405,7 @@ procedure TToolMoveLayer.NeedLayerBounds;
 var
   idx: Integer;
 begin
+  GetAction;
   idx := Manager.Image.CurrentLayerIndex;
   if not FLayerBoundsDefined then
   begin
@@ -419,6 +417,11 @@ begin
       FLayerBounds := Manager.Image.LayerBitmap[idx].GetImageBounds;
     FLayerBoundsDefined := true;
   end;
+end;
+
+function TToolMoveLayer.GetAction: TLayerAction;
+begin
+  result := GetIdleAction;
 end;
 
 function TToolMoveLayer.DoGetToolDrawingLayer: TBGRABitmap;
