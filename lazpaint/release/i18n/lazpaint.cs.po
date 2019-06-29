@@ -12,6 +12,2741 @@ msgstr ""
 "Language: cs\n"
 "X-Generator: Poedit 1.5.4\n"
 
+#: tablet.getprocfailed
+msgid "Procedure %s failed to load properly."
+msgstr ""
+
+#: tablet.openfailed
+msgid "Tablet context failed to open."
+msgstr ""
+
+#: tfabout.button_donate.caption
+msgctxt "tfabout.button_donate.caption"
+msgid "Donate..."
+msgstr "Přispět..."
+
+#: tfabout.caption
+msgctxt "tfabout.caption"
+msgid "About"
+msgstr "O programu"
+
+#: tfabout.labelurl.caption
+msgid "http://sourceforge.net/projects/lazpaint/"
+msgstr "http://sourceforge.net/projects/lazpaint/"
+
+#: tfabout.label_authors.caption
+msgctxt "tfabout.label_authors.caption"
+msgid "Authors:"
+msgstr "Autoři:"
+
+#: tfabout.label_authorsvalue.caption
+#| msgid "Circular help by FabienWang and Lainz"
+msgctxt "tfabout.label_authorsvalue.caption"
+msgid "Circular helped by FabienWang, Lainz and others"
+msgstr "Circular s pomocí FabienWang, Lainz a dalších"
+
+#: tfabout.label_homepage.caption
+msgctxt "tfabout.label_homepage.caption"
+msgid "Homepage:"
+msgstr "Domovská stránka:"
+
+#: tfabout.label_libraries.caption
+msgctxt "tfabout.label_libraries.caption"
+msgid "Libraries used:"
+msgstr "Použité knihovny:"
+
+#: tfabout.label_licence.caption
+msgctxt "tfabout.label_licence.caption"
+msgid "Licence:"
+msgstr "Licence:"
+
+#: tfabout.label_opensource.caption
+msgctxt "tfabout.label_opensource.caption"
+msgid "Open source (GPLv3)"
+msgstr "Otevřený kód (GPLv3)"
+
+#: tfadjustcurves.button_cancel.caption
+msgctxt "tfadjustcurves.button_cancel.caption"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfadjustcurves.button_ok.caption
+msgctxt "tfadjustcurves.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfadjustcurves.caption
+msgid "Adjust curves"
+msgstr "Nastavit křivky"
+
+#: tfadjustcurves.toolbutton_newcurve.hint
+msgid "Discard current curve and start a new one"
+msgstr "Zahodit aktuální křivku a začít novou"
+
+#: tfadjustcurves.toolbutton_posterize.hint
+msgctxt "tfadjustcurves.toolbutton_posterize.hint"
+msgid "Posterize"
+msgstr "Posterizace"
+
+#: tfadjustcurves.toolbutton_removepoint.hint
+msgid "Remove selected point (Del)"
+msgstr "Odebrat vybrané body (Del)"
+
+#: tfblendop.button_cancel.caption
+msgctxt "tfblendop.button_cancel.caption"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfblendop.button_ok.caption
+msgctxt "tfblendop.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfblendop.caption
+msgid "Blend operation"
+msgstr "Operace míchání"
+
+#: tfblendop.label_blendopcategory.caption
+msgctxt "tfblendop.label_blendopcategory.caption"
+msgid "Category of blend operation"
+msgstr "Kategorie operace mísení"
+
+#: tfblendop.label_blendopvalue.caption
+msgctxt "tfblendop.label_blendopvalue.caption"
+msgid "."
+msgstr "."
+
+#: tfblendop.label_kritaover.caption
+msgctxt "tfblendop.label_kritaover.caption"
+msgid "Krita"
+msgstr "Krita"
+
+#: tfblendop.label_kritaover.hint
+msgid "Blend operations that are available in Krita"
+msgstr "Operace mísení jsou dostupné v Krita"
+
+#: tfblendop.label_otherover.caption
+msgctxt "tfblendop.label_otherover.caption"
+msgid "Other"
+msgstr "Jiné"
+
+#: tfblendop.label_otherover.hint
+msgid "Blend operations of LazPaint and Paint.NET"
+msgstr "Operace mísení LazPaint a Paint.NET"
+
+#: tfblendop.label_patternover.caption
+msgctxt "tfblendop.label_patternover.caption"
+msgid "Pattern over"
+msgstr "Vzor přes"
+
+#: tfblendop.label_patternover.hint
+msgid "Preview blend operation with the specified image on top"
+msgstr "Náhled operace mísení se zadaným obrázkem nahoře"
+
+#: tfblendop.label_patternunder.caption
+msgctxt "tfblendop.label_patternunder.caption"
+msgid "Pattern under"
+msgstr "Vzor pod"
+
+#: tfblendop.label_patternunder.hint
+msgid "Preview blend operation with the specified image underneath"
+msgstr "Náhled operace mísení se zadaným obrázkem pod"
+
+#: tfblendop.label_previewwith.caption
+msgctxt "tfblendop.label_previewwith.caption"
+msgid "Preview with"
+msgstr "Náhled s"
+
+#: tfblendop.label_selectedblendop.caption
+msgid "Selected blend operation :"
+msgstr "Vybraná operace míchání :"
+
+#: tfblendop.label_svgover.caption
+msgctxt "tfblendop.label_svgover.caption"
+msgid "Basic SVG"
+msgstr "Základní SVG"
+
+#: tfblendop.label_svgover.hint
+msgid "Basic blend operations that are available in virtually all image editors"
+msgstr "Základní operace mísení, který je dostupná prakticky ve všech editorech obrázků"
+
+#: tfbrowseimages.caption
+msgid "Browse images"
+msgstr "Procházet obrázky"
+
+#: tfbrowseimages.label_status.caption
+#, fuzzy
+msgctxt "tfbrowseimages.label_status.caption"
+msgid "."
+msgstr "."
+
+#: tfbrowseimages.toolbutton_createfolderorcontainer.hint
+msgid "Create folder or container"
+msgstr ""
+
+#: tfbrowseimages.toolbutton_goup.hint
+msgid "Go one directory up"
+msgstr "Jít o adresář výše"
+
+#: tfbrowseimages.toolbutton_openselectedfiles.hint
+msgid "Open selected files"
+msgstr ""
+
+#: tfbrowseimages.toolbutton_viewbigicon.hint
+msgctxt "tfbrowseimages.toolbutton_viewbigicon.hint"
+msgid "Show big icons"
+msgstr "Ukázat velké ikony"
+
+#: tfbrowseimages.toolbutton_viewdetails.hint
+msgctxt "tfbrowseimages.toolbutton_viewdetails.hint"
+msgid "Show details and preview"
+msgstr "Ukázat podrobnosti a náhled"
+
+#: tfbrowseimages.tool_selectdrive.hint
+msgid "Select drive"
+msgstr ""
+
+#: tfcanvassize.button_cancel.caption
+msgctxt "TFCANVASSIZE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfcanvassize.button_ok.caption
+msgctxt "TFCANVASSIZE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfcanvassize.caption
+msgctxt "tfcanvassize.caption"
+msgid "Canvas size"
+msgstr "Velikost plátna"
+
+#: tfcanvassize.checkbox_flipmode.caption
+msgid "Flip mode"
+msgstr "Převrácený režim"
+
+#: tfcanvassize.label_anchor.caption
+msgctxt "tfcanvassize.label_anchor.caption"
+msgid "Anchor :"
+msgstr "Kotva :"
+
+#: tfcanvassize.label_height.caption
+msgctxt "tfcanvassize.label_height.caption"
+msgid "Height :"
+msgstr "Výška :"
+
+#: tfcanvassize.label_width.caption
+msgctxt "tfcanvassize.label_width.caption"
+msgid "Width :"
+msgstr "Šířka :"
+
+#: tfchoosecolor.bcbutton_addtopalette.hint
+msgid "Add color to palette"
+msgstr ""
+
+#: tfchoosecolor.bcbutton_removefrompalette.hint
+msgid "Remove color from palette"
+msgstr ""
+
+#: tfchoosecolor.caption
+msgctxt "tfchoosecolor.caption"
+msgid "Color"
+msgstr "Barva"
+
+#: tfchoosecolor.lcolor.hint
+msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
+msgstr "Popis barvy: klikněte pro zadání barvy klávesnicí pomocí jména barvy nebo zápisu CSS "
+
+#: tfcolorintensity.button_cancel.caption
+msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfcolorintensity.button_ok.caption
+msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfcolorintensity.caption
+msgctxt "tfcolorintensity.caption"
+msgid "Intensity"
+msgstr "Jas"
+
+#: tfcolorintensity.label_multiply.caption
+msgctxt "tfcolorintensity.label_multiply.caption"
+msgid "Multiply"
+msgstr "Násobek"
+
+#: tfcolorintensity.label_shift.caption
+msgctxt "tfcolorintensity.label_shift.caption"
+msgid "Shift"
+msgstr "Posun"
+
+#: tfcolorize.button_cancel.caption
+msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfcolorize.button_ok.caption
+msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfcolorize.caption
+msgctxt "tfcolorize.caption"
+msgid "Colorize"
+msgstr "Obarvení"
+
+#: tfcolorize.checkbox_gsba.caption
+msgctxt "tfcolorize.checkbox_gsba.caption"
+msgid "Corrected hue and lightness"
+msgstr "Opravený odstín a světlost"
+
+#: tfcolorize.label_colorness.caption
+msgctxt "tfcolorize.label_colorness.caption"
+msgid "Colorness"
+msgstr "Barevný"
+
+#: tfcolorize.label_hue.caption
+msgctxt "tfcolorize.label_hue.caption"
+msgid "Hue"
+msgstr "Odstín"
+
+#: tfcolorize.label_preset.caption
+msgid "Preset"
+msgstr "Předvolba"
+
+#: tfcustomblur.button_cancel.caption
+msgctxt "TFCUSTOMBLUR.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfcustomblur.button_editmask.caption
+msgid "Edit mask..."
+msgstr "Upravit masku..."
+
+#: tfcustomblur.button_loadmask.caption
+msgid "Load mask..."
+msgstr "Načíst masku..."
+
+#: tfcustomblur.button_ok.caption
+msgctxt "TFCUSTOMBLUR.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfcustomblur.caption
+msgctxt "tfcustomblur.caption"
+msgid "Custom blur"
+msgstr "Vlastní rozostření"
+
+#: tfcustomblur.openpicturedialog1.title
+msgid "Open grayscale file"
+msgstr "Otevřít černobílý obrázek"
+
+#: tfemboss.button_cancel.caption
+msgctxt "TFEMBOSS.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfemboss.button_ok.caption
+msgctxt "TFEMBOSS.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfemboss.caption
+msgctxt "tfemboss.caption"
+msgid "Emboss"
+msgstr "Vytlačit"
+
+#: tfemboss.checkbox_preservecolors.caption
+msgid "Preserve colors"
+msgstr ""
+
+#: tfemboss.checkbox_transparent.caption
+msgid "Transparent"
+msgstr ""
+
+#: tfemboss.label_direction.caption
+msgctxt "tfemboss.label_direction.caption"
+msgid "Direction :"
+msgstr "Směr :"
+
+#: tffilterfunction.button_cancel.caption
+msgctxt "tffilterfunction.button_cancel.caption"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tffilterfunction.button_ok.caption
+msgctxt "tffilterfunction.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tffilterfunction.caption
+msgid "Apply function"
+msgstr "Použít funkci"
+
+#: tffilterfunction.checkbox_gsba.caption
+msgctxt "tffilterfunction.checkbox_gsba.caption"
+msgid "Corrected hue and lightness"
+msgstr "Opravný odstín a světlost"
+
+#: tffilterfunction.label_alphaequals.caption
+msgctxt "tffilterfunction.label_alphaequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_blueequals.caption
+msgctxt "tffilterfunction.label_blueequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_greenequals.caption
+msgctxt "tffilterfunction.label_greenequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_hueequals.caption
+msgctxt "tffilterfunction.label_hueequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_lightnessequals.caption
+msgctxt "tffilterfunction.label_lightnessequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_redequals.caption
+msgctxt "tffilterfunction.label_redequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_saturationequals.caption
+msgctxt "tffilterfunction.label_saturationequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_variables.caption
+msgid "Variables :"
+msgstr "Proměnné :"
+
+#: tffilterfunction.tabsheet_hsl.caption
+msgid "HSL"
+msgstr "HSL"
+
+#: tffilterfunction.tabsheet_rgb.caption
+msgctxt "tffilterfunction.tabsheet_rgb.caption"
+msgid "RGB"
+msgstr "RGB"
+
+#: tfgeometricbrush.button_cancel.caption
+msgctxt "tfgeometricbrush.button_cancel.caption"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfgeometricbrush.button_ok.caption
+msgctxt "tfgeometricbrush.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfgeometricbrush.caption
+msgid "Geometric brush"
+msgstr ""
+
+#: tfgeometricbrush.checkbox_isgradient.caption
+msgid "Opacity gradient"
+msgstr ""
+
+#: tfgeometricbrush.label1.caption
+msgid "Number of sides:"
+msgstr ""
+
+#: tfimagelist.caption
+msgid "Image List"
+msgstr "Seznam obrázků"
+
+#: tfimagelist.pmautouncheckonopen.caption
+msgid "Autouncheck files after being open"
+msgstr "Samo odškrtnutí souborů po otevření"
+
+#: tfimagelist.pmautouncheckonsave.caption
+msgid "Autouncheck files after being edited and saved"
+msgstr "Samo odškrtnutí souborů po úpravě a uložení"
+
+#: tfimagelist.pmremoveall.caption
+msgid "Empty image list"
+msgstr "Prázdný seznam obrázků"
+
+#: tfimagelist.pmremovenonexisting.caption
+msgid "Remove nonexisting images"
+msgstr "Odebrat neexistující obrázky"
+
+#: tfimagelist.pmremoveunchecked.caption
+msgid "Remove unchecked images"
+msgstr "Odstranit nezaškrtnuté soubory"
+
+#: tfimagelist.pmunchecknonexisting.caption
+msgid "Uncheck nonexisting files"
+msgstr "Odškrtnout neexistující soubory"
+
+#: tfimagelist.stringgrid1.columns[0].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[0].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.stringgrid1.columns[1].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[1].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.stringgrid1.columns[2].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[2].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.stringgrid1.columns[3].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[3].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.tbaddfiles.hint
+msgid "Add images to list"
+msgstr "Přidat obrázek do seznamu"
+
+#: tfimagelist.tbautouncheck.hint
+msgid "Enable/disable autounchecking for processed files"
+msgstr "Povolení/zakázaní samo zaškrtnutí pro zpracované soubory"
+
+#: tfimagelist.tbautozoomfit.hint
+msgid "Enable/disable autofitting images in the LazPaint window"
+msgstr "Povolit/zakázat samopřiblížení obrázků v okně LazPaint"
+
+#: tfimagelist.tbcheckall.hint
+msgid "Check all files for processing"
+msgstr "Zaškrtněte všechny soubory ke zpracování"
+
+#: tfimagelist.tbminiwindow.hint
+msgid "Switch to miniwindow"
+msgstr "Přepnout na malé okno"
+
+#: tfimagelist.tbmovedown.hint
+msgid "Move selected items down"
+msgstr "Přesunout vybrané položky dolů"
+
+#: tfimagelist.tbmoveup.hint
+msgid "Move selected items up"
+msgstr "Přesunout vybrané položky nahoru"
+
+#: tfimagelist.tbnormalwindows.hint
+msgid "Switch to normal window"
+msgstr "Přepnout na normální okno"
+
+#: tfimagelist.tbopenimage.hint
+msgid "Open current image"
+msgstr "Otevřít aktuální obrázek"
+
+#: tfimagelist.tbopennext.hint
+msgctxt "tfimagelist.tbopennext.hint"
+msgid "Open next image (Alt-Right)"
+msgstr "Otevřít další soubor (Alt+Right)"
+
+#: tfimagelist.tbopennextsw.hint
+msgctxt "tfimagelist.tbopennextsw.hint"
+msgid "Open next image"
+msgstr "Otevřít další soubor"
+
+#: tfimagelist.tbopenprev.hint
+msgctxt "tfimagelist.tbopenprev.hint"
+msgid "Open previous image (Alt-Left)"
+msgstr "Otevřít předchozí obrázek (Alt-Left)"
+
+#: tfimagelist.tbopenprevsw.hint
+msgctxt "tfimagelist.tbopenprevsw.hint"
+msgid "Open previous image"
+msgstr "Otevřít předchozí obrázek"
+
+#: tfimagelist.tbremoveitem.hint
+msgid "Remove selected images from list"
+msgstr "Odebrat vybrané obrázky ze seznamu"
+
+#: tfimagelist.tbuncheckall.hint
+msgid "Uncheck all files for processing"
+msgstr "Odškrtnout všechny soubory pro zpracování"
+
+#: tflayerstack.caption
+msgctxt "tflayerstack.caption"
+msgid "Layers"
+msgstr "Vrstvy"
+
+#: tflayerstack.toolblendop.hint
+msgid "Select blend operation"
+msgstr "Vybrat operaci mísení"
+
+#: tflayerstack.toolzoomlayerstackin.hint
+msgctxt "tflayerstack.toolzoomlayerstackin.hint"
+msgid "Zoom layer stack in"
+msgstr "Přiblížit sadu vrstev"
+
+#: tflayerstack.toolzoomlayerstackout.hint
+msgctxt "tflayerstack.toolzoomlayerstackout.hint"
+msgid "Zoom layer stack out"
+msgstr "Oddálit sadu vrstev"
+
+#: tfloading.caption
+msgctxt "tfloading.caption"
+msgid "Loading..."
+msgstr "Načítání..."
+
+#: tfmain.brushcreategeometric.hint
+msgctxt "tfmain.brushcreategeometric.hint"
+msgid "Create geometric brush"
+msgstr ""
+
+#: tfmain.brushloadfromfile.hint
+msgctxt "tfmain.brushloadfromfile.hint"
+msgid "Load brush from file..."
+msgstr ""
+
+#: tfmain.brushremovecurrent.hint
+msgid "Remove current brush"
+msgstr ""
+
+#: tfmain.caption
+msgctxt "tfmain.caption"
+msgid "LazPaint"
+msgstr "LazPaint"
+
+#: tfmain.colorcolorize.caption
+msgid "Colorize..."
+msgstr "Obarvení..."
+
+#: tfmain.colorcurves.caption
+msgid "Curves..."
+msgstr "Křivky..."
+
+#: tfmain.colordialog1.title
+msgid "Choose color"
+msgstr "Vyberte barvu"
+
+#: tfmain.colorintensity.caption
+msgid "Intensity..."
+msgstr "Jas..."
+
+#: tfmain.colorlightness.caption
+#| msgid "Lightness..."
+msgid "Brightness / Contrast..."
+msgstr "Světlost / Kontrast..."
+
+#: tfmain.colorposterize.caption
+msgid "Posterize..."
+msgstr "Posteritzace..."
+
+#: tfmain.colorshiftcolors.caption
+msgctxt "tfmain.colorshiftcolors.caption"
+msgid "Shift colors..."
+msgstr "Posunutí barev..."
+
+#: tfmain.editcopy.caption
+msgid "Copy"
+msgstr "Kopírovat"
+
+#: tfmain.editcopy.hint
+msgid "Copy selection"
+msgstr "Kopírovat výběr"
+
+#: tfmain.editcut.caption
+msgid "Cut"
+msgstr "Vyříznout"
+
+#: tfmain.editcut.hint
+msgid "Cut selection"
+msgstr "Vyříznout výběr"
+
+#: tfmain.editdeleteselection.caption
+msgctxt "tfmain.editdeleteselection.caption"
+msgid "Delete"
+msgstr "Smazat"
+
+#: tfmain.editdeleteselection.hint
+msgid "Delete selection"
+msgstr "Vymazat výběr"
+
+#: tfmain.editdeselect.hint
+msgctxt "TFMAIN.EDITDESELECT.HINT"
+msgid "Deselect"
+msgstr "Odznačit"
+
+#: tfmain.editinvertselection.hint
+msgctxt "TFMAIN.EDITINVERTSELECTION.HINT"
+msgid "Invert selection"
+msgstr "Převrátit výběr"
+
+#: tfmain.editpaste.hint
+msgctxt "TFMAIN.EDITPASTE.HINT"
+msgid "Paste"
+msgstr "Vložit"
+
+#: tfmain.editpasteasnew.caption
+msgid "Paste as new image"
+msgstr "Vložit jako nový obrázek"
+
+#: tfmain.editpasteasnewlayer.caption
+msgid "Paste as new layer"
+msgstr ""
+
+#: tfmain.editredo.hint
+msgctxt "TFMAIN.EDITREDO.HINT"
+msgid "Redo"
+msgstr "Provést znova"
+
+#: tfmain.editselectall.caption
+msgid "Select all"
+msgstr "Vybrat vše"
+
+#: tfmain.editselection.caption
+msgid "Edit selection..."
+msgstr "Upravit výběr..."
+
+#: tfmain.editselectionfit.caption
+msgid "Selection fit"
+msgstr "Celý výběr"
+
+#: tfmain.editundo.caption
+msgid "Undo"
+msgstr "Vrátit zpět"
+
+#: tfmain.editundo.hint
+msgid "Undo last modification"
+msgstr "Vrátit zpět poslední úpravu"
+
+#: tfmain.embeddedcancel.caption
+msgctxt "TFMAIN.EMBEDDEDCANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfmain.embeddedcancel.hint
+msgid "Cancel modifications"
+msgstr "Zrušit úpravy"
+
+#: tfmain.embeddedvalidate.caption
+msgid "Validate"
+msgstr "Ověřit"
+
+#: tfmain.embeddedvalidate.hint
+msgid "Validate modifications"
+msgstr "Ověřit úpravy"
+
+#: tfmain.filechooseentry.caption
+msgid "Choose entry..."
+msgstr ""
+
+#: tfmain.filechooseentry.hint
+msgid "Choose entry within file"
+msgstr ""
+
+#: tfmain.fileimport3d.caption
+msgid "Import 3D object..."
+msgstr "Importovat 3D objekt..."
+
+#: tfmain.fileloadselection.caption
+msgid "Load selection..."
+msgstr "Načíst výběr..."
+
+#: tfmain.filenew.caption
+msgid "New..."
+msgstr "Nový..."
+
+#: tfmain.filenew.hint
+msgid "Create a new file"
+msgstr "Vytvořit nový soubor"
+
+#: tfmain.fileopen.caption
+msgid "Open..."
+msgstr "Otevřít..."
+
+#: tfmain.fileopen.hint
+msgctxt "TFMAIN.FILEOPEN.HINT"
+msgid "Open existing file"
+msgstr "Otevřít existující soubor"
+
+#: tfmain.fileprint.caption
+msgid "Print..."
+msgstr "Tisk..."
+
+#: tfmain.filequit.hint
+msgctxt "TFMAIN.FILEQUIT.HINT"
+msgid "Quit"
+msgstr "Ukončit"
+
+#: tfmain.filereload.caption
+msgctxt "tfmain.filereload.caption"
+msgid "Reload"
+msgstr "Obnovit"
+
+#: tfmain.filesave.caption
+msgctxt "TFMAIN.FILESAVE.CAPTION"
+msgid "Save"
+msgstr "Uložit"
+
+#: tfmain.filesave.hint
+msgid "Save current file"
+msgstr "Uložit aktuální soubor"
+
+#: tfmain.filesaveas.caption
+msgid "Save as..."
+msgstr "Uložit jako..."
+
+#: tfmain.filesaveas.hint
+msgid "Save file as"
+msgstr "Uložit soubor jako"
+
+#: tfmain.filesaveasinsamefolder.caption
+msgid "Save in same folder..."
+msgstr "Uložit ve stejné složce..."
+
+#: tfmain.filesaveselectionas.caption
+msgctxt "TFMAIN.FILESAVESELECTIONAS.CAPTION"
+msgid "Save selection as..."
+msgstr "Uložit výběr jako..."
+
+#: tfmain.fileuseimagebrowser.caption
+msgctxt "tfmain.fileuseimagebrowser.caption"
+msgid "Use image browser"
+msgstr ""
+
+#: tfmain.filterblurbox.caption
+msgid "Box blur..."
+msgstr ""
+
+#: tfmain.filterblurcorona.caption
+msgctxt "tfmain.filterblurcorona.caption"
+msgid "Corona blur..."
+msgstr "Korónové rozmazání..."
+
+#: tfmain.filterblurcustom.caption
+msgctxt "tfmain.filterblurcustom.caption"
+msgid "Custom blur..."
+msgstr "Vylasní rozostření..."
+
+#: tfmain.filterblurdisk.caption
+msgctxt "tfmain.filterblurdisk.caption"
+msgid "Disk blur..."
+msgstr "Diskové rozmazání..."
+
+#: tfmain.filterblurfast.caption
+msgctxt "tfmain.filterblurfast.caption"
+msgid "Fast blur..."
+msgstr "Rychlé rozostření..."
+
+#: tfmain.filterblurmotion.caption
+msgctxt "tfmain.filterblurmotion.caption"
+msgid "Motion blur..."
+msgstr "Pohybové rozostření..."
+
+#: tfmain.filterblurprecise.caption
+msgctxt "tfmain.filterblurprecise.caption"
+msgid "Precise blur..."
+msgstr "Přestné rozostření..."
+
+#: tfmain.filterblurradial.caption
+msgctxt "tfmain.filterblurradial.caption"
+msgid "Gaussian blur..."
+msgstr "Gaussovské rozmazání..."
+
+#: tfmain.filtercleartype.caption
+msgid "ClearType"
+msgstr "ClearType"
+
+#: tfmain.filtercleartypeinverse.caption
+msgid "Inverse ClearType"
+msgstr "Převrácený ClearType"
+
+#: tfmain.filtercomplementarycolor.caption
+msgid "Complementary colors"
+msgstr "Párové barvy"
+
+#: tfmain.filtercontour.caption
+msgid "Contour"
+msgstr "Obrys"
+
+#: tfmain.filtercylinder.caption
+msgid "Cylinder"
+msgstr "Válec"
+
+#: tfmain.filteremboss.caption
+msgid "Emboss..."
+msgstr "Vytlačit..."
+
+#: tfmain.filterfunction.caption
+msgid "Apply function..."
+msgstr "Použít funkci..."
+
+#: tfmain.filtergrayscale.caption
+msgid "Grayscale"
+msgstr "Stupně šedi"
+
+#: tfmain.filterlinearnegative.caption
+msgctxt "tfmain.filterlinearnegative.caption"
+msgid "Linear negative"
+msgstr "Lineární negativ"
+
+#: tfmain.filtermedian.caption
+msgid "Median"
+msgstr "Medián"
+
+#: tfmain.filternegative.caption
+msgctxt "tfmain.filternegative.caption"
+msgid "Negative"
+msgstr "Negativ"
+
+#: tfmain.filternoise.caption
+msgid "Noise filter..."
+msgstr "Šumový filtr..."
+
+#: tfmain.filternormalize.caption
+msgid "Normalize"
+msgstr "Normalizace"
+
+#: tfmain.filterphong.caption
+msgctxt "tfmain.filterphong.caption"
+msgid "Shaded map..."
+msgstr "Stínová mapa..."
+
+#: tfmain.filterpixelate.caption
+msgid "Pixelate..."
+msgstr "Pixelace..."
+
+#: tfmain.filterplane.caption
+msgid "Plane (slow)"
+msgstr "Rovina (pomalé)"
+
+#: tfmain.filterrain.caption
+msgid "Rain..."
+msgstr ""
+
+#: tfmain.filtersharpen.caption
+msgid "Sharpen..."
+msgstr "Zostřit..."
+
+#: tfmain.filtersmooth.caption
+msgid "Smooth"
+msgstr "Vyhladit"
+
+#: tfmain.filtersphere.caption
+msgctxt "TFMAIN.FILTERSPHERE.CAPTION"
+msgid "Sphere"
+msgstr "Koule"
+
+#: tfmain.filtertwirl.caption
+msgid "Twirl..."
+msgstr "Vířit..."
+
+#: tfmain.forgetdialoganswers.caption
+msgid "Forget dialog box answers"
+msgstr ""
+
+#: tfmain.forgetdialoganswers.hint
+msgid "Forget answers given to dialog boxes"
+msgstr ""
+
+#: tfmain.helpabout.caption
+msgid "About..."
+msgstr "O programu..."
+
+#: tfmain.helpindex.caption
+msgid "Index..."
+msgstr "Index..."
+
+#: tfmain.imagechangecanvassize.caption
+msgid "Canvas size..."
+msgstr "Velikost plána..."
+
+#: tfmain.imageclearalpha.caption
+msgid "Clear alpha channel and set background"
+msgstr "Vymazat alfa kanál a nastavit pozadí"
+
+#: tfmain.imagecrop.caption
+msgid "Crop to selection"
+msgstr "Oříznout na výběr"
+
+#: tfmain.imagecroplayer.caption
+msgid "Crop to selection and current layer"
+msgstr "Oříznout na výběr a aktuální vrsvtu"
+
+#: tfmain.imagefillbackground.caption
+msgid "Fill background with antialiasing"
+msgstr "Vyplnit pozadí s vyhlazováním"
+
+#: tfmain.imageflatten.caption
+msgid "Flatten image"
+msgstr "Zploštit obrázek"
+
+#: tfmain.imagehorizontalflip.caption
+msgctxt "tfmain.imagehorizontalflip.caption"
+msgid "Horizontal flip"
+msgstr "Vodorovné převrácení"
+
+#: tfmain.imagehorizontalflip.hint
+msgctxt "tfmain.imagehorizontalflip.hint"
+msgid "Flip image horizontally"
+msgstr "Převrátit obrázek vodorovně"
+
+#: tfmain.imagelinearnegative.caption
+msgctxt "tfmain.imagelinearnegative.caption"
+msgid "Linear negative"
+msgstr "Lineární negativ"
+
+#: tfmain.imagenegative.caption
+msgctxt "tfmain.imagenegative.caption"
+msgid "Negative"
+msgstr "Negativ"
+
+#: tfmain.imagerepeat.caption
+msgid "Repeat..."
+msgstr "Opakovat..."
+
+#: tfmain.imageresample.caption
+msgid "Resample..."
+msgstr "Převzorkovat..."
+
+#: tfmain.imageresample.hint
+msgid "Resample image"
+msgstr "Převzorkovat obrázek"
+
+#: tfmain.imagerotateccw.caption
+msgid "Rotate 90° CCW"
+msgstr "Otočit 90° CCW"
+
+#: tfmain.imagerotatecw.caption
+msgid "Rotate 90° CW"
+msgstr "Otočit 90° CW"
+
+#: tfmain.imagesmartzoom3.caption
+msgid "Smart zoom x3"
+msgstr "Chytré zvětšení x3"
+
+#: tfmain.imageswapredblue.caption
+msgid "Swap red and blue channels"
+msgstr ""
+
+#: tfmain.imageverticalflip.caption
+msgctxt "tfmain.imageverticalflip.caption"
+msgid "Vertical flip"
+msgstr "Svislé obrácení"
+
+#: tfmain.imageverticalflip.hint
+msgid "Flip image vertically"
+msgstr "Obrátit obrázek svisle"
+
+#: tfmain.image_currenttexture.hint
+msgctxt "tfmain.image_currenttexture.hint"
+msgid "Current texture"
+msgstr "Aktuální textura"
+
+#: tfmain.image_currenttool.hint
+msgctxt "TFMAIN.IMAGE_CURRENTTOOL.HINT"
+msgid "Selected tool"
+msgstr "Vybraný nástroj"
+
+#: tfmain.image_swapcolors.hint
+msgctxt "tfmain.image_swapcolors.hint"
+msgid "Switch color"
+msgstr "Vybraný nástroj"
+
+#: tfmain.itemdocklayersandcolors.caption
+msgid "Dock layers and colors"
+msgstr ""
+
+#: tfmain.itemdonate.caption
+msgctxt "tfmain.itemdonate.caption"
+msgid "Donate..."
+msgstr "Přispět..."
+
+#: tfmain.itemfullscreen.caption
+msgid "Fullscreen"
+msgstr ""
+
+#: tfmain.itemhorizfliplayer.caption
+msgctxt "tfmain.itemhorizfliplayer.caption"
+msgid "Current layer"
+msgstr "Aktuální vrstva"
+
+#: tfmain.itemhorizflippicture.caption
+msgctxt "tfmain.itemhorizflippicture.caption"
+msgid "Whole picture"
+msgstr "Celý obrázek"
+
+#: tfmain.itemhorizflipselection.caption
+msgctxt "tfmain.itemhorizflipselection.caption"
+msgid "Selection"
+msgstr "Výběr"
+
+#: tfmain.itemiconsize16.caption
+msgid "16px"
+msgstr ""
+
+#: tfmain.itemiconsize24.caption
+msgid "24px"
+msgstr ""
+
+#: tfmain.itemiconsize32.caption
+msgid "32px"
+msgstr ""
+
+#: tfmain.itemiconsize48.caption
+msgid "48px"
+msgstr ""
+
+#: tfmain.itemiconsize64.caption
+msgid "64px"
+msgstr ""
+
+#: tfmain.itemiconsizeauto.caption
+msgid "auto"
+msgstr ""
+
+#: tfmain.itemquitseparator.caption
+msgctxt "tfmain.itemquitseparator.caption"
+msgid "-"
+msgstr "-"
+
+#: tfmain.itemuseimagebrowser.caption
+msgctxt "tfmain.itemuseimagebrowser.caption"
+msgid "Use image browser"
+msgstr ""
+
+#: tfmain.itemvertfliplayer.caption
+msgctxt "tfmain.itemvertfliplayer.caption"
+msgid "Current layer"
+msgstr "Aktuální vrsvta"
+
+#: tfmain.itemvertflippicture.caption
+msgctxt "tfmain.itemvertflippicture.caption"
+msgid "Whole picture"
+msgstr "Celý obrázek"
+
+#: tfmain.itemvertflipselection.caption
+msgctxt "tfmain.itemvertflipselection.caption"
+msgid "Selection"
+msgstr "Výběr"
+
+#: tfmain.itemviewdocktoolbox.caption
+msgid "Dock toolbox"
+msgstr ""
+
+#: tfmain.label_altitude.caption
+msgid "Altitude"
+msgstr "Výška"
+
+#: tfmain.label_back.caption
+msgid "Back"
+msgstr "Zpět"
+
+#: tfmain.label_brush.caption
+msgctxt "tfmain.label_brush.caption"
+msgid "Brush"
+msgstr ""
+
+#: tfmain.label_coordinates.caption
+msgid "99999x99999"
+msgstr "99999x99999"
+
+#: tfmain.label_coordinates.hint
+msgid "Coordinates"
+msgstr "Souřadnice"
+
+#: tfmain.label_currentdiff.caption
+msgctxt "TFMAIN.LABEL_CURRENTDIFF.CAPTION"
+msgid "100%"
+msgstr "100%"
+
+#: tfmain.label_currentdiff.hint
+msgid "Color difference"
+msgstr "Rozdíl barvy"
+
+#: tfmain.label_currentzoom.caption
+msgctxt "TFMAIN.LABEL_CURRENTZOOM.CAPTION"
+msgid "%"
+msgstr "%"
+
+#: tfmain.label_currentzoom.hint
+msgid "Current zoom"
+msgstr "Aktuální zvětšení"
+
+#: tfmain.label_curve.caption
+msgctxt "TFMAIN.LABEL_CURVE.CAPTION"
+msgid "Curve"
+msgstr "Křivka"
+
+#: tfmain.label_eraser.caption
+msgctxt "tfmain.label_eraser.caption"
+msgid "Erase"
+msgstr "Vymazat"
+
+#: tfmain.label_grid.caption
+msgctxt "TFMAIN.LABEL_GRID.CAPTION"
+msgid "Grid"
+msgstr "Mřížka"
+
+#: tfmain.label_gridx.caption
+msgctxt "tfmain.label_gridx.caption"
+msgid "x"
+msgstr "x"
+
+#: tfmain.label_outlinewidth.caption
+msgctxt "tfmain.label_outlinewidth.caption"
+msgid "Width"
+msgstr "Šířka"
+
+#: tfmain.label_pen.caption
+msgctxt "TFMAIN.LABEL_PEN.CAPTION"
+msgid "Pen"
+msgstr "Pero"
+
+#: tfmain.label_penwidth.caption
+msgctxt "tfmain.label_penwidth.caption"
+msgid "Width"
+msgstr "Šířka"
+
+#: tfmain.label_phongborder.caption
+msgctxt "tfmain.label_phongborder.caption"
+msgid "Border"
+msgstr "Okraj"
+
+#: tfmain.label_ratio.caption
+msgid "Ratio"
+msgstr ""
+
+#: tfmain.label_shadowoffset.caption
+msgctxt "TFMAIN.LABEL_SHADOWOFFSET.CAPTION"
+msgid "Offset"
+msgstr "Posun"
+
+#: tfmain.label_shape.caption
+msgctxt "TFMAIN.LABEL_SHAPE.CAPTION"
+msgid "Shape"
+msgstr "Tvar"
+
+#: tfmain.label_spacing.caption
+msgid "Spacing"
+msgstr ""
+
+#: tfmain.label_text.caption
+msgctxt "TFMAIN.LABEL_TEXT.CAPTION"
+msgid "Text"
+msgstr "Text"
+
+#: tfmain.label_textblur.caption
+msgctxt "TFMAIN.LABEL_TEXTBLUR.CAPTION"
+msgid "Blur"
+msgstr "Rozmázání"
+
+#: tfmain.label_tolerance.caption
+msgctxt "tfmain.label_tolerance.caption"
+msgid "Tolerance"
+msgstr "Tolerance"
+
+#: tfmain.layeraddnew.hint
+msgctxt "tfmain.layeraddnew.hint"
+msgid "Add new layer"
+msgstr "Přidat novou vrstvu"
+
+#: tfmain.layerduplicate.hint
+msgctxt "tfmain.layerduplicate.hint"
+msgid "Duplicate selected layer"
+msgstr "Zdvojit vybranou vrsvu"
+
+#: tfmain.layerfromfile.hint
+msgctxt "tfmain.layerfromfile.hint"
+msgid "Import layer from file..."
+msgstr "Importovat vrstvu ze souboru..."
+
+#: tfmain.layerhorizontalflip.hint
+msgid "Flip layer horizontally"
+msgstr "Překlopit vrstvu vodorovně"
+
+#: tfmain.layermergeover.hint
+msgctxt "tfmain.layermergeover.hint"
+msgid "Merge layer over"
+msgstr "Sloučit vrstvy přes"
+
+#: tfmain.layermove.hint
+msgctxt "tfmain.layermove.hint"
+msgid "Move layer"
+msgstr "Přesunout vrstvu"
+
+#: tfmain.layerremovecurrent.hint
+msgctxt "tfmain.layerremovecurrent.hint"
+msgid "Remove layer"
+msgstr "Odstranit vrstvu"
+
+#: tfmain.layerrotate.hint
+msgctxt "tfmain.layerrotate.hint"
+msgid "Rotate layer"
+msgstr "Otočit vrstvu"
+
+#: tfmain.layerverticalflip.hint
+msgctxt "tfmain.layerverticalflip.hint"
+msgid "Flip layer vertically"
+msgstr "Překlopit vrstvu svisle"
+
+#: tfmain.loadselectiondialog.title
+msgid "Load selection"
+msgstr "Načíst výběr"
+
+#: tfmain.menucolors.caption
+msgctxt "tfmain.menucolors.caption"
+msgid "Colors"
+msgstr "Barvy"
+
+#: tfmain.menucoordinatestoolbar.caption
+msgid "Show coordinates"
+msgstr ""
+
+#: tfmain.menucopypastetoolbar.caption
+msgid "Show copy/paste toolbar"
+msgstr ""
+
+#: tfmain.menudocktoolboxleft.caption
+msgid "Dock left"
+msgstr ""
+
+#: tfmain.menudocktoolboxright.caption
+msgid "Dock right"
+msgstr ""
+
+#: tfmain.menuedit.caption
+msgctxt "tfmain.menuedit.caption"
+msgid "Edit"
+msgstr "Upravit"
+
+#: tfmain.menufile.caption
+msgid "File"
+msgstr "Soubor"
+
+#: tfmain.menufilter.caption
+msgctxt "tfmain.menufilter.caption"
+msgid "Filter"
+msgstr "Filtr"
+
+#: tfmain.menuhelp.caption
+msgctxt "tfmain.menuhelp.caption"
+msgid "Help"
+msgstr "Nápověda"
+
+#: tfmain.menuhorizflipsub.caption
+msgctxt "tfmain.menuhorizflipsub.caption"
+msgid "Horizontal flip"
+msgstr "Vodorovné převrácení"
+
+#: tfmain.menuhorizflipsub.hint
+msgctxt "tfmain.menuhorizflipsub.hint"
+msgid "Flip image horizontally"
+msgstr "Převrátit obrázek vodorovně"
+
+#: tfmain.menuiconsize.caption
+msgid "Icon size"
+msgstr ""
+
+#: tfmain.menuimage.caption
+msgctxt "tfmain.menuimage.caption"
+msgid "Image"
+msgstr "Obrázek"
+
+#: tfmain.menuitem1.caption
+msgctxt "tfmain.menuitem1.caption"
+msgid "-"
+msgstr "-"
+
+#: tfmain.menulanguage.caption
+msgctxt "tfmain.menulanguage.caption"
+msgid "Language"
+msgstr "Jazyk"
+
+#: tfmain.menuradialblur.caption
+msgctxt "tfmain.menuradialblur.caption"
+msgid "Radial blur"
+msgstr "Radiální rozmazání"
+
+#: tfmain.menurecentfiles.caption
+msgctxt "tfmain.menurecentfiles.caption"
+msgid "Recent files"
+msgstr "Nedávné soubory"
+
+#: tfmain.menuremovetransparency.caption
+msgctxt "tfmain.menuremovetransparency.caption"
+msgid "Remove transparency"
+msgstr "Odstranit průhlednost"
+
+#: tfmain.menurender.caption
+msgctxt "tfmain.menurender.caption"
+msgid "Render"
+msgstr "Vykreslit"
+
+#: tfmain.menuselect.caption
+msgctxt "tfmain.menuselect.caption"
+msgid "Select"
+msgstr "Vybrat"
+
+#: tfmain.menushowpalette.caption
+msgctxt "tfmain.menushowpalette.caption"
+msgid "Show palette"
+msgstr ""
+
+#: tfmain.menutool.caption
+#| msgid "Tool"
+msgctxt "tfmain.menutool.caption"
+msgid "Tools"
+msgstr "Nástroje"
+
+#: tfmain.menuundocktoolbox.caption
+msgid "Undock"
+msgstr ""
+
+#: tfmain.menuundoredotoolbar.caption
+msgid "Show undo/redo toolbar"
+msgstr ""
+
+#: tfmain.menuvertflipsub.caption
+msgctxt "tfmain.menuvertflipsub.caption"
+msgid "Vertical flip"
+msgstr "Svislé obrácení"
+
+#: tfmain.menuview.caption
+msgctxt "tfmain.menuview.caption"
+msgid "View"
+msgstr "Pohled"
+
+#: tfmain.menuzoomtoolbar.caption
+msgid "Show zoom toolbar"
+msgstr ""
+
+#: tfmain.open3dobjectdialog.title
+msgctxt "tfmain.open3dobjectdialog.title"
+msgid "Import 3D object"
+msgstr "Otevřít existující soubor"
+
+#: tfmain.openbrushdialog.title
+msgid "Open brush"
+msgstr ""
+
+#: tfmain.openpicturedialog1.title
+msgid "Open existing image"
+msgstr "Otevřít existující soubor"
+
+#: tfmain.opentexturedialog.title
+msgctxt "tfmain.opentexturedialog.title"
+msgid "Open texture"
+msgstr "Otevřít texturu"
+
+#: tfmain.perspective_repeat.hint
+msgctxt "tfmain.perspective_repeat.hint"
+msgid "Repeat image"
+msgstr "Opakovat obrázek"
+
+#: tfmain.perspective_twoplanes.hint
+msgctxt "tfmain.perspective_twoplanes.hint"
+msgid "Draw opposite plane too"
+msgstr "Vyplnit tvar"
+
+#: tfmain.rendercamouflage.caption
+msgid "Camouflage"
+msgstr "Zastírání"
+
+#: tfmain.renderclouds.caption
+msgid "Clouds"
+msgstr "Mraky"
+
+#: tfmain.rendercustomwater.caption
+msgid "Water with custom colors"
+msgstr "Voda s vlastními barvami"
+
+#: tfmain.rendercyclicperlinnoise.caption
+msgctxt "tfmain.rendercyclicperlinnoise.caption"
+msgid "Cyclic Perlin noise"
+msgstr "Kruhová Perlinův šum"
+
+#: tfmain.rendermarble.caption
+msgid "Marble"
+msgstr "Mramor"
+
+#: tfmain.rendermetalfloor.caption
+msgid "Metal floor"
+msgstr "Kovová podlaha"
+
+#: tfmain.renderperlinnoise.caption
+msgid "Perlin noise"
+msgstr "Perlinův šum"
+
+#: tfmain.renderplastik.caption
+msgid "Plastik"
+msgstr "Plastický"
+
+#: tfmain.renderroundstone.caption
+msgid "Round stone"
+msgstr "Oblý kámen"
+
+#: tfmain.rendersnowprint.caption
+msgid "Snow print"
+msgstr "Sněžný tisk"
+
+#: tfmain.renderstone.caption
+msgid "Stone"
+msgstr "Kámen"
+
+#: tfmain.renderwater.caption
+msgctxt "tfmain.renderwater.caption"
+msgid "Water"
+msgstr "Voda"
+
+#: tfmain.renderwood.caption
+msgid "Wood"
+msgstr "Dřevo"
+
+#: tfmain.renderwoodvertical.caption
+msgid "Vertical wood"
+msgstr "Svislé dřevo"
+
+#: tfmain.savepicturedialog1.title
+msgid "Save file as..."
+msgstr "Uložit soubor jako..."
+
+#: tfmain.saveselectiondialog.title
+msgctxt "TFMAIN.SAVESELECTIONDIALOG.TITLE"
+msgid "Save selection as..."
+msgstr "Uložit výběr jako..."
+
+#: tfmain.shape_backcolor.hint
+msgctxt "tfmain.shape_backcolor.hint"
+msgid "Select secondary color"
+msgstr "Vyberte druhotnou barvu"
+
+#: tfmain.shape_pencolor.hint
+msgid "Select pen color"
+msgstr "Vyberte barvu pera"
+
+#: tfmain.toolbrush.hint
+msgctxt "tfmain.toolbrush.hint"
+msgid "Brush"
+msgstr ""
+
+#: tfmain.toolchangedocking.hint
+msgctxt "tfmain.toolchangedocking.hint"
+msgid "Change docking"
+msgstr ""
+
+#: tfmain.toolclone.hint
+msgid "Clone tool"
+msgstr ""
+
+#: tfmain.toolcolorpicker.hint
+msgctxt "TFMAIN.TOOLCOLORPICKER.HINT"
+msgid "Color picker"
+msgstr "Pipeta"
+
+#: tfmain.tooldeformation.caption
+msgid "Deformation"
+msgstr "Zakřivení"
+
+#: tfmain.tooldeformation.hint
+msgid "Deformation grid"
+msgstr "Mřížka zakřivení"
+
+#: tfmain.toolellipse.hint
+msgctxt "TFMAIN.TOOLELLIPSE.HINT"
+msgid "Ellipse"
+msgstr "Elipsa"
+
+#: tfmain.tooleraser.hint
+msgctxt "TFMAIN.TOOLERASER.HINT"
+msgid "Eraser"
+msgstr "Guma"
+
+#: tfmain.toolfloodfill.hint
+msgid "Floodfill"
+msgstr "Výplň"
+
+#: tfmain.toolgradient.caption
+msgid "Gradient"
+msgstr "Gradient"
+
+#: tfmain.toolgradient.hint
+msgid "Render gradient"
+msgstr "Vykreslit gradient"
+
+#: tfmain.toolhand.caption
+msgid "Hand"
+msgstr "Ruka"
+
+#: tfmain.toolhand.hint
+msgid "Move and scroll picture"
+msgstr "Posunout a rolovat obrázek"
+
+#: tfmain.toolhotspot.caption
+msgctxt "tfmain.toolhotspot.caption"
+msgid "Hot spot"
+msgstr ""
+
+#: tfmain.toolhotspot.hint
+msgid "Choose hot spot of a cursor"
+msgstr ""
+
+#: tfmain.toollayermapping.hint
+msgctxt "tfmain.toollayermapping.hint"
+msgid "Layer perspective"
+msgstr "Pohled vrsvy"
+
+#: tfmain.toolloadtexture.hint
+msgctxt "tfmain.toolloadtexture.hint"
+msgid "Load texture..."
+msgstr "Načíst texturu..."
+
+#: tfmain.toolmagicwand.caption
+msgid "Magic wand"
+msgstr "Magická hůlka"
+
+#: tfmain.toolmagicwand.hint
+msgid "Magic wand select"
+msgstr "Výběr magickou hůlkou"
+
+#: tfmain.toolmoveselection.hint
+msgctxt "TFMAIN.TOOLMOVESELECTION.HINT"
+msgid "Move selection"
+msgstr "Přesunout výběr"
+
+#: tfmain.toolnotexture.hint
+msgctxt "tfmain.toolnotexture.hint"
+msgid "No texture"
+msgstr "Žádná textura"
+
+#: tfmain.toolpen.caption
+msgctxt "TFMAIN.TOOLPEN.CAPTION"
+msgid "Pen"
+msgstr "Pero"
+
+#: tfmain.toolpen.hint
+msgid "Simple pen"
+msgstr "Jednoduché pero"
+
+#: tfmain.toolphong.hint
+msgctxt "TFMAIN.TOOLPHONG.HINT"
+msgid "Shaded shape"
+msgstr "Stínovaný tvar"
+
+#: tfmain.toolpolygon.caption
+msgid "Polygon"
+msgstr "Mnohoúhelník"
+
+#: tfmain.toolpolygon.hint
+msgid "Polygon or polyline"
+msgstr "Mnohoúhelník nebo lomená čára"
+
+#: tfmain.toolrect.hint
+msgctxt "TFMAIN.TOOLRECT.HINT"
+msgid "Rectangle"
+msgstr "Obdelník"
+
+#: tfmain.toolrotateselection.hint
+msgctxt "TFMAIN.TOOLROTATESELECTION.HINT"
+msgid "Rotate selection"
+msgstr "Otočit výběr"
+
+#: tfmain.toolselectellipse.hint
+msgctxt "TFMAIN.TOOLSELECTELLIPSE.HINT"
+msgid "Select ellipse"
+msgstr "Vybrat elipsu"
+
+#: tfmain.toolselectpen.caption
+msgctxt "tfmain.toolselectpen.caption"
+msgid "Selection pen"
+msgstr "Pero výběru"
+
+#: tfmain.toolselectpen.hint
+msgctxt "tfmain.toolselectpen.hint"
+msgid "Draw selection with pen"
+msgstr "Kreslit výběr perem"
+
+#: tfmain.toolselectpoly.hint
+msgctxt "TFMAIN.TOOLSELECTPOLY.HINT"
+msgid "Select polygon"
+msgstr "Vybrat mnohoúhelník"
+
+#: tfmain.toolselectrect.hint
+msgctxt "TFMAIN.TOOLSELECTRECT.HINT"
+msgid "Select rectangle"
+msgstr "Vybrat obdelník"
+
+#: tfmain.toolselectspline.hint
+msgctxt "tfmain.toolselectspline.hint"
+msgid "Select curve"
+msgstr "Vybrat křivku"
+
+#: tfmain.toolspline.caption
+msgctxt "TFMAIN.TOOLSPLINE.CAPTION"
+msgid "Curve"
+msgstr "Křivka"
+
+#: tfmain.toolspline.hint
+msgctxt "TFMAIN.TOOLSPLINE.HINT"
+msgid "Spline"
+msgstr "Spline"
+
+#: tfmain.tooltext.hint
+msgctxt "TFMAIN.TOOLTEXT.HINT"
+msgid "Text"
+msgstr "Text"
+
+#: tfmain.tooltexturemapping.hint
+msgctxt "tfmain.tooltexturemapping.hint"
+msgid "Texture mapping"
+msgstr "Mapování textůr"
+
+#: tfmain.tool_capflat.hint
+msgctxt "TFMAIN.TOOL_CAPFLAT.HINT"
+msgid "Flat cap"
+msgstr "Kreslit okraj"
+
+#: tfmain.tool_capround.hint
+msgctxt "TFMAIN.TOOL_CAPROUND.HINT"
+msgid "Round cap"
+msgstr "Vyplnit tvar"
+
+#: tfmain.tool_capsquare.hint
+msgctxt "TFMAIN.TOOL_CAPSQUARE.HINT"
+msgid "Square cap"
+msgstr "Uzavřít tvar"
+
+#: tfmain.tool_closeshape.hint
+msgctxt "tfmain.tool_closeshape.hint"
+msgid "Close shape"
+msgstr "Uzavřit tvar"
+
+#: tfmain.tool_curvemodeangle.hint
+msgid "Draw an angle"
+msgstr "Kreslit úhel"
+
+#: tfmain.tool_curvemodeauto.hint
+msgctxt "tfmain.tool_curvemodeauto.hint"
+msgid "Autodetect angles"
+msgstr "Samozjištění úhlů"
+
+#: tfmain.tool_curvemodecurve.hint
+msgid "Draw a curve"
+msgstr "Kreslit křivku"
+
+#: tfmain.tool_curvemovepoint.hint
+msgid "Move point"
+msgstr "Posunout bod"
+
+#: tfmain.tool_diamondgradient.hint
+msgctxt "tfmain.tool_diamondgradient.hint"
+msgid "Diamond gradient"
+msgstr "Diamantový gradient"
+
+#: tfmain.tool_drawshapeborder.hint
+msgctxt "tfmain.tool_drawshapeborder.hint"
+msgid "Draw border"
+msgstr "Kreslit okraj"
+
+#: tfmain.tool_erasealpha.hint
+msgctxt "tfmain.tool_erasealpha.hint"
+msgid "Make transparent"
+msgstr "Změnit na průhledný"
+
+#: tfmain.tool_eraseblur.hint
+msgctxt "tfmain.tool_eraseblur.hint"
+msgid "Soften"
+msgstr "Zjemnit"
+
+#: tfmain.tool_fillshape.hint
+msgctxt "tfmain.tool_fillshape.hint"
+msgid "Fill shape"
+msgstr "Vyplnit tvar"
+
+#: tfmain.tool_gridmovewithoutdeformation.hint
+msgctxt "tfmain.tool_gridmovewithoutdeformation.hint"
+msgid "Move grid without deformation"
+msgstr "Přesunout mřížku bez deformace"
+
+#: tfmain.tool_joinbevel.hint
+msgctxt "TFMAIN.TOOL_JOINBEVEL.HINT"
+msgid "Bevel join"
+msgstr "Spojení zkosení"
+
+#: tfmain.tool_joinmiter.hint
+msgctxt "TFMAIN.TOOL_JOINMITER.HINT"
+msgid "Miter join"
+msgstr "Uzavřit tvar"
+
+#: tfmain.tool_joinround.hint
+msgctxt "TFMAIN.TOOL_JOINROUND.HINT"
+msgid "Round join"
+msgstr "Vyplnit tvar"
+
+#: tfmain.tool_lineargradient.hint
+msgctxt "tfmain.tool_lineargradient.hint"
+msgid "Linear gradient"
+msgstr "Lineární gradient"
+
+#: tfmain.tool_pendash.hint
+msgctxt "TFMAIN.TOOL_PENDASH.HINT"
+msgid "Dashed line"
+msgstr "Čárkovaná čára"
+
+#: tfmain.tool_pendashdot.hint
+msgctxt "TFMAIN.TOOL_PENDASHDOT.HINT"
+msgid "Dash dot"
+msgstr "Čárka tečka"
+
+#: tfmain.tool_pendashdotdot.hint
+msgctxt "TFMAIN.TOOL_PENDASHDOTDOT.HINT"
+msgid "Dash dot dot"
+msgstr "Čárka tečka tečka"
+
+#: tfmain.tool_pendot.hint
+msgctxt "TFMAIN.TOOL_PENDOT.HINT"
+msgid "Dotted line"
+msgstr "Tečkovaná čára"
+
+#: tfmain.tool_pensolid.hint
+msgctxt "TFMAIN.TOOL_PENSOLID.HINT"
+msgid "Solid line"
+msgstr "Plná čára"
+
+#: tfmain.tool_phongshapecone.hint
+msgctxt "tfmain.tool_phongshapecone.hint"
+msgid "Cone"
+msgstr "Kužel"
+
+#: tfmain.tool_phongshapehorizontalcylinder.hint
+msgctxt "tfmain.tool_phongshapehorizontalcylinder.hint"
+msgid "Horizontal cylinder"
+msgstr "Vodorovný válec"
+
+#: tfmain.tool_phongshaperectangle.hint
+msgctxt "tfmain.tool_phongshaperectangle.hint"
+msgid "Rectangle"
+msgstr "Obdelník"
+
+#: tfmain.tool_phongshaperoundrect.hint
+msgctxt "tfmain.tool_phongshaperoundrect.hint"
+msgid "Rounded rectangle"
+msgstr "Zaoblený obdelník"
+
+#: tfmain.tool_phongshapesphere.hint
+msgctxt "tfmain.tool_phongshapesphere.hint"
+msgid "Sphere"
+msgstr "Koule"
+
+#: tfmain.tool_phongshapeverticalcone.hint
+msgctxt "tfmain.tool_phongshapeverticalcone.hint"
+msgid "Vertical cone"
+msgstr "Svislý kužel"
+
+#: tfmain.tool_phongshapeverticalcylinder.hint
+msgctxt "tfmain.tool_phongshapeverticalcylinder.hint"
+msgid "Vertical cylinder"
+msgstr "Svislý válec"
+
+#: tfmain.tool_progressivefloodfill.caption
+msgctxt "tfmain.tool_progressivefloodfill.caption"
+msgid "Progressive floodfill"
+msgstr "Vzrůstající výplň"
+
+#: tfmain.tool_progressivefloodfill.hint
+msgctxt "tfmain.tool_progressivefloodfill.hint"
+msgid "Progressive floodfill"
+msgstr "Vzrůstající výplň"
+
+#: tfmain.tool_radialgradient.hint
+msgctxt "tfmain.tool_radialgradient.hint"
+msgid "Radial gradient"
+msgstr "Radiální gradient"
+
+#: tfmain.tool_reflectedgradient.hint
+msgctxt "tfmain.tool_reflectedgradient.hint"
+msgid "Reflected gradient"
+msgstr "Odražený gradient"
+
+#: tfmain.tool_singradient.hint
+msgctxt "tfmain.tool_singradient.hint"
+msgid "Sine gradient"
+msgstr "Sinusový gradient"
+
+#: tfmain.tool_textfont.hint
+msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
+msgid "Choose font..."
+msgstr "Vyberte písmo..."
+
+#: tfmain.tool_textoutline.hint
+msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
+msgid "Text outline"
+msgstr "Obrys textu"
+
+#: tfmain.tool_textphong.hint
+msgctxt "TFMAIN.TOOL_TEXTPHONG.HINT"
+msgid "Text phong shading"
+msgstr "Phongové stínování textu"
+
+#: tfmain.tool_textshadow.hint
+msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
+msgid "Text shadow"
+msgstr "Stín textu"
+
+#: tfmain.viewcolors.caption
+msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
+msgid "Colors"
+msgstr "Barvy"
+
+#: tfmain.viewgrid.caption
+msgctxt "TFMAIN.VIEWGRID.CAPTION"
+msgid "Grid"
+msgstr "Mřížka"
+
+#: tfmain.viewimagelist.caption
+msgid "Image list"
+msgstr "Seznam obrázků"
+
+#: tfmain.viewlayerstack.caption
+msgctxt "tfmain.viewlayerstack.caption"
+msgid "Layers"
+msgstr "Vrstvy"
+
+#: tfmain.viewlayerstackbutton.caption
+msgctxt "tfmain.viewlayerstackbutton.caption"
+msgid "Show layers"
+msgstr "Ukázat vrstvy"
+
+#: tfmain.viewlayerstackbutton.hint
+msgctxt "tfmain.viewlayerstackbutton.hint"
+msgid "Show or hide layer stack window"
+msgstr "Ukázat nebo skrýt okno stohu vrstev"
+
+#: tfmain.viewpalette.caption
+msgctxt "tfmain.viewpalette.caption"
+msgid "Palette"
+msgstr ""
+
+#: tfmain.viewstatusbar.caption
+msgid "Status bar"
+msgstr ""
+
+#: tfmain.viewtoolbox.caption
+msgid "Toolbox"
+msgstr "Nástojový panel"
+
+#: tfmain.viewzoomfit.caption
+msgctxt "tfmain.viewzoomfit.caption"
+msgid "Zoom fit"
+msgstr "Přizpůsobit zvětšení"
+
+#: tfmain.viewzoomfit.hint
+msgctxt "TFMAIN.VIEWZOOMFIT.HINT"
+msgid "Zoom to fit in the window"
+msgstr "Zvětšit na velikost okna"
+
+#: tfmain.viewzoomin.hint
+msgctxt "TFMAIN.VIEWZOOMIN.HINT"
+msgid "Zoom in"
+msgstr "Přiblížit"
+
+#: tfmain.viewzoomoriginal.caption
+msgctxt "TFMAIN.VIEWZOOMORIGINAL.CAPTION"
+msgid "Original size"
+msgstr "Původní velikost"
+
+#: tfmain.viewzoomoriginal.hint
+msgid "Zoom to original pixel size"
+msgstr "Zvětšit na původní bodovou velikost"
+
+#: tfmain.viewzoomout.hint
+msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
+msgid "Zoom out"
+msgstr "Oddálit"
+
+#: tfmain.vsarrowsizex.hint
+msgid "Horizontal size of the arrow"
+msgstr ""
+
+#: tfmain.vsarrowsizey.hint
+msgid "Vertical size of the arrow"
+msgstr ""
+
+#: tfmain.vsbackopacity.hint
+msgctxt "tfmain.vsbackopacity.hint"
+msgid "Secondary color opacity"
+msgstr "Průhlednost druhotné barvy"
+
+#: tfmain.vsbrushspacing.hint
+msgctxt "tfmain.vsbrushspacing.hint"
+msgid "Spacing between patterns"
+msgstr ""
+
+#: tfmain.vseraseropacity.hint
+msgctxt "tfmain.vseraseropacity.hint"
+msgid "Eraser opacity"
+msgstr "Průhlednost gumy"
+
+#: tfmain.vspenopacity.hint
+msgctxt "tfmain.vspenopacity.hint"
+msgid "Pen opacity"
+msgstr "Průhlednost pera"
+
+#: tfmain.vspenwidth.hint
+msgctxt "tfmain.vspenwidth.hint"
+msgid "Pen width"
+msgstr "Šířka pera"
+
+#: tfmain.vsphongbordersize.hint
+msgctxt "tfmain.vsphongbordersize.hint"
+msgid "Border size"
+msgstr "Velikost okraje"
+
+#: tfmain.vsshapealtitude.hint
+msgctxt "tfmain.vsshapealtitude.hint"
+msgid "Shape altitude"
+msgstr "Výška tvaru"
+
+#: tfmain.vstextblur.hint
+msgctxt "tfmain.vstextblur.hint"
+msgid "Shadow blur"
+msgstr "Stínové rozmazání"
+
+#: tfmain.vstextoutlinewidth.hint
+msgctxt "tfmain.vstextoutlinewidth.hint"
+msgid "Text outline width"
+msgstr "Tloušťka obrysu textu"
+
+#: tfmain.vstextshadowx.hint
+msgctxt "tfmain.vstextshadowx.hint"
+msgid "Horizontal shadow offset"
+msgstr "Posun vodorovného stínu"
+
+#: tfmain.vstextshadowy.hint
+msgctxt "tfmain.vstextshadowy.hint"
+msgid "Vertical shadow offset"
+msgstr "Posun svislého stínu"
+
+#: tfmain.vstextsize.hint
+msgctxt "tfmain.vstextsize.hint"
+msgid "Text size"
+msgstr ""
+
+#: tfmain.vstextureopacity.hint
+msgid "Texture opacity"
+msgstr ""
+
+#: tfmotionblur.button_cancel.caption
+msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfmotionblur.button_ok.caption
+msgctxt "TFMOTIONBLUR.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfmotionblur.caption
+msgctxt "tfmotionblur.caption"
+msgid "Motion blur"
+msgstr "Pohybové rozostření"
+
+#: tfmotionblur.checkbox_oriented.caption
+msgid "Oriented"
+msgstr "Orientovaný"
+
+#: tfmotionblur.label_distance.caption
+msgctxt "tfmotionblur.label_distance.caption"
+msgid "Distance :"
+msgstr "Vzdálenost :"
+
+#: tfmultiimage.button_cancel.caption
+msgctxt "tfmultiimage.button_cancel.caption"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfmultiimage.button_ok.caption
+msgctxt "tfmultiimage.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfmultiimage.caption
+msgid "Choose image"
+msgstr "Vybrat obrázek"
+
+#: tfnewimage.bgrashape1.caption
+msgid "BGRAShape1"
+msgstr ""
+
+#: tfnewimage.bgrashape10.caption
+msgid "BGRAShape10"
+msgstr ""
+
+#: tfnewimage.bgrashape2.caption
+msgid "BGRAShape2"
+msgstr ""
+
+#: tfnewimage.bgrashape3.caption
+msgid "BGRAShape3"
+msgstr ""
+
+#: tfnewimage.bgrashape4.caption
+msgid "BGRAShape4"
+msgstr ""
+
+#: tfnewimage.bgrashape5.caption
+msgid "BGRAShape5"
+msgstr ""
+
+#: tfnewimage.bgrashape6.caption
+msgid "BGRAShape6"
+msgstr ""
+
+#: tfnewimage.bgrashape7.caption
+msgid "BGRAShape7"
+msgstr ""
+
+#: tfnewimage.bgrashape8.caption
+msgid "BGRAShape8"
+msgstr ""
+
+#: tfnewimage.bgrashape9.caption
+msgid "BGRAShape9"
+msgstr ""
+
+#: tfnewimage.button_cancel.caption
+msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfnewimage.button_ok.caption
+msgctxt "TFNEWIMAGE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfnewimage.caption
+msgctxt "tfnewimage.caption"
+msgid "New image"
+msgstr "Nový obrázek"
+
+#: tfnewimage.combobox_bitdepth.text
+msgid "32"
+msgstr ""
+
+#: tfnewimage.label_bitdepth.caption
+msgid "Bit depth :"
+msgstr ""
+
+#: tfnewimage.label_height.caption
+msgctxt "tfnewimage.label_height.caption"
+msgid "Height :"
+msgstr "Výška :"
+
+#: tfnewimage.label_height1.caption
+msgid "Ratio :"
+msgstr ""
+
+#: tfnewimage.label_memoryrequired.caption
+msgid "Memory required :"
+msgstr ""
+
+#: tfnewimage.label_width.caption
+msgctxt "tfnewimage.label_width.caption"
+msgid "Width :"
+msgstr "Šířka :"
+
+#: tfnoisefilter.button_cancel.caption
+msgctxt "tfnoisefilter.button_cancel.caption"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfnoisefilter.button_ok.caption
+msgctxt "tfnoisefilter.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfnoisefilter.caption
+msgid "Noise filter"
+msgstr "Šumový filtr"
+
+#: tfnoisefilter.label_opacity.caption
+msgid "Opacity:"
+msgstr "Průhlednost:"
+
+#: tfnoisefilter.radio_grayscalenoise.caption
+msgid "Grayscale noise"
+msgstr "Šedý šum"
+
+#: tfnoisefilter.radio_rgbnoise.caption
+msgid "RGB noise"
+msgstr "RBG šum"
+
+#: tfobject3d.button_cancel.caption
+msgctxt "tfobject3d.button_cancel.caption"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfobject3d.button_loadtex.caption
+msgid "Texture..."
+msgstr "Textura..."
+
+#: tfobject3d.button_notex.caption
+msgid "No tex."
+msgstr "Ne tex."
+
+#: tfobject3d.button_ok.caption
+msgctxt "tfobject3d.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfobject3d.caption
+msgid "3D object"
+msgstr "3D objekt"
+
+#: tfobject3d.checkbox_antialiasing.caption
+msgid "Antialiasing"
+msgstr "Antialiasing"
+
+#: tfobject3d.checkbox_biface.caption
+msgid "2-sided faces"
+msgstr "2-stranné povrchy"
+
+#: tfobject3d.checkbox_textureinterp.caption
+msgid "Texture interpolation"
+msgstr "Interpolace textury"
+
+#: tfobject3d.groupbox_selectedlight.caption
+msgid "Selected light"
+msgstr ""
+
+#: tfobject3d.groupbox_selectedmaterial.caption
+msgctxt "tfobject3d.groupbox_selectedmaterial.caption"
+msgid "Selected material"
+msgstr "Vybraný materiál"
+
+#: tfobject3d.label_color.caption
+msgctxt "tfobject3d.label_color.caption"
+msgid "Color :"
+msgstr "Barva :"
+
+#: tfobject3d.label_color1.caption
+msgctxt "tfobject3d.label_color1.caption"
+msgid "Color :"
+msgstr "Barva :"
+
+#: tfobject3d.label_height.caption
+msgctxt "tfobject3d.label_height.caption"
+msgid "Height :"
+msgstr "Výška :"
+
+#: tfobject3d.label_lightingnormals.caption
+msgctxt "tfobject3d.label_lightingnormals.caption"
+msgid "Lighting normals :"
+msgstr "Světelné normály :"
+
+#: tfobject3d.label_lights.caption
+msgid "Lights :"
+msgstr ""
+
+#: tfobject3d.label_materials.caption
+msgctxt "tfobject3d.label_materials.caption"
+msgid "Materials :"
+msgstr "Materiály:"
+
+#: tfobject3d.label_opacity.caption
+msgctxt "tfobject3d.label_opacity.caption"
+msgid "Opacity :"
+msgstr "Průhlednost :"
+
+#: tfobject3d.label_specularindex.caption
+msgctxt "tfobject3d.label_specularindex.caption"
+msgid "Spec. index :"
+msgstr "Zrcadl. index :"
+
+#: tfobject3d.label_width.caption
+msgctxt "tfobject3d.label_width.caption"
+msgid "Width :"
+msgstr "Šířka :"
+
+#: tfobject3d.label_zoom.caption
+msgctxt "tfobject3d.label_zoom.caption"
+msgid "Zoom"
+msgstr "Měřítko"
+
+#: tfobject3d.lights.caption
+msgid "Lights"
+msgstr ""
+
+#: tfobject3d.materials.caption
+msgid "Materials"
+msgstr "Materiály"
+
+#: tfobject3d.opentexturedialog.title
+msgctxt "tfobject3d.opentexturedialog.title"
+msgid "Open texture"
+msgstr "Otevřít texturu"
+
+#: tfobject3d.rendering.caption
+msgid "Rendering"
+msgstr "Vykreslení"
+
+#: tfobject3d.tooladddirectional.hint
+msgid "Add a directional light"
+msgstr ""
+
+#: tfobject3d.toolpointlight.hint
+msgid "Add a point light"
+msgstr ""
+
+#: tfobject3d.toolremoveselectedlight.hint
+msgid "Remove selected light"
+msgstr ""
+
+#: tfphongfilter.button_cancel.caption
+msgctxt "tfphongfilter.button_cancel.caption"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfphongfilter.button_ok.caption
+msgctxt "tfphongfilter.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfphongfilter.caption
+msgctxt "tfphongfilter.caption"
+msgid "Shaded map"
+msgstr "Stínová mapa"
+
+#: tfphongfilter.groupbox_color.caption
+msgctxt "tfphongfilter.groupbox_color.caption"
+msgid "Color"
+msgstr "Barva"
+
+#: tfphongfilter.groupbox_color1.caption
+msgid "Altitude map"
+msgstr "Výšková mapa"
+
+#: tfphongfilter.label_altitude.caption
+msgid "Global altitude :"
+msgstr "Celková výška :"
+
+#: tfphongfilter.label_lightposition.caption
+msgid "Light position :"
+msgstr "Pozice světla :"
+
+#: tfphongfilter.radio_mapalpha.caption
+msgid "Alpha"
+msgstr "Alfa"
+
+#: tfphongfilter.radio_mapblue.caption
+msgid "B"
+msgstr "B"
+
+#: tfphongfilter.radio_mapgreen.caption
+msgid "G"
+msgstr "G"
+
+#: tfphongfilter.radio_maplightness.caption
+msgctxt "tfphongfilter.radio_maplightness.caption"
+msgid "Lightness"
+msgstr "Světlost"
+
+#: tfphongfilter.radio_maplinearlightness.caption
+msgid "Linear lightness"
+msgstr "Lineární světlost"
+
+#: tfphongfilter.radio_mapred.caption
+msgid "R"
+msgstr "R"
+
+#: tfphongfilter.radio_mapsaturation.caption
+msgctxt "tfphongfilter.radio_mapsaturation.caption"
+msgid "Saturation"
+msgstr "Barevnost"
+
+#: tfphongfilter.radio_usebackcolor.caption
+msgid "Back color"
+msgstr "Barva pozadí"
+
+#: tfphongfilter.radio_usekeep.caption
+msgid "Keep"
+msgstr "Ponechat"
+
+#: tfphongfilter.radio_usepencolor.caption
+msgid "Pen color"
+msgstr "Barva pera"
+
+#: tfphongfilter.radio_usetexture.caption
+msgctxt "tfphongfilter.radio_usetexture.caption"
+msgid "Current texture"
+msgstr "Aktuální textura"
+
+#: tfpixelate.button_cancel.caption
+msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfpixelate.button_ok.caption
+msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfpixelate.caption
+msgctxt "tfpixelate.caption"
+msgid "Pixelate"
+msgstr "Pixelizace"
+
+#: tfpixelate.label_pixelsize.caption
+msgctxt "tfpixelate.label_pixelsize.caption"
+msgid "Pixel size :"
+msgstr "Velikost bodu :"
+
+#: tfpixelate.label_quality.caption
+msgctxt "tfpixelate.label_quality.caption"
+msgid "Quality :"
+msgstr "Kvalita :"
+
+#: tfposterize.button_cancel.caption
+msgctxt "tfposterize.button_cancel.caption"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfposterize.button_ok.caption
+msgctxt "tfposterize.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfposterize.caption
+msgctxt "tfposterize.caption"
+msgid "Posterize"
+msgstr "Posterizace"
+
+#: tfposterize.checkbox_bylightness.caption
+msgid "By lightness"
+msgstr "Podle světlosti"
+
+#: tfposterize.label_levels.caption
+msgid "Levels :"
+msgstr "Úrovně:"
+
+#: tfpreviewdialog.caption
+msgid "Preview"
+msgstr ""
+
+#: tfpreviewdialog.lstatus.caption
+#, fuzzy
+msgctxt "tfpreviewdialog.lstatus.caption"
+msgid "."
+msgstr "."
+
+#: tfprint.button_configureprinter.caption
+msgid "Configure..."
+msgstr "Nastavit..."
+
+#: tfprint.button_print.caption
+msgid "Print!"
+msgstr "Tisk!"
+
+#: tfprint.button_zoomfit.caption
+msgctxt "tfprint.button_zoomfit.caption"
+msgid "Zoom fit"
+msgstr "Přizpůsobit zvětšení"
+
+#: tfprint.caption
+msgid "Print"
+msgstr "Tisk"
+
+#: tfprint.checkbox_ratio.caption
+msgctxt "tfprint.checkbox_ratio.caption"
+msgid "Keep aspect ratio"
+msgstr "Udržovat poměr"
+
+#: tfprint.groupbox_imagesize.caption
+msgid "Image size"
+msgstr "Velikost obrázku"
+
+#: tfprint.groupbox_margins.caption
+msgid "Margins"
+msgstr "Okraje"
+
+#: tfprint.label_bottom.caption
+msgid "Bottom:"
+msgstr "Dole:"
+
+#: tfprint.label_dpix.caption
+msgctxt "tfprint.label_dpix.caption"
+msgid "."
+msgstr "."
+
+#: tfprint.label_dpiy.caption
+msgctxt "tfprint.label_dpiy.caption"
+msgid "."
+msgstr "."
+
+#: tfprint.label_height.caption
+msgid "Height:"
+msgstr "Výška:"
+
+#: tfprint.label_left.caption
+msgid "Left:"
+msgstr "Vlevo:"
+
+#: tfprint.label_orientation.caption
+msgid "Orientation:"
+msgstr "Otočení:"
+
+#: tfprint.label_printerandpaper.caption
+msgid "Printer and paper:"
+msgstr "Tiskárna a papír:"
+
+#: tfprint.label_right.caption
+msgid "Right:"
+msgstr "Vpravo:"
+
+#: tfprint.label_top.caption
+msgid "Top:"
+msgstr "Nahoře:"
+
+#: tfprint.label_width.caption
+msgid "Width:"
+msgstr "Šířka:"
+
+#: tfquestion.caption
+msgid "Question"
+msgstr ""
+
+#: tfquestion.checkbox_rememberchoice.caption
+msgid "Remember this choice"
+msgstr ""
+
+#: tfquestion.label_message.caption
+#, fuzzy
+msgctxt "tfquestion.label_message.caption"
+msgid "."
+msgstr "."
+
+#: tfradialblur.button_cancel.caption
+msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfradialblur.button_ok.caption
+msgctxt "TFRADIALBLUR.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfradialblur.caption
+msgctxt "tfradialblur.caption"
+msgid "Radial blur"
+msgstr "Radiální rozmazání"
+
+#: tfradialblur.label_radius.caption
+msgctxt "tfradialblur.label_radius.caption"
+msgid "Radius :"
+msgstr "Poloměr :"
+
+#: tfrain.button_cancel.caption
+msgctxt "tfrain.button_cancel.caption"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfrain.button_ok.caption
+msgctxt "tfrain.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfrain.caption
+msgid "Rain"
+msgstr ""
+
+#: tfrain.label_quantity.caption
+msgid "Quantity:"
+msgstr ""
+
+#: tfrain.label_wind.caption
+msgid "Wind :"
+msgstr ""
+
+#: tfresample.button_cancel.caption
+msgctxt "TFRESAMPLE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfresample.button_ok.caption
+msgctxt "TFRESAMPLE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfresample.caption
+msgctxt "tfresample.caption"
+msgid "Resample"
+msgstr "Převzorkovat"
+
+#: tfresample.checkbox_ratio.caption
+msgctxt "tfresample.checkbox_ratio.caption"
+msgid "Keep aspect ratio"
+msgstr "Udržovat poměr"
+
+#: tfresample.label_height.caption
+msgctxt "tfresample.label_height.caption"
+msgid "Height :"
+msgstr "Výška :"
+
+#: tfresample.label_quality.caption
+msgctxt "tfresample.label_quality.caption"
+msgid "Quality :"
+msgstr "Kvalita :"
+
+#: tfresample.label_width.caption
+msgctxt "tfresample.label_width.caption"
+msgid "Width :"
+msgstr "Šířka :"
+
+#: tfsaveoption.button_cancel.caption
+msgctxt "tfsaveoption.button_cancel.caption"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfsaveoption.button_ok.caption
+msgctxt "tfsaveoption.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfsaveoption.caption
+msgctxt "tfsaveoption.caption"
+msgid "Save"
+msgstr "Uložit"
+
+#: tfsaveoption.checkbox_dithering.caption
+msgid "Dithering"
+msgstr ""
+
+#: tfsaveoption.label1.caption
+msgid "Quality:"
+msgstr ""
+
+#: tfsaveoption.label_0.caption
+msgid "0"
+msgstr ""
+
+#: tfsaveoption.label_1.caption
+msgid "100"
+msgstr ""
+
+#: tfsaveoption.label_50.caption
+msgid "50"
+msgstr ""
+
+#: tfsaveoption.label_colordepth.caption
+msgid "Color depth:"
+msgstr ""
+
+#: tfsaveoption.label_size.caption
+msgid "Size:"
+msgstr ""
+
+#: tfsaveoption.radiobutton_16colors.caption
+msgid "16 colors"
+msgstr ""
+
+#: tfsaveoption.radiobutton_24bitsperpixel.caption
+msgid "24 bits"
+msgstr ""
+
+#: tfsaveoption.radiobutton_256colors.caption
+msgid "256 colors"
+msgstr ""
+
+#: tfsaveoption.radiobutton_2colors.caption
+msgid "2 colors"
+msgstr ""
+
+#: tfsaveoption.radiobutton_32bitsperpixel.caption
+msgid "32 bits"
+msgstr ""
+
+#: tfsaveoption.radiobutton_miomap.caption
+msgid "MioMap"
+msgstr ""
+
+#: tfsharpen.button_cancel.caption
+msgctxt "tfsharpen.button_cancel.caption"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfsharpen.button_ok.caption
+msgctxt "tfsharpen.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfsharpen.caption
+msgid "Sharpen/Smooth"
+msgstr "Ostření/Vyhlazení"
+
+#: tfsharpen.label_amount.caption
+msgctxt "tfsharpen.label_amount.caption"
+msgid "Amount :"
+msgstr "Množství :"
+
+#: tfshiftcolors.button_cancel.caption
+msgctxt "TFSHIFTCOLORS.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfshiftcolors.button_ok.caption
+msgctxt "TFSHIFTCOLORS.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfshiftcolors.caption
+msgctxt "tfshiftcolors.caption"
+msgid "Shift colors"
+msgstr "Posunout barvy"
+
+#: tfshiftcolors.checkbox_gsba.caption
+msgctxt "tfshiftcolors.checkbox_gsba.caption"
+msgid "Corrected hue and lightness"
+msgstr "Opravený odstín a světlost"
+
+#: tfshiftcolors.label1.caption
+msgctxt "TFSHIFTCOLORS.LABEL1.CAPTION"
+msgid "Hue"
+msgstr "Odstín"
+
+#: tfshiftcolors.label2.caption
+msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
+msgid "Saturation"
+msgstr "Barevnost"
+
+#: tftoolbox.caption
+msgctxt "tftoolbox.caption"
+msgid "Tools"
+msgstr "Nástroje"
+
+#: tftwirl.button_cancel.caption
+msgctxt "TFTWIRL.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tftwirl.button_ok.caption
+msgctxt "TFTWIRL.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tftwirl.caption
+msgctxt "tftwirl.caption"
+msgid "Twirl"
+msgstr "Víření"
+
+#: tftwirl.label_angle.caption
+msgctxt "tftwirl.label_angle.caption"
+msgid "Angle :"
+msgstr "Úhel :"
+
+#: tftwirl.label_radius.caption
+msgctxt "tftwirl.label_radius.caption"
+msgid "Radius :"
+msgstr "Poloměr :"
+
 #: uresourcestrings.rsactioninprogress
 msgid "Action in progress"
 msgstr "Akce v běhu"
