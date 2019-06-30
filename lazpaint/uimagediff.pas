@@ -277,6 +277,27 @@ type
     destructor Destroy; override;
   end;
 
+  { TReplaceLayerByImageOriginalDifference }
+
+  TReplaceLayerByImageOriginalDifference = class(TCustomImageDifference)
+  private
+    function GetLayerId: integer;
+  protected
+    FPreviousLayerContent: TStoredLayer;
+    FPrevMatrix,FNextMatrix: TAffineMatrix;
+    function GetImageDifferenceKind: TImageDifferenceKind; override;
+  public
+    constructor Create(AFromState: TState; AIndex: integer);
+    function UsedMemory: int64; override;
+    function TryCompress: boolean; override;
+    procedure ApplyTo(AState: TState); override;
+    procedure UnapplyTo(AState: TState); override;
+    property LayerId: integer read GetLayerId;
+    property prevMatrix: TAffineMatrix read FPrevMatrix;
+    property nextMatrix: TAffineMatrix read FNextMatrix write FNextMatrix;
+    destructor Destroy; override;
+  end;
+
   { TDiscardOriginalStateDifference }
 
   TDiscardOriginalStateDifference = class(TCustomImageDifference)
@@ -457,6 +478,16 @@ begin
     else result := false;
   end
   else
+  if (APrevDiff is TReplaceLayerByImageOriginalDifference) and (ANewDiff is TSetLayerMatrixDifference) then
+  begin
+    if (APrevDiff as TReplaceLayerByImageOriginalDifference).nextMatrix = (ANewDiff as TSetLayerMatrixDifference).previousMatrix then
+    begin
+      (APrevDiff as TReplaceLayerByImageOriginalDifference).nextMatrix := (ANewDiff as TSetLayerMatrixDifference).nextMatrix;
+      result := true;
+    end
+    else result := false;
+  end
+  else
   if (APrevDiff is TSetSelectionTransformDifference) and (ANewDiff is TSetSelectionTransformDifference) then
   begin
     if (APrevDiff as TSetSelectionTransformDifference).nextMatrix = (ANewDiff as TSetSelectionTransformDifference).previousMatrix then
@@ -478,6 +509,74 @@ begin
   end
   else
     result := false;
+end;
+
+{ TReplaceLayerByImageOriginalDifference }
+
+function TReplaceLayerByImageOriginalDifference.GetLayerId: integer;
+begin
+  result := FPreviousLayerContent.LayerId;
+end;
+
+function TReplaceLayerByImageOriginalDifference.GetImageDifferenceKind: TImageDifferenceKind;
+begin
+  Result:= idkChangeImage;
+end;
+
+constructor TReplaceLayerByImageOriginalDifference.Create(
+  AFromState: TState; AIndex: integer);
+var
+  imgState: TImageState;
+begin
+  inherited Create(AFromState);
+  imgState := AFromState as TImageState;
+  FPreviousLayerContent := TStoredLayer.Create(imgState.LayeredBitmap, AIndex);
+  with FPreviousLayerContent.Offset do FPrevMatrix := AffineMatrixTranslation(x,y);
+  FNextMatrix := FPrevMatrix;
+  ApplyTo(imgState);
+end;
+
+function TReplaceLayerByImageOriginalDifference.UsedMemory: int64;
+begin
+  Result:= FPreviousLayerContent.UsedMemory;
+end;
+
+function TReplaceLayerByImageOriginalDifference.TryCompress: boolean;
+begin
+  Result:= FPreviousLayerContent.Compress;
+end;
+
+procedure TReplaceLayerByImageOriginalDifference.ApplyTo(AState: TState);
+var
+  imgState: TImageState;
+  orig: TBGRALayerImageOriginal;
+  origIndex,layerIdx: Integer;
+begin
+  imgState := AState as TImageState;
+  layerIdx := imgState.LayeredBitmap.GetLayerIndexFromId(FPreviousLayerContent.LayerId);
+  orig := TBGRALayerImageOriginal.Create;
+  orig.AssignImage(imgState.LayeredBitmap.LayerBitmap[layerIdx]);
+  origIndex := imgState.LayeredBitmap.AddOriginal(orig, true);
+  imgState.LayeredBitmap.LayerOriginalGuid[layerIdx] := imgState.LayeredBitmap.OriginalGuid[origIndex];
+  imgState.LayeredBitmap.LayerOriginalMatrix[layerIdx] := FNextMatrix;
+  if FNextMatrix = FPrevMatrix then
+    imgState.LayeredBitmap.LayerOriginalRenderStatus[layerIdx] := orsProof
+  else
+    imgState.LayeredBitmap.LayerOriginalRenderStatus[layerIdx] := orsNone;
+end;
+
+procedure TReplaceLayerByImageOriginalDifference.UnapplyTo(AState: TState);
+var
+  imgState: TImageState;
+begin
+  imgState := AState as TImageState;
+  FPreviousLayerContent.Replace(imgState.LayeredBitmap);
+end;
+
+destructor TReplaceLayerByImageOriginalDifference.Destroy;
+begin
+  FPreviousLayerContent.Free;
+  inherited Destroy;
 end;
 
 { TSetSelectionTransformDifference }

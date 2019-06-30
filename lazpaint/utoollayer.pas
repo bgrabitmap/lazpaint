@@ -5,8 +5,8 @@ unit UToolLayer;
 interface
 
 uses
-  Classes, SysUtils, UTool, BGRABitmap, BGRABitmapTypes, UImageType, BGRATransform,
-  ULayerAction;
+  Classes, SysUtils, UTool, BGRABitmap, BGRABitmapTypes, UImageType,
+  BGRATransform, BGRALayers, ULayerAction, UStateType, UImageDiff;
 
 type
   { TToolMoveLayer }
@@ -45,11 +45,14 @@ type
     function GetOriginalLayerBounds: TRect;
     function GetRotationCenter: TPointF;
     procedure SetRotationCenter(AValue: TPointF);
-    function UseOriginal: boolean;
+    procedure NeedOriginal;
   protected
+    FOriginalInit: boolean;
+    FBackupLayer: TReplaceLayerByImageOriginalDifference;
     FInitialOriginalMatrix: TAffineMatrix;
     FInitialLayerBounds: TRect;
     FInitialLayerBoundsDefined: boolean;
+
     FRotationCenter: TPointF;
     FRotationCenterDefined: boolean;
     FFilter: TResampleFilter;
@@ -70,7 +73,6 @@ type
     procedure CancelRotation;
     procedure ValidateRotation;
     property RotationCenter: TPointF read GetRotationCenter write SetRotationCenter;
-    property OriginalLayerBounds: TRect read GetOriginalLayerBounds;
     function GetAction: TLayerAction; override;
     function DoGetToolDrawingLayer: TBGRABitmap; override;
   public
@@ -86,7 +88,7 @@ type
 
 implementation
 
-uses LazPaintType, ugraph, LCLType, Types;
+uses LazPaintType, ugraph, LCLType, Types, BGRALayerOriginal;
 
 { TToolRotateLayer }
 
@@ -109,14 +111,16 @@ begin
 end;
 
 function TToolRotateLayer.GetRotationCenter: TPointF;
+var bounds: TRect;
 begin
   if not FRotationCenterDefined then
   begin
-    if IsRectEmpty(OriginalLayerBounds) then
+    bounds := GetOriginalLayerBounds;
+    if IsRectEmpty(bounds) then
       FRotationCenter := PointF(Manager.Image.Width/2 - 0.5,Manager.Image.Height/2 - 0.5)
     else
     begin
-      with OriginalLayerBounds do
+      with bounds do
         FRotationCenter := PointF((Left+Right)/2 - 0.5, (Top+Bottom)/2 - 0.5);
       with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
         FRotationCenter += PointF(X,Y);
@@ -131,11 +135,23 @@ begin
   FRotationCenter := AValue;
 end;
 
-function TToolRotateLayer.UseOriginal: boolean;
+procedure TToolRotateLayer.NeedOriginal;
+var
+  layered: TBGRALayeredBitmap;
+  layerIdx: Integer;
 begin
-  with Manager.Image do
-    result := LayerOriginalDefined[CurrentLayerIndex] and
-              LayerOriginalKnown[CurrentLayerIndex];
+  if FOriginalInit then exit;
+  GetAction;
+  layerIdx := Manager.Image.CurrentLayerIndex;
+  layered := Manager.Image.CurrentState.LayeredBitmap;
+  if not (Manager.Image.LayerOriginalDefined[layerIdx] and
+     Manager.Image.LayerOriginalKnown[layerIdx]) then
+  begin
+    if Assigned(FBackupLayer) then raise exception.Create('Backup layer already assigned');
+    FBackupLayer:= TReplaceLayerByImageOriginalDifference.Create(Manager.Image.CurrentState, layerIdx);
+  end;
+  FInitialOriginalMatrix := layered.LayerOriginalMatrix[layerIdx];
+  FOriginalInit := true;
 end;
 
 function TToolRotateLayer.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
@@ -197,47 +213,46 @@ begin
   FPreviousRotationCenter := RotationCenter;
   FPreviousFilter := FFilter;
   result := EmptyRect;
-  GetAction;
-
-  if UseOriginal then
-  begin
-    Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] :=
-      AffineMatrixTranslation(RotationCenter.X,RotationCenter.Y)*
-      AffineMatrixRotationDeg(FActualAngle)*
-      AffineMatrixTranslation(-RotationCenter.X,-RotationCenter.Y)*
-      FInitialOriginalMatrix;
-  end else
-  begin
-    if not FLastUpdateRectDefined then
-    begin
-      GetToolDrawingLayer.FillTransparent;
-      result := rect(0,0,GetToolDrawingLayer.Width,GetToolDrawingLayer.Height);
-    end else
-    if not IsRectEmpty(FLastUpdateRect) then
-    begin
-      GetToolDrawingLayer.FillRect(FLastUpdateRect,BGRAPixelTransparent,dmSet);
-      result := FLastUpdateRect;
-    end;
-    FLastUpdateRect := GetToolDrawingLayer.GetImageAngleBounds(0,0,Action.BackupDrawingLayer,FActualAngle,RotationCenter.X,RotationCenter.Y,True);
-    FLastUpdateRectDefined:= true;
-    GetToolDrawingLayer.ComputeImageAngleAxes(0,0,Action.BackupDrawingLayer.Width,Action.BackupDrawingLayer.Height,FActualAngle,RotationCenter.X,RotationCenter.Y,True,
-    origin,haxis,vaxis);
-    GetToolDrawingLayer.PutImageAffine(origin,haxis,vaxis,Action.BackupDrawingLayer,FLastUpdateRect,FFilter,dmSet,255);
-    result := RectUnion(result,FLastUpdateRect);
-  end;
+  NeedOriginal;
+  Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] :=
+    AffineMatrixTranslation(RotationCenter.X,RotationCenter.Y)*
+    AffineMatrixRotationDeg(FActualAngle)*
+    AffineMatrixTranslation(-RotationCenter.X,-RotationCenter.Y)*
+    FInitialOriginalMatrix;
 end;
 
 procedure TToolRotateLayer.CancelRotation;
 begin
-  if UseOriginal then
-    Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] := FInitialOriginalMatrix
-  else
-    CancelActionPartially;
+  if FOriginalInit then
+  begin
+    Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] := FInitialOriginalMatrix;
+    if Assigned(FBackupLayer) then
+    begin
+      FBackupLayer.UnapplyTo(Manager.Image.CurrentState);
+      FreeAndNil(FBackupLayer);
+    end;
+    FOriginalInit := false;
+  end;
   Manager.QueryExitTool;
 end;
 
 procedure TToolRotateLayer.ValidateRotation;
+var
+  transform: TAffineMatrix;
 begin
+  if FOriginalInit then
+  begin
+    if Assigned(FBackupLayer) then
+    begin
+      transform := Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex];
+      Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] := FInitialOriginalMatrix;
+      Manager.Image.CurrentState.LayeredBitmap.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] := transform;
+      FBackupLayer.nextMatrix := transform;
+      Manager.Image.AddUndo(FBackupLayer);
+      FBackupLayer := nil;
+    end;
+    FOriginalInit := false;
+  end;
   Manager.QueryExitTool;
 end;
 
@@ -248,10 +263,7 @@ end;
 
 function TToolRotateLayer.DoGetToolDrawingLayer: TBGRABitmap;
 begin
-  if UseOriginal then
-    Result:= Manager.Image.CurrentLayerReadOnly   //do not modify layer data directly and ignore selection
-  else
-    Result:= Action.SelectedImageLayer;
+  Result:= Manager.Image.CurrentLayerReadOnly   //do not modify layer data directly and ignore selection
 end;
 
 constructor TToolRotateLayer.Create(AManager: TToolManager);
@@ -260,18 +272,15 @@ begin
   FAngle:= 0;
   FPreviousActualAngle := 0;
   FCtrlDown:= false;
-  FInitialLayerBoundsDefined:= false;
   FRotationCenterDefined := false;
   FLastUpdateRectDefined:= false;
   FFilter := rfCosine;
   FPreviousFilter := FFilter;
-  FInitialOriginalMatrix := Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex];
 end;
 
 destructor TToolRotateLayer.Destroy;
 begin
-  if not UseOriginal then
-    ValidateAction;
+  ValidateRotation;
   inherited Destroy;
 end;
 

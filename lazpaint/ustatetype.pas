@@ -187,6 +187,7 @@ type
   TStoredLayer = class(TStoredImage)
   private
     function GetId: integer;
+    function GetOffset: TPoint;
   protected
     FInfo: TLayerInfo;
     FIndex: integer;
@@ -201,6 +202,7 @@ type
     procedure Replace(ALayeredImage: TBGRALayeredBitmap);
     property LayerIndex: integer read FIndex;
     property LayerId: integer read GetId;
+    property Offset: TPoint read GetOffset;
   end;
 
 implementation
@@ -983,6 +985,11 @@ end;
 function TStoredLayer.GetId: integer;
 begin
   result := FInfo.Id;
+end;
+
+function TStoredLayer.GetOffset: TPoint;
+begin
+  result := FInfo.Offset;
 end;
 
 constructor TStoredLayer.Create(ALayeredImage: TBGRALayeredBitmap;

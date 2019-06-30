@@ -2746,9 +2746,9 @@ begin
               result := srException;
             end;
           end;
-          ptMoveLayer:
+          ptMoveLayer, ptRotateLayer:
           begin
-            if image.CurrentLayerEquals(image.CurrentLayerPixel[0,0]) then
+            if image.CurrentLayerEquals(BGRAPixelTransparent) then
             begin
               LazPaintInstance.ShowMessage(rsLazPaint, rsEmptyLayer);
               Tool := ptHand;
