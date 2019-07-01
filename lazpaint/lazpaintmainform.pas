@@ -2710,6 +2710,7 @@ begin
                       FImageActions.RemoveSelection;
                       BGRAReplace(newTexture, newTexture.GetPart(newTexture.GetImageBounds));
                       ToolManager.SetToolTexture(newTexture);
+                      newTexture.FreeReference;
                       UpdateTextureIcon;
                     end;
                   end;
@@ -3184,6 +3185,7 @@ begin
         if LazPaintInstance.BlackAndWhite then
           newTex.InplaceGrayscale;
         ToolManager.SetToolTexture(newTex);
+        newTex.FreeReference;
         newTex := nil;
         result := true;
         UpdateTextureIcon;

@@ -35,6 +35,7 @@ type
     function GetOrthoRect(AMatrix: TAffineMatrix; out ARect: TRectF): boolean;
     function AllowShearTransform: boolean; virtual;
     function ShowArrows: boolean; virtual;
+    procedure SetOrigin(AValue: TPointF);
   public
     procedure QuickDefine(const APoint1,APoint2: TPointF); override;
     function SuggestGradientBox(AMatrix: TAffineMatrix): TAffineBox; override;
@@ -42,6 +43,9 @@ type
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; {%H-}AOptions: TRenderBoundsOptions = []): TRectF; override;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
+    property Origin: TPointF read FOrigin write SetOrigin;
+    property XAxis: TPointF read FXAxis;
+    property YAxis: TPointF read FYAxis;
   end;
 
   { TRectShape }
@@ -127,6 +131,23 @@ implementation
 uses BGRAPen, BGRAGraphics, BGRAFillInfo, BGRAPath, math, LCVectorialFill;
 
 { TCustomRectShape }
+
+procedure TCustomRectShape.SetOrigin(AValue: TPointF);
+var
+  delta: TPointF;
+begin
+  if FOrigin=AValue then Exit;
+  BeginUpdate;
+  delta := AValue - FOrigin;
+  FOrigin := AValue;
+  FXAxis += delta;
+  FYAxis += delta;
+  if vsfBackFill in Fields then
+    BackFill.Transform(AffineMatrixTranslation(delta.x, delta.y));
+  if vsfPenFill in Fields then
+    PenFill.Transform(AffineMatrixTranslation(delta.x, delta.y));
+  EndUpdate;
+end;
 
 procedure TCustomRectShape.DoMoveXAxis(ANewCoord: TPointF; AShift: TShiftState; AFactor: single);
 var
@@ -240,19 +261,8 @@ end;
 
 procedure TCustomRectShape.OnMoveOrigin(ASender: TObject; APrevCoord,
   ANewCoord: TPointF; AShift: TShiftState);
-var
-  delta: TPointF;
 begin
-  BeginUpdate;
-  delta := ANewCoord - FOrigin;
-  FOrigin := ANewCoord;
-  FXAxis += delta;
-  FYAxis += delta;
-  if vsfBackFill in Fields then
-    BackFill.Transform(AffineMatrixTranslation(delta.x, delta.y));
-  if vsfPenFill in Fields then
-    PenFill.Transform(AffineMatrixTranslation(delta.x, delta.y));
-  EndUpdate;
+  Origin := ANewCoord;
 end;
 
 procedure TCustomRectShape.OnMoveXAxis(ASender: TObject; APrevCoord,

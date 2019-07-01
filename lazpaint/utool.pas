@@ -997,7 +997,8 @@ begin
     ToolBrushAt[i].Free;
   FToolBrushInfoList.Free;
 
-  FToolTexture.Free;
+  FToolTexture.FreeReference;
+  FToolTexture := nil;
   FToolTextureAfterAlpha.Free;
   ToolTextFont.Free;
   inherited Destroy;
@@ -1232,8 +1233,8 @@ end;
 procedure TToolManager.SetToolTexture(ATexture: TBGRABitmap);
 begin
   if ATexture = FToolTexture then exit;
-  FreeAndNil(FToolTexture);
-  FToolTexture := ATexture;
+  FToolTexture.FreeReference;
+  FToolTexture := ATexture.NewReference as TBGRABitmap;
   FreeAndNil(FToolTextureAfterAlpha);
 end;
 

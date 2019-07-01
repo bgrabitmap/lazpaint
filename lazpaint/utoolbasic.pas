@@ -5,8 +5,8 @@ unit UToolBasic;
 interface
 
 uses
-  Classes, SysUtils, utool, BGRABitmapTypes, BGRABitmap, UImage,
-  ULayerAction;
+  Classes, SysUtils, utool, BGRABitmapTypes, BGRABitmap, BGRALayerOriginal,
+  UImage, ULayerAction, LCVectorOriginal;
 
 type
 
@@ -70,6 +70,55 @@ type
     function ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF): TRect; override;
   end;
 
+  { TVectorialTool }
+
+  TVectorialTool = class(TGenericTool)
+  protected
+    FShape: TVectorShape;
+    FSwapColor: boolean;
+    FQuickDefine: Boolean;
+    FQuickDefineStartPoint: TPointF;
+    FQuickSquare: boolean;
+    FPreviousUpdateBounds, FPreviousEditorBounds: TRect;
+    FEditor: TBGRAOriginalEditor;
+    FShiftState: TShiftState;
+    FRightDown: boolean;
+    FLastPos: TPointF;
+    function CreateShape: TVectorShape; virtual; abstract;
+    procedure AssignShapeStyle; virtual;
+    function RoundCoordinate(ptF: TPointF): TPointF; virtual;
+    function GetIsSelectingTool: boolean; override;
+    function UpdateShape(toolDest: TBGRABitmap): TRect; virtual;
+    procedure UpdateCursor(ACursor: TOriginalEditorCursor);
+    function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF; rightBtn: boolean): TRect; override;
+    function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF): TRect; override;
+    function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
+    procedure ShapeChange({%H-}ASender: TObject; ABounds: TRectF); virtual;
+    procedure ShapeEditingChange({%H-}ASender: TObject); virtual;
+    function GetStatusText: string; override;
+  public
+    constructor Create(AManager: TToolManager); override;
+    function ToolUp: TRect; override;
+    function ToolKeyDown(var key: Word): TRect; override;
+    function ToolKeyUp(var key: Word): TRect; override;
+    function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
+    destructor Destroy; override;
+  end;
+
+  { TToolRectangle }
+
+  TToolRectangle = class(TVectorialTool)
+  protected
+    function CreateShape: TVectorShape; override;
+  end;
+
+  { TToolEllipse }
+
+  TToolEllipse = class(TVectorialTool)
+  protected
+    function CreateShape: TVectorShape; override;
+  end;
+
   TRectangularBorderTest = set of (btOriginX,btOriginY,btDestX,btDestY,btCenter);
 
   { TToolRectangular }
@@ -118,184 +167,383 @@ type
     property FillColor: TBGRAPixel read GetFillColor;
   end;
 
-  { TToolRectangle }
-
-  TToolRectangle = class(TToolRectangular)
-  protected
-    function UpdateShape(toolDest: TBGRABitmap): TRect; override;
-    function FinishShape(toolDest: TBGRABitmap): TRect;  override;
-    function ShouldFinishShapeWhenFirstMouseUp: boolean; override;
-    function ConstraintEnabled: boolean; override;
-  end;
-
-  { TToolEllipse }
-
-  TToolEllipse = class(TToolRectangle)
-  protected
-    circleConstraint: boolean;
-    function BorderTest(ptF: TPointF): TRectangularBorderTest; override;
-    function UpdateShape(toolDest: TBGRABitmap): TRect; override;
-    function RoundCoordinate(ptF: TPointF): TPointF; override;
-    function GetStatusText: string; override;
-  public
-    function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth,
-      {%H-}VirtualScreenHeight: integer;
-      BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
-  end;
-
 implementation
 
-uses Types, BGRAPolygon, Graphics, LCLType, ugraph, Controls, LazPaintType,
-  UResourceStrings;
+uses Types, Graphics, LCLType, ugraph, Controls, LazPaintType,
+  UResourceStrings, BGRATransform, Math, BGRAPen, LCVectorRectShapes;
 
-{ TToolEllipse }
-
-function TToolEllipse.BorderTest(ptF: TPointF): TRectangularBorderTest;
+function PenStyleToBGRA(APenStyle: TPenStyle): TBGRAPenStyle;
 begin
-  Result:=inherited BorderTest(ptF);
-  if (result = [btOriginY,btOriginX]) or (result = [btDestY,btDestX]) then exit; //ok
-  if (result = [btDestX,btOriginY]) then result := [btDestX] else
-  if (result = [btDestY,btOriginX]) then result := [btDestY] else
-    result := [];
+  Case APenStyle of
+  psSolid: result := SolidPenStyle;
+  psDash: result := DashPenStyle;
+  psDot: result := DotPenStyle;
+  psDashDot: result := DashDotPenStyle;
+  psDashDotDot: result := DashDotDotPenStyle;
+  else result := ClearPenStyle;
+  end;
 end;
 
-function TToolEllipse.UpdateShape(toolDest: TBGRABitmap): TRect;
+{ TVectorialTool }
+
+procedure TVectorialTool.ShapeChange(ASender: TObject; ABounds: TRectF);
 var
-  multi: TBGRAMultishapeFiller;
-  rx,ry: single;
-  pts: array of TPointF;
+  toolDest: TBGRABitmap;
+  r: TRect;
 begin
-   ClearShape;
-   multi := TBGRAMultishapeFiller.Create;
-   rx := abs(rectDest.X-rectOrigin.X);
-   ry := abs(rectDest.Y-rectOrigin.Y);
-
-   if Manager.ToolOptionDrawShape then
-   begin
-     result := GetShapeBounds([PointF(rectOrigin.x-rx,rectOrigin.y-ry),PointF(rectOrigin.x+rx,rectOrigin.y+ry)],Manager.ToolPenWidth);
-     toolDest.ClipRect := result;
-     if Manager.ToolPenStyle = psSolid then
-     begin
-       if not Manager.ToolOptionFillShape and (Manager.GetToolTextureAfterAlpha <> nil) then
-         multi.AddEllipseBorder(rectOrigin.X,rectOrigin.Y,rx,ry,Manager.ToolPenWidth,Manager.GetToolTextureAfterAlpha) else
-         multi.AddEllipseBorder(rectOrigin.X,rectOrigin.Y,rx,ry,Manager.ToolPenWidth,penColor);
-     end else
-     begin
-        with toolDest do
-          pts := ComputeEllipseContour(rectOrigin.X,rectOrigin.Y,rx,ry);
-
-        toolDest.JoinStyle := pjsRound;
-        if not Manager.ToolOptionFillShape and (Manager.GetToolTextureAfterAlpha <> nil) then
-          toolDest.DrawPolygonAntialias(pts,Manager.GetToolTextureAfterAlpha,Manager.ToolPenWidth)
-        else
-          toolDest.DrawPolygonAntialias(pts,penColor,Manager.ToolPenWidth);
-     end;
-
-     rx -= Manager.ToolPenWidth/2;
-     ry -= Manager.ToolPenWidth/2;
-   end else
-   begin
-     result := GetShapeBounds([PointF(rectOrigin.x-rx,rectOrigin.y-ry),PointF(rectOrigin.x+rx,rectOrigin.y+ry)],1);
-     toolDest.ClipRect := result;
-   end;
-   if Manager.ToolOptionFillShape then
-     if (rx>0) and (ry>0) then
-     begin
-       if not Manager.ToolOptionDrawShape and (Manager.GetToolTextureAfterAlpha <> nil) then
-         multi.AddEllipse(rectOrigin.X,rectOrigin.Y,rx,ry,Manager.GetToolTextureAfterAlpha)
-       else
-         multi.AddEllipse(rectOrigin.X,rectOrigin.Y,rx,ry,fillColor);
-     end;
-   multi.Draw(toolDest);
-   multi.Free;
-   toolDest.NoClip;
+  toolDest := GetToolDrawingLayer;
+  with ABounds do r := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
+  UpdateShape(toolDest);
+  Action.NotifyChange(toolDest, r);
+  with FShape.GetRenderBounds(rect(0,0,toolDest.Width,toolDest.Height),
+       AffineMatrixIdentity,[]) do
+    FPreviousUpdateBounds := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
 end;
 
-function TToolEllipse.RoundCoordinate(ptF: TPointF): TPointF;
+procedure TVectorialTool.ShapeEditingChange(ASender: TObject);
+var
+  toolDest: TBGRABitmap;
+  newEditorBounds: TRect;
 begin
-  result := PointF(round(ptF.X*2)/2,round(ptF.Y*2)/2);
+  toolDest := GetToolDrawingLayer;
+  newEditorBounds := FEditor.GetRenderBounds(rect(0,0,toolDest.Width,toolDest.Height));
+  Manager.Image.RenderMayChange(RectUnion(FPreviousEditorBounds,newEditorBounds),false);
+  FPreviousEditorBounds := newEditorBounds;
 end;
 
-function TToolEllipse.GetStatusText: string;
+function TVectorialTool.GetStatusText: string;
+var
+  corner1, corner2: TPointF;
 begin
-  if rectDrawing or afterRectDrawing then
-    result := 'x = '+inttostr(round(rectOrigin.x))+'|y = '+inttostr(round(rectOrigin.y))+'|'+
-    'rx = '+FloatToStrF(abs(rectDest.x-rectOrigin.x),ffFixed,6,1)+'|ry = '+FloatToStrF(abs(rectDest.y-rectOrigin.y),ffFixed,6,1)
+  if Assigned(FShape) then
+  begin
+    if FShape is TEllipseShape then
+      with TEllipseShape(FShape) do
+        result := 'x = '+FloatToStrF(Origin.x,ffFixed,6,1)+'|y = '+FloatToStrF(Origin.y,ffFixed,6,1)+'|'+
+        'rx = '+FloatToStrF(VectLen(XAxis-Origin),ffFixed,6,1)+'|ry = '+FloatToStrF(VectLen(YAxis-Origin),ffFixed,6,1)
+    else if FShape is TCustomRectShape then
+      with TCustomRectShape(FShape) do
+      begin
+        corner1 := Origin-(XAxis-Origin)-(YAxis-Origin);
+        corner2 := XAxis + (YAxis-Origin);
+        result := 'x1 = '+FloatToStrF(corner1.x,ffFixed,6,1)+'|y1 = '+FloatToStrF(corner1.y,ffFixed,6,1)+'|'+
+        'x2 = '+FloatToStrF(corner2.x,ffFixed,6,1)+'|y2 = '+FloatToStrF(corner2.y,ffFixed,6,1)+'|'+
+        'Δx = '+FloatToStrF(VectLen(XAxis-Origin)*2,ffFixed,6,1)+'|Δy = '+FloatToStrF(VectLen(YAxis-Origin)*2,ffFixed,6,1);
+      end;
+  end
   else
     Result:=inherited GetStatusText;
 end;
 
-function TToolEllipse.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,
-  VirtualScreenHeight: integer;
-  BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
-var curPt: TPointF;
+procedure TVectorialTool.AssignShapeStyle;
+var
+  f: TVectorShapeFields;
 begin
-  result := EmptyRect;
-  if afterRectDrawing then
+  f:= FShape.Fields;
+  if vsfPenFill in f then
   begin
-    curPt := BitmapToVirtualScreen(rectOrigin);
-    result := RectUnion(result, NicePoint(VirtualScreen, curPt.X,curPt.Y));
-    curPt := BitmapToVirtualScreen(rectDest);
-    result := RectUnion(result, NicePoint(VirtualScreen, curPt.X,curPt.Y));
-    if RenderAllCornerPositions then
+    if Manager.ToolOptionDrawShape then
     begin
-      curPt := BitmapToVirtualScreen(PointF(rectDest.X,rectOrigin.Y));
-      result := RectUnion(result, NicePoint(VirtualScreen, curPt.X,curPt.Y));
-      curPt := BitmapToVirtualScreen(PointF(rectOrigin.X,rectDest.Y));
-      result := RectUnion(result, NicePoint(VirtualScreen, curPt.X,curPt.Y));
+      if (not (vsfBackFill in f) or not Manager.ToolOptionFillShape) and (Manager.GetToolTexture <> nil) then
+        FShape.PenFill.SetTexture(Manager.GetToolTexture,AffineMatrixIdentity,Manager.ToolTextureOpacity)
+      else
+      begin
+        if FSwapColor then
+          FShape.PenFill.SetSolid(Manager.ToolBackColor)
+        else
+          FShape.PenFill.SetSolid(Manager.ToolForeColor);
+      end;
+    end else
+      FShape.PenFill.Clear;
+  end;
+  if vsfPenWidth in f then FShape.PenWidth := Manager.ToolPenWidth;
+  if vsfPenStyle in f Then FShape.PenStyle := PenStyleToBGRA(Manager.ToolPenStyle);
+  if vsfJoinStyle in f then FShape.JoinStyle:= Manager.ToolJoinStyle;
+  if vsfBackFill in f then
+  begin
+    if Manager.ToolOptionFillShape then
+    begin
+      if Manager.GetToolTexture <> nil then
+        FShape.BackFill.SetTexture(Manager.GetToolTexture,AffineMatrixIdentity,Manager.ToolTextureOpacity)
+      else
+      begin
+        if FSwapColor then
+          FShape.BackFill.SetSolid(Manager.ToolForeColor)
+        else
+          FShape.BackFill.SetSolid(Manager.ToolBackColor);
+      end;
     end;
   end;
 end;
 
-{ TToolRectangle }
-
-function TToolRectangle.UpdateShape(toolDest: TBGRABitmap): TRect;
-var sx,sy: integer;
+function TVectorialTool.RoundCoordinate(ptF: TPointF): TPointF;
 begin
-  ClearShape;
-  if Manager.ToolOptionFillShape and not Manager.ToolOptionDrawShape then
-  begin
-    if rectDest.X > rectOrigin.X then sx := 1 else sx := -1;
-    if rectDest.Y > rectOrigin.Y then sy := 1 else sy := -1;
-    result := GetShapeBounds([PointF(rectOrigin.x,rectOrigin.y),PointF(rectDest.x,rectDest.y)],1);
-    toolDest.ClipRect := result;
-    if Manager.GetToolTextureAfterAlpha <> nil then
-      toolDest.FillRectAntialias(rectOrigin.X-0.5*sx,rectOrigin.Y-0.5*sy,rectDest.X+0.5*sx,rectDest.Y+0.5*sy,Manager.GetToolTextureAfterAlpha) else
-      toolDest.FillRectAntialias(rectOrigin.X-0.5*sx,rectOrigin.Y-0.5*sy,rectDest.X+0.5*sx,rectDest.Y+0.5*sy,fillColor);
-    toolDest.NoClip;
-  end else
-  if Manager.ToolOptionDrawShape and not Manager.ToolOptionFillShape then
-  begin
-    result := GetShapeBounds([PointF(rectOrigin.x,rectOrigin.y),PointF(rectDest.x,rectDest.y)],Manager.ToolPenWidth);
-    toolDest.ClipRect := result;
-    if Manager.GetToolTextureAfterAlpha <> nil then
-      toolDest.RectangleAntialias(rectOrigin.X,rectOrigin.Y,rectDest.X,rectDest.Y,Manager.GetToolTextureAfterAlpha,Manager.ToolPenWidth) else
-      toolDest.RectangleAntialias(rectOrigin.X,rectOrigin.Y,rectDest.X,rectDest.Y,penColor,Manager.ToolPenWidth);
-    toolDest.NoClip;
-  end else
-  if Manager.ToolOptionDrawShape and Manager.ToolOptionFillShape then
-  begin
-    result := GetShapeBounds([PointF(rectOrigin.x,rectOrigin.y),PointF(rectDest.x,rectDest.y)],Manager.ToolPenWidth);
-    toolDest.ClipRect := result;
-    toolDest.RectangleAntialias(rectOrigin.X,rectOrigin.Y,rectDest.X,rectDest.Y,penColor,Manager.ToolPenWidth,fillColor);
-    toolDest.NoClip;
-  end else
-    result := EmptyRect;
+  result := PointF(round(ptF.x),round(ptF.y));
 end;
 
-function TToolRectangle.FinishShape(toolDest: TBGRABitmap): TRect;
-begin
-  result := UpdateShape(toolDest);
-end;
-
-function TToolRectangle.ShouldFinishShapeWhenFirstMouseUp: boolean;
+function TVectorialTool.GetIsSelectingTool: boolean;
 begin
   result := false;
 end;
 
-function TToolRectangle.ConstraintEnabled: boolean;
+function TVectorialTool.UpdateShape(toolDest: TBGRABitmap): TRect;
+var
+  newBounds: TRect;
+  oldClip: TRect;
 begin
-  Result:= False;
+  result := FPreviousUpdateBounds;
+  RestoreBackupDrawingLayer;
+  with FShape.GetRenderBounds(toolDest.ClipRect,AffineMatrixIdentity,[]) do
+    newBounds := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
+  result := RectUnion(result, newBounds);
+  oldClip := toolDest.IntersectClip(newBounds);
+  FShape.Render(toolDest,AffineMatrixIdentity,false);
+  toolDest.ClipRect := oldClip;
+  FPreviousUpdateBounds := newBounds;
+end;
+
+procedure TVectorialTool.UpdateCursor(ACursor: TOriginalEditorCursor);
+begin
+  case ACursor of
+    oecMove: Cursor := crSizeAll;
+    oecMoveN: Cursor := crSizeN;
+    oecMoveS: Cursor := crSizeS;
+    oecMoveE: Cursor := crSizeE;
+    oecMoveW: Cursor := crSizeW;
+    oecMoveNE: Cursor := crSizeNE;
+    oecMoveSW: Cursor := crSizeSW;
+    oecMoveNW: Cursor := crSizeNW;
+    oecMoveSE: Cursor := crSizeSE;
+    oecHandPoint: Cursor := crHandPoint;
+    oecText: Cursor := crIBeam;
+    else Cursor := crDefault;
+  end;
+end;
+
+function TVectorialTool.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
+  ptF: TPointF; rightBtn: boolean): TRect;
+var
+  viewPt: TPointF;
+  cur: TOriginalEditorCursor;
+  handled: boolean;
+begin
+  FRightDown := rightBtn;
+  FLastPos := ptF;
+  if FShape=nil then
+  begin
+    FSwapColor:= rightBtn;
+    FShape := CreateShape;
+    FQuickDefine := true;
+    FQuickDefineStartPoint := RoundCoordinate(ptF);
+    FShape.QuickDefine(FQuickDefineStartPoint,FQuickDefineStartPoint);
+    AssignShapeStyle;
+    FShape.OnChange:= @ShapeChange;
+    FShape.OnEditingChange:=@ShapeEditingChange;
+    result := UpdateShape(toolDest);
+  end else
+  begin
+    viewPt := FEditor.Matrix*ptF;
+    FEditor.MouseDown(rightBtn, FShiftState, viewPt.X,viewPt.Y, cur, handled);
+    UpdateCursor(cur);
+    result := EmptyRect;
+  end;
+end;
+
+function TVectorialTool.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
+  ptF: TPointF): TRect;
+var
+  secondCoord, s: TPointF;
+  avg: single;
+  viewPt: TPointF;
+  handled: boolean;
+  cur: TOriginalEditorCursor;
+begin
+  FLastPos := ptF;
+  if FQuickDefine then
+  begin
+    secondCoord := RoundCoordinate(ptF);
+    if FQuickSquare then
+    begin
+      s := secondCoord-FQuickDefineStartPoint;
+      avg := sqrt(abs(s.x*s.y));
+      if s.x > 0 then secondCoord.x := ptF.x + avg else secondCoord.x := ptF.x - avg;
+      if s.y > 0 then secondCoord.y := ptF.y + avg else secondCoord.y := ptF.y - avg;
+    end;
+    FShape.QuickDefine(FQuickDefineStartPoint, secondCoord);
+    result := EmptyRect;
+  end else
+  begin
+    viewPt := FEditor.Matrix*ptF;
+    FEditor.MouseMove(FShiftState, viewPt.X,viewPt.Y, cur, handled);
+    UpdateCursor(cur);
+    result := EmptyRect;
+  end;
+end;
+
+function TVectorialTool.DoToolUpdate(toolDest: TBGRABitmap): TRect;
+begin
+  if Assigned(FShape) then AssignShapeStyle;
+  result := EmptyRect;
+end;
+
+constructor TVectorialTool.Create(AManager: TToolManager);
+begin
+  inherited Create(AManager);
+  Action.ChangeBoundsNotified:= true;
+  FPreviousUpdateBounds := EmptyRect;
+  FEditor := TBGRAOriginalEditor.Create;
+  FEditor.GridMatrix := AffineMatrixScale(0.5,0.5);
+  FPreviousEditorBounds := EmptyRect;
+end;
+
+function TVectorialTool.ToolUp: TRect;
+var
+  viewPt: TPointF;
+  cur: TOriginalEditorCursor;
+  handled: boolean;
+begin
+  if FQuickDefine then
+  begin
+    FQuickDefine := false;
+    result := EmptyRect;
+  end else
+  begin
+    viewPt := FEditor.Matrix*FLastPos;
+    FEditor.MouseUp(FRightDown, FShiftState, viewPt.X,viewPt.Y, cur, handled);
+    UpdateCursor(cur);
+    result := EmptyRect;
+  end;
+  FRightDown := false;
+end;
+
+function TVectorialTool.ToolKeyDown(var key: Word): TRect;
+var
+  handled: boolean;
+begin
+  result := EmptyRect;
+  if Key = VK_SHIFT then
+  begin
+    if FQuickDefine then
+    begin
+      FQuickSquare:= true;
+      Key := 0;
+    end else
+    begin
+      Include(FShiftState, ssShift);
+      Key := 0;
+    end;
+  end else
+  if (Key = VK_CONTROL) and not FQuickDefine then
+  begin
+    Include(FShiftState, ssCtrl);
+    FEditor.GridActive := true;
+    Key := 0;
+  end else
+  if (Key = VK_MENU) and not FQuickDefine then
+  begin
+    Include(FShiftState, ssAlt);
+    Key := 0;
+  end else
+  if (Key = VK_RETURN) and not FQuickDefine and
+    Assigned(FShape) then
+  begin
+    ValidateActionPartially;
+    FreeAndNil(FShape);
+    result := OnlyRenderChange;
+    Cursor := crDefault;
+    Key := 0;
+  end else
+  if (Key = VK_ESCAPE) and not FQuickDefine and
+    Assigned(FShape) then
+  begin
+    CancelActionPartially;
+    FreeAndNil(FShape);
+    result := OnlyRenderChange;
+    Cursor := crDefault;
+    Key := 0;
+  end else
+  begin
+    FEditor.KeyDown(FShiftState, LCLKeyToSpecialKey(Key, FShiftState), handled);
+    if handled then Key := 0;
+  end;
+end;
+
+function TVectorialTool.ToolKeyUp(var key: Word): TRect;
+var
+  handled: boolean;
+begin
+  result := EmptyRect;
+  if Key = VK_SHIFT then
+  begin
+    if FQuickDefine then
+    begin
+      FQuickSquare:= false;
+      Key := 0;
+    end else
+    begin
+      Exclude(FShiftState, ssShift);
+      Key := 0;
+    end;
+  end else
+  if (Key = VK_CONTROL) and not FQuickDefine then
+  begin
+    Exclude(FShiftState, ssCtrl);
+    FEditor.GridActive := false;
+    Key := 0;
+  end else
+  if (Key = VK_MENU) and not FQuickDefine then
+  begin
+    Exclude(FShiftState, ssAlt);
+    Key := 0;
+  end else
+  begin
+    FEditor.KeyUp(FShiftState, LCLKeyToSpecialKey(Key, FShiftState), handled);
+    if handled then Key := 0;
+  end;
+end;
+
+function TVectorialTool.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,
+  VirtualScreenHeight: integer;
+  BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
+var
+  orig, xAxis, yAxis: TPointF;
+begin
+  orig := BitmapToVirtualScreen(PointF(0,0));
+  xAxis := BitmapToVirtualScreen(PointF(1,0));
+  yAxis := BitmapToVirtualScreen(PointF(0,1));
+  FEditor.Matrix := AffineMatrix(xAxis-orig,yAxis-orig,orig);
+  FEditor.Clear;
+  if Assigned(FShape) then FShape.ConfigureEditor(FEditor);
+  if Assigned(VirtualScreen) then
+    Result:= FEditor.Render(VirtualScreen, rect(0,0,VirtualScreen.Width,VirtualScreen.Height))
+  else
+    Result:= FEditor.GetRenderBounds(rect(0,0,VirtualScreenWidth,VirtualScreenHeight));
+  FPreviousEditorBounds := result
+end;
+
+destructor TVectorialTool.Destroy;
+begin
+  if Assigned(FShape) then
+  begin
+    ValidateAction;
+    FShape.Free;
+  end;
+  FEditor.Free;
+  inherited Destroy;
+end;
+
+{ TToolEllipse }
+
+function TToolEllipse.CreateShape: TVectorShape;
+begin
+  result := TEllipseShape.Create(nil);
+end;
+
+{ TToolRectangle }
+
+function TToolRectangle.CreateShape: TVectorShape;
+begin
+  result := TRectShape.Create(nil);
 end;
 
 { TToolRectangular }

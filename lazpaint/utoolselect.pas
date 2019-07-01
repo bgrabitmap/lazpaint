@@ -6,9 +6,31 @@ interface
 
 uses
   Classes, SysUtils, Graphics, utool, utoolpolygon, utoolbasic, BGRABitmapTypes, BGRABitmap,
-  ULayerAction;
+  ULayerAction, LCVectorOriginal;
 
 type
+  { TVectorialSelectTool }
+
+  TVectorialSelectTool = class(TVectorialTool)
+  protected
+    function GetIsSelectingTool: boolean; override;
+    procedure AssignShapeStyle; override;
+    function RoundCoordinate(ptF: TPointF): TPointF; override;
+  end;
+
+  { TToolSelectRect }
+
+  TToolSelectRect = class(TVectorialSelectTool)
+  protected
+    function CreateShape: TVectorShape; override;
+  end;
+
+  { TToolSelectEllipse }
+
+  TToolSelectEllipse = class(TVectorialSelectTool)
+  protected
+    function CreateShape: TVectorShape; override;
+  end;
 
   { TToolSelectPoly }
 
@@ -46,37 +68,6 @@ type
     function GetIsSelectingTool: boolean; override;
     function StartDrawing(toolDest: TBGRABitmap; ptF: TPointF; rightBtn: boolean): TRect; override;
     function ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF): TRect; override;
-  end;
-
-  { TToolSelectRect }
-
-  TToolSelectRect = class(TToolRectangular)
-  protected
-    FCurrentBounds: TRect;
-    function GetIsSelectingTool: boolean; override;
-    function UpdateShape(toolDest: TBGRABitmap): TRect; override;
-    function FinishShape(toolDest: TBGRABitmap): TRect; override;
-    procedure PrepareDrawing(rightBtn: boolean); override;
-    function BigImage: boolean;
-    function ShouldFinishShapeWhenFirstMouseUp: boolean; override;
-    function GetFillColor: TBGRAPixel; override;
-    function GetPenColor: TBGRAPixel; override;
-    function GetSelectRectMargin: single; virtual;
-  public
-    function Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
-  end;
-
-  { TToolSelectEllipse }
-
-  TToolSelectEllipse = class(TToolSelectRect)
-  protected
-    function FinishShape(toolDest: TBGRABitmap): TRect; override;
-    function BorderTest(ptF: TPointF): TRectangularBorderTest; override;
-    function RoundCoordinate(ptF: TPointF): TPointF; override;
-    function GetSelectRectMargin: single; override;
-    function GetStatusText: string; override;
-  public
-    function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
   end;
 
   { TTransformSelectionTool }
@@ -132,7 +123,50 @@ type
 
 implementation
 
-uses types, ugraph, LCLType, LazPaintType, Math, BGRATransform, BGRAPath;
+uses types, ugraph, LCLType, LazPaintType, Math, BGRATransform, BGRAPath,
+  BGRAPen, LCVectorRectShapes;
+
+{ TVectorialSelectTool }
+
+function TVectorialSelectTool.GetIsSelectingTool: boolean;
+begin
+  Result:= true;
+end;
+
+procedure TVectorialSelectTool.AssignShapeStyle;
+var
+  f: TVectorShapeFields;
+begin
+  f:= FShape.Fields;
+  if vsfPenFill in f then FShape.PenFill.Clear;
+  if vsfPenStyle in f Then FShape.PenStyle := ClearPenStyle;
+  if vsfBackFill in f then
+  begin
+    if FSwapColor then
+      FShape.BackFill.SetSolid(BGRABlack)
+    else
+      FShape.BackFill.SetSolid(BGRAWhite);
+  end;
+end;
+
+function TVectorialSelectTool.RoundCoordinate(ptF: TPointF): TPointF;
+begin
+  Result:= PointF(floor(ptF.x)+0.5,floor(ptF.y)+0.5);
+end;
+
+{ TToolSelectRect }
+
+function TToolSelectRect.CreateShape: TVectorShape;
+begin
+  result := TRectShape.Create(nil);
+end;
+
+{ TToolSelectEllipse }
+
+function TToolSelectEllipse.CreateShape: TVectorShape;
+begin
+  result := TEllipseShape.Create(nil);
+end;
 
 { TTransformSelectionTool }
 
@@ -335,217 +369,6 @@ destructor TToolMoveSelection.Destroy;
 begin
   if handMoving then handMoving := false;
   inherited Destroy;
-end;
-
-{ TToolSelectEllipse }
-
-function TToolSelectEllipse.FinishShape(toolDest: TBGRABitmap): TRect;
-var
-  rx,ry: single;
-  previousBounds: TRect;
-begin
-  previousBounds := FCurrentBounds;
-  ClearShape;
-  rx := abs(rectDest.X-rectOrigin.X);
-  ry := abs(rectDest.Y-rectOrigin.Y);
-  toolDest.FillEllipseAntialias(rectOrigin.X,rectOrigin.Y,rx,ry,fillColor);
-  FCurrentBounds := GetShapeBounds([PointF(rectOrigin.X-rx,rectOrigin.Y-ry),PointF(rectOrigin.X+rx,rectOrigin.Y+ry)],1);
-  result := RectUnion(previousBounds,FCurrentBounds);
-end;
-
-function TToolSelectEllipse.BorderTest(ptF: TPointF): TRectangularBorderTest;
-begin
-  Result:=inherited BorderTest(ptF);
-  if (result = [btOriginY,btOriginX]) or (result = [btDestY,btDestX]) then exit; //ok
-  if (result = [btDestX,btOriginY]) then result := [btDestX] else
-  if (result = [btDestY,btOriginX]) then result := [btDestY] else
-    result := [];
-end;
-
-function TToolSelectEllipse.RoundCoordinate(ptF: TPointF): TPointF;
-begin
-  result := PointF(round(ptF.X*2)/2,round(ptF.Y*2)/2);
-end;
-
-function TToolSelectEllipse.GetSelectRectMargin: single;
-begin
-  Result:= 0;
-end;
-
-function TToolSelectEllipse.GetStatusText: string;
-begin
-  if rectDrawing or afterRectDrawing then
-    result := 'x = '+inttostr(round(rectOrigin.x))+'|y = '+inttostr(round(rectOrigin.y))+'|'+
-    'rx = '+FloatToStrF(abs(rectDest.x-rectOrigin.x),ffFixed,6,1)+'|ry = '+FloatToStrF(abs(rectDest.y-rectOrigin.y),ffFixed,6,1)
-  else
-    Result:=inherited GetStatusText;
-end;
-
-function TToolSelectEllipse.Render(VirtualScreen: TBGRABitmap;
-  VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
-var toolPtF,toolPtF2: TPointF;
-    rx,ry: single;
-    ptsF: Array of TPointF;
-    pts: array of TPoint;
-    i: integer;
-    curPt: TPointF;
-begin
-  result := EmptyRect;
-  if afterRectDrawing then
-  begin
-    curPt := BitmapToVirtualScreen(rectOrigin);
-    result := RectUnion(result, NicePoint(VirtualScreen, curPt.X,curPt.Y));
-    curPt := BitmapToVirtualScreen(rectDest);
-    result := RectUnion(result, NicePoint(VirtualScreen, curPt.X,curPt.Y));
-    if RenderAllCornerPositions then
-    begin
-      curPt := BitmapToVirtualScreen(PointF(rectDest.X,rectOrigin.Y));
-      result := RectUnion(result, NicePoint(VirtualScreen, curPt.X,curPt.Y));
-      curPt := BitmapToVirtualScreen(PointF(rectOrigin.X,rectDest.Y));
-      result := RectUnion(result, NicePoint(VirtualScreen, curPt.X,curPt.Y));
-    end;
-  end;
-
-  if rectDrawing and BigImage then
-  begin
-    rx := abs(rectDest.X-rectOrigin.X);
-    ry := abs(rectDest.Y-rectOrigin.Y);
-
-    toolPtF := pointf(rectOrigin.X-rx,rectOrigin.Y-ry);
-    toolPtF2 := pointf(rectOrigin.X+rx,rectOrigin.Y+ry);
-
-    toolPtF := BitmapToVirtualScreen(toolPtF);
-    toolPtF2 := BitmapToVirtualScreen(toolPtF2);
-    toolPtF2.x -= 1;
-    toolPtF2.y -= 1;
-
-    result := RectUnion(result,rect(floor(toolPtF.x),floor(toolPtF.y),ceil(toolPtF2.x)+1,ceil(toolptF2.y)+1));
-
-    if Assigned(VirtualScreen) then
-    begin
-      ptsF := VirtualScreen.ComputeEllipseContour((toolPtF.X+toolPtF2.X)/2,
-        (toolPtF.Y+toolPtF2.Y)/2,(toolPtF2.X-toolPtF.X)/2,(toolPtF2.Y-toolPtF.Y)/2,0.1);
-
-      setlength(pts, length(ptsF));
-      for i := 0 to high(pts) do
-        pts[i] := point(round(ptsF[i].x),round(ptsF[i].y));
-      setlength(pts, length(pts)+1);
-      pts[high(pts)] := pts[0];
-
-      virtualscreen.DrawPolyLineAntialias(pts,BGRA(255,255,255,192),BGRA(0,0,0,192),FrameDashLength,False);
-    end;
-  end;
-end;
-
-{ TToolSelectRect }
-
-function TToolSelectRect.GetIsSelectingTool: boolean;
-begin
-  Result:= true;
-end;
-
-function TToolSelectRect.UpdateShape(toolDest: TBGRABitmap): TRect;
-begin
-  if not BigImage then
-    result := FinishShape(toolDest)
-  else
-    result := OnlyRenderChange;
-end;
-
-function TToolSelectRect.FinishShape(toolDest: TBGRABitmap): TRect;
-var
-  sx,sy :integer;
-  previousBounds: TRect;
-begin
-  previousBounds := FCurrentBounds;
-  ClearShape;
-  if rectDest.X > rectOrigin.X then sx := 1 else sx := -1;
-  if rectDest.Y > rectOrigin.Y then sy := 1 else sy := -1;
-
-  toolDest.FillRectAntialias(rectOrigin.X-0.5*sx,rectOrigin.Y-0.5*sy,rectDest.X+0.5*sx,rectDest.Y+0.5*sy,fillColor);
-  FCurrentBounds := GetShapeBounds([PointF(rectOrigin.X,rectOrigin.Y),PointF(rectDest.X,rectDest.Y)],1);
-  result := RectUnion(previousBounds,FCurrentBounds);
-end;
-
-procedure TToolSelectRect.PrepareDrawing(rightBtn: boolean);
-begin
-  inherited PrepareDrawing(rightBtn);
-  FCurrentBounds := EmptyRect;
-end;
-
-function TToolSelectRect.BigImage: boolean;
-begin
-  result := GetToolDrawingLayer.NbPixels > 480000;
-end;
-
-function TToolSelectRect.ShouldFinishShapeWhenFirstMouseUp: boolean;
-begin
-  result := BigImage;
-end;
-
-function TToolSelectRect.GetFillColor: TBGRAPixel;
-begin
-  if swapedColor then result := BGRABlack else
-    result := BGRAWhite;
-end;
-
-function TToolSelectRect.GetPenColor: TBGRAPixel;
-begin
-  result := BGRAPixelTransparent;
-end;
-
-function TToolSelectRect.GetSelectRectMargin: single;
-begin
-  result := 0.5;
-end;
-
-function TToolSelectRect.Render(VirtualScreen: TBGRABitmap;
-  VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
-var toolPtF,toolPtF2: TPointF;
-    rLeft,rTop,rRight,rBottom: Single;
-    pt1,pt2: TPoint;
-    penWidth,i: integer;
-begin
-  result := inherited Render(VirtualScreen,VirtualScreenWidth,VirtualScreenHeight, BitmapToVirtualScreen);
-  if rectDrawing and BigImage then
-  begin
-    if rectDest.X > rectOrigin.X then
-    begin
-      rLeft := rectOrigin.x;
-      rRight := rectDest.x;
-    end else
-    begin
-      rRight := rectOrigin.x;
-      rLeft := rectDest.x;
-    end;
-    if rectDest.Y > rectOrigin.Y then
-    begin
-      rTop := rectOrigin.Y;
-      rBottom := rectDest.Y;
-    end else
-    begin
-      rBottom := rectOrigin.Y;
-      rTop := rectDest.Y;
-    end;
-
-    toolPtF := BitmapToVirtualScreen(pointf(rLeft-GetSelectRectMargin,rTop-GetSelectRectMargin));
-    toolPtF2 := BitmapToVirtualScreen(pointf(rRight+GetSelectRectMargin,rBottom+GetSelectRectMargin));
-    toolPtF2.x -= 1;
-    toolPtF2.y -= 1;
-    pt1 := point(round(toolPtF.X),round(toolPtF.Y));
-    pt2 := point(round(toolPtF2.X),round(toolPtF2.Y));
-
-    if Manager.Image.ZoomFactor > 3 then penWidth := 2 else penWidth := 1;
-    result := RectUnion(result,rect(pt1.x-(penWidth-1),pt1.y-(penWidth-1),pt2.x+1+(penWidth-1),pt2.y+1+(penWidth-1)));
-
-    if Assigned(VirtualScreen) then
-    begin
-      for i := 0 to penWidth-1 do
-        virtualScreen.DrawpolylineAntialias([point(pt1.x-(penWidth-1)+i,pt1.y-(penWidth-1)+i),
-                 point(pt2.x+i,pt1.y-(penWidth-1)+i),point(pt2.x+i,pt2.y+i),
-                 point(pt1.x-(penWidth-1)+i,pt2.y+i),point(pt1.x-(penWidth-1)+i,pt1.y-(penWidth-1)+i)],BGRA(255,255,255,192),BGRA(0,0,0,192),FrameDashLength,False);
-    end;
-  end;
 end;
 
 { TToolSelectSpline }

@@ -22,7 +22,7 @@ type
 
   { TToolGradient }
 
-  TToolGradient = class(TToolRectangle)
+  TToolGradient = class(TToolRectangular)
   protected
     function UpdateShape(toolDest: TBGRABitmap; HighQuality: boolean): TRect;
     function UpdateShape(toolDest: TBGRABitmap): TRect; override;
