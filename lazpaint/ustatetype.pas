@@ -71,6 +71,7 @@ type
     function GetChangingBoundsDefined: boolean; override;
   public
     constructor Create;
+    destructor Destroy; override;
     function TryCompress: boolean; override;
     function UsedMemory: int64; override;
     procedure Add(ADiff: TCustomImageDifference);
@@ -440,6 +441,12 @@ end;
 constructor TComposedImageDifference.Create;
 begin
   FDiffs := TImageDifferenceList.Create;
+end;
+
+destructor TComposedImageDifference.Destroy;
+begin
+  FDiffs.Free;
+  inherited Destroy;
 end;
 
 function TComposedImageDifference.TryCompress: boolean;
