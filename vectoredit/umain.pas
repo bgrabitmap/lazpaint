@@ -1175,14 +1175,7 @@ end;
 
 procedure TForm1.OnClickPenStyle(ASender: TObject);
 begin
-  Case TPenStyle((ASender as TMenuItem).Tag) of
-  psSolid: penStyle := SolidPenStyle;
-  psDash: penStyle := DashPenStyle;
-  psDot: penStyle := DotPenStyle;
-  psDashDot: penStyle := DashDotPenStyle;
-  psDashDotDot: penStyle := DashDotDotPenStyle;
-  else penStyle := ClearPenStyle;
-  end;
+  penStyle := PenStyleToBGRA(TPenStyle((ASender as TMenuItem).Tag));
 end;
 
 procedure TForm1.OnTextAltitudePercentChange(Sender: TObject; AByUser: boolean);
