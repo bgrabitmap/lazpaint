@@ -366,8 +366,8 @@ begin
     begin
       s := secondCoord-FQuickDefineStartPoint;
       avg := sqrt(abs(s.x*s.y));
-      if s.x > 0 then secondCoord.x := ptF.x + avg else secondCoord.x := ptF.x - avg;
-      if s.y > 0 then secondCoord.y := ptF.y + avg else secondCoord.y := ptF.y - avg;
+      if s.x > 0 then secondCoord.x := FQuickDefineStartPoint.x + avg else secondCoord.x := FQuickDefineStartPoint.x - avg;
+      if s.y > 0 then secondCoord.y := FQuickDefineStartPoint.y + avg else secondCoord.y := FQuickDefineStartPoint.y - avg;
     end;
     FShape.QuickDefine(FQuickDefineStartPoint, secondCoord);
     result := EmptyRect;
@@ -405,7 +405,7 @@ begin
   if FQuickDefine then
   begin
     FQuickDefine := false;
-    result := EmptyRect;
+    result := UpdateShape(GetToolDrawingLayer);
   end else
   begin
     viewPt := FEditor.Matrix*FLastPos;
