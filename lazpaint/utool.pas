@@ -483,6 +483,7 @@ end;
 destructor TGenericTool.Destroy;
 begin
   FAction.Free;
+  FBackupDrawingLayer.Free;
   inherited Destroy;
 end;
 
