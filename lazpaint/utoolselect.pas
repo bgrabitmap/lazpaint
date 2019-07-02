@@ -16,6 +16,8 @@ type
     function GetIsSelectingTool: boolean; override;
     procedure AssignShapeStyle; override;
     function RoundCoordinate(ptF: TPointF): TPointF; override;
+    function UpdateShape(toolDest: TBGRABitmap): TRect; override;
+    function BigImage: boolean;
   end;
 
   { TToolSelectRect }
@@ -23,6 +25,7 @@ type
   TToolSelectRect = class(TVectorialSelectTool)
   protected
     function CreateShape: TVectorShape; override;
+    function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
   end;
 
   { TToolSelectEllipse }
@@ -30,6 +33,7 @@ type
   TToolSelectEllipse = class(TVectorialSelectTool)
   protected
     function CreateShape: TVectorShape; override;
+    function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
   end;
 
   { TToolSelectPoly }
@@ -147,11 +151,31 @@ begin
     else
       FShape.BackFill.SetSolid(BGRAWhite);
   end;
+  if FShape is TCustomRectShape then
+  begin
+    if Manager.ToolRatio = 0 then
+      TCustomRectShape(FShape).FixedRatio:= EmptySingle
+    else
+      TCustomRectShape(FShape).FixedRatio:= Manager.ToolRatio;
+  end;
 end;
 
 function TVectorialSelectTool.RoundCoordinate(ptF: TPointF): TPointF;
 begin
   Result:= PointF(floor(ptF.x)+0.5,floor(ptF.y)+0.5);
+end;
+
+function TVectorialSelectTool.UpdateShape(toolDest: TBGRABitmap): TRect;
+begin
+  if BigImage and FQuickDefine then
+    result := OnlyRenderChange
+  else
+    Result:= inherited UpdateShape(toolDest);
+end;
+
+function TVectorialSelectTool.BigImage: boolean;
+begin
+  result := GetToolDrawingLayer.NbPixels > 480000;
 end;
 
 { TToolSelectRect }
@@ -161,11 +185,73 @@ begin
   result := TRectShape.Create(nil);
 end;
 
+function TToolSelectRect.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,
+  VirtualScreenHeight: integer;
+  BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
+var
+  ab: TAffineBox;
+  ptsF: ArrayOfTPointF;
+  pts: array of TPoint;
+  i: Integer;
+  abBounds: TRect;
+begin
+  Result:= inherited Render(VirtualScreen, VirtualScreenWidth,
+      VirtualScreenHeight, BitmapToVirtualScreen);
+
+  if BigImage and FQuickDefine then
+  begin
+    ab := TCustomRectShape(FShape).GetAffineBox(FEditor.Matrix, true);
+    abBounds := ab.RectBounds;
+    abBounds.Inflate(1,1);
+    result := RectUnion(result, abBounds);
+    if Assigned(VirtualScreen) then
+    begin
+      ptsF := ab.AsPolygon;
+      setlength(pts, length(ptsF));
+      for i := 0 to high(ptsF) do
+        pts[i] := ptsF[i].Round;
+      VirtualScreen.DrawPolygonAntialias(pts,BGRAWhite,BGRABlack,FrameDashLength);
+    end;
+  end;
+end;
+
 { TToolSelectEllipse }
 
 function TToolSelectEllipse.CreateShape: TVectorShape;
 begin
   result := TEllipseShape.Create(nil);
+end;
+
+function TToolSelectEllipse.Render(VirtualScreen: TBGRABitmap;
+  VirtualScreenWidth, VirtualScreenHeight: integer;
+  BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
+var
+  ab: TAffineBox;
+  ptsF: ArrayOfTPointF;
+  pts: array of TPoint;
+  i: Integer;
+  abBounds: TRect;
+begin
+  Result:= inherited Render(VirtualScreen, VirtualScreenWidth,
+      VirtualScreenHeight, BitmapToVirtualScreen);
+
+  if BigImage and FQuickDefine then
+  begin
+    ab := TCustomRectShape(FShape).GetAffineBox(FEditor.Matrix, true);
+    abBounds := ab.RectBounds;
+    abBounds.Inflate(1,1);
+    result := RectUnion(result, abBounds);
+    if Assigned(VirtualScreen) then
+    begin
+      with TCustomRectShape(FShape) do
+        ptsF := BGRAPath.ComputeEllipse(FEditor.Matrix*Origin,
+                    FEditor.Matrix*XAxis,FEditor.Matrix*YAxis);
+      setlength(pts, length(ptsF));
+      for i := 0 to high(ptsF) do
+        pts[i] := ptsF[i].Round;
+      VirtualScreen.DrawPolygonAntialias(pts,BGRAWhite,BGRABlack,FrameDashLength);
+    end;
+  end;
 end;
 
 { TTransformSelectionTool }
