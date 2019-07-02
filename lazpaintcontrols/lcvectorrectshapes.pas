@@ -520,22 +520,23 @@ procedure TCustomRectShape.ConfigureEditor(AEditor: TBGRAOriginalEditor);
 var
   d: Single;
   u, v: TPointF;
+  idxOrig, idxX,idxY,idxXNeg,idxYNeg: Integer;
 begin
   u := FXAxis - FOrigin;
   v := FYAxis - FOrigin;
   AEditor.AddStartMoveHandler(@OnStartMove);
   if ShowArrows then
   begin
-    AEditor.AddArrow(FOrigin, FXAxis, @OnMoveXAxis);
-    AEditor.AddArrow(FOrigin, FYAxis, @OnMoveYAxis);
-    AEditor.AddArrow(FOrigin, FOrigin - u, @OnMoveXAxisNeg);
-    AEditor.AddArrow(FOrigin, FOrigin - v, @OnMoveYAxisNeg);
+    idxX := AEditor.AddArrow(FOrigin, FXAxis, @OnMoveXAxis);
+    idxY := AEditor.AddArrow(FOrigin, FYAxis, @OnMoveYAxis);
+    idxXNeg := AEditor.AddArrow(FOrigin, FOrigin - u, @OnMoveXAxisNeg);
+    idxYNeg := AEditor.AddArrow(FOrigin, FOrigin - v, @OnMoveYAxisNeg);
   end else
   begin
-    AEditor.AddPoint(FXAxis, @OnMoveXAxis);
-    AEditor.AddPoint(FYAxis, @OnMoveYAxis);
-    AEditor.AddPoint(FOrigin - u, @OnMoveXAxisNeg);
-    AEditor.AddPoint(FOrigin - v, @OnMoveYAxisNeg);
+    idxX := AEditor.AddPoint(FXAxis, @OnMoveXAxis);
+    idxY := AEditor.AddPoint(FYAxis, @OnMoveYAxis);
+    idxXNeg := AEditor.AddPoint(FOrigin - u, @OnMoveXAxisNeg);
+    idxYNeg := AEditor.AddPoint(FOrigin - v, @OnMoveYAxisNeg);
   end;
   d := GetCornerPositition;
   if d <> 0 then
@@ -545,7 +546,25 @@ begin
     AEditor.AddPoint(FOrigin + (u-v)*d, @OnMoveXYNegCorner, false);
     AEditor.AddPoint(FOrigin + (-u-v)*d, @OnMoveXNegYNegCorner, false);
   end;
-  AEditor.AddPoint(FOrigin, @OnMoveOrigin, true);
+  idxOrig := AEditor.AddPoint(FOrigin, @OnMoveOrigin, true);
+  if ShowArrows then
+  begin
+    AEditor.SetHitBox(idxX, TAffineBox.AffineBox(Origin + (XAxis-Origin)*0.667 - (YAxis-Origin)*0.667,
+      Origin + (XAxis-Origin) - (YAxis-Origin)*0.667,
+      Origin + (XAxis-Origin)*0.667 + (YAxis-Origin)*0.667) );
+    AEditor.SetHitBox(idxY, TAffineBox.AffineBox(Origin - (XAxis-Origin)*0.667 + (YAxis-Origin)*0.667,
+      Origin + (XAxis-Origin)*0.667 + (YAxis-Origin)*0.667,
+      Origin - (XAxis-Origin)*0.667 + (YAxis-Origin)) );
+    AEditor.SetHitBox(idxXNeg, TAffineBox.AffineBox(Origin - (XAxis-Origin) - (YAxis-Origin)*0.667,
+      Origin - (XAxis-Origin)*0.667 - (YAxis-Origin)*0.667,
+      Origin - (XAxis-Origin) + (YAxis-Origin)*0.667) );
+    AEditor.SetHitBox(idxYNeg, TAffineBox.AffineBox(Origin - (XAxis-Origin)*0.667 - (YAxis-Origin),
+      Origin + (XAxis-Origin)*0.667 - (YAxis-Origin),
+      Origin - (XAxis-Origin)*0.667 - (YAxis-Origin)*0.667) );
+    AEditor.SetHitBox(idxOrig, TAffineBox.AffineBox(Origin - (XAxis-Origin)*0.667 - (YAxis-Origin)*0.667,
+      Origin + (XAxis-Origin)*0.667 - (YAxis-Origin)*0.667,
+      Origin - (XAxis-Origin)*0.667 + (YAxis-Origin)*0.667));
+  end;
 end;
 
 { TRectShape }
