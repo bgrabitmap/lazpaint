@@ -5,8 +5,8 @@ unit UToolLayer;
 interface
 
 uses
-  Classes, SysUtils, UTool, BGRABitmap, BGRABitmapTypes, UImageType,
-  BGRATransform, BGRALayers, ULayerAction, UStateType, UImageDiff;
+  Classes, SysUtils, UTool, BGRABitmap, BGRABitmapTypes,
+  BGRATransform, BGRALayers, ULayerAction, UImageDiff;
 
 type
   { TToolMoveLayer }
@@ -201,7 +201,6 @@ begin
 end;
 
 function TToolRotateLayer.UpdateRotation: TRect;
-var origin,haxis,vaxis: TPointF;
 begin
   if (FActualAngle = FPreviousActualAngle) and ((FActualAngle = 0) or (RotationCenter = FPreviousRotationCenter)) and
     (FPreviousFilter = FFilter) then
@@ -421,7 +420,7 @@ begin
     if UseOriginal then
       FLayerBounds := Manager.Image.LayerOriginal[idx].GetRenderBounds(
                         Rect(-maxLongint div 2,-maxLongint div 2,maxLongint div 2,maxLongint div 2),
-                        AffineMatrixLinear(Manager.Image.LayerOriginalMatrix[idx]))
+                        AffineMatrixIdentity)
     else
       FLayerBounds := Manager.Image.LayerBitmap[idx].GetImageBounds;
     FLayerBoundsDefined := true;
@@ -474,38 +473,36 @@ end;
 function TToolMoveLayer.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,
   VirtualScreenHeight: integer;
   BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
-var pt1,pt2:TPoint;
-  ptF1,ptF2, ofs: TPointF;
-  penWidth,i,idx: integer;
-  m: BGRABitmapTypes.TAffineMatrix;
+var
+  idx, i: integer;
+  m: TAffineMatrix;
+  ab: TAffineBox;
+  ptsF: ArrayOfTPointF;
+  pts: array of TPoint;
 begin
-  idx := Manager.Image.CurrentLayerIndex;
   NeedLayerBounds;
 
   if UseOriginal then
   begin
+    idx := Manager.Image.CurrentLayerIndex;
     m := Manager.Image.LayerOriginalMatrix[idx];
-    ofs := PointF(m[1,3],m[2,3]);
     with Manager.Image.LayerOffset[idx] do
-      ofs := ofs-PointF(x,y);
-  end
-  else
-    ofs := PointF(0,0);
-  ptF1 := BitmapToVirtualScreen(PointF(FLayerBounds.Left-0.5,FLayerBounds.Top-0.5)+ofs);
-  ptF2 := BitmapToVirtualScreen(PointF(FLayerBounds.Right-0.5,FLayerBounds.Bottom-0.5)+ofs);
-  pt1 := point(round(ptF1.x),round(ptF1.y));
-  pt2 := point(round(ptF2.X)-1,round(ptF2.Y)-1);
+      m := AffineMatrixTranslation(-x,-y)*m;
+  end else m := AffineMatrixIdentity;
 
-  if Manager.Image.ZoomFactor > 3 then penWidth := 2 else penWidth := 1;
-  result := rect(pt1.x-(penWidth-1),pt1.y-(penWidth-1),pt2.x+1+(penWidth-1),pt2.y+1+(penWidth-1));
+  ab := TAffineBox.AffineBox(BitmapToVirtualScreen(m*PointF(FLayerBounds.Left-0.5,FLayerBounds.Top-0.5)),
+            BitmapToVirtualScreen(m*PointF(FLayerBounds.Right-0.5,FLayerBounds.Top-0.5)),
+            BitmapToVirtualScreen(m*PointF(FLayerBounds.Left-0.5,FLayerBounds.Bottom-0.5)));
+  ptsF := ab.AsPolygon;
+  setlength(pts, length(ptsF));
+  for i := 0 to high(pts) do
+    pts[i] := ptsF[i].Round;
+
+  result := TRect.Union(pts);
+  result.Inflate(1,1);
 
   if Assigned(VirtualScreen) then
-  begin
-    for i := 0 to penWidth-1 do
-      virtualScreen.DrawpolylineAntialias([point(pt1.x-(penWidth-1)+i,pt1.y-(penWidth-1)+i),
-               point(pt2.x+i,pt1.y-(penWidth-1)+i),point(pt2.x+i,pt2.y+i),
-               point(pt1.x-(penWidth-1)+i,pt2.y+i),point(pt1.x-(penWidth-1)+i,pt1.y-(penWidth-1)+i)],BGRA(230,255,230,212),BGRA(0,0,0,192),FrameDashLength,False);
-  end;
+    virtualScreen.DrawpolygonAntialias(pts,BGRA(230,255,230,255),BGRA(0,0,0,255),FrameDashLength);
 end;
 
 initialization

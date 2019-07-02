@@ -285,6 +285,7 @@ type
   protected
     FPreviousLayerContent: TStoredLayer;
     FPrevMatrix,FNextMatrix: TAffineMatrix;
+    FSourceBounds: TRect;
     function GetImageDifferenceKind: TImageDifferenceKind; override;
   public
     constructor Create(AFromState: TState; AIndex: integer);
@@ -531,7 +532,8 @@ begin
   inherited Create(AFromState);
   imgState := AFromState as TImageState;
   FPreviousLayerContent := TStoredLayer.Create(imgState.LayeredBitmap, AIndex);
-  with FPreviousLayerContent.Offset do FPrevMatrix := AffineMatrixTranslation(x,y);
+  FSourceBounds := imgState.LayeredBitmap.LayerBitmap[AIndex].GetImageBounds;
+  with FPreviousLayerContent.Offset do FPrevMatrix := AffineMatrixTranslation(x+FSourceBounds.Left,y+FSourceBounds.Top);
   FNextMatrix := FPrevMatrix;
   ApplyTo(imgState);
 end;
@@ -551,11 +553,20 @@ var
   imgState: TImageState;
   orig: TBGRALayerImageOriginal;
   origIndex,layerIdx: Integer;
+  source: TBGRABitmap;
+  temp: TBGRACustomBitmap;
 begin
   imgState := AState as TImageState;
   layerIdx := imgState.LayeredBitmap.GetLayerIndexFromId(FPreviousLayerContent.LayerId);
   orig := TBGRALayerImageOriginal.Create;
-  orig.AssignImage(imgState.LayeredBitmap.LayerBitmap[layerIdx]);
+  source := imgState.LayeredBitmap.LayerBitmap[layerIdx];
+  if (FSourceBounds.Width <> source.Width) or (FSourceBounds.Height <> source.Height) then
+  begin
+    temp := source.GetPart(FSourceBounds);
+    orig.AssignImage(temp);
+    temp.Free;
+  end else
+    orig.AssignImage(source);
   origIndex := imgState.LayeredBitmap.AddOriginal(orig, true);
   imgState.LayeredBitmap.LayerOriginalGuid[layerIdx] := imgState.LayeredBitmap.OriginalGuid[origIndex];
   imgState.LayeredBitmap.LayerOriginalMatrix[layerIdx] := FNextMatrix;
