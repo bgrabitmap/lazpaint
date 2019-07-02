@@ -340,6 +340,22 @@ begin
   FRightDown := rightBtn;
   FLeftDown := not rightBtn;
   FLastPos := ptF;
+  if Assigned(FShape) then
+  begin
+    viewPt := FEditor.Matrix*ptF;
+    FEditor.MouseDown(rightBtn, FShiftState, viewPt.X,viewPt.Y, cur, handled);
+    if not handled and Assigned(FShape) then
+      FShape.MouseDown(rightBtn, FShiftState, ptF.X,ptF.Y, cur, handled);
+    UpdateCursor(cur);
+    result := EmptyRect;
+    if handled then exit
+    else
+    begin
+      ValidateAction;
+      FreeAndNil(FShape);
+    end;
+  end;
+
   if FShape=nil then
   begin
     FSwapColor:= rightBtn;
@@ -351,14 +367,6 @@ begin
     FShape.OnChange:= @ShapeChange;
     FShape.OnEditingChange:=@ShapeEditingChange;
     result := UpdateShape(toolDest);
-  end else
-  begin
-    viewPt := FEditor.Matrix*ptF;
-    FEditor.MouseDown(rightBtn, FShiftState, viewPt.X,viewPt.Y, cur, handled);
-    if not handled and Assigned(FShape) then
-      FShape.MouseDown(rightBtn, FShiftState, ptF.X,ptF.Y, cur, handled);
-    UpdateCursor(cur);
-    result := EmptyRect;
   end;
 end;
 
