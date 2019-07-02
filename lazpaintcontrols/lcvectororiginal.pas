@@ -8,6 +8,9 @@ uses
   Classes, SysUtils, BGRABitmap, BGRALayerOriginal, fgl, BGRAGradientOriginal, BGRABitmapTypes,
   BGRAPen, LCVectorialFill;
 
+var
+  LightPositionCaption : string = 'Light position';
+
 const
   InfiniteRect : TRect = (Left: -MaxLongInt; Top: -MaxLongInt; Right: MaxLongInt; Bottom: MaxLongInt);
   EmptyTextureId = 0;
@@ -405,7 +408,7 @@ var
   ptF: TPointF;
 begin
   inherited MouseMove(Shift, ViewX, ViewY, ACursor, AHandled);
-  if not AHandled and Assigned(FOriginal.SelectedShape) then
+  if not AHandled and Assigned(FOriginal) and Assigned(FOriginal.SelectedShape) then
   begin
     ptF := ViewCoordToOriginal(PointF(ViewX,ViewY));
     if GridActive then ptF := SnapToGrid(ptF, False);
@@ -420,7 +423,7 @@ var
   ptF: TPointF;
 begin
   inherited MouseDown(RightButton, Shift, ViewX, ViewY, ACursor, AHandled);
-  if not AHandled and Assigned(FOriginal.SelectedShape) then
+  if not AHandled and Assigned(FOriginal) and Assigned(FOriginal.SelectedShape) then
   begin
     ptF := ViewCoordToOriginal(PointF(ViewX,ViewY));
     if GridActive then ptF := SnapToGrid(ptF, False);
@@ -435,7 +438,7 @@ var
   ptF: TPointF;
 begin
   inherited MouseUp(RightButton, Shift, ViewX, ViewY, ACursor, AHandled);
-  if not AHandled and Assigned(FOriginal.SelectedShape) then
+  if not AHandled and Assigned(FOriginal) and Assigned(FOriginal.SelectedShape) then
   begin
     ptF := ViewCoordToOriginal(PointF(ViewX,ViewY));
     if GridActive then ptF := SnapToGrid(ptF, False);
@@ -446,7 +449,7 @@ end;
 procedure TVectorOriginalEditor.KeyDown(Shift: TShiftState; Key: TSpecialKey; out
   AHandled: boolean);
 begin
-  if Assigned(FOriginal.SelectedShape) then
+  if Assigned(FOriginal) and Assigned(FOriginal.SelectedShape) then
   begin
     AHandled := false;
     FOriginal.SelectedShape.KeyDown(Shift, Key, AHandled);
@@ -471,7 +474,7 @@ end;
 procedure TVectorOriginalEditor.KeyUp(Shift: TShiftState; Key: TSpecialKey; out
   AHandled: boolean);
 begin
-  if Assigned(FOriginal.SelectedShape) then
+  if Assigned(FOriginal) and Assigned(FOriginal.SelectedShape) then
   begin
     AHandled := false;
     FOriginal.SelectedShape.KeyUp(Shift, Key, AHandled);
@@ -484,7 +487,7 @@ end;
 procedure TVectorOriginalEditor.KeyPress(UTF8Key: string; out
   AHandled: boolean);
 begin
-  if Assigned(FOriginal.SelectedShape) then
+  if Assigned(FOriginal) and Assigned(FOriginal.SelectedShape) then
   begin
     AHandled := false;
     FOriginal.SelectedShape.KeyPress(UTF8Key, AHandled);

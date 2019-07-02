@@ -395,7 +395,7 @@ begin
   inherited Create(AManager);
   Action.ChangeBoundsNotified:= true;
   FPreviousUpdateBounds := EmptyRect;
-  FEditor := TBGRAOriginalEditor.Create;
+  FEditor := TVectorOriginalEditor.Create(nil);
   FEditor.GridMatrix := AffineMatrixScale(0.5,0.5);
   FPreviousEditorBounds := EmptyRect;
 end;

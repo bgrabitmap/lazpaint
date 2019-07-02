@@ -32,7 +32,8 @@ procedure TranslateLazPaint(AConfig: TIniFile);
 
 implementation
 
-uses Forms, LCLProc, LazUTF8, BGRAUTF8, LCLTranslator, LResources, Translations, LazPaintType;
+uses Forms, LCLProc, LazUTF8, BGRAUTF8, LCLTranslator, LResources, Translations,
+  LazPaintType, LCVectorOriginal, UResourceStrings;
 
 {$ifdef Darwin}
 function GetResourcesPath(): string;
@@ -112,6 +113,8 @@ begin
   POFile:=LanguagePathUTF8+'lclstrconsts.'+Language+'.po';
   if FileExistsUTF8(POFile) then
     Translations.TranslateUnitResourceStrings('LCLStrConsts',POFile);
+
+  LightPositionCaption := rsLightPosition;
 end;
 
 //fill language list for configuration

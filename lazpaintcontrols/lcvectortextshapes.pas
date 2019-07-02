@@ -803,7 +803,7 @@ begin
   begin
     idxLight := AEditor.AddPoint(FLightPosition, @OnMoveLightPos, true);
     if AEditor is TVectorOriginalEditor then
-      TVectorOriginalEditor(AEditor).AddLabel(idxLight, 'Light position', taCenter, tlTop);
+      TVectorOriginalEditor(AEditor).AddLabel(idxLight, LightPositionCaption, taCenter, tlTop);
   end;
 end;
 
