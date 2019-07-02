@@ -144,6 +144,7 @@ begin
 
   SpinEdit_ShapeAltitude := TBarUpDown.Create(vsShapeAltitude,1,100,10);
   SpinEdit_ShapeAltitude.Increment := 1;
+  SpinEdit_ShapeAltitude.BarExponent:= 3;
   SpinEdit_ShapeAltitude.OnChange := @SpinEdit_ShapeAltitudeChange;
 
   SpinEdit_BrushSpacing := TBarUpDown.Create(vsBrushSpacing,1,99,1);
@@ -1486,10 +1487,14 @@ begin
 end;
 
 procedure TFMain.Combo_RatioChange(Sender: TObject);
+var
+  prevRatio: Single;
 begin
   if initialized then
   begin
+    prevRatio := ToolManager.ToolRatio;
     ToolManager.ToolRatio := ComputeRatio(Combo_Ratio.Text);
+    if ToolManager.ToolRatio<>prevRatio then ToolManager.ToolUpdate;
   end;
 end;
 
