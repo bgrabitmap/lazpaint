@@ -123,6 +123,7 @@ type
     class function Fields: TVectorShapeFields; override;
     class function PreferPixelCentered: boolean; override;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
+    procedure MouseDown(RightButton: boolean; Shift: TShiftState; X, Y: single; var ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
@@ -1029,6 +1030,20 @@ begin
   idxLight := AEditor.AddPoint(FLightPosition, @OnMoveLightPos, true);
   if AEditor is TVectorOriginalEditor then
     TVectorOriginalEditor(AEditor).AddLabel(idxLight, 'Light position', taCenter, tlTop);
+end;
+
+procedure TPhongShape.MouseDown(RightButton: boolean; Shift: TShiftState; X,
+  Y: single; var ACursor: TOriginalEditorCursor; var AHandled: boolean);
+begin
+  inherited MouseDown(RightButton, Shift, X, Y, ACursor, AHandled);
+  if not AHandled then
+  begin
+    if RightButton then
+    begin
+      LightPosition := PointF(x,y);
+      AHandled := true;
+    end;
+  end;
 end;
 
 procedure TPhongShape.LoadFromStorage(AStorage: TBGRACustomOriginalStorage);

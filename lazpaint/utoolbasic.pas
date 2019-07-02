@@ -344,6 +344,8 @@ begin
   begin
     viewPt := FEditor.Matrix*ptF;
     FEditor.MouseDown(rightBtn, FShiftState, viewPt.X,viewPt.Y, cur, handled);
+    if not handled and Assigned(FShape) then
+      FShape.MouseDown(rightBtn, FShiftState, ptF.X,ptF.Y, cur, handled);
     UpdateCursor(cur);
     result := EmptyRect;
   end;
@@ -375,6 +377,8 @@ begin
   begin
     viewPt := FEditor.Matrix*ptF;
     FEditor.MouseMove(FShiftState, viewPt.X,viewPt.Y, cur, handled);
+    if not handled and Assigned(FShape) then
+      FShape.MouseMove(FShiftState, ptF.X,ptF.Y, cur, handled);
     UpdateCursor(cur);
     result := EmptyRect;
   end;
@@ -410,6 +414,8 @@ begin
   begin
     viewPt := FEditor.Matrix*FLastPos;
     FEditor.MouseUp(FRightDown, FShiftState, viewPt.X,viewPt.Y, cur, handled);
+    if not handled and Assigned(FShape) then
+      FShape.MouseUp(FRightDown, FShiftState, FLastPos.X,FLastPos.Y, cur, handled);
     UpdateCursor(cur);
     result := EmptyRect;
   end;
