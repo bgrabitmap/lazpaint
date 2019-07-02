@@ -17,6 +17,7 @@ type
     FOriginBackup,FXUnitBackup,FYUnitBackup,
     FXAxisBackup,FYAxisBackup: TPointF;
     FXSizeBackup,FYSizeBackup: single;
+    FFixedRatio: single;
     procedure DoMoveXAxis(ANewCoord: TPointF; AShift: TShiftState; AFactor: single);
     procedure DoMoveYAxis(ANewCoord: TPointF; AShift: TShiftState; AFactor: single);
     procedure DoMoveXYCorner(ANewCoord: TPointF; AShift: TShiftState; AFactorX, AFactorY: single);
@@ -30,12 +31,17 @@ type
     procedure OnMoveXYNegCorner({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnMoveXNegYNegCorner({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnStartMove({%H-}ASender: TObject; {%H-}APointIndex: integer; {%H-}AShift: TShiftState);
-    function GetAffineBox(AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
     function GetCornerPositition: single; virtual; abstract;
     function GetOrthoRect(AMatrix: TAffineMatrix; out ARect: TRectF): boolean;
     function AllowShearTransform: boolean; virtual;
     function ShowArrows: boolean; virtual;
     procedure SetOrigin(AValue: TPointF);
+    function GetHeight: single;
+    function GetWidth: single;
+    procedure SetHeight(AValue: single);
+    procedure SetWidth(AValue: single);
+    procedure SetFixedRatio(AValue: single);
+    procedure EnsureRatio(ACenterX,ACenterY: single);
   public
     procedure QuickDefine(const APoint1,APoint2: TPointF); override;
     function SuggestGradientBox(AMatrix: TAffineMatrix): TAffineBox; override;
@@ -43,9 +49,13 @@ type
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; {%H-}AOptions: TRenderBoundsOptions = []): TRectF; override;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
+    function GetAffineBox(AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
     property Origin: TPointF read FOrigin write SetOrigin;
     property XAxis: TPointF read FXAxis;
     property YAxis: TPointF read FYAxis;
+    property Width: single read GetWidth write SetWidth;
+    property Height: single read GetHeight write SetHeight;
+    property FixedRatio: single read FFixedRatio write SetFixedRatio;
   end;
 
   { TRectShape }
@@ -149,6 +159,96 @@ begin
   EndUpdate;
 end;
 
+function TCustomRectShape.GetHeight: single;
+begin
+  result := VectLen(YAxis-Origin);
+end;
+
+function TCustomRectShape.GetWidth: single;
+begin
+  result := VectLen(XAxis-Origin);
+end;
+
+procedure TCustomRectShape.SetHeight(AValue: single);
+var u,v: TPointF;
+  h,w: single;
+begin
+  h := GetHeight;
+  if h <> 0 then v := (YAxis-Origin)*(1/h)
+  else
+  begin
+    w := GetWidth;
+    if w <> 0 then
+    begin
+      u := (XAxis-Origin)*(1/w);
+      v := PointF(-u.y,u.x);
+    end else
+      v := PointF(0,1/2);
+  end;
+  FYAxis := Origin + v*AValue;
+end;
+
+procedure TCustomRectShape.SetWidth(AValue: single);
+var u,v: TPointF;
+  h,w: single;
+begin
+  w := GetWidth;
+  if w <> 0 then u := (XAxis-Origin)*(1/w)
+  else
+  begin
+    h := GetHeight;
+    if h <> 0 then
+    begin
+      v := (YAxis-Origin)*(1/h);
+      u := PointF(v.y,-v.x);
+    end else
+      u := PointF(1/2,0);
+  end;
+  FXAxis := Origin + u*AValue;
+end;
+
+procedure TCustomRectShape.EnsureRatio(ACenterX,ACenterY: single);
+var
+  h, w, curRatio,ratioFactor,fracPower: Single;
+  refPoint, newRefPoint: TPointF;
+begin
+  if (FFixedRatio<>EmptySingle) and (FFixedRatio<>0) then
+  begin
+    h := Height;
+    w := Width;
+    if h = 0 then
+      Height := w/FFixedRatio
+    else if w = 0 then
+      Width := h*FFixedRatio
+    else
+    begin
+      curRatio := Width/Height;
+      if FFixedRatio <> curRatio then
+      begin
+        ratioFactor := FFixedRatio/curRatio;
+        BeginUpdate;
+        refPoint := Origin + (XAxis-Origin)*ACenterX + (YAxis-Origin)*ACenterY;
+        if (ACenterX=0) and (ACenterY=0) then fracPower := 1/2
+        else fracPower := abs(ACenterY)/(abs(ACenterX)+abs(ACenterY));
+        Width := Width*Power(ratioFactor, fracPower);
+        if (ACenterX=0) and (ACenterY=0) then fracPower := 1/2
+        else fracPower := abs(ACenterX)/(abs(ACenterX)+abs(ACenterY));
+        Height := Height/Power(ratioFactor, fracPower);
+        newRefPoint := Origin + (XAxis-Origin)*ACenterX + (YAxis-Origin)*ACenterY;
+        Origin := Origin + (refPoint-newRefPoint);
+        EndUpdate;
+      end;
+    end;
+  end;
+end;
+
+procedure TCustomRectShape.SetFixedRatio(AValue: single);
+begin
+  if FFixedRatio=AValue then Exit;
+  FFixedRatio:=AValue;
+  EnsureRatio(0,0);
+end;
+
 procedure TCustomRectShape.DoMoveXAxis(ANewCoord: TPointF; AShift: TShiftState; AFactor: single);
 var
   newSize: Single;
@@ -182,6 +282,7 @@ begin
       FOrigin := FOriginBackup + AFactor*(newSize-FXSizeBackup)*0.5*FXUnitBackup;
     end;
   end;
+  EnsureRatio(-AFactor,0);
   EndUpdate;
 end;
 
@@ -219,6 +320,7 @@ begin
       FOrigin := FOriginBackup + AFactor*(newSizeY-FYSizeBackup)*0.5*FYUnitBackup;
     end;
   end;
+  EnsureRatio(0,-AFactor);
   EndUpdate;
 end;
 
@@ -256,6 +358,7 @@ begin
     FOrigin := FOriginBackup + AFactorX*(newSize.X-FXSizeBackup)*0.5*sqrt(d)*FXUnitBackup
                              + AFactorY*(newSize.Y-FYSizeBackup)*0.5*sqrt(d)*FYUnitBackup;
   end;
+  EnsureRatio(-AFactorX,-AFactorY);
   EndUpdate;
 end;
 
@@ -378,6 +481,7 @@ begin
   FOrigin := (APoint1+APoint2)*0.5;
   FXAxis := PointF(APoint2.X,FOrigin.Y);
   FYAxis := PointF(FOrigin.X,APoint2.Y);
+  EnsureRatio(-1,-1);
   EndUpdate;
 end;
 
@@ -393,6 +497,7 @@ begin
   FOrigin := AStorage.PointF['origin'];
   FXAxis := AStorage.PointF['x-axis'];
   FYAxis := AStorage.PointF['y-axis'];
+  FFixedRatio := AStorage.Float['fixed-ratio'];
   EndUpdate;
 end;
 
@@ -402,6 +507,7 @@ begin
   AStorage.PointF['origin'] := FOrigin;
   AStorage.PointF['x-axis'] := FXAxis;
   AStorage.PointF['y-axis'] := FYAxis;
+  AStorage.Float['fixed-ratio'] := FFixedRatio;
 end;
 
 function TCustomRectShape.GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions): TRectF;
