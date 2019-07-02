@@ -158,7 +158,7 @@ type
     function AddLayerOffset(ARect: TRect) : TRect;
   public
     BitmapToVirtualScreen: TBitmapToVirtualScreenFunction;
-    PenWidthControls, EraserControls, ToleranceControls,
+    PenWidthControls, AliasingControls, EraserControls, ToleranceControls,
     ShapeControls, JoinStyleControls, SplineStyleControls,
     LineCapControls, GradientControls, DeformationControls,
     TextControls, PhongControls, AltitudeControls,
@@ -171,6 +171,7 @@ type
     ToolNormalPenWidth, ToolEraserWidth: Single;
     ToolEraserMode: TEraserMode;
     ToolCurrentCursorPos: TPointF;
+    ToolOptionAliasing: boolean;
     ToolOptionDrawShape, ToolOptionFillShape, ToolOptionCloseShape: boolean;
     ToolEraserAlpha, ToolTolerance: byte;
     ToolFloodFillOptionProgressive: boolean;
@@ -948,6 +949,7 @@ begin
   ToolDeformationGridMoveWithoutDeformation := false;
 
   PenWidthControls := TList.Create;
+  AliasingControls := TList.Create;
   ShapeControls := TList.Create;
   LineCapControls := TList.Create;
   JoinStyleControls := TList.Create;
@@ -977,6 +979,7 @@ begin
   CurrentTool.Free;
 
   PenWidthControls.Free;
+  AliasingControls.Free;
   ShapeControls.Free;
   LineCapControls.Free;
   JoinStyleControls.Free;
@@ -1148,6 +1151,7 @@ begin
     Image.ReleaseEmptySelection;
 
   SetControlsVisible(PenWidthControls, showPenwidth);
+  SetControlsVisible(AliasingControls, FCurrentToolType=ptPen);
   SetControlsVisible(SplineStyleControls, showSplineStyle);
   SetControlsVisible(JoinStyleControls, showJoinStyle);
   SetControlsVisible(LineCapControls, showLineCap);

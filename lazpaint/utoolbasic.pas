@@ -284,7 +284,11 @@ end;
 
 function TVectorialTool.RoundCoordinate(ptF: TPointF): TPointF;
 begin
-  result := PointF(round(ptF.x),round(ptF.y));
+  if not Manager.ToolOptionDrawShape or
+    (Assigned(FShape) and not (vsfPenFill in FShape.Fields)) then
+    result := PointF(floor(ptF.x)+0.5,floor(ptF.y)+0.5)
+  else
+    result := PointF(round(ptF.x),round(ptF.y));
 end;
 
 function TVectorialTool.GetIsSelectingTool: boolean;
@@ -1072,9 +1076,10 @@ end;
 function TToolPen.StartDrawing(toolDest: TBGRABitmap; ptF: TPointF;
   rightBtn: boolean): TRect;
 var ix,iy: integer;
+  r: TRect;
 begin
   if rightBtn then penColor := Manager.ToolBackColor else penColor := Manager.ToolForeColor;
-  if snapToPixel and (Manager.ToolPenWidth = 1) and (Manager.GetToolTexture = nil) then
+  if (snapToPixel or Manager.ToolOptionAliasing) and (Manager.ToolPenWidth = 1) and (Manager.GetToolTexture = nil) then
   begin
     ix := round(ptF.X);
     iy := round(ptF.Y);
@@ -1084,28 +1089,55 @@ begin
   begin
     result := GetShapeBounds([ptF],Manager.ToolPenWidth);
     toolDest.ClipRect := result;
-     if Manager.GetToolTextureAfterAlpha <> nil then
-       toolDest.FillEllipseAntialias(ptF.X,ptF.Y,Manager.ToolPenWidth/2,Manager.ToolPenWidth/2,Manager.GetToolTextureAfterAlpha)
-     else
-       toolDest.FillEllipseAntialias(ptF.X,ptF.Y,Manager.ToolPenWidth/2,Manager.ToolPenWidth/2,Manager.ApplyPressure(penColor));
-     toolDest.NoClip;
+    if Manager.ToolOptionAliasing then
+    begin
+      r := rect(round(ptF.X-Manager.ToolPenWidth/2+0.5),round(ptF.Y-Manager.ToolPenWidth/2+0.5),
+                round(ptF.X+Manager.ToolPenWidth/2+0.5),round(ptF.Y+Manager.ToolPenWidth/2+0.5));
+      if Manager.GetToolTextureAfterAlpha <> nil then
+        toolDest.FillEllipseInRect(r,Manager.GetToolTextureAfterAlpha,dmDrawWithTransparency)
+      else
+        toolDest.FillEllipseInRect(r,Manager.ApplyPressure(penColor),dmDrawWithTransparency);
+    end
+    else
+    begin
+      if Manager.GetToolTextureAfterAlpha <> nil then
+        toolDest.FillEllipseAntialias(ptF.X,ptF.Y,Manager.ToolPenWidth/2,Manager.ToolPenWidth/2,Manager.GetToolTextureAfterAlpha)
+      else
+        toolDest.FillEllipseAntialias(ptF.X,ptF.Y,Manager.ToolPenWidth/2,Manager.ToolPenWidth/2,Manager.ApplyPressure(penColor));
+    end;
+    toolDest.NoClip;
   end;
 end;
 
 function TToolPen.ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF): TRect;
+var
+  pts: ArrayOfTPointF;
 begin
-  if snapToPixel and (Manager.ToolPenWidth = 1) and (Manager.GetToolTexture = nil) then
+  if (snapToPixel or Manager.ToolOptionAliasing) and (Manager.ToolPenWidth = 1) and (Manager.GetToolTexture = nil) then
   begin
-    toolDest.DrawLineAntialias(round(destF.X),round(destF.Y),round(originF.X),round(originF.Y),Manager.ApplyPressure(penColor),false);
+    if Manager.ToolOptionAliasing then
+      toolDest.DrawLine(round(destF.X),round(destF.Y),round(originF.X),round(originF.Y),Manager.ApplyPressure(penColor),false)
+    else
+      toolDest.DrawLineAntialias(round(destF.X),round(destF.Y),round(originF.X),round(originF.Y),Manager.ApplyPressure(penColor),false);
     result := GetShapeBounds([destF,originF],1);
   end else
   begin
     result := GetShapeBounds([destF,originF],Manager.ToolPenWidth+1);
     toolDest.ClipRect := result;
-    if Manager.GetToolTextureAfterAlpha <> nil then
-      toolDest.DrawLineAntialias(destF.X,destF.Y,originF.X,originF.Y,Manager.GetToolTextureAfterAlpha,Manager.ToolPenWidth,False)
-    else
-      toolDest.DrawLineAntialias(destF.X,destF.Y,originF.X,originF.Y,Manager.ApplyPressure(penColor),Manager.ToolPenWidth,False);
+    if Manager.ToolOptionAliasing then
+    begin
+      pts := toolDest.Pen.ComputePolyline([PointF(destF.X,destF.Y),PointF(originF.X,originF.Y)],Manager.ToolPenWidth,BGRAPixelTransparent,False);
+      if Manager.GetToolTextureAfterAlpha <> nil then
+        toolDest.FillPoly(pts,Manager.GetToolTextureAfterAlpha,dmDrawWithTransparency)
+      else
+        toolDest.FillPoly(pts,Manager.ApplyPressure(penColor),dmDrawWithTransparency);
+    end else
+    begin
+      if Manager.GetToolTextureAfterAlpha <> nil then
+        toolDest.DrawLineAntialias(destF.X,destF.Y,originF.X,originF.Y,Manager.GetToolTextureAfterAlpha,Manager.ToolPenWidth,False)
+      else
+        toolDest.DrawLineAntialias(destF.X,destF.Y,originF.X,originF.Y,Manager.ApplyPressure(penColor),Manager.ToolPenWidth,False);
+    end;
     toolDest.NoClip;
   end;
 end;

@@ -33,6 +33,8 @@ type
     ImageNegative: TAction;
     ForgetDialogAnswers: TAction;
     FileChooseEntry: TAction;
+    Panel_Aliasing: TPanel;
+    ToolBar22: TToolBar;
     ToolButton8: TToolButton;
     ToolHotSpot: TAction;
     Combo_Ratio: TComboBox;
@@ -41,6 +43,7 @@ type
     ItemUseImageBrowser: TMenuItem;
     Label_Ratio: TLabel;
     Panel_Ratio: TPanel;
+    Tool_Aliasing: TToolButton;
     ViewPalette: TAction;
     ViewStatusBar: TAction;
     ImageList24: TBGRAImageList;
@@ -643,6 +646,7 @@ type
     procedure Tool_ProgressiveFloodfillClick(Sender: TObject);
     procedure Tool_RadialGradientClick(Sender: TObject);
     procedure Tool_ReflectedGradientClick(Sender: TObject);
+    procedure Tool_AliasingClick(Sender: TObject);
     procedure Tool_DrawShapeBorderClick(Sender: TObject);
     procedure Tool_FillShapeClick(Sender: TObject);
     procedure ToolMoveSelectionUpdate(Sender: TObject);
@@ -906,7 +910,7 @@ begin
   m.PredefinedMainMenus([MenuFile,MenuEdit,MenuSelect,MenuView, MenuImage,MenuRemoveTransparency,
     MenuColors,MenuTool, MenuFilter,MenuRadialBlur, MenuRender,MenuHelp]);
   m.Toolbars([Panel_Embedded,Panel_File,Panel_Zoom,Panel_Undo,Panel_CopyPaste,Panel_Coordinates,
-    Panel_Tool,Panel_Color,Panel_Texture,Panel_Grid,Panel_PenWidth,Panel_ShapeOption,Panel_LineCap,Panel_JoinStyle,
+    Panel_Tool,Panel_Color,Panel_Texture,Panel_Grid,Panel_PenWidth,Panel_Aliasing,Panel_ShapeOption,Panel_LineCap,Panel_JoinStyle,
     Panel_PenStyle,Panel_SplineStyle,Panel_Eraser,Panel_Tolerance,Panel_GradientType,Panel_Text,Panel_TextOutline,
     Panel_PhongShape,Panel_Altitude,Panel_PerspectiveOption,Panel_Brush,Panel_Ratio],Panel_ToolbarBackground);
   m.Apply;

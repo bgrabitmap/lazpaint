@@ -10,6 +10,7 @@ begin
   Image_SwapColors.OnMouseDown := @Image_SwapColorsMouseDown;
   Image_CurrentTexture.OnMouseDown := @Image_CurrentTextureMouseDown;
   Tool_DrawShapeBorder.OnClick := @Tool_DrawShapeBorderClick;
+  Tool_Aliasing.OnClick := @Tool_AliasingClick;
   Tool_FillShape.OnClick := @Tool_FillShapeClick;
   Tool_CloseShape.OnClick := @Tool_CloseShapeClick;
   Tool_CapFlat.OnClick := @Tool_CapFlatClick;
@@ -255,6 +256,7 @@ end;
 procedure TFMain.RegisterToolbarElements;
 begin
   ToolManager.PenWidthControls.Add(Panel_PenWidth);
+  ToolManager.AliasingControls.Add(Panel_Aliasing);
   ToolManager.ShapeControls.Add(Panel_ShapeOption);
   ToolManager.ShapeControls.Add(Panel_PenStyle);
   ToolManager.JoinStyleControls.Add(Panel_JoinStyle);
@@ -730,6 +732,15 @@ begin
   LazPaintInstance.EditTexture;
   UpdateTextureIcon;
   UpdateEditPicture;
+end;
+
+procedure TFMain.Tool_AliasingClick(Sender: TObject);
+begin
+  if initialized then
+  begin
+     ToolManager.ToolOptionAliasing := Tool_Aliasing.Down;
+     UpdateEditPicture;
+  end;
 end;
 
 procedure TFMain.Tool_DrawShapeBorderClick(Sender: TObject);
