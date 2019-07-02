@@ -1172,6 +1172,8 @@ begin
   Image.RenderMayChange(rect(0,0,Image.Width,Image.Height),True);
   If Assigned(FOnToolChangedHandler) then
     FOnToolChangedHandler(self, tool);
+
+  FShouldExitTool:= false;
 end;
 
 function TToolManager.InternalBitmapToVirtualScreen(PtF: TPointF): TPointF;
