@@ -16,6 +16,7 @@ type
     procedure ShapeChange({%H-}ASender: TObject; ABounds: TRectF); override;
     procedure AssignShapeStyle; override;
     function CreateShape: TVectorShape; override;
+    function SlowShape: boolean; override;
   end;
 
 implementation
@@ -52,6 +53,11 @@ end;
 function TToolPhong.CreateShape: TVectorShape;
 begin
   result := TPhongShape.Create(nil);
+end;
+
+function TToolPhong.SlowShape: boolean;
+begin
+  Result:= true;
 end;
 
 initialization

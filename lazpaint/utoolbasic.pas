@@ -82,7 +82,7 @@ type
     FPreviousUpdateBounds, FPreviousEditorBounds: TRect;
     FEditor: TBGRAOriginalEditor;
     FShiftState: TShiftState;
-    FRightDown: boolean;
+    FRightDown, FLeftDown: boolean;
     FLastPos: TPointF;
     function CreateShape: TVectorShape; virtual; abstract;
     procedure AssignShapeStyle; virtual;
@@ -96,6 +96,7 @@ type
     procedure ShapeChange({%H-}ASender: TObject; ABounds: TRectF); virtual;
     procedure ShapeEditingChange({%H-}ASender: TObject); virtual;
     function GetStatusText: string; override;
+    function SlowShape: boolean; virtual;
   public
     constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
@@ -235,6 +236,11 @@ begin
     Result:=inherited GetStatusText;
 end;
 
+function TVectorialTool.SlowShape: boolean;
+begin
+  result := false;
+end;
+
 procedure TVectorialTool.AssignShapeStyle;
 var
   f: TVectorShapeFields;
@@ -297,7 +303,7 @@ begin
     newBounds := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
   result := RectUnion(result, newBounds);
   oldClip := toolDest.IntersectClip(newBounds);
-  FShape.Render(toolDest,AffineMatrixIdentity,false);
+  FShape.Render(toolDest,AffineMatrixIdentity,(FRightDown or FLeftDown) and SlowShape);
   toolDest.ClipRect := oldClip;
   FPreviousUpdateBounds := newBounds;
 end;
@@ -328,6 +334,7 @@ var
   handled: boolean;
 begin
   FRightDown := rightBtn;
+  FLeftDown := not rightBtn;
   FLastPos := ptF;
   if FShape=nil then
   begin
@@ -404,22 +411,27 @@ function TVectorialTool.ToolUp: TRect;
 var
   viewPt: TPointF;
   cur: TOriginalEditorCursor;
-  handled: boolean;
+  handled, wasRight, wasLeft: boolean;
 begin
+  wasRight := FRightDown;
+  wasLeft := FLeftDown;
+  FRightDown := false;
+  FLeftDown := false;
   if FQuickDefine then
   begin
     FQuickDefine := false;
-    result := UpdateShape(GetToolDrawingLayer);
+    result := EmptyRect;
   end else
   begin
     viewPt := FEditor.Matrix*FLastPos;
-    FEditor.MouseUp(FRightDown, FShiftState, viewPt.X,viewPt.Y, cur, handled);
+    FEditor.MouseUp(wasRight, FShiftState, viewPt.X,viewPt.Y, cur, handled);
     if not handled and Assigned(FShape) then
-      FShape.MouseUp(FRightDown, FShiftState, FLastPos.X,FLastPos.Y, cur, handled);
+      FShape.MouseUp(wasRight, FShiftState, FLastPos.X,FLastPos.Y, cur, handled);
     UpdateCursor(cur);
     result := EmptyRect;
   end;
-  FRightDown := false;
+  if SlowShape then
+    result := UpdateShape(GetToolDrawingLayer);
 end;
 
 function TVectorialTool.ToolKeyDown(var key: Word): TRect;
