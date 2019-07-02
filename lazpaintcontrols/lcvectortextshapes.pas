@@ -26,6 +26,8 @@ type
     FMouseSelecting: boolean;
     FVertAlign: TTextLayout;
     function GetBidiParagraphAlignment: TBidiTextAlignment;
+    function GetCanPasteSelection: boolean;
+    function GetHasSelection: boolean;
     function GetParagraphAlignment: TAlignment;
     procedure OnMoveLightPos({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF;
       {%H-}AShift: TShiftState);
@@ -88,6 +90,11 @@ type
     procedure KeyDown({%H-}Shift: TShiftState; {%H-}Key: TSpecialKey; var {%H-}AHandled: boolean); override;
     procedure KeyPress({%H-}UTF8Key: string; var {%H-}AHandled: boolean); override;
     procedure SetFontNameAndStyle(AFontName: string; AFontStyle: TFontStyles);
+    function CopySelection: boolean;
+    function CutSelection: boolean;
+    function PasteSelection: boolean;
+    property HasSelection: boolean read GetHasSelection;
+    property CanPasteSelection: boolean read GetCanPasteSelection;
     property Text: string read FText write SetText;
     property FontName: string read FFontName write SetFontName;
     property FontStyle: TFontStyles read FFontStyle write SetFontStyle;
@@ -183,6 +190,16 @@ begin
   result := tl.ParagraphAlignment[paraIndex];
 end;
 
+function TTextShape.GetCanPasteSelection: boolean;
+begin
+  result := Clipboard.HasFormat(PredefinedClipboardFormat(pcfText));
+end;
+
+function TTextShape.GetHasSelection: boolean;
+begin
+  result := FSelEnd <> FSelStart;
+end;
+
 function TTextShape.GetParagraphAlignment: TAlignment;
 var
   tl: TBidiTextLayout;
@@ -262,8 +279,9 @@ begin
   tl := GetTextLayout;
   if Usermode <> vsuEditText then
   begin
+    if tl.ParagraphCount = 0 then exit;
     paraIndex := 0;
-    paraIndex2:= tl.ParagraphCount;
+    paraIndex2:= tl.ParagraphCount-1;
   end else
   begin
     paraIndex := tl.GetParagraphAt(FSelStart);
@@ -301,8 +319,9 @@ begin
   tl := GetTextLayout;
   if UserMode <> vsuEditText then
   begin
+    if tl.ParagraphCount = 0 then exit;
     paraIndex := 0;
-    paraIndex2:= tl.ParagraphCount;
+    paraIndex2:= tl.ParagraphCount-1;
   end else
   begin
     paraIndex := tl.GetParagraphAt(FSelStart);
@@ -1148,9 +1167,7 @@ procedure TTextShape.KeyDown(Shift: TShiftState; Key: TSpecialKey;
   var AHandled: boolean);
 var
   idxPara, newPos: Integer;
-  stream: TStringStream;
   tl: TBidiTextLayout;
-  txt: String;
 begin
   if (FTextLayout = nil) or (Usermode <> vsuEditText) then exit;
 
@@ -1239,35 +1256,17 @@ begin
     InsertText(#9);
     AHandled := true;
   end else
-  if (Key in[skC,skX]) and (ssCtrl in Shift) then
+  if (Key = skC) and (ssCtrl in Shift) then
   begin
-    if FSelEnd <> FSelStart then
-    begin
-      stream := nil;
-      try
-        Clipboard.Clear;
-        stream := TStringStream.Create(GetTextLayout.CopyText(min(FSelStart,FSelEnd),abs(FSelEnd-FSelStart)));
-        Clipboard.SetFormat(PredefinedClipboardFormat(pcfText), stream);
-      finally
-        stream.Free;
-      end;
-      if Key = skX then DeleteSelectedText;
-      AHandled:= true;
-    end;
+    if CopySelection then AHandled:= true;
+  end else
+  if (Key = skX) and (ssCtrl in Shift) then
+  begin
+    if CutSelection then AHandled:= true;
   end else
   if (Key = skV) and (ssCtrl in Shift) then
   begin
-    if Clipboard.HasFormat(PredefinedClipboardFormat(pcfText)) then
-    begin
-      txt := Clipboard.AsText;
-      txt := StringReplace(txt, #13#10, #10, [rfReplaceAll]);
-      txt := StringReplace(txt, #10#13, #10, [rfReplaceAll]);
-      txt := StringReplace(txt, #13, #10, [rfReplaceAll]);
-      txt := StringReplace(txt, UnicodeCharToUTF8(UNICODE_PARAGRAPH_SEPARATOR), #10, [rfReplaceAll]);
-      txt := StringReplace(txt, UnicodeCharToUTF8(UNICODE_NEXT_LINE), #10, [rfReplaceAll]);
-      InsertText(txt);
-      AHandled:= true;
-    end;
+    if PasteSelection then AHandled := true;
   end else
   if (Key = skA) and (ssCtrl in Shift) then
   begin
@@ -1311,6 +1310,49 @@ begin
     FFontStyle:= AFontStyle;
     EndUpdate;
   end;
+end;
+
+function TTextShape.CopySelection: boolean;
+var
+  stream: TStringStream;
+begin
+  if HasSelection then
+  begin
+    stream := nil;
+    try
+      Clipboard.Clear;
+      stream := TStringStream.Create(GetTextLayout.CopyText(min(FSelStart,FSelEnd),abs(FSelEnd-FSelStart)));
+      Clipboard.SetFormat(PredefinedClipboardFormat(pcfText), stream);
+    finally
+      stream.Free;
+    end;
+    result := true;
+  end
+  else result := false;
+end;
+
+function TTextShape.CutSelection: boolean;
+begin
+  result := CopySelection;
+  if result then DeleteSelectedText;
+end;
+
+function TTextShape.PasteSelection: boolean;
+var
+  txt: String;
+begin
+  if CanPasteSelection then
+  begin
+    txt := Clipboard.AsText;
+    txt := StringReplace(txt, #13#10, #10, [rfReplaceAll]);
+    txt := StringReplace(txt, #10#13, #10, [rfReplaceAll]);
+    txt := StringReplace(txt, #13, #10, [rfReplaceAll]);
+    txt := StringReplace(txt, UnicodeCharToUTF8(UNICODE_PARAGRAPH_SEPARATOR), #10, [rfReplaceAll]);
+    txt := StringReplace(txt, UnicodeCharToUTF8(UNICODE_NEXT_LINE), #10, [rfReplaceAll]);
+    InsertText(txt);
+    result := true;
+  end else
+    result := false;
 end;
 
 class function TTextShape.StorageClassName: RawByteString;

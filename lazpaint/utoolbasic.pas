@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, utool, BGRABitmapTypes, BGRABitmap, BGRALayerOriginal,
-  UImage, ULayerAction, LCVectorOriginal;
+  UImage, ULayerAction, LCVectorOriginal, LCLType;
 
 type
 
@@ -97,10 +97,12 @@ type
     procedure ShapeEditingChange({%H-}ASender: TObject); virtual;
     function GetStatusText: string; override;
     function SlowShape: boolean; virtual;
+    procedure QuickDefineEnd; virtual;
   public
     constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
     function ToolKeyDown(var key: Word): TRect; override;
+    function ToolKeyPress(var key: TUTF8Char): TRect; override;
     function ToolKeyUp(var key: Word): TRect; override;
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
     destructor Destroy; override;
@@ -170,20 +172,8 @@ type
 
 implementation
 
-uses Types, Graphics, LCLType, ugraph, Controls, LazPaintType,
+uses Types, Graphics, ugraph, Controls, LazPaintType,
   UResourceStrings, BGRATransform, Math, BGRAPen, LCVectorRectShapes;
-
-function PenStyleToBGRA(APenStyle: TPenStyle): TBGRAPenStyle;
-begin
-  Case APenStyle of
-  psSolid: result := SolidPenStyle;
-  psDash: result := DashPenStyle;
-  psDot: result := DotPenStyle;
-  psDashDot: result := DashDotPenStyle;
-  psDashDotDot: result := DashDotDotPenStyle;
-  else result := ClearPenStyle;
-  end;
-end;
 
 { TVectorialTool }
 
@@ -199,16 +189,23 @@ begin
   with FShape.GetRenderBounds(rect(0,0,toolDest.Width,toolDest.Height),
        AffineMatrixIdentity,[]) do
     FPreviousUpdateBounds := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
+  if IsRectEmpty(r) then ShapeEditingChange(ASender);
 end;
 
 procedure TVectorialTool.ShapeEditingChange(ASender: TObject);
 var
   toolDest: TBGRABitmap;
-  newEditorBounds: TRect;
+  newEditorBounds, r: TRect;
 begin
   toolDest := GetToolDrawingLayer;
-  newEditorBounds := FEditor.GetRenderBounds(rect(0,0,toolDest.Width,toolDest.Height));
-  Manager.Image.RenderMayChange(RectUnion(FPreviousEditorBounds,newEditorBounds),false);
+  with (FEditor.Matrix*PointF(toolDest.Width,toolDest.Height)) do
+    newEditorBounds := FEditor.GetRenderBounds(rect(0,0,ceil(x),ceil(y)));
+  r := RectUnion(FPreviousEditorBounds,newEditorBounds);
+  if not IsRectEmpty(r) then
+  begin
+    Manager.Image.RenderMayChange(r,false);
+    Manager.Image.OnImageChanged.NotifyObservers;
+  end;
   FPreviousEditorBounds := newEditorBounds;
 end;
 
@@ -239,6 +236,11 @@ end;
 function TVectorialTool.SlowShape: boolean;
 begin
   result := false;
+end;
+
+procedure TVectorialTool.QuickDefineEnd;
+begin
+  //nothing
 end;
 
 procedure TVectorialTool.AssignShapeStyle;
@@ -362,8 +364,8 @@ begin
     FShape := CreateShape;
     FQuickDefine := true;
     FQuickDefineStartPoint := RoundCoordinate(ptF);
-    FShape.QuickDefine(FQuickDefineStartPoint,FQuickDefineStartPoint);
     AssignShapeStyle;
+    FShape.QuickDefine(FQuickDefineStartPoint,FQuickDefineStartPoint);
     FShape.OnChange:= @ShapeChange;
     FShape.OnEditingChange:=@ShapeEditingChange;
     result := UpdateShape(toolDest);
@@ -391,7 +393,7 @@ begin
       if s.y > 0 then secondCoord.y := FQuickDefineStartPoint.y + avg else secondCoord.y := FQuickDefineStartPoint.y - avg;
     end;
     FShape.QuickDefine(FQuickDefineStartPoint, secondCoord);
-    result := EmptyRect;
+    result := OnlyRenderChange;
   end else
   begin
     viewPt := FEditor.Matrix*ptF;
@@ -416,6 +418,7 @@ begin
   FPreviousUpdateBounds := EmptyRect;
   FEditor := TVectorOriginalEditor.Create(nil);
   FEditor.GridMatrix := AffineMatrixScale(0.5,0.5);
+  FEditor.Focused := true;
   FPreviousEditorBounds := EmptyRect;
 end;
 
@@ -423,16 +426,16 @@ function TVectorialTool.ToolUp: TRect;
 var
   viewPt: TPointF;
   cur: TOriginalEditorCursor;
-  handled, wasRight, wasLeft: boolean;
+  handled, wasRight: boolean;
 begin
   wasRight := FRightDown;
-  wasLeft := FLeftDown;
   FRightDown := false;
   FLeftDown := false;
   if FQuickDefine then
   begin
     FQuickDefine := false;
     result := EmptyRect;
+    QuickDefineEnd;
   end else
   begin
     viewPt := FEditor.Matrix*FLastPos;
@@ -494,8 +497,19 @@ begin
   end else
   begin
     FEditor.KeyDown(FShiftState, LCLKeyToSpecialKey(Key, FShiftState), handled);
+    if not handled and Assigned(FShape) then FShape.KeyDown(FShiftState, LCLKeyToSpecialKey(Key, FShiftState), handled);
     if handled then Key := 0;
   end;
+end;
+
+function TVectorialTool.ToolKeyPress(var key: TUTF8Char): TRect;
+var
+  handled: boolean;
+begin
+  result := EmptyRect;
+  FEditor.KeyPress(key, handled);
+  if not handled and Assigned(FShape) then FShape.KeyPress(key, handled);
+  if handled then Key := #0;
 end;
 
 function TVectorialTool.ToolKeyUp(var key: Word): TRect;
@@ -528,6 +542,7 @@ begin
   end else
   begin
     FEditor.KeyUp(FShiftState, LCLKeyToSpecialKey(Key, FShiftState), handled);
+    if not handled and Assigned(FShape) then FShape.KeyUp(FShiftState, LCLKeyToSpecialKey(Key, FShiftState), handled);
     if handled then Key := 0;
   end;
 end;

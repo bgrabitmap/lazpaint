@@ -395,6 +395,11 @@ begin
 
   if SpinEdit_TextOutlineWidth.Enabled <> not ToolManager.ToolTextPhong then
     SpinEdit_TextOutlineWidth.Enabled := not ToolManager.ToolTextPhong;
+  case ToolManager.ToolTextAlign of
+  taLeftJustify: Tool_TextAlignLeft.Down := true;
+  taCenter: Tool_TextAlignCenter.Down := true;
+  taRightJustify: Tool_TextAlignRight.Down := true;
+  end;
 
   LazPaintInstance.ColorToFChooseColor;
 

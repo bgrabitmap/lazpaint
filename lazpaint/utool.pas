@@ -932,7 +932,7 @@ begin
   ToolTextPhong := False;
   ToolTextBlur := 4;
   ToolTextShadowOffset := Point(5,5);
-  ToolTextOutlineWidth := TBGRATextEffect.OutlineWidth;
+  ToolTextOutlineWidth := 2;
   ToolLightPosition := Point(0,0);
   ToolLightAltitude := 100;
   ToolShapeAltitude := 50;
