@@ -43,8 +43,8 @@ type
   private
     function GetActualAngle: single;
     function GetOriginalLayerBounds: TRect;
-    function GetRotationCenter: TPointF;
-    procedure SetRotationCenter(AValue: TPointF);
+    function GetTransformCenter: TPointF;
+    procedure SetTransformCenter(AValue: TPointF);
     procedure NeedOriginal;
   protected
     FOriginalInit: boolean;
@@ -53,13 +53,12 @@ type
     FInitialLayerBounds: TRect;
     FInitialLayerBoundsDefined: boolean;
 
-    FRotationCenter: TPointF;
-    FRotationCenterDefined: boolean;
-    FFilter: TResampleFilter;
-    FPreviousRotationCenter: TPointF;
+    FTransformCenter: TPointF;
+    FTransformCenterDefined: boolean;
+    FPreviousTransformCenter: TPointF;
     FAngle,FActualAngle,FPreviousActualAngle: single;
     FPreviousFilter: TResampleFilter;
-    FRotating: boolean;
+    FTransforming: boolean;
     FPreviousMousePos: TPointF;
     FCtrlDown: boolean;
     FLastUpdateRect: TRect;
@@ -69,10 +68,58 @@ type
       rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect;
       override;
-    function UpdateRotation: TRect;
-    procedure CancelRotation;
-    procedure ValidateRotation;
-    property RotationCenter: TPointF read GetRotationCenter write SetRotationCenter;
+    function UpdateTransform: TRect;
+    procedure CancelTransform;
+    procedure ValidateTransform;
+    property TransformCenter: TPointF read GetTransformCenter write SetTransformCenter;
+    function GetAction: TLayerAction; override;
+    function DoGetToolDrawingLayer: TBGRABitmap; override;
+  public
+    constructor Create(AManager: TToolManager); override;
+    destructor Destroy; override;
+    function ToolKeyDown(var key: Word): TRect; override;
+    function ToolKeyUp(var key: Word): TRect; override;
+    function ToolUp: TRect; override;
+    function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth,
+      {%H-}VirtualScreenHeight: integer;
+      BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
+  end;
+
+  { TToolZoomLayer }
+
+  TToolZoomLayer = class(TGenericTool)
+  private
+    function GetActualZoom: single;
+    function GetOriginalLayerBounds: TRect;
+    function GetTransformCenter: TPointF;
+    procedure SetTransformCenter(AValue: TPointF);
+    procedure NeedOriginal;
+  protected
+    FOriginalInit: boolean;
+    FBackupLayer: TReplaceLayerByImageOriginalDifference;
+    FInitialOriginalMatrix: TAffineMatrix;
+    FInitialLayerBounds: TRect;
+    FInitialLayerBoundsDefined: boolean;
+
+    FTransformCenter: TPointF;
+    FTransformCenterDefined: boolean;
+    FPreviousTransformCenter: TPointF;
+    FZoom,FActualZoom,FPreviousActualZoom: single;
+    FPreviousFilter: TResampleFilter;
+    FTransforming: boolean;
+    FPreviousMousePos: TPointF;
+    FCtrlDown: boolean;
+    FLastUpdateRect: TRect;
+    FLastUpdateRectDefined: boolean;
+    function GetIsSelectingTool: boolean; override;
+    function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
+      rightBtn: boolean): TRect; override;
+    function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect;
+      override;
+    function UpdateTransform: TRect;
+    procedure CancelTransform;
+    procedure ValidateTransform;
+    property TransformCenter: TPointF read GetTransformCenter write SetTransformCenter;
     function GetAction: TLayerAction; override;
     function DoGetToolDrawingLayer: TBGRABitmap; override;
   public
@@ -110,29 +157,29 @@ begin
   result := FInitialLayerBounds;
 end;
 
-function TToolRotateLayer.GetRotationCenter: TPointF;
+function TToolRotateLayer.GetTransformCenter: TPointF;
 var bounds: TRect;
 begin
-  if not FRotationCenterDefined then
+  if not FTransformCenterDefined then
   begin
     bounds := GetOriginalLayerBounds;
     if IsRectEmpty(bounds) then
-      FRotationCenter := PointF(Manager.Image.Width/2 - 0.5,Manager.Image.Height/2 - 0.5)
+      FTransformCenter := PointF(Manager.Image.Width/2 - 0.5,Manager.Image.Height/2 - 0.5)
     else
     begin
       with bounds do
-        FRotationCenter := PointF((Left+Right)/2 - 0.5, (Top+Bottom)/2 - 0.5);
+        FTransformCenter := PointF((Left+Right)/2 - 0.5, (Top+Bottom)/2 - 0.5);
       with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
-        FRotationCenter += PointF(X,Y);
+        FTransformCenter += PointF(X,Y);
     end;
-    FRotationCenterDefined := true;
+    FTransformCenterDefined := true;
   end;
-  result := FRotationCenter;
+  result := FTransformCenter;
 end;
 
-procedure TToolRotateLayer.SetRotationCenter(AValue: TPointF);
+procedure TToolRotateLayer.SetTransformCenter(AValue: TPointF);
 begin
-  FRotationCenter := AValue;
+  FTransformCenter := AValue;
 end;
 
 procedure TToolRotateLayer.NeedOriginal;
@@ -160,23 +207,19 @@ begin
   with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
     ptF += PointF(X,Y);
 
-  if not FRotating and not rightBtn then
+  if not FTransforming and not rightBtn then
   begin
-    FRotating := true;
+    FTransforming := true;
     FPreviousMousePos := ptF;
-    if toolDest.NbPixels > 65536 then
-      FFilter := rfBox
-    else
-      FFilter:= rfCosine;
-    if FCtrlDown then result := UpdateRotation
+    if FCtrlDown then result := UpdateTransform
      else result := EmptyRect;
   end else
   if rightBtn then
   begin
-    FRotationCenter := ptF;
+    FTransformCenter := ptF;
     FAngle := 0;
     FActualAngle:= GetActualAngle;
-    result := UpdateRotation;
+    result := UpdateTransform;
     if IsRectEmpty(result) then result := OnlyRenderChange;
   end else
     result := EmptyRect;
@@ -188,39 +231,37 @@ var angleDiff: single;
 begin
   with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
     ptF += PointF(X,Y);
-  if FRotating then
+  if FTransforming then
   begin
-    angleDiff := ComputeAngle(ptF.X-RotationCenter.X,ptF.Y-RotationCenter.Y)-
-               ComputeAngle(FPreviousMousePos.X-RotationCenter.X,FPreviousMousePos.Y-RotationCenter.Y);
+    angleDiff := ComputeAngle(ptF.X-TransformCenter.X,ptF.Y-TransformCenter.Y)-
+               ComputeAngle(FPreviousMousePos.X-TransformCenter.X,FPreviousMousePos.Y-TransformCenter.Y);
     FAngle += angleDiff;
     FActualAngle:= GetActualAngle;
-    result := UpdateRotation;
+    result := UpdateTransform;
     FPreviousMousePos := ptF;
   end else
     result := EmptyRect;
 end;
 
-function TToolRotateLayer.UpdateRotation: TRect;
+function TToolRotateLayer.UpdateTransform: TRect;
 begin
-  if (FActualAngle = FPreviousActualAngle) and ((FActualAngle = 0) or (RotationCenter = FPreviousRotationCenter)) and
-    (FPreviousFilter = FFilter) then
+  if (FActualAngle = FPreviousActualAngle) and ((FActualAngle = 0) or (TransformCenter = FPreviousTransformCenter)) then
   begin
     result := EmptyRect;
     exit;
   end;
   FPreviousActualAngle := FActualAngle;
-  FPreviousRotationCenter := RotationCenter;
-  FPreviousFilter := FFilter;
+  FPreviousTransformCenter := TransformCenter;
   result := EmptyRect;
   NeedOriginal;
   Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] :=
-    AffineMatrixTranslation(RotationCenter.X,RotationCenter.Y)*
+    AffineMatrixTranslation(TransformCenter.X,TransformCenter.Y)*
     AffineMatrixRotationDeg(FActualAngle)*
-    AffineMatrixTranslation(-RotationCenter.X,-RotationCenter.Y)*
+    AffineMatrixTranslation(-TransformCenter.X,-TransformCenter.Y)*
     FInitialOriginalMatrix;
 end;
 
-procedure TToolRotateLayer.CancelRotation;
+procedure TToolRotateLayer.CancelTransform;
 begin
   if FOriginalInit then
   begin
@@ -235,7 +276,7 @@ begin
   Manager.QueryExitTool;
 end;
 
-procedure TToolRotateLayer.ValidateRotation;
+procedure TToolRotateLayer.ValidateTransform;
 var
   transform: TAffineMatrix;
 begin
@@ -269,18 +310,17 @@ end;
 constructor TToolRotateLayer.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
+  FCtrlDown:= false;
+  FTransformCenterDefined := false;
+  FLastUpdateRectDefined:= false;
+
   FAngle:= 0;
   FPreviousActualAngle := 0;
-  FCtrlDown:= false;
-  FRotationCenterDefined := false;
-  FLastUpdateRectDefined:= false;
-  FFilter := rfCosine;
-  FPreviousFilter := FFilter;
 end;
 
 destructor TToolRotateLayer.Destroy;
 begin
-  ValidateRotation;
+  ValidateTransform;
   inherited Destroy;
 end;
 
@@ -289,24 +329,24 @@ begin
   if key = VK_CONTROL then
   begin
     FCtrlDown:= true;
-    if FRotating then
+    if FTransforming then
     begin
       FActualAngle := GetActualAngle;
-      result := UpdateRotation;
+      result := UpdateTransform;
     end
      else result := EmptyRect;
     Key := 0;
   end else
   if Key = VK_RETURN then
   begin
-    if FActualAngle = 0 then CancelRotation
-    else ValidateRotation;
+    if FActualAngle = 0 then CancelTransform
+    else ValidateTransform;
     result := OnlyRenderChange;
     key := 0;
   end else
   if Key = VK_ESCAPE then
   begin
-    CancelRotation;
+    CancelTransform;
     result := OnlyRenderChange;
     key := 0;
   end else
@@ -325,11 +365,10 @@ end;
 
 function TToolRotateLayer.ToolUp: TRect;
 begin
-  if FRotating then
+  if FTransforming then
   begin
-    FRotating := false;
-    FFilter := rfCosine;
-    result := UpdateRotation;
+    FTransforming := false;
+    result := UpdateTransform;
   end else
     Result:=EmptyRect;
 end;
@@ -339,10 +378,285 @@ function TToolRotateLayer.Render(VirtualScreen: TBGRABitmap;
   BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
 begin
   with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
-    Result:= NicePoint(VirtualScreen,BitmapToVirtualScreen(RotationCenter-PointF(X,Y)));
+    Result:= NicePoint(VirtualScreen,BitmapToVirtualScreen(TransformCenter-PointF(X,Y)));
 end;
 
 function TToolRotateLayer.GetIsSelectingTool: boolean;
+begin
+  result := false;
+end;
+
+{ TToolZoomLayer }
+
+function TToolZoomLayer.GetActualZoom: single;
+const log125 = 0.321928095;
+      log15 = 0.584962501;
+var
+  logZoom, fracZoom: single;
+  baseZoom: single;
+  invZoom: boolean;
+begin
+  if FCtrlDown then
+  begin
+    logZoom := ln(FZoom)/ln(2);
+    if logZoom < 0 then
+    begin
+      invZoom := true;
+      logZoom := -logZoom;
+    end else invZoom := false;
+    fracZoom := frac(logZoom);
+    baseZoom := 1 shl trunc(logZoom);
+
+    if fracZoom < log125/2 then result := baseZoom else
+    if fracZoom < (log125+log15)/2 then result := baseZoom*1.25 else
+    if fracZoom < (log15+1)/2 then result := baseZoom*1.5 else
+      result := baseZoom*2;
+
+    if invZoom then result := 1/result;
+  end
+  else
+    result := FZoom;
+end;
+
+function TToolZoomLayer.GetOriginalLayerBounds: TRect;
+begin
+  if not FInitialLayerBoundsDefined then
+  begin
+    FInitialLayerBounds := GetToolDrawingLayer.GetImageBounds;
+    FInitialLayerBoundsDefined := true;
+  end;
+  result := FInitialLayerBounds;
+end;
+
+function TToolZoomLayer.GetTransformCenter: TPointF;
+var bounds: TRect;
+begin
+  if not FTransformCenterDefined then
+  begin
+    bounds := GetOriginalLayerBounds;
+    if IsRectEmpty(bounds) then
+      FTransformCenter := PointF(Manager.Image.Width/2 - 0.5,Manager.Image.Height/2 - 0.5)
+    else
+    begin
+      with bounds do
+        FTransformCenter := PointF((Left+Right)/2 - 0.5, (Top+Bottom)/2 - 0.5);
+      with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
+        FTransformCenter += PointF(X,Y);
+    end;
+    FTransformCenterDefined := true;
+  end;
+  result := FTransformCenter;
+end;
+
+procedure TToolZoomLayer.SetTransformCenter(AValue: TPointF);
+begin
+  FTransformCenter := AValue;
+end;
+
+procedure TToolZoomLayer.NeedOriginal;
+var
+  layered: TBGRALayeredBitmap;
+  layerIdx: Integer;
+begin
+  if FOriginalInit then exit;
+  GetAction;
+  layerIdx := Manager.Image.CurrentLayerIndex;
+  layered := Manager.Image.CurrentState.LayeredBitmap;
+  if not (Manager.Image.LayerOriginalDefined[layerIdx] and
+     Manager.Image.LayerOriginalKnown[layerIdx]) then
+  begin
+    if Assigned(FBackupLayer) then raise exception.Create('Backup layer already assigned');
+    FBackupLayer:= TReplaceLayerByImageOriginalDifference.Create(Manager.Image.CurrentState, layerIdx);
+  end;
+  FInitialOriginalMatrix := layered.LayerOriginalMatrix[layerIdx];
+  FOriginalInit := true;
+end;
+
+function TToolZoomLayer.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
+  ptF: TPointF; rightBtn: boolean): TRect;
+begin
+  with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
+    ptF += PointF(X,Y);
+
+  if not FTransforming and not rightBtn then
+  begin
+    FTransforming := true;
+    FPreviousMousePos := ptF;
+    if FCtrlDown then result := UpdateTransform
+     else result := EmptyRect;
+  end else
+  if rightBtn then
+  begin
+    FTransformCenter := ptF;
+    FZoom := 1;
+    FActualZoom:= GetActualZoom;
+    result := UpdateTransform;
+    if IsRectEmpty(result) then result := OnlyRenderChange;
+  end else
+    result := EmptyRect;
+end;
+
+function TToolZoomLayer.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
+  ptF: TPointF): TRect;
+var dist, prevDist: single;
+begin
+  with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
+    ptF += PointF(X,Y);
+  if FTransforming then
+  begin
+    dist := VectLen(ptF-TransformCenter);
+    prevDist := VectLen(FPreviousMousePos-TransformCenter);
+    if (prevDist <> 0) and (dist <> 0) then
+    begin
+      FZoom *= dist/prevDist;
+      FActualZoom:= GetActualZoom;
+      result := UpdateTransform;
+    end
+    else result := EmptyRect;
+    FPreviousMousePos := ptF;
+  end else
+    result := EmptyRect;
+end;
+
+function TToolZoomLayer.UpdateTransform: TRect;
+begin
+  if (FActualZoom = FPreviousActualZoom) and ((FActualZoom = 1) or (TransformCenter = FPreviousTransformCenter)) then
+  begin
+    result := EmptyRect;
+    exit;
+  end;
+  FPreviousActualZoom := FActualZoom;
+  FPreviousTransformCenter := TransformCenter;
+  result := EmptyRect;
+  NeedOriginal;
+  Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] :=
+    AffineMatrixTranslation(TransformCenter.X,TransformCenter.Y)*
+    AffineMatrixScale(FActualZoom,FActualZoom)*
+    AffineMatrixTranslation(-TransformCenter.X,-TransformCenter.Y)*
+    FInitialOriginalMatrix;
+end;
+
+procedure TToolZoomLayer.CancelTransform;
+begin
+  if FOriginalInit then
+  begin
+    Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] := FInitialOriginalMatrix;
+    if Assigned(FBackupLayer) then
+    begin
+      FBackupLayer.UnapplyTo(Manager.Image.CurrentState);
+      FreeAndNil(FBackupLayer);
+    end;
+    FOriginalInit := false;
+  end;
+  Manager.QueryExitTool;
+end;
+
+procedure TToolZoomLayer.ValidateTransform;
+var
+  transform: TAffineMatrix;
+begin
+  if FOriginalInit then
+  begin
+    if Assigned(FBackupLayer) then
+    begin
+      transform := Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex];
+      Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] := FInitialOriginalMatrix;
+      Manager.Image.CurrentState.LayeredBitmap.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] := transform;
+      Manager.Image.CurrentState.LayeredBitmap.RenderLayerFromOriginal(Manager.Image.CurrentLayerIndex);
+      FBackupLayer.nextMatrix := transform;
+      Manager.Image.AddUndo(FBackupLayer);
+      FBackupLayer := nil;
+    end;
+    FOriginalInit := false;
+  end;
+  Manager.QueryExitTool;
+end;
+
+function TToolZoomLayer.GetAction: TLayerAction;
+begin
+  result := GetIdleAction;
+end;
+
+function TToolZoomLayer.DoGetToolDrawingLayer: TBGRABitmap;
+begin
+  Result:= Manager.Image.CurrentLayerReadOnly   //do not modify layer data directly and ignore selection
+end;
+
+constructor TToolZoomLayer.Create(AManager: TToolManager);
+begin
+  inherited Create(AManager);
+  FCtrlDown:= false;
+  FTransformCenterDefined := false;
+  FLastUpdateRectDefined:= false;
+
+  FZoom:= 1;
+  FPreviousActualZoom := 1;
+end;
+
+destructor TToolZoomLayer.Destroy;
+begin
+  ValidateTransform;
+  inherited Destroy;
+end;
+
+function TToolZoomLayer.ToolKeyDown(var key: Word): TRect;
+begin
+  if key = VK_CONTROL then
+  begin
+    FCtrlDown:= true;
+    if FTransforming then
+    begin
+      FActualZoom := GetActualZoom;
+      result := UpdateTransform;
+    end
+     else result := EmptyRect;
+    Key := 0;
+  end else
+  if Key = VK_RETURN then
+  begin
+    if FActualZoom = 0 then CancelTransform
+    else ValidateTransform;
+    result := OnlyRenderChange;
+    key := 0;
+  end else
+  if Key = VK_ESCAPE then
+  begin
+    CancelTransform;
+    result := OnlyRenderChange;
+    key := 0;
+  end else
+    result := EmptyRect;
+end;
+
+function TToolZoomLayer.ToolKeyUp(var key: Word): TRect;
+begin
+  if key = VK_CONTROL then
+  begin
+    FCtrlDown := false;
+    Key := 0;
+  end;
+  result := EmptyRect;
+end;
+
+function TToolZoomLayer.ToolUp: TRect;
+begin
+  if FTransforming then
+  begin
+    FTransforming := false;
+    result := UpdateTransform;
+  end else
+    Result:=EmptyRect;
+end;
+
+function TToolZoomLayer.Render(VirtualScreen: TBGRABitmap;
+  VirtualScreenWidth, VirtualScreenHeight: integer;
+  BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
+begin
+  with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
+    Result:= NicePoint(VirtualScreen,BitmapToVirtualScreen(TransformCenter-PointF(X,Y)));
+end;
+
+function TToolZoomLayer.GetIsSelectingTool: boolean;
 begin
   result := false;
 end;
@@ -518,6 +832,7 @@ initialization
 
   RegisterTool(ptMoveLayer,TToolMoveLayer);
   RegisterTool(ptRotateLayer,TToolRotateLayer);
+  RegisterTool(ptZoomLayer,TToolZoomLayer);
 
 end.
 

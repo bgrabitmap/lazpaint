@@ -28,6 +28,7 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    LayerZoom: TAction;
     ImageSwapRedBlue: TAction;
     ImageLinearNegative: TAction;
     ImageNegative: TAction;
@@ -459,6 +460,7 @@ type
     procedure ItemFullscreenClick(Sender: TObject);
     procedure ItemIconSize24Click(Sender: TObject);
     procedure ItemViewDockToolboxClick(Sender: TObject);
+    procedure LayerZoomExecute(Sender: TObject);
     procedure MenuCoordinatesToolbarClick(Sender: TObject);
     procedure MenuCopyPasteToolbarClick(Sender: TObject);
     procedure MenuDockToolboxLeftClick(Sender: TObject);
@@ -2751,11 +2753,11 @@ begin
               result := srException;
             end;
           end;
-          ptMoveLayer, ptRotateLayer:
+          ptMoveLayer, ptRotateLayer, ptZoomLayer:
           begin
             if image.CurrentLayerEquals(BGRAPixelTransparent) then
             begin
-              LazPaintInstance.ShowMessage(rsLazPaint, rsEmptyLayer);
+              MessagePopup(rsLazPaint, 4000);
               Tool := ptHand;
               result := srException;
             end;
@@ -2977,6 +2979,11 @@ begin
     Layout.ToolBoxDocking := twLeft
   else
     Layout.ToolBoxDocking := twWindow;
+end;
+
+procedure TFMain.LayerZoomExecute(Sender: TObject);
+begin
+  ChooseTool(ptZoomLayer);
 end;
 
 procedure TFMain.MenuCoordinatesToolbarClick(Sender: TObject);

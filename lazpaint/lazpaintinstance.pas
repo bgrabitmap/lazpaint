@@ -396,6 +396,7 @@ begin
   FLayerStack.AddSeparator;
   FLayerStack.AddButton(FMain.LayerMove);
   FLayerStack.AddButton(FMain.LayerRotate);
+  FLayerStack.AddButton(FMain.LayerZoom);
   FLayerStack.AddButton(FMain.LayerHorizontalFlip);
   FLayerStack.AddButton(FMain.LayerVerticalFlip);
   FLayerStack.AddButton(FMain.ToolLayerMapping);

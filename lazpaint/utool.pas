@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, Graphics, BGRABitmap, BGRABitmapTypes, uimage,
   UImageType, ULayerAction, LCLType, Controls, UBrushType, UConfig;
 
-type TPaintToolType = (ptHand,ptHotSpot, ptMoveLayer,ptRotateLayer, ptPen, ptBrush, ptClone, ptColorPicker, ptEraser,
+type TPaintToolType = (ptHand,ptHotSpot, ptMoveLayer,ptRotateLayer,ptZoomLayer, ptPen, ptBrush, ptClone, ptColorPicker, ptEraser,
                    ptRect, ptEllipse, ptPolygon, ptSpline,
                    ptFloodFill, ptGradient, ptPhong,
                    ptSelectPen, ptSelectRect, ptSelectEllipse, ptSelectPoly, ptSelectSpline,
@@ -16,7 +16,8 @@ type TPaintToolType = (ptHand,ptHotSpot, ptMoveLayer,ptRotateLayer, ptPen, ptBru
                    ptText);
 
 const
-  PaintToolTypeStr : array[TPaintToolType] of string = ('Hand','HotSpot', 'MoveLayer', 'RotateLayer', 'Pen', 'Brush', 'Clone', 'ColorPicker', 'Eraser',
+  PaintToolTypeStr : array[TPaintToolType] of string = ('Hand','HotSpot', 'MoveLayer','RotateLayer','ZoomLayer',
+                   'Pen', 'Brush', 'Clone', 'ColorPicker', 'Eraser',
                    'Rect', 'Ellipse', 'Polygon', 'Spline',
                    'FloodFill', 'Gradient', 'Phong',
                    'SelectPen', 'SelectRect', 'SelectEllipse', 'SelectPoly', 'SelectSpline',
@@ -847,7 +848,7 @@ function TToolManager.GetCursor: TCursor;
 var toolCursor: TCursor;
 begin
   case GetCurrentToolType of
-  ptHand, ptMoveSelection: result := crSizeAll;
+  ptHand, ptMoveSelection, ptZoomLayer: result := crSizeAll;
   ptRotateSelection,ptRotateLayer: result := crCustomRotate;
   ptPen,ptBrush,ptClone: result := crCustomCrosshair;
   ptRect,ptEllipse,ptSelectRect,ptSelectEllipse: result := crCustomCrosshair;

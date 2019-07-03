@@ -197,6 +197,7 @@ begin
   Case CurrentTool of
   ptMoveLayer: result := LayerMove;
   ptRotateLayer: result := LayerRotate;
+  ptZoomLayer: result := LayerZoom;
   else result := ActionList1.ActionByName('Tool'+PaintToolTypeStr[CurrentTool]) as TAction;
   end;
 end;
