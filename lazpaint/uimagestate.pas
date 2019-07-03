@@ -108,7 +108,7 @@ type
     procedure SaveOriginalToStream(AStream: TStream);
     procedure SaveToFile(AFilenameUTF8: string);
     function AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation): TCustomImageDifference;
-    function AddNewLayer(AOriginal: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation): TCustomImageDifference;
+    function AddNewLayer(AOriginal: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix): TCustomImageDifference;
     function DuplicateLayer: TCustomImageDifference;
     function MergerLayerOver(ALayerOverIndex: integer): TCustomImageDifference;
     function MoveLayer(AFromIndex,AToIndex: integer): TCustomImageDifference;
@@ -756,7 +756,7 @@ begin
 end;
 
 function TImageState.AddNewLayer(AOriginal: TBGRALayerCustomOriginal;
-  AName: string; ABlendOp: TBlendOperation): TCustomImageDifference;
+  AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix): TCustomImageDifference;
 var
   idx: Integer;
 begin
@@ -765,10 +765,11 @@ begin
   begin
     SetLayeredBitmap(TBGRALayeredBitmap.Create);
     idx := LayeredBitmap.AddLayerFromOwnedOriginal(AOriginal, ABlendOp);
+    LayeredBitmap.LayerOriginalMatrix[idx] := AMatrix;
     LayeredBitmap.RenderLayerFromOriginal(idx);
     result := nil;
   end else
-    result := TAddLayerFromOwnedOriginalStateDifference.Create(self, AOriginal, AName, ABlendOp);
+    result := TAddLayerFromOwnedOriginalStateDifference.Create(self, AOriginal, AName, ABlendOp, AMatrix);
 end;
 
 function TImageState.DuplicateLayer: TCustomImageDifference;

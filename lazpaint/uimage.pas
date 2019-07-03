@@ -169,7 +169,7 @@ type
     function CurrentLayerReadOnly: TBGRABitmap;
 
     procedure AddNewLayer;
-    procedure AddNewLayer(AOriginal: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation);
+    procedure AddNewLayer(AOriginal: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix);
     procedure AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation);
     procedure DuplicateLayer;
     procedure MergeLayerOver;
@@ -1699,11 +1699,11 @@ begin
 end;
 
 procedure TLazPaintImage.AddNewLayer(AOriginal: TBGRALayerCustomOriginal;
-  AName: string; ABlendOp: TBlendOperation);
+  AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix);
 begin
   if not CheckNoAction then exit;
   try
-    AddUndo(FCurrentState.AddNewLayer(AOriginal,AName,ABlendOp));
+    AddUndo(FCurrentState.AddNewLayer(AOriginal,AName,ABlendOp,AMatrix));
     ImageMayChangeCompletely;
   except on ex: exception do NotifyException('AddNewLayer',ex);
   end;

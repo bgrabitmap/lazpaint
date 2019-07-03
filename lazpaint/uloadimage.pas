@@ -147,7 +147,7 @@ begin
   result := nil;
   try
     svg := TBGRALayerSVGOriginal.Create;
-    svg.LoadFromStream(s);
+    svg.LoadSVGFromStream(s);
     result:= svg;
     svg:= nil;
   finally

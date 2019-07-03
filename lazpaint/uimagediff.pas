@@ -253,11 +253,13 @@ type
     previousActiveLayerId: integer;
     name: ansistring;
     blendOp: TBlendOperation;
+    matrix: TAffineMatrix;
     function UsedMemory: int64; override;
     function TryCompress: boolean; override;
     procedure ApplyTo(AState: TState); override;
     procedure UnapplyTo(AState: TState); override;
-    constructor Create(ADestination: TState; AOriginal: TBGRALayerCustomOriginal; AName: ansistring; ABlendOp: TBlendOperation);
+    constructor Create(ADestination: TState; AOriginal: TBGRALayerCustomOriginal;
+        AName: ansistring; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix);
     destructor Destroy; override;
   end;
 
@@ -855,6 +857,7 @@ begin
     idx := LayeredBitmap.AddLayerFromOriginal(LayeredBitmap.Original[origIdx].Guid, self.blendOp);
     LayeredBitmap.LayerUniqueId[idx] := self.layerId;
     LayeredBitmap.LayerName[idx] := name;
+    LayeredBitmap.LayerOriginalMatrix[idx] := matrix;
     LayeredBitmap.RenderLayerFromOriginal(idx);
     SelectedImageLayerIndex := idx;
   end;
@@ -873,7 +876,8 @@ begin
 end;
 
 constructor TAddLayerFromOwnedOriginalStateDifference.Create(ADestination: TState;
-  AOriginal: TBGRALayerCustomOriginal; AName: ansistring; ABlendOp: TBlendOperation);
+  AOriginal: TBGRALayerCustomOriginal; AName: ansistring;
+  ABlendOp: TBlendOperation; AMatrix: TAffineMatrix);
 var idx: integer;
   imgDest: TImageState;
 begin
@@ -887,9 +891,11 @@ begin
 
   self.name := AName;
   self.blendOp:= AblendOp;
+  self.matrix := AMatrix;
   self.previousActiveLayerId := imgDest.LayeredBitmap.LayerUniqueId[imgDest.SelectedImageLayerIndex];
   idx := imgDest.LayeredBitmap.AddLayerFromOwnedOriginal(AOriginal, ABlendOp);
   imgDest.LayeredBitmap.LayerName[idx] := name;
+  imgDest.LayeredBitmap.LayerOriginalMatrix[idx] := matrix;
   self.layerId := imgDest.LayeredBitmap.LayerUniqueId[idx];
   imgDest.LayeredBitmap.RenderLayerFromOriginal(idx);
   imgDest.SelectedImageLayerIndex := idx;

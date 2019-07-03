@@ -53,7 +53,7 @@ type
     procedure SelectionFit;
     procedure NewLayer; overload;
     function NewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation): boolean; overload;
-    function NewLayer(ALayer: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation): boolean; overload;
+    function NewLayer(ALayer: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix): boolean; overload;
     procedure DuplicateLayer;
     procedure MergeLayerOver;
     procedure RemoveLayer;
@@ -62,6 +62,7 @@ type
     function TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: TBGRABitmap = nil): boolean;
     function AddLayerFromBitmap(ABitmap: TBGRABitmap; AName: string): boolean;
     function AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal; AName: string): boolean;
+    function AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal; AName: string; AMatrix: TAffineMatrix): boolean;
     function LoadSelection(AFilenameUTF8: string; ALoadedImage: PImageEntry = nil): boolean;
     property Image: TLazPaintImage read GetImage;
     property ToolManager: TToolManager read GetToolManager;
@@ -72,7 +73,7 @@ implementation
 
 uses Controls, Dialogs, UResourceStrings, UObject3D,
      ULoadImage, UGraph, UClipboard, Types, BGRAGradientOriginal,
-     BGRATransform, ULoading;
+     BGRATransform, ULoading, math;
 
 { TImageActions }
 
@@ -449,6 +450,8 @@ function TImageActions.TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: 
 var
   newPicture: TBGRABitmap;
   svgOrig: TBGRALayerSVGOriginal;
+  ratio: Single;
+  m: TAffineMatrix;
 begin
   result := false;
   if not AbleToLoadUTF8(AFilenameUTF8) then
@@ -461,7 +464,11 @@ begin
     if Image.DetectImageFormat(AFilenameUTF8) = ifSvg then
     begin
       svgOrig := LoadSVGOriginalUTF8(AFilenameUTF8);
-      AddLayerFromOriginal(svgOrig, ExtractFileName(AFilenameUTF8));
+      ratio := max(svgOrig.Width/Image.Width, svgOrig.Height/Image.Height);
+      m := AffineMatrixTranslation(-svgOrig.Width/2,-svgOrig.Height/2);
+      if ratio > 1 then m := AffineMatrixScale(1/ratio,1/ratio)*m;
+      m := AffineMatrixTranslation(Image.Width/2,Image.Height/2)*m;
+      AddLayerFromOriginal(svgOrig, ExtractFileName(AFilenameUTF8), m);
       FreeAndNil(ALoadedImage);
     end else
     begin
@@ -536,8 +543,14 @@ begin
   end;
 end;
 
+function TImageActions.AddLayerFromOriginal(
+  AOriginal: TBGRALayerCustomOriginal; AName: string): boolean;
+begin
+  result := AddLayerFromOriginal(AOriginal,AName,AffineMatrixIdentity);
+end;
+
 function TImageActions.AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal;
-  AName: string): boolean;
+  AName: string; AMatrix: TAffineMatrix): boolean;
 begin
   if AOriginal <> nil then
   begin
@@ -546,7 +559,7 @@ begin
     if image.CheckNoAction then
     begin
       if not Image.SelectionMaskEmpty then ReleaseSelection;
-      result := NewLayer(AOriginal, AName, boTransparent);
+      result := NewLayer(AOriginal, AName, boTransparent, AMatrix);
     end else
     begin
       AOriginal.Free;
@@ -965,11 +978,11 @@ begin
 end;
 
 function TImageActions.NewLayer(ALayer: TBGRALayerCustomOriginal;
-  AName: string; ABlendOp: TBlendOperation): boolean;
+  AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix): boolean;
 begin
   if image.NbLayers < MaxLayersToAdd then
   begin
-    Image.AddNewLayer(ALayer, AName, ABlendOp);
+    Image.AddNewLayer(ALayer, AName, ABlendOp, AMatrix);
     FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
     result := true;
   end else
