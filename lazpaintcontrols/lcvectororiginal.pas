@@ -61,7 +61,7 @@ type
     procedure EndUpdate;
     procedure BeginEditingUpdate;
     procedure EndEditingUpdate;
-    procedure DoOnChange; virtual;
+    procedure DoOnChange(ABoundsBefore: TRectF); virtual;
     function GetPenColor: TBGRAPixel; virtual;
     function GetPenWidth: single; virtual;
     function GetPenStyle: TBGRAPenStyle; virtual;
@@ -779,7 +779,7 @@ begin
   begin
     dec(FUpdateCount);
     if FUpdateCount = 0 then
-      DoOnChange;
+      DoOnChange(FBoundsBeforeUpdate);
   end;
 end;
 
@@ -801,14 +801,14 @@ begin
   end;
 end;
 
-procedure TVectorShape.DoOnChange;
+procedure TVectorShape.DoOnChange(ABoundsBefore: TRectF);
 var
   boundsAfter: TRectF;
 begin
   if Assigned(FOnChange) then
   begin
     boundsAfter := GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
-    FOnChange(self, boundsAfter.Union(FBoundsBeforeUpdate, true));
+    FOnChange(self, boundsAfter.Union(ABoundsBefore, true));
   end;
 end;
 
@@ -864,8 +864,7 @@ begin
   if FUpdateCount=0 then
   begin
     inc(FRenderIteration);
-    if Assigned(FOnChange) then
-      FOnChange(self, GetRenderBounds(InfiniteRect, AffineMatrixIdentity));
+    DoOnChange(EmptyRectF);
   end;
 end;
 

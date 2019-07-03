@@ -46,7 +46,7 @@ type
     FTextLayout: TBidiTextLayout;
     FFontRenderer: TBGRACustomFontRenderer;
     FGlobalMatrix: TAffineMatrix;
-    procedure DoOnChange; override;
+    procedure DoOnChange(ABoundsBefore: TRectF); override;
     procedure SetGlobalMatrix(AMatrix: TAffineMatrix);
     function PenVisible(AAssumePenFill: boolean = false): boolean;
     function AllowShearTransform: boolean; override;
@@ -358,7 +358,7 @@ begin
   EndUpdate;
 end;
 
-procedure TTextShape.DoOnChange;
+procedure TTextShape.DoOnChange(ABoundsBefore: TRectF);
 var freeRenderer: boolean;
 begin
   if Assigned(FFontRenderer) then
@@ -380,7 +380,7 @@ begin
         FTextLayout.FontRenderer := GetFontRenderer;
     end;
   end;
-  inherited DoOnChange;
+  inherited DoOnChange(ABoundsBefore);
 end;
 
 procedure TTextShape.SetGlobalMatrix(AMatrix: TAffineMatrix);
