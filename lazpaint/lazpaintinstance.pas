@@ -393,13 +393,12 @@ begin
   FLayerStack.AddButton(FMain.LayerFromFile);
   FLayerStack.AddButton(FMain.LayerDuplicate);
   FLayerStack.AddButton(FMain.LayerMergeOver);
-  FLayerStack.AddButton(FMain.LayerRemoveCurrent);
   FLayerStack.AddSeparator;
   FLayerStack.AddButton(FMain.LayerMove);
   FLayerStack.AddButton(FMain.LayerRotate);
-  FLayerStack.AddButton(FMain.ToolLayerMapping);
   FLayerStack.AddButton(FMain.LayerHorizontalFlip);
   FLayerStack.AddButton(FMain.LayerVerticalFlip);
+  FLayerStack.AddButton(FMain.ToolLayerMapping);
 end;
 
 procedure TLazPaintInstance.CreateToolBox;

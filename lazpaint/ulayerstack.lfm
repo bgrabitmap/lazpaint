@@ -18,7 +18,7 @@ object FLayerStack: TFLayerStack
   OnHide = FormHide
   OnShow = FormShow
   ShowInTaskBar = stNever
-  LCLVersion = '1.8.2.0'
+  LCLVersion = '2.0.0.4'
   object BGRALayerStack: TBGRAVirtualScreen
     Left = 0
     Height = 37
@@ -45,10 +45,10 @@ object FLayerStack: TFLayerStack
     ClientWidth = 245
     TabOrder = 1
     object ToolBar1: TToolBar
-      Left = 189
+      Left = 170
       Height = 24
       Top = 2
-      Width = 52
+      Width = 71
       Align = alNone
       Anchors = [akTop, akRight]
       EdgeBorders = []
@@ -72,15 +72,22 @@ object FLayerStack: TFLayerStack
         ImageIndex = 7
         OnClick = ToolZoomLayerStackOutClick
       end
+      object ToolButton1: TToolButton
+        Left = 47
+        Top = 0
+        Action = FMain.LayerRemoveCurrent
+      end
     end
     object ComboBox_BlendOp: TComboBox
       Left = 26
-      Height = 23
+      Height = 28
       Top = 2
-      Width = 158
+      Width = 144
       Anchors = [akTop, akLeft, akRight]
-      ItemHeight = 15
+      Font.Height = -10
+      ItemHeight = 0
       OnChange = ComboBox_BlendOpChange
+      ParentFont = False
       Style = csDropDownList
       TabOrder = 1
     end

@@ -26,6 +26,7 @@ type
     ToolBar1: TToolBar;
     ToolBar2: TToolBar;
     ToolBar3: TToolBar;
+    ToolButton1: TToolButton;
     ToolZoomLayerStackIn: TToolButton;
     ToolZoomLayerStackOut: TToolButton;
     ToolBlendOp: TToolButton;
@@ -230,31 +231,31 @@ begin
   begin
     images := LazPaintInstance.Icons[iconSize];
     ToolBar1.Images := images;
-    ToolBar1.ButtonWidth := images.Width+2;
-    ToolBar1.ButtonHeight := images.Height+2;
+    ToolBar1.ButtonWidth := images.Width+1;
+    ToolBar1.ButtonHeight := images.Height+1;
     ToolBar1.Height := ToolBar1.ButtonHeight+1;
     ToolBar2.Images := images;
-    ToolBar2.ButtonWidth := images.Width+2;
-    ToolBar2.ButtonHeight := images.Height+2;
+    ToolBar2.ButtonWidth := images.Width+1;
+    ToolBar2.ButtonHeight := images.Height+1;
     ToolBar2.Height := ToolBar1.ButtonHeight+1;
     ToolBar3.Images := images;
-    ToolBar3.ButtonWidth := images.Width+2;
-    ToolBar3.ButtonHeight := images.Height+2;
+    ToolBar3.ButtonWidth := images.Width+1;
+    ToolBar3.ButtonHeight := images.Height+1;
     ToolBar3.Height := ToolBar1.ButtonHeight+1;
 
-    ClientWidth := ToolBar2.ButtonCount * ToolBar2.ButtonWidth + 8 + Toolbar2.Left;
+    ClientWidth := ToolBar2.ButtonCount * (ToolBar2.ButtonWidth+1) + 5 + Toolbar2.Left;
     Constraints.MinWidth := Width;
 
-    ToolBar1.Width := ToolBar1.ButtonCount * ToolBar1.ButtonWidth + 7;
-    ToolBar3.Width := ToolBar3.ButtonCount * ToolBar3.ButtonWidth + 5;
+    ToolBar1.Width := ToolBar1.ButtonCount * (ToolBar1.ButtonWidth+1) + 8;
+    ToolBar3.Width := ToolBar3.ButtonCount * (ToolBar3.ButtonWidth+1) + 5;
 
     ComboBox_BlendOp.Left := Toolbar3.Left+Toolbar3.Width;
-    Toolbar1.Left := ClientWidth-Toolbar1.Width-2;
+    Toolbar1.Left := ClientWidth-Toolbar1.Width-6;
     ComboBox_BlendOp.Width := Toolbar1.Left - ComboBox_BlendOp.Left;
     Toolbar2.Top := Toolbar1.Top + Toolbar1.Height;
     Panel1.Height := Toolbar2.Top+Toolbar2.Height+2;
 
-    ComboBox_BlendOp.Font.Height := FontFullHeightSign * ((images.Height-2) * 9 div 10);
+    ComboBox_BlendOp.Font.Height := -FontEmHeightSign * ((images.Height-2) * 7 div 10);
   end;
   if Toolbar2.Top < ComboBox_BlendOp.Top + ComboBox_BlendOp.Height then
     Toolbar2.Top := ComboBox_BlendOp.Top + ComboBox_BlendOp.Height;
