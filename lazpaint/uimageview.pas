@@ -107,7 +107,7 @@ var
       renderHeight := ARenderRect.Bottom-ARenderRect.Top;
       transform := AffineMatrixTranslation(ARenderRect.Left,ARenderRect.Top) *
              AffineMatrixScale(renderWidth/Image.Width, renderHeight/Image.Height) *
-             Image.SelectionTransform *
+             AffineMatrixTranslation(0.5,0.5) * Image.SelectionTransform * AffineMatrixTranslation(-0.5,-0.5) *
              AffineMatrixScale(Image.Width/renderWidth, Image.Height/renderHeight);
       try
         invTransform := AffineMatrixInverse(transform);
