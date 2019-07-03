@@ -101,6 +101,11 @@ begin
     result := ToolKeyPress(keyUtf8);
     Key := 0;
   end else
+  if (Key = VK_ESCAPE) and Assigned(FShape) then
+  begin
+    result := ValidateShape;
+    Key := 0;
+  end else
   if (Key = VK_RETURN) and Assigned(FShape) then
   begin
     handled := false;
@@ -112,32 +117,32 @@ end;
 
 function TToolText.ToolCopy: boolean;
 begin
-  Result:= TTextShape(FShape).CopySelection;
+  Result:= Assigned(FShape) and TTextShape(FShape).CopySelection;
 end;
 
 function TToolText.ToolCut: boolean;
 begin
-  Result:= TTextShape(FShape).CutSelection;
+  Result:= Assigned(FShape) and TTextShape(FShape).CutSelection;
 end;
 
 function TToolText.ToolPaste: boolean;
 begin
-  Result:= TTextShape(FShape).PasteSelection;
+  Result:= Assigned(FShape) and TTextShape(FShape).PasteSelection;
 end;
 
 function TToolText.ToolProvideCopy: boolean;
 begin
-  Result:= TTextShape(FShape).HasSelection;
+  Result:= Assigned(FShape) and TTextShape(FShape).HasSelection;
 end;
 
 function TToolText.ToolProvideCut: boolean;
 begin
-  Result:= TTextShape(FShape).HasSelection;
+  Result:= Assigned(FShape) and TTextShape(FShape).HasSelection;
 end;
 
 function TToolText.ToolProvidePaste: boolean;
 begin
-  Result:= true;
+  Result:= Assigned(FShape);
 end;
 
 initialization

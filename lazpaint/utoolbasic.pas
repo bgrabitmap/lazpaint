@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, utool, BGRABitmapTypes, BGRABitmap, BGRALayerOriginal,
-  UImage, ULayerAction, LCVectorOriginal, LCLType;
+  UImage, ULayerAction, LCVectorOriginal, LCLType, UImageType;
 
 type
 
@@ -98,7 +98,10 @@ type
     function GetStatusText: string; override;
     function SlowShape: boolean; virtual;
     procedure QuickDefineEnd; virtual;
+    procedure OnTryStop(sender: TCustomLayerAction); override;
   public
+    function ValidateShape: TRect;
+    function CancelShape: TRect;
     constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
     function ToolKeyDown(var key: Word): TRect; override;
@@ -241,6 +244,27 @@ end;
 procedure TVectorialTool.QuickDefineEnd;
 begin
   //nothing
+end;
+
+procedure TVectorialTool.OnTryStop(sender: TCustomLayerAction);
+begin
+  ValidateShape;
+end;
+
+function TVectorialTool.ValidateShape: TRect;
+begin
+  ValidateActionPartially;
+  FreeAndNil(FShape);
+  Cursor := crDefault;
+  result := OnlyRenderChange;
+end;
+
+function TVectorialTool.CancelShape: TRect;
+begin
+  CancelActionPartially;
+  FreeAndNil(FShape);
+  Cursor := crDefault;
+  result := OnlyRenderChange;
 end;
 
 procedure TVectorialTool.AssignShapeStyle;
@@ -480,19 +504,13 @@ begin
   if (Key = VK_RETURN) and not FQuickDefine and
     Assigned(FShape) then
   begin
-    ValidateActionPartially;
-    FreeAndNil(FShape);
-    result := OnlyRenderChange;
-    Cursor := crDefault;
+    result := ValidateShape;
     Key := 0;
   end else
   if (Key = VK_ESCAPE) and not FQuickDefine and
     Assigned(FShape) then
   begin
-    CancelActionPartially;
-    FreeAndNil(FShape);
-    result := OnlyRenderChange;
-    Cursor := crDefault;
+    result := CancelShape;
     Key := 0;
   end else
   begin
