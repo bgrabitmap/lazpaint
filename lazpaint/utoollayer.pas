@@ -246,6 +246,7 @@ begin
       transform := Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex];
       Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] := FInitialOriginalMatrix;
       Manager.Image.CurrentState.LayeredBitmap.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] := transform;
+      Manager.Image.CurrentState.LayeredBitmap.RenderLayerFromOriginal(Manager.Image.CurrentLayerIndex);
       FBackupLayer.nextMatrix := transform;
       Manager.Image.AddUndo(FBackupLayer);
       FBackupLayer := nil;

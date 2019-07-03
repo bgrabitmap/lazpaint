@@ -573,7 +573,10 @@ begin
   if FNextMatrix = FPrevMatrix then
     imgState.LayeredBitmap.LayerOriginalRenderStatus[layerIdx] := orsProof
   else
+  begin
     imgState.LayeredBitmap.LayerOriginalRenderStatus[layerIdx] := orsNone;
+    imgState.LayeredBitmap.RenderLayerFromOriginal(layerIdx);
+  end;
 end;
 
 procedure TReplaceLayerByImageOriginalDifference.UnapplyTo(AState: TState);
