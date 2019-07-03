@@ -17,6 +17,7 @@ type
     procedure AssignShapeStyle; override;
     function RoundCoordinate(ptF: TPointF): TPointF; override;
     function UpdateShape(toolDest: TBGRABitmap): TRect; override;
+    procedure QuickDefineEnd; override;
     function BigImage: boolean;
   end;
 
@@ -171,6 +172,11 @@ begin
     result := OnlyRenderChange
   else
     Result:= inherited UpdateShape(toolDest);
+end;
+
+procedure TVectorialSelectTool.QuickDefineEnd;
+begin
+  UpdateShape(GetToolDrawingLayer);
 end;
 
 function TVectorialSelectTool.BigImage: boolean;
