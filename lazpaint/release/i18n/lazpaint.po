@@ -162,6 +162,10 @@ msgstr ""
 msgid "Browse images"
 msgstr ""
 
+#: tfbrowseimages.checkbox_usedirectoryonstartup.caption
+msgid "Use this directory on startup"
+msgstr ""
+
 #: tfbrowseimages.label_status.caption
 msgctxt "tfbrowseimages.label_status.caption"
 msgid "."
@@ -768,6 +772,10 @@ msgctxt "TFMAIN.FILERELOAD.CAPTION"
 msgid "Reload"
 msgstr ""
 
+#: tfmain.fileremembersaveformat.hint
+msgid "Remember save format"
+msgstr ""
+
 #: tfmain.filesave.caption
 msgctxt "TFMAIN.FILESAVE.CAPTION"
 msgid "Save"
@@ -1275,6 +1283,10 @@ msgctxt "tfmain.layerverticalflip.hint"
 msgid "Flip layer vertically"
 msgstr ""
 
+#: tfmain.layerzoom.hint
+msgid "Zoom layer"
+msgstr ""
+
 #: tfmain.loadselectiondialog.title
 msgid "Load selection"
 msgstr ""
@@ -1500,6 +1512,14 @@ msgctxt "TFMAIN.SAVESELECTIONDIALOG.TITLE"
 msgid "Save selection as..."
 msgstr ""
 
+#: tfmain.selectionhorizontalflip.hint
+msgid "Flip selection horizontally"
+msgstr ""
+
+#: tfmain.selectionverticalflip.hint
+msgid "Flip selection vertically"
+msgstr ""
+
 #: tfmain.shape_backcolor.hint
 msgctxt "tfmain.shape_backcolor.hint"
 msgid "Select secondary color"
@@ -1683,6 +1703,10 @@ msgstr ""
 #: tfmain.tooltexturemapping.hint
 msgctxt "tfmain.tooltexturemapping.hint"
 msgid "Texture mapping"
+msgstr ""
+
+#: tfmain.tool_aliasing.hint
+msgid "Disable antialiasing"
 msgstr ""
 
 #: tfmain.tool_capflat.hint
