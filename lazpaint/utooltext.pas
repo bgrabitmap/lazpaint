@@ -32,7 +32,7 @@ type
 
 implementation
 
-uses LCVectorTextShapes, BGRALayerOriginal;
+uses LCVectorTextShapes, BGRALayerOriginal, BGRATransform;
 
 { TToolText }
 
@@ -57,17 +57,29 @@ end;
 
 procedure TToolText.AssignShapeStyle;
 begin
-  inherited AssignShapeStyle;
   with TTextShape(FShape) do
   begin
     FontEmHeight:= Manager.ToolTextFont.Size*ScreenInfo.PixelsPerInchY/72;
     FontName:= Manager.ToolTextFont.Name;
     FontStyle:= Manager.ToolTextFont.Style;
 
+    if Manager.GetToolTexture <> nil then
+      FShape.PenFill.SetTexture(Manager.GetToolTexture,AffineMatrixIdentity,Manager.ToolTextureOpacity)
+    else
+    begin
+      if FSwapColor then
+        FShape.PenFill.SetSolid(Manager.ToolBackColor)
+      else
+        FShape.PenFill.SetSolid(Manager.ToolForeColor);
+    end;
+
     if Manager.ToolTextOutline and (Manager.ToolTextOutlineWidth>0) and
        (Manager.ToolBackColor.alpha > 0) then
     begin
-      OutlineFill.SetSolid(Manager.ToolBackColor);
+      if FSwapColor then
+        FShape.OutlineFill.SetSolid(Manager.ToolForeColor)
+      else
+        FShape.OutlineFill.SetSolid(Manager.ToolBackColor);
       OutlineWidth := Manager.ToolTextOutlineWidth;
     end
     else
