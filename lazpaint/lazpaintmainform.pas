@@ -28,6 +28,8 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    SelectionVerticalFlip: TAction;
+    SelectionHorizontalFlip: TAction;
     LayerZoom: TAction;
     ImageSwapRedBlue: TAction;
     ImageLinearNegative: TAction;
@@ -139,14 +141,6 @@ type
     ItemViewGrid: TMenuItem;
     ItemViewLayerStack: TMenuItem;
     MenuImage: TMenuItem;
-    MenuHorizFlipSub: TMenuItem;
-    ItemHorizFlipPicture: TMenuItem;
-    ItemHorizFlipLayer: TMenuItem;
-    ItemHorizFlipSelection: TMenuItem;
-    MenuVertFlipSub: TMenuItem;
-    ItemVertFlipLayer: TMenuItem;
-    ItemVertFlipSelection: TMenuItem;
-    ItemVertFlipPicture: TMenuItem;
     MenuRemoveTransparency: TMenuItem;
     MenuColors: TMenuItem;
     MenuTool: TMenuItem;
@@ -480,6 +474,8 @@ type
       {%H-}Button: TMouseButton; {%H-}Shift: TShiftState; X, Y: Integer);
     procedure PopupToolbarPopup(Sender: TObject);
     procedure PopupToolboxPopup(Sender: TObject);
+    procedure SelectionHorizontalFlipUpdate(Sender: TObject);
+    procedure SelectionVerticalFlipUpdate(Sender: TObject);
     procedure SpinEdit_PhongBorderSizeChange(Sender: TObject);
     procedure Combo_SplineStyleChange(Sender: TObject);
     procedure EditDeselectUpdate(Sender: TObject);
@@ -509,13 +505,6 @@ type
     procedure LayerRotateExecute(Sender: TObject);
     procedure LayerRotateUpdate(Sender: TObject);
     procedure ItemDonateClick(Sender: TObject);
-    procedure ItemHorizFlipLayerClick(Sender: TObject);
-    procedure ItemHorizFlipPictureClick(Sender: TObject);
-    procedure ItemHorizFlipSelectionClick(Sender: TObject);
-    procedure MenuImageClick(Sender: TObject);
-    procedure ItemVertFlipLayerClick(Sender: TObject);
-    procedure ItemVertFlipPictureClick(Sender: TObject);
-    procedure ItemVertFlipSelectionClick(Sender: TObject);
     procedure PaintBox_PictureMouseEnter(Sender: TObject);
     procedure Perspective_RepeatClick(Sender: TObject);
     procedure Perspective_TwoPlanesClick(Sender: TObject);
@@ -917,9 +906,6 @@ begin
     Panel_PhongShape,Panel_Altitude,Panel_PerspectiveOption,Panel_Brush,Panel_Ratio],Panel_ToolbarBackground);
   m.Apply;
   FLayout.Menu := m;
-
-  MenuHorizFlipSub.ImageIndex := ImageHorizontalFlip.ImageIndex;
-  MenuVertFlipSub.ImageIndex := ImageVerticalFlip.ImageIndex;
 end;
 
 function TFMain.GetToolManager: TToolManager;
@@ -1613,8 +1599,6 @@ begin
   if Sender is TAction then
   begin
     actionName:= (Sender as TAction).Name;
-    if (actionName = 'ImageHorizontalFlip') and not image.SelectionMaskEmpty then actionName := 'SelectionHorizontalFlip' else
-    if (actionName = 'ImageVerticalFlip') and not image.SelectionMaskEmpty  then actionName := 'SelectionVerticalFlip';
     CallScriptFunction(actionName);
   end;
 end;
@@ -2183,48 +2167,6 @@ end;
 procedure TFMain.ItemDonateClick(Sender: TObject);
 begin
   LazPaintInstance.Donate;
-end;
-
-procedure TFMain.ItemHorizFlipLayerClick(Sender: TObject);
-begin
-  CallScriptFunction('LayerHorizontalFlip');
-end;
-
-procedure TFMain.ItemHorizFlipPictureClick(Sender: TObject);
-begin
-  CallScriptFunction('ImageHorizontalFlip');
-end;
-
-procedure TFMain.ItemHorizFlipSelectionClick(Sender: TObject);
-begin
-  CallScriptFunction('SelectionHorizontalFlip');
-end;
-
-procedure TFMain.MenuImageClick(Sender: TObject);
-begin
-  ItemHorizFlipLayer.Visible := (image.NbLayers > 1) and not LazPaintInstance.LayerWindowVisible;
-  ItemHorizFlipSelection.Visible := not image.SelectionMaskEmpty;
-  ImageHorizontalFlip.Visible := not ItemHorizFlipLayer.Visible and not ItemHorizFlipSelection.Visible;
-  MenuHorizFlipSub.Visible := not ImageHorizontalFlip.Visible;
-  ItemVertFlipLayer.Visible := (image.NbLayers > 1) and not LazPaintInstance.LayerWindowVisible;
-  ItemVertFlipSelection.Visible := not image.SelectionMaskEmpty;
-  ImageVerticalFlip.Visible := not ItemVertFlipLayer.Visible and not ItemVertFlipSelection.Visible;
-  MenuVertFlipSub.Visible := not ImageVerticalFlip.Visible;
-end;
-
-procedure TFMain.ItemVertFlipLayerClick(Sender: TObject);
-begin
-  CallScriptFunction('LayerVerticalFlip');
-end;
-
-procedure TFMain.ItemVertFlipPictureClick(Sender: TObject);
-begin
-  CallScriptFunction('ImageVerticalFlip');
-end;
-
-procedure TFMain.ItemVertFlipSelectionClick(Sender: TObject);
-begin
-  CallScriptFunction('SelectionVerticalFlip');
 end;
 
 procedure TFMain.PaintBox_PictureMouseEnter(Sender: TObject);
@@ -3113,8 +3055,6 @@ begin
   if Sender is TAction then
   begin
     actionName := (Sender as TAction).Name;
-    if (actionName = 'ImageHorizontalFlip') and not image.SelectionMaskEmpty then actionName := 'SelectionHorizontalFlip' else
-    if (actionName = 'ImageVerticalFlip') and not image.SelectionMaskEmpty  then actionName := 'SelectionVerticalFlip';
     CallScriptFunction(actionName);
   end;
 end;

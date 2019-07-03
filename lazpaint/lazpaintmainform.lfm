@@ -6533,6 +6533,20 @@ object FMain: TFMain
       ImageIndex = 123
       OnExecute = LayerZoomExecute
     end
+    object SelectionHorizontalFlip: TAction
+      Category = 'SelectTool'
+      Hint = 'Flip selection horizontally'
+      ImageIndex = 25
+      OnExecute = ScriptExecute
+      OnUpdate = SelectionHorizontalFlipUpdate
+    end
+    object SelectionVerticalFlip: TAction
+      Category = 'SelectTool'
+      Hint = 'Flip selection vertically'
+      ImageIndex = 26
+      OnExecute = ScriptExecute
+      OnUpdate = SelectionVerticalFlipUpdate
+    end
   end
   object ColorDialog1: TColorDialog
     Title = 'Choose color'
@@ -6681,40 +6695,6 @@ object FMain: TFMain
     object MenuImage: TMenuItem
       Caption = 'Image'
       Visible = False
-      OnClick = MenuImageClick
-      object MenuHorizFlipSub: TMenuItem
-        Caption = 'Horizontal flip'
-        Hint = 'Flip image horizontally'
-        Visible = False
-        object ItemHorizFlipPicture: TMenuItem
-          Caption = 'Whole picture'
-          OnClick = ItemHorizFlipPictureClick
-        end
-        object ItemHorizFlipLayer: TMenuItem
-          Caption = 'Current layer'
-          OnClick = ItemHorizFlipLayerClick
-        end
-        object ItemHorizFlipSelection: TMenuItem
-          Caption = 'Selection'
-          OnClick = ItemHorizFlipSelectionClick
-        end
-      end
-      object MenuVertFlipSub: TMenuItem
-        Caption = 'Vertical flip'
-        Visible = False
-        object ItemVertFlipPicture: TMenuItem
-          Caption = 'Whole picture'
-          OnClick = ItemVertFlipPictureClick
-        end
-        object ItemVertFlipLayer: TMenuItem
-          Caption = 'Current layer'
-          OnClick = ItemVertFlipLayerClick
-        end
-        object ItemVertFlipSelection: TMenuItem
-          Caption = 'Selection'
-          OnClick = ItemVertFlipSelectionClick
-        end
-      end
       object MenuRemoveTransparency: TMenuItem
         Caption = 'Remove transparency'
         Visible = False

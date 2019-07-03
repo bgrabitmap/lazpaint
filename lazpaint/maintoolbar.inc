@@ -1156,6 +1156,16 @@ begin
   MenuUndockToolbox.Enabled := Layout.ToolBoxDocking <> twWindow;
 end;
 
+procedure TFMain.SelectionHorizontalFlipUpdate(Sender: TObject);
+begin
+  SelectionHorizontalFlip.Enabled := not image.SelectionMaskEmpty;
+end;
+
+procedure TFMain.SelectionVerticalFlipUpdate(Sender: TObject);
+begin
+  SelectionVerticalFlip.Enabled := not image.SelectionMaskEmpty;
+end;
+
 procedure TFMain.PaintBox_PenPreviewPaint(Sender: TObject);
 var bmp: TBGRABitmap;
     x,y,t: integer;

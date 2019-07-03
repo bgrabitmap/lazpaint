@@ -1521,6 +1521,14 @@ msgctxt "TFMAIN.SAVESELECTIONDIALOG.TITLE"
 msgid "Save selection as..."
 msgstr "Enregistrer la sélection sous..."
 
+#: tfmain.selectionhorizontalflip.hint
+msgid "Flip selection horizontally"
+msgstr "Retourner la sélection horizontalement"
+
+#: tfmain.selectionverticalflip.hint
+msgid "Flip selection vertically"
+msgstr "Retourner la sélection verticalement"
+
 #: tfmain.shape_backcolor.hint
 msgctxt "tfmain.shape_backcolor.hint"
 msgid "Select secondary color"
@@ -1705,6 +1713,10 @@ msgstr "Texte"
 msgctxt "tfmain.tooltexturemapping.hint"
 msgid "Texture mapping"
 msgstr "Plaquage de texture"
+
+#: tfmain.tool_aliasing.hint
+msgid "Disable antialiasing"
+msgstr "Désactiver l'anticrénelage"
 
 #: tfmain.tool_capflat.hint
 msgctxt "TFMAIN.TOOL_CAPFLAT.HINT"
