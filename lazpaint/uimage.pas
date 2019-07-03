@@ -1992,7 +1992,7 @@ begin
   FreeAndNil(FRenderedImage);
   FCurrentState.Free;
   FOnImageChanged.Free;
-
+  FSelectionLayerAfterMask.Free;
   inherited Destroy;
 end;
 

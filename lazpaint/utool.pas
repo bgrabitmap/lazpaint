@@ -495,6 +495,7 @@ begin
   begin
     FAction.Validate;
     FreeAndNil(FAction);
+    FreeAndNil(FBackupDrawingLayer);
   end;
 end;
 
