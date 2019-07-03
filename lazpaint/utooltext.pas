@@ -32,7 +32,7 @@ type
 
 implementation
 
-uses LCVectorTextShapes, LCScaleDPI, BGRALayerOriginal;
+uses LCVectorTextShapes, BGRALayerOriginal;
 
 { TToolText }
 
@@ -60,7 +60,7 @@ begin
   inherited AssignShapeStyle;
   with TTextShape(FShape) do
   begin
-    FontEmHeight:= DoScaleY(round(Manager.ToolTextFont.Size*96/72),96);
+    FontEmHeight:= Manager.ToolTextFont.Size*ScreenInfo.PixelsPerInchY/72;
     FontName:= Manager.ToolTextFont.Name;
     FontStyle:= Manager.ToolTextFont.Style;
 
