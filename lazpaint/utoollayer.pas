@@ -410,6 +410,8 @@ begin
 end;
 
 procedure TToolMoveLayer.NeedLayerBounds;
+const
+  VeryBigValue = maxLongInt div 2;
 var
   idx: Integer;
 begin
@@ -418,9 +420,15 @@ begin
   if not FLayerBoundsDefined then
   begin
     if UseOriginal then
+    begin
       FLayerBounds := Manager.Image.LayerOriginal[idx].GetRenderBounds(
-                        Rect(-maxLongint div 2,-maxLongint div 2,maxLongint div 2,maxLongint div 2),
-                        AffineMatrixIdentity)
+                        Rect(-VeryBigValue,-VeryBigValue,VeryBigValue,VeryBigValue),
+                        AffineMatrixIdentity);
+      if FLayerBounds.Left = -VeryBigValue then FLayerBounds.Left := 0;
+      if FLayerBounds.Top = -VeryBigValue then FLayerBounds.Top := 0;
+      if FLayerBounds.Right = VeryBigValue then FLayerBounds.Right := Manager.Image.Width;
+      if FLayerBounds.Bottom = VeryBigValue then FLayerBounds.Bottom := Manager.Image.Height;
+    end
     else
       FLayerBounds := Manager.Image.LayerBitmap[idx].GetImageBounds;
     FLayerBoundsDefined := true;
@@ -490,9 +498,9 @@ begin
       m := AffineMatrixTranslation(-x,-y)*m;
   end else m := AffineMatrixIdentity;
 
-  ab := TAffineBox.AffineBox(BitmapToVirtualScreen(m*PointF(FLayerBounds.Left-0.5,FLayerBounds.Top-0.5)),
-            BitmapToVirtualScreen(m*PointF(FLayerBounds.Right-0.5,FLayerBounds.Top-0.5)),
-            BitmapToVirtualScreen(m*PointF(FLayerBounds.Left-0.5,FLayerBounds.Bottom-0.5)));
+  ab := TAffineBox.AffineBox(BitmapToVirtualScreen(m*PointF(FLayerBounds.Left,FLayerBounds.Top)),
+            BitmapToVirtualScreen(m*PointF(FLayerBounds.Right-1,FLayerBounds.Top)),
+            BitmapToVirtualScreen(m*PointF(FLayerBounds.Left,FLayerBounds.Bottom-1)));
   ptsF := ab.AsPolygon;
   setlength(pts, length(ptsF));
   for i := 0 to high(pts) do
