@@ -353,6 +353,7 @@ begin
   ToolManager.ToolTolerance := Config.DefaultToolTolerance;
   ToolManager.ToolTextShadow := Config.DefaultToolTextShadow;
   ToolManager.ToolTextOutline := Config.DefaultToolTextOutline;
+  ToolManager.ToolTextOutlineWidth := Config.DefaultToolTextOutlineWidth;
   ToolManager.ToolTextPhong := Config.DefaultToolTextPhong;
   ToolManager.ToolTextFont.Assign(Config.DefaultToolTextFont);
   ToolManager.ToolTextBlur := Config.DefaultToolTextBlur;
@@ -1063,6 +1064,7 @@ begin
   Config.SetDefaultToolTextFont(ToolManager.ToolTextFont);
   Config.SetDefaultToolTextShadow(ToolManager.ToolTextShadow);
   Config.SetDefaultToolTextOutline(ToolManager.ToolTextOutline);
+  Config.SetDefaultToolTextOutlineWidth(ToolManager.ToolTextOutlineWidth);
   Config.SetDefaultToolTextBlur(ToolManager.ToolTextBlur);
   Config.SetDefaultToolTextShadowOffset(ToolManager.ToolTextShadowOffset);
   Config.SetDefaultToolTextPhong(ToolManager.ToolTextPhong);

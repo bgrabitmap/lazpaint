@@ -116,8 +116,8 @@ begin
   SpinEdit_TextShadowY.Increment := 1;
   SpinEdit_TextShadowY.OnChange := @SpinEdit_TextShadowYChange;
 
-  SpinEdit_TextOutlineWidth := TBarUpDown.Create(vsTextOutlineWidth,1,100,3);
-  SpinEdit_TextOutlineWidth.Increment := 1;
+  SpinEdit_TextOutlineWidth := TBarUpDown.Create(vsTextOutlineWidth,1,999,20);
+  SpinEdit_TextOutlineWidth.Increment := 5;
   SpinEdit_TextOutlineWidth.OnChange := @SpinEdit_TextOutlineWidthChange;
 
   SpinEdit_TextSize := TBarUpDown.Create(vsTextSize,1,999,12);
@@ -309,7 +309,7 @@ begin
     Combo_SplineStyle.ItemIndex:= ord(ToolManager.ToolSplineStyle);
   UpdateCurveMode;
   Tool_TextOutline.Down := ToolManager.ToolTextOutline;
-  SpinEdit_TextOutlineWidth.Value := ToolManager.ToolTextOutlineWidth;
+  SpinEdit_TextOutlineWidth.Value := round(ToolManager.ToolTextOutlineWidth*PenWidthFactor);
   Tool_TextShadow.Down := ToolManager.ToolTextShadow;
   Tool_TextPhong.Down := ToolManager.ToolTextPhong;
   FontDialog1.Font := ToolManager.ToolTextFont;
@@ -592,9 +592,9 @@ procedure TFMain.SpinEdit_TextOutlineWidthChange(Sender: TObject);
 begin
   if initialized then
   begin
-     if ToolManager.ToolTextOutlineWidth <> SpinEdit_TextOutlineWidth.Value then
+     if ToolManager.ToolTextOutlineWidth <> SpinEdit_TextOutlineWidth.Value/PenWidthFactor then
      begin
-       ToolManager.ToolTextOutlineWidth:= SpinEdit_TextOutlineWidth.Value;
+       ToolManager.ToolTextOutlineWidth:= SpinEdit_TextOutlineWidth.Value/PenWidthFactor;
        UpdateEditPicture;
      end;
   end;

@@ -197,7 +197,7 @@ type
     ToolShapeAltitude: integer;
     ToolShapeBorderSize: integer;
     ToolShapeType: string;
-    ToolTextOutlineWidth: integer;
+    ToolTextOutlineWidth: single;
     ToolTextAlign: TAlignment;
     ToolBrushInfoIndex: integer;
     ToolBrushSpacing: integer;

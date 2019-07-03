@@ -185,6 +185,8 @@ type
     procedure SetDefaultToolTolerance(value: integer);
     function DefaultToolTextOutline: boolean;
     procedure SetDefaultToolTextOutline(value: boolean);
+    function DefaultToolTextOutlineWidth: single;
+    procedure SetDefaultToolTextOutlineWidth(value: single);
     function DefaultToolTextShadow: boolean;
     procedure SetDefaultToolTextShadow(value: boolean);
     function DefaultToolTextFont: TFont;
@@ -773,6 +775,16 @@ end;
 procedure TLazPaintConfig.SetDefaultToolTextOutline(value: boolean);
 begin
   iniOptions.WriteBool('Tool','TextOutline',value);
+end;
+
+function TLazPaintConfig.DefaultToolTextOutlineWidth: single;
+begin
+  result := iniOptions.ReadFloat('Tool','TextOutlineWidth',2);
+end;
+
+procedure TLazPaintConfig.SetDefaultToolTextOutlineWidth(value: single);
+begin
+  iniOptions.WriteFloat('Tool','TextOutlineWidth',value);
 end;
 
 function TLazPaintConfig.DefaultToolTextShadow: boolean;
