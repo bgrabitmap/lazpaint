@@ -788,6 +788,10 @@ msgctxt "tfmain.filereload.caption"
 msgid "Reload"
 msgstr "Recharger"
 
+#: tfmain.fileremembersaveformat.hint
+msgid "Remember save format"
+msgstr "Se souvenir du format de sauvegarde"
+
 #: tfmain.filesave.caption
 msgctxt "TFMAIN.FILESAVE.CAPTION"
 msgid "Save"

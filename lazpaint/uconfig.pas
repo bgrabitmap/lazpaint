@@ -50,6 +50,10 @@ type
     procedure SetStartupSourceDirectory(AValue: string);
     function DefaultStartupTargetDirectory: string;
     procedure SetStartupTargetDirectory(AValue: string);
+    function DefaultRememberSaveFormat: boolean;
+    procedure SetRememberSaveFormat(AValue: boolean);
+    function DefaultSaveExtensions: string;
+    procedure SetSaveExtensions(AValue: string);
 
     procedure SetBrushes(ABrushes: TStringList);
     function DefaultJpegQuality: integer;
@@ -1218,6 +1222,26 @@ end;
 procedure TLazPaintConfig.SetStartupTargetDirectory(AValue: string);
 begin
   iniOptions.WriteString('Startup', 'TargetDirectory', AValue);
+end;
+
+function TLazPaintConfig.DefaultRememberSaveFormat: boolean;
+begin
+  result := iniOptions.ReadBool('Startup', 'RememberSaveFormat', false);
+end;
+
+procedure TLazPaintConfig.SetRememberSaveFormat(AValue: boolean);
+begin
+  iniOptions.WriteBool('Startup', 'RememberSaveFormat', AValue);
+end;
+
+function TLazPaintConfig.DefaultSaveExtensions: string;
+begin
+  result := iniOptions.ReadString('Startup', 'SaveExtensions', '');
+end;
+
+procedure TLazPaintConfig.SetSaveExtensions(AValue: string);
+begin
+  iniOptions.WriteString('Startup', 'SaveExtensions', AValue);
 end;
 
 procedure TLazPaintConfig.SetBrushes(ABrushes: TStringList);

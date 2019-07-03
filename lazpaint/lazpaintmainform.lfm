@@ -6547,6 +6547,11 @@ object FMain: TFMain
       OnExecute = ScriptExecute
       OnUpdate = SelectionVerticalFlipUpdate
     end
+    object FileRememberSaveFormat: TAction
+      Category = 'File'
+      Hint = 'Remember save format'
+      OnExecute = FileRememberSaveFormatExecute
+    end
   end
   object ColorDialog1: TColorDialog
     Title = 'Choose color'

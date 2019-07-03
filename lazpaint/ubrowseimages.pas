@@ -72,6 +72,7 @@ type
     FDefaultExtension: string;
     { private declarations }
     FFileExtensions: array of string;
+    FDefaultExtensions: string;
     FOpenButtonHint: string;
     FIsSaveDialog: boolean;
     FOverwritePrompt: boolean;
@@ -137,6 +138,7 @@ type
     property IsSaveDialog: boolean read FIsSaveDialog write SetIsSaveDialog;
     property OverwritePrompt: boolean read FOverwritePrompt write FOverwritePrompt;
     property DefaultExtension: string read FDefaultExtension write FDefaultExtension;
+    property DefaultExtensions: string read FDefaultExtensions write FDefaultExtensions;
     property InitialFilename: string read GetInitialFilename write SetInitialFilename;
     property CurrentExtensionFilter: string read GetCurrentExtensionFilter;
     property OpenLayerIcon: boolean read GetOpenLayerIcon write SetOpenLayerIcon;
@@ -409,6 +411,15 @@ begin
   FreeAndNil(FChosenImage.bmp);
   UpdatePreview;
   UpdateToolButtonOpen;
+  if FDefaultExtensions<>'' then
+  begin
+    for i := 0 to high(FFileExtensions) do
+      if FFileExtensions[i] = FDefaultExtensions then
+      begin
+        ComboBox_FileExtension.ItemIndex := i;
+        break;
+      end;
+  end;
   if IsSaveDialog then
   begin
     If (ExtractFileExt(Edit_Filename.Text) <> '') and (ComboBox_FileExtension.ItemIndex > 0) then
@@ -960,6 +971,8 @@ begin
         if FChosenImage.bmp = nil then exit;
       end;
 
+      if ComboBox_FileExtension.ItemIndex <> -1 then
+        FDefaultExtensions := FFileExtensions[ComboBox_FileExtension.ItemIndex];
       ModalResult:= mrOk;
     end;
   end else
@@ -980,6 +993,8 @@ begin
       end;
       setlength(FSelectedFiles,1);
       FSelectedFiles[0] := FFilename;
+      if ComboBox_FileExtension.ItemIndex <> -1 then
+        FDefaultExtensions := FFileExtensions[ComboBox_FileExtension.ItemIndex];
       ModalResult:= mrOk;
     end;
 end;

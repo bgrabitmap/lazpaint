@@ -28,6 +28,7 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    FileRememberSaveFormat: TAction;
     SelectionVerticalFlip: TAction;
     SelectionHorizontalFlip: TAction;
     LayerZoom: TAction;
@@ -442,6 +443,7 @@ type
     procedure FileChooseEntryUpdate(Sender: TObject);
     procedure FileImport3DUpdate(Sender: TObject);
     procedure FilePrintExecute(Sender: TObject);
+    procedure FileRememberSaveFormatExecute(Sender: TObject);
     procedure FileSaveAsInSameFolderExecute(Sender: TObject);
     procedure FileSaveAsInSameFolderUpdate(Sender: TObject);
     procedure FileUseImageBrowserExecute(Sender: TObject);
@@ -941,6 +943,8 @@ begin
   FreeAndNil(FBrowseImages);
   FreeAndNil(FBrowseTextures);
   FreeAndNil(FBrowseBrushes);
+  if Assigned(FSaveImage) and Config.DefaultRememberSaveFormat then
+    Config.SetSaveExtensions(FSaveImage.DefaultExtensions);
   FreeAndNil(FSaveImage);
   FreeAndNil(FSaveSelection);
 
@@ -970,6 +974,7 @@ begin
     FSaveInitialDir := Config.DefaultStartupTargetDirectory;
   if Config.DefaultRememberStartupSourceDirectory then
     FLoadInitialDir := Config.DefaultStartupSourceDirectory;
+  FileRememberSaveFormat.Checked:= Config.DefaultRememberSaveFormat;
 
   FImageView := TImageView.Create(LazPaintInstance, Zoom,
                 {$IFDEF USEPAINTBOXPICTURE}PaintBox_Picture.Canvas{$ELSE}self.Canvas{$ENDIF},
@@ -1398,6 +1403,8 @@ begin
       FSaveImage.IsSaveDialog := true;
       FSaveImage.Caption := SavePictureDialog1.Title;
       FSaveImage.ShowRememberStartupDirectory:= true;
+      if Config.DefaultRememberSaveFormat then
+        FSaveImage.DefaultExtensions:= Config.DefaultSaveExtensions;
     end;
     FSaveImage.InitialFilename := filename;
     FSaveImage.DefaultExtension := defaultExt;
@@ -2866,6 +2873,12 @@ end;
 procedure TFMain.FilePrintExecute(Sender: TObject);
 begin
   LazPaintInstance.ShowPrintDlg;
+end;
+
+procedure TFMain.FileRememberSaveFormatExecute(Sender: TObject);
+begin
+  FileRememberSaveFormat.Checked := not FileRememberSaveFormat.Checked;
+  Config.SetRememberSaveFormat(FileRememberSaveFormat.Checked);
 end;
 
 procedure TFMain.FileSaveAsInSameFolderExecute(Sender: TObject);
