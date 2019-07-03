@@ -813,9 +813,9 @@ begin
       m := AffineMatrixTranslation(-x,-y)*m;
   end else m := AffineMatrixIdentity;
 
-  ab := TAffineBox.AffineBox(BitmapToVirtualScreen(m*PointF(FLayerBounds.Left,FLayerBounds.Top)),
-            BitmapToVirtualScreen(m*PointF(FLayerBounds.Right-1,FLayerBounds.Top)),
-            BitmapToVirtualScreen(m*PointF(FLayerBounds.Left,FLayerBounds.Bottom-1)));
+  ab := TAffineBox.AffineBox(BitmapToVirtualScreen(m*PointF(FLayerBounds.Left-0.499,FLayerBounds.Top-0.499)),
+            BitmapToVirtualScreen(m*PointF(FLayerBounds.Right-0.501,FLayerBounds.Top-0.499)),
+            BitmapToVirtualScreen(m*PointF(FLayerBounds.Left-0.499,FLayerBounds.Bottom-0.501)));
   ptsF := ab.AsPolygon;
   setlength(pts, length(ptsF));
   for i := 0 to high(pts) do
