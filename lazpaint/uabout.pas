@@ -143,7 +143,7 @@ begin
   FLabelLibraries := TLabel.Create(self);
   FLabelLibraries.Font := Label_Libraries.Font;
   FLabelLibraries.AutoSize := true;
-  FLabelLibraries.Caption := 'BGRABitmap, BGRAControls, LNet';
+  FLabelLibraries.Caption := 'BGRABitmap, BGRAControls';
   FLabelLibraries.Top := Label_Libraries.Top;
   FLabelLibraries.Left := Label_OpenSource.Left;
   Panel2.InsertControl(FLabelLibraries);
