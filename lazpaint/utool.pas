@@ -926,7 +926,7 @@ begin
   ToolSplineStyle := ssRoundOutside;
   ToolSplineEasyBezier := true;
   ToolTextOutline := False;
-  ToolTextShadow := true;
+  ToolTextShadow := false;
   ToolTextFont := TFont.Create;
   ToolTextFont.Height := -13;
   ToolTextFont.Name := 'Arial';

@@ -793,7 +793,7 @@ end;
 
 function TLazPaintConfig.DefaultToolTextShadow: boolean;
 begin
-  result := iniOptions.ReadBool('Tool','TextShadow',false);
+  result := false; //iniOptions.ReadBool('Tool','TextShadow',false);
 end;
 
 procedure TLazPaintConfig.SetDefaultToolTextShadow(value: boolean);
