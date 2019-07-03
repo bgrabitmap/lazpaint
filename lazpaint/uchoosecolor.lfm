@@ -16,10 +16,10 @@ object FChooseColor: TFChooseColor
   OnResize = FormResize
   OnShow = FormShow
   ShowInTaskBar = stNever
-  LCLVersion = '1.4.0.4'
+  LCLVersion = '2.0.0.4'
   object EColor: TEdit
     Left = 16
-    Height = 23
+    Height = 24
     Top = 16
     Width = 140
     Font.Height = -12
@@ -37,7 +37,6 @@ object FChooseColor: TFChooseColor
     Width = 135
     AutoSize = False
     Font.Height = -12
-    Font.Name = 'Courier New'
     Layout = tlCenter
     ParentColor = False
     ParentFont = False

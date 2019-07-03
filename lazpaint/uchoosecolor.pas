@@ -100,8 +100,8 @@ begin
    {$ENDIF}
    ClientHeight := DoScaleY(160,OriginalDPI,TFChooseColor_CustomDPI);
    ScaleControl(Self,OriginalDPI,TFChooseColor_CustomDPI);
-   EColor.Font.Height := FontFullHeightSign*DoScaleY(14,OriginalDPI,TFChooseColor_CustomDPI);
-   LColor.Font.Height := FontFullHeightSign*DoScaleY(14,OriginalDPI,TFChooseColor_CustomDPI);
+   EColor.Font.Height := -FontEmHeightSign*DoScaleY(12,OriginalDPI,TFChooseColor_CustomDPI);
+   LColor.Font.Height := -FontEmHeightSign*DoScaleY(12,OriginalDPI,TFChooseColor_CustomDPI);
    EColor.AdjustSize;
    EColor.Text:= '';
    EColor.Top := ClientHeight;
@@ -567,7 +567,7 @@ begin
        strColor := '#'+copy(BGRAToStr(tempColor),1,6);
        idxCSS:= CSSColors.IndexOfColor(BGRA(tempColor.red,tempColor.green,tempColor.blue),500);
        if idxCSS <> -1 then strColor:= strColor + ', ' + CSSColors.Name[idxCSS] + ', a:' + FloatToStr(round(tempColor.alpha/255*100)/100) else
-         strColor := strColor+ ', rgba(' + IntToStr(tempColor.red) + ',' + IntToStr(tempColor.green) + ',' +
+         strColor := strColor+ '  rgba(' + IntToStr(tempColor.red) + ',' + IntToStr(tempColor.green) + ',' +
            IntToStr(tempColor.blue) + ',' + FloatToStr(round(tempColor.alpha/255*100)/100) + ')';
      end;
 
