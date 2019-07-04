@@ -96,7 +96,7 @@ type
 implementation
 
 uses FPimage, BGRAReadJpeg, BGRAOpenRaster, BGRAPaintNet, BGRAReadLzp, Dialogs, UNewimage,
-  LCLType, BGRAPhoxo;
+  LCLType, BGRAPhoxo, BGRASVG, math;
 
 { TImagePreview }
 
@@ -748,6 +748,7 @@ procedure TImagePreview.FinishUpdatePreview;
 var reader: TFPCustomImageReader;
   jpegReader: TBGRAReaderJpeg;
   source: TStream;
+  svg: TBGRASVG;
 begin
   if FInUpdatePreview then
   begin
@@ -824,6 +825,14 @@ begin
           end;
           jpegReader.Free;
         end;
+      ifSvg:
+        begin
+          svg := TBGRASVG.Create(source);
+          FSingleImage := TBGRABitmap.Create(ceil(svg.WidthAsPixel),ceil(svg.HeightAsPixel));
+          svg.Draw(FSingleImage.Canvas2d,0,0);
+          svg.Free;
+          FImageNbLayers:= 1;
+        end
       else
         begin
           reader := CreateBGRAImageReader(FImageFormat);
