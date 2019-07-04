@@ -85,7 +85,7 @@ type
     FRightDown, FLeftDown: boolean;
     FLastPos: TPointF;
     function CreateShape: TVectorShape; virtual; abstract;
-    function GetCustomShapeBounds(ADestBounds: TRect; AMatrix: TAffineMatrix; ADraft: boolean): TRect; virtual;
+    function GetCustomShapeBounds(ADestBounds: TRect; AMatrix: TAffineMatrix; {%H-}ADraft: boolean): TRect; virtual;
     procedure DrawCustomShape(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); virtual;
     procedure AssignShapeStyle; virtual;
     function RoundCoordinate(ptF: TPointF): TPointF; virtual;
@@ -100,7 +100,7 @@ type
     function GetStatusText: string; override;
     function SlowShape: boolean; virtual;
     procedure QuickDefineEnd; virtual;
-    procedure OnTryStop(sender: TCustomLayerAction); override;
+    procedure OnTryStop({%H-}sender: TCustomLayerAction); override;
   public
     function ValidateShape: TRect;
     function CancelShape: TRect;
