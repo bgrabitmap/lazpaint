@@ -5,7 +5,8 @@ unit UToolFloodFill;
 interface
 
 uses
-  Classes, SysUtils, utool, utoolbasic, BGRABitmap, BGRABitmapTypes;
+  Classes, SysUtils, utool, utoolbasic, BGRABitmap, BGRABitmapTypes,
+  BGRAGradientOriginal, LCVectorOriginal;
 
 type
 
@@ -22,112 +23,75 @@ type
 
   { TToolGradient }
 
-  TToolGradient = class(TToolRectangular)
+  TToolGradient = class(TVectorialTool)
   protected
-    function UpdateShape(toolDest: TBGRABitmap; HighQuality: boolean): TRect;
-    function UpdateShape(toolDest: TBGRABitmap): TRect; override;
-    function ShouldFinishShapeWhenFirstMouseUp: boolean; override;
-    function FinishShape(ToolDest: TBGRABitmap): TRect; override;
-    function BorderTest(ptF: TPointF): TRectangularBorderTest; override;
-    function RenderAllCornerPositions: boolean; override;
-    function LeaveMovingPoint: TRect; override;
+    function CreateShape: TVectorShape; override;
+    procedure AssignShapeStyle; override;
+    procedure QuickDefineShape(AStart,AEnd: TPointF); override;
+    function SlowShape: boolean; override;
     function GetStatusText: string; override;
-    function ConstraintEnabled: boolean; override;
-  public
-    function Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
   end;
 
 implementation
 
-uses ugraph, LazPaintType, BGRAGradientScanner;
+uses ugraph, LazPaintType, BGRAGradientScanner, LCVectorRectShapes;
 
 { TToolGradient }
 
-function TToolGradient.UpdateShape(toolDest: TBGRABitmap; HighQuality: boolean
-  ): TRect;
-var ditherAlgo: TDitheringAlgorithm;
-   g: TBGRACustomGradient;
+function TToolGradient.CreateShape: TVectorShape;
 begin
-   if HighQuality then
-     ditherAlgo:= daFloydSteinberg
-   else
-     ditherAlgo:= daNearestNeighbor;
-   ClearShape;
-   case Manager.ToolGradientColorspace of
-     gcsLinearRgb: g := TBGRASimpleGradientWithoutGammaCorrection.Create(penColor, fillColor);
-     gcsHueCW: g := TBGRAHueGradient.Create(penColor, fillColor, [hgoPositiveDirection]);
-     gcsHueCCW: g := TBGRAHueGradient.Create(penColor, fillColor, [hgoNegativeDirection]);
-     gcsCorrectedHueCW: g := TBGRAHueGradient.Create(penColor, fillColor, [hgoPositiveDirection, hgoLightnessCorrection]);
-     gcsCorrectedHueCCW: g := TBGRAHueGradient.Create(penColor, fillColor, [hgoNegativeDirection, hgoLightnessCorrection]);
-   else
-     g := TBGRASimpleGradientWithGammaCorrection.Create(penColor, fillColor);
-   end;
-   toolDest.GradientFill(0,0,toolDest.Width,toolDest.Height, g,
-     Manager.ToolGradientType, pointf(rectOrigin.X,rectOrigin.Y), pointf(rectDest.X,rectDest.Y),
-     dmDrawWithTransparency, Manager.ToolGradientSine, ditherAlgo);
-   g.Free;
-   result := rect(0,0,toolDest.Width,toolDest.Height);
+  result := TRectShape.Create(nil);
+  result.QuickDefine(PointF(-0.5,-0.5),PointF(Manager.Image.Width-0.5,Manager.Image.Height-0.5));
+  result.PenFill.Clear;
+  result.BackFill.SetGradient(TBGRALayerGradientOriginal.Create,true);
+  result.Usermode := vsuEditBackFill;
 end;
 
-function TToolGradient.UpdateShape(toolDest: TBGRABitmap): TRect;
+procedure TToolGradient.AssignShapeStyle;
 begin
-   result := UpdateShape(toolDest,false);
+  with FShape.BackFill.Gradient do
+  begin
+    StartColor := Manager.ToolForeColor;
+    EndColor := Manager.ToolBackColor;
+    GradientType := Manager.ToolGradientType;
+    case Manager.ToolGradientColorspace of
+     gcsLinearRgb: ColorInterpolation := ciStdRGB;
+     gcsHueCW: ColorInterpolation := ciLinearHSLPositive;
+     gcsHueCCW: ColorInterpolation := ciLinearHSLNegative;
+     gcsCorrectedHueCW: ColorInterpolation := ciGSBPositive;
+     gcsCorrectedHueCCW: ColorInterpolation := ciGSBPositive;
+    else
+      ColorInterpolation := ciLinearRGB;
+    end;
+    if Manager.ToolGradientSine then
+      Repetition := grSine
+    else
+      Repetition := grPad;
+  end;
 end;
 
-function TToolGradient.ShouldFinishShapeWhenFirstMouseUp: boolean;
+procedure TToolGradient.QuickDefineShape(AStart, AEnd: TPointF);
 begin
-  Result:=false;
-end;
-
-function TToolGradient.FinishShape(ToolDest: TBGRABitmap): TRect;
-begin
-  Result:= UpdateShape(toolDest, not rectDrawing and not rectMovingPoint);
-end;
-
-function TToolGradient.BorderTest(ptF: TPointF): TRectangularBorderTest;
-begin
-  Result:=inherited BorderTest(ptF);
-  if (result <> [btOriginY,btOriginX]) and (result <> [btDestY,btDestX]) then
-    result := [];
-end;
-
-function TToolGradient.RenderAllCornerPositions: boolean;
-begin
-  Result:=false;
-end;
-
-function TToolGradient.LeaveMovingPoint: TRect;
-begin
-  result := FinishShape(GetToolDrawingLayer);
+  FShape.BackFill.Gradient.Origin := AStart;
+  FShape.BackFill.Gradient.XAxis := AEnd;
 end;
 
 function TToolGradient.GetStatusText: string;
 begin
-  if rectDrawing or afterRectDrawing then
-    result := 'x1 = '+inttostr(round(rectOrigin.x))+'|y1 = '+inttostr(round(rectOrigin.y))+'|'+
-    'x2 = '+inttostr(round(rectDest.x))+' |y2 = '+inttostr(round(rectDest.y))+'|'+
-    'Δ = '+inttostr(round(sqrt(sqr(rectDest.x-rectOrigin.x)+sqr(rectDest.y-rectOrigin.y))))
+  if Assigned(FShape) then
+  begin
+    with FShape.BackFill.Gradient do
+      result := 'x1 = '+FloatToStrF(Origin.x,ffFixed,6,1)+'|y1 = '+FloatToStrF(Origin.y,ffFixed,6,1)+'|'+
+      'x2 = '+FloatToStrF(XAxis.x,ffFixed,6,1)+'|y2 = '+FloatToStrF(XAxis.y,ffFixed,6,1)+'|'+
+      'Δx = '+FloatToStrF(abs(XAxis.x-Origin.x),ffFixed,6,1)+'|Δy = '+FloatToStrF(abs(XAxis.y-Origin.y),ffFixed,6,1);
+  end
   else
     Result:=inherited GetStatusText;
 end;
 
-function TToolGradient.ConstraintEnabled: boolean;
+function TToolGradient.SlowShape: boolean;
 begin
-  Result:= False;
-end;
-
-function TToolGradient.Render(VirtualScreen: TBGRABitmap;
-  VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
-var ptF: TPointF;
-begin
-  result := inherited Render(VirtualScreen, VirtualScreenWidth,VirtualScreenHeight, BitmapToVirtualScreen);
-  if rectDrawing then
-  begin
-    ptF := BitmapToVirtualScreen(PointF(rectOrigin.X,rectOrigin.Y));
-    result := RectUnion(result,NicePoint(VirtualScreen, ptF));
-    ptF := BitmapToVirtualScreen(PointF(rectDest.X,rectDest.Y));
-    result := RectUnion(result,NicePoint(VirtualScreen, ptF));
-  end;
+  Result:= true;
 end;
 
 { TToolFloodFill }
