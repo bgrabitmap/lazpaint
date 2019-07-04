@@ -56,7 +56,7 @@ type
     procedure QuickDefine(const APoint1,APoint2: TPointF); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
-    procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
+    procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
     class function Usermodes: TVectorShapeUsermodes; override;
     property Points[AIndex:integer]: TPointF read GetPoint write SetPoint;
     property PointCount: integer read GetPointCount;
@@ -534,7 +534,7 @@ begin
   AStorage.Bool['closed'] := Closed;
 end;
 
-procedure TCustomPolypointShape.ConfigureEditor(AEditor: TBGRAOriginalEditor);
+procedure TCustomPolypointShape.ConfigureCustomEditor(AEditor: TBGRAOriginalEditor);
 var
   i, nb: Integer;
 begin

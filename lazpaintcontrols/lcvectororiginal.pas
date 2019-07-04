@@ -97,7 +97,8 @@ type
     function GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; virtual; abstract;
     function SuggestGradientBox(AMatrix: TAffineMatrix): TAffineBox; virtual;
     function PointInShape(APoint: TPointF): boolean; virtual; abstract;
-    procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); virtual; abstract;
+    procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); virtual; abstract;
+    procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); virtual;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); virtual;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); virtual;
     procedure MouseMove({%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); virtual;
@@ -1011,6 +1012,20 @@ begin
   result := TAffineBox.AffineBox(rF);
 end;
 
+procedure TVectorShape.ConfigureEditor(AEditor: TBGRAOriginalEditor);
+begin
+  if (Usermode = vsuEditBackFill) and BackFill.IsEditable then
+    BackFill.ConfigureEditor(AEditor)
+  else
+  if (Usermode = vsuEditPenFill) and PenFill.IsEditable then
+    PenFill.ConfigureEditor(AEditor)
+  else
+  if (Usermode = vsuEditOutlineFill) and OutlineFill.IsEditable then
+    OutlineFill.ConfigureEditor(AEditor)
+  else
+    ConfigureCustomEditor(AEditor);
+end;
+
 procedure TVectorShape.LoadFromStorage(AStorage: TBGRACustomOriginalStorage);
 var
   f: TVectorShapeFields;
@@ -1582,18 +1597,7 @@ begin
       DiscardFrozenShapes;
     end
     else
-    begin
-      if (FSelectedShape.Usermode = vsuEditBackFill) and FSelectedShape.BackFill.IsEditable then
-        FSelectedShape.BackFill.ConfigureEditor(AEditor)
-      else
-      if (FSelectedShape.Usermode = vsuEditPenFill) and FSelectedShape.PenFill.IsEditable then
-        FSelectedShape.PenFill.ConfigureEditor(AEditor)
-      else
-      if (FSelectedShape.Usermode = vsuEditOutlineFill) and FSelectedShape.OutlineFill.IsEditable then
-        FSelectedShape.OutlineFill.ConfigureEditor(AEditor)
-      else
-        FSelectedShape.ConfigureEditor(AEditor);
-    end;
+      FSelectedShape.ConfigureEditor(AEditor);
   end;
   //no more reference to event handlers
   FreeDeletedShapes;

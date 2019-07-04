@@ -79,7 +79,7 @@ type
     class function CreateEmpty: boolean; override;
     class function StorageClassName: RawByteString; override;
     class function Usermodes: TVectorShapeUsermodes; override;
-    procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
+    procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
     procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; override;
@@ -776,7 +776,7 @@ begin
   Result:= true;
 end;
 
-procedure TTextShape.ConfigureEditor(AEditor: TBGRAOriginalEditor);
+procedure TTextShape.ConfigureCustomEditor(AEditor: TBGRAOriginalEditor);
 var
   caret: TBidiCaretPos;
   orientation: TPointF;
@@ -787,7 +787,7 @@ var
   c: TBGRAPixel;
   zoom: Single;
 begin
-  inherited ConfigureEditor(AEditor);
+  inherited ConfigureCustomEditor(AEditor);
   AEditor.AddPolyline(GetAffineBox(AffineMatrixIdentity,true).AsPolygon, true, opsDashWithShadow);
   if AEditor.Focused and (Usermode = vsuEditText) then
   begin

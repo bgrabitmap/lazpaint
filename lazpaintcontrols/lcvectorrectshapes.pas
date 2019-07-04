@@ -48,7 +48,7 @@ type
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; {%H-}AOptions: TRenderBoundsOptions = []): TRectF; override;
-    procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
+    procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
     function GetAffineBox(AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
     property Origin: TPointF read FOrigin write SetOrigin;
     property XAxis: TPointF read FXAxis;
@@ -122,7 +122,7 @@ type
     function GetCornerPositition: single; override;
     class function Fields: TVectorShapeFields; override;
     class function PreferPixelCentered: boolean; override;
-    procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
+    procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
     procedure MouseDown(RightButton: boolean; Shift: TShiftState; X, Y: single; var ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
@@ -516,7 +516,7 @@ begin
   result := GetAffineBox(AMatrix, false).RectBoundsF;
 end;
 
-procedure TCustomRectShape.ConfigureEditor(AEditor: TBGRAOriginalEditor);
+procedure TCustomRectShape.ConfigureCustomEditor(AEditor: TBGRAOriginalEditor);
 var
   d: Single;
   u, v: TPointF;
@@ -1041,11 +1041,11 @@ begin
   Result:= false;
 end;
 
-procedure TPhongShape.ConfigureEditor(AEditor: TBGRAOriginalEditor);
+procedure TPhongShape.ConfigureCustomEditor(AEditor: TBGRAOriginalEditor);
 var
   idxLight: Integer;
 begin
-  inherited ConfigureEditor(AEditor);
+  inherited ConfigureCustomEditor(AEditor);
   idxLight := AEditor.AddPoint(FLightPosition, @OnMoveLightPos, true);
   if AEditor is TVectorOriginalEditor then
     TVectorOriginalEditor(AEditor).AddLabel(idxLight, LightPositionCaption, taCenter, tlTop);
