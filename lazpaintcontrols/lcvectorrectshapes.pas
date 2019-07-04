@@ -604,7 +604,7 @@ begin
         totalSurface := penSurface;
     end else
       totalSurface := backSurface;
-    result := (totalSurface > 800*600) or ((totalSurface > 320*240) and BackFill.IsSlow(AMatrix));
+    result := (totalSurface > 800*600) or ((totalSurface > 320*240) and (BackFill.IsSlow(AMatrix) or (BackFill.FillType = vftGradient)));
   end;
 end;
 
@@ -620,6 +620,8 @@ var
   orthoRect: TRectF;
   r: TRect;
   backScan, penScan: TBGRACustomScanner;
+  temp: TBGRABitmap;
+  i: Integer;
 begin
   pts := GetAffineBox(AMatrix, true).AsPolygon;
   If BackVisible then
@@ -639,7 +641,20 @@ begin
       else
       begin
         if Assigned(backScan) then
-          ADest.FillRectAntialias(orthoRect, backScan) else
+        begin
+          if BackFill.FillType = vftGradient then
+          begin
+            with orthoRect do
+              r := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
+            temp := TBGRABitmap.Create(0,0);
+            temp.SetSize(r.Width,r.Height);
+            temp.FillRect(0,0,r.Width,r.Height,backScan,dmSet,Point(r.Left,r.Top),daFloydSteinberg);
+            temp.ScanOffset := Point(-r.Left,-r.Top);
+            ADest.FillRectAntialias(orthoRect, temp);
+            temp.Free;
+          end else
+            ADest.FillRectAntialias(orthoRect, backScan);
+        end else
           ADest.FillRectAntialias(orthoRect, BackFill.SolidColor);
       end;
     end else
@@ -653,7 +668,21 @@ begin
       else
       begin
         if Assigned(backScan) then
-          ADest.FillPolyAntialias(pts, backScan) else
+        begin
+          if BackFill.FillType = vftGradient then
+          begin
+            r := rect(floor(pts[0].x),floor(pts[0].y),ceil(pts[0].x),ceil(pts[0].y));
+            for i := 1 to high(pts) do
+              r.Union(rect(floor(pts[i].x),floor(pts[i].y),ceil(pts[i].x),ceil(pts[i].y)));
+            temp := TBGRABitmap.Create(0,0);
+            temp.SetSize(r.Width,r.Height);
+            temp.FillRect(0,0,r.Width,r.Height,backScan,dmSet,Point(r.Left,r.Top),daFloydSteinberg);
+            temp.ScanOffset := Point(-r.Left,-r.Top);
+            ADest.FillPolyAntialias(pts, temp);
+            temp.Free;
+          end else
+            ADest.FillPolyAntialias(pts, backScan);
+        end else
           ADest.FillPolyAntialias(pts, BackFill.SolidColor);
       end;
     end;
