@@ -21,7 +21,7 @@ type
 
 implementation
 
-uses ugraph, uresourcestrings, Graphics, LazPaintType, LCVectorRectShapes;
+uses ugraph, Graphics, LazPaintType, LCVectorRectShapes;
 
 { TToolPhong }
 

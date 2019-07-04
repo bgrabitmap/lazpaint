@@ -26,6 +26,7 @@ type
   TToolSelectRect = class(TVectorialSelectTool)
   protected
     function CreateShape: TVectorShape; override;
+  public
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
   end;
 
@@ -34,6 +35,7 @@ type
   TToolSelectEllipse = class(TVectorialSelectTool)
   protected
     function CreateShape: TVectorShape; override;
+  public
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
   end;
 
