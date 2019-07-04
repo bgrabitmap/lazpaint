@@ -149,7 +149,7 @@ type
     destructor Destroy; override;
     procedure NotifyImageChange(RepaintNow: boolean; ARect: TRect); override;
     procedure NotifyImageChangeCompletely(RepaintNow: boolean); override;
-    function TryOpenFileUTF8(filename: string): boolean; override;
+    function TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean = false): boolean; override;
     function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): boolean; override;
     procedure ColorFromFChooseColor; override;
     procedure ColorToFChooseColor; override;
@@ -208,7 +208,7 @@ uses LCLType, Types, Forms, Dialogs, FileUtil, LCLIntf, Math,
      UImageAction, USharpen, uposterize, UPhongFilter, UFilterFunction,
      uprint, USaveOption, UFormRain,
 
-     ugraph, UScaleDPI, ucommandline, uabout;
+     ugraph, LCScaleDPI, ucommandline, uabout;
 
 { TLazPaintInstance }
 
@@ -313,7 +313,6 @@ begin
   FInFormsNeeded := true;
   Application.CreateForm(TFMain, FMain);
   FMain.LazPaintInstance := self;
-  ToolManager.BitmapToVirtualScreen := @FMain.BitmapToVirtualScreen;
 
   CreateLayerStack;
 
@@ -342,7 +341,7 @@ end;
 procedure TLazPaintInstance.UseConfig(ini: TInifile);
 begin
   FreeAndNil(FConfig);
-  FConfig := TLazPaintConfig.Create(ini,LazPaintCurrentVersionOnly);
+  FConfig := TLazPaintConfig.Create(ini,LazPaintVersionStr);
 
   ToolManager.ToolForeColor := Config.DefaultToolForeColor;
   ToolManager.ToolBackColor := Config.DefaultToolBackColor;
@@ -354,6 +353,7 @@ begin
   ToolManager.ToolTolerance := Config.DefaultToolTolerance;
   ToolManager.ToolTextShadow := Config.DefaultToolTextShadow;
   ToolManager.ToolTextOutline := Config.DefaultToolTextOutline;
+  ToolManager.ToolTextOutlineWidth := Config.DefaultToolTextOutlineWidth;
   ToolManager.ToolTextPhong := Config.DefaultToolTextPhong;
   ToolManager.ToolTextFont.Assign(Config.DefaultToolTextFont);
   ToolManager.ToolTextBlur := Config.DefaultToolTextBlur;
@@ -393,13 +393,13 @@ begin
   FLayerStack.AddButton(FMain.LayerFromFile);
   FLayerStack.AddButton(FMain.LayerDuplicate);
   FLayerStack.AddButton(FMain.LayerMergeOver);
-  FLayerStack.AddButton(FMain.LayerRemoveCurrent);
   FLayerStack.AddSeparator;
   FLayerStack.AddButton(FMain.LayerMove);
   FLayerStack.AddButton(FMain.LayerRotate);
-  FLayerStack.AddButton(FMain.ToolLayerMapping);
+  FLayerStack.AddButton(FMain.LayerZoom);
   FLayerStack.AddButton(FMain.LayerHorizontalFlip);
   FLayerStack.AddButton(FMain.LayerVerticalFlip);
+  FLayerStack.AddButton(FMain.ToolLayerMapping);
 end;
 
 procedure TLazPaintInstance.CreateToolBox;
@@ -661,8 +661,8 @@ end;
 
 function TLazPaintInstance.GetZoomFactor: single;
 begin
-  if Assigned(FMain) then
-    Result:=FMain.ZoomFactor else
+  if Assigned(FMain) and Assigned(FMain.Zoom) then
+    Result:=FMain.Zoom.Factor else
       result := inherited GetZoomFactor;
 end;
 
@@ -1064,6 +1064,7 @@ begin
   Config.SetDefaultToolTextFont(ToolManager.ToolTextFont);
   Config.SetDefaultToolTextShadow(ToolManager.ToolTextShadow);
   Config.SetDefaultToolTextOutline(ToolManager.ToolTextOutline);
+  Config.SetDefaultToolTextOutlineWidth(ToolManager.ToolTextOutlineWidth);
   Config.SetDefaultToolTextBlur(ToolManager.ToolTextBlur);
   Config.SetDefaultToolTextShadowOffset(ToolManager.ToolTextShadowOffset);
   Config.SetDefaultToolTextPhong(ToolManager.ToolTextPhong);
@@ -1187,10 +1188,10 @@ begin
   If RepaintNow then FMain.Update;
 end;
 
-function TLazPaintInstance.TryOpenFileUTF8(filename: string): boolean;
+function TLazPaintInstance.TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean): boolean;
 begin
   FormsNeeded;
-  result := FMain.TryOpenFileUTF8(filename);
+  result := FMain.TryOpenFileUTF8(filename, true, nil, skipDialogIfSingleImage);
 end;
 
 function TLazPaintInstance.ExecuteFilter(filter: TPictureFilter;
@@ -1300,7 +1301,7 @@ begin
     FLayerStack.SetLayerStackScrollPosOnItem(AIndex);
     if FMain <> nil then
     begin
-      FMain.StackNeedUpdate := true;
+      FMain.UpdateStackOnTimer := true;
     end else
       NotifyStackChange;
   end;

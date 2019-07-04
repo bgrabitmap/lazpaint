@@ -1,23 +1,24 @@
 object FMultiImage: TFMultiImage
   Left = 624
-  Height = 313
+  Height = 345
   Top = 158
-  Width = 408
+  Width = 373
   BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'Choose image'
-  ClientHeight = 313
-  ClientWidth = 408
+  ClientHeight = 345
+  ClientWidth = 373
   Font.Height = -12
   OnCreate = FormCreate
   Position = poOwnerFormCenter
-  LCLVersion = '1.0.10.0'
+  LCLVersion = '1.6.0.4'
   object ListView1: TListView
     Left = 8
-    Height = 269
+    Height = 301
     Top = 8
-    Width = 392
+    Width = 357
     Anchors = [akTop, akLeft, akRight, akBottom]
     Columns = <>
+    IconOptions.AutoArrange = True
     LargeImages = ImageList1
     ReadOnly = True
     TabOrder = 0
@@ -26,9 +27,9 @@ object FMultiImage: TFMultiImage
     OnSelectItem = ListView1SelectItem
   end
   object Button_OK: TButton
-    Left = 143
+    Left = 108
     Height = 22
-    Top = 283
+    Top = 315
     Width = 60
     Anchors = [akRight, akBottom]
     Caption = 'OK'
@@ -37,9 +38,9 @@ object FMultiImage: TFMultiImage
     TabOrder = 1
   end
   object Button_Cancel: TButton
-    Left = 207
+    Left = 172
     Height = 22
-    Top = 283
+    Top = 315
     Width = 73
     Anchors = [akRight, akBottom]
     Cancel = True

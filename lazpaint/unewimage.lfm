@@ -12,7 +12,7 @@ object FNewImage: TFNewImage
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.6.0.4'
+  LCLVersion = '1.8.2.0'
   object Label_Width: TLabel
     Left = 16
     Height = 15
@@ -37,7 +37,7 @@ object FNewImage: TFNewImage
     Caption = 'OK'
     Default = True
     OnClick = Button_OKClick
-    TabOrder = 4
+    TabOrder = 6
   end
   object Button_Cancel: TButton
     Left = 152
@@ -47,7 +47,7 @@ object FNewImage: TFNewImage
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
-    TabOrder = 5
+    TabOrder = 7
   end
   object SpinEdit_Width: TSpinEdit
     Left = 80
@@ -82,9 +82,9 @@ object FNewImage: TFNewImage
     Alignment = taLeftJustify
     Color = clBtnFace
     ParentColor = False
-    TabOrder = 2
+    TabOrder = 4
   end
-  object ToolBar8: TToolBar
+  object ToolBar_Rotate: TToolBar
     Left = 104
     Height = 24
     Top = 73
@@ -92,12 +92,12 @@ object FNewImage: TFNewImage
     Align = alNone
     EdgeBorders = []
     Images = FMain.ImageList16
-    TabOrder = 3
-    object ToolButton23: TToolButton
+    TabOrder = 5
+    object ToolButton_Rotate: TToolButton
       Left = 1
       Top = 0
       ImageIndex = 43
-      OnClick = ToolButton23Click
+      OnClick = ToolButton_RotateClick
     end
   end
   object Label_Height1: TLabel
@@ -132,7 +132,9 @@ object FNewImage: TFNewImage
     )
     MaxLength = 12
     OnChange = ComboBox_RatioChange
-    TabOrder = 6
+    OnEnter = ComboBox_RatioEnter
+    OnExit = ComboBox_RatioExit
+    TabOrder = 3
   end
   object BGRAShape1: TBGRAShape
     Cursor = crHandPoint
@@ -552,5 +554,34 @@ object FNewImage: TFNewImage
     Top = 176
     Width = 1
     ParentColor = False
+  end
+  object Label_BitDepth: TLabel
+    Left = 16
+    Height = 15
+    Top = 75
+    Width = 54
+    Caption = 'Bit depth :'
+    ParentColor = False
+  end
+  object ComboBox_BitDepth: TComboBox
+    Left = 80
+    Height = 23
+    Top = 72
+    Width = 79
+    ItemHeight = 15
+    ItemIndex = 5
+    Items.Strings = (
+      '1'
+      '2'
+      '4'
+      '8'
+      '24'
+      '32'
+    )
+    MaxLength = 12
+    OnChange = ComboBox_BitDepthChange
+    Style = csDropDownList
+    TabOrder = 2
+    Text = '32'
   end
 end

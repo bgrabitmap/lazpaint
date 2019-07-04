@@ -75,6 +75,7 @@ resourcestring
   rsBlendOpNotUsedForBackground = 'The blend operation is applied only if there is a layer underneath';
   rsRightClickForSource = 'Use RIGHT click to define source';
 
+  rsFileCannotBeEmpty = 'File cannot be empty';
   rsEmptySelection='Selection is empty';
   rsEmptyLayer='Layer is empty';
   rsKeepEmptySpace='Keep empty space around opaque pixels?';
@@ -107,6 +108,13 @@ resourcestring
 
   rsIntensity='Intensity';
   rsLightness='Lightness';
+
+  rsHotSpot='Hot spot';
+  rsEntries='Entries';
+  rsLayers='Layers';
+  rsFrames='Frames';
+  rsLoopCount='Loop count';
+  rsInfinity='Infinity';
 
   rsEditMask='Edit mask';
 
@@ -158,6 +166,7 @@ resourcestring
   rsOpenMultipleImageFiles='Open multiple image files';
   rsMoreThanOneFile='You are trying to open more than one file. How would you like these files to be opened?';
   rsOpenFilesAsLayers='Open files as layers in a single image';
+  rsTooManyLayers='Too many layers';
   rsAddToImageList='Add files to the image processing list';
   rsOpenFirstFileOnly='Open the first file only';
   rsLayeredImage = 'Layered image';
@@ -179,8 +188,16 @@ resourcestring
   rsStorageDevice = 'Device';
   rsOverwriteFile = 'File already exists. Do you want to overwrite it?';
   rsDeleteFile = 'Delete';
+  rsDeleteImageEntry = 'Delete selected image entry?';
+  rsIconImageAlreadyExists = 'There is already an image with this size and depth.';
   rsConfirmMoveToTrash = 'Are you sure you want to move this file to the trash?';
   rsConfirmMoveMultipleToTrash = 'Are you sure you want to move these %1 files to the trash?';
+  rsConfirmDeleteFromContainer = 'Are you sure you want to delete this file from the container?';
+  rsConfirmDeleteMultipleFromContainer = 'Are you sure you want to delete these %1 files from the container?';
+  rsEnterFolderOrContainerName = 'Enter name for new folder or container (using RES or LRS extension):';
+  rsFolderOrContainerAlreadyExists = 'Folder or container already exists.';
+  rsInvalidName = 'Invalid name';
+  rsDirectoryNotEmpty = 'Directory is not empty';
 
   rsClearPalette = 'Clear palette';
   rsDefaultPalette = 'Default palette';

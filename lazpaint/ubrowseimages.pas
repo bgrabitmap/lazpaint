@@ -7,7 +7,8 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs,
   ComCtrls, ExtCtrls, Buttons, StdCtrls, BGRAVirtualScreen, BGRABitmap,
-  BGRABitmapTypes, BGRAAnimatedGif, UMySLV, LazPaintType, Masks, LCLType;
+  BGRABitmapTypes, BGRAAnimatedGif, UMySLV, LazPaintType, Masks, LCLType,
+  UFileSystem, UImagePreview;
 
 const
   MaxIconCacheCount = 512;
@@ -17,7 +18,9 @@ type
   { TFBrowseImages }
 
   TFBrowseImages = class(TForm)
+    CheckBox_UseDirectoryOnStartup: TCheckBox;
     DirectoryEdit1: TEdit;
+    ToolButton_CreateFolderOrContainer: TToolButton;
     Tool_SelectDrive: TToolButton;
     ToolButtonSeparator: TToolButton;
     ToolButton_OpenSelectedFiles: TToolButton;
@@ -33,11 +36,12 @@ type
     vsPreview: TBGRAVirtualScreen;
     ImageListToolbar: TImageList;
     ImageList128: TImageList;
-    Label_Size: TLabel;
+    Label_Status: TLabel;
     Panel1: TPanel;
     Panel2: TPanel;
     Splitter1: TSplitter;
     Timer1: TTimer;
+    procedure CheckBox_UseDirectoryOnStartupChange(Sender: TObject);
     procedure ComboBox_FileExtensionChange(Sender: TObject);
     procedure DirectoryEdit1Change(Sender: TObject);
     procedure Edit_FilenameChange(Sender: TObject);
@@ -56,32 +60,32 @@ type
     procedure ShellListView1OnSort(Sender: TObject);
     procedure ShellListView1OnFormatType(Sender: Tobject; var AType:string);
     procedure Timer1Timer(Sender: TObject);
+    procedure ToolButton_CreateFolderOrContainerClick(Sender: TObject);
     procedure ToolButton_OpenSelectedFilesClick(Sender: TObject);
     procedure ToolButton_ViewDetailsClick(Sender: TObject);
     procedure ToolButton_GoUpClick(Sender: TObject);
     procedure ToolButton_ViewBigIconClick(Sender: TObject);
     procedure Tool_SelectDriveClick(Sender: TObject);
-    procedure vsPreviewRedraw(Sender: TObject; Bitmap: TBGRABitmap);
-    function OnDeleteConfirmation({%H-}AForm:TForm; const AFiles: array of string): boolean;
-    procedure vsPreviewResize(Sender: TObject);
+    function OnDeleteConfirmation({%H-}AForm:TForm; const AFiles: array of string; AContained: boolean): boolean;
   private
+    FLazPaintInstance: TLazPaintCustomInstance;
     FDefaultExtension: string;
     { private declarations }
     FFileExtensions: array of string;
+    FDefaultExtensions: string;
     FOpenButtonHint: string;
     FIsSaveDialog: boolean;
     FOverwritePrompt: boolean;
-    ShellListView1: TMyShellListView;
-    ImageSizeCaption: string;
+    ShellListView1: TLCShellListView;
     FInFormShow: boolean;
-    FCurrentImage: TBGRABitmap;
-    FCurrentAnimatedGif: TBGRAAnimatedGif;
-    FCurrentImageNbLayers: integer;
+    FChosenImage: TImageEntry;
+    FPreview: TImagePreview;
     FComputeIconCurrentItem: integer;
-    FPreviewFilename, FDisplayedPreviewFilename: string;
+    FPreviewFilename: string;
     FInShowPreview,FInHidePreview: boolean;
     FSavedDetailsViewWidth: integer;
     FLastDirectory: string;
+    FFileSystems: TFileSystemArray;
     FFilename: string;
     FBmpIcon: TBGRABitmap;
     FLastBigIcon: boolean;
@@ -89,16 +93,18 @@ type
     FImageHardDrive, FImageCdRom, FImageUsbStick, FImageRamDrive, FImageNetworkDrive: TBGRABitmap;
     InFilenameChange: boolean;
     FSelectedFiles: array of string;
+    FCreateFolderOrContainerCaption: string;
     function GetCurrentExtensionFilter: string;
     function GetInitialFilename: string;
     function GetOpenLayerIcon: boolean;
     procedure SetInitialFilename(AValue: string);
+    procedure SetLazPaintInstance(AValue: TLazPaintCustomInstance);
     procedure SetOpenLayerIcon(AValue: boolean);
     procedure UpdateToolButtonOpen;
     function GetAllowMultiSelect: boolean;
     function GetSelectedFile(AIndex: integer): string;
     function GetSelectedFileCount: integer;
-    procedure ResetDirectory(AFocus: boolean);
+    procedure ResetDirectory(AFocus: boolean; AForceReload: boolean = false);
     procedure ClearThumbnails;
     procedure SetAllowMultiSelect(AValue: boolean);
     procedure SetIsSaveDialog(AValue: boolean);
@@ -116,9 +122,14 @@ type
     procedure InitComboExt;
     procedure SetShellMask;
     procedure DeleteSelectedFiles;
+    procedure SelectFile(AName: string);
+    procedure PreviewValidate({%H-}ASender: TObject);
   public
     { public declarations }
-    LazPaintInstance: TLazPaintCustomInstance;
+    ShowRememberStartupDirectory: boolean;
+    function GetChosenImage: TImageEntry;
+    procedure FreeChosenImage;
+    property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
     property Filename: string read FFilename;
     property SelectedFileCount: integer read GetSelectedFileCount;
     property SelectedFile[AIndex:integer]: string read GetSelectedFile;
@@ -127,6 +138,7 @@ type
     property IsSaveDialog: boolean read FIsSaveDialog write SetIsSaveDialog;
     property OverwritePrompt: boolean read FOverwritePrompt write FOverwritePrompt;
     property DefaultExtension: string read FDefaultExtension write FDefaultExtension;
+    property DefaultExtensions: string read FDefaultExtensions write FDefaultExtensions;
     property InitialFilename: string read GetInitialFilename write SetInitialFilename;
     property CurrentExtensionFilter: string read GetCurrentExtensionFilter;
     property OpenLayerIcon: boolean read GetOpenLayerIcon write SetOpenLayerIcon;
@@ -143,7 +155,8 @@ uses BGRAThumbnail, BGRAPaintNet, BGRAOpenRaster, BGRAReadLzp,
     BGRAWriteLzp, FPimage,
     Types, UResourceStrings,
     UConfig, bgrareadjpeg, FPReadJPEG,
-    UFileExtensions, BGRAUTF8, LazFileUtils, UFileSystem;
+    UFileExtensions, BGRAUTF8, LazFileUtils,
+    UGraph;
 
 var
   IconCache: TStringList;
@@ -214,6 +227,14 @@ begin
     Edit_Filename.Text := '';
 end;
 
+procedure TFBrowseImages.CheckBox_UseDirectoryOnStartupChange(Sender: TObject);
+begin
+  if IsSaveDialog then
+    LazPaintInstance.Config.SetRememberStartupTargetDirectory(CheckBox_UseDirectoryOnStartup.Checked)
+  else
+    LazPaintInstance.Config.SetRememberStartupSourceDirectory(CheckBox_UseDirectoryOnStartup.Checked)
+end;
+
 procedure TFBrowseImages.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 var r:TRect;
 begin
@@ -237,6 +258,10 @@ begin
   FOverwritePrompt:= true;
   FOpenButtonHint:= ToolButton_OpenSelectedFiles.Hint;
 
+  FPreview := TImagePreview.Create(vsPreview, Label_Status, true);
+  FPreview.OnValidate:= @PreviewValidate;
+  FChosenImage := TImageEntry.Empty;
+
   InitComboExt;
 
   bmp := TBitmap.Create;
@@ -259,34 +284,39 @@ begin
   bmp.Free;
   ImageList128.Clear;
 
-  ShellListView1 := TMyShellListView.Create(vsList);
+  ShellListView1 := TLCShellListView.Create(vsList);
   SetShellMask;
   ShellListView1.OnDblClick := @ShellListView1DblClick;
   ShellListView1.OnSelectItem := @ShellListView1SelectItem;
   ShellListView1.OnSort := @ShellListView1OnSort;
   ShellListView1.OnFormatType := @ShellListView1OnFormatType;
 
-  ImageSizeCaption := Label_Size.Caption;
-  Label_Size.Caption := '';
   BGRAPaintNet.RegisterPaintNetFormat;
   BGRAOpenRaster.RegisterOpenRasterFormat;
 
-  if length(GetFileSystems)>0 then
+  FFileSystems := FileManager.GetFileSystems;
+  if length(FFileSystems)>0 then
   begin
     Tool_SelectDrive.Visible := true;
+  end else
+  begin
+    Tool_SelectDrive.Visible := false;
     delta := ImageListToolbar.Width+Toolbar1.Indent;
-    ToolBar1.Width := ToolBar1.Width+delta;
-    DirectoryEdit1.Left := DirectoryEdit1.Left+delta;
-    DirectoryEdit1.Width := DirectoryEdit1.Width-delta;
+    ToolBar1.Width := ToolBar1.Width-delta;
+    DirectoryEdit1.Left := DirectoryEdit1.Left-delta;
+    DirectoryEdit1.Width := DirectoryEdit1.Width+delta;
   end;
+
+  FCreateFolderOrContainerCaption := ToolButton_CreateFolderOrContainer.Hint;
+  ToolButton_CreateFolderOrContainer.Hint := ToolButton_CreateFolderOrContainer.Hint + '...';
 end;
 
 procedure TFBrowseImages.FormDestroy(Sender: TObject);
 begin
+  ShellListView1.VirtualScreenFreed;
   FreeAndNil(ShellListView1);
-
-  FreeAndNil(FCurrentImage);
-  FreeAndNil(FCurrentAnimatedGif);
+  FreeAndNil(FChosenImage.bmp);
+  FreeAndNil(FPreview);
   FreeAndNil(FBmpIcon);
   FreeAndNil(FImageFileNotChecked);
   FreeAndNil(FImageFileUnkown);
@@ -371,15 +401,25 @@ begin
     end;
   end;
   if FLastBigIcon then ViewBigIcons;
-  if FLastDirectory = '' then
+  if (FLastDirectory = '') or not FileManager.IsDirectory(FLastDirectory) then
     DirectoryEdit1.Text := DefaultPicturesDirectory
   else
     DirectoryEdit1.Text := FLastDirectory;
   Timer1.Enabled := true;
   vsList.Anchors := [akLeft,akTop];
   ShellListView1.SetFocus;
+  FreeAndNil(FChosenImage.bmp);
   UpdatePreview;
   UpdateToolButtonOpen;
+  if FDefaultExtensions<>'' then
+  begin
+    for i := 0 to high(FFileExtensions) do
+      if FFileExtensions[i] = FDefaultExtensions then
+      begin
+        ComboBox_FileExtension.ItemIndex := i;
+        break;
+      end;
+  end;
   if IsSaveDialog then
   begin
     If (ExtractFileExt(Edit_Filename.Text) <> '') and (ComboBox_FileExtension.ItemIndex > 0) then
@@ -456,6 +496,9 @@ begin
     format := SuggestImageFormat(AType);
     if format = ifPng then AType := 'PNG' //too long to write explicitely
     else if format = ifGIF then AType := 'GIF' //do not know if animated or not
+    else if format = ifIco then AType := 'Icon'
+    else if format = ifCur then AType := 'Cursor'
+    else if format = ifSvg then AType := 'SVG'  //too long to write explicitely
     else AType := GetImageFormatName(format);
   end;
 end;
@@ -470,6 +513,7 @@ var i: integer;
     cacheIndex: integer;
     found: boolean;
     mem: TMemoryStream;
+    s: TStream;
   begin
     result := false;
     if ShellListView1.GetItemImage(i) = FImageFileNotChecked then
@@ -479,7 +523,7 @@ var i: integer;
       else
       begin
         itemPath := ShellListView1.ItemFullName[i];
-        cacheName := itemPath+':'+Inttostr(FileAgeUTF8(itemPath));
+        cacheName := itemPath+':'+FloatToStr(ShellListView1.ItemLastModification[i]);
         cacheIndex := IconCache.IndexOf(cacheName);
         if not Assigned(FBmpIcon) then FBmpIcon := TBGRABitmap.Create;
         if cacheIndex <> -1 then
@@ -490,7 +534,16 @@ var i: integer;
         end
         else
         begin
-          found := GetFileThumbnail(itemPath,ShellListView1.LargeIconSize,ShellListView1.LargeIconSize, BGRAPixelTransparent, True, FBmpIcon) <> nil;
+          try
+            s := FileManager.CreateFileStream(itemPath, fmOpenRead or fmShareDenyWrite);
+            try
+              found := GetStreamThumbnail(s,ShellListView1.LargeIconSize,ShellListView1.LargeIconSize, BGRAPixelTransparent, True, ExtractFileExt(itemPath), FBmpIcon) <> nil;
+            finally
+              s.Free;
+            end;
+          except
+            found := false;
+          end;
           if found then
           begin
             if IconCache.Count >= MaxIconCacheCount then IconCache.Delete(0);
@@ -514,9 +567,10 @@ var someIconDone: boolean;
 begin
   Timer1.Enabled:= false;
   EndDate := Now + 50 / MSecsPerDay;
-  if assigned(FCurrentAnimatedGif) and (FCurrentAnimatedGif.TimeUntilNextImageMs <= 0) then
-    vsPreview.RedrawBitmap;
-  if FDisplayedPreviewFilename <> FPreviewFilename then UpdatePreview;
+  if FPreview.Filename <> FPreviewFilename then
+    UpdatePreview
+  else
+    FPreview.HandleTimer;
   if FComputeIconCurrentItem < ShellListView1.ItemCount then
   begin
     vsList.Cursor := crAppStart;
@@ -542,6 +596,51 @@ begin
   vsList.SetBounds(vsList.Left, vsList.Top, Panel2.Width, Panel2.Height-Panel3.Height);
   ShellListView1.Update;
   Timer1.Enabled:= true;
+end;
+
+procedure TFBrowseImages.ToolButton_CreateFolderOrContainerClick(Sender: TObject);
+var
+  newName: String;
+  newFullname: string;
+begin
+  if pos(PathDelim, DirectoryEdit1.Text) = 0 then exit;
+  newName := InputBox(FCreateFolderOrContainerCaption, rsEnterFolderOrContainerName, '');
+  if newName = '' then exit;
+  if (pos(':',newName) <> 0) or (pos('\',newName) <> 0) then
+    MessageDlg(rsInvalidName, mtError, [mbOK], 0) else
+  begin
+    newFullname := ChompPathDelim(DirectoryEdit1.Text)+PathDelim+newName;
+    if FileManager.IsDirectory(newFullname) then
+      MessageDlg(rsFolderOrContainerAlreadyExists, mtInformation, [mbOK], 0)
+    else
+    begin
+      if FileManager.FileExists(newFullname) then
+      begin
+        if MessageDlg(rsOverwriteFile, mtConfirmation, [mbYes,mbNo], 0) = mrYes then
+        begin
+          try
+            FileManager.DeleteFile(newFullname);
+          except
+            on ex:exception do
+            begin
+              MessageDlg(ex.Message, mtError, [mbOk], 0);
+              exit;
+            end;
+          end;
+        end
+        else exit;
+      end;
+      try
+        FileManager.CreateDirectory(newFullname);
+      except
+        on ex:exception do
+          MessageDlg(ex.Message, mtError, [mbOk], 0);
+      end;
+      ResetDirectory(True,True);
+      SelectFile(newName);
+    end;
+  end;
+
 end;
 
 procedure TFBrowseImages.ToolButton_OpenSelectedFilesClick(Sender: TObject);
@@ -570,64 +669,22 @@ begin
   DirectoryEdit1.Text := ':';
 end;
 
-procedure TFBrowseImages.vsPreviewRedraw(Sender: TObject; Bitmap: TBGRABitmap);
-var x,y,w,h: integer;
-  ofs: integer;
-begin
-  if (Bitmap.Width = 0) or (Bitmap.Height = 0) then exit;
-  if Assigned(FCurrentImage) or Assigned(FCurrentAnimatedGif) then
-  begin
-    if Assigned(FCurrentImage) then
-    begin
-      w := FCurrentImage.Width;
-      h := FCurrentImage.Height;
-    end else
-    begin
-      w := FCurrentAnimatedGif.Width;
-      h := FCurrentAnimatedGif.Height;
-    end;
-    if w > bitmap.Width then
-    begin
-      h := round(h/w*bitmap.Width);
-      w := bitmap.Width;
-    end;
-    if h > bitmap.Height then
-    begin
-      w := round(w/h*bitmap.Height);
-      h := bitmap.Height;
-    end;
-    x := (bitmap.Width-w) div 2;
-    y := (bitmap.Height-h) div 2;
-    ofs := 4;
-    if w < ofs then ofs := w;
-    if h < ofs then ofs := h;
-    bitmap.FillRect(rect(x+w,y+ofs,x+ofs+w,y+ofs+h), BGRA(0,0,0,128),dmDrawWithTransparency);
-    bitmap.FillRect(rect(x+ofs,y+h,x+w,y+ofs+h), BGRA(0,0,0,128),dmDrawWithTransparency);
-    DrawThumbnailCheckers(Bitmap, rect(x,y,x+w,y+h));
-    if Assigned(FCurrentImage) then
-      bitmap.StretchPutImage(rect(x,y,x+w,y+h), FCurrentImage, dmDrawWithTransparency)
-    else
-    begin
-      bitmap.StretchPutImage(rect(x,y,x+w,y+h), FCurrentAnimatedGif.MemBitmap, dmDrawWithTransparency)
-
-    end;
-  end;
-end;
-
 function TFBrowseImages.OnDeleteConfirmation(AForm: TForm;
-  const AFiles: array of string): boolean;
+  const AFiles: array of string; AContained: boolean): boolean;
 begin
+  if AContained then
+  begin
+    if length(AFiles)=1 then
+      result := QuestionDlg(rsDeleteFile,rsConfirmDeleteFromContainer,mtConfirmation,[mrOK,rsOkay,mrCancel,rsCancel],0)=mrOk else
+    if length(AFiles)>1 then
+      result := QuestionDlg(rsDeleteFile,StringReplace(rsConfirmDeleteMultipleFromContainer,'%1',IntToStr(length(AFiles)),[]),mtConfirmation,[mrOK,rsOkay,mrCancel,rsCancel],0)=mrOk
+  end else
   if length(AFiles)=1 then
     result := QuestionDlg(rsDeleteFile,rsConfirmMoveToTrash,mtConfirmation,[mrOK,rsOkay,mrCancel,rsCancel],0)=mrOk else
   if length(AFiles)>1 then
     result := QuestionDlg(rsDeleteFile,StringReplace(rsConfirmMoveMultipleToTrash,'%1',IntToStr(length(AFiles)),[]),mtConfirmation,[mrOK,rsOkay,mrCancel,rsCancel],0)=mrOk
   else
     result := true;
-end;
-
-procedure TFBrowseImages.vsPreviewResize(Sender: TObject);
-begin
-  vsPreview.DiscardBitmap;
 end;
 
 procedure TFBrowseImages.UpdateToolButtonOpen;
@@ -660,6 +717,14 @@ begin
   Edit_Filename.Text := Trim(AValue);
 end;
 
+procedure TFBrowseImages.SetLazPaintInstance(AValue: TLazPaintCustomInstance);
+begin
+  if FLazPaintInstance=AValue then Exit;
+  FLazPaintInstance:=AValue;
+  if Assigned(FPreview) then
+    FPreview.LazPaintInstance := AValue;
+end;
+
 procedure TFBrowseImages.SetOpenLayerIcon(AValue: boolean);
 begin
   if AValue then
@@ -668,12 +733,17 @@ begin
     ToolButton_OpenSelectedFiles.ImageIndex := 5;
 end;
 
-procedure TFBrowseImages.ResetDirectory(AFocus: boolean);
+procedure TFBrowseImages.ResetDirectory(AFocus: boolean; AForceReload: boolean);
+var newDir: string;
 begin
-  if DirectoryEdit1.Text <> ShellListView1.Root then
+  newDir := DirectoryEdit1.Text;
+  if Assigned(ShellListView1) and ((newDir <> ShellListView1.Root) or AForceReload) then
   begin
     ClearThumbnails;
-    ShellListView1.Root := DirectoryEdit1.Text;
+    if newDir = ShellListView1.Root then
+      ShellListView1.Reload
+    else
+      ShellListView1.Root := newDir;
     StartThumbnails;
     if AFocus then ShellListView1.SetFocus;
     if ShellListView1.ItemCount <> 0 then
@@ -681,6 +751,7 @@ begin
       ShellListView1.MakeItemVisible(0);
     end;
     SelectCurrentDir;
+    ToolButton_CreateFolderOrContainer.Enabled := pos(PathDelim, newDir) <> 0;
   end;
 end;
 
@@ -782,72 +853,27 @@ begin
 end;
 
 procedure TFBrowseImages.UpdatePreview;
-var reader: TFPCustomImageReader;
-  jpegReader: TBGRAReaderJpeg;
-  format: TBGRAImageFormat;
 begin
-  FreeAndNil(FCurrentImage);
-  FreeAndNil(FCurrentAnimatedGif);
-  FCurrentImageNbLayers := 0;
-  vsPreview.RedrawBitmap;
-  FDisplayedPreviewFilename:= FPreviewFilename;
   if (FPreviewFilename = '') or not Panel1.Visible then
   begin
-    Label_Size.Caption := rsRecentDirectories;
+    FPreview.Filename:= '';
+    vsPreview.Visible := false;
+    Label_Status.Caption := rsRecentDirectories;
     ListBox_RecentDirs.Visible := true;
+    if IsSaveDialog then
+      CheckBox_UseDirectoryOnStartup.Checked := FLazPaintInstance.Config.DefaultRememberStartupTargetDirectory
+    else
+      CheckBox_UseDirectoryOnStartup.Checked := FLazPaintInstance.Config.DefaultRememberStartupSourceDirectory;
+    CheckBox_UseDirectoryOnStartup.Left := Label_Status.Left+Label_Status.Width + 10;
+    CheckBox_UseDirectoryOnStartup.Visible := ShowRememberStartupDirectory;
     SelectCurrentDir;
-    exit;
-  end;
-  ListBox_RecentDirs.Visible := false;
-  Label_Size.Caption := rsLoading+'...';
-  Label_Size.Update;
-  try
-    format := DetectFileFormat(FPreviewFilename);
-    if format = ifGif then
-    begin
-      try
-        FCurrentAnimatedGif := TBGRAAnimatedGif.Create(FPreviewFilename);
-      except
-      end;
-    end;
-    if FCurrentAnimatedGif = nil then
-    begin
-      if format = ifJpeg then
-      begin
-        jpegReader := TBGRAReaderJpeg.Create;
-        jpegReader.Performance := jpBestSpeed;
-        jpegReader.MinWidth := Screen.Width;
-        jpegReader.MinHeight := Screen.Height;
-        reader := jpegReader;
-      end else
-        reader := CreateBGRAImageReader(format);
-      try
-        FCurrentImage := TBGRABitmap.Create;
-        try
-          FCurrentImage.LoadFromFileUTF8(FPreviewFilename,reader);
-          FCurrentImageNbLayers := 1;
-          if reader is TFPReaderOpenRaster then FCurrentImageNbLayers := TFPReaderOpenRaster(reader).NbLayers else
-          if reader is TFPReaderPaintDotNet then FCurrentImageNbLayers := TFPReaderPaintDotNet(reader).NbLayers else
-          if reader is TBGRAReaderLazPaint then FCurrentImageNbLayers := TBGRAReaderLazPaint(reader).NbLayers;
-        except
-          FreeAndNil(FCurrentImage);
-        end;
-      finally
-        reader.Free;
-      end;
-    end;
-  except
-  end;
-  if FCurrentImage <> nil then
-  begin
-    Label_Size.Caption := ImageSizeCaption + IntToStr(FCurrentImage.Width)+'x'+IntToStr(FCurrentImage.Height)+'x'+IntToStr(FCurrentImageNbLayers);
   end else
-  if FCurrentAnimatedGif <> nil then
   begin
-    Label_Size.Caption := ImageSizeCaption + IntToStr(FCurrentAnimatedGif.Width)+'x'+IntToStr(FCurrentAnimatedGif.Height)+'x'+IntToStr(FCurrentAnimatedGif.Count);
-  end else
-    Label_Size.Caption := '';
-  vsPreview.RedrawBitmap;
+    ListBox_RecentDirs.Visible := false;
+    CheckBox_UseDirectoryOnStartup.Visible := false;
+    vsPreview.Visible := true;
+    FPreview.Filename:= FPreviewFilename;
+  end;
 end;
 
 procedure TFBrowseImages.ShowPreview;
@@ -934,11 +960,24 @@ begin
         end;
       if IsSaveDialog and (count > 0) then FFilename := FSelectedFiles[0];
       UpdatePreview(fullName);
+
+      //if we are opening one image and its preview contains all data
+      //then we can provide the loaded image / frame
+      if not IsSaveDialog and (count = 1)
+         and (FPreview.Filename = FPreviewFilename)
+         and not FPreview.PreviewDataLoss then
+      begin
+        FChosenImage := FPreview.GetPreviewBitmap;
+        if FChosenImage.bmp = nil then exit;
+      end;
+
+      if ComboBox_FileExtension.ItemIndex <> -1 then
+        FDefaultExtensions := FFileExtensions[ComboBox_FileExtension.ItemIndex];
       ModalResult:= mrOk;
     end;
   end else
     if IsSaveDialog and (Trim(Edit_Filename.Text)<>'') and (DirectoryEdit1.Text <> ':') and
-      DirectoryExistsUTF8(trim(DirectoryEdit1.Text)) then
+      FileManager.IsDirectory(trim(DirectoryEdit1.Text)) then
     begin
       FFilename:= IncludeTrailingPathDelimiter(trim(DirectoryEdit1.Text))+Edit_Filename.Text;
       if (ExtractFileExt(FFilename)='') then
@@ -948,31 +987,37 @@ begin
         else if DefaultExtension <> '' then
           FFilename += DefaultExtension;
       end;
-      if FileExistsUTF8(FFilename) and IsSaveDialog and OverwritePrompt then
+      if FileManager.FileExists(FFilename) and IsSaveDialog and OverwritePrompt then
       begin
         if QuestionDlg(rsSave, rsOverwriteFile, mtConfirmation, [mrOk, rsOkay, mrCancel, rsCancel],0) <> mrOk then exit;
       end;
       setlength(FSelectedFiles,1);
       FSelectedFiles[0] := FFilename;
+      if ComboBox_FileExtension.ItemIndex <> -1 then
+        FDefaultExtensions := FFileExtensions[ComboBox_FileExtension.ItemIndex];
       ModalResult:= mrOk;
     end;
 end;
 
 procedure TFBrowseImages.GoDirUp;
 var dir: string;
-  idx: integer;
+  itemToSelect: string;
 begin
   dir := DirectoryEdit1.Text;
-  idx := length(dir);
-  if (idx > 1) and (dir[idx] = PathDelim) and (dir[idx-1] <> PathDelim) then dec(idx);
-  while (idx >= 1) and (dir[idx] <> PathDelim) do dec(idx);
-  if (idx > 0) and (idx < length(dir)) then DirectoryEdit1.Text := copy(dir,1,idx) else
-    if Tool_SelectDrive.Visible then DirectoryEdit1.Text := ':';
+  FileManager.RemoveLastPathElement(dir, itemToSelect);
+  if dir = '' then
+  begin
+    FFileSystems:= FileManager.GetFileSystems;
+    if length(FFileSystems)>0 then DirectoryEdit1.Text := ':';
+    itemToSelect := '';
+  end else
+    DirectoryEdit1.Text := dir;
   ShellListView1.SetFocus;
   UpdatePreview('');
   InFilenameChange := true;
   Edit_Filename.text := '';
   InFilenameChange := false;
+  SelectFile(itemToSelect);
 end;
 
 procedure TFBrowseImages.InitComboExt;
@@ -1009,27 +1054,49 @@ var filesToDelete: array of string;
 begin
   deleteCount := 0;
   for i := 0 to ShellListView1.ItemCount-1 do
-    if ShellListView1.ItemSelected[i] and not ShellListView1.ItemIsFolder[i] then
+    if ShellListView1.ItemSelected[i] then
+    begin
+      if FileManager.FileExists(ShellListView1.ItemFullName[i]) then
+        inc(deleteCount)
+      else
+      begin
+        if ShellListView1.ItemFullName[i] = FPreviewFilename then UpdatePreview('');
+        ShellListView1.ItemSelected[i] := false;
+        if FileManager.IsDirectory(ShellListView1.ItemFullName[i]) then
+        begin
+          if FileManager.IsDirectoryEmpty(ShellListView1.ItemFullName[i]) then
+          begin
+            try
+              FileManager.DeleteDirectory(ShellListView1.ItemFullName[i]);
+              ShellListView1.RemoveItemFromList(i);
+            except on ex:Exception do
+              MessageDlg(rsDeleteFile, ex.Message, mtError, [mbOk], 0);
+            end;
+          end else
+            MessageDlg(rsDeleteFile, rsDirectoryNotEmpty, mtError, [mbOk], 0);
+        end;
+      end;
+    end;
+
+  setlength(filesToDelete, deleteCount);
+  deleteCount := 0;
+  for i := 0 to ShellListView1.ItemCount-1 do
+    if ShellListView1.ItemSelected[i] then
+    begin
+      filesToDelete[deleteCount] := ShellListView1.ItemFullName[i];
       inc(deleteCount);
+    end;
+
   if deleteCount > 0 then
   begin
-    setlength(filesToDelete, deleteCount);
-    deleteCount := 0;
-    for i := 0 to ShellListView1.ItemCount-1 do
-      if ShellListView1.ItemSelected[i] and not ShellListView1.ItemIsFolder[i] then
-      begin
-        filesToDelete[deleteCount] := ShellListView1.ItemFullName[i];
-        inc(deleteCount);
-      end;
-
     self.Enabled := false;
-    MoveToTrash(self, filesToDelete, @OnDeleteConfirmation);
+    FileManager.MoveToTrash(self, filesToDelete, @OnDeleteConfirmation);
     self.Enabled := true;
 
     for i := ShellListView1.ItemCount-1 downto 0 do
-      if ShellListView1.ItemSelected[i] and not ShellListView1.ItemIsFolder[i] then
+      if ShellListView1.ItemSelected[i] then
       begin
-        if not FileExistsUTF8(ShellListView1.ItemFullName[i]) then
+        if not FileManager.FileExists(ShellListView1.ItemFullName[i]) then
         begin
           if ShellListView1.ItemFullName[i] = FPreviewFilename then
             UpdatePreview('');
@@ -1037,6 +1104,37 @@ begin
         end;
       end;
   end;
+end;
+
+procedure TFBrowseImages.SelectFile(AName: string);
+var
+  idx: Integer;
+begin
+  idx := ShellListView1.IndexByName(AName, {$IFNDEF WINDOWS}True{$ELSE}False{$ENDIF});
+  if (idx <> -1) then
+  begin
+    ShellListView1.SelectedIndex := idx;
+    ShellListView1.MakeItemVisible(idx);
+    InFilenameChange := true;
+    Edit_Filename.text := ShellListView1.ItemName[idx];
+    InFilenameChange := false;
+  end;
+end;
+
+procedure TFBrowseImages.PreviewValidate(ASender: TObject);
+begin
+  ValidateFileOrDir;
+end;
+
+function TFBrowseImages.GetChosenImage: TImageEntry;
+begin
+  result := FChosenImage;
+  FChosenImage := TImageEntry.Empty;
+end;
+
+procedure TFBrowseImages.FreeChosenImage;
+begin
+  FreeAndNil(FChosenImage.bmp);
 end;
 
 initialization

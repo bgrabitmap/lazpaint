@@ -174,9 +174,15 @@ msgstr "Základní operace mísení, který je dostupná prakticky ve všech edi
 msgid "Browse images"
 msgstr "Procházet obrázky"
 
-#: tfbrowseimages.label_size.caption
-msgid "Size: "
-msgstr "Velikost:"
+#: tfbrowseimages.label_status.caption
+#, fuzzy
+msgctxt "tfbrowseimages.label_status.caption"
+msgid "."
+msgstr "."
+
+#: tfbrowseimages.toolbutton_createfolderorcontainer.hint
+msgid "Create folder or container"
+msgstr ""
 
 #: tfbrowseimages.toolbutton_goup.hint
 msgid "Go one directory up"
@@ -729,6 +735,14 @@ msgstr "Ověřit"
 msgid "Validate modifications"
 msgstr "Ověřit úpravy"
 
+#: tfmain.filechooseentry.caption
+msgid "Choose entry..."
+msgstr ""
+
+#: tfmain.filechooseentry.hint
+msgid "Choose entry within file"
+msgstr ""
+
 #: tfmain.fileimport3d.caption
 msgid "Import 3D object..."
 msgstr "Importovat 3D objekt..."
@@ -880,6 +894,7 @@ msgid "Median"
 msgstr "Medián"
 
 #: tfmain.filternegative.caption
+msgctxt "tfmain.filternegative.caption"
 msgid "Negative"
 msgstr "Negativ"
 
@@ -925,6 +940,14 @@ msgstr "Koule"
 msgid "Twirl..."
 msgstr "Vířit..."
 
+#: tfmain.forgetdialoganswers.caption
+msgid "Forget dialog box answers"
+msgstr ""
+
+#: tfmain.forgetdialoganswers.hint
+msgid "Forget answers given to dialog boxes"
+msgstr ""
+
 #: tfmain.helpabout.caption
 msgid "About..."
 msgstr "O programu..."
@@ -967,6 +990,16 @@ msgctxt "tfmain.imagehorizontalflip.hint"
 msgid "Flip image horizontally"
 msgstr "Převrátit obrázek vodorovně"
 
+#: tfmain.imagelinearnegative.caption
+msgctxt "tfmain.imagelinearnegative.caption"
+msgid "Linear negative"
+msgstr "Lineární negativ"
+
+#: tfmain.imagenegative.caption
+msgctxt "tfmain.imagenegative.caption"
+msgid "Negative"
+msgstr "Negativ"
+
 #: tfmain.imagerepeat.caption
 msgid "Repeat..."
 msgstr "Opakovat..."
@@ -990,6 +1023,10 @@ msgstr "Otočit 90° CW"
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
 msgstr "Chytré zvětšení x3"
+
+#: tfmain.imageswapredblue.caption
+msgid "Swap red and blue channels"
+msgstr ""
 
 #: tfmain.imageverticalflip.caption
 msgctxt "tfmain.imageverticalflip.caption"
@@ -1174,6 +1211,10 @@ msgstr "Šířka"
 msgctxt "tfmain.label_phongborder.caption"
 msgid "Border"
 msgstr "Okraj"
+
+#: tfmain.label_ratio.caption
+msgid "Ratio"
+msgstr ""
 
 #: tfmain.label_shadowoffset.caption
 msgctxt "TFMAIN.LABEL_SHADOWOFFSET.CAPTION"
@@ -1539,6 +1580,15 @@ msgstr "Ruka"
 #: tfmain.toolhand.hint
 msgid "Move and scroll picture"
 msgstr "Posunout a rolovat obrázek"
+
+#: tfmain.toolhotspot.caption
+msgctxt "tfmain.toolhotspot.caption"
+msgid "Hot spot"
+msgstr ""
+
+#: tfmain.toolhotspot.hint
+msgid "Choose hot spot of a cursor"
+msgstr ""
 
 #: tfmain.toollayermapping.hint
 msgctxt "tfmain.toollayermapping.hint"
@@ -2078,6 +2128,14 @@ msgctxt "tfnewimage.caption"
 msgid "New image"
 msgstr "Nový obrázek"
 
+#: tfnewimage.combobox_bitdepth.text
+msgid "32"
+msgstr ""
+
+#: tfnewimage.label_bitdepth.caption
+msgid "Bit depth :"
+msgstr ""
+
 #: tfnewimage.label_height.caption
 msgctxt "tfnewimage.label_height.caption"
 msgid "Height :"
@@ -2370,6 +2428,16 @@ msgstr "Podle světlosti"
 msgid "Levels :"
 msgstr "Úrovně:"
 
+#: tfpreviewdialog.caption
+msgid "Preview"
+msgstr ""
+
+#: tfpreviewdialog.lstatus.caption
+#, fuzzy
+msgctxt "tfpreviewdialog.lstatus.caption"
+msgid "."
+msgstr "."
+
 #: tfprint.button_configureprinter.caption
 msgid "Configure..."
 msgstr "Nastavit..."
@@ -2441,6 +2509,20 @@ msgstr "Nahoře:"
 #: tfprint.label_width.caption
 msgid "Width:"
 msgstr "Šířka:"
+
+#: tfquestion.caption
+msgid "Question"
+msgstr ""
+
+#: tfquestion.checkbox_rememberchoice.caption
+msgid "Remember this choice"
+msgstr ""
+
+#: tfquestion.label_message.caption
+#, fuzzy
+msgctxt "tfquestion.label_message.caption"
+msgid "."
+msgstr "."
 
 #: tfradialblur.button_cancel.caption
 msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"
@@ -2576,6 +2658,10 @@ msgstr ""
 
 #: tfsaveoption.radiobutton_2colors.caption
 msgid "2 colors"
+msgstr ""
+
+#: tfsaveoption.radiobutton_32bitsperpixel.caption
+msgid "32 bits"
 msgstr ""
 
 #: tfsaveoption.radiobutton_miomap.caption
@@ -2744,6 +2830,14 @@ msgctxt "uresourcestrings.rscolors"
 msgid "Colors"
 msgstr "Barvy"
 
+#: uresourcestrings.rsconfirmdeletefromcontainer
+msgid "Are you sure you want to delete this file from the container?"
+msgstr ""
+
+#: uresourcestrings.rsconfirmdeletemultiplefromcontainer
+msgid "Are you sure you want to delete these %1 files from the container?"
+msgstr ""
+
 #: uresourcestrings.rsconfirmmovemultipletotrash
 msgid "Are you sure you want to move these %1 files to the trash?"
 msgstr ""
@@ -2795,6 +2889,14 @@ msgctxt "uresourcestrings.rsdeletefile"
 msgid "Delete"
 msgstr "Smazat"
 
+#: uresourcestrings.rsdeleteimageentry
+msgid "Delete selected image entry?"
+msgstr ""
+
+#: uresourcestrings.rsdirectorynotempty
+msgid "Directory is not empty"
+msgstr ""
+
 #: uresourcestrings.rsditherlayerusingpalette
 msgid "Dither layer using palette"
 msgstr ""
@@ -2819,9 +2921,17 @@ msgstr "Vrstva je prázdná"
 msgid "Selection is empty"
 msgstr "Výběr je prázdný"
 
+#: uresourcestrings.rsenterfolderorcontainername
+msgid "Enter name for new folder or container (using RES or LRS extension):"
+msgstr ""
+
 #: uresourcestrings.rsenterlayername
 msgid "Enter layer name:"
 msgstr "Zadejte jméno vrstvy:"
+
+#: uresourcestrings.rsentries
+msgid "Entries"
+msgstr ""
 
 #: uresourcestrings.rserror
 msgid "Error"
@@ -2850,6 +2960,10 @@ msgstr "očekává N parametry : "
 #: uresourcestrings.rsfast
 msgid "Fast"
 msgstr "Rychle"
+
+#: uresourcestrings.rsfilecannotbeempty
+msgid "File cannot be empty"
+msgstr ""
 
 #: uresourcestrings.rsfiledate
 msgid "Date"
@@ -2895,8 +3009,16 @@ msgstr ""
 msgid "Folder"
 msgstr "Složka"
 
+#: uresourcestrings.rsfolderorcontaineralreadyexists
+msgid "Folder or container already exists."
+msgstr ""
+
 #: uresourcestrings.rsfollowingerrorsoccured
 msgid "Following errors occured:"
+msgstr ""
+
+#: uresourcestrings.rsframes
+msgid "Frames"
 msgstr ""
 
 #: uresourcestrings.rsfunctionnotdefined
@@ -2919,6 +3041,11 @@ msgstr "Přidržte CTRL pro přichycení k bodům"
 msgid "Hold SHIFT to draw a square or a circle"
 msgstr "Přidržte SHIFT pro kreslení čtverce nebo kruhu"
 
+#: uresourcestrings.rshotspot
+msgctxt "uresourcestrings.rshotspot"
+msgid "Hot spot"
+msgstr ""
+
 #: uresourcestrings.rshue
 msgctxt "uresourcestrings.rshue"
 msgid "Hue"
@@ -2934,6 +3061,10 @@ msgctxt "uresourcestrings.rshuecw"
 msgid "Hue CW"
 msgstr ""
 
+#: uresourcestrings.rsiconimagealreadyexists
+msgid "There is already an image with this size and depth."
+msgstr ""
+
 #: uresourcestrings.rsiconorcursor
 msgid "Icon/cursor"
 msgstr ""
@@ -2941,6 +3072,11 @@ msgstr ""
 #: uresourcestrings.rsimagetoobig
 msgid "Image is too big"
 msgstr "Obrázek je příliš velký"
+
+#: uresourcestrings.rsinfinity
+msgctxt "uresourcestrings.rsinfinity"
+msgid "Infinity"
+msgstr ""
 
 #: uresourcestrings.rsinformation
 msgid "Information"
@@ -2954,6 +3090,10 @@ msgstr "Jas"
 #: uresourcestrings.rsinternalerror
 msgid "Internal error"
 msgstr "Vnitřní chyba"
+
+#: uresourcestrings.rsinvalidname
+msgid "Invalid name"
+msgstr ""
 
 #: uresourcestrings.rsinvalidopacity
 msgid "Invalid opacity : "
@@ -2990,6 +3130,12 @@ msgstr "Je dostupná poslední online verze LazPaint"
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
 msgstr ""
+
+#: uresourcestrings.rslayers
+#, fuzzy
+msgctxt "uresourcestrings.rslayers"
+msgid "Layers"
+msgstr "Vrstvy"
 
 #: uresourcestrings.rslazpaint
 msgctxt "uresourcestrings.rslazpaint"
@@ -3031,6 +3177,10 @@ msgstr "Načítání"
 
 #: uresourcestrings.rsloadpalette
 msgid "Load palette..."
+msgstr ""
+
+#: uresourcestrings.rsloopcount
+msgid "Loop count"
 msgstr ""
 
 #: uresourcestrings.rsmakencolorspalettefrombitmap
@@ -3290,6 +3440,10 @@ msgstr ""
 
 #: uresourcestrings.rstooloninvisiblelayer
 msgid "Tool cannot be used on an invisible layer"
+msgstr ""
+
+#: uresourcestrings.rstoomanylayers
+msgid "Too many layers"
 msgstr ""
 
 #: uresourcestrings.rstotalimages

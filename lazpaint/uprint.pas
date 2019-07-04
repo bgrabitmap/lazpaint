@@ -95,7 +95,7 @@ type
 
 implementation
 
-uses printers, UResourceStrings, Types, UScaleDPI, umac;
+uses printers, UResourceStrings, Types, LCScaleDPI, umac;
 
 var
   marginLeft, marginRight, marginTop, marginBottom: integer;
@@ -588,7 +588,7 @@ end;
 
 procedure TFPrint.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   CheckSpinEdit(SpinEdit_DpiY);
   CheckSpinEdit(SpinEdit_DpiX);
@@ -601,8 +601,9 @@ begin
 
 end;
 
+{$R *.lfm}
+
 initialization
-  {$I uprint.lrs}
 
   marginLeft := 10;
   marginTop := 10;

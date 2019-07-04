@@ -39,7 +39,9 @@ function GetImageFormatName(AFormat: TBGRAImageFormat): string;
 
 implementation
 
-uses Masks, LazUTF8, UResourceStrings;
+uses Masks, LazUTF8, UResourceStrings, BGRASVG,
+     BGRALayerOriginal, BGRASVGOriginal, BGRAGradientOriginal,
+     LCVectorOriginal, LCVectorShapes;
 
 function GetSelectedFilterExtensions(const Filter: string;
   FilterIndex: integer; ARemoveLeadingDot: boolean): TStringList;
@@ -304,7 +306,7 @@ initialization
   RegisterPicExt(rsLayeredImage,'lzp;ora;oXo', [eoWritable]);
   RegisterPicExt(rsBitmap,'bmp', [eoReadable,eoWritable]);
   RegisterPicExt(rsAnimatedGIF,'gif', [eoReadable,eoWritable]);
-  RegisterPicExt(rsIconOrCursor,'ico;cur', [eoReadable]);
+  RegisterPicExt(rsIconOrCursor,'ico;cur', [eoReadable,eoWritable]);
   RegisterPicExt('JPEG','jpg;jpeg', [eoReadable,eoWritable]);
   RegisterPicExt(rsLazPaint,'lzp', [eoReadable,eoWritable]);
   RegisterPicExt(rsOpenRaster,'ora', [eoReadable,eoWritable]);
@@ -313,6 +315,8 @@ initialization
   RegisterPicExt('PhoXo','oXo', [eoReadable,eoWritable]);
   RegisterPicExt('Portable Network Graphic','png', [eoReadable,eoWritable]);
   RegisterPicExt(rsPhotoshop,'psd', [eoReadable]);
+  BGRASVG.RegisterSvgFormat;
+  RegisterPicExt('Scalable Vector Graphic','svg', [eoReadable]);
   RegisterPicExt('Targa','tga', [eoReadable,eoWritable]);
   RegisterPicExt('Tiff','tif;tiff', [eoReadable,eoWritable]);
   RegisterPicExt('X PixMap','xpm', [eoReadable,eoWritable]);

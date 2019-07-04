@@ -39,7 +39,7 @@ type
     procedure ForEachExistingCell(ADrawCallback: TDrawInCellProc; AData: Pointer = nil);
     procedure Draw(ADestination: TBGRACustomBitmap; X,Y: Integer; AMode: TDrawMode = dmDrawWithTransparency; AOpacity: byte = 255);
     procedure StretchDraw(ADestination: TBGRACustomBitmap; ARect: TRect; AMode: TDrawMode = dmDrawWithTransparency; AOpacity: byte = 255);
-    procedure DrawAffine(ADestination: TBGRACustomBitmap; AMatrix: TAffineMatrix; AFilter: TResampleFilter; AOpacity: byte = 255);
+    procedure DrawAffine(ADestination: TBGRACustomBitmap; AMatrix: TAffineMatrix; AFilter: TResampleFilter; AMode: TDrawMode = dmDrawWithTransparency; AOpacity: byte = 255);
     procedure Crop(ABounds: TRect);
     function InflateRectToCells(ABounds: TRect): TRect;
     function GetImageBounds(AChannel: TChannel = cAlpha; ANothingValue: Byte = 0): TRect;
@@ -87,6 +87,7 @@ type
     Matrix: TAffineMatrix;
     Filter: TResampleFilter;
     Opacity: byte;
+    Mode: TDrawMode;
   end;
 
 { TGridBitmap }
@@ -300,24 +301,24 @@ begin
 end;
 
 procedure TGridBitmap.DrawAffine(ADestination: TBGRACustomBitmap;
-  AMatrix: TAffineMatrix; AFilter: TResampleFilter; AOpacity: byte);
+  AMatrix: TAffineMatrix; AFilter: TResampleFilter; AMode: TDrawMode; AOpacity: byte);
 var param: TDrawAffineParam;
 begin
   if ADestination.IsAffineRoughlyTranslation(AMatrix, rect(0,0,Width,Height)) then
-    Draw(ADestination, round(AMatrix[1,3]),round(AMatrix[2,3]), dmDrawWithTransparency, AOpacity)
+    Draw(ADestination, round(AMatrix[1,3]),round(AMatrix[2,3]), AMode, AOpacity)
   else
   begin
     param.Destination := ADestination;
     param.Matrix := AMatrix;
     param.Filter := AFilter;
     param.Opacity := AOpacity;
+    param.Mode := AMode;
     ForEachExistingCell(@DrawAffineCell,@param);
   end;
 end;
 
 procedure TGridBitmap.Crop(ABounds: TRect);
 var x,y,x1,y1,x2,y2: integer;
-  cellRect,clip: TRect;
 begin
   if ABounds.Left < 0 then ABounds.Left := 0;
   if ABounds.Top < 0 then ABounds.Top := 0;
@@ -339,8 +340,7 @@ begin
 end;
 
 function TGridBitmap.InflateRectToCells(ABounds: TRect): TRect;
-var x,y,x1,y1,x2,y2: integer;
-  cellRect,clip: TRect;
+var x1,y1,x2,y2: integer;
 begin
   if ABounds.Left < 0 then ABounds.Left := 0;
   if ABounds.Top < 0 then ABounds.Top := 0;

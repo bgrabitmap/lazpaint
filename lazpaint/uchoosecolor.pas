@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
   ExtCtrls, BGRABitmap, BGRABitmapTypes, StdCtrls, Buttons,
-  BGRAVirtualScreen, BCButton, LazPaintType, uscaledpi, uresourcestrings;
+  BGRAVirtualScreen, BCButton, LazPaintType, LCScaleDPI, uresourcestrings;
 
 const externalMargin = 3;
 
@@ -99,9 +99,9 @@ begin
    BorderStyle:= bsDialog;
    {$ENDIF}
    ClientHeight := DoScaleY(160,OriginalDPI,TFChooseColor_CustomDPI);
-   ScaleDPI(Self,OriginalDPI,TFChooseColor_CustomDPI);
-   EColor.Font.Height := FontFullHeightSign*DoScaleY(14,OriginalDPI,TFChooseColor_CustomDPI);
-   LColor.Font.Height := FontFullHeightSign*DoScaleY(14,OriginalDPI,TFChooseColor_CustomDPI);
+   ScaleControl(Self,OriginalDPI,TFChooseColor_CustomDPI);
+   EColor.Font.Height := -FontEmHeightSign*DoScaleY(12,OriginalDPI,TFChooseColor_CustomDPI);
+   LColor.Font.Height := -FontEmHeightSign*DoScaleY(12,OriginalDPI,TFChooseColor_CustomDPI);
    EColor.AdjustSize;
    EColor.Text:= '';
    EColor.Top := ClientHeight;
@@ -348,7 +348,7 @@ begin
     Bitmap.Rectangle(x-colorxysize-1,y-colorxysize-1,x+colorxysize+2,y+colorxysize+2,BGRA(0,0,0,cursorxyopacity),dmDrawWithTransparency);
     Bitmap.Rectangle(x-colorxysize,y-colorxysize,x+colorxysize+1,y+colorxysize+1,BGRA(255,255,255,cursorxyopacity),dmDrawWithTransparency);
     Bitmap.Rectangle(x-colorxysize+1,y-colorxysize+1,x+colorxysize,y+colorxysize,BGRA(0,0,0,cursorxyopacity),dmDrawWithTransparency);
-    size := (ColorCircle.bounds.Bottom-ColorCircle.bounds.Top)/10;
+    size := round(barwidth*0.9);
     c := GetCurrentColor;
     c.alpha := 255;
     Bitmap.RoundRectAntialias(0,colorCircle.bounds.Bottom-1-size,size,colorCircle.bounds.Bottom-1,
@@ -567,7 +567,7 @@ begin
        strColor := '#'+copy(BGRAToStr(tempColor),1,6);
        idxCSS:= CSSColors.IndexOfColor(BGRA(tempColor.red,tempColor.green,tempColor.blue),500);
        if idxCSS <> -1 then strColor:= strColor + ', ' + CSSColors.Name[idxCSS] + ', a:' + FloatToStr(round(tempColor.alpha/255*100)/100) else
-         strColor := strColor+ ', rgba(' + IntToStr(tempColor.red) + ',' + IntToStr(tempColor.green) + ',' +
+         strColor := strColor+ '  rgba(' + IntToStr(tempColor.red) + ',' + IntToStr(tempColor.green) + ',' +
            IntToStr(tempColor.blue) + ',' + FloatToStr(round(tempColor.alpha/255*100)/100) + ')';
      end;
 

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="4">
+    <Name Value="lazpaintcontrols"/>
+    <Type Value="RunAndDesignTime"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <SearchPaths>
+        <IncludeFiles Value="../resources"/>
+        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Version Minor="1"/>
+    <Files Count="10">
+      <Item1>
+        <Filename Value="lctoolbars.pas"/>
+        <UnitName Value="LCToolbars"/>
+      </Item1>
+      <Item2>
+        <Filename Value="lcvectorialfill.pas"/>
+        <UnitName Value="LCVectorialFill"/>
+      </Item2>
+      <Item3>
+        <Filename Value="lcvectorialfillinterface.pas"/>
+        <UnitName Value="LCVectorialFillInterface"/>
+      </Item3>
+      <Item4>
+        <Filename Value="lcvectororiginal.pas"/>
+        <UnitName Value="LCVectorOriginal"/>
+      </Item4>
+      <Item5>
+        <Filename Value="lcvectorpolyshapes.pas"/>
+        <UnitName Value="LCVectorPolyShapes"/>
+      </Item5>
+      <Item6>
+        <Filename Value="lcvectorrectshapes.pas"/>
+        <UnitName Value="LCVectorRectShapes"/>
+      </Item6>
+      <Item7>
+        <Filename Value="lcvectorialfillcontrol.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="LCVectorialFillControl"/>
+      </Item7>
+      <Item8>
+        <Filename Value="lcvectorshapes.pas"/>
+        <UnitName Value="LCVectorShapes"/>
+      </Item8>
+      <Item9>
+        <Filename Value="lcvectortextshapes.pas"/>
+        <UnitName Value="LCVectorTextShapes"/>
+      </Item9>
+      <Item10>
+        <Filename Value="lcscaledpi.pas"/>
+        <UnitName Value="LCScaleDPI"/>
+      </Item10>
+    </Files>
+    <RequiredPkgs Count="4">
+      <Item1>
+        <PackageName Value="bgracontrols"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="BGRABitmapPack"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="LCL"/>
+      </Item3>
+      <Item4>
+        <PackageName Value="FCL"/>
+      </Item4>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

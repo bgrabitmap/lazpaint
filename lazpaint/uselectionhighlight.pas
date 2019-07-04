@@ -26,7 +26,7 @@ type
     procedure Discard;
     procedure Draw(ADestination: TBGRABitmap; X,Y: Integer; AMode: TDrawMode = dmDrawWithTransparency; AOpacity: byte = 255);
     procedure StretchDraw(ADestination: TBGRABitmap; ARect: TRect; AMode: TDrawMode = dmDrawWithTransparency; AOpacity: byte = 255);
-    procedure DrawAffine(ADestination: TBGRACustomBitmap; AMatrix: TAffineMatrix; AFilter: TResampleFilter; AOpacity: byte = 255);
+    procedure DrawAffine(ADestination: TBGRACustomBitmap; AMatrix: TAffineMatrix; AFilter: TResampleFilter; AMode: TDrawMode = dmDrawWithTransparency; AOpacity: byte = 255);
     procedure NotifyChange(const ARect: TRect);
     property FillSelection: boolean read FFillSelection write SetFillSelection;
   end;
@@ -68,8 +68,8 @@ var filter: TBGRAEmbossHightlightScanner;
   selectionBounds: TRect;
   gridCoverage, extendedGridCoverage: TRect;
 begin
-  selection := FImage.SelectionReadonly;
-  selectionBounds := FImage.SelectionBounds;
+  selection := FImage.SelectionMaskReadonly;
+  selectionBounds := FImage.SelectionMaskBounds;
   if (selection = nil) or (selection.Width = 0) or (selection.Width = 0) or
      IsRectEmpty(selectionBounds) then
   begin
@@ -112,7 +112,7 @@ begin
     if (fx <> 1) or (fy <> 1) then
     begin
       affine := TBGRAAffineBitmapTransform.Create(selection,false,rfBox);
-      affine.Matrix := AffineMatrixScale(1/fx,1/fy);
+      affine.Matrix := AffineMatrixTranslation(-0.5,-0.5)*AffineMatrixScale(1/fx,1/fy)*AffineMatrixTranslation(0.5,0.5);
       boundsForFilterAffine := extendedGridCoverage;
       InflateRect(boundsForFilterAffine,1,1);
       filter := TBGRAEmbossHightlightScanner.Create(affine,
@@ -189,9 +189,9 @@ begin
 end;
 
 procedure TSelectionHighlight.DrawAffine(ADestination: TBGRACustomBitmap;
-  AMatrix: TAffineMatrix; AFilter: TResampleFilter; AOpacity: byte);
+  AMatrix: TAffineMatrix; AFilter: TResampleFilter; AMode: TDrawMode; AOpacity: byte);
 begin
-  if Assigned(FHighlight) then FHighlight.DrawAffine(ADestination,AMatrix,AFilter,AOpacity);
+  if Assigned(FHighlight) then FHighlight.DrawAffine(ADestination,AMatrix,AFilter,AMode,AOpacity);
 end;
 
 procedure TSelectionHighlight.NotifyChange(const ARect: TRect);

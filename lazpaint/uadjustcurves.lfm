@@ -13,8 +13,9 @@ object FAdjustCurves: TFAdjustCurves
   OnDestroy = FormDestroy
   OnHide = FormHide
   OnKeyDown = FormKeyDown
+  OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.4.0.4'
+  LCLVersion = '1.8.2.0'
   object TabControl1: TTabControl
     Left = 0
     Height = 289
@@ -35,8 +36,8 @@ object FAdjustCurves: TFAdjustCurves
     TabOrder = 0
     object vsChart: TBGRAVirtualScreen
       Left = 2
-      Height = 239
-      Top = 48
+      Height = 230
+      Top = 57
       Width = 428
       OnRedraw = vsChartRedraw
       Align = alClient
@@ -51,7 +52,7 @@ object FAdjustCurves: TFAdjustCurves
     object Panel2: TPanel
       Left = 2
       Height = 25
-      Top = 23
+      Top = 32
       Width = 428
       Align = alTop
       ClientHeight = 25

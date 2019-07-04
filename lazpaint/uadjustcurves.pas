@@ -38,6 +38,7 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure FormHide(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
+    procedure FormShow(Sender: TObject);
     procedure TabControl1Change(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure ToolButton_PosterizeClick(Sender: TObject);
@@ -104,7 +105,7 @@ type
 
 implementation
 
-uses UResourceStrings, LCLType, UMac, Math, UScaleDPI, BGRAGradientScanner,
+uses UResourceStrings, LCLType, UMac, Math, LCScaleDPI, BGRAGradientScanner,
   UColorFilters;
 
 { TFAdjustCurves }
@@ -113,7 +114,7 @@ procedure TFAdjustCurves.FormCreate(Sender: TObject);
 var
   i: Integer;
 begin
-  ScaleDPI(Self, OriginalDPI);
+  ScaleControl(Self, OriginalDPI);
 
   CheckOKCancelBtns(Button_OK, Button_Cancel);
   FSelectedPoint:= -1;
@@ -290,6 +291,11 @@ begin
   begin
     TryRemovePoint;
   end;
+end;
+
+procedure TFAdjustCurves.FormShow(Sender: TObject);
+begin
+  vsChart.DiscardBitmap;
 end;
 
 procedure TFAdjustCurves.TabControl1Change(Sender: TObject);
@@ -812,7 +818,7 @@ var
 begin
   tempParameters := AParameters.Duplicate;
   try
-    FFilterConnector := TFilterConnector.Create(AInstance, tempParameters);
+    FFilterConnector := TFilterConnector.Create(AInstance, tempParameters, false);
     FFilterConnector.OnTryStopAction := @OnTryStopAction;
   except
     on ex: Exception do

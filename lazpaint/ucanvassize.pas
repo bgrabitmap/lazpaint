@@ -5,9 +5,9 @@ unit UCanvassize;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, Spin, BGRAVirtualScreen, LazPaintType, uscaledpi, uresourcestrings,
-  BGRABitmap, BGRALayers, uimage;
+  Classes, SysUtils, Types, FileUtil, LResources, Forms, Controls, Graphics,
+  Dialogs, StdCtrls, Spin, BGRAVirtualScreen, LazPaintType, LCScaleDPI,
+  uresourcestrings, BGRABitmap, BGRALayers, BGRALayerOriginal, uimage;
 
 type
   { TFCanvasSize }
@@ -48,20 +48,32 @@ type
 
 implementation
 
-uses ugraph, bgrabitmaptypes, umac;
+uses ugraph, bgrabitmaptypes, umac, BGRATransform;
 
 function ChangeLayeredImageCanvasSize(layeredBmp: TLazPaintImage; newWidth,
   newHeight: integer; anchor: string; background: TBGRAPixel;
   repeatImage: boolean; flipMode: boolean): TBGRALayeredBitmap;
 var i,idx: integer;
+  orig: TBGRALayerCustomOriginal;
+  newOrigin: TPoint;
+  newBmp: TBGRABitmap;
 begin
   result := TBGRALayeredBitmap.Create;
   for i := 0 to layeredbmp.NbLayers-1 do
   begin
-    idx := result.AddOwnedLayer(ChangeCanvasSize(layeredbmp.LayerBitmap[i],newwidth,newHeight,anchor,background,repeatImage,flipMode),
-      layeredBmp.BlendOperation[i],layeredbmp.LayerOpacity[i]);
+    newBmp := ChangeCanvasSize(layeredbmp.LayerBitmap[i],layeredbmp.LayerOffset[i],layeredBmp.Width,layeredBmp.Height, newwidth,newHeight,anchor,background,repeatImage,flipMode);
+    idx := result.AddOwnedLayer(newBmp,layeredBmp.BlendOperation[i],layeredbmp.LayerOpacity[i]);
     result.LayerName[idx] := layeredbmp.LayerName[i];
     result.LayerVisible[idx] := layeredbmp.LayerVisible[i];
+    if not repeatImage and layeredBmp.LayerOriginalDefined[i] and layeredBmp.LayerOriginalKnown[i] then
+    begin
+      orig := layeredBmp.LayerOriginal[i];
+      if result.IndexOfOriginal(orig)=-1 then result.AddOriginal(orig,false);
+      result.LayerOriginalGuid[idx] := orig.Guid;
+      newOrigin := ChangeCanvasSizeOrigin(layeredBmp.Width,layeredBmp.Height,newwidth,newHeight,anchor);
+      result.LayerOriginalMatrix[idx] := AffineMatrixTranslation(newOrigin.X,newOrigin.Y)*layeredBmp.LayerOriginalMatrix[i];
+      result.RenderLayerFromOriginal(idx);
+    end;
   end;
 end;
 
@@ -70,7 +82,7 @@ end;
 procedure TFCanvasSize.FormCreate(Sender: TObject);
 begin
   FIgnoreInput:= true;
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   SpinEdit_Width.MaxValue := MaxImageWidth;
   SpinEdit_Height.MaxValue := MaxImageHeight;
@@ -110,13 +122,15 @@ begin
     ModalResult := mrCancel else
     begin
 
-      canvasSizeResult.layeredBitmap := ChangeLayeredImageCanvasSize(LazPaintInstance.Image,tx,
-         ty,SelectedAnchor,BGRAPixelTransparent, repeatImage, CheckBox_FlipMode.Checked);
-      if LazPaintInstance.Image.SelectionReadonly <> nil then
-        canvasSizeResult.selection := ChangeCanvasSize(LazPaintInstance.Image.SelectionReadonly,tx,
-          ty,SelectedAnchor,BGRABlack, repeatImage, CheckBox_FlipMode.Checked);
+      canvasSizeResult.layeredBitmap := ChangeLayeredImageCanvasSize(LazPaintInstance.Image,
+         tx,ty,SelectedAnchor,BGRAPixelTransparent, repeatImage, CheckBox_FlipMode.Checked);
+      if LazPaintInstance.Image.SelectionMaskReadonly <> nil then
+        canvasSizeResult.selection := ChangeCanvasSize(LazPaintInstance.Image.SelectionMaskReadonly,
+          Point(0,0),LazPaintInstance.Image.Width,LazPaintInstance.Image.Height,
+          tx,ty,SelectedAnchor,BGRABlack, repeatImage, CheckBox_FlipMode.Checked);
       if LazPaintInstance.Image.SelectionLayerReadonly <> nil then
         canvasSizeResult.selectionLayer := ChangeCanvasSize(LazPaintInstance.Image.SelectionLayerReadonly,
+           Point(0,0),LazPaintInstance.Image.Width,LazPaintInstance.Image.Height,
            tx,ty,SelectedAnchor,BGRAPixelTransparent, repeatImage, CheckBox_FlipMode.Checked);
 
       ModalResult := mrOK;

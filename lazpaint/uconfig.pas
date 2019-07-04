@@ -5,7 +5,8 @@ unit UConfig;
 interface
 
 uses
-  Classes, SysUtils, IniFiles, BGRABitmapTypes, Graphics, LCLType, uscripting;
+  Classes, SysUtils, IniFiles, BGRABitmapTypes, Graphics, LCLType, uscripting,
+  Forms;
 
 type
   TLazPaintConfig = class;
@@ -41,6 +42,19 @@ type
     procedure AddRecentFile(filename: string);
     procedure AddRecentDirectory(dirname: string);
     procedure FinalizeRecentFiles;
+    function DefaultRememberStartupTargetDirectory: boolean;
+    procedure SetRememberStartupTargetDirectory(AValue: boolean);
+    function DefaultRememberStartupSourceDirectory: boolean;
+    procedure SetRememberStartupSourceDirectory(AValue: boolean);
+    function DefaultStartupSourceDirectory: string;
+    procedure SetStartupSourceDirectory(AValue: string);
+    function DefaultStartupTargetDirectory: string;
+    procedure SetStartupTargetDirectory(AValue: string);
+    function DefaultRememberSaveFormat: boolean;
+    procedure SetRememberSaveFormat(AValue: boolean);
+    function DefaultSaveExtensions: string;
+    procedure SetSaveExtensions(AValue: string);
+
     procedure SetBrushes(ABrushes: TStringList);
     function DefaultJpegQuality: integer;
     procedure SetDefaultJpegQuality(value: integer);
@@ -55,7 +69,7 @@ type
     procedure FinalizeColorizePresets;
 
     function DefaultLangage: string;
-    class function ClassGetDefaultLangage(AIni: TIniFile): string;
+    class function ClassGetDefaultLangage(AIni: TIniFile): string; static;
     procedure SetDefaultLangage(value: string);
 
     function GetLastUpdateCheck: TDateTime;
@@ -65,8 +79,8 @@ type
     procedure SetLatestVersion(value: string);
     procedure GetUpdatedLanguages(AList: TStringList);
     procedure SetUpdatedLanguages(AList: TStringList);
-    class procedure ClassGetUpdatedLanguages(AList: TStringList; AIni: TIniFile; AVersion: string);
-    class procedure ClassSetUpdatedLanguages(AList: TStringList; AIni: TIniFile; AVersion: string);
+    class procedure ClassGetUpdatedLanguages(AList: TStringList; AIni: TIniFile; AVersion: string); static;
+    class procedure ClassSetUpdatedLanguages(AList: TStringList; AIni: TIniFile; AVersion: string); static;
     procedure AddUpdatedLanguage(ALang: string);
 
     function Default3dObjectDirectory: string;
@@ -88,6 +102,15 @@ type
     procedure SetDefaultImageWidth(value: integer);
     procedure SetDefaultImageHeight(value: integer);
     procedure SetDefaultImageBackgroundColor(value: TBGRAPixel);
+
+    function DefaultIconImageWidth: integer;
+    function DefaultIconImageHeight: integer;
+    function DefaultIconImageBitDepth: integer;
+    function DefaultIconImageBackgroundColor: TBGRAPixel;
+    procedure SetDefaultIconImageWidth(value: integer);
+    procedure SetDefaultIconImageHeight(value: integer);
+    procedure SetDefaultIconImageBitDepth(value: integer);
+    procedure SetDefaultIconImageBackgroundColor(value: TBGRAPixel);
 
 
     //resample config
@@ -166,12 +189,14 @@ type
     procedure SetDefaultToolTolerance(value: integer);
     function DefaultToolTextOutline: boolean;
     procedure SetDefaultToolTextOutline(value: boolean);
+    function DefaultToolTextOutlineWidth: single;
+    procedure SetDefaultToolTextOutlineWidth(value: single);
     function DefaultToolTextShadow: boolean;
     procedure SetDefaultToolTextShadow(value: boolean);
     function DefaultToolTextFont: TFont;
     procedure SetDefaultToolTextFont(value: TFont);
-    function DefaultToolTextBlur: integer;
-    procedure SetDefaultToolTextBlur(value: integer);
+    function DefaultToolTextBlur: single;
+    procedure SetDefaultToolTextBlur(value: single);
     function DefaultToolTextShadowOffsetX: integer;
     procedure SetDefaultToolTextShadowOffsetX(value: integer);
     function DefaultToolTextShadowOffsetY: integer;
@@ -198,6 +223,11 @@ type
     procedure SetDefaultToolShapeBorderSize(value: integer);
     function DefaultToolShapeType: string;
     procedure SetDefaultToolShapeType(value: string);
+
+    function DefaultRetrieveSelectionAnswer: TModalResult;
+    procedure SetDefaultRetrieveSelectionAnswer(value: TModalResult);
+    function DefaultTransformSelectionAnswer: TModalResult;
+    procedure SetDefaultTransformSelectionAnswer(value: TModalResult);
 
     //radial blur config
     function DefaultBlurRadius: single;
@@ -280,7 +310,7 @@ var
 
 implementation
 
-uses forms, uparse, LCLProc, BGRAUTF8, LazFileUtils;
+uses uparse, LCLProc, BGRAUTF8, LazFileUtils, UFileSystem;
 
 const maxRecentFiles = 10;
       maxRecentDirectories = 10;
@@ -368,6 +398,46 @@ end;
 function TLazPaintConfig.DefaultImageBackgroundColor: TBGRAPixel;
 begin
   result := StrToBGRA(iniOptions.ReadString('General','DefaultImageBackColor','00000000'));
+end;
+
+function TLazPaintConfig.DefaultIconImageWidth: integer;
+begin
+  result := iniOptions.ReadInteger('General','DefaultIconImageWidth',128);
+end;
+
+function TLazPaintConfig.DefaultIconImageHeight: integer;
+begin
+  result := iniOptions.ReadInteger('General','DefaultIconImageHeight',128);
+end;
+
+function TLazPaintConfig.DefaultIconImageBitDepth: integer;
+begin
+  result := iniOptions.ReadInteger('General','DefaultIconImageBitDepth',32);
+end;
+
+procedure TLazPaintConfig.SetDefaultIconImageWidth(value: integer);
+begin
+  iniOptions.WriteInteger('General','DefaultIconImageWidth',value);
+end;
+
+procedure TLazPaintConfig.SetDefaultIconImageHeight(value: integer);
+begin
+  iniOptions.WriteInteger('General','DefaultIconImageHeight',value);
+end;
+
+procedure TLazPaintConfig.SetDefaultIconImageBitDepth(value: integer);
+begin
+  iniOptions.WriteInteger('General','DefaultIconImageBitDepth',value);
+end;
+
+procedure TLazPaintConfig.SetDefaultIconImageBackgroundColor(value: TBGRAPixel);
+begin
+  iniOptions.WriteString('General','DefaultIconImageBackColor',BGRAToStr(value));
+end;
+
+function TLazPaintConfig.DefaultIconImageBackgroundColor: TBGRAPixel;
+begin
+  result := StrToBGRA(iniOptions.ReadString('General','DefaultIconImageBackColor','00000000'));
 end;
 
 function TLazPaintConfig.DefaultResampleKeepAspectRatio: boolean;
@@ -711,6 +781,16 @@ begin
   iniOptions.WriteBool('Tool','TextOutline',value);
 end;
 
+function TLazPaintConfig.DefaultToolTextOutlineWidth: single;
+begin
+  result := iniOptions.ReadFloat('Tool','TextOutlineWidth',2);
+end;
+
+procedure TLazPaintConfig.SetDefaultToolTextOutlineWidth(value: single);
+begin
+  iniOptions.WriteFloat('Tool','TextOutlineWidth',value);
+end;
+
 function TLazPaintConfig.DefaultToolTextShadow: boolean;
 begin
   result := iniOptions.ReadBool('Tool','TextShadow',false);
@@ -749,14 +829,14 @@ begin
   iniOptions.WriteBool('Tool','TextFontUnderline',fsUnderline in tempFont.Style);
 end;
 
-function TLazPaintConfig.DefaultToolTextBlur: integer;
+function TLazPaintConfig.DefaultToolTextBlur: single;
 begin
-  result := iniOptions.ReadInteger('Tool','TextBlur',4);
+  result := iniOptions.ReadFloat('Tool','TextBlur',4);
 end;
 
-procedure TLazPaintConfig.SetDefaultToolTextBlur(value: integer);
+procedure TLazPaintConfig.SetDefaultToolTextBlur(value: single);
 begin
-  iniOptions.WriteInteger('Tool','TextBlur',value);
+  iniOptions.WriteFloat('Tool','TextBlur',value);
 end;
 
 function TLazPaintConfig.DefaultToolTextShadowOffsetX: integer;
@@ -880,6 +960,26 @@ end;
 procedure TLazPaintConfig.SetDefaultToolShapeType(value: string);
 begin
   iniOptions.WriteString('Filter','ShapeType',value);
+end;
+
+function TLazPaintConfig.DefaultRetrieveSelectionAnswer: TModalResult;
+begin
+  result := iniOptions.ReadInteger('Tool','RetrieveSelectionAnswer', 0);
+end;
+
+procedure TLazPaintConfig.SetDefaultRetrieveSelectionAnswer(value: TModalResult);
+begin
+  iniOptions.WriteInteger('Tool','RetrieveSelectionAnswer', value);
+end;
+
+function TLazPaintConfig.DefaultTransformSelectionAnswer: TModalResult;
+begin
+  result := iniOptions.ReadInteger('Tool','TransformSelectionAnswer', 0);
+end;
+
+procedure TLazPaintConfig.SetDefaultTransformSelectionAnswer(value: TModalResult);
+begin
+  iniOptions.WriteInteger('Tool','TransformSelectionAnswer', value);
 end;
 
 function TLazPaintConfig.DefaultBlurRadius: single;
@@ -1060,14 +1160,14 @@ begin
   for i := 0 to recentFiles.Count-1 do
     recentFiles[i] := iniOptions.ReadString('RecentFiles',recentFiles[i],'');
   for i := recentFiles.Count-1 downto 0 do
-    if not FileExistsUTF8(recentFiles[i]) then recentFiles.Delete(i);
+    if not FileManager.FileExists(recentFiles[i]) then recentFiles.Delete(i);
 
   recentDirs := TStringList.Create;
   iniOptions.ReadSection('RecentDirectories',recentDirs);
   for i := 0 to recentDirs.Count-1 do
     recentDirs[i] := iniOptions.ReadString('RecentDirectories',recentDirs[i],'');
   for i := recentDirs.Count-1 downto 0 do
-    if not DirectoryExistsUTF8(recentDirs[i]) then recentDirs.Delete(i);
+    if not FileManager.IsDirectory(recentDirs[i]) then recentDirs.Delete(i);
 end;
 
 procedure TLazPaintConfig.FinalizeRecentFiles;
@@ -1082,6 +1182,66 @@ begin
   for i := 0 to recentDirs.Count-1 do
     iniOptions.WriteString('RecentDirectories','Dir'+inttostr(I+1),recentDirs[i]);
   recentDirs.Free;
+end;
+
+function TLazPaintConfig.DefaultRememberStartupTargetDirectory: boolean;
+begin
+  result := iniOptions.ReadBool('Startup', 'RememberTargetDirectory', false);
+end;
+
+procedure TLazPaintConfig.SetRememberStartupTargetDirectory(AValue: boolean);
+begin
+  iniOptions.WriteBool('Startup', 'RememberTargetDirectory', AValue);
+end;
+
+function TLazPaintConfig.DefaultRememberStartupSourceDirectory: boolean;
+begin
+  result := iniOptions.ReadBool('Startup', 'RememberSourceDirectory', false);
+end;
+
+procedure TLazPaintConfig.SetRememberStartupSourceDirectory(AValue: boolean);
+begin
+  iniOptions.WriteBool('Startup', 'RememberSourceDirectory', AValue);
+end;
+
+function TLazPaintConfig.DefaultStartupSourceDirectory: string;
+begin
+  result := iniOptions.ReadString('Startup', 'SourceDirectory', '');
+end;
+
+procedure TLazPaintConfig.SetStartupSourceDirectory(AValue: string);
+begin
+  iniOptions.WriteString('Startup', 'SourceDirectory', AValue);
+end;
+
+function TLazPaintConfig.DefaultStartupTargetDirectory: string;
+begin
+  result := iniOptions.ReadString('Startup', 'TargetDirectory', '');
+end;
+
+procedure TLazPaintConfig.SetStartupTargetDirectory(AValue: string);
+begin
+  iniOptions.WriteString('Startup', 'TargetDirectory', AValue);
+end;
+
+function TLazPaintConfig.DefaultRememberSaveFormat: boolean;
+begin
+  result := iniOptions.ReadBool('Startup', 'RememberSaveFormat', false);
+end;
+
+procedure TLazPaintConfig.SetRememberSaveFormat(AValue: boolean);
+begin
+  iniOptions.WriteBool('Startup', 'RememberSaveFormat', AValue);
+end;
+
+function TLazPaintConfig.DefaultSaveExtensions: string;
+begin
+  result := iniOptions.ReadString('Startup', 'SaveExtensions', '');
+end;
+
+procedure TLazPaintConfig.SetSaveExtensions(AValue: string);
+begin
+  iniOptions.WriteString('Startup', 'SaveExtensions', AValue);
 end;
 
 procedure TLazPaintConfig.SetBrushes(ABrushes: TStringList);

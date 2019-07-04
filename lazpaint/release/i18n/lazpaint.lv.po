@@ -176,9 +176,15 @@ msgstr "Sapludunāšana veidi, kuri pieejami gandrīz visos attēlu redaktoros"
 msgid "Browse images"
 msgstr "Caurskatīt attēlus"
 
-#: tfbrowseimages.label_size.caption
-msgid "Size: "
-msgstr "Izmērs:"
+#: tfbrowseimages.label_status.caption
+#, fuzzy
+msgctxt "tfbrowseimages.label_status.caption"
+msgid "."
+msgstr "."
+
+#: tfbrowseimages.toolbutton_createfolderorcontainer.hint
+msgid "Create folder or container"
+msgstr ""
 
 #: tfbrowseimages.toolbutton_goup.hint
 msgid "Go one directory up"
@@ -730,6 +736,14 @@ msgstr "Pārbaudīt"
 msgid "Validate modifications"
 msgstr "Pārbaudīt izmaiņas"
 
+#: tfmain.filechooseentry.caption
+msgid "Choose entry..."
+msgstr ""
+
+#: tfmain.filechooseentry.hint
+msgid "Choose entry within file"
+msgstr ""
+
 #: tfmain.fileimport3d.caption
 msgid "Import 3D object..."
 msgstr "Ielasīt 3D veidojumu ..."
@@ -883,6 +897,7 @@ msgid "Median"
 msgstr "Izlīdzināt"
 
 #: tfmain.filternegative.caption
+msgctxt "tfmain.filternegative.caption"
 msgid "Negative"
 msgstr "Negatīvs"
 
@@ -928,6 +943,14 @@ msgstr "Olveida"
 msgid "Twirl..."
 msgstr "Savirpināt ..."
 
+#: tfmain.forgetdialoganswers.caption
+msgid "Forget dialog box answers"
+msgstr ""
+
+#: tfmain.forgetdialoganswers.hint
+msgid "Forget answers given to dialog boxes"
+msgstr ""
+
 #: tfmain.helpabout.caption
 msgid "About..."
 msgstr "Par ..."
@@ -970,6 +993,16 @@ msgctxt "tfmain.imagehorizontalflip.hint"
 msgid "Flip image horizontally"
 msgstr "Apmet attēlu caur sānu malu (spoguļattēls)"
 
+#: tfmain.imagelinearnegative.caption
+msgctxt "tfmain.imagelinearnegative.caption"
+msgid "Linear negative"
+msgstr "Tiešs negatīvs"
+
+#: tfmain.imagenegative.caption
+msgctxt "tfmain.imagenegative.caption"
+msgid "Negative"
+msgstr "Negatīvs"
+
 #: tfmain.imagerepeat.caption
 msgid "Repeat..."
 msgstr "Flīzēt ..."
@@ -993,6 +1026,10 @@ msgstr "Pagriezt pa 90°"
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
 msgstr "Palielināt attēlu trīskārtīgi"
+
+#: tfmain.imageswapredblue.caption
+msgid "Swap red and blue channels"
+msgstr ""
 
 #: tfmain.imageverticalflip.caption
 msgctxt "tfmain.imageverticalflip.caption"
@@ -1071,7 +1108,7 @@ msgid "auto"
 msgstr ""
 
 #: tfmain.itemquitseparator.caption
-msgctxt "TFMAIN.ITEMQUITSEPARATOR.CAPTION"
+msgctxt "tfmain.itemquitseparator.caption"
 msgid "-"
 msgstr "-"
 
@@ -1176,6 +1213,10 @@ msgstr "Platums"
 #: tfmain.label_phongborder.caption
 msgctxt "TFMAIN.LABEL_PHONGBORDER.CAPTION"
 msgid "Border"
+msgstr ""
+
+#: tfmain.label_ratio.caption
+msgid "Ratio"
 msgstr ""
 
 #: tfmain.label_shadowoffset.caption
@@ -1315,7 +1356,7 @@ msgid "Image"
 msgstr "Attēls"
 
 #: tfmain.menuitem1.caption
-msgctxt "TFMAIN.MENUITEM1.CAPTION"
+msgctxt "tfmain.menuitem1.caption"
 msgid "-"
 msgstr "-"
 
@@ -1540,6 +1581,15 @@ msgstr "Roka"
 #: tfmain.toolhand.hint
 msgid "Move and scroll picture"
 msgstr "Pārvieto attēlu pa skata lauku"
+
+#: tfmain.toolhotspot.caption
+msgctxt "tfmain.toolhotspot.caption"
+msgid "Hot spot"
+msgstr ""
+
+#: tfmain.toolhotspot.hint
+msgid "Choose hot spot of a cursor"
+msgstr ""
 
 #: tfmain.toollayermapping.hint
 msgctxt "TFMAIN.TOOLLAYERMAPPING.HINT"
@@ -2079,6 +2129,14 @@ msgctxt "TFNEWIMAGE.CAPTION"
 msgid "New image"
 msgstr "Jauns attēls"
 
+#: tfnewimage.combobox_bitdepth.text
+msgid "32"
+msgstr ""
+
+#: tfnewimage.label_bitdepth.caption
+msgid "Bit depth :"
+msgstr ""
+
 #: tfnewimage.label_height.caption
 msgctxt "TFNEWIMAGE.LABEL_HEIGHT.CAPTION"
 msgid "Height :"
@@ -2371,6 +2429,16 @@ msgstr "Pēc gaišuma"
 msgid "Levels :"
 msgstr "Līmeņi:"
 
+#: tfpreviewdialog.caption
+msgid "Preview"
+msgstr ""
+
+#: tfpreviewdialog.lstatus.caption
+#, fuzzy
+msgctxt "tfpreviewdialog.lstatus.caption"
+msgid "."
+msgstr "."
+
 #: tfprint.button_configureprinter.caption
 msgid "Configure..."
 msgstr "Iestatījumi ..."
@@ -2442,6 +2510,20 @@ msgstr "Augšā:"
 #: tfprint.label_width.caption
 msgid "Width:"
 msgstr "Platums"
+
+#: tfquestion.caption
+msgid "Question"
+msgstr ""
+
+#: tfquestion.checkbox_rememberchoice.caption
+msgid "Remember this choice"
+msgstr ""
+
+#: tfquestion.label_message.caption
+#, fuzzy
+msgctxt "tfquestion.label_message.caption"
+msgid "."
+msgstr "."
 
 #: tfradialblur.button_cancel.caption
 msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"
@@ -2578,6 +2660,10 @@ msgstr "256 krāsas"
 #: tfsaveoption.radiobutton_2colors.caption
 msgid "2 colors"
 msgstr "2 krāsas"
+
+#: tfsaveoption.radiobutton_32bitsperpixel.caption
+msgid "32 bits"
+msgstr ""
 
 #: tfsaveoption.radiobutton_miomap.caption
 msgid "MioMap"
@@ -2745,6 +2831,14 @@ msgctxt "uresourcestrings.rscolors"
 msgid "Colors"
 msgstr "Krāsas"
 
+#: uresourcestrings.rsconfirmdeletefromcontainer
+msgid "Are you sure you want to delete this file from the container?"
+msgstr ""
+
+#: uresourcestrings.rsconfirmdeletemultiplefromcontainer
+msgid "Are you sure you want to delete these %1 files from the container?"
+msgstr ""
+
 #: uresourcestrings.rsconfirmmovemultipletotrash
 msgid "Are you sure you want to move these %1 files to the trash?"
 msgstr "Vai tiešam gribi šos failus (%1) izmest papīrgrozā?"
@@ -2796,6 +2890,14 @@ msgctxt "uresourcestrings.rsdeletefile"
 msgid "Delete"
 msgstr "Dzēst"
 
+#: uresourcestrings.rsdeleteimageentry
+msgid "Delete selected image entry?"
+msgstr ""
+
+#: uresourcestrings.rsdirectorynotempty
+msgid "Directory is not empty"
+msgstr ""
+
 #: uresourcestrings.rsditherlayerusingpalette
 msgid "Dither layer using palette"
 msgstr "Tonēt izmantojot paletes krāsas"
@@ -2820,9 +2922,17 @@ msgstr "Slānis ir tukšs"
 msgid "Selection is empty"
 msgstr "Iezīmējums ir tukšs"
 
+#: uresourcestrings.rsenterfolderorcontainername
+msgid "Enter name for new folder or container (using RES or LRS extension):"
+msgstr ""
+
 #: uresourcestrings.rsenterlayername
 msgid "Enter layer name:"
 msgstr "Ieraksti slāna vārdu:"
+
+#: uresourcestrings.rsentries
+msgid "Entries"
+msgstr ""
 
 #: uresourcestrings.rserror
 msgid "Error"
@@ -2851,6 +2961,10 @@ msgstr "vajadzīgi N parametri: "
 #: uresourcestrings.rsfast
 msgid "Fast"
 msgstr "Ātri"
+
+#: uresourcestrings.rsfilecannotbeempty
+msgid "File cannot be empty"
+msgstr ""
 
 #: uresourcestrings.rsfiledate
 msgid "Date"
@@ -2896,9 +3010,17 @@ msgstr ""
 msgid "Folder"
 msgstr "Mape"
 
+#: uresourcestrings.rsfolderorcontaineralreadyexists
+msgid "Folder or container already exists."
+msgstr ""
+
 #: uresourcestrings.rsfollowingerrorsoccured
 msgid "Following errors occured:"
 msgstr "Kļūda:"
+
+#: uresourcestrings.rsframes
+msgid "Frames"
+msgstr ""
 
 #: uresourcestrings.rsfunctionnotdefined
 msgid "The function %1 is not defined."
@@ -2920,6 +3042,11 @@ msgstr "Turi [CTRL], lai pieliptu pikseļiem"
 msgid "Hold SHIFT to draw a square or a circle"
 msgstr "Turi [SHIFT} lai zīmētu kvadrātu vai apli"
 
+#: uresourcestrings.rshotspot
+msgctxt "uresourcestrings.rshotspot"
+msgid "Hot spot"
+msgstr ""
+
 #: uresourcestrings.rshue
 msgctxt "uresourcestrings.rshue"
 msgid "Hue"
@@ -2935,6 +3062,10 @@ msgctxt "uresourcestrings.rshuecw"
 msgid "Hue CW"
 msgstr ""
 
+#: uresourcestrings.rsiconimagealreadyexists
+msgid "There is already an image with this size and depth."
+msgstr ""
+
 #: uresourcestrings.rsiconorcursor
 msgid "Icon/cursor"
 msgstr ""
@@ -2942,6 +3073,11 @@ msgstr ""
 #: uresourcestrings.rsimagetoobig
 msgid "Image is too big"
 msgstr "Attēls ir par lielu"
+
+#: uresourcestrings.rsinfinity
+msgctxt "uresourcestrings.rsinfinity"
+msgid "Infinity"
+msgstr ""
 
 #: uresourcestrings.rsinformation
 msgid "Information"
@@ -2954,6 +3090,10 @@ msgstr "Spilgtums"
 
 #: uresourcestrings.rsinternalerror
 msgid "Internal error"
+msgstr ""
+
+#: uresourcestrings.rsinvalidname
+msgid "Invalid name"
 msgstr ""
 
 #: uresourcestrings.rsinvalidopacity
@@ -2991,6 +3131,12 @@ msgstr "Tīmeklī piejamā LazPaint versija ir"
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
 msgstr "Attēls ar slāņiem"
+
+#: uresourcestrings.rslayers
+#, fuzzy
+msgctxt "uresourcestrings.rslayers"
+msgid "Layers"
+msgstr "Slaņi"
 
 #: uresourcestrings.rslazpaint
 msgctxt "uresourcestrings.rslazpaint"
@@ -3033,6 +3179,10 @@ msgstr "Ielasa"
 #: uresourcestrings.rsloadpalette
 msgid "Load palette..."
 msgstr "Ielasīt paleti ..."
+
+#: uresourcestrings.rsloopcount
+msgid "Loop count"
+msgstr ""
 
 #: uresourcestrings.rsmakencolorspalettefrombitmap
 msgid "Make %1-colors palette from image"
@@ -3291,6 +3441,10 @@ msgstr "Palicis: %1"
 
 #: uresourcestrings.rstooloninvisiblelayer
 msgid "Tool cannot be used on an invisible layer"
+msgstr ""
+
+#: uresourcestrings.rstoomanylayers
+msgid "Too many layers"
 msgstr ""
 
 #: uresourcestrings.rstotalimages

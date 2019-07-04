@@ -152,7 +152,7 @@ function ShowObject3DDlg({%H-}Instance: TLazPaintCustomInstance; filenameUTF8: s
 
 implementation
 
-uses LazFileUtils, BGRAUTF8, ugraph, uscaledpi, umac, ULoadImage;
+uses LazFileUtils, ugraph, LCScaleDPI, umac, ULoadImage, UFileSystem;
 
 const PointLightDist = 80;
 
@@ -234,11 +234,10 @@ end;
 function TScene.FetchTextureAsBitmap(AName: string; ARelativePath: boolean): TBGRABitmap;
   function AddTexture(AFilename: string): TBGRABitmap;
   var bmp: TBGRABitmap;
-    dummy: string;
   begin
     bmp := nil;
     try
-      bmp := LoadFlatImageUTF8(AFilename,dummy,'');
+      bmp := LoadFlatImageUTF8(AFilename).bmp;
     except
       on ex:exception do ShowMessage(ex.Message);
     end;
@@ -256,9 +255,9 @@ begin
       result := FTextures[i].Texture;
       exit;
     end;
-  if ARelativePath and FileExistsUTF8(AppendPathDelim(TexturePath) + AName) then
+  if ARelativePath and FileManager.FileExists(AppendPathDelim(TexturePath) + AName) then
     result := AddTexture(AppendPathDelim(TexturePath) + AName)
-  else if not ARelativePath and FileExistsUTF8(AName) then
+  else if not ARelativePath and FileManager.FileExists(AName) then
     result := AddTexture(AName)
   else
     result := AddTexture('');
@@ -462,7 +461,7 @@ end;
 
 procedure TFObject3D.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   CheckOKCancelBtns(Button_OK,Button_Cancel);
   CheckSpinEdit(SpinEdit_ColorOpacity);
@@ -860,18 +859,29 @@ var
   r: single;
   matFile: string;
   i: integer;
+  s: TStream;
 begin
   scene.TexturePath := ExtractFilePath(filenameUTF8);
   result := false;
 
   matFile := ChangeFileExt(filenameUTF8,'.mtl');
-  if FileExistsUTF8(matFile) then
+  if FileManager.FileExists(matFile) then
   begin
-    scene.LoadMaterialsFromFileUTF8(matFile);
+    s := FileManager.CreateFileStream(matFile, fmOpenRead);
+    try
+      scene.LoadMaterialsFromStream(s);
+    finally
+      s.Free;
+    end;
     for i := 0 to scene.MaterialCount-1 do
       scene.QueryTextureReference(scene.Material[i].Texture);
   end;
-  obj := scene.LoadObjectFromFileUTF8(filenameUTF8);
+  s := FileManager.CreateFileStream(filenameUTF8, fmOpenRead);
+  try
+    obj := scene.LoadObjectFromStream(s);
+  finally
+    s.Free;
+  end;
   if obj <> nil then
   begin
     scene.DefaultLightingNormal := obj.LightingNormal;

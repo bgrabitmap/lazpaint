@@ -62,7 +62,7 @@ begin
     if not (InputFilename[1] in commandPrefix) then
     begin
       iStart := 1;
-      if not instance.TryOpenFileUTF8(ExpandFileNameUTF8(InputFilename)) then
+      if not instance.TryOpenFileUTF8(ExpandFileNameUTF8(InputFilename), true) then
       begin
         instance.ShowError(rsOpen, rsUnableToLoadFile+InputFilename);
         errorEncountered := true;
@@ -119,7 +119,7 @@ begin
           val(funcParams[10],o1.y,errPos);
           val(funcParams[11],o2.x,errPos);
           val(funcParams[12],o2.y,errPos);
-          layerAction := TLayerAction.Create(instance.Image);
+          layerAction := instance.Image.CreateAction(true);
           layerAction.DrawingLayer.GradientFill(0,0,
             instance.Image.Width,instance.Image.Height,
             c1,c2,gt,o1,o2,dmDrawWithTransparency,True,False);
@@ -142,7 +142,7 @@ begin
             errorEncountered := true;
             exit;
           end;
-          layerAction := TLayerAction.Create(instance.Image);
+          layerAction := instance.Image.CreateAction(true);
           layerAction.DrawingLayer.ApplyGlobalOpacity(opacity);
           layerAction.Validate;
           FreeAndNil(layerAction);

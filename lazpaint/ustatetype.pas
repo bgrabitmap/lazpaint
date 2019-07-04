@@ -5,7 +5,7 @@ unit UStateType;
 interface
 
 uses
-  Types, Classes, SysUtils, BGRABitmap, BGRABitmapTypes, BGRALayers;
+  Types, Classes, SysUtils, BGRABitmap, BGRABitmapTypes, BGRALayers, fgl;
 
 const MinSizeToCompress = 512; //set to 1 if you want always compression
 const MinSerializedSize = 16384;
@@ -20,6 +20,7 @@ type
     procedure ApplyTo(AState: TState); virtual; abstract;
     procedure UnapplyTo(AState: TState); virtual; abstract;
     function UsedMemory: int64; virtual;
+    function ToString: ansistring; override;
   end;
 
   TState = class
@@ -55,6 +56,32 @@ type
     property IsIdentity: boolean read GetIsIdentity;
   end;
 
+  TImageDifferenceList = specialize TFPGObjectList<TCustomImageDifference>;
+
+  { TComposedImageDifference }
+
+  TComposedImageDifference = class(TCustomImageDifference)
+  private
+    function GetCount: integer;
+  protected
+    FDiffs: TImageDifferenceList;
+    function GetIsIdentity: boolean; override;
+    function GetImageDifferenceKind: TImageDifferenceKind; override;
+    function GetChangingBounds: TRect; override;
+    function GetChangingBoundsDefined: boolean; override;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    function TryCompress: boolean; override;
+    function UsedMemory: int64; override;
+    procedure Add(ADiff: TCustomImageDifference);
+    procedure AddRange(AComposed: TComposedImageDifference);
+    procedure ApplyTo(AState: TState); override;
+    procedure UnapplyTo(AState: TState); override;
+    function ToString: ansistring; override;
+    property Count: integer read GetCount;
+  end;
+
 {*********** Layer info *************}
 
 type
@@ -64,82 +91,88 @@ type
     BlendOp: TBlendOperation;
     Name: string;
     Opactiy: byte;
+    Offset: TPoint;
   end;
 
 procedure ApplyLayerInfo(AInfo: TLayerInfo; ALayeredBitmap: TBGRALayeredBitmap; AIndex: integer);
-procedure ApplyLayerInfo(AInfo: TLayerInfo; ALayeredBitmap: TBGRALayeredBitmap);
 function GetLayerInfo(ALayeredBitmap: TBGRALayeredBitmap; AIndex: integer): TLayerInfo;
 
 {*********** Inversible **************}
 
 type
-  TInversibleAction = (iaHorizontalFlip, iaVerticalFlip, iaRotateCW, iaRotateCCW, iaRotate180, iaSwapRedBlue, iaLinearNegative);
+  TInversibleAction = (iaHorizontalFlip, iaHorizontalFlipLayer, iaVerticalFlip, iaVerticalFlipLayer, iaRotateCW, iaRotateCCW, iaRotate180, iaSwapRedBlue, iaLinearNegative);
+
+const
+  InversibleActionStr : array[TInversibleAction] of string =
+    ('HorizontalFlip', 'HorizontalFlipLayer', 'VerticalFlip', 'VerticalFlipLayer', 'RotateCW', 'RotateCCW', 'Rotate180', 'SwapRedBlue', 'LinearNegative');
 
 function GetInverseAction(AAction: TInversibleAction): TInversibleAction;
 function CanCombineInversibleAction(AAction1, AAction2: TInversibleAction; out
   ACombined: TInversibleAction): boolean;
 
 type
+  TCustomImageDiff = class
+  private
+    FSavedFilename: string;
+    FCompressedData: TMemoryStream;
+    procedure DiscardFile;
+    function GetIsIdentity: boolean; virtual;
+    procedure Init(Image1,Image2: TBGRABitmap; {%H-}AChangeRect: TRect); virtual;
+    function SerializeCompressedData: boolean;
+    procedure UnserializeCompressedData;
+  public
+    SizeBefore, SizeAfter: TSize;
+    constructor Create(Image1,Image2: TBGRABitmap; AChangeRect: TRect); overload;
+    constructor Create(Image1,Image2: TBGRABitmap); overload;
+    procedure ApplyInPlace(ADest: TBGRABitmap; {%H-}AReverse: boolean); virtual; abstract;
+    function ApplyInNew(ASource: TBGRABitmap; AReverse: boolean): TBGRABitmap;
+    function ApplyCanCreateNew(ASource: TBGRABitmap; AReverse: boolean): TBGRABitmap;
+    function Compress: boolean; virtual;
+    destructor Destroy; override;
+    function UsedMemory: int64;
+    property IsIdentity: boolean read GetIsIdentity;
+  end;
+
   { TImageDiff }
 
-  TImageDiff = class
+  TImageDiff = class(TCustomImageDiff)
   private
     FChangeRect: TRect;
     FUncompressedData: record
       data0,data1,data2,data3: PByte;
       dataLen: PtrUInt;
     end;
-    FSavedFilename: string;
-    FCompressedData: TMemoryStream;
-    procedure DiscardFile;
-    function GetIsIdentity: boolean;
+    function GetIsIdentity: boolean; override;
     procedure Decompress;
-    procedure Init(Image1,Image2: TBGRABitmap; AChangeRect: TRect);
+    procedure Init(Image1,Image2: TBGRABitmap; AChangeRect: TRect); override;
   public
-    SizeBefore, SizeAfter: TSize;
-    constructor Create(Image1,Image2: TBGRABitmap; AChangeRect: TRect); overload;
-    constructor Create(Image1,Image2: TBGRABitmap); overload;
-    procedure Apply(ADest: TBGRABitmap; {%H-}AReverse: boolean);
-    function Compress: boolean;
+    procedure ApplyInPlace(ADest: TBGRABitmap; {%H-}AReverse: boolean); override;
+    function Compress: boolean; override;
     destructor Destroy; override;
     function UsedMemory: int64;
-    property IsIdentity: boolean read GetIsIdentity;
     property ChangeRect: TRect read FChangeRect;
   end;
-
-function ComputeFromImageDiff(FromImage: TBGRABitmap; ADiff: TImageDiff; AReverse: boolean): TBGRABitmap;
-procedure ApplyImageDiffAndReplace(var AImage: TBGRABitmap; ADiff: TImageDiff; AReverse: boolean);
 
 type
   { TGrayscaleImageDiff }
 
-  TGrayscaleImageDiff = class
+  TGrayscaleImageDiff = class(TCustomImageDiff)
   private
     FChangeRect: TRect;
     FUncompressedData: record
       data0: PByte;
       dataLen: PtrUInt;
     end;
-    FSavedFilename: string;
-    FCompressedData: TMemoryStream;
-    procedure DiscardFile;
-    function GetIsIdentity: boolean;
+    function GetIsIdentity: boolean; override;
     procedure Decompress;
-    procedure Init(Image1,Image2: TBGRABitmap; AChangeRect: TRect);
+    procedure Init(Image1,Image2: TBGRABitmap; AChangeRect: TRect); override;
   public
-    SizeBefore, SizeAfter: TSize;
-    constructor Create(Image1,Image2: TBGRABitmap; AChangeRect: TRect); overload;
-    constructor Create(Image1,Image2: TBGRABitmap); overload;
-    procedure Apply(ADest: TBGRABitmap; {%H-}AReverse: boolean);
-    function Compress: boolean;
+    procedure ApplyInPlace(ADest: TBGRABitmap; {%H-}AReverse: boolean); override;
+    function Compress: boolean; override;
     destructor Destroy; override;
     function UsedMemory: int64;
-    property IsIdentity: boolean read GetIsIdentity;
     property ChangeRect: TRect read FChangeRect;
   end;
-
-function ComputeFromGrayscaleImageDiff(FromImage: TBGRABitmap; ADiff: TGrayscaleImageDiff; AReverse: boolean): TBGRABitmap;
-procedure ApplyGrayscaleImageDiffAndReplace(var AImage: TBGRABitmap; ADiff: TGrayscaleImageDiff; AReverse: boolean);
 
 type
   { TStoredImage }
@@ -150,44 +183,342 @@ type
     function GetBitmap: TBGRABitmap;
   end;
 
+  { TStoredLayer }
+
+  TStoredLayer = class(TStoredImage)
+  private
+    function GetId: integer;
+    function GetOffset: TPoint;
+  protected
+    FInfo: TLayerInfo;
+    FIndex: integer;
+    FOriginalData: TMemoryStream;
+    FOriginalKnown: boolean;
+    FOriginalRenderStatus: TOriginalRenderStatus;
+    FOriginalMatrix: TAffineMatrix;
+    FOriginalDraft: boolean;
+  public
+    constructor Create(ALayeredImage: TBGRALayeredBitmap; AIndex: integer);
+    procedure Restore(ALayeredImage: TBGRALayeredBitmap);
+    procedure Replace(ALayeredImage: TBGRALayeredBitmap);
+    property LayerIndex: integer read FIndex;
+    property LayerId: integer read GetId;
+    property Offset: TPoint read GetOffset;
+  end;
+
 implementation
 
-uses Math, BGRALzpCommon;
+uses Math, BGRALzpCommon, UFileSystem;
 
-{ TGrayscaleImageDiff }
+{ TCustomImageDiff }
 
-procedure TGrayscaleImageDiff.DiscardFile;
+procedure TCustomImageDiff.DiscardFile;
 begin
   if FSavedFilename <> '' then
   begin
     try
-      if FileExists(FSavedFilename) then
-        DeleteFile(FSavedFilename);
+      if FileManager.FileExists(FSavedFilename) then
+        FileManager.DeleteFile(FSavedFilename);
     except on ex:exception do begin end;
     end;
     FSavedFilename:= '';
   end;
 end;
 
-function TGrayscaleImageDiff.GetIsIdentity: boolean;
+function TCustomImageDiff.GetIsIdentity: boolean;
 begin
-  result := (SizeBefore.cx = SizeAfter.cx) and (SizeBefore.cy = SizeAfter.cy) and (FUncompressedData.dataLen=0);
+  result := (SizeBefore.cx = SizeAfter.cx) and (SizeBefore.cy = SizeAfter.cy);
 end;
 
-procedure TGrayscaleImageDiff.Decompress;
-var stream: TFileStream;
+procedure TCustomImageDiff.Init(Image1, Image2: TBGRABitmap; AChangeRect: TRect);
+begin
+  if Image1 = nil then
+  begin
+    SizeBefore.cx := 0;
+    SizeBefore.cy := 0;
+  end else
+  begin
+    SizeBefore.cx := Image1.Width;
+    SizeBefore.cy := Image1.Height;
+  end;
+  if Image2 = nil then
+  begin
+    SizeAfter.cx := 0;
+    SizeAfter.cy := 0;
+  end else
+  begin
+    SizeAfter.cx := Image2.Width;
+    SizeAfter.cy := Image2.Height;
+  end;
+end;
+
+function TCustomImageDiff.SerializeCompressedData: boolean;
+var
+  savedFile: TStream;
+begin
+  FSavedFilename := GetTempFileName;
+  try
+    savedFile := FileManager.CreateFileStream(FSavedFilename,fmCreate);
+    try
+      FCompressedData.Position := 0;
+      savedFile.CopyFrom(FCompressedData, FCompressedData.Size);
+      FreeAndNil(FCompressedData);
+      result := true;
+    finally
+      savedFile.Free;
+    end;
+  except
+    on ex: exception do
+    begin
+      if FileManager.FileExists(FSavedFilename) then FileManager.DeleteFile(FSavedFilename);
+      FSavedFilename := '';
+      result := false;
+    end;
+  end;
+end;
+
+procedure TCustomImageDiff.UnserializeCompressedData;
+var stream: TStream;
 begin
   if (FCompressedData = nil) and (FSavedFilename <> '') then
   begin
     FCompressedData := TMemoryStream.Create;
     stream := nil;
     try
-      stream := TFileStream.Create(FSavedFilename,fmOpenRead or fmShareDenyWrite);
+      stream := FileManager.CreateFileStream(FSavedFilename,fmOpenRead or fmShareDenyWrite);
       FCompressedData.CopyFrom(stream, stream.Size);
     except
     end;
     stream.free;
   end;
+end;
+
+constructor TCustomImageDiff.Create(Image1, Image2: TBGRABitmap;
+  AChangeRect: TRect);
+begin
+  Init(Image1,Image2,AChangeRect);
+end;
+
+constructor TCustomImageDiff.Create(Image1, Image2: TBGRABitmap);
+var
+  r: TRect;
+begin
+  r := rect(0,0,0,0);
+  if Image1 <> nil then
+  begin
+    if image1.Width > r.Right then r.Right:= Image1.Width;
+    if image1.Height > r.Bottom then r.Bottom:= Image1.Height;
+  end;
+  if Image2 <> nil then
+  begin
+    if image2.Width > r.Right then r.Right:= Image2.Width;
+    if image2.Height > r.Bottom then r.Bottom:= Image2.Height;
+  end;
+  Init(Image1,Image2,r);
+end;
+
+function TCustomImageDiff.ApplyInNew(ASource: TBGRABitmap; AReverse: boolean): TBGRABitmap;
+var
+  DestSize: TSize;
+begin
+  if (self = nil) or IsIdentity then
+    result := ASource.Duplicate as TBGRABitmap
+  else
+  begin
+    if AReverse then DestSize := SizeBefore else
+      DestSize := SizeAfter;
+
+    if (DestSize.cx = 0) or (DestSize.cy = 0) then
+      result := nil
+    else
+    begin
+      result := TBGRABitmap.Create(Destsize.cx,Destsize.cy);
+      if ASource <> nil then
+        result.PutImage(0,0,ASource,dmSet);
+      ApplyInPlace(result, AReverse);
+    end;
+  end;
+end;
+
+function TCustomImageDiff.ApplyCanCreateNew(ASource: TBGRABitmap;
+  AReverse: boolean): TBGRABitmap;
+begin
+  if (self = nil) or IsIdentity then exit(ASource); //keep
+
+  if (SizeAfter.cx <> SizeBefore.cx) or
+     (SizeAfter.cy <> SizeBefore.cy) then
+     exit(ApplyInNew(ASource, AReverse))
+  else
+  begin
+    ApplyInPlace(ASource, AReverse);
+    exit(ASource);
+  end;
+end;
+
+function TCustomImageDiff.Compress: boolean;
+begin
+  result := false;
+end;
+
+destructor TCustomImageDiff.Destroy;
+begin
+  FreeAndnil(FCompressedData);
+  DiscardFile;
+  inherited Destroy;
+end;
+
+function TCustomImageDiff.UsedMemory: int64;
+begin
+  if Assigned(FCompressedData) then
+    result := FCompressedData.Size
+  else
+    result := 0;
+end;
+
+{ TComposedImageDifference }
+
+function TComposedImageDifference.GetCount: integer;
+begin
+  result := FDiffs.Count;
+end;
+
+function TComposedImageDifference.GetIsIdentity: boolean;
+var
+  i: Integer;
+begin
+  for i := 0 to FDiffs.Count-1 do
+    if not FDiffs[i].GetIsIdentity then exit(false);
+  exit(true);
+end;
+
+function TComposedImageDifference.GetImageDifferenceKind: TImageDifferenceKind;
+var
+  i: Integer;
+begin
+  result := idkChangeStack;
+  for i := 0 to FDiffs.Count-1 do
+    case FDiffs[i].GetImageDifferenceKind of
+      idkChangeImageAndSelection: result := idkChangeImageAndSelection;
+      idkChangeSelection: if result in[idkChangeImage,idkChangeLayer,idkChangeImageAndSelection] then
+                            result := idkChangeImageAndSelection
+                          else result := idkChangeSelection;
+      idkChangeImage: if result in[idkChangeImageAndSelection,idkChangeSelection] then
+                            result := idkChangeImageAndSelection
+                          else result := idkChangeImage;
+      idkChangeLayer: if result in[idkChangeImageAndSelection,idkChangeSelection] then
+                            result := idkChangeImageAndSelection
+                      else if result = idkChangeStack then
+                        result := idkChangeLayer;
+    end;
+end;
+
+function TComposedImageDifference.GetChangingBounds: TRect;
+var
+  i: Integer;
+  r: TRect;
+begin
+  result:= EmptyRect;
+  for i := 0 to FDiffs.Count-1 do
+  begin
+    r := FDiffs[i].GetChangingBounds;
+    if not IsRectEmpty(r) then
+    begin
+      if IsRectEmpty(result) then result:= r
+      else UnionRect(result, result,r);
+    end;
+  end;
+end;
+
+function TComposedImageDifference.GetChangingBoundsDefined: boolean;
+var
+  i: Integer;
+begin
+  for i := 0 to FDiffs.Count-1 do
+    if not FDiffs[i].GetChangingBoundsDefined then exit(false);
+  exit(true);
+end;
+
+constructor TComposedImageDifference.Create;
+begin
+  FDiffs := TImageDifferenceList.Create;
+end;
+
+destructor TComposedImageDifference.Destroy;
+begin
+  FDiffs.Free;
+  inherited Destroy;
+end;
+
+function TComposedImageDifference.TryCompress: boolean;
+var
+  i: Integer;
+begin
+  for i := 0 to FDiffs.Count-1 do
+    if FDiffs[i].TryCompress then exit(true);
+  exit(false);
+end;
+
+function TComposedImageDifference.UsedMemory: int64;
+var
+  i: Integer;
+begin
+  result := 0;
+  for i := 0 to FDiffs.Count-1 do
+    inc(result, FDiffs[i].UsedMemory);
+end;
+
+procedure TComposedImageDifference.Add(ADiff: TCustomImageDifference);
+begin
+  FDiffs.Add(ADiff);
+end;
+
+procedure TComposedImageDifference.AddRange(AComposed: TComposedImageDifference);
+var
+  i: Integer;
+begin
+  for i:= 0 to AComposed.Count-1 do
+    Add(AComposed.FDiffs[i]);
+end;
+
+procedure TComposedImageDifference.ApplyTo(AState: TState);
+var
+  i: Integer;
+begin
+  for i := 0 to FDiffs.Count-1 do
+    FDiffs[i].ApplyTo(AState);
+end;
+
+procedure TComposedImageDifference.UnapplyTo(AState: TState);
+var
+  i: Integer;
+begin
+  for i := FDiffs.Count-1 downto 0 do
+    FDiffs[i].UnapplyTo(AState);
+end;
+
+function TComposedImageDifference.ToString: ansistring;
+var
+  i: Integer;
+begin
+  Result:= '[';
+  for i := 0 to Count-1 do
+  begin
+    if i <> 0 then result += ', ';
+    result += FDiffs[i].ToString;
+  end;
+  result += ']';
+end;
+
+{ TGrayscaleImageDiff }
+
+function TGrayscaleImageDiff.GetIsIdentity: boolean;
+begin
+  result := inherited GetIsIdentity and (FUncompressedData.dataLen=0);
+end;
+
+procedure TGrayscaleImageDiff.Decompress;
+begin
+  UnserializeCompressedData;
   if FCompressedData <> nil then
   begin
     FCompressedData.Position := 0;
@@ -207,28 +538,9 @@ var tx,ty: integer;
   p: PBGRAPixel;
   uncompressedChangeRect: TRect;
 begin
-  FUncompressedData.dataLen := 0;
+  inherited Init(Image1,Image2,AChangeRect);
   FChangeRect := EmptyRect;
-  if Image1 = nil then
-  begin
-    SizeBefore.cx := 0;
-    SizeBefore.cy := 0;
-  end else
-  begin
-    SizeBefore.cx := Image1.Width;
-    SizeBefore.cy := Image1.Height;
-  end;
-
-  if Image2 = nil then
-  begin
-    SizeAfter.cx := 0;
-    SizeAfter.cy := 0;
-  end else
-  begin
-    SizeAfter.cx := Image2.Width;
-    SizeAfter.cy := Image2.Height;
-  end;
-
+  FUncompressedData.dataLen := 0;
   tx := max(SizeBefore.cx,SizeAfter.cx);
   ty := max(SizeBefore.cy,SizeAfter.cy);
   if IntersectRect(AChangeRect, AChangeRect, rect(0,0,tx,ty)) then
@@ -269,31 +581,7 @@ begin
   end;
 end;
 
-constructor TGrayscaleImageDiff.Create(Image1, Image2: TBGRABitmap;
-  AChangeRect: TRect);
-begin
-  Init(Image1,Image2,AChangeRect);
-end;
-
-constructor TGrayscaleImageDiff.Create(Image1, Image2: TBGRABitmap);
-var
-  r: TRect;
-begin
-  r := rect(0,0,0,0);
-  if Image1 <> nil then
-  begin
-    if image1.Width > r.Right then r.Right:= Image1.Width;
-    if image1.Height > r.Bottom then r.Bottom:= Image1.Height;
-  end;
-  if Image2 <> nil then
-  begin
-    if image2.Width > r.Right then r.Right:= Image2.Width;
-    if image2.Height > r.Bottom then r.Bottom:= Image2.Height;
-  end;
-  Init(Image1,Image2,r);
-end;
-
-procedure TGrayscaleImageDiff.Apply(ADest: TBGRABitmap; AReverse: boolean);
+procedure TGrayscaleImageDiff.ApplyInPlace(ADest: TBGRABitmap; AReverse: boolean);
 var
   pdest: PBGRAPixel;
   data0: PByte;
@@ -325,8 +613,6 @@ begin
 end;
 
 function TGrayscaleImageDiff.Compress: boolean;
-var
-  FSavedFile: TFileStream;
 begin
   if (FUncompressedData.data0 <> nil) and
     ((FCompressedData <> nil) or (FSavedFilename <> '')) then
@@ -350,43 +636,19 @@ begin
     result := true;
 
     if FCompressedData.Size >= MinSerializedSize then
-    begin
-      FSavedFilename := GetTempFileName;
-      try
-        FSavedFile := TFileStream.Create(FSavedFilename,fmCreate);
-        try
-          FCompressedData.Position := 0;
-          FSavedFile.CopyFrom(FCompressedData, FCompressedData.Size);
-          FreeAndNil(FCompressedData);
-        finally
-          FSavedFile.Free;
-        end;
-      except
-        on ex: exception do
-        begin
-          if FileExists(FSavedFilename) then DeleteFile(FSavedFilename);
-          FSavedFilename := '';
-          result := false;
-        end;
-      end;
-    end;
+      SerializeCompressedData;
   end;
 end;
 
 destructor TGrayscaleImageDiff.Destroy;
 begin
-  FreeAndnil(FCompressedData);
   ReAllocMem(FUncompressedData.data0,0);
-  DiscardFile;
   inherited Destroy;
 end;
 
 function TGrayscaleImageDiff.UsedMemory: int64;
 begin
-  if Assigned(FCompressedData) then
-    result := FCompressedData.Size
-  else
-    result := 0;
+  result := inherited UsedMemory;
   if Assigned(FUncompressedData.data0) then inc(result,FUncompressedData.dataLen);
 end;
 
@@ -400,6 +662,11 @@ end;
 function TStateDifference.UsedMemory: int64;
 begin
   result := 0;
+end;
+
+function TStateDifference.ToString: ansistring;
+begin
+  Result:= ClassName;
 end;
 
 { TCustomImageDifference }
@@ -453,60 +720,6 @@ begin
   AState.saved:= FSavedBefore;
 end;
 
-{***********************************}
-
-procedure ApplyImageDiffAndReplace(var AImage: TBGRABitmap; ADiff: TImageDiff; AReverse: boolean);
-var tempBmp: TBGRABitmap;
-begin
-  if (ADiff = nil) or ADiff.IsIdentity then exit;
-  if (ADiff.SizeAfter.cx <> ADiff.SizeBefore.cx) or
-     (ADiff.SizeAfter.cy <> ADiff.SizeBefore.cy) then
-  begin
-    tempBmp := ComputeFromImageDiff(AImage, ADiff, AReverse);
-    FreeAndNil(AImage);
-    AImage := tempBmp;
-  end else
-    ADiff.Apply(AImage, AReverse);
-end;
-
-function ComputeFromGrayscaleImageDiff(FromImage: TBGRABitmap;
-  ADiff: TGrayscaleImageDiff; AReverse: boolean): TBGRABitmap;
-var
-  DestSize: TSize;
-begin
-  if (ADiff = nil) or ADiff.IsIdentity then
-  begin
-    result := FromImage.Duplicate as TBGRABitmap;
-    exit;
-  end;
-  if AReverse then DestSize := ADiff.SizeBefore else
-    DestSize := ADiff.SizeAfter;
-  if (DestSize.cx = 0) or (DestSize.cy = 0) then
-    result := nil
-  else
-  begin
-    result := TBGRABitmap.Create(Destsize.cx,Destsize.cy,BGRABlack);
-    if FromImage <> nil then
-      result.PutImage(0,0,FromImage,dmSet);
-    ADiff.Apply(result, AReverse);
-  end;
-end;
-
-procedure ApplyGrayscaleImageDiffAndReplace(var AImage: TBGRABitmap;
-  ADiff: TGrayscaleImageDiff; AReverse: boolean);
-var tempBmp: TBGRABitmap;
-begin
-  if (ADiff = nil) or ADiff.IsIdentity then exit;
-  if (ADiff.SizeAfter.cx <> ADiff.SizeBefore.cx) or
-     (ADiff.SizeAfter.cy <> ADiff.SizeBefore.cy) then
-  begin
-    tempBmp := ComputeFromGrayscaleImageDiff(AImage, ADiff, AReverse);
-    FreeAndNil(AImage);
-    AImage := tempBmp;
-  end else
-    ADiff.Apply(AImage, AReverse);
-end;
-
 {*********** Layer info *************}
 
 procedure ApplyLayerInfo(AInfo: TLayerInfo; ALayeredBitmap: TBGRALayeredBitmap; AIndex: integer);
@@ -518,15 +731,8 @@ begin
   ALayeredBitmap.BlendOperation[AIndex] := AInfo.BlendOp;
   ALayeredBitmap.LayerName[AIndex] := AInfo.Name;
   ALayeredBitmap.LayerOpacity[AIndex] := AInfo.Opactiy;
-end;
-
-procedure ApplyLayerInfo(AInfo: TLayerInfo; ALayeredBitmap: TBGRALayeredBitmap);
-var idx: integer;
-begin
-  idx := ALayeredBitmap.GetLayerIndexFromId(AInfo.Id);
-  if idx = -1 then
-    raise exception.Create('Layer not found');
-  ApplyLayerInfo(AInfo, ALayeredBitmap, idx);
+  if ALayeredBitmap.LayerOriginalGuid[AIndex] = GUID_NULL then
+    ALayeredBitmap.LayerOffset[AIndex] := AInfo.Offset;
 end;
 
 function GetLayerInfo(ALayeredBitmap: TBGRALayeredBitmap; AIndex: integer): TLayerInfo;
@@ -538,6 +744,7 @@ begin
   result.BlendOp := ALayeredBitmap.BlendOperation[AIndex];
   result.Name := ALayeredBitmap.LayerName[AIndex];
   result.Opactiy := ALayeredBitmap.LayerOpacity[AIndex];
+  result.Offset := ALayeredBitmap.LayerOffset[AIndex];
 end;
 
 {*********** Inversible **************}
@@ -589,64 +796,16 @@ begin
   end;
 end;
 
-{**************** Image diff ****************}
-
-function ComputeFromImageDiff(FromImage: TBGRABitmap; ADiff: TImageDiff; AReverse: boolean): TBGRABitmap;
-var
-  DestSize: TSize;
-begin
-  if (ADiff = nil) or ADiff.IsIdentity then
-  begin
-    result := FromImage.Duplicate as TBGRABitmap;
-    exit;
-  end;
-  if AReverse then DestSize := ADiff.SizeBefore else
-    DestSize := ADiff.SizeAfter;
-  if (DestSize.cx = 0) or (DestSize.cy = 0) then
-    result := nil
-  else
-  begin
-    result := TBGRABitmap.Create(Destsize.cx,Destsize.cy);
-    if FromImage <> nil then
-      result.PutImage(0,0,FromImage,dmSet);
-    ADiff.Apply(result, AReverse);
-  end;
-end;
-
 { TImageDiff }
-
-procedure TImageDiff.DiscardFile;
-begin
-  if FSavedFilename <> '' then
-  begin
-    try
-      if FileExists(FSavedFilename) then
-        DeleteFile(FSavedFilename);
-    except on ex:exception do begin end;
-    end;
-    FSavedFilename:= '';
-  end;
-end;
 
 function TImageDiff.GetIsIdentity: boolean;
 begin
-  result := (SizeBefore.cx = SizeAfter.cx) and (SizeBefore.cy = SizeAfter.cy) and (FUncompressedData.dataLen=0);
+  result := inherited GetIsIdentity and (FUncompressedData.dataLen=0);
 end;
 
 procedure TImageDiff.Decompress;
-var stream: TFileStream;
 begin
-  if (FCompressedData = nil) and (FSavedFilename <> '') then
-  begin
-    FCompressedData := TMemoryStream.Create;
-    stream := nil;
-    try
-      stream := TFileStream.Create(FSavedFilename,fmOpenRead or fmShareDenyWrite);
-      FCompressedData.CopyFrom(stream, stream.Size);
-    except
-    end;
-    stream.free;
-  end;
+  UnserializeCompressedData;
   if FCompressedData <> nil then
   begin
     FCompressedData.Position := 0;
@@ -672,28 +831,9 @@ var tx,ty: integer;
   v: DWord;
   uncompressedChangeRect: TRect;
 begin
-  FUncompressedData.dataLen := 0;
+  inherited Init(Image1, Image2, ChangeRect);
   FChangeRect := EmptyRect;
-  if Image1 = nil then
-  begin
-    SizeBefore.cx := 0;
-    SizeBefore.cy := 0;
-  end else
-  begin
-    SizeBefore.cx := Image1.Width;
-    SizeBefore.cy := Image1.Height;
-  end;
-
-  if Image2 = nil then
-  begin
-    SizeAfter.cx := 0;
-    SizeAfter.cy := 0;
-  end else
-  begin
-    SizeAfter.cx := Image2.Width;
-    SizeAfter.cy := Image2.Height;
-  end;
-
+  FUncompressedData.dataLen := 0;
   tx := max(SizeBefore.cx,SizeAfter.cx);
   ty := max(SizeBefore.cy,SizeAfter.cy);
   if IntersectRect(AChangeRect, AChangeRect, rect(0,0,tx,ty)) then
@@ -744,36 +884,14 @@ begin
   end;
 end;
 
-constructor TImageDiff.Create(Image1, Image2: TBGRABitmap; AChangeRect: TRect);
-begin
-  Init(Image1,Image2,AChangeRect);
-end;
-
-constructor TImageDiff.Create(Image1, Image2: TBGRABitmap);
-var
-  r: TRect;
-begin
-  r := rect(0,0,0,0);
-  if Image1 <> nil then
-  begin
-    if image1.Width > r.Right then r.Right:= Image1.Width;
-    if image1.Height > r.Bottom then r.Bottom:= Image1.Height;
-  end;
-  if Image2 <> nil then
-  begin
-    if image2.Width > r.Right then r.Right:= Image2.Width;
-    if image2.Height > r.Bottom then r.Bottom:= Image2.Height;
-  end;
-  Init(Image1,Image2,r);
-end;
-
-procedure TImageDiff.Apply(ADest: TBGRABitmap; AReverse: boolean);
+procedure TImageDiff.ApplyInPlace(ADest: TBGRABitmap; AReverse: boolean);
 var
   pdest: PDWord;
   data0,data1,data2,data3: PByte;
   r: TRect;
   xb,yb,w,offset: PtrUInt;
 begin
+  if ADest = nil then raise exception.Create('Unexpected nil reference');
   r := FChangeRect;
   w := FChangeRect.Right-FChangeRect.Left;
   if not IntersectRect(r, r,rect(0,0,ADest.Width,ADest.Height)) then exit;
@@ -798,8 +916,6 @@ begin
 end;
 
 function TImageDiff.Compress: boolean;
-var
-  FSavedFile: TFileStream;
 begin
   if ((FUncompressedData.data0 <> nil) or (FUncompressedData.data1 <> nil) or
     (FUncompressedData.data2 <> nil) or (FUncompressedData.data3 <> nil)) and
@@ -833,46 +949,22 @@ begin
     result := true;
 
     if FCompressedData.Size >= MinSerializedSize then
-    begin
-      FSavedFilename := GetTempFileName;
-      try
-        FSavedFile := TFileStream.Create(FSavedFilename,fmCreate);
-        try
-          FCompressedData.Position := 0;
-          FSavedFile.CopyFrom(FCompressedData, FCompressedData.Size);
-          FreeAndNil(FCompressedData);
-        finally
-          FSavedFile.Free;
-        end;
-      except
-        on ex: exception do
-        begin
-          if FileExists(FSavedFilename) then DeleteFile(FSavedFilename);
-          FSavedFilename := '';
-          result := false;
-        end;
-      end;
-    end;
+      SerializeCompressedData;
   end;
 end;
 
 destructor TImageDiff.Destroy;
 begin
-  FreeAndnil(FCompressedData);
   ReAllocMem(FUncompressedData.data0,0);
   ReAllocMem(FUncompressedData.data1,0);
   ReAllocMem(FUncompressedData.data2,0);
   ReAllocMem(FUncompressedData.data3,0);
-  DiscardFile;
   inherited Destroy;
 end;
 
 function TImageDiff.UsedMemory: int64;
 begin
-  if Assigned(FCompressedData) then
-    result := FCompressedData.Size
-  else
-    result := 0;
+  result := inherited UsedMemory;
   if Assigned(FUncompressedData.data0) then inc(result,FUncompressedData.dataLen);
   if Assigned(FUncompressedData.data1) then inc(result,FUncompressedData.dataLen);
   if Assigned(FUncompressedData.data2) then inc(result,FUncompressedData.dataLen);
@@ -883,13 +975,109 @@ end;
 
 constructor TStoredImage.Create(ABitmap: TBGRABitmap);
 begin
-  inherited Create(nil,ABitmap,rect(0,0,ABitmap.Width,ABitmap.Height));
+  if Assigned(ABitmap) then
+    inherited Create(nil,ABitmap,rect(0,0,ABitmap.Width,ABitmap.Height))
+  else
+    inherited Create(nil,ABitmap,EmptyRect)
 end;
 
 function TStoredImage.GetBitmap: TBGRABitmap;
 begin
   result := TBGRABitmap.Create(SizeAfter.cx, SizeAfter.cy);
-  Apply(result,false);
+  ApplyInPlace(result,false);
+end;
+
+{ TStoredLayer }
+
+function TStoredLayer.GetId: integer;
+begin
+  result := FInfo.Id;
+end;
+
+function TStoredLayer.GetOffset: TPoint;
+begin
+  result := FInfo.Offset;
+end;
+
+constructor TStoredLayer.Create(ALayeredImage: TBGRALayeredBitmap;
+  AIndex: integer);
+begin
+  FIndex := AIndex;
+  FInfo := GetLayerInfo(ALayeredImage, AIndex);
+  if ALayeredImage.LayerOriginalGuid[AIndex]<>GUID_NULL then
+  begin
+    FOriginalKnown := ALayeredImage.LayerOriginalKnown[AIndex];
+    FOriginalRenderStatus:= ALayeredImage.LayerOriginalRenderStatus[AIndex];
+
+    if FOriginalKnown then
+      inherited Create(nil)
+    else
+      inherited Create(ALayeredImage.LayerBitmap[AIndex]);
+
+    FOriginalData := TMemoryStream.Create;
+    ALayeredImage.SaveOriginalToStream(ALayeredImage.LayerOriginalGuid[AIndex], FOriginalData);
+    FOriginalMatrix := ALayeredImage.LayerOriginalMatrix[AIndex];
+    FOriginalDraft := ALayeredImage.LayerOriginalRenderStatus[AIndex] in[orsDraft,orsPartialDraft];
+  end else
+  begin
+    inherited Create(ALayeredImage.LayerBitmap[AIndex]);
+    FOriginalData := nil;
+  end;
+end;
+
+procedure TStoredLayer.Restore(ALayeredImage: TBGRALayeredBitmap);
+var
+  tempIdx, idxOrig: Integer;
+begin
+  if Assigned(FOriginalData) then
+  begin
+    FOriginalData.Position:= 0;
+    idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData, true);
+
+    if FOriginalKnown then
+    begin
+      tempIdx := ALayeredImage.AddLayerFromOriginal(ALayeredImage.Original[idxOrig].Guid, FOriginalMatrix);
+      ALayeredImage.RenderLayerFromOriginal(tempIdx, FOriginalDraft);
+    end else
+    begin
+      tempIdx := ALayeredImage.AddOwnedLayer(GetBitmap);
+      ALayeredImage.LayerOriginalGuid[tempIdx] := ALayeredImage.OriginalGuid[idxOrig];
+      ALayeredImage.LayerOriginalMatrix[tempIdx] := FOriginalMatrix;
+      ALayeredImage.LayerOriginalRenderStatus[tempIdx] := FOriginalRenderStatus;
+    end;
+  end else
+    tempIdx := ALayeredImage.AddOwnedLayer(GetBitmap);
+
+  ApplyLayerInfo(FInfo,ALayeredImage,tempIdx);
+  ALayeredImage.InsertLayer(FIndex,tempIdx);
+end;
+
+procedure TStoredLayer.Replace(ALayeredImage: TBGRALayeredBitmap);
+var
+  idxOrig: Integer;
+begin
+  if Assigned(FOriginalData) then
+  begin
+    FOriginalData.Position:= 0;
+    idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData, true);
+    if FOriginalKnown then
+    begin
+      ALayeredImage.LayerOriginalGuid[FIndex] := ALayeredImage.OriginalGuid[idxOrig];
+      ALayeredImage.LayerOriginalMatrix[FIndex] := FOriginalMatrix;
+      ALayeredImage.RenderLayerFromOriginal(FIndex, FOriginalDraft);
+    end else
+    begin
+      ALayeredImage.SetLayerBitmap(FIndex,GetBitmap,True);
+      ALayeredImage.LayerOffset[FIndex] := FInfo.Offset;
+      ALayeredImage.LayerOriginalGuid[FIndex] := ALayeredImage.OriginalGuid[idxOrig];
+      ALayeredImage.LayerOriginalMatrix[FIndex] := FOriginalMatrix;
+      ALayeredImage.LayerOriginalRenderStatus[FIndex] := FOriginalRenderStatus;
+    end;
+  end else
+    ALayeredImage.SetLayerBitmap(FIndex,GetBitmap,True);
+  ALayeredImage.RemoveUnusedOriginals;
+
+  ApplyLayerInfo(FInfo,ALayeredImage,FIndex);
 end;
 
 end.

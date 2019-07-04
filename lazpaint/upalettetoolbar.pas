@@ -94,9 +94,9 @@ type
 
 implementation
 
-uses UScaleDPI, Graphics, Forms, UGraph,
+uses LCScaleDPI, Graphics, Forms, UGraph,
   UResourceStrings, BGRAColorQuantization,
-  ULayerAction, UCursors;
+  ULayerAction, UCursors, UFileSystem;
 
 { TPaletteToolbar }
 
@@ -448,8 +448,6 @@ begin
 
     FMenuButton := TBCButton.Create(FPanelPalette);
     FMenuButton.Cursor := crArrow;
-    FMenuButton.Rounding.RoundX := 6;
-    FMenuButton.Rounding.RoundY := 6;
     BCAssignSystemStyle(FMenuButton);
     FMenuButton.DropDownArrow := true;
     FMenuButton.DropDownArrowSize := DoScaleY(FPaletteItemHeight div 2, OriginalDPI);
@@ -493,8 +491,8 @@ begin
   quant := TBGRAColorQuantizer.Create(FColors, not FTransparentPalette);
   LayerAction := nil;
   try
-    LayerAction := TLayerAction.Create(LazPaintInstance.Image);
-    LayerAction.ReplaceSelectedLayer(quant.GetDitheredBitmap(ADither,LayerAction.SelectedImageLayer) as TBGRABitmap, True);
+    LayerAction := LazPaintInstance.Image.CreateAction;
+    quant.ApplyDitheringInplace(ADither,LayerAction.SelectedImageLayer);
     LazPaintInstance.image.LayerMayChangeCompletely(LayerAction.SelectedImageLayer);
     LayerAction.Validate;
   except
@@ -544,13 +542,23 @@ end;
 procedure TPaletteToolbar.TryLoadPaletteFrom(AFilename: string);
 var tempPal: TBGRAPalette;
   i: Integer;
+  source: TStream;
+  palFormat: TBGRAPaletteFormat;
 begin
   if not FMergePalette then FColors.Clear;
   tempPal:= TBGRAPalette.Create;
   try
-    tempPal.LoadFromFile(AFilename);
-    for i := 0 to tempPal.Count-1 do
-      AddColor(tempPal.Color[i]);
+    source := FileManager.CreateFileStream(AFilename, fmOpenRead or fmShareDenyWrite);
+    try
+      palFormat := tempPal.DetectPaletteFormat(source);
+      if palFormat = palUnknown then
+        palFormat := tempPal.SuggestPaletteFormat(AFilename);
+      tempPal.LoadFromStream(source, palFormat);
+      for i := 0 to tempPal.Count-1 do
+        AddColor(tempPal.Color[i]);
+    finally
+      source.Free;
+    end;
   except
     on ex:Exception do
       ShowMessage(ex.Message);
@@ -560,9 +568,16 @@ begin
 end;
 
 procedure TPaletteToolbar.TrySavePaletteTo(AFilename: string);
+var
+  s: TStream;
 begin
   try
-    FColors.SaveToFile(AFilename);
+    s := FileManager.CreateFileStream(AFilename, fmCreate);
+    try
+      FColors.SaveToStream(s, FColors.SuggestPaletteFormat(AFilename));
+    finally
+      s.Free;
+    end;
   except
     on ex:Exception do
       ShowMessage(ex.Message);

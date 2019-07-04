@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, ComCtrls, Spin, ExtCtrls, BGRABitmap, LazPaintType, uscaledpi,
+  StdCtrls, ComCtrls, Spin, ExtCtrls, BGRABitmap, LazPaintType, LCScaleDPI,
   ufilterconnector, uscripting;
 
 type
@@ -68,7 +68,7 @@ uses umac, BGRABitmapTypes, uresourcestrings, UColorFilters;
 
 procedure TFShiftColors.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   CheckFloatSpinEdit(FloatSpinEdit_Saturation);
   CheckFloatSpinEdit(FloatSpinEdit_Hue);
@@ -196,7 +196,7 @@ var gsbaOptionFromConfig: boolean;
     topmostInfo: TTopMostInfo;
 begin
   try
-    FFilterConnector := TFilterConnector.Create(AInstance,AParameters);
+    FFilterConnector := TFilterConnector.Create(AInstance,AParameters,false);
     FFilterConnector.OnTryStopAction := @OnTryStopAction;
   except
     on ex: exception do

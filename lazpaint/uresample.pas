@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, Spin, ComCtrls, BGRAVirtualScreen, LazPaintType, uscaledpi,
+  StdCtrls, Spin, ComCtrls, BGRAVirtualScreen, LazPaintType, LCScaleDPI,
   uresourcestrings, BGRABitmap, uscripting;
 
 type
@@ -81,7 +81,7 @@ end;
 procedure TFResample.FormCreate(Sender: TObject);
 begin
   FIgnoreInput := true;
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   SpinEdit_Width.MaxValue := MaxImageWidth;
   SpinEdit_Height.MaxValue := MaxImageHeight;

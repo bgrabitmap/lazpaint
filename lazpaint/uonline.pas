@@ -55,7 +55,7 @@ type
 implementation
 
 uses LazFileUtils, Dialogs,
-    UTranslation, lazutf8classes;
+    UTranslation, UFileSystem;
 
 const OnlineResourcesURL = 'http://lazpaint.sourceforge.net/';
 
@@ -124,7 +124,7 @@ end;
 
 procedure TLazPaintOnlineUpdater.SaveLanguageFile;
 var
-  stream: TFileStreamUTF8;
+  stream: TStream;
 begin
   if (FUpdaterState = usDownloadingLanguage) then
   begin
@@ -132,9 +132,9 @@ begin
      (copy(FHTTPBuffer,1,8)='msgid ""') then
     begin
       try
-        if FileExistsUTF8(ActualConfigDirUTF8+FDownloadedLanguageFile) then
-          DeleteFileUTF8(ActualConfigDirUTF8+FDownloadedLanguageFile);
-        stream := TFileStreamUTF8.Create(ActualConfigDirUTF8+FDownloadedLanguageFile,fmOpenWrite or fmCreate);
+        if FileManager.FileExists(ActualConfigDirUTF8+FDownloadedLanguageFile) then
+          FileManager.DeleteFile(ActualConfigDirUTF8+FDownloadedLanguageFile);
+        stream := FileManager.CreateFileStream(ActualConfigDirUTF8+FDownloadedLanguageFile,fmCreate);
         try
           stream.Write(FHTTPBuffer[1],length(FHTTPBuffer));
         finally
@@ -165,7 +165,7 @@ begin
     If Assigned(OnLatestVersionUpdate) then
        OnLatestVersionUpdate(latestVersion);
   end;
-  if latestVersion = LazPaintCurrentVersionOnly then
+  if latestVersion = LazPaintVersionStr then
   begin
     onlineInfo := TStringList.Create;
     onlineInfo.SetText(@FHTTPBuffer[1]);

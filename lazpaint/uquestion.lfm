@@ -1,0 +1,33 @@
+object FQuestion: TFQuestion
+  Left = 368
+  Height = 109
+  Top = 185
+  Width = 490
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
+  Caption = 'Question'
+  ClientHeight = 109
+  ClientWidth = 490
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  Position = poMainFormCenter
+  LCLVersion = '1.8.2.0'
+  object Label_Message: TLabel
+    Left = 8
+    Height = 17
+    Top = 8
+    Width = 474
+    Align = alTop
+    BorderSpacing.Around = 8
+    Caption = '.'
+    ParentColor = False
+  end
+  object CheckBox_RememberChoice: TCheckBox
+    Left = 4
+    Height = 22
+    Top = 24
+    Width = 148
+    Caption = 'Remember this choice'
+    TabOrder = 0
+  end
+end

@@ -184,9 +184,14 @@ msgstr "Operações de mesclagem básicas que estão disponíveis em praticament
 msgid "Browse images"
 msgstr "Navegue nas imagens"
 
-#: tfbrowseimages.label_size.caption
-msgid "Size: "
-msgstr "Tamanho: "
+#: tfbrowseimages.label_status.caption
+msgctxt "tfbrowseimages.label_status.caption"
+msgid "."
+msgstr ""
+
+#: tfbrowseimages.toolbutton_createfolderorcontainer.hint
+msgid "Create folder or container"
+msgstr ""
 
 #: tfbrowseimages.toolbutton_goup.hint
 msgid "Go one directory up"
@@ -738,6 +743,14 @@ msgstr "Validar"
 msgid "Validate modifications"
 msgstr "Validar modificações"
 
+#: tfmain.filechooseentry.caption
+msgid "Choose entry..."
+msgstr ""
+
+#: tfmain.filechooseentry.hint
+msgid "Choose entry within file"
+msgstr ""
+
 #: tfmain.fileimport3d.caption
 msgid "Import 3D object..."
 msgstr "Importar objeto 3D..."
@@ -891,6 +904,7 @@ msgid "Median"
 msgstr "Mediano"
 
 #: tfmain.filternegative.caption
+msgctxt "tfmain.filternegative.caption"
 msgid "Negative"
 msgstr "Negativo"
 
@@ -936,6 +950,14 @@ msgstr "Esfera"
 msgid "Twirl..."
 msgstr "Rodopio..."
 
+#: tfmain.forgetdialoganswers.caption
+msgid "Forget dialog box answers"
+msgstr ""
+
+#: tfmain.forgetdialoganswers.hint
+msgid "Forget answers given to dialog boxes"
+msgstr ""
+
 #: tfmain.helpabout.caption
 msgid "About..."
 msgstr "Sobre..."
@@ -978,6 +1000,16 @@ msgctxt "tfmain.imagehorizontalflip.hint"
 msgid "Flip image horizontally"
 msgstr "Inverter imagem horizontalmente"
 
+#: tfmain.imagelinearnegative.caption
+msgctxt "tfmain.imagelinearnegative.caption"
+msgid "Linear negative"
+msgstr "Negativo linear"
+
+#: tfmain.imagenegative.caption
+msgctxt "tfmain.imagenegative.caption"
+msgid "Negative"
+msgstr "Negativo"
+
 #: tfmain.imagerepeat.caption
 msgid "Repeat..."
 msgstr "Repetir..."
@@ -1001,6 +1033,10 @@ msgstr "Girar 90° CW"
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
 msgstr "Zoom inteligente x3"
+
+#: tfmain.imageswapredblue.caption
+msgid "Swap red and blue channels"
+msgstr ""
 
 #: tfmain.imageverticalflip.caption
 msgctxt "tfmain.imageverticalflip.caption"
@@ -1079,7 +1115,7 @@ msgid "auto"
 msgstr ""
 
 #: tfmain.itemquitseparator.caption
-msgctxt "TFMAIN.ITEMQUITSEPARATOR.CAPTION"
+msgctxt "tfmain.itemquitseparator.caption"
 msgid "-"
 msgstr ""
 
@@ -1185,6 +1221,10 @@ msgstr "Largura"
 msgctxt "TFMAIN.LABEL_PHONGBORDER.CAPTION"
 msgid "Border"
 msgstr "Borda"
+
+#: tfmain.label_ratio.caption
+msgid "Ratio"
+msgstr ""
 
 #: tfmain.label_shadowoffset.caption
 msgctxt "TFMAIN.LABEL_SHADOWOFFSET.CAPTION"
@@ -1551,6 +1591,15 @@ msgstr "Mão"
 #: tfmain.toolhand.hint
 msgid "Move and scroll picture"
 msgstr "Mover e rolar imagem"
+
+#: tfmain.toolhotspot.caption
+msgctxt "tfmain.toolhotspot.caption"
+msgid "Hot spot"
+msgstr ""
+
+#: tfmain.toolhotspot.hint
+msgid "Choose hot spot of a cursor"
+msgstr ""
 
 #: tfmain.toollayermapping.hint
 msgctxt "TFMAIN.TOOLLAYERMAPPING.HINT"
@@ -2090,6 +2139,14 @@ msgctxt "TFNEWIMAGE.CAPTION"
 msgid "New image"
 msgstr "Nova imagem"
 
+#: tfnewimage.combobox_bitdepth.text
+msgid "32"
+msgstr ""
+
+#: tfnewimage.label_bitdepth.caption
+msgid "Bit depth :"
+msgstr ""
+
 #: tfnewimage.label_height.caption
 msgctxt "TFNEWIMAGE.LABEL_HEIGHT.CAPTION"
 msgid "Height :"
@@ -2382,6 +2439,15 @@ msgstr "Por luminosidade"
 msgid "Levels :"
 msgstr "Níveis :"
 
+#: tfpreviewdialog.caption
+msgid "Preview"
+msgstr ""
+
+#: tfpreviewdialog.lstatus.caption
+msgctxt "tfpreviewdialog.lstatus.caption"
+msgid "."
+msgstr ""
+
 #: tfprint.button_configureprinter.caption
 msgid "Configure..."
 msgstr "Configurar..."
@@ -2453,6 +2519,19 @@ msgstr "Acima:"
 #: tfprint.label_width.caption
 msgid "Width:"
 msgstr "Largura:"
+
+#: tfquestion.caption
+msgid "Question"
+msgstr ""
+
+#: tfquestion.checkbox_rememberchoice.caption
+msgid "Remember this choice"
+msgstr ""
+
+#: tfquestion.label_message.caption
+msgctxt "tfquestion.label_message.caption"
+msgid "."
+msgstr ""
 
 #: tfradialblur.button_cancel.caption
 msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"
@@ -2588,6 +2667,10 @@ msgstr ""
 
 #: tfsaveoption.radiobutton_2colors.caption
 msgid "2 colors"
+msgstr ""
+
+#: tfsaveoption.radiobutton_32bitsperpixel.caption
+msgid "32 bits"
 msgstr ""
 
 #: tfsaveoption.radiobutton_miomap.caption
@@ -2756,6 +2839,14 @@ msgctxt "uresourcestrings.rscolors"
 msgid "Colors"
 msgstr "Cores"
 
+#: uresourcestrings.rsconfirmdeletefromcontainer
+msgid "Are you sure you want to delete this file from the container?"
+msgstr ""
+
+#: uresourcestrings.rsconfirmdeletemultiplefromcontainer
+msgid "Are you sure you want to delete these %1 files from the container?"
+msgstr ""
+
 #: uresourcestrings.rsconfirmmovemultipletotrash
 msgid "Are you sure you want to move these %1 files to the trash?"
 msgstr ""
@@ -2807,6 +2898,14 @@ msgctxt "uresourcestrings.rsdeletefile"
 msgid "Delete"
 msgstr "Excluir"
 
+#: uresourcestrings.rsdeleteimageentry
+msgid "Delete selected image entry?"
+msgstr ""
+
+#: uresourcestrings.rsdirectorynotempty
+msgid "Directory is not empty"
+msgstr ""
+
 #: uresourcestrings.rsditherlayerusingpalette
 msgid "Dither layer using palette"
 msgstr ""
@@ -2831,9 +2930,17 @@ msgstr "Camada está vazia"
 msgid "Selection is empty"
 msgstr "Seleção está vazia"
 
+#: uresourcestrings.rsenterfolderorcontainername
+msgid "Enter name for new folder or container (using RES or LRS extension):"
+msgstr ""
+
 #: uresourcestrings.rsenterlayername
 msgid "Enter layer name:"
 msgstr "Digite o nome da camada:"
+
+#: uresourcestrings.rsentries
+msgid "Entries"
+msgstr ""
 
 #: uresourcestrings.rserror
 msgid "Error"
@@ -2862,6 +2969,10 @@ msgstr "espera-se N parâmetros : "
 #: uresourcestrings.rsfast
 msgid "Fast"
 msgstr "Rápido"
+
+#: uresourcestrings.rsfilecannotbeempty
+msgid "File cannot be empty"
+msgstr ""
 
 #: uresourcestrings.rsfiledate
 msgid "Date"
@@ -2907,8 +3018,16 @@ msgstr ""
 msgid "Folder"
 msgstr "Pasta"
 
+#: uresourcestrings.rsfolderorcontaineralreadyexists
+msgid "Folder or container already exists."
+msgstr ""
+
 #: uresourcestrings.rsfollowingerrorsoccured
 msgid "Following errors occured:"
+msgstr ""
+
+#: uresourcestrings.rsframes
+msgid "Frames"
 msgstr ""
 
 #: uresourcestrings.rsfunctionnotdefined
@@ -2931,6 +3050,11 @@ msgstr "Segurar CTRL para tirar pixels"
 msgid "Hold SHIFT to draw a square or a circle"
 msgstr "Segurar SHIFT para desenhar um quadrado ou um círculo"
 
+#: uresourcestrings.rshotspot
+msgctxt "uresourcestrings.rshotspot"
+msgid "Hot spot"
+msgstr ""
+
 #: uresourcestrings.rshue
 msgctxt "uresourcestrings.rshue"
 msgid "Hue"
@@ -2946,6 +3070,10 @@ msgctxt "uresourcestrings.rshuecw"
 msgid "Hue CW"
 msgstr ""
 
+#: uresourcestrings.rsiconimagealreadyexists
+msgid "There is already an image with this size and depth."
+msgstr ""
+
 #: uresourcestrings.rsiconorcursor
 msgid "Icon/cursor"
 msgstr ""
@@ -2953,6 +3081,11 @@ msgstr ""
 #: uresourcestrings.rsimagetoobig
 msgid "Image is too big"
 msgstr "Imagem é muito grande"
+
+#: uresourcestrings.rsinfinity
+msgctxt "uresourcestrings.rsinfinity"
+msgid "Infinity"
+msgstr ""
 
 #: uresourcestrings.rsinformation
 msgid "Information"
@@ -2966,6 +3099,10 @@ msgstr "Intensidade"
 #: uresourcestrings.rsinternalerror
 msgid "Internal error"
 msgstr "Erro interno"
+
+#: uresourcestrings.rsinvalidname
+msgid "Invalid name"
+msgstr ""
 
 #: uresourcestrings.rsinvalidopacity
 msgid "Invalid opacity : "
@@ -3002,6 +3139,12 @@ msgstr "A última versão do LazPaint disponível on-line é"
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
 msgstr ""
+
+#: uresourcestrings.rslayers
+#, fuzzy
+msgctxt "uresourcestrings.rslayers"
+msgid "Layers"
+msgstr "Camadas"
 
 #: uresourcestrings.rslazpaint
 msgctxt "uresourcestrings.rslazpaint"
@@ -3043,6 +3186,10 @@ msgstr "Carregando"
 
 #: uresourcestrings.rsloadpalette
 msgid "Load palette..."
+msgstr ""
+
+#: uresourcestrings.rsloopcount
+msgid "Loop count"
 msgstr ""
 
 #: uresourcestrings.rsmakencolorspalettefrombitmap
@@ -3302,6 +3449,10 @@ msgstr ""
 
 #: uresourcestrings.rstooloninvisiblelayer
 msgid "Tool cannot be used on an invisible layer"
+msgstr ""
+
+#: uresourcestrings.rstoomanylayers
+msgid "Too many layers"
 msgstr ""
 
 #: uresourcestrings.rstotalimages

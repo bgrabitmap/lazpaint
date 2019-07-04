@@ -162,9 +162,14 @@ msgstr ""
 msgid "Browse images"
 msgstr "Selaa kuvia"
 
-#: tfbrowseimages.label_size.caption
-msgid "Size: "
-msgstr "Koko: "
+#: tfbrowseimages.label_status.caption
+msgctxt "tfbrowseimages.label_status.caption"
+msgid "."
+msgstr ""
+
+#: tfbrowseimages.toolbutton_createfolderorcontainer.hint
+msgid "Create folder or container"
+msgstr ""
 
 #: tfbrowseimages.toolbutton_goup.hint
 msgid "Go one directory up"
@@ -716,6 +721,14 @@ msgstr ""
 msgid "Validate modifications"
 msgstr "Hyväksy muutokset"
 
+#: tfmain.filechooseentry.caption
+msgid "Choose entry..."
+msgstr ""
+
+#: tfmain.filechooseentry.hint
+msgid "Choose entry within file"
+msgstr ""
+
 #: tfmain.fileimport3d.caption
 msgid "Import 3D object..."
 msgstr ""
@@ -867,6 +880,7 @@ msgid "Median"
 msgstr "Mediaani"
 
 #: tfmain.filternegative.caption
+msgctxt "tfmain.filternegative.caption"
 msgid "Negative"
 msgstr "Negatiivi"
 
@@ -912,6 +926,14 @@ msgstr ""
 msgid "Twirl..."
 msgstr "Pyörre"
 
+#: tfmain.forgetdialoganswers.caption
+msgid "Forget dialog box answers"
+msgstr ""
+
+#: tfmain.forgetdialoganswers.hint
+msgid "Forget answers given to dialog boxes"
+msgstr ""
+
 #: tfmain.helpabout.caption
 msgid "About..."
 msgstr "Tietoja..."
@@ -954,6 +976,16 @@ msgctxt "tfmain.imagehorizontalflip.hint"
 msgid "Flip image horizontally"
 msgstr ""
 
+#: tfmain.imagelinearnegative.caption
+msgctxt "tfmain.imagelinearnegative.caption"
+msgid "Linear negative"
+msgstr "Lineaarinen negatiivi"
+
+#: tfmain.imagenegative.caption
+msgctxt "tfmain.imagenegative.caption"
+msgid "Negative"
+msgstr "Negatiivi"
+
 #: tfmain.imagerepeat.caption
 msgid "Repeat..."
 msgstr ""
@@ -976,6 +1008,10 @@ msgstr "Kierrä 90° myötäpäivään"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
+msgstr ""
+
+#: tfmain.imageswapredblue.caption
+msgid "Swap red and blue channels"
 msgstr ""
 
 #: tfmain.imageverticalflip.caption
@@ -1055,7 +1091,7 @@ msgid "auto"
 msgstr ""
 
 #: tfmain.itemquitseparator.caption
-msgctxt "TFMAIN.ITEMQUITSEPARATOR.CAPTION"
+msgctxt "tfmain.itemquitseparator.caption"
 msgid "-"
 msgstr ""
 
@@ -1161,6 +1197,10 @@ msgstr "Leveys"
 msgctxt "TFMAIN.LABEL_PHONGBORDER.CAPTION"
 msgid "Border"
 msgstr "Reunus"
+
+#: tfmain.label_ratio.caption
+msgid "Ratio"
+msgstr ""
 
 #: tfmain.label_shadowoffset.caption
 msgctxt "TFMAIN.LABEL_SHADOWOFFSET.CAPTION"
@@ -1299,7 +1339,7 @@ msgid "Image"
 msgstr "Kuva"
 
 #: tfmain.menuitem1.caption
-msgctxt "TFMAIN.MENUITEM1.CAPTION"
+msgctxt "tfmain.menuitem1.caption"
 msgid "-"
 msgstr ""
 
@@ -1525,6 +1565,15 @@ msgstr "Käsi"
 #: tfmain.toolhand.hint
 msgid "Move and scroll picture"
 msgstr "Kuvan siirto ja vieritys"
+
+#: tfmain.toolhotspot.caption
+msgctxt "tfmain.toolhotspot.caption"
+msgid "Hot spot"
+msgstr ""
+
+#: tfmain.toolhotspot.hint
+msgid "Choose hot spot of a cursor"
+msgstr ""
 
 #: tfmain.toollayermapping.hint
 msgctxt "TFMAIN.TOOLLAYERMAPPING.HINT"
@@ -2064,6 +2113,14 @@ msgctxt "TFNEWIMAGE.CAPTION"
 msgid "New image"
 msgstr "Uusi kuva"
 
+#: tfnewimage.combobox_bitdepth.text
+msgid "32"
+msgstr ""
+
+#: tfnewimage.label_bitdepth.caption
+msgid "Bit depth :"
+msgstr ""
+
 #: tfnewimage.label_height.caption
 msgctxt "TFNEWIMAGE.LABEL_HEIGHT.CAPTION"
 msgid "Height :"
@@ -2356,6 +2413,15 @@ msgstr ""
 msgid "Levels :"
 msgstr ""
 
+#: tfpreviewdialog.caption
+msgid "Preview"
+msgstr ""
+
+#: tfpreviewdialog.lstatus.caption
+msgctxt "tfpreviewdialog.lstatus.caption"
+msgid "."
+msgstr ""
+
 #: tfprint.button_configureprinter.caption
 msgid "Configure..."
 msgstr "Muokkaa asetuksia"
@@ -2427,6 +2493,19 @@ msgstr "Yläreuna:"
 #: tfprint.label_width.caption
 msgid "Width:"
 msgstr "Leveys:"
+
+#: tfquestion.caption
+msgid "Question"
+msgstr ""
+
+#: tfquestion.checkbox_rememberchoice.caption
+msgid "Remember this choice"
+msgstr ""
+
+#: tfquestion.label_message.caption
+msgctxt "tfquestion.label_message.caption"
+msgid "."
+msgstr ""
 
 #: tfradialblur.button_cancel.caption
 msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"
@@ -2563,6 +2642,10 @@ msgstr "256 väriä"
 #: tfsaveoption.radiobutton_2colors.caption
 msgid "2 colors"
 msgstr "2 väriä"
+
+#: tfsaveoption.radiobutton_32bitsperpixel.caption
+msgid "32 bits"
+msgstr ""
 
 #: tfsaveoption.radiobutton_miomap.caption
 msgid "MioMap"
@@ -2730,6 +2813,14 @@ msgctxt "uresourcestrings.rscolors"
 msgid "Colors"
 msgstr "Värit"
 
+#: uresourcestrings.rsconfirmdeletefromcontainer
+msgid "Are you sure you want to delete this file from the container?"
+msgstr ""
+
+#: uresourcestrings.rsconfirmdeletemultiplefromcontainer
+msgid "Are you sure you want to delete these %1 files from the container?"
+msgstr ""
+
 #: uresourcestrings.rsconfirmmovemultipletotrash
 msgid "Are you sure you want to move these %1 files to the trash?"
 msgstr ""
@@ -2781,6 +2872,14 @@ msgctxt "uresourcestrings.rsdeletefile"
 msgid "Delete"
 msgstr "Poista"
 
+#: uresourcestrings.rsdeleteimageentry
+msgid "Delete selected image entry?"
+msgstr ""
+
+#: uresourcestrings.rsdirectorynotempty
+msgid "Directory is not empty"
+msgstr ""
+
 #: uresourcestrings.rsditherlayerusingpalette
 msgid "Dither layer using palette"
 msgstr "Rasteroi kerros kayttäen väripalettia"
@@ -2805,9 +2904,17 @@ msgstr "Kerros on tyhjä"
 msgid "Selection is empty"
 msgstr ""
 
+#: uresourcestrings.rsenterfolderorcontainername
+msgid "Enter name for new folder or container (using RES or LRS extension):"
+msgstr ""
+
 #: uresourcestrings.rsenterlayername
 msgid "Enter layer name:"
 msgstr "Anna kerroksen nimi:"
+
+#: uresourcestrings.rsentries
+msgid "Entries"
+msgstr ""
 
 #: uresourcestrings.rserror
 msgid "Error"
@@ -2835,6 +2942,10 @@ msgstr ""
 
 #: uresourcestrings.rsfast
 msgid "Fast"
+msgstr ""
+
+#: uresourcestrings.rsfilecannotbeempty
+msgid "File cannot be empty"
 msgstr ""
 
 #: uresourcestrings.rsfiledate
@@ -2881,8 +2992,16 @@ msgstr ""
 msgid "Folder"
 msgstr "Kansio"
 
+#: uresourcestrings.rsfolderorcontaineralreadyexists
+msgid "Folder or container already exists."
+msgstr ""
+
 #: uresourcestrings.rsfollowingerrorsoccured
 msgid "Following errors occured:"
+msgstr ""
+
+#: uresourcestrings.rsframes
+msgid "Frames"
 msgstr ""
 
 #: uresourcestrings.rsfunctionnotdefined
@@ -2905,6 +3024,11 @@ msgstr ""
 msgid "Hold SHIFT to draw a square or a circle"
 msgstr ""
 
+#: uresourcestrings.rshotspot
+msgctxt "uresourcestrings.rshotspot"
+msgid "Hot spot"
+msgstr ""
+
 #: uresourcestrings.rshue
 msgctxt "uresourcestrings.rshue"
 msgid "Hue"
@@ -2920,6 +3044,10 @@ msgctxt "uresourcestrings.rshuecw"
 msgid "Hue CW"
 msgstr ""
 
+#: uresourcestrings.rsiconimagealreadyexists
+msgid "There is already an image with this size and depth."
+msgstr ""
+
 #: uresourcestrings.rsiconorcursor
 msgid "Icon/cursor"
 msgstr ""
@@ -2927,6 +3055,11 @@ msgstr ""
 #: uresourcestrings.rsimagetoobig
 msgid "Image is too big"
 msgstr "Kuva on liian iso"
+
+#: uresourcestrings.rsinfinity
+msgctxt "uresourcestrings.rsinfinity"
+msgid "Infinity"
+msgstr ""
 
 #: uresourcestrings.rsinformation
 msgid "Information"
@@ -2939,6 +3072,10 @@ msgstr "Voimakkuus"
 
 #: uresourcestrings.rsinternalerror
 msgid "Internal error"
+msgstr ""
+
+#: uresourcestrings.rsinvalidname
+msgid "Invalid name"
 msgstr ""
 
 #: uresourcestrings.rsinvalidopacity
@@ -2976,6 +3113,12 @@ msgstr ""
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
 msgstr ""
+
+#: uresourcestrings.rslayers
+#, fuzzy
+msgctxt "uresourcestrings.rslayers"
+msgid "Layers"
+msgstr "Kerrokset"
 
 #: uresourcestrings.rslazpaint
 msgctxt "uresourcestrings.rslazpaint"
@@ -3017,6 +3160,10 @@ msgstr ""
 
 #: uresourcestrings.rsloadpalette
 msgid "Load palette..."
+msgstr ""
+
+#: uresourcestrings.rsloopcount
+msgid "Loop count"
 msgstr ""
 
 #: uresourcestrings.rsmakencolorspalettefrombitmap
@@ -3276,6 +3423,10 @@ msgstr ""
 
 #: uresourcestrings.rstooloninvisiblelayer
 msgid "Tool cannot be used on an invisible layer"
+msgstr ""
+
+#: uresourcestrings.rstoomanylayers
+msgid "Too many layers"
 msgstr ""
 
 #: uresourcestrings.rstotalimages

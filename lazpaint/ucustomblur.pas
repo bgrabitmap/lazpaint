@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, ExtCtrls, ExtDlgs,  bgrabitmap, LazPaintType, UScaleDPI,
+  StdCtrls, ExtCtrls, ExtDlgs,  bgrabitmap, LazPaintType, LCScaleDPI,
   UResourceStrings, UFilterConnector, UFilterThread, ubrowseimages;
 
 type
@@ -29,7 +29,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure LoadMask(filenameUTF8: string);
+    procedure LoadMask(filenameUTF8: string; ALoadedImage: TBGRABitmap = nil);
     procedure PreviewNeeded;
     procedure Timer1Timer(Sender: TObject);
   private
@@ -48,13 +48,13 @@ type
 
 implementation
 
-uses umac,BGRABitmapTypes, BGRAFilters, BGRAUTF8;
+uses umac,BGRABitmapTypes, BGRAFilters, UFileSystem;
 
 { TFCustomBlur }
 
 procedure TFCustomBlur.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   CheckOKCancelBtns(Button_OK,Button_Cancel);
   subConfig := TStringStream.Create('[Tool]'+LineEnding+
@@ -74,11 +74,23 @@ begin
   PreviewNeeded;
 end;
 
-procedure TFCustomBlur.LoadMask(filenameUTF8: string);
+procedure TFCustomBlur.LoadMask(filenameUTF8: string; ALoadedImage: TBGRABitmap = nil);
 var loadedImg, grayscale: TBGRABitmap;
     bmp: TBitmap;
+    s: TStream;
 begin
-  loadedImg := TBGRABitmap.Create(filenameUTF8,True);
+  if Assigned(ALoadedImage) then
+    loadedImg := ALoadedImage
+  else
+  begin
+    loadedImg := nil;
+    s := FileManager.CreateFileStream(filenameUTF8, fmOpenRead or fmShareDenyWrite);
+    try
+      loadedImg := TBGRABitmap.Create(s);
+    finally
+      s.Free;
+    end;
+  end;
   grayscale := loadedImg.FilterGrayscale as TBGRABitmap;
   loadedImg.Free;
 
@@ -123,7 +135,7 @@ var
 begin
   FLazPaintInstance := AValue;
   defaultMaskFilenameUTF8 := LazPaintInstance.Config.DefaultCustomBlurMaskUTF8;
-  if (defaultMaskFilenameUTF8 = '') or not FileExistsUTF8(defaultMaskFilenameUTF8) then
+  if (defaultMaskFilenameUTF8 = '') or not FileManager.FileExists(defaultMaskFilenameUTF8) then
     GenerateDefaultMask else
   begin
     try
@@ -178,8 +190,10 @@ end;
 
 procedure TFCustomBlur.Button_LoadMaskClick(Sender: TObject);
 var filenameUTF8: string;
+  loadedImage: TBGRABitmap;
 begin
   filenameUTF8 := '';
+  loadedImage := nil;
   if LazPaintInstance.Config.DefaultUseImageBrowser then
   begin
     if not assigned(FBrowseImages) then
@@ -189,7 +203,10 @@ begin
       FBrowseImages.AllowMultiSelect := false;
     end;
     if FBrowseImages.ShowModal = mrOK then
+    begin
       filenameUTF8 := FBrowseImages.Filename;
+      loadedImage := FBrowseImages.GetChosenImage.bmp;
+    end;
   end else
   begin
     if OpenPictureDialog1.Execute then filenameUTF8 := OpenPictureDialog1.FileName;
@@ -197,7 +214,7 @@ begin
   if filenameUTF8 <> '' then
     begin
       try
-        LoadMask(filenameUTF8);
+        LoadMask(filenameUTF8,loadedImage);
         LazPaintInstance.Config.SetDefaultCustomBlurMaskUTF8(filenameUTF8);
         self.Update;
         PreviewNeeded;

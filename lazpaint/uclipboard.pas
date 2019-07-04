@@ -19,9 +19,7 @@ function ClipboardContainsBitmap: boolean;
 implementation
 
 uses Dialogs, BGRABitmapTypes, Clipbrd, Graphics, LCLIntf, LCLType,
-    BGRADNetDeserial, math, GraphType, fphttpclient, FPWriteBMP
-{$IFDEF TIFF_CLIPBOARD_FORMAT}, FPReadTIFF, FPWriteTIFF
-{$ENDIF};
+    BGRADNetDeserial, math, GraphType, fphttpclient, FPWriteBMP;
 
 {$IFDEF DEBUG_CLIPBOARD}
 const
@@ -31,9 +29,7 @@ const
 
 {$IFDEF TIFF_CLIPBOARD_FORMAT}
 var
-  secondaryClipboardFormat: TClipboardFormat;
-  secondaryReader: TFPReaderTiff;
-  secondaryWriter: TFPWriterTiff;
+  tiffClipboardFormat: TClipboardFormat;
 {$ENDIF}
 
 var
@@ -473,8 +469,7 @@ begin
     end;
 
   for i := 0 to clipboard.FormatCount-1 do
-    if (Clipboard.Formats[i] = PredefinedClipboardFormat(pcfDelphiBitmap)) or
-       (Clipboard.Formats[i] = PredefinedClipboardFormat(pcfBitmap)) then
+    if (Clipboard.Formats[i] = PredefinedClipboardFormat(pcfBitmap)) then
     begin
        Stream := TMemoryStream.Create;
        Clipboard.GetFormat(Clipboard.Formats[i],Stream);
@@ -494,14 +489,14 @@ begin
 
   {$IFDEF TIFF_CLIPBOARD_FORMAT}
   for i := 0 to clipboard.FormatCount-1 do
-    if Clipboard.Formats[i] = secondaryClipboardFormat then
+    if Clipboard.Formats[i] = tiffClipboardFormat then
     begin
       Stream := TMemoryStream.Create;
       Clipboard.GetFormat(Clipboard.Formats[i],Stream);
       Stream.Position := 0;
       try
         result := TBGRABitmap.Create;
-        result.LoadFromStream(Stream, secondaryReader);
+        result.LoadFromStream(Stream);
         if result.Empty then result.AlphaFill(255);
       except
         on ex:exception do
@@ -546,8 +541,8 @@ begin
 
   {$IFDEF TIFF_CLIPBOARD_FORMAT}
   stream := TMemoryStream.Create;
-  bmp.SaveToStream(stream, secondaryWriter);
-  Clipboard.AddFormat(secondaryClipboardFormat, stream);
+  bmp.SaveToStreamAs(stream, ifTiff);
+  Clipboard.AddFormat(tiffClipboardFormat, stream);
   stream.Free;
   {$ENDIF}
 end;
@@ -557,16 +552,7 @@ initialization
   bgraClipboardFormat := RegisterClipboardFormat('TBGRABitmap');
 
 {$IFDEF TIFF_CLIPBOARD_FORMAT}
-  secondaryClipboardFormat := RegisterClipboardFormat('image/tiff');
-  secondaryReader := TFPReaderTiff.Create;
-  secondaryWriter := TFPWriterTiff.Create;
-{$ENDIF}
-
-finalization
-
-{$IFDEF TIFF_CLIPBOARD_FORMAT}
-  secondaryReader.free;
-  secondaryWriter.free;
+  tiffClipboardFormat := RegisterClipboardFormat('image/tiff');
 {$ENDIF}
 
 end.

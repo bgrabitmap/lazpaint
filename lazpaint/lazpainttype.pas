@@ -10,9 +10,9 @@ uses
   {$IFDEF LINUX}, InterfaceBase{$ENDIF};
 
 const
-  //Version Number (to increment at each release)
-  //Also increment in project options > information on version
-  LazPaintCurrentVersionOnly = '6.4.1';
+  LazPaintVersion = 7000100;
+
+  function LazPaintVersionStr: string;
 
   {
 
@@ -67,13 +67,9 @@ const
   }
 
 const
-  {$IFDEF CPU64}
-    LazPaintProcessorInfo = ' (64-bit)';
-  {$ELSE}
-    LazPaintProcessorInfo = ' (32-bit)';
-  {$ENDIF}
-  LazPaintCurrentVersion : String=LazPaintCurrentVersionOnly + LazPaintProcessorInfo;
   OriginalDPI = 96;
+
+  function LazPaintCurrentVersion : String;
 
 type
   TPictureFilter = (pfNone,
@@ -112,7 +108,6 @@ type
      bounds: TRect;
      c: TPointF;
      rx,ry: single;
-     defined: boolean;
   end;
 
 const
@@ -125,6 +120,19 @@ type
     TColorTarget = (ctForeColor, ctBackColor);
     TFlipOption = (foAuto, foWholePicture, foSelection, foCurrentLayer);
 
+    PImageEntry = ^TImageEntry;
+
+    { TImageEntry }
+
+    TImageEntry = object
+      bmp: TBGRABitmap;
+      bpp: integer;
+      frameIndex: integer;
+      class function Empty: TImageEntry; static;
+      class function NewFrameIndex: integer; static;
+      procedure FreeAndNil;
+    end;
+    ArrayOfImageEntry = array of TImageEntry;
 
 type
     TLatestVersionUpdateHandler = procedure(ANewVersion: string) of object;
@@ -227,7 +235,7 @@ type
     procedure NotifyImageChange(RepaintNow: boolean; ARect: TRect); virtual; abstract;
     procedure NotifyImageChangeCompletely(RepaintNow: boolean); virtual; abstract;
     procedure NotifyStackChange; virtual; abstract;
-    function TryOpenFileUTF8(filename: string): boolean; virtual; abstract;
+    function TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean = false): boolean; virtual; abstract;
     function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): boolean; virtual; abstract;
     procedure ColorFromFChooseColor; virtual; abstract;
     procedure ColorToFChooseColor; virtual; abstract;
@@ -338,6 +346,35 @@ function GetWindowTopLeftCorner(AForm: TForm): TPoint;
 implementation
 
 uses LCLType, BGRAUTF8, LCLIntf, FileUtil, UResourceStrings;
+
+function LazPaintVersionStr: string;
+var numbers: TStringList;
+  i,remaining: cardinal;
+begin
+  numbers := TStringList.Create;
+  remaining := LazPaintVersion;
+  for i := 1 to 4 do
+  begin
+    numbers.Insert(0, IntToStr(remaining mod 100));
+    remaining := remaining div 100;
+  end;
+  while (numbers.Count > 1) and (numbers[numbers.Count-1]='0') do
+    numbers.Delete(numbers.Count-1);
+  numbers.Delimiter:= '.';
+  result := numbers.DelimitedText;
+  numbers.Free;
+end;
+
+function LazPaintCurrentVersion: String;
+const
+{$IFDEF CPU64}
+  LazPaintProcessorInfo = ' (64-bit)';
+{$ELSE}
+  LazPaintProcessorInfo = ' (32-bit)';
+{$ENDIF}
+begin
+  result := LazPaintVersionStr + LazPaintProcessorInfo;
+end;
 
 function IsOnlyRenderChange(const ARect: TRect): boolean;
 begin
@@ -486,6 +523,26 @@ end;
 function GetWindowTopLeftCorner(AForm: TForm): TPoint;
 begin
   result := Point(AForm.Left,AForm.Top);
+end;
+
+{ TImageEntry }
+
+class function TImageEntry.Empty: TImageEntry;
+begin
+  result.bmp := nil;
+  result.bpp := 0;
+  result.frameIndex := 0;
+end;
+
+class function TImageEntry.NewFrameIndex: integer;
+begin
+  result := -1;
+end;
+
+procedure TImageEntry.FreeAndNil;
+begin
+  SysUtils.FreeAndNil(bmp);
+  bpp := 0;
 end;
 
 { Interface gateway }

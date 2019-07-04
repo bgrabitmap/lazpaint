@@ -1,4 +1,4 @@
-LazPaint v6.3 - A paint program made with Lazarus
+LazPaint - A paint program made with Lazarus
 
 This program is designed to draw like with Paint.Net, to experiment this kind of programming with Lazarus and to provide an example of use of BGRABitmap library.
 

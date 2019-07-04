@@ -158,7 +158,6 @@ end;
 
 function TLazPaintBrush.GetSourceImage: TBGRABitmap;
 var
-  finalFilename: string;
   string64: TStringStream;
   decode64: TBase64DecodingStream;
   temp: TMemoryStream;
@@ -168,7 +167,7 @@ begin
     FSourceImage := nil;
     try
       if FileName <> '' then
-        FSourceImage := LoadFlatImageUTF8(FileName, finalFilename, '', True)
+        FSourceImage := LoadFlatImageUTF8(FileName, True).bmp
       else
       if Stream64<> '' then
       begin

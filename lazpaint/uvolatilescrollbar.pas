@@ -29,6 +29,7 @@ type
     FScrollThumbDown: boolean;
     FMouseOrigin: TPoint;
     FScrollThumbBoundsOrigin: TRect;
+    procedure SetPosition(AValue: integer);
   public
     constructor Create(X,Y,AWidth,AHeight: integer; ADirection: TScrollBarKind; APosition, AMinimum, AMaximum: integer);
     destructor Destroy; override;
@@ -40,7 +41,7 @@ type
     property ScrollThumbDown: boolean read FScrollThumbDown;
     property Minimum: integer read FMinimum;
     property Maximum: integer read FMaximum;
-    property Position: integer read FPosition;
+    property Position: integer read FPosition write SetPosition;
   end;
 
 implementation
@@ -67,6 +68,14 @@ begin
     result.right := FBounds.Right;
     result.bottom := result.top+VolatileThumbSize;
   end;
+end;
+
+procedure TVolatileScrollBar.SetPosition(AValue: integer);
+begin
+  if AValue < FMinimum then AValue := FMinimum;
+  if AValue > FMaximum then AValue := FMaximum;
+  if FPosition=AValue then Exit;
+  FPosition:=AValue;
 end;
 
 procedure TVolatileScrollBar.SetScrollThumbBounds(AValue: TRect);

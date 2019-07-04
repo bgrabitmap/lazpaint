@@ -15,7 +15,7 @@ uses
   LazPaintType, LazpaintInstance, LazpaintMainForm, UConfig, UOnline,
 
   UToolbox, UChooseColor, ULayerstack,  //tool windows
-  UMac, UScaleDPI, UVolatileScrollBar, UCursors, UTranslation, //interface
+  UMac, LCScaleDPI, UVolatileScrollBar, UCursors, UTranslation, //interface
 
   UGraph, UTool, UImage, UStateType, UImageState, UClipboard,
   UCommandline, UParse, UZoom, UResourceStrings, UImageObservation,
@@ -33,9 +33,10 @@ uses
   UToolDeformationGrid, UToolSelect, UToolPolygon, UToolFloodFill, UToolBasic,
   UToolPhong, UToolText, UScripting, UMenu, UColorFilters, uadjustcurves,
   UScriptType, ULayerAction, UImageType, uposterize, UMySLV, UToolLayer,
-  unoisefilter, uprint, uimagelist, UBarUpDown, UFileExtensions, UFileSystem, UToolBrush, UMainFormLayout, USaveOption, UBrushType, 
-  ugeometricbrush, URainType, UFormRain, UPaletteToolbar, 
-  uselectionhighlight, UGridBitmap;
+  unoisefilter, uprint, uimagelist, UBarUpDown, UFileExtensions, UFileSystem,
+  UToolBrush, UMainFormLayout, USaveOption, UBrushType, ugeometricbrush,
+  URainType, UFormRain, UPaletteToolbar, uselectionhighlight, UGridBitmap,
+  UToolIcon, UImagePreview, UPreviewDialog, UQuestion, UTiff, UImageView;
 
 //sometimes LResources disappear in the uses clause
 
@@ -93,7 +94,7 @@ begin
   ActualConfig := GetActualConfig;
   TranslateLazPaint(ActualConfig);
 
-  Application.Title := 'LazPaint';
+  Application.Title:='LazPaint';
   Application.Initialize;
 
   LazpaintApplication := TMyLazPaintInstance.Create;

@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
   StdCtrls, Spin, Buttons, ComCtrls, ExtCtrls, BGRAVirtualScreen, BGRAShape,
-  uimage, LazPaintType, uscaledpi, BGRABitmap, BGRABitmapTypes;
+  uimage, LazPaintType, LCScaleDPI, BGRABitmap, BGRABitmapTypes;
 
 const
   shadowOffsetX = 3;
@@ -31,12 +31,14 @@ type
     BGRAShape8: TBGRAShape;
     BGRAShape9: TBGRAShape;
     ComboBox_Ratio: TComboBox;
+    ComboBox_BitDepth: TComboBox;
     Image1: TImage;
+    Label_BitDepth: TLabel;
     Label_MemoryRequiredValue: TLabel;
     Label_Height1: TLabel;
     Label_MemoryRequired: TLabel;
-    ToolBar8: TToolBar;
-    ToolButton23: TToolButton;
+    ToolBar_Rotate: TToolBar;
+    ToolButton_Rotate: TToolButton;
     vsPreview: TBGRAVirtualScreen;
     Button_OK: TButton;
     Button_Cancel: TButton;
@@ -45,9 +47,12 @@ type
     SpinEdit_Height: TSpinEdit;
     SpinEdit_Width: TSpinEdit;
     procedure BGRAShapeClick(Sender: TObject);
+    procedure ComboBox_BitDepthChange(Sender: TObject);
     procedure ComboBox_RatioChange(Sender: TObject);
+    procedure ComboBox_RatioEnter(Sender: TObject);
+    procedure ComboBox_RatioExit(Sender: TObject);
     procedure SpinEdit_HeightChange(Sender: TObject);
-    procedure ToolButton23Click(Sender: TObject);
+    procedure ToolButton_RotateClick(Sender: TObject);
     procedure vsPreviewRedraw(Sender: TObject; Bitmap: TBGRABitmap);
     procedure Button_OKClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -56,15 +61,18 @@ type
   private
     FLastEnteredValue: TLastEnteredValue;
     FRatio: double;
+    FRatioWasChanged: boolean;
     FRecomputing: boolean;
     FBackColor: TBGRAPixel;
     procedure UpdatePreview;
+    function GetBitDepth: integer;
   public
     LazPaintInstance: TLazPaintCustomInstance;
+    ForIcon: boolean;
     newImageResult: TBGRABitmap;
   end; 
 
-function ShowNewImageDlg(Instance: TLazPaintCustomInstance; out tx,ty: integer; out back: TBGRAPixel):boolean;
+function ShowNewImageDlg(AInstance: TLazPaintCustomInstance; AForIcon: boolean; out tx,ty,bpp: integer; out back: TBGRAPixel):boolean;
 
 implementation
 
@@ -72,7 +80,7 @@ uses umac, UMySLV, UResourceStrings, UGraph;
 
 { TFNewImage }
 
-function ShowNewImageDlg(Instance: TLazPaintCustomInstance; out tx,ty: integer; out back: TBGRAPixel):boolean;
+function ShowNewImageDlg(AInstance: TLazPaintCustomInstance; AForIcon: boolean; out tx,ty,bpp: integer; out back: TBGRAPixel):boolean;
 var
   NewImage: TFNewImage;
 begin
@@ -81,16 +89,19 @@ begin
   result := false;
   NewImage := nil;
   try
-    NewImage:= TFNewImage.create(nil);
-    NewImage.LazPaintInstance := Instance;
+    Application.ProcessMessages; //avoid unexpected exit on linux
+    NewImage:= TFNewImage.Create(nil);
+    NewImage.LazPaintInstance := AInstance;
+    NewImage.ForIcon := AForIcon;
     result:= (NewImage.ShowModal = mrOk);
     tx:= NewImage.SpinEdit_Width.Value;
     ty:= NewImage.SpinEdit_Height.Value;
     back:= NewImage.FBackColor;
+    bpp := NewImage.GetBitDepth;
   except
     on ex:Exception do
     begin
-      Instance.ShowError('ShowNewImageDlg',ex.Message);
+      AInstance.ShowError('ShowNewImageDlg',ex.Message);
       result := false;
     end;
   end;
@@ -99,9 +110,17 @@ end;
 
 procedure TFNewImage.Button_OKClick(Sender: TObject);
 begin
-  LazPaintInstance.Config.SetDefaultImageWidth(SpinEdit_Width.Value);
-  LazPaintInstance.Config.SetDefaultImageHeight(SpinEdit_Height.Value);
-  LazPaintInstance.Config.SetDefaultImageBackgroundColor(FBackColor);
+  if ForIcon then
+  begin
+    LazPaintInstance.Config.SetDefaultIconImageWidth(SpinEdit_Width.Value);
+    LazPaintInstance.Config.SetDefaultIconImageHeight(SpinEdit_Height.Value);
+    LazPaintInstance.Config.SetDefaultIconImageBackgroundColor(FBackColor);
+  end else
+  begin
+    LazPaintInstance.Config.SetDefaultImageWidth(SpinEdit_Width.Value);
+    LazPaintInstance.Config.SetDefaultImageHeight(SpinEdit_Height.Value);
+    LazPaintInstance.Config.SetDefaultImageBackgroundColor(FBackColor);
+  end;
   ModalResult:= mrOk;
 end;
 
@@ -147,7 +166,7 @@ begin
   end;
 end;
 
-procedure TFNewImage.ToolButton23Click(Sender: TObject);
+procedure TFNewImage.ToolButton_RotateClick(Sender: TObject);
 var tx,ty: integer;
   s: string;
   idxCol: integer;
@@ -178,46 +197,43 @@ begin
 end;
 
 procedure TFNewImage.ComboBox_RatioChange(Sender: TObject);
-var s: string;
-  idxCol: integer;
-  num,denom: double;
-  errPos: integer;
 begin
   if FRecomputing then exit;
-  s := stringreplace(ComboBox_Ratio.Text,FormatSettings.DecimalSeparator,'.',[rfReplaceAll]);
-  if s = '' then
-  begin
-    FRatio := 0;
-    exit;
-  end;
+  FRatio := ComputeRatio(ComboBox_Ratio.Text);
+  if FRatio = 0 then exit;
 
-  idxCol := pos(':',s);
-  if idxCol = 0 then exit;
-  val(copy(s,1,idxCol-1),num,errPos);
-  if errPos <> 0 then exit;
-  if num < 0 then exit;
-  val(copy(s,idxCol+1,length(s)-idxCol),denom,errPos);
-  if errPos <> 0 then exit;
-  if denom <= 0 then exit;
-  FRatio := num/denom;
-
+  FRatioWasChanged := true;
   FRecomputing:= true;
-  if FRatio <> 0 then
-  begin
-    if FLastEnteredValue = valHeight then
-      SpinEdit_Width.Value := round(SpinEdit_Height.Value*FRatio)
-    else
-      SpinEdit_Height.Value := round(SpinEdit_Width.Value/FRatio);
-  end else
-    FLastEnteredValue:= valRatio;
+  if FLastEnteredValue = valHeight then
+    SpinEdit_Width.Value := round(SpinEdit_Height.Value*FRatio)
+  else
+    SpinEdit_Height.Value := round(SpinEdit_Width.Value/FRatio);
   FRecomputing:= false;
+
   UpdatePreview;
+end;
+
+procedure TFNewImage.ComboBox_RatioEnter(Sender: TObject);
+begin
+  FRatioWasChanged := false;
+end;
+
+procedure TFNewImage.ComboBox_RatioExit(Sender: TObject);
+begin
+  if FRatioWasChanged then
+    FLastEnteredValue := valRatio;
 end;
 
 procedure TFNewImage.BGRAShapeClick(Sender: TObject);
 begin
   with (Sender as TBGRAShape) do
     FBackColor:= ColorToBGRA(FillColor,FillOpacity);
+  UpdatePreview;
+end;
+
+procedure TFNewImage.ComboBox_BitDepthChange(Sender: TObject);
+begin
+  if FRecomputing then exit;
   UpdatePreview;
 end;
 
@@ -230,18 +246,17 @@ begin
     SpinEdit_Width.Value := round(SpinEdit_Height.Value*FRatio);
   end else
   begin
-    FLastEnteredValue := valWidth;
+    FLastEnteredValue:= valHeight;
     FRatio := 0;
     ComboBox_Ratio.Text := '';
   end;
   FRecomputing:= false;
   UpdatePreview;
-  FLastEnteredValue:= valHeight;
 end;
 
 procedure TFNewImage.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   FRecomputing := true;
   SpinEdit_Width.MaxValue := MaxImageWidth;
@@ -256,13 +271,39 @@ end;
 
 procedure TFNewImage.FormShow(Sender: TObject);
 begin
-  ToolBar8.Images := LazPaintInstance.Icons[DoScaleY(16,OriginalDPI)];
+  ToolBar_Rotate.Images := LazPaintInstance.Icons[DoScaleY(16,OriginalDPI)];
   Label_MemoryRequiredValue.Left := Label_MemoryRequired.BoundsRect.Right + DoScaleX(4,OriginalDPI);
 
   FRecomputing := true;
-  SpinEdit_Width.Value := LazPaintInstance.Config.DefaultImageWidth;
-  SpinEdit_Height.Value := LazPaintInstance.Config.DefaultImageHeight;
-  FBackColor:= LazPaintInstance.Config.DefaultImageBackgroundColor;
+  if ForIcon then
+  begin
+    SpinEdit_Width.Value := LazPaintInstance.Config.DefaultIconImageWidth;
+    SpinEdit_Height.Value := LazPaintInstance.Config.DefaultIconImageHeight;
+    SpinEdit_Width.Increment := 16;
+    SpinEdit_Height.Increment := 16;
+    FBackColor:= LazPaintInstance.Config.DefaultIconImageBackgroundColor;
+    ToolBar_Rotate.Visible := false;
+    Label_BitDepth.Visible := true;
+    ComboBox_BitDepth.Visible := true;
+    ComboBox_BitDepth.Text := IntToStr(LazPaintInstance.Config.DefaultIconImageBitDepth);
+  end else
+  begin
+    SpinEdit_Width.Value := LazPaintInstance.Config.DefaultImageWidth;
+    SpinEdit_Height.Value := LazPaintInstance.Config.DefaultImageHeight;
+    SpinEdit_Width.Increment := 10;
+    SpinEdit_Height.Increment := 10;
+    FBackColor:= LazPaintInstance.Config.DefaultImageBackgroundColor;
+    ToolBar_Rotate.Visible := true;
+    Label_BitDepth.Visible := false;
+    ComboBox_BitDepth.Visible := false;
+    ComboBox_BitDepth.Text := '32';
+  end;
+  if SpinEdit_Width.Value = SpinEdit_Height.Value then
+  begin
+    ComboBox_Ratio.Text := '1:1';
+    FRatio := ComputeRatio(ComboBox_Ratio.Text);
+    FLastEnteredValue := valRatio;
+  end;
   FRecomputing := false;
 
   UpdatePreview;
@@ -285,13 +326,17 @@ begin
   end;
   FRecomputing:= false;
   UpdatePreview;
-  FLastEnteredValue:= valWidth;
 end;
 
 procedure TFNewImage.UpdatePreview;
 begin
   vsPreview.DiscardBitmap;
-  Label_MemoryRequiredValue.Caption := FileSizeToStr(int64(SpinEdit_Width.Value)*SpinEdit_Height.Value*Sizeof(TBGRAPixel),rsBytes);
+  Label_MemoryRequiredValue.Caption := FileSizeToStr(int64((SpinEdit_Width.Value*GetBitDepth+7) div 8)*SpinEdit_Height.Value,rsBytes);
+end;
+
+function TFNewImage.GetBitDepth: integer;
+begin
+  result := StrToInt(ComboBox_BitDepth.Text);
 end;
 
 {$R *.lfm}

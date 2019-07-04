@@ -63,7 +63,7 @@ function ShowPhongFilterDlg(AFilterConnector: TObject):boolean;
 
 implementation
 
-uses UScaleDPI, UMac, BGRAGradients, LazPaintType;
+uses LCScaleDPI, UMac, BGRAGradients, LazPaintType;
 
 function ShowPhongFilterDlg(AFilterConnector: TObject): boolean;
 var
@@ -94,7 +94,7 @@ end;
 
 procedure TFPhongFilter.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
   CheckOKCancelBtns(Button_OK,Button_Cancel);
   FCenter := PointF(0.5,0.5);
 end;

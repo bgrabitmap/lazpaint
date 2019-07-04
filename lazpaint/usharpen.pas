@@ -38,7 +38,7 @@ function ShowSharpenDlg(AFilterConnector: TObject; AMode : TSharpenMode):boolean
 
 implementation
 
-uses UScaleDPI, UMac, LazPaintType, BGRABitmap, BGRABitmapTypes;
+uses LCScaleDPI, UMac, LazPaintType, BGRABitmap, BGRABitmapTypes;
 
 function ShowSharpenDlg(AFilterConnector: TObject; AMode : TSharpenMode): boolean;
 var FSharpen: TFSharpen;
@@ -68,7 +68,7 @@ end;
 
 procedure TFSharpen.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   CheckOKCancelBtns(Button_OK{,Button_Cancel});
   CheckSpinEdit(SpinEdit_Amount);

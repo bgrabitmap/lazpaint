@@ -61,7 +61,7 @@ function ShowRainDlg(AFilterConnector: TObject):boolean;
 
 implementation
 
-uses UScaleDPI, umac, LazPaintType;
+uses LCScaleDPI, umac, LazPaintType;
 
 function ShowRainDlg(AFilterConnector: TObject):boolean;
 var
@@ -84,7 +84,7 @@ end;
 
 procedure TFRain.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
   CheckOKCancelBtns(Button_OK{,Button_Cancel});
 end;
 
@@ -226,8 +226,7 @@ begin
   FilterConnector.PutImage(ComputeFilteredLayer,False,True);
 end;
 
-initialization
-  {$I uformrain.lrs}
+{$R *.lfm}
 
 end.
 

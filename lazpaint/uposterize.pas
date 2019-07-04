@@ -39,7 +39,7 @@ function ShowPosterizeDlg(AInstance: TLazPaintCustomInstance; AParameters: TVari
 
 implementation
 
-uses UScaleDPI, UMac, UColorFilters;
+uses LCScaleDPI, UMac, UColorFilters;
 
 function ShowPosterizeDlg(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): boolean;
 var FPosterize: TFPosterize;
@@ -47,7 +47,7 @@ var FPosterize: TFPosterize;
 begin
   FPosterize := TFPosterize.Create(nil);
   try
-    FPosterize.FFilterConnector := TFilterConnector.Create(AInstance, AParameters);
+    FPosterize.FFilterConnector := TFilterConnector.Create(AInstance, AParameters, false);
     FPosterize.FFilterConnector.OnTryStopAction := @FPosterize.OnTryStopAction;
   except
     on ex: exception do
@@ -72,7 +72,7 @@ end;
 
 procedure TFPosterize.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   CheckOKCancelBtns(Button_OK{,Button_Cancel});
   CheckSpinEdit(SpinEdit_Levels);
@@ -147,8 +147,7 @@ begin
   params.Free;
 end;
 
-initialization
-  {$I uposterize.lrs}
+{$R *.lfm}
 
 end.
 

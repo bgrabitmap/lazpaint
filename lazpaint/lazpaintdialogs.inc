@@ -124,12 +124,12 @@ end;
 
 function TLazPaintInstance.ShowNewImageDlg(out bitmap: TBGRABitmap
   ): boolean;
-var tx,ty: integer;
+var tx,ty,bpp: integer;
   back: TBGRAPixel;
 begin
   FormsNeeded;
 
-  Result:= unewimage.ShowNewImageDlg(self,tx,ty,back);
+  Result:= unewimage.ShowNewImageDlg(self,false,tx,ty,bpp,back);
   if result then
     bitmap := MakeNewBitmapReplacement(tx,ty,back)
   else

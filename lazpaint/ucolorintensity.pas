@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  ComCtrls, StdCtrls, Spin, BGRABitmap, LazPaintType, uscaledpi,
+  ComCtrls, StdCtrls, Spin, BGRABitmap, LazPaintType, LCScaleDPI,
   uresourcestrings, ufilterconnector, uscripting;
 
 type
@@ -64,7 +64,7 @@ uses umac, BGRABitmapTypes, UColorFilters;
 
 procedure TFColorIntensity.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   FShiftCaption:= Label_Shift.Caption;
   FMultiplyCaption := Label_Multiply.Caption;
@@ -220,7 +220,7 @@ var topmostInfo: TTopMostInfo;
 begin
   FMode := AMode;
   try
-    FFilterConnector := TFilterConnector.Create(AInstance,AParameters);
+    FFilterConnector := TFilterConnector.Create(AInstance,AParameters,false);
     FFilterConnector.OnTryStopAction := @OnTryStopAction;
   except
     on ex: exception do

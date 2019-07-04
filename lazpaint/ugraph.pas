@@ -11,6 +11,8 @@ uses
 const FrameDashLength = 4;
   NicePointMaxRadius = 4;
 
+function ComputeRatio(ARatio: string): single;
+
 function RectUnion(const rect1,Rect2: TRect): TRect;
 function RectInter(const rect1,Rect2: TRect): TRect;
 function RectOfs(const ARect: TRect; ofsX,ofsY: integer): TRect;
@@ -28,7 +30,8 @@ function NicePoint(bmp: TBGRABitmap; ptF: TPointF; alpha: byte = 192):TRect; ove
 procedure NiceLine(bmp: TBGRABitmap; x1,y1,x2,y2: single; alpha: byte = 192);
 function NiceText(bmp: TBGRABitmap; x,y,bmpWidth,bmpHeight: integer; s: string; align: TAlignment = taLeftJustify; valign: TTextLayout = tlTop): TRect;
 function ComputeColorCircle(tx,ty: integer; light: word; hueCorrection: boolean = true): TBGRABitmap;
-function ChangeCanvasSize(bmp: TBGRABitmap; newWidth,newHeight: integer; anchor: string; background: TBGRAPixel; repeatImage: boolean; flipMode: boolean = false): TBGRABitmap; overload;
+function ChangeCanvasSizeOrigin(oldWidth,oldHeight,newWidth, newHeight: integer; anchor: string): TPoint;
+function ChangeCanvasSize(bmp: TBGRABitmap; ofs: TPoint; oldWidth,oldHeight,newWidth,newHeight: integer; anchor: string; background: TBGRAPixel; repeatImage: boolean; flipMode: boolean = false): TBGRABitmap; overload;
 
 procedure RenderCloudsOn(bmp: TBGRABitmap; color: TBGRAPixel);
 procedure RenderWaterOn(bmp: TBGRABitmap; waterColor, skyColor: TBGRAPixel);
@@ -55,7 +58,8 @@ procedure BCAssignSystemStyle(AButton: TBCButton);
 implementation
 
 uses GraphType, math, Types, BGRAUTF8, FileUtil, dialogs, BGRAAnimatedGif,
-  BGRAGradients, BGRATextFX, uresourcestrings, uscaledpi, BCTypes;
+  BGRAGradients, BGRATextFX, uresourcestrings, LCScaleDPI, BCTypes,
+  BGRAThumbnail;
 
 procedure BCAssignSystemState(AState: TBCButtonState; AFontColor, ATopColor, AMiddleTopColor, AMiddleBottomColor, ABottomColor, ABorderColor: TColor);
 begin
@@ -134,6 +138,26 @@ begin
   end;
 end;
 
+function ComputeRatio(ARatio: string): single;
+var
+  idxCol,errPos: Integer;
+  num,denom: double;
+begin
+  result := 0;
+  ARatio := stringreplace(ARatio,FormatSettings.DecimalSeparator,'.',[rfReplaceAll]);
+  if ARatio = '' then exit;
+
+  idxCol := pos(':',ARatio);
+  if idxCol = 0 then exit;
+  val(copy(ARatio,1,idxCol-1),num,errPos);
+  if errPos <> 0 then exit;
+  if num < 0 then exit;
+  val(copy(ARatio,idxCol+1,length(ARatio)-idxCol),denom,errPos);
+  if errPos <> 0 then exit;
+  if denom <= 0 then exit;
+  result := num/denom;
+end;
+
 function RectUnion(const rect1, Rect2: TRect): TRect;
 begin
   if IsRectEmpty(rect1) then
@@ -204,7 +228,7 @@ end;
 
 procedure DrawCheckers(bmp: TBGRABitmap; ARect: TRect);
 begin
-  bmp.DrawCheckers(ARect,BGRA(255,255,255),BGRA(220,220,220));
+  DrawThumbnailCheckers(bmp, ARect, False);
 end; 
 
 procedure DrawGrid(bmp: TBGRABitmap; sizex, sizey: single; ofsx,ofsy: single);
@@ -1195,7 +1219,7 @@ begin
         if angle < 240 then
         begin
           ec.red := $0000;
-          ec.green := $FFFFF-round((angle-180)/60*$FFFF);
+          ec.green := $FFFF-round((angle-180)/60*$FFFF);
           ec.blue := $FFFF;
         end else
         if angle < 300 then
@@ -1207,14 +1231,14 @@ begin
         begin
           ec.red := $FFFF;
           ec.green := $0000;
-          ec.blue := $FFFFF-round((angle-300)/60*$FFFF);
+          ec.blue := $FFFF-round((angle-300)/60*$FFFF);
         end;
         gray := min($FFFF,max(0,$FFFF - round((sqrt(sqr((xb-xc)/(tx/2))+sqr((yb-yc)/(ty/2)))*1.2-0.1)*$FFFF)));
         level := max(max(ec.red,ec.green),ec.blue);
         {$hints off}
-        ec.red := (ec.red*($FFFF-gray)+level*gray) shr 16;
-        ec.green := (ec.green*($FFFF-gray)+level*gray) shr 16;
-        ec.blue := (ec.blue*($FFFF-gray)+level*gray) shr 16;
+        ec.red := (ec.red*(not gray)+level*gray) shr 16;
+        ec.green := (ec.green*(not gray)+level*gray) shr 16;
+        ec.blue := (ec.blue*(not gray)+level*gray) shr 16;
         {$hints on}
         ec.red := (ec.red*light) shr 16;
         ec.green := (ec.green*light) shr 16;
@@ -1228,7 +1252,20 @@ begin
   end;
 end;
 
-function ChangeCanvasSize(bmp: TBGRABitmap; newWidth, newHeight: integer;
+function ChangeCanvasSizeOrigin(oldWidth,oldHeight,newWidth, newHeight: integer; anchor: string): TPoint;
+var
+  origin: TPoint;
+begin
+  origin := Point((newWidth div 2)-(oldWidth div 2),(newHeight div 2)-(oldHeight div 2));
+  anchor := UTF8LowerCase(anchor);
+  if (anchor='topleft') or (anchor='top') or (anchor='topright') then origin.Y := 0;
+  if (anchor='bottomleft') or (anchor='bottom') or (anchor='bottomright') then origin.Y := newHeight-oldHeight;
+  if (anchor='topleft') or (anchor='left') or (anchor='bottomleft') then origin.X := 0;
+  if (anchor='topright') or (anchor='right') or (anchor='bottomright') then origin.X := newWidth-oldWidth;
+  result := origin;
+end;
+
+function ChangeCanvasSize(bmp: TBGRABitmap; ofs: TPoint; oldWidth,oldHeight,newWidth, newHeight: integer;
   anchor: string; background: TBGRAPixel; repeatImage: boolean; flipMode: boolean = false): TBGRABitmap;
 var origin: TPoint;
     xb,yb: integer;
@@ -1238,21 +1275,19 @@ var origin: TPoint;
 begin
    if (newWidth < 1) or (newHeight < 1) then
      raise exception.Create('Invalid canvas size');
-   origin := Point((newWidth-bmp.Width) div 2,(newHeight-bmp.Height) div 2);
-   anchor := UTF8LowerCase(anchor);
-   if (anchor='topleft') or (anchor='top') or (anchor='topright') then origin.Y := 0;
-   if (anchor='bottomleft') or (anchor='bottom') or (anchor='bottomright') then origin.Y := newHeight-bmp.Height;
-   if (anchor='topleft') or (anchor='left') or (anchor='bottomleft') then origin.X := 0;
-   if (anchor='topright') or (anchor='right') or (anchor='bottomright') then origin.X := newWidth-bmp.Width;
+   origin := ChangeCanvasSizeOrigin(oldWidth, oldHeight, newWidth, newHeight, anchor);
+   inc(origin.x, ofs.x);
+   inc(origin.y, ofs.y);
+
    result := TBGRABitmap.Create(newWidth,newHeight, background);
-   dx := bmp.Width;
-   dy := bmp.Height;
+   dx := oldWidth;
+   dy := oldHeight;
    if repeatImage then
    begin
-     minx := (0-origin.X-bmp.Width+1) div bmp.Width;
-     miny := (0-origin.Y-bmp.Height+1) div bmp.Height;
-     maxx := (newWidth-origin.X+bmp.Width-1) div bmp.Width;
-     maxy := (newHeight-origin.Y+bmp.Height-1) div bmp.Height;
+     minx := (0-origin.X-oldWidth+1) div oldWidth;
+     miny := (0-origin.Y-oldHeight+1) div oldHeight;
+     maxx := (newWidth-origin.X+oldWidth-1) div oldWidth;
+     maxy := (newHeight-origin.Y+oldHeight-1) div oldHeight;
    end else
    begin
      minx := 0;

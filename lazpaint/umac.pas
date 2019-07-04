@@ -66,12 +66,39 @@ begin
 end;
 {$hints on}
 
+{$IFDEF LINUX}
+type
+  TSpinEditFix = class
+    procedure SpinEdit_KeyPressFix(Sender: TObject; var Key: char);
+  end;
+
+var
+  SpinEditFix: TSpinEditFix;
+
+procedure TSpinEditFix.SpinEdit_KeyPressFix(Sender: TObject; var Key: char);
+var se: TSpinEdit;
+begin
+  se := Sender as TSpinEdit;
+  if (Key in ['1'..'9']) and (se.SelStart = 0) and (se.SelLength = length(se.Text)) then
+  begin
+    se.Value := ord(Key) - ord('0');
+    se.SelStart := length(se.Text);
+    se.SelLength:= 0;
+    Key := #0;
+  end;
+end;
+{$ENDIF}
+
 {$hints off}
 procedure CheckSpinEdit(SpinEdit: TSpinEdit);
 begin
    {$IFDEF DARWIN}
    SpinEdit.Left := SpinEdit.Left + 3;
    SpinEdit.Width := SpinEdit.Width - 4;
+   {$ENDIF}
+   {$IFDEF LINUX}
+   if SpinEdit.OnKeyPress = nil then
+     SpinEdit.OnKeyPress:= @SpinEditFix.SpinEdit_KeyPressFix;
    {$ENDIF}
 end;
 {$hints on}
@@ -106,6 +133,16 @@ begin
 end;
 {$ENDIF}
 {$hints on}
+
+initialization
+{$IFDEF LINUX}
+SpinEditFix := TSpinEditFix.Create;
+{$ENDIF}
+
+finalization
+{$IFDEF LINUX}
+SpinEditFix.Free;
+{$ENDIF}
 
 end.
 

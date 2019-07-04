@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, Spin, ExtCtrls, BGRABitmap, LazPaintType, uscaledpi, ufilterconnector, BGRABitmapTypes;
+  StdCtrls, Spin, ExtCtrls, BGRABitmap, LazPaintType, LCScaleDPI, ufilterconnector, BGRABitmapTypes;
 
 type
 
@@ -72,7 +72,7 @@ end;
 
 procedure TFTwirl.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   CheckSpinEdit(SpinEdit_Radius);
   CheckSpinEdit(SpinEdit_Angle);

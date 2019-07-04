@@ -77,7 +77,7 @@ begin
   if definingSource then
   begin
     sourcePosition := Point(round(x),round(y));
-    sourceLayerId := Manager.Image.LayerId[Manager.Image.currentImageLayerIndex];
+    sourceLayerId := Manager.Image.LayerId[Manager.Image.CurrentLayerIndex];
     sourcePositionRelative:= false;
     result := OnlyRenderChange;
   end else
@@ -270,7 +270,6 @@ begin
       end;
     end;
   end;
-  Action.NotifyChange(toolDest,result);
 end;
 
 function TToolGenericBrush.GetBrushAlpha(AAlpha: byte): byte;

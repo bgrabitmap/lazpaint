@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, Spin, ExtCtrls, BGRABitmap, LazPaintType, uscaledpi,
+  StdCtrls, Spin, ExtCtrls, BGRABitmap, LazPaintType, LCScaleDPI,
   UFilterConnector, UFilterThread;
 
 type
@@ -177,7 +177,7 @@ end;
 
 procedure TFMotionBlur.FormCreate(Sender: TObject);
 begin
-  ScaleDPI(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI);
 
   InPaintBoxMouseMove := false;
   CheckOKCancelBtns(Button_OK{,Button_Cancel});

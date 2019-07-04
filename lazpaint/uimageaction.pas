@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, LazPaintType, BGRABitmap, UImage, UTool, UScripting,
-  ULayerAction, UImageType;
+  ULayerAction, UImageType, BGRABitmapTypes, BGRALayerOriginal, BGRASVGOriginal;
 
 type
 
@@ -21,6 +21,7 @@ type
     procedure ChooseTool(ATool: TPaintToolType);
     procedure RegisterScripts(ARegister: Boolean);
     function GenericScriptFunction(AVars: TVariableSet): TScriptResult;
+    procedure ReleaseSelection;
   public
     constructor Create(AInstance: TLazPaintCustomInstance);
     destructor Destroy; override;
@@ -37,25 +38,32 @@ type
     procedure RotateCW;
     procedure RotateCCW;
     procedure LinearNegativeAll;
+    procedure NegativeAll;
+    procedure SwapRedBlueAll;
     procedure InvertSelection;
     procedure Deselect;
     procedure CopySelection;
     procedure CutSelection;
+    procedure RetrieveSelection;
     procedure DeleteSelection;
+    procedure RemoveSelection;
     procedure Paste;
     procedure PasteAsNewLayer;
     procedure SelectAll;
     procedure SelectionFit;
-    procedure NewLayer;
-    procedure NewLayer(ALayer: TBGRABitmap; AName: string);
+    procedure NewLayer; overload;
+    function NewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation): boolean; overload;
+    function NewLayer(ALayer: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix): boolean; overload;
     procedure DuplicateLayer;
     procedure MergeLayerOver;
     procedure RemoveLayer;
     procedure EditSelection(ACallback: TModifyImageCallback);
     procedure Import3DObject(AFilenameUTF8: string);
-    function TryAddLayerFromFile(AFilenameUTF8: string): boolean;
+    function TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: TBGRABitmap = nil): boolean;
     function AddLayerFromBitmap(ABitmap: TBGRABitmap; AName: string): boolean;
-    function LoadSelection(AFilenameUTF8: string): boolean;
+    function AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal; AName: string): boolean;
+    function AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal; AName: string; AMatrix: TAffineMatrix): boolean;
+    function LoadSelection(AFilenameUTF8: string; ALoadedImage: PImageEntry = nil): boolean;
     property Image: TLazPaintImage read GetImage;
     property ToolManager: TToolManager read GetToolManager;
     property CurrentTool: TPaintToolType read GetCurrentTool;
@@ -63,8 +71,9 @@ type
 
 implementation
 
-uses Controls, Dialogs, BGRABitmapTypes, UResourceStrings, UObject3D,
-     ULoadImage, UGraph, UClipboard, Types;
+uses Controls, Dialogs, UResourceStrings, UObject3D,
+     ULoadImage, UGraph, UClipboard, Types, BGRAGradientOriginal,
+     BGRATransform, ULoading, math;
 
 { TImageActions }
 
@@ -75,7 +84,10 @@ end;
 
 function TImageActions.GetCurrentTool: TPaintToolType;
 begin
-  result := FInstance.ToolManager.GetCurrentToolType;
+  if FInstance.ToolManager.CurrentTool = nil then
+    result := ptHand
+  else
+    result := FInstance.ToolManager.GetCurrentToolType;
 end;
 
 function TImageActions.GetToolManager: TToolManager;
@@ -103,6 +115,9 @@ begin
   Scripting.RegisterScriptFunction('ImageFillBackground',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageRotateCW',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageRotateCCW',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('ImageLinearNegative',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('ImageNegative',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('ImageSwapRedBlue',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditUndo',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditRedo',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditInvertSelection',@GenericScriptFunction,ARegister);
@@ -153,6 +168,9 @@ begin
   if f = 'ImageFillBackground' then FillBackground else
   if f = 'ImageRotateCW' then RotateCW else
   if f = 'ImageRotateCCW' then RotateCCW else
+  if f = 'ImageLinearNegative' then LinearNegativeAll else
+  if f = 'ImageNegative' then NegativeAll else
+  if f = 'ImageSwapRedBlue' then SwapRedBlueAll else
   if f = 'EditUndo' then Undo else
   if f = 'EditRedo' then Redo else
   if f = 'EditInvertSelection' then InvertSelection else
@@ -184,7 +202,7 @@ begin
   try
     c := ToolManager.ToolBackColor;
     c.alpha := 255;
-    LayerAction := TLayerAction.Create(Image);
+    LayerAction := Image.CreateAction(true);
     LayerAction.SelectedImageLayer.ReplaceColor(BGRAPixelTransparent,c);
     p := LayerAction.SelectedImageLayer.Data;
     for n := LayerAction.SelectedImageLayer.NbPixels-1 downto 0 do
@@ -206,16 +224,22 @@ procedure TImageActions.FillBackground;
 var tempBmp: TBGRABitmap;
     c: TBGRAPixel;
     LayerAction: TLayerAction;
+    y: Integer;
 begin
   if not Image.CheckNoAction then exit;
   LayerAction := nil;
   try
     c := ToolManager.ToolBackColor;
     c.alpha := 255;
-    LayerAction := TLayerAction.Create(Image);
-    tempBmp := TBGRABitmap.Create(image.Width,image.Height,c);
-    tempBmp.PutImage(0,0,LayerAction.SelectedImageLayer,dmDrawWithTransparency);
-    LayerAction.ReplaceSelectedLayer(tempBmp, True);
+    LayerAction := Image.CreateAction(True);
+    tempBmp := TBGRABitmap.Create(LayerAction.SelectedImageLayer.Width,1);
+    for y := 0 to LayerAction.SelectedImageLayer.Height-1 do
+    begin
+       tempBmp.Fill(c);
+       tempBmp.PutImage(0,-y,LayerAction.SelectedImageLayer,dmDrawWithTransparency);
+       LayerAction.SelectedImageLayer.PutImage(0,y,tempBmp,dmSet);
+    end;
+    tempBmp.Free;
     image.LayerMayChangeCompletely(LayerAction.SelectedImageLayer);
     LayerAction.Validate;
   except
@@ -286,7 +310,7 @@ begin
     if image3D <> nil then
     begin
       if image3D.NbPixels <> 0 then
-        NewLayer(image3d, ExtractFileName(AFilenameUTF8))
+        NewLayer(image3d, ExtractFileName(AFilenameUTF8), boTransparent)
       else
         image3D.Free;
     end;
@@ -296,28 +320,32 @@ begin
   end;
 end;
 
-function TImageActions.LoadSelection(AFilenameUTF8: string): boolean;
+function TImageActions.LoadSelection(AFilenameUTF8: string; ALoadedImage: PImageEntry = nil): boolean;
 var
   newSelection: TBGRABitmap;
   LayerAction: TLayerAction;
-  outFilename: string;
 begin
   LayerAction := nil;
   result := false;
   try
-    newSelection := LoadFlatImageUTF8(AFilenameUTF8,outFilename,'');
+    if Assigned(ALoadedImage) and Assigned(ALoadedImage^.bmp) then
+    begin
+      newSelection := ALoadedImage^.bmp;
+      ALoadedImage^.FreeAndNil;
+    end
+    else
+      newSelection := LoadFlatImageUTF8(AFilenameUTF8).bmp;
     newSelection.InplaceGrayscale;
     if not (CurrentTool in[ptDeformation,ptTextureMapping,ptLayerMapping,ptMoveSelection,ptRotateSelection]) then
       ChooseTool(ptMoveSelection);
 
     if Image.CheckNoAction then
     begin
-      LayerAction := TLayerAction.Create(Image);
+      LayerAction := Image.CreateAction;
+      LayerAction.RemoveSelection;
       LayerAction.QuerySelection;
-      LayerAction.CurrentSelection.Fill(BGRABlack);
       LayerAction.CurrentSelection.PutImage(0,0,newSelection,dmSet);
-      Image.SelectionMayChangeCompletely;
-      newSelection.Free;
+      LayerAction.NotifyChange(Image.SelectionMask,Image.SelectionMaskBounds);
       LayerAction.Validate;
       result := true;
     end;
@@ -325,6 +353,7 @@ begin
     on ex: exception do
       FInstance.ShowError('LoadSelection',ex.Message);
   end;
+  FreeAndNil(newSelection);
   LayerAction.Free;
 end;
 
@@ -334,7 +363,7 @@ begin
   if not image.CheckNoAction then exit;
   if not image.CheckCurrentLayerVisible then exit;
   try
-    if image.SelectionEmpty then
+    if image.SelectionMaskEmpty then
     begin
       FInstance.ShowMessage(rsCrop, rsEmptySelection);
       exit;
@@ -379,17 +408,17 @@ begin
     exit;
   end;
   try
-    if image.SelectionEmpty then
+    if image.SelectionMaskEmpty then
     begin
       FInstance.ShowMessage(rsCrop,rsEmptySelection);
       exit;
     end;
-    if not image.SelectionEmpty then
+    if not image.SelectionMaskEmpty then
     begin
-      r := image.SelectionBounds;
+      r := image.SelectionMaskBounds;
       if (r.left = 0) and (r.Top = 0) and (r.right = image.width) and (r.Bottom =image.height) then exit;
       cropped := image.MakeLayeredBitmapAndSelectionCopy;
-      selectedLayer := image.currentImageLayerIndex;
+      selectedLayer := image.CurrentLayerIndex;
       for i := 0 to cropped.layeredBitmap.NbLayers-1 do
       begin
         cropped.layeredBitmap.LayerBitmap[i].ApplyMask(cropped.selection);
@@ -399,7 +428,7 @@ begin
       BGRAReplace(cropped.selection,cropped.selection.GetPart(r));
       if cropped.selectionLayer <> nil then BGRAReplace(cropped.selectionLayer,cropped.selectionLayer.GetPart(r));
       image.Assign(cropped,true,true);
-      image.SetCurrentImageLayerIndex(selectedLayer);
+      image.SetCurrentLayerByIndex(selectedLayer);
     end;
   except
     on ex:Exception do
@@ -417,45 +446,63 @@ begin
   end;
 end;
 
-function TImageActions.TryAddLayerFromFile(AFilenameUTF8: string): boolean;
+function TImageActions.TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: TBGRABitmap = nil): boolean;
 var
   newPicture: TBGRABitmap;
-  finalFilename: string;
+  svgOrig: TBGRALayerSVGOriginal;
+  ratio: Single;
+  m: TAffineMatrix;
 begin
   result := false;
   if not AbleToLoadUTF8(AFilenameUTF8) then
   begin
     FInstance.ShowMessage(rsOpen,rsFileExtensionNotSupported);
+    FreeAndNil(ALoadedImage);
     exit;
   end;
   try
-    newPicture := LoadFlatImageUTF8(AFilenameUTF8, finalFilename, '');
-    AddLayerFromBitmap(newPicture, ExtractFileName(finalFilename));
+    if Image.DetectImageFormat(AFilenameUTF8) = ifSvg then
+    begin
+      svgOrig := LoadSVGOriginalUTF8(AFilenameUTF8);
+      ratio := max(svgOrig.Width/Image.Width, svgOrig.Height/Image.Height);
+      m := AffineMatrixTranslation(-svgOrig.Width/2,-svgOrig.Height/2);
+      if ratio > 1 then m := AffineMatrixScale(1/ratio,1/ratio)*m;
+      m := AffineMatrixTranslation(Image.Width/2,Image.Height/2)*m;
+      AddLayerFromOriginal(svgOrig, ExtractFileName(AFilenameUTF8), m);
+      FreeAndNil(ALoadedImage);
+    end else
+    begin
+      if Assigned(ALoadedImage) then
+      begin
+        newPicture := ALoadedImage;
+        ALoadedImage := nil;
+      end
+      else
+        newPicture := LoadFlatImageUTF8(AFilenameUTF8).bmp;
+      AddLayerFromBitmap(newPicture, ExtractFileName(AFilenameUTF8));
+    end;
+
   except
     on ex: Exception do
+    begin
+      ALoadedImage.Free;
       FInstance.ShowError('TryAddLayerFromFile',ex.Message);
+    end;
   end;
 end;
 
-function TImageActions.AddLayerFromBitmap(ABitmap: TBGRABitmap; AName: string
-  ): boolean;
+function TImageActions.AddLayerFromBitmap(ABitmap: TBGRABitmap; AName: string): boolean;
 var
-  layeraction: TLayerAction;
   ratio: single;
+  xorMask: TBGRABitmap;
 begin
   if (ABitmap <> nil) and (ABitmap.Width > 0) and (ABitmap.Height > 0) then
   begin
-    if ToolManager.GetCurrentToolType in [ptDeformation,ptRotateSelection,ptMoveSelection,ptTextureMapping,ptLayerMapping] then
+    if CurrentTool in [ptDeformation,ptRotateSelection,ptMoveSelection,ptTextureMapping,ptLayerMapping] then
       ChooseTool(ptHand);
     if image.CheckNoAction then
     begin
-      if not Image.SelectionEmpty then
-      begin
-        layeraction := TLayerAction.Create(image);
-        layeraction.ReleaseSelection;
-        layeraction.Validate;
-        layeraction.Free;
-      end;
+      if not Image.SelectionMaskEmpty then ReleaseSelection;
       if (ABitmap.Width > Image.Width) or (ABitmap.Height > Image.Height) then
       begin
         ratio := 1;
@@ -464,8 +511,26 @@ begin
         ABitmap.ResampleFilter := rfBestQuality;
         BGRAReplace(ABitmap, ABitmap.Resample(round(ABitmap.Width*ratio),round(ABitmap.Height*ratio)));
       end;
-      NewLayer(ABitmap, AName);
-      result := true;
+      if Assigned(ABitmap.XorMask) then
+      begin
+        xorMask := ABitmap.XorMask.Duplicate as TBGRABitmap;
+        xorMask.AlphaFill(255);
+        xorMask.ReplaceColor(BGRABlack,BGRAPixelTransparent);
+        ABitmap.DiscardXorMask;
+      end
+      else
+        xorMask := nil;
+      if NewLayer(ABitmap, AName, boTransparent) then
+      begin
+        if Assigned(xorMask) then
+          result := NewLayer(xorMask, AName + ' (xor)', boXor)
+        else
+          result := true;
+      end else
+      begin
+        xorMask.Free;
+        result := false;
+      end;
     end else
     begin
       ABitmap.Free;
@@ -478,44 +543,51 @@ begin
   end;
 end;
 
+function TImageActions.AddLayerFromOriginal(
+  AOriginal: TBGRALayerCustomOriginal; AName: string): boolean;
+begin
+  result := AddLayerFromOriginal(AOriginal,AName,AffineMatrixIdentity);
+end;
+
+function TImageActions.AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal;
+  AName: string; AMatrix: TAffineMatrix): boolean;
+begin
+  if AOriginal <> nil then
+  begin
+    if CurrentTool in [ptDeformation,ptRotateSelection,ptMoveSelection,ptTextureMapping,ptLayerMapping] then
+      ChooseTool(ptHand);
+    if image.CheckNoAction then
+    begin
+      if not Image.SelectionMaskEmpty then ReleaseSelection;
+      result := NewLayer(AOriginal, AName, boTransparent, AMatrix);
+    end else
+    begin
+      AOriginal.Free;
+      result := false;
+    end;
+  end else
+  begin
+    AOriginal.Free;
+    result := false;
+  end;
+end;
+
 procedure TImageActions.HorizontalFlip(AOption: TFlipOption);
-var bounds: TRect;
-    LayerAction: TLayerAction;
 begin
   try
     if (AOption = foCurrentLayer) then
+      image.HorizontalFlip(Image.CurrentLayerIndex) else
+    if ((AOption = foAuto) and not image.SelectionMaskEmpty) or (AOption = foSelection) then
     begin
-      if not Image.CheckNoAction then exit;
-      LayerAction := TLayerAction.Create(Image);
-      LayerAction.SelectedImageLayer.HorizontalFlip;
-      Image.LayerMayChangeCompletely(LayerAction.SelectedImageLayer);
-      LayerAction.Validate;
-      LayerAction.Free;
-    end else
-    if ((AOption = foAuto) and not image.SelectionEmpty) or (AOption = foSelection) then
-    begin
-      if not image.SelectionEmpty then
+      if not image.SelectionMaskEmpty then
       begin
         ChooseTool(ptMoveSelection);
         if not Image.CheckNoAction then exit;
-        LayerAction := TLayerAction.Create(Image);
-        LayerAction.AllChangesNotified := true;
-        bounds := Image.SelectionBounds;
-        LayerAction.currentSelection.HorizontalFlip(bounds);
-        LayerAction.NotifyChange(LayerAction.currentSelection,bounds);
-        Image.SelectionMayChange(bounds);
-        if LayerAction.DrawingLayer <> nil then
-        begin
-          LayerAction.DrawingLayer.HorizontalFlip(bounds);
-          LayerAction.NotifyChange(LayerAction.DrawingLayer,bounds);
-          Image.LayerMayChange(LayerAction.DrawingLayer,bounds);
-        end;
-        LayerAction.Validate;
-        LayerAction.Free;
+        Image.SelectionTransform := AffineMatrixTranslation(+Image.Width/2,0)*AffineMatrixScale(-1,1)*AffineMatrixTranslation(-Image.Width/2,0)*Image.SelectionTransform;
       end else
         exit;
     end else
-    if ((AOption = foAuto) and image.SelectionEmpty) or (AOption = foWholePicture) then
+    if ((AOption = foAuto) and image.SelectionMaskEmpty) or (AOption = foWholePicture) then
       image.HorizontalFlip;
   except
     on ex:Exception do
@@ -524,42 +596,21 @@ begin
 end;
 
 procedure TImageActions.VerticalFlip(AOption: TFlipOption);
-var bounds: TRect;
-    LayerAction: TLayerAction;
 begin
   try
     if (AOption = foCurrentLayer) then
+      image.VerticalFlip(Image.CurrentLayerIndex) else
+    if ((AOption = foAuto) and not image.SelectionMaskEmpty) or (AOption = foSelection) then
     begin
-      if not Image.CheckNoAction then exit;
-      LayerAction := TLayerAction.Create(Image);
-      LayerAction.SelectedImageLayer.VerticalFlip;
-      Image.LayerMayChangeCompletely(LayerAction.SelectedImageLayer);
-      LayerAction.Validate;
-      LayerAction.Free;
-    end else
-    if ((AOption = foAuto) and not image.SelectionEmpty) or (AOption = foSelection) then
-    begin
-      if not image.SelectionEmpty then
+      if not image.SelectionMaskEmpty then
       begin
         ChooseTool(ptMoveSelection);
         if not Image.CheckNoAction then exit;
-        LayerAction := TLayerAction.Create(Image);
-        bounds := Image.SelectionBounds;
-        LayerAction.currentSelection.VerticalFlip(bounds);
-        LayerAction.NotifyChange(LayerAction.currentSelection,bounds);
-        Image.SelectionMayChange(bounds);
-        if LayerAction.DrawingLayer <> nil then
-        begin
-          LayerAction.DrawingLayer.VerticalFlip(bounds);
-          LayerAction.NotifyChange(LayerAction.DrawingLayer,bounds);
-          Image.LayerMayChange(LayerAction.DrawingLayer,bounds);
-        end;
-        LayerAction.Validate;
-        LayerAction.Free;
+        Image.SelectionTransform := AffineMatrixTranslation(0,+Image.Height/2)*AffineMatrixScale(1,-1)*AffineMatrixTranslation(0,-Image.Height/2)*Image.SelectionTransform;
       end else
         exit;
     end else
-    if ((AOption = foAuto) and image.SelectionEmpty) or (AOption = foWholePicture) then
+    if ((AOption = foAuto) and image.SelectionMaskEmpty) or (AOption = foWholePicture) then
       image.VerticalFlip;
   except
     on ex:Exception do
@@ -582,6 +633,16 @@ begin
   Image.LinearNegativeAll;
 end;
 
+procedure TImageActions.NegativeAll;
+begin
+  Image.NegativeAll;
+end;
+
+procedure TImageActions.SwapRedBlueAll;
+begin
+  Image.SwapRedBlue;
+end;
+
 procedure TImageActions.InvertSelection;
 var LayerAction: TLayerAction;
     p : PBGRAPixel;
@@ -589,9 +650,10 @@ var LayerAction: TLayerAction;
 begin
   LayerAction := nil;
   try
-    if not ToolManager.IsSelectingTool then ChooseTool(ptSelectRect);
-    LayerAction := TLayerAction.Create(Image);
+    if not (CurrentTool in[ptSelectRect,ptSelectEllipse]) then ChooseTool(ptSelectRect);
+    LayerAction := Image.CreateAction(false);
     LayerAction.QuerySelection;
+    LayerAction.ApplySelectionTransform;
     p := LayerAction.CurrentSelection.Data;
     for n := LayerAction.CurrentSelection.NbPixels-1 downto 0 do
     begin
@@ -601,7 +663,7 @@ begin
     LayerAction.CurrentSelection.InvalidateBitmap;
     LayerAction.CurrentSelection.LinearNegative;
     LayerAction.Validate;
-    Image.SelectionMayChangeCompletely;
+    Image.SelectionMaskMayChangeCompletely;
   except
     on ex:Exception do
       FInstance.ShowError('InvertSelection',ex.Message);
@@ -617,13 +679,7 @@ begin
   if not Image.CheckNoAction then exit;
   LayerAction := nil;
   try
-    if not image.SelectionEmpty then
-    begin
-      LayerAction := TLayerAction.Create(Image);
-      LayerAction.AllChangesNotified:= true;
-      LayerAction.ReleaseSelection;
-      LayerAction.Validate;
-    end;
+    if not image.SelectionMaskEmpty then ReleaseSelection;
   except
     on ex:Exception do
       FInstance.ShowError('Deselect',ex.Message);
@@ -639,9 +695,9 @@ begin
   LayerAction := nil;
   try
     if not image.CheckNoAction then exit;
-    bounds := Image.SelectionBounds;
+    bounds := Image.SelectionMaskBounds;
     if IsRectEmpty(bounds) then exit;
-    LayerAction := TLayerAction.Create(Image);
+    LayerAction := Image.CreateAction;
     LayerAction.ApplySelectionMask;
     if Image.SelectionLayerIsEmpty then
       LayerAction.RetrieveSelection;
@@ -666,12 +722,13 @@ end;
 procedure TImageActions.CutSelection;
 var LayerAction: TLayerAction;
 begin
+  if image.SelectionMaskEmpty then exit;
   if not image.CheckNoAction then exit;
   LayerAction := nil;
   try
-    if image.SelectionEmpty then exit;
     CopySelection;
-    LayerAction := TLayerAction.Create(Image);
+    LayerAction := Image.CreateAction;
+    LayerAction.ApplySelectionTransform;
     if (LayerAction.GetSelectionLayerIfExists = nil) or (LayerAction.GetSelectionLayerIfExists.Empty) then
       LayerAction.EraseSelectionInBitmap;
     LayerAction.RemoveSelection;
@@ -686,17 +743,42 @@ begin
   LayerAction.Free;
 end;
 
-procedure TImageActions.DeleteSelection;
+procedure TImageActions.RetrieveSelection;
 var LayerAction: TLayerAction;
+  r: TRect;
 begin
+  if image.SelectionMaskEmpty then exit;
   if not image.CheckNoAction then exit;
   LayerAction := nil;
   try
-    if image.SelectionEmpty then exit;
+    LayerAction := Image.CreateAction(false);
+    if LayerAction.RetrieveSelectionIfLayerEmpty(True) then
+    begin
+      r := Image.SelectionMaskBounds;
+      ComputeSelectionMask(LayerAction.GetOrCreateSelectionLayer,LayerAction.CurrentSelection,r);
+      LayerAction.NotifyChange(LayerAction.GetOrCreateSelectionLayer, r);
+      LayerAction.NotifyChange(LayerAction.CurrentSelection, r);
+      LayerAction.Validate;
+    end;
+    if image.SelectionLayerIsEmpty then MessagePopup(rsNothingToBeRetrieved,2000);
+  except on ex:exception do FInstance.ShowError('RetrieveSelection',ex.Message);
+  end;
+  LayerAction.Free;
+end;
 
-    LayerAction := TLayerAction.Create(Image);
+procedure TImageActions.DeleteSelection;
+var LayerAction: TLayerAction;
+begin
+  if image.SelectionMaskEmpty then exit;
+  if not image.CheckNoAction then exit;
+  LayerAction := nil;
+  try
+    LayerAction := Image.CreateAction;
     if Image.SelectionLayerIsEmpty then
+    begin
+      LayerAction.ApplySelectionTransform;
       LayerAction.EraseSelectionInBitmap;
+    end;
     LayerAction.RemoveSelection;
     LayerAction.Validate;
     if (CurrentTool = ptRotateSelection) or
@@ -707,6 +789,34 @@ begin
       FInstance.ShowError('DeleteSelection',ex.Message);
   end;
   LayerAction.Free;
+end;
+
+procedure TImageActions.RemoveSelection;
+var LayerAction: TLayerAction;
+begin
+  if image.SelectionMaskEmpty then exit;
+  if not image.CheckNoAction then exit;
+  LayerAction := nil;
+  try
+    LayerAction := Image.CreateAction;
+    LayerAction.RemoveSelection;
+    LayerAction.Validate;
+    if (CurrentTool = ptRotateSelection) or
+       (CurrentTool = ptMoveSelection) then
+      ChooseTool(ptHand);
+  except on ex:exception do FInstance.ShowError('RemoveSelection',ex.Message);
+  end;
+  LayerAction.Free;
+end;
+
+procedure TImageActions.ReleaseSelection;
+var
+  layeraction: TLayerAction;
+begin
+  layeraction := image.CreateAction;
+  layeraction.ReleaseSelection;
+  layeraction.Validate;
+  layeraction.Free;
 end;
 
 procedure TImageActions.Paste;
@@ -721,7 +831,7 @@ begin
       if partial.NbPixels <> 0 then
       begin
         ToolManager.ToolCloseDontReopen;
-        layeraction := TLayerAction.Create(Image);
+        layeraction := Image.CreateAction(true);
         layeraction.ReleaseSelection;
         layeraction.QuerySelection;
         pastePos := Point((image.Width - partial.Width) div 2 - image.ImageOffset.X,
@@ -733,7 +843,7 @@ begin
         layeraction.GetOrCreateSelectionLayer.PutImage(pastePos.x,pastePos.y,partial,dmFastBlend);
         ComputeSelectionMask(layeraction.GetOrCreateSelectionLayer,layeraction.currentSelection,
           rect(pastePos.x,pastePos.y,pastePos.x+partial.Width,pastePos.y+partial.Height));
-        Image.SelectionMayChange(rect(pastePos.x,pastePos.y,pastePos.x+partial.Width,pastePos.y+partial.Height));
+        Image.SelectionMaskMayChange(rect(pastePos.x,pastePos.y,pastePos.x+partial.Width,pastePos.y+partial.Height));
         layeraction.Validate;
         layeraction.Free;
         ChooseTool(ptMoveSelection);
@@ -772,10 +882,10 @@ var LayerAction : TLayerAction;
 begin
   try
     if not ToolManager.IsSelectingTool then ChooseTool(ptSelectRect);
-    LayerAction := TLayerAction.Create(Image);
+    LayerAction := Image.CreateAction;
     LayerAction.QuerySelection;
     LayerAction.currentSelection.Fill(BGRAWhite);
-    Image.SelectionMayChangeCompletely;
+    Image.SelectionMaskMayChangeCompletely;
     LayerAction.Validate;
     LayerAction.Free;
   except
@@ -790,24 +900,24 @@ var LayerAction: TLayerAction;
 begin
   if not image.CheckNoAction then exit;
   try
-    LayerAction := TLayerAction.Create(Image);
-    LayerAction.AllChangesNotified := true;
+    LayerAction := Image.CreateAction;
+    LayerAction.ChangeBoundsNotified := true;
 
-    if image.SelectionEmpty then
+    if image.SelectionMaskEmpty then
     begin
       bounds := rect(0,0,Image.width,image.height);
       LayerAction.QuerySelection;
       LayerAction.currentSelection.Fill(BGRAWhite);
       LayerAction.NotifyChange(LayerAction.currentSelection, bounds);
-      Image.SelectionMayChange(bounds);
+      Image.SelectionMaskMayChange(bounds);
     end else
     begin
       bounds := image.SelectionLayerBounds;
-      Image.SelectionMayChange(bounds);
+      Image.SelectionMaskMayChange(bounds);
       LayerAction.ApplySelectionMask;
       LayerAction.NotifyChange(LayerAction.GetSelectionLayerIfExists, bounds);
-      bounds := image.SelectionBounds;
-      Image.SelectionMayChange(bounds);
+      bounds := image.SelectionMaskBounds;
+      Image.SelectionMaskMayChange(bounds);
     end;
 
     if LayerAction.RetrieveSelectionIfLayerEmpty(True) then
@@ -820,10 +930,10 @@ begin
     LayerAction.NotifyChange(LayerAction.GetOrCreateSelectionLayer, bounds);
     LayerAction.Validate;
     LayerAction.Free;
-    if image.SelectionEmpty then
+    if image.SelectionMaskEmpty then
     begin
       if (CurrentTool = ptRotateSelection) or
-         (CurrentTool  = ptMoveSelection) then
+         (CurrentTool = ptMoveSelection) then
         ChooseTool(ptHand);
     end else
       if not ToolManager.IsSelectingTool then ChooseTool(ptMoveSelection);
@@ -834,29 +944,52 @@ begin
 end;
 
 procedure TImageActions.NewLayer;
-var top: TTopMostInfo;
-    res: integer;
+{var top: TTopMostInfo;
+    res: integer;}
 begin
-  if not image.SelectionLayerIsEmpty then
+  {if not image.SelectionLayerIsEmpty then
   begin
     top := FInstance.HideTopmost;
     res := MessageDlg(rsTransferSelectionToOtherLayer,mtConfirmation,[mbOk,mbCancel],0);
     FInstance.ShowTopmost(top);
     if res <> mrOk then exit;
-  end;
+  end;}
   if image.NbLayers < MaxLayersToAdd then
   begin
     Image.AddNewLayer;
-    FInstance.ScrollLayerStackOnItem(Image.currentImageLayerIndex);
+    FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
   end;
 end;
 
-procedure TImageActions.NewLayer(ALayer: TBGRABitmap; AName: string);
+function TImageActions.NewLayer(ALayer: TBGRABitmap; AName: string;
+  ABlendOp: TBlendOperation): boolean;
 begin
   if image.NbLayers < MaxLayersToAdd then
   begin
-    Image.AddNewLayer(ALayer, AName);
-    FInstance.ScrollLayerStackOnItem(Image.currentImageLayerIndex);
+    Image.AddNewLayer(ALayer, AName, ABlendOp);
+    FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
+    result := true;
+  end else
+  begin
+    FInstance.ShowMessage(rsLayers, rsTooManyLayers);
+    ALayer.Free;
+    result := false;
+  end;
+end;
+
+function TImageActions.NewLayer(ALayer: TBGRALayerCustomOriginal;
+  AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix): boolean;
+begin
+  if image.NbLayers < MaxLayersToAdd then
+  begin
+    Image.AddNewLayer(ALayer, AName, ABlendOp, AMatrix);
+    FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
+    result := true;
+  end else
+  begin
+    FInstance.ShowMessage(rsLayers, rsTooManyLayers);
+    ALayer.Free;
+    result := false;
   end;
 end;
 
@@ -865,25 +998,25 @@ begin
   if image.NbLayers < MaxLayersToAdd then
   begin
     Image.DuplicateLayer;
-    FInstance.ScrollLayerStackOnItem(Image.currentImageLayerIndex);
+    FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
   end;
 end;
 
 procedure TImageActions.MergeLayerOver;
 begin
-  if (Image.currentImageLayerIndex <> -1) and (image.NbLayers > 1) then
+  if (Image.CurrentLayerIndex <> -1) and (image.NbLayers > 1) then
   begin
     Image.MergeLayerOver;
-    FInstance.ScrollLayerStackOnItem(Image.currentImageLayerIndex);
+    FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
   end;
 end;
 
 procedure TImageActions.RemoveLayer;
 var idx: integer;
 begin
-  if (Image.currentImageLayerIndex <> -1) and (Image.NbLayers > 1) then
+  if (Image.CurrentLayerIndex <> -1) and (Image.NbLayers > 1) then
   begin
-    idx := Image.currentImageLayerIndex;
+    idx := Image.CurrentLayerIndex;
     Image.RemoveLayer;
     FInstance.ScrollLayerStackOnItem(idx);
   end;
@@ -895,7 +1028,7 @@ var lSelection,lTemp: TBGRABitmap;
 begin
   if not image.CheckNoAction then exit;
   try
-    LayerAction := TLayerAction.Create(Image);
+    LayerAction := Image.CreateAction;
     try
       LayerAction.QuerySelection;
       lSelection:= LayerAction.currentSelection.Duplicate as TBGRABitmap;
@@ -917,7 +1050,7 @@ begin
       LayerAction.Validate;
     finally
       LayerAction.Free;
-      Image.SelectionMayChangeCompletely;
+      Image.SelectionMaskMayChangeCompletely;
     end;
   except on ex:Exception do FInstance.ShowError('EditSelection',ex.Message);
   end;

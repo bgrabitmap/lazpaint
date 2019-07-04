@@ -29,6 +29,7 @@ type
     Panel_Quality: TPanel;
     Panel_BitsPerPixel: TPanel;
     Panel_Option: TPanel;
+    RadioButton_32BitsPerPixel: TRadioButton;
     RadioButton_MioMap: TRadioButton;
     RadioButton_2Colors: TRadioButton;
     RadioButton_16Colors: TRadioButton;
@@ -57,10 +58,11 @@ type
     FBmpStream, FJpegStream, FPngStream: TMemoryStream;
     FFormTitle: string;
     FImageFormat: TBGRAImageFormat;
-    FQuantizer: TBGRAColorQuantizer;
+    FQuantizer, FQuantizer1bit: TBGRAColorQuantizer;
     FSizeCaption: string;
     function GetBmpStreamNeeded: boolean;
     procedure BmpQualityChanged;
+    function GetPngStreamNeeded: boolean;
     procedure PngQualityChanged;
     function GetBitsPerPixelVisible: boolean;
     function GetColorQuantizer: TBGRAColorQuantizer;
@@ -86,6 +88,8 @@ type
     function GetOriginalBitDepth: integer;
     procedure DoUpdateBitmap;
     procedure JpegQualityChanged;
+    procedure LayoutRadioButtonDepth;
+    procedure MakePngStreamIfNeeded;
   public
     { public declarations }
     property QualityVisible: boolean read GetQualityVisible write SetQualityVisible;
@@ -99,20 +103,22 @@ type
     property JpegQuality: integer read GetJpegQuality write SetJpegQuality;
     property WantedBitsPerPixel: integer read GetWantedBitsPerPixel;
     property BmpStreamNeeded: boolean read GetBmpStreamNeeded;
+    property PngStreamNeeded: boolean read GetPngStreamNeeded;
   end;
 
 function ShowSaveOptionDialog(AInstance: TLazPaintCustomInstance; AOutputFilenameUTF8: string): boolean;
 
 implementation
 
-uses UGraph, FPWriteJPEG, UResourceStrings, lazutf8classes, FPWriteBMP, BMPcomn,
-  UMySLV, BGRAWriteBmpMioMap, BGRADithering;
+uses UGraph, FPWriteJPEG, UResourceStrings, FPWriteBMP, BMPcomn,
+  UMySLV, BGRAWriteBmpMioMap, BGRADithering, UFileSystem, LCScaleDPI,
+  BGRAThumbnail, BGRAIconCursor, BGRAWinResource;
 
 function ShowSaveOptionDialog(AInstance: TLazPaintCustomInstance; AOutputFilenameUTF8: string): boolean;
 var f: TFSaveOption;
 begin
   result := false;
-  if SuggestImageFormat(AOutputFilenameUTF8) in[ifBmp,ifJpeg,ifPng] then
+  if SuggestImageFormat(AOutputFilenameUTF8) in[ifBmp,ifJpeg,ifPng,ifIco,ifCur] then
   begin
     f := TFSaveOption.Create(nil);
     try
@@ -150,12 +156,13 @@ begin
   Panel_BitsPerPixel.Visible := FBitsPerPixelVisible;
   FFlattenedOriginal := nil;
   FSizeCaption:= Label_Size.Caption;
+  LayoutRadioButtonDepth;
 end;
 
 procedure TFSaveOption.FormDestroy(Sender: TObject);
 begin
-  FreeAndNil(FFlattenedOriginal);
   FreeAndNil(FQuantizer);
+  FreeAndNil(FQuantizer1bit);
   FreeAndNil(FJpegPreview);
   FreeAndNil(FBmpStream);
   FreeAndNil(FJpegStream);
@@ -243,18 +250,16 @@ var ratioX,ratioY,ratio: single;
   mustFreePic: boolean;
   x,y,visualWidth,visualHeight: integer;
   r: TRect;
+  thumb: TBGRABitmap;
 begin
   Timer_Update.Enabled:= false;
   if QuantizerNeeded then
   begin
     mustFreePic:= true;
-    picture := Quantizer.GetDitheredBitmap(GetDitheringAlgorithm, FFlattenedOriginal) as TBGRABitmap;
-    if (ImageFormat = ifPng) and (FPngStream = nil) then
-    begin
-      FPngStream := TMemoryStream.Create;
-      Quantizer.SaveBitmapToStream(GetDitheringAlgorithm, FFlattenedOriginal, FPngStream, ifPng);
-      UpdateFileSize;
-    end;
+    if (ImageFormat in [ifCur,ifIco]) and not PngStreamNeeded then
+      picture := BGRADitherIconCursor(FFlattenedOriginal, WantedBitsPerPixel, GetDitheringAlgorithm) as TBGRABitmap
+    else
+      picture := Quantizer.GetDitheredBitmap(GetDitheringAlgorithm, FFlattenedOriginal) as TBGRABitmap;
   end else
   if ImageFormat = ifJpeg then
   begin
@@ -279,13 +284,8 @@ begin
   begin
     mustFreePic:= false;
     picture := FFlattenedOriginal;
-    if (ImageFormat = ifPng) and (FPngStream = nil) then
-    begin
-      FPngStream := TMemoryStream.Create;
-      FFlattenedOriginal.SaveToStreamAsPng(FPngStream);
-      UpdateFileSize;
-    end;
   end;
+  MakePngStreamIfNeeded;
 
   if (Bitmap.Width = 0) or (Bitmap.Height = 0) or (picture.Width = 0) or (picture.Height = 0) then exit;
   ratioX := Bitmap.Width/picture.Width;
@@ -299,18 +299,27 @@ begin
   x := (Bitmap.Width-visualWidth) div 2;
   y := (Bitmap.Height-visualHeight) div 2;
   r := rect(x,y,x+visualWidth,y+visualHeight);
-  DrawCheckers(Bitmap, r);
-  Bitmap.StretchPutImage(r, picture, dmDrawWithTransparency);
+  if ImageFormat in[ifIco,ifCur] then
+  begin
+    thumb := GetBitmapThumbnail(picture, ImageFormat, visualWidth,visualHeight, BGRAPixelTransparent, true);
+    Bitmap.PutImage(r.Left,r.Top, thumb, dmSet);
+    thumb.Free;
+  end else
+  begin
+    DrawCheckers(Bitmap, r);
+    Bitmap.StretchPutImage(r, picture, dmDrawWithTransparency);
+  end;
   if mustFreePic then picture.Free;
 end;
 
 procedure TFSaveOption.Button_OKClick(Sender: TObject);
   procedure SavePng;
-  var outputStream: TFileStreamUTF8;
+  var outputStream: TStream;
   begin
+    MakePngStreamIfNeeded;
     if assigned(FPngStream) then
     begin
-      outputStream := TFileStreamUTF8.Create(FOutputFilename,fmCreate);
+      outputStream := FileManager.CreateFileStream(FOutputFilename,fmCreate);
       try
         FPngStream.Position := 0;
         outputStream.CopyFrom(FPngStream, FPngStream.Size);
@@ -318,32 +327,19 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
       finally
         outputStream.Free;
       end;
-    end else
-    begin
-      if QuantizerNeeded then
-        Quantizer.SaveBitmapToFile(GetDitheringAlgorithm,FFlattenedOriginal,FOutputFilename,ImageFormat)
-      else
-        FFlattenedOriginal.SaveToFileUTF8(FOutputFilename);
-      if FLazPaintInstance.Image.NbLayers = 1 then FLazPaintInstance.Image.SetSavedFlag;
     end;
   end;
 
-  procedure SaveBmp;
+  procedure WriteBmpStream(outputStream: TStream);
   var writer: TFPWriterBMP;
     dithered: TBGRACustomBitmap;
-    outputStream: TFileStreamUTF8;
   begin
     MakeBmpStreamIfNeeded;
     if Assigned(FBmpStream) then
     begin
-      outputStream := TFileStreamUTF8.Create(FOutputFilename,fmCreate);
-      try
-        FBmpStream.Position := 0;
-        outputStream.CopyFrom(FBmpStream, FBmpStream.Size);
-        if FLazPaintInstance.Image.NbLayers = 1 then FLazPaintInstance.Image.SetSavedFlag;
-      finally
-        outputStream.Free;
-      end;
+      FBmpStream.Position := 0;
+      outputStream.CopyFrom(FBmpStream, FBmpStream.Size);
+      if FLazPaintInstance.Image.NbLayers = 1 then FLazPaintInstance.Image.SetSavedFlag;
     end else
     if QuantizerNeeded then
     begin
@@ -352,7 +348,7 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
       writer := TFPWriterBMP.Create;
       writer.BitsPerPixel := WantedBitsPerPixel;
       try
-        dithered.SaveToFileUTF8(FOutputFilename, writer);
+        dithered.SaveToStream(outputStream, writer);
         if FLazPaintInstance.Image.NbLayers = 1 then FLazPaintInstance.Image.SetSavedFlag;
       finally
         writer.Free;
@@ -360,16 +356,80 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
       end;
     end else
     begin
-      FFlattenedOriginal.SaveToFileUTF8(FOutputFilename);
-      if FLazPaintInstance.Image.NbLayers = 1 then FLazPaintInstance.Image.SetSavedFlag;
+      writer := TFPWriterBMP.Create;
+      writer.BitsPerPixel := WantedBitsPerPixel;
+      try
+        FFlattenedOriginal.SaveToStream(outputStream, writer);
+        if FLazPaintInstance.Image.NbLayers = 1 then FLazPaintInstance.Image.SetSavedFlag;
+      finally
+        writer.Free;
+      end;
+    end;
+  end;
+
+  procedure SaveBmp;
+  var
+    outputStream: TStream;
+  begin
+    outputStream := FileManager.CreateFileStream(FOutputFilename,fmCreate);
+    try
+      WriteBmpStream(outputStream);
+    finally
+      outputStream.Free;
+    end;
+  end;
+
+  procedure SaveIcoCur;
+  var inputStream,outputStream: TStream;
+    icoCur: TBGRAIconCursor;
+    picture: TBGRACustomBitmap;
+    bpp: integer;
+  begin
+    icoCur := TBGRAIconCursor.Create;
+    if FileManager.FileExists(FOutputFilename) then
+    begin
+      inputStream := FileManager.CreateFileStream(FOutputFilename,fmOpenRead or fmShareDenyWrite);
+      try
+        icoCur.LoadFromStream(inputStream);
+      finally
+        inputStream.Free;
+      end;
+    end else
+    begin
+      icoCur.FileType:= ImageFormat;
+    end;
+    try
+      bpp := WantedBitsPerPixel;
+      if PngStreamNeeded then
+      begin
+        MakePngStreamIfNeeded;
+        icoCur.Add(FPngStream,true,false);
+      end else
+      begin
+        picture := BGRADitherIconCursor(FFlattenedOriginal, WantedBitsPerPixel, GetDitheringAlgorithm) as TBGRABitmap;
+        try
+          icoCur.Add(picture,WantedBitsPerPixel,true);
+        finally
+          picture.free;
+        end;
+      end;
+      outputStream := FileManager.CreateFileStream(FOutputFilename,fmCreate);
+      try
+        icoCur.SaveToStream(outputStream);
+        FLazPaintInstance.Image.SetSavedFlag(bpp);
+      finally
+        outputStream.Free;
+      end;
+    finally
+      icoCur.Free;
     end;
   end;
 
   procedure SaveJpeg;
-  var outputStream: TFileStreamUTF8;
+  var outputStream: TStream;
   begin
     RequireJpegStream;
-    outputStream := TFileStreamUTF8.Create(FOutputFilename,fmCreate);
+    outputStream := FileManager.CreateFileStream(FOutputFilename,fmCreate);
     try
       FJpegStream.Position := 0;
       outputStream.CopyFrom(FJpegStream, FJpegStream.Size);
@@ -395,6 +455,11 @@ begin
     ifPng:
       begin
         SavePng;
+        ModalResult := mrOK;
+      end;
+    ifIco,ifCur:
+      begin
+        SaveIcoCur;
         ModalResult := mrOK;
       end;
     else
@@ -447,6 +512,14 @@ begin
   FreeAndNil(FBmpStream);
 end;
 
+function TFSaveOption.GetPngStreamNeeded: boolean;
+begin
+  result := (ImageFormat = ifPng) or
+        ( (ImageFormat in[ifIco,ifCur]) and
+          ((FFlattenedOriginal.Width >= 256) or (FFlattenedOriginal.Height >= 256)) and
+          ((FFlattenedOriginal.XorMask = nil) or FFlattenedOriginal.XorMask.Empty) );
+end;
+
 procedure TFSaveOption.UpdateQualityTextBox;
 begin
   FInit := true;
@@ -461,7 +534,7 @@ end;
 
 function TFSaveOption.GetQuantizerNeeded: boolean;
 begin
-  result := (FImageFormat in [ifPng,ifBmp]) and (WantedBitsPerPixel <= 8);
+  result := (FImageFormat in [ifPng,ifBmp,ifIco,ifCur]) and (WantedBitsPerPixel <= 8);
 end;
 
 function TFSaveOption.GetBitsPerPixelVisible: boolean;
@@ -471,9 +544,23 @@ end;
 
 function TFSaveOption.GetColorQuantizer: TBGRAColorQuantizer;
 begin
-  if not Assigned(FQuantizer) then
-    FQuantizer := TBGRAColorQuantizer.Create(FFlattenedOriginal,acFullChannelInPalette);
-  result := FQuantizer;
+  if WantedBitsPerPixel = 1 then
+  begin
+    if not Assigned(FQuantizer1bit) then
+    begin
+      if FFlattenedOriginal.HasTransparentPixels then
+        FQuantizer1bit := TBGRAColorQuantizer.Create([BGRABlack,BGRAWhite,BGRAPixelTransparent],false,3)
+      else
+        FQuantizer1bit := TBGRAColorQuantizer.Create([BGRABlack,BGRAWhite],false,2);
+    end;
+    result := FQuantizer1bit;
+  end else
+  begin
+    if not Assigned(FQuantizer) then
+      FQuantizer := TBGRAColorQuantizer.Create(FFlattenedOriginal,acFullChannelInPalette);
+    FQuantizer.ReductionColorCount := 1 shl WantedBitsPerPixel;
+    result := FQuantizer;
+  end;
 end;
 
 function TFSaveOption.GetJpegPreview: TBGRABitmap;
@@ -526,8 +613,10 @@ begin
     result := 8
   else if RadioButton_MioMap.Checked then
     result := 16
+  else if RadioButton_24BitsPerPixel.Checked then
+    result := 24
   else
-    result := 24;
+    result := 32;
 end;
 
 procedure TFSaveOption.SetJpegQuality(AValue: integer);
@@ -552,11 +641,20 @@ begin
          UpdateFileSizeTo(FBmpStream.Size);
     end else
     begin
-      size := int64((FFlattenedOriginal.Width*WantedBitsPerPixel+7) div 8)*FFlattenedOriginal.Height;
+      size := int64((FFlattenedOriginal.Width*WantedBitsPerPixel+31) div 32)*4*FFlattenedOriginal.Height;
       if QuantizerNeeded then size += int64(1 shl WantedBitsPerPixel)*4;
       size += sizeof(TBitMapFileHeader)+sizeof(TBitMapInfoHeader);
       UpdateFileSizeTo(size);
     end;
+  ifIco,ifCur: if FPngStream = nil then
+    begin
+      size := int64((FFlattenedOriginal.Width*WantedBitsPerPixel+31) div 32)*4*FFlattenedOriginal.Height;
+      if QuantizerNeeded then size += int64(1 shl WantedBitsPerPixel)*4;
+      size += sizeof(TIconFileDirEntry)+sizeof(TBitMapInfoHeader);
+      UpdateFileSizeTo(size);
+    end
+    else
+       UpdateFileSizeTo(sizeof(TIconFileDirEntry)+FPngStream.Size);
   ifJpeg: if FJpegStream = nil then
              UpdateFileSizeTo(-1)
           else
@@ -580,6 +678,8 @@ end;
 function TFSaveOption.GetJpegQuality: integer;
 begin
   result := TrackBar_Quality.Position;
+  if result < low(TJPEGQualityRange) then result := low(TJPEGQualityRange);
+  if result > high(TJPEGQualityRange) then result := high(TJPEGQualityRange);
 end;
 
 procedure TFSaveOption.SetBitsPerPixelVisible(AValue: boolean);
@@ -590,23 +690,61 @@ begin
 end;
 
 procedure TFSaveOption.SetImageFormat(AValue: TBGRAImageFormat);
+var origBPP: integer;
 begin
   if FImageFormat=AValue then Exit;
   FImageFormat:=AValue;
   QualityVisible := FImageFormat = ifJpeg;
-  BitsPerPixelVisible := FImageFormat in[ifPng,ifBmp];
+  BitsPerPixelVisible := FImageFormat in[ifPng,ifBmp,ifIco,ifCur];
   if FInit then exit;
   FInit := true;
-  if FImageFormat = ifPng then
+  origBPP := GetOriginalBitDepth;
+  if PngStreamNeeded then
   begin
     RadioButton_2Colors.Enabled := false;
     RadioButton_16Colors.Enabled := false;
     RadioButton_256Colors.Enabled := true;
     RadioButton_MioMap.Enabled := false;
-    if GetOriginalBitDepth > 8 then
-      RadioButton_24BitsPerPixel.Checked := true
+    if FFlattenedOriginal.HasTransparentPixels then
+    begin
+      RadioButton_24BitsPerPixel.Enabled := false;
+      RadioButton_32BitsPerPixel.Enabled := true;
+    end
+    else
+    begin
+      RadioButton_24BitsPerPixel.Enabled := true;
+      RadioButton_32BitsPerPixel.Enabled := false;
+    end;
+
+    if origBPP > 8 then
+    begin
+      if RadioButton_24BitsPerPixel.Enabled then
+        RadioButton_24BitsPerPixel.Checked := true
+      else
+        RadioButton_32BitsPerPixel.Checked := true;
+    end
     else
       RadioButton_256Colors.Checked := true;
+  end else
+  if FImageFormat in[ifIco,ifCur] then
+  begin
+    RadioButton_2Colors.Enabled := true;
+    RadioButton_16Colors.Enabled := true;
+    RadioButton_256Colors.Enabled := true;
+    RadioButton_24BitsPerPixel.Enabled := true;
+    RadioButton_32BitsPerPixel.Enabled := true;
+
+    if FFlattenedOriginal.HasSemiTransparentPixels then
+      RadioButton_32BitsPerPixel.Checked := true else
+    if origBPP > 8 then
+      RadioButton_24BitsPerPixel.Checked := true else
+    if origBPP > 4 then
+      RadioButton_256Colors.Checked := true else
+    if origBPP > 1 then
+      RadioButton_16Colors.Checked := true else
+      RadioButton_2Colors.Checked := true;
+
+    RadioButton_MioMap.Enabled := false;
   end else
   if FImageFormat = ifBmp then
   begin
@@ -615,22 +753,27 @@ begin
       RadioButton_2Colors.Enabled := false;
       RadioButton_16Colors.Enabled := false;
       RadioButton_256Colors.Enabled := false;
-      RadioButton_24BitsPerPixel.Checked := true;
+      RadioButton_24BitsPerPixel.Enabled := false;
+      RadioButton_32BitsPerPixel.Enabled := true;
+      RadioButton_32BitsPerPixel.Checked := true;
     end else
     begin
       RadioButton_2Colors.Enabled := true;
       RadioButton_16Colors.Enabled := true;
       RadioButton_256Colors.Enabled := true;
-      if GetOriginalBitDepth > 8 then
+      RadioButton_24BitsPerPixel.Enabled := true;
+      RadioButton_32BitsPerPixel.Enabled := true;
+      if origBPP > 8 then
         RadioButton_24BitsPerPixel.Checked := true else
-      if GetOriginalBitDepth > 4 then
+      if origBPP > 4 then
         RadioButton_256Colors.Checked := true else
-      if GetOriginalBitDepth > 1 then
+      if origBPP > 1 then
         RadioButton_16Colors.Checked := true else
         RadioButton_2Colors.Checked := true;
     end;
     RadioButton_MioMap.Enabled := true;
   end;
+  LayoutRadioButtonDepth;
   UpdateDitheringCheckbox;
   UpdateFileSize;
   FInit := false;
@@ -640,11 +783,11 @@ procedure TFSaveOption.SetLazPaintInstance(AValue: TLazPaintCustomInstance);
 begin
   if FLazPaintInstance=AValue then Exit;
   FLazPaintInstance:=AValue;
-  FreeAndNil(FFlattenedOriginal);
   FreeAndNil(FQuantizer);
+  FreeAndNil(FQuantizer1bit);
   FreeAndNil(FJpegPreview);
   JpegQuality := FLazPaintInstance.Config.DefaultJpegQuality;
-  FFlattenedOriginal := FLazPaintInstance.Image.RenderedImage.Duplicate as TBGRABitmap;
+  FFlattenedOriginal := FLazPaintInstance.Image.RenderedImage;
   UpdateFileSize;
   if LazPaintInstance.Config.DefaultSaveOptionDialogMaximized then
     WindowState := wsMaximized;
@@ -672,8 +815,6 @@ end;
 
 procedure TFSaveOption.NeedBitmapUpdate(AImmediate: boolean);
 begin
-  If QuantizerNeeded then
-    Quantizer.ReductionColorCount := 1 shl WantedBitsPerPixel;
   Timer_Update.Enabled := false;
   if AImmediate then Timer_Update.Interval := 15
   else Timer_Update.Interval := 500;
@@ -690,7 +831,8 @@ end;
 
 procedure TFSaveOption.UpdateDitheringCheckbox;
 begin
-  CheckBox_Dithering.Enabled := not RadioButton_24BitsPerPixel.Checked;
+  CheckBox_Dithering.Enabled := not RadioButton_24BitsPerPixel.Checked and
+                                not RadioButton_32BitsPerPixel.Checked;
 end;
 
 function TFSaveOption.GetOriginalBitDepth: integer;
@@ -703,6 +845,9 @@ begin
   UpdateFileSize;
   DrawHourglass(BGRAPreview.Bitmap);
   BGRAPreview.Repaint;
+  {$IFDEF LINUX}
+  Application.ProcessMessages;
+  {$ENDIF}
   BGRAPreview.DiscardBitmap;
 end;
 
@@ -714,8 +859,48 @@ begin
   NeedBitmapUpdate(False);
 end;
 
-initialization
-  {$I usaveoption.lrs}
+procedure TFSaveOption.LayoutRadioButtonDepth;
+var y: integer;
+
+  procedure LayoutItem(ACtrl: TControl; AShow: boolean);
+  begin
+    if AShow then
+    begin
+      ACtrl.Visible := true;
+      ACtrl.Top := y;
+      y += ACtrl.Height + DoScaleY(3,96);
+    end else
+    begin
+      ACtrl.Visible := false;
+    end;
+  end;
+
+begin
+  y := Label_ColorDepth.Top+Label_ColorDepth.Height+DoScaleY(4,96);
+  LayoutItem(RadioButton_2Colors, RadioButton_2Colors.Enabled);
+  LayoutItem(RadioButton_16Colors, RadioButton_16Colors.Enabled);
+  LayoutItem(RadioButton_256Colors, RadioButton_256Colors.Enabled);
+  LayoutItem(RadioButton_MioMap, RadioButton_MioMap.Enabled);
+  LayoutItem(RadioButton_24BitsPerPixel, RadioButton_24BitsPerPixel.Enabled);
+  LayoutItem(RadioButton_32BitsPerPixel, RadioButton_32BitsPerPixel.Enabled);
+  LayoutItem(CheckBox_Dithering, true);
+  Panel_BitsPerPixel.Height := y+DoScaleY(1,96);
+end;
+
+procedure TFSaveOption.MakePngStreamIfNeeded;
+begin
+  if PngStreamNeeded and (FPngStream = nil) then
+  begin
+    FPngStream := TMemoryStream.Create;
+    if QuantizerNeeded then
+      Quantizer.SaveBitmapToStream(GetDitheringAlgorithm, FFlattenedOriginal, FPngStream, ifPng)
+    else
+      FFlattenedOriginal.SaveToStreamAsPng(FPngStream);
+    UpdateFileSize;
+  end;
+end;
+
+{$R *.lfm}
 
 end.
 
