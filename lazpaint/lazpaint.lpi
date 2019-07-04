@@ -240,10 +240,11 @@
     </RunParams>
     <RequiredPackages Count="5">
       <Item1>
-        <PackageName Value="lazpaintcontrols"/>
+        <PackageName Value="BGRABitmapPack"/>
+        <MinVersion Major="10" Minor="2" Valid="True"/>
       </Item1>
       <Item2>
-        <PackageName Value="BGRABitmapPack"/>
+        <PackageName Value="lazpaintcontrols"/>
       </Item2>
       <Item3>
         <PackageName Value="Printer4Lazarus"/>
