@@ -125,8 +125,9 @@ begin
   SpinEdit_TextSize.OnChange := @SpinEdit_TextSizeChange;
   SpinEdit_TextSize.BarExponent:= 3;
 
-  SpinEdit_TextBlur := TBarUpDown.Create(vsTextBlur,1,100,3);
-  SpinEdit_TextBlur.Increment := 1;
+  SpinEdit_TextBlur := TBarUpDown.Create(vsTextBlur,1,999,40);
+  SpinEdit_TextBlur.Increment := 5;
+  SpinEdit_TextBlur.BarExponent:= 3;
   SpinEdit_TextBlur.OnChange := @SpinEdit_TextBlurChange;
 
   SpinEdit_GridNbX := TBarUpDown.Create(vsGridNbX,1,100,10);
@@ -314,7 +315,7 @@ begin
   Tool_TextShadow.Down := ToolManager.ToolTextShadow;
   Tool_TextPhong.Down := ToolManager.ToolTextPhong;
   FontDialog1.Font := ToolManager.ToolTextFont;
-  SpinEdit_TextBlur.Value := ToolManager.ToolTextBlur;
+  SpinEdit_TextBlur.Value := round(ToolManager.ToolTextBlur*PenWidthFactor);
   SpinEdit_TextSize.Value := ToolManager.ToolTextFont.Size;
   UpdateTextSizeIncrement;
   SpinEdit_TextShadowX.Value := ToolManager.ToolTextShadowOffset.X;
@@ -569,8 +570,8 @@ procedure TFMain.SpinEdit_TextBlurChange(Sender: TObject);
 begin
   if initialized then
   begin
-    if ToolManager.ToolTextBlur = SpinEdit_TextBlur.Value then exit;
-    ToolManager.ToolTextBlur := SpinEdit_TextBlur.Value;
+    if ToolManager.ToolTextBlur = SpinEdit_TextBlur.Value/PenWidthFactor then exit;
+    ToolManager.ToolTextBlur := SpinEdit_TextBlur.Value/PenWidthFactor;
     UpdateEditPicture(True);
     FActiveSpinEdit := SpinEdit_TextBlur;
   end;

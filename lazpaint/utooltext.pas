@@ -14,7 +14,13 @@ type
 
   TToolText = class(TVectorialTool)
   protected
+    FPrevShadow: boolean;
+    FPrevShadowOffset: TPoint;
+    FPrevShadowRadius: single;
     function CreateShape: TVectorShape; override;
+    procedure IncludeShadowBounds(var ARect: TRect);
+    function GetCustomShapeBounds(ADestBounds: TRect; AMatrix: TAffineMatrix; ADraft: boolean): TRect; override;
+    procedure DrawCustomShape(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     procedure ShapeChange(ASender: TObject; ABounds: TRectF); override;
     procedure ShapeEditingChange(ASender: TObject); override;
     procedure AssignShapeStyle; override;
@@ -32,7 +38,8 @@ type
 
 implementation
 
-uses LCVectorTextShapes, BGRALayerOriginal, BGRATransform;
+uses LCVectorTextShapes, BGRALayerOriginal, BGRATransform, BGRAGrayscaleMask,
+  ugraph, math;
 
 { TToolText }
 
@@ -41,11 +48,84 @@ begin
   result := TTextShape.Create(nil);
 end;
 
+procedure TToolText.IncludeShadowBounds(var ARect: TRect);
+var
+  shadowRect: TRect;
+begin
+  if Manager.ToolTextShadow then
+  begin
+    shadowRect := ARect;
+    shadowRect.Inflate(ceil(Manager.ToolTextBlur),ceil(Manager.ToolTextBlur));
+    shadowRect.Offset(Manager.ToolTextShadowOffset.X,Manager.ToolTextShadowOffset.Y);
+    ARect := RectUnion(ARect, shadowRect);
+  end;
+end;
+
+function TToolText.GetCustomShapeBounds(ADestBounds: TRect; AMatrix: TAffineMatrix; ADraft: boolean): TRect;
+begin
+  Result:= inherited GetCustomShapeBounds(ADestBounds, AMatrix, ADraft);
+  IncludeShadowBounds(result);
+  result.Intersect(ADestBounds);
+end;
+
+procedure TToolText.DrawCustomShape(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean);
+var
+  temp: TBGRABitmap;
+  blur, gray, grayShape: TGrayscaleMask;
+  shapeBounds, blurBounds, r, actualShapeBounds: TRect;
+begin
+  if Manager.ToolTextShadow then
+  begin
+    shapeBounds := GetCustomShapeBounds(rect(0,0,ADest.Width,ADest.Height),AMatrix,ADraft);
+    shapeBounds.Intersect(ADest.ClipRect);
+    if (shapeBounds.Width > 0) and (shapeBounds.Height > 0) then
+    begin
+      temp := TBGRABitmap.Create(shapeBounds.Width,shapeBounds.Height);
+      inherited DrawCustomShape(temp, AffineMatrixTranslation(-shapeBounds.Left,-shapeBounds.Top)*AMatrix, ADraft);
+      actualShapeBounds := temp.GetImageBounds;
+      if not actualShapeBounds.IsEmpty then
+      begin
+        actualShapeBounds.Offset(shapeBounds.Left,shapeBounds.Top);
+        grayShape := TGrayscaleMask.Create;
+        grayShape.CopyFrom(temp, cAlpha);
+
+        blurBounds := actualShapeBounds;
+        blurBounds.Inflate(ceil(Manager.ToolTextBlur),ceil(Manager.ToolTextBlur));
+        blurBounds.Offset(Manager.ToolTextShadowOffset.X,Manager.ToolTextShadowOffset.Y);
+        r := ADest.ClipRect;
+        r.Inflate(ceil(Manager.ToolTextBlur),ceil(Manager.ToolTextBlur));
+        blurBounds.Intersect(r);
+        gray := TGrayscaleMask.Create(blurBounds.Width,blurBounds.Height);
+        gray.PutImage(shapeBounds.Left-blurBounds.Left+Manager.ToolTextShadowOffset.X,
+                      shapeBounds.Top-blurBounds.Top+Manager.ToolTextShadowOffset.Y,grayShape,dmSet);
+        grayShape.Free;
+        blur := gray.FilterBlurRadial(Manager.ToolTextBlur,Manager.ToolTextBlur, rbFast) as TGrayscaleMask;
+        gray.Free;
+        ADest.FillMask(blurBounds.Left,blurBounds.Top,blur,BGRABlack,dmDrawWithTransparency);
+        blur.Free;
+      end;
+      ADest.PutImage(shapeBounds.Left,shapeBounds.Top,temp,dmDrawWithTransparency);
+      temp.Free;
+    end;
+    FPrevShadow := true;
+    FPrevShadowRadius := Manager.ToolTextBlur;
+    FPrevShadowOffset := Manager.ToolTextShadowOffset;
+  end else
+  begin
+    inherited DrawCustomShape(ADest, AMatrix, ADraft);
+    FPrevShadow := false;
+  end;
+end;
+
 procedure TToolText.ShapeChange(ASender: TObject; ABounds: TRectF);
+var
+  r: TRect;
 begin
   with (FShape as TTextShape) do
     Manager.ToolLightPosition := Point(round(LightPosition.X),round(LightPosition.Y));
-  inherited ShapeChange(ASender, ABounds);
+  with ABounds do r := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
+  IncludeShadowBounds(r);
+  inherited ShapeChange(ASender, RectF(r.Left,r.Top,r.Right,r.Bottom));
 end;
 
 procedure TToolText.ShapeEditingChange(ASender: TObject);
@@ -56,6 +136,9 @@ begin
 end;
 
 procedure TToolText.AssignShapeStyle;
+var
+  r: TRect;
+  toolDest: TBGRABitmap;
 begin
   with TTextShape(FShape) do
   begin
@@ -89,6 +172,14 @@ begin
     AltitudePercent:= Manager.ToolShapeAltitude;
     ParagraphAlignment:= Manager.ToolTextAlign;
     PenPhong := Manager.ToolTextPhong;
+  end;
+  if (Manager.ToolTextShadow <> FPrevShadow) or
+     (Manager.ToolTextBlur <> FPrevShadowRadius) or
+     (Manager.ToolTextShadowOffset <> FPrevShadowOffset) then
+  begin
+    toolDest := GetToolDrawingLayer;
+    r:= UpdateShape(toolDest);
+    Action.NotifyChange(toolDest, r);
   end;
 end;
 

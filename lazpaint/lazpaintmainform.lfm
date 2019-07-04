@@ -1127,7 +1127,7 @@ object FMain: TFMain
       Left = 85
       Height = 24
       Top = 1
-      Width = 118
+      Width = 143
       Align = alNone
       EdgeBorders = []
       Images = ImageList16
@@ -1139,12 +1139,11 @@ object FMain: TFMain
         ImageIndex = 61
       end
       object Tool_TextShadow: TToolButton
-        Left = 1
+        Left = 116
         Hint = 'Text shadow'
-        Top = 22
+        Top = 0
         ImageIndex = 62
         Style = tbsCheck
-        Visible = False
       end
       object Tool_TextPhong: TToolButton
         Left = 93

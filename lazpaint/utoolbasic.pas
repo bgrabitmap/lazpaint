@@ -85,6 +85,8 @@ type
     FRightDown, FLeftDown: boolean;
     FLastPos: TPointF;
     function CreateShape: TVectorShape; virtual; abstract;
+    function GetCustomShapeBounds(ADestBounds: TRect; AMatrix: TAffineMatrix; ADraft: boolean): TRect; virtual;
+    procedure DrawCustomShape(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); virtual;
     procedure AssignShapeStyle; virtual;
     function RoundCoordinate(ptF: TPointF): TPointF; virtual;
     function GetIsSelectingTool: boolean; override;
@@ -267,6 +269,17 @@ begin
   result := OnlyRenderChange;
 end;
 
+function TVectorialTool.GetCustomShapeBounds(ADestBounds: TRect; AMatrix: TAffineMatrix; ADraft: boolean): TRect;
+begin
+  with FShape.GetRenderBounds(ADestBounds,AMatrix,[]) do
+    result := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
+end;
+
+procedure TVectorialTool.DrawCustomShape(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean);
+begin
+  FShape.Render(ADest,AMatrix,ADraft);
+end;
+
 procedure TVectorialTool.AssignShapeStyle;
 var
   f: TVectorShapeFields;
@@ -326,14 +339,17 @@ function TVectorialTool.UpdateShape(toolDest: TBGRABitmap): TRect;
 var
   newBounds: TRect;
   oldClip: TRect;
+  draft: Boolean;
+  matrix: TAffineMatrix;
 begin
   result := FPreviousUpdateBounds;
   RestoreBackupDrawingLayer;
-  with FShape.GetRenderBounds(toolDest.ClipRect,AffineMatrixIdentity,[]) do
-    newBounds := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
+  matrix := AffineMatrixIdentity;
+  draft := (FRightDown or FLeftDown) and SlowShape;
+  newBounds := GetCustomShapeBounds(toolDest.ClipRect,matrix,draft);
   result := RectUnion(result, newBounds);
   oldClip := toolDest.IntersectClip(newBounds);
-  FShape.Render(toolDest,AffineMatrixIdentity,(FRightDown or FLeftDown) and SlowShape);
+  DrawCustomShape(toolDest,matrix,draft);
   toolDest.ClipRect := oldClip;
   FPreviousUpdateBounds := newBounds;
 end;

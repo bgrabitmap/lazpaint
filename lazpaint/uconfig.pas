@@ -195,8 +195,8 @@ type
     procedure SetDefaultToolTextShadow(value: boolean);
     function DefaultToolTextFont: TFont;
     procedure SetDefaultToolTextFont(value: TFont);
-    function DefaultToolTextBlur: integer;
-    procedure SetDefaultToolTextBlur(value: integer);
+    function DefaultToolTextBlur: single;
+    procedure SetDefaultToolTextBlur(value: single);
     function DefaultToolTextShadowOffsetX: integer;
     procedure SetDefaultToolTextShadowOffsetX(value: integer);
     function DefaultToolTextShadowOffsetY: integer;
@@ -793,7 +793,7 @@ end;
 
 function TLazPaintConfig.DefaultToolTextShadow: boolean;
 begin
-  result := false; //iniOptions.ReadBool('Tool','TextShadow',false);
+  result := iniOptions.ReadBool('Tool','TextShadow',false);
 end;
 
 procedure TLazPaintConfig.SetDefaultToolTextShadow(value: boolean);
@@ -829,14 +829,14 @@ begin
   iniOptions.WriteBool('Tool','TextFontUnderline',fsUnderline in tempFont.Style);
 end;
 
-function TLazPaintConfig.DefaultToolTextBlur: integer;
+function TLazPaintConfig.DefaultToolTextBlur: single;
 begin
-  result := iniOptions.ReadInteger('Tool','TextBlur',4);
+  result := iniOptions.ReadFloat('Tool','TextBlur',4);
 end;
 
-procedure TLazPaintConfig.SetDefaultToolTextBlur(value: integer);
+procedure TLazPaintConfig.SetDefaultToolTextBlur(value: single);
 begin
-  iniOptions.WriteInteger('Tool','TextBlur',value);
+  iniOptions.WriteFloat('Tool','TextBlur',value);
 end;
 
 function TLazPaintConfig.DefaultToolTextShadowOffsetX: integer;

@@ -191,7 +191,7 @@ type
     ToolDeformationGridMoveWithoutDeformation: boolean;
     ToolTextOutline,ToolTextShadow,ToolTextPhong: boolean;
     ToolTextFont: TFont;
-    ToolTextBlur: integer;
+    ToolTextBlur: single;
     ToolTextShadowOffset: TPoint;
     ToolLightPosition: TPoint;
     ToolLightAltitude: integer;
