@@ -1629,9 +1629,16 @@ end;
 
 procedure TFMain.FileImport3DExecute(Sender: TObject);
 var topmostInfo: TTopMostInfo;
+  dir3d: String;
 begin
   topmostInfo:= LazPaintInstance.HideTopmost;
   Open3DObjectDialog.InitialDir := Config.Default3dObjectDirectory;
+  if Open3DObjectDialog.InitialDir = '' then
+  begin
+    dir3d := {$IFDEF WINDOWS}SysToUTF8{$ENDIF}ExtractFilePath(Application.ExeName){$IFDEF WINDOWS}){$ENDIF}+'models';
+    if DirectoryExistsUTF8(dir3d) then
+      Open3DObjectDialog.InitialDir := dir3d;
+  end;
   if Open3DObjectDialog.Execute then
   begin
     FImageActions.Import3DObject(Open3DObjectDialog.FileName);
