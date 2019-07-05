@@ -1,0 +1,8 @@
+lazpaint (7.0.1) unstable; urgency=low
+
+  * support for ICO/CUR, GIF frames, SVG, TIFF Lab, LRS and RES containers
+  * improve drawing tool (transformations of shapes)
+  * added zoom layer tool and non-destructive layer transform
+
+-- circular <circular@operamail.com>  Fri, 5 Jul 2019 12:49:00 +0100
+

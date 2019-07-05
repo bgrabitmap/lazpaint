@@ -1,6 +1,6 @@
 0) Copy this folder 'deb' somewhere, maybe in your /home/lainz/Documentos/. Replace 'lainz' with your username.
 
-1) Change the version number in the file lazpaint_linux[32/64]/DEBIAN/control with a text editor, ensure that has the proper architecture (i386 / amd64 / all).
+1) Change the version number in the file lazpaint_linux[32/64]/debian/control with a text editor, ensure that has the proper architecture (i386 / amd64 / all).
 
 2) Copy binary, models, i18n and readme in the folder /usr/share/lazpaint.
 
@@ -18,3 +18,6 @@ Note: if you have folder permissions wrong try this:
 5) Test the package:
 - A) sudo dpkg -i lazpaint_6.4.1_linux32.deb
 - B) sudo dpkg -i lazpaint_6.4.1_linux64.deb
+
+6) To remove the package:
+- sudo dpkg -r lazpaint
