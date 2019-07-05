@@ -63,7 +63,7 @@ begin
       result := GetResourcesPath+'i18n'+PathDelim
     else
     {$ENDIF}
-    result:='i18n'+PathDelim;
+    result:=ExtractFilePath(Application.ExeName)+'i18n'+PathDelim;
   {$ENDIF}
 end;
 
