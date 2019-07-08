@@ -19,11 +19,11 @@ msgstr ""
 
 #: tablet.getprocfailed
 msgid "Procedure %s failed to load properly."
-msgstr ""
+msgstr "La procédure %s n'a pas réussi à se charger correctement."
 
 #: tablet.openfailed
 msgid "Tablet context failed to open."
-msgstr ""
+msgstr "Le contexte de la tablette ne s'est pas ouvert."
 
 #: tfabout.button_donate.caption
 msgctxt "tfabout.button_donate.caption"
@@ -2682,11 +2682,11 @@ msgstr "2 couleurs"
 
 #: tfsaveoption.radiobutton_32bitsperpixel.caption
 msgid "32 bits"
-msgstr ""
+msgstr "32 bits"
 
 #: tfsaveoption.radiobutton_miomap.caption
 msgid "MioMap"
-msgstr ""
+msgstr "MioMap"
 
 #: tfsharpen.button_cancel.caption
 msgctxt "tfsharpen.button_cancel.caption"
