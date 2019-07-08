@@ -162,6 +162,10 @@ msgstr ""
 msgid "Browse images"
 msgstr "Selaa kuvia"
 
+#: tfbrowseimages.checkbox_usedirectoryonstartup.caption
+msgid "Use this directory on startup"
+msgstr ""
+
 #: tfbrowseimages.label_status.caption
 msgctxt "tfbrowseimages.label_status.caption"
 msgid "."
@@ -768,6 +772,10 @@ msgctxt "TFMAIN.FILERELOAD.CAPTION"
 msgid "Reload"
 msgstr ""
 
+#: tfmain.fileremembersaveformat.hint
+msgid "Remember save format"
+msgstr ""
+
 #: tfmain.filesave.caption
 msgctxt "TFMAIN.FILESAVE.CAPTION"
 msgid "Save"
@@ -1051,21 +1059,6 @@ msgstr ""
 msgid "Fullscreen"
 msgstr "Kokoruututila"
 
-#: tfmain.itemhorizfliplayer.caption
-msgctxt "TFMAIN.ITEMHORIZFLIPLAYER.CAPTION"
-msgid "Current layer"
-msgstr ""
-
-#: tfmain.itemhorizflippicture.caption
-msgctxt "TFMAIN.ITEMHORIZFLIPPICTURE.CAPTION"
-msgid "Whole picture"
-msgstr "Koko kuva"
-
-#: tfmain.itemhorizflipselection.caption
-msgctxt "TFMAIN.ITEMHORIZFLIPSELECTION.CAPTION"
-msgid "Selection"
-msgstr "Valittu"
-
 #: tfmain.itemiconsize16.caption
 msgid "16px"
 msgstr ""
@@ -1090,30 +1083,10 @@ msgstr ""
 msgid "auto"
 msgstr ""
 
-#: tfmain.itemquitseparator.caption
-msgctxt "tfmain.itemquitseparator.caption"
-msgid "-"
-msgstr ""
-
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
 msgid "Use image browser"
 msgstr ""
-
-#: tfmain.itemvertfliplayer.caption
-msgctxt "TFMAIN.ITEMVERTFLIPLAYER.CAPTION"
-msgid "Current layer"
-msgstr ""
-
-#: tfmain.itemvertflippicture.caption
-msgctxt "TFMAIN.ITEMVERTFLIPPICTURE.CAPTION"
-msgid "Whole picture"
-msgstr "Koko kuva"
-
-#: tfmain.itemvertflipselection.caption
-msgctxt "TFMAIN.ITEMVERTFLIPSELECTION.CAPTION"
-msgid "Selection"
-msgstr "Valittu"
 
 #: tfmain.itemviewdocktoolbox.caption
 msgid "Dock toolbox"
@@ -1275,6 +1248,10 @@ msgctxt "tfmain.layerverticalflip.hint"
 msgid "Flip layer vertically"
 msgstr "Peilaa kerrosta pystysuunnassa"
 
+#: tfmain.layerzoom.hint
+msgid "Zoom layer"
+msgstr ""
+
 #: tfmain.loadselectiondialog.title
 msgid "Load selection"
 msgstr ""
@@ -1319,16 +1296,6 @@ msgctxt "TFMAIN.MENUHELP.CAPTION"
 msgid "Help"
 msgstr "Ohje"
 
-#: tfmain.menuhorizflipsub.caption
-msgctxt "TFMAIN.MENUHORIZFLIPSUB.CAPTION"
-msgid "Horizontal flip"
-msgstr "Peilaa vaakasuunnassa"
-
-#: tfmain.menuhorizflipsub.hint
-msgctxt "TFMAIN.MENUHORIZFLIPSUB.HINT"
-msgid "Flip image horizontally"
-msgstr ""
-
 #: tfmain.menuiconsize.caption
 msgid "Icon size"
 msgstr ""
@@ -1337,11 +1304,6 @@ msgstr ""
 msgctxt "TFMAIN.MENUIMAGE.CAPTION"
 msgid "Image"
 msgstr "Kuva"
-
-#: tfmain.menuitem1.caption
-msgctxt "tfmain.menuitem1.caption"
-msgid "-"
-msgstr ""
 
 #: tfmain.menulanguage.caption
 msgctxt "TFMAIN.MENULANGUAGE.CAPTION"
@@ -1390,11 +1352,6 @@ msgstr "Omaksi ikkunaksi"
 #: tfmain.menuundoredotoolbar.caption
 msgid "Show undo/redo toolbar"
 msgstr "Näytä kumoa/palauta kuvakkeet kuvakerivillä"
-
-#: tfmain.menuvertflipsub.caption
-msgctxt "TFMAIN.MENUVERTFLIPSUB.CAPTION"
-msgid "Vertical flip"
-msgstr "Peilaa pystysuunnassa"
 
 #: tfmain.menuview.caption
 msgctxt "TFMAIN.MENUVIEW.CAPTION"
@@ -1498,6 +1455,14 @@ msgstr "Tallenna nimellä..."
 #: tfmain.saveselectiondialog.title
 msgctxt "TFMAIN.SAVESELECTIONDIALOG.TITLE"
 msgid "Save selection as..."
+msgstr ""
+
+#: tfmain.selectionhorizontalflip.hint
+msgid "Flip selection horizontally"
+msgstr ""
+
+#: tfmain.selectionverticalflip.hint
+msgid "Flip selection vertically"
 msgstr ""
 
 #: tfmain.shape_backcolor.hint
@@ -1683,6 +1648,10 @@ msgstr "Teksti"
 #: tfmain.tooltexturemapping.hint
 msgctxt "tfmain.tooltexturemapping.hint"
 msgid "Texture mapping"
+msgstr ""
+
+#: tfmain.tool_aliasing.hint
+msgid "Disable antialiasing"
 msgstr ""
 
 #: tfmain.tool_capflat.hint

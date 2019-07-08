@@ -176,6 +176,10 @@ msgstr "Sapludunāšana veidi, kuri pieejami gandrīz visos attēlu redaktoros"
 msgid "Browse images"
 msgstr "Caurskatīt attēlus"
 
+#: tfbrowseimages.checkbox_usedirectoryonstartup.caption
+msgid "Use this directory on startup"
+msgstr ""
+
 #: tfbrowseimages.label_status.caption
 #, fuzzy
 msgctxt "tfbrowseimages.label_status.caption"
@@ -783,6 +787,10 @@ msgctxt "TFMAIN.FILERELOAD.CAPTION"
 msgid "Reload"
 msgstr "Pārlasīt attēlu"
 
+#: tfmain.fileremembersaveformat.hint
+msgid "Remember save format"
+msgstr ""
+
 #: tfmain.filesave.caption
 msgctxt "TFMAIN.FILESAVE.CAPTION"
 msgid "Save"
@@ -1068,21 +1076,6 @@ msgstr "Ziedot ..."
 msgid "Fullscreen"
 msgstr "Pilnekrāna"
 
-#: tfmain.itemhorizfliplayer.caption
-msgctxt "TFMAIN.ITEMHORIZFLIPLAYER.CAPTION"
-msgid "Current layer"
-msgstr "Pašreizējais slānis"
-
-#: tfmain.itemhorizflippicture.caption
-msgctxt "TFMAIN.ITEMHORIZFLIPPICTURE.CAPTION"
-msgid "Whole picture"
-msgstr "Visu attēlu"
-
-#: tfmain.itemhorizflipselection.caption
-msgctxt "TFMAIN.ITEMHORIZFLIPSELECTION.CAPTION"
-msgid "Selection"
-msgstr "Iezīmēto daļu"
-
 #: tfmain.itemiconsize16.caption
 msgid "16px"
 msgstr ""
@@ -1107,30 +1100,10 @@ msgstr ""
 msgid "auto"
 msgstr ""
 
-#: tfmain.itemquitseparator.caption
-msgctxt "tfmain.itemquitseparator.caption"
-msgid "-"
-msgstr "-"
-
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
 msgid "Use image browser"
 msgstr ""
-
-#: tfmain.itemvertfliplayer.caption
-msgctxt "TFMAIN.ITEMVERTFLIPLAYER.CAPTION"
-msgid "Current layer"
-msgstr "Current layer"
-
-#: tfmain.itemvertflippicture.caption
-msgctxt "TFMAIN.ITEMVERTFLIPPICTURE.CAPTION"
-msgid "Whole picture"
-msgstr "Visu attēlu"
-
-#: tfmain.itemvertflipselection.caption
-msgctxt "TFMAIN.ITEMVERTFLIPSELECTION.CAPTION"
-msgid "Selection"
-msgstr "Iezīmēto daļu"
 
 #: tfmain.itemviewdocktoolbox.caption
 msgid "Dock toolbox"
@@ -1292,6 +1265,10 @@ msgctxt "tfmain.layerverticalflip.hint"
 msgid "Flip layer vertically"
 msgstr "Apmesrt slāni stateniski"
 
+#: tfmain.layerzoom.hint
+msgid "Zoom layer"
+msgstr ""
+
 #: tfmain.loadselectiondialog.title
 msgid "Load selection"
 msgstr "Ielasīt iezīmējumu"
@@ -1336,16 +1313,6 @@ msgctxt "TFMAIN.MENUHELP.CAPTION"
 msgid "Help"
 msgstr "Palīgs"
 
-#: tfmain.menuhorizflipsub.caption
-msgctxt "TFMAIN.MENUHORIZFLIPSUB.CAPTION"
-msgid "Horizontal flip"
-msgstr "Apmest guleniski"
-
-#: tfmain.menuhorizflipsub.hint
-msgctxt "TFMAIN.MENUHORIZFLIPSUB.HINT"
-msgid "Flip image horizontally"
-msgstr "Apmest stateniski"
-
 #: tfmain.menuiconsize.caption
 msgid "Icon size"
 msgstr ""
@@ -1354,11 +1321,6 @@ msgstr ""
 msgctxt "TFMAIN.MENUIMAGE.CAPTION"
 msgid "Image"
 msgstr "Attēls"
-
-#: tfmain.menuitem1.caption
-msgctxt "tfmain.menuitem1.caption"
-msgid "-"
-msgstr "-"
 
 #: tfmain.menulanguage.caption
 msgctxt "TFMAIN.MENULANGUAGE.CAPTION"
@@ -1407,11 +1369,6 @@ msgstr "Nepiesaistīt"
 #: tfmain.menuundoredotoolbar.caption
 msgid "Show undo/redo toolbar"
 msgstr "Rādīt atsaukšanas rīkus"
-
-#: tfmain.menuvertflipsub.caption
-msgctxt "TFMAIN.MENUVERTFLIPSUB.CAPTION"
-msgid "Vertical flip"
-msgstr "Apmest stateniski"
 
 #: tfmain.menuview.caption
 msgctxt "TFMAIN.MENUVIEW.CAPTION"
@@ -1516,6 +1473,14 @@ msgstr "Saglabāt failu kā"
 msgctxt "TFMAIN.SAVESELECTIONDIALOG.TITLE"
 msgid "Save selection as..."
 msgstr "Saglabāt iezīmējumu kā ..."
+
+#: tfmain.selectionhorizontalflip.hint
+msgid "Flip selection horizontally"
+msgstr ""
+
+#: tfmain.selectionverticalflip.hint
+msgid "Flip selection vertically"
+msgstr ""
 
 #: tfmain.shape_backcolor.hint
 msgctxt "tfmain.shape_backcolor.hint"
@@ -1700,6 +1665,10 @@ msgstr "Uzraksts"
 msgctxt "tfmain.tooltexturemapping.hint"
 msgid "Texture mapping"
 msgstr "Virsma ar rakstu"
+
+#: tfmain.tool_aliasing.hint
+msgid "Disable antialiasing"
+msgstr ""
 
 #: tfmain.tool_capflat.hint
 msgctxt "TFMAIN.TOOL_CAPFLAT.HINT"

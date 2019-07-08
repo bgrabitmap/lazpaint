@@ -175,6 +175,10 @@ msgstr ""
 msgid "Browse images"
 msgstr ""
 
+#: tfbrowseimages.checkbox_usedirectoryonstartup.caption
+msgid "Use this directory on startup"
+msgstr ""
+
 #: tfbrowseimages.label_status.caption
 #, fuzzy
 msgctxt "tfbrowseimages.label_status.caption"
@@ -784,6 +788,10 @@ msgctxt "tfmain.filereload.caption"
 msgid "Reload"
 msgstr "Перезагрузить"
 
+#: tfmain.fileremembersaveformat.hint
+msgid "Remember save format"
+msgstr ""
+
 #: tfmain.filesave.caption
 msgctxt "TFMAIN.FILESAVE.CAPTION"
 msgid "Save"
@@ -1069,21 +1077,6 @@ msgstr "Пожертвования ..."
 msgid "Fullscreen"
 msgstr ""
 
-#: tfmain.itemhorizfliplayer.caption
-msgctxt "tfmain.itemhorizfliplayer.caption"
-msgid "Current layer"
-msgstr "Текущий слой"
-
-#: tfmain.itemhorizflippicture.caption
-msgctxt "tfmain.itemhorizflippicture.caption"
-msgid "Whole picture"
-msgstr "Вся картина"
-
-#: tfmain.itemhorizflipselection.caption
-msgctxt "tfmain.itemhorizflipselection.caption"
-msgid "Selection"
-msgstr "Выделение"
-
 #: tfmain.itemiconsize16.caption
 msgid "16px"
 msgstr ""
@@ -1108,30 +1101,10 @@ msgstr ""
 msgid "auto"
 msgstr ""
 
-#: tfmain.itemquitseparator.caption
-msgctxt "tfmain.itemquitseparator.caption"
-msgid "-"
-msgstr ""
-
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
 msgid "Use image browser"
 msgstr ""
-
-#: tfmain.itemvertfliplayer.caption
-msgctxt "tfmain.itemvertfliplayer.caption"
-msgid "Current layer"
-msgstr "Текущий слой"
-
-#: tfmain.itemvertflippicture.caption
-msgctxt "tfmain.itemvertflippicture.caption"
-msgid "Whole picture"
-msgstr "Вся картина"
-
-#: tfmain.itemvertflipselection.caption
-msgctxt "tfmain.itemvertflipselection.caption"
-msgid "Selection"
-msgstr "Выделение"
 
 #: tfmain.itemviewdocktoolbox.caption
 msgid "Dock toolbox"
@@ -1293,6 +1266,10 @@ msgctxt "tfmain.layerverticalflip.hint"
 msgid "Flip layer vertically"
 msgstr "Отразить слой по вертикали"
 
+#: tfmain.layerzoom.hint
+msgid "Zoom layer"
+msgstr ""
+
 #: tfmain.loadselectiondialog.title
 msgid "Load selection"
 msgstr "Загрузить выделение"
@@ -1337,16 +1314,6 @@ msgctxt "tfmain.menuhelp.caption"
 msgid "Help"
 msgstr "Помощь"
 
-#: tfmain.menuhorizflipsub.caption
-msgctxt "tfmain.menuhorizflipsub.caption"
-msgid "Horizontal flip"
-msgstr "Горизонтальное отражение"
-
-#: tfmain.menuhorizflipsub.hint
-msgctxt "tfmain.menuhorizflipsub.hint"
-msgid "Flip image horizontally"
-msgstr "Отразить изображение по горизонтали"
-
 #: tfmain.menuiconsize.caption
 msgid "Icon size"
 msgstr ""
@@ -1355,11 +1322,6 @@ msgstr ""
 msgctxt "tfmain.menuimage.caption"
 msgid "Image"
 msgstr "Изображение"
-
-#: tfmain.menuitem1.caption
-msgctxt "tfmain.menuitem1.caption"
-msgid "-"
-msgstr ""
 
 #: tfmain.menulanguage.caption
 msgctxt "tfmain.menulanguage.caption"
@@ -1410,11 +1372,6 @@ msgstr ""
 #: tfmain.menuundoredotoolbar.caption
 msgid "Show undo/redo toolbar"
 msgstr ""
-
-#: tfmain.menuvertflipsub.caption
-msgctxt "tfmain.menuvertflipsub.caption"
-msgid "Vertical flip"
-msgstr "Вертикальное отражение"
 
 #: tfmain.menuview.caption
 msgctxt "tfmain.menuview.caption"
@@ -1519,6 +1476,14 @@ msgstr "Сохранить файл как ..."
 msgctxt "TFMAIN.SAVESELECTIONDIALOG.TITLE"
 msgid "Save selection as..."
 msgstr "Сохранить выделение как ..."
+
+#: tfmain.selectionhorizontalflip.hint
+msgid "Flip selection horizontally"
+msgstr ""
+
+#: tfmain.selectionverticalflip.hint
+msgid "Flip selection vertically"
+msgstr ""
 
 #: tfmain.shape_backcolor.hint
 msgctxt "tfmain.shape_backcolor.hint"
@@ -1704,6 +1669,10 @@ msgstr "Текст"
 msgctxt "tfmain.tooltexturemapping.hint"
 msgid "Texture mapping"
 msgstr "Отображение текстуры"
+
+#: tfmain.tool_aliasing.hint
+msgid "Disable antialiasing"
+msgstr ""
 
 #: tfmain.tool_capflat.hint
 msgctxt "TFMAIN.TOOL_CAPFLAT.HINT"

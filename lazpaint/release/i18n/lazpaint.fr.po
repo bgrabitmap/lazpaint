@@ -1075,21 +1075,6 @@ msgstr "Faire un don..."
 msgid "Fullscreen"
 msgstr "Plein écran"
 
-#: tfmain.itemhorizfliplayer.caption
-msgctxt "tfmain.itemhorizfliplayer.caption"
-msgid "Current layer"
-msgstr "Calque actif"
-
-#: tfmain.itemhorizflippicture.caption
-msgctxt "tfmain.itemhorizflippicture.caption"
-msgid "Whole picture"
-msgstr "Toute l'image"
-
-#: tfmain.itemhorizflipselection.caption
-msgctxt "tfmain.itemhorizflipselection.caption"
-msgid "Selection"
-msgstr "La sélection"
-
 #: tfmain.itemiconsize16.caption
 msgid "16px"
 msgstr ""
@@ -1114,30 +1099,10 @@ msgstr ""
 msgid "auto"
 msgstr ""
 
-#: tfmain.itemquitseparator.caption
-msgctxt "tfmain.itemquitseparator.caption"
-msgid "-"
-msgstr "-"
-
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
 msgid "Use image browser"
 msgstr "Utiliser l'explorateur d'images"
-
-#: tfmain.itemvertfliplayer.caption
-msgctxt "tfmain.itemvertfliplayer.caption"
-msgid "Current layer"
-msgstr "Calque actif"
-
-#: tfmain.itemvertflippicture.caption
-msgctxt "tfmain.itemvertflippicture.caption"
-msgid "Whole picture"
-msgstr "Toute l'image"
-
-#: tfmain.itemvertflipselection.caption
-msgctxt "tfmain.itemvertflipselection.caption"
-msgid "Selection"
-msgstr "La sélection"
 
 #: tfmain.itemviewdocktoolbox.caption
 msgid "Dock toolbox"
@@ -1299,6 +1264,10 @@ msgctxt "tfmain.layerverticalflip.hint"
 msgid "Flip layer vertically"
 msgstr "Retourner le calque verticalement"
 
+#: tfmain.layerzoom.hint
+msgid "Zoom layer"
+msgstr ""
+
 #: tfmain.loadselectiondialog.title
 msgid "Load selection"
 msgstr "Charger la sélection"
@@ -1343,16 +1312,6 @@ msgctxt "tfmain.menuhelp.caption"
 msgid "Help"
 msgstr "Aide"
 
-#: tfmain.menuhorizflipsub.caption
-msgctxt "tfmain.menuhorizflipsub.caption"
-msgid "Horizontal flip"
-msgstr "Retournement horizontal"
-
-#: tfmain.menuhorizflipsub.hint
-msgctxt "tfmain.menuhorizflipsub.hint"
-msgid "Flip image horizontally"
-msgstr "Retourner l'image horizontalement"
-
 #: tfmain.menuiconsize.caption
 msgid "Icon size"
 msgstr "Taille d'icône"
@@ -1361,11 +1320,6 @@ msgstr "Taille d'icône"
 msgctxt "tfmain.menuimage.caption"
 msgid "Image"
 msgstr "Image"
-
-#: tfmain.menuitem1.caption
-msgctxt "tfmain.menuitem1.caption"
-msgid "-"
-msgstr "-"
 
 #: tfmain.menulanguage.caption
 msgctxt "tfmain.menulanguage.caption"
@@ -1414,11 +1368,6 @@ msgstr "Ne pas ancrer"
 #: tfmain.menuundoredotoolbar.caption
 msgid "Show undo/redo toolbar"
 msgstr "Afficher la barre d'outils annuler/refaire"
-
-#: tfmain.menuvertflipsub.caption
-msgctxt "tfmain.menuvertflipsub.caption"
-msgid "Vertical flip"
-msgstr "Retournement vertical"
 
 #: tfmain.menuview.caption
 msgctxt "tfmain.menuview.caption"
