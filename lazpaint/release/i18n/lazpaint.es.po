@@ -174,7 +174,7 @@ msgstr "Explorar imágenes"
 
 #: tfbrowseimages.checkbox_usedirectoryonstartup.caption
 msgid "Use this directory on startup"
-msgstr ""
+msgstr "Utilizar esta carpeta al encendido"
 
 #: tfbrowseimages.label_status.caption
 msgctxt "tfbrowseimages.label_status.caption"
@@ -784,7 +784,7 @@ msgstr "Recargar"
 
 #: tfmain.fileremembersaveformat.hint
 msgid "Remember save format"
-msgstr ""
+msgstr "Recordar el formato"
 
 #: tfmain.filesave.caption
 msgctxt "TFMAIN.FILESAVE.CAPTION"
@@ -1260,7 +1260,7 @@ msgstr "Voltear capa verticalmente"
 
 #: tfmain.layerzoom.hint
 msgid "Zoom layer"
-msgstr ""
+msgstr "Zoom de capa"
 
 #: tfmain.loadselectiondialog.title
 msgid "Load selection"
@@ -1469,11 +1469,11 @@ msgstr "Guardar selección como..."
 
 #: tfmain.selectionhorizontalflip.hint
 msgid "Flip selection horizontally"
-msgstr ""
+msgstr "Voltear selección horizontalmente"
 
 #: tfmain.selectionverticalflip.hint
 msgid "Flip selection vertically"
-msgstr ""
+msgstr "Voltear selección verticalmente"
 
 #: tfmain.shape_backcolor.hint
 msgctxt "tfmain.shape_backcolor.hint"
@@ -1553,7 +1553,7 @@ msgstr "Elegir un punto caliente de un cursor"
 #: tfmain.toollayermapping.hint
 msgctxt "tfmain.toollayermapping.hint"
 msgid "Layer perspective"
-msgstr "Perspectiva de Capa"
+msgstr "Perspectiva de capa"
 
 #: tfmain.toolloadtexture.hint
 msgctxt "tfmain.toolloadtexture.hint"
@@ -1662,7 +1662,7 @@ msgstr "Mapeo de texturas"
 
 #: tfmain.tool_aliasing.hint
 msgid "Disable antialiasing"
-msgstr ""
+msgstr "Desactivar antisolapamiento"
 
 #: tfmain.tool_capflat.hint
 msgctxt "TFMAIN.TOOL_CAPFLAT.HINT"

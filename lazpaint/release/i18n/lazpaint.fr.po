@@ -1189,7 +1189,7 @@ msgstr "Bordure"
 
 #: tfmain.label_ratio.caption
 msgid "Ratio"
-msgstr ""
+msgstr "Rapport"
 
 #: tfmain.label_shadowoffset.caption
 msgctxt "TFMAIN.LABEL_SHADOWOFFSET.CAPTION"
@@ -1266,7 +1266,7 @@ msgstr "Retourner le calque verticalement"
 
 #: tfmain.layerzoom.hint
 msgid "Zoom layer"
-msgstr ""
+msgstr "Zoomer le calque"
 
 #: tfmain.loadselectiondialog.title
 msgid "Load selection"
@@ -2482,7 +2482,7 @@ msgstr "Largeur :"
 
 #: tfquestion.caption
 msgid "Question"
-msgstr ""
+msgstr "Question"
 
 #: tfquestion.checkbox_rememberchoice.caption
 msgid "Remember this choice"
