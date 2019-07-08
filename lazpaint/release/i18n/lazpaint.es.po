@@ -172,6 +172,10 @@ msgstr "Operaciónes de mezcla disponibles en casi todos los programas"
 msgid "Browse images"
 msgstr "Explorar imágenes"
 
+#: tfbrowseimages.checkbox_usedirectoryonstartup.caption
+msgid "Use this directory on startup"
+msgstr "Utilizar esta carpeta al encendido"
+
 #: tfbrowseimages.label_status.caption
 msgctxt "tfbrowseimages.label_status.caption"
 msgid "."
@@ -778,6 +782,10 @@ msgctxt "tfmain.filereload.caption"
 msgid "Reload"
 msgstr "Recargar"
 
+#: tfmain.fileremembersaveformat.hint
+msgid "Remember save format"
+msgstr "Recordar el formato"
+
 #: tfmain.filesave.caption
 msgctxt "TFMAIN.FILESAVE.CAPTION"
 msgid "Save"
@@ -1061,21 +1069,6 @@ msgstr "Donar..."
 msgid "Fullscreen"
 msgstr "Pantalla completa"
 
-#: tfmain.itemhorizfliplayer.caption
-msgctxt "tfmain.itemhorizfliplayer.caption"
-msgid "Current layer"
-msgstr "Capa actual"
-
-#: tfmain.itemhorizflippicture.caption
-msgctxt "tfmain.itemhorizflippicture.caption"
-msgid "Whole picture"
-msgstr "Imágen completa"
-
-#: tfmain.itemhorizflipselection.caption
-msgctxt "tfmain.itemhorizflipselection.caption"
-msgid "Selection"
-msgstr "Selección"
-
 #: tfmain.itemiconsize16.caption
 msgid "16px"
 msgstr "16px"
@@ -1100,30 +1093,10 @@ msgstr "64px"
 msgid "auto"
 msgstr "automático"
 
-#: tfmain.itemquitseparator.caption
-msgctxt "tfmain.itemquitseparator.caption"
-msgid "-"
-msgstr "-"
-
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
 msgid "Use image browser"
 msgstr "Usar explorador de imágenes"
-
-#: tfmain.itemvertfliplayer.caption
-msgctxt "tfmain.itemvertfliplayer.caption"
-msgid "Current layer"
-msgstr "Capa actual"
-
-#: tfmain.itemvertflippicture.caption
-msgctxt "tfmain.itemvertflippicture.caption"
-msgid "Whole picture"
-msgstr "Imágen completa"
-
-#: tfmain.itemvertflipselection.caption
-msgctxt "tfmain.itemvertflipselection.caption"
-msgid "Selection"
-msgstr "Selección"
 
 #: tfmain.itemviewdocktoolbox.caption
 msgid "Dock toolbox"
@@ -1285,6 +1258,10 @@ msgctxt "tfmain.layerverticalflip.hint"
 msgid "Flip layer vertically"
 msgstr "Voltear capa verticalmente"
 
+#: tfmain.layerzoom.hint
+msgid "Zoom layer"
+msgstr "Zoom de capa"
+
 #: tfmain.loadselectiondialog.title
 msgid "Load selection"
 msgstr "Cargar selección"
@@ -1329,16 +1306,6 @@ msgctxt "tfmain.menuhelp.caption"
 msgid "Help"
 msgstr "Ayuda"
 
-#: tfmain.menuhorizflipsub.caption
-msgctxt "tfmain.menuhorizflipsub.caption"
-msgid "Horizontal flip"
-msgstr "Voltear horizontalmente"
-
-#: tfmain.menuhorizflipsub.hint
-msgctxt "tfmain.menuhorizflipsub.hint"
-msgid "Flip image horizontally"
-msgstr "Voltear imágen horizontalmente"
-
 #: tfmain.menuiconsize.caption
 msgid "Icon size"
 msgstr "Tamaño de ícono"
@@ -1347,11 +1314,6 @@ msgstr "Tamaño de ícono"
 msgctxt "tfmain.menuimage.caption"
 msgid "Image"
 msgstr "Imágen"
-
-#: tfmain.menuitem1.caption
-msgctxt "tfmain.menuitem1.caption"
-msgid "-"
-msgstr "-"
 
 #: tfmain.menulanguage.caption
 msgctxt "tfmain.menulanguage.caption"
@@ -1400,11 +1362,6 @@ msgstr "Desacoplar"
 #: tfmain.menuundoredotoolbar.caption
 msgid "Show undo/redo toolbar"
 msgstr "Mostrar barra deshacer/rehacer"
-
-#: tfmain.menuvertflipsub.caption
-msgctxt "tfmain.menuvertflipsub.caption"
-msgid "Vertical flip"
-msgstr "Voltear verticalmente"
 
 #: tfmain.menuview.caption
 msgctxt "tfmain.menuview.caption"
@@ -1510,6 +1467,14 @@ msgctxt "TFMAIN.SAVESELECTIONDIALOG.TITLE"
 msgid "Save selection as..."
 msgstr "Guardar selección como..."
 
+#: tfmain.selectionhorizontalflip.hint
+msgid "Flip selection horizontally"
+msgstr "Voltear selección horizontalmente"
+
+#: tfmain.selectionverticalflip.hint
+msgid "Flip selection vertically"
+msgstr "Voltear selección verticalmente"
+
 #: tfmain.shape_backcolor.hint
 msgctxt "tfmain.shape_backcolor.hint"
 msgid "Select secondary color"
@@ -1588,7 +1553,7 @@ msgstr "Elegir un punto caliente de un cursor"
 #: tfmain.toollayermapping.hint
 msgctxt "tfmain.toollayermapping.hint"
 msgid "Layer perspective"
-msgstr "Perspectiva de Capa"
+msgstr "Perspectiva de capa"
 
 #: tfmain.toolloadtexture.hint
 msgctxt "tfmain.toolloadtexture.hint"
@@ -1694,6 +1659,10 @@ msgstr "Texto"
 msgctxt "tfmain.tooltexturemapping.hint"
 msgid "Texture mapping"
 msgstr "Mapeo de texturas"
+
+#: tfmain.tool_aliasing.hint
+msgid "Disable antialiasing"
+msgstr "Desactivar antisolapamiento"
 
 #: tfmain.tool_capflat.hint
 msgctxt "TFMAIN.TOOL_CAPFLAT.HINT"
@@ -3489,3 +3458,4 @@ msgstr "Comando desconocido: "
 #: uresourcestrings.rsyes
 msgid "Yes"
 msgstr "Sí"
+

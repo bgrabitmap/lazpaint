@@ -180,6 +180,10 @@ msgstr "  عمليات المزج الأساسية المتاحة تقريبا �
 msgid "Browse images"
 msgstr "تصفح الصور"
 
+#: tfbrowseimages.checkbox_usedirectoryonstartup.caption
+msgid "Use this directory on startup"
+msgstr ""
+
 #: tfbrowseimages.label_status.caption
 #, fuzzy
 msgctxt "tfbrowseimages.label_status.caption"
@@ -789,6 +793,10 @@ msgctxt "tfmain.filereload.caption"
 msgid "Reload"
 msgstr "إعادة تحميل"
 
+#: tfmain.fileremembersaveformat.hint
+msgid "Remember save format"
+msgstr ""
+
 #: tfmain.filesave.caption
 msgctxt "TFMAIN.FILESAVE.CAPTION"
 msgid "Save"
@@ -1077,21 +1085,6 @@ msgstr "تبرع..."
 msgid "Fullscreen"
 msgstr ""
 
-#: tfmain.itemhorizfliplayer.caption
-msgctxt "tfmain.itemhorizfliplayer.caption"
-msgid "Current layer"
-msgstr "الطبقة الحالية"
-
-#: tfmain.itemhorizflippicture.caption
-msgctxt "tfmain.itemhorizflippicture.caption"
-msgid "Whole picture"
-msgstr "الصورة الكاملة"
-
-#: tfmain.itemhorizflipselection.caption
-msgctxt "tfmain.itemhorizflipselection.caption"
-msgid "Selection"
-msgstr "إنتقاء"
-
 #: tfmain.itemiconsize16.caption
 msgid "16px"
 msgstr ""
@@ -1116,30 +1109,10 @@ msgstr ""
 msgid "auto"
 msgstr ""
 
-#: tfmain.itemquitseparator.caption
-msgctxt "tfmain.itemquitseparator.caption"
-msgid "-"
-msgstr "-"
-
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
 msgid "Use image browser"
 msgstr ""
-
-#: tfmain.itemvertfliplayer.caption
-msgctxt "tfmain.itemvertfliplayer.caption"
-msgid "Current layer"
-msgstr "الطبقة الحالية"
-
-#: tfmain.itemvertflippicture.caption
-msgctxt "tfmain.itemvertflippicture.caption"
-msgid "Whole picture"
-msgstr "الصورة الكاملة"
-
-#: tfmain.itemvertflipselection.caption
-msgctxt "tfmain.itemvertflipselection.caption"
-msgid "Selection"
-msgstr "إنتقاء"
 
 #: tfmain.itemviewdocktoolbox.caption
 msgid "Dock toolbox"
@@ -1301,6 +1274,10 @@ msgctxt "tfmain.layerverticalflip.hint"
 msgid "Flip layer vertically"
 msgstr "قلب الطبقة عموديا"
 
+#: tfmain.layerzoom.hint
+msgid "Zoom layer"
+msgstr ""
+
 #: tfmain.loadselectiondialog.title
 msgid "Load selection"
 msgstr "تحميل التحديد "
@@ -1345,16 +1322,6 @@ msgctxt "tfmain.menuhelp.caption"
 msgid "Help"
 msgstr "مساعدة"
 
-#: tfmain.menuhorizflipsub.caption
-msgctxt "tfmain.menuhorizflipsub.caption"
-msgid "Horizontal flip"
-msgstr "قلب افقي"
-
-#: tfmain.menuhorizflipsub.hint
-msgctxt "tfmain.menuhorizflipsub.hint"
-msgid "Flip image horizontally"
-msgstr "قلب الصورة افقيا"
-
 #: tfmain.menuiconsize.caption
 msgid "Icon size"
 msgstr ""
@@ -1363,11 +1330,6 @@ msgstr ""
 msgctxt "tfmain.menuimage.caption"
 msgid "Image"
 msgstr "صورة"
-
-#: tfmain.menuitem1.caption
-msgctxt "tfmain.menuitem1.caption"
-msgid "-"
-msgstr "-"
 
 #: tfmain.menulanguage.caption
 msgctxt "tfmain.menulanguage.caption"
@@ -1418,11 +1380,6 @@ msgstr ""
 #: tfmain.menuundoredotoolbar.caption
 msgid "Show undo/redo toolbar"
 msgstr ""
-
-#: tfmain.menuvertflipsub.caption
-msgctxt "tfmain.menuvertflipsub.caption"
-msgid "Vertical flip"
-msgstr "قلب عمودي"
 
 #: tfmain.menuview.caption
 msgctxt "tfmain.menuview.caption"
@@ -1527,6 +1484,14 @@ msgstr "حفظ الملف ك..."
 msgctxt "TFMAIN.SAVESELECTIONDIALOG.TITLE"
 msgid "Save selection as..."
 msgstr "حفظ التحديد ك..."
+
+#: tfmain.selectionhorizontalflip.hint
+msgid "Flip selection horizontally"
+msgstr ""
+
+#: tfmain.selectionverticalflip.hint
+msgid "Flip selection vertically"
+msgstr ""
 
 #: tfmain.shape_backcolor.hint
 msgctxt "tfmain.shape_backcolor.hint"
@@ -1712,6 +1677,10 @@ msgstr "نص"
 msgctxt "tfmain.tooltexturemapping.hint"
 msgid "Texture mapping"
 msgstr "رسم النسيج"
+
+#: tfmain.tool_aliasing.hint
+msgid "Disable antialiasing"
+msgstr ""
 
 #: tfmain.tool_capflat.hint
 msgctxt "TFMAIN.TOOL_CAPFLAT.HINT"

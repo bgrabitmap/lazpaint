@@ -1059,21 +1059,6 @@ msgstr ""
 msgid "Fullscreen"
 msgstr ""
 
-#: tfmain.itemhorizfliplayer.caption
-msgctxt "TFMAIN.ITEMHORIZFLIPLAYER.CAPTION"
-msgid "Current layer"
-msgstr ""
-
-#: tfmain.itemhorizflippicture.caption
-msgctxt "TFMAIN.ITEMHORIZFLIPPICTURE.CAPTION"
-msgid "Whole picture"
-msgstr ""
-
-#: tfmain.itemhorizflipselection.caption
-msgctxt "TFMAIN.ITEMHORIZFLIPSELECTION.CAPTION"
-msgid "Selection"
-msgstr ""
-
 #: tfmain.itemiconsize16.caption
 msgid "16px"
 msgstr ""
@@ -1098,29 +1083,9 @@ msgstr ""
 msgid "auto"
 msgstr ""
 
-#: tfmain.itemquitseparator.caption
-msgctxt "TFMAIN.ITEMQUITSEPARATOR.CAPTION"
-msgid "-"
-msgstr ""
-
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "TFMAIN.ITEMUSEIMAGEBROWSER.CAPTION"
 msgid "Use image browser"
-msgstr ""
-
-#: tfmain.itemvertfliplayer.caption
-msgctxt "TFMAIN.ITEMVERTFLIPLAYER.CAPTION"
-msgid "Current layer"
-msgstr ""
-
-#: tfmain.itemvertflippicture.caption
-msgctxt "TFMAIN.ITEMVERTFLIPPICTURE.CAPTION"
-msgid "Whole picture"
-msgstr ""
-
-#: tfmain.itemvertflipselection.caption
-msgctxt "TFMAIN.ITEMVERTFLIPSELECTION.CAPTION"
-msgid "Selection"
 msgstr ""
 
 #: tfmain.itemviewdocktoolbox.caption
@@ -1331,16 +1296,6 @@ msgctxt "TFMAIN.MENUHELP.CAPTION"
 msgid "Help"
 msgstr ""
 
-#: tfmain.menuhorizflipsub.caption
-msgctxt "TFMAIN.MENUHORIZFLIPSUB.CAPTION"
-msgid "Horizontal flip"
-msgstr ""
-
-#: tfmain.menuhorizflipsub.hint
-msgctxt "TFMAIN.MENUHORIZFLIPSUB.HINT"
-msgid "Flip image horizontally"
-msgstr ""
-
 #: tfmain.menuiconsize.caption
 msgid "Icon size"
 msgstr ""
@@ -1348,11 +1303,6 @@ msgstr ""
 #: tfmain.menuimage.caption
 msgctxt "TFMAIN.MENUIMAGE.CAPTION"
 msgid "Image"
-msgstr ""
-
-#: tfmain.menuitem1.caption
-msgctxt "TFMAIN.MENUITEM1.CAPTION"
-msgid "-"
 msgstr ""
 
 #: tfmain.menulanguage.caption
@@ -1401,11 +1351,6 @@ msgstr ""
 
 #: tfmain.menuundoredotoolbar.caption
 msgid "Show undo/redo toolbar"
-msgstr ""
-
-#: tfmain.menuvertflipsub.caption
-msgctxt "TFMAIN.MENUVERTFLIPSUB.CAPTION"
-msgid "Vertical flip"
 msgstr ""
 
 #: tfmain.menuview.caption

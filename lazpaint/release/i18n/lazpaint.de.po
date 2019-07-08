@@ -189,6 +189,10 @@ msgstr "Überblendungseffekte die in nahezu allen Bildverarbeitungsprogramen zur
 msgid "Browse images"
 msgstr "Bilder durchsuchen"
 
+#: tfbrowseimages.checkbox_usedirectoryonstartup.caption
+msgid "Use this directory on startup"
+msgstr ""
+
 #: tfbrowseimages.label_status.caption
 #, fuzzy
 msgctxt "tfbrowseimages.label_status.caption"
@@ -797,6 +801,10 @@ msgctxt "tfmain.filereload.caption"
 msgid "Reload"
 msgstr "Neu laden"
 
+#: tfmain.fileremembersaveformat.hint
+msgid "Remember save format"
+msgstr ""
+
 #: tfmain.filesave.caption
 msgctxt "TFMAIN.FILESAVE.CAPTION"
 msgid "Save"
@@ -1082,21 +1090,6 @@ msgstr "Spenden Sie..."
 msgid "Fullscreen"
 msgstr "Vollbild"
 
-#: tfmain.itemhorizfliplayer.caption
-msgctxt "tfmain.itemhorizfliplayer.caption"
-msgid "Current layer"
-msgstr "Aktuelle Ebene"
-
-#: tfmain.itemhorizflippicture.caption
-msgctxt "tfmain.itemhorizflippicture.caption"
-msgid "Whole picture"
-msgstr "Ganzes Bild"
-
-#: tfmain.itemhorizflipselection.caption
-msgctxt "tfmain.itemhorizflipselection.caption"
-msgid "Selection"
-msgstr "Auswahl"
-
 #: tfmain.itemiconsize16.caption
 msgid "16px"
 msgstr ""
@@ -1121,30 +1114,10 @@ msgstr ""
 msgid "auto"
 msgstr ""
 
-#: tfmain.itemquitseparator.caption
-msgctxt "tfmain.itemquitseparator.caption"
-msgid "-"
-msgstr "-"
-
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
 msgid "Use image browser"
 msgstr ""
-
-#: tfmain.itemvertfliplayer.caption
-msgctxt "tfmain.itemvertfliplayer.caption"
-msgid "Current layer"
-msgstr "Aktuelle Ebene"
-
-#: tfmain.itemvertflippicture.caption
-msgctxt "tfmain.itemvertflippicture.caption"
-msgid "Whole picture"
-msgstr "Ganzes Bild"
-
-#: tfmain.itemvertflipselection.caption
-msgctxt "tfmain.itemvertflipselection.caption"
-msgid "Selection"
-msgstr "Auswahl"
 
 #: tfmain.itemviewdocktoolbox.caption
 msgid "Dock toolbox"
@@ -1306,6 +1279,10 @@ msgctxt "tfmain.layerverticalflip.hint"
 msgid "Flip layer vertically"
 msgstr "Spiegle Ebene vertikal"
 
+#: tfmain.layerzoom.hint
+msgid "Zoom layer"
+msgstr ""
+
 #: tfmain.loadselectiondialog.title
 msgid "Load selection"
 msgstr "Lade Auswahl"
@@ -1350,16 +1327,6 @@ msgctxt "tfmain.menuhelp.caption"
 msgid "Help"
 msgstr "Hilfe"
 
-#: tfmain.menuhorizflipsub.caption
-msgctxt "tfmain.menuhorizflipsub.caption"
-msgid "Horizontal flip"
-msgstr "Horizontal spiegeln"
-
-#: tfmain.menuhorizflipsub.hint
-msgctxt "tfmain.menuhorizflipsub.hint"
-msgid "Flip image horizontally"
-msgstr "Das Bild horizontal spiegeln"
-
 #: tfmain.menuiconsize.caption
 msgid "Icon size"
 msgstr ""
@@ -1368,11 +1335,6 @@ msgstr ""
 msgctxt "tfmain.menuimage.caption"
 msgid "Image"
 msgstr "Bild"
-
-#: tfmain.menuitem1.caption
-msgctxt "tfmain.menuitem1.caption"
-msgid "-"
-msgstr "-"
 
 #: tfmain.menulanguage.caption
 msgctxt "tfmain.menulanguage.caption"
@@ -1422,11 +1384,6 @@ msgstr "Lösen"
 #: tfmain.menuundoredotoolbar.caption
 msgid "Show undo/redo toolbar"
 msgstr "Zeige Rückgängig/Wiederholen Werkzeug"
-
-#: tfmain.menuvertflipsub.caption
-msgctxt "tfmain.menuvertflipsub.caption"
-msgid "Vertical flip"
-msgstr "Vertikal spiegeln"
 
 #: tfmain.menuview.caption
 msgctxt "tfmain.menuview.caption"
@@ -1531,6 +1488,14 @@ msgstr "Datei speichern als..."
 msgctxt "TFMAIN.SAVESELECTIONDIALOG.TITLE"
 msgid "Save selection as..."
 msgstr "Auswahl sichern unter..."
+
+#: tfmain.selectionhorizontalflip.hint
+msgid "Flip selection horizontally"
+msgstr ""
+
+#: tfmain.selectionverticalflip.hint
+msgid "Flip selection vertically"
+msgstr ""
 
 #: tfmain.shape_backcolor.hint
 msgctxt "tfmain.shape_backcolor.hint"
@@ -1716,6 +1681,10 @@ msgstr "Text"
 msgctxt "tfmain.tooltexturemapping.hint"
 msgid "Texture mapping"
 msgstr "Texturzuweisung"
+
+#: tfmain.tool_aliasing.hint
+msgid "Disable antialiasing"
+msgstr ""
 
 #: tfmain.tool_capflat.hint
 msgctxt "TFMAIN.TOOL_CAPFLAT.HINT"
