@@ -173,7 +173,10 @@ begin
   if BigImage and FQuickDefine then
     result := OnlyRenderChange
   else
+  begin
     Result:= inherited UpdateShape(toolDest);
+    Action.NotifyChange(toolDest, Result);
+  end;
 end;
 
 procedure TVectorialSelectTool.QuickDefineEnd;

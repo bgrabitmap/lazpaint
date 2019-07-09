@@ -650,7 +650,6 @@ var LayerAction: TLayerAction;
 begin
   LayerAction := nil;
   try
-    if not (CurrentTool in[ptSelectRect,ptSelectEllipse]) then ChooseTool(ptSelectRect);
     LayerAction := Image.CreateAction(false);
     LayerAction.QuerySelection;
     LayerAction.ApplySelectionTransform;
@@ -669,6 +668,8 @@ begin
       FInstance.ShowError('InvertSelection',ex.Message);
   end;
   LayerAction.Free;
+  if Image.SelectionMaskEmpty then ChooseTool(ptHand) else
+  if not (CurrentTool in[ptSelectRect,ptSelectEllipse]) then ChooseTool(ptSelectRect);
 end;
 
 procedure TImageActions.Deselect;
@@ -733,14 +734,14 @@ begin
       LayerAction.EraseSelectionInBitmap;
     LayerAction.RemoveSelection;
     LayerAction.Validate;
-    if (CurrentTool = ptRotateSelection) or
-       (CurrentTool = ptMoveSelection) then
-      ChooseTool(ptHand);
   except
     on ex:Exception do
       FInstance.ShowError('CutSelection',ex.Message);
   end;
   LayerAction.Free;
+  if (CurrentTool = ptRotateSelection) or
+     (CurrentTool = ptMoveSelection) then
+    ChooseTool(ptHand);
 end;
 
 procedure TImageActions.RetrieveSelection;
@@ -781,14 +782,14 @@ begin
     end;
     LayerAction.RemoveSelection;
     LayerAction.Validate;
-    if (CurrentTool = ptRotateSelection) or
-       (CurrentTool = ptMoveSelection) then
-      ChooseTool(ptHand);
   except
     on ex:Exception do
       FInstance.ShowError('DeleteSelection',ex.Message);
   end;
   LayerAction.Free;
+  if (CurrentTool = ptRotateSelection) or
+     (CurrentTool = ptMoveSelection) then
+    ChooseTool(ptHand);
 end;
 
 procedure TImageActions.RemoveSelection;
@@ -801,12 +802,12 @@ begin
     LayerAction := Image.CreateAction;
     LayerAction.RemoveSelection;
     LayerAction.Validate;
-    if (CurrentTool = ptRotateSelection) or
-       (CurrentTool = ptMoveSelection) then
-      ChooseTool(ptHand);
   except on ex:exception do FInstance.ShowError('RemoveSelection',ex.Message);
   end;
   LayerAction.Free;
+  if (CurrentTool = ptRotateSelection) or
+     (CurrentTool = ptMoveSelection) then
+    ChooseTool(ptHand);
 end;
 
 procedure TImageActions.ReleaseSelection;
@@ -881,13 +882,13 @@ procedure TImageActions.SelectAll;
 var LayerAction : TLayerAction;
 begin
   try
-    if not ToolManager.IsSelectingTool then ChooseTool(ptSelectRect);
     LayerAction := Image.CreateAction;
     LayerAction.QuerySelection;
     LayerAction.currentSelection.Fill(BGRAWhite);
     Image.SelectionMaskMayChangeCompletely;
     LayerAction.Validate;
     LayerAction.Free;
+    if not ToolManager.IsSelectingTool then ChooseTool(ptSelectRect);
   except
     on ex:Exception do
       FInstance.ShowError('SelectAll',ex.Message);
