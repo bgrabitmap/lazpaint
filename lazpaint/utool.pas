@@ -411,8 +411,6 @@ begin
 end;
 
 function TGenericTool.GetAction: TLayerAction;
-var
-  layer: TBGRABitmap;
 begin
   if not Assigned(FAction) then
   begin
@@ -678,8 +676,6 @@ begin
 end;
 
 procedure TGenericTool.RestoreBackupDrawingLayer;
-var
-  layer: TBGRABitmap;
 begin
   if Assigned(FAction) then
   begin

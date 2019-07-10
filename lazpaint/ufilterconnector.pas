@@ -59,7 +59,7 @@ type
 
 implementation
 
-uses Types, BGRABitmapTypes, BGRATransform;
+uses Types, BGRABitmapTypes;
 
 { TFilterConnector }
 
