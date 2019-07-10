@@ -6532,6 +6532,7 @@ object FMain: TFMain
       Hint = 'Zoom layer'
       ImageIndex = 123
       OnExecute = LayerZoomExecute
+      OnUpdate = LayerZoomUpdate
     end
     object SelectionHorizontalFlip: TAction
       Category = 'SelectTool'

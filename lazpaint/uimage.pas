@@ -1458,7 +1458,7 @@ var
   backupCurrentLayer : TBGRABitmap;
   backupTopLeft, ofs: TPoint;
   shownSelectionLayer , temp: TBGRABitmap;
-  rectOutput, invalidatedRect: TRect;
+  rectOutput, invalidatedRect, layerRect: TRect;
   actualTransformation: TAffineMatrix;
 begin
   if (FRenderedImage = nil) or ((FRenderedImageInvalidated.Right > FRenderedImageInvalidated.Left) and
@@ -1477,6 +1477,14 @@ begin
     //if there is an overlapping selection, then we must draw it on current layer
     if (SelectionMask <> nil) and (GetSelectedImageLayer <> nil) then
     begin
+      if LayerOriginalDefined[CurrentLayerIndex] and LayerOriginalKnown[CurrentLayerIndex] then
+      begin
+        layerRect := RectWithSize(LayerOffset[CurrentLayerIndex].X,LayerOffset[CurrentLayerIndex].Y,
+                                  LayerBitmap[CurrentLayerIndex].Width,LayerBitmap[CurrentLayerIndex].Height);
+        layerRect.Intersect(rect(0,0,Width,Height));
+        if (layerRect.Width <> Width) or (layerRect.Height <> Height) then
+          CurrentState.LayeredBitmap.RenderLayerFromOriginal(CurrentLayerIndex, false, true);
+      end;
       shownSelectionLayer := FCurrentState.SelectionLayer;
       if shownSelectionLayer <> nil then
       begin

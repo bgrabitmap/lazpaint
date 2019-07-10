@@ -457,6 +457,7 @@ type
     procedure ItemIconSize24Click(Sender: TObject);
     procedure ItemViewDockToolboxClick(Sender: TObject);
     procedure LayerZoomExecute(Sender: TObject);
+    procedure LayerZoomUpdate(Sender: TObject);
     procedure MenuCoordinatesToolbarClick(Sender: TObject);
     procedure MenuCopyPasteToolbarClick(Sender: TObject);
     procedure MenuDockToolboxLeftClick(Sender: TObject);
@@ -2945,6 +2946,11 @@ end;
 procedure TFMain.LayerZoomExecute(Sender: TObject);
 begin
   ChooseTool(ptZoomLayer);
+end;
+
+procedure TFMain.LayerZoomUpdate(Sender: TObject);
+begin
+  LayerZoom.Enabled := Image.CurrentLayerVisible and Image.SelectionMaskEmpty;
 end;
 
 procedure TFMain.MenuCoordinatesToolbarClick(Sender: TObject);
