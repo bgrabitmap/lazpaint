@@ -1132,8 +1132,7 @@ begin
   updateForVSCursor:= false;
   if ToolManager.ToolMove(BmpPos,CurrentPressure) then
   begin
-    FImageView.UpdatePicture(PictureCanvasOfs, FLayout.WorkArea,
-                             {$IFDEF USEPAINTBOXPICTURE}PaintBox_Picture{$ELSE}self{$ENDIF});
+    FImageView.UpdatePicture(PictureCanvasOfs, FLayout.WorkArea, self);
     ToolManager.ToolMoveAfter(FImageView.FormToBitmap(FormMouseMovePos)); //new BmpPos after repaint
   end else
     updateForVSCursor := true;

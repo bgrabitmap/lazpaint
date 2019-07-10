@@ -55,7 +55,7 @@ type
     procedure OnZoomChanged({%H-}sender: TZoom; {%H-}ANewZoom: single; AWorkArea: TRect);
     procedure UpdateCursor(X,Y: integer; ACanvasOfs: TPoint; AWorkArea: TRect; AControl: TControl;
                           AWinControlOfs: TPoint; AWinControl: TWinControl);
-    procedure UpdatePicture(ACanvasOfs: TPoint; AWorkArea: TRect; {%H-}AControl: TControl);
+    procedure UpdatePicture(ACanvasOfs: TPoint; AWorkArea: TRect; {%H-}AWinControl: TWinControl);
     function BitmapToForm(pt: TPointF): TPointF;
     function BitmapToForm(X, Y: Single): TPointF;
     function BitmapToVirtualScreen(ptF: TPointF): TPointF;
@@ -530,7 +530,7 @@ begin
     PaintVirtualScreenCursor(ACanvasOfs, AWorkArea, AWinControlOfs, AWinControl);
 end;
 
-procedure TImageView.UpdatePicture(ACanvasOfs: TPoint; AWorkArea: TRect; AControl: TControl);
+procedure TImageView.UpdatePicture(ACanvasOfs: TPoint; AWorkArea: TRect; AWinControl: TWinControl);
 var
   updateArea: TRect;
   {$IFDEF IMAGEVIEW_DIRECTUPDATE}prevVSArea: TRect;{$ENDIF}
@@ -542,13 +542,14 @@ begin
   FPenCursorPos := GetPenCursorPosition;
   updateArea := GetRectToInvalidate(false, AWorkArea);
   FPenCursorPosBefore.bounds := EmptyRect;
-  OffsetRect(updateArea, -FLastPictureParameters.virtualScreenArea.Left,-FLastPictureParameters.virtualScreenArea.Top);
   {$IFDEF IMAGEVIEW_DIRECTUPDATE}
+  OffsetRect(updateArea, -FLastPictureParameters.virtualScreenArea.Left,-FLastPictureParameters.virtualScreenArea.Top);
   PaintPictureImplementation(ACanvasOfs, AWorkArea, updateArea);
   if prevVSArea <> FLastPictureParameters.virtualScreenArea then
     PaintBlueAreaImplementation(ACanvasOfs, AWorkArea);
   {$ELSE}
-  AControl.Update;
+  InvalidateRect(AWinControl.Handle, @updateArea, false);
+  AWinControl.Update;
   {$ENDIF}
 end;
 
