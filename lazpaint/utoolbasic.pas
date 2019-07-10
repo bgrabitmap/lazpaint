@@ -350,10 +350,7 @@ begin
     result := EmptyRect;
     if handled then exit
     else
-    begin
-      ValidateAction;
-      FreeAndNil(FShape);
-    end;
+      result := ValidateShape;
   end;
 
   if FShape=nil then
@@ -555,7 +552,7 @@ begin
     Result:= FEditor.Render(VirtualScreen, rect(0,0,VirtualScreen.Width,VirtualScreen.Height))
   else
     Result:= FEditor.GetRenderBounds(rect(0,0,VirtualScreenWidth,VirtualScreenHeight));
-  FPreviousEditorBounds := result
+  FPreviousEditorBounds := result;
 end;
 
 destructor TVectorialTool.Destroy;

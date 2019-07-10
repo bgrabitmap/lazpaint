@@ -46,6 +46,7 @@ type
   protected
     FManager: TToolManager;
     FLastToolDrawingLayer: TBGRABitmap;
+    FValidating : boolean;
     function GetAction: TLayerAction; virtual;
     function GetIdleAction: TLayerAction; virtual;
     function GetIsSelectingTool: boolean; virtual; abstract;
@@ -93,6 +94,7 @@ type
     property LayerOffset : TPoint read GetLayerOffset;
     property LastToolDrawingLayer: TBGRABitmap read FLastToolDrawingLayer;
     property StatusText: string read GetStatusText;
+    property Validating: boolean read FValidating;
   end;
 
   { TReadonlyTool }
@@ -478,7 +480,9 @@ procedure TGenericTool.ValidateAction;
 begin
   if Assigned(FAction) then
   begin
+    FValidating := true;
     FAction.Validate;
+    FValidating := false;
     FreeAndNil(FAction);
   end;
 end;
@@ -487,7 +491,9 @@ procedure TGenericTool.ValidateActionPartially;
 begin
   if Assigned(FAction) then
   begin
+    FValidating := true;
     FAction.PartialValidate;
+    FValidating := false;
   end;
 end;
 
@@ -1486,7 +1492,7 @@ end;
 
 function TToolManager.GetRenderBounds(VirtualScreenWidth, VirtualScreenHeight: integer): TRect;
 begin
-  if ToolCanBeUsed then
+  if ToolCanBeUsed and not currentTool.Validating then
     result := currentTool.Render(nil,VirtualScreenWidth,VirtualScreenHeight, @InternalBitmapToVirtualScreen)
   else
     result := EmptyRect;
