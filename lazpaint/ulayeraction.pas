@@ -559,11 +559,10 @@ var
   applyOfs: TCustomImageDifference;
   appendOfs, owned: boolean;
 begin
-  if FBackupSelectedLayerDefined or FBackupSelectionMaskDefined or FBackupSelectionLayerDefined then
+  if (FBackupSelectedLayerDefined or FBackupSelectionMaskDefined or FBackupSelectionLayerDefined) and
+     not (ChangeBoundsNotified and IsRectEmpty(FSelectedImageLayerChangedArea) and IsRectEmpty(FSelectionMaskChangedArea) and
+         IsRectEmpty(FSelectionLayerChangedArea)) then
   begin
-    if ChangeBoundsNotified then
-      if IsRectEmpty(FSelectedImageLayerChangedArea) and IsRectEmpty(FSelectionMaskChangedArea) and
-         IsRectEmpty(FSelectionLayerChangedArea) then exit;
     if FBackupSelectionLayerDefined then
     begin
       CurrentState.DiscardSelectionLayerBounds;
