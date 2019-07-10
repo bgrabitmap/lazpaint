@@ -138,7 +138,7 @@ type
     procedure CompressUndo;
     function UsedMemory: int64;
 
-    function CreateAction(AApplyOfsBefore: boolean=false): TLayerAction;
+    function CreateAction(AApplyOfsBefore: boolean=false; AApplySelTransformBefore: boolean=false): TLayerAction;
 
     // invalidating
     procedure ImageMayChange(ARect: TRect; ADiscardSelectionLayerAfterMask: boolean = true);
@@ -1016,15 +1016,18 @@ begin
       result += (TObject(FUndoList[i]) as TStateDifference).UsedMemory;
 end;
 
-function TLazPaintImage.CreateAction(AApplyOfsBefore: boolean=false): TLayerAction;
+function TLazPaintImage.CreateAction(AApplyOfsBefore: boolean;
+                                     AApplySelTransformBefore: boolean): TLayerAction;
 begin
   if not CheckNoAction(True) then
     raise exception.Create(rsConflictingActions);
-  result := TLayerAction.Create(FCurrentState, AApplyOfsBefore);
+  result := TLayerAction.Create(FCurrentState, AApplyOfsBefore, AApplySelTransformBefore);
   result.OnNotifyChange:= @LayerActionNotifyChange;
   result.OnDestroy:=@LayerActionDestroy;
   result.OnNotifyUndo:=@LayerActionNotifyUndo;
   FActionInProgress := result;
+  if Assigned(result.Prediff) then
+    InvalidateImageDifference(result.Prediff);
 end;
 
 procedure TLazPaintImage.ImageMayChange(ARect: TRect;
@@ -1097,7 +1100,14 @@ end;
 
 procedure TLazPaintImage.SelectionMaskMayChangeCompletely;
 begin
-  SelectionMaskMayChange(rect(0,0,Width,Height));
+  DiscardSelectionLayerAfterMask;
+  FRenderUpdateRectInPicCoord := rect(0,0,Width,Height);
+  FCurrentState.DiscardSelectionMaskBounds;
+  if Assigned(FOnSelectionMaskChanged) then FOnSelectionMaskChanged(self, rect(0,0,Width,Height));
+  if FCurrentState.SelectionLayer <> nil then
+    LayerMayChange(FCurrentState.SelectionLayer, rect(0,0,Width,Height))
+  else
+    OnImageChanged.NotifyObservers;
 end;
 
 procedure TLazPaintImage.RenderMayChange(ARect: TRect; APicCoords: boolean = false);

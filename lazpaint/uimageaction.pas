@@ -650,9 +650,8 @@ var LayerAction: TLayerAction;
 begin
   LayerAction := nil;
   try
-    LayerAction := Image.CreateAction(false);
+    LayerAction := Image.CreateAction(false,true);
     LayerAction.QuerySelection;
-    LayerAction.ApplySelectionTransform;
     p := LayerAction.CurrentSelection.Data;
     for n := LayerAction.CurrentSelection.NbPixels-1 downto 0 do
     begin
@@ -673,19 +672,16 @@ begin
 end;
 
 procedure TImageActions.Deselect;
-var LayerAction: TLayerAction;
 begin
   if (CurrentTool in[ptRotateSelection,ptMoveSelection]) then
     ChooseTool(ptHand);
   if not Image.CheckNoAction then exit;
-  LayerAction := nil;
   try
     if not image.SelectionMaskEmpty then ReleaseSelection;
   except
     on ex:Exception do
       FInstance.ShowError('Deselect',ex.Message);
   end;
-  LayerAction.Free;
 end;
 
 procedure TImageActions.CopySelection;
@@ -698,10 +694,9 @@ begin
     if not image.CheckNoAction then exit;
     bounds := Image.SelectionMaskBounds;
     if IsRectEmpty(bounds) then exit;
-    LayerAction := Image.CreateAction;
+    LayerAction := Image.CreateAction(true,true);
     LayerAction.ApplySelectionMask;
-    if Image.SelectionLayerIsEmpty then
-      LayerAction.RetrieveSelection;
+    if Image.SelectionLayerIsEmpty then LayerAction.RetrieveSelection;
     layer := LayerAction.GetOrCreateSelectionLayer;
     r := layer.GetImageBounds; //bounds may have been changed
     if (r.right > r.left) and (r.bottom > r.top) then
@@ -728,8 +723,7 @@ begin
   LayerAction := nil;
   try
     CopySelection;
-    LayerAction := Image.CreateAction;
-    LayerAction.ApplySelectionTransform;
+    LayerAction := Image.CreateAction(false,true);
     if (LayerAction.GetSelectionLayerIfExists = nil) or (LayerAction.GetSelectionLayerIfExists.Empty) then
       LayerAction.EraseSelectionInBitmap;
     LayerAction.RemoveSelection;
@@ -752,7 +746,7 @@ begin
   if not image.CheckNoAction then exit;
   LayerAction := nil;
   try
-    LayerAction := Image.CreateAction(false);
+    LayerAction := Image.CreateAction(false, true);
     if LayerAction.RetrieveSelectionIfLayerEmpty(True) then
     begin
       r := Image.SelectionMaskBounds;
@@ -769,17 +763,15 @@ end;
 
 procedure TImageActions.DeleteSelection;
 var LayerAction: TLayerAction;
+  doErase: Boolean;
 begin
   if image.SelectionMaskEmpty then exit;
   if not image.CheckNoAction then exit;
   LayerAction := nil;
   try
-    LayerAction := Image.CreateAction;
-    if Image.SelectionLayerIsEmpty then
-    begin
-      LayerAction.ApplySelectionTransform;
-      LayerAction.EraseSelectionInBitmap;
-    end;
+    doErase := Image.SelectionLayerIsEmpty;
+    LayerAction := Image.CreateAction(false, doErase);
+    if doErase then LayerAction.EraseSelectionInBitmap;
     LayerAction.RemoveSelection;
     LayerAction.Validate;
   except
@@ -814,7 +806,8 @@ procedure TImageActions.ReleaseSelection;
 var
   layeraction: TLayerAction;
 begin
-  layeraction := image.CreateAction;
+  if image.SelectionMaskEmpty then exit;
+  layeraction := image.CreateAction(true, true);
   layeraction.ReleaseSelection;
   layeraction.Validate;
   layeraction.Free;
@@ -832,7 +825,7 @@ begin
       if partial.NbPixels <> 0 then
       begin
         ToolManager.ToolCloseDontReopen;
-        layeraction := Image.CreateAction(true);
+        layeraction := Image.CreateAction(true, true);
         layeraction.ReleaseSelection;
         layeraction.QuerySelection;
         pastePos := Point((image.Width - partial.Width) div 2 - image.ImageOffset.X,
@@ -901,7 +894,7 @@ var LayerAction: TLayerAction;
 begin
   if not image.CheckNoAction then exit;
   try
-    LayerAction := Image.CreateAction;
+    LayerAction := Image.CreateAction(false,true);
     LayerAction.ChangeBoundsNotified := true;
 
     if image.SelectionMaskEmpty then

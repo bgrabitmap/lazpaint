@@ -173,15 +173,17 @@ begin
   if BigImage and FQuickDefine then
     result := OnlyRenderChange
   else
-  begin
     Result:= inherited UpdateShape(toolDest);
-    Action.NotifyChange(toolDest, Result);
-  end;
 end;
 
 procedure TVectorialSelectTool.QuickDefineEnd;
+var
+  toolDest: TBGRABitmap;
+  r: TRect;
 begin
-  UpdateShape(GetToolDrawingLayer);
+  toolDest := GetToolDrawingLayer;
+  r := UpdateShape(toolDest);
+  Action.NotifyChange(toolDest, r);
 end;
 
 function TVectorialSelectTool.BigImage: boolean;

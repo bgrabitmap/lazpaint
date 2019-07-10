@@ -46,8 +46,6 @@ type
   protected
     FManager: TToolManager;
     FLastToolDrawingLayer: TBGRABitmap;
-    FBackupDrawingLayerBounds: TRect;
-    FBackupDrawingLayer: TBGRABitmap;
     function GetAction: TLayerAction; virtual;
     function GetIdleAction: TLayerAction; virtual;
     function GetIsSelectingTool: boolean; virtual; abstract;
@@ -416,22 +414,10 @@ var
 begin
   if not Assigned(FAction) then
   begin
-    FAction := Manager.Image.CreateAction(not IsSelectingTool And Manager.Image.SelectionMaskEmpty);
+    FAction := Manager.Image.CreateAction(not IsSelectingTool And Manager.Image.SelectionMaskEmpty,
+                                          IsSelectingTool or not Manager.Image.SelectionMaskEmpty);
     FAction.OnTryStop := @OnTryStop;
     FAction.ChangeBoundsNotified:= true;
-    if IsSelectingTool or not Manager.Image.SelectionMaskEmpty then
-    begin
-      FAction.ApplySelectionTransform;
-      layer := GetToolDrawingLayer;
-      if Assigned(layer) then
-      begin
-        if layer = Manager.Image.SelectionMaskReadonly then
-          FBackupDrawingLayerBounds:= layer.GetImageBounds(cGreen)
-        else
-          FBackupDrawingLayerBounds:= layer.GetImageBounds;
-        FBackupDrawingLayer := layer.GetPart(FBackupDrawingLayerBounds) as TBGRABitmap;
-      end;
-    end;
   end;
   result := FAction;
 end;
@@ -485,7 +471,6 @@ end;
 destructor TGenericTool.Destroy;
 begin
   FAction.Free;
-  FBackupDrawingLayer.Free;
   inherited Destroy;
 end;
 
@@ -495,13 +480,15 @@ begin
   begin
     FAction.Validate;
     FreeAndNil(FAction);
-    FreeAndNil(FBackupDrawingLayer);
   end;
 end;
 
 procedure TGenericTool.ValidateActionPartially;
 begin
-  if Assigned(FAction) then FAction.PartialValidate;
+  if Assigned(FAction) then
+  begin
+    FAction.PartialValidate;
+  end;
 end;
 
 procedure TGenericTool.CancelAction;
@@ -690,25 +677,10 @@ var
 begin
   if Assigned(FAction) then
   begin
-    if Assigned(FBackupDrawingLayer) then
-    begin
-      layer:= GetToolDrawingLayer;
-      if Assigned(layer) then
-      begin
-        if layer = Manager.Image.SelectionMaskReadonly then
-          layer.Fill(BGRABlack)
-        else
-          layer.FillTransparent;
-        layer.PutImage(FBackupDrawingLayerBounds.Left,FBackupDrawingLayerBounds.Top, FBackupDrawingLayer, dmSet);
-        Action.NotifyChange(layer, rect(0,0,layer.Width,layer.Height));
-      end;
-    end else
-    begin
-      if IsSelectingTool then
-        Action.RestoreSelectionMask
-      else
-        Action.RestoreDrawingLayer;
-    end;
+    if IsSelectingTool then
+      Action.RestoreSelectionMask
+    else
+      Action.RestoreDrawingLayer;
   end;
 end;
 

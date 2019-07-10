@@ -24,7 +24,6 @@ type
     FPrediff: TComposedImageDifference;
     FBackupSelectedLayer, FBackupSelectionLayer, FBackupSelection: TBGRABitmap;
     FBackupSelectedLayerDefined, FBackupSelectionLayerDefined, FBackupSelectionMaskDefined: boolean;
-    FBackupSelectionTransform: TAffineMatrix;
     FSelectedImageLayerChangedArea, FSelectionLayerChangedArea, FSelectionMaskChangedArea: TRect;
     FDone: boolean;
     FOnTryStop: TOnTryStopEventHandler;
@@ -38,7 +37,6 @@ type
     function GetDrawingLayer: TBGRABitmap;
     function GetSelectedImageLayerOffset: TPoint;
     function GetSelectionLayerBounds: TRect;
-    function GetSelectionTransform: TAffineMatrix;
     procedure SetOnDestroy(AValue: TNotifyEvent);
     procedure SetOnNotifyChange(AValue: TNotifyChangeEvent);
     procedure SetOnNotifyUndo(AValue: TNotifyUndoEvent);
@@ -49,7 +47,7 @@ type
     procedure NeedSelectionLayerBackup;
     property CurrentState: TImageState read GetCurrentState;
   public
-    constructor Create(AState: TImageState; AApplyOfsBefore: boolean = false);
+    constructor Create(AState: TImageState; AApplyOfsBefore: boolean = false; AApplySelectionTransformBefore: boolean = false);
     procedure Validate;
     procedure PartialValidate(ADiscardBackup: boolean = false);
     procedure PartialCancel;
@@ -62,7 +60,6 @@ type
     procedure ReleaseSelection;
     procedure RetrieveSelection;
     function RetrieveSelectionIfLayerEmpty(removeFromBitmap: boolean = false): boolean;
-    procedure ApplySelectionTransform(ApplyToMask: boolean= true);
     procedure ApplySelectionMask;
 
     procedure ReplaceSelectionLayer(bmp: TBGRABitmap; AOwned: boolean);
@@ -88,11 +85,11 @@ type
     property OnTryStop: TOnTryStopEventHandler read FOnTryStop write FOnTryStop;
     property Done: boolean read FDone;
     property ChangeBoundsNotified: boolean read FChangeBoundsNotified write FChangeBoundsNotified;
-    property SelectionTransform: TAffineMatrix read GetSelectionTransform;
     property SelectionLayerBounds: TRect read GetSelectionLayerBounds;
     property OnNotifyChange: TNotifyChangeEvent read FOnNotifyChange write SetOnNotifyChange;
     property OnNotifyUndo: TNotifyUndoEvent read FOnNotifyUndo write SetOnNotifyUndo;
     property OnDestroy: TNotifyEvent read FOnDestroy write SetOnDestroy;
+    property Prediff: TComposedImageDifference read FPrediff;
   end;
 
 implementation
@@ -160,11 +157,6 @@ begin
   result := CurrentState.GetSelectionLayerBounds;
 end;
 
-function TLayerAction.GetSelectionTransform: TAffineMatrix;
-begin
-  result:= CurrentState.SelectionTransform;
-end;
-
 procedure TLayerAction.SetOnDestroy(AValue: TNotifyEvent);
 begin
   if FOnDestroy=AValue then Exit;
@@ -189,7 +181,6 @@ begin
   RestoreSelectedLayer;
   RestoreSelectionLayer;
   RestoreSelectionMask;
-  CurrentState.SelectionTransform := FBackupSelectionTransform;
   if Assigned(FPrediff) then
   begin
     FPrediff.UnapplyTo(CurrentState);
@@ -225,9 +216,10 @@ begin
   end;
 end;
 
-constructor TLayerAction.Create(AState: TImageState; AApplyOfsBefore: boolean);
+constructor TLayerAction.Create(AState: TImageState; AApplyOfsBefore: boolean;
+  AApplySelectionTransformBefore: boolean);
 var
-  layerOfsDiff: TCustomImageDifference;
+  layerOfsDiff,selTransfDiff: TCustomImageDifference;
 begin
   FImageState := AState;
   FBackupSelectedLayer := nil;
@@ -236,7 +228,6 @@ begin
   FBackupSelectedLayerDefined := false;
   FBackupSelectionMaskDefined := false;
   FBackupSelectionLayerDefined := false;
-  FBackupSelectionTransform := CurrentState.SelectionTransform;
   FSelectedImageLayerChangedArea := EmptyRect;
   FSelectionLayerChangedArea := EmptyRect;
   FSelectionMaskChangedArea := EmptyRect;
@@ -253,12 +244,23 @@ begin
       FPrediff.Add(layerOfsDiff);
     end;
   end;
+  if AApplySelectionTransformBefore then
+  begin
+    selTransfDiff := CurrentState.ComputeSelectionTransformDifference;
+    if selTransfDiff.IsIdentity then FreeAndNil(selTransfDiff)
+    else
+    begin
+      selTransfDiff.ApplyTo(CurrentState);
+      FPrediff.Add(selTransfDiff);
+    end;
+  end;
   if FPrediff.Count = 0 then FreeAndNil(FPrediff);
 end;
 
 destructor TLayerAction.Destroy;
 begin
   if not FDone then Cancel;
+  FPrediff.Free;
   FBackupSelectedLayer.Free;
   FBackupSelection.Free;
   FBackupSelectionLayer.Free;
@@ -409,6 +411,7 @@ procedure TLayerAction.MergeWithSelection(AApplyMask: boolean);
 var offs: TPoint;
   sourceRect,destRect: TRect;
 begin
+  if not IsAffineMatrixIdentity(CurrentState.SelectionTransform) then raise exception.Create('Unexpected selection transform');
   if not CurrentState.SelectionLayerEmpty and not (AApplyMask and CurrentState.SelectionMaskEmpty) then
   begin
     sourceRect := CurrentState.GetSelectionLayerBounds;
@@ -430,6 +433,7 @@ end;
 procedure TLayerAction.ReleaseSelection;
 var bounds: TRect;
 begin
+  if not IsAffineMatrixIdentity(CurrentState.SelectionTransform) then raise exception.Create('Unexpected selection transform');
   if not CurrentState.SelectionMaskEmpty then
   begin
     bounds := CurrentState.GetSelectionMaskBounds;
@@ -446,7 +450,6 @@ begin
     ApplySelectionMask;
     CurrentState.SelectionMask.Free;
     CurrentState.SelectionMask := nil;
-    ApplySelectionTransform(False);
     MergeWithSelection(False);
   end;
 end;
@@ -456,11 +459,11 @@ var temp : TBGRABitmap;
   offs: TPoint;
   r, maskBounds: TRect;
 begin
+  if not IsAffineMatrixIdentity(CurrentState.SelectionTransform) then raise exception.Create('Unexpected selection transform');
   if not CurrentState.SelectionMaskEmpty then
   begin
     NeedSelectedLayerBackup;
     NeedSelectionLayerBackup;
-    ApplySelectionTransform;
     MergeWithSelection;
     offs := CurrentState.LayerOffset[CurrentState.SelectedImageLayerIndex];
     maskBounds := CurrentState.GetSelectionMaskBounds;
@@ -477,6 +480,7 @@ end;
 
 function TLayerAction.RetrieveSelectionIfLayerEmpty(removeFromBitmap: boolean): boolean;
 begin
+  if not IsAffineMatrixIdentity(CurrentState.SelectionTransform) then raise exception.Create('Unexpected selection transform');
   NeedSelectedLayerBackup;
   NeedSelectionLayerBackup;
   if CurrentState.SelectionLayerEmpty then
@@ -514,42 +518,6 @@ begin
     if bmp <> nil then NotifyChange(bmp, bmp.GetImageBounds);
   end;
   CurrentState.ReplaceSelectionLayer(bmp,AOwned);
-end;
-
-procedure TLayerAction.ApplySelectionTransform(ApplyToMask: boolean);
-var
-  newBmp: TBGRABitmap;
-  newLeft, newTop: integer;
-  r: TRect;
-begin
-  if not IsAffineMatrixIdentity(CurrentState.SelectionTransform) then
-  begin
-    if ApplyToMask and not CurrentState.SelectionMaskEmpty then
-    begin
-      NeedSelectionMaskBackup;
-      CurrentState.ComputeTransformedSelectionMask(newBmp,newLeft,newTop);
-      r := CurrentState.GetSelectionMaskBounds;
-      CurrentState.SelectionMask.FillRect(r, BGRABlack, dmSet);
-      NotifyChange(CurrentState.SelectionMask, r);
-      CurrentState.SelectionMask.PutImage(newLeft,newTop,newBmp,dmSet);
-      newBmp.Free;
-      CurrentState.DiscardSelectionMaskBounds;
-    end;
-    if not CurrentState.SelectionLayerEmpty then
-    begin
-      NeedSelectionLayerBackup;
-      CurrentState.ComputeTransformedSelectionLayer(newBmp,newLeft,newTop);
-      r := CurrentState.GetSelectionLayerBounds;
-      CurrentState.SelectionLayer.FillRect(r, BGRAPixelTransparent, dmSet);
-      NotifyChange(CurrentState.SelectionLayer, r);
-      CurrentState.SelectionLayer.PutImage(newLeft,newTop,newBmp,dmSet);
-      newBmp.Free;
-      CurrentState.DiscardSelectionLayerBounds;
-    end;
-    CurrentState.SelectionTransform := AffineMatrixIdentity;
-    NotifyChange(CurrentState.SelectionMask, CurrentState.GetSelectionMaskBounds);
-    NotifyChange(CurrentState.SelectionLayer, CurrentState.GetSelectionLayerBounds);
-  end;
 end;
 
 procedure TLayerAction.ApplySelectionMask;
@@ -626,13 +594,11 @@ begin
       imgDiff := CurrentState.ComputeLayerDifference(FBackupSelectedLayer, FSelectedImageLayerChangedArea,
         FBackupSelection, FSelectionMaskChangedArea,
         FBackupSelectionLayer, FSelectionLayerChangedArea,
-        FBackupSelectionTransform,
         prevLayerOriginaData, prevLayerOriginalMatrix) as TImageLayerStateDifference
     else
       imgDiff := CurrentState.ComputeLayerDifference(FBackupSelectedLayer, FBackupSelectedLayerDefined,
         FBackupSelection, FBackupSelectionMaskDefined,
         FBackupSelectionLayer, FBackupSelectionLayerDefined,
-        FBackupSelectionTransform,
         prevLayerOriginaData, prevLayerOriginalMatrix) as TImageLayerStateDifference;
     if imgDiff.IsIdentity then FreeAndNil(imgDiff);
 
@@ -725,7 +691,8 @@ begin
           owned := false;
           FOnNotifyUndo(self, composedDiff, owned);
           if not owned then composedDiff.Free;
-        end;
+        end else
+          composedDiff.Free;
       end else
       begin
         if Assigned(FOnNotifyUndo) then
@@ -733,11 +700,21 @@ begin
           owned := false;
           FOnNotifyUndo(self, imgDiff, owned);
           if not owned then imgDiff.Free;
-        end;
+        end else
+          imgDiff.Free;
       end;
+    end else
+    if Assigned(FPrediff) then
+    begin
+      if Assigned(FOnNotifyUndo) then
+      begin
+        owned := false;
+        FOnNotifyUndo(self, FPrediff, owned);
+        if not owned then FPrediff.Free;
+      end else
+        FPrediff.Free;
+      FPrediff := nil;
     end;
-
-    FBackupSelectionTransform := CurrentState.SelectionTransform;
   end else
   begin
     if Assigned(FPrediff) then
@@ -747,7 +724,8 @@ begin
         owned := false;
         FOnNotifyUndo(self, FPrediff, owned);
         if not owned then FPrediff.Free;
-      end;
+      end else
+        FPrediff.Free;
       FPrediff := nil;
     end;
   end;
