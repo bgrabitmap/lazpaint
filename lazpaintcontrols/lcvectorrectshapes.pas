@@ -346,18 +346,22 @@ begin
   end else
   begin
     d := GetCornerPositition;
-    m := AffineMatrixInverse(AffineMatrix(AFactorX*FXUnitBackup*d,AFactorY*FYUnitBackup*d,FOriginBackup));
-    newSize := m*ANewCoord;
-    if (ssShift in AShift) and (FXSizeBackup <> 0) and (FYSizeBackup <> 0) then
+    m := AffineMatrix(AFactorX*FXUnitBackup*d,AFactorY*FYUnitBackup*d,FOriginBackup);
+    if IsAffineMatrixInversible(m) then
     begin
-      ratio := (newSize.X/FXSizeBackup + newSize.Y/FYSizeBackup)/2;
-      newSize.X := ratio*FXSizeBackup;
-      newSize.Y := ratio*FYSizeBackup;
+      m := AffineMatrixInverse(m);
+      newSize := m*ANewCoord;
+      if (ssShift in AShift) and (FXSizeBackup <> 0) and (FYSizeBackup <> 0) then
+      begin
+        ratio := (newSize.X/FXSizeBackup + newSize.Y/FYSizeBackup)/2;
+        newSize.X := ratio*FXSizeBackup;
+        newSize.Y := ratio*FYSizeBackup;
+      end;
+      FXAxis := FXAxisBackup + (AFactorX+1)*0.5*sqrt(d)*(newSize.X-FXSizeBackup)*FXUnitBackup + AFactorY*(newSize.Y-FYSizeBackup)*0.5*sqrt(d)*FYUnitBackup;
+      FYAxis := FYAxisBackup + (AFactorY+1)*0.5*sqrt(d)*(newSize.Y-FYSizeBackup)*FYUnitBackup + AFactorX*(newSize.X-FXSizeBackup)*0.5*sqrt(d)*FXUnitBackup;
+      FOrigin := FOriginBackup + AFactorX*(newSize.X-FXSizeBackup)*0.5*sqrt(d)*FXUnitBackup
+                               + AFactorY*(newSize.Y-FYSizeBackup)*0.5*sqrt(d)*FYUnitBackup;
     end;
-    FXAxis := FXAxisBackup + (AFactorX+1)*0.5*sqrt(d)*(newSize.X-FXSizeBackup)*FXUnitBackup + AFactorY*(newSize.Y-FYSizeBackup)*0.5*sqrt(d)*FYUnitBackup;
-    FYAxis := FYAxisBackup + (AFactorY+1)*0.5*sqrt(d)*(newSize.Y-FYSizeBackup)*FYUnitBackup + AFactorX*(newSize.X-FXSizeBackup)*0.5*sqrt(d)*FXUnitBackup;
-    FOrigin := FOriginBackup + AFactorX*(newSize.X-FXSizeBackup)*0.5*sqrt(d)*FXUnitBackup
-                             + AFactorY*(newSize.Y-FYSizeBackup)*0.5*sqrt(d)*FYUnitBackup;
   end;
   EnsureRatio(-AFactorX,-AFactorY);
   EndUpdate;
@@ -525,6 +529,14 @@ begin
   u := FXAxis - FOrigin;
   v := FYAxis - FOrigin;
   AEditor.AddStartMoveHandler(@OnStartMove);
+  d := GetCornerPositition;
+  if d <> 0 then
+  begin
+    AEditor.AddPoint(FOrigin + (u+v)*d, @OnMoveXYCorner, false);
+    AEditor.AddPoint(FOrigin + (-u+v)*d, @OnMoveXNegYCorner, false);
+    AEditor.AddPoint(FOrigin + (u-v)*d, @OnMoveXYNegCorner, false);
+    AEditor.AddPoint(FOrigin + (-u-v)*d, @OnMoveXNegYNegCorner, false);
+  end;
   if ShowArrows then
   begin
     idxX := AEditor.AddArrow(FOrigin, FXAxis, @OnMoveXAxis);
@@ -537,14 +549,6 @@ begin
     idxY := AEditor.AddPoint(FYAxis, @OnMoveYAxis);
     idxXNeg := AEditor.AddPoint(FOrigin - u, @OnMoveXAxisNeg);
     idxYNeg := AEditor.AddPoint(FOrigin - v, @OnMoveYAxisNeg);
-  end;
-  d := GetCornerPositition;
-  if d <> 0 then
-  begin
-    AEditor.AddPoint(FOrigin + (u+v)*d, @OnMoveXYCorner, false);
-    AEditor.AddPoint(FOrigin + (-u+v)*d, @OnMoveXNegYCorner, false);
-    AEditor.AddPoint(FOrigin + (u-v)*d, @OnMoveXYNegCorner, false);
-    AEditor.AddPoint(FOrigin + (-u-v)*d, @OnMoveXNegYNegCorner, false);
   end;
   idxOrig := AEditor.AddPoint(FOrigin, @OnMoveOrigin, true);
   if ShowArrows then
