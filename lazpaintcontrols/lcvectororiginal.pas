@@ -89,6 +89,7 @@ type
     function CanHaveRenderStorage: boolean;
   public
     constructor Create(AContainer: TVectorOriginal); virtual;
+    class function CreateFromStorage(AStorage: TBGRACustomOriginalStorage; AContainer: TVectorOriginal): TVectorShape;
     destructor Destroy; override;
     procedure QuickDefine(const APoint1,APoint2: TPointF); virtual; abstract;
     //one of the two Render functions must be overriden
@@ -983,6 +984,20 @@ begin
   FRenderIteration:= 0;
 end;
 
+class function TVectorShape.CreateFromStorage(
+  AStorage: TBGRACustomOriginalStorage; AContainer: TVectorOriginal): TVectorShape;
+var
+  objClassName: RawByteString;
+  shapeClass: TVectorShapeAny;
+begin
+  objClassName := AStorage.RawString['class'];
+  if objClassName = '' then raise exception.Create('Shape class not defined');
+  shapeClass:= GetVectorShapeByStorageClassName(objClassName);
+  if shapeClass = nil then raise exception.Create('Unknown shape class "'+objClassName+'"');
+  result := shapeClass.Create(AContainer);
+  result.LoadFromStorage(AStorage);
+end;
+
 destructor TVectorShape.Destroy;
 begin
   FreeAndNil(FStroker);
@@ -1536,6 +1551,8 @@ procedure TVectorOriginal.Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMat
 var
   i: Integer;
   idxSelected: LongInt;
+  clipRectF: TRectF;
+  mOfs: TAffineMatrix;
 begin
   if AMatrix <> FFrozenShapeMatrix then DiscardFrozenShapes;
   idxSelected := FShapes.IndexOf(FSelectedShape);
@@ -1544,12 +1561,16 @@ begin
     FSelectedShape := nil;
     DiscardFrozenShapes;
   end;
+  with ADest.ClipRect do
+    clipRectF := RectF(Left,Top,Right,Bottom);
+  mOfs := AffineMatrixTranslation(ARenderOffset.X,ARenderOffset.Y)*AMatrix;
   if FFrozenShapesComputed then
   begin
     ADest.PutImage(ARenderOffset.X-FFrozenShapesRenderOffset.X,
                    ARenderOffset.Y-FFrozenShapesRenderOffset.Y,
                    FFrozenShapesUnderSelection, dmSet);
-    FSelectedShape.Render(ADest, ARenderOffset, AMatrix, ADraft);
+    if FSelectedShape.GetRenderBounds(ADest.ClipRect, mOfs, []).IntersectsWith(clipRectF) then
+      FSelectedShape.Render(ADest, ARenderOffset, AMatrix, ADraft);
     ADest.PutImage(ARenderOffset.X-FFrozenShapesRenderOffset.X,
                    ARenderOffset.Y-FFrozenShapesRenderOffset.Y,
                    FFrozenShapesOverSelection, dmDrawWithTransparency);
@@ -1562,7 +1583,8 @@ begin
         FreeAndNil(FFrozenShapesUnderSelection);
         FFrozenShapesUnderSelection := TBGRABitmap.Create(ADest.Width,ADest.Height);
         for i:= 0 to idxSelected-1 do
-          FShapes[i].Render(FFrozenShapesUnderSelection, ARenderOffset, AMatrix, false);
+          if FShapes[i].GetRenderBounds(ADest.ClipRect, mOfs, []).IntersectsWith(clipRectF) then
+            FShapes[i].Render(FFrozenShapesUnderSelection, ARenderOffset, AMatrix, false);
         ADest.PutImage(0,0,FFrozenShapesUnderSelection, dmSet);
       end;
       FSelectedShape.Render(ADest, ARenderOffset, AMatrix, ADraft);
@@ -1571,7 +1593,8 @@ begin
         FreeAndNil(FFrozenShapesOverSelection);
         FFrozenShapesOverSelection := TBGRABitmap.Create(ADest.Width,ADest.Height);
         for i:= idxSelected+1 to FShapes.Count-1 do
-          FShapes[i].Render(FFrozenShapesOverSelection, ARenderOffset, AMatrix, false);
+          if FShapes[i].GetRenderBounds(ADest.ClipRect, mOfs, []).IntersectsWith(clipRectF) then
+            FShapes[i].Render(FFrozenShapesOverSelection, ARenderOffset, AMatrix, false);
         ADest.PutImage(0,0,FFrozenShapesOverSelection, dmDrawWithTransparency);
       end;
       FFrozenShapesRenderOffset := ARenderOffset;
@@ -1580,7 +1603,8 @@ begin
     end else
     begin
       for i:= 0 to FShapes.Count-1 do
-        FShapes[i].Render(ADest, ARenderOffset, AMatrix, ADraft);
+        if FShapes[i].GetRenderBounds(ADest.ClipRect, mOfs, []).IntersectsWith(clipRectF) then
+          FShapes[i].Render(ADest, ARenderOffset, AMatrix, ADraft);
     end;
   end;
   DiscardUnusedRenderStorage;
@@ -1694,12 +1718,7 @@ begin
     shapeObj := AStorage.OpenObject('shape'+inttostr(i+1));
     if shapeObj <> nil then
     try
-      objClassName := shapeObj.RawString['class'];
-      if objClassName = '' then raise exception.Create('Shape class not defined');
-      shapeClass:= GetVectorShapeByStorageClassName(objClassName);
-      if shapeClass = nil then raise exception.Create('Unknown shape class "'+objClassName+'"');
-      loadedShape := shapeClass.Create(self);
-      loadedShape.LoadFromStorage(shapeObj);
+      loadedShape := TVectorShape.CreateFromStorage(shapeObj, self);
       loadedShape.OnChange := @OnShapeChange;
       loadedShape.OnEditingChange := @OnShapeEditingChange;
       if loadedShape.Id > FLastShapeId then FLastShapeId := loadedShape.Id;

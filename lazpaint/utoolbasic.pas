@@ -92,7 +92,9 @@ type
     function RoundCoordinate(ptF: TPointF): TPointF; virtual;
     function GetIsSelectingTool: boolean; override;
     function UpdateShape(toolDest: TBGRABitmap): TRect; virtual;
+    function VectorTransform: TAffineMatrix;
     procedure UpdateCursor(ACursor: TOriginalEditorCursor);
+    function FixLayerOffset: boolean; override;
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF; rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF): TRect; override;
     function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
@@ -131,7 +133,8 @@ type
 implementation
 
 uses Types, Graphics, ugraph, Controls, LazPaintType,
-  UResourceStrings, BGRATransform, Math, BGRAPen, LCVectorRectShapes;
+  UResourceStrings, BGRATransform, Math, BGRAPen, LCVectorRectShapes,
+  uimagediff, UStateType;
 
 { TVectorialTool }
 
@@ -139,13 +142,14 @@ procedure TVectorialTool.ShapeChange(ASender: TObject; ABounds: TRectF);
 var
   toolDest: TBGRABitmap;
   r: TRect;
+  matrix: TAffineMatrix;
 begin
   toolDest := GetToolDrawingLayer;
-  with ABounds do r := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
+  matrix := VectorTransform;
+  r := (matrix*TAffineBox.AffineBox(ABounds)).RectBounds;
   UpdateShape(toolDest);
   Action.NotifyChange(toolDest, r);
-  with FShape.GetRenderBounds(rect(0,0,toolDest.Width,toolDest.Height),
-       AffineMatrixIdentity,[]) do
+  with FShape.GetRenderBounds(rect(0,0,toolDest.Width,toolDest.Height),matrix,[]) do
     FPreviousUpdateBounds := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
   if IsRectEmpty(r) then ShapeEditingChange(ASender);
 end;
@@ -207,11 +211,37 @@ begin
 end;
 
 function TVectorialTool.ValidateShape: TRect;
+var
+  diff: TComposedImageDifference;
+  layerId: LongInt;
 begin
-  ValidateActionPartially;
-  FreeAndNil(FShape);
-  Cursor := crDefault;
-  result := OnlyRenderChange;
+  if Assigned(FShape) then
+  begin
+    if Manager.Image.SelectionMaskEmpty then
+    begin
+      CancelAction;
+      layerId := Manager.Image.LayerId[Manager.Image.CurrentLayerIndex];
+      if Manager.Image.LayerOriginalDefined[Manager.Image.CurrentLayerIndex] and
+         Manager.Image.LayerOriginalKnown[Manager.Image.CurrentLayerIndex] and
+         (Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex] = TVectorOriginal) then
+        Manager.Image.AddUndo(TAddShapeToVectorOriginalDifference.Create(Manager.Image.CurrentState,layerId,FShape))
+      else
+      begin
+        diff := TComposedImageDifference.Create;
+        diff.Add(TReplaceLayerByVectorOriginalDifference.Create(Manager.Image.CurrentState,Manager.Image.CurrentLayerIndex));
+        diff.Add(TAddShapeToVectorOriginalDifference.Create(Manager.Image.CurrentState,layerId,FShape));
+        Manager.Image.AddUndo(diff);
+      end;
+      FShape := nil;
+    end else
+    begin
+      ValidateActionPartially;
+      FreeAndNil(FShape);
+    end;
+    Cursor := crDefault;
+    result := OnlyRenderChange;
+  end else
+    result := EmptyRect;
 end;
 
 function TVectorialTool.CancelShape: TRect;
@@ -302,7 +332,7 @@ var
 begin
   result := FPreviousUpdateBounds;
   RestoreBackupDrawingLayer;
-  matrix := AffineMatrixIdentity;
+  matrix := VectorTransform;
   draft := (FRightDown or FLeftDown) and SlowShape;
   newBounds := GetCustomShapeBounds(toolDest.ClipRect,matrix,draft);
   result := RectUnion(result, newBounds);
@@ -310,6 +340,14 @@ begin
   DrawCustomShape(toolDest,matrix,draft);
   toolDest.ClipRect := oldClip;
   FPreviousUpdateBounds := newBounds;
+end;
+
+function TVectorialTool.VectorTransform: TAffineMatrix;
+begin
+  if IsSelectingTool or not Manager.Image.SelectionMaskEmpty then
+    result := AffineMatrixIdentity
+  else
+    result := Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex];
 end;
 
 procedure TVectorialTool.UpdateCursor(ACursor: TOriginalEditorCursor);
@@ -330,12 +368,18 @@ begin
   end;
 end;
 
+function TVectorialTool.FixLayerOffset: boolean;
+begin
+  Result:= false;
+end;
+
 function TVectorialTool.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
 var
   viewPt: TPointF;
   cur: TOriginalEditorCursor;
   handled: boolean;
+  invTransform: TAffineMatrix;
 begin
   FRightDown := rightBtn;
   FLeftDown := not rightBtn;
@@ -355,12 +399,14 @@ begin
 
   if FShape=nil then
   begin
+    toolDest := GetToolDrawingLayer;
     FSwapColor:= rightBtn;
     FShape := CreateShape;
     FQuickDefine := true;
     FQuickDefineStartPoint := RoundCoordinate(ptF);
     AssignShapeStyle;
-    QuickDefineShape(FQuickDefineStartPoint,FQuickDefineStartPoint);
+    invTransform := AffineMatrixInverse(VectorTransform);
+    QuickDefineShape(invTransform*FQuickDefineStartPoint,invTransform*FQuickDefineStartPoint);
     FShape.OnChange:= @ShapeChange;
     FShape.OnEditingChange:=@ShapeEditingChange;
     result := UpdateShape(toolDest);
@@ -375,6 +421,7 @@ var
   viewPt: TPointF;
   handled: boolean;
   cur: TOriginalEditorCursor;
+  invTransform: TAffineMatrix;
 begin
   FLastPos := ptF;
   if FQuickDefine then
@@ -387,7 +434,8 @@ begin
       if s.x > 0 then secondCoord.x := FQuickDefineStartPoint.x + avg else secondCoord.x := FQuickDefineStartPoint.x - avg;
       if s.y > 0 then secondCoord.y := FQuickDefineStartPoint.y + avg else secondCoord.y := FQuickDefineStartPoint.y - avg;
     end;
-    QuickDefineShape(FQuickDefineStartPoint, secondCoord);
+    invTransform := AffineMatrixInverse(VectorTransform);
+    QuickDefineShape(invTransform*FQuickDefineStartPoint, invTransform*secondCoord);
     result := OnlyRenderChange;
   end else
   begin
@@ -409,7 +457,6 @@ end;
 constructor TVectorialTool.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
-  Action.ChangeBoundsNotified:= true;
   FPreviousUpdateBounds := EmptyRect;
   FEditor := TVectorOriginalEditor.Create(nil);
   FEditor.GridMatrix := AffineMatrixScale(0.5,0.5);
@@ -545,7 +592,7 @@ begin
   orig := BitmapToVirtualScreen(PointF(0,0));
   xAxis := BitmapToVirtualScreen(PointF(1,0));
   yAxis := BitmapToVirtualScreen(PointF(0,1));
-  FEditor.Matrix := AffineMatrix(xAxis-orig,yAxis-orig,orig);
+  FEditor.Matrix := AffineMatrix(xAxis-orig,yAxis-orig,orig)*VectorTransform;
   FEditor.Clear;
   if Assigned(FShape) then FShape.ConfigureEditor(FEditor);
   if Assigned(VirtualScreen) then
@@ -557,11 +604,7 @@ end;
 
 destructor TVectorialTool.Destroy;
 begin
-  if Assigned(FShape) then
-  begin
-    ValidateAction;
-    FShape.Free;
-  end;
+  if Assigned(FShape) then ValidateShape;
   FEditor.Free;
   inherited Destroy;
 end;

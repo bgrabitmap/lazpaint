@@ -213,6 +213,7 @@ begin
     FPreviousMousePos := ptF;
     if FCtrlDown then result := UpdateTransform
      else result := EmptyRect;
+    Manager.Image.DraftOriginal := true;
   end else
   if rightBtn then
   begin
@@ -369,6 +370,7 @@ begin
   begin
     FTransforming := false;
     result := UpdateTransform;
+    Manager.Image.DraftOriginal := false;
   end else
     Result:=EmptyRect;
 end;
@@ -484,6 +486,7 @@ begin
     FPreviousMousePos := ptF;
     if FCtrlDown then result := UpdateTransform
      else result := EmptyRect;
+    Manager.Image.DraftOriginal := true;
   end else
   if rightBtn then
   begin
@@ -644,6 +647,7 @@ begin
   begin
     FTransforming := false;
     result := UpdateTransform;
+    Manager.Image.DraftOriginal := false;
   end else
     Result:=EmptyRect;
 end;
@@ -685,6 +689,7 @@ begin
       FStartLayerOffset := Manager.Image.LayerOffset[idx];
       FStartLayerMatrix := Manager.Image.LayerOriginalMatrix[idx];
     end;
+    if UseOriginal then Manager.Image.DraftOriginal := true;
   end;
 end;
 
@@ -764,6 +769,7 @@ function TToolMoveLayer.ToolUp: TRect;
 begin
   handMoving := false;
   result := EmptyRect;
+  if UseOriginal then Manager.Image.DraftOriginal := false;
 end;
 
 function TToolMoveLayer.ToolKeyDown(var key: Word): TRect;

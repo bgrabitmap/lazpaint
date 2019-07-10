@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, UStateType, BGRABitmap, BGRABitmapTypes, BGRALayers,
-  BGRALayerOriginal;
+  BGRALayerOriginal, LCVectorOriginal;
 
 function IsInverseImageDiff(ADiff1, ADiff2: TCustomImageDifference): boolean;
 function TryCombineImageDiff(ANewDiff, APrevDiff: TCustomImageDifference): boolean;
@@ -291,9 +291,9 @@ type
     destructor Destroy; override;
   end;
 
-  { TReplaceLayerByImageOriginalDifference }
+  { TReplaceLayerByOriginalDifference }
 
-  TReplaceLayerByImageOriginalDifference = class(TCustomImageDifference)
+  TReplaceLayerByOriginalDifference = class(TCustomImageDifference)
   private
     function GetLayerId: integer;
   protected
@@ -301,6 +301,7 @@ type
     FPrevMatrix,FNextMatrix: TAffineMatrix;
     FSourceBounds: TRect;
     function GetImageDifferenceKind: TImageDifferenceKind; override;
+    function CreateOriginal(AState: TState; ALayerIndex: integer): TBGRALayerCustomOriginal; virtual; abstract;
   public
     constructor Create(AFromState: TState; AIndex: integer);
     function UsedMemory: int64; override;
@@ -311,6 +312,39 @@ type
     property prevMatrix: TAffineMatrix read FPrevMatrix;
     property nextMatrix: TAffineMatrix read FNextMatrix write FNextMatrix;
     destructor Destroy; override;
+  end;
+
+  { TReplaceLayerByImageOriginalDifference }
+
+  TReplaceLayerByImageOriginalDifference = class(TReplaceLayerByOriginalDifference)
+  protected
+    function CreateOriginal(AState: TState; ALayerIndex: integer): TBGRALayerCustomOriginal; override;
+  end;
+
+  { TReplaceLayerByVectorOriginalDifference }
+
+  TReplaceLayerByVectorOriginalDifference = class(TReplaceLayerByOriginalDifference)
+  protected
+    function CreateOriginal(AState: TState; ALayerIndex: integer): TBGRALayerCustomOriginal; override;
+  end;
+
+  { TAddShapeToVectorOriginalDifference }
+
+  TAddShapeToVectorOriginalDifference = class(TCustomImageDifference)
+  private
+    FShapeIndex, FShapeId: integer;
+    FLayerId: integer;
+    FShapeData: TBGRAMemOriginalStorage;
+    FShapeBounds: TRect;
+  protected
+    function GetImageDifferenceKind: TImageDifferenceKind; override;
+    function GetChangingBounds: TRect; override;
+    function GetChangingBoundsDefined: boolean; override;
+  public
+    constructor Create(ADestination: TState; ALayerId: integer; AShape: TVectorShape; AShapeIndex: integer = -1);
+    destructor Destroy; override;
+    procedure ApplyTo(AState: TState); override;
+    procedure UnapplyTo(AState: TState); override;
   end;
 
   { TDiscardOriginalStateDifference }
@@ -403,7 +437,7 @@ type
 implementation
 
 uses BGRAWriteLzp, BGRAReadLzp, UImageState, BGRAStreamLayers, BGRALzpCommon, ugraph, Types,
-  BGRATransform, zstream;
+  BGRATransform, zstream, LCVectorRectShapes, BGRAPen, math;
 
 function IsInverseImageDiff(ADiff1, ADiff2: TCustomImageDifference): boolean;
 begin
@@ -493,11 +527,11 @@ begin
     else result := false;
   end
   else
-  if (APrevDiff is TReplaceLayerByImageOriginalDifference) and (ANewDiff is TSetLayerMatrixDifference) then
+  if (APrevDiff is TReplaceLayerByOriginalDifference) and (ANewDiff is TSetLayerMatrixDifference) then
   begin
-    if (APrevDiff as TReplaceLayerByImageOriginalDifference).nextMatrix = (ANewDiff as TSetLayerMatrixDifference).previousMatrix then
+    if (APrevDiff as TReplaceLayerByOriginalDifference).nextMatrix = (ANewDiff as TSetLayerMatrixDifference).previousMatrix then
     begin
-      (APrevDiff as TReplaceLayerByImageOriginalDifference).nextMatrix := (ANewDiff as TSetLayerMatrixDifference).nextMatrix;
+      (APrevDiff as TReplaceLayerByOriginalDifference).nextMatrix := (ANewDiff as TSetLayerMatrixDifference).nextMatrix;
       result := true;
     end
     else result := false;
@@ -524,6 +558,146 @@ begin
   end
   else
     result := false;
+end;
+
+{ TAddShapeToVectorOriginalDifference }
+
+function TAddShapeToVectorOriginalDifference.GetImageDifferenceKind: TImageDifferenceKind;
+begin
+  Result:= idkChangeImage;
+end;
+
+function TAddShapeToVectorOriginalDifference.GetChangingBounds: TRect;
+begin
+  Result:= FShapeBounds;
+end;
+
+function TAddShapeToVectorOriginalDifference.GetChangingBoundsDefined: boolean;
+begin
+  Result:= true;
+end;
+
+constructor TAddShapeToVectorOriginalDifference.Create(ADestination: TState;
+  ALayerId: integer; AShape: TVectorShape; AShapeIndex: integer);
+var
+  imgState: TImageState;
+  layerIdx, idxShapeAdd: Integer;
+  orig: TBGRALayerCustomOriginal;
+begin
+  FLayerId := ALayerId;
+  imgState := ADestination as TImageState;
+  layerIdx := imgState.LayeredBitmap.GetLayerIndexFromId(FLayerId);
+  orig := imgState.LayerOriginal[layerIdx];
+  if not (orig is TVectorOriginal) then
+  begin
+    AShape.Free;
+    raise exception.Create('Vector original expected');
+  end;
+  if AShapeIndex = -1 then AShapeIndex := TVectorOriginal(orig).ShapeCount;
+  FShapeIndex:= AShapeIndex;
+  FShapeData := TBGRAMemOriginalStorage.Create;
+  AShape.SaveToStorage(FShapeData);
+  FShapeData.RawString['class'] := AShape.StorageClassName;
+  with AShape.GetRenderBounds(rect(0,0,imgState.Width,imgState.Height),
+        imgState.LayerOriginalMatrix[layerIdx],[]) do
+    FShapeBounds := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
+
+  inherited ApplyTo(ADestination);
+  idxShapeAdd := TVectorOriginal(orig).AddShape(AShape);
+  FShapeId := TVectorOriginal(orig).Shape[idxShapeAdd].Id;
+  TVectorOriginal(orig).MoveShapeToIndex(idxShapeAdd, FShapeIndex);
+  imgState.LayeredBitmap.RenderLayerFromOriginal(layerIdx);
+end;
+
+destructor TAddShapeToVectorOriginalDifference.Destroy;
+begin
+  FShapeData.Free;
+  inherited Destroy;
+end;
+
+procedure TAddShapeToVectorOriginalDifference.ApplyTo(AState: TState);
+var
+  imgState: TImageState;
+  layerIdx, idxShapeAdd: Integer;
+  orig: TBGRALayerCustomOriginal;
+  shape: TVectorShape;
+begin
+  inherited ApplyTo(AState);
+  imgState := AState as TImageState;
+  layerIdx := imgState.LayeredBitmap.GetLayerIndexFromId(FLayerId);
+  orig := imgState.LayerOriginal[layerIdx];
+  if not (orig is TVectorOriginal) then
+    raise exception.Create('Vector original expected');
+
+  shape := TVectorShape.CreateFromStorage(FShapeData,nil);
+  idxShapeAdd := TVectorOriginal(orig).AddShape(shape);
+  TVectorOriginal(orig).Shape[idxShapeAdd].Id := FShapeId;
+  TVectorOriginal(orig).MoveShapeToIndex(idxShapeAdd, FShapeIndex);
+  imgState.LayeredBitmap.RenderLayerFromOriginal(layerIdx);
+end;
+
+procedure TAddShapeToVectorOriginalDifference.UnapplyTo(AState: TState);
+var
+  imgState: TImageState;
+  layerIdx: Integer;
+  orig: TBGRALayerCustomOriginal;
+begin
+  inherited UnapplyTo(AState);
+  imgState := AState as TImageState;
+  layerIdx := imgState.LayeredBitmap.GetLayerIndexFromId(FLayerId);
+  orig := imgState.LayerOriginal[layerIdx];
+  if not (orig is TVectorOriginal) then
+    raise exception.Create('Vector original expected');
+  TVectorOriginal(orig).RemoveShape(TVectorOriginal(orig).Shape[FShapeIndex]);
+end;
+
+{ TReplaceLayerByVectorOriginalDifference }
+
+function TReplaceLayerByVectorOriginalDifference.CreateOriginal(AState: TState;
+  ALayerIndex: integer): TBGRALayerCustomOriginal;
+var
+  source: TBGRABitmap;
+  temp: TBGRABitmap;
+  imgState: TImageState;
+  orig: TVectorOriginal;
+  shape: TRectShape;
+begin
+  imgState := TImageState(AState);
+  orig := TVectorOriginal.Create;
+  source := imgState.LayeredBitmap.LayerBitmap[ALayerIndex];
+  if not source.Empty then
+  begin
+    shape := TRectShape.Create(orig);
+    shape.QuickDefine(PointF(0,0),PointF(FSourceBounds.Width,FSourceBounds.Height));
+    shape.PenStyle := ClearPenStyle;
+    temp := source.GetPart(FSourceBounds) as TBGRABitmap;
+    shape.BackFill.SetTexture(temp,AffineMatrixIdentity);
+    temp.FreeReference;
+    orig.AddShape(shape);
+  end;
+  result := orig;
+end;
+
+{ TReplaceLayerByImageOriginalDifference }
+
+function TReplaceLayerByImageOriginalDifference.CreateOriginal(AState: TState; ALayerIndex: integer): TBGRALayerCustomOriginal;
+var
+  source: TBGRABitmap;
+  temp: TBGRACustomBitmap;
+  imgState: TImageState;
+  orig: TBGRALayerImageOriginal;
+begin
+  imgState := TImageState(AState);
+  orig := TBGRALayerImageOriginal.Create;
+  source := imgState.LayeredBitmap.LayerBitmap[ALayerIndex];
+  if (FSourceBounds.Width <> source.Width) or (FSourceBounds.Height <> source.Height) then
+  begin
+    temp := source.GetPart(FSourceBounds);
+    orig.AssignImage(temp);
+    temp.Free;
+  end else
+    orig.AssignImage(source);
+  result := orig;
 end;
 
 { TSelectionTransformDifference }
@@ -629,19 +803,19 @@ begin
   inherited UnapplyTo(AState);
 end;
 
-{ TReplaceLayerByImageOriginalDifference }
+{ TReplaceLayerByOriginalDifference }
 
-function TReplaceLayerByImageOriginalDifference.GetLayerId: integer;
+function TReplaceLayerByOriginalDifference.GetLayerId: integer;
 begin
   result := FPreviousLayerContent.LayerId;
 end;
 
-function TReplaceLayerByImageOriginalDifference.GetImageDifferenceKind: TImageDifferenceKind;
+function TReplaceLayerByOriginalDifference.GetImageDifferenceKind: TImageDifferenceKind;
 begin
   Result:= idkChangeImage;
 end;
 
-constructor TReplaceLayerByImageOriginalDifference.Create(
+constructor TReplaceLayerByOriginalDifference.Create(
   AFromState: TState; AIndex: integer);
 var
   imgState: TImageState;
@@ -655,35 +829,26 @@ begin
   ApplyTo(imgState);
 end;
 
-function TReplaceLayerByImageOriginalDifference.UsedMemory: int64;
+function TReplaceLayerByOriginalDifference.UsedMemory: int64;
 begin
   Result:= FPreviousLayerContent.UsedMemory;
 end;
 
-function TReplaceLayerByImageOriginalDifference.TryCompress: boolean;
+function TReplaceLayerByOriginalDifference.TryCompress: boolean;
 begin
   Result:= FPreviousLayerContent.Compress;
 end;
 
-procedure TReplaceLayerByImageOriginalDifference.ApplyTo(AState: TState);
+procedure TReplaceLayerByOriginalDifference.ApplyTo(AState: TState);
 var
   imgState: TImageState;
-  orig: TBGRALayerImageOriginal;
+  orig: TBGRALayerCustomOriginal;
   origIndex,layerIdx: Integer;
-  source: TBGRABitmap;
-  temp: TBGRACustomBitmap;
 begin
+  inherited ApplyTo(AState);
   imgState := AState as TImageState;
   layerIdx := imgState.LayeredBitmap.GetLayerIndexFromId(FPreviousLayerContent.LayerId);
-  orig := TBGRALayerImageOriginal.Create;
-  source := imgState.LayeredBitmap.LayerBitmap[layerIdx];
-  if (FSourceBounds.Width <> source.Width) or (FSourceBounds.Height <> source.Height) then
-  begin
-    temp := source.GetPart(FSourceBounds);
-    orig.AssignImage(temp);
-    temp.Free;
-  end else
-    orig.AssignImage(source);
+  orig := CreateOriginal(imgState, layerIdx);
   origIndex := imgState.LayeredBitmap.AddOriginal(orig, true);
   imgState.LayeredBitmap.LayerOriginalGuid[layerIdx] := imgState.LayeredBitmap.OriginalGuid[origIndex];
   imgState.LayeredBitmap.LayerOriginalMatrix[layerIdx] := FNextMatrix;
@@ -696,15 +861,16 @@ begin
   end;
 end;
 
-procedure TReplaceLayerByImageOriginalDifference.UnapplyTo(AState: TState);
+procedure TReplaceLayerByOriginalDifference.UnapplyTo(AState: TState);
 var
   imgState: TImageState;
 begin
+  inherited UnapplyTo(AState);
   imgState := AState as TImageState;
   FPreviousLayerContent.Replace(imgState.LayeredBitmap);
 end;
 
-destructor TReplaceLayerByImageOriginalDifference.Destroy;
+destructor TReplaceLayerByOriginalDifference.Destroy;
 begin
   FPreviousLayerContent.Free;
   inherited Destroy;

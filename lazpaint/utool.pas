@@ -46,11 +46,12 @@ type
   protected
     FManager: TToolManager;
     FLastToolDrawingLayer: TBGRABitmap;
-    FValidating : boolean;
+    FValidating, FCanceling: boolean;
     function GetAction: TLayerAction; virtual;
     function GetIdleAction: TLayerAction; virtual;
     function GetIsSelectingTool: boolean; virtual; abstract;
     function FixSelectionTransform: boolean; virtual;
+    function FixLayerOffset: boolean; virtual;
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF; rightBtn: boolean): TRect; virtual;
     function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect; virtual;
     procedure DoToolMoveAfter(pt: TPoint; ptF: TPointF); virtual;
@@ -95,6 +96,7 @@ type
     property LastToolDrawingLayer: TBGRABitmap read FLastToolDrawingLayer;
     property StatusText: string read GetStatusText;
     property Validating: boolean read FValidating;
+    property Canceling: boolean read FCanceling;
   end;
 
   { TReadonlyTool }
@@ -438,6 +440,11 @@ begin
   result:= true;
 end;
 
+function TGenericTool.FixLayerOffset: boolean;
+begin
+  result:= true;
+end;
+
 function TGenericTool.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
 begin
@@ -498,12 +505,21 @@ end;
 procedure TGenericTool.CancelAction;
 begin
   if FAction <> nil then
+  begin
+    FCanceling := true;
     FreeAndNil(FAction);
+    FCanceling := false;
+  end;
 end;
 
 procedure TGenericTool.CancelActionPartially;
 begin
-  if Assigned(FAction) then FAction.PartialCancel;
+  if Assigned(FAction) then
+  begin
+    FCanceling := true;
+    FAction.PartialCancel;
+    FCanceling := false;
+  end;
 end;
 
 procedure TGenericTool.BeforeGridSizeChange;
@@ -565,8 +581,11 @@ begin
   ptF := PointF(x,y);
   if toolDest = Manager.Image.CurrentLayerReadOnly then
   begin
-    ptF.x -= LayerOffset.x;
-    ptF.y -= LayerOffset.y;
+    if FixLayerOffset then
+    begin
+      ptF.x -= LayerOffset.x;
+      ptF.y -= LayerOffset.y;
+    end;
   end else if FixSelectionTransform and ((toolDest = Manager.Image.SelectionMaskReadonly)
     or (toolDest = Manager.Image.SelectionLayerReadonly)) and
       IsAffineMatrixInversible(Manager.Image.SelectionTransform) then
@@ -590,8 +609,11 @@ begin
   toolDest.PenStyle := Manager.ToolPenStyle;
   if toolDest = Manager.Image.CurrentLayerReadOnly then
   begin
-    ptF.x -= LayerOffset.x;
-    ptF.y -= LayerOffset.y;
+    if FixLayerOffset then
+    begin
+      ptF.x -= LayerOffset.x;
+      ptF.y -= LayerOffset.y;
+    end;
   end else if FixSelectionTransform and ((toolDest = Manager.Image.SelectionMaskReadonly)
     or (toolDest = Manager.Image.SelectionLayerReadonly)) and
       IsAffineMatrixInversible(Manager.Image.SelectionTransform) then
@@ -605,8 +627,11 @@ var
   pt: TPoint;
   ptF: TPointF;
 begin
-  x -= LayerOffset.x;
-  y -= LayerOffset.y;
+  if FixLayerOffset then
+  begin
+    x -= LayerOffset.x;
+    y -= LayerOffset.y;
+  end;
   pt := Point(round(x),round(y));
   ptF := PointF(x,y);
   DoToolMoveAfter(pt,ptF);
@@ -1273,7 +1298,6 @@ function TToolManager.ToolDown(X, Y: single; ARightBtn: boolean;
 var changed: TRect;
 begin
   SetPressure(APressure);
-  Image.DraftOriginal := true;
   if ToolCanBeUsed then
     changed := currentTool.ToolDown(X,Y,ARightBtn)
   else
@@ -1399,7 +1423,6 @@ end;
 function TToolManager.ToolUp: boolean;
 var changed: TRect;
 begin
-  Image.DraftOriginal := false;
   if ToolCanBeUsed then
     changed := currentTool.ToolUp
   else
@@ -1488,7 +1511,7 @@ end;
 
 function TToolManager.GetRenderBounds(VirtualScreenWidth, VirtualScreenHeight: integer): TRect;
 begin
-  if ToolCanBeUsed and not currentTool.Validating then
+  if ToolCanBeUsed and not currentTool.Validating and not currentTool.Canceling then
     result := currentTool.Render(nil,VirtualScreenWidth,VirtualScreenHeight, @InternalBitmapToVirtualScreen)
   else
     result := EmptyRect;
