@@ -61,6 +61,8 @@ type
     FCtrlDown: boolean;
     FLastUpdateRect: TRect;
     FLastUpdateRectDefined: boolean;
+    FOriginalBounds: TRect;
+    FOriginalBoundsDefined: boolean;
     function GetIsSelectingTool: boolean; override;
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
       rightBtn: boolean): TRect; override;
@@ -122,6 +124,9 @@ type
 implementation
 
 uses LazPaintType, ugraph, LCLType, Types, BGRALayerOriginal;
+
+const
+  VeryBigValue = maxLongInt div 2;
 
 { TToolMoveLayer }
 
@@ -188,8 +193,6 @@ begin
 end;
 
 procedure TToolMoveLayer.NeedLayerBounds;
-const
-  VeryBigValue = maxLongInt div 2;
 var
   idx: Integer;
 begin
@@ -501,9 +504,46 @@ end;
 function TToolTransformLayer.Render(VirtualScreen: TBGRABitmap;
   VirtualScreenWidth, VirtualScreenHeight: integer;
   BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
+var
+  idx, i: integer;
+  m: TAffineMatrix;
+  ab: TAffineBox;
+  ptsF: ArrayOfTPointF;
+  pts: array of TPoint;
+  ptsRect: TRect;
 begin
-  with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
+  idx := Manager.Image.CurrentLayerIndex;
+  with Manager.Image.LayerOffset[idx] do
     Result:= NicePoint(VirtualScreen,BitmapToVirtualScreen(TransformCenter-PointF(X,Y)));
+
+  if not FOriginalBoundsDefined then
+  begin
+    FOriginalBounds := Manager.Image.LayerOriginal[idx].GetRenderBounds(
+                      Rect(-VeryBigValue,-VeryBigValue,VeryBigValue,VeryBigValue),
+                      AffineMatrixIdentity);
+    if FOriginalBounds.Left = -VeryBigValue then FOriginalBounds.Left := 0;
+    if FOriginalBounds.Top = -VeryBigValue then FOriginalBounds.Top := 0;
+    if FOriginalBounds.Right = VeryBigValue then FOriginalBounds.Right := Manager.Image.Width;
+    if FOriginalBounds.Bottom = VeryBigValue then FOriginalBounds.Bottom := Manager.Image.Height;
+  end;
+  m := Manager.Image.LayerOriginalMatrix[idx];
+  with Manager.Image.LayerOffset[idx] do
+    m := AffineMatrixTranslation(-x,-y)*m;
+
+  ab := TAffineBox.AffineBox(BitmapToVirtualScreen(m*PointF(FOriginalBounds.Left-0.499,FOriginalBounds.Top-0.499)),
+            BitmapToVirtualScreen(m*PointF(FOriginalBounds.Right-0.501,FOriginalBounds.Top-0.499)),
+            BitmapToVirtualScreen(m*PointF(FOriginalBounds.Left-0.499,FOriginalBounds.Bottom-0.501)));
+  ptsF := ab.AsPolygon;
+  setlength(pts, length(ptsF));
+  for i := 0 to high(pts) do
+    pts[i] := ptsF[i].Round;
+
+  ptsRect := TRect.Union(pts);
+  ptsRect.Inflate(1,1);
+  Result.Union(ptsRect);
+
+  if Assigned(VirtualScreen) then
+    virtualScreen.DrawpolygonAntialias(pts,BGRA(230,255,230,255),BGRA(0,0,0,255),FrameDashLength);
 end;
 
 function TToolTransformLayer.GetIsSelectingTool: boolean;
