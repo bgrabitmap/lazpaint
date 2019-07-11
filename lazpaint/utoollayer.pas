@@ -302,6 +302,8 @@ begin
   if not FInitialLayerBoundsDefined then
   begin
     FInitialLayerBounds := GetToolDrawingLayer.GetImageBounds;
+    with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
+      FInitialLayerBounds.Offset(X,Y);
     FInitialLayerBoundsDefined := true;
   end;
   result := FInitialLayerBounds;
@@ -319,8 +321,6 @@ begin
     begin
       with bounds do
         FTransformCenter := PointF((Left+Right)/2 - 0.5, (Top+Bottom)/2 - 0.5);
-      with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
-        FTransformCenter += PointF(X,Y);
     end;
     FTransformCenterDefined := true;
   end;
