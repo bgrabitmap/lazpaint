@@ -509,7 +509,7 @@ begin
     UpdateCursor(cur);
     result := EmptyRect;
   end;
-  if SlowShape then
+  if SlowShape and Assigned(FShape) then
     result := UpdateShape(GetToolDrawingLayer);
 end;
 
