@@ -1675,8 +1675,7 @@ var
   nb: LongInt;
   i: Integer;
   shapeObj, texObj: TBGRACustomOriginalStorage;
-  objClassName, texName: String;
-  shapeClass: TVectorShapeAny;
+  texName: String;
   loadedShape: TVectorShape;
   idList: array of single;
   mem: TMemoryStream;
