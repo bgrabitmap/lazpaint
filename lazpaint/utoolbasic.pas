@@ -77,7 +77,7 @@ type
     FShape: TVectorShape;
     FSwapColor: boolean;
     FQuickDefine: Boolean;
-    FQuickDefineStartPoint: TPointF;
+    FQuickDefineStartPoint, FQuickDefineEndPoint: TPointF;
     FQuickSquare: boolean;
     FPreviousUpdateBounds, FPreviousEditorBounds: TRect;
     FEditor: TBGRAOriginalEditor;
@@ -85,6 +85,7 @@ type
     FRightDown, FLeftDown: boolean;
     FLastPos: TPointF;
     function CreateShape: TVectorShape; virtual; abstract;
+    function UseOriginal: boolean; virtual;
     function GetCustomShapeBounds(ADestBounds: TRect; AMatrix: TAffineMatrix; {%H-}ADraft: boolean): TRect; virtual;
     procedure DrawCustomShape(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); virtual;
     procedure AssignShapeStyle; virtual;
@@ -214,21 +215,26 @@ function TVectorialTool.ValidateShape: TRect;
 var
   diff: TComposedImageDifference;
   layerId: LongInt;
+  replaceDiff: TReplaceLayerByVectorOriginalDifference;
+  invTransform: TAffineMatrix;
 begin
   if Assigned(FShape) then
   begin
+    FShape.OnChange:= nil;
+    FShape.OnEditingChange:= nil;
     if Manager.Image.SelectionMaskEmpty then
     begin
       CancelAction;
       layerId := Manager.Image.LayerId[Manager.Image.CurrentLayerIndex];
-      if Manager.Image.LayerOriginalDefined[Manager.Image.CurrentLayerIndex] and
-         Manager.Image.LayerOriginalKnown[Manager.Image.CurrentLayerIndex] and
-         (Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex] = TVectorOriginal) then
+      if UseOriginal then
         Manager.Image.AddUndo(TAddShapeToVectorOriginalDifference.Create(Manager.Image.CurrentState,layerId,FShape))
       else
       begin
         diff := TComposedImageDifference.Create;
-        diff.Add(TReplaceLayerByVectorOriginalDifference.Create(Manager.Image.CurrentState,Manager.Image.CurrentLayerIndex));
+        replaceDiff := TReplaceLayerByVectorOriginalDifference.Create(Manager.Image.CurrentState,Manager.Image.CurrentLayerIndex);
+        diff.Add(replaceDiff);
+        invTransform := AffineMatrixInverse(VectorTransform);
+        QuickDefineShape(invTransform*FQuickDefineStartPoint, invTransform*FQuickDefineEndPoint);
         diff.Add(TAddShapeToVectorOriginalDifference.Create(Manager.Image.CurrentState,layerId,FShape));
         Manager.Image.AddUndo(diff);
       end;
@@ -250,6 +256,14 @@ begin
   FreeAndNil(FShape);
   Cursor := crDefault;
   result := OnlyRenderChange;
+end;
+
+function TVectorialTool.UseOriginal: boolean;
+begin
+  result := not IsSelectingTool and Manager.Image.SelectionMaskEmpty and
+            Manager.Image.LayerOriginalDefined[Manager.Image.CurrentLayerIndex] and
+            Manager.Image.LayerOriginalKnown[Manager.Image.CurrentLayerIndex] and
+           (Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex] = TVectorOriginal);
 end;
 
 function TVectorialTool.GetCustomShapeBounds(ADestBounds: TRect; AMatrix: TAffineMatrix; ADraft: boolean): TRect;
@@ -344,7 +358,7 @@ end;
 
 function TVectorialTool.VectorTransform: TAffineMatrix;
 begin
-  if IsSelectingTool or not Manager.Image.SelectionMaskEmpty then
+  if not UseOriginal then
     result := AffineMatrixIdentity
   else
     result := Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex];
@@ -404,9 +418,10 @@ begin
     FShape := CreateShape;
     FQuickDefine := true;
     FQuickDefineStartPoint := RoundCoordinate(ptF);
+    FQuickDefineEndPoint := FQuickDefineStartPoint;
     AssignShapeStyle;
     invTransform := AffineMatrixInverse(VectorTransform);
-    QuickDefineShape(invTransform*FQuickDefineStartPoint,invTransform*FQuickDefineStartPoint);
+    QuickDefineShape(invTransform*FQuickDefineStartPoint,invTransform*FQuickDefineEndPoint);
     FShape.OnChange:= @ShapeChange;
     FShape.OnEditingChange:=@ShapeEditingChange;
     result := UpdateShape(toolDest);
@@ -416,7 +431,7 @@ end;
 function TVectorialTool.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF): TRect;
 var
-  secondCoord, s: TPointF;
+  s: TPointF;
   avg: single;
   viewPt: TPointF;
   handled: boolean;
@@ -426,16 +441,16 @@ begin
   FLastPos := ptF;
   if FQuickDefine then
   begin
-    secondCoord := RoundCoordinate(ptF);
+    FQuickDefineEndPoint := RoundCoordinate(ptF);
     if FQuickSquare then
     begin
-      s := secondCoord-FQuickDefineStartPoint;
+      s := FQuickDefineEndPoint-FQuickDefineStartPoint;
       avg := sqrt(abs(s.x*s.y));
-      if s.x > 0 then secondCoord.x := FQuickDefineStartPoint.x + avg else secondCoord.x := FQuickDefineStartPoint.x - avg;
-      if s.y > 0 then secondCoord.y := FQuickDefineStartPoint.y + avg else secondCoord.y := FQuickDefineStartPoint.y - avg;
+      if s.x > 0 then FQuickDefineEndPoint.x := FQuickDefineStartPoint.x + avg else FQuickDefineEndPoint.x := FQuickDefineStartPoint.x - avg;
+      if s.y > 0 then FQuickDefineEndPoint.y := FQuickDefineStartPoint.y + avg else FQuickDefineEndPoint.y := FQuickDefineStartPoint.y - avg;
     end;
     invTransform := AffineMatrixInverse(VectorTransform);
-    QuickDefineShape(invTransform*FQuickDefineStartPoint, invTransform*secondCoord);
+    QuickDefineShape(invTransform*FQuickDefineStartPoint, invTransform*FQuickDefineEndPoint);
     result := OnlyRenderChange;
   end else
   begin
