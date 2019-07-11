@@ -41,7 +41,7 @@ type
 
   TToolTransformLayer = class(TGenericTool)
   private
-    function GetOriginalLayerBounds: TRect;
+    function GetInitialLayerBounds: TRect;
     function GetTransformCenter: TPointF;
     procedure SetTransformCenter(AValue: TPointF);
     procedure NeedOriginal;
@@ -297,7 +297,7 @@ end;
 
 { TToolTransformLayer }
 
-function TToolTransformLayer.GetOriginalLayerBounds: TRect;
+function TToolTransformLayer.GetInitialLayerBounds: TRect;
 begin
   if not FInitialLayerBoundsDefined then
   begin
@@ -312,7 +312,7 @@ var bounds: TRect;
 begin
   if not FTransformCenterDefined then
   begin
-    bounds := GetOriginalLayerBounds;
+    bounds := GetInitialLayerBounds;
     if IsRectEmpty(bounds) then
       FTransformCenter := PointF(Manager.Image.Width/2 - 0.5,Manager.Image.Height/2 - 0.5)
     else
@@ -518,13 +518,18 @@ begin
 
   if not FOriginalBoundsDefined then
   begin
-    FOriginalBounds := Manager.Image.LayerOriginal[idx].GetRenderBounds(
-                      Rect(-VeryBigValue,-VeryBigValue,VeryBigValue,VeryBigValue),
-                      AffineMatrixIdentity);
-    if FOriginalBounds.Left = -VeryBigValue then FOriginalBounds.Left := 0;
-    if FOriginalBounds.Top = -VeryBigValue then FOriginalBounds.Top := 0;
-    if FOriginalBounds.Right = VeryBigValue then FOriginalBounds.Right := Manager.Image.Width;
-    if FOriginalBounds.Bottom = VeryBigValue then FOriginalBounds.Bottom := Manager.Image.Height;
+    if Manager.Image.LayerOriginalDefined[idx] then
+    begin
+      FOriginalBounds := Manager.Image.LayerOriginal[idx].GetRenderBounds(
+                        Rect(-VeryBigValue,-VeryBigValue,VeryBigValue,VeryBigValue),
+                        AffineMatrixIdentity);
+      if FOriginalBounds.Left = -VeryBigValue then FOriginalBounds.Left := 0;
+      if FOriginalBounds.Top = -VeryBigValue then FOriginalBounds.Top := 0;
+      if FOriginalBounds.Right = VeryBigValue then FOriginalBounds.Right := Manager.Image.Width;
+      if FOriginalBounds.Bottom = VeryBigValue then FOriginalBounds.Bottom := Manager.Image.Height;
+    end
+    else
+      FOriginalBounds := GetInitialLayerBounds;
   end;
   m := Manager.Image.LayerOriginalMatrix[idx];
   with Manager.Image.LayerOffset[idx] do
