@@ -328,7 +328,12 @@ var
   DestSize: TSize;
 begin
   if (self = nil) or IsIdentity then
-    result := ASource.Duplicate as TBGRABitmap
+  begin
+    if ASource = nil then
+      result := nil
+    else
+      result := ASource.Duplicate as TBGRABitmap
+  end
   else
   begin
     if AReverse then DestSize := SizeBefore else
@@ -351,8 +356,9 @@ function TCustomImageDiff.ApplyCanCreateNew(ASource: TBGRABitmap;
 begin
   if (self = nil) or IsIdentity then exit(ASource); //keep
 
-  if (SizeAfter.cx <> SizeBefore.cx) or
-     (SizeAfter.cy <> SizeBefore.cy) then
+  if (ASource = nil) or
+     ((SizeAfter.cx <> SizeBefore.cx) or
+     (SizeAfter.cy <> SizeBefore.cy)) then
      exit(ApplyInNew(ASource, AReverse))
   else
   begin
