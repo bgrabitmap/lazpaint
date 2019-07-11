@@ -361,8 +361,11 @@ begin
   begin
     FTransforming := true;
     FPreviousMousePos := ptF;
-    if FCtrlDown then result := UpdateTransform
-     else result := EmptyRect;
+    if FCtrlDown then
+    begin
+      result := UpdateTransform;
+      if IsRectEmpty(result) then result := OnlyRenderChange;
+    end else result := EmptyRect;
     Manager.Image.DraftOriginal := true;
   end else
   if rightBtn then
@@ -383,7 +386,10 @@ begin
   if FTransforming then
   begin
     If MouseChangesTransform(FPreviousMousePos, ptF) then
-      result := UpdateTransform
+    begin
+      result := UpdateTransform;
+      if result.IsEmpty then result := OnlyRenderChange;
+    end
     else result := EmptyRect;
     FPreviousMousePos := ptF;
   end else
@@ -457,7 +463,10 @@ begin
   begin
     FCtrlDown:= true;
     if FTransforming and CtrlChangesTransform then
-      result := UpdateTransform
+    begin
+      result := UpdateTransform;
+      if result.IsEmpty then result := OnlyRenderChange;
+    end
       else result := EmptyRect;
     Key := 0;
   end else
@@ -483,7 +492,10 @@ begin
   begin
     FCtrlDown := false;
     if FTransforming and CtrlChangesTransform then
-      result := UpdateTransform
+    begin
+      result := UpdateTransform;
+      if result.IsEmpty then result := OnlyRenderChange;
+    end
       else result := EmptyRect;
     Key := 0;
   end else
@@ -496,6 +508,7 @@ begin
   begin
     FTransforming := false;
     result := UpdateTransform;
+    if result.IsEmpty then result := OnlyRenderChange;
     Manager.Image.DraftOriginal := false;
   end else
     Result:=EmptyRect;
