@@ -2272,7 +2272,7 @@ begin
   begin
     idx := lState.LayeredBitmap.GetLayerIndexFromId(layerId);
     if idx = -1 then raise exception.Create('Layer not found');
-    if lState.LayeredBitmap.LayerOriginalGuid[idx] <> GUID_NULL then raise exception.Create('Does not apply to originals');
+    if ChangeImageLayer and (lState.LayeredBitmap.LayerOriginalGuid[idx] <> GUID_NULL) then raise exception.Create('Does not apply to originals');
     if ChangeImageLayer then lState.LayeredBitmap.SetLayerBitmap(idx, imageDiff.ApplyCanCreateNew(lState.LayerBitmap[idx],False), True);
     if ChangeSelectionMask then newSelectionMask := selectionMaskDiff.ApplyCanCreateNew(lState.SelectionMask,False) else newSelectionMask := lState.SelectionMask;
     if ChangeSelectionLayer then newSelectionLayer := selectionLayerDiff.ApplyCanCreateNew(lState.SelectionLayer,False) else newSelectionLayer := lState.SelectionLayer;
@@ -2292,7 +2292,7 @@ begin
   begin
     idx := lState.LayeredBitmap.GetLayerIndexFromId(layerId);
     if idx = -1 then raise exception.Create('Layer not found');
-    if lState.LayeredBitmap.LayerOriginalGuid[idx] <> GUID_NULL then raise exception.Create('Does not apply to originals');
+    if ChangeImageLayer and (lState.LayeredBitmap.LayerOriginalGuid[idx] <> GUID_NULL) then raise exception.Create('Does not apply to originals');
     if ChangeImageLayer then lState.LayeredBitmap.SetLayerBitmap(idx, imageDiff.ApplyCanCreateNew(lState.LayerBitmap[idx],True), True);
     if ChangeSelectionMask then newSelectionMask := selectionMaskDiff.ApplyCanCreateNew(lState.SelectionMask,True) else newSelectionMask := lState.SelectionMask;
     if ChangeSelectionLayer then newSelectionLayer := selectionLayerDiff.ApplyCanCreateNew(lState.SelectionLayer,True) else newSelectionLayer := lState.SelectionLayer;
