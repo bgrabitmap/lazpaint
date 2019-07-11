@@ -553,9 +553,7 @@ procedure TLayerAction.PartialValidate(ADiscardBackup: boolean = false);
 var
   imgDiff: TImageLayerStateDifference;
   composedDiff: TComposedImageDifference;
-  ofs: TPoint;
-  applyOfs: TCustomImageDifference;
-  owned: boolean;
+  owned, rasterizeOriginal: boolean;
 
   procedure NotifyPrediff;
   begin
@@ -660,7 +658,8 @@ begin
 
     if assigned(imgDiff) then
     begin
-      if Assigned(FPrediff) or CurrentState.LayerOriginalDefined[CurrentState.SelectedImageLayerIndex] then
+      rasterizeOriginal := CurrentState.LayerOriginalDefined[CurrentState.SelectedImageLayerIndex] and imgDiff.ChangeImageLayer;
+      if Assigned(FPrediff) or rasterizeOriginal then
       begin
         composedDiff := TComposedImageDifference.Create;
         if Assigned(FPrediff) then
@@ -668,7 +667,7 @@ begin
           composedDiff.AddRange(FPrediff);
           FPrediff := nil;
         end;
-        if CurrentState.LayerOriginalDefined[CurrentState.SelectedImageLayerIndex] then
+        if rasterizeOriginal then
           composedDiff.Add(TDiscardOriginalDifference.Create(CurrentState,
             CurrentState.SelectedImageLayerIndex, true));
         composedDiff.Add(imgDiff);
