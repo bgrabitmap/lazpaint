@@ -133,7 +133,7 @@ begin
     m[1,3] := 0;
     m[2,3] := 0;
     ofs := m*PointF(ACellRect.Left,ACellRect.Top);
-    Destination.PutImageAffine(AffineMatrixTranslation(ofs.x,ofs.y)*Matrix,ACellBitmap,Filter,Opacity);
+    Destination.PutImageAffine(AffineMatrixTranslation(ofs.x,ofs.y)*Matrix,ACellBitmap,Filter,Mode,Opacity);
   end;
 end;
 
