@@ -135,7 +135,7 @@ implementation
 
 uses Types, Graphics, ugraph, Controls, LazPaintType,
   UResourceStrings, BGRATransform, Math, BGRAPen, LCVectorRectShapes,
-  uimagediff, UStateType;
+  uimagediff, UStateType, ULoading;
 
 { TVectorialTool }
 
@@ -395,6 +395,7 @@ var
   handled: boolean;
   invTransform: TAffineMatrix;
 begin
+  result := EmptyRect;
   FRightDown := rightBtn;
   FLeftDown := not rightBtn;
   FLastPos := ptF;
@@ -405,26 +406,32 @@ begin
     if not handled and Assigned(FShape) then
       FShape.MouseDown(rightBtn, FShiftState, ptF.X,ptF.Y, cur, handled);
     UpdateCursor(cur);
-    result := EmptyRect;
     if handled then exit
-    else
-      result := ValidateShape;
+    else result := RectUnion(result, ValidateShape);
   end;
 
   if FShape=nil then
   begin
-    toolDest := GetToolDrawingLayer;
-    FSwapColor:= rightBtn;
-    FShape := CreateShape;
-    FQuickDefine := true;
-    FQuickDefineStartPoint := RoundCoordinate(ptF);
-    FQuickDefineEndPoint := FQuickDefineStartPoint;
-    AssignShapeStyle;
-    invTransform := AffineMatrixInverse(VectorTransform);
-    QuickDefineShape(invTransform*FQuickDefineStartPoint,invTransform*FQuickDefineEndPoint);
-    FShape.OnChange:= @ShapeChange;
-    FShape.OnEditingChange:=@ShapeEditingChange;
-    result := UpdateShape(toolDest);
+    if UseOriginal and
+      ((Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex] as TVectorOriginal).ShapeCount >= 10) then
+    begin
+      MessagePopup(rsTooManyShapesInLayer, 3000);
+    end
+    else
+    begin
+      toolDest := GetToolDrawingLayer;
+      FSwapColor:= rightBtn;
+      FShape := CreateShape;
+      FQuickDefine := true;
+      FQuickDefineStartPoint := RoundCoordinate(ptF);
+      FQuickDefineEndPoint := FQuickDefineStartPoint;
+      AssignShapeStyle;
+      invTransform := AffineMatrixInverse(VectorTransform);
+      QuickDefineShape(invTransform*FQuickDefineStartPoint,invTransform*FQuickDefineEndPoint);
+      FShape.OnChange:= @ShapeChange;
+      FShape.OnEditingChange:=@ShapeEditingChange;
+      result := RectUnion(result, UpdateShape(toolDest));
+    end;
   end;
 end;
 
