@@ -589,16 +589,20 @@ function TVectorialTool.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,
 var
   orig, xAxis, yAxis: TPointF;
 begin
-  orig := BitmapToVirtualScreen(PointF(0,0));
-  xAxis := BitmapToVirtualScreen(PointF(1,0));
-  yAxis := BitmapToVirtualScreen(PointF(0,1));
-  FEditor.Matrix := AffineMatrix(xAxis-orig,yAxis-orig,orig)*VectorTransform;
-  FEditor.Clear;
-  if Assigned(FShape) then FShape.ConfigureEditor(FEditor);
-  if Assigned(VirtualScreen) then
-    Result:= FEditor.Render(VirtualScreen, rect(0,0,VirtualScreen.Width,VirtualScreen.Height))
-  else
-    Result:= FEditor.GetRenderBounds(rect(0,0,VirtualScreenWidth,VirtualScreenHeight));
+  if Assigned(FShape) then
+  begin
+    orig := BitmapToVirtualScreen(PointF(0,0));
+    xAxis := BitmapToVirtualScreen(PointF(1,0));
+    yAxis := BitmapToVirtualScreen(PointF(0,1));
+    FEditor.Matrix := AffineMatrix(xAxis-orig,yAxis-orig,orig)*VectorTransform;
+    FEditor.Clear;
+    if Assigned(FShape) then FShape.ConfigureEditor(FEditor);
+    if Assigned(VirtualScreen) then
+      Result:= FEditor.Render(VirtualScreen, rect(0,0,VirtualScreen.Width,VirtualScreen.Height))
+    else
+      Result:= FEditor.GetRenderBounds(rect(0,0,VirtualScreenWidth,VirtualScreenHeight));
+  end else
+    result := EmptyRect;
   FPreviousEditorBounds := result;
 end;
 

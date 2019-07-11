@@ -188,7 +188,7 @@ end;
 
 function TVectorialSelectTool.BigImage: boolean;
 begin
-  result := GetToolDrawingLayer.NbPixels > 480000;
+  result := Manager.Image.Width*Manager.Image.Height > 480000;
 end;
 
 { TToolSelectRect }

@@ -551,13 +551,27 @@ end;
 
 procedure TLayerAction.PartialValidate(ADiscardBackup: boolean = false);
 var
-  prevLayerOriginalMatrix: TAffineMatrix;
-  prevLayerOriginaData: TStream;
   imgDiff: TImageLayerStateDifference;
   composedDiff: TComposedImageDifference;
   ofs: TPoint;
   applyOfs: TCustomImageDifference;
-  appendOfs, owned: boolean;
+  owned: boolean;
+
+  procedure NotifyPrediff;
+  begin
+    if Assigned(FPrediff) then
+    begin
+      if Assigned(FOnNotifyUndo) then
+      begin
+        owned := false;
+        FOnNotifyUndo(self, FPrediff, owned);
+        if not owned then FPrediff.Free;
+      end else
+        FPrediff.Free;
+      FPrediff := nil;
+    end;
+  end;
+
 begin
   if (FBackupSelectedLayerDefined or FBackupSelectionMaskDefined or FBackupSelectionLayerDefined) and
      not (ChangeBoundsNotified and IsRectEmpty(FSelectedImageLayerChangedArea) and IsRectEmpty(FSelectionMaskChangedArea) and
@@ -575,30 +589,15 @@ begin
       if CurrentState.SelectionMaskEmpty then
         CurrentState.RemoveSelection;
     end;
-    //original will be backed up if there are changes in the raster image of the selected layer
-    if CurrentState.LayerOriginalDefined[CurrentState.SelectedImageLayerIndex] and
-       (FBackupSelectedLayerDefined or not IsRectEmpty(FSelectedImageLayerChangedArea)) then
-    begin
-      prevLayerOriginaData:= TMemoryStream.Create;
-      CurrentState.SaveOriginalToStream(prevLayerOriginaData);
-      prevLayerOriginalMatrix:= CurrentState.LayerOriginalMatrix[CurrentState.SelectedImageLayerIndex];
-      CurrentState.DiscardOriginal(false);
-    end else
-    begin
-      prevLayerOriginaData := nil;
-      prevLayerOriginalMatrix:= AffineMatrixIdentity;
-    end;
 
     if ChangeBoundsNotified then
       imgDiff := CurrentState.ComputeLayerDifference(FBackupSelectedLayer, FSelectedImageLayerChangedArea,
         FBackupSelection, FSelectionMaskChangedArea,
-        FBackupSelectionLayer, FSelectionLayerChangedArea,
-        prevLayerOriginaData, prevLayerOriginalMatrix) as TImageLayerStateDifference
+        FBackupSelectionLayer, FSelectionLayerChangedArea) as TImageLayerStateDifference
     else
       imgDiff := CurrentState.ComputeLayerDifference(FBackupSelectedLayer, FBackupSelectedLayerDefined,
         FBackupSelection, FBackupSelectionMaskDefined,
-        FBackupSelectionLayer, FBackupSelectionLayerDefined,
-        prevLayerOriginaData, prevLayerOriginalMatrix) as TImageLayerStateDifference;
+        FBackupSelectionLayer, FBackupSelectionLayerDefined) as TImageLayerStateDifference;
     if imgDiff.IsIdentity then FreeAndNil(imgDiff);
 
     if ADiscardBackup then
@@ -609,8 +608,6 @@ begin
       FBackupSelectedLayerDefined := false;
       FBackupSelectedLayerDefined := false;
       FBackupSelectionMaskDefined := false;
-
-      appendOfs:= Assigned(imgDiff) and imgDiff.ChangeImageLayer;
     end else
     begin
       if FBackupSelectionLayerDefined then
@@ -659,13 +656,11 @@ begin
         end;
         FSelectionMaskChangedArea := EmptyRect;
       end;
-
-      appendOfs := false;
     end;
 
     if assigned(imgDiff) then
     begin
-      if appendOfs or Assigned(FPrediff) then
+      if Assigned(FPrediff) or CurrentState.LayerOriginalDefined[CurrentState.SelectedImageLayerIndex] then
       begin
         composedDiff := TComposedImageDifference.Create;
         if Assigned(FPrediff) then
@@ -673,18 +668,10 @@ begin
           composedDiff.AddRange(FPrediff);
           FPrediff := nil;
         end;
+        if CurrentState.LayerOriginalDefined[CurrentState.SelectedImageLayerIndex] then
+          composedDiff.Add(TDiscardOriginalDifference.Create(CurrentState,
+            CurrentState.SelectedImageLayerIndex, true));
         composedDiff.Add(imgDiff);
-        if appendOfs then
-        begin
-          ofs := CurrentState.LayerOffset[CurrentState.SelectedImageLayerIndex];
-          applyOfs:= CurrentState.ComputeLayerOffsetDifference(ofs.x, ofs.y);
-          if not applyOfs.IsIdentity then
-          begin
-            composedDiff.Add(applyOfs);
-            applyOfs.ApplyTo(CurrentState);
-          end else
-            applyOfs.Free;
-        end;
         if Assigned(FOnNotifyUndo) then
         begin
           owned := false;
@@ -702,32 +689,8 @@ begin
         end else
           imgDiff.Free;
       end;
-    end else
-    if Assigned(FPrediff) then
-    begin
-      if Assigned(FOnNotifyUndo) then
-      begin
-        owned := false;
-        FOnNotifyUndo(self, FPrediff, owned);
-        if not owned then FPrediff.Free;
-      end else
-        FPrediff.Free;
-      FPrediff := nil;
-    end;
-  end else
-  begin
-    if Assigned(FPrediff) then
-    begin
-      if Assigned(FOnNotifyUndo) then
-      begin
-        owned := false;
-        FOnNotifyUndo(self, FPrediff, owned);
-        if not owned then FPrediff.Free;
-      end else
-        FPrediff.Free;
-      FPrediff := nil;
-    end;
-  end;
+    end else NotifyPrediff;
+  end else NotifyPrediff;
 end;
 
 
