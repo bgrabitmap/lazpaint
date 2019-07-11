@@ -519,7 +519,7 @@ begin
   begin
     r := SelectionLayer.GetImageAffineBounds(FSelectionTransform, GetSelectionLayerBounds);
     ANewLayer := TBGRABitmap.Create(r.Width,r.Height);
-    ANewLayer.PutImageAffine(AffineMatrixTranslation(-r.Left,-r.Top)*FSelectionTransform, SelectionLayer);
+    ANewLayer.PutImageAffine(AffineMatrixTranslation(-r.Left,-r.Top)*FSelectionTransform, SelectionLayer, rfHalfCosine);
     ALeft := r.Left;
     ATop := r.Top;
   end;
@@ -912,7 +912,7 @@ begin
   begin
     r := SelectionMask.GetImageAffineBounds(FSelectionTransform, GetSelectionMaskBounds);
     ANewMask := TBGRABitmap.Create(r.Width,r.Height,BGRABlack);
-    ANewMask.PutImageAffine(AffineMatrixTranslation(-r.Left,-r.Top)*FSelectionTransform, SelectionMask);
+    ANewMask.PutImageAffine(AffineMatrixTranslation(-r.Left,-r.Top)*FSelectionTransform, SelectionMask, rfHalfCosine, dmLinearBlend);
     ALeft := r.Left;
     ATop := r.Top;
   end;

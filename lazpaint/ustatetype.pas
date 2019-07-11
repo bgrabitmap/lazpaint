@@ -120,6 +120,8 @@ type
     procedure Init(Image1,Image2: TBGRABitmap; {%H-}AChangeRect: TRect); virtual;
     function SerializeCompressedData: boolean;
     procedure UnserializeCompressedData;
+  protected
+    function CreateNew(AWidth,AHeight: integer): TBGRABitmap; virtual; abstract;
   public
     SizeBefore, SizeAfter: TSize;
     constructor Create(Image1,Image2: TBGRABitmap; AChangeRect: TRect); overload;
@@ -145,6 +147,8 @@ type
     function GetIsIdentity: boolean; override;
     procedure Decompress;
     procedure Init(Image1,Image2: TBGRABitmap; AChangeRect: TRect); override;
+  protected
+    function CreateNew(AWidth, AHeight: integer): TBGRABitmap; override;
   public
     procedure ApplyInPlace(ADest: TBGRABitmap; {%H-}AReverse: boolean); override;
     function Compress: boolean; override;
@@ -166,6 +170,8 @@ type
     function GetIsIdentity: boolean; override;
     procedure Decompress;
     procedure Init(Image1,Image2: TBGRABitmap; AChangeRect: TRect); override;
+  protected
+    function CreateNew(AWidth, AHeight: integer): TBGRABitmap; override;
   public
     procedure ApplyInPlace(ADest: TBGRABitmap; {%H-}AReverse: boolean); override;
     function Compress: boolean; override;
@@ -332,7 +338,7 @@ begin
       result := nil
     else
     begin
-      result := TBGRABitmap.Create(Destsize.cx,Destsize.cy);
+      result := CreateNew(Destsize.cx,Destsize.cy);
       if ASource <> nil then
         result.PutImage(0,0,ASource,dmSet);
       ApplyInPlace(result, AReverse);
@@ -579,6 +585,11 @@ begin
       uncompressedDiff.free;
     end;
   end;
+end;
+
+function TGrayscaleImageDiff.CreateNew(AWidth, AHeight: integer): TBGRABitmap;
+begin
+  result := TBGRABitmap.Create(AWidth,AHeight, BGRABlack);
 end;
 
 procedure TGrayscaleImageDiff.ApplyInPlace(ADest: TBGRABitmap; AReverse: boolean);
@@ -882,6 +893,11 @@ begin
       uncompressedDiff.free;
     end;
   end;
+end;
+
+function TImageDiff.CreateNew(AWidth, AHeight: integer): TBGRABitmap;
+begin
+  result := TBGRABitmap.Create(AWidth,AHeight);
 end;
 
 procedure TImageDiff.ApplyInPlace(ADest: TBGRABitmap; AReverse: boolean);
