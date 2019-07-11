@@ -821,7 +821,8 @@ implementation
 
 uses LCLIntf, BGRAUTF8, ugraph, math, umac, uclipboard, ucursors,
    ufilters, ULoadImage, ULoading, UFileExtensions, UBrushType,
-   ugeometricbrush, UPreviewDialog, UQuestion, BGRALayerOriginal;
+   ugeometricbrush, UPreviewDialog, UQuestion, BGRALayerOriginal,
+   BGRATransform;
 
 const PenWidthFactor = 10;
 
@@ -2711,9 +2712,14 @@ begin
           end;
           ptMoveLayer, ptRotateLayer, ptZoomLayer:
           begin
-            if image.CurrentLayerEquals(BGRAPixelTransparent) then
+            if image.CurrentLayerEquals(BGRAPixelTransparent) and not
+              (image.LayerOriginalDefined[image.CurrentLayerIndex] and
+               image.LayerOriginalKnown[image.CurrentLayerIndex] and
+               not image.LayerOriginal[image.CurrentLayerIndex].GetRenderBounds(
+                 rect(-maxLongInt div 2,-maxLongInt div 2,maxLongInt div 2,maxLongInt div 2),
+                 AffineMatrixIdentity).IsEmpty) then
             begin
-              MessagePopup(rsLazPaint, 4000);
+              MessagePopup(rsEmptyLayer, 4000);
               Tool := ptHand;
               result := srException;
             end;
