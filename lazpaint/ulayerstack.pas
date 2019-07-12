@@ -885,7 +885,7 @@ begin
   if movingItem <> nil then
   begin
     movingItemMousePos := point(X,Y);
-    BGRALayerStack.RedrawBitmap;
+    BGRALayerStack.DiscardBitmap;
     exit;
   end;
   if ((VolatileVertScrollBar <> nil) and VolatileVertScrollBar.MouseMove(X,Y)) or
@@ -893,7 +893,7 @@ begin
   begin
     if VolatileHorzScrollBar <> nil then ScrollPos.X := VolatileHorzScrollBar.Position;
     if VolatileVertScrollBar <> nil then ScrollPos.Y := VolatileVertScrollBar.Position;
-    BGRALayerStack.RedrawBitmap;
+    BGRALayerStack.DiscardBitmap;
     exit;
   end;
   if changingLayerOpacity <> -1 then
