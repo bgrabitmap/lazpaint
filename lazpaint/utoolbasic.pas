@@ -85,6 +85,7 @@ type
     FRightDown, FLeftDown: boolean;
     FLastPos: TPointF;
     FLastShapeTransform: TAffineMatrix;
+    function AlwaysRasterizeShape: boolean; virtual;
     function CreateShape: TVectorShape; virtual; abstract;
     function UseOriginal: boolean; virtual;
     function GetCustomShapeBounds(ADestBounds: TRect; AMatrix: TAffineMatrix; {%H-}ADraft: boolean): TRect; virtual;
@@ -223,7 +224,7 @@ begin
   begin
     FShape.OnChange:= nil;
     FShape.OnEditingChange:= nil;
-    if Manager.Image.SelectionMaskEmpty then
+    if not AlwaysRasterizeShape and Manager.Image.SelectionMaskEmpty then
     begin
       CancelAction;
       layerId := Manager.Image.LayerId[Manager.Image.CurrentLayerIndex];
@@ -258,6 +259,11 @@ begin
   FreeAndNil(FShape);
   Cursor := crDefault;
   result := OnlyRenderChange;
+end;
+
+function TVectorialTool.AlwaysRasterizeShape: boolean;
+begin
+  result := false;
 end;
 
 function TVectorialTool.UseOriginal: boolean;

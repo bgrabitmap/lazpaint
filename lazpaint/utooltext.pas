@@ -19,6 +19,7 @@ type
     FPrevShadowOffset: TPoint;
     FPrevShadowRadius: single;
     function CreateShape: TVectorShape; override;
+    function AlwaysRasterizeShape: boolean; override;
     procedure IncludeShadowBounds(var ARect: TRect);
     function GetCustomShapeBounds(ADestBounds: TRect; AMatrix: TAffineMatrix; ADraft: boolean): TRect; override;
     procedure DrawCustomShape(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
@@ -48,6 +49,11 @@ uses LCVectorTextShapes, BGRALayerOriginal, BGRATransform, BGRAGrayscaleMask,
 function TToolText.CreateShape: TVectorShape;
 begin
   result := TTextShape.Create(nil);
+end;
+
+function TToolText.AlwaysRasterizeShape: boolean;
+begin
+  Result:= Manager.ToolTextShadow;
 end;
 
 procedure TToolText.IncludeShadowBounds(var ARect: TRect);
