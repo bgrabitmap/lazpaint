@@ -95,6 +95,8 @@ type
     property CompletelyResizeable: boolean read FCompletelyResizeable write SetCompletelyResizeable;
   end;
 
+var TFLayerStack_CustomDPI: integer = 96;
+
 implementation
 
 uses BGRAFillInfo,LCScaleDPI,uresourcestrings,ublendop, uimage, utool, BGRAText, BGRAThumbnail,
@@ -179,10 +181,10 @@ end;
 
 procedure TFLayerStack.FormCreate(Sender: TObject);
 begin
-  ScaleControl(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI,TFLayerStack_CustomDPI,TFLayerStack_CustomDPI);
   FCompletelyResizeable:= true;
   Position := poDesigned;
-  ZoomFactor := 1;
+  ZoomFactor := TFLayerStack_CustomDPI/96;
   ScrollPos := point(0,0);
   VolatileHorzScrollBar := nil;
   VolatileVertScrollBar := nil;
@@ -226,37 +228,36 @@ var iconSize: integer;
     images: TImageList;
 begin
   LazPaintInstance.Image.OnImageChanged.AddObserver(@OnImageChangedHandler);
-  iconSize := LazPaintInstance.Config.DefaultIconSize(16);
-  if iconSize <> 16 then
-  begin
-    images := LazPaintInstance.Icons[iconSize];
-    ToolBar1.Images := images;
-    ToolBar1.ButtonWidth := images.Width+1;
-    ToolBar1.ButtonHeight := images.Height+1;
-    ToolBar1.Height := ToolBar1.ButtonHeight+1;
-    ToolBar2.Images := images;
-    ToolBar2.ButtonWidth := images.Width+1;
-    ToolBar2.ButtonHeight := images.Height+1;
-    ToolBar2.Height := ToolBar1.ButtonHeight+1;
-    ToolBar3.Images := images;
-    ToolBar3.ButtonWidth := images.Width+1;
-    ToolBar3.ButtonHeight := images.Height+1;
-    ToolBar3.Height := ToolBar1.ButtonHeight+1;
+  iconSize := DoScaleX(16, 96, TFLayerStack_CustomDPI);
 
-    ClientWidth := ToolBar2.ButtonCount * (ToolBar2.ButtonWidth+1) + 5 + Toolbar2.Left;
-    Constraints.MinWidth := Width;
+  images := LazPaintInstance.Icons[iconSize];
+  ToolBar1.Images := images;
+  ToolBar1.ButtonWidth := images.Width+DoScaleX(4,96,TFLayerStack_CustomDPI);
+  ToolBar1.ButtonHeight := images.Height+DoScaleY(4,96,TFLayerStack_CustomDPI);
+  ToolBar1.Height := ToolBar1.ButtonHeight+1;
+  ToolBar2.Images := images;
+  ToolBar2.ButtonWidth := images.Width+DoScaleX(4,96,TFLayerStack_CustomDPI);
+  ToolBar2.ButtonHeight := images.Height+DoScaleY(4,96,TFLayerStack_CustomDPI);
+  ToolBar2.Height := ToolBar1.ButtonHeight+1;
+  ToolBar3.Images := images;
+  ToolBar3.ButtonWidth := images.Width+DoScaleX(4,96,TFLayerStack_CustomDPI);
+  ToolBar3.ButtonHeight := images.Height+DoScaleY(4,96,TFLayerStack_CustomDPI);
+  ToolBar3.Height := ToolBar1.ButtonHeight+1;
 
-    ToolBar1.Width := ToolBar1.ButtonCount * (ToolBar1.ButtonWidth+1) + 8;
-    ToolBar3.Width := ToolBar3.ButtonCount * (ToolBar3.ButtonWidth+1) + 5;
+  ClientWidth := ToolBar2.ButtonCount * (ToolBar2.ButtonWidth+1) + 5 + Toolbar2.Left;
+  Constraints.MinWidth := Width;
 
-    ComboBox_BlendOp.Left := Toolbar3.Left+Toolbar3.Width;
-    Toolbar1.Left := ClientWidth-Toolbar1.Width-6;
-    ComboBox_BlendOp.Width := Toolbar1.Left - ComboBox_BlendOp.Left;
-    Toolbar2.Top := Toolbar1.Top + Toolbar1.Height;
-    Panel1.Height := Toolbar2.Top+Toolbar2.Height+2;
+  ToolBar1.Width := ToolBar1.ButtonCount * (ToolBar1.ButtonWidth+1) + 8;
+  ToolBar3.Width := ToolBar3.ButtonCount * (ToolBar3.ButtonWidth+1) + 5;
 
-    ComboBox_BlendOp.Font.Height := -FontEmHeightSign * ((images.Height-2) * 7 div 10);
-  end;
+  ComboBox_BlendOp.Left := Toolbar3.Left+Toolbar3.Width;
+  Toolbar1.Left := ClientWidth-Toolbar1.Width-6;
+  ComboBox_BlendOp.Width := Toolbar1.Left - ComboBox_BlendOp.Left;
+  Toolbar2.Top := Toolbar1.Top + Toolbar1.Height;
+  Panel1.Height := Toolbar2.Top+Toolbar2.Height+2;
+
+  ComboBox_BlendOp.Font.Height := -FontEmHeightSign * ((images.Height-2) * 6 div 10 + 2);
+
   if Toolbar2.Top < ComboBox_BlendOp.Top + ComboBox_BlendOp.Height then
     Toolbar2.Top := ComboBox_BlendOp.Top + ComboBox_BlendOp.Height;
   if Toolbar2.Top+Toolbar2.Height+2 > Panel1.Height then

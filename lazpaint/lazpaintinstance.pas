@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, LazPaintType, BGRABitmap, BGRABitmapTypes, BGRALayers,
-  Menus, Controls,
+  Menus, Controls, fgl,
 
   LazPaintMainForm, UMainFormLayout,
 
@@ -20,6 +20,7 @@ const
   MaxToolPopupShowCount = 2;
 
 type
+  TImageListList = specialize TFPGObjectList<TImageList>;
 
   { TLazPaintInstance }
 
@@ -72,6 +73,7 @@ type
     FChooseColorPositionDefined,
     FLayerStackPositionDefined,
     FImageListPositionDefined : boolean;
+    FCustomImageList: TImageListList;
 
     function GetIcons(ASize: integer): TImageList; override;
     function GetToolBoxWindowPopup: TPopupMenu; override;
@@ -280,6 +282,7 @@ end;
 procedure TLazPaintInstance.Init(AEmbedded: boolean);
 begin
   Title := 'LazPaint ' + LazPaintCurrentVersion;
+  FCustomImageList := TImageListList.Create;
   FTopMostInfo.choosecolorHidden := 0;
   FTopMostInfo.layerstackHidden := 0;
   FTopMostInfo.toolboxHidden := 0;
@@ -319,7 +322,7 @@ begin
   Application.CreateForm(TFImageList, FImageList);
   FImageList.LazPaintInstance := self;
 
-  TFChooseColor_CustomDPI := round(Power(Config.DefaultIconSize(18)/16,0.7)*96);
+  TFChooseColor_CustomDPI := (Config.DefaultIconSize(DoScaleX(16,OriginalDPI))*96+8) div 16;
   Application.CreateForm(TFChooseColor, FChooseColor);
   FChooseColor.LazPaintInstance := self;
 
@@ -386,6 +389,7 @@ end;
 procedure TLazPaintInstance.CreateLayerStack;
 begin
   if Assigned(FLayerStack) then exit;
+  TFLayerStack_CustomDPI := (Config.DefaultIconSize(DoScaleX(16,OriginalDPI))*96+8) div 16;
   Application.CreateForm(TFLayerStack,FLayerStack);
   FLayerStack.LazPaintInstance := self;
 
@@ -437,7 +441,7 @@ begin
   FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolRotateSelection);
   FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolMagicWand);
 
-  FToolBox.SetImages(Icons[Config.DefaultIconSize(DoScaleX(24,OriginalDPI))]);
+  FToolBox.SetImages(Icons[Config.DefaultIconSize(DoScaleX(20,OriginalDPI))]);
 
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolChangeDocking);
 
@@ -474,7 +478,7 @@ begin
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolRotateSelection);
   FMain.Layout.DockedToolBoxAddButton(FMain.EditDeselect);
 
-  FMain.Layout.DockedToolBoxSetImages(Icons[Config.DefaultIconSize(DoScaleX(24,OriginalDPI))]);
+  FMain.Layout.DockedToolBoxSetImages(Icons[Config.DefaultIconSize(DoScaleX(20,OriginalDPI))]);
 end;
 
 procedure TLazPaintInstance.SetBlackAndWhite(AValue: boolean);
@@ -843,33 +847,36 @@ begin
 end;
 
 function TLazPaintInstance.GetIcons(ASize: integer): TImageList;
+var
+  i: Integer;
 begin
   if Assigned(FMain) then
   begin
+    for i := 0 to FCustomImageList.Count-1 do
+      if FCustomImageList[i].Height = ASize then
+        exit(FCustomImageList[i]);
+
     if ASize < 24 then
-      result := FMain.ImageList16
-    else
-    if ASize < 32 then
-    begin
-      result := FMain.ImageList24;
-      if result.Count = 0 then
-        ScaleImageList(FMain.ImageList48, 24,24, result);
+    begin;
+      if ASize = 16 then
+        result := FMain.ImageList16
+      else
+      begin
+        result := TImageList.Create(nil);
+        ScaleImageList(FMain.ImageList16, ASize,ASize, result);
+        FCustomImageList.Add(result);
+      end;
     end
     else
-    if ASize < 48 then
     begin
-      result := FMain.ImageList32;
-      if result.Count = 0 then
-        ScaleImageList(FMain.ImageList48, 32,32, result);
-    end
-    else
-    if ASize < 64 then
-      result := FMain.ImageList48
-    else
-    begin
-      result := FMain.ImageList64;
-      if result.Count = 0 then
-        ScaleImageList(FMain.ImageList48, 64,64, result);
+      if ASize = 48 then
+        result := FMain.ImageList48
+      else
+      begin
+        result := TImageList.Create(nil);
+        ScaleImageList(FMain.ImageList48, ASize,ASize, result);
+        FCustomImageList.Add(result);
+      end;
     end;
   end else
     result := nil;
@@ -1098,6 +1105,7 @@ begin
   //MessageDlg(FScriptContext.RecordedScript,mtInformation,[mbOk],0);
   FreeAndNil(FScriptContext);
   FreeAndNil(FImageList);
+  FreeAndNil(FCustomImageList);
   inherited Destroy;
 end;
 

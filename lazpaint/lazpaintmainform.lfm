@@ -6619,10 +6619,6 @@ object FMain: TFMain
           Caption = '48px'
           OnClick = ItemIconSize48Click
         end
-        object ItemIconSize64: TMenuItem
-          Caption = '64px'
-          OnClick = ItemIconSize64Click
-        end
         object ItemIconSizeAuto: TMenuItem
           Caption = 'auto'
           OnClick = ItemIconSizeAutoClick
@@ -42570,23 +42566,5 @@ object FMain: TFMain
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000
     }
-  end
-  object ImageList32: TBGRAImageList
-    Height = 32
-    Width = 32
-    left = 184
-    top = 354
-  end
-  object ImageList64: TBGRAImageList
-    Height = 64
-    Width = 64
-    left = 256
-    top = 354
-  end
-  object ImageList24: TBGRAImageList
-    Height = 24
-    Width = 24
-    left = 104
-    top = 354
   end
 end

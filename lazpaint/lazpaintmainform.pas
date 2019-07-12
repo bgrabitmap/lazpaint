@@ -50,9 +50,6 @@ type
     Tool_Aliasing: TToolButton;
     ViewPalette: TAction;
     ViewStatusBar: TAction;
-    ImageList24: TBGRAImageList;
-    ImageList64: TBGRAImageList;
-    ImageList32: TBGRAImageList;
     ImageList48: TBGRAImageList;
     ItemViewPalette: TMenuItem;
     MenuIconSize: TMenuItem;
@@ -60,7 +57,6 @@ type
     ItemIconSize32: TMenuItem;
     ItemIconSize48: TMenuItem;
     ItemIconSizeAuto: TMenuItem;
-    ItemIconSize64: TMenuItem;
     ItemIconSize24: TMenuItem;
     ItemViewStatusBar: TMenuItem;
     MenuShowPalette: TMenuItem;
@@ -878,7 +874,6 @@ begin
   InFormMouseMove:= false;
   InFormPaint := false;
 
-  CreateMenuAndToolbar;
   {$IFDEF LINUX}
   ComboBox_BrushSelect.Top := ComboBox_BrushSelect.Top - 2;
   ComboBox_BrushSelect.Font.Height := -10;
@@ -908,6 +903,7 @@ begin
     Panel_Tool,Panel_Color,Panel_Texture,Panel_Grid,Panel_PenWidth,Panel_Aliasing,Panel_ShapeOption,Panel_LineCap,Panel_JoinStyle,
     Panel_PenStyle,Panel_SplineStyle,Panel_Eraser,Panel_Tolerance,Panel_GradientType,Panel_Text,Panel_TextOutline,
     Panel_PhongShape,Panel_Altitude,Panel_PerspectiveOption,Panel_Brush,Panel_Ratio],Panel_ToolbarBackground);
+  m.ImageList := LazPaintInstance.Icons[ScaleY(16, 96)];
   m.Apply;
   FLayout.Menu := m;
 end;
@@ -967,6 +963,7 @@ end;
 procedure TFMain.Init;
 begin
   initialized := false;
+  CreateMenuAndToolbar;
   Config := LazPaintInstance.Config;
   if Config.Default3dObjectDirectory = '' then
     Config.SetDefault3dObjectDirectory(StartDirectory);
@@ -3021,7 +3018,6 @@ begin
   ItemIconSize24.Checked := iconSize=24;
   ItemIconSize32.Checked := iconSize=32;
   ItemIconSize48.Checked := iconSize=48;
-  ItemIconSize64.Checked := iconSize=64;
   ItemIconSizeAuto.Checked := iconSize=0;
 end;
 

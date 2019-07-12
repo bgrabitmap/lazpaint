@@ -18,7 +18,7 @@ object FLayerStack: TFLayerStack
   OnHide = FormHide
   OnShow = FormShow
   ShowInTaskBar = stNever
-  LCLVersion = '2.0.0.4'
+  LCLVersion = '2.0.2.0'
   object BGRALayerStack: TBGRAVirtualScreen
     Left = 0
     Height = 37
@@ -51,6 +51,8 @@ object FLayerStack: TFLayerStack
       Width = 71
       Align = alNone
       Anchors = [akTop, akRight]
+      ButtonHeight = 20
+      ButtonWidth = 20
       EdgeBorders = []
       EdgeInner = esNone
       EdgeOuter = esNone
@@ -59,7 +61,7 @@ object FLayerStack: TFLayerStack
       ShowHint = True
       TabOrder = 0
       object ToolZoomLayerStackIn: TToolButton
-        Left = 24
+        Left = 21
         Hint = 'Zoom layer stack in'
         Top = 0
         ImageIndex = 6
@@ -73,7 +75,7 @@ object FLayerStack: TFLayerStack
         OnClick = ToolZoomLayerStackOutClick
       end
       object ToolButton1: TToolButton
-        Left = 47
+        Left = 41
         Top = 0
         Action = FMain.LayerRemoveCurrent
       end
@@ -98,6 +100,8 @@ object FLayerStack: TFLayerStack
       Width = 243
       Align = alNone
       Anchors = [akTop, akLeft, akRight]
+      ButtonHeight = 20
+      ButtonWidth = 20
       EdgeBorders = []
       EdgeInner = esNone
       EdgeOuter = esNone
@@ -112,6 +116,8 @@ object FLayerStack: TFLayerStack
       Top = 2
       Width = 24
       Align = alNone
+      ButtonHeight = 20
+      ButtonWidth = 20
       EdgeBorders = []
       EdgeInner = esNone
       EdgeOuter = esNone

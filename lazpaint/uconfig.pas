@@ -1467,6 +1467,7 @@ end;
 function TLazPaintConfig.DefaultIconSize(defaultValue: integer): integer;
 begin
   result := iniOptions.ReadInteger('General','DefaultIconSize',0);
+  if result > 48 then result := 48;
   if result = 0 then result := defaultValue;
 end;
 
