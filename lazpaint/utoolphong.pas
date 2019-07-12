@@ -13,28 +13,39 @@ type
 
   TToolPhong = class(TVectorialTool)
   protected
+    FMatrix: TAffineMatrix;
+    constructor Create(AManager: TToolManager); override;
     procedure ShapeChange({%H-}ASender: TObject; ABounds: TRectF); override;
-    procedure AssignShapeStyle; override;
+    procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
     function CreateShape: TVectorShape; override;
     function SlowShape: boolean; override;
   end;
 
 implementation
 
-uses ugraph, Graphics, LazPaintType, LCVectorRectShapes;
+uses ugraph, Graphics, LazPaintType, LCVectorRectShapes, BGRATransform;
 
 { TToolPhong }
 
-procedure TToolPhong.ShapeChange(ASender: TObject; ABounds: TRectF);
+constructor TToolPhong.Create(AManager: TToolManager);
 begin
-  with (FShape as TPhongShape) do
-    Manager.ToolLightPosition := Point(round(LightPosition.X),round(LightPosition.Y));
+  inherited Create(AManager);
+  FMatrix := AffineMatrixIdentity;
+end;
+
+procedure TToolPhong.ShapeChange(ASender: TObject; ABounds: TRectF);
+var
+  posF: TPointF;
+begin
+  posF := AffineMatrixInverse(FMatrix)*(FShape as TPhongShape).LightPosition;
+  Manager.ToolLightPosition := posF.Round;
   inherited ShapeChange(ASender, ABounds);
 end;
 
-procedure TToolPhong.AssignShapeStyle;
+procedure TToolPhong.AssignShapeStyle(AMatrix: TAffineMatrix);
 begin
-  inherited AssignShapeStyle;
+  inherited AssignShapeStyle(AMatrix);
+  FMatrix := AMatrix;
   with (FShape as TPhongShape) do
   begin
     if Manager.ToolShapeType = 'RoundRectangle' then ShapeKind:= pskRoundRectangle else
@@ -44,7 +55,7 @@ begin
     if Manager.ToolShapeType = 'VerticalCylinder' then ShapeKind := pskVertCylinder else
     if Manager.ToolShapeType = 'HorizontalCylinder' then ShapeKind := pskHorizCylinder
     else ShapeKind := pskRectangle;
-    LightPosition := PointF(Manager.ToolLightPosition.X,Manager.ToolLightPosition.Y);
+    LightPosition := AMatrix*PointF(Manager.ToolLightPosition.X,Manager.ToolLightPosition.Y);
     ShapeAltitudePercent := Manager.ToolShapeAltitude;
     BorderSizePercent:= Manager.ToolShapeBorderSize;
   end;

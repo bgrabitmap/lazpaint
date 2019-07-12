@@ -50,6 +50,7 @@ type
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; {%H-}AOptions: TRenderBoundsOptions = []): TRectF; override;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
     function GetAffineBox(AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
+    procedure Transform(AMatrix: TAffineMatrix); override;
     property Origin: TPointF read FOrigin write SetOrigin;
     property XAxis: TPointF read FXAxis;
     property YAxis: TPointF read FYAxis;
@@ -130,6 +131,7 @@ type
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; override;
     function GetIsSlow(AMatrix: TAffineMatrix): boolean; override;
+    procedure Transform(AMatrix: TAffineMatrix); override;
     class function StorageClassName: RawByteString; override;
     property ShapeKind: TPhongShapeKind read FShapeKind write SetShapeKind;
     property LightPosition: TPointF read FLightPosition write SetLightPosition;
@@ -150,13 +152,7 @@ begin
   if FOrigin=AValue then Exit;
   BeginUpdate;
   delta := AValue - FOrigin;
-  FOrigin := AValue;
-  FXAxis += delta;
-  FYAxis += delta;
-  if vsfBackFill in Fields then
-    BackFill.Transform(AffineMatrixTranslation(delta.x, delta.y));
-  if vsfPenFill in Fields then
-    PenFill.Transform(AffineMatrixTranslation(delta.x, delta.y));
+  Transform(AffineMatrixTranslation(delta.x, delta.y));
   EndUpdate;
 end;
 
@@ -445,6 +441,16 @@ begin
     m := MatrixForPixelCentered(AMatrix);
   result := m * TAffineBox.AffineBox(FOrigin - (FXAxis - FOrigin) - (FYAxis - FOrigin),
       FXAxis - (FYAxis - FOrigin), FYAxis - (FXAxis - FOrigin));
+end;
+
+procedure TCustomRectShape.Transform(AMatrix: TAffineMatrix);
+begin
+  BeginUpdate;
+  FOrigin := AMatrix*FOrigin;
+  FXAxis := AMatrix*FXAxis;
+  FYAxis := AMatrix*FYAxis;
+  inherited Transform(AMatrix);
+  EndUpdate;
 end;
 
 function TCustomRectShape.GetOrthoRect(AMatrix: TAffineMatrix; out ARect: TRectF): boolean;
@@ -1316,6 +1322,14 @@ begin
   if not BackVisible then exit(false);
   ab := GetAffineBox(AMatrix, true);
   result := ab.Surface > 320*240;
+end;
+
+procedure TPhongShape.Transform(AMatrix: TAffineMatrix);
+begin
+  BeginUpdate;
+  inherited Transform(AMatrix);
+  LightPosition := AMatrix*LightPosition;
+  EndUpdate;
 end;
 
 class function TPhongShape.StorageClassName: RawByteString;

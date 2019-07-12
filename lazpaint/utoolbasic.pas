@@ -84,11 +84,12 @@ type
     FShiftState: TShiftState;
     FRightDown, FLeftDown: boolean;
     FLastPos: TPointF;
+    FLastShapeTransform: TAffineMatrix;
     function CreateShape: TVectorShape; virtual; abstract;
     function UseOriginal: boolean; virtual;
     function GetCustomShapeBounds(ADestBounds: TRect; AMatrix: TAffineMatrix; {%H-}ADraft: boolean): TRect; virtual;
     procedure DrawCustomShape(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); virtual;
-    procedure AssignShapeStyle; virtual;
+    procedure AssignShapeStyle(AMatrix: TAffineMatrix); virtual;
     procedure QuickDefineShape(AStart,AEnd: TPointF); virtual;
     function RoundCoordinate(ptF: TPointF): TPointF; virtual;
     function GetIsSelectingTool: boolean; override;
@@ -216,7 +217,7 @@ var
   diff: TComposedImageDifference;
   layerId: LongInt;
   replaceDiff: TReplaceLayerByVectorOriginalDifference;
-  invTransform: TAffineMatrix;
+  transf: TAffineMatrix;
 begin
   if Assigned(FShape) then
   begin
@@ -230,11 +231,12 @@ begin
         Manager.Image.AddUndo(TAddShapeToVectorOriginalDifference.Create(Manager.Image.CurrentState,layerId,FShape))
       else
       begin
+        transf := VectorTransform;
         diff := TComposedImageDifference.Create;
         replaceDiff := TReplaceLayerByVectorOriginalDifference.Create(Manager.Image.CurrentState,Manager.Image.CurrentLayerIndex);
         diff.Add(replaceDiff);
-        invTransform := AffineMatrixInverse(VectorTransform);
-        QuickDefineShape(invTransform*FQuickDefineStartPoint, invTransform*FQuickDefineEndPoint);
+        transf := AffineMatrixInverse(VectorTransform)*transf;
+        FShape.Transform(transf);
         diff.Add(TAddShapeToVectorOriginalDifference.Create(Manager.Image.CurrentState,layerId,FShape));
         Manager.Image.AddUndo(diff);
       end;
@@ -277,17 +279,19 @@ begin
   FShape.Render(ADest,AMatrix,ADraft);
 end;
 
-procedure TVectorialTool.AssignShapeStyle;
+procedure TVectorialTool.AssignShapeStyle(AMatrix: TAffineMatrix);
 var
   f: TVectorShapeFields;
+  zoom: Single;
 begin
+  zoom := (VectLen(AMatrix[1,1],AMatrix[2,1])+VectLen(AMatrix[1,2],AMatrix[2,2]))/2;
   f:= FShape.Fields;
   if vsfPenFill in f then
   begin
     if Manager.ToolOptionDrawShape then
     begin
       if (not (vsfBackFill in f) or not Manager.ToolOptionFillShape) and (Manager.GetToolTexture <> nil) then
-        FShape.PenFill.SetTexture(Manager.GetToolTexture,AffineMatrixIdentity,Manager.ToolTextureOpacity)
+        FShape.PenFill.SetTexture(Manager.GetToolTexture,AMatrix,Manager.ToolTextureOpacity)
       else
       begin
         if FSwapColor then
@@ -298,7 +302,7 @@ begin
     end else
       FShape.PenFill.Clear;
   end;
-  if vsfPenWidth in f then FShape.PenWidth := Manager.ToolPenWidth;
+  if vsfPenWidth in f then FShape.PenWidth := zoom*Manager.ToolPenWidth;
   if vsfPenStyle in f Then FShape.PenStyle := PenStyleToBGRA(Manager.ToolPenStyle);
   if vsfJoinStyle in f then FShape.JoinStyle:= Manager.ToolJoinStyle;
   if vsfBackFill in f then
@@ -393,7 +397,6 @@ var
   viewPt: TPointF;
   cur: TOriginalEditorCursor;
   handled: boolean;
-  invTransform: TAffineMatrix;
 begin
   result := EmptyRect;
   FRightDown := rightBtn;
@@ -425,9 +428,12 @@ begin
       FQuickDefine := true;
       FQuickDefineStartPoint := RoundCoordinate(ptF);
       FQuickDefineEndPoint := FQuickDefineStartPoint;
-      AssignShapeStyle;
-      invTransform := AffineMatrixInverse(VectorTransform);
-      QuickDefineShape(invTransform*FQuickDefineStartPoint,invTransform*FQuickDefineEndPoint);
+      FShape.BeginUpdate;
+        QuickDefineShape(FQuickDefineStartPoint,FQuickDefineEndPoint);
+        FLastShapeTransform := AffineMatrixInverse(VectorTransform);
+        FShape.Transform(FLastShapeTransform);
+        AssignShapeStyle(FLastShapeTransform);
+      FShape.EndUpdate;
       FShape.OnChange:= @ShapeChange;
       FShape.OnEditingChange:=@ShapeEditingChange;
       result := RectUnion(result, UpdateShape(toolDest));
@@ -443,7 +449,6 @@ var
   viewPt: TPointF;
   handled: boolean;
   cur: TOriginalEditorCursor;
-  invTransform: TAffineMatrix;
 begin
   FLastPos := ptF;
   if FQuickDefine then
@@ -456,8 +461,12 @@ begin
       if s.x > 0 then FQuickDefineEndPoint.x := FQuickDefineStartPoint.x + avg else FQuickDefineEndPoint.x := FQuickDefineStartPoint.x - avg;
       if s.y > 0 then FQuickDefineEndPoint.y := FQuickDefineStartPoint.y + avg else FQuickDefineEndPoint.y := FQuickDefineStartPoint.y - avg;
     end;
-    invTransform := AffineMatrixInverse(VectorTransform);
-    QuickDefineShape(invTransform*FQuickDefineStartPoint, invTransform*FQuickDefineEndPoint);
+    FShape.BeginUpdate;
+      QuickDefineShape(FQuickDefineStartPoint, FQuickDefineEndPoint);
+      FLastShapeTransform := AffineMatrixInverse(VectorTransform);
+      FShape.Transform(FLastShapeTransform);
+      AssignShapeStyle(FLastShapeTransform);
+    FShape.EndUpdate;
     result := OnlyRenderChange;
   end else
   begin
@@ -472,7 +481,7 @@ end;
 
 function TVectorialTool.DoToolUpdate(toolDest: TBGRABitmap): TRect;
 begin
-  if Assigned(FShape) then AssignShapeStyle;
+  if Assigned(FShape) then AssignShapeStyle(FLastShapeTransform);
   result := EmptyRect;
 end;
 
@@ -484,6 +493,7 @@ begin
   FEditor.GridMatrix := AffineMatrixScale(0.5,0.5);
   FEditor.Focused := true;
   FPreviousEditorBounds := EmptyRect;
+  FLastShapeTransform := AffineMatrixIdentity;
 end;
 
 function TVectorialTool.ToolUp: TRect;

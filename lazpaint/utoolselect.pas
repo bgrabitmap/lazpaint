@@ -14,7 +14,7 @@ type
   TVectorialSelectTool = class(TVectorialTool)
   protected
     function GetIsSelectingTool: boolean; override;
-    procedure AssignShapeStyle; override;
+    procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
     function RoundCoordinate(ptF: TPointF): TPointF; override;
     function UpdateShape(toolDest: TBGRABitmap): TRect; override;
     procedure QuickDefineEnd; override;
@@ -140,7 +140,7 @@ begin
   Result:= true;
 end;
 
-procedure TVectorialSelectTool.AssignShapeStyle;
+procedure TVectorialSelectTool.AssignShapeStyle(AMatrix: TAffineMatrix);
 var
   f: TVectorShapeFields;
 begin

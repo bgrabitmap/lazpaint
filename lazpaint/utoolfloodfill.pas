@@ -26,7 +26,7 @@ type
   TToolGradient = class(TVectorialTool)
   protected
     function CreateShape: TVectorShape; override;
-    procedure AssignShapeStyle; override;
+    procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
     procedure QuickDefineShape(AStart,AEnd: TPointF); override;
     function SlowShape: boolean; override;
     function GetStatusText: string; override;
@@ -47,7 +47,7 @@ begin
   result.Usermode := vsuEditBackFill;
 end;
 
-procedure TToolGradient.AssignShapeStyle;
+procedure TToolGradient.AssignShapeStyle(AMatrix: TAffineMatrix);
 begin
   with FShape.BackFill.Gradient do
   begin

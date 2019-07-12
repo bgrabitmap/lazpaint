@@ -57,6 +57,7 @@ type
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
+    procedure Transform(AMatrix: TAffineMatrix); override;
     class function Usermodes: TVectorShapeUsermodes; override;
     property Points[AIndex:integer]: TPointF read GetPoint write SetPoint;
     property PointCount: integer read GetPointCount;
@@ -567,6 +568,17 @@ begin
     FCenterPoint *= 1/nb;
     FCenterPointEditorIndex := AEditor.AddPoint(FCenterPoint, @OnMoveCenterPoint, true);
   end;
+end;
+
+procedure TCustomPolypointShape.Transform(AMatrix: TAffineMatrix);
+var
+  i: Integer;
+begin
+  BeginUpdate;
+  inherited Transform(AMatrix);
+  for i := 0 to PointCount-1 do
+    FPoints[i].coord := AMatrix*FPoints[i].coord;
+  EndUpdate;
 end;
 
 { TPolylineShape }

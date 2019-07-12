@@ -57,8 +57,6 @@ type
     procedure SetId(AValue: integer);
     procedure SetOutlineWidth(AValue: single);
   protected
-    procedure BeginUpdate;
-    procedure EndUpdate;
     procedure BeginEditingUpdate;
     procedure EndEditingUpdate;
     procedure DoOnChange(ABoundsBefore: TRectF); virtual;
@@ -91,6 +89,8 @@ type
     constructor Create(AContainer: TVectorOriginal); virtual;
     class function CreateFromStorage(AStorage: TBGRACustomOriginalStorage; AContainer: TVectorOriginal): TVectorShape;
     destructor Destroy; override;
+    procedure BeginUpdate;
+    procedure EndUpdate;
     procedure QuickDefine(const APoint1,APoint2: TPointF); virtual; abstract;
     //one of the two Render functions must be overriden
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); virtual;
@@ -117,6 +117,7 @@ type
     class function StorageClassName: RawByteString; virtual; abstract;
     function GetIsSlow({%H-}AMatrix: TAffineMatrix): boolean; virtual;
     function GetUsedTextures: ArrayOfBGRABitmap;
+    procedure Transform(AMatrix: TAffineMatrix); virtual;
     class function Fields: TVectorShapeFields; virtual;
     class function Usermodes: TVectorShapeUsermodes; virtual;
     class function PreferPixelCentered: boolean; virtual;
@@ -530,6 +531,20 @@ begin
     inc(nb);
   end;
   setlength(result, nb);
+end;
+
+procedure TVectorShape.Transform(AMatrix: TAffineMatrix);
+var
+  zoom: Single;
+begin
+  if IsAffineMatrixIdentity(AMatrix) then exit;
+  BeginUpdate;
+  if vsfBackFill in Fields then BackFill.Transform(AMatrix);
+  if vsfPenFill in Fields then PenFill.Transform(AMatrix);
+  zoom := (VectLen(AMatrix[1,1],AMatrix[2,1])+VectLen(AMatrix[1,2],AMatrix[2,2]))/2;
+  if vsfPenWidth in Fields then PenWidth := zoom*PenWidth;
+  if vsfOutlineFill in Fields then OutlineWidth := zoom*OutlineWidth;
+  EndUpdate;
 end;
 
 class function TVectorShape.Fields: TVectorShapeFields;

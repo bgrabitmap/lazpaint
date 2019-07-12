@@ -14,6 +14,7 @@ type
 
   TToolText = class(TVectorialTool)
   protected
+    FMatrix: TAffineMatrix;
     FPrevShadow: boolean;
     FPrevShadowOffset: TPoint;
     FPrevShadowRadius: single;
@@ -23,10 +24,11 @@ type
     procedure DrawCustomShape(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     procedure ShapeChange(ASender: TObject; ABounds: TRectF); override;
     procedure ShapeEditingChange(ASender: TObject); override;
-    procedure AssignShapeStyle; override;
+    procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
     function SlowShape: boolean; override;
     procedure QuickDefineEnd; override;
   public
+    constructor Create(AManager: TToolManager); override;
     function ToolKeyDown(var key: Word): TRect; override;
     function ToolCopy: boolean; override;
     function ToolCut: boolean; override;
@@ -120,9 +122,10 @@ end;
 procedure TToolText.ShapeChange(ASender: TObject; ABounds: TRectF);
 var
   r: TRect;
+  posF: TPointF;
 begin
-  with (FShape as TTextShape) do
-    Manager.ToolLightPosition := Point(round(LightPosition.X),round(LightPosition.Y));
+  posF := AffineMatrixInverse(FMatrix)*(FShape as TTextShape).LightPosition;
+  Manager.ToolLightPosition := posF.Round;
   with ABounds do r := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
   IncludeShadowBounds(r);
   inherited ShapeChange(ASender, RectF(r.Left,r.Top,r.Right,r.Bottom));
@@ -135,14 +138,17 @@ begin
   inherited ShapeEditingChange(ASender);
 end;
 
-procedure TToolText.AssignShapeStyle;
+procedure TToolText.AssignShapeStyle(AMatrix: TAffineMatrix);
 var
   r: TRect;
   toolDest: TBGRABitmap;
+  zoom: Single;
 begin
+  FMatrix := AMatrix;
   with TTextShape(FShape) do
   begin
-    FontEmHeight:= Manager.ToolTextFont.Size*ScreenInfo.PixelsPerInchY/72;
+    zoom := (VectLen(AMatrix[1,1],AMatrix[2,1])+VectLen(AMatrix[1,2],AMatrix[2,2]))/2;
+    FontEmHeight:= zoom*Manager.ToolTextFont.Size*ScreenInfo.PixelsPerInchY/72;
     FontName:= Manager.ToolTextFont.Name;
     FontStyle:= Manager.ToolTextFont.Style;
 
@@ -168,7 +174,7 @@ begin
     else
       OutlineFill.Clear;
 
-    LightPosition := PointF(Manager.ToolLightPosition.X,Manager.ToolLightPosition.Y);
+    LightPosition := AMatrix*PointF(Manager.ToolLightPosition.X,Manager.ToolLightPosition.Y);
     AltitudePercent:= Manager.ToolShapeAltitude;
     ParagraphAlignment:= Manager.ToolTextAlign;
     PenPhong := Manager.ToolTextPhong;
@@ -191,6 +197,12 @@ end;
 procedure TToolText.QuickDefineEnd;
 begin
   FShape.Usermode := vsuEditText;
+end;
+
+constructor TToolText.Create(AManager: TToolManager);
+begin
+  inherited Create(AManager);
+  FMatrix := AffineMatrixIdentity;
 end;
 
 function TToolText.ToolKeyDown(var key: Word): TRect;

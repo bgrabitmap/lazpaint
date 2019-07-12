@@ -93,6 +93,7 @@ type
     function CopySelection: boolean;
     function CutSelection: boolean;
     function PasteSelection: boolean;
+    procedure Transform(AMatrix: TAffineMatrix); override;
     property HasSelection: boolean read GetHasSelection;
     property CanPasteSelection: boolean read GetCanPasteSelection;
     property Text: string read FText write SetText;
@@ -1353,6 +1354,18 @@ begin
     result := true;
   end else
     result := false;
+end;
+
+procedure TTextShape.Transform(AMatrix: TAffineMatrix);
+var
+  zoom: Single;
+begin
+  BeginUpdate;
+  inherited Transform(AMatrix);
+  zoom := (VectLen(AMatrix[1,1],AMatrix[2,1])+VectLen(AMatrix[1,2],AMatrix[2,2]))/2;
+  FontEmHeight:= zoom*FontEmHeight;
+  LightPosition := AMatrix*LightPosition;
+  EndUpdate;
 end;
 
 class function TTextShape.StorageClassName: RawByteString;
