@@ -219,6 +219,7 @@ var
   layerId: LongInt;
   replaceDiff: TReplaceLayerByVectorOriginalDifference;
   transf: TAffineMatrix;
+  addDiff: TAddShapeToVectorOriginalDifference;
 begin
   if Assigned(FShape) then
   begin
@@ -229,7 +230,10 @@ begin
       CancelAction;
       layerId := Manager.Image.LayerId[Manager.Image.CurrentLayerIndex];
       if UseOriginal then
-        Manager.Image.AddUndo(TAddShapeToVectorOriginalDifference.Create(Manager.Image.CurrentState,layerId,FShape))
+      begin
+        addDiff := TAddShapeToVectorOriginalDifference.Create(Manager.Image.CurrentState,layerId,FShape);
+        Manager.Image.AddUndo(addDiff);
+      end
       else
       begin
         transf := VectorTransform;
@@ -238,11 +242,13 @@ begin
         diff.Add(replaceDiff);
         transf := AffineMatrixInverse(VectorTransform)*transf;
         FShape.Transform(transf);
-        diff.Add(TAddShapeToVectorOriginalDifference.Create(Manager.Image.CurrentState,layerId,FShape));
+        addDiff := TAddShapeToVectorOriginalDifference.Create(Manager.Image.CurrentState,layerId,FShape);
+        diff.Add(addDiff);
         Manager.Image.AddUndo(diff);
       end;
       FShape := nil;
       FEditor.Clear;
+      Manager.Image.ImageMayChange(addDiff.ChangingBounds);
     end else
     begin
       ValidateActionPartially;

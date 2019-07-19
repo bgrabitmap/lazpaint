@@ -709,15 +709,12 @@ begin
   FShapeData := TBGRAMemOriginalStorage.Create;
   AShape.SaveToStorage(FShapeData);
   FShapeData.RawString['class'] := AShape.StorageClassName;
-  with AShape.GetRenderBounds(rect(0,0,imgState.Width,imgState.Height),
-        imgState.LayerOriginalMatrix[layerIdx],[]) do
-    FShapeBounds := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
 
   inherited ApplyTo(ADestination);
   idxShapeAdd := TVectorOriginal(orig).AddShape(AShape);
   FShapeId := TVectorOriginal(orig).Shape[idxShapeAdd].Id;
   TVectorOriginal(orig).MoveShapeToIndex(idxShapeAdd, FShapeIndex);
-  imgState.LayeredBitmap.RenderLayerFromOriginal(layerIdx);
+  FShapeBounds := imgState.LayeredBitmap.RenderOriginalIfNecessary(orig.Guid);
 end;
 
 destructor TAddShapeToVectorOriginalDifference.Destroy;
