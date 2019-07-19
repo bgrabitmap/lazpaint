@@ -836,12 +836,14 @@ procedure TTextShape.Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: 
   end;
 
   function CreateShader(AOfsX,AOfsY: integer): TPhongShading;
+  var
+    lightPosF: TPointF;
   begin
     result := TPhongShading.Create;
     result.AmbientFactor := 0.6;
     result.NegativeDiffusionFactor := 0.15;
-    result.LightPosition := Point(round(LightPosition.x)+AOfsX+ARenderOffset.X,
-                                  round(LightPosition.y)+AOfsY+ARenderOffset.Y);
+    lightPosF := FGlobalMatrix*LightPosition+PointF(AOfsX,AOfsY);
+    result.LightPosition := lightPosF.Round;
     result.LightPositionZ := round(max(AltitudePercent, 1.2*GetTextPhongHeight));
   end;
 
