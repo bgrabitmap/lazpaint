@@ -28,6 +28,7 @@ type
     procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
     function SlowShape: boolean; override;
     procedure QuickDefineEnd; override;
+    function RoundCoordinate(ptF: TPointF): TPointF; override;
   public
     constructor Create(AManager: TToolManager); override;
     function ToolKeyDown(var key: Word): TRect; override;
@@ -203,6 +204,11 @@ end;
 procedure TToolText.QuickDefineEnd;
 begin
   FShape.Usermode := vsuEditText;
+end;
+
+function TToolText.RoundCoordinate(ptF: TPointF): TPointF;
+begin
+  result := PointF(floor(ptF.x)+0.5,floor(ptF.y)+0.5);
 end;
 
 constructor TToolText.Create(AManager: TToolManager);
