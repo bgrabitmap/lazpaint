@@ -8,6 +8,9 @@ uses
   Classes, SysUtils, LCVectorRectShapes, BGRATextBidi, BGRABitmapTypes, LCVectorOriginal, BGRAGraphics,
   BGRABitmap, BGRALayerOriginal, BGRACanvas2D;
 
+const
+  AlwaysVectorialText = true;
+
 type
 
   { TTextShape }
@@ -53,6 +56,7 @@ type
     function ShowArrows: boolean; override;
     function GetTextLayout: TBidiTextLayout;
     function GetFontRenderer: TBGRACustomFontRenderer;
+    function UseVectorialTextRenderer: boolean;
     function UpdateFontRenderer: boolean;
     function GetTextRenderZoom: single;
     function GetUntransformedMatrix: TAffineMatrix; //matrix before render transform
@@ -365,7 +369,7 @@ begin
   if Assigned(FFontRenderer) then
   begin
     freeRenderer := false;
-    if OutlineFill.FillType <> vftNone then
+    if UseVectorialTextRenderer then
     begin
       if not (FFontRenderer is TBGRAVectorizedFontRenderer) then
         freeRenderer:= true;
@@ -429,14 +433,23 @@ begin
   result := FFontRenderer;
 end;
 
+function TTextShape.UseVectorialTextRenderer: boolean;
+begin
+  result := AlwaysVectorialText or HasOutline;
+end;
+
 function TTextShape.UpdateFontRenderer: boolean;
 var
   newEmHeight: integer;
 begin
   if FFontRenderer = nil then
   begin
-    if OutlineFill.FillType <> vftNone then
-      FFontRenderer := TBGRAVectorizedFontRenderer.Create
+    if UseVectorialTextRenderer then
+    begin
+      FFontRenderer := TBGRAVectorizedFontRenderer.Create;
+      TBGRAVectorizedFontRenderer(FFontRenderer).QuadraticCurves := true;
+      TBGRAVectorizedFontRenderer(FFontRenderer).MaxFontResolution := 300;
+    end
     else
     begin
       FFontRenderer := TLCLFontRenderer.Create;
@@ -926,7 +939,7 @@ begin
   with transfRectF do
     transfRect := Rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
 
-  if HasOutline then
+  if UseVectorialTextRenderer then
   begin
     tmpTransf := TBGRABitmap.Create(transfRect.Width,transfRect.Height);
     ctx := tmpTransf.Canvas2D;
@@ -955,7 +968,7 @@ begin
     end else
       textFx := nil;
 
-    if OutLineFill.FillType <> vftNone then
+    if HasOutline then
     begin
       ctx := tmpTransf.Canvas2D;
       ctx.lineWidth := OutlineWidth;
