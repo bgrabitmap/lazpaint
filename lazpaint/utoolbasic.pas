@@ -242,10 +242,12 @@ begin
         Manager.Image.AddUndo(diff);
       end;
       FShape := nil;
+      FEditor.Clear;
     end else
     begin
       ValidateActionPartially;
       FreeAndNil(FShape);
+      FEditor.Clear;
     end;
     Cursor := crDefault;
     result := OnlyRenderChange;
@@ -257,6 +259,7 @@ function TVectorialTool.CancelShape: TRect;
 begin
   CancelActionPartially;
   FreeAndNil(FShape);
+  FEditor.Clear;
   Cursor := crDefault;
   result := OnlyRenderChange;
 end;
@@ -640,7 +643,10 @@ begin
     else
       Result:= FEditor.GetRenderBounds(rect(0,0,VirtualScreenWidth,VirtualScreenHeight));
   end else
+  begin
     result := EmptyRect;
+    FEditor.Clear;
+  end;
   FPreviousEditorBounds := result;
 end;
 
