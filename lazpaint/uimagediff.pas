@@ -313,6 +313,8 @@ type
     function GetLayerId: integer;
   protected
     FPreviousOriginalData: TStream;
+    FPreviousOriginalGuid: TGuid;
+    FOriginalUsedInOtherLayer: boolean;
     FPreviousOriginalMatrix: TAffineMatrix;
     FPreviousOriginalRenderStatus: TOriginalRenderStatus;
     FLayerId: integer;
@@ -589,15 +591,27 @@ constructor TDiscardOriginalDifference.Create(AFromState: TState;
   AIndex: integer; AApplyNow: boolean);
 var
   imgState: TImageState;
+  i: Integer;
 begin
   imgState := AFromState as TImageState;
   FLayerId := imgState.LayerId[AIndex];
   if not imgState.LayerOriginalDefined[AIndex] then
     raise exception.Create('Layer original is not defined');
-  FPreviousOriginalData := TMemoryStream.Create;
-  imgState.LayeredBitmap.SaveOriginalToStream(
-    imgState.LayeredBitmap.LayerOriginalGuid[AIndex],
-    FPreviousOriginalData);
+  FPreviousOriginalGuid := imgState.LayeredBitmap.LayerOriginalGuid[AIndex];
+  FOriginalUsedInOtherLayer := false;
+  for i := 0 to imgState.NbLayers-1 do
+    if (i <> AIndex) and (imgState.LayeredBitmap.LayerOriginalGuid[i] = FPreviousOriginalGuid) then
+    begin
+      FOriginalUsedInOtherLayer:= true;
+      break;
+    end;
+  if not FOriginalUsedInOtherLayer then
+  begin
+    FPreviousOriginalData := TMemoryStream.Create;
+    imgState.LayeredBitmap.SaveOriginalToStream(
+      imgState.LayeredBitmap.LayerOriginalGuid[AIndex],
+      FPreviousOriginalData);
+  end;
   FPreviousOriginalMatrix := imgState.LayerOriginalMatrix[AIndex];
   FPreviousOriginalRenderStatus:= imgState.layeredBitmap.LayerOriginalRenderStatus[AIndex];
   if AApplyNow then ApplyTo(AFromState)
@@ -605,7 +619,10 @@ end;
 
 function TDiscardOriginalDifference.UsedMemory: int64;
 begin
-  Result:= FPreviousOriginalData.Size;
+  if Assigned(FPreviousOriginalData) then
+    Result:= FPreviousOriginalData.Size
+  else
+    result:= 0;
 end;
 
 function TDiscardOriginalDifference.TryCompress: boolean;
@@ -622,7 +639,8 @@ begin
   layerIdx := imgState.LayeredBitmap.GetLayerIndexFromId(FLayerId);
   imgState.LayeredBitmap.LayerOriginalGuid[layerIdx] := GUID_NULL;
   imgState.LayeredBitmap.LayerOriginalMatrix[layerIdx] := AffineMatrixIdentity;
-  imgState.LayeredBitmap.RemoveUnusedOriginals;
+  if not FOriginalUsedInOtherLayer then
+    imgState.LayeredBitmap.RemoveUnusedOriginals;
   inherited ApplyTo(AState);
 end;
 
@@ -633,9 +651,15 @@ var
 begin
   imgState := AState as TImageState;
   layerIdx := imgState.LayeredBitmap.GetLayerIndexFromId(FLayerId);
-  FPreviousOriginalData.Position := 0;
-  origIdx := imgState.LayeredBitmap.AddOriginalFromStream(FPreviousOriginalData, true);
-  imgState.LayeredBitmap.LayerOriginalGuid[layerIdx] := imgState.LayeredBitmap.OriginalGuid[origIdx];
+  if FOriginalUsedInOtherLayer then
+  begin
+    imgState.LayeredBitmap.LayerOriginalGuid[layerIdx] := FPreviousOriginalGuid;
+  end else
+  begin
+    FPreviousOriginalData.Position := 0;
+    origIdx := imgState.LayeredBitmap.AddOriginalFromStream(FPreviousOriginalData, FPreviousOriginalGuid, true);
+    imgState.LayeredBitmap.LayerOriginalGuid[layerIdx] := imgState.LayeredBitmap.OriginalGuid[origIdx];
+  end;
   imgState.LayeredBitmap.LayerOriginalMatrix[layerIdx] := FPreviousOriginalMatrix;
   imgState.LayeredBitmap.LayerOriginalRenderStatus[layerIdx] := FPreviousOriginalRenderStatus;
   inherited UnapplyTo(AState);
