@@ -419,7 +419,8 @@ begin
   FLastPos := ptF;
   if Assigned(FShape) then
   begin
-    viewPt := FEditor.Matrix*ptF;
+    with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
+      viewPt := FEditor.Matrix*AffineMatrixInverse(VectorTransform)*AffineMatrixTranslation(X,Y)*ptF;
     FEditor.MouseDown(rightBtn, FShiftState, viewPt.X,viewPt.Y, cur, handled);
     if not handled and Assigned(FShape) then
       FShape.MouseDown(rightBtn, FShiftState, ptF.X,ptF.Y, cur, handled);
@@ -485,7 +486,8 @@ begin
     result := OnlyRenderChange;
   end else
   begin
-    viewPt := FEditor.Matrix*ptF;
+    with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
+      viewPt := FEditor.Matrix*AffineMatrixInverse(VectorTransform)*AffineMatrixTranslation(X,Y)*ptF;
     FEditor.MouseMove(FShiftState, viewPt.X,viewPt.Y, cur, handled);
     if not handled and Assigned(FShape) then
       FShape.MouseMove(FShiftState, ptF.X,ptF.Y, cur, handled);
