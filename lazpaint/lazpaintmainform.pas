@@ -28,6 +28,7 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    LayerRasterize: TAction;
     FileRememberSaveFormat: TAction;
     SelectionVerticalFlip: TAction;
     SelectionHorizontalFlip: TAction;
@@ -452,6 +453,7 @@ type
     procedure ItemFullscreenClick(Sender: TObject);
     procedure ItemIconSize24Click(Sender: TObject);
     procedure ItemViewDockToolboxClick(Sender: TObject);
+    procedure LayerRasterizeUpdate(Sender: TObject);
     procedure LayerZoomExecute(Sender: TObject);
     procedure LayerZoomUpdate(Sender: TObject);
     procedure MenuCoordinatesToolbarClick(Sender: TObject);
@@ -2944,6 +2946,11 @@ begin
     Layout.ToolBoxDocking := twLeft
   else
     Layout.ToolBoxDocking := twWindow;
+end;
+
+procedure TFMain.LayerRasterizeUpdate(Sender: TObject);
+begin
+  LayerRasterize.Enabled := Image.LayerOriginalDefined[Image.CurrentLayerIndex];
 end;
 
 procedure TFMain.LayerZoomExecute(Sender: TObject);

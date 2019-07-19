@@ -1099,10 +1099,6 @@ msgstr ""
 msgid "48px"
 msgstr ""
 
-#: tfmain.itemiconsize64.caption
-msgid "64px"
-msgstr ""
-
 #: tfmain.itemiconsizeauto.caption
 msgid "auto"
 msgstr ""
@@ -1256,6 +1252,10 @@ msgstr "Mesclar camada sobre"
 msgctxt "TFMAIN.LAYERMOVE.HINT"
 msgid "Move layer"
 msgstr "Mover camada"
+
+#: tfmain.layerrasterize.hint
+msgid "Rasterize layer"
+msgstr ""
 
 #: tfmain.layerremovecurrent.hint
 msgctxt "TFMAIN.LAYERREMOVECURRENT.HINT"
@@ -3422,6 +3422,10 @@ msgstr ""
 
 #: uresourcestrings.rstoomanylayers
 msgid "Too many layers"
+msgstr ""
+
+#: uresourcestrings.rstoomanyshapesinlayer
+msgid "Too many shapes in layer"
 msgstr ""
 
 #: uresourcestrings.rstotalimages

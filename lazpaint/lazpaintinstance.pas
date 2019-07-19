@@ -397,6 +397,7 @@ begin
   FLayerStack.AddButton(FMain.LayerFromFile);
   FLayerStack.AddButton(FMain.LayerDuplicate);
   FLayerStack.AddButton(FMain.LayerMergeOver);
+  FLayerStack.AddButton(FMain.LayerRasterize);
   FLayerStack.AddSeparator;
   FLayerStack.AddButton(FMain.LayerMove);
   FLayerStack.AddButton(FMain.LayerRotate);

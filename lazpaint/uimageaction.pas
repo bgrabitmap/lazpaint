@@ -55,6 +55,7 @@ type
     function NewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation): boolean; overload;
     function NewLayer(ALayer: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix): boolean; overload;
     procedure DuplicateLayer;
+    procedure RasterizeLayer;
     procedure MergeLayerOver;
     procedure RemoveLayer;
     procedure EditSelection(ACallback: TModifyImageCallback);
@@ -133,6 +134,7 @@ begin
   Scripting.RegisterScriptFunction('LayerVerticalFlip',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerAddNew',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerDuplicate',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerRasterize',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerMergeOver',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerRemoveCurrent',@GenericScriptFunction,ARegister);
 end;
@@ -186,6 +188,7 @@ begin
   if f = 'LayerVerticalFlip' then VerticalFlip(foCurrentLayer) else
   if f = 'LayerAddNew' then NewLayer else
   if f = 'LayerDuplicate' then DuplicateLayer else
+  if f = 'LayerRasterize' then RasterizeLayer else
   if f = 'LayerMergeOver' then MergeLayerOver else
   if f = 'LayerRemoveCurrent' then RemoveLayer else
     result := srFunctionNotDefined;
@@ -994,6 +997,14 @@ begin
     Image.DuplicateLayer;
     FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
   end;
+end;
+
+procedure TImageActions.RasterizeLayer;
+begin
+  if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping] then
+    ChooseTool(ptHand);
+  Image.RasterizeLayer;
+  FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
 end;
 
 procedure TImageActions.MergeLayerOver;

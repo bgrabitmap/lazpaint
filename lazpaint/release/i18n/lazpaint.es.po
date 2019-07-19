@@ -1085,10 +1085,6 @@ msgstr "32px"
 msgid "48px"
 msgstr "48px"
 
-#: tfmain.itemiconsize64.caption
-msgid "64px"
-msgstr "64px"
-
 #: tfmain.itemiconsizeauto.caption
 msgid "auto"
 msgstr "automático"
@@ -1242,6 +1238,10 @@ msgstr "Fusionar capa sobre"
 msgctxt "tfmain.layermove.hint"
 msgid "Move layer"
 msgstr "Mover capa"
+
+#: tfmain.layerrasterize.hint
+msgid "Rasterize layer"
+msgstr "Pixelar capa"
 
 #: tfmain.layerremovecurrent.hint
 msgctxt "tfmain.layerremovecurrent.hint"
@@ -3426,6 +3426,10 @@ msgstr "La herramienta no puede ser usada en una capa invisible"
 #: uresourcestrings.rstoomanylayers
 msgid "Too many layers"
 msgstr "Demasiado capas"
+
+#: uresourcestrings.rstoomanyshapesinlayer
+msgid "Too many shapes in layer"
+msgstr ""
 
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"

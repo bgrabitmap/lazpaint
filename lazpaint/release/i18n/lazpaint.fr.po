@@ -1091,10 +1091,6 @@ msgstr ""
 msgid "48px"
 msgstr ""
 
-#: tfmain.itemiconsize64.caption
-msgid "64px"
-msgstr ""
-
 #: tfmain.itemiconsizeauto.caption
 msgid "auto"
 msgstr ""
@@ -1248,6 +1244,10 @@ msgstr "Fusionner le calque avec celui en-dessous"
 msgctxt "tfmain.layermove.hint"
 msgid "Move layer"
 msgstr "Déplacer le calque"
+
+#: tfmain.layerrasterize.hint
+msgid "Rasterize layer"
+msgstr "Pixéliser le calque"
 
 #: tfmain.layerremovecurrent.hint
 msgctxt "tfmain.layerremovecurrent.hint"
@@ -2364,7 +2364,7 @@ msgstr "OK"
 #: tfpixelate.caption
 msgctxt "tfpixelate.caption"
 msgid "Pixelate"
-msgstr "Pixeliser"
+msgstr "Pixéliser"
 
 #: tfpixelate.label_pixelsize.caption
 msgctxt "tfpixelate.label_pixelsize.caption"
@@ -3433,6 +3433,10 @@ msgstr "L'outil ne peut pas être utilisé sur un calque invisible"
 #: uresourcestrings.rstoomanylayers
 msgid "Too many layers"
 msgstr "Trop de calques"
+
+#: uresourcestrings.rstoomanyshapesinlayer
+msgid "Too many shapes in layer"
+msgstr ""
 
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"

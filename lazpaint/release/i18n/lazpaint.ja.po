@@ -1096,10 +1096,6 @@ msgstr ""
 msgid "48px"
 msgstr ""
 
-#: tfmain.itemiconsize64.caption
-msgid "64px"
-msgstr ""
-
 #: tfmain.itemiconsizeauto.caption
 msgid "auto"
 msgstr ""
@@ -1252,6 +1248,10 @@ msgstr ""
 #: tfmain.layermove.hint
 msgctxt "tfmain.layermove.hint"
 msgid "Move layer"
+msgstr ""
+
+#: tfmain.layerrasterize.hint
+msgid "Rasterize layer"
 msgstr ""
 
 #: tfmain.layerremovecurrent.hint
@@ -3418,6 +3418,10 @@ msgstr ""
 
 #: uresourcestrings.rstoomanylayers
 msgid "Too many layers"
+msgstr ""
+
+#: uresourcestrings.rstoomanyshapesinlayer
+msgid "Too many shapes in layer"
 msgstr ""
 
 #: uresourcestrings.rstotalimages

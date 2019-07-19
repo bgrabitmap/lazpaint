@@ -551,18 +551,50 @@ var i: integer;
   clipping, rKind: TRect;
   lColor, lColorTrans: TBGRAPixel;
 
-  procedure DrawKind(AClass: TBGRALayerOriginalAny);
+  procedure DrawKindUnknown;
   var
     eb: TEasyBezierCurve;
     w: single;
     i: integer;
     m: TAffineMatrix;
   begin
-    if AClass = TBGRALayerImageOriginal then
+    eb := EasyBezierCurve([PointF(0.25,0.25),PointF(0.32,0.07),PointF(0.5,0),PointF(0.68,0.07),PointF(0.75,0.20),
+                           PointF(0.75,0.30),PointF(0.70,0.40),PointF(0.5,0.5),PointF(0.5,0.70)],False,cmCurve);
+    m := AffineMatrixTranslation(rKind.Left,rKind.Top)*AffineMatrixScale(rKind.Width,rKind.Height);
+    for i := 0 to eb.PointCount-1 do eb.Point[i] := m*eb.Point[i];
+    w := max(1,rKind.Height/10);
+    Bitmap.DrawPolyLineAntialias(eb.ToPoints, lColor, w, true);
+    Bitmap.FillEllipseAntialias((rKind.Left+rKind.Right)/2, rKind.Bottom - 1 - (w-1)/2, w*0.6,w*0.6, lColor);
+  end;
+
+  procedure DrawKind(AClass: TBGRALayerOriginalAny);
+  var
+    eb: TEasyBezierCurve;
+    w: single;
+    i: integer;
+    m: TAffineMatrix;
+    r: TRect;
+  begin
+    if AClass = nil then
     begin
       Bitmap.Rectangle(rKind, lColor,lColorTrans, dmDrawWithTransparency);
       Bitmap.HorizLine(rKind.Left+1,rKind.Top+(rKind.Height-1) div 2,rKind.Right-2, lColor, dmDrawWithTransparency);
       Bitmap.VertLine(rKind.Left+(rKind.Width-1) div 2,rKind.Top+1,rKind.Bottom-2, lColor, dmDrawWithTransparency);
+    end else
+    if AClass = TBGRALayerImageOriginal then
+    begin
+      r := rect(rKind.Left,(rKind.Top+rKind.Bottom) div 2, (rKind.Left+rKind.Right) div 2, rKind.Bottom);
+      w := max(1,rKind.Height/10);
+      Bitmap.Rectangle(r, lColor,lColorTrans, dmDrawWithTransparency);
+      eb := EasyBezierCurve([PointF(rKind.Left,rKind.Top+rKind.Height/4),
+                             PointF(rKind.Left+rKind.Width/2,rKind.Top+rKind.Height/4),
+                             PointF(rKind.Left+rKind.Width*3/4,rKind.Top+rKind.Height/2),
+                             PointF(rKind.Left+rKind.Width*3/4,rKind.Bottom)],False,cmCurve);
+      Bitmap.Arrow.StartAsClassic;
+      Bitmap.Arrow.EndAsClassic;
+      Bitmap.DrawPolyLineAntialias(eb.ToPoints, lColor, w);
+      Bitmap.Arrow.StartAsNone;
+      Bitmap.Arrow.EndAsNone;
     end else
     if AClass = TBGRALayerSVGOriginal then
     begin
@@ -578,16 +610,6 @@ var i: integer;
       eb.CurveMode[eb.PointCount-2] := cmAngle;
       for i := 0 to eb.PointCount-1 do eb.Point[i] := m*eb.Point[i];
       Bitmap.DrawPolyLineAntialias(eb.ToPoints, lColor, w, true);
-    end else
-    if AClass = nil then
-    begin
-      eb := EasyBezierCurve([PointF(0.25,0.25),PointF(0.32,0.07),PointF(0.5,0),PointF(0.68,0.07),PointF(0.75,0.20),
-                             PointF(0.75,0.30),PointF(0.70,0.40),PointF(0.5,0.5),PointF(0.5,0.70)],False,cmCurve);
-      m := AffineMatrixTranslation(rKind.Left,rKind.Top)*AffineMatrixScale(rKind.Width,rKind.Height);
-      for i := 0 to eb.PointCount-1 do eb.Point[i] := m*eb.Point[i];
-      w := max(1,rKind.Height/10);
-      Bitmap.DrawPolyLineAntialias(eb.ToPoints, lColor, w, true);
-      Bitmap.FillEllipseAntialias((rKind.Left+rKind.Right)/2, rKind.Bottom - 1 - (w-1)/2, w*0.6,w*0.6, lColor);
     end else
     begin
       Bitmap.EllipseAntialias(rKind.Left+rKind.Width / 3, rKind.Top+rKind.Height / 3,rKind.Width / 3,rKind.Height / 3,
@@ -660,10 +682,10 @@ begin
             if LayerOriginalKnown[i] then
               DrawKind(LayerOriginalClass[i])
             else
-              DrawKind(nil);
+              DrawKindUnknown;
           end
           else
-            DrawKind(TBGRALayerImageOriginal);
+            DrawKind(nil);
 
           inc(layerPos.X,InterruptorWidth);
           if movingItemStart and (i= movingItemSourceIndex) then

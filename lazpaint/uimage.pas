@@ -172,6 +172,7 @@ type
     procedure AddNewLayer(AOriginal: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix);
     procedure AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation);
     procedure DuplicateLayer;
+    procedure RasterizeLayer;
     procedure MergeLayerOver;
     procedure MoveLayer(AFromIndex,AToIndex: integer);
     procedure RemoveLayer;
@@ -1791,6 +1792,16 @@ begin
       NotifyException('DuplicateLayer',ex);
       ImageMayChangeCompletely;
     end;
+  end;
+end;
+
+procedure TLazPaintImage.RasterizeLayer;
+begin
+  if LayerOriginalDefined[CurrentLayerIndex] then
+  try
+    AddUndo(FCurrentState.DiscardOriginal(True));
+    OnImageChanged.NotifyObservers;
+  except on ex: exception do NotifyException('RasterizeLayer',ex);
   end;
 end;
 

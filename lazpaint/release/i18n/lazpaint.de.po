@@ -1106,10 +1106,6 @@ msgstr ""
 msgid "48px"
 msgstr ""
 
-#: tfmain.itemiconsize64.caption
-msgid "64px"
-msgstr ""
-
 #: tfmain.itemiconsizeauto.caption
 msgid "auto"
 msgstr ""
@@ -1263,6 +1259,10 @@ msgstr "Mit darunter liegender Ebene verbinden"
 msgctxt "tfmain.layermove.hint"
 msgid "Move layer"
 msgstr "Ebene verschieben"
+
+#: tfmain.layerrasterize.hint
+msgid "Rasterize layer"
+msgstr ""
 
 #: tfmain.layerremovecurrent.hint
 msgctxt "tfmain.layerremovecurrent.hint"
@@ -3432,6 +3432,10 @@ msgstr ""
 #: uresourcestrings.rstoomanylayers
 msgid "Too many layers"
 msgstr "Zu viel Ebene"
+
+#: uresourcestrings.rstoomanyshapesinlayer
+msgid "Too many shapes in layer"
+msgstr ""
 
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"
