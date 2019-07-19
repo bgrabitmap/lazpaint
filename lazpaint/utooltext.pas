@@ -132,7 +132,7 @@ var
   posF: TPointF;
 begin
   posF := AffineMatrixInverse(FMatrix)*(FShape as TTextShape).LightPosition;
-  Manager.ToolLightPosition := posF.Round;
+  Manager.ToolLightPosition := posF;
   with ABounds do r := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
   IncludeShadowBounds(r);
   inherited ShapeChange(ASender, RectF(r.Left,r.Top,r.Right,r.Bottom));
@@ -181,7 +181,7 @@ begin
     else
       OutlineFill.Clear;
 
-    LightPosition := AMatrix*PointF(Manager.ToolLightPosition.X,Manager.ToolLightPosition.Y);
+    LightPosition := AMatrix*Manager.ToolLightPosition;
     AltitudePercent:= Manager.ToolShapeAltitude;
     ParagraphAlignment:= Manager.ToolTextAlign;
     PenPhong := Manager.ToolTextPhong;

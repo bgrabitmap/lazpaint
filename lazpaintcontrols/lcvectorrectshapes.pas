@@ -1160,7 +1160,7 @@ var
   shader: TPhongShading;
   approxFactor,borderSize: single;
   m: TAffineMatrix;
-  h: single;
+  h, lightPosZ: single;
   map,raster: TBGRABitmap;
   u,v,lightPosF: TPointF;
   scan: TBGRACustomScanner;
@@ -1192,8 +1192,8 @@ begin
   approxFactor := 1;
   if ADraft then
   begin
-    if mapWidth > 300 then approxFactor:= min(approxFactor, 300/mapWidth);
-    if mapHeight > 300 then approxFactor:= min(approxFactor, 300/mapHeight);
+    if mapWidth > 100 then approxFactor:= min(approxFactor, 100/mapWidth);
+    if mapHeight > 100 then approxFactor:= min(approxFactor, 100/mapHeight);
   end;
   mapWidth:= ceil(mapWidth*approxFactor);
   mapHeight:= ceil(mapHeight*approxFactor);
@@ -1256,20 +1256,18 @@ begin
       shader.AmbientFactor := 0.5;
       shader.NegativeDiffusionFactor := 0.15;
       lightPosF := AffineMatrixTranslation(-rectRaster.Left,-rectRaster.Top)
-                    *AffineMatrixInverse(m)*AMatrix
-                    *PointF(FLightPosition.x,FLightPosition.y);
-      shader.LightPosition := Point(round(lightPosF.x),round(lightPosF.y));
-      shader.LightPositionZ := round(100*power(approxFactor,1.18));
-      if h*3/2 > shader.LightPositionZ then
-       shader.LightPositionZ := round(h*3/2);
+                    *AffineMatrixInverse(m)*AMatrix*FLightPosition;
+      lightPosZ := 100*Power(approxFactor,1.1);
+      if h*3/2 > lightPosZ then lightposZ := h*3/2;
+      shader.LightPosition3D := Point3D(lightPosF.x,lightPosF.y,lightPosZ);
 
       raster := TBGRABitmap.Create(rectRaster.Width,rectRaster.Height);
       if BackFill.FillType = vftSolid then
-        shader.Draw(raster,map,round(h),-rectRaster.Left,-rectRaster.Top,BackFill.SolidColor)
+        shader.Draw(raster,map,h,-rectRaster.Left,-rectRaster.Top,BackFill.SolidColor)
       else
       begin
         scan := BackFill.CreateScanner(AffineMatrixTranslation(-rectRaster.left,-rectRaster.top)*AffineMatrixInverse(m)*AMatrix,ADraft);
-        shader.DrawScan(raster,map,round(h),-rectRaster.Left,-rectRaster.Top,scan);
+        shader.DrawScan(raster,map,h,-rectRaster.Left,-rectRaster.Top,scan);
         scan.Free;
       end;
 

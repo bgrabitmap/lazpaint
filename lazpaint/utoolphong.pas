@@ -38,7 +38,7 @@ var
   posF: TPointF;
 begin
   posF := AffineMatrixInverse(FMatrix)*(FShape as TPhongShape).LightPosition;
-  Manager.ToolLightPosition := posF.Round;
+  Manager.ToolLightPosition := posF;
   inherited ShapeChange(ASender, ABounds);
 end;
 
@@ -55,7 +55,7 @@ begin
     if Manager.ToolShapeType = 'VerticalCylinder' then ShapeKind := pskVertCylinder else
     if Manager.ToolShapeType = 'HorizontalCylinder' then ShapeKind := pskHorizCylinder
     else ShapeKind := pskRectangle;
-    LightPosition := AMatrix*PointF(Manager.ToolLightPosition.X,Manager.ToolLightPosition.Y);
+    LightPosition := AMatrix*Manager.ToolLightPosition;
     ShapeAltitudePercent := Manager.ToolShapeAltitude;
     BorderSizePercent:= Manager.ToolShapeBorderSize;
   end;

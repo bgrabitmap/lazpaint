@@ -195,7 +195,7 @@ type
     ToolTextFont: TFont;
     ToolTextBlur: single;
     ToolTextShadowOffset: TPoint;
-    ToolLightPosition: TPoint;
+    ToolLightPosition: TPointF;
     ToolLightAltitude: integer;
     ToolShapeAltitude: integer;
     ToolShapeBorderSize: integer;
@@ -934,7 +934,7 @@ begin
   ToolTextBlur := 4;
   ToolTextShadowOffset := Point(5,5);
   ToolTextOutlineWidth := 2;
-  ToolLightPosition := Point(0,0);
+  ToolLightPosition := PointF(0,0);
   ToolLightAltitude := 100;
   ToolShapeAltitude := 50;
   ToolShapeBorderSize := 20;
