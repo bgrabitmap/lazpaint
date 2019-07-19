@@ -440,7 +440,7 @@ end;
 
 function TTextShape.UpdateFontRenderer: boolean;
 var
-  newEmHeight: integer;
+  newEmHeight: single;
 begin
   if FFontRenderer = nil then
   begin
@@ -456,13 +456,13 @@ begin
       TLCLFontRenderer(FFontRenderer).OverrideUnderlineDecoration:= true;
     end;
   end;
-  newEmHeight := Round(FontEmHeight*GetTextRenderZoom);
+  newEmHeight := FontEmHeight*GetTextRenderZoom;
   if (newEmHeight <> FFontRenderer.FontEmHeight) or
      (FFontRenderer.FontName <> FontName) or
      (FFontRenderer.FontStyle <> FontStyle) or
      (FFontRenderer.FontQuality <> fqFineAntialiasing) then
   begin
-    FFontRenderer.FontEmHeight := newEmHeight;
+    FFontRenderer.FontEmHeightF := newEmHeight;
     FFontRenderer.FontName:= FontName;
     FFontRenderer.FontStyle:= FontStyle;
     FFontRenderer.FontQuality:= fqFineAntialiasing;
