@@ -148,11 +148,17 @@ uses BGRAPen, BGRAGraphics, BGRAFillInfo, BGRAPath, math, LCVectorialFill;
 procedure TCustomRectShape.SetOrigin(AValue: TPointF);
 var
   delta: TPointF;
+  t: TAffineMatrix;
 begin
   if FOrigin=AValue then Exit;
   BeginUpdate;
   delta := AValue - FOrigin;
-  Transform(AffineMatrixTranslation(delta.x, delta.y));
+  t := AffineMatrixTranslation(delta.x, delta.y);
+  FOrigin := AValue;
+  FXAxis := t*FXAxis;
+  FYAxis := t*FYAxis;
+  if vsfBackFill in Fields then BackFill.Transform(t);
+  if vsfPenFill in Fields then PenFill.Transform(t);
   EndUpdate;
 end;
 
