@@ -220,6 +220,7 @@ var
   replaceDiff: TReplaceLayerByVectorOriginalDifference;
   transf: TAffineMatrix;
   addDiff: TAddShapeToVectorOriginalDifference;
+  rF: TRectF;
 begin
   if Assigned(FShape) then
   begin
@@ -228,27 +229,32 @@ begin
     if not AlwaysRasterizeShape and Manager.Image.SelectionMaskEmpty then
     begin
       CancelAction;
-      layerId := Manager.Image.LayerId[Manager.Image.CurrentLayerIndex];
-      if UseOriginal then
+      rF := FShape.GetRenderBounds(rect(0,0,Manager.Image.Width,Manager.Image.Height), VectorTransform);
+      if rF.IntersectsWith(rectF(0,0,Manager.Image.Width,Manager.Image.Height)) then
       begin
-        addDiff := TAddShapeToVectorOriginalDifference.Create(Manager.Image.CurrentState,layerId,FShape);
-        Manager.Image.AddUndo(addDiff);
-      end
-      else
-      begin
-        transf := VectorTransform;
-        diff := TComposedImageDifference.Create;
-        replaceDiff := TReplaceLayerByVectorOriginalDifference.Create(Manager.Image.CurrentState,Manager.Image.CurrentLayerIndex);
-        diff.Add(replaceDiff);
-        transf := AffineMatrixInverse(VectorTransform)*transf;
-        FShape.Transform(transf);
-        addDiff := TAddShapeToVectorOriginalDifference.Create(Manager.Image.CurrentState,layerId,FShape);
-        diff.Add(addDiff);
-        Manager.Image.AddUndo(diff);
-      end;
+        layerId := Manager.Image.LayerId[Manager.Image.CurrentLayerIndex];
+        if UseOriginal then
+        begin
+          addDiff := TAddShapeToVectorOriginalDifference.Create(Manager.Image.CurrentState,layerId,FShape);
+          Manager.Image.AddUndo(addDiff);
+        end
+        else
+        begin
+          transf := VectorTransform;
+          diff := TComposedImageDifference.Create;
+          replaceDiff := TReplaceLayerByVectorOriginalDifference.Create(Manager.Image.CurrentState,Manager.Image.CurrentLayerIndex);
+          diff.Add(replaceDiff);
+          transf := AffineMatrixInverse(VectorTransform)*transf;
+          FShape.Transform(transf);
+          addDiff := TAddShapeToVectorOriginalDifference.Create(Manager.Image.CurrentState,layerId,FShape);
+          diff.Add(addDiff);
+          Manager.Image.AddUndo(diff);
+        end;
+        Manager.Image.ImageMayChange(addDiff.ChangingBounds);
+      end else
+        FShape.Free;
       FShape := nil;
       FEditor.Clear;
-      Manager.Image.ImageMayChange(addDiff.ChangingBounds);
     end else
     begin
       ValidateActionPartially;
@@ -492,7 +498,8 @@ begin
     if not handled and Assigned(FShape) then
       FShape.MouseMove(FShiftState, ptF.X,ptF.Y, cur, handled);
     UpdateCursor(cur);
-    result := EmptyRect;
+    if handled then result := OnlyRenderChange
+    else result := EmptyRect;
   end;
 end;
 
