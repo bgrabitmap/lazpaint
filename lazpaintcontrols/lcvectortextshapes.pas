@@ -448,6 +448,7 @@ begin
     begin
       FFontRenderer := TBGRAVectorizedFontRenderer.Create;
       TBGRAVectorizedFontRenderer(FFontRenderer).QuadraticCurves := true;
+      TBGRAVectorizedFontRenderer(FFontRenderer).MinFontResolution := 300;
       TBGRAVectorizedFontRenderer(FFontRenderer).MaxFontResolution := 300;
     end
     else
