@@ -219,7 +219,7 @@ begin
   AddMenus('MenuFilter', 'MenuRadialBlur,FilterBlurMotion,FilterBlurCustom,FilterPixelate,-,FilterSharpen,FilterSmooth,FilterNoise,FilterMedian,FilterClearType,FilterClearTypeInverse,FilterFunction,-,FilterContour,FilterEmboss,FilterPhong,-,FilterSphere,FilterTwirl,FilterCylinder');
   AddMenus('MenuRadialBlur',  'FilterBlurBox,FilterBlurFast,FilterBlurRadial,FilterBlurCorona,FilterBlurDisk');
   AddMenus('MenuColors', 'ColorCurves,ColorPosterize,ColorColorize,ColorShiftColors,FilterComplementaryColor,ColorIntensity,-,ColorLightness,FilterNegative,FilterLinearNegative,FilterNormalize,FilterGrayscale');
-  AddMenus('MenuTool',   'ToolHand,ToolHotSpot,ToolColorPicker,-,ToolPen,ToolBrush,ToolEraser,-,ToolRect,ToolEllipse,ToolPolygon,ToolSpline,-,ToolFloodFill,ToolGradient,ToolPhong,-,ToolText,ToolDeformation,ToolTextureMapping,ToolClone');
+  AddMenus('MenuTool',   'ToolHand,ToolHotSpot,ToolColorPicker,-,ToolPen,ToolBrush,ToolEraser,ToolFloodFill,ToolClone,-,ToolRect,ToolEllipse,ToolPolygon,ToolSpline,ToolGradient,ToolPhong,ToolText,-,ToolDeformation,ToolTextureMapping');
   AddMenus('MenuRender', 'RenderPerlinNoise,RenderCyclicPerlinNoise,-,RenderWater,RenderCustomWater,RenderSnowPrint,RenderWood,RenderWoodVertical,RenderMetalFloor,RenderPlastik,RenderStone,RenderRoundStone,RenderMarble,RenderCamouflage,-,RenderClouds,FilterRain');
   AddMenus('MenuHelp',   'HelpIndex,-,HelpAbout');
   for i := 0 to high(FMainMenus) do

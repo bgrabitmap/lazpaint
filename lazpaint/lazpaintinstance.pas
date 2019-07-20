@@ -419,28 +419,28 @@ begin
   FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolBrush);
   FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolEraser);
   FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolFloodfill);
-  FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolGradient);
+  FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolClone);
 
   FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolRect);
   FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolEllipse);
   FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolPolygon);
   FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolSpline);
-  FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolText);
+  FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolGradient);
   FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolPhong);
 
   FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolSelectRect);
   FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolSelectEllipse);
   FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolSelectPoly);
   FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolSelectSpline);
-  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolDeformation);
-  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolTextureMapping);
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolSelectPen);
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolText);
 
   FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolColorPicker);
-  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolClone);
-  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolSelectPen);
+  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolMagicWand);
   FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolMoveSelection);
   FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolRotateSelection);
-  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolMagicWand);
+  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolDeformation);
+  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolTextureMapping);
 
   FToolBox.SetImages(Icons[Config.DefaultIconSize(DoScaleX(20,OriginalDPI))]);
 
@@ -451,21 +451,19 @@ begin
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolPen);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolBrush);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolEraser);
+  FMain.Layout.DockedToolBoxAddButton(FMain.ToolFloodfill);
+  FMain.Layout.DockedToolBoxAddButton(FMain.ToolClone);
 
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolRect);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolEllipse);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolPolygon);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolSpline);
-
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolFloodfill);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolGradient);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolPhong);
-
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolText);
+
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolDeformation);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolTextureMapping);
-
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolClone);
 
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolSelectRect);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolSelectEllipse);
