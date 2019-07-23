@@ -1194,6 +1194,10 @@ begin
   begin
     if mapWidth > 100 then approxFactor:= min(approxFactor, 100/mapWidth);
     if mapHeight > 100 then approxFactor:= min(approxFactor, 100/mapHeight);
+  end else
+  begin
+    if mapWidth > 800 then approxFactor:= min(approxFactor, 800/mapWidth);
+    if mapHeight > 800 then approxFactor:= min(approxFactor, 800/mapHeight);
   end;
   mapWidth:= ceil(mapWidth*approxFactor);
   mapHeight:= ceil(mapHeight*approxFactor);
