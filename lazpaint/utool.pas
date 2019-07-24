@@ -187,7 +187,6 @@ type
     ToolArrowSize: TPointF;
     ToolJoinStyle: TPenJoinStyle;
     ToolSplineStyle: TSplineStyle;
-    ToolSplineEasyBezier: boolean;
     ToolPenStyle: TPenStyle;
     ToolPerspectiveRepeat,ToolPerspectiveTwoPlanes: boolean;
     ToolDeformationGridMoveWithoutDeformation: boolean;
@@ -917,13 +916,12 @@ begin
   ToolFloodFillOptionProgressive := true;
   ToolLineCap := pecRound;
   ToolJoinStyle := pjsRound;
-  ToolArrowStart := 'None';
-  ToolArrowEnd := 'None';
+  ToolArrowStart := 'none';
+  ToolArrowEnd := 'none';
   ToolArrowSize := PointF(2,2);
   ToolPenStyle := psSolid;
   ToolEraserAlpha := 255;
-  ToolSplineStyle := ssRoundOutside;
-  ToolSplineEasyBezier := true;
+  ToolSplineStyle := ssEasyBezier;
   ToolTextOutline := False;
   ToolTextShadow := false;
   ToolTextFont := TFont.Create;

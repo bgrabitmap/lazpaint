@@ -77,7 +77,7 @@ type
     procedure SetUsermode(AValue: TVectorShapeUsermode); virtual;
     procedure LoadFill(AStorage: TBGRACustomOriginalStorage; AObjectName: string; var AValue: TVectorialFill);
     procedure SaveFill(AStorage: TBGRACustomOriginalStorage; AObjectName: string; AValue: TVectorialFill);
-    function ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean; AStrokeMatrix: TAffineMatrix): ArrayOfTPointF;
+    function ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean; AStrokeMatrix: TAffineMatrix): ArrayOfTPointF; virtual;
     function GetStroker: TBGRAPenStroker;
     property Stroker: TBGRAPenStroker read GetStroker;
     procedure FillChange({%H-}ASender: TObject); virtual;
@@ -871,7 +871,7 @@ begin
   if FStroker = nil then
   begin
     FStroker := TBGRAPenStroker.Create;
-    FStroker.MiterLimit:= sqrt(2);
+    FStroker.MiterLimit:= 2;
   end;
   result := FStroker;
 end;

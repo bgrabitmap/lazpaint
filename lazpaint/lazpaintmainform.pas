@@ -820,7 +820,7 @@ implementation
 uses LCLIntf, BGRAUTF8, ugraph, math, umac, uclipboard, ucursors,
    ufilters, ULoadImage, ULoading, UFileExtensions, UBrushType,
    ugeometricbrush, UPreviewDialog, UQuestion, BGRALayerOriginal,
-   BGRATransform;
+   BGRATransform, LCVectorPolyShapes;
 
 const PenWidthFactor = 10;
 

@@ -688,20 +688,6 @@ object FMain: TFMain
       Width = 45
       DropDownCount = 12
       ItemHeight = 17
-      Items.Strings = (
-        'None'
-        'Tail'
-        'Tip'
-        'Normal'
-        'Cut'
-        'Flipped'
-        'FlippedCut'
-        'Triangle'
-        'TriangleBack1'
-        'TriangleBack2'
-        'HollowTriangle'
-        'HollowTriangleBack1'
-      )
       Style = csOwnerDrawFixed
       TabOrder = 1
     end
@@ -712,20 +698,6 @@ object FMain: TFMain
       Width = 45
       DropDownCount = 12
       ItemHeight = 17
-      Items.Strings = (
-        'None'
-        'Tail'
-        'Tip'
-        'Normal'
-        'Cut'
-        'Flipped'
-        'FlippedCut'
-        'Triangle'
-        'TriangleBack1'
-        'TriangleBack2'
-        'HollowTriangle'
-        'HollowTriangleBack1'
-      )
       Style = csOwnerDrawFixed
       TabOrder = 2
     end

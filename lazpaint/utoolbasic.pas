@@ -73,6 +73,9 @@ type
   { TVectorialTool }
 
   TVectorialTool = class(TGenericTool)
+  private
+    function GetIsHandDrawing: boolean;
+    function GetIsIdle: boolean;
   protected
     FShape: TVectorShape;
     FSwapColor: boolean;
@@ -116,6 +119,8 @@ type
     function ToolKeyPress(var key: TUTF8Char): TRect; override;
     function ToolKeyUp(var key: Word): TRect; override;
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
+    property IsIdle: boolean read GetIsIdle;
+    property IsHandDrawing: boolean read GetIsHandDrawing;
     destructor Destroy; override;
   end;
 
@@ -229,6 +234,7 @@ begin
     if not AlwaysRasterizeShape and Manager.Image.SelectionMaskEmpty then
     begin
       CancelAction;
+      if FShape.Usermode = vsuCreate then FShape.Usermode:= vsuEdit;
       rF := FShape.GetRenderBounds(rect(0,0,Manager.Image.Width,Manager.Image.Height), VectorTransform);
       if rF.IntersectsWith(rectF(0,0,Manager.Image.Width,Manager.Image.Height)) then
       begin
@@ -274,6 +280,16 @@ begin
   FEditor.Clear;
   Cursor := crDefault;
   result := OnlyRenderChange;
+end;
+
+function TVectorialTool.GetIsHandDrawing: boolean;
+begin
+  result := Assigned(FShape) and (FQuickDefine or (FShape.Usermode = vsuCreate));
+end;
+
+function TVectorialTool.GetIsIdle: boolean;
+begin
+  result := FShape = nil;
 end;
 
 function TVectorialTool.AlwaysRasterizeShape: boolean;
@@ -505,7 +521,12 @@ end;
 
 function TVectorialTool.DoToolUpdate(toolDest: TBGRABitmap): TRect;
 begin
-  if Assigned(FShape) then AssignShapeStyle(FLastShapeTransform);
+  if Assigned(FShape) then
+  begin
+    FShape.BeginUpdate;
+    AssignShapeStyle(FLastShapeTransform);
+    FShape.EndUpdate;
+  end;
   result := EmptyRect;
 end;
 
