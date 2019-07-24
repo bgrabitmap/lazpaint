@@ -452,7 +452,11 @@ end;
 function TCustomPolypointShape.ComputeStroke(APoints: ArrayOfTPointF;
   AClosed: boolean; AStrokeMatrix: TAffineMatrix): ArrayOfTPointF;
 begin
-  if Stroker.Arrow = nil then Stroker.Arrow := TBGRAArrow.Create;
+  if Stroker.Arrow = nil then
+  begin
+    Stroker.Arrow := TBGRAArrow.Create;
+    Stroker.ArrowOwned:= true;
+  end;
   ApplyArrowStyle(Stroker.Arrow, true, ArrowStartKind, ArrowSize);
   ApplyArrowStyle(Stroker.Arrow, false, ArrowEndKind, ArrowSize);
   Result:=inherited ComputeStroke(APoints, AClosed, AStrokeMatrix);
