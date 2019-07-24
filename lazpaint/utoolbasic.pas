@@ -355,7 +355,8 @@ begin
         else
           FShape.BackFill.SetSolid(Manager.ToolBackColor);
       end;
-    end;
+    end else
+      FShape.BackFill.Clear;
   end;
 end;
 
