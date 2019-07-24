@@ -760,8 +760,9 @@ begin
   if initialized then
   begin
      if not Tool_DrawShapeBorder.Down and not Tool_FillShape.Down then
-        Tool_DrawShapeBorder.Down := true;
+       Tool_FillShape.Down := true;
      ToolManager.ToolOptionDrawShape:= Tool_DrawShapeBorder.Down;
+     ToolManager.ToolOptionFillShape:= Tool_FillShape.Down;
      UpdateEditPicture;
   end;
 end;
@@ -771,7 +772,8 @@ begin
   if initialized then
   begin
      if not Tool_DrawShapeBorder.Down and not Tool_FillShape.Down then
-        Tool_FillShape.Down := true;
+        Tool_DrawShapeBorder.Down := true;
+     ToolManager.ToolOptionDrawShape:= Tool_DrawShapeBorder.Down;
      ToolManager.ToolOptionFillShape:= Tool_FillShape.Down;
      UpdateEditPicture;
   end;
