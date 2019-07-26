@@ -33,6 +33,7 @@ object FLayerStack: TFLayerStack
     OnMouseDown = BGRALayerStackMouseDown
     OnMouseMove = BGRALayerStackMouseMove
     OnMouseUp = BGRALayerStackMouseUp
+    OnMouseWheel = BGRALayerStackMouseWheel
     OnResize = BGRALayerStackResize
   end
   object Panel1: TPanel

@@ -36,6 +36,8 @@ type
       Y: Integer);
     procedure BGRALayerStackMouseUp(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; X, Y: Integer);
+    procedure BGRALayerStackMouseWheel(Sender: TObject; Shift: TShiftState;
+      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure BGRALayerStackRedraw(Sender: TObject; Bitmap: TBGRABitmap);
     procedure BGRALayerStackResize(Sender: TObject);
     procedure ComboBox_BlendOpChange(Sender: TObject);
@@ -85,6 +87,7 @@ type
     procedure UpdateImage;
     procedure OnImageChangedHandler(AEvent: TLazPaintImageObservationEvent);
     procedure SelectBlendOp;
+    procedure DoScrollVertically(AAmount: integer);
   public
     { public declarations }
     LazPaintInstance: TLazPaintCustomInstance;
@@ -265,15 +268,9 @@ begin
 end;
 
 procedure TFLayerStack.TimerScrollTimer(Sender: TObject);
-var prevY: integer;
 begin
-  prevY := scrollPos.Y;
-  ScrollPos.Y += TimerScrollDeltaY;
-  if ScrollPos.Y < 0 then ScrollPos.Y := 0;
-  if ScrollPos.Y > MaxScrollPos.Y then ScrollPos.Y := MaxScrollPos.Y;
-  movingItemMouseOrigin.Y -= ScrollPos.Y-prevY;
   TimerScroll.Enabled := False;
-  BGRALayerStack.RedrawBitmap;
+  DoScrollVertically(TimerScrollDeltaY);
 end;
 
 procedure TFLayerStack.ToolBlendOpClick(Sender: TObject);
@@ -722,12 +719,12 @@ begin
       y := movingItemOrigin.Y + movingItemMousePos.Y - movingItemMouseOrigin.Y - Offset.Y;
       if y < 0 then
       begin
-        timerScrollDeltaY := -movingItem.Height div 10;
+        timerScrollDeltaY := -movingItem.Height div 3;
         TimerScroll.Enabled := true;
       end else
       if y + movingItem.Height > Bitmap.Height then
       begin
-        timerScrollDeltaY := +movingItem.Height div 10;
+        timerScrollDeltaY := +movingItem.Height div 3;
         TimerScroll.Enabled := true;
       end;
       Bitmap.PutImage(movingItemOrigin.X + movingItemMousePos.X - movingItemMouseOrigin.X - Offset.X,
@@ -798,6 +795,17 @@ begin
   LazPaintInstance.ShowTopmost(topmostInfo);
   if LazPaintInstance.Image.CurrentLayerIndex = 0 then
     LazPaintInstance.ToolManager.ToolPopup(tpmBlendOpBackground);
+end;
+
+procedure TFLayerStack.DoScrollVertically(AAmount: integer);
+var prevY: integer;
+begin
+  prevY := scrollPos.Y;
+  ScrollPos.Y += AAmount;
+  if ScrollPos.Y < 0 then ScrollPos.Y := 0;
+  if ScrollPos.Y > MaxScrollPos.Y then ScrollPos.Y := MaxScrollPos.Y;
+  movingItemMouseOrigin.Y -= ScrollPos.Y-prevY;
+  BGRALayerStack.DiscardBitmap;
 end;
 
 procedure TFLayerStack.ComboBox_BlendOpChange(Sender: TObject);
@@ -959,6 +967,13 @@ begin
     end;
     if changingLayerOpacity <> -1 then changingLayerOpacity := -1;
   end;
+end;
+
+procedure TFLayerStack.BGRALayerStackMouseWheel(Sender: TObject;
+  Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint;
+  var Handled: Boolean);
+begin
+  DoScrollVertically(round(-WheelDelta*ZoomFactor*50/120));
 end;
 
 {$R *.lfm}
