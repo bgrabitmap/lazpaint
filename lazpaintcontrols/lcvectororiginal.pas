@@ -1566,7 +1566,7 @@ procedure TVectorOriginal.Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMat
 var
   i: Integer;
   idxSelected: LongInt;
-  clipRectF: TRectF;
+  clipRectF,allRectF: TRectF;
   mOfs: TAffineMatrix;
 begin
   if AMatrix <> FFrozenShapeMatrix then DiscardFrozenShapes;
@@ -1593,22 +1593,24 @@ begin
   begin
     if idxSelected <> -1 then
     begin
+      allRectF := rectF(0,0,ADest.Width,ADest.Height);
       if idxSelected > 0 then
       begin
         FreeAndNil(FFrozenShapesUnderSelection);
         FFrozenShapesUnderSelection := TBGRABitmap.Create(ADest.Width,ADest.Height);
         for i:= 0 to idxSelected-1 do
-          if FShapes[i].GetRenderBounds(ADest.ClipRect, mOfs, []).IntersectsWith(clipRectF) then
+          if FShapes[i].GetRenderBounds(rect(0,0,ADest.Width,ADest.Height), mOfs, []).IntersectsWith(allRectF) then
             FShapes[i].Render(FFrozenShapesUnderSelection, ARenderOffset, AMatrix, false);
         ADest.PutImage(0,0,FFrozenShapesUnderSelection, dmSet);
       end;
-      FSelectedShape.Render(ADest, ARenderOffset, AMatrix, ADraft);
+      if FSelectedShape.GetRenderBounds(ADest.ClipRect, mOfs, []).IntersectsWith(clipRectF) then
+        FSelectedShape.Render(ADest, ARenderOffset, AMatrix, ADraft);
       if idxSelected < FShapes.Count-1 then
       begin
         FreeAndNil(FFrozenShapesOverSelection);
         FFrozenShapesOverSelection := TBGRABitmap.Create(ADest.Width,ADest.Height);
         for i:= idxSelected+1 to FShapes.Count-1 do
-          if FShapes[i].GetRenderBounds(ADest.ClipRect, mOfs, []).IntersectsWith(clipRectF) then
+          if FShapes[i].GetRenderBounds(rect(0,0,ADest.Width,ADest.Height), mOfs, []).IntersectsWith(allRectF) then
             FShapes[i].Render(FFrozenShapesOverSelection, ARenderOffset, AMatrix, false);
         ADest.PutImage(0,0,FFrozenShapesOverSelection, dmDrawWithTransparency);
       end;
