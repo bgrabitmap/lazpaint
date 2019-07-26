@@ -26,6 +26,9 @@ type
     FLightPosition: TPointF;
     FText: string;
     FSelStart,FSelEnd: integer;
+    FEnteringUnicode: boolean;
+    FUnicodeValue: cardinal;
+    FUnicodeDigitCount: integer;
     FMouseSelecting: boolean;
     FVertAlign: TTextLayout;
     function GetBidiParagraphAlignment: TBidiTextAlignment;
@@ -69,6 +72,7 @@ type
     procedure InsertText(ATextUTF8: string);
     procedure SelectWithMouse(X,Y: single; AExtend: boolean);
     function HasOutline: boolean;
+    procedure InsertUnicodeValue;
   public
     constructor Create(AContainer: TVectorOriginal); override;
     procedure QuickDefine(const APoint1,APoint2: TPointF); override;
@@ -93,6 +97,7 @@ type
     procedure MouseUp({%H-}RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); override;
     procedure KeyDown({%H-}Shift: TShiftState; {%H-}Key: TSpecialKey; var {%H-}AHandled: boolean); override;
     procedure KeyPress({%H-}UTF8Key: string; var {%H-}AHandled: boolean); override;
+    procedure KeyUp({%H-}Shift: TShiftState; {%H-}Key: TSpecialKey; var {%H-}AHandled: boolean); override;
     procedure SetFontNameAndStyle(AFontName: string; AFontStyle: TFontStyles);
     function CopySelection: boolean;
     function CutSelection: boolean;
@@ -610,6 +615,15 @@ end;
 function TTextShape.HasOutline: boolean;
 begin
   result := not OutlineFill.IsFullyTransparent and (OutlineWidth > 0);
+end;
+
+procedure TTextShape.InsertUnicodeValue;
+begin
+  if FEnteringUnicode then
+  begin
+    InsertText(UnicodeCharToUTF8(FUnicodeValue));
+    FEnteringUnicode:= false;
+  end;
 end;
 
 constructor TTextShape.Create(AContainer: TVectorOriginal);
@@ -1261,6 +1275,11 @@ begin
     EndEditingUpdate;
     AHandled := true;
   end else
+  if (Key = skReturn) and ([ssCtrl,ssShift] <= Shift) and FEnteringUnicode then
+  begin
+    InsertUnicodeValue;
+    AHandled:= true;
+  end else
   if Key = skReturn then
   begin
     if ssShift in Shift then
@@ -1273,6 +1292,26 @@ begin
   begin
     InsertText(#9);
     AHandled := true;
+  end else
+  if (Key = skU) and ([ssCtrl,ssShift] <= Shift) then
+  begin
+    if FEnteringUnicode then InsertUnicodeValue;
+    FEnteringUnicode:= true;
+    FUnicodeValue:= 0;
+    FUnicodeDigitCount:= 0;
+    AHandled := true;
+  end else
+  if (Key in[sk0..sk9,skNum0..skNum9,skA..skF]) and ([ssCtrl,ssShift] <= Shift) and FEnteringUnicode then
+  begin
+    if FUnicodeDigitCount >= 8 then FEnteringUnicode:= false else
+    begin
+      FUnicodeValue := (FUnicodeValue shl 4);
+      case Key of
+      sk0..sk9: inc(FUnicodeValue, ord(Key)-ord(sk0));
+      skNum0..skNum9: inc(FUnicodeValue, ord(Key)-ord(sk0));
+      skA..skF: inc(FUnicodeValue, ord(Key)-ord(skA)+10);
+      end;
+    end;
   end else
   if (Key = skC) and (ssCtrl in Shift) then
   begin
@@ -1292,6 +1331,7 @@ begin
     FSelStart:= 0;
     FSelEnd:= GetTextLayout.CharCount;
     EndEditingUpdate;
+    AHandled := true;
   end;
 end;
 
@@ -1316,6 +1356,12 @@ begin
       InsertText(UTF8Key);
     AHandled := true;
   end;
+end;
+
+procedure TTextShape.KeyUp(Shift: TShiftState; Key: TSpecialKey;
+  var AHandled: boolean);
+begin
+  if (Key in[skCtrl,skShift]) and FEnteringUnicode then InsertUnicodeValue;
 end;
 
 procedure TTextShape.SetFontNameAndStyle(AFontName: string;
