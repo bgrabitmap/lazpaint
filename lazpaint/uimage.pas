@@ -138,7 +138,7 @@ type
     procedure CompressUndo;
     function UsedMemory: int64;
 
-    function CreateAction(AApplyOfsBefore: boolean=false): TLayerAction;
+    function CreateAction(AApplyOfsBefore: boolean=false; AApplySelTransformBefore: boolean=false): TLayerAction;
 
     // invalidating
     procedure ImageMayChange(ARect: TRect; ADiscardSelectionLayerAfterMask: boolean = true);
@@ -172,6 +172,7 @@ type
     procedure AddNewLayer(AOriginal: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix);
     procedure AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation);
     procedure DuplicateLayer;
+    procedure RasterizeLayer;
     procedure MergeLayerOver;
     procedure MoveLayer(AFromIndex,AToIndex: integer);
     procedure RemoveLayer;
@@ -1016,15 +1017,18 @@ begin
       result += (TObject(FUndoList[i]) as TStateDifference).UsedMemory;
 end;
 
-function TLazPaintImage.CreateAction(AApplyOfsBefore: boolean=false): TLayerAction;
+function TLazPaintImage.CreateAction(AApplyOfsBefore: boolean;
+                                     AApplySelTransformBefore: boolean): TLayerAction;
 begin
   if not CheckNoAction(True) then
     raise exception.Create(rsConflictingActions);
-  result := TLayerAction.Create(FCurrentState, AApplyOfsBefore);
+  result := TLayerAction.Create(FCurrentState, AApplyOfsBefore, AApplySelTransformBefore);
   result.OnNotifyChange:= @LayerActionNotifyChange;
   result.OnDestroy:=@LayerActionDestroy;
   result.OnNotifyUndo:=@LayerActionNotifyUndo;
   FActionInProgress := result;
+  if Assigned(result.Prediff) then
+    InvalidateImageDifference(result.Prediff);
 end;
 
 procedure TLazPaintImage.ImageMayChange(ARect: TRect;
@@ -1097,7 +1101,14 @@ end;
 
 procedure TLazPaintImage.SelectionMaskMayChangeCompletely;
 begin
-  SelectionMaskMayChange(rect(0,0,Width,Height));
+  DiscardSelectionLayerAfterMask;
+  FRenderUpdateRectInPicCoord := rect(0,0,Width,Height);
+  FCurrentState.DiscardSelectionMaskBounds;
+  if Assigned(FOnSelectionMaskChanged) then FOnSelectionMaskChanged(self, rect(0,0,Width,Height));
+  if FCurrentState.SelectionLayer <> nil then
+    LayerMayChange(FCurrentState.SelectionLayer, rect(0,0,Width,Height))
+  else
+    OnImageChanged.NotifyObservers;
 end;
 
 procedure TLazPaintImage.RenderMayChange(ARect: TRect; APicCoords: boolean = false);
@@ -1207,7 +1218,15 @@ end;
 
 function TLazPaintImage.GetLayerOriginal(AIndex: integer): TBGRALayerCustomOriginal;
 begin
-  result := FCurrentState.LayerOriginal[AIndex];
+  try
+    result := FCurrentState.LayerOriginal[AIndex];
+  except
+    on ex:exception do
+    begin
+      MessagePopup(rsErrorLoadingOriginal, 4000);
+      result := nil;
+    end;
+  end;
 end;
 
 function TLazPaintImage.GetLayerOriginalClass(AIndex: integer): TBGRALayerOriginalAny;
@@ -1445,10 +1464,15 @@ end;
 
 function TLazPaintImage.GetRenderedImage: TBGRABitmap;
 var
-  backupCurrentLayer : TBGRABitmap;
-  backupTopLeft, ofs: TPoint;
+  backupFullLayer: TBGRABitmap;
+  backupFullLayerTopLeft: TPoint;
+  backupFullLayerGuid: TGuid;
+  backupFullLayerRenderStatus: TOriginalRenderStatus;
+  backupFullLayerMatrix: TAffineMatrix;
+  backupLayerPart : TBGRABitmap;
+  backupLayerPartTopLeft, ofs: TPoint;
   shownSelectionLayer , temp: TBGRABitmap;
-  rectOutput, invalidatedRect: TRect;
+  rectOutput, invalidatedRect, layerRect: TRect;
   actualTransformation: TAffineMatrix;
 begin
   if (FRenderedImage = nil) or ((FRenderedImageInvalidated.Right > FRenderedImageInvalidated.Left) and
@@ -1462,14 +1486,35 @@ begin
     end;
     PrepareForRendering;
 
-    backupCurrentLayer := nil;
-    backupTopLeft := Point(0,0);
+    backupLayerPart := nil;
+    backupLayerPartTopLeft := Point(0,0);
+    backupFullLayer := nil;
+    backupFullLayerTopLeft := Point(0,0);
     //if there is an overlapping selection, then we must draw it on current layer
     if (SelectionMask <> nil) and (GetSelectedImageLayer <> nil) then
     begin
       shownSelectionLayer := FCurrentState.SelectionLayer;
       if shownSelectionLayer <> nil then
       begin
+         if LayerOriginalDefined[CurrentLayerIndex] and LayerOriginalKnown[CurrentLayerIndex] then
+         begin
+           layerRect := RectWithSize(LayerOffset[CurrentLayerIndex].X,LayerOffset[CurrentLayerIndex].Y,
+                                     LayerBitmap[CurrentLayerIndex].Width,LayerBitmap[CurrentLayerIndex].Height);
+           layerRect.Intersect(rect(0,0,Width,Height));
+           if (layerRect.Width <> Width) or (layerRect.Height <> Height) then
+           begin
+             backupFullLayer := CurrentState.LayeredBitmap.TakeLayerBitmap(CurrentLayerIndex);
+             backupFullLayerTopLeft := CurrentState.LayeredBitmap.LayerOffset[CurrentLayerIndex];
+             backupFullLayerGuid := CurrentState.LayeredBitmap.LayerOriginalGuid[CurrentLayerIndex];
+             backupFullLayerRenderStatus := CurrentState.LayeredBitmap.LayerOriginalRenderStatus[CurrentLayerIndex];
+             backupFullLayerMatrix := CurrentState.LayeredBitmap.LayerOriginalMatrix[CurrentLayerIndex];
+             temp := TBGRABitmap.Create(Width,Height);
+             temp.PutImage(backupFullLayerTopLeft.X,backupFullLayerTopLeft.Y, backupFullLayer, dmSet);
+             CurrentState.LayeredBitmap.SetLayerBitmap(CurrentLayerIndex, temp,true);
+             CurrentState.LayeredBitmap.LayerOffset[CurrentLayerIndex] := Point(0,0);
+             temp := nil;
+           end;
+         end;
          if not IsAffineMatrixIdentity(SelectionTransform) then
          begin
            NeedSelectionLayerAfterMask;
@@ -1487,8 +1532,11 @@ begin
              IntersectRect(rectOutput,rectOutput,invalidatedRect);
              if not IsRectEmpty(rectOutput) then
              begin
-               backupCurrentLayer := GetSelectedImageLayer.GetPart(rectOutput) as TBGRABitmap;
-               backupTopLeft := rectoutput.TopLeft;
+               if backupFullLayer=nil then
+               begin
+                 backupLayerPart := GetSelectedImageLayer.GetPart(rectOutput) as TBGRABitmap;
+                 backupLayerPartTopLeft := rectoutput.TopLeft;
+               end;
                GetSelectedImageLayer.PutImageAffine(
                  actualTransformation, shownSelectionLayer,
                  rectOutput,255,True);
@@ -1504,8 +1552,11 @@ begin
            OffsetRect(rectoutput, -ofs.X,-ofs.Y);
            if not IsRectEmpty(rectoutput) then
            begin
-             backupTopLeft := rectOutput.TopLeft;
-             backupCurrentLayer := GetSelectedImageLayer.GetPart(rectoutput) as TBGRABitmap;
+             if backupFullLayer=nil then
+             begin
+               backupLayerPartTopLeft := rectOutput.TopLeft;
+               backupLayerPart := GetSelectedImageLayer.GetPart(rectoutput) as TBGRABitmap;
+             end;
              shownSelectionLayer.ScanOffset := Point(ofs.x,ofs.y);
              GetSelectedImageLayer.ClipRect := rectOutput;
              GetSelectedImageLayer.FillMask(-ofs.X,-ofs.Y,SelectionMask, shownSelectionLayer, dmDrawWithTransparency);
@@ -1542,10 +1593,18 @@ begin
     end;
 
     //restore
-    if backupCurrentLayer <> nil then
+    if backupLayerPart <> nil then
     begin
-      GetSelectedImageLayer.PutImage(backupTopLeft.X,backupTopLeft.Y,backupCurrentLayer,dmSet);
-      backupCurrentLayer.Free;
+      GetSelectedImageLayer.PutImage(backupLayerPartTopLeft.X,backupLayerPartTopLeft.Y,backupLayerPart,dmSet);
+      backupLayerPart.Free;
+    end;
+    if backupFullLayer <> nil then
+    begin
+      CurrentState.LayeredBitmap.SetLayerBitmap(CurrentLayerIndex, backupFullLayer, true);
+      CurrentState.LayeredBitmap.LayerOffset[CurrentLayerIndex] := backupFullLayerTopLeft;
+      CurrentState.LayeredBitmap.LayerOriginalGuid[CurrentLayerIndex] := backupFullLayerGuid;
+      CurrentState.LayeredBitmap.LayerOriginalMatrix[CurrentLayerIndex] := backupFullLayerMatrix;
+      CurrentState.LayeredBitmap.LayerOriginalRenderStatus[CurrentLayerIndex] := backupFullLayerRenderStatus;
     end;
     FRenderedImageInvalidated := EmptyRect; //up to date
   end;
@@ -1741,6 +1800,16 @@ begin
       NotifyException('DuplicateLayer',ex);
       ImageMayChangeCompletely;
     end;
+  end;
+end;
+
+procedure TLazPaintImage.RasterizeLayer;
+begin
+  if LayerOriginalDefined[CurrentLayerIndex] then
+  try
+    AddUndo(FCurrentState.DiscardOriginal(True));
+    OnImageChanged.NotifyObservers;
+  except on ex: exception do NotifyException('RasterizeLayer',ex);
   end;
 end;
 

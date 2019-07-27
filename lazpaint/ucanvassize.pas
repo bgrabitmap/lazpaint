@@ -68,11 +68,14 @@ begin
     if not repeatImage and layeredBmp.LayerOriginalDefined[i] and layeredBmp.LayerOriginalKnown[i] then
     begin
       orig := layeredBmp.LayerOriginal[i];
-      if result.IndexOfOriginal(orig)=-1 then result.AddOriginal(orig,false);
-      result.LayerOriginalGuid[idx] := orig.Guid;
-      newOrigin := ChangeCanvasSizeOrigin(layeredBmp.Width,layeredBmp.Height,newwidth,newHeight,anchor);
-      result.LayerOriginalMatrix[idx] := AffineMatrixTranslation(newOrigin.X,newOrigin.Y)*layeredBmp.LayerOriginalMatrix[i];
-      result.RenderLayerFromOriginal(idx);
+      if Assigned(orig) then
+      begin
+        if result.IndexOfOriginal(orig)=-1 then result.AddOriginal(orig,false);
+        result.LayerOriginalGuid[idx] := orig.Guid;
+        newOrigin := ChangeCanvasSizeOrigin(layeredBmp.Width,layeredBmp.Height,newwidth,newHeight,anchor);
+        result.LayerOriginalMatrix[idx] := AffineMatrixTranslation(newOrigin.X,newOrigin.Y)*layeredBmp.LayerOriginalMatrix[i];
+        result.RenderLayerFromOriginal(idx);
+      end;
     end;
   end;
 end;

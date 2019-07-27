@@ -51,12 +51,12 @@ type
     FInitializing: boolean;
     FCenter: TPointF;
     FHeightMap: TBGRABitmap;
-    function GetCurrentLightPos: TPoint;
+    function GetCurrentLightPos: TPointF;
     procedure PreviewNeeded;
     function ComputeFilteredLayer: TBGRABitmap;
   public
     FilterConnector: TFilterConnector;
-    property CurrentLightPos: TPoint read GetCurrentLightPos;
+    property CurrentLightPos: TPointF read GetCurrentLightPos;
   end;
 
 function ShowPhongFilterDlg(AFilterConnector: TObject):boolean;
@@ -196,10 +196,10 @@ begin
   Button_OK.Enabled := false;
 end;
 
-function TFPhongFilter.GetCurrentLightPos: TPoint;
+function TFPhongFilter.GetCurrentLightPos: TPointF;
 begin
-  result := Point(round(FCenter.X*FilterConnector.ActiveLayer.Width),
-    round(FCenter.Y*FilterConnector.ActiveLayer.Height));
+  result := PointF(FCenter.X*FilterConnector.ActiveLayer.Width,
+    FCenter.Y*FilterConnector.ActiveLayer.Height);
 end;
 
 procedure ScanLineMapLightness(psrc,pdest: PBGRAPixel; count: integer);
@@ -293,7 +293,7 @@ begin
   shader := TPhongShading.Create;
   shader.AmbientFactor := 0.5;
   shader.NegativeDiffusionFactor := 0.15;
-  shader.LightPosition := CurrentLightPos;
+  shader.LightPositionF := CurrentLightPos;
   shader.LightPositionZ := FilterConnector.LazPaintInstance.ToolManager.ToolLightAltitude;
   if FHeightMap = nil then
   begin

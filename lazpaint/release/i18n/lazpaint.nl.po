@@ -1113,10 +1113,6 @@ msgstr ""
 msgid "48px"
 msgstr ""
 
-#: tfmain.itemiconsize64.caption
-msgid "64px"
-msgstr ""
-
 #: tfmain.itemiconsizeauto.caption
 msgid "auto"
 msgstr ""
@@ -1271,6 +1267,10 @@ msgstr "Versmelt laag over"
 msgctxt "tfmain.layermove.hint"
 msgid "Move layer"
 msgstr "Laag verplaatsen"
+
+#: tfmain.layerrasterize.hint
+msgid "Rasterize layer"
+msgstr ""
 
 #: tfmain.layerremovecurrent.hint
 msgctxt "tfmain.layerremovecurrent.hint"
@@ -2933,6 +2933,10 @@ msgstr ""
 msgid "Error"
 msgstr "Fout"
 
+#: uresourcestrings.rserrorloadingoriginal
+msgid "Error while loading original however layer can be rasterized."
+msgstr ""
+
 #: uresourcestrings.rserroronopeningfile
 msgid "Error on opening file \"%1\""
 msgstr ""
@@ -3325,6 +3329,10 @@ msgstr "px"
 msgid "RAM disk"
 msgstr ""
 
+#: uresourcestrings.rsrasterlayer
+msgid "Raster layer"
+msgstr ""
+
 #: uresourcestrings.rsrecentdirectories
 msgid "Recent directories:"
 msgstr "Recente directories:"
@@ -3442,6 +3450,10 @@ msgstr ""
 msgid "Too many layers"
 msgstr ""
 
+#: uresourcestrings.rstoomanyshapesinlayer
+msgid "Too many shapes in layer"
+msgstr ""
+
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"
 msgstr ""
@@ -3449,6 +3461,10 @@ msgstr ""
 #: uresourcestrings.rstransferselectiontootherlayer
 msgid "Transfer selection to other layer?"
 msgstr "Verplaats selectie naar andere laag?"
+
+#: uresourcestrings.rstransformedrasterlayer
+msgid "Transformed raster layer"
+msgstr ""
 
 #: uresourcestrings.rstransformselectioncontent
 msgid "Do you want to transform content of the selection?"
@@ -3469,6 +3485,14 @@ msgstr "Kan bestand niet opslaan : "
 #: uresourcestrings.rsunknowncommand
 msgid "Unknown command : "
 msgstr "Onbekend commando : "
+
+#: uresourcestrings.rsunknownoriginal
+msgid "Unknown original"
+msgstr ""
+
+#: uresourcestrings.rsvectoriallayer
+msgid "Vectorial layer"
+msgstr ""
 
 #: uresourcestrings.rsyes
 msgid "Yes"

@@ -55,6 +55,7 @@ type
     function NewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation): boolean; overload;
     function NewLayer(ALayer: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix): boolean; overload;
     procedure DuplicateLayer;
+    procedure RasterizeLayer;
     procedure MergeLayerOver;
     procedure RemoveLayer;
     procedure EditSelection(ACallback: TModifyImageCallback);
@@ -133,6 +134,7 @@ begin
   Scripting.RegisterScriptFunction('LayerVerticalFlip',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerAddNew',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerDuplicate',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerRasterize',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerMergeOver',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerRemoveCurrent',@GenericScriptFunction,ARegister);
 end;
@@ -186,6 +188,7 @@ begin
   if f = 'LayerVerticalFlip' then VerticalFlip(foCurrentLayer) else
   if f = 'LayerAddNew' then NewLayer else
   if f = 'LayerDuplicate' then DuplicateLayer else
+  if f = 'LayerRasterize' then RasterizeLayer else
   if f = 'LayerMergeOver' then MergeLayerOver else
   if f = 'LayerRemoveCurrent' then RemoveLayer else
     result := srFunctionNotDefined;
@@ -650,10 +653,8 @@ var LayerAction: TLayerAction;
 begin
   LayerAction := nil;
   try
-    if not (CurrentTool in[ptSelectRect,ptSelectEllipse]) then ChooseTool(ptSelectRect);
-    LayerAction := Image.CreateAction(false);
+    LayerAction := Image.CreateAction(false,true);
     LayerAction.QuerySelection;
-    LayerAction.ApplySelectionTransform;
     p := LayerAction.CurrentSelection.Data;
     for n := LayerAction.CurrentSelection.NbPixels-1 downto 0 do
     begin
@@ -669,22 +670,21 @@ begin
       FInstance.ShowError('InvertSelection',ex.Message);
   end;
   LayerAction.Free;
+  if Image.SelectionMaskEmpty then ChooseTool(ptHand) else
+  if not (CurrentTool in[ptSelectRect,ptSelectEllipse]) then ChooseTool(ptSelectRect);
 end;
 
 procedure TImageActions.Deselect;
-var LayerAction: TLayerAction;
 begin
   if (CurrentTool in[ptRotateSelection,ptMoveSelection]) then
     ChooseTool(ptHand);
   if not Image.CheckNoAction then exit;
-  LayerAction := nil;
   try
     if not image.SelectionMaskEmpty then ReleaseSelection;
   except
     on ex:Exception do
       FInstance.ShowError('Deselect',ex.Message);
   end;
-  LayerAction.Free;
 end;
 
 procedure TImageActions.CopySelection;
@@ -697,10 +697,9 @@ begin
     if not image.CheckNoAction then exit;
     bounds := Image.SelectionMaskBounds;
     if IsRectEmpty(bounds) then exit;
-    LayerAction := Image.CreateAction;
+    LayerAction := Image.CreateAction(true,true);
     LayerAction.ApplySelectionMask;
-    if Image.SelectionLayerIsEmpty then
-      LayerAction.RetrieveSelection;
+    if Image.SelectionLayerIsEmpty then LayerAction.RetrieveSelection;
     layer := LayerAction.GetOrCreateSelectionLayer;
     r := layer.GetImageBounds; //bounds may have been changed
     if (r.right > r.left) and (r.bottom > r.top) then
@@ -727,20 +726,19 @@ begin
   LayerAction := nil;
   try
     CopySelection;
-    LayerAction := Image.CreateAction;
-    LayerAction.ApplySelectionTransform;
+    LayerAction := Image.CreateAction(false,true);
     if (LayerAction.GetSelectionLayerIfExists = nil) or (LayerAction.GetSelectionLayerIfExists.Empty) then
       LayerAction.EraseSelectionInBitmap;
     LayerAction.RemoveSelection;
     LayerAction.Validate;
-    if (CurrentTool = ptRotateSelection) or
-       (CurrentTool = ptMoveSelection) then
-      ChooseTool(ptHand);
   except
     on ex:Exception do
       FInstance.ShowError('CutSelection',ex.Message);
   end;
   LayerAction.Free;
+  if (CurrentTool = ptRotateSelection) or
+     (CurrentTool = ptMoveSelection) then
+    ChooseTool(ptHand);
 end;
 
 procedure TImageActions.RetrieveSelection;
@@ -751,7 +749,7 @@ begin
   if not image.CheckNoAction then exit;
   LayerAction := nil;
   try
-    LayerAction := Image.CreateAction(false);
+    LayerAction := Image.CreateAction(false, true);
     if LayerAction.RetrieveSelectionIfLayerEmpty(True) then
     begin
       r := Image.SelectionMaskBounds;
@@ -768,27 +766,25 @@ end;
 
 procedure TImageActions.DeleteSelection;
 var LayerAction: TLayerAction;
+  doErase: Boolean;
 begin
   if image.SelectionMaskEmpty then exit;
   if not image.CheckNoAction then exit;
   LayerAction := nil;
   try
-    LayerAction := Image.CreateAction;
-    if Image.SelectionLayerIsEmpty then
-    begin
-      LayerAction.ApplySelectionTransform;
-      LayerAction.EraseSelectionInBitmap;
-    end;
+    doErase := Image.SelectionLayerIsEmpty;
+    LayerAction := Image.CreateAction(false, doErase);
+    if doErase then LayerAction.EraseSelectionInBitmap;
     LayerAction.RemoveSelection;
     LayerAction.Validate;
-    if (CurrentTool = ptRotateSelection) or
-       (CurrentTool = ptMoveSelection) then
-      ChooseTool(ptHand);
   except
     on ex:Exception do
       FInstance.ShowError('DeleteSelection',ex.Message);
   end;
   LayerAction.Free;
+  if (CurrentTool = ptRotateSelection) or
+     (CurrentTool = ptMoveSelection) then
+    ChooseTool(ptHand);
 end;
 
 procedure TImageActions.RemoveSelection;
@@ -801,19 +797,20 @@ begin
     LayerAction := Image.CreateAction;
     LayerAction.RemoveSelection;
     LayerAction.Validate;
-    if (CurrentTool = ptRotateSelection) or
-       (CurrentTool = ptMoveSelection) then
-      ChooseTool(ptHand);
   except on ex:exception do FInstance.ShowError('RemoveSelection',ex.Message);
   end;
   LayerAction.Free;
+  if (CurrentTool = ptRotateSelection) or
+     (CurrentTool = ptMoveSelection) then
+    ChooseTool(ptHand);
 end;
 
 procedure TImageActions.ReleaseSelection;
 var
   layeraction: TLayerAction;
 begin
-  layeraction := image.CreateAction;
+  if image.SelectionMaskEmpty then exit;
+  layeraction := image.CreateAction(true, true);
   layeraction.ReleaseSelection;
   layeraction.Validate;
   layeraction.Free;
@@ -831,7 +828,7 @@ begin
       if partial.NbPixels <> 0 then
       begin
         ToolManager.ToolCloseDontReopen;
-        layeraction := Image.CreateAction(true);
+        layeraction := Image.CreateAction(true, true);
         layeraction.ReleaseSelection;
         layeraction.QuerySelection;
         pastePos := Point((image.Width - partial.Width) div 2 - image.ImageOffset.X,
@@ -881,13 +878,13 @@ procedure TImageActions.SelectAll;
 var LayerAction : TLayerAction;
 begin
   try
-    if not ToolManager.IsSelectingTool then ChooseTool(ptSelectRect);
     LayerAction := Image.CreateAction;
     LayerAction.QuerySelection;
     LayerAction.currentSelection.Fill(BGRAWhite);
     Image.SelectionMaskMayChangeCompletely;
     LayerAction.Validate;
     LayerAction.Free;
+    if not ToolManager.IsSelectingTool then ChooseTool(ptSelectRect);
   except
     on ex:Exception do
       FInstance.ShowError('SelectAll',ex.Message);
@@ -900,7 +897,7 @@ var LayerAction: TLayerAction;
 begin
   if not image.CheckNoAction then exit;
   try
-    LayerAction := Image.CreateAction;
+    LayerAction := Image.CreateAction(false,true);
     LayerAction.ChangeBoundsNotified := true;
 
     if image.SelectionMaskEmpty then
@@ -1000,6 +997,14 @@ begin
     Image.DuplicateLayer;
     FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
   end;
+end;
+
+procedure TImageActions.RasterizeLayer;
+begin
+  if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping] then
+    ChooseTool(ptHand);
+  Image.RasterizeLayer;
+  FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
 end;
 
 procedure TImageActions.MergeLayerOver;

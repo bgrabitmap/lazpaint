@@ -5,7 +5,8 @@ unit UMenu;
 interface
 
 uses
-  Classes, SysUtils, ActnList, Forms, Menus, UTool, LCLType, ExtCtrls, UConfig;
+  Classes, SysUtils, ActnList, Forms, Menus, UTool, LCLType, ExtCtrls, UConfig,
+  Controls;
 
 type
 
@@ -19,6 +20,7 @@ type
     FToolbars: array of TPanel;
     FToolbarsHeight : integer;
     FToolbarBackground: TPanel;
+    FImageList: TImageList;
   protected
     procedure AddMenus(AMenu: TMenuItem; AActionList: TActionList; AActionsCommaText: string; AIndex: integer = -1); overload;
     procedure AddMenus(AMenuName: string; AActionsCommaText: string); overload;
@@ -33,12 +35,13 @@ type
     procedure ArrangeToolbars(ClientWidth: integer);
     procedure RepaintToolbar;
     property ToolbarsHeight: integer read FToolbarsHeight;
+    property ImageList: TImageList read FImageList write FImageList;
   end;
 
 implementation
 
 uses UResourceStrings, BGRAUTF8, LazPaintType, LCScaleDPI, ComCtrls, Graphics,
-  Spin, StdCtrls, BGRAText, Controls;
+  Spin, StdCtrls, BGRAText;
 
 { TMainFormMenu }
 
@@ -216,13 +219,16 @@ begin
   AddMenus('MenuFilter', 'MenuRadialBlur,FilterBlurMotion,FilterBlurCustom,FilterPixelate,-,FilterSharpen,FilterSmooth,FilterNoise,FilterMedian,FilterClearType,FilterClearTypeInverse,FilterFunction,-,FilterContour,FilterEmboss,FilterPhong,-,FilterSphere,FilterTwirl,FilterCylinder');
   AddMenus('MenuRadialBlur',  'FilterBlurBox,FilterBlurFast,FilterBlurRadial,FilterBlurCorona,FilterBlurDisk');
   AddMenus('MenuColors', 'ColorCurves,ColorPosterize,ColorColorize,ColorShiftColors,FilterComplementaryColor,ColorIntensity,-,ColorLightness,FilterNegative,FilterLinearNegative,FilterNormalize,FilterGrayscale');
-  AddMenus('MenuTool',   'ToolHand,ToolHotSpot,ToolColorPicker,-,ToolPen,ToolBrush,ToolEraser,-,ToolRect,ToolEllipse,ToolPolygon,ToolSpline,-,ToolFloodFill,ToolGradient,ToolPhong,-,ToolText,ToolDeformation,ToolTextureMapping,ToolClone');
+  AddMenus('MenuTool',   'ToolHand,ToolHotSpot,ToolColorPicker,-,ToolPen,ToolBrush,ToolEraser,ToolFloodFill,ToolClone,-,ToolRect,ToolEllipse,ToolPolygon,ToolSpline,ToolGradient,ToolPhong,ToolText,-,ToolDeformation,ToolTextureMapping');
   AddMenus('MenuRender', 'RenderPerlinNoise,RenderCyclicPerlinNoise,-,RenderWater,RenderCustomWater,RenderSnowPrint,RenderWood,RenderWoodVertical,RenderMetalFloor,RenderPlastik,RenderStone,RenderRoundStone,RenderMarble,RenderCamouflage,-,RenderClouds,FilterRain');
   AddMenus('MenuHelp',   'HelpIndex,-,HelpAbout');
   for i := 0 to high(FMainMenus) do
     if FMainMenus[i].Count = 0 then FMainMenus[i].visible := false;
 
   ApplyShortcuts;
+
+  if Assigned(FImageList) then
+    FActionList.Images := FImageList;
 
   tbHeightOrig := DoScaleY(26,OriginalDPI);
   tbHeight := tbHeightOrig;
@@ -235,7 +241,12 @@ begin
     for j := 0 to ControlCount-1 do
     begin
       if Controls[j] is TToolBar then
+      begin
         Controls[j].Color := clBtnFace;
+        if assigned(FImageList) then TToolbar(Controls[j]).Images := FImageList;
+        TToolbar(Controls[j]).ButtonWidth := TToolbar(Controls[j]).Images.Width+ScaleX(6, 96);
+        TToolbar(Controls[j]).ButtonHeight := TToolbar(Controls[j]).Images.Height+ScaleY(6, 96);
+      end;
       if Controls[j] is TSpinEdit then
       begin
         if Controls[j].Top + Controls[j].Height+4 > tbHeight then

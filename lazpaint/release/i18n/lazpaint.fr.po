@@ -1091,10 +1091,6 @@ msgstr ""
 msgid "48px"
 msgstr ""
 
-#: tfmain.itemiconsize64.caption
-msgid "64px"
-msgstr ""
-
 #: tfmain.itemiconsizeauto.caption
 msgid "auto"
 msgstr ""
@@ -1248,6 +1244,10 @@ msgstr "Fusionner le calque avec celui en-dessous"
 msgctxt "tfmain.layermove.hint"
 msgid "Move layer"
 msgstr "Déplacer le calque"
+
+#: tfmain.layerrasterize.hint
+msgid "Rasterize layer"
+msgstr "Pixéliser le calque"
 
 #: tfmain.layerremovecurrent.hint
 msgctxt "tfmain.layerremovecurrent.hint"
@@ -2364,7 +2364,7 @@ msgstr "OK"
 #: tfpixelate.caption
 msgctxt "tfpixelate.caption"
 msgid "Pixelate"
-msgstr "Pixeliser"
+msgstr "Pixéliser"
 
 #: tfpixelate.label_pixelsize.caption
 msgctxt "tfpixelate.label_pixelsize.caption"
@@ -2911,6 +2911,10 @@ msgstr "Entrées"
 msgid "Error"
 msgstr "Erreur"
 
+#: uresourcestrings.rserrorloadingoriginal
+msgid "Error while loading original however layer can be rasterized."
+msgstr "Erreur au chargement de l'original alors le calque peut être pixelisé."
+
 #: uresourcestrings.rserroronopeningfile
 msgid "Error on opening file \"%1\""
 msgstr "Erreur lors de l'ouverture de \"%1\""
@@ -3315,6 +3319,10 @@ msgstr "px"
 msgid "RAM disk"
 msgstr "RAM disque"
 
+#: uresourcestrings.rsrasterlayer
+msgid "Raster layer"
+msgstr "Calque en pixels"
+
 #: uresourcestrings.rsrecentdirectories
 msgid "Recent directories:"
 msgstr "Répertoires récents :"
@@ -3434,6 +3442,10 @@ msgstr "L'outil ne peut pas être utilisé sur un calque invisible"
 msgid "Too many layers"
 msgstr "Trop de calques"
 
+#: uresourcestrings.rstoomanyshapesinlayer
+msgid "Too many shapes in layer"
+msgstr "Trop de formes dans le calque"
+
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"
 msgstr "Nb. total d'images : %1"
@@ -3441,6 +3453,10 @@ msgstr "Nb. total d'images : %1"
 #: uresourcestrings.rstransferselectiontootherlayer
 msgid "Transfer selection to other layer?"
 msgstr "Voulez-vous transférer la sélection vers un autre calque ?"
+
+#: uresourcestrings.rstransformedrasterlayer
+msgid "Transformed raster layer"
+msgstr "Calque en pixels transformé"
 
 #: uresourcestrings.rstransformselectioncontent
 msgid "Do you want to transform content of the selection?"
@@ -3461,6 +3477,14 @@ msgstr "Impossible d'enregistrer le fichier : "
 #: uresourcestrings.rsunknowncommand
 msgid "Unknown command : "
 msgstr "Commande inconnue : "
+
+#: uresourcestrings.rsunknownoriginal
+msgid "Unknown original"
+msgstr "Original inconnu"
+
+#: uresourcestrings.rsvectoriallayer
+msgid "Vectorial layer"
+msgstr "Calque vectoriel"
 
 #: uresourcestrings.rsyes
 msgid "Yes"

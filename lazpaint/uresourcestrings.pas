@@ -30,6 +30,11 @@ resourcestring
   rsEnterLayerName='Enter layer name:';
   rsFileExtensionNotSupported='This file extension is not supported.';
   rsFileFormatNotRecognized='The file format has not been recognized.';
+  rsErrorLoadingOriginal='Error while loading original however layer can be rasterized.';
+  rsRasterLayer = 'Raster layer';
+  rsTransformedRasterLayer = 'Transformed raster layer';
+  rsVectorialLayer = 'Vectorial layer';
+  rsUnknownOriginal = 'Unknown original';
   rsFileName = 'Filename';
   rsFileSize = 'Size';
   rsFileType = 'Type';
@@ -167,6 +172,7 @@ resourcestring
   rsMoreThanOneFile='You are trying to open more than one file. How would you like these files to be opened?';
   rsOpenFilesAsLayers='Open files as layers in a single image';
   rsTooManyLayers='Too many layers';
+  rsTooManyShapesInLayer='Too many shapes in layer';
   rsAddToImageList='Add files to the image processing list';
   rsOpenFirstFileOnly='Open the first file only';
   rsLayeredImage = 'Layered image';

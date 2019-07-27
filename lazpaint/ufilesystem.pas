@@ -113,13 +113,41 @@ const LinuxFileSystems: array[0..20] of string =
   {HPFS} 'hpfs', {NWFS} 'ncp',
   'nfs', 'smb', 'ncpfs');
 
+function ReadBooleanFromFile(AFilename: string): boolean;
+var t: textfile;
+  s: string;
+begin
+  assignfile(t, AFilename);
+  reset(t);
+  readln(t,s);
+  closefile(t);
+  result := trim(s)='1';
+end;
+
+function UnespacePath(APath: string): string;
+var
+  i, charCode: Integer;
+begin
+  result := APath;
+  for i := length(result)-3 downto 1 do
+    if (result[i]='\') and (result[i+1] in['0','1']) and
+      (result[i+2] in ['0'..'9']) and (result[i+3] in ['0'..'9']) then
+    begin
+      charCode := (ord(result[i+3])-ord('0'))+
+                  (ord(result[i+2])-ord('0'))*8+
+                  (ord(result[i+1])-ord('0'))*64;
+      delete(result,i+1,3);
+      result[i] := chr(charCode);
+    end;
+end;
+
 function GetLinuxFileSystems(AMountsFile: string): TFileSystemArray;
 var mtab: TextFile;
   desc: string;
   parsedDesc: TStringList;
-  lFileSystem: string;
+  lFileSystem, removableInfo, lPath: string;
   i: integer;
-  found: boolean;
+  found, isRemovable: boolean;
 begin
   result := nil;
   parsedDesc := TStringList.Create;
@@ -135,6 +163,7 @@ begin
         if parsedDesc.Count >= 4 then
         begin
           lFileSystem:= parsedDesc[2];
+          lPath := parsedDesc[1];
           found := false;
           for i := low(LinuxFileSystems) to high(LinuxFileSystems) do
             if LinuxFileSystems[i] = lFileSystem then
@@ -142,13 +171,13 @@ begin
               found := true;
               break;
             end;
-          if found then
+          if found and not lPath.StartsWith('/boot/') then
           begin
             setlength(result, length(result)+1);
             with result[high(result)] do
             begin
               fileSystem := lFileSystem;
-              path := parsedDesc[1];
+              path := UnespacePath(parsedDesc[1]);
               device := parsedDesc[0];
               longFilenames := (fileSystem <> 'minix') and
                 (fileSystem <> 'msdos');
@@ -167,8 +196,20 @@ begin
                   device := rsFixedDrive;
               end
               else
-              if (copy(device,1,2) = 'fd') or (copy(device,1,2) = 'sd') then
+              if copy(device,1,2) = 'fd' then
                 device := rsRemovableDrive
+              else if copy(device,1,2) = 'sd' then
+              begin
+                removableInfo := '/sys/block/'+copy(device,1,3)+'/removable';
+                if FileExists(removableInfo) then
+                  isRemovable := ReadBooleanFromFile(removableInfo)
+                else
+                  isRemovable := false;
+                if isRemovable then
+                  device := rsRemovableDrive
+                else
+                  device := rsFixedDrive;
+              end
               else if copy(device,1,3) = 'scd' then
                 device := rsCdRom;
               if (fileSystem = 'nfs') or (fileSystem = 'smb') or (fileSystem = 'ncpfs') then device := rsNetworkDrive;

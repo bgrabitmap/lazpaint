@@ -85,7 +85,7 @@ type
     property AvailableBmpWidth: integer read GetAvailableBmpWidth;
   end;
 
-var TFChooseColor_CustomDPI: integer = 0;
+var TFChooseColor_CustomDPI: integer = 96;
 
 implementation
 
@@ -98,10 +98,10 @@ begin
    {$IFDEF LINUX}
    BorderStyle:= bsDialog;
    {$ENDIF}
-   ClientHeight := DoScaleY(160,OriginalDPI,TFChooseColor_CustomDPI);
+   ClientHeight := DoScaleY(150,OriginalDPI,TFChooseColor_CustomDPI);
    ScaleControl(Self,OriginalDPI,TFChooseColor_CustomDPI);
-   EColor.Font.Height := -FontEmHeightSign*DoScaleY(12,OriginalDPI,TFChooseColor_CustomDPI);
-   LColor.Font.Height := -FontEmHeightSign*DoScaleY(12,OriginalDPI,TFChooseColor_CustomDPI);
+   EColor.Font.Height := -FontEmHeightSign*DoScaleY(14,OriginalDPI,TFChooseColor_CustomDPI);
+   LColor.Font.Height := -FontEmHeightSign*DoScaleY(14,OriginalDPI,TFChooseColor_CustomDPI);
    EColor.AdjustSize;
    EColor.Text:= '';
    EColor.Top := ClientHeight;
@@ -118,7 +118,7 @@ begin
    EColor.Visible := false;
 
    topmargin := DoScaleY(27,OriginalDPI,TFChooseColor_CustomDPI);
-   barwidth := DoScaleX(20,OriginalDPI,TFChooseColor_CustomDPI);
+   barwidth := DoScaleX(18,OriginalDPI,TFChooseColor_CustomDPI);
    cursorplace := DoScaleX(10,OriginalDPI,TFChooseColor_CustomDPI);
    margin := DoScaleY(8,OriginalDPI,TFChooseColor_CustomDPI);
    cursormargin := DoScaleX(2,OriginalDPI,TFChooseColor_CustomDPI);

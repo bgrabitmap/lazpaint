@@ -1106,10 +1106,6 @@ msgstr ""
 msgid "48px"
 msgstr ""
 
-#: tfmain.itemiconsize64.caption
-msgid "64px"
-msgstr ""
-
 #: tfmain.itemiconsizeauto.caption
 msgid "auto"
 msgstr ""
@@ -1263,6 +1259,10 @@ msgstr "Mit darunter liegender Ebene verbinden"
 msgctxt "tfmain.layermove.hint"
 msgid "Move layer"
 msgstr "Ebene verschieben"
+
+#: tfmain.layerrasterize.hint
+msgid "Rasterize layer"
+msgstr ""
 
 #: tfmain.layerremovecurrent.hint
 msgctxt "tfmain.layerremovecurrent.hint"
@@ -2924,6 +2924,10 @@ msgstr ""
 msgid "Error"
 msgstr "Fehler"
 
+#: uresourcestrings.rserrorloadingoriginal
+msgid "Error while loading original however layer can be rasterized."
+msgstr ""
+
 #: uresourcestrings.rserroronopeningfile
 msgid "Error on opening file \"%1\""
 msgstr "Fehler beim Öffnen der Datei \"%1\""
@@ -3316,6 +3320,10 @@ msgstr "px"
 msgid "RAM disk"
 msgstr "RAM-Disk"
 
+#: uresourcestrings.rsrasterlayer
+msgid "Raster layer"
+msgstr ""
+
 #: uresourcestrings.rsrecentdirectories
 msgid "Recent directories:"
 msgstr "Letzte Verzeichnisse"
@@ -3433,6 +3441,10 @@ msgstr ""
 msgid "Too many layers"
 msgstr "Zu viel Ebene"
 
+#: uresourcestrings.rstoomanyshapesinlayer
+msgid "Too many shapes in layer"
+msgstr ""
+
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"
 msgstr "Bilder Gesamt: %1"
@@ -3440,6 +3452,10 @@ msgstr "Bilder Gesamt: %1"
 #: uresourcestrings.rstransferselectiontootherlayer
 msgid "Transfer selection to other layer?"
 msgstr "Auswahl auf andere Ebene verschieben?"
+
+#: uresourcestrings.rstransformedrasterlayer
+msgid "Transformed raster layer"
+msgstr ""
 
 #: uresourcestrings.rstransformselectioncontent
 msgid "Do you want to transform content of the selection?"
@@ -3460,6 +3476,14 @@ msgstr "Kann Datei nicht sichern: "
 #: uresourcestrings.rsunknowncommand
 msgid "Unknown command : "
 msgstr "Unbekannter Befehl: "
+
+#: uresourcestrings.rsunknownoriginal
+msgid "Unknown original"
+msgstr ""
+
+#: uresourcestrings.rsvectoriallayer
+msgid "Vectorial layer"
+msgstr ""
 
 #: uresourcestrings.rsyes
 msgid "Yes"

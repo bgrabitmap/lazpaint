@@ -9,6 +9,19 @@ uses
   BGRABitmap, BGRATransform, BGRAGradients;
 
 type
+  TArrowKind = (akNone, akTail, akTip, akNormal, akCut, akFlipped, akFlippedCut,
+                akTriangle, akTriangleBack1, akTriangleBack2,
+                akHollowTriangle, akHollowTriangleBack1, akHollowTriangleBack2);
+
+const
+  ArrowKindToStr: array[TArrowKind] of string =
+    ('none', 'tail', 'tip', 'normal', 'cut', 'flipped', 'flipped-cut',
+     'triangle', 'triangle-back1', 'triangle-back2',
+     'hollow-triangle', 'hollow-triangle-back1', 'hollow-triangle-back2');
+
+function StrToArrowKind(AStr: string): TArrowKind;
+
+type
   { TCustomPolypointShape }
 
   TCustomPolypointShape = class(TVectorShape)
@@ -16,6 +29,9 @@ type
     FClosed: boolean;
     function GetPoint(AIndex: integer): TPointF;
     function GetPointCount: integer;
+    procedure SetArrowEndKind(AValue: TArrowKind);
+    procedure SetArrowSize(AValue: TPointF);
+    procedure SetArrowStartKind(AValue: TArrowKind);
     procedure SetPoint(AIndex: integer; AValue: TPointF);
   protected
     FPoints: array of record
@@ -29,6 +45,8 @@ type
     FAddingPoint: boolean;
     FMousePos: TPointF;
     FHoverPoint: integer;
+    FArrowStartKind,FArrowEndKind: TArrowKind;
+    FArrowSize: TPointF;
     procedure OnMovePoint({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; {%H-}AShift: TShiftState);
     procedure OnMoveCenterPoint({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; {%H-}AShift: TShiftState);
     procedure OnStartMove({%H-}ASender: TObject; APointIndex: integer; {%H-}AShift: TShiftState);
@@ -42,11 +60,13 @@ type
     procedure DoClickPoint({%H-}APointIndex: integer; {%H-}AShift: TShiftState); virtual;
     function CanMovePoints: boolean; virtual;
     procedure InsertPointAuto;
+    function ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean;
+      AStrokeMatrix: TAffineMatrix): ArrayOfTPointF; override;
   public
     constructor Create(AContainer: TVectorOriginal); override;
     procedure Clear;
     destructor Destroy; override;
-    function AddPoint(const APoint: TPointF): integer;
+    function AddPoint(const APoint: TPointF): integer; virtual;
     function RemovePoint(AIndex: integer): boolean;
     procedure RemovePointRange(AFromIndex, AToIndexPlus1: integer);
     procedure InsertPoint(AIndex: integer; APoint: TPointF);
@@ -57,11 +77,16 @@ type
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
+    procedure Transform(AMatrix: TAffineMatrix); override;
     class function Usermodes: TVectorShapeUsermodes; override;
+    class function DefaultArrowSize: TPointF;
     property Points[AIndex:integer]: TPointF read GetPoint write SetPoint;
     property PointCount: integer read GetPointCount;
     property Closed: boolean read GetClosed write SetClosed;
     property HoverPoint: integer read FHoverPoint;
+    property ArrowStartKind: TArrowKind read FArrowStartKind write SetArrowStartKind;
+    property ArrowEndKind: TArrowKind read FArrowEndKind write SetArrowEndKind;
+    property ArrowSize: TPointF read FArrowSize write SetArrowSize;
   end;
 
   { TPolylineShape }
@@ -83,8 +108,10 @@ type
 
   TCurveShape = class(TPolylineShape)
   private
+    FCosineAngle: single;
     FSplineStyle: TSplineStyle;
     function GetCurveMode(AIndex: integer): TEasyBezierCurveMode;
+    procedure SetCosineAngle(AValue: single);
     procedure SetCurveMode(AIndex: integer; AValue: TEasyBezierCurveMode);
     procedure SetSplineStyle(AValue: TSplineStyle);
   protected
@@ -94,17 +121,55 @@ type
   public
     class function Usermodes: TVectorShapeUsermodes; override;
     constructor Create(AContainer: TVectorOriginal); override;
+    function AddPoint(const APoint: TPointF): integer; override;
     procedure KeyPress(UTF8Key: string; var AHandled: boolean); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     class function StorageClassName: RawByteString; override;
     property SplineStyle: TSplineStyle read FSplineStyle write SetSplineStyle;
     property CurveMode[AIndex: integer]: TEasyBezierCurveMode read GetCurveMode write SetCurveMode;
+    property CosineAngle: single read FCosineAngle write SetCosineAngle;
   end;
+
+procedure ApplyArrowStyle(AArrow: TBGRACustomArrow; AStart: boolean; AKind: TArrowKind; ASize: TPointF);
 
 implementation
 
-uses BGRAPen, BGRAGraphics, BGRAFillInfo, BGRAPath, math, LCVectorialFill;
+uses BGRAPen, BGRAGraphics, BGRAFillInfo, BGRAPath, math, LCVectorialFill,
+  BGRAArrow;
+
+function StrToArrowKind(AStr: string): TArrowKind;
+var
+  ak: TArrowKind;
+begin
+  for ak := low(TArrowKind) to high(TArrowKind) do
+    if CompareText(AStr, ArrowKindToStr[ak])=0 then exit(ak);
+  result := akNone;
+end;
+
+procedure ApplyArrowStyle(AArrow: TBGRACustomArrow; AStart: boolean; AKind: TArrowKind; ASize: TPointF);
+var backOfs: single;
+begin
+  backOfs := 0;
+  if (ASize.x = 0) or (ASize.y = 0) then AKind := akNone;
+  if AKind in[akTriangleBack1,akHollowTriangleBack1] then backOfs := 0.25;
+  if AKind in[akTriangleBack2,akHollowTriangleBack2] then backOfs := 0.50;
+  case AKind of
+  akTail: if AStart then AArrow.StartAsTail else AArrow.EndAsTail;
+  akTip: if AStart then AArrow.StartAsTriangle else AArrow.EndAsTriangle;
+  akNormal,akCut,akFlipped,akFlippedCut:
+    if AStart then AArrow.StartAsClassic(AKind in[akFlipped,akFlippedCut], AKind in[akCut,akFlippedCut])
+    else AArrow.EndAsClassic(AKind in[akFlipped,akFlippedCut], AKind in[akCut,akFlippedCut]);
+  akTriangle,akTriangleBack1,akTriangleBack2:
+    if AStart then AArrow.StartAsTriangle(backOfs) else AArrow.EndAsTriangle(backOfs);
+  akHollowTriangle,akHollowTriangleBack1,akHollowTriangleBack2:
+    if AStart then AArrow.StartAsTriangle(backOfs,False,True) else AArrow.EndAsTriangle(backOfs,False,True);
+  else if AStart then AArrow.StartAsNone else AArrow.EndAsNone;
+  end;
+  if (AKind = akTip) and not ((ASize.x = 0) or (ASize.y = 0)) then
+    ASize := ASize*(0.5/ASize.y);
+  if AStart then AArrow.StartSize := ASize else AArrow.EndSize := ASize;
+end;
 
 procedure IncludePointF(var ARectF: TRectF; APointF: TPointF);
 begin
@@ -151,6 +216,30 @@ end;
 function TCustomPolypointShape.GetPointCount: integer;
 begin
   result:= length(FPoints);
+end;
+
+procedure TCustomPolypointShape.SetArrowEndKind(AValue: TArrowKind);
+begin
+  if FArrowEndKind=AValue then Exit;
+  BeginUpdate;
+  FArrowEndKind:=AValue;
+  EndUpdate;
+end;
+
+procedure TCustomPolypointShape.SetArrowSize(AValue: TPointF);
+begin
+  if FArrowSize=AValue then Exit;
+  BeginUpdate;
+  FArrowSize:=AValue;
+  EndUpdate;
+end;
+
+procedure TCustomPolypointShape.SetArrowStartKind(AValue: TArrowKind);
+begin
+  if FArrowStartKind=AValue then Exit;
+  BeginUpdate;
+  FArrowStartKind:=AValue;
+  EndUpdate;
 end;
 
 procedure TCustomPolypointShape.SetClosed(AValue: boolean);
@@ -232,6 +321,11 @@ end;
 class function TCustomPolypointShape.Usermodes: TVectorShapeUsermodes;
 begin
   Result:= inherited Usermodes + [vsuCreate];
+end;
+
+class function TCustomPolypointShape.DefaultArrowSize: TPointF;
+begin
+  result := PointF(2,2);
 end;
 
 procedure TCustomPolypointShape.SetUsermode(AValue: TVectorShapeUsermode);
@@ -355,6 +449,21 @@ begin
   end;
 end;
 
+function TCustomPolypointShape.ComputeStroke(APoints: ArrayOfTPointF;
+  AClosed: boolean; AStrokeMatrix: TAffineMatrix): ArrayOfTPointF;
+begin
+  if Stroker.Arrow = nil then
+  begin
+    Stroker.Arrow := TBGRAArrow.Create;
+    Stroker.ArrowOwned:= true;
+  end;
+  ApplyArrowStyle(Stroker.Arrow, true, ArrowStartKind, ArrowSize);
+  ApplyArrowStyle(Stroker.Arrow, false, ArrowEndKind, ArrowSize);
+  Result:=inherited ComputeStroke(APoints, AClosed, AStrokeMatrix);
+  Stroker.Arrow.StartAsNone;
+  Stroker.Arrow.EndAsNone;
+end;
+
 constructor TCustomPolypointShape.Create(AContainer: TVectorOriginal);
 begin
   inherited Create(AContainer);
@@ -434,7 +543,10 @@ begin
   FMousePos := PointF(X,Y);
   if FAddingPoint then
   begin
-    Points[PointCount-1] := FMousePos;
+    if (PointCount = 1) and (FMousePos <> Points[PointCount-1]) then
+      Points[PointCount] := FMousePos
+    else
+      Points[PointCount-1] := FMousePos;
     AHandled:= true;
   end;
 end;
@@ -513,6 +625,11 @@ begin
     FPoints[i].data := nil;
   end;
   FClosed:= AStorage.Bool['closed'];
+  if AStorage.HasAttribute('arrow-size') then
+    FArrowSize := AStorage.PointF['arrow-size']
+  else FArrowSize := DefaultArrowSize;
+  FArrowStartKind:= StrToArrowKind(AStorage.RawString['arrow-start-kind']);
+  FArrowEndKind:= StrToArrowKind(AStorage.RawString['arrow-end-kind']);
   EndUpdate;
 end;
 
@@ -532,6 +649,12 @@ begin
   AStorage.FloatArray['x'] := x;
   AStorage.FloatArray['y'] := y;
   AStorage.Bool['closed'] := Closed;
+  if ArrowStartKind=akNone then AStorage.RemoveAttribute('arrow-start-kind')
+  else AStorage.RawString['arrow-start-kind'] := ArrowKindToStr[ArrowStartKind];
+  if ArrowEndKind=akNone then AStorage.RemoveAttribute('arrow-end-kind')
+  else AStorage.RawString['arrow-end-kind'] := ArrowKindToStr[ArrowEndKind];
+  if (ArrowStartKind=akNone) and (ArrowEndKind=akNone) then AStorage.RemoveAttribute('arrow-size')
+  else AStorage.PointF['arrow-size'] := FArrowSize;
 end;
 
 procedure TCustomPolypointShape.ConfigureCustomEditor(AEditor: TBGRAOriginalEditor);
@@ -546,7 +669,7 @@ begin
   for i:= 0 to PointCount-1 do
     if isEmptyPointF(Points[i]) then
       FPoints[i].editorIndex := -1
-    else if (FAddingPoint and ((i = 0) or (i = PointCount-1))) then
+    else if (FAddingPoint and (i = PointCount-1)) then
     begin
       FPoints[i].editorIndex := -1;
       FCenterPoint += Points[i];
@@ -567,6 +690,17 @@ begin
     FCenterPoint *= 1/nb;
     FCenterPointEditorIndex := AEditor.AddPoint(FCenterPoint, @OnMoveCenterPoint, true);
   end;
+end;
+
+procedure TCustomPolypointShape.Transform(AMatrix: TAffineMatrix);
+var
+  i: Integer;
+begin
+  BeginUpdate;
+  inherited Transform(AMatrix);
+  for i := 0 to PointCount-1 do
+    FPoints[i].coord := AMatrix*FPoints[i].coord;
+  EndUpdate;
 end;
 
 { TPolylineShape }
@@ -648,7 +782,7 @@ begin
     pts := GetCurve(AMatrix);
     if PenVisible(rboAssumePenFill in AOptions) then
     begin
-      if JoinStyle = pjsRound then
+      if (JoinStyle = pjsRound) and (ArrowStartKind = akNone) and (ArrowEndKind = akNone) then
       begin
         xMargin := (abs(AMatrix[1,1])+abs(AMatrix[1,2]))*PenWidth*0.5;
         yMargin := (abs(AMatrix[2,1])+abs(AMatrix[2,2]))*PenWidth*0.5;
@@ -716,6 +850,14 @@ begin
     result := cmAuto;
 end;
 
+procedure TCurveShape.SetCosineAngle(AValue: single);
+begin
+  if FCosineAngle=AValue then Exit;
+  BeginUpdate;
+  FCosineAngle:=AValue;
+  EndUpdate;
+end;
+
 procedure TCurveShape.SetCurveMode(AIndex: integer; AValue: TEasyBezierCurveMode);
 begin
   if (AIndex < 0) or (AIndex >= PointCount) then exit;
@@ -739,7 +881,7 @@ begin
     setlength(cm, PointCount);
     for i := 0 to PointCount-1 do
       cm[i] := CurveMode[i];
-    eb := EasyBezierCurve(pts, Closed, cm);
+    eb := EasyBezierCurve(pts, Closed, cm, CosineAngle);
     result := eb.ToPoints;
   end else
   begin
@@ -775,23 +917,43 @@ begin
   FSplineStyle:= ssEasyBezier;
 end;
 
-procedure TCurveShape.KeyPress(UTF8Key: string; var AHandled: boolean);
+function TCurveShape.AddPoint(const APoint: TPointF): integer;
 begin
-  if (FHoverPoint >= 0) and (FHoverPoint < PointCount) then
+  if (PointCount > 1) and (APoint = Points[PointCount-1]) then
+  begin
+    BeginUpdate;
+    CurveMode[PointCount-1] := CurveMode[PointCount-2];
+    Result:=inherited AddPoint(APoint);
+    EndUpdate;
+  end
+  else Result:=inherited AddPoint(APoint);
+end;
+
+procedure TCurveShape.KeyPress(UTF8Key: string; var AHandled: boolean);
+var
+  targetPoint: Integer;
+begin
+  if FHoverPoint<>-1 then
+    targetPoint := FHoverPoint
+  else if FAddingPoint and (PointCount > 1) then
+    targetPoint := PointCount-2
+  else
+    targetPoint := -1;
+  if (targetPoint >= 0) and (targetPoint < PointCount) then
   begin
     if (UTF8Key = 'A') or (UTF8Key = 'a') then
     begin
-      CurveMode[FHoverPoint] := cmAuto;
+      CurveMode[targetPoint] := cmAuto;
       AHandled := true;
     end else
     if (UTF8Key = 'S') or (UTF8Key = 's') then
     begin
-      CurveMode[FHoverPoint] := cmCurve;
+      CurveMode[targetPoint] := cmCurve;
       AHandled:= true;
     end else
     if (UTF8Key = 'X') or (UTF8Key = 'x') then
     begin
-      CurveMode[FHoverPoint] := cmAngle;
+      CurveMode[targetPoint] := cmAngle;
       AHandled:= true;
     end;
   end;
@@ -829,6 +991,7 @@ begin
       for i:= length(cm) to PointCount-1 do
         CurveMode[i] := cmCurve;
   end;
+  CosineAngle := AStorage.FloatDef['cosine-angle', EasyBezierDefaultMinimumDotProduct];
   EndUpdate;
 end;
 
@@ -857,6 +1020,7 @@ begin
       cm[i] := ord(CurveMode[i]);
     AStorage.FloatArray['curve-mode'] := cm;
   end;
+  AStorage.Float['cosine-angle'] := CosineAngle;
 end;
 
 class function TCurveShape.StorageClassName: RawByteString;

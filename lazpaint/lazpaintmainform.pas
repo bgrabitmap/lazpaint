@@ -28,6 +28,7 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    LayerRasterize: TAction;
     FileRememberSaveFormat: TAction;
     SelectionVerticalFlip: TAction;
     SelectionHorizontalFlip: TAction;
@@ -50,9 +51,6 @@ type
     Tool_Aliasing: TToolButton;
     ViewPalette: TAction;
     ViewStatusBar: TAction;
-    ImageList24: TBGRAImageList;
-    ImageList64: TBGRAImageList;
-    ImageList32: TBGRAImageList;
     ImageList48: TBGRAImageList;
     ItemViewPalette: TMenuItem;
     MenuIconSize: TMenuItem;
@@ -60,7 +58,6 @@ type
     ItemIconSize32: TMenuItem;
     ItemIconSize48: TMenuItem;
     ItemIconSizeAuto: TMenuItem;
-    ItemIconSize64: TMenuItem;
     ItemIconSize24: TMenuItem;
     ItemViewStatusBar: TMenuItem;
     MenuShowPalette: TMenuItem;
@@ -456,7 +453,9 @@ type
     procedure ItemFullscreenClick(Sender: TObject);
     procedure ItemIconSize24Click(Sender: TObject);
     procedure ItemViewDockToolboxClick(Sender: TObject);
+    procedure LayerRasterizeUpdate(Sender: TObject);
     procedure LayerZoomExecute(Sender: TObject);
+    procedure LayerZoomUpdate(Sender: TObject);
     procedure MenuCoordinatesToolbarClick(Sender: TObject);
     procedure MenuCopyPasteToolbarClick(Sender: TObject);
     procedure MenuDockToolboxLeftClick(Sender: TObject);
@@ -820,7 +819,8 @@ implementation
 
 uses LCLIntf, BGRAUTF8, ugraph, math, umac, uclipboard, ucursors,
    ufilters, ULoadImage, ULoading, UFileExtensions, UBrushType,
-   ugeometricbrush, UPreviewDialog, UQuestion, BGRALayerOriginal;
+   ugeometricbrush, UPreviewDialog, UQuestion, BGRALayerOriginal,
+   BGRATransform, LCVectorPolyShapes;
 
 const PenWidthFactor = 10;
 
@@ -876,7 +876,6 @@ begin
   InFormMouseMove:= false;
   InFormPaint := false;
 
-  CreateMenuAndToolbar;
   {$IFDEF LINUX}
   ComboBox_BrushSelect.Top := ComboBox_BrushSelect.Top - 2;
   ComboBox_BrushSelect.Font.Height := -10;
@@ -906,6 +905,7 @@ begin
     Panel_Tool,Panel_Color,Panel_Texture,Panel_Grid,Panel_PenWidth,Panel_Aliasing,Panel_ShapeOption,Panel_LineCap,Panel_JoinStyle,
     Panel_PenStyle,Panel_SplineStyle,Panel_Eraser,Panel_Tolerance,Panel_GradientType,Panel_Text,Panel_TextOutline,
     Panel_PhongShape,Panel_Altitude,Panel_PerspectiveOption,Panel_Brush,Panel_Ratio],Panel_ToolbarBackground);
+  m.ImageList := LazPaintInstance.Icons[ScaleY(16, 96)];
   m.Apply;
   FLayout.Menu := m;
 end;
@@ -965,6 +965,7 @@ end;
 procedure TFMain.Init;
 begin
   initialized := false;
+  CreateMenuAndToolbar;
   Config := LazPaintInstance.Config;
   if Config.Default3dObjectDirectory = '' then
     Config.SetDefault3dObjectDirectory(StartDirectory);
@@ -1132,8 +1133,7 @@ begin
   updateForVSCursor:= false;
   if ToolManager.ToolMove(BmpPos,CurrentPressure) then
   begin
-    FImageView.UpdatePicture(PictureCanvasOfs, FLayout.WorkArea,
-                             {$IFDEF USEPAINTBOXPICTURE}PaintBox_Picture{$ELSE}self{$ENDIF});
+    FImageView.UpdatePicture(PictureCanvasOfs, FLayout.WorkArea, self);
     ToolManager.ToolMoveAfter(FImageView.FormToBitmap(FormMouseMovePos)); //new BmpPos after repaint
   end else
     updateForVSCursor := true;
@@ -2711,9 +2711,22 @@ begin
           end;
           ptMoveLayer, ptRotateLayer, ptZoomLayer:
           begin
-            if image.CurrentLayerEquals(BGRAPixelTransparent) then
+            if image.LayerOriginalDefined[image.CurrentLayerIndex] and
+               image.LayerOriginalKnown[image.CurrentLayerIndex] and
+               (image.LayerOriginal[image.CurrentLayerIndex]=nil) then
             begin
-              MessagePopup(rsLazPaint, 4000);
+              Tool := ptHand;
+              result := srException;
+            end;
+
+            if image.CurrentLayerEquals(BGRAPixelTransparent) and not
+              (image.LayerOriginalDefined[image.CurrentLayerIndex] and
+               image.LayerOriginalKnown[image.CurrentLayerIndex] and
+               not image.LayerOriginal[image.CurrentLayerIndex].GetRenderBounds(
+                 rect(-maxLongInt div 2,-maxLongInt div 2,maxLongInt div 2,maxLongInt div 2),
+                 AffineMatrixIdentity).IsEmpty) then
+            begin
+              MessagePopup(rsEmptyLayer, 4000);
               Tool := ptHand;
               result := srException;
             end;
@@ -2943,9 +2956,19 @@ begin
     Layout.ToolBoxDocking := twWindow;
 end;
 
+procedure TFMain.LayerRasterizeUpdate(Sender: TObject);
+begin
+  LayerRasterize.Enabled := Image.LayerOriginalDefined[Image.CurrentLayerIndex];
+end;
+
 procedure TFMain.LayerZoomExecute(Sender: TObject);
 begin
   ChooseTool(ptZoomLayer);
+end;
+
+procedure TFMain.LayerZoomUpdate(Sender: TObject);
+begin
+  LayerZoom.Enabled := Image.CurrentLayerVisible and Image.SelectionMaskEmpty;
 end;
 
 procedure TFMain.MenuCoordinatesToolbarClick(Sender: TObject);
@@ -3010,7 +3033,6 @@ begin
   ItemIconSize24.Checked := iconSize=24;
   ItemIconSize32.Checked := iconSize=32;
   ItemIconSize48.Checked := iconSize=48;
-  ItemIconSize64.Checked := iconSize=64;
   ItemIconSizeAuto.Checked := iconSize=0;
 end;
 

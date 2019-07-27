@@ -26,7 +26,8 @@ type
   TToolGradient = class(TVectorialTool)
   protected
     function CreateShape: TVectorShape; override;
-    procedure AssignShapeStyle; override;
+    procedure DrawCustomShape(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
+    procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
     procedure QuickDefineShape(AStart,AEnd: TPointF); override;
     function SlowShape: boolean; override;
     function GetStatusText: string; override;
@@ -34,20 +35,38 @@ type
 
 implementation
 
-uses ugraph, LazPaintType, BGRAGradientScanner, LCVectorRectShapes;
+uses ugraph, LazPaintType, BGRAGradientScanner, LCVectorRectShapes,
+  math, BGRATransform;
 
 { TToolGradient }
 
 function TToolGradient.CreateShape: TVectorShape;
 begin
   result := TRectShape.Create(nil);
-  result.QuickDefine(PointF(-0.5,-0.5),PointF(Manager.Image.Width-0.5,Manager.Image.Height-0.5));
   result.PenFill.Clear;
   result.BackFill.SetGradient(TBGRALayerGradientOriginal.Create,true);
   result.Usermode := vsuEditBackFill;
 end;
 
-procedure TToolGradient.AssignShapeStyle;
+procedure TToolGradient.DrawCustomShape(ADest: TBGRABitmap;
+  AMatrix: TAffineMatrix; ADraft: boolean);
+var
+  temp: TBGRABitmap;
+begin
+  if ADraft and (ADest.NbPixels > 384*384) then
+  begin
+    temp := TBGRABitmap.Create(0,0);
+    temp.SetSize(min(384,ADest.Width),min(384,ADest.Height));
+    FShape.BackFill.Gradient.Render(temp,
+      AffineMatrixScale(temp.Width/ADest.Width,
+                        temp.Height/ADest.Height)*AMatrix, ADraft);
+    ADest.StretchPutImage(rect(0,0,ADest.Width,Adest.Height),temp,dmSet);
+    temp.Free;
+  end else
+    FShape.BackFill.Gradient.Render(ADest,AMatrix,ADraft);
+end;
+
+procedure TToolGradient.AssignShapeStyle(AMatrix: TAffineMatrix);
 begin
   with FShape.BackFill.Gradient do
   begin
@@ -72,6 +91,7 @@ end;
 
 procedure TToolGradient.QuickDefineShape(AStart, AEnd: TPointF);
 begin
+  FShape.QuickDefine(PointF(-0.5,-0.5),PointF(Manager.Image.Width-0.5,Manager.Image.Height-0.5));
   FShape.BackFill.Gradient.Origin := AStart;
   FShape.BackFill.Gradient.XAxis := AEnd;
 end;

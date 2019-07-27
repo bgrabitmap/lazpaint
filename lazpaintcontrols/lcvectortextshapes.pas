@@ -8,6 +8,9 @@ uses
   Classes, SysUtils, LCVectorRectShapes, BGRATextBidi, BGRABitmapTypes, LCVectorOriginal, BGRAGraphics,
   BGRABitmap, BGRALayerOriginal, BGRACanvas2D;
 
+const
+  AlwaysVectorialText = true;
+
 type
 
   { TTextShape }
@@ -23,6 +26,9 @@ type
     FLightPosition: TPointF;
     FText: string;
     FSelStart,FSelEnd: integer;
+    FEnteringUnicode: boolean;
+    FUnicodeValue: cardinal;
+    FUnicodeDigitCount: integer;
     FMouseSelecting: boolean;
     FVertAlign: TTextLayout;
     function GetBidiParagraphAlignment: TBidiTextAlignment;
@@ -53,6 +59,7 @@ type
     function ShowArrows: boolean; override;
     function GetTextLayout: TBidiTextLayout;
     function GetFontRenderer: TBGRACustomFontRenderer;
+    function UseVectorialTextRenderer: boolean;
     function UpdateFontRenderer: boolean;
     function GetTextRenderZoom: single;
     function GetUntransformedMatrix: TAffineMatrix; //matrix before render transform
@@ -65,6 +72,7 @@ type
     procedure InsertText(ATextUTF8: string);
     procedure SelectWithMouse(X,Y: single; AExtend: boolean);
     function HasOutline: boolean;
+    procedure InsertUnicodeValue;
   public
     constructor Create(AContainer: TVectorOriginal); override;
     procedure QuickDefine(const APoint1,APoint2: TPointF); override;
@@ -89,10 +97,12 @@ type
     procedure MouseUp({%H-}RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); override;
     procedure KeyDown({%H-}Shift: TShiftState; {%H-}Key: TSpecialKey; var {%H-}AHandled: boolean); override;
     procedure KeyPress({%H-}UTF8Key: string; var {%H-}AHandled: boolean); override;
+    procedure KeyUp({%H-}Shift: TShiftState; {%H-}Key: TSpecialKey; var {%H-}AHandled: boolean); override;
     procedure SetFontNameAndStyle(AFontName: string; AFontStyle: TFontStyles);
     function CopySelection: boolean;
     function CutSelection: boolean;
     function PasteSelection: boolean;
+    procedure Transform(AMatrix: TAffineMatrix); override;
     property HasSelection: boolean read GetHasSelection;
     property CanPasteSelection: boolean read GetCanPasteSelection;
     property Text: string read FText write SetText;
@@ -364,7 +374,7 @@ begin
   if Assigned(FFontRenderer) then
   begin
     freeRenderer := false;
-    if OutlineFill.FillType <> vftNone then
+    if UseVectorialTextRenderer then
     begin
       if not (FFontRenderer is TBGRAVectorizedFontRenderer) then
         freeRenderer:= true;
@@ -428,27 +438,37 @@ begin
   result := FFontRenderer;
 end;
 
+function TTextShape.UseVectorialTextRenderer: boolean;
+begin
+  result := AlwaysVectorialText or HasOutline;
+end;
+
 function TTextShape.UpdateFontRenderer: boolean;
 var
-  newEmHeight: integer;
+  newEmHeight: single;
 begin
   if FFontRenderer = nil then
   begin
-    if OutlineFill.FillType <> vftNone then
-      FFontRenderer := TBGRAVectorizedFontRenderer.Create
+    if UseVectorialTextRenderer then
+    begin
+      FFontRenderer := TBGRAVectorizedFontRenderer.Create;
+      TBGRAVectorizedFontRenderer(FFontRenderer).QuadraticCurves := true;
+      TBGRAVectorizedFontRenderer(FFontRenderer).MinFontResolution := 300;
+      TBGRAVectorizedFontRenderer(FFontRenderer).MaxFontResolution := 300;
+    end
     else
     begin
       FFontRenderer := TLCLFontRenderer.Create;
       TLCLFontRenderer(FFontRenderer).OverrideUnderlineDecoration:= true;
     end;
   end;
-  newEmHeight := Round(FontEmHeight*GetTextRenderZoom);
+  newEmHeight := FontEmHeight*GetTextRenderZoom;
   if (newEmHeight <> FFontRenderer.FontEmHeight) or
      (FFontRenderer.FontName <> FontName) or
      (FFontRenderer.FontStyle <> FontStyle) or
      (FFontRenderer.FontQuality <> fqFineAntialiasing) then
   begin
-    FFontRenderer.FontEmHeight := newEmHeight;
+    FFontRenderer.FontEmHeightF := newEmHeight;
     FFontRenderer.FontName:= FontName;
     FFontRenderer.FontStyle:= FontStyle;
     FFontRenderer.FontQuality:= fqFineAntialiasing;
@@ -595,6 +615,15 @@ end;
 function TTextShape.HasOutline: boolean;
 begin
   result := not OutlineFill.IsFullyTransparent and (OutlineWidth > 0);
+end;
+
+procedure TTextShape.InsertUnicodeValue;
+begin
+  if FEnteringUnicode then
+  begin
+    InsertText(UnicodeCharToUTF8(FUnicodeValue));
+    FEnteringUnicode:= false;
+  end;
 end;
 
 constructor TTextShape.Create(AContainer: TVectorOriginal);
@@ -835,13 +864,16 @@ procedure TTextShape.Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: 
   end;
 
   function CreateShader(AOfsX,AOfsY: integer): TPhongShading;
+  var
+    lightPosF: TPointF;
+    lightPosZ: Single;
   begin
     result := TPhongShading.Create;
     result.AmbientFactor := 0.6;
     result.NegativeDiffusionFactor := 0.15;
-    result.LightPosition := Point(round(LightPosition.x)+AOfsX+ARenderOffset.X,
-                                  round(LightPosition.y)+AOfsY+ARenderOffset.Y);
-    result.LightPositionZ := round(max(AltitudePercent, 1.2*GetTextPhongHeight));
+    lightPosF := FGlobalMatrix*LightPosition+PointF(AOfsX,AOfsY);
+    lightPosZ := max(AltitudePercent, 1.2*GetTextPhongHeight);
+    result.LightPosition3D := Point3D(lightPosF.x,lightPosF.y,lightPosZ);
   end;
 
 var
@@ -923,7 +955,7 @@ begin
   with transfRectF do
     transfRect := Rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
 
-  if HasOutline then
+  if UseVectorialTextRenderer then
   begin
     tmpTransf := TBGRABitmap.Create(transfRect.Width,transfRect.Height);
     ctx := tmpTransf.Canvas2D;
@@ -952,7 +984,7 @@ begin
     end else
       textFx := nil;
 
-    if OutLineFill.FillType <> vftNone then
+    if HasOutline then
     begin
       ctx := tmpTransf.Canvas2D;
       ctx.lineWidth := OutlineWidth;
@@ -1243,6 +1275,11 @@ begin
     EndEditingUpdate;
     AHandled := true;
   end else
+  if (Key = skReturn) and ([ssCtrl,ssShift] <= Shift) and FEnteringUnicode then
+  begin
+    InsertUnicodeValue;
+    AHandled:= true;
+  end else
   if Key = skReturn then
   begin
     if ssShift in Shift then
@@ -1255,6 +1292,26 @@ begin
   begin
     InsertText(#9);
     AHandled := true;
+  end else
+  if (Key = skU) and ([ssCtrl,ssShift] <= Shift) then
+  begin
+    if FEnteringUnicode then InsertUnicodeValue;
+    FEnteringUnicode:= true;
+    FUnicodeValue:= 0;
+    FUnicodeDigitCount:= 0;
+    AHandled := true;
+  end else
+  if (Key in[sk0..sk9,skNum0..skNum9,skA..skF]) and ([ssCtrl,ssShift] <= Shift) and FEnteringUnicode then
+  begin
+    if FUnicodeDigitCount >= 8 then FEnteringUnicode:= false else
+    begin
+      FUnicodeValue := (FUnicodeValue shl 4);
+      case Key of
+      sk0..sk9: inc(FUnicodeValue, ord(Key)-ord(sk0));
+      skNum0..skNum9: inc(FUnicodeValue, ord(Key)-ord(sk0));
+      skA..skF: inc(FUnicodeValue, ord(Key)-ord(skA)+10);
+      end;
+    end;
   end else
   if (Key = skC) and (ssCtrl in Shift) then
   begin
@@ -1274,6 +1331,7 @@ begin
     FSelStart:= 0;
     FSelEnd:= GetTextLayout.CharCount;
     EndEditingUpdate;
+    AHandled := true;
   end;
 end;
 
@@ -1298,6 +1356,12 @@ begin
       InsertText(UTF8Key);
     AHandled := true;
   end;
+end;
+
+procedure TTextShape.KeyUp(Shift: TShiftState; Key: TSpecialKey;
+  var AHandled: boolean);
+begin
+  if (Key in[skCtrl,skShift]) and FEnteringUnicode then InsertUnicodeValue;
 end;
 
 procedure TTextShape.SetFontNameAndStyle(AFontName: string;
@@ -1353,6 +1417,18 @@ begin
     result := true;
   end else
     result := false;
+end;
+
+procedure TTextShape.Transform(AMatrix: TAffineMatrix);
+var
+  zoom: Single;
+begin
+  BeginUpdate;
+  inherited Transform(AMatrix);
+  zoom := (VectLen(AMatrix[1,1],AMatrix[2,1])+VectLen(AMatrix[1,2],AMatrix[2,2]))/2;
+  FontEmHeight:= zoom*FontEmHeight;
+  LightPosition := AMatrix*LightPosition;
+  EndUpdate;
 end;
 
 class function TTextShape.StorageClassName: RawByteString;

@@ -23,7 +23,6 @@ type
     FWorkArea: TRect;
     FWorkAreaFullySelected: boolean;
     FParameters: TVariableSet;
-    FLayerBackupImage: TBGRABitmap;
     function GetActionDone: boolean;
     function GetActiveLayeOffset: TPoint;
     function GetActiveLayer: TBGRABitmap;
@@ -60,7 +59,7 @@ type
 
 implementation
 
-uses Types, BGRABitmapTypes, BGRATransform;
+uses Types, BGRABitmapTypes;
 
 { TFilterConnector }
 
@@ -90,9 +89,7 @@ end;
 
 function TFilterConnector.GetBackupLayer: TBGRABitmap;
 begin
-  if Assigned(FLayerBackupImage) then
-    result := FLayerBackupImage
-  else if ApplyOnSelectionLayer then
+  if ApplyOnSelectionLayer then
     result := FAction.BackupSelectionLayer
   else
     result := FAction.BackupSelectedLayer;
@@ -122,16 +119,9 @@ begin
   ApplyOnSelectionLayer:= not FLazPaintInstance.Image.SelectionLayerIsEmpty;
 
   if AAction = nil then
-    AAction := ALazPaintInstance.Image.CreateAction(AApplyOfsBefore and not ApplyOnSelectionLayer);
-
-  if ApplyOnSelectionLayer and not IsAffineMatrixIdentity(AAction.SelectionTransform) then
-  begin
-    AAction.ApplySelectionTransform;
-    FLayerBackupImage := AAction.GetOrCreateSelectionLayer.Duplicate as TBGRABitmap;
-  end else
-  begin
-    FLayerBackupImage := nil;
-  end;
+    AAction := ALazPaintInstance.Image.CreateAction(
+                  AApplyOfsBefore and not ApplyOnSelectionLayer,
+                  ApplyOnSelectionLayer);
 
   FAction := AAction;
   FActionOwned:= AOwned;
@@ -191,7 +181,6 @@ end;
 destructor TFilterConnector.Destroy;
 begin
   DiscardAction;
-  FLayerBackupImage.Free;
   inherited Destroy;
 end;
 

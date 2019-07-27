@@ -1085,10 +1085,6 @@ msgstr "32px"
 msgid "48px"
 msgstr "48px"
 
-#: tfmain.itemiconsize64.caption
-msgid "64px"
-msgstr "64px"
-
 #: tfmain.itemiconsizeauto.caption
 msgid "auto"
 msgstr "automático"
@@ -1242,6 +1238,10 @@ msgstr "Fusionar capa sobre"
 msgctxt "tfmain.layermove.hint"
 msgid "Move layer"
 msgstr "Mover capa"
+
+#: tfmain.layerrasterize.hint
+msgid "Rasterize layer"
+msgstr "Pixelar capa"
 
 #: tfmain.layerremovecurrent.hint
 msgctxt "tfmain.layerremovecurrent.hint"
@@ -2904,6 +2904,10 @@ msgstr "Entradas"
 msgid "Error"
 msgstr "Error"
 
+#: uresourcestrings.rserrorloadingoriginal
+msgid "Error while loading original however layer can be rasterized."
+msgstr "Error cargando el original pero se puedo pixelar la capa."
+
 #: uresourcestrings.rserroronopeningfile
 msgid "Error on opening file \"%1\""
 msgstr "Error abriendo archivo \"%1\""
@@ -3308,6 +3312,10 @@ msgstr "px"
 msgid "RAM disk"
 msgstr "Disco RAM"
 
+#: uresourcestrings.rsrasterlayer
+msgid "Raster layer"
+msgstr "Capa de trama"
+
 #: uresourcestrings.rsrecentdirectories
 msgid "Recent directories:"
 msgstr "Carpetas recientes:"
@@ -3427,6 +3435,10 @@ msgstr "La herramienta no puede ser usada en una capa invisible"
 msgid "Too many layers"
 msgstr "Demasiado capas"
 
+#: uresourcestrings.rstoomanyshapesinlayer
+msgid "Too many shapes in layer"
+msgstr "Demasiado figuras en la capa"
+
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"
 msgstr "Total: %1"
@@ -3434,6 +3446,10 @@ msgstr "Total: %1"
 #: uresourcestrings.rstransferselectiontootherlayer
 msgid "Transfer selection to other layer?"
 msgstr "¿Transferir selección a otra capa?"
+
+#: uresourcestrings.rstransformedrasterlayer
+msgid "Transformed raster layer"
+msgstr "Capa de trama transformada"
 
 #: uresourcestrings.rstransformselectioncontent
 msgid "Do you want to transform content of the selection?"
@@ -3454,6 +3470,14 @@ msgstr "Imposible guardar archivo: "
 #: uresourcestrings.rsunknowncommand
 msgid "Unknown command : "
 msgstr "Comando desconocido: "
+
+#: uresourcestrings.rsunknownoriginal
+msgid "Unknown original"
+msgstr "Original desconocido"
+
+#: uresourcestrings.rsvectoriallayer
+msgid "Vectorial layer"
+msgstr "Capa vectorial"
 
 #: uresourcestrings.rsyes
 msgid "Yes"

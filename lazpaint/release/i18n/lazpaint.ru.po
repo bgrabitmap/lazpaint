@@ -1093,10 +1093,6 @@ msgstr ""
 msgid "48px"
 msgstr ""
 
-#: tfmain.itemiconsize64.caption
-msgid "64px"
-msgstr ""
-
 #: tfmain.itemiconsizeauto.caption
 msgid "auto"
 msgstr ""
@@ -1250,6 +1246,10 @@ msgstr "Слияние со слоем ниже"
 msgctxt "tfmain.layermove.hint"
 msgid "Move layer"
 msgstr "Переместить слой"
+
+#: tfmain.layerrasterize.hint
+msgid "Rasterize layer"
+msgstr ""
 
 #: tfmain.layerremovecurrent.hint
 msgctxt "tfmain.layerremovecurrent.hint"
@@ -2909,6 +2909,10 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
+#: uresourcestrings.rserrorloadingoriginal
+msgid "Error while loading original however layer can be rasterized."
+msgstr ""
+
 #: uresourcestrings.rserroronopeningfile
 msgid "Error on opening file \"%1\""
 msgstr ""
@@ -3301,6 +3305,10 @@ msgstr ""
 msgid "RAM disk"
 msgstr ""
 
+#: uresourcestrings.rsrasterlayer
+msgid "Raster layer"
+msgstr ""
+
 #: uresourcestrings.rsrecentdirectories
 msgid "Recent directories:"
 msgstr ""
@@ -3418,6 +3426,10 @@ msgstr ""
 msgid "Too many layers"
 msgstr ""
 
+#: uresourcestrings.rstoomanyshapesinlayer
+msgid "Too many shapes in layer"
+msgstr ""
+
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"
 msgstr ""
@@ -3425,6 +3437,10 @@ msgstr ""
 #: uresourcestrings.rstransferselectiontootherlayer
 msgid "Transfer selection to other layer?"
 msgstr "Перенести выделение на другой слой?"
+
+#: uresourcestrings.rstransformedrasterlayer
+msgid "Transformed raster layer"
+msgstr ""
 
 #: uresourcestrings.rstransformselectioncontent
 msgid "Do you want to transform content of the selection?"
@@ -3445,6 +3461,14 @@ msgstr "Не удается сохранить файл:"
 #: uresourcestrings.rsunknowncommand
 msgid "Unknown command : "
 msgstr "Неизвестная команда:"
+
+#: uresourcestrings.rsunknownoriginal
+msgid "Unknown original"
+msgstr ""
+
+#: uresourcestrings.rsvectoriallayer
+msgid "Vectorial layer"
+msgstr ""
 
 #: uresourcestrings.rsyes
 msgid "Yes"

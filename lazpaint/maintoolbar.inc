@@ -282,6 +282,7 @@ end;
 procedure TFMain.InitToolbarElements;
 var
   i: Integer;
+  ak: TArrowKind;
 begin
   Panel_Embedded.Visible := LazPaintInstance.Embedded;
   Panel_File.Visible := not LazPaintInstance.Embedded;
@@ -292,6 +293,13 @@ begin
   Shape_BackColor.Brush.Color := BGRAToColor(ToolManager.ToolBackColor);
   SpinEdit_BackOpacity.Value := ToolManager.ToolBackColor.alpha;
   SpinEdit_PenWidth.Value := Round(ToolManager.ToolPenWidth*PenWidthFactor);
+  for ak := low(TArrowKind) to high(TArrowKind) do
+  begin
+    ComboBox_ArrowStart.Items.Add(ArrowKindToStr[ak]);
+    ComboBox_ArrowEnd.Items.Add(ArrowKindToStr[ak]);
+  end;
+  ComboBox_ArrowStart.ItemIndex := 0;
+  ComboBox_ArrowEnd.ItemIndex := 0;
   SpinEdit_ArrowSizeX.Value := round(ToolManager.ToolArrowSize.x*PenWidthFactor);
   SpinEdit_ArrowSizeY.Value := round(ToolManager.ToolArrowSize.y*PenWidthFactor);
   Tool_DrawShapeBorder.Down := ToolManager.ToolOptionDrawShape;
@@ -305,10 +313,7 @@ begin
   Tool_GridMoveWithoutDeformation.Down := ToolManager.ToolDeformationGridMoveWithoutDeformation;
   SpinEdit_GridNbX.Value := ToolManager.ToolDeformationGridNbX-1;
   SpinEdit_GridNbY.Value := ToolManager.ToolDeformationGridNbY-1;
-  if ToolManager.ToolSplineEasyBezier then
-    Combo_SplineStyle.ItemIndex := Combo_SplineStyle.Items.IndexOf('Easy Bézier')
-  else
-    Combo_SplineStyle.ItemIndex:= ord(ToolManager.ToolSplineStyle);
+  Combo_SplineStyle.ItemIndex:= ord(ToolManager.ToolSplineStyle);
   UpdateCurveMode;
   Tool_TextOutline.Down := ToolManager.ToolTextOutline;
   SpinEdit_TextOutlineWidth.Value := round(ToolManager.ToolTextOutlineWidth*PenWidthFactor);
@@ -755,8 +760,9 @@ begin
   if initialized then
   begin
      if not Tool_DrawShapeBorder.Down and not Tool_FillShape.Down then
-        Tool_DrawShapeBorder.Down := true;
+       Tool_FillShape.Down := true;
      ToolManager.ToolOptionDrawShape:= Tool_DrawShapeBorder.Down;
+     ToolManager.ToolOptionFillShape:= Tool_FillShape.Down;
      UpdateEditPicture;
   end;
 end;
@@ -766,7 +772,8 @@ begin
   if initialized then
   begin
      if not Tool_DrawShapeBorder.Down and not Tool_FillShape.Down then
-        Tool_FillShape.Down := true;
+        Tool_DrawShapeBorder.Down := true;
+     ToolManager.ToolOptionDrawShape:= Tool_DrawShapeBorder.Down;
      ToolManager.ToolOptionFillShape:= Tool_FillShape.Down;
      UpdateEditPicture;
   end;
@@ -821,20 +828,30 @@ end;
 
 procedure TFMain.ComboBox_ArrowStartChange(Sender: TObject);
 begin
-  if initialized then UpdateEditPicture;
+  if initialized then
+  begin
+    ToolManager.ToolArrowStart:= ComboBox_ArrowStart.Text;
+    UpdateEditPicture;
+  end;
 end;
 
 procedure TFMain.ComboBox_ArrowStartDrawItem(Control: TWinControl;
   Index: Integer; ARect: TRect; State: TOwnerDrawState);
+var
+  kind: String;
 begin
   if Index = -1 then exit;
-  ToolManager.ToolArrowStart := ComboBox_ArrowStart.Items[Index];
-  DrawArrow(ComboBox_ArrowStart.Canvas,ARect,True,ToolManager.ToolArrowStart,ToolManager.ToolLineCap,State);
+  kind := ComboBox_ArrowStart.Items[Index];
+  DrawArrow(ComboBox_ArrowStart.Canvas,ARect,True,kind,ToolManager.ToolLineCap,State);
 end;
 
 procedure TFMain.ComboBox_ArrowEndChange(Sender: TObject);
 begin
-  if initialized then UpdateEditPicture;
+  if initialized then
+  begin
+    ToolManager.ToolArrowEnd:= ComboBox_ArrowEnd.Text;
+    UpdateEditPicture;
+  end;
 end;
 
 procedure TFMain.BrushLoadFromFileExecute(Sender: TObject);
@@ -860,10 +877,12 @@ end;
 
 procedure TFMain.ComboBox_ArrowEndDrawItem(Control: TWinControl;
   Index: Integer; ARect: TRect; State: TOwnerDrawState);
+var
+  kind: String;
 begin
   if Index = -1 then exit;
-  ToolManager.ToolArrowEnd := ComboBox_ArrowEnd.Items[Index];
-  DrawArrow(ComboBox_ArrowEnd.Canvas,ARect,False,ToolManager.ToolArrowEnd,ToolManager.ToolLineCap,State);
+  kind := ComboBox_ArrowEnd.Items[Index];
+  DrawArrow(ComboBox_ArrowEnd.Canvas,ARect,False,kind,ToolManager.ToolLineCap,State);
 end;
 
 procedure TFMain.SpinEdit_ArrowSizeChange(Sender: TObject);
@@ -974,9 +993,9 @@ end;
 procedure TFMain.SetCurveMode(AMode: TToolSplineMode);
 begin
   if (ToolManager.CurrentTool <> nil) and
-     (ToolManager.CurrentTool is TToolGenericSpline) then
+     (ToolManager.CurrentTool is TToolSpline) then
   begin
-    (ToolManager.CurrentTool as TToolGenericSpline).CurrentMode := AMode;
+    (ToolManager.CurrentTool as TToolSpline).CurrentMode := AMode;
     UpdateCurveMode;
   end;
 end;
@@ -984,11 +1003,11 @@ end;
 procedure TFMain.UpdateCurveMode;
 var
   cm: TToolSplineMode;
-  splineTool: TToolGenericSpline;
+  splineTool: TToolSpline;
 begin
-  if (ToolManager.CurrentTool <> nil) and (ToolManager.CurrentTool is TToolGenericSpline) then
+  if (ToolManager.CurrentTool <> nil) and (ToolManager.CurrentTool is TToolSpline) then
   begin
-    splineTool := ToolManager.CurrentTool as TToolGenericSpline;
+    splineTool := ToolManager.CurrentTool as TToolSpline;
     Tool_CurveMovePoint.Enabled := not splineTool.IsHandDrawing and not splineTool.IsIdle;
     cm := splineTool.CurrentMode;
     if Tool_CurveMovePoint.Down <> (cm = tsmMovePoint) then
@@ -1008,7 +1027,6 @@ begin
   if initialized then
   begin
     v := Combo_SplineStyle.Text;
-    ToolManager.ToolSplineEasyBezier := false;
     if v = 'Inside' then ToolManager.ToolSplineStyle := ssInside else
     if v = 'Inside + ends' then ToolManager.ToolSplineStyle := ssInsideWithEnds else
     if v = 'Crossing' then ToolManager.ToolSplineStyle := ssCrossing else
@@ -1016,7 +1034,20 @@ begin
     if v = 'Outside' then ToolManager.ToolSplineStyle := ssOutside else
     if v = 'Round outside' then ToolManager.ToolSplineStyle:= ssRoundOutside else
     if v = 'Vertex to side' then ToolManager.ToolSplineStyle:= ssVertexToSide else
-    if v = 'Easy Bézier' then ToolManager.ToolSplineEasyBezier := true;
+    if v = 'Easy Bézier' then ToolManager.ToolSplineStyle := ssEasyBezier;
+    if ToolManager.ToolSplineStyle<>ssEasyBezier then
+    begin
+      Tool_CurveMovePoint.Down := true;
+      SetCurveMode(tsmMovePoint);
+      Tool_CurveModeAuto.Enabled := false;
+      Tool_CurveModeAngle.Enabled := false;
+      Tool_CurveModeCurve.Enabled := false;
+    end else
+    begin
+      Tool_CurveModeAuto.Enabled := true;
+      Tool_CurveModeAngle.Enabled := true;
+      Tool_CurveModeCurve.Enabled := true;
+    end;
     UpdateEditPicture(True);
     UpdateCurveMode;
   end;

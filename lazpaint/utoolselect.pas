@@ -14,7 +14,7 @@ type
   TVectorialSelectTool = class(TVectorialTool)
   protected
     function GetIsSelectingTool: boolean; override;
-    procedure AssignShapeStyle; override;
+    procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
     function RoundCoordinate(ptF: TPointF): TPointF; override;
     function UpdateShape(toolDest: TBGRABitmap): TRect; override;
     procedure QuickDefineEnd; override;
@@ -41,22 +41,18 @@ type
 
   { TToolSelectPoly }
 
-  TToolSelectPoly = class(TToolGenericPolygon)
+  TToolSelectPoly = class(TToolPolygon)
   protected
-    function HandDrawingPolygonView({%H-}toolDest: TBGRABitmap): TRect; override;
-    function FinalPolygonView(toolDest: TBGRABitmap): TRect; override;
+    procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
     function GetIsSelectingTool: boolean; override;
-    function GetFillColor: TBGRAPixel; override;
   end;
 
   { TToolSelectSpline }
 
-  TToolSelectSpline = class(TToolGenericSpline)
+  TToolSelectSpline = class(TToolSpline)
   protected
-    function HandDrawingPolygonView(toolDest: TBGRABitmap): TRect; override;
-    function FinalPolygonView({%H-}toolDest: TBGRABitmap): TRect; override;
+    procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
     function GetIsSelectingTool: boolean; override;
-    function GetFillColor: TBGRAPixel; override;
   end;
 
   { TToolMagicWand }
@@ -133,6 +129,52 @@ implementation
 uses types, ugraph, LCLType, LazPaintType, Math, BGRATransform, BGRAPath,
   BGRAPen, LCVectorRectShapes;
 
+procedure AssignSelectShapeStyle(AShape: TVectorShape; ASwapColor: boolean);
+var
+  f: TVectorShapeFields;
+begin
+  f:= AShape.Fields;
+  if vsfPenFill in f then AShape.PenFill.Clear;
+  if vsfPenStyle in f Then AShape.PenStyle := ClearPenStyle;
+  if vsfBackFill in f then
+  begin
+    if ASwapColor then
+      AShape.BackFill.SetSolid(BGRABlack)
+    else
+      AShape.BackFill.SetSolid(BGRAWhite);
+  end;
+end;
+
+{ TToolSelectSpline }
+
+procedure TToolSelectSpline.AssignShapeStyle(AMatrix: TAffineMatrix);
+begin
+  FShape.BeginUpdate;
+  inherited AssignShapeStyle(AMatrix);
+  AssignSelectShapeStyle(FShape, FSwapColor);
+  FShape.EndUpdate;
+end;
+
+function TToolSelectSpline.GetIsSelectingTool: boolean;
+begin
+  Result:= true;
+end;
+
+{ TToolSelectPoly }
+
+procedure TToolSelectPoly.AssignShapeStyle(AMatrix: TAffineMatrix);
+begin
+  FShape.BeginUpdate;
+  inherited AssignShapeStyle(AMatrix);
+  AssignSelectShapeStyle(FShape, FSwapColor);
+  FShape.EndUpdate;
+end;
+
+function TToolSelectPoly.GetIsSelectingTool: boolean;
+begin
+  Result:= true;
+end;
+
 { TVectorialSelectTool }
 
 function TVectorialSelectTool.GetIsSelectingTool: boolean;
@@ -140,20 +182,9 @@ begin
   Result:= true;
 end;
 
-procedure TVectorialSelectTool.AssignShapeStyle;
-var
-  f: TVectorShapeFields;
+procedure TVectorialSelectTool.AssignShapeStyle(AMatrix: TAffineMatrix);
 begin
-  f:= FShape.Fields;
-  if vsfPenFill in f then FShape.PenFill.Clear;
-  if vsfPenStyle in f Then FShape.PenStyle := ClearPenStyle;
-  if vsfBackFill in f then
-  begin
-    if FSwapColor then
-      FShape.BackFill.SetSolid(BGRABlack)
-    else
-      FShape.BackFill.SetSolid(BGRAWhite);
-  end;
+  AssignSelectShapeStyle(FShape, FSwapColor);
   if FShape is TCustomRectShape then
   begin
     if Manager.ToolRatio = 0 then
@@ -177,13 +208,18 @@ begin
 end;
 
 procedure TVectorialSelectTool.QuickDefineEnd;
+var
+  toolDest: TBGRABitmap;
+  r: TRect;
 begin
-  UpdateShape(GetToolDrawingLayer);
+  toolDest := GetToolDrawingLayer;
+  r := UpdateShape(toolDest);
+  Action.NotifyChange(toolDest, r);
 end;
 
 function TVectorialSelectTool.BigImage: boolean;
 begin
-  result := GetToolDrawingLayer.NbPixels > 480000;
+  result := Manager.Image.Width*Manager.Image.Height > 480000;
 end;
 
 { TToolSelectRect }
@@ -465,49 +501,6 @@ begin
   inherited Destroy;
 end;
 
-{ TToolSelectSpline }
-
-function TToolSelectSpline.HandDrawingPolygonView(toolDest: TBGRABitmap): TRect;
-var
-  splinePoints: ArrayOfTPointF;
-begin
-  if Manager.ToolSplineEasyBezier then
-  begin
-    NeedCurveMode;
-    splinePoints := EasyBezierCurve(polygonPoints,True,FCurveMode,EasyBezierMinimumDotProduct).ToPoints;
-  end else
-    splinePoints := toolDest.ComputeClosedSpline(polygonPoints,Manager.ToolSplineStyle);
-  FRenderedPolygonPoints := splinePoints;
-
-  if length(splinePoints) > 2 then
-  begin
-    toolDest.FillPolyAntialias(splinePoints, fillColor);
-    result := GetShapeBounds(splinePoints,1);
-  end else
-    result := EmptyRect;
-end;
-
-function TToolSelectSpline.FinalPolygonView(toolDest: TBGRABitmap): TRect;
-begin
-  if FAfterHandDrawing then
-    result := HandDrawingPolygonView(toolDest)
-  else
-    result := EmptyRect;
-end;
-
-function TToolSelectSpline.GetIsSelectingTool: boolean;
-begin
-  Result:= true;
-end;
-
-function TToolSelectSpline.GetFillColor: TBGRAPixel;
-begin
-  if swapedColor then
-    result := BGRABlack
-  else
-    result := BGRAWhite;
-end;
-
 { TToolSelectionPen }
 
 function TToolSelectionPen.GetIsSelectingTool: boolean;
@@ -551,42 +544,6 @@ begin
   result := rect(0,0,toolDest.Width,toolDest.Height);
   Action.NotifyChange(toolDest, result);
   ValidateAction;
-end;
-
-{ TToolSelectPoly }
-
-function TToolSelectPoly.HandDrawingPolygonView(toolDest: TBGRABitmap): TRect;
-begin
-  result := EmptyRect;
-  //nothing
-end;
-
-function TToolSelectPoly.FinalPolygonView(toolDest: TBGRABitmap): TRect;
-var
-  i: Integer;
-begin
-  if length(polygonPoints) > 2 then
-  begin
-    toolDest.FillPolyAntialias(polygonPoints, fillColor);
-    result := GetShapeBounds(polygonPoints,1);
-  end else
-    result := EmptyRect;
-  setlength(FRenderedPolygonPoints, length(polygonPoints));
-  for i := 0 to high(polygonPoints) do
-    FRenderedPolygonPoints[i] := polygonPoints[i];
-end;
-
-function TToolSelectPoly.GetIsSelectingTool: boolean;
-begin
-  result := true;
-end;
-
-function TToolSelectPoly.GetFillColor: TBGRAPixel;
-begin
-  if swapedColor then
-    result := BGRABlack
-  else
-    result := BGRAWhite;
 end;
 
 initialization

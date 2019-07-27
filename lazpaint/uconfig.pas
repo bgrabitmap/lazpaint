@@ -209,12 +209,12 @@ type
     function ToolPopupMessageShownCount(index: integer): integer;
     procedure SetToolPopupMessageShownCount(index: integer; AValue: integer);
 
-    function DefaultToolLightPositionX: integer;
-    procedure SetDefaultToolLightPositionX(value: integer);
-    function DefaultToolLightPositionY: integer;
-    procedure SetDefaultToolLightPositionY(value: integer);
-    procedure SetDefaultToolLightPosition(value: TPoint);
-    function DefaultToolLightPosition: TPoint;
+    function DefaultToolLightPositionX: single;
+    procedure SetDefaultToolLightPositionX(value: single);
+    function DefaultToolLightPositionY: single;
+    procedure SetDefaultToolLightPositionY(value: single);
+    procedure SetDefaultToolLightPosition(const value: TPointF);
+    function DefaultToolLightPosition: TPointF;
     function DefaultToolLightAltitude: integer;
     procedure SetDefaultToolLightAltitude(value: integer);
     function DefaultToolShapeAltitude: integer;
@@ -891,35 +891,35 @@ begin
   iniOptions.WriteInteger('Popup','ToolPopupMessage' + inttostr(index), avalue);
 end;
 
-function TLazPaintConfig.DefaultToolLightPositionX: integer;
+function TLazPaintConfig.DefaultToolLightPositionX: single;
 begin
-  result := iniOptions.ReadInteger('Tool','LightPositionX',0);
+  result := iniOptions.ReadFloat('Tool','LightPositionX',0);
 end;
 
-procedure TLazPaintConfig.SetDefaultToolLightPositionX(value: integer);
+procedure TLazPaintConfig.SetDefaultToolLightPositionX(value: single);
 begin
-  iniOptions.WriteInteger('Tool','LightPositionX',value);
+  iniOptions.WriteFloat('Tool','LightPositionX',value);
 end;
 
-function TLazPaintConfig.DefaultToolLightPositionY: integer;
+function TLazPaintConfig.DefaultToolLightPositionY: single;
 begin
-  result := iniOptions.ReadInteger('Tool','LightPositionY',0);
+  result := iniOptions.ReadFloat('Tool','LightPositionY',0);
 end;
 
-procedure TLazPaintConfig.SetDefaultToolLightPositionY(value: integer);
+procedure TLazPaintConfig.SetDefaultToolLightPositionY(value: single);
 begin
-  iniOptions.WriteInteger('Tool','LightPositionY',value);
+  iniOptions.WriteFloat('Tool','LightPositionY',value);
 end;
 
-procedure TLazPaintConfig.SetDefaultToolLightPosition(value: TPoint);
+procedure TLazPaintConfig.SetDefaultToolLightPosition(const value: TPointF);
 begin
   SetDefaultToolLightPositionX(value.X);
   SetDefaultToolLightPositionY(value.Y);
 end;
 
-function TLazPaintConfig.DefaultToolLightPosition: TPoint;
+function TLazPaintConfig.DefaultToolLightPosition: TPointF;
 begin
-  result := Point(DefaultToolLightPositionX,DefaultToolLightPositionY);
+  result := PointF(DefaultToolLightPositionX,DefaultToolLightPositionY);
 end;
 
 function TLazPaintConfig.DefaultToolLightAltitude: integer;
@@ -1467,6 +1467,7 @@ end;
 function TLazPaintConfig.DefaultIconSize(defaultValue: integer): integer;
 begin
   result := iniOptions.ReadInteger('General','DefaultIconSize',0);
+  if result > 48 then result := 48;
   if result = 0 then result := defaultValue;
 end;
 

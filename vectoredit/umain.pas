@@ -900,12 +900,15 @@ begin
   if Assigned(img) and img.EditorFocused then
   begin
     sk := LCLKeyToSpecialKey(Key, Shift);
-    FSpecialKeyPressed[sk] := true;
-    img.KeyDown(Shift, sk, AHandled);
-    if AHandled then
+    if sk<>skUnknown then
     begin
-      Key := 0;
-      UpdateTextAlignment;
+      FSpecialKeyPressed[sk] := true;
+      img.KeyDown(Shift, sk, AHandled);
+      if AHandled then
+      begin
+        Key := 0;
+        UpdateTextAlignment;
+      end;
     end;
   end;
 

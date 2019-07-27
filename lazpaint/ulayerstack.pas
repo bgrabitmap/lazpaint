@@ -14,6 +14,12 @@ type
     PreviewPts: array of TPointF;
     NameRect,OpacityBar: TRect;
   end;
+  TLayerItemInfo = record
+    RightPart: TDrawLayerItemResult;
+    VisibleCheckbox: TRect;
+    KindIcon: TRect;
+    KindIconHint: string;
+  end;
 
   { TFLayerStack }
 
@@ -36,6 +42,8 @@ type
       Y: Integer);
     procedure BGRALayerStackMouseUp(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; X, Y: Integer);
+    procedure BGRALayerStackMouseWheel(Sender: TObject; Shift: TShiftState;
+      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure BGRALayerStackRedraw(Sender: TObject; Bitmap: TBGRABitmap);
     procedure BGRALayerStackResize(Sender: TObject);
     procedure ComboBox_BlendOpChange(Sender: TObject);
@@ -67,8 +75,7 @@ type
     VolatileHorzScrollBar, VolatileVertScrollBar: TVolatileScrollBar;
     ScrollButtonRect: TRect;
     InterruptorWidth,InterruptorHeight: integer;
-    interruptors: array of TRect;
-    LayerInfo: array of TDrawLayerItemResult;
+    LayerInfo: array of TLayerItemInfo;
     movingItemStart: boolean;
     movingItem: TBGRABitmap;
     movingItemSourceIndex: integer;
@@ -85,6 +92,7 @@ type
     procedure UpdateImage;
     procedure OnImageChangedHandler(AEvent: TLazPaintImageObservationEvent);
     procedure SelectBlendOp;
+    procedure DoScrollVertically(AAmount: integer);
   public
     { public declarations }
     LazPaintInstance: TLazPaintCustomInstance;
@@ -94,6 +102,8 @@ type
     procedure AddSeparator;
     property CompletelyResizeable: boolean read FCompletelyResizeable write SetCompletelyResizeable;
   end;
+
+var TFLayerStack_CustomDPI: integer = 96;
 
 implementation
 
@@ -179,10 +189,10 @@ end;
 
 procedure TFLayerStack.FormCreate(Sender: TObject);
 begin
-  ScaleControl(Self,OriginalDPI);
+  ScaleControl(Self,OriginalDPI,TFLayerStack_CustomDPI,TFLayerStack_CustomDPI);
   FCompletelyResizeable:= true;
   Position := poDesigned;
-  ZoomFactor := 1;
+  ZoomFactor := TFLayerStack_CustomDPI/96;
   ScrollPos := point(0,0);
   VolatileHorzScrollBar := nil;
   VolatileVertScrollBar := nil;
@@ -226,37 +236,36 @@ var iconSize: integer;
     images: TImageList;
 begin
   LazPaintInstance.Image.OnImageChanged.AddObserver(@OnImageChangedHandler);
-  iconSize := LazPaintInstance.Config.DefaultIconSize(16);
-  if iconSize <> 16 then
-  begin
-    images := LazPaintInstance.Icons[iconSize];
-    ToolBar1.Images := images;
-    ToolBar1.ButtonWidth := images.Width+1;
-    ToolBar1.ButtonHeight := images.Height+1;
-    ToolBar1.Height := ToolBar1.ButtonHeight+1;
-    ToolBar2.Images := images;
-    ToolBar2.ButtonWidth := images.Width+1;
-    ToolBar2.ButtonHeight := images.Height+1;
-    ToolBar2.Height := ToolBar1.ButtonHeight+1;
-    ToolBar3.Images := images;
-    ToolBar3.ButtonWidth := images.Width+1;
-    ToolBar3.ButtonHeight := images.Height+1;
-    ToolBar3.Height := ToolBar1.ButtonHeight+1;
+  iconSize := DoScaleX(16, 96, TFLayerStack_CustomDPI);
 
-    ClientWidth := ToolBar2.ButtonCount * (ToolBar2.ButtonWidth+1) + 5 + Toolbar2.Left;
-    Constraints.MinWidth := Width;
+  images := LazPaintInstance.Icons[iconSize];
+  ToolBar1.Images := images;
+  ToolBar1.ButtonWidth := images.Width+DoScaleX(4,96,TFLayerStack_CustomDPI);
+  ToolBar1.ButtonHeight := images.Height+DoScaleY(4,96,TFLayerStack_CustomDPI);
+  ToolBar1.Height := ToolBar1.ButtonHeight+1;
+  ToolBar2.Images := images;
+  ToolBar2.ButtonWidth := images.Width+DoScaleX(4,96,TFLayerStack_CustomDPI);
+  ToolBar2.ButtonHeight := images.Height+DoScaleY(4,96,TFLayerStack_CustomDPI);
+  ToolBar2.Height := ToolBar1.ButtonHeight+1;
+  ToolBar3.Images := images;
+  ToolBar3.ButtonWidth := images.Width+DoScaleX(4,96,TFLayerStack_CustomDPI);
+  ToolBar3.ButtonHeight := images.Height+DoScaleY(4,96,TFLayerStack_CustomDPI);
+  ToolBar3.Height := ToolBar1.ButtonHeight+1;
 
-    ToolBar1.Width := ToolBar1.ButtonCount * (ToolBar1.ButtonWidth+1) + 8;
-    ToolBar3.Width := ToolBar3.ButtonCount * (ToolBar3.ButtonWidth+1) + 5;
+  ClientWidth := ToolBar2.ButtonCount * (ToolBar2.ButtonWidth+1) + 5 + Toolbar2.Left;
+  Constraints.MinWidth := Width;
 
-    ComboBox_BlendOp.Left := Toolbar3.Left+Toolbar3.Width;
-    Toolbar1.Left := ClientWidth-Toolbar1.Width-6;
-    ComboBox_BlendOp.Width := Toolbar1.Left - ComboBox_BlendOp.Left;
-    Toolbar2.Top := Toolbar1.Top + Toolbar1.Height;
-    Panel1.Height := Toolbar2.Top+Toolbar2.Height+2;
+  ToolBar1.Width := ToolBar1.ButtonCount * (ToolBar1.ButtonWidth+1) + 8;
+  ToolBar3.Width := ToolBar3.ButtonCount * (ToolBar3.ButtonWidth+1) + 5;
 
-    ComboBox_BlendOp.Font.Height := -FontEmHeightSign * ((images.Height-2) * 7 div 10);
-  end;
+  ComboBox_BlendOp.Left := Toolbar3.Left+Toolbar3.Width;
+  Toolbar1.Left := ClientWidth-Toolbar1.Width-6;
+  ComboBox_BlendOp.Width := Toolbar1.Left - ComboBox_BlendOp.Left;
+  Toolbar2.Top := Toolbar1.Top + Toolbar1.Height;
+  Panel1.Height := Toolbar2.Top+Toolbar2.Height+2;
+
+  ComboBox_BlendOp.Font.Height := -FontEmHeightSign * ((images.Height-2) * 6 div 10 + 2);
+
   if Toolbar2.Top < ComboBox_BlendOp.Top + ComboBox_BlendOp.Height then
     Toolbar2.Top := ComboBox_BlendOp.Top + ComboBox_BlendOp.Height;
   if Toolbar2.Top+Toolbar2.Height+2 > Panel1.Height then
@@ -264,15 +273,9 @@ begin
 end;
 
 procedure TFLayerStack.TimerScrollTimer(Sender: TObject);
-var prevY: integer;
 begin
-  prevY := scrollPos.Y;
-  ScrollPos.Y += TimerScrollDeltaY;
-  if ScrollPos.Y < 0 then ScrollPos.Y := 0;
-  if ScrollPos.Y > MaxScrollPos.Y then ScrollPos.Y := MaxScrollPos.Y;
-  movingItemMouseOrigin.Y -= ScrollPos.Y-prevY;
   TimerScroll.Enabled := False;
-  BGRALayerStack.RedrawBitmap;
+  DoScrollVertically(TimerScrollDeltaY);
 end;
 
 procedure TFLayerStack.ToolBlendOpClick(Sender: TObject);
@@ -304,7 +307,7 @@ procedure TFLayerStack.HandleChangeLayerOpacity(X, Y: integer);
 var newOpacity: integer;
 begin
   if (changingLayerOpacity <> -1) and (changingLayerOpacity <= high(LayerInfo)) then
-  with LayerInfo[changingLayerOpacity] do
+  with LayerInfo[changingLayerOpacity].RightPart do
   begin
     if changingLayerOpacity >= LazPaintInstance.Image.NbLayers then exit;
     newOpacity := round((X-(OpacityBar.left+1))/(OpacityBar.right-OpacityBar.left-2)*255);
@@ -398,7 +401,6 @@ end;
 procedure TFLayerStack.ComputeLayout(ABitmap: TBGRABitmap);
 var i,temp,h: integer;
 begin
-  interruptors:= nil;
   LayerInfo := nil;
   LayerRectWidth := round(100*zoomFactor);
   LayerRectHeight := round(50*zoomFactor);
@@ -547,21 +549,56 @@ var i: integer;
   layerPos: TPoint;
   lSelected: boolean;
   y: integer;
-  clipping, rKind: TRect;
+  clipping: TRect;
   lColor, lColorTrans: TBGRAPixel;
 
-  procedure DrawKind(AClass: TBGRALayerOriginalAny);
+  procedure DrawKindUnknown(rKind: TRect; out HintText: string);
   var
     eb: TEasyBezierCurve;
     w: single;
     i: integer;
     m: TAffineMatrix;
   begin
-    if AClass = TBGRALayerImageOriginal then
+    eb := EasyBezierCurve([PointF(0.25,0.25),PointF(0.32,0.07),PointF(0.5,0),PointF(0.68,0.07),PointF(0.75,0.20),
+                           PointF(0.75,0.30),PointF(0.70,0.40),PointF(0.5,0.5),PointF(0.5,0.70)],False,cmCurve);
+    m := AffineMatrixTranslation(rKind.Left,rKind.Top)*AffineMatrixScale(rKind.Width,rKind.Height);
+    for i := 0 to eb.PointCount-1 do eb.Point[i] := m*eb.Point[i];
+    w := max(1,rKind.Height/10);
+    Bitmap.DrawPolyLineAntialias(eb.ToPoints, lColor, w, true);
+    Bitmap.FillEllipseAntialias((rKind.Left+rKind.Right)/2, rKind.Bottom - 1 - (w-1)/2, w*0.6,w*0.6, lColor);
+    HintText := rsUnknownOriginal;
+  end;
+
+  procedure DrawKind(AClass: TBGRALayerOriginalAny; rKind: TRect; out HintText: string);
+  var
+    eb: TEasyBezierCurve;
+    w: single;
+    i: integer;
+    m: TAffineMatrix;
+    r: TRect;
+  begin
+    if AClass = nil then
     begin
       Bitmap.Rectangle(rKind, lColor,lColorTrans, dmDrawWithTransparency);
       Bitmap.HorizLine(rKind.Left+1,rKind.Top+(rKind.Height-1) div 2,rKind.Right-2, lColor, dmDrawWithTransparency);
       Bitmap.VertLine(rKind.Left+(rKind.Width-1) div 2,rKind.Top+1,rKind.Bottom-2, lColor, dmDrawWithTransparency);
+      HintText := rsRasterLayer;
+    end else
+    if AClass = TBGRALayerImageOriginal then
+    begin
+      r := rect(rKind.Left,(rKind.Top+rKind.Bottom) div 2, (rKind.Left+rKind.Right) div 2, rKind.Bottom);
+      w := max(1,rKind.Height/10);
+      Bitmap.Rectangle(r, lColor,lColorTrans, dmDrawWithTransparency);
+      eb := EasyBezierCurve([PointF(rKind.Left,rKind.Top+rKind.Height/4),
+                             PointF(rKind.Left+rKind.Width/2,rKind.Top+rKind.Height/4),
+                             PointF(rKind.Left+rKind.Width*3/4,rKind.Top+rKind.Height/2),
+                             PointF(rKind.Left+rKind.Width*3/4,rKind.Bottom)],False,cmCurve);
+      Bitmap.Arrow.StartAsClassic;
+      Bitmap.Arrow.EndAsClassic;
+      Bitmap.DrawPolyLineAntialias(eb.ToPoints, lColor, w);
+      Bitmap.Arrow.StartAsNone;
+      Bitmap.Arrow.EndAsNone;
+      HintText := rsTransformedRasterLayer;
     end else
     if AClass = TBGRALayerSVGOriginal then
     begin
@@ -577,16 +614,7 @@ var i: integer;
       eb.CurveMode[eb.PointCount-2] := cmAngle;
       for i := 0 to eb.PointCount-1 do eb.Point[i] := m*eb.Point[i];
       Bitmap.DrawPolyLineAntialias(eb.ToPoints, lColor, w, true);
-    end else
-    if AClass = nil then
-    begin
-      eb := EasyBezierCurve([PointF(0.25,0.25),PointF(0.32,0.07),PointF(0.5,0),PointF(0.68,0.07),PointF(0.75,0.20),
-                             PointF(0.75,0.30),PointF(0.70,0.40),PointF(0.5,0.5),PointF(0.5,0.70)],False,cmCurve);
-      m := AffineMatrixTranslation(rKind.Left,rKind.Top)*AffineMatrixScale(rKind.Width,rKind.Height);
-      for i := 0 to eb.PointCount-1 do eb.Point[i] := m*eb.Point[i];
-      w := max(1,rKind.Height/10);
-      Bitmap.DrawPolyLineAntialias(eb.ToPoints, lColor, w, true);
-      Bitmap.FillEllipseAntialias((rKind.Left+rKind.Right)/2, rKind.Bottom - 1 - (w-1)/2, w*0.6,w*0.6, lColor);
+      HintText := rsVectorialLayer;
     end else
     begin
       Bitmap.EllipseAntialias(rKind.Left+rKind.Width / 3, rKind.Top+rKind.Height / 3,rKind.Width / 3,rKind.Height / 3,
@@ -594,6 +622,7 @@ var i: integer;
       Bitmap.DrawPolygonAntialias([PointF(rKind.Left+rKind.Width/4,rKind.Bottom),
                                    PointF(rKind.Left+rKind.Width/2,rKind.Top+rKind.Height/4),
                                    PointF(rKind.Right,rKind.Bottom)],lColor,1, lColorTrans);
+      HintText := rsVectorialLayer;
     end;
   end;
 
@@ -605,7 +634,6 @@ begin
   end;
   layerPos.x := -Offset.X;
   layerPos.y := -Offset.Y;
-  SetLength(interruptors,LazPaintInstance.Image.NbLayers);
   SetLength(LayerInfo,LazPaintInstance.Image.NbLayers);
   clipping := EmptyRect;
   for i := LazPaintInstance.Image.NbLayers-1 downto 0 do
@@ -626,7 +654,7 @@ begin
         end;
         if UpdateItem <> -1 then clipping := rect(layerPos.X,layerPos.Y,layerPos.X+StackWidth,layerPos.Y+LayerRectHeight);
 
-        interruptors[i] := RectWithSize(layerPos.X+InterruptorWidth div 5,layerpos.Y+(LayerRectHeight-5*InterruptorHeight div 2) div 2,
+        LayerInfo[i].VisibleCheckbox := RectWithSize(layerPos.X+InterruptorWidth div 5,layerpos.Y+(LayerRectHeight-5*InterruptorHeight div 2) div 2,
                                         InterruptorWidth, InterruptorHeight);
 
         if (layerpos.Y+LayerRectHeight > 0) and (layerpos.Y < Bitmap.Height) then
@@ -639,9 +667,9 @@ begin
           lColorTrans := lColor;
           lColorTrans.alpha := lColorTrans.alpha div 3;
 
-          Bitmap.Rectangle(interruptors[i],lColor,dmDrawWithTransparency);
+          Bitmap.Rectangle(LayerInfo[i].VisibleCheckbox,lColor,dmDrawWithTransparency);
           if LayerVisible[i] then
-          with interruptors[i] do
+          with LayerInfo[i].VisibleCheckbox do
           begin
             Bitmap.DrawPolyLineAntialias(Bitmap.ComputeBezierSpline([
 
@@ -652,17 +680,17 @@ begin
                   PointF(right-2,top-2))]),lColor,1.5);
           end;
 
-          rKind := interruptors[i];
-          rKind.Offset(0, InterruptorHeight*3 div 2);
+          LayerInfo[i].KindIcon := LayerInfo[i].VisibleCheckbox;
+          LayerInfo[i].KindIcon.Offset(0, InterruptorHeight*3 div 2);
           if LayerOriginalDefined[i] then
           begin
             if LayerOriginalKnown[i] then
-              DrawKind(LayerOriginalClass[i])
+              DrawKind(LayerOriginalClass[i], LayerInfo[i].KindIcon, LayerInfo[i].KindIconHint)
             else
-              DrawKind(nil);
+              DrawKindUnknown(LayerInfo[i].KindIcon, LayerInfo[i].KindIconHint);
           end
           else
-            DrawKind(TBGRALayerImageOriginal);
+            DrawKind(nil, LayerInfo[i].KindIcon, LayerInfo[i].KindIconHint);
 
           inc(layerPos.X,InterruptorWidth);
           if movingItemStart and (i= movingItemSourceIndex) then
@@ -677,7 +705,7 @@ begin
             movingItemStart:= false;
           end;
 
-          LayerInfo[i] := DrawLayerItem(Bitmap,layerPos,i,lSelected);
+          LayerInfo[i].RightPart := DrawLayerItem(Bitmap,layerPos,i,lSelected);
           dec(layerPos.X,InterruptorWidth);
         end;
       end;
@@ -699,12 +727,12 @@ begin
       y := movingItemOrigin.Y + movingItemMousePos.Y - movingItemMouseOrigin.Y - Offset.Y;
       if y < 0 then
       begin
-        timerScrollDeltaY := -movingItem.Height div 10;
+        timerScrollDeltaY := -movingItem.Height div 3;
         TimerScroll.Enabled := true;
       end else
       if y + movingItem.Height > Bitmap.Height then
       begin
-        timerScrollDeltaY := +movingItem.Height div 10;
+        timerScrollDeltaY := +movingItem.Height div 3;
         TimerScroll.Enabled := true;
       end;
       Bitmap.PutImage(movingItemOrigin.X + movingItemMousePos.X - movingItemMouseOrigin.X - Offset.X,
@@ -777,6 +805,17 @@ begin
     LazPaintInstance.ToolManager.ToolPopup(tpmBlendOpBackground);
 end;
 
+procedure TFLayerStack.DoScrollVertically(AAmount: integer);
+var prevY: integer;
+begin
+  prevY := scrollPos.Y;
+  ScrollPos.Y += AAmount;
+  if ScrollPos.Y < 0 then ScrollPos.Y := 0;
+  if ScrollPos.Y > MaxScrollPos.Y then ScrollPos.Y := MaxScrollPos.Y;
+  movingItemMouseOrigin.Y -= ScrollPos.Y-prevY;
+  BGRALayerStack.DiscardBitmap;
+end;
+
 procedure TFLayerStack.ComboBox_BlendOpChange(Sender: TObject);
 var blendOp: TBlendOperation;
   itemStr: string;
@@ -825,8 +864,8 @@ begin
       BGRALayerStack.RedrawBitmap;
       exit;
     end;
-    for i := 0 to high(interruptors) do
-      if PtInRect(Point(x,Y),interruptors[i]) then
+    for i := 0 to high(LayerInfo) do
+      if PtInRect(Point(x,Y),LayerInfo[i].VisibleCheckbox) then
       begin
         if i < LazPaintInstance.Image.NbLayers then
         begin
@@ -838,13 +877,13 @@ begin
         exit;
       end;
     for i := 0 to high(LayerInfo) do
-      if IsPointInPolygon(LayerInfo[i].PreviewPts,pointF(x,y),true) then
+      if IsPointInPolygon(LayerInfo[i].RightPart.PreviewPts,pointF(x,y),true) then
       begin
         HandleSelectLayer(i,x,y);
         exit;
       end;
     for i := 0 to high(LayerInfo) do
-      if PtInRect(Point(x,Y),LayerInfo[i].NameRect) then
+      if PtInRect(Point(x,Y),LayerInfo[i].RightPart.NameRect) then
       begin
         if i < LazPaintInstance.Image.NbLayers then
         begin
@@ -865,8 +904,8 @@ begin
         exit;
       end;
     for i := 0 to high(LayerInfo) do
-      if PtInRect(Point(x,Y),LayerInfo[i].OpacityBar) or PtInRect(Point(x+4,Y),LayerInfo[i].OpacityBar) or
-        PtInRect(Point(x-4,Y),LayerInfo[i].OpacityBar) then
+      if PtInRect(Point(x,Y),LayerInfo[i].RightPart.OpacityBar) or PtInRect(Point(x+4,Y),LayerInfo[i].RightPart.OpacityBar) or
+        PtInRect(Point(x-4,Y),LayerInfo[i].RightPart.OpacityBar) then
       begin
         if i < LazPaintInstance.Image.NbLayers then
         begin
@@ -880,11 +919,13 @@ end;
 
 procedure TFLayerStack.BGRALayerStackMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
+var
+  i: Integer;
 begin
   if movingItem <> nil then
   begin
     movingItemMousePos := point(X,Y);
-    BGRALayerStack.RedrawBitmap;
+    BGRALayerStack.DiscardBitmap;
     exit;
   end;
   if ((VolatileVertScrollBar <> nil) and VolatileVertScrollBar.MouseMove(X,Y)) or
@@ -892,7 +933,7 @@ begin
   begin
     if VolatileHorzScrollBar <> nil then ScrollPos.X := VolatileHorzScrollBar.Position;
     if VolatileVertScrollBar <> nil then ScrollPos.Y := VolatileVertScrollBar.Position;
-    BGRALayerStack.RedrawBitmap;
+    BGRALayerStack.DiscardBitmap;
     exit;
   end;
   if changingLayerOpacity <> -1 then
@@ -900,6 +941,14 @@ begin
     HandleChangeLayerOpacity(X,Y);
     exit;
   end;
+  for i := 0 to high(LayerInfo) do
+    if LayerInfo[i].KindIcon.Contains(Point(X,Y)) then
+    begin
+      BGRALayerStack.Hint := LayerInfo[i].KindIconHint;
+      BGRALayerStack.ShowHint:= true;
+      exit;
+    end;
+  BGRALayerStack.ShowHint:= false;
 end;
 
 procedure TFLayerStack.BGRALayerStackMouseUp(Sender: TObject;
@@ -936,6 +985,13 @@ begin
     end;
     if changingLayerOpacity <> -1 then changingLayerOpacity := -1;
   end;
+end;
+
+procedure TFLayerStack.BGRALayerStackMouseWheel(Sender: TObject;
+  Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint;
+  var Handled: Boolean);
+begin
+  DoScrollVertically(round(-WheelDelta*ZoomFactor*50/120));
 end;
 
 {$R *.lfm}

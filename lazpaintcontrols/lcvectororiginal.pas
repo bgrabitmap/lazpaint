@@ -57,8 +57,6 @@ type
     procedure SetId(AValue: integer);
     procedure SetOutlineWidth(AValue: single);
   protected
-    procedure BeginUpdate;
-    procedure EndUpdate;
     procedure BeginEditingUpdate;
     procedure EndEditingUpdate;
     procedure DoOnChange(ABoundsBefore: TRectF); virtual;
@@ -79,7 +77,7 @@ type
     procedure SetUsermode(AValue: TVectorShapeUsermode); virtual;
     procedure LoadFill(AStorage: TBGRACustomOriginalStorage; AObjectName: string; var AValue: TVectorialFill);
     procedure SaveFill(AStorage: TBGRACustomOriginalStorage; AObjectName: string; AValue: TVectorialFill);
-    function ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean; AStrokeMatrix: TAffineMatrix): ArrayOfTPointF;
+    function ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean; AStrokeMatrix: TAffineMatrix): ArrayOfTPointF; virtual;
     function GetStroker: TBGRAPenStroker;
     property Stroker: TBGRAPenStroker read GetStroker;
     procedure FillChange({%H-}ASender: TObject); virtual;
@@ -89,7 +87,10 @@ type
     function CanHaveRenderStorage: boolean;
   public
     constructor Create(AContainer: TVectorOriginal); virtual;
+    class function CreateFromStorage(AStorage: TBGRACustomOriginalStorage; AContainer: TVectorOriginal): TVectorShape;
     destructor Destroy; override;
+    procedure BeginUpdate;
+    procedure EndUpdate;
     procedure QuickDefine(const APoint1,APoint2: TPointF); virtual; abstract;
     //one of the two Render functions must be overriden
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); virtual;
@@ -116,6 +117,7 @@ type
     class function StorageClassName: RawByteString; virtual; abstract;
     function GetIsSlow({%H-}AMatrix: TAffineMatrix): boolean; virtual;
     function GetUsedTextures: ArrayOfBGRABitmap;
+    procedure Transform(AMatrix: TAffineMatrix); virtual;
     class function Fields: TVectorShapeFields; virtual;
     class function Usermodes: TVectorShapeUsermodes; virtual;
     class function PreferPixelCentered: boolean; virtual;
@@ -531,6 +533,20 @@ begin
   setlength(result, nb);
 end;
 
+procedure TVectorShape.Transform(AMatrix: TAffineMatrix);
+var
+  zoom: Single;
+begin
+  if IsAffineMatrixIdentity(AMatrix) then exit;
+  BeginUpdate;
+  if vsfBackFill in Fields then BackFill.Transform(AMatrix);
+  if vsfPenFill in Fields then PenFill.Transform(AMatrix);
+  zoom := (VectLen(AMatrix[1,1],AMatrix[2,1])+VectLen(AMatrix[1,2],AMatrix[2,2]))/2;
+  if vsfPenWidth in Fields then PenWidth := zoom*PenWidth;
+  if vsfOutlineFill in Fields then OutlineWidth := zoom*OutlineWidth;
+  EndUpdate;
+end;
+
 class function TVectorShape.Fields: TVectorShapeFields;
 begin
   result := [];
@@ -855,7 +871,7 @@ begin
   if FStroker = nil then
   begin
     FStroker := TBGRAPenStroker.Create;
-    FStroker.MiterLimit:= sqrt(2);
+    FStroker.MiterLimit:= 2;
   end;
   result := FStroker;
 end;
@@ -981,6 +997,20 @@ begin
   FRemoving:= false;
   FId := 0;
   FRenderIteration:= 0;
+end;
+
+class function TVectorShape.CreateFromStorage(
+  AStorage: TBGRACustomOriginalStorage; AContainer: TVectorOriginal): TVectorShape;
+var
+  objClassName: RawByteString;
+  shapeClass: TVectorShapeAny;
+begin
+  objClassName := AStorage.RawString['class'];
+  if objClassName = '' then raise exception.Create('Shape class not defined');
+  shapeClass:= GetVectorShapeByStorageClassName(objClassName);
+  if shapeClass = nil then raise exception.Create('Unknown shape class "'+objClassName+'"');
+  result := shapeClass.Create(AContainer);
+  result.LoadFromStorage(AStorage);
 end;
 
 destructor TVectorShape.Destroy;
@@ -1536,6 +1566,8 @@ procedure TVectorOriginal.Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMat
 var
   i: Integer;
   idxSelected: LongInt;
+  clipRectF,allRectF: TRectF;
+  mOfs: TAffineMatrix;
 begin
   if AMatrix <> FFrozenShapeMatrix then DiscardFrozenShapes;
   idxSelected := FShapes.IndexOf(FSelectedShape);
@@ -1544,12 +1576,16 @@ begin
     FSelectedShape := nil;
     DiscardFrozenShapes;
   end;
+  with ADest.ClipRect do
+    clipRectF := RectF(Left,Top,Right,Bottom);
+  mOfs := AffineMatrixTranslation(ARenderOffset.X,ARenderOffset.Y)*AMatrix;
   if FFrozenShapesComputed then
   begin
     ADest.PutImage(ARenderOffset.X-FFrozenShapesRenderOffset.X,
                    ARenderOffset.Y-FFrozenShapesRenderOffset.Y,
                    FFrozenShapesUnderSelection, dmSet);
-    FSelectedShape.Render(ADest, ARenderOffset, AMatrix, ADraft);
+    if FSelectedShape.GetRenderBounds(ADest.ClipRect, mOfs, []).IntersectsWith(clipRectF) then
+      FSelectedShape.Render(ADest, ARenderOffset, AMatrix, ADraft);
     ADest.PutImage(ARenderOffset.X-FFrozenShapesRenderOffset.X,
                    ARenderOffset.Y-FFrozenShapesRenderOffset.Y,
                    FFrozenShapesOverSelection, dmDrawWithTransparency);
@@ -1557,21 +1593,25 @@ begin
   begin
     if idxSelected <> -1 then
     begin
+      allRectF := rectF(0,0,ADest.Width,ADest.Height);
       if idxSelected > 0 then
       begin
         FreeAndNil(FFrozenShapesUnderSelection);
         FFrozenShapesUnderSelection := TBGRABitmap.Create(ADest.Width,ADest.Height);
         for i:= 0 to idxSelected-1 do
-          FShapes[i].Render(FFrozenShapesUnderSelection, ARenderOffset, AMatrix, false);
+          if FShapes[i].GetRenderBounds(rect(0,0,ADest.Width,ADest.Height), mOfs, []).IntersectsWith(allRectF) then
+            FShapes[i].Render(FFrozenShapesUnderSelection, ARenderOffset, AMatrix, false);
         ADest.PutImage(0,0,FFrozenShapesUnderSelection, dmSet);
       end;
-      FSelectedShape.Render(ADest, ARenderOffset, AMatrix, ADraft);
+      if FSelectedShape.GetRenderBounds(ADest.ClipRect, mOfs, []).IntersectsWith(clipRectF) then
+        FSelectedShape.Render(ADest, ARenderOffset, AMatrix, ADraft);
       if idxSelected < FShapes.Count-1 then
       begin
         FreeAndNil(FFrozenShapesOverSelection);
         FFrozenShapesOverSelection := TBGRABitmap.Create(ADest.Width,ADest.Height);
         for i:= idxSelected+1 to FShapes.Count-1 do
-          FShapes[i].Render(FFrozenShapesOverSelection, ARenderOffset, AMatrix, false);
+          if FShapes[i].GetRenderBounds(rect(0,0,ADest.Width,ADest.Height), mOfs, []).IntersectsWith(allRectF) then
+            FShapes[i].Render(FFrozenShapesOverSelection, ARenderOffset, AMatrix, false);
         ADest.PutImage(0,0,FFrozenShapesOverSelection, dmDrawWithTransparency);
       end;
       FFrozenShapesRenderOffset := ARenderOffset;
@@ -1580,7 +1620,8 @@ begin
     end else
     begin
       for i:= 0 to FShapes.Count-1 do
-        FShapes[i].Render(ADest, ARenderOffset, AMatrix, ADraft);
+        if FShapes[i].GetRenderBounds(ADest.ClipRect, mOfs, []).IntersectsWith(clipRectF) then
+          FShapes[i].Render(ADest, ARenderOffset, AMatrix, ADraft);
     end;
   end;
   DiscardUnusedRenderStorage;
@@ -1651,8 +1692,7 @@ var
   nb: LongInt;
   i: Integer;
   shapeObj, texObj: TBGRACustomOriginalStorage;
-  objClassName, texName: String;
-  shapeClass: TVectorShapeAny;
+  texName: String;
   loadedShape: TVectorShape;
   idList: array of single;
   mem: TMemoryStream;
@@ -1694,12 +1734,7 @@ begin
     shapeObj := AStorage.OpenObject('shape'+inttostr(i+1));
     if shapeObj <> nil then
     try
-      objClassName := shapeObj.RawString['class'];
-      if objClassName = '' then raise exception.Create('Shape class not defined');
-      shapeClass:= GetVectorShapeByStorageClassName(objClassName);
-      if shapeClass = nil then raise exception.Create('Unknown shape class "'+objClassName+'"');
-      loadedShape := shapeClass.Create(self);
-      loadedShape.LoadFromStorage(shapeObj);
+      loadedShape := TVectorShape.CreateFromStorage(shapeObj, self);
       loadedShape.OnChange := @OnShapeChange;
       loadedShape.OnEditingChange := @OnShapeEditingChange;
       if loadedShape.Id > FLastShapeId then FLastShapeId := loadedShape.Id;

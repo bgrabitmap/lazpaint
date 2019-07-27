@@ -5,7 +5,8 @@ unit UStateType;
 interface
 
 uses
-  Types, Classes, SysUtils, BGRABitmap, BGRABitmapTypes, BGRALayers, fgl;
+  Types, Classes, SysUtils, BGRABitmap, BGRABitmapTypes, BGRALayers,
+  BGRALayerOriginal, fgl;
 
 const MinSizeToCompress = 512; //set to 1 if you want always compression
 const MinSerializedSize = 16384;
@@ -120,6 +121,8 @@ type
     procedure Init(Image1,Image2: TBGRABitmap; {%H-}AChangeRect: TRect); virtual;
     function SerializeCompressedData: boolean;
     procedure UnserializeCompressedData;
+  protected
+    function CreateNew(AWidth,AHeight: integer): TBGRABitmap; virtual; abstract;
   public
     SizeBefore, SizeAfter: TSize;
     constructor Create(Image1,Image2: TBGRABitmap; AChangeRect: TRect); overload;
@@ -145,6 +148,8 @@ type
     function GetIsIdentity: boolean; override;
     procedure Decompress;
     procedure Init(Image1,Image2: TBGRABitmap; AChangeRect: TRect); override;
+  protected
+    function CreateNew(AWidth, AHeight: integer): TBGRABitmap; override;
   public
     procedure ApplyInPlace(ADest: TBGRABitmap; {%H-}AReverse: boolean); override;
     function Compress: boolean; override;
@@ -166,6 +171,8 @@ type
     function GetIsIdentity: boolean; override;
     procedure Decompress;
     procedure Init(Image1,Image2: TBGRABitmap; AChangeRect: TRect); override;
+  protected
+    function CreateNew(AWidth, AHeight: integer): TBGRABitmap; override;
   public
     procedure ApplyInPlace(ADest: TBGRABitmap; {%H-}AReverse: boolean); override;
     function Compress: boolean; override;
@@ -193,12 +200,14 @@ type
     FInfo: TLayerInfo;
     FIndex: integer;
     FOriginalData: TMemoryStream;
-    FOriginalKnown: boolean;
+    FOriginalBitmapStored: boolean;
     FOriginalRenderStatus: TOriginalRenderStatus;
     FOriginalMatrix: TAffineMatrix;
     FOriginalDraft: boolean;
   public
     constructor Create(ALayeredImage: TBGRALayeredBitmap; AIndex: integer);
+    constructor Create(ALayeredImage: TBGRALayeredBitmap; AIndex: integer;
+                       AAlwaysStoreBitmap: boolean);
     procedure Restore(ALayeredImage: TBGRALayeredBitmap);
     procedure Replace(ALayeredImage: TBGRALayeredBitmap);
     property LayerIndex: integer read FIndex;
@@ -322,7 +331,12 @@ var
   DestSize: TSize;
 begin
   if (self = nil) or IsIdentity then
-    result := ASource.Duplicate as TBGRABitmap
+  begin
+    if ASource = nil then
+      result := nil
+    else
+      result := ASource.Duplicate as TBGRABitmap
+  end
   else
   begin
     if AReverse then DestSize := SizeBefore else
@@ -332,7 +346,7 @@ begin
       result := nil
     else
     begin
-      result := TBGRABitmap.Create(Destsize.cx,Destsize.cy);
+      result := CreateNew(Destsize.cx,Destsize.cy);
       if ASource <> nil then
         result.PutImage(0,0,ASource,dmSet);
       ApplyInPlace(result, AReverse);
@@ -345,8 +359,9 @@ function TCustomImageDiff.ApplyCanCreateNew(ASource: TBGRABitmap;
 begin
   if (self = nil) or IsIdentity then exit(ASource); //keep
 
-  if (SizeAfter.cx <> SizeBefore.cx) or
-     (SizeAfter.cy <> SizeBefore.cy) then
+  if (ASource = nil) or
+     ((SizeAfter.cx <> SizeBefore.cx) or
+     (SizeAfter.cy <> SizeBefore.cy)) then
      exit(ApplyInNew(ASource, AReverse))
   else
   begin
@@ -579,6 +594,11 @@ begin
       uncompressedDiff.free;
     end;
   end;
+end;
+
+function TGrayscaleImageDiff.CreateNew(AWidth, AHeight: integer): TBGRABitmap;
+begin
+  result := TBGRABitmap.Create(AWidth,AHeight, BGRABlack);
 end;
 
 procedure TGrayscaleImageDiff.ApplyInPlace(ADest: TBGRABitmap; AReverse: boolean);
@@ -884,6 +904,11 @@ begin
   end;
 end;
 
+function TImageDiff.CreateNew(AWidth, AHeight: integer): TBGRABitmap;
+begin
+  result := TBGRABitmap.Create(AWidth,AHeight);
+end;
+
 procedure TImageDiff.ApplyInPlace(ADest: TBGRABitmap; AReverse: boolean);
 var
   pdest: PDWord;
@@ -1001,15 +1026,35 @@ end;
 
 constructor TStoredLayer.Create(ALayeredImage: TBGRALayeredBitmap;
   AIndex: integer);
+var
+  {%H-}orig: TBGRALayerCustomOriginal;
+  alwaysStoreBitmap: Boolean;
+begin
+  alwaysStoreBitmap := false;
+  if (ALayeredImage.LayerOriginalGuid[AIndex]<>GUID_NULL) and
+    ALayeredImage.LayerOriginalKnown[AIndex] then
+  begin
+    try
+      orig := ALayeredImage.LayerOriginal[AIndex];
+    except
+      on ex:exception do
+        alwaysStoreBitmap:= true;
+    end;
+  end;
+  Create(ALayeredImage, AIndex, alwaysStoreBitmap);
+end;
+
+constructor TStoredLayer.Create(ALayeredImage: TBGRALayeredBitmap;
+  AIndex: integer; AAlwaysStoreBitmap: boolean);
 begin
   FIndex := AIndex;
   FInfo := GetLayerInfo(ALayeredImage, AIndex);
   if ALayeredImage.LayerOriginalGuid[AIndex]<>GUID_NULL then
   begin
-    FOriginalKnown := ALayeredImage.LayerOriginalKnown[AIndex];
+    FOriginalBitmapStored := AAlwaysStoreBitmap or not ALayeredImage.LayerOriginalKnown[AIndex];
     FOriginalRenderStatus:= ALayeredImage.LayerOriginalRenderStatus[AIndex];
 
-    if FOriginalKnown then
+    if not FOriginalBitmapStored then
       inherited Create(nil)
     else
       inherited Create(ALayeredImage.LayerBitmap[AIndex]);
@@ -1034,7 +1079,7 @@ begin
     FOriginalData.Position:= 0;
     idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData, true);
 
-    if FOriginalKnown then
+    if not FOriginalBitmapStored then
     begin
       tempIdx := ALayeredImage.AddLayerFromOriginal(ALayeredImage.Original[idxOrig].Guid, FOriginalMatrix);
       ALayeredImage.RenderLayerFromOriginal(tempIdx, FOriginalDraft);
@@ -1060,7 +1105,7 @@ begin
   begin
     FOriginalData.Position:= 0;
     idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData, true);
-    if FOriginalKnown then
+    if not FOriginalBitmapStored then
     begin
       ALayeredImage.LayerOriginalGuid[FIndex] := ALayeredImage.OriginalGuid[idxOrig];
       ALayeredImage.LayerOriginalMatrix[FIndex] := FOriginalMatrix;
