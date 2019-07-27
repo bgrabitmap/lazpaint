@@ -41,7 +41,6 @@ uses ugraph, LazPaintType, BGRAGradientScanner, LCVectorRectShapes;
 function TToolGradient.CreateShape: TVectorShape;
 begin
   result := TRectShape.Create(nil);
-  result.QuickDefine(PointF(-0.5,-0.5),PointF(Manager.Image.Width-0.5,Manager.Image.Height-0.5));
   result.PenFill.Clear;
   result.BackFill.SetGradient(TBGRALayerGradientOriginal.Create,true);
   result.Usermode := vsuEditBackFill;
@@ -72,6 +71,7 @@ end;
 
 procedure TToolGradient.QuickDefineShape(AStart, AEnd: TPointF);
 begin
+  FShape.QuickDefine(PointF(-0.5,-0.5),PointF(Manager.Image.Width-0.5,Manager.Image.Height-0.5));
   FShape.BackFill.Gradient.Origin := AStart;
   FShape.BackFill.Gradient.XAxis := AEnd;
 end;
