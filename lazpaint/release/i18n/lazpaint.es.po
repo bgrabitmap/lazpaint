@@ -3312,6 +3312,10 @@ msgstr "px"
 msgid "RAM disk"
 msgstr "Disco RAM"
 
+#: uresourcestrings.rsrasterlayer
+msgid "Raster layer"
+msgstr "Capa de trama"
+
 #: uresourcestrings.rsrecentdirectories
 msgid "Recent directories:"
 msgstr "Carpetas recientes:"
@@ -3443,6 +3447,10 @@ msgstr "Total: %1"
 msgid "Transfer selection to other layer?"
 msgstr "¿Transferir selección a otra capa?"
 
+#: uresourcestrings.rstransformedrasterlayer
+msgid "Transformed raster layer"
+msgstr "Capa de trama transformada"
+
 #: uresourcestrings.rstransformselectioncontent
 msgid "Do you want to transform content of the selection?"
 msgstr "¿Quieres transformar el contenido de la selección?"
@@ -3462,6 +3470,14 @@ msgstr "Imposible guardar archivo: "
 #: uresourcestrings.rsunknowncommand
 msgid "Unknown command : "
 msgstr "Comando desconocido: "
+
+#: uresourcestrings.rsunknownoriginal
+msgid "Unknown original"
+msgstr "Original desconocido"
+
+#: uresourcestrings.rsvectoriallayer
+msgid "Vectorial layer"
+msgstr "Capa vectorial"
 
 #: uresourcestrings.rsyes
 msgid "Yes"

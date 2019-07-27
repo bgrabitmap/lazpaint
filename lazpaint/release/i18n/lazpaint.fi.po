@@ -3285,6 +3285,10 @@ msgstr ""
 msgid "RAM disk"
 msgstr ""
 
+#: uresourcestrings.rsrasterlayer
+msgid "Raster layer"
+msgstr ""
+
 #: uresourcestrings.rsrecentdirectories
 msgid "Recent directories:"
 msgstr "Viimeisimmät kansiot:"
@@ -3414,6 +3418,10 @@ msgstr "Kuvia kaikkiaan: %1"
 msgid "Transfer selection to other layer?"
 msgstr ""
 
+#: uresourcestrings.rstransformedrasterlayer
+msgid "Transformed raster layer"
+msgstr ""
+
 #: uresourcestrings.rstransformselectioncontent
 msgid "Do you want to transform content of the selection?"
 msgstr ""
@@ -3432,6 +3440,14 @@ msgstr ""
 
 #: uresourcestrings.rsunknowncommand
 msgid "Unknown command : "
+msgstr ""
+
+#: uresourcestrings.rsunknownoriginal
+msgid "Unknown original"
+msgstr ""
+
+#: uresourcestrings.rsvectoriallayer
+msgid "Vectorial layer"
 msgstr ""
 
 #: uresourcestrings.rsyes

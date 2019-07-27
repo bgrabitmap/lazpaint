@@ -3303,6 +3303,10 @@ msgstr "pikseļi"
 msgid "RAM disk"
 msgstr ""
 
+#: uresourcestrings.rsrasterlayer
+msgid "Raster layer"
+msgstr ""
+
 #: uresourcestrings.rsrecentdirectories
 msgid "Recent directories:"
 msgstr "Nesen lietotās mapes:"
@@ -3432,6 +3436,10 @@ msgstr "Attēlu kopskaits: %1"
 msgid "Transfer selection to other layer?"
 msgstr "Pārvietot iezīmējumu uz citu slāni?"
 
+#: uresourcestrings.rstransformedrasterlayer
+msgid "Transformed raster layer"
+msgstr ""
+
 #: uresourcestrings.rstransformselectioncontent
 msgid "Do you want to transform content of the selection?"
 msgstr ""
@@ -3451,6 +3459,14 @@ msgstr "Nevar saglabāt failu:"
 #: uresourcestrings.rsunknowncommand
 msgid "Unknown command : "
 msgstr "Nepazīstama komanda:"
+
+#: uresourcestrings.rsunknownoriginal
+msgid "Unknown original"
+msgstr ""
+
+#: uresourcestrings.rsvectoriallayer
+msgid "Vectorial layer"
+msgstr ""
 
 #: uresourcestrings.rsyes
 msgid "Yes"

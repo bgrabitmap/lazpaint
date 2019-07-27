@@ -3307,6 +3307,10 @@ msgstr ""
 msgid "RAM disk"
 msgstr ""
 
+#: uresourcestrings.rsrasterlayer
+msgid "Raster layer"
+msgstr ""
+
 #: uresourcestrings.rsrecentdirectories
 msgid "Recent directories:"
 msgstr ""
@@ -3436,6 +3440,10 @@ msgstr ""
 msgid "Transfer selection to other layer?"
 msgstr ""
 
+#: uresourcestrings.rstransformedrasterlayer
+msgid "Transformed raster layer"
+msgstr ""
+
 #: uresourcestrings.rstransformselectioncontent
 msgid "Do you want to transform content of the selection?"
 msgstr ""
@@ -3455,6 +3463,14 @@ msgstr "ファイルの保存に失敗しました:"
 #: uresourcestrings.rsunknowncommand
 msgid "Unknown command : "
 msgstr "Unknown command:"
+
+#: uresourcestrings.rsunknownoriginal
+msgid "Unknown original"
+msgstr ""
+
+#: uresourcestrings.rsvectoriallayer
+msgid "Vectorial layer"
+msgstr ""
 
 #: uresourcestrings.rsyes
 msgid "Yes"

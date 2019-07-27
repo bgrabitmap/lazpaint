@@ -3320,6 +3320,10 @@ msgstr "px"
 msgid "RAM disk"
 msgstr "RAM-Disk"
 
+#: uresourcestrings.rsrasterlayer
+msgid "Raster layer"
+msgstr ""
+
 #: uresourcestrings.rsrecentdirectories
 msgid "Recent directories:"
 msgstr "Letzte Verzeichnisse"
@@ -3449,6 +3453,10 @@ msgstr "Bilder Gesamt: %1"
 msgid "Transfer selection to other layer?"
 msgstr "Auswahl auf andere Ebene verschieben?"
 
+#: uresourcestrings.rstransformedrasterlayer
+msgid "Transformed raster layer"
+msgstr ""
+
 #: uresourcestrings.rstransformselectioncontent
 msgid "Do you want to transform content of the selection?"
 msgstr ""
@@ -3468,6 +3476,14 @@ msgstr "Kann Datei nicht sichern: "
 #: uresourcestrings.rsunknowncommand
 msgid "Unknown command : "
 msgstr "Unbekannter Befehl: "
+
+#: uresourcestrings.rsunknownoriginal
+msgid "Unknown original"
+msgstr ""
+
+#: uresourcestrings.rsvectoriallayer
+msgid "Vectorial layer"
+msgstr ""
 
 #: uresourcestrings.rsyes
 msgid "Yes"

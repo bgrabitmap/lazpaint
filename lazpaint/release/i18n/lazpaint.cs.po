@@ -3302,6 +3302,10 @@ msgstr "px"
 msgid "RAM disk"
 msgstr ""
 
+#: uresourcestrings.rsrasterlayer
+msgid "Raster layer"
+msgstr ""
+
 #: uresourcestrings.rsrecentdirectories
 msgid "Recent directories:"
 msgstr "Nedávné adresáře:"
@@ -3431,6 +3435,10 @@ msgstr ""
 msgid "Transfer selection to other layer?"
 msgstr "Přenést výběr do jiné vrstvy?"
 
+#: uresourcestrings.rstransformedrasterlayer
+msgid "Transformed raster layer"
+msgstr ""
+
 #: uresourcestrings.rstransformselectioncontent
 msgid "Do you want to transform content of the selection?"
 msgstr ""
@@ -3450,6 +3458,14 @@ msgstr "Nelze uložit soubor :"
 #: uresourcestrings.rsunknowncommand
 msgid "Unknown command : "
 msgstr "Neznámý příkaz :"
+
+#: uresourcestrings.rsunknownoriginal
+msgid "Unknown original"
+msgstr ""
+
+#: uresourcestrings.rsvectoriallayer
+msgid "Vectorial layer"
+msgstr ""
 
 #: uresourcestrings.rsyes
 msgid "Yes"

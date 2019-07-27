@@ -3319,6 +3319,10 @@ msgstr "px"
 msgid "RAM disk"
 msgstr "RAM disque"
 
+#: uresourcestrings.rsrasterlayer
+msgid "Raster layer"
+msgstr "Calque en pixels"
+
 #: uresourcestrings.rsrecentdirectories
 msgid "Recent directories:"
 msgstr "Répertoires récents :"
@@ -3450,6 +3454,10 @@ msgstr "Nb. total d'images : %1"
 msgid "Transfer selection to other layer?"
 msgstr "Voulez-vous transférer la sélection vers un autre calque ?"
 
+#: uresourcestrings.rstransformedrasterlayer
+msgid "Transformed raster layer"
+msgstr "Calque en pixels transformé"
+
 #: uresourcestrings.rstransformselectioncontent
 msgid "Do you want to transform content of the selection?"
 msgstr "Voulez-vous transformer le contenu de la sélection ?"
@@ -3469,6 +3477,14 @@ msgstr "Impossible d'enregistrer le fichier : "
 #: uresourcestrings.rsunknowncommand
 msgid "Unknown command : "
 msgstr "Commande inconnue : "
+
+#: uresourcestrings.rsunknownoriginal
+msgid "Unknown original"
+msgstr "Original inconnu"
+
+#: uresourcestrings.rsvectoriallayer
+msgid "Vectorial layer"
+msgstr "Calque vectoriel"
 
 #: uresourcestrings.rsyes
 msgid "Yes"

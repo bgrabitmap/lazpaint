@@ -14,6 +14,12 @@ type
     PreviewPts: array of TPointF;
     NameRect,OpacityBar: TRect;
   end;
+  TLayerItemInfo = record
+    RightPart: TDrawLayerItemResult;
+    VisibleCheckbox: TRect;
+    KindIcon: TRect;
+    KindIconHint: string;
+  end;
 
   { TFLayerStack }
 
@@ -69,8 +75,7 @@ type
     VolatileHorzScrollBar, VolatileVertScrollBar: TVolatileScrollBar;
     ScrollButtonRect: TRect;
     InterruptorWidth,InterruptorHeight: integer;
-    interruptors: array of TRect;
-    LayerInfo: array of TDrawLayerItemResult;
+    LayerInfo: array of TLayerItemInfo;
     movingItemStart: boolean;
     movingItem: TBGRABitmap;
     movingItemSourceIndex: integer;
@@ -302,7 +307,7 @@ procedure TFLayerStack.HandleChangeLayerOpacity(X, Y: integer);
 var newOpacity: integer;
 begin
   if (changingLayerOpacity <> -1) and (changingLayerOpacity <= high(LayerInfo)) then
-  with LayerInfo[changingLayerOpacity] do
+  with LayerInfo[changingLayerOpacity].RightPart do
   begin
     if changingLayerOpacity >= LazPaintInstance.Image.NbLayers then exit;
     newOpacity := round((X-(OpacityBar.left+1))/(OpacityBar.right-OpacityBar.left-2)*255);
@@ -396,7 +401,6 @@ end;
 procedure TFLayerStack.ComputeLayout(ABitmap: TBGRABitmap);
 var i,temp,h: integer;
 begin
-  interruptors:= nil;
   LayerInfo := nil;
   LayerRectWidth := round(100*zoomFactor);
   LayerRectHeight := round(50*zoomFactor);
@@ -545,10 +549,10 @@ var i: integer;
   layerPos: TPoint;
   lSelected: boolean;
   y: integer;
-  clipping, rKind: TRect;
+  clipping: TRect;
   lColor, lColorTrans: TBGRAPixel;
 
-  procedure DrawKindUnknown;
+  procedure DrawKindUnknown(rKind: TRect; out HintText: string);
   var
     eb: TEasyBezierCurve;
     w: single;
@@ -562,9 +566,10 @@ var i: integer;
     w := max(1,rKind.Height/10);
     Bitmap.DrawPolyLineAntialias(eb.ToPoints, lColor, w, true);
     Bitmap.FillEllipseAntialias((rKind.Left+rKind.Right)/2, rKind.Bottom - 1 - (w-1)/2, w*0.6,w*0.6, lColor);
+    HintText := rsUnknownOriginal;
   end;
 
-  procedure DrawKind(AClass: TBGRALayerOriginalAny);
+  procedure DrawKind(AClass: TBGRALayerOriginalAny; rKind: TRect; out HintText: string);
   var
     eb: TEasyBezierCurve;
     w: single;
@@ -577,6 +582,7 @@ var i: integer;
       Bitmap.Rectangle(rKind, lColor,lColorTrans, dmDrawWithTransparency);
       Bitmap.HorizLine(rKind.Left+1,rKind.Top+(rKind.Height-1) div 2,rKind.Right-2, lColor, dmDrawWithTransparency);
       Bitmap.VertLine(rKind.Left+(rKind.Width-1) div 2,rKind.Top+1,rKind.Bottom-2, lColor, dmDrawWithTransparency);
+      HintText := rsRasterLayer;
     end else
     if AClass = TBGRALayerImageOriginal then
     begin
@@ -592,6 +598,7 @@ var i: integer;
       Bitmap.DrawPolyLineAntialias(eb.ToPoints, lColor, w);
       Bitmap.Arrow.StartAsNone;
       Bitmap.Arrow.EndAsNone;
+      HintText := rsTransformedRasterLayer;
     end else
     if AClass = TBGRALayerSVGOriginal then
     begin
@@ -607,6 +614,7 @@ var i: integer;
       eb.CurveMode[eb.PointCount-2] := cmAngle;
       for i := 0 to eb.PointCount-1 do eb.Point[i] := m*eb.Point[i];
       Bitmap.DrawPolyLineAntialias(eb.ToPoints, lColor, w, true);
+      HintText := rsVectorialLayer;
     end else
     begin
       Bitmap.EllipseAntialias(rKind.Left+rKind.Width / 3, rKind.Top+rKind.Height / 3,rKind.Width / 3,rKind.Height / 3,
@@ -614,6 +622,7 @@ var i: integer;
       Bitmap.DrawPolygonAntialias([PointF(rKind.Left+rKind.Width/4,rKind.Bottom),
                                    PointF(rKind.Left+rKind.Width/2,rKind.Top+rKind.Height/4),
                                    PointF(rKind.Right,rKind.Bottom)],lColor,1, lColorTrans);
+      HintText := rsVectorialLayer;
     end;
   end;
 
@@ -625,7 +634,6 @@ begin
   end;
   layerPos.x := -Offset.X;
   layerPos.y := -Offset.Y;
-  SetLength(interruptors,LazPaintInstance.Image.NbLayers);
   SetLength(LayerInfo,LazPaintInstance.Image.NbLayers);
   clipping := EmptyRect;
   for i := LazPaintInstance.Image.NbLayers-1 downto 0 do
@@ -646,7 +654,7 @@ begin
         end;
         if UpdateItem <> -1 then clipping := rect(layerPos.X,layerPos.Y,layerPos.X+StackWidth,layerPos.Y+LayerRectHeight);
 
-        interruptors[i] := RectWithSize(layerPos.X+InterruptorWidth div 5,layerpos.Y+(LayerRectHeight-5*InterruptorHeight div 2) div 2,
+        LayerInfo[i].VisibleCheckbox := RectWithSize(layerPos.X+InterruptorWidth div 5,layerpos.Y+(LayerRectHeight-5*InterruptorHeight div 2) div 2,
                                         InterruptorWidth, InterruptorHeight);
 
         if (layerpos.Y+LayerRectHeight > 0) and (layerpos.Y < Bitmap.Height) then
@@ -659,9 +667,9 @@ begin
           lColorTrans := lColor;
           lColorTrans.alpha := lColorTrans.alpha div 3;
 
-          Bitmap.Rectangle(interruptors[i],lColor,dmDrawWithTransparency);
+          Bitmap.Rectangle(LayerInfo[i].VisibleCheckbox,lColor,dmDrawWithTransparency);
           if LayerVisible[i] then
-          with interruptors[i] do
+          with LayerInfo[i].VisibleCheckbox do
           begin
             Bitmap.DrawPolyLineAntialias(Bitmap.ComputeBezierSpline([
 
@@ -672,17 +680,17 @@ begin
                   PointF(right-2,top-2))]),lColor,1.5);
           end;
 
-          rKind := interruptors[i];
-          rKind.Offset(0, InterruptorHeight*3 div 2);
+          LayerInfo[i].KindIcon := LayerInfo[i].VisibleCheckbox;
+          LayerInfo[i].KindIcon.Offset(0, InterruptorHeight*3 div 2);
           if LayerOriginalDefined[i] then
           begin
             if LayerOriginalKnown[i] then
-              DrawKind(LayerOriginalClass[i])
+              DrawKind(LayerOriginalClass[i], LayerInfo[i].KindIcon, LayerInfo[i].KindIconHint)
             else
-              DrawKindUnknown;
+              DrawKindUnknown(LayerInfo[i].KindIcon, LayerInfo[i].KindIconHint);
           end
           else
-            DrawKind(nil);
+            DrawKind(nil, LayerInfo[i].KindIcon, LayerInfo[i].KindIconHint);
 
           inc(layerPos.X,InterruptorWidth);
           if movingItemStart and (i= movingItemSourceIndex) then
@@ -697,7 +705,7 @@ begin
             movingItemStart:= false;
           end;
 
-          LayerInfo[i] := DrawLayerItem(Bitmap,layerPos,i,lSelected);
+          LayerInfo[i].RightPart := DrawLayerItem(Bitmap,layerPos,i,lSelected);
           dec(layerPos.X,InterruptorWidth);
         end;
       end;
@@ -856,8 +864,8 @@ begin
       BGRALayerStack.RedrawBitmap;
       exit;
     end;
-    for i := 0 to high(interruptors) do
-      if PtInRect(Point(x,Y),interruptors[i]) then
+    for i := 0 to high(LayerInfo) do
+      if PtInRect(Point(x,Y),LayerInfo[i].VisibleCheckbox) then
       begin
         if i < LazPaintInstance.Image.NbLayers then
         begin
@@ -869,13 +877,13 @@ begin
         exit;
       end;
     for i := 0 to high(LayerInfo) do
-      if IsPointInPolygon(LayerInfo[i].PreviewPts,pointF(x,y),true) then
+      if IsPointInPolygon(LayerInfo[i].RightPart.PreviewPts,pointF(x,y),true) then
       begin
         HandleSelectLayer(i,x,y);
         exit;
       end;
     for i := 0 to high(LayerInfo) do
-      if PtInRect(Point(x,Y),LayerInfo[i].NameRect) then
+      if PtInRect(Point(x,Y),LayerInfo[i].RightPart.NameRect) then
       begin
         if i < LazPaintInstance.Image.NbLayers then
         begin
@@ -896,8 +904,8 @@ begin
         exit;
       end;
     for i := 0 to high(LayerInfo) do
-      if PtInRect(Point(x,Y),LayerInfo[i].OpacityBar) or PtInRect(Point(x+4,Y),LayerInfo[i].OpacityBar) or
-        PtInRect(Point(x-4,Y),LayerInfo[i].OpacityBar) then
+      if PtInRect(Point(x,Y),LayerInfo[i].RightPart.OpacityBar) or PtInRect(Point(x+4,Y),LayerInfo[i].RightPart.OpacityBar) or
+        PtInRect(Point(x-4,Y),LayerInfo[i].RightPart.OpacityBar) then
       begin
         if i < LazPaintInstance.Image.NbLayers then
         begin
@@ -911,6 +919,8 @@ end;
 
 procedure TFLayerStack.BGRALayerStackMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
+var
+  i: Integer;
 begin
   if movingItem <> nil then
   begin
@@ -931,6 +941,14 @@ begin
     HandleChangeLayerOpacity(X,Y);
     exit;
   end;
+  for i := 0 to high(LayerInfo) do
+    if LayerInfo[i].KindIcon.Contains(Point(X,Y)) then
+    begin
+      BGRALayerStack.Hint := LayerInfo[i].KindIconHint;
+      BGRALayerStack.ShowHint:= true;
+      exit;
+    end;
+  BGRALayerStack.ShowHint:= false;
 end;
 
 procedure TFLayerStack.BGRALayerStackMouseUp(Sender: TObject;
