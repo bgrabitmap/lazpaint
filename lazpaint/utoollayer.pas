@@ -345,7 +345,7 @@ begin
      Manager.Image.LayerOriginalKnown[layerIdx]) then
   begin
     if Assigned(FBackupLayer) then raise exception.Create('Backup layer already assigned');
-    FBackupLayer:= TReplaceLayerByImageOriginalDifference.Create(Manager.Image.CurrentState, layerIdx);
+    FBackupLayer:= TReplaceLayerByImageOriginalDifference.Create(Manager.Image.CurrentState, layerIdx, true);
   end;
   FInitialOriginalMatrix := layered.LayerOriginalMatrix[layerIdx];
   FOriginalInit := true;
