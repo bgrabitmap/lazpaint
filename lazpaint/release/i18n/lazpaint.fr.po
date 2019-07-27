@@ -2911,6 +2911,10 @@ msgstr "Entrées"
 msgid "Error"
 msgstr "Erreur"
 
+#: uresourcestrings.rserrorloadingoriginal
+msgid "Error while loading original however layer can be rasterized."
+msgstr "Erreur au chargement de l'original alors le calque peut être pixelisé."
+
 #: uresourcestrings.rserroronopeningfile
 msgid "Error on opening file \"%1\""
 msgstr "Erreur lors de l'ouverture de \"%1\""
@@ -3436,7 +3440,7 @@ msgstr "Trop de calques"
 
 #: uresourcestrings.rstoomanyshapesinlayer
 msgid "Too many shapes in layer"
-msgstr ""
+msgstr "Trop de formes dans le calque"
 
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"

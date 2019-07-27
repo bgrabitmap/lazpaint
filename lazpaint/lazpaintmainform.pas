@@ -2711,6 +2711,14 @@ begin
           end;
           ptMoveLayer, ptRotateLayer, ptZoomLayer:
           begin
+            if image.LayerOriginalDefined[image.CurrentLayerIndex] and
+               image.LayerOriginalKnown[image.CurrentLayerIndex] and
+               (image.LayerOriginal[image.CurrentLayerIndex]=nil) then
+            begin
+              Tool := ptHand;
+              result := srException;
+            end;
+
             if image.CurrentLayerEquals(BGRAPixelTransparent) and not
               (image.LayerOriginalDefined[image.CurrentLayerIndex] and
                image.LayerOriginalKnown[image.CurrentLayerIndex] and

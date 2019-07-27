@@ -1218,7 +1218,15 @@ end;
 
 function TLazPaintImage.GetLayerOriginal(AIndex: integer): TBGRALayerCustomOriginal;
 begin
-  result := FCurrentState.LayerOriginal[AIndex];
+  try
+    result := FCurrentState.LayerOriginal[AIndex];
+  except
+    on ex:exception do
+    begin
+      MessagePopup(rsErrorLoadingOriginal, 4000);
+      result := nil;
+    end;
+  end;
 end;
 
 function TLazPaintImage.GetLayerOriginalClass(AIndex: integer): TBGRALayerOriginalAny;

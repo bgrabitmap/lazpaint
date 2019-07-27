@@ -2904,6 +2904,10 @@ msgstr "Entradas"
 msgid "Error"
 msgstr "Error"
 
+#: uresourcestrings.rserrorloadingoriginal
+msgid "Error while loading original however layer can be rasterized."
+msgstr "Error cargando el original pero se puedo pixelar la capa."
+
 #: uresourcestrings.rserroronopeningfile
 msgid "Error on opening file \"%1\""
 msgstr "Error abriendo archivo \"%1\""
@@ -3429,7 +3433,7 @@ msgstr "Demasiado capas"
 
 #: uresourcestrings.rstoomanyshapesinlayer
 msgid "Too many shapes in layer"
-msgstr ""
+msgstr "Demasiado figuras en la capa"
 
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"

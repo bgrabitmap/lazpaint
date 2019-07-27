@@ -88,6 +88,7 @@ type
     FRightDown, FLeftDown: boolean;
     FLastPos: TPointF;
     FLastShapeTransform: TAffineMatrix;
+    FUseOriginal: boolean;
     function AlwaysRasterizeShape: boolean; virtual;
     function CreateShape: TVectorShape; virtual; abstract;
     function UseOriginal: boolean; virtual;
@@ -110,6 +111,7 @@ type
     function SlowShape: boolean; virtual;
     procedure QuickDefineEnd; virtual;
     procedure OnTryStop({%H-}sender: TCustomLayerAction); override;
+    procedure UpdateUseOriginal;
   public
     function ValidateShape: TRect;
     function CancelShape: TRect;
@@ -218,6 +220,17 @@ begin
   ValidateShape;
 end;
 
+procedure TVectorialTool.UpdateUseOriginal;
+begin
+  if not IsSelectingTool and Manager.Image.SelectionMaskEmpty and
+     Manager.Image.LayerOriginalDefined[Manager.Image.CurrentLayerIndex] and
+     Manager.Image.LayerOriginalKnown[Manager.Image.CurrentLayerIndex] and
+    (Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex] = TVectorOriginal) then
+    FUseOriginal:= Assigned(Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex])
+  else
+    FUseOriginal:= false;
+end;
+
 function TVectorialTool.ValidateShape: TRect;
 var
   diff: TComposedImageDifference;
@@ -248,9 +261,10 @@ begin
         begin
           transf := VectorTransform;
           diff := TComposedImageDifference.Create;
-          replaceDiff := TReplaceLayerByVectorOriginalDifference.Create(Manager.Image.CurrentState,Manager.Image.CurrentLayerIndex);
+          replaceDiff := TReplaceLayerByVectorOriginalDifference.Create(Manager.Image.CurrentState,Manager.Image.CurrentLayerIndex,
+                           Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex]=TVectorOriginal);
           diff.Add(replaceDiff);
-          transf := AffineMatrixInverse(VectorTransform)*transf;
+          transf := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex])*transf;
           FShape.Transform(transf);
           addDiff := TAddShapeToVectorOriginalDifference.Create(Manager.Image.CurrentState,layerId,FShape);
           diff.Add(addDiff);
@@ -269,6 +283,7 @@ begin
     end;
     Cursor := crDefault;
     result := OnlyRenderChange;
+    UpdateUseOriginal;
   end else
     result := EmptyRect;
 end;
@@ -299,10 +314,7 @@ end;
 
 function TVectorialTool.UseOriginal: boolean;
 begin
-  result := not IsSelectingTool and Manager.Image.SelectionMaskEmpty and
-            Manager.Image.LayerOriginalDefined[Manager.Image.CurrentLayerIndex] and
-            Manager.Image.LayerOriginalKnown[Manager.Image.CurrentLayerIndex] and
-           (Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex] = TVectorOriginal);
+  result := FUseOriginal;
 end;
 
 function TVectorialTool.GetCustomShapeBounds(ADestBounds: TRect; AMatrix: TAffineMatrix; ADraft: boolean): TRect;
@@ -534,6 +546,7 @@ end;
 constructor TVectorialTool.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
+  UpdateUseOriginal;
   FPreviousUpdateBounds := EmptyRect;
   FEditor := TVectorOriginalEditor.Create(nil);
   FEditor.GridMatrix := AffineMatrixScale(0.5,0.5);

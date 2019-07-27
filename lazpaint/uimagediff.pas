@@ -295,7 +295,7 @@ type
     function GetImageDifferenceKind: TImageDifferenceKind; override;
     function CreateOriginal(AState: TState; ALayerIndex: integer): TBGRALayerCustomOriginal; virtual; abstract;
   public
-    constructor Create(AFromState: TState; AIndex: integer);
+    constructor Create(AFromState: TState; AIndex: integer; AAlwaysStoreBitmap: boolean);
     function UsedMemory: int64; override;
     function TryCompress: boolean; override;
     procedure ApplyTo(AState: TState); override;
@@ -924,13 +924,13 @@ begin
 end;
 
 constructor TReplaceLayerByOriginalDifference.Create(
-  AFromState: TState; AIndex: integer);
+  AFromState: TState; AIndex: integer; AAlwaysStoreBitmap: boolean);
 var
   imgState: TImageState;
 begin
   inherited Create(AFromState);
   imgState := AFromState as TImageState;
-  FPreviousLayerContent := TStoredLayer.Create(imgState.LayeredBitmap, AIndex);
+  FPreviousLayerContent := TStoredLayer.Create(imgState.LayeredBitmap, AIndex, AAlwaysStoreBitmap);
   FSourceBounds := imgState.LayeredBitmap.LayerBitmap[AIndex].GetImageBounds;
   with FPreviousLayerContent.Offset do FPrevMatrix := AffineMatrixTranslation(x+FSourceBounds.Left,y+FSourceBounds.Top);
   FNextMatrix := FPrevMatrix;
@@ -1930,8 +1930,8 @@ begin
   with imgDest.LayeredBitmap do
   begin
     previousActiveLayerId:= LayerUniqueId[imgDest.SelectedImageLayerIndex];
-    layerOverCompressedBackup := TStoredLayer.Create(imgDest.LayeredBitmap, ALayerOverIndex);
-    layerUnderCompressedBackup := TStoredLayer.Create(imgDest.LayeredBitmap, ALayerOverIndex-1);
+    layerOverCompressedBackup := TStoredLayer.Create(imgDest.LayeredBitmap, ALayerOverIndex, true);
+    layerUnderCompressedBackup := TStoredLayer.Create(imgDest.LayeredBitmap, ALayerOverIndex-1, true);
   end;
 
   //select layer under and merge

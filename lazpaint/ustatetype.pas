@@ -5,7 +5,8 @@ unit UStateType;
 interface
 
 uses
-  Types, Classes, SysUtils, BGRABitmap, BGRABitmapTypes, BGRALayers, fgl;
+  Types, Classes, SysUtils, BGRABitmap, BGRABitmapTypes, BGRALayers,
+  BGRALayerOriginal, fgl;
 
 const MinSizeToCompress = 512; //set to 1 if you want always compression
 const MinSerializedSize = 16384;
@@ -199,12 +200,14 @@ type
     FInfo: TLayerInfo;
     FIndex: integer;
     FOriginalData: TMemoryStream;
-    FOriginalKnown: boolean;
+    FOriginalBitmapStored: boolean;
     FOriginalRenderStatus: TOriginalRenderStatus;
     FOriginalMatrix: TAffineMatrix;
     FOriginalDraft: boolean;
   public
     constructor Create(ALayeredImage: TBGRALayeredBitmap; AIndex: integer);
+    constructor Create(ALayeredImage: TBGRALayeredBitmap; AIndex: integer;
+                       AAlwaysStoreBitmap: boolean);
     procedure Restore(ALayeredImage: TBGRALayeredBitmap);
     procedure Replace(ALayeredImage: TBGRALayeredBitmap);
     property LayerIndex: integer read FIndex;
@@ -1023,15 +1026,35 @@ end;
 
 constructor TStoredLayer.Create(ALayeredImage: TBGRALayeredBitmap;
   AIndex: integer);
+var
+  {%H-}orig: TBGRALayerCustomOriginal;
+  alwaysStoreBitmap: Boolean;
+begin
+  alwaysStoreBitmap := false;
+  if (ALayeredImage.LayerOriginalGuid[AIndex]<>GUID_NULL) and
+    ALayeredImage.LayerOriginalKnown[AIndex] then
+  begin
+    try
+      orig := ALayeredImage.LayerOriginal[AIndex];
+    except
+      on ex:exception do
+        alwaysStoreBitmap:= true;
+    end;
+  end;
+  Create(ALayeredImage, AIndex, alwaysStoreBitmap);
+end;
+
+constructor TStoredLayer.Create(ALayeredImage: TBGRALayeredBitmap;
+  AIndex: integer; AAlwaysStoreBitmap: boolean);
 begin
   FIndex := AIndex;
   FInfo := GetLayerInfo(ALayeredImage, AIndex);
   if ALayeredImage.LayerOriginalGuid[AIndex]<>GUID_NULL then
   begin
-    FOriginalKnown := ALayeredImage.LayerOriginalKnown[AIndex];
+    FOriginalBitmapStored := AAlwaysStoreBitmap or not ALayeredImage.LayerOriginalKnown[AIndex];
     FOriginalRenderStatus:= ALayeredImage.LayerOriginalRenderStatus[AIndex];
 
-    if FOriginalKnown then
+    if not FOriginalBitmapStored then
       inherited Create(nil)
     else
       inherited Create(ALayeredImage.LayerBitmap[AIndex]);
@@ -1056,7 +1079,7 @@ begin
     FOriginalData.Position:= 0;
     idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData, true);
 
-    if FOriginalKnown then
+    if not FOriginalBitmapStored then
     begin
       tempIdx := ALayeredImage.AddLayerFromOriginal(ALayeredImage.Original[idxOrig].Guid, FOriginalMatrix);
       ALayeredImage.RenderLayerFromOriginal(tempIdx, FOriginalDraft);
@@ -1082,7 +1105,7 @@ begin
   begin
     FOriginalData.Position:= 0;
     idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData, true);
-    if FOriginalKnown then
+    if not FOriginalBitmapStored then
     begin
       ALayeredImage.LayerOriginalGuid[FIndex] := ALayeredImage.OriginalGuid[idxOrig];
       ALayeredImage.LayerOriginalMatrix[FIndex] := FOriginalMatrix;

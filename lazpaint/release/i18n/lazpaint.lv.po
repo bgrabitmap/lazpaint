@@ -2907,6 +2907,10 @@ msgstr ""
 msgid "Error"
 msgstr "Kļūda"
 
+#: uresourcestrings.rserrorloadingoriginal
+msgid "Error while loading original however layer can be rasterized."
+msgstr ""
+
 #: uresourcestrings.rserroronopeningfile
 msgid "Error on opening file \"%1\""
 msgstr "Nevar atvērt failu \"%1\""

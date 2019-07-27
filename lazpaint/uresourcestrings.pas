@@ -30,6 +30,7 @@ resourcestring
   rsEnterLayerName='Enter layer name:';
   rsFileExtensionNotSupported='This file extension is not supported.';
   rsFileFormatNotRecognized='The file format has not been recognized.';
+  rsErrorLoadingOriginal='Error while loading original however layer can be rasterized.';
   rsFileName = 'Filename';
   rsFileSize = 'Size';
   rsFileType = 'Type';
