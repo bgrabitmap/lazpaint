@@ -10,7 +10,7 @@
       <PathDelim Value="\"/>
       <SearchPaths>
         <IncludeFiles Value="dialog\filter;dialog\color"/>
-        <OtherUnitFiles Value="tablet;dialog\filter;dialog\color;tools"/>
+        <OtherUnitFiles Value="tablet;dialog\filter;dialog\color;dialog;tools"/>
         <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
       <CodeGeneration>
