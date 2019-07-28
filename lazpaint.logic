@@ -2,4 +2,9 @@ cd ($LogicDir)/lazpaint
 project lazpaint.lpi
 package lazpaintembeddedpack.lpk
 const lazpainttype.pas LazPaintVersion
+text release/windows/lazpaint.iss "#define MyAppVersion ""$(Version)"""
+text release/debian/linux32/DEBIAN/control "Version: $(Version)"
+text release/debian/linux64/DEBIAN/control "Version: $(Version)"
+echo "Don't forget to update changelog file in DEBIAN folders"
+text release/macOS/makedmg.sh "appversion=$(Version)"
 
