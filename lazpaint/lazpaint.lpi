@@ -36,7 +36,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="buttons;tablet"/>
+            <OtherUnitFiles Value="buttons;tablet;dialog;dialog\color;dialog\filter"/>
             <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -360,7 +360,7 @@
         <UnitName Value="UTool"/>
       </Unit3>
       <Unit4>
-        <Filename Value="uresample.pas"/>
+        <Filename Value="dialog\uresample.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FResample"/>
         <HasResources Value="True"/>
@@ -368,7 +368,7 @@
         <UnitName Value="UResample"/>
       </Unit4>
       <Unit5>
-        <Filename Value="unewimage.pas"/>
+        <Filename Value="dialog\unewimage.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FNewImage"/>
         <HasResources Value="True"/>
@@ -389,7 +389,7 @@
         <UnitName Value="UImage"/>
       </Unit7>
       <Unit8>
-        <Filename Value="uradialblur.pas"/>
+        <Filename Value="dialog\filter\uradialblur.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FRadialBlur"/>
         <HasResources Value="True"/>
@@ -397,7 +397,7 @@
         <UnitName Value="URadialBlur"/>
       </Unit8>
       <Unit9>
-        <Filename Value="umotionblur.pas"/>
+        <Filename Value="dialog\filter\umotionblur.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FMotionBlur"/>
         <HasResources Value="True"/>
@@ -405,7 +405,7 @@
         <UnitName Value="UMotionBlur"/>
       </Unit9>
       <Unit10>
-        <Filename Value="uemboss.pas"/>
+        <Filename Value="dialog\filter\uemboss.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FEmboss"/>
         <HasResources Value="True"/>
@@ -418,7 +418,7 @@
         <UnitName Value="UClipboard"/>
       </Unit11>
       <Unit12>
-        <Filename Value="ucustomblur.pas"/>
+        <Filename Value="dialog\filter\ucustomblur.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FCustomBlur"/>
         <HasResources Value="True"/>
@@ -444,7 +444,7 @@
         <UnitName Value="UChooseColor"/>
       </Unit15>
       <Unit16>
-        <Filename Value="ucanvassize.pas"/>
+        <Filename Value="dialog\ucanvassize.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FCanvasSize"/>
         <HasResources Value="True"/>
@@ -452,7 +452,7 @@
         <UnitName Value="UCanvassize"/>
       </Unit16>
       <Unit17>
-        <Filename Value="ucolorintensity.pas"/>
+        <Filename Value="dialog\color\ucolorintensity.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FColorIntensity"/>
         <HasResources Value="True"/>
@@ -460,7 +460,7 @@
         <UnitName Value="UColorintensity"/>
       </Unit17>
       <Unit18>
-        <Filename Value="ushiftcolors.pas"/>
+        <Filename Value="dialog\color\ushiftcolors.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FShiftColors"/>
         <HasResources Value="True"/>
@@ -468,7 +468,7 @@
         <UnitName Value="UShiftColors"/>
       </Unit18>
       <Unit19>
-        <Filename Value="ucolorize.pas"/>
+        <Filename Value="dialog\color\ucolorize.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FColorize"/>
         <HasResources Value="True"/>
@@ -476,7 +476,7 @@
         <UnitName Value="UColorize"/>
       </Unit19>
       <Unit20>
-        <Filename Value="umultiimage.pas"/>
+        <Filename Value="dialog\umultiimage.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FMultiImage"/>
         <HasResources Value="True"/>
@@ -484,7 +484,7 @@
         <UnitName Value="UMultiImage"/>
       </Unit20>
       <Unit21>
-        <Filename Value="uabout.pas"/>
+        <Filename Value="dialog\uabout.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FAbout"/>
         <HasResources Value="True"/>
@@ -502,7 +502,7 @@
         <UnitName Value="UCommandline"/>
       </Unit23>
       <Unit24>
-        <Filename Value="utwirl.pas"/>
+        <Filename Value="dialog\filter\utwirl.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FTwirl"/>
         <HasResources Value="True"/>
@@ -554,7 +554,7 @@
         <UnitName Value="UResourceStrings"/>
       </Unit33>
       <Unit34>
-        <Filename Value="upixelate.pas"/>
+        <Filename Value="dialog\filter\upixelate.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FPixelate"/>
         <HasResources Value="True"/>
@@ -582,7 +582,7 @@
         <UnitName Value="UStateType"/>
       </Unit38>
       <Unit39>
-        <Filename Value="uobject3d.pas"/>
+        <Filename Value="dialog\uobject3d.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FObject3D"/>
         <HasResources Value="True"/>
@@ -603,7 +603,7 @@
         <UnitName Value="UVolatileScrollBar"/>
       </Unit41>
       <Unit42>
-        <Filename Value="ublendop.pas"/>
+        <Filename Value="dialog\ublendop.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FBlendOp"/>
         <HasResources Value="True"/>
@@ -654,7 +654,7 @@
         <UnitName Value="UImageDiff"/>
       </Unit50>
       <Unit51>
-        <Filename Value="usharpen.pas"/>
+        <Filename Value="dialog\filter\usharpen.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FSharpen"/>
         <HasResources Value="True"/>
@@ -662,7 +662,7 @@
         <UnitName Value="USharpen"/>
       </Unit51>
       <Unit52>
-        <Filename Value="uphongfilter.pas"/>
+        <Filename Value="dialog\filter\uphongfilter.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FPhongFilter"/>
         <HasResources Value="True"/>
@@ -670,7 +670,7 @@
         <UnitName Value="UPhongFilter"/>
       </Unit52>
       <Unit53>
-        <Filename Value="ufilterfunction.pas"/>
+        <Filename Value="dialog\filter\ufilterfunction.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FFilterFunction"/>
         <HasResources Value="True"/>
@@ -708,7 +708,7 @@
         <UnitName Value="UColorFilters"/>
       </Unit59>
       <Unit60>
-        <Filename Value="uadjustcurves.pas"/>
+        <Filename Value="dialog\color\uadjustcurves.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FAdjustCurves"/>
         <HasResources Value="True"/>
@@ -734,7 +734,7 @@
         <UnitName Value="UImageType"/>
       </Unit64>
       <Unit65>
-        <Filename Value="uposterize.pas"/>
+        <Filename Value="dialog\filter\uposterize.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FPosterize"/>
         <HasResources Value="True"/>
@@ -746,7 +746,7 @@
         <UnitName Value="UMySLV"/>
       </Unit66>
       <Unit67>
-        <Filename Value="ubrowseimages.pas"/>
+        <Filename Value="dialog\ubrowseimages.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FBrowseImages"/>
         <HasResources Value="True"/>
@@ -758,14 +758,14 @@
         <UnitName Value="UToolLayer"/>
       </Unit68>
       <Unit69>
-        <Filename Value="unoisefilter.pas"/>
+        <Filename Value="dialog\filter\unoisefilter.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FNoiseFilter"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit69>
       <Unit70>
-        <Filename Value="uprint.pas"/>
+        <Filename Value="dialog\uprint.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FPrint"/>
         <HasResources Value="True"/>
@@ -812,7 +812,7 @@
         <IsPartOfProject Value="True"/>
       </Unit78>
       <Unit79>
-        <Filename Value="usaveoption.pas"/>
+        <Filename Value="dialog\usaveoption.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FSaveOption"/>
         <HasResources Value="True"/>
@@ -825,7 +825,7 @@
         <UnitName Value="UBrushType"/>
       </Unit80>
       <Unit81>
-        <Filename Value="ugeometricbrush.pas"/>
+        <Filename Value="dialog\ugeometricbrush.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FGeometricBrush"/>
         <HasResources Value="True"/>
@@ -836,7 +836,7 @@
         <IsPartOfProject Value="True"/>
       </Unit82>
       <Unit83>
-        <Filename Value="uformrain.pas"/>
+        <Filename Value="dialog\filter\uformrain.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FRain"/>
         <HasResources Value="True"/>
@@ -879,7 +879,7 @@
         <UnitName Value="UImagePreview"/>
       </Unit91>
       <Unit92>
-        <Filename Value="upreviewdialog.pas"/>
+        <Filename Value="dialog\upreviewdialog.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FPreviewDialog"/>
         <HasResources Value="True"/>
@@ -887,7 +887,7 @@
         <UnitName Value="UPreviewDialog"/>
       </Unit92>
       <Unit93>
-        <Filename Value="uquestion.pas"/>
+        <Filename Value="dialog\uquestion.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FQuestion"/>
         <HasResources Value="True"/>

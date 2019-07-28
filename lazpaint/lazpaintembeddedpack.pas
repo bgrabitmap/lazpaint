@@ -17,7 +17,8 @@ uses
   UBlendOp, UImageAction, UImageDiff, UImageObservation, ULayerstack, 
   ULoadImage, ULoading, UMenu, UObject3D, UPhongFilter, UScripting, USharpen, 
   UToolPhong, UTranslation, UVolatileScrollBar, UZoom, laztablet, 
-  ugeometricbrush, LazarusPackageIntf;
+  ugeometricbrush, UFilterFunction, UFormRain, unoisefilter, uposterize, 
+  uadjustcurves, LazarusPackageIntf;
 
 implementation
 

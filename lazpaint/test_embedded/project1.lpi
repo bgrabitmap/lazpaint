@@ -1,21 +1,17 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="9"/>
+    <Version Value="10"/>
     <PathDelim Value="\"/>
     <General>
       <MainUnit Value="0"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
       <Icon Value="0"/>
-      <ActiveWindowIndexAtStart Value="0"/>
     </General>
     <i18n>
       <EnableI18N LFM="False"/>
     </i18n>
-    <VersionInfo>
-      <StringTable ProductVersion=""/>
-    </VersionInfo>
     <BuildModes Count="1" Active="Default">
       <Item1 Name="Default" Default="True"/>
     </BuildModes>
@@ -42,11 +38,11 @@
       <Unit0>
         <Filename Value="project1.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="project1"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="1" Y="1"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="8"/>
+        <CursorPos Y="18"/>
         <UsageCount Value="20"/>
+        <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="unit1.pas"/>
@@ -56,9 +52,7 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit1"/>
         <IsVisibleTab Value="True"/>
-        <EditorIndex Value="0"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="39"/>
+        <TopLine Value="4"/>
         <CursorPos X="3" Y="66"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
@@ -67,7 +61,6 @@
       <Unit2>
         <Filename Value="..\lazpainttype.pas"/>
         <UnitName Value="LazPaintType"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="99"/>
         <CursorPos X="28" Y="112"/>
         <UsageCount Value="10"/>
@@ -78,7 +71,6 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="LazpaintMainForm"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="1409"/>
         <CursorPos X="49" Y="1423"/>
         <UsageCount Value="10"/>
@@ -86,7 +78,6 @@
       <Unit4>
         <Filename Value="..\..\bgrabitmap\bgradefaultbitmap.pas"/>
         <UnitName Value="BGRADefaultBitmap"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="3773"/>
         <CursorPos X="3" Y="3779"/>
         <UsageCount Value="10"/>
@@ -94,16 +85,12 @@
       <Unit5>
         <Filename Value="..\lazpaintinstance.pas"/>
         <UnitName Value="LazpaintInstance"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="365"/>
         <CursorPos X="36" Y="369"/>
         <UsageCount Value="10"/>
       </Unit5>
       <Unit6>
         <Filename Value="..\uimage.pas"/>
-        <UnitName Value="uimage"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
         <CursorPos X="11" Y="8"/>
         <UsageCount Value="10"/>
       </Unit6>
@@ -113,13 +100,11 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UObject3D"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
         <CursorPos X="39" Y="9"/>
         <UsageCount Value="10"/>
       </Unit7>
     </Units>
-    <JumpHistory Count="11" HistoryIndex="10">
+    <JumpHistory Count="13" HistoryIndex="12">
       <Position1>
         <Filename Value="unit1.pas"/>
         <Caret Line="38" Column="17" TopLine="19"/>
@@ -134,7 +119,7 @@
       </Position3>
       <Position4>
         <Filename Value="unit1.pas"/>
-        <Caret Line="39" Column="1" TopLine="20"/>
+        <Caret Line="39" TopLine="20"/>
       </Position4>
       <Position5>
         <Filename Value="unit1.pas"/>
@@ -164,6 +149,14 @@
         <Filename Value="unit1.pas"/>
         <Caret Line="43" Column="19" TopLine="34"/>
       </Position11>
+      <Position12>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="66" Column="3" TopLine="55"/>
+      </Position12>
+      <Position13>
+        <Filename Value="project1.lpr"/>
+        <Caret Line="18" TopLine="8"/>
+      </Position13>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
@@ -177,15 +170,15 @@
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>
+      <Debugging>
+        <GenerateDebugInfo Value="False"/>
+      </Debugging>
       <Options>
         <Win32>
           <GraphicApplication Value="True"/>
         </Win32>
       </Options>
     </Linking>
-    <Other>
-      <CompilerPath Value="$(CompPath)"/>
-    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">

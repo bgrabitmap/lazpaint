@@ -18,3 +18,7 @@ vectoredit/vectoredit
 vectoredit/backup/
 
 lazpaint/release/lazpaint
+
+lazpaint/test_embedded/backup/
+
+lazpaint/test_embedded/project1

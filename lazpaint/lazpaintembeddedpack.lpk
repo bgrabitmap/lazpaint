@@ -9,7 +9,8 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="tablet"/>
+        <IncludeFiles Value="dialog\filter;dialog\color"/>
+        <OtherUnitFiles Value="tablet;dialog\filter;dialog\color"/>
         <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
       <CodeGeneration>
@@ -26,7 +27,7 @@
       </Linking>
     </CompilerOptions>
     <Version Major="7" Release="2"/>
-    <Files Count="78">
+    <Files Count="88">
       <Item1>
         <Filename Value="lazpaintinstance.pas"/>
         <UnitName Value="LazpaintInstance"/>
@@ -44,19 +45,19 @@
         <UnitName Value="LazPaintType"/>
       </Item4>
       <Item5>
-        <Filename Value="uabout.lfm"/>
+        <Filename Value="dialog\uabout.lfm"/>
         <Type Value="LFM"/>
       </Item5>
       <Item6>
-        <Filename Value="uabout.pas"/>
+        <Filename Value="dialog\uabout.pas"/>
         <UnitName Value="UAbout"/>
       </Item6>
       <Item7>
-        <Filename Value="ucanvassize.lfm"/>
+        <Filename Value="dialog\ucanvassize.lfm"/>
         <Type Value="LFM"/>
       </Item7>
       <Item8>
-        <Filename Value="ucanvassize.pas"/>
+        <Filename Value="dialog\ucanvassize.pas"/>
         <UnitName Value="UCanvassize"/>
       </Item8>
       <Item9>
@@ -72,19 +73,19 @@
         <UnitName Value="UClipboard"/>
       </Item11>
       <Item12>
-        <Filename Value="ucolorintensity.lfm"/>
+        <Filename Value="dialog\color\ucolorintensity.lfm"/>
         <Type Value="LFM"/>
       </Item12>
       <Item13>
-        <Filename Value="ucolorintensity.pas"/>
+        <Filename Value="dialog\color\ucolorintensity.pas"/>
         <UnitName Value="UColorintensity"/>
       </Item13>
       <Item14>
-        <Filename Value="ucolorize.lfm"/>
+        <Filename Value="dialog\color\ucolorize.lfm"/>
         <Type Value="LFM"/>
       </Item14>
       <Item15>
-        <Filename Value="ucolorize.pas"/>
+        <Filename Value="dialog\color\ucolorize.pas"/>
         <UnitName Value="UColorize"/>
       </Item15>
       <Item16>
@@ -100,19 +101,19 @@
         <UnitName Value="UCursors"/>
       </Item18>
       <Item19>
-        <Filename Value="ucustomblur.lfm"/>
+        <Filename Value="dialog\filter\ucustomblur.lfm"/>
         <Type Value="LFM"/>
       </Item19>
       <Item20>
-        <Filename Value="ucustomblur.pas"/>
+        <Filename Value="dialog\filter\ucustomblur.pas"/>
         <UnitName Value="UCustomblur"/>
       </Item20>
       <Item21>
-        <Filename Value="uemboss.lfm"/>
+        <Filename Value="dialog\filter\uemboss.lfm"/>
         <Type Value="LFM"/>
       </Item21>
       <Item22>
-        <Filename Value="uemboss.pas"/>
+        <Filename Value="dialog\filter\uemboss.pas"/>
         <UnitName Value="UEmboss"/>
       </Item22>
       <Item23>
@@ -128,27 +129,27 @@
         <UnitName Value="UMac"/>
       </Item25>
       <Item26>
-        <Filename Value="umotionblur.lfm"/>
+        <Filename Value="dialog\filter\umotionblur.lfm"/>
         <Type Value="LFM"/>
       </Item26>
       <Item27>
-        <Filename Value="umotionblur.pas"/>
+        <Filename Value="dialog\filter\umotionblur.pas"/>
         <UnitName Value="UMotionBlur"/>
       </Item27>
       <Item28>
-        <Filename Value="umultiimage.lfm"/>
+        <Filename Value="dialog\umultiimage.lfm"/>
         <Type Value="LFM"/>
       </Item28>
       <Item29>
-        <Filename Value="umultiimage.pas"/>
+        <Filename Value="dialog\umultiimage.pas"/>
         <UnitName Value="UMultiImage"/>
       </Item29>
       <Item30>
-        <Filename Value="unewimage.lfm"/>
+        <Filename Value="dialog\unewimage.lfm"/>
         <Type Value="LFM"/>
       </Item30>
       <Item31>
-        <Filename Value="unewimage.pas"/>
+        <Filename Value="dialog\unewimage.pas"/>
         <UnitName Value="UNewimage"/>
       </Item31>
       <Item32>
@@ -156,27 +157,27 @@
         <UnitName Value="UParse"/>
       </Item32>
       <Item33>
-        <Filename Value="uradialblur.lfm"/>
+        <Filename Value="dialog\filter\uradialblur.lfm"/>
         <Type Value="LFM"/>
       </Item33>
       <Item34>
-        <Filename Value="uradialblur.pas"/>
+        <Filename Value="dialog\filter\uradialblur.pas"/>
         <UnitName Value="URadialBlur"/>
       </Item34>
       <Item35>
-        <Filename Value="uresample.lfm"/>
+        <Filename Value="dialog\uresample.lfm"/>
         <Type Value="LFM"/>
       </Item35>
       <Item36>
-        <Filename Value="uresample.pas"/>
+        <Filename Value="dialog\uresample.pas"/>
         <UnitName Value="UResample"/>
       </Item36>
       <Item37>
-        <Filename Value="ushiftcolors.lfm"/>
+        <Filename Value="dialog\color\ushiftcolors.lfm"/>
         <Type Value="LFM"/>
       </Item37>
       <Item38>
-        <Filename Value="ushiftcolors.pas"/>
+        <Filename Value="dialog\color\ushiftcolors.pas"/>
         <UnitName Value="UShiftColors"/>
       </Item38>
       <Item39>
@@ -192,11 +193,11 @@
         <UnitName Value="UToolbox"/>
       </Item41>
       <Item42>
-        <Filename Value="utwirl.lfm"/>
+        <Filename Value="dialog\filter\utwirl.lfm"/>
         <Type Value="LFM"/>
       </Item42>
       <Item43>
-        <Filename Value="utwirl.pas"/>
+        <Filename Value="dialog\filter\utwirl.pas"/>
         <UnitName Value="UTwirl"/>
       </Item43>
       <Item44>
@@ -204,11 +205,11 @@
         <UnitName Value="UImageState"/>
       </Item44>
       <Item45>
-        <Filename Value="upixelate.lfm"/>
+        <Filename Value="dialog\filter\upixelate.lfm"/>
         <Type Value="LFM"/>
       </Item45>
       <Item46>
-        <Filename Value="upixelate.pas"/>
+        <Filename Value="dialog\filter\upixelate.pas"/>
         <UnitName Value="UPixelate"/>
       </Item46>
       <Item47>
@@ -240,11 +241,11 @@
         <UnitName Value="UToolText"/>
       </Item53>
       <Item54>
-        <Filename Value="ublendop.lfm"/>
+        <Filename Value="dialog\ublendop.lfm"/>
         <Type Value="LFM"/>
       </Item54>
       <Item55>
-        <Filename Value="ublendop.pas"/>
+        <Filename Value="dialog\ublendop.pas"/>
         <UnitName Value="UBlendOp"/>
       </Item55>
       <Item56>
@@ -284,19 +285,19 @@
         <UnitName Value="UMenu"/>
       </Item64>
       <Item65>
-        <Filename Value="uobject3d.lfm"/>
+        <Filename Value="dialog\uobject3d.lfm"/>
         <Type Value="LFM"/>
       </Item65>
       <Item66>
-        <Filename Value="uobject3d.pas"/>
+        <Filename Value="dialog\uobject3d.pas"/>
         <UnitName Value="UObject3D"/>
       </Item66>
       <Item67>
-        <Filename Value="uphongfilter.lfm"/>
+        <Filename Value="dialog\filter\uphongfilter.lfm"/>
         <Type Value="LFM"/>
       </Item67>
       <Item68>
-        <Filename Value="uphongfilter.pas"/>
+        <Filename Value="dialog\filter\uphongfilter.pas"/>
         <UnitName Value="UPhongFilter"/>
       </Item68>
       <Item69>
@@ -304,11 +305,11 @@
         <UnitName Value="UScripting"/>
       </Item69>
       <Item70>
-        <Filename Value="usharpen.lfm"/>
+        <Filename Value="dialog\filter\usharpen.lfm"/>
         <Type Value="LFM"/>
       </Item70>
       <Item71>
-        <Filename Value="usharpen.pas"/>
+        <Filename Value="dialog\filter\usharpen.pas"/>
         <UnitName Value="USharpen"/>
       </Item71>
       <Item72>
@@ -332,13 +333,53 @@
         <UnitName Value="laztablet"/>
       </Item76>
       <Item77>
-        <Filename Value="ugeometricbrush.lfm"/>
+        <Filename Value="dialog\ugeometricbrush.lfm"/>
         <Type Value="LFM"/>
       </Item77>
       <Item78>
-        <Filename Value="ugeometricbrush.pas"/>
+        <Filename Value="dialog\ugeometricbrush.pas"/>
         <UnitName Value="ugeometricbrush"/>
       </Item78>
+      <Item79>
+        <Filename Value="dialog\filter\ufilterfunction.lfm"/>
+        <Type Value="LFM"/>
+      </Item79>
+      <Item80>
+        <Filename Value="dialog\filter\ufilterfunction.pas"/>
+        <UnitName Value="UFilterFunction"/>
+      </Item80>
+      <Item81>
+        <Filename Value="dialog\filter\uformrain.lfm"/>
+        <Type Value="LFM"/>
+      </Item81>
+      <Item82>
+        <Filename Value="dialog\filter\uformrain.pas"/>
+        <UnitName Value="UFormRain"/>
+      </Item82>
+      <Item83>
+        <Filename Value="dialog\filter\unoisefilter.lfm"/>
+        <Type Value="LFM"/>
+      </Item83>
+      <Item84>
+        <Filename Value="dialog\filter\unoisefilter.pas"/>
+        <UnitName Value="unoisefilter"/>
+      </Item84>
+      <Item85>
+        <Filename Value="dialog\filter\uposterize.lfm"/>
+        <Type Value="LFM"/>
+      </Item85>
+      <Item86>
+        <Filename Value="dialog\filter\uposterize.pas"/>
+        <UnitName Value="uposterize"/>
+      </Item86>
+      <Item87>
+        <Filename Value="dialog\color\uadjustcurves.lfm"/>
+        <Type Value="LFM"/>
+      </Item87>
+      <Item88>
+        <Filename Value="dialog\color\uadjustcurves.pas"/>
+        <UnitName Value="uadjustcurves"/>
+      </Item88>
     </Files>
     <RequiredPkgs Count="6">
       <Item1>
