@@ -10,7 +10,7 @@
       <PathDelim Value="\"/>
       <SearchPaths>
         <IncludeFiles Value="dialog\filter;dialog\color"/>
-        <OtherUnitFiles Value="tablet;dialog\filter;dialog\color"/>
+        <OtherUnitFiles Value="tablet;dialog\filter;dialog\color;tools"/>
         <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
       <CodeGeneration>
@@ -27,7 +27,7 @@
       </Linking>
     </CompilerOptions>
     <Version Major="7" Release="2"/>
-    <Files Count="88">
+    <Files Count="91">
       <Item1>
         <Filename Value="lazpaintinstance.pas"/>
         <UnitName Value="LazpaintInstance"/>
@@ -181,7 +181,7 @@
         <UnitName Value="UShiftColors"/>
       </Item38>
       <Item39>
-        <Filename Value="utool.pas"/>
+        <Filename Value="tools\utool.pas"/>
         <UnitName Value="UTool"/>
       </Item39>
       <Item40>
@@ -217,27 +217,27 @@
         <UnitName Value="UResourceStrings"/>
       </Item47>
       <Item48>
-        <Filename Value="utoolbasic.pas"/>
+        <Filename Value="tools\utoolbasic.pas"/>
         <UnitName Value="UToolBasic"/>
       </Item48>
       <Item49>
-        <Filename Value="utooldeformationgrid.pas"/>
+        <Filename Value="tools\utooldeformationgrid.pas"/>
         <UnitName Value="UToolDeformationGrid"/>
       </Item49>
       <Item50>
-        <Filename Value="utoolfloodfill.pas"/>
+        <Filename Value="tools\utoolfloodfill.pas"/>
         <UnitName Value="UToolFloodFill"/>
       </Item50>
       <Item51>
-        <Filename Value="utoolpolygon.pas"/>
+        <Filename Value="tools\utoolpolygon.pas"/>
         <UnitName Value="UToolPolygon"/>
       </Item51>
       <Item52>
-        <Filename Value="utoolselect.pas"/>
+        <Filename Value="tools\utoolselect.pas"/>
         <UnitName Value="UToolSelect"/>
       </Item52>
       <Item53>
-        <Filename Value="utooltext.pas"/>
+        <Filename Value="tools\utooltext.pas"/>
         <UnitName Value="UToolText"/>
       </Item53>
       <Item54>
@@ -313,7 +313,7 @@
         <UnitName Value="USharpen"/>
       </Item71>
       <Item72>
-        <Filename Value="utoolphong.pas"/>
+        <Filename Value="tools\utoolphong.pas"/>
         <UnitName Value="UToolPhong"/>
       </Item72>
       <Item73>
@@ -380,6 +380,18 @@
         <Filename Value="dialog\color\uadjustcurves.pas"/>
         <UnitName Value="uadjustcurves"/>
       </Item88>
+      <Item89>
+        <Filename Value="tools\utoolbrush.pas"/>
+        <UnitName Value="UToolBrush"/>
+      </Item89>
+      <Item90>
+        <Filename Value="tools\utoolicon.pas"/>
+        <UnitName Value="UToolIcon"/>
+      </Item90>
+      <Item91>
+        <Filename Value="tools\utoollayer.pas"/>
+        <UnitName Value="UToolLayer"/>
+      </Item91>
     </Files>
     <RequiredPkgs Count="6">
       <Item1>

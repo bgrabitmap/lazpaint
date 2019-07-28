@@ -18,7 +18,7 @@ uses
   ULoadImage, ULoading, UMenu, UObject3D, UPhongFilter, UScripting, USharpen, 
   UToolPhong, UTranslation, UVolatileScrollBar, UZoom, laztablet, 
   ugeometricbrush, UFilterFunction, UFormRain, unoisefilter, uposterize, 
-  uadjustcurves, LazarusPackageIntf;
+  uadjustcurves, UToolBrush, UToolIcon, UToolLayer, LazarusPackageIntf;
 
 implementation
 

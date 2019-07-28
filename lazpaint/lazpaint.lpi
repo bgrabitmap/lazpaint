@@ -36,7 +36,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="buttons;tablet;dialog;dialog\color;dialog\filter"/>
+            <OtherUnitFiles Value="buttons;tablet;dialog;dialog\color;dialog\filter;tools"/>
             <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -355,7 +355,7 @@
         <UnitName Value="UGraph"/>
       </Unit2>
       <Unit3>
-        <Filename Value="utool.pas"/>
+        <Filename Value="tools\utool.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UTool"/>
       </Unit3>
@@ -524,27 +524,27 @@
         <IsPartOfProject Value="True"/>
       </Unit27>
       <Unit28>
-        <Filename Value="utooldeformationgrid.pas"/>
+        <Filename Value="tools\utooldeformationgrid.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolDeformationGrid"/>
       </Unit28>
       <Unit29>
-        <Filename Value="utoolselect.pas"/>
+        <Filename Value="tools\utoolselect.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolSelect"/>
       </Unit29>
       <Unit30>
-        <Filename Value="utoolpolygon.pas"/>
+        <Filename Value="tools\utoolpolygon.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolPolygon"/>
       </Unit30>
       <Unit31>
-        <Filename Value="utoolfloodfill.pas"/>
+        <Filename Value="tools\utoolfloodfill.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolFloodFill"/>
       </Unit31>
       <Unit32>
-        <Filename Value="utoolbasic.pas"/>
+        <Filename Value="tools\utoolbasic.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolBasic"/>
       </Unit32>
@@ -562,12 +562,12 @@
         <UnitName Value="UPixelate"/>
       </Unit34>
       <Unit35>
-        <Filename Value="utoolphong.pas"/>
+        <Filename Value="tools\utoolphong.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolPhong"/>
       </Unit35>
       <Unit36>
-        <Filename Value="utooltext.pas"/>
+        <Filename Value="tools\utooltext.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolText"/>
       </Unit36>
@@ -753,7 +753,7 @@
         <ResourceBaseClass Value="Form"/>
       </Unit67>
       <Unit68>
-        <Filename Value="utoollayer.pas"/>
+        <Filename Value="tools\utoollayer.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolLayer"/>
       </Unit68>
@@ -794,7 +794,7 @@
         <UnitName Value="UFileSystem"/>
       </Unit74>
       <Unit75>
-        <Filename Value="utoolbrush.pas"/>
+        <Filename Value="tools\utoolbrush.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolBrush"/>
       </Unit75>
@@ -869,7 +869,7 @@
         <IsPartOfProject Value="True"/>
       </Unit89>
       <Unit90>
-        <Filename Value="utoolicon.pas"/>
+        <Filename Value="tools\utoolicon.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolIcon"/>
       </Unit90>
