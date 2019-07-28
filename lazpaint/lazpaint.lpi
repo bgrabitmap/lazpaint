@@ -16,7 +16,7 @@
     </General>
     <i18n>
       <EnableI18N Value="True"/>
-      <OutDir Value="release\i18n"/>
+      <OutDir Value="release\bin\i18n"/>
     </i18n>
     <VersionInfo>
       <UseVersionInfo Value="True"/>
@@ -32,7 +32,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="release\lazpaint"/>
+            <Filename Value="release\bin\lazpaint"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -70,7 +70,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="release\lazpaint32"/>
+            <Filename Value="release\bin\lazpaint32"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -110,7 +110,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="release\lazpaint_x64"/>
+            <Filename Value="release\bin\lazpaint_x64"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -153,7 +153,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="release\lazpaint"/>
+            <Filename Value="release\bin\lazpaint"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -230,7 +230,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="release\lazpaint"/>
+            <Filename Value="release\bin\lazpaint"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -270,7 +270,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="release\lazpaint"/>
+            <Filename Value="release\bin\lazpaint"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>

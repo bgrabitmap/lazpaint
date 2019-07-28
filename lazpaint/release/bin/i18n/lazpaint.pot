@@ -1,0 +1,707 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: uresourcestrings.rsactioninprogress
+msgid "Action in progress"
+msgstr ""
+
+#: uresourcestrings.rsaddtoimagelist
+msgid "Add files to the image processing list"
+msgstr ""
+
+#: uresourcestrings.rsallapplications
+msgid "all"
+msgstr ""
+
+#: uresourcestrings.rsallsupportedfiletypes
+msgid "All supported filetypes"
+msgstr ""
+
+#: uresourcestrings.rsaltshiftscalemode
+msgid "Hold ALT or SHIFT to scale"
+msgstr ""
+
+#: uresourcestrings.rsanimatedgif
+msgid "Animated GIF"
+msgstr ""
+
+#: uresourcestrings.rsbackspaceremovelastpoint
+msgid "Press BACKSPACE to remove last point"
+msgstr ""
+
+#: uresourcestrings.rsbestquality
+msgid "Best quality"
+msgstr ""
+
+#: uresourcestrings.rsbitmap
+msgid "Bitmap"
+msgstr ""
+
+#: uresourcestrings.rsblendopnotusedforbackground
+msgid "The blend operation is applied only if there is a layer underneath"
+msgstr ""
+
+#: uresourcestrings.rsblue
+msgid "Blue"
+msgstr ""
+
+#: uresourcestrings.rsbrightness
+msgid "Brightness"
+msgstr ""
+
+#: uresourcestrings.rsbytes
+msgid "Bytes"
+msgstr ""
+
+#: uresourcestrings.rscancel
+msgid "Cancel"
+msgstr ""
+
+#: uresourcestrings.rscannotopenfile
+msgid "Cannot open file"
+msgstr ""
+
+#: uresourcestrings.rscanvassize
+msgid "Canvas size"
+msgstr ""
+
+#: uresourcestrings.rscdrom
+msgid "CD"
+msgstr ""
+
+#: uresourcestrings.rsclearpalette
+msgid "Clear palette"
+msgstr ""
+
+#: uresourcestrings.rscloserequest
+msgid "Close request"
+msgstr ""
+
+#: uresourcestrings.rscolors
+msgid "Colors"
+msgstr ""
+
+#: uresourcestrings.rsconfirmdeletefromcontainer
+msgid "Are you sure you want to delete this file from the container?"
+msgstr ""
+
+#: uresourcestrings.rsconfirmdeletemultiplefromcontainer
+msgid "Are you sure you want to delete these %1 files from the container?"
+msgstr ""
+
+#: uresourcestrings.rsconfirmmovemultipletotrash
+msgid "Are you sure you want to move these %1 files to the trash?"
+msgstr ""
+
+#: uresourcestrings.rsconfirmmovetotrash
+msgid "Are you sure you want to move this file to the trash?"
+msgstr ""
+
+#: uresourcestrings.rsconflictingactions
+msgid "Conflicting actions"
+msgstr ""
+
+#: uresourcestrings.rscontrast
+msgid "Contrast"
+msgstr ""
+
+#: uresourcestrings.rscorrectedhueccw
+msgid "Corr. Hue CCW"
+msgstr ""
+
+#: uresourcestrings.rscorrectedhuecw
+msgid "Corr. Hue CW"
+msgstr ""
+
+#: uresourcestrings.rscosine
+msgid "Cosine"
+msgstr ""
+
+#: uresourcestrings.rscrop
+msgid "Crop"
+msgstr ""
+
+#: uresourcestrings.rsctrlrestrictrotation
+msgid "Hold CTRL to restrict rotation angle"
+msgstr ""
+
+#: uresourcestrings.rscurvemodehint
+msgid "Press S or X to set the curve mode of the last point"
+msgstr ""
+
+#: uresourcestrings.rsdefaultpalette
+msgid "Default palette"
+msgstr ""
+
+#: uresourcestrings.rsdeletefile
+msgid "Delete"
+msgstr ""
+
+#: uresourcestrings.rsdeleteimageentry
+msgid "Delete selected image entry?"
+msgstr ""
+
+#: uresourcestrings.rsdirectorynotempty
+msgid "Directory is not empty"
+msgstr ""
+
+#: uresourcestrings.rsditherlayerusingpalette
+msgid "Dither layer using palette"
+msgstr ""
+
+#: uresourcestrings.rseditmask
+msgid "Edit mask"
+msgstr ""
+
+#: uresourcestrings.rseditselection
+msgid "Edit selection"
+msgstr ""
+
+#: uresourcestrings.rsedittexture
+msgid "Edit texture"
+msgstr ""
+
+#: uresourcestrings.rsemptylayer
+msgid "Layer is empty"
+msgstr ""
+
+#: uresourcestrings.rsemptyselection
+msgid "Selection is empty"
+msgstr ""
+
+#: uresourcestrings.rsenterfolderorcontainername
+msgid "Enter name for new folder or container (using RES or LRS extension):"
+msgstr ""
+
+#: uresourcestrings.rsenterlayername
+msgid "Enter layer name:"
+msgstr ""
+
+#: uresourcestrings.rsentries
+msgid "Entries"
+msgstr ""
+
+#: uresourcestrings.rserror
+msgid "Error"
+msgstr ""
+
+#: uresourcestrings.rserroronopeningfile
+msgid "Error on opening file \"%1\""
+msgstr ""
+
+#: uresourcestrings.rsexitrequest
+msgid "Exit request"
+msgstr ""
+
+#: uresourcestrings.rsexpect1parameter
+msgid "expects one parameter : "
+msgstr ""
+
+#: uresourcestrings.rsexpect2parameters
+msgid "expects two parameters : "
+msgstr ""
+
+#: uresourcestrings.rsexpectnparameters
+msgid "expects N parameters : "
+msgstr ""
+
+#: uresourcestrings.rsfast
+msgid "Fast"
+msgstr ""
+
+#: uresourcestrings.rsfilecannotbeempty
+msgid "File cannot be empty"
+msgstr ""
+
+#: uresourcestrings.rsfiledate
+msgid "Date"
+msgstr ""
+
+#: uresourcestrings.rsfileextensionnotsupported
+msgid "This file extension is not supported."
+msgstr ""
+
+#: uresourcestrings.rsfileformatnotrecognized
+msgid "The file format has not been recognized."
+msgstr ""
+
+#: uresourcestrings.rsfilename
+msgid "Filename"
+msgstr ""
+
+#: uresourcestrings.rsfilenotfound
+msgid "File not found!"
+msgstr ""
+
+#: uresourcestrings.rsfilenotsaved
+msgid "File not saved"
+msgstr ""
+
+#: uresourcestrings.rsfilesize
+msgid "Size"
+msgstr ""
+
+#: uresourcestrings.rsfilesystem
+msgid "File system"
+msgstr ""
+
+#: uresourcestrings.rsfiletype
+msgid "Type"
+msgstr ""
+
+#: uresourcestrings.rsfixeddrive
+msgid "Fixed"
+msgstr ""
+
+#: uresourcestrings.rsfolder
+msgid "Folder"
+msgstr ""
+
+#: uresourcestrings.rsfolderorcontaineralreadyexists
+msgid "Folder or container already exists."
+msgstr ""
+
+#: uresourcestrings.rsfollowingerrorsoccured
+msgid "Following errors occured:"
+msgstr ""
+
+#: uresourcestrings.rsframes
+msgid "Frames"
+msgstr ""
+
+#: uresourcestrings.rsfunctionnotdefined
+msgid "The function %1 is not defined."
+msgstr ""
+
+#: uresourcestrings.rsgreen
+msgid "Green"
+msgstr ""
+
+#: uresourcestrings.rshalfcosine
+msgid "Half-cosine"
+msgstr ""
+
+#: uresourcestrings.rsholdctrlsnaptopixel
+msgid "Hold CTRL to snap to pixels"
+msgstr ""
+
+#: uresourcestrings.rsholdshiftforsquare
+msgid "Hold SHIFT to draw a square or a circle"
+msgstr ""
+
+#: uresourcestrings.rshotspot
+msgid "Hot spot"
+msgstr ""
+
+#: uresourcestrings.rshue
+msgid "Hue"
+msgstr ""
+
+#: uresourcestrings.rshueccw
+msgid "Hue CCW"
+msgstr ""
+
+#: uresourcestrings.rshuecw
+msgid "Hue CW"
+msgstr ""
+
+#: uresourcestrings.rsiconimagealreadyexists
+msgid "There is already an image with this size and depth."
+msgstr ""
+
+#: uresourcestrings.rsiconorcursor
+msgid "Icon/cursor"
+msgstr ""
+
+#: uresourcestrings.rsimagetoobig
+msgid "Image is too big"
+msgstr ""
+
+#: uresourcestrings.rsinfinity
+msgid "Infinity"
+msgstr ""
+
+#: uresourcestrings.rsinformation
+msgid "Information"
+msgstr ""
+
+#: uresourcestrings.rsintensity
+msgid "Intensity"
+msgstr ""
+
+#: uresourcestrings.rsinternalerror
+msgid "Internal error"
+msgstr ""
+
+#: uresourcestrings.rsinvalidname
+msgid "Invalid name"
+msgstr ""
+
+#: uresourcestrings.rsinvalidopacity
+msgid "Invalid opacity : "
+msgstr ""
+
+#: uresourcestrings.rsinvalidresamplesize
+msgid "Invalid resample size : "
+msgstr ""
+
+#: uresourcestrings.rsinvalidsizefornew
+msgid "Invalid size for new : "
+msgstr ""
+
+#: uresourcestrings.rskeepchanges
+msgid "Do you want to keep changes?"
+msgstr ""
+
+#: uresourcestrings.rskeepemptyspace
+msgid "Keep empty space around opaque pixels?"
+msgstr ""
+
+#: uresourcestrings.rslanczos
+msgid "Lanczos %1"
+msgstr ""
+
+#: uresourcestrings.rslandscape
+msgid "Landscape"
+msgstr ""
+
+#: uresourcestrings.rslatestversion
+msgid "The latest version of LazPaint available online is"
+msgstr ""
+
+#: uresourcestrings.rslayeredimage
+msgid "Layered image"
+msgstr ""
+
+#: uresourcestrings.rslayers
+msgid "Layers"
+msgstr ""
+
+#: uresourcestrings.rslazpaint
+msgid "LazPaint"
+msgstr ""
+
+#: uresourcestrings.rslazpaintonly
+msgid "LazPaint only"
+msgstr ""
+
+#: uresourcestrings.rslight
+msgid "Light"
+msgstr ""
+
+#: uresourcestrings.rslightness
+msgid "Lightness"
+msgstr ""
+
+#: uresourcestrings.rslightposition
+msgid "Light position"
+msgstr ""
+
+#: uresourcestrings.rslinear
+msgid "Linear"
+msgstr ""
+
+#: uresourcestrings.rslinearrgb
+msgid "Linear RGB"
+msgstr ""
+
+#: uresourcestrings.rsloadandmergepalette
+msgid "Load and merge palette..."
+msgstr ""
+
+#: uresourcestrings.rsloading
+msgid "Loading"
+msgstr ""
+
+#: uresourcestrings.rsloadpalette
+msgid "Load palette..."
+msgstr ""
+
+#: uresourcestrings.rsloopcount
+msgid "Loop count"
+msgstr ""
+
+#: uresourcestrings.rsmakencolorspalettefrombitmap
+msgid "Make %1-colors palette from image"
+msgstr ""
+
+#: uresourcestrings.rsmergeselection
+msgid "Do you want to merge selection?"
+msgstr ""
+
+#: uresourcestrings.rsmitchell
+msgid "Mitchell"
+msgstr ""
+
+#: uresourcestrings.rsmorethanonefile
+msgid "You are trying to open more than one file. How would you like these files to be opened?"
+msgstr ""
+
+#: uresourcestrings.rsmovingorrotatingselection
+msgid "Moving or rotating selection"
+msgstr ""
+
+#: uresourcestrings.rsmustreleaseselection
+msgid "You must first release the selection"
+msgstr ""
+
+#: uresourcestrings.rsmustshowlayer
+msgid "You must first make the layer visible"
+msgstr ""
+
+#: uresourcestrings.rsnetworkdrive
+msgid "Network"
+msgstr ""
+
+#: uresourcestrings.rsnewimage
+msgid "New image"
+msgstr ""
+
+#: uresourcestrings.rsno
+msgid "No"
+msgstr ""
+
+#: uresourcestrings.rsnoactivelayer
+msgid "No active layer"
+msgstr ""
+
+#: uresourcestrings.rsnoactiveselection
+msgid "There is no active selection"
+msgstr ""
+
+#: uresourcestrings.rsnoandproceedtonext
+msgid "Do not save and open another file"
+msgstr ""
+
+#: uresourcestrings.rsnoname
+msgid "noname"
+msgstr ""
+
+#: uresourcestrings.rsnormalblendop
+msgid "Normal"
+msgstr ""
+
+#: uresourcestrings.rsnothingtobedeformed
+msgid "There is nothing to be deformed"
+msgstr ""
+
+#: uresourcestrings.rsnothingtoberetrieved
+msgid "There is nothing to be retrieved"
+msgstr ""
+
+#: uresourcestrings.rsnotreasonableformat
+msgid "It is not reasonable to save such a big image in this file format."
+msgstr ""
+
+#: uresourcestrings.rsnumber
+msgid "№"
+msgstr ""
+
+#: uresourcestrings.rsokay
+msgid "Okay"
+msgstr ""
+
+#: uresourcestrings.rsopacity
+msgid "Opacity"
+msgstr ""
+
+#: uresourcestrings.rsopen
+msgid "Open"
+msgstr ""
+
+#: uresourcestrings.rsopenfilesaslayers
+msgid "Open files as layers in a single image"
+msgstr ""
+
+#: uresourcestrings.rsopenfirstfileonly
+msgid "Open the first file only"
+msgstr ""
+
+#: uresourcestrings.rsopening
+msgid "Opening"
+msgstr ""
+
+#: uresourcestrings.rsopenmultipleimagefiles
+msgid "Open multiple image files"
+msgstr ""
+
+#: uresourcestrings.rsotherblendop
+msgid "Other..."
+msgstr ""
+
+#: uresourcestrings.rsoverwritefile
+msgid "File already exists. Do you want to overwrite it?"
+msgstr ""
+
+#: uresourcestrings.rspaletteincludesalphachannel
+msgid "Palette includes alpha channel"
+msgstr ""
+
+#: uresourcestrings.rspaletteoptions
+msgid "Palette options"
+msgstr ""
+
+#: uresourcestrings.rspercent
+msgid "%"
+msgstr ""
+
+#: uresourcestrings.rsportait
+msgid "Portrait"
+msgstr ""
+
+#: uresourcestrings.rsposterizelayerusingpalette
+msgid "Posterize layer using palette"
+msgstr ""
+
+#: uresourcestrings.rspresetname
+msgid "Preset name"
+msgstr ""
+
+#: uresourcestrings.rspx
+msgid "px"
+msgstr ""
+
+#: uresourcestrings.rsramdisk
+msgid "RAM disk"
+msgstr ""
+
+#: uresourcestrings.rsrecentdirectories
+msgid "Recent directories:"
+msgstr ""
+
+#: uresourcestrings.rsred
+msgid "Red"
+msgstr ""
+
+#: uresourcestrings.rsreload
+msgid "Reload"
+msgstr ""
+
+#: uresourcestrings.rsreloadchanged
+msgid "Bitmap has been modified. Do you really want to reload?"
+msgstr ""
+
+#: uresourcestrings.rsremovabledrive
+msgid "Removable"
+msgstr ""
+
+#: uresourcestrings.rsrepeatimage
+msgid "Repeat image"
+msgstr ""
+
+#: uresourcestrings.rsretrieveselectedarea
+msgid "Do you want to retrieve selected area?"
+msgstr ""
+
+#: uresourcestrings.rsreturnvalides
+msgid "Press ENTER to validate"
+msgstr ""
+
+#: uresourcestrings.rsrgb
+msgid "RGB"
+msgstr ""
+
+#: uresourcestrings.rsrightclickforsource
+msgid "Use RIGHT click to define source"
+msgstr ""
+
+#: uresourcestrings.rssaturation
+msgid "Saturation"
+msgstr ""
+
+#: uresourcestrings.rssave
+msgid "Save"
+msgstr ""
+
+#: uresourcestrings.rssaveasbuttonhint
+msgid "Save with specified filename"
+msgstr ""
+
+#: uresourcestrings.rssavechanges
+msgid "Current bitmap has been modified. Do you want to save changes?"
+msgstr ""
+
+#: uresourcestrings.rssavepaletteas
+msgid "Save palette as..."
+msgstr ""
+
+#: uresourcestrings.rsscript
+msgid "Script"
+msgstr ""
+
+#: uresourcestrings.rsshowpalette
+msgid "Show palette"
+msgstr ""
+
+#: uresourcestrings.rssourceposition
+msgid "Source position"
+msgstr ""
+
+#: uresourcestrings.rsspline
+msgid "Spline"
+msgstr ""
+
+#: uresourcestrings.rsstoragedevice
+msgid "Device"
+msgstr ""
+
+#: uresourcestrings.rstexturemapping
+msgid "Texture mapping"
+msgstr ""
+
+#: uresourcestrings.rstherearenocheckeditems
+msgid "There are no checked items. Check some items or add some new ones."
+msgstr ""
+
+#: uresourcestrings.rsthereisnofilenamegivenforthisfileusesaveas
+msgid "There is no file name given for this file. Use \"Save as...\" from the main menu."
+msgstr ""
+
+#: uresourcestrings.rstodo
+msgid "To do"
+msgstr ""
+
+#: uresourcestrings.rstodoimages
+msgid "Images left: %1"
+msgstr ""
+
+#: uresourcestrings.rstooloninvisiblelayer
+msgid "Tool cannot be used on an invisible layer"
+msgstr ""
+
+#: uresourcestrings.rstoomanylayers
+msgid "Too many layers"
+msgstr ""
+
+#: uresourcestrings.rstotalimages
+msgid "Total images: %1"
+msgstr ""
+
+#: uresourcestrings.rstransferselectiontootherlayer
+msgid "Transfer selection to other layer?"
+msgstr ""
+
+#: uresourcestrings.rstransformselectioncontent
+msgid "Do you want to transform content of the selection?"
+msgstr ""
+
+#: uresourcestrings.rsunabletoapplyfilter
+msgid "Unable to apply filter : "
+msgstr ""
+
+#: uresourcestrings.rsunabletoloadfile
+msgid "Unable to load file : "
+msgstr ""
+
+#: uresourcestrings.rsunabletosavefile
+msgid "Unable to save file : "
+msgstr ""
+
+#: uresourcestrings.rsunknowncommand
+msgid "Unknown command : "
+msgstr ""
+
+#: uresourcestrings.rsyes
+msgid "Yes"
+msgstr ""
+
