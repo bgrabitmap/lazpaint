@@ -36,7 +36,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="buttons;tablet;dialog;dialog\color;dialog\filter;tools"/>
+            <OtherUnitFiles Value="buttons;tablet;dialog;dialog\color;dialog\filter;tools;image"/>
             <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -384,7 +384,7 @@
         <UnitName Value="UToolbox"/>
       </Unit6>
       <Unit7>
-        <Filename Value="uimage.pas"/>
+        <Filename Value="image\uimage.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImage"/>
       </Unit7>
@@ -572,12 +572,12 @@
         <UnitName Value="UToolText"/>
       </Unit36>
       <Unit37>
-        <Filename Value="uimagestate.pas"/>
+        <Filename Value="image\uimagestate.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImageState"/>
       </Unit37>
       <Unit38>
-        <Filename Value="ustatetype.pas"/>
+        <Filename Value="image\ustatetype.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UStateType"/>
       </Unit38>
@@ -611,7 +611,7 @@
         <UnitName Value="UBlendOp"/>
       </Unit42>
       <Unit43>
-        <Filename Value="uimageobservation.pas"/>
+        <Filename Value="image\uimageobservation.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImageObservation"/>
       </Unit43>
@@ -639,7 +639,7 @@
         <UnitName Value="UFilters"/>
       </Unit47>
       <Unit48>
-        <Filename Value="uimageaction.pas"/>
+        <Filename Value="image\uimageaction.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImageAction"/>
       </Unit48>
@@ -649,7 +649,7 @@
         <UnitName Value="ULoadImage"/>
       </Unit49>
       <Unit50>
-        <Filename Value="uimagediff.pas"/>
+        <Filename Value="image\uimagediff.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImageDiff"/>
       </Unit50>
@@ -724,12 +724,12 @@
         <UnitName Value="UScriptType"/>
       </Unit62>
       <Unit63>
-        <Filename Value="ulayeraction.pas"/>
+        <Filename Value="image\ulayeraction.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ULayerAction"/>
       </Unit63>
       <Unit64>
-        <Filename Value="uimagetype.pas"/>
+        <Filename Value="image\uimagetype.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImageType"/>
       </Unit64>

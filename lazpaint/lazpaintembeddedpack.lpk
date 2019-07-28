@@ -10,7 +10,7 @@
       <PathDelim Value="\"/>
       <SearchPaths>
         <IncludeFiles Value="dialog\filter;dialog\color"/>
-        <OtherUnitFiles Value="tablet;dialog\filter;dialog\color;dialog;tools"/>
+        <OtherUnitFiles Value="tablet;dialog\filter;dialog\color;dialog;tools;image"/>
         <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
       <CodeGeneration>
@@ -27,7 +27,7 @@
       </Linking>
     </CompilerOptions>
     <Version Major="7" Release="2"/>
-    <Files Count="91">
+    <Files Count="94">
       <Item1>
         <Filename Value="lazpaintinstance.pas"/>
         <UnitName Value="LazpaintInstance"/>
@@ -121,7 +121,7 @@
         <UnitName Value="UGraph"/>
       </Item23>
       <Item24>
-        <Filename Value="uimage.pas"/>
+        <Filename Value="image\uimage.pas"/>
         <UnitName Value="UImage"/>
       </Item24>
       <Item25>
@@ -201,7 +201,7 @@
         <UnitName Value="UTwirl"/>
       </Item43>
       <Item44>
-        <Filename Value="uimagestate.pas"/>
+        <Filename Value="image\uimagestate.pas"/>
         <UnitName Value="UImageState"/>
       </Item44>
       <Item45>
@@ -249,15 +249,15 @@
         <UnitName Value="UBlendOp"/>
       </Item55>
       <Item56>
-        <Filename Value="uimageaction.pas"/>
+        <Filename Value="image\uimageaction.pas"/>
         <UnitName Value="UImageAction"/>
       </Item56>
       <Item57>
-        <Filename Value="uimagediff.pas"/>
+        <Filename Value="image\uimagediff.pas"/>
         <UnitName Value="UImageDiff"/>
       </Item57>
       <Item58>
-        <Filename Value="uimageobservation.pas"/>
+        <Filename Value="image\uimageobservation.pas"/>
         <UnitName Value="UImageObservation"/>
       </Item58>
       <Item59>
@@ -392,6 +392,18 @@
         <Filename Value="tools\utoollayer.pas"/>
         <UnitName Value="UToolLayer"/>
       </Item91>
+      <Item92>
+        <Filename Value="image\uimagetype.pas"/>
+        <UnitName Value="UImageType"/>
+      </Item92>
+      <Item93>
+        <Filename Value="image\ulayeraction.pas"/>
+        <UnitName Value="ULayerAction"/>
+      </Item93>
+      <Item94>
+        <Filename Value="image\ustatetype.pas"/>
+        <UnitName Value="UStateType"/>
+      </Item94>
     </Files>
     <RequiredPkgs Count="6">
       <Item1>
