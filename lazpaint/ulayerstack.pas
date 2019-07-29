@@ -42,8 +42,8 @@ type
       Y: Integer);
     procedure BGRALayerStackMouseUp(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; X, Y: Integer);
-    procedure BGRALayerStackMouseWheel(Sender: TObject; Shift: TShiftState;
-      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+    procedure BGRALayerStackMouseWheel(Sender: TObject; {%H-}Shift: TShiftState;
+      WheelDelta: Integer; {%H-}MousePos: TPoint; var Handled: Boolean);
     procedure BGRALayerStackRedraw(Sender: TObject; Bitmap: TBGRABitmap);
     procedure BGRALayerStackResize(Sender: TObject);
     procedure ComboBox_BlendOpChange(Sender: TObject);
@@ -1003,6 +1003,7 @@ procedure TFLayerStack.BGRALayerStackMouseWheel(Sender: TObject;
   var Handled: Boolean);
 begin
   DoScrollVertically(round(-WheelDelta*ZoomFactor*50/120));
+  Handled := true;
 end;
 
 {$R *.lfm}

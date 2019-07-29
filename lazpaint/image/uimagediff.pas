@@ -452,7 +452,7 @@ type
 implementation
 
 uses BGRAWriteLzp, BGRAReadLzp, UImageState, BGRAStreamLayers, BGRALzpCommon, ugraph, Types,
-  BGRATransform, zstream, LCVectorRectShapes, BGRAPen, math;
+  BGRATransform, zstream, LCVectorRectShapes, BGRAPen;
 
 function IsInverseImageDiff(ADiff1, ADiff2: TCustomImageDifference): boolean;
 begin

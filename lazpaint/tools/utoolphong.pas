@@ -14,11 +14,12 @@ type
   TToolPhong = class(TVectorialTool)
   protected
     FMatrix: TAffineMatrix;
-    constructor Create(AManager: TToolManager); override;
     procedure ShapeChange({%H-}ASender: TObject; ABounds: TRectF); override;
     procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
     function CreateShape: TVectorShape; override;
     function SlowShape: boolean; override;
+  public
+    constructor Create(AManager: TToolManager); override;
   end;
 
 implementation

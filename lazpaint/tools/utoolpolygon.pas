@@ -32,10 +32,10 @@ type
     FCurveModeHintShown: Boolean;
     function GetCurrentMode: TToolSplineMode;
     procedure SetCurrentMode(AValue: TToolSplineMode);
-    procedure UpdateUserMode; override;
   protected
     function CreateShape: TVectorShape; override;
     procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
+    procedure UpdateUserMode; override;
   public
     constructor Create(AManager: TToolManager); override;
     function ToolKeyPress(var key: TUTF8Char): TRect; override;

@@ -27,7 +27,7 @@ type
   protected
     function CreateShape: TVectorShape; override;
     procedure DrawCustomShape(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
-    procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
+    procedure AssignShapeStyle({%H-}AMatrix: TAffineMatrix); override;
     procedure QuickDefineShape(AStart,AEnd: TPointF); override;
     function SlowShape: boolean; override;
     function GetStatusText: string; override;
