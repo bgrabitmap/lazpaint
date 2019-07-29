@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, UTool, BGRABitmap, BGRABitmapTypes,
-  BGRATransform, BGRALayers, ULayerAction, UImageDiff;
+  BGRATransform, BGRALayers, ULayerAction, UImageDiff,
+  UImageType;
 
 type
   { TToolMoveLayer }
@@ -29,6 +30,7 @@ type
     procedure NeedLayerBounds;
     function GetAction: TLayerAction; override;
     function DoGetToolDrawingLayer: TBGRABitmap; override;
+    procedure OnTryStop(sender: TCustomLayerAction); override;
   public
     function ToolUp: TRect; override;
     function ToolKeyDown(var key: Word): TRect; override;
@@ -78,6 +80,7 @@ type
     property TransformCenter: TPointF read GetTransformCenter write SetTransformCenter;
     function GetAction: TLayerAction; override;
     function DoGetToolDrawingLayer: TBGRABitmap; override;
+    procedure OnTryStop(sender: TCustomLayerAction); override;
   public
     constructor Create(AManager: TToolManager); override;
     destructor Destroy; override;
@@ -224,6 +227,11 @@ end;
 function TToolMoveLayer.DoGetToolDrawingLayer: TBGRABitmap;
 begin
   Result:= Manager.Image.CurrentLayerReadOnly;   //do not modify layer data directly and ignore selection
+end;
+
+procedure TToolMoveLayer.OnTryStop(sender: TCustomLayerAction);
+begin
+  //nothing
 end;
 
 function TToolMoveLayer.ToolUp: TRect;
@@ -440,6 +448,11 @@ end;
 function TToolTransformLayer.DoGetToolDrawingLayer: TBGRABitmap;
 begin
   Result:= Manager.Image.CurrentLayerReadOnly   //do not modify layer data directly and ignore selection
+end;
+
+procedure TToolTransformLayer.OnTryStop(sender: TCustomLayerAction);
+begin
+  //nothing
 end;
 
 constructor TToolTransformLayer.Create(AManager: TToolManager);
