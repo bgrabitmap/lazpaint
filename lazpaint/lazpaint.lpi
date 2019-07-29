@@ -911,7 +911,7 @@
     <PathDelim Value="\"/>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="tablet"/>
+      <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
       <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <CodeGeneration>
