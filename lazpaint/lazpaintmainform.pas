@@ -2614,7 +2614,7 @@ end;
 
 function TFMain.ScriptChooseTool(AVars: TVariableSet): TScriptResult;
 var toolName: string;
-  Tool: TPaintToolType;
+  Tool, prevTool: TPaintToolType;
   topmostInfo: TTopMostInfo;
   useSelection: boolean;
   newTexture: TBGRABitmap;
@@ -2631,6 +2631,7 @@ begin
       ToolManager.ToolOpen;
       exit;
     end;
+    prevTool := ToolManager.GetCurrentToolType;
     try
       if not ((Tool in [ptMoveSelection,ptRotateSelection]) and
         (CurrentTool in [ptMoveSelection,ptRotateSelection])) then
@@ -2747,20 +2748,23 @@ begin
               result := srException;
               exit;
             end;
-            if image.CurrentLayerVisible and not image.SelectionMaskEmpty and image.SelectionLayerIsEmpty and not image.CurrentLayerEmpty then
+            if not (prevTool in [ptMoveSelection,ptRotateSelection]) then
             begin
-              topmostInfo := LazPaintInstance.HideTopmost;
-              if Config.DefaultRetrieveSelectionAnswer <> mrNone then
-                res := QuestionResult(Config.DefaultRetrieveSelectionAnswer)
-              else
+              if image.CurrentLayerVisible and not image.SelectionMaskEmpty and image.SelectionLayerIsEmpty and not image.CurrentLayerEmpty then
               begin
-                res := ShowQuestionDialog(rsMovingOrRotatingSelection,rsRetrieveSelectedArea,[mbYes,mbNo],true);
-                if res.Remember and (res.ButtonResult in [mrYes,mrNo]) then
-                  Config.SetDefaultRetrieveSelectionAnswer(res.ButtonResult);
-              end;
-              LazPaintInstance.ShowTopmost(topmostInfo);
-              case res.ButtonResult of
-                mrYes: FImageActions.RetrieveSelection;
+                topmostInfo := LazPaintInstance.HideTopmost;
+                if Config.DefaultRetrieveSelectionAnswer <> mrNone then
+                  res := QuestionResult(Config.DefaultRetrieveSelectionAnswer)
+                else
+                begin
+                  res := ShowQuestionDialog(rsMovingOrRotatingSelection,rsRetrieveSelectedArea,[mbYes,mbNo],true);
+                  if res.Remember and (res.ButtonResult in [mrYes,mrNo]) then
+                    Config.SetDefaultRetrieveSelectionAnswer(res.ButtonResult);
+                end;
+                LazPaintInstance.ShowTopmost(topmostInfo);
+                case res.ButtonResult of
+                  mrYes: FImageActions.RetrieveSelection;
+                end;
               end;
             end;
           end;
