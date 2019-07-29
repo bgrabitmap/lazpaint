@@ -112,18 +112,17 @@ uses BGRAFillInfo,LCScaleDPI,uresourcestrings,ublendop, uimage, utool, BGRAText,
 
 function TFLayerStack.DrawLayerItem(ABitmap: TBGRABitmap; layerPos: TPoint; layerIndex: integer; ASelected: boolean): TDrawLayerItemResult;
 var
-  lColor,lColorTransp: TBGRAPixel;
+  lColor: TBGRAPixel;
   barwidth: integer;
   sourceCoords: Array Of TPointF;
-  reduced: TBGRABitmap;
-  reducedBounds: TRect;
+  reduced, bmpOpacity: TBGRABitmap;
+  reducedBounds, rOpacity, rFill: TRect;
+  percentStr: String;
 begin
   if ASelected then
     lColor := ColorToBGRA(ColorToRGB(clHighlightText))
   else
     lColor := ColorToBGRA(ColorToRGB(clWindowText));
-  lColorTransp := lColor;
-  lColorTransp.alpha := lColorTransp.alpha div 2;
 
   result.PreviewPts := PointsF([pointf(layerPos.X+0.25*LayerRectWidth,layerPos.Y+round(LayerRectHeight*0.1)),
      pointf(layerPos.X+0.9*LayerRectWidth,layerPos.Y+round(LayerRectHeight*0.1)),
@@ -167,11 +166,23 @@ begin
     barwidth := StackWidth-InterruptorWidth-Int32or64(round(LayerRectWidth*1.1));
     if barwidth > LayerRectWidth then barwidth := LayerRectWidth;
     result.OpacityBar := rect(layerpos.X+LayerRectWidth,layerpos.Y+LayerRectHeight div 2,layerpos.X+LayerRectWidth+barwidth,layerpos.Y+LayerRectHeight);
-    ABitmap.Rectangle(result.OpacityBar.left,(result.OpacityBar.top*3+result.OpacityBar.bottom) div 4,result.OpacityBar.right,
-        (result.OpacityBar.top+result.OpacityBar.bottom*3) div 4,lColor,dmSet);
-    ABitmap.FillRect(result.OpacityBar.left+1,(result.OpacityBar.top*3+result.OpacityBar.bottom) div 4+1,result.OpacityBar.left+1+
-      Int32or64(round((result.OpacityBar.right-result.OpacityBar.left-2)*LazPaintInstance.Image.LayerOpacity[LayerIndex]/255)),
-       (result.OpacityBar.top+result.OpacityBar.bottom*3) div 4-1,lColorTransp,dmDrawWithTransparency);
+    rOpacity := rect(result.OpacityBar.left,(result.OpacityBar.top*7+result.OpacityBar.bottom) div 8,result.OpacityBar.right,
+        (result.OpacityBar.top+result.OpacityBar.bottom*7) div 8);
+    ABitmap.Rectangle(rOpacity,lColor,dmSet);
+    rOpacity.Inflate(-1,-1);
+    bmpOpacity := TBGRABitmap.Create(rOpacity.Width,rOpacity.Height,BGRABlack);
+    rFill := rect(0,0,round(bmpOpacity.Width*LazPaintInstance.Image.LayerOpacity[LayerIndex]/255),bmpOpacity.Height);
+    bmpOpacity.ClipRect := rFill;
+    bmpOpacity.FillRect(rFill, CSSSilver,dmSet);
+    bmpOpacity.FontFullHeight := bmpOpacity.Height;
+    bmpOpacity.FontName := ABitmap.FontName;
+    bmpOpacity.FontStyle:= [fsBold];
+    percentStr := IntToStr(round(LazPaintInstance.Image.LayerOpacity[LayerIndex]*100/255))+'%';
+    bmpOpacity.TextOut(bmpOpacity.Width/2,0, percentStr, BGRABlack, taCenter);
+    bmpOpacity.ClipRect := rect(rFill.Right,rFill.Top,bmpOpacity.Width,rFill.Bottom);
+    bmpOpacity.TextOut(bmpOpacity.Width/2,0, percentStr, BGRAWhite, taCenter);
+    ABitmap.FillMask(rOpacity.Left,rOpacity.Top,bmpOpacity, lColor, dmDrawWithTransparency);
+    bmpOpacity.Free;
   end
   else
   begin
