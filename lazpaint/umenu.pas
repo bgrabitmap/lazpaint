@@ -15,6 +15,7 @@ type
   TMainFormMenu = class
   private
     FActionList: TActionList;
+    FDarkTheme: boolean;
     FMainMenus: array of TMenuItem;
     FToolsShortcuts: array[TPaintToolType] of TUTF8Char;
     FToolbars: array of record
@@ -26,12 +27,14 @@ type
     FImageList: TImageList;
     procedure IconSizeItemClick(Sender: TObject);
     procedure IconSizeMenuClick(Sender: TObject);
+    procedure SetDarkTheme(AValue: boolean);
   protected
     FInstance: TLazPaintCustomInstance;
     procedure AddMenus(AMenu: TMenuItem; AActionList: TActionList; AActionsCommaText: string; AIndex: integer = -1); overload;
     procedure AddMenus(AMenuName: string; AActionsCommaText: string); overload;
     procedure ApplyShortcuts;
     procedure ActionShortcut(AName: string; AShortcut: TUTF8Char);
+    procedure ApplyTheme;
   public
     constructor Create(AInstance: TLazPaintCustomInstance; AActionList: TActionList);
     procedure PredefinedMainMenus(const AMainMenus: array of TMenuItem);
@@ -42,12 +45,13 @@ type
     procedure RepaintToolbar;
     property ToolbarsHeight: integer read FToolbarsHeight;
     property ImageList: TImageList read FImageList write FImageList;
+    property DarkTheme: boolean read FDarkTheme write SetDarkTheme;
   end;
 
 implementation
 
 uses UResourceStrings, BGRAUTF8, LCScaleDPI, ComCtrls, Graphics,
-  Spin, StdCtrls, BGRAText, math;
+  Spin, StdCtrls, BGRAText, math, udarktheme;
 
 { TMainFormMenu }
 
@@ -60,6 +64,13 @@ begin
   iconSize := FInstance.Config.DefaultIconSize(0);
   for i := 0 to menu.Count-1 do
     menu.Items[i].Checked := (menu.Items[i].Tag = iconSize);
+end;
+
+procedure TMainFormMenu.SetDarkTheme(AValue: boolean);
+begin
+  if FDarkTheme=AValue then Exit;
+  FDarkTheme:=AValue;
+  ApplyTheme;
 end;
 
 procedure TMainFormMenu.IconSizeItemClick(Sender: TObject);
@@ -195,6 +206,74 @@ begin
   end;
 end;
 
+procedure TMainFormMenu.ApplyTheme;
+var
+  i, j: Integer;
+begin
+  for i := 0 to high(FToolbars) do
+  begin
+    with FToolbars[i].tb do
+    begin
+      if FDarkTheme then
+      begin
+        Color := clDarkBtnFace;
+        BevelOuter:= bvNone;
+        if OnPaint = nil then OnPaint := @DarkThemeInstance.PanelPaint;
+      end else
+      begin
+        Color := clBtnFace;
+        BevelOuter:= bvRaised;
+        if OnPaint = @DarkThemeInstance.PanelPaint then OnPaint := nil;
+      end;
+      for j := 0 to ControlCount-1 do
+        if Controls[j] is TToolBar then
+        begin
+          if FDarkTheme then
+          begin
+            Controls[j].Color := clDarkBtnFace;
+            TToolbar(Controls[j]).OnPaintButton:= @DarkThemeInstance.ToolBarPaintButton;
+          end
+          else
+          begin
+            Controls[j].Color := clBtnFace;
+            TToolbar(Controls[j]).OnPaintButton:= nil;
+          end;
+        end else
+        if Controls[j] is TLabel then
+        begin
+          if (Controls[j].Name = 'Label_Coordinates') or
+             (Controls[j].Name = 'Label_CurrentZoom') or
+             (Controls[j].Name = 'Label_CurrentDiff') then
+          begin
+            if FDarkTheme then
+            begin
+              Controls[j].Color := clDarkBtnFace;
+              Controls[j].Font.Color := clLightText;
+            end
+            else
+            begin
+              Controls[j].Color := clWhite;
+              Controls[j].Font.Color := clBlack;
+            end;
+          end else
+          begin
+            if FDarkTheme then
+              Controls[j].Font.Color := clLightText
+            else
+              Controls[j].Font.Color := clBlack;
+          end;
+        end;
+    end;
+  end;
+  if Assigned(FToolbarBackground) then
+  begin
+    if FDarkTheme then
+      FToolbarBackground.Color := clDarkBtnFace
+    else
+      FToolbarBackground.Color := clBtnFace;
+  end;
+end;
+
 constructor TMainFormMenu.Create(AInstance: TLazPaintCustomInstance; AActionList: TActionList);
 begin
   FInstance := AInstance;
@@ -218,11 +297,19 @@ begin
   begin
     FToolbars[i].tb := AToolbars[i];
     FToolbars[i].tb.Cursor := crArrow;
-    for j := 0 to FToolbars[i].tb.ControlCount-1 do
+    with FToolbars[i].tb do
+    for j := 0 to ControlCount-1 do
     begin
-      FToolbars[i].tb.Controls[j].Cursor := crArrow;
-      if FToolbars[i].tb.Controls[j] is TLabel then
-        FToolbars[i].tb.Controls[j].Font.Size := FToolbars[i].tb.Controls[j].Height*33 div ScreenInfo.PixelsPerInchY;
+      Controls[j].Cursor := crArrow;
+      if Controls[j] is TLabel then
+      begin
+        if (Controls[j].Name = 'Label_Coordinates') or
+           (Controls[j].Name = 'Label_CurrentZoom') or
+           (Controls[j].Name = 'Label_CurrentDiff') then
+          Controls[j].Font.Size := Controls[j].Height*38 div ScreenInfo.PixelsPerInchY
+        else
+          Controls[j].Font.Size := Controls[j].Height*33 div ScreenInfo.PixelsPerInchY;
+      end;
     end;
   end;
   FToolbarBackground := AToolbarBackground;
@@ -252,7 +339,7 @@ end;
 
 procedure TMainFormMenu.Apply;
 const ImageBrowser = {$IFNDEF DARWIN}'FileUseImageBrowser,'{$ELSE}''{$ENDIF};
-var i,j,k,tbHeight,tbHeightOrig: NativeInt;
+var i,j,tbHeight,tbHeightOrig: NativeInt;
 begin
   for i := 0 to FActionList.ActionCount-1 do
   with FActionList.Actions[i] as TAction do
@@ -290,7 +377,6 @@ begin
     begin
       if Controls[j] is TToolBar then
       begin
-        Controls[j].Color := clBtnFace;
         if assigned(FImageList) then TToolbar(Controls[j]).Images := FImageList;
         TToolbar(Controls[j]).ButtonWidth := TToolbar(Controls[j]).Images.Width+ScaleX(6, 96);
         TToolbar(Controls[j]).ButtonHeight := TToolbar(Controls[j]).Images.Height+ScaleY(6, 96);
@@ -313,6 +399,7 @@ begin
     end;
   end;
 
+  ApplyTheme;
 end;
 
 procedure TMainFormMenu.ArrangeToolbars(ClientWidth: integer);

@@ -52,13 +52,13 @@ function ClearTypeInverseFilter(source: TBGRACustomBitmap): TBGRACustomBitmap;
 
 function DoResample(source :TBGRABitmap; newWidth, newHeight: integer; StretchMode: TResampleMode): TBGRABitmap;
 procedure DrawArrow(ACanvas: TCanvas; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; State: TOwnerDrawState);
-procedure BCAssignSystemStyle(AButton: TBCButton);
+procedure BCAssignSystemStyle(AButton: TBCButton; ADarkTheme: boolean);
 
 implementation
 
 uses GraphType, math, Types, BGRAUTF8, FileUtil, dialogs, BGRAAnimatedGif,
   BGRAGradients, BGRATextFX, uresourcestrings, LCScaleDPI, BCTypes,
-  BGRAThumbnail, LCVectorPolyShapes;
+  BGRAThumbnail, LCVectorPolyShapes, udarktheme;
 
 procedure BCAssignSystemState(AState: TBCButtonState; AFontColor, ATopColor, AMiddleTopColor, AMiddleBottomColor, ABottomColor, ABorderColor: TColor);
 begin
@@ -102,7 +102,7 @@ begin
   end;
 end;
 
-procedure BCAssignSystemStyle(AButton: TBCButton);
+procedure BCAssignSystemStyle(AButton: TBCButton; ADarkTheme: boolean);
 
   function MergeColor(AColor1,AColor2:TColor):TColor;
   begin
@@ -120,20 +120,32 @@ procedure BCAssignSystemStyle(AButton: TBCButton);
     result := BGRAToColor(HSLAToBGRA(hsla1));
   end;
 
-var highlight: TColor;
+var highlight, btnFace, btnShadow, btnText: TColor;
 begin
-  {$IFDEF DARWIN}
-  highlight := MergeColor(clBtnFace,clWhite);
-  {$ELSE}
-  highlight := clBtnHighlight;
-  {$ENDIF}
+  if ADarkTheme then
+  begin
+    highlight := clDarkBtnHighlight;
+    btnFace := clDarkBtnFace;
+    btnText := clLightText;
+    btnShadow:= clBlack;
+  end else
+  begin
+    {$IFDEF DARWIN}
+    highlight := MergeColor(clBtnFace,clWhite);
+    {$ELSE}
+    highlight := clBtnHighlight;
+    {$ENDIF}
+    btnFace := clBtnFace;
+    btnText := clBtnText;
+    btnShadow := clBtnShadow;
+  end;
   with AButton do
   begin
     Rounding.RoundX := 6;
     Rounding.RoundY := 6;
-    BCAssignSystemState(StateNormal, clBtnText, clBtnFace, highlight, clBtnFace, clBtnShadow, clBtnShadow);
-    BCAssignSystemState(StateHover, HoverColor(clBtnText), HoverColor(clBtnFace), HoverColor(highlight), HoverColor(clBtnFace), HoverColor(clBtnShadow), HoverColor(clBtnShadow));
-    BCAssignSystemState(StateClicked, HoverColor(clBtnText), HoverColor(MergeColor(clBtnFace,clBtnShadow)), HoverColor(clBtnFace), HoverColor(MergeColor(clBtnFace,clBtnShadow)), HoverColor(clBtnShadow), HoverColor(clBtnShadow));
+    BCAssignSystemState(StateNormal, btnText, btnFace, highlight, btnFace, btnShadow, btnShadow);
+    BCAssignSystemState(StateHover, HoverColor(btnText), HoverColor(btnFace), HoverColor(highlight), HoverColor(btnFace), HoverColor(btnShadow), HoverColor(btnShadow));
+    BCAssignSystemState(StateClicked, HoverColor(btnText), HoverColor(MergeColor(btnFace,btnShadow)), HoverColor(btnFace), HoverColor(MergeColor(btnFace,btnShadow)), HoverColor(btnShadow), HoverColor(btnShadow));
   end;
 end;
 

@@ -867,7 +867,6 @@ begin
   {$ENDIF}
 
   FLayout.OnPictureAreaChange := @LayoutPictureAreaChange;
-  //DarkTheme.SetDarkTheme(Self);
   initialized := true;
   FirstPaint := true;
 end;
@@ -878,6 +877,7 @@ begin
   CreateToolbarElements;
 
   m := TMainFormMenu.Create(LazPaintInstance, ActionList1);
+  m.DarkTheme := Config.GetDarkTheme;
   m.PredefinedMainMenus([MenuFile,MenuEdit,MenuSelect,MenuView, MenuImage,MenuRemoveTransparency,
     MenuColors,MenuTool, MenuFilter,MenuRadialBlur, MenuRender,MenuHelp]);
   m.Toolbars([Panel_Embedded,Panel_File,Panel_Zoom,Panel_Undo,Panel_CopyPaste,Panel_Coordinates,
@@ -887,6 +887,7 @@ begin
   m.ImageList := LazPaintInstance.Icons[ScaleY(16, 96)];
   m.Apply;
   FLayout.Menu := m;
+  FLayout.DarkTheme := m.DarkTheme;
 end;
 
 function TFMain.GetToolManager: TToolManager;
@@ -944,8 +945,9 @@ end;
 procedure TFMain.Init;
 begin
   initialized := false;
-  CreateMenuAndToolbar;
   Config := LazPaintInstance.Config;
+  CreateMenuAndToolbar;
+
   if Config.Default3dObjectDirectory = '' then
     Config.SetDefault3dObjectDirectory(StartDirectory);
 

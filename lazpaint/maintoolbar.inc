@@ -464,7 +464,7 @@ begin
       IconBGRA.PutImage((IconBGRA.Width-ToolBGRA.Width) div 2, (IconBGRA.Height-ToolBGRA.Height) div 2,ToolBGRA,dmDrawWithTransparency);
       FreeAndNil(ToolBGRA);
 
-      IconBmp := IconBGRA.MakeBitmapCopy(ColorToRGB(clBtnFace));
+      IconBmp := IconBGRA.MakeBitmapCopy(Panel_Tool.Color);
       FreeAndNil(IconBGRA);
       Image_CurrentTool.Picture.Assign(IconBmp);
       IconBmp.Free;

@@ -94,6 +94,8 @@ type
 
     function DefaultIconSize(defaultValue: integer): integer;
     procedure SetDefaultIconSize(value: integer);
+    function GetDarkTheme: boolean;
+    procedure SetDarkTheme(AValue: boolean);
 
     //new image config
     function DefaultImageWidth: integer;
@@ -1498,6 +1500,16 @@ end;
 procedure TLazPaintConfig.SetDefaultIconSize(value: integer);
 begin
   iniOptions.WriteInteger('General','DefaultIconSize',value);
+end;
+
+function TLazPaintConfig.GetDarkTheme: boolean;
+begin
+  result := iniOptions.ReadBool('General','DarkTheme', false);
+end;
+
+procedure TLazPaintConfig.SetDarkTheme(AValue: boolean);
+begin
+  iniOptions.WriteBool('General','DarkTheme', AValue);
 end;
 
 function TLazPaintConfig.ScreenSizeChanged: boolean;

@@ -336,7 +336,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="96">
+    <Units Count="97">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -904,6 +904,10 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImageView"/>
       </Unit95>
+      <Unit96>
+        <Filename Value="udarktheme.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit96>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
