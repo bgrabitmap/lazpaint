@@ -1905,6 +1905,10 @@ msgstr "Barre d'état"
 msgid "Toolbox"
 msgstr "Outils"
 
+#: tfmain.viewworkspacecolor.caption
+msgid "Set workspace color..."
+msgstr "Couleur de l'espace de travail..."
+
 #: tfmain.viewzoomfit.caption
 msgctxt "tfmain.viewzoomfit.caption"
 msgid "Zoom fit"

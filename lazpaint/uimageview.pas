@@ -33,7 +33,7 @@ type
     end;
     FZoom: TZoom;
     FPictureCanvas: TCanvas;
-    FBackgroundColor: TColor;
+    FWorkspaceColor: TColor;
     function GetImage: TLazPaintImage;
     function GetRenderUpdateRectVS(AIncludeLastToolState: boolean): TRect;
     function GetFillSelectionHighlight: boolean;
@@ -48,7 +48,7 @@ type
     procedure PaintVirtualScreenCursor({%H-}ACanvasOfs: TPoint; {%H-}AWorkArea: TRect; {%H-}AWinControlOfs: TPoint; {%H-}AWinControl: TWinControl);
     function GetRectToInvalidate(AInvalidateAll: boolean; AWorkArea: TRect): TRect;
   public
-    constructor Create(AInstance: TLazPaintCustomInstance; AZoom: TZoom; ACanvas: TCanvas; ABackgroundColor: TColor);
+    constructor Create(AInstance: TLazPaintCustomInstance; AZoom: TZoom; ACanvas: TCanvas; AWorkspaceColor: TColor);
     destructor Destroy; override;
     procedure DoPaint(ACanvasOfs: TPoint; AWorkArea: TRect; AShowNoPicture: boolean);
     procedure InvalidatePicture(AInvalidateAll: boolean; AWorkArea: TRect; AControlOfs: TPoint; AWinControl: TWinControl);
@@ -67,6 +67,7 @@ type
     property LazPaintInstance: TLazPaintCustomInstance read FInstance;
     property PictureCanvas: TCanvas read FPictureCanvas;
     property FillSelectionHighlight: boolean read GetFillSelectionHighlight write SetFillSelectionHighlight;
+    property WorkspaceColor: TColor read FWorkspaceColor write FWorkspaceColor;
   end;
 
 implementation
@@ -235,7 +236,7 @@ begin
     scaledArea := FLastPictureParameters.scaledArea;
     with PictureCanvas do
     begin
-      Brush.Color := FBackgroundColor;
+      Brush.Color := FWorkspaceColor;
       DrawOfs := ACanvasOfs;
       if scaledArea.Left > workArea.Left then
         FillRect(workArea.Left+DrawOfs.X,scaledArea.Top+DrawOfs.Y,scaledArea.Left+DrawOfs.X,scaledArea.Bottom+DrawOfs.Y);
@@ -257,7 +258,7 @@ begin
   if (AWorkArea.Right <= AWorkArea.Left) or (AWorkArea.Bottom <= AWorkArea.Top) then exit;
   with PictureCanvas do
   begin
-    Brush.Color := FBackgroundColor;
+    Brush.Color := FWorkspaceColor;
     DrawOfs := ACanvasOfs;
     FillRect(AWorkArea.Left+DrawOfs.X,AWorkArea.Top+DrawOfs.Y,AWorkArea.Right+DrawOfs.X,AWorkArea.Bottom+DrawOfs.Y);
   end;
@@ -265,12 +266,12 @@ begin
 end;
 
 constructor TImageView.Create(AInstance: TLazPaintCustomInstance; AZoom: TZoom;
-  ACanvas: TCanvas; ABackgroundColor: TColor);
+  ACanvas: TCanvas; AWorkspaceColor: TColor);
 begin
   FInstance := AInstance;
   FZoom := AZoom;
   FPictureCanvas := ACanvas;
-  FBackgroundColor := ABackgroundColor;
+  FWorkspaceColor := AWorkspaceColor;
 
   FVirtualScreen := nil;
   FLastPictureParameters.defined:= false;

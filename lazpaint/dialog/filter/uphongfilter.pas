@@ -51,6 +51,7 @@ type
     FInitializing: boolean;
     FCenter: TPointF;
     FHeightMap: TBGRABitmap;
+    FWorkspaceColor: TColor;
     function GetCurrentLightPos: TPointF;
     procedure PreviewNeeded;
     function ComputeFilteredLayer: TBGRABitmap;
@@ -72,6 +73,7 @@ begin
   result := false;
   FPhongFilter:= TFPhongFilter.create(nil);
   FPhongFilter.FilterConnector := AFilterConnector as TFilterConnector;
+  FPhongFilter.FWorkspaceColor:= FPhongFilter.FilterConnector.LazPaintInstance.Config.GetWorkspaceColor;
   try
     if FPhongFilter.FilterConnector.ActiveLayer <> nil then
       result:= (FPhongFilter.showModal = mrOk)
@@ -97,6 +99,7 @@ begin
   ScaleControl(Self,OriginalDPI);
   CheckOKCancelBtns(Button_OK,Button_Cancel);
   FCenter := PointF(0.5,0.5);
+  FWorkspaceColor:= clAppWorkspace;
 end;
 
 procedure TFPhongFilter.FormDestroy(Sender: TObject);
@@ -144,9 +147,10 @@ var x,y: integer;
 begin
   x := round((FCenter.X+0.5)*PaintBox1.Width/2);
   y := round((FCenter.Y+0.5)*PaintBox1.Height/2);
-  PaintBox1.Canvas.Brush.Style := bsClear;
+  PaintBox1.Canvas.Brush.Style := bsSolid;
+  PaintBox1.Canvas.Brush.Color := FWorkspaceColor;
   PaintBox1.Canvas.Pen.Style := psSolid;
-  PaintBox1.Canvas.Pen.Color := BGRAToColor(MergeBGRA(ColorToBGRA(ColorToRGB(clBlack)),ColorToBGRA(OutsideColor)));
+  PaintBox1.Canvas.Pen.Color := MergeBGRA(ColorToBGRA(clBlack),ColorToBGRA(FWorkspaceColor));
   PaintBox1.Canvas.Rectangle(0,0,PaintBox1.Width,PaintBox1.Height);
   PaintBox1.Canvas.Pen.Style := psDot;
   PaintBox1.Canvas.Pen.Color := clBlack;

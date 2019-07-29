@@ -28,8 +28,10 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    ViewWorkspaceColor: TAction;
     LayerRasterize: TAction;
     FileRememberSaveFormat: TAction;
+    ItemWorkspaceColor: TMenuItem;
     SelectionVerticalFlip: TAction;
     SelectionHorizontalFlip: TAction;
     LayerZoom: TAction;
@@ -645,6 +647,7 @@ type
     procedure ViewToolboxExecute(Sender: TObject);
     procedure SpinEdit_PenWidthExit(Sender: TObject);
     procedure SpinEdit_GridNbExit(Sender: TObject);
+    procedure ViewWorkspaceColorExecute(Sender: TObject);
     procedure WMEraseBkgnd(var {%H-}Message: TLMEraseBkgnd); message LM_ERASEBKGND;
 
   private
@@ -791,7 +794,6 @@ type
 
   public
     { public declarations }
-    FormBackgroundColor: TColor;
     UpdateStackOnTimer: boolean;
     Zoom: TZoom;
 
@@ -836,9 +838,6 @@ begin
   FImageView := nil;
 
   ScaleControl(Self,OriginalDPI);
-
-  //use background color
-  FormBackgroundColor := OutsideColor;
   self.Color := clBtnFace; //toolbar color inherited on mac
 
   {$IFDEF USEPAINTBOXPICTURE}
@@ -979,7 +978,7 @@ begin
 
   FImageView := TImageView.Create(LazPaintInstance, Zoom,
                 {$IFDEF USEPAINTBOXPICTURE}PaintBox_Picture.Canvas{$ELSE}self.Canvas{$ENDIF},
-                FormBackgroundColor);
+                config.GetWorkspaceColor);
 
   FImageActions := TImageActions.Create(LazPaintInstance);
   LazPaintInstance.EmbeddedResult := mrNone;

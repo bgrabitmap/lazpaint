@@ -1914,6 +1914,10 @@ msgstr ""
 msgid "Toolbox"
 msgstr "Barra de ferramentas"
 
+#: tfmain.viewworkspacecolor.caption
+msgid "Set workspace color..."
+msgstr ""
+
 #: tfmain.viewzoomfit.caption
 msgctxt "tfmain.viewzoomfit.caption"
 msgid "Zoom fit"

@@ -6564,6 +6564,11 @@ object FMain: TFMain
       OnExecute = ScriptExecute
       OnUpdate = LayerRasterizeUpdate
     end
+    object ViewWorkspaceColor: TAction
+      Category = 'View'
+      Caption = 'Set workspace color...'
+      OnExecute = ViewWorkspaceColorExecute
+    end
   end
   object ColorDialog1: TColorDialog
     Title = 'Choose color'
@@ -6703,6 +6708,9 @@ object FMain: TFMain
       end
       object ItemViewGrid: TMenuItem
         Action = ViewGrid
+      end
+      object ItemWorkspaceColor: TMenuItem
+        Action = ViewWorkspaceColor
       end
     end
     object MenuImage: TMenuItem

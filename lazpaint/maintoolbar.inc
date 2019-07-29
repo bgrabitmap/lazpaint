@@ -595,6 +595,20 @@ begin
   if SpinEdit_GridNbY.Value < 2 then SpinEdit_GridNbY.Value := 2;
 end;
 
+procedure TFMain.ViewWorkspaceColorExecute(Sender: TObject);
+begin
+  ColorDialog1.Color:= Config.GetWorkspaceColor;
+  if ColorDialog1.Execute then
+  begin
+    Config.SetWorkspaceColor(ColorDialog1.Color);
+    if Assigned(FImageView) then
+    begin
+      FImageView.WorkspaceColor := ColorDialog1.Color;
+      FImageView.InvalidatePicture(False, FLayout.WorkArea, Point(0,0), self);
+    end;
+  end;
+end;
+
 procedure TFMain.SpinEdit_TextOutlineWidthChange(Sender: TObject);
 begin
   if initialized then

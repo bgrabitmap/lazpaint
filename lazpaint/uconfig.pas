@@ -167,6 +167,8 @@ type
 
     function GetStatusBarVisible: boolean;
     procedure SetStatusBarVisible(value: boolean);
+    function GetWorkspaceColor: TColor;
+    procedure SetWorkspaceColor(value: TColor);
     function DefaultUseImageBrowser: boolean;
     procedure SetDefaultUseImageBrowser(value: boolean);
 
@@ -679,6 +681,16 @@ end;
 procedure TLazPaintConfig.SetStatusBarVisible(value: boolean);
 begin
   iniOptions.WriteBool('Toolbar','StatusBar',value);
+end;
+
+function TLazPaintConfig.GetWorkspaceColor: TColor;
+begin
+  result := StrToBGRA(iniOptions.ReadString('General','WorkspaceColor', '#BBD1E8'), clAppWorkspace);
+end;
+
+procedure TLazPaintConfig.SetWorkspaceColor(value: TColor);
+begin
+  iniOptions.WriteString('General','WorkspaceColor', BGRAToStr(value));
 end;
 
 function TLazPaintConfig.DefaultUseImageBrowser: boolean;

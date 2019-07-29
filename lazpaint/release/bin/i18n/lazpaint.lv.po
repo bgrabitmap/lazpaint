@@ -1904,6 +1904,10 @@ msgstr ""
 msgid "Toolbox"
 msgstr "Rīku kaste"
 
+#: tfmain.viewworkspacecolor.caption
+msgid "Set workspace color..."
+msgstr ""
+
 #: tfmain.viewzoomfit.caption
 msgctxt "tfmain.viewzoomfit.caption"
 msgid "Zoom fit"

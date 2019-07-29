@@ -1903,6 +1903,10 @@ msgstr ""
 msgid "Toolbox"
 msgstr "Nástojový panel"
 
+#: tfmain.viewworkspacecolor.caption
+msgid "Set workspace color..."
+msgstr ""
+
 #: tfmain.viewzoomfit.caption
 msgctxt "tfmain.viewzoomfit.caption"
 msgid "Zoom fit"

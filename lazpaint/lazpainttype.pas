@@ -100,7 +100,6 @@ const
                     true,true,true,true);
 
 const
-  OutsideColor = TColor($00E8D1BB);
   MinZoomForGrid = 4;
 
 type
