@@ -1150,7 +1150,7 @@ begin
     Image.ReleaseEmptySelection;
 
   SetControlsVisible(PenWidthControls, showPenwidth);
-  SetControlsVisible(AliasingControls, FCurrentToolType=ptPen);
+  SetControlsVisible(AliasingControls, FCurrentToolType in[ptPen,ptEraser]);
   SetControlsVisible(SplineStyleControls, showSplineStyle);
   SetControlsVisible(JoinStyleControls, showJoinStyle);
   SetControlsVisible(LineCapControls, showLineCap);

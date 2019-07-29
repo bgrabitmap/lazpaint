@@ -26,3 +26,5 @@ lazpaint/test_embedded/project1
 lazpaint/dialog/filter/backup/
 
 lazpaint/release/bin/lazpaint
+
+lazpaint/tools/backup/
