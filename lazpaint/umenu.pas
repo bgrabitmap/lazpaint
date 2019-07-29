@@ -339,7 +339,7 @@ begin
   ActionShortcut('ToolSelectSpline','A');
   ActionShortcut('ToolMoveSelection','V');
   ActionShortcut('ToolRotateSelection','V');
-  ActionShortcut('ToolSelectPen','P');
+  ActionShortcut('ToolSelectPen','O');
   ActionShortcut('ToolMagicWand','W');
   ActionShortcut('ViewZoomIn','+');
   ActionShortcut('ViewZoomOut','-');
