@@ -40,6 +40,7 @@ type
       {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure vsColorViewRedraw(Sender: TObject; Bitmap: TBGRABitmap);
   private
+    FDarkTheme: boolean;
     { private declarations }
     FormBackgroundColor, FormTextColor: TBGRAPixel;
     PreviousClientWidth: integer;
@@ -63,6 +64,7 @@ type
     function GetAvailableBmpHeight: integer;
     function GetAvailableBmpWidth: integer;
     procedure SetAvailableBmpHeight(AValue: integer);
+    procedure SetDarkTheme(AValue: boolean);
     procedure UpdateColorview(UpdateColorCircle, UpdateLightScale: boolean);
     procedure SetColorLight(value: word);
     function ColorWithLight(c: TBGRAPixel; light: word): TBGRAPixel;
@@ -73,6 +75,8 @@ type
     function MakeIconBase(size: integer): TBitmap;
     function MakeAddIcon(size: integer): TBitmap;
     function MakeRemoveIcon(size: integer): TBitmap;
+  protected
+    procedure ApplyTheme;
   public
     { public declarations }
     colorTarget: TColorTarget;
@@ -83,13 +87,14 @@ type
     function GetCurrentColor: TBGRAPixel;
     property AvailableBmpHeight: integer read GetAvailableBmpHeight write SetAvailableBmpHeight;
     property AvailableBmpWidth: integer read GetAvailableBmpWidth;
+    property DarkTheme: boolean read FDarkTheme write SetDarkTheme;
   end;
 
 var TFChooseColor_CustomDPI: integer = 96;
 
 implementation
 
-uses ugraph, math, LCLType, BGRAText;
+uses ugraph, math, LCLType, BGRAText, udarktheme;
 
 { TFChooseColor }
 
@@ -112,8 +117,7 @@ begin
    vsColorView.Left := externalMargin;
    vsColorView.Top := 0;
    ClientHeight := ClientHeight+EColor.Height;
-   BCAssignSystemStyle(BCButton_AddToPalette);
-   BCAssignSystemStyle(BCButton_RemoveFromPalette);
+   ApplyTheme;
    FormResize(Sender);
    EColor.Visible := false;
 
@@ -134,9 +138,6 @@ begin
    Lightscale.bmp := nil;
    ColorCircle.bmp := nil;
    ColorCircle.bmpMaxlight := nil;
-
-   FormBackgroundColor := ColorToBGRA(ColorToRGB({$IFDEF DARWIN}clWindow{$ELSE}clBtnFace{$ENDIF}));
-   FormTextColor := ColorToBGRA(ColorToRGB(clWindowText));
 
    If (LazPaintInstance = nil) or (LazPaintInstance.BlackAndWhite) then
      SetCurrentColor(BGRAWhite)
@@ -461,6 +462,25 @@ begin
   end;
 end;
 
+procedure TFChooseColor.ApplyTheme;
+begin
+  BCAssignSystemStyle(BCButton_AddToPalette, FDarkTheme);
+  BCAssignSystemStyle(BCButton_RemoveFromPalette, FDarkTheme);
+  if DarkTheme then
+  begin
+    Color := clDarkBtnFace;
+    LColor.Font.Color := clLightText;
+    FormBackgroundColor := clDarkBtnFace;
+    FormTextColor := clLightText;
+  end else
+  begin
+    Color := clBtnFace;
+    LColor.Font.Color := clWindowText;
+    FormBackgroundColor := ColorToBGRA(ColorToRGB({$IFDEF DARWIN}clWindow{$ELSE}clBtnFace{$ENDIF}));
+    FormTextColor := ColorToBGRA(ColorToRGB(clWindowText));
+  end;
+end;
+
 procedure TFChooseColor.UpdateLayout;
 var tmpIcon: TBitmap; bmpWidth,bmpHeight,internalMargin,deltaY, iconSize: integer;
 begin
@@ -588,6 +608,13 @@ end;
 procedure TFChooseColor.SetAvailableBmpHeight(AValue: integer);
 begin
   ClientHeight := AValue+EColor.Height+externalMargin;
+end;
+
+procedure TFChooseColor.SetDarkTheme(AValue: boolean);
+begin
+  if FDarkTheme=AValue then Exit;
+  FDarkTheme:=AValue;
+  ApplyTheme;
 end;
 
 procedure TFChooseColor.SetColorLight(value: word);

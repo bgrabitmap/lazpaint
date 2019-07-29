@@ -325,6 +325,7 @@ begin
   TFChooseColor_CustomDPI := (Config.DefaultIconSize(DoScaleX(16,OriginalDPI))*96+8) div 16;
   Application.CreateForm(TFChooseColor, FChooseColor);
   FChooseColor.LazPaintInstance := self;
+  FChooseColor.DarkTheme:= Config.GetDarkTheme;
 
   CreateToolBox;
 
