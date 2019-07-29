@@ -261,8 +261,6 @@ msgid "3D Light"
 msgstr "Luz 3D"
 
 #: lclstrconsts.rsacontrolcannothaveitselfasparent
-#, fuzzy
-#| msgid "A control can't have itself as parent"
 msgid "A control can't have itself as a parent"
 msgstr "Um controle não pode ter ele mesmo como pai"
 

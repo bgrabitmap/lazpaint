@@ -255,8 +255,6 @@ msgid "3D Light"
 msgstr ""
 
 #: lclstrconsts.rsacontrolcannothaveitselfasparent
-#, fuzzy
-#| msgid "A control can't have itself as parent"
 msgid "A control can't have itself as a parent"
 msgstr "Елемент управління не може бути сам собі предком"
 
@@ -628,8 +626,6 @@ msgid "--no-xshm             Disable use of the X Shared Memory Extension."
 msgstr "--no-xshm             Заборонити використання розширень Х-пам'яті, що розділяється."
 
 #: lclstrconsts.rsgtkoptionsync
-#, fuzzy
-#| msgid "--sync                Call XSynchronize (display, True) after the Xserver connection has been established. This makes debugging X protocol errors easier, because X request buffering will be disabled and X errors will be received immediatey after the protocol request that generated the error has been processed by the X server."
 msgid "--sync                Call XSynchronize (display, True) after the Xserver connection has been established. This makes debugging X protocol errors easier, because X request buffering will be disabled and X errors will be received immediately after the protocol request that generated the error has been processed by the X server."
 msgstr "--sync                Виклик XSynchronize (display, True) після встановлення з'єднання з Xserver'ом. Це полегшує налагодження помилок протокола X через те, що запити буферування X будуть вимкнені і помилки X будуть одержані одразу після запиту протоколу, який викликав цю помилку, яка була оброблена сервером X."
 

@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, ActnList, Forms, Menus, UTool, LCLType, ExtCtrls, UConfig,
-  Controls;
+  Controls, LazPaintType;
 
 type
 
@@ -17,17 +17,23 @@ type
     FActionList: TActionList;
     FMainMenus: array of TMenuItem;
     FToolsShortcuts: array[TPaintToolType] of TUTF8Char;
-    FToolbars: array of TPanel;
+    FToolbars: array of record
+                 tb: TPanel;
+                 fixed: boolean;
+               end;
     FToolbarsHeight : integer;
     FToolbarBackground: TPanel;
     FImageList: TImageList;
+    procedure IconSizeItemClick(Sender: TObject);
+    procedure IconSizeMenuClick(Sender: TObject);
   protected
+    FInstance: TLazPaintCustomInstance;
     procedure AddMenus(AMenu: TMenuItem; AActionList: TActionList; AActionsCommaText: string; AIndex: integer = -1); overload;
     procedure AddMenus(AMenuName: string; AActionsCommaText: string); overload;
     procedure ApplyShortcuts;
     procedure ActionShortcut(AName: string; AShortcut: TUTF8Char);
   public
-    constructor Create(AActionList: TActionList);
+    constructor Create(AInstance: TLazPaintCustomInstance; AActionList: TActionList);
     procedure PredefinedMainMenus(const AMainMenus: array of TMenuItem);
     procedure Toolbars(const AToolbars: array of TPanel; AToolbarBackground: TPanel);
     procedure CycleTool(var ATool: TPaintToolType; var AShortCut: TUTF8Char);
@@ -40,10 +46,29 @@ type
 
 implementation
 
-uses UResourceStrings, BGRAUTF8, LazPaintType, LCScaleDPI, ComCtrls, Graphics,
-  Spin, StdCtrls, BGRAText;
+uses UResourceStrings, BGRAUTF8, LCScaleDPI, ComCtrls, Graphics,
+  Spin, StdCtrls, BGRAText, math;
 
 { TMainFormMenu }
+
+procedure TMainFormMenu.IconSizeMenuClick(Sender: TObject);
+var
+  menu: TMenuItem;
+  i, iconSize: Integer;
+begin
+  menu := Sender as TMenuItem;
+  iconSize := FInstance.Config.DefaultIconSize(0);
+  for i := 0 to menu.Count-1 do
+    menu.Items[i].Checked := (menu.Items[i].Tag = iconSize);
+end;
+
+procedure TMainFormMenu.IconSizeItemClick(Sender: TObject);
+var
+  item: TMenuItem;
+begin
+  item:= Sender as TMenuItem;
+  FInstance.ChangeIconSize(item.Tag);
+end;
 
 procedure TMainFormMenu.AddMenus(AMenu: TMenuItem; AActionList: TActionList;
   AActionsCommaText: string; AIndex: integer);
@@ -51,6 +76,18 @@ var actions: TStringList;
   foundAction: TBasicAction;
   item: TMenuItem;
   i,j: NativeInt;
+
+  procedure AddSubItem(ACaption: string; AOnClick: TNotifyEvent; ATag: integer);
+  var
+    subItem: TMenuItem;
+  begin
+    subItem := TMenuItem.Create(item);
+    subItem.Caption := ACaption;
+    subItem.Tag := ATag;
+    subItem.OnClick := AOnClick;
+    item.Add(subItem);
+  end;
+
 begin
   actions := TStringList.Create;
   actions.CommaText := AActionsCommaText;
@@ -96,6 +133,18 @@ begin
             end;
             break;
           end;
+        if Assigned(item) and (actions[i] = 'MenuIconSize') then
+        begin
+          item.Caption := rsIconSize;
+          item.OnClick:=@IconSizeMenuClick;
+          AddSubItem('16px', @IconSizeItemClick, 16);
+          AddSubItem('24px', @IconSizeItemClick, 24);
+          AddSubItem('32px', @IconSizeItemClick, 32);
+          AddSubItem('48px', @IconSizeItemClick, 48);
+          AddSubItem(rsAutodetect, @IconSizeItemClick, 0);
+          AMenu.Add(item);
+          item := nil;
+        end;
         if Assigned(item) then item.Caption := trim(actions[i])+'?';
       end;
     end;
@@ -146,8 +195,9 @@ begin
   end;
 end;
 
-constructor TMainFormMenu.Create(AActionList: TActionList);
+constructor TMainFormMenu.Create(AInstance: TLazPaintCustomInstance; AActionList: TActionList);
 begin
+  FInstance := AInstance;
   FActionList := AActionList;
   FToolbarsHeight := 0;
 end;
@@ -166,15 +216,13 @@ begin
   setlength(FToolbars, length(AToolbars));
   for i := 0 to high(FToolbars) do
   begin
-    FToolbars[i] := AToolbars[i];
-    FToolbars[i].Cursor := crArrow;
-    for j := 0 to FToolbars[i].ControlCount-1 do
+    FToolbars[i].tb := AToolbars[i];
+    FToolbars[i].tb.Cursor := crArrow;
+    for j := 0 to FToolbars[i].tb.ControlCount-1 do
     begin
-      FToolbars[i].Controls[j].Cursor := crArrow;
-      if (FToolbars[i].Controls[j] is TLabel) then
-      begin
-        FToolbars[i].Controls[j].Font.Height := FToolbars[i].Controls[j].Height*FontEmHeightSign*11 div 20;
-      end;
+      FToolbars[i].tb.Controls[j].Cursor := crArrow;
+      if FToolbars[i].tb.Controls[j] is TLabel then
+        FToolbars[i].tb.Controls[j].Font.Size := FToolbars[i].tb.Controls[j].Height*33 div ScreenInfo.PixelsPerInchY;
     end;
   end;
   FToolbarBackground := AToolbarBackground;
@@ -204,16 +252,16 @@ end;
 
 procedure TMainFormMenu.Apply;
 const ImageBrowser = {$IFNDEF DARWIN}'FileUseImageBrowser,'{$ELSE}''{$ENDIF};
-var i,j,tbHeight,tbHeightOrig: NativeInt;
+var i,j,k,tbHeight,tbHeightOrig: NativeInt;
 begin
   for i := 0 to FActionList.ActionCount-1 do
   with FActionList.Actions[i] as TAction do
     if (Caption = '') and (Hint <> '') then Caption := Hint;
 
-  AddMenus('MenuFile',   'FileNew,FileOpen,LayerFromFile,MenuRecentFiles,FileReload,-,FileSave,FileSaveAsInSameFolder,FileSaveAs,-,FileImport3D,-,FilePrint,-,'+ImageBrowser+'FileRememberSaveFormat,ForgetDialogAnswers,MenuLanguage,MenuIconSize,*');
+  AddMenus('MenuFile',   'FileNew,FileOpen,LayerFromFile,MenuRecentFiles,FileChooseEntry,FileReload,-,FileSave,FileSaveAsInSameFolder,FileSaveAs,-,FileImport3D,-,FilePrint,-,'+ImageBrowser+'FileRememberSaveFormat,ForgetDialogAnswers,MenuLanguage,*');
   AddMenus('MenuEdit',   'EditUndo,EditRedo,-,EditCut,EditCopy,EditPaste,EditPasteAsNew,EditPasteAsNewLayer,EditDeleteSelection,-,EditSelectAll,EditInvertSelection,EditSelectionFit,EditDeselect');
   AddMenus('MenuSelect', 'EditSelection,FileLoadSelection,FileSaveSelectionAs,-,EditSelectAll,EditInvertSelection,EditSelectionFit,EditDeselect,-,ToolSelectRect,ToolSelectEllipse,ToolSelectPoly,ToolSelectSpline,-,ToolMoveSelection,ToolRotateSelection,SelectionHorizontalFlip,SelectionVerticalFlip,-,ToolSelectPen,ToolMagicWand');
-  AddMenus('MenuView',   'ViewZoomOriginal,ViewZoomIn,ViewZoomOut,ViewZoomFit,-,*');
+  AddMenus('MenuView',   'ViewGrid,ViewZoomOriginal,ViewZoomIn,ViewZoomOut,ViewZoomFit,-,ViewToolBox,ViewColors,ViewPalette,ViewLayerStack,ViewImageList,ViewStatusBar,-,*,-,ViewWorkspaceColor,MenuIconSize');
   AddMenus('MenuImage',  'ImageCrop,ImageCropLayer,ImageFlatten,MenuRemoveTransparency,-,ImageNegative,ImageLinearNegative,ImageSwapRedBlue,-,ImageChangeCanvasSize,ImageRepeat,-,ImageResample,ImageSmartZoom3,-,ImageRotateCW,ImageRotateCCW,ImageHorizontalFlip,ImageVerticalFlip');
   AddMenus('MenuRemoveTransparency', 'ImageClearAlpha,ImageFillBackground');
   AddMenus('MenuFilter', 'MenuRadialBlur,FilterBlurMotion,FilterBlurCustom,FilterPixelate,-,FilterSharpen,FilterSmooth,FilterNoise,FilterMedian,FilterClearType,FilterClearTypeInverse,FilterFunction,-,FilterContour,FilterEmboss,FilterPhong,-,FilterSphere,FilterTwirl,FilterCylinder');
@@ -233,7 +281,7 @@ begin
   tbHeightOrig := DoScaleY(26,OriginalDPI);
   tbHeight := tbHeightOrig;
   for i := 0 to high(FToolbars) do
-  with FToolbars[i] do
+  with FToolbars[i].tb do
   begin
     Top := 0;
     Left := -Width;
@@ -255,7 +303,7 @@ begin
     end;
   end;
   for i := 0 to high(FToolbars) do
-  with FToolbars[i] do
+  with FToolbars[i].tb do
   begin
     Height := tbHeight;
     for j := 0 to ControlCount-1 do
@@ -268,14 +316,45 @@ begin
 end;
 
 procedure TMainFormMenu.ArrangeToolbars(ClientWidth: integer);
-var i,curx,cury,maxh: integer; tb: TPanel;
+var i,j,k,curx,cury,maxh, w, minNextX, delta: integer; tb: TPanel;
 begin
    curx := 0;
    cury := 0;
    maxh := 0;
    for i := 0 to high(FToolbars) do
    begin
-     tb := FToolbars[i];
+     tb := FToolbars[i].tb;
+
+     if not FToolbars[i].fixed then
+     begin
+       for j := 0 to tb.ControlCount-1 do
+       begin
+         if not (tb.Controls[j] is TSpinEdit) then
+         begin
+           tb.Controls[j].Top := 1;
+           tb.Controls[j].Height := tb.Height-3;
+         end;
+         if tb.Controls[j] is TToolBar then
+         begin
+           minNextX := MaxLongInt;
+           for k := 0 to tb.ControlCount-1 do
+             if tb.Controls[k].Left > tb.Controls[j].Left then
+               minNextX := min(minNextX, tb.Controls[k].Left);
+           delta := tb.Controls[j].Left+tb.Controls[j].Width+2-minNextX;
+           for k := 0 to tb.ControlCount-1 do
+             if tb.Controls[k].Left > tb.Controls[j].Left then
+               tb.Controls[k].Left := tb.Controls[k].Left+delta;
+         end;
+       end;
+     end;
+
+     w := 2;
+     for j := 0 to tb.ControlCount-1 do
+       if tb.Controls[j].Visible then
+         w := max(w, tb.Controls[j].Left + tb.Controls[j].Width);
+     w += 2;
+     tb.Width := w;
+
      if tb.Visible then
      begin
        if curx+tb.Width > ClientWidth then
@@ -312,9 +391,9 @@ procedure TMainFormMenu.RepaintToolbar;
 var i: NativeInt;
 begin
   FToolbarBackground.Invalidate;
-  for i := 0 to high(FToolbars) do FToolbars[i].Invalidate;
+  for i := 0 to high(FToolbars) do FToolbars[i].tb.Invalidate;
   FToolbarBackground.Update;
-  for i := 0 to high(FToolbars) do FToolbars[i].Update;
+  for i := 0 to high(FToolbars) do FToolbars[i].tb.Update;
 end;
 
 procedure TMainFormMenu.ApplyShortcuts;

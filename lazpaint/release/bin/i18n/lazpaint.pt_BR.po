@@ -49,8 +49,6 @@ msgid "Authors:"
 msgstr "Autores:"
 
 #: tfabout.label_authorsvalue.caption
-#, fuzzy
-#| msgid "Circular help by FabienWang and Lainz"
 msgctxt "TFABOUT.LABEL_AUTHORSVALUE.CAPTION"
 msgid "Circular helped by FabienWang, Lainz and others"
 msgstr "Circular, ajuda por FabienWang e Lainz"
@@ -864,8 +862,6 @@ msgid "Precise blur..."
 msgstr "Desfoque preciso..."
 
 #: tfmain.filterblurradial.caption
-#, fuzzy
-#| msgid "Radial blur..."
 msgctxt "TFMAIN.FILTERBLURRADIAL.CAPTION"
 msgid "Gaussian blur..."
 msgstr "Desfoque radial..."
@@ -1081,26 +1077,6 @@ msgstr "Doar..."
 
 #: tfmain.itemfullscreen.caption
 msgid "Fullscreen"
-msgstr ""
-
-#: tfmain.itemiconsize16.caption
-msgid "16px"
-msgstr ""
-
-#: tfmain.itemiconsize24.caption
-msgid "24px"
-msgstr ""
-
-#: tfmain.itemiconsize32.caption
-msgid "32px"
-msgstr ""
-
-#: tfmain.itemiconsize48.caption
-msgid "48px"
-msgstr ""
-
-#: tfmain.itemiconsizeauto.caption
-msgid "auto"
 msgstr ""
 
 #: tfmain.itemuseimagebrowser.caption
@@ -1320,10 +1296,6 @@ msgctxt "TFMAIN.MENUHELP.CAPTION"
 msgid "Help"
 msgstr "Ajuda"
 
-#: tfmain.menuiconsize.caption
-msgid "Icon size"
-msgstr ""
-
 #: tfmain.menuimage.caption
 msgctxt "TFMAIN.MENUIMAGE.CAPTION"
 msgid "Image"
@@ -1365,8 +1337,6 @@ msgid "Show palette"
 msgstr ""
 
 #: tfmain.menutool.caption
-#, fuzzy
-#| msgid "Tool"
 msgctxt "TFMAIN.MENUTOOL.CAPTION"
 msgid "Tools"
 msgstr "Ferramenta"
@@ -2057,46 +2027,6 @@ msgstr ""
 msgid "Choose image"
 msgstr "Escolher imagem"
 
-#: tfnewimage.bgrashape1.caption
-msgid "BGRAShape1"
-msgstr ""
-
-#: tfnewimage.bgrashape10.caption
-msgid "BGRAShape10"
-msgstr ""
-
-#: tfnewimage.bgrashape2.caption
-msgid "BGRAShape2"
-msgstr ""
-
-#: tfnewimage.bgrashape3.caption
-msgid "BGRAShape3"
-msgstr ""
-
-#: tfnewimage.bgrashape4.caption
-msgid "BGRAShape4"
-msgstr ""
-
-#: tfnewimage.bgrashape5.caption
-msgid "BGRAShape5"
-msgstr ""
-
-#: tfnewimage.bgrashape6.caption
-msgid "BGRAShape6"
-msgstr ""
-
-#: tfnewimage.bgrashape7.caption
-msgid "BGRAShape7"
-msgstr ""
-
-#: tfnewimage.bgrashape8.caption
-msgid "BGRAShape8"
-msgstr ""
-
-#: tfnewimage.bgrashape9.caption
-msgid "BGRAShape9"
-msgstr ""
-
 #: tfnewimage.button_cancel.caption
 msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -2753,6 +2683,10 @@ msgstr "Pressione ALT ou SHIFT para alongar"
 msgid "Animated GIF"
 msgstr ""
 
+#: uresourcestrings.rsautodetect
+msgid "Autodetect"
+msgstr ""
+
 #: uresourcestrings.rsbackspaceremovelastpoint
 msgid "Press BACKSPACE to remove last point"
 msgstr "Pressione a tecla BACKSPACE para remover último ponto"
@@ -3055,6 +2989,11 @@ msgstr ""
 msgid "Icon/cursor"
 msgstr ""
 
+#: uresourcestrings.rsiconsize
+msgctxt "uresourcestrings.rsiconsize"
+msgid "Icon size"
+msgstr ""
+
 #: uresourcestrings.rsimagetoobig
 msgid "Image is too big"
 msgstr "Imagem é muito grande"
@@ -3118,7 +3057,6 @@ msgid "Layered image"
 msgstr ""
 
 #: uresourcestrings.rslayers
-#, fuzzy
 msgctxt "uresourcestrings.rslayers"
 msgid "Layers"
 msgstr "Camadas"

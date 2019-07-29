@@ -28,10 +28,10 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    MenuFileToolbar: TMenuItem;
     ViewWorkspaceColor: TAction;
     LayerRasterize: TAction;
     FileRememberSaveFormat: TAction;
-    ItemWorkspaceColor: TMenuItem;
     SelectionVerticalFlip: TAction;
     SelectionHorizontalFlip: TAction;
     LayerZoom: TAction;
@@ -54,14 +54,6 @@ type
     ViewPalette: TAction;
     ViewStatusBar: TAction;
     ImageList48: TBGRAImageList;
-    ItemViewPalette: TMenuItem;
-    MenuIconSize: TMenuItem;
-    ItemIconSize16: TMenuItem;
-    ItemIconSize32: TMenuItem;
-    ItemIconSize48: TMenuItem;
-    ItemIconSizeAuto: TMenuItem;
-    ItemIconSize24: TMenuItem;
-    ItemViewStatusBar: TMenuItem;
     MenuShowPalette: TMenuItem;
     ToolClone: TAction;
     FilterRain: TAction;
@@ -93,7 +85,6 @@ type
     ComboBox_ArrowStart: TComboBox;
     ComboBox_ArrowEnd: TComboBox;
     EditPasteAsNewLayer: TAction;
-    MenuItem1: TMenuItem;
     ItemDockLayersAndColors: TMenuItem;
     ItemFullscreen: TMenuItem;
     ItemViewDockToolbox: TMenuItem;
@@ -126,7 +117,6 @@ type
     FileReload: TAction;
     MainMenu1: TMainMenu;
     MenuFile: TMenuItem;
-    ItemViewImageList: TMenuItem;
     ViewImageList: TAction;
     MenuRecentFiles: TMenuItem;
     ItemDonate: TMenuItem;
@@ -136,10 +126,6 @@ type
     MenuEdit: TMenuItem;
     MenuSelect: TMenuItem;
     MenuView: TMenuItem;
-    ItemViewToolbox: TMenuItem;
-    ItemViewColors: TMenuItem;
-    ItemViewGrid: TMenuItem;
-    ItemViewLayerStack: TMenuItem;
     MenuImage: TMenuItem;
     MenuRemoveTransparency: TMenuItem;
     MenuColors: TMenuItem;
@@ -453,7 +439,6 @@ type
     procedure FormWindowStateChange(Sender: TObject);
     procedure ItemDockLayersAndColorsClick(Sender: TObject);
     procedure ItemFullscreenClick(Sender: TObject);
-    procedure ItemIconSize24Click(Sender: TObject);
     procedure ItemViewDockToolboxClick(Sender: TObject);
     procedure LayerRasterizeUpdate(Sender: TObject);
     procedure LayerZoomExecute(Sender: TObject);
@@ -462,12 +447,7 @@ type
     procedure MenuCopyPasteToolbarClick(Sender: TObject);
     procedure MenuDockToolboxLeftClick(Sender: TObject);
     procedure MenuDockToolboxRightClick(Sender: TObject);
-    procedure ItemIconSize16Click(Sender: TObject);
-    procedure ItemIconSize32Click(Sender: TObject);
-    procedure ItemIconSize48Click(Sender: TObject);
-    procedure ItemIconSizeAutoClick(Sender: TObject);
-    procedure MenuIconSizeClick(Sender: TObject);
-    procedure ItemIconSize64Click(Sender: TObject);
+    procedure MenuFileToolbarClick(Sender: TObject);
     procedure MenuShowPaletteClick(Sender: TObject);
     procedure MenuUndockToolboxClick(Sender: TObject);
     procedure MenuUndoRedoToolbarClick(Sender: TObject);
@@ -897,7 +877,7 @@ var m: TMainFormMenu;
 begin
   CreateToolbarElements;
 
-  m := TMainFormMenu.Create(ActionList1);
+  m := TMainFormMenu.Create(LazPaintInstance, ActionList1);
   m.PredefinedMainMenus([MenuFile,MenuEdit,MenuSelect,MenuView, MenuImage,MenuRemoveTransparency,
     MenuColors,MenuTool, MenuFilter,MenuRadialBlur, MenuRender,MenuHelp]);
   m.Toolbars([Panel_Embedded,Panel_File,Panel_Zoom,Panel_Undo,Panel_CopyPaste,Panel_Coordinates,
@@ -999,7 +979,6 @@ begin
   image.SetSavedFlag;
 
   ViewGrid.Checked := LazPaintInstance.GridVisible;
-  ItemViewGrid.Checked:= LazPaintInstance.GridVisible;
   ColorCurves.Visible := not LazPaintInstance.BlackAndWhite;
   ColorColorize.Visible := not LazPaintInstance.BlackAndWhite;
   ColorShiftColors.Visible := not LazPaintInstance.BlackAndWhite;
@@ -1008,6 +987,7 @@ begin
   FilterGrayscale.Visible := not LazPaintInstance.BlackAndWhite;
   FilterClearType.Visible := not LazPaintInstance.BlackAndWhite;
   FilterClearTypeInverse.Visible := not LazPaintInstance.BlackAndWhite;
+  Panel_File.Visible := Config.DefaultFileToolbarVisible;
   Panel_Zoom.Visible := Config.DefaultZoomToolbarVisible;
   Panel_Undo.Visible := Config.DefaultUndoRedoToolbarVisible;
   Panel_CopyPaste.Visible := Config.DefaultCopyPasteToolbarVisible;
@@ -2446,7 +2426,6 @@ end;
 procedure TFMain.ViewColorsUpdate(Sender: TObject);
 begin
   ViewColors.Checked := LazPaintInstance.ChooseColorVisible;
-  ItemViewColors.Checked := ViewColors.Checked;
 end;
 
 procedure TFMain.ViewGridUpdate(Sender: TObject);
@@ -2998,45 +2977,11 @@ begin
   Layout.ToolBoxDocking := twRight;
 end;
 
-procedure TFMain.ItemIconSize16Click(Sender: TObject);
+procedure TFMain.MenuFileToolbarClick(Sender: TObject);
 begin
-  LazPaintInstance.ChangeIconSize(16);
-end;
-
-procedure TFMain.ItemIconSize24Click(Sender: TObject);
-begin
-  LazPaintInstance.ChangeIconSize(24);
-end;
-
-procedure TFMain.ItemIconSize32Click(Sender: TObject);
-begin
-  LazPaintInstance.ChangeIconSize(32);
-end;
-
-procedure TFMain.ItemIconSize48Click(Sender: TObject);
-begin
-  LazPaintInstance.ChangeIconSize(48);
-end;
-
-procedure TFMain.ItemIconSize64Click(Sender: TObject);
-begin
-  LazPaintInstance.ChangeIconSize(64);
-end;
-
-procedure TFMain.ItemIconSizeAutoClick(Sender: TObject);
-begin
-  LazPaintInstance.ChangeIconSize(0);
-end;
-
-procedure TFMain.MenuIconSizeClick(Sender: TObject);
-var iconSize: integer;
-begin
-  iconSize := Config.DefaultIconSize(0);
-  ItemIconSize16.Checked := iconSize=16;
-  ItemIconSize24.Checked := iconSize=24;
-  ItemIconSize32.Checked := iconSize=32;
-  ItemIconSize48.Checked := iconSize=48;
-  ItemIconSizeAuto.Checked := iconSize=0;
+  Panel_File.Visible := not Panel_File.Visible;
+  Config.SetDefaultFileToolbarVisible(Panel_File.Visible);
+  Layout.Arrange;
 end;
 
 procedure TFMain.MenuShowPaletteClick(Sender: TObject);

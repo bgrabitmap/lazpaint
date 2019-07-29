@@ -179,7 +179,6 @@ msgid "Use this directory on startup"
 msgstr ""
 
 #: tfbrowseimages.label_status.caption
-#, fuzzy
 msgctxt "tfbrowseimages.label_status.caption"
 msgid "."
 msgstr "."
@@ -1073,26 +1072,6 @@ msgstr "Přispět..."
 msgid "Fullscreen"
 msgstr ""
 
-#: tfmain.itemiconsize16.caption
-msgid "16px"
-msgstr ""
-
-#: tfmain.itemiconsize24.caption
-msgid "24px"
-msgstr ""
-
-#: tfmain.itemiconsize32.caption
-msgid "32px"
-msgstr ""
-
-#: tfmain.itemiconsize48.caption
-msgid "48px"
-msgstr ""
-
-#: tfmain.itemiconsizeauto.caption
-msgid "auto"
-msgstr ""
-
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
 msgid "Use image browser"
@@ -1309,10 +1288,6 @@ msgstr "Filtr"
 msgctxt "tfmain.menuhelp.caption"
 msgid "Help"
 msgstr "Nápověda"
-
-#: tfmain.menuiconsize.caption
-msgid "Icon size"
-msgstr ""
 
 #: tfmain.menuimage.caption
 msgctxt "tfmain.menuimage.caption"
@@ -2046,46 +2021,6 @@ msgstr "OK"
 msgid "Choose image"
 msgstr "Vybrat obrázek"
 
-#: tfnewimage.bgrashape1.caption
-msgid "BGRAShape1"
-msgstr ""
-
-#: tfnewimage.bgrashape10.caption
-msgid "BGRAShape10"
-msgstr ""
-
-#: tfnewimage.bgrashape2.caption
-msgid "BGRAShape2"
-msgstr ""
-
-#: tfnewimage.bgrashape3.caption
-msgid "BGRAShape3"
-msgstr ""
-
-#: tfnewimage.bgrashape4.caption
-msgid "BGRAShape4"
-msgstr ""
-
-#: tfnewimage.bgrashape5.caption
-msgid "BGRAShape5"
-msgstr ""
-
-#: tfnewimage.bgrashape6.caption
-msgid "BGRAShape6"
-msgstr ""
-
-#: tfnewimage.bgrashape7.caption
-msgid "BGRAShape7"
-msgstr ""
-
-#: tfnewimage.bgrashape8.caption
-msgid "BGRAShape8"
-msgstr ""
-
-#: tfnewimage.bgrashape9.caption
-msgid "BGRAShape9"
-msgstr ""
-
 #: tfnewimage.button_cancel.caption
 msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -2406,7 +2341,6 @@ msgid "Preview"
 msgstr ""
 
 #: tfpreviewdialog.lstatus.caption
-#, fuzzy
 msgctxt "tfpreviewdialog.lstatus.caption"
 msgid "."
 msgstr "."
@@ -2492,7 +2426,6 @@ msgid "Remember this choice"
 msgstr ""
 
 #: tfquestion.label_message.caption
-#, fuzzy
 msgctxt "tfquestion.label_message.caption"
 msgid "."
 msgstr "."
@@ -2742,6 +2675,10 @@ msgstr "Držte ALT nebo SHIFT pro měřítko "
 
 #: uresourcestrings.rsanimatedgif
 msgid "Animated GIF"
+msgstr ""
+
+#: uresourcestrings.rsautodetect
+msgid "Autodetect"
 msgstr ""
 
 #: uresourcestrings.rsbackspaceremovelastpoint
@@ -3046,6 +2983,11 @@ msgstr ""
 msgid "Icon/cursor"
 msgstr ""
 
+#: uresourcestrings.rsiconsize
+msgctxt "uresourcestrings.rsiconsize"
+msgid "Icon size"
+msgstr ""
+
 #: uresourcestrings.rsimagetoobig
 msgid "Image is too big"
 msgstr "Obrázek je příliš velký"
@@ -3109,7 +3051,6 @@ msgid "Layered image"
 msgstr ""
 
 #: uresourcestrings.rslayers
-#, fuzzy
 msgctxt "uresourcestrings.rslayers"
 msgid "Layers"
 msgstr "Vrstvy"

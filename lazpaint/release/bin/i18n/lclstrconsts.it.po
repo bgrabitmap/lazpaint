@@ -25,8 +25,6 @@ msgid "Unable to find a HTML browser."
 msgstr "Impossibile trovare un browser HTML"
 
 #: lclstrconsts.hhshelpnohtmlbrowserfoundpleasedefineoneinhelpconfigurehe
-#, fuzzy
-#| msgid "No HTML Browser found.%sPlease define one in Help -> Configure Help -> Viewers"
 msgid "No HTML Browser found.%sPlease define one in Environment -> Options -> Help -> Help Options"
 msgstr "Non � stato trovato nessun browser HTML.%sDefiniscine uno in Aiuto -> Configura l'aiuto -> Visualizzatori"
 
@@ -261,8 +259,6 @@ msgid "3D Light"
 msgstr "Luce 3D"
 
 #: lclstrconsts.rsacontrolcannothaveitselfasparent
-#, fuzzy
-#| msgid "A control can't have itself as parent"
 msgid "A control can't have itself as a parent"
 msgstr "Un controllo non può avere sè stesso come genitore"
 
@@ -634,8 +630,6 @@ msgid "--no-xshm             Disable use of the X Shared Memory Extension."
 msgstr "--no-xshm             Disabilita l'uso dell'estensione della memoria condivisa di X."
 
 #: lclstrconsts.rsgtkoptionsync
-#, fuzzy
-#| msgid "--sync                Call XSynchronize (display, True) after the Xserver connection has been established. This makes debugging X protocol errors easier, because X request buffering will be disabled and X errors will be received immediatey after the protocol request that generated the error has been processed by the X server."
 msgid "--sync                Call XSynchronize (display, True) after the Xserver connection has been established. This makes debugging X protocol errors easier, because X request buffering will be disabled and X errors will be received immediately after the protocol request that generated the error has been processed by the X server."
 msgstr "--sync                Chiama XSynchronize (display, True) appena viene stabilita la connessione al server X. Ciò semplifica la correzzione degli errori di protocollo X dato che la richiesta di bufferizzazione di X sarà disabilitata e quindi gli errori di X verranno ricevuti subito dopo che la richiesta di protocollo che ha generato l'errore è stata processata dal server X."
 
@@ -1011,8 +1005,6 @@ msgid "Post"
 msgstr ""
 
 #: lclstrconsts.rspressoktoignoreandriskdatacorruptionpresscanceltok
-#, fuzzy
-#| msgid "%s%sPress Ok to ignore and risk data corruption.%sPress Cancel to kill the program."
 msgid "%s%sPress OK to ignore and risk data corruption.%sPress Cancel to kill the program."
 msgstr "%s%sPremi Ok per ignorare il messaggio e rischiare di corrompere i dati.%sPremi Annulla per terminare l'esecuzione del programma"
 

@@ -45,8 +45,6 @@ msgid "Authors:"
 msgstr "مؤلفون:"
 
 #: tfabout.label_authorsvalue.caption
-#, fuzzy
-#| msgid "Circular help by FabienWang and Lainz"
 msgctxt "tfabout.label_authorsvalue.caption"
 msgid "Circular helped by FabienWang, Lainz and others"
 msgstr "Circular, FabienWang, Lainz"
@@ -185,7 +183,6 @@ msgid "Use this directory on startup"
 msgstr ""
 
 #: tfbrowseimages.label_status.caption
-#, fuzzy
 msgctxt "tfbrowseimages.label_status.caption"
 msgid "."
 msgstr "."
@@ -642,10 +639,8 @@ msgid "Intensity..."
 msgstr "كثافة"
 
 #: tfmain.colorlightness.caption
-#, fuzzy
-#| msgid "Lightness..."
 msgid "Brightness / Contrast..."
-msgstr "إضاءة"
+msgstr "إضاءة / تباين..."
 
 #: tfmain.colorposterize.caption
 msgid "Posterize..."
@@ -863,8 +858,6 @@ msgid "Precise blur..."
 msgstr "ضبابية دقيق"
 
 #: tfmain.filterblurradial.caption
-#, fuzzy
-#| msgid "Radial blur..."
 msgctxt "tfmain.filterblurradial.caption"
 msgid "Gaussian blur..."
 msgstr "ضبابية شعاعية"
@@ -933,8 +926,6 @@ msgid "Pixelate..."
 msgstr "تأخير البكسل..."
 
 #: tfmain.filterplane.caption
-#, fuzzy
-#| msgid "Plane "
 msgid "Plane (slow)"
 msgstr "مستوي (بطئ)"
 
@@ -1067,7 +1058,6 @@ msgid "Selected tool"
 msgstr "تحديد أداة"
 
 #: tfmain.image_swapcolors.hint
-#, fuzzy
 msgctxt "tfmain.image_swapcolors.hint"
 msgid "Switch color"
 msgstr "تبديل اللون"
@@ -1083,26 +1073,6 @@ msgstr "تبرع..."
 
 #: tfmain.itemfullscreen.caption
 msgid "Fullscreen"
-msgstr ""
-
-#: tfmain.itemiconsize16.caption
-msgid "16px"
-msgstr ""
-
-#: tfmain.itemiconsize24.caption
-msgid "24px"
-msgstr ""
-
-#: tfmain.itemiconsize32.caption
-msgid "32px"
-msgstr ""
-
-#: tfmain.itemiconsize48.caption
-msgid "48px"
-msgstr ""
-
-#: tfmain.itemiconsizeauto.caption
-msgid "auto"
 msgstr ""
 
 #: tfmain.itemuseimagebrowser.caption
@@ -1322,10 +1292,6 @@ msgctxt "tfmain.menuhelp.caption"
 msgid "Help"
 msgstr "مساعدة"
 
-#: tfmain.menuiconsize.caption
-msgid "Icon size"
-msgstr ""
-
 #: tfmain.menuimage.caption
 msgctxt "tfmain.menuimage.caption"
 msgid "Image"
@@ -1367,8 +1333,6 @@ msgid "Show palette"
 msgstr ""
 
 #: tfmain.menutool.caption
-#, fuzzy
-#| msgid "Tool"
 msgctxt "tfmain.menutool.caption"
 msgid "Tools"
 msgstr "أداة"
@@ -2059,46 +2023,6 @@ msgstr "موافق"
 msgid "Choose image"
 msgstr "إنتقاء الصورة"
 
-#: tfnewimage.bgrashape1.caption
-msgid "BGRAShape1"
-msgstr ""
-
-#: tfnewimage.bgrashape10.caption
-msgid "BGRAShape10"
-msgstr ""
-
-#: tfnewimage.bgrashape2.caption
-msgid "BGRAShape2"
-msgstr ""
-
-#: tfnewimage.bgrashape3.caption
-msgid "BGRAShape3"
-msgstr ""
-
-#: tfnewimage.bgrashape4.caption
-msgid "BGRAShape4"
-msgstr ""
-
-#: tfnewimage.bgrashape5.caption
-msgid "BGRAShape5"
-msgstr ""
-
-#: tfnewimage.bgrashape6.caption
-msgid "BGRAShape6"
-msgstr ""
-
-#: tfnewimage.bgrashape7.caption
-msgid "BGRAShape7"
-msgstr ""
-
-#: tfnewimage.bgrashape8.caption
-msgid "BGRAShape8"
-msgstr ""
-
-#: tfnewimage.bgrashape9.caption
-msgid "BGRAShape9"
-msgstr ""
-
 #: tfnewimage.button_cancel.caption
 msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -2419,7 +2343,6 @@ msgid "Preview"
 msgstr ""
 
 #: tfpreviewdialog.lstatus.caption
-#, fuzzy
 msgctxt "tfpreviewdialog.lstatus.caption"
 msgid "."
 msgstr "."
@@ -2505,7 +2428,6 @@ msgid "Remember this choice"
 msgstr ""
 
 #: tfquestion.label_message.caption
-#, fuzzy
 msgctxt "tfquestion.label_message.caption"
 msgid "."
 msgstr "."
@@ -2755,6 +2677,10 @@ msgstr "إضغط ALT او SHIFT للتحريف"
 
 #: uresourcestrings.rsanimatedgif
 msgid "Animated GIF"
+msgstr ""
+
+#: uresourcestrings.rsautodetect
+msgid "Autodetect"
 msgstr ""
 
 #: uresourcestrings.rsbackspaceremovelastpoint
@@ -3059,6 +2985,11 @@ msgstr ""
 msgid "Icon/cursor"
 msgstr ""
 
+#: uresourcestrings.rsiconsize
+msgctxt "uresourcestrings.rsiconsize"
+msgid "Icon size"
+msgstr ""
+
 #: uresourcestrings.rsimagetoobig
 msgid "Image is too big"
 msgstr "الصورة كبيرة جدا"
@@ -3122,7 +3053,6 @@ msgid "Layered image"
 msgstr ""
 
 #: uresourcestrings.rslayers
-#, fuzzy
 msgctxt "uresourcestrings.rslayers"
 msgid "Layers"
 msgstr "طبقات"

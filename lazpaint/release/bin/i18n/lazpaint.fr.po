@@ -1075,26 +1075,6 @@ msgstr "Faire un don..."
 msgid "Fullscreen"
 msgstr "Plein écran"
 
-#: tfmain.itemiconsize16.caption
-msgid "16px"
-msgstr ""
-
-#: tfmain.itemiconsize24.caption
-msgid "24px"
-msgstr ""
-
-#: tfmain.itemiconsize32.caption
-msgid "32px"
-msgstr ""
-
-#: tfmain.itemiconsize48.caption
-msgid "48px"
-msgstr ""
-
-#: tfmain.itemiconsizeauto.caption
-msgid "auto"
-msgstr ""
-
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
 msgid "Use image browser"
@@ -1311,10 +1291,6 @@ msgstr "Filtre"
 msgctxt "tfmain.menuhelp.caption"
 msgid "Help"
 msgstr "Aide"
-
-#: tfmain.menuiconsize.caption
-msgid "Icon size"
-msgstr "Taille d'icône"
 
 #: tfmain.menuimage.caption
 msgctxt "tfmain.menuimage.caption"
@@ -2048,46 +2024,6 @@ msgstr "OK"
 msgid "Choose image"
 msgstr "Choisir une image"
 
-#: tfnewimage.bgrashape1.caption
-msgid "BGRAShape1"
-msgstr ""
-
-#: tfnewimage.bgrashape10.caption
-msgid "BGRAShape10"
-msgstr ""
-
-#: tfnewimage.bgrashape2.caption
-msgid "BGRAShape2"
-msgstr ""
-
-#: tfnewimage.bgrashape3.caption
-msgid "BGRAShape3"
-msgstr ""
-
-#: tfnewimage.bgrashape4.caption
-msgid "BGRAShape4"
-msgstr ""
-
-#: tfnewimage.bgrashape5.caption
-msgid "BGRAShape5"
-msgstr ""
-
-#: tfnewimage.bgrashape6.caption
-msgid "BGRAShape6"
-msgstr ""
-
-#: tfnewimage.bgrashape7.caption
-msgid "BGRAShape7"
-msgstr ""
-
-#: tfnewimage.bgrashape8.caption
-msgid "BGRAShape8"
-msgstr ""
-
-#: tfnewimage.bgrashape9.caption
-msgid "BGRAShape9"
-msgstr ""
-
 #: tfnewimage.button_cancel.caption
 msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -2744,6 +2680,10 @@ msgstr "Appuyez sur ALT et MAJ pour étirer"
 msgid "Animated GIF"
 msgstr "GIF animé"
 
+#: uresourcestrings.rsautodetect
+msgid "Autodetect"
+msgstr "Détecter"
+
 #: uresourcestrings.rsbackspaceremovelastpoint
 msgid "Press BACKSPACE to remove last point"
 msgstr "Appuyez sur RETOUR ARRIERE pour effacer le dernier point"
@@ -3054,6 +2994,11 @@ msgstr "Il y a déjà une image avec cette taille et ce nombre de couleurs."
 #: uresourcestrings.rsiconorcursor
 msgid "Icon/cursor"
 msgstr "Icône/curseur"
+
+#: uresourcestrings.rsiconsize
+msgctxt "uresourcestrings.rsiconsize"
+msgid "Icon size"
+msgstr "Taille d'icône"
 
 #: uresourcestrings.rsimagetoobig
 msgid "Image is too big"

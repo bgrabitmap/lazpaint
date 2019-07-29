@@ -26,8 +26,6 @@ msgid "Unable to find a HTML browser."
 msgstr "HTML tarayıcı bulunamıyor."
 
 #: lclstrconsts.hhshelpnohtmlbrowserfoundpleasedefineoneinhelpconfigurehe
-#, fuzzy
-#| msgid "No HTML Browser found.%sPlease define one in Help -> Configure Help -> Viewers"
 msgid "No HTML Browser found.%sPlease define one in Environment -> Options -> Help -> Help Options"
 msgstr "HTML tarayıcı bulunamadı. %s Yardım -> Yardımı Yapılandır -> Görüntüleyiciler'den bir tane tanımlayın"
 
@@ -262,8 +260,6 @@ msgid "3D Light"
 msgstr ""
 
 #: lclstrconsts.rsacontrolcannothaveitselfasparent
-#, fuzzy
-#| msgid "A control can't have itself as parent"
 msgid "A control can't have itself as a parent"
 msgstr "Bir denetim, kendikendini üstdenetim(parent) olarak gösteremez"
 
@@ -635,8 +631,6 @@ msgid "--no-xshm             Disable use of the X Shared Memory Extension."
 msgstr "--no-xshm             X paylaşımlı bellek genişletmesini kullanmayı kapatır."
 
 #: lclstrconsts.rsgtkoptionsync
-#, fuzzy
-#| msgid "--sync                Call XSynchronize (display, True) after the Xserver connection has been established. This makes debugging X protocol errors easier, because X request buffering will be disabled and X errors will be received immediatey after the protocol request that generated the error has been processed by the X server."
 msgid "--sync                Call XSynchronize (display, True) after the Xserver connection has been established. This makes debugging X protocol errors easier, because X request buffering will be disabled and X errors will be received immediately after the protocol request that generated the error has been processed by the X server."
 msgstr "--sync                Xserver bağlantısı sağlandıktan sonra XSynchronize (display, True) işlevini çağırır. Bu X protokol hatalarını ayıklamayı kolaylaştırır, çünkü X istek tamponlama kapalı olacaktır ve X hataları hata oluşturan protokol isteği X sunucu tarafından işlendikten hemen sonra alınacaktır."
 
@@ -1012,8 +1006,6 @@ msgid "Post"
 msgstr ""
 
 #: lclstrconsts.rspressoktoignoreandriskdatacorruptionpresscanceltok
-#, fuzzy
-#| msgid "%s%sPress Ok to ignore and risk data corruption.%sPress Cancel to kill the program."
 msgid "%s%sPress OK to ignore and risk data corruption.%sPress Cancel to kill the program."
 msgstr "%s%s Yoksaymak ve verinin bozulması riskiyle devam etmek için Tamam'a basın. %s Programı sonlandırmak için İptal'e basın."
 

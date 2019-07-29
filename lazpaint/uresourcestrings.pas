@@ -41,6 +41,8 @@ resourcestring
   rsFileDate = 'Date';
   rsBytes = 'Bytes';
   rsFolder = 'Folder';
+  rsIconSize = 'Icon size';
+  rsAutodetect = 'Autodetect';
   rsNotReasonableFormat='It is not reasonable to save such a big image in this file format.';
   rsEditTexture='Edit texture';
   rsEditSelection='Edit selection';

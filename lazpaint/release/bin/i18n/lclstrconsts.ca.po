@@ -26,8 +26,6 @@ msgid "Unable to find a HTML browser."
 msgstr "No puc trobar un navegador HTML"
 
 #: lclstrconsts.hhshelpnohtmlbrowserfoundpleasedefineoneinhelpconfigurehe
-#, fuzzy
-#| msgid "No HTML Browser found.%sPlease define one in Help -> Configure Help -> Viewers"
 msgid "No HTML Browser found.%sPlease define one in Environment -> Options -> Help -> Help Options"
 msgstr "No s'ha trobat navegador HTML .%sSisplau definiu-ne un en  Ajuda -> Configura ajuda -> Visors"
 
@@ -262,8 +260,6 @@ msgid "3D Light"
 msgstr ""
 
 #: lclstrconsts.rsacontrolcannothaveitselfasparent
-#, fuzzy
-#| msgid "A control can't have itself as parent"
 msgid "A control can't have itself as a parent"
 msgstr "Un control no pot cridar-se a ell mateix"
 
@@ -635,8 +631,6 @@ msgid "--no-xshm             Disable use of the X Shared Memory Extension."
 msgstr "--no-xshm             Desactiva l'ús de l'extensió X de memòria compartida."
 
 #: lclstrconsts.rsgtkoptionsync
-#, fuzzy
-#| msgid "--sync                Call XSynchronize (display, True) after the Xserver connection has been established. This makes debugging X protocol errors easier, because X request buffering will be disabled and X errors will be received immediatey after the protocol request that generated the error has been processed by the X server."
 msgid "--sync                Call XSynchronize (display, True) after the Xserver connection has been established. This makes debugging X protocol errors easier, because X request buffering will be disabled and X errors will be received immediately after the protocol request that generated the error has been processed by the X server."
 msgstr "--sync                Crida XSynchronize (display, True) un cop la connexió al Xserver ha estat establerta. Això facilita que la depuració d'errors del protocol X sigui més senzilla, perquè la demanda de memòria cau X serà desactivad i els errors X seran rebuts immediatament després que la demanda del protocol que ha generat l'error ha estat processat pel servidor X."
 
@@ -1012,8 +1006,6 @@ msgid "Post"
 msgstr ""
 
 #: lclstrconsts.rspressoktoignoreandriskdatacorruptionpresscanceltok
-#, fuzzy
-#| msgid "%s%sPress Ok to ignore and risk data corruption.%sPress Cancel to kill the program."
 msgid "%s%sPress OK to ignore and risk data corruption.%sPress Cancel to kill the program."
 msgstr "%s%s%sPolseu Ok per ignorar, tot arriscant de corrompre les dades.%sPolseu Cancel per interrompre el programa"
 

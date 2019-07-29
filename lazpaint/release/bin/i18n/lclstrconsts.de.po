@@ -29,8 +29,6 @@ msgid "Unable to find a HTML browser."
 msgstr "Kann den HTML-Browser nicht finden."
 
 #: lclstrconsts.hhshelpnohtmlbrowserfoundpleasedefineoneinhelpconfigurehe
-#, fuzzy
-#| msgid "No HTML Browser found.%sPlease define one in Help -> Configure Help -> Viewers"
 msgid "No HTML Browser found.%sPlease define one in Environment -> Options -> Help -> Help Options"
 msgstr "Kein HTML-Browser gefunden.%sBitte definieren Sie ihn in Hilfe -> Hilfe konfigurieren -> Betrachter"
 
@@ -265,8 +263,6 @@ msgid "3D Light"
 msgstr "3D-Licht"
 
 #: lclstrconsts.rsacontrolcannothaveitselfasparent
-#, fuzzy
-#| msgid "A control can't have itself as parent"
 msgid "A control can't have itself as a parent"
 msgstr "Ein Control kann nicht sein eigener Vorfahr sein"
 
@@ -638,8 +634,6 @@ msgid "--no-xshm             Disable use of the X Shared Memory Extension."
 msgstr "--no-xshm             Abschalten der Verwendung der Shared-Memory-Erweiterung von X"
 
 #: lclstrconsts.rsgtkoptionsync
-#, fuzzy
-#| msgid "--sync                Call XSynchronize (display, True) after the Xserver connection has been established. This makes debugging X protocol errors easier, because X request buffering will be disabled and X errors will be received immediatey after the protocol request that generated the error has been processed by the X server."
 msgid "--sync                Call XSynchronize (display, True) after the Xserver connection has been established. This makes debugging X protocol errors easier, because X request buffering will be disabled and X errors will be received immediately after the protocol request that generated the error has been processed by the X server."
 msgstr "--sync                Aufruf von XSynchronize (Display, True) nachdem die XServer-Verbindung zustandegekommen ist. Dies erleichtert das Debugging des X-Protokolls, weil die X-Anfragepufferung abgeschaltet ist und X-Fehler sofort ankommen, nachdem die Anfrage, die den Fehler erzeugt hat, beim X-Server angekommen ist."
 
@@ -732,8 +726,6 @@ msgid "Hot Light"
 msgstr "Kräftig hervorgehoben"
 
 #: lclstrconsts.rsicns
-#, fuzzy
-#| msgid "OSX Icon Resource"
 msgid "Mac OS X Icon"
 msgstr "OSX-Icon-Ressource"
 

@@ -210,6 +210,9 @@ var
   ANext: TControl;
   I: Integer;
 begin
+  ALabel.Canvas.Font.Name := ALabel.Font.Name;
+  ALabel.Canvas.Font.Height := ALabel.Font.Height;
+  ALabel.Canvas.Font.Style := ALabel.Font.Style;
   NewSize := ALabel.Canvas.TextWidth(ALabel.Caption+' ');
   if ALabel.Width <> NewSize then
   begin
@@ -414,28 +417,21 @@ begin
 end;
 
 procedure TFMain.UpdateLineCapBar;
+var
+  showElem: Boolean;
 begin
-  if ToolManager.ToolOptionCloseShape then begin
-    Panel_LineCap.Width := DoScaleX(27,OriginalDPI);
-    with ToolBar10 do begin
-      Tool_CapFlat.Visible:=False;
-      Tool_CapRound.Visible:=False;
-      Tool_CapSquare.Visible:=False;
-    end;
-  end
-  else begin
-    Panel_LineCap.Width := Panel_LineCap_FullSize;
-    with ToolBar10 do begin
-      Tool_CapFlat.Visible:=True;
-      Tool_CapRound.Visible:=True;
-      Tool_CapSquare.Visible:=True;
-    end;
+  showElem := not ToolManager.ToolOptionCloseShape;
+  with ToolBar10 do begin
+    Tool_CapFlat.Visible:=showElem;
+    Tool_CapRound.Visible:=showElem;
+    Tool_CapSquare.Visible:=showElem;
   end;
 end;
 
 procedure TFMain.UpdateToolImage;
 var img: integer; ToolBmp, IconBmp: TBitmap; IconBGRA, Blur, ToolBGRA: TBGRABitmap;
     a: TAction;
+    il: TImageList;
 begin
   a := CurrentToolAction;
   if a <> nil then
@@ -455,7 +451,9 @@ begin
       IconBGRA := TBGRABitmap.Create(Image_CurrentTool.Width,Image_CurrentTool.Height);
 
       ToolBmp := TBitmap.Create;
-      ImageList16.GetBitmap(img,ToolBmp);
+      il := FLayout.Menu.ImageList;
+      if il=nil then il := ImageList16;
+      il.GetBitmap(img,ToolBmp);
       ToolBGRA := TBGRABitmap.Create(ToolBmp);
       FreeAndNil(ToolBmp);
 
@@ -1188,6 +1186,7 @@ end;
 
 procedure TFMain.PopupToolbarPopup(Sender: TObject);
 begin
+  MenuFileToolbar.Checked := Panel_File.Visible;
   MenuZoomToolbar.Checked := Panel_Zoom.Visible;
   MenuCopyPasteToolbar.Checked := Panel_CopyPaste.Visible;
   MenuCoordinatesToolbar.Checked := Panel_Coordinates.Visible;
@@ -1409,16 +1408,7 @@ end;
 procedure TFMain.UpdatePanelTextWidth;
 var showElem: boolean;
 begin
-  if ToolManager.ToolTextShadow then
-  begin
-    Panel_Text.Width := SpinEdit_TextShadowY.Left+SpinEdit_TextShadowY.Width+6;
-    showElem := true;
-  end
-  else
-  begin
-    Panel_Text.Width := Toolbar15.Left + Toolbar15.Width + 6;
-    showElem:= false;
-  end;
+  showElem := ToolManager.ToolTextShadow;
   Label_TextBlur.Visible := showElem;
   SpinEdit_TextBlur.Visible := showElem;
   Label_ShadowOffset.Visible := showElem;

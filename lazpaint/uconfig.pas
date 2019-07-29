@@ -158,6 +158,8 @@ type
     procedure SetDefaultGridVisible(value: boolean);
     function DefaultZoomToolbarVisible: boolean;
     procedure SetDefaultZoomToolbarVisible(value: boolean);
+    function DefaultFileToolbarVisible: boolean;
+    procedure SetDefaultFileToolbarVisible(value: boolean);
     function DefaultUndoRedoToolbarVisible: boolean;
     procedure SetDefaultUndoRedoToolbarVisible(value: boolean);
     function DefaultCopyPasteToolbarVisible: boolean;
@@ -641,6 +643,16 @@ end;
 procedure TLazPaintConfig.SetDefaultZoomToolbarVisible(value: boolean);
 begin
   iniOptions.WriteBool('Toolbar','ZoomToolbar',value);
+end;
+
+function TLazPaintConfig.DefaultFileToolbarVisible: boolean;
+begin
+  result := iniOptions.ReadBool('Toolbar','FileToolbar',true);
+end;
+
+procedure TLazPaintConfig.SetDefaultFileToolbarVisible(value: boolean);
+begin
+  iniOptions.WriteBool('Toolbar','FileToolbar',value);
 end;
 
 function TLazPaintConfig.DefaultUndoRedoToolbarVisible: boolean;

@@ -1069,26 +1069,6 @@ msgstr "Donar..."
 msgid "Fullscreen"
 msgstr "Pantalla completa"
 
-#: tfmain.itemiconsize16.caption
-msgid "16px"
-msgstr "16px"
-
-#: tfmain.itemiconsize24.caption
-msgid "24px"
-msgstr "24px"
-
-#: tfmain.itemiconsize32.caption
-msgid "32px"
-msgstr "32px"
-
-#: tfmain.itemiconsize48.caption
-msgid "48px"
-msgstr "48px"
-
-#: tfmain.itemiconsizeauto.caption
-msgid "auto"
-msgstr "automático"
-
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
 msgid "Use image browser"
@@ -1305,10 +1285,6 @@ msgstr "Filtro"
 msgctxt "tfmain.menuhelp.caption"
 msgid "Help"
 msgstr "Ayuda"
-
-#: tfmain.menuiconsize.caption
-msgid "Icon size"
-msgstr "Tamaño de ícono"
 
 #: tfmain.menuimage.caption
 msgctxt "tfmain.menuimage.caption"
@@ -2041,46 +2017,6 @@ msgstr "Aceptar"
 msgid "Choose image"
 msgstr "Eligir imagen"
 
-#: tfnewimage.bgrashape1.caption
-msgid "BGRAShape1"
-msgstr "BGRAFigura1"
-
-#: tfnewimage.bgrashape10.caption
-msgid "BGRAShape10"
-msgstr "BGRAFigura10"
-
-#: tfnewimage.bgrashape2.caption
-msgid "BGRAShape2"
-msgstr "BGRAFigura2"
-
-#: tfnewimage.bgrashape3.caption
-msgid "BGRAShape3"
-msgstr "BGRAFigura3"
-
-#: tfnewimage.bgrashape4.caption
-msgid "BGRAShape4"
-msgstr "BGRAFigura4"
-
-#: tfnewimage.bgrashape5.caption
-msgid "BGRAShape5"
-msgstr "BGRAFigura5"
-
-#: tfnewimage.bgrashape6.caption
-msgid "BGRAShape6"
-msgstr "BGRAFigura6"
-
-#: tfnewimage.bgrashape7.caption
-msgid "BGRAShape7"
-msgstr "BGRAFigura7"
-
-#: tfnewimage.bgrashape8.caption
-msgid "BGRAShape8"
-msgstr "BGRAFigura8"
-
-#: tfnewimage.bgrashape9.caption
-msgid "BGRAShape9"
-msgstr "BGRAFigura9"
-
 #: tfnewimage.button_cancel.caption
 msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -2737,6 +2673,10 @@ msgstr "Manten ALT o SHIFT para escalar"
 msgid "Animated GIF"
 msgstr "GIF animado"
 
+#: uresourcestrings.rsautodetect
+msgid "Autodetect"
+msgstr "Automático"
+
 #: uresourcestrings.rsbackspaceremovelastpoint
 msgid "Press BACKSPACE to remove last point"
 msgstr "Presiona RETROCESO para remover el último punto"
@@ -3047,6 +2987,11 @@ msgstr "Ya hay una imagen con este tamaño y profundidad."
 #: uresourcestrings.rsiconorcursor
 msgid "Icon/cursor"
 msgstr "Icono/cursor"
+
+#: uresourcestrings.rsiconsize
+msgctxt "uresourcestrings.rsiconsize"
+msgid "Icon size"
+msgstr "Tamaño de ícono"
 
 #: uresourcestrings.rsimagetoobig
 msgid "Image is too big"

@@ -194,7 +194,6 @@ msgid "Use this directory on startup"
 msgstr ""
 
 #: tfbrowseimages.label_status.caption
-#, fuzzy
 msgctxt "tfbrowseimages.label_status.caption"
 msgid "."
 msgstr "."
@@ -871,8 +870,6 @@ msgid "Precise blur..."
 msgstr "Präzisions-Unschärfe..."
 
 #: tfmain.filterblurradial.caption
-#, fuzzy
-#| msgid "Radial blur..."
 msgctxt "tfmain.filterblurradial.caption"
 msgid "Gaussian blur..."
 msgstr "Gaußsche-Unschärfe..."
@@ -1090,26 +1087,6 @@ msgstr "Spenden Sie..."
 msgid "Fullscreen"
 msgstr "Vollbild"
 
-#: tfmain.itemiconsize16.caption
-msgid "16px"
-msgstr ""
-
-#: tfmain.itemiconsize24.caption
-msgid "24px"
-msgstr ""
-
-#: tfmain.itemiconsize32.caption
-msgid "32px"
-msgstr ""
-
-#: tfmain.itemiconsize48.caption
-msgid "48px"
-msgstr ""
-
-#: tfmain.itemiconsizeauto.caption
-msgid "auto"
-msgstr ""
-
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
 msgid "Use image browser"
@@ -1326,10 +1303,6 @@ msgstr "Filter"
 msgctxt "tfmain.menuhelp.caption"
 msgid "Help"
 msgstr "Hilfe"
-
-#: tfmain.menuiconsize.caption
-msgid "Icon size"
-msgstr ""
 
 #: tfmain.menuimage.caption
 msgctxt "tfmain.menuimage.caption"
@@ -2064,46 +2037,6 @@ msgstr "OK"
 msgid "Choose image"
 msgstr "Bild auswählen"
 
-#: tfnewimage.bgrashape1.caption
-msgid "BGRAShape1"
-msgstr ""
-
-#: tfnewimage.bgrashape10.caption
-msgid "BGRAShape10"
-msgstr ""
-
-#: tfnewimage.bgrashape2.caption
-msgid "BGRAShape2"
-msgstr ""
-
-#: tfnewimage.bgrashape3.caption
-msgid "BGRAShape3"
-msgstr ""
-
-#: tfnewimage.bgrashape4.caption
-msgid "BGRAShape4"
-msgstr ""
-
-#: tfnewimage.bgrashape5.caption
-msgid "BGRAShape5"
-msgstr ""
-
-#: tfnewimage.bgrashape6.caption
-msgid "BGRAShape6"
-msgstr ""
-
-#: tfnewimage.bgrashape7.caption
-msgid "BGRAShape7"
-msgstr ""
-
-#: tfnewimage.bgrashape8.caption
-msgid "BGRAShape8"
-msgstr ""
-
-#: tfnewimage.bgrashape9.caption
-msgid "BGRAShape9"
-msgstr ""
-
 #: tfnewimage.button_cancel.caption
 msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -2424,7 +2357,6 @@ msgid "Preview"
 msgstr ""
 
 #: tfpreviewdialog.lstatus.caption
-#, fuzzy
 msgctxt "tfpreviewdialog.lstatus.caption"
 msgid "."
 msgstr "."
@@ -2510,7 +2442,6 @@ msgid "Remember this choice"
 msgstr ""
 
 #: tfquestion.label_message.caption
-#, fuzzy
 msgctxt "tfquestion.label_message.caption"
 msgid "."
 msgstr "."
@@ -2761,6 +2692,10 @@ msgstr "Halten Sie ALT oder UMSCHALT zum Skalieren"
 #: uresourcestrings.rsanimatedgif
 msgid "Animated GIF"
 msgstr "Animiertes GIF"
+
+#: uresourcestrings.rsautodetect
+msgid "Autodetect"
+msgstr ""
 
 #: uresourcestrings.rsbackspaceremovelastpoint
 msgid "Press BACKSPACE to remove last point"
@@ -3064,6 +2999,11 @@ msgstr ""
 msgid "Icon/cursor"
 msgstr "Icon/Cursor"
 
+#: uresourcestrings.rsiconsize
+msgctxt "uresourcestrings.rsiconsize"
+msgid "Icon size"
+msgstr ""
+
 #: uresourcestrings.rsimagetoobig
 msgid "Image is too big"
 msgstr "Bild ist zu groß"
@@ -3127,7 +3067,6 @@ msgid "Layered image"
 msgstr "Ebenenbild"
 
 #: uresourcestrings.rslayers
-#, fuzzy
 msgctxt "uresourcestrings.rslayers"
 msgid "Layers"
 msgstr "Ebenen"
