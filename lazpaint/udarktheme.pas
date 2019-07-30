@@ -1,4 +1,4 @@
-unit udarktheme;
+unit UDarkTheme;
 
 {$mode objfpc}{$H+}
 
