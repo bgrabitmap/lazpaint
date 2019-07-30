@@ -24,7 +24,7 @@ uses
 
   //forms
   UNewimage, UMultiImage, UBrowseImages, UBlendOp, UCanvassize, UResample, UObject3D,
-  URadialBlur, UMotionBlur, UCustomblur, UEmboss, UTwirl, UPixelate,
+  URadialBlur, UMotionBlur, UCustomblur, UEmboss, UTwirl, UWaveDisplacement, UPixelate,
   UColorintensity, UShiftColors, UColorize, USharpen,
   UPhongFilter, UFilterFunction,
   UAbout, ULoading,
@@ -37,7 +37,7 @@ uses
   UToolBrush, UMainFormLayout, USaveOption, UBrushType, ugeometricbrush,
   URainType, UFormRain, UPaletteToolbar, uselectionhighlight, UGridBitmap,
   UToolIcon, UImagePreview, UPreviewDialog, UQuestion, UTiff, UImageView,
-  udarktheme;
+  UDarkTheme;
 
 //sometimes LResources disappear in the uses clause
 

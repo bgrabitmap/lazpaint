@@ -950,6 +950,10 @@ msgstr "Sphère"
 msgid "Twirl..."
 msgstr "Torsion..."
 
+#: tfmain.filterwavedisplacement.caption
+msgid "Wave diplacement..."
+msgstr "Décalage d'onde..."
+
 #: tfmain.forgetdialoganswers.caption
 msgid "Forget dialog box answers"
 msgstr "Oublier les choix aux boites de dialogue"
@@ -2663,6 +2667,32 @@ msgstr "Angle :"
 msgctxt "tftwirl.label_radius.caption"
 msgid "Radius :"
 msgstr "Rayon :"
+
+#: tfwavedisplacement.button_cancel.caption
+msgctxt "tfwavedisplacement.button_cancel.caption"
+msgid "Cancel"
+msgstr "Annuler"
+
+#: tfwavedisplacement.button_ok.caption
+msgctxt "tfwavedisplacement.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfwavedisplacement.caption
+msgid "Wave displacement"
+msgstr "Décalage d'onde"
+
+#: tfwavedisplacement.label_displacement.caption
+msgid "Displacement :"
+msgstr "Décalage :"
+
+#: tfwavedisplacement.label_phase.caption
+msgid "Phase :"
+msgstr "Phase :"
+
+#: tfwavedisplacement.label_wavelength.caption
+msgid "Wavelength :"
+msgstr "Longueur d'onde :"
 
 #: uresourcestrings.rsactioninprogress
 msgid "Action in progress"

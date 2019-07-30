@@ -396,6 +396,18 @@ begin
   self.ShowTopmost(top);
 end;
 
+function TLazPaintInstance.ShowwaveDisplacementDlg(AFilterConnector: TObject): boolean;
+var oldSelectionNormal: boolean;
+    top: TTopMostInfo;
+begin
+  top := self.HideTopmost;
+  oldSelectionNormal := ShowSelectionNormal;
+  ShowSelectionNormal := true;
+  result := UWaveDisplacement.ShowWaveDisplacementDlg(AFilterConnector);
+  ShowSelectionNormal := oldSelectionNormal;
+  self.ShowTopmost(top);
+end;
+
 function TLazPaintInstance.ShowPhongFilterDlg(AFilterConnector: TObject): boolean;
 var oldSelectionNormal: boolean;
     top: TTopMostInfo;

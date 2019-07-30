@@ -6805,6 +6805,11 @@ object FMain: TFMain
       OnExecute = ViewDarkThemeExecute
       OnUpdate = ViewDarkThemeUpdate
     end
+    object FilterWaveDisplacement: TAction
+      Category = 'Filter'
+      Caption = 'Wave diplacement...'
+      OnExecute = FilterAnyExecute
+    end
   end
   object ColorDialog1: TColorDialog
     Title = 'Choose color'

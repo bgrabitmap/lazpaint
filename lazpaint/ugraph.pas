@@ -49,6 +49,9 @@ function CreateVerticalWoodTexture(tx,ty: integer): TBGRABitmap;
 
 function ClearTypeFilter(source: TBGRACustomBitmap): TBGRACustomBitmap;
 function ClearTypeInverseFilter(source: TBGRACustomBitmap): TBGRACustomBitmap;
+function WaveDisplacementFilter(source: TBGRACustomBitmap;
+  ARect: TRect; ACenter: TPointF;
+  AWaveLength, ADisplacement, APhase: single): TBGRACustomBitmap;
 
 function DoResample(source :TBGRABitmap; newWidth, newHeight: integer; StretchMode: TResampleMode): TBGRABitmap;
 procedure DrawArrow(ACanvas: TCanvas; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; State: TOwnerDrawState);
@@ -736,6 +739,50 @@ begin
   temp := ClearTypeRemoveContradiction(result);
   result.free;
   result := temp;
+end;
+
+type
+  { TWaveDisplacementScanner }
+
+  TWaveDisplacementScanner = class(TBGRACustomScanner)
+    Source: TBGRACustomBitmap;
+    Center: TPointF;
+    Wavelength, Displacement, PhaseRad: single;
+    function ScanAt(X,Y: Single): TBGRAPixel; override;
+  end;
+
+{ TWaveDisplacementScanner }
+
+function TWaveDisplacementScanner.ScanAt(X, Y: Single): TBGRAPixel;
+var
+  u, disp: TPointF;
+  dist: Single;
+  alpha: ValReal;
+begin
+  u := PointF(X,Y)-Center;
+  dist := VectLen(u);
+  if dist = 0 then disp := PointF(0,0) else
+  begin
+    u := u*(1/dist);
+    alpha := PhaseRad+dist*2*Pi/Wavelength;
+    disp := u*sin(alpha)*Displacement;
+  end;
+  result := Source.GetPixel(x+disp.x,y+disp.y);
+end;
+
+function WaveDisplacementFilter(source: TBGRACustomBitmap; ARect: TRect;
+  ACenter: TPointF; AWaveLength, ADisplacement, APhase: single): TBGRACustomBitmap;
+var scan: TWaveDisplacementScanner;
+begin
+ scan := TWaveDisplacementScanner.Create;
+ scan.Center := ACenter;
+ scan.Source := source;
+ scan.Wavelength := AWaveLength;
+ scan.Displacement := ADisplacement;
+ scan.PhaseRad := APhase*Pi/180;
+ result := TBGRABitmap.Create(source.Width,source.Height);
+ result.FillRect(ARect, scan, dmSet);
+ scan.Free;
 end;
 
 function DoResample(source: TBGRABitmap; newWidth, newHeight: integer;

@@ -336,7 +336,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="97">
+    <Units Count="98">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -907,7 +907,16 @@
       <Unit96>
         <Filename Value="udarktheme.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UDarkTheme"/>
       </Unit96>
+      <Unit97>
+        <Filename Value="dialog\filter\uwavedisplacement.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FWaveDisplacement"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="UWaveDisplacement"/>
+      </Unit97>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

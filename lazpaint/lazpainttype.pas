@@ -76,7 +76,7 @@ type
                     pfBlurPrecise, pfBlurRadial, pfBlurFast, pfBlurBox, pfBlurCorona, pfBlurDisk, pfBlurMotion, pfBlurCustom,
                     pfSharpen, pfSmooth, pfMedian, pfNoise, pfPixelate, pfClearType, pfClearTypeInverse, pfFunction,
                     pfEmboss, pfPhong, pfContour, pfGrayscale, pfNegative, pfLinearNegative, pfComplementaryColor, pfNormalize,
-                    pfSphere, pfTwirl, pfCylinder, pfPlane,
+                    pfSphere, pfTwirl, pfWaveDisplacement, pfCylinder, pfPlane,
                     pfPerlinNoise,pfCyclicPerlinNoise,pfClouds,pfCustomWater,pfWater,pfRain,pfWood,pfWoodVertical,pfPlastik,pfMetalFloor,pfCamouflage,
                     pfSnowPrint,pfStone,pfRoundStone,pfMarble);
 
@@ -86,7 +86,7 @@ const
                     'BlurPrecise', 'BlurRadial', 'BlurFast', 'BlurBox', 'BlurCorona', 'BlurDisk', 'BlurMotion', 'BlurCustom',
                     'Sharpen', 'Smooth', 'Median', 'Noise', 'Pixelate', 'ClearType', 'ClearTypeInverse', 'Function',
                     'Emboss', 'Phong', 'Contour', 'Grayscale', 'Negative', 'LinearNegative', 'ComplementaryColor', 'Normalize',
-                    'Sphere', 'Twirl', 'Cylinder', 'Plane',
+                    'Sphere', 'Twirl', 'WaveDisplacement', 'Cylinder', 'Plane',
                     'PerlinNoise','CyclicPerlinNoise','Clouds','CustomWater','Water','Rain','Wood','WoodVertical','Plastik','MetalFloor','Camouflage',
                     'SnowPrint','Stone','RoundStone','Marble');
 
@@ -95,7 +95,7 @@ const
                     false, false, false, false, false, false, false, false,
                     false, false, false, false, false, true, true, true,
                     false, true, false, false, false, false, false, false,
-                    false, false, false, false,
+                    false, false, false, false, false,
                     false,false,true,true,true,true,true,true,true,true,true,
                     true,true,true,true);
 
@@ -255,6 +255,7 @@ type
     function ShowPixelateDlg(AFilterConnector: TObject):boolean; virtual; abstract;
     function ShowNoiseFilterDlg(AFilterConnector: TObject):boolean; virtual; abstract;
     function ShowTwirlDlg(AFilterConnector: TObject):boolean; virtual; abstract;
+    function ShowWaveDisplacementDlg(AFilterConnector: TObject):boolean; virtual; abstract;
     function ShowPhongFilterDlg(AFilterConnector: TObject): boolean; virtual; abstract;
     function ShowFunctionFilterDlg(AFilterConnector: TObject): boolean; virtual; abstract;
     function ShowSharpenDlg(AFilterConnector: TObject):boolean; virtual; abstract;

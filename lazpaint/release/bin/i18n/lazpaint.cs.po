@@ -947,6 +947,10 @@ msgstr "Koule"
 msgid "Twirl..."
 msgstr "Vířit..."
 
+#: tfmain.filterwavedisplacement.caption
+msgid "Wave diplacement..."
+msgstr ""
+
 #: tfmain.forgetdialoganswers.caption
 msgid "Forget dialog box answers"
 msgstr ""
@@ -2660,6 +2664,34 @@ msgstr "Úhel :"
 msgctxt "tftwirl.label_radius.caption"
 msgid "Radius :"
 msgstr "Poloměr :"
+
+#: tfwavedisplacement.button_cancel.caption
+#, fuzzy
+msgctxt "tfwavedisplacement.button_cancel.caption"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfwavedisplacement.button_ok.caption
+#, fuzzy
+msgctxt "tfwavedisplacement.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfwavedisplacement.caption
+msgid "Wave displacement"
+msgstr ""
+
+#: tfwavedisplacement.label_displacement.caption
+msgid "Displacement :"
+msgstr ""
+
+#: tfwavedisplacement.label_phase.caption
+msgid "Phase :"
+msgstr ""
+
+#: tfwavedisplacement.label_wavelength.caption
+msgid "Wavelength :"
+msgstr ""
 
 #: uresourcestrings.rsactioninprogress
 msgid "Action in progress"

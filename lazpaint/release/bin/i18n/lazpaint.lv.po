@@ -948,6 +948,10 @@ msgstr "Olveida"
 msgid "Twirl..."
 msgstr "Savirpināt ..."
 
+#: tfmain.filterwavedisplacement.caption
+msgid "Wave diplacement..."
+msgstr ""
+
 #: tfmain.forgetdialoganswers.caption
 msgid "Forget dialog box answers"
 msgstr ""
@@ -2659,6 +2663,34 @@ msgstr "Leņķis:"
 msgctxt "TFTWIRL.LABEL_RADIUS.CAPTION"
 msgid "Radius :"
 msgstr "Rādiuss:"
+
+#: tfwavedisplacement.button_cancel.caption
+#, fuzzy
+msgctxt "tfwavedisplacement.button_cancel.caption"
+msgid "Cancel"
+msgstr "Atsaukt"
+
+#: tfwavedisplacement.button_ok.caption
+#, fuzzy
+msgctxt "tfwavedisplacement.button_ok.caption"
+msgid "OK"
+msgstr "Labi"
+
+#: tfwavedisplacement.caption
+msgid "Wave displacement"
+msgstr ""
+
+#: tfwavedisplacement.label_displacement.caption
+msgid "Displacement :"
+msgstr ""
+
+#: tfwavedisplacement.label_phase.caption
+msgid "Phase :"
+msgstr ""
+
+#: tfwavedisplacement.label_wavelength.caption
+msgid "Wavelength :"
+msgstr ""
 
 #: uresourcestrings.rsactioninprogress
 msgid "Action in progress"

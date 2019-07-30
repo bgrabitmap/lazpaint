@@ -276,6 +276,14 @@ type
     function DefaultTwirlTurn: double;
     procedure SetDefaultTwirlTurn(value: double);
 
+    //wave displacement config
+    function DefaultWaveDisplacementWavelength: double;
+    procedure SetDefaultWaveDisplacementWavelength(value: double);
+    function DefaultWaveDisplacementAmount: double;
+    procedure SetDefaultWaveDisplacementAmount(value: double);
+    function DefaultWaveDisplacementPhase: double;
+    procedure SetDefaultWaveDisplacementPhase(value: double);
+
     //phong filter
     function DefaultPhongFilterAltitude: integer;
     procedure SetDefaultPhongFilterAltitude(value: integer);
@@ -1150,6 +1158,36 @@ end;
 procedure TLazPaintConfig.SetDefaultTwirlTurn(value: double);
 begin
   iniOptions.WriteFloat('Filter','TwirlTurn',value);
+end;
+
+function TLazPaintConfig.DefaultWaveDisplacementWavelength: double;
+begin
+  result := iniOptions.ReadFloat('Filter','WaveDisplacementWavelength',100);
+end;
+
+procedure TLazPaintConfig.SetDefaultWaveDisplacementWavelength(value: double);
+begin
+  iniOptions.WriteFloat('Filter','WaveDisplacementWavelength',value);
+end;
+
+function TLazPaintConfig.DefaultWaveDisplacementAmount: double;
+begin
+  result := iniOptions.ReadFloat('Filter','WaveDisplacementAmount',50);
+end;
+
+procedure TLazPaintConfig.SetDefaultWaveDisplacementAmount(value: double);
+begin
+  iniOptions.WriteFloat('Filter','WaveDisplacementAmount',value);
+end;
+
+function TLazPaintConfig.DefaultWaveDisplacementPhase: double;
+begin
+  result := iniOptions.ReadFloat('Filter','WaveDisplacementPhase',0);
+end;
+
+procedure TLazPaintConfig.SetDefaultWaveDisplacementPhase(value: double);
+begin
+  iniOptions.WriteFloat('Filter','WaveDisplacementPhase',value);
 end;
 
 function TLazPaintConfig.DefaultPhongFilterAltitude: integer;

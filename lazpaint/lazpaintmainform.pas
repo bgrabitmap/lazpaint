@@ -28,6 +28,7 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    FilterWaveDisplacement: TAction;
     ViewDarkTheme: TAction;
     MenuFileToolbar: TMenuItem;
     ViewWorkspaceColor: TAction;

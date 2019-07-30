@@ -170,6 +170,7 @@ type
     function ShowPixelateDlg(AFilterConnector: TObject):boolean; override;
     function ShowNoiseFilterDlg(AFilterConnector: TObject):boolean; override;
     function ShowTwirlDlg(AFilterConnector: TObject):boolean; override;
+    function ShowWaveDisplacementDlg(AFilterConnector: TObject):boolean; override;
     function ShowPhongFilterDlg(AFilterConnector: TObject): boolean; override;
     function ShowFunctionFilterDlg(AFilterConnector: TObject): boolean; override;
     function ShowSharpenDlg(AFilterConnector: TObject):boolean; override;
@@ -206,7 +207,7 @@ implementation
 
 uses LCLType, Types, Forms, Dialogs, FileUtil, LCLIntf, Math,
 
-     uradialblur, umotionblur, uemboss, utwirl,
+     uradialblur, umotionblur, uemboss, UTwirl, UWaveDisplacement,
      unewimage, uresample, upixelate, unoisefilter, ufilters,
      UImageAction, USharpen, uposterize, UPhongFilter, UFilterFunction,
      uprint, USaveOption, UFormRain,

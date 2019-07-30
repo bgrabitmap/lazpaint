@@ -92,7 +92,7 @@ begin
   SpinEdit_Angle.Value := round(FilterConnector.LazPaintInstance.Config.DefaultTwirlTurn*360);
   FInitializing := false;
   PreviewNeeded;
-  Left := FilterConnector.LazPaintInstance.MainFormBounds.Left
+  Left := FilterConnector.LazPaintInstance.MainFormBounds.Left;
 end;
 
 procedure TFTwirl.PaintBox1MouseDown(Sender: TObject; Button: TMouseButton;

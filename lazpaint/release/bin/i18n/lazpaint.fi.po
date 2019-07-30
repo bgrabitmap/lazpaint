@@ -934,6 +934,10 @@ msgstr ""
 msgid "Twirl..."
 msgstr "Pyörre"
 
+#: tfmain.filterwavedisplacement.caption
+msgid "Wave diplacement..."
+msgstr ""
+
 #: tfmain.forgetdialoganswers.caption
 msgid "Forget dialog box answers"
 msgstr ""
@@ -2646,6 +2650,33 @@ msgstr "kulma :"
 msgctxt "TFTWIRL.LABEL_RADIUS.CAPTION"
 msgid "Radius :"
 msgstr "Säde :"
+
+#: tfwavedisplacement.button_cancel.caption
+#, fuzzy
+msgctxt "tfwavedisplacement.button_cancel.caption"
+msgid "Cancel"
+msgstr "Peru"
+
+#: tfwavedisplacement.button_ok.caption
+msgctxt "tfwavedisplacement.button_ok.caption"
+msgid "OK"
+msgstr ""
+
+#: tfwavedisplacement.caption
+msgid "Wave displacement"
+msgstr ""
+
+#: tfwavedisplacement.label_displacement.caption
+msgid "Displacement :"
+msgstr ""
+
+#: tfwavedisplacement.label_phase.caption
+msgid "Phase :"
+msgstr ""
+
+#: tfwavedisplacement.label_wavelength.caption
+msgid "Wavelength :"
+msgstr ""
 
 #: uresourcestrings.rsactioninprogress
 msgid "Action in progress"
