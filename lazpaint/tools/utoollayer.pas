@@ -30,7 +30,7 @@ type
     procedure NeedLayerBounds;
     function GetAction: TLayerAction; override;
     function DoGetToolDrawingLayer: TBGRABitmap; override;
-    procedure OnTryStop(sender: TCustomLayerAction); override;
+    procedure OnTryStop({%H-}sender: TCustomLayerAction); override;
   public
     function ToolUp: TRect; override;
     function ToolKeyDown(var key: Word): TRect; override;
@@ -80,7 +80,7 @@ type
     property TransformCenter: TPointF read GetTransformCenter write SetTransformCenter;
     function GetAction: TLayerAction; override;
     function DoGetToolDrawingLayer: TBGRABitmap; override;
-    procedure OnTryStop(sender: TCustomLayerAction); override;
+    procedure OnTryStop({%H-}sender: TCustomLayerAction); override;
   public
     constructor Create(AManager: TToolManager); override;
     destructor Destroy; override;
