@@ -333,15 +333,32 @@ var
   ratio, d: single;
   m: TAffineMatrix;
   newSize, prevCornerVect, newCornerVect: TPointF;
+  angle,deltaAngle, zoom: single;
 begin
   BeginUpdate;
   if (ssAlt in AShift) and (VectDet(FXUnitBackup,FYUnitBackup)<>0) and (FXSizeBackup<>0) and (FYSizeBackup<>0) then
   begin
     prevCornerVect := AFactorX*(FXAxisBackup - FOriginBackup) + AFactorY*(FYAxisBackup - FOriginBackup);
     newCornerVect := (ANewCoord - FOriginBackup)*(1/GetCornerPositition);
-    m := AffineMatrixTranslation(FOriginBackup.x,FOriginBackup.y)*
-         AffineMatrixScaledRotation(prevCornerVect, newCornerVect)*
-         AffineMatrixTranslation(-FOriginBackup.x,-FOriginBackup.y);
+    m := AffineMatrixScaledRotation(prevCornerVect, newCornerVect);
+    if not (ssShift in AShift) then
+    begin
+      angle := arctan2(-m[2,1],m[1,1])*2/Pi;
+      deltaAngle := 0;
+      if abs(frac(angle)) < 0.1 then deltaAngle := -frac(angle)
+      else if frac(angle) > 0.9 then deltaAngle := +1-frac(angle)
+      else if frac(angle) < -0.9 then deltaAngle := -1-frac(angle)
+      else if abs(frac(angle)-0.5) < 0.1 then deltaAngle := 0.5-frac(angle)
+      else if abs(frac(angle)+0.5) < 0.1 then deltaAngle := -0.5-frac(angle);
+      if deltaAngle <> 0 then
+      begin
+        angle := (angle+deltaAngle)*Pi/2;
+        zoom := VectLen(m[1,1],m[2,1]);
+        m := AffineMatrixRotationRad(angle)*AffineMatrixScale(zoom,zoom);
+      end;
+    end;
+    m := AffineMatrixTranslation(FOriginBackup.x,FOriginBackup.y)*m
+        *AffineMatrixTranslation(-FOriginBackup.x,-FOriginBackup.y);
     FOrigin := FOriginBackup;
     FXAxis := m * FXAxisBackup;
     FYAxis := m * FYAxisBackup;
