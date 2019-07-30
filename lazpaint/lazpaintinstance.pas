@@ -128,6 +128,7 @@ type
     function GetMainFormBounds: TRect; override;
     procedure EditSelectionHandler(var AImage: TBGRABitmap);
     function GetZoomFactor: single; override;
+    procedure ApplyTheme(ADarkTheme: boolean); override;
 
   public
     constructor Create; override;
@@ -393,6 +394,7 @@ begin
   TFLayerStack_CustomDPI := (Config.DefaultIconSize(DoScaleX(16,OriginalDPI))*96+8) div 16;
   Application.CreateForm(TFLayerStack,FLayerStack);
   FLayerStack.LazPaintInstance := self;
+  FLayerStack.DarkTheme:= Config.GetDarkTheme;
 
   FLayerStack.AddButton(FMain.LayerAddNew);
   FLayerStack.AddButton(FMain.LayerFromFile);
@@ -668,6 +670,13 @@ begin
   if Assigned(FMain) and Assigned(FMain.Zoom) then
     Result:=FMain.Zoom.Factor else
       result := inherited GetZoomFactor;
+end;
+
+procedure TLazPaintInstance.ApplyTheme(ADarkTheme: boolean);
+begin
+  if Assigned(FChooseColor) then FChooseColor.DarkTheme := ADarkTheme;
+  if Assigned(FLayerStack) then FLayerStack.DarkTheme := ADarkTheme;
+  if Assigned(FMain) then FMain.DarkTheme := ADarkTheme;
 end;
 
 function TLazPaintInstance.GetGridVisible: boolean;

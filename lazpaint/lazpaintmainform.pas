@@ -28,6 +28,7 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    ViewDarkTheme: TAction;
     MenuFileToolbar: TMenuItem;
     ViewWorkspaceColor: TAction;
     LayerRasterize: TAction;
@@ -576,6 +577,8 @@ type
     procedure Tool_TextShadowClick(Sender: TObject);
     procedure ViewColorsExecute(Sender: TObject);
     procedure ViewColorsUpdate(Sender: TObject);
+    procedure ViewDarkThemeExecute(Sender: TObject);
+    procedure ViewDarkThemeUpdate(Sender: TObject);
     procedure ViewGridUpdate(Sender: TObject);
     procedure ViewImageListExecute(Sender: TObject);
     procedure ViewLayerStackButtonUpdate(Sender: TObject);
@@ -696,7 +699,9 @@ type
     FUpdateStackWhenIdle: boolean;
 
     function GetCurrentPressure: single;
+    function GetDarkTheme: boolean;
     function GetUseImageBrowser: boolean;
+    procedure SetDarkTheme(AValue: boolean);
     procedure UpdateStatusText;
     procedure CreateToolbarElements;
     function GetCurrentToolAction: TAction;
@@ -723,7 +728,7 @@ type
     procedure SetShowSelectionNormal(const AValue: boolean);
     procedure ToggleToolwindowsVisible;
     procedure UpdateTextSizeIncrement;
-    procedure UpdateToolImage;
+    procedure UpdateToolImage(AForceUpdate: boolean = false);
     procedure ToggleGridVisible;
     procedure ToggleToolboxVisible;
     procedure ToggleImageListVisible;
@@ -778,6 +783,7 @@ type
     Zoom: TZoom;
 
     procedure PaintPictureNow;
+    procedure InvalidatePicture;
     function TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean=True; ALoadedImage: PImageEntry = nil;
       ASkipDialogIfSingleImage: boolean = false): Boolean;
     function PictureCanvasOfs: TPoint;
@@ -795,6 +801,7 @@ type
     property Layout: TMainFormLayout read FLayout;
     property UseImageBrowser: boolean read GetUseImageBrowser;
     property CurrentPressure: single read GetCurrentPressure;
+    property DarkTheme: boolean read GetDarkTheme write SetDarkTheme;
   end;
 
 implementation
@@ -959,8 +966,7 @@ begin
   FileRememberSaveFormat.Checked:= Config.DefaultRememberSaveFormat;
 
   FImageView := TImageView.Create(LazPaintInstance, Zoom,
-                {$IFDEF USEPAINTBOXPICTURE}PaintBox_Picture.Canvas{$ELSE}self.Canvas{$ENDIF},
-                config.GetWorkspaceColor);
+                {$IFDEF USEPAINTBOXPICTURE}PaintBox_Picture.Canvas{$ELSE}self.Canvas{$ENDIF});
 
   FImageActions := TImageActions.Create(LazPaintInstance);
   LazPaintInstance.EmbeddedResult := mrNone;
@@ -2430,6 +2436,16 @@ begin
   ViewColors.Checked := LazPaintInstance.ChooseColorVisible;
 end;
 
+procedure TFMain.ViewDarkThemeExecute(Sender: TObject);
+begin
+  LazPaintInstance.DarkTheme := not LazPaintInstance.DarkTheme;
+end;
+
+procedure TFMain.ViewDarkThemeUpdate(Sender: TObject);
+begin
+  ViewDarkTheme.Checked := LazPaintInstance.DarkTheme;
+end;
+
 procedure TFMain.ViewGridUpdate(Sender: TObject);
 begin
   ViewGrid.Checked:= LazPaintInstance.GridVisible;
@@ -3511,9 +3527,25 @@ begin
   Layout.StatusText := s;
 end;
 
+procedure TFMain.InvalidatePicture;
+begin
+  if Assigned(FImageView) and Assigned(FLayout) then
+    FImageView.InvalidatePicture(False, FLayout.WorkArea, Point(0,0), self);
+end;
+
 function TFMain.GetUseImageBrowser: boolean;
 begin
   result := Config.DefaultUseImageBrowser;
+end;
+
+procedure TFMain.SetDarkTheme(AValue: boolean);
+begin
+  if LAyout.DarkTheme<>AValue then
+  begin
+    Layout.DarkTheme := AValue;
+    Invalidate;
+    UpdateToolImage(true);
+  end;
 end;
 
 function TFMain.GetCurrentPressure: single;
@@ -3522,6 +3554,12 @@ begin
     result := FTablet.Pressure/FTablet.Max
   else
     result := 1;
+end;
+
+function TFMain.GetDarkTheme: boolean;
+begin
+  if Assigned(FLayout) then result := FLayout.DarkTheme
+  else result := false;
 end;
 
 function TFMain.GetScriptContext: TScriptContext;

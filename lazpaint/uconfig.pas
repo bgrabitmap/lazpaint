@@ -24,6 +24,9 @@ type
     tempFont: TFont;
     colorizePresets: TList;
     FVersion: string;
+    FDarkTheme,FDarkThemeEvaluated: boolean;
+    FWorkspaceColor: TColor;
+    FWorkspaceColorEvaluated: boolean;
     function GetBrushCount: integer;
     function GetBrushInfo(Index: integer): string;
     function GetColorizePreset(Index: Integer): TVariableSet;
@@ -699,12 +702,23 @@ end;
 
 function TLazPaintConfig.GetWorkspaceColor: TColor;
 begin
-  result := StrToBGRA(iniOptions.ReadString('General','WorkspaceColor', '#BBD1E8'), clAppWorkspace);
+  if not FWorkspaceColorEvaluated then
+  begin
+    if GetDarkTheme then
+      FWorkspaceColor := StrToBGRA(iniOptions.ReadString('General','DarkWorkspaceColor', '#2D3B49'), clAppWorkspace)
+    else
+      FWorkspaceColor := StrToBGRA(iniOptions.ReadString('General','WorkspaceColor', '#BBD1E8'), clAppWorkspace);
+    FWorkspaceColorEvaluated := true;
+  end;
+  result := FWorkspaceColor;
 end;
 
 procedure TLazPaintConfig.SetWorkspaceColor(value: TColor);
 begin
-  iniOptions.WriteString('General','WorkspaceColor', BGRAToStr(value));
+  if GetDarkTheme then
+    iniOptions.WriteString('General','DarkWorkspaceColor', BGRAToStr(value))
+  else
+    iniOptions.WriteString('General','WorkspaceColor', BGRAToStr(value));
 end;
 
 function TLazPaintConfig.DefaultUseImageBrowser: boolean;
@@ -1504,12 +1518,21 @@ end;
 
 function TLazPaintConfig.GetDarkTheme: boolean;
 begin
-  result := iniOptions.ReadBool('General','DarkTheme', false);
+  if not FDarkThemeEvaluated then
+  begin
+    FDarkTheme := iniOptions.ReadBool('General','DarkTheme', false);
+    FDarkThemeEvaluated:= true;
+  end;
+  result := FDarkTheme;
 end;
 
 procedure TLazPaintConfig.SetDarkTheme(AValue: boolean);
 begin
+  if FDarkThemeEvaluated and (AValue = FDarkTheme) then exit;
   iniOptions.WriteBool('General','DarkTheme', AValue);
+  FDarkTheme:= AValue;
+  FDarkThemeEvaluated:= true;
+  FWorkspaceColorEvaluated:= false;
 end;
 
 function TLazPaintConfig.ScreenSizeChanged: boolean;

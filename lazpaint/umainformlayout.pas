@@ -184,6 +184,8 @@ begin
   ApplyTheme;
   if Assigned(FPaletteToolbar) then
     FPaletteToolbar.DarkTheme:= AValue;
+  if Assigned(FMenu) then
+    FMenu.DarkTheme:= AValue;
 end;
 
 procedure TMainFormLayout.SetLazPaintInstance(AValue: TLazPaintCustomInstance);

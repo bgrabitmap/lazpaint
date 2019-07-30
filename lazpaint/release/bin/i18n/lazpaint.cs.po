@@ -1279,6 +1279,10 @@ msgstr "Upravit"
 msgid "File"
 msgstr "Soubor"
 
+#: tfmain.menufiletoolbar.caption
+msgid "Show file toolbar"
+msgstr ""
+
 #: tfmain.menufilter.caption
 msgctxt "tfmain.menufilter.caption"
 msgid "Filter"
@@ -1840,6 +1844,10 @@ msgstr "Stín textu"
 msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
 msgid "Colors"
 msgstr "Barvy"
+
+#: tfmain.viewdarktheme.caption
+msgid "Dark theme"
+msgstr ""
 
 #: tfmain.viewgrid.caption
 msgctxt "TFMAIN.VIEWGRID.CAPTION"

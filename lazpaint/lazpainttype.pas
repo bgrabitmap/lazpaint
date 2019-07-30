@@ -152,6 +152,8 @@ type
   TLazPaintCustomInstance = class(TInterfacedObject,IConfigProvider)
   private
     FBlackAndWhite: boolean;
+    function GetDarkTheme: boolean;
+    procedure SetDarkTheme(AValue: boolean);
   protected
     FRestartQuery: boolean;
     function QueryInterface({$IFDEF FPC_HAS_CONSTREF}constref{$ELSE}const{$ENDIF} IID: TGUID; out Obj): HResult; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
@@ -208,6 +210,7 @@ type
     procedure SetLayerWindowWidth(AValue: integer); virtual; abstract;
 
     function GetMainFormBounds: TRect; virtual; abstract;
+    procedure ApplyTheme(ADarkTheme: boolean); virtual; abstract;
   public
     Title,AboutText: string;
     EmbeddedResult: TModalResult;
@@ -323,6 +326,7 @@ type
     property DockLayersAndColors: boolean read GetDockLayersAndColors write SetDockLayersAndColors;
     property Fullscreen: boolean read GetFullscreen write SetFullscreen;
     property RestartQuery: boolean read FRestartQuery;
+    property DarkTheme: boolean read GetDarkTheme write SetDarkTheme;
 
     property Icons[ASize: integer]: TImageList read GetIcons;
   end;
@@ -542,6 +546,26 @@ procedure TImageEntry.FreeAndNil;
 begin
   SysUtils.FreeAndNil(bmp);
   bpp := 0;
+end;
+
+function TLazPaintCustomInstance.GetDarkTheme: boolean;
+begin
+  if Assigned(Config) then
+    result := Config.GetDarkTheme
+  else
+    result := false;
+end;
+
+procedure TLazPaintCustomInstance.SetDarkTheme(AValue: boolean);
+begin
+  if Assigned(Config) then
+  begin
+    if AValue <> Config.GetDarkTheme then
+    begin
+      Config.SetDarkTheme(AValue);
+      ApplyTheme(AValue);
+    end;
+  end;
 end;
 
 { Interface gateway }

@@ -428,7 +428,7 @@ begin
   end;
 end;
 
-procedure TFMain.UpdateToolImage;
+procedure TFMain.UpdateToolImage(AForceUpdate: boolean);
 var img: integer; ToolBmp, IconBmp: TBitmap; IconBGRA, Blur, ToolBGRA: TBGRABitmap;
     a: TAction;
     il: TImageList;
@@ -444,7 +444,7 @@ begin
     img := -1;
     currentToolLabel := '';
   end;
-  if img <> previousToolImg then
+  if AForceUpdate or (img <> previousToolImg) then
   begin
     if img <> -1 then
     begin
@@ -599,11 +599,7 @@ begin
   if ColorDialog1.Execute then
   begin
     Config.SetWorkspaceColor(ColorDialog1.Color);
-    if Assigned(FImageView) then
-    begin
-      FImageView.WorkspaceColor := ColorDialog1.Color;
-      FImageView.InvalidatePicture(False, FLayout.WorkArea, Point(0,0), self);
-    end;
+    InvalidatePicture;
   end;
 end;
 

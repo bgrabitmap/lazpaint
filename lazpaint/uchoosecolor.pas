@@ -479,6 +479,7 @@ begin
     FormBackgroundColor := ColorToBGRA(ColorToRGB({$IFDEF DARWIN}clWindow{$ELSE}clBtnFace{$ENDIF}));
     FormTextColor := ColorToBGRA(ColorToRGB(clWindowText));
   end;
+  vsColorView.DiscardBitmap;
 end;
 
 procedure TFChooseColor.UpdateLayout;

@@ -1266,6 +1266,10 @@ msgstr "Redigera"
 msgid "File"
 msgstr "Fil"
 
+#: tfmain.menufiletoolbar.caption
+msgid "Show file toolbar"
+msgstr ""
+
 #: tfmain.menufilter.caption
 msgctxt "tfmain.menufilter.caption"
 msgid "Filter"
@@ -1826,6 +1830,10 @@ msgstr "Textskugga"
 msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
 msgid "Colors"
 msgstr "Färger"
+
+#: tfmain.viewdarktheme.caption
+msgid "Dark theme"
+msgstr ""
 
 #: tfmain.viewgrid.caption
 msgctxt "TFMAIN.VIEWGRID.CAPTION"

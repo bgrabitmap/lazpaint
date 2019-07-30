@@ -1276,6 +1276,10 @@ msgstr "Editar"
 msgid "File"
 msgstr "Archivo"
 
+#: tfmain.menufiletoolbar.caption
+msgid "Show file toolbar"
+msgstr "Mostrar barra de archivo"
+
 #: tfmain.menufilter.caption
 msgctxt "tfmain.menufilter.caption"
 msgid "Filter"
@@ -1836,6 +1840,10 @@ msgstr "Sombra de Texto"
 msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
 msgid "Colors"
 msgstr "Colores"
+
+#: tfmain.viewdarktheme.caption
+msgid "Dark theme"
+msgstr "Tema oscuro"
 
 #: tfmain.viewgrid.caption
 msgctxt "TFMAIN.VIEWGRID.CAPTION"
