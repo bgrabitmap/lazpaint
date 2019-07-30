@@ -18,6 +18,8 @@ const
   ToolIconSize = 36;
   ActionIconSize = 24;
   EditorPointSize = 7;
+  DefaultImageWidth = 640;
+  DefaultImageHeight = 480;
   PenStyleToStr : array[TPenStyle] of string = ('─────', '─ ─ ─ ─', '···············', '─ · ─ · ─', '─ ·· ─ ·· ╴', 'InsideFrame', 'Pattern', 'Clear');
   PhongShapeKindToStr: array[TPhongShapeKind] of string = ('Rectangle', 'Round rectangle', 'Half sphere', 'Cone top', 'Cone side',
                      'Horizontal cylinder', 'Vertical cylinder');
@@ -385,8 +387,7 @@ begin
     with (ActionList.Actions[i] as TAction) do
       if Hint = '' then Hint := Caption;
 
-  NewImage(640,480);
-
+  NewImage(DefaultImageWidth, DefaultImageHeight);
   zoom := AffineMatrixScale(1,1);
   FPenStyleMenu := TPopupMenu.Create(nil);
   item:= TMenuItem.Create(FPenStyleMenu); item.Caption := PenStyleToStr[psClear];
@@ -459,7 +460,6 @@ begin
   FTextFontHeight:= TTextShape.DefaultFontEmHeight;
   FTextPenPhong:= false;
   FTextAltitudePercent:= TTextShape.DefaultAltitudePercent;
-  UpdateTitleBar;
   UpdateBackToolFillPoints;
   UpdatePenToolFillPoints;
   UpdateOutlineToolFillPoints;
@@ -599,12 +599,30 @@ begin
 end;
 
 procedure TForm1.FileNewExecute(Sender: TObject);
+var
+  dimStr: String;
+  newWidth, newheight, idxX: integer;
 begin
   if Assigned(vectorOriginal) then
   begin
-    vectorOriginal.Clear;
-    filename := '';
-    UpdateTitleBar;
+    try
+      if Assigned(img) then
+        dimStr := inttostr(img.Width)+'x'+inttostr(img.Height)
+      else
+        dimStr := inttostr(DefaultImageWidth)+'x'+inttostr(DefaultImageHeight);
+      dimStr := InputBox('New image','Dimensions:',dimStr);
+      idxX := pos('x',dimStr);
+      if idxX=0 then exit;
+      newWidth := StrToInt(copy(dimStr,1,idxX-1));
+      newheight := StrToInt(copy(dimStr,idxX+1,length(dimStr)-idxX));
+    except
+      on ex:exception do
+      begin
+        ShowMessage(ex.Message);
+        exit;
+      end;
+    end;
+    NewImage(newWidth,newheight);
   end;
 end;
 
@@ -632,7 +650,6 @@ begin
       vectorLayerIndex:= openedLayer;
       filename:= OpenDialog1.FileName;
       UpdateTitleBar;
-      ImageChangesCompletely;
     except
       on ex: exception do
         ShowMessage(ex.Message);
@@ -1457,11 +1474,12 @@ var
   newImg: TBGRALazPaintImage;
   layerIndex: Integer;
 begin
-  newImg := TBGRALazPaintImage.Create(640,480);
+  newImg := TBGRALazPaintImage.Create(AWidth,AHeight);
   orig := TVectorOriginal.Create;
   layerIndex := newImg.AddLayerFromOwnedOriginal(orig);
   SetImage(newImg);
   filename := '';
+  UpdateTitleBar;
   vectorLayerIndex := layerIndex;
 end;
 
@@ -1474,6 +1492,7 @@ begin
   img.OnEditorFocusChanged:=@OnEditorFocusChange;
   img.OnOriginalChange:= @OnOriginalChange;
   FVectorLayerIndex:= -1;
+  ImageChangesCompletely;
 end;
 
 procedure TForm1.TextStyleClick(Sender: TObject);
