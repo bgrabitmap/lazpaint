@@ -63,6 +63,7 @@ type
     procedure UpdateLayerStackItem(idx: integer);
   private
     FCompletelyResizeable: boolean;
+    FDarkTheme, FSysColorSelection: boolean;
     { private declarations }
     UpdatingComboBlendOp : boolean;
     background,iconBackground: TBGRABitmap;
@@ -89,10 +90,14 @@ type
       layerIndex: integer; ASelected: boolean): TDrawLayerItemResult;
     procedure RedrawLayerStack(Bitmap: TBGRABitmap; Layout: boolean; UpdateItem: Integer);
     procedure SetCompletelyResizeable(AValue: boolean);
+    procedure SetDarkTheme(AValue: boolean);
     procedure UpdateImage;
     procedure OnImageChangedHandler(AEvent: TLazPaintImageObservationEvent);
     procedure SelectBlendOp;
     procedure DoScrollVertically(AAmount: integer);
+    procedure ApplyTheme;
+    function GetTextColor(ASelected: boolean): TColor;
+    function GetBackColor(ASelected: boolean): TColor;
   public
     { public declarations }
     LazPaintInstance: TLazPaintCustomInstance;
@@ -101,6 +106,7 @@ type
     procedure AddButton(AAction: TBasicAction);
     procedure AddSeparator;
     property CompletelyResizeable: boolean read FCompletelyResizeable write SetCompletelyResizeable;
+    property DarkTheme: boolean read FDarkTheme write SetDarkTheme;
   end;
 
 var TFLayerStack_CustomDPI: integer = 96;
@@ -108,7 +114,7 @@ var TFLayerStack_CustomDPI: integer = 96;
 implementation
 
 uses BGRAFillInfo,LCScaleDPI,uresourcestrings,ublendop, uimage, utool, BGRAText, BGRAThumbnail,
-   BGRALayerOriginal, math, BGRATransform, BGRASVGOriginal;
+   BGRALayerOriginal, math, BGRATransform, BGRASVGOriginal, udarktheme;
 
 function TFLayerStack.DrawLayerItem(ABitmap: TBGRABitmap; layerPos: TPoint; layerIndex: integer; ASelected: boolean): TDrawLayerItemResult;
 var
@@ -119,10 +125,7 @@ var
   reducedBounds, rOpacity, rFill: TRect;
   percentStr: String;
 begin
-  if ASelected then
-    lColor := ColorToBGRA(ColorToRGB(clHighlightText))
-  else
-    lColor := ColorToBGRA(ColorToRGB(clWindowText));
+  lColor := GetTextColor(ASelected);
 
   result.PreviewPts := PointsF([pointf(layerPos.X+0.25*LayerRectWidth,layerPos.Y+round(LayerRectHeight*0.1)),
      pointf(layerPos.X+0.9*LayerRectWidth,layerPos.Y+round(LayerRectHeight*0.1)),
@@ -281,6 +284,8 @@ begin
     Toolbar2.Top := ComboBox_BlendOp.Top + ComboBox_BlendOp.Height;
   if Toolbar2.Top+Toolbar2.Height+2 > Panel1.Height then
     Panel1.Height := Toolbar2.Top+Toolbar2.Height+2;
+
+  ApplyTheme;
 end;
 
 procedure TFLayerStack.TimerScrollTimer(Sender: TObject);
@@ -655,12 +660,12 @@ begin
       begin
         if i = CurrentLayerIndex then
         begin
-          Bitmap.FillRect(layerPos.X,layerPos.Y,layerPos.X+StackWidth,layerPos.Y+LayerRectHeight,ColorToBGRA(ColorToRGB(clHighlight)),dmSet);
+          Bitmap.FillRect(layerPos.X,layerPos.Y,layerPos.X+StackWidth,layerPos.Y+LayerRectHeight,GetBackColor(true),dmSet);
           lSelected:= true;
         end else
         begin
           if UpdateItem <> -1 then
-            Bitmap.FillRect(layerPos.X,layerPos.Y,layerPos.X+StackWidth,layerPos.Y+LayerRectHeight,ColorToBGRA(ColorToRGB(clWindow)),dmSet);
+            Bitmap.FillRect(layerPos.X,layerPos.Y,layerPos.X+StackWidth,layerPos.Y+LayerRectHeight,GetBackColor(false),dmSet);
           lSelected:= false;
         end;
         if UpdateItem <> -1 then clipping := rect(layerPos.X,layerPos.Y,layerPos.X+StackWidth,layerPos.Y+LayerRectHeight);
@@ -670,10 +675,7 @@ begin
 
         if (layerpos.Y+LayerRectHeight > 0) and (layerpos.Y < Bitmap.Height) then
         begin
-          if lSelected then
-            lColor := ColorToBGRA(ColorToRGB(clHighlightText))
-          else
-            lColor := ColorToBGRA(ColorToRGB(clWindowText));
+          lColor := GetTextColor(lSelected);
 
           lColorTrans := lColor;
           lColorTrans.alpha := lColorTrans.alpha div 3;
@@ -707,7 +709,7 @@ begin
           if movingItemStart and (i= movingItemSourceIndex) then
           begin
             FreeAndNil(movingItem);
-            movingItem := TBGRABitmap.Create(StackWidth-InterruptorWidth,LayerRectHeight,ColorToBGRA(ColorToRGB(clHighlight)));
+            movingItem := TBGRABitmap.Create(StackWidth-InterruptorWidth,LayerRectHeight,GetBackColor(true));
             movingItem.FontName := Bitmap.FontName;
             movingItem.FontQuality := Bitmap.FontQuality;
             movingItem.FontFullHeight := Bitmap.FontFullHeight;
@@ -779,6 +781,13 @@ begin
   end;
 end;
 
+procedure TFLayerStack.SetDarkTheme(AValue: boolean);
+begin
+  if FDarkTheme=AValue then Exit;
+  FDarkTheme:=AValue;
+  ApplyTheme;
+end;
+
 procedure TFLayerStack.UpdateImage;
 begin
   updatingImageOnly := true;
@@ -825,6 +834,50 @@ begin
   if ScrollPos.Y > MaxScrollPos.Y then ScrollPos.Y := MaxScrollPos.Y;
   movingItemMouseOrigin.Y -= ScrollPos.Y-prevY;
   BGRALayerStack.DiscardBitmap;
+end;
+
+procedure TFLayerStack.ApplyTheme;
+begin
+  FSysColorSelection:= BGRADiff(ColorToBGRA(clHighlight), clDarkBtnFace)>=64;
+  DarkThemeInstance.Apply(Panel1, DarkTheme);
+  DarkThemeInstance.Apply(ToolBar1, DarkTheme);
+  DarkThemeInstance.Apply(ToolBar2, DarkTheme);
+  DarkThemeInstance.Apply(ToolBar3, DarkTheme);
+  BGRALayerStack.Color:= GetBackColor(False);
+end;
+
+function TFLayerStack.GetTextColor(ASelected: boolean): TColor;
+begin
+  if DarkTheme and not (ASelected and FSysColorSelection) then
+  begin
+    if ASelected then
+      result := clBlack
+    else
+      result := clLightText;
+  end else
+  begin
+    if ASelected then
+      result := ColorToBGRA(clHighlightText)
+    else
+      result := ColorToBGRA(clWindowText);
+  end;
+end;
+
+function TFLayerStack.GetBackColor(ASelected: boolean): TColor;
+begin
+  if DarkTheme and not (ASelected and FSysColorSelection) then
+  begin
+    if ASelected then
+     result := clLightText
+    else
+      result := clDarkBtnFace;
+  end else
+  begin
+    if ASelected then
+      result := ColorToBGRA(clHighlight)
+    else
+      result := ColorToBGRA(clWindow);
+  end;
 end;
 
 procedure TFLayerStack.ComboBox_BlendOpChange(Sender: TObject);

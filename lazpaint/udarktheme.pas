@@ -22,6 +22,8 @@ type
     procedure PanelPaint(Sender: TObject);
     procedure ToolBarPaint(Sender: TObject);
     procedure ToolBarPaintButton(Sender: TToolButton; State: integer);
+    procedure Apply(APanel: TPanel; AThemeEnabled: boolean); overload;
+    procedure Apply(AToolbar: TToolbar; AThemeEnabled: boolean); overload;
   end;
 
 var
@@ -85,7 +87,7 @@ var
 begin
   Bitmap := nil;
 
-  if Sender.Style = tbsButton then
+  if Sender.Style in[tbsButton,tbsCheck] then
   begin
     if Sender.Enabled then
     begin
@@ -165,6 +167,34 @@ begin
 
     T.Images.Draw(Sender.Canvas, (Sender.Width - imgW) div 2, (Sender.Height - imgH) div
       2, Sender.ImageIndex, imgS);
+  end;
+end;
+
+procedure TDarkTheme.Apply(APanel: TPanel; AThemeEnabled: boolean);
+begin
+  if AThemeEnabled then
+  begin
+    APanel.BevelOuter:= bvNone;
+    if APanel.OnPaint = nil then APanel.OnPaint := @PanelPaint;
+    APanel.Color := clDarkBtnFace;
+  end else
+  begin
+    APanel.BevelOuter:= bvRaised;
+    if APanel.OnPaint = @PanelPaint then APanel.OnPaint := nil;
+    APanel.Color := clBtnFace;
+  end;
+end;
+
+procedure TDarkTheme.Apply(AToolbar: TToolbar; AThemeEnabled: boolean);
+begin
+  if AThemeEnabled then
+  begin
+    if AToolbar.OnPaintButton = nil then AToolbar.OnPaintButton := @ToolBarPaintButton;
+    AToolbar.Color := clDarkBtnFace;
+  end else
+  begin
+    if AToolbar.OnPaintButton = @ToolBarPaintButton then AToolbar.OnPaintButton := nil;
+    AToolbar.Color := clBtnFace;
   end;
 end;
 

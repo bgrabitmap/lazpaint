@@ -214,17 +214,7 @@ begin
   begin
     with FToolbars[i].tb do
     begin
-      if FDarkTheme then
-      begin
-        Color := clDarkBtnFace;
-        BevelOuter:= bvNone;
-        if OnPaint = nil then OnPaint := @DarkThemeInstance.PanelPaint;
-      end else
-      begin
-        Color := clBtnFace;
-        BevelOuter:= bvRaised;
-        if OnPaint = @DarkThemeInstance.PanelPaint then OnPaint := nil;
-      end;
+      DarkThemeInstance.Apply(FToolbars[i].tb, DarkTheme);
       for j := 0 to ControlCount-1 do
         if Controls[j] is TToolBar then
         begin
