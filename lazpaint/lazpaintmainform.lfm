@@ -291,32 +291,6 @@ object FMain: TFMain
       ParentFont = False
       Transparent = False
     end
-    object vsPenOpacity: TBGRAVirtualScreen
-      Left = 61
-      Height = 25
-      Hint = 'Pen opacity'
-      Top = 2
-      Width = 51
-      Alignment = taLeftJustify
-      Color = clWhite
-      Font.Height = -15
-      ParentColor = False
-      ParentFont = False
-      TabOrder = 0
-    end
-    object vsBackOpacity: TBGRAVirtualScreen
-      Left = 210
-      Height = 25
-      Hint = 'Secondary color opacity'
-      Top = 2
-      Width = 51
-      Alignment = taLeftJustify
-      Color = clWhite
-      Font.Height = -15
-      ParentColor = False
-      ParentFont = False
-      TabOrder = 1
-    end
     object Shape_PenColor: TShape
       Left = 38
       Height = 25
@@ -330,6 +304,236 @@ object FMain: TFMain
       Hint = 'Select secondary color'
       Top = 2
       Width = 25
+    end
+    object SpinEdit_PenOpacity: TBCTrackbarUpdown
+      Left = 62
+      Height = 25
+      Hint = 'Pen opacity'
+      Top = 2
+      Width = 51
+      BarExponent = 1
+      Increment = 1
+      LongTimeInterval = 400
+      MinValue = 0
+      MaxValue = 255
+      Value = 255
+      ShortTimeInterval = 100
+      Background.Color = clWindow
+      Background.ColorOpacity = 255
+      Background.Gradient1.StartColor = clWhite
+      Background.Gradient1.StartColorOpacity = 255
+      Background.Gradient1.DrawMode = dmSet
+      Background.Gradient1.EndColor = clBlack
+      Background.Gradient1.EndColorOpacity = 255
+      Background.Gradient1.ColorCorrection = True
+      Background.Gradient1.GradientType = gtLinear
+      Background.Gradient1.Point1XPercent = 0
+      Background.Gradient1.Point1YPercent = 0
+      Background.Gradient1.Point2XPercent = 0
+      Background.Gradient1.Point2YPercent = 100
+      Background.Gradient1.Sinus = False
+      Background.Gradient2.StartColor = clWhite
+      Background.Gradient2.StartColorOpacity = 255
+      Background.Gradient2.DrawMode = dmSet
+      Background.Gradient2.EndColor = clBlack
+      Background.Gradient2.EndColorOpacity = 255
+      Background.Gradient2.ColorCorrection = True
+      Background.Gradient2.GradientType = gtLinear
+      Background.Gradient2.Point1XPercent = 0
+      Background.Gradient2.Point1YPercent = 0
+      Background.Gradient2.Point2XPercent = 0
+      Background.Gradient2.Point2YPercent = 100
+      Background.Gradient2.Sinus = False
+      Background.Gradient1EndPercent = 35
+      Background.Style = bbsColor
+      ButtonBackground.Color = clBlack
+      ButtonBackground.ColorOpacity = 255
+      ButtonBackground.Gradient1.StartColor = clBtnShadow
+      ButtonBackground.Gradient1.StartColorOpacity = 255
+      ButtonBackground.Gradient1.DrawMode = dmSet
+      ButtonBackground.Gradient1.EndColor = clBtnFace
+      ButtonBackground.Gradient1.EndColorOpacity = 255
+      ButtonBackground.Gradient1.ColorCorrection = True
+      ButtonBackground.Gradient1.GradientType = gtLinear
+      ButtonBackground.Gradient1.Point1XPercent = 0
+      ButtonBackground.Gradient1.Point1YPercent = -50
+      ButtonBackground.Gradient1.Point2XPercent = 0
+      ButtonBackground.Gradient1.Point2YPercent = 50
+      ButtonBackground.Gradient1.Sinus = False
+      ButtonBackground.Gradient2.StartColor = clBtnFace
+      ButtonBackground.Gradient2.StartColorOpacity = 255
+      ButtonBackground.Gradient2.DrawMode = dmSet
+      ButtonBackground.Gradient2.EndColor = clBtnShadow
+      ButtonBackground.Gradient2.EndColorOpacity = 255
+      ButtonBackground.Gradient2.ColorCorrection = True
+      ButtonBackground.Gradient2.GradientType = gtLinear
+      ButtonBackground.Gradient2.Point1XPercent = 0
+      ButtonBackground.Gradient2.Point1YPercent = 50
+      ButtonBackground.Gradient2.Point2XPercent = 0
+      ButtonBackground.Gradient2.Point2YPercent = 150
+      ButtonBackground.Gradient2.Sinus = False
+      ButtonBackground.Gradient1EndPercent = 50
+      ButtonBackground.Style = bbsGradient
+      ButtonDownBackground.Color = clBtnShadow
+      ButtonDownBackground.ColorOpacity = 255
+      ButtonDownBackground.Gradient1.StartColor = clWhite
+      ButtonDownBackground.Gradient1.StartColorOpacity = 255
+      ButtonDownBackground.Gradient1.DrawMode = dmSet
+      ButtonDownBackground.Gradient1.EndColor = clBlack
+      ButtonDownBackground.Gradient1.EndColorOpacity = 255
+      ButtonDownBackground.Gradient1.ColorCorrection = True
+      ButtonDownBackground.Gradient1.GradientType = gtLinear
+      ButtonDownBackground.Gradient1.Point1XPercent = 0
+      ButtonDownBackground.Gradient1.Point1YPercent = 0
+      ButtonDownBackground.Gradient1.Point2XPercent = 0
+      ButtonDownBackground.Gradient1.Point2YPercent = 100
+      ButtonDownBackground.Gradient1.Sinus = False
+      ButtonDownBackground.Gradient2.StartColor = clWhite
+      ButtonDownBackground.Gradient2.StartColorOpacity = 255
+      ButtonDownBackground.Gradient2.DrawMode = dmSet
+      ButtonDownBackground.Gradient2.EndColor = clBlack
+      ButtonDownBackground.Gradient2.EndColorOpacity = 255
+      ButtonDownBackground.Gradient2.ColorCorrection = True
+      ButtonDownBackground.Gradient2.GradientType = gtLinear
+      ButtonDownBackground.Gradient2.Point1XPercent = 0
+      ButtonDownBackground.Gradient2.Point1YPercent = 0
+      ButtonDownBackground.Gradient2.Point2XPercent = 0
+      ButtonDownBackground.Gradient2.Point2YPercent = 100
+      ButtonDownBackground.Gradient2.Sinus = False
+      ButtonDownBackground.Gradient1EndPercent = 35
+      ButtonDownBackground.Style = bbsColor
+      Border.Color = clWindowText
+      Border.ColorOpacity = 255
+      Border.LightColor = clWhite
+      Border.LightOpacity = 255
+      Border.LightWidth = 0
+      Border.Style = bboSolid
+      Border.Width = 1
+      Rounding.RoundX = 1
+      Rounding.RoundY = 1
+      Rounding.RoundOptions = []
+      Font.Color = clWindowText
+      Font.Name = 'Arial'
+      HasTrackBar = True
+      ArrowColor = clBtnText
+      TabOrder = 0
+      TabStop = True
+      UseDockManager = False
+    end
+    object SpinEdit_BackOpacity: TBCTrackbarUpdown
+      Left = 210
+      Height = 25
+      Hint = 'Secondary color opacity'
+      Top = 2
+      Width = 51
+      BarExponent = 1
+      Increment = 1
+      LongTimeInterval = 400
+      MinValue = 0
+      MaxValue = 255
+      Value = 255
+      ShortTimeInterval = 100
+      Background.Color = clWindow
+      Background.ColorOpacity = 255
+      Background.Gradient1.StartColor = clWhite
+      Background.Gradient1.StartColorOpacity = 255
+      Background.Gradient1.DrawMode = dmSet
+      Background.Gradient1.EndColor = clBlack
+      Background.Gradient1.EndColorOpacity = 255
+      Background.Gradient1.ColorCorrection = True
+      Background.Gradient1.GradientType = gtLinear
+      Background.Gradient1.Point1XPercent = 0
+      Background.Gradient1.Point1YPercent = 0
+      Background.Gradient1.Point2XPercent = 0
+      Background.Gradient1.Point2YPercent = 100
+      Background.Gradient1.Sinus = False
+      Background.Gradient2.StartColor = clWhite
+      Background.Gradient2.StartColorOpacity = 255
+      Background.Gradient2.DrawMode = dmSet
+      Background.Gradient2.EndColor = clBlack
+      Background.Gradient2.EndColorOpacity = 255
+      Background.Gradient2.ColorCorrection = True
+      Background.Gradient2.GradientType = gtLinear
+      Background.Gradient2.Point1XPercent = 0
+      Background.Gradient2.Point1YPercent = 0
+      Background.Gradient2.Point2XPercent = 0
+      Background.Gradient2.Point2YPercent = 100
+      Background.Gradient2.Sinus = False
+      Background.Gradient1EndPercent = 35
+      Background.Style = bbsColor
+      ButtonBackground.Color = clBlack
+      ButtonBackground.ColorOpacity = 255
+      ButtonBackground.Gradient1.StartColor = clBtnShadow
+      ButtonBackground.Gradient1.StartColorOpacity = 255
+      ButtonBackground.Gradient1.DrawMode = dmSet
+      ButtonBackground.Gradient1.EndColor = clBtnFace
+      ButtonBackground.Gradient1.EndColorOpacity = 255
+      ButtonBackground.Gradient1.ColorCorrection = True
+      ButtonBackground.Gradient1.GradientType = gtLinear
+      ButtonBackground.Gradient1.Point1XPercent = 0
+      ButtonBackground.Gradient1.Point1YPercent = -50
+      ButtonBackground.Gradient1.Point2XPercent = 0
+      ButtonBackground.Gradient1.Point2YPercent = 50
+      ButtonBackground.Gradient1.Sinus = False
+      ButtonBackground.Gradient2.StartColor = clBtnFace
+      ButtonBackground.Gradient2.StartColorOpacity = 255
+      ButtonBackground.Gradient2.DrawMode = dmSet
+      ButtonBackground.Gradient2.EndColor = clBtnShadow
+      ButtonBackground.Gradient2.EndColorOpacity = 255
+      ButtonBackground.Gradient2.ColorCorrection = True
+      ButtonBackground.Gradient2.GradientType = gtLinear
+      ButtonBackground.Gradient2.Point1XPercent = 0
+      ButtonBackground.Gradient2.Point1YPercent = 50
+      ButtonBackground.Gradient2.Point2XPercent = 0
+      ButtonBackground.Gradient2.Point2YPercent = 150
+      ButtonBackground.Gradient2.Sinus = False
+      ButtonBackground.Gradient1EndPercent = 50
+      ButtonBackground.Style = bbsGradient
+      ButtonDownBackground.Color = clBtnShadow
+      ButtonDownBackground.ColorOpacity = 255
+      ButtonDownBackground.Gradient1.StartColor = clWhite
+      ButtonDownBackground.Gradient1.StartColorOpacity = 255
+      ButtonDownBackground.Gradient1.DrawMode = dmSet
+      ButtonDownBackground.Gradient1.EndColor = clBlack
+      ButtonDownBackground.Gradient1.EndColorOpacity = 255
+      ButtonDownBackground.Gradient1.ColorCorrection = True
+      ButtonDownBackground.Gradient1.GradientType = gtLinear
+      ButtonDownBackground.Gradient1.Point1XPercent = 0
+      ButtonDownBackground.Gradient1.Point1YPercent = 0
+      ButtonDownBackground.Gradient1.Point2XPercent = 0
+      ButtonDownBackground.Gradient1.Point2YPercent = 100
+      ButtonDownBackground.Gradient1.Sinus = False
+      ButtonDownBackground.Gradient2.StartColor = clWhite
+      ButtonDownBackground.Gradient2.StartColorOpacity = 255
+      ButtonDownBackground.Gradient2.DrawMode = dmSet
+      ButtonDownBackground.Gradient2.EndColor = clBlack
+      ButtonDownBackground.Gradient2.EndColorOpacity = 255
+      ButtonDownBackground.Gradient2.ColorCorrection = True
+      ButtonDownBackground.Gradient2.GradientType = gtLinear
+      ButtonDownBackground.Gradient2.Point1XPercent = 0
+      ButtonDownBackground.Gradient2.Point1YPercent = 0
+      ButtonDownBackground.Gradient2.Point2XPercent = 0
+      ButtonDownBackground.Gradient2.Point2YPercent = 100
+      ButtonDownBackground.Gradient2.Sinus = False
+      ButtonDownBackground.Gradient1EndPercent = 35
+      ButtonDownBackground.Style = bbsColor
+      Border.Color = clWindowText
+      Border.ColorOpacity = 255
+      Border.LightColor = clWhite
+      Border.LightOpacity = 255
+      Border.LightWidth = 0
+      Border.Style = bboSolid
+      Border.Width = 1
+      Rounding.RoundX = 1
+      Rounding.RoundY = 1
+      Rounding.RoundOptions = []
+      Font.Color = clWindowText
+      Font.Name = 'Arial'
+      HasTrackBar = True
+      ArrowColor = clBtnText
+      TabOrder = 1
+      TabStop = True
+      UseDockManager = False
     end
   end
   object Panel_PenWidth: TPanel
@@ -355,18 +559,120 @@ object FMain: TFMain
       ParentColor = False
       ParentFont = False
     end
-    object vsPenWidth: TBGRAVirtualScreen
-      Left = 55
+    object SpinEdit_PenWidth: TBCTrackbarUpdown
+      Left = 59
       Height = 25
       Hint = 'Pen width'
       Top = 2
-      Width = 59
-      Alignment = taLeftJustify
-      Color = clWhite
-      Font.Height = -15
-      ParentColor = False
-      ParentFont = False
+      Width = 58
+      BarExponent = 1
+      Increment = 1
+      LongTimeInterval = 400
+      MinValue = 10
+      MaxValue = 999
+      Value = 50
+      ShortTimeInterval = 100
+      Background.Color = clWindow
+      Background.ColorOpacity = 255
+      Background.Gradient1.StartColor = clWhite
+      Background.Gradient1.StartColorOpacity = 255
+      Background.Gradient1.DrawMode = dmSet
+      Background.Gradient1.EndColor = clBlack
+      Background.Gradient1.EndColorOpacity = 255
+      Background.Gradient1.ColorCorrection = True
+      Background.Gradient1.GradientType = gtLinear
+      Background.Gradient1.Point1XPercent = 0
+      Background.Gradient1.Point1YPercent = 0
+      Background.Gradient1.Point2XPercent = 0
+      Background.Gradient1.Point2YPercent = 100
+      Background.Gradient1.Sinus = False
+      Background.Gradient2.StartColor = clWhite
+      Background.Gradient2.StartColorOpacity = 255
+      Background.Gradient2.DrawMode = dmSet
+      Background.Gradient2.EndColor = clBlack
+      Background.Gradient2.EndColorOpacity = 255
+      Background.Gradient2.ColorCorrection = True
+      Background.Gradient2.GradientType = gtLinear
+      Background.Gradient2.Point1XPercent = 0
+      Background.Gradient2.Point1YPercent = 0
+      Background.Gradient2.Point2XPercent = 0
+      Background.Gradient2.Point2YPercent = 100
+      Background.Gradient2.Sinus = False
+      Background.Gradient1EndPercent = 35
+      Background.Style = bbsColor
+      ButtonBackground.Color = clBlack
+      ButtonBackground.ColorOpacity = 255
+      ButtonBackground.Gradient1.StartColor = clBtnShadow
+      ButtonBackground.Gradient1.StartColorOpacity = 255
+      ButtonBackground.Gradient1.DrawMode = dmSet
+      ButtonBackground.Gradient1.EndColor = clBtnFace
+      ButtonBackground.Gradient1.EndColorOpacity = 255
+      ButtonBackground.Gradient1.ColorCorrection = True
+      ButtonBackground.Gradient1.GradientType = gtLinear
+      ButtonBackground.Gradient1.Point1XPercent = 0
+      ButtonBackground.Gradient1.Point1YPercent = -50
+      ButtonBackground.Gradient1.Point2XPercent = 0
+      ButtonBackground.Gradient1.Point2YPercent = 50
+      ButtonBackground.Gradient1.Sinus = False
+      ButtonBackground.Gradient2.StartColor = clBtnFace
+      ButtonBackground.Gradient2.StartColorOpacity = 255
+      ButtonBackground.Gradient2.DrawMode = dmSet
+      ButtonBackground.Gradient2.EndColor = clBtnShadow
+      ButtonBackground.Gradient2.EndColorOpacity = 255
+      ButtonBackground.Gradient2.ColorCorrection = True
+      ButtonBackground.Gradient2.GradientType = gtLinear
+      ButtonBackground.Gradient2.Point1XPercent = 0
+      ButtonBackground.Gradient2.Point1YPercent = 50
+      ButtonBackground.Gradient2.Point2XPercent = 0
+      ButtonBackground.Gradient2.Point2YPercent = 150
+      ButtonBackground.Gradient2.Sinus = False
+      ButtonBackground.Gradient1EndPercent = 50
+      ButtonBackground.Style = bbsGradient
+      ButtonDownBackground.Color = clBtnShadow
+      ButtonDownBackground.ColorOpacity = 255
+      ButtonDownBackground.Gradient1.StartColor = clWhite
+      ButtonDownBackground.Gradient1.StartColorOpacity = 255
+      ButtonDownBackground.Gradient1.DrawMode = dmSet
+      ButtonDownBackground.Gradient1.EndColor = clBlack
+      ButtonDownBackground.Gradient1.EndColorOpacity = 255
+      ButtonDownBackground.Gradient1.ColorCorrection = True
+      ButtonDownBackground.Gradient1.GradientType = gtLinear
+      ButtonDownBackground.Gradient1.Point1XPercent = 0
+      ButtonDownBackground.Gradient1.Point1YPercent = 0
+      ButtonDownBackground.Gradient1.Point2XPercent = 0
+      ButtonDownBackground.Gradient1.Point2YPercent = 100
+      ButtonDownBackground.Gradient1.Sinus = False
+      ButtonDownBackground.Gradient2.StartColor = clWhite
+      ButtonDownBackground.Gradient2.StartColorOpacity = 255
+      ButtonDownBackground.Gradient2.DrawMode = dmSet
+      ButtonDownBackground.Gradient2.EndColor = clBlack
+      ButtonDownBackground.Gradient2.EndColorOpacity = 255
+      ButtonDownBackground.Gradient2.ColorCorrection = True
+      ButtonDownBackground.Gradient2.GradientType = gtLinear
+      ButtonDownBackground.Gradient2.Point1XPercent = 0
+      ButtonDownBackground.Gradient2.Point1YPercent = 0
+      ButtonDownBackground.Gradient2.Point2XPercent = 0
+      ButtonDownBackground.Gradient2.Point2YPercent = 100
+      ButtonDownBackground.Gradient2.Sinus = False
+      ButtonDownBackground.Gradient1EndPercent = 35
+      ButtonDownBackground.Style = bbsColor
+      Border.Color = clWindowText
+      Border.ColorOpacity = 255
+      Border.LightColor = clWhite
+      Border.LightOpacity = 255
+      Border.LightWidth = 0
+      Border.Style = bboSolid
+      Border.Width = 1
+      Rounding.RoundX = 1
+      Rounding.RoundY = 1
+      Rounding.RoundOptions = []
+      Font.Color = clWindowText
+      Font.Name = 'Arial'
+      HasTrackBar = True
+      ArrowColor = clBtnText
       TabOrder = 0
+      TabStop = True
+      UseDockManager = False
     end
   end
   object Panel_Eraser: TPanel
@@ -422,18 +728,120 @@ object FMain: TFMain
         Style = tbsCheck
       end
     end
-    object vsEraserOpacity: TBGRAVirtualScreen
-      Left = 50
+    object SpinEdit_Eraser: TBCTrackbarUpdown
+      Left = 52
       Height = 25
       Hint = 'Eraser opacity'
       Top = 2
       Width = 51
-      Alignment = taLeftJustify
-      Color = clWhite
-      Font.Height = -15
-      ParentColor = False
-      ParentFont = False
+      BarExponent = 1
+      Increment = 1
+      LongTimeInterval = 400
+      MinValue = 0
+      MaxValue = 255
+      Value = 255
+      ShortTimeInterval = 100
+      Background.Color = clWindow
+      Background.ColorOpacity = 255
+      Background.Gradient1.StartColor = clWhite
+      Background.Gradient1.StartColorOpacity = 255
+      Background.Gradient1.DrawMode = dmSet
+      Background.Gradient1.EndColor = clBlack
+      Background.Gradient1.EndColorOpacity = 255
+      Background.Gradient1.ColorCorrection = True
+      Background.Gradient1.GradientType = gtLinear
+      Background.Gradient1.Point1XPercent = 0
+      Background.Gradient1.Point1YPercent = 0
+      Background.Gradient1.Point2XPercent = 0
+      Background.Gradient1.Point2YPercent = 100
+      Background.Gradient1.Sinus = False
+      Background.Gradient2.StartColor = clWhite
+      Background.Gradient2.StartColorOpacity = 255
+      Background.Gradient2.DrawMode = dmSet
+      Background.Gradient2.EndColor = clBlack
+      Background.Gradient2.EndColorOpacity = 255
+      Background.Gradient2.ColorCorrection = True
+      Background.Gradient2.GradientType = gtLinear
+      Background.Gradient2.Point1XPercent = 0
+      Background.Gradient2.Point1YPercent = 0
+      Background.Gradient2.Point2XPercent = 0
+      Background.Gradient2.Point2YPercent = 100
+      Background.Gradient2.Sinus = False
+      Background.Gradient1EndPercent = 35
+      Background.Style = bbsColor
+      ButtonBackground.Color = clBlack
+      ButtonBackground.ColorOpacity = 255
+      ButtonBackground.Gradient1.StartColor = clBtnShadow
+      ButtonBackground.Gradient1.StartColorOpacity = 255
+      ButtonBackground.Gradient1.DrawMode = dmSet
+      ButtonBackground.Gradient1.EndColor = clBtnFace
+      ButtonBackground.Gradient1.EndColorOpacity = 255
+      ButtonBackground.Gradient1.ColorCorrection = True
+      ButtonBackground.Gradient1.GradientType = gtLinear
+      ButtonBackground.Gradient1.Point1XPercent = 0
+      ButtonBackground.Gradient1.Point1YPercent = -50
+      ButtonBackground.Gradient1.Point2XPercent = 0
+      ButtonBackground.Gradient1.Point2YPercent = 50
+      ButtonBackground.Gradient1.Sinus = False
+      ButtonBackground.Gradient2.StartColor = clBtnFace
+      ButtonBackground.Gradient2.StartColorOpacity = 255
+      ButtonBackground.Gradient2.DrawMode = dmSet
+      ButtonBackground.Gradient2.EndColor = clBtnShadow
+      ButtonBackground.Gradient2.EndColorOpacity = 255
+      ButtonBackground.Gradient2.ColorCorrection = True
+      ButtonBackground.Gradient2.GradientType = gtLinear
+      ButtonBackground.Gradient2.Point1XPercent = 0
+      ButtonBackground.Gradient2.Point1YPercent = 50
+      ButtonBackground.Gradient2.Point2XPercent = 0
+      ButtonBackground.Gradient2.Point2YPercent = 150
+      ButtonBackground.Gradient2.Sinus = False
+      ButtonBackground.Gradient1EndPercent = 50
+      ButtonBackground.Style = bbsGradient
+      ButtonDownBackground.Color = clBtnShadow
+      ButtonDownBackground.ColorOpacity = 255
+      ButtonDownBackground.Gradient1.StartColor = clWhite
+      ButtonDownBackground.Gradient1.StartColorOpacity = 255
+      ButtonDownBackground.Gradient1.DrawMode = dmSet
+      ButtonDownBackground.Gradient1.EndColor = clBlack
+      ButtonDownBackground.Gradient1.EndColorOpacity = 255
+      ButtonDownBackground.Gradient1.ColorCorrection = True
+      ButtonDownBackground.Gradient1.GradientType = gtLinear
+      ButtonDownBackground.Gradient1.Point1XPercent = 0
+      ButtonDownBackground.Gradient1.Point1YPercent = 0
+      ButtonDownBackground.Gradient1.Point2XPercent = 0
+      ButtonDownBackground.Gradient1.Point2YPercent = 100
+      ButtonDownBackground.Gradient1.Sinus = False
+      ButtonDownBackground.Gradient2.StartColor = clWhite
+      ButtonDownBackground.Gradient2.StartColorOpacity = 255
+      ButtonDownBackground.Gradient2.DrawMode = dmSet
+      ButtonDownBackground.Gradient2.EndColor = clBlack
+      ButtonDownBackground.Gradient2.EndColorOpacity = 255
+      ButtonDownBackground.Gradient2.ColorCorrection = True
+      ButtonDownBackground.Gradient2.GradientType = gtLinear
+      ButtonDownBackground.Gradient2.Point1XPercent = 0
+      ButtonDownBackground.Gradient2.Point1YPercent = 0
+      ButtonDownBackground.Gradient2.Point2XPercent = 0
+      ButtonDownBackground.Gradient2.Point2YPercent = 100
+      ButtonDownBackground.Gradient2.Sinus = False
+      ButtonDownBackground.Gradient1EndPercent = 35
+      ButtonDownBackground.Style = bbsColor
+      Border.Color = clWindowText
+      Border.ColorOpacity = 255
+      Border.LightColor = clWhite
+      Border.LightOpacity = 255
+      Border.LightWidth = 0
+      Border.Style = bboSolid
+      Border.Width = 1
+      Rounding.RoundX = 1
+      Rounding.RoundY = 1
+      Rounding.RoundOptions = []
+      Font.Color = clWindowText
+      Font.Name = 'Arial'
+      HasTrackBar = True
+      ArrowColor = clBtnText
       TabOrder = 1
+      TabStop = True
+      UseDockManager = False
     end
   end
   object Panel_Tolerance: TPanel
@@ -480,17 +888,119 @@ object FMain: TFMain
         Style = tbsCheck
       end
     end
-    object vsTolerance: TBGRAVirtualScreen
-      Left = 80
+    object SpinEdit_Tolerance: TBCTrackbarUpdown
+      Left = 83
       Height = 25
       Top = 2
       Width = 51
-      Alignment = taLeftJustify
-      Color = clWhite
-      Font.Height = -15
-      ParentColor = False
-      ParentFont = False
+      BarExponent = 1
+      Increment = 1
+      LongTimeInterval = 400
+      MinValue = 0
+      MaxValue = 255
+      Value = 255
+      ShortTimeInterval = 100
+      Background.Color = clWindow
+      Background.ColorOpacity = 255
+      Background.Gradient1.StartColor = clWhite
+      Background.Gradient1.StartColorOpacity = 255
+      Background.Gradient1.DrawMode = dmSet
+      Background.Gradient1.EndColor = clBlack
+      Background.Gradient1.EndColorOpacity = 255
+      Background.Gradient1.ColorCorrection = True
+      Background.Gradient1.GradientType = gtLinear
+      Background.Gradient1.Point1XPercent = 0
+      Background.Gradient1.Point1YPercent = 0
+      Background.Gradient1.Point2XPercent = 0
+      Background.Gradient1.Point2YPercent = 100
+      Background.Gradient1.Sinus = False
+      Background.Gradient2.StartColor = clWhite
+      Background.Gradient2.StartColorOpacity = 255
+      Background.Gradient2.DrawMode = dmSet
+      Background.Gradient2.EndColor = clBlack
+      Background.Gradient2.EndColorOpacity = 255
+      Background.Gradient2.ColorCorrection = True
+      Background.Gradient2.GradientType = gtLinear
+      Background.Gradient2.Point1XPercent = 0
+      Background.Gradient2.Point1YPercent = 0
+      Background.Gradient2.Point2XPercent = 0
+      Background.Gradient2.Point2YPercent = 100
+      Background.Gradient2.Sinus = False
+      Background.Gradient1EndPercent = 35
+      Background.Style = bbsColor
+      ButtonBackground.Color = clBlack
+      ButtonBackground.ColorOpacity = 255
+      ButtonBackground.Gradient1.StartColor = clBtnShadow
+      ButtonBackground.Gradient1.StartColorOpacity = 255
+      ButtonBackground.Gradient1.DrawMode = dmSet
+      ButtonBackground.Gradient1.EndColor = clBtnFace
+      ButtonBackground.Gradient1.EndColorOpacity = 255
+      ButtonBackground.Gradient1.ColorCorrection = True
+      ButtonBackground.Gradient1.GradientType = gtLinear
+      ButtonBackground.Gradient1.Point1XPercent = 0
+      ButtonBackground.Gradient1.Point1YPercent = -50
+      ButtonBackground.Gradient1.Point2XPercent = 0
+      ButtonBackground.Gradient1.Point2YPercent = 50
+      ButtonBackground.Gradient1.Sinus = False
+      ButtonBackground.Gradient2.StartColor = clBtnFace
+      ButtonBackground.Gradient2.StartColorOpacity = 255
+      ButtonBackground.Gradient2.DrawMode = dmSet
+      ButtonBackground.Gradient2.EndColor = clBtnShadow
+      ButtonBackground.Gradient2.EndColorOpacity = 255
+      ButtonBackground.Gradient2.ColorCorrection = True
+      ButtonBackground.Gradient2.GradientType = gtLinear
+      ButtonBackground.Gradient2.Point1XPercent = 0
+      ButtonBackground.Gradient2.Point1YPercent = 50
+      ButtonBackground.Gradient2.Point2XPercent = 0
+      ButtonBackground.Gradient2.Point2YPercent = 150
+      ButtonBackground.Gradient2.Sinus = False
+      ButtonBackground.Gradient1EndPercent = 50
+      ButtonBackground.Style = bbsGradient
+      ButtonDownBackground.Color = clBtnShadow
+      ButtonDownBackground.ColorOpacity = 255
+      ButtonDownBackground.Gradient1.StartColor = clWhite
+      ButtonDownBackground.Gradient1.StartColorOpacity = 255
+      ButtonDownBackground.Gradient1.DrawMode = dmSet
+      ButtonDownBackground.Gradient1.EndColor = clBlack
+      ButtonDownBackground.Gradient1.EndColorOpacity = 255
+      ButtonDownBackground.Gradient1.ColorCorrection = True
+      ButtonDownBackground.Gradient1.GradientType = gtLinear
+      ButtonDownBackground.Gradient1.Point1XPercent = 0
+      ButtonDownBackground.Gradient1.Point1YPercent = 0
+      ButtonDownBackground.Gradient1.Point2XPercent = 0
+      ButtonDownBackground.Gradient1.Point2YPercent = 100
+      ButtonDownBackground.Gradient1.Sinus = False
+      ButtonDownBackground.Gradient2.StartColor = clWhite
+      ButtonDownBackground.Gradient2.StartColorOpacity = 255
+      ButtonDownBackground.Gradient2.DrawMode = dmSet
+      ButtonDownBackground.Gradient2.EndColor = clBlack
+      ButtonDownBackground.Gradient2.EndColorOpacity = 255
+      ButtonDownBackground.Gradient2.ColorCorrection = True
+      ButtonDownBackground.Gradient2.GradientType = gtLinear
+      ButtonDownBackground.Gradient2.Point1XPercent = 0
+      ButtonDownBackground.Gradient2.Point1YPercent = 0
+      ButtonDownBackground.Gradient2.Point2XPercent = 0
+      ButtonDownBackground.Gradient2.Point2YPercent = 100
+      ButtonDownBackground.Gradient2.Sinus = False
+      ButtonDownBackground.Gradient1EndPercent = 35
+      ButtonDownBackground.Style = bbsColor
+      Border.Color = clWindowText
+      Border.ColorOpacity = 255
+      Border.LightColor = clWhite
+      Border.LightOpacity = 255
+      Border.LightWidth = 0
+      Border.Style = bboSolid
+      Border.Width = 1
+      Rounding.RoundX = 1
+      Rounding.RoundY = 1
+      Rounding.RoundOptions = []
+      Font.Color = clWindowText
+      Font.Name = 'Arial'
+      HasTrackBar = True
+      ArrowColor = clBtnText
       TabOrder = 1
+      TabStop = True
+      UseDockManager = False
     end
   end
   object Panel_ShapeOption: TPanel
@@ -796,31 +1306,235 @@ object FMain: TFMain
       Style = csOwnerDrawFixed
       TabOrder = 2
     end
-    object vsArrowSizeX: TBGRAVirtualScreen
+    object SpinEdit_ArrowSizeX: TBCTrackbarUpdown
       Left = 116
       Height = 25
       Hint = 'Horizontal size of the arrow'
       Top = 2
       Width = 51
-      Alignment = taLeftJustify
-      Color = clWhite
-      Font.Height = -15
-      ParentColor = False
-      ParentFont = False
+      BarExponent = 1
+      Increment = 1
+      LongTimeInterval = 400
+      MinValue = 1
+      MaxValue = 100
+      Value = 20
+      ShortTimeInterval = 100
+      Background.Color = clWindow
+      Background.ColorOpacity = 255
+      Background.Gradient1.StartColor = clWhite
+      Background.Gradient1.StartColorOpacity = 255
+      Background.Gradient1.DrawMode = dmSet
+      Background.Gradient1.EndColor = clBlack
+      Background.Gradient1.EndColorOpacity = 255
+      Background.Gradient1.ColorCorrection = True
+      Background.Gradient1.GradientType = gtLinear
+      Background.Gradient1.Point1XPercent = 0
+      Background.Gradient1.Point1YPercent = 0
+      Background.Gradient1.Point2XPercent = 0
+      Background.Gradient1.Point2YPercent = 100
+      Background.Gradient1.Sinus = False
+      Background.Gradient2.StartColor = clWhite
+      Background.Gradient2.StartColorOpacity = 255
+      Background.Gradient2.DrawMode = dmSet
+      Background.Gradient2.EndColor = clBlack
+      Background.Gradient2.EndColorOpacity = 255
+      Background.Gradient2.ColorCorrection = True
+      Background.Gradient2.GradientType = gtLinear
+      Background.Gradient2.Point1XPercent = 0
+      Background.Gradient2.Point1YPercent = 0
+      Background.Gradient2.Point2XPercent = 0
+      Background.Gradient2.Point2YPercent = 100
+      Background.Gradient2.Sinus = False
+      Background.Gradient1EndPercent = 35
+      Background.Style = bbsColor
+      ButtonBackground.Color = clBlack
+      ButtonBackground.ColorOpacity = 255
+      ButtonBackground.Gradient1.StartColor = clBtnShadow
+      ButtonBackground.Gradient1.StartColorOpacity = 255
+      ButtonBackground.Gradient1.DrawMode = dmSet
+      ButtonBackground.Gradient1.EndColor = clBtnFace
+      ButtonBackground.Gradient1.EndColorOpacity = 255
+      ButtonBackground.Gradient1.ColorCorrection = True
+      ButtonBackground.Gradient1.GradientType = gtLinear
+      ButtonBackground.Gradient1.Point1XPercent = 0
+      ButtonBackground.Gradient1.Point1YPercent = -50
+      ButtonBackground.Gradient1.Point2XPercent = 0
+      ButtonBackground.Gradient1.Point2YPercent = 50
+      ButtonBackground.Gradient1.Sinus = False
+      ButtonBackground.Gradient2.StartColor = clBtnFace
+      ButtonBackground.Gradient2.StartColorOpacity = 255
+      ButtonBackground.Gradient2.DrawMode = dmSet
+      ButtonBackground.Gradient2.EndColor = clBtnShadow
+      ButtonBackground.Gradient2.EndColorOpacity = 255
+      ButtonBackground.Gradient2.ColorCorrection = True
+      ButtonBackground.Gradient2.GradientType = gtLinear
+      ButtonBackground.Gradient2.Point1XPercent = 0
+      ButtonBackground.Gradient2.Point1YPercent = 50
+      ButtonBackground.Gradient2.Point2XPercent = 0
+      ButtonBackground.Gradient2.Point2YPercent = 150
+      ButtonBackground.Gradient2.Sinus = False
+      ButtonBackground.Gradient1EndPercent = 50
+      ButtonBackground.Style = bbsGradient
+      ButtonDownBackground.Color = clBtnShadow
+      ButtonDownBackground.ColorOpacity = 255
+      ButtonDownBackground.Gradient1.StartColor = clWhite
+      ButtonDownBackground.Gradient1.StartColorOpacity = 255
+      ButtonDownBackground.Gradient1.DrawMode = dmSet
+      ButtonDownBackground.Gradient1.EndColor = clBlack
+      ButtonDownBackground.Gradient1.EndColorOpacity = 255
+      ButtonDownBackground.Gradient1.ColorCorrection = True
+      ButtonDownBackground.Gradient1.GradientType = gtLinear
+      ButtonDownBackground.Gradient1.Point1XPercent = 0
+      ButtonDownBackground.Gradient1.Point1YPercent = 0
+      ButtonDownBackground.Gradient1.Point2XPercent = 0
+      ButtonDownBackground.Gradient1.Point2YPercent = 100
+      ButtonDownBackground.Gradient1.Sinus = False
+      ButtonDownBackground.Gradient2.StartColor = clWhite
+      ButtonDownBackground.Gradient2.StartColorOpacity = 255
+      ButtonDownBackground.Gradient2.DrawMode = dmSet
+      ButtonDownBackground.Gradient2.EndColor = clBlack
+      ButtonDownBackground.Gradient2.EndColorOpacity = 255
+      ButtonDownBackground.Gradient2.ColorCorrection = True
+      ButtonDownBackground.Gradient2.GradientType = gtLinear
+      ButtonDownBackground.Gradient2.Point1XPercent = 0
+      ButtonDownBackground.Gradient2.Point1YPercent = 0
+      ButtonDownBackground.Gradient2.Point2XPercent = 0
+      ButtonDownBackground.Gradient2.Point2YPercent = 100
+      ButtonDownBackground.Gradient2.Sinus = False
+      ButtonDownBackground.Gradient1EndPercent = 35
+      ButtonDownBackground.Style = bbsColor
+      Border.Color = clWindowText
+      Border.ColorOpacity = 255
+      Border.LightColor = clWhite
+      Border.LightOpacity = 255
+      Border.LightWidth = 0
+      Border.Style = bboSolid
+      Border.Width = 1
+      Rounding.RoundX = 1
+      Rounding.RoundY = 1
+      Rounding.RoundOptions = []
+      Font.Color = clWindowText
+      Font.Name = 'Arial'
+      HasTrackBar = True
+      ArrowColor = clBtnText
       TabOrder = 3
+      TabStop = True
+      UseDockManager = False
     end
-    object vsArrowSizeY: TBGRAVirtualScreen
-      Left = 166
+    object SpinEdit_ArrowSizeY: TBCTrackbarUpdown
+      Left = 169
       Height = 25
       Hint = 'Vertical size of the arrow'
       Top = 2
       Width = 51
-      Alignment = taLeftJustify
-      Color = clWhite
-      Font.Height = -15
-      ParentColor = False
-      ParentFont = False
+      BarExponent = 1
+      Increment = 1
+      LongTimeInterval = 400
+      MinValue = 1
+      MaxValue = 100
+      Value = 20
+      ShortTimeInterval = 100
+      Background.Color = clWindow
+      Background.ColorOpacity = 255
+      Background.Gradient1.StartColor = clWhite
+      Background.Gradient1.StartColorOpacity = 255
+      Background.Gradient1.DrawMode = dmSet
+      Background.Gradient1.EndColor = clBlack
+      Background.Gradient1.EndColorOpacity = 255
+      Background.Gradient1.ColorCorrection = True
+      Background.Gradient1.GradientType = gtLinear
+      Background.Gradient1.Point1XPercent = 0
+      Background.Gradient1.Point1YPercent = 0
+      Background.Gradient1.Point2XPercent = 0
+      Background.Gradient1.Point2YPercent = 100
+      Background.Gradient1.Sinus = False
+      Background.Gradient2.StartColor = clWhite
+      Background.Gradient2.StartColorOpacity = 255
+      Background.Gradient2.DrawMode = dmSet
+      Background.Gradient2.EndColor = clBlack
+      Background.Gradient2.EndColorOpacity = 255
+      Background.Gradient2.ColorCorrection = True
+      Background.Gradient2.GradientType = gtLinear
+      Background.Gradient2.Point1XPercent = 0
+      Background.Gradient2.Point1YPercent = 0
+      Background.Gradient2.Point2XPercent = 0
+      Background.Gradient2.Point2YPercent = 100
+      Background.Gradient2.Sinus = False
+      Background.Gradient1EndPercent = 35
+      Background.Style = bbsColor
+      ButtonBackground.Color = clBlack
+      ButtonBackground.ColorOpacity = 255
+      ButtonBackground.Gradient1.StartColor = clBtnShadow
+      ButtonBackground.Gradient1.StartColorOpacity = 255
+      ButtonBackground.Gradient1.DrawMode = dmSet
+      ButtonBackground.Gradient1.EndColor = clBtnFace
+      ButtonBackground.Gradient1.EndColorOpacity = 255
+      ButtonBackground.Gradient1.ColorCorrection = True
+      ButtonBackground.Gradient1.GradientType = gtLinear
+      ButtonBackground.Gradient1.Point1XPercent = 0
+      ButtonBackground.Gradient1.Point1YPercent = -50
+      ButtonBackground.Gradient1.Point2XPercent = 0
+      ButtonBackground.Gradient1.Point2YPercent = 50
+      ButtonBackground.Gradient1.Sinus = False
+      ButtonBackground.Gradient2.StartColor = clBtnFace
+      ButtonBackground.Gradient2.StartColorOpacity = 255
+      ButtonBackground.Gradient2.DrawMode = dmSet
+      ButtonBackground.Gradient2.EndColor = clBtnShadow
+      ButtonBackground.Gradient2.EndColorOpacity = 255
+      ButtonBackground.Gradient2.ColorCorrection = True
+      ButtonBackground.Gradient2.GradientType = gtLinear
+      ButtonBackground.Gradient2.Point1XPercent = 0
+      ButtonBackground.Gradient2.Point1YPercent = 50
+      ButtonBackground.Gradient2.Point2XPercent = 0
+      ButtonBackground.Gradient2.Point2YPercent = 150
+      ButtonBackground.Gradient2.Sinus = False
+      ButtonBackground.Gradient1EndPercent = 50
+      ButtonBackground.Style = bbsGradient
+      ButtonDownBackground.Color = clBtnShadow
+      ButtonDownBackground.ColorOpacity = 255
+      ButtonDownBackground.Gradient1.StartColor = clWhite
+      ButtonDownBackground.Gradient1.StartColorOpacity = 255
+      ButtonDownBackground.Gradient1.DrawMode = dmSet
+      ButtonDownBackground.Gradient1.EndColor = clBlack
+      ButtonDownBackground.Gradient1.EndColorOpacity = 255
+      ButtonDownBackground.Gradient1.ColorCorrection = True
+      ButtonDownBackground.Gradient1.GradientType = gtLinear
+      ButtonDownBackground.Gradient1.Point1XPercent = 0
+      ButtonDownBackground.Gradient1.Point1YPercent = 0
+      ButtonDownBackground.Gradient1.Point2XPercent = 0
+      ButtonDownBackground.Gradient1.Point2YPercent = 100
+      ButtonDownBackground.Gradient1.Sinus = False
+      ButtonDownBackground.Gradient2.StartColor = clWhite
+      ButtonDownBackground.Gradient2.StartColorOpacity = 255
+      ButtonDownBackground.Gradient2.DrawMode = dmSet
+      ButtonDownBackground.Gradient2.EndColor = clBlack
+      ButtonDownBackground.Gradient2.EndColorOpacity = 255
+      ButtonDownBackground.Gradient2.ColorCorrection = True
+      ButtonDownBackground.Gradient2.GradientType = gtLinear
+      ButtonDownBackground.Gradient2.Point1XPercent = 0
+      ButtonDownBackground.Gradient2.Point1YPercent = 0
+      ButtonDownBackground.Gradient2.Point2XPercent = 0
+      ButtonDownBackground.Gradient2.Point2YPercent = 100
+      ButtonDownBackground.Gradient2.Sinus = False
+      ButtonDownBackground.Gradient1EndPercent = 35
+      ButtonDownBackground.Style = bbsColor
+      Border.Color = clWindowText
+      Border.ColorOpacity = 255
+      Border.LightColor = clWhite
+      Border.LightOpacity = 255
+      Border.LightWidth = 0
+      Border.Style = bboSolid
+      Border.Width = 1
+      Rounding.RoundX = 1
+      Rounding.RoundY = 1
+      Rounding.RoundOptions = []
+      Font.Color = clWindowText
+      Font.Name = 'Arial'
+      HasTrackBar = True
+      ArrowColor = clBtnText
       TabOrder = 4
+      TabStop = True
+      UseDockManager = False
     end
   end
   object Panel_JoinStyle: TPanel
@@ -982,18 +1696,120 @@ object FMain: TFMain
       Width = 30
       Center = True
     end
-    object vsTextureOpacity: TBGRAVirtualScreen
-      Left = 33
+    object SpinEdit_TextureOpacity: TBCTrackbarUpdown
+      Left = 32
       Height = 25
       Hint = 'Texture opacity'
       Top = 2
       Width = 51
-      Alignment = taLeftJustify
-      Color = clWhite
-      Font.Height = -15
-      ParentColor = False
-      ParentFont = False
+      BarExponent = 1
+      Increment = 1
+      LongTimeInterval = 400
+      MinValue = 0
+      MaxValue = 255
+      Value = 255
+      ShortTimeInterval = 100
+      Background.Color = clWindow
+      Background.ColorOpacity = 255
+      Background.Gradient1.StartColor = clWhite
+      Background.Gradient1.StartColorOpacity = 255
+      Background.Gradient1.DrawMode = dmSet
+      Background.Gradient1.EndColor = clBlack
+      Background.Gradient1.EndColorOpacity = 255
+      Background.Gradient1.ColorCorrection = True
+      Background.Gradient1.GradientType = gtLinear
+      Background.Gradient1.Point1XPercent = 0
+      Background.Gradient1.Point1YPercent = 0
+      Background.Gradient1.Point2XPercent = 0
+      Background.Gradient1.Point2YPercent = 100
+      Background.Gradient1.Sinus = False
+      Background.Gradient2.StartColor = clWhite
+      Background.Gradient2.StartColorOpacity = 255
+      Background.Gradient2.DrawMode = dmSet
+      Background.Gradient2.EndColor = clBlack
+      Background.Gradient2.EndColorOpacity = 255
+      Background.Gradient2.ColorCorrection = True
+      Background.Gradient2.GradientType = gtLinear
+      Background.Gradient2.Point1XPercent = 0
+      Background.Gradient2.Point1YPercent = 0
+      Background.Gradient2.Point2XPercent = 0
+      Background.Gradient2.Point2YPercent = 100
+      Background.Gradient2.Sinus = False
+      Background.Gradient1EndPercent = 35
+      Background.Style = bbsColor
+      ButtonBackground.Color = clBlack
+      ButtonBackground.ColorOpacity = 255
+      ButtonBackground.Gradient1.StartColor = clBtnShadow
+      ButtonBackground.Gradient1.StartColorOpacity = 255
+      ButtonBackground.Gradient1.DrawMode = dmSet
+      ButtonBackground.Gradient1.EndColor = clBtnFace
+      ButtonBackground.Gradient1.EndColorOpacity = 255
+      ButtonBackground.Gradient1.ColorCorrection = True
+      ButtonBackground.Gradient1.GradientType = gtLinear
+      ButtonBackground.Gradient1.Point1XPercent = 0
+      ButtonBackground.Gradient1.Point1YPercent = -50
+      ButtonBackground.Gradient1.Point2XPercent = 0
+      ButtonBackground.Gradient1.Point2YPercent = 50
+      ButtonBackground.Gradient1.Sinus = False
+      ButtonBackground.Gradient2.StartColor = clBtnFace
+      ButtonBackground.Gradient2.StartColorOpacity = 255
+      ButtonBackground.Gradient2.DrawMode = dmSet
+      ButtonBackground.Gradient2.EndColor = clBtnShadow
+      ButtonBackground.Gradient2.EndColorOpacity = 255
+      ButtonBackground.Gradient2.ColorCorrection = True
+      ButtonBackground.Gradient2.GradientType = gtLinear
+      ButtonBackground.Gradient2.Point1XPercent = 0
+      ButtonBackground.Gradient2.Point1YPercent = 50
+      ButtonBackground.Gradient2.Point2XPercent = 0
+      ButtonBackground.Gradient2.Point2YPercent = 150
+      ButtonBackground.Gradient2.Sinus = False
+      ButtonBackground.Gradient1EndPercent = 50
+      ButtonBackground.Style = bbsGradient
+      ButtonDownBackground.Color = clBtnShadow
+      ButtonDownBackground.ColorOpacity = 255
+      ButtonDownBackground.Gradient1.StartColor = clWhite
+      ButtonDownBackground.Gradient1.StartColorOpacity = 255
+      ButtonDownBackground.Gradient1.DrawMode = dmSet
+      ButtonDownBackground.Gradient1.EndColor = clBlack
+      ButtonDownBackground.Gradient1.EndColorOpacity = 255
+      ButtonDownBackground.Gradient1.ColorCorrection = True
+      ButtonDownBackground.Gradient1.GradientType = gtLinear
+      ButtonDownBackground.Gradient1.Point1XPercent = 0
+      ButtonDownBackground.Gradient1.Point1YPercent = 0
+      ButtonDownBackground.Gradient1.Point2XPercent = 0
+      ButtonDownBackground.Gradient1.Point2YPercent = 100
+      ButtonDownBackground.Gradient1.Sinus = False
+      ButtonDownBackground.Gradient2.StartColor = clWhite
+      ButtonDownBackground.Gradient2.StartColorOpacity = 255
+      ButtonDownBackground.Gradient2.DrawMode = dmSet
+      ButtonDownBackground.Gradient2.EndColor = clBlack
+      ButtonDownBackground.Gradient2.EndColorOpacity = 255
+      ButtonDownBackground.Gradient2.ColorCorrection = True
+      ButtonDownBackground.Gradient2.GradientType = gtLinear
+      ButtonDownBackground.Gradient2.Point1XPercent = 0
+      ButtonDownBackground.Gradient2.Point1YPercent = 0
+      ButtonDownBackground.Gradient2.Point2XPercent = 0
+      ButtonDownBackground.Gradient2.Point2YPercent = 100
+      ButtonDownBackground.Gradient2.Sinus = False
+      ButtonDownBackground.Gradient1EndPercent = 35
+      ButtonDownBackground.Style = bbsColor
+      Border.Color = clWindowText
+      Border.ColorOpacity = 255
+      Border.LightColor = clWhite
+      Border.LightOpacity = 255
+      Border.LightWidth = 0
+      Border.Style = bboSolid
+      Border.Width = 1
+      Rounding.RoundX = 1
+      Rounding.RoundY = 1
+      Rounding.RoundOptions = []
+      Font.Color = clWindowText
+      Font.Name = 'Arial'
+      HasTrackBar = True
+      ArrowColor = clBtnText
       TabOrder = 1
+      TabStop = True
+      UseDockManager = False
     end
   end
   object Panel_Grid: TPanel
@@ -1052,29 +1868,233 @@ object FMain: TFMain
         Style = tbsCheck
       end
     end
-    object vsGridNbX: TBGRAVirtualScreen
-      Left = 46
+    object SpinEdit_GridNbX: TBCTrackbarUpdown
+      Left = 48
       Height = 25
-      Top = 4
+      Top = 2
       Width = 51
-      Alignment = taLeftJustify
-      Color = clWhite
-      Font.Height = -15
-      ParentColor = False
-      ParentFont = False
+      BarExponent = 1
+      Increment = 1
+      LongTimeInterval = 400
+      MinValue = 0
+      MaxValue = 50
+      Value = 10
+      ShortTimeInterval = 100
+      Background.Color = clWindow
+      Background.ColorOpacity = 255
+      Background.Gradient1.StartColor = clWhite
+      Background.Gradient1.StartColorOpacity = 255
+      Background.Gradient1.DrawMode = dmSet
+      Background.Gradient1.EndColor = clBlack
+      Background.Gradient1.EndColorOpacity = 255
+      Background.Gradient1.ColorCorrection = True
+      Background.Gradient1.GradientType = gtLinear
+      Background.Gradient1.Point1XPercent = 0
+      Background.Gradient1.Point1YPercent = 0
+      Background.Gradient1.Point2XPercent = 0
+      Background.Gradient1.Point2YPercent = 100
+      Background.Gradient1.Sinus = False
+      Background.Gradient2.StartColor = clWhite
+      Background.Gradient2.StartColorOpacity = 255
+      Background.Gradient2.DrawMode = dmSet
+      Background.Gradient2.EndColor = clBlack
+      Background.Gradient2.EndColorOpacity = 255
+      Background.Gradient2.ColorCorrection = True
+      Background.Gradient2.GradientType = gtLinear
+      Background.Gradient2.Point1XPercent = 0
+      Background.Gradient2.Point1YPercent = 0
+      Background.Gradient2.Point2XPercent = 0
+      Background.Gradient2.Point2YPercent = 100
+      Background.Gradient2.Sinus = False
+      Background.Gradient1EndPercent = 35
+      Background.Style = bbsColor
+      ButtonBackground.Color = clBlack
+      ButtonBackground.ColorOpacity = 255
+      ButtonBackground.Gradient1.StartColor = clBtnShadow
+      ButtonBackground.Gradient1.StartColorOpacity = 255
+      ButtonBackground.Gradient1.DrawMode = dmSet
+      ButtonBackground.Gradient1.EndColor = clBtnFace
+      ButtonBackground.Gradient1.EndColorOpacity = 255
+      ButtonBackground.Gradient1.ColorCorrection = True
+      ButtonBackground.Gradient1.GradientType = gtLinear
+      ButtonBackground.Gradient1.Point1XPercent = 0
+      ButtonBackground.Gradient1.Point1YPercent = -50
+      ButtonBackground.Gradient1.Point2XPercent = 0
+      ButtonBackground.Gradient1.Point2YPercent = 50
+      ButtonBackground.Gradient1.Sinus = False
+      ButtonBackground.Gradient2.StartColor = clBtnFace
+      ButtonBackground.Gradient2.StartColorOpacity = 255
+      ButtonBackground.Gradient2.DrawMode = dmSet
+      ButtonBackground.Gradient2.EndColor = clBtnShadow
+      ButtonBackground.Gradient2.EndColorOpacity = 255
+      ButtonBackground.Gradient2.ColorCorrection = True
+      ButtonBackground.Gradient2.GradientType = gtLinear
+      ButtonBackground.Gradient2.Point1XPercent = 0
+      ButtonBackground.Gradient2.Point1YPercent = 50
+      ButtonBackground.Gradient2.Point2XPercent = 0
+      ButtonBackground.Gradient2.Point2YPercent = 150
+      ButtonBackground.Gradient2.Sinus = False
+      ButtonBackground.Gradient1EndPercent = 50
+      ButtonBackground.Style = bbsGradient
+      ButtonDownBackground.Color = clBtnShadow
+      ButtonDownBackground.ColorOpacity = 255
+      ButtonDownBackground.Gradient1.StartColor = clWhite
+      ButtonDownBackground.Gradient1.StartColorOpacity = 255
+      ButtonDownBackground.Gradient1.DrawMode = dmSet
+      ButtonDownBackground.Gradient1.EndColor = clBlack
+      ButtonDownBackground.Gradient1.EndColorOpacity = 255
+      ButtonDownBackground.Gradient1.ColorCorrection = True
+      ButtonDownBackground.Gradient1.GradientType = gtLinear
+      ButtonDownBackground.Gradient1.Point1XPercent = 0
+      ButtonDownBackground.Gradient1.Point1YPercent = 0
+      ButtonDownBackground.Gradient1.Point2XPercent = 0
+      ButtonDownBackground.Gradient1.Point2YPercent = 100
+      ButtonDownBackground.Gradient1.Sinus = False
+      ButtonDownBackground.Gradient2.StartColor = clWhite
+      ButtonDownBackground.Gradient2.StartColorOpacity = 255
+      ButtonDownBackground.Gradient2.DrawMode = dmSet
+      ButtonDownBackground.Gradient2.EndColor = clBlack
+      ButtonDownBackground.Gradient2.EndColorOpacity = 255
+      ButtonDownBackground.Gradient2.ColorCorrection = True
+      ButtonDownBackground.Gradient2.GradientType = gtLinear
+      ButtonDownBackground.Gradient2.Point1XPercent = 0
+      ButtonDownBackground.Gradient2.Point1YPercent = 0
+      ButtonDownBackground.Gradient2.Point2XPercent = 0
+      ButtonDownBackground.Gradient2.Point2YPercent = 100
+      ButtonDownBackground.Gradient2.Sinus = False
+      ButtonDownBackground.Gradient1EndPercent = 35
+      ButtonDownBackground.Style = bbsColor
+      Border.Color = clWindowText
+      Border.ColorOpacity = 255
+      Border.LightColor = clWhite
+      Border.LightOpacity = 255
+      Border.LightWidth = 0
+      Border.Style = bboSolid
+      Border.Width = 1
+      Rounding.RoundX = 1
+      Rounding.RoundY = 1
+      Rounding.RoundOptions = []
+      Font.Color = clWindowText
+      Font.Name = 'Arial'
+      HasTrackBar = True
+      ArrowColor = clBtnText
       TabOrder = 1
+      TabStop = True
+      UseDockManager = False
     end
-    object vsGridNbY: TBGRAVirtualScreen
+    object SpinEdit_GridNbY: TBCTrackbarUpdown
       Left = 120
       Height = 25
-      Top = 4
+      Top = 2
       Width = 51
-      Alignment = taLeftJustify
-      Color = clWhite
-      Font.Height = -15
-      ParentColor = False
-      ParentFont = False
+      BarExponent = 1
+      Increment = 1
+      LongTimeInterval = 400
+      MinValue = 0
+      MaxValue = 50
+      Value = 10
+      ShortTimeInterval = 100
+      Background.Color = clWindow
+      Background.ColorOpacity = 255
+      Background.Gradient1.StartColor = clWhite
+      Background.Gradient1.StartColorOpacity = 255
+      Background.Gradient1.DrawMode = dmSet
+      Background.Gradient1.EndColor = clBlack
+      Background.Gradient1.EndColorOpacity = 255
+      Background.Gradient1.ColorCorrection = True
+      Background.Gradient1.GradientType = gtLinear
+      Background.Gradient1.Point1XPercent = 0
+      Background.Gradient1.Point1YPercent = 0
+      Background.Gradient1.Point2XPercent = 0
+      Background.Gradient1.Point2YPercent = 100
+      Background.Gradient1.Sinus = False
+      Background.Gradient2.StartColor = clWhite
+      Background.Gradient2.StartColorOpacity = 255
+      Background.Gradient2.DrawMode = dmSet
+      Background.Gradient2.EndColor = clBlack
+      Background.Gradient2.EndColorOpacity = 255
+      Background.Gradient2.ColorCorrection = True
+      Background.Gradient2.GradientType = gtLinear
+      Background.Gradient2.Point1XPercent = 0
+      Background.Gradient2.Point1YPercent = 0
+      Background.Gradient2.Point2XPercent = 0
+      Background.Gradient2.Point2YPercent = 100
+      Background.Gradient2.Sinus = False
+      Background.Gradient1EndPercent = 35
+      Background.Style = bbsColor
+      ButtonBackground.Color = clBlack
+      ButtonBackground.ColorOpacity = 255
+      ButtonBackground.Gradient1.StartColor = clBtnShadow
+      ButtonBackground.Gradient1.StartColorOpacity = 255
+      ButtonBackground.Gradient1.DrawMode = dmSet
+      ButtonBackground.Gradient1.EndColor = clBtnFace
+      ButtonBackground.Gradient1.EndColorOpacity = 255
+      ButtonBackground.Gradient1.ColorCorrection = True
+      ButtonBackground.Gradient1.GradientType = gtLinear
+      ButtonBackground.Gradient1.Point1XPercent = 0
+      ButtonBackground.Gradient1.Point1YPercent = -50
+      ButtonBackground.Gradient1.Point2XPercent = 0
+      ButtonBackground.Gradient1.Point2YPercent = 50
+      ButtonBackground.Gradient1.Sinus = False
+      ButtonBackground.Gradient2.StartColor = clBtnFace
+      ButtonBackground.Gradient2.StartColorOpacity = 255
+      ButtonBackground.Gradient2.DrawMode = dmSet
+      ButtonBackground.Gradient2.EndColor = clBtnShadow
+      ButtonBackground.Gradient2.EndColorOpacity = 255
+      ButtonBackground.Gradient2.ColorCorrection = True
+      ButtonBackground.Gradient2.GradientType = gtLinear
+      ButtonBackground.Gradient2.Point1XPercent = 0
+      ButtonBackground.Gradient2.Point1YPercent = 50
+      ButtonBackground.Gradient2.Point2XPercent = 0
+      ButtonBackground.Gradient2.Point2YPercent = 150
+      ButtonBackground.Gradient2.Sinus = False
+      ButtonBackground.Gradient1EndPercent = 50
+      ButtonBackground.Style = bbsGradient
+      ButtonDownBackground.Color = clBtnShadow
+      ButtonDownBackground.ColorOpacity = 255
+      ButtonDownBackground.Gradient1.StartColor = clWhite
+      ButtonDownBackground.Gradient1.StartColorOpacity = 255
+      ButtonDownBackground.Gradient1.DrawMode = dmSet
+      ButtonDownBackground.Gradient1.EndColor = clBlack
+      ButtonDownBackground.Gradient1.EndColorOpacity = 255
+      ButtonDownBackground.Gradient1.ColorCorrection = True
+      ButtonDownBackground.Gradient1.GradientType = gtLinear
+      ButtonDownBackground.Gradient1.Point1XPercent = 0
+      ButtonDownBackground.Gradient1.Point1YPercent = 0
+      ButtonDownBackground.Gradient1.Point2XPercent = 0
+      ButtonDownBackground.Gradient1.Point2YPercent = 100
+      ButtonDownBackground.Gradient1.Sinus = False
+      ButtonDownBackground.Gradient2.StartColor = clWhite
+      ButtonDownBackground.Gradient2.StartColorOpacity = 255
+      ButtonDownBackground.Gradient2.DrawMode = dmSet
+      ButtonDownBackground.Gradient2.EndColor = clBlack
+      ButtonDownBackground.Gradient2.EndColorOpacity = 255
+      ButtonDownBackground.Gradient2.ColorCorrection = True
+      ButtonDownBackground.Gradient2.GradientType = gtLinear
+      ButtonDownBackground.Gradient2.Point1XPercent = 0
+      ButtonDownBackground.Gradient2.Point1YPercent = 0
+      ButtonDownBackground.Gradient2.Point2XPercent = 0
+      ButtonDownBackground.Gradient2.Point2YPercent = 100
+      ButtonDownBackground.Gradient2.Sinus = False
+      ButtonDownBackground.Gradient1EndPercent = 35
+      ButtonDownBackground.Style = bbsColor
+      Border.Color = clWindowText
+      Border.ColorOpacity = 255
+      Border.LightColor = clWhite
+      Border.LightOpacity = 255
+      Border.LightWidth = 0
+      Border.Style = bboSolid
+      Border.Width = 1
+      Rounding.RoundX = 1
+      Rounding.RoundY = 1
+      Rounding.RoundOptions = []
+      Font.Color = clWindowText
+      Font.Name = 'Arial'
+      HasTrackBar = True
+      ArrowColor = clBtnText
       TabOrder = 2
+      TabStop = True
+      UseDockManager = False
     end
   end
   object Panel_PenWidthPreview: TPanel
@@ -1317,7 +2337,7 @@ object FMain: TFMain
       ParentFont = False
     end
     object Label_ShadowOffset: TLabel
-      Left = 395
+      Left = 394
       Height = 28
       Top = 1
       Width = 54
@@ -1328,57 +2348,465 @@ object FMain: TFMain
       ParentColor = False
       ParentFont = False
     end
-    object vsTextSize: TBGRAVirtualScreen
-      Left = 50
+    object SpinEdit_TextSize: TBCTrackbarUpdown
+      Left = 46
       Height = 25
       Hint = 'Text size'
       Top = 2
-      Width = 51
-      Alignment = taLeftJustify
-      Color = clWhite
-      Font.Height = -15
-      ParentColor = False
-      ParentFont = False
+      Width = 57
+      BarExponent = 1
+      Increment = 1
+      LongTimeInterval = 400
+      MinValue = 0
+      MaxValue = 999
+      Value = 10
+      ShortTimeInterval = 100
+      Background.Color = clWindow
+      Background.ColorOpacity = 255
+      Background.Gradient1.StartColor = clWhite
+      Background.Gradient1.StartColorOpacity = 255
+      Background.Gradient1.DrawMode = dmSet
+      Background.Gradient1.EndColor = clBlack
+      Background.Gradient1.EndColorOpacity = 255
+      Background.Gradient1.ColorCorrection = True
+      Background.Gradient1.GradientType = gtLinear
+      Background.Gradient1.Point1XPercent = 0
+      Background.Gradient1.Point1YPercent = 0
+      Background.Gradient1.Point2XPercent = 0
+      Background.Gradient1.Point2YPercent = 100
+      Background.Gradient1.Sinus = False
+      Background.Gradient2.StartColor = clWhite
+      Background.Gradient2.StartColorOpacity = 255
+      Background.Gradient2.DrawMode = dmSet
+      Background.Gradient2.EndColor = clBlack
+      Background.Gradient2.EndColorOpacity = 255
+      Background.Gradient2.ColorCorrection = True
+      Background.Gradient2.GradientType = gtLinear
+      Background.Gradient2.Point1XPercent = 0
+      Background.Gradient2.Point1YPercent = 0
+      Background.Gradient2.Point2XPercent = 0
+      Background.Gradient2.Point2YPercent = 100
+      Background.Gradient2.Sinus = False
+      Background.Gradient1EndPercent = 35
+      Background.Style = bbsColor
+      ButtonBackground.Color = clBlack
+      ButtonBackground.ColorOpacity = 255
+      ButtonBackground.Gradient1.StartColor = clBtnShadow
+      ButtonBackground.Gradient1.StartColorOpacity = 255
+      ButtonBackground.Gradient1.DrawMode = dmSet
+      ButtonBackground.Gradient1.EndColor = clBtnFace
+      ButtonBackground.Gradient1.EndColorOpacity = 255
+      ButtonBackground.Gradient1.ColorCorrection = True
+      ButtonBackground.Gradient1.GradientType = gtLinear
+      ButtonBackground.Gradient1.Point1XPercent = 0
+      ButtonBackground.Gradient1.Point1YPercent = -50
+      ButtonBackground.Gradient1.Point2XPercent = 0
+      ButtonBackground.Gradient1.Point2YPercent = 50
+      ButtonBackground.Gradient1.Sinus = False
+      ButtonBackground.Gradient2.StartColor = clBtnFace
+      ButtonBackground.Gradient2.StartColorOpacity = 255
+      ButtonBackground.Gradient2.DrawMode = dmSet
+      ButtonBackground.Gradient2.EndColor = clBtnShadow
+      ButtonBackground.Gradient2.EndColorOpacity = 255
+      ButtonBackground.Gradient2.ColorCorrection = True
+      ButtonBackground.Gradient2.GradientType = gtLinear
+      ButtonBackground.Gradient2.Point1XPercent = 0
+      ButtonBackground.Gradient2.Point1YPercent = 50
+      ButtonBackground.Gradient2.Point2XPercent = 0
+      ButtonBackground.Gradient2.Point2YPercent = 150
+      ButtonBackground.Gradient2.Sinus = False
+      ButtonBackground.Gradient1EndPercent = 50
+      ButtonBackground.Style = bbsGradient
+      ButtonDownBackground.Color = clBtnShadow
+      ButtonDownBackground.ColorOpacity = 255
+      ButtonDownBackground.Gradient1.StartColor = clWhite
+      ButtonDownBackground.Gradient1.StartColorOpacity = 255
+      ButtonDownBackground.Gradient1.DrawMode = dmSet
+      ButtonDownBackground.Gradient1.EndColor = clBlack
+      ButtonDownBackground.Gradient1.EndColorOpacity = 255
+      ButtonDownBackground.Gradient1.ColorCorrection = True
+      ButtonDownBackground.Gradient1.GradientType = gtLinear
+      ButtonDownBackground.Gradient1.Point1XPercent = 0
+      ButtonDownBackground.Gradient1.Point1YPercent = 0
+      ButtonDownBackground.Gradient1.Point2XPercent = 0
+      ButtonDownBackground.Gradient1.Point2YPercent = 100
+      ButtonDownBackground.Gradient1.Sinus = False
+      ButtonDownBackground.Gradient2.StartColor = clWhite
+      ButtonDownBackground.Gradient2.StartColorOpacity = 255
+      ButtonDownBackground.Gradient2.DrawMode = dmSet
+      ButtonDownBackground.Gradient2.EndColor = clBlack
+      ButtonDownBackground.Gradient2.EndColorOpacity = 255
+      ButtonDownBackground.Gradient2.ColorCorrection = True
+      ButtonDownBackground.Gradient2.GradientType = gtLinear
+      ButtonDownBackground.Gradient2.Point1XPercent = 0
+      ButtonDownBackground.Gradient2.Point1YPercent = 0
+      ButtonDownBackground.Gradient2.Point2XPercent = 0
+      ButtonDownBackground.Gradient2.Point2YPercent = 100
+      ButtonDownBackground.Gradient2.Sinus = False
+      ButtonDownBackground.Gradient1EndPercent = 35
+      ButtonDownBackground.Style = bbsColor
+      Border.Color = clWindowText
+      Border.ColorOpacity = 255
+      Border.LightColor = clWhite
+      Border.LightOpacity = 255
+      Border.LightWidth = 0
+      Border.Style = bboSolid
+      Border.Width = 1
+      Rounding.RoundX = 1
+      Rounding.RoundY = 1
+      Rounding.RoundOptions = []
+      Font.Color = clWindowText
+      Font.Name = 'Arial'
+      HasTrackBar = True
+      ArrowColor = clBtnText
       TabOrder = 1
+      TabStop = True
+      UseDockManager = False
     end
-    object vsTextBlur: TBGRAVirtualScreen
-      Left = 335
+    object SpinEdit_TextBlur: TBCTrackbarUpdown
+      Left = 331
       Height = 25
       Hint = 'Shadow blur'
       Top = 2
       Width = 51
-      Alignment = taLeftJustify
-      Color = clWhite
-      Font.Height = -15
-      ParentColor = False
-      ParentFont = False
+      BarExponent = 1
+      Increment = 1
+      LongTimeInterval = 400
+      MinValue = 0
+      MaxValue = 200
+      Value = 5
+      ShortTimeInterval = 100
+      Background.Color = clWindow
+      Background.ColorOpacity = 255
+      Background.Gradient1.StartColor = clWhite
+      Background.Gradient1.StartColorOpacity = 255
+      Background.Gradient1.DrawMode = dmSet
+      Background.Gradient1.EndColor = clBlack
+      Background.Gradient1.EndColorOpacity = 255
+      Background.Gradient1.ColorCorrection = True
+      Background.Gradient1.GradientType = gtLinear
+      Background.Gradient1.Point1XPercent = 0
+      Background.Gradient1.Point1YPercent = 0
+      Background.Gradient1.Point2XPercent = 0
+      Background.Gradient1.Point2YPercent = 100
+      Background.Gradient1.Sinus = False
+      Background.Gradient2.StartColor = clWhite
+      Background.Gradient2.StartColorOpacity = 255
+      Background.Gradient2.DrawMode = dmSet
+      Background.Gradient2.EndColor = clBlack
+      Background.Gradient2.EndColorOpacity = 255
+      Background.Gradient2.ColorCorrection = True
+      Background.Gradient2.GradientType = gtLinear
+      Background.Gradient2.Point1XPercent = 0
+      Background.Gradient2.Point1YPercent = 0
+      Background.Gradient2.Point2XPercent = 0
+      Background.Gradient2.Point2YPercent = 100
+      Background.Gradient2.Sinus = False
+      Background.Gradient1EndPercent = 35
+      Background.Style = bbsColor
+      ButtonBackground.Color = clBlack
+      ButtonBackground.ColorOpacity = 255
+      ButtonBackground.Gradient1.StartColor = clBtnShadow
+      ButtonBackground.Gradient1.StartColorOpacity = 255
+      ButtonBackground.Gradient1.DrawMode = dmSet
+      ButtonBackground.Gradient1.EndColor = clBtnFace
+      ButtonBackground.Gradient1.EndColorOpacity = 255
+      ButtonBackground.Gradient1.ColorCorrection = True
+      ButtonBackground.Gradient1.GradientType = gtLinear
+      ButtonBackground.Gradient1.Point1XPercent = 0
+      ButtonBackground.Gradient1.Point1YPercent = -50
+      ButtonBackground.Gradient1.Point2XPercent = 0
+      ButtonBackground.Gradient1.Point2YPercent = 50
+      ButtonBackground.Gradient1.Sinus = False
+      ButtonBackground.Gradient2.StartColor = clBtnFace
+      ButtonBackground.Gradient2.StartColorOpacity = 255
+      ButtonBackground.Gradient2.DrawMode = dmSet
+      ButtonBackground.Gradient2.EndColor = clBtnShadow
+      ButtonBackground.Gradient2.EndColorOpacity = 255
+      ButtonBackground.Gradient2.ColorCorrection = True
+      ButtonBackground.Gradient2.GradientType = gtLinear
+      ButtonBackground.Gradient2.Point1XPercent = 0
+      ButtonBackground.Gradient2.Point1YPercent = 50
+      ButtonBackground.Gradient2.Point2XPercent = 0
+      ButtonBackground.Gradient2.Point2YPercent = 150
+      ButtonBackground.Gradient2.Sinus = False
+      ButtonBackground.Gradient1EndPercent = 50
+      ButtonBackground.Style = bbsGradient
+      ButtonDownBackground.Color = clBtnShadow
+      ButtonDownBackground.ColorOpacity = 255
+      ButtonDownBackground.Gradient1.StartColor = clWhite
+      ButtonDownBackground.Gradient1.StartColorOpacity = 255
+      ButtonDownBackground.Gradient1.DrawMode = dmSet
+      ButtonDownBackground.Gradient1.EndColor = clBlack
+      ButtonDownBackground.Gradient1.EndColorOpacity = 255
+      ButtonDownBackground.Gradient1.ColorCorrection = True
+      ButtonDownBackground.Gradient1.GradientType = gtLinear
+      ButtonDownBackground.Gradient1.Point1XPercent = 0
+      ButtonDownBackground.Gradient1.Point1YPercent = 0
+      ButtonDownBackground.Gradient1.Point2XPercent = 0
+      ButtonDownBackground.Gradient1.Point2YPercent = 100
+      ButtonDownBackground.Gradient1.Sinus = False
+      ButtonDownBackground.Gradient2.StartColor = clWhite
+      ButtonDownBackground.Gradient2.StartColorOpacity = 255
+      ButtonDownBackground.Gradient2.DrawMode = dmSet
+      ButtonDownBackground.Gradient2.EndColor = clBlack
+      ButtonDownBackground.Gradient2.EndColorOpacity = 255
+      ButtonDownBackground.Gradient2.ColorCorrection = True
+      ButtonDownBackground.Gradient2.GradientType = gtLinear
+      ButtonDownBackground.Gradient2.Point1XPercent = 0
+      ButtonDownBackground.Gradient2.Point1YPercent = 0
+      ButtonDownBackground.Gradient2.Point2XPercent = 0
+      ButtonDownBackground.Gradient2.Point2YPercent = 100
+      ButtonDownBackground.Gradient2.Sinus = False
+      ButtonDownBackground.Gradient1EndPercent = 35
+      ButtonDownBackground.Style = bbsColor
+      Border.Color = clWindowText
+      Border.ColorOpacity = 255
+      Border.LightColor = clWhite
+      Border.LightOpacity = 255
+      Border.LightWidth = 0
+      Border.Style = bboSolid
+      Border.Width = 1
+      Rounding.RoundX = 1
+      Rounding.RoundY = 1
+      Rounding.RoundOptions = []
+      Font.Color = clWindowText
+      Font.Name = 'Arial'
+      HasTrackBar = True
+      ArrowColor = clBtnText
       TabOrder = 2
+      TabStop = True
+      UseDockManager = False
     end
-    object vsTextShadowX: TBGRAVirtualScreen
+    object SpinEdit_TextShadowX: TBCTrackbarUpdown
       Left = 449
       Height = 25
       Hint = 'Horizontal shadow offset'
       Top = 2
       Width = 51
-      Alignment = taLeftJustify
-      Color = clWhite
-      Font.Height = -15
-      ParentColor = False
-      ParentFont = False
+      BarExponent = 1
+      Increment = 1
+      LongTimeInterval = 400
+      MinValue = 0
+      MaxValue = 100
+      Value = 5
+      ShortTimeInterval = 100
+      Background.Color = clWindow
+      Background.ColorOpacity = 255
+      Background.Gradient1.StartColor = clWhite
+      Background.Gradient1.StartColorOpacity = 255
+      Background.Gradient1.DrawMode = dmSet
+      Background.Gradient1.EndColor = clBlack
+      Background.Gradient1.EndColorOpacity = 255
+      Background.Gradient1.ColorCorrection = True
+      Background.Gradient1.GradientType = gtLinear
+      Background.Gradient1.Point1XPercent = 0
+      Background.Gradient1.Point1YPercent = 0
+      Background.Gradient1.Point2XPercent = 0
+      Background.Gradient1.Point2YPercent = 100
+      Background.Gradient1.Sinus = False
+      Background.Gradient2.StartColor = clWhite
+      Background.Gradient2.StartColorOpacity = 255
+      Background.Gradient2.DrawMode = dmSet
+      Background.Gradient2.EndColor = clBlack
+      Background.Gradient2.EndColorOpacity = 255
+      Background.Gradient2.ColorCorrection = True
+      Background.Gradient2.GradientType = gtLinear
+      Background.Gradient2.Point1XPercent = 0
+      Background.Gradient2.Point1YPercent = 0
+      Background.Gradient2.Point2XPercent = 0
+      Background.Gradient2.Point2YPercent = 100
+      Background.Gradient2.Sinus = False
+      Background.Gradient1EndPercent = 35
+      Background.Style = bbsColor
+      ButtonBackground.Color = clBlack
+      ButtonBackground.ColorOpacity = 255
+      ButtonBackground.Gradient1.StartColor = clBtnShadow
+      ButtonBackground.Gradient1.StartColorOpacity = 255
+      ButtonBackground.Gradient1.DrawMode = dmSet
+      ButtonBackground.Gradient1.EndColor = clBtnFace
+      ButtonBackground.Gradient1.EndColorOpacity = 255
+      ButtonBackground.Gradient1.ColorCorrection = True
+      ButtonBackground.Gradient1.GradientType = gtLinear
+      ButtonBackground.Gradient1.Point1XPercent = 0
+      ButtonBackground.Gradient1.Point1YPercent = -50
+      ButtonBackground.Gradient1.Point2XPercent = 0
+      ButtonBackground.Gradient1.Point2YPercent = 50
+      ButtonBackground.Gradient1.Sinus = False
+      ButtonBackground.Gradient2.StartColor = clBtnFace
+      ButtonBackground.Gradient2.StartColorOpacity = 255
+      ButtonBackground.Gradient2.DrawMode = dmSet
+      ButtonBackground.Gradient2.EndColor = clBtnShadow
+      ButtonBackground.Gradient2.EndColorOpacity = 255
+      ButtonBackground.Gradient2.ColorCorrection = True
+      ButtonBackground.Gradient2.GradientType = gtLinear
+      ButtonBackground.Gradient2.Point1XPercent = 0
+      ButtonBackground.Gradient2.Point1YPercent = 50
+      ButtonBackground.Gradient2.Point2XPercent = 0
+      ButtonBackground.Gradient2.Point2YPercent = 150
+      ButtonBackground.Gradient2.Sinus = False
+      ButtonBackground.Gradient1EndPercent = 50
+      ButtonBackground.Style = bbsGradient
+      ButtonDownBackground.Color = clBtnShadow
+      ButtonDownBackground.ColorOpacity = 255
+      ButtonDownBackground.Gradient1.StartColor = clWhite
+      ButtonDownBackground.Gradient1.StartColorOpacity = 255
+      ButtonDownBackground.Gradient1.DrawMode = dmSet
+      ButtonDownBackground.Gradient1.EndColor = clBlack
+      ButtonDownBackground.Gradient1.EndColorOpacity = 255
+      ButtonDownBackground.Gradient1.ColorCorrection = True
+      ButtonDownBackground.Gradient1.GradientType = gtLinear
+      ButtonDownBackground.Gradient1.Point1XPercent = 0
+      ButtonDownBackground.Gradient1.Point1YPercent = 0
+      ButtonDownBackground.Gradient1.Point2XPercent = 0
+      ButtonDownBackground.Gradient1.Point2YPercent = 100
+      ButtonDownBackground.Gradient1.Sinus = False
+      ButtonDownBackground.Gradient2.StartColor = clWhite
+      ButtonDownBackground.Gradient2.StartColorOpacity = 255
+      ButtonDownBackground.Gradient2.DrawMode = dmSet
+      ButtonDownBackground.Gradient2.EndColor = clBlack
+      ButtonDownBackground.Gradient2.EndColorOpacity = 255
+      ButtonDownBackground.Gradient2.ColorCorrection = True
+      ButtonDownBackground.Gradient2.GradientType = gtLinear
+      ButtonDownBackground.Gradient2.Point1XPercent = 0
+      ButtonDownBackground.Gradient2.Point1YPercent = 0
+      ButtonDownBackground.Gradient2.Point2XPercent = 0
+      ButtonDownBackground.Gradient2.Point2YPercent = 100
+      ButtonDownBackground.Gradient2.Sinus = False
+      ButtonDownBackground.Gradient1EndPercent = 35
+      ButtonDownBackground.Style = bbsColor
+      Border.Color = clWindowText
+      Border.ColorOpacity = 255
+      Border.LightColor = clWhite
+      Border.LightOpacity = 255
+      Border.LightWidth = 0
+      Border.Style = bboSolid
+      Border.Width = 1
+      Rounding.RoundX = 1
+      Rounding.RoundY = 1
+      Rounding.RoundOptions = []
+      Font.Color = clWindowText
+      Font.Name = 'Arial'
+      HasTrackBar = True
+      ArrowColor = clBtnText
       TabOrder = 3
+      TabStop = True
+      UseDockManager = False
     end
-    object vsTextShadowY: TBGRAVirtualScreen
-      Left = 499
+    object SpinEdit_TextShadowY: TBCTrackbarUpdown
+      Left = 502
       Height = 25
       Hint = 'Vertical shadow offset'
       Top = 2
       Width = 51
-      Alignment = taLeftJustify
-      Color = clWhite
-      Font.Height = -15
-      ParentColor = False
-      ParentFont = False
+      BarExponent = 1
+      Increment = 1
+      LongTimeInterval = 400
+      MinValue = 0
+      MaxValue = 100
+      Value = 5
+      ShortTimeInterval = 100
+      Background.Color = clWindow
+      Background.ColorOpacity = 255
+      Background.Gradient1.StartColor = clWhite
+      Background.Gradient1.StartColorOpacity = 255
+      Background.Gradient1.DrawMode = dmSet
+      Background.Gradient1.EndColor = clBlack
+      Background.Gradient1.EndColorOpacity = 255
+      Background.Gradient1.ColorCorrection = True
+      Background.Gradient1.GradientType = gtLinear
+      Background.Gradient1.Point1XPercent = 0
+      Background.Gradient1.Point1YPercent = 0
+      Background.Gradient1.Point2XPercent = 0
+      Background.Gradient1.Point2YPercent = 100
+      Background.Gradient1.Sinus = False
+      Background.Gradient2.StartColor = clWhite
+      Background.Gradient2.StartColorOpacity = 255
+      Background.Gradient2.DrawMode = dmSet
+      Background.Gradient2.EndColor = clBlack
+      Background.Gradient2.EndColorOpacity = 255
+      Background.Gradient2.ColorCorrection = True
+      Background.Gradient2.GradientType = gtLinear
+      Background.Gradient2.Point1XPercent = 0
+      Background.Gradient2.Point1YPercent = 0
+      Background.Gradient2.Point2XPercent = 0
+      Background.Gradient2.Point2YPercent = 100
+      Background.Gradient2.Sinus = False
+      Background.Gradient1EndPercent = 35
+      Background.Style = bbsColor
+      ButtonBackground.Color = clBlack
+      ButtonBackground.ColorOpacity = 255
+      ButtonBackground.Gradient1.StartColor = clBtnShadow
+      ButtonBackground.Gradient1.StartColorOpacity = 255
+      ButtonBackground.Gradient1.DrawMode = dmSet
+      ButtonBackground.Gradient1.EndColor = clBtnFace
+      ButtonBackground.Gradient1.EndColorOpacity = 255
+      ButtonBackground.Gradient1.ColorCorrection = True
+      ButtonBackground.Gradient1.GradientType = gtLinear
+      ButtonBackground.Gradient1.Point1XPercent = 0
+      ButtonBackground.Gradient1.Point1YPercent = -50
+      ButtonBackground.Gradient1.Point2XPercent = 0
+      ButtonBackground.Gradient1.Point2YPercent = 50
+      ButtonBackground.Gradient1.Sinus = False
+      ButtonBackground.Gradient2.StartColor = clBtnFace
+      ButtonBackground.Gradient2.StartColorOpacity = 255
+      ButtonBackground.Gradient2.DrawMode = dmSet
+      ButtonBackground.Gradient2.EndColor = clBtnShadow
+      ButtonBackground.Gradient2.EndColorOpacity = 255
+      ButtonBackground.Gradient2.ColorCorrection = True
+      ButtonBackground.Gradient2.GradientType = gtLinear
+      ButtonBackground.Gradient2.Point1XPercent = 0
+      ButtonBackground.Gradient2.Point1YPercent = 50
+      ButtonBackground.Gradient2.Point2XPercent = 0
+      ButtonBackground.Gradient2.Point2YPercent = 150
+      ButtonBackground.Gradient2.Sinus = False
+      ButtonBackground.Gradient1EndPercent = 50
+      ButtonBackground.Style = bbsGradient
+      ButtonDownBackground.Color = clBtnShadow
+      ButtonDownBackground.ColorOpacity = 255
+      ButtonDownBackground.Gradient1.StartColor = clWhite
+      ButtonDownBackground.Gradient1.StartColorOpacity = 255
+      ButtonDownBackground.Gradient1.DrawMode = dmSet
+      ButtonDownBackground.Gradient1.EndColor = clBlack
+      ButtonDownBackground.Gradient1.EndColorOpacity = 255
+      ButtonDownBackground.Gradient1.ColorCorrection = True
+      ButtonDownBackground.Gradient1.GradientType = gtLinear
+      ButtonDownBackground.Gradient1.Point1XPercent = 0
+      ButtonDownBackground.Gradient1.Point1YPercent = 0
+      ButtonDownBackground.Gradient1.Point2XPercent = 0
+      ButtonDownBackground.Gradient1.Point2YPercent = 100
+      ButtonDownBackground.Gradient1.Sinus = False
+      ButtonDownBackground.Gradient2.StartColor = clWhite
+      ButtonDownBackground.Gradient2.StartColorOpacity = 255
+      ButtonDownBackground.Gradient2.DrawMode = dmSet
+      ButtonDownBackground.Gradient2.EndColor = clBlack
+      ButtonDownBackground.Gradient2.EndColorOpacity = 255
+      ButtonDownBackground.Gradient2.ColorCorrection = True
+      ButtonDownBackground.Gradient2.GradientType = gtLinear
+      ButtonDownBackground.Gradient2.Point1XPercent = 0
+      ButtonDownBackground.Gradient2.Point1YPercent = 0
+      ButtonDownBackground.Gradient2.Point2XPercent = 0
+      ButtonDownBackground.Gradient2.Point2YPercent = 100
+      ButtonDownBackground.Gradient2.Sinus = False
+      ButtonDownBackground.Gradient1EndPercent = 35
+      ButtonDownBackground.Style = bbsColor
+      Border.Color = clWindowText
+      Border.ColorOpacity = 255
+      Border.LightColor = clWhite
+      Border.LightOpacity = 255
+      Border.LightWidth = 0
+      Border.Style = bboSolid
+      Border.Width = 1
+      Rounding.RoundX = 1
+      Rounding.RoundY = 1
+      Rounding.RoundOptions = []
+      Font.Color = clWindowText
+      Font.Name = 'Arial'
+      HasTrackBar = True
+      ArrowColor = clBtnText
       TabOrder = 4
+      TabStop = True
+      UseDockManager = False
     end
   end
   object Panel_PhongShape: TPanel
@@ -1487,18 +2915,120 @@ object FMain: TFMain
         Style = tbsCheck
       end
     end
-    object vsPhongBorderSize: TBGRAVirtualScreen
-      Left = 323
+    object SpinEdit_PhongBorderSize: TBCTrackbarUpdown
+      Left = 327
       Height = 25
       Hint = 'Border size'
       Top = 2
       Width = 51
-      Alignment = taLeftJustify
-      Color = clWhite
-      Font.Height = -15
-      ParentColor = False
-      ParentFont = False
+      BarExponent = 1
+      Increment = 1
+      LongTimeInterval = 400
+      MinValue = 0
+      MaxValue = 50
+      Value = 10
+      ShortTimeInterval = 100
+      Background.Color = clWindow
+      Background.ColorOpacity = 255
+      Background.Gradient1.StartColor = clWhite
+      Background.Gradient1.StartColorOpacity = 255
+      Background.Gradient1.DrawMode = dmSet
+      Background.Gradient1.EndColor = clBlack
+      Background.Gradient1.EndColorOpacity = 255
+      Background.Gradient1.ColorCorrection = True
+      Background.Gradient1.GradientType = gtLinear
+      Background.Gradient1.Point1XPercent = 0
+      Background.Gradient1.Point1YPercent = 0
+      Background.Gradient1.Point2XPercent = 0
+      Background.Gradient1.Point2YPercent = 100
+      Background.Gradient1.Sinus = False
+      Background.Gradient2.StartColor = clWhite
+      Background.Gradient2.StartColorOpacity = 255
+      Background.Gradient2.DrawMode = dmSet
+      Background.Gradient2.EndColor = clBlack
+      Background.Gradient2.EndColorOpacity = 255
+      Background.Gradient2.ColorCorrection = True
+      Background.Gradient2.GradientType = gtLinear
+      Background.Gradient2.Point1XPercent = 0
+      Background.Gradient2.Point1YPercent = 0
+      Background.Gradient2.Point2XPercent = 0
+      Background.Gradient2.Point2YPercent = 100
+      Background.Gradient2.Sinus = False
+      Background.Gradient1EndPercent = 35
+      Background.Style = bbsColor
+      ButtonBackground.Color = clBlack
+      ButtonBackground.ColorOpacity = 255
+      ButtonBackground.Gradient1.StartColor = clBtnShadow
+      ButtonBackground.Gradient1.StartColorOpacity = 255
+      ButtonBackground.Gradient1.DrawMode = dmSet
+      ButtonBackground.Gradient1.EndColor = clBtnFace
+      ButtonBackground.Gradient1.EndColorOpacity = 255
+      ButtonBackground.Gradient1.ColorCorrection = True
+      ButtonBackground.Gradient1.GradientType = gtLinear
+      ButtonBackground.Gradient1.Point1XPercent = 0
+      ButtonBackground.Gradient1.Point1YPercent = -50
+      ButtonBackground.Gradient1.Point2XPercent = 0
+      ButtonBackground.Gradient1.Point2YPercent = 50
+      ButtonBackground.Gradient1.Sinus = False
+      ButtonBackground.Gradient2.StartColor = clBtnFace
+      ButtonBackground.Gradient2.StartColorOpacity = 255
+      ButtonBackground.Gradient2.DrawMode = dmSet
+      ButtonBackground.Gradient2.EndColor = clBtnShadow
+      ButtonBackground.Gradient2.EndColorOpacity = 255
+      ButtonBackground.Gradient2.ColorCorrection = True
+      ButtonBackground.Gradient2.GradientType = gtLinear
+      ButtonBackground.Gradient2.Point1XPercent = 0
+      ButtonBackground.Gradient2.Point1YPercent = 50
+      ButtonBackground.Gradient2.Point2XPercent = 0
+      ButtonBackground.Gradient2.Point2YPercent = 150
+      ButtonBackground.Gradient2.Sinus = False
+      ButtonBackground.Gradient1EndPercent = 50
+      ButtonBackground.Style = bbsGradient
+      ButtonDownBackground.Color = clBtnShadow
+      ButtonDownBackground.ColorOpacity = 255
+      ButtonDownBackground.Gradient1.StartColor = clWhite
+      ButtonDownBackground.Gradient1.StartColorOpacity = 255
+      ButtonDownBackground.Gradient1.DrawMode = dmSet
+      ButtonDownBackground.Gradient1.EndColor = clBlack
+      ButtonDownBackground.Gradient1.EndColorOpacity = 255
+      ButtonDownBackground.Gradient1.ColorCorrection = True
+      ButtonDownBackground.Gradient1.GradientType = gtLinear
+      ButtonDownBackground.Gradient1.Point1XPercent = 0
+      ButtonDownBackground.Gradient1.Point1YPercent = 0
+      ButtonDownBackground.Gradient1.Point2XPercent = 0
+      ButtonDownBackground.Gradient1.Point2YPercent = 100
+      ButtonDownBackground.Gradient1.Sinus = False
+      ButtonDownBackground.Gradient2.StartColor = clWhite
+      ButtonDownBackground.Gradient2.StartColorOpacity = 255
+      ButtonDownBackground.Gradient2.DrawMode = dmSet
+      ButtonDownBackground.Gradient2.EndColor = clBlack
+      ButtonDownBackground.Gradient2.EndColorOpacity = 255
+      ButtonDownBackground.Gradient2.ColorCorrection = True
+      ButtonDownBackground.Gradient2.GradientType = gtLinear
+      ButtonDownBackground.Gradient2.Point1XPercent = 0
+      ButtonDownBackground.Gradient2.Point1YPercent = 0
+      ButtonDownBackground.Gradient2.Point2XPercent = 0
+      ButtonDownBackground.Gradient2.Point2YPercent = 100
+      ButtonDownBackground.Gradient2.Sinus = False
+      ButtonDownBackground.Gradient1EndPercent = 35
+      ButtonDownBackground.Style = bbsColor
+      Border.Color = clWindowText
+      Border.ColorOpacity = 255
+      Border.LightColor = clWhite
+      Border.LightOpacity = 255
+      Border.LightWidth = 0
+      Border.Style = bboSolid
+      Border.Width = 1
+      Rounding.RoundX = 1
+      Rounding.RoundY = 1
+      Rounding.RoundOptions = []
+      Font.Color = clWindowText
+      Font.Name = 'Arial'
+      HasTrackBar = True
+      ArrowColor = clBtnText
       TabOrder = 1
+      TabStop = True
+      UseDockManager = False
     end
   end
   object Panel_Altitude: TPanel
@@ -1516,7 +3046,7 @@ object FMain: TFMain
       Left = 9
       Height = 28
       Top = 1
-      Width = 71
+      Width = 62
       AutoSize = False
       Caption = 'Altitude'
       Font.Height = -15
@@ -1524,18 +3054,120 @@ object FMain: TFMain
       ParentColor = False
       ParentFont = False
     end
-    object vsShapeAltitude: TBGRAVirtualScreen
-      Left = 80
+    object SpinEdit_ShapeAltitude: TBCTrackbarUpdown
+      Left = 76
       Height = 25
       Hint = 'Shape altitude'
       Top = 2
       Width = 51
-      Alignment = taLeftJustify
-      Color = clWhite
-      Font.Height = -15
-      ParentColor = False
-      ParentFont = False
+      BarExponent = 1
+      Increment = 1
+      LongTimeInterval = 400
+      MinValue = 0
+      MaxValue = 50
+      Value = 10
+      ShortTimeInterval = 100
+      Background.Color = clWindow
+      Background.ColorOpacity = 255
+      Background.Gradient1.StartColor = clWhite
+      Background.Gradient1.StartColorOpacity = 255
+      Background.Gradient1.DrawMode = dmSet
+      Background.Gradient1.EndColor = clBlack
+      Background.Gradient1.EndColorOpacity = 255
+      Background.Gradient1.ColorCorrection = True
+      Background.Gradient1.GradientType = gtLinear
+      Background.Gradient1.Point1XPercent = 0
+      Background.Gradient1.Point1YPercent = 0
+      Background.Gradient1.Point2XPercent = 0
+      Background.Gradient1.Point2YPercent = 100
+      Background.Gradient1.Sinus = False
+      Background.Gradient2.StartColor = clWhite
+      Background.Gradient2.StartColorOpacity = 255
+      Background.Gradient2.DrawMode = dmSet
+      Background.Gradient2.EndColor = clBlack
+      Background.Gradient2.EndColorOpacity = 255
+      Background.Gradient2.ColorCorrection = True
+      Background.Gradient2.GradientType = gtLinear
+      Background.Gradient2.Point1XPercent = 0
+      Background.Gradient2.Point1YPercent = 0
+      Background.Gradient2.Point2XPercent = 0
+      Background.Gradient2.Point2YPercent = 100
+      Background.Gradient2.Sinus = False
+      Background.Gradient1EndPercent = 35
+      Background.Style = bbsColor
+      ButtonBackground.Color = clBlack
+      ButtonBackground.ColorOpacity = 255
+      ButtonBackground.Gradient1.StartColor = clBtnShadow
+      ButtonBackground.Gradient1.StartColorOpacity = 255
+      ButtonBackground.Gradient1.DrawMode = dmSet
+      ButtonBackground.Gradient1.EndColor = clBtnFace
+      ButtonBackground.Gradient1.EndColorOpacity = 255
+      ButtonBackground.Gradient1.ColorCorrection = True
+      ButtonBackground.Gradient1.GradientType = gtLinear
+      ButtonBackground.Gradient1.Point1XPercent = 0
+      ButtonBackground.Gradient1.Point1YPercent = -50
+      ButtonBackground.Gradient1.Point2XPercent = 0
+      ButtonBackground.Gradient1.Point2YPercent = 50
+      ButtonBackground.Gradient1.Sinus = False
+      ButtonBackground.Gradient2.StartColor = clBtnFace
+      ButtonBackground.Gradient2.StartColorOpacity = 255
+      ButtonBackground.Gradient2.DrawMode = dmSet
+      ButtonBackground.Gradient2.EndColor = clBtnShadow
+      ButtonBackground.Gradient2.EndColorOpacity = 255
+      ButtonBackground.Gradient2.ColorCorrection = True
+      ButtonBackground.Gradient2.GradientType = gtLinear
+      ButtonBackground.Gradient2.Point1XPercent = 0
+      ButtonBackground.Gradient2.Point1YPercent = 50
+      ButtonBackground.Gradient2.Point2XPercent = 0
+      ButtonBackground.Gradient2.Point2YPercent = 150
+      ButtonBackground.Gradient2.Sinus = False
+      ButtonBackground.Gradient1EndPercent = 50
+      ButtonBackground.Style = bbsGradient
+      ButtonDownBackground.Color = clBtnShadow
+      ButtonDownBackground.ColorOpacity = 255
+      ButtonDownBackground.Gradient1.StartColor = clWhite
+      ButtonDownBackground.Gradient1.StartColorOpacity = 255
+      ButtonDownBackground.Gradient1.DrawMode = dmSet
+      ButtonDownBackground.Gradient1.EndColor = clBlack
+      ButtonDownBackground.Gradient1.EndColorOpacity = 255
+      ButtonDownBackground.Gradient1.ColorCorrection = True
+      ButtonDownBackground.Gradient1.GradientType = gtLinear
+      ButtonDownBackground.Gradient1.Point1XPercent = 0
+      ButtonDownBackground.Gradient1.Point1YPercent = 0
+      ButtonDownBackground.Gradient1.Point2XPercent = 0
+      ButtonDownBackground.Gradient1.Point2YPercent = 100
+      ButtonDownBackground.Gradient1.Sinus = False
+      ButtonDownBackground.Gradient2.StartColor = clWhite
+      ButtonDownBackground.Gradient2.StartColorOpacity = 255
+      ButtonDownBackground.Gradient2.DrawMode = dmSet
+      ButtonDownBackground.Gradient2.EndColor = clBlack
+      ButtonDownBackground.Gradient2.EndColorOpacity = 255
+      ButtonDownBackground.Gradient2.ColorCorrection = True
+      ButtonDownBackground.Gradient2.GradientType = gtLinear
+      ButtonDownBackground.Gradient2.Point1XPercent = 0
+      ButtonDownBackground.Gradient2.Point1YPercent = 0
+      ButtonDownBackground.Gradient2.Point2XPercent = 0
+      ButtonDownBackground.Gradient2.Point2YPercent = 100
+      ButtonDownBackground.Gradient2.Sinus = False
+      ButtonDownBackground.Gradient1EndPercent = 35
+      ButtonDownBackground.Style = bbsColor
+      Border.Color = clWindowText
+      Border.ColorOpacity = 255
+      Border.LightColor = clWhite
+      Border.LightOpacity = 255
+      Border.LightWidth = 0
+      Border.Style = bboSolid
+      Border.Width = 1
+      Rounding.RoundX = 1
+      Rounding.RoundY = 1
+      Rounding.RoundOptions = []
+      Font.Color = clWindowText
+      Font.Name = 'Arial'
+      HasTrackBar = True
+      ArrowColor = clBtnText
       TabOrder = 0
+      TabStop = True
+      UseDockManager = False
     end
   end
   object Panel_TextOutline: TPanel
@@ -1581,18 +3213,120 @@ object FMain: TFMain
         Style = tbsCheck
       end
     end
-    object vsTextOutlineWidth: TBGRAVirtualScreen
-      Left = 90
+    object SpinEdit_TextOutlineWidth: TBCTrackbarUpdown
+      Left = 92
       Height = 25
       Hint = 'Text outline width'
       Top = 2
       Width = 51
-      Alignment = taLeftJustify
-      Color = clWhite
-      Font.Height = -15
-      ParentColor = False
-      ParentFont = False
+      BarExponent = 1
+      Increment = 1
+      LongTimeInterval = 400
+      MinValue = 1
+      MaxValue = 100
+      Value = 20
+      ShortTimeInterval = 100
+      Background.Color = clWindow
+      Background.ColorOpacity = 255
+      Background.Gradient1.StartColor = clWhite
+      Background.Gradient1.StartColorOpacity = 255
+      Background.Gradient1.DrawMode = dmSet
+      Background.Gradient1.EndColor = clBlack
+      Background.Gradient1.EndColorOpacity = 255
+      Background.Gradient1.ColorCorrection = True
+      Background.Gradient1.GradientType = gtLinear
+      Background.Gradient1.Point1XPercent = 0
+      Background.Gradient1.Point1YPercent = 0
+      Background.Gradient1.Point2XPercent = 0
+      Background.Gradient1.Point2YPercent = 100
+      Background.Gradient1.Sinus = False
+      Background.Gradient2.StartColor = clWhite
+      Background.Gradient2.StartColorOpacity = 255
+      Background.Gradient2.DrawMode = dmSet
+      Background.Gradient2.EndColor = clBlack
+      Background.Gradient2.EndColorOpacity = 255
+      Background.Gradient2.ColorCorrection = True
+      Background.Gradient2.GradientType = gtLinear
+      Background.Gradient2.Point1XPercent = 0
+      Background.Gradient2.Point1YPercent = 0
+      Background.Gradient2.Point2XPercent = 0
+      Background.Gradient2.Point2YPercent = 100
+      Background.Gradient2.Sinus = False
+      Background.Gradient1EndPercent = 35
+      Background.Style = bbsColor
+      ButtonBackground.Color = clBlack
+      ButtonBackground.ColorOpacity = 255
+      ButtonBackground.Gradient1.StartColor = clBtnShadow
+      ButtonBackground.Gradient1.StartColorOpacity = 255
+      ButtonBackground.Gradient1.DrawMode = dmSet
+      ButtonBackground.Gradient1.EndColor = clBtnFace
+      ButtonBackground.Gradient1.EndColorOpacity = 255
+      ButtonBackground.Gradient1.ColorCorrection = True
+      ButtonBackground.Gradient1.GradientType = gtLinear
+      ButtonBackground.Gradient1.Point1XPercent = 0
+      ButtonBackground.Gradient1.Point1YPercent = -50
+      ButtonBackground.Gradient1.Point2XPercent = 0
+      ButtonBackground.Gradient1.Point2YPercent = 50
+      ButtonBackground.Gradient1.Sinus = False
+      ButtonBackground.Gradient2.StartColor = clBtnFace
+      ButtonBackground.Gradient2.StartColorOpacity = 255
+      ButtonBackground.Gradient2.DrawMode = dmSet
+      ButtonBackground.Gradient2.EndColor = clBtnShadow
+      ButtonBackground.Gradient2.EndColorOpacity = 255
+      ButtonBackground.Gradient2.ColorCorrection = True
+      ButtonBackground.Gradient2.GradientType = gtLinear
+      ButtonBackground.Gradient2.Point1XPercent = 0
+      ButtonBackground.Gradient2.Point1YPercent = 50
+      ButtonBackground.Gradient2.Point2XPercent = 0
+      ButtonBackground.Gradient2.Point2YPercent = 150
+      ButtonBackground.Gradient2.Sinus = False
+      ButtonBackground.Gradient1EndPercent = 50
+      ButtonBackground.Style = bbsGradient
+      ButtonDownBackground.Color = clBtnShadow
+      ButtonDownBackground.ColorOpacity = 255
+      ButtonDownBackground.Gradient1.StartColor = clWhite
+      ButtonDownBackground.Gradient1.StartColorOpacity = 255
+      ButtonDownBackground.Gradient1.DrawMode = dmSet
+      ButtonDownBackground.Gradient1.EndColor = clBlack
+      ButtonDownBackground.Gradient1.EndColorOpacity = 255
+      ButtonDownBackground.Gradient1.ColorCorrection = True
+      ButtonDownBackground.Gradient1.GradientType = gtLinear
+      ButtonDownBackground.Gradient1.Point1XPercent = 0
+      ButtonDownBackground.Gradient1.Point1YPercent = 0
+      ButtonDownBackground.Gradient1.Point2XPercent = 0
+      ButtonDownBackground.Gradient1.Point2YPercent = 100
+      ButtonDownBackground.Gradient1.Sinus = False
+      ButtonDownBackground.Gradient2.StartColor = clWhite
+      ButtonDownBackground.Gradient2.StartColorOpacity = 255
+      ButtonDownBackground.Gradient2.DrawMode = dmSet
+      ButtonDownBackground.Gradient2.EndColor = clBlack
+      ButtonDownBackground.Gradient2.EndColorOpacity = 255
+      ButtonDownBackground.Gradient2.ColorCorrection = True
+      ButtonDownBackground.Gradient2.GradientType = gtLinear
+      ButtonDownBackground.Gradient2.Point1XPercent = 0
+      ButtonDownBackground.Gradient2.Point1YPercent = 0
+      ButtonDownBackground.Gradient2.Point2XPercent = 0
+      ButtonDownBackground.Gradient2.Point2YPercent = 100
+      ButtonDownBackground.Gradient2.Sinus = False
+      ButtonDownBackground.Gradient1EndPercent = 35
+      ButtonDownBackground.Style = bbsColor
+      Border.Color = clWindowText
+      Border.ColorOpacity = 255
+      Border.LightColor = clWhite
+      Border.LightOpacity = 255
+      Border.LightWidth = 0
+      Border.Style = bboSolid
+      Border.Width = 1
+      Rounding.RoundX = 1
+      Rounding.RoundY = 1
+      Rounding.RoundOptions = []
+      Font.Color = clWindowText
+      Font.Name = 'Arial'
+      HasTrackBar = True
+      ArrowColor = clBtnText
       TabOrder = 1
+      TabStop = True
+      UseDockManager = False
     end
   end
   object Panel_PerspectiveOption: TPanel
@@ -1673,19 +3407,6 @@ object FMain: TFMain
       ParentColor = False
       ParentFont = False
     end
-    object vsBrushSpacing: TBGRAVirtualScreen
-      Left = 178
-      Height = 25
-      Hint = 'Spacing between patterns'
-      Top = 4
-      Width = 51
-      Alignment = taLeftJustify
-      Color = clWhite
-      Font.Height = -15
-      ParentColor = False
-      ParentFont = False
-      TabOrder = 0
-    end
     object ComboBox_BrushSelect: TComboBox
       Left = 56
       Height = 36
@@ -1697,7 +3418,7 @@ object FMain: TFMain
       ItemHeight = 21
       ParentFont = False
       Style = csOwnerDrawFixed
-      TabOrder = 1
+      TabOrder = 0
     end
     object Label_Spacing: TLabel
       Left = 117
@@ -1712,7 +3433,7 @@ object FMain: TFMain
       ParentFont = False
     end
     object ToolBar21: TToolBar
-      Left = 235
+      Left = 232
       Height = 28
       Top = 1
       Width = 88
@@ -1724,7 +3445,7 @@ object FMain: TFMain
       Images = ImageList16
       ParentColor = False
       ParentFont = False
-      TabOrder = 2
+      TabOrder = 1
       object ToolButton21: TToolButton
         Left = 1
         Top = 0
@@ -1740,6 +3461,121 @@ object FMain: TFMain
         Top = 0
         Action = BrushRemoveCurrent
       end
+    end
+    object SpinEdit_BrushSpacing: TBCTrackbarUpdown
+      Left = 181
+      Height = 25
+      Hint = 'Spacing between patterns'
+      Top = 2
+      Width = 48
+      BarExponent = 1
+      Increment = 1
+      LongTimeInterval = 400
+      MinValue = 1
+      MaxValue = 50
+      Value = 1
+      ShortTimeInterval = 100
+      Background.Color = clWindow
+      Background.ColorOpacity = 255
+      Background.Gradient1.StartColor = clWhite
+      Background.Gradient1.StartColorOpacity = 255
+      Background.Gradient1.DrawMode = dmSet
+      Background.Gradient1.EndColor = clBlack
+      Background.Gradient1.EndColorOpacity = 255
+      Background.Gradient1.ColorCorrection = True
+      Background.Gradient1.GradientType = gtLinear
+      Background.Gradient1.Point1XPercent = 0
+      Background.Gradient1.Point1YPercent = 0
+      Background.Gradient1.Point2XPercent = 0
+      Background.Gradient1.Point2YPercent = 100
+      Background.Gradient1.Sinus = False
+      Background.Gradient2.StartColor = clWhite
+      Background.Gradient2.StartColorOpacity = 255
+      Background.Gradient2.DrawMode = dmSet
+      Background.Gradient2.EndColor = clBlack
+      Background.Gradient2.EndColorOpacity = 255
+      Background.Gradient2.ColorCorrection = True
+      Background.Gradient2.GradientType = gtLinear
+      Background.Gradient2.Point1XPercent = 0
+      Background.Gradient2.Point1YPercent = 0
+      Background.Gradient2.Point2XPercent = 0
+      Background.Gradient2.Point2YPercent = 100
+      Background.Gradient2.Sinus = False
+      Background.Gradient1EndPercent = 35
+      Background.Style = bbsColor
+      ButtonBackground.Color = clBlack
+      ButtonBackground.ColorOpacity = 255
+      ButtonBackground.Gradient1.StartColor = clBtnShadow
+      ButtonBackground.Gradient1.StartColorOpacity = 255
+      ButtonBackground.Gradient1.DrawMode = dmSet
+      ButtonBackground.Gradient1.EndColor = clBtnFace
+      ButtonBackground.Gradient1.EndColorOpacity = 255
+      ButtonBackground.Gradient1.ColorCorrection = True
+      ButtonBackground.Gradient1.GradientType = gtLinear
+      ButtonBackground.Gradient1.Point1XPercent = 0
+      ButtonBackground.Gradient1.Point1YPercent = -50
+      ButtonBackground.Gradient1.Point2XPercent = 0
+      ButtonBackground.Gradient1.Point2YPercent = 50
+      ButtonBackground.Gradient1.Sinus = False
+      ButtonBackground.Gradient2.StartColor = clBtnFace
+      ButtonBackground.Gradient2.StartColorOpacity = 255
+      ButtonBackground.Gradient2.DrawMode = dmSet
+      ButtonBackground.Gradient2.EndColor = clBtnShadow
+      ButtonBackground.Gradient2.EndColorOpacity = 255
+      ButtonBackground.Gradient2.ColorCorrection = True
+      ButtonBackground.Gradient2.GradientType = gtLinear
+      ButtonBackground.Gradient2.Point1XPercent = 0
+      ButtonBackground.Gradient2.Point1YPercent = 50
+      ButtonBackground.Gradient2.Point2XPercent = 0
+      ButtonBackground.Gradient2.Point2YPercent = 150
+      ButtonBackground.Gradient2.Sinus = False
+      ButtonBackground.Gradient1EndPercent = 50
+      ButtonBackground.Style = bbsGradient
+      ButtonDownBackground.Color = clBtnShadow
+      ButtonDownBackground.ColorOpacity = 255
+      ButtonDownBackground.Gradient1.StartColor = clWhite
+      ButtonDownBackground.Gradient1.StartColorOpacity = 255
+      ButtonDownBackground.Gradient1.DrawMode = dmSet
+      ButtonDownBackground.Gradient1.EndColor = clBlack
+      ButtonDownBackground.Gradient1.EndColorOpacity = 255
+      ButtonDownBackground.Gradient1.ColorCorrection = True
+      ButtonDownBackground.Gradient1.GradientType = gtLinear
+      ButtonDownBackground.Gradient1.Point1XPercent = 0
+      ButtonDownBackground.Gradient1.Point1YPercent = 0
+      ButtonDownBackground.Gradient1.Point2XPercent = 0
+      ButtonDownBackground.Gradient1.Point2YPercent = 100
+      ButtonDownBackground.Gradient1.Sinus = False
+      ButtonDownBackground.Gradient2.StartColor = clWhite
+      ButtonDownBackground.Gradient2.StartColorOpacity = 255
+      ButtonDownBackground.Gradient2.DrawMode = dmSet
+      ButtonDownBackground.Gradient2.EndColor = clBlack
+      ButtonDownBackground.Gradient2.EndColorOpacity = 255
+      ButtonDownBackground.Gradient2.ColorCorrection = True
+      ButtonDownBackground.Gradient2.GradientType = gtLinear
+      ButtonDownBackground.Gradient2.Point1XPercent = 0
+      ButtonDownBackground.Gradient2.Point1YPercent = 0
+      ButtonDownBackground.Gradient2.Point2XPercent = 0
+      ButtonDownBackground.Gradient2.Point2YPercent = 100
+      ButtonDownBackground.Gradient2.Sinus = False
+      ButtonDownBackground.Gradient1EndPercent = 35
+      ButtonDownBackground.Style = bbsColor
+      Border.Color = clWindowText
+      Border.ColorOpacity = 255
+      Border.LightColor = clWhite
+      Border.LightOpacity = 255
+      Border.LightWidth = 0
+      Border.Style = bboSolid
+      Border.Width = 1
+      Rounding.RoundX = 1
+      Rounding.RoundY = 1
+      Rounding.RoundOptions = []
+      Font.Color = clWindowText
+      Font.Name = 'Arial'
+      HasTrackBar = True
+      ArrowColor = clBtnText
+      TabOrder = 2
+      TabStop = True
+      UseDockManager = False
     end
   end
   object Panel_Ratio: TPanel
@@ -3679,35 +5515,35 @@ object FMain: TFMain
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      000000000000000000000000000000000000000000FFFFFFFFFF000000FFFFFF
+      00000000000000000000000000007C7C7CBC7C7C7CE57C7C7CED7C7C7CED7C7C
+      7CED7C7C7CED7C7C7CED7C7C7CF17C7C7CF37C7C7CF17C7C7CED7C7C7CED7C7C
+      7CED7C7C7CDE7C7C7CA1000000007C7C7CED000000FFFFFFFFFF000000FFFFFF
       FFFF000000FFFFFFFFFF000000FFFFFFFFFF000000FFFFFFFFFF000000FFFFFF
-      FFFF000000FF000000000000000000000000FFFFFFFF00000000000000000000
-      0000000000000000000000000000000000FF0000000000000000000000000000
-      0000FFFFFFFF00000000000000000000000000000000000000FF000000000000
-      0000000000000000000000000000FFFFFFFF0000000000000000000000000000
-      0000000000FF00000000000000000000000000000000FFFFFFFF000000000000
-      0000000000000000000000000000000000FF0000000000000000000000000000
-      0000FFFFFFFF0000000000000000000000000000000000000000000000FF0000
-      0000000000000000000000000000FFFFFFFF0000000000000000000000000000
-      0000000000FF0000000000000000000000000000000000000000FFFFFFFF0000
-      00FFFFFFFFFF000000FFFFFFFFFF000000FFFFFFFFFF00000000000000000000
-      0000FFFFFFFF0000000000000000000000000000000000000000000000FF0000
-      0000000000000000000000000000FFFFFFFF00000000000000FFFFFFFFFF0000
-      00FF000000FF0000000000000000000000000000000000000000FFFFFFFF0000
-      00000000000000000000000000FF000000000000000000000000000000000000
-      0000FFFFFFFF00000000000000000000000000000000000000FF000000000000
-      00000000000000000000FFFFFFFF000000000000000000000000000000000000
-      0000000000FF00000000000000000000000000000000FFFFFFFF000000000000
-      00000000000000000000000000FF000000000000000000000000000000000000
-      0000FFFFFFFF00000000000000000000000000000000000000FF000000000000
-      00000000000000000000FFFFFFFF000000000000000000000000000000000000
-      0000000000FF000000000000000000000000FFFFFFFF000000FFFFFFFFFF0000
+      FFFF000000FF7C7C7CDE000000007C7C7CF0FFFFFFFF7C7C7CFE7C7C7CF97C7C
+      7CED7C7C7CE87C7C7CF37C7C7CFD000000FF7C7C7CFD7C7C7CF37C7C7CF37C7C
+      7CFCFFFFFFFF7C7C7CED000000007C7C7CD57C7C7CF7000000FF7C7C7CF07C7C
+      7CBE7C7C7C877C7C7CC37C7C7CF4FFFFFFFF7C7C7CF47C7C7CC37C7C7CC37C7C
+      7CF3000000FF7C7C7CED000000007C7C7C957C7C7CE1FFFFFFFF7C7C7CF47C7C
+      7CD17C7C7C957C7C7CC37C7C7CF4000000FF7C7C7CF07C7C7C957C7C7C877C7C
+      7CE8FFFFFFFF7C7C7CED000000007C7C7C437C7C7CB87C7C7CF5000000FF7C7C
+      7CFA7C7C7CF07C7C7CF47C7C7CFDFFFFFFFF7C7C7CFB7C7C7CD67C7C7CCB7C7C
+      7CF3000000FF7C7C7CED000000007C7C7C0A7C7C7C997C7C7CF1FFFFFFFF0000
+      00FFFFFFFFFF000000FFFFFFFFFF000000FFFFFFFFFF7C7C7CF87C7C7CF67C7C
+      7CFDFFFFFFFF7C7C7CF1000000007C7C7C0A7C7C7C997C7C7CEE000000FF7C7C
+      7CFC7C7C7CF67C7C7CF97C7C7CFFFFFFFFFF7C7C7CFD000000FFFFFFFFFF0000
+      00FF000000FF7C7C7CF3000000007C7C7C437C7C7CB87C7C7CF3FFFFFFFF7C7C
+      7CE97C7C7CD27C7C7CED000000FF7C7C7CF97C7C7CE87C7C7CDE7C7C7CF27C7C
+      7CFDFFFFFFFF7C7C7CF1000000007C7C7C847C7C7CDE000000FF7C7C7CF27C7C
+      7CB27C7C7C957C7C7CE4FFFFFFFF7C7C7CEC7C7C7CA97C7C7C6A7C7C7CBE7C7C
+      7CF3000000FF7C7C7CED000000007C7C7CB57C7C7CF1FFFFFFFF7C7C7CF67C7C
+      7CCB7C7C7CC67C7C7CF4000000FF7C7C7CF47C7C7CC37C7C7C847C7C7CC37C7C
+      7CF3FFFFFFFF7C7C7CED000000007C7C7CD57C7C7CFA000000FF7C7C7CFD7C7C
+      7CF37C7C7CF37C7C7CFDFFFFFFFF7C7C7CFD7C7C7CF37C7C7CE87C7C7CF37C7C
+      7CFC000000FF7C7C7CED000000007C7C7CDEFFFFFFFF000000FFFFFFFFFF0000
       00FFFFFFFFFF000000FFFFFFFFFF000000FFFFFFFFFF000000FFFFFFFFFF0000
-      00FFFFFFFFFF0000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      00FFFFFFFFFF7C7C7CDE000000007C7C7CB07C7C7CE07C7C7CEF7C7C7CF17C7C
+      7CED7C7C7CED7C7C7CF17C7C7CF37C7C7CF17C7C7CED7C7C7CED7C7C7CED7C7C
+      7CED7C7C7CDE7C7C7CA100000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3777,31 +5613,31 @@ object FMain: TFMain
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000BE6D3939BE6D
-      39F0BE6D39FFBE6D396100000000000000000000000000000000000000000000
-      00000000000000000000000000000000000000000000BE6D3926BE6D39DCBE6D
-      392DBE6D3974BE6D39410000000000000000BE6D397BBE6D39F0BE6D39FFBE6D
-      39D4BE6D391200000000000000000000000000000000BE6D39A9BE6D3941BE6D
-      3912BE6D39E2BE6D390E00000000BE6D390ABE6D393EBE6D3904BE6D3908BE6D
-      39D8BE6D394100000000000000000000000000000000BE6D39FFBE6D3915BE6D
-      39BDBE6D39B0000000000000000000000000BE6D3921BE6D3970BE6D39ACBE6D
-      39F8BE6D394100000000000000000000000000000000BE6D39B8BE6D39DCBE6D
-      395EBE6D398A0000000000000000BE6D3917BE6D39F8BE6D396EBE6D392FBE6D
-      39C9BE6D39410000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000BE6D3923BE6D39FFBE6D3912BE6D392ABE6D
-      39FFBE6D39450000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000BE6D3904BE6D39B1BE6D39FFBE6D39A5BE6D
-      3984BE6D396800000000000000000000000000000000BE6D3934BE6D39D8BE6D
-      39F8BE6D39A3BE6D390500000000000000000000000000000000000000000000
-      00000000000000000000000000000000000000000000BE6D3912BE6D39120000
-      0000BE6D398EBE6D392B00000000000000000000000000000000000000000000
-      00000000000000000000000000000000000000000000BE6D3967BE6D39F4BE6D
-      39FFBE6D39EEBE6D392B00000000000000000000000000000000000000000000
-      00000000000000000000000000000000000000000000BE6D39BBBE6D390BBE6D
-      390BBE6D399ABE6D392B00000000000000000000000000000000000000000000
-      00000000000000000000000000000000000000000000BE6D3994BE6D39FFBE6D
-      39DEBE6D399ABE6D39F8000000000000000000000000BE6D39FF00000000BE6D
-      39FF00000000BE6D39FF00000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000FF964865FF96
+      48FFFF9648FFFF96489D00000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000FF964846FF9648FBFF96
+      4852FF9648B3FF9648710000000000000000FF9648BBFF9648FFFF9648FFFF96
+      48F8FF96482200000000000000000000000000000000FF9648E2FF964871FF96
+      4822FF9648FCFF96481B00000000FF964813FF96486DFF964807FF96480FFF96
+      48FAFF96487100000000000000000000000000000000FF9648FFFF964828FF96
+      48EEFF9648E7000000000000000000000000FF96483DFF9648AFFF9648E4FF96
+      48FFFF96487100000000000000000000000000000000FF9648ECFF9648FBFF96
+      4899FF9648CA0000000000000000FF96482CFF9648FFFF9648ADFF964855FF96
+      48F4FF9648710000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000FF964841FF9648FFFF964822FF96484DFF96
+      48FFFF9648770000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000FF964807FF9648E8FF9648FFFF9648E0FF96
+      48C4FF9648A600000000000000000000000000000000FF96485DFF9648FAFF96
+      48FFFF9648DEFF96480900000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000FF964822FF9648220000
+      0000FF9648CDFF96484F00000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000FF9648A5FF9648FFFF96
+      48FFFF9648FEFF96484F00000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000FF9648EDFF964815FF96
+      4815FF9648D7FF96484F00000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000FF9648D2FF9648FFFF96
+      48FBFF9648D7FF9648FF000000000000000000000000FF9648FF00000000FF96
+      48FF00000000FF9648FF00000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -24660,227 +26496,227 @@ object FMain: TFMain
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000000000000000000000000000BE6D3907BE6D3907BE6D
-      3907BE6D391EBE6D391EBE6D391EBE6D3920BE6D390CBE6D390CBE6D390C0000
+      00000000000000000000000000000000000000000000FF9F5504FF9F5513FF9F
+      552AFF9F553CFF9F554FFF9F5552FF9F5543FF9F5534FF9F5522FF9F550A0000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000000000000000000000000000BE6D3932BE6D3932BE6D
-      3976BE6D39D2BE6D39D2BE6D39D8BE6D39DFBE6D3990BE6D3955BE6D39550000
+      000000000000000000000000000000000000FF9F550DFF9F555DFF9F557EFF9F
+      55B1FF9F55F9FF9F55FEFF9F55FFFF9F55FAFF9F55D0FF9F55B9FF9F557E0000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000BE6D3907BE6D3932BE6D3939BE6D3950BE6D
-      39D9BE6D39F0BE6D39F2BE6D39FDBE6D39FFBE6D39C4BE6D3961BE6D3961BE6D
-      393C000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000FF9F550AFF9F5578FF9F5584FF9F55BDFF9F
+      55FDFF9F55FEFF9F55FEFF9F55FFFF9F55FDFF9F55DBFF9F55BDFF9F55A9FF9F
+      552A000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000BE6D3905BE6D3930BE6D3939BE6D394DBE6D39E6BE6D
-      39F0BE6D39A7BE6D39B8BE6D39C7BE6D39CBBE6D397EBE6D395DBE6D3955BE6D
-      392C00000000000000000000000000000000000000000000000000000000BE6D
-      390FBE6D390FBE6D390FBE6D391EBE6D391EBE6D391EBE6D3920BE6D391ABE6D
-      391ABE6D391ABE6D3902BE6D3902BE6D39020000000000000000000000000000
+      00000000000000000000FF9F550AFF9F5566FF9F557EFF9F559FFF9F55FEFF9F
+      55FFFF9F55FCFF9F55EFFF9F55F5FF9F55ECFF9F55CCFF9F55BDFF9F5599FF9F
+      554B00000000000000000000000000000000000000000000000000000000FF9F
+      550DFF9F552AFF9F5537FF9F5543FF9F554FFF9F5552FF9F554DFF9F554BFF9F
+      5546FF9F5531FF9F5513FF9F5504FF9F55030000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000BE6D3921BE6D3926BE6D3930BE6D39C8BE6D39DCBE6D
-      39E6BE6D392DBE6D3948BE6D396BBE6D3974BE6D3969BE6D394DBE6D3941BE6D
-      392800000000000000000000000000000000000000000000000000000000BE6D
-      396CBE6D396CBE6D3998BE6D39D2BE6D39D2BE6D39D8BE6D39DFBE6D39CABE6D
-      39BABE6D39BABE6D3958BE6D3910BE6D39100000000000000000000000000000
+      000000000000FF9F5507FF9F555BFF9F5570FF9F5595FF9F55FAFF9F55FEFF9F
+      55DBFF9F5587FF9F55AAFF9F55D1FF9F55D1FF9F55C4FF9F55A7FF9F558AFF9F
+      5548000000000000000000000000000000000000000000000000FF9F551CFF9F
+      55A9FF9F55D3FF9F55E4FF9F55FBFF9F55FEFF9F55FFFF9F55FFFF9F55FDFF9F
+      55FBFF9F55E7FF9F5568FF9F552FFF9F551C0000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D3905BE6D3921BE6D3926BE6D393DBE6D39C5BE6D39DCBE6D399ABE6D
-      392DBE6D392DBE6D3936BE6D396BBE6D3974BE6D3961BE6D3941BE6D3941BE6D
-      39280000000000000000000000000000000000000000BE6D390FBE6D396CBE6D
-      397BBE6D398ABE6D39E1BE6D39F0BE6D39F2BE6D39FDBE6D39FFBE6D39EFBE6D
-      39D4BE6D39D4BE6D398BBE6D3912BE6D3912BE6D390B00000000000000000000
+      0000FF9F5504FF9F5541FF9F555DFF9F5582FF9F55FAFF9F55FBFF9F55E2FF9F
+      5570FF9F5570FF9F558BFF9F55CDFF9F55CCFF9F55BAFF9F5595FF9F557AFF9F
+      55310000000000000000000000000000000000000000FF9F550DFF9F55BDFF9F
+      55CEFF9F55DCFF9F55ECFF9F55FBFF9F55FCFF9F55FDFF9F55FFFF9F55FFFF9F
+      55FEFF9F55FAFF9F55B8FF9F5537FF9F552AFF9F550A00000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D3905BE6D3921BE6D3936BE6D39C3BE6D39DCBE6D39A2BE6D394DBE6D
-      392ABE6D3923BE6D3932BE6D396BBE6D3982BE6D3961BE6D3941BE6D392EBE6D
-      390F00000000000000000000000000000000BE6D3901BE6D3943BE6D397BBE6D
-      3964BE6D3964BE6D3989BE6D3998BE6D3998BE6D399EBE6D39A2BE6D39FFBE6D
-      39ECBE6D39D4BE6D3997BE6D3924BE6D3918BE6D390B00000000000000000000
+      0000FF9F550DFF9F555BFF9F5597FF9F55F7FF9F55FBFF9F55E2FF9F5584FF9F
+      5568FF9F5561FF9F5574FF9F55D1FF9F55D8FF9F55B5FF9F558BFF9F554DFF9F
+      551600000000000000000000000000000000FF9F5507FF9F5548FF9F55A7FF9F
+      55B6FF9F55B6FF9F55C3FF9F55CCFF9F55CBFF9F55CCFF9F55FAFF9F55FFFF9F
+      55FFFF9F55FCFF9F55D6FF9F5566FF9F5541FF9F551300000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D3905BE6D3952BE6D3998BE6D39A9BE6D39C3BE6D3941BE6D3936BE6D
-      391CBE6D3912BE6D3925BE6D3991BE6D39D4BE6D39E2BE6D3921BE6D390EBE6D
-      390900000000000000000000000000000000BE6D3909BE6D390ABE6D3938BE6D
-      393EBE6D3937BE6D391ABE6D3904BE6D3906BE6D3908BE6D3908BE6D39ECBE6D
-      39D8BE6D39D8BE6D399EBE6D393BBE6D393BBE6D391D00000000000000000000
+      0000FF9F551CFF9F5586FF9F55EAFF9F55F4FF9F55D9FF9F5595FF9F5577FF9F
+      5548FF9F5548FF9F556EFF9F55DFFF9F55F4FF9F55CAFF9F5552FF9F5527FF9F
+      5510000000000000000000000000FF9F5503FF9F5519FF9F5548FF9F558AFF9F
+      558AFF9F557EFF9F553FFF9F550DFF9F5510FF9F5516FF9F552FFF9F55ECFF9F
+      55FFFF9F55FBFF9F55DEFF9F558EFF9F556DFF9F552400000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D3915BE6D3994BE6D39A9BE6D3982BE6D3941BE6D3941BE6D392FBE6D
-      3912BE6D3912BE6D392CBE6D39C8BE6D39E2BE6D3992BE6D390EBE6D390EBE6D
-      39090000000000000000BE6D3901BE6D3909BE6D390ABE6D3910BE6D3938BE6D
-      393EBE6D3928BE6D3904BE6D3904BE6D3904BE6D3908BE6D3908BE6D3922BE6D
-      39BEBE6D39D8BE6D399FBE6D3941BE6D3941BE6D392800000000000000000000
+      0000FF9F552DFF9F55DEFF9F55EDFF9F55EAFF9F5595FF9F5582FF9F555FFF9F
+      553FFF9F5546FF9F55A7FF9F55FEFF9F55FEFF9F55C6FF9F5527FF9F551FFF9F
+      5507000000000000000000000000FF9F5504FF9F5519FF9F5522FF9F5578FF9F
+      5578FF9F555BFF9F5524FF9F550DFF9F5513FF9F5516FF9F552AFF9F55D3FF9F
+      55FEFF9F55FBFF9F55DFFF9F5595FF9F5584FF9F553F00000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D3915BE6D3994BE6D39B4BE6D3982BE6D393BBE6D3930BE6D3925BE6D
-      3918BE6D3927BE6D39D0BE6D39E2BE6D39CFBE6D397ABE6D390EBE6D39090000
-      000000000000000000000000000000000000BE6D3906BE6D390ABE6D3929BE6D
-      3933BE6D3928BE6D3912BE6D3912BE6D3914BE6D3908BE6D391CBE6D3974BE6D
-      39D2BE6D39DCBE6D399FBE6D3941BE6D3941BE6D392800000000000000000000
+      0000FF9F5539FF9F55F0FF9F55F1FF9F55CEFF9F5587FF9F5566FF9F554DFF9F
+      554DFF9F5586FF9F55FBFF9F55FEFF9F55FBFF9F55DBFF9F5527FF9F55100000
+      000000000000000000000000000000000000FF9F550DFF9F552DFF9F555DFF9F
+      5564FF9F555DFF9F5541FF9F5534FF9F552AFF9F5534FF9F558BFF9F55EDFF9F
+      55FEFF9F55FDFF9F55E0FF9F5595FF9F5587FF9F554800000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D3915BE6D39B4BE6D39F4BE6D399CBE6D3925BE6D3915BE6D391ABE6D
-      3954BE6D39A8BE6D39BDBE6D39D0BE6D39B0BE6D39B0BE6D395F000000000000
-      00000000000000000000000000000000000000000000BE6D3916BE6D3921BE6D
-      3921BE6D3924BE6D393BBE6D3962BE6D3970BE6D397ABE6D3998BE6D39B2BE6D
-      39DEBE6D39F4BE6D39ABBE6D3941BE6D3941BE6D392800000000000000000000
+      0000FF9F5543FF9F55F6FF9F55F8FF9F55D5FF9F555BFF9F554BFF9F554DFF9F
+      5584FF9F55F7FF9F55FBFF9F55FAFF9F55F8FF9F55D0FF9F5516000000000000
+      000000000000000000000000000000000000FF9F5503FF9F5522FF9F5554FF9F
+      5558FF9F555DFF9F5573FF9F55B5FF9F55CDFF9F55D8FF9F55ECFF9F55F8FF9F
+      55FFFF9F55FEFF9F55E3FF9F5595FF9F5587FF9F554800000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D3920BE6D39DFBE6D39FFBE6D39A7BE6D3915BE6D3915BE6D392ABE6D
-      39A8BE6D39BDBE6D39B8BE6D39B0BE6D39B0BE6D396E00000000000000000000
-      00000000000000000000000000000000000000000000BE6D3904BE6D391DBE6D
-      3921BE6D392BBE6D3966BE6D3970BE6D3978BE6D39A4BE6D39ACBE6D39B6BE6D
-      39EEBE6D39F8BE6D39B3BE6D3941BE6D3941BE6D392800000000000000000000
+      0000FF9F5543FF9F55FDFF9F55FEFF9F55FAFF9F555BFF9F554FFF9F5587FF9F
+      55F4FF9F55F9FF9F55FAFF9F55F8FF9F55F5FF9F55C500000000000000000000
+      000000000000000000000000000000000000FF9F5503FF9F5531FF9F5554FF9F
+      5558FF9F5582FF9F55CBFF9F55D2FF9F55D5FF9F55DDFF9F55F2FF9F55F8FF9F
+      55FFFF9F55FEFF9F55E2FF9F5595FF9F5587FF9F554800000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D3917BE6D39BCBE6D39E4BE6D39FFBE6D39EEBE6D392EBE6D39CDBE6D
-      39BDBE6D3999BE6D39BDBE6D39A2BE6D39A2BE6D395B00000000000000000000
-      000000000000000000000000000000000000BE6D3903BE6D391CBE6D3921BE6D
-      393CBE6D39B4BE6D3970BE6D396FBE6D396FBE6D397EBE6D397DBE6D39A0BE6D
-      39D7BE6D39E6BE6D399CBE6D3941BE6D3941BE6D392800000000000000000000
+      0000FF9F5546FF9F55F9FF9F55FDFF9F55FEFF9F55F0FF9F55EDFF9F55FAFF9F
+      55FAFF9F55F9FF9F55F2FF9F55F4FF9F55E1FF9F558B00000000000000000000
+      000000000000000000000000000000000000FF9F5504FF9F5541FF9F554FFF9F
+      5570FF9F55CEFF9F55D2FF9F55D2FF9F55D2FF9F55D3FF9F55D6FF9F55F1FF9F
+      55FDFF9F55FBFF9F55DDFF9F5595FF9F5587FF9F554800000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D3917BE6D39A1BE6D39B8BE6D39EEBE6D39DCBE6D39C3BE6D39DCBE6D
-      39CDBE6D395EBE6D39A4BE6D398ABE6D398ABE6D395600000000000000000000
-      000000000000000000000000000000000000BE6D3914BE6D3917BE6D391CBE6D
-      39DDBE6D39F8BE6D396FBE6D396EBE6D3966BE6D3946BE6D392FBE6D3961BE6D
-      39B6BE6D39C9BE6D3996BE6D3941BE6D3941BE6D392800000000000000000000
+      0000FF9F553FFF9F55F6FF9F55FAFF9F55FEFF9F55FEFF9F55FEFF9F55FCFF9F
+      55E8FF9F55D6FF9F55DCFF9F55E7FF9F55DAFF9F558700000000000000000000
+      0000000000000000000000000000FF9F5504FF9F5539FF9F5546FF9F5577FF9F
+      55FDFF9F55F4FF9F55D2FF9F55D1FF9F55C5FF9F559BFF9F558EFF9F55CEFF9F
+      55FBFF9F55F7FF9F55DBFF9F5595FF9F5587FF9F554800000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D3917BE6D39A1BE6D39B8BE6D39BCBE6D39D8BE6D39DCBE6D39ADBE6D
-      395EBE6D395EBE6D3964BE6D3984BE6D398ABE6D395600000000000000000000
-      00000000000000000000BE6D3903BE6D3914BE6D3917BE6D3933BE6D39DCBE6D
-      39F8BE6D39C4BE6D396EBE6D396EBE6D3956BE6D392FBE6D392FBE6D3942BE6D
-      39B6BE6D39C9BE6D3996BE6D3941BE6D3941BE6D392800000000000000000000
+      0000FF9F5516FF9F55C6FF9F55EFFF9F55F5FF9F55F8FF9F55F6FF9F55E5FF9F
+      55B6FF9F55B0FF9F55BAFF9F55CCFF9F55B5FF9F554D00000000000000000000
+      00000000000000000000FF9F5503FF9F5527FF9F553CFF9F5558FF9F55F5FF9F
+      55FFFF9F55F6FF9F55D1FF9F55C1FF9F5595FF9F5574FF9F5574FF9F55A7FF9F
+      55FAFF9F55F7FF9F55DBFF9F5595FF9F5587FF9F554800000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000BE6D3973BE6D3973BE6D3980BE6D398ABE6D394ABE6D
-      393BBE6D393BBE6D393BBE6D394BBE6D39560000000000000000000000000000
-      00000000000000000000BE6D3903BE6D3914BE6D3918BE6D3939BE6D39DDBE6D
-      39F9BE6D39C4BE6D3962BE6D394CBE6D3932BE6D392DBE6D392DBE6D3942BE6D
-      39B6BE6D39D0BE6D3997BE6D3942BE6D3941BE6D392800000000000000000000
+      00000000000000000000FF9F5561FF9F55A9FF9F55AEFF9F5599FF9F556EFF9F
+      5564FF9F5564FF9F5564FF9F5570FF9F55430000000000000000000000000000
+      00000000000000000000FF9F5507FF9F5539FF9F5548FF9F5587FF9F55FFFF9F
+      55FFFF9F55F4FF9F55C1FF9F558BFF9F556EFF9F556EFF9F5573FF9F5595FF9F
+      55FBFF9F55FAFF9F55DCFF9F5597FF9F5587FF9F554800000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000BE6D3903BE6D3918BE6D3921BE6D393EBE6D39E0BE6D
-      39FEBE6D39BBBE6D3934BE6D3912BE6D391BBE6D3927BE6D392ABE6D393FBE6D
-      39C9BE6D39F8BE6D39ACBE6D3944BE6D3944BE6D392A00000000000000000000
+      00000000000000000000FF9F5507FF9F553FFF9F5556FF9F558DFF9F55FFFF9F
+      55FFFF9F55EEFF9F5578FF9F553CFF9F554DFF9F5566FF9F556DFF9F5597FF9F
+      55FDFF9F55FDFF9F55E2FF9F559BFF9F558BFF9F554800000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000BE6D3904BE6D391EBE6D3923BE6D393EBE6D39E3BE6D
-      39FFBE6D39A6BE6D3912BE6D3912BE6D3915BE6D3927BE6D392ABE6D3944BE6D
-      39E4BE6D39FFBE6D39B9BE6D3945BE6D3945BE6D392B00000000000000000000
+      00000000000000000000FF9F5504FF9F5539FF9F5556FF9F558AFF9F55FEFF9F
+      55FFFF9F55FCFF9F5564FF9F553CFF9F555BFF9F5568FF9F557EFF9F55D2FF9F
+      55FFFF9F55FFFF9F55F9FF9F559EFF9F558DFF9F554B00000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000BE6D390FBE6D3917BE6D3931BE6D39BCBE6D
-      39E2BE6D39FFBE6D39FFBE6D3930BE6D3930BE6D3939BE6D3939BE6D39D2BE6D
-      39FFBE6D39D1BE6D39FFBE6D39B4BE6D3949BE6D392B00000000000000000000
+      00000000000000000000FF9F5503FF9F5516FF9F5541FF9F5577FF9F55F7FF9F
+      55FDFF9F55FFFF9F55F8FF9F55BEFF9F557DFF9F5582FF9F55BDFF9F55F8FF9F
+      55FEFF9F55FDFF9F55EBFF9F55BDFF9F5597FF9F554D00000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000BE6D3904BE6D3904BE6D3921BE6D399BBE6D
-      39B1BE6D39FFBE6D39FFBE6D39E1BE6D39B7BE6D3996BE6D3996BE6D39A5BE6D
-      39D2BE6D3984BE6D397ABE6D3968BE6D3964BE6D393800000000000000000000
+      0000000000000000000000000000FF9F550AFF9F551CFF9F555DFF9F55F3FF9F
+      55F9FF9F55FFFF9F55FFFF9F55FEFF9F55F5FF9F55F0FF9F55F1FF9F55F3FF9F
+      55EEFF9F55E3FF9F55DEFF9F55CBFF9F55ACFF9F555600000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000BE6D3904BE6D3904BE6D391ABE6D399BBE6D
-      39B1BE6D39BABE6D39F5BE6D39FFBE6D39DDBE6D39A5BE6D39A5BE6D3998BE6D
-      3984BE6D3984BE6D397ABE6D3968BE6D3968BE6D394100000000000000000000
+      0000000000000000000000000000FF9F5504FF9F5507FF9F5539FF9F55D2FF9F
+      55ECFF9F55F6FF9F55FBFF9F55FBFF9F55F1FF9F55E7FF9F55E5FF9F55E1FF9F
+      55D7FF9F55D0FF9F55C3FF9F55BCFF9F5595FF9F553400000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000BE6D3906BE6D3906BE6D3906BE6D391BBE6D391BBE6D
-      391BBE6D391FBE6D3914BE6D3914BE6D39140000000000000000000000000000
-      000000000000000000000000000000000000BE6D3902BE6D3902BE6D3943BE6D
-      396EBE6D396EBE6D398CBE6D399FBE6D3972BE6D3967BE6D3967BE6D3956BE6D
-      3952BE6D3952BE6D3944BE6D3941BE6D39410000000000000000000000000000
+      00000000000000000000FF9F5504FF9F5510FF9F5524FF9F5537FF9F5548FF9F
+      554BFF9F5546FF9F5541FF9F5537FF9F5524FF9F550300000000000000000000
+      000000000000000000000000000000000000FF9F5503FF9F5503FF9F553FFF9F
+      558BFF9F55A2FF9F55B1FF9F55B4FF9F55A1FF9F559CFF9F5592FF9F5586FF9F
+      5584FF9F557AFF9F556EFF9F556DFF9F553C0000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000BE6D392EBE6D392EBE6D396BBE6D39BDBE6D39BDBE6D
-      39C9BE6D39D9BE6D39AEBE6D398EBE6D398EBE6D3940BE6D3904BE6D39040000
+      000000000000FF9F550AFF9F5556FF9F5577FF9F55A5FF9F55F3FF9F55FCFF9F
+      55FDFF9F55FDFF9F55F2FF9F55EDFF9F55CAFF9F5541FF9F550AFF9F55040000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D3906BE6D392EBE6D3934BE6D3948BE6D39C4BE6D39D8BE6D39DCBE6D
-      39F4BE6D39F8BE6D39D8BE6D39A3BE6D39A3BE6D3968BE6D3905BE6D3905BE6D
-      3903000000000000000000000000000000000000000000000000000000000000
+      0000FF9F5503FF9F5541FF9F556EFF9F5587FF9F55D7FF9F55F7FF9F55FDFF9F
+      55FEFF9F55FFFF9F55F4FF9F55F1FF9F55E4FF9F5591FF9F5513FF9F550AFF9F
+      5503000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D3902BE6D391CBE6D3927BE6D3927BE6D3965BE6D398EBE6D398EBE6D
-      39F8BE6D399BBE6D39F8BE6D399BBE6D399BBE6D3966BE6D3913BE6D390ABE6D
-      3903000000000000000000000000000000000000000000000000000000000000
+      0000FF9F5507FF9F5539FF9F554BFF9F5554FF9F5580FF9F55B6FF9F55E8FF9F
+      55EAFF9F55FBFF9F55F1FF9F55F1FF9F55E1FF9F55AEFF9F553CFF9F551FFF9F
+      5504000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D3902BE6D3910BE6D3912BE6D3912BE6D3912BE6D3912BE6D3912BE6D
-      398500000000BE6D39C3BE6D398EBE6D398EBE6D3969BE6D3926BE6D3926BE6D
-      3911000000000000000000000000000000000000000000000000000000000000
+      0000FF9F5504FF9F552FFF9F5531FF9F5531FF9F5531FF9F5531FF9F5531FF9F
+      551CFF9F557AFF9F55C1FF9F55E9FF9F55DDFF9F55B1FF9F5566FF9F5548FF9F
+      5513000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D3902BE6D3910BE6D3912BE6D3912BE6D3912BE6D3912BE6D390B0000
-      000000000000BE6D3912BE6D397CBE6D398EBE6D3969BE6D392BBE6D392BBE6D
-      391B000000000000000000000000000000000000000000000000000000000000
+      0000FF9F5504FF9F552DFF9F5531FF9F5531FF9F5531FF9F5531FF9F5531FF9F
+      551CFF9F552FFF9F55C5FF9F55E9FF9F55DDFF9F55B2FF9F556DFF9F555DFF9F
+      552A000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D3902BE6D3910BE6D391CBE6D391CBE6D391CBE6D392EBE6D3912BE6D
-      3989BE6D3920BE6D39C7BE6D398EBE6D399ABE6D3969BE6D392BBE6D392BBE6D
-      391B000000000000000000000000000000000000000000000000000000000000
+      0000FF9F5504FF9F552FFF9F5543FF9F554BFF9F5558FF9F5552FF9F5599FF9F
+      5591FF9F55DCFF9F55F0FF9F55F5FF9F55E9FF9F55B2FF9F556DFF9F5561FF9F
+      5531000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D3902BE6D3930BE6D395CBE6D395CBE6D3991BE6D39D8BE6D39D8BE6D
-      39FFBE6D39DFBE6D39FFBE6D39E2BE6D39E2BE6D398DBE6D392BBE6D392BBE6D
-      391B000000000000000000000000000000000000000000000000000000000000
+      0000FF9F5510FF9F5552FF9F55A9FF9F55C2FF9F55D9FF9F55FCFF9F55FFFF9F
+      55FFFF9F55FFFF9F55FFFF9F55FFFF9F55FAFF9F55C2FF9F556DFF9F5561FF9F
+      5531000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D390DBE6D395ABE6D3967BE6D3978BE6D39E2BE6D39F4BE6D39F5BE6D
-      39FEBE6D39FFBE6D39F8BE6D39EEBE6D39EEBE6D39A5BE6D392BBE6D392BBE6D
-      391B000000000000000000000000000000000000000000000000000000000000
+      0000FF9F5519FF9F55A7FF9F55C2FF9F55DEFF9F55FCFF9F55FFFF9F55FEFF9F
+      55FEFF9F55FFFF9F55FFFF9F55FFFF9F55FEFF9F55D6FF9F556DFF9F5561FF9F
+      5531000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D390DBE6D395ABE6D3971BE6D39D8BE6D39F4BE6D399CBE6D399CBE6D
-      39A0BE6D39A3BE6D39BEBE6D39CEBE6D39CEBE6D39EEBE6D392BBE6D392BBE6D
-      391B000000000000000000000000000000000000000000000000000000000000
+      0000FF9F5524FF9F55BFFF9F55D8FF9F55FCFF9F55FEFF9F55F8FF9F55CEFF9F
+      55D0FF9F55E1FF9F55F4FF9F55FAFF9F55F8FF9F55CAFF9F556DFF9F5561FF9F
+      5531000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D390DBE6D397ABE6D39B0BE6D39BBBE6D39D8BE6D390BBE6D390BBE6D
-      390BBE6D390BBE6D3940BE6D3988BE6D399ABE6D3970BE6D392BBE6D392BBE6D
-      391B000000000000000000000000000000000000000000000000000000000000
+      0000FF9F552DFF9F55CEFF9F55F0FF9F55FAFF9F55C2FF9F551FFF9F551FFF9F
+      551FFF9F552FFF9F55A7FF9F55E9FF9F55E9FF9F55B9FF9F556DFF9F5561FF9F
+      5531000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D3917BE6D39A4BE6D39BBBE6D3979BE6D390BBE6D390BBE6D390BBE6D
-      390BBE6D390BBE6D391DBE6D3988BE6D399ABE6D3970BE6D392BBE6D392BBE6D
-      391B000000000000000000000000000000000000000000000000000000000000
+      0000FF9F5531FF9F55EAFF9F55F7FF9F55FAFF9F558AFF9F551FFF9F551FFF9F
+      551FFF9F5546FF9F5599FF9F55E9FF9F55EDFF9F55DEFF9F557DFF9F5561FF9F
+      5531000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D3912BE6D3990BE6D39ACBE6D39BBBE6D39DDBE6D3929BE6D3925BE6D
-      3925BE6D3925BE6D3964BE6D399ABE6D399ABE6D399ABE6D39C9BE6D3944BE6D
-      391B000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000BE6D3920000000000000000000000000000000000000
-      0000BE6D39200000000000000000000000000000000000000000BE6D39200000
+      0000FF9F5537FF9F55E9FF9F55F0FF9F55F6FF9F55EEFF9F55C1FF9F5561FF9F
+      555FFF9F558AFF9F55E1FF9F55F0FF9F55F0FF9F55F0FF9F55DEFF9F55A1FF9F
+      5531000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D3912BE6D3982BE6D3994BE6D39DDBE6D39FFBE6D39E0BE6D39D0BE6D
-      39C4BE6D39C4BE6D39B4BE6D399ABE6D399ABE6D399ABE6D39F8BE6D39DEBE6D
-      3968000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000BE6D39DF000000000000000000000000000000000000
-      0000BE6D39DF0000000000000000000000000000000000000000BE6D39DF0000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000BE6D3912BE6D3982BE6D3994BE6D39A1BE6D39F2BE6D39FFBE6D39F2BE6D
-      39DEBE6D39DEBE6D39C4BE6D399ABE6D399ABE6D39A6BE6D39ECBE6D39F8BE6D
-      399B000000000000000000000000000000000000000000000000000000000000
-      0000BE6D3920BE6D39DFBE6D39FFBE6D399F0000000000000000BE6D3920BE6D
-      39DFBE6D39FFBE6D399F0000000000000000BE6D3920BE6D39DFBE6D39FFBE6D
-      399F000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000BE6D395CBE6D395CBE6D3984BE6D399FBE6D398FBE6D
-      398BBE6D398BBE6D3969BE6D3960BE6D3960BE6D3960BE6D3984BE6D399B0000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000BE6D399F000000000000000000000000000000000000
-      0000BE6D399F0000000000000000000000000000000000000000BE6D399F0000
+      0000FF9F5531FF9F55E5FF9F55EFFF9F55FBFF9F55FFFF9F55FFFF9F55FEFF9F
+      55FDFF9F55FBFF9F55F4FF9F55F0FF9F55F0FF9F55F1FF9F55FCFF9F55F2FF9F
+      556E000000000000000000000000000000000000000000000000000000000000
+      000000000000FF9F5539FF9F559400000000000000000000000000000000FF9F
+      5539FF9F559400000000000000000000000000000000FF9F5539FF9F55940000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000FF9F5510FF9F55ADFF9F55DCFF9F55ECFF9F55F9FF9F55FDFF9F55FBFF9F
+      55F9FF9F55F7FF9F55EDFF9F55E7FF9F55E5FF9F55ECFF9F55F9FF9F55ECFF9F
+      555B000000000000000000000000000000000000000000000000000000000000
+      000000000000FF9F5594FF9F55CC00000000000000000000000000000000FF9F
+      5594FF9F55CC00000000000000000000000000000000FF9F5594FF9F55CC0000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000FF9F5552FF9F558EFF9F55A5FF9F55BDFF9F55BFFF9F
+      55BEFF9F55AEFF9F5599FF9F5594FF9F5594FF9F5594FF9F55A7FF9F556E0000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

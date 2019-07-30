@@ -33,7 +33,7 @@ uses
   UToolDeformationGrid, UToolSelect, UToolPolygon, UToolFloodFill, UToolBasic,
   UToolPhong, UToolText, UScripting, UMenu, UColorFilters, uadjustcurves,
   UScriptType, ULayerAction, UImageType, uposterize, UMySLV, UToolLayer,
-  unoisefilter, uprint, uimagelist, UBarUpDown, UFileExtensions, UFileSystem,
+  unoisefilter, uprint, uimagelist, UFileExtensions, UFileSystem,
   UToolBrush, UMainFormLayout, USaveOption, UBrushType, ugeometricbrush,
   URainType, UFormRain, UPaletteToolbar, uselectionhighlight, UGridBitmap,
   UToolIcon, UImagePreview, UPreviewDialog, UQuestion, UTiff, UImageView,

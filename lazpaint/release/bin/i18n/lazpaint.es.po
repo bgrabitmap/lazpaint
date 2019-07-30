@@ -1468,6 +1468,81 @@ msgstr "Seleccionar color secundario"
 msgid "Select pen color"
 msgstr "Seleccionar color de pluma"
 
+#: tfmain.spinedit_arrowsizex.hint
+msgctxt "tfmain.spinedit_arrowsizex.hint"
+msgid "Horizontal size of the arrow"
+msgstr "Tamaño horizontal de la flecha"
+
+#: tfmain.spinedit_arrowsizey.hint
+msgctxt "tfmain.spinedit_arrowsizey.hint"
+msgid "Vertical size of the arrow"
+msgstr "Tamaño vertical de la flecha"
+
+#: tfmain.spinedit_backopacity.hint
+msgctxt "tfmain.spinedit_backopacity.hint"
+msgid "Secondary color opacity"
+msgstr "Opacidad de color secundario"
+
+#: tfmain.spinedit_brushspacing.hint
+msgctxt "tfmain.spinedit_brushspacing.hint"
+msgid "Spacing between patterns"
+msgstr "Espaciado entre patrones"
+
+#: tfmain.spinedit_eraser.hint
+msgctxt "tfmain.spinedit_eraser.hint"
+msgid "Eraser opacity"
+msgstr "Opacidad del borrador"
+
+#: tfmain.spinedit_penopacity.hint
+msgctxt "tfmain.spinedit_penopacity.hint"
+msgid "Pen opacity"
+msgstr "Opacidad de pluma"
+
+#: tfmain.spinedit_penwidth.hint
+msgctxt "tfmain.spinedit_penwidth.hint"
+msgid "Pen width"
+msgstr "Ancho de pluma"
+
+#: tfmain.spinedit_phongbordersize.hint
+msgctxt "tfmain.spinedit_phongbordersize.hint"
+msgid "Border size"
+msgstr "Tamaño del borde"
+
+#: tfmain.spinedit_shapealtitude.hint
+msgctxt "tfmain.spinedit_shapealtitude.hint"
+msgid "Shape altitude"
+msgstr "Altitud de la figura"
+
+#: tfmain.spinedit_textblur.hint
+msgctxt "tfmain.spinedit_textblur.hint"
+msgid "Shadow blur"
+msgstr "Desenfoque de sombra"
+
+#: tfmain.spinedit_textoutlinewidth.hint
+msgctxt "tfmain.spinedit_textoutlinewidth.hint"
+msgid "Text outline width"
+msgstr "Ancho de contorno de texto"
+
+#: tfmain.spinedit_textshadowx.hint
+msgctxt "tfmain.spinedit_textshadowx.hint"
+msgid "Horizontal shadow offset"
+msgstr "Offset de sombra horizontal"
+
+#: tfmain.spinedit_textshadowy.hint
+msgctxt "tfmain.spinedit_textshadowy.hint"
+msgid "Vertical shadow offset"
+msgstr "Offset de sombra vertical"
+
+#: tfmain.spinedit_textsize.hint
+msgctxt "tfmain.spinedit_textsize.hint"
+msgid "Text size"
+msgstr "Tamaño de texto"
+
+#: tfmain.spinedit_textureopacity.hint
+msgctxt "tfmain.spinedit_textureopacity.hint"
+msgid "Texture opacity"
+msgstr "Opacidad de textura"
+
 #: tfmain.toolbrush.hint
 msgctxt "tfmain.toolbrush.hint"
 msgid "Brush"
@@ -1918,78 +1993,6 @@ msgstr "Zoom al tamaño original del píxel"
 msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
 msgid "Zoom out"
 msgstr "Zoom fuera"
-
-#: tfmain.vsarrowsizex.hint
-msgid "Horizontal size of the arrow"
-msgstr "Tamaño horizontal de la flecha"
-
-#: tfmain.vsarrowsizey.hint
-msgid "Vertical size of the arrow"
-msgstr "Tamaño vertical de la flecha"
-
-#: tfmain.vsbackopacity.hint
-msgctxt "tfmain.vsbackopacity.hint"
-msgid "Secondary color opacity"
-msgstr "Opacidad de color secundario"
-
-#: tfmain.vsbrushspacing.hint
-msgctxt "tfmain.vsbrushspacing.hint"
-msgid "Spacing between patterns"
-msgstr "Espaciado entre patrones"
-
-#: tfmain.vseraseropacity.hint
-msgctxt "tfmain.vseraseropacity.hint"
-msgid "Eraser opacity"
-msgstr "Opacidad del borrador"
-
-#: tfmain.vspenopacity.hint
-msgctxt "tfmain.vspenopacity.hint"
-msgid "Pen opacity"
-msgstr "Opacidad de pluma"
-
-#: tfmain.vspenwidth.hint
-msgctxt "tfmain.vspenwidth.hint"
-msgid "Pen width"
-msgstr "Ancho de pluma"
-
-#: tfmain.vsphongbordersize.hint
-msgctxt "tfmain.vsphongbordersize.hint"
-msgid "Border size"
-msgstr "Tamaño del borde"
-
-#: tfmain.vsshapealtitude.hint
-msgctxt "tfmain.vsshapealtitude.hint"
-msgid "Shape altitude"
-msgstr "Altitud de la figura"
-
-#: tfmain.vstextblur.hint
-msgctxt "tfmain.vstextblur.hint"
-msgid "Shadow blur"
-msgstr "Desenfoque de sombra"
-
-#: tfmain.vstextoutlinewidth.hint
-msgctxt "tfmain.vstextoutlinewidth.hint"
-msgid "Text outline width"
-msgstr "Ancho de contorno de texto"
-
-#: tfmain.vstextshadowx.hint
-msgctxt "tfmain.vstextshadowx.hint"
-msgid "Horizontal shadow offset"
-msgstr "Offset de sombra horizontal"
-
-#: tfmain.vstextshadowy.hint
-msgctxt "tfmain.vstextshadowy.hint"
-msgid "Vertical shadow offset"
-msgstr "Offset de sombra vertical"
-
-#: tfmain.vstextsize.hint
-msgctxt "tfmain.vstextsize.hint"
-msgid "Text size"
-msgstr "Tamaño de texto"
-
-#: tfmain.vstextureopacity.hint
-msgid "Texture opacity"
-msgstr "Opacidad de textura"
 
 #: tfmotionblur.button_cancel.caption
 msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"

@@ -9,15 +9,15 @@ interface
 {$ENDIF}
 
 uses
-  Classes, LMessages, SysUtils, LazFileUtils, LResources, Forms,
-  Controls, Graphics, Dialogs, Menus, ExtDlgs, ComCtrls, ActnList, StdCtrls,
-  ExtCtrls, Buttons, types, LCLType, BGRAImageList, BGRAVirtualScreen,
+  Classes, LMessages, SysUtils, LazFileUtils, LResources, Forms, Controls,
+  Graphics, Dialogs, Menus, ExtDlgs, ComCtrls, ActnList, StdCtrls, ExtCtrls,
+  Buttons, types, LCLType, BGRAImageList, BCTrackbarUpdown,
 
   BGRABitmap, BGRABitmapTypes, BGRALayers, BGRASVGOriginal,
 
   LazPaintType, UMainFormLayout, UTool, UImage, UImageAction, UZoom, UImageView,
   UImageObservation, UConfig, LCScaleDPI, UResourceStrings,
-  UMenu, uscripting, ubrowseimages, UToolPolygon, UBarUpDown,
+  UMenu, uscripting, ubrowseimages, UToolPolygon,
 
   laztablet, udarktheme;
 
@@ -28,7 +28,25 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    SpinEdit_PenOpacity: TBCTrackbarUpdown;
     FilterWaveDisplacement: TAction;
+    SpinEdit_BackOpacity: TBCTrackbarUpdown;
+    SpinEdit_Eraser: TBCTrackbarUpdown;
+    SpinEdit_GridNbX: TBCTrackbarUpdown;
+    SpinEdit_GridNbY: TBCTrackbarUpdown;
+    SpinEdit_PenWidth: TBCTrackbarUpdown;
+    SpinEdit_ArrowSizeX: TBCTrackbarUpdown;
+    SpinEdit_ArrowSizeY: TBCTrackbarUpdown;
+    SpinEdit_Tolerance: TBCTrackbarUpdown;
+    SpinEdit_BrushSpacing: TBCTrackbarUpdown;
+    SpinEdit_ShapeAltitude: TBCTrackbarUpdown;
+    SpinEdit_TextShadowX: TBCTrackbarUpdown;
+    SpinEdit_TextBlur: TBCTrackbarUpdown;
+    SpinEdit_TextOutlineWidth: TBCTrackbarUpdown;
+    SpinEdit_PhongBorderSize: TBCTrackbarUpdown;
+    SpinEdit_TextShadowY: TBCTrackbarUpdown;
+    SpinEdit_TextSize: TBCTrackbarUpdown;
+    SpinEdit_TextureOpacity: TBCTrackbarUpdown;
     ViewDarkTheme: TAction;
     MenuFileToolbar: TMenuItem;
     ViewWorkspaceColor: TAction;
@@ -93,21 +111,6 @@ type
     SaveSelectionDialog: TSaveDialog;
     SavePictureDialog1: TSaveDialog;
     TimerDocking: TTimer;
-    vsGridNbX: TBGRAVirtualScreen;
-    vsGridNbY: TBGRAVirtualScreen;
-    vsPhongBorderSize: TBGRAVirtualScreen;
-    vsShapeAltitude: TBGRAVirtualScreen;
-    vsBrushSpacing: TBGRAVirtualScreen;
-    vsTextShadowX: TBGRAVirtualScreen;
-    vsTextOutlineWidth: TBGRAVirtualScreen;
-    vsArrowSizeY: TBGRAVirtualScreen;
-    vsTextShadowY: TBGRAVirtualScreen;
-    vsArrowSizeX: TBGRAVirtualScreen;
-    vsTextSize: TBGRAVirtualScreen;
-    vsTextBlur: TBGRAVirtualScreen;
-    vsTolerance: TBGRAVirtualScreen;
-    vsTextureOpacity: TBGRAVirtualScreen;
-    vsPenOpacity: TBGRAVirtualScreen;
     FileSaveAsInSameFolder: TAction;
     FilePrint: TAction;
     FilterNoise: TAction;
@@ -400,9 +403,6 @@ type
     ColorDialog1: TColorDialog;
     ActionList1: TActionList;
     ImageList16: TBGRAImageList;
-    vsBackOpacity: TBGRAVirtualScreen;
-    vsEraserOpacity: TBGRAVirtualScreen;
-    vsPenWidth: TBGRAVirtualScreen;
     procedure BrushCreateGeometricExecute(Sender: TObject);
     procedure BrushCreateGeometricUpdate(Sender: TObject);
     procedure BrushLoadFromFileExecute(Sender: TObject);
@@ -461,7 +461,7 @@ type
     procedure PopupToolboxPopup(Sender: TObject);
     procedure SelectionHorizontalFlipUpdate(Sender: TObject);
     procedure SelectionVerticalFlipUpdate(Sender: TObject);
-    procedure SpinEdit_PhongBorderSizeChange(Sender: TObject);
+    procedure SpinEdit_PhongBorderSizeChange(Sender: TObject; AByUser: boolean);
     procedure Combo_SplineStyleChange(Sender: TObject);
     procedure EditDeselectUpdate(Sender: TObject);
     procedure EditPasteUpdate(Sender: TObject);
@@ -493,12 +493,12 @@ type
     procedure PaintBox_PictureMouseEnter(Sender: TObject);
     procedure Perspective_RepeatClick(Sender: TObject);
     procedure Perspective_TwoPlanesClick(Sender: TObject);
-    procedure SpinEdit_ShapeAltitudeChange(Sender: TObject);
-    procedure SpinEdit_BrushSpacingChange(Sender: TObject);
-    procedure SpinEdit_TextSizeChange(Sender: TObject);
-    procedure SpinEdit_TextureOpacityChange(Sender: TObject);
-    procedure SpinEdit_TextBlurChange(Sender: TObject);
-    procedure GridNb_SpinEditChange(Sender: TObject);
+    procedure SpinEdit_ShapeAltitudeChange(Sender: TObject; AByUser: boolean);
+    procedure SpinEdit_BrushSpacingChange(Sender: TObject; AByUser: boolean);
+    procedure SpinEdit_TextSizeChange(Sender: TObject; AByUser: boolean);
+    procedure SpinEdit_TextureOpacityChange(Sender: TObject; AByUser: boolean);
+    procedure SpinEdit_TextBlurChange(Sender: TObject; AByUser: boolean);
+    procedure GridNb_SpinEditChange(Sender: TObject; AByUser: boolean);
     procedure Image_CurrentTextureMouseDown(Sender: TObject;
       {%H-}Button: TMouseButton; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure PaintBox_PenPreviewPaint(Sender: TObject);
@@ -533,9 +533,9 @@ type
     procedure MenuFileClick(Sender: TObject);
     procedure RecentFileClick(Sender: TObject);
     procedure LanguageClick(Sender: TObject);
-    procedure SpinEdit_TextOutlineWidthChange(Sender: TObject);
-    procedure SpinEdit_TextShadowXChange(Sender: TObject);
-    procedure SpinEdit_TextShadowYChange(Sender: TObject);
+    procedure SpinEdit_TextOutlineWidthChange(Sender: TObject; AByUser: boolean);
+    procedure SpinEdit_TextShadowXChange(Sender: TObject; AByUser: boolean);
+    procedure SpinEdit_TextShadowYChange(Sender: TObject; AByUser: boolean);
     procedure TimerUpdateTimer(Sender: TObject);
     procedure TimerHidePenPreviewTimer(Sender: TObject);
     procedure ToolChangeDockingExecute(Sender: TObject);
@@ -591,7 +591,7 @@ type
     procedure ViewStatusBarUpdate(Sender: TObject);
     procedure ViewToolboxUpdate(Sender: TObject);
     procedure ViewImagelistUpdate(Sender: TObject);
-    procedure SpinEdit_EraserChange(Sender: TObject);
+    procedure SpinEdit_EraserChange(Sender: TObject; AByUser: boolean);
     procedure ScriptExecute(Sender: TObject);
     procedure FileQuitExecute(Sender: TObject);
     procedure FileSaveUpdate(Sender: TObject);
@@ -609,16 +609,16 @@ type
     procedure FormShow(Sender: TObject);
     procedure Image_SwapColorsMouseDown(Sender: TObject; {%H-}Button: TMouseButton;
       {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
-    procedure SpinEdit_PenWidthChange(Sender: TObject);
+    procedure SpinEdit_PenWidthChange(Sender: TObject; AByUser: boolean);
     procedure Tool_CloseShapeClick(Sender: TObject);
     procedure Shape_BackColorMouseDown(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure Shape_PenColorMouseDown(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
-    procedure SpinEdit_BackOpacityChange(Sender: TObject);
-    procedure SpinEdit_PenOpacityChange(Sender: TObject);
-    procedure SpinEdit_ArrowSizeChange(Sender: TObject);
-    procedure SpinEdit_ToleranceChange(Sender: TObject);
+    procedure SpinEdit_BackOpacityChange(Sender: TObject; AByUser: boolean);
+    procedure SpinEdit_PenOpacityChange(Sender: TObject; AByUser: boolean);
+    procedure SpinEdit_ArrowSizeChange(Sender: TObject; AByUser: boolean);
+    procedure SpinEdit_ToleranceChange(Sender: TObject; AByUser: boolean);
     procedure Tool_DiamondGradientClick(Sender: TObject);
     procedure Tool_LinearGradientClick(Sender: TObject);
     procedure Tool_ProgressiveFloodfillClick(Sender: TObject);
@@ -639,23 +639,8 @@ type
   private
     { private declarations }
     FLayout: TMainFormLayout;
-    SpinEdit_PenOpacity, SpinEdit_BackOpacity, SpinEdit_TextureOpacity,
-    SpinEdit_Eraser,SpinEdit_Tolerance,SpinEdit_PenWidth,
-    SpinEdit_BrushSpacing: TBarUpDown;
 
-    SpinEdit_ArrowSizeX,SpinEdit_ArrowSizeY: TBarUpDown;
-
-    SpinEdit_TextShadowX,
-    SpinEdit_TextOutlineWidth,
-    SpinEdit_TextShadowY,
-    SpinEdit_TextSize,
-    SpinEdit_TextBlur: TBarUpDown;
-
-    SpinEdit_GridNbX,SpinEdit_GridNbY: TBarUpDown;
-
-    SpinEdit_PhongBorderSize, SpinEdit_ShapeAltitude: TBarUpDown;
-
-    FActiveSpinEdit: TBarUpDown;
+    FActiveSpinEdit: TBCTrackbarUpdown;
     FLastWidth,FLastHeight,FLastBPP,FLastFrameIndex: integer;
     {$IFDEF LINUX}
     FTopMostHiddenMinimised: TTopMostInfo;
@@ -698,6 +683,7 @@ type
     FCoordinatesCaptionCount: NativeInt;
     FImageView: TImageView;
     FUpdateStackWhenIdle: boolean;
+    FToolbarElementsInitDone: boolean;
 
     function GetCurrentPressure: single;
     function GetDarkTheme: boolean;
@@ -709,7 +695,6 @@ type
     procedure NoTextureIcon;
     procedure RegisterToolbarElements;
     procedure InitToolbarElements;
-    procedure DestroyMenuAndToolbar;
     function ShowOpenBrushDialog: boolean;
     function TextSpinEditFocused: boolean;
     procedure UpdateBrush;
@@ -922,8 +907,6 @@ begin
   end;
   FreeAndNil(Zoom);
   FreeAndNil(FOnlineUpdater);
-
-  DestroyMenuAndToolbar;
 
   FreeAndNil(FTablet);
 

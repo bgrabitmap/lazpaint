@@ -95,11 +95,11 @@ begin
       begin
         { Button Down }
         Bitmap := TBGRABitmap.Create(Sender.Width, Sender.Height);
-        Bitmap.Rectangle(0, 0, Sender.Width, Sender.Height - 1, BGRA(48, 48, 48),
-          BGRA(61, 61, 61), dmSet);
-        Bitmap.Rectangle(1, 1, Sender.Width - 1, Sender.Height - 2, BGRA(55, 55, 55),
-          BGRA(61, 61, 61), dmSet);
-        Bitmap.SetHorizLine(0, Sender.Height - 1, Sender.Width - 1, BGRA(83, 83, 83));
+        Bitmap.Rectangle(0, 0, Sender.Width, Sender.Height - 1, BGRA(58, 58, 58),
+          BGRA(71, 71, 71), dmSet);
+        Bitmap.Rectangle(1, 1, Sender.Width - 1, Sender.Height - 2, BGRA(65, 65, 65),
+          BGRA(71, 71, 71), dmSet);
+        Bitmap.SetHorizLine(0, Sender.Height - 1, Sender.Width - 1, BGRA(93, 93, 93));
       end
       else
       begin

@@ -1,7 +1,8 @@
 procedure TFMain.CreateToolbarElements;
 var gcs: TGradientColorspace;
 begin
-  if Assigned(SpinEdit_PenOpacity) then exit;
+  if FToolbarElementsInitDone then exit;
+  FToolbarElementsInitDone:= true;
 
   Perspective_Repeat.OnClick := @Perspective_RepeatClick;
   Perspective_TwoPlanes.OnClick := @Perspective_TwoPlanesClick;
@@ -71,27 +72,25 @@ begin
   Combo_Ratio.OnChange := @Combo_RatioChange;
 
   Panel_LineCap_FullSize := Panel_LineCap.Width;
-  SpinEdit_PenOpacity := TBarUpDown.Create(vsPenOpacity,0,255,255);
   SpinEdit_PenOpacity.Increment := 15;
   SpinEdit_PenOpacity.OnChange := @SpinEdit_PenOpacityChange;
 
-  SpinEdit_BackOpacity := TBarUpDown.Create(vsBackOpacity,0,255,255);
   SpinEdit_BackOpacity.Increment := 15;
   SpinEdit_BackOpacity.OnChange := @SpinEdit_BackOpacityChange;
 
-  SpinEdit_TextureOpacity := TBarUpDown.Create(vsTextureOpacity,0,255,255);
   SpinEdit_TextureOpacity.Increment := 15;
   SpinEdit_TextureOpacity.OnChange := @SpinEdit_TextureOpacityChange;
 
-  SpinEdit_Eraser := TBarUpDown.Create(vsEraserOpacity,0,255,255);
   SpinEdit_Eraser.Increment := 15;
   SpinEdit_Eraser.OnChange := @SpinEdit_EraserChange;
 
-  SpinEdit_Tolerance := TBarUpDown.Create(vsTolerance,0,255,128);
+  SpinEdit_Tolerance.Value := 128;
   SpinEdit_Tolerance.Increment := 5;
   SpinEdit_Tolerance.OnChange := @SpinEdit_ToleranceChange;
 
-  SpinEdit_PenWidth := TBarUpDown.Create(vsPenWidth,1,9999,10);
+  SpinEdit_PenWidth.MinValue := 1;
+  SpinEdit_PenWidth.MaxValue := 9999;
+  SpinEdit_PenWidth.Increment := 10;
   SpinEdit_PenWidth.OnChange := @SpinEdit_PenWidthChange;
   SpinEdit_PenWidth.OnMouseMove := @SpinEdit_PenWidthMouseMove;
   SpinEdit_PenWidth.OnExit:= @SpinEdit_PenWidthExit;
@@ -100,56 +99,80 @@ begin
   ComboBox_ArrowStart.ItemIndex := 0;
   ComboBox_ArrowEnd.ItemIndex := 0;
 
-  SpinEdit_ArrowSizeX := TBarUpDown.Create(vsArrowSizeX,10,99,20);
+  SpinEdit_ArrowSizeX.MinValue := 10;
+  SpinEdit_ArrowSizeX.MaxValue := 99;
+  SpinEdit_ArrowSizeX.Value := 20;
   SpinEdit_ArrowSizeX.Increment := 5;
   SpinEdit_ArrowSizeX.OnChange := @SpinEdit_ArrowSizeChange;
 
-  SpinEdit_ArrowSizeY := TBarUpDown.Create(vsArrowSizeY,10,99,20);
+  SpinEdit_ArrowSizeY.MinValue := 10;
+  SpinEdit_ArrowSizeY.MaxValue := 99;
+  SpinEdit_ArrowSizeY.Value := 20;
   SpinEdit_ArrowSizeY.Increment := 5;
   SpinEdit_ArrowSizeY.OnChange := @SpinEdit_ArrowSizeChange;
 
-  SpinEdit_TextShadowX := TBarUpDown.Create(vsTextShadowX,-100,100,0);
+  SpinEdit_TextShadowX.MinValue := -100;
+  SpinEdit_TextShadowX.MaxValue := 100;
+  SpinEdit_TextShadowX.Value := 0;
   SpinEdit_TextShadowX.Increment := 1;
   SpinEdit_TextShadowX.OnChange := @SpinEdit_TextShadowXChange;
 
-  SpinEdit_TextShadowY := TBarUpDown.Create(vsTextShadowY,-100,100,0);
+  SpinEdit_TextShadowY.MinValue := -100;
+  SpinEdit_TextShadowy.MaxValue := 100;
+  SpinEdit_TextShadowY.Value := 0;
   SpinEdit_TextShadowY.Increment := 1;
   SpinEdit_TextShadowY.OnChange := @SpinEdit_TextShadowYChange;
 
-  SpinEdit_TextOutlineWidth := TBarUpDown.Create(vsTextOutlineWidth,1,999,20);
+  SpinEdit_TextOutlineWidth.MinValue := 1;
+  SpinEdit_TextOutlineWidth.MaxValue := 999;
+  SpinEdit_TextOutlineWidth.Value := 20;
   SpinEdit_TextOutlineWidth.Increment := 5;
   SpinEdit_TextOutlineWidth.OnChange := @SpinEdit_TextOutlineWidthChange;
 
-  SpinEdit_TextSize := TBarUpDown.Create(vsTextSize,1,999,12);
+  SpinEdit_TextSize.MinValue := 1;
+  SpinEdit_TextSize.MaxValue := 999;
+  SpinEdit_TextSize.Value := 12;
   SpinEdit_TextSize.Increment := 5;
   SpinEdit_TextSize.OnChange := @SpinEdit_TextSizeChange;
   SpinEdit_TextSize.BarExponent:= 3;
 
-  SpinEdit_TextBlur := TBarUpDown.Create(vsTextBlur,1,999,40);
+  SpinEdit_TextBlur.MinValue := 1;
+  SpinEdit_TextBlur.MaxValue := 999;
+  SpinEdit_TextBlur.Value := 40;
   SpinEdit_TextBlur.Increment := 5;
   SpinEdit_TextBlur.BarExponent:= 3;
   SpinEdit_TextBlur.OnChange := @SpinEdit_TextBlurChange;
 
-  SpinEdit_GridNbX := TBarUpDown.Create(vsGridNbX,1,100,10);
+  SpinEdit_GridNbX.MinValue := 1;
+  SpinEdit_GridNbX.MaxValue := 100;
+  SpinEdit_GridNbX.Value := 10;
   SpinEdit_GridNbX.Increment := 1;
   SpinEdit_GridNbX.OnChange := @GridNb_SpinEditChange;
   SpinEdit_GridNbX.OnExit := @SpinEdit_GridNbExit;
 
-  SpinEdit_GridNbY := TBarUpDown.Create(vsGridNbY,1,100,10);
+  SpinEdit_GridNbY.MinValue := 1;
+  SpinEdit_GridNbY.MaxValue := 100;
+  SpinEdit_GridNbY.Value := 10;
   SpinEdit_GridNbY.Increment := 1;
   SpinEdit_GridNbY.OnChange := @GridNb_SpinEditChange;
   SpinEdit_GridNbY.OnExit := @SpinEdit_GridNbExit;
 
-  SpinEdit_PhongBorderSize := TBarUpDown.Create(vsPhongBorderSize,1,100,10);
+  SpinEdit_PhongBorderSize.MinValue := 1;
+  SpinEdit_PhongBorderSize.MaxValue := 100;
+  SpinEdit_PhongBorderSize.Value := 10;
   SpinEdit_PhongBorderSize.Increment := 3;
   SpinEdit_PhongBorderSize.OnChange := @SpinEdit_PhongBorderSizeChange;
 
-  SpinEdit_ShapeAltitude := TBarUpDown.Create(vsShapeAltitude,1,100,10);
+  SpinEdit_ShapeAltitude.MinValue := 1;
+  SpinEdit_ShapeAltitude.MaxValue := 100;
+  SpinEdit_ShapeAltitude.Value := 10;
   SpinEdit_ShapeAltitude.Increment := 1;
   SpinEdit_ShapeAltitude.BarExponent:= 3;
   SpinEdit_ShapeAltitude.OnChange := @SpinEdit_ShapeAltitudeChange;
 
-  SpinEdit_BrushSpacing := TBarUpDown.Create(vsBrushSpacing,1,99,1);
+  SpinEdit_BrushSpacing.MinValue := 1;
+  SpinEdit_BrushSpacing.MaxValue := 99;
+  SpinEdit_BrushSpacing.Value := 1;
   SpinEdit_BrushSpacing.Increment := 1;
   SpinEdit_BrushSpacing.OnChange := @SpinEdit_BrushSpacingChange;
 
@@ -227,35 +250,6 @@ begin
     end;
     ALabel.Width := NewSize;
   end;
-end;
-
-procedure TFMain.DestroyMenuAndToolbar;
-begin
-  if not Assigned(SpinEdit_PenOpacity) then exit;
-
-  FreeAndNil(SpinEdit_PenOpacity);
-  FreeAndNil(SpinEdit_BackOpacity);
-  FreeAndNil(SpinEdit_TextureOpacity);
-  FreeAndNil(SpinEdit_Eraser);
-  FreeAndNil(SpinEdit_Tolerance);
-  FreeAndNil(SpinEdit_PenWidth);
-
-  FreeAndNil(SpinEdit_ArrowSizeX);
-  FreeAndNil(SpinEdit_ArrowSizeY);
-
-  FreeAndNil(SpinEdit_TextShadowX);
-  FreeAndNil(SpinEdit_TextOutlineWidth);
-  FreeAndNil(SpinEdit_TextShadowY);
-  FreeAndNil(SpinEdit_TextSize);
-  FreeAndNil(SpinEdit_TextBlur);
-
-  FreeAndNil(SpinEdit_GridNbX);
-  FreeAndNil(SpinEdit_GridNbY);
-
-  FreeAndNil(SpinEdit_PhongBorderSize);
-  FreeAndNil(SpinEdit_ShapeAltitude);
-
-  FreeAndNil(SpinEdit_BrushSpacing);
 end;
 
 procedure TFMain.RegisterToolbarElements;
@@ -343,7 +337,6 @@ begin
     Tool_PhongShapeVerticalCylinder.Down := true;
   UpdatePanelPhongShape;
   SpinEdit_ShapeAltitude.Value := ToolManager.ToolShapeAltitude;
-  SpinEdit_ShapeAltitudeChange(nil);
   SpinEdit_PhongBorderSize.Value := ToolManager.ToolShapeBorderSize;
   UpdateLineCapBar;
   ComboBox_BrushSelect.Clear;
@@ -530,7 +523,7 @@ begin
   initialized := oldInit;
 end;
 
-procedure TFMain.SpinEdit_ShapeAltitudeChange(Sender: TObject);
+procedure TFMain.SpinEdit_ShapeAltitudeChange(Sender: TObject; AByUser: boolean);
 begin
   if SpinEdit_ShapeAltitude.Value < 6 then
     SpinEdit_ShapeAltitude.Increment := 1
@@ -538,7 +531,7 @@ begin
     SpinEdit_ShapeAltitude.Increment := 3
   else
     SpinEdit_ShapeAltitude.Increment := 5;
-  if initialized then
+  if AByUser and initialized then
   begin
     if ToolManager.ToolShapeAltitude = SpinEdit_ShapeAltitude.Value then exit;
     ToolManager.ToolShapeAltitude := SpinEdit_ShapeAltitude.Value;
@@ -546,9 +539,9 @@ begin
   end;
 end;
 
-procedure TFMain.SpinEdit_TextSizeChange(Sender: TObject);
+procedure TFMain.SpinEdit_TextSizeChange(Sender: TObject; AByUser: boolean);
 begin
-  if initialized and not FInTextFont then
+  if AByUser and initialized and not FInTextFont then
   begin
     if ToolManager.ToolTextFont.Size = SpinEdit_TextSize.Value then exit;
     ToolManager.ToolTextFont.Size := SpinEdit_TextSize.Value;
@@ -558,9 +551,9 @@ begin
   end;
 end;
 
-procedure TFMain.SpinEdit_TextureOpacityChange(Sender: TObject);
+procedure TFMain.SpinEdit_TextureOpacityChange(Sender: TObject; AByUser: boolean);
 begin
-  if initialized then
+  if AByUser and initialized then
   begin
     if ToolManager.ToolTextureOpacity = SpinEdit_TextureOpacity.Value then exit;
     ToolManager.ToolTextureOpacity := SpinEdit_TextureOpacity.Value;
@@ -569,9 +562,9 @@ begin
   end;
 end;
 
-procedure TFMain.SpinEdit_TextBlurChange(Sender: TObject);
+procedure TFMain.SpinEdit_TextBlurChange(Sender: TObject; AByUser: boolean);
 begin
-  if initialized then
+  if AByUser and initialized then
   begin
     if ToolManager.ToolTextBlur = SpinEdit_TextBlur.Value/PenWidthFactor then exit;
     ToolManager.ToolTextBlur := SpinEdit_TextBlur.Value/PenWidthFactor;
@@ -580,9 +573,9 @@ begin
   end;
 end;
 
-procedure TFMain.GridNb_SpinEditChange(Sender: TObject);
+procedure TFMain.GridNb_SpinEditChange(Sender: TObject; AByUser: boolean);
 begin
-  if not initialized then exit;
+  if not AByUser or not initialized then exit;
   if ToolManager.SetToolDeformationGridSize(SpinEdit_GridNbX.Value+1,SpinEdit_GridNbY.Value+1) then
     image.OnImageChanged.NotifyObservers;
 end;
@@ -603,9 +596,9 @@ begin
   end;
 end;
 
-procedure TFMain.SpinEdit_TextOutlineWidthChange(Sender: TObject);
+procedure TFMain.SpinEdit_TextOutlineWidthChange(Sender: TObject; AByUser: boolean);
 begin
-  if initialized then
+  if AByUser and initialized then
   begin
      if ToolManager.ToolTextOutlineWidth <> SpinEdit_TextOutlineWidth.Value/PenWidthFactor then
      begin
@@ -615,9 +608,9 @@ begin
   end;
 end;
 
-procedure TFMain.SpinEdit_TextShadowXChange(Sender: TObject);
+procedure TFMain.SpinEdit_TextShadowXChange(Sender: TObject; AByUser: boolean);
 begin
-  if initialized then
+  if AByUser and initialized then
   begin
     if ToolManager.ToolTextShadowOffset.X = SpinEdit_TextShadowX.Value then exit;
     ToolManager.ToolTextShadowOffset.X := SpinEdit_TextShadowX.Value;
@@ -626,9 +619,9 @@ begin
   end;
 end;
 
-procedure TFMain.SpinEdit_TextShadowYChange(Sender: TObject);
+procedure TFMain.SpinEdit_TextShadowYChange(Sender: TObject; AByUser: boolean);
 begin
-  if initialized then
+  if AByUser and initialized then
   begin
     if ToolManager.ToolTextShadowOffset.Y = SpinEdit_TextShadowY.Value then exit;
     ToolManager.ToolTextShadowOffset.Y := SpinEdit_TextShadowY.Value;
@@ -686,9 +679,9 @@ begin
   end;
 end;
 
-procedure TFMain.SpinEdit_PenOpacityChange(Sender: TObject);
+procedure TFMain.SpinEdit_PenOpacityChange(Sender: TObject; AByUser: boolean);
 begin
-  if initialized then
+  if AByUser and initialized then
   begin
     if ToolManager.ToolForeColor.alpha = SpinEdit_PenOpacity.value then exit;
     with ToolManager.ToolForeColor do
@@ -719,9 +712,9 @@ begin
   end;
 end;
 
-procedure TFMain.SpinEdit_BackOpacityChange(Sender: TObject);
+procedure TFMain.SpinEdit_BackOpacityChange(Sender: TObject; AByUser: boolean);
 begin
-  if initialized then
+  if AByUser and initialized then
   begin
     if ToolManager.ToolBackColor.alpha = SpinEdit_BackOpacity.value then exit;
     with ToolManager.ToolBackColor do
@@ -737,9 +730,9 @@ begin
   SwitchColors;
 end;
 
-procedure TFMain.SpinEdit_ToleranceChange(Sender: TObject);
+procedure TFMain.SpinEdit_ToleranceChange(Sender: TObject; AByUser: boolean);
 begin
-  if initialized then
+  if AByUser and initialized then
   begin
     if ToolManager.ToolTolerance = SpinEdit_Tolerance.Value then exit;
     ToolManager.ToolTolerance := SpinEdit_Tolerance.Value;
@@ -893,9 +886,9 @@ begin
   DrawArrow(ComboBox_ArrowEnd.Canvas,ARect,False,kind,ToolManager.ToolLineCap,State);
 end;
 
-procedure TFMain.SpinEdit_ArrowSizeChange(Sender: TObject);
+procedure TFMain.SpinEdit_ArrowSizeChange(Sender: TObject; AByUser: boolean);
 begin
-  if initialized then
+  if AByUser and initialized then
   begin
     if (round(ToolManager.ToolArrowSize.x*PenWidthFactor) = SpinEdit_ArrowSizeX.value) and
        (round(ToolManager.ToolArrowSize.y*PenWidthFactor) = SpinEdit_ArrowSizeY.value) then exit;
@@ -976,9 +969,9 @@ begin
   end;
 end;
 
-procedure TFMain.SpinEdit_EraserChange(Sender: TObject);
+procedure TFMain.SpinEdit_EraserChange(Sender: TObject; AByUser: boolean);
 begin
-    if initialized then
+    if AByUser and initialized then
     begin
       if ToolManager.ToolEraserAlpha = SpinEdit_Eraser.value then exit;
       ToolManager.ToolEraserAlpha := SpinEdit_Eraser.Value;
@@ -1128,9 +1121,9 @@ begin
   ShowPenPreview(False);
 end;
 
-procedure TFMain.SpinEdit_PenWidthChange(Sender: TObject);
+procedure TFMain.SpinEdit_PenWidthChange(Sender: TObject; AByUser: boolean);
 begin
-  if initialized and not FInPenWidthChange then
+  if AByUser and initialized and not FInPenWidthChange then
   begin
     if round(ToolManager.ToolPenWidth*PenWidthFactor) = max(SpinEdit_PenWidth.Value,MinPenWidthValue) then exit;
     FInPenWidthChange:= true;
@@ -1315,9 +1308,9 @@ begin
   end;
 end;
 
-procedure TFMain.SpinEdit_PhongBorderSizeChange(Sender: TObject);
+procedure TFMain.SpinEdit_PhongBorderSizeChange(Sender: TObject; AByUser: boolean);
 begin
-  if initialized then
+  if AByUser and initialized then
   begin
     if ToolManager.ToolShapeBorderSize = SpinEdit_PhongBorderSize.Value then exit;
     ToolManager.ToolShapeBorderSize := SpinEdit_PhongBorderSize.Value;
@@ -1536,9 +1529,9 @@ begin
   end;
 end;
 
-procedure TFMain.SpinEdit_BrushSpacingChange(Sender: TObject);
+procedure TFMain.SpinEdit_BrushSpacingChange(Sender: TObject; AByUser: boolean);
 begin
-  if initialized then
+  if AByUser and initialized then
   begin
     if ToolManager.ToolBrushSpacing = SpinEdit_BrushSpacing.Value then exit;
     ToolManager.ToolBrushSpacing := SpinEdit_BrushSpacing.Value;

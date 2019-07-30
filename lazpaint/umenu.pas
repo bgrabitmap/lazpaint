@@ -51,7 +51,7 @@ type
 implementation
 
 uses UResourceStrings, BGRAUTF8, LCScaleDPI, ComCtrls, Graphics,
-  Spin, StdCtrls, BGRAText, math, udarktheme;
+  Spin, StdCtrls, BGRAText, math, udarktheme, BCTrackbarUpdown, BCTypes;
 
 { TMainFormMenu }
 
@@ -229,6 +229,23 @@ begin
             TToolbar(Controls[j]).OnPaintButton:= nil;
           end;
         end else
+        if Controls[j] is TBCTrackbarUpdown then
+        begin
+          if FDarkTheme then
+          begin
+            TBCTrackbarUpdown(Controls[j]).Background.Color := $808080;
+            TBCTrackbarUpdown(Controls[j]).ButtonBackground.Style:= bbsColor;
+            TBCTrackbarUpdown(Controls[j]).ButtonBackground.Color:= $a0a0a0;
+            Controls[j].Font.Color := clLightText;
+          end
+          else
+          begin
+            TBCTrackbarUpdown(Controls[j]).Background.Color := clWindow;
+            TBCTrackbarUpdown(Controls[j]).ButtonBackground.Style:= bbsColor;
+            TBCTrackbarUpdown(Controls[j]).ButtonBackground.Color:= clBtnFace;
+            Controls[j].Font.Color := clWindowText;
+          end;
+        end else
         if Controls[j] is TLabel then
         begin
           if (Controls[j].Name = 'Label_Coordinates') or
@@ -371,11 +388,6 @@ begin
         TToolbar(Controls[j]).ButtonWidth := TToolbar(Controls[j]).Images.Width+ScaleX(6, 96);
         TToolbar(Controls[j]).ButtonHeight := TToolbar(Controls[j]).Images.Height+ScaleY(6, 96);
       end;
-      if Controls[j] is TSpinEdit then
-      begin
-        if Controls[j].Top + Controls[j].Height+4 > tbHeight then
-          tbHeight := Controls[j].Top + Controls[j].Height+4;
-      end;
     end;
   end;
   for i := 0 to high(FToolbars) do
@@ -383,10 +395,7 @@ begin
   begin
     Height := tbHeight;
     for j := 0 to ControlCount-1 do
-    begin
-      if not (Controls[j] is TSpinEdit) then
-        Controls[j].Top := Controls[j].Top + (tbHeight-tbHeightOrig) div 2;
-    end;
+      Controls[j].Top := Controls[j].Top + (tbHeight-tbHeightOrig) div 2;
   end;
 
   ApplyTheme;
@@ -406,11 +415,8 @@ begin
      begin
        for j := 0 to tb.ControlCount-1 do
        begin
-         if not (tb.Controls[j] is TSpinEdit) then
-         begin
-           tb.Controls[j].Top := 1;
-           tb.Controls[j].Height := tb.Height-3;
-         end;
+         tb.Controls[j].Top := 1;
+         tb.Controls[j].Height := tb.Height-3;
          if tb.Controls[j] is TToolBar then
          begin
            minNextX := MaxLongInt;

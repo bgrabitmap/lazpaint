@@ -1474,6 +1474,81 @@ msgstr "背景色を選択"
 msgid "Select pen color"
 msgstr "ペンの色を選択"
 
+#: tfmain.spinedit_arrowsizex.hint
+msgctxt "tfmain.spinedit_arrowsizex.hint"
+msgid "Horizontal size of the arrow"
+msgstr ""
+
+#: tfmain.spinedit_arrowsizey.hint
+msgctxt "tfmain.spinedit_arrowsizey.hint"
+msgid "Vertical size of the arrow"
+msgstr ""
+
+#: tfmain.spinedit_backopacity.hint
+msgctxt "tfmain.spinedit_backopacity.hint"
+msgid "Secondary color opacity"
+msgstr "背景色の透過度"
+
+#: tfmain.spinedit_brushspacing.hint
+msgctxt "tfmain.spinedit_brushspacing.hint"
+msgid "Spacing between patterns"
+msgstr ""
+
+#: tfmain.spinedit_eraser.hint
+msgctxt "tfmain.spinedit_eraser.hint"
+msgid "Eraser opacity"
+msgstr "消しゴムの透過度"
+
+#: tfmain.spinedit_penopacity.hint
+msgctxt "tfmain.spinedit_penopacity.hint"
+msgid "Pen opacity"
+msgstr "ペンの透過度"
+
+#: tfmain.spinedit_penwidth.hint
+msgctxt "tfmain.spinedit_penwidth.hint"
+msgid "Pen width"
+msgstr "ペンの幅"
+
+#: tfmain.spinedit_phongbordersize.hint
+msgctxt "tfmain.spinedit_phongbordersize.hint"
+msgid "Border size"
+msgstr "ボーダーサイズ"
+
+#: tfmain.spinedit_shapealtitude.hint
+msgctxt "tfmain.spinedit_shapealtitude.hint"
+msgid "Shape altitude"
+msgstr "図形の高さ"
+
+#: tfmain.spinedit_textblur.hint
+msgctxt "tfmain.spinedit_textblur.hint"
+msgid "Shadow blur"
+msgstr "ドロップシャドウ"
+
+#: tfmain.spinedit_textoutlinewidth.hint
+msgctxt "tfmain.spinedit_textoutlinewidth.hint"
+msgid "Text outline width"
+msgstr ""
+
+#: tfmain.spinedit_textshadowx.hint
+msgctxt "tfmain.spinedit_textshadowx.hint"
+msgid "Horizontal shadow offset"
+msgstr "水平方向への影のオフセット"
+
+#: tfmain.spinedit_textshadowy.hint
+msgctxt "tfmain.spinedit_textshadowy.hint"
+msgid "Vertical shadow offset"
+msgstr "垂直方向への影のオフセット"
+
+#: tfmain.spinedit_textsize.hint
+msgctxt "tfmain.spinedit_textsize.hint"
+msgid "Text size"
+msgstr ""
+
+#: tfmain.spinedit_textureopacity.hint
+msgctxt "tfmain.spinedit_textureopacity.hint"
+msgid "Texture opacity"
+msgstr ""
+
 #: tfmain.toolbrush.hint
 msgctxt "tfmain.toolbrush.hint"
 msgid "Brush"
@@ -1924,78 +1999,6 @@ msgstr "ズームをやめて元のサイズに戻す"
 msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
 msgid "Zoom out"
 msgstr "ズームアウト"
-
-#: tfmain.vsarrowsizex.hint
-msgid "Horizontal size of the arrow"
-msgstr ""
-
-#: tfmain.vsarrowsizey.hint
-msgid "Vertical size of the arrow"
-msgstr ""
-
-#: tfmain.vsbackopacity.hint
-msgctxt "tfmain.vsbackopacity.hint"
-msgid "Secondary color opacity"
-msgstr "背景色の透過度"
-
-#: tfmain.vsbrushspacing.hint
-msgctxt "tfmain.vsbrushspacing.hint"
-msgid "Spacing between patterns"
-msgstr ""
-
-#: tfmain.vseraseropacity.hint
-msgctxt "tfmain.vseraseropacity.hint"
-msgid "Eraser opacity"
-msgstr "消しゴムの透過度"
-
-#: tfmain.vspenopacity.hint
-msgctxt "tfmain.vspenopacity.hint"
-msgid "Pen opacity"
-msgstr "ペンの透過度"
-
-#: tfmain.vspenwidth.hint
-msgctxt "tfmain.vspenwidth.hint"
-msgid "Pen width"
-msgstr "ペンの幅"
-
-#: tfmain.vsphongbordersize.hint
-msgctxt "tfmain.vsphongbordersize.hint"
-msgid "Border size"
-msgstr "ボーダーサイズ"
-
-#: tfmain.vsshapealtitude.hint
-msgctxt "tfmain.vsshapealtitude.hint"
-msgid "Shape altitude"
-msgstr "図形の高さ"
-
-#: tfmain.vstextblur.hint
-msgctxt "tfmain.vstextblur.hint"
-msgid "Shadow blur"
-msgstr "ドロップシャドウ"
-
-#: tfmain.vstextoutlinewidth.hint
-msgctxt "tfmain.vstextoutlinewidth.hint"
-msgid "Text outline width"
-msgstr ""
-
-#: tfmain.vstextshadowx.hint
-msgctxt "tfmain.vstextshadowx.hint"
-msgid "Horizontal shadow offset"
-msgstr "水平方向への影のオフセット"
-
-#: tfmain.vstextshadowy.hint
-msgctxt "tfmain.vstextshadowy.hint"
-msgid "Vertical shadow offset"
-msgstr "垂直方向への影のオフセット"
-
-#: tfmain.vstextsize.hint
-msgctxt "tfmain.vstextsize.hint"
-msgid "Text size"
-msgstr ""
-
-#: tfmain.vstextureopacity.hint
-msgid "Texture opacity"
-msgstr ""
 
 #: tfmotionblur.button_cancel.caption
 msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"
@@ -2668,13 +2671,11 @@ msgid "Radius :"
 msgstr "半径:"
 
 #: tfwavedisplacement.button_cancel.caption
-#, fuzzy
 msgctxt "tfwavedisplacement.button_cancel.caption"
 msgid "Cancel"
 msgstr "キャンセル"
 
 #: tfwavedisplacement.button_ok.caption
-#, fuzzy
 msgctxt "tfwavedisplacement.button_ok.caption"
 msgid "OK"
 msgstr "OK"

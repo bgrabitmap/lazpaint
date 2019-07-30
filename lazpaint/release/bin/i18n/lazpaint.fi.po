@@ -1458,6 +1458,81 @@ msgstr "Valitse toinen käytössä oleva väri"
 msgid "Select pen color"
 msgstr "Valitse kynän väri"
 
+#: tfmain.spinedit_arrowsizex.hint
+msgctxt "tfmain.spinedit_arrowsizex.hint"
+msgid "Horizontal size of the arrow"
+msgstr ""
+
+#: tfmain.spinedit_arrowsizey.hint
+msgctxt "tfmain.spinedit_arrowsizey.hint"
+msgid "Vertical size of the arrow"
+msgstr ""
+
+#: tfmain.spinedit_backopacity.hint
+msgctxt "tfmain.spinedit_backopacity.hint"
+msgid "Secondary color opacity"
+msgstr "Toisen värin peittävyys (läpinäkyväisyys)"
+
+#: tfmain.spinedit_brushspacing.hint
+msgctxt "tfmain.spinedit_brushspacing.hint"
+msgid "Spacing between patterns"
+msgstr ""
+
+#: tfmain.spinedit_eraser.hint
+msgctxt "tfmain.spinedit_eraser.hint"
+msgid "Eraser opacity"
+msgstr ""
+
+#: tfmain.spinedit_penopacity.hint
+msgctxt "tfmain.spinedit_penopacity.hint"
+msgid "Pen opacity"
+msgstr "Kynän peittävyys (läpinäkyväisyys)"
+
+#: tfmain.spinedit_penwidth.hint
+msgctxt "tfmain.spinedit_penwidth.hint"
+msgid "Pen width"
+msgstr ""
+
+#: tfmain.spinedit_phongbordersize.hint
+msgctxt "tfmain.spinedit_phongbordersize.hint"
+msgid "Border size"
+msgstr "Reunuksen koko"
+
+#: tfmain.spinedit_shapealtitude.hint
+msgctxt "tfmain.spinedit_shapealtitude.hint"
+msgid "Shape altitude"
+msgstr "Muodon korkeus"
+
+#: tfmain.spinedit_textblur.hint
+msgctxt "tfmain.spinedit_textblur.hint"
+msgid "Shadow blur"
+msgstr ""
+
+#: tfmain.spinedit_textoutlinewidth.hint
+msgctxt "tfmain.spinedit_textoutlinewidth.hint"
+msgid "Text outline width"
+msgstr "Kirjaimen reunan vahvuus"
+
+#: tfmain.spinedit_textshadowx.hint
+msgctxt "tfmain.spinedit_textshadowx.hint"
+msgid "Horizontal shadow offset"
+msgstr ""
+
+#: tfmain.spinedit_textshadowy.hint
+msgctxt "tfmain.spinedit_textshadowy.hint"
+msgid "Vertical shadow offset"
+msgstr ""
+
+#: tfmain.spinedit_textsize.hint
+msgctxt "tfmain.spinedit_textsize.hint"
+msgid "Text size"
+msgstr "Kirjaisimen koko"
+
+#: tfmain.spinedit_textureopacity.hint
+msgctxt "tfmain.spinedit_textureopacity.hint"
+msgid "Texture opacity"
+msgstr ""
+
 #: tfmain.toolbrush.hint
 msgctxt "tfmain.toolbrush.hint"
 msgid "Brush"
@@ -1908,78 +1983,6 @@ msgstr "Näytä alkuperäisessä koossa"
 msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
 msgid "Zoom out"
 msgstr "Loitonna"
-
-#: tfmain.vsarrowsizex.hint
-msgid "Horizontal size of the arrow"
-msgstr ""
-
-#: tfmain.vsarrowsizey.hint
-msgid "Vertical size of the arrow"
-msgstr ""
-
-#: tfmain.vsbackopacity.hint
-msgctxt "TFMAIN.VSBACKOPACITY.HINT"
-msgid "Secondary color opacity"
-msgstr "Toisen värin peittävyys (läpinäkyväisyys)"
-
-#: tfmain.vsbrushspacing.hint
-msgctxt "TFMAIN.VSBRUSHSPACING.HINT"
-msgid "Spacing between patterns"
-msgstr ""
-
-#: tfmain.vseraseropacity.hint
-msgctxt "TFMAIN.VSERASEROPACITY.HINT"
-msgid "Eraser opacity"
-msgstr ""
-
-#: tfmain.vspenopacity.hint
-msgctxt "TFMAIN.VSPENOPACITY.HINT"
-msgid "Pen opacity"
-msgstr "Kynän peittävyys (läpinäkyväisyys)"
-
-#: tfmain.vspenwidth.hint
-msgctxt "TFMAIN.VSPENWIDTH.HINT"
-msgid "Pen width"
-msgstr ""
-
-#: tfmain.vsphongbordersize.hint
-msgctxt "TFMAIN.VSPHONGBORDERSIZE.HINT"
-msgid "Border size"
-msgstr "Reunuksen koko"
-
-#: tfmain.vsshapealtitude.hint
-msgctxt "TFMAIN.VSSHAPEALTITUDE.HINT"
-msgid "Shape altitude"
-msgstr "Muodon korkeus"
-
-#: tfmain.vstextblur.hint
-msgctxt "TFMAIN.VSTEXTBLUR.HINT"
-msgid "Shadow blur"
-msgstr ""
-
-#: tfmain.vstextoutlinewidth.hint
-msgctxt "TFMAIN.VSTEXTOUTLINEWIDTH.HINT"
-msgid "Text outline width"
-msgstr "Kirjaimen reunan vahvuus"
-
-#: tfmain.vstextshadowx.hint
-msgctxt "TFMAIN.VSTEXTSHADOWX.HINT"
-msgid "Horizontal shadow offset"
-msgstr ""
-
-#: tfmain.vstextshadowy.hint
-msgctxt "TFMAIN.VSTEXTSHADOWY.HINT"
-msgid "Vertical shadow offset"
-msgstr ""
-
-#: tfmain.vstextsize.hint
-msgctxt "TFMAIN.VSTEXTSIZE.HINT"
-msgid "Text size"
-msgstr "Kirjaisimen koko"
-
-#: tfmain.vstextureopacity.hint
-msgid "Texture opacity"
-msgstr ""
 
 #: tfmotionblur.button_cancel.caption
 msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"
@@ -2652,7 +2655,6 @@ msgid "Radius :"
 msgstr "Säde :"
 
 #: tfwavedisplacement.button_cancel.caption
-#, fuzzy
 msgctxt "tfwavedisplacement.button_cancel.caption"
 msgid "Cancel"
 msgstr "Peru"

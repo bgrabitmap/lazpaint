@@ -1458,6 +1458,81 @@ msgstr "Välj sekundär färg"
 msgid "Select pen color"
 msgstr "Välj pennfärg"
 
+#: tfmain.spinedit_arrowsizex.hint
+msgctxt "tfmain.spinedit_arrowsizex.hint"
+msgid "Horizontal size of the arrow"
+msgstr ""
+
+#: tfmain.spinedit_arrowsizey.hint
+msgctxt "tfmain.spinedit_arrowsizey.hint"
+msgid "Vertical size of the arrow"
+msgstr ""
+
+#: tfmain.spinedit_backopacity.hint
+msgctxt "tfmain.spinedit_backopacity.hint"
+msgid "Secondary color opacity"
+msgstr "Opacitet på sekundär färg"
+
+#: tfmain.spinedit_brushspacing.hint
+msgctxt "tfmain.spinedit_brushspacing.hint"
+msgid "Spacing between patterns"
+msgstr ""
+
+#: tfmain.spinedit_eraser.hint
+msgctxt "tfmain.spinedit_eraser.hint"
+msgid "Eraser opacity"
+msgstr "Opacitet för sudd"
+
+#: tfmain.spinedit_penopacity.hint
+msgctxt "tfmain.spinedit_penopacity.hint"
+msgid "Pen opacity"
+msgstr "Opacitet för penna"
+
+#: tfmain.spinedit_penwidth.hint
+msgctxt "tfmain.spinedit_penwidth.hint"
+msgid "Pen width"
+msgstr "Pennbredd"
+
+#: tfmain.spinedit_phongbordersize.hint
+msgctxt "tfmain.spinedit_phongbordersize.hint"
+msgid "Border size"
+msgstr "Konturstorlek"
+
+#: tfmain.spinedit_shapealtitude.hint
+msgctxt "tfmain.spinedit_shapealtitude.hint"
+msgid "Shape altitude"
+msgstr ""
+
+#: tfmain.spinedit_textblur.hint
+msgctxt "tfmain.spinedit_textblur.hint"
+msgid "Shadow blur"
+msgstr "Skuggoskärpa"
+
+#: tfmain.spinedit_textoutlinewidth.hint
+msgctxt "tfmain.spinedit_textoutlinewidth.hint"
+msgid "Text outline width"
+msgstr ""
+
+#: tfmain.spinedit_textshadowx.hint
+msgctxt "tfmain.spinedit_textshadowx.hint"
+msgid "Horizontal shadow offset"
+msgstr "Horisontell skuggoffset"
+
+#: tfmain.spinedit_textshadowy.hint
+msgctxt "tfmain.spinedit_textshadowy.hint"
+msgid "Vertical shadow offset"
+msgstr "Vertikal skuggoffset"
+
+#: tfmain.spinedit_textsize.hint
+msgctxt "tfmain.spinedit_textsize.hint"
+msgid "Text size"
+msgstr ""
+
+#: tfmain.spinedit_textureopacity.hint
+msgctxt "tfmain.spinedit_textureopacity.hint"
+msgid "Texture opacity"
+msgstr ""
+
 #: tfmain.toolbrush.hint
 msgctxt "tfmain.toolbrush.hint"
 msgid "Brush"
@@ -1908,78 +1983,6 @@ msgstr "Zooma till urpsrunglig pixelstorlek"
 msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
 msgid "Zoom out"
 msgstr "Zoom in"
-
-#: tfmain.vsarrowsizex.hint
-msgid "Horizontal size of the arrow"
-msgstr ""
-
-#: tfmain.vsarrowsizey.hint
-msgid "Vertical size of the arrow"
-msgstr ""
-
-#: tfmain.vsbackopacity.hint
-msgctxt "tfmain.vsbackopacity.hint"
-msgid "Secondary color opacity"
-msgstr "Opacitet på sekundär färg"
-
-#: tfmain.vsbrushspacing.hint
-msgctxt "tfmain.vsbrushspacing.hint"
-msgid "Spacing between patterns"
-msgstr ""
-
-#: tfmain.vseraseropacity.hint
-msgctxt "tfmain.vseraseropacity.hint"
-msgid "Eraser opacity"
-msgstr "Opacitet för sudd"
-
-#: tfmain.vspenopacity.hint
-msgctxt "tfmain.vspenopacity.hint"
-msgid "Pen opacity"
-msgstr "Opacitet för penna"
-
-#: tfmain.vspenwidth.hint
-msgctxt "tfmain.vspenwidth.hint"
-msgid "Pen width"
-msgstr "Pennbredd"
-
-#: tfmain.vsphongbordersize.hint
-msgctxt "tfmain.vsphongbordersize.hint"
-msgid "Border size"
-msgstr "Konturstorlek"
-
-#: tfmain.vsshapealtitude.hint
-msgctxt "tfmain.vsshapealtitude.hint"
-msgid "Shape altitude"
-msgstr ""
-
-#: tfmain.vstextblur.hint
-msgctxt "tfmain.vstextblur.hint"
-msgid "Shadow blur"
-msgstr "Skuggoskärpa"
-
-#: tfmain.vstextoutlinewidth.hint
-msgctxt "tfmain.vstextoutlinewidth.hint"
-msgid "Text outline width"
-msgstr ""
-
-#: tfmain.vstextshadowx.hint
-msgctxt "tfmain.vstextshadowx.hint"
-msgid "Horizontal shadow offset"
-msgstr "Horisontell skuggoffset"
-
-#: tfmain.vstextshadowy.hint
-msgctxt "tfmain.vstextshadowy.hint"
-msgid "Vertical shadow offset"
-msgstr "Vertikal skuggoffset"
-
-#: tfmain.vstextsize.hint
-msgctxt "tfmain.vstextsize.hint"
-msgid "Text size"
-msgstr ""
-
-#: tfmain.vstextureopacity.hint
-msgid "Texture opacity"
-msgstr ""
 
 #: tfmotionblur.button_cancel.caption
 msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"
@@ -2652,13 +2655,11 @@ msgid "Radius :"
 msgstr "Radie :"
 
 #: tfwavedisplacement.button_cancel.caption
-#, fuzzy
 msgctxt "tfwavedisplacement.button_cancel.caption"
 msgid "Cancel"
 msgstr "Avbryt"
 
 #: tfwavedisplacement.button_ok.caption
-#, fuzzy
 msgctxt "tfwavedisplacement.button_ok.caption"
 msgid "OK"
 msgstr "OK"

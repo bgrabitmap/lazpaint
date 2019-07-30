@@ -1474,6 +1474,81 @@ msgstr "تحديد الون الثانوي"
 msgid "Select pen color"
 msgstr "تحديد لون القلم"
 
+#: tfmain.spinedit_arrowsizex.hint
+msgctxt "tfmain.spinedit_arrowsizex.hint"
+msgid "Horizontal size of the arrow"
+msgstr ""
+
+#: tfmain.spinedit_arrowsizey.hint
+msgctxt "tfmain.spinedit_arrowsizey.hint"
+msgid "Vertical size of the arrow"
+msgstr ""
+
+#: tfmain.spinedit_backopacity.hint
+msgctxt "tfmain.spinedit_backopacity.hint"
+msgid "Secondary color opacity"
+msgstr "تعتيم اللون الثاني"
+
+#: tfmain.spinedit_brushspacing.hint
+msgctxt "tfmain.spinedit_brushspacing.hint"
+msgid "Spacing between patterns"
+msgstr ""
+
+#: tfmain.spinedit_eraser.hint
+msgctxt "tfmain.spinedit_eraser.hint"
+msgid "Eraser opacity"
+msgstr "محو الشفافية"
+
+#: tfmain.spinedit_penopacity.hint
+msgctxt "tfmain.spinedit_penopacity.hint"
+msgid "Pen opacity"
+msgstr "تعتيم القلم"
+
+#: tfmain.spinedit_penwidth.hint
+msgctxt "tfmain.spinedit_penwidth.hint"
+msgid "Pen width"
+msgstr "عرض القلم"
+
+#: tfmain.spinedit_phongbordersize.hint
+msgctxt "tfmain.spinedit_phongbordersize.hint"
+msgid "Border size"
+msgstr "حجم الإطار"
+
+#: tfmain.spinedit_shapealtitude.hint
+msgctxt "tfmain.spinedit_shapealtitude.hint"
+msgid "Shape altitude"
+msgstr "ارتفاع الشكل"
+
+#: tfmain.spinedit_textblur.hint
+msgctxt "tfmain.spinedit_textblur.hint"
+msgid "Shadow blur"
+msgstr "ضلال الضبابية"
+
+#: tfmain.spinedit_textoutlinewidth.hint
+msgctxt "tfmain.spinedit_textoutlinewidth.hint"
+msgid "Text outline width"
+msgstr ""
+
+#: tfmain.spinedit_textshadowx.hint
+msgctxt "tfmain.spinedit_textshadowx.hint"
+msgid "Horizontal shadow offset"
+msgstr "ظل الإزاحة الافقي"
+
+#: tfmain.spinedit_textshadowy.hint
+msgctxt "tfmain.spinedit_textshadowy.hint"
+msgid "Vertical shadow offset"
+msgstr "ظل الإزاحة العمودي"
+
+#: tfmain.spinedit_textsize.hint
+msgctxt "tfmain.spinedit_textsize.hint"
+msgid "Text size"
+msgstr ""
+
+#: tfmain.spinedit_textureopacity.hint
+msgctxt "tfmain.spinedit_textureopacity.hint"
+msgid "Texture opacity"
+msgstr ""
+
 #: tfmain.toolbrush.hint
 msgctxt "tfmain.toolbrush.hint"
 msgid "Brush"
@@ -1924,78 +1999,6 @@ msgstr "زووم الى حجم بكسل الأصلي"
 msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
 msgid "Zoom out"
 msgstr "زووم للخارج"
-
-#: tfmain.vsarrowsizex.hint
-msgid "Horizontal size of the arrow"
-msgstr ""
-
-#: tfmain.vsarrowsizey.hint
-msgid "Vertical size of the arrow"
-msgstr ""
-
-#: tfmain.vsbackopacity.hint
-msgctxt "tfmain.vsbackopacity.hint"
-msgid "Secondary color opacity"
-msgstr "تعتيم اللون الثاني"
-
-#: tfmain.vsbrushspacing.hint
-msgctxt "tfmain.vsbrushspacing.hint"
-msgid "Spacing between patterns"
-msgstr ""
-
-#: tfmain.vseraseropacity.hint
-msgctxt "tfmain.vseraseropacity.hint"
-msgid "Eraser opacity"
-msgstr "محو الشفافية"
-
-#: tfmain.vspenopacity.hint
-msgctxt "tfmain.vspenopacity.hint"
-msgid "Pen opacity"
-msgstr "تعتيم القلم"
-
-#: tfmain.vspenwidth.hint
-msgctxt "tfmain.vspenwidth.hint"
-msgid "Pen width"
-msgstr "عرض القلم"
-
-#: tfmain.vsphongbordersize.hint
-msgctxt "tfmain.vsphongbordersize.hint"
-msgid "Border size"
-msgstr "حجم الإطار"
-
-#: tfmain.vsshapealtitude.hint
-msgctxt "tfmain.vsshapealtitude.hint"
-msgid "Shape altitude"
-msgstr "ارتفاع الشكل"
-
-#: tfmain.vstextblur.hint
-msgctxt "tfmain.vstextblur.hint"
-msgid "Shadow blur"
-msgstr "ضلال الضبابية"
-
-#: tfmain.vstextoutlinewidth.hint
-msgctxt "tfmain.vstextoutlinewidth.hint"
-msgid "Text outline width"
-msgstr ""
-
-#: tfmain.vstextshadowx.hint
-msgctxt "tfmain.vstextshadowx.hint"
-msgid "Horizontal shadow offset"
-msgstr "ظل الإزاحة الافقي"
-
-#: tfmain.vstextshadowy.hint
-msgctxt "tfmain.vstextshadowy.hint"
-msgid "Vertical shadow offset"
-msgstr "ظل الإزاحة العمودي"
-
-#: tfmain.vstextsize.hint
-msgctxt "tfmain.vstextsize.hint"
-msgid "Text size"
-msgstr ""
-
-#: tfmain.vstextureopacity.hint
-msgid "Texture opacity"
-msgstr ""
 
 #: tfmotionblur.button_cancel.caption
 msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"
@@ -2668,13 +2671,11 @@ msgid "Radius :"
 msgstr "نصف القطر :"
 
 #: tfwavedisplacement.button_cancel.caption
-#, fuzzy
 msgctxt "tfwavedisplacement.button_cancel.caption"
 msgid "Cancel"
 msgstr "إلغاء"
 
 #: tfwavedisplacement.button_ok.caption
-#, fuzzy
 msgctxt "tfwavedisplacement.button_ok.caption"
 msgid "OK"
 msgstr "موافق"
