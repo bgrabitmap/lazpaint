@@ -727,6 +727,8 @@ begin
     iniOptions.WriteString('General','DarkWorkspaceColor', BGRAToStr(value))
   else
     iniOptions.WriteString('General','WorkspaceColor', BGRAToStr(value));
+  FWorkspaceColor:= value;
+  FWorkspaceColorEvaluated:= true;
 end;
 
 function TLazPaintConfig.DefaultUseImageBrowser: boolean;
