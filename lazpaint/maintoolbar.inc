@@ -111,12 +111,14 @@ begin
   SpinEdit_ArrowSizeY.Increment := 5;
   SpinEdit_ArrowSizeY.OnChange := @SpinEdit_ArrowSizeChange;
 
+  SpinEdit_TextShadowX.AllowNegativeValues := true;
   SpinEdit_TextShadowX.MinValue := -100;
   SpinEdit_TextShadowX.MaxValue := 100;
   SpinEdit_TextShadowX.Value := 0;
   SpinEdit_TextShadowX.Increment := 1;
   SpinEdit_TextShadowX.OnChange := @SpinEdit_TextShadowXChange;
 
+  SpinEdit_TextShadowX.AllowNegativeValues := true;
   SpinEdit_TextShadowY.MinValue := -100;
   SpinEdit_TextShadowy.MaxValue := 100;
   SpinEdit_TextShadowY.Value := 0;

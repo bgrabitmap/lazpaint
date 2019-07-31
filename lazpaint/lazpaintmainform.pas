@@ -1951,7 +1951,7 @@ begin
   try
     if Zoom.EditingZoom then exit;
     toolProcessKey:= true;
-    if (CurrentTool = ptText) and ((UTF8Key = #8) or ((length(UTF8Key)=1) and (UTF8Key[1] in['0'..'9']))) then
+    if (CurrentTool = ptText) and ((UTF8Key = #8) or ((length(UTF8Key)=1) and (UTF8Key[1] in['-','0'..'9']))) then
     begin
       if TextSpinEditFocused then
          toolProcessKey:= false;
@@ -1967,12 +1967,12 @@ begin
         SwitchColors;
         UTF8Key:= '';
       end else
-      if UTF8Key = '+' then
+      if toolProcessKey and (UTF8Key = '+') then
       begin
          ViewZoomIn.Execute;
          UTF8Key := '';
       end else
-      if UTF8Key = '-' then
+      if toolProcessKey and (UTF8Key = '-') then
       begin
          ViewZoomOut.Execute;
          UTF8Key := '';

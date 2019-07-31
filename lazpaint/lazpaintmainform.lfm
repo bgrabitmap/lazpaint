@@ -311,6 +311,7 @@ object FMain: TFMain
       Hint = 'Pen opacity'
       Top = 2
       Width = 51
+      AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
       LongTimeInterval = 400
@@ -426,6 +427,7 @@ object FMain: TFMain
       Hint = 'Secondary color opacity'
       Top = 2
       Width = 51
+      AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
       LongTimeInterval = 400
@@ -565,6 +567,7 @@ object FMain: TFMain
       Hint = 'Pen width'
       Top = 2
       Width = 58
+      AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
       LongTimeInterval = 400
@@ -734,6 +737,7 @@ object FMain: TFMain
       Hint = 'Eraser opacity'
       Top = 2
       Width = 51
+      AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
       LongTimeInterval = 400
@@ -893,6 +897,7 @@ object FMain: TFMain
       Height = 25
       Top = 2
       Width = 51
+      AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
       LongTimeInterval = 400
@@ -1312,6 +1317,7 @@ object FMain: TFMain
       Hint = 'Horizontal size of the arrow'
       Top = 2
       Width = 51
+      AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
       LongTimeInterval = 400
@@ -1427,6 +1433,7 @@ object FMain: TFMain
       Hint = 'Vertical size of the arrow'
       Top = 2
       Width = 51
+      AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
       LongTimeInterval = 400
@@ -1702,6 +1709,7 @@ object FMain: TFMain
       Hint = 'Texture opacity'
       Top = 2
       Width = 51
+      AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
       LongTimeInterval = 400
@@ -1873,6 +1881,7 @@ object FMain: TFMain
       Height = 25
       Top = 2
       Width = 51
+      AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
       LongTimeInterval = 400
@@ -1987,6 +1996,7 @@ object FMain: TFMain
       Height = 25
       Top = 2
       Width = 51
+      AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
       LongTimeInterval = 400
@@ -2354,6 +2364,7 @@ object FMain: TFMain
       Hint = 'Text size'
       Top = 2
       Width = 57
+      AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
       LongTimeInterval = 400
@@ -2469,6 +2480,7 @@ object FMain: TFMain
       Hint = 'Shadow blur'
       Top = 2
       Width = 51
+      AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
       LongTimeInterval = 400
@@ -2584,6 +2596,7 @@ object FMain: TFMain
       Hint = 'Horizontal shadow offset'
       Top = 2
       Width = 51
+      AllowNegativeValues = True
       BarExponent = 1
       Increment = 1
       LongTimeInterval = 400
@@ -2699,6 +2712,7 @@ object FMain: TFMain
       Hint = 'Vertical shadow offset'
       Top = 2
       Width = 51
+      AllowNegativeValues = True
       BarExponent = 1
       Increment = 1
       LongTimeInterval = 400
@@ -2921,6 +2935,7 @@ object FMain: TFMain
       Hint = 'Border size'
       Top = 2
       Width = 51
+      AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
       LongTimeInterval = 400
@@ -3060,6 +3075,7 @@ object FMain: TFMain
       Hint = 'Shape altitude'
       Top = 2
       Width = 51
+      AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
       LongTimeInterval = 400
@@ -3219,6 +3235,7 @@ object FMain: TFMain
       Hint = 'Text outline width'
       Top = 2
       Width = 51
+      AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
       LongTimeInterval = 400
@@ -3468,6 +3485,7 @@ object FMain: TFMain
       Hint = 'Spacing between patterns'
       Top = 2
       Width = 48
+      AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
       LongTimeInterval = 400
