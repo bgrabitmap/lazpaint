@@ -10,6 +10,7 @@ uses
 const
   clDarkBtnHighlight = $e0e0e0;
   clDarkBtnFace = $606060;
+  clDarkEditableFace = $808080;
   clLightText = $f0f0f0;
   clDarkPanelHighlight = $909090;
   clDarkPanelShadow = $404040;

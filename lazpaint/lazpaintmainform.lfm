@@ -139,6 +139,7 @@ object FMain: TFMain
       AutoSize = False
       Caption = '%'
       Color = clWindow
+      Font.Color = clWindowText
       Font.Height = -15
       Layout = tlCenter
       ParentColor = False
@@ -284,12 +285,10 @@ object FMain: TFMain
       Alignment = taCenter
       AutoSize = False
       Caption = '100%'
-      Color = clWindow
       Font.Height = -15
       Layout = tlCenter
       ParentColor = False
       ParentFont = False
-      Transparent = False
     end
     object Shape_PenColor: TShape
       Left = 38
@@ -1220,13 +1219,11 @@ object FMain: TFMain
       Width = 88
       Alignment = taCenter
       AutoSize = False
-      Caption = '99999x99999'
-      Color = clWindow
+      Caption = '9999x9999'
       Font.Height = -15
       Layout = tlCenter
       ParentColor = False
       ParentFont = False
-      Transparent = False
     end
   end
   object Panel_LineCap: TPanel

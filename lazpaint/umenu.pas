@@ -233,7 +233,7 @@ begin
         begin
           if FDarkTheme then
           begin
-            TBCTrackbarUpdown(Controls[j]).Background.Color := $808080;
+            TBCTrackbarUpdown(Controls[j]).Background.Color := clDarkEditableFace;
             TBCTrackbarUpdown(Controls[j]).ButtonBackground.Style:= bbsColor;
             TBCTrackbarUpdown(Controls[j]).ButtonBackground.Color:= $a0a0a0;
             Controls[j].Font.Color := clLightText;
@@ -248,19 +248,17 @@ begin
         end else
         if Controls[j] is TLabel then
         begin
-          if (Controls[j].Name = 'Label_Coordinates') or
-             (Controls[j].Name = 'Label_CurrentZoom') or
-             (Controls[j].Name = 'Label_CurrentDiff') then
+          if (Controls[j].Name = 'Label_CurrentZoom') then
           begin
             if FDarkTheme then
             begin
-              Controls[j].Color := clDarkBtnFace;
+              Controls[j].Color := clDarkEditableFace;
               Controls[j].Font.Color := clLightText;
             end
             else
             begin
-              Controls[j].Color := clWhite;
-              Controls[j].Font.Color := clBlack;
+              Controls[j].Color := clWindow;
+              Controls[j].Font.Color := clWindowText;
             end;
           end else
           begin
