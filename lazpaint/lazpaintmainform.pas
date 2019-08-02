@@ -888,6 +888,7 @@ begin
   m.Apply;
   FLayout.Menu := m;
   FLayout.DarkTheme := m.DarkTheme;
+  DarkThemeInstance.Apply(Panel_PenWidthPreview, m.DarkTheme);
 end;
 
 function TFMain.GetToolManager: TToolManager;
@@ -3534,6 +3535,7 @@ begin
   if LAyout.DarkTheme<>AValue then
   begin
     Layout.DarkTheme := AValue;
+    DarkThemeInstance.Apply(Panel_PenWidthPreview, AValue);
     Invalidate;
     UpdateToolImage(true);
   end;

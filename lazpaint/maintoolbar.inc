@@ -1244,11 +1244,13 @@ end;
 procedure TFMain.PaintBox_PenPreviewPaint(Sender: TObject);
 var bmp: TBGRABitmap;
     x,y,t: integer;
+    c: TBGRAPixel;
     m: single;
     bi: TLazPaintBrush;
     visualSize: single;
 begin
-  bmp := TBGRABitmap.Create(PaintBox_PenPreview.Width,PaintBox_PenPreview.Height,ColorToBGRA(ColorToRGB(clBtnFace)));
+  bmp := TBGRABitmap.Create(PaintBox_PenPreview.Width,PaintBox_PenPreview.Height,Panel_PenWidthPreview.Color);
+  if DarkTheme then c := clLightText else c := clBtnText;
   x := round(PaintBox_PenPreview.Width/2);
   y := round(PaintBox_PenPreview.Height/2);
   if Assigned(Zoom) then visualSize := ToolManager.ToolPenWidth * Zoom.Factor else visualSize := ToolManager.ToolPenWidth;
@@ -1259,10 +1261,10 @@ begin
       with bi do
       begin
         Size := visualSize;
-        bi.Put(bmp, x,y,ColorToBGRA(ColorToRGB(clBtnText)));
+        bi.Put(bmp, x,y,c);
       end;
   end else
-    bmp.FillEllipseAntialias(x,y,visualSize/2,visualSize/2,ColorToBGRA(ColorToRGB(clBtnText)));
+    bmp.FillEllipseAntialias(x,y,visualSize/2,visualSize/2,c);
   t := ImageList16.Width;
   m := t/10;
   x := 0;
