@@ -977,6 +977,11 @@ begin
   begin
     Key := 0;
     DoRedo;
+  end else
+  if (Key = VK_RETURN) and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+  begin
+    Key := 0;
+    vectorOriginal.DeselectShape;
   end;
 end;
 
