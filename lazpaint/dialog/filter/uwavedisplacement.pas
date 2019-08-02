@@ -28,8 +28,8 @@ type
     procedure Button_OKClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure PaintBox1MouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
+    procedure PaintBox1MouseDown(Sender: TObject; {%H-}Button: TMouseButton;
+      {%H-}Shift: TShiftState; X, Y: Integer);
     procedure PaintBox1MouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure PaintBox1Paint(Sender: TObject);
