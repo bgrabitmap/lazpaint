@@ -744,6 +744,7 @@ type
     procedure IncreasePenSize;
     procedure DecreasePenSize;
     function PenSizeDelta(direction: integer): integer;
+    procedure UpdatePenWidthFromSpinEdit;
     procedure UpdateWindowCaption;
     procedure ImageCurrentFilenameChanged({%H-}sender: TLazPaintImage);
 

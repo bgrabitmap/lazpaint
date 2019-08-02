@@ -1160,14 +1160,17 @@ end;
 procedure TFMain.SpinEdit_PenWidthChange(Sender: TObject; AByUser: boolean);
 begin
   if AByUser and initialized and not FInPenWidthChange then
-  begin
-    if round(ToolManager.ToolPenWidth*PenWidthFactor) = max(SpinEdit_PenWidth.Value,MinPenWidthValue) then exit;
-    FInPenWidthChange:= true;
-    ToolManager.ToolPenWidth := max(SpinEdit_PenWidth.Value,MinPenWidthValue)/PenWidthFactor;
-    ShowPenPreview(True);
-    UpdateEditPicture;
-    FInPenWidthChange:= false;
-  end;
+    UpdatePenWidthFromSpinEdit;
+end;
+
+procedure TFMain.UpdatePenWidthFromSpinEdit;
+begin
+  if round(ToolManager.ToolPenWidth*PenWidthFactor) = max(SpinEdit_PenWidth.Value,MinPenWidthValue) then exit;
+  FInPenWidthChange:= true;
+  ToolManager.ToolPenWidth := max(SpinEdit_PenWidth.Value,MinPenWidthValue)/PenWidthFactor;
+  ShowPenPreview(True);
+  UpdateEditPicture;
+  FInPenWidthChange:= false;
 end;
 
 procedure TFMain.SpinEdit_PenWidthExit(Sender: TObject);
@@ -1178,11 +1181,13 @@ end;
 procedure TFMain.IncreasePenSize;
 begin
   SpinEdit_PenWidth.Value := max(SpinEdit_PenWidth.Value+PenSizeDelta(1),MinPenWidthValue);
+  UpdatePenWidthFromSpinEdit;
 end;
 
 procedure TFMain.DecreasePenSize;
 begin
   SpinEdit_PenWidth.Value := max(SpinEdit_PenWidth.Value-PenSizeDelta(-1),MinPenWidthValue);
+  UpdatePenWidthFromSpinEdit;
 end;
 
 function TFMain.PenSizeDelta(direction: integer): integer;
