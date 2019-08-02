@@ -416,6 +416,7 @@ begin
   if Assigned(FToolBox) or not Assigned(FMain) then exit;
   Application.CreateForm(TFToolbox, FToolbox);
   FToolbox.LazPaintInstance := self;
+  FToolbox.DarkTheme := Config.GetDarkTheme;
 
   //needed to attach to the right instance of FMain
   FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolHand);
@@ -678,6 +679,7 @@ begin
   if Assigned(FChooseColor) then FChooseColor.DarkTheme := ADarkTheme;
   if Assigned(FLayerStack) then FLayerStack.DarkTheme := ADarkTheme;
   if Assigned(FMain) then FMain.DarkTheme := ADarkTheme;
+  if Assigned(FToolbox) then FToolbox.DarkTheme:= ADarkTheme;
 end;
 
 function TLazPaintInstance.GetGridVisible: boolean;

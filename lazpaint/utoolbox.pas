@@ -20,6 +20,8 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
+    FDarkTheme: boolean;
+    procedure SetDarkTheme(AValue: boolean);
     { private declarations }
     procedure SetImages(AToolBar: TToolBar; AImages: TImageList);
   public
@@ -27,11 +29,12 @@ type
     LazPaintInstance: TLazPaintCustomInstance;
     procedure AddButton(AToolBar: TToolBar; AAction: TBasicAction);
     procedure SetImages(AImages: TImageList);
+    property DarkTheme: boolean read FDarkTheme write SetDarkTheme;
   end; 
 
 implementation
 
-uses math;
+uses math, UDarkTheme;
 
 { TFToolbox }
 
@@ -39,6 +42,17 @@ procedure TFToolbox.FormShow(Sender: TObject);
 begin
   Position := poDesigned;
   self.EnsureVisible(False);
+end;
+
+procedure TFToolbox.SetDarkTheme(AValue: boolean);
+begin
+  if FDarkTheme=AValue then Exit;
+  FDarkTheme:=AValue;
+  DarkThemeInstance.Apply(ToolBar1, AValue);
+  DarkThemeInstance.Apply(ToolBar2, AValue);
+  DarkThemeInstance.Apply(ToolBar3, AValue);
+  DarkThemeInstance.Apply(ToolBar4, AValue);
+  if AValue then Color := clDarkBtnFace else Color := clBtnFace;
 end;
 
 procedure TFToolbox.AddButton(AToolBar: TToolBar; AAction: TBasicAction);
