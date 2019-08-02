@@ -140,6 +140,7 @@ type
     FRemoving: boolean;
     FDiffs: TVectorShapeDiffList;
     FFillChangeWithoutUpdate: boolean;
+    FFillBeforeChangeBounds: TRectF;
     function GetIsBack: boolean;
     function GetIsFront: boolean;
     procedure SetContainer(AValue: TVectorOriginal);
@@ -174,6 +175,7 @@ type
     function GetStroker: TBGRAPenStroker;
     property Stroker: TBGRAPenStroker read GetStroker;
     procedure FillChange({%H-}ASender: TObject; var ADiff: TCustomVectorialFillDiff); virtual;
+    procedure FillBeforeChange({%H-}ASender: TObject); virtual;
     procedure UpdateRenderStorage(ARenderBounds: TRect; AImage: TBGRACustomBitmap = nil);
     procedure DiscardRenderStorage;
     procedure RetrieveRenderStorage(AMatrix: TAffineMatrix; out ARenderBounds: TRect; out AImage: TBGRABitmap);
@@ -1321,6 +1323,7 @@ begin
   begin
     AFillVariable := TVectorialFill.Create;
     AFillVariable.OnChange := @FillChange;
+    AFillVariable.OnBeforeChange := @FillBeforeChange;
   end;
   result := AFillVariable;
 end;
@@ -1512,7 +1515,10 @@ procedure TVectorShape.FillChange(ASender: TObject; var ADiff: TCustomVectorialF
 var
   field: TVectorShapeField;
   h: TVectorShapeCommonFillDiff;
+  r: TRectF;
 begin
+  r := FFillBeforeChangeBounds;
+  FFillBeforeChangeBounds := EmptyRectF;
   if FFillChangeWithoutUpdate then exit;
   if FUpdateCount=0 then
   begin
@@ -1523,15 +1529,15 @@ begin
     else
     begin
       ADiff.Free;
-      DoOnChange(EmptyRectF, nil);
+      DoOnChange(r, nil);
       exit;
     end;
     if Assigned(ADiff) then
     begin
-      DoOnChange(EmptyRectF, TVectorShapeEmbeddedFillDiff.Create(field, ADiff));
+      DoOnChange(r, TVectorShapeEmbeddedFillDiff.Create(field, ADiff));
       ADiff := nil;
     end else
-      DoOnChange(EmptyRectF, nil);
+      DoOnChange(r, nil);
   end else
   if (FUpdateCount>0) and Assigned(ADiff) then
   begin
@@ -1558,6 +1564,11 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TVectorShape.FillBeforeChange(ASender: TObject);
+begin
+  FFillBeforeChangeBounds := GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
 end;
 
 procedure TVectorShape.UpdateRenderStorage(ARenderBounds: TRect; AImage: TBGRACustomBitmap);
@@ -1701,6 +1712,7 @@ begin
   FRemoving:= false;
   FId := 0;
   FRenderIteration:= 0;
+  FFillBeforeChangeBounds := EmptyRectF;
 end;
 
 class function TVectorShape.CreateFromStorage(
