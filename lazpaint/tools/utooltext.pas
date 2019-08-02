@@ -23,7 +23,7 @@ type
     procedure IncludeShadowBounds(var ARect: TRect);
     function GetCustomShapeBounds(ADestBounds: TRect; AMatrix: TAffineMatrix; ADraft: boolean): TRect; override;
     procedure DrawCustomShape(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
-    procedure ShapeChange(ASender: TObject; ABounds: TRectF); override;
+    procedure ShapeChange(ASender: TObject; ABounds: TRectF; ADiff: TVectorShapeDiff); override;
     procedure ShapeEditingChange(ASender: TObject); override;
     procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
     function SlowShape: boolean; override;
@@ -126,7 +126,7 @@ begin
   end;
 end;
 
-procedure TToolText.ShapeChange(ASender: TObject; ABounds: TRectF);
+procedure TToolText.ShapeChange(ASender: TObject; ABounds: TRectF; ADiff: TVectorShapeDiff);
 var
   r: TRect;
   posF: TPointF;
@@ -135,7 +135,7 @@ begin
   Manager.ToolLightPosition := posF;
   with ABounds do r := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
   IncludeShadowBounds(r);
-  inherited ShapeChange(ASender, RectF(r.Left,r.Top,r.Right,r.Bottom));
+  inherited ShapeChange(ASender, RectF(r.Left,r.Top,r.Right,r.Bottom), ADiff);
 end;
 
 procedure TToolText.ShapeEditingChange(ASender: TObject);

@@ -11,6 +11,48 @@ uses
 type
   TTextureRepetition = (trNone, trRepeatX, trRepeatY, trRepeatBoth);
   TVectorialFillType = (vftNone, vftSolid, vftGradient, vftTexture);
+  TVectorialFill = class;
+
+  TCustomVectorialFillDiff = class
+    procedure Apply(AFill: TVectorialFill); virtual; abstract;
+    procedure Unapply(AFill: TVectorialFill); virtual; abstract;
+    function IsIdentity: boolean; virtual; abstract;
+    function CanAppend(ADiff: TCustomVectorialFillDiff): boolean; virtual; abstract;
+    procedure Append(ADiff: TCustomVectorialFillDiff); virtual; abstract;
+  end;
+
+  TVectorialFillChangeEvent = procedure(ASender: TObject; var ADiff: TCustomVectorialFillDiff) of object;
+
+  { TVectorialFillGradientDiff }
+
+  TVectorialFillGradientDiff = class(TCustomVectorialFillDiff)
+  protected
+    FGradientDiff: TBGRAGradientOriginalDiff;
+  public
+    constructor Create(AGradientDiff: TBGRAGradientOriginalDiff);
+    destructor Destroy; override;
+    procedure Apply(AFill: TVectorialFill); override;
+    procedure Unapply(AFill: TVectorialFill); override;
+    function IsIdentity: boolean; override;
+    function CanAppend(ADiff: TCustomVectorialFillDiff): boolean; override;
+    procedure Append(ADiff: TCustomVectorialFillDiff); override;
+  end;
+
+  { TVectorialFillDiff }
+
+  TVectorialFillDiff = class(TCustomVectorialFillDiff)
+  protected
+    FStart,FEnd: TVectorialFill;
+  public
+    constructor Create(AFrom: TVectorialFill);
+    procedure ComputeDiff(ATo: TVectorialFill);
+    destructor Destroy; override;
+    procedure Apply(AFill: TVectorialFill); override;
+    procedure Unapply(AFill: TVectorialFill); override;
+    function IsIdentity: boolean; override;
+    function CanAppend(ADiff: TCustomVectorialFillDiff): boolean; override;
+    procedure Append(ADiff: TCustomVectorialFillDiff); override;
+  end;
 
   { TVectorialFill }
 
@@ -24,17 +66,21 @@ type
     FTextureOpacity: byte;
     FTextureRepetition: TTextureRepetition;
     FGradient: TBGRALayerGradientOriginal;
-    FOnChange: TNotifyEvent;
-    procedure GradientChange({%H-}ASender: TObject; {%H-}ABounds: PRectF=nil);
+    FOnChange: TVectorialFillChangeEvent;
+    FOnBeforeChange: TNotifyEvent;
+    FDiff: TVectorialFillDiff;
+    procedure GradientChange({%H-}ASender: TObject; {%H-}ABounds: PRectF; var ADiff: TBGRAOriginalDiff);
     procedure Init; virtual;
     function GetFillType: TVectorialFillType;
     function GetIsEditable: boolean;
-    procedure SetOnChange(AValue: TNotifyEvent);
+    procedure SetOnChange(AValue: TVectorialFillChangeEvent);
     procedure SetTextureMatrix(AValue: TAffineMatrix);
     procedure SetTextureOpacity(AValue: byte);
     procedure SetTextureRepetition(AValue: TTextureRepetition);
     procedure InternalClear;
-    procedure Changed;
+    procedure BeginUpdate;
+    procedure EndUpdate;
+    procedure NotifyChangeWithoutDiff;
     procedure ConfigureTextureEditor(AEditor: TBGRAOriginalEditor);
     procedure TextureMoveOrigin({%H-}ASender: TObject; {%H-}APrevCoord,
       ANewCoord: TPointF; {%H-}AShift: TShiftState);
@@ -72,16 +118,121 @@ type
     property TextureMatrix: TAffineMatrix read FTextureMatrix write SetTextureMatrix;
     property TextureOpacity: byte read FTextureOpacity write SetTextureOpacity;
     property TextureRepetition: TTextureRepetition read FTextureRepetition write SetTextureRepetition;
-    property OnChange: TNotifyEvent read FOnChange write SetOnChange;
+    property OnChange: TVectorialFillChangeEvent read FOnChange write SetOnChange;
+    property OnBeforeChange: TNotifyEvent read FOnBeforeChange write FOnBeforeChange;
   end;
 
 implementation
 
 uses BGRAGradientScanner;
 
+{ TVectorialFillDiff }
+
+constructor TVectorialFillDiff.Create(AFrom: TVectorialFill);
+begin
+  FStart := TVectorialFill.Create;
+  FStart.Assign(AFrom);
+end;
+
+procedure TVectorialFillDiff.ComputeDiff(ATo: TVectorialFill);
+begin
+  FEnd := TVectorialFill.Create;
+  FEnd.Assign(ATo);
+end;
+
+destructor TVectorialFillDiff.Destroy;
+begin
+  FStart.Free;
+  FEnd.Free;
+  inherited Destroy;
+end;
+
+procedure TVectorialFillDiff.Apply(AFill: TVectorialFill);
+var
+  oldChange: TVectorialFillChangeEvent;
+begin
+  oldChange := AFill.OnChange;
+  AFill.OnChange := nil;
+  AFill.Assign(FEnd);
+  AFill.OnChange := oldChange;
+  AFill.NotifyChangeWithoutDiff;
+end;
+
+procedure TVectorialFillDiff.Unapply(AFill: TVectorialFill);
+var
+  oldChange: TVectorialFillChangeEvent;
+begin
+  oldChange := AFill.OnChange;
+  AFill.OnChange := nil;
+  AFill.Assign(FStart);
+  AFill.OnChange := oldChange;
+  AFill.NotifyChangeWithoutDiff;
+end;
+
+function TVectorialFillDiff.IsIdentity: boolean;
+begin
+  result := FStart.Equals(FEnd);
+end;
+
+function TVectorialFillDiff.CanAppend(ADiff: TCustomVectorialFillDiff
+  ): boolean;
+begin
+  result := ADiff is TVectorialFillDiff;
+end;
+
+procedure TVectorialFillDiff.Append(ADiff: TCustomVectorialFillDiff);
+begin
+  FEnd.Assign((ADiff as TVectorialFillDiff).FEnd);
+end;
+
+{ TVectorialFillGradientDiff }
+
+constructor TVectorialFillGradientDiff.Create(
+  AGradientDiff: TBGRAGradientOriginalDiff);
+begin
+  FGradientDiff := AGradientDiff;
+end;
+
+destructor TVectorialFillGradientDiff.Destroy;
+begin
+  FGradientDiff.Free;
+  inherited Destroy;
+end;
+
+procedure TVectorialFillGradientDiff.Apply(AFill: TVectorialFill);
+begin
+  if AFill.FillType = vftGradient then
+    FGradientDiff.Apply(AFill.Gradient);
+end;
+
+procedure TVectorialFillGradientDiff.Unapply(AFill: TVectorialFill);
+begin
+  if AFill.FillType = vftGradient then
+    FGradientDiff.Unapply(AFill.Gradient);
+end;
+
+function TVectorialFillGradientDiff.IsIdentity: boolean;
+begin
+  result := false;
+end;
+
+function TVectorialFillGradientDiff.CanAppend(ADiff: TCustomVectorialFillDiff): boolean;
+begin
+  result := (ADiff is TVectorialFillGradientDiff) and
+    FGradientDiff.CanAppend(TVectorialFillGradientDiff(ADiff).FGradientDiff);
+end;
+
+procedure TVectorialFillGradientDiff.Append(ADiff: TCustomVectorialFillDiff);
+var
+  nextDiff: TVectorialFillGradientDiff;
+begin
+  nextDiff := ADiff as TVectorialFillGradientDiff;
+  FGradientDiff.Append(nextDiff.FGradientDiff);
+end;
+
 { TVectorialFill }
 
-procedure TVectorialFill.SetOnChange(AValue: TNotifyEvent);
+procedure TVectorialFill.SetOnChange(AValue: TVectorialFillChangeEvent);
 begin
   if FOnChange=AValue then Exit;
   FOnChange:=AValue;
@@ -91,16 +242,18 @@ procedure TVectorialFill.SetTextureMatrix(AValue: TAffineMatrix);
 begin
   if FillType <> vftTexture then raise exception.Create('Not a texture fill');
   if FTextureMatrix=AValue then Exit;
+  BeginUpdate;
   FTextureMatrix:=AValue;
-  Changed;
+  EndUpdate;
 end;
 
 procedure TVectorialFill.SetTextureOpacity(AValue: byte);
 begin
   if FillType <> vftTexture then raise exception.Create('Not a texture fill');
   if FTextureOpacity=AValue then Exit;
+  BeginUpdate;
   FTextureOpacity:=AValue;
-  Changed;
+  EndUpdate;
 end;
 
 procedure TVectorialFill.InternalClear;
@@ -121,9 +274,37 @@ begin
   FTextureRepetition:= trRepeatBoth;
 end;
 
-procedure TVectorialFill.Changed;
+procedure TVectorialFill.BeginUpdate;
 begin
-  if Assigned(OnChange) then OnChange(self);
+  if Assigned(OnBeforeChange) then
+    OnBeforeChange(self);
+  if Assigned(OnChange) and (FDiff = nil) then
+    FDiff := TVectorialFillDiff.Create(self);
+end;
+
+procedure TVectorialFill.EndUpdate;
+begin
+  if Assigned(OnChange) then
+  begin
+    if Assigned(FDiff) then
+    begin
+      FDiff.ComputeDiff(self);
+      if not FDiff.IsIdentity then OnChange(self, FDiff);
+    end
+    else
+      OnChange(self, FDiff);
+  end;
+  FreeAndNil(FDiff);
+end;
+
+procedure TVectorialFill.NotifyChangeWithoutDiff;
+var diff: TCustomVectorialFillDiff;
+begin
+  if Assigned(FOnChange) then
+  begin
+    diff := nil;
+    FOnChange(self, diff);
+  end;
 end;
 
 procedure TVectorialFill.ConfigureTextureEditor(AEditor: TBGRAOriginalEditor);
@@ -147,9 +328,10 @@ end;
 procedure TVectorialFill.TextureMoveOrigin(ASender: TObject; APrevCoord,
   ANewCoord: TPointF; AShift: TShiftState);
 begin
+  BeginUpdate;
   FTextureMatrix[1,3] := ANewCoord.x;
   FTextureMatrix[2,3] := ANewCoord.y;
-  Changed;
+  EndUpdate;
 end;
 
 procedure TVectorialFill.TextureMoveXAxis(ASender: TObject; APrevCoord,
@@ -157,6 +339,7 @@ procedure TVectorialFill.TextureMoveXAxis(ASender: TObject; APrevCoord,
 var
   origin, xAxisRel: TPointF;
 begin
+  BeginUpdate;
   FTextureMatrix := FTextureMatrixBackup;
   origin := PointF(FTextureMatrix[1,3],FTextureMatrix[2,3]);
   xAxisRel := (ANewCoord - origin)*(1/FTexture.Width);
@@ -169,7 +352,7 @@ begin
     FTextureMatrix := AffineMatrixTranslation(origin.x,origin.y)*
                      AffineMatrixScaledRotation(PointF(FTextureMatrix[1,1],FTextureMatrix[2,1]), xAxisRel)*
                      AffineMatrixLinear(FTextureMatrix);
-  Changed;
+  EndUpdate;
 end;
 
 procedure TVectorialFill.TextureMoveYAxis(ASender: TObject; APrevCoord,
@@ -177,6 +360,7 @@ procedure TVectorialFill.TextureMoveYAxis(ASender: TObject; APrevCoord,
 var
   origin, yAxisRel: TPointF;
 begin
+  BeginUpdate;
   FTextureMatrix := FTextureMatrixBackup;
   origin := PointF(FTextureMatrix[1,3],FTextureMatrix[2,3]);
   yAxisRel := (ANewCoord - origin)*(1/FTexture.Height);
@@ -189,7 +373,7 @@ begin
     FTextureMatrix := AffineMatrixTranslation(origin.x,origin.y)*
                      AffineMatrixScaledRotation(PointF(FTextureMatrix[1,2],FTextureMatrix[2,2]), yAxisRel)*
                      AffineMatrixLinear(FTextureMatrix);
-  Changed;
+  EndUpdate;
 end;
 
 procedure TVectorialFill.TextureStartMove(ASender: TObject; AIndex: integer;
@@ -217,8 +401,9 @@ procedure TVectorialFill.SetTextureRepetition(AValue: TTextureRepetition);
 begin
   if FillType <> vftTexture then raise exception.Create('Not a texture fill');
   if FTextureRepetition=AValue then Exit;
+  BeginUpdate;
   FTextureRepetition:=AValue;
-  Changed;
+  EndUpdate;
 end;
 
 function TVectorialFill.GetFillType: TVectorialFillType;
@@ -229,9 +414,21 @@ begin
   else result := vftNone;
 end;
 
-procedure TVectorialFill.GradientChange(ASender: TObject; ABounds: PRectF=nil);
+procedure TVectorialFill.GradientChange(ASender: TObject; ABounds: PRectF; var ADiff: TBGRAOriginalDiff);
+var
+  fillDiff: TVectorialFillGradientDiff;
 begin
-  Changed;
+  if Assigned(OnChange) then
+  begin
+    if Assigned(FDiff) then
+    begin
+      fillDiff := TVectorialFillGradientDiff.Create(ADiff as TBGRAGradientOriginalDiff);
+      ADiff := nil;
+    end else
+      fillDiff := nil;
+    FOnChange(self, fillDiff);
+    fillDiff.Free;
+  end;
 end;
 
 constructor TVectorialFill.Create;
@@ -240,12 +437,14 @@ begin
 end;
 
 procedure TVectorialFill.Clear;
-var
-  notify: Boolean;
 begin
-  notify := FillType <> vftNone;
-  InternalClear;
-  if notify then Changed;
+  if FillType <> vftNone then
+  begin
+    BeginUpdate;
+    InternalClear;
+    EndUpdate;
+  end else
+    InternalClear;
 end;
 
 constructor TVectorialFill.CreateAsSolid(AColor: TBGRAPixel);
@@ -271,32 +470,35 @@ end;
 procedure TVectorialFill.SetSolid(AColor: TBGRAPixel);
 begin
   if (FillType = vftSolid) and (SolidColor = AColor) then exit;
+  BeginUpdate;
   InternalClear;
   if AColor.alpha = 0 then AColor := BGRAPixelTransparent;
   FColor := AColor;
   FIsSolid:= true;
-  Changed;
+  EndUpdate;
 end;
 
 procedure TVectorialFill.SetTexture(ATexture: TBGRABitmap;
   AMatrix: TAffineMatrix; AOpacity: byte; ATextureRepetition: TTextureRepetition);
 begin
+  BeginUpdate;
   InternalClear;
   FTexture := ATexture.NewReference as TBGRABitmap;
   FTextureMatrix := AMatrix;
   FTextureOpacity:= AOpacity;
   FTextureRepetition:= ATextureRepetition;
-  Changed;
+  EndUpdate;
 end;
 
 procedure TVectorialFill.SetGradient(AGradient: TBGRALayerGradientOriginal;
   AOwned: boolean);
 begin
+  BeginUpdate;
   InternalClear;
   if AOwned then FGradient := AGradient
   else FGradient := AGradient.Duplicate as TBGRALayerGradientOriginal;
-  FGradient.OnChange:=@GradientChange;
-  Changed;
+  FGradient.OnChange:= @GradientChange;
+  EndUpdate;
 end;
 
 procedure TVectorialFill.ConfigureEditor(AEditor: TBGRAOriginalEditor);
@@ -363,8 +565,9 @@ begin
   vftGradient: Gradient.Transform(AMatrix);
   vftTexture:
     begin
+      BeginUpdate;
       FTextureMatrix := AMatrix*FTextureMatrix;
-      Changed;
+      EndUpdate;
     end;
   end;
 end;

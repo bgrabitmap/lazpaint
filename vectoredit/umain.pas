@@ -11,7 +11,7 @@ uses
   BGRABitmap, BGRABitmapTypes, BGRAGraphics, BGRALazPaint, BGRALayerOriginal,
   BGRATransform, BGRAGradientScanner, LCVectorOriginal, LCVectorShapes,
   LCVectorRectShapes, LCVectorPolyShapes, LCVectorTextShapes,
-  LCVectorialFillControl, LCVectorialFill;
+  LCVectorialFillControl, LCVectorialFill, fgl;
 
 const
   RenderDelayMs = 100; //minimum delay between the end of the last rendering and the beginning of the next rendering
@@ -43,6 +43,8 @@ const
     ('Auto', 'Left to right', 'Right to left');
 
 type
+  TOriginalDiffList = specialize TFPGObjectList<TBGRAOriginalDiff>;
+
   { TForm1 }
 
   TForm1 = class(TForm)
@@ -145,7 +147,7 @@ type
     procedure OutlineFillControlResize(Sender: TObject);
     procedure PanelFileResize(Sender: TObject);
     procedure PanelShapeResize(Sender: TObject);
-   procedure ShapeBringToFrontExecute(Sender: TObject);
+    procedure ShapeBringToFrontExecute(Sender: TObject);
     procedure ShapeMoveDownExecute(Sender: TObject);
     procedure ShapeMoveUpExecute(Sender: TObject);
     procedure ShapeSendToBackExecute(Sender: TObject);
@@ -222,7 +224,8 @@ type
     procedure OnClickSplineStyleItem(ASender: TObject);
     procedure OnEditingChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
     procedure OnEditorFocusChange(Sender: TObject);
-    procedure OnOriginalChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
+    procedure OnOriginalChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal;
+                               var ADiff: TBGRAOriginalDiff);
     procedure OnPhongBorderSizeChange(Sender: TObject; AByUser: boolean);
     procedure OnPhongShapeAltitudeChange(Sender: TObject; AByUser: boolean);
     procedure OnSelectShape(ASender: TObject; AShape: TVectorShape; APreviousShape: TVectorShape);
@@ -285,10 +288,16 @@ type
     procedure TextFontTextBoxExit(Sender: TObject);
     procedure NewImage(AWidth,AHeight: integer);
     procedure SetImage(AImage: TBGRALazPaintImage);
+    procedure AddDiff({%H-}AOriginal: TBGRALayerCustomOriginal; ADiff: TBGRAOriginalDiff);
   public
     { public declarations }
     img: TBGRALazPaintImage;
     FVectorLayerIndex: Integer;
+    FDiffList: TOriginalDiffList;
+    FDiffListPos,
+    FDiffListSavePos: integer;
+    FDiffAppend: boolean;
+    FDiffLastDate: TDateTime;
     filename: string;
     zoom: TAffineMatrix;
     newShape: TVectorShape;
@@ -301,6 +310,8 @@ type
     procedure DoCut;
     procedure DoPaste;
     procedure DoDelete;
+    procedure DoUndo;
+    procedure DoRedo;
     property vectorTransform: TAffineMatrix read GetVectorTransform;
     property penWidth: single read GetPenWidth write SetPenWidth;
     property penStyle: TBGRAPenStyle read GetPenStyle write SetPenStyle;
@@ -493,6 +504,7 @@ var
 begin
   FocusView;
   mouseState:= Shift;
+  if [ssLeft,ssRight]*mouseState = [] then FDiffAppend := false;
   imgPtF := VirtualScreenToImgCoord(X,Y);
   SetEditorGrid(ssCtrl in Shift);
   img.MouseDown(Button=mbRight, Shift, imgPtF.x, imgPtF.y, cur, handled);
@@ -757,6 +769,7 @@ var
   vectorFill: TVectorialFill;
 begin
   mouseState:= Shift;
+  if [ssLeft,ssRight]*mouseState = [] then FDiffAppend := false;
   imgPtF := VirtualScreenToImgCoord(X,Y);
   SetEditorGrid(ssCtrl in Shift);
   img.MouseMove(Shift, imgPtF.X, imgPtF.Y, cur, handled);
@@ -822,6 +835,7 @@ var
   addedShape, curShape: TVectorShape;
 begin
   mouseState:= Shift;
+  if [ssLeft,ssRight]*mouseState = [] then FDiffAppend := false;
   imgPtF := VirtualScreenToImgCoord(X,Y);
   SetEditorGrid(ssCtrl in Shift);
   img.MouseUp(Button = mbRight, Shift, imgPtF.X, imgPtF.Y, cur, handled);
@@ -891,6 +905,7 @@ begin
   RemoveExtendedStyleControls;
   if (newShape <> nil) and not shapeAdded then FreeAndNil(newShape);
   img.Free;
+  FDiffList.Free;
   FFlattened.Free;
   ButtonPenStyle.DropDownMenu := nil;
   FPenStyleMenu.Free;
@@ -948,6 +963,20 @@ begin
   begin
     Key := 0;
     DoDelete;
+  end else
+  if (Key = VK_Z) and ([ssCtrl,ssShift]*Shift=[ssCtrl]) and (FDiffListPos > 0) and
+    not FDiffAppend then
+  begin
+    Key := 0;
+    DoUndo;
+  end else
+  if ( ((Key = VK_Y) and ([ssCtrl,ssShift]*Shift=[ssCtrl])) or
+       ((Key = VK_Z) and ([ssCtrl,ssShift]*Shift=[ssCtrl,ssShift])) )
+     and Assigned(FDiffList) and (FDiffListPos < FDiffList.Count) and
+     not FDiffAppend then
+  begin
+    Key := 0;
+    DoRedo;
   end;
 end;
 
@@ -1158,7 +1187,8 @@ begin
   UpdateView(EmptyRect);
 end;
 
-procedure TForm1.OnOriginalChange(ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
+procedure TForm1.OnOriginalChange(ASender: TObject; AOriginal: TBGRALayerCustomOriginal;
+  var ADiff: TBGRAOriginalDiff);
 var
   slowShape: boolean;
 begin
@@ -1170,6 +1200,8 @@ begin
       slowShape := vectorOriginal.SelectedShape.GetIsSlow(vectorTransform);
   end;
   RenderAndUpdate(slowShape);
+  AddDiff(AOriginal, ADiff);
+  ADiff := nil;
 end;
 
 procedure TForm1.OnPhongBorderSizeChange(Sender: TObject; AByUser: boolean);
@@ -1486,6 +1518,10 @@ end;
 procedure TForm1.SetImage(AImage: TBGRALazPaintImage);
 begin
   FreeAndNil(img);
+  FreeAndNil(FDiffList);
+  FDiffListPos := 0;
+  FDiffListSavePos := 0;
+  FDiffAppend := false;
   img := AImage;
   img.OnOriginalEditingChange:= @OnEditingChange;
   img.EditorFocused:= BGRAVirtualScreen1.Focused;
@@ -1493,6 +1529,29 @@ begin
   img.OnOriginalChange:= @OnOriginalChange;
   FVectorLayerIndex:= -1;
   ImageChangesCompletely;
+end;
+
+procedure TForm1.AddDiff(AOriginal: TBGRALayerCustomOriginal;
+  ADiff: TBGRAOriginalDiff);
+const DiffMinDelay = 1000 / (1000*60*60*24);
+begin
+  if ADiff = nil then exit;
+  if FDiffList=nil then FDiffList := TOriginalDiffList.Create;
+  while FDiffList.Count > FDiffListPos do FDiffList.Delete(FDiffList.Count-1);
+  if FDiffListSavePos > FDiffList.Count then FDiffListSavePos:= maxLongint;
+  if (FDiffList.Count>0) and FDiffList[FDiffList.Count-1].CanAppend(ADiff) and
+    (FDiffAppend or (Now < FDiffLastDate+DiffMinDelay)) then
+  begin
+    FDiffList[FDiffList.Count-1].Append(ADiff);
+    ADiff.Free;
+  end
+  else
+  begin
+    FDiffListPos := FDiffList.Add(ADiff)+1;
+    FDiffAppend:= [ssLeft,ssRight]*mouseState <> [];
+  end;
+  FDiffLastDate := Now;
+  UpdateTitleBar;
 end;
 
 procedure TForm1.TextStyleClick(Sender: TObject);
@@ -1876,11 +1935,15 @@ begin
 end;
 
 procedure TForm1.UpdateTitleBar;
+var
+  modifStr: string;
 begin
+  if Assigned(FDiffList) and (FDiffListPos <> FDiffListSavePos) then
+    modifStr := '*' else modifStr := '';
   if filename = '' then
-    Caption := baseCaption + ' - New image - ' + inttostr(img.Width)+'x'+inttostr(img.Height)
+    Caption := baseCaption + ' - New image'+modifStr+' - ' + inttostr(img.Width)+'x'+inttostr(img.Height)
   else
-    Caption := baseCaption + ' - ' + filename + ' - ' + inttostr(img.Width)+'x'+inttostr(img.Height);
+    Caption := baseCaption + ' - ' + filename + modifStr+' - ' + inttostr(img.Width)+'x'+inttostr(img.Height);
 end;
 
 procedure TForm1.ImageChangesCompletely;
@@ -2247,6 +2310,27 @@ procedure TForm1.DoDelete;
 begin
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
     vectorOriginal.SelectedShape.Remove;
+end;
+
+procedure TForm1.DoUndo;
+var
+  diff: TBGRAOriginalDiff;
+begin
+  if FDiffListPos <= 0 then exit;
+  dec(FDiffListPos);
+  diff := FDiffList[FDiffListPos];
+  diff.Unapply(vectorOriginal);
+  UpdateTitleBar;
+end;
+
+procedure TForm1.DoRedo;
+var
+  diff: TBGRAOriginalDiff;
+begin
+  diff := FDiffList[FDiffListPos];
+  diff.Apply(vectorOriginal);
+  inc(FDiffListPos);
+  UpdateTitleBar;
 end;
 
 end.

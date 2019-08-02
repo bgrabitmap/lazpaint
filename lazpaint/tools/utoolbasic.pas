@@ -105,7 +105,7 @@ type
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF; rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF): TRect; override;
     function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
-    procedure ShapeChange({%H-}ASender: TObject; ABounds: TRectF); virtual;
+    procedure ShapeChange({%H-}ASender: TObject; ABounds: TRectF; ADiff: TVectorShapeDiff); virtual;
     procedure ShapeEditingChange({%H-}ASender: TObject); virtual;
     function GetStatusText: string; override;
     function SlowShape: boolean; virtual;
@@ -148,7 +148,7 @@ uses Types, Graphics, ugraph, Controls, LazPaintType,
 
 { TVectorialTool }
 
-procedure TVectorialTool.ShapeChange(ASender: TObject; ABounds: TRectF);
+procedure TVectorialTool.ShapeChange(ASender: TObject; ABounds: TRectF; ADiff: TVectorShapeDiff);
 var
   toolDest: TBGRABitmap;
   r: TRect;
@@ -162,6 +162,7 @@ begin
   with FShape.GetRenderBounds(rect(0,0,toolDest.Width,toolDest.Height),matrix,[]) do
     FPreviousUpdateBounds := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
   if IsRectEmpty(r) then ShapeEditingChange(ASender);
+  ADiff.Free;
 end;
 
 procedure TVectorialTool.ShapeEditingChange(ASender: TObject);

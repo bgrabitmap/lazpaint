@@ -9,6 +9,24 @@ uses
   BGRABitmap, BGRATransform, BGRAGradients;
 
 type
+  TCustomRectShape = class;
+
+  { TCustomRectShapeDiff }
+
+  TCustomRectShapeDiff = class(TVectorShapeDiff)
+  protected
+    FStartOrigin, FStartXAxis, FStartYAxis: TPointF;
+    FStartFixedRatio: Single;
+    FEndOrigin, FEndXAxis, FEndYAxis: TPointF;
+    FEndFixedRatio: Single;
+  public
+    constructor Create(AStartShape: TVectorShape); override;
+    procedure ComputeDiff(AEndShape: TVectorShape); override;
+    procedure Apply(AStartShape: TVectorShape); override;
+    procedure Unapply(AEndShape: TVectorShape); override;
+    procedure Append(ADiff: TVectorShapeDiff); override;
+  end;
+
   { TCustomRectShape }
 
   TCustomRectShape = class(TVectorShape)
@@ -100,6 +118,26 @@ const
   DefaultPhongBorderSizePercent = 20;
 
 type
+  TPhongShape = class;
+
+  { TPhongShapeDiff }
+
+  TPhongShapeDiff = class(TVectorShapeDiff)
+  protected
+    FStartShapeKind: TPhongShapeKind;
+    FStartLightPosition: TPointF;
+    FStartShapeAltitudePercent,FStartBorderSizePercent: single;
+    FEndShapeKind: TPhongShapeKind;
+    FEndLightPosition: TPointF;
+    FEndShapeAltitudePercent,FEndBorderSizePercent: single;
+  public
+    constructor Create(AStartShape: TVectorShape); override;
+    procedure ComputeDiff(AEndShape: TVectorShape); override;
+    procedure Apply(AStartShape: TVectorShape); override;
+    procedure Unapply(AEndShape: TVectorShape); override;
+    procedure Append(ADiff: TVectorShapeDiff); override;
+  end;
+
   { TPhongShape }
 
   TPhongShape = class(TCustomRectShape)
@@ -143,6 +181,126 @@ implementation
 
 uses BGRAPen, BGRAGraphics, BGRAFillInfo, BGRAPath, math, LCVectorialFill;
 
+{ TPhongShapeDiff }
+
+constructor TPhongShapeDiff.Create(AStartShape: TVectorShape);
+begin
+  with (AStartShape as TPhongShape) do
+  begin
+    FStartShapeKind:= ShapeKind;
+    FStartLightPosition:= LightPosition;
+    FStartShapeAltitudePercent:= ShapeAltitudePercent;
+    FStartBorderSizePercent:= BorderSizePercent;
+  end;
+end;
+
+procedure TPhongShapeDiff.ComputeDiff(AEndShape: TVectorShape);
+begin
+  with (AEndShape as TPhongShape) do
+  begin
+    FEndShapeKind:= ShapeKind;
+    FEndLightPosition:= LightPosition;
+    FEndShapeAltitudePercent:= ShapeAltitudePercent;
+    FEndBorderSizePercent:= BorderSizePercent;
+  end;
+end;
+
+procedure TPhongShapeDiff.Apply(AStartShape: TVectorShape);
+begin
+  with (AStartShape as TPhongShape) do
+  begin
+    BeginUpdate;
+    FShapeKind := FEndShapeKind;
+    FLightPosition := FEndLightPosition;
+    FShapeAltitudePercent := FEndShapeAltitudePercent;
+    FBorderSizePercent := FEndBorderSizePercent;
+    EndUpdate;
+  end;
+end;
+
+procedure TPhongShapeDiff.Unapply(AEndShape: TVectorShape);
+begin
+  with (AEndShape as TPhongShape) do
+  begin
+    FShapeKind := FStartShapeKind;
+    FLightPosition := FStartLightPosition;
+    FShapeAltitudePercent := FStartShapeAltitudePercent;
+    FBorderSizePercent := FStartBorderSizePercent;
+  end;
+end;
+
+procedure TPhongShapeDiff.Append(ADiff: TVectorShapeDiff);
+var
+  next: TPhongShapeDiff;
+begin
+  next := ADiff as TPhongShapeDiff;
+  FEndShapeKind := next.FEndShapeKind;
+  FEndLightPosition := next.FEndLightPosition;
+  FEndShapeAltitudePercent := next.FEndShapeAltitudePercent;
+  FEndBorderSizePercent := next.FEndBorderSizePercent;
+end;
+
+{ TCustomRectShapeDiff }
+
+constructor TCustomRectShapeDiff.Create(AStartShape: TVectorShape);
+begin
+  with (AStartShape as TCustomRectShape) do
+  begin
+    FStartOrigin := Origin;
+    FStartXAxis := XAxis;
+    FStartYAxis := YAxis;
+    FStartFixedRatio := FixedRatio;
+  end;
+end;
+
+procedure TCustomRectShapeDiff.ComputeDiff(AEndShape: TVectorShape);
+begin
+  with (AEndShape as TCustomRectShape) do
+  begin
+    FEndOrigin := Origin;
+    FEndXAxis := XAxis;
+    FEndYAxis := YAxis;
+    FEndFixedRatio := FixedRatio;
+  end;
+end;
+
+procedure TCustomRectShapeDiff.Apply(AStartShape: TVectorShape);
+begin
+  with (AStartShape as TCustomRectShape) do
+  begin
+    BeginUpdate;
+    FOrigin := FEndOrigin;
+    FXAxis := FEndXAxis;
+    FYAxis := FEndYAxis;
+    FFixedRatio := FEndFixedRatio;
+    EndUpdate;
+  end;
+end;
+
+procedure TCustomRectShapeDiff.Unapply(AEndShape: TVectorShape);
+begin
+  with (AEndShape as TCustomRectShape) do
+  begin
+    BeginUpdate;
+    FOrigin := FStartOrigin;
+    FXAxis := FStartXAxis;
+    FYAxis := FStartYAxis;
+    FFixedRatio := FStartFixedRatio;
+    EndUpdate;
+  end;
+end;
+
+procedure TCustomRectShapeDiff.Append(ADiff: TVectorShapeDiff);
+var
+  next: TCustomRectShapeDiff;
+begin
+  next := ADiff as TCustomRectShapeDiff;
+  FEndOrigin := next.FEndOrigin;
+  FEndXAxis := next.FEndXAxis;
+  FEndYAxis := next.FEndYAxis;
+  FEndFixedRatio := next.FEndFixedRatio;
+end;
+
 { TCustomRectShape }
 
 procedure TCustomRectShape.SetOrigin(AValue: TPointF);
@@ -151,7 +309,7 @@ var
   t: TAffineMatrix;
 begin
   if FOrigin=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TCustomRectShapeDiff);
   delta := AValue - FOrigin;
   t := AffineMatrixTranslation(delta.x, delta.y);
   FOrigin := AValue;
@@ -229,7 +387,7 @@ begin
       if FFixedRatio <> curRatio then
       begin
         ratioFactor := FFixedRatio/curRatio;
-        BeginUpdate;
+        BeginUpdate(TCustomRectShapeDiff);
         refPoint := Origin + (XAxis-Origin)*ACenterX + (YAxis-Origin)*ACenterY;
         if (ACenterX=0) and (ACenterY=0) then fracPower := 1/2
         else fracPower := abs(ACenterY)/(abs(ACenterX)+abs(ACenterY));
@@ -257,7 +415,7 @@ var
   newSize: Single;
   u: TPointF;
 begin
-  BeginUpdate;
+  BeginUpdate(TCustomRectShapeDiff);
   if AllowShearTransform and ((ssAlt in AShift) or (FXUnitBackup = PointF(0,0))) then
   begin
     FXAxis := FOriginBackup + AFactor*(ANewCoord - FOriginBackup);
@@ -295,7 +453,7 @@ var
   newSizeY: Single;
   u: TPointF;
 begin
-  BeginUpdate;
+  BeginUpdate(TCustomRectShapeDiff);
   if AllowShearTransform and ((ssAlt in AShift) or (FYUnitBackup = PointF(0,0))) then
   begin
     FYAxis := FOriginBackup + AFactor*(ANewCoord - FOriginBackup);
@@ -335,7 +493,7 @@ var
   newSize, prevCornerVect, newCornerVect: TPointF;
   angle,deltaAngle, zoom: single;
 begin
-  BeginUpdate;
+  BeginUpdate(TCustomRectShapeDiff);
   if (ssAlt in AShift) and (VectDet(FXUnitBackup,FYUnitBackup)<>0) and (FXSizeBackup<>0) and (FYSizeBackup<>0) then
   begin
     prevCornerVect := AFactorX*(FXAxisBackup - FOriginBackup) + AFactorY*(FYAxisBackup - FOriginBackup);
@@ -468,7 +626,7 @@ end;
 
 procedure TCustomRectShape.Transform(AMatrix: TAffineMatrix);
 begin
-  BeginUpdate;
+  BeginUpdate(TCustomRectShapeDiff);
   FOrigin := AMatrix*FOrigin;
   FXAxis := AMatrix*FXAxis;
   FYAxis := AMatrix*FYAxis;
@@ -511,7 +669,7 @@ end;
 
 procedure TCustomRectShape.QuickDefine(const APoint1, APoint2: TPointF);
 begin
-  BeginUpdate;
+  BeginUpdate(TCustomRectShapeDiff);
   FOrigin := (APoint1+APoint2)*0.5;
   FXAxis := PointF(APoint2.X,FOrigin.Y);
   FYAxis := PointF(FOrigin.X,APoint2.Y);
@@ -1026,7 +1184,7 @@ end;
 procedure TPhongShape.SetShapeKind(AValue: TPhongShapeKind);
 begin
   if FShapeKind=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TPhongShapeDiff);
   FShapeKind:=AValue;
   EndUpdate;
 end;
@@ -1040,7 +1198,7 @@ end;
 procedure TPhongShape.SetBorderSizePercent(AValue: single);
 begin
   if FBorderSizePercent=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TPhongShapeDiff);
   FBorderSizePercent:=AValue;
   EndUpdate;
 end;
@@ -1048,7 +1206,7 @@ end;
 procedure TPhongShape.SetLightPosition(AValue: TPointF);
 begin
   if FLightPosition=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TPhongShapeDiff);
   FLightPosition:=AValue;
   EndUpdate;
 end;
@@ -1056,7 +1214,7 @@ end;
 procedure TPhongShape.SetShapeAltitudePercent(AValue: single);
 begin
   if FShapeAltitudePercent=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TPhongShapeDiff);
   FShapeAltitudePercent:=AValue;
   EndUpdate;
 end;
@@ -1351,9 +1509,9 @@ end;
 
 procedure TPhongShape.Transform(AMatrix: TAffineMatrix);
 begin
-  BeginUpdate;
-  inherited Transform(AMatrix);
+  BeginUpdate(TPhongShapeDiff);
   LightPosition := AMatrix*LightPosition;
+  inherited Transform(AMatrix);
   EndUpdate;
 end;
 

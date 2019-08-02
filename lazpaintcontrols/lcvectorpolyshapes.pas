@@ -22,6 +22,33 @@ const
 function StrToArrowKind(AStr: string): TArrowKind;
 
 type
+  TCustomPolypointShape = class;
+  TCustomPolypointPoint = record
+    coord: TPointF;
+    editorIndex: integer;
+    data: cardinal;
+  end;
+
+  { TCustomPolypointShapeDiff }
+
+  TCustomPolypointShapeDiff = class(TVectorShapeDiff)
+  protected
+    FStartPoints: array of TCustomPolypointPoint;
+    FStartClosed: boolean;
+    FStartArrowStartKind,FStartArrowEndKind: TArrowKind;
+    FStartArrowSize: TPointF;
+    FEndPoints: array of TCustomPolypointPoint;
+    FEndClosed: boolean;
+    FEndArrowStartKind,FEndArrowEndKind: TArrowKind;
+    FEndArrowSize: TPointF;
+  public
+    constructor Create(AStartShape: TVectorShape); override;
+    procedure ComputeDiff(AEndShape: TVectorShape); override;
+    procedure Apply(AStartShape: TVectorShape); override;
+    procedure Unapply(AEndShape: TVectorShape); override;
+    procedure Append(ADiff: TVectorShapeDiff); override;
+  end;
+
   { TCustomPolypointShape }
 
   TCustomPolypointShape = class(TVectorShape)
@@ -34,11 +61,7 @@ type
     procedure SetArrowStartKind(AValue: TArrowKind);
     procedure SetPoint(AIndex: integer; AValue: TPointF);
   protected
-    FPoints: array of record
-               coord: TPointF;
-               editorIndex: integer;
-               data: pointer;
-             end;
+    FPoints: array of TCustomPolypointPoint;
     FCenterPoint: TPointF;
     FCenterPointEditorIndex: integer;
     FCurPoint: integer;
@@ -65,7 +88,6 @@ type
   public
     constructor Create(AContainer: TVectorOriginal); override;
     procedure Clear;
-    destructor Destroy; override;
     function AddPoint(const APoint: TPointF): integer; virtual;
     function RemovePoint(AIndex: integer): boolean;
     procedure RemovePointRange(AFromIndex, AToIndexPlus1: integer);
@@ -102,6 +124,24 @@ type
     function PointInShape(APoint: TPointF): boolean; override;
     function GetIsSlow({%H-}AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
+  end;
+
+  TCurveShape = class;
+
+  { TCurveShapeDiff }
+
+  TCurveShapeDiff = class(TVectorShapeDiff)
+  protected
+    FStartCosineAngle: single;
+    FStartSplineStyle: TSplineStyle;
+    FEndCosineAngle: single;
+    FEndSplineStyle: TSplineStyle;
+  public
+    constructor Create(AStartShape: TVectorShape); override;
+    procedure ComputeDiff(AEndShape: TVectorShape); override;
+    procedure Apply(AStartShape: TVectorShape); override;
+    procedure Unapply(AEndShape: TVectorShape); override;
+    procedure Append(ADiff: TVectorShapeDiff); override;
   end;
 
   { TCurveShape }
@@ -199,6 +239,137 @@ begin
     end;
 end;
 
+{ TCurveShapeDiff }
+
+constructor TCurveShapeDiff.Create(AStartShape: TVectorShape);
+begin
+  with (AStartShape as TCurveShape) do
+  begin
+    FStartCosineAngle:= FCosineAngle;
+    FStartSplineStyle:= FSplineStyle;
+  end;
+end;
+
+procedure TCurveShapeDiff.ComputeDiff(AEndShape: TVectorShape);
+begin
+  with (AEndShape as TCurveShape) do
+  begin
+    FEndCosineAngle:= FCosineAngle;
+    FEndSplineStyle:= FSplineStyle;
+  end;
+end;
+
+procedure TCurveShapeDiff.Apply(AStartShape: TVectorShape);
+begin
+  with (AStartShape as TCurveShape) do
+  begin
+    BeginUpdate;
+    FCosineAngle := FEndCosineAngle;
+    FSplineStyle := FEndSplineStyle;
+    EndUpdate;
+  end;
+end;
+
+procedure TCurveShapeDiff.Unapply(AEndShape: TVectorShape);
+begin
+  with (AEndShape as TCurveShape) do
+  begin
+    BeginUpdate;
+    FCosineAngle := FStartCosineAngle;
+    FSplineStyle := FStartSplineStyle;
+    EndUpdate;
+  end;
+end;
+
+procedure TCurveShapeDiff.Append(ADiff: TVectorShapeDiff);
+var
+  next: TCurveShapeDiff;
+begin
+  next := ADiff as TCurveShapeDiff;
+  FEndCosineAngle:= next.FEndCosineAngle;
+  FEndSplineStyle:= next.FEndSplineStyle;
+end;
+
+{ TCustomPolypointShapeDiff }
+
+constructor TCustomPolypointShapeDiff.Create(AStartShape: TVectorShape);
+var
+  i: Integer;
+begin
+  with (AStartShape as TCustomPolypointShape) do
+  begin
+    setlength(FStartPoints, length(FPoints));
+    for i := 0 to high(FPoints) do FStartPoints[i] := FPoints[i];
+    FStartClosed:= FClosed;
+    FStartArrowStartKind := FArrowStartKind;
+    FStartArrowEndKind:= FArrowEndKind;
+    FStartArrowSize:= FArrowSize;
+  end;
+end;
+
+procedure TCustomPolypointShapeDiff.ComputeDiff(AEndShape: TVectorShape);
+var
+  i: Integer;
+begin
+  with (AEndShape as TCustomPolypointShape) do
+  begin
+    setlength(FEndPoints, length(FPoints));
+    for i := 0 to high(FPoints) do FEndPoints[i] := FPoints[i];
+    FEndClosed:= FClosed;
+    FEndArrowStartKind := FArrowStartKind;
+    FEndArrowEndKind:= FArrowEndKind;
+    FEndArrowSize:= FArrowSize;
+  end;
+end;
+
+procedure TCustomPolypointShapeDiff.Apply(AStartShape: TVectorShape);
+var
+  i: Integer;
+begin
+  with (AStartShape as TCustomPolypointShape) do
+  begin
+    BeginUpdate;
+    setlength(FPoints, length(FEndPoints));
+    for i := 0 to high(FPoints) do FPoints[i] := FEndPoints[i];
+    FClosed := FEndClosed;
+    FArrowStartKind := FEndArrowStartKind;
+    FArrowEndKind := FEndArrowEndKind;
+    FArrowSize := FEndArrowSize;
+    EndUpdate;
+  end;
+end;
+
+procedure TCustomPolypointShapeDiff.Unapply(AEndShape: TVectorShape);
+var
+  i: Integer;
+begin
+  with (AEndShape as TCustomPolypointShape) do
+  begin
+    BeginUpdate;
+    setlength(FPoints, length(FStartPoints));
+    for i := 0 to high(FPoints) do FPoints[i] := FStartPoints[i];
+    FClosed := FStartClosed;
+    FArrowStartKind := FStartArrowStartKind;
+    FArrowEndKind := FStartArrowEndKind;
+    FArrowSize := FStartArrowSize;
+    EndUpdate;
+  end;
+end;
+
+procedure TCustomPolypointShapeDiff.Append(ADiff: TVectorShapeDiff);
+var
+  next: TCustomPolypointShapeDiff;
+  i: Integer;
+begin
+  next := ADiff as TCustomPolypointShapeDiff;
+  setlength(FEndPoints, length(next.FEndPoints));
+  for i := 0 to high(FEndPoints) do FEndPoints[i] := next.FEndPoints[i];
+  FEndClosed := next.FEndClosed;
+  FEndArrowStartKind := next.FEndArrowStartKind;
+  FEndArrowEndKind := next.FEndArrowEndKind;
+  FEndArrowSize := next.FEndArrowSize;
+end;
+
 { TCustomPolypointShape }
 
 function TCustomPolypointShape.GetClosed: boolean;
@@ -221,7 +392,7 @@ end;
 procedure TCustomPolypointShape.SetArrowEndKind(AValue: TArrowKind);
 begin
   if FArrowEndKind=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TCustomPolypointShapeDiff);
   FArrowEndKind:=AValue;
   EndUpdate;
 end;
@@ -229,7 +400,7 @@ end;
 procedure TCustomPolypointShape.SetArrowSize(AValue: TPointF);
 begin
   if FArrowSize=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TCustomPolypointShapeDiff);
   FArrowSize:=AValue;
   EndUpdate;
 end;
@@ -237,7 +408,7 @@ end;
 procedure TCustomPolypointShape.SetArrowStartKind(AValue: TArrowKind);
 begin
   if FArrowStartKind=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TCustomPolypointShapeDiff);
   FArrowStartKind:=AValue;
   EndUpdate;
 end;
@@ -245,7 +416,7 @@ end;
 procedure TCustomPolypointShape.SetClosed(AValue: boolean);
 begin
   if AValue = FClosed then exit;
-  BeginUpdate;
+  BeginUpdate(TCustomPolypointShapeDiff);
   FClosed := AValue;
   EndUpdate;
 end;
@@ -254,13 +425,13 @@ procedure TCustomPolypointShape.SetPoint(AIndex: integer; AValue: TPointF);
 begin
   if (AIndex < 0) or (AIndex > length(FPoints)) then
     raise ERangeError.Create('Index out of bounds');
-  BeginUpdate;
+  BeginUpdate(TCustomPolypointShapeDiff);
   if AIndex = length(FPoints) then
   begin
     setlength(FPoints, length(FPoints)+1);
     FPoints[AIndex].coord := AValue;
     FPoints[AIndex].editorIndex := -1;
-    FPoints[AIndex].data := nil;
+    FPoints[AIndex].data := 0;
   end
   else
     FPoints[AIndex].coord := AValue;
@@ -271,7 +442,7 @@ procedure TCustomPolypointShape.OnMovePoint(ASender: TObject; APrevCoord,
   ANewCoord: TPointF; AShift: TShiftState);
 begin
   if FCurPoint = -1 then exit;
-  BeginUpdate;
+  BeginUpdate(TCustomPolypointShapeDiff);
   Points[FCurPoint] := ANewCoord;
   EndUpdate;
 end;
@@ -282,7 +453,7 @@ var
   i: Integer;
   delta: TPointF;
 begin
-  BeginUpdate;
+  BeginUpdate(TCustomPolypointShapeDiff);
   delta := ANewCoord - APrevCoord;
   for i := 0 to PointCount-1 do
     Points[i] := Points[i]+delta;
@@ -477,18 +648,6 @@ begin
   RemovePointRange(0, PointCount);
 end;
 
-destructor TCustomPolypointShape.Destroy;
-var
-  i: Integer;
-begin
-  for i := 0 to PointCount-1 do
-  begin
-    FreeMem(FPoints[i].data);
-    FPoints[i].data := nil;
-  end;
-  inherited Destroy;
-end;
-
 function TCustomPolypointShape.AddPoint(const APoint: TPointF): integer;
 begin
   result := PointCount;
@@ -509,12 +668,7 @@ begin
   if AFromIndex < 0 then AFromIndex:= 0;
   if AToIndexPlus1 > PointCount then AToIndexPlus1:= PointCount;
   if AFromIndex >= AToIndexPlus1 then exit;
-  BeginUpdate;
-  for i := AFromIndex to AToIndexPlus1-1 do
-  begin
-    freemem(FPoints[i].data);
-    FPoints[i].data := nil;
-  end;
+  BeginUpdate(TCustomPolypointShapeDiff);
   delCount := AToIndexPlus1-AFromIndex;
   for i := AFromIndex to PointCount-DelCount-1 do
     FPoints[i] := FPoints[i+delCount];
@@ -527,13 +681,13 @@ var
   i: Integer;
 begin
   if (AIndex < 0) or (AIndex > PointCount) then raise exception.Create('Index out of bounds');
-  BeginUpdate;
+  BeginUpdate(TCustomPolypointShapeDiff);
   setlength(FPoints, PointCount+1);
   for i := PointCount-1 downto AIndex+1 do
     FPoints[i] := FPoints[i-1];
   FPoints[AIndex].coord := APoint;
   FPoints[AIndex].editorIndex:= -1;
-  FPoints[AIndex].data := nil;
+  FPoints[AIndex].data := 0;
   EndUpdate;
 end;
 
@@ -574,7 +728,7 @@ begin
   begin
     if (FHoverPoint >= 0) and (FHoverPoint < PointCount) then
     begin
-      BeginUpdate;
+      BeginUpdate(TCustomPolypointShapeDiff);
       RemovePoint(FHoverPoint);
       if (FHoverPoint < PointCount) and IsEmptyPointF(Points[FHoverPoint]) then RemovePoint(FHoverPoint);
       EndUpdate;
@@ -598,7 +752,7 @@ end;
 
 procedure TCustomPolypointShape.QuickDefine(const APoint1, APoint2: TPointF);
 begin
-  BeginUpdate;
+  BeginUpdate(TCustomPolypointShapeDiff);
   FPoints := nil;
   AddPoint(APoint1);
   if not PointsEqual(APoint1,APoint2) then
@@ -622,7 +776,7 @@ begin
   begin
     FPoints[i].coord := PointF(x[i],y[i]);
     FPoints[i].editorIndex := -1;
-    FPoints[i].data := nil;
+    FPoints[i].data := 0;
   end;
   FClosed:= AStorage.Bool['closed'];
   if AStorage.HasAttribute('arrow-size') then
@@ -696,10 +850,10 @@ procedure TCustomPolypointShape.Transform(AMatrix: TAffineMatrix);
 var
   i: Integer;
 begin
-  BeginUpdate;
-  inherited Transform(AMatrix);
+  BeginUpdate(TCustomPolypointShapeDiff);
   for i := 0 to PointCount-1 do
     FPoints[i].coord := AMatrix*FPoints[i].coord;
+  inherited Transform(AMatrix);
   EndUpdate;
 end;
 
@@ -836,7 +990,7 @@ end;
 procedure TCurveShape.SetSplineStyle(AValue: TSplineStyle);
 begin
   if FSplineStyle=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TCurveShapeDiff);
   FSplineStyle:=AValue;
   EndUpdate;
 end;
@@ -844,16 +998,13 @@ end;
 function TCurveShape.GetCurveMode(AIndex: integer): TEasyBezierCurveMode;
 begin
   if (AIndex < 0) or (AIndex >= PointCount) then exit(cmCurve);
-  if Assigned(FPoints[AIndex].data) then
-    result := TEasyBezierCurveMode(FPoints[AIndex].data^)
-  else
-    result := cmAuto;
+  result := TEasyBezierCurveMode(FPoints[AIndex].data);
 end;
 
 procedure TCurveShape.SetCosineAngle(AValue: single);
 begin
   if FCosineAngle=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TCurveShapeDiff);
   FCosineAngle:=AValue;
   EndUpdate;
 end;
@@ -862,9 +1013,8 @@ procedure TCurveShape.SetCurveMode(AIndex: integer; AValue: TEasyBezierCurveMode
 begin
   if (AIndex < 0) or (AIndex >= PointCount) then exit;
   if CurveMode[AIndex] = AValue then exit;
-  BeginUpdate;
-  if FPoints[AIndex].data = nil then FPoints[AIndex].data := getmem(sizeof(TEasyBezierCurveMode));
-  TEasyBezierCurveMode(FPoints[AIndex].data^) := AValue;
+  BeginUpdate(TCustomPolypointShapeDiff);
+  FPoints[AIndex].data := ord(AValue);
   EndUpdate
 end;
 

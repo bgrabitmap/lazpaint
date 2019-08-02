@@ -14,7 +14,7 @@ type
   TToolPhong = class(TVectorialTool)
   protected
     FMatrix: TAffineMatrix;
-    procedure ShapeChange({%H-}ASender: TObject; ABounds: TRectF); override;
+    procedure ShapeChange({%H-}ASender: TObject; ABounds: TRectF; ADiff: TVectorShapeDiff); override;
     procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
     function CreateShape: TVectorShape; override;
     function SlowShape: boolean; override;
@@ -34,13 +34,13 @@ begin
   FMatrix := AffineMatrixIdentity;
 end;
 
-procedure TToolPhong.ShapeChange(ASender: TObject; ABounds: TRectF);
+procedure TToolPhong.ShapeChange(ASender: TObject; ABounds: TRectF; ADiff: TVectorShapeDiff);
 var
   posF: TPointF;
 begin
   posF := AffineMatrixInverse(FMatrix)*(FShape as TPhongShape).LightPosition;
   Manager.ToolLightPosition := posF;
-  inherited ShapeChange(ASender, ABounds);
+  inherited ShapeChange(ASender, ABounds, ADiff);
 end;
 
 procedure TToolPhong.AssignShapeStyle(AMatrix: TAffineMatrix);
