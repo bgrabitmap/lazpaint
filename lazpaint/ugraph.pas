@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, bgrabitmap, bgrabitmaptypes, LazPaintType, Graphics, BGRALayers, LCLType,
-  BCButton;
+  BCButton, BCComboBox;
 
 const FrameDashLength = 4;
   NicePointMaxRadius = 4;
@@ -54,7 +54,8 @@ function WaveDisplacementFilter(source: TBGRACustomBitmap;
   AWaveLength, ADisplacement, APhase: single): TBGRACustomBitmap;
 
 function DoResample(source :TBGRABitmap; newWidth, newHeight: integer; StretchMode: TResampleMode): TBGRABitmap;
-procedure DrawArrow(ACanvas: TCanvas; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; State: TOwnerDrawState);
+procedure DrawArrow(AComboBox: TBCComboBox; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; State: TOwnerDrawState); overload;
+procedure DrawArrow(ABitmap: TBGRABitmap; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; AColor: TBGRAPixel); overload;
 procedure BCAssignSystemStyle(AButton: TBCButton; ADarkTheme: boolean);
 
 implementation
@@ -127,8 +128,8 @@ var highlight, btnFace, btnShadow, btnText: TColor;
 begin
   if ADarkTheme then
   begin
-    highlight := clDarkBtnHighlight;
-    btnFace := clDarkBtnFace;
+    highlight := $a0a0a0;
+    btnFace := clDarkEditableFace;
     btnText := clLightText;
     btnShadow:= clBlack;
   end else
@@ -791,26 +792,16 @@ begin
   result := source.Resample(newWidth,newHeight,StretchMode) as TBGRABitmap;
 end;
 
-procedure DrawArrow(ACanvas: TCanvas; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; State: TOwnerDrawState);
-var bmp : TBGRABitmap;
-  c,c2: TBGRAPixel;
-  x1,x2,xm1,xm2,y,w,temp: single;
+procedure DrawArrowMask(AMask: TBGRABitmap; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap);
+var
   kind: TArrowKind;
+  x1,x2,xm1,xm2,y,w,temp: single;
 begin
+  AMask.Fill(BGRABlack);
   kind := StrToArrowKind(AKindStr);
-  if odSelected in State then
-  begin
-    c2 := ColorToBGRA(ColorToRGB(clHighlight));
-    c := ColorToBGRA(ColorToRGB(clHighlightText));
-  end else
-  begin
-    c2 := ColorToBGRA(ColorToRGB(clWindow));
-    c := ColorToBGRA(ColorToRGB(clWindowText));
-  end;
-  with Size(ARect) do bmp:= TBGRABitmap.Create(cx,cy,c2);
-  ApplyArrowStyle(bmp.Arrow,AStart,kind,PointF(1.5,1.5));
-  bmp.LineCap := ALineCap;
-  w := bmp.Height/5;
+  ApplyArrowStyle(AMask.Arrow,AStart,kind,PointF(1.5,1.5));
+  AMask.LineCap := ALineCap;
+  w := AMask.Height/5;
   if w > 0 then
   begin
     x1 := w*2.5;
@@ -826,19 +817,48 @@ begin
       x2 := -temp;
     end else
     begin
-      xm1 := (bmp.Width-0.5)-xm1;
-      xm2 := (bmp.Width-0.5)-xm2;
+      xm1 := (AMask.Width-0.5)-xm1;
+      xm2 := (AMask.Width-0.5)-xm2;
     end;
     x1 -= 0.5;
-    x2 += bmp.Width-0.5;
-    y := (bmp.Height-1)/2;
+    x2 += AMask.Width-0.5;
+    y := (AMask.Height-1)/2;
     if kind in[akTail,akNone,akTip] then w *= 2;
-    bmp.DrawLineAntialias(x1,y,x2,y,c,w);
-    if bmp.Width > bmp.Height*2 then
-      bmp.GradientFill(0,0,bmp.width,bmp.height,c2,BGRAPixelTransparent,gtLinear,PointF(xm1,0),PointF(xm2,0),dmDrawWithTransparency);
+    AMask.DrawLineAntialias(x1,y,x2,y,BGRAWhite,w);
+    if AMask.Width > AMask.Height*2 then
+      AMask.GradientFill(0,0,AMask.width,AMask.height,BGRABlack,BGRAPixelTransparent,gtLinear,PointF(xm1,0),PointF(xm2,0),dmDrawWithTransparency);
   end;
-  ACanvas.Draw(ARect.Left,ARect.Top,bmp.Bitmap);
+end;
+
+procedure DrawArrow(AComboBox: TBCComboBox; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; State: TOwnerDrawState);
+var mask, bmp : TBGRABitmap;
+  c,c2: TBGRAPixel;
+begin
+  if odSelected in State then
+  begin
+    c2 := ColorToBGRA(AComboBox.DropDownHighlight);
+    c := ColorToBGRA(AComboBox.DropDownFontHighlight);
+  end else
+  begin
+    c2 := ColorToBGRA(AComboBox.DropDownColor);
+    c := ColorToBGRA(AComboBox.DropDownFontColor);
+  end;
+  with Size(ARect) do mask:= TBGRABitmap.Create(cx,cy,BGRABlack);
+  DrawArrowMask(mask, AStart, AKindStr, ALineCap);
+  bmp := TBGRABitmap.Create(mask.Width,mask.Height,c2);
+  bmp.FillMask(0,0,mask,c,dmDrawWithTransparency);
+  bmp.Draw(ACombobox.Canvas,ARect.Left,ARect.Top,true);
   bmp.Free;
+  mask.Free;
+end;
+
+procedure DrawArrow(ABitmap: TBGRABitmap; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; AColor: TBGRAPixel); overload;
+var mask: TBGRABitmap;
+begin
+  with Size(ARect) do mask:= TBGRABitmap.Create(cx,cy,BGRABlack);
+  DrawArrowMask(mask, AStart, AKindStr, ALineCap);
+  ABitmap.FillMask(ARect.Left,ARect.Top, mask, AColor, dmDrawWithTransparency);
+  mask.Free;
 end;
 
 function CreateMarbleTexture(tx,ty: integer): TBGRABitmap;

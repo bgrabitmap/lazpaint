@@ -11,7 +11,7 @@ interface
 uses
   Classes, LMessages, SysUtils, LazFileUtils, LResources, Forms, Controls,
   Graphics, Dialogs, Menus, ExtDlgs, ComCtrls, ActnList, StdCtrls, ExtCtrls,
-  Buttons, types, LCLType, BGRAImageList, BCTrackbarUpdown,
+  Buttons, types, LCLType, BGRAImageList, BCTrackbarUpdown, BCComboBox, BCButton,
 
   BGRABitmap, BGRABitmapTypes, BGRALayers, BGRASVGOriginal,
 
@@ -28,6 +28,11 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    ComboBox_ArrowStart: TBCComboBox;
+    ComboBox_ArrowEnd: TBCComboBox;
+    ComboBox_BrushSelect: TBCComboBox;
+    Combo_SplineStyle: TBCComboBox;
+    Combo_GradientColorspace: TBCComboBox;
     SpinEdit_PenOpacity: TBCTrackbarUpdown;
     FilterWaveDisplacement: TAction;
     SpinEdit_BackOpacity: TBCTrackbarUpdown;
@@ -66,7 +71,6 @@ type
     ToolHotSpot: TAction;
     Combo_Ratio: TComboBox;
     FileUseImageBrowser: TAction;
-    Combo_GradientColorspace: TComboBox;
     ItemUseImageBrowser: TMenuItem;
     Label_Ratio: TLabel;
     Panel_Ratio: TPanel;
@@ -80,7 +84,6 @@ type
     BrushRemoveCurrent: TAction;
     BrushLoadFromFile: TAction;
     BrushCreateGeometric: TAction;
-    ComboBox_BrushSelect: TComboBox;
     Label_Brush: TLabel;
     Label_Spacing: TLabel;
     MenuDockToolboxLeft: TMenuItem;
@@ -102,8 +105,6 @@ type
     ToolButton7: TToolButton;
     ToolChangeDocking: TAction;
     FilterBlurBox: TAction;
-    ComboBox_ArrowStart: TComboBox;
-    ComboBox_ArrowEnd: TComboBox;
     EditPasteAsNewLayer: TAction;
     ItemDockLayersAndColors: TMenuItem;
     ItemFullscreen: TMenuItem;
@@ -309,7 +310,6 @@ type
     ToolBar15: TToolBar;
     Tool_TextFont: TToolButton;
     Tool_TextShadow: TToolButton;
-    Combo_SplineStyle: TComboBox;
     PaintBox_Picture: TPaintBox;
     PaintBox_PenPreview: TPaintBox;
     Panel_Embedded: TPanel;
@@ -412,12 +412,18 @@ type
     procedure ComboBox_ArrowEndChange(Sender: TObject);
     procedure ComboBox_ArrowEndDrawItem({%H-}Control: TWinControl; Index: Integer;
       ARect: TRect; State: TOwnerDrawState);
+    procedure ComboBox_ArrowEndDrawSelectedItem(Sender: TObject; const ABGRA: TBGRABitmap;
+        AState: TBCButtonState; ARect: TRect);
     procedure ComboBox_ArrowStartChange(Sender: TObject);
     procedure ComboBox_ArrowStartDrawItem({%H-}Control: TWinControl; Index: Integer;
       ARect: TRect; State: TOwnerDrawState);
+    procedure ComboBox_ArrowStartDrawSelectedItem(Sender: TObject; const ABGRA: TBGRABitmap;
+        AState: TBCButtonState; ARect: TRect);
     procedure ComboBox_BrushSelectChange(Sender: TObject);
     procedure ComboBox_BrushSelectDrawItem({%H-}Control: TWinControl;
       Index: Integer; ARect: TRect; State: TOwnerDrawState);
+    procedure ComboBox_BrushSelectDrawSelectedItem(Sender: TObject; const ABGRA: TBGRABitmap;
+        AState: TBCButtonState; ARect: TRect);
     procedure Combo_RatioChange(Sender: TObject);
     procedure EditCopyExecute(Sender: TObject);
     procedure EditCopyUpdate(Sender: TObject);

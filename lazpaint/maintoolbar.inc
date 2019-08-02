@@ -19,8 +19,10 @@ begin
   Tool_CapSquare.OnClick := @Tool_CapSquareClick;
   ComboBox_ArrowStart.OnChange := @ComboBox_ArrowStartChange;
   ComboBox_ArrowStart.OnDrawItem := @ComboBox_ArrowStartDrawItem;
+  ComboBox_ArrowStart.OnDrawSelectedItem := @ComboBox_ArrowStartDrawSelectedItem;
   ComboBox_ArrowEnd.OnChange := @ComboBox_ArrowEndChange;
   ComboBox_ArrowEnd.OnDrawItem := @ComboBox_ArrowEndDrawItem;
+  ComboBox_ArrowEnd.OnDrawSelectedItem := @ComboBox_ArrowEndDrawSelectedItem;
   Tool_JoinBevel.OnClick := @Tool_JoinBevelClick;
   Tool_JoinRound.OnClick := @Tool_JoinRoundClick;
   Tool_JoinMiter.OnClick := @Tool_JoinMiterClick;
@@ -32,6 +34,14 @@ begin
   Tool_EraseAlpha.OnClick := @Tool_EraseOptionClick;
   Tool_EraseBlur.OnClick := @Tool_EraseOptionClick;
   Tool_GridMoveWithoutDeformation.OnClick := @Tool_GridMoveWithoutDeformationClick;
+  Combo_SplineStyle.Items.Add('Inside');
+  Combo_SplineStyle.Items.Add('Inside + ends');
+  Combo_SplineStyle.Items.Add('Crossing');
+  Combo_SplineStyle.Items.Add('Crossing + ends');
+  Combo_SplineStyle.Items.Add('Outside');
+  Combo_SplineStyle.Items.Add('Round outside');
+  Combo_SplineStyle.Items.Add('Vertex to side');
+  Combo_SplineStyle.Items.Add('Easy Bézier');
   Combo_SplineStyle.OnChange := @Combo_SplineStyleChange;
   Tool_CurveMovePoint.OnClick := @Tool_CurveMovePointClick;
   Tool_CurveModeAuto.OnClick := @Tool_CurveModeAutoClick;
@@ -69,6 +79,7 @@ begin
   TimerHidePenPreview.OnTimer := @TimerHidePenPreviewTimer;
   ComboBox_BrushSelect.OnChange := @ComboBox_BrushSelectChange;
   ComboBox_BrushSelect.OnDrawItem := @ComboBox_BrushSelectDrawItem;
+  ComboBox_BrushSelect.OnDrawSelectedItem:= @ComboBox_BrushSelectDrawSelectedItem;
   Combo_Ratio.OnChange := @Combo_RatioChange;
 
   Panel_LineCap_FullSize := Panel_LineCap.Width;
@@ -95,9 +106,6 @@ begin
   SpinEdit_PenWidth.OnMouseMove := @SpinEdit_PenWidthMouseMove;
   SpinEdit_PenWidth.OnExit:= @SpinEdit_PenWidthExit;
   SpinEdit_PenWidth.BarExponent := 3;
-
-  ComboBox_ArrowStart.ItemIndex := 0;
-  ComboBox_ArrowEnd.ItemIndex := 0;
 
   SpinEdit_ArrowSizeX.MinValue := 10;
   SpinEdit_ArrowSizeX.MaxValue := 99;
@@ -845,7 +853,20 @@ var
 begin
   if Index = -1 then exit;
   kind := ComboBox_ArrowStart.Items[Index];
-  DrawArrow(ComboBox_ArrowStart.Canvas,ARect,True,kind,ToolManager.ToolLineCap,State);
+  DrawArrow(ComboBox_ArrowStart,ARect,True,kind,ToolManager.ToolLineCap,State);
+end;
+
+procedure TFMain.ComboBox_ArrowStartDrawSelectedItem(Sender: TObject; const ABGRA: TBGRABitmap;
+    AState: TBCButtonState; ARect: TRect);
+var
+  cb: TBCComboBox;
+  kind: String;
+begin
+  cb := ComboBox_ArrowStart;
+  if cb.ItemIndex = -1 then exit;
+  kind := cb.Text;
+  ARect.Inflate(-2,-2);
+  DrawArrow(ABGRA,ARect,True,kind,ToolManager.ToolLineCap,AState.FontEx.Color);
 end;
 
 procedure TFMain.ComboBox_ArrowEndChange(Sender: TObject);
@@ -885,7 +906,20 @@ var
 begin
   if Index = -1 then exit;
   kind := ComboBox_ArrowEnd.Items[Index];
-  DrawArrow(ComboBox_ArrowEnd.Canvas,ARect,False,kind,ToolManager.ToolLineCap,State);
+  DrawArrow(ComboBox_ArrowEnd,ARect,False,kind,ToolManager.ToolLineCap,State);
+end;
+
+procedure TFMain.ComboBox_ArrowEndDrawSelectedItem(Sender: TObject; const ABGRA: TBGRABitmap;
+    AState: TBCButtonState; ARect: TRect);
+var
+  cb: TBCComboBox;
+  kind: String;
+begin
+  cb := ComboBox_ArrowEnd;
+  if cb.ItemIndex = -1 then exit;
+  kind := cb.Text;
+  ARect.Inflate(-2,-2);
+  DrawArrow(ABGRA,ARect,False,kind,ToolManager.ToolLineCap,AState.FontEx.Color);
 end;
 
 procedure TFMain.SpinEdit_ArrowSizeChange(Sender: TObject; AByUser: boolean);
@@ -1498,18 +1532,20 @@ var brushIndex: integer;
     bmp: TBGRABitmap;
     c2: TBGRAPixel;
     c: TBGRAPixel;
+    cb: TBCComboBox;
 begin
   if Index = -1 then exit;
+  cb := ComboBox_BrushSelect;
   if odSelected in State then
   begin
-    c2 := ColorToBGRA(ColorToRGB(clHighlight));
-    c := ColorToBGRA(ColorToRGB(clHighlightText));
+    c2 := ColorToBGRA(cb.DropDownHighlight);
+    c := ColorToBGRA(cb.DropDownFontHighlight);
   end else
   begin
-    c2 := ColorToBGRA(ColorToRGB(clWindow));
-    c := ColorToBGRA(ColorToRGB(clWindowText));
+    c2 := ColorToBGRA(cb.DropDownColor);
+    c := ColorToBGRA(cb.DropDownFontColor);
   end;
-  brushIndex := StrToInt(ComboBox_BrushSelect.Items[Index]);
+  brushIndex := StrToInt(cb.Items[Index]);
   bi := ToolManager.ToolBrushAt[brushIndex];
   if bi <> nil then
   with bi do
@@ -1517,8 +1553,28 @@ begin
     bi.Size := ARect.Bottom-ARect.Top-2;
     bmp := TBGRABitmap.Create(ARect.Right-ARect.Left,ARect.Bottom-ARect.Top, c2);
     bi.Put(bmp, (bmp.Width-1) div 2, bi.BrushImage.Height div 2 + 1, c);
-    ComboBox_BrushSelect.Canvas.Draw(ARect.Left,ARect.Top,bmp.Bitmap);
+    cb.Canvas.Draw(ARect.Left,ARect.Top,bmp.Bitmap);
     bmp.Free;
+  end;
+end;
+
+procedure TFMain.ComboBox_BrushSelectDrawSelectedItem(Sender: TObject; const ABGRA: TBGRABitmap;
+    AState: TBCButtonState; ARect: TRect);
+var
+  cb: TBCComboBox;
+  brushIndex: LongInt;
+  bi: TLazPaintBrush;
+  c: TColor;
+begin
+  cb := ComboBox_BrushSelect;
+  if cb.ItemIndex = -1 then exit;
+  brushIndex := StrToInt(cb.Text);
+  bi := ToolManager.ToolBrushAt[brushIndex];
+  c:= AState.FontEx.Color;
+  if bi <> nil then
+  begin
+    bi.Size := ARect.Height-2;
+    bi.Put(ABGRA, ARect.Left+ ARect.Width div 2, ARect.Top+ bi.BrushImage.Height div 2 +1, c);
   end;
 end;
 

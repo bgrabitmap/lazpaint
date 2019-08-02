@@ -1110,16 +1110,13 @@ object FMain: TFMain
         Style = tbsCheck
       end
     end
-    object Combo_GradientColorspace: TComboBox
-      Left = 156
-      Height = 36
-      Top = 1
-      Width = 148
-      Font.Height = -15
-      ItemHeight = 0
-      ParentFont = False
-      Style = csDropDownList
-      TabOrder = 1
+    object Combo_GradientColorspace: TBCComboBox
+      Left = 154
+      Height = 29
+      Top = 3
+      Width = 151
+      ItemIndex = -1
+      DropDownBorderColor = clBlack
     end
   end
   object Panel_Undo: TPanel
@@ -1282,32 +1279,6 @@ object FMain: TFMain
         Style = tbsCheck
       end
     end
-    object ComboBox_ArrowStart: TComboBox
-      Left = 0
-      Height = 36
-      Top = 1
-      Width = 56
-      AutoSize = False
-      DropDownCount = 12
-      Font.Height = -15
-      ItemHeight = 21
-      ParentFont = False
-      Style = csOwnerDrawFixed
-      TabOrder = 1
-    end
-    object ComboBox_ArrowEnd: TComboBox
-      Left = 57
-      Height = 36
-      Top = 1
-      Width = 56
-      AutoSize = False
-      DropDownCount = 12
-      Font.Height = -15
-      ItemHeight = 21
-      ParentFont = False
-      Style = csOwnerDrawFixed
-      TabOrder = 2
-    end
     object SpinEdit_ArrowSizeX: TBCTrackbarUpdown
       Left = 116
       Height = 25
@@ -1420,7 +1391,7 @@ object FMain: TFMain
       Font.Name = 'Arial'
       HasTrackBar = True
       ArrowColor = clBtnText
-      TabOrder = 3
+      TabOrder = 1
       TabStop = True
       UseDockManager = False
     end
@@ -1536,9 +1507,25 @@ object FMain: TFMain
       Font.Name = 'Arial'
       HasTrackBar = True
       ArrowColor = clBtnText
-      TabOrder = 4
+      TabOrder = 2
       TabStop = True
       UseDockManager = False
+    end
+    object ComboBox_ArrowStart: TBCComboBox
+      Left = 2
+      Height = 29
+      Top = 2
+      Width = 54
+      ItemIndex = -1
+      DropDownBorderColor = clBlack
+    end
+    object ComboBox_ArrowEnd: TBCComboBox
+      Left = 59
+      Height = 29
+      Top = 2
+      Width = 54
+      ItemIndex = -1
+      DropDownBorderColor = clBlack
     end
   end
   object Panel_JoinStyle: TPanel
@@ -2137,27 +2124,6 @@ object FMain: TFMain
     ParentColor = False
     ParentFont = False
     TabOrder = 19
-    object Combo_SplineStyle: TComboBox
-      Left = 57
-      Height = 32
-      Top = 1
-      Width = 148
-      Font.Height = -15
-      ItemHeight = 0
-      Items.Strings = (
-        'Inside'
-        'Inside + ends'
-        'Crossing'
-        'Crossing + ends'
-        'Outside'
-        'Round outside'
-        'Vertex to side'
-        'Easy Bézier'
-      )
-      ParentFont = False
-      Style = csDropDownList
-      TabOrder = 0
-    end
     object Label_Curve: TLabel
       Left = 5
       Height = 28
@@ -2181,7 +2147,7 @@ object FMain: TFMain
       Font.Height = -15
       Images = ImageList16
       ParentFont = False
-      TabOrder = 1
+      TabOrder = 0
       object Tool_CurveModeAngle: TToolButton
         Left = 59
         Hint = 'Draw an angle'
@@ -2210,6 +2176,14 @@ object FMain: TFMain
         ImageIndex = 104
         Style = tbsCheck
       end
+    end
+    object Combo_SplineStyle: TBCComboBox
+      Left = 56
+      Height = 29
+      Top = 3
+      Width = 152
+      ItemIndex = -1
+      DropDownBorderColor = clBlack
     end
   end
   object Panel_Embedded: TPanel
@@ -3421,19 +3395,6 @@ object FMain: TFMain
       ParentColor = False
       ParentFont = False
     end
-    object ComboBox_BrushSelect: TComboBox
-      Left = 56
-      Height = 36
-      Top = 1
-      Width = 56
-      AutoSize = False
-      DropDownCount = 12
-      Font.Height = -15
-      ItemHeight = 21
-      ParentFont = False
-      Style = csOwnerDrawFixed
-      TabOrder = 0
-    end
     object Label_Spacing: TLabel
       Left = 117
       Height = 28
@@ -3459,7 +3420,7 @@ object FMain: TFMain
       Images = ImageList16
       ParentColor = False
       ParentFont = False
-      TabOrder = 1
+      TabOrder = 0
       object ToolButton21: TToolButton
         Left = 1
         Top = 0
@@ -3588,9 +3549,17 @@ object FMain: TFMain
       Font.Name = 'Arial'
       HasTrackBar = True
       ArrowColor = clBtnText
-      TabOrder = 2
+      TabOrder = 1
       TabStop = True
       UseDockManager = False
+    end
+    object ComboBox_BrushSelect: TBCComboBox
+      Left = 54
+      Height = 29
+      Top = 3
+      Width = 58
+      ItemIndex = -1
+      DropDownBorderColor = clBlack
     end
   end
   object Panel_Ratio: TPanel

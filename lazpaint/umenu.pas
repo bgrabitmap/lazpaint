@@ -51,7 +51,8 @@ type
 implementation
 
 uses UResourceStrings, BGRAUTF8, LCScaleDPI, ComCtrls, Graphics,
-  Spin, StdCtrls, BGRAText, math, udarktheme, BCTrackbarUpdown, BCTypes;
+  StdCtrls, BGRAText, math, udarktheme, BCTrackbarUpdown, BCTypes,
+  ugraph, BCComboBox, BGRABitmapTypes;
 
 { TMainFormMenu }
 
@@ -208,7 +209,7 @@ end;
 
 procedure TMainFormMenu.ApplyTheme;
 var
-  i, j: Integer;
+  i, j, h: Integer;
 begin
   for i := 0 to high(FToolbars) do
   begin
@@ -229,10 +230,36 @@ begin
             TToolbar(Controls[j]).OnPaintButton:= nil;
           end;
         end else
+        if Controls[j] is TBCComboBox then
+        begin
+          BCAssignSystemStyle(TBCComboBox(Controls[j]).Button, FDarkTheme);
+          with TBCComboBox(Controls[j]) do
+          begin
+            h := FToolbars[i].tb.Height;
+            Button.StateNormal.FontEx.Height := (h-4) div 2;
+            Button.StateNormal.FontEx.ShadowColorOpacity:= 96;
+            Button.StateClicked.FontEx.Height := (h-4) div 2;
+            Button.StateClicked.FontEx.ShadowColorOpacity:= 96;
+            Button.StateHover.FontEx.Height := (h-4) div 2;
+            Button.StateHover.FontEx.ShadowColorOpacity:= 96;
+            if FDarkTheme then
+            begin
+              DropDownBorderColor:= clBlack;
+              DropDownFontColor:= clLightText;
+              DropDownColor:= clDarkBtnFace;
+            end else
+            begin
+              DropDownBorderColor := MergeBGRA(ColorToBGRA(clWindowText),ColorToBGRA(clWindow));
+              DropDownFontColor:= clWindowText;
+              DropDownColor:= clWindow;
+            end;
+          end;
+        end else
         if Controls[j] is TBCTrackbarUpdown then
         begin
           if FDarkTheme then
           begin
+            TBCTrackbarUpdown(Controls[j]).Border.Color := clDarkPanelShadow;
             TBCTrackbarUpdown(Controls[j]).Background.Color := clDarkEditableFace;
             TBCTrackbarUpdown(Controls[j]).ButtonBackground.Style:= bbsColor;
             TBCTrackbarUpdown(Controls[j]).ButtonBackground.Color:= $a0a0a0;
@@ -240,6 +267,7 @@ begin
           end
           else
           begin
+            TBCTrackbarUpdown(Controls[j]).Border.Color := MergeBGRA(ColorToBGRA(clWindowText),ColorToBGRA(clBtnFace));
             TBCTrackbarUpdown(Controls[j]).Background.Color := clWindow;
             TBCTrackbarUpdown(Controls[j]).ButtonBackground.Style:= bbsColor;
             TBCTrackbarUpdown(Controls[j]).ButtonBackground.Color:= clBtnFace;
