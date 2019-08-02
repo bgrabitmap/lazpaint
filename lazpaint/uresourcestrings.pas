@@ -175,6 +175,7 @@ resourcestring
   rsOpenFilesAsLayers='Open files as layers in a single image';
   rsTooManyLayers='Too many layers';
   rsTooManyShapesInLayer='Too many shapes in layer';
+  rsCannotDrawShapeOnSVGLayer='Cannot draw shape on SVG layer';
   rsAddToImageList='Add files to the image processing list';
   rsOpenFirstFileOnly='Open the first file only';
   rsLayeredImage = 'Layered image';

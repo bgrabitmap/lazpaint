@@ -144,7 +144,7 @@ implementation
 
 uses Types, Graphics, ugraph, Controls, LazPaintType,
   UResourceStrings, BGRATransform, Math, BGRAPen, LCVectorRectShapes,
-  uimagediff, UStateType, ULoading;
+  uimagediff, UStateType, ULoading, BGRASVGOriginal;
 
 { TVectorialTool }
 
@@ -471,6 +471,11 @@ begin
       ((Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex] as TVectorOriginal).ShapeCount >= 10) then
     begin
       MessagePopup(rsTooManyShapesInLayer, 3000);
+    end
+    else
+    if Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex] = TBGRALayerSVGOriginal then
+    begin
+      MessagePopup(rsCannotDrawShapeOnSVGLayer, 3000);
     end
     else
     begin
