@@ -60,10 +60,10 @@ begin
     FShape.BackFill.Gradient.Render(temp,
       AffineMatrixScale(temp.Width/ADest.Width,
                         temp.Height/ADest.Height)*AMatrix, ADraft);
-    ADest.StretchPutImage(rect(0,0,ADest.Width,Adest.Height),temp,dmSet);
+    ADest.StretchPutImage(rect(0,0,ADest.Width,Adest.Height),temp,dmDrawWithTransparency);
     temp.Free;
   end else
-    FShape.BackFill.Gradient.Render(ADest,AMatrix,ADraft);
+    FShape.BackFill.Gradient.Render(ADest,AMatrix,ADraft,dmDrawWithTransparency);
 end;
 
 procedure TToolGradient.AssignShapeStyle(AMatrix: TAffineMatrix);
