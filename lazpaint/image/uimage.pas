@@ -58,6 +58,7 @@ type
     FDraftOriginal: boolean;
 
     procedure DiscardSelectionLayerAfterMask;
+    function GetIsCursor: boolean;
     function GetIsIconCursor: boolean;
     function GetIsTiff: boolean;
     function GetIsGif: boolean;
@@ -257,6 +258,7 @@ type
     property ZoomFactor: single read GetZoomFactor;
     property DraftOriginal: boolean read FDraftOriginal write SetDraftOriginal;
     property IsIconCursor: boolean read GetIsIconCursor;
+    property IsCursor: boolean read GetIsCursor;
     property IsTiff: boolean read GetIsTiff;
     property IsGif: boolean read GetIsGif;
     constructor Create;
@@ -1189,6 +1191,11 @@ begin
     FSelectionLayerAfterMaskOffset := Point(0,0);
     FSelectionLayerAfterMaskDefined := false;
   end;
+end;
+
+function TLazPaintImage.GetIsCursor: boolean;
+begin
+  result := UTF8CompareText(ExtractFileExt(currentFilenameUTF8),'.cur')=0;
 end;
 
 function TLazPaintImage.GetIsIconCursor: boolean;

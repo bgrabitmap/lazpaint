@@ -8,8 +8,9 @@ uses
   Classes, SysUtils, Graphics, BGRABitmap, BGRABitmapTypes, uimage,
   UImageType, ULayerAction, LCLType, Controls, UBrushType, UConfig;
 
-type TPaintToolType = (ptHand,ptHotSpot, ptMoveLayer,ptRotateLayer,ptZoomLayer, ptPen, ptBrush, ptClone, ptColorPicker, ptEraser,
-                   ptRect, ptEllipse, ptPolygon, ptSpline,
+type TPaintToolType = (ptHand,ptHotSpot, ptMoveLayer,ptRotateLayer,ptZoomLayer,
+                   ptPen, ptBrush, ptClone, ptColorPicker, ptEraser,
+                   ptEditShape, ptRect, ptEllipse, ptPolygon, ptSpline,
                    ptFloodFill, ptGradient, ptPhong,
                    ptSelectPen, ptSelectRect, ptSelectEllipse, ptSelectPoly, ptSelectSpline,
                    ptMoveSelection, ptRotateSelection, ptMagicWand, ptDeformation, ptTextureMapping, ptLayerMapping,
@@ -18,7 +19,7 @@ type TPaintToolType = (ptHand,ptHotSpot, ptMoveLayer,ptRotateLayer,ptZoomLayer, 
 const
   PaintToolTypeStr : array[TPaintToolType] of string = ('Hand','HotSpot', 'MoveLayer','RotateLayer','ZoomLayer',
                    'Pen', 'Brush', 'Clone', 'ColorPicker', 'Eraser',
-                   'Rect', 'Ellipse', 'Polygon', 'Spline',
+                   'EditShape', 'Rect', 'Ellipse', 'Polygon', 'Spline',
                    'FloodFill', 'Gradient', 'Phong',
                    'SelectPen', 'SelectRect', 'SelectEllipse', 'SelectPoly', 'SelectSpline',
                    'MoveSelection', 'RotateSelection', 'MagicWand', 'Deformation', 'TextureMapping', 'LayerMapping',

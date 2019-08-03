@@ -166,6 +166,13 @@ msgid "Redo"
 msgstr "Rückgängig"
 
 #: tfmain.editselectall.caption
+msgctxt "tfmain.editselectall.caption"
+msgid "Select all"
+msgstr "Alles auswählen"
+
+#: tfmain.editselectall.hint
+#, fuzzy
+msgctxt "tfmain.editselectall.hint"
 msgid "Select all"
 msgstr "Alles auswählen"
 
@@ -1039,6 +1046,10 @@ msgstr "Verformung"
 #: tfmain.tooldeformation.hint
 msgid "Deformation grid"
 msgstr "Verformungsgitter"
+
+#: tfmain.tooleditshape.hint
+msgid "Edit shape"
+msgstr ""
 
 #: tfmain.toolellipse.hint
 msgctxt "TFMAIN.TOOLELLIPSE.HINT"

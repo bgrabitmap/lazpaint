@@ -155,6 +155,13 @@ msgid "Redo"
 msgstr "إعادة"
 
 #: tfmain.editselectall.caption
+msgctxt "tfmain.editselectall.caption"
+msgid "Select all"
+msgstr "تحديد الكل"
+
+#: tfmain.editselectall.hint
+#, fuzzy
+msgctxt "tfmain.editselectall.hint"
 msgid "Select all"
 msgstr "تحديد الكل"
 
@@ -1027,6 +1034,10 @@ msgstr "تشويه"
 #: tfmain.tooldeformation.hint
 msgid "Deformation grid"
 msgstr "تشويه الشبكة"
+
+#: tfmain.tooleditshape.hint
+msgid "Edit shape"
+msgstr ""
 
 #: tfmain.toolellipse.hint
 msgctxt "TFMAIN.TOOLELLIPSE.HINT"

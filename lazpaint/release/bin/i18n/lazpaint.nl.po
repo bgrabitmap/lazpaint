@@ -175,6 +175,13 @@ msgid "Redo"
 msgstr "Opnieuw uitvoeren"
 
 #: tfmain.editselectall.caption
+msgctxt "tfmain.editselectall.caption"
+msgid "Select all"
+msgstr "Alles selecteren"
+
+#: tfmain.editselectall.hint
+#, fuzzy
+msgctxt "tfmain.editselectall.hint"
 msgid "Select all"
 msgstr "Alles selecteren"
 
@@ -1049,6 +1056,10 @@ msgstr "Vervorming"
 #: tfmain.tooldeformation.hint
 msgid "Deformation grid"
 msgstr "Vervormingsraster"
+
+#: tfmain.tooleditshape.hint
+msgid "Edit shape"
+msgstr ""
 
 #: tfmain.toolellipse.hint
 msgctxt "TFMAIN.TOOLELLIPSE.HINT"

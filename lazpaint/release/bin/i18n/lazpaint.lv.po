@@ -153,6 +153,13 @@ msgid "Redo"
 msgstr "Pārdarīt"
 
 #: tfmain.editselectall.caption
+msgctxt "tfmain.editselectall.caption"
+msgid "Select all"
+msgstr "Iezīmēt visu"
+
+#: tfmain.editselectall.hint
+#, fuzzy
+msgctxt "tfmain.editselectall.hint"
 msgid "Select all"
 msgstr "Iezīmēt visu"
 
@@ -1024,6 +1031,10 @@ msgstr "Staipīšana"
 #: tfmain.tooldeformation.hint
 msgid "Deformation grid"
 msgstr "Staipīšanas režģis"
+
+#: tfmain.tooleditshape.hint
+msgid "Edit shape"
+msgstr ""
 
 #: tfmain.toolellipse.hint
 msgctxt "TFMAIN.TOOLELLIPSE.HINT"

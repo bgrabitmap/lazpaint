@@ -140,6 +140,13 @@ msgid "Redo"
 msgstr "Palauta"
 
 #: tfmain.editselectall.caption
+msgctxt "tfmain.editselectall.caption"
+msgid "Select all"
+msgstr "Valitse kaikki"
+
+#: tfmain.editselectall.hint
+#, fuzzy
+msgctxt "tfmain.editselectall.hint"
 msgid "Select all"
 msgstr "Valitse kaikki"
 
@@ -1014,6 +1021,10 @@ msgstr "Muodonmuutos"
 #: tfmain.tooldeformation.hint
 msgid "Deformation grid"
 msgstr "Muodonmuutosruudukko"
+
+#: tfmain.tooleditshape.hint
+msgid "Edit shape"
+msgstr ""
 
 #: tfmain.toolellipse.hint
 msgctxt "TFMAIN.TOOLELLIPSE.HINT"

@@ -420,6 +420,7 @@ begin
 
   //needed to attach to the right instance of FMain
   FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolHand);
+  FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolColorPicker);
   FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolPen);
   FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolBrush);
   FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolEraser);
@@ -432,20 +433,23 @@ begin
   FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolSpline);
   FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolGradient);
   FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolPhong);
+  FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolText);
 
-  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolSelectRect);
-  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolSelectEllipse);
-  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolSelectPoly);
-  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolSelectSpline);
-  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolSelectPen);
-  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolText);
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolEditShape);
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolDeformation);
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolTextureMapping);
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.EditSelectAll);
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolMoveSelection);
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolRotateSelection);
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.EditDeselect);
 
-  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolColorPicker);
+  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolSelectRect);
+  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolSelectEllipse);
+  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolSelectPoly);
+  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolSelectSpline);
+  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolSelectPen);
   FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolMagicWand);
-  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolMoveSelection);
-  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolRotateSelection);
-  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolDeformation);
-  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolTextureMapping);
+  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolHotSpot);
 
   FToolBox.SetImages(Icons[Config.DefaultIconSize(DoScaleX(20,OriginalDPI))]);
 
@@ -459,6 +463,7 @@ begin
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolFloodfill);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolClone);
 
+  FMain.Layout.DockedToolBoxAddButton(FMain.ToolEditShape);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolRect);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolEllipse);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolPolygon);

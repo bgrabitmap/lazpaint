@@ -361,7 +361,8 @@ begin
     else
       curTool := succ(curTool);
 
-    if FToolsShortcuts[curTool] = AShortCut then
+    if (FToolsShortcuts[curTool] = AShortCut) and not
+       ((curTool = ptHotSpot) and not FInstance.Image.IsCursor) then
     begin
       ATool := curTool;
       AShortCut:= '';
@@ -387,7 +388,7 @@ begin
   AddMenus('MenuFilter', 'MenuRadialBlur,FilterBlurMotion,FilterBlurCustom,FilterPixelate,-,FilterSharpen,FilterSmooth,FilterNoise,FilterMedian,FilterClearType,FilterClearTypeInverse,FilterFunction,-,FilterContour,FilterEmboss,FilterPhong,-,FilterSphere,FilterTwirl,FilterWaveDisplacement,FilterCylinder');
   AddMenus('MenuRadialBlur',  'FilterBlurBox,FilterBlurFast,FilterBlurRadial,FilterBlurCorona,FilterBlurDisk');
   AddMenus('MenuColors', 'ColorCurves,ColorPosterize,ColorColorize,ColorShiftColors,FilterComplementaryColor,ColorIntensity,-,ColorLightness,FilterNegative,FilterLinearNegative,FilterNormalize,FilterGrayscale');
-  AddMenus('MenuTool',   'ToolHand,ToolHotSpot,ToolColorPicker,-,ToolPen,ToolBrush,ToolEraser,ToolFloodFill,ToolClone,-,ToolRect,ToolEllipse,ToolPolygon,ToolSpline,ToolGradient,ToolPhong,ToolText,-,ToolDeformation,ToolTextureMapping');
+  AddMenus('MenuTool',   'ToolHand,ToolHotSpot,ToolColorPicker,-,ToolPen,ToolBrush,ToolEraser,ToolFloodFill,ToolClone,-,ToolEditShape,ToolRect,ToolEllipse,ToolPolygon,ToolSpline,ToolGradient,ToolPhong,ToolText,-,ToolDeformation,ToolTextureMapping');
   AddMenus('MenuRender', 'RenderPerlinNoise,RenderCyclicPerlinNoise,-,RenderWater,RenderCustomWater,RenderSnowPrint,RenderWood,RenderWoodVertical,RenderMetalFloor,RenderPlastik,RenderStone,RenderRoundStone,RenderMarble,RenderCamouflage,-,RenderClouds,FilterRain');
   AddMenus('MenuHelp',   'HelpIndex,-,HelpAbout');
   for i := 0 to high(FMainMenus) do
@@ -513,6 +514,7 @@ begin
   ActionShortcut('ToolBrush','B');
   ActionShortcut('ToolColorPicker','I');
   ActionShortcut('ToolEraser','E');
+  ActionShortcut('ToolEditShape','J');
   ActionShortcut('ToolRect','U');
   ActionShortcut('ToolEllipse','U');
   ActionShortcut('ToolPolygon','D');

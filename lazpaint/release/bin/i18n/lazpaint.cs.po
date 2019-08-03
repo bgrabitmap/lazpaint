@@ -151,6 +151,13 @@ msgid "Redo"
 msgstr "Provést znova"
 
 #: tfmain.editselectall.caption
+msgctxt "tfmain.editselectall.caption"
+msgid "Select all"
+msgstr "Vybrat vše"
+
+#: tfmain.editselectall.hint
+#, fuzzy
+msgctxt "tfmain.editselectall.hint"
 msgid "Select all"
 msgstr "Vybrat vše"
 
@@ -1024,6 +1031,10 @@ msgstr "Zakřivení"
 #: tfmain.tooldeformation.hint
 msgid "Deformation grid"
 msgstr "Mřížka zakřivení"
+
+#: tfmain.tooleditshape.hint
+msgid "Edit shape"
+msgstr ""
 
 #: tfmain.toolellipse.hint
 msgctxt "TFMAIN.TOOLELLIPSE.HINT"

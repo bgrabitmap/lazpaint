@@ -155,6 +155,13 @@ msgid "Redo"
 msgstr "リドゥ"
 
 #: tfmain.editselectall.caption
+msgctxt "tfmain.editselectall.caption"
+msgid "Select all"
+msgstr "全選択"
+
+#: tfmain.editselectall.hint
+#, fuzzy
+msgctxt "tfmain.editselectall.hint"
 msgid "Select all"
 msgstr "全選択"
 
@@ -1027,6 +1034,10 @@ msgstr "グリッド変形"
 #: tfmain.tooldeformation.hint
 msgid "Deformation grid"
 msgstr "グリッドを変形させる"
+
+#: tfmain.tooleditshape.hint
+msgid "Edit shape"
+msgstr ""
 
 #: tfmain.toolellipse.hint
 msgctxt "TFMAIN.TOOLELLIPSE.HINT"

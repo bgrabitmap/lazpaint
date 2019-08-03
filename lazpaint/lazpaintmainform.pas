@@ -28,6 +28,7 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    ToolEditShape: TAction;
     ComboBox_ArrowStart: TBCComboBox;
     ComboBox_ArrowEnd: TBCComboBox;
     ComboBox_BrushSelect: TBCComboBox;
@@ -3311,6 +3312,7 @@ var
     image.SetSavedFlag(BPP, frameIndex);
     ToolManager.ToolOpen;
     ZoomFitIfTooBig;
+    ToolHotSpotUpdate(nil);
     result := true;
   end;
   procedure ImportNewPicture;

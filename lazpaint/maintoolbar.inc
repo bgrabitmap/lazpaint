@@ -1294,7 +1294,7 @@ end;
 
 procedure TFMain.ToolHotSpotUpdate(Sender: TObject);
 begin
-  ToolHotSpot.Visible := UTF8CompareText(ExtractFileExt(Image.currentFilenameUTF8),'.cur')=0;
+  ToolHotSpot.Visible := Image.IsCursor;
 end;
 
 procedure TFMain.Tool_LinearGradientClick(Sender: TObject);
