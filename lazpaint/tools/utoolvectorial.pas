@@ -29,6 +29,7 @@ type
     FLastPos: TPointF;
     FLastShapeTransform: TAffineMatrix;
     FUseOriginal: boolean;
+    function GetShapesCost(AOriginal: TVectorOriginal): integer;
     function AlwaysRasterizeShape: boolean; virtual;
     function CreateShape: TVectorShape; virtual; abstract;
     function UseOriginal: boolean; virtual;
@@ -69,8 +70,8 @@ type
 
 implementation
 
-uses LazPaintType, LCVectorRectShapes, BGRASVGOriginal, ULoading, BGRATransform, math,
-  UStateType, UImageDiff, Controls, BGRAPen, UResourceStrings, ugraph;
+uses LazPaintType, LCVectorRectShapes, LCVectorTextShapes, LCVectorialFill, BGRASVGOriginal,
+  ULoading, BGRATransform, math, UStateType, UImageDiff, Controls, BGRAPen, UResourceStrings, ugraph;
 
 { TVectorialTool }
 
@@ -247,6 +248,21 @@ begin
   result := FShape = nil;
 end;
 
+function TVectorialTool.GetShapesCost(AOriginal: TVectorOriginal): integer;
+var
+  i: Integer;
+begin
+  result := 0;
+  for i := 0 to AOriginal.ShapeCount-1 do
+    if (AOriginal.Shape[i] is TPhongShape) or
+       (AOriginal.Shape[i] is TTextShape) or
+       ((vsfBackFill in AOriginal.Shape[i].Fields) and
+       (AOriginal.Shape[i].BackFill.FillType = vftGradient)) then
+       inc(result, 5)
+    else
+      inc(result,2);
+end;
+
 function TVectorialTool.AlwaysRasterizeShape: boolean;
 begin
   result := false;
@@ -410,7 +426,7 @@ begin
   if FShape=nil then
   begin
     if UseOriginal and
-      ((Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex] as TVectorOriginal).ShapeCount >= 50) then
+      (GetShapesCost(Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex] as TVectorOriginal) >= 50) then
     begin
       MessagePopup(rsTooManyShapesInLayer, 3000);
     end
