@@ -824,7 +824,7 @@ begin
   for i:= 0 to PointCount-1 do
     if isEmptyPointF(Points[i]) then
       FPoints[i].editorIndex := -1
-    else if (FAddingPoint and (i = PointCount-1)) then
+    else if (FAddingPoint and (i = PointCount-1) and (PointCount > 1)) then
     begin
       FPoints[i].editorIndex := -1;
       FCenterPoint += Points[i];

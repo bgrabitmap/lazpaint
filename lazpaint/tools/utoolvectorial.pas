@@ -384,21 +384,24 @@ end;
 function TVectorialTool.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
 var
-  viewPt: TPointF;
+  viewPt, shapePt: TPointF;
   cur: TOriginalEditorCursor;
   handled: boolean;
 begin
   result := EmptyRect;
   FRightDown := rightBtn;
   FLeftDown := not rightBtn;
-  FLastPos := ptF;
+  with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
+    FLastPos := AffineMatrixTranslation(X,Y)*ptF;
   if Assigned(FShape) then
   begin
-    with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
-      viewPt := FEditor.Matrix*AffineMatrixInverse(VectorTransform)*AffineMatrixTranslation(X,Y)*ptF;
+    viewPt := FEditor.Matrix*AffineMatrixInverse(VectorTransform)*FLastPos;
     FEditor.MouseDown(rightBtn, FShiftState, viewPt.X,viewPt.Y, cur, handled);
     if not handled and Assigned(FShape) then
-      FShape.MouseDown(rightBtn, FShiftState, ptF.X,ptF.Y, cur, handled);
+    begin
+      shapePt := AffineMatrixInverse(VectorTransform)*FLastPos;
+      FShape.MouseDown(rightBtn, FShiftState, shapePt.X,shapePt.Y, cur, handled);
+    end;
     UpdateCursor(cur);
     if handled then exit
     else result := RectUnion(result, ValidateShape);
@@ -407,7 +410,7 @@ begin
   if FShape=nil then
   begin
     if UseOriginal and
-      ((Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex] as TVectorOriginal).ShapeCount >= 10) then
+      ((Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex] as TVectorOriginal).ShapeCount >= 50) then
     begin
       MessagePopup(rsTooManyShapesInLayer, 3000);
     end
@@ -422,12 +425,15 @@ begin
       FSwapColor:= rightBtn;
       FShape := CreateShape;
       FQuickDefine := true;
-      FQuickDefineStartPoint := RoundCoordinate(ptF);
+      FQuickDefineStartPoint := RoundCoordinate(FLastPos);
       FQuickDefineEndPoint := FQuickDefineStartPoint;
       FShape.BeginUpdate;
         QuickDefineShape(FQuickDefineStartPoint,FQuickDefineEndPoint);
         FLastShapeTransform := AffineMatrixInverse(VectorTransform);
         FShape.Transform(FLastShapeTransform);
+        shapePt := AffineMatrixInverse(VectorTransform)*FLastPos;
+        handled := false;
+        FShape.MouseMove(FShiftState, shapePt.X,shapePt.Y, cur, handled);
         AssignShapeStyle(FLastShapeTransform);
       FShape.EndUpdate;
       FShape.OnChange:= @ShapeChange;
@@ -443,11 +449,12 @@ function TVectorialTool.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
 var
   s: TPointF;
   avg: single;
-  viewPt: TPointF;
+  viewPt, shapePt: TPointF;
   handled: boolean;
   cur: TOriginalEditorCursor;
 begin
-  FLastPos := ptF;
+  with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
+    FLastPos := AffineMatrixTranslation(X,Y)*ptF;
   if FQuickDefine then
   begin
     FQuickDefineEndPoint := RoundCoordinate(ptF);
@@ -467,11 +474,13 @@ begin
     result := OnlyRenderChange;
   end else
   begin
-    with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
-      viewPt := FEditor.Matrix*AffineMatrixInverse(VectorTransform)*AffineMatrixTranslation(X,Y)*ptF;
+    viewPt := FEditor.Matrix*AffineMatrixInverse(VectorTransform)*FLastPos;
     FEditor.MouseMove(FShiftState, viewPt.X,viewPt.Y, cur, handled);
     if not handled and Assigned(FShape) then
-      FShape.MouseMove(FShiftState, ptF.X,ptF.Y, cur, handled);
+    begin
+      shapePt := AffineMatrixInverse(VectorTransform)*FLastPos;
+      FShape.MouseMove(FShiftState, shapePt.X,shapePt.Y, cur, handled);
+    end;
     UpdateCursor(cur);
     if handled then result := OnlyRenderChange
     else result := EmptyRect;
@@ -503,7 +512,7 @@ end;
 
 function TVectorialTool.ToolUp: TRect;
 var
-  viewPt: TPointF;
+  viewPt, shapePt: TPointF;
   cur: TOriginalEditorCursor;
   handled, wasRight: boolean;
 begin
@@ -517,10 +526,13 @@ begin
     QuickDefineEnd;
   end else
   begin
-    viewPt := FEditor.Matrix*FLastPos;
+    viewPt := FEditor.Matrix*AffineMatrixInverse(VectorTransform)*FLastPos;
     FEditor.MouseUp(wasRight, FShiftState, viewPt.X,viewPt.Y, cur, handled);
     if not handled and Assigned(FShape) then
-      FShape.MouseUp(wasRight, FShiftState, FLastPos.X,FLastPos.Y, cur, handled);
+    begin
+      shapePt := AffineMatrixInverse(VectorTransform)*FLastPos;
+      FShape.MouseUp(wasRight, FShiftState, shapePt.X,shapePt.Y, cur, handled);
+    end;
     UpdateCursor(cur);
     result := EmptyRect;
   end;
