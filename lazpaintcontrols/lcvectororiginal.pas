@@ -23,6 +23,7 @@ type
 
   TShapeChangeEvent = procedure(ASender: TObject; ABounds: TRectF; ADiff: TVectorShapeDiff) of object;
   TShapeEditingChangeEvent = procedure(ASender: TObject) of object;
+  TShapeRemoveQuery = procedure(ASender: TObject; var AHandled: boolean) of object;
 
   TRenderBoundsOption = (rboAssumePenFill, rboAssumeBackFill);
   TRenderBoundsOptions = set of TRenderBoundsOption;
@@ -125,6 +126,7 @@ type
   TVectorShape = class
   private
     FId: integer;
+    FOnRemoveQuery: TShapeRemoveQuery;
     FRenderIteration: integer; // increased at each BeginUpdate
     FOnChange: TShapeChangeEvent;
     FOnEditingChange: TShapeEditingChangeEvent;
@@ -221,6 +223,7 @@ type
     class function CreateEmpty: boolean; virtual; //create shape even if empty?
     property OnChange: TShapeChangeEvent read FOnChange write FOnChange;
     property OnEditingChange: TShapeEditingChangeEvent read FOnEditingChange write FOnEditingChange;
+    property OnRemoveQuery: TShapeRemoveQuery read FOnRemoveQuery write FOnRemoveQuery;
     property PenColor: TBGRAPixel read GetPenColor write SetPenColor;
     property PenFill: TVectorialFill read GetPenFill write SetPenFill;
     property BackFill: TVectorialFill read GetBackFill write SetBackFill;
@@ -1923,7 +1926,14 @@ begin
 end;
 
 procedure TVectorShape.Remove;
+var handled: boolean;
 begin
+  if Assigned(OnRemoveQuery) then
+  begin
+    handled := false;
+    OnRemoveQuery(self, handled);
+    if handled then exit;
+  end;
   if Assigned(Container) then Container.RemoveShape(self)
   else raise exception.Create('Shape does not have a container');
 end;

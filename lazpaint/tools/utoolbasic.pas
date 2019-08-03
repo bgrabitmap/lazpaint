@@ -107,6 +107,7 @@ type
     function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
     procedure ShapeChange({%H-}ASender: TObject; ABounds: TRectF; ADiff: TVectorShapeDiff); virtual;
     procedure ShapeEditingChange({%H-}ASender: TObject); virtual;
+    procedure ShapeRemoveQuery({%H-}ASender: TObject; var AHandled: boolean);
     function GetStatusText: string; override;
     function SlowShape: boolean; virtual;
     procedure QuickDefineEnd; virtual;
@@ -182,6 +183,18 @@ begin
   FPreviousEditorBounds := newEditorBounds;
 end;
 
+procedure TVectorialTool.ShapeRemoveQuery(ASender: TObject;
+  var AHandled: boolean);
+var
+  r: TRect;
+  toolDest: TBGRABitmap;
+begin
+  if ASender <> FShape then exit;
+  toolDest := GetToolDrawingLayer;
+  r := CancelShape;
+  Action.NotifyChange(toolDest, r);
+end;
+
 function TVectorialTool.GetStatusText: string;
 var
   corner1, corner2: TPointF;
@@ -245,6 +258,7 @@ begin
   begin
     FShape.OnChange:= nil;
     FShape.OnEditingChange:= nil;
+    FShape.OnRemoveQuery:= nil;
     if not AlwaysRasterizeShape and Manager.Image.SelectionMaskEmpty then
     begin
       CancelAction;
@@ -493,6 +507,7 @@ begin
       FShape.EndUpdate;
       FShape.OnChange:= @ShapeChange;
       FShape.OnEditingChange:=@ShapeEditingChange;
+      FShape.OnRemoveQuery:= @ShapeRemoveQuery;
       result := RectUnion(result, UpdateShape(toolDest));
     end;
   end;

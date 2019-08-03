@@ -745,6 +745,7 @@ begin
       Usermode:= vsuEdit;
     end else
       RemovePoint(PointCount-2);
+    AHandled:= true;
   end else
   if (Key = skInsert) then InsertPointAuto else
     inherited KeyDown(Shift, Key, AHandled);
