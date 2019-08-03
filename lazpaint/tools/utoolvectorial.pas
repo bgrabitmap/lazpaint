@@ -255,10 +255,11 @@ begin
   result := 0;
   for i := 0 to AOriginal.ShapeCount-1 do
     if (AOriginal.Shape[i] is TPhongShape) or
-       (AOriginal.Shape[i] is TTextShape) or
-       ((vsfBackFill in AOriginal.Shape[i].Fields) and
-       (AOriginal.Shape[i].BackFill.FillType = vftGradient)) then
+       (AOriginal.Shape[i] is TTextShape) then
        inc(result, 5)
+    else if ((vsfBackFill in AOriginal.Shape[i].Fields) and
+       (AOriginal.Shape[i].BackFill.FillType = vftGradient)) then
+       inc(result,20)
     else
       inc(result,2);
 end;
