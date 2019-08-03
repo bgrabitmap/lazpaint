@@ -349,7 +349,7 @@ type
   private
     FShapeIndex, FShapeId: integer;
     FLayerId: integer;
-    FShapeData: TBGRAMemOriginalStorage;
+    FShapeCopy: TVectorShape;
     FShapeBounds: TRect;
   protected
     function GetImageDifferenceKind: TImageDifferenceKind; override;
@@ -706,9 +706,7 @@ begin
   end;
   if AShapeIndex = -1 then AShapeIndex := TVectorOriginal(orig).ShapeCount;
   FShapeIndex:= AShapeIndex;
-  FShapeData := TBGRAMemOriginalStorage.Create;
-  AShape.SaveToStorage(FShapeData);
-  FShapeData.RawString['class'] := AShape.StorageClassName;
+  FShapeCopy := AShape.Duplicate;
 
   inherited ApplyTo(ADestination);
   idxShapeAdd := TVectorOriginal(orig).AddShape(AShape);
@@ -719,7 +717,7 @@ end;
 
 destructor TAddShapeToVectorOriginalDifference.Destroy;
 begin
-  FShapeData.Free;
+  FShapeCopy.Free;
   inherited Destroy;
 end;
 
@@ -737,7 +735,7 @@ begin
   if not (orig is TVectorOriginal) then
     raise exception.Create('Vector original expected');
 
-  shape := TVectorShape.CreateFromStorage(FShapeData,nil);
+  shape := FShapeCopy.Duplicate;
   idxShapeAdd := TVectorOriginal(orig).AddShape(shape);
   TVectorOriginal(orig).Shape[idxShapeAdd].Id := FShapeId;
   TVectorOriginal(orig).MoveShapeToIndex(idxShapeAdd, FShapeIndex);
