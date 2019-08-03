@@ -5,7 +5,7 @@ unit UToolText;
 interface
 
 uses
-  Classes, SysUtils, utool, utoolbasic, LCLType, Graphics, BGRABitmap, BGRABitmapTypes, BGRATextFX,
+  Classes, SysUtils, UTool, UToolVectorial, LCLType, Graphics, BGRABitmap, BGRABitmapTypes, BGRATextFX,
   BGRAGradients, LCVectorOriginal;
 
 type

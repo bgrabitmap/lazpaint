@@ -5,7 +5,7 @@ unit UToolPolygon;
 interface
 
 uses
-  Classes, SysUtils, utool, utoolbasic, BGRABitmap, BGRABitmapTypes,
+  Classes, SysUtils, UTool, UToolVectorial, BGRABitmap, BGRABitmapTypes,
   LCVectorOriginal, LCLType;
 
 const
@@ -13,6 +13,20 @@ const
 
 type
   TToolSplineMode = (tsmMovePoint, tsmCurveModeAuto, tsmCurveModeAngle, tsmCurveModeSpline);
+
+  { TToolRectangle }
+
+  TToolRectangle = class(TVectorialTool)
+  protected
+    function CreateShape: TVectorShape; override;
+  end;
+
+  { TToolEllipse }
+
+  TToolEllipse = class(TVectorialTool)
+  protected
+    function CreateShape: TVectorShape; override;
+  end;
 
   { TToolPolygon }
 
@@ -44,7 +58,21 @@ type
 
 implementation
 
-uses LazPaintType, LCVectorPolyShapes;
+uses LazPaintType, LCVectorRectShapes, LCVectorPolyShapes;
+
+{ TToolEllipse }
+
+function TToolEllipse.CreateShape: TVectorShape;
+begin
+  result := TEllipseShape.Create(nil);
+end;
+
+{ TToolRectangle }
+
+function TToolRectangle.CreateShape: TVectorShape;
+begin
+  result := TRectShape.Create(nil);
+end;
 
 { TToolSpline }
 
@@ -158,6 +186,8 @@ end;
 
 initialization
 
+  RegisterTool(ptRect,TToolRectangle);
+  RegisterTool(ptEllipse,TToolEllipse);
   RegisterTool(ptPolygon,TToolPolygon);
   RegisterTool(ptSpline,TToolSpline);
 

@@ -17,7 +17,7 @@ uses
   UToolbox, UChooseColor, ULayerstack,  //tool windows
   UMac, LCScaleDPI, UVolatileScrollBar, UCursors, UTranslation, //interface
 
-  UGraph, UTool, UImage, UStateType, UImageState, UClipboard,
+  UGraph, UImage, UStateType, UImageState, UClipboard,
   UCommandline, UParse, UZoom, UResourceStrings, UImageObservation,
   UFilterConnector, UFilters, UImageAction, ULoadImage, UImageDiff,
   UFilterThread,
@@ -30,13 +30,15 @@ uses
   UAbout, ULoading,
 
   //tools
-  UToolDeformationGrid, UToolSelect, UToolPolygon, UToolFloodFill, UToolBasic,
-  UToolPhong, UToolText, UScripting, UMenu, UColorFilters, uadjustcurves,
-  UScriptType, ULayerAction, UImageType, uposterize, UMySLV, UToolLayer,
+  UTool, UToolVectorial, UToolDeformationGrid, UToolSelect, UToolPolygon, UToolFloodFill, UToolBasic,
+  UToolPhong, UToolText, UToolBrush, UToolIcon, UToolLayer,
+
+  UScripting, UMenu, UColorFilters, uadjustcurves,
+  UScriptType, ULayerAction, UImageType, uposterize, UMySLV,
   unoisefilter, uprint, uimagelist, UFileExtensions, UFileSystem,
-  UToolBrush, UMainFormLayout, USaveOption, UBrushType, ugeometricbrush,
+  UMainFormLayout, USaveOption, UBrushType, ugeometricbrush,
   URainType, UFormRain, UPaletteToolbar, uselectionhighlight, UGridBitmap,
-  UToolIcon, UImagePreview, UPreviewDialog, UQuestion, UTiff, UImageView,
+  UImagePreview, UPreviewDialog, UQuestion, UTiff, UImageView,
   UDarkTheme;
 
 //sometimes LResources disappear in the uses clause

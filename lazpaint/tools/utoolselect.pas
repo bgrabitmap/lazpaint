@@ -5,7 +5,8 @@ unit UToolSelect;
 interface
 
 uses
-  Classes, SysUtils, Graphics, utool, utoolpolygon, utoolbasic, BGRABitmapTypes, BGRABitmap,
+  Classes, SysUtils, Graphics, BGRABitmapTypes, BGRABitmap,
+  UTool, UToolBasic, UToolVectorial, UToolPolygon,
   ULayerAction, LCVectorOriginal;
 
 type

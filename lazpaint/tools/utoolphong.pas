@@ -5,7 +5,7 @@ unit UToolPhong;
 interface
 
 uses
-  Classes, SysUtils, utool, utoolbasic, BGRABitmapTypes, BGRABitmap, BGRAGradients,
+  Classes, SysUtils, UTool, UToolVectorial, BGRABitmapTypes, BGRABitmap, BGRAGradients,
   LCVectorOriginal;
 
 type

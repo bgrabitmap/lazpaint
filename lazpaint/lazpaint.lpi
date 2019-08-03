@@ -336,7 +336,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="97">
+    <Units Count="98">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -912,6 +912,11 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UWaveDisplacement"/>
       </Unit96>
+      <Unit97>
+        <Filename Value="tools\utoolvectorial.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UToolVectorial"/>
+      </Unit97>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

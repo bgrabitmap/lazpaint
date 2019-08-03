@@ -5,7 +5,7 @@ unit UToolFloodFill;
 interface
 
 uses
-  Classes, SysUtils, utool, utoolbasic, BGRABitmap, BGRABitmapTypes,
+  Classes, SysUtils, UTool, UToolVectorial, BGRABitmap, BGRABitmapTypes,
   BGRAGradientOriginal, LCVectorOriginal;
 
 type
