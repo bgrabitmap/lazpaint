@@ -165,7 +165,6 @@ type
     useOriginal: boolean;
     previousOriginalRenderStatus: TOriginalRenderStatus;
     layerId: integer;
-    FDestination: TState;
     previousLayerOffset: TPoint;
   protected
     function GetImageDifferenceKind: TImageDifferenceKind; override;
@@ -1423,9 +1422,8 @@ var idx: integer;
   clippedImage: TBGRABitmap;
 begin
   inherited Create(ADestination);
-  FDestination := ADestination;
   layerId:= ALayerId;
-  layers := (FDestination as TImageState).LayeredBitmap;
+  layers := (ADestination as TImageState).LayeredBitmap;
   idx := layers.GetLayerIndexFromId(ALayerId);
   if idx = -1 then raise exception.Create('Invalid layer Id');
   nextBounds := rect(0,0,layers.Width,layers.Height);

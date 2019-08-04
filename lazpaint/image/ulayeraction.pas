@@ -665,7 +665,8 @@ begin
         if Assigned(FPrediff) then
         begin
           composedDiff.AddRange(FPrediff);
-          FPrediff := nil;
+          FPrediff.ReleaseDiffs;
+          FreeAndNil(FPrediff);
         end;
         if rasterizeOriginal then
           composedDiff.Add(TDiscardOriginalDifference.Create(CurrentState,
