@@ -208,6 +208,7 @@ type
     constructor Create(ALayeredImage: TBGRALayeredBitmap; AIndex: integer);
     constructor Create(ALayeredImage: TBGRALayeredBitmap; AIndex: integer;
                        AAlwaysStoreBitmap: boolean);
+    destructor Destroy; override;
     procedure Restore(ALayeredImage: TBGRALayeredBitmap);
     procedure Replace(ALayeredImage: TBGRALayeredBitmap);
     property LayerIndex: integer read FIndex;
@@ -1068,6 +1069,12 @@ begin
     inherited Create(ALayeredImage.LayerBitmap[AIndex]);
     FOriginalData := nil;
   end;
+end;
+
+destructor TStoredLayer.Destroy;
+begin
+  FOriginalData.Free;
+  inherited Destroy;
 end;
 
 procedure TStoredLayer.Restore(ALayeredImage: TBGRALayeredBitmap);
