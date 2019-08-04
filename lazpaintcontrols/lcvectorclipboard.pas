@@ -1,11 +1,11 @@
-unit uvectorclipboard;
+unit LCVectorClipboard;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, SysUtils, Clipbrd, LCLType, lcvectororiginal;
+  Classes, SysUtils, Clipbrd, LCLType, LCVectorOriginal;
 
 function CopyShapesToClipboard(AShapes: array of TVectorShape): boolean;
 procedure PasteShapesFromClipboard(ATargetContainer: TVectorOriginal);

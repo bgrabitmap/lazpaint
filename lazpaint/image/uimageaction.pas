@@ -74,7 +74,7 @@ implementation
 
 uses Controls, Dialogs, UResourceStrings, UObject3D,
      ULoadImage, UGraph, UClipboard, Types, BGRAGradientOriginal,
-     BGRATransform, ULoading, math;
+     BGRATransform, ULoading, math, LCVectorClipboard;
 
 { TImageActions }
 
@@ -822,30 +822,37 @@ var partial: TBGRABitmap;
     pastePos: TPoint;
 begin
   try
-    partial := GetBitmapFromClipboard;
-    if partial<>nil then
+    if ClipboardHasShapes then
     begin
-      if partial.NbPixels <> 0 then
+      ChooseTool(ptEditShape);
+      ToolManager.ToolPaste;
+    end else
+    begin
+      partial := GetBitmapFromClipboard;
+      if partial<>nil then
       begin
-        ToolManager.ToolCloseDontReopen;
-        layeraction := Image.CreateAction(true, true);
-        layeraction.ReleaseSelection;
-        layeraction.QuerySelection;
-        pastePos := Point((image.Width - partial.Width) div 2 - image.ImageOffset.X,
-           (image.Height - partial.Height) div 2 - image.ImageOffset.Y);
-        if pastePos.x+partial.width > image.width then pastePos.x := image.width-partial.width;
-        if pastePos.y+partial.Height > image.Height then pastePos.y := image.Height-partial.Height;
-        if pastePos.x < 0 then pastePos.x := 0;
-        if pastePos.y < 0 then pastePos.y := 0;
-        layeraction.GetOrCreateSelectionLayer.PutImage(pastePos.x,pastePos.y,partial,dmFastBlend);
-        ComputeSelectionMask(layeraction.GetOrCreateSelectionLayer,layeraction.currentSelection,
-          rect(pastePos.x,pastePos.y,pastePos.x+partial.Width,pastePos.y+partial.Height));
-        Image.SelectionMaskMayChange(rect(pastePos.x,pastePos.y,pastePos.x+partial.Width,pastePos.y+partial.Height));
-        layeraction.Validate;
-        layeraction.Free;
-        ChooseTool(ptMoveSelection);
+        if partial.NbPixels <> 0 then
+        begin
+          ToolManager.ToolCloseDontReopen;
+          layeraction := Image.CreateAction(true, true);
+          layeraction.ReleaseSelection;
+          layeraction.QuerySelection;
+          pastePos := Point((image.Width - partial.Width) div 2 - image.ImageOffset.X,
+             (image.Height - partial.Height) div 2 - image.ImageOffset.Y);
+          if pastePos.x+partial.width > image.width then pastePos.x := image.width-partial.width;
+          if pastePos.y+partial.Height > image.Height then pastePos.y := image.Height-partial.Height;
+          if pastePos.x < 0 then pastePos.x := 0;
+          if pastePos.y < 0 then pastePos.y := 0;
+          layeraction.GetOrCreateSelectionLayer.PutImage(pastePos.x,pastePos.y,partial,dmFastBlend);
+          ComputeSelectionMask(layeraction.GetOrCreateSelectionLayer,layeraction.currentSelection,
+            rect(pastePos.x,pastePos.y,pastePos.x+partial.Width,pastePos.y+partial.Height));
+          Image.SelectionMaskMayChange(rect(pastePos.x,pastePos.y,pastePos.x+partial.Width,pastePos.y+partial.Height));
+          layeraction.Validate;
+          layeraction.Free;
+          ChooseTool(ptMoveSelection);
+        end;
+        partial.Free;
       end;
-      partial.Free;
     end;
   except
     on ex:Exception do

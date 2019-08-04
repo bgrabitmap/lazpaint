@@ -330,7 +330,7 @@ var
 
 implementation
 
-uses math, BGRAPen, BGRAThumbnail, BGRAGradientOriginal, uvectorclipboard, LResources, LCToolbars,
+uses math, BGRAPen, BGRAThumbnail, BGRAGradientOriginal, LCVectorClipboard, LResources, LCToolbars,
   BGRAText, BGRAUTF8;
 
 {$R *.lfm}

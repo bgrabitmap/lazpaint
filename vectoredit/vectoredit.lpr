@@ -8,7 +8,6 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms, umain, 
-  uvectorclipboard,
   LResources;
 
 {$R *.res}
