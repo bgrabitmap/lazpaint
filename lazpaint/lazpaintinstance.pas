@@ -40,6 +40,7 @@ type
     function ScriptFileNew(AVars: TVariableSet): TScriptResult;
     function ScriptImageResample(AParams: TVariableSet): TScriptResult;
     procedure SelectionInstanceOnRun(AInstance: TLazPaintCustomInstance);
+    procedure ToolColorChanged(Sender: TObject);
 
   protected
     InColorFromFChooseColor: boolean;
@@ -302,6 +303,7 @@ begin
   FToolManager := TToolManager.Create(FImage, self, nil, BlackAndWhite);
   UseConfig(TIniFile.Create(''));
   FToolManager.OnPopup := @OnToolPopup;
+  FToolManager.OnColorChanged:=@ToolColorChanged;
   FSelectionEditConfig := nil;
   FTextureEditConfig := nil;
 
@@ -863,6 +865,12 @@ begin
   AInstance.Config.SetDefaultImageHeight(Image.Height);
 end;
 
+procedure TLazPaintInstance.ToolColorChanged(Sender: TObject);
+begin
+  ColorToFChooseColor;
+  if Assigned(FMain) then FMain.UpdateToolbar;
+end;
+
 function TLazPaintInstance.GetIcons(ASize: integer): TImageList;
 var
   i: Integer;
@@ -1243,8 +1251,7 @@ begin
     ToolManager.ToolForeColor := FChooseColor.GetCurrentColor else
   if FChooseColor.colorTarget = ctBackColor then
     ToolManager.ToolBackColor := FChooseColor.GetCurrentColor;
-  FMain.UpdateToolbar;
-  FMain.UpdateEditPicture;
+  if Assigned(FMain) then FMain.UpdateEditPicture;
   InColorFromFChooseColor := false;
 end;
 

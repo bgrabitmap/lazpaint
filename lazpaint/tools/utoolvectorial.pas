@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, LCLType, BGRABitmap, BGRABitmapTypes,
   BGRALayerOriginal, LCVectorOriginal,
-  UTool, UImageType;
+  UTool, UImageType, ULayerAction;
 
 type
   { TVectorialTool }
@@ -68,10 +68,390 @@ type
     destructor Destroy; override;
   end;
 
+  { TEditShapeTool }
+
+  TEditShapeTool = class(TGenericTool)
+  private
+    procedure SelectShape({%H-}ASender: TObject; AShape: TVectorShape;
+      {%H-}APreviousShape: TVectorShape);
+  protected
+    FShiftState: TShiftState;
+    FLeftButton,FRightButton: boolean;
+    FLastPos: TPointF;
+    procedure BindOriginalEvent(ABind: boolean);
+    function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF; rightBtn: boolean): TRect; override;
+    function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF): TRect; override;
+    function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
+    function GetAction: TLayerAction; override;
+    function DoGetToolDrawingLayer: TBGRABitmap; override;
+    procedure OnTryStop({%H-}sender: TCustomLayerAction); override;
+    procedure StopEdit;
+    function IsVectorOriginal: boolean;
+    function GetIsSelectingTool: boolean; override;
+    function GetVectorOriginal: TVectorOriginal;
+    function FixLayerOffset: boolean; override;
+  public
+    destructor Destroy; override;
+    function Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
+    function ToolKeyDown(var key: Word): TRect; override;
+    function ToolKeyPress(var key: TUTF8Char): TRect; override;
+    function ToolKeyUp(var key: Word): TRect; override;
+    function ToolUp: TRect; override;
+  end;
+
 implementation
 
 uses LazPaintType, LCVectorRectShapes, LCVectorTextShapes, LCVectorialFill, BGRASVGOriginal,
-  ULoading, BGRATransform, math, UStateType, UImageDiff, Controls, BGRAPen, UResourceStrings, ugraph;
+  ULoading, BGRATransform, math, UStateType, UImageDiff, Controls, BGRAPen, UResourceStrings, ugraph,
+  LCScaleDPI;
+
+const PointSize = 6;
+
+function OriginalCursorToCursor(ACursor: TOriginalEditorCursor): TCursor;
+begin
+  case ACursor of
+    oecMove: result := crSizeAll;
+    oecMoveN: result := crSizeN;
+    oecMoveS: result := crSizeS;
+    oecMoveE: result := crSizeE;
+    oecMoveW: result := crSizeW;
+    oecMoveNE: result := crSizeNE;
+    oecMoveSW: result := crSizeSW;
+    oecMoveNW: result := crSizeNW;
+    oecMoveSE: result := crSizeSE;
+    oecHandPoint: result := crHandPoint;
+    oecText: result := crIBeam;
+    else result := crDefault;
+  end;
+end;
+
+{ TEditShapeTool }
+
+procedure TEditShapeTool.SelectShape(ASender: TObject; AShape: TVectorShape;
+  APreviousShape: TVectorShape);
+begin
+  if Assigned(AShape) then
+  begin
+    if (vsfBackFill in AShape.Fields) and (AShape.BackFill.FillType = vftGradient) then
+    begin
+      Manager.ToolForeColor := AShape.BackFill.Gradient.StartColor;
+      Manager.ToolBackColor := AShape.BackFill.Gradient.EndColor;
+      Manager.SetToolTexture(nil);
+    end else
+    begin
+      if (vsfPenFill in AShape.Fields) and (AShape.PenFill.FillType = vftSolid) then
+        Manager.ToolForeColor := AShape.PenFill.SolidColor;
+      if (vsfBackFill in AShape.Fields) and (AShape.BackFill.FillType = vftSolid) then
+        Manager.ToolBackColor := AShape.BackFill.SolidColor;
+      if (vsfBackFill in AShape.Fields) and (AShape.BackFill.FillType = vftTexture) then
+        Manager.SetToolTexture(AShape.BackFill.Texture)
+      else if (vsfPenFill in AShape.Fields) and (AShape.PenFill.FillType = vftTexture) then
+        Manager.SetToolTexture(AShape.PenFill.Texture)
+      else
+        Manager.SetToolTexture(nil);
+    end;
+  end;
+end;
+
+procedure TEditShapeTool.BindOriginalEvent(ABind: boolean);
+begin
+  if IsVectorOriginal then
+  begin
+    if ABind then
+    begin
+      GetVectorOriginal.OnSelectShape:= @SelectShape;
+      Manager.Image.CurrentState.DiscardOriginalDiff := false;
+    end else
+    begin
+      GetVectorOriginal.OnSelectShape := nil;
+      Manager.Image.CurrentState.DiscardOriginalDiff := true;
+    end;
+  end;
+end;
+
+function TEditShapeTool.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
+  ptF: TPointF; rightBtn: boolean): TRect;
+var
+  cur: TOriginalEditorCursor;
+  handled: boolean;
+begin
+  Manager.Image.DraftOriginal := true;
+  FRightButton:= rightBtn;
+  FLeftButton:= not rightBtn;
+  FLastPos := ptF;
+  BindOriginalEvent(true);
+  Manager.Image.CurrentState.LayeredBitmap.MouseDown(rightBtn, FShiftState, ptF.X,ptF.Y, cur, handled);
+  BindOriginalEvent(false);
+  if handled then Cursor := OriginalCursorToCursor(cur);
+  Result:= EmptyRect;
+end;
+
+function TEditShapeTool.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
+  ptF: TPointF): TRect;
+var
+  cur: TOriginalEditorCursor;
+  handled: boolean;
+begin
+  FLastPos := ptF;
+  BindOriginalEvent(true);
+  Manager.Image.CurrentState.LayeredBitmap.MouseMove(FShiftState, ptF.X,ptF.Y, cur, handled);
+  BindOriginalEvent(false);
+  Cursor := OriginalCursorToCursor(cur);
+  Result:= EmptyRect;
+end;
+
+function TEditShapeTool.DoToolUpdate(toolDest: TBGRABitmap): TRect;
+begin
+  if IsVectorOriginal then
+  with GetVectorOriginal do
+  begin
+    if Assigned(SelectedShape) then
+    begin
+      if (vsfBackFill in SelectedShape.Fields) and (SelectedShape.BackFill.FillType = vftGradient) then
+      begin
+        if Assigned(Manager.GetToolTexture) then
+          SelectedShape.BackFill.SetTexture(Manager.GetToolTexture, AffineMatrixIdentity)
+        else
+        begin
+          SelectedShape.BackFill.Gradient.StartColor := Manager.ToolForeColor;
+          SelectedShape.BackFill.Gradient.EndColor := Manager.ToolBackColor;
+        end;
+      end else
+      begin
+        if Assigned(Manager.GetToolTexture) then
+        begin
+          case SelectedShape.BackFill.FillType of
+          vftTexture:
+            begin
+              SelectedShape.BackFill.SetTexture(Manager.GetToolTexture,
+                SelectedShape.BackFill.TextureMatrix,SelectedShape.BackFill.TextureOpacity,
+                SelectedShape.BackFill.TextureRepetition);
+              if (vsfPenFill in SelectedShape.Fields) and (SelectedShape.PenFill.FillType = vftSolid) then
+                SelectedShape.PenFill.SolidColor := Manager.ToolForeColor;
+            end;
+          vftGradient,vftSolid:
+            begin
+              SelectedShape.BackFill.SetTexture(Manager.GetToolTexture, AffineMatrixIdentity);
+              if (vsfPenFill in SelectedShape.Fields) and (SelectedShape.PenFill.FillType = vftSolid) then
+                SelectedShape.PenFill.SolidColor := Manager.ToolForeColor;
+            end;
+          vftNone: begin
+              case SelectedShape.PenFill.FillType of
+              vftTexture:
+                begin
+                  SelectedShape.PenFill.SetTexture(Manager.GetToolTexture,
+                    SelectedShape.PenFill.TextureMatrix,SelectedShape.PenFill.TextureOpacity,
+                    SelectedShape.PenFill.TextureRepetition);
+                  if (vsfBackFill in SelectedShape.Fields) and (SelectedShape.BackFill.FillType = vftSolid) then
+                    SelectedShape.BackFill.SolidColor := Manager.ToolBackColor;
+                end;
+              vftGradient,vftSolid:
+                begin
+                  SelectedShape.PenFill.SetTexture(Manager.GetToolTexture, AffineMatrixIdentity);
+                  if (vsfBackFill in SelectedShape.Fields) and (SelectedShape.BackFill.FillType = vftSolid) then
+                    SelectedShape.BackFill.SolidColor := Manager.ToolBackColor;
+                end;
+              end;
+            end;
+          end;
+        end else
+        begin
+          if (vsfPenFill in SelectedShape.Fields) and (SelectedShape.PenFill.FillType in [vftSolid,vftTexture]) then
+            SelectedShape.PenFill.SolidColor := Manager.ToolForeColor;
+          if (vsfBackFill in SelectedShape.Fields) and (SelectedShape.BackFill.FillType in [vftSolid,vftTexture]) then
+            SelectedShape.BackFill.SolidColor := Manager.ToolBackColor;
+        end;
+      end;
+    end;
+  end;
+  Result := EmptyRect;
+end;
+
+function TEditShapeTool.GetAction: TLayerAction;
+begin
+  result := nil;
+end;
+
+function TEditShapeTool.DoGetToolDrawingLayer: TBGRABitmap;
+begin
+  Result:= Manager.Image.LayerBitmap[Manager.Image.CurrentLayerIndex];
+end;
+
+procedure TEditShapeTool.OnTryStop(sender: TCustomLayerAction);
+begin
+  StopEdit;
+  inherited OnTryStop(sender);
+end;
+
+procedure TEditShapeTool.StopEdit;
+var
+  r: TRect;
+begin
+  if FLeftButton or FRightButton then
+  begin
+    r := ToolUp;
+    Manager.Image.LayerMayChange(GetToolDrawingLayer,r);
+  end;
+  if IsVectorOriginal then
+    GetVectorOriginal.DeselectShape;
+  Manager.Image.CurrentState.LayeredBitmap.ClearEditor;
+end;
+
+function TEditShapeTool.IsVectorOriginal: boolean;
+begin
+  result := Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex]=TVectorOriginal;
+end;
+
+function TEditShapeTool.GetIsSelectingTool: boolean;
+begin
+  result := false;
+end;
+
+function TEditShapeTool.GetVectorOriginal: TVectorOriginal;
+begin
+  result := Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex] as TVectorOriginal;
+end;
+
+function TEditShapeTool.FixLayerOffset: boolean;
+begin
+  Result:= false;
+end;
+
+destructor TEditShapeTool.Destroy;
+begin
+  StopEdit;
+  inherited Destroy;
+end;
+
+function TEditShapeTool.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,
+  VirtualScreenHeight: integer;
+  BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
+var
+  orig, xAxis, yAxis: TPointF;
+  viewMatrix: TAffineMatrix;
+begin
+  with LayerOffset do
+  begin
+    orig := BitmapToVirtualScreen(PointF(-X,-Y));
+    xAxis := BitmapToVirtualScreen(PointF(-X+1,-Y));
+    yAxis := BitmapToVirtualScreen(PointF(-X,-Y+1));
+  end;
+  viewMatrix := AffineMatrix(xAxis-orig,yAxis-orig,orig);
+
+  if IsVectorOriginal then
+  begin
+    if Assigned(VirtualScreen) then
+      result := Manager.Image.CurrentState.LayeredBitmap.DrawEditor(VirtualScreen,
+        Manager.Image.CurrentLayerIndex, viewMatrix, DoScaleX(PointSize,OriginalDPI))
+    else
+      result := Manager.Image.CurrentState.LayeredBitmap.GetEditorBounds(
+        rect(0,0,VirtualScreenWidth,VirtualScreenHeight),
+        Manager.Image.CurrentLayerIndex, viewMatrix, DoScaleX(PointSize,OriginalDPI));
+  end else
+  begin
+    Manager.Image.CurrentState.LayeredBitmap.ClearEditor;
+    result := EmptyRect;
+  end;
+end;
+
+function TEditShapeTool.ToolKeyDown(var key: Word): TRect;
+var
+  handled: boolean;
+begin
+  Result:= EmptyRect;
+  if key = VK_SHIFT then
+  begin
+    include(FShiftState, ssShift);
+    key := 0;
+  end else
+  if key = VK_CONTROL then
+  begin
+    include(FShiftState, ssCtrl);
+    key := 0;
+  end else
+  if key = VK_MENU then
+  begin
+    include(FShiftState, ssAlt);
+    key := 0;
+  end else
+  begin
+    BindOriginalEvent(true);
+    Manager.Image.CurrentState.LayeredBitmap.KeyDown(FShiftState, LCLKeyToSpecialKey(key, FShiftState), handled);
+    if not handled and IsVectorOriginal then
+    begin
+      if (key = VK_DELETE) and Assigned(GetVectorOriginal.SelectedShape) then
+        GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
+    end;
+    BindOriginalEvent(false);
+  end;
+end;
+
+function TEditShapeTool.ToolKeyPress(var key: TUTF8Char): TRect;
+var
+  handled: boolean;
+begin
+  Result:= EmptyRect;
+  BindOriginalEvent(true);
+  Manager.Image.CurrentState.LayeredBitmap.KeyPress(key, handled);
+  BindOriginalEvent(false);
+end;
+
+function TEditShapeTool.ToolKeyUp(var key: Word): TRect;
+var
+  handled: boolean;
+begin
+  Result:= EmptyRect;
+  if key = VK_SHIFT then
+  begin
+    exclude(FShiftState, ssShift);
+    key := 0;
+  end else
+  if key = VK_CONTROL then
+  begin
+    exclude(FShiftState, ssCtrl);
+    key := 0;
+  end else
+  if key = VK_MENU then
+  begin
+    exclude(FShiftState, ssAlt);
+    key := 0;
+  end else
+  begin
+    BindOriginalEvent(true);
+    Manager.Image.CurrentState.LayeredBitmap.KeyUp(FShiftState, LCLKeyToSpecialKey(key, FShiftState), handled);
+    BindOriginalEvent(false);
+  end;
+end;
+
+
+function TEditShapeTool.ToolUp: TRect;
+var
+  cur: TOriginalEditorCursor;
+  handled: boolean;
+  m: TAffineMatrix;
+begin
+  if FLeftButton or FRightButton then
+  begin
+    Manager.Image.DraftOriginal := false;
+    BindOriginalEvent(true);
+    Manager.Image.CurrentState.LayeredBitmap.MouseUp(FRightButton, FShiftState, FLastPos.X,FLastPos.Y, cur, handled);
+    if handled then
+    begin
+      Cursor := OriginalCursorToCursor(cur);
+      result := OnlyRenderChange;
+    end else
+      Result:= EmptyRect;
+    FLeftButton:= false;
+    FRightButton:= false;
+    if not handled and IsVectorOriginal then
+    begin
+      m := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
+      GetVectorOriginal.MouseClick(m*FLastPos);
+    end;
+    BindOriginalEvent(false);
+  end
+  else result := EmptyRect;
+end;
 
 { TVectorialTool }
 
@@ -116,6 +496,7 @@ var
   toolDest: TBGRABitmap;
 begin
   if ASender <> FShape then exit;
+  AHandled := true;
   toolDest := GetToolDrawingLayer;
   r := CancelShape;
   Action.NotifyChange(toolDest, r);
@@ -377,20 +758,7 @@ end;
 
 procedure TVectorialTool.UpdateCursor(ACursor: TOriginalEditorCursor);
 begin
-  case ACursor of
-    oecMove: Cursor := crSizeAll;
-    oecMoveN: Cursor := crSizeN;
-    oecMoveS: Cursor := crSizeS;
-    oecMoveE: Cursor := crSizeE;
-    oecMoveW: Cursor := crSizeW;
-    oecMoveNE: Cursor := crSizeNE;
-    oecMoveSW: Cursor := crSizeSW;
-    oecMoveNW: Cursor := crSizeNW;
-    oecMoveSE: Cursor := crSizeSE;
-    oecHandPoint: Cursor := crHandPoint;
-    oecText: Cursor := crIBeam;
-    else Cursor := crDefault;
-  end;
+  Cursor := OriginalCursorToCursor(ACursor);
 end;
 
 function TVectorialTool.FixLayerOffset: boolean;
@@ -657,11 +1025,15 @@ var
 begin
   if Assigned(FShape) then
   begin
-    orig := BitmapToVirtualScreen(PointF(0,0));
-    xAxis := BitmapToVirtualScreen(PointF(1,0));
-    yAxis := BitmapToVirtualScreen(PointF(0,1));
+    with LayerOffset do
+    begin
+      orig := BitmapToVirtualScreen(PointF(0,0));
+      xAxis := BitmapToVirtualScreen(PointF(1,0));
+      yAxis := BitmapToVirtualScreen(PointF(0,1));
+    end;
     FEditor.Matrix := AffineMatrix(xAxis-orig,yAxis-orig,orig)*VectorTransform;
     FEditor.Clear;
+    FEditor.PointSize := DoScaleX(PointSize, OriginalDPI);
     if Assigned(FShape) then FShape.ConfigureEditor(FEditor);
     if Assigned(VirtualScreen) then
       Result:= FEditor.Render(VirtualScreen, rect(0,0,VirtualScreen.Width,VirtualScreen.Height))
@@ -681,6 +1053,10 @@ begin
   FEditor.Free;
   inherited Destroy;
 end;
+
+initialization
+
+  RegisterTool(ptEditShape, TEditShapeTool);
 
 end.
 

@@ -123,6 +123,8 @@ type
 
   TToolManager = class
   private
+    FOnColorChanged: TNotifyEvent;
+    FOnTextureChanged: TNotifyEvent;
     FShouldExitTool: boolean;
     FOnToolChangedHandler: TOnToolChangedHandler;
     FOnPopupToolHandler: TOnPopupToolHandler;
@@ -151,6 +153,8 @@ type
     function GetToolSleeping: boolean;
     function GetToolTextureOpacity: byte;
     procedure SetControlsVisible(Controls: TList; Visible: Boolean);
+    procedure SetToolBackColor(AValue: TBGRAPixel);
+    procedure SetToolForeColor(AValue: TBGRAPixel);
     procedure SetToolPenWidth(AValue: single);
     procedure SetToolTextureOpacity(AValue: byte);
     procedure ToolCloseAndReopenImmediatly;
@@ -255,10 +259,11 @@ type
 
     property ToolDeformationGridNbX: integer read FToolDeformationGridNbX;
     property ToolDeformationGridNbY: integer read FToolDeformationGridNbY;
-    property ToolForeColor: TBGRAPixel read GetToolForeColor write FToolForeColor;
-    property ToolBackColor: TBGRAPixel read GetToolBackColor write FToolBackColor;
+    property ToolForeColor: TBGRAPixel read GetToolForeColor write SetToolForeColor;
+    property ToolBackColor: TBGRAPixel read GetToolBackColor write SetToolBackColor;
 
     function SetToolDeformationGridSize(NbX,NbY: integer): boolean;
+    procedure SwapToolColors;
     procedure SetToolTexture(ATexture: TBGRABitmap);
     function GetToolTextureAfterAlpha: TBGRABitmap;
     function GetToolTexture: TBGRABitmap;
@@ -268,6 +273,8 @@ type
 
     property OnToolChanged: TOnToolChangedHandler read FOnToolChangedHandler write FOnToolChangedHandler;
     property OnPopup: TOnPopupToolHandler read FOnPopupToolHandler write FOnPopupToolHandler;
+    property OnTextureChanged: TNotifyEvent read FOnTextureChanged write FOnTextureChanged;
+    property OnColorChanged: TNotifyEvent read FOnColorChanged write FOnColorChanged;
     property Cursor: TCursor read GetCursor;
     property ToolSleeping: boolean read GetToolSleeping;
     property ToolTextureOpacity: byte read GetToolTextureOpacity write SetToolTextureOpacity;
@@ -763,6 +770,26 @@ begin
   end;
 end;
 
+procedure TToolManager.SetToolBackColor(AValue: TBGRAPixel);
+begin
+  if (AValue.red = FToolBackColor.red) and
+     (AValue.green = FToolBackColor.green) and
+     (AValue.blue = FToolBackColor.blue) and
+     (AValue.alpha = FToolBackColor.alpha) then exit;
+  FToolBackColor := AValue;
+  if Assigned(FOnColorChanged) then FOnColorChanged(self);
+end;
+
+procedure TToolManager.SetToolForeColor(AValue: TBGRAPixel);
+begin
+  if (AValue.red = FToolForeColor.red) and
+     (AValue.green = FToolForeColor.green) and
+     (AValue.blue = FToolForeColor.blue) and
+     (AValue.alpha = FToolForeColor.alpha) then exit;
+  FToolForeColor := AValue;
+  if Assigned(FOnColorChanged) then FOnColorChanged(self);
+end;
+
 procedure TToolManager.SetToolPenWidth(AValue: single);
 begin
   if GetCurrentToolType = ptEraser then
@@ -795,7 +822,7 @@ begin
       if not IsOnlyRenderChange(ARect) then
         CurrentTool.FAction.NotifyChange(ALayer, ARect);
 
-    if ALayer = nil then
+    if Assigned(ALayer) then
     begin
       if ALayer = Image.CurrentLayerReadOnly then
         Image.ImageMayChange(AddLayerOffset(ARect))
@@ -1123,6 +1150,7 @@ begin
       showPenwidth := true;
       showBrush:= FCurrentToolType in[ptBrush,ptClone];
     end;
+  ptEditShape: showTexture := true;
   ptSelectSpline: showSplineStyle := true;
   ptEraser: begin showPenwidth := true; showEraserOption := true; showColor := false; end;
   ptRect, ptEllipse, ptPolygon, ptSpline:
@@ -1237,12 +1265,27 @@ begin
   end;
 end;
 
+procedure TToolManager.SwapToolColors;
+var
+  tmp: TBGRAPixel;
+begin
+  if (FToolForeColor.red = FToolBackColor.red) and
+     (FToolForeColor.green = FToolBackColor.green) and
+     (FToolForeColor.blue = FToolBackColor.blue) and
+     (FToolForeColor.alpha = FToolBackColor.alpha) then exit;
+  tmp := FToolForeColor;
+  FToolForeColor := FToolBackColor;
+  FToolBackColor := tmp;
+  if Assigned(FOnColorChanged) then FOnColorChanged(self);
+end;
+
 procedure TToolManager.SetToolTexture(ATexture: TBGRABitmap);
 begin
   if ATexture = FToolTexture then exit;
   FToolTexture.FreeReference;
   FToolTexture := ATexture.NewReference as TBGRABitmap;
   FreeAndNil(FToolTextureAfterAlpha);
+  if Assigned(FOnTextureChanged) then FOnTextureChanged(self);
 end;
 
 function TToolManager.GetToolTextureAfterAlpha: TBGRABitmap;
@@ -1265,6 +1308,7 @@ begin
   result := FToolTexture;
   FToolTexture := nil;
   FreeAndNil(FToolTextureAfterAlpha);
+  if Assigned(FOnTextureChanged) then FOnTextureChanged(self);
 end;
 
 procedure TToolManager.AddBrush(brush: TLazPaintBrush);

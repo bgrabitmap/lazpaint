@@ -643,6 +643,7 @@ type
 
   private
     function GetImage: TLazPaintImage;
+    procedure OnTextureChanged(Sender: TObject);
   private
     { private declarations }
     FLayout: TMainFormLayout;
@@ -913,6 +914,8 @@ begin
   begin
     if ToolManager.OnToolChanged = @OnToolChanged then
       ToolManager.OnToolChanged := nil;
+    if ToolManager.OnTextureChanged = @OnTextureChanged then
+      ToolManager.OnTextureChanged := nil;
   end;
   FreeAndNil(Zoom);
   FreeAndNil(FOnlineUpdater);
@@ -972,6 +975,7 @@ begin
 
   ToolManager.SetCurrentToolType(ptHand);
   ToolManager.OnToolChanged := @OnToolChanged;
+  ToolManager.OnTextureChanged := @OnTextureChanged;
 
   InitToolbarElements;
 
@@ -2404,8 +2408,6 @@ procedure TFMain.ToolNoTextureExecute(Sender: TObject);
 begin
   try
     ToolManager.SetToolTexture(nil);
-
-    UpdateTextureIcon;
     UpdateEditPicture;
 
   except
@@ -2663,7 +2665,6 @@ begin
                       BGRAReplace(newTexture, newTexture.GetPart(newTexture.GetImageBounds));
                       ToolManager.SetToolTexture(newTexture);
                       newTexture.FreeReference;
-                      UpdateTextureIcon;
                     end;
                   end;
                 end;
@@ -3140,7 +3141,6 @@ begin
         newTex.FreeReference;
         newTex := nil;
         result := true;
-        UpdateTextureIcon;
         UpdateEditPicture;
         Config.SetDefaultTextureDirectory(ExtractFilePath(texFilename));
       except
@@ -3507,6 +3507,11 @@ end;
 function TFMain.GetImage: TLazPaintImage;
 begin
   result := LazPaintInstance.Image;
+end;
+
+procedure TFMain.OnTextureChanged(Sender: TObject);
+begin
+  UpdateTextureIcon;
 end;
 
 procedure TFMain.UpdateStatusText;

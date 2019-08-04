@@ -659,12 +659,8 @@ begin
 end;
 
 procedure TFMain.SwitchColors;
-var temp: TBGRAPixel;
 begin
-  temp := ToolManager.ToolForeColor;
-  ToolManager.ToolForeColor := ToolManager.ToolBackColor;
-  ToolManager.ToolBackColor := temp;
-  UpdateToolbar;
+  ToolManager.SwapToolColors;
   UpdateEditPicture;
 end;
 
@@ -682,10 +678,9 @@ begin
   ColorDialog1.Color := BGRAToColor(ToolManager.ToolForeColor);
   if ColorDialog1.Execute then
   begin
-       ToolManager.ToolForeColor := ColorToBGRA(ColorDialog1.Color,ToolManager.ToolForeColor.alpha);
-       Shape_PenColor.Brush.Color := BGRAToColor(ToolManager.ToolForeColor);
-       LazPaintInstance.ColorToFChooseColor;
-       UpdateEditPicture;
+    ToolManager.ToolForeColor := ColorToBGRA(ColorDialog1.Color,ToolManager.ToolForeColor.alpha);
+    LazPaintInstance.ColorToFChooseColor;
+    UpdateEditPicture;
   end;
 end;
 
@@ -715,10 +710,9 @@ begin
   ColorDialog1.Color := BGRAToColor(ToolManager.ToolBackColor);
   if ColorDialog1.Execute then
   begin
-       ToolManager.ToolBackColor := ColorToBGRA(ColorDialog1.Color,ToolManager.ToolBackColor.alpha);
-       Shape_BackColor.Brush.Color := BGRAToColor(ToolManager.ToolBackColor);
-       LazPaintInstance.ColorToFChooseColor;
-       UpdateEditPicture;
+    ToolManager.ToolBackColor := ColorToBGRA(ColorDialog1.Color,ToolManager.ToolBackColor.alpha);
+    LazPaintInstance.ColorToFChooseColor;
+    UpdateEditPicture;
   end;
 end;
 
@@ -753,7 +747,6 @@ procedure TFMain.Image_CurrentTextureMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   LazPaintInstance.EditTexture;
-  UpdateTextureIcon;
   UpdateEditPicture;
 end;
 

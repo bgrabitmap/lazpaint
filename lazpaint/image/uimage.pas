@@ -94,6 +94,10 @@ type
     function GetWidth: integer;
     function GetZoomFactor: single;
     procedure InvalidateImageDifference(ADiff: TCustomImageDifference);
+    procedure OriginalChange({%H-}ASender: TObject;
+      AOriginal: TBGRALayerCustomOriginal; var ADiff: TBGRAOriginalDiff);
+    procedure OriginalEditingChange({%H-}ASender: TObject;
+      AOriginal: TBGRALayerCustomOriginal);
     procedure SetBlendOperation(AIndex: integer; AValue: TBlendOperation);
     procedure SetCurrentFilenameUTF8(AValue: string);
     procedure LayeredBitmapReplaced;
@@ -961,6 +965,26 @@ begin
       else
         SelectionMaskMayChangeCompletely;
   end;
+end;
+
+procedure TLazPaintImage.OriginalChange(ASender: TObject;
+  AOriginal: TBGRALayerCustomOriginal; var ADiff: TBGRAOriginalDiff);
+var
+  r: TRect;
+begin
+  r := FCurrentState.LayeredBitmap.RenderOriginalIfNecessary(AOriginal.Guid, FDraftOriginal);
+  ImageMayChange(r, false);
+  if Assigned(ADiff) then
+  begin
+    AddUndo(TVectorOriginalEmbeddedDifference.Create(CurrentState,AOriginal.Guid,ADiff,r));
+    ADiff := nil;
+  end;
+end;
+
+procedure TLazPaintImage.OriginalEditingChange(ASender: TObject;
+  AOriginal: TBGRALayerCustomOriginal);
+begin
+  OnImageChanged.NotifyObservers;
 end;
 
 procedure TLazPaintImage.Redo;
@@ -2050,6 +2074,8 @@ end;
 constructor TLazPaintImage.Create;
 begin
   FCurrentState := TImageState.Create;
+  FCurrentState.OnOriginalChange:=@OriginalChange;
+  FCurrentState.OnOriginalEditingChange:=@OriginalEditingChange;
   FRenderUpdateRectInPicCoord := rect(0,0,0,0);
   FRenderUpdateRectInVSCoord := rect(0,0,0,0);
   FOnSelectionMaskChanged := nil;
