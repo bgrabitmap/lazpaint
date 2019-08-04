@@ -32,6 +32,7 @@ type
     procedure Apply(AStartShape: TVectorShape); override;
     procedure Unapply(AEndShape: TVectorShape); override;
     procedure Append(ADiff: TVectorShapeDiff); override;
+    function IsIdentity: boolean; override;
   end;
 
   { TTextShapePhongDiff }
@@ -50,6 +51,7 @@ type
     procedure Apply(AStartShape: TVectorShape); override;
     procedure Unapply(AEndShape: TVectorShape); override;
     procedure Append(ADiff: TVectorShapeDiff); override;
+    function IsIdentity: boolean; override;
   end;
 
   { TTextShapeTextDiff }
@@ -70,6 +72,7 @@ type
     procedure Apply(AStartShape: TVectorShape); override;
     procedure Unapply(AEndShape: TVectorShape); override;
     procedure Append(ADiff: TVectorShapeDiff); override;
+    function IsIdentity: boolean; override;
   end;
 
   { TTextShape }
@@ -321,6 +324,26 @@ begin
     FParaAlignAfter[i] := next.FParaAlignAfter[i];
 end;
 
+function TTextShapeTextDiff.IsIdentity: boolean;
+var
+  i: Integer;
+begin
+  result := (FTextBefore = FTextAfter) and
+    (FSelStartBefore = FSelStartAfter) and
+    (FSelEndBefore = FSelEndAfter) and
+    (FVertAlignBefore = FVertAlignAfter) and
+    (length(FParaAlignBefore) = length(FParaAlignAfter));
+  if result then
+  begin
+    for i := 0 to high(FParaAlignBefore) do
+      if FParaAlignBefore[i] <> FParaAlignAfter[i] then
+      begin
+        result := false;
+        break;
+      end;
+  end;
+end;
+
 { TTextShapePhongDiff }
 
 constructor TTextShapePhongDiff.Create(AStartShape: TVectorShape);
@@ -375,6 +398,13 @@ begin
   FAltitudePercentAfter:= next.FAltitudePercentAfter;
   FPenPhongAfter:= next.FPenPhongAfter;
   FLightPositionAfter:= next.FLightPositionAfter;
+end;
+
+function TTextShapePhongDiff.IsIdentity: boolean;
+begin
+  result := (FAltitudePercentBefore = FAltitudePercentAfter) and
+    (FPenPhongBefore = FPenPhongAfter) and
+    (FLightPositionBefore = FLightPositionAfter);
 end;
 
 { TTextShapeFontDiff }
@@ -438,6 +468,14 @@ begin
   FFontEmHeightAfter := next.FFontEmHeightAfter;
   FFontNameAfter := next.FFontNameAfter;
   FFontStyleAfter := next.FFontStyleAfter;
+end;
+
+function TTextShapeFontDiff.IsIdentity: boolean;
+begin
+  result := (FFontBidiModeBefore = FFontBidiModeAfter) and
+    (FFontEmHeightBefore = FFontEmHeightAfter) and
+    (FFontNameBefore = FFontNameAfter) and
+    (FFontStyleBefore = FFontStyleAfter);
 end;
 
 { TTextShape }

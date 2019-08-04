@@ -44,6 +44,7 @@ type
     procedure Unapply(AEndShape: TVectorShape); virtual; abstract;
     function CanAppend(ADiff: TVectorShapeDiff): boolean; virtual;
     procedure Append(ADiff: TVectorShapeDiff); virtual; abstract;
+    function IsIdentity: boolean; virtual; abstract;
   end;
   TVectorShapeDiffList = specialize TFPGList<TVectorShapeDiff>;
   TVectorShapeDiffAny = class of TVectorShapeDiff;
@@ -63,6 +64,7 @@ type
     procedure Unapply(AEndShape: TVectorShape); override;
     function CanAppend(ADiff: TVectorShapeDiff): boolean; override;
     procedure Append(ADiff: TVectorShapeDiff); override;
+    function IsIdentity: boolean; override;
   end;
 
   { TVectorShapeEmbeddedFillDiff }
@@ -80,6 +82,7 @@ type
     procedure Unapply(AEndShape: TVectorShape); override;
     function CanAppend(ADiff: TVectorShapeDiff): boolean; override;
     procedure Append(ADiff: TVectorShapeDiff); override;
+    function IsIdentity: boolean; override;
   end;
 
   { TVectorShapeCommonDiff }
@@ -100,6 +103,7 @@ type
     procedure Apply(AStartShape: TVectorShape); override;
     procedure Unapply(AEndShape: TVectorShape); override;
     procedure Append(ADiff: TVectorShapeDiff); override;
+    function IsIdentity: boolean; override;
   end;
 
   { TVectorShapeCommonFillDiff }
@@ -119,6 +123,7 @@ type
     procedure Apply(AStartShape: TVectorShape); override;
     procedure Unapply(AEndShape: TVectorShape); override;
     procedure Append(ADiff: TVectorShapeDiff); override;
+    function IsIdentity: boolean; override;
   end;
 
   { TVectorShape }
@@ -257,6 +262,7 @@ type
     procedure Unapply(AOriginal: TBGRALayerCustomOriginal); override;
     function CanAppend(ADiff: TBGRAOriginalDiff): boolean; override;
     procedure Append(ADiff: TBGRAOriginalDiff); override;
+    function IsIdentity: boolean; override;
   end;
 
   { TVectorOriginalShapeRangeDiff }
@@ -274,6 +280,7 @@ type
     procedure Unapply(AOriginal: TBGRALayerCustomOriginal); override;
     function CanAppend({%H-}ADiff: TBGRAOriginalDiff): boolean; override;
     procedure Append({%H-}ADiff: TBGRAOriginalDiff); override;
+    function IsIdentity: boolean; override;
   end;
 
   TVectorOriginalEditor = class;
@@ -510,6 +517,13 @@ begin
   end else FreeAndNil(FEndOutlineFill);
 end;
 
+function TVectorShapeCommonFillDiff.IsIdentity: boolean;
+begin
+  result := FStartPenFill.Equals(FEndPenFill) and
+    FStartBackFill.Equals(FEndBackFill) and
+    FStartOutlineFill.Equals(FEndOutlineFill);
+end;
+
 { TVectorOriginalShapeRangeDiff }
 
 constructor TVectorOriginalShapeRangeDiff.Create(ARangeStart: integer;
@@ -590,6 +604,11 @@ begin
   raise exception.Create('Merge not allowed');
 end;
 
+function TVectorOriginalShapeRangeDiff.IsIdentity: boolean;
+begin
+  result := false;
+end;
+
 { TVectorOriginalShapeDiff }
 
 constructor TVectorOriginalShapeDiff.Create(AShapeIndex: integer;
@@ -628,6 +647,11 @@ begin
     FShapeDiff.Append(TVectorOriginalShapeDiff(ADiff).FShapeDiff)
   else
     raise exception.Create('Merge not allowed');
+end;
+
+function TVectorOriginalShapeDiff.IsIdentity: boolean;
+begin
+  result := FShapeDiff.IsIdentity;
 end;
 
 { TVectorShapeCommonDiff }
@@ -691,6 +715,14 @@ begin
   FEndJoinStyle:= next.FEndJoinStyle;
 end;
 
+function TVectorShapeCommonDiff.IsIdentity: boolean;
+begin
+  result := (FStartPenWidth = FEndPenWidth) and
+    PenStyleEqual(FStartPenStyle, FEndPenStyle) and
+    (FStartOutlineWidth = FEndOutlineWidth) and
+    (FStartJoinStyle = FEndJoinStyle);
+end;
+
 { TVectorShapeEmbeddedFillDiff }
 
 constructor TVectorShapeEmbeddedFillDiff.Create(AField: TVectorShapeField;
@@ -748,6 +780,11 @@ begin
   next := ADiff as TVectorShapeEmbeddedFillDiff;
   if next.FField <> FField then raise exception.Create('Fill field mismatch');
   FFillDiff.Append(next.FFillDiff);
+end;
+
+function TVectorShapeEmbeddedFillDiff.IsIdentity: boolean;
+begin
+  result := FFillDiff.IsIdentity;
 end;
 
 { TVectorShapeComposedDiff }
@@ -845,6 +882,15 @@ begin
       if FDiffs[i].CanAppend(ADiff) then
         FDiffs[i].Append(ADiff);
   end;
+end;
+
+function TVectorShapeComposedDiff.IsIdentity: boolean;
+var
+  i: Integer;
+begin
+  for i := 0 to high(FDiffs) do
+    if not FDiffs[i].IsIdentity then exit(false);
+  result := true;
 end;
 
 { TVectorOriginalEditor }

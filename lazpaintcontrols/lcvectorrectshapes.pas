@@ -25,6 +25,7 @@ type
     procedure Apply(AStartShape: TVectorShape); override;
     procedure Unapply(AEndShape: TVectorShape); override;
     procedure Append(ADiff: TVectorShapeDiff); override;
+    function IsIdentity: boolean; override;
   end;
 
   { TCustomRectShape }
@@ -136,6 +137,7 @@ type
     procedure Apply(AStartShape: TVectorShape); override;
     procedure Unapply(AEndShape: TVectorShape); override;
     procedure Append(ADiff: TVectorShapeDiff); override;
+    function IsIdentity: boolean; override;
   end;
 
   { TPhongShape }
@@ -240,6 +242,14 @@ begin
   FEndBorderSizePercent := next.FEndBorderSizePercent;
 end;
 
+function TPhongShapeDiff.IsIdentity: boolean;
+begin
+  result := (FStartShapeKind = FEndShapeKind) and
+    (FStartLightPosition = FEndLightPosition) and
+    (FStartShapeAltitudePercent = FEndShapeAltitudePercent) and
+    (FStartBorderSizePercent = FEndBorderSizePercent);
+end;
+
 { TCustomRectShapeDiff }
 
 constructor TCustomRectShapeDiff.Create(AStartShape: TVectorShape);
@@ -299,6 +309,14 @@ begin
   FEndXAxis := next.FEndXAxis;
   FEndYAxis := next.FEndYAxis;
   FEndFixedRatio := next.FEndFixedRatio;
+end;
+
+function TCustomRectShapeDiff.IsIdentity: boolean;
+begin
+  result := (FStartOrigin = FEndOrigin) and
+  (FStartXAxis = FEndXAxis) and
+  (FStartYAxis = FEndYAxis) and
+  (FStartFixedRatio = FEndFixedRatio);
 end;
 
 { TCustomRectShape }

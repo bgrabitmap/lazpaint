@@ -47,6 +47,7 @@ type
     procedure Apply(AStartShape: TVectorShape); override;
     procedure Unapply(AEndShape: TVectorShape); override;
     procedure Append(ADiff: TVectorShapeDiff); override;
+    function IsIdentity: boolean; override;
   end;
 
   { TCustomPolypointShape }
@@ -368,6 +369,27 @@ begin
   FEndArrowStartKind := next.FEndArrowStartKind;
   FEndArrowEndKind := next.FEndArrowEndKind;
   FEndArrowSize := next.FEndArrowSize;
+end;
+
+function TCustomPolypointShapeDiff.IsIdentity: boolean;
+var
+  i: Integer;
+begin
+  result := (length(FStartPoints) = length(FEndPoints)) and
+    (FStartClosed = FEndClosed) and
+    (FStartArrowStartKind = FEndArrowStartKind) and
+    (FStartArrowEndKind = FEndArrowEndKind) and
+    (FStartArrowSize = FEndArrowSize);
+  if result then
+  begin
+    for i := 0 to high(FStartPoints) do
+      if (FStartPoints[i].coord<>FEndPoints[i].coord) or
+         (FStartPoints[i].data<>FEndPoints[i].data) then
+      begin
+        result := false;
+        break;
+      end;
+  end;
 end;
 
 { TCustomPolypointShape }

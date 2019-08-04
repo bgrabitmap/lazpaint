@@ -97,7 +97,7 @@ type
     procedure OriginalChange({%H-}ASender: TObject;
       AOriginal: TBGRALayerCustomOriginal; var ADiff: TBGRAOriginalDiff);
     procedure OriginalEditingChange({%H-}ASender: TObject;
-      AOriginal: TBGRALayerCustomOriginal);
+      {%H-}AOriginal: TBGRALayerCustomOriginal);
     procedure SetBlendOperation(AIndex: integer; AValue: TBlendOperation);
     procedure SetCurrentFilenameUTF8(AValue: string);
     procedure LayeredBitmapReplaced;

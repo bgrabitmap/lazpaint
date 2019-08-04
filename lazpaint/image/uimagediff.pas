@@ -375,6 +375,7 @@ type
     function GetImageDifferenceKind: TImageDifferenceKind; override;
     function GetChangingBounds: TRect; override;
     function GetChangingBoundsDefined: boolean; override;
+    function GetIsIdentity: boolean; override;
   public
     constructor Create({%H-}ADestination: TState; AOriginalGuid: TGuid; ADiff: TBGRAOriginalDiff; ABounds: TRect);
     destructor Destroy; override;
@@ -624,6 +625,11 @@ end;
 function TVectorOriginalEmbeddedDifference.GetChangingBoundsDefined: boolean;
 begin
   Result:= true;
+end;
+
+function TVectorOriginalEmbeddedDifference.GetIsIdentity: boolean;
+begin
+  Result:= FDiff.IsIdentity;
 end;
 
 constructor TVectorOriginalEmbeddedDifference.Create(ADestination: TState;
