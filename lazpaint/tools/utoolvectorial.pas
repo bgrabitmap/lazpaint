@@ -215,6 +215,7 @@ begin
   if IsVectorOriginal then
   with GetVectorOriginal do
   begin
+    BindOriginalEvent(true);
     if Assigned(SelectedShape) then
     begin
       if (vsfBackFill in SelectedShape.Fields) and (SelectedShape.BackFill.FillType = vftGradient) then
@@ -273,6 +274,7 @@ begin
         end;
       end;
     end;
+    BindOriginalEvent(false);
   end;
   Result := EmptyRect;
 end;
