@@ -186,6 +186,16 @@ begin
       GetVectorOriginal.OnSelectShape := nil;
       Manager.Image.CurrentState.DiscardOriginalDiff := true;
     end;
+  end else
+  if IsGradientOriginal then
+  begin
+    if ABind then
+    begin
+      Manager.Image.CurrentState.DiscardOriginalDiff := false;
+    end else
+    begin
+      Manager.Image.CurrentState.DiscardOriginalDiff := true;
+    end;
   end;
 end;
 
