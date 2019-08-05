@@ -31,6 +31,9 @@ type
   { TCustomRectShape }
 
   TCustomRectShape = class(TVectorShape)
+  private
+    procedure SetXAxis(AValue: TPointF);
+    procedure SetYAxis(AValue: TPointF);
   protected
     FOrigin, FXAxis, FYAxis: TPointF;
     FOriginBackup,FXUnitBackup,FYUnitBackup,
@@ -71,8 +74,8 @@ type
     function GetAffineBox(AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
     procedure Transform(AMatrix: TAffineMatrix); override;
     property Origin: TPointF read FOrigin write SetOrigin;
-    property XAxis: TPointF read FXAxis;
-    property YAxis: TPointF read FYAxis;
+    property XAxis: TPointF read FXAxis write SetXAxis;
+    property YAxis: TPointF read FYAxis write SetYAxis;
     property Width: single read GetWidth write SetWidth;
     property Height: single read GetHeight write SetHeight;
     property FixedRatio: single read FFixedRatio write SetFixedRatio;
@@ -426,6 +429,22 @@ begin
   if FFixedRatio=AValue then Exit;
   FFixedRatio:=AValue;
   EnsureRatio(0,0);
+end;
+
+procedure TCustomRectShape.SetXAxis(AValue: TPointF);
+begin
+  if FXAxis=AValue then Exit;
+  BeginUpdate(TCustomRectShapeDiff);
+  FXAxis:=AValue;
+  EndUpdate;
+end;
+
+procedure TCustomRectShape.SetYAxis(AValue: TPointF);
+begin
+  if FYAxis=AValue then Exit;
+  BeginUpdate(TCustomRectShapeDiff);
+  FYAxis:=AValue;
+  EndUpdate;
 end;
 
 procedure TCustomRectShape.DoMoveXAxis(ANewCoord: TPointF; AShift: TShiftState; AFactor: single);

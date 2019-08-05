@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, LCLType, BGRABitmap, BGRABitmapTypes,
   BGRALayerOriginal, LCVectorOriginal,
-  UTool, UImageType, ULayerAction;
+  UTool, UImageType, ULayerAction, LCVectorRectShapes;
 
 type
   { TVectorialTool }
@@ -82,6 +82,9 @@ type
     FShiftState: TShiftState;
     FLeftButton,FRightButton: boolean;
     FLastPos: TPointF;
+    FOriginalRect: TRectShape;
+    FOriginalRectUntransformed: TRectF;
+    FOriginalRectEditor: TBGRAOriginalEditor;
     procedure BindOriginalEvent(ABind: boolean);
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF; rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF): TRect; override;
@@ -91,10 +94,15 @@ type
     procedure OnTryStop({%H-}sender: TCustomLayerAction); override;
     procedure StopEdit;
     function IsVectorOriginal: boolean;
+    function IsOtherOriginal: boolean;
+    function IsBitmap: boolean;
+    procedure MakeImageOriginal;
+    procedure UpdateOriginalMatrixFromRect;
     function GetIsSelectingTool: boolean; override;
     function GetVectorOriginal: TVectorOriginal;
     function FixLayerOffset: boolean; override;
   public
+    constructor Create(AManager: TToolManager); override;
     destructor Destroy; override;
     function Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
     function ToolKeyDown(var key: Word): TRect; override;
@@ -111,7 +119,7 @@ type
 
 implementation
 
-uses LazPaintType, LCVectorRectShapes, LCVectorTextShapes, LCVectorialFill, BGRASVGOriginal,
+uses LazPaintType, LCVectorTextShapes, LCVectorialFill, BGRASVGOriginal,
   ULoading, BGRATransform, math, UStateType, UImageDiff, Controls, BGRAPen, UResourceStrings, ugraph,
   LCScaleDPI, LCVectorClipboard;
 
@@ -184,16 +192,59 @@ function TEditShapeTool.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
 var
   cur: TOriginalEditorCursor;
   handled: boolean;
+  box: TAffineBox;
+  ptView: TPointF;
 begin
+  Result:= EmptyRect;
   Manager.Image.DraftOriginal := true;
   FRightButton:= rightBtn;
   FLeftButton:= not rightBtn;
   FLastPos := ptF;
-  BindOriginalEvent(true);
-  Manager.Image.CurrentState.LayeredBitmap.MouseDown(rightBtn, FShiftState, ptF.X,ptF.Y, cur, handled);
-  BindOriginalEvent(false);
-  if handled then Cursor := OriginalCursorToCursor(cur);
-  Result:= EmptyRect;
+  if IsVectorOriginal then
+  begin
+    BindOriginalEvent(true);
+    Manager.Image.CurrentState.LayeredBitmap.MouseDown(rightBtn, FShiftState, ptF.X,ptF.Y, cur, handled);
+    BindOriginalEvent(false);
+    if handled then Cursor := OriginalCursorToCursor(cur);
+  end else
+  begin
+    if (FOriginalRect=nil) and
+       (toolDest.GetPixel(ptF.X-LayerOffset.X, ptF.Y-LayerOffset.Y).alpha <> 0) then
+    begin
+      if IsBitmap then MakeImageOriginal;
+      if IsOtherOriginal then
+      begin
+        with Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex].
+          GetRenderBounds(InfiniteRect, AffineMatrixIdentity) do
+          FOriginalRectUntransformed := rectF(Left,Top,Right,Bottom);
+        if (FOriginalRectUntransformed.Width > 0) and (FOriginalRectUntransformed.Height > 0) then
+        begin
+          FOriginalRect := TRectShape.Create(nil);
+          FOriginalRect.PenStyle := ClearPenStyle;
+          FOriginalRect.BackFill.SetSolid(BGRAWhite);
+          box := Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]
+                *TAffineBox.AffineBox(FOriginalRectUntransformed);
+          FOriginalRect.Origin := (box.TopLeft+box.BottomRight)*0.5;
+          FOriginalRect.XAxis := FOriginalRect.Origin+(box.TopRight-box.TopLeft)*0.5;
+          FOriginalRect.YAxis := FOriginalRect.Origin+(box.BottomLeft-box.TopLeft)*0.5;
+        end;
+        result := OnlyRenderChange;
+      end;
+    end else
+    begin
+      if Assigned(FOriginalRectEditor) then
+      begin
+        ptView := FOriginalRectEditor.Matrix*ptF;
+        FOriginalRectEditor.MouseDown(rightBtn, FShiftState, ptView.X,ptView.Y, cur, handled);
+        Cursor := OriginalCursorToCursor(cur);
+        if handled then
+        begin
+          result := OnlyRenderChange;
+          UpdateOriginalMatrixFromRect;
+        end;
+      end;
+    end;
+  end;
 end;
 
 function TEditShapeTool.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
@@ -201,13 +252,28 @@ function TEditShapeTool.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
 var
   cur: TOriginalEditorCursor;
   handled: boolean;
+  ptView: TPointF;
 begin
   FLastPos := ptF;
-  BindOriginalEvent(true);
-  Manager.Image.CurrentState.LayeredBitmap.MouseMove(FShiftState, ptF.X,ptF.Y, cur, handled);
-  BindOriginalEvent(false);
-  Cursor := OriginalCursorToCursor(cur);
   Result:= EmptyRect;
+  if IsVectorOriginal then
+  begin
+    BindOriginalEvent(true);
+    Manager.Image.CurrentState.LayeredBitmap.MouseMove(FShiftState, ptF.X,ptF.Y, cur, handled);
+    BindOriginalEvent(false);
+    Cursor := OriginalCursorToCursor(cur);
+  end else
+  if Assigned(FOriginalRectEditor) then
+  begin
+    ptView := FOriginalRectEditor.Matrix*ptF;
+    FOriginalRectEditor.MouseMove(FShiftState, ptView.X,ptView.Y, cur, handled);
+    Cursor := OriginalCursorToCursor(cur);
+    if handled then
+    begin
+      result := OnlyRenderChange;
+      UpdateOriginalMatrixFromRect;
+    end;
+  end;
 end;
 
 function TEditShapeTool.DoToolUpdate(toolDest: TBGRABitmap): TRect;
@@ -304,14 +370,64 @@ begin
     r := ToolUp;
     Manager.Image.LayerMayChange(GetToolDrawingLayer,r);
   end;
-  if IsVectorOriginal then
-    GetVectorOriginal.DeselectShape;
+  if IsVectorOriginal then GetVectorOriginal.DeselectShape;
   Manager.Image.CurrentState.LayeredBitmap.ClearEditor;
+  FreeAndNil(FOriginalRect);
+  FreeAndNil(FOriginalRectEditor);
+  Cursor := crDefault;
+  Manager.Image.OnImageChanged.NotifyObservers;
 end;
 
 function TEditShapeTool.IsVectorOriginal: boolean;
 begin
   result := Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex]=TVectorOriginal;
+end;
+
+function TEditShapeTool.IsOtherOriginal: boolean;
+begin
+  result := Manager.Image.LayerOriginalKnown[Manager.Image.CurrentLayerIndex] and
+     (Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex]<>TVectorOriginal);
+end;
+
+function TEditShapeTool.IsBitmap: boolean;
+begin
+  result := (not Manager.Image.LayerOriginalDefined[Manager.Image.CurrentLayerIndex]) and
+             not Manager.Image.CurrentLayerEmpty;
+end;
+
+procedure TEditShapeTool.MakeImageOriginal;
+var
+  diff: TReplaceLayerByImageOriginalDifference;
+begin
+  if IsBitmap then
+  begin
+    diff := TReplaceLayerByImageOriginalDifference.Create(Manager.Image.CurrentState,
+              Manager.Image.CurrentLayerIndex, false);
+    Manager.Image.AddUndo(diff);
+    if Assigned(Manager.Image.OnStackChanged) then
+      Manager.Image.OnStackChanged(Manager.Image, False);
+  end;
+end;
+
+procedure TEditShapeTool.UpdateOriginalMatrixFromRect;
+var
+  u, v: TPointF;
+  mAfter, mBefore: TAffineMatrix;
+begin
+  if Assigned(FOriginalRect) then
+  begin
+    u := (FOriginalRect.XAxis-FOriginalRect.Origin)*2;
+    v := (FOriginalRect.YAxis-FOriginalRect.Origin)*2;
+    mAfter := AffineMatrix(u,v,FOriginalRect.Origin-(u+v)*0.5);
+    mBefore := AffineMatrixTranslation(FOriginalRectUntransformed.Left,
+                 FOriginalRectUntransformed.Top)
+      *AffineMatrixScale(FOriginalRectUntransformed.Width,FOriginalRectUntransformed.Height);
+    if IsAffineMatrixInversible(mBefore) then
+    begin
+      Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] :=
+        mAfter*AffineMatrixInverse(mBefore);
+    end;
+  end;
 end;
 
 function TEditShapeTool.GetIsSelectingTool: boolean;
@@ -327,6 +443,11 @@ end;
 function TEditShapeTool.FixLayerOffset: boolean;
 begin
   Result:= false;
+end;
+
+constructor TEditShapeTool.Create(AManager: TToolManager);
+begin
+  inherited Create(AManager);
 end;
 
 destructor TEditShapeTool.Destroy;
@@ -361,8 +482,27 @@ begin
         Manager.Image.CurrentLayerIndex, viewMatrix, DoScaleX(PointSize,OriginalDPI));
   end else
   begin
-    Manager.Image.CurrentState.LayeredBitmap.ClearEditor;
     result := EmptyRect;
+    Manager.Image.CurrentState.LayeredBitmap.ClearEditor;
+    If Assigned(FOriginalRect) then
+    begin
+      if not Assigned(FOriginalRectEditor) then
+      begin
+        FOriginalRectEditor := TVectorOriginalEditor.Create(nil);
+        FOriginalRectEditor.GridMatrix := AffineMatrixScale(0.5,0.5);
+        FOriginalRectEditor.Focused := true;
+        FOriginalRectEditor.PointSize := DoScaleX(PointSize,OriginalDPI);
+      end;
+      FOriginalRectEditor.Clear;
+      FOriginalRectEditor.Matrix := viewMatrix;
+      FOriginalRect.ConfigureEditor(FOriginalRectEditor);
+      if Assigned(VirtualScreen) then
+        result := FOriginalRectEditor.Render(VirtualScreen,
+          rect(0,0,VirtualScreenWidth,VirtualScreenHeight))
+      else
+        result := FOriginalRectEditor.GetRenderBounds(
+          rect(0,0,VirtualScreenWidth,VirtualScreenHeight));
+    end;
   end;
 end;
 
@@ -387,14 +527,24 @@ begin
     key := 0;
   end else
   begin
-    BindOriginalEvent(true);
-    Manager.Image.CurrentState.LayeredBitmap.KeyDown(FShiftState, LCLKeyToSpecialKey(key, FShiftState), handled);
-    if not handled and IsVectorOriginal then
+    if IsVectorOriginal then
     begin
-      if (key = VK_DELETE) and Assigned(GetVectorOriginal.SelectedShape) then
-        GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
+      BindOriginalEvent(true);
+      Manager.Image.CurrentState.LayeredBitmap.KeyDown(FShiftState, LCLKeyToSpecialKey(key, FShiftState), handled);
+      if not handled and IsVectorOriginal then
+      begin
+        if (key = VK_DELETE) and Assigned(GetVectorOriginal.SelectedShape) then
+          GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
+      end;
+      BindOriginalEvent(false);
+    end else
+    begin
+      if key = VK_RETURN then
+      begin
+        StopEdit;
+        key := 0;
+      end;
     end;
-    BindOriginalEvent(false);
   end;
 end;
 
@@ -403,9 +553,12 @@ var
   handled: boolean;
 begin
   Result:= EmptyRect;
-  BindOriginalEvent(true);
-  Manager.Image.CurrentState.LayeredBitmap.KeyPress(key, handled);
-  BindOriginalEvent(false);
+  if IsVectorOriginal then
+  begin
+    BindOriginalEvent(true);
+    Manager.Image.CurrentState.LayeredBitmap.KeyPress(key, handled);
+    BindOriginalEvent(false);
+  end;
 end;
 
 function TEditShapeTool.ToolKeyUp(var key: Word): TRect;
@@ -429,9 +582,12 @@ begin
     key := 0;
   end else
   begin
-    BindOriginalEvent(true);
-    Manager.Image.CurrentState.LayeredBitmap.KeyUp(FShiftState, LCLKeyToSpecialKey(key, FShiftState), handled);
-    BindOriginalEvent(false);
+    if IsVectorOriginal then
+    begin
+      BindOriginalEvent(true);
+      Manager.Image.CurrentState.LayeredBitmap.KeyUp(FShiftState, LCLKeyToSpecialKey(key, FShiftState), handled);
+      BindOriginalEvent(false);
+    end;
   end;
 end;
 
@@ -441,28 +597,44 @@ var
   cur: TOriginalEditorCursor;
   handled: boolean;
   m: TAffineMatrix;
+  ptView: TPointF;
 begin
+  Result:= EmptyRect;
   if FLeftButton or FRightButton then
   begin
     Manager.Image.DraftOriginal := false;
-    BindOriginalEvent(true);
-    Manager.Image.CurrentState.LayeredBitmap.MouseUp(FRightButton, FShiftState, FLastPos.X,FLastPos.Y, cur, handled);
-    if handled then
+    if IsVectorOriginal then
     begin
-      Cursor := OriginalCursorToCursor(cur);
-      result := OnlyRenderChange;
+      BindOriginalEvent(true);
+      Manager.Image.CurrentState.LayeredBitmap.MouseUp(FRightButton, FShiftState, FLastPos.X,FLastPos.Y, cur, handled);
+      if handled then
+      begin
+        Cursor := OriginalCursorToCursor(cur);
+        result := OnlyRenderChange;
+      end;
+      if not handled then
+      begin
+        m := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
+        GetVectorOriginal.MouseClick(m*FLastPos);
+      end;
+      BindOriginalEvent(false);
     end else
-      Result:= EmptyRect;
+    begin
+      if Assigned(FOriginalRectEditor) then
+      begin
+        ptView := FOriginalRectEditor.Matrix*FLastPos;
+        FOriginalRectEditor.MouseUp(FRightButton, FShiftState, ptView.X,ptView.Y, cur, handled);
+        Cursor := OriginalCursorToCursor(cur);
+        if handled then
+        begin
+          result := OnlyRenderChange;
+          UpdateOriginalMatrixFromRect;
+        end;
+      end;
+    end;
     FLeftButton:= false;
     FRightButton:= false;
-    if not handled and IsVectorOriginal then
-    begin
-      m := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
-      GetVectorOriginal.MouseClick(m*FLastPos);
-    end;
-    BindOriginalEvent(false);
-  end
-  else result := EmptyRect;
+  end;
 end;
 
 function TEditShapeTool.ToolCopy: boolean;
