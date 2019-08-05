@@ -34,6 +34,7 @@ type
   public
     function ToolUp: TRect; override;
     function ToolKeyDown(var key: Word): TRect; override;
+    function GetContextualToolbars: TContextualToolbars; override;
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth,
       {%H-}VirtualScreenHeight: integer;
       BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
@@ -84,6 +85,7 @@ type
   public
     constructor Create(AManager: TToolManager); override;
     destructor Destroy; override;
+    function GetContextualToolbars: TContextualToolbars; override;
     function ToolKeyDown(var key: Word): TRect; override;
     function ToolKeyUp(var key: Word): TRect; override;
     function ToolUp: TRect; override;
@@ -266,6 +268,11 @@ begin
     Key := 0;
   end else
     Result:=inherited ToolKeyDown(key);
+end;
+
+function TToolMoveLayer.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [];
 end;
 
 function TToolMoveLayer.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,
@@ -468,6 +475,11 @@ begin
   if TransformOk then ValidateTransform
   else CancelTransform;
   inherited Destroy;
+end;
+
+function TToolTransformLayer.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [];
 end;
 
 function TToolTransformLayer.ToolKeyDown(var key: Word): TRect;

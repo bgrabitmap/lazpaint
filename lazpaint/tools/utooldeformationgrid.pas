@@ -33,6 +33,7 @@ type
   public
     function ToolKeyDown(var key: Word): TRect; override;
     function ToolUp: TRect; override;
+    function GetContextualToolbars: TContextualToolbars; override;
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
     procedure BeforeGridSizeChange; override;
     procedure AfterGridSizeChange(NewNbX,NewNbY: Integer); override;
@@ -81,6 +82,7 @@ type
     function ToolKeyDown(var key: Word): TRect; override;
     function ToolKeyUp(var key: Word): TRect; override;
     function ToolUp: TRect; override;
+    function GetContextualToolbars: TContextualToolbars; override;
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
     destructor Destroy; override;
   end;
@@ -97,6 +99,7 @@ type
     function GetTexture: TBGRABitmap; override;
     function DefaultTextureCenter: TPointF; override;
   public
+    function GetContextualToolbars: TContextualToolbars; override;
     destructor Destroy; override;
   end;
 
@@ -147,6 +150,11 @@ function TToolLayerMapping.DefaultTextureCenter: TPointF;
 begin
   PrepareTexture;
   result := FDefaultTextureCenter;
+end;
+
+function TToolLayerMapping.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [ctPerspective];
 end;
 
 destructor TToolLayerMapping.Destroy;
@@ -673,6 +681,11 @@ begin
     result := EmptyRect;
 end;
 
+function TToolTextureMapping.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [ctTexture,ctPerspective];
+end;
+
 function TToolTextureMapping.Render(VirtualScreen: TBGRABitmap;
   VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
 
@@ -812,7 +825,7 @@ begin
 end;
 
 function TToolDeformationGrid.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
-  ptF: TPointF): TRect;
+  ptF: TPointF): Trect;
 var xb,yb,NbX,NbY: integer;
     gridDone: array of array of boolean;
     layer,backupLayer : TBGRABitmap;
@@ -1026,6 +1039,11 @@ begin
   else
     Result:=EmptyRect;
   deformationGridMoving := false;
+end;
+
+function TToolDeformationGrid.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [ctDeformation];
 end;
 
 initialization

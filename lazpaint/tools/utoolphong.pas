@@ -20,6 +20,7 @@ type
     function SlowShape: boolean; override;
   public
     constructor Create(AManager: TToolManager); override;
+    function GetContextualToolbars: TContextualToolbars; override;
   end;
 
 implementation
@@ -32,6 +33,11 @@ constructor TToolPhong.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
   FMatrix := AffineMatrixIdentity;
+end;
+
+function TToolPhong.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [ctColor,ctTexture,ctPhong,ctAltitude];
 end;
 
 procedure TToolPhong.ShapeChange(ASender: TObject; ABounds: TRectF; ADiff: TVectorShapeDiff);

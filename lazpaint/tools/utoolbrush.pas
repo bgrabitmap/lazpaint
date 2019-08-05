@@ -43,6 +43,7 @@ type
     procedure ReleaseBrush; override;
   public
     destructor Destroy; override;
+    function GetContextualToolbars: TContextualToolbars; override;
   end;
 
   { TToolClone }
@@ -61,6 +62,7 @@ type
     function SubPixelAccuracy: boolean; override;
     constructor Create(AManager: TToolManager); override;
     destructor Destroy; override;
+    function GetContextualToolbars: TContextualToolbars; override;
     function Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth, VirtualScreenHeight: integer;
       BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
   end;
@@ -145,6 +147,11 @@ begin
   inherited Destroy;
 end;
 
+function TToolClone.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [ctPenWidth,ctBrush];
+end;
+
 function TToolClone.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,
   VirtualScreenHeight: integer;
   BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
@@ -205,6 +212,11 @@ destructor TToolBrush.Destroy;
 begin
   ReleaseBrush;
   inherited Destroy;
+end;
+
+function TToolBrush.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [ctColor,ctPenWidth,ctBrush];
 end;
 
 { TToolGenericBrush }

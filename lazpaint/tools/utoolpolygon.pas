@@ -19,6 +19,8 @@ type
   TToolRectangle = class(TVectorialTool)
   protected
     function CreateShape: TVectorShape; override;
+  public
+    function GetContextualToolbars: TContextualToolbars; override;
   end;
 
   { TToolEllipse }
@@ -26,6 +28,8 @@ type
   TToolEllipse = class(TVectorialTool)
   protected
     function CreateShape: TVectorShape; override;
+  public
+    function GetContextualToolbars: TContextualToolbars; override;
   end;
 
   { TToolPolygon }
@@ -35,6 +39,8 @@ type
     function CreateShape: TVectorShape; override;
     procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
     procedure UpdateUserMode; virtual;
+  public
+    function GetContextualToolbars: TContextualToolbars; override;
   end;
 
   { TToolSpline }
@@ -53,6 +59,7 @@ type
   public
     constructor Create(AManager: TToolManager); override;
     function ToolKeyPress(var key: TUTF8Char): TRect; override;
+    function GetContextualToolbars: TContextualToolbars; override;
     property CurrentMode: TToolSplineMode read GetCurrentMode write SetCurrentMode;
   end;
 
@@ -67,11 +74,21 @@ begin
   result := TEllipseShape.Create(nil);
 end;
 
+function TToolEllipse.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [ctColor,ctTexture,ctShape,ctPenWidth];
+end;
+
 { TToolRectangle }
 
 function TToolRectangle.CreateShape: TVectorShape;
 begin
   result := TRectShape.Create(nil);
+end;
+
+function TToolRectangle.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [ctColor,ctTexture,ctShape,ctPenWidth,ctJoinStyle];
 end;
 
 { TToolSpline }
@@ -161,6 +178,11 @@ begin
   if Key='x' then Key := #0;
 end;
 
+function TToolSpline.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [ctColor,ctTexture,ctShape,ctPenWidth,ctLineCap];
+end;
+
 { TToolPolygon }
 
 function TToolPolygon.CreateShape: TVectorShape;
@@ -182,6 +204,11 @@ procedure TToolPolygon.UpdateUserMode;
 begin
   if FShape = nil then exit;
   if FQuickDefine then FShape.Usermode := vsuCreate;
+end;
+
+function TToolPolygon.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [ctColor,ctTexture,ctShape,ctPenWidth,ctJoinStyle,ctLineCap];
 end;
 
 initialization

@@ -17,6 +17,7 @@ type
   {%H-}rightBtn: boolean): TRect; override;
     function GetStatusText: string; override;
   public
+    function GetContextualToolbars: TContextualToolbars; override;
     function Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,
       VirtualScreenHeight: integer;
       BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
@@ -38,6 +39,11 @@ end;
 function TCursorHotspotTool.GetStatusText: string;
 begin
   Result:= rsHotSpot + '|x = ' + IntToStr(Manager.Image.CursorHotSpot.X)+'|y = '+IntToStr(Manager.Image.CursorHotSpot.Y);
+end;
+
+function TCursorHotspotTool.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [];
 end;
 
 function TCursorHotspotTool.Render(VirtualScreen: TBGRABitmap;

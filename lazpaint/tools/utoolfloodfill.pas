@@ -19,6 +19,7 @@ type
   public
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF;
       rightBtn: boolean): TRect; override;
+    function GetContextualToolbars: TContextualToolbars; override;
   end;
 
   { TToolGradient }
@@ -31,6 +32,7 @@ type
     procedure QuickDefineShape(AStart,AEnd: TPointF); override;
     function SlowShape: boolean; override;
     function GetStatusText: string; override;
+    function GetContextualToolbars: TContextualToolbars; override;
   end;
 
 implementation
@@ -109,6 +111,11 @@ begin
     Result:=inherited GetStatusText;
 end;
 
+function TToolGradient.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [ctColor, ctGradient];
+end;
+
 function TToolGradient.SlowShape: boolean;
 begin
   Result:= true;
@@ -143,6 +150,11 @@ begin
   Action.NotifyChange(toolDest, rect(0,0,toolDest.Width,toolDest.Height));
   ValidateAction;
   result := OnlyRenderChange;
+end;
+
+function TToolFloodFill.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [ctColor,ctTexture,ctTolerance];
 end;
 
 initialization

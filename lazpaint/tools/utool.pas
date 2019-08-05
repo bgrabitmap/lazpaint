@@ -28,6 +28,12 @@ const
 function StrToPaintToolType(const s: ansistring): TPaintToolType;
 
 type
+  TContextualToolbar = (ctColor, ctPenWidth, ctAliasing, ctShape, ctEraserOption, ctTolerance,
+    ctGradient, ctDeformation, ctLineCap, ctJoinStyle, ctSplineStyle, ctText,
+    ctPhong, ctAltitude, ctPerspective, ctBrush, ctTexture, ctRatio);
+  TContextualToolbars = set of TContextualToolbar;
+
+type
   TToolManager = class;
   TBitmapToVirtualScreenFunction = function(PtF: TPointF): TPointF of object;
 
@@ -86,6 +92,7 @@ type
     function ToolProvideCopy: boolean; virtual;
     function ToolProvideCut: boolean; virtual;
     function ToolProvidePaste: boolean; virtual;
+    function GetContextualToolbars: TContextualToolbars; virtual;
     function GetToolDrawingLayer: TBGRABitmap;
     procedure RestoreBackupDrawingLayer;
     function GetBackupLayerIfExists: TBGRABitmap;
@@ -220,6 +227,7 @@ type
 
     function GetCurrentToolType: TPaintToolType;
     function SetCurrentToolType(tool: TPaintToolType): boolean;
+    procedure UpdateContextualToolbars;
     function ToolCanBeUsed: boolean;
     procedure ToolWakeUp;
     procedure ToolSleep;
@@ -702,6 +710,11 @@ begin
   result := false;
 end;
 
+function TGenericTool.GetContextualToolbars: TContextualToolbars;
+begin
+  result := [ctColor,ctTexture];
+end;
+
 function TGenericTool.GetToolDrawingLayer: TBGRABitmap;
 begin
   result := DoGetToolDrawingLayer;
@@ -1115,8 +1128,6 @@ begin
 end;
 
 procedure TToolManager.InternalSetCurrentToolType(tool: TPaintToolType);
-var showPenwidth, showShape, showLineCap, showJoinStyle, showSplineStyle, showEraserOption, showTolerance, showGradient, showDeformation,
-    showText, showPhong, showAltitude, showPerspective, showColor, showTexture, showBrush: boolean;
 begin
   if (tool <> FCurrentToolType) or (FCurrentTool=nil) then
   begin
@@ -1129,81 +1140,46 @@ begin
     FCurrentToolType:= tool;
   end;
 
-  showColor:= true;
-  showPenwidth := false;
-  showShape := false;
-  showEraserOption := false;
-  showTolerance := false;
-  showGradient := false;
-  showDeformation := false;
-  showLineCap := false;
-  showJoinStyle:= false;
-  showSplineStyle:= false;
-  showText := false;
-  showPhong := false;
-  showAltitude:= false;
-  showPerspective := false;
-  showBrush:= false;
-  showTexture := false;
-
-  case FCurrentToolType of
-  ptPen,ptSelectPen,ptBrush,ptClone:
-    begin
-      showPenwidth := true;
-      showBrush:= FCurrentToolType in[ptBrush,ptClone];
-    end;
-  ptEditShape: showTexture := true;
-  ptSelectSpline: showSplineStyle := true;
-  ptEraser: begin showPenwidth := true; showEraserOption := true; showColor := false; end;
-  ptRect, ptEllipse, ptPolygon, ptSpline:
-    begin
-      showShape := true;
-      showPenwidth := true;
-      showLineCap := FCurrentToolType in[ptPolygon,ptSpline];
-      showJoinStyle:= FCurrentToolType in[ptRect,ptPolygon];
-      showSplineStyle:= FCurrentToolType = ptSpline;
-    end;
-  ptFloodFill,ptMagicWand: showTolerance := true;
-  ptGradient: showGradient := true;
-  ptDeformation: showDeformation:= true;
-  ptText: begin showText := True; showAltitude := ToolTextPhong; end;
-  ptPhong: begin showPhong := true; showAltitude:= true; end;
-  ptTextureMapping,ptLayerMapping: showPerspective := true;
-  end;
-  if FCurrentToolType in [ptSelectEllipse,ptSelectPen,ptSelectPoly,ptSelectRect,
-    ptSelectSpline,ptDeformation,ptClone,ptMagicWand,ptMoveSelection,ptRotateSelection] then
-    showColor:= false;
-  If FCurrentToolType in [ptPen,ptRect,ptEllipse,ptPolygon,ptSpline,ptFloodFill,
-    ptPhong,ptText,ptHand] then
-    showTexture:= true;
-
   if not IsSelectingTool then
     Image.ReleaseEmptySelection;
 
-  SetControlsVisible(PenWidthControls, showPenwidth);
-  SetControlsVisible(AliasingControls, FCurrentToolType in[ptPen,ptEraser]);
-  SetControlsVisible(SplineStyleControls, showSplineStyle);
-  SetControlsVisible(JoinStyleControls, showJoinStyle);
-  SetControlsVisible(LineCapControls, showLineCap);
-  SetControlsVisible(ShapeControls, showShape);
-  SetControlsVisible(EraserControls, showEraserOption);
-  SetControlsVisible(ToleranceControls, showTolerance);
-  SetControlsVisible(GradientControls, showGradient);
-  SetControlsVisible(DeformationControls, showDeformation);
-  SetControlsVisible(TextControls, showText);
-  SetControlsVisible(PhongControls, showPhong);
-  SetControlsVisible(AltitudeControls, showAltitude);
-  SetControlsVisible(PerspectiveControls, showPerspective);
-  SetControlsVisible(PenColorControls, showColor);
-  SetControlsVisible(TextureControls, showTexture);
-  SetControlsVisible(BrushControls, showBrush);
-  SetControlsVisible(RatioControls, FCurrentToolType in[ptSelectRect,ptSelectEllipse]);
-
   Image.RenderMayChange(rect(0,0,Image.Width,Image.Height),True);
-  If Assigned(FOnToolChangedHandler) then
-    FOnToolChangedHandler(self, tool);
+
+  UpdateContextualToolbars;
 
   FShouldExitTool:= false;
+end;
+
+procedure TToolManager.UpdateContextualToolbars;
+var
+  contextualToolbars: TContextualToolbars;
+begin
+  if Assigned(FCurrentTool) then
+    contextualToolbars := FCurrentTool.GetContextualToolbars
+  else
+    contextualToolbars := [ctColor,ctTexture];
+
+  SetControlsVisible(PenWidthControls, ctPenWidth in contextualToolbars);
+  SetControlsVisible(AliasingControls, ctAliasing in contextualToolbars);
+  SetControlsVisible(SplineStyleControls, ctSplineStyle in contextualToolbars);
+  SetControlsVisible(JoinStyleControls, ctJoinStyle in contextualToolbars);
+  SetControlsVisible(LineCapControls, ctLineCap in contextualToolbars);
+  SetControlsVisible(ShapeControls, ctShape in contextualToolbars);
+  SetControlsVisible(EraserControls, ctEraserOption in contextualToolbars);
+  SetControlsVisible(ToleranceControls, ctTolerance in contextualToolbars);
+  SetControlsVisible(GradientControls, ctGradient in contextualToolbars);
+  SetControlsVisible(DeformationControls, ctDeformation in contextualToolbars);
+  SetControlsVisible(TextControls, ctText in contextualToolbars);
+  SetControlsVisible(PhongControls, ctPhong in contextualToolbars);
+  SetControlsVisible(AltitudeControls, ctAltitude in contextualToolbars);
+  SetControlsVisible(PerspectiveControls, ctPerspective in contextualToolbars);
+  SetControlsVisible(PenColorControls, ctColor in contextualToolbars);
+  SetControlsVisible(TextureControls, ctTexture in contextualToolbars);
+  SetControlsVisible(BrushControls, ctBrush in contextualToolbars);
+  SetControlsVisible(RatioControls, ctRatio in contextualToolbars);
+
+  If Assigned(FOnToolChangedHandler) then
+    FOnToolChangedHandler(self, FCurrentToolType);
 end;
 
 function TToolManager.InternalBitmapToVirtualScreen(PtF: TPointF): TPointF;

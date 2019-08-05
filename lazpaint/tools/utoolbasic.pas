@@ -36,6 +36,7 @@ type
     function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF): TRect; override;
   public
     function ToolUp: TRect; override;
+    function GetContextualToolbars: TContextualToolbars; override;
   end;
 
   { TToolPen }
@@ -57,6 +58,7 @@ type
     function ToolKeyDown(var key: Word): TRect; override;
     function ToolKeyUp(var key: Word): TRect; override;
     function ToolUp: TRect; override;
+    function GetContextualToolbars: TContextualToolbars; override;
     destructor Destroy; override;
   end;
 
@@ -68,6 +70,7 @@ type
     function BlurRadius: single;
     function StartDrawing(toolDest: TBGRABitmap; ptF: TPointF; {%H-}rightBtn: boolean): TRect; override;
     function ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF): TRect; override;
+    function GetContextualToolbars: TContextualToolbars; override;
   end;
 
 
@@ -204,6 +207,11 @@ begin
       result := GetShapeBounds([destF,originF],Manager.ToolPenWidth);
     end;
   end;
+end;
+
+function TToolErase.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [ctPenWidth,ctEraserOption,ctAliasing];
 end;
 
 { TToolPen }
@@ -349,6 +357,11 @@ begin
   result := EmptyRect;
 end;
 
+function TToolPen.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [ctColor,ctTexture,ctPenWidth,ctAliasing];
+end;
+
 destructor TToolPen.Destroy;
 begin
   if penDrawing then ValidateAction;
@@ -387,6 +400,11 @@ function TToolColorPicker.ToolUp: TRect;
 begin
   Result:= EmptyRect;
   colorpicking := false;
+end;
+
+function TToolColorPicker.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [ctColor];
 end;
 
 { TToolHand }

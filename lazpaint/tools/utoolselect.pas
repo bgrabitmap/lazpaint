@@ -20,6 +20,8 @@ type
     function UpdateShape(toolDest: TBGRABitmap): TRect; override;
     procedure QuickDefineEnd; override;
     function BigImage: boolean;
+  public
+    function GetContextualToolbars: TContextualToolbars; override;
   end;
 
   { TToolSelectRect }
@@ -29,6 +31,7 @@ type
     function CreateShape: TVectorShape; override;
   public
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
+    function GetContextualToolbars: TContextualToolbars; override;
   end;
 
   { TToolSelectEllipse }
@@ -38,6 +41,7 @@ type
     function CreateShape: TVectorShape; override;
   public
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
+    function GetContextualToolbars: TContextualToolbars; override;
   end;
 
   { TToolSelectPoly }
@@ -46,6 +50,8 @@ type
   protected
     procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
     function GetIsSelectingTool: boolean; override;
+  public
+    function GetContextualToolbars: TContextualToolbars; override;
   end;
 
   { TToolSelectSpline }
@@ -54,6 +60,8 @@ type
   protected
     procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
     function GetIsSelectingTool: boolean; override;
+  public
+    function GetContextualToolbars: TContextualToolbars; override;
   end;
 
   { TToolMagicWand }
@@ -63,6 +71,8 @@ type
     function GetIsSelectingTool: boolean; override;
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF;
       rightBtn: boolean): TRect; override;
+  public
+    function GetContextualToolbars: TContextualToolbars; override;
   end;
 
   { TToolSelectionPen }
@@ -72,6 +82,8 @@ type
     function GetIsSelectingTool: boolean; override;
     function StartDrawing(toolDest: TBGRABitmap; ptF: TPointF; rightBtn: boolean): TRect; override;
     function ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF): TRect; override;
+  public
+    function GetContextualToolbars: TContextualToolbars; override;
   end;
 
   { TTransformSelectionTool }
@@ -161,6 +173,11 @@ begin
   Result:= true;
 end;
 
+function TToolSelectSpline.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [ctSplineStyle];
+end;
+
 { TToolSelectPoly }
 
 procedure TToolSelectPoly.AssignShapeStyle(AMatrix: TAffineMatrix);
@@ -174,6 +191,11 @@ end;
 function TToolSelectPoly.GetIsSelectingTool: boolean;
 begin
   Result:= true;
+end;
+
+function TToolSelectPoly.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [];
 end;
 
 { TVectorialSelectTool }
@@ -223,6 +245,11 @@ begin
   result := Manager.Image.Width*Manager.Image.Height > 480000;
 end;
 
+function TVectorialSelectTool.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [];
+end;
+
 { TToolSelectRect }
 
 function TToolSelectRect.CreateShape: TVectorShape;
@@ -258,6 +285,11 @@ begin
       VirtualScreen.DrawPolygonAntialias(pts,BGRAWhite,BGRABlack,FrameDashLength);
     end;
   end;
+end;
+
+function TToolSelectRect.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [ctRatio];
 end;
 
 { TToolSelectEllipse }
@@ -297,6 +329,11 @@ begin
       VirtualScreen.DrawPolygonAntialias(pts,BGRAWhite,BGRABlack,FrameDashLength);
     end;
   end;
+end;
+
+function TToolSelectEllipse.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [ctRatio];
 end;
 
 { TTransformSelectionTool }
@@ -524,6 +561,11 @@ begin
   result := GetShapeBounds([destF,originF],Manager.ToolPenWidth+1);
 end;
 
+function TToolSelectionPen.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [ctPenWidth];
+end;
+
 { TToolMagicWand }
 
 function TToolMagicWand.GetIsSelectingTool: boolean;
@@ -545,6 +587,11 @@ begin
   result := rect(0,0,toolDest.Width,toolDest.Height);
   Action.NotifyChange(toolDest, result);
   ValidateAction;
+end;
+
+function TToolMagicWand.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [ctTolerance];
 end;
 
 initialization

@@ -31,6 +31,7 @@ type
     function RoundCoordinate(ptF: TPointF): TPointF; override;
   public
     constructor Create(AManager: TToolManager); override;
+    function GetContextualToolbars: TContextualToolbars; override;
     function ToolKeyDown(var key: Word): TRect; override;
     function ToolCopy: boolean; override;
     function ToolCut: boolean; override;
@@ -215,6 +216,12 @@ constructor TToolText.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
   FMatrix := AffineMatrixIdentity;
+end;
+
+function TToolText.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= [ctColor,ctTexture,ctText];
+  if Manager.ToolTextPhong then include(result, ctAltitude);
 end;
 
 function TToolText.ToolKeyDown(var key: Word): TRect;
