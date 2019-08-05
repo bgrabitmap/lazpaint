@@ -501,7 +501,8 @@ var
 begin
   if (ABitmap <> nil) and (ABitmap.Width > 0) and (ABitmap.Height > 0) then
   begin
-    if CurrentTool in [ptDeformation,ptRotateSelection,ptMoveSelection,ptTextureMapping,ptLayerMapping] then
+    if CurrentTool in [ptDeformation,ptRotateSelection,ptMoveSelection,ptTextureMapping,
+         ptLayerMapping,ptEditShape] then
       ChooseTool(ptHand);
     if image.CheckNoAction then
     begin
@@ -557,7 +558,8 @@ function TImageActions.AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal;
 begin
   if AOriginal <> nil then
   begin
-    if CurrentTool in [ptDeformation,ptRotateSelection,ptMoveSelection,ptTextureMapping,ptLayerMapping] then
+    if CurrentTool in [ptDeformation,ptRotateSelection,ptMoveSelection,ptTextureMapping,
+         ptLayerMapping,ptEditShape] then
       ChooseTool(ptHand);
     if image.CheckNoAction then
     begin
