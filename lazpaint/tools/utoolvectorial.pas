@@ -250,7 +250,8 @@ begin
         begin
           result := OnlyRenderChange;
           UpdateOriginalMatrixFromRect;
-        end;
+        end else
+          StopEdit;
       end;
     end;
   end;
