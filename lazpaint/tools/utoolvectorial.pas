@@ -85,6 +85,7 @@ type
     FOriginalRect: TRectShape;
     FOriginalRectUntransformed: TRectF;
     FOriginalRectEditor: TBGRAOriginalEditor;
+    FIsEditingGradient: boolean;
     procedure BindOriginalEvent(ABind: boolean);
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF; rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF): TRect; override;
@@ -94,6 +95,7 @@ type
     procedure OnTryStop({%H-}sender: TCustomLayerAction); override;
     procedure StopEdit;
     function IsVectorOriginal: boolean;
+    function IsGradientOriginal: boolean;
     function IsOtherOriginal: boolean;
     function IsBitmap: boolean;
     procedure MakeImageOriginal;
@@ -121,7 +123,7 @@ implementation
 
 uses LazPaintType, LCVectorTextShapes, LCVectorialFill, BGRASVGOriginal,
   ULoading, BGRATransform, math, UStateType, UImageDiff, Controls, BGRAPen, UResourceStrings, ugraph,
-  LCScaleDPI, LCVectorClipboard;
+  LCScaleDPI, LCVectorClipboard, BGRAGradientOriginal;
 
 const PointSize = 6;
 
@@ -200,12 +202,19 @@ begin
   FRightButton:= rightBtn;
   FLeftButton:= not rightBtn;
   FLastPos := ptF;
-  if IsVectorOriginal then
+  if IsVectorOriginal or IsGradientOriginal then
   begin
-    BindOriginalEvent(true);
-    Manager.Image.CurrentState.LayeredBitmap.MouseDown(rightBtn, FShiftState, ptF.X,ptF.Y, cur, handled);
-    BindOriginalEvent(false);
-    if handled then Cursor := OriginalCursorToCursor(cur);
+    if not FIsEditingGradient then
+    begin
+      FIsEditingGradient:= true;
+      result := OnlyRenderChange;
+    end else
+    begin
+      BindOriginalEvent(true);
+      Manager.Image.CurrentState.LayeredBitmap.MouseDown(rightBtn, FShiftState, ptF.X,ptF.Y, cur, handled);
+      BindOriginalEvent(false);
+      if handled then Cursor := OriginalCursorToCursor(cur);
+    end;
   end else
   begin
     if (FOriginalRect=nil) and
@@ -256,7 +265,7 @@ var
 begin
   FLastPos := ptF;
   Result:= EmptyRect;
-  if IsVectorOriginal then
+  if IsVectorOriginal or (IsGradientOriginal and FIsEditingGradient) then
   begin
     BindOriginalEvent(true);
     Manager.Image.CurrentState.LayeredBitmap.MouseMove(FShiftState, ptF.X,ptF.Y, cur, handled);
@@ -372,6 +381,7 @@ begin
   end;
   if IsVectorOriginal then GetVectorOriginal.DeselectShape;
   Manager.Image.CurrentState.LayeredBitmap.ClearEditor;
+  FIsEditingGradient:= false;
   FreeAndNil(FOriginalRect);
   FreeAndNil(FOriginalRectEditor);
   Cursor := crDefault;
@@ -383,10 +393,15 @@ begin
   result := Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex]=TVectorOriginal;
 end;
 
+function TEditShapeTool.IsGradientOriginal: boolean;
+begin
+  result := Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex]=TBGRALayerGradientOriginal;
+end;
+
 function TEditShapeTool.IsOtherOriginal: boolean;
 begin
   result := Manager.Image.LayerOriginalKnown[Manager.Image.CurrentLayerIndex] and
-     (Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex]<>TVectorOriginal);
+     not IsVectorOriginal and not IsGradientOriginal;
 end;
 
 function TEditShapeTool.IsBitmap: boolean;
@@ -471,7 +486,7 @@ begin
   end;
   viewMatrix := AffineMatrix(xAxis-orig,yAxis-orig,orig);
 
-  if IsVectorOriginal then
+  if IsVectorOriginal or (IsGradientOriginal and FIsEditingGradient) then
   begin
     if Assigned(VirtualScreen) then
       result := Manager.Image.CurrentState.LayeredBitmap.DrawEditor(VirtualScreen,
@@ -603,7 +618,7 @@ begin
   if FLeftButton or FRightButton then
   begin
     Manager.Image.DraftOriginal := false;
-    if IsVectorOriginal then
+    if IsVectorOriginal or (IsGradientOriginal and FIsEditingGradient) then
     begin
       BindOriginalEvent(true);
       Manager.Image.CurrentState.LayeredBitmap.MouseUp(FRightButton, FShiftState, FLastPos.X,FLastPos.Y, cur, handled);
@@ -612,7 +627,7 @@ begin
         Cursor := OriginalCursorToCursor(cur);
         result := OnlyRenderChange;
       end;
-      if not handled then
+      if not handled and IsVectorOriginal then
       begin
         m := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
         GetVectorOriginal.MouseClick(m*FLastPos);
