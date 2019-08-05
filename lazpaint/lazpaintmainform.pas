@@ -3512,6 +3512,7 @@ end;
 procedure TFMain.OnTextureChanged(Sender: TObject);
 begin
   UpdateTextureIcon;
+  SpinEdit_TextureOpacity.Value := ToolManager.ToolTextureOpacity;
 end;
 
 procedure TFMain.UpdateStatusText;

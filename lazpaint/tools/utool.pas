@@ -264,7 +264,8 @@ type
 
     function SetToolDeformationGridSize(NbX,NbY: integer): boolean;
     procedure SwapToolColors;
-    procedure SetToolTexture(ATexture: TBGRABitmap);
+    procedure SetToolTexture(ATexture: TBGRABitmap); overload;
+    procedure SetToolTexture(ATexture: TBGRABitmap; AOpacity: byte); overload;
     function GetToolTextureAfterAlpha: TBGRABitmap;
     function GetToolTexture: TBGRABitmap;
     function BorrowToolTexture: TBGRABitmap;
@@ -801,6 +802,7 @@ begin
   if AValue = FToolTextureOpactiy then exit;
   FreeAndNil(FToolTextureAfterAlpha);
   FToolTextureOpactiy := AValue;
+  if Assigned(FOnTextureChanged) then FOnTextureChanged(self);
 end;
 
 function TToolManager.CheckExitTool: boolean;
@@ -1281,9 +1283,18 @@ end;
 
 procedure TToolManager.SetToolTexture(ATexture: TBGRABitmap);
 begin
-  if ATexture = FToolTexture then exit;
-  FToolTexture.FreeReference;
-  FToolTexture := ATexture.NewReference as TBGRABitmap;
+  SetToolTexture(ATexture, ToolTextureOpacity);
+end;
+
+procedure TToolManager.SetToolTexture(ATexture: TBGRABitmap; AOpacity: byte);
+begin
+  if (ATexture = FToolTexture) and (AOpacity = FToolTextureOpactiy) then exit;
+  if ATexture<>FToolTexture then
+  begin
+    FToolTexture.FreeReference;
+    FToolTexture := ATexture.NewReference as TBGRABitmap;
+  end;
+  FToolTextureOpactiy:= AOpacity;
   FreeAndNil(FToolTextureAfterAlpha);
   if Assigned(FOnTextureChanged) then FOnTextureChanged(self);
 end;

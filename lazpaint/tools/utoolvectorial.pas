@@ -164,9 +164,9 @@ begin
       if (vsfBackFill in AShape.Fields) and (AShape.BackFill.FillType = vftSolid) then
         Manager.ToolBackColor := AShape.BackFill.SolidColor;
       if (vsfBackFill in AShape.Fields) and (AShape.BackFill.FillType = vftTexture) then
-        Manager.SetToolTexture(AShape.BackFill.Texture)
+        Manager.SetToolTexture(AShape.BackFill.Texture,AShape.BackFill.TextureOpacity)
       else if (vsfPenFill in AShape.Fields) and (AShape.PenFill.FillType = vftTexture) then
-        Manager.SetToolTexture(AShape.PenFill.Texture)
+        Manager.SetToolTexture(AShape.PenFill.Texture,AShape.PenFill.TextureOpacity)
       else
         Manager.SetToolTexture(nil);
     end;
@@ -307,7 +307,7 @@ begin
       if (vsfBackFill in SelectedShape.Fields) and (SelectedShape.BackFill.FillType = vftGradient) then
       begin
         if Assigned(Manager.GetToolTexture) then
-          SelectedShape.BackFill.SetTexture(Manager.GetToolTexture, AffineMatrixIdentity)
+          SelectedShape.BackFill.SetTexture(Manager.GetToolTexture, AffineMatrixIdentity, Manager.ToolTextureOpacity)
         else
         begin
           SelectedShape.BackFill.Gradient.StartColor := Manager.ToolForeColor;
@@ -321,14 +321,15 @@ begin
           vftTexture:
             begin
               SelectedShape.BackFill.SetTexture(Manager.GetToolTexture,
-                SelectedShape.BackFill.TextureMatrix,SelectedShape.BackFill.TextureOpacity,
+                SelectedShape.BackFill.TextureMatrix,Manager.ToolTextureOpacity,
                 SelectedShape.BackFill.TextureRepetition);
               if (vsfPenFill in SelectedShape.Fields) and (SelectedShape.PenFill.FillType = vftSolid) then
                 SelectedShape.PenFill.SolidColor := Manager.ToolForeColor;
             end;
           vftGradient,vftSolid:
             begin
-              SelectedShape.BackFill.SetTexture(Manager.GetToolTexture, AffineMatrixIdentity);
+              SelectedShape.BackFill.SetTexture(Manager.GetToolTexture, AffineMatrixIdentity,
+                Manager.ToolTextureOpacity);
               if (vsfPenFill in SelectedShape.Fields) and (SelectedShape.PenFill.FillType = vftSolid) then
                 SelectedShape.PenFill.SolidColor := Manager.ToolForeColor;
             end;
@@ -337,14 +338,15 @@ begin
               vftTexture:
                 begin
                   SelectedShape.PenFill.SetTexture(Manager.GetToolTexture,
-                    SelectedShape.PenFill.TextureMatrix,SelectedShape.PenFill.TextureOpacity,
+                    SelectedShape.PenFill.TextureMatrix,Manager.ToolTextureOpacity,
                     SelectedShape.PenFill.TextureRepetition);
                   if (vsfBackFill in SelectedShape.Fields) and (SelectedShape.BackFill.FillType = vftSolid) then
                     SelectedShape.BackFill.SolidColor := Manager.ToolBackColor;
                 end;
               vftGradient,vftSolid:
                 begin
-                  SelectedShape.PenFill.SetTexture(Manager.GetToolTexture, AffineMatrixIdentity);
+                  SelectedShape.PenFill.SetTexture(Manager.GetToolTexture, AffineMatrixIdentity,
+                    Manager.ToolTextureOpacity);
                   if (vsfBackFill in SelectedShape.Fields) and (SelectedShape.BackFill.FillType = vftSolid) then
                     SelectedShape.BackFill.SolidColor := Manager.ToolBackColor;
                 end;
