@@ -32,6 +32,7 @@ type
     procedure QuickDefineShape(AStart,AEnd: TPointF); override;
     function SlowShape: boolean; override;
     function GetStatusText: string; override;
+  public
     function GetContextualToolbars: TContextualToolbars; override;
   end;
 

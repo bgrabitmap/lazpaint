@@ -70,6 +70,7 @@ type
     function BlurRadius: single;
     function StartDrawing(toolDest: TBGRABitmap; ptF: TPointF; {%H-}rightBtn: boolean): TRect; override;
     function ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF): TRect; override;
+  public
     function GetContextualToolbars: TContextualToolbars; override;
   end;
 
