@@ -843,6 +843,7 @@ end;
 
 procedure TRectShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
   ADraft: boolean);
+const GradientDithering = false;
 var
   pts: Array of TPointF;
   orthoRect: TRectF;
@@ -870,7 +871,7 @@ begin
       begin
         if Assigned(backScan) then
         begin
-          if BackFill.FillType = vftGradient then
+          if (BackFill.FillType = vftGradient) and GradientDithering then
           begin
             with orthoRect do
               r := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));

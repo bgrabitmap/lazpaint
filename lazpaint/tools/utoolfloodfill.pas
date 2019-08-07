@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, UTool, UToolVectorial, BGRABitmap, BGRABitmapTypes,
-  BGRAGradientOriginal, LCVectorOriginal;
+  BGRAGradientOriginal, BGRALayerOriginal, LCVectorOriginal, UStateType;
 
 type
 
@@ -32,6 +32,7 @@ type
     procedure QuickDefineShape(AStart,AEnd: TPointF); override;
     function SlowShape: boolean; override;
     function GetStatusText: string; override;
+    function ReplaceLayerAndAddShape(out ARect: TRect): TCustomImageDifference; override;
   public
     function GetContextualToolbars: TContextualToolbars; override;
   end;
@@ -39,7 +40,7 @@ type
 implementation
 
 uses ugraph, LazPaintType, BGRAGradientScanner, LCVectorRectShapes,
-  math, BGRATransform;
+  math, BGRATransform, UImageDiff;
 
 { TToolGradient }
 
@@ -102,6 +103,20 @@ begin
   end
   else
     Result:=inherited GetStatusText;
+end;
+
+function TToolGradient.ReplaceLayerAndAddShape(out ARect: TRect): TCustomImageDifference;
+var
+  gradientOrig: TBGRALayerCustomOriginal;
+begin
+  if Manager.Image.CurrentLayerEmpty then
+  begin
+    gradientOrig := FShape.BackFill.Gradient.Duplicate;
+    result := TReplaceLayerByCustomOriginalDifference.Create(Manager.Image.CurrentState,
+      Manager.Image.CurrentLayerIndex, false, gradientOrig);
+    ARect := rect(0,0,Manager.Image.Width,Manager.Image.Height);
+  end else
+    Result:= inherited ReplaceLayerAndAddShape(ARect);
 end;
 
 function TToolGradient.GetContextualToolbars: TContextualToolbars;

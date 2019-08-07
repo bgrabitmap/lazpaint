@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, LCLType, BGRABitmap, BGRABitmapTypes,
   BGRALayerOriginal, BGRAGraphics, LCVectorOriginal,
   UTool, UImageType, ULayerAction, LCVectorRectShapes,
-  BGRAGradientOriginal;
+  BGRAGradientOriginal, UStateType;
 
 type
   TToolSplineMode = (tsmMovePoint, tsmCurveModeAuto, tsmCurveModeAngle, tsmCurveModeSpline);
@@ -60,6 +60,7 @@ type
     procedure QuickDefineEnd; virtual;
     procedure OnTryStop({%H-}sender: TCustomLayerAction); override;
     procedure UpdateUseOriginal;
+    function ReplaceLayerAndAddShape(out ARect: TRect): TCustomImageDifference; virtual;
   public
     function ValidateShape: TRect;
     function CancelShape: TRect;
@@ -134,7 +135,7 @@ type
 implementation
 
 uses LazPaintType, LCVectorPolyShapes, LCVectorTextShapes, LCVectorialFill, BGRASVGOriginal,
-  ULoading, BGRATransform, math, UStateType, UImageDiff, Controls, BGRAPen, UResourceStrings, ugraph,
+  ULoading, BGRATransform, math, UImageDiff, Controls, BGRAPen, UResourceStrings, ugraph,
   LCScaleDPI, LCVectorClipboard, BGRAGradientScanner;
 
 const PointSize = 6;
@@ -1150,14 +1151,35 @@ begin
     FUseOriginal:= false;
 end;
 
+function TVectorialTool.ReplaceLayerAndAddShape(out ARect: TRect): TCustomImageDifference;
+var
+  transf: TAffineMatrix;
+  diff: TComposedImageDifference;
+  replaceDiff: TReplaceLayerByVectorOriginalDifference;
+  layerId: integer;
+  addDiff: TAddShapeToVectorOriginalDifference;
+begin
+  layerId := Manager.Image.LayerId[Manager.Image.CurrentLayerIndex];
+  transf := VectorTransform;
+  diff := TComposedImageDifference.Create;
+  replaceDiff := TReplaceLayerByVectorOriginalDifference.Create(Manager.Image.CurrentState,Manager.Image.CurrentLayerIndex,
+                   Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex]=TVectorOriginal);
+  diff.Add(replaceDiff);
+  transf := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex])*transf;
+  FShape.Transform(transf);
+  addDiff := TAddShapeToVectorOriginalDifference.Create(Manager.Image.CurrentState,layerId,FShape);
+  diff.Add(addDiff);
+  result := diff;
+  ARect := addDiff.ChangingBounds;
+  FShape := nil;
+end;
+
 function TVectorialTool.ValidateShape: TRect;
 var
-  diff: TComposedImageDifference;
   layerId: LongInt;
-  replaceDiff: TReplaceLayerByVectorOriginalDifference;
-  transf: TAffineMatrix;
-  addDiff: TAddShapeToVectorOriginalDifference;
   rF: TRectF;
+  changeBounds: TRect;
+  addDiff: TAddShapeToVectorOriginalDifference;
 begin
   if Assigned(FShape) then
   begin
@@ -1171,29 +1193,19 @@ begin
       rF := FShape.GetRenderBounds(rect(0,0,Manager.Image.Width,Manager.Image.Height), VectorTransform);
       if rF.IntersectsWith(rectF(0,0,Manager.Image.Width,Manager.Image.Height)) then
       begin
-        layerId := Manager.Image.LayerId[Manager.Image.CurrentLayerIndex];
         if UseOriginal then
         begin
+          layerId := Manager.Image.LayerId[Manager.Image.CurrentLayerIndex];
           addDiff := TAddShapeToVectorOriginalDifference.Create(Manager.Image.CurrentState,layerId,FShape);
+          changeBounds := addDiff.ChangingBounds;
           Manager.Image.AddUndo(addDiff);
+          FShape := nil;
         end
         else
-        begin
-          transf := VectorTransform;
-          diff := TComposedImageDifference.Create;
-          replaceDiff := TReplaceLayerByVectorOriginalDifference.Create(Manager.Image.CurrentState,Manager.Image.CurrentLayerIndex,
-                           Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex]=TVectorOriginal);
-          diff.Add(replaceDiff);
-          transf := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex])*transf;
-          FShape.Transform(transf);
-          addDiff := TAddShapeToVectorOriginalDifference.Create(Manager.Image.CurrentState,layerId,FShape);
-          diff.Add(addDiff);
-          Manager.Image.AddUndo(diff);
-        end;
-        Manager.Image.ImageMayChange(addDiff.ChangingBounds);
-      end else
-        FShape.Free;
-      FShape := nil;
+          Manager.Image.AddUndo(ReplaceLayerAndAddShape(changeBounds));
+        Manager.Image.ImageMayChange(changeBounds);
+      end;
+      FreeAndNil(FShape);
       FEditor.Clear;
     end else
     begin
@@ -1238,7 +1250,7 @@ begin
        inc(result, 5)
     else if ((vsfBackFill in AOriginal.Shape[i].Fields) and
        (AOriginal.Shape[i].BackFill.FillType = vftGradient)) then
-       inc(result,20)
+       inc(result,15)
     else
       inc(result,2);
 end;

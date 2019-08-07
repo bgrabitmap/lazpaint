@@ -294,6 +294,7 @@ type
     FOriginalGuid: TGUID;
     function GetImageDifferenceKind: TImageDifferenceKind; override;
     function CreateOriginal(AState: TState; ALayerIndex: integer): TBGRALayerCustomOriginal; virtual; abstract;
+    function ShouldRenderOriginal: boolean; virtual;
   public
     constructor Create(AFromState: TState; AIndex: integer; AAlwaysStoreBitmap: boolean);
     function UsedMemory: int64; override;
@@ -340,7 +341,22 @@ type
 
   TReplaceLayerByVectorOriginalDifference = class(TReplaceLayerByOriginalDifference)
   protected
+    FShouldRenderOriginal: boolean;
+    function ShouldRenderOriginal: boolean; override;
     function CreateOriginal(AState: TState; ALayerIndex: integer): TBGRALayerCustomOriginal; override;
+  public
+    constructor Create(AFromState: TState; AIndex: integer; AAlwaysStoreBitmap: boolean);
+  end;
+
+  { TReplaceLayerByCustomOriginalDifference }
+
+  TReplaceLayerByCustomOriginalDifference = class(TReplaceLayerByOriginalDifference)
+  protected
+    FOriginal: TBGRALayerCustomOriginal;
+    function CreateOriginal({%H-}AState: TState; {%H-}ALayerIndex: integer): TBGRALayerCustomOriginal; override;
+    function ShouldRenderOriginal: boolean; override;
+  public
+    constructor Create(AFromState: TState; AIndex: integer; AAlwaysStoreBitmap: boolean; AOriginal: TBGRALayerCustomOriginal);
   end;
 
   { TAddShapeToVectorOriginalDifference }
@@ -472,7 +488,8 @@ type
 implementation
 
 uses BGRAWriteLzp, BGRAReadLzp, UImageState, BGRAStreamLayers, BGRALzpCommon, ugraph, Types,
-  BGRATransform, zstream, LCVectorRectShapes, BGRAPen, LCVectorialFill;
+  BGRATransform, zstream, LCVectorRectShapes, BGRAPen, LCVectorialFill,
+  BGRAGradientOriginal;
 
 function IsInverseImageDiff(ADiff1, ADiff2: TCustomImageDifference): boolean;
 begin
@@ -607,6 +624,26 @@ begin
       result := false;
   end else
     result := false;
+end;
+
+{ TReplaceLayerByCustomOriginalDifference }
+
+function TReplaceLayerByCustomOriginalDifference.CreateOriginal(AState: TState;
+  ALayerIndex: integer): TBGRALayerCustomOriginal;
+begin
+  result := FOriginal.Duplicate;
+end;
+
+function TReplaceLayerByCustomOriginalDifference.ShouldRenderOriginal: boolean;
+begin
+  result := true;
+end;
+
+constructor TReplaceLayerByCustomOriginalDifference.Create(AFromState: TState;
+  AIndex: integer; AAlwaysStoreBitmap: boolean; AOriginal: TBGRALayerCustomOriginal);
+begin
+  FOriginal := AOriginal;
+  inherited Create(AFromState,AIndex,AAlwaysStoreBitmap);
 end;
 
 { TVectorOriginalEmbeddedDifference }
@@ -854,6 +891,11 @@ end;
 
 { TReplaceLayerByVectorOriginalDifference }
 
+function TReplaceLayerByVectorOriginalDifference.ShouldRenderOriginal: boolean;
+begin
+  Result:= FShouldRenderOriginal;
+end;
+
 function TReplaceLayerByVectorOriginalDifference.CreateOriginal(AState: TState;
   ALayerIndex: integer): TBGRALayerCustomOriginal;
 var
@@ -865,18 +907,40 @@ var
 begin
   imgState := TImageState(AState);
   orig := TVectorOriginal.Create;
-  source := imgState.LayeredBitmap.LayerBitmap[ALayerIndex];
-  if not source.Empty then
+  if imgState.LayeredBitmap.LayerOriginalClass[ALayerIndex]=TBGRALayerGradientOriginal then
   begin
     shape := TRectShape.Create(orig);
-    shape.QuickDefine(PointF(0,0),PointF(FSourceBounds.Width,FSourceBounds.Height));
+    shape.QuickDefine(PointF(-0.5,-0.5),PointF(FSourceBounds.Width-0.5,FSourceBounds.Height-0.5));
     shape.PenStyle := ClearPenStyle;
-    temp := source.GetPart(FSourceBounds) as TBGRABitmap;
-    shape.BackFill.SetTexture(temp,AffineMatrixIdentity,255,trNone);
-    temp.FreeReference;
+    shape.BackFill.SetGradient(
+      imgState.LayeredBitmap.LayerOriginal[ALayerIndex] as TBGRALayerGradientOriginal,false);
+    shape.BackFill.Transform(imgState.LayeredBitmap.LayerOriginalMatrix[ALayerIndex]);
     orig.AddShape(shape);
+  end else
+  begin
+    source := imgState.LayeredBitmap.LayerBitmap[ALayerIndex];
+    if not source.Empty then
+    begin
+      shape := TRectShape.Create(orig);
+      shape.QuickDefine(PointF(-0.5,-0.5),PointF(FSourceBounds.Width-0.5,FSourceBounds.Height-0.5));
+      shape.PenStyle := ClearPenStyle;
+      temp := source.GetPart(FSourceBounds) as TBGRABitmap;
+      shape.BackFill.SetTexture(temp,AffineMatrixIdentity,255,trNone);
+      temp.FreeReference;
+      orig.AddShape(shape);
+    end;
   end;
   result := orig;
+end;
+
+constructor TReplaceLayerByVectorOriginalDifference.Create(AFromState: TState;
+  AIndex: integer; AAlwaysStoreBitmap: boolean);
+var
+  imgState: TImageState;
+begin
+  imgState := AFromState as TImageState;
+  FShouldRenderOriginal:= imgState.LayeredBitmap.LayerOriginalClass[AIndex]=TBGRALayerGradientOriginal;
+  inherited Create(AFromState, AIndex, AAlwaysStoreBitmap);
 end;
 
 { TReplaceLayerByImageOriginalDifference }
@@ -1016,6 +1080,11 @@ begin
   Result:= idkChangeImage;
 end;
 
+function TReplaceLayerByOriginalDifference.ShouldRenderOriginal: boolean;
+begin
+  result := false;
+end;
+
 constructor TReplaceLayerByOriginalDifference.Create(
   AFromState: TState; AIndex: integer; AAlwaysStoreBitmap: boolean);
 var
@@ -1055,7 +1124,7 @@ begin
   if FOriginalGuid = GUID_NULL then FOriginalGuid := orig.Guid;
   imgState.LayeredBitmap.LayerOriginalGuid[layerIdx] := imgState.LayeredBitmap.OriginalGuid[origIndex];
   imgState.LayeredBitmap.LayerOriginalMatrix[layerIdx] := FNextMatrix;
-  if FNextMatrix = FPrevMatrix then
+  if (FNextMatrix = FPrevMatrix) and not ShouldRenderOriginal then
     imgState.LayeredBitmap.LayerOriginalRenderStatus[layerIdx] := orsProof
   else
   begin
