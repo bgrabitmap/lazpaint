@@ -58,6 +58,7 @@ type
     FDraftOriginal: boolean;
 
     procedure DiscardSelectionLayerAfterMask;
+    function GetDPI: integer;
     function GetIsCursor: boolean;
     function GetIsIconCursor: boolean;
     function GetIsTiff: boolean;
@@ -265,6 +266,7 @@ type
     property IsCursor: boolean read GetIsCursor;
     property IsTiff: boolean read GetIsTiff;
     property IsGif: boolean read GetIsGif;
+    property DPI: integer read GetDPI;
     constructor Create;
     destructor Destroy; override;
   end;
@@ -714,7 +716,7 @@ begin
     if FCurrentState.SelectedImageLayerIndex = -1 then
       FCurrentState.SelectedImageLayerIndex := 0;
 
-  if Assigned(FOnStackChanged) then FOnStackChanged(self,True);
+  if Assigned(FOnStackChanged)then FOnStackChanged(self,True);
   OnImageChanged.NotifyObservers;
   ImageMayChangeCompletely;
 end;
@@ -1215,6 +1217,11 @@ begin
     FSelectionLayerAfterMaskOffset := Point(0,0);
     FSelectionLayerAfterMaskDefined := false;
   end;
+end;
+
+function TLazPaintImage.GetDPI: integer;
+begin
+  result := ScreenInfo.PixelsPerInchY;
 end;
 
 function TLazPaintImage.GetIsCursor: boolean;

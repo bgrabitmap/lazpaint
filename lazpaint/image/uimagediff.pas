@@ -472,7 +472,7 @@ type
 implementation
 
 uses BGRAWriteLzp, BGRAReadLzp, UImageState, BGRAStreamLayers, BGRALzpCommon, ugraph, Types,
-  BGRATransform, zstream, LCVectorRectShapes, BGRAPen;
+  BGRATransform, zstream, LCVectorRectShapes, BGRAPen, LCVectorialFill;
 
 function IsInverseImageDiff(ADiff1, ADiff2: TCustomImageDifference): boolean;
 begin
@@ -872,7 +872,7 @@ begin
     shape.QuickDefine(PointF(0,0),PointF(FSourceBounds.Width,FSourceBounds.Height));
     shape.PenStyle := ClearPenStyle;
     temp := source.GetPart(FSourceBounds) as TBGRABitmap;
-    shape.BackFill.SetTexture(temp,AffineMatrixIdentity);
+    shape.BackFill.SetTexture(temp,AffineMatrixIdentity,255,trNone);
     temp.FreeReference;
     orig.AddShape(shape);
   end;

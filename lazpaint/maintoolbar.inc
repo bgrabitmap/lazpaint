@@ -1,5 +1,5 @@
 procedure TFMain.CreateToolbarElements;
-var gcs: TGradientColorspace;
+var ci: TBGRAColorInterpolation;
 begin
   if FToolbarElementsInitDone then exit;
   FToolbarElementsInitDone:= true;
@@ -58,8 +58,8 @@ begin
   Tool_DiamondGradient.OnClick := @Tool_DiamondGradientClick;
   Tool_RadialGradient.OnClick := @Tool_RadialGradientClick;
   Tool_SinGradient.OnClick := @Tool_SinGradientClick;
-  for gcs := low(TGradientColorspace) to high(TGradientColorspace) do
-    Combo_GradientColorspace.Items.Add(GradientColorSpaceToDisplay(gcs));
+  for ci := low(TBGRAColorInterpolation) to high(TBGRAColorInterpolation) do
+    Combo_GradientColorspace.Items.Add(GradientColorSpaceToDisplay(ci));
   Combo_GradientColorspace.OnChange := @Combo_GradientColorspaceChange;
   Tool_PhongShapeRectangle.OnClick := @Tool_PhongShapeRectangleClick;
   Tool_PhongShapeRoundRect.OnClick := @Tool_PhongShapeRoundRectClick;
@@ -267,15 +267,17 @@ begin
   ToolManager.PenWidthControls.Add(Panel_PenWidth);
   ToolManager.AliasingControls.Add(Panel_Aliasing);
   ToolManager.ShapeControls.Add(Panel_ShapeOption);
-  ToolManager.ShapeControls.Add(Panel_PenStyle);
+  ToolManager.PenStyleControls.Add(Panel_PenStyle);
   ToolManager.JoinStyleControls.Add(Panel_JoinStyle);
   ToolManager.SplineStyleControls.Add(Panel_SplineStyle);
+  ToolManager.CloseShapeControls.Add(Panel_CloseShape);
   ToolManager.LineCapControls.Add(Panel_LineCap);
   ToolManager.EraserControls.Add(Panel_Eraser);
   ToolManager.ToleranceControls.Add(Panel_Tolerance);
   ToolManager.GradientControls.Add(Panel_GradientType);
   ToolManager.DeformationControls.Add(Panel_Grid);
   ToolManager.TextControls.Add(Panel_Text);
+  ToolManager.TextShadowControls.Add(Panel_TextShadow);
   ToolManager.TextControls.Add(Panel_TextOutline);
   ToolManager.PhongControls.Add(Panel_PhongShape);
   ToolManager.AltitudeControls.Add(Panel_Altitude);
@@ -284,6 +286,125 @@ begin
   ToolManager.TextureControls.Add(Panel_Texture);
   ToolManager.BrushControls.Add(Panel_Brush);
   ToolManager.RatioControls.Add(Panel_Ratio);
+end;
+
+procedure TFMain.UpdateToolOptions;
+begin
+  Tool_Aliasing.Down := toAliasing in ToolManager.ShapeOptions;
+  Tool_DrawShapeBorder.Down := ToolManager.ShapeOptionDraw;
+  Tool_FillShape.Down := ToolManager.ShapeOptionFill;
+  Tool_CloseShape.Down := toCloseShape in ToolManager.ShapeOptions;
+  UpdateLineCapBar;
+end;
+
+procedure TFMain.UpdatePenStyleToolbar;
+begin
+  case ToolManager.PenStyle of
+    psSolid: Tool_PenSolid.Down := true;
+    psDash: Tool_PenDash.Down := true;
+    psDot: Tool_PenDot.Down := true;
+    psDashDot: Tool_PenDashDot.Down := true;
+    psDashDotDot: Tool_PenDashDotDot.Down := true;
+  end;
+end;
+
+procedure TFMain.UpdateGradientToolbar;
+begin
+  case ToolManager.GradientType of
+  gtLinear: Tool_LinearGradient.Down := true;
+  gtReflected: Tool_ReflectedGradient.Down := true;
+  gtDiamond: Tool_DiamondGradient.Down := true;
+  gtRadial: Tool_RadialGradient.Down := true;
+  end;
+  Tool_SinGradient.Down := ToolManager.GradientSine;
+  Combo_GradientColorspace.ItemIndex := Combo_GradientColorspace.Items.IndexOf(GradientColorSpaceToDisplay(ToolManager.GradientColorspace));
+end;
+
+procedure TFMain.UpdatePenWidthToolbar;
+begin
+  if FInPenWidthChange then exit;
+  FInPenWidthChange:= true;
+  SpinEdit_PenWidth.Value := round(ToolManager.PenWidth*PenWidthFactor);
+  FInPenWidthChange:= false;
+  Panel_PenWidthPreview.Invalidate;
+end;
+
+procedure TFMain.UpdatePhongToolbar;
+begin
+  case ToolManager.PhongShapeKind of
+  pskRoundRectangle: Tool_PhongShapeRoundRect.Down := true;
+  pskHalfSphere: Tool_PhongShapeSphere.Down := true;
+  pskConeTop: Tool_PhongShapeCone.Down := true;
+  pskConeSide: Tool_PhongShapeVerticalCone.Down := true;
+  pskHorizCylinder: Tool_PhongShapeHorizontalCylinder.Down := true;
+  pskVertCylinder: Tool_PhongShapeVerticalCylinder.Down := true;
+  else Tool_PhongShapeRectangle.Down := true;
+  end;
+  SpinEdit_ShapeAltitude.Value := ToolManager.PhongShapeAltitude;
+  SpinEdit_PhongBorderSize.Value := ToolManager.PhongShapeBorderSize;
+end;
+
+procedure TFMain.UpdateJoinStyleToolbar;
+begin
+  case ToolManager.JoinStyle of
+    pjsBevel: Tool_JoinBevel.Down := true;
+    pjsMiter: Tool_JoinMiter.Down := true;
+    pjsRound: Tool_JoinRound.Down := true;
+  end;
+end;
+
+procedure TFMain.UpdateTextFontToolbar;
+begin
+  SpinEdit_TextSize.Value := ToolManager.TextFontSize;
+  UpdateTextSizeIncrement;
+end;
+
+procedure TFMain.UpdateTextOutlineToolbar;
+begin
+  Tool_TextOutline.Down := ToolManager.TextOutline;
+  SpinEdit_TextOutlineWidth.Value := round(ToolManager.TextOutlineWidth*PenWidthFactor);
+  SpinEdit_TextOutlineWidth.Enabled:= ToolManager.TextOutline;
+end;
+
+procedure TFMain.UpdateTextPhongToolbar;
+begin
+  Tool_TextPhong.Down := ToolManager.TextPhong;
+  if Panel_Text.Visible then
+    Panel_Altitude.Visible := ToolManager.TextPhong;
+end;
+
+procedure TFMain.UpdateTextShadowToolbar;
+var
+  shadowOn: Boolean;
+begin
+  shadowOn := ToolManager.TextShadow;
+  Tool_TextShadow.Down := shadowOn;
+  SpinEdit_TextShadowX.Value := ToolManager.TextShadowOffset.X;
+  SpinEdit_TextShadowY.Value := ToolManager.TextShadowOffset.Y;
+  SpinEdit_TextBlur.Value := round(ToolManager.TextShadowBlurRadius*PenWidthFactor);
+  Label_TextBlur.Visible := shadowOn;
+  SpinEdit_TextBlur.Visible := shadowOn;
+  Label_ShadowOffset.Visible := shadowOn;
+  SpinEdit_TextShadowX.Visible := shadowOn;
+  SpinEdit_TextShadowY.Visible := shadowOn;
+end;
+
+procedure TFMain.UpdateLineCapToolbar;
+begin
+  case ToolManager.LineCap of
+    pecFlat: Tool_CapFlat.Down := true;
+    pecRound: Tool_CapRound.Down := true;
+    pecSquare: Tool_CapSquare.Down := true;
+  end;
+  SpinEdit_ArrowSizeX.Value := round(ToolManager.ArrowSize.X*PenWidthFactor);
+  SpinEdit_ArrowSizeY.Value := round(ToolManager.ArrowSize.Y*PenWidthFactor);
+  ComboBox_ArrowStart.ItemIndex := ord(ToolManager.ArrowStart);
+  ComboBox_ArrowEnd.ItemIndex := ord(ToolManager.ArrowEnd);
+end;
+
+procedure TFMain.UpdateSplineStyleToolbar;
+begin
+  Combo_SplineStyle.ItemIndex:= ord(ToolManager.SplineStyle);
 end;
 
 procedure TFMain.InitToolbarElements;
@@ -295,110 +416,76 @@ begin
   Panel_File.Visible := not LazPaintInstance.Embedded;
 
   UpdateToolImage;
-  Shape_PenColor.Brush.Color := BGRAToColor(ToolManager.ToolForeColor);
-  SpinEdit_PenOpacity.Value := ToolManager.ToolForeColor.alpha;
-  Shape_BackColor.Brush.Color := BGRAToColor(ToolManager.ToolBackColor);
-  SpinEdit_BackOpacity.Value := ToolManager.ToolBackColor.alpha;
-  SpinEdit_PenWidth.Value := Round(ToolManager.ToolPenWidth*PenWidthFactor);
+  UpdateColorToolbar(true);
+  UpdatePenWidthToolbar;
+  UpdatePenStyleToolbar;
+  UpdateJoinStyleToolbar;
   for ak := low(TArrowKind) to high(TArrowKind) do
   begin
     ComboBox_ArrowStart.Items.Add(ArrowKindToStr[ak]);
     ComboBox_ArrowEnd.Items.Add(ArrowKindToStr[ak]);
   end;
-  ComboBox_ArrowStart.ItemIndex := 0;
-  ComboBox_ArrowEnd.ItemIndex := 0;
-  SpinEdit_ArrowSizeX.Value := round(ToolManager.ToolArrowSize.x*PenWidthFactor);
-  SpinEdit_ArrowSizeY.Value := round(ToolManager.ToolArrowSize.y*PenWidthFactor);
-  Tool_DrawShapeBorder.Down := ToolManager.ToolOptionDrawShape;
-  Tool_FillShape.Down := ToolManager.ToolOptionFillShape;
-  Tool_CloseShape.Down := ToolManager.ToolOptionCloseShape;
+  UpdateLineCapToolbar;
+  UpdateToolOptions;
   SpinEdit_Eraser.Value := ToolManager.ToolEraserAlpha;
   SpinEdit_Tolerance.Value := ToolManager.ToolTolerance;
   Tool_ProgressiveFloodfill.Down := ToolManager.ToolFloodFillOptionProgressive;
-  Tool_SinGradient.Down := ToolManager.ToolGradientSine;
-  Combo_GradientColorspace.ItemIndex := Combo_GradientColorspace.Items.IndexOf(GradientColorSpaceToDisplay(ToolManager.ToolGradientColorspace));
+  UpdateGradientToolbar;
   Tool_GridMoveWithoutDeformation.Down := ToolManager.ToolDeformationGridMoveWithoutDeformation;
-  SpinEdit_GridNbX.Value := ToolManager.ToolDeformationGridNbX-1;
-  SpinEdit_GridNbY.Value := ToolManager.ToolDeformationGridNbY-1;
-  Combo_SplineStyle.ItemIndex:= ord(ToolManager.ToolSplineStyle);
-  UpdateCurveMode;
-  Tool_TextOutline.Down := ToolManager.ToolTextOutline;
-  SpinEdit_TextOutlineWidth.Value := round(ToolManager.ToolTextOutlineWidth*PenWidthFactor);
-  Tool_TextShadow.Down := ToolManager.ToolTextShadow;
-  Tool_TextPhong.Down := ToolManager.ToolTextPhong;
-  FontDialog1.Font := ToolManager.ToolTextFont;
-  SpinEdit_TextBlur.Value := round(ToolManager.ToolTextBlur*PenWidthFactor);
-  SpinEdit_TextSize.Value := ToolManager.ToolTextFont.Size;
-  UpdateTextSizeIncrement;
-  SpinEdit_TextShadowX.Value := ToolManager.ToolTextShadowOffset.X;
-  SpinEdit_TextShadowY.Value := ToolManager.ToolTextShadowOffset.Y;
-  SpinEdit_TextureOpacity.Value := ToolManager.ToolTextureOpacity;
-  if ToolManager.ToolShapeType = 'RoundRectangle' then
-    Tool_PhongShapeRoundRect.Down := true;
-  if ToolManager.ToolShapeType = 'Sphere' then
-    Tool_PhongShapeSphere.Down := true;
-  if ToolManager.ToolShapeType = 'Cone' then
-    Tool_PhongShapeCone.Down := true;
-  if ToolManager.ToolShapeType = 'VerticalCone' then
-    Tool_PhongShapeVerticalCone.Down := true;
-  if ToolManager.ToolShapeType = 'HorizontalCylinder' then
-    Tool_PhongShapeHorizontalCylinder.Down := true;
-  if ToolManager.ToolShapeType = 'VerticalCylinder' then
-    Tool_PhongShapeVerticalCylinder.Down := true;
-  UpdatePanelPhongShape;
-  SpinEdit_ShapeAltitude.Value := ToolManager.ToolShapeAltitude;
-  SpinEdit_PhongBorderSize.Value := ToolManager.ToolShapeBorderSize;
-  UpdateLineCapBar;
+  SpinEdit_GridNbX.Value := ToolManager.DeformationGridNbX-1;
+  SpinEdit_GridNbY.Value := ToolManager.DeformationGridNbY-1;
+  UpdateSplineStyleToolbar;
+  UpdateCurveModeToolbar;
+  UpdateTextOutlineToolbar;
+  Tool_TextPhong.Down := ToolManager.TextPhong;
+  UpdateTextFontToolbar;
+  UpdateTextShadowToolbar;
+  SpinEdit_TextureOpacity.Value := ToolManager.TextureOpacity;
+  UpdatePhongToolbar;
   ComboBox_BrushSelect.Clear;
-  for i := 0 to ToolManager.ToolBrushCount-1 do
+  for i := 0 to ToolManager.BrushCount-1 do
     ComboBox_BrushSelect.Items.Add(inttostr(i));
   if ComboBox_BrushSelect.Items.Count > 0 then
     ComboBox_BrushSelect.ItemIndex := 0;
 end;
 
-procedure TFMain.UpdateToolbar;
-var maxGridNbX,maxGridNbY: integer;
-    colorChange: boolean;
+procedure TFMain.UpdateColorToolbar(AUpdateColorDiff: boolean);
+var
+  colorChange: boolean;
 begin
   colorChange:= false;
-  if Shape_PenColor.Brush.Color <> BGRAToColor(ToolManager.ToolForeColor) then
+  if Shape_PenColor.Brush.Color <> BGRAToColor(ToolManager.ForeColor) then
   begin
-    Shape_PenColor.Brush.Color := BGRAToColor(ToolManager.ToolForeColor);
+    Shape_PenColor.Brush.Color := BGRAToColor(ToolManager.ForeColor);
     colorChange:= true;
   end;
-  if SpinEdit_PenOpacity.Value <> ToolManager.ToolForeColor.alpha then
+  if SpinEdit_PenOpacity.Value <> ToolManager.ForeColor.alpha then
   begin
-    SpinEdit_PenOpacity.Value := ToolManager.ToolForeColor.alpha;
-    colorChange:= true;
-  end;
-
-  if not FInPenWidthChange then
-  begin
-    if SpinEdit_PenWidth.Value<> round(ToolManager.ToolPenWidth*PenWidthFactor) then
-    begin
-      FInPenWidthChange:= true;
-      SpinEdit_PenWidth.Value := round(ToolManager.ToolPenWidth*PenWidthFactor);
-      FInPenWidthChange:= false;
-    end;
-  end;
-
-  if Shape_BackColor.Brush.Color <> BGRAToColor(ToolManager.ToolBackColor) then
-  begin
-    Shape_BackColor.Brush.Color := BGRAToColor(ToolManager.ToolBackColor);
-    colorChange:= true;
-  end;
-  if SpinEdit_BackOpacity.Value <> ToolManager.ToolBackColor.alpha then
-  begin
-    SpinEdit_BackOpacity.Value := ToolManager.ToolBackColor.alpha;
+    SpinEdit_PenOpacity.Value := ToolManager.ForeColor.alpha;
     colorChange:= true;
   end;
 
-  if colorChange then
+  if Shape_BackColor.Brush.Color <> BGRAToColor(ToolManager.BackColor) then
   begin
-    Label_CurrentDiff.Caption := inttostr(round(BGRAWordDiff(ToolManager.ToolForeColor,ToolManager.ToolBackColor)/65535*100))+'%';
+    Shape_BackColor.Brush.Color := BGRAToColor(ToolManager.BackColor);
+    colorChange:= true;
+  end;
+  if SpinEdit_BackOpacity.Value <> ToolManager.BackColor.alpha then
+  begin
+    SpinEdit_BackOpacity.Value := ToolManager.BackColor.alpha;
+    colorChange:= true;
+  end;
+
+  if colorChange or AUpdateColorDiff then
+  begin
+    Label_CurrentDiff.Caption := inttostr(round(BGRAWordDiff(ToolManager.ForeColor,ToolManager.BackColor)/65535*100))+'%';
     Label_CurrentDiff.Update;
   end;
+end;
 
+procedure TFMain.UpdateToolbar;
+var maxGridNbX,maxGridNbY: integer;
+begin
   maxGridNbX := Max(2,Min(image.Width div 2,50));
   maxGridNbY := Max(2,Min(image.Height div 2,50));
   if SpinEdit_GridNbX.MaxValue <> maxGridNbX then
@@ -406,29 +493,18 @@ begin
   if SpinEdit_GridNbY.MaxValue <> maxGridNbY then
     SpinEdit_GridNbY.MaxValue := maxGridNbY;
 
-  if SpinEdit_TextOutlineWidth.Enabled <> not ToolManager.ToolTextPhong then
-    SpinEdit_TextOutlineWidth.Enabled := not ToolManager.ToolTextPhong;
   case ToolManager.ToolTextAlign of
   taLeftJustify: Tool_TextAlignLeft.Down := true;
   taCenter: Tool_TextAlignCenter.Down := true;
   taRightJustify: Tool_TextAlignRight.Down := true;
   end;
 
-  LazPaintInstance.ColorToFChooseColor;
-
-  UpdateCurveMode;
+  UpdateCurveModeToolbar;
 end;
 
 procedure TFMain.UpdateLineCapBar;
-var
-  showElem: Boolean;
 begin
-  showElem := not ToolManager.ToolOptionCloseShape;
-  with ToolBar10 do begin
-    Tool_CapFlat.Visible:=showElem;
-    Tool_CapRound.Visible:=showElem;
-    Tool_CapSquare.Visible:=showElem;
-  end;
+  Panel_LineCap.Visible := Panel_CloseShape.Visible and not (toCloseShape in ToolManager.ShapeOptions);
 end;
 
 procedure TFMain.UpdateToolImage(AForceUpdate: boolean);
@@ -493,12 +569,12 @@ var
   IconBGRA: TBGRABitmap;
   IconBmp: TBitmap;
 begin
-  if ToolManager.GetToolTexture = nil then
+  if ToolManager.GetTexture = nil then
   begin
     NoTextureIcon;
     exit;
   end;
-  IconBGRA := ToolManager.GetToolTexture.Resample(Image_CurrentTexture.Width,Image_CurrentTexture.Height) as TBGRABitmap;
+  IconBGRA := ToolManager.GetTexture.Resample(Image_CurrentTexture.Width,Image_CurrentTexture.Height) as TBGRABitmap;
   IconBmp := IconBGRA.MakeBitmapCopy(ColorToRGB(clBtnFace));
   FreeAndNil(IconBGRA);
   Image_CurrentTexture.Picture.Assign(IconBmp);
@@ -521,7 +597,7 @@ begin
   try
     Panel_PenWidthPreview.Invalidate;
     ComboBox_BrushSelect.Clear;
-    for i := 0 to ToolManager.ToolBrushCount-1 do
+    for i := 0 to ToolManager.BrushCount-1 do
       ComboBox_BrushSelect.Items.Add(inttostr(i));
     if (ToolManager.ToolBrushInfoIndex >= 0) and
       (ToolManager.ToolBrushInfoIndex < ComboBox_BrushSelect.Items.Count) then
@@ -543,8 +619,8 @@ begin
     SpinEdit_ShapeAltitude.Increment := 5;
   if AByUser and initialized then
   begin
-    if ToolManager.ToolShapeAltitude = SpinEdit_ShapeAltitude.Value then exit;
-    ToolManager.ToolShapeAltitude := SpinEdit_ShapeAltitude.Value;
+    if ToolManager.PhongShapeAltitude = SpinEdit_ShapeAltitude.Value then exit;
+    ToolManager.PhongShapeAltitude := SpinEdit_ShapeAltitude.Value;
     UpdateEditPicture;
   end;
 end;
@@ -553,8 +629,9 @@ procedure TFMain.SpinEdit_TextSizeChange(Sender: TObject; AByUser: boolean);
 begin
   if AByUser and initialized and not FInTextFont then
   begin
-    if ToolManager.ToolTextFont.Size = SpinEdit_TextSize.Value then exit;
-    ToolManager.ToolTextFont.Size := SpinEdit_TextSize.Value;
+    if ToolManager.TextFontSize = SpinEdit_TextSize.Value then exit;
+    ToolManager.SetTextFont(ToolManager.TextFontName,
+      SpinEdit_TextSize.Value, ToolManager.TextFontStyle);
     UpdateTextSizeIncrement;
     UpdateEditPicture(True);
     FActiveSpinEdit := SpinEdit_TextSize;
@@ -565,8 +642,8 @@ procedure TFMain.SpinEdit_TextureOpacityChange(Sender: TObject; AByUser: boolean
 begin
   if AByUser and initialized then
   begin
-    if ToolManager.ToolTextureOpacity = SpinEdit_TextureOpacity.Value then exit;
-    ToolManager.ToolTextureOpacity := SpinEdit_TextureOpacity.Value;
+    if ToolManager.TextureOpacity = SpinEdit_TextureOpacity.Value then exit;
+    ToolManager.TextureOpacity := SpinEdit_TextureOpacity.Value;
     UpdateEditPicture(True);
     FActiveSpinEdit := SpinEdit_TextureOpacity;
   end;
@@ -576,8 +653,8 @@ procedure TFMain.SpinEdit_TextBlurChange(Sender: TObject; AByUser: boolean);
 begin
   if AByUser and initialized then
   begin
-    if ToolManager.ToolTextBlur = SpinEdit_TextBlur.Value/PenWidthFactor then exit;
-    ToolManager.ToolTextBlur := SpinEdit_TextBlur.Value/PenWidthFactor;
+    if ToolManager.TextShadowBlurRadius = SpinEdit_TextBlur.Value/PenWidthFactor then exit;
+    ToolManager.TextShadowBlurRadius := SpinEdit_TextBlur.Value/PenWidthFactor;
     UpdateEditPicture(True);
     FActiveSpinEdit := SpinEdit_TextBlur;
   end;
@@ -586,7 +663,7 @@ end;
 procedure TFMain.GridNb_SpinEditChange(Sender: TObject; AByUser: boolean);
 begin
   if not AByUser or not initialized then exit;
-  if ToolManager.SetToolDeformationGridSize(SpinEdit_GridNbX.Value+1,SpinEdit_GridNbY.Value+1) then
+  if ToolManager.SetDeformationGridSize(SpinEdit_GridNbX.Value+1,SpinEdit_GridNbY.Value+1) then
     image.OnImageChanged.NotifyObservers;
 end;
 
@@ -610,9 +687,9 @@ procedure TFMain.SpinEdit_TextOutlineWidthChange(Sender: TObject; AByUser: boole
 begin
   if AByUser and initialized then
   begin
-     if ToolManager.ToolTextOutlineWidth <> SpinEdit_TextOutlineWidth.Value/PenWidthFactor then
+     if ToolManager.TextOutlineWidth <> SpinEdit_TextOutlineWidth.Value/PenWidthFactor then
      begin
-       ToolManager.ToolTextOutlineWidth:= SpinEdit_TextOutlineWidth.Value/PenWidthFactor;
+       ToolManager.SetTextOutline(ToolManager.TextOutline, SpinEdit_TextOutlineWidth.Value/PenWidthFactor);
        UpdateEditPicture;
      end;
   end;
@@ -622,8 +699,8 @@ procedure TFMain.SpinEdit_TextShadowXChange(Sender: TObject; AByUser: boolean);
 begin
   if AByUser and initialized then
   begin
-    if ToolManager.ToolTextShadowOffset.X = SpinEdit_TextShadowX.Value then exit;
-    ToolManager.ToolTextShadowOffset.X := SpinEdit_TextShadowX.Value;
+    if ToolManager.TextShadowOffset.X = SpinEdit_TextShadowX.Value then exit;
+    ToolManager.TextShadowOffset.X := SpinEdit_TextShadowX.Value;
     UpdateEditPicture(True);
     FActiveSpinEdit := SpinEdit_TextShadowX;
   end;
@@ -633,8 +710,8 @@ procedure TFMain.SpinEdit_TextShadowYChange(Sender: TObject; AByUser: boolean);
 begin
   if AByUser and initialized then
   begin
-    if ToolManager.ToolTextShadowOffset.Y = SpinEdit_TextShadowY.Value then exit;
-    ToolManager.ToolTextShadowOffset.Y := SpinEdit_TextShadowY.Value;
+    if ToolManager.TextShadowOffset.Y = SpinEdit_TextShadowY.Value then exit;
+    ToolManager.TextShadowOffset.Y := SpinEdit_TextShadowY.Value;
     UpdateEditPicture(True);
     FActiveSpinEdit := SpinEdit_TextShadowY;
   end;
@@ -675,10 +752,10 @@ end;
 
 procedure TFMain.ShowColorDialogForPen;
 begin
-  ColorDialog1.Color := BGRAToColor(ToolManager.ToolForeColor);
+  ColorDialog1.Color := BGRAToColor(ToolManager.ForeColor);
   if ColorDialog1.Execute then
   begin
-    ToolManager.ToolForeColor := ColorToBGRA(ColorDialog1.Color,ToolManager.ToolForeColor.alpha);
+    ToolManager.ForeColor := ColorToBGRA(ColorDialog1.Color,ToolManager.ForeColor.alpha);
     LazPaintInstance.ColorToFChooseColor;
     UpdateEditPicture;
   end;
@@ -688,9 +765,9 @@ procedure TFMain.SpinEdit_PenOpacityChange(Sender: TObject; AByUser: boolean);
 begin
   if AByUser and initialized then
   begin
-    if ToolManager.ToolForeColor.alpha = SpinEdit_PenOpacity.value then exit;
-    with ToolManager.ToolForeColor do
-      ToolManager.ToolForeColor := BGRA(red,green,blue,SpinEdit_PenOpacity.value);
+    if ToolManager.ForeColor.alpha = SpinEdit_PenOpacity.value then exit;
+    with ToolManager.ForeColor do
+      ToolManager.ForeColor := BGRA(red,green,blue,SpinEdit_PenOpacity.value);
     LazPaintInstance.ColorToFChooseColor;
     UpdateEditPicture;
   end;
@@ -707,10 +784,10 @@ end;
 
 procedure TFMain.ShowColorDialogForBack;
 begin
-  ColorDialog1.Color := BGRAToColor(ToolManager.ToolBackColor);
+  ColorDialog1.Color := BGRAToColor(ToolManager.BackColor);
   if ColorDialog1.Execute then
   begin
-    ToolManager.ToolBackColor := ColorToBGRA(ColorDialog1.Color,ToolManager.ToolBackColor.alpha);
+    ToolManager.BackColor := ColorToBGRA(ColorDialog1.Color,ToolManager.BackColor.alpha);
     LazPaintInstance.ColorToFChooseColor;
     UpdateEditPicture;
   end;
@@ -720,9 +797,9 @@ procedure TFMain.SpinEdit_BackOpacityChange(Sender: TObject; AByUser: boolean);
 begin
   if AByUser and initialized then
   begin
-    if ToolManager.ToolBackColor.alpha = SpinEdit_BackOpacity.value then exit;
-    with ToolManager.ToolBackColor do
-      ToolManager.ToolBackColor := BGRA(red,green,blue,SpinEdit_BackOpacity.value);
+    if ToolManager.BackColor.alpha = SpinEdit_BackOpacity.value then exit;
+    with ToolManager.BackColor do
+      ToolManager.BackColor := BGRA(red,green,blue,SpinEdit_BackOpacity.value);
     LazPaintInstance.ColorToFChooseColor;
     UpdateEditPicture;
   end;
@@ -754,31 +831,46 @@ procedure TFMain.Tool_AliasingClick(Sender: TObject);
 begin
   if initialized then
   begin
-     ToolManager.ToolOptionAliasing := Tool_Aliasing.Down;
-     UpdateEditPicture;
+    if Tool_Aliasing.Down then
+      ToolManager.ShapeOptions := ToolManager.ShapeOptions + [toAliasing]
+    else
+      ToolManager.ShapeOptions := ToolManager.ShapeOptions - [toAliasing];
+    UpdateEditPicture;
   end;
 end;
 
 procedure TFMain.Tool_DrawShapeBorderClick(Sender: TObject);
+var
+  opt: TShapeOptions;
 begin
   if initialized then
   begin
      if not Tool_DrawShapeBorder.Down and not Tool_FillShape.Down then
        Tool_FillShape.Down := true;
-     ToolManager.ToolOptionDrawShape:= Tool_DrawShapeBorder.Down;
-     ToolManager.ToolOptionFillShape:= Tool_FillShape.Down;
+     opt := ToolManager.ShapeOptions;
+     if Tool_DrawShapeBorder.Down then include(opt, toDrawShape) else exclude(opt, toDrawShape);
+     if Tool_FillShape.Down then include(opt, toFillShape) else exclude(opt, toFillShape);
+     ToolManager.ShapeOptions := opt;
+     ToolManager.UpdateContextualToolbars;
+     FLayout.Arrange;
      UpdateEditPicture;
   end;
 end;
 
 procedure TFMain.Tool_FillShapeClick(Sender: TObject);
+var
+  opt: TShapeOptions;
 begin
   if initialized then
   begin
      if not Tool_DrawShapeBorder.Down and not Tool_FillShape.Down then
         Tool_DrawShapeBorder.Down := true;
-     ToolManager.ToolOptionDrawShape:= Tool_DrawShapeBorder.Down;
-     ToolManager.ToolOptionFillShape:= Tool_FillShape.Down;
+     opt := ToolManager.ShapeOptions;
+     if Tool_DrawShapeBorder.Down then include(opt, toDrawShape) else exclude(opt, toDrawShape);
+     if Tool_FillShape.Down then include(opt, toFillShape) else exclude(opt, toFillShape);
+     ToolManager.ShapeOptions := opt;
+     ToolManager.UpdateContextualToolbars;
+     FLayout.Arrange;
      UpdateEditPicture;
   end;
 end;
@@ -787,9 +879,12 @@ procedure TFMain.Tool_CloseShapeClick(Sender: TObject);
 begin
   if initialized then
   begin
-     if ToolManager.ToolOptionCloseShape <> Tool_CloseShape.Down then
+     if (toCloseShape in ToolManager.ShapeOptions) <> Tool_CloseShape.Down then
      begin
-       ToolManager.ToolOptionCloseShape:= Tool_CloseShape.Down;
+        if Tool_CloseShape.Down then
+          ToolManager.ShapeOptions := ToolManager.ShapeOptions + [toCloseShape]
+        else
+          ToolManager.ShapeOptions := ToolManager.ShapeOptions - [toCloseShape];
        UpdateLineCapBar;
        FLayout.Arrange;
        UpdateEditPicture;
@@ -801,7 +896,7 @@ procedure TFMain.Tool_CapFlatClick(Sender: TObject);
 begin
   if Tool_CapFlat.Down then
   begin
-    ToolManager.ToolLineCap := pecFlat;
+    ToolManager.LineCap := pecFlat;
     ComboBox_ArrowStart.Refresh;
     ComboBox_ArrowEnd.Refresh;
     UpdateEditPicture;
@@ -812,7 +907,7 @@ procedure TFMain.Tool_CapRoundClick(Sender: TObject);
 begin
   if Tool_CapRound.Down then
   begin
-    ToolManager.ToolLineCap := pecRound;
+    ToolManager.LineCap := pecRound;
     ComboBox_ArrowStart.Refresh;
     ComboBox_ArrowEnd.Refresh;
     UpdateEditPicture;
@@ -823,7 +918,7 @@ procedure TFMain.Tool_CapSquareClick(Sender: TObject);
 begin
   if Tool_CapSquare.Down then
   begin
-    ToolManager.ToolLineCap := pecSquare;
+    ToolManager.LineCap := pecSquare;
     ComboBox_ArrowStart.Refresh;
     ComboBox_ArrowEnd.Refresh;
     UpdateEditPicture;
@@ -834,7 +929,7 @@ procedure TFMain.ComboBox_ArrowStartChange(Sender: TObject);
 begin
   if initialized then
   begin
-    ToolManager.ToolArrowStart:= ComboBox_ArrowStart.Text;
+    ToolManager.ArrowStart:= StrToArrowKind(ComboBox_ArrowStart.Text);
     UpdateEditPicture;
   end;
 end;
@@ -846,7 +941,7 @@ var
 begin
   if Index = -1 then exit;
   kind := ComboBox_ArrowStart.Items[Index];
-  DrawArrow(ComboBox_ArrowStart,ARect,True,kind,ToolManager.ToolLineCap,State);
+  DrawArrow(ComboBox_ArrowStart,ARect,True,kind,ToolManager.LineCap,State);
 end;
 
 procedure TFMain.ComboBox_ArrowStartDrawSelectedItem(Sender: TObject; const ABGRA: TBGRABitmap;
@@ -859,14 +954,14 @@ begin
   if cb.ItemIndex = -1 then exit;
   kind := cb.Text;
   ARect.Inflate(-2,-2);
-  DrawArrow(ABGRA,ARect,True,kind,ToolManager.ToolLineCap,AState.FontEx.Color);
+  DrawArrow(ABGRA,ARect,True,kind,ToolManager.LineCap,AState.FontEx.Color);
 end;
 
 procedure TFMain.ComboBox_ArrowEndChange(Sender: TObject);
 begin
   if initialized then
   begin
-    ToolManager.ToolArrowEnd:= ComboBox_ArrowEnd.Text;
+    ToolManager.ArrowEnd:= StrToArrowKind(ComboBox_ArrowEnd.Text);
     UpdateEditPicture;
   end;
 end;
@@ -878,7 +973,7 @@ end;
 
 procedure TFMain.BrushLoadFromFileUpdate(Sender: TObject);
 begin
-  BrushLoadFromFile.Enabled := ToolManager.ToolBrushCount < 9;
+  BrushLoadFromFile.Enabled := ToolManager.BrushCount < 9;
 end;
 
 procedure TFMain.BrushRemoveCurrentExecute(Sender: TObject);
@@ -899,7 +994,7 @@ var
 begin
   if Index = -1 then exit;
   kind := ComboBox_ArrowEnd.Items[Index];
-  DrawArrow(ComboBox_ArrowEnd,ARect,False,kind,ToolManager.ToolLineCap,State);
+  DrawArrow(ComboBox_ArrowEnd,ARect,False,kind,ToolManager.LineCap,State);
 end;
 
 procedure TFMain.ComboBox_ArrowEndDrawSelectedItem(Sender: TObject; const ABGRA: TBGRABitmap;
@@ -912,16 +1007,16 @@ begin
   if cb.ItemIndex = -1 then exit;
   kind := cb.Text;
   ARect.Inflate(-2,-2);
-  DrawArrow(ABGRA,ARect,False,kind,ToolManager.ToolLineCap,AState.FontEx.Color);
+  DrawArrow(ABGRA,ARect,False,kind,ToolManager.LineCap,AState.FontEx.Color);
 end;
 
 procedure TFMain.SpinEdit_ArrowSizeChange(Sender: TObject; AByUser: boolean);
 begin
   if AByUser and initialized then
   begin
-    if (round(ToolManager.ToolArrowSize.x*PenWidthFactor) = SpinEdit_ArrowSizeX.value) and
-       (round(ToolManager.ToolArrowSize.y*PenWidthFactor) = SpinEdit_ArrowSizeY.value) then exit;
-    ToolManager.ToolArrowSize := PointF(SpinEdit_ArrowSizeX.value/PenWidthFactor,SpinEdit_ArrowSizeY.value/PenWidthFactor);
+    if (round(ToolManager.ArrowSize.x*PenWidthFactor) = SpinEdit_ArrowSizeX.value) and
+       (round(ToolManager.ArrowSize.y*PenWidthFactor) = SpinEdit_ArrowSizeY.value) then exit;
+    ToolManager.ArrowSize := PointF(SpinEdit_ArrowSizeX.value/PenWidthFactor,SpinEdit_ArrowSizeY.value/PenWidthFactor);
     UpdateEditPicture;
   end;
 end;
@@ -930,7 +1025,7 @@ procedure TFMain.Tool_JoinBevelClick(Sender: TObject);
 begin
   if Tool_JoinBevel.Down then
   begin
-    ToolManager.ToolJoinStyle := pjsBevel;
+    ToolManager.JoinStyle := pjsBevel;
     UpdateEditPicture;
   end;
 end;
@@ -939,7 +1034,7 @@ procedure TFMain.Tool_JoinRoundClick(Sender: TObject);
 begin
   if Tool_JoinRound.Down then
   begin
-    ToolManager.ToolJoinStyle := pjsRound;
+    ToolManager.JoinStyle := pjsRound;
     UpdateEditPicture;
   end;
 end;
@@ -948,7 +1043,7 @@ procedure TFMain.Tool_JoinMiterClick(Sender: TObject);
 begin
   if Tool_JoinMiter.Down then
   begin
-    ToolManager.ToolJoinStyle := pjsMiter;
+    ToolManager.JoinStyle := pjsMiter;
     UpdateEditPicture;
   end;
 end;
@@ -957,7 +1052,7 @@ procedure TFMain.Tool_PenSolidClick(Sender: TObject);
 begin
   if Tool_PenSolid.Down then
   begin
-    ToolManager.ToolPenStyle := psSolid;
+    ToolManager.PenStyle := psSolid;
     UpdateEditPicture;
   end;
 end;
@@ -966,7 +1061,7 @@ procedure TFMain.Tool_PenDashClick(Sender: TObject);
 begin
   if Tool_PenDash.Down then
   begin
-    ToolManager.ToolPenStyle := psDash;
+    ToolManager.PenStyle := psDash;
     UpdateEditPicture;
   end;
 end;
@@ -975,7 +1070,7 @@ procedure TFMain.Tool_PenDashDotClick(Sender: TObject);
 begin
   if Tool_PenDashDot.Down then
   begin
-    ToolManager.ToolPenStyle := psDashDot;
+    ToolManager.PenStyle := psDashDot;
     UpdateEditPicture;
   end;
 end;
@@ -984,7 +1079,7 @@ procedure TFMain.Tool_PenDashDotDotClick(Sender: TObject);
 begin
   if Tool_PenDashDotDot.Down then
   begin
-    ToolManager.ToolPenStyle := psDashDotDot;
+    ToolManager.PenStyle := psDashDotDot;
     UpdateEditPicture;
   end;
 end;
@@ -993,7 +1088,7 @@ procedure TFMain.Tool_PenDotClick(Sender: TObject);
 begin
   if Tool_PenDot.Down then
   begin
-    ToolManager.ToolPenStyle := psDot;
+    ToolManager.PenStyle := psDot;
     UpdateEditPicture;
   end;
 end;
@@ -1026,11 +1121,17 @@ begin
      (ToolManager.CurrentTool is TToolSpline) then
   begin
     (ToolManager.CurrentTool as TToolSpline).CurrentMode := AMode;
-    UpdateCurveMode;
+    UpdateCurveModeToolbar;
+  end else
+  if (ToolManager.CurrentTool <> nil) and
+     (ToolManager.CurrentTool is TEditShapeTool) then
+  begin
+    (ToolManager.CurrentTool as TEditShapeTool).CurrentSplineMode := AMode;
+    UpdateCurveModeToolbar;
   end;
 end;
 
-procedure TFMain.UpdateCurveMode;
+procedure TFMain.UpdateCurveModeToolbar;
 var
   cm: TToolSplineMode;
   splineTool: TToolSpline;
@@ -1040,46 +1141,53 @@ begin
     splineTool := ToolManager.CurrentTool as TToolSpline;
     Tool_CurveMovePoint.Enabled := not splineTool.IsHandDrawing and not splineTool.IsIdle;
     cm := splineTool.CurrentMode;
-    if Tool_CurveMovePoint.Down <> (cm = tsmMovePoint) then
-      Tool_CurveMovePoint.Down := (cm = tsmMovePoint);
-    if Tool_CurveModeAuto.Down <> (cm = tsmCurveModeAuto) then
-      Tool_CurveModeAuto.Down := (cm = tsmCurveModeAuto);
-    if Tool_CurveModeAngle.Down <> (cm = tsmCurveModeAngle) then
-      Tool_CurveModeAngle.Down := (cm = tsmCurveModeAngle);
-    if Tool_CurveModeCurve.Down <> (cm = tsmCurveModeSpline) then
-      Tool_CurveModeCurve.Down := (cm = tsmCurveModeSpline);
-  end;
+  end else
+  if (ToolManager.CurrentTool <> nil) and (ToolManager.CurrentTool is TEditShapeTool) then
+  begin
+    Tool_CurveMovePoint.Enabled := true;
+    cm := TEditShapeTool(ToolManager.CurrentTool).CurrentSplineMode;
+  end else exit;
+  if Tool_CurveMovePoint.Down <> (cm = tsmMovePoint) then
+    Tool_CurveMovePoint.Down := (cm = tsmMovePoint);
+  if Tool_CurveModeAuto.Down <> (cm = tsmCurveModeAuto) then
+    Tool_CurveModeAuto.Down := (cm = tsmCurveModeAuto);
+  if Tool_CurveModeAngle.Down <> (cm = tsmCurveModeAngle) then
+    Tool_CurveModeAngle.Down := (cm = tsmCurveModeAngle);
+  if Tool_CurveModeCurve.Down <> (cm = tsmCurveModeSpline) then
+    Tool_CurveModeCurve.Down := (cm = tsmCurveModeSpline);
 end;
 
 procedure TFMain.Combo_SplineStyleChange(Sender: TObject);
 var v: string;
 begin
-  if initialized then
+  if initialized and not FInSplineStyleChange then
   begin
+    FInSplineStyleChange := true;
     v := Combo_SplineStyle.Text;
-    if v = 'Inside' then ToolManager.ToolSplineStyle := ssInside else
-    if v = 'Inside + ends' then ToolManager.ToolSplineStyle := ssInsideWithEnds else
-    if v = 'Crossing' then ToolManager.ToolSplineStyle := ssCrossing else
-    if v = 'Crossing + ends' then ToolManager.ToolSplineStyle := ssCrossingWithEnds else
-    if v = 'Outside' then ToolManager.ToolSplineStyle := ssOutside else
-    if v = 'Round outside' then ToolManager.ToolSplineStyle:= ssRoundOutside else
-    if v = 'Vertex to side' then ToolManager.ToolSplineStyle:= ssVertexToSide else
-    if v = 'Easy Bézier' then ToolManager.ToolSplineStyle := ssEasyBezier;
-    if ToolManager.ToolSplineStyle<>ssEasyBezier then
+    if v = 'Inside' then ToolManager.SplineStyle := ssInside else
+    if v = 'Inside + ends' then ToolManager.SplineStyle := ssInsideWithEnds else
+    if v = 'Crossing' then ToolManager.SplineStyle := ssCrossing else
+    if v = 'Crossing + ends' then ToolManager.SplineStyle := ssCrossingWithEnds else
+    if v = 'Outside' then ToolManager.SplineStyle := ssOutside else
+    if v = 'Round outside' then ToolManager.SplineStyle:= ssRoundOutside else
+    if v = 'Vertex to side' then ToolManager.SplineStyle:= ssVertexToSide else
+    if v = 'Easy Bézier' then ToolManager.SplineStyle := ssEasyBezier;
+    if ToolManager.SplineStyle<>ssEasyBezier then
     begin
       Tool_CurveMovePoint.Down := true;
-      SetCurveMode(tsmMovePoint);
       Tool_CurveModeAuto.Enabled := false;
       Tool_CurveModeAngle.Enabled := false;
       Tool_CurveModeCurve.Enabled := false;
+      SetCurveMode(tsmMovePoint);
     end else
     begin
       Tool_CurveModeAuto.Enabled := true;
       Tool_CurveModeAngle.Enabled := true;
       Tool_CurveModeCurve.Enabled := true;
+      UpdateCurveModeToolbar;
     end;
     UpdateEditPicture(True);
-    UpdateCurveMode;
+    FInSplineStyleChange := false;
   end;
 end;
 
@@ -1158,9 +1266,9 @@ end;
 
 procedure TFMain.UpdatePenWidthFromSpinEdit;
 begin
-  if round(ToolManager.ToolPenWidth*PenWidthFactor) = max(SpinEdit_PenWidth.Value,MinPenWidthValue) then exit;
+  if round(ToolManager.PenWidth*PenWidthFactor) = max(SpinEdit_PenWidth.Value,MinPenWidthValue) then exit;
   FInPenWidthChange:= true;
-  ToolManager.ToolPenWidth := max(SpinEdit_PenWidth.Value,MinPenWidthValue)/PenWidthFactor;
+  ToolManager.PenWidth := max(SpinEdit_PenWidth.Value,MinPenWidthValue)/PenWidthFactor;
   ShowPenPreview(True);
   UpdateEditPicture;
   FInPenWidthChange:= false;
@@ -1246,10 +1354,10 @@ begin
   if DarkTheme then c := clLightText else c := clBtnText;
   x := round(PaintBox_PenPreview.Width/2);
   y := round(PaintBox_PenPreview.Height/2);
-  if Assigned(Zoom) then visualSize := ToolManager.ToolPenWidth * Zoom.Factor else visualSize := ToolManager.ToolPenWidth;
+  if Assigned(Zoom) then visualSize := ToolManager.PenWidth * Zoom.Factor else visualSize := ToolManager.PenWidth;
   if (CurrentTool in[ptBrush,ptClone]) and (visualSize <= 2*bmp.width) and (visualSize <= 2*bmp.Height) then
   begin
-    bi := ToolManager.ToolBrushInfo;
+    bi := ToolManager.BrushInfo;
     if bi <> nil then
       with bi do
       begin
@@ -1294,7 +1402,7 @@ procedure TFMain.Tool_LinearGradientClick(Sender: TObject);
 begin
      if Tool_LinearGradient.Down then
      begin
-       ToolManager.ToolGradientType := gtLinear;
+       ToolManager.GradientType := gtLinear;
        UpdateEditPicture;
      end;
 end;
@@ -1303,7 +1411,7 @@ procedure TFMain.Tool_ReflectedGradientClick(Sender: TObject);
 begin
      if Tool_ReflectedGradient.Down then
      begin
-       ToolManager.ToolGradientType := gtReflected;
+       ToolManager.GradientType := gtReflected;
        UpdateEditPicture;
      end;
 end;
@@ -1312,7 +1420,7 @@ procedure TFMain.Tool_DiamondGradientClick(Sender: TObject);
 begin
      if Tool_DiamondGradient.Down then
      begin
-       ToolManager.ToolGradientType := gtDiamond;
+       ToolManager.GradientType := gtDiamond;
        UpdateEditPicture;
      end;
 end;
@@ -1321,7 +1429,7 @@ procedure TFMain.Tool_RadialGradientClick(Sender: TObject);
 begin
      if Tool_RadialGradient.Down then
      begin
-       ToolManager.ToolGradientType := gtRadial;
+       ToolManager.GradientType := gtRadial;
        UpdateEditPicture;
      end;
 end;
@@ -1330,7 +1438,7 @@ procedure TFMain.Tool_SinGradientClick(Sender: TObject);
 begin
   if initialized then
   begin
-    ToolManager.ToolGradientSine := Tool_SinGradient.Down;
+    ToolManager.GradientSine := Tool_SinGradient.Down;
     UpdateEditPicture;
   end;
 end;
@@ -1339,7 +1447,7 @@ procedure TFMain.Combo_GradientColorspaceChange(Sender: TObject);
 begin
   if initialized then
   begin
-    ToolManager.ToolGradientColorspace := DisplayToGradientColorSpace(Combo_GradientColorspace.Text);
+    ToolManager.GradientColorspace := DisplayToGradientColorSpace(Combo_GradientColorspace.Text);
     UpdateEditPicture(True);
   end;
 end;
@@ -1348,117 +1456,86 @@ procedure TFMain.SpinEdit_PhongBorderSizeChange(Sender: TObject; AByUser: boolea
 begin
   if AByUser and initialized then
   begin
-    if ToolManager.ToolShapeBorderSize = SpinEdit_PhongBorderSize.Value then exit;
-    ToolManager.ToolShapeBorderSize := SpinEdit_PhongBorderSize.Value;
+    if ToolManager.PhongShapeBorderSize = SpinEdit_PhongBorderSize.Value then exit;
+    ToolManager.PhongShapeBorderSize := SpinEdit_PhongBorderSize.Value;
     UpdateEditPicture;
   end;
 end;
 
-procedure TFMain.UpdatePanelPhongShape;
-begin
-  SpinEdit_PhongBorderSize.Enabled := (ToolManager.ToolShapeType = 'Rectangle') or
-        (ToolManager.ToolShapeType = 'RoundRectangle');
-end;
-
 procedure TFMain.Tool_PhongShapeRectangleClick(Sender: TObject);
 begin
-    if Tool_PhongShapeRectangle.Down then
-    begin
-      if initialized then ToolManager.ToolShapeType := 'Rectangle';
-      UpdatePanelPhongShape;
-      UpdateEditPicture;
-    end;
+  if initialized and Tool_PhongShapeRectangle.Down then
+  begin
+    ToolManager.PhongShapeKind := pskRectangle;
+    UpdateEditPicture;
+  end;
 end;
 
 procedure TFMain.Tool_PhongShapeRoundRectClick(Sender: TObject);
 begin
-    if Tool_PhongShapeRoundRect.Down then
-    begin
-      if initialized then ToolManager.ToolShapeType := 'RoundRectangle';
-      UpdatePanelPhongShape;
-      UpdateEditPicture;
-    end;
+  if initialized and Tool_PhongShapeRoundRect.Down then
+  begin
+    ToolManager.PhongShapeKind := pskRoundRectangle;
+    UpdateEditPicture;
+  end;
 end;
 
 procedure TFMain.Tool_PhongShapeSphereClick(Sender: TObject);
 begin
-    if Tool_PhongShapeSphere.Down then
-    begin
-      if initialized then ToolManager.ToolShapeType := 'Sphere';
-      UpdatePanelPhongShape;
-      UpdateEditPicture;
-    end;
+  if initialized and Tool_PhongShapeSphere.Down then
+  begin
+    ToolManager.PhongShapeKind := pskHalfSphere;
+    UpdateEditPicture;
+  end;
 end;
 
 procedure TFMain.Tool_PhongShapeConeClick(Sender: TObject);
 begin
-    if Tool_PhongShapeCone.Down then
-    begin
-      if initialized then ToolManager.ToolShapeType := 'Cone';
-      UpdatePanelPhongShape;
-      UpdateEditPicture;
-    end;
+  if initialized and Tool_PhongShapeCone.Down then
+  begin
+    ToolManager.PhongShapeKind := pskConeTop;
+    UpdateEditPicture;
+  end;
 end;
 
 procedure TFMain.Tool_PhongShapeVerticalConeClick(Sender: TObject);
 begin
-  if Tool_PhongShapeVerticalCone.Down then
+  if initialized and Tool_PhongShapeVerticalCone.Down then
   begin
-    if initialized then ToolManager.ToolShapeType := 'VerticalCone';
-    UpdatePanelPhongShape;
+    ToolManager.PhongShapeKind := pskConeSide;
     UpdateEditPicture;
   end
 end;
 
 procedure TFMain.Tool_PhongShapeHorizontalCylinderClick(Sender: TObject);
 begin
-  if Tool_PhongShapeHorizontalCylinder.Down then
+  if initialized and Tool_PhongShapeHorizontalCylinder.Down then
   begin
-    if initialized then ToolManager.ToolShapeType := 'HorizontalCylinder';
-    UpdatePanelPhongShape;
+    ToolManager.PhongShapeKind := pskHorizCylinder;
     UpdateEditPicture;
   end
 end;
 
 procedure TFMain.Tool_PhongShapeVerticalCylinderClick(Sender: TObject);
 begin
-  if Tool_PhongShapeVerticalCylinder.Down then
+  if initialized and Tool_PhongShapeVerticalCylinder.Down then
   begin
-    if initialized then ToolManager.ToolShapeType := 'VerticalCylinder';
-    UpdatePanelPhongShape;
+    ToolManager.PhongShapeKind := pskVertCylinder;
     UpdateEditPicture;
   end
-end;
-
-procedure TFMain.UpdatePanelTextWidth;
-var showElem: boolean;
-begin
-  showElem := ToolManager.ToolTextShadow;
-  Label_TextBlur.Visible := showElem;
-  SpinEdit_TextBlur.Visible := showElem;
-  Label_ShadowOffset.Visible := showElem;
-  SpinEdit_TextShadowX.Visible := showElem;
-  SpinEdit_TextShadowY.Visible := showElem;
 end;
 
 procedure TFMain.Tool_TextFontClick(Sender: TObject);
 var topmostInfo: TTopMostInfo;
 begin
   FInTextFont := true;
-  FontDialog1.Font.Assign(ToolManager.ToolTextFont);
-  FontDialog1.Font.Color := BGRAToColor(ToolManager.ToolForeColor);
+  FontDialog1.Font.Assign(ToolManager.GetTextFont);
+  FontDialog1.Font.Color := BGRAToColor(ToolManager.ForeColor);
   topmostInfo := LazPaintInstance.HideTopmost;
   if FontDialog1.Execute then
   begin
-    ToolManager.ToolTextFont.Assign(FontDialog1.Font);
-    SpinEdit_TextSize.Value := FontDialog1.Font.Size;
-    UpdateTextSizeIncrement;
-    if FontDialog1.Font.Color <> BGRAToColor(ToolManager.ToolForeColor) then
-    begin
-      ToolManager.ToolForeColor := ColorToBGRA(FontDialog1.Font.Color,ToolManager.ToolForeColor.alpha);
-      Shape_PenColor.Brush.Color := BGRAToColor(ToolManager.ToolForeColor);
-      LazPaintInstance.ColorToFChooseColor;
-    end;
+    ToolManager.SetTextFont(FontDialog1.Font);
+    ToolManager.ForeColor := ColorToBGRA(FontDialog1.Font.Color,ToolManager.ForeColor.alpha);
     UpdateEditPicture;
   end;
   LazPaintInstance.ShowTopmost(topmostInfo);
@@ -1485,12 +1562,10 @@ procedure TFMain.Tool_TextPhongClick(Sender: TObject);
 begin
   if initialized then
   begin
-     if ToolManager.ToolTextPhong <> Tool_TextPhong.Down then
+     if ToolManager.TextPhong <> Tool_TextPhong.Down then
      begin
-       ToolManager.ToolTextPhong:= Tool_TextPhong.Down;
-       Panel_Altitude.Visible := ToolManager.ToolTextPhong;
+       ToolManager.TextPhong:= Tool_TextPhong.Down;
        FLayout.Arrange;
-       UpdateToolbar;
        UpdateEditPicture;
      end;
   end;
@@ -1500,14 +1575,10 @@ procedure TFMain.Tool_TextShadowClick(Sender: TObject);
 begin
   if initialized then
   begin
-     if ToolManager.ToolTextShadow <> Tool_TextShadow.Down then
+     if ToolManager.TextShadow <> Tool_TextShadow.Down then
      begin
-       ToolManager.ToolTextShadow:= Tool_TextShadow.Down;
-
-       UpdatePanelTextWidth;
+       ToolManager.TextShadow:= Tool_TextShadow.Down;
        FLayout.Arrange;
-       UpdateToolbar;
-
        UpdateEditPicture;
      end;
   end;
@@ -1517,9 +1588,9 @@ procedure TFMain.Tool_TextOutlineClick(Sender: TObject);
 begin
   if initialized then
   begin
-     if ToolManager.ToolTextOutline <> Tool_TextOutline.Down then
+     if ToolManager.TextOutline <> Tool_TextOutline.Down then
      begin
-       ToolManager.ToolTextOutline:= Tool_TextOutline.Down;
+       ToolManager.SetTextOutline(Tool_TextOutline.Down, ToolManager.TextOutlineWidth);
        UpdateEditPicture;
      end;
   end;
@@ -1546,7 +1617,7 @@ begin
     c := ColorToBGRA(cb.DropDownFontColor);
   end;
   brushIndex := StrToInt(cb.Items[Index]);
-  bi := ToolManager.ToolBrushAt[brushIndex];
+  bi := ToolManager.BrushAt[brushIndex];
   if bi <> nil then
   with bi do
   begin
@@ -1569,7 +1640,7 @@ begin
   cb := ComboBox_BrushSelect;
   if cb.ItemIndex = -1 then exit;
   brushIndex := StrToInt(cb.Text);
-  bi := ToolManager.ToolBrushAt[brushIndex];
+  bi := ToolManager.BrushAt[brushIndex];
   c:= AState.FontEx.Color;
   if bi <> nil then
   begin

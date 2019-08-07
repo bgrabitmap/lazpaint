@@ -90,7 +90,7 @@ procedure TFPhongFilter.Button_OKClick(Sender: TObject);
 begin
   FilterConnector.ValidateAction;
   FilterConnector.LazPaintInstance.Config.SetDefaultPhongFilterAltitude(SpinEdit_Altitude.Value);
-  FilterConnector.LazPaintInstance.ToolManager.ToolLightPosition := CurrentLightPos;
+  FilterConnector.LazPaintInstance.ToolManager.LightPosition := CurrentLightPos;
   ModalResult := mrOK;
 end;
 
@@ -111,12 +111,12 @@ end;
 procedure TFPhongFilter.FormShow(Sender: TObject);
 begin
   FInitializing:= true;
-  Radio_UseTexture.Enabled := (FilterConnector.LazPaintInstance.ToolManager.GetToolTexture <> nil);
+  Radio_UseTexture.Enabled := (FilterConnector.LazPaintInstance.ToolManager.GetTexture <> nil);
   if Radio_UseTexture.Enabled then Radio_UseTexture.Checked := true
   else Radio_UsePenColor.Checked := true;
   SpinEdit_Altitude.Value := FilterConnector.LazPaintInstance.Config.DefaultPhongFilterAltitude;
   SpinEdit_AltitudeChange(nil);
-  with FilterConnector.LazPaintInstance.ToolManager.ToolLightPosition do
+  with FilterConnector.LazPaintInstance.ToolManager.LightPosition do
     FCenter := PointF(X/FilterConnector.LazPaintInstance.Image.Width,
         Y/FilterConnector.LazPaintInstance.Image.Height);
   FInitializing := false;
@@ -298,7 +298,7 @@ begin
   shader.AmbientFactor := 0.5;
   shader.NegativeDiffusionFactor := 0.15;
   shader.LightPositionF := CurrentLightPos;
-  shader.LightPositionZ := FilterConnector.LazPaintInstance.ToolManager.ToolLightAltitude;
+  shader.LightPositionZ := FilterConnector.LazPaintInstance.ToolManager.LightAltitude;
   if FHeightMap = nil then
   begin
     if Radio_MapLightness.Checked then
@@ -329,13 +329,13 @@ begin
   if FHeightMap <> nil then
   begin
     if Radio_UseTexture.Checked then
-      shader.DrawScan(result, FHeightMap, SpinEdit_Altitude.Value,0,0,FilterConnector.LazPaintInstance.ToolManager.GetToolTextureAfterAlpha)
+      shader.DrawScan(result, FHeightMap, SpinEdit_Altitude.Value,0,0,FilterConnector.LazPaintInstance.ToolManager.GetTextureAfterAlpha)
     else if Radio_UsePenColor.Checked then
-      shader.Draw(result, FHeightMap, SpinEdit_Altitude.Value,0,0,FilterConnector.LazPaintInstance.ToolManager.ToolForeColor)
+      shader.Draw(result, FHeightMap, SpinEdit_Altitude.Value,0,0,FilterConnector.LazPaintInstance.ToolManager.ForeColor)
     else if Radio_UseKeep.Checked then
       shader.Draw(result, FHeightMap, SpinEdit_Altitude.Value,0,0,FilterConnector.BackupLayer)
     else
-      shader.Draw(result, FHeightMap, SpinEdit_Altitude.Value,0,0,FilterConnector.LazPaintInstance.ToolManager.ToolBackColor);
+      shader.Draw(result, FHeightMap, SpinEdit_Altitude.Value,0,0,FilterConnector.LazPaintInstance.ToolManager.BackColor);
   end;
   shader.Free;
 end;

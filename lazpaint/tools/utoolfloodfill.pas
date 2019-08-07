@@ -73,19 +73,11 @@ procedure TToolGradient.AssignShapeStyle(AMatrix: TAffineMatrix);
 begin
   with FShape.BackFill.Gradient do
   begin
-    StartColor := Manager.ToolForeColor;
-    EndColor := Manager.ToolBackColor;
-    GradientType := Manager.ToolGradientType;
-    case Manager.ToolGradientColorspace of
-     gcsLinearRgb: ColorInterpolation := ciStdRGB;
-     gcsHueCW: ColorInterpolation := ciLinearHSLPositive;
-     gcsHueCCW: ColorInterpolation := ciLinearHSLNegative;
-     gcsCorrectedHueCW: ColorInterpolation := ciGSBPositive;
-     gcsCorrectedHueCCW: ColorInterpolation := ciGSBPositive;
-    else
-      ColorInterpolation := ciLinearRGB;
-    end;
-    if Manager.ToolGradientSine then
+    StartColor := Manager.ForeColor;
+    EndColor := Manager.BackColor;
+    GradientType := Manager.GradientType;
+    ColorInterpolation := Manager.GradientColorspace;
+    if Manager.GradientSine then
       Repetition := grSine
     else
       Repetition := grPad;
@@ -134,11 +126,11 @@ function TToolFloodFill.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
 var
    floodFillMask,floodFillTex: TBGRABitmap;
 begin
-  if rightBtn then penColor := Manager.ToolBackColor else penColor := Manager.ToolForeColor;
-  if Manager.GetToolTextureAfterAlpha <> nil then
+  if rightBtn then penColor := Manager.BackColor else penColor := Manager.ForeColor;
+  if Manager.GetTextureAfterAlpha <> nil then
   begin
     floodFillMask := TBGRABitmap.Create(toolDest.Width,toolDest.Height,BGRABlack);
-    floodFillTex := Manager.GetToolTextureAfterAlpha.GetPart(rect(0,0,toolDest.Width,toolDest.Height)) as TBGRABitmap;
+    floodFillTex := Manager.GetTextureAfterAlpha.GetPart(rect(0,0,toolDest.Width,toolDest.Height)) as TBGRABitmap;
     toolDest.ParallelFloodFill(pt.X,pt.Y,floodFillMask,BGRAWhite,fmSet,Manager.ToolTolerance);
     floodFillTex.ApplyMask(floodFillMask);
     toolDest.PutImage(0,0,floodFillTex,dmDrawWithTransparency);

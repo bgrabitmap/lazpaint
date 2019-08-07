@@ -488,7 +488,7 @@ end;
 
 function TToolTextureMapping.GetTexture: TBGRABitmap;
 begin
-  result := Manager.GetToolTextureAfterAlpha;
+  result := Manager.GetTextureAfterAlpha;
 end;
 
 procedure TToolTextureMapping.OnTryStop(sender: TCustomLayerAction);
@@ -738,13 +738,13 @@ begin
       result := false;
       exit;
     end;
-    setlength(DeformationGrid,Manager.ToolDeformationGridNbY,Manager.ToolDeformationGridNbX);
-    setlength(DeformationGridTexCoord,Manager.ToolDeformationGridNbY,Manager.ToolDeformationGridNbX);
-    for yb := 0 to Manager.ToolDeformationGridNbY-1 do
-      for xb := 0 to Manager.ToolDeformationGridNbX-1 do
+    setlength(DeformationGrid,Manager.DeformationGridNbY,Manager.DeformationGridNbX);
+    setlength(DeformationGridTexCoord,Manager.DeformationGridNbY,Manager.DeformationGridNbX);
+    for yb := 0 to Manager.DeformationGridNbY-1 do
+      for xb := 0 to Manager.DeformationGridNbX-1 do
       begin
-        DeformationGridTexCoord[yb,xb] := PointF(xb/(Manager.ToolDeformationGridNbX-1)*layer.Width-0.5,
-                                                     yb/(Manager.ToolDeformationGridNbY-1)*layer.Height-0.5);
+        DeformationGridTexCoord[yb,xb] := PointF(xb/(Manager.DeformationGridNbX-1)*layer.Width-0.5,
+                                                     yb/(Manager.DeformationGridNbY-1)*layer.Height-0.5);
         DeformationGrid[yb,xb] :=DeformationGridTexCoord[yb,xb];
       end;
   end;
@@ -779,8 +779,8 @@ begin
   begin
     ValidateAction;
     DoingDeformation := false;
-    for yb := 0 to Manager.ToolDeformationGridNbY-2 do
-      for xb := 0 to Manager.ToolDeformationGridNbX-2 do
+    for yb := 0 to Manager.DeformationGridNbY-2 do
+      for xb := 0 to Manager.DeformationGridNbX-2 do
         DeformationGridTexCoord[yb,xb] := DeformationGrid[yb,xb];
   end;
 end;
@@ -808,8 +808,8 @@ begin
   deformationGridY := 1;
   if DeformationGrid <> nil then
   begin
-    for yb := 1 to Manager.ToolDeformationGridNbY-2 do
-      for xb := 1 to Manager.ToolDeformationGridNbX-2 do
+    for yb := 1 to Manager.DeformationGridNbY-2 do
+      for xb := 1 to Manager.DeformationGridNbX-2 do
       begin
         curDist := sqr(ptF.x-DeformationGrid[yb,xb].x)+sqr(ptF.y-DeformationGrid[yb,xb].y);
         if curDist < minDist then
@@ -871,8 +871,8 @@ begin
 
     layer := GetToolDrawingLayer;
     backupLayer := GetBackupLayerIfExists;
-    NbX := Manager.ToolDeformationGridNbX;
-    NbY := Manager.ToolDeformationGridNbY;
+    NbX := Manager.DeformationGridNbX;
+    NbY := Manager.DeformationGridNbY;
 
     DeformationGrid[deformationGridY,deformationGridX] := PointF(
       DeformationGrid[deformationGridY,deformationGridX].X + ptF.X-deformationOrigin.X,
@@ -964,14 +964,14 @@ var curPt,rightPt,downPt: TPointF;
 begin
   result := EmptyRect;
   if not ToolDeformationGridNeeded then exit;
-  for xb := 0 to Manager.ToolDeformationGridNbX-1 do
-    for yb := 0 to Manager.ToolDeformationGridNbY-1 do
+  for xb := 0 to Manager.DeformationGridNbX-1 do
+    for yb := 0 to Manager.DeformationGridNbY-1 do
     begin
       curPt := BitmapToVirtualScreen(DeformationGrid[yb,xb]);
       if not deformationGridMoving or ((xb+1 >= deformationGridX) and (xb <= deformationGridX) and
         (yb >= deformationGridY-1) and (yb <= deformationGridY+1)) then
       begin
-        if (xb < Manager.ToolDeformationGridNbX-1) and (yb > 0) and (yb < Manager.ToolDeformationGridNbY-1) then
+        if (xb < Manager.DeformationGridNbX-1) and (yb > 0) and (yb < Manager.DeformationGridNbY-1) then
         begin
           rightPt := BitmapToVirtualScreen(DeformationGrid[yb,xb+1]);
           if Assigned(VirtualScreen) then NiceLine(VirtualScreen, curPt.X,curPt.Y, rightPt.X,rightPt.Y);
@@ -984,7 +984,7 @@ begin
       if not deformationGridMoving or ((xb >= deformationGridX-1) and (xb <= deformationGridX+1) and
         (yb+1 >= deformationGridY) and (yb <= deformationGridY)) then
       begin
-        if (yb < Manager.ToolDeformationGridNbY-1) and (xb > 0) and (xb < Manager.ToolDeformationGridNbX-1) then
+        if (yb < Manager.DeformationGridNbY-1) and (xb > 0) and (xb < Manager.DeformationGridNbX-1) then
         begin
           downPt := BitmapToVirtualScreen(DeformationGrid[yb+1,xb]);
           if Assigned(virtualScreen) then NiceLine(VirtualScreen, curPt.X,curPt.Y, downPt.X,downPt.Y);
@@ -995,8 +995,8 @@ begin
         end;
       end;
     end;
-  for xb := 1 to Manager.ToolDeformationGridNbX-2 do
-    for yb := 1 to Manager.ToolDeformationGridNbY-2 do
+  for xb := 1 to Manager.DeformationGridNbX-2 do
+    for yb := 1 to Manager.DeformationGridNbY-2 do
     begin
       if not deformationGridMoving or ((xb >= deformationGridX-1) and (xb <= deformationGridX+1) and
         (yb >= deformationGridY-1) and (yb <= deformationGridY+1)) then

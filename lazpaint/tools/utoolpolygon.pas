@@ -12,8 +12,6 @@ const
   EasyBezierMinimumDotProduct = 0.5;
 
 type
-  TToolSplineMode = (tsmMovePoint, tsmCurveModeAuto, tsmCurveModeAngle, tsmCurveModeSpline);
-
   { TToolRectangle }
 
   TToolRectangle = class(TVectorialTool)
@@ -76,7 +74,7 @@ end;
 
 function TToolEllipse.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctTexture,ctShape,ctPenWidth];
+  Result:= [ctColor,ctTexture,ctShape,ctPenWidth,ctPenStyle];
 end;
 
 { TToolRectangle }
@@ -88,34 +86,15 @@ end;
 
 function TToolRectangle.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctTexture,ctShape,ctPenWidth,ctJoinStyle];
+  Result:= [ctColor,ctTexture,ctShape,ctPenWidth,ctPenStyle,ctJoinStyle];
 end;
 
 { TToolSpline }
 
 function TToolSpline.GetCurrentMode: TToolSplineMode;
-var
-  c: TCurveShape;
 begin
   if Assigned(FShape) then
-  begin
-    c := TCurveShape(FShape);
-    case c.Usermode of
-    vsuEdit: FCurrentMode := tsmMovePoint;
-    vsuCreate: if c.PointCount > 1 then
-               begin
-                 case c.CurveMode[c.PointCount-2] of
-                   cmAuto: FCurrentMode := tsmCurveModeAuto;
-                   cmAngle: FCurrentMode := tsmCurveModeAngle;
-                   cmCurve: FCurrentMode := tsmCurveModeSpline;
-                 end;
-               end else
-                 result := tsmCurveModeAuto;
-    vsuCurveSetAuto: FCurrentMode := tsmCurveModeAuto;
-    vsuCurveSetAngle: FCurrentMode := tsmCurveModeAngle;
-    vsuCurveSetCurve: FCurrentMode := tsmCurveModeSpline;
-    end;
-  end;
+    FCurrentMode := ToolSplineModeFromShape(FShape);
   result := FCurrentMode;
 end;
 
@@ -163,7 +142,7 @@ end;
 procedure TToolSpline.AssignShapeStyle(AMatrix: TAffineMatrix);
 begin
   inherited AssignShapeStyle(AMatrix);
-  TCurveShape(FShape).SplineStyle:= Manager.ToolSplineStyle;
+  TCurveShape(FShape).SplineStyle:= Manager.SplineStyle;
 end;
 
 constructor TToolSpline.Create(AManager: TToolManager);
@@ -180,7 +159,7 @@ end;
 
 function TToolSpline.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctTexture,ctShape,ctPenWidth,ctLineCap];
+  Result:= [ctColor,ctTexture,ctShape,ctPenWidth,ctPenStyle,ctLineCap,ctSplineStyle];
 end;
 
 { TToolPolygon }
@@ -193,10 +172,11 @@ end;
 procedure TToolPolygon.AssignShapeStyle(AMatrix: TAffineMatrix);
 begin
   inherited AssignShapeStyle(AMatrix);
-  TCustomPolypointShape(FShape).Closed := Manager.ToolOptionCloseShape;
-  TCustomPolypointShape(FShape).ArrowStartKind := StrToArrowKind(Manager.ToolArrowStart);
-  TCustomPolypointShape(FShape).ArrowEndKind := StrToArrowKind(Manager.ToolArrowEnd);
-  TCustomPolypointShape(FShape).ArrowSize := Manager.ToolArrowSize;
+  TCustomPolypointShape(FShape).Closed := toCloseShape in Manager.ShapeOptions;
+  TCustomPolypointShape(FShape).ArrowStartKind := Manager.ArrowStart;
+  TCustomPolypointShape(FShape).ArrowEndKind := Manager.ArrowEnd;
+  TCustomPolypointShape(FShape).ArrowSize := Manager.ArrowSize;
+  if not (self is TToolSpline) then TCustomPolypointShape(FShape).LineCap:= Manager.LineCap;
   UpdateUserMode;
 end;
 
@@ -208,7 +188,7 @@ end;
 
 function TToolPolygon.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctTexture,ctShape,ctPenWidth,ctJoinStyle,ctLineCap];
+  Result:= [ctColor,ctTexture,ctShape,ctPenWidth,ctPenStyle,ctJoinStyle,ctLineCap];
 end;
 
 initialization

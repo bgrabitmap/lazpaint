@@ -626,14 +626,14 @@ begin
     if (ssLeft in Shift) and not (ssRight in Shift) then
     begin
       c := FColors.Color[idx];
-      if not FTransparentPalette then c.alpha := LazPaintInstance.ToolManager.ToolForeColor.alpha;
-      LazPaintInstance.ToolManager.ToolForeColor := c;
+      if not FTransparentPalette then c.alpha := LazPaintInstance.ToolManager.ForeColor.alpha;
+      LazPaintInstance.ToolManager.ForeColor := c;
     end else
     if not (ssLeft in Shift) and (ssRight in Shift) then
     begin
       c := FColors.Color[idx];
-      if not FTransparentPalette then c.alpha := LazPaintInstance.ToolManager.ToolBackColor.alpha;
-      LazPaintInstance.ToolManager.ToolBackColor := c;
+      if not FTransparentPalette then c.alpha := LazPaintInstance.ToolManager.BackColor.alpha;
+      LazPaintInstance.ToolManager.BackColor := c;
     end else
         exit;
     LazPaintInstance.UpdateToolbar;

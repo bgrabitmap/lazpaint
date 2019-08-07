@@ -45,7 +45,7 @@ var
   posF: TPointF;
 begin
   posF := AffineMatrixInverse(FMatrix)*(FShape as TPhongShape).LightPosition;
-  Manager.ToolLightPosition := posF;
+  Manager.LightPosition := posF;
   inherited ShapeChange(ASender, ABounds, ADiff);
 end;
 
@@ -55,16 +55,10 @@ begin
   FMatrix := AMatrix;
   with (FShape as TPhongShape) do
   begin
-    if Manager.ToolShapeType = 'RoundRectangle' then ShapeKind:= pskRoundRectangle else
-    if Manager.ToolShapeType = 'Sphere' then ShapeKind := pskHalfSphere else
-    if Manager.ToolShapeType = 'Cone' then ShapeKind := pskConeTop else
-    if Manager.ToolShapeType = 'VerticalCone' then ShapeKind := pskConeSide else
-    if Manager.ToolShapeType = 'VerticalCylinder' then ShapeKind := pskVertCylinder else
-    if Manager.ToolShapeType = 'HorizontalCylinder' then ShapeKind := pskHorizCylinder
-    else ShapeKind := pskRectangle;
-    LightPosition := AMatrix*Manager.ToolLightPosition;
-    ShapeAltitudePercent := Manager.ToolShapeAltitude;
-    BorderSizePercent:= Manager.ToolShapeBorderSize;
+    ShapeKind := Manager.PhongShapeKind;
+    LightPosition := AMatrix*Manager.LightPosition;
+    ShapeAltitudePercent := Manager.PhongShapeAltitude;
+    BorderSizePercent:= Manager.PhongShapeBorderSize;
   end;
 end;
 

@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, IniFiles, BGRABitmapTypes, Graphics, LCLType, uscripting,
-  Forms;
+  Forms, LCVectorRectShapes;
 
 type
   TLazPaintConfig = class;
@@ -203,7 +203,7 @@ type
     function DefaultToolTextShadow: boolean;
     procedure SetDefaultToolTextShadow(value: boolean);
     function DefaultToolTextFont: TFont;
-    procedure SetDefaultToolTextFont(value: TFont);
+    procedure SetDefaultToolTextFont(AFont: TFont);
     function DefaultToolTextBlur: single;
     procedure SetDefaultToolTextBlur(value: single);
     function DefaultToolTextShadowOffsetX: integer;
@@ -230,8 +230,8 @@ type
     procedure SetDefaultToolShapeAltitude(value: integer);
     function DefaultToolShapeBorderSize: integer;
     procedure SetDefaultToolShapeBorderSize(value: integer);
-    function DefaultToolShapeType: string;
-    procedure SetDefaultToolShapeType(value: string);
+    function DefaultToolShapeType: TPhongShapeKind;
+    procedure SetDefaultToolShapeType(value: TPhongShapeKind);
 
     function DefaultRetrieveSelectionAnswer: TModalResult;
     procedure SetDefaultRetrieveSelectionAnswer(value: TModalResult);
@@ -855,8 +855,7 @@ function TLazPaintConfig.DefaultToolTextFont: TFont;
 var fontStyle: TFontStyles;
 begin
   tempFont.Name := iniOptions.ReadString('Tool','TextFontName','Arial');
-  tempFont.Height := iniOptions.ReadInteger('Tool','TextFontHeight',-13);
-  tempFont.CharSet := iniOptions.ReadInteger('Tool','TextFontCharSet',ANSI_CHARSET);
+  tempFont.Size := iniOptions.ReadInteger('Tool','TextFontSize',10);
   fontStyle := [];
   if iniOptions.ReadBool('Tool','TextFontBold',False) then fontStyle += [fsBold];
   if iniOptions.ReadBool('Tool','TextFontItalic',False) then fontStyle += [fsItalic];
@@ -866,13 +865,13 @@ begin
   result := tempFont;
 end;
 
-procedure TLazPaintConfig.SetDefaultToolTextFont(value: TFont);
+procedure TLazPaintConfig.SetDefaultToolTextFont(AFont: TFont);
 begin
-  tempFont.Assign(value);
+  tempFont.Assign(AFont);
 
   iniOptions.WriteString('Tool','TextFontName',tempFont.Name);
   iniOptions.WriteInteger('Tool','TextFontHeight',tempFont.Height);
-  iniOptions.WriteInteger('Tool','TextFontCharSet',tempFont.CharSet);
+  iniOptions.WriteInteger('Tool','TextFontSize',tempFont.Size);
   iniOptions.WriteBool('Tool','TextFontBold',fsBold in tempFont.Style);
   iniOptions.WriteBool('Tool','TextFontItalic',fsItalic in tempFont.Style);
   iniOptions.WriteBool('Tool','TextFontStrikeOut',fsStrikeOut in tempFont.Style);
@@ -1002,14 +1001,34 @@ begin
   iniOptions.WriteInteger('Filter','ShapeBorderSize',value);
 end;
 
-function TLazPaintConfig.DefaultToolShapeType: string;
+function TLazPaintConfig.DefaultToolShapeType: TPhongShapeKind;
+var
+  str: String;
 begin
-  result := iniOptions.ReadString('Filter','ShapeType','Rectangle');
+  str := iniOptions.ReadString('Filter','ShapeType','Rectangle');
+  if str = 'RoundRectangle' then result := pskRoundRectangle else
+  if str = 'Sphere' then result := pskHalfSphere else
+  if str = 'Cone' then result := pskConeTop else
+  if str = 'VerticalCone' then result := pskConeSide else
+  if str = 'VerticalCylinder' then result := pskVertCylinder else
+  if str = 'HorizontalCylinder' then result := pskHorizCylinder
+  else result := pskRectangle;
 end;
 
-procedure TLazPaintConfig.SetDefaultToolShapeType(value: string);
+procedure TLazPaintConfig.SetDefaultToolShapeType(value: TPhongShapeKind);
+var
+  str: String;
 begin
-  iniOptions.WriteString('Filter','ShapeType',value);
+  case value of
+  pskRoundRectangle: str := 'RoundRectangle';
+  pskHalfSphere: str := 'Sphere';
+  pskConeTop: str := 'Cone';
+  pskConeSide: str := 'VerticalCone';
+  pskVertCylinder: str := 'VerticalCylinder';
+  pskHorizCylinder: str := 'HorizontalCylinder';
+  else str:= 'Rectangle'
+  end;
+  iniOptions.WriteString('Filter','ShapeType',str);
 end;
 
 function TLazPaintConfig.DefaultRetrieveSelectionAnswer: TModalResult;

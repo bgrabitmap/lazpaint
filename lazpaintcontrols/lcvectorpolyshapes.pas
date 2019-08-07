@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Types, LCVectorOriginal, BGRABitmapTypes, BGRALayerOriginal,
-  BGRABitmap, BGRATransform, BGRAGradients;
+  BGRABitmap, BGRATransform, BGRAGradients, BGRAGraphics;
 
 type
   TArrowKind = (akNone, akTail, akTip, akNormal, akCut, akFlipped, akFlippedCut,
@@ -18,8 +18,11 @@ const
     ('none', 'tail', 'tip', 'normal', 'cut', 'flipped', 'flipped-cut',
      'triangle', 'triangle-back1', 'triangle-back2',
      'hollow-triangle', 'hollow-triangle-back1', 'hollow-triangle-back2');
+  LineCapToStr: array[TPenEndCap] of string =
+    ('round','square','flat');
 
 function StrToArrowKind(AStr: string): TArrowKind;
+function StrToLineCap(AStr: string): TPenEndCap;
 
 type
   TCustomPolypointShape = class;
@@ -37,10 +40,12 @@ type
     FStartClosed: boolean;
     FStartArrowStartKind,FStartArrowEndKind: TArrowKind;
     FStartArrowSize: TPointF;
+    FStartLineCap: TPenEndCap;
     FEndPoints: array of TCustomPolypointPoint;
     FEndClosed: boolean;
     FEndArrowStartKind,FEndArrowEndKind: TArrowKind;
     FEndArrowSize: TPointF;
+    FEndLineCap: TPenEndCap;
   public
     constructor Create(AStartShape: TVectorShape); override;
     procedure ComputeDiff(AEndShape: TVectorShape); override;
@@ -55,11 +60,13 @@ type
   TCustomPolypointShape = class(TVectorShape)
   private
     FClosed: boolean;
+    function GetLineCap: TPenEndCap;
     function GetPoint(AIndex: integer): TPointF;
     function GetPointCount: integer;
     procedure SetArrowEndKind(AValue: TArrowKind);
     procedure SetArrowSize(AValue: TPointF);
     procedure SetArrowStartKind(AValue: TArrowKind);
+    procedure SetLineCap(AValue: TPenEndCap);
     procedure SetPoint(AIndex: integer; AValue: TPointF);
   protected
     FPoints: array of TCustomPolypointPoint;
@@ -110,6 +117,7 @@ type
     property ArrowStartKind: TArrowKind read FArrowStartKind write SetArrowStartKind;
     property ArrowEndKind: TArrowKind read FArrowEndKind write SetArrowEndKind;
     property ArrowSize: TPointF read FArrowSize write SetArrowSize;
+    property LineCap: TPenEndCap read GetLineCap write SetLineCap;
   end;
 
   { TPolylineShape }
@@ -143,6 +151,7 @@ type
     procedure Apply(AStartShape: TVectorShape); override;
     procedure Unapply(AEndShape: TVectorShape); override;
     procedure Append(ADiff: TVectorShapeDiff); override;
+    function IsIdentity: boolean; override;
   end;
 
   { TCurveShape }
@@ -176,7 +185,7 @@ procedure ApplyArrowStyle(AArrow: TBGRACustomArrow; AStart: boolean; AKind: TArr
 
 implementation
 
-uses BGRAPen, BGRAGraphics, BGRAFillInfo, BGRAPath, math, LCVectorialFill,
+uses BGRAPen, BGRAFillInfo, BGRAPath, math, LCVectorialFill,
   BGRAArrow;
 
 function StrToArrowKind(AStr: string): TArrowKind;
@@ -186,6 +195,15 @@ begin
   for ak := low(TArrowKind) to high(TArrowKind) do
     if CompareText(AStr, ArrowKindToStr[ak])=0 then exit(ak);
   result := akNone;
+end;
+
+function StrToLineCap(AStr: string): TPenEndCap;
+var
+  ec: TPenEndCap;
+begin
+  for ec := low(TPenEndCap) to high(TPenEndCap) do
+    if CompareText(AStr, LineCapToStr[ec])=0 then exit(ec);
+  result := pecRound;
 end;
 
 procedure ApplyArrowStyle(AArrow: TBGRACustomArrow; AStart: boolean; AKind: TArrowKind; ASize: TPointF);
@@ -291,6 +309,12 @@ begin
   FEndSplineStyle:= next.FEndSplineStyle;
 end;
 
+function TCurveShapeDiff.IsIdentity: boolean;
+begin
+  result := (FStartCosineAngle = FEndCosineAngle) and
+    (FStartSplineStyle = FEndSplineStyle);
+end;
+
 { TCustomPolypointShapeDiff }
 
 constructor TCustomPolypointShapeDiff.Create(AStartShape: TVectorShape);
@@ -305,6 +329,7 @@ begin
     FStartArrowStartKind := FArrowStartKind;
     FStartArrowEndKind:= FArrowEndKind;
     FStartArrowSize:= FArrowSize;
+    FStartLineCap:= Stroker.LineCap;
   end;
 end;
 
@@ -320,6 +345,7 @@ begin
     FEndArrowStartKind := FArrowStartKind;
     FEndArrowEndKind:= FArrowEndKind;
     FEndArrowSize:= FArrowSize;
+    FEndLineCap:= Stroker.LineCap;
   end;
 end;
 
@@ -336,6 +362,7 @@ begin
     FArrowStartKind := FEndArrowStartKind;
     FArrowEndKind := FEndArrowEndKind;
     FArrowSize := FEndArrowSize;
+    Stroker.LineCap:= FEndLineCap;
     EndUpdate;
   end;
 end;
@@ -353,6 +380,7 @@ begin
     FArrowStartKind := FStartArrowStartKind;
     FArrowEndKind := FStartArrowEndKind;
     FArrowSize := FStartArrowSize;
+    Stroker.LineCap:= FStartLineCap;
     EndUpdate;
   end;
 end;
@@ -369,6 +397,7 @@ begin
   FEndArrowStartKind := next.FEndArrowStartKind;
   FEndArrowEndKind := next.FEndArrowEndKind;
   FEndArrowSize := next.FEndArrowSize;
+  FEndLineCap:= next.FEndLineCap;
 end;
 
 function TCustomPolypointShapeDiff.IsIdentity: boolean;
@@ -379,7 +408,8 @@ begin
     (FStartClosed = FEndClosed) and
     (FStartArrowStartKind = FEndArrowStartKind) and
     (FStartArrowEndKind = FEndArrowEndKind) and
-    (FStartArrowSize = FEndArrowSize);
+    (FStartArrowSize = FEndArrowSize) and
+    (FStartLineCap = FEndLineCap);
   if result then
   begin
     for i := 0 to high(FStartPoints) do
@@ -404,6 +434,11 @@ begin
   if (AIndex < 0) or (AIndex >= length(FPoints)) then
     raise ERangeError.Create('Index out of bounds');
   result := FPoints[AIndex].coord;
+end;
+
+function TCustomPolypointShape.GetLineCap: TPenEndCap;
+begin
+  result := Stroker.LineCap;
 end;
 
 function TCustomPolypointShape.GetPointCount: integer;
@@ -432,6 +467,14 @@ begin
   if FArrowStartKind=AValue then Exit;
   BeginUpdate(TCustomPolypointShapeDiff);
   FArrowStartKind:=AValue;
+  EndUpdate;
+end;
+
+procedure TCustomPolypointShape.SetLineCap(AValue: TPenEndCap);
+begin
+  if Stroker.LineCap=AValue then Exit;
+  BeginUpdate(TCustomPolypointShapeDiff);
+  Stroker.LineCap:=AValue;
   EndUpdate;
 end;
 
@@ -650,6 +693,7 @@ begin
     Stroker.Arrow := TBGRAArrow.Create;
     Stroker.ArrowOwned:= true;
   end;
+  Stroker.Arrow.LineCap:= LineCap;
   ApplyArrowStyle(Stroker.Arrow, true, ArrowStartKind, ArrowSize);
   ApplyArrowStyle(Stroker.Arrow, false, ArrowEndKind, ArrowSize);
   Result:=inherited ComputeStroke(APoints, AClosed, AStrokeMatrix);
@@ -807,6 +851,7 @@ begin
   else FArrowSize := DefaultArrowSize;
   FArrowStartKind:= StrToArrowKind(AStorage.RawString['arrow-start-kind']);
   FArrowEndKind:= StrToArrowKind(AStorage.RawString['arrow-end-kind']);
+  Stroker.LineCap := StrToLineCap(AStorage.RawString['line-cap']);
   EndUpdate;
 end;
 
@@ -832,6 +877,7 @@ begin
   else AStorage.RawString['arrow-end-kind'] := ArrowKindToStr[ArrowEndKind];
   if (ArrowStartKind=akNone) and (ArrowEndKind=akNone) then AStorage.RemoveAttribute('arrow-size')
   else AStorage.PointF['arrow-size'] := FArrowSize;
+  AStorage.RawString['line-cap'] := LineCapToStr[Stroker.LineCap];
 end;
 
 procedure TCustomPolypointShape.ConfigureCustomEditor(AEditor: TBGRAOriginalEditor);

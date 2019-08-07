@@ -175,12 +175,12 @@ begin
     pfClouds:
       begin
         filteredLayer := layer.Duplicate as TBGRABitmap;
-        RenderCloudsOn(filteredLayer,AInstance.ToolManager.ToolForeColor);
+        RenderCloudsOn(filteredLayer,AInstance.ToolManager.ForeColor);
       end;
     pfCustomWater:
     begin
       filteredLayer := layer.Duplicate as TBGRABitmap;
-      RenderWaterOn(filteredLayer,AInstance.ToolManager.ToolForeColor,AInstance.ToolManager.ToolBackColor);
+      RenderWaterOn(filteredLayer,AInstance.ToolManager.ForeColor,AInstance.ToolManager.BackColor);
     end;
     pfWater: filteredLayer := CreateWaterTexture(layer.Width,layer.Height);
     pfWood: filteredLayer := CreateWoodTexture(layer.Width,layer.Height);

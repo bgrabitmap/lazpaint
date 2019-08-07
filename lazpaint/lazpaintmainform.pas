@@ -13,11 +13,11 @@ uses
   Graphics, Dialogs, Menus, ExtDlgs, ComCtrls, ActnList, StdCtrls, ExtCtrls,
   Buttons, types, LCLType, BGRAImageList, BCTrackbarUpdown, BCComboBox, BCButton,
 
-  BGRABitmap, BGRABitmapTypes, BGRALayers, BGRASVGOriginal,
+  BGRABitmap, BGRABitmapTypes, BGRALayers, BGRASVGOriginal, BGRAGradientScanner,
 
   LazPaintType, UMainFormLayout, UTool, UImage, UImageAction, UZoom, UImageView,
   UImageObservation, UConfig, LCScaleDPI, UResourceStrings,
-  UMenu, uscripting, ubrowseimages, UToolPolygon,
+  UMenu, uscripting, ubrowseimages, UToolPolygon, UToolVectorial, LCVectorRectShapes,
 
   laztablet, udarktheme;
 
@@ -28,6 +28,15 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    Label_ShadowOffset: TLabel;
+    Label_TextBlur: TLabel;
+    Panel_TextShadow: TPanel;
+    Panel_CloseShape: TPanel;
+    SpinEdit_TextBlur: TBCTrackbarUpdown;
+    SpinEdit_TextShadowX: TBCTrackbarUpdown;
+    SpinEdit_TextShadowY: TBCTrackbarUpdown;
+    ToolBar23: TToolBar;
+    ToolBar24: TToolBar;
     ToolEditShape: TAction;
     ComboBox_ArrowStart: TBCComboBox;
     ComboBox_ArrowEnd: TBCComboBox;
@@ -46,13 +55,12 @@ type
     SpinEdit_Tolerance: TBCTrackbarUpdown;
     SpinEdit_BrushSpacing: TBCTrackbarUpdown;
     SpinEdit_ShapeAltitude: TBCTrackbarUpdown;
-    SpinEdit_TextShadowX: TBCTrackbarUpdown;
-    SpinEdit_TextBlur: TBCTrackbarUpdown;
     SpinEdit_TextOutlineWidth: TBCTrackbarUpdown;
     SpinEdit_PhongBorderSize: TBCTrackbarUpdown;
-    SpinEdit_TextShadowY: TBCTrackbarUpdown;
     SpinEdit_TextSize: TBCTrackbarUpdown;
     SpinEdit_TextureOpacity: TBCTrackbarUpdown;
+    Tool_CloseShape: TToolButton;
+    Tool_TextShadow: TToolButton;
     ViewDarkTheme: TAction;
     MenuFileToolbar: TMenuItem;
     ViewWorkspaceColor: TAction;
@@ -304,13 +312,10 @@ type
     Tool_PhongShapeRoundRect: TToolButton;
     FontDialog1: TFontDialog;
     LoadSelectionDialog: TOpenPictureDialog;
-    Label_TextBlur: TLabel;
-    Label_ShadowOffset: TLabel;
     Label_Text: TLabel;
     Panel_Text: TPanel;
     ToolBar15: TToolBar;
     Tool_TextFont: TToolButton;
-    Tool_TextShadow: TToolButton;
     PaintBox_Picture: TPaintBox;
     PaintBox_PenPreview: TPaintBox;
     Panel_Embedded: TPanel;
@@ -322,7 +327,6 @@ type
     Label_GridX: TLabel;
     TimerHidePenPreview: TTimer;
     ToolBar13: TToolBar;
-    Tool_CloseShape: TToolButton;
     ToolBar14: TToolBar;
     ToolButton19: TToolButton;
     ToolButton20: TToolButton;
@@ -643,7 +647,19 @@ type
 
   private
     function GetImage: TLazPaintImage;
-    procedure OnTextureChanged(Sender: TObject);
+    procedure ManagerGradientChanged(Sender: TObject);
+    procedure ManagerJoinStyleChanged(Sender: TObject);
+    procedure ManagerLineCapChanged(Sender: TObject);
+    procedure ManagerOnPhongShapeChanged(Sender: TObject);
+    procedure ManagerPenStyleChanged(Sender: TObject);
+    procedure ManagerPenWidthChanged(Sender: TObject);
+    procedure ManagerSplineStyleChanged(Sender: TObject);
+    procedure ManagerTextFontChanged(Sender: TObject);
+    procedure ManagerTextOutlineChanged(Sender: TObject);
+    procedure ManagerTextPhongChanged(Sender: TObject);
+    procedure ManagerTextShadowChanged(Sender: TObject);
+    procedure ManagerTextureChanged(Sender: TObject);
+    procedure ManagerShapeOptionChanged(Sender: TObject);
   private
     { private declarations }
     FLayout: TMainFormLayout;
@@ -692,6 +708,7 @@ type
     FImageView: TImageView;
     FUpdateStackWhenIdle: boolean;
     FToolbarElementsInitDone: boolean;
+    FInSplineStyleChange: Boolean;
 
     function GetCurrentPressure: single;
     function GetDarkTheme: boolean;
@@ -703,6 +720,18 @@ type
     procedure NoTextureIcon;
     procedure RegisterToolbarElements;
     procedure InitToolbarElements;
+    procedure UpdateToolOptions;
+    procedure UpdatePenStyleToolbar;
+    procedure UpdateJoinStyleToolbar;
+    procedure UpdateTextFontToolbar;
+    procedure UpdateTextOutlineToolbar;
+    procedure UpdateTextPhongToolbar;
+    procedure UpdateTextShadowToolbar;
+    procedure UpdateLineCapToolbar;
+    procedure UpdateSplineStyleToolbar;
+    procedure UpdateGradientToolbar;
+    procedure UpdatePenWidthToolbar;
+    procedure UpdatePhongToolbar;
     function ShowOpenBrushDialog: boolean;
     function TextSpinEditFocused: boolean;
     procedure UpdateBrush;
@@ -710,12 +739,11 @@ type
     procedure CreateMenuAndToolbar;
     function GetToolManager: TToolManager;
     procedure LayoutPictureAreaChange({%H-}ASender: TObject; {%H-}ANewArea: TRect);
-    procedure UpdatePanelTextWidth;
     function GetCurrentTool: TPaintToolType;
     procedure SwitchColors;
     procedure Init;
     procedure OnLatestVersionUpdate(ANewVersion: string);
-    procedure OnToolChanged({%H-}sender: TToolManager; {%H-}ANewTool: TPaintToolType);
+    procedure ManagerToolChanged({%H-}sender: TToolManager; {%H-}ANewTool: TPaintToolType);
     procedure OnQueryExitToolHandler({%H-}sender: TLazPaintImage);
     procedure OnZoomChanged({%H-}sender: TZoom; {%H-}ANewZoom: single);
     procedure SetLazPaintInstance(const AValue: TLazPaintCustomInstance);
@@ -738,8 +766,7 @@ type
     procedure LabelAutosize(ALabel: TLabel);
     procedure AskMergeSelection(ACaption: string);
     procedure ReleaseMouseButtons(Shift: TShiftState);
-    procedure UpdatePanelPhongShape;
-    procedure UpdateCurveMode;
+    procedure UpdateCurveModeToolbar;
     function ShowOpenTextureDialog: boolean;
     procedure ShowNoPicture;
     procedure SetCurveMode(AMode: TToolSplineMode);
@@ -783,6 +810,7 @@ type
       ASkipDialogIfSingleImage: boolean = false): Boolean;
     function PictureCanvasOfs: TPoint;
     procedure UpdateLineCapBar;
+    procedure UpdateColorToolbar(AUpdateColorDiff: boolean);
     procedure UpdateToolbar;
     function ChooseTool(Tool : TPaintToolType): boolean;
     procedure PictureSelectedLayerIndexChanged({%H-}sender: TLazPaintImage);
@@ -883,8 +911,10 @@ begin
   m.PredefinedMainMenus([MenuFile,MenuEdit,MenuSelect,MenuView, MenuImage,MenuRemoveTransparency,
     MenuColors,MenuTool, MenuFilter,MenuRadialBlur, MenuRender,MenuHelp]);
   m.Toolbars([Panel_Embedded,Panel_File,Panel_Zoom,Panel_Undo,Panel_CopyPaste,Panel_Coordinates,
-    Panel_Tool,Panel_Color,Panel_Texture,Panel_Grid,Panel_PenWidth,Panel_Aliasing,Panel_ShapeOption,Panel_LineCap,Panel_JoinStyle,
-    Panel_PenStyle,Panel_SplineStyle,Panel_Eraser,Panel_Tolerance,Panel_GradientType,Panel_Text,Panel_TextOutline,
+    Panel_Tool,Panel_Color,Panel_Texture,Panel_Grid,
+    Panel_ShapeOption,Panel_PenWidth,Panel_PenStyle,Panel_JoinStyle,
+    Panel_CloseShape,Panel_LineCap,Panel_Aliasing,
+    Panel_SplineStyle,Panel_Eraser,Panel_Tolerance,Panel_GradientType,Panel_Text,Panel_TextShadow,Panel_TextOutline,
     Panel_PhongShape,Panel_Altitude,Panel_PerspectiveOption,Panel_Brush,Panel_Ratio],Panel_ToolbarBackground);
   m.ImageList := LazPaintInstance.Icons[ScaleY(16, 96)];
   m.Apply;
@@ -912,10 +942,20 @@ begin
 
   If Assigned(ToolManager) then
   begin
-    if ToolManager.OnToolChanged = @OnToolChanged then
-      ToolManager.OnToolChanged := nil;
-    if ToolManager.OnTextureChanged = @OnTextureChanged then
-      ToolManager.OnTextureChanged := nil;
+    if ToolManager.OnToolChanged = @ManagerToolChanged then ToolManager.OnToolChanged := nil;
+    if ToolManager.OnTextureChanged = @ManagerTextureChanged then ToolManager.OnTextureChanged := nil;
+    if ToolManager.OnPenWidthChanged = @ManagerPenWidthChanged then ToolManager.OnPenWidthChanged := nil;
+    if ToolManager.OnPenStyleChanged = @ManagerPenStyleChanged then ToolManager.OnPenStyleChanged := nil;
+    if ToolManager.OnJoinStyleChanged = @ManagerJoinStyleChanged then ToolManager.OnJoinStyleChanged := nil;
+    if ToolManager.OnShapeOptionChanged = @ManagerShapeOptionChanged then ToolManager.OnShapeOptionChanged := nil;
+    if ToolManager.OnTextFontChanged = @ManagerTextFontChanged then ToolManager.OnTextFontChanged := nil;
+    if ToolManager.OnTextOutlineChanged = @ManagerTextOutlineChanged then ToolManager.OnTextOutlineChanged := nil;
+    if ToolManager.OnTextPhongChanged = @ManagerTextPhongChanged then ToolManager.OnTextPhongChanged := nil;
+    if ToolManager.OnTextShadowChanged = @ManagerTextShadowChanged then ToolManager.OnTextShadowChanged := nil;
+    if ToolManager.OnLineCapChanged = @ManagerLineCapChanged then ToolManager.OnLineCapChanged := nil;
+    if ToolManager.OnSplineStyleChanged = @ManagerSplineStyleChanged then ToolManager.OnSplineStyleChanged := nil;
+    if ToolManager.OnGradientChanged = @ManagerGradientChanged then ToolManager.OnGradientChanged := nil;
+    if ToolManager.OnPhongShapeChanged = @ManagerOnPhongShapeChanged then ToolManager.OnPhongShapeChanged := nil;
   end;
   FreeAndNil(Zoom);
   FreeAndNil(FOnlineUpdater);
@@ -974,8 +1014,20 @@ begin
   RegisterToolbarElements;
 
   ToolManager.SetCurrentToolType(ptHand);
-  ToolManager.OnToolChanged := @OnToolChanged;
-  ToolManager.OnTextureChanged := @OnTextureChanged;
+  ToolManager.OnToolChanged  :=  @ManagerToolChanged;
+  ToolManager.OnTextureChanged := @ManagerTextureChanged;
+  ToolManager.OnPenWidthChanged:= @ManagerPenWidthChanged;
+  ToolManager.OnPenStyleChanged:= @ManagerPenStyleChanged;
+  ToolManager.OnJoinStyleChanged:= @ManagerJoinStyleChanged;
+  ToolManager.OnShapeOptionChanged:=@ManagerShapeOptionChanged;
+  ToolManager.OnTextFontChanged := @ManagerTextFontChanged;
+  ToolManager.OnTextOutlineChanged:=@ManagerTextOutlineChanged;
+  ToolManager.OnTextPhongChanged:=@ManagerTextPhongChanged;
+  ToolManager.OnTextShadowChanged:=@ManagerTextShadowChanged;
+  ToolManager.OnLineCapChanged := @ManagerLineCapChanged;
+  ToolManager.OnSplineStyleChanged:=@ManagerSplineStyleChanged;
+  ToolManager.OnGradientChanged:=@ManagerGradientChanged;
+  ToolManager.OnPhongShapeChanged:=@ManagerOnPhongShapeChanged;
 
   InitToolbarElements;
 
@@ -1097,7 +1149,8 @@ begin
     else
       exit;
   end;
-  if (CurrentTool = ptText) and TextSpinEditFocused then SpinEdit_PenOpacity.SetFocus;
+  if (CurrentTool in[ptText,ptEditShape]) and TextSpinEditFocused then SpinEdit_PenOpacity.SetFocus;
+  Image.CurrentState.LayeredBitmap.EditorFocused := true;
 
   FormMouseMovePos := Point(X,Y);
   if InFormMouseMove then exit;
@@ -1964,7 +2017,7 @@ begin
   try
     if Zoom.EditingZoom then exit;
     toolProcessKey:= true;
-    if (CurrentTool = ptText) and ((UTF8Key = #8) or ((length(UTF8Key)=1) and (UTF8Key[1] in['-','0'..'9']))) then
+    if (CurrentTool in[ptText,ptEditShape]) and ((UTF8Key = #8) or ((length(UTF8Key)=1) and (UTF8Key[1] in['-','0'..'9']))) then
     begin
       if TextSpinEditFocused then
          toolProcessKey:= false;
@@ -2407,7 +2460,7 @@ end;
 procedure TFMain.ToolNoTextureExecute(Sender: TObject);
 begin
   try
-    ToolManager.SetToolTexture(nil);
+    ToolManager.SetTexture(nil);
     UpdateEditPicture;
 
   except
@@ -2418,7 +2471,7 @@ end;
 
 procedure TFMain.ToolNoTextureUpdate(Sender: TObject);
 begin
-  ToolNoTexture.Enabled := ToolManager.GetToolTexture <> nil;
+  ToolNoTexture.Enabled := ToolManager.GetTexture <> nil;
 end;
 
 procedure TFMain.ViewColorsExecute(Sender: TObject);
@@ -2663,14 +2716,14 @@ begin
                     begin
                       FImageActions.RemoveSelection;
                       BGRAReplace(newTexture, newTexture.GetPart(newTexture.GetImageBounds));
-                      ToolManager.SetToolTexture(newTexture);
+                      ToolManager.SetTexture(newTexture);
                       newTexture.FreeReference;
                     end;
                   end;
                 end;
               end;
             end;
-            if (ToolManager.GetToolTexture = nil) or ToolManager.GetToolTexture.Empty then
+            if (ToolManager.GetTexture = nil) or ToolManager.GetTexture.Empty then
             begin
               if useSelection then
               begin
@@ -2683,7 +2736,7 @@ begin
                 result := srCancelledByUser;
               end
               else
-              if (ToolManager.GetToolTexture = nil) or ToolManager.GetToolTexture.Empty then
+              if (ToolManager.GetTexture = nil) or ToolManager.GetTexture.Empty then
               begin
                 Tool := ptHand;
                 result := srException;
@@ -2823,7 +2876,7 @@ end;
 
 procedure TFMain.BrushCreateGeometricUpdate(Sender: TObject);
 begin
-  BrushCreateGeometric.Enabled := ToolManager.ToolBrushCount < 9;
+  BrushCreateGeometric.Enabled := ToolManager.BrushCount < 9;
 end;
 
 procedure TFMain.EditSelectionUpdate(Sender: TObject);
@@ -3137,7 +3190,7 @@ begin
           newTex := LoadFlatImageUTF8(texFilename).bmp;
         if LazPaintInstance.BlackAndWhite then
           newTex.InplaceGrayscale;
-        ToolManager.SetToolTexture(newTex);
+        ToolManager.SetTexture(newTex);
         newTex.FreeReference;
         newTex := nil;
         result := true;
@@ -3256,16 +3309,17 @@ begin
   result := ToolManager.GetCurrentToolType;
 end;
 
-procedure TFMain.OnToolChanged(sender: TToolManager; ANewTool: TPaintToolType);
+procedure TFMain.ManagerToolChanged(sender: TToolManager; ANewTool: TPaintToolType);
 begin
   if self.Visible then
   begin
-    UpdatePanelTextWidth;
     FLayout.Arrange;
     PaintBox_PenPreview.Invalidate;
     Image.OnImageChanged.NotifyObservers;
     UpdateToolImage;
     UpdateToolBar;
+    UpdatePenWidthToolbar;
+    UpdateCurveModeToolbar;
   end;
 end;
 
@@ -3483,7 +3537,10 @@ begin
   if not image.CurrentLayerVisible and not ToolManager.ToolCanBeUsed then
     ChooseTool(ptHand)
   else
+  begin
     ToolManager.ToolOpen;
+    ToolManager.UpdateContextualToolbars;
+  end;
 end;
 
 procedure TFMain.PictureSelectedLayerIndexChanging(sender: TLazPaintImage);
@@ -3509,10 +3566,71 @@ begin
   result := LazPaintInstance.Image;
 end;
 
-procedure TFMain.OnTextureChanged(Sender: TObject);
+procedure TFMain.ManagerGradientChanged(Sender: TObject);
+begin
+  UpdateGradientToolbar;
+end;
+
+procedure TFMain.ManagerJoinStyleChanged(Sender: TObject);
+begin
+  UpdateJoinStyleToolbar;
+end;
+
+procedure TFMain.ManagerLineCapChanged(Sender: TObject);
+begin
+  UpdateLineCapToolbar;
+end;
+
+procedure TFMain.ManagerOnPhongShapeChanged(Sender: TObject);
+begin
+  UpdatePhongToolbar;
+end;
+
+procedure TFMain.ManagerPenStyleChanged(Sender: TObject);
+begin
+  UpdatePenStyleToolbar;
+end;
+
+procedure TFMain.ManagerPenWidthChanged(Sender: TObject);
+begin
+  UpdatePenWidthToolbar;
+end;
+
+procedure TFMain.ManagerSplineStyleChanged(Sender: TObject);
+begin
+  UpdateSplineStyleToolbar;
+end;
+
+procedure TFMain.ManagerTextFontChanged(Sender: TObject);
+begin
+  UpdateTextFontToolbar;
+end;
+
+procedure TFMain.ManagerTextOutlineChanged(Sender: TObject);
+begin
+  UpdateTextOutlineToolbar;
+end;
+
+procedure TFMain.ManagerTextPhongChanged(Sender: TObject);
+begin
+  UpdateTextPhongToolbar;
+end;
+
+procedure TFMain.ManagerTextShadowChanged(Sender: TObject);
+begin
+  UpdateTextShadowToolbar;
+end;
+
+procedure TFMain.ManagerTextureChanged(Sender: TObject);
 begin
   UpdateTextureIcon;
-  SpinEdit_TextureOpacity.Value := ToolManager.ToolTextureOpacity;
+  SpinEdit_TextureOpacity.Value := ToolManager.TextureOpacity;
+end;
+
+procedure TFMain.ManagerShapeOptionChanged(Sender: TObject);
+begin
+  UpdateToolOptions;
+  FLayout.Arrange;
 end;
 
 procedure TFMain.UpdateStatusText;

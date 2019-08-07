@@ -940,12 +940,12 @@ object FMain: TFMain
     end
   end
   object Panel_LineCap: TPanel
-    Left = 90
+    Left = 144
     Height = 45
     Top = 130
-    Width = 348
+    Width = 318
     ClientHeight = 45
-    ClientWidth = 348
+    ClientWidth = 318
     Font.Height = -15
     ParentColor = False
     ParentFont = False
@@ -954,7 +954,7 @@ object FMain: TFMain
       Left = 221
       Height = 28
       Top = 1
-      Width = 117
+      Width = 88
       Align = alNone
       AutoSize = True
       EdgeBorders = []
@@ -963,7 +963,7 @@ object FMain: TFMain
       ParentFont = False
       TabOrder = 0
       object Tool_CapFlat: TToolButton
-        Left = 30
+        Left = 1
         Hint = 'Flat cap'
         Top = 0
         Grouped = True
@@ -971,7 +971,7 @@ object FMain: TFMain
         Style = tbsCheck
       end
       object Tool_CapRound: TToolButton
-        Left = 59
+        Left = 30
         Hint = 'Round cap'
         Top = 0
         Down = True
@@ -980,18 +980,11 @@ object FMain: TFMain
         Style = tbsCheck
       end
       object Tool_CapSquare: TToolButton
-        Left = 88
+        Left = 59
         Hint = 'Square cap'
         Top = 0
         Grouped = True
         ImageIndex = 47
-        Style = tbsCheck
-      end
-      object Tool_CloseShape: TToolButton
-        Left = 1
-        Hint = 'Close shape'
-        Top = 0
-        ImageIndex = 10
         Style = tbsCheck
       end
     end
@@ -1229,7 +1222,7 @@ object FMain: TFMain
     end
   end
   object Panel_JoinStyle: TPanel
-    Left = 460
+    Left = 480
     Height = 45
     Top = 130
     Width = 94
@@ -1279,7 +1272,7 @@ object FMain: TFMain
     end
   end
   object Panel_PenStyle: TPanel
-    Left = 576
+    Left = 584
     Height = 45
     Top = 130
     Width = 150
@@ -1785,9 +1778,9 @@ object FMain: TFMain
     Left = 10
     Height = 45
     Top = 250
-    Width = 556
+    Width = 262
     ClientHeight = 45
-    ClientWidth = 556
+    ClientWidth = 262
     Font.Height = -15
     ParentColor = False
     ParentFont = False
@@ -1808,7 +1801,7 @@ object FMain: TFMain
       Left = 106
       Height = 28
       Top = 1
-      Width = 175
+      Width = 146
       Align = alNone
       AutoSize = True
       EdgeBorders = []
@@ -1821,13 +1814,6 @@ object FMain: TFMain
         Hint = 'Choose font...'
         Top = 0
         ImageIndex = 61
-      end
-      object Tool_TextShadow: TToolButton
-        Left = 146
-        Hint = 'Text shadow'
-        Top = 0
-        ImageIndex = 62
-        Style = tbsCheck
       end
       object Tool_TextPhong: TToolButton
         Left = 117
@@ -1858,30 +1844,6 @@ object FMain: TFMain
         ImageIndex = 86
         Style = tbsCheck
       end
-    end
-    object Label_TextBlur: TLabel
-      Left = 291
-      Height = 28
-      Top = 2
-      Width = 40
-      AutoSize = False
-      Caption = 'Blur'
-      Font.Height = -15
-      Layout = tlCenter
-      ParentColor = False
-      ParentFont = False
-    end
-    object Label_ShadowOffset: TLabel
-      Left = 394
-      Height = 28
-      Top = 1
-      Width = 54
-      AutoSize = False
-      Caption = 'Offset'
-      Font.Height = -15
-      Layout = tlCenter
-      ParentColor = False
-      ParentFont = False
     end
     object SpinEdit_TextSize: TBCTrackbarUpdown
       Left = 46
@@ -1927,147 +1889,6 @@ object FMain: TFMain
       HasTrackBar = True
       ArrowColor = clBtnText
       TabOrder = 1
-      TabStop = True
-      UseDockManager = False
-    end
-    object SpinEdit_TextBlur: TBCTrackbarUpdown
-      Left = 331
-      Height = 25
-      Hint = 'Shadow blur'
-      Top = 2
-      Width = 51
-      AllowNegativeValues = False
-      BarExponent = 1
-      Increment = 1
-      LongTimeInterval = 400
-      MinValue = 0
-      MaxValue = 200
-      Value = 5
-      ShortTimeInterval = 100
-      Background.Color = clWindow
-      Background.Gradient1.StartColor = clWhite
-      Background.Gradient1.EndColor = clBlack
-      Background.Gradient2.StartColor = clWhite
-      Background.Gradient2.EndColor = clBlack
-      Background.Style = bbsColor
-      ButtonBackground.Gradient1.StartColor = clBtnShadow
-      ButtonBackground.Gradient1.EndColor = clBtnFace
-      ButtonBackground.Gradient1.Point1YPercent = -50
-      ButtonBackground.Gradient1.Point2YPercent = 50
-      ButtonBackground.Gradient2.StartColor = clBtnFace
-      ButtonBackground.Gradient2.EndColor = clBtnShadow
-      ButtonBackground.Gradient2.Point1YPercent = 50
-      ButtonBackground.Gradient2.Point2YPercent = 150
-      ButtonBackground.Gradient1EndPercent = 50
-      ButtonBackground.Style = bbsGradient
-      ButtonDownBackground.Color = clBtnShadow
-      ButtonDownBackground.Gradient1.StartColor = clWhite
-      ButtonDownBackground.Gradient1.EndColor = clBlack
-      ButtonDownBackground.Gradient2.StartColor = clWhite
-      ButtonDownBackground.Gradient2.EndColor = clBlack
-      ButtonDownBackground.Style = bbsColor
-      Border.Color = clWindowText
-      Rounding.RoundX = 1
-      Rounding.RoundY = 1
-      Font.Color = clWindowText
-      Font.Name = 'Arial'
-      HasTrackBar = True
-      ArrowColor = clBtnText
-      TabOrder = 2
-      TabStop = True
-      UseDockManager = False
-    end
-    object SpinEdit_TextShadowX: TBCTrackbarUpdown
-      Left = 449
-      Height = 25
-      Hint = 'Horizontal shadow offset'
-      Top = 2
-      Width = 51
-      AllowNegativeValues = True
-      BarExponent = 1
-      Increment = 1
-      LongTimeInterval = 400
-      MinValue = 0
-      MaxValue = 100
-      Value = 5
-      ShortTimeInterval = 100
-      Background.Color = clWindow
-      Background.Gradient1.StartColor = clWhite
-      Background.Gradient1.EndColor = clBlack
-      Background.Gradient2.StartColor = clWhite
-      Background.Gradient2.EndColor = clBlack
-      Background.Style = bbsColor
-      ButtonBackground.Gradient1.StartColor = clBtnShadow
-      ButtonBackground.Gradient1.EndColor = clBtnFace
-      ButtonBackground.Gradient1.Point1YPercent = -50
-      ButtonBackground.Gradient1.Point2YPercent = 50
-      ButtonBackground.Gradient2.StartColor = clBtnFace
-      ButtonBackground.Gradient2.EndColor = clBtnShadow
-      ButtonBackground.Gradient2.Point1YPercent = 50
-      ButtonBackground.Gradient2.Point2YPercent = 150
-      ButtonBackground.Gradient1EndPercent = 50
-      ButtonBackground.Style = bbsGradient
-      ButtonDownBackground.Color = clBtnShadow
-      ButtonDownBackground.Gradient1.StartColor = clWhite
-      ButtonDownBackground.Gradient1.EndColor = clBlack
-      ButtonDownBackground.Gradient2.StartColor = clWhite
-      ButtonDownBackground.Gradient2.EndColor = clBlack
-      ButtonDownBackground.Style = bbsColor
-      Border.Color = clWindowText
-      Rounding.RoundX = 1
-      Rounding.RoundY = 1
-      Font.Color = clWindowText
-      Font.Name = 'Arial'
-      HasTrackBar = True
-      ArrowColor = clBtnText
-      TabOrder = 3
-      TabStop = True
-      UseDockManager = False
-    end
-    object SpinEdit_TextShadowY: TBCTrackbarUpdown
-      Left = 502
-      Height = 25
-      Hint = 'Vertical shadow offset'
-      Top = 2
-      Width = 51
-      AllowNegativeValues = True
-      BarExponent = 1
-      Increment = 1
-      LongTimeInterval = 400
-      MinValue = 0
-      MaxValue = 100
-      Value = 5
-      ShortTimeInterval = 100
-      Background.Color = clWindow
-      Background.Gradient1.StartColor = clWhite
-      Background.Gradient1.EndColor = clBlack
-      Background.Gradient2.StartColor = clWhite
-      Background.Gradient2.EndColor = clBlack
-      Background.Style = bbsColor
-      ButtonBackground.Gradient1.StartColor = clBtnShadow
-      ButtonBackground.Gradient1.EndColor = clBtnFace
-      ButtonBackground.Gradient1.Point1YPercent = -50
-      ButtonBackground.Gradient1.Point2YPercent = 50
-      ButtonBackground.Gradient2.StartColor = clBtnFace
-      ButtonBackground.Gradient2.EndColor = clBtnShadow
-      ButtonBackground.Gradient2.Point1YPercent = 50
-      ButtonBackground.Gradient2.Point2YPercent = 150
-      ButtonBackground.Gradient1EndPercent = 50
-      ButtonBackground.Style = bbsGradient
-      ButtonDownBackground.Color = clBtnShadow
-      ButtonDownBackground.Gradient1.StartColor = clWhite
-      ButtonDownBackground.Gradient1.EndColor = clBlack
-      ButtonDownBackground.Gradient2.StartColor = clWhite
-      ButtonDownBackground.Gradient2.EndColor = clBlack
-      ButtonDownBackground.Style = bbsColor
-      Border.Color = clWindowText
-      Rounding.RoundX = 1
-      Rounding.RoundY = 1
-      Font.Color = clWindowText
-      Font.Name = 'Arial'
-      HasTrackBar = True
-      ArrowColor = clBtnText
-      TabOrder = 4
       TabStop = True
       UseDockManager = False
     end
@@ -2298,7 +2119,7 @@ object FMain: TFMain
     end
   end
   object Panel_TextOutline: TPanel
-    Left = 580
+    Left = 599
     Height = 45
     Top = 250
     Width = 146
@@ -2698,6 +2519,235 @@ object FMain: TFMain
         ImageIndex = 122
         Style = tbsCheck
       end
+    end
+  end
+  object Panel_CloseShape: TPanel
+    Left = 88
+    Height = 46
+    Top = 130
+    Width = 44
+    ClientHeight = 46
+    ClientWidth = 44
+    Font.Height = -15
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 29
+    object ToolBar23: TToolBar
+      Left = 1
+      Height = 28
+      Top = 1
+      Width = 30
+      Align = alNone
+      AutoSize = True
+      EdgeBorders = []
+      Font.Height = -15
+      Images = ImageList16
+      ParentFont = False
+      TabOrder = 0
+      object Tool_CloseShape: TToolButton
+        Left = 1
+        Hint = 'Close shape'
+        Top = 0
+        ImageIndex = 10
+        Style = tbsCheck
+      end
+    end
+  end
+  object Panel_TextShadow: TPanel
+    Left = 280
+    Height = 45
+    Top = 250
+    Width = 307
+    ClientHeight = 45
+    ClientWidth = 307
+    Font.Height = -15
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 30
+    object ToolBar24: TToolBar
+      Left = 1
+      Height = 28
+      Top = 1
+      Width = 30
+      Align = alNone
+      AutoSize = True
+      EdgeBorders = []
+      Font.Height = -15
+      Images = ImageList16
+      ParentFont = False
+      TabOrder = 0
+      object Tool_TextShadow: TToolButton
+        Left = 1
+        Hint = 'Text shadow'
+        Top = 0
+        ImageIndex = 62
+        Style = tbsCheck
+      end
+    end
+    object Label_TextBlur: TLabel
+      Left = 35
+      Height = 28
+      Top = 1
+      Width = 40
+      AutoSize = False
+      Caption = 'Blur'
+      Font.Height = -15
+      Layout = tlCenter
+      ParentColor = False
+      ParentFont = False
+    end
+    object SpinEdit_TextBlur: TBCTrackbarUpdown
+      Left = 75
+      Height = 25
+      Hint = 'Shadow blur'
+      Top = 1
+      Width = 51
+      AllowNegativeValues = False
+      BarExponent = 1
+      Increment = 1
+      LongTimeInterval = 400
+      MinValue = 0
+      MaxValue = 200
+      Value = 5
+      ShortTimeInterval = 100
+      Background.Color = clWindow
+      Background.Gradient1.StartColor = clWhite
+      Background.Gradient1.EndColor = clBlack
+      Background.Gradient2.StartColor = clWhite
+      Background.Gradient2.EndColor = clBlack
+      Background.Style = bbsColor
+      ButtonBackground.Gradient1.StartColor = clBtnShadow
+      ButtonBackground.Gradient1.EndColor = clBtnFace
+      ButtonBackground.Gradient1.Point1YPercent = -50
+      ButtonBackground.Gradient1.Point2YPercent = 50
+      ButtonBackground.Gradient2.StartColor = clBtnFace
+      ButtonBackground.Gradient2.EndColor = clBtnShadow
+      ButtonBackground.Gradient2.Point1YPercent = 50
+      ButtonBackground.Gradient2.Point2YPercent = 150
+      ButtonBackground.Gradient1EndPercent = 50
+      ButtonBackground.Style = bbsGradient
+      ButtonDownBackground.Color = clBtnShadow
+      ButtonDownBackground.Gradient1.StartColor = clWhite
+      ButtonDownBackground.Gradient1.EndColor = clBlack
+      ButtonDownBackground.Gradient2.StartColor = clWhite
+      ButtonDownBackground.Gradient2.EndColor = clBlack
+      ButtonDownBackground.Style = bbsColor
+      Border.Color = clWindowText
+      Rounding.RoundX = 1
+      Rounding.RoundY = 1
+      Font.Color = clWindowText
+      Font.Name = 'Arial'
+      HasTrackBar = True
+      ArrowColor = clBtnText
+      TabOrder = 1
+      TabStop = True
+      UseDockManager = False
+    end
+    object Label_ShadowOffset: TLabel
+      Left = 138
+      Height = 28
+      Top = 0
+      Width = 54
+      AutoSize = False
+      Caption = 'Offset'
+      Font.Height = -15
+      Layout = tlCenter
+      ParentColor = False
+      ParentFont = False
+    end
+    object SpinEdit_TextShadowX: TBCTrackbarUpdown
+      Left = 193
+      Height = 25
+      Hint = 'Horizontal shadow offset'
+      Top = 1
+      Width = 51
+      AllowNegativeValues = True
+      BarExponent = 1
+      Increment = 1
+      LongTimeInterval = 400
+      MinValue = 0
+      MaxValue = 100
+      Value = 5
+      ShortTimeInterval = 100
+      Background.Color = clWindow
+      Background.Gradient1.StartColor = clWhite
+      Background.Gradient1.EndColor = clBlack
+      Background.Gradient2.StartColor = clWhite
+      Background.Gradient2.EndColor = clBlack
+      Background.Style = bbsColor
+      ButtonBackground.Gradient1.StartColor = clBtnShadow
+      ButtonBackground.Gradient1.EndColor = clBtnFace
+      ButtonBackground.Gradient1.Point1YPercent = -50
+      ButtonBackground.Gradient1.Point2YPercent = 50
+      ButtonBackground.Gradient2.StartColor = clBtnFace
+      ButtonBackground.Gradient2.EndColor = clBtnShadow
+      ButtonBackground.Gradient2.Point1YPercent = 50
+      ButtonBackground.Gradient2.Point2YPercent = 150
+      ButtonBackground.Gradient1EndPercent = 50
+      ButtonBackground.Style = bbsGradient
+      ButtonDownBackground.Color = clBtnShadow
+      ButtonDownBackground.Gradient1.StartColor = clWhite
+      ButtonDownBackground.Gradient1.EndColor = clBlack
+      ButtonDownBackground.Gradient2.StartColor = clWhite
+      ButtonDownBackground.Gradient2.EndColor = clBlack
+      ButtonDownBackground.Style = bbsColor
+      Border.Color = clWindowText
+      Rounding.RoundX = 1
+      Rounding.RoundY = 1
+      Font.Color = clWindowText
+      Font.Name = 'Arial'
+      HasTrackBar = True
+      ArrowColor = clBtnText
+      TabOrder = 2
+      TabStop = True
+      UseDockManager = False
+    end
+    object SpinEdit_TextShadowY: TBCTrackbarUpdown
+      Left = 246
+      Height = 25
+      Hint = 'Vertical shadow offset'
+      Top = 1
+      Width = 51
+      AllowNegativeValues = True
+      BarExponent = 1
+      Increment = 1
+      LongTimeInterval = 400
+      MinValue = 0
+      MaxValue = 100
+      Value = 5
+      ShortTimeInterval = 100
+      Background.Color = clWindow
+      Background.Gradient1.StartColor = clWhite
+      Background.Gradient1.EndColor = clBlack
+      Background.Gradient2.StartColor = clWhite
+      Background.Gradient2.EndColor = clBlack
+      Background.Style = bbsColor
+      ButtonBackground.Gradient1.StartColor = clBtnShadow
+      ButtonBackground.Gradient1.EndColor = clBtnFace
+      ButtonBackground.Gradient1.Point1YPercent = -50
+      ButtonBackground.Gradient1.Point2YPercent = 50
+      ButtonBackground.Gradient2.StartColor = clBtnFace
+      ButtonBackground.Gradient2.EndColor = clBtnShadow
+      ButtonBackground.Gradient2.Point1YPercent = 50
+      ButtonBackground.Gradient2.Point2YPercent = 150
+      ButtonBackground.Gradient1EndPercent = 50
+      ButtonBackground.Style = bbsGradient
+      ButtonDownBackground.Color = clBtnShadow
+      ButtonDownBackground.Gradient1.StartColor = clWhite
+      ButtonDownBackground.Gradient1.EndColor = clBlack
+      ButtonDownBackground.Gradient2.StartColor = clWhite
+      ButtonDownBackground.Gradient2.EndColor = clBlack
+      ButtonDownBackground.Style = bbsColor
+      Border.Color = clWindowText
+      Rounding.RoundX = 1
+      Rounding.RoundY = 1
+      Font.Color = clWindowText
+      Font.Name = 'Arial'
+      HasTrackBar = True
+      ArrowColor = clBtnText
+      TabOrder = 3
+      TabStop = True
+      UseDockManager = False
     end
   end
   object ImageList16: TBGRAImageList

@@ -55,18 +55,18 @@ end;
 
 function TToolText.AlwaysRasterizeShape: boolean;
 begin
-  Result:= Manager.ToolTextShadow;
+  Result:= Manager.TextShadow;
 end;
 
 procedure TToolText.IncludeShadowBounds(var ARect: TRect);
 var
   shadowRect: TRect;
 begin
-  if Manager.ToolTextShadow then
+  if Manager.TextShadow then
   begin
     shadowRect := ARect;
-    shadowRect.Inflate(ceil(Manager.ToolTextBlur),ceil(Manager.ToolTextBlur));
-    shadowRect.Offset(Manager.ToolTextShadowOffset.X,Manager.ToolTextShadowOffset.Y);
+    shadowRect.Inflate(ceil(Manager.TextShadowBlurRadius),ceil(Manager.TextShadowBlurRadius));
+    shadowRect.Offset(Manager.TextShadowOffset.X,Manager.TextShadowOffset.Y);
     ARect := RectUnion(ARect, shadowRect);
   end;
 end;
@@ -84,7 +84,7 @@ var
   blur, gray, grayShape: TGrayscaleMask;
   shapeBounds, blurBounds, r, actualShapeBounds: TRect;
 begin
-  if Manager.ToolTextShadow then
+  if Manager.TextShadow then
   begin
     shapeBounds := GetCustomShapeBounds(rect(0,0,ADest.Width,ADest.Height),AMatrix,ADraft);
     shapeBounds.Intersect(ADest.ClipRect);
@@ -100,16 +100,16 @@ begin
         grayShape.CopyFrom(temp, cAlpha);
 
         blurBounds := actualShapeBounds;
-        blurBounds.Inflate(ceil(Manager.ToolTextBlur),ceil(Manager.ToolTextBlur));
-        blurBounds.Offset(Manager.ToolTextShadowOffset.X,Manager.ToolTextShadowOffset.Y);
+        blurBounds.Inflate(ceil(Manager.TextShadowBlurRadius),ceil(Manager.TextShadowBlurRadius));
+        blurBounds.Offset(Manager.TextShadowOffset.X,Manager.TextShadowOffset.Y);
         r := ADest.ClipRect;
-        r.Inflate(ceil(Manager.ToolTextBlur),ceil(Manager.ToolTextBlur));
+        r.Inflate(ceil(Manager.TextShadowBlurRadius),ceil(Manager.TextShadowBlurRadius));
         blurBounds.Intersect(r);
         gray := TGrayscaleMask.Create(blurBounds.Width,blurBounds.Height);
-        gray.PutImage(shapeBounds.Left-blurBounds.Left+Manager.ToolTextShadowOffset.X,
-                      shapeBounds.Top-blurBounds.Top+Manager.ToolTextShadowOffset.Y,grayShape,dmSet);
+        gray.PutImage(shapeBounds.Left-blurBounds.Left+Manager.TextShadowOffset.X,
+                      shapeBounds.Top-blurBounds.Top+Manager.TextShadowOffset.Y,grayShape,dmSet);
         grayShape.Free;
-        blur := gray.FilterBlurRadial(Manager.ToolTextBlur,Manager.ToolTextBlur, rbFast) as TGrayscaleMask;
+        blur := gray.FilterBlurRadial(Manager.TextShadowBlurRadius,Manager.TextShadowBlurRadius, rbFast) as TGrayscaleMask;
         gray.Free;
         ADest.FillMask(blurBounds.Left,blurBounds.Top,blur,BGRABlack,dmDrawWithTransparency);
         blur.Free;
@@ -118,8 +118,8 @@ begin
       temp.Free;
     end;
     FPrevShadow := true;
-    FPrevShadowRadius := Manager.ToolTextBlur;
-    FPrevShadowOffset := Manager.ToolTextShadowOffset;
+    FPrevShadowRadius := Manager.TextShadowBlurRadius;
+    FPrevShadowOffset := Manager.TextShadowOffset;
   end else
   begin
     inherited DrawCustomShape(ADest, AMatrix, ADraft);
@@ -133,7 +133,7 @@ var
   posF: TPointF;
 begin
   posF := AffineMatrixInverse(FMatrix)*(FShape as TTextShape).LightPosition;
-  Manager.ToolLightPosition := posF;
+  Manager.LightPosition := posF;
   with ABounds do r := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
   IncludeShadowBounds(r);
   inherited ShapeChange(ASender, RectF(r.Left,r.Top,r.Right,r.Bottom), ADiff);
@@ -156,40 +156,40 @@ begin
   with TTextShape(FShape) do
   begin
     zoom := (VectLen(AMatrix[1,1],AMatrix[2,1])+VectLen(AMatrix[1,2],AMatrix[2,2]))/2;
-    FontEmHeight:= zoom*Manager.ToolTextFont.Size*ScreenInfo.PixelsPerInchY/72;
-    FontName:= Manager.ToolTextFont.Name;
-    FontStyle:= Manager.ToolTextFont.Style;
+    FontEmHeight:= zoom*Manager.TextFontSize*Manager.Image.DPI/72;
+    FontName:= Manager.TextFontName;
+    FontStyle:= Manager.TextFontStyle;
 
-    if Manager.GetToolTexture <> nil then
-      FShape.PenFill.SetTexture(Manager.GetToolTexture,AffineMatrixIdentity,Manager.ToolTextureOpacity)
+    if Manager.GetTexture <> nil then
+      FShape.PenFill.SetTexture(Manager.GetTexture,AffineMatrixIdentity,Manager.TextureOpacity)
     else
     begin
       if FSwapColor then
-        FShape.PenFill.SetSolid(Manager.ToolBackColor)
+        FShape.PenFill.SetSolid(Manager.BackColor)
       else
-        FShape.PenFill.SetSolid(Manager.ToolForeColor);
+        FShape.PenFill.SetSolid(Manager.ForeColor);
     end;
 
-    if Manager.ToolTextOutline and (Manager.ToolTextOutlineWidth>0) and
-       (Manager.ToolBackColor.alpha > 0) then
+    if Manager.TextOutline and (Manager.TextOutlineWidth>0) and
+       (Manager.BackColor.alpha > 0) then
     begin
       if FSwapColor then
-        FShape.OutlineFill.SetSolid(Manager.ToolForeColor)
+        FShape.OutlineFill.SetSolid(Manager.ForeColor)
       else
-        FShape.OutlineFill.SetSolid(Manager.ToolBackColor);
-      OutlineWidth := Manager.ToolTextOutlineWidth;
+        FShape.OutlineFill.SetSolid(Manager.BackColor);
+      OutlineWidth := Manager.TextOutlineWidth;
     end
     else
       OutlineFill.Clear;
 
-    LightPosition := AMatrix*Manager.ToolLightPosition;
-    AltitudePercent:= Manager.ToolShapeAltitude;
+    LightPosition := AMatrix*Manager.LightPosition;
+    AltitudePercent:= Manager.PhongShapeAltitude;
     ParagraphAlignment:= Manager.ToolTextAlign;
-    PenPhong := Manager.ToolTextPhong;
+    PenPhong := Manager.TextPhong;
   end;
-  if (Manager.ToolTextShadow <> FPrevShadow) or
-     (Manager.ToolTextBlur <> FPrevShadowRadius) or
-     (Manager.ToolTextShadowOffset <> FPrevShadowOffset) then
+  if (Manager.TextShadow <> FPrevShadow) or
+     (Manager.TextShadowBlurRadius <> FPrevShadowRadius) or
+     (Manager.TextShadowOffset <> FPrevShadowOffset) then
   begin
     toolDest := GetToolDrawingLayer;
     r:= UpdateShape(toolDest);
@@ -220,8 +220,8 @@ end;
 
 function TToolText.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctTexture,ctText];
-  if Manager.ToolTextPhong then include(result, ctAltitude);
+  Result:= [ctColor,ctTexture,ctText,ctTextShadow];
+  if Manager.TextPhong then include(result, ctAltitude);
 end;
 
 function TToolText.ToolKeyDown(var key: Word): TRect;

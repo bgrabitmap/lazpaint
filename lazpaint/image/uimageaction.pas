@@ -203,7 +203,7 @@ begin
   if not Image.CheckNoAction then exit;
   LayerAction := nil;
   try
-    c := ToolManager.ToolBackColor;
+    c := ToolManager.BackColor;
     c.alpha := 255;
     LayerAction := Image.CreateAction(true);
     LayerAction.SelectedImageLayer.ReplaceColor(BGRAPixelTransparent,c);
@@ -232,7 +232,7 @@ begin
   if not Image.CheckNoAction then exit;
   LayerAction := nil;
   try
-    c := ToolManager.ToolBackColor;
+    c := ToolManager.BackColor;
     c.alpha := 255;
     LayerAction := Image.CreateAction(True);
     tempBmp := TBGRABitmap.Create(LayerAction.SelectedImageLayer.Width,1);

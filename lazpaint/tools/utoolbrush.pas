@@ -223,14 +223,14 @@ end;
 
 function TToolGenericBrush.GetBrushInfo: TLazPaintBrush;
 begin
-  result := manager.ToolBrushInfo;
+  result := manager.BrushInfo;
   if result = nil then
   begin
     if defaultBrush = nil then
       defaultBrush := TLazPaintBrush.Create;
     result := defaultBrush;
   end;
-  result.Size := manager.ToolPenWidth;
+  result.Size := manager.PenWidth;
 end;
 
 function TToolGenericBrush.StartDrawing(toolDest: TBGRABitmap; ptF: TPointF;
@@ -239,7 +239,7 @@ begin
   if not SubPixelAccuracy then
     brushOrigin:= PointF(round(ptF.x),round(ptF.y))
   else brushOrigin := ptF;
-  if rightBtn then penColor := Manager.ToolBackColor else penColor := Manager.ToolForeColor;
+  if rightBtn then penColor := Manager.BackColor else penColor := Manager.ForeColor;
   originDrawn := false;
   PrepareBrush(rightBtn);
   result := ContinueDrawing(toolDest,brushOrigin,brushOrigin);

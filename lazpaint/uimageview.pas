@@ -435,8 +435,8 @@ begin
   with LazPaintInstance.ToolManager do
   begin
     result.c := self.BitmapToVirtualScreen(ToolCurrentCursorPos);
-    tl := self.BitmapToVirtualScreen(ToolCurrentCursorPos.X-ToolPenWidth/2,ToolCurrentCursorPos.Y-ToolPenWidth/2);
-    br := self.BitmapToVirtualScreen(ToolCurrentCursorPos.X+ToolPenWidth/2,ToolCurrentCursorPos.Y+ToolPenWidth/2);
+    tl := self.BitmapToVirtualScreen(ToolCurrentCursorPos.X-PenWidth/2,ToolCurrentCursorPos.Y-PenWidth/2);
+    br := self.BitmapToVirtualScreen(ToolCurrentCursorPos.X+PenWidth/2,ToolCurrentCursorPos.Y+PenWidth/2);
   end;
   result.rx := (br.x-tl.x)/2-0.5;
   result.ry := (br.y-tl.y)/2-0.5;
@@ -515,7 +515,7 @@ var virtualScreenPenCursorBefore: boolean;
   function UseVSPenCursor: boolean;
   begin
     if FLastPictureParameters.Defined and
-      (LazPaintInstance.ToolManager.ToolPenWidth * FLastPictureParameters.zoomFactorX > 6) and
+      (LazPaintInstance.ToolManager.PenWidth * FLastPictureParameters.zoomFactorX > 6) and
       PtInRect(FLastPictureParameters.scaledArea, Point(X,Y)) then
     begin
       FPenCursorVisible := True;
