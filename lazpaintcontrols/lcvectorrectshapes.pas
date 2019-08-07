@@ -71,8 +71,8 @@ type
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; {%H-}AOptions: TRenderBoundsOptions = []): TRectF; override;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
-    function GetAffineBox(AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
-    procedure Transform(AMatrix: TAffineMatrix); override;
+    function GetAffineBox(const AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
+    procedure Transform(const AMatrix: TAffineMatrix); override;
     property Origin: TPointF read FOrigin write SetOrigin;
     property XAxis: TPointF read FXAxis write SetXAxis;
     property YAxis: TPointF read FYAxis write SetYAxis;
@@ -93,7 +93,7 @@ type
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; override;
-    function GetIsSlow(AMatrix: TAffineMatrix): boolean; override;
+    function GetIsSlow(const AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
   end;
 
@@ -110,7 +110,7 @@ type
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; override;
-    function GetIsSlow(AMatrix: TAffineMatrix): boolean; override;
+    function GetIsSlow(const AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
   end;
 
@@ -173,8 +173,8 @@ type
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; override;
-    function GetIsSlow(AMatrix: TAffineMatrix): boolean; override;
-    procedure Transform(AMatrix: TAffineMatrix); override;
+    function GetIsSlow(const AMatrix: TAffineMatrix): boolean; override;
+    procedure Transform(const AMatrix: TAffineMatrix); override;
     class function StorageClassName: RawByteString; override;
     property ShapeKind: TPhongShapeKind read FShapeKind write SetShapeKind;
     property LightPosition: TPointF read FLightPosition write SetLightPosition;
@@ -649,7 +649,7 @@ begin
   if FYSizeBackup <> 0 then FYUnitBackup := (1/FYSizeBackup)*FYUnitBackup;
 end;
 
-function TCustomRectShape.GetAffineBox(AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
+function TCustomRectShape.GetAffineBox(const AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
 var
   m: TAffineMatrix;
 begin
@@ -661,12 +661,15 @@ begin
       FXAxis - (FYAxis - FOrigin), FYAxis - (FXAxis - FOrigin));
 end;
 
-procedure TCustomRectShape.Transform(AMatrix: TAffineMatrix);
+procedure TCustomRectShape.Transform(const AMatrix: TAffineMatrix);
+var
+  m: TAffineMatrix;
 begin
   BeginUpdate(TCustomRectShapeDiff);
-  FOrigin := AMatrix*FOrigin;
-  FXAxis := AMatrix*FXAxis;
-  FYAxis := AMatrix*FYAxis;
+  m := MatrixForPixelCentered(AMatrix);
+  FOrigin := m*FOrigin;
+  FXAxis := m*FXAxis;
+  FYAxis := m*FYAxis;
   inherited Transform(AMatrix);
   EndUpdate;
 end;
@@ -812,7 +815,7 @@ begin
   result := 1;
 end;
 
-function TRectShape.GetIsSlow(AMatrix: TAffineMatrix): boolean;
+function TRectShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;
 var
   ab: TAffineBox;
   backSurface, totalSurface, penSurface: Single;
@@ -1188,7 +1191,7 @@ begin
     result := false;
 end;
 
-function TEllipseShape.GetIsSlow(AMatrix: TAffineMatrix): boolean;
+function TEllipseShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;
 var
   ab: TAffineBox;
   backSurface, totalSurface, penSurface: Single;
@@ -1536,7 +1539,7 @@ begin
   end;
 end;
 
-function TPhongShape.GetIsSlow(AMatrix: TAffineMatrix): boolean;
+function TPhongShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;
 var
   ab: TAffineBox;
 begin
@@ -1545,7 +1548,7 @@ begin
   result := ab.Surface > 320*240;
 end;
 
-procedure TPhongShape.Transform(AMatrix: TAffineMatrix);
+procedure TPhongShape.Transform(const AMatrix: TAffineMatrix);
 begin
   BeginUpdate(TPhongShapeDiff);
   LightPosition := AMatrix*LightPosition;

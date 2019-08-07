@@ -153,7 +153,7 @@ type
     procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; override;
-    function GetIsSlow({%H-}AMatrix: TAffineMatrix): boolean; override;
+    function GetIsSlow(const {%H-}AMatrix: TAffineMatrix): boolean; override;
     procedure MouseMove({%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); override;
     procedure MouseDown({%H-}RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); override;
     procedure MouseUp({%H-}RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); override;
@@ -164,7 +164,7 @@ type
     function CopySelection: boolean;
     function CutSelection: boolean;
     function PasteSelection: boolean;
-    procedure Transform(AMatrix: TAffineMatrix); override;
+    procedure Transform(const AMatrix: TAffineMatrix); override;
     property HasSelection: boolean read GetHasSelection;
     property CanPasteSelection: boolean read GetCanPasteSelection;
     property Text: string read FText write SetText;
@@ -1456,7 +1456,7 @@ begin
   result := GetAffineBox(AffineMatrixIdentity,true).Contains(APoint);
 end;
 
-function TTextShape.GetIsSlow(AMatrix: TAffineMatrix): boolean;
+function TTextShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;
 begin
   Result:= true;
 end;
@@ -1728,7 +1728,7 @@ begin
     result := false;
 end;
 
-procedure TTextShape.Transform(AMatrix: TAffineMatrix);
+procedure TTextShape.Transform(const AMatrix: TAffineMatrix);
 var
   zoom: Single;
 begin

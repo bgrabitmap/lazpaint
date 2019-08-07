@@ -219,9 +219,9 @@ type
     procedure Remove;
     function Duplicate: TVectorShape;
     class function StorageClassName: RawByteString; virtual; abstract;
-    function GetIsSlow({%H-}AMatrix: TAffineMatrix): boolean; virtual;
+    function GetIsSlow(const {%H-}AMatrix: TAffineMatrix): boolean; virtual;
     function GetUsedTextures: ArrayOfBGRABitmap; virtual;
-    procedure Transform(AMatrix: TAffineMatrix); virtual;
+    procedure Transform(const AMatrix: TAffineMatrix); virtual;
     class function Fields: TVectorShapeFields; virtual;
     class function Usermodes: TVectorShapeUsermodes; virtual;
     class function PreferPixelCentered: boolean; virtual;
@@ -1117,7 +1117,7 @@ end;
 
 { TVectorShape }
 
-function TVectorShape.GetIsSlow(AMatrix: TAffineMatrix): boolean;
+function TVectorShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;
 begin
   result := false;
 end;
@@ -1148,7 +1148,7 @@ begin
   setlength(result, nb);
 end;
 
-procedure TVectorShape.Transform(AMatrix: TAffineMatrix);
+procedure TVectorShape.Transform(const AMatrix: TAffineMatrix);
 var
   zoom: Single;
 begin

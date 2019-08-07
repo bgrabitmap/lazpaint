@@ -107,7 +107,7 @@ type
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
-    procedure Transform(AMatrix: TAffineMatrix); override;
+    procedure Transform(const AMatrix: TAffineMatrix); override;
     class function Usermodes: TVectorShapeUsermodes; override;
     class function DefaultArrowSize: TPointF;
     property Points[AIndex:integer]: TPointF read GetPoint write SetPoint;
@@ -131,7 +131,7 @@ type
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; override;
-    function GetIsSlow({%H-}AMatrix: TAffineMatrix): boolean; override;
+    function GetIsSlow(const {%H-}AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
   end;
 
@@ -915,13 +915,15 @@ begin
   end;
 end;
 
-procedure TCustomPolypointShape.Transform(AMatrix: TAffineMatrix);
+procedure TCustomPolypointShape.Transform(const AMatrix: TAffineMatrix);
 var
   i: Integer;
+  m: TAffineMatrix;
 begin
   BeginUpdate(TCustomPolypointShapeDiff);
+  m := MatrixForPixelCentered(AMatrix);
   for i := 0 to PointCount-1 do
-    FPoints[i].coord := AMatrix*FPoints[i].coord;
+    FPoints[i].coord := m*FPoints[i].coord;
   inherited Transform(AMatrix);
   EndUpdate;
 end;
@@ -1044,7 +1046,7 @@ begin
   result := false;
 end;
 
-function TPolylineShape.GetIsSlow(AMatrix: TAffineMatrix): boolean;
+function TPolylineShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;
 begin
   Result:= PointCount > 40;
 end;
