@@ -209,7 +209,7 @@ end;
 
 procedure TMainFormMenu.ApplyTheme;
 var
-  i, j, h: Integer;
+  i, j: Integer;
 begin
   for i := 0 to high(FToolbars) do
   begin
@@ -231,30 +231,7 @@ begin
           end;
         end else
         if Controls[j] is TBCComboBox then
-        begin
-          BCAssignSystemStyle(TBCComboBox(Controls[j]).Button, FDarkTheme);
-          with TBCComboBox(Controls[j]) do
-          begin
-            h := FToolbars[i].tb.Height;
-            Button.StateNormal.FontEx.Height := (h-4) div 2;
-            Button.StateNormal.FontEx.ShadowColorOpacity:= 96;
-            Button.StateClicked.FontEx.Height := (h-4) div 2;
-            Button.StateClicked.FontEx.ShadowColorOpacity:= 96;
-            Button.StateHover.FontEx.Height := (h-4) div 2;
-            Button.StateHover.FontEx.ShadowColorOpacity:= 96;
-            if FDarkTheme then
-            begin
-              DropDownBorderColor:= clBlack;
-              DropDownFontColor:= clLightText;
-              DropDownColor:= clDarkBtnFace;
-            end else
-            begin
-              DropDownBorderColor := MergeBGRA(ColorToBGRA(clWindowText),ColorToBGRA(clWindow));
-              DropDownFontColor:= clWindowText;
-              DropDownColor:= clWindow;
-            end;
-          end;
-        end else
+          BCAssignSystemStyle(TBCComboBox(Controls[j]), FDarkTheme, 0.4) else
         if Controls[j] is TBCTrackbarUpdown then
         begin
           if FDarkTheme then

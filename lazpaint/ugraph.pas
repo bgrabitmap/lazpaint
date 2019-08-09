@@ -56,7 +56,8 @@ function WaveDisplacementFilter(source: TBGRACustomBitmap;
 function DoResample(source :TBGRABitmap; newWidth, newHeight: integer; StretchMode: TResampleMode): TBGRABitmap;
 procedure DrawArrow(AComboBox: TBCComboBox; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; State: TOwnerDrawState); overload;
 procedure DrawArrow(ABitmap: TBGRABitmap; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; AColor: TBGRAPixel); overload;
-procedure BCAssignSystemStyle(AButton: TBCButton; ADarkTheme: boolean);
+procedure BCAssignSystemStyle(AButton: TBCButton; ADarkTheme: boolean; AFontHeightRatio: single = 0.45);
+procedure BCAssignSystemStyle(ACombo: TBCComboBox; ADarkTheme: boolean; AFontHeightRatio: single = 0.45);
 
 implementation
 
@@ -106,7 +107,7 @@ begin
   end;
 end;
 
-procedure BCAssignSystemStyle(AButton: TBCButton; ADarkTheme: boolean);
+procedure BCAssignSystemStyle(AButton: TBCButton; ADarkTheme: boolean; AFontHeightRatio: single);
 
   function MergeColor(AColor1,AColor2:TColor):TColor;
   begin
@@ -131,7 +132,7 @@ begin
     highlight := $a0a0a0;
     btnFace := clDarkEditableFace;
     btnText := clLightText;
-    btnShadow:= clBlack;
+    btnShadow:= clDarkPanelShadow;
   end else
   begin
     {$IFDEF DARWIN}
@@ -145,12 +146,56 @@ begin
   end;
   with AButton do
   begin
-    Rounding.RoundX := 6;
-    Rounding.RoundY := 6;
+    Rounding.RoundX := DoScaleX(3, OriginalDPI);
+    Rounding.RoundY := DoScaleX(3, OriginalDPI);
     BCAssignSystemState(StateNormal, btnText, btnFace, highlight, btnFace, btnShadow, btnShadow);
     BCAssignSystemState(StateHover, HoverColor(btnText), HoverColor(btnFace), HoverColor(highlight), HoverColor(btnFace), HoverColor(btnShadow), HoverColor(btnShadow));
     BCAssignSystemState(StateClicked, HoverColor(btnText), HoverColor(MergeColor(btnFace,btnShadow)), HoverColor(btnFace), HoverColor(MergeColor(btnFace,btnShadow)), HoverColor(btnShadow), HoverColor(btnShadow));
+    StateNormal.Border.LightWidth := 0;
+    StateNormal.FontEx.Height := round(AButton.Height*AFontHeightRatio);
+    StateNormal.FontEx.ShadowColorOpacity:= 70;
+    StateNormal.FontEx.TextAlignment:= bcaLeftCenter;
+    StateNormal.FontEx.PaddingLeft:= DoScaleX(3, OriginalDPI);
+    StateHover.Border.LightWidth := 0;
+    StateHover.FontEx.Height := round(AButton.Height*AFontHeightRatio);
+    StateHover.FontEx.ShadowColorOpacity:= 70;
+    StateHover.FontEx.TextAlignment:= bcaLeftCenter;
+    StateHover.FontEx.PaddingLeft:= DoScaleX(3, OriginalDPI);
+    StateClicked.Border.LightWidth := 0;
+    StateClicked.FontEx.Height := round(AButton.Height*AFontHeightRatio);
+    StateClicked.FontEx.ShadowColorOpacity:= 70;
+    StateClicked.FontEx.TextAlignment:= bcaLeftCenter;
+    StateClicked.FontEx.PaddingLeft:= DoScaleX(3, OriginalDPI);
   end;
+end;
+
+procedure BCAssignSystemStyle(ACombo: TBCComboBox; ADarkTheme: boolean;
+  AFontHeightRatio: single);
+begin
+  BCAssignSystemStyle(ACombo.Button, ADarkTheme, AFontHeightRatio);
+  with ACombo do
+  begin
+    Button.StateNormal.FontEx.Height := round(AFontHeightRatio*Height);
+    Button.StateNormal.FontEx.ShadowColorOpacity:= 96;
+    Button.StateClicked.FontEx.Height := round(AFontHeightRatio*Height);
+    Button.StateClicked.FontEx.ShadowColorOpacity:= 96;
+    Button.StateHover.FontEx.Height := round(AFontHeightRatio*Height);
+    Button.StateHover.FontEx.ShadowColorOpacity:= 96;
+    if ADarkTheme then
+    begin
+      DropDownBorderColor:= clBlack;
+      DropDownFontColor:= clLightText;
+      DropDownColor:= clDarkBtnFace;
+    end else
+    begin
+      DropDownBorderColor := MergeBGRA(ColorToBGRA(clWindowText),ColorToBGRA(clWindow));
+      DropDownFontColor:= clWindowText;
+      DropDownColor:= clWindow;
+    end;
+    DropDownFontHighlight:= clHighlightText;
+    DropDownHighlight:= clHighlight;
+  end;
+
 end;
 
 function ComputeRatio(ARatio: string): single;

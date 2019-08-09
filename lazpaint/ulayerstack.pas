@@ -6,8 +6,9 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  ComCtrls, ExtCtrls, StdCtrls, BGRAVirtualScreen, BCPanel, LazPaintType,
-  BGRABitmap, UVolatileScrollBar, Types, BGRABitmapTypes, UImageObservation;
+  ComCtrls, ExtCtrls, StdCtrls, BGRAVirtualScreen, BCPanel, BCComboBox,
+  LazPaintType, BGRABitmap, UVolatileScrollBar, Types, BGRABitmapTypes,
+  UImageObservation;
 
 type
   TDrawLayerItemResult = record
@@ -24,9 +25,9 @@ type
   { TFLayerStack }
 
   TFLayerStack = class(TForm)
+    ComboBox_BlendOp: TBCComboBox;
     Panel_WindowTitle: TBCPanel;
     BGRALayerStack: TBGRAVirtualScreen;
-    ComboBox_BlendOp: TComboBox;
     Panel1: TPanel;
     TimerScroll: TTimer;
     ToolBar1: TToolBar;
@@ -114,7 +115,7 @@ var TFLayerStack_CustomDPI: integer = 96;
 implementation
 
 uses BGRAFillInfo,LCScaleDPI,uresourcestrings,ublendop, uimage, utool, BGRAText, BGRAThumbnail,
-   BGRALayerOriginal, math, BGRATransform, BGRASVGOriginal, udarktheme;
+   BGRALayerOriginal, math, BGRATransform, BGRASVGOriginal, udarktheme, ugraph;
 
 function TFLayerStack.DrawLayerItem(ABitmap: TBGRABitmap; layerPos: TPoint; layerIndex: integer; ASelected: boolean): TDrawLayerItemResult;
 var
@@ -278,10 +279,9 @@ begin
   Toolbar2.Top := Toolbar1.Top + Toolbar1.Height;
   Panel1.Height := Toolbar2.Top+Toolbar2.Height+2;
 
-  ComboBox_BlendOp.Font.Height := -FontEmHeightSign * ((images.Height-2) * 6 div 10 + 2);
+  ComboBox_BlendOp.Top := ToolBar1.Top;
+  ComboBox_BlendOp.Height := ToolBar1.ButtonHeight+1;
 
-  if Toolbar2.Top < ComboBox_BlendOp.Top + ComboBox_BlendOp.Height then
-    Toolbar2.Top := ComboBox_BlendOp.Top + ComboBox_BlendOp.Height;
   if Toolbar2.Top+Toolbar2.Height+2 > Panel1.Height then
     Panel1.Height := Toolbar2.Top+Toolbar2.Height+2;
 
@@ -844,6 +844,7 @@ begin
   DarkThemeInstance.Apply(ToolBar2, DarkTheme);
   DarkThemeInstance.Apply(ToolBar3, DarkTheme);
   BGRALayerStack.Color:= GetBackColor(False);
+  BCAssignSystemStyle(ComboBox_BlendOp, DarkTheme, 0.5);
 end;
 
 function TFLayerStack.GetTextColor(ASelected: boolean): TColor;

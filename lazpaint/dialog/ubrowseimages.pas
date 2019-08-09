@@ -5,10 +5,10 @@ unit ubrowseimages;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs,
-  ComCtrls, ExtCtrls, Buttons, StdCtrls, BGRAVirtualScreen, BGRABitmap,
-  BGRABitmapTypes, BGRAAnimatedGif, UMySLV, LazPaintType, Masks, LCLType,
-  UFileSystem, UImagePreview;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, ExtCtrls,
+  Buttons, StdCtrls, BGRAVirtualScreen, BCComboBox, BGRABitmap, BGRABitmapTypes,
+  BGRAAnimatedGif, UMySLV, LazPaintType, Masks, LCLType, UFileSystem,
+  UImagePreview;
 
 const
   MaxIconCacheCount = 512;
@@ -18,6 +18,7 @@ type
   { TFBrowseImages }
 
   TFBrowseImages = class(TForm)
+    ComboBox_FileExtension: TBCComboBox;
     CheckBox_UseDirectoryOnStartup: TCheckBox;
     DirectoryEdit1: TEdit;
     ToolButton_CreateFolderOrContainer: TToolButton;
@@ -25,7 +26,6 @@ type
     ToolButtonSeparator: TToolButton;
     ToolButton_OpenSelectedFiles: TToolButton;
     vsList: TBGRAVirtualScreen;
-    ComboBox_FileExtension: TComboBox;
     Edit_Filename: TEdit;
     ListBox_RecentDirs: TListBox;
     Panel3: TPanel;
@@ -262,6 +262,7 @@ begin
   FPreview.OnValidate:= @PreviewValidate;
   FChosenImage := TImageEntry.Empty;
 
+  BCAssignSystemStyle(ComboBox_FileExtension, False);
   InitComboExt;
 
   bmp := TBitmap.Create;

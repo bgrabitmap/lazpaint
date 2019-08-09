@@ -30,3 +30,5 @@ lazpaint/release/bin/lazpaint
 lazpaint/tools/backup/
 
 lazpaint/image/backup/
+
+lazpaint/dialog/backup/
