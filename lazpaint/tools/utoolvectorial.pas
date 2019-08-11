@@ -1386,7 +1386,7 @@ begin
   result := EmptyRect;
   FRightDown := rightBtn;
   FLeftDown := not rightBtn;
-  with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
+  with LayerOffset do
     FLastPos := AffineMatrixTranslation(X,Y)*ptF;
   if Assigned(FShape) then
   begin
@@ -1448,7 +1448,7 @@ var
   handled: boolean;
   cur: TOriginalEditorCursor;
 begin
-  with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
+  with LayerOffset do
     FLastPos := AffineMatrixTranslation(X,Y)*ptF;
   if FQuickDefine then
   begin
