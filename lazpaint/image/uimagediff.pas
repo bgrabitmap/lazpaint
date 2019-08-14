@@ -359,6 +359,7 @@ type
     function ShouldRenderOriginal: boolean; override;
   public
     constructor Create(AFromState: TState; AIndex: integer; AAlwaysStoreBitmap: boolean; AOriginal: TBGRALayerCustomOriginal);
+    destructor Destroy; override;
   end;
 
   { TAddShapeToVectorOriginalDifference }
@@ -646,6 +647,12 @@ constructor TReplaceLayerByCustomOriginalDifference.Create(AFromState: TState;
 begin
   FOriginal := AOriginal;
   inherited Create(AFromState,AIndex,AAlwaysStoreBitmap);
+end;
+
+destructor TReplaceLayerByCustomOriginalDifference.Destroy;
+begin
+  FOriginal.Free;
+  inherited Destroy;
 end;
 
 { TVectorOriginalEmbeddedDifference }
