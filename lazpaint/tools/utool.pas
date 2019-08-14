@@ -1867,7 +1867,7 @@ end;
 
 function TToolManager.DisplayFilledSelection: boolean;
 begin
-  result := IsSelectingTool;
+  result := IsSelectingTool or (FCurrentToolType = ptEditShape);
 end;
 
 procedure TToolManager.QueryExitTool;

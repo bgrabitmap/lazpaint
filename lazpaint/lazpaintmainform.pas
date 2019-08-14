@@ -2785,14 +2785,14 @@ begin
               result := srException;
             end;
           end;
-          ptMoveSelection,ptRotateSelection:
+          ptMoveSelection,ptRotateSelection,ptEditShape:
           begin
             if not ToolManager.SetCurrentToolType(Tool) then
             begin
               result := srException;
               exit;
             end;
-            if not (prevTool in [ptMoveSelection,ptRotateSelection]) then
+            if not (prevTool in [ptMoveSelection,ptRotateSelection,ptEditShape]) then
             begin
               if image.CurrentLayerVisible and not image.SelectionMaskEmpty and image.SelectionLayerIsEmpty and not image.CurrentLayerEmpty then
               begin
@@ -2807,7 +2807,12 @@ begin
                 end;
                 LazPaintInstance.ShowTopmost(topmostInfo);
                 case res.ButtonResult of
-                  mrYes: FImageActions.RetrieveSelection;
+                  mrYes:
+                    begin
+                      ToolManager.ToolCloseDontReopen;
+                      FImageActions.RetrieveSelection;
+                      ToolManager.ToolOpen;
+                    end;
                 end;
               end;
             end;
