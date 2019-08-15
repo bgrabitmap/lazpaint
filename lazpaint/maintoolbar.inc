@@ -941,7 +941,7 @@ var
 begin
   if Index = -1 then exit;
   kind := ComboBox_ArrowStart.Items[Index];
-  DrawArrow(ComboBox_ArrowStart,ARect,True,kind,ToolManager.LineCap,State);
+  DrawArrow(ComboBox_ArrowStart,ARect,True,kind,pecRound,State);
 end;
 
 procedure TFMain.ComboBox_ArrowStartDrawSelectedItem(Sender: TObject; const ABGRA: TBGRABitmap;
@@ -954,7 +954,7 @@ begin
   if cb.ItemIndex = -1 then exit;
   kind := cb.Text;
   ARect.Inflate(-2,-2);
-  DrawArrow(ABGRA,ARect,True,kind,ToolManager.LineCap,AState.FontEx.Color);
+  DrawArrow(ABGRA,ARect,True,kind,pecRound,AState.FontEx.Color);
 end;
 
 procedure TFMain.ComboBox_ArrowEndChange(Sender: TObject);
@@ -994,7 +994,7 @@ var
 begin
   if Index = -1 then exit;
   kind := ComboBox_ArrowEnd.Items[Index];
-  DrawArrow(ComboBox_ArrowEnd,ARect,False,kind,ToolManager.LineCap,State);
+  DrawArrow(ComboBox_ArrowEnd,ARect,False,kind,pecRound,State);
 end;
 
 procedure TFMain.ComboBox_ArrowEndDrawSelectedItem(Sender: TObject; const ABGRA: TBGRABitmap;
@@ -1007,7 +1007,7 @@ begin
   if cb.ItemIndex = -1 then exit;
   kind := cb.Text;
   ARect.Inflate(-2,-2);
-  DrawArrow(ABGRA,ARect,False,kind,ToolManager.LineCap,AState.FontEx.Color);
+  DrawArrow(ABGRA,ARect,False,kind,pecRound,AState.FontEx.Color);
 end;
 
 procedure TFMain.SpinEdit_ArrowSizeChange(Sender: TObject; AByUser: boolean);
