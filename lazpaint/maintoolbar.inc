@@ -504,7 +504,8 @@ end;
 
 procedure TFMain.UpdateLineCapBar;
 begin
-  Panel_LineCap.Visible := Panel_CloseShape.Visible and not (toCloseShape in ToolManager.ShapeOptions);
+  Panel_LineCap.Visible := Panel_CloseShape.Visible and not (toCloseShape in ToolManager.ShapeOptions) and
+    (toDrawShape in ToolManager.ShapeOptions);
 end;
 
 procedure TFMain.UpdateToolImage(AForceUpdate: boolean);
@@ -885,7 +886,6 @@ begin
           ToolManager.ShapeOptions := ToolManager.ShapeOptions + [toCloseShape]
         else
           ToolManager.ShapeOptions := ToolManager.ShapeOptions - [toCloseShape];
-       UpdateLineCapBar;
        FLayout.Arrange;
        UpdateEditPicture;
      end;

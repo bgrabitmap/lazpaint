@@ -1471,7 +1471,7 @@ begin
   SetControlsVisible(JoinStyleControls, (ctJoinStyle in contextualToolbars) and (toDrawShape in ShapeOptions));
   SetControlsVisible(PenStyleControls, (ctPenStyle in contextualToolbars) and (toDrawShape in ShapeOptions));
   SetControlsVisible(CloseShapeControls, ctLineCap in contextualToolbars);
-  SetControlsVisible(LineCapControls, (ctLineCap in contextualToolbars) and not (toCloseShape in ShapeOptions));
+  SetControlsVisible(LineCapControls, (ctLineCap in contextualToolbars) and not (toCloseShape in ShapeOptions) and (toDrawShape in ShapeOptions));
   SetControlsVisible(AliasingControls, ctAliasing in contextualToolbars);
   SetControlsVisible(SplineStyleControls, ctSplineStyle in contextualToolbars);
   SetControlsVisible(EraserControls, ctEraserOption in contextualToolbars);
