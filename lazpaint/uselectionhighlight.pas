@@ -144,11 +144,22 @@ procedure TSelectionHighlight.DrawAffine(ADestination: TBGRACustomBitmap;
 
   procedure DrawPoly(const AMatrix: TAffineMatrix; const APoly: array of TPointF;
             const ABounds: TRectF);
+  const
+    CoordShift = 8;
+    CoordPrecision = 1 shl CoordShift;
   var
+    m: TAffineMatrix;
     pts: array of record
            coord: TPoint;
            insideX,insideY: integer;
          end;
+
+    function CoordShr(AValue: integer): integer; inline;
+    begin
+      if AValue >= 0 then
+        result := AValue shr CoordShift
+      else result := -((-AValue + CoordPrecision-1) shr CoordShift);
+    end;
 
     procedure DrawSeg(AFrom,ATo: integer);
     var
@@ -172,22 +183,22 @@ procedure TSelectionHighlight.DrawAffine(ADestination: TBGRACustomBitmap;
           if pts[ATo].insideX > 0 then
           begin
             t := (ABounds.Right-APoly[AFrom].x)/u.x;
-            ptTo := (AMatrix*(APoly[AFrom]+u*t)).Round;
+            ptTo := (m*(APoly[AFrom]+u*t)).Round;
           end
           else if pts[ATo].insideX < 0 then
           begin
             t := (ABounds.Left-APoly[AFrom].x)/u.x;
-            ptTo := (AMatrix*(APoly[AFrom]+u*t)).Round;
+            ptTo := (m*(APoly[AFrom]+u*t)).Round;
           end;
           if pts[AFrom].insideX > 0 then
           begin
             t := (ABounds.Right-APoly[ATo].x)/u.x;
-            ptFrom := (AMatrix*(APoly[ATo]+u*t)).Round;
+            ptFrom := (m*(APoly[ATo]+u*t)).Round;
           end
           else if pts[AFrom].insideX < 0 then
           begin
             t := (ABounds.Left-APoly[ATo].x)/u.x;
-            ptFrom := (AMatrix*(APoly[ATo]+u*t)).Round;
+            ptFrom := (m*(APoly[ATo]+u*t)).Round;
           end;
         end;
         if u.y <> 0 then
@@ -195,22 +206,22 @@ procedure TSelectionHighlight.DrawAffine(ADestination: TBGRACustomBitmap;
           if pts[ATo].insideY > 0 then
           begin
             t := (ABounds.Bottom-APoly[AFrom].y)/u.y;
-            ptTo := (AMatrix*(APoly[AFrom]+u*t)).Round;
+            ptTo := (m*(APoly[AFrom]+u*t)).Round;
           end
           else if pts[ATo].insideY < 0 then
           begin
             t := (ABounds.Top-APoly[AFrom].y)/u.y;
-            ptTo := (AMatrix*(APoly[AFrom]+u*t)).Round;
+            ptTo := (m*(APoly[AFrom]+u*t)).Round;
           end;
           if pts[AFrom].insideY > 0 then
           begin
             t := (ABounds.Bottom-APoly[ATo].y)/u.y;
-            ptFrom := (AMatrix*(APoly[ATo]+u*t)).Round;
+            ptFrom := (m*(APoly[ATo]+u*t)).Round;
           end
           else if pts[AFrom].insideY < 0 then
           begin
             t := (ABounds.Top-APoly[ATo].y)/u.y;
-            ptFrom := (AMatrix*(APoly[ATo]+u*t)).Round;
+            ptFrom := (m*(APoly[ATo]+u*t)).Round;
           end;
         end;
       end;
@@ -222,6 +233,10 @@ procedure TSelectionHighlight.DrawAffine(ADestination: TBGRACustomBitmap;
                  (ptTo.y-ptFrom.y);
       value := dotProd*127 div len + 128;
       value2 := (value*2+128) div 3;
+      ptFrom.x := CoordShr(ptFrom.x);
+      ptFrom.y := CoordShr(ptFrom.y);
+      ptTo.x := CoordShr(ptTo.x);
+      ptTo.y := CoordShr(ptTo.y);
       if value <= 128 then
       begin
         if lenY < lenX then
@@ -244,10 +259,12 @@ procedure TSelectionHighlight.DrawAffine(ADestination: TBGRACustomBitmap;
   var
     i, j: Integer;
   begin
+    m := AffineMatrixTranslation(CoordPrecision div 2, CoordPrecision div 2)*
+         AffineMatrixScale(CoordPrecision,CoordPrecision)*AMatrix;
     setlength(pts, length(APoly));
     for i := 0 to high(APoly) do
     begin
-      pts[i].coord := (AMatrix*APoly[i]).Round;
+      pts[i].coord := (m*APoly[i]).Round;
       if APoly[i].x <= ABounds.Left then pts[i].insideX := -1
       else if APoly[i].x >= ABounds.Right then pts[i].insideX := +1
       else pts[i].insideX:= 0;
