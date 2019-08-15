@@ -706,6 +706,7 @@ type
     FCoordinatesCaption: string;
     FCoordinatesCaptionCount: NativeInt;
     FImageView: TImageView;
+    FLastPaintDate: TDateTime;
     FUpdateStackWhenIdle: boolean;
     FToolbarElementsInitDone: boolean;
     FInSplineStyleChange: Boolean;
@@ -2415,6 +2416,7 @@ begin
 end;
 
 procedure TFMain.TimerUpdateTimer(Sender: TObject);
+const SelectionPaintDelay = 100/(1000*60*60*24);
 begin
   TimerUpdate.Enabled := false;
   EditUndo.Update;
@@ -2434,9 +2436,12 @@ begin
   begin
     if CanCompressOrUpdateStack then image.CompressUndo;
   end;
-  if DelayedPaintPicture or ToolManager.ToolUpdateNeeded then
+  if DelayedPaintPicture or ToolManager.ToolUpdateNeeded or
+   (Assigned(FImageView) and not FImageView.ShowSelection and
+    (Now > FLastPaintDate+SelectionPaintDelay) ) then
   begin
     if ToolManager.ToolUpdateNeeded then ToolManager.ToolUpdate;
+    if Assigned(FImageView) then FImageView.ShowSelection := true;
     PaintPictureNow;
   end;
   TimerUpdate.Enabled := true;
@@ -3481,6 +3486,7 @@ begin
   end;
 
   InFormPaint := false;
+  FLastPaintDate := Now;
 end;
 
 procedure TFMain.OnImageChangedHandler(AEvent: TLazPaintImageObservationEvent);
@@ -3517,7 +3523,12 @@ end;
 
 procedure TFMain.OnZoomChanged(sender: TZoom; ANewZoom: single);
 begin
-  if Assigned(FImageView) then FImageView.OnZoomChanged(sender, ANewZoom, FLayout.WorkArea);
+  if Assigned(FImageView) then
+  begin
+    if not Image.SelectionMaskEmpty then
+      FImageView.ShowSelection := false;
+    FImageView.OnZoomChanged(sender, ANewZoom, FLayout.WorkArea);
+  end;
   UpdateToolbar;
   PaintPictureNow;
 end;

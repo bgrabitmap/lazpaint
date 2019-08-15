@@ -14,14 +14,13 @@ type
   { TImageView }
 
   TImageView = class
-  private
-    function GetWorkspaceColor: TColor;
   protected
     FVirtualScreen : TBGRABitmap;
     FPenCursorVisible: boolean;
     FPenCursorPos,FPenCursorPosBefore: TVSCursorPosition;
     FQueryPaintVirtualScreen: boolean;
     FSelectionHighlight: TSelectionHighlight;
+    FShowSelection: boolean;
     FInstance: TLazPaintCustomInstance;
     FLastPictureParameters: record
        defined: boolean;
@@ -39,12 +38,14 @@ type
     function GetRenderUpdateRectVS(AIncludeLastToolState: boolean): TRect;
     function GetFillSelectionHighlight: boolean;
     function GetPenCursorPosition: TVSCursorPosition;
+    function GetWorkspaceColor: TColor;
     procedure PaintPictureImplementation(ACanvasOfs: TPoint; AWorkArea: TRect; AVSPart: TRect);
     procedure PaintVirtualScreenImplementation(ACanvasOfs: TPoint; AWorkArea: TRect; AVSPart: TRect);
     procedure PaintBlueAreaImplementation(ACanvasOfs: TPoint; AWorkArea: TRect);
     procedure PaintBlueAreaOnly(ACanvasOfs: TPoint; AWorkArea: TRect);
     procedure ComputePictureParams(AWorkArea: TRect);
     procedure SetFillSelectionHighlight(AValue: boolean);
+    procedure SetShowSelection(AValue: boolean);
     procedure PictureSelectionChanged({%H-}sender: TLazPaintImage; const ARect: TRect);
     procedure PaintVirtualScreenCursor({%H-}ACanvasOfs: TPoint; {%H-}AWorkArea: TRect; {%H-}AWinControlOfs: TPoint; {%H-}AWinControl: TWinControl);
     function GetRectToInvalidate(AInvalidateAll: boolean; AWorkArea: TRect): TRect;
@@ -68,6 +69,7 @@ type
     property LazPaintInstance: TLazPaintCustomInstance read FInstance;
     property PictureCanvas: TCanvas read FPictureCanvas;
     property FillSelectionHighlight: boolean read GetFillSelectionHighlight write SetFillSelectionHighlight;
+    property ShowSelection: boolean read FShowSelection write SetShowSelection;
     property WorkspaceColor: TColor read GetWorkspaceColor;
   end;
 
@@ -92,6 +94,13 @@ begin
   result := LazPaintInstance.Config.GetWorkspaceColor;
 end;
 
+procedure TImageView.SetShowSelection(AValue: boolean);
+begin
+  if FShowSelection=AValue then Exit;
+  FShowSelection:=AValue;
+  Image.ImageMayChangeCompletely;
+end;
+
 function TImageView.GetImage: TLazPaintImage;
 begin
   result := FInstance.Image;
@@ -107,7 +116,7 @@ var
     transform, invTransform: TAffineMatrix;
     renderWidth, renderHeight: integer;
   begin
-    if Assigned(FSelectionHighlight) then
+    if Assigned(FSelectionHighlight) and ShowSelection then
     begin
       renderVisibleBounds := rect(0,0,FVirtualScreen.Width,FVirtualScreen.Height);
       renderWidth := ARenderRect.Right-ARenderRect.Left;
@@ -281,6 +290,7 @@ begin
   FVirtualScreen := nil;
   FLastPictureParameters.defined:= false;
   FSelectionHighlight := TSelectionHighlight.Create(Image);
+  FShowSelection:= true;
   Image.OnSelectionChanged := @PictureSelectionChanged;
   LazPaintInstance.ToolManager.BitmapToVirtualScreen := @BitmapToVirtualScreen;
 end;

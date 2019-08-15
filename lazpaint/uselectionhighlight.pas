@@ -289,10 +289,10 @@ procedure TSelectionHighlight.DrawAffine(ADestination: TBGRACustomBitmap;
 var
   m: TAffineMatrix;
   aff: TBGRAAffineBitmapTransform;
-  fil: TBGRASolidColorMaskScanner;
   x,y: integer;
   b: TRectF;
   transf, imgRect: TRect;
+  band: TBGRABitmap;
 
 begin
   if FImage.SelectionMaskEmpty then exit;
@@ -302,9 +302,14 @@ begin
   begin
     aff := TBGRAAffineBitmapTransform.Create(FImage.SelectionMaskReadonly,false,AFilter);
     aff.ViewMatrix := AffineMatrixTranslation(-0.5,-0.5)*m*AffineMatrixTranslation(0.5,0.5);
-    fil := TBGRASolidColorMaskScanner.Create(aff,Point(0,0),BGRA(64,128,192,AOpacity div 2));
-    ADestination.Fill(fil, AMode);
-    fil.Free;
+    band := TBGRABitmap.Create(ADestination.ClipRect.Width,1);
+    x := ADestination.ClipRect.Left;
+    for y := ADestination.ClipRect.Top to ADestination.ClipRect.Bottom-1 do
+    begin
+      band.FillRect(0,0,band.Width,1, aff, dmSet, Point(x,y));
+      ADestination.FillMask(x,y,band,BGRA(64,128,192,AOpacity div 2),AMode);
+    end;
+    band.Free;
     aff.Free;
   end;
 
