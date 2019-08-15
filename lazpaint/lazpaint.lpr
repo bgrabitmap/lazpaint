@@ -37,7 +37,7 @@ uses
   UScriptType, ULayerAction, UImageType, uposterize, UMySLV,
   unoisefilter, uprint, uimagelist, UFileExtensions, UFileSystem,
   UMainFormLayout, USaveOption, UBrushType, ugeometricbrush,
-  URainType, UFormRain, UPaletteToolbar, uselectionhighlight, UGridBitmap,
+  URainType, UFormRain, UPaletteToolbar, uselectionhighlight,
   UImagePreview, UPreviewDialog, UQuestion, UTiff, UImageView,
   UDarkTheme;
 

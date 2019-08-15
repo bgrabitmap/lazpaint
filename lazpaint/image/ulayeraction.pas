@@ -184,6 +184,9 @@ begin
   if Assigned(FPrediff) then
   begin
     FPrediff.UnapplyTo(CurrentState);
+    if (FPrediff.Kind in [idkChangeImageAndSelection,idkChangeSelection]) and
+       Assigned(FImageState.SelectionMask) then
+      NotifyChange(FImageState.SelectionMask, rect(0,0,FImageState.SelectionMask.Width,FImageState.SelectionMask.Height));
     FreeAndNil(FPrediff);
   end;
   FDone := true;
