@@ -164,6 +164,7 @@ type
     function CutSelection: boolean;
     function PasteSelection: boolean;
     function DeleteSelection: boolean;
+    function GetAlignBounds(const ALayoutRect: TRect; const AMatrix: TAffineMatrix): TRectF; override;
     procedure Transform(const AMatrix: TAffineMatrix); override;
     property HasSelection: boolean read GetHasSelection;
     property CanPasteSelection: boolean read GetCanPasteSelection;
@@ -884,6 +885,15 @@ begin
     result := true;
   end else
     result := false;
+end;
+
+function TTextShape.GetAlignBounds(const ALayoutRect: TRect;
+  const AMatrix: TAffineMatrix): TRectF;
+var
+  ab: TAffineBox;
+begin
+  ab := GetAffineBox(AMatrix, false);
+  Result:= ab.RectBoundsF;
 end;
 
 procedure TTextShape.InsertText(ATextUTF8: string);

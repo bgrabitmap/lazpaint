@@ -8674,6 +8674,42 @@ object FMain: TFMain
       OnExecute = EditMoveToBackExecute
       OnUpdate = EditMoveToBackUpdate
     end
+    object EditShapeAlignLeft: TAction
+      Category = 'Edit'
+      Hint = 'Align shape left'
+      OnExecute = EditShapeAlignLeftExecute
+      OnUpdate = EditShapeAlignLeftUpdate
+    end
+    object EditShapeCenterHorizontally: TAction
+      Category = 'Edit'
+      Hint = 'Center shape horizontally'
+      OnExecute = EditShapeCenterHorizontallyExecute
+      OnUpdate = EditShapeCenterHorizontallyUpdate
+    end
+    object EditShapeAlignRight: TAction
+      Category = 'Edit'
+      Hint = 'Align shape right'
+      OnExecute = EditShapeAlignRightExecute
+      OnUpdate = EditShapeAlignRightUpdate
+    end
+    object EditShapeAlignTop: TAction
+      Category = 'Edit'
+      Hint = 'Align shape to the top'
+      OnExecute = EditShapeAlignTopExecute
+      OnUpdate = EditShapeAlignTopUpdate
+    end
+    object EditShapeCenterVertically: TAction
+      Category = 'Edit'
+      Hint = 'Center shape vertically'
+      OnExecute = EditShapeCenterVerticallyExecute
+      OnUpdate = EditShapeCenterVerticallyUpdate
+    end
+    object EditShapeAlignBottom: TAction
+      Category = 'Edit'
+      Hint = 'Align shape to the bottom'
+      OnExecute = EditShapeAlignBottomExecute
+      OnUpdate = EditShapeAlignBottomUpdate
+    end
   end
   object ColorDialog1: TColorDialog
     Title = 'Choose color'

@@ -100,6 +100,16 @@ var actions: TStringList;
     item.Add(subItem);
   end;
 
+  procedure AddSubItem(AAction: TBasicAction; ATag: integer = 0);
+  var
+    subItem: TMenuItem;
+  begin
+    subItem := TMenuItem.Create(item);
+    subItem.Action := AAction;
+    subItem.Tag := ATag;
+    item.Add(subItem);
+  end;
+
 begin
   actions := TStringList.Create;
   actions.CommaText := AActionsCommaText;
@@ -154,6 +164,19 @@ begin
           AddSubItem('32px', @IconSizeItemClick, 32);
           AddSubItem('48px', @IconSizeItemClick, 48);
           AddSubItem(rsAutodetect, @IconSizeItemClick, 0);
+          AMenu.Add(item);
+          item := nil;
+        end else
+        if Assigned(item) and (actions[i] = 'EditShapeAlign') then
+        begin
+          item.Caption := rsAlignShape;
+          AddSubItem(AActionList.ActionByName('EditShapeAlignLeft'));
+          AddSubItem(AActionList.ActionByName('EditShapeCenterHorizontally'));
+          AddSubItem(AActionList.ActionByName('EditShapeAlignRight'));
+          AddSubItem('-',nil,0);
+          AddSubItem(AActionList.ActionByName('EditShapeAlignTop'));
+          AddSubItem(AActionList.ActionByName('EditShapeCenterVertically'));
+          AddSubItem(AActionList.ActionByName('EditShapeAlignBottom'));
           AMenu.Add(item);
           item := nil;
         end;
@@ -357,7 +380,7 @@ begin
     if (Caption = '') and (Hint <> '') then Caption := Hint;
 
   AddMenus('MenuFile',   'FileNew,FileOpen,LayerFromFile,FileChooseEntry,FileReload,MenuRecentFiles,-,FileSave,FileSaveAsInSameFolder,FileSaveAs,-,FileImport3D,-,FilePrint,-,'+ImageBrowser+'FileRememberSaveFormat,ForgetDialogAnswers,MenuLanguage,*');
-  AddMenus('MenuEdit',   'EditUndo,EditRedo,-,EditCut,EditCopy,EditPaste,EditPasteAsNew,EditPasteAsNewLayer,EditDeleteSelection,-,EditMoveUp,EditMoveToFront,EditMoveDown,EditMoveToBack,-,EditSelectAll,EditInvertSelection,EditSelectionFit,EditDeselect');
+  AddMenus('MenuEdit',   'EditUndo,EditRedo,-,EditCut,EditCopy,EditPaste,EditPasteAsNew,EditPasteAsNewLayer,EditDeleteSelection,-,EditMoveUp,EditMoveToFront,EditMoveDown,EditMoveToBack,EditShapeAlign,-,EditSelectAll,EditInvertSelection,EditSelectionFit,EditDeselect');
   AddMenus('MenuSelect', 'EditSelection,FileLoadSelection,FileSaveSelectionAs,-,EditSelectAll,EditInvertSelection,EditSelectionFit,EditDeselect,-,ToolSelectRect,ToolSelectEllipse,ToolSelectPoly,ToolSelectSpline,-,ToolMoveSelection,ToolRotateSelection,SelectionHorizontalFlip,SelectionVerticalFlip,-,ToolSelectPen,ToolMagicWand');
   AddMenus('MenuView',   'ViewGrid,ViewZoomOriginal,ViewZoomIn,ViewZoomOut,ViewZoomFit,-,ViewToolBox,ViewColors,ViewPalette,ViewLayerStack,ViewImageList,ViewStatusBar,-,*,-,ViewDarkTheme,ViewWorkspaceColor,MenuIconSize');
   AddMenus('MenuImage',  'ImageCrop,ImageCropLayer,ImageFlatten,MenuRemoveTransparency,-,ImageNegative,ImageLinearNegative,ImageSwapRedBlue,-,ImageChangeCanvasSize,ImageRepeat,-,ImageResample,ImageSmartZoom3,-,ImageRotateCW,ImageRotateCCW,ImageHorizontalFlip,ImageVerticalFlip');

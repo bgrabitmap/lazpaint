@@ -183,6 +183,17 @@ begin
   end;
 end;
 
+procedure AlignShape(AShape: TVectorShape; ACommand: TToolCommand; const AMatrix: TAffineMatrix; const ARect: TRect);
+begin
+  case ACommand of
+  tcAlignLeft: AShape.AlignHorizontally(taLeftJustify,AMatrix,ARect);
+  tcCenterHorizontally: AShape.AlignHorizontally(taCenter,AMatrix,ARect);
+  tcAlignRight: AShape.AlignHorizontally(taRightJustify,AMatrix,ARect);
+  tcAlignTop..tcAlignBottom:
+      AShape.AlignVertically(TTextLayout(ord(ACommand)-ord(tcAlignTop)+ord(tlTop)),AMatrix,ARect);
+  end;
+end;
+
 { TEditShapeTool }
 
 procedure TEditShapeTool.SelectShape(ASender: TObject; AShape: TVectorShape;
@@ -681,8 +692,11 @@ begin
     Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] :=
       GetMatrixFromRect(FOriginalRect,FOriginalRectUntransformed);
   if Assigned(FSelectionRect) then
+  begin
     Manager.Image.SelectionTransform :=
       GetMatrixFromRect(FSelectionRect,FSelectionRectUntransformed);
+    Manager.Image.OnImageChanged.NotifyObservers;
+  end;
 end;
 
 procedure TEditShapeTool.DoEditSelection;
@@ -1088,7 +1102,7 @@ begin
   end else
   begin
     result := true;
-    if IsVectorOriginal then
+    if IsVectorOriginal and not Assigned(FSelectionRect) then
     begin
       BindOriginalEvent(true);
       case ACommand of
@@ -1099,6 +1113,9 @@ begin
         tcCopy: Result:= CopyShapesToClipboard([GetVectorOriginal.SelectedShape]);
         tcCut: result := GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
         tcPaste: PasteShapesFromClipboard(GetVectorOriginal);
+        tcAlignLeft..tcAlignBottom: AlignShape(GetVectorOriginal.SelectedShape, ACommand,
+                     Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex],
+                     rect(0,0,Manager.Image.Width,Manager.Image.Height));
         else result := false;
       end;
       BindOriginalEvent(false);
@@ -1110,7 +1127,22 @@ begin
         tcMoveToBack: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, 0);
         tcMoveUp: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, Manager.Image.CurrentLayerIndex+1);
         tcMoveToFront: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, Manager.Image.NbLayers-1);
+        tcAlignLeft..tcAlignBottom:
+            begin
+              AlignShape(FOriginalRect, ACommand,
+                         AffineMatrixIdentity,rect(0,0,Manager.Image.Width,Manager.Image.Height));
+              UpdateMatrixFromRect;
+            end
         else result := false;
+      end;
+    end else
+    if Assigned(FSelectionRect) then
+    begin
+      if ACommand in [tcAlignLeft..tcAlignBottom] then
+      begin
+        AlignShape(FSelectionRect, ACommand,
+                   AffineMatrixIdentity,rect(0,0,Manager.Image.Width,Manager.Image.Height));
+        UpdateMatrixFromRect;
       end;
     end;
   end;
@@ -1119,13 +1151,19 @@ end;
 function TEditShapeTool.ToolProvideCommand(ACommand: TToolCommand): boolean;
 begin
   case ACommand of
-  tcCut,tcCopy,tcDelete: result:= IsVectorOriginal and Assigned(GetVectorOriginal.SelectedShape);
+  tcCut,tcCopy,tcDelete: result:= IsVectorOriginal and not Assigned(FSelectionRect)
+                                  and Assigned(GetVectorOriginal.SelectedShape);
+  tcAlignLeft..tcAlignBottom: result:= (IsVectorOriginal and not Assigned(FSelectionRect)
+                                        and Assigned(GetVectorOriginal.SelectedShape)) or
+                                       (Assigned(FOriginalRect) or Assigned(FSelectionRect));
   tcPaste: result := IsVectorOriginal and ClipboardHasShapes;
-  tcMoveUp,tcMoveToFront: result := (IsVectorOriginal and Assigned(GetVectorOriginal.SelectedShape)
+  tcMoveUp,tcMoveToFront: result := (IsVectorOriginal and not Assigned(FSelectionRect)
+                                    and Assigned(GetVectorOriginal.SelectedShape)
                                     and not GetVectorOriginal.SelectedShape.IsFront) or
                                     (IsOtherOriginal and Assigned(FOriginalRect) and
                                       (Manager.Image.CurrentLayerIndex < Manager.Image.NbLayers-1));
-  tcMoveDown,tcMoveToBack: result := (IsVectorOriginal and Assigned(GetVectorOriginal.SelectedShape)
+  tcMoveDown,tcMoveToBack: result := (IsVectorOriginal and not Assigned(FSelectionRect)
+                                     and Assigned(GetVectorOriginal.SelectedShape)
                                      and not GetVectorOriginal.SelectedShape.IsBack) or
                                      (IsOtherOriginal and Assigned(FOriginalRect) and
                                       (Manager.Image.CurrentLayerIndex > 0));
@@ -1728,7 +1766,7 @@ begin
         Result:= false;
     end;
   tcCut: begin
-      if ToolProvideCommand(tcCut) and ToolCommand(tcCopy) then
+      if ToolCommand(tcCopy) then
       begin
         toolDest := GetToolDrawingLayer;
         r := CancelShape;
@@ -1737,6 +1775,11 @@ begin
       end else
         result := false;
     end;
+  tcAlignLeft..tcAlignBottom:
+      if ToolProvideCommand(ACommand) then
+        AlignShape(FShape, ACommand,
+                 Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex],
+                 rect(0,0,Manager.Image.Width,Manager.Image.Height));
   else
     result := false;
   end;
@@ -1746,6 +1789,7 @@ function TVectorialTool.ToolProvideCommand(ACommand: TToolCommand): boolean;
 begin
   case ACommand of
   tcCopy,tcCut: Result:= not IsSelectingTool and not FQuickDefine and Assigned(FShape);
+  tcAlignLeft..tcAlignBottom: Result:= not FQuickDefine and Assigned(FShape);
   tcMoveDown,tcMoveToBack: result := not IsSelectingTool and not FQuickDefine and Assigned(FShape)
           and not AlwaysRasterizeShape and Manager.Image.SelectionMaskEmpty and not FLayerWasEmpty;
   else result := false;

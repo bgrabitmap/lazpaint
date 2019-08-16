@@ -39,7 +39,8 @@ type
   TBitmapToVirtualScreenFunction = function(PtF: TPointF): TPointF of object;
 
   TEraserMode = (emEraseAlpha, emSoften);
-  TToolCommand = (tcCut, tcCopy, tcPaste, tcDelete, tcMoveUp, tcMoveDown, tcMoveToFront, tcMoveToBack);
+  TToolCommand = (tcCut, tcCopy, tcPaste, tcDelete, tcMoveUp, tcMoveDown, tcMoveToFront, tcMoveToBack,
+    tcAlignLeft, tcCenterHorizontally, tcAlignRight, tcAlignTop, tcCenterVertically, tcAlignBottom);
 
 function GradientColorSpaceToDisplay(AValue: TBGRAColorInterpolation): string;
 function DisplayToGradientColorSpace(AValue: string): TBGRAColorInterpolation;

@@ -193,6 +193,30 @@ msgstr "Éditer la sélection..."
 msgid "Selection fit"
 msgstr "Ajuster la sélection"
 
+#: tfmain.editshapealignbottom.hint
+msgid "Align shape to the bottom"
+msgstr "Aligner la forme en bas"
+
+#: tfmain.editshapealignleft.hint
+msgid "Align shape left"
+msgstr "Aligner la forme à gauche"
+
+#: tfmain.editshapealignright.hint
+msgid "Align shape right"
+msgstr "Aligner la forme à droite"
+
+#: tfmain.editshapealigntop.hint
+msgid "Align shape to the top"
+msgstr "Aligner la forme en haut"
+
+#: tfmain.editshapecenterhorizontally.hint
+msgid "Center shape horizontally"
+msgstr "Centrer la forme horizontalement"
+
+#: tfmain.editshapecentervertically.hint
+msgid "Center shape vertically"
+msgstr "Centrer la forme verticalement"
+
 #: tfmain.editundo.caption
 msgid "Undo"
 msgstr "Annuler"
@@ -1517,6 +1541,10 @@ msgstr "Action en cours"
 #: uresourcestrings.rsaddtoimagelist
 msgid "Add files to the image processing list"
 msgstr "Ajouter des fichiers pour traitement"
+
+#: uresourcestrings.rsalignshape
+msgid "Align shape"
+msgstr "Aligner la forme"
 
 #: uresourcestrings.rsallapplications
 msgid "all"

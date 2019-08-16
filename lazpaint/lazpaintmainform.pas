@@ -28,6 +28,12 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    EditShapeAlignBottom: TAction;
+    EditShapeCenterVertically: TAction;
+    EditShapeAlignTop: TAction;
+    EditShapeAlignRight: TAction;
+    EditShapeCenterHorizontally: TAction;
+    EditShapeAlignLeft: TAction;
     ComboBox_PenStyle: TBCComboBox;
     EditMoveToBack: TAction;
     EditMoveDown: TAction;
@@ -445,6 +451,18 @@ type
     procedure EditMoveUpUpdate(Sender: TObject);
     procedure EditPasteExecute(Sender: TObject);
     procedure EditSelectionUpdate(Sender: TObject);
+    procedure EditShapeAlignBottomExecute(Sender: TObject);
+    procedure EditShapeAlignBottomUpdate(Sender: TObject);
+    procedure EditShapeAlignLeftExecute(Sender: TObject);
+    procedure EditShapeAlignLeftUpdate(Sender: TObject);
+    procedure EditShapeAlignRightExecute(Sender: TObject);
+    procedure EditShapeAlignRightUpdate(Sender: TObject);
+    procedure EditShapeAlignTopExecute(Sender: TObject);
+    procedure EditShapeAlignTopUpdate(Sender: TObject);
+    procedure EditShapeCenterHorizontallyExecute(Sender: TObject);
+    procedure EditShapeCenterHorizontallyUpdate(Sender: TObject);
+    procedure EditShapeCenterVerticallyExecute(Sender: TObject);
+    procedure EditShapeCenterVerticallyUpdate(Sender: TObject);
     procedure FileChooseEntryExecute(Sender: TObject);
     procedure FileChooseEntryUpdate(Sender: TObject);
     procedure FileImport3DUpdate(Sender: TObject);
@@ -2900,6 +2918,66 @@ end;
 procedure TFMain.EditSelectionUpdate(Sender: TObject);
 begin
   EditSelection.Enabled := not Scripting.Recording;
+end;
+
+procedure TFMain.EditShapeAlignBottomExecute(Sender: TObject);
+begin
+  ToolManager.ToolCommand(tcAlignBottom);
+end;
+
+procedure TFMain.EditShapeAlignBottomUpdate(Sender: TObject);
+begin
+  EditShapeAlignBottom.Enabled := ToolManager.ToolProvideCommand(tcAlignBottom);
+end;
+
+procedure TFMain.EditShapeAlignLeftExecute(Sender: TObject);
+begin
+  ToolManager.ToolCommand(tcAlignLeft);
+end;
+
+procedure TFMain.EditShapeAlignLeftUpdate(Sender: TObject);
+begin
+  EditShapeAlignLeft.Enabled := ToolManager.ToolProvideCommand(tcAlignLeft);
+end;
+
+procedure TFMain.EditShapeAlignRightExecute(Sender: TObject);
+begin
+  ToolManager.ToolCommand(tcAlignRight);
+end;
+
+procedure TFMain.EditShapeAlignRightUpdate(Sender: TObject);
+begin
+  EditShapeAlignRight.Enabled := ToolManager.ToolProvideCommand(tcAlignRight);
+end;
+
+procedure TFMain.EditShapeAlignTopExecute(Sender: TObject);
+begin
+  ToolManager.ToolCommand(tcAlignTop);
+end;
+
+procedure TFMain.EditShapeAlignTopUpdate(Sender: TObject);
+begin
+  EditShapeAlignTop.Enabled := ToolManager.ToolProvideCommand(tcAlignTop);
+end;
+
+procedure TFMain.EditShapeCenterHorizontallyExecute(Sender: TObject);
+begin
+  ToolManager.ToolCommand(tcCenterHorizontally);
+end;
+
+procedure TFMain.EditShapeCenterHorizontallyUpdate(Sender: TObject);
+begin
+  EditShapeCenterHorizontally.Enabled := ToolManager.ToolProvideCommand(tcCenterHorizontally);
+end;
+
+procedure TFMain.EditShapeCenterVerticallyExecute(Sender: TObject);
+begin
+  ToolManager.ToolCommand(tcCenterVertically);
+end;
+
+procedure TFMain.EditShapeCenterVerticallyUpdate(Sender: TObject);
+begin
+  EditShapeCenterVertically.Enabled := ToolManager.ToolProvideCommand(tcCenterVertically);
 end;
 
 procedure TFMain.FileChooseEntryExecute(Sender: TObject);

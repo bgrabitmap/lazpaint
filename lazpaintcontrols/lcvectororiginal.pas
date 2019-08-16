@@ -217,6 +217,10 @@ type
     procedure MoveUp(APassNonIntersectingShapes: boolean);
     procedure MoveDown(APassNonIntersectingShapes: boolean);
     procedure Remove;
+    procedure AlignHorizontally(AAlign: TAlignment; const AMatrix: TAffineMatrix; const ABounds: TRect); virtual;
+    procedure AlignVertically(AAlign: TTextLayout; const AMatrix: TAffineMatrix; const ABounds: TRect); virtual;
+    function GetAlignBounds(const ALayoutRect: TRect; const AMatrix: TAffineMatrix): TRectF; virtual;
+    procedure AlignTransform(const AMatrix: TAffineMatrix); virtual;
     function Duplicate: TVectorShape;
     class function StorageClassName: RawByteString; virtual; abstract;
     function GetIsSlow(const {%H-}AMatrix: TAffineMatrix): boolean; virtual;
@@ -2060,6 +2064,47 @@ begin
   end;
   if Assigned(Container) then Container.RemoveShape(self)
   else raise exception.Create('Shape does not have a container');
+end;
+
+procedure TVectorShape.AlignHorizontally(AAlign: TAlignment;
+  const AMatrix: TAffineMatrix; const ABounds: TRect);
+var
+  sb: TRectF;
+  m: TAffineMatrix;
+begin
+  sb := GetAlignBounds(ABounds, AMatrix);
+  case AAlign of
+  taRightJustify: m := AffineMatrixTranslation(ABounds.Right-sb.Right,0);
+  taCenter: m := AffineMatrixTranslation((ABounds.Left+ABounds.Right-sb.Left-sb.Right)/2,0);
+  else m := AffineMatrixTranslation(ABounds.Left-sb.Left,0);
+  end;
+  AlignTransform(AffineMatrixInverse(AMatrix)*m*AMatrix);
+end;
+
+procedure TVectorShape.AlignVertically(AAlign: TTextLayout;
+  const AMatrix: TAffineMatrix; const ABounds: TRect);
+var
+  sb: TRectF;
+  m: TAffineMatrix;
+begin
+  sb := GetAlignBounds(ABounds, AMatrix);
+  case AAlign of
+  tlBottom: m := AffineMatrixTranslation(0,ABounds.Bottom-sb.Bottom);
+  tlCenter: m := AffineMatrixTranslation(0,(ABounds.Top+ABounds.Bottom-sb.Top-sb.Bottom)/2);
+  else m := AffineMatrixTranslation(0,ABounds.Top-sb.Top);
+  end;
+  AlignTransform(AffineMatrixInverse(AMatrix)*m*AMatrix);
+end;
+
+function TVectorShape.GetAlignBounds(const ALayoutRect: TRect;
+  const AMatrix: TAffineMatrix): TRectF;
+begin
+  result := GetRenderBounds(ALayoutRect, AMatrix, []);
+end;
+
+procedure TVectorShape.AlignTransform(const AMatrix: TAffineMatrix);
+begin
+  Transform(AMatrix);
 end;
 
 function TVectorShape.Duplicate: TVectorShape;

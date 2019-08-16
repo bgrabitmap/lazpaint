@@ -193,6 +193,30 @@ msgstr "تحرير التحديد"
 msgid "Selection fit"
 msgstr "تحديد ملائم"
 
+#: tfmain.editshapealignbottom.hint
+msgid "Align shape to the bottom"
+msgstr ""
+
+#: tfmain.editshapealignleft.hint
+msgid "Align shape left"
+msgstr ""
+
+#: tfmain.editshapealignright.hint
+msgid "Align shape right"
+msgstr ""
+
+#: tfmain.editshapealigntop.hint
+msgid "Align shape to the top"
+msgstr ""
+
+#: tfmain.editshapecenterhorizontally.hint
+msgid "Center shape horizontally"
+msgstr ""
+
+#: tfmain.editshapecentervertically.hint
+msgid "Center shape vertically"
+msgstr ""
+
 #: tfmain.editundo.caption
 msgid "Undo"
 msgstr "تراجع"
@@ -1516,6 +1540,10 @@ msgstr "العمل في تقدم"
 #: uresourcestrings.rsaddtoimagelist
 msgid "Add files to the image processing list"
 msgstr "إضافة الملفات الى قائمة الصور المعالجة"
+
+#: uresourcestrings.rsalignshape
+msgid "Align shape"
+msgstr ""
 
 #: uresourcestrings.rsallapplications
 msgid "all"

@@ -191,6 +191,30 @@ msgstr "Labot iezīmējumu ..."
 msgid "Selection fit"
 msgstr "Ievietot iezīmējumā"
 
+#: tfmain.editshapealignbottom.hint
+msgid "Align shape to the bottom"
+msgstr ""
+
+#: tfmain.editshapealignleft.hint
+msgid "Align shape left"
+msgstr ""
+
+#: tfmain.editshapealignright.hint
+msgid "Align shape right"
+msgstr ""
+
+#: tfmain.editshapealigntop.hint
+msgid "Align shape to the top"
+msgstr ""
+
+#: tfmain.editshapecenterhorizontally.hint
+msgid "Center shape horizontally"
+msgstr ""
+
+#: tfmain.editshapecentervertically.hint
+msgid "Center shape vertically"
+msgstr ""
+
 #: tfmain.editundo.caption
 msgid "Undo"
 msgstr "Atsaukt"
@@ -1515,6 +1539,10 @@ msgstr "Moris darbojas"
 #: uresourcestrings.rsaddtoimagelist
 msgid "Add files to the image processing list"
 msgstr "Pievienot failus apstrādājamo attēlu sarakstam"
+
+#: uresourcestrings.rsalignshape
+msgid "Align shape"
+msgstr ""
 
 #: uresourcestrings.rsallapplications
 msgid "all"

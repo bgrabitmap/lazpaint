@@ -73,6 +73,7 @@ type
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
     function GetAffineBox(const AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
     procedure Transform(const AMatrix: TAffineMatrix); override;
+    procedure AlignTransform(const AMatrix: TAffineMatrix); override;
     property Origin: TPointF read FOrigin write SetOrigin;
     property XAxis: TPointF read FXAxis write SetXAxis;
     property YAxis: TPointF read FYAxis write SetYAxis;
@@ -107,6 +108,7 @@ type
   public
     constructor Create(AContainer: TVectorOriginal); override;
     class function Fields: TVectorShapeFields; override;
+    function GetAlignBounds(const ALayoutRect: TRect; const AMatrix: TAffineMatrix): TRectF; override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; override;
@@ -166,6 +168,7 @@ type
     function GetCornerPositition: single; override;
     class function Fields: TVectorShapeFields; override;
     class function PreferPixelCentered: boolean; override;
+    function GetAlignBounds(const ALayoutRect: TRect; const AMatrix: TAffineMatrix): TRectF; override;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
     procedure MouseDown(RightButton: boolean; Shift: TShiftState; X, Y: single; var ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
@@ -674,6 +677,11 @@ begin
   EndUpdate;
 end;
 
+procedure TCustomRectShape.AlignTransform(const AMatrix: TAffineMatrix);
+begin
+  Origin := AMatrix*Origin;
+end;
+
 function TCustomRectShape.GetOrthoRect(AMatrix: TAffineMatrix; out ARect: TRectF): boolean;
 var
   sx,sy: single;
@@ -1029,6 +1037,43 @@ begin
   Result:= [vsfPenFill, vsfPenWidth, vsfPenStyle, vsfBackFill];
 end;
 
+function TEllipseShape.GetAlignBounds(const ALayoutRect: TRect;
+  const AMatrix: TAffineMatrix): TRectF;
+var
+  m: TAffineMatrix;
+  pts: ArrayOfTPointF;
+  i: Integer;
+  zoom: Single;
+
+  procedure IncludePoint(const APoint: TPointF);
+  begin
+    if APoint.x < result.Left then result.Left := APoint.x else
+    if APoint.x > result.Right then result.Right := APoint.x;
+    if APoint.y < result.Top then result.Top := APoint.y else
+    if APoint.y > result.Bottom then result.Bottom := APoint.y;
+  end;
+
+begin
+  m:= AffineMatrixTranslation(0.5,0.5)*MatrixForPixelCentered(AMatrix);
+  pts := ComputeEllipse(m*FOrigin, m*FXAxis, m*FYAxis);
+  if pts = nil then exit(EmptyRectF);
+  result.TopLeft := pts[0];
+  result.BottomRight := pts[0];
+  for i := 0 to high(pts) do IncludePoint(pts[i]);
+  IncludePoint(m*XAxis);
+  IncludePoint(m*YAxis);
+  IncludePoint(m*(Origin-(XAxis-Origin)));
+  IncludePoint(m*(Origin-(YAxis-Origin)));
+  if PenVisible then
+  begin
+    zoom := (VectLen(AMatrix[1,1],AMatrix[2,1])+VectLen(AMatrix[1,2],AMatrix[2,2]))/2;
+    result.Left -= zoom*PenWidth/2;
+    result.Right += zoom*PenWidth/2;
+    result.Top -= zoom*PenWidth/2;
+    result.Bottom += zoom*PenWidth/2;
+  end;
+end;
+
 procedure TEllipseShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
   ADraft: boolean);
 var
@@ -1300,6 +1345,46 @@ end;
 class function TPhongShape.PreferPixelCentered: boolean;
 begin
   Result:= false;
+end;
+
+function TPhongShape.GetAlignBounds(const ALayoutRect: TRect;
+  const AMatrix: TAffineMatrix): TRectF;
+var
+  m: TAffineMatrix;
+  pts: ArrayOfTPointF;
+  i: Integer;
+
+  procedure IncludePoint(const APoint: TPointF);
+  begin
+    if APoint.x < result.Left then result.Left := APoint.x else
+    if APoint.x > result.Right then result.Right := APoint.x;
+    if APoint.y < result.Top then result.Top := APoint.y else
+    if APoint.y > result.Bottom then result.Bottom := APoint.y;
+  end;
+
+begin
+  m:= AffineMatrixTranslation(0.5,0.5)*MatrixForPixelCentered(AMatrix);
+  if ShapeKind in[pskHalfSphere,pskConeTop] then
+  begin
+    pts := ComputeEllipse(m*FOrigin, m*FXAxis, m*FYAxis);
+    if pts = nil then exit(EmptyRectF);
+    result.TopLeft := pts[0];
+    result.BottomRight := pts[0];
+    for i := 0 to high(pts) do IncludePoint(pts[i]);
+    IncludePoint(m*XAxis);
+    IncludePoint(m*YAxis);
+    IncludePoint(m*(Origin-(XAxis-Origin)));
+    IncludePoint(m*(Origin-(YAxis-Origin)));
+  end else
+  if ShapeKind = pskConeSide then
+  begin
+    result.TopLeft := m*Origin;
+    result.BottomRight := m*Origin;
+    IncludePoint(m*(XAxis+(YAxis-Origin)));
+    IncludePoint(m*(Origin-(XAxis-Origin)+(YAxis-Origin)));
+    IncludePoint(m*(Origin-(YAxis-Origin)));
+  end else
+    result := inherited GetAlignBounds(ALayoutRect,AMatrix);
 end;
 
 procedure TPhongShape.ConfigureCustomEditor(AEditor: TBGRAOriginalEditor);
