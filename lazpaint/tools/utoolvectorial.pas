@@ -69,10 +69,8 @@ type
     function ToolKeyDown(var key: Word): TRect; override;
     function ToolKeyPress(var key: TUTF8Char): TRect; override;
     function ToolKeyUp(var key: Word): TRect; override;
-    function ToolCopy: boolean; override;
-    function ToolCut: boolean; override;
-    function ToolProvideCopy: boolean; override;
-    function ToolProvideCut: boolean; override;
+    function ToolCommand(ACommand: TToolCommand): boolean; override;
+    function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
     property IsIdle: boolean read GetIsIdle;
     property IsHandDrawing: boolean read GetIsHandDrawing;
@@ -129,12 +127,8 @@ type
     function ToolKeyPress(var key: TUTF8Char): TRect; override;
     function ToolKeyUp(var key: Word): TRect; override;
     function ToolUp: TRect; override;
-    function ToolCopy: boolean; override;
-    function ToolCut: boolean; override;
-    function ToolPaste: boolean; override;
-    function ToolProvideCopy: boolean; override;
-    function ToolProvideCut: boolean; override;
-    function ToolProvidePaste: boolean; override;
+    function ToolCommand(ACommand: TToolCommand): boolean; override;
+    function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
     property CurrentSplineMode: TToolSplineMode read GetCurrentSplineMode write SetCurrentSplineMode;
   end;
 
@@ -1073,51 +1067,35 @@ begin
   end;
 end;
 
-function TEditShapeTool.ToolCopy: boolean;
+function TEditShapeTool.ToolCommand(ACommand: TToolCommand): boolean;
 begin
-  if IsVectorOriginal and Assigned(GetVectorOriginal.SelectedShape) then
-    Result:= CopyShapesToClipboard([GetVectorOriginal.SelectedShape])
+  if not ToolProvideCommand(tcCopy) then exit(false);
+  case ACommand of
+  tcCopy: Result:= CopyShapesToClipboard([GetVectorOriginal.SelectedShape]);
+  tcCut: begin
+      BindOriginalEvent(true);
+      result := GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
+      BindOriginalEvent(false);
+    end;
+  tcPaste: begin
+      BindOriginalEvent(true);
+      PasteShapesFromClipboard(GetVectorOriginal);
+      BindOriginalEvent(false);
+      result := true;
+    end;
   else
     result := false;
+  end;
 end;
 
-function TEditShapeTool.ToolCut: boolean;
+function TEditShapeTool.ToolProvideCommand(ACommand: TToolCommand): boolean;
 begin
-  if ToolCopy then
-  begin
-    BindOriginalEvent(true);
-    result := GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
-    BindOriginalEvent(false);
-  end
+  case ACommand of
+  tcCut,tcCopy: result:= IsVectorOriginal and Assigned(GetVectorOriginal.SelectedShape);
+  tcPaste: result := IsVectorOriginal and ClipboardHasShapes;
   else
     result := false;
-end;
-
-function TEditShapeTool.ToolPaste: boolean;
-begin
-  if IsVectorOriginal then
-  begin
-    BindOriginalEvent(true);
-    PasteShapesFromClipboard(GetVectorOriginal);
-    BindOriginalEvent(false);
-    result := true;
-  end else
-    Result:= false;
-end;
-
-function TEditShapeTool.ToolProvideCopy: boolean;
-begin
-  Result:= IsVectorOriginal and Assigned(GetVectorOriginal.SelectedShape);
-end;
-
-function TEditShapeTool.ToolProvideCut: boolean;
-begin
-  Result:= IsVectorOriginal and Assigned(GetVectorOriginal.SelectedShape);
-end;
-
-function TEditShapeTool.ToolProvidePaste: boolean;
-begin
-  Result:= IsVectorOriginal and ClipboardHasShapes;
+  end;
 end;
 
 { TVectorialTool }
@@ -1695,37 +1673,39 @@ begin
   end;
 end;
 
-function TVectorialTool.ToolCopy: boolean;
-begin
-  if not IsSelectingTool and Assigned(FShape) then
-    result := CopyShapesToClipboard([FShape])
-  else
-    Result:= false;
-end;
-
-function TVectorialTool.ToolCut: boolean;
+function TVectorialTool.ToolCommand(ACommand: TToolCommand): boolean;
 var
   r: TRect;
   toolDest: TBGRABitmap;
 begin
-  if not IsSelectingTool and ToolCopy then
-  begin
-    toolDest := GetToolDrawingLayer;
-    r := CancelShape;
-    Action.NotifyChange(toolDest, r);
-    result := true;
-  end else
+  case ACommand of
+  tcCopy: begin
+      if ToolProvideCommand(tcCopy) then
+        result := CopyShapesToClipboard([FShape])
+      else
+        Result:= false;
+    end;
+  tcCut: begin
+      if ToolProvideCommand(tcCut) and ToolCommand(tcCopy) then
+      begin
+        toolDest := GetToolDrawingLayer;
+        r := CancelShape;
+        Action.NotifyChange(toolDest, r);
+        result := true;
+      end else
+        result := false;
+    end;
+  else
     result := false;
+  end;
 end;
 
-function TVectorialTool.ToolProvideCopy: boolean;
+function TVectorialTool.ToolProvideCommand(ACommand: TToolCommand): boolean;
 begin
-  Result:= not IsSelectingTool and not FQuickDefine and Assigned(FShape);
-end;
-
-function TVectorialTool.ToolProvideCut: boolean;
-begin
-  Result:= not IsSelectingTool and not FQuickDefine and Assigned(FShape);
+  case ACommand of
+  tcCopy,tcCut: Result:= not IsSelectingTool and not FQuickDefine and Assigned(FShape);
+  else result := false;
+  end;
 end;
 
 function TVectorialTool.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,

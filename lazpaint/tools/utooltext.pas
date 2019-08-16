@@ -33,12 +33,8 @@ type
     constructor Create(AManager: TToolManager); override;
     function GetContextualToolbars: TContextualToolbars; override;
     function ToolKeyDown(var key: Word): TRect; override;
-    function ToolCopy: boolean; override;
-    function ToolCut: boolean; override;
-    function ToolPaste: boolean; override;
-    function ToolProvideCopy: boolean; override;
-    function ToolProvideCut: boolean; override;
-    function ToolProvidePaste: boolean; override;
+    function ToolCommand(ACommand: TToolCommand): boolean; override;
+    function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
   end;
 
 implementation
@@ -249,34 +245,26 @@ begin
     Result:=inherited ToolKeyDown(key);
 end;
 
-function TToolText.ToolCopy: boolean;
+function TToolText.ToolCommand(ACommand: TToolCommand): boolean;
 begin
-  Result:= Assigned(FShape) and TTextShape(FShape).CopySelection;
+  case ACommand of
+  tcCopy: Result:= Assigned(FShape) and TTextShape(FShape).CopySelection;
+  tcCut: Result:= Assigned(FShape) and TTextShape(FShape).CutSelection;
+  tcPaste: Result:= Assigned(FShape) and TTextShape(FShape).PasteSelection;
+  else
+    result := false;
+  end;
 end;
 
-function TToolText.ToolCut: boolean;
+function TToolText.ToolProvideCommand(ACommand: TToolCommand): boolean;
 begin
-  Result:= Assigned(FShape) and TTextShape(FShape).CutSelection;
-end;
-
-function TToolText.ToolPaste: boolean;
-begin
-  Result:= Assigned(FShape) and TTextShape(FShape).PasteSelection;
-end;
-
-function TToolText.ToolProvideCopy: boolean;
-begin
-  Result:= Assigned(FShape) and TTextShape(FShape).HasSelection;
-end;
-
-function TToolText.ToolProvideCut: boolean;
-begin
-  Result:= Assigned(FShape) and TTextShape(FShape).HasSelection;
-end;
-
-function TToolText.ToolProvidePaste: boolean;
-begin
-  Result:= Assigned(FShape);
+  case ACommand of
+  tcCopy: result := Assigned(FShape) and TTextShape(FShape).HasSelection;
+  tcCut: result := Assigned(FShape) and TTextShape(FShape).HasSelection;
+  tcPaste: result := Assigned(FShape);
+  else
+    result := false;
+  end;
 end;
 
 initialization

@@ -2911,24 +2911,24 @@ end;
 
 procedure TFMain.EditCopyExecute(Sender: TObject);
 begin
-  if not ToolManager.ToolCopy then
+  if not ToolManager.ToolCommand(tcCopy) then
     Scripting.CallScriptFunction('EditCopy');
 end;
 
 procedure TFMain.EditCopyUpdate(Sender: TObject);
 begin
-  EditCopy.Enabled := ToolManager.ToolProvideCopy or not image.SelectionMaskEmpty;
+  EditCopy.Enabled := ToolManager.ToolProvideCommand(tcCopy) or not image.SelectionMaskEmpty;
 end;
 
 procedure TFMain.EditCutExecute(Sender: TObject);
 begin
-  if not ToolManager.ToolCut then
+  if not ToolManager.ToolCommand(tcCut) then
     Scripting.CallScriptFunction('EditCut');
 end;
 
 procedure TFMain.EditCutUpdate(Sender: TObject);
 begin
-  EditCut.Enabled := ToolManager.ToolProvideCut or not image.SelectionMaskEmpty;
+  EditCut.Enabled := ToolManager.ToolProvideCommand(tcCut) or not image.SelectionMaskEmpty;
 end;
 
 procedure TFMain.EditDeleteSelectionUpdate(Sender: TObject);
@@ -2938,7 +2938,7 @@ end;
 
 procedure TFMain.EditPasteExecute(Sender: TObject);
 begin
-  if not ToolManager.ToolPaste then
+  if not ToolManager.ToolCommand(tcPaste) then
     Scripting.CallScriptFunction('EditPaste');
 end;
 
@@ -3095,7 +3095,7 @@ end;
 
 procedure TFMain.EditPasteUpdate(Sender: TObject);
 begin
-  EditPaste.Enabled := ToolManager.ToolProvidePaste or Image.CurrentLayerVisible;
+  EditPaste.Enabled := ToolManager.ToolProvideCommand(tcPaste) or Image.CurrentLayerVisible;
 end;
 
 procedure TFMain.EditDeselectUpdate(Sender: TObject);

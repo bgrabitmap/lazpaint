@@ -827,7 +827,7 @@ begin
     if ClipboardHasShapes then
     begin
       ChooseTool(ptEditShape);
-      ToolManager.ToolPaste;
+      ToolManager.ToolCommand(tcPaste);
     end else
     begin
       partial := GetBitmapFromClipboard;

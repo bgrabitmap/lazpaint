@@ -39,6 +39,7 @@ type
   TBitmapToVirtualScreenFunction = function(PtF: TPointF): TPointF of object;
 
   TEraserMode = (emEraseAlpha, emSoften);
+  TToolCommand = (tcCut, tcCopy, tcPaste, tcDelete, tcMoveUp, tcMoveDown, tcBringToFront, tcSendToBack);
 
 function GradientColorSpaceToDisplay(AValue: TBGRAColorInterpolation): string;
 function DisplayToGradientColorSpace(AValue: string): TBGRAColorInterpolation;
@@ -86,12 +87,8 @@ type
     function ToolKeyUp(var key: Word): TRect; virtual;
     function ToolKeyPress(var key: TUTF8Char): TRect; virtual;
     function ToolUp: TRect; virtual;
-    function ToolCopy: boolean; virtual;
-    function ToolCut: boolean; virtual;
-    function ToolPaste: boolean; virtual;
-    function ToolProvideCopy: boolean; virtual;
-    function ToolProvideCut: boolean; virtual;
-    function ToolProvidePaste: boolean; virtual;
+    function ToolCommand(ACommand: TToolCommand): boolean; virtual;
+    function ToolProvideCommand(ACommand: TToolCommand): boolean; virtual;
     function GetContextualToolbars: TContextualToolbars; virtual;
     function GetToolDrawingLayer: TBGRABitmap;
     procedure RestoreBackupDrawingLayer;
@@ -280,12 +277,8 @@ type
     function ToolKeyDown(var key: Word): boolean;
     function ToolKeyUp(var key: Word): boolean;
     function ToolKeyPress(var key: TUTF8Char): boolean;
-    function ToolCopy: boolean;
-    function ToolCut: boolean;
-    function ToolPaste: boolean;
-    function ToolProvideCopy: boolean;
-    function ToolProvideCut: boolean;
-    function ToolProvidePaste: boolean;
+    function ToolCommand(ACommand: TToolCommand): boolean; virtual;
+    function ToolProvideCommand(ACommand: TToolCommand): boolean; virtual;
     function ToolUp: boolean;
     procedure ToolCloseDontReopen;
     procedure ToolOpen;
@@ -759,32 +752,12 @@ begin
   //defined later
 end;
 
-function TGenericTool.ToolCopy: boolean;
+function TGenericTool.ToolCommand(ACommand: TToolCommand): boolean;
 begin
   result := false;
 end;
 
-function TGenericTool.ToolCut: boolean;
-begin
-  result := false;
-end;
-
-function TGenericTool.ToolPaste: boolean;
-begin
-  result := false;
-end;
-
-function TGenericTool.ToolProvideCopy: boolean;
-begin
-  result := false;
-end;
-
-function TGenericTool.ToolProvideCut: boolean;
-begin
-  result := false;
-end;
-
-function TGenericTool.ToolProvidePaste: boolean;
+function TGenericTool.ToolProvideCommand(ACommand: TToolCommand): boolean;
 begin
   result := false;
 end;
@@ -1744,50 +1717,18 @@ begin
   if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
 end;
 
-function TToolManager.ToolCopy: boolean;
+function TToolManager.ToolCommand(ACommand: TToolCommand): boolean;
 begin
   if Assigned(FCurrentTool) then
-    result := FCurrentTool.ToolCopy
+    result := FCurrentTool.ToolCommand(ACommand)
   else
     result := false;
 end;
 
-function TToolManager.ToolCut: boolean;
+function TToolManager.ToolProvideCommand(ACommand: TToolCommand): boolean;
 begin
   if Assigned(FCurrentTool) then
-    result := FCurrentTool.ToolCut
-  else
-    result := false;
-end;
-
-function TToolManager.ToolPaste: boolean;
-begin
-  if Assigned(FCurrentTool) then
-    result := FCurrentTool.ToolPaste
-  else
-    result := false;
-end;
-
-function TToolManager.ToolProvideCopy: boolean;
-begin
-  if Assigned(FCurrentTool) then
-    result := FCurrentTool.ToolProvideCopy
-  else
-    result := false;
-end;
-
-function TToolManager.ToolProvideCut: boolean;
-begin
-  if Assigned(FCurrentTool) then
-    result := FCurrentTool.ToolProvideCut
-  else
-    result := false;
-end;
-
-function TToolManager.ToolProvidePaste: boolean;
-begin
-  if Assigned(FCurrentTool) then
-    result := FCurrentTool.ToolProvidePaste
+    result := FCurrentTool.ToolProvideCommand(ACommand)
   else
     result := false;
 end;
