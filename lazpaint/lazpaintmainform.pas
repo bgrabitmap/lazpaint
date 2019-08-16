@@ -434,6 +434,7 @@ type
     procedure EditCopyUpdate(Sender: TObject);
     procedure EditCutExecute(Sender: TObject);
     procedure EditCutUpdate(Sender: TObject);
+    procedure EditDeleteSelectionExecute(Sender: TObject);
     procedure EditDeleteSelectionUpdate(Sender: TObject);
     procedure EditPasteExecute(Sender: TObject);
     procedure EditSelectionUpdate(Sender: TObject);
@@ -2931,9 +2932,15 @@ begin
   EditCut.Enabled := ToolManager.ToolProvideCommand(tcCut) or not image.SelectionMaskEmpty;
 end;
 
+procedure TFMain.EditDeleteSelectionExecute(Sender: TObject);
+begin
+  if not ToolManager.ToolCommand(tcDelete) then
+    Scripting.CallScriptFunction('EditDeleteSelection');
+end;
+
 procedure TFMain.EditDeleteSelectionUpdate(Sender: TObject);
 begin
-  EditDeleteSelection.Enabled := not image.SelectionMaskEmpty;
+  EditDeleteSelection.Enabled := ToolManager.ToolProvideCommand(tcDelete) or not image.SelectionMaskEmpty;
 end;
 
 procedure TFMain.EditPasteExecute(Sender: TObject);

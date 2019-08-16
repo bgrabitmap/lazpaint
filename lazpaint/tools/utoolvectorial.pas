@@ -1068,6 +1068,8 @@ begin
 end;
 
 function TEditShapeTool.ToolCommand(ACommand: TToolCommand): boolean;
+var
+  key: Word;
 begin
   if not ToolProvideCommand(tcCopy) then exit(false);
   case ACommand of
@@ -1083,6 +1085,15 @@ begin
       BindOriginalEvent(false);
       result := true;
     end;
+  tcDelete: begin
+    key := VK_DELETE;
+    ToolKeyDown(key);
+    if key = 0 then
+    begin
+      key := VK_DELETE;
+      ToolKeyUp(key);
+    end;
+  end
   else
     result := false;
   end;
@@ -1091,7 +1102,7 @@ end;
 function TEditShapeTool.ToolProvideCommand(ACommand: TToolCommand): boolean;
 begin
   case ACommand of
-  tcCut,tcCopy: result:= IsVectorOriginal and Assigned(GetVectorOriginal.SelectedShape);
+  tcCut,tcCopy,tcDelete: result:= IsVectorOriginal and Assigned(GetVectorOriginal.SelectedShape);
   tcPaste: result := IsVectorOriginal and ClipboardHasShapes;
   else
     result := false;

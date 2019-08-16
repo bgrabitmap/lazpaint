@@ -251,6 +251,7 @@ begin
   tcCopy: Result:= Assigned(FShape) and TTextShape(FShape).CopySelection;
   tcCut: Result:= Assigned(FShape) and TTextShape(FShape).CutSelection;
   tcPaste: Result:= Assigned(FShape) and TTextShape(FShape).PasteSelection;
+  tcDelete: Result:= Assigned(FShape) and TTextShape(FShape).DeleteSelection;
   else
     result := false;
   end;
@@ -259,8 +260,7 @@ end;
 function TToolText.ToolProvideCommand(ACommand: TToolCommand): boolean;
 begin
   case ACommand of
-  tcCopy: result := Assigned(FShape) and TTextShape(FShape).HasSelection;
-  tcCut: result := Assigned(FShape) and TTextShape(FShape).HasSelection;
+  tcCopy,tcCut,tcDelete: result := Assigned(FShape) and TTextShape(FShape).HasSelection;
   tcPaste: result := Assigned(FShape);
   else
     result := false;

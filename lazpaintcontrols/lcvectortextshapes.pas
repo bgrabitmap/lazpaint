@@ -130,7 +130,6 @@ type
     function GetCornerPositition: single; override;
     procedure DeleteTextBefore(ACount: integer);
     procedure DeleteTextAfter(ACount: integer);
-    procedure DeleteSelectedText;
     procedure InsertText(ATextUTF8: string);
     procedure SelectWithMouse(X,Y: single; AExtend: boolean);
     function HasOutline: boolean;
@@ -164,6 +163,7 @@ type
     function CopySelection: boolean;
     function CutSelection: boolean;
     function PasteSelection: boolean;
+    function DeleteSelection: boolean;
     procedure Transform(const AMatrix: TAffineMatrix); override;
     property HasSelection: boolean read GetHasSelection;
     property CanPasteSelection: boolean read GetCanPasteSelection;
@@ -868,11 +868,10 @@ begin
   EndUpdate;
 end;
 
-procedure TTextShape.DeleteSelectedText;
+function TTextShape.DeleteSelection: boolean;
 var
   selLeft: Integer;
 begin
-  if UserMode <> vsuEditText then exit;
   if FSelStart <> FSelEnd then
   begin
     BeginUpdate(TTextShapeTextDiff);
@@ -882,7 +881,9 @@ begin
     FSelStart := selLeft;
     FSelEnd := selLeft;
     EndUpdate;
-  end;
+    result := true;
+  end else
+    result := false;
 end;
 
 procedure TTextShape.InsertText(ATextUTF8: string);
@@ -891,7 +892,7 @@ var
 begin
   if UserMode <> vsuEditText then exit;
   BeginUpdate(TTextShapeTextDiff);
-  DeleteSelectedText;
+  DeleteSelection;
   insertCount := GetTextLayout.InsertText(ATextUTF8, FSelStart);
   FText := GetTextLayout.TextUTF8;
   Inc(FSelStart, insertCount);
@@ -1514,7 +1515,7 @@ begin
 
   if Key = skDelete then
   begin
-    if FSelStart <> FSelEnd then DeleteSelectedText
+    if FSelStart <> FSelEnd then DeleteSelection
     else DeleteTextAfter(1);
     AHandled:= true;
   end else
@@ -1648,7 +1649,7 @@ procedure TTextShape.KeyPress(UTF8Key: string; var AHandled: boolean);
 begin
   if (Usermode = vsuEditText) and (UTF8Key = #8) then
   begin
-    if FSelEnd <> FSelStart then DeleteSelectedText
+    if FSelEnd <> FSelStart then DeleteSelection
     else DeleteTextBefore(1);
     AHandled := true;
   end else
@@ -1707,7 +1708,7 @@ end;
 function TTextShape.CutSelection: boolean;
 begin
   result := CopySelection;
-  if result then DeleteSelectedText;
+  if result then DeleteSelection;
 end;
 
 function TTextShape.PasteSelection: boolean;
