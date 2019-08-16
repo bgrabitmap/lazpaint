@@ -121,6 +121,10 @@ msgctxt "tfmain.colorshiftcolors.caption"
 msgid "Shift colors..."
 msgstr "Kleuren verschuiven..."
 
+#: tfmain.combobox_penstyle.hint
+msgid "Pen style"
+msgstr ""
+
 #: tfmain.editcopy.caption
 msgid "Copy"
 msgstr "Kopieer"
@@ -1316,31 +1320,6 @@ msgstr "Ronde verbinding"
 msgctxt "tfmain.tool_lineargradient.hint"
 msgid "Linear gradient"
 msgstr "Lineair verloop"
-
-#: tfmain.tool_pendash.hint
-msgctxt "TFMAIN.TOOL_PENDASH.HINT"
-msgid "Dashed line"
-msgstr "Gestreepte lijn"
-
-#: tfmain.tool_pendashdot.hint
-msgctxt "TFMAIN.TOOL_PENDASHDOT.HINT"
-msgid "Dash dot"
-msgstr "Streep punt"
-
-#: tfmain.tool_pendashdotdot.hint
-msgctxt "TFMAIN.TOOL_PENDASHDOTDOT.HINT"
-msgid "Dash dot dot"
-msgstr "Streep punt punt"
-
-#: tfmain.tool_pendot.hint
-msgctxt "TFMAIN.TOOL_PENDOT.HINT"
-msgid "Dotted line"
-msgstr "Gestippelde lijn"
-
-#: tfmain.tool_pensolid.hint
-msgctxt "TFMAIN.TOOL_PENSOLID.HINT"
-msgid "Solid line"
-msgstr "Massieve lijn"
 
 #: tfmain.tool_phongshapecone.hint
 msgctxt "tfmain.tool_phongshapecone.hint"

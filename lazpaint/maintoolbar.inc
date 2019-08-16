@@ -1,5 +1,6 @@
 procedure TFMain.CreateToolbarElements;
 var ci: TBGRAColorInterpolation;
+  ps: TPenStyle;
 begin
   if FToolbarElementsInitDone then exit;
   FToolbarElementsInitDone:= true;
@@ -26,11 +27,10 @@ begin
   Tool_JoinBevel.OnClick := @Tool_JoinBevelClick;
   Tool_JoinRound.OnClick := @Tool_JoinRoundClick;
   Tool_JoinMiter.OnClick := @Tool_JoinMiterClick;
-  Tool_PenSolid.OnClick := @Tool_PenSolidClick;
-  Tool_PenDash.OnClick := @Tool_PenDashClick;
-  Tool_PenDashDot.OnClick := @Tool_PenDashDotClick;
-  Tool_PenDashDotDot.OnClick := @Tool_PenDashDotDotClick;
-  Tool_PenDot.OnClick := @Tool_PenDotClick;
+  ComboBox_PenStyle.OnChange:=@ComboBox_PenStyleChange;
+  ComboBox_PenStyle.OnDrawItem:=@ComboBox_PenStyleDrawItem;
+  ComboBox_PenStyle.OnDrawSelectedItem:=@ComboBox_PenStyleDrawSelectedItem;
+  for ps := psSolid to psDashDotDot do ComboBox_PenStyle.Items.Add(inttostr(ord(ps)));
   Tool_EraseAlpha.OnClick := @Tool_EraseOptionClick;
   Tool_EraseBlur.OnClick := @Tool_EraseOptionClick;
   Tool_GridMoveWithoutDeformation.OnClick := @Tool_GridMoveWithoutDeformationClick;
@@ -299,13 +299,7 @@ end;
 
 procedure TFMain.UpdatePenStyleToolbar;
 begin
-  case ToolManager.PenStyle of
-    psSolid: Tool_PenSolid.Down := true;
-    psDash: Tool_PenDash.Down := true;
-    psDot: Tool_PenDot.Down := true;
-    psDashDot: Tool_PenDashDot.Down := true;
-    psDashDotDot: Tool_PenDashDotDot.Down := true;
-  end;
+  ComboBox_PenStyle.ItemIndex := ord(ToolManager.PenStyle);
 end;
 
 procedure TFMain.UpdateGradientToolbar;
@@ -987,6 +981,41 @@ begin
   BrushRemoveCurrent.Enabled := ToolManager.ToolBrushInfoIndex > 0;
 end;
 
+procedure TFMain.ComboBox_PenStyleChange(Sender: TObject);
+var
+  cb: TBCComboBox;
+  newPS: TPenStyle;
+begin
+  cb := ComboBox_PenStyle;
+  if cb.ItemIndex = -1 then exit;
+  if initialized then
+  begin
+    newPS := TPenStyle(cb.ItemIndex);
+    if newPS <> ToolManager.PenStyle then
+    begin
+      ToolManager.PenStyle := newPS;
+      UpdateEditPicture;
+    end;
+  end;
+end;
+
+procedure TFMain.ComboBox_PenStyleDrawItem(Control: TWinControl;
+  Index: Integer; ARect: TRect; State: TOwnerDrawState);
+begin
+  if Index = -1 then exit;
+  DrawPenStyle(ComboBox_PenStyle, ARect, TPenStyle(Index), State);
+end;
+
+procedure TFMain.ComboBox_PenStyleDrawSelectedItem(Sender: TObject;
+  const ABGRA: TBGRABitmap; AState: TBCButtonState; ARect: TRect);
+var
+  cb: TBCComboBox;
+begin
+  cb := ComboBox_PenStyle;
+  if cb.ItemIndex = -1 then exit;
+  DrawPenStyle(ABGRA, ARect, TPenStyle(cb.ItemIndex), AState.FontEx.Color);
+end;
+
 procedure TFMain.ComboBox_ArrowEndDrawItem(Control: TWinControl;
   Index: Integer; ARect: TRect; State: TOwnerDrawState);
 var
@@ -1044,51 +1073,6 @@ begin
   if Tool_JoinMiter.Down then
   begin
     ToolManager.JoinStyle := pjsMiter;
-    UpdateEditPicture;
-  end;
-end;
-
-procedure TFMain.Tool_PenSolidClick(Sender: TObject);
-begin
-  if Tool_PenSolid.Down then
-  begin
-    ToolManager.PenStyle := psSolid;
-    UpdateEditPicture;
-  end;
-end;
-
-procedure TFMain.Tool_PenDashClick(Sender: TObject);
-begin
-  if Tool_PenDash.Down then
-  begin
-    ToolManager.PenStyle := psDash;
-    UpdateEditPicture;
-  end;
-end;
-
-procedure TFMain.Tool_PenDashDotClick(Sender: TObject);
-begin
-  if Tool_PenDashDot.Down then
-  begin
-    ToolManager.PenStyle := psDashDot;
-    UpdateEditPicture;
-  end;
-end;
-
-procedure TFMain.Tool_PenDashDotDotClick(Sender: TObject);
-begin
-  if Tool_PenDashDotDot.Down then
-  begin
-    ToolManager.PenStyle := psDashDotDot;
-    UpdateEditPicture;
-  end;
-end;
-
-procedure TFMain.Tool_PenDotClick(Sender: TObject);
-begin
-  if Tool_PenDot.Down then
-  begin
-    ToolManager.PenStyle := psDot;
     UpdateEditPicture;
   end;
 end;

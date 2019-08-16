@@ -40,7 +40,7 @@ type
 implementation
 
 uses ugraph, LazPaintType, BGRAGradientScanner, LCVectorRectShapes,
-  math, BGRATransform, UImageDiff;
+  BGRATransform, UImageDiff;
 
 { TToolGradient }
 

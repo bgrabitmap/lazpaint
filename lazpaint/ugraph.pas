@@ -54,6 +54,8 @@ function WaveDisplacementFilter(source: TBGRACustomBitmap;
   AWaveLength, ADisplacement, APhase: single): TBGRACustomBitmap;
 
 function DoResample(source :TBGRABitmap; newWidth, newHeight: integer; StretchMode: TResampleMode): TBGRABitmap;
+procedure DrawPenStyle(AComboBox: TBCComboBox; ARect: TRect; APenStyle: TPenStyle; State: TOwnerDrawState); overload;
+procedure DrawPenStyle(ABitmap: TBGRABitmap; ARect: TRect; APenStyle: TPenStyle; c: TBGRAPixel); overload;
 procedure DrawArrow(AComboBox: TBCComboBox; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; State: TOwnerDrawState); overload;
 procedure DrawArrow(ABitmap: TBGRABitmap; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; AColor: TBGRAPixel); overload;
 procedure BCAssignSystemStyle(AButton: TBCButton; ADarkTheme: boolean; AFontHeightRatio: single = 0.45);
@@ -873,6 +875,36 @@ begin
     if AMask.Width > AMask.Height*2 then
       AMask.GradientFill(0,0,AMask.width,AMask.height,BGRABlack,BGRAPixelTransparent,gtLinear,PointF(xm1,0),PointF(xm2,0),dmDrawWithTransparency);
   end;
+end;
+
+procedure DrawPenStyle(AComboBox: TBCComboBox; ARect: TRect;
+  APenStyle: TPenStyle; State: TOwnerDrawState);
+var bmp : TBGRABitmap;
+  c,c2: TBGRAPixel;
+begin
+  if odSelected in State then
+  begin
+    c := ColorToBGRA(AComboBox.DropDownFontHighlight);
+    c2 := ColorToBGRA(AComboBox.DropDownHighlight);
+  end
+  else
+  begin
+    c := ColorToBGRA(AComboBox.DropDownFontColor);
+    c2 := ColorToBGRA(AComboBox.DropDownColor);
+  end;
+  with Size(ARect) do bmp := TBGRABitmap.Create(cx,cy,c2);
+  DrawPenStyle(bmp, rect(0,0,ARect.Width,ARect.Height),APenStyle, c);
+  bmp.Draw(ACombobox.Canvas,ARect.Left,ARect.Top,true);
+  bmp.Free;
+end;
+
+procedure DrawPenStyle(ABitmap: TBGRABitmap; ARect: TRect;
+  APenStyle: TPenStyle; c: TBGRAPixel);
+begin
+  ABitmap.LineCap := pecFlat;
+  ABitmap.PenStyle:= APenStyle;
+  ABitmap.DrawLineAntialias(ARect.Left+ARect.Width/10-0.5,ARect.Top+ARect.Height/2-0.5,
+    ARect.Right-ARect.Width/10-0.5,ARect.Top+ARect.Height/2-0.5, c, ARect.Width/10);
 end;
 
 procedure DrawArrow(AComboBox: TBCComboBox; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; State: TOwnerDrawState);

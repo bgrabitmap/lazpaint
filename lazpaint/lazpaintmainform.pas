@@ -28,6 +28,7 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    ComboBox_PenStyle: TBCComboBox;
     EditMoveToBack: TAction;
     EditMoveDown: TAction;
     EditMoveToFront: TAction;
@@ -342,15 +343,10 @@ type
     Panel_LineCap: TPanel;
     Panel_JoinStyle: TPanel;
     ToolBar11: TToolBar;
-    ToolBar12: TToolBar;
     ToolBar4: TToolBar;
     ToolButton1: TToolButton;
     ToolButton2: TToolButton;
-    Tool_PenDashDotDot: TToolButton;
-    Tool_PenDot: TToolButton;
     Tool_JoinBevel: TToolButton;
-    Tool_PenSolid: TToolButton;
-    Tool_PenDashDot: TToolButton;
     Tool_JoinRound: TToolButton;
     Tool_CapSquare: TToolButton;
     Tool_CapFlat: TToolButton;
@@ -358,7 +354,6 @@ type
     ToolBar10: TToolBar;
     Tool_SinGradient: TToolButton;
     Tool_JoinMiter: TToolButton;
-    Tool_PenDash: TToolButton;
     Label_Coordinates: TLabel;
     Panel_Coordinates: TPanel;
     Image_SwapColors: TImage;
@@ -592,11 +587,6 @@ type
     procedure Tool_JoinBevelClick(Sender: TObject);
     procedure Tool_JoinRoundClick(Sender: TObject);
     procedure Tool_JoinMiterClick(Sender: TObject);
-    procedure Tool_PenDashClick(Sender: TObject);
-    procedure Tool_PenDashDotClick(Sender: TObject);
-    procedure Tool_PenDashDotDotClick(Sender: TObject);
-    procedure Tool_PenDotClick(Sender: TObject);
-    procedure Tool_PenSolidClick(Sender: TObject);
     procedure Tool_TextFontClick(Sender: TObject);
     procedure Tool_TextOutlineClick(Sender: TObject);
     procedure Tool_TextShadowClick(Sender: TObject);
@@ -659,6 +649,11 @@ type
     procedure WMEraseBkgnd(var {%H-}Message: TLMEraseBkgnd); message LM_ERASEBKGND;
 
   private
+    procedure ComboBox_PenStyleChange(Sender: TObject);
+    procedure ComboBox_PenStyleDrawItem({%H-}Control: TWinControl; Index: Integer;
+      ARect: TRect; State: TOwnerDrawState);
+    procedure ComboBox_PenStyleDrawSelectedItem(Sender: TObject;
+      const ABGRA: TBGRABitmap; AState: TBCButtonState; ARect: TRect);
     function GetImage: TLazPaintImage;
     procedure ManagerGradientChanged(Sender: TObject);
     procedure ManagerJoinStyleChanged(Sender: TObject);
