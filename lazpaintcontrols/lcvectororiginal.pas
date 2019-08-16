@@ -283,6 +283,21 @@ type
     function IsIdentity: boolean; override;
   end;
 
+  { TVectorOriginalMoveShapeToIndexDiff }
+
+  TVectorOriginalMoveShapeToIndexDiff = class(TBGRAOriginalDiff)
+  protected
+    FFromIndex,FToIndex: integer;
+  public
+    constructor Create(AFromIndex,AToIndex: integer);
+    procedure Apply(AOriginal: TBGRALayerCustomOriginal); overload; override;
+    procedure Apply(AOriginal: TBGRALayerCustomOriginal; ASendDiff: boolean); overload;
+    procedure Unapply(AOriginal: TBGRALayerCustomOriginal); override;
+    function CanAppend(ADiff: TBGRAOriginalDiff): boolean; override;
+    procedure Append(ADiff: TBGRAOriginalDiff); override;
+    function IsIdentity: boolean; override;
+  end;
+
   TVectorOriginalEditor = class;
 
   { TVectorOriginal }
@@ -423,6 +438,69 @@ begin
     raise exception.Create('Duplicate class name "'+AClass.StorageClassName+'" for vector shape');
   setlength(VectorShapeClasses, length(VectorShapeClasses)+1);
   VectorShapeClasses[high(VectorShapeClasses)] := AClass;
+end;
+
+{ TVectorOriginalMoveShapeToIndexDiff }
+
+constructor TVectorOriginalMoveShapeToIndexDiff.Create(AFromIndex,
+  AToIndex: integer);
+begin
+  FFromIndex:= AFromIndex;
+  FToIndex := AToIndex;
+end;
+
+procedure TVectorOriginalMoveShapeToIndexDiff.Apply(
+  AOriginal: TBGRALayerCustomOriginal);
+begin
+  Apply(AOriginal, False);
+end;
+
+procedure TVectorOriginalMoveShapeToIndexDiff.Apply(
+  AOriginal: TBGRALayerCustomOriginal; ASendDiff: boolean);
+var
+  movedShape: TVectorShape;
+  r: TRectF;
+begin
+  with (AOriginal as TVectorOriginal) do
+  begin
+    movedShape := FShapes[FFromIndex];
+    FShapes.Move(FFromIndex,FToIndex);
+    DiscardFrozenShapes;
+    r := movedShape.GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
+    if ASendDiff then NotifyChange(r,self)
+    else NotifyChange(r);
+  end;
+end;
+
+procedure TVectorOriginalMoveShapeToIndexDiff.Unapply(
+  AOriginal: TBGRALayerCustomOriginal);
+var
+  movedShape: TVectorShape;
+begin
+  with (AOriginal as TVectorOriginal) do
+  begin
+    movedShape := FShapes[FToIndex];
+    FShapes.Move(FToIndex,FFromIndex);
+    DiscardFrozenShapes;
+    NotifyChange(movedShape.GetRenderBounds(InfiniteRect, AffineMatrixIdentity));
+  end;
+end;
+
+function TVectorOriginalMoveShapeToIndexDiff.CanAppend(ADiff: TBGRAOriginalDiff): boolean;
+begin
+  result := (ADiff is TVectorOriginalMoveShapeToIndexDiff) and
+    (TVectorOriginalMoveShapeToIndexDiff(ADiff).FFromIndex = FToIndex);
+end;
+
+procedure TVectorOriginalMoveShapeToIndexDiff.Append(ADiff: TBGRAOriginalDiff);
+begin
+  if CanAppend(ADiff) then
+      FToIndex:= (ADiff as TVectorOriginalMoveShapeToIndexDiff).FToIndex;
+end;
+
+function TVectorOriginalMoveShapeToIndexDiff.IsIdentity: boolean;
+begin
+  result := (FFromIndex = FToIndex);
 end;
 
 { TVectorShapeDiff }
@@ -2741,12 +2819,15 @@ end;
 procedure TVectorOriginal.MoveShapeToIndex(AFromIndex: integer; AToIndex: integer);
 var
   movedShape: TVectorShape;
+  diff: TVectorOriginalMoveShapeToIndexDiff;
 begin
-  if AFromIndex = AToIndex then exit;
-  movedShape := FShapes[AFromIndex];
-  FShapes.Move(AFromIndex,AToIndex);
-  DiscardFrozenShapes;
-  NotifyChange(movedShape.GetRenderBounds(InfiniteRect, AffineMatrixIdentity));
+  diff := TVectorOriginalMoveShapeToIndexDiff.Create(AFromIndex,AToIndex);
+  if diff.IsIdentity then
+  begin
+    diff.Free;
+    exit;
+  end;
+  diff.Apply(self, true);
 end;
 
 class function TVectorOriginal.StorageClassName: RawByteString;
