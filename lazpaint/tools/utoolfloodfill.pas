@@ -54,20 +54,8 @@ end;
 
 procedure TToolGradient.DrawCustomShape(ADest: TBGRABitmap;
   AMatrix: TAffineMatrix; ADraft: boolean);
-var
-  temp: TBGRABitmap;
 begin
-  if ADraft and (ADest.NbPixels > 384*384) then
-  begin
-    temp := TBGRABitmap.Create(0,0);
-    temp.SetSize(min(384,ADest.Width),min(384,ADest.Height));
-    FShape.BackFill.Gradient.Render(temp,
-      AffineMatrixScale(temp.Width/ADest.Width,
-                        temp.Height/ADest.Height)*AMatrix, ADraft);
-    ADest.StretchPutImage(rect(0,0,ADest.Width,Adest.Height),temp,dmDrawWithTransparency);
-    temp.Free;
-  end else
-    FShape.BackFill.Gradient.Render(ADest,AMatrix,ADraft,dmDrawWithTransparency);
+  FShape.BackFill.Gradient.Render(ADest,AMatrix,ADraft,dmDrawWithTransparency);
 end;
 
 procedure TToolGradient.AssignShapeStyle(AMatrix: TAffineMatrix);
