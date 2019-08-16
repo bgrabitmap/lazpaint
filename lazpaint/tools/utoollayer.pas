@@ -35,6 +35,8 @@ type
     function ToolUp: TRect; override;
     function ToolKeyDown(var key: Word): TRect; override;
     function GetContextualToolbars: TContextualToolbars; override;
+    function ToolCommand(ACommand: TToolCommand): boolean; override;
+    function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth,
       {%H-}VirtualScreenHeight: integer;
       BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
@@ -86,6 +88,8 @@ type
     constructor Create(AManager: TToolManager); override;
     destructor Destroy; override;
     function GetContextualToolbars: TContextualToolbars; override;
+    function ToolCommand(ACommand: TToolCommand): boolean; override;
+    function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
     function ToolKeyDown(var key: Word): TRect; override;
     function ToolKeyUp(var key: Word): TRect; override;
     function ToolUp: TRect; override;
@@ -273,6 +277,27 @@ end;
 function TToolMoveLayer.GetContextualToolbars: TContextualToolbars;
 begin
   Result:= [];
+end;
+
+function TToolMoveLayer.ToolCommand(ACommand: TToolCommand): boolean;
+begin
+  if not ToolProvideCommand(ACommand) then exit(false);
+  case ACommand of
+  tcMoveDown: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, Manager.Image.CurrentLayerIndex-1);
+  tcMoveToBack: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, 0);
+  tcMoveUp: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, Manager.Image.CurrentLayerIndex+1);
+  tcMoveToFront: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, Manager.Image.NbLayers-1);
+  end;
+  result := true;
+end;
+
+function TToolMoveLayer.ToolProvideCommand(ACommand: TToolCommand): boolean;
+begin
+  case ACommand of
+  tcMoveDown,tcMoveToBack: result := Manager.Image.CurrentLayerIndex > 0;
+  tcMoveUp,tcMoveToFront: result := Manager.Image.CurrentLayerIndex < Manager.Image.NbLayers-1;
+  else result := false;
+  end;
 end;
 
 function TToolMoveLayer.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,
@@ -480,6 +505,27 @@ end;
 function TToolTransformLayer.GetContextualToolbars: TContextualToolbars;
 begin
   Result:= [];
+end;
+
+function TToolTransformLayer.ToolCommand(ACommand: TToolCommand): boolean;
+begin
+  if not ToolProvideCommand(ACommand) then exit(false);
+  case ACommand of
+  tcMoveDown: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, Manager.Image.CurrentLayerIndex-1);
+  tcMoveToBack: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, 0);
+  tcMoveUp: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, Manager.Image.CurrentLayerIndex+1);
+  tcMoveToFront: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, Manager.Image.NbLayers-1);
+  end;
+  result := true;
+end;
+
+function TToolTransformLayer.ToolProvideCommand(ACommand: TToolCommand): boolean;
+begin
+  case ACommand of
+  tcMoveDown,tcMoveToBack: result := Manager.Image.CurrentLayerIndex > 0;
+  tcMoveUp,tcMoveToFront: result := Manager.Image.CurrentLayerIndex < Manager.Image.NbLayers-1;
+  else result := false;
+  end;
 end;
 
 function TToolTransformLayer.ToolKeyDown(var key: Word): TRect;

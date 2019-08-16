@@ -39,7 +39,7 @@ type
   TBitmapToVirtualScreenFunction = function(PtF: TPointF): TPointF of object;
 
   TEraserMode = (emEraseAlpha, emSoften);
-  TToolCommand = (tcCut, tcCopy, tcPaste, tcDelete, tcMoveUp, tcMoveDown, tcBringToFront, tcSendToBack);
+  TToolCommand = (tcCut, tcCopy, tcPaste, tcDelete, tcMoveUp, tcMoveDown, tcMoveToFront, tcMoveToBack);
 
 function GradientColorSpaceToDisplay(AValue: TBGRAColorInterpolation): string;
 function DisplayToGradientColorSpace(AValue: string): TBGRAColorInterpolation;
@@ -1000,7 +1000,10 @@ begin
   if FShouldExitTool then
   begin
     FShouldExitTool:= false;
-    SetCurrentToolType(ptHand);
+    if FCurrentToolType in[ptRect,ptEllipse,ptPolygon,ptSpline,ptText,ptPhong,ptGradient] then
+      SetCurrentToolType(ptEditShape)
+    else
+      SetCurrentToolType(ptHand);
     result := true;
   end else
     result := false;

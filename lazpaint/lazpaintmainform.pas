@@ -28,6 +28,10 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    EditMoveToBack: TAction;
+    EditMoveDown: TAction;
+    EditMoveToFront: TAction;
+    EditMoveUp: TAction;
     Label_ShadowOffset: TLabel;
     Label_TextBlur: TLabel;
     Panel_TextShadow: TPanel;
@@ -436,6 +440,14 @@ type
     procedure EditCutUpdate(Sender: TObject);
     procedure EditDeleteSelectionExecute(Sender: TObject);
     procedure EditDeleteSelectionUpdate(Sender: TObject);
+    procedure EditMoveDownExecute(Sender: TObject);
+    procedure EditMoveDownUpdate(Sender: TObject);
+    procedure EditMoveToBackExecute(Sender: TObject);
+    procedure EditMoveToBackUpdate(Sender: TObject);
+    procedure EditMoveToFrontExecute(Sender: TObject);
+    procedure EditMoveToFrontUpdate(Sender: TObject);
+    procedure EditMoveUpExecute(Sender: TObject);
+    procedure EditMoveUpUpdate(Sender: TObject);
     procedure EditPasteExecute(Sender: TObject);
     procedure EditSelectionUpdate(Sender: TObject);
     procedure FileChooseEntryExecute(Sender: TObject);
@@ -2941,6 +2953,48 @@ end;
 procedure TFMain.EditDeleteSelectionUpdate(Sender: TObject);
 begin
   EditDeleteSelection.Enabled := ToolManager.ToolProvideCommand(tcDelete) or not image.SelectionMaskEmpty;
+end;
+
+procedure TFMain.EditMoveDownExecute(Sender: TObject);
+begin
+  if ToolManager.CurrentTool is TVectorialTool then ChooseTool(ptEditShape);
+  ToolManager.ToolCommand(tcMoveDown);
+end;
+
+procedure TFMain.EditMoveDownUpdate(Sender: TObject);
+begin
+  EditMoveDown.Enabled := ToolManager.ToolProvideCommand(tcMoveDown);
+end;
+
+procedure TFMain.EditMoveToBackExecute(Sender: TObject);
+begin
+  if ToolManager.CurrentTool is TVectorialTool then ChooseTool(ptEditShape);
+  ToolManager.ToolCommand(tcMoveToBack);
+end;
+
+procedure TFMain.EditMoveToBackUpdate(Sender: TObject);
+begin
+  EditMoveToBack.Enabled := ToolManager.ToolProvideCommand(tcMoveToBack);
+end;
+
+procedure TFMain.EditMoveToFrontExecute(Sender: TObject);
+begin
+  ToolManager.ToolCommand(tcMoveToFront);
+end;
+
+procedure TFMain.EditMoveToFrontUpdate(Sender: TObject);
+begin
+  EditMoveToFront.Enabled := ToolManager.ToolProvideCommand(tcMoveToFront);
+end;
+
+procedure TFMain.EditMoveUpExecute(Sender: TObject);
+begin
+  ToolManager.ToolCommand(tcMoveUp);
+end;
+
+procedure TFMain.EditMoveUpUpdate(Sender: TObject);
+begin
+  EditMoveUp.Enabled := ToolManager.ToolProvideCommand(tcMoveUp);
 end;
 
 procedure TFMain.EditPasteExecute(Sender: TObject);

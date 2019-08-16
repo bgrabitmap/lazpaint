@@ -253,7 +253,7 @@ begin
   tcPaste: Result:= Assigned(FShape) and TTextShape(FShape).PasteSelection;
   tcDelete: Result:= Assigned(FShape) and TTextShape(FShape).DeleteSelection;
   else
-    result := false;
+    result := inherited ToolCommand(ACommand);
   end;
 end;
 
@@ -263,7 +263,7 @@ begin
   tcCopy,tcCut,tcDelete: result := Assigned(FShape) and TTextShape(FShape).HasSelection;
   tcPaste: result := Assigned(FShape);
   else
-    result := false;
+    result := inherited ToolProvideCommand(ACommand);
   end;
 end;
 

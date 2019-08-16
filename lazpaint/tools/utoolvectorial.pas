@@ -23,6 +23,7 @@ type
     function GetIsHandDrawing: boolean;
     function GetIsIdle: boolean;
   protected
+    FLayerWasEmpty: boolean;
     FShape: TVectorShape;
     FSwapColor: boolean;
     FQuickDefine: Boolean;
@@ -409,23 +410,6 @@ begin
       Manager.Image.CurrentState.LayeredBitmap.MouseDown(rightBtn, FShiftState, ptF.X,ptF.Y, cur, handled);
       BindOriginalEvent(false);
       if handled then Cursor := OriginalCursorToCursor(cur);
-    end;
-  end else if not handled then
-  begin
-    if (FOriginalRect=nil) and
-       (toolDest.GetPixel(ptF.X-LayerOffset.X, ptF.Y-LayerOffset.Y).alpha <> 0) then
-    begin
-      if IsBitmap then MakeImageOriginal;
-      if IsOtherOriginal then
-      begin
-        with Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex].
-          GetRenderBounds(InfiniteRect, AffineMatrixIdentity) do
-          FOriginalRectUntransformed := rectF(Left,Top,Right,Bottom);
-        FOriginalRect := CreateRect(FOriginalRectUntransformed,
-          Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
-        result := OnlyRenderChange;
-        handled := true;
-      end;
     end;
   end;
   FDownHandled:= handled;
@@ -1052,7 +1036,7 @@ begin
       end;
       BindOriginalEvent(false);
     end;
-    if not Manager.Image.SelectionMaskEmpty and not IsEditing and not FDownHandled then
+    if not handled and not Manager.Image.SelectionMaskEmpty and not IsEditing and not FDownHandled then
     begin
       ptSel := AffineMatrixInverse(Manager.Image.SelectionTransform)*FLastPos;
       if (Manager.Image.SelectionMaskReadonly.GetPixel(ptSel.x,ptSel.y).green > 0) then
@@ -1060,6 +1044,24 @@ begin
         DoEditSelection;
         result := OnlyRenderChange;
         handled := true;
+      end;
+    end;
+    if not handled and not IsVectorOriginal and not IsGradientOriginal and not FDownHandled then
+    begin
+      if (FOriginalRect=nil) and
+         (Manager.Image.CurrentLayerReadOnly.GetPixel(FLastPos.X-LayerOffset.X, FLastPos.Y-LayerOffset.Y).alpha <> 0) then
+      begin
+        if IsBitmap then MakeImageOriginal;
+        if IsOtherOriginal then
+        begin
+          with Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex].
+            GetRenderBounds(InfiniteRect, AffineMatrixIdentity) do
+            FOriginalRectUntransformed := rectF(Left,Top,Right,Bottom);
+          FOriginalRect := CreateRect(FOriginalRectUntransformed,
+            Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
+          result := OnlyRenderChange;
+          handled := true;
+       end;
       end;
     end;
     FLeftButton:= false;
@@ -1071,31 +1073,46 @@ function TEditShapeTool.ToolCommand(ACommand: TToolCommand): boolean;
 var
   key: Word;
 begin
-  if not ToolProvideCommand(tcCopy) then exit(false);
-  case ACommand of
-  tcCopy: Result:= CopyShapesToClipboard([GetVectorOriginal.SelectedShape]);
-  tcCut: begin
-      BindOriginalEvent(true);
-      result := GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
-      BindOriginalEvent(false);
-    end;
-  tcPaste: begin
-      BindOriginalEvent(true);
-      PasteShapesFromClipboard(GetVectorOriginal);
-      BindOriginalEvent(false);
-      result := true;
-    end;
-  tcDelete: begin
+  if not ToolProvideCommand(ACommand) then exit(false);
+  if ACommand = tcDelete then
+  begin
     key := VK_DELETE;
     ToolKeyDown(key);
     if key = 0 then
     begin
       key := VK_DELETE;
       ToolKeyUp(key);
+      result := true;
+    end else
+      result := false;
+  end else
+  begin
+    result := true;
+    if IsVectorOriginal then
+    begin
+      BindOriginalEvent(true);
+      case ACommand of
+        tcMoveUp: GetVectorOriginal.SelectedShape.MoveUp(true);
+        tcMoveToFront: GetVectorOriginal.SelectedShape.BringToFront;
+        tcMoveDown: GetVectorOriginal.SelectedShape.MoveDown(true);
+        tcMoveToBack: GetVectorOriginal.SelectedShape.SendToBack;
+        tcCopy: Result:= CopyShapesToClipboard([GetVectorOriginal.SelectedShape]);
+        tcCut: result := GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
+        tcPaste: PasteShapesFromClipboard(GetVectorOriginal);
+        else result := false;
+      end;
+      BindOriginalEvent(false);
+    end else
+    if IsOtherOriginal and Assigned(FOriginalRect) then
+    begin
+      case ACommand of
+        tcMoveDown: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, Manager.Image.CurrentLayerIndex-1);
+        tcMoveToBack: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, 0);
+        tcMoveUp: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, Manager.Image.CurrentLayerIndex+1);
+        tcMoveToFront: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, Manager.Image.NbLayers-1);
+        else result := false;
+      end;
     end;
-  end
-  else
-    result := false;
   end;
 end;
 
@@ -1104,6 +1121,14 @@ begin
   case ACommand of
   tcCut,tcCopy,tcDelete: result:= IsVectorOriginal and Assigned(GetVectorOriginal.SelectedShape);
   tcPaste: result := IsVectorOriginal and ClipboardHasShapes;
+  tcMoveUp,tcMoveToFront: result := (IsVectorOriginal and Assigned(GetVectorOriginal.SelectedShape)
+                                    and not GetVectorOriginal.SelectedShape.IsFront) or
+                                    (IsOtherOriginal and Assigned(FOriginalRect) and
+                                      (Manager.Image.CurrentLayerIndex < Manager.Image.NbLayers-1));
+  tcMoveDown,tcMoveToBack: result := (IsVectorOriginal and Assigned(GetVectorOriginal.SelectedShape)
+                                     and not GetVectorOriginal.SelectedShape.IsBack) or
+                                     (IsOtherOriginal and Assigned(FOriginalRect) and
+                                      (Manager.Image.CurrentLayerIndex > 0));
   else
     result := false;
   end;
@@ -1475,6 +1500,12 @@ begin
     begin
       toolDest := GetToolDrawingLayer;
       FSwapColor:= rightBtn;
+      if IsSelectingTool then
+        FLayerWasEmpty := Manager.Image.SelectionMaskEmpty
+      else if Manager.Image.SelectionMaskEmpty then
+        FLayerWasEmpty := Manager.Image.CurrentLayerEmpty
+      else
+        FLayerWasEmpty := Manager.Image.SelectionLayerIsEmpty;
       FShape := CreateShape;
       FQuickDefine := true;
       FQuickDefineStartPoint := RoundCoordinate(FLastPos);
@@ -1715,6 +1746,8 @@ function TVectorialTool.ToolProvideCommand(ACommand: TToolCommand): boolean;
 begin
   case ACommand of
   tcCopy,tcCut: Result:= not IsSelectingTool and not FQuickDefine and Assigned(FShape);
+  tcMoveDown,tcMoveToBack: result := not IsSelectingTool and not FQuickDefine and Assigned(FShape)
+          and not AlwaysRasterizeShape and Manager.Image.SelectionMaskEmpty and not FLayerWasEmpty;
   else result := false;
   end;
 end;

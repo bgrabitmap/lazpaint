@@ -134,6 +134,22 @@ msgctxt "TFMAIN.EDITINVERTSELECTION.HINT"
 msgid "Invert selection"
 msgstr "Iezīmēt otrādi"
 
+#: tfmain.editmovedown.hint
+msgid "Move down"
+msgstr ""
+
+#: tfmain.editmovetoback.hint
+msgid "Send to back"
+msgstr ""
+
+#: tfmain.editmovetofront.hint
+msgid "Bring to front"
+msgstr ""
+
+#: tfmain.editmoveup.hint
+msgid "Move up"
+msgstr ""
+
 #: tfmain.editpaste.hint
 msgctxt "TFMAIN.EDITPASTE.HINT"
 msgid "Paste"
