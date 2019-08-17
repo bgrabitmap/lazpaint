@@ -9,9 +9,31 @@ uses
   BGRABitmap, BGRATransform, BGRAGradients;
 
 type
+  TCustomRectShape = class;
+
+  { TCustomRectShapeDiff }
+
+  TCustomRectShapeDiff = class(TVectorShapeDiff)
+  protected
+    FStartOrigin, FStartXAxis, FStartYAxis: TPointF;
+    FStartFixedRatio: Single;
+    FEndOrigin, FEndXAxis, FEndYAxis: TPointF;
+    FEndFixedRatio: Single;
+  public
+    constructor Create(AStartShape: TVectorShape); override;
+    procedure ComputeDiff(AEndShape: TVectorShape); override;
+    procedure Apply(AStartShape: TVectorShape); override;
+    procedure Unapply(AEndShape: TVectorShape); override;
+    procedure Append(ADiff: TVectorShapeDiff); override;
+    function IsIdentity: boolean; override;
+  end;
+
   { TCustomRectShape }
 
   TCustomRectShape = class(TVectorShape)
+  private
+    procedure SetXAxis(AValue: TPointF);
+    procedure SetYAxis(AValue: TPointF);
   protected
     FOrigin, FXAxis, FYAxis: TPointF;
     FOriginBackup,FXUnitBackup,FYUnitBackup,
@@ -49,11 +71,12 @@ type
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; {%H-}AOptions: TRenderBoundsOptions = []): TRectF; override;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
-    function GetAffineBox(AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
-    procedure Transform(AMatrix: TAffineMatrix); override;
+    function GetAffineBox(const AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
+    procedure Transform(const AMatrix: TAffineMatrix); override;
+    procedure AlignTransform(const AMatrix: TAffineMatrix); override;
     property Origin: TPointF read FOrigin write SetOrigin;
-    property XAxis: TPointF read FXAxis;
-    property YAxis: TPointF read FYAxis;
+    property XAxis: TPointF read FXAxis write SetXAxis;
+    property YAxis: TPointF read FYAxis write SetYAxis;
     property Width: single read GetWidth write SetWidth;
     property Height: single read GetHeight write SetHeight;
     property FixedRatio: single read FFixedRatio write SetFixedRatio;
@@ -71,7 +94,7 @@ type
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; override;
-    function GetIsSlow(AMatrix: TAffineMatrix): boolean; override;
+    function GetIsSlow(const AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
   end;
 
@@ -85,10 +108,11 @@ type
   public
     constructor Create(AContainer: TVectorOriginal); override;
     class function Fields: TVectorShapeFields; override;
+    function GetAlignBounds(const {%H-}ALayoutRect: TRect; const AMatrix: TAffineMatrix): TRectF; override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; override;
-    function GetIsSlow(AMatrix: TAffineMatrix): boolean; override;
+    function GetIsSlow(const AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
   end;
 
@@ -100,6 +124,27 @@ const
   DefaultPhongBorderSizePercent = 20;
 
 type
+  TPhongShape = class;
+
+  { TPhongShapeDiff }
+
+  TPhongShapeDiff = class(TVectorShapeDiff)
+  protected
+    FStartShapeKind: TPhongShapeKind;
+    FStartLightPosition: TPointF;
+    FStartShapeAltitudePercent,FStartBorderSizePercent: single;
+    FEndShapeKind: TPhongShapeKind;
+    FEndLightPosition: TPointF;
+    FEndShapeAltitudePercent,FEndBorderSizePercent: single;
+  public
+    constructor Create(AStartShape: TVectorShape); override;
+    procedure ComputeDiff(AEndShape: TVectorShape); override;
+    procedure Apply(AStartShape: TVectorShape); override;
+    procedure Unapply(AEndShape: TVectorShape); override;
+    procedure Append(ADiff: TVectorShapeDiff); override;
+    function IsIdentity: boolean; override;
+  end;
+
   { TPhongShape }
 
   TPhongShape = class(TCustomRectShape)
@@ -123,6 +168,7 @@ type
     function GetCornerPositition: single; override;
     class function Fields: TVectorShapeFields; override;
     class function PreferPixelCentered: boolean; override;
+    function GetAlignBounds(const ALayoutRect: TRect; const AMatrix: TAffineMatrix): TRectF; override;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
     procedure MouseDown(RightButton: boolean; Shift: TShiftState; X, Y: single; var ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
@@ -130,8 +176,8 @@ type
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; override;
-    function GetIsSlow(AMatrix: TAffineMatrix): boolean; override;
-    procedure Transform(AMatrix: TAffineMatrix); override;
+    function GetIsSlow(const AMatrix: TAffineMatrix): boolean; override;
+    procedure Transform(const AMatrix: TAffineMatrix); override;
     class function StorageClassName: RawByteString; override;
     property ShapeKind: TPhongShapeKind read FShapeKind write SetShapeKind;
     property LightPosition: TPointF read FLightPosition write SetLightPosition;
@@ -143,6 +189,142 @@ implementation
 
 uses BGRAPen, BGRAGraphics, BGRAFillInfo, BGRAPath, math, LCVectorialFill;
 
+{ TPhongShapeDiff }
+
+constructor TPhongShapeDiff.Create(AStartShape: TVectorShape);
+begin
+  with (AStartShape as TPhongShape) do
+  begin
+    FStartShapeKind:= ShapeKind;
+    FStartLightPosition:= LightPosition;
+    FStartShapeAltitudePercent:= ShapeAltitudePercent;
+    FStartBorderSizePercent:= BorderSizePercent;
+  end;
+end;
+
+procedure TPhongShapeDiff.ComputeDiff(AEndShape: TVectorShape);
+begin
+  with (AEndShape as TPhongShape) do
+  begin
+    FEndShapeKind:= ShapeKind;
+    FEndLightPosition:= LightPosition;
+    FEndShapeAltitudePercent:= ShapeAltitudePercent;
+    FEndBorderSizePercent:= BorderSizePercent;
+  end;
+end;
+
+procedure TPhongShapeDiff.Apply(AStartShape: TVectorShape);
+begin
+  with (AStartShape as TPhongShape) do
+  begin
+    BeginUpdate;
+    FShapeKind := FEndShapeKind;
+    FLightPosition := FEndLightPosition;
+    FShapeAltitudePercent := FEndShapeAltitudePercent;
+    FBorderSizePercent := FEndBorderSizePercent;
+    EndUpdate;
+  end;
+end;
+
+procedure TPhongShapeDiff.Unapply(AEndShape: TVectorShape);
+begin
+  with (AEndShape as TPhongShape) do
+  begin
+    FShapeKind := FStartShapeKind;
+    FLightPosition := FStartLightPosition;
+    FShapeAltitudePercent := FStartShapeAltitudePercent;
+    FBorderSizePercent := FStartBorderSizePercent;
+  end;
+end;
+
+procedure TPhongShapeDiff.Append(ADiff: TVectorShapeDiff);
+var
+  next: TPhongShapeDiff;
+begin
+  next := ADiff as TPhongShapeDiff;
+  FEndShapeKind := next.FEndShapeKind;
+  FEndLightPosition := next.FEndLightPosition;
+  FEndShapeAltitudePercent := next.FEndShapeAltitudePercent;
+  FEndBorderSizePercent := next.FEndBorderSizePercent;
+end;
+
+function TPhongShapeDiff.IsIdentity: boolean;
+begin
+  result := (FStartShapeKind = FEndShapeKind) and
+    (FStartLightPosition = FEndLightPosition) and
+    (FStartShapeAltitudePercent = FEndShapeAltitudePercent) and
+    (FStartBorderSizePercent = FEndBorderSizePercent);
+end;
+
+{ TCustomRectShapeDiff }
+
+constructor TCustomRectShapeDiff.Create(AStartShape: TVectorShape);
+begin
+  with (AStartShape as TCustomRectShape) do
+  begin
+    FStartOrigin := Origin;
+    FStartXAxis := XAxis;
+    FStartYAxis := YAxis;
+    FStartFixedRatio := FixedRatio;
+  end;
+end;
+
+procedure TCustomRectShapeDiff.ComputeDiff(AEndShape: TVectorShape);
+begin
+  with (AEndShape as TCustomRectShape) do
+  begin
+    FEndOrigin := Origin;
+    FEndXAxis := XAxis;
+    FEndYAxis := YAxis;
+    FEndFixedRatio := FixedRatio;
+  end;
+end;
+
+procedure TCustomRectShapeDiff.Apply(AStartShape: TVectorShape);
+begin
+  with (AStartShape as TCustomRectShape) do
+  begin
+    BeginUpdate;
+    FOrigin := FEndOrigin;
+    FXAxis := FEndXAxis;
+    FYAxis := FEndYAxis;
+    FFixedRatio := FEndFixedRatio;
+    EndUpdate;
+  end;
+end;
+
+procedure TCustomRectShapeDiff.Unapply(AEndShape: TVectorShape);
+begin
+  with (AEndShape as TCustomRectShape) do
+  begin
+    BeginUpdate;
+    FOrigin := FStartOrigin;
+    FXAxis := FStartXAxis;
+    FYAxis := FStartYAxis;
+    FFixedRatio := FStartFixedRatio;
+    EndUpdate;
+  end;
+end;
+
+procedure TCustomRectShapeDiff.Append(ADiff: TVectorShapeDiff);
+var
+  next: TCustomRectShapeDiff;
+begin
+  next := ADiff as TCustomRectShapeDiff;
+  FEndOrigin := next.FEndOrigin;
+  FEndXAxis := next.FEndXAxis;
+  FEndYAxis := next.FEndYAxis;
+  FEndFixedRatio := next.FEndFixedRatio;
+end;
+
+function TCustomRectShapeDiff.IsIdentity: boolean;
+begin
+  result := (FStartOrigin = FEndOrigin) and
+  (FStartXAxis = FEndXAxis) and
+  (FStartYAxis = FEndYAxis) and
+  (FStartFixedRatio = FEndFixedRatio);
+end;
+
 { TCustomRectShape }
 
 procedure TCustomRectShape.SetOrigin(AValue: TPointF);
@@ -151,7 +333,7 @@ var
   t: TAffineMatrix;
 begin
   if FOrigin=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TCustomRectShapeDiff);
   delta := AValue - FOrigin;
   t := AffineMatrixTranslation(delta.x, delta.y);
   FOrigin := AValue;
@@ -229,7 +411,7 @@ begin
       if FFixedRatio <> curRatio then
       begin
         ratioFactor := FFixedRatio/curRatio;
-        BeginUpdate;
+        BeginUpdate(TCustomRectShapeDiff);
         refPoint := Origin + (XAxis-Origin)*ACenterX + (YAxis-Origin)*ACenterY;
         if (ACenterX=0) and (ACenterY=0) then fracPower := 1/2
         else fracPower := abs(ACenterY)/(abs(ACenterX)+abs(ACenterY));
@@ -252,12 +434,28 @@ begin
   EnsureRatio(0,0);
 end;
 
+procedure TCustomRectShape.SetXAxis(AValue: TPointF);
+begin
+  if FXAxis=AValue then Exit;
+  BeginUpdate(TCustomRectShapeDiff);
+  FXAxis:=AValue;
+  EndUpdate;
+end;
+
+procedure TCustomRectShape.SetYAxis(AValue: TPointF);
+begin
+  if FYAxis=AValue then Exit;
+  BeginUpdate(TCustomRectShapeDiff);
+  FYAxis:=AValue;
+  EndUpdate;
+end;
+
 procedure TCustomRectShape.DoMoveXAxis(ANewCoord: TPointF; AShift: TShiftState; AFactor: single);
 var
   newSize: Single;
   u: TPointF;
 begin
-  BeginUpdate;
+  BeginUpdate(TCustomRectShapeDiff);
   if AllowShearTransform and ((ssAlt in AShift) or (FXUnitBackup = PointF(0,0))) then
   begin
     FXAxis := FOriginBackup + AFactor*(ANewCoord - FOriginBackup);
@@ -295,7 +493,7 @@ var
   newSizeY: Single;
   u: TPointF;
 begin
-  BeginUpdate;
+  BeginUpdate(TCustomRectShapeDiff);
   if AllowShearTransform and ((ssAlt in AShift) or (FYUnitBackup = PointF(0,0))) then
   begin
     FYAxis := FOriginBackup + AFactor*(ANewCoord - FOriginBackup);
@@ -333,15 +531,32 @@ var
   ratio, d: single;
   m: TAffineMatrix;
   newSize, prevCornerVect, newCornerVect: TPointF;
+  angle,deltaAngle, zoom: single;
 begin
-  BeginUpdate;
+  BeginUpdate(TCustomRectShapeDiff);
   if (ssAlt in AShift) and (VectDet(FXUnitBackup,FYUnitBackup)<>0) and (FXSizeBackup<>0) and (FYSizeBackup<>0) then
   begin
     prevCornerVect := AFactorX*(FXAxisBackup - FOriginBackup) + AFactorY*(FYAxisBackup - FOriginBackup);
     newCornerVect := (ANewCoord - FOriginBackup)*(1/GetCornerPositition);
-    m := AffineMatrixTranslation(FOriginBackup.x,FOriginBackup.y)*
-         AffineMatrixScaledRotation(prevCornerVect, newCornerVect)*
-         AffineMatrixTranslation(-FOriginBackup.x,-FOriginBackup.y);
+    m := AffineMatrixScaledRotation(prevCornerVect, newCornerVect);
+    if not (ssShift in AShift) then
+    begin
+      angle := arctan2(-m[2,1],m[1,1])*2/Pi;
+      deltaAngle := 0;
+      if abs(frac(angle)) < 0.1 then deltaAngle := -frac(angle)
+      else if frac(angle) > 0.9 then deltaAngle := +1-frac(angle)
+      else if frac(angle) < -0.9 then deltaAngle := -1-frac(angle)
+      else if abs(frac(angle)-0.5) < 0.1 then deltaAngle := 0.5-frac(angle)
+      else if abs(frac(angle)+0.5) < 0.1 then deltaAngle := -0.5-frac(angle);
+      if deltaAngle <> 0 then
+      begin
+        angle := (angle+deltaAngle)*Pi/2;
+        zoom := VectLen(m[1,1],m[2,1]);
+        m := AffineMatrixRotationRad(angle)*AffineMatrixScale(zoom,zoom);
+      end;
+    end;
+    m := AffineMatrixTranslation(FOriginBackup.x,FOriginBackup.y)*m
+        *AffineMatrixTranslation(-FOriginBackup.x,-FOriginBackup.y);
     FOrigin := FOriginBackup;
     FXAxis := m * FXAxisBackup;
     FYAxis := m * FYAxisBackup;
@@ -437,7 +652,7 @@ begin
   if FYSizeBackup <> 0 then FYUnitBackup := (1/FYSizeBackup)*FYUnitBackup;
 end;
 
-function TCustomRectShape.GetAffineBox(AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
+function TCustomRectShape.GetAffineBox(const AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
 var
   m: TAffineMatrix;
 begin
@@ -449,14 +664,22 @@ begin
       FXAxis - (FYAxis - FOrigin), FYAxis - (FXAxis - FOrigin));
 end;
 
-procedure TCustomRectShape.Transform(AMatrix: TAffineMatrix);
+procedure TCustomRectShape.Transform(const AMatrix: TAffineMatrix);
+var
+  m: TAffineMatrix;
 begin
-  BeginUpdate;
-  FOrigin := AMatrix*FOrigin;
-  FXAxis := AMatrix*FXAxis;
-  FYAxis := AMatrix*FYAxis;
+  BeginUpdate(TCustomRectShapeDiff);
+  m := MatrixForPixelCentered(AMatrix);
+  FOrigin := m*FOrigin;
+  FXAxis := m*FXAxis;
+  FYAxis := m*FYAxis;
   inherited Transform(AMatrix);
   EndUpdate;
+end;
+
+procedure TCustomRectShape.AlignTransform(const AMatrix: TAffineMatrix);
+begin
+  Origin := AMatrix*Origin;
 end;
 
 function TCustomRectShape.GetOrthoRect(AMatrix: TAffineMatrix; out ARect: TRectF): boolean;
@@ -494,7 +717,7 @@ end;
 
 procedure TCustomRectShape.QuickDefine(const APoint1, APoint2: TPointF);
 begin
-  BeginUpdate;
+  BeginUpdate(TCustomRectShapeDiff);
   FOrigin := (APoint1+APoint2)*0.5;
   FXAxis := PointF(APoint2.X,FOrigin.Y);
   FYAxis := PointF(FOrigin.X,APoint2.Y);
@@ -600,7 +823,7 @@ begin
   result := 1;
 end;
 
-function TRectShape.GetIsSlow(AMatrix: TAffineMatrix): boolean;
+function TRectShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;
 var
   ab: TAffineBox;
   backSurface, totalSurface, penSurface: Single;
@@ -631,6 +854,7 @@ end;
 
 procedure TRectShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
   ADraft: boolean);
+const GradientDithering = false;
 var
   pts: Array of TPointF;
   orthoRect: TRectF;
@@ -658,7 +882,7 @@ begin
       begin
         if Assigned(backScan) then
         begin
-          if BackFill.FillType = vftGradient then
+          if (BackFill.FillType = vftGradient) and GradientDithering then
           begin
             with orthoRect do
               r := rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
@@ -811,6 +1035,43 @@ end;
 class function TEllipseShape.Fields: TVectorShapeFields;
 begin
   Result:= [vsfPenFill, vsfPenWidth, vsfPenStyle, vsfBackFill];
+end;
+
+function TEllipseShape.GetAlignBounds(const ALayoutRect: TRect;
+  const AMatrix: TAffineMatrix): TRectF;
+var
+  m: TAffineMatrix;
+  pts: ArrayOfTPointF;
+  i: Integer;
+  zoom: Single;
+
+  procedure IncludePoint(const APoint: TPointF);
+  begin
+    if APoint.x < result.Left then result.Left := APoint.x else
+    if APoint.x > result.Right then result.Right := APoint.x;
+    if APoint.y < result.Top then result.Top := APoint.y else
+    if APoint.y > result.Bottom then result.Bottom := APoint.y;
+  end;
+
+begin
+  m:= AffineMatrixTranslation(0.5,0.5)*MatrixForPixelCentered(AMatrix);
+  pts := ComputeEllipse(m*FOrigin, m*FXAxis, m*FYAxis);
+  if pts = nil then exit(EmptyRectF);
+  result.TopLeft := pts[0];
+  result.BottomRight := pts[0];
+  for i := 0 to high(pts) do IncludePoint(pts[i]);
+  IncludePoint(m*XAxis);
+  IncludePoint(m*YAxis);
+  IncludePoint(m*(Origin-(XAxis-Origin)));
+  IncludePoint(m*(Origin-(YAxis-Origin)));
+  if PenVisible then
+  begin
+    zoom := (VectLen(AMatrix[1,1],AMatrix[2,1])+VectLen(AMatrix[1,2],AMatrix[2,2]))/2;
+    result.Left -= zoom*PenWidth/2;
+    result.Right += zoom*PenWidth/2;
+    result.Top -= zoom*PenWidth/2;
+    result.Bottom += zoom*PenWidth/2;
+  end;
 end;
 
 procedure TEllipseShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
@@ -975,7 +1236,7 @@ begin
     result := false;
 end;
 
-function TEllipseShape.GetIsSlow(AMatrix: TAffineMatrix): boolean;
+function TEllipseShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;
 var
   ab: TAffineBox;
   backSurface, totalSurface, penSurface: Single;
@@ -1009,7 +1270,7 @@ end;
 procedure TPhongShape.SetShapeKind(AValue: TPhongShapeKind);
 begin
   if FShapeKind=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TPhongShapeDiff);
   FShapeKind:=AValue;
   EndUpdate;
 end;
@@ -1023,7 +1284,7 @@ end;
 procedure TPhongShape.SetBorderSizePercent(AValue: single);
 begin
   if FBorderSizePercent=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TPhongShapeDiff);
   FBorderSizePercent:=AValue;
   EndUpdate;
 end;
@@ -1031,7 +1292,7 @@ end;
 procedure TPhongShape.SetLightPosition(AValue: TPointF);
 begin
   if FLightPosition=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TPhongShapeDiff);
   FLightPosition:=AValue;
   EndUpdate;
 end;
@@ -1039,7 +1300,7 @@ end;
 procedure TPhongShape.SetShapeAltitudePercent(AValue: single);
 begin
   if FShapeAltitudePercent=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TPhongShapeDiff);
   FShapeAltitudePercent:=AValue;
   EndUpdate;
 end;
@@ -1084,6 +1345,46 @@ end;
 class function TPhongShape.PreferPixelCentered: boolean;
 begin
   Result:= false;
+end;
+
+function TPhongShape.GetAlignBounds(const ALayoutRect: TRect;
+  const AMatrix: TAffineMatrix): TRectF;
+var
+  m: TAffineMatrix;
+  pts: ArrayOfTPointF;
+  i: Integer;
+
+  procedure IncludePoint(const APoint: TPointF);
+  begin
+    if APoint.x < result.Left then result.Left := APoint.x else
+    if APoint.x > result.Right then result.Right := APoint.x;
+    if APoint.y < result.Top then result.Top := APoint.y else
+    if APoint.y > result.Bottom then result.Bottom := APoint.y;
+  end;
+
+begin
+  m:= AffineMatrixTranslation(0.5,0.5)*MatrixForPixelCentered(AMatrix);
+  if ShapeKind in[pskHalfSphere,pskConeTop] then
+  begin
+    pts := ComputeEllipse(m*FOrigin, m*FXAxis, m*FYAxis);
+    if pts = nil then exit(EmptyRectF);
+    result.TopLeft := pts[0];
+    result.BottomRight := pts[0];
+    for i := 0 to high(pts) do IncludePoint(pts[i]);
+    IncludePoint(m*XAxis);
+    IncludePoint(m*YAxis);
+    IncludePoint(m*(Origin-(XAxis-Origin)));
+    IncludePoint(m*(Origin-(YAxis-Origin)));
+  end else
+  if ShapeKind = pskConeSide then
+  begin
+    result.TopLeft := m*Origin;
+    result.BottomRight := m*Origin;
+    IncludePoint(m*(XAxis+(YAxis-Origin)));
+    IncludePoint(m*(Origin-(XAxis-Origin)+(YAxis-Origin)));
+    IncludePoint(m*(Origin-(YAxis-Origin)));
+  end else
+    result := inherited GetAlignBounds(ALayoutRect,AMatrix);
 end;
 
 procedure TPhongShape.ConfigureCustomEditor(AEditor: TBGRAOriginalEditor);
@@ -1323,7 +1624,7 @@ begin
   end;
 end;
 
-function TPhongShape.GetIsSlow(AMatrix: TAffineMatrix): boolean;
+function TPhongShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;
 var
   ab: TAffineBox;
 begin
@@ -1332,11 +1633,11 @@ begin
   result := ab.Surface > 320*240;
 end;
 
-procedure TPhongShape.Transform(AMatrix: TAffineMatrix);
+procedure TPhongShape.Transform(const AMatrix: TAffineMatrix);
 begin
-  BeginUpdate;
-  inherited Transform(AMatrix);
+  BeginUpdate(TPhongShapeDiff);
   LightPosition := AMatrix*LightPosition;
+  inherited Transform(AMatrix);
   EndUpdate;
 end;
 

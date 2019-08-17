@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, IniFiles, BGRABitmapTypes, Graphics, LCLType, uscripting,
-  Forms;
+  Forms, LCVectorRectShapes;
 
 type
   TLazPaintConfig = class;
@@ -24,6 +24,9 @@ type
     tempFont: TFont;
     colorizePresets: TList;
     FVersion: string;
+    FDarkTheme,FDarkThemeEvaluated: boolean;
+    FWorkspaceColor: TColor;
+    FWorkspaceColorEvaluated: boolean;
     function GetBrushCount: integer;
     function GetBrushInfo(Index: integer): string;
     function GetColorizePreset(Index: Integer): TVariableSet;
@@ -94,6 +97,8 @@ type
 
     function DefaultIconSize(defaultValue: integer): integer;
     procedure SetDefaultIconSize(value: integer);
+    function GetDarkTheme: boolean;
+    procedure SetDarkTheme(AValue: boolean);
 
     //new image config
     function DefaultImageWidth: integer;
@@ -158,6 +163,8 @@ type
     procedure SetDefaultGridVisible(value: boolean);
     function DefaultZoomToolbarVisible: boolean;
     procedure SetDefaultZoomToolbarVisible(value: boolean);
+    function DefaultFileToolbarVisible: boolean;
+    procedure SetDefaultFileToolbarVisible(value: boolean);
     function DefaultUndoRedoToolbarVisible: boolean;
     procedure SetDefaultUndoRedoToolbarVisible(value: boolean);
     function DefaultCopyPasteToolbarVisible: boolean;
@@ -167,6 +174,8 @@ type
 
     function GetStatusBarVisible: boolean;
     procedure SetStatusBarVisible(value: boolean);
+    function GetWorkspaceColor: TColor;
+    procedure SetWorkspaceColor(value: TColor);
     function DefaultUseImageBrowser: boolean;
     procedure SetDefaultUseImageBrowser(value: boolean);
 
@@ -194,7 +203,7 @@ type
     function DefaultToolTextShadow: boolean;
     procedure SetDefaultToolTextShadow(value: boolean);
     function DefaultToolTextFont: TFont;
-    procedure SetDefaultToolTextFont(value: TFont);
+    procedure SetDefaultToolTextFont(AFont: TFont);
     function DefaultToolTextBlur: single;
     procedure SetDefaultToolTextBlur(value: single);
     function DefaultToolTextShadowOffsetX: integer;
@@ -221,8 +230,8 @@ type
     procedure SetDefaultToolShapeAltitude(value: integer);
     function DefaultToolShapeBorderSize: integer;
     procedure SetDefaultToolShapeBorderSize(value: integer);
-    function DefaultToolShapeType: string;
-    procedure SetDefaultToolShapeType(value: string);
+    function DefaultToolShapeType: TPhongShapeKind;
+    procedure SetDefaultToolShapeType(value: TPhongShapeKind);
 
     function DefaultRetrieveSelectionAnswer: TModalResult;
     procedure SetDefaultRetrieveSelectionAnswer(value: TModalResult);
@@ -266,6 +275,14 @@ type
     procedure SetDefaultTwirlRadius(value: double);
     function DefaultTwirlTurn: double;
     procedure SetDefaultTwirlTurn(value: double);
+
+    //wave displacement config
+    function DefaultWaveDisplacementWavelength: double;
+    procedure SetDefaultWaveDisplacementWavelength(value: double);
+    function DefaultWaveDisplacementAmount: double;
+    procedure SetDefaultWaveDisplacementAmount(value: double);
+    function DefaultWaveDisplacementPhase: double;
+    procedure SetDefaultWaveDisplacementPhase(value: double);
 
     //phong filter
     function DefaultPhongFilterAltitude: integer;
@@ -641,6 +658,16 @@ begin
   iniOptions.WriteBool('Toolbar','ZoomToolbar',value);
 end;
 
+function TLazPaintConfig.DefaultFileToolbarVisible: boolean;
+begin
+  result := iniOptions.ReadBool('Toolbar','FileToolbar',true);
+end;
+
+procedure TLazPaintConfig.SetDefaultFileToolbarVisible(value: boolean);
+begin
+  iniOptions.WriteBool('Toolbar','FileToolbar',value);
+end;
+
 function TLazPaintConfig.DefaultUndoRedoToolbarVisible: boolean;
 begin
   result := iniOptions.ReadBool('Toolbar','UndoRedoToolbar',false);
@@ -679,6 +706,29 @@ end;
 procedure TLazPaintConfig.SetStatusBarVisible(value: boolean);
 begin
   iniOptions.WriteBool('Toolbar','StatusBar',value);
+end;
+
+function TLazPaintConfig.GetWorkspaceColor: TColor;
+begin
+  if not FWorkspaceColorEvaluated then
+  begin
+    if GetDarkTheme then
+      FWorkspaceColor := StrToBGRA(iniOptions.ReadString('General','DarkWorkspaceColor', '#2D3B49'), clAppWorkspace)
+    else
+      FWorkspaceColor := StrToBGRA(iniOptions.ReadString('General','WorkspaceColor', '#BBD1E8'), clAppWorkspace);
+    FWorkspaceColorEvaluated := true;
+  end;
+  result := FWorkspaceColor;
+end;
+
+procedure TLazPaintConfig.SetWorkspaceColor(value: TColor);
+begin
+  if GetDarkTheme then
+    iniOptions.WriteString('General','DarkWorkspaceColor', BGRAToStr(value))
+  else
+    iniOptions.WriteString('General','WorkspaceColor', BGRAToStr(value));
+  FWorkspaceColor:= value;
+  FWorkspaceColorEvaluated:= true;
 end;
 
 function TLazPaintConfig.DefaultUseImageBrowser: boolean;
@@ -805,8 +855,7 @@ function TLazPaintConfig.DefaultToolTextFont: TFont;
 var fontStyle: TFontStyles;
 begin
   tempFont.Name := iniOptions.ReadString('Tool','TextFontName','Arial');
-  tempFont.Height := iniOptions.ReadInteger('Tool','TextFontHeight',-13);
-  tempFont.CharSet := iniOptions.ReadInteger('Tool','TextFontCharSet',ANSI_CHARSET);
+  tempFont.Size := iniOptions.ReadInteger('Tool','TextFontSize',10);
   fontStyle := [];
   if iniOptions.ReadBool('Tool','TextFontBold',False) then fontStyle += [fsBold];
   if iniOptions.ReadBool('Tool','TextFontItalic',False) then fontStyle += [fsItalic];
@@ -816,13 +865,13 @@ begin
   result := tempFont;
 end;
 
-procedure TLazPaintConfig.SetDefaultToolTextFont(value: TFont);
+procedure TLazPaintConfig.SetDefaultToolTextFont(AFont: TFont);
 begin
-  tempFont.Assign(value);
+  tempFont.Assign(AFont);
 
   iniOptions.WriteString('Tool','TextFontName',tempFont.Name);
   iniOptions.WriteInteger('Tool','TextFontHeight',tempFont.Height);
-  iniOptions.WriteInteger('Tool','TextFontCharSet',tempFont.CharSet);
+  iniOptions.WriteInteger('Tool','TextFontSize',tempFont.Size);
   iniOptions.WriteBool('Tool','TextFontBold',fsBold in tempFont.Style);
   iniOptions.WriteBool('Tool','TextFontItalic',fsItalic in tempFont.Style);
   iniOptions.WriteBool('Tool','TextFontStrikeOut',fsStrikeOut in tempFont.Style);
@@ -952,14 +1001,34 @@ begin
   iniOptions.WriteInteger('Filter','ShapeBorderSize',value);
 end;
 
-function TLazPaintConfig.DefaultToolShapeType: string;
+function TLazPaintConfig.DefaultToolShapeType: TPhongShapeKind;
+var
+  str: String;
 begin
-  result := iniOptions.ReadString('Filter','ShapeType','Rectangle');
+  str := iniOptions.ReadString('Filter','ShapeType','Rectangle');
+  if str = 'RoundRectangle' then result := pskRoundRectangle else
+  if str = 'Sphere' then result := pskHalfSphere else
+  if str = 'Cone' then result := pskConeTop else
+  if str = 'VerticalCone' then result := pskConeSide else
+  if str = 'VerticalCylinder' then result := pskVertCylinder else
+  if str = 'HorizontalCylinder' then result := pskHorizCylinder
+  else result := pskRectangle;
 end;
 
-procedure TLazPaintConfig.SetDefaultToolShapeType(value: string);
+procedure TLazPaintConfig.SetDefaultToolShapeType(value: TPhongShapeKind);
+var
+  str: String;
 begin
-  iniOptions.WriteString('Filter','ShapeType',value);
+  case value of
+  pskRoundRectangle: str := 'RoundRectangle';
+  pskHalfSphere: str := 'Sphere';
+  pskConeTop: str := 'Cone';
+  pskConeSide: str := 'VerticalCone';
+  pskVertCylinder: str := 'VerticalCylinder';
+  pskHorizCylinder: str := 'HorizontalCylinder';
+  else str:= 'Rectangle'
+  end;
+  iniOptions.WriteString('Filter','ShapeType',str);
 end;
 
 function TLazPaintConfig.DefaultRetrieveSelectionAnswer: TModalResult;
@@ -1110,6 +1179,36 @@ end;
 procedure TLazPaintConfig.SetDefaultTwirlTurn(value: double);
 begin
   iniOptions.WriteFloat('Filter','TwirlTurn',value);
+end;
+
+function TLazPaintConfig.DefaultWaveDisplacementWavelength: double;
+begin
+  result := iniOptions.ReadFloat('Filter','WaveDisplacementWavelength',100);
+end;
+
+procedure TLazPaintConfig.SetDefaultWaveDisplacementWavelength(value: double);
+begin
+  iniOptions.WriteFloat('Filter','WaveDisplacementWavelength',value);
+end;
+
+function TLazPaintConfig.DefaultWaveDisplacementAmount: double;
+begin
+  result := iniOptions.ReadFloat('Filter','WaveDisplacementAmount',50);
+end;
+
+procedure TLazPaintConfig.SetDefaultWaveDisplacementAmount(value: double);
+begin
+  iniOptions.WriteFloat('Filter','WaveDisplacementAmount',value);
+end;
+
+function TLazPaintConfig.DefaultWaveDisplacementPhase: double;
+begin
+  result := iniOptions.ReadFloat('Filter','WaveDisplacementPhase',0);
+end;
+
+procedure TLazPaintConfig.SetDefaultWaveDisplacementPhase(value: double);
+begin
+  iniOptions.WriteFloat('Filter','WaveDisplacementPhase',value);
 end;
 
 function TLazPaintConfig.DefaultPhongFilterAltitude: integer;
@@ -1474,6 +1573,25 @@ end;
 procedure TLazPaintConfig.SetDefaultIconSize(value: integer);
 begin
   iniOptions.WriteInteger('General','DefaultIconSize',value);
+end;
+
+function TLazPaintConfig.GetDarkTheme: boolean;
+begin
+  if not FDarkThemeEvaluated then
+  begin
+    FDarkTheme := iniOptions.ReadBool('General','DarkTheme', false);
+    FDarkThemeEvaluated:= true;
+  end;
+  result := FDarkTheme;
+end;
+
+procedure TLazPaintConfig.SetDarkTheme(AValue: boolean);
+begin
+  if FDarkThemeEvaluated and (AValue = FDarkTheme) then exit;
+  iniOptions.WriteBool('General','DarkTheme', AValue);
+  FDarkTheme:= AValue;
+  FDarkThemeEvaluated:= true;
+  FWorkspaceColorEvaluated:= false;
 end;
 
 function TLazPaintConfig.ScreenSizeChanged: boolean;

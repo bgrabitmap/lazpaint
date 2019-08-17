@@ -11,13 +11,15 @@ uses
   BGRABitmap, BGRABitmapTypes, BGRAGraphics, BGRALazPaint, BGRALayerOriginal,
   BGRATransform, BGRAGradientScanner, LCVectorOriginal, LCVectorShapes,
   LCVectorRectShapes, LCVectorPolyShapes, LCVectorTextShapes,
-  LCVectorialFillControl, LCVectorialFill;
+  LCVectorialFillControl, LCVectorialFill, fgl;
 
 const
   RenderDelayMs = 100; //minimum delay between the end of the last rendering and the beginning of the next rendering
   ToolIconSize = 36;
   ActionIconSize = 24;
   EditorPointSize = 7;
+  DefaultImageWidth = 640;
+  DefaultImageHeight = 480;
   PenStyleToStr : array[TPenStyle] of string = ('─────', '─ ─ ─ ─', '···············', '─ · ─ · ─', '─ ·· ─ ·· ╴', 'InsideFrame', 'Pattern', 'Clear');
   PhongShapeKindToStr: array[TPhongShapeKind] of string = ('Rectangle', 'Round rectangle', 'Half sphere', 'Cone top', 'Cone side',
                      'Horizontal cylinder', 'Vertical cylinder');
@@ -41,6 +43,8 @@ const
     ('Auto', 'Left to right', 'Right to left');
 
 type
+  TOriginalDiffList = specialize TFPGObjectList<TBGRAOriginalDiff>;
+
   { TForm1 }
 
   TForm1 = class(TForm)
@@ -143,7 +147,7 @@ type
     procedure OutlineFillControlResize(Sender: TObject);
     procedure PanelFileResize(Sender: TObject);
     procedure PanelShapeResize(Sender: TObject);
-   procedure ShapeBringToFrontExecute(Sender: TObject);
+    procedure ShapeBringToFrontExecute(Sender: TObject);
     procedure ShapeMoveDownExecute(Sender: TObject);
     procedure ShapeMoveUpExecute(Sender: TObject);
     procedure ShapeSendToBackExecute(Sender: TObject);
@@ -212,6 +216,7 @@ type
     function GetPenStyle: TBGRAPenStyle;
     function GetPenWidth: single;
     function GetSplineStyle: TSplineStyle;
+    function GetVectorOriginal: TVectorOriginal;
     function GetVectorTransform: TAffineMatrix;
     function GetZoomFactor: single;
     procedure ImageChange(ARectF: TRectF);
@@ -219,7 +224,8 @@ type
     procedure OnClickSplineStyleItem(ASender: TObject);
     procedure OnEditingChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
     procedure OnEditorFocusChange(Sender: TObject);
-    procedure OnOriginalChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
+    procedure OnOriginalChange({%H-}ASender: TObject; AOriginal: TBGRALayerCustomOriginal;
+                               var ADiff: TBGRAOriginalDiff);
     procedure OnPhongBorderSizeChange(Sender: TObject; AByUser: boolean);
     procedure OnPhongShapeAltitudeChange(Sender: TObject; AByUser: boolean);
     procedure OnSelectShape(ASender: TObject; AShape: TVectorShape; APreviousShape: TVectorShape);
@@ -236,6 +242,7 @@ type
     procedure SetPenWidth(AValue: single);
     procedure SetPhongShapeKind(AValue: TPhongShapeKind);
     procedure SetSplineStyle(AValue: TSplineStyle);
+    procedure SetVectorLayerIndex(AValue: integer);
     procedure SetZoomFactor(AValue: single);
     procedure SplineToolbarClick(Sender: TObject);
     procedure TextPenPhongClick(Sender: TObject);
@@ -279,23 +286,32 @@ type
     procedure TextFontTextBoxChange(Sender: TObject);
     procedure TextFontTextBoxEnter(Sender: TObject);
     procedure TextFontTextBoxExit(Sender: TObject);
+    procedure NewImage(AWidth,AHeight: integer);
+    procedure SetImage(AImage: TBGRALazPaintImage);
+    procedure AddDiff({%H-}AOriginal: TBGRALayerCustomOriginal; ADiff: TBGRAOriginalDiff);
   public
     { public declarations }
     img: TBGRALazPaintImage;
+    FVectorLayerIndex: Integer;
+    FDiffList: TOriginalDiffList;
+    FDiffListPos,
+    FDiffListSavePos: integer;
+    FDiffAppend: boolean;
+    FDiffLastDate: TDateTime;
     filename: string;
-    vectorOriginal: TVectorOriginal;
     zoom: TAffineMatrix;
     newShape: TVectorShape;
     justDown, shapeAdded: boolean;
     newStartPoint: TPointF;
     newButton: TMouseButton;
-    vectorLayer: Integer;
     mouseState: TShiftState;
     baseCaption: string;
     procedure DoCopy;
     procedure DoCut;
     procedure DoPaste;
     procedure DoDelete;
+    procedure DoUndo;
+    procedure DoRedo;
     property vectorTransform: TAffineMatrix read GetVectorTransform;
     property penWidth: single read GetPenWidth write SetPenWidth;
     property penStyle: TBGRAPenStyle read GetPenStyle write SetPenStyle;
@@ -305,6 +321,8 @@ type
     property joinStyle: TPenJoinStyle read FPenJoinStyle write SetPenJoinStyle;
     property phongShapeKind: TPhongShapeKind read FPhongShapeKind write SetPhongShapeKind;
     property zoomFactor: single read GetZoomFactor write SetZoomFactor;
+    property vectorOriginal: TVectorOriginal read GetVectorOriginal;
+    property vectorLayerIndex: integer read FVectorLayerIndex write SetVectorLayerIndex;
   end;
 
 var
@@ -312,7 +330,7 @@ var
 
 implementation
 
-uses math, BGRAPen, BGRAThumbnail, BGRAGradientOriginal, uvectorclipboard, LResources, LCToolbars,
+uses math, BGRAPen, BGRAThumbnail, BGRAGradientOriginal, LCVectorClipboard, LResources, LCToolbars,
   BGRAText, BGRAUTF8;
 
 {$R *.lfm}
@@ -380,17 +398,7 @@ begin
     with (ActionList.Actions[i] as TAction) do
       if Hint = '' then Hint := Caption;
 
-  img := TBGRALazPaintImage.Create(640,480);
-  filename := '';
-  vectorOriginal := TVectorOriginal.Create;
-  vectorLayer := img.AddLayerFromOwnedOriginal(vectorOriginal);
-  img.LayerOriginalMatrix[vectorLayer] := AffineMatrixScale(1,1);
-  vectorOriginal.OnSelectShape:= @OnSelectShape;
-  img.OnOriginalEditingChange:= @OnEditingChange;
-  img.EditorFocused:= BGRAVirtualScreen1.Focused;
-  img.OnEditorFocusChanged:=@OnEditorFocusChange;
-  img.OnOriginalChange:= @OnOriginalChange;
-
+  NewImage(DefaultImageWidth, DefaultImageHeight);
   zoom := AffineMatrixScale(1,1);
   FPenStyleMenu := TPopupMenu.Create(nil);
   item:= TMenuItem.Create(FPenStyleMenu); item.Caption := PenStyleToStr[psClear];
@@ -463,7 +471,6 @@ begin
   FTextFontHeight:= TTextShape.DefaultFontEmHeight;
   FTextPenPhong:= false;
   FTextAltitudePercent:= TTextShape.DefaultAltitudePercent;
-  UpdateTitleBar;
   UpdateBackToolFillPoints;
   UpdatePenToolFillPoints;
   UpdateOutlineToolFillPoints;
@@ -482,7 +489,10 @@ begin
   if FFlattened = nil then
     UpdateFlattenedImage(rect(0,0,img.Width,img.Height), false);
   Bitmap.StretchPutImage(zoomBounds, FFlattened, dmLinearBlend);
-  FLastEditorBounds := img.DrawEditor(Bitmap, vectorLayer, zoom, EditorPointSize);
+  if vectorLayerIndex <> -1 then
+    FLastEditorBounds := img.DrawEditor(Bitmap, vectorLayerIndex, zoom, EditorPointSize)
+  else
+    FLastEditorBounds := EmptyRect;
 end;
 
 procedure TForm1.BGRAVirtualScreen1MouseDown(Sender: TObject;
@@ -494,6 +504,7 @@ var
 begin
   FocusView;
   mouseState:= Shift;
+  if [ssLeft,ssRight]*mouseState = [] then FDiffAppend := false;
   imgPtF := VirtualScreenToImgCoord(X,Y);
   SetEditorGrid(ssCtrl in Shift);
   img.MouseDown(Button=mbRight, Shift, imgPtF.x, imgPtF.y, cur, handled);
@@ -600,45 +611,57 @@ begin
 end;
 
 procedure TForm1.FileNewExecute(Sender: TObject);
+var
+  dimStr: String;
+  newWidth, newheight, idxX: integer;
 begin
   if Assigned(vectorOriginal) then
   begin
-    vectorOriginal.Clear;
-    filename := '';
-    UpdateTitleBar;
+    try
+      if Assigned(img) then
+        dimStr := inttostr(img.Width)+'x'+inttostr(img.Height)
+      else
+        dimStr := inttostr(DefaultImageWidth)+'x'+inttostr(DefaultImageHeight);
+      dimStr := InputBox('New image','Dimensions:',dimStr);
+      idxX := pos('x',dimStr);
+      if idxX=0 then exit;
+      newWidth := StrToInt(copy(dimStr,1,idxX-1));
+      newheight := StrToInt(copy(dimStr,idxX+1,length(dimStr)-idxX));
+    except
+      on ex:exception do
+      begin
+        ShowMessage(ex.Message);
+        exit;
+      end;
+    end;
+    NewImage(newWidth,newheight);
   end;
 end;
 
 procedure TForm1.FileOpenExecute(Sender: TObject);
 var
   openedImg: TBGRALazPaintImage;
-  openedLayer: Integer;
-  openedLayerOriginal: TBGRALayerCustomOriginal;
+  openedLayer, i: Integer;
 begin
   if OpenDialog1.Execute then
   begin
     openedImg := TBGRALazPaintImage.Create;
     try
       openedImg.LoadFromFile(OpenDialog1.FileName);
-      if openedImg.NbLayers <> 1 then raise exception.Create('Expecting one layer only');
-      openedLayer := 0;
-      openedLayerOriginal := openedImg.LayerOriginal[openedLayer];
-      if (openedLayerOriginal = nil) or not (openedLayerOriginal is TVectorOriginal) then
-        raise exception.Create('Not a vectorial image');
+      openedLayer := -1;
+      for i := 0 to openedImg.NbLayers-1 do
+        if openedImg.LayerOriginalClass[i] = TVectorOriginal then
+        begin
+          openedLayer:= i;
+          break;
+        end;
+      if openedLayer= -1 then raise exception.Create('Cannot find any vector layer');
 
-      img.Free;
-      img := openedImg;
+      SetImage(openedImg);
       openedImg := nil;
-      vectorLayer:= openedLayer;
-      vectorOriginal := TVectorOriginal(openedLayerOriginal);
-      vectorOriginal.OnSelectShape:= @OnSelectShape;
-      img.OnOriginalEditingChange:= @OnEditingChange;
-      img.OnOriginalChange:= @OnOriginalChange;
-      img.EditorFocused := BGRAVirtualScreen1.Focused;
-      img.OnEditorFocusChanged:=@OnEditorFocusChange;
+      vectorLayerIndex:= openedLayer;
       filename:= OpenDialog1.FileName;
       UpdateTitleBar;
-      ImageChangesCompletely;
     except
       on ex: exception do
         ShowMessage(ex.Message);
@@ -746,55 +769,59 @@ var
   vectorFill: TVectorialFill;
 begin
   mouseState:= Shift;
+  if [ssLeft,ssRight]*mouseState = [] then FDiffAppend := false;
   imgPtF := VirtualScreenToImgCoord(X,Y);
   SetEditorGrid(ssCtrl in Shift);
   img.MouseMove(Shift, imgPtF.X, imgPtF.Y, cur, handled);
   if handled then UpdateTextAlignment;
   UpdateViewCursor(cur);
 
-  ptF := ImgCoordToOriginalCoord(imgPtF);
-  if justDown and not Assigned(newShape) and IsCreateShapeTool(currentTool) and
-    (VectLen(ptF-newStartPoint) >= EditorPointSize) then
+  if Assigned(vectorOriginal) then
   begin
-    vectorOriginal.DeselectShape;
-    newShape := CreateShape(newStartPoint,ptF);
-    shapeAdded := false;
-    rF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
-    ImageChange(rF);
-    justDown := false;
-    if IsEmptyRectF(rF) and newShape.CreateEmpty then
+    ptF := ImgCoordToOriginalCoord(imgPtF);
+    if justDown and not Assigned(newShape) and IsCreateShapeTool(currentTool) and
+      (VectLen(ptF-newStartPoint) >= EditorPointSize) then
     begin
       vectorOriginal.DeselectShape;
-      vectorOriginal.AddShape(newShape);
-      vectorOriginal.SelectShape(newShape);
-      currentTool:= ptHand;
-      shapeAdded := true;
-    end;
-  end else
-  if Assigned(newShape) then
-  begin
-    prevRF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
-    newShape.QuickDefine(newStartPoint,ptF);
-    if (vsfBackFill in newShape.Fields) and (newShape.BackFill.FillType in [vftGradient, vftTexture]) then
+      newShape := CreateShape(newStartPoint,ptF);
+      shapeAdded := false;
+      rF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
+      ImageChange(rF);
+      justDown := false;
+      if IsEmptyRectF(rF) and newShape.CreateEmpty then
+      begin
+        vectorOriginal.DeselectShape;
+        vectorOriginal.AddShape(newShape);
+        vectorOriginal.SelectShape(newShape);
+        currentTool:= ptHand;
+        shapeAdded := true;
+      end;
+    end else
+    if Assigned(newShape) then
     begin
-      vectorFill := BackFillControl.CreateShapeFill(newShape);
-      newShape.BackFill := vectorFill;
-      vectorFill.Free;
+      prevRF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
+      newShape.QuickDefine(newStartPoint,ptF);
+      if (vsfBackFill in newShape.Fields) and (newShape.BackFill.FillType in [vftGradient, vftTexture]) then
+      begin
+        vectorFill := BackFillControl.CreateShapeFill(newShape);
+        newShape.BackFill := vectorFill;
+        vectorFill.Free;
+      end;
+      if (vsfPenFill in newShape.Fields) and (newShape.PenFill.FillType in [vftGradient, vftTexture]) then
+      begin
+        vectorFill := PenFillControl.CreateShapeFill(newShape);
+        newShape.PenFill := vectorFill;
+        vectorFill.Free;
+      end;
+      if (vsfOutlineFill in newShape.Fields) and (newShape.OutlineFill.FillType in [vftGradient, vftTexture]) then
+      begin
+        vectorFill := OutlineFillControl.CreateShapeFill(newShape);
+        newShape.OutlineFill := vectorFill;
+        vectorFill.Free;
+      end;
+      rF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
+      ImageChange(rF.Union(prevRF, true));
     end;
-    if (vsfPenFill in newShape.Fields) and (newShape.PenFill.FillType in [vftGradient, vftTexture]) then
-    begin
-      vectorFill := PenFillControl.CreateShapeFill(newShape);
-      newShape.PenFill := vectorFill;
-      vectorFill.Free;
-    end;
-    if (vsfOutlineFill in newShape.Fields) and (newShape.OutlineFill.FillType in [vftGradient, vftTexture]) then
-    begin
-      vectorFill := OutlineFillControl.CreateShapeFill(newShape);
-      newShape.OutlineFill := vectorFill;
-      vectorFill.Free;
-    end;
-    rF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
-    ImageChange(rF.Union(prevRF, true));
   end;
 end;
 
@@ -808,6 +835,7 @@ var
   addedShape, curShape: TVectorShape;
 begin
   mouseState:= Shift;
+  if [ssLeft,ssRight]*mouseState = [] then FDiffAppend := false;
   imgPtF := VirtualScreenToImgCoord(X,Y);
   SetEditorGrid(ssCtrl in Shift);
   img.MouseUp(Button = mbRight, Shift, imgPtF.X, imgPtF.Y, cur, handled);
@@ -818,41 +846,44 @@ begin
   end;
   UpdateViewCursor(cur);
 
-  if justDown and (Button = newButton) then
+  if Assigned(vectorOriginal) then
   begin
-    if IsCreateShapeTool(currentTool) and (vsuCreate in PaintToolClass[currentTool].Usermodes) then
+    if justDown and (Button = newButton) then
     begin
-      vectorOriginal.DeselectShape;
-      vectorOriginal.AddShape(CreateShape(newStartPoint,newStartPoint), vsuCreate);
-    end else
-    if IsCreateShapeTool(currentTool) and PaintToolClass[currentTool].CreateEmpty then
-    begin
-      vectorOriginal.DeselectShape;
-      addedShape := CreateShape(newStartPoint,newStartPoint);
-      vectorOriginal.AddShape(addedShape);
-      vectorOriginal.SelectShape(addedShape);
-      currentTool:= ptHand;
-    end else
-      vectorOriginal.MouseClick(newStartPoint);
-    justDown:= false;
-  end
-  else if Assigned(newShape) and (Button = newButton) then
-  begin
-    if shapeAdded then
-      newShape := nil
-    else
-    begin
-      rF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
-      if not IsEmptyRectF(rF) or (vsuCreate in newShape.Usermodes) then
+      if IsCreateShapeTool(currentTool) and (vsuCreate in PaintToolClass[currentTool].Usermodes) then
       begin
-        addedShape := newShape;
-        newShape := nil;
-        vectorOriginal.AddShape(addedShape, vsuCreate);
-      end
+        vectorOriginal.DeselectShape;
+        vectorOriginal.AddShape(CreateShape(newStartPoint,newStartPoint), vsuCreate);
+      end else
+      if IsCreateShapeTool(currentTool) and PaintToolClass[currentTool].CreateEmpty then
+      begin
+        vectorOriginal.DeselectShape;
+        addedShape := CreateShape(newStartPoint,newStartPoint);
+        vectorOriginal.AddShape(addedShape);
+        vectorOriginal.SelectShape(addedShape);
+        currentTool:= ptHand;
+      end else
+        vectorOriginal.MouseClick(newStartPoint);
+      justDown:= false;
+    end
+    else if Assigned(newShape) and (Button = newButton) then
+    begin
+      if shapeAdded then
+        newShape := nil
       else
       begin
-        FreeAndNil(newShape);
-        ShowMessage('Shape is empty and was not added');
+        rF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
+        if not IsEmptyRectF(rF) or (vsuCreate in newShape.Usermodes) then
+        begin
+          addedShape := newShape;
+          newShape := nil;
+          vectorOriginal.AddShape(addedShape, vsuCreate);
+        end
+        else
+        begin
+          FreeAndNil(newShape);
+          ShowMessage('Shape is empty and was not added');
+        end;
       end;
     end;
   end;
@@ -874,6 +905,7 @@ begin
   RemoveExtendedStyleControls;
   if (newShape <> nil) and not shapeAdded then FreeAndNil(newShape);
   img.Free;
+  FDiffList.Free;
   FFlattened.Free;
   ButtonPenStyle.DropDownMenu := nil;
   FPenStyleMenu.Free;
@@ -931,6 +963,25 @@ begin
   begin
     Key := 0;
     DoDelete;
+  end else
+  if (Key = VK_Z) and ([ssCtrl,ssShift]*Shift=[ssCtrl]) and (FDiffListPos > 0) and
+    not FDiffAppend then
+  begin
+    Key := 0;
+    DoUndo;
+  end else
+  if ( ((Key = VK_Y) and ([ssCtrl,ssShift]*Shift=[ssCtrl])) or
+       ((Key = VK_Z) and ([ssCtrl,ssShift]*Shift=[ssCtrl,ssShift])) )
+     and Assigned(FDiffList) and (FDiffListPos < FDiffList.Count) and
+     not FDiffAppend then
+  begin
+    Key := 0;
+    DoRedo;
+  end else
+  if (Key = VK_RETURN) and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
+  begin
+    Key := 0;
+    vectorOriginal.DeselectShape;
   end;
 end;
 
@@ -1059,10 +1110,19 @@ begin
   result := FSplineStyle;
 end;
 
+function TForm1.GetVectorOriginal: TVectorOriginal;
+begin
+  if Assigned(img) and (vectorLayerIndex >= 0) and (vectorLayerIndex < img.NbLayers) and
+     (img.LayerOriginalClass[vectorLayerIndex] = TVectorOriginal) then
+   result := img.LayerOriginal[vectorLayerIndex] as TVectorOriginal
+  else
+    result := nil
+end;
+
 function TForm1.GetVectorTransform: TAffineMatrix;
 begin
-  if vectorLayer<>-1 then
-    result:= img.LayerOriginalMatrix[vectorLayer]
+  if Assigned(img) and (vectorLayerIndex<>-1) then
+    result:= img.LayerOriginalMatrix[vectorLayerIndex]
   else
     result:= AffineMatrixIdentity;
 end;
@@ -1132,7 +1192,8 @@ begin
   UpdateView(EmptyRect);
 end;
 
-procedure TForm1.OnOriginalChange(ASender: TObject; AOriginal: TBGRALayerCustomOriginal);
+procedure TForm1.OnOriginalChange(ASender: TObject; AOriginal: TBGRALayerCustomOriginal;
+  var ADiff: TBGRAOriginalDiff);
 var
   slowShape: boolean;
 begin
@@ -1144,6 +1205,8 @@ begin
       slowShape := vectorOriginal.SelectedShape.GetIsSlow(vectorTransform);
   end;
   RenderAndUpdate(slowShape);
+  AddDiff(AOriginal, ADiff);
+  ADiff := nil;
 end;
 
 procedure TForm1.OnPhongBorderSizeChange(Sender: TObject; AByUser: boolean);
@@ -1333,6 +1396,22 @@ begin
     TCurveShape(vectorOriginal.SelectedShape).SplineStyle := FSplineStyle;
 end;
 
+procedure TForm1.SetVectorLayerIndex(AValue: integer);
+var
+  prevOrig: TVectorOriginal;
+begin
+  if FVectorLayerIndex=AValue then Exit;
+  prevOrig := vectorOriginal;
+  if Assigned(prevOrig) then prevOrig.OnSelectShape:= nil;
+  if Assigned(img) and (AValue >= 0) and (AValue < img.NbLayers) and
+    (img.LayerOriginalClass[AValue] = TVectorOriginal) then
+  begin
+    FVectorLayerIndex:= AValue;
+    vectorOriginal.OnSelectShape:= @OnSelectShape;
+  end else
+    FVectorLayerIndex:= -1;
+end;
+
 procedure TForm1.SetZoomFactor(AValue: single);
 begin
   zoom := AffineMatrixScale(AValue,AValue);
@@ -1424,6 +1503,60 @@ begin
   FTextFontNameEditing := false;
   tb := Sender as TEdit;
   tb.Text := FTextFontName;
+end;
+
+procedure TForm1.NewImage(AWidth, AHeight: integer);
+var
+  orig: TVectorOriginal;
+  newImg: TBGRALazPaintImage;
+  layerIndex: Integer;
+begin
+  newImg := TBGRALazPaintImage.Create(AWidth,AHeight);
+  orig := TVectorOriginal.Create;
+  layerIndex := newImg.AddLayerFromOwnedOriginal(orig);
+  SetImage(newImg);
+  filename := '';
+  UpdateTitleBar;
+  vectorLayerIndex := layerIndex;
+end;
+
+procedure TForm1.SetImage(AImage: TBGRALazPaintImage);
+begin
+  FreeAndNil(img);
+  FreeAndNil(FDiffList);
+  FDiffListPos := 0;
+  FDiffListSavePos := 0;
+  FDiffAppend := false;
+  img := AImage;
+  img.OnOriginalEditingChange:= @OnEditingChange;
+  img.EditorFocused:= BGRAVirtualScreen1.Focused;
+  img.OnEditorFocusChanged:=@OnEditorFocusChange;
+  img.OnOriginalChange:= @OnOriginalChange;
+  FVectorLayerIndex:= -1;
+  ImageChangesCompletely;
+end;
+
+procedure TForm1.AddDiff(AOriginal: TBGRALayerCustomOriginal;
+  ADiff: TBGRAOriginalDiff);
+const DiffMinDelay = 1000 / (1000*60*60*24);
+begin
+  if ADiff = nil then exit;
+  if FDiffList=nil then FDiffList := TOriginalDiffList.Create;
+  while FDiffList.Count > FDiffListPos do FDiffList.Delete(FDiffList.Count-1);
+  if FDiffListSavePos > FDiffList.Count then FDiffListSavePos:= maxLongint;
+  if (FDiffList.Count>0) and FDiffList[FDiffList.Count-1].CanAppend(ADiff) and
+    (FDiffAppend or (Now < FDiffLastDate+DiffMinDelay)) then
+  begin
+    FDiffList[FDiffList.Count-1].Append(ADiff);
+    ADiff.Free;
+  end
+  else
+  begin
+    FDiffListPos := FDiffList.Add(ADiff)+1;
+    FDiffAppend:= [ssLeft,ssRight]*mouseState <> [];
+  end;
+  FDiffLastDate := Now;
+  UpdateTitleBar;
 end;
 
 procedure TForm1.TextStyleClick(Sender: TObject);
@@ -1527,6 +1660,7 @@ var
   shapeRectF: TRectF;
   shapeRect: TRect;
 begin
+  img.FreezeExceptOneLayer(vectorLayerIndex);
   if FFlattened = nil then
     FFlattened := img.ComputeFlatImage
   else
@@ -1579,11 +1713,14 @@ begin
   end;
   if Assigned(img) then
   begin
-    newEditorBounds := img.GetEditorBounds(vectorLayer, zoom, EditorPointSize);
-    if not IsRectEmpty(newEditorBounds) then
+    if vectorLayerIndex<>-1 then
     begin
-      if IsRectEmpty(viewRect) then viewRect := newEditorBounds else
-        UnionRect(viewRect,viewRect,newEditorBounds);
+      newEditorBounds := img.GetEditorBounds(vectorLayerIndex, zoom, EditorPointSize);
+      if not IsRectEmpty(newEditorBounds) then
+      begin
+        if IsRectEmpty(viewRect) then viewRect := newEditorBounds else
+          UnionRect(viewRect,viewRect,newEditorBounds);
+      end;
     end;
   end;
 
@@ -1803,11 +1940,15 @@ begin
 end;
 
 procedure TForm1.UpdateTitleBar;
+var
+  modifStr: string;
 begin
+  if Assigned(FDiffList) and (FDiffListPos <> FDiffListSavePos) then
+    modifStr := '*' else modifStr := '';
   if filename = '' then
-    Caption := baseCaption + ' - New image - ' + inttostr(img.Width)+'x'+inttostr(img.Height)
+    Caption := baseCaption + ' - New image'+modifStr+' - ' + inttostr(img.Width)+'x'+inttostr(img.Height)
   else
-    Caption := baseCaption + ' - ' + filename + ' - ' + inttostr(img.Width)+'x'+inttostr(img.Height);
+    Caption := baseCaption + ' - ' + filename + modifStr+' - ' + inttostr(img.Width)+'x'+inttostr(img.Height);
 end;
 
 procedure TForm1.ImageChangesCompletely;
@@ -2174,6 +2315,27 @@ procedure TForm1.DoDelete;
 begin
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
     vectorOriginal.SelectedShape.Remove;
+end;
+
+procedure TForm1.DoUndo;
+var
+  diff: TBGRAOriginalDiff;
+begin
+  if FDiffListPos <= 0 then exit;
+  dec(FDiffListPos);
+  diff := FDiffList[FDiffListPos];
+  diff.Unapply(vectorOriginal);
+  UpdateTitleBar;
+end;
+
+procedure TForm1.DoRedo;
+var
+  diff: TBGRAOriginalDiff;
+begin
+  diff := FDiffList[FDiffListPos];
+  diff.Apply(vectorOriginal);
+  inc(FDiffListPos);
+  UpdateTitleBar;
 end;
 
 end.

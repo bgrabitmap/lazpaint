@@ -16,12 +16,12 @@
     </General>
     <i18n>
       <EnableI18N Value="True"/>
-      <OutDir Value="release\i18n"/>
+      <OutDir Value="release\bin\i18n"/>
     </i18n>
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <MajorVersionNr Value="7"/>
-      <RevisionNr Value="2"/>
+      <RevisionNr Value="3"/>
       <CharSet Value="04B0"/>
       <StringTable CompanyName="http://sourceforge.net/projects/lazpaint/" ProductName="LazPaint" InternalName="lazpaint" OriginalFilename="lazpaint.exe"/>
     </VersionInfo>
@@ -32,11 +32,11 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="release\lazpaint"/>
+            <Filename Value="release\bin\lazpaint"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="buttons;tablet"/>
+            <OtherUnitFiles Value="buttons;tablet;dialog;dialog\color;dialog\filter;tools;image"/>
             <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -70,7 +70,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="release\lazpaint32"/>
+            <Filename Value="release\bin\lazpaint32"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -110,7 +110,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="release\lazpaint_x64"/>
+            <Filename Value="release\bin\lazpaint_x64"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -153,7 +153,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="release\lazpaint"/>
+            <Filename Value="release\bin\lazpaint"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -230,7 +230,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="release\lazpaint"/>
+            <Filename Value="release\bin\lazpaint"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -270,7 +270,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="release\lazpaint"/>
+            <Filename Value="release\bin\lazpaint"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -320,23 +320,24 @@
     </RunParams>
     <RequiredPackages Count="5">
       <Item1>
-        <PackageName Value="BGRABitmapPack"/>
-        <MinVersion Major="10" Minor="2" Valid="True"/>
+        <PackageName Value="bgracontrols"/>
+        <MinVersion Major="6" Minor="4" Valid="True"/>
       </Item1>
       <Item2>
-        <PackageName Value="lazpaintcontrols"/>
+        <PackageName Value="BGRABitmapPack"/>
+        <MinVersion Major="10" Minor="6" Valid="True"/>
       </Item2>
       <Item3>
-        <PackageName Value="Printer4Lazarus"/>
+        <PackageName Value="lazpaintcontrols"/>
       </Item3>
       <Item4>
-        <PackageName Value="bgracontrols"/>
+        <PackageName Value="Printer4Lazarus"/>
       </Item4>
       <Item5>
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="96">
+    <Units Count="99">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -355,12 +356,12 @@
         <UnitName Value="UGraph"/>
       </Unit2>
       <Unit3>
-        <Filename Value="utool.pas"/>
+        <Filename Value="tools\utool.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UTool"/>
       </Unit3>
       <Unit4>
-        <Filename Value="uresample.pas"/>
+        <Filename Value="dialog\uresample.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FResample"/>
         <HasResources Value="True"/>
@@ -368,7 +369,7 @@
         <UnitName Value="UResample"/>
       </Unit4>
       <Unit5>
-        <Filename Value="unewimage.pas"/>
+        <Filename Value="dialog\unewimage.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FNewImage"/>
         <HasResources Value="True"/>
@@ -384,12 +385,12 @@
         <UnitName Value="UToolbox"/>
       </Unit6>
       <Unit7>
-        <Filename Value="uimage.pas"/>
+        <Filename Value="image\uimage.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImage"/>
       </Unit7>
       <Unit8>
-        <Filename Value="uradialblur.pas"/>
+        <Filename Value="dialog\filter\uradialblur.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FRadialBlur"/>
         <HasResources Value="True"/>
@@ -397,7 +398,7 @@
         <UnitName Value="URadialBlur"/>
       </Unit8>
       <Unit9>
-        <Filename Value="umotionblur.pas"/>
+        <Filename Value="dialog\filter\umotionblur.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FMotionBlur"/>
         <HasResources Value="True"/>
@@ -405,7 +406,7 @@
         <UnitName Value="UMotionBlur"/>
       </Unit9>
       <Unit10>
-        <Filename Value="uemboss.pas"/>
+        <Filename Value="dialog\filter\uemboss.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FEmboss"/>
         <HasResources Value="True"/>
@@ -418,7 +419,7 @@
         <UnitName Value="UClipboard"/>
       </Unit11>
       <Unit12>
-        <Filename Value="ucustomblur.pas"/>
+        <Filename Value="dialog\filter\ucustomblur.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FCustomBlur"/>
         <HasResources Value="True"/>
@@ -444,7 +445,7 @@
         <UnitName Value="UChooseColor"/>
       </Unit15>
       <Unit16>
-        <Filename Value="ucanvassize.pas"/>
+        <Filename Value="dialog\ucanvassize.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FCanvasSize"/>
         <HasResources Value="True"/>
@@ -452,7 +453,7 @@
         <UnitName Value="UCanvassize"/>
       </Unit16>
       <Unit17>
-        <Filename Value="ucolorintensity.pas"/>
+        <Filename Value="dialog\color\ucolorintensity.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FColorIntensity"/>
         <HasResources Value="True"/>
@@ -460,7 +461,7 @@
         <UnitName Value="UColorintensity"/>
       </Unit17>
       <Unit18>
-        <Filename Value="ushiftcolors.pas"/>
+        <Filename Value="dialog\color\ushiftcolors.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FShiftColors"/>
         <HasResources Value="True"/>
@@ -468,7 +469,7 @@
         <UnitName Value="UShiftColors"/>
       </Unit18>
       <Unit19>
-        <Filename Value="ucolorize.pas"/>
+        <Filename Value="dialog\color\ucolorize.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FColorize"/>
         <HasResources Value="True"/>
@@ -476,7 +477,7 @@
         <UnitName Value="UColorize"/>
       </Unit19>
       <Unit20>
-        <Filename Value="umultiimage.pas"/>
+        <Filename Value="dialog\umultiimage.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FMultiImage"/>
         <HasResources Value="True"/>
@@ -484,7 +485,7 @@
         <UnitName Value="UMultiImage"/>
       </Unit20>
       <Unit21>
-        <Filename Value="uabout.pas"/>
+        <Filename Value="dialog\uabout.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FAbout"/>
         <HasResources Value="True"/>
@@ -502,7 +503,7 @@
         <UnitName Value="UCommandline"/>
       </Unit23>
       <Unit24>
-        <Filename Value="utwirl.pas"/>
+        <Filename Value="dialog\filter\utwirl.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FTwirl"/>
         <HasResources Value="True"/>
@@ -524,27 +525,27 @@
         <IsPartOfProject Value="True"/>
       </Unit27>
       <Unit28>
-        <Filename Value="utooldeformationgrid.pas"/>
+        <Filename Value="tools\utooldeformationgrid.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolDeformationGrid"/>
       </Unit28>
       <Unit29>
-        <Filename Value="utoolselect.pas"/>
+        <Filename Value="tools\utoolselect.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolSelect"/>
       </Unit29>
       <Unit30>
-        <Filename Value="utoolpolygon.pas"/>
+        <Filename Value="tools\utoolpolygon.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolPolygon"/>
       </Unit30>
       <Unit31>
-        <Filename Value="utoolfloodfill.pas"/>
+        <Filename Value="tools\utoolfloodfill.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolFloodFill"/>
       </Unit31>
       <Unit32>
-        <Filename Value="utoolbasic.pas"/>
+        <Filename Value="tools\utoolbasic.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolBasic"/>
       </Unit32>
@@ -554,7 +555,7 @@
         <UnitName Value="UResourceStrings"/>
       </Unit33>
       <Unit34>
-        <Filename Value="upixelate.pas"/>
+        <Filename Value="dialog\filter\upixelate.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FPixelate"/>
         <HasResources Value="True"/>
@@ -562,27 +563,27 @@
         <UnitName Value="UPixelate"/>
       </Unit34>
       <Unit35>
-        <Filename Value="utoolphong.pas"/>
+        <Filename Value="tools\utoolphong.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolPhong"/>
       </Unit35>
       <Unit36>
-        <Filename Value="utooltext.pas"/>
+        <Filename Value="tools\utooltext.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolText"/>
       </Unit36>
       <Unit37>
-        <Filename Value="uimagestate.pas"/>
+        <Filename Value="image\uimagestate.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImageState"/>
       </Unit37>
       <Unit38>
-        <Filename Value="ustatetype.pas"/>
+        <Filename Value="image\ustatetype.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UStateType"/>
       </Unit38>
       <Unit39>
-        <Filename Value="uobject3d.pas"/>
+        <Filename Value="dialog\uobject3d.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FObject3D"/>
         <HasResources Value="True"/>
@@ -603,7 +604,7 @@
         <UnitName Value="UVolatileScrollBar"/>
       </Unit41>
       <Unit42>
-        <Filename Value="ublendop.pas"/>
+        <Filename Value="dialog\ublendop.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FBlendOp"/>
         <HasResources Value="True"/>
@@ -611,7 +612,7 @@
         <UnitName Value="UBlendOp"/>
       </Unit42>
       <Unit43>
-        <Filename Value="uimageobservation.pas"/>
+        <Filename Value="image\uimageobservation.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImageObservation"/>
       </Unit43>
@@ -639,7 +640,7 @@
         <UnitName Value="UFilters"/>
       </Unit47>
       <Unit48>
-        <Filename Value="uimageaction.pas"/>
+        <Filename Value="image\uimageaction.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImageAction"/>
       </Unit48>
@@ -649,12 +650,12 @@
         <UnitName Value="ULoadImage"/>
       </Unit49>
       <Unit50>
-        <Filename Value="uimagediff.pas"/>
+        <Filename Value="image\uimagediff.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImageDiff"/>
       </Unit50>
       <Unit51>
-        <Filename Value="usharpen.pas"/>
+        <Filename Value="dialog\filter\usharpen.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FSharpen"/>
         <HasResources Value="True"/>
@@ -662,7 +663,7 @@
         <UnitName Value="USharpen"/>
       </Unit51>
       <Unit52>
-        <Filename Value="uphongfilter.pas"/>
+        <Filename Value="dialog\filter\uphongfilter.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FPhongFilter"/>
         <HasResources Value="True"/>
@@ -670,7 +671,7 @@
         <UnitName Value="UPhongFilter"/>
       </Unit52>
       <Unit53>
-        <Filename Value="ufilterfunction.pas"/>
+        <Filename Value="dialog\filter\ufilterfunction.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FFilterFunction"/>
         <HasResources Value="True"/>
@@ -708,7 +709,7 @@
         <UnitName Value="UColorFilters"/>
       </Unit59>
       <Unit60>
-        <Filename Value="uadjustcurves.pas"/>
+        <Filename Value="dialog\color\uadjustcurves.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FAdjustCurves"/>
         <HasResources Value="True"/>
@@ -724,17 +725,17 @@
         <UnitName Value="UScriptType"/>
       </Unit62>
       <Unit63>
-        <Filename Value="ulayeraction.pas"/>
+        <Filename Value="image\ulayeraction.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ULayerAction"/>
       </Unit63>
       <Unit64>
-        <Filename Value="uimagetype.pas"/>
+        <Filename Value="image\uimagetype.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImageType"/>
       </Unit64>
       <Unit65>
-        <Filename Value="uposterize.pas"/>
+        <Filename Value="dialog\filter\uposterize.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FPosterize"/>
         <HasResources Value="True"/>
@@ -746,26 +747,26 @@
         <UnitName Value="UMySLV"/>
       </Unit66>
       <Unit67>
-        <Filename Value="ubrowseimages.pas"/>
+        <Filename Value="dialog\ubrowseimages.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FBrowseImages"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit67>
       <Unit68>
-        <Filename Value="utoollayer.pas"/>
+        <Filename Value="tools\utoollayer.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolLayer"/>
       </Unit68>
       <Unit69>
-        <Filename Value="unoisefilter.pas"/>
+        <Filename Value="dialog\filter\unoisefilter.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FNoiseFilter"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit69>
       <Unit70>
-        <Filename Value="uprint.pas"/>
+        <Filename Value="dialog\uprint.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FPrint"/>
         <HasResources Value="True"/>
@@ -779,131 +780,149 @@
         <ResourceBaseClass Value="Form"/>
       </Unit71>
       <Unit72>
-        <Filename Value="ubarupdown.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="UBarUpDown"/>
-      </Unit72>
-      <Unit73>
         <Filename Value="ufileextensions.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UFileExtensions"/>
-      </Unit73>
-      <Unit74>
+      </Unit72>
+      <Unit73>
         <Filename Value="ufilesystem.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UFileSystem"/>
-      </Unit74>
-      <Unit75>
-        <Filename Value="utoolbrush.pas"/>
+      </Unit73>
+      <Unit74>
+        <Filename Value="tools\utoolbrush.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolBrush"/>
-      </Unit75>
-      <Unit76>
+      </Unit74>
+      <Unit75>
         <Filename Value="umainformlayout.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UMainFormLayout"/>
+      </Unit75>
+      <Unit76>
+        <Filename Value="maintoolbar.inc"/>
+        <IsPartOfProject Value="True"/>
       </Unit76>
       <Unit77>
-        <Filename Value="maintoolbar.inc"/>
+        <Filename Value="lazpaintdialogs.inc"/>
         <IsPartOfProject Value="True"/>
       </Unit77>
       <Unit78>
-        <Filename Value="lazpaintdialogs.inc"/>
-        <IsPartOfProject Value="True"/>
-      </Unit78>
-      <Unit79>
-        <Filename Value="usaveoption.pas"/>
+        <Filename Value="dialog\usaveoption.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FSaveOption"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="USaveOption"/>
-      </Unit79>
-      <Unit80>
+      </Unit78>
+      <Unit79>
         <Filename Value="ubrushtype.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UBrushType"/>
-      </Unit80>
-      <Unit81>
-        <Filename Value="ugeometricbrush.pas"/>
+      </Unit79>
+      <Unit80>
+        <Filename Value="dialog\ugeometricbrush.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FGeometricBrush"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit81>
-      <Unit82>
+      </Unit80>
+      <Unit81>
         <Filename Value="uraintype.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit82>
-      <Unit83>
-        <Filename Value="uformrain.pas"/>
+      </Unit81>
+      <Unit82>
+        <Filename Value="dialog\filter\uformrain.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FRain"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UFormRain"/>
-      </Unit83>
-      <Unit84>
+      </Unit82>
+      <Unit83>
         <Filename Value="upalettetoolbar.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UPaletteToolbar"/>
+      </Unit83>
+      <Unit84>
+        <Filename Value="tablet\laztablet.pas"/>
+        <IsPartOfProject Value="True"/>
       </Unit84>
       <Unit85>
-        <Filename Value="tablet\laztablet.pas"/>
+        <Filename Value="tablet\laztabletother.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit85>
       <Unit86>
-        <Filename Value="tablet\laztabletother.pas"/>
+        <Filename Value="tablet\laztabletwin.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit86>
       <Unit87>
-        <Filename Value="tablet\laztabletwin.pas"/>
+        <Filename Value="tablet\Tablet.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit87>
       <Unit88>
-        <Filename Value="tablet\Tablet.pas"/>
+        <Filename Value="tablet\WintabConsts.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit88>
       <Unit89>
-        <Filename Value="tablet\WintabConsts.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit89>
-      <Unit90>
-        <Filename Value="utoolicon.pas"/>
+        <Filename Value="tools\utoolicon.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UToolIcon"/>
-      </Unit90>
-      <Unit91>
+      </Unit89>
+      <Unit90>
         <Filename Value="uimagepreview.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImagePreview"/>
-      </Unit91>
-      <Unit92>
-        <Filename Value="upreviewdialog.pas"/>
+      </Unit90>
+      <Unit91>
+        <Filename Value="dialog\upreviewdialog.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FPreviewDialog"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UPreviewDialog"/>
-      </Unit92>
-      <Unit93>
-        <Filename Value="uquestion.pas"/>
+      </Unit91>
+      <Unit92>
+        <Filename Value="dialog\uquestion.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FQuestion"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UQuestion"/>
-      </Unit93>
-      <Unit94>
+      </Unit92>
+      <Unit93>
         <Filename Value="utiff.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UTiff"/>
-      </Unit94>
-      <Unit95>
+      </Unit93>
+      <Unit94>
         <Filename Value="uimageview.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImageView"/>
+      </Unit94>
+      <Unit95>
+        <Filename Value="udarktheme.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UDarkTheme"/>
       </Unit95>
+      <Unit96>
+        <Filename Value="dialog\filter\uwavedisplacement.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FWaveDisplacement"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="UWaveDisplacement"/>
+      </Unit96>
+      <Unit97>
+        <Filename Value="tools\utoolvectorial.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UToolVectorial"/>
+      </Unit97>
+      <Unit98>
+        <Filename Value="uselectionhighlight.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="USelectionHighlight"/>
+      </Unit98>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -911,7 +930,7 @@
     <PathDelim Value="\"/>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="tablet"/>
+      <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
       <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <CodeGeneration>

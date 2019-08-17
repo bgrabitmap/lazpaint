@@ -10,7 +10,7 @@ uses
   {$IFDEF LINUX}, InterfaceBase{$ENDIF};
 
 const
-  LazPaintVersion = 7000200;
+  LazPaintVersion = 7000300;
 
   function LazPaintVersionStr: string;
 
@@ -76,7 +76,7 @@ type
                     pfBlurPrecise, pfBlurRadial, pfBlurFast, pfBlurBox, pfBlurCorona, pfBlurDisk, pfBlurMotion, pfBlurCustom,
                     pfSharpen, pfSmooth, pfMedian, pfNoise, pfPixelate, pfClearType, pfClearTypeInverse, pfFunction,
                     pfEmboss, pfPhong, pfContour, pfGrayscale, pfNegative, pfLinearNegative, pfComplementaryColor, pfNormalize,
-                    pfSphere, pfTwirl, pfCylinder, pfPlane,
+                    pfSphere, pfTwirl, pfWaveDisplacement, pfCylinder, pfPlane,
                     pfPerlinNoise,pfCyclicPerlinNoise,pfClouds,pfCustomWater,pfWater,pfRain,pfWood,pfWoodVertical,pfPlastik,pfMetalFloor,pfCamouflage,
                     pfSnowPrint,pfStone,pfRoundStone,pfMarble);
 
@@ -86,7 +86,7 @@ const
                     'BlurPrecise', 'BlurRadial', 'BlurFast', 'BlurBox', 'BlurCorona', 'BlurDisk', 'BlurMotion', 'BlurCustom',
                     'Sharpen', 'Smooth', 'Median', 'Noise', 'Pixelate', 'ClearType', 'ClearTypeInverse', 'Function',
                     'Emboss', 'Phong', 'Contour', 'Grayscale', 'Negative', 'LinearNegative', 'ComplementaryColor', 'Normalize',
-                    'Sphere', 'Twirl', 'Cylinder', 'Plane',
+                    'Sphere', 'Twirl', 'WaveDisplacement', 'Cylinder', 'Plane',
                     'PerlinNoise','CyclicPerlinNoise','Clouds','CustomWater','Water','Rain','Wood','WoodVertical','Plastik','MetalFloor','Camouflage',
                     'SnowPrint','Stone','RoundStone','Marble');
 
@@ -95,12 +95,11 @@ const
                     false, false, false, false, false, false, false, false,
                     false, false, false, false, false, true, true, true,
                     false, true, false, false, false, false, false, false,
-                    false, false, false, false,
+                    false, false, false, false, false,
                     false,false,true,true,true,true,true,true,true,true,true,
                     true,true,true,true);
 
 const
-  OutsideColor = TColor($00E8D1BB);
   MinZoomForGrid = 4;
 
 type
@@ -153,6 +152,8 @@ type
   TLazPaintCustomInstance = class(TInterfacedObject,IConfigProvider)
   private
     FBlackAndWhite: boolean;
+    function GetDarkTheme: boolean;
+    procedure SetDarkTheme(AValue: boolean);
   protected
     FRestartQuery: boolean;
     function QueryInterface({$IFDEF FPC_HAS_CONSTREF}constref{$ELSE}const{$ENDIF} IID: TGUID; out Obj): HResult; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
@@ -209,6 +210,7 @@ type
     procedure SetLayerWindowWidth(AValue: integer); virtual; abstract;
 
     function GetMainFormBounds: TRect; virtual; abstract;
+    procedure ApplyTheme(ADarkTheme: boolean); virtual; abstract;
   public
     Title,AboutText: string;
     EmbeddedResult: TModalResult;
@@ -253,6 +255,7 @@ type
     function ShowPixelateDlg(AFilterConnector: TObject):boolean; virtual; abstract;
     function ShowNoiseFilterDlg(AFilterConnector: TObject):boolean; virtual; abstract;
     function ShowTwirlDlg(AFilterConnector: TObject):boolean; virtual; abstract;
+    function ShowWaveDisplacementDlg(AFilterConnector: TObject):boolean; virtual; abstract;
     function ShowPhongFilterDlg(AFilterConnector: TObject): boolean; virtual; abstract;
     function ShowFunctionFilterDlg(AFilterConnector: TObject): boolean; virtual; abstract;
     function ShowSharpenDlg(AFilterConnector: TObject):boolean; virtual; abstract;
@@ -324,6 +327,7 @@ type
     property DockLayersAndColors: boolean read GetDockLayersAndColors write SetDockLayersAndColors;
     property Fullscreen: boolean read GetFullscreen write SetFullscreen;
     property RestartQuery: boolean read FRestartQuery;
+    property DarkTheme: boolean read GetDarkTheme write SetDarkTheme;
 
     property Icons[ASize: integer]: TImageList read GetIcons;
   end;
@@ -543,6 +547,26 @@ procedure TImageEntry.FreeAndNil;
 begin
   SysUtils.FreeAndNil(bmp);
   bpp := 0;
+end;
+
+function TLazPaintCustomInstance.GetDarkTheme: boolean;
+begin
+  if Assigned(Config) then
+    result := Config.GetDarkTheme
+  else
+    result := false;
+end;
+
+procedure TLazPaintCustomInstance.SetDarkTheme(AValue: boolean);
+begin
+  if Assigned(Config) then
+  begin
+    if AValue <> Config.GetDarkTheme then
+    begin
+      Config.SetDarkTheme(AValue);
+      ApplyTheme(AValue);
+    end;
+  end;
 end;
 
 { Interface gateway }

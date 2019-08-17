@@ -21,7 +21,7 @@ var useCustomCursors: boolean = true;
 
 initialization
 
-  {$I cursors\paintcursors.lrs}
+  {$I tools\cursors\paintcursors.lrs}
 
   if useCustomCursors then
   begin

@@ -1,0 +1,174 @@
+object FWaveDisplacement: TFWaveDisplacement
+  Left = 306
+  Height = 356
+  Top = 172
+  Width = 222
+  AutoSize = True
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
+  Caption = 'Wave displacement'
+  ChildSizing.LeftRightSpacing = 8
+  ChildSizing.TopBottomSpacing = 8
+  ChildSizing.HorizontalSpacing = 8
+  ChildSizing.VerticalSpacing = 8
+  ChildSizing.Layout = cclLeftToRightThenTopToBottom
+  ChildSizing.ControlsPerLine = 1
+  ClientHeight = 356
+  ClientWidth = 222
+  DesignTimePPI = 120
+  OnCreate = FormCreate
+  OnShow = FormShow
+  Position = poScreenCenter
+  LCLVersion = '2.0.2.0'
+  object Panel1: TPanel
+    Left = 8
+    Height = 118
+    Top = 8
+    Width = 191
+    AutoSize = True
+    BevelOuter = bvNone
+    ChildSizing.HorizontalSpacing = 8
+    ChildSizing.VerticalSpacing = 8
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 2
+    ClientHeight = 118
+    ClientWidth = 191
+    Font.Height = -15
+    ParentFont = False
+    TabOrder = 0
+    object Label_Wavelength: TLabel
+      Left = 0
+      Height = 34
+      Top = 0
+      Width = 102
+      Caption = 'Wavelength :'
+      Font.Height = -15
+      Layout = tlCenter
+      ParentColor = False
+      ParentFont = False
+    end
+    object SpinEdit_Wavelength: TSpinEdit
+      Left = 110
+      Height = 34
+      Top = 0
+      Width = 81
+      Constraints.MinWidth = 81
+      Font.Height = -15
+      Increment = 10
+      MaxValue = 10000
+      MinValue = 1
+      OnChange = SpinEdit_WavelengthChange
+      ParentFont = False
+      TabOrder = 0
+      Value = 100
+    end
+    object Label_Displacement: TLabel
+      Left = 0
+      Height = 34
+      Top = 42
+      Width = 102
+      Caption = 'Displacement :'
+      Font.Height = -15
+      Layout = tlCenter
+      ParentColor = False
+      ParentFont = False
+    end
+    object SpinEdit_Displacement: TSpinEdit
+      Left = 110
+      Height = 34
+      Top = 42
+      Width = 81
+      Constraints.MinWidth = 81
+      Font.Height = -15
+      Increment = 5
+      MaxValue = 1000
+      OnChange = SpinEdit_DisplacementChange
+      ParentFont = False
+      TabOrder = 1
+      Value = 50
+    end
+    object Label_Phase: TLabel
+      Left = 0
+      Height = 34
+      Top = 84
+      Width = 102
+      Caption = 'Phase :'
+      Font.Height = -15
+      Layout = tlCenter
+      ParentColor = False
+      ParentFont = False
+    end
+    object SpinEdit_Phase: TSpinEdit
+      Left = 110
+      Height = 34
+      Top = 84
+      Width = 81
+      Constraints.MinWidth = 81
+      Font.Height = -15
+      Increment = 30
+      MaxValue = 360
+      OnChange = SpinEdit_PhaseChange
+      ParentFont = False
+      TabOrder = 2
+    end
+  end
+  object PaintBox1: TPaintBox
+    Left = 9
+    Height = 160
+    Top = 136
+    Width = 189
+    Font.Height = -15
+    ParentFont = False
+    OnMouseDown = PaintBox1MouseDown
+    OnMouseMove = PaintBox1MouseMove
+    OnPaint = PaintBox1Paint
+  end
+  object Panel2: TPanel
+    Left = 9
+    Height = 36
+    Top = 304
+    Width = 188
+    BevelOuter = bvNone
+    ChildSizing.HorizontalSpacing = 8
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 2
+    ClientHeight = 36
+    ClientWidth = 188
+    Font.Height = -15
+    ParentFont = False
+    TabOrder = 1
+    object Button_OK: TButton
+      Left = 0
+      Height = 36
+      Top = 0
+      Width = 35
+      AutoSize = True
+      Caption = 'OK'
+      Default = True
+      Font.Height = -15
+      OnClick = Button_OKClick
+      ParentFont = False
+      TabOrder = 0
+    end
+    object Button_Cancel: TButton
+      Left = 43
+      Height = 36
+      Top = 0
+      Width = 59
+      AutoSize = True
+      Cancel = True
+      Caption = 'Cancel'
+      Font.Height = -15
+      ModalResult = 2
+      ParentFont = False
+      TabOrder = 1
+    end
+  end
+  object Timer1: TTimer
+    Enabled = False
+    Interval = 200
+    OnTimer = Timer1Timer
+    left = 48
+    top = 184
+  end
+end

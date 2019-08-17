@@ -41,6 +41,9 @@ resourcestring
   rsFileDate = 'Date';
   rsBytes = 'Bytes';
   rsFolder = 'Folder';
+  rsIconSize = 'Icon size';
+  rsAlignShape = 'Align shape';
+  rsAutodetect = 'Autodetect';
   rsNotReasonableFormat='It is not reasonable to save such a big image in this file format.';
   rsEditTexture='Edit texture';
   rsEditSelection='Edit selection';
@@ -173,6 +176,7 @@ resourcestring
   rsOpenFilesAsLayers='Open files as layers in a single image';
   rsTooManyLayers='Too many layers';
   rsTooManyShapesInLayer='Too many shapes in layer';
+  rsCannotDrawShapeOnSVGLayer='Cannot draw shape on SVG layer';
   rsAddToImageList='Add files to the image processing list';
   rsOpenFirstFileOnly='Open the first file only';
   rsLayeredImage = 'Layered image';

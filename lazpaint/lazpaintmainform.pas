@@ -9,15 +9,15 @@ interface
 {$ENDIF}
 
 uses
-  Classes, LMessages, SysUtils, LazFileUtils, LResources, Forms,
-  Controls, Graphics, Dialogs, Menus, ExtDlgs, ComCtrls, ActnList, StdCtrls,
-  ExtCtrls, Buttons, types, LCLType, BGRAImageList, BGRAVirtualScreen,
+  Classes, LMessages, SysUtils, LazFileUtils, LResources, Forms, Controls,
+  Graphics, Dialogs, Menus, ExtDlgs, ComCtrls, ActnList, StdCtrls, ExtCtrls,
+  Buttons, types, LCLType, BGRAImageList, BCTrackbarUpdown, BCComboBox, BCButton,
 
-  BGRABitmap, BGRABitmapTypes, BGRALayers, BGRASVGOriginal,
+  BGRABitmap, BGRABitmapTypes, BGRALayers, BGRASVGOriginal, BGRAGradientScanner,
 
   LazPaintType, UMainFormLayout, UTool, UImage, UImageAction, UZoom, UImageView,
   UImageObservation, UConfig, LCScaleDPI, UResourceStrings,
-  UMenu, uscripting, ubrowseimages, UToolPolygon, UBarUpDown,
+  UMenu, uscripting, ubrowseimages, UToolPolygon, UToolVectorial, LCVectorRectShapes,
 
   laztablet, udarktheme;
 
@@ -28,6 +28,53 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    EditShapeAlignBottom: TAction;
+    EditShapeCenterVertically: TAction;
+    EditShapeAlignTop: TAction;
+    EditShapeAlignRight: TAction;
+    EditShapeCenterHorizontally: TAction;
+    EditShapeAlignLeft: TAction;
+    ComboBox_PenStyle: TBCComboBox;
+    EditMoveToBack: TAction;
+    EditMoveDown: TAction;
+    EditMoveToFront: TAction;
+    EditMoveUp: TAction;
+    Label_ShadowOffset: TLabel;
+    Label_TextBlur: TLabel;
+    Panel_TextShadow: TPanel;
+    Panel_CloseShape: TPanel;
+    SpinEdit_TextBlur: TBCTrackbarUpdown;
+    SpinEdit_TextShadowX: TBCTrackbarUpdown;
+    SpinEdit_TextShadowY: TBCTrackbarUpdown;
+    ToolBar23: TToolBar;
+    ToolBar24: TToolBar;
+    ToolEditShape: TAction;
+    ComboBox_ArrowStart: TBCComboBox;
+    ComboBox_ArrowEnd: TBCComboBox;
+    ComboBox_BrushSelect: TBCComboBox;
+    Combo_SplineStyle: TBCComboBox;
+    Combo_GradientColorspace: TBCComboBox;
+    SpinEdit_PenOpacity: TBCTrackbarUpdown;
+    FilterWaveDisplacement: TAction;
+    SpinEdit_BackOpacity: TBCTrackbarUpdown;
+    SpinEdit_Eraser: TBCTrackbarUpdown;
+    SpinEdit_GridNbX: TBCTrackbarUpdown;
+    SpinEdit_GridNbY: TBCTrackbarUpdown;
+    SpinEdit_PenWidth: TBCTrackbarUpdown;
+    SpinEdit_ArrowSizeX: TBCTrackbarUpdown;
+    SpinEdit_ArrowSizeY: TBCTrackbarUpdown;
+    SpinEdit_Tolerance: TBCTrackbarUpdown;
+    SpinEdit_BrushSpacing: TBCTrackbarUpdown;
+    SpinEdit_ShapeAltitude: TBCTrackbarUpdown;
+    SpinEdit_TextOutlineWidth: TBCTrackbarUpdown;
+    SpinEdit_PhongBorderSize: TBCTrackbarUpdown;
+    SpinEdit_TextSize: TBCTrackbarUpdown;
+    SpinEdit_TextureOpacity: TBCTrackbarUpdown;
+    Tool_CloseShape: TToolButton;
+    Tool_TextShadow: TToolButton;
+    ViewDarkTheme: TAction;
+    MenuFileToolbar: TMenuItem;
+    ViewWorkspaceColor: TAction;
     LayerRasterize: TAction;
     FileRememberSaveFormat: TAction;
     SelectionVerticalFlip: TAction;
@@ -44,7 +91,6 @@ type
     ToolHotSpot: TAction;
     Combo_Ratio: TComboBox;
     FileUseImageBrowser: TAction;
-    Combo_GradientColorspace: TComboBox;
     ItemUseImageBrowser: TMenuItem;
     Label_Ratio: TLabel;
     Panel_Ratio: TPanel;
@@ -52,21 +98,12 @@ type
     ViewPalette: TAction;
     ViewStatusBar: TAction;
     ImageList48: TBGRAImageList;
-    ItemViewPalette: TMenuItem;
-    MenuIconSize: TMenuItem;
-    ItemIconSize16: TMenuItem;
-    ItemIconSize32: TMenuItem;
-    ItemIconSize48: TMenuItem;
-    ItemIconSizeAuto: TMenuItem;
-    ItemIconSize24: TMenuItem;
-    ItemViewStatusBar: TMenuItem;
     MenuShowPalette: TMenuItem;
     ToolClone: TAction;
     FilterRain: TAction;
     BrushRemoveCurrent: TAction;
     BrushLoadFromFile: TAction;
     BrushCreateGeometric: TAction;
-    ComboBox_BrushSelect: TComboBox;
     Label_Brush: TLabel;
     Label_Spacing: TLabel;
     MenuDockToolboxLeft: TMenuItem;
@@ -88,31 +125,13 @@ type
     ToolButton7: TToolButton;
     ToolChangeDocking: TAction;
     FilterBlurBox: TAction;
-    ComboBox_ArrowStart: TComboBox;
-    ComboBox_ArrowEnd: TComboBox;
     EditPasteAsNewLayer: TAction;
-    MenuItem1: TMenuItem;
     ItemDockLayersAndColors: TMenuItem;
     ItemFullscreen: TMenuItem;
     ItemViewDockToolbox: TMenuItem;
     SaveSelectionDialog: TSaveDialog;
     SavePictureDialog1: TSaveDialog;
     TimerDocking: TTimer;
-    vsGridNbX: TBGRAVirtualScreen;
-    vsGridNbY: TBGRAVirtualScreen;
-    vsPhongBorderSize: TBGRAVirtualScreen;
-    vsShapeAltitude: TBGRAVirtualScreen;
-    vsBrushSpacing: TBGRAVirtualScreen;
-    vsTextShadowX: TBGRAVirtualScreen;
-    vsTextOutlineWidth: TBGRAVirtualScreen;
-    vsArrowSizeY: TBGRAVirtualScreen;
-    vsTextShadowY: TBGRAVirtualScreen;
-    vsArrowSizeX: TBGRAVirtualScreen;
-    vsTextSize: TBGRAVirtualScreen;
-    vsTextBlur: TBGRAVirtualScreen;
-    vsTolerance: TBGRAVirtualScreen;
-    vsTextureOpacity: TBGRAVirtualScreen;
-    vsPenOpacity: TBGRAVirtualScreen;
     FileSaveAsInSameFolder: TAction;
     FilePrint: TAction;
     FilterNoise: TAction;
@@ -124,7 +143,6 @@ type
     FileReload: TAction;
     MainMenu1: TMainMenu;
     MenuFile: TMenuItem;
-    ItemViewImageList: TMenuItem;
     ViewImageList: TAction;
     MenuRecentFiles: TMenuItem;
     ItemDonate: TMenuItem;
@@ -134,10 +152,6 @@ type
     MenuEdit: TMenuItem;
     MenuSelect: TMenuItem;
     MenuView: TMenuItem;
-    ItemViewToolbox: TMenuItem;
-    ItemViewColors: TMenuItem;
-    ItemViewGrid: TMenuItem;
-    ItemViewLayerStack: TMenuItem;
     MenuImage: TMenuItem;
     MenuRemoveTransparency: TMenuItem;
     MenuColors: TMenuItem;
@@ -309,14 +323,10 @@ type
     Tool_PhongShapeRoundRect: TToolButton;
     FontDialog1: TFontDialog;
     LoadSelectionDialog: TOpenPictureDialog;
-    Label_TextBlur: TLabel;
-    Label_ShadowOffset: TLabel;
     Label_Text: TLabel;
     Panel_Text: TPanel;
     ToolBar15: TToolBar;
     Tool_TextFont: TToolButton;
-    Tool_TextShadow: TToolButton;
-    Combo_SplineStyle: TComboBox;
     PaintBox_Picture: TPaintBox;
     PaintBox_PenPreview: TPaintBox;
     Panel_Embedded: TPanel;
@@ -328,7 +338,6 @@ type
     Label_GridX: TLabel;
     TimerHidePenPreview: TTimer;
     ToolBar13: TToolBar;
-    Tool_CloseShape: TToolButton;
     ToolBar14: TToolBar;
     ToolButton19: TToolButton;
     ToolButton20: TToolButton;
@@ -340,15 +349,10 @@ type
     Panel_LineCap: TPanel;
     Panel_JoinStyle: TPanel;
     ToolBar11: TToolBar;
-    ToolBar12: TToolBar;
     ToolBar4: TToolBar;
     ToolButton1: TToolButton;
     ToolButton2: TToolButton;
-    Tool_PenDashDotDot: TToolButton;
-    Tool_PenDot: TToolButton;
     Tool_JoinBevel: TToolButton;
-    Tool_PenSolid: TToolButton;
-    Tool_PenDashDot: TToolButton;
     Tool_JoinRound: TToolButton;
     Tool_CapSquare: TToolButton;
     Tool_CapFlat: TToolButton;
@@ -356,7 +360,6 @@ type
     ToolBar10: TToolBar;
     Tool_SinGradient: TToolButton;
     Tool_JoinMiter: TToolButton;
-    Tool_PenDash: TToolButton;
     Label_Coordinates: TLabel;
     Panel_Coordinates: TPanel;
     Image_SwapColors: TImage;
@@ -410,9 +413,6 @@ type
     ColorDialog1: TColorDialog;
     ActionList1: TActionList;
     ImageList16: TBGRAImageList;
-    vsBackOpacity: TBGRAVirtualScreen;
-    vsEraserOpacity: TBGRAVirtualScreen;
-    vsPenWidth: TBGRAVirtualScreen;
     procedure BrushCreateGeometricExecute(Sender: TObject);
     procedure BrushCreateGeometricUpdate(Sender: TObject);
     procedure BrushLoadFromFileExecute(Sender: TObject);
@@ -422,20 +422,47 @@ type
     procedure ComboBox_ArrowEndChange(Sender: TObject);
     procedure ComboBox_ArrowEndDrawItem({%H-}Control: TWinControl; Index: Integer;
       ARect: TRect; State: TOwnerDrawState);
+    procedure ComboBox_ArrowEndDrawSelectedItem(Sender: TObject; const ABGRA: TBGRABitmap;
+        AState: TBCButtonState; ARect: TRect);
     procedure ComboBox_ArrowStartChange(Sender: TObject);
     procedure ComboBox_ArrowStartDrawItem({%H-}Control: TWinControl; Index: Integer;
       ARect: TRect; State: TOwnerDrawState);
+    procedure ComboBox_ArrowStartDrawSelectedItem(Sender: TObject; const ABGRA: TBGRABitmap;
+        AState: TBCButtonState; ARect: TRect);
     procedure ComboBox_BrushSelectChange(Sender: TObject);
     procedure ComboBox_BrushSelectDrawItem({%H-}Control: TWinControl;
       Index: Integer; ARect: TRect; State: TOwnerDrawState);
+    procedure ComboBox_BrushSelectDrawSelectedItem(Sender: TObject; const ABGRA: TBGRABitmap;
+        AState: TBCButtonState; ARect: TRect);
     procedure Combo_RatioChange(Sender: TObject);
     procedure EditCopyExecute(Sender: TObject);
     procedure EditCopyUpdate(Sender: TObject);
     procedure EditCutExecute(Sender: TObject);
     procedure EditCutUpdate(Sender: TObject);
+    procedure EditDeleteSelectionExecute(Sender: TObject);
     procedure EditDeleteSelectionUpdate(Sender: TObject);
+    procedure EditMoveDownExecute(Sender: TObject);
+    procedure EditMoveDownUpdate(Sender: TObject);
+    procedure EditMoveToBackExecute(Sender: TObject);
+    procedure EditMoveToBackUpdate(Sender: TObject);
+    procedure EditMoveToFrontExecute(Sender: TObject);
+    procedure EditMoveToFrontUpdate(Sender: TObject);
+    procedure EditMoveUpExecute(Sender: TObject);
+    procedure EditMoveUpUpdate(Sender: TObject);
     procedure EditPasteExecute(Sender: TObject);
     procedure EditSelectionUpdate(Sender: TObject);
+    procedure EditShapeAlignBottomExecute(Sender: TObject);
+    procedure EditShapeAlignBottomUpdate(Sender: TObject);
+    procedure EditShapeAlignLeftExecute(Sender: TObject);
+    procedure EditShapeAlignLeftUpdate(Sender: TObject);
+    procedure EditShapeAlignRightExecute(Sender: TObject);
+    procedure EditShapeAlignRightUpdate(Sender: TObject);
+    procedure EditShapeAlignTopExecute(Sender: TObject);
+    procedure EditShapeAlignTopUpdate(Sender: TObject);
+    procedure EditShapeCenterHorizontallyExecute(Sender: TObject);
+    procedure EditShapeCenterHorizontallyUpdate(Sender: TObject);
+    procedure EditShapeCenterVerticallyExecute(Sender: TObject);
+    procedure EditShapeCenterVerticallyUpdate(Sender: TObject);
     procedure FileChooseEntryExecute(Sender: TObject);
     procedure FileChooseEntryUpdate(Sender: TObject);
     procedure FileImport3DUpdate(Sender: TObject);
@@ -451,7 +478,6 @@ type
     procedure FormWindowStateChange(Sender: TObject);
     procedure ItemDockLayersAndColorsClick(Sender: TObject);
     procedure ItemFullscreenClick(Sender: TObject);
-    procedure ItemIconSize24Click(Sender: TObject);
     procedure ItemViewDockToolboxClick(Sender: TObject);
     procedure LayerRasterizeUpdate(Sender: TObject);
     procedure LayerZoomExecute(Sender: TObject);
@@ -460,12 +486,7 @@ type
     procedure MenuCopyPasteToolbarClick(Sender: TObject);
     procedure MenuDockToolboxLeftClick(Sender: TObject);
     procedure MenuDockToolboxRightClick(Sender: TObject);
-    procedure ItemIconSize16Click(Sender: TObject);
-    procedure ItemIconSize32Click(Sender: TObject);
-    procedure ItemIconSize48Click(Sender: TObject);
-    procedure ItemIconSizeAutoClick(Sender: TObject);
-    procedure MenuIconSizeClick(Sender: TObject);
-    procedure ItemIconSize64Click(Sender: TObject);
+    procedure MenuFileToolbarClick(Sender: TObject);
     procedure MenuShowPaletteClick(Sender: TObject);
     procedure MenuUndockToolboxClick(Sender: TObject);
     procedure MenuUndoRedoToolbarClick(Sender: TObject);
@@ -477,7 +498,7 @@ type
     procedure PopupToolboxPopup(Sender: TObject);
     procedure SelectionHorizontalFlipUpdate(Sender: TObject);
     procedure SelectionVerticalFlipUpdate(Sender: TObject);
-    procedure SpinEdit_PhongBorderSizeChange(Sender: TObject);
+    procedure SpinEdit_PhongBorderSizeChange(Sender: TObject; AByUser: boolean);
     procedure Combo_SplineStyleChange(Sender: TObject);
     procedure EditDeselectUpdate(Sender: TObject);
     procedure EditPasteUpdate(Sender: TObject);
@@ -509,12 +530,12 @@ type
     procedure PaintBox_PictureMouseEnter(Sender: TObject);
     procedure Perspective_RepeatClick(Sender: TObject);
     procedure Perspective_TwoPlanesClick(Sender: TObject);
-    procedure SpinEdit_ShapeAltitudeChange(Sender: TObject);
-    procedure SpinEdit_BrushSpacingChange(Sender: TObject);
-    procedure SpinEdit_TextSizeChange(Sender: TObject);
-    procedure SpinEdit_TextureOpacityChange(Sender: TObject);
-    procedure SpinEdit_TextBlurChange(Sender: TObject);
-    procedure GridNb_SpinEditChange(Sender: TObject);
+    procedure SpinEdit_ShapeAltitudeChange(Sender: TObject; AByUser: boolean);
+    procedure SpinEdit_BrushSpacingChange(Sender: TObject; AByUser: boolean);
+    procedure SpinEdit_TextSizeChange(Sender: TObject; AByUser: boolean);
+    procedure SpinEdit_TextureOpacityChange(Sender: TObject; AByUser: boolean);
+    procedure SpinEdit_TextBlurChange(Sender: TObject; AByUser: boolean);
+    procedure GridNb_SpinEditChange(Sender: TObject; AByUser: boolean);
     procedure Image_CurrentTextureMouseDown(Sender: TObject;
       {%H-}Button: TMouseButton; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure PaintBox_PenPreviewPaint(Sender: TObject);
@@ -549,9 +570,9 @@ type
     procedure MenuFileClick(Sender: TObject);
     procedure RecentFileClick(Sender: TObject);
     procedure LanguageClick(Sender: TObject);
-    procedure SpinEdit_TextOutlineWidthChange(Sender: TObject);
-    procedure SpinEdit_TextShadowXChange(Sender: TObject);
-    procedure SpinEdit_TextShadowYChange(Sender: TObject);
+    procedure SpinEdit_TextOutlineWidthChange(Sender: TObject; AByUser: boolean);
+    procedure SpinEdit_TextShadowXChange(Sender: TObject; AByUser: boolean);
+    procedure SpinEdit_TextShadowYChange(Sender: TObject; AByUser: boolean);
     procedure TimerUpdateTimer(Sender: TObject);
     procedure TimerHidePenPreviewTimer(Sender: TObject);
     procedure ToolChangeDockingExecute(Sender: TObject);
@@ -584,16 +605,13 @@ type
     procedure Tool_JoinBevelClick(Sender: TObject);
     procedure Tool_JoinRoundClick(Sender: TObject);
     procedure Tool_JoinMiterClick(Sender: TObject);
-    procedure Tool_PenDashClick(Sender: TObject);
-    procedure Tool_PenDashDotClick(Sender: TObject);
-    procedure Tool_PenDashDotDotClick(Sender: TObject);
-    procedure Tool_PenDotClick(Sender: TObject);
-    procedure Tool_PenSolidClick(Sender: TObject);
     procedure Tool_TextFontClick(Sender: TObject);
     procedure Tool_TextOutlineClick(Sender: TObject);
     procedure Tool_TextShadowClick(Sender: TObject);
     procedure ViewColorsExecute(Sender: TObject);
     procedure ViewColorsUpdate(Sender: TObject);
+    procedure ViewDarkThemeExecute(Sender: TObject);
+    procedure ViewDarkThemeUpdate(Sender: TObject);
     procedure ViewGridUpdate(Sender: TObject);
     procedure ViewImageListExecute(Sender: TObject);
     procedure ViewLayerStackButtonUpdate(Sender: TObject);
@@ -605,7 +623,7 @@ type
     procedure ViewStatusBarUpdate(Sender: TObject);
     procedure ViewToolboxUpdate(Sender: TObject);
     procedure ViewImagelistUpdate(Sender: TObject);
-    procedure SpinEdit_EraserChange(Sender: TObject);
+    procedure SpinEdit_EraserChange(Sender: TObject; AByUser: boolean);
     procedure ScriptExecute(Sender: TObject);
     procedure FileQuitExecute(Sender: TObject);
     procedure FileSaveUpdate(Sender: TObject);
@@ -623,16 +641,16 @@ type
     procedure FormShow(Sender: TObject);
     procedure Image_SwapColorsMouseDown(Sender: TObject; {%H-}Button: TMouseButton;
       {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
-    procedure SpinEdit_PenWidthChange(Sender: TObject);
+    procedure SpinEdit_PenWidthChange(Sender: TObject; AByUser: boolean);
     procedure Tool_CloseShapeClick(Sender: TObject);
     procedure Shape_BackColorMouseDown(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure Shape_PenColorMouseDown(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
-    procedure SpinEdit_BackOpacityChange(Sender: TObject);
-    procedure SpinEdit_PenOpacityChange(Sender: TObject);
-    procedure SpinEdit_ArrowSizeChange(Sender: TObject);
-    procedure SpinEdit_ToleranceChange(Sender: TObject);
+    procedure SpinEdit_BackOpacityChange(Sender: TObject; AByUser: boolean);
+    procedure SpinEdit_PenOpacityChange(Sender: TObject; AByUser: boolean);
+    procedure SpinEdit_ArrowSizeChange(Sender: TObject; AByUser: boolean);
+    procedure SpinEdit_ToleranceChange(Sender: TObject; AByUser: boolean);
     procedure Tool_DiamondGradientClick(Sender: TObject);
     procedure Tool_LinearGradientClick(Sender: TObject);
     procedure Tool_ProgressiveFloodfillClick(Sender: TObject);
@@ -645,30 +663,34 @@ type
     procedure ViewToolboxExecute(Sender: TObject);
     procedure SpinEdit_PenWidthExit(Sender: TObject);
     procedure SpinEdit_GridNbExit(Sender: TObject);
+    procedure ViewWorkspaceColorExecute(Sender: TObject);
     procedure WMEraseBkgnd(var {%H-}Message: TLMEraseBkgnd); message LM_ERASEBKGND;
 
   private
+    procedure ComboBox_PenStyleChange(Sender: TObject);
+    procedure ComboBox_PenStyleDrawItem({%H-}Control: TWinControl; Index: Integer;
+      ARect: TRect; State: TOwnerDrawState);
+    procedure ComboBox_PenStyleDrawSelectedItem(Sender: TObject;
+      const ABGRA: TBGRABitmap; AState: TBCButtonState; ARect: TRect);
     function GetImage: TLazPaintImage;
+    procedure ManagerGradientChanged(Sender: TObject);
+    procedure ManagerJoinStyleChanged(Sender: TObject);
+    procedure ManagerLineCapChanged(Sender: TObject);
+    procedure ManagerOnPhongShapeChanged(Sender: TObject);
+    procedure ManagerPenStyleChanged(Sender: TObject);
+    procedure ManagerPenWidthChanged(Sender: TObject);
+    procedure ManagerSplineStyleChanged(Sender: TObject);
+    procedure ManagerTextFontChanged(Sender: TObject);
+    procedure ManagerTextOutlineChanged(Sender: TObject);
+    procedure ManagerTextPhongChanged(Sender: TObject);
+    procedure ManagerTextShadowChanged(Sender: TObject);
+    procedure ManagerTextureChanged(Sender: TObject);
+    procedure ManagerShapeOptionChanged(Sender: TObject);
   private
     { private declarations }
     FLayout: TMainFormLayout;
-    SpinEdit_PenOpacity, SpinEdit_BackOpacity, SpinEdit_TextureOpacity,
-    SpinEdit_Eraser,SpinEdit_Tolerance,SpinEdit_PenWidth,
-    SpinEdit_BrushSpacing: TBarUpDown;
 
-    SpinEdit_ArrowSizeX,SpinEdit_ArrowSizeY: TBarUpDown;
-
-    SpinEdit_TextShadowX,
-    SpinEdit_TextOutlineWidth,
-    SpinEdit_TextShadowY,
-    SpinEdit_TextSize,
-    SpinEdit_TextBlur: TBarUpDown;
-
-    SpinEdit_GridNbX,SpinEdit_GridNbY: TBarUpDown;
-
-    SpinEdit_PhongBorderSize, SpinEdit_ShapeAltitude: TBarUpDown;
-
-    FActiveSpinEdit: TBarUpDown;
+    FActiveSpinEdit: TBCTrackbarUpdown;
     FLastWidth,FLastHeight,FLastBPP,FLastFrameIndex: integer;
     {$IFDEF LINUX}
     FTopMostHiddenMinimised: TTopMostInfo;
@@ -710,17 +732,33 @@ type
     FCoordinatesCaption: string;
     FCoordinatesCaptionCount: NativeInt;
     FImageView: TImageView;
+    FLastPaintDate: TDateTime;
     FUpdateStackWhenIdle: boolean;
+    FToolbarElementsInitDone: boolean;
+    FInSplineStyleChange: Boolean;
 
     function GetCurrentPressure: single;
+    function GetDarkTheme: boolean;
     function GetUseImageBrowser: boolean;
+    procedure SetDarkTheme(AValue: boolean);
     procedure UpdateStatusText;
     procedure CreateToolbarElements;
     function GetCurrentToolAction: TAction;
     procedure NoTextureIcon;
     procedure RegisterToolbarElements;
     procedure InitToolbarElements;
-    procedure DestroyMenuAndToolbar;
+    procedure UpdateToolOptions;
+    procedure UpdatePenStyleToolbar;
+    procedure UpdateJoinStyleToolbar;
+    procedure UpdateTextFontToolbar;
+    procedure UpdateTextOutlineToolbar;
+    procedure UpdateTextPhongToolbar;
+    procedure UpdateTextShadowToolbar;
+    procedure UpdateLineCapToolbar;
+    procedure UpdateSplineStyleToolbar;
+    procedure UpdateGradientToolbar;
+    procedure UpdatePenWidthToolbar;
+    procedure UpdatePhongToolbar;
     function ShowOpenBrushDialog: boolean;
     function TextSpinEditFocused: boolean;
     procedure UpdateBrush;
@@ -728,19 +766,18 @@ type
     procedure CreateMenuAndToolbar;
     function GetToolManager: TToolManager;
     procedure LayoutPictureAreaChange({%H-}ASender: TObject; {%H-}ANewArea: TRect);
-    procedure UpdatePanelTextWidth;
     function GetCurrentTool: TPaintToolType;
     procedure SwitchColors;
     procedure Init;
     procedure OnLatestVersionUpdate(ANewVersion: string);
-    procedure OnToolChanged({%H-}sender: TToolManager; {%H-}ANewTool: TPaintToolType);
+    procedure ManagerToolChanged({%H-}sender: TToolManager; {%H-}ANewTool: TPaintToolType);
     procedure OnQueryExitToolHandler({%H-}sender: TLazPaintImage);
     procedure OnZoomChanged({%H-}sender: TZoom; {%H-}ANewZoom: single);
     procedure SetLazPaintInstance(const AValue: TLazPaintCustomInstance);
     procedure SetShowSelectionNormal(const AValue: boolean);
     procedure ToggleToolwindowsVisible;
     procedure UpdateTextSizeIncrement;
-    procedure UpdateToolImage;
+    procedure UpdateToolImage(AForceUpdate: boolean = false);
     procedure ToggleGridVisible;
     procedure ToggleToolboxVisible;
     procedure ToggleImageListVisible;
@@ -756,14 +793,14 @@ type
     procedure LabelAutosize(ALabel: TLabel);
     procedure AskMergeSelection(ACaption: string);
     procedure ReleaseMouseButtons(Shift: TShiftState);
-    procedure UpdatePanelPhongShape;
-    procedure UpdateCurveMode;
+    procedure UpdateCurveModeToolbar;
     function ShowOpenTextureDialog: boolean;
     procedure ShowNoPicture;
     procedure SetCurveMode(AMode: TToolSplineMode);
     procedure IncreasePenSize;
     procedure DecreasePenSize;
     function PenSizeDelta(direction: integer): integer;
+    procedure UpdatePenWidthFromSpinEdit;
     procedure UpdateWindowCaption;
     procedure ImageCurrentFilenameChanged({%H-}sender: TLazPaintImage);
 
@@ -791,15 +828,16 @@ type
 
   public
     { public declarations }
-    FormBackgroundColor: TColor;
     UpdateStackOnTimer: boolean;
     Zoom: TZoom;
 
     procedure PaintPictureNow;
+    procedure InvalidatePicture;
     function TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean=True; ALoadedImage: PImageEntry = nil;
       ASkipDialogIfSingleImage: boolean = false): Boolean;
     function PictureCanvasOfs: TPoint;
     procedure UpdateLineCapBar;
+    procedure UpdateColorToolbar(AUpdateColorDiff: boolean);
     procedure UpdateToolbar;
     function ChooseTool(Tool : TPaintToolType): boolean;
     procedure PictureSelectedLayerIndexChanged({%H-}sender: TLazPaintImage);
@@ -813,6 +851,7 @@ type
     property Layout: TMainFormLayout read FLayout;
     property UseImageBrowser: boolean read GetUseImageBrowser;
     property CurrentPressure: single read GetCurrentPressure;
+    property DarkTheme: boolean read GetDarkTheme write SetDarkTheme;
   end;
 
 implementation
@@ -836,9 +875,6 @@ begin
   FImageView := nil;
 
   ScaleControl(Self,OriginalDPI);
-
-  //use background color
-  FormBackgroundColor := OutsideColor;
   self.Color := clBtnFace; //toolbar color inherited on mac
 
   {$IFDEF USEPAINTBOXPICTURE}
@@ -888,7 +924,6 @@ begin
   {$ENDIF}
 
   FLayout.OnPictureAreaChange := @LayoutPictureAreaChange;
-  //DarkTheme.SetDarkTheme(Self);
   initialized := true;
   FirstPaint := true;
 end;
@@ -898,16 +933,21 @@ var m: TMainFormMenu;
 begin
   CreateToolbarElements;
 
-  m := TMainFormMenu.Create(ActionList1);
+  m := TMainFormMenu.Create(LazPaintInstance, ActionList1);
+  m.DarkTheme := Config.GetDarkTheme;
   m.PredefinedMainMenus([MenuFile,MenuEdit,MenuSelect,MenuView, MenuImage,MenuRemoveTransparency,
     MenuColors,MenuTool, MenuFilter,MenuRadialBlur, MenuRender,MenuHelp]);
   m.Toolbars([Panel_Embedded,Panel_File,Panel_Zoom,Panel_Undo,Panel_CopyPaste,Panel_Coordinates,
-    Panel_Tool,Panel_Color,Panel_Texture,Panel_Grid,Panel_PenWidth,Panel_Aliasing,Panel_ShapeOption,Panel_LineCap,Panel_JoinStyle,
-    Panel_PenStyle,Panel_SplineStyle,Panel_Eraser,Panel_Tolerance,Panel_GradientType,Panel_Text,Panel_TextOutline,
+    Panel_Tool,Panel_Color,Panel_Texture,Panel_Grid,
+    Panel_ShapeOption,Panel_PenWidth,Panel_PenStyle,Panel_JoinStyle,
+    Panel_CloseShape,Panel_LineCap,Panel_Aliasing,
+    Panel_SplineStyle,Panel_Eraser,Panel_Tolerance,Panel_GradientType,Panel_Text,Panel_TextShadow,Panel_TextOutline,
     Panel_PhongShape,Panel_Altitude,Panel_PerspectiveOption,Panel_Brush,Panel_Ratio],Panel_ToolbarBackground);
   m.ImageList := LazPaintInstance.Icons[ScaleY(16, 96)];
   m.Apply;
   FLayout.Menu := m;
+  FLayout.DarkTheme := m.DarkTheme;
+  DarkThemeInstance.Apply(Panel_PenWidthPreview, m.DarkTheme);
 end;
 
 function TFMain.GetToolManager: TToolManager;
@@ -929,13 +969,23 @@ begin
 
   If Assigned(ToolManager) then
   begin
-    if ToolManager.OnToolChanged = @OnToolChanged then
-      ToolManager.OnToolChanged := nil;
+    if ToolManager.OnToolChanged = @ManagerToolChanged then ToolManager.OnToolChanged := nil;
+    if ToolManager.OnTextureChanged = @ManagerTextureChanged then ToolManager.OnTextureChanged := nil;
+    if ToolManager.OnPenWidthChanged = @ManagerPenWidthChanged then ToolManager.OnPenWidthChanged := nil;
+    if ToolManager.OnPenStyleChanged = @ManagerPenStyleChanged then ToolManager.OnPenStyleChanged := nil;
+    if ToolManager.OnJoinStyleChanged = @ManagerJoinStyleChanged then ToolManager.OnJoinStyleChanged := nil;
+    if ToolManager.OnShapeOptionChanged = @ManagerShapeOptionChanged then ToolManager.OnShapeOptionChanged := nil;
+    if ToolManager.OnTextFontChanged = @ManagerTextFontChanged then ToolManager.OnTextFontChanged := nil;
+    if ToolManager.OnTextOutlineChanged = @ManagerTextOutlineChanged then ToolManager.OnTextOutlineChanged := nil;
+    if ToolManager.OnTextPhongChanged = @ManagerTextPhongChanged then ToolManager.OnTextPhongChanged := nil;
+    if ToolManager.OnTextShadowChanged = @ManagerTextShadowChanged then ToolManager.OnTextShadowChanged := nil;
+    if ToolManager.OnLineCapChanged = @ManagerLineCapChanged then ToolManager.OnLineCapChanged := nil;
+    if ToolManager.OnSplineStyleChanged = @ManagerSplineStyleChanged then ToolManager.OnSplineStyleChanged := nil;
+    if ToolManager.OnGradientChanged = @ManagerGradientChanged then ToolManager.OnGradientChanged := nil;
+    if ToolManager.OnPhongShapeChanged = @ManagerOnPhongShapeChanged then ToolManager.OnPhongShapeChanged := nil;
   end;
   FreeAndNil(Zoom);
   FreeAndNil(FOnlineUpdater);
-
-  DestroyMenuAndToolbar;
 
   FreeAndNil(FTablet);
 
@@ -965,8 +1015,9 @@ end;
 procedure TFMain.Init;
 begin
   initialized := false;
-  CreateMenuAndToolbar;
   Config := LazPaintInstance.Config;
+  CreateMenuAndToolbar;
+
   if Config.Default3dObjectDirectory = '' then
     Config.SetDefault3dObjectDirectory(StartDirectory);
 
@@ -978,8 +1029,7 @@ begin
   FileRememberSaveFormat.Checked:= Config.DefaultRememberSaveFormat;
 
   FImageView := TImageView.Create(LazPaintInstance, Zoom,
-                {$IFDEF USEPAINTBOXPICTURE}PaintBox_Picture.Canvas{$ELSE}self.Canvas{$ENDIF},
-                FormBackgroundColor);
+                {$IFDEF USEPAINTBOXPICTURE}PaintBox_Picture.Canvas{$ELSE}self.Canvas{$ENDIF});
 
   FImageActions := TImageActions.Create(LazPaintInstance);
   LazPaintInstance.EmbeddedResult := mrNone;
@@ -991,7 +1041,20 @@ begin
   RegisterToolbarElements;
 
   ToolManager.SetCurrentToolType(ptHand);
-  ToolManager.OnToolChanged := @OnToolChanged;
+  ToolManager.OnToolChanged  :=  @ManagerToolChanged;
+  ToolManager.OnTextureChanged := @ManagerTextureChanged;
+  ToolManager.OnPenWidthChanged:= @ManagerPenWidthChanged;
+  ToolManager.OnPenStyleChanged:= @ManagerPenStyleChanged;
+  ToolManager.OnJoinStyleChanged:= @ManagerJoinStyleChanged;
+  ToolManager.OnShapeOptionChanged:=@ManagerShapeOptionChanged;
+  ToolManager.OnTextFontChanged := @ManagerTextFontChanged;
+  ToolManager.OnTextOutlineChanged:=@ManagerTextOutlineChanged;
+  ToolManager.OnTextPhongChanged:=@ManagerTextPhongChanged;
+  ToolManager.OnTextShadowChanged:=@ManagerTextShadowChanged;
+  ToolManager.OnLineCapChanged := @ManagerLineCapChanged;
+  ToolManager.OnSplineStyleChanged:=@ManagerSplineStyleChanged;
+  ToolManager.OnGradientChanged:=@ManagerGradientChanged;
+  ToolManager.OnPhongShapeChanged:=@ManagerOnPhongShapeChanged;
 
   InitToolbarElements;
 
@@ -1000,7 +1063,6 @@ begin
   image.SetSavedFlag;
 
   ViewGrid.Checked := LazPaintInstance.GridVisible;
-  ItemViewGrid.Checked:= LazPaintInstance.GridVisible;
   ColorCurves.Visible := not LazPaintInstance.BlackAndWhite;
   ColorColorize.Visible := not LazPaintInstance.BlackAndWhite;
   ColorShiftColors.Visible := not LazPaintInstance.BlackAndWhite;
@@ -1009,6 +1071,7 @@ begin
   FilterGrayscale.Visible := not LazPaintInstance.BlackAndWhite;
   FilterClearType.Visible := not LazPaintInstance.BlackAndWhite;
   FilterClearTypeInverse.Visible := not LazPaintInstance.BlackAndWhite;
+  Panel_File.Visible := Config.DefaultFileToolbarVisible;
   Panel_Zoom.Visible := Config.DefaultZoomToolbarVisible;
   Panel_Undo.Visible := Config.DefaultUndoRedoToolbarVisible;
   Panel_CopyPaste.Visible := Config.DefaultCopyPasteToolbarVisible;
@@ -1113,7 +1176,8 @@ begin
     else
       exit;
   end;
-  if (CurrentTool = ptText) and TextSpinEditFocused then SpinEdit_PenOpacity.SetFocus;
+  if (CurrentTool in[ptText,ptEditShape]) and TextSpinEditFocused then SpinEdit_PenOpacity.SetFocus;
+  Image.CurrentState.LayeredBitmap.EditorFocused := true;
 
   FormMouseMovePos := Point(X,Y);
   if InFormMouseMove then exit;
@@ -1980,7 +2044,7 @@ begin
   try
     if Zoom.EditingZoom then exit;
     toolProcessKey:= true;
-    if (CurrentTool = ptText) and ((UTF8Key = #8) or ((length(UTF8Key)=1) and (UTF8Key[1] in['0'..'9']))) then
+    if (CurrentTool in[ptText,ptEditShape]) and ((UTF8Key = #8) or ((length(UTF8Key)=1) and (UTF8Key[1] in['-','0'..'9']))) then
     begin
       if TextSpinEditFocused then
          toolProcessKey:= false;
@@ -1996,12 +2060,12 @@ begin
         SwitchColors;
         UTF8Key:= '';
       end else
-      if UTF8Key = '+' then
+      if toolProcessKey and (UTF8Key = '+') then
       begin
          ViewZoomIn.Execute;
          UTF8Key := '';
       end else
-      if UTF8Key = '-' then
+      if toolProcessKey and (UTF8Key = '-') then
       begin
          ViewZoomOut.Execute;
          UTF8Key := '';
@@ -2378,6 +2442,7 @@ begin
 end;
 
 procedure TFMain.TimerUpdateTimer(Sender: TObject);
+const SelectionPaintDelay = 100/(1000*60*60*24);
 begin
   TimerUpdate.Enabled := false;
   EditUndo.Update;
@@ -2397,9 +2462,12 @@ begin
   begin
     if CanCompressOrUpdateStack then image.CompressUndo;
   end;
-  if DelayedPaintPicture or ToolManager.ToolUpdateNeeded then
+  if DelayedPaintPicture or ToolManager.ToolUpdateNeeded or
+   (Assigned(FImageView) and not FImageView.ShowSelection and
+    (Now > FLastPaintDate+SelectionPaintDelay) ) then
   begin
     if ToolManager.ToolUpdateNeeded then ToolManager.ToolUpdate;
+    if Assigned(FImageView) then FImageView.ShowSelection := true;
     PaintPictureNow;
   end;
   TimerUpdate.Enabled := true;
@@ -2423,9 +2491,7 @@ end;
 procedure TFMain.ToolNoTextureExecute(Sender: TObject);
 begin
   try
-    ToolManager.SetToolTexture(nil);
-
-    UpdateTextureIcon;
+    ToolManager.SetTexture(nil);
     UpdateEditPicture;
 
   except
@@ -2436,7 +2502,7 @@ end;
 
 procedure TFMain.ToolNoTextureUpdate(Sender: TObject);
 begin
-  ToolNoTexture.Enabled := ToolManager.GetToolTexture <> nil;
+  ToolNoTexture.Enabled := ToolManager.GetTexture <> nil;
 end;
 
 procedure TFMain.ViewColorsExecute(Sender: TObject);
@@ -2447,7 +2513,16 @@ end;
 procedure TFMain.ViewColorsUpdate(Sender: TObject);
 begin
   ViewColors.Checked := LazPaintInstance.ChooseColorVisible;
-  ItemViewColors.Checked := ViewColors.Checked;
+end;
+
+procedure TFMain.ViewDarkThemeExecute(Sender: TObject);
+begin
+  LazPaintInstance.DarkTheme := not LazPaintInstance.DarkTheme;
+end;
+
+procedure TFMain.ViewDarkThemeUpdate(Sender: TObject);
+begin
+  ViewDarkTheme.Checked := LazPaintInstance.DarkTheme;
 end;
 
 procedure TFMain.ViewGridUpdate(Sender: TObject);
@@ -2615,7 +2690,7 @@ end;
 
 function TFMain.ScriptChooseTool(AVars: TVariableSet): TScriptResult;
 var toolName: string;
-  Tool: TPaintToolType;
+  Tool, prevTool: TPaintToolType;
   topmostInfo: TTopMostInfo;
   useSelection: boolean;
   newTexture: TBGRABitmap;
@@ -2632,6 +2707,7 @@ begin
       ToolManager.ToolOpen;
       exit;
     end;
+    prevTool := ToolManager.GetCurrentToolType;
     try
       if not ((Tool in [ptMoveSelection,ptRotateSelection]) and
         (CurrentTool in [ptMoveSelection,ptRotateSelection])) then
@@ -2671,15 +2747,14 @@ begin
                     begin
                       FImageActions.RemoveSelection;
                       BGRAReplace(newTexture, newTexture.GetPart(newTexture.GetImageBounds));
-                      ToolManager.SetToolTexture(newTexture);
+                      ToolManager.SetTexture(newTexture);
                       newTexture.FreeReference;
-                      UpdateTextureIcon;
                     end;
                   end;
                 end;
               end;
             end;
-            if (ToolManager.GetToolTexture = nil) or ToolManager.GetToolTexture.Empty then
+            if (ToolManager.GetTexture = nil) or ToolManager.GetTexture.Empty then
             begin
               if useSelection then
               begin
@@ -2692,7 +2767,7 @@ begin
                 result := srCancelledByUser;
               end
               else
-              if (ToolManager.GetToolTexture = nil) or ToolManager.GetToolTexture.Empty then
+              if (ToolManager.GetTexture = nil) or ToolManager.GetTexture.Empty then
               begin
                 Tool := ptHand;
                 result := srException;
@@ -2741,27 +2816,35 @@ begin
               result := srException;
             end;
           end;
-          ptMoveSelection,ptRotateSelection:
+          ptMoveSelection,ptRotateSelection,ptEditShape:
           begin
             if not ToolManager.SetCurrentToolType(Tool) then
             begin
               result := srException;
               exit;
             end;
-            if image.CurrentLayerVisible and not image.SelectionMaskEmpty and image.SelectionLayerIsEmpty and not image.CurrentLayerEmpty then
+            if not (prevTool in [ptMoveSelection,ptRotateSelection,ptEditShape]) then
             begin
-              topmostInfo := LazPaintInstance.HideTopmost;
-              if Config.DefaultRetrieveSelectionAnswer <> mrNone then
-                res := QuestionResult(Config.DefaultRetrieveSelectionAnswer)
-              else
+              if image.CurrentLayerVisible and not image.SelectionMaskEmpty and image.SelectionLayerIsEmpty and not image.CurrentLayerEmpty then
               begin
-                res := ShowQuestionDialog(rsMovingOrRotatingSelection,rsRetrieveSelectedArea,[mbYes,mbNo],true);
-                if res.Remember and (res.ButtonResult in [mrYes,mrNo]) then
-                  Config.SetDefaultRetrieveSelectionAnswer(res.ButtonResult);
-              end;
-              LazPaintInstance.ShowTopmost(topmostInfo);
-              case res.ButtonResult of
-                mrYes: FImageActions.RetrieveSelection;
+                topmostInfo := LazPaintInstance.HideTopmost;
+                if Config.DefaultRetrieveSelectionAnswer <> mrNone then
+                  res := QuestionResult(Config.DefaultRetrieveSelectionAnswer)
+                else
+                begin
+                  res := ShowQuestionDialog(rsMovingOrRotatingSelection,rsRetrieveSelectedArea,[mbYes,mbNo],true);
+                  if res.Remember and (res.ButtonResult in [mrYes,mrNo]) then
+                    Config.SetDefaultRetrieveSelectionAnswer(res.ButtonResult);
+                end;
+                LazPaintInstance.ShowTopmost(topmostInfo);
+                case res.ButtonResult of
+                  mrYes:
+                    begin
+                      ToolManager.ToolCloseDontReopen;
+                      FImageActions.RetrieveSelection;
+                      ToolManager.ToolOpen;
+                    end;
+                end;
               end;
             end;
           end;
@@ -2829,12 +2912,72 @@ end;
 
 procedure TFMain.BrushCreateGeometricUpdate(Sender: TObject);
 begin
-  BrushCreateGeometric.Enabled := ToolManager.ToolBrushCount < 9;
+  BrushCreateGeometric.Enabled := ToolManager.BrushCount < 9;
 end;
 
 procedure TFMain.EditSelectionUpdate(Sender: TObject);
 begin
   EditSelection.Enabled := not Scripting.Recording;
+end;
+
+procedure TFMain.EditShapeAlignBottomExecute(Sender: TObject);
+begin
+  ToolManager.ToolCommand(tcAlignBottom);
+end;
+
+procedure TFMain.EditShapeAlignBottomUpdate(Sender: TObject);
+begin
+  EditShapeAlignBottom.Enabled := ToolManager.ToolProvideCommand(tcAlignBottom);
+end;
+
+procedure TFMain.EditShapeAlignLeftExecute(Sender: TObject);
+begin
+  ToolManager.ToolCommand(tcAlignLeft);
+end;
+
+procedure TFMain.EditShapeAlignLeftUpdate(Sender: TObject);
+begin
+  EditShapeAlignLeft.Enabled := ToolManager.ToolProvideCommand(tcAlignLeft);
+end;
+
+procedure TFMain.EditShapeAlignRightExecute(Sender: TObject);
+begin
+  ToolManager.ToolCommand(tcAlignRight);
+end;
+
+procedure TFMain.EditShapeAlignRightUpdate(Sender: TObject);
+begin
+  EditShapeAlignRight.Enabled := ToolManager.ToolProvideCommand(tcAlignRight);
+end;
+
+procedure TFMain.EditShapeAlignTopExecute(Sender: TObject);
+begin
+  ToolManager.ToolCommand(tcAlignTop);
+end;
+
+procedure TFMain.EditShapeAlignTopUpdate(Sender: TObject);
+begin
+  EditShapeAlignTop.Enabled := ToolManager.ToolProvideCommand(tcAlignTop);
+end;
+
+procedure TFMain.EditShapeCenterHorizontallyExecute(Sender: TObject);
+begin
+  ToolManager.ToolCommand(tcCenterHorizontally);
+end;
+
+procedure TFMain.EditShapeCenterHorizontallyUpdate(Sender: TObject);
+begin
+  EditShapeCenterHorizontally.Enabled := ToolManager.ToolProvideCommand(tcCenterHorizontally);
+end;
+
+procedure TFMain.EditShapeCenterVerticallyExecute(Sender: TObject);
+begin
+  ToolManager.ToolCommand(tcCenterVertically);
+end;
+
+procedure TFMain.EditShapeCenterVerticallyUpdate(Sender: TObject);
+begin
+  EditShapeCenterVertically.Enabled := ToolManager.ToolProvideCommand(tcCenterVertically);
 end;
 
 procedure TFMain.FileChooseEntryExecute(Sender: TObject);
@@ -2854,34 +2997,82 @@ end;
 
 procedure TFMain.EditCopyExecute(Sender: TObject);
 begin
-  if not ToolManager.ToolCopy then
+  if not ToolManager.ToolCommand(tcCopy) then
     Scripting.CallScriptFunction('EditCopy');
 end;
 
 procedure TFMain.EditCopyUpdate(Sender: TObject);
 begin
-  EditCopy.Enabled := ToolManager.ToolProvideCopy or not image.SelectionMaskEmpty;
+  EditCopy.Enabled := ToolManager.ToolProvideCommand(tcCopy) or not image.SelectionMaskEmpty;
 end;
 
 procedure TFMain.EditCutExecute(Sender: TObject);
 begin
-  if not ToolManager.ToolCut then
+  if not ToolManager.ToolCommand(tcCut) then
     Scripting.CallScriptFunction('EditCut');
 end;
 
 procedure TFMain.EditCutUpdate(Sender: TObject);
 begin
-  EditCut.Enabled := ToolManager.ToolProvideCut or not image.SelectionMaskEmpty;
+  EditCut.Enabled := ToolManager.ToolProvideCommand(tcCut) or not image.SelectionMaskEmpty;
+end;
+
+procedure TFMain.EditDeleteSelectionExecute(Sender: TObject);
+begin
+  if not ToolManager.ToolCommand(tcDelete) then
+    Scripting.CallScriptFunction('EditDeleteSelection');
 end;
 
 procedure TFMain.EditDeleteSelectionUpdate(Sender: TObject);
 begin
-  EditDeleteSelection.Enabled := not image.SelectionMaskEmpty;
+  EditDeleteSelection.Enabled := ToolManager.ToolProvideCommand(tcDelete) or not image.SelectionMaskEmpty;
+end;
+
+procedure TFMain.EditMoveDownExecute(Sender: TObject);
+begin
+  if ToolManager.CurrentTool is TVectorialTool then ChooseTool(ptEditShape);
+  ToolManager.ToolCommand(tcMoveDown);
+end;
+
+procedure TFMain.EditMoveDownUpdate(Sender: TObject);
+begin
+  EditMoveDown.Enabled := ToolManager.ToolProvideCommand(tcMoveDown);
+end;
+
+procedure TFMain.EditMoveToBackExecute(Sender: TObject);
+begin
+  if ToolManager.CurrentTool is TVectorialTool then ChooseTool(ptEditShape);
+  ToolManager.ToolCommand(tcMoveToBack);
+end;
+
+procedure TFMain.EditMoveToBackUpdate(Sender: TObject);
+begin
+  EditMoveToBack.Enabled := ToolManager.ToolProvideCommand(tcMoveToBack);
+end;
+
+procedure TFMain.EditMoveToFrontExecute(Sender: TObject);
+begin
+  ToolManager.ToolCommand(tcMoveToFront);
+end;
+
+procedure TFMain.EditMoveToFrontUpdate(Sender: TObject);
+begin
+  EditMoveToFront.Enabled := ToolManager.ToolProvideCommand(tcMoveToFront);
+end;
+
+procedure TFMain.EditMoveUpExecute(Sender: TObject);
+begin
+  ToolManager.ToolCommand(tcMoveUp);
+end;
+
+procedure TFMain.EditMoveUpUpdate(Sender: TObject);
+begin
+  EditMoveUp.Enabled := ToolManager.ToolProvideCommand(tcMoveUp);
 end;
 
 procedure TFMain.EditPasteExecute(Sender: TObject);
 begin
-  if not ToolManager.ToolPaste then
+  if not ToolManager.ToolCommand(tcPaste) then
     Scripting.CallScriptFunction('EditPaste');
 end;
 
@@ -2995,45 +3186,11 @@ begin
   Layout.ToolBoxDocking := twRight;
 end;
 
-procedure TFMain.ItemIconSize16Click(Sender: TObject);
+procedure TFMain.MenuFileToolbarClick(Sender: TObject);
 begin
-  LazPaintInstance.ChangeIconSize(16);
-end;
-
-procedure TFMain.ItemIconSize24Click(Sender: TObject);
-begin
-  LazPaintInstance.ChangeIconSize(24);
-end;
-
-procedure TFMain.ItemIconSize32Click(Sender: TObject);
-begin
-  LazPaintInstance.ChangeIconSize(32);
-end;
-
-procedure TFMain.ItemIconSize48Click(Sender: TObject);
-begin
-  LazPaintInstance.ChangeIconSize(48);
-end;
-
-procedure TFMain.ItemIconSize64Click(Sender: TObject);
-begin
-  LazPaintInstance.ChangeIconSize(64);
-end;
-
-procedure TFMain.ItemIconSizeAutoClick(Sender: TObject);
-begin
-  LazPaintInstance.ChangeIconSize(0);
-end;
-
-procedure TFMain.MenuIconSizeClick(Sender: TObject);
-var iconSize: integer;
-begin
-  iconSize := Config.DefaultIconSize(0);
-  ItemIconSize16.Checked := iconSize=16;
-  ItemIconSize24.Checked := iconSize=24;
-  ItemIconSize32.Checked := iconSize=32;
-  ItemIconSize48.Checked := iconSize=48;
-  ItemIconSizeAuto.Checked := iconSize=0;
+  Panel_File.Visible := not Panel_File.Visible;
+  Config.SetDefaultFileToolbarVisible(Panel_File.Visible);
+  Layout.Arrange;
 end;
 
 procedure TFMain.MenuShowPaletteClick(Sender: TObject);
@@ -3072,7 +3229,7 @@ end;
 
 procedure TFMain.EditPasteUpdate(Sender: TObject);
 begin
-  EditPaste.Enabled := ToolManager.ToolProvidePaste or Image.CurrentLayerVisible;
+  EditPaste.Enabled := ToolManager.ToolProvideCommand(tcPaste) or Image.CurrentLayerVisible;
 end;
 
 procedure TFMain.EditDeselectUpdate(Sender: TObject);
@@ -3177,11 +3334,10 @@ begin
           newTex := LoadFlatImageUTF8(texFilename).bmp;
         if LazPaintInstance.BlackAndWhite then
           newTex.InplaceGrayscale;
-        ToolManager.SetToolTexture(newTex);
+        ToolManager.SetTexture(newTex);
         newTex.FreeReference;
         newTex := nil;
         result := true;
-        UpdateTextureIcon;
         UpdateEditPicture;
         Config.SetDefaultTextureDirectory(ExtractFilePath(texFilename));
       except
@@ -3297,16 +3453,17 @@ begin
   result := ToolManager.GetCurrentToolType;
 end;
 
-procedure TFMain.OnToolChanged(sender: TToolManager; ANewTool: TPaintToolType);
+procedure TFMain.ManagerToolChanged(sender: TToolManager; ANewTool: TPaintToolType);
 begin
   if self.Visible then
   begin
-    UpdatePanelTextWidth;
     FLayout.Arrange;
     PaintBox_PenPreview.Invalidate;
     Image.OnImageChanged.NotifyObservers;
     UpdateToolImage;
     UpdateToolBar;
+    UpdatePenWidthToolbar;
+    UpdateCurveModeToolbar;
   end;
 end;
 
@@ -3353,6 +3510,7 @@ var
     image.SetSavedFlag(BPP, frameIndex);
     ToolManager.ToolOpen;
     ZoomFitIfTooBig;
+    ToolHotSpotUpdate(nil);
     result := true;
   end;
   procedure ImportNewPicture;
@@ -3462,6 +3620,7 @@ begin
   end;
 
   InFormPaint := false;
+  FLastPaintDate := Now;
 end;
 
 procedure TFMain.OnImageChangedHandler(AEvent: TLazPaintImageObservationEvent);
@@ -3498,7 +3657,12 @@ end;
 
 procedure TFMain.OnZoomChanged(sender: TZoom; ANewZoom: single);
 begin
-  if Assigned(FImageView) then FImageView.OnZoomChanged(sender, ANewZoom, FLayout.WorkArea);
+  if Assigned(FImageView) then
+  begin
+    if not Image.SelectionMaskEmpty then
+      FImageView.ShowSelection := false;
+    FImageView.OnZoomChanged(sender, ANewZoom, FLayout.WorkArea);
+  end;
   UpdateToolbar;
   PaintPictureNow;
 end;
@@ -3523,7 +3687,10 @@ begin
   if not image.CurrentLayerVisible and not ToolManager.ToolCanBeUsed then
     ChooseTool(ptHand)
   else
+  begin
     ToolManager.ToolOpen;
+    ToolManager.UpdateContextualToolbars;
+  end;
 end;
 
 procedure TFMain.PictureSelectedLayerIndexChanging(sender: TLazPaintImage);
@@ -3549,6 +3716,73 @@ begin
   result := LazPaintInstance.Image;
 end;
 
+procedure TFMain.ManagerGradientChanged(Sender: TObject);
+begin
+  UpdateGradientToolbar;
+end;
+
+procedure TFMain.ManagerJoinStyleChanged(Sender: TObject);
+begin
+  UpdateJoinStyleToolbar;
+end;
+
+procedure TFMain.ManagerLineCapChanged(Sender: TObject);
+begin
+  UpdateLineCapToolbar;
+end;
+
+procedure TFMain.ManagerOnPhongShapeChanged(Sender: TObject);
+begin
+  UpdatePhongToolbar;
+end;
+
+procedure TFMain.ManagerPenStyleChanged(Sender: TObject);
+begin
+  UpdatePenStyleToolbar;
+end;
+
+procedure TFMain.ManagerPenWidthChanged(Sender: TObject);
+begin
+  UpdatePenWidthToolbar;
+end;
+
+procedure TFMain.ManagerSplineStyleChanged(Sender: TObject);
+begin
+  UpdateSplineStyleToolbar;
+end;
+
+procedure TFMain.ManagerTextFontChanged(Sender: TObject);
+begin
+  UpdateTextFontToolbar;
+end;
+
+procedure TFMain.ManagerTextOutlineChanged(Sender: TObject);
+begin
+  UpdateTextOutlineToolbar;
+end;
+
+procedure TFMain.ManagerTextPhongChanged(Sender: TObject);
+begin
+  UpdateTextPhongToolbar;
+end;
+
+procedure TFMain.ManagerTextShadowChanged(Sender: TObject);
+begin
+  UpdateTextShadowToolbar;
+end;
+
+procedure TFMain.ManagerTextureChanged(Sender: TObject);
+begin
+  UpdateTextureIcon;
+  SpinEdit_TextureOpacity.Value := ToolManager.TextureOpacity;
+end;
+
+procedure TFMain.ManagerShapeOptionChanged(Sender: TObject);
+begin
+  UpdateToolOptions;
+  FLayout.Arrange;
+end;
+
 procedure TFMain.UpdateStatusText;
 var s: string;
 begin
@@ -3561,9 +3795,26 @@ begin
   Layout.StatusText := s;
 end;
 
+procedure TFMain.InvalidatePicture;
+begin
+  if Assigned(FImageView) and Assigned(FLayout) then
+    FImageView.InvalidatePicture(False, FLayout.WorkArea, Point(0,0), self);
+end;
+
 function TFMain.GetUseImageBrowser: boolean;
 begin
   result := Config.DefaultUseImageBrowser;
+end;
+
+procedure TFMain.SetDarkTheme(AValue: boolean);
+begin
+  if LAyout.DarkTheme<>AValue then
+  begin
+    Layout.DarkTheme := AValue;
+    DarkThemeInstance.Apply(Panel_PenWidthPreview, AValue);
+    Invalidate;
+    UpdateToolImage(true);
+  end;
 end;
 
 function TFMain.GetCurrentPressure: single;
@@ -3572,6 +3823,12 @@ begin
     result := FTablet.Pressure/FTablet.Max
   else
     result := 1;
+end;
+
+function TFMain.GetDarkTheme: boolean;
+begin
+  if Assigned(FLayout) then result := FLayout.DarkTheme
+  else result := false;
 end;
 
 function TFMain.GetScriptContext: TScriptContext;

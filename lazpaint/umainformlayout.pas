@@ -31,11 +31,13 @@ type
     FStatusBarVisible: boolean;
     FStatusBar: TStatusBar;
     FStatusText: string;
+    FDarkTheme: boolean;
     function GetPaletteVisible: boolean;
     function GetPopupToolbox: TPopupMenu;
     function GetStatusBarVisible: boolean;
     function GetStatusText: string;
     function GetToolBoxVisible: boolean;
+    procedure SetDarkTheme(AValue: boolean);
     procedure SetLazPaintInstance(AValue: TLazPaintCustomInstance);
     procedure SetPaletteVisible(AValue: boolean);
     procedure SetPopupToolbox(AValue: TPopupMenu);
@@ -50,6 +52,7 @@ type
     function GetWorkAreaAt(AStage: TLayoutStage): TRect;
     procedure RaisePictureAreaChange;
     procedure DoArrange;
+    procedure ApplyTheme;
   public
     constructor Create(AForm: TForm);
     destructor Destroy; override;
@@ -68,6 +71,7 @@ type
     property StatusBarVisible: boolean read GetStatusBarVisible write SetStatusBarVisible;
     property StatusText: string read GetStatusText write SetStatusText;
     property DefaultToolboxDocking: TToolWindowDocking read GetDefaultToolboxDocking;
+    property DarkTheme: boolean read FDarkTheme write SetDarkTheme;
   end;
 
 function ToolWindowDockingToStr(AValue: TToolWindowDocking): string;
@@ -75,7 +79,7 @@ function StrToToolWindowDocking(AValue: string): TToolWindowDocking;
 
 implementation
 
-uses Graphics, Toolwin, math;
+uses Graphics, Toolwin, math, udarktheme;
 
 function ToolWindowDockingToStr(AValue: TToolWindowDocking): string;
 begin
@@ -115,7 +119,6 @@ constructor TMainFormLayout.Create(AForm: TForm);
 begin
   FForm := AForm;
   FPanelToolBox := TPanel.Create(FForm);
-  FPanelToolBox.Color := clBtnFace;
   FPanelToolBox.BevelInner := bvNone;
   FPanelToolBox.BevelOuter := bvNone;
   FPanelToolBox.Width := 20;
@@ -125,19 +128,21 @@ begin
   FDockedToolBoxToolBar.Align := alClient;
   FDockedToolBoxToolBar.EdgeBorders := [ebLeft,ebRight];
   FDockedToolBoxToolBar.Indent := 0;
-  FDockedToolBoxToolBar.EdgeInner := esRaised;
+  FDockedToolBoxToolBar.EdgeInner := esNone;
   FDockedToolBoxToolBar.EdgeOuter := esNone;
   FDockedToolBoxToolBar.ShowHint := true;
   FDockedToolBoxToolBar.Cursor := crArrow;
   FPanelToolBox.InsertControl(FDockedToolBoxToolBar);
   FForm.InsertControl(FPanelToolBox);
   FPaletteToolbar := TPaletteToolbar.Create;
+  FPaletteToolbar.DarkTheme:= DarkTheme;
   FPaletteToolbar.Container := FForm;
   FPaletteToolbar.OnVisibilityChangedByUser:=@PaletteVisibilityChangedByUser;
   FStatusBar := TStatusBar.Create(FForm);
   FStatusBar.SizeGrip := false;
   FStatusBar.Align := alNone;
   FStatusBar.Visible := false;
+  ApplyTheme;
   FForm.InsertControl(FStatusBar);
 end;
 
@@ -170,6 +175,17 @@ end;
 function TMainFormLayout.GetToolBoxVisible: boolean;
 begin
   result := LazPaintInstance.ToolboxVisible;
+end;
+
+procedure TMainFormLayout.SetDarkTheme(AValue: boolean);
+begin
+  if FDarkTheme=AValue then Exit;
+  FDarkTheme:=AValue;
+  ApplyTheme;
+  if Assigned(FPaletteToolbar) then
+    FPaletteToolbar.DarkTheme:= AValue;
+  if Assigned(FMenu) then
+    FMenu.DarkTheme:= AValue;
 end;
 
 procedure TMainFormLayout.SetLazPaintInstance(AValue: TLazPaintCustomInstance);
@@ -351,6 +367,26 @@ begin
     FStatusBar.Visible := true;
   end
   else FStatusBar.Visible := false;
+end;
+
+procedure TMainFormLayout.ApplyTheme;
+begin
+  if DarkTheme then
+  begin
+    FPanelToolBox.Color := clDarkBtnFace;
+    FDockedToolBoxToolBar.EdgeInner := esNone;
+    FDockedToolBoxToolBar.EdgeOuter := esNone;
+    FDockedToolBoxToolBar.OnPaint := @DarkThemeInstance.ToolBarPaint;
+    FDockedToolBoxToolBar.OnPaintButton:= @DarkThemeInstance.ToolBarPaintButton;
+  end
+  else
+  begin
+    FPanelToolBox.Color := clBtnFace;
+    FDockedToolBoxToolBar.EdgeInner := esRaised;
+    FDockedToolBoxToolBar.EdgeOuter := esNone;
+    FDockedToolBoxToolBar.OnPaint := nil;
+    FDockedToolBoxToolBar.OnPaintButton:= nil;
+  end;
 end;
 
 procedure TMainFormLayout.Arrange;

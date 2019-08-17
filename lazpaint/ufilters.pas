@@ -163,6 +163,11 @@ begin
           filteredLayer := layer.FilterTwirl(FilterConnector.WorkArea, Point(layer.Width div 2,layer.Height div 2), AInstance.Config.DefaultTwirlRadius, AInstance.Config.DefaultTwirlTurn ) as TBGRABitmap
         else
           AInstance.ShowTwirlDlg(FilterConnector);
+    pfWaveDisplacement:
+        if skipDialog then
+          filteredLayer := ugraph.WaveDisplacementFilter(layer,FilterConnector.WorkArea, PointF(layer.Width/2,layer.Height/2), AInstance.Config.DefaultWaveDisplacementWavelength, AInstance.Config.DefaultWaveDisplacementAmount, AInstance.Config.DefaultWaveDisplacementPhase ) as TBGRABitmap
+        else
+          AInstance.ShowWaveDisplacementDlg(FilterConnector);
     pfContour: filteredLayer := layer.FilterContour as TBGRABitmap;
     pfGrayscale: filteredLayer := layer.FilterGrayscale(FilterConnector.WorkArea) as TBGRABitmap;
     pfPerlinNoise: filteredLayer := CreatePerlinNoiseMap(layer.Width,layer.Height,layer.Width/256,layer.Height/256,1,rfBestQuality);
@@ -170,12 +175,12 @@ begin
     pfClouds:
       begin
         filteredLayer := layer.Duplicate as TBGRABitmap;
-        RenderCloudsOn(filteredLayer,AInstance.ToolManager.ToolForeColor);
+        RenderCloudsOn(filteredLayer,AInstance.ToolManager.ForeColor);
       end;
     pfCustomWater:
     begin
       filteredLayer := layer.Duplicate as TBGRABitmap;
-      RenderWaterOn(filteredLayer,AInstance.ToolManager.ToolForeColor,AInstance.ToolManager.ToolBackColor);
+      RenderWaterOn(filteredLayer,AInstance.ToolManager.ForeColor,AInstance.ToolManager.BackColor);
     end;
     pfWater: filteredLayer := CreateWaterTexture(layer.Width,layer.Height);
     pfWood: filteredLayer := CreateWoodTexture(layer.Width,layer.Height);

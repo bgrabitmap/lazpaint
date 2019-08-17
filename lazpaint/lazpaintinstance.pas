@@ -40,6 +40,7 @@ type
     function ScriptFileNew(AVars: TVariableSet): TScriptResult;
     function ScriptImageResample(AParams: TVariableSet): TScriptResult;
     procedure SelectionInstanceOnRun(AInstance: TLazPaintCustomInstance);
+    procedure ToolColorChanged(Sender: TObject);
 
   protected
     InColorFromFChooseColor: boolean;
@@ -128,6 +129,7 @@ type
     function GetMainFormBounds: TRect; override;
     procedure EditSelectionHandler(var AImage: TBGRABitmap);
     function GetZoomFactor: single; override;
+    procedure ApplyTheme(ADarkTheme: boolean); override;
 
   public
     constructor Create; override;
@@ -169,6 +171,7 @@ type
     function ShowPixelateDlg(AFilterConnector: TObject):boolean; override;
     function ShowNoiseFilterDlg(AFilterConnector: TObject):boolean; override;
     function ShowTwirlDlg(AFilterConnector: TObject):boolean; override;
+    function ShowWaveDisplacementDlg(AFilterConnector: TObject):boolean; override;
     function ShowPhongFilterDlg(AFilterConnector: TObject): boolean; override;
     function ShowFunctionFilterDlg(AFilterConnector: TObject): boolean; override;
     function ShowSharpenDlg(AFilterConnector: TObject):boolean; override;
@@ -205,7 +208,7 @@ implementation
 
 uses LCLType, Types, Forms, Dialogs, FileUtil, LCLIntf, Math,
 
-     uradialblur, umotionblur, uemboss, utwirl,
+     uradialblur, umotionblur, uemboss, UTwirl, UWaveDisplacement,
      unewimage, uresample, upixelate, unoisefilter, ufilters,
      UImageAction, USharpen, uposterize, UPhongFilter, UFilterFunction,
      uprint, USaveOption, UFormRain,
@@ -300,6 +303,7 @@ begin
   FToolManager := TToolManager.Create(FImage, self, nil, BlackAndWhite);
   UseConfig(TIniFile.Create(''));
   FToolManager.OnPopup := @OnToolPopup;
+  FToolManager.OnColorChanged:=@ToolColorChanged;
   FSelectionEditConfig := nil;
   FTextureEditConfig := nil;
 
@@ -325,6 +329,7 @@ begin
   TFChooseColor_CustomDPI := (Config.DefaultIconSize(DoScaleX(16,OriginalDPI))*96+8) div 16;
   Application.CreateForm(TFChooseColor, FChooseColor);
   FChooseColor.LazPaintInstance := self;
+  FChooseColor.DarkTheme:= Config.GetDarkTheme;
 
   CreateToolBox;
 
@@ -345,28 +350,7 @@ procedure TLazPaintInstance.UseConfig(ini: TInifile);
 begin
   FreeAndNil(FConfig);
   FConfig := TLazPaintConfig.Create(ini,LazPaintVersionStr);
-
-  ToolManager.ToolForeColor := Config.DefaultToolForeColor;
-  ToolManager.ToolBackColor := Config.DefaultToolBackColor;
-  ToolManager.ToolNormalPenWidth := Config.DefaultToolPenWidth;
-  ToolManager.ToolEraserWidth := Config.DefaultToolEraserWidth;
-  ToolManager.ToolOptionDrawShape := Config.DefaultToolOptionDrawShape;
-  ToolManager.ToolOptionFillShape := Config.DefaultToolOptionFillShape;
-  ToolManager.ToolOptionCloseShape := Config.DefaultToolOptionCloseShape;
-  ToolManager.ToolTolerance := Config.DefaultToolTolerance;
-  ToolManager.ToolTextShadow := Config.DefaultToolTextShadow;
-  ToolManager.ToolTextOutline := Config.DefaultToolTextOutline;
-  ToolManager.ToolTextOutlineWidth := Config.DefaultToolTextOutlineWidth;
-  ToolManager.ToolTextPhong := Config.DefaultToolTextPhong;
-  ToolManager.ToolTextFont.Assign(Config.DefaultToolTextFont);
-  ToolManager.ToolTextBlur := Config.DefaultToolTextBlur;
-  ToolManager.ToolTextShadowOffset := Config.DefaultToolTextShadowOffset;
-  ToolManager.ToolLightPosition := Config.DefaultToolLightPosition;
-  ToolManager.ToolLightAltitude := Config.DefaultToolLightAltitude;
-  ToolManager.ToolShapeAltitude := Config.DefaultToolShapeAltitude;
-  ToolManager.ToolShapeBorderSize := Config.DefaultToolShapeBorderSize;
-  ToolManager.ToolShapeType := Config.DefaultToolShapeType;
-  ToolManager.ReloadBrushes;
+  ToolManager.LoadFromConfig;
   FGridVisible := Config.DefaultGridVisible;
   FDockLayersAndColors:= Config.DefaultDockLayersAndColors;
 end;
@@ -392,6 +376,7 @@ begin
   TFLayerStack_CustomDPI := (Config.DefaultIconSize(DoScaleX(16,OriginalDPI))*96+8) div 16;
   Application.CreateForm(TFLayerStack,FLayerStack);
   FLayerStack.LazPaintInstance := self;
+  FLayerStack.DarkTheme:= Config.GetDarkTheme;
 
   FLayerStack.AddButton(FMain.LayerAddNew);
   FLayerStack.AddButton(FMain.LayerFromFile);
@@ -412,9 +397,11 @@ begin
   if Assigned(FToolBox) or not Assigned(FMain) then exit;
   Application.CreateForm(TFToolbox, FToolbox);
   FToolbox.LazPaintInstance := self;
+  FToolbox.DarkTheme := Config.GetDarkTheme;
 
   //needed to attach to the right instance of FMain
   FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolHand);
+  FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolColorPicker);
   FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolPen);
   FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolBrush);
   FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolEraser);
@@ -427,20 +414,23 @@ begin
   FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolSpline);
   FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolGradient);
   FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolPhong);
+  FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolText);
 
-  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolSelectRect);
-  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolSelectEllipse);
-  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolSelectPoly);
-  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolSelectSpline);
-  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolSelectPen);
-  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolText);
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolEditShape);
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolDeformation);
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolTextureMapping);
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.EditSelectAll);
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolMoveSelection);
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolRotateSelection);
+  FToolbox.AddButton(FToolbox.Toolbar3, FMain.EditDeselect);
 
-  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolColorPicker);
+  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolSelectRect);
+  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolSelectEllipse);
+  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolSelectPoly);
+  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolSelectSpline);
+  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolSelectPen);
   FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolMagicWand);
-  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolMoveSelection);
-  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolRotateSelection);
-  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolDeformation);
-  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolTextureMapping);
+  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolHotSpot);
 
   FToolBox.SetImages(Icons[Config.DefaultIconSize(DoScaleX(20,OriginalDPI))]);
 
@@ -454,6 +444,7 @@ begin
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolFloodfill);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolClone);
 
+  FMain.Layout.DockedToolBoxAddButton(FMain.ToolEditShape);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolRect);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolEllipse);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolPolygon);
@@ -669,6 +660,14 @@ begin
       result := inherited GetZoomFactor;
 end;
 
+procedure TLazPaintInstance.ApplyTheme(ADarkTheme: boolean);
+begin
+  if Assigned(FChooseColor) then FChooseColor.DarkTheme := ADarkTheme;
+  if Assigned(FLayerStack) then FLayerStack.DarkTheme := ADarkTheme;
+  if Assigned(FMain) then FMain.DarkTheme := ADarkTheme;
+  if Assigned(FToolbox) then FToolbox.DarkTheme:= ADarkTheme;
+end;
+
 function TLazPaintInstance.GetGridVisible: boolean;
 begin
   Result:= FGridVisible;
@@ -827,11 +826,11 @@ begin
       FTextureEditConfig := TStringStream.Create('[General]'+LineEnding+
         'DefaultImageWidth=256'+LineEnding+
         'DefaultImageHeight=256'+LineEnding);
-    tex := ToolManager.BorrowToolTexture;
+    tex := ToolManager.BorrowTexture;
     try
       EditBitmap(tex,FTextureEditConfig,rsEditTexture,nil,nil,BlackAndWhite);
     finally
-      ToolManager.SetToolTexture(tex);
+      ToolManager.SetTexture(tex);
     end;
   except
     on ex: Exception do
@@ -843,6 +842,12 @@ procedure TLazPaintInstance.SelectionInstanceOnRun(AInstance: TLazPaintCustomIns
 begin
   AInstance.Config.SetDefaultImageWidth(Image.Width);
   AInstance.Config.SetDefaultImageHeight(Image.Height);
+end;
+
+procedure TLazPaintInstance.ToolColorChanged(Sender: TObject);
+begin
+  ColorToFChooseColor;
+  if Assigned(FMain) then FMain.UpdateColorToolbar(false);
 end;
 
 function TLazPaintInstance.GetIcons(ASize: integer): TImageList;
@@ -1058,28 +1063,7 @@ begin
     Config.SetDefaultToolboxWindowVisible(ToolboxVisible or (FTopMostInfo.toolboxHidden > 0));
     Config.SetDefaultToolboxWindowPosition(FToolBox.BoundsRect);
   end;
-  Config.SetDefaultToolForeColor(ToolManager.ToolForeColor);
-  Config.SetDefaultToolBackColor(ToolManager.ToolBackColor);
-  Config.SetDefaultToolPenWidth(ToolManager.ToolNormalPenWidth);
-  Config.SetDefaultToolEraserWidth(ToolManager.ToolEraserWidth);
-  Config.SetDefaultToolOptionDrawShape(ToolManager.ToolOptionDrawShape);
-  Config.SetDefaultToolOptionFillShape(ToolManager.ToolOptionFillShape);
-  Config.SetDefaultToolOptionCloseShape(ToolManager.ToolOptionCloseShape);
-  Config.SetDefaultToolTolerance(ToolManager.ToolTolerance);
-
-  Config.SetDefaultToolTextFont(ToolManager.ToolTextFont);
-  Config.SetDefaultToolTextShadow(ToolManager.ToolTextShadow);
-  Config.SetDefaultToolTextOutline(ToolManager.ToolTextOutline);
-  Config.SetDefaultToolTextOutlineWidth(ToolManager.ToolTextOutlineWidth);
-  Config.SetDefaultToolTextBlur(ToolManager.ToolTextBlur);
-  Config.SetDefaultToolTextShadowOffset(ToolManager.ToolTextShadowOffset);
-  Config.SetDefaultToolTextPhong(ToolManager.ToolTextPhong);
-
-  Config.SetDefaultToolLightPosition(ToolManager.ToolLightPosition);
-  Config.SetDefaultToolLightAltitude(ToolManager.ToolLightAltitude);
-  Config.SetDefaultToolShapeBorderSize(ToolManager.ToolShapeBorderSize);
-  Config.SetDefaultToolShapeAltitude(ToolManager.ToolShapeAltitude);
-  Config.SetDefaultToolShapeType(ToolManager.ToolShapeType);
+  ToolManager.SaveToConfig;
 
   if FLoadingLayers <> nil then
   begin
@@ -1222,11 +1206,10 @@ begin
   if InColorFromFChooseColor then exit;
   InColorFromFChooseColor := True;
   if FChooseColor.colorTarget = ctForeColor then
-    ToolManager.ToolForeColor := FChooseColor.GetCurrentColor else
+    ToolManager.ForeColor := FChooseColor.GetCurrentColor else
   if FChooseColor.colorTarget = ctBackColor then
-    ToolManager.ToolBackColor := FChooseColor.GetCurrentColor;
-  FMain.UpdateToolbar;
-  FMain.UpdateEditPicture;
+    ToolManager.BackColor := FChooseColor.GetCurrentColor;
+  if Assigned(FMain) then FMain.UpdateEditPicture;
   InColorFromFChooseColor := false;
 end;
 
@@ -1234,9 +1217,9 @@ procedure TLazPaintInstance.ColorToFChooseColor;
 begin
   if not Assigned(FChooseColor) or InColorFromFChooseColor then exit;
   if FChooseColor.colorTarget = ctForeColor then
-    FChooseColor.SetCurrentColor(ToolManager.ToolForeColor) else
+    FChooseColor.SetCurrentColor(ToolManager.ForeColor) else
   if FChooseColor.colorTarget = ctBackColor then
-    FChooseColor.SetCurrentColor(ToolManager.ToolBackColor);
+    FChooseColor.SetCurrentColor(ToolManager.BackColor);
 end;
 
 function TLazPaintInstance.ShowSaveOptionDlg(AParameters: TVariableSet;

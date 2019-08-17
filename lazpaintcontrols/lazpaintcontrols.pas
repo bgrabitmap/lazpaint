@@ -4,12 +4,14 @@
 
 unit lazpaintcontrols;
 
+{$warn 5023 off : no warning about unused units}
 interface
 
 uses
   LCToolbars, LCVectorialFill, LCVectorialFillInterface, LCVectorOriginal, 
   LCVectorPolyShapes, LCVectorRectShapes, LCVectorialFillControl, 
-  LCVectorShapes, LCVectorTextShapes, LCScaleDPI, LazarusPackageIntf;
+  LCVectorShapes, LCVectorTextShapes, LCScaleDPI, LCVectorClipboard, 
+  LazarusPackageIntf;
 
 implementation
 

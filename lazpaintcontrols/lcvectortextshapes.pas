@@ -12,6 +12,68 @@ const
   AlwaysVectorialText = true;
 
 type
+  TTextShape = class;
+
+  { TTextShapeFontDiff }
+
+  TTextShapeFontDiff = class(TVectorShapeDiff)
+  protected
+    FFontBidiModeBefore: TFontBidiMode;
+    FFontEmHeightBefore: single;
+    FFontNameBefore: string;
+    FFontStyleBefore: TFontStyles;
+    FFontBidiModeAfter: TFontBidiMode;
+    FFontEmHeightAfter: single;
+    FFontNameAfter: string;
+    FFontStyleAfter: TFontStyles;
+  public
+    constructor Create(AStartShape: TVectorShape); override;
+    procedure ComputeDiff(AEndShape: TVectorShape); override;
+    procedure Apply(AStartShape: TVectorShape); override;
+    procedure Unapply(AEndShape: TVectorShape); override;
+    procedure Append(ADiff: TVectorShapeDiff); override;
+    function IsIdentity: boolean; override;
+  end;
+
+  { TTextShapePhongDiff }
+
+  TTextShapePhongDiff = class(TVectorShapeDiff)
+  protected
+    FAltitudePercentBefore: single;
+    FPenPhongBefore: boolean;
+    FLightPositionBefore: TPointF;
+    FAltitudePercentAfter: single;
+    FPenPhongAfter: boolean;
+    FLightPositionAfter: TPointF;
+  public
+    constructor Create(AStartShape: TVectorShape); override;
+    procedure ComputeDiff(AEndShape: TVectorShape); override;
+    procedure Apply(AStartShape: TVectorShape); override;
+    procedure Unapply(AEndShape: TVectorShape); override;
+    procedure Append(ADiff: TVectorShapeDiff); override;
+    function IsIdentity: boolean; override;
+  end;
+
+  { TTextShapeTextDiff }
+
+  TTextShapeTextDiff = class(TVectorShapeDiff)
+  protected
+    FTextBefore: string;
+    FSelStartBefore,FSelEndBefore: integer;
+    FVertAlignBefore: TTextLayout;
+    FParaAlignBefore: array of TBidiTextAlignment;
+    FTextAfter: string;
+    FSelStartAfter,FSelEndAfter: integer;
+    FVertAlignAfter: TTextLayout;
+    FParaAlignAfter: array of TBidiTextAlignment;
+  public
+    constructor Create(AStartShape: TVectorShape); override;
+    procedure ComputeDiff(AEndShape: TVectorShape); override;
+    procedure Apply(AStartShape: TVectorShape); override;
+    procedure Unapply(AEndShape: TVectorShape); override;
+    procedure Append(ADiff: TVectorShapeDiff); override;
+    function IsIdentity: boolean; override;
+  end;
 
   { TTextShape }
 
@@ -19,18 +81,18 @@ type
   private
     FAltitudePercent: single;
     FPenPhong: boolean;
+    FLightPosition: TPointF;
     FFontBidiMode: TFontBidiMode;
     FFontEmHeight: single;
     FFontName: string;
     FFontStyle: TFontStyles;
-    FLightPosition: TPointF;
     FText: string;
     FSelStart,FSelEnd: integer;
+    FVertAlign: TTextLayout;
     FEnteringUnicode: boolean;
     FUnicodeValue: cardinal;
     FUnicodeDigitCount: integer;
     FMouseSelecting: boolean;
-    FVertAlign: TTextLayout;
     function GetBidiParagraphAlignment: TBidiTextAlignment;
     function GetCanPasteSelection: boolean;
     function GetHasSelection: boolean;
@@ -52,7 +114,7 @@ type
     FTextLayout: TBidiTextLayout;
     FFontRenderer: TBGRACustomFontRenderer;
     FGlobalMatrix: TAffineMatrix;
-    procedure DoOnChange(ABoundsBefore: TRectF); override;
+    procedure DoOnChange(ABoundsBefore: TRectF; ADiff: TVectorShapeDiff); override;
     procedure SetGlobalMatrix(AMatrix: TAffineMatrix);
     function PenVisible(AAssumePenFill: boolean = false): boolean;
     function AllowShearTransform: boolean; override;
@@ -68,7 +130,6 @@ type
     function GetCornerPositition: single; override;
     procedure DeleteTextBefore(ACount: integer);
     procedure DeleteTextAfter(ACount: integer);
-    procedure DeleteSelectedText;
     procedure InsertText(ATextUTF8: string);
     procedure SelectWithMouse(X,Y: single; AExtend: boolean);
     function HasOutline: boolean;
@@ -91,7 +152,7 @@ type
     procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; override;
-    function GetIsSlow({%H-}AMatrix: TAffineMatrix): boolean; override;
+    function GetIsSlow(const {%H-}AMatrix: TAffineMatrix): boolean; override;
     procedure MouseMove({%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); override;
     procedure MouseDown({%H-}RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); override;
     procedure MouseUp({%H-}RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); override;
@@ -102,7 +163,9 @@ type
     function CopySelection: boolean;
     function CutSelection: boolean;
     function PasteSelection: boolean;
-    procedure Transform(AMatrix: TAffineMatrix); override;
+    function DeleteSelection: boolean;
+    function GetAlignBounds(const {%H-}ALayoutRect: TRect; const AMatrix: TAffineMatrix): TRectF; override;
+    procedure Transform(const AMatrix: TAffineMatrix); override;
     property HasSelection: boolean read GetHasSelection;
     property CanPasteSelection: boolean read GetCanPasteSelection;
     property Text: string read FText write SetText;
@@ -169,12 +232,259 @@ begin
   else result := fbmAuto;
 end;
 
+{ TTextShapeTextDiff }
+
+constructor TTextShapeTextDiff.Create(AStartShape: TVectorShape);
+var
+  tl: TBidiTextLayout;
+  i: Integer;
+begin
+  with (AStartShape as TTextShape) do
+  begin
+    FTextBefore:= FText;
+    FVertAlignBefore:= FVertAlign;
+    tl := GetTextLayout;
+    FSelStartBefore := FSelStart;
+    FSelEndBefore:= FSelEnd;
+    setlength(FParaAlignBefore, tl.ParagraphCount);
+    for i := 0 to high(FParaAlignBefore) do
+      FParaAlignBefore[i] := tl.ParagraphAlignment[i];
+  end;
+end;
+
+procedure TTextShapeTextDiff.ComputeDiff(AEndShape: TVectorShape);
+var
+  tl: TBidiTextLayout;
+  i: Integer;
+begin
+  with (AEndShape as TTextShape) do
+  begin
+    FTextAfter:= FText;
+    FVertAlignAfter:= FVertAlign;
+    FSelStartAfter := FSelStart;
+    FSelEndAfter:= FSelEnd;
+    tl := GetTextLayout;
+    setlength(FParaAlignAfter, tl.ParagraphCount);
+    for i := 0 to high(FParaAlignAfter) do
+      FParaAlignAfter[i] := tl.ParagraphAlignment[i];
+  end;
+end;
+
+procedure TTextShapeTextDiff.Apply(AStartShape: TVectorShape);
+var
+  tl: TBidiTextLayout;
+  i: Integer;
+begin
+  with (AStartShape as TTextShape) do
+  begin
+    BeginUpdate;
+    FreeAndNil(FTextLayout);
+    FText := FTextAfter;
+    FVertAlign := FVertAlignAfter;
+    FSelStart := FSelStartAfter;
+    FSelEnd := FSelEndAfter;
+    tl := GetTextLayout;
+    for i := 0 to min(length(FParaAlignAfter),tl.ParagraphCount)-1 do
+      tl.ParagraphAlignment[i] := FParaAlignAfter[i];
+    EndUpdate;
+  end;
+end;
+
+procedure TTextShapeTextDiff.Unapply(AEndShape: TVectorShape);
+var
+  tl: TBidiTextLayout;
+  i: Integer;
+begin
+  with (AEndShape as TTextShape) do
+  begin
+    BeginUpdate;
+    FreeAndNil(FTextLayout);
+    FText := FTextBefore;
+    FVertAlign := FVertAlignBefore;
+    FSelStart := FSelStartBefore;
+    FSelEnd := FSelEndBefore;
+    tl := GetTextLayout;
+    for i := 0 to min(length(FParaAlignBefore),tl.ParagraphCount)-1 do
+      tl.ParagraphAlignment[i] := FParaAlignBefore[i];
+    EndUpdate;
+  end;
+end;
+
+procedure TTextShapeTextDiff.Append(ADiff: TVectorShapeDiff);
+var
+  next: TTextShapeTextDiff;
+  i: Integer;
+begin
+  next := ADiff as TTextShapeTextDiff;
+  FTextAfter := next.FTextAfter;
+  FVertAlignAfter := next.FVertAlignAfter;
+  FSelStartAfter := next.FSelStartAfter;
+  FSelEndAfter := next.FSelEndAfter;
+  setlength(FParaAlignAfter, length(next.FParaAlignAfter));
+  for i := 0 to high(FParaAlignAfter) do
+    FParaAlignAfter[i] := next.FParaAlignAfter[i];
+end;
+
+function TTextShapeTextDiff.IsIdentity: boolean;
+var
+  i: Integer;
+begin
+  result := (FTextBefore = FTextAfter) and
+    (FSelStartBefore = FSelStartAfter) and
+    (FSelEndBefore = FSelEndAfter) and
+    (FVertAlignBefore = FVertAlignAfter) and
+    (length(FParaAlignBefore) = length(FParaAlignAfter));
+  if result then
+  begin
+    for i := 0 to high(FParaAlignBefore) do
+      if FParaAlignBefore[i] <> FParaAlignAfter[i] then
+      begin
+        result := false;
+        break;
+      end;
+  end;
+end;
+
+{ TTextShapePhongDiff }
+
+constructor TTextShapePhongDiff.Create(AStartShape: TVectorShape);
+begin
+  with (AStartShape as TTextShape) do
+  begin
+    FAltitudePercentBefore := FAltitudePercent;
+    FPenPhongBefore := FPenPhong;
+    FLightPositionBefore := FLightPosition;
+  end;
+end;
+
+procedure TTextShapePhongDiff.ComputeDiff(AEndShape: TVectorShape);
+begin
+  with (AEndShape as TTextShape) do
+  begin
+    FAltitudePercentAfter := FAltitudePercent;
+    FPenPhongAfter := FPenPhong;
+    FLightPositionAfter := FLightPosition;
+  end;
+end;
+
+procedure TTextShapePhongDiff.Apply(AStartShape: TVectorShape);
+begin
+  with (AStartShape as TTextShape) do
+  begin
+    BeginUpdate;
+    FAltitudePercent := FAltitudePercentAfter;
+    FPenPhong := FPenPhongAfter;
+    FLightPosition := FLightPositionAfter;
+    EndUpdate;
+  end;
+end;
+
+procedure TTextShapePhongDiff.Unapply(AEndShape: TVectorShape);
+begin
+  with (AEndShape as TTextShape) do
+  begin
+    BeginUpdate;
+    FAltitudePercent := FAltitudePercentBefore;
+    FPenPhong := FPenPhongBefore;
+    FLightPosition := FLightPositionBefore;
+    EndUpdate;
+  end;
+end;
+
+procedure TTextShapePhongDiff.Append(ADiff: TVectorShapeDiff);
+var
+  next: TTextShapePhongDiff;
+begin
+  next := ADiff as TTextShapePhongDiff;
+  FAltitudePercentAfter:= next.FAltitudePercentAfter;
+  FPenPhongAfter:= next.FPenPhongAfter;
+  FLightPositionAfter:= next.FLightPositionAfter;
+end;
+
+function TTextShapePhongDiff.IsIdentity: boolean;
+begin
+  result := (FAltitudePercentBefore = FAltitudePercentAfter) and
+    (FPenPhongBefore = FPenPhongAfter) and
+    (FLightPositionBefore = FLightPositionAfter);
+end;
+
+{ TTextShapeFontDiff }
+
+constructor TTextShapeFontDiff.Create(AStartShape: TVectorShape);
+begin
+  with (AStartShape as TTextShape) do
+  begin
+    FFontBidiModeBefore:= FFontBidiMode;
+    FFontEmHeightBefore:= FFontEmHeight;
+    FFontNameBefore:= FFontName;
+    FFontStyleBefore:= FFontStyle;
+  end;
+end;
+
+procedure TTextShapeFontDiff.ComputeDiff(AEndShape: TVectorShape);
+begin
+  with (AEndShape as TTextShape) do
+  begin
+    FFontBidiModeAfter:= FFontBidiMode;
+    FFontEmHeightAfter:= FFontEmHeight;
+    FFontNameAfter:= FFontName;
+    FFontStyleAfter:= FFontStyle;
+  end;
+end;
+
+procedure TTextShapeFontDiff.Apply(AStartShape: TVectorShape);
+begin
+  with (AStartShape as TTextShape) do
+  begin
+    BeginUpdate;
+    FFontBidiMode := FFontBidiModeAfter;
+    FFontEmHeight := FFontEmHeightAfter;
+    FFontName := FFontNameAfter;
+    FFontStyle := FFontStyleAfter;
+    if Assigned(FTextLayout) then FTextLayout.InvalidateLayout;
+    EndUpdate;
+  end;
+end;
+
+procedure TTextShapeFontDiff.Unapply(AEndShape: TVectorShape);
+begin
+  with (AEndShape as TTextShape) do
+  begin
+    BeginUpdate;
+    FFontBidiMode := FFontBidiModeBefore;
+    FFontEmHeight := FFontEmHeightBefore;
+    FFontName := FFontNameBefore;
+    FFontStyle := FFontStyleBefore;
+    if Assigned(FTextLayout) then FTextLayout.InvalidateLayout;
+    EndUpdate;
+  end;
+end;
+
+procedure TTextShapeFontDiff.Append(ADiff: TVectorShapeDiff);
+var
+  next: TTextShapeFontDiff;
+begin
+  next := ADiff as TTextShapeFontDiff;
+  FFontBidiModeAfter := next.FFontBidiModeAfter;
+  FFontEmHeightAfter := next.FFontEmHeightAfter;
+  FFontNameAfter := next.FFontNameAfter;
+  FFontStyleAfter := next.FFontStyleAfter;
+end;
+
+function TTextShapeFontDiff.IsIdentity: boolean;
+begin
+  result := (FFontBidiModeBefore = FFontBidiModeAfter) and
+    (FFontEmHeightBefore = FFontEmHeightAfter) and
+    (FFontNameBefore = FFontNameAfter) and
+    (FFontStyleBefore = FFontStyleAfter);
+end;
+
 { TTextShape }
 
 procedure TTextShape.SetText(AValue: string);
 begin
   if FText=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TTextShapeTextDiff);
   FText:=AValue;
   FSelStart:=0;
   FSelEnd :=0;
@@ -185,7 +495,7 @@ end;
 procedure TTextShape.SetFontBidiMode(AValue: TFontBidiMode);
 begin
   if FFontBidiMode=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TTextShapeFontDiff);
   FFontBidiMode:=AValue;
   EndUpdate;
 end;
@@ -240,7 +550,7 @@ begin
   if AValue < 0 then AValue := 0;
   if AValue > 100 then AValue := 100;
   if FAltitudePercent=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TTextShapePhongDiff);
   FAltitudePercent:=AValue;
   EndUpdate;
 end;
@@ -248,7 +558,7 @@ end;
 procedure TTextShape.SetPenPhong(AValue: boolean);
 begin
   if FPenPhong=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TTextShapePhongDiff);
   FPenPhong:=AValue;
   EndUpdate;
 end;
@@ -256,7 +566,7 @@ end;
 procedure TTextShape.SetFontEmHeight(AValue: single);
 begin
   if FFontEmHeight=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TTextShapeFontDiff);
   FFontEmHeight:=AValue;
   if Assigned(FTextLayout) then FTextLayout.InvalidateLayout;
   EndUpdate;
@@ -265,7 +575,7 @@ end;
 procedure TTextShape.SetFontName(AValue: string);
 begin
   if FFontName=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TTextShapeFontDiff);
   FFontName:=AValue;
   if Assigned(FTextLayout) then FTextLayout.InvalidateLayout;
   EndUpdate;
@@ -274,7 +584,7 @@ end;
 procedure TTextShape.SetFontStyle(AValue: TFontStyles);
 begin
   if FFontStyle=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TTextShapeFontDiff);
   FFontStyle:=AValue;
   if Assigned(FTextLayout) then FTextLayout.InvalidateLayout;
   EndUpdate;
@@ -303,7 +613,7 @@ begin
   begin
     if not needUpdate then
     begin
-      BeginUpdate;
+      BeginUpdate(TTextShapeTextDiff);
       needUpdate := true;
     end;
     tl.ParagraphAlignment[i] := AValue;
@@ -314,7 +624,7 @@ end;
 procedure TTextShape.SetLightPosition(AValue: TPointF);
 begin
   if FLightPosition=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TTextShapePhongDiff);
   FLightPosition:=AValue;
   EndUpdate;
 end;
@@ -351,7 +661,7 @@ begin
     begin
       if not needUpdate then
       begin
-        BeginUpdate;
+        BeginUpdate(TTextShapeTextDiff);
         needUpdate := true;
       end;
       tl.ParagraphAlignment[i] := bidiAlign;
@@ -363,12 +673,12 @@ end;
 procedure TTextShape.SetVertAlign(AValue: TTextLayout);
 begin
   if FVertAlign=AValue then Exit;
-  BeginUpdate;
+  BeginUpdate(TTextShapeTextDiff);
   FVertAlign:=AValue;
   EndUpdate;
 end;
 
-procedure TTextShape.DoOnChange(ABoundsBefore: TRectF);
+procedure TTextShape.DoOnChange(ABoundsBefore: TRectF; ADiff: TVectorShapeDiff);
 var freeRenderer: boolean;
 begin
   if Assigned(FFontRenderer) then
@@ -390,7 +700,7 @@ begin
         FTextLayout.FontRenderer := GetFontRenderer;
     end;
   end;
-  inherited DoOnChange(ABoundsBefore);
+  inherited DoOnChange(ABoundsBefore, ADiff);
 end;
 
 procedure TTextShape.SetGlobalMatrix(AMatrix: TAffineMatrix);
@@ -527,7 +837,7 @@ var
   delCount, selLeft: Integer;
 begin
   if UserMode <> vsuEditText then exit;
-  BeginUpdate;
+  BeginUpdate(TTextShapeTextDiff);
   selLeft := Min(FSelStart,FSelEnd);
   if selLeft > 0 then
   begin
@@ -546,7 +856,7 @@ var
   tl: TBidiTextLayout;
 begin
   if UserMode <> vsuEditText then exit;
-  BeginUpdate;
+  BeginUpdate(TTextShapeTextDiff);
   selRight := Max(FSelStart,FSelEnd);
   tl := GetTextLayout;
   if selRight+ACount <= tl.CharCount then
@@ -559,21 +869,31 @@ begin
   EndUpdate;
 end;
 
-procedure TTextShape.DeleteSelectedText;
+function TTextShape.DeleteSelection: boolean;
 var
   selLeft: Integer;
 begin
-  if UserMode <> vsuEditText then exit;
   if FSelStart <> FSelEnd then
   begin
-    BeginUpdate;
+    BeginUpdate(TTextShapeTextDiff);
     selLeft := Min(FSelStart,FSelEnd);
     GetTextLayout.DeleteText(selLeft, Abs(FSelEnd-FSelStart));
     FText := GetTextLayout.TextUTF8;
     FSelStart := selLeft;
     FSelEnd := selLeft;
     EndUpdate;
-  end;
+    result := true;
+  end else
+    result := false;
+end;
+
+function TTextShape.GetAlignBounds(const ALayoutRect: TRect;
+  const AMatrix: TAffineMatrix): TRectF;
+var
+  ab: TAffineBox;
+begin
+  ab := GetAffineBox(AMatrix, false);
+  Result:= ab.RectBoundsF;
 end;
 
 procedure TTextShape.InsertText(ATextUTF8: string);
@@ -581,8 +901,8 @@ var
   insertCount: Integer;
 begin
   if UserMode <> vsuEditText then exit;
-  BeginUpdate;
-  DeleteSelectedText;
+  BeginUpdate(TTextShapeTextDiff);
+  DeleteSelection;
   insertCount := GetTextLayout.InsertText(ATextUTF8, FSelStart);
   FText := GetTextLayout.TextUTF8;
   Inc(FSelStart, insertCount);
@@ -1147,7 +1467,7 @@ begin
   result := GetAffineBox(AffineMatrixIdentity,true).Contains(APoint);
 end;
 
-function TTextShape.GetIsSlow(AMatrix: TAffineMatrix): boolean;
+function TTextShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;
 begin
   Result:= true;
 end;
@@ -1205,7 +1525,7 @@ begin
 
   if Key = skDelete then
   begin
-    if FSelStart <> FSelEnd then DeleteSelectedText
+    if FSelStart <> FSelEnd then DeleteSelection
     else DeleteTextAfter(1);
     AHandled:= true;
   end else
@@ -1339,7 +1659,7 @@ procedure TTextShape.KeyPress(UTF8Key: string; var AHandled: boolean);
 begin
   if (Usermode = vsuEditText) and (UTF8Key = #8) then
   begin
-    if FSelEnd <> FSelStart then DeleteSelectedText
+    if FSelEnd <> FSelStart then DeleteSelection
     else DeleteTextBefore(1);
     AHandled := true;
   end else
@@ -1369,7 +1689,7 @@ procedure TTextShape.SetFontNameAndStyle(AFontName: string;
 begin
   if (AFontName <> FFontName) or (AFontStyle <> FFontStyle) then
   begin
-    BeginUpdate;
+    BeginUpdate(TTextShapeFontDiff);
     FFontName := AFontName;
     FFontStyle:= AFontStyle;
     EndUpdate;
@@ -1398,7 +1718,7 @@ end;
 function TTextShape.CutSelection: boolean;
 begin
   result := CopySelection;
-  if result then DeleteSelectedText;
+  if result then DeleteSelection;
 end;
 
 function TTextShape.PasteSelection: boolean;
@@ -1419,15 +1739,17 @@ begin
     result := false;
 end;
 
-procedure TTextShape.Transform(AMatrix: TAffineMatrix);
+procedure TTextShape.Transform(const AMatrix: TAffineMatrix);
 var
   zoom: Single;
 begin
   BeginUpdate;
-  inherited Transform(AMatrix);
+  AddDiffHandler(TTextShapeFontDiff);
+  AddDiffHandler(TTextShapePhongDiff);
   zoom := (VectLen(AMatrix[1,1],AMatrix[2,1])+VectLen(AMatrix[1,2],AMatrix[2,2]))/2;
   FontEmHeight:= zoom*FontEmHeight;
   LightPosition := AMatrix*LightPosition;
+  inherited Transform(AMatrix);
   EndUpdate;
 end;
 

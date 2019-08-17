@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, bgrabitmap, bgrabitmaptypes, LazPaintType, Graphics, BGRALayers, LCLType,
-  BCButton;
+  BCButton, BCComboBox;
 
 const FrameDashLength = 4;
   NicePointMaxRadius = 4;
@@ -49,16 +49,23 @@ function CreateVerticalWoodTexture(tx,ty: integer): TBGRABitmap;
 
 function ClearTypeFilter(source: TBGRACustomBitmap): TBGRACustomBitmap;
 function ClearTypeInverseFilter(source: TBGRACustomBitmap): TBGRACustomBitmap;
+function WaveDisplacementFilter(source: TBGRACustomBitmap;
+  ARect: TRect; ACenter: TPointF;
+  AWaveLength, ADisplacement, APhase: single): TBGRACustomBitmap;
 
 function DoResample(source :TBGRABitmap; newWidth, newHeight: integer; StretchMode: TResampleMode): TBGRABitmap;
-procedure DrawArrow(ACanvas: TCanvas; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; State: TOwnerDrawState);
-procedure BCAssignSystemStyle(AButton: TBCButton);
+procedure DrawPenStyle(AComboBox: TBCComboBox; ARect: TRect; APenStyle: TPenStyle; State: TOwnerDrawState); overload;
+procedure DrawPenStyle(ABitmap: TBGRABitmap; ARect: TRect; APenStyle: TPenStyle; c: TBGRAPixel); overload;
+procedure DrawArrow(AComboBox: TBCComboBox; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; State: TOwnerDrawState); overload;
+procedure DrawArrow(ABitmap: TBGRABitmap; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; AColor: TBGRAPixel); overload;
+procedure BCAssignSystemStyle(AButton: TBCButton; ADarkTheme: boolean; AFontHeightRatio: single = 0.45);
+procedure BCAssignSystemStyle(ACombo: TBCComboBox; ADarkTheme: boolean; AFontHeightRatio: single = 0.45);
 
 implementation
 
 uses GraphType, math, Types, BGRAUTF8, FileUtil, dialogs, BGRAAnimatedGif,
   BGRAGradients, BGRATextFX, uresourcestrings, LCScaleDPI, BCTypes,
-  BGRAThumbnail, LCVectorPolyShapes;
+  BGRAThumbnail, LCVectorPolyShapes, udarktheme;
 
 procedure BCAssignSystemState(AState: TBCButtonState; AFontColor, ATopColor, AMiddleTopColor, AMiddleBottomColor, ABottomColor, ABorderColor: TColor);
 begin
@@ -102,7 +109,7 @@ begin
   end;
 end;
 
-procedure BCAssignSystemStyle(AButton: TBCButton);
+procedure BCAssignSystemStyle(AButton: TBCButton; ADarkTheme: boolean; AFontHeightRatio: single);
 
   function MergeColor(AColor1,AColor2:TColor):TColor;
   begin
@@ -120,21 +127,77 @@ procedure BCAssignSystemStyle(AButton: TBCButton);
     result := BGRAToColor(HSLAToBGRA(hsla1));
   end;
 
-var highlight: TColor;
+var highlight, btnFace, btnShadow, btnText: TColor;
 begin
-  {$IFDEF DARWIN}
-  highlight := MergeColor(clBtnFace,clWhite);
-  {$ELSE}
-  highlight := clBtnHighlight;
-  {$ENDIF}
+  if ADarkTheme then
+  begin
+    highlight := $a0a0a0;
+    btnFace := clDarkEditableFace;
+    btnText := clLightText;
+    btnShadow:= clDarkPanelShadow;
+  end else
+  begin
+    {$IFDEF DARWIN}
+    highlight := MergeColor(clBtnFace,clWhite);
+    {$ELSE}
+    highlight := clBtnHighlight;
+    {$ENDIF}
+    btnFace := clBtnFace;
+    btnText := clBtnText;
+    btnShadow := clBtnShadow;
+  end;
   with AButton do
   begin
-    Rounding.RoundX := 6;
-    Rounding.RoundY := 6;
-    BCAssignSystemState(StateNormal, clBtnText, clBtnFace, highlight, clBtnFace, clBtnShadow, clBtnShadow);
-    BCAssignSystemState(StateHover, HoverColor(clBtnText), HoverColor(clBtnFace), HoverColor(highlight), HoverColor(clBtnFace), HoverColor(clBtnShadow), HoverColor(clBtnShadow));
-    BCAssignSystemState(StateClicked, HoverColor(clBtnText), HoverColor(MergeColor(clBtnFace,clBtnShadow)), HoverColor(clBtnFace), HoverColor(MergeColor(clBtnFace,clBtnShadow)), HoverColor(clBtnShadow), HoverColor(clBtnShadow));
+    Rounding.RoundX := DoScaleX(3, OriginalDPI);
+    Rounding.RoundY := DoScaleX(3, OriginalDPI);
+    BCAssignSystemState(StateNormal, btnText, btnFace, highlight, btnFace, btnShadow, btnShadow);
+    BCAssignSystemState(StateHover, HoverColor(btnText), HoverColor(btnFace), HoverColor(highlight), HoverColor(btnFace), HoverColor(btnShadow), HoverColor(btnShadow));
+    BCAssignSystemState(StateClicked, HoverColor(btnText), HoverColor(MergeColor(btnFace,btnShadow)), HoverColor(btnFace), HoverColor(MergeColor(btnFace,btnShadow)), HoverColor(btnShadow), HoverColor(btnShadow));
+    StateNormal.Border.LightWidth := 0;
+    StateNormal.FontEx.Height := round(AButton.Height*AFontHeightRatio);
+    StateNormal.FontEx.ShadowColorOpacity:= 70;
+    StateNormal.FontEx.TextAlignment:= bcaLeftCenter;
+    StateNormal.FontEx.PaddingLeft:= DoScaleX(3, OriginalDPI);
+    StateHover.Border.LightWidth := 0;
+    StateHover.FontEx.Height := round(AButton.Height*AFontHeightRatio);
+    StateHover.FontEx.ShadowColorOpacity:= 70;
+    StateHover.FontEx.TextAlignment:= bcaLeftCenter;
+    StateHover.FontEx.PaddingLeft:= DoScaleX(3, OriginalDPI);
+    StateClicked.Border.LightWidth := 0;
+    StateClicked.FontEx.Height := round(AButton.Height*AFontHeightRatio);
+    StateClicked.FontEx.ShadowColorOpacity:= 70;
+    StateClicked.FontEx.TextAlignment:= bcaLeftCenter;
+    StateClicked.FontEx.PaddingLeft:= DoScaleX(3, OriginalDPI);
   end;
+end;
+
+procedure BCAssignSystemStyle(ACombo: TBCComboBox; ADarkTheme: boolean;
+  AFontHeightRatio: single);
+begin
+  BCAssignSystemStyle(ACombo.Button, ADarkTheme, AFontHeightRatio);
+  with ACombo do
+  begin
+    Button.StateNormal.FontEx.Height := round(AFontHeightRatio*Height);
+    Button.StateNormal.FontEx.ShadowColorOpacity:= 96;
+    Button.StateClicked.FontEx.Height := round(AFontHeightRatio*Height);
+    Button.StateClicked.FontEx.ShadowColorOpacity:= 96;
+    Button.StateHover.FontEx.Height := round(AFontHeightRatio*Height);
+    Button.StateHover.FontEx.ShadowColorOpacity:= 96;
+    if ADarkTheme then
+    begin
+      DropDownBorderColor:= clBlack;
+      DropDownFontColor:= clLightText;
+      DropDownColor:= clDarkBtnFace;
+    end else
+    begin
+      DropDownBorderColor := MergeBGRA(ColorToBGRA(clWindowText),ColorToBGRA(clWindow));
+      DropDownFontColor:= clWindowText;
+      DropDownColor:= clWindow;
+    end;
+    DropDownFontHighlight:= clHighlightText;
+    DropDownHighlight:= clHighlight;
+  end;
+
 end;
 
 function ComputeRatio(ARatio: string): single;
@@ -726,32 +789,66 @@ begin
   result := temp;
 end;
 
+type
+  { TWaveDisplacementScanner }
+
+  TWaveDisplacementScanner = class(TBGRACustomScanner)
+    Source: TBGRACustomBitmap;
+    Center: TPointF;
+    Wavelength, Displacement, PhaseRad: single;
+    function ScanAt(X,Y: Single): TBGRAPixel; override;
+  end;
+
+{ TWaveDisplacementScanner }
+
+function TWaveDisplacementScanner.ScanAt(X, Y: Single): TBGRAPixel;
+var
+  u, disp: TPointF;
+  dist: Single;
+  alpha: ValReal;
+begin
+  u := PointF(X,Y)-Center;
+  dist := VectLen(u);
+  if dist = 0 then disp := PointF(0,0) else
+  begin
+    u := u*(1/dist);
+    alpha := PhaseRad+dist*2*Pi/Wavelength;
+    disp := u*sin(alpha)*Displacement;
+  end;
+  result := Source.GetPixel(x+disp.x,y+disp.y);
+end;
+
+function WaveDisplacementFilter(source: TBGRACustomBitmap; ARect: TRect;
+  ACenter: TPointF; AWaveLength, ADisplacement, APhase: single): TBGRACustomBitmap;
+var scan: TWaveDisplacementScanner;
+begin
+ scan := TWaveDisplacementScanner.Create;
+ scan.Center := ACenter;
+ scan.Source := source;
+ scan.Wavelength := AWaveLength;
+ scan.Displacement := ADisplacement;
+ scan.PhaseRad := APhase*Pi/180;
+ result := TBGRABitmap.Create(source.Width,source.Height);
+ result.FillRect(ARect, scan, dmSet);
+ scan.Free;
+end;
+
 function DoResample(source: TBGRABitmap; newWidth, newHeight: integer;
   StretchMode: TResampleMode): TBGRABitmap;
 begin
   result := source.Resample(newWidth,newHeight,StretchMode) as TBGRABitmap;
 end;
 
-procedure DrawArrow(ACanvas: TCanvas; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; State: TOwnerDrawState);
-var bmp : TBGRABitmap;
-  c,c2: TBGRAPixel;
-  x1,x2,xm1,xm2,y,w,temp: single;
+procedure DrawArrowMask(AMask: TBGRABitmap; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap);
+var
   kind: TArrowKind;
+  x1,x2,xm1,xm2,y,w,temp: single;
 begin
+  AMask.Fill(BGRABlack);
   kind := StrToArrowKind(AKindStr);
-  if odSelected in State then
-  begin
-    c2 := ColorToBGRA(ColorToRGB(clHighlight));
-    c := ColorToBGRA(ColorToRGB(clHighlightText));
-  end else
-  begin
-    c2 := ColorToBGRA(ColorToRGB(clWindow));
-    c := ColorToBGRA(ColorToRGB(clWindowText));
-  end;
-  with Size(ARect) do bmp:= TBGRABitmap.Create(cx,cy,c2);
-  ApplyArrowStyle(bmp.Arrow,AStart,kind,PointF(1.5,1.5));
-  bmp.LineCap := ALineCap;
-  w := bmp.Height/5;
+  ApplyArrowStyle(AMask.Arrow,AStart,kind,PointF(1.5,1.5));
+  AMask.LineCap := ALineCap;
+  w := AMask.Height/5;
   if w > 0 then
   begin
     x1 := w*2.5;
@@ -767,19 +864,78 @@ begin
       x2 := -temp;
     end else
     begin
-      xm1 := (bmp.Width-0.5)-xm1;
-      xm2 := (bmp.Width-0.5)-xm2;
+      xm1 := (AMask.Width-0.5)-xm1;
+      xm2 := (AMask.Width-0.5)-xm2;
     end;
     x1 -= 0.5;
-    x2 += bmp.Width-0.5;
-    y := (bmp.Height-1)/2;
+    x2 += AMask.Width-0.5;
+    y := (AMask.Height-1)/2;
     if kind in[akTail,akNone,akTip] then w *= 2;
-    bmp.DrawLineAntialias(x1,y,x2,y,c,w);
-    if bmp.Width > bmp.Height*2 then
-      bmp.GradientFill(0,0,bmp.width,bmp.height,c2,BGRAPixelTransparent,gtLinear,PointF(xm1,0),PointF(xm2,0),dmDrawWithTransparency);
+    AMask.DrawLineAntialias(x1,y,x2,y,BGRAWhite,w);
+    if AMask.Width > AMask.Height*2 then
+      AMask.GradientFill(0,0,AMask.width,AMask.height,BGRABlack,BGRAPixelTransparent,gtLinear,PointF(xm1,0),PointF(xm2,0),dmDrawWithTransparency);
   end;
-  ACanvas.Draw(ARect.Left,ARect.Top,bmp.Bitmap);
+end;
+
+procedure DrawPenStyle(AComboBox: TBCComboBox; ARect: TRect;
+  APenStyle: TPenStyle; State: TOwnerDrawState);
+var bmp : TBGRABitmap;
+  c,c2: TBGRAPixel;
+begin
+  if odSelected in State then
+  begin
+    c := ColorToBGRA(AComboBox.DropDownFontHighlight);
+    c2 := ColorToBGRA(AComboBox.DropDownHighlight);
+  end
+  else
+  begin
+    c := ColorToBGRA(AComboBox.DropDownFontColor);
+    c2 := ColorToBGRA(AComboBox.DropDownColor);
+  end;
+  with Size(ARect) do bmp := TBGRABitmap.Create(cx,cy,c2);
+  DrawPenStyle(bmp, rect(0,0,ARect.Width,ARect.Height),APenStyle, c);
+  bmp.Draw(ACombobox.Canvas,ARect.Left,ARect.Top,true);
   bmp.Free;
+end;
+
+procedure DrawPenStyle(ABitmap: TBGRABitmap; ARect: TRect;
+  APenStyle: TPenStyle; c: TBGRAPixel);
+begin
+  ABitmap.LineCap := pecFlat;
+  ABitmap.PenStyle:= APenStyle;
+  ABitmap.DrawLineAntialias(ARect.Left+ARect.Width/10-0.5,ARect.Top+ARect.Height/2-0.5,
+    ARect.Right-ARect.Width/10-0.5,ARect.Top+ARect.Height/2-0.5, c, ARect.Width/10);
+end;
+
+procedure DrawArrow(AComboBox: TBCComboBox; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; State: TOwnerDrawState);
+var mask, bmp : TBGRABitmap;
+  c,c2: TBGRAPixel;
+begin
+  if odSelected in State then
+  begin
+    c2 := ColorToBGRA(AComboBox.DropDownHighlight);
+    c := ColorToBGRA(AComboBox.DropDownFontHighlight);
+  end else
+  begin
+    c2 := ColorToBGRA(AComboBox.DropDownColor);
+    c := ColorToBGRA(AComboBox.DropDownFontColor);
+  end;
+  with Size(ARect) do mask:= TBGRABitmap.Create(cx,cy,BGRABlack);
+  DrawArrowMask(mask, AStart, AKindStr, ALineCap);
+  bmp := TBGRABitmap.Create(mask.Width,mask.Height,c2);
+  bmp.FillMask(0,0,mask,c,dmDrawWithTransparency);
+  bmp.Draw(ACombobox.Canvas,ARect.Left,ARect.Top,true);
+  bmp.Free;
+  mask.Free;
+end;
+
+procedure DrawArrow(ABitmap: TBGRABitmap; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; AColor: TBGRAPixel); overload;
+var mask: TBGRABitmap;
+begin
+  with Size(ARect) do mask:= TBGRABitmap.Create(cx,cy,BGRABlack);
+  DrawArrowMask(mask, AStart, AKindStr, ALineCap);
+  ABitmap.FillMask(ARect.Left,ARect.Top, mask, AColor, dmDrawWithTransparency);
+  mask.Free;
 end;
 
 function CreateMarbleTexture(tx,ty: integer): TBGRABitmap;

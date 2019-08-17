@@ -1,4 +1,4 @@
-unit udarktheme;
+unit UDarkTheme;
 
 {$mode objfpc}{$H+}
 
@@ -7,21 +7,28 @@ interface
 uses
   Classes, SysUtils, Forms, ComCtrls, Controls, ExtCtrls;
 
+const
+  clDarkBtnHighlight = $e0e0e0;
+  clDarkBtnFace = $606060;
+  clDarkEditableFace = $808080;
+  clLightText = $f0f0f0;
+  clDarkPanelHighlight = $909090;
+  clDarkPanelShadow = $404040;
+
 type
 
   { TDarkTheme }
 
   TDarkTheme = class
-  private
-    procedure PatchInstanceClass(Instance: TObject; NewClass: TClass);
-  public
-    procedure SetDarkTheme(Control: TControl);
+    procedure PanelPaint(Sender: TObject);
     procedure ToolBarPaint(Sender: TObject);
     procedure ToolBarPaintButton(Sender: TToolButton; State: integer);
+    procedure Apply(APanel: TPanel; AThemeEnabled: boolean); overload;
+    procedure Apply(AToolbar: TToolbar; AThemeEnabled: boolean); overload;
   end;
 
 var
-  DarkTheme: TDarkTheme;
+  DarkThemeInstance: TDarkTheme;
 
 implementation
 
@@ -30,45 +37,19 @@ uses
 
 { TDarkTheme }
 
-procedure TDarkTheme.PatchInstanceClass(Instance: TObject; NewClass: TClass);
-type
-  PClass = ^TClass;
-begin
-  //if Assigned(Instance) and Assigned(NewClass) and NewClass.InheritsFrom(Instance.ClassType) and (NewClass.InstanceSize = Instance.InstanceSize) then
-
-  //begin
-    PClass(Instance)^ := NewClass;
-  //end;
-end;
-
-procedure TDarkTheme.SetDarkTheme(Control: TControl);
+procedure TDarkTheme.PanelPaint(Sender: TObject);
 var
-  i: integer;
-  WinControl: TWinControl;
+  c: TCanvas;
 begin
-  if Control is TToolBar then
+  if Sender is TCustomControl then
   begin
-    TToolBar(Control).OnPaint := @ToolBarPaint;
-    TToolBar(Control).OnPaintButton := @ToolBarPaintButton;
-  end;
-
-  if Control is TPanel then
-  begin
-    // change color of panel
-    //TPanel(Control).Color := $00535353;
-    // change class of panel
-    PatchInstanceClass(Control, TBCDPanel);
-  end;
-
-  if Control is TWinControl then begin
-    WinControl:=TWinControl(Control);
-    if WinControl.ControlCount > 0 then begin
-      for i:=0 to WinControl.ControlCount-1 do begin
-        if WinControl.Controls[i] is TControl then begin
-          SetDarkTheme(WinControl.Controls[i]);
-        end;
-      end;
-    end;
+    c := TCustomControl(Sender).Canvas;
+    c.Pen.Color := clDarkPanelHighlight;
+    c.Line(0, 0, c.Width, 0);
+    c.Line(0, 0, 0, c.Height);
+    c.Pen.Color := clDarkPanelShadow;
+    c.Line(0, c.Height-1, c.Width, c.Height-1);
+    c.Line(c.Width-1, 0, c.Width-1, c.Height);
   end;
 end;
 
@@ -79,12 +60,21 @@ begin
   if Sender is TToolBar then
   begin
     T := TToolBar(Sender);
-    T.Canvas.Brush.Color := $00535353;
-    T.Canvas.FillRect(0, 0, T.Width, T.Height);
-
-    // fill the same line that is in the TBCDPanel
-    T.Canvas.Pen.Color := RGBToColor(106, 106, 106);
-    T.Canvas.Line(0, 0, T.Width, 0);
+    if T.Align = alLeft then
+    begin
+      T.Canvas.Pen.Color := clDarkPanelShadow;
+      T.Canvas.Line(T.Width-1, 0, T.Width-1, T.Height)
+    end
+    else if T.Align = alRight then
+    begin
+      T.Canvas.Pen.Color := clDarkPanelHighlight;
+      T.Canvas.Line(0, 0, 0, T.Height)
+    end
+    else
+    begin
+      T.Canvas.Pen.Color := clDarkPanelShadow;
+      T.Canvas.Line(0, 0, T.Width, 0);
+    end;
   end;
 end;
 
@@ -96,26 +86,28 @@ var
   imgW, imgH: integer;
   imgS: TGraphicsDrawEffect;
 begin
-  Bitmap := TBGRABitmap.Create(Sender.Width, Sender.Height);
+  Bitmap := nil;
 
-  if Sender.Style = tbsButton then
+  if Sender.Style in[tbsButton,tbsCheck] then
   begin
     if Sender.Enabled then
     begin
-      if State = 3 then
+      if (State = 3) or Sender.Down then
       begin
         { Button Down }
-        Bitmap.Rectangle(0, 0, Sender.Width, Sender.Height - 1, BGRA(48, 48, 48),
-          BGRA(61, 61, 61), dmSet);
-        Bitmap.Rectangle(1, 1, Sender.Width - 1, Sender.Height - 2, BGRA(55, 55, 55),
-          BGRA(61, 61, 61), dmSet);
-        Bitmap.SetHorizLine(0, Sender.Height - 1, Sender.Width - 1, BGRA(83, 83, 83));
+        Bitmap := TBGRABitmap.Create(Sender.Width, Sender.Height);
+        Bitmap.Rectangle(0, 0, Sender.Width, Sender.Height - 1, BGRA(58, 58, 58),
+          BGRA(71, 71, 71), dmSet);
+        Bitmap.Rectangle(1, 1, Sender.Width - 1, Sender.Height - 2, BGRA(65, 65, 65),
+          BGRA(71, 71, 71), dmSet);
+        Bitmap.SetHorizLine(0, Sender.Height - 1, Sender.Width - 1, BGRA(93, 93, 93));
       end
       else
       begin
         if State = 2 then
         begin
           { Button Hovered }
+          Bitmap := TBGRABitmap.Create(Sender.Width, Sender.Height);
           Bitmap.GradientFill(0, 0, Sender.Width, Sender.Height, BGRA(132, 132, 132),
             BGRA(109, 109, 109), gtLinear, PointF(0, 0),
             PointF(0, Sender.Height), dmSet);
@@ -132,9 +124,9 @@ begin
     else
     begin
       { Button Disabled }
-      Bitmap.Rectangle(0, 0, Sender.Width, Sender.Height - 1, BGRA(66, 66, 66),
+      {Bitmap.Rectangle(0, 0, Sender.Width, Sender.Height - 1, BGRA(66, 66, 66),
         BGRA(71, 71, 71), dmSet);
-      Bitmap.SetHorizLine(0, Sender.Height - 1, Sender.Width - 1, BGRA(83, 83, 83));
+      Bitmap.SetHorizLine(0, Sender.Height - 1, Sender.Width - 1, BGRA(83, 83, 83));}
     end;
 
     {Bitmap.FontName := Sender.Font.Name;
@@ -157,8 +149,11 @@ begin
         Sender.Caption, BGRA(170, 170, 170));}
   end;
 
-  Bitmap.Draw(Sender.Canvas, 0, 0, False);
-  Bitmap.Free;
+  if Assigned(Bitmap) then
+  begin
+    Bitmap.Draw(Sender.Canvas, 0, 0, False);
+    Bitmap.Free;
+  end;
 
   if Sender.Parent is TToolBar then
   begin
@@ -176,10 +171,38 @@ begin
   end;
 end;
 
+procedure TDarkTheme.Apply(APanel: TPanel; AThemeEnabled: boolean);
+begin
+  if AThemeEnabled then
+  begin
+    APanel.BevelOuter:= bvNone;
+    if APanel.OnPaint = nil then APanel.OnPaint := @PanelPaint;
+    APanel.Color := clDarkBtnFace;
+  end else
+  begin
+    APanel.BevelOuter:= bvRaised;
+    if APanel.OnPaint = @PanelPaint then APanel.OnPaint := nil;
+    APanel.Color := clBtnFace;
+  end;
+end;
+
+procedure TDarkTheme.Apply(AToolbar: TToolbar; AThemeEnabled: boolean);
+begin
+  if AThemeEnabled then
+  begin
+    if AToolbar.OnPaintButton = nil then AToolbar.OnPaintButton := @ToolBarPaintButton;
+    AToolbar.Color := clDarkBtnFace;
+  end else
+  begin
+    if AToolbar.OnPaintButton = @ToolBarPaintButton then AToolbar.OnPaintButton := nil;
+    AToolbar.Color := clBtnFace;
+  end;
+end;
+
 initialization
-  DarkTheme := TDarkTheme.Create;
+  DarkThemeInstance := TDarkTheme.Create;
 
 finalization
-  DarkTheme.Free;
+  DarkThemeInstance.Free;
 
 end.

@@ -20,6 +20,7 @@ type
     FPenCursorPos,FPenCursorPosBefore: TVSCursorPosition;
     FQueryPaintVirtualScreen: boolean;
     FSelectionHighlight: TSelectionHighlight;
+    FShowSelection: boolean;
     FInstance: TLazPaintCustomInstance;
     FLastPictureParameters: record
        defined: boolean;
@@ -33,22 +34,23 @@ type
     end;
     FZoom: TZoom;
     FPictureCanvas: TCanvas;
-    FBackgroundColor: TColor;
     function GetImage: TLazPaintImage;
     function GetRenderUpdateRectVS(AIncludeLastToolState: boolean): TRect;
     function GetFillSelectionHighlight: boolean;
     function GetPenCursorPosition: TVSCursorPosition;
+    function GetWorkspaceColor: TColor;
     procedure PaintPictureImplementation(ACanvasOfs: TPoint; AWorkArea: TRect; AVSPart: TRect);
     procedure PaintVirtualScreenImplementation(ACanvasOfs: TPoint; AWorkArea: TRect; AVSPart: TRect);
     procedure PaintBlueAreaImplementation(ACanvasOfs: TPoint; AWorkArea: TRect);
     procedure PaintBlueAreaOnly(ACanvasOfs: TPoint; AWorkArea: TRect);
     procedure ComputePictureParams(AWorkArea: TRect);
     procedure SetFillSelectionHighlight(AValue: boolean);
+    procedure SetShowSelection(AValue: boolean);
     procedure PictureSelectionChanged({%H-}sender: TLazPaintImage; const ARect: TRect);
     procedure PaintVirtualScreenCursor({%H-}ACanvasOfs: TPoint; {%H-}AWorkArea: TRect; {%H-}AWinControlOfs: TPoint; {%H-}AWinControl: TWinControl);
     function GetRectToInvalidate(AInvalidateAll: boolean; AWorkArea: TRect): TRect;
   public
-    constructor Create(AInstance: TLazPaintCustomInstance; AZoom: TZoom; ACanvas: TCanvas; ABackgroundColor: TColor);
+    constructor Create(AInstance: TLazPaintCustomInstance; AZoom: TZoom; ACanvas: TCanvas);
     destructor Destroy; override;
     procedure DoPaint(ACanvasOfs: TPoint; AWorkArea: TRect; AShowNoPicture: boolean);
     procedure InvalidatePicture(AInvalidateAll: boolean; AWorkArea: TRect; AControlOfs: TPoint; AWinControl: TWinControl);
@@ -67,6 +69,8 @@ type
     property LazPaintInstance: TLazPaintCustomInstance read FInstance;
     property PictureCanvas: TCanvas read FPictureCanvas;
     property FillSelectionHighlight: boolean read GetFillSelectionHighlight write SetFillSelectionHighlight;
+    property ShowSelection: boolean read FShowSelection write SetShowSelection;
+    property WorkspaceColor: TColor read GetWorkspaceColor;
   end;
 
 implementation
@@ -85,6 +89,18 @@ begin
   Image.ImageMayChangeCompletely;
 end;
 
+function TImageView.GetWorkspaceColor: TColor;
+begin
+  result := LazPaintInstance.Config.GetWorkspaceColor;
+end;
+
+procedure TImageView.SetShowSelection(AValue: boolean);
+begin
+  if FShowSelection=AValue then Exit;
+  FShowSelection:=AValue;
+  Image.ImageMayChangeCompletely;
+end;
+
 function TImageView.GetImage: TLazPaintImage;
 begin
   result := FInstance.Image;
@@ -100,7 +116,7 @@ var
     transform, invTransform: TAffineMatrix;
     renderWidth, renderHeight: integer;
   begin
-    if Assigned(FSelectionHighlight) then
+    if Assigned(FSelectionHighlight) and ShowSelection then
     begin
       renderVisibleBounds := rect(0,0,FVirtualScreen.Width,FVirtualScreen.Height);
       renderWidth := ARenderRect.Right-ARenderRect.Left;
@@ -235,7 +251,7 @@ begin
     scaledArea := FLastPictureParameters.scaledArea;
     with PictureCanvas do
     begin
-      Brush.Color := FBackgroundColor;
+      Brush.Color := WorkspaceColor;
       DrawOfs := ACanvasOfs;
       if scaledArea.Left > workArea.Left then
         FillRect(workArea.Left+DrawOfs.X,scaledArea.Top+DrawOfs.Y,scaledArea.Left+DrawOfs.X,scaledArea.Bottom+DrawOfs.Y);
@@ -257,7 +273,7 @@ begin
   if (AWorkArea.Right <= AWorkArea.Left) or (AWorkArea.Bottom <= AWorkArea.Top) then exit;
   with PictureCanvas do
   begin
-    Brush.Color := FBackgroundColor;
+    Brush.Color := WorkspaceColor;
     DrawOfs := ACanvasOfs;
     FillRect(AWorkArea.Left+DrawOfs.X,AWorkArea.Top+DrawOfs.Y,AWorkArea.Right+DrawOfs.X,AWorkArea.Bottom+DrawOfs.Y);
   end;
@@ -265,16 +281,16 @@ begin
 end;
 
 constructor TImageView.Create(AInstance: TLazPaintCustomInstance; AZoom: TZoom;
-  ACanvas: TCanvas; ABackgroundColor: TColor);
+  ACanvas: TCanvas);
 begin
   FInstance := AInstance;
   FZoom := AZoom;
   FPictureCanvas := ACanvas;
-  FBackgroundColor := ABackgroundColor;
 
   FVirtualScreen := nil;
   FLastPictureParameters.defined:= false;
   FSelectionHighlight := TSelectionHighlight.Create(Image);
+  FShowSelection:= true;
   Image.OnSelectionChanged := @PictureSelectionChanged;
   LazPaintInstance.ToolManager.BitmapToVirtualScreen := @BitmapToVirtualScreen;
 end;
@@ -429,8 +445,8 @@ begin
   with LazPaintInstance.ToolManager do
   begin
     result.c := self.BitmapToVirtualScreen(ToolCurrentCursorPos);
-    tl := self.BitmapToVirtualScreen(ToolCurrentCursorPos.X-ToolPenWidth/2,ToolCurrentCursorPos.Y-ToolPenWidth/2);
-    br := self.BitmapToVirtualScreen(ToolCurrentCursorPos.X+ToolPenWidth/2,ToolCurrentCursorPos.Y+ToolPenWidth/2);
+    tl := self.BitmapToVirtualScreen(ToolCurrentCursorPos.X-PenWidth/2,ToolCurrentCursorPos.Y-PenWidth/2);
+    br := self.BitmapToVirtualScreen(ToolCurrentCursorPos.X+PenWidth/2,ToolCurrentCursorPos.Y+PenWidth/2);
   end;
   result.rx := (br.x-tl.x)/2-0.5;
   result.ry := (br.y-tl.y)/2-0.5;
@@ -497,7 +513,7 @@ begin
   else
   begin
     FLastPictureParameters.defined:=false;
-    result:= AWorkArea;
+    result:= rect(-maxlongint div 2,-maxlongint div 2,maxlongint div 2,maxlongint div 2);
   end;
 end;
 
@@ -509,7 +525,7 @@ var virtualScreenPenCursorBefore: boolean;
   function UseVSPenCursor: boolean;
   begin
     if FLastPictureParameters.Defined and
-      (LazPaintInstance.ToolManager.ToolPenWidth * FLastPictureParameters.zoomFactorX > 6) and
+      (LazPaintInstance.ToolManager.PenWidth * FLastPictureParameters.zoomFactorX > 6) and
       PtInRect(FLastPictureParameters.scaledArea, Point(X,Y)) then
     begin
       FPenCursorVisible := True;
@@ -543,7 +559,8 @@ begin
   updateArea := GetRectToInvalidate(false, AWorkArea);
   FPenCursorPosBefore.bounds := EmptyRect;
   {$IFDEF IMAGEVIEW_DIRECTUPDATE}
-  OffsetRect(updateArea, -FLastPictureParameters.virtualScreenArea.Left,-FLastPictureParameters.virtualScreenArea.Top);
+  if FLastPictureParameters.defined then
+    OffsetRect(updateArea, -FLastPictureParameters.virtualScreenArea.Left,-FLastPictureParameters.virtualScreenArea.Top);
   PaintPictureImplementation(ACanvasOfs, AWorkArea, updateArea);
   if prevVSArea <> FLastPictureParameters.virtualScreenArea then
     PaintBlueAreaImplementation(ACanvasOfs, AWorkArea);

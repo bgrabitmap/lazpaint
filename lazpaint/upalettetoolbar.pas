@@ -35,6 +35,7 @@ type
     procedure PopupClose(Sender: TObject);
     procedure PopupOpen(Sender: TObject);
   private
+    FDarkTheme: boolean;
     FPaletteItemHeight: integer;
     FPaletteItemWidth: integer;
     FPaletteAlphaWidth:integer;
@@ -60,6 +61,7 @@ type
     function GetHeight: integer;
     function GetWidth: integer;
     procedure SetContainer(AValue: TWinControl);
+    procedure SetDarkTheme(AValue: boolean);
     procedure SetLazPaintInstance(AValue: TLazPaintCustomInstance);
     procedure SetOnVisibilityChangedByUser(AValue: TPaletteVisibilityChangedByUserHandler);
     procedure SetVisible(AValue: boolean);
@@ -77,6 +79,7 @@ type
     procedure PanelMouseUp(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; X, Y: Integer);
     procedure CreatePopupMenu;
+    procedure ApplyTheme;
     property PanelPalette: TBGRAVirtualScreen read GetPanelPalette;
   public
     constructor Create;
@@ -87,6 +90,7 @@ type
     property Container: TWinControl read FContainer write SetContainer;
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
     property Visible: boolean read FVisible write SetVisible;
+    property DarkTheme: boolean read FDarkTheme write SetDarkTheme;
     property Width: integer read GetWidth;
     property Height: integer read GetHeight;
     property OnVisibilityChangedByUser: TPaletteVisibilityChangedByUserHandler read FOnVisibilityChangedByUser write SetOnVisibilityChangedByUser;
@@ -96,7 +100,8 @@ implementation
 
 uses LCScaleDPI, Graphics, Forms, UGraph,
   UResourceStrings, BGRAColorQuantization,
-  ULayerAction, UCursors, UFileSystem;
+  ULayerAction, UCursors, UFileSystem,
+  udarktheme;
 
 { TPaletteToolbar }
 
@@ -108,6 +113,13 @@ begin
   FContainer:=AValue;
   if Assigned(FPanelPalette) and Assigned(FContainer) then
     FContainer.InsertControl(FPanelPalette);
+end;
+
+procedure TPaletteToolbar.SetDarkTheme(AValue: boolean);
+begin
+  if FDarkTheme=AValue then Exit;
+  FDarkTheme:=AValue;
+  ApplyTheme;
 end;
 
 function TPaletteToolbar.GetWidth: integer;
@@ -236,6 +248,26 @@ begin
   item.OnClick:=@DoToggleShowPalette;
   FPopupMenu.Items.Add(item);
   FItemToggleVisible := item;
+end;
+
+procedure TPaletteToolbar.ApplyTheme;
+begin
+  if Assigned(FPanelPalette) then
+  begin
+    if DarkTheme then
+    begin
+      FPanelPalette.Color := clDarkBtnFace;
+      FPanelPalette.BevelOuter := bvNone;
+    end
+    else
+    begin
+      FPanelPalette.Color := clBtnFace;
+      FPanelPalette.BevelOuter := bvRaised;
+    end;
+    FPanelPalette.DiscardBitmap;
+  end;
+  if Assigned(FMenuButton) then
+    BCAssignSystemStyle(FMenuButton, DarkTheme);
 end;
 
 procedure TPaletteToolbar.DoClearPalette(Sender: TObject);
@@ -439,8 +471,7 @@ begin
     FPanelPalette.OnMouseDown:=@PanelMouseDown;
     FPanelPalette.OnMouseUp:=@PanelMouseUp;
     FPanelPalette.OnMouseMove:=@PanelMouseMove;
-    FPanelPalette.BevelOuter := bvRaised;
-    FPanelPalette.Color := clBtnFace;
+    ApplyTheme;
     FPanelPalette.Caption := '';
     FColors := TBGRAPalette.Create;
     FTransparentPalette:= false;
@@ -448,7 +479,7 @@ begin
 
     FMenuButton := TBCButton.Create(FPanelPalette);
     FMenuButton.Cursor := crArrow;
-    BCAssignSystemStyle(FMenuButton);
+    BCAssignSystemStyle(FMenuButton, DarkTheme);
     FMenuButton.DropDownArrow := true;
     FMenuButton.DropDownArrowSize := DoScaleY(FPaletteItemHeight div 2, OriginalDPI);
     glyphBmp := TBitmap.Create;
@@ -595,14 +626,14 @@ begin
     if (ssLeft in Shift) and not (ssRight in Shift) then
     begin
       c := FColors.Color[idx];
-      if not FTransparentPalette then c.alpha := LazPaintInstance.ToolManager.ToolForeColor.alpha;
-      LazPaintInstance.ToolManager.ToolForeColor := c;
+      if not FTransparentPalette then c.alpha := LazPaintInstance.ToolManager.ForeColor.alpha;
+      LazPaintInstance.ToolManager.ForeColor := c;
     end else
     if not (ssLeft in Shift) and (ssRight in Shift) then
     begin
       c := FColors.Color[idx];
-      if not FTransparentPalette then c.alpha := LazPaintInstance.ToolManager.ToolBackColor.alpha;
-      LazPaintInstance.ToolManager.ToolBackColor := c;
+      if not FTransparentPalette then c.alpha := LazPaintInstance.ToolManager.BackColor.alpha;
+      LazPaintInstance.ToolManager.BackColor := c;
     end else
         exit;
     LazPaintInstance.UpdateToolbar;
@@ -622,7 +653,15 @@ var i,x,y,w,aw,a,h: integer;
   nbVisible, maxScroll: integer;
   clInterm: TBGRAPixel;
 begin
-  clInterm := MergeBGRA(ColorToBGRA(ColorToRGB(clBtnFace)),ColorToBGRA(ColorToRGB(clBtnText)));
+  if DarkTheme then
+  begin
+    clInterm := MergeBGRA(ColorToBGRA(clDarkBtnFace),ColorToBGRA(clLightText));
+    Bitmap.HorizLine(0,0,Bitmap.Width-1, ColorToBGRA(clDarkPanelHighlight));
+    Bitmap.VertLine(0,0,Bitmap.Height-1, ColorToBGRA(clDarkPanelHighlight));
+  end
+  else
+    clInterm := MergeBGRA(ColorToBGRA(ColorToRGB(clBtnFace)),ColorToBGRA(ColorToRGB(clBtnText)));
+
   x := 2;
   y := FMenuButton.Top+FMenuButton.Height+1;
   w := Bitmap.Width-(VolatileScrollBarSize+1)-x;

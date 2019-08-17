@@ -65,7 +65,9 @@ uses Types, BGRABitmapTypes;
 
 function TFilterConnector.GetActiveLayer: TBGRABitmap;
 begin
-  if ApplyOnSelectionLayer then
+  if FAction = nil then
+    result := nil
+  else if ApplyOnSelectionLayer then
     result := FAction.GetSelectionLayerIfExists
   else
     result := FAction.SelectedImageLayer;
