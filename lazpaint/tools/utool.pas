@@ -88,8 +88,8 @@ type
     function ToolKeyUp(var key: Word): TRect; virtual;
     function ToolKeyPress(var key: TUTF8Char): TRect; virtual;
     function ToolUp: TRect; virtual;
-    function ToolCommand(ACommand: TToolCommand): boolean; virtual;
-    function ToolProvideCommand(ACommand: TToolCommand): boolean; virtual;
+    function ToolCommand({%H-}ACommand: TToolCommand): boolean; virtual;
+    function ToolProvideCommand({%H-}ACommand: TToolCommand): boolean; virtual;
     function GetContextualToolbars: TContextualToolbars; virtual;
     function GetToolDrawingLayer: TBGRABitmap;
     procedure RestoreBackupDrawingLayer;

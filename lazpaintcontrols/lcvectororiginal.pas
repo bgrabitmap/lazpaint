@@ -2863,7 +2863,6 @@ end;
 
 procedure TVectorOriginal.MoveShapeToIndex(AFromIndex: integer; AToIndex: integer);
 var
-  movedShape: TVectorShape;
   diff: TVectorOriginalMoveShapeToIndexDiff;
 begin
   diff := TVectorOriginalMoveShapeToIndexDiff.Create(AFromIndex,AToIndex);
