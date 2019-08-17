@@ -12,7 +12,7 @@ fi
 
 
 appname=LazPaint
-appversion=7.0.2
+appversion=7.0.3
 pkgversion=0
 
 appnamenospaces=LazPaint

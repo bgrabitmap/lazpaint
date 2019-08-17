@@ -1,3 +1,22 @@
+lazpaint (6.4.1) stable; urgency=low
+
+  * added brush tool and clone tool
+  * added palette toolbar
+  * docking of toolbox
+  * choice of quality when saving PNG/JPG/BMP files
+  * rain rendering
+  * improved 3d object importation (texture, vertex normals)
+
+-- circular <circular@operamail.com>  Sat, 4 Jul 2015 10:29:00 +0100
+
+lazpaint (7.0.1) unstable; urgency=low
+
+  * support for ICO/CUR, GIF frames, SVG, TIFF Lab, LRS and RES containers
+  * improve drawing tool (transformations of shapes)
+  * added zoom layer tool and non-destructive layer transform
+
+-- circular <circular@operamail.com>  Fri, 5 Jul 2019 12:49:00 +0100
+
 lazpaint (7.0.2) unstable; urgency=low
 
   * bug fixes with tools and undo
@@ -9,3 +28,27 @@ lazpaint (7.0.2) unstable; urgency=low
   * faster rendering in draft mode (when editing)
 
 -- circular <circular@operamail.com>  Sat, 27 Jul 2019 22:23:00 +0100
+
+lazpaint (7.0.3) unstable; urgency=low
+
+  * (Tools) edit shape tool
+  * copy/paste shape
+  * align shape horizontally/vertically
+  * bring shape to front/send to back
+  * shape count limit
+  * rotation lock on 90 degrees unless Shift is pressed
+  * add wave displacement filter
+  * add aliased mode for eraser
+  * (Interface) selection pen shortcut changed to "O" letter key
+  * fix update on move image
+  * minor toolbar adjustments
+  * less space used by upper toolbar, nicer comboboxes
+  * faster draft gradient rendering
+  * dark theme option
+  * fix undo/redo with originals
+  * (Optimize) optimize selection rendering
+  * less memory usage by selection
+  * update highlight when rotating
+
+-- circular <circular@operamail.com>  Sat, 17 Aug 2019 12:16:00 +0100
+
