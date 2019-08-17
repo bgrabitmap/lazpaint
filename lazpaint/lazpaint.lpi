@@ -320,17 +320,18 @@
     </RunParams>
     <RequiredPackages Count="5">
       <Item1>
-        <PackageName Value="BGRABitmapPack"/>
-        <MinVersion Major="10" Minor="2" Valid="True"/>
+        <PackageName Value="bgracontrols"/>
+        <MinVersion Major="6" Minor="4" Valid="True"/>
       </Item1>
       <Item2>
-        <PackageName Value="lazpaintcontrols"/>
+        <PackageName Value="BGRABitmapPack"/>
+        <MinVersion Major="10" Minor="6" Valid="True"/>
       </Item2>
       <Item3>
-        <PackageName Value="Printer4Lazarus"/>
+        <PackageName Value="lazpaintcontrols"/>
       </Item3>
       <Item4>
-        <PackageName Value="bgracontrols"/>
+        <PackageName Value="Printer4Lazarus"/>
       </Item4>
       <Item5>
         <PackageName Value="LCL"/>
