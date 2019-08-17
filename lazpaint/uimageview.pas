@@ -513,7 +513,7 @@ begin
   else
   begin
     FLastPictureParameters.defined:=false;
-    result:= AWorkArea;
+    result:= rect(-maxlongint div 2,-maxlongint div 2,maxlongint div 2,maxlongint div 2);
   end;
 end;
 
@@ -559,7 +559,8 @@ begin
   updateArea := GetRectToInvalidate(false, AWorkArea);
   FPenCursorPosBefore.bounds := EmptyRect;
   {$IFDEF IMAGEVIEW_DIRECTUPDATE}
-  OffsetRect(updateArea, -FLastPictureParameters.virtualScreenArea.Left,-FLastPictureParameters.virtualScreenArea.Top);
+  if FLastPictureParameters.defined then
+    OffsetRect(updateArea, -FLastPictureParameters.virtualScreenArea.Left,-FLastPictureParameters.virtualScreenArea.Top);
   PaintPictureImplementation(ACanvasOfs, AWorkArea, updateArea);
   if prevVSArea <> FLastPictureParameters.virtualScreenArea then
     PaintBlueAreaImplementation(ACanvasOfs, AWorkArea);
