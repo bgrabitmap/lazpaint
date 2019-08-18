@@ -279,8 +279,8 @@ begin
   Toolbar2.Top := Toolbar1.Top + Toolbar1.Height;
   Panel1.Height := Toolbar2.Top+Toolbar2.Height+2;
 
-  ComboBox_BlendOp.Top := ToolBar1.Top;
-  ComboBox_BlendOp.Height := ToolBar1.ButtonHeight+1;
+  ComboBox_BlendOp.Top := ToolBar1.Top-1;
+  ComboBox_BlendOp.Height := ToolBar1.ButtonHeight+2;
 
   if Toolbar2.Top+Toolbar2.Height+2 > Panel1.Height then
     Panel1.Height := Toolbar2.Top+Toolbar2.Height+2;
@@ -844,7 +844,7 @@ begin
   DarkThemeInstance.Apply(ToolBar2, DarkTheme);
   DarkThemeInstance.Apply(ToolBar3, DarkTheme);
   BGRALayerStack.Color:= GetBackColor(False);
-  BCAssignSystemStyle(ComboBox_BlendOp, DarkTheme, 0.5);
+  BCAssignSystemStyle(ComboBox_BlendOp, DarkTheme, 0.60);
 end;
 
 function TFLayerStack.GetTextColor(ASelected: boolean): TColor;

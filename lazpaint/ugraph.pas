@@ -58,8 +58,8 @@ procedure DrawPenStyle(AComboBox: TBCComboBox; ARect: TRect; APenStyle: TPenStyl
 procedure DrawPenStyle(ABitmap: TBGRABitmap; ARect: TRect; APenStyle: TPenStyle; c: TBGRAPixel); overload;
 procedure DrawArrow(AComboBox: TBCComboBox; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; State: TOwnerDrawState); overload;
 procedure DrawArrow(ABitmap: TBGRABitmap; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; AColor: TBGRAPixel); overload;
-procedure BCAssignSystemStyle(AButton: TBCButton; ADarkTheme: boolean; AFontHeightRatio: single = 0.45);
-procedure BCAssignSystemStyle(ACombo: TBCComboBox; ADarkTheme: boolean; AFontHeightRatio: single = 0.45);
+procedure BCAssignSystemStyle(AButton: TBCButton; ADarkTheme: boolean; AFontHeightRatio: single = 0.5);
+procedure BCAssignSystemStyle(ACombo: TBCComboBox; ADarkTheme: boolean; AFontHeightRatio: single = 0.5);
 
 implementation
 
@@ -128,6 +128,7 @@ procedure BCAssignSystemStyle(AButton: TBCButton; ADarkTheme: boolean; AFontHeig
   end;
 
 var highlight, btnFace, btnShadow, btnText: TColor;
+  fh: Int64;
 begin
   if ADarkTheme then
   begin
@@ -153,18 +154,19 @@ begin
     BCAssignSystemState(StateNormal, btnText, btnFace, highlight, btnFace, btnShadow, btnShadow);
     BCAssignSystemState(StateHover, HoverColor(btnText), HoverColor(btnFace), HoverColor(highlight), HoverColor(btnFace), HoverColor(btnShadow), HoverColor(btnShadow));
     BCAssignSystemState(StateClicked, HoverColor(btnText), HoverColor(MergeColor(btnFace,btnShadow)), HoverColor(btnFace), HoverColor(MergeColor(btnFace,btnShadow)), HoverColor(btnShadow), HoverColor(btnShadow));
+    fh := round((AButton.Height-4)*AFontHeightRatio);
     StateNormal.Border.LightWidth := 0;
-    StateNormal.FontEx.Height := round(AButton.Height*AFontHeightRatio);
+    StateNormal.FontEx.Height := fh;
     StateNormal.FontEx.ShadowColorOpacity:= 70;
     StateNormal.FontEx.TextAlignment:= bcaLeftCenter;
     StateNormal.FontEx.PaddingLeft:= DoScaleX(3, OriginalDPI);
     StateHover.Border.LightWidth := 0;
-    StateHover.FontEx.Height := round(AButton.Height*AFontHeightRatio);
+    StateHover.FontEx.Height := fh;
     StateHover.FontEx.ShadowColorOpacity:= 70;
     StateHover.FontEx.TextAlignment:= bcaLeftCenter;
     StateHover.FontEx.PaddingLeft:= DoScaleX(3, OriginalDPI);
     StateClicked.Border.LightWidth := 0;
-    StateClicked.FontEx.Height := round(AButton.Height*AFontHeightRatio);
+    StateClicked.FontEx.Height := fh;
     StateClicked.FontEx.ShadowColorOpacity:= 70;
     StateClicked.FontEx.TextAlignment:= bcaLeftCenter;
     StateClicked.FontEx.PaddingLeft:= DoScaleX(3, OriginalDPI);
@@ -173,15 +175,18 @@ end;
 
 procedure BCAssignSystemStyle(ACombo: TBCComboBox; ADarkTheme: boolean;
   AFontHeightRatio: single);
+var
+  fh: Int64;
 begin
   BCAssignSystemStyle(ACombo.Button, ADarkTheme, AFontHeightRatio);
   with ACombo do
   begin
-    Button.StateNormal.FontEx.Height := round(AFontHeightRatio*Height);
+    fh := round((Height-4)*AFontHeightRatio);
+    Button.StateNormal.FontEx.Height := fh;
     Button.StateNormal.FontEx.ShadowColorOpacity:= 96;
-    Button.StateClicked.FontEx.Height := round(AFontHeightRatio*Height);
+    Button.StateClicked.FontEx.Height := fh;
     Button.StateClicked.FontEx.ShadowColorOpacity:= 96;
-    Button.StateHover.FontEx.Height := round(AFontHeightRatio*Height);
+    Button.StateHover.FontEx.Height := fh;
     Button.StateHover.FontEx.ShadowColorOpacity:= 96;
     if ADarkTheme then
     begin
