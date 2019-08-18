@@ -2221,7 +2221,7 @@ end;
 
 procedure TDuplicateLayerStateDifference.ApplyTo(AState: TState);
 var sourceLayerIndex,duplicateIndex: integer;
-  copy, idxOrigCopy: integer;
+  copy: integer;
   stream: TMemoryStream;
 begin
   inherited ApplyTo(AState);
