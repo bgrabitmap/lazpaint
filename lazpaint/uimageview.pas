@@ -465,6 +465,7 @@ var
   area: TRect;
 begin
   area := GetRectToInvalidate(AInvalidateAll, AWorkArea);
+  IntersectRect(area, area, AWorkArea);
   OffsetRect(area, AControlOfs.X,AControlOfs.Y);
   InvalidateRect(AWinControl.Handle,@area,False);
 end;
