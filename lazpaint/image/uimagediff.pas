@@ -452,6 +452,8 @@ type
     sourceLayerId: integer;
     duplicateId: integer;
     useOriginal: boolean;
+    duplicateOriginal: boolean;
+    duplicateGuid: TGuid;
     procedure ApplyTo(AState: TState); override;
     procedure UnapplyTo(AState: TState); override;
     constructor Create(ADestination: TState; AUseOriginal: boolean);
@@ -2219,7 +2221,8 @@ end;
 
 procedure TDuplicateLayerStateDifference.ApplyTo(AState: TState);
 var sourceLayerIndex,duplicateIndex: integer;
-  copy: integer;
+  copy, idxOrigCopy: integer;
+  stream: TMemoryStream;
 begin
   inherited ApplyTo(AState);
   with AState as TImageState do
@@ -2234,7 +2237,16 @@ begin
       LayerVisible[copy] := LayerVisible[sourceLayerIndex];
       if useOriginal then
       begin
-        LayerOriginalGuid[copy] := LayerOriginalGuid[sourceLayerIndex];
+        if duplicateOriginal then
+        begin
+          stream:= TMemoryStream.Create;
+          SaveOriginalToStream(sourceLayerIndex, stream);
+          stream.Position:= 0;
+          AddOriginalFromStream(stream, duplicateGuid, true);
+          stream.Free;
+          LayerOriginalGuid[copy] := duplicateGuid;
+        end else
+          LayerOriginalGuid[copy] := LayerOriginalGuid[sourceLayerIndex];
         LayerOriginalMatrix[copy] := LayerOriginalMatrix[sourceLayerIndex];
         LayerOriginalRenderStatus[copy] := LayerOriginalRenderStatus[sourceLayerIndex];
       end;
@@ -2255,6 +2267,7 @@ begin
     duplicateIndex := LayeredBitmap.GetLayerIndexFromId(self.duplicateId);
     LayeredBitmap.RemoveLayer(duplicateIndex);
     SelectedImageLayerIndex := sourceLayerIndex;
+    if duplicateOriginal then LayeredBitmap.RemoveUnusedOriginals;
   end;
 end;
 
@@ -2269,6 +2282,9 @@ begin
   begin
     self.sourceLayerId := LayeredBitmap.LayerUniqueId[SelectedImageLayerIndex];
     self.duplicateId := LayeredBitmap.ProduceLayerUniqueId;
+    self.duplicateOriginal := useOriginal and (LayeredBitmap.OriginalClass[SelectedImageLayerIndex]=TVectorOriginal);
+    if self.duplicateOriginal then
+      CreateGUID(duplicateGuid);
   end;
   ApplyTo(imgDest);
 end;
