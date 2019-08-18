@@ -223,7 +223,7 @@ object FMain: TFMain
       ParentFont = False
     end
     object Label_Back: TLabel
-      Left = 137
+      Left = 138
       Height = 28
       Top = 1
       Width = 39
@@ -235,7 +235,7 @@ object FMain: TFMain
       ParentFont = False
     end
     object Image_SwapColors: TImage
-      Left = 113
+      Left = 112
       Height = 20
       Hint = 'Switch color'
       Top = 5
@@ -732,7 +732,7 @@ object FMain: TFMain
       end
     end
     object SpinEdit_Tolerance: TBCTrackbarUpdown
-      Left = 83
+      Left = 82
       Height = 25
       Top = 2
       Width = 51
@@ -847,12 +847,12 @@ object FMain: TFMain
     end
   end
   object Panel_GradientType: TPanel
-    Left = 328
+    Left = 340
     Height = 45
     Top = 190
-    Width = 280
+    Width = 332
     ClientHeight = 45
-    ClientWidth = 280
+    ClientWidth = 332
     Font.Height = -15
     ParentColor = False
     ParentFont = False
@@ -911,10 +911,10 @@ object FMain: TFMain
       end
     end
     object Combo_GradientColorspace: TBCComboBox
-      Left = 154
+      Left = 150
       Height = 26
       Top = 2
-      Width = 111
+      Width = 165
       ItemIndex = -1
       ArrowSize = 8
       ArrowWidth = 16
@@ -1701,7 +1701,7 @@ object FMain: TFMain
     PopupMenu = PopupToolbar
     TabOrder = 16
     object ToolBar4: TToolBar
-      Left = 83
+      Left = 82
       Height = 28
       Top = 1
       Width = 59
@@ -2041,9 +2041,9 @@ object FMain: TFMain
     Left = 10
     Height = 45
     Top = 190
-    Width = 302
+    Width = 315
     ClientHeight = 45
-    ClientWidth = 302
+    ClientWidth = 315
     Font.Height = -15
     ParentColor = False
     ParentFont = False
@@ -2052,7 +2052,7 @@ object FMain: TFMain
       Left = 5
       Height = 28
       Top = 1
-      Width = 47
+      Width = 48
       AutoSize = False
       Caption = 'Curve'
       Font.Height = -15
@@ -2061,7 +2061,7 @@ object FMain: TFMain
       ParentFont = False
     end
     object ToolBar20: TToolBar
-      Left = 175
+      Left = 190
       Height = 28
       Top = 0
       Width = 117
@@ -2105,7 +2105,7 @@ object FMain: TFMain
       Left = 56
       Height = 26
       Top = 2
-      Width = 117
+      Width = 132
       ItemIndex = -1
       ArrowSize = 8
       ArrowWidth = 16
@@ -2321,7 +2321,7 @@ object FMain: TFMain
       Height = 25
       Hint = 'Text size'
       Top = 2
-      Width = 57
+      Width = 58
       AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
@@ -2500,7 +2500,7 @@ object FMain: TFMain
       end
     end
     object SpinEdit_PhongBorderSize: TBCTrackbarUpdown
-      Left = 327
+      Left = 328
       Height = 25
       Hint = 'Border size'
       Top = 2
@@ -2875,7 +2875,7 @@ object FMain: TFMain
       ParentFont = False
     end
     object Label_Spacing: TLabel
-      Left = 117
+      Left = 118
       Height = 28
       Top = 1
       Width = 59
@@ -3107,7 +3107,7 @@ object FMain: TFMain
     ParentFont = False
     TabOrder = 27
     object Combo_Ratio: TComboBox
-      Left = 53
+      Left = 52
       Height = 34
       Top = 1
       Width = 120
@@ -3206,9 +3206,9 @@ object FMain: TFMain
     Left = 280
     Height = 45
     Top = 250
-    Width = 307
+    Width = 308
     ClientHeight = 45
-    ClientWidth = 307
+    ClientWidth = 308
     Font.Height = -15
     ParentColor = False
     ParentFont = False
@@ -3334,7 +3334,7 @@ object FMain: TFMain
       ParentFont = False
     end
     object SpinEdit_TextShadowX: TBCTrackbarUpdown
-      Left = 193
+      Left = 192
       Height = 25
       Hint = 'Horizontal shadow offset'
       Top = 1
@@ -3488,7 +3488,7 @@ object FMain: TFMain
   end
   object ImageList16: TBGRAImageList
     left = 48
-    top = 672
+    top = 673
     Bitmap = {
       4C69820000001000000010000000FFFFFF00B6B6B6FFB6B6B6FFB6B6B6FFB6B6
       B6FFB6B6B6FFB6B6B6FFB6B6B6FFB6B6B6FFB6B6B6FFB6B6B6EFB6B6B6300000
@@ -7656,7 +7656,7 @@ object FMain: TFMain
   object ActionList1: TActionList
     Images = ImageList16
     left = 48
-    top = 592
+    top = 593
     object FileNew: TAction
       Category = 'File'
       Caption = 'New...'
@@ -8737,12 +8737,12 @@ object FMain: TFMain
       'ColorT=A4A0A0'
     )
     left = 268
-    top = 592
+    top = 593
   end
   object MainMenu1: TMainMenu
     Images = ImageList16
     left = 48
-    top = 512
+    top = 513
     object MenuFile: TMenuItem
       Caption = 'File'
       OnClick = MenuFileClick
@@ -8847,32 +8847,32 @@ object FMain: TFMain
     MinFontSize = 0
     MaxFontSize = 0
     left = 268
-    top = 672
+    top = 673
   end
   object LoadSelectionDialog: TOpenPictureDialog
     Title = 'Load selection'
     Options = [ofNoDereferenceLinks, ofEnableSizing, ofViewDetail]
-    left = 412
-    top = 512
+    left = 413
+    top = 513
   end
   object OpenPictureDialog1: TOpenDialog
     Title = 'Open existing image'
     Options = [ofNoDereferenceLinks, ofEnableSizing, ofViewDetail]
     left = 564
-    top = 512
+    top = 513
   end
   object OpenTextureDialog: TOpenDialog
     Title = 'Open texture'
     DefaultExt = '.png'
     Options = [ofNoDereferenceLinks, ofEnableSizing, ofViewDetail]
-    left = 412
-    top = 672
+    left = 413
+    top = 673
   end
   object TimerUpdate: TTimer
     Interval = 50
     OnTimer = TimerUpdateTimer
     left = 268
-    top = 512
+    top = 513
   end
   object Open3DObjectDialog: TOpenDialog
     Title = 'Import 3D object'
@@ -8880,39 +8880,39 @@ object FMain: TFMain
     Filter = 'Wavefront Object file (*.obj)|*.obj;*.Obj;*.OBJ'
     Options = [ofNoDereferenceLinks, ofEnableSizing, ofViewDetail]
     left = 564
-    top = 672
+    top = 673
   end
   object SavePictureDialog1: TSaveDialog
     Title = 'Save file as...'
     DefaultExt = '.png'
     Options = [ofOverwritePrompt, ofEnableSizing, ofViewDetail]
     left = 564
-    top = 592
+    top = 593
   end
   object TimerDocking: TTimer
     Interval = 200
     OnTimer = TimerDockingTimer
     left = 716
-    top = 592
+    top = 593
   end
   object SaveSelectionDialog: TSaveDialog
     Title = 'Save selection as...'
     DefaultExt = '.lzp'
     Options = [ofOverwritePrompt, ofEnableSizing, ofViewDetail]
-    left = 412
-    top = 592
+    left = 413
+    top = 593
   end
   object OpenBrushDialog: TOpenDialog
     Title = 'Open brush'
     DefaultExt = '.lzp'
     Options = [ofNoDereferenceLinks, ofEnableSizing, ofViewDetail]
     left = 716
-    top = 512
+    top = 513
   end
   object PopupToolbar: TPopupMenu
     OnPopup = PopupToolbarPopup
     left = 156
-    top = 592
+    top = 593
     object MenuFileToolbar: TMenuItem
       Caption = 'Show file toolbar'
       OnClick = MenuFileToolbarClick
@@ -8941,7 +8941,7 @@ object FMain: TFMain
   object PopupToolbox: TPopupMenu
     OnPopup = PopupToolboxPopup
     left = 156
-    top = 512
+    top = 513
     object MenuDockToolboxLeft: TMenuItem
       Caption = 'Dock left'
       OnClick = MenuDockToolboxLeftClick
@@ -8959,7 +8959,7 @@ object FMain: TFMain
     Height = 48
     Width = 48
     left = 156
-    top = 672
+    top = 673
     Bitmap = {
       4C69820000003000000030000000000000000000000000000000000000000000
       0000000000000000000F000000720000007F0000007F0000007F0000007F0000

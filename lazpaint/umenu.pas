@@ -254,7 +254,7 @@ begin
           end;
         end else
         if Controls[j] is TBCComboBox then
-          BCAssignSystemStyle(TBCComboBox(Controls[j]), FDarkTheme, 0.4) else
+          BCAssignSystemStyle(TBCComboBox(Controls[j]), FDarkTheme, 0.50) else
         if Controls[j] is TBCTrackbarUpdown then
         begin
           if FDarkTheme then
@@ -339,9 +339,9 @@ begin
         if (Controls[j].Name = 'Label_Coordinates') or
            (Controls[j].Name = 'Label_CurrentZoom') or
            (Controls[j].Name = 'Label_CurrentDiff') then
-          Controls[j].Font.Size := Controls[j].Height*38 div ScreenInfo.PixelsPerInchY
+          Controls[j].Font.Height := -Controls[j].Height*55 div ScreenInfo.PixelsPerInchY
         else
-          Controls[j].Font.Size := Controls[j].Height*33 div ScreenInfo.PixelsPerInchY;
+          Controls[j].Font.Height := -Controls[j].Height*50 div ScreenInfo.PixelsPerInchY;
       end;
     end;
   end;

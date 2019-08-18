@@ -97,7 +97,7 @@ msgstr "Intercambiar colores..."
 
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
-msgstr ""
+msgstr "Estilo de lápiz"
 
 #: tfmain.editcopy.caption
 msgid "Copy"
@@ -136,19 +136,19 @@ msgstr "Invertir selección"
 
 #: tfmain.editmovedown.hint
 msgid "Move down"
-msgstr ""
+msgstr "Mover abajo"
 
 #: tfmain.editmovetoback.hint
 msgid "Send to back"
-msgstr ""
+msgstr "Enviar al fondo"
 
 #: tfmain.editmovetofront.hint
 msgid "Bring to front"
-msgstr ""
+msgstr "Traer al frente"
 
 #: tfmain.editmoveup.hint
 msgid "Move up"
-msgstr ""
+msgstr "Mover arriba"
 
 #: tfmain.editpaste.hint
 msgctxt "TFMAIN.EDITPASTE.HINT"
@@ -174,7 +174,6 @@ msgid "Select all"
 msgstr "Seleccionar todo"
 
 #: tfmain.editselectall.hint
-#, fuzzy
 msgctxt "tfmain.editselectall.hint"
 msgid "Select all"
 msgstr "Seleccionar todo"
@@ -189,27 +188,27 @@ msgstr "Encajar selección"
 
 #: tfmain.editshapealignbottom.hint
 msgid "Align shape to the bottom"
-msgstr ""
+msgstr "Alinear la forma hacia abajo"
 
 #: tfmain.editshapealignleft.hint
 msgid "Align shape left"
-msgstr ""
+msgstr "Alinear la forma a la izquierda"
 
 #: tfmain.editshapealignright.hint
 msgid "Align shape right"
-msgstr ""
+msgstr "Alinear la forma a la derecha"
 
 #: tfmain.editshapealigntop.hint
 msgid "Align shape to the top"
-msgstr ""
+msgstr "Alinear la forma hacia arriba"
 
 #: tfmain.editshapecenterhorizontally.hint
 msgid "Center shape horizontally"
-msgstr ""
+msgstr "Centrar la forma horizontalmente"
 
 #: tfmain.editshapecentervertically.hint
 msgid "Center shape vertically"
-msgstr ""
+msgstr "Centrar la forma verticalmente"
 
 #: tfmain.editundo.caption
 msgid "Undo"
@@ -597,10 +596,8 @@ msgid "Brush"
 msgstr "Pincel"
 
 #: tfmain.label_coordinates.caption
-#, fuzzy
-#| msgid "99999x99999"
 msgid "9999x9999"
-msgstr "99999x99999"
+msgstr "9999x9999"
 
 #: tfmain.label_coordinates.hint
 msgid "Coordinates"
@@ -1537,7 +1534,7 @@ msgstr "Añadir a la lista de imágenes"
 
 #: uresourcestrings.rsalignshape
 msgid "Align shape"
-msgstr ""
+msgstr "Alinear forma"
 
 #: uresourcestrings.rsallapplications
 msgid "all"
@@ -2317,4 +2314,3 @@ msgstr "Capa vectorial"
 #: uresourcestrings.rsyes
 msgid "Yes"
 msgstr "Sí"
-

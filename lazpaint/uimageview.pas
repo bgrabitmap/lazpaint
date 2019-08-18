@@ -57,7 +57,7 @@ type
     procedure OnZoomChanged({%H-}sender: TZoom; {%H-}ANewZoom: single; AWorkArea: TRect);
     procedure UpdateCursor(X,Y: integer; ACanvasOfs: TPoint; AWorkArea: TRect; AControl: TControl;
                           AWinControlOfs: TPoint; AWinControl: TWinControl);
-    procedure UpdatePicture(ACanvasOfs: TPoint; AWorkArea: TRect; {%H-}AWinControl: TWinControl);
+    procedure UpdatePicture({%H-}ACanvasOfs: TPoint; AWorkArea: TRect; {%H-}AWinControl: TWinControl);
     function BitmapToForm(pt: TPointF): TPointF;
     function BitmapToForm(X, Y: Single): TPointF;
     function BitmapToVirtualScreen(ptF: TPointF): TPointF;
@@ -465,6 +465,7 @@ var
   area: TRect;
 begin
   area := GetRectToInvalidate(AInvalidateAll, AWorkArea);
+  IntersectRect(area, area, AWorkArea);
   OffsetRect(area, AControlOfs.X,AControlOfs.Y);
   InvalidateRect(AWinControl.Handle,@area,False);
 end;
@@ -565,8 +566,11 @@ begin
   if prevVSArea <> FLastPictureParameters.virtualScreenArea then
     PaintBlueAreaImplementation(ACanvasOfs, AWorkArea);
   {$ELSE}
-  InvalidateRect(AWinControl.Handle, @updateArea, false);
-  AWinControl.Update;
+  if IntersectRect(updateArea, updateArea, AWorkArea) then
+  begin
+    InvalidateRect(AWinControl.Handle, @updateArea, false);
+    AWinControl.Update;
+  end;
   {$ENDIF}
 end;
 
