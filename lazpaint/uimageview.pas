@@ -565,8 +565,11 @@ begin
   if prevVSArea <> FLastPictureParameters.virtualScreenArea then
     PaintBlueAreaImplementation(ACanvasOfs, AWorkArea);
   {$ELSE}
-  InvalidateRect(AWinControl.Handle, @updateArea, false);
-  AWinControl.Update;
+  if IntersectRect(updateArea, updateArea, AWorkArea) then
+  begin
+    InvalidateRect(AWinControl.Handle, @updateArea, false);
+    AWinControl.Update;
+  end;
   {$ENDIF}
 end;
 
