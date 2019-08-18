@@ -10,7 +10,7 @@ uses
   {$IFDEF LINUX}, InterfaceBase{$ENDIF};
 
 const
-  LazPaintVersion = 7000300;
+  LazPaintVersion = 7000400;
 
   function LazPaintVersionStr: string;
 

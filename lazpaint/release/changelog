@@ -52,3 +52,11 @@ lazpaint (7.0.3) unstable; urgency=low
 
 -- circular <circular@operamail.com>  Sat, 17 Aug 2019 12:16:00 +0100
 
+lazpaint (7.0.4) stable; urgency=low
+
+  * adjusting font size for windows
+  * fix screen update on move image
+  * duplicate vector original
+
+-- circular <circular@operamail.com>  Sun, 18 Aug 2019 22:07:00 +0100
+
