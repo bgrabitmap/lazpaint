@@ -844,7 +844,7 @@ begin
   DarkThemeInstance.Apply(ToolBar2, DarkTheme);
   DarkThemeInstance.Apply(ToolBar3, DarkTheme);
   BGRALayerStack.Color:= GetBackColor(False);
-  BCAssignSystemStyle(ComboBox_BlendOp, DarkTheme, 0.60);
+  BCAssignSystemStyle(ComboBox_BlendOp, DarkTheme, 0.55);
 end;
 
 function TFLayerStack.GetTextColor(ASelected: boolean): TColor;

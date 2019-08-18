@@ -154,7 +154,7 @@ begin
     BCAssignSystemState(StateNormal, btnText, btnFace, highlight, btnFace, btnShadow, btnShadow);
     BCAssignSystemState(StateHover, HoverColor(btnText), HoverColor(btnFace), HoverColor(highlight), HoverColor(btnFace), HoverColor(btnShadow), HoverColor(btnShadow));
     BCAssignSystemState(StateClicked, HoverColor(btnText), HoverColor(MergeColor(btnFace,btnShadow)), HoverColor(btnFace), HoverColor(MergeColor(btnFace,btnShadow)), HoverColor(btnShadow), HoverColor(btnShadow));
-    fh := round((AButton.Height-4)*AFontHeightRatio);
+    fh := round((AButton.Height+4)*AFontHeightRatio);
     StateNormal.Border.LightWidth := 0;
     StateNormal.FontEx.Height := fh;
     StateNormal.FontEx.ShadowColorOpacity:= 70;
@@ -181,7 +181,7 @@ begin
   BCAssignSystemStyle(ACombo.Button, ADarkTheme, AFontHeightRatio);
   with ACombo do
   begin
-    fh := round((Height-4)*AFontHeightRatio);
+    fh := round((Height+4)*AFontHeightRatio);
     Button.StateNormal.FontEx.Height := fh;
     Button.StateNormal.FontEx.ShadowColorOpacity:= 96;
     Button.StateClicked.FontEx.Height := fh;

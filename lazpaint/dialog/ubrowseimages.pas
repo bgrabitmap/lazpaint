@@ -262,7 +262,7 @@ begin
   FPreview.OnValidate:= @PreviewValidate;
   FChosenImage := TImageEntry.Empty;
 
-  BCAssignSystemStyle(ComboBox_FileExtension, False, 0.45);
+  BCAssignSystemStyle(ComboBox_FileExtension, False, 0.40);
   InitComboExt;
 
   bmp := TBitmap.Create;

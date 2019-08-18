@@ -254,7 +254,7 @@ begin
           end;
         end else
         if Controls[j] is TBCComboBox then
-          BCAssignSystemStyle(TBCComboBox(Controls[j]), FDarkTheme, 0.65) else
+          BCAssignSystemStyle(TBCComboBox(Controls[j]), FDarkTheme, 0.50) else
         if Controls[j] is TBCTrackbarUpdown then
         begin
           if FDarkTheme then

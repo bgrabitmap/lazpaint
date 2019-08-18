@@ -1552,7 +1552,7 @@ msgstr "tout"
 
 #: uresourcestrings.rsallsupportedfiletypes
 msgid "All supported filetypes"
-msgstr "Tous les formats de fichiers connus"
+msgstr "Tous les formats connus"
 
 #: uresourcestrings.rsaltshiftscalemode
 msgid "Hold ALT or SHIFT to scale"
