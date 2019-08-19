@@ -210,6 +210,10 @@ msgstr "Centrar la forma horizontalmente"
 msgid "Center shape vertically"
 msgstr "Centrar la forma verticalmente"
 
+#: tfmain.editshapetocurve.hint
+msgid "Convert shape to curve"
+msgstr "Convertir forma a curva"
+
 #: tfmain.editundo.caption
 msgid "Undo"
 msgstr "Deshacer"
@@ -1209,9 +1213,10 @@ msgid "Curve"
 msgstr "Curva"
 
 #: tfmain.toolspline.hint
-msgctxt "TFMAIN.TOOLSPLINE.HINT"
-msgid "Spline"
-msgstr "Ranura"
+#, fuzzy
+msgctxt "tfmain.toolspline.hint"
+msgid "Curve"
+msgstr "Curva"
 
 #: tfmain.tooltext.hint
 msgctxt "TFMAIN.TOOLTEXT.HINT"
@@ -2314,3 +2319,4 @@ msgstr "Capa vectorial"
 #: uresourcestrings.rsyes
 msgid "Yes"
 msgstr "Sí"
+

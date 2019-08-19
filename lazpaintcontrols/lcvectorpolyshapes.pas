@@ -171,7 +171,10 @@ type
   public
     class function Usermodes: TVectorShapeUsermodes; override;
     constructor Create(AContainer: TVectorOriginal); override;
-    function AddPoint(const APoint: TPointF): integer; override;
+    constructor CreateFrom(AContainer: TVectorOriginal; AShape: TVectorShape);
+    class function CanCreateFrom(AShape: TVectorShape): boolean;
+    function AddPoint(const APoint: TPointF): integer; overload; override;
+    function AddPoint(const APoint: TPointF; AMode: TEasyBezierCurveMode): integer; overload;
     procedure KeyPress(UTF8Key: string; var AHandled: boolean); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
@@ -186,7 +189,7 @@ procedure ApplyArrowStyle(AArrow: TBGRACustomArrow; AStart: boolean; AKind: TArr
 implementation
 
 uses BGRAPen, BGRAFillInfo, BGRAPath, math, LCVectorialFill,
-  BGRAArrow;
+  BGRAArrow, LCVectorRectShapes;
 
 function StrToArrowKind(AStr: string): TArrowKind;
 var
@@ -1138,6 +1141,69 @@ begin
   FSplineStyle:= ssEasyBezier;
 end;
 
+constructor TCurveShape.CreateFrom(AContainer: TVectorOriginal;
+  AShape: TVectorShape);
+var
+  r: TCustomRectShape;
+  u, v: TPointF;
+  p: TCustomPolypointShape;
+  i: Integer;
+  f: TVectorShapeFields;
+  sq2m1: single;
+begin
+  Create(AContainer);
+  if AShape is TEllipseShape then
+  begin
+    r := AShape as TCustomRectShape;
+    u := r.XAxis-r.Origin;
+    v := r.YAxis-r.Origin;
+    sq2m1 := sqrt(2)-1;
+    AddPoint(r.Origin-v+u*sq2m1);
+    AddPoint(r.Origin-v*sq2m1+u);
+    AddPoint(r.Origin+v*sq2m1+u);
+    AddPoint(r.Origin+v+u*sq2m1);
+    AddPoint(r.Origin+v-u*sq2m1);
+    AddPoint(r.Origin+v*sq2m1-u);
+    AddPoint(r.Origin-v*sq2m1-u);
+    AddPoint(r.Origin-v-u*sq2m1);
+    Closed := true;
+  end else
+  if AShape is TRectShape then
+  begin
+    r := AShape as TCustomRectShape;
+    u := r.XAxis-r.Origin;
+    v := r.YAxis-r.Origin;
+    AddPoint(r.Origin-v-u, cmAngle);
+    AddPoint(r.Origin-v+u, cmAngle);
+    AddPoint(r.Origin+v+u, cmAngle);
+    AddPoint(r.Origin+v-u, cmAngle);
+    Closed := true;
+  end else
+  if AShape is TPolylineShape then
+  begin
+    p := AShape as TCustomPolypointShape;
+    for i := 0 to p.PointCount-1 do
+      AddPoint(p.Points[i], cmAngle);
+    Closed := p.Closed;
+  end else
+    raise exception.Create('Shape not handled');
+
+  f := AShape.Fields;
+  if vsfPenFill in f then PenFill.Assign(AShape.PenFill);
+  if vsfPenWidth in f then PenWidth := AShape.PenWidth;
+  if vsfPenStyle in f then PenStyle := AShape.PenStyle;
+  if vsfJoinStyle in f then JoinStyle := AShape.JoinStyle;
+  if vsfBackFill in f then BackFill.Assign(AShape.BackFill);
+end;
+
+class function TCurveShape.CanCreateFrom(AShape: TVectorShape): boolean;
+begin
+  result := (AShape is TEllipseShape) or
+    (AShape is TRectShape) or
+    ((AShape is TPolylineShape) and not
+     (AShape is TCurveShape));
+end;
+
 function TCurveShape.AddPoint(const APoint: TPointF): integer;
 begin
   if (PointCount > 1) and (APoint = Points[PointCount-1]) then
@@ -1148,6 +1214,12 @@ begin
     EndUpdate;
   end
   else Result:=inherited AddPoint(APoint);
+end;
+
+function TCurveShape.AddPoint(const APoint: TPointF; AMode: TEasyBezierCurveMode): integer;
+begin
+  result := inherited AddPoint(APoint);
+  CurveMode[result] := AMode;
 end;
 
 procedure TCurveShape.KeyPress(UTF8Key: string; var AHandled: boolean);

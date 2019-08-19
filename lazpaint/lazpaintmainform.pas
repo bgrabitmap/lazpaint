@@ -28,6 +28,7 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    EditShapeToCurve: TAction;
     EditShapeAlignBottom: TAction;
     EditShapeCenterVertically: TAction;
     EditShapeAlignTop: TAction;
@@ -463,6 +464,8 @@ type
     procedure EditShapeCenterHorizontallyUpdate(Sender: TObject);
     procedure EditShapeCenterVerticallyExecute(Sender: TObject);
     procedure EditShapeCenterVerticallyUpdate(Sender: TObject);
+    procedure EditShapeToCurveExecute(Sender: TObject);
+    procedure EditShapeToCurveUpdate(Sender: TObject);
     procedure FileChooseEntryExecute(Sender: TObject);
     procedure FileChooseEntryUpdate(Sender: TObject);
     procedure FileImport3DUpdate(Sender: TObject);
@@ -2978,6 +2981,17 @@ end;
 procedure TFMain.EditShapeCenterVerticallyUpdate(Sender: TObject);
 begin
   EditShapeCenterVertically.Enabled := ToolManager.ToolProvideCommand(tcCenterVertically);
+end;
+
+procedure TFMain.EditShapeToCurveExecute(Sender: TObject);
+begin
+  if ToolManager.CurrentTool is TVectorialTool then ChooseTool(ptEditShape);
+  ToolManager.ToolCommand(tcShapeToSpline);
+end;
+
+procedure TFMain.EditShapeToCurveUpdate(Sender: TObject);
+begin
+  EditShapeToCurve.Enabled := ToolManager.ToolProvideCommand(tcShapeToSpline);
 end;
 
 procedure TFMain.FileChooseEntryExecute(Sender: TObject);

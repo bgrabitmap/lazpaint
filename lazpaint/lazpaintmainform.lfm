@@ -8562,7 +8562,7 @@ object FMain: TFMain
     object ToolSpline: TAction
       Category = 'Tool'
       Caption = 'Curve'
-      Hint = 'Spline'
+      Hint = 'Curve'
       ImageIndex = 22
       OnExecute = ToolAnyExecute
     end
@@ -8709,6 +8709,12 @@ object FMain: TFMain
       Hint = 'Align shape to the bottom'
       OnExecute = EditShapeAlignBottomExecute
       OnUpdate = EditShapeAlignBottomUpdate
+    end
+    object EditShapeToCurve: TAction
+      Category = 'Edit'
+      Hint = 'Convert shape to curve'
+      OnExecute = EditShapeToCurveExecute
+      OnUpdate = EditShapeToCurveUpdate
     end
   end
   object ColorDialog1: TColorDialog

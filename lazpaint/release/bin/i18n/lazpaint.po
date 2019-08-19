@@ -200,6 +200,10 @@ msgstr ""
 msgid "Center shape vertically"
 msgstr ""
 
+#: tfmain.editshapetocurve.hint
+msgid "Convert shape to curve"
+msgstr ""
+
 #: tfmain.editundo.caption
 msgid "Undo"
 msgstr ""
@@ -1199,8 +1203,8 @@ msgid "Curve"
 msgstr ""
 
 #: tfmain.toolspline.hint
-msgctxt "TFMAIN.TOOLSPLINE.HINT"
-msgid "Spline"
+msgctxt "tfmain.toolspline.hint"
+msgid "Curve"
 msgstr ""
 
 #: tfmain.tooltext.hint

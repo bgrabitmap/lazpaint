@@ -217,6 +217,10 @@ msgstr "Centrer la forme horizontalement"
 msgid "Center shape vertically"
 msgstr "Centrer la forme verticalement"
 
+#: tfmain.editshapetocurve.hint
+msgid "Convert shape to curve"
+msgstr "Convertir la forme en courbe"
+
 #: tfmain.editundo.caption
 msgid "Undo"
 msgstr "Annuler"
@@ -1219,9 +1223,10 @@ msgid "Curve"
 msgstr "Courbe"
 
 #: tfmain.toolspline.hint
-msgctxt "TFMAIN.TOOLSPLINE.HINT"
-msgid "Spline"
-msgstr "Éclisse"
+#, fuzzy
+msgctxt "tfmain.toolspline.hint"
+msgid "Curve"
+msgstr "Courbe"
 
 #: tfmain.tooltext.hint
 msgctxt "TFMAIN.TOOLTEXT.HINT"

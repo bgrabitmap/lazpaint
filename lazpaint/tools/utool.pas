@@ -40,7 +40,8 @@ type
 
   TEraserMode = (emEraseAlpha, emSoften);
   TToolCommand = (tcCut, tcCopy, tcPaste, tcDelete, tcMoveUp, tcMoveDown, tcMoveToFront, tcMoveToBack,
-    tcAlignLeft, tcCenterHorizontally, tcAlignRight, tcAlignTop, tcCenterVertically, tcAlignBottom);
+    tcAlignLeft, tcCenterHorizontally, tcAlignRight, tcAlignTop, tcCenterVertically, tcAlignBottom,
+    tcShapeToSpline);
 
 function GradientColorSpaceToDisplay(AValue: TBGRAColorInterpolation): string;
 function DisplayToGradientColorSpace(AValue: string): TBGRAColorInterpolation;

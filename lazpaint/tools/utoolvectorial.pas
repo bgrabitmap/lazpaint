@@ -119,6 +119,7 @@ type
     function GetCurrentSplineMode: TToolSplineMode;
     procedure SetCurrentSplineMode(AMode: TToolSplineMode);
     function IsGradientShape(AShape: TVectorShape): boolean;
+    function ConvertToSpline: boolean;
   public
     constructor Create(AManager: TToolManager); override;
     destructor Destroy; override;
@@ -891,6 +892,26 @@ begin
         (not (vsfOutlineFill in AShape.Fields) or (AShape.OutlineFill.FillType = vftNone));
 end;
 
+function TEditShapeTool.ConvertToSpline: boolean;
+var
+  shapeBefore: TVectorShape;
+  orig: TVectorOriginal;
+  shapeAfter: TCurveShape;
+begin
+  if IsVectorOriginal and Assigned(GetVectorOriginal.SelectedShape) and
+    TCurveShape.CanCreateFrom(GetVectorOriginal.SelectedShape) then
+  begin
+    orig := GetVectorOriginal;
+    shapeBefore:= orig.SelectedShape;
+    shapeAfter := TCurveShape.CreateFrom(orig, shapeBefore);
+    shapeAfter.JoinStyle := pjsRound;
+    orig.ReplaceShape(orig.IndexOfShape(shapeBefore), shapeAfter);
+    orig.SelectShape(shapeAfter);
+    result := true;
+  end else
+    result := false;
+end;
+
 constructor TEditShapeTool.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
@@ -1116,6 +1137,7 @@ begin
         tcAlignLeft..tcAlignBottom: AlignShape(GetVectorOriginal.SelectedShape, ACommand,
                      Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex],
                      rect(0,0,Manager.Image.Width,Manager.Image.Height));
+        tcShapeToSpline: result := ConvertToSpline;
         else result := false;
       end;
       BindOriginalEvent(false);
@@ -1153,6 +1175,9 @@ begin
   case ACommand of
   tcCut,tcCopy,tcDelete: result:= IsVectorOriginal and not Assigned(FSelectionRect)
                                   and Assigned(GetVectorOriginal.SelectedShape);
+  tcShapeToSpline: result:= IsVectorOriginal and not Assigned(FSelectionRect)
+                            and Assigned(GetVectorOriginal.SelectedShape)
+                            and TCurveShape.CanCreateFrom(GetVectorOriginal.SelectedShape);
   tcAlignLeft..tcAlignBottom: result:= (IsVectorOriginal and not Assigned(FSelectionRect)
                                         and Assigned(GetVectorOriginal.SelectedShape)) or
                                        (Assigned(FOriginalRect) or Assigned(FSelectionRect));
@@ -1789,6 +1814,8 @@ function TVectorialTool.ToolProvideCommand(ACommand: TToolCommand): boolean;
 begin
   case ACommand of
   tcCopy,tcCut: Result:= not IsSelectingTool and not FQuickDefine and Assigned(FShape);
+  tcShapeToSpline: result:= not IsSelectingTool and not FQuickDefine and Assigned(FShape)
+                            and TCurveShape.CanCreateFrom(FShape);
   tcAlignLeft..tcAlignBottom: Result:= not FQuickDefine and Assigned(FShape);
   tcMoveDown,tcMoveToBack: result := not IsSelectingTool and not FQuickDefine and Assigned(FShape)
           and not AlwaysRasterizeShape and Manager.Image.SelectionMaskEmpty and not FLayerWasEmpty;
