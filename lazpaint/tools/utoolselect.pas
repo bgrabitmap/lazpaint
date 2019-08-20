@@ -272,7 +272,8 @@ begin
 
   if BigImage and FQuickDefine then
   begin
-    ab := TCustomRectShape(FShape).GetAffineBox(FEditor.Matrix, true);
+    ab := TCustomRectShape(FShape).GetAffineBox(
+      AffineMatrixTranslation(0.5,0.5)*FEditor.Matrix*AffineMatrixTranslation(-0.5,-0.5), false);
     abBounds := ab.RectBounds;
     abBounds.Inflate(1,1);
     result := RectUnion(result, abBounds);
@@ -281,7 +282,7 @@ begin
       ptsF := ab.AsPolygon;
       setlength(pts, length(ptsF));
       for i := 0 to high(ptsF) do
-        pts[i] := ptsF[i].Round;
+        pts[i] := (ptsF[i]+PointF(0.5,0.5)).Round;
       VirtualScreen.DrawPolygonAntialias(pts,BGRAWhite,BGRABlack,FrameDashLength);
     end;
   end;
@@ -314,7 +315,8 @@ begin
 
   if BigImage and FQuickDefine then
   begin
-    ab := TCustomRectShape(FShape).GetAffineBox(FEditor.Matrix, true);
+    ab := TCustomRectShape(FShape).GetAffineBox(
+      AffineMatrixTranslation(0.5,0.5)*FEditor.Matrix*AffineMatrixTranslation(-0.5,-0.5), false);
     abBounds := ab.RectBounds;
     abBounds.Inflate(1,1);
     result := RectUnion(result, abBounds);

@@ -47,7 +47,7 @@ type
     function RoundCoordinate(ptF: TPointF): TPointF; virtual;
     function GetIsSelectingTool: boolean; override;
     function UpdateShape(toolDest: TBGRABitmap): TRect; virtual;
-    function VectorTransform: TAffineMatrix;
+    function VectorTransform(APixelCentered: boolean): TAffineMatrix;
     procedure UpdateCursor(ACursor: TOriginalEditorCursor);
     function FixLayerOffset: boolean; override;
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF; rightBtn: boolean): TRect; override;
@@ -811,7 +811,9 @@ begin
     xAxis := BitmapToVirtualScreen(PointF(-X+1,-Y));
     yAxis := BitmapToVirtualScreen(PointF(-X,-Y+1));
   end;
-  viewMatrix := AffineMatrix(xAxis-orig,yAxis-orig,orig);
+  viewMatrix := AffineMatrixTranslation(0.5,0.5)
+                *AffineMatrix(xAxis-orig,yAxis-orig,orig)
+                *AffineMatrixTranslation(-0.5,-0.5);
 
   if not Assigned(FSelectionRect) and
     (IsVectorOriginal or (IsGradientOriginal and FIsEditingGradient)) then
@@ -1206,7 +1208,7 @@ var
   matrix: TAffineMatrix;
 begin
   toolDest := GetToolDrawingLayer;
-  matrix := VectorTransform;
+  matrix := VectorTransform(false);
   r := (matrix*TAffineBox.AffineBox(ABounds)).RectBounds;
   UpdateShape(toolDest);
   Action.NotifyChange(toolDest, r);
@@ -1305,7 +1307,7 @@ var
   addDiff: TAddShapeToVectorOriginalDifference;
 begin
   layerId := Manager.Image.LayerId[Manager.Image.CurrentLayerIndex];
-  transf := VectorTransform;
+  transf := VectorTransform(false);
   diff := TComposedImageDifference.Create;
   replaceDiff := TReplaceLayerByVectorOriginalDifference.Create(Manager.Image.CurrentState,Manager.Image.CurrentLayerIndex,
                    Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex]=TVectorOriginal);
@@ -1335,7 +1337,7 @@ begin
     begin
       CancelAction;
       if FShape.Usermode = vsuCreate then FShape.Usermode:= vsuEdit;
-      rF := FShape.GetRenderBounds(rect(0,0,Manager.Image.Width,Manager.Image.Height), VectorTransform);
+      rF := FShape.GetRenderBounds(rect(0,0,Manager.Image.Width,Manager.Image.Height), VectorTransform(false));
       if rF.IntersectsWith(rectF(0,0,Manager.Image.Width,Manager.Image.Height)) then
       begin
         if UseOriginal then
@@ -1493,7 +1495,7 @@ var
 begin
   result := FPreviousUpdateBounds;
   RestoreBackupDrawingLayer;
-  matrix := VectorTransform;
+  matrix := VectorTransform(false);
   draft := (FRightDown or FLeftDown) and SlowShape;
   newBounds := GetCustomShapeBounds(toolDest.ClipRect,matrix,draft);
   result := RectUnion(result, newBounds);
@@ -1503,12 +1505,14 @@ begin
   FPreviousUpdateBounds := newBounds;
 end;
 
-function TVectorialTool.VectorTransform: TAffineMatrix;
+function TVectorialTool.VectorTransform(APixelCentered: boolean): TAffineMatrix;
 begin
   if not UseOriginal then
     result := AffineMatrixIdentity
   else
     result := Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex];
+  if APixelCentered then
+    result := MatrixForPixelCentered(result);
 end;
 
 procedure TVectorialTool.UpdateCursor(ACursor: TOriginalEditorCursor);
@@ -1535,11 +1539,11 @@ begin
     FLastPos := AffineMatrixTranslation(X,Y)*ptF;
   if Assigned(FShape) then
   begin
-    viewPt := FEditor.Matrix*AffineMatrixInverse(VectorTransform)*FLastPos;
+    viewPt := FEditor.Matrix*AffineMatrixInverse(VectorTransform(true))*FLastPos;
     FEditor.MouseDown(rightBtn, FShiftState, viewPt.X,viewPt.Y, cur, handled);
     if not handled and Assigned(FShape) then
     begin
-      shapePt := AffineMatrixInverse(VectorTransform)*FLastPos;
+      shapePt := AffineMatrixInverse(VectorTransform(true))*FLastPos;
       FShape.MouseDown(rightBtn, FShiftState, shapePt.X,shapePt.Y, cur, handled);
     end;
     UpdateCursor(cur);
@@ -1575,9 +1579,9 @@ begin
       FQuickDefineEndPoint := FQuickDefineStartPoint;
       FShape.BeginUpdate;
         QuickDefineShape(FQuickDefineStartPoint,FQuickDefineEndPoint);
-        FLastShapeTransform := AffineMatrixInverse(VectorTransform);
+        FLastShapeTransform := AffineMatrixInverse(VectorTransform(false));
         FShape.Transform(FLastShapeTransform);
-        shapePt := AffineMatrixInverse(VectorTransform)*FLastPos;
+        shapePt := AffineMatrixInverse(VectorTransform(true))*FLastPos;
         handled := false;
         FShape.MouseMove(FShiftState, shapePt.X,shapePt.Y, cur, handled);
         AssignShapeStyle(FLastShapeTransform);
@@ -1613,18 +1617,18 @@ begin
     end;
     FShape.BeginUpdate;
       QuickDefineShape(FQuickDefineStartPoint, FQuickDefineEndPoint);
-      FLastShapeTransform := AffineMatrixInverse(VectorTransform);
+      FLastShapeTransform := AffineMatrixInverse(VectorTransform(false));
       FShape.Transform(FLastShapeTransform);
       AssignShapeStyle(FLastShapeTransform);
     FShape.EndUpdate;
     result := OnlyRenderChange;
   end else
   begin
-    viewPt := FEditor.Matrix*AffineMatrixInverse(VectorTransform)*FLastPos;
+    viewPt := FEditor.Matrix*AffineMatrixInverse(VectorTransform(true))*FLastPos;
     FEditor.MouseMove(FShiftState, viewPt.X,viewPt.Y, cur, handled);
     if not handled and Assigned(FShape) then
     begin
-      shapePt := AffineMatrixInverse(VectorTransform)*FLastPos;
+      shapePt := AffineMatrixInverse(VectorTransform(true))*FLastPos;
       FShape.MouseMove(FShiftState, shapePt.X,shapePt.Y, cur, handled);
     end;
     UpdateCursor(cur);
@@ -1672,11 +1676,11 @@ begin
     QuickDefineEnd;
   end else
   begin
-    viewPt := FEditor.Matrix*AffineMatrixInverse(VectorTransform)*FLastPos;
+    viewPt := FEditor.Matrix*AffineMatrixInverse(VectorTransform(true))*FLastPos;
     FEditor.MouseUp(wasRight, FShiftState, viewPt.X,viewPt.Y, cur, handled);
     if not handled and Assigned(FShape) then
     begin
-      shapePt := AffineMatrixInverse(VectorTransform)*FLastPos;
+      shapePt := AffineMatrixInverse(VectorTransform(true))*FLastPos;
       FShape.MouseUp(wasRight, FShiftState, shapePt.X,shapePt.Y, cur, handled);
     end;
     UpdateCursor(cur);
@@ -1837,7 +1841,7 @@ begin
       xAxis := BitmapToVirtualScreen(PointF(1,0));
       yAxis := BitmapToVirtualScreen(PointF(0,1));
     end;
-    FEditor.Matrix := AffineMatrix(xAxis-orig,yAxis-orig,orig)*VectorTransform;
+    FEditor.Matrix := AffineMatrix(xAxis-orig,yAxis-orig,orig)*VectorTransform(true);
     FEditor.Clear;
     FEditor.PointSize := DoScaleX(PointSize, OriginalDPI);
     if Assigned(FShape) then FShape.ConfigureEditor(FEditor);

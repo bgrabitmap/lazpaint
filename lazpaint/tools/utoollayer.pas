@@ -320,9 +320,10 @@ begin
       m := AffineMatrixTranslation(-x,-y)*m;
   end else m := AffineMatrixIdentity;
 
-  ab := TAffineBox.AffineBox(BitmapToVirtualScreen(m*PointF(FLayerBounds.Left-0.499,FLayerBounds.Top-0.499)),
-            BitmapToVirtualScreen(m*PointF(FLayerBounds.Right-0.501,FLayerBounds.Top-0.499)),
-            BitmapToVirtualScreen(m*PointF(FLayerBounds.Left-0.499,FLayerBounds.Bottom-0.501)));
+  m := AffineMatrixTranslation(-0.5,-0.5)*m;
+  ab := TAffineBox.AffineBox(BitmapToVirtualScreen(m*PointF(FLayerBounds.Left+0.001,FLayerBounds.Top+0.001)),
+            BitmapToVirtualScreen(m*PointF(FLayerBounds.Right-0.001,FLayerBounds.Top+0.001)),
+            BitmapToVirtualScreen(m*PointF(FLayerBounds.Left+0.001,FLayerBounds.Bottom-0.001)));
   ptsF := ab.AsPolygon;
   setlength(pts, length(ptsF));
   for i := 0 to high(pts) do
@@ -597,9 +598,6 @@ var
   ptsRect: TRect;
 begin
   idx := Manager.Image.CurrentLayerIndex;
-  with Manager.Image.LayerOffset[idx] do
-    Result:= NicePoint(VirtualScreen,BitmapToVirtualScreen(TransformCenter-PointF(X,Y)));
-
   if not FOriginalBoundsDefined then
   begin
     if Manager.Image.LayerOriginalDefined[idx] then
@@ -618,10 +616,14 @@ begin
   m := Manager.Image.LayerOriginalMatrix[idx];
   with Manager.Image.LayerOffset[idx] do
     m := AffineMatrixTranslation(-x,-y)*m;
+  m := AffineMatrixTranslation(-0.5,-0.5)*m;
 
-  ab := TAffineBox.AffineBox(BitmapToVirtualScreen(m*PointF(FOriginalBounds.Left-0.499,FOriginalBounds.Top-0.499)),
-            BitmapToVirtualScreen(m*PointF(FOriginalBounds.Right-0.501,FOriginalBounds.Top-0.499)),
-            BitmapToVirtualScreen(m*PointF(FOriginalBounds.Left-0.499,FOriginalBounds.Bottom-0.501)));
+  with Manager.Image.LayerOffset[idx] do
+    Result:= NicePoint(VirtualScreen,BitmapToVirtualScreen(TransformCenter-PointF(X,Y)));
+
+  ab := TAffineBox.AffineBox(BitmapToVirtualScreen(m*PointF(FOriginalBounds.Left+0.001,FOriginalBounds.Top+0.001)),
+            BitmapToVirtualScreen(m*PointF(FOriginalBounds.Right-0.001,FOriginalBounds.Top+0.001)),
+            BitmapToVirtualScreen(m*PointF(FOriginalBounds.Left+0.001,FOriginalBounds.Bottom-0.001)));
   ptsF := ab.AsPolygon;
   setlength(pts, length(ptsF));
   for i := 0 to high(pts) do
@@ -689,9 +691,9 @@ begin
   result := EmptyRect;
   NeedOriginal;
   Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] :=
-    AffineMatrixTranslation(TransformCenter.X,TransformCenter.Y)*
+    AffineMatrixTranslation(TransformCenter.X+0.5,TransformCenter.Y+0.5)*
     AffineMatrixScale(FActualZoom,FActualZoom)*
-    AffineMatrixTranslation(-TransformCenter.X,-TransformCenter.Y)*
+    AffineMatrixTranslation(-TransformCenter.X-0.5,-TransformCenter.Y-0.5)*
     FInitialOriginalMatrix;
 end;
 
@@ -798,9 +800,9 @@ begin
   result := EmptyRect;
   NeedOriginal;
   Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] :=
-    AffineMatrixTranslation(TransformCenter.X,TransformCenter.Y)*
+    AffineMatrixTranslation(TransformCenter.X+0.5,TransformCenter.Y+0.5)*
     AffineMatrixRotationDeg(FActualAngle)*
-    AffineMatrixTranslation(-TransformCenter.X,-TransformCenter.Y)*
+    AffineMatrixTranslation(-TransformCenter.X-0.5,-TransformCenter.Y-0.5)*
     FInitialOriginalMatrix;
 end;
 
