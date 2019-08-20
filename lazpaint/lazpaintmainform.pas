@@ -2055,6 +2055,7 @@ begin
     if toolProcessKey and ToolManager.ToolKeyPress(UTF8Key) then
     begin
       DelayedPaintPicture := true;
+      UpdateToolbar;
     end else
     if UTF8Key <> '' then
     begin

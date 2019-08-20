@@ -152,9 +152,26 @@ begin
 end;
 
 function TToolSpline.ToolKeyPress(var key: TUTF8Char): TRect;
+var keyCode: Word;
 begin
-  Result:=inherited ToolKeyPress(key);
-  if Key='x' then Key := #0;
+  if (Key='z') or (Key = 'Z') then
+  begin
+    CurrentMode:= tsmMovePoint;
+    result := OnlyRenderChange;
+    Key := #0;
+  end else
+  if (Key='i') or (Key='I') then
+  begin
+    keyCode := VK_INSERT;
+    ToolKeyDown(keyCode);
+    keyCode := VK_INSERT;
+    ToolKeyUp(keyCode);
+    result := EmptyRect;
+  end else
+  begin
+    Result:=inherited ToolKeyPress(key);
+    if Key='x' then Key := #0;
+  end;
 end;
 
 function TToolSpline.GetContextualToolbars: TContextualToolbars;

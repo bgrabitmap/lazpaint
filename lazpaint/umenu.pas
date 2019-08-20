@@ -512,7 +512,7 @@ begin
   ActionShortcut('ToolHotSpot','H');
   ActionShortcut('ToolPen','P');
   ActionShortcut('ToolBrush','B');
-  ActionShortcut('ToolColorPicker','I');
+  ActionShortcut('ToolColorPicker','C');
   ActionShortcut('ToolEraser','E');
   ActionShortcut('ToolEditShape','J');
   ActionShortcut('ToolRect','U');
