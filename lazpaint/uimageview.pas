@@ -249,6 +249,7 @@ begin
     workArea := FLastPictureParameters.workArea;
     if (workArea.Right <= workArea.Left) or (workArea.Bottom <= workArea.Top) then exit;
     scaledArea := FLastPictureParameters.scaledArea;
+    IntersectRect(scaledArea, scaledArea,workArea);
     with PictureCanvas do
     begin
       Brush.Color := WorkspaceColor;
