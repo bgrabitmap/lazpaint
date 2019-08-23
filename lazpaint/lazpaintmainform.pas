@@ -1225,10 +1225,11 @@ var redraw: boolean;
 begin
   if not Assigned(FImageView) then exit;
 
-  redraw := ToolManager.ToolMove(FImageView.FormToBitmap(X,Y),CurrentPressure);
+  redraw := false;
   if (btnLeftDown and (Button = mbLeft)) or (btnRightDown and (Button=mbRight))
     or (btnMiddleDown and (Button = mbMiddle)) then
   begin
+    redraw := ToolManager.ToolMove(FImageView.FormToBitmap(X,Y),CurrentPressure);
     if ToolManager.ToolUp then redraw := true;
     btnLeftDown := false;
     btnRightDown := false;
