@@ -106,8 +106,10 @@ type
     function IsVectorOriginal: boolean;
     function IsGradientOriginal: boolean;
     function IsOtherOriginal: boolean;
-    function IsBitmap: boolean;
+    function IsBitmap(AAcceptEmpty: boolean): boolean;
+    function IsTransformedBitmap: boolean;
     procedure MakeImageOriginal;
+    procedure MakeVectorOriginal;
     procedure UpdateMatrixFromRect;
     procedure DoEditSelection;
     function GetMatrixFromRect(ARect: TRectShape; AUntransformedRect: TRectF): TAffineMatrix;
@@ -667,19 +669,38 @@ begin
      not IsVectorOriginal and not IsGradientOriginal;
 end;
 
-function TEditShapeTool.IsBitmap: boolean;
+function TEditShapeTool.IsBitmap(AAcceptEmpty: boolean): boolean;
 begin
   result := (not Manager.Image.LayerOriginalDefined[Manager.Image.CurrentLayerIndex]) and
-             not Manager.Image.CurrentLayerEmpty;
+             (AAcceptEmpty or not Manager.Image.CurrentLayerEmpty);
+end;
+
+function TEditShapeTool.IsTransformedBitmap: boolean;
+begin
+  result := Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex]=TBGRALayerImageOriginal;
 end;
 
 procedure TEditShapeTool.MakeImageOriginal;
 var
   diff: TReplaceLayerByImageOriginalDifference;
 begin
-  if IsBitmap then
+  if IsBitmap(false) then
   begin
     diff := TReplaceLayerByImageOriginalDifference.Create(Manager.Image.CurrentState,
+              Manager.Image.CurrentLayerIndex, false);
+    Manager.Image.AddUndo(diff);
+    if Assigned(Manager.Image.OnStackChanged) then
+      Manager.Image.OnStackChanged(Manager.Image, False);
+  end;
+end;
+
+procedure TEditShapeTool.MakeVectorOriginal;
+var
+  diff: TReplaceLayerByVectorOriginalDifference;
+begin
+  if IsBitmap(true) or IsTransformedBitmap then
+  begin
+    diff := TReplaceLayerByVectorOriginalDifference.Create(Manager.Image.CurrentState,
               Manager.Image.CurrentLayerIndex, false);
     Manager.Image.AddUndo(diff);
     if Assigned(Manager.Image.OnStackChanged) then
@@ -1088,7 +1109,7 @@ begin
       if (FOriginalRect=nil) and
          (Manager.Image.CurrentLayerReadOnly.GetPixel(FLastPos.X-LayerOffset.X, FLastPos.Y-LayerOffset.Y).alpha <> 0) then
       begin
-        if IsBitmap then MakeImageOriginal;
+        MakeImageOriginal;
         if IsOtherOriginal then
         begin
           with Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex].
@@ -1122,6 +1143,16 @@ begin
       result := true;
     end else
       result := false;
+  end else
+  if ACommand = tcPaste then
+  begin
+    result := false;
+    MakeVectorOriginal;
+    if IsVectorOriginal then
+    begin
+      PasteShapesFromClipboard(GetVectorOriginal);
+      result := true;
+    end;
   end else
   begin
     result := true;
@@ -1183,7 +1214,9 @@ begin
   tcAlignLeft..tcAlignBottom: result:= (IsVectorOriginal and not Assigned(FSelectionRect)
                                         and Assigned(GetVectorOriginal.SelectedShape)) or
                                        (Assigned(FOriginalRect) or Assigned(FSelectionRect));
-  tcPaste: result := IsVectorOriginal and ClipboardHasShapes;
+  tcPaste: result := not Assigned(FSelectionRect)
+                     and (IsVectorOriginal or IsBitmap(true) or IsTransformedBitmap)
+                     and ClipboardHasShapes;
   tcMoveUp,tcMoveToFront: result := (IsVectorOriginal and not Assigned(FSelectionRect)
                                     and Assigned(GetVectorOriginal.SelectedShape)
                                     and not GetVectorOriginal.SelectedShape.IsFront) or
