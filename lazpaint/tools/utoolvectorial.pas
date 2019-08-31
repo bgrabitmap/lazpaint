@@ -80,10 +80,12 @@ type
 
   { TEditShapeTool }
 
+  TEditShapeMode = (esmNone, esmSelection, esmGradient, esmOtherOriginal, esmShape, esmNoShape);
   TEditShapeTool = class(TGenericTool)
   protected
     FShiftState: TShiftState;
-    FDownHandled,FLeftButton,FRightButton: boolean;
+    FDownHandled,FRectEditorCapture,FLayerOriginalCapture,
+    FLeftButton,FRightButton: boolean;
     FLastPos: TPointF;
     FOriginalRect: TRectShape;
     FOriginalRectUntransformed: TRectF;
@@ -101,13 +103,8 @@ type
     function GetAction: TLayerAction; override;
     function DoGetToolDrawingLayer: TBGRABitmap; override;
     procedure OnTryStop({%H-}sender: TCustomLayerAction); override;
-    procedure StopEdit(AUpdateToolbars: boolean);
+    procedure StopEdit(AUpdateInterface, ARaiseToolUp: boolean);
     function IsEditing: boolean;
-    function IsVectorOriginal: boolean;
-    function IsGradientOriginal: boolean;
-    function IsOtherOriginal: boolean;
-    function IsBitmap(AAcceptEmpty: boolean): boolean;
-    function IsTransformedBitmap: boolean;
     procedure MakeImageOriginal;
     procedure MakeVectorOriginal;
     procedure UpdateMatrixFromRect;
@@ -122,6 +119,7 @@ type
     procedure SetCurrentSplineMode(AMode: TToolSplineMode);
     function IsGradientShape(AShape: TVectorShape): boolean;
     function ConvertToSpline: boolean;
+    function GetEditMode: TEditShapeMode;
   public
     constructor Create(AManager: TToolManager); override;
     destructor Destroy; override;
@@ -202,7 +200,7 @@ end;
 procedure TEditShapeTool.SelectShape(ASender: TObject; AShape: TVectorShape;
   APreviousShape: TVectorShape);
 begin
-  if Assigned(AShape) and IsVectorOriginal then
+  if Assigned(AShape) and (GetCurrentLayerKind = lkVectorial) then
   begin
     UpdateToolManagerFromShape(AShape);
     Manager.UpdateContextualToolbars;
@@ -216,7 +214,7 @@ var
   shape: TVectorShape;
   m: TAffineMatrix;
 begin
-  if IsVectorOriginal then
+  if GetCurrentLayerKind = lkVectorial then
   begin
     shape := GetVectorOriginal.SelectedShape;
     if shape=nil then exit;
@@ -354,26 +352,28 @@ end;
 
 procedure TEditShapeTool.BindOriginalEvent(ABind: boolean);
 begin
-  if IsVectorOriginal then
-  begin
-    if ABind then
+  case GetCurrentLayerKind of
+  lkVectorial:
     begin
-      GetVectorOriginal.OnSelectShape:= @SelectShape;
-      Manager.Image.CurrentState.DiscardOriginalDiff := false;
-    end else
-    begin
-      GetVectorOriginal.OnSelectShape := nil;
-      Manager.Image.CurrentState.DiscardOriginalDiff := true;
+      if ABind then
+      begin
+        GetVectorOriginal.OnSelectShape:= @SelectShape;
+        Manager.Image.CurrentState.DiscardOriginalDiff := false;
+      end else
+      begin
+        GetVectorOriginal.OnSelectShape := nil;
+        Manager.Image.CurrentState.DiscardOriginalDiff := true;
+      end;
     end;
-  end else
-  if IsGradientOriginal then
-  begin
-    if ABind then
+  lkGradient:
     begin
-      Manager.Image.CurrentState.DiscardOriginalDiff := false;
-    end else
-    begin
-      Manager.Image.CurrentState.DiscardOriginalDiff := true;
+      if ABind then
+      begin
+        Manager.Image.CurrentState.DiscardOriginalDiff := false;
+      end else
+      begin
+        Manager.Image.CurrentState.DiscardOriginalDiff := true;
+      end;
     end;
   end;
 end;
@@ -389,41 +389,31 @@ begin
   Manager.Image.DraftOriginal := true;
   FRightButton:= rightBtn;
   FLeftButton:= not rightBtn;
+  FRectEditorCapture:= false;
+  FLayerOriginalCapture:= false;
   FLastPos := ptF;
   handled := false;
-  if Assigned(FRectEditor) then
+  if not handled and (GetEditMode in [esmSelection,esmOtherOriginal]) and Assigned(FRectEditor) then
   begin
     ptView := FRectEditor.Matrix*ptF;
     FRectEditor.MouseDown(rightBtn, FShiftState, ptView.X,ptView.Y, cur, handled);
     Cursor := OriginalCursorToCursor(cur);
     if handled then
     begin
+      FRectEditorCapture:= true;
       result := OnlyRenderChange;
       UpdateMatrixFromRect;
     end;
   end;
-  if not handled and (IsVectorOriginal or IsGradientOriginal) then
+  if not handled and (GetEditMode in [esmShape,esmGradient,esmNoShape]) then
   begin
-    if IsGradientOriginal and not FIsEditingGradient then
+    BindOriginalEvent(true);
+    Manager.Image.CurrentState.LayeredBitmap.MouseDown(rightBtn, FShiftState, ptF.X,ptF.Y, cur, handled);
+    BindOriginalEvent(false);
+    if handled then
     begin
-      FIsEditingGradient:= true;
-      with GetGradientOriginal do
-      begin
-        Manager.ForeColor := StartColor;
-        Manager.BackColor := EndColor;
-        Manager.GradientType := GradientType;
-        Manager.GradientSine := (Repetition = grSine);
-        Manager.GradientColorspace := ColorInterpolation;
-      end;
-      Manager.UpdateContextualToolbars;
-      handled := true;
-      result := OnlyRenderChange;
-    end else
-    begin
-      BindOriginalEvent(true);
-      Manager.Image.CurrentState.LayeredBitmap.MouseDown(rightBtn, FShiftState, ptF.X,ptF.Y, cur, handled);
-      BindOriginalEvent(false);
-      if handled then Cursor := OriginalCursorToCursor(cur);
+      Cursor := OriginalCursorToCursor(cur);
+      FLayerOriginalCapture:= true;
     end;
   end;
   FDownHandled:= handled;
@@ -438,23 +428,25 @@ var
 begin
   FLastPos := ptF;
   Result:= EmptyRect;
-  if not Assigned(FSelectionRect) and
-    (IsVectorOriginal or (IsGradientOriginal and FIsEditingGradient)) then
-  begin
-    BindOriginalEvent(true);
-    Manager.Image.CurrentState.LayeredBitmap.MouseMove(FShiftState, ptF.X,ptF.Y, cur, handled);
-    BindOriginalEvent(false);
-    Cursor := OriginalCursorToCursor(cur);
-  end else
-  if Assigned(FRectEditor) then
-  begin
-    ptView := FRectEditor.Matrix*ptF;
-    FRectEditor.MouseMove(FShiftState, ptView.X,ptView.Y, cur, handled);
-    Cursor := OriginalCursorToCursor(cur);
-    if handled then
+  case GetEditMode of
+  esmGradient, esmShape, esmNoShape:
     begin
-      result := OnlyRenderChange;
-      UpdateMatrixFromRect;
+      BindOriginalEvent(true);
+      Manager.Image.CurrentState.LayeredBitmap.MouseMove(FShiftState, ptF.X,ptF.Y, cur, handled);
+      BindOriginalEvent(false);
+      Cursor := OriginalCursorToCursor(cur);
+    end;
+  esmSelection, esmOtherOriginal:
+    if Assigned(FRectEditor) then
+    begin
+      ptView := FRectEditor.Matrix*ptF;
+      FRectEditor.MouseMove(FShiftState, ptView.X,ptView.Y, cur, handled);
+      Cursor := OriginalCursorToCursor(cur);
+      if handled then
+      begin
+        result := OnlyRenderChange;
+        UpdateMatrixFromRect;
+      end;
     end;
   end;
 end;
@@ -465,14 +457,13 @@ var
   m: TAffineMatrix;
   zoom: Single;
 begin
-  if IsVectorOriginal then
-  with GetVectorOriginal do
-  begin
-    m := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
-    zoom := (VectLen(m[1,1],m[2,1])+VectLen(m[1,2],m[2,2]))/2;
-    BindOriginalEvent(true);
-    if Assigned(SelectedShape) then
+  case GetEditMode of
+  esmShape:
+    with GetVectorOriginal do
     begin
+      m := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
+      zoom := (VectLen(m[1,1],m[2,1])+VectLen(m[1,2],m[2,2]))/2;
+      BindOriginalEvent(true);
       if IsGradientShape(SelectedShape) then
       begin
         SelectedShape.BackFill.Gradient.StartColor := Manager.ForeColor;
@@ -586,27 +577,27 @@ begin
           BorderSizePercent := Manager.PhongShapeBorderSize;
         end;
       end;
+      BindOriginalEvent(false);
     end;
-    BindOriginalEvent(false);
-  end else
-  if IsGradientOriginal then
-  begin
-    BindOriginalEvent(true);
-    with GetGradientOriginal do
+  esmGradient:
     begin
-      StartColor := Manager.ForeColor;
-      EndColor := Manager.BackColor;
-      GradientType:= Manager.GradientType;
-      if (Repetition in [grSine,grPad]) or Manager.GradientSine then
+      BindOriginalEvent(true);
+      with GetGradientOriginal do
       begin
-        if Manager.GradientSine then
-          Repetition := grSine
-        else
-          Repetition := grPad;
+        StartColor := Manager.ForeColor;
+        EndColor := Manager.BackColor;
+        GradientType:= Manager.GradientType;
+        if (Repetition in [grSine,grPad]) or Manager.GradientSine then
+        begin
+          if Manager.GradientSine then
+            Repetition := grSine
+          else
+            Repetition := grPad;
+        end;
+        ColorInterpolation := Manager.GradientColorspace;
       end;
-      ColorInterpolation := Manager.GradientColorspace;
+      BindOriginalEvent(false);
     end;
-    BindOriginalEvent(false);
   end;
   Result := EmptyRect;
 end;
@@ -623,68 +614,47 @@ end;
 
 procedure TEditShapeTool.OnTryStop(sender: TCustomLayerAction);
 begin
-  StopEdit(True);
+  StopEdit(True, True);
   inherited OnTryStop(sender);
 end;
 
-procedure TEditShapeTool.StopEdit(AUpdateToolbars: boolean);
+procedure TEditShapeTool.StopEdit(AUpdateInterface, ARaiseToolUp: boolean);
 var
   r: TRect;
 begin
-  if FLeftButton or FRightButton then
+  if ARaiseToolUp and (FLeftButton or FRightButton) then
   begin
     r := ToolUp;
     Manager.Image.LayerMayChange(GetToolDrawingLayer,r);
   end;
-  if IsVectorOriginal then GetVectorOriginal.DeselectShape;
+  case GetEditMode of
+  esmShape: GetVectorOriginal.DeselectShape;
+  esmGradient: FIsEditingGradient:= false;
+  esmOtherOriginal: FreeAndNil(FOriginalRect);
+  esmSelection: FreeAndNil(FSelectionRect);
+  end;
   Manager.Image.CurrentState.LayeredBitmap.ClearEditor;
-  FIsEditingGradient:= false;
-  FreeAndNil(FOriginalRect);
-  FreeAndNil(FSelectionRect);
+  FLayerOriginalCapture:= false;
   FreeAndNil(FRectEditor);
+  FRectEditorCapture := false;
   Cursor := crDefault;
-  Manager.Image.OnImageChanged.NotifyObservers;
-  if AUpdateToolbars then Manager.UpdateContextualToolbars;
+  if AUpdateInterface then
+  begin
+    Manager.Image.OnImageChanged.NotifyObservers;
+    Manager.UpdateContextualToolbars;
+  end;
 end;
 
 function TEditShapeTool.IsEditing: boolean;
 begin
-  result := (IsVectorOriginal and Assigned(GetVectorOriginal.SelectedShape)) or
-     Assigned(FRectEditor) or FIsEditingGradient;
-end;
-
-function TEditShapeTool.IsVectorOriginal: boolean;
-begin
-  result := Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex]=TVectorOriginal;
-end;
-
-function TEditShapeTool.IsGradientOriginal: boolean;
-begin
-  result := Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex]=TBGRALayerGradientOriginal;
-end;
-
-function TEditShapeTool.IsOtherOriginal: boolean;
-begin
-  result := Manager.Image.LayerOriginalKnown[Manager.Image.CurrentLayerIndex] and
-     not IsVectorOriginal and not IsGradientOriginal;
-end;
-
-function TEditShapeTool.IsBitmap(AAcceptEmpty: boolean): boolean;
-begin
-  result := (not Manager.Image.LayerOriginalDefined[Manager.Image.CurrentLayerIndex]) and
-             (AAcceptEmpty or not Manager.Image.CurrentLayerEmpty);
-end;
-
-function TEditShapeTool.IsTransformedBitmap: boolean;
-begin
-  result := Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex]=TBGRALayerImageOriginal;
+  result := not (GetEditMode in[esmNone, esmNoShape]);
 end;
 
 procedure TEditShapeTool.MakeImageOriginal;
 var
   diff: TReplaceLayerByImageOriginalDifference;
 begin
-  if IsBitmap(false) then
+  if GetCurrentLayerKind = lkBitmap then
   begin
     diff := TReplaceLayerByImageOriginalDifference.Create(Manager.Image.CurrentState,
               Manager.Image.CurrentLayerIndex, false);
@@ -698,8 +668,9 @@ procedure TEditShapeTool.MakeVectorOriginal;
 var
   diff: TReplaceLayerByVectorOriginalDifference;
 begin
-  if IsBitmap(true) or IsTransformedBitmap then
+  if GetCurrentLayerKind in [lkEmpty,lkBitmap,lkTransformedBitmap] then
   begin
+    StopEdit(True, True);
     diff := TReplaceLayerByVectorOriginalDifference.Create(Manager.Image.CurrentState,
               Manager.Image.CurrentLayerIndex, false);
     Manager.Image.AddUndo(diff);
@@ -723,7 +694,7 @@ end;
 
 procedure TEditShapeTool.DoEditSelection;
 begin
-  if FSelectionRect=nil then
+  if not IsEditing then
   begin
     with Manager.Image.SelectionMaskBounds do
       FSelectionRectUntransformed := rectF(Left,Top,Right,Bottom);
@@ -788,7 +759,7 @@ end;
 
 destructor TEditShapeTool.Destroy;
 begin
-  StopEdit(False);
+  StopEdit(False, False);
   inherited Destroy;
 end;
 
@@ -797,26 +768,25 @@ var
   shape: TVectorShape;
 begin
   Result:= [ctColor,ctTexture];
-  if IsVectorOriginal then
-    shape := GetVectorOriginal.SelectedShape
-  else shape := nil;
-  if Assigned(shape) then
-  begin
-    if shape is TRectShape then result := result + [ctShape,ctPenWidth,ctPenStyle,ctJoinStyle]
-    else if shape is TEllipseShape then result := result + [ctShape,ctPenWidth,ctPenStyle]
-    else if shape is TCurveShape then result := result + [ctShape,ctPenWidth,ctPenStyle,ctLineCap,ctSplineStyle]
-    else if shape is TPolylineShape then result := result + [ctShape,ctPenWidth,ctPenStyle,ctJoinStyle,ctLineCap]
-    else if shape is TPhongShape then result := result + [ctPhong,ctAltitude]
-    else if shape is TTextShape then
+  case GetEditMode of
+  esmShape:
     begin
-      result := result + [ctText];
-      if TTextShape(shape).PenPhong then include(result, ctAltitude);
+      shape := GetVectorOriginal.SelectedShape;
+      if shape is TRectShape then result := result + [ctShape,ctPenWidth,ctPenStyle,ctJoinStyle]
+      else if shape is TEllipseShape then result := result + [ctShape,ctPenWidth,ctPenStyle]
+      else if shape is TCurveShape then result := result + [ctShape,ctPenWidth,ctPenStyle,ctLineCap,ctSplineStyle]
+      else if shape is TPolylineShape then result := result + [ctShape,ctPenWidth,ctPenStyle,ctJoinStyle,ctLineCap]
+      else if shape is TPhongShape then result := result + [ctPhong,ctAltitude]
+      else if shape is TTextShape then
+      begin
+        result := result + [ctText];
+        if TTextShape(shape).PenPhong then include(result, ctAltitude);
+      end;
+      if IsGradientShape(shape) then
+        result := result - [ctShape,ctTexture,ctPenWidth,ctPenStyle,ctJoinStyle,ctLineCap] + [ctGradient];
     end;
-    if IsGradientShape(shape) then
-      result := result - [ctShape,ctTexture,ctPenWidth,ctPenStyle,ctJoinStyle,ctLineCap] + [ctGradient];
-  end else
-  if IsGradientOriginal and FIsEditingGradient then
-    result := [ctColor,ctGradient];
+  esmGradient: result := [ctColor,ctGradient];
+  end;
 end;
 
 function TEditShapeTool.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,
@@ -836,23 +806,25 @@ begin
                 *AffineMatrix(xAxis-orig,yAxis-orig,orig)
                 *AffineMatrixTranslation(-0.5,-0.5);
 
-  if not Assigned(FSelectionRect) and
-    (IsVectorOriginal or (IsGradientOriginal and FIsEditingGradient)) then
-  begin
-    if Assigned(VirtualScreen) then
-      result := Manager.Image.CurrentState.LayeredBitmap.DrawEditor(VirtualScreen,
-        Manager.Image.CurrentLayerIndex, viewMatrix, DoScaleX(PointSize,OriginalDPI))
-    else
-      result := Manager.Image.CurrentState.LayeredBitmap.GetEditorBounds(
-        rect(0,0,VirtualScreenWidth,VirtualScreenHeight),
-        Manager.Image.CurrentLayerIndex, viewMatrix, DoScaleX(PointSize,OriginalDPI));
-    RetrieveLightPosition;
-  end else
-  begin
-    result := EmptyRect;
-    Manager.Image.CurrentState.LayeredBitmap.ClearEditor;
-    If Assigned(FOriginalRect) or Assigned(FSelectionRect) then
+  case GetEditMode of
+  esmGradient, esmShape:
     begin
+      FreeAndNil(FRectEditor);
+      FRectEditorCapture := false;
+      if Assigned(VirtualScreen) then
+        result := Manager.Image.CurrentState.LayeredBitmap.DrawEditor(VirtualScreen,
+          Manager.Image.CurrentLayerIndex, viewMatrix, DoScaleX(PointSize,OriginalDPI))
+      else
+        result := Manager.Image.CurrentState.LayeredBitmap.GetEditorBounds(
+          rect(0,0,VirtualScreenWidth,VirtualScreenHeight),
+          Manager.Image.CurrentLayerIndex, viewMatrix, DoScaleX(PointSize,OriginalDPI));
+      RetrieveLightPosition;
+    end;
+  esmSelection, esmOtherOriginal:
+    begin
+      result := EmptyRect;
+      Manager.Image.CurrentState.LayeredBitmap.ClearEditor;
+      FLayerOriginalCapture:= false;
       if not Assigned(FRectEditor) then
       begin
         FRectEditor := TVectorOriginalEditor.Create(nil);
@@ -871,6 +843,14 @@ begin
         result := FRectEditor.GetRenderBounds(
           rect(0,0,VirtualScreenWidth,VirtualScreenHeight));
     end;
+  else
+    begin
+      result := EmptyRect;
+      Manager.Image.CurrentState.LayeredBitmap.ClearEditor;
+      FLayerOriginalCapture := false;
+      FreeAndNil(FRectEditor);
+      FRectEditorCapture := false;
+    end;
   end;
 end;
 
@@ -878,7 +858,7 @@ function TEditShapeTool.GetCurrentSplineMode: TToolSplineMode;
 var
   orig: TVectorOriginal;
 begin
-  if IsVectorOriginal then
+  if GetEditMode = esmShape then
   begin
     orig := GetVectorOriginal;
     if Assigned(orig.SelectedShape) and
@@ -892,7 +872,7 @@ procedure TEditShapeTool.SetCurrentSplineMode(AMode: TToolSplineMode);
 var
   c: TCurveShape;
 begin
-  if IsVectorOriginal and Assigned(GetVectorOriginal.SelectedShape) and
+  if (GetEditMode = esmShape) and
     (GetVectorOriginal.SelectedShape is TCurveShape) then
   begin
     c := TCurveShape(GetVectorOriginal.SelectedShape);
@@ -921,7 +901,7 @@ var
   orig: TVectorOriginal;
   shapeAfter: TCurveShape;
 begin
-  if IsVectorOriginal and Assigned(GetVectorOriginal.SelectedShape) and
+  if (GetEditMode = esmShape) and
     TCurveShape.CanCreateFrom(GetVectorOriginal.SelectedShape) then
   begin
     orig := GetVectorOriginal;
@@ -935,16 +915,34 @@ begin
     result := false;
 end;
 
+function TEditShapeTool.GetEditMode: TEditShapeMode;
+begin
+  if Assigned(FSelectionRect) then exit(esmSelection)
+  else if Assigned(FOriginalRect) then exit(esmOtherOriginal)
+  else
+  case GetCurrentLayerKind of
+  lkGradient: if FIsEditingGradient then exit(esmGradient) else exit(esmNone);
+  lkVectorial: if Assigned(GetVectorOriginal.SelectedShape) then exit(esmShape) else exit(esmNoShape);
+  else exit(esmNone);
+  end;
+end;
+
 constructor TEditShapeTool.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
+  FRectEditor := nil;
+  FSelectionRect := nil;
+  FOriginalRect := nil;
+  FIsEditingGradient:= false;
+  FLeftButton:= false;
+  FRightButton:= false;
   if not Manager.Image.SelectionMaskEmpty then
   begin
-    if IsVectorOriginal and Assigned(GetVectorOriginal.SelectedShape) then
+    if (GetCurrentLayerKind = lkVectorial) and Assigned(GetVectorOriginal.SelectedShape) then
       GetVectorOriginal.DeselectShape;
     DoEditSelection;
   end else
-  if IsVectorOriginal and Assigned(GetVectorOriginal.SelectedShape) then
+  if (GetCurrentLayerKind = lkVectorial) and Assigned(GetVectorOriginal.SelectedShape) then
     UpdateToolManagerFromShape(GetVectorOriginal.SelectedShape);
 end;
 
@@ -969,12 +967,11 @@ begin
     key := 0;
   end else
   begin
-    if not Assigned(FSelectionRect) and IsVectorOriginal then
+    if GetEditMode in [esmShape,esmNoShape] then
     begin
       BindOriginalEvent(true);
       Manager.Image.CurrentState.LayeredBitmap.KeyDown(FShiftState, LCLKeyToSpecialKey(key, FShiftState), handled);
-      if handled then key := 0;
-      if not handled and IsVectorOriginal then
+      if handled then key := 0 else
       begin
         if (key = VK_DELETE) and Assigned(GetVectorOriginal.SelectedShape) then
         begin
@@ -989,7 +986,7 @@ begin
       begin
         if IsEditing then
         begin
-          StopEdit(true);
+          StopEdit(true, true);
           key := 0;
         end;
       end;
@@ -1002,7 +999,7 @@ var
   handled: boolean;
 begin
   Result:= EmptyRect;
-  if IsVectorOriginal then
+  if GetEditMode in [esmShape,esmNoShape] then
   begin
     BindOriginalEvent(true);
     Manager.Image.CurrentState.LayeredBitmap.KeyPress(key, handled);
@@ -1032,7 +1029,7 @@ begin
     key := 0;
   end else
   begin
-    if IsVectorOriginal then
+    if GetEditMode in [esmShape,esmNoShape] then
     begin
       BindOriginalEvent(true);
       Manager.Image.CurrentState.LayeredBitmap.KeyUp(FShiftState, LCLKeyToSpecialKey(key, FShiftState), handled);
@@ -1041,7 +1038,6 @@ begin
     end;
   end;
 end;
-
 
 function TEditShapeTool.ToolUp: TRect;
 var
@@ -1055,7 +1051,7 @@ begin
   begin
     Manager.Image.DraftOriginal := false;
     handled := false;
-    if not handled and Assigned(FRectEditor) then
+    if not handled and FRectEditorCapture and Assigned(FRectEditor) then
     begin
       ptView := FRectEditor.Matrix*FLastPos;
       FRectEditor.MouseUp(FRightButton, FShiftState, ptView.X,ptView.Y, cur, handled);
@@ -1066,14 +1062,11 @@ begin
         UpdateMatrixFromRect;
       end else
       begin
-        FreeAndNil(FRectEditor);
-        FreeAndNil(FSelectionRect);
-        FreeAndNil(FOriginalRect);
+        StopEdit(False, False);
         result := OnlyRenderChange;
       end;
     end;
-    if not handled and not Assigned(FSelectionRect) and
-      (IsVectorOriginal or (IsGradientOriginal and FIsEditingGradient)) then
+    if not handled and FLayerOriginalCapture and (GetEditMode in [esmGradient, esmShape, esmNoShape]) then
     begin
       BindOriginalEvent(true);
       Manager.Image.CurrentState.LayeredBitmap.MouseUp(FRightButton, FShiftState, FLastPos.X,FLastPos.Y, cur, handled);
@@ -1082,35 +1075,51 @@ begin
         Cursor := OriginalCursorToCursor(cur);
         result := OnlyRenderChange;
       end;
-      if not handled and not FDownHandled and IsVectorOriginal then
-      begin
-        m := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
-        GetVectorOriginal.MouseClick(m*FLastPos);
-      end else
-      if not handled and not FDownHandled and IsGradientOriginal and FIsEditingGradient then
-      begin
-        FIsEditingGradient:= false;
-        result := OnlyRenderChange;
-      end;
       BindOriginalEvent(false);
     end;
-    if not handled and not Manager.Image.SelectionMaskEmpty and not IsEditing and not FDownHandled then
+    if not handled and not Manager.Image.SelectionMaskEmpty then
     begin
       ptSel := AffineMatrixInverse(Manager.Image.SelectionTransform)*FLastPos;
       if (Manager.Image.SelectionMaskReadonly.GetPixel(ptSel.x,ptSel.y).green > 0) then
       begin
-        DoEditSelection;
-        result := OnlyRenderChange;
+        if GetEditMode <> esmSelection then
+        begin
+          StopEdit(false, false);
+          DoEditSelection;
+          result := OnlyRenderChange;
+        end;
         handled := true;
+      end else
+        if GetEditMode = esmSelection then
+        begin
+          StopEdit(false, false);
+          result := OnlyRenderChange;
+        end;
+    end;
+    if not handled then
+    begin
+      case GetEditMode of
+      esmShape, esmNoShape:
+        begin
+          m := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
+          GetVectorOriginal.MouseClick(m*FLastPos);
+          if Assigned(GetVectorOriginal.SelectedShape) then handled := true;
+        end;
+      esmGradient:
+        begin
+          FIsEditingGradient:= false;
+          result := OnlyRenderChange;
+        end;
       end;
     end;
-    if not handled and not IsVectorOriginal and not IsGradientOriginal and not FDownHandled then
+    if not handled and (GetCurrentLayerKind in [lkBitmap, lkTransformedBitmap, lkSVG, lkOther]) and
+       (Manager.Image.CurrentLayerReadOnly.GetPixel(FLastPos.X-LayerOffset.X, FLastPos.Y-LayerOffset.Y).alpha <> 0) then
     begin
-      if (FOriginalRect=nil) and
-         (Manager.Image.CurrentLayerReadOnly.GetPixel(FLastPos.X-LayerOffset.X, FLastPos.Y-LayerOffset.Y).alpha <> 0) then
+      if GetEditMode <> esmOtherOriginal then
       begin
+        StopEdit(false, false);
         MakeImageOriginal;
-        if IsOtherOriginal then
+        if GetCurrentLayerKind in [lkTransformedBitmap, lkSVG, lkOther] then
         begin
           with Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex].
             GetRenderBounds(InfiniteRect, AffineMatrixIdentity) do
@@ -1118,8 +1127,26 @@ begin
           FOriginalRect := CreateRect(FOriginalRectUntransformed,
             Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
           result := OnlyRenderChange;
-          handled := true;
-       end;
+        end;
+      end;
+      handled := true;
+    end;
+    if not handled and (GetCurrentLayerKind = lkGradient) then
+    begin
+      if not FIsEditingGradient then
+      begin
+        FIsEditingGradient:= true;
+        with GetGradientOriginal do
+        begin
+          Manager.ForeColor := StartColor;
+          Manager.BackColor := EndColor;
+          Manager.GradientType := GradientType;
+          Manager.GradientSine := (Repetition = grSine);
+          Manager.GradientColorspace := ColorInterpolation;
+        end;
+        Manager.UpdateContextualToolbars;
+        handled := true;
+        result := OnlyRenderChange;
       end;
     end;
     FLeftButton:= false;
@@ -1148,7 +1175,7 @@ begin
   begin
     result := false;
     MakeVectorOriginal;
-    if IsVectorOriginal then
+    if GetCurrentLayerKind = lkVectorial then
     begin
       PasteShapesFromClipboard(GetVectorOriginal);
       result := true;
@@ -1156,48 +1183,48 @@ begin
   end else
   begin
     result := true;
-    if IsVectorOriginal and not Assigned(FSelectionRect) then
-    begin
-      BindOriginalEvent(true);
-      case ACommand of
-        tcMoveUp: GetVectorOriginal.SelectedShape.MoveUp(true);
-        tcMoveToFront: GetVectorOriginal.SelectedShape.BringToFront;
-        tcMoveDown: GetVectorOriginal.SelectedShape.MoveDown(true);
-        tcMoveToBack: GetVectorOriginal.SelectedShape.SendToBack;
-        tcCopy: Result:= CopyShapesToClipboard([GetVectorOriginal.SelectedShape]);
-        tcCut: result := GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
-        tcPaste: PasteShapesFromClipboard(GetVectorOriginal);
-        tcAlignLeft..tcAlignBottom: AlignShape(GetVectorOriginal.SelectedShape, ACommand,
-                     Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex],
-                     rect(0,0,Manager.Image.Width,Manager.Image.Height));
-        tcShapeToSpline: result := ConvertToSpline;
-        else result := false;
-      end;
-      BindOriginalEvent(false);
-    end else
-    if IsOtherOriginal and Assigned(FOriginalRect) then
-    begin
-      case ACommand of
-        tcMoveDown: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, Manager.Image.CurrentLayerIndex-1);
-        tcMoveToBack: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, 0);
-        tcMoveUp: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, Manager.Image.CurrentLayerIndex+1);
-        tcMoveToFront: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, Manager.Image.NbLayers-1);
-        tcAlignLeft..tcAlignBottom:
-            begin
-              AlignShape(FOriginalRect, ACommand,
-                         AffineMatrixIdentity,rect(0,0,Manager.Image.Width,Manager.Image.Height));
-              UpdateMatrixFromRect;
-            end
-        else result := false;
-      end;
-    end else
-    if Assigned(FSelectionRect) then
-    begin
-      if ACommand in [tcAlignLeft..tcAlignBottom] then
+    case GetEditMode of
+    esmShape:
       begin
-        AlignShape(FSelectionRect, ACommand,
-                   AffineMatrixIdentity,rect(0,0,Manager.Image.Width,Manager.Image.Height));
-        UpdateMatrixFromRect;
+        BindOriginalEvent(true);
+        case ACommand of
+          tcMoveUp: GetVectorOriginal.SelectedShape.MoveUp(true);
+          tcMoveToFront: GetVectorOriginal.SelectedShape.BringToFront;
+          tcMoveDown: GetVectorOriginal.SelectedShape.MoveDown(true);
+          tcMoveToBack: GetVectorOriginal.SelectedShape.SendToBack;
+          tcCopy: Result:= CopyShapesToClipboard([GetVectorOriginal.SelectedShape]);
+          tcCut: begin
+                   result := CopyShapesToClipboard([GetVectorOriginal.SelectedShape]) and
+                             GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
+                 end;
+          tcAlignLeft..tcAlignBottom: AlignShape(GetVectorOriginal.SelectedShape, ACommand,
+                       Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex],
+                       rect(0,0,Manager.Image.Width,Manager.Image.Height));
+          tcShapeToSpline: result := ConvertToSpline;
+          else result := false;
+        end;
+        BindOriginalEvent(false);
+      end;
+    esmOtherOriginal:
+      begin
+        case ACommand of
+          tcAlignLeft..tcAlignBottom:
+              begin
+                AlignShape(FOriginalRect, ACommand,
+                           AffineMatrixIdentity,rect(0,0,Manager.Image.Width,Manager.Image.Height));
+                UpdateMatrixFromRect;
+              end
+          else result := false;
+        end;
+      end;
+    esmSelection:
+      begin
+        if ACommand in [tcAlignLeft..tcAlignBottom] then
+        begin
+          AlignShape(FSelectionRect, ACommand,
+                     AffineMatrixIdentity,rect(0,0,Manager.Image.Width,Manager.Image.Height));
+          UpdateMatrixFromRect;
+        end;
       end;
     end;
   end;
@@ -1206,27 +1233,15 @@ end;
 function TEditShapeTool.ToolProvideCommand(ACommand: TToolCommand): boolean;
 begin
   case ACommand of
-  tcCut,tcCopy,tcDelete: result:= IsVectorOriginal and not Assigned(FSelectionRect)
-                                  and Assigned(GetVectorOriginal.SelectedShape);
-  tcShapeToSpline: result:= IsVectorOriginal and not Assigned(FSelectionRect)
-                            and Assigned(GetVectorOriginal.SelectedShape)
+  tcCut,tcCopy,tcDelete: result:= GetEditMode = esmShape;
+  tcShapeToSpline: result:= (GetEditMode = esmShape)
                             and TCurveShape.CanCreateFrom(GetVectorOriginal.SelectedShape);
-  tcAlignLeft..tcAlignBottom: result:= (IsVectorOriginal and not Assigned(FSelectionRect)
-                                        and Assigned(GetVectorOriginal.SelectedShape)) or
-                                       (Assigned(FOriginalRect) or Assigned(FSelectionRect));
-  tcPaste: result := not Assigned(FSelectionRect)
-                     and (IsVectorOriginal or IsBitmap(true) or IsTransformedBitmap)
-                     and ClipboardHasShapes;
-  tcMoveUp,tcMoveToFront: result := (IsVectorOriginal and not Assigned(FSelectionRect)
-                                    and Assigned(GetVectorOriginal.SelectedShape)
-                                    and not GetVectorOriginal.SelectedShape.IsFront) or
-                                    (IsOtherOriginal and Assigned(FOriginalRect) and
-                                      (Manager.Image.CurrentLayerIndex < Manager.Image.NbLayers-1));
-  tcMoveDown,tcMoveToBack: result := (IsVectorOriginal and not Assigned(FSelectionRect)
-                                     and Assigned(GetVectorOriginal.SelectedShape)
-                                     and not GetVectorOriginal.SelectedShape.IsBack) or
-                                     (IsOtherOriginal and Assigned(FOriginalRect) and
-                                      (Manager.Image.CurrentLayerIndex > 0));
+  tcAlignLeft..tcAlignBottom: result:= GetEditMode in [esmShape, esmOtherOriginal, esmSelection];
+  tcPaste: result := ClipboardHasShapes and (GetCurrentLayerKind in [lkEmpty,lkBitmap,lkTransformedBitmap,lkVectorial]);
+  tcMoveUp,tcMoveToFront: result := (GetEditMode = esmShape)
+                                     and not GetVectorOriginal.SelectedShape.IsFront;
+  tcMoveDown,tcMoveToBack: result := (GetEditMode = esmShape)
+                                      and not GetVectorOriginal.SelectedShape.IsBack;
   else
     result := false;
   end;
@@ -1323,10 +1338,8 @@ end;
 procedure TVectorialTool.UpdateUseOriginal;
 begin
   if not IsSelectingTool and Manager.Image.SelectionMaskEmpty and
-     Manager.Image.LayerOriginalDefined[Manager.Image.CurrentLayerIndex] and
-     Manager.Image.LayerOriginalKnown[Manager.Image.CurrentLayerIndex] and
-    (Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex] = TVectorOriginal) then
-    FUseOriginal:= Assigned(Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex])
+     (GetCurrentLayerKind = lkVectorial) then
+    FUseOriginal:= true
   else
     FUseOriginal:= false;
 end;
@@ -1343,7 +1356,7 @@ begin
   transf := VectorTransform(false);
   diff := TComposedImageDifference.Create;
   replaceDiff := TReplaceLayerByVectorOriginalDifference.Create(Manager.Image.CurrentState,Manager.Image.CurrentLayerIndex,
-                   Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex]=TVectorOriginal);
+                   GetCurrentLayerKind = lkVectorial);
   diff.Add(replaceDiff);
   transf := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex])*transf;
   FShape.Transform(transf);
@@ -1592,7 +1605,7 @@ begin
       MessagePopup(rsTooManyShapesInLayer, 3000);
     end
     else
-    if Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex] = TBGRALayerSVGOriginal then
+    if GetCurrentLayerKind = lkSVG then
     begin
       MessagePopup(rsCannotDrawShapeOnSVGLayer, 3000);
     end

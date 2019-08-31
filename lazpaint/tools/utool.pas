@@ -5,9 +5,9 @@ unit UTool;
 interface
 
 uses
-  Classes, SysUtils, Graphics, BGRABitmap, BGRABitmapTypes, uimage,
-  UImageType, ULayerAction, LCLType, Controls, UBrushType, UConfig,
-  LCVectorPolyShapes, BGRAGradientScanner, LCVectorRectShapes;
+  Classes, SysUtils, Graphics, BGRABitmap, BGRABitmapTypes, uimage, UImageType,
+  ULayerAction, LCLType, Controls, UBrushType, UConfig, LCVectorPolyShapes,
+  BGRAGradientScanner, BGRALayerOriginal, LCVectorRectShapes;
 
 type TPaintToolType = (ptHand,ptHotSpot, ptMoveLayer,ptRotateLayer,ptZoomLayer,
                    ptPen, ptBrush, ptClone, ptColorPicker, ptEraser,
@@ -47,6 +47,8 @@ function GradientColorSpaceToDisplay(AValue: TBGRAColorInterpolation): string;
 function DisplayToGradientColorSpace(AValue: string): TBGRAColorInterpolation;
 
 type
+  TLayerKind = (lkUnknown, lkEmpty, lkBitmap, lkTransformedBitmap, lkGradient, lkVectorial, lkSVG, lkOther);
+
   { TGenericTool }
 
   TGenericTool = class
@@ -70,6 +72,7 @@ type
     function SelectionMaxPointDistance: single;
     function GetStatusText: string; virtual;
     function DoGetToolDrawingLayer: TBGRABitmap; virtual;
+    function GetCurrentLayerKind: TLayerKind;
   public
     ToolUpdateNeeded: boolean;
     Cursor: TCursor;
@@ -373,7 +376,7 @@ function ToolPopupMessageToStr(AMessage :TToolPopupMessage): string;
 implementation
 
 uses Types, ugraph, LCScaleDPI, LazPaintType, UCursors, BGRATextFX, ULoading, uresourcestrings,
-  BGRATransform;
+  BGRATransform, LCVectorOriginal, BGRAGradientOriginal, BGRASVGOriginal;
 
 function StrToPaintToolType(const s: ansistring): TPaintToolType;
 var pt: TPaintToolType;
@@ -500,6 +503,28 @@ begin
   end
   else
     result := Action.DrawingLayer;
+end;
+
+function TGenericTool.GetCurrentLayerKind: TLayerKind;
+var
+  c: TBGRALayerOriginalAny;
+begin
+  if not Manager.Image.LayerOriginalDefined[Manager.Image.CurrentLayerIndex] then
+  begin
+    if Manager.Image.CurrentLayerEmpty then exit(lkEmpty)
+    else exit(lkBitmap);
+  end else
+  if not Manager.Image.LayerOriginalKnown[Manager.Image.CurrentLayerIndex] then
+   exit(lkUnknown)
+  else
+  begin
+    c := Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex];
+    if c = TVectorOriginal then exit(lkVectorial) else
+    if c = TBGRALayerImageOriginal then exit(lkTransformedBitmap) else
+    if c = TBGRALayerGradientOriginal then exit(lkGradient) else
+    if c = TBGRALayerSVGOriginal then exit(lkSVG) else
+      exit(lkOther);
+  end;
 end;
 
 function TGenericTool.GetAction: TLayerAction;
