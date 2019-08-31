@@ -19,22 +19,14 @@ const
   Improvements accepted:
   ----------------------
   Mac:
-  - Combobox ownerdrawn (brush, arrow)
-  - update image preview when saving
-  - filename fix
-  - ctrl shortcut to change
+  - combobox dropdown rect without scrollbar
   Scripting
   Color picker
   - From final image
   - With radius
   Translation of curve modes (in dropdown)
   Lasso
-  Raccourcis clavier pour utiliser le bouton droit
   Utiliser les touches de direction
-  Indiquer l'outil actif
-  Rotation des objets des outils
-  Afficher les coordonnees des points (snap de la valeur en haut?)
-  Ajout barre d'outils pour les coordonnees de la selection 
   Mettre a jour le curseur quand on change d'outil (notamment avec Espace)
 
   Possible improvements:
@@ -49,7 +41,6 @@ const
   - load/save RAW
 
   Filters:
-  - filtre de vagues concentriques
   - filtre de vagues en translation
   - filtre pontillisme
   - G'MIC filters
