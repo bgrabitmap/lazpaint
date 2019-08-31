@@ -1138,6 +1138,8 @@ end;
 
 procedure TFMain.FormMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
+var
+  switchButton: Boolean;
 begin
   if not Assigned(FImageView) then exit;
   ReleaseMouseButtons(Shift);
@@ -1155,7 +1157,8 @@ begin
     btnMiddleDown:= true;
     if not ToolManager.ToolSleeping then ToolManager.ToolSleep;
   end;
-  if ToolManager.ToolDown(FImageView.FormToBitmap(X,Y),btnRightDown,CurrentPressure) then
+  switchButton := ssAlt in Shift;
+  if ToolManager.ToolDown(FImageView.FormToBitmap(X,Y),btnRightDown xor switchButton,CurrentPressure) then
       PaintPictureNow;
   UpdateToolbar;
 end;
