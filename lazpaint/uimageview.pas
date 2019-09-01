@@ -531,7 +531,7 @@ var virtualScreenPenCursorBefore: boolean;
       PtInRect(FLastPictureParameters.scaledArea, Point(X,Y)) then
     begin
       FPenCursorVisible := True;
-      wantedCursor := crNone;
+      {$IFNDEF DARWIN}wantedCursor := crNone;{$ENDIF}
       result := true;
     end else
       result := false;
