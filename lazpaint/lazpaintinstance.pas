@@ -17,7 +17,7 @@ uses
   ULoading, UImage, UTool, uconfig, IniFiles, uresourcestrings, uscripting;
 
 const
-  MaxToolPopupShowCount = 2;
+  MaxToolPopupShowCount = 3;
 
 type
   TImageListList = specialize TFPGObjectList<TImageList>;

@@ -3144,9 +3144,13 @@ begin
 end;
 
 procedure TFMain.ForgetDialogAnswersExecute(Sender: TObject);
+var
+  m: TToolPopupMessage;
 begin
   Config.SetDefaultTransformSelectionAnswer(0);
   Config.SetDefaultRetrieveSelectionAnswer(0);
+  for m := low(TToolPopupMessage) to high(TToolPopupMessage) do
+    Config.SetToolPopupMessageShownCount(ord(m), 0);
 end;
 
 procedure TFMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
