@@ -398,7 +398,7 @@ var n: integer;
 begin
   if not FHintShowed then
   begin
-    Manager.ToolPopup(tpmAltShiftScaleMode);
+    Manager.ToolPopup(tpmHoldKeysScaleMode, VK_SHIFT);
     FHintShowed:= true;
   end;
   result := EmptyRect;
@@ -576,7 +576,7 @@ begin
     key := 0;
   end
   else
-  if Key = VK_CONTROL then
+  if Key = VK_SNAP then
   begin
     snapToPixel:= true;
     key := 0;
@@ -614,7 +614,7 @@ end;
 function TToolTextureMapping.ToolKeyUp(var key: Word): TRect;
 begin
   result := EmptyRect;
-  if Key = VK_CONTROL then
+  if Key = VK_SNAP then
   begin
     snapToPixel:= false;
     key := 0;

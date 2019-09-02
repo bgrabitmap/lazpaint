@@ -23,6 +23,7 @@ type
     procedure DoToolMoveAfter(pt: TPoint; {%H-}ptF: TPointF); override;
     function GetStatusText: string; override;
   public
+    constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
   end;
 
@@ -305,12 +306,11 @@ begin
     result := EmptyRect;
 end;
 
-function TToolPen.DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF
-  ): TRect;
+function TToolPen.DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect;
 begin
   if (manager.PenWidth <= 3) and not HintShowed then
   begin
-    Manager.ToolPopup(tpmHoldCtrlSnapToPixel);
+    Manager.ToolPopup(tpmHoldKeySnapToPixel, VK_SNAP);
     HintShowed:= true;
   end;
   if snapToPixel then ptF := PointF(pt.X,pt.Y);
@@ -326,11 +326,12 @@ end;
 constructor TToolPen.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
+  snapToPixel:= false;
 end;
 
 function TToolPen.ToolKeyDown(var key: Word): TRect;
 begin
-  if key = VK_CONTROL then
+  if key = VK_SNAP then
   begin
     snapToPixel := true;
     Key := 0;
@@ -340,7 +341,7 @@ end;
 
 function TToolPen.ToolKeyUp(var key: Word): TRect;
 begin
-  if key = VK_CONTROL then
+  if key = VK_SNAP then
   begin
     snapToPixel := false;
     key := 0;
@@ -477,6 +478,12 @@ begin
     if (smallestNum <> 0) then
       result += ' = ' + inttostr(smallestNum)+'/'+inttostr(smallestDenom);
   end;
+end;
+
+constructor TToolHand.Create(AManager: TToolManager);
+begin
+  inherited Create(AManager);
+  handMoving := false;
 end;
 
 function TToolHand.ToolUp: TRect;

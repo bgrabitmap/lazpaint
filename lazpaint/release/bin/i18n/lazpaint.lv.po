@@ -1556,9 +1556,9 @@ msgstr "visi"
 msgid "All supported filetypes"
 msgstr "Visi atbalstītie failu formāti"
 
-#: uresourcestrings.rsaltshiftscalemode
-msgid "Hold ALT or SHIFT to scale"
-msgstr "Turi [ALT] vai [SHIFT] lai mērogotu"
+#: uresourcestrings.rsholdkeysscalemode
+msgid "Hold %1 or %2 to scale"
+msgstr "Turi %1 vai %2 lai mērogotu"
 
 #: uresourcestrings.rsanimatedgif
 msgid "Animated GIF"
@@ -1673,9 +1673,9 @@ msgstr ""
 msgid "Crop"
 msgstr "Apcirpt"
 
-#: uresourcestrings.rsctrlrestrictrotation
-msgid "Hold CTRL to restrict rotation angle"
-msgstr "Turi [CTRL] lai izmantotu noteiktus leņķus"
+#: uresourcestrings.rsholdkeyrestrictrotation
+msgid "Hold %1 to restrict rotation angle"
+msgstr "Turi %1 lai izmantotu noteiktus leņķus"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
@@ -1838,13 +1838,13 @@ msgstr "Zaļš"
 msgid "Half-cosine"
 msgstr ""
 
-#: uresourcestrings.rsholdctrlsnaptopixel
-msgid "Hold CTRL to snap to pixels"
-msgstr "Turi [CTRL], lai pieliptu pikseļiem"
+#: uresourcestrings.rsholdkeysnaptopixel
+msgid "Hold %1 to snap to pixels"
+msgstr "Turi %1, lai pieliptu pikseļiem"
 
-#: uresourcestrings.rsholdshiftforsquare
-msgid "Hold SHIFT to draw a square or a circle"
-msgstr "Turi [SHIFT} lai zīmētu kvadrātu vai apli"
+#: uresourcestrings.rsholdkeyforsquare
+msgid "Hold %1 to draw a square or a circle"
+msgstr "Turi %1 lai zīmētu kvadrātu vai apli"
 
 #: uresourcestrings.rshotspot
 msgctxt "uresourcestrings.rshotspot"

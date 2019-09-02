@@ -395,7 +395,7 @@ var angleDiff: single;
 begin
   if not HintShowed then
   begin
-    Manager.ToolPopup(tpmCtrlRestrictRotation);
+    Manager.ToolPopup(tpmHoldKeyRestrictRotation, VK_SNAP);
     HintShowed:= true;
   end;
   if handMoving and ((handOrigin.X <> ptF.X) or (handOrigin.Y <> ptF.Y)) then
@@ -439,7 +439,7 @@ end;
 function TToolRotateSelection.ToolKeyDown(var key: Word): TRect;
 begin
   result := EmptyRect;
-  if key = VK_CONTROL then
+  if key = VK_SNAP then
   begin
     if not snapRotate then
     begin
@@ -469,7 +469,7 @@ end;
 
 function TToolRotateSelection.ToolKeyUp(var key: Word): TRect;
 begin
-  if key = VK_CONTROL then
+  if key = VK_SNAP then
   begin
     snapRotate := false;
     Key := 0;

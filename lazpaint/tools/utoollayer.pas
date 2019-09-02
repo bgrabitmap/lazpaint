@@ -63,7 +63,7 @@ type
     FPreviousFilter: TResampleFilter;
     FTransforming: boolean;
     FPreviousMousePos: TPointF;
-    FCtrlDown: boolean;
+    FSnapDown: boolean;
     FLastUpdateRect: TRect;
     FLastUpdateRectDefined: boolean;
     FOriginalBounds: TRect;
@@ -402,7 +402,7 @@ begin
   begin
     FTransforming := true;
     FPreviousMousePos := ptF;
-    if FCtrlDown then
+    if FSnapDown then
     begin
       result := UpdateTransform;
       if IsRectEmpty(result) then result := OnlyRenderChange;
@@ -491,7 +491,7 @@ end;
 constructor TToolTransformLayer.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
-  FCtrlDown:= false;
+  FSnapDown:= false;
   FTransformCenterDefined := false;
   FLastUpdateRectDefined:= false;
 end;
@@ -531,9 +531,9 @@ end;
 
 function TToolTransformLayer.ToolKeyDown(var key: Word): TRect;
 begin
-  if key = VK_CONTROL then
+  if (key = VK_SNAP) or (KEY = VK_SNAP2) then
   begin
-    FCtrlDown:= true;
+    FSnapDown:= true;
     if FTransforming and CtrlChangesTransform then
     begin
       result := UpdateTransform;
@@ -560,9 +560,9 @@ end;
 
 function TToolTransformLayer.ToolKeyUp(var key: Word): TRect;
 begin
-  if key = VK_CONTROL then
+  if (key = VK_SNAP) or (KEY = VK_SNAP2) then
   begin
-    FCtrlDown := false;
+    FSnapDown := false;
     if FTransforming and CtrlChangesTransform then
     begin
       result := UpdateTransform;
@@ -652,7 +652,7 @@ var
   baseZoom: single;
   invZoom: boolean;
 begin
-  if FCtrlDown then
+  if FSnapDown then
   begin
     logZoom := ln(FZoom)/ln(2);
     if logZoom < 0 then
@@ -742,7 +742,7 @@ end;
 
 function TToolRotateLayer.GetActualAngle: single;
 begin
-  if FCtrlDown then
+  if FSnapDown then
     result := round(FAngle/15)*15
   else
     result := FAngle;

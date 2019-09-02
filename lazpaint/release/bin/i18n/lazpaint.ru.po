@@ -1556,9 +1556,9 @@ msgstr "все"
 msgid "All supported filetypes"
 msgstr ""
 
-#: uresourcestrings.rsaltshiftscalemode
-msgid "Hold ALT or SHIFT to scale"
-msgstr "Удерживайте ALT или SHIFT для масштабирования"
+#: uresourcestrings.rsohldkeysscalemode
+msgid "Hold %1 or %2 to scale"
+msgstr "Удерживайте %1 или %2 для масштабирования"
 
 #: uresourcestrings.rsanimatedgif
 msgid "Animated GIF"
@@ -1673,9 +1673,9 @@ msgstr "Косинус"
 msgid "Crop"
 msgstr "Обрезать"
 
-#: uresourcestrings.rsctrlrestrictrotation
-msgid "Hold CTRL to restrict rotation angle"
-msgstr "Удерживайте CTRL для ограничения угла поворота"
+#: uresourcestrings.rsholdkeyrestrictrotation
+msgid "Hold %1 to restrict rotation angle"
+msgstr "Удерживайте %1 для ограничения угла поворота"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
@@ -1838,13 +1838,13 @@ msgstr ""
 msgid "Half-cosine"
 msgstr "Полу-косинус"
 
-#: uresourcestrings.rsholdctrlsnaptopixel
-msgid "Hold CTRL to snap to pixels"
-msgstr "Удерживайте CTRL для привязки к пикселям"
+#: uresourcestrings.rsholdkeysnaptopixel
+msgid "Hold %1 to snap to pixels"
+msgstr "Удерживайте %1 для привязки к пикселям"
 
-#: uresourcestrings.rsholdshiftforsquare
-msgid "Hold SHIFT to draw a square or a circle"
-msgstr "Удерживайте SHIFT для рисования квадрата или круга"
+#: uresourcestrings.rsholdkeyforsquare
+msgid "Hold %1 to draw a square or a circle"
+msgstr "Удерживайте %1 для рисования квадрата или круга"
 
 #: uresourcestrings.rshotspot
 msgctxt "uresourcestrings.rshotspot"

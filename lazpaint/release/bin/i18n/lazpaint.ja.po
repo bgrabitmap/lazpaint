@@ -1558,8 +1558,8 @@ msgstr ""
 msgid "All supported filetypes"
 msgstr ""
 
-#: uresourcestrings.rsaltshiftscalemode
-msgid "Hold ALT or SHIFT to scale"
+#: uresourcestrings.rsholdkeysscalemode
+msgid "Hold %1 or %2 to scale"
 msgstr ""
 
 #: uresourcestrings.rsanimatedgif
@@ -1675,8 +1675,8 @@ msgstr "コサイン"
 msgid "Crop"
 msgstr "切り抜く"
 
-#: uresourcestrings.rsctrlrestrictrotation
-msgid "Hold CTRL to restrict rotation angle"
+#: uresourcestrings.rsholdkeyrestrictrotation
+msgid "Hold %1 to restrict rotation angle"
 msgstr ""
 
 #: uresourcestrings.rscurvemodehint
@@ -1840,12 +1840,12 @@ msgstr ""
 msgid "Half-cosine"
 msgstr "Half-cosine"
 
-#: uresourcestrings.rsholdctrlsnaptopixel
-msgid "Hold CTRL to snap to pixels"
+#: uresourcestrings.rsholdkeysnaptopixel
+msgid "Hold %1 to snap to pixels"
 msgstr ""
 
-#: uresourcestrings.rsholdshiftforsquare
-msgid "Hold SHIFT to draw a square or a circle"
+#: uresourcestrings.rsholdkeyforsquare
+msgid "Hold %1 to draw a square or a circle"
 msgstr ""
 
 #: uresourcestrings.rshotspot

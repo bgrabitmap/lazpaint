@@ -1588,9 +1588,9 @@ msgstr "alles"
 msgid "All supported filetypes"
 msgstr "Alle ondersteunde bestandstypes"
 
-#: uresourcestrings.rsaltshiftscalemode
-msgid "Hold ALT or SHIFT to scale"
-msgstr "Houd ALT of SHIFT vast om te schalen"
+#: uresourcestrings.rsholdkeysscalemode
+msgid "Hold %1 or %2 to scale"
+msgstr "Houd %1 of %2 vast om te schalen"
 
 #: uresourcestrings.rsanimatedgif
 msgid "Animated GIF"
@@ -1705,9 +1705,9 @@ msgstr "Cosinus"
 msgid "Crop"
 msgstr "Bijsnijden"
 
-#: uresourcestrings.rsctrlrestrictrotation
-msgid "Hold CTRL to restrict rotation angle"
-msgstr "Houd CTRL ingedrukt om rotatiehoek te beperken"
+#: uresourcestrings.rsholdkeyrestrictrotation
+msgid "Hold %1 to restrict rotation angle"
+msgstr "Houd %2 ingedrukt om rotatiehoek te beperken"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
@@ -1870,13 +1870,13 @@ msgstr "Groen"
 msgid "Half-cosine"
 msgstr "Half-cosinus"
 
-#: uresourcestrings.rsholdctrlsnaptopixel
-msgid "Hold CTRL to snap to pixels"
-msgstr "Houd CTRL ingedrukt om op pixels vast te kleven"
+#: uresourcestrings.rsholdkeysnaptopixel
+msgid "Hold %1 to snap to pixels"
+msgstr "Houd %1 ingedrukt om op pixels vast te kleven"
 
-#: uresourcestrings.rsholdshiftforsquare
-msgid "Hold SHIFT to draw a square or a circle"
-msgstr "Houd SHIFT ingedrukt om een vierkant of cirkel te tekenen"
+#: uresourcestrings.rsholdkeyforsquare
+msgid "Hold %1 to draw a square or a circle"
+msgstr "Houd %1 ingedrukt om een vierkant of cirkel te tekenen"
 
 #: uresourcestrings.rshotspot
 msgctxt "uresourcestrings.rshotspot"

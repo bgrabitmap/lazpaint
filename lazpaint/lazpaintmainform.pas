@@ -715,7 +715,7 @@ type
     initialized: boolean;
     shouldArrangeOnResize: boolean;
     btnLeftDown, btnRightDown, btnMiddleDown: boolean;
-    spacePressed: boolean;
+    spacePressed, altPressed, snapPressed, shiftPressed: boolean;
     FormMouseMovePos: TPoint;
     InFormMouseMove: boolean;
     InFormPaint: boolean;
@@ -796,6 +796,7 @@ type
     procedure LabelAutosize(ALabel: TLabel);
     procedure AskMergeSelection(ACaption: string);
     procedure ReleaseMouseButtons(Shift: TShiftState);
+    procedure UpdateSpecialKeys({%H-}Shift: TShiftState);
     procedure UpdateCurveModeToolbar;
     function ShowOpenTextureDialog: boolean;
     procedure ShowNoPicture;
@@ -910,6 +911,10 @@ begin
   btnRightDown := false;
   btnMiddleDown:= false;
   FTablet := TLazTablet.Create(self);
+  spacePressed:= false;
+  altPressed:= false;
+  snapPressed:= false;
+  shiftPressed:= false;
 
   //recursive calls
   InFormMouseMove:= false;
@@ -1138,8 +1143,6 @@ end;
 
 procedure TFMain.FormMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
-var
-  switchButton: Boolean;
 begin
   if not Assigned(FImageView) then exit;
   ReleaseMouseButtons(Shift);
@@ -1155,10 +1158,9 @@ begin
   if Button = mbMiddle then
   begin
     btnMiddleDown:= true;
-    if not ToolManager.ToolSleeping then ToolManager.ToolSleep;
+    if not ToolManager.ToolSleeping and not (ssAlt in Shift) then ToolManager.ToolSleep;
   end;
-  switchButton := ssAlt in Shift;
-  if ToolManager.ToolDown(FImageView.FormToBitmap(X,Y),btnRightDown xor switchButton,CurrentPressure) then
+  if ToolManager.ToolDown(FImageView.FormToBitmap(X,Y),btnRightDown,CurrentPressure) then
       PaintPictureNow;
   UpdateToolbar;
 end;
@@ -1174,6 +1176,7 @@ begin
   if not Assigned(FImageView) then exit;
 
   ReleaseMouseButtons(Shift);
+  UpdateSpecialKeys(Shift);
   HidePenPreview;
   if LazPaintInstance.TopMostHasFocus then
   begin
@@ -1641,6 +1644,9 @@ procedure TFMain.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState
   );
 begin
   try
+    if Key = VK_MENU then altPressed:= true
+    else if (Key = VK_SNAP) or (Key = VK_SNAP2) then snapPressed:= true
+    else if Key = VK_SHIFT then shiftPressed:= true;
     if Zoom.EditingZoom then exit;
     if not ((CurrentTool = ptText) and TextSpinEditFocused and (Key = VK_BACK)) and ToolManager.ToolKeyDown(Key) then
     begin
@@ -2026,6 +2032,9 @@ end;
 
 procedure TFMain.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
+  if Key = VK_MENU then altPressed:= false
+  else if (Key = VK_SNAP) or (Key = VK_SNAP2) then snapPressed:= false
+  else if Key = VK_SHIFT then shiftPressed:= false;
   if ToolManager.ToolKeyUp(Key) then
   begin
     DelayedPaintPicture := True;
@@ -3308,6 +3317,28 @@ begin
     CanCompressOrUpdateStack := true;
     Image.OnImageChanged.DelayedStackUpdate := False;
   end;
+end;
+
+procedure TFMain.UpdateSpecialKeys(Shift: TShiftState);
+  procedure UpdateKey(AShift: TShiftStateEnum; ACode: Word; var APressed: boolean);
+  begin
+    if (AShift in Shift) and not APressed then
+    begin
+      if ToolManager.ToolKeyDown(ACode) then PaintPictureNow;
+      APressed:= true;
+    end else
+    if not (AShift in Shift) and APressed then
+    begin
+      if ToolManager.ToolKeyUp(ACode) then PaintPictureNow;
+      APressed:= false;
+    end;
+  end;
+begin
+  {$IFDEF DARWIN}
+  UpdateKey(ssSnap, VK_SNAP, snapPressed);
+  UpdateKey(ssAlt, VK_MENU, altPressed);
+  UpdateKey(ssShift, VK_SHIFT, shiftPressed);
+  {$ENDIF}
 end;
 
 function TFMain.ShowOpenTextureDialog: boolean;

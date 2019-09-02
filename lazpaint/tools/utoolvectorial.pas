@@ -951,6 +951,7 @@ var
   handled: boolean;
 begin
   Result:= EmptyRect;
+  if (Key = VK_SNAP) or (Key = VK_SNAP2) then Key := VK_CONTROL;
   if key = VK_SHIFT then
   begin
     include(FShiftState, ssShift);
@@ -1013,6 +1014,7 @@ var
   handled: boolean;
 begin
   Result:= EmptyRect;
+  if (Key = VK_SNAP) or (Key = VK_SNAP2) then Key := VK_CONTROL;
   if key = VK_SHIFT then
   begin
     exclude(FShiftState, ssShift);
@@ -1636,6 +1638,8 @@ begin
       FShape.OnEditingChange:=@ShapeEditingChange;
       FShape.OnRemoveQuery:= @ShapeRemoveQuery;
       result := RectUnion(result, UpdateShape(toolDest));
+      if FShape is TCustomRectShape then
+        Manager.ToolPopup(tpmHoldKeyForSquare, VK_SHIFT);
     end;
   end;
 end;
@@ -1741,6 +1745,7 @@ var
   handled: boolean;
 begin
   result := EmptyRect;
+  if (Key = VK_SNAP) or (Key = VK_SNAP2) then Key := VK_CONTROL;
   if Key = VK_SHIFT then
   begin
     if FQuickDefine then
@@ -1798,6 +1803,7 @@ var
   handled: boolean;
 begin
   result := EmptyRect;
+  if (Key = VK_SNAP) or (Key = VK_SNAP2) then Key := VK_CONTROL;
   if Key = VK_SHIFT then
   begin
     if FQuickDefine then

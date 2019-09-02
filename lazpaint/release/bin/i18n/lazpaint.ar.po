@@ -1558,9 +1558,9 @@ msgstr "الكل"
 msgid "All supported filetypes"
 msgstr "كل الملفات المدعمة"
 
-#: uresourcestrings.rsaltshiftscalemode
-msgid "Hold ALT or SHIFT to scale"
-msgstr "إضغط ALT او SHIFT للتحريف"
+#: uresourcestrings.rsholdkeysscalemode
+msgid "Hold %1 or %2 to scale"
+msgstr "إضغط %1 او %2 للتحريف"
 
 #: uresourcestrings.rsanimatedgif
 msgid "Animated GIF"
@@ -1675,9 +1675,9 @@ msgstr "جيب التمام"
 msgid "Crop"
 msgstr "محصول"
 
-#: uresourcestrings.rsctrlrestrictrotation
-msgid "Hold CTRL to restrict rotation angle"
-msgstr "إضغط CTRL لتقييد زاوية الدوران"
+#: uresourcestrings.rsholdkeyrestrictrotation
+msgid "Hold %1 to restrict rotation angle"
+msgstr "إضغط %1 لتقييد زاوية الدوران"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
@@ -1840,13 +1840,13 @@ msgstr ""
 msgid "Half-cosine"
 msgstr "نصف - جيب التمام"
 
-#: uresourcestrings.rsholdctrlsnaptopixel
-msgid "Hold CTRL to snap to pixels"
-msgstr "إضغط CTRL لالتقاط إلى بكسل"
+#: uresourcestrings.rsholdkeysnaptopixel
+msgid "Hold %1 to snap to pixels"
+msgstr "إضغط %1 لالتقاط إلى بكسل"
 
-#: uresourcestrings.rsholdshiftforsquare
-msgid "Hold SHIFT to draw a square or a circle"
-msgstr "إضغط على SHIFT لرسم مربع او دائرة"
+#: uresourcestrings.rsholdkeyforsquare
+msgid "Hold %1 to draw a square or a circle"
+msgstr "إضغط على %1 لرسم مربع او دائرة"
 
 #: uresourcestrings.rshotspot
 msgctxt "uresourcestrings.rshotspot"

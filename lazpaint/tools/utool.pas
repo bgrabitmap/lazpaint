@@ -9,6 +9,11 @@ uses
   ULayerAction, LCLType, Controls, UBrushType, UConfig, LCVectorPolyShapes,
   BGRAGradientScanner, BGRALayerOriginal, LCVectorRectShapes;
 
+const
+  VK_SNAP = {$IFDEF DARWIN}VK_LWIN{$ELSE}VK_CONTROL{$ENDIF};
+  VK_SNAP2 = {$IFDEF DARWIN}VK_RWIN{$ELSE}VK_CONTROL{$ENDIF};
+  ssSnap = {$IFDEF DARWIN}ssMeta{$ELSE}ssCtrl{$ENDIF};
+
 type TPaintToolType = (ptHand,ptHotSpot, ptMoveLayer,ptRotateLayer,ptZoomLayer,
                    ptPen, ptBrush, ptClone, ptColorPicker, ptEraser,
                    ptEditShape, ptRect, ptEllipse, ptPolygon, ptSpline,
@@ -120,13 +125,13 @@ type
 
   TToolClass = class of TGenericTool;
 
-  TToolPopupMessage= (tpmNone,tpmHoldShiftForSquare, tpmHoldCtrlSnapToPixel,
-    tpmReturnValides, tpmBackspaceRemoveLastPoint, tpmCtrlRestrictRotation,
-    tpmAltShiftScaleMode, tpmCurveModeHint, tpmBlendOpBackground,
+  TToolPopupMessage= (tpmNone,tpmHoldKeyForSquare, tpmHoldKeySnapToPixel,
+    tpmReturnValides, tpmBackspaceRemoveLastPoint, tpmHoldKeyRestrictRotation,
+    tpmHoldKeysScaleMode, tpmCurveModeHint, tpmBlendOpBackground,
     tpmRightClickForSource);
 
   TOnToolChangedHandler = procedure(sender: TToolManager; ANewToolType: TPaintToolType) of object;
-  TOnPopupToolHandler = procedure(sender: TToolManager; APopupMessage: TToolPopupMessage) of object;
+  TOnPopupToolHandler = procedure(sender: TToolManager; APopupMessage: TToolPopupMessage; AKey: Word) of object;
 
   TShapeOption = (toAliasing, toDrawShape, toFillShape, toCloseShape);
   TShapeOptions = set of TShapeOption;
@@ -289,7 +294,7 @@ type
     procedure ToolOpen;
     function ToolUpdate: boolean;
     function ToolUpdateNeeded: boolean;
-    procedure ToolPopup(AMessage: TToolPopupMessage);
+    procedure ToolPopup(AMessage: TToolPopupMessage; AKey: Word = 0);
     procedure HintReturnValidates;
 
     function IsSelectingTool: boolean;
@@ -371,7 +376,7 @@ type
    end;
 
 procedure RegisterTool(ATool: TPaintToolType; AClass: TToolClass);
-function ToolPopupMessageToStr(AMessage :TToolPopupMessage): string;
+function ToolPopupMessageToStr(AMessage :TToolPopupMessage; AKey: Word = 0): string;
 
 implementation
 
@@ -424,15 +429,25 @@ begin
   PaintTools[ATool] := AClass;
 end;
 
-function ToolPopupMessageToStr(AMessage: TToolPopupMessage): string;
+function ReplaceKey(AText: string; AKey: Word; AParam: integer = 1): string;
+begin
+  if AKey = VK_SHIFT then result := StringReplace(AText, '%'+inttostr(AParam), rsShift, []) else
+  if AKey = VK_CONTROL then result := StringReplace(AText, '%'+inttostr(AParam), rsCtrl, []) else
+  if AKey = VK_MENU then result := StringReplace(AText, '%'+inttostr(AParam), rsAlt, []) else
+  if AKey = VK_LWIN then result := StringReplace(AText, '%'+inttostr(AParam), rsCmd, []) else
+    result := AText;
+
+end;
+
+function ToolPopupMessageToStr(AMessage: TToolPopupMessage; AKey: Word = 0): string;
 begin
   case AMessage of
-  tpmHoldShiftForSquare: result := rsHoldShiftForSquare;
-  tpmHoldCtrlSnapToPixel: result := rsHoldCtrlSnapToPixel;
+  tpmHoldKeyForSquare: result := ReplaceKey(rsHoldKeyForSquare, AKey);
+  tpmHoldKeySnapToPixel: result := ReplaceKey(rsHoldKeySnapToPixel, AKey);
   tpmReturnValides: result := rsReturnValides;
   tpmBackspaceRemoveLastPoint: result := rsBackspaceRemoveLastPoint;
-  tpmCtrlRestrictRotation: result := rsCtrlRestrictRotation;
-  tpmAltShiftScaleMode: result := rsAltShiftScaleMode;
+  tpmHoldKeyRestrictRotation: result := ReplaceKey(rsHoldKeyRestrictRotation, AKey);
+  tpmHoldKeysScaleMode: result := ReplaceKey(ReplaceKey(rsHoldKeysScaleMode, AKey, 2), VK_MENU);
   tpmCurveModeHint: result := rsCurveModeHint;
   tpmBlendOpBackground: result := rsBlendOpNotUsedForBackground;
   tpmRightClickForSource: result := rsRightClickForSource;
@@ -1822,10 +1837,10 @@ begin
     result := true;
 end;
 
-procedure TToolManager.ToolPopup(AMessage: TToolPopupMessage);
+procedure TToolManager.ToolPopup(AMessage: TToolPopupMessage; AKey: Word = 0);
 begin
   if Assigned(FOnPopupToolHandler) then
-    FOnPopupToolHandler(self, AMessage);
+    FOnPopupToolHandler(self, AMessage, AKey);
 end;
 
 function TToolManager.IsSelectingTool: boolean;

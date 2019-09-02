@@ -113,7 +113,7 @@ type
     procedure Init(AEmbedded: boolean);
     procedure SetBlackAndWhite(AValue: boolean); override;
     procedure OnStackChanged({%H-}sender: TLazPaintImage; AScrollIntoView: boolean);
-    procedure OnToolPopup({%H-}sender: TToolManager; AMessage: TToolPopupMessage);
+    procedure OnToolPopup({%H-}sender: TToolManager; AMessage: TToolPopupMessage; AKey: Word);
 
     function GetImageListWindowHeight: integer; override;
     function GetImageListWindowWidth: integer; override;
@@ -484,7 +484,7 @@ begin
     FLayerStack.InvalidateStack(AScrollIntoView);
 end;
 
-procedure TLazPaintInstance.OnToolPopup(sender: TToolManager; AMessage: TToolPopupMessage);
+procedure TLazPaintInstance.OnToolPopup(sender: TToolManager; AMessage: TToolPopupMessage; AKey: Word);
 var messageStr: string;
     idx: integer;
 begin
@@ -496,7 +496,7 @@ begin
     else
       exit;
   end;
-  messageStr := ToolPopupMessageToStr(AMessage);
+  messageStr := ToolPopupMessageToStr(AMessage, AKey);
   if messageStr <> '' then
     MessagePopup(messageStr,4000);
 end;

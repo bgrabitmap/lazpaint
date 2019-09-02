@@ -1571,9 +1571,13 @@ msgstr "alle"
 msgid "All supported filetypes"
 msgstr "Alle unterstützten Dateitypen"
 
-#: uresourcestrings.rsaltshiftscalemode
-msgid "Hold ALT or SHIFT to scale"
-msgstr "Halten Sie ALT oder UMSCHALT zum Skalieren"
+#: uresourcestrings.rsalt
+msgid "ALT"
+msgstr "ALT"
+
+#: uresourcestrings.rsholdkeysscalemode
+msgid "Hold %1 or %2 to scale"
+msgstr "Halten Sie %1 oder %2 zum Skalieren"
 
 #: uresourcestrings.rsanimatedgif
 msgid "Animated GIF"
@@ -1688,9 +1692,17 @@ msgstr "Kosinus"
 msgid "Crop"
 msgstr "Beschneiden"
 
-#: uresourcestrings.rsctrlrestrictrotation
-msgid "Hold CTRL to restrict rotation angle"
-msgstr "Halten Sie STRG für stufenweise Drehung"
+#: uresourcestrings.rsctrl
+msgid "CTRL"
+msgstr "STRG"
+
+#: uresourcestrings.rscmd
+msgid "CMD"
+msgstr "CMD"
+
+#: uresourcestrings.rsholdkeyrestrictrotation
+msgid "Hold %1 to restrict rotation angle"
+msgstr "Halten Sie %1 für stufenweise Drehung"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
@@ -1853,13 +1865,17 @@ msgstr "Grün"
 msgid "Half-cosine"
 msgstr "Halber Kosinus"
 
-#: uresourcestrings.rsholdctrlsnaptopixel
-msgid "Hold CTRL to snap to pixels"
-msgstr "Halten Sie STRG zum Ausrichten am raster"
+#: uresourcestrings.rsholdkeysnaptopixel
+msgid "Hold %1 to snap to pixels"
+msgstr "Halten Sie %1 zum Ausrichten am raster"
 
-#: uresourcestrings.rsholdshiftforsquare
-msgid "Hold SHIFT to draw a square or a circle"
-msgstr "Halten Sie UMSCHALT für ein Quadrat / einen Kreis"
+#: uresourcestrings.rsshift
+msgid "SHIFT"
+msgstr "UMSCHALT"
+
+#: uresourcestrings.rsholdkeyforsquare
+msgid "Hold %1 to draw a square or a circle"
+msgstr "Halten Sie %2 für ein Quadrat / einen Kreis"
 
 #: uresourcestrings.rshotspot
 msgctxt "uresourcestrings.rshotspot"

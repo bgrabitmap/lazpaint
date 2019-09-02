@@ -1560,9 +1560,9 @@ msgstr "todos"
 msgid "All supported filetypes"
 msgstr ""
 
-#: uresourcestrings.rsaltshiftscalemode
-msgid "Hold ALT or SHIFT to scale"
-msgstr "Pressione ALT ou SHIFT para alongar"
+#: uresourcestrings.rsholdkeysscalemode
+msgid "Hold %1 or %2 to scale"
+msgstr "Pressione %1 ou %2 para alongar"
 
 #: uresourcestrings.rsanimatedgif
 msgid "Animated GIF"
@@ -1677,9 +1677,9 @@ msgstr "Co-seno"
 msgid "Crop"
 msgstr "Cortar"
 
-#: uresourcestrings.rsctrlrestrictrotation
-msgid "Hold CTRL to restrict rotation angle"
-msgstr "Segurar Ctrl para restringir o ângulo de rotação"
+#: uresourcestrings.rsholdkeyrestrictrotation
+msgid "Hold %1 to restrict rotation angle"
+msgstr "Segurar %1 para restringir o ângulo de rotação"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
@@ -1842,13 +1842,13 @@ msgstr ""
 msgid "Half-cosine"
 msgstr "Meio-cosseno"
 
-#: uresourcestrings.rsholdctrlsnaptopixel
-msgid "Hold CTRL to snap to pixels"
-msgstr "Segurar CTRL para tirar pixels"
+#: uresourcestrings.rsholdkeysnaptopixel
+msgid "Hold %1 to snap to pixels"
+msgstr "Segurar %1 para tirar pixels"
 
-#: uresourcestrings.rsholdshiftforsquare
-msgid "Hold SHIFT to draw a square or a circle"
-msgstr "Segurar SHIFT para desenhar um quadrado ou um círculo"
+#: uresourcestrings.rsholdkeyforsquare
+msgid "Hold %1 to draw a square or a circle"
+msgstr "Segurar %1 para desenhar um quadrado ou um círculo"
 
 #: uresourcestrings.rshotspot
 msgctxt "uresourcestrings.rshotspot"
