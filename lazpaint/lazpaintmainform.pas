@@ -1160,7 +1160,9 @@ begin
     btnMiddleDown:= true;
     if not ToolManager.ToolSleeping and not (ssAlt in Shift) then ToolManager.ToolSleep;
   end;
-  if ToolManager.ToolDown(FImageView.FormToBitmap(X,Y),btnRightDown,CurrentPressure) then
+  if ToolManager.ToolDown(FImageView.FormToBitmap(X,Y),
+      btnRightDown{$IFDEF DARWIN} or (ssCtrl in Shift){$ENDIF},
+      CurrentPressure) then
       PaintPictureNow;
   UpdateToolbar;
 end;
