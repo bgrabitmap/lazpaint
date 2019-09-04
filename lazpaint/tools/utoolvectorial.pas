@@ -100,6 +100,7 @@ type
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF; rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF): TRect; override;
     function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
+    procedure UpdateSnap(AEditor: TBGRAOriginalEditor);
     function GetAction: TLayerAction; override;
     function DoGetToolDrawingLayer: TBGRABitmap; override;
     procedure OnTryStop({%H-}sender: TCustomLayerAction); override;
@@ -396,6 +397,7 @@ begin
   if not handled and (GetEditMode in [esmSelection,esmOtherOriginal]) and Assigned(FRectEditor) then
   begin
     ptView := FRectEditor.Matrix*ptF;
+    UpdateSnap(FRectEditor);
     FRectEditor.MouseDown(rightBtn, FShiftState, ptView.X,ptView.Y, cur, handled);
     Cursor := OriginalCursorToCursor(cur);
     if handled then
@@ -408,6 +410,7 @@ begin
   if not handled and (GetEditMode in [esmShape,esmGradient,esmNoShape]) then
   begin
     BindOriginalEvent(true);
+    UpdateSnap(Manager.Image.CurrentState.LayeredBitmap.OriginalEditor);
     Manager.Image.CurrentState.LayeredBitmap.MouseDown(rightBtn, FShiftState, ptF.X,ptF.Y, cur, handled);
     BindOriginalEvent(false);
     if handled then
@@ -432,6 +435,7 @@ begin
   esmGradient, esmShape, esmNoShape:
     begin
       BindOriginalEvent(true);
+      UpdateSnap(Manager.Image.CurrentState.LayeredBitmap.OriginalEditor);
       Manager.Image.CurrentState.LayeredBitmap.MouseMove(FShiftState, ptF.X,ptF.Y, cur, handled);
       BindOriginalEvent(false);
       Cursor := OriginalCursorToCursor(cur);
@@ -440,6 +444,7 @@ begin
     if Assigned(FRectEditor) then
     begin
       ptView := FRectEditor.Matrix*ptF;
+      UpdateSnap(FRectEditor);
       FRectEditor.MouseMove(FShiftState, ptView.X,ptView.Y, cur, handled);
       Cursor := OriginalCursorToCursor(cur);
       if handled then
@@ -600,6 +605,12 @@ begin
     end;
   end;
   Result := EmptyRect;
+end;
+
+procedure TEditShapeTool.UpdateSnap(AEditor: TBGRAOriginalEditor);
+begin
+  if Assigned(AEditor) then
+    AEditor.GridActive := ssCtrl in FShiftState;
 end;
 
 function TEditShapeTool.GetAction: TLayerAction;
@@ -811,6 +822,8 @@ begin
     begin
       FreeAndNil(FRectEditor);
       FRectEditorCapture := false;
+      if Assigned(Manager.Image.CurrentState.LayeredBitmap.OriginalEditor) then
+        Manager.Image.CurrentState.LayeredBitmap.OriginalEditor.GridMatrix := AffineMatrixScale(0.5,0.5);
       if Assigned(VirtualScreen) then
         result := Manager.Image.CurrentState.LayeredBitmap.DrawEditor(VirtualScreen,
           Manager.Image.CurrentLayerIndex, viewMatrix, DoScaleX(PointSize,OriginalDPI))
@@ -1070,6 +1083,7 @@ begin
     if not handled and FRectEditorCapture and Assigned(FRectEditor) then
     begin
       ptView := FRectEditor.Matrix*FLastPos;
+      UpdateSnap(FRectEditor);
       FRectEditor.MouseUp(FRightButton, FShiftState, ptView.X,ptView.Y, cur, handled);
       Cursor := OriginalCursorToCursor(cur);
       if handled then
@@ -1772,10 +1786,10 @@ begin
       Key := 0;
     end;
   end else
-  if (Key = VK_CONTROL) and not FQuickDefine then
+  if Key = VK_CONTROL then
   begin
     Include(FShiftState, ssCtrl);
-    FEditor.GridActive := true;
+    if not FQuickDefine then FEditor.GridActive := true;
     Key := 0;
   end else
   if (Key = VK_MENU) and not FQuickDefine then
@@ -1830,10 +1844,10 @@ begin
       Key := 0;
     end;
   end else
-  if (Key = VK_CONTROL) and not FQuickDefine then
+  if Key = VK_CONTROL then
   begin
     Exclude(FShiftState, ssCtrl);
-    FEditor.GridActive := false;
+    if not FQuickDefine then FEditor.GridActive := false;
     Key := 0;
   end else
   if (Key = VK_MENU) and not FQuickDefine then
