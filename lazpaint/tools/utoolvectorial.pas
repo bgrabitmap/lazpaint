@@ -998,14 +998,28 @@ end;
 function TEditShapeTool.ToolKeyPress(var key: TUTF8Char): TRect;
 var
   handled: boolean;
+  keyCode: word;
 begin
   Result:= EmptyRect;
   if GetEditMode in [esmShape,esmNoShape] then
   begin
-    BindOriginalEvent(true);
-    Manager.Image.CurrentState.LayeredBitmap.KeyPress(key, handled);
-    if handled then key := #0;
-    BindOriginalEvent(false);
+    if Assigned(GetVectorOriginal.SelectedShape) and
+      (GetVectorOriginal.SelectedShape is TCustomPolypointShape) and
+      ((Key='i') or (Key='I')) then
+    begin
+      keyCode := VK_INSERT;
+      ToolKeyDown(keyCode);
+      if keyCode = 0 then key := #0;
+      keyCode := VK_INSERT;
+      ToolKeyUp(keyCode);
+      result := EmptyRect;
+    end else
+    begin
+      BindOriginalEvent(true);
+      Manager.Image.CurrentState.LayeredBitmap.KeyPress(key, handled);
+      if handled then key := #0;
+      BindOriginalEvent(false);
+    end;
   end;
 end;
 
