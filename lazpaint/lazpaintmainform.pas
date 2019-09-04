@@ -1209,7 +1209,6 @@ begin
   if ToolManager.ToolMove(BmpPos,CurrentPressure) then
   begin
     FImageView.UpdatePicture(PictureCanvasOfs, FLayout.WorkArea, self);
-    ToolManager.ToolMoveAfter(FImageView.FormToBitmap(FormMouseMovePos)); //new BmpPos after repaint
   end else
     updateForVSCursor := true;
   UpdateToolbar;

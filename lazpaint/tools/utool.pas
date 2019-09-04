@@ -71,7 +71,6 @@ type
     function FixLayerOffset: boolean; virtual;
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF; rightBtn: boolean): TRect; virtual;
     function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect; virtual;
-    procedure DoToolMoveAfter(pt: TPoint; ptF: TPointF); virtual;
     function DoToolUpdate(toolDest: TBGRABitmap): TRect; virtual;
     procedure OnTryStop(sender: TCustomLayerAction); virtual;
     function SelectionMaxPointDistance: single;
@@ -92,7 +91,6 @@ type
     function ToolUpdate: TRect;
     function ToolDown(X,Y: single; rightBtn: boolean): TRect;
     function ToolMove(X,Y: single): TRect;
-    procedure ToolMoveAfter(X,Y: single);
     function ToolKeyDown(var key: Word): TRect; virtual;
     function ToolKeyUp(var key: Word): TRect; virtual;
     function ToolKeyPress(var key: TUTF8Char): TRect; virtual;
@@ -280,10 +278,8 @@ type
 
     function ToolDown(X,Y: single; ARightBtn: boolean; APressure: single): boolean; overload;
     function ToolMove(X,Y: single; APressure: single): boolean; overload;
-    procedure ToolMoveAfter(X,Y: single); overload;
     function ToolDown(ACoord: TPointF; ARightBtn: boolean; APressure: single): boolean; overload;
     function ToolMove(ACoord: TPointF; APressure: single): boolean; overload;
-    procedure ToolMoveAfter(coord: TPointF); overload;
     function ToolKeyDown(var key: Word): boolean;
     function ToolKeyUp(var key: Word): boolean;
     function ToolKeyPress(var key: TUTF8Char): boolean;
@@ -589,14 +585,6 @@ begin
 end;
 {$hints on}
 
-{$hints off}
-procedure TGenericTool.DoToolMoveAfter(pt: TPoint; ptF: TPointF);
-begin
-  //nothing
-end;
-
-{$hints on}
-
 constructor TGenericTool.Create(AManager: TToolManager);
 begin
   inherited Create;
@@ -750,21 +738,6 @@ begin
     ptF := AffineMatrixInverse(Manager.Image.SelectionTransform)*ptF;
 
   result := DoToolMove(toolDest,ptF.Round,ptF);
-end;
-
-procedure TGenericTool.ToolMoveAfter(X, Y: single);
-var
-  pt: TPoint;
-  ptF: TPointF;
-begin
-  if FixLayerOffset then
-  begin
-    x -= LayerOffset.x;
-    y -= LayerOffset.y;
-  end;
-  pt := Point(round(x),round(y));
-  ptF := PointF(x,y);
-  DoToolMoveAfter(pt,ptF);
 end;
 
 {$hints off}
@@ -1714,12 +1687,6 @@ begin
   if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
 end;
 
-procedure TToolManager.ToolMoveAfter(X, Y: single); overload;
-begin
-  if ToolCanBeUsed then
-    currentTool.ToolMoveAfter(X,Y);
-end;
-
 function TToolManager.ToolKeyDown(var key: Word): boolean;
 var changed: TRect;
 begin
@@ -1884,11 +1851,6 @@ end;
 function TToolManager.ToolMove(ACoord: TPointF; APressure: single): boolean;
 begin
   result := ToolMove(ACoord.x,ACoord.y,APressure)
-end;
-
-procedure TToolManager.ToolMoveAfter(coord: TPointF); overload;
-begin
-  ToolMoveAfter(coord.x,coord.y);
 end;
 
 initialization
