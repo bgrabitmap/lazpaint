@@ -39,6 +39,7 @@ type
     procedure UpdateUserMode; virtual;
   public
     function ToolKeyPress(var key: TUTF8Char): TRect; override;
+    function ToolKeyDown(var key: Word): TRect; override;
     function GetContextualToolbars: TContextualToolbars; override;
   end;
 
@@ -209,6 +210,19 @@ begin
     result := EmptyRect;
   end else
     Result:=inherited ToolKeyPress(key);
+end;
+
+function TToolPolygon.ToolKeyDown(var key: Word): TRect;
+begin
+  if (key = VK_RETURN) and Assigned(FShape)
+   and (FShape.Usermode = vsuCreate) then
+  begin
+    FShape.Usermode:= vsuEdit;
+    result := OnlyRenderChange;
+    key := 0;
+    exit;
+  end else
+    Result:=inherited ToolKeyDown(key);
 end;
 
 function TToolPolygon.GetContextualToolbars: TContextualToolbars;
