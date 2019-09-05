@@ -1,4 +1,17 @@
 msgid ""
+msgstr ""
+"Project-Id-Version: Lazpaint 7.0.4\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2019-08-20 12:23+0200\n"
+"Last-Translator: fred\n"
+"Language-Team: LazPaint\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: nl\n"
+"X-Generator: Poedit 2.2.3\n"
+
+msgid ""
 "Project-Id-Version: LazPaint\n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: 2014-03-28 11:18+0200\n"
@@ -39,11 +52,11 @@ msgstr ""
 
 #: tfchoosecolor.bcbutton_addtopalette.hint
 msgid "Add color to palette"
-msgstr ""
+msgstr "Kleur toevoegen aan palet"
 
 #: tfchoosecolor.bcbutton_removefrompalette.hint
 msgid "Remove color from palette"
-msgstr ""
+msgstr "Verwijder kleur van palet"
 
 #: tfchoosecolor.caption
 msgctxt "tfchoosecolor.caption"
@@ -76,16 +89,16 @@ msgstr "Uitzoomen uit lagenoverzicht"
 #: tfmain.brushcreategeometric.hint
 msgctxt "tfmain.brushcreategeometric.hint"
 msgid "Create geometric brush"
-msgstr ""
+msgstr "Maak een geometrische kwast"
 
 #: tfmain.brushloadfromfile.hint
 msgctxt "tfmain.brushloadfromfile.hint"
 msgid "Load brush from file..."
-msgstr ""
+msgstr "Laad kwast van bestand..."
 
 #: tfmain.brushremovecurrent.hint
 msgid "Remove current brush"
-msgstr ""
+msgstr "Verwijder huidige kwast"
 
 #: tfmain.caption
 msgctxt "tfmain.caption"
@@ -123,7 +136,7 @@ msgstr "Kleuren verschuiven..."
 
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
-msgstr ""
+msgstr "Penstijl"
 
 #: tfmain.editcopy.caption
 msgid "Copy"
@@ -162,19 +175,19 @@ msgstr "Selectie omkeren"
 
 #: tfmain.editmovedown.hint
 msgid "Move down"
-msgstr ""
+msgstr "Naar beneden verplaatsen"
 
 #: tfmain.editmovetoback.hint
 msgid "Send to back"
-msgstr ""
+msgstr "Naar achtergrond"
 
 #: tfmain.editmovetofront.hint
 msgid "Bring to front"
-msgstr ""
+msgstr "Naar voorgrond"
 
 #: tfmain.editmoveup.hint
 msgid "Move up"
-msgstr ""
+msgstr "Naar boven verplaatsen"
 
 #: tfmain.editpaste.hint
 msgctxt "TFMAIN.EDITPASTE.HINT"
@@ -187,7 +200,7 @@ msgstr "Plakken als nieuwe afbeelding"
 
 #: tfmain.editpasteasnewlayer.caption
 msgid "Paste as new layer"
-msgstr ""
+msgstr "Plakken als nieuwe laag"
 
 #: tfmain.editredo.hint
 msgctxt "TFMAIN.EDITREDO.HINT"
@@ -200,7 +213,6 @@ msgid "Select all"
 msgstr "Alles selecteren"
 
 #: tfmain.editselectall.hint
-#, fuzzy
 msgctxt "tfmain.editselectall.hint"
 msgid "Select all"
 msgstr "Alles selecteren"
@@ -215,27 +227,31 @@ msgstr "Selectie passend maken"
 
 #: tfmain.editshapealignbottom.hint
 msgid "Align shape to the bottom"
-msgstr ""
+msgstr "Vorm uitlijnen naar beneden"
 
 #: tfmain.editshapealignleft.hint
 msgid "Align shape left"
-msgstr ""
+msgstr "Vorm links uitlijnen"
 
 #: tfmain.editshapealignright.hint
 msgid "Align shape right"
-msgstr ""
+msgstr "Vorm rechts uitlijnen"
 
 #: tfmain.editshapealigntop.hint
 msgid "Align shape to the top"
-msgstr ""
+msgstr "Vorm uitlijnen naar boven"
 
 #: tfmain.editshapecenterhorizontally.hint
 msgid "Center shape horizontally"
-msgstr ""
+msgstr "Vorm horizontaal midden"
 
 #: tfmain.editshapecentervertically.hint
 msgid "Center shape vertically"
-msgstr ""
+msgstr "Vorm verticaall midden"
+
+#: tfmain.editshapetocurve.hint
+msgid "Convert shape to curve"
+msgstr "Omzetten in kromme"
 
 #: tfmain.editundo.caption
 msgid "Undo"
@@ -264,11 +280,11 @@ msgstr "Wijzigingen valideren"
 
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
-msgstr ""
+msgstr "Kies invoer..."
 
 #: tfmain.filechooseentry.hint
 msgid "Choose entry within file"
-msgstr ""
+msgstr "Kies invoer in bestand"
 
 #: tfmain.fileimport3d.caption
 msgid "Import 3D object..."
@@ -311,7 +327,7 @@ msgstr "Herlaad"
 
 #: tfmain.fileremembersaveformat.hint
 msgid "Remember save format"
-msgstr ""
+msgstr "Onthoud het opslagformaat"
 
 #: tfmain.filesave.caption
 msgctxt "TFMAIN.FILESAVE.CAPTION"
@@ -342,11 +358,11 @@ msgstr "Selectie opslaan als..."
 #: tfmain.fileuseimagebrowser.caption
 msgctxt "tfmain.fileuseimagebrowser.caption"
 msgid "Use image browser"
-msgstr ""
+msgstr "Gebruik afbeeldingsbrowser"
 
 #: tfmain.filterblurbox.caption
 msgid "Box blur..."
-msgstr ""
+msgstr "Box vervagen..."
 
 #: tfmain.filterblurcorona.caption
 msgctxt "tfmain.filterblurcorona.caption"
@@ -452,7 +468,7 @@ msgstr "Vlak (traag)"
 
 #: tfmain.filterrain.caption
 msgid "Rain..."
-msgstr ""
+msgstr "Regen..."
 
 #: tfmain.filtersharpen.caption
 msgid "Sharpen..."
@@ -473,15 +489,15 @@ msgstr "Wervelen..."
 
 #: tfmain.filterwavedisplacement.caption
 msgid "Wave diplacement..."
-msgstr ""
+msgstr "Golfverplaatsing ..."
 
 #: tfmain.forgetdialoganswers.caption
 msgid "Forget dialog box answers"
-msgstr ""
+msgstr "Vergeet antwoorden dialoogvenster"
 
 #: tfmain.forgetdialoganswers.hint
 msgid "Forget answers given to dialog boxes"
-msgstr ""
+msgstr "Vergeet antwoorden op dialoogvensters"
 
 #: tfmain.helpabout.caption
 msgid "About..."
@@ -493,7 +509,7 @@ msgstr "Index..."
 
 #: tfmain.imagechangecanvassize.caption
 msgid "Canvas size..."
-msgstr "Can_vasgrootte..."
+msgstr "Canvasgrootte..."
 
 #: tfmain.imageclearalpha.caption
 msgid "Clear alpha channel and set background"
@@ -561,7 +577,7 @@ msgstr "Slimme zoom x3"
 
 #: tfmain.imageswapredblue.caption
 msgid "Swap red and blue channels"
-msgstr ""
+msgstr "Verwissel rode en blauwe kanalen"
 
 #: tfmain.imageverticalflip.caption
 msgctxt "tfmain.imageverticalflip.caption"
@@ -589,7 +605,7 @@ msgstr "Kleur wisselen"
 
 #: tfmain.itemdocklayersandcolors.caption
 msgid "Dock layers and colors"
-msgstr ""
+msgstr "Dok lagen en kleuren"
 
 #: tfmain.itemdonate.caption
 msgctxt "tfmain.itemdonate.caption"
@@ -598,16 +614,16 @@ msgstr "Doneren..."
 
 #: tfmain.itemfullscreen.caption
 msgid "Fullscreen"
-msgstr ""
+msgstr "Volledig scherm"
 
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
 msgid "Use image browser"
-msgstr ""
+msgstr "Gebruik afbeeldingsbrowser"
 
 #: tfmain.itemviewdocktoolbox.caption
 msgid "Dock toolbox"
-msgstr ""
+msgstr "Dok gereedschapen"
 
 #: tfmain.label_altitude.caption
 msgid "Altitude"
@@ -620,13 +636,11 @@ msgstr "Terug"
 #: tfmain.label_brush.caption
 msgctxt "tfmain.label_brush.caption"
 msgid "Brush"
-msgstr ""
+msgstr "Kwast"
 
 #: tfmain.label_coordinates.caption
-#, fuzzy
-#| msgid "99999x99999"
 msgid "9999x9999"
-msgstr "99999x99999"
+msgstr "9999x9999"
 
 #: tfmain.label_coordinates.hint
 msgid "Coordinates"
@@ -693,7 +707,7 @@ msgstr "Rand"
 
 #: tfmain.label_ratio.caption
 msgid "Ratio"
-msgstr ""
+msgstr "Verhouding"
 
 #: tfmain.label_shadowoffset.caption
 msgctxt "TFMAIN.LABEL_SHADOWOFFSET.CAPTION"
@@ -707,7 +721,7 @@ msgstr "Vorm"
 
 #: tfmain.label_spacing.caption
 msgid "Spacing"
-msgstr ""
+msgstr "Tussenruimte"
 
 #: tfmain.label_text.caption
 msgctxt "TFMAIN.LABEL_TEXT.CAPTION"
@@ -755,7 +769,7 @@ msgstr "Laag verplaatsen"
 
 #: tfmain.layerrasterize.hint
 msgid "Rasterize layer"
-msgstr ""
+msgstr "Rasterlaag"
 
 #: tfmain.layerremovecurrent.hint
 msgctxt "tfmain.layerremovecurrent.hint"
@@ -774,7 +788,7 @@ msgstr "Laag verticaal spiegelen"
 
 #: tfmain.layerzoom.hint
 msgid "Zoom layer"
-msgstr ""
+msgstr "Zoomlaag"
 
 #: tfmain.loadselectiondialog.title
 msgid "Load selection"
@@ -787,19 +801,19 @@ msgstr "Kleuren"
 
 #: tfmain.menucoordinatestoolbar.caption
 msgid "Show coordinates"
-msgstr ""
+msgstr "Toon coördinaten"
 
 #: tfmain.menucopypastetoolbar.caption
 msgid "Show copy/paste toolbar"
-msgstr ""
+msgstr "Werkbalk kopiëren / plakken weergeven"
 
 #: tfmain.menudocktoolboxleft.caption
 msgid "Dock left"
-msgstr ""
+msgstr "Dok links"
 
 #: tfmain.menudocktoolboxright.caption
 msgid "Dock right"
-msgstr ""
+msgstr "Dok rechts"
 
 #: tfmain.menuedit.caption
 msgctxt "tfmain.menuedit.caption"
@@ -812,7 +826,7 @@ msgstr "Bestand"
 
 #: tfmain.menufiletoolbar.caption
 msgid "Show file toolbar"
-msgstr ""
+msgstr "Werkbalk Bestand weergeven"
 
 #: tfmain.menufilter.caption
 msgctxt "tfmain.menufilter.caption"
@@ -862,7 +876,7 @@ msgstr "Selecteren"
 #: tfmain.menushowpalette.caption
 msgctxt "tfmain.menushowpalette.caption"
 msgid "Show palette"
-msgstr ""
+msgstr "Toon palet"
 
 #: tfmain.menutool.caption
 msgctxt "tfmain.menutool.caption"
@@ -871,11 +885,11 @@ msgstr "Gereedschappen"
 
 #: tfmain.menuundocktoolbox.caption
 msgid "Undock"
-msgstr ""
+msgstr "Loskoppelen"
 
 #: tfmain.menuundoredotoolbar.caption
 msgid "Show undo/redo toolbar"
-msgstr ""
+msgstr "Werkbalk Ongedaan maken / Opnieuw tonen"
 
 #: tfmain.menuview.caption
 msgctxt "tfmain.menuview.caption"
@@ -884,7 +898,7 @@ msgstr "Bekijken"
 
 #: tfmain.menuzoomtoolbar.caption
 msgid "Show zoom toolbar"
-msgstr ""
+msgstr "Zoom-werkbalk weergeven"
 
 #: tfmain.open3dobjectdialog.title
 #| msgid "Open existing file"
@@ -894,7 +908,7 @@ msgstr "3D object importeren"
 
 #: tfmain.openbrushdialog.title
 msgid "Open brush"
-msgstr ""
+msgstr "Kwast openen"
 
 #: tfmain.openpicturedialog1.title
 msgid "Open existing image"
@@ -984,11 +998,11 @@ msgstr "Selectie opslaan als..."
 
 #: tfmain.selectionhorizontalflip.hint
 msgid "Flip selection horizontally"
-msgstr ""
+msgstr "Selectie horizontaal spiegelen"
 
 #: tfmain.selectionverticalflip.hint
 msgid "Flip selection vertically"
-msgstr ""
+msgstr "Selectie verticaal omdraaien"
 
 #: tfmain.shape_backcolor.hint
 msgctxt "tfmain.shape_backcolor.hint"
@@ -1002,12 +1016,12 @@ msgstr "Penkleur selecteren"
 #: tfmain.spinedit_arrowsizex.hint
 msgctxt "tfmain.spinedit_arrowsizex.hint"
 msgid "Horizontal size of the arrow"
-msgstr ""
+msgstr "Horizontale grootte van de pijl"
 
 #: tfmain.spinedit_arrowsizey.hint
 msgctxt "tfmain.spinedit_arrowsizey.hint"
 msgid "Vertical size of the arrow"
-msgstr ""
+msgstr "Verticale grootte van de pijl"
 
 #: tfmain.spinedit_backopacity.hint
 msgctxt "tfmain.spinedit_backopacity.hint"
@@ -1017,7 +1031,7 @@ msgstr "Secundaire kleurdekking"
 #: tfmain.spinedit_brushspacing.hint
 msgctxt "tfmain.spinedit_brushspacing.hint"
 msgid "Spacing between patterns"
-msgstr ""
+msgstr "Afstand tussen patronen"
 
 #: tfmain.spinedit_eraser.hint
 msgctxt "tfmain.spinedit_eraser.hint"
@@ -1067,26 +1081,26 @@ msgstr "Verticale schaduw"
 #: tfmain.spinedit_textsize.hint
 msgctxt "tfmain.spinedit_textsize.hint"
 msgid "Text size"
-msgstr ""
+msgstr "Tekst grootte"
 
 #: tfmain.spinedit_textureopacity.hint
 msgctxt "tfmain.spinedit_textureopacity.hint"
 msgid "Texture opacity"
-msgstr ""
+msgstr "Textuurdekking"
 
 #: tfmain.toolbrush.hint
 msgctxt "tfmain.toolbrush.hint"
 msgid "Brush"
-msgstr ""
+msgstr "Kwast"
 
 #: tfmain.toolchangedocking.hint
 msgctxt "tfmain.toolchangedocking.hint"
 msgid "Change docking"
-msgstr ""
+msgstr "Wijzig dokken"
 
 #: tfmain.toolclone.hint
 msgid "Clone tool"
-msgstr ""
+msgstr "Kloon gereedschap"
 
 #: tfmain.toolcolorpicker.hint
 msgctxt "TFMAIN.TOOLCOLORPICKER.HINT"
@@ -1103,7 +1117,7 @@ msgstr "Vervormingsraster"
 
 #: tfmain.tooleditshape.hint
 msgid "Edit shape"
-msgstr ""
+msgstr "Vorm bewerken"
 
 #: tfmain.toolellipse.hint
 msgctxt "TFMAIN.TOOLELLIPSE.HINT"
@@ -1138,11 +1152,11 @@ msgstr "Afbeelding bewegen en schuiven"
 #: tfmain.toolhotspot.caption
 msgctxt "tfmain.toolhotspot.caption"
 msgid "Hot spot"
-msgstr ""
+msgstr "Hotspot"
 
 #: tfmain.toolhotspot.hint
 msgid "Choose hot spot of a cursor"
-msgstr ""
+msgstr "Kies hotspot van een cursor"
 
 #: tfmain.toollayermapping.hint
 msgctxt "tfmain.toollayermapping.hint"
@@ -1241,8 +1255,8 @@ msgstr "Kromme"
 
 #: tfmain.toolspline.hint
 msgctxt "TFMAIN.TOOLSPLINE.HINT"
-msgid "Spline"
-msgstr "Spline"
+msgid "Curve"
+msgstr "Kromme"
 
 #: tfmain.tooltext.hint
 msgctxt "TFMAIN.TOOLTEXT.HINT"
@@ -1256,7 +1270,7 @@ msgstr "Texture mapping"
 
 #: tfmain.tool_aliasing.hint
 msgid "Disable antialiasing"
-msgstr ""
+msgstr "Antialiasing uitschakelen"
 
 #: tfmain.tool_capflat.hint
 msgctxt "TFMAIN.TOOL_CAPFLAT.HINT"
@@ -1432,7 +1446,7 @@ msgstr "Kleuren"
 
 #: tfmain.viewdarktheme.caption
 msgid "Dark theme"
-msgstr ""
+msgstr "Donker thema"
 
 #: tfmain.viewgrid.caption
 msgctxt "TFMAIN.VIEWGRID.CAPTION"
@@ -1460,11 +1474,11 @@ msgstr "Toon of verberg het lagenoverzicht"
 #: tfmain.viewpalette.caption
 msgctxt "tfmain.viewpalette.caption"
 msgid "Palette"
-msgstr ""
+msgstr "Palet"
 
 #: tfmain.viewstatusbar.caption
 msgid "Status bar"
-msgstr ""
+msgstr "Statusbalk"
 
 #: tfmain.viewtoolbox.caption
 msgid "Toolbox"
@@ -1472,7 +1486,7 @@ msgstr "Gereedschapskist"
 
 #: tfmain.viewworkspacecolor.caption
 msgid "Set workspace color..."
-msgstr ""
+msgstr "Werkruimtekleur instellen..."
 
 #: tfmain.viewzoomfit.caption
 msgctxt "tfmain.viewzoomfit.caption"
@@ -1540,19 +1554,19 @@ msgstr "OK"
 
 #: tfwavedisplacement.caption
 msgid "Wave displacement"
-msgstr ""
+msgstr "Golf verplaatsing"
 
 #: tfwavedisplacement.label_displacement.caption
 msgid "Displacement :"
-msgstr ""
+msgstr "Verplaatsing :"
 
 #: tfwavedisplacement.label_phase.caption
 msgid "Phase :"
-msgstr ""
+msgstr "Fase :"
 
 #: tfwavedisplacement.label_wavelength.caption
 msgid "Wavelength :"
-msgstr ""
+msgstr "Golflengte :"
 
 #: uresourcestrings.rsactioninprogress
 msgid "Action in progress"
@@ -1564,7 +1578,7 @@ msgstr "Voeg bestanden toe aan afbeeldingsverwerkingslijst"
 
 #: uresourcestrings.rsalignshape
 msgid "Align shape"
-msgstr ""
+msgstr "Vorm uitlijnen"
 
 #: uresourcestrings.rsallapplications
 msgid "all"
@@ -1574,17 +1588,17 @@ msgstr "alles"
 msgid "All supported filetypes"
 msgstr "Alle ondersteunde bestandstypes"
 
-#: uresourcestrings.rsaltshiftscalemode
-msgid "Hold ALT or SHIFT to scale"
-msgstr "Houd ALT of SHIFT vast om te schalen"
+#: uresourcestrings.rsholdkeysscalemode
+msgid "Hold %1 or %2 to scale"
+msgstr "Houd %1 of %2 vast om te schalen"
 
 #: uresourcestrings.rsanimatedgif
 msgid "Animated GIF"
-msgstr ""
+msgstr "Geanimeerde GIF"
 
 #: uresourcestrings.rsautodetect
 msgid "Autodetect"
-msgstr ""
+msgstr "Automatische detectie"
 
 #: uresourcestrings.rsbackspaceremovelastpoint
 msgid "Press BACKSPACE to remove last point"
@@ -1596,7 +1610,7 @@ msgstr "Beste kwaliteit"
 
 #: uresourcestrings.rsbitmap
 msgid "Bitmap"
-msgstr ""
+msgstr "Bitmap"
 
 #: uresourcestrings.rsblendopnotusedforbackground
 msgid "The blend operation is applied only if there is a layer underneath"
@@ -1604,7 +1618,7 @@ msgstr "De mengoperatie wordt alleen uitgevoerd als er een laag onder is"
 
 #: uresourcestrings.rsblue
 msgid "Blue"
-msgstr ""
+msgstr "Blauw"
 
 #: uresourcestrings.rsbrightness
 msgid "Brightness"
@@ -1612,7 +1626,7 @@ msgstr "Helderheid"
 
 #: uresourcestrings.rsbytes
 msgid "Bytes"
-msgstr ""
+msgstr "Bytes"
 
 #: uresourcestrings.rscancel
 msgctxt "uresourcestrings.rscancel"
@@ -1621,7 +1635,7 @@ msgstr "Annuleren"
 
 #: uresourcestrings.rscannotdrawshapeonsvglayer
 msgid "Cannot draw shape on SVG layer"
-msgstr ""
+msgstr "Kan vorm niet tekenen op SVG laag"
 
 #: uresourcestrings.rscannotopenfile
 msgid "Cannot open file"
@@ -1634,11 +1648,11 @@ msgstr "Canvasgrootte"
 
 #: uresourcestrings.rscdrom
 msgid "CD"
-msgstr ""
+msgstr "CD"
 
 #: uresourcestrings.rsclearpalette
 msgid "Clear palette"
-msgstr ""
+msgstr "Wis palet"
 
 #: uresourcestrings.rscloserequest
 msgid "Close request"
@@ -1651,19 +1665,19 @@ msgstr "Kleuren"
 
 #: uresourcestrings.rsconfirmdeletefromcontainer
 msgid "Are you sure you want to delete this file from the container?"
-msgstr ""
+msgstr "Weet u zeker dat u dit bestand uit de container wilt verwijderen?"
 
 #: uresourcestrings.rsconfirmdeletemultiplefromcontainer
 msgid "Are you sure you want to delete these %1 files from the container?"
-msgstr ""
+msgstr "Weet u zeker dat u deze %1-bestanden uit de container wilt verwijderen?"
 
 #: uresourcestrings.rsconfirmmovemultipletotrash
 msgid "Are you sure you want to move these %1 files to the trash?"
-msgstr ""
+msgstr "Weet je zeker dat je deze %1-bestanden naar de prullenbak wilt verplaatsen?"
 
 #: uresourcestrings.rsconfirmmovetotrash
 msgid "Are you sure you want to move this file to the trash?"
-msgstr ""
+msgstr "Weet je zeker dat je dit bestand naar de prullenbak wilt verplaatsen?"
 
 #: uresourcestrings.rsconflictingactions
 msgid "Conflicting actions"
@@ -1676,12 +1690,12 @@ msgstr "Contrast"
 #: uresourcestrings.rscorrectedhueccw
 msgctxt "uresourcestrings.rscorrectedhueccw"
 msgid "Corr. Hue CCW"
-msgstr ""
+msgstr "Corr. kleurtint linksom"
 
 #: uresourcestrings.rscorrectedhuecw
 msgctxt "uresourcestrings.rscorrectedhuecw"
 msgid "Corr. Hue CW"
-msgstr ""
+msgstr "Corr. kleurtint rechtsom"
 
 #: uresourcestrings.rscosine
 msgid "Cosine"
@@ -1691,9 +1705,9 @@ msgstr "Cosinus"
 msgid "Crop"
 msgstr "Bijsnijden"
 
-#: uresourcestrings.rsctrlrestrictrotation
-msgid "Hold CTRL to restrict rotation angle"
-msgstr "Houd CTRL ingedrukt om rotatiehoek te beperken"
+#: uresourcestrings.rsholdkeyrestrictrotation
+msgid "Hold %1 to restrict rotation angle"
+msgstr "Houd %2 ingedrukt om rotatiehoek te beperken"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
@@ -1701,7 +1715,7 @@ msgstr "Druk S of X om de krommingsmodus van het laatste punt in te stellen"
 
 #: uresourcestrings.rsdefaultpalette
 msgid "Default palette"
-msgstr ""
+msgstr "Standaard palet"
 
 #: uresourcestrings.rsdeletefile
 msgctxt "uresourcestrings.rsdeletefile"
@@ -1710,15 +1724,15 @@ msgstr "Verwijder"
 
 #: uresourcestrings.rsdeleteimageentry
 msgid "Delete selected image entry?"
-msgstr ""
+msgstr "Geselecteerde afbeelding verwijderen?"
 
 #: uresourcestrings.rsdirectorynotempty
 msgid "Directory is not empty"
-msgstr ""
+msgstr "Map is niet leeg"
 
 #: uresourcestrings.rsditherlayerusingpalette
 msgid "Dither layer using palette"
-msgstr ""
+msgstr "Ditherlaag met palet"
 
 #: uresourcestrings.rseditmask
 msgid "Edit mask"
@@ -1742,7 +1756,7 @@ msgstr "Selectie is leeg"
 
 #: uresourcestrings.rsenterfolderorcontainername
 msgid "Enter name for new folder or container (using RES or LRS extension):"
-msgstr ""
+msgstr "Voer naam in voor een nieuwe map of container (met extensie RES of LRS):"
 
 #: uresourcestrings.rsenterlayername
 msgid "Enter layer name:"
@@ -1750,7 +1764,7 @@ msgstr "Laagnaam invoeren:"
 
 #: uresourcestrings.rsentries
 msgid "Entries"
-msgstr ""
+msgstr "Ingangen"
 
 #: uresourcestrings.rserror
 msgid "Error"
@@ -1758,11 +1772,11 @@ msgstr "Fout"
 
 #: uresourcestrings.rserrorloadingoriginal
 msgid "Error while loading original however layer can be rasterized."
-msgstr ""
+msgstr "Fout bij het laden van origineel, maar laag kan worden gerasterd."
 
 #: uresourcestrings.rserroronopeningfile
 msgid "Error on opening file \"%1\""
-msgstr ""
+msgstr "Fout bij het openen van bestand% 1"
 
 #: uresourcestrings.rsexitrequest
 msgid "Exit request"
@@ -1786,11 +1800,11 @@ msgstr "Snel"
 
 #: uresourcestrings.rsfilecannotbeempty
 msgid "File cannot be empty"
-msgstr ""
+msgstr "Bestand kan niet leeg zijn"
 
 #: uresourcestrings.rsfiledate
 msgid "Date"
-msgstr ""
+msgstr "Datum"
 
 #: uresourcestrings.rsfileextensionnotsupported
 msgid "This file extension is not supported."
@@ -1818,7 +1832,7 @@ msgstr "Grootte"
 
 #: uresourcestrings.rsfilesystem
 msgid "File system"
-msgstr ""
+msgstr "Bestandssysteem"
 
 #: uresourcestrings.rsfiletype
 msgid "Type"
@@ -1826,7 +1840,7 @@ msgstr "Type"
 
 #: uresourcestrings.rsfixeddrive
 msgid "Fixed"
-msgstr ""
+msgstr "Vast"
 
 #: uresourcestrings.rsfolder
 msgid "Folder"
@@ -1834,15 +1848,15 @@ msgstr "Folder"
 
 #: uresourcestrings.rsfolderorcontaineralreadyexists
 msgid "Folder or container already exists."
-msgstr ""
+msgstr "Map of container bestaat al."
 
 #: uresourcestrings.rsfollowingerrorsoccured
 msgid "Following errors occured:"
-msgstr ""
+msgstr "De volgende fouten zijn opgetreden:"
 
 #: uresourcestrings.rsframes
 msgid "Frames"
-msgstr ""
+msgstr "Frames"
 
 #: uresourcestrings.rsfunctionnotdefined
 msgid "The function %1 is not defined."
@@ -1850,24 +1864,24 @@ msgstr "De functie %1 is niet gedefinieerd."
 
 #: uresourcestrings.rsgreen
 msgid "Green"
-msgstr ""
+msgstr "Groen"
 
 #: uresourcestrings.rshalfcosine
 msgid "Half-cosine"
 msgstr "Half-cosinus"
 
-#: uresourcestrings.rsholdctrlsnaptopixel
-msgid "Hold CTRL to snap to pixels"
-msgstr "Houd CTRL ingedrukt om op pixels vast te kleven"
+#: uresourcestrings.rsholdkeysnaptopixel
+msgid "Hold %1 to snap to pixels"
+msgstr "Houd %1 ingedrukt om op pixels vast te kleven"
 
-#: uresourcestrings.rsholdshiftforsquare
-msgid "Hold SHIFT to draw a square or a circle"
-msgstr "Houd SHIFT ingedrukt om een vierkant of cirkel te tekenen"
+#: uresourcestrings.rsholdkeyforsquare
+msgid "Hold %1 to draw a square or a circle"
+msgstr "Houd %1 ingedrukt om een vierkant of cirkel te tekenen"
 
 #: uresourcestrings.rshotspot
 msgctxt "uresourcestrings.rshotspot"
 msgid "Hot spot"
-msgstr ""
+msgstr "Hotspot"
 
 #: uresourcestrings.rshue
 msgctxt "uresourcestrings.rshue"
@@ -1877,25 +1891,25 @@ msgstr "Kleurtint"
 #: uresourcestrings.rshueccw
 msgctxt "uresourcestrings.rshueccw"
 msgid "Hue CCW"
-msgstr ""
+msgstr "Kleurtint linksom"
 
 #: uresourcestrings.rshuecw
 msgctxt "uresourcestrings.rshuecw"
 msgid "Hue CW"
-msgstr ""
+msgstr "Kleurtint rechtsom"
 
 #: uresourcestrings.rsiconimagealreadyexists
 msgid "There is already an image with this size and depth."
-msgstr ""
+msgstr "Er is al een afbeelding met deze grootte en diepte."
 
 #: uresourcestrings.rsiconorcursor
 msgid "Icon/cursor"
-msgstr ""
+msgstr "Ikoon/cursor"
 
 #: uresourcestrings.rsiconsize
 msgctxt "uresourcestrings.rsiconsize"
 msgid "Icon size"
-msgstr ""
+msgstr "Ikoon grootte"
 
 #: uresourcestrings.rsimagetoobig
 msgid "Image is too big"
@@ -1904,7 +1918,7 @@ msgstr "Afbeelding is te groot"
 #: uresourcestrings.rsinfinity
 msgctxt "uresourcestrings.rsinfinity"
 msgid "Infinity"
-msgstr ""
+msgstr "Oneindigheid"
 
 #: uresourcestrings.rsinformation
 msgid "Information"
@@ -1921,7 +1935,7 @@ msgstr "Interne fout"
 
 #: uresourcestrings.rsinvalidname
 msgid "Invalid name"
-msgstr ""
+msgstr "Ongeldige naam"
 
 #: uresourcestrings.rsinvalidopacity
 msgid "Invalid opacity : "
@@ -1949,7 +1963,7 @@ msgstr "Lanczos %1"
 
 #: uresourcestrings.rslandscape
 msgid "Landscape"
-msgstr "Landscape"
+msgstr "Landschap"
 
 #: uresourcestrings.rslatestversion
 msgid "The latest version of LazPaint available online is"
@@ -1957,7 +1971,7 @@ msgstr "De nieuwste online beschikbare LazPaint versie is"
 
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
-msgstr ""
+msgstr "Gelaagde afbeelding"
 
 #: uresourcestrings.rslayers
 msgctxt "uresourcestrings.rslayers"
@@ -1992,27 +2006,27 @@ msgstr "Lineair"
 
 #: uresourcestrings.rslinearrgb
 msgid "Linear RGB"
-msgstr ""
+msgstr "Lineair RGB"
 
 #: uresourcestrings.rsloadandmergepalette
 msgid "Load and merge palette..."
-msgstr ""
+msgstr "Palet laden en samenvoegen..."
 
 #: uresourcestrings.rsloading
 msgid "Loading"
-msgstr "Bezig met laden…"
+msgstr "Bezig met laden"
 
 #: uresourcestrings.rsloadpalette
 msgid "Load palette..."
-msgstr ""
+msgstr "Palet laden..."
 
 #: uresourcestrings.rsloopcount
 msgid "Loop count"
-msgstr ""
+msgstr "Aantal herhalingen"
 
 #: uresourcestrings.rsmakencolorspalettefrombitmap
 msgid "Make %1-colors palette from image"
-msgstr ""
+msgstr "Maak %1-kleurenpalet van afbeelding"
 
 #: uresourcestrings.rsmergeselection
 msgid "Do you want to merge selection?"
@@ -2040,7 +2054,7 @@ msgstr "U moet eerst de laag zichtbaar maken"
 
 #: uresourcestrings.rsnetworkdrive
 msgid "Network"
-msgstr ""
+msgstr "Netwerk"
 
 #: uresourcestrings.rsnewimage
 msgctxt "uresourcestrings.rsnewimage"
@@ -2081,7 +2095,7 @@ msgstr "Er is niets om op te halen"
 
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
-msgstr "Het is onredelijk om zo'n grote afbeelding in dit bestandsformaat op te slaan"
+msgstr "Het is onredelijk om zo'n grote afbeelding in dit bestandsformaat op te slaan."
 
 #: uresourcestrings.rsnumber
 msgid "№"
@@ -2121,15 +2135,15 @@ msgstr "Overige..."
 
 #: uresourcestrings.rsoverwritefile
 msgid "File already exists. Do you want to overwrite it?"
-msgstr ""
+msgstr "Bestand bestaat al. Wil je het overschrijven?"
 
 #: uresourcestrings.rspaletteincludesalphachannel
 msgid "Palette includes alpha channel"
-msgstr ""
+msgstr "Palet bevat alfakanaal"
 
 #: uresourcestrings.rspaletteoptions
 msgid "Palette options"
-msgstr ""
+msgstr "Palet opties"
 
 #: uresourcestrings.rspercent
 msgctxt "uresourcestrings.rspercent"
@@ -2138,11 +2152,11 @@ msgstr "%"
 
 #: uresourcestrings.rsportait
 msgid "Portrait"
-msgstr "Portrait"
+msgstr "Portret"
 
 #: uresourcestrings.rsposterizelayerusingpalette
 msgid "Posterize layer using palette"
-msgstr ""
+msgstr "Posterisatie laag met behulp palet"
 
 #: uresourcestrings.rspresetname
 msgid "Preset name"
@@ -2154,11 +2168,11 @@ msgstr "px"
 
 #: uresourcestrings.rsramdisk
 msgid "RAM disk"
-msgstr ""
+msgstr "RAM disk"
 
 #: uresourcestrings.rsrasterlayer
 msgid "Raster layer"
-msgstr ""
+msgstr "Rasterlaag"
 
 #: uresourcestrings.rsrecentdirectories
 msgid "Recent directories:"
@@ -2166,7 +2180,7 @@ msgstr "Recente directories:"
 
 #: uresourcestrings.rsred
 msgid "Red"
-msgstr ""
+msgstr "Rood"
 
 #: uresourcestrings.rsreload
 msgctxt "uresourcestrings.rsreload"
@@ -2179,7 +2193,7 @@ msgstr "Bitmap is gewijzigd. Wilt u deze echt herladen?"
 
 #: uresourcestrings.rsremovabledrive
 msgid "Removable"
-msgstr ""
+msgstr "Verwijderbaar"
 
 #: uresourcestrings.rsrepeatimage
 msgctxt "uresourcestrings.rsrepeatimage"
@@ -2201,7 +2215,7 @@ msgstr "RGB"
 
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
-msgstr ""
+msgstr "Gebruik RECHTS klikken om de bron te definiëren"
 
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
@@ -2216,7 +2230,7 @@ msgstr "Opslaan"
 #: uresourcestrings.rssaveasbuttonhint
 msgctxt "uresourcestrings.rssaveasbuttonhint"
 msgid "Save with specified filename"
-msgstr ""
+msgstr "Opslaan met opgegeven bestandsnaam"
 
 #: uresourcestrings.rssavechanges
 msgid "Current bitmap has been modified. Do you want to save changes?"
@@ -2224,7 +2238,7 @@ msgstr "De huidige bitmap is veranderd. Wilt u de wijzigingen opslaan?"
 
 #: uresourcestrings.rssavepaletteas
 msgid "Save palette as..."
-msgstr ""
+msgstr "Palet opslaan als..."
 
 #: uresourcestrings.rsscript
 msgid "Script"
@@ -2233,11 +2247,11 @@ msgstr "Script"
 #: uresourcestrings.rsshowpalette
 msgctxt "uresourcestrings.rsshowpalette"
 msgid "Show palette"
-msgstr ""
+msgstr "Toon palet"
 
 #: uresourcestrings.rssourceposition
 msgid "Source position"
-msgstr ""
+msgstr "Bron positie"
 
 #: uresourcestrings.rsspline
 msgctxt "uresourcestrings.rsspline"
@@ -2246,7 +2260,7 @@ msgstr "Spline"
 
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
-msgstr ""
+msgstr "Apparaat"
 
 #: uresourcestrings.rstexturemapping
 msgctxt "uresourcestrings.rstexturemapping"
@@ -2267,23 +2281,23 @@ msgstr "Te doen"
 
 #: uresourcestrings.rstodoimages
 msgid "Images left: %1"
-msgstr ""
+msgstr "Resterende afbeeldingen:% 1"
 
 #: uresourcestrings.rstooloninvisiblelayer
 msgid "Tool cannot be used on an invisible layer"
-msgstr ""
+msgstr "Gereedschap kan niet worden gebruikt op een onzichtbare laag"
 
 #: uresourcestrings.rstoomanylayers
 msgid "Too many layers"
-msgstr ""
+msgstr "Te veel lagen"
 
 #: uresourcestrings.rstoomanyshapesinlayer
 msgid "Too many shapes in layer"
-msgstr ""
+msgstr "Te veel vormen in laag"
 
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"
-msgstr ""
+msgstr "Totaal aantal afbeeldingen:% 1"
 
 #: uresourcestrings.rstransferselectiontootherlayer
 msgid "Transfer selection to other layer?"
@@ -2291,11 +2305,11 @@ msgstr "Verplaats selectie naar andere laag?"
 
 #: uresourcestrings.rstransformedrasterlayer
 msgid "Transformed raster layer"
-msgstr ""
+msgstr "Getransformeerde rasterlaag"
 
 #: uresourcestrings.rstransformselectioncontent
 msgid "Do you want to transform content of the selection?"
-msgstr ""
+msgstr "Wilt u de inhoud van de selectie transformeren?"
 
 #: uresourcestrings.rsunabletoapplyfilter
 msgid "Unable to apply filter : "
@@ -2315,13 +2329,12 @@ msgstr "Onbekend commando : "
 
 #: uresourcestrings.rsunknownoriginal
 msgid "Unknown original"
-msgstr ""
+msgstr "Onbekend origineel"
 
 #: uresourcestrings.rsvectoriallayer
 msgid "Vectorial layer"
-msgstr ""
+msgstr "Vector laag"
 
 #: uresourcestrings.rsyes
 msgid "Yes"
 msgstr "Ja"
-

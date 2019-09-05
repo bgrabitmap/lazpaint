@@ -466,6 +466,8 @@ begin
 
   subError := LoadChunkList(AInput, TiffTagFreeOffsets, TiffTagFreeByteCounts, FFreeChunks);
   if subError <> teNone then Exit(subError);
+
+  result := teNone;
 end;
 
 procedure TTiffImageDirectory.SaveChunks(AOutput: TTiffIO);
@@ -1143,6 +1145,7 @@ begin
         AList.Add(mem);
     end;
   end;
+  result := teNone;
 end;
 
 procedure TTiffDirectory.SaveChunkList(AOutput: TTiffIO; ATagOffsets,
@@ -1365,15 +1368,15 @@ end;
 
 function TTiff.LoadImageEntries(var AInput: TTiffIO; AFirstImagePos: LongWord
   ): TTiffError;
-type TIntegerList = specialize TFPGList<integer>;
+type TLongwordList = specialize TFPGList<Longword>;
 var
   curImagePos, nextImagePos: LongWord;
-  previousPositions: TIntegerList;
+  previousPositions: TLongwordList;
   newEntry: TTiffImageDirectory;
   i: Integer;
   subError: TTiffError;
 begin
-  previousPositions := TIntegerList.Create;
+  previousPositions := TLongwordList.Create;
   try
     curImagePos := AFirstImagePos;
     repeat
@@ -1403,6 +1406,7 @@ begin
   finally
     previousPositions.Free;
   end;
+  result := teNone;
 end;
 
 constructor TTiff.Create;

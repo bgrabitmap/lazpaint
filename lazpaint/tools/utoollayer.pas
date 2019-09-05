@@ -15,7 +15,10 @@ type
   TToolMoveLayer = class(TGenericTool)
   protected
     handMoving: boolean;
-    handOrigin: TPoint;
+    handOriginF: TPointF;
+    originalTransformBefore: TAffineMatrix;
+    layerOffsetBefore: TPoint;
+    snapToPixel: boolean;
     FStartLayerOffset: TPoint;
     FStartLayerMatrix: TAffineMatrix;
     FStartLayerOffsetDefined: boolean;
@@ -25,15 +28,17 @@ type
     function DoToolDown({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF;
       {%H-}rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF): TRect; override;
-    procedure DoToolMoveAfter(pt: TPoint; {%H-}ptF: TPointF); override;
     function UseOriginal: boolean;
     procedure NeedLayerBounds;
     function GetAction: TLayerAction; override;
     function DoGetToolDrawingLayer: TBGRABitmap; override;
     procedure OnTryStop({%H-}sender: TCustomLayerAction); override;
+    function FixLayerOffset: boolean; override;
   public
+    constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
     function ToolKeyDown(var key: Word): TRect; override;
+    function ToolKeyUp(var key: Word): TRect; override;
     function GetContextualToolbars: TContextualToolbars; override;
     function ToolCommand(ACommand: TToolCommand): boolean; override;
     function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
@@ -63,7 +68,7 @@ type
     FPreviousFilter: TResampleFilter;
     FTransforming: boolean;
     FPreviousMousePos: TPointF;
-    FCtrlDown: boolean;
+    FSnapDown: boolean;
     FLastUpdateRect: TRect;
     FLastUpdateRectDefined: boolean;
     FOriginalBounds: TRect;
@@ -152,46 +157,62 @@ begin
   if not handMoving then
   begin
     handMoving := true;
-    handOrigin := pt;
+    handOriginF := ptF;
+    idx := Manager.Image.CurrentLayerIndex;
     if not FStartLayerOffsetDefined then
     begin
       FStartLayerOffsetDefined := true;
-      idx := Manager.Image.CurrentLayerIndex;
       NeedLayerBounds;
       FStartLayerOffset := Manager.Image.LayerOffset[idx];
       FStartLayerMatrix := Manager.Image.LayerOriginalMatrix[idx];
     end;
-    if UseOriginal then Manager.Image.DraftOriginal := true;
+    if UseOriginal then
+    begin
+      Manager.Image.DraftOriginal := true;
+      originalTransformBefore := Manager.Image.LayerOriginalMatrix[idx];
+    end else
+      originalTransformBefore := AffineMatrixIdentity;
+    layerOffsetBefore := Manager.Image.LayerOffset[idx];
   end;
 end;
 
 function TToolMoveLayer.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF): TRect;
 var idx: integer;
-  prev: TPoint;
+  dx, dy: Single;
+  newTransform: TAffineMatrix;
+  newOfs: TPoint;
 begin
-  if handMoving and ((handOrigin.X <> pt.X) or (handOrigin.Y <> pt.Y)) then
+  result := EmptyRect;
+  if handMoving then
   begin
     idx := Manager.Image.CurrentLayerIndex;
+    dx := ptF.X-HandOriginF.X;
+    dy := ptF.Y-HandOriginF.Y;
+    if snapToPixel then
+    begin
+      dx := round(dx);
+      dy := round(dy);
+    end;
     if UseOriginal then
     begin
-      Manager.Image.LayerOriginalMatrix[idx] :=
-          AffineMatrixTranslation(pt.X-HandOrigin.X,pt.Y-HandOrigin.Y)*Manager.Image.LayerOriginalMatrix[idx];
-      result := OnlyRenderChange;
+      newTransform := AffineMatrixTranslation(dx,dy)*originalTransformBefore;
+      if Manager.Image.LayerOriginalMatrix[idx] <> newTransform then
+      begin
+        Manager.Image.LayerOriginalMatrix[idx] := newTransform;
+        result := OnlyRenderChange;
+      end;
     end else
     begin
-      prev := Manager.Image.LayerOffset[idx];
-      Manager.Image.SetLayerOffset(idx, Point(prev.X+pt.X-HandOrigin.X,
-                                         prev.Y+pt.Y-HandOrigin.Y), FLayerBounds);
-      result := OnlyRenderChange;
+      newOfs := Point(layerOffsetBefore.X+round(dx),
+                      layerOffsetBefore.Y+round(dy));
+      if Manager.Image.LayerOffset[idx]<>newOfs then
+      begin
+        Manager.Image.SetLayerOffset(idx, newOfs, FLayerBounds);
+        result := OnlyRenderChange;
+      end;
     end;
-  end else
-    result := EmptyRect;
-end;
-
-procedure TToolMoveLayer.DoToolMoveAfter(pt: TPoint; ptF: TPointF);
-begin
-  if handMoving then handOrigin := pt;
+  end;
 end;
 
 function TToolMoveLayer.UseOriginal: boolean;
@@ -240,6 +261,19 @@ begin
   //nothing
 end;
 
+function TToolMoveLayer.FixLayerOffset: boolean;
+begin
+  Result:= false;
+end;
+
+constructor TToolMoveLayer.Create(AManager: TToolManager);
+begin
+  inherited Create(AManager);
+  handMoving := false;
+  FStartLayerOffsetDefined:= false;
+  snapToPixel:= false;
+end;
+
 function TToolMoveLayer.ToolUp: TRect;
 begin
   handMoving := false;
@@ -255,6 +289,12 @@ begin
     Manager.QueryExitTool;
     result := EmptyRect;
     Key := 0;
+  end
+  else if (key = VK_SNAP) or (key = VK_SNAP2) then
+  begin
+    snapToPixel:= true;
+    result := EmptyRect;
+    key := 0;
   end
   else if key = VK_ESCAPE then
   begin
@@ -272,6 +312,17 @@ begin
     Key := 0;
   end else
     Result:=inherited ToolKeyDown(key);
+end;
+
+function TToolMoveLayer.ToolKeyUp(var key: Word): TRect;
+begin
+  if (key = VK_SNAP) or (key = VK_SNAP2) then
+  begin
+    snapToPixel:= false;
+    result := EmptyRect;
+    key := 0;
+  end
+  else Result:=inherited ToolKeyUp(key);
 end;
 
 function TToolMoveLayer.GetContextualToolbars: TContextualToolbars;
@@ -320,9 +371,10 @@ begin
       m := AffineMatrixTranslation(-x,-y)*m;
   end else m := AffineMatrixIdentity;
 
-  ab := TAffineBox.AffineBox(BitmapToVirtualScreen(m*PointF(FLayerBounds.Left-0.499,FLayerBounds.Top-0.499)),
-            BitmapToVirtualScreen(m*PointF(FLayerBounds.Right-0.501,FLayerBounds.Top-0.499)),
-            BitmapToVirtualScreen(m*PointF(FLayerBounds.Left-0.499,FLayerBounds.Bottom-0.501)));
+  m := AffineMatrixTranslation(-0.5,-0.5)*m;
+  ab := TAffineBox.AffineBox(BitmapToVirtualScreen(m*PointF(FLayerBounds.Left+0.001,FLayerBounds.Top+0.001)),
+            BitmapToVirtualScreen(m*PointF(FLayerBounds.Right-0.001,FLayerBounds.Top+0.001)),
+            BitmapToVirtualScreen(m*PointF(FLayerBounds.Left+0.001,FLayerBounds.Bottom-0.001)));
   ptsF := ab.AsPolygon;
   setlength(pts, length(ptsF));
   for i := 0 to high(pts) do
@@ -401,7 +453,7 @@ begin
   begin
     FTransforming := true;
     FPreviousMousePos := ptF;
-    if FCtrlDown then
+    if FSnapDown then
     begin
       result := UpdateTransform;
       if IsRectEmpty(result) then result := OnlyRenderChange;
@@ -490,7 +542,7 @@ end;
 constructor TToolTransformLayer.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
-  FCtrlDown:= false;
+  FSnapDown:= false;
   FTransformCenterDefined := false;
   FLastUpdateRectDefined:= false;
 end;
@@ -530,9 +582,9 @@ end;
 
 function TToolTransformLayer.ToolKeyDown(var key: Word): TRect;
 begin
-  if key = VK_CONTROL then
+  if (key = VK_SNAP) or (KEY = VK_SNAP2) then
   begin
-    FCtrlDown:= true;
+    FSnapDown:= true;
     if FTransforming and CtrlChangesTransform then
     begin
       result := UpdateTransform;
@@ -559,9 +611,9 @@ end;
 
 function TToolTransformLayer.ToolKeyUp(var key: Word): TRect;
 begin
-  if key = VK_CONTROL then
+  if (key = VK_SNAP) or (KEY = VK_SNAP2) then
   begin
-    FCtrlDown := false;
+    FSnapDown := false;
     if FTransforming and CtrlChangesTransform then
     begin
       result := UpdateTransform;
@@ -597,9 +649,6 @@ var
   ptsRect: TRect;
 begin
   idx := Manager.Image.CurrentLayerIndex;
-  with Manager.Image.LayerOffset[idx] do
-    Result:= NicePoint(VirtualScreen,BitmapToVirtualScreen(TransformCenter-PointF(X,Y)));
-
   if not FOriginalBoundsDefined then
   begin
     if Manager.Image.LayerOriginalDefined[idx] then
@@ -618,10 +667,14 @@ begin
   m := Manager.Image.LayerOriginalMatrix[idx];
   with Manager.Image.LayerOffset[idx] do
     m := AffineMatrixTranslation(-x,-y)*m;
+  m := AffineMatrixTranslation(-0.5,-0.5)*m;
 
-  ab := TAffineBox.AffineBox(BitmapToVirtualScreen(m*PointF(FOriginalBounds.Left-0.499,FOriginalBounds.Top-0.499)),
-            BitmapToVirtualScreen(m*PointF(FOriginalBounds.Right-0.501,FOriginalBounds.Top-0.499)),
-            BitmapToVirtualScreen(m*PointF(FOriginalBounds.Left-0.499,FOriginalBounds.Bottom-0.501)));
+  with Manager.Image.LayerOffset[idx] do
+    Result:= NicePoint(VirtualScreen,BitmapToVirtualScreen(TransformCenter-PointF(X,Y)));
+
+  ab := TAffineBox.AffineBox(BitmapToVirtualScreen(m*PointF(FOriginalBounds.Left+0.001,FOriginalBounds.Top+0.001)),
+            BitmapToVirtualScreen(m*PointF(FOriginalBounds.Right-0.001,FOriginalBounds.Top+0.001)),
+            BitmapToVirtualScreen(m*PointF(FOriginalBounds.Left+0.001,FOriginalBounds.Bottom-0.001)));
   ptsF := ab.AsPolygon;
   setlength(pts, length(ptsF));
   for i := 0 to high(pts) do
@@ -650,7 +703,7 @@ var
   baseZoom: single;
   invZoom: boolean;
 begin
-  if FCtrlDown then
+  if FSnapDown then
   begin
     logZoom := ln(FZoom)/ln(2);
     if logZoom < 0 then
@@ -689,9 +742,9 @@ begin
   result := EmptyRect;
   NeedOriginal;
   Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] :=
-    AffineMatrixTranslation(TransformCenter.X,TransformCenter.Y)*
+    AffineMatrixTranslation(TransformCenter.X+0.5,TransformCenter.Y+0.5)*
     AffineMatrixScale(FActualZoom,FActualZoom)*
-    AffineMatrixTranslation(-TransformCenter.X,-TransformCenter.Y)*
+    AffineMatrixTranslation(-TransformCenter.X-0.5,-TransformCenter.Y-0.5)*
     FInitialOriginalMatrix;
 end;
 
@@ -740,7 +793,7 @@ end;
 
 function TToolRotateLayer.GetActualAngle: single;
 begin
-  if FCtrlDown then
+  if FSnapDown then
     result := round(FAngle/15)*15
   else
     result := FAngle;
@@ -798,9 +851,9 @@ begin
   result := EmptyRect;
   NeedOriginal;
   Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] :=
-    AffineMatrixTranslation(TransformCenter.X,TransformCenter.Y)*
+    AffineMatrixTranslation(TransformCenter.X+0.5,TransformCenter.Y+0.5)*
     AffineMatrixRotationDeg(FActualAngle)*
-    AffineMatrixTranslation(-TransformCenter.X,-TransformCenter.Y)*
+    AffineMatrixTranslation(-TransformCenter.X-0.5,-TransformCenter.Y-0.5)*
     FInitialOriginalMatrix;
 end;
 

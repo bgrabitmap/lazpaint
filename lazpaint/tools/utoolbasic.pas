@@ -15,14 +15,15 @@ type
   TToolHand = class(TReadonlyTool)
   protected
     handMoving: boolean;
-    handOrigin: TPoint;
+    handOriginF: TPointF;
     function FixSelectionTransform: boolean; override;
+    function FixLayerOffset: boolean; override;
     function DoToolDown({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF;
       {%H-}rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF): TRect; override;
-    procedure DoToolMoveAfter(pt: TPoint; {%H-}ptF: TPointF); override;
     function GetStatusText: string; override;
   public
+    constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
   end;
 
@@ -305,12 +306,11 @@ begin
     result := EmptyRect;
 end;
 
-function TToolPen.DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF
-  ): TRect;
+function TToolPen.DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect;
 begin
   if (manager.PenWidth <= 3) and not HintShowed then
   begin
-    Manager.ToolPopup(tpmHoldCtrlSnapToPixel);
+    Manager.ToolPopup(tpmHoldKeySnapToPixel, VK_SNAP);
     HintShowed:= true;
   end;
   if snapToPixel then ptF := PointF(pt.X,pt.Y);
@@ -326,11 +326,12 @@ end;
 constructor TToolPen.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
+  snapToPixel:= false;
 end;
 
 function TToolPen.ToolKeyDown(var key: Word): TRect;
 begin
-  if key = VK_CONTROL then
+  if key = VK_SNAP then
   begin
     snapToPixel := true;
     Key := 0;
@@ -340,7 +341,7 @@ end;
 
 function TToolPen.ToolKeyUp(var key: Word): TRect;
 begin
-  if key = VK_CONTROL then
+  if key = VK_SNAP then
   begin
     snapToPixel := false;
     key := 0;
@@ -415,6 +416,11 @@ begin
   Result:= false;
 end;
 
+function TToolHand.FixLayerOffset: boolean;
+begin
+  Result:= false;
+end;
+
 function TToolHand.DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;
   rightBtn: boolean): TRect;
 begin
@@ -422,25 +428,25 @@ begin
   if not handMoving then
   begin
     handMoving := true;
-    handOrigin := pt;
+    handOriginF := ptF;
   end;
 end;
 
-function TToolHand.DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF
-  ): TRect;
+function TToolHand.DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect;
+var
+  newOfs: TPoint;
 begin
-  if handMoving and ((handOrigin.X <> pt.X) or (handOrigin.Y <> pt.Y)) then
+  result := EmptyRect;
+  if handMoving then
   begin
-    Manager.Image.ImageOffset := Point(Manager.Image.ImageOffset.X+pt.X-HandOrigin.X,
-                                       Manager.Image.ImageOffset.Y+pt.Y-HandOrigin.Y);
-    result := OnlyRenderChange;
-  end else
-    result := EmptyRect;
-end;
-
-procedure TToolHand.DoToolMoveAfter(pt: TPoint; ptF: TPointF);
-begin
-  if handMoving then handOrigin := pt;
+    newOfs := Point(Manager.Image.ImageOffset.X+round(ptF.X-HandOriginF.X),
+                    Manager.Image.ImageOffset.Y+round(ptF.Y-HandOriginF.Y));
+    if newOfs <> Manager.Image.ImageOffset then
+    begin
+      Manager.Image.ImageOffset := newOfs;
+      result := OnlyRenderChange;
+    end;
+  end;
 end;
 
 function TToolHand.GetStatusText: string;
@@ -477,6 +483,12 @@ begin
     if (smallestNum <> 0) then
       result += ' = ' + inttostr(smallestNum)+'/'+inttostr(smallestDenom);
   end;
+end;
+
+constructor TToolHand.Create(AManager: TToolManager);
+begin
+  inherited Create(AManager);
+  handMoving := false;
 end;
 
 function TToolHand.ToolUp: TRect;

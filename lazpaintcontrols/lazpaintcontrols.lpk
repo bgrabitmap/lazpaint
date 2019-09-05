@@ -9,6 +9,16 @@
         <IncludeFiles Value="../resources"/>
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
+      <CodeGeneration>
+        <Optimizations>
+          <OptimizationLevel Value="3"/>
+        </Optimizations>
+      </CodeGeneration>
+      <Linking>
+        <Debugging>
+          <GenerateDebugInfo Value="False"/>
+        </Debugging>
+      </Linking>
     </CompilerOptions>
     <Version Minor="1"/>
     <Files Count="11">
@@ -55,7 +65,7 @@
       </Item10>
       <Item11>
         <Filename Value="lcvectorclipboard.pas"/>
-        <UnitName Value="lcvectorclipboard"/>
+        <UnitName Value="LCVectorClipboard"/>
       </Item11>
     </Files>
     <RequiredPkgs Count="4">

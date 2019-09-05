@@ -201,6 +201,10 @@ msgstr ""
 msgid "Center shape vertically"
 msgstr ""
 
+#: tfmain.editshapetocurve.hint
+msgid "Convert shape to curve"
+msgstr ""
+
 #: tfmain.editundo.caption
 msgid "Undo"
 msgstr "Ångra"
@@ -1202,9 +1206,10 @@ msgid "Curve"
 msgstr "Kurva"
 
 #: tfmain.toolspline.hint
-msgctxt "TFMAIN.TOOLSPLINE.HINT"
-msgid "Spline"
-msgstr "Spline"
+#, fuzzy
+msgctxt "tfmain.toolspline.hint"
+msgid "Curve"
+msgstr "Kurva"
 
 #: tfmain.tooltext.hint
 msgctxt "TFMAIN.TOOLTEXT.HINT"
@@ -1537,8 +1542,8 @@ msgstr ""
 msgid "All supported filetypes"
 msgstr ""
 
-#: uresourcestrings.rsaltshiftscalemode
-msgid "Hold ALT or SHIFT to scale"
+#: uresourcestrings.rsholdkeysscalemode
+msgid "Hold %1 or %2 to scale"
 msgstr ""
 
 #: uresourcestrings.rsanimatedgif
@@ -1654,8 +1659,8 @@ msgstr "Cosine"
 msgid "Crop"
 msgstr "Beskär"
 
-#: uresourcestrings.rsctrlrestrictrotation
-msgid "Hold CTRL to restrict rotation angle"
+#: uresourcestrings.rsholdkeyrestrictrotation
+msgid "Hold %1 to restrict rotation angle"
 msgstr ""
 
 #: uresourcestrings.rscurvemodehint
@@ -1819,12 +1824,12 @@ msgstr ""
 msgid "Half-cosine"
 msgstr "Halv-cosine"
 
-#: uresourcestrings.rsholdctrlsnaptopixel
-msgid "Hold CTRL to snap to pixels"
+#: uresourcestrings.rsholdkeysnaptopixel
+msgid "Hold %1 to snap to pixels"
 msgstr ""
 
-#: uresourcestrings.rsholdshiftforsquare
-msgid "Hold SHIFT to draw a square or a circle"
+#: uresourcestrings.rsholdkeyforsquare
+msgid "Hold %1 to draw a square or a circle"
 msgstr ""
 
 #: uresourcestrings.rshotspot

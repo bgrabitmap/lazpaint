@@ -213,6 +213,10 @@ msgstr ""
 msgid "Center shape vertically"
 msgstr ""
 
+#: tfmain.editshapetocurve.hint
+msgid "Convert shape to curve"
+msgstr ""
+
 #: tfmain.editundo.caption
 msgid "Undo"
 msgstr "Vrátit zpět"
@@ -1215,9 +1219,10 @@ msgid "Curve"
 msgstr "Křivka"
 
 #: tfmain.toolspline.hint
-msgctxt "TFMAIN.TOOLSPLINE.HINT"
-msgid "Spline"
-msgstr "Spline"
+#, fuzzy
+msgctxt "tfmain.toolspline.hint"
+msgid "Curve"
+msgstr "Křivka"
 
 #: tfmain.tooltext.hint
 msgctxt "TFMAIN.TOOLTEXT.HINT"
@@ -1550,9 +1555,9 @@ msgstr "všechny"
 msgid "All supported filetypes"
 msgstr "Všechny podporované formáty souborů"
 
-#: uresourcestrings.rsaltshiftscalemode
-msgid "Hold ALT or SHIFT to scale"
-msgstr "Držte ALT nebo SHIFT pro měřítko "
+#: uresourcestrings.rsholdkeysscalemode
+msgid "Hold %1 or %2 to scale"
+msgstr "Držte %1 nebo %2 pro měřítko "
 
 #: uresourcestrings.rsanimatedgif
 msgid "Animated GIF"
@@ -1667,9 +1672,9 @@ msgstr "Kosinus"
 msgid "Crop"
 msgstr "Oříznout"
 
-#: uresourcestrings.rsctrlrestrictrotation
-msgid "Hold CTRL to restrict rotation angle"
-msgstr "Přidržte CTRL pro omezení úhlu otočení"
+#: uresourcestrings.rsholdkeyrestrictrotation
+msgid "Hold %1 to restrict rotation angle"
+msgstr "Přidržte %1 pro omezení úhlu otočení"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
@@ -1832,13 +1837,13 @@ msgstr ""
 msgid "Half-cosine"
 msgstr "Poloviční-kosinus"
 
-#: uresourcestrings.rsholdctrlsnaptopixel
-msgid "Hold CTRL to snap to pixels"
-msgstr "Přidržte CTRL pro přichycení k bodům"
+#: uresourcestrings.rsholdkeysnaptopixel
+msgid "Hold %1 to snap to pixels"
+msgstr "Přidržte %1 pro přichycení k bodům"
 
-#: uresourcestrings.rsholdshiftforsquare
-msgid "Hold SHIFT to draw a square or a circle"
-msgstr "Přidržte SHIFT pro kreslení čtverce nebo kruhu"
+#: uresourcestrings.rsholdkeyforsquare
+msgid "Hold %1 to draw a square or a circle"
+msgstr "Přidržte %1 pro kreslení čtverce nebo kruhu"
 
 #: uresourcestrings.rshotspot
 msgctxt "uresourcestrings.rshotspot"

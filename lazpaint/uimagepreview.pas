@@ -749,6 +749,7 @@ var reader: TFPCustomImageReader;
   jpegReader: TBGRAReaderJpeg;
   source: TStream;
   svg: TBGRASVG;
+  tr: TTiffError;
 begin
   if FInUpdatePreview then
   begin
@@ -775,8 +776,9 @@ begin
         begin
           try
             FTiff := TTiff.Create;
-            if FTiff.LoadFromStream(source) <> teNone then
-              raise exception.Create(rsCannotOpenFile);
+            tr := FTiff.LoadFromStream(source);
+            if tr <> teNone then
+              raise exception.Create(rsCannotOpenFile+' (TIFF '+inttostr(ord(tr))+')');
 
             FImageNbLayers := 1;
             if FTiff.Count = 0 then

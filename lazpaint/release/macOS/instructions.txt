@@ -1,0 +1,5 @@
+To make application bundle:
+- make copy the LazPaint.app folder
+- copy "lazpaint" executable file into subfolder /Contents/MacOS
+- copy additionnal files into subfolder /Contents/Resources
+(including i18n and models folders, but not the application bundle)

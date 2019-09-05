@@ -100,14 +100,17 @@ type
 
   TToolMoveSelection = class(TTransformSelectionTool)
   protected
-    handMoving: boolean;
-    handOrigin: TPoint;
+    handMoving, snapToPixel: boolean;
+    handOriginF: TPointF;
+    selectionTransformBefore: TAffineMatrix;
     function DoToolDown({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF;
       {%H-}rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF): TRect; override;
-    procedure DoToolMoveAfter(pt: TPoint; {%H-}ptF: TPointF); override;
   public
+    constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
+    function ToolKeyDown(var key: Word): TRect; override;
+    function ToolKeyUp(var key: Word): TRect; override;
     destructor Destroy; override;
   end;
 
@@ -272,7 +275,8 @@ begin
 
   if BigImage and FQuickDefine then
   begin
-    ab := TCustomRectShape(FShape).GetAffineBox(FEditor.Matrix, true);
+    ab := TCustomRectShape(FShape).GetAffineBox(
+      AffineMatrixTranslation(0.5,0.5)*FEditor.Matrix*AffineMatrixTranslation(-0.5,-0.5), false);
     abBounds := ab.RectBounds;
     abBounds.Inflate(1,1);
     result := RectUnion(result, abBounds);
@@ -281,7 +285,7 @@ begin
       ptsF := ab.AsPolygon;
       setlength(pts, length(ptsF));
       for i := 0 to high(ptsF) do
-        pts[i] := ptsF[i].Round;
+        pts[i] := (ptsF[i]+PointF(0.5,0.5)).Round;
       VirtualScreen.DrawPolygonAntialias(pts,BGRAWhite,BGRABlack,FrameDashLength);
     end;
   end;
@@ -314,7 +318,8 @@ begin
 
   if BigImage and FQuickDefine then
   begin
-    ab := TCustomRectShape(FShape).GetAffineBox(FEditor.Matrix, true);
+    ab := TCustomRectShape(FShape).GetAffineBox(
+      AffineMatrixTranslation(0.5,0.5)*FEditor.Matrix*AffineMatrixTranslation(-0.5,-0.5), false);
     abBounds := ab.RectBounds;
     abBounds.Inflate(1,1);
     result := RectUnion(result, abBounds);
@@ -393,7 +398,7 @@ var angleDiff: single;
 begin
   if not HintShowed then
   begin
-    Manager.ToolPopup(tpmCtrlRestrictRotation);
+    Manager.ToolPopup(tpmHoldKeyRestrictRotation, VK_SNAP);
     HintShowed:= true;
   end;
   if handMoving and ((handOrigin.X <> ptF.X) or (handOrigin.Y <> ptF.Y)) then
@@ -437,7 +442,7 @@ end;
 function TToolRotateSelection.ToolKeyDown(var key: Word): TRect;
 begin
   result := EmptyRect;
-  if key = VK_CONTROL then
+  if key = VK_SNAP then
   begin
     if not snapRotate then
     begin
@@ -467,7 +472,7 @@ end;
 
 function TToolRotateSelection.ToolKeyUp(var key: Word): TRect;
 begin
-  if key = VK_CONTROL then
+  if key = VK_SNAP then
   begin
     snapRotate := false;
     Key := 0;
@@ -500,37 +505,72 @@ end;
 function TToolMoveSelection.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
 begin
-  if not handMoving then
+  if not handMoving and not Manager.Image.SelectionMaskEmpty then
   begin
     handMoving := true;
-    handOrigin := pt;
+    handOriginF := ptF;
+    selectionTransformBefore := Manager.Image.SelectionTransform;
   end;
   result := EmptyRect;
 end;
 
 function TToolMoveSelection.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF): TRect;
-var dx,dy: integer;
+var dx,dy: single;
+  newSelTransform: TAffineMatrix;
 begin
   result := EmptyRect;
-  if handMoving and ((handOrigin.X <> pt.X) or (handOrigin.Y <> pt.Y)) then
+  if handMoving then
   begin
-    dx := pt.X-HandOrigin.X;
-    dy := pt.Y-HandOrigin.Y;
-    Manager.Image.SelectionTransform := AffineMatrixTranslation(dx,dy) * Manager.Image.SelectionTransform;
-    result := OnlyRenderChange;
+    dx := ptF.X-HandOriginF.X;
+    dy := ptF.Y-HandOriginF.Y;
+    if snapToPixel then
+    begin
+      dx := round(dx);
+      dy := round(dy);
+    end;
+    newSelTransform := AffineMatrixTranslation(dx,dy) * selectionTransformBefore;
+    if Manager.Image.SelectionTransform <> newSelTransform then
+    begin
+      Manager.Image.SelectionTransform := newSelTransform;
+      result := OnlyRenderChange;
+    end;
   end;
 end;
 
-procedure TToolMoveSelection.DoToolMoveAfter(pt: TPoint; ptF: TPointF);
+constructor TToolMoveSelection.Create(AManager: TToolManager);
 begin
-  if handMoving then handOrigin := pt;
+  inherited Create(AManager);
+  handMoving := false;
+  snapToPixel:= false;
 end;
 
 function TToolMoveSelection.ToolUp: TRect;
 begin
   handMoving := false;
   result := EmptyRect;
+end;
+
+function TToolMoveSelection.ToolKeyDown(var key: Word): TRect;
+begin
+  if (Key = VK_SNAP) or (Key = VK_SNAP2) then
+  begin
+    result := EmptyRect;
+    snapToPixel:= true;
+    key := 0;
+  end else
+    Result:=inherited ToolKeyDown(key);
+end;
+
+function TToolMoveSelection.ToolKeyUp(var key: Word): TRect;
+begin
+  if (Key = VK_SNAP) or (Key = VK_SNAP2) then
+  begin
+    result := EmptyRect;
+    snapToPixel:= false;
+    key := 0;
+  end else
+    Result:=inherited ToolKeyUp(key);
 end;
 
 destructor TToolMoveSelection.Destroy;

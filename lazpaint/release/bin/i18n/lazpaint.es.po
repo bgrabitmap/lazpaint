@@ -210,6 +210,10 @@ msgstr "Centrar la forma horizontalmente"
 msgid "Center shape vertically"
 msgstr "Centrar la forma verticalmente"
 
+#: tfmain.editshapetocurve.hint
+msgid "Convert shape to curve"
+msgstr "Convertir forma a curva"
+
 #: tfmain.editundo.caption
 msgid "Undo"
 msgstr "Deshacer"
@@ -1209,9 +1213,10 @@ msgid "Curve"
 msgstr "Curva"
 
 #: tfmain.toolspline.hint
-msgctxt "TFMAIN.TOOLSPLINE.HINT"
-msgid "Spline"
-msgstr "Ranura"
+#, fuzzy
+msgctxt "tfmain.toolspline.hint"
+msgid "Curve"
+msgstr "Curva"
 
 #: tfmain.tooltext.hint
 msgctxt "TFMAIN.TOOLTEXT.HINT"
@@ -1544,9 +1549,9 @@ msgstr "todo"
 msgid "All supported filetypes"
 msgstr "Todos los tipos soportados"
 
-#: uresourcestrings.rsaltshiftscalemode
-msgid "Hold ALT or SHIFT to scale"
-msgstr "Manten ALT o SHIFT para escalar"
+#: uresourcestrings.rsholdkeysscalemode
+msgid "Hold %1 or %2 to scale"
+msgstr "Manten %1 o %2 para escalar"
 
 #: uresourcestrings.rsanimatedgif
 msgid "Animated GIF"
@@ -1664,9 +1669,9 @@ msgstr "Coseno"
 msgid "Crop"
 msgstr "Cortar"
 
-#: uresourcestrings.rsctrlrestrictrotation
-msgid "Hold CTRL to restrict rotation angle"
-msgstr "Manten CTRL para restringir el ángulo de rotación"
+#: uresourcestrings.rsholdkeyrestrictrotation
+msgid "Hold %1 to restrict rotation angle"
+msgstr "Manten %1 para restringir el ángulo de rotación"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
@@ -1835,13 +1840,13 @@ msgctxt "uresourcestrings.rshalfcosine"
 msgid "Half-cosine"
 msgstr "Medio-coseno"
 
-#: uresourcestrings.rsholdctrlsnaptopixel
-msgid "Hold CTRL to snap to pixels"
-msgstr "Manten CTRL para ajustar a los pixeles"
+#: uresourcestrings.rsholdkeysnaptopixel
+msgid "Hold %1 to snap to pixels"
+msgstr "Manten %1 para ajustar a los pixeles"
 
-#: uresourcestrings.rsholdshiftforsquare
-msgid "Hold SHIFT to draw a square or a circle"
-msgstr "Manten SHIFT para dibujar un cuadrado o un circulo"
+#: uresourcestrings.rsholdkeyforsquare
+msgid "Hold %1 to draw a square or a circle"
+msgstr "Manten %1 para dibujar un cuadrado o un circulo"
 
 #: uresourcestrings.rshotspot
 msgctxt "uresourcestrings.rshotspot"
@@ -2314,3 +2319,4 @@ msgstr "Capa vectorial"
 #: uresourcestrings.rsyes
 msgid "Yes"
 msgstr "Sí"
+
