@@ -67,6 +67,11 @@ lazpaint (7.0.5) stable; urgency=low
   * shortcuts for colorpicker is "C", for curve move point "Z", for curve insert point "I" as well of Insert
   * dutch translation
   * filling of workarea with maximum zoom
+  * paste vector shape on empty layer
+  * alignment of vector shapes to pixels with CTRL
+  * return key to finish polygon shape
+  * reset counter of popups on "forget dialogs"
+  * fix TIFF loading error on some systems
 
 -- circular <circular@operamail.com>  Sun, 24 Aug 2019 11:46:00 +0100
 
