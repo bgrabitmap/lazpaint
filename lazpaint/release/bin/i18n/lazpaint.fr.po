@@ -217,6 +217,10 @@ msgstr "Centrer la forme horizontalement"
 msgid "Center shape vertically"
 msgstr "Centrer la forme verticalement"
 
+#: tfmain.editshapetocurve.hint
+msgid "Convert shape to curve"
+msgstr "Convertir la forme en courbe"
+
 #: tfmain.editundo.caption
 msgid "Undo"
 msgstr "Annuler"
@@ -1219,9 +1223,10 @@ msgid "Curve"
 msgstr "Courbe"
 
 #: tfmain.toolspline.hint
-msgctxt "TFMAIN.TOOLSPLINE.HINT"
-msgid "Spline"
-msgstr "Éclisse"
+#, fuzzy
+msgctxt "tfmain.toolspline.hint"
+msgid "Curve"
+msgstr "Courbe"
 
 #: tfmain.tooltext.hint
 msgctxt "TFMAIN.TOOLTEXT.HINT"
@@ -1554,9 +1559,13 @@ msgstr "tout"
 msgid "All supported filetypes"
 msgstr "Tous les formats connus"
 
-#: uresourcestrings.rsaltshiftscalemode
-msgid "Hold ALT or SHIFT to scale"
-msgstr "Appuyez sur ALT et MAJ pour étirer"
+#: uresourcestrings.rsalt
+msgid "ALT"
+msgstr "ALT"
+
+#: uresourcestrings.rsholdkeysscalemode
+msgid "Hold %1 or %2 to scale"
+msgstr "Appuyez sur %1 et %2 pour étirer"
 
 #: uresourcestrings.rsanimatedgif
 msgid "Animated GIF"
@@ -1674,9 +1683,17 @@ msgstr "Cosinus"
 msgid "Crop"
 msgstr "Recadrer"
 
-#: uresourcestrings.rsctrlrestrictrotation
-msgid "Hold CTRL to restrict rotation angle"
-msgstr "Maintenir CTRL pour restreindre l'angle de rotation"
+#: uresourcestrings.rsctrl
+msgid "CTRL"
+msgstr "CTRL"
+
+#: uresourcestrings.rscmd
+msgid "CMD"
+msgstr "CMD"
+
+#: uresourcestrings.rsholdkeyrestrictrotation
+msgid "Hold %1 to restrict rotation angle"
+msgstr "Maintenir %1 pour restreindre l'angle de rotation"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
@@ -1845,13 +1862,17 @@ msgctxt "uresourcestrings.rshalfcosine"
 msgid "Half-cosine"
 msgstr "Semi-cosinus"
 
-#: uresourcestrings.rsholdctrlsnaptopixel
-msgid "Hold CTRL to snap to pixels"
-msgstr "Maintenir CTRL pour aligner aux pixels"
+#: uresourcestrings.rsholdkeysnaptopixel
+msgid "Hold %1 to snap to pixels"
+msgstr "Maintenir %1 pour aligner aux pixels"
 
-#: uresourcestrings.rsholdshiftforsquare
-msgid "Hold SHIFT to draw a square or a circle"
-msgstr "Maintenir MAJ pour dessiner un carré ou un cercle"
+#: uresourcestrings.rsshift
+msgid "SHIFT"
+msgstr "MAJ"
+
+#: uresourcestrings.rsholdkeyforsquare
+msgid "Hold %1 to draw a square or a circle"
+msgstr "Maintenir %1 pour dessiner un carré ou un cercle"
 
 #: uresourcestrings.rshotspot
 msgctxt "uresourcestrings.rshotspot"

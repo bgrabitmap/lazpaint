@@ -38,6 +38,8 @@ type
     procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
     procedure UpdateUserMode; virtual;
   public
+    function ToolKeyPress(var key: TUTF8Char): TRect; override;
+    function ToolKeyDown(var key: Word): TRect; override;
     function GetContextualToolbars: TContextualToolbars; override;
   end;
 
@@ -153,8 +155,16 @@ end;
 
 function TToolSpline.ToolKeyPress(var key: TUTF8Char): TRect;
 begin
-  Result:=inherited ToolKeyPress(key);
-  if Key='x' then Key := #0;
+  if (Key='z') or (Key = 'Z') then
+  begin
+    CurrentMode:= tsmMovePoint;
+    result := OnlyRenderChange;
+    Key := #0;
+  end else
+  begin
+    Result:=inherited ToolKeyPress(key);
+    if Key='x' then Key := #0;
+  end;
 end;
 
 function TToolSpline.GetContextualToolbars: TContextualToolbars;
@@ -184,6 +194,35 @@ procedure TToolPolygon.UpdateUserMode;
 begin
   if FShape = nil then exit;
   if FQuickDefine then FShape.Usermode := vsuCreate;
+end;
+
+function TToolPolygon.ToolKeyPress(var key: TUTF8Char): TRect;
+var
+  keyCode: Word;
+begin
+  if (Key='i') or (Key='I') then
+  begin
+    keyCode := VK_INSERT;
+    ToolKeyDown(keyCode);
+    if keyCode = 0 then key := #0;
+    keyCode := VK_INSERT;
+    ToolKeyUp(keyCode);
+    result := EmptyRect;
+  end else
+    Result:=inherited ToolKeyPress(key);
+end;
+
+function TToolPolygon.ToolKeyDown(var key: Word): TRect;
+begin
+  if (key = VK_RETURN) and Assigned(FShape)
+   and (FShape.Usermode = vsuCreate) then
+  begin
+    FShape.Usermode:= vsuEdit;
+    result := OnlyRenderChange;
+    key := 0;
+    exit;
+  end else
+    Result:=inherited ToolKeyDown(key);
 end;
 
 function TToolPolygon.GetContextualToolbars: TContextualToolbars;

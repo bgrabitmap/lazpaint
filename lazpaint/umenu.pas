@@ -372,7 +372,7 @@ begin
 end;
 
 procedure TMainFormMenu.Apply;
-const ImageBrowser = {$IFNDEF DARWIN}'FileUseImageBrowser,'{$ELSE}''{$ENDIF};
+const ImageBrowser = 'FileUseImageBrowser,';
 var i,j,tbHeight,tbHeightOrig: NativeInt;
 begin
   for i := 0 to FActionList.ActionCount-1 do
@@ -380,7 +380,7 @@ begin
     if (Caption = '') and (Hint <> '') then Caption := Hint;
 
   AddMenus('MenuFile',   'FileNew,FileOpen,LayerFromFile,FileChooseEntry,FileReload,MenuRecentFiles,-,FileSave,FileSaveAsInSameFolder,FileSaveAs,-,FileImport3D,-,FilePrint,-,'+ImageBrowser+'FileRememberSaveFormat,ForgetDialogAnswers,MenuLanguage,*');
-  AddMenus('MenuEdit',   'EditUndo,EditRedo,-,EditCut,EditCopy,EditPaste,EditPasteAsNew,EditPasteAsNewLayer,EditDeleteSelection,-,EditMoveUp,EditMoveToFront,EditMoveDown,EditMoveToBack,EditShapeAlign,-,EditSelectAll,EditInvertSelection,EditSelectionFit,EditDeselect');
+  AddMenus('MenuEdit',   'EditUndo,EditRedo,-,EditCut,EditCopy,EditPaste,EditPasteAsNew,EditPasteAsNewLayer,EditDeleteSelection,-,EditMoveUp,EditMoveToFront,EditMoveDown,EditMoveToBack,EditShapeAlign,EditShapeToCurve,-,EditSelectAll,EditInvertSelection,EditSelectionFit,EditDeselect');
   AddMenus('MenuSelect', 'EditSelection,FileLoadSelection,FileSaveSelectionAs,-,EditSelectAll,EditInvertSelection,EditSelectionFit,EditDeselect,-,ToolSelectRect,ToolSelectEllipse,ToolSelectPoly,ToolSelectSpline,-,ToolMoveSelection,ToolRotateSelection,SelectionHorizontalFlip,SelectionVerticalFlip,-,ToolSelectPen,ToolMagicWand');
   AddMenus('MenuView',   'ViewGrid,ViewZoomOriginal,ViewZoomIn,ViewZoomOut,ViewZoomFit,-,ViewToolBox,ViewColors,ViewPalette,ViewLayerStack,ViewImageList,ViewStatusBar,-,*,-,ViewDarkTheme,ViewWorkspaceColor,MenuIconSize');
   AddMenus('MenuImage',  'ImageCrop,ImageCropLayer,ImageFlatten,MenuRemoveTransparency,-,ImageNegative,ImageLinearNegative,ImageSwapRedBlue,-,ImageChangeCanvasSize,ImageRepeat,-,ImageResample,ImageSmartZoom3,-,ImageRotateCW,ImageRotateCCW,ImageHorizontalFlip,ImageVerticalFlip');
@@ -512,7 +512,7 @@ begin
   ActionShortcut('ToolHotSpot','H');
   ActionShortcut('ToolPen','P');
   ActionShortcut('ToolBrush','B');
-  ActionShortcut('ToolColorPicker','I');
+  ActionShortcut('ToolColorPicker','C');
   ActionShortcut('ToolEraser','E');
   ActionShortcut('ToolEditShape','J');
   ActionShortcut('ToolRect','U');

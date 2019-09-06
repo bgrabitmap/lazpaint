@@ -32,3 +32,4 @@ lazpaint/tools/backup/
 lazpaint/image/backup/
 
 lazpaint/dialog/backup/
+.DS_Store

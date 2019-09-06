@@ -28,6 +28,7 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    EditShapeToCurve: TAction;
     EditShapeAlignBottom: TAction;
     EditShapeCenterVertically: TAction;
     EditShapeAlignTop: TAction;
@@ -463,6 +464,8 @@ type
     procedure EditShapeCenterHorizontallyUpdate(Sender: TObject);
     procedure EditShapeCenterVerticallyExecute(Sender: TObject);
     procedure EditShapeCenterVerticallyUpdate(Sender: TObject);
+    procedure EditShapeToCurveExecute(Sender: TObject);
+    procedure EditShapeToCurveUpdate(Sender: TObject);
     procedure FileChooseEntryExecute(Sender: TObject);
     procedure FileChooseEntryUpdate(Sender: TObject);
     procedure FileImport3DUpdate(Sender: TObject);
@@ -712,7 +715,7 @@ type
     initialized: boolean;
     shouldArrangeOnResize: boolean;
     btnLeftDown, btnRightDown, btnMiddleDown: boolean;
-    spacePressed: boolean;
+    spacePressed, altPressed, snapPressed, shiftPressed: boolean;
     FormMouseMovePos: TPoint;
     InFormMouseMove: boolean;
     InFormPaint: boolean;
@@ -793,6 +796,7 @@ type
     procedure LabelAutosize(ALabel: TLabel);
     procedure AskMergeSelection(ACaption: string);
     procedure ReleaseMouseButtons(Shift: TShiftState);
+    procedure UpdateSpecialKeys({%H-}Shift: TShiftState);
     procedure UpdateCurveModeToolbar;
     function ShowOpenTextureDialog: boolean;
     procedure ShowNoPicture;
@@ -907,6 +911,10 @@ begin
   btnRightDown := false;
   btnMiddleDown:= false;
   FTablet := TLazTablet.Create(self);
+  spacePressed:= false;
+  altPressed:= false;
+  snapPressed:= false;
+  shiftPressed:= false;
 
   //recursive calls
   InFormMouseMove:= false;
@@ -1150,9 +1158,11 @@ begin
   if Button = mbMiddle then
   begin
     btnMiddleDown:= true;
-    if not ToolManager.ToolSleeping then ToolManager.ToolSleep;
+    if not ToolManager.ToolSleeping and not (ssAlt in Shift) then ToolManager.ToolSleep;
   end;
-  if ToolManager.ToolDown(FImageView.FormToBitmap(X,Y),btnRightDown,CurrentPressure) then
+  if ToolManager.ToolDown(FImageView.FormToBitmap(X,Y),
+      btnRightDown{$IFDEF DARWIN} or (ssCtrl in Shift){$ENDIF},
+      CurrentPressure) then
       PaintPictureNow;
   UpdateToolbar;
 end;
@@ -1168,6 +1178,7 @@ begin
   if not Assigned(FImageView) then exit;
 
   ReleaseMouseButtons(Shift);
+  UpdateSpecialKeys(Shift);
   HidePenPreview;
   if LazPaintInstance.TopMostHasFocus then
   begin
@@ -1198,7 +1209,6 @@ begin
   if ToolManager.ToolMove(BmpPos,CurrentPressure) then
   begin
     FImageView.UpdatePicture(PictureCanvasOfs, FLayout.WorkArea, self);
-    ToolManager.ToolMoveAfter(FImageView.FormToBitmap(FormMouseMovePos)); //new BmpPos after repaint
   end else
     updateForVSCursor := true;
   UpdateToolbar;
@@ -1222,10 +1232,11 @@ var redraw: boolean;
 begin
   if not Assigned(FImageView) then exit;
 
-  redraw := ToolManager.ToolMove(FImageView.FormToBitmap(X,Y),CurrentPressure);
+  redraw := false;
   if (btnLeftDown and (Button = mbLeft)) or (btnRightDown and (Button=mbRight))
     or (btnMiddleDown and (Button = mbMiddle)) then
   begin
+    redraw := ToolManager.ToolMove(FImageView.FormToBitmap(X,Y),CurrentPressure);
     if ToolManager.ToolUp then redraw := true;
     btnLeftDown := false;
     btnRightDown := false;
@@ -1634,6 +1645,9 @@ procedure TFMain.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState
   );
 begin
   try
+    if Key = VK_MENU then altPressed:= true
+    else if (Key = VK_SNAP) or (Key = VK_SNAP2) then snapPressed:= true
+    else if Key = VK_SHIFT then shiftPressed:= true;
     if Zoom.EditingZoom then exit;
     if not ((CurrentTool = ptText) and TextSpinEditFocused and (Key = VK_BACK)) and ToolManager.ToolKeyDown(Key) then
     begin
@@ -2019,6 +2033,9 @@ end;
 
 procedure TFMain.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
+  if Key = VK_MENU then altPressed:= false
+  else if (Key = VK_SNAP) or (Key = VK_SNAP2) then snapPressed:= false
+  else if Key = VK_SHIFT then shiftPressed:= false;
   if ToolManager.ToolKeyUp(Key) then
   begin
     DelayedPaintPicture := True;
@@ -2052,6 +2069,7 @@ begin
     if toolProcessKey and ToolManager.ToolKeyPress(UTF8Key) then
     begin
       DelayedPaintPicture := true;
+      UpdateToolbar;
     end else
     if UTF8Key <> '' then
     begin
@@ -2980,6 +2998,17 @@ begin
   EditShapeCenterVertically.Enabled := ToolManager.ToolProvideCommand(tcCenterVertically);
 end;
 
+procedure TFMain.EditShapeToCurveExecute(Sender: TObject);
+begin
+  if ToolManager.CurrentTool is TVectorialTool then ChooseTool(ptEditShape);
+  ToolManager.ToolCommand(tcShapeToSpline);
+end;
+
+procedure TFMain.EditShapeToCurveUpdate(Sender: TObject);
+begin
+  EditShapeToCurve.Enabled := ToolManager.ToolProvideCommand(tcShapeToSpline);
+end;
+
 procedure TFMain.FileChooseEntryExecute(Sender: TObject);
 var
   openParams: TVariableSet;
@@ -3116,9 +3145,13 @@ begin
 end;
 
 procedure TFMain.ForgetDialogAnswersExecute(Sender: TObject);
+var
+  m: TToolPopupMessage;
 begin
   Config.SetDefaultTransformSelectionAnswer(0);
   Config.SetDefaultRetrieveSelectionAnswer(0);
+  for m := low(TToolPopupMessage) to high(TToolPopupMessage) do
+    Config.SetToolPopupMessageShownCount(ord(m), 0);
 end;
 
 procedure TFMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -3289,6 +3322,28 @@ begin
     CanCompressOrUpdateStack := true;
     Image.OnImageChanged.DelayedStackUpdate := False;
   end;
+end;
+
+procedure TFMain.UpdateSpecialKeys(Shift: TShiftState);
+  procedure UpdateKey(AShift: TShiftStateEnum; ACode: Word; var APressed: boolean);
+  begin
+    if (AShift in Shift) and not APressed then
+    begin
+      if ToolManager.ToolKeyDown(ACode) then PaintPictureNow;
+      APressed:= true;
+    end else
+    if not (AShift in Shift) and APressed then
+    begin
+      if ToolManager.ToolKeyUp(ACode) then PaintPictureNow;
+      APressed:= false;
+    end;
+  end;
+begin
+  {$IFDEF DARWIN}
+  UpdateKey(ssSnap, VK_SNAP, snapPressed);
+  UpdateKey(ssAlt, VK_MENU, altPressed);
+  UpdateKey(ssShift, VK_SHIFT, shiftPressed);
+  {$ENDIF}
 end;
 
 function TFMain.ShowOpenTextureDialog: boolean;

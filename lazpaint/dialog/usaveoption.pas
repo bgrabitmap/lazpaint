@@ -845,9 +845,9 @@ begin
   UpdateFileSize;
   DrawHourglass(BGRAPreview.Bitmap);
   BGRAPreview.Repaint;
-  {$IFDEF LINUX}
+  { $IFDEF LINUX}
   Application.ProcessMessages;
-  {$ENDIF}
+  { $ENDIF}
   BGRAPreview.DiscardBitmap;
 end;
 
