@@ -1146,7 +1146,7 @@ procedure TFMain.FormMouseDown(Sender: TObject; Button: TMouseButton;
 begin
   if not Assigned(FImageView) then exit;
   ReleaseMouseButtons(Shift);
-  if not (Button in[mbLeft,mbRight,mbMiddle]) then exit;
+  if not (Button in[mbLeft,mbRight,mbMiddle]) or not FImageView.PictureCoordsDefined then exit;
   CanCompressOrUpdateStack := false;
   Image.OnImageChanged.DelayedStackUpdate := True;
 
@@ -1193,7 +1193,8 @@ begin
   FormMouseMovePos := Point(X,Y);
   if InFormMouseMove then exit;
   InFormMouseMove := True;
-  //Application.ProcessMessages; //empty message stack
+  if not FImageView.PictureCoordsDefined then
+    Application.ProcessMessages; //empty message stack
 
   BmpPos := FImageView.FormToBitmap(FormMouseMovePos);
   FCoordinatesCaption := IntToStr(round(BmpPos.X))+','+IntToStr(round(BmpPos.Y));
@@ -1236,7 +1237,9 @@ begin
   if (btnLeftDown and (Button = mbLeft)) or (btnRightDown and (Button=mbRight))
     or (btnMiddleDown and (Button = mbMiddle)) then
   begin
-    redraw := ToolManager.ToolMove(FImageView.FormToBitmap(X,Y),CurrentPressure);
+    if FImageView.PictureCoordsDefined then
+      redraw := ToolManager.ToolMove(FImageView.FormToBitmap(X,Y),CurrentPressure)
+      else redraw := false;
     if ToolManager.ToolUp then redraw := true;
     btnLeftDown := false;
     btnRightDown := false;
@@ -2358,7 +2361,7 @@ end;
 procedure TFMain.FormMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin
-  if not Assigned(FImageView) then exit;
+  if not Assigned(FImageView) or not FImageView.PictureCoordsDefined then exit;
   Zoom.SetPosition(FImageView.FormToBitmap(MousePos.X,MousePos.Y), MousePos);
   if WheelDelta > 0 then Zoom.ZoomIn(ssCtrl in Shift) else
   if WheelDelta < 0 then Zoom.ZoomOut(ssCtrl in Shift);
