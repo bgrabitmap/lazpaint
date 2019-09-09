@@ -442,7 +442,6 @@ begin
        deserial.Free;
        if result <> nil then exit;
     end;
-  end;
   {$ENDIF}
 
   {$IFDEF TIFF_CLIPBOARD_FORMAT}
