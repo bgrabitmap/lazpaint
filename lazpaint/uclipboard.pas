@@ -1,7 +1,9 @@
 unit UClipboard;
 
 {$mode objfpc}{$H+}
-{$DEFINE DEBUG_CLIPBOARD}
+{$IFDEF DEBUG}
+  {$DEFINE DEBUG_CLIPBOARD}
+{$ENDIF}
 
 {$DEFINE HTML_CLIPBOARD_FORMAT}
 {$IFDEF DARWIN}
@@ -388,7 +390,7 @@ begin
            mime := moreMimeTypes[j];
     str += mime;
 
-{    stream := TMemoryStream.Create;
+    stream := TMemoryStream.Create;
     Clipboard.GetFormat(Clipboard.Formats[i],Stream);
 
     str += '('+inttostr(stream.Size)+' bytes)';
@@ -418,7 +420,7 @@ begin
       end;
       str += ']'+lineending;
     end;
-    stream.Free; }
+    stream.Free;
   end;
   ShowMessage(str);
   {$ENDIF}
