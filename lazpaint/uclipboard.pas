@@ -5,6 +5,8 @@ unit UClipboard;
 
 {$IFDEF DARWIN}
   {$DEFINE TIFF_CLIPBOARD_FORMAT}
+{$ELSE}
+  {$DEFINE BMP_CLIPBOARD_FORMAT}
 {$ENDIF}
 
 interface
@@ -468,25 +470,6 @@ begin
        if result <> nil then exit;
     end;
 
-  for i := 0 to clipboard.FormatCount-1 do
-    if (Clipboard.Formats[i] = PredefinedClipboardFormat(pcfBitmap)) then
-    begin
-       Stream := TMemoryStream.Create;
-       Clipboard.GetFormat(Clipboard.Formats[i],Stream);
-       Stream.Position := 0;
-       try
-         result := TBGRABitmap.Create(Stream);
-         if result.Empty then result.AlphaFill(255);
-       except
-         on ex:exception do
-         begin
-           result := nil;
-         end;
-       end;
-       Stream.Free;
-       if result <> nil then exit;
-    end;
-
   {$IFDEF TIFF_CLIPBOARD_FORMAT}
   for i := 0 to clipboard.FormatCount-1 do
     if Clipboard.Formats[i] = tiffClipboardFormat then
@@ -508,6 +491,25 @@ begin
       if result <> nil then exit;
     end;
   {$ENDIF}
+
+  for i := 0 to clipboard.FormatCount-1 do
+    if (Clipboard.Formats[i] = PredefinedClipboardFormat(pcfBitmap)) then
+    begin
+       Stream := TMemoryStream.Create;
+       Clipboard.GetFormat(Clipboard.Formats[i],Stream);
+       Stream.Position := 0;
+       try
+         result := TBGRABitmap.Create(Stream);
+         if result.Empty then result.AlphaFill(255);
+       except
+         on ex:exception do
+         begin
+           result := nil;
+         end;
+       end;
+       Stream.Free;
+       if result <> nil then exit;
+    end;
 end;
 
 function ClipboardContainsBitmap: boolean;
@@ -522,10 +524,13 @@ end;
 procedure CopyToClipboard(bmp: TBGRABitmap);
 var
   stream: TMemoryStream;
+  {$IFDEF BMP_CLIPBOARD_FORMAT}
   bmpWriter: TFPWriterBMP;
+  {$ENDIF}
 begin
   Clipboard.Clear;
 
+  {$IFDEF BMP_CLIPBOARD_FORMAT}
   stream := TMemoryStream.Create;
   bmpWriter := TFPWriterBMP.Create;
   bmpWriter.BitsPerPixel := 32;
@@ -533,6 +538,7 @@ begin
   bmpWriter.Free;
   Clipboard.AddFormat(PredefinedClipboardFormat(pcfBitmap), stream);
   stream.Free;
+  {$ENDIF}
 
   stream := TMemoryStream.Create;
   bmp.Serialize(stream);
@@ -552,7 +558,7 @@ initialization
   bgraClipboardFormat := RegisterClipboardFormat('TBGRABitmap');
 
 {$IFDEF TIFF_CLIPBOARD_FORMAT}
-  tiffClipboardFormat := RegisterClipboardFormat('image/tiff');
+  tiffClipboardFormat := RegisterClipboardFormat({$IFDEF DARWIN}'public.tiff'{$ELSE}'image/tiff'{$ENDIF});
 {$ENDIF}
 
 end.
