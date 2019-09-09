@@ -1195,6 +1195,11 @@ begin
   InFormMouseMove := True;
   if not FImageView.PictureCoordsDefined then
     Application.ProcessMessages; //empty message stack
+  if not FImageView.PictureCoordsDefined then
+  begin
+    InFormMouseMove:= false;
+    exit;
+  end;
 
   BmpPos := FImageView.FormToBitmap(FormMouseMovePos);
   FCoordinatesCaption := IntToStr(round(BmpPos.X))+','+IntToStr(round(BmpPos.Y));
