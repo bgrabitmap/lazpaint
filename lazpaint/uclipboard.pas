@@ -575,7 +575,7 @@ initialization
   tiffClipboardFormat := RegisterClipboardFormat({$IFDEF DARWIN}'public.tiff'{$ELSE}'image/tiff'{$ENDIF});
 {$ENDIF}
 {$IFDEF PNG_CLIPBOARD_FORMAT}
-  pngClipboardFormat := RegisterClipboardFormat({$IFDEF DARWIN}'public.png'{$ELSE}'image/png'{$ENDIF});
+  pngClipboardFormat := RegisterClipboardFormat({$IFDEF DARWIN}'public.png'{$ELSE}{$IFDEF WINDOWS}'PNG'{$ELSE}'image/png'{$ENDIF}{$ENDIF});
 {$ENDIF}
 {$IFDEF HTML_CLIPBOARD_FORMAT}
   htmlClipboardFormat := RegisterClipboardFormat({$IFDEF DARWIN}'public.html'{$ELSE}'text/html'{$ENDIF});
