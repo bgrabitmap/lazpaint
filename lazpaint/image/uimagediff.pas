@@ -272,8 +272,8 @@ type
 
   TRemoveLayerStateDifference = class(TCustomImageDifference)
   protected
-    content: TStoredLayer;
-    nextActiveLayerId: integer;
+    FContent: TStoredLayer;
+    FNextActiveLayerId: integer;
     function GetImageDifferenceKind: TImageDifferenceKind; override;
   public
     function UsedMemory: int64; override;
@@ -282,6 +282,7 @@ type
     procedure UnapplyTo(AState: TState); override;
     constructor Create(AState: TState);
     destructor Destroy; override;
+    property nextActiveLayerId: integer read FNextActiveLayerId write FNextActiveLayerId;
   end;
 
   { TReplaceLayerByOriginalDifference }
@@ -2022,15 +2023,15 @@ end;
 
 function TRemoveLayerStateDifference.UsedMemory: int64;
 begin
-  if Assigned(content) then
-    result := content.UsedMemory
+  if Assigned(FContent) then
+    result := FContent.UsedMemory
   else
     result := 0;
 end;
 
 function TRemoveLayerStateDifference.TryCompress: boolean;
 begin
-  Result:= content.Compress;
+  Result:= FContent.Compress;
 end;
 
 procedure TRemoveLayerStateDifference.ApplyTo(AState: TState);
@@ -2039,10 +2040,10 @@ begin
   inherited ApplyTo(AState);
   with AState as TImageState do
   begin
-    idx := LayeredBitmap.GetLayerIndexFromId(content.LayerId);
+    idx := LayeredBitmap.GetLayerIndexFromId(FContent.LayerId);
     LayeredBitmap.RemoveLayer(idx);
     LayeredBitmap.RemoveUnusedOriginals;
-    SelectedImageLayerIndex := LayeredBitmap.GetLayerIndexFromId(self.nextActiveLayerId);
+    SelectedImageLayerIndex := LayeredBitmap.GetLayerIndexFromId(self.FNextActiveLayerId);
   end;
 end;
 
@@ -2051,8 +2052,8 @@ begin
   inherited UnapplyTo(AState);
   with AState as TImageState do
   begin
-    content.Restore(LayeredBitmap);
-    SelectedImageLayerIndex := content.LayerIndex;
+    FContent.Restore(LayeredBitmap);
+    SelectedImageLayerIndex := FContent.LayerIndex;
   end;
 end;
 
@@ -2069,15 +2070,15 @@ begin
   idx := imgState.SelectedImageLayerIndex;
   if idx = -1 then
     raise exception.Create('No layer selected');
-  self.content := TStoredLayer.Create(imgState.LayeredBitmap, idx);
+  self.FContent := TStoredLayer.Create(imgState.LayeredBitmap, idx);
   if idx+1 < imgState.NbLayers then
     nextIdx := idx+1 else nextIdx := idx-1;
-  self.nextActiveLayerId := imgState.LayeredBitmap.LayerUniqueId[nextIdx];
+  self.FNextActiveLayerId := imgState.LayeredBitmap.LayerUniqueId[nextIdx];
 end;
 
 destructor TRemoveLayerStateDifference.Destroy;
 begin
-  self.content.Free;
+  self.FContent.Free;
   inherited Destroy;
 end;
 
@@ -2282,7 +2283,7 @@ begin
   begin
     self.sourceLayerId := LayeredBitmap.LayerUniqueId[SelectedImageLayerIndex];
     self.duplicateId := LayeredBitmap.ProduceLayerUniqueId;
-    self.duplicateOriginal := useOriginal and (LayeredBitmap.OriginalClass[SelectedImageLayerIndex]=TVectorOriginal);
+    self.duplicateOriginal := useOriginal and (LayeredBitmap.LayerOriginalClass[SelectedImageLayerIndex]=TVectorOriginal);
     if self.duplicateOriginal then
       CreateGUID(duplicateGuid);
   end;

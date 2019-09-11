@@ -1101,6 +1101,7 @@ begin
     end else
     begin
       tempIdx := ALayeredImage.AddOwnedLayer(GetBitmap);
+      ALayeredImage.LayerOffset[tempIdx] := FInfo.Offset;
       ALayeredImage.LayerOriginalGuid[tempIdx] := ALayeredImage.OriginalGuid[idxOrig];
       ALayeredImage.LayerOriginalMatrix[tempIdx] := FOriginalMatrix;
       ALayeredImage.LayerOriginalRenderStatus[tempIdx] := FOriginalRenderStatus;

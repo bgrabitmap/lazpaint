@@ -1852,10 +1852,22 @@ begin
 end;
 
 procedure TLazPaintImage.MergeLayerOver;
+var
+  remove: TCustomImageDifference;
+  nextId: LongInt;
 begin
+  if CurrentLayerIndex = 0 then exit;
   if not CheckNoAction then exit;
   try
-    AddUndo(FCurrentState.MergerLayerOver(CurrentLayerIndex));
+    if LayerBitmap[CurrentLayerIndex].Empty then
+    begin
+      nextId := LayerId[CurrentLayerIndex-1];
+      remove := FCurrentState.RemoveLayer;
+      if remove is TRemoveLayerStateDifference then
+        TRemoveLayerStateDifference(remove).nextActiveLayerId:= nextId;
+      AddUndo(remove);
+    end else
+      AddUndo(FCurrentState.MergerLayerOver(CurrentLayerIndex));
   except on ex: exception do NotifyException('MergeLayerOver',ex);
   end;
   ImageMayChangeCompletely;

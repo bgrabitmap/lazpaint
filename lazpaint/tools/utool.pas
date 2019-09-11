@@ -44,7 +44,7 @@ type
   TBitmapToVirtualScreenFunction = function(PtF: TPointF): TPointF of object;
 
   TEraserMode = (emEraseAlpha, emSoften);
-  TToolCommand = (tcCut, tcCopy, tcPaste, tcDelete, tcMoveUp, tcMoveDown, tcMoveToFront, tcMoveToBack,
+  TToolCommand = (tcCut, tcCopy, tcPaste, tcDelete, tcFinish, tcMoveUp, tcMoveDown, tcMoveToFront, tcMoveToBack,
     tcAlignLeft, tcCenterHorizontally, tcAlignRight, tcAlignTop, tcCenterVertically, tcAlignBottom,
     tcShapeToSpline);
 
@@ -1732,7 +1732,10 @@ end;
 function TToolManager.ToolCommand(ACommand: TToolCommand): boolean;
 begin
   if Assigned(FCurrentTool) then
-    result := FCurrentTool.ToolCommand(ACommand)
+  begin
+    result := FCurrentTool.ToolCommand(ACommand);
+    CheckExitTool;
+  end
   else
     result := false;
 end;

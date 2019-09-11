@@ -33,3 +33,4 @@ lazpaint/image/backup/
 
 lazpaint/dialog/backup/
 .DS_Store
+lazpaint/release/bin/lazpaint.app

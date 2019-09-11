@@ -274,8 +274,8 @@ end;
 procedure TImageActions.Undo;
 begin
   try
-    if CurrentTool in[ptTextureMapping,ptLayerMapping,ptMoveSelection,ptRotateSelection] then
-      ChooseTool(ptHand);
+    if CurrentTool in[ptMoveSelection,ptRotateSelection] then ChooseTool(ptHand);
+    if ToolManager.ToolProvideCommand(tcFinish) then ToolManager.ToolCommand(tcFinish);
     if image.CanUndo then
     begin
       ToolManager.ToolCloseDontReopen;

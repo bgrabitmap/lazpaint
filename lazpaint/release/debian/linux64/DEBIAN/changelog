@@ -75,3 +75,15 @@ lazpaint (7.0.5) stable; urgency=low
 
 -- circular <circular@operamail.com>  Sun, 24 Aug 2019 11:46:00 +0100
 
+lazpaint (7.0.6) stable; urgency=low
+
+  * fix merge bitmap layer
+  * fix mouse scroll on MacOS
+  * clipboard image format with transparency
+  * allow undo when creating shape
+  * fix texture panel
+  * merging empty layer simply deletes it
+  * fix layer offset after undoing merge layer
+
+-- circular <circular@operamail.com>  Wed, 11 Sep 2019 18:20:00 +0100
+
