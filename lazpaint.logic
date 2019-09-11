@@ -9,5 +9,5 @@ echo "Don't forget to UPDATE changelog file"
 copy release/changelog release/debian/linux32/DEBIAN/changelog
 copy release/changelog release/debian/linux64/DEBIAN/changelog
 text release/macOS/makedmg.sh "appversion=$(Version)"
-plist release/macOS/LazPaint.app/Contents/Info.plist
+bundle release/macOS/LazPaint.app
 copy ../resources/icon/lazpaint.icns release/macOS/LazPaint.app/Contents/Resources/lazpaint.icns
