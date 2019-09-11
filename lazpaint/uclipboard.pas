@@ -1,10 +1,19 @@
 unit UClipboard;
 
 {$mode objfpc}{$H+}
-{ $DEFINE DEBUG_CLIPBOARD}
+{$IFDEF DEBUG}
+  {$DEFINE DEBUG_CLIPBOARD}
+{$ENDIF}
 
+{$DEFINE HTML_CLIPBOARD_FORMAT}
 {$IFDEF DARWIN}
   {$DEFINE TIFF_CLIPBOARD_FORMAT}
+{$ELSE}
+  {$DEFINE BMP_CLIPBOARD_FORMAT}
+  {$DEFINE PNG_CLIPBOARD_FORMAT}
+{$ENDIF}
+{$IFDEF WINDOWS}
+  {$DEFINE PDN_CLIPBOARD_FORMAT}
 {$ENDIF}
 
 interface
@@ -18,8 +27,10 @@ function ClipboardContainsBitmap: boolean;
 
 implementation
 
-uses Dialogs, BGRABitmapTypes, Clipbrd, Graphics, LCLIntf, LCLType,
-    BGRADNetDeserial, math, GraphType, fphttpclient, FPWriteBMP;
+uses Dialogs, BGRABitmapTypes, Clipbrd, Graphics, LCLIntf, LCLType, GraphType
+    {$IFDEF PDN_CLIPBOARD_FORMAT}, math, BGRADNetDeserial{$ENDIF}
+    {$IFDEF BMP_CLIPBOARD_FORMAT}, FPWriteBMP{$ENDIF}
+    {$IFDEF HTML_CLIPBOARD_FORMAT}, fphttpclient{$ENDIF};
 
 {$IFDEF DEBUG_CLIPBOARD}
 const
@@ -31,9 +42,13 @@ const
 var
   tiffClipboardFormat: TClipboardFormat;
 {$ENDIF}
-
+{$IFDEF PNG_CLIPBOARD_FORMAT}
 var
-  bgraClipboardFormat: TClipboardFormat;
+  pngClipboardFormat: TClipboardFormat;
+{$ENDIF}
+{$IFDEF PDN_CLIPBOARD_FORMAT}
+var
+  pdnClipboardFormat: TClipboardFormat;
 
 function GetBitmapFromPaintDotNetMaskedSurface(deserial: TDotNetDeserialization): TBGRABitmap;
 var width,height: integer;
@@ -121,6 +136,11 @@ begin
     end;
   end;
 end;
+{$ENDIF}
+
+{$IFDEF HTML_CLIPBOARD_FORMAT}
+var
+  htmlClipboardFormat: TClipboardFormat;
 
 function WideStringToStr(data: string): string;
 var
@@ -330,38 +350,31 @@ begin
   end;
   tagTokens.Free;
 end;
-
-function SafeClipboardFormatToMimeType(FormatID: TClipboardFormat): string;
-begin
-  try
-    result := ClipboardFormatToMimeType(FormatID);
-  except
-    on ex: Exception do
-      result := '';
-  end;
-end;
+{$ENDIF}
 
 function GetBitmapFromClipboard: TBGRABitmap;
 var i: integer;
     Stream: TMemoryStream;
+    data: string;
 
 {$IFDEF DEBUG_CLIPBOARD}
     j: integer;
     pcf: TPredefinedClipboardFormat;
-    str: string;
+    mime, str: string;
 
     c: char;
     prevCok: boolean;
 {$ENDIF}
 
+{$IFDEF PDN_CLIPBOARD_FORMAT}
     deserial: TDotNetDeserialization;
-    mime, data: string;
+{$ENDIF}
 
 begin
   result := nil;
 
   {$IFDEF DEBUG_CLIPBOARD}
-  str := '';
+  str := 'clipboard.FormatCount = '+inttostr(clipboard.FormatCount)+lineending;
   for i := 0 to clipboard.FormatCount-1 do
   begin
     if str <> '' then str += ', ';
@@ -408,15 +421,13 @@ begin
       str += ']'+lineending;
     end;
     stream.Free;
-
   end;
   ShowMessage(str);
   {$ENDIF}
 
+  {$IFDEF PDN_CLIPBOARD_FORMAT}
   for i := 0 to clipboard.FormatCount-1 do
-  begin
-    mime := SafeClipboardFormatToMimeType(Clipboard.Formats[i]);
-    if mime = 'PaintDotNet.MaskedSurface' then
+    if Clipboard.Formats[i] = pdnClipboardFormat then
     begin
        Stream := TMemoryStream.Create;
        Clipboard.GetFormat(Clipboard.Formats[i],Stream);
@@ -430,62 +441,8 @@ begin
        end;
        deserial.Free;
        if result <> nil then exit;
-    end else
-    if mime = 'text/html' then
-    begin
-       Stream := TMemoryStream.Create;
-       Clipboard.GetFormat(Clipboard.Formats[i],Stream);
-       if stream.Size > 65536 then
-        setlength(data,65536) else
-          setlength(data,stream.size);
-       stream.Position:= 0;
-       stream.read(data[1],length(data));
-       Stream.Free;
-       try
-         result := GetBitmapFromHtml(data);
-       except
-       end;
-       if result <> nil then exit;
     end;
-  end;
-
-  for i := 0 to clipboard.FormatCount-1 do
-    if Clipboard.Formats[i] = bgraClipboardFormat then
-    begin
-       Stream := TMemoryStream.Create;
-       Clipboard.GetFormat(Clipboard.Formats[i],Stream);
-       stream.Position := 0;
-       result := TBGRABitmap.Create;
-       try
-         result.Deserialize(Stream);
-       except
-         on ex:exception do
-         begin
-           FreeAndNil(result);
-         end;
-       end;
-       Stream.Free;
-       if result <> nil then exit;
-    end;
-
-  for i := 0 to clipboard.FormatCount-1 do
-    if (Clipboard.Formats[i] = PredefinedClipboardFormat(pcfBitmap)) then
-    begin
-       Stream := TMemoryStream.Create;
-       Clipboard.GetFormat(Clipboard.Formats[i],Stream);
-       Stream.Position := 0;
-       try
-         result := TBGRABitmap.Create(Stream);
-         if result.Empty then result.AlphaFill(255);
-       except
-         on ex:exception do
-         begin
-           result := nil;
-         end;
-       end;
-       Stream.Free;
-       if result <> nil then exit;
-    end;
+  {$ENDIF}
 
   {$IFDEF TIFF_CLIPBOARD_FORMAT}
   for i := 0 to clipboard.FormatCount-1 do
@@ -508,6 +465,65 @@ begin
       if result <> nil then exit;
     end;
   {$ENDIF}
+
+  {$IFDEF PNG_CLIPBOARD_FORMAT}
+  for i := 0 to clipboard.FormatCount-1 do
+    if Clipboard.Formats[i] = pngClipboardFormat then
+    begin
+      Stream := TMemoryStream.Create;
+      Clipboard.GetFormat(Clipboard.Formats[i],Stream);
+      Stream.Position := 0;
+      try
+        result := TBGRABitmap.Create;
+        result.LoadFromStream(Stream);
+        if result.Empty then result.AlphaFill(255);
+      except
+        on ex:exception do
+        begin
+          result := nil;
+        end;
+      end;
+      Stream.Free;
+      if result <> nil then exit;
+    end;
+  {$ENDIF}
+
+  for i := 0 to clipboard.FormatCount-1 do
+    if Clipboard.Formats[i] = htmlClipboardFormat then
+    begin
+       Stream := TMemoryStream.Create;
+       Clipboard.GetFormat(Clipboard.Formats[i],Stream);
+       if stream.Size > 65536 then
+        setlength(data,65536) else
+          setlength(data,stream.size);
+       stream.Position:= 0;
+       stream.read(data[1],length(data));
+       Stream.Free;
+       try
+         result := GetBitmapFromHtml(data);
+       except
+       end;
+       if result <> nil then exit;
+    end;
+
+  for i := 0 to clipboard.FormatCount-1 do
+    if (Clipboard.Formats[i] = PredefinedClipboardFormat(pcfBitmap)) then
+    begin
+       Stream := TMemoryStream.Create;
+       Clipboard.GetFormat(Clipboard.Formats[i],Stream);
+       Stream.Position := 0;
+       try
+         result := TBGRABitmap.Create(Stream);
+         if result.Empty then result.AlphaFill(255);
+       except
+         on ex:exception do
+         begin
+           result := nil;
+         end;
+       end;
+       Stream.Free;
+       if result <> nil then exit;
+    end;
 end;
 
 function ClipboardContainsBitmap: boolean;
@@ -522,10 +538,13 @@ end;
 procedure CopyToClipboard(bmp: TBGRABitmap);
 var
   stream: TMemoryStream;
+  {$IFDEF BMP_CLIPBOARD_FORMAT}
   bmpWriter: TFPWriterBMP;
+  {$ENDIF}
 begin
   Clipboard.Clear;
 
+  {$IFDEF BMP_CLIPBOARD_FORMAT}
   stream := TMemoryStream.Create;
   bmpWriter := TFPWriterBMP.Create;
   bmpWriter.BitsPerPixel := 32;
@@ -533,11 +552,7 @@ begin
   bmpWriter.Free;
   Clipboard.AddFormat(PredefinedClipboardFormat(pcfBitmap), stream);
   stream.Free;
-
-  stream := TMemoryStream.Create;
-  bmp.Serialize(stream);
-  Clipboard.AddFormat(bgraClipboardFormat, stream);
-  stream.Free;
+  {$ENDIF}
 
   {$IFDEF TIFF_CLIPBOARD_FORMAT}
   stream := TMemoryStream.Create;
@@ -545,15 +560,30 @@ begin
   Clipboard.AddFormat(tiffClipboardFormat, stream);
   stream.Free;
   {$ENDIF}
+
+  {$IFDEF PNG_CLIPBOARD_FORMAT}
+  stream := TMemoryStream.Create;
+  bmp.SaveToStreamAs(stream, ifPng);
+  Clipboard.AddFormat(pngClipboardFormat, stream);
+  stream.Free;
+  {$ENDIF}
 end;
 
 initialization
 
-  bgraClipboardFormat := RegisterClipboardFormat('TBGRABitmap');
-
 {$IFDEF TIFF_CLIPBOARD_FORMAT}
-  tiffClipboardFormat := RegisterClipboardFormat('image/tiff');
+  tiffClipboardFormat := RegisterClipboardFormat({$IFDEF DARWIN}'public.tiff'{$ELSE}'image/tiff'{$ENDIF});
 {$ENDIF}
+{$IFDEF PNG_CLIPBOARD_FORMAT}
+  pngClipboardFormat := RegisterClipboardFormat({$IFDEF DARWIN}'public.png'{$ELSE}{$IFDEF WINDOWS}'PNG'{$ELSE}'image/png'{$ENDIF}{$ENDIF});
+{$ENDIF}
+{$IFDEF HTML_CLIPBOARD_FORMAT}
+  htmlClipboardFormat := RegisterClipboardFormat({$IFDEF DARWIN}'public.html'{$ELSE}'text/html'{$ENDIF});
+{$ENDIF}
+{$IFDEF PDN_CLIPBOARD_FORMAT}
+  pdnClipboardFormat := RegisterClipboardFormat('PaintDotNet.MaskedSurface');
+{$ENDIF}
+
 
 end.
 

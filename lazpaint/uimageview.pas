@@ -49,6 +49,7 @@ type
     procedure PictureSelectionChanged({%H-}sender: TLazPaintImage; const ARect: TRect);
     procedure PaintVirtualScreenCursor({%H-}ACanvasOfs: TPoint; {%H-}AWorkArea: TRect; {%H-}AWinControlOfs: TPoint; {%H-}AWinControl: TWinControl);
     function GetRectToInvalidate(AInvalidateAll: boolean; AWorkArea: TRect): TRect;
+    function GetPictureCoordsDefined: boolean;
   public
     constructor Create(AInstance: TLazPaintCustomInstance; AZoom: TZoom; ACanvas: TCanvas);
     destructor Destroy; override;
@@ -71,6 +72,7 @@ type
     property FillSelectionHighlight: boolean read GetFillSelectionHighlight write SetFillSelectionHighlight;
     property ShowSelection: boolean read FShowSelection write SetShowSelection;
     property WorkspaceColor: TColor read GetWorkspaceColor;
+    property PictureCoordsDefined: boolean read GetPictureCoordsDefined;
   end;
 
 implementation
@@ -99,6 +101,11 @@ begin
   if FShowSelection=AValue then Exit;
   FShowSelection:=AValue;
   Image.ImageMayChangeCompletely;
+end;
+
+function TImageView.GetPictureCoordsDefined: boolean;
+begin
+  result := FLastPictureParameters.defined;
 end;
 
 function TImageView.GetImage: TLazPaintImage;

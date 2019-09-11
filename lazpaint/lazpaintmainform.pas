@@ -539,8 +539,7 @@ type
     procedure SpinEdit_TextureOpacityChange(Sender: TObject; AByUser: boolean);
     procedure SpinEdit_TextBlurChange(Sender: TObject; AByUser: boolean);
     procedure GridNb_SpinEditChange(Sender: TObject; AByUser: boolean);
-    procedure Image_CurrentTextureMouseDown(Sender: TObject;
-      {%H-}Button: TMouseButton; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
+    procedure Image_CurrentTextureClick(Sender: TObject);
     procedure PaintBox_PenPreviewPaint(Sender: TObject);
     procedure PaintBox_PictureMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -1146,7 +1145,7 @@ procedure TFMain.FormMouseDown(Sender: TObject; Button: TMouseButton;
 begin
   if not Assigned(FImageView) then exit;
   ReleaseMouseButtons(Shift);
-  if not (Button in[mbLeft,mbRight,mbMiddle]) then exit;
+  if not (Button in[mbLeft,mbRight,mbMiddle]) or not FImageView.PictureCoordsDefined then exit;
   CanCompressOrUpdateStack := false;
   Image.OnImageChanged.DelayedStackUpdate := True;
 
@@ -1193,7 +1192,13 @@ begin
   FormMouseMovePos := Point(X,Y);
   if InFormMouseMove then exit;
   InFormMouseMove := True;
-  //Application.ProcessMessages; //empty message stack
+  if not FImageView.PictureCoordsDefined then
+    Application.ProcessMessages; //empty message stack
+  if not FImageView.PictureCoordsDefined then
+  begin
+    InFormMouseMove:= false;
+    exit;
+  end;
 
   BmpPos := FImageView.FormToBitmap(FormMouseMovePos);
   FCoordinatesCaption := IntToStr(round(BmpPos.X))+','+IntToStr(round(BmpPos.Y));
@@ -1236,7 +1241,9 @@ begin
   if (btnLeftDown and (Button = mbLeft)) or (btnRightDown and (Button=mbRight))
     or (btnMiddleDown and (Button = mbMiddle)) then
   begin
-    redraw := ToolManager.ToolMove(FImageView.FormToBitmap(X,Y),CurrentPressure);
+    if FImageView.PictureCoordsDefined then
+      redraw := ToolManager.ToolMove(FImageView.FormToBitmap(X,Y),CurrentPressure)
+      else redraw := false;
     if ToolManager.ToolUp then redraw := true;
     btnLeftDown := false;
     btnRightDown := false;
@@ -1690,7 +1697,7 @@ end;
 
 procedure TFMain.EditUndoUpdate(Sender: TObject);
 begin
-  EditUndo.Enabled := image.CanUndo;
+  EditUndo.Enabled := image.CanUndo or ToolManager.ToolProvideCommand(tcFinish);
 end;
 
 procedure TFMain.EmbeddedCancelExecute(Sender: TObject);
@@ -2358,7 +2365,7 @@ end;
 procedure TFMain.FormMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin
-  if not Assigned(FImageView) then exit;
+  if not Assigned(FImageView) or not FImageView.PictureCoordsDefined then exit;
   Zoom.SetPosition(FImageView.FormToBitmap(MousePos.X,MousePos.Y), MousePos);
   if WheelDelta > 0 then Zoom.ZoomIn(ssCtrl in Shift) else
   if WheelDelta < 0 then Zoom.ZoomOut(ssCtrl in Shift);
@@ -2520,7 +2527,8 @@ end;
 
 procedure TFMain.ToolNoTextureUpdate(Sender: TObject);
 begin
-  ToolNoTexture.Enabled := ToolManager.GetTexture <> nil;
+  ToolNoTexture.Enabled := (ToolManager.GetTexture <> nil)
+    and (CurrentTool <> ptTextureMapping);
 end;
 
 procedure TFMain.ViewColorsExecute(Sender: TObject);

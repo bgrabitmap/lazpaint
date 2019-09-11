@@ -10,7 +10,7 @@ begin
   Shape_PenColor.OnMouseDown := @Shape_PenColorMouseDown;
   Shape_BackColor.OnMouseDown := @Shape_BackColorMouseDown;
   Image_SwapColors.OnMouseDown := @Image_SwapColorsMouseDown;
-  Image_CurrentTexture.OnMouseDown := @Image_CurrentTextureMouseDown;
+  Image_CurrentTexture.OnClick := @Image_CurrentTextureClick;
   Tool_DrawShapeBorder.OnClick := @Tool_DrawShapeBorderClick;
   Tool_Aliasing.OnClick := @Tool_AliasingClick;
   Tool_FillShape.OnClick := @Tool_FillShapeClick;
@@ -546,7 +546,6 @@ begin
       Image_CurrentTool.Picture.Clear;
     previousToolImg := img;
   end;
-  Panel_Texture.Enabled := (CurrentTool <> ptTextureMapping);
 end;
 
 procedure TFMain.NoTextureIcon;
@@ -815,8 +814,7 @@ begin
   end;
 end;
 
-procedure TFMain.Image_CurrentTextureMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TFMain.Image_CurrentTextureClick(Sender: TObject);
 begin
   LazPaintInstance.EditTexture;
   UpdateEditPicture;
