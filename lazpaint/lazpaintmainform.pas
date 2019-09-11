@@ -539,8 +539,7 @@ type
     procedure SpinEdit_TextureOpacityChange(Sender: TObject; AByUser: boolean);
     procedure SpinEdit_TextBlurChange(Sender: TObject; AByUser: boolean);
     procedure GridNb_SpinEditChange(Sender: TObject; AByUser: boolean);
-    procedure Image_CurrentTextureMouseDown(Sender: TObject;
-      {%H-}Button: TMouseButton; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
+    procedure Image_CurrentTextureClick(Sender: TObject);
     procedure PaintBox_PenPreviewPaint(Sender: TObject);
     procedure PaintBox_PictureMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -2528,7 +2527,8 @@ end;
 
 procedure TFMain.ToolNoTextureUpdate(Sender: TObject);
 begin
-  ToolNoTexture.Enabled := ToolManager.GetTexture <> nil;
+  ToolNoTexture.Enabled := (ToolManager.GetTexture <> nil)
+    and (CurrentTool <> ptTextureMapping);
 end;
 
 procedure TFMain.ViewColorsExecute(Sender: TObject);
