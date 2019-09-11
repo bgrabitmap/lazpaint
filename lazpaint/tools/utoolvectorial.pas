@@ -1884,6 +1884,11 @@ begin
       end else
         result := false;
     end;
+  tcFinish: begin
+            r := ValidateShape;
+            Action.NotifyChange(toolDest, r);
+            result := true;
+          end;
   tcAlignLeft..tcAlignBottom:
       if ToolProvideCommand(ACommand) then
         AlignShape(FShape, ACommand,
@@ -1898,6 +1903,7 @@ function TVectorialTool.ToolProvideCommand(ACommand: TToolCommand): boolean;
 begin
   case ACommand of
   tcCopy,tcCut: Result:= not IsSelectingTool and not FQuickDefine and Assigned(FShape);
+  tcFinish: result := not IsIdle;
   tcShapeToSpline: result:= not IsSelectingTool and not FQuickDefine and Assigned(FShape)
                             and TCurveShape.CanCreateFrom(FShape);
   tcAlignLeft..tcAlignBottom: Result:= not FQuickDefine and Assigned(FShape);

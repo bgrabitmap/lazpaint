@@ -1698,7 +1698,7 @@ end;
 
 procedure TFMain.EditUndoUpdate(Sender: TObject);
 begin
-  EditUndo.Enabled := image.CanUndo;
+  EditUndo.Enabled := image.CanUndo or ToolManager.ToolProvideCommand(tcFinish);
 end;
 
 procedure TFMain.EmbeddedCancelExecute(Sender: TObject);
