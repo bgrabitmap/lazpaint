@@ -14,16 +14,11 @@ fi
 appname=LazPaint
 appversion=7.0.6
 pkgversion=0
-
-appnamenospaces=LazPaint
-dskimage="$appnamenospaces"
+appnamenospaces=lazpaint
 appbundle="$appname.app"
 
 DMG_BACKGROUND_IMG="background.png"
-
-
-
-VOL_NAME="${appname}"   
+VOL_NAME="$appnamenospaces${appversion}_macOS"   
 DMG_TMP="${VOL_NAME}-temp.dmg"
 DMG_FINAL="${VOL_NAME}.dmg"         
 STAGING_DIR="./macOS"             # we copy all our stuff into this dir
@@ -48,7 +43,7 @@ rm -rf "${STAGING_DIR}" "${DMG_TMP}" "${DMG_FINAL}"
 
 # copy over the stuff we want in the final disk image to our staging dir
 mkdir -p "${STAGING_DIR}"
-cp -rpf ./LazPaint.app "${STAGING_DIR}"
+cp -rpf "./$appbundle" "${STAGING_DIR}"
 # ... cp anything else you want in the DMG - documentation, etc.
 
 pushd "${STAGING_DIR}"
@@ -103,7 +98,7 @@ echo '
            set arrangement of viewOptions to not arranged
            set icon size of viewOptions to 72
            set background picture of viewOptions to file ".background:'${DMG_BACKGROUND_IMG}'"
-           set position of item "'${appname}'.app" of container window to {160, 205}
+           set position of item "'$appbundle'" of container window to {160, 205}
            set position of item "Applications" of container window to {360, 205}
            close
            open
