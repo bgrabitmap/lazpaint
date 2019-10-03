@@ -745,9 +745,21 @@ begin
 end;
 
 procedure TImageState.SaveToStreamAs(AStream: TStream; AFormat: TBGRAImageFormat);
+var
+  i: Integer;
+  curGuid: TGuid;
 begin
   if LayeredBitmap <> nil then
+  begin
+    if AFormat = ifLazPaint then
+    begin
+      curGuid := LayeredBitmap.LayerOriginalGuid[GetCurrentLayerIndex];
+      for i := 0 to LayeredBitmap.OriginalCount-1 do
+        if LayeredBitmap.OriginalGuid[i] <> curGuid then
+          LayeredBitmap.UnloadOriginal(i);
+    end;
     LayeredBitmap.SaveToStreamAs(AStream, SuggestImageExtension(AFormat));
+  end;
 end;
 
 procedure TImageState.SaveOriginalToStream(AStream: TStream);
