@@ -34,10 +34,10 @@
 	</Company_Info>
 	<Program_Info>
 		<Program_Name>LazPaint</Program_Name>
-		<Program_Version>6.4.1</Program_Version>
-		<Program_Release_Month>04</Program_Release_Month>
-		<Program_Release_Day>07</Program_Release_Day>
-		<Program_Release_Year>2015</Program_Release_Year>
+		<Program_Version>7.0.6</Program_Version>
+		<Program_Release_Month>09</Program_Release_Month>
+		<Program_Release_Day>12</Program_Release_Day>
+		<Program_Release_Year>2019</Program_Release_Year>
 		<Program_Cost_Dollars />
 		<Program_Cost_Other_Code />
 		<Program_Cost_Other />
@@ -46,14 +46,14 @@
 		<Program_Install_Support>Install and Uninstall</Program_Install_Support>
 		<Program_OS_Support>Mac OSX,Linux,Win7 x32,Win7 x64,WinVista,WinVista x64,WinXP</Program_OS_Support>
 		<Program_Language>English</Program_Language>
-		<Program_Change_Info>added brush tool, clone tool, palette toolbar, docking of toolbox, choice of quality when saving PNG/JPG/BMP files, rain rendering, improved 3d object importation (texture, vertex normals)</Program_Change_Info>
+		<Program_Change_Info>vectorial shapes and layers, dark theme, align and move shapes up and down, frame edition for ICO/GIF/TIFF, SVG as vectorial, resources files LRS/RES, ratio for selection rectangle/ellipse</Program_Change_Info>
 		<Program_Specific_Category>Graphics</Program_Specific_Category>
 		<Program_Category_Class>Graphic Apps::Editors</Program_Category_Class>
 		<Program_System_Requirements>Pentium, 32-bit processor, 200 Mbytes RAM</Program_System_Requirements>
 		<File_Info>
-			<File_Size_Bytes>3321446</File_Size_Bytes>
-			<File_Size_K>3244</File_Size_K>
-			<File_Size_MB>3.16</File_Size_MB>
+			<File_Size_Bytes>5418575</File_Size_Bytes>
+			<File_Size_K>5292</File_Size_K>
+			<File_Size_MB>6.3</File_Size_MB>
 		</File_Info>
 		<Expire_Info>
 			<Has_Expire_Info>N</Has_Expire_Info>
@@ -116,7 +116,7 @@
 			<Application_XML_File_URL>http://lazpaint.sourceforge.net/pad_file.xml</Application_XML_File_URL>
 		</Application_URLs>
 		<Download_URLs>
-			<Primary_Download_URL>https://github.com/bgrabitmap/lazpaint/releases/download/v6.4.1/lazpaint6.4.1_setup_win32_win64.exe</Primary_Download_URL>
+			<Primary_Download_URL>https://github.com/bgrabitmap/lazpaint/releases/download/v7.0.6/lazpaint7.0.6_setup_win32_win64.exe</Primary_Download_URL>
 			<Secondary_Download_URL />
 			<Additional_Download_URL_1 />
 			<Additional_Download_URL_2 />
