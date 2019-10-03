@@ -1132,7 +1132,9 @@ begin
       esmShape, esmNoShape:
         begin
           m := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
+          BindOriginalEvent(true);
           GetVectorOriginal.MouseClick(m*FLastPos);
+          BindOriginalEvent(false);
           if Assigned(GetVectorOriginal.SelectedShape) then handled := true;
         end;
       esmGradient:
