@@ -187,7 +187,8 @@ type
     procedure VerticalFlip(ALayerIndex: integer); overload;
 
     // whole image
-    procedure Assign(const AValue: TBGRABitmap; AOwned: boolean; AUndoable: boolean); overload;
+    procedure Assign(const AValue: TBGRABitmap; AOwned: boolean; AUndoable: boolean;
+                     ACaption: string = ''; AOpacity: byte = 255); overload;
     procedure Assign(const AValue: TBGRALayeredBitmap; AOwned: boolean; AUndoable: boolean); overload;
     procedure Assign(const AValue: TLayeredBitmapAndSelection; AOwned: boolean; AUndoable: boolean); overload;
 
@@ -315,26 +316,41 @@ end;
 
 function TLazPaintImage.MakeCroppedLayer: TBGRABitmap;
 var r: TRect;
+  cropped: TBGRABitmap;
+  ofs: TPoint;
 begin
+  ofs := Point(0,0);
   result := DuplicateBitmap(FCurrentState.SelectionLayer);
   if (result <> nil) and (SelectionMask <> nil) then result.ApplyMask(SelectionMask);
   if (result <> nil) and result.Empty then FreeAndNil(result);
   if result = nil then
   begin
+    ofs := LayerOffset[CurrentLayerIndex];
     result := DuplicateBitmap(GetSelectedImageLayer);
-    if (result <> nil) and (SelectionMask <> nil) then result.ApplyMask(SelectionMask);
+    if (result <> nil) and (SelectionMask <> nil) then
+      result.ApplyMask(SelectionMask, rect(0,0,result.Width,result.Height),
+                       Point(ofs.X,ofs.Y));
   end;
   if result <> nil then
   begin
     if SelectionMask = nil then
       r := result.GetImageBounds
     else
+    begin
       r := SelectionMaskBounds;
+      OffsetRect(r, -ofs.x, -ofs.y);
+    end;
     if IsRectEmpty(r) then
       FreeAndNil(result)
     else
+    begin
       if (r.left <> 0) or (r.top <> 0) or (r.right <> result.Width) or (r.bottom <> result.Height) then
-        BGRAReplace(result, result.GetPart(r));
+      begin
+        cropped := TBGRABitmap.Create(r.Width,r.Height);
+        cropped.PutImage(-r.Left, -r.Top, result, dmSet);
+        BGRAReplace(result, cropped);
+      end;
+    end;
   end;
 end;
 
@@ -1669,48 +1685,40 @@ begin
   if Assigned(Zoom) then result := Zoom.Factor else result := 1;
 end;
 
-procedure TLazPaintImage.Assign(const AValue: TBGRABitmap; AOwned: boolean; AUndoable: boolean);
+procedure TLazPaintImage.Assign(const AValue: TBGRABitmap; AOwned: boolean; AUndoable: boolean;
+  ACaption: string; AOpacity: byte);
 var layeredBmp: TBGRALayeredBitmap;
   mask: TBGRABitmap;
 begin
   if not CheckNoAction then exit;
   CursorHotSpot := AValue.HotSpot;
-  if not AUndoable then
+  layeredBmp := TBGRALayeredBitmap.Create(AValue.Width,AValue.Height);
+  if AOwned then
   begin
-    FCurrentState.Assign(AValue, AOwned);
-    FCurrentState.RemoveSelection;
-    LayeredBitmapReplaced;
-    ImageMayChangeCompletely;
-    SelectionMaskMayChangeCompletely;
-    ClearUndo;
-  end else
-  begin
-    layeredBmp := TBGRALayeredBitmap.Create(AValue.Width,AValue.Height);
-    if AOwned then
+    layeredBmp.AddOwnedLayer(AValue);
+    if Assigned(AValue.XorMask) then
     begin
-      layeredBmp.AddOwnedLayer(AValue);
-      if Assigned(AValue.XorMask) then
-      begin
-        mask := AValue.XorMask.Duplicate as TBGRABitmap;
-        mask.AlphaFill(255);
-        mask.ReplaceColor(BGRABlack,BGRAPixelTransparent);
-        layeredBmp.LayerName[layeredBmp.AddOwnedLayer(mask,boXor)] := 'Xor';
-        AValue.DiscardXorMask;
-      end;
-    end
-    else
-    begin
-      layeredBmp.AddLayer(AValue);
-      if Assigned(AValue.XorMask) then
-      begin
-        mask := AValue.XorMask.Duplicate as TBGRABitmap;
-        mask.AlphaFill(255);
-        mask.ReplaceColor(BGRABlack,BGRAPixelTransparent);
-        layeredBmp.LayerName[layeredBmp.AddOwnedLayer(mask,boXor)] := 'Xor';
-      end;
+      mask := AValue.XorMask.Duplicate as TBGRABitmap;
+      mask.AlphaFill(255);
+      mask.ReplaceColor(BGRABlack,BGRAPixelTransparent);
+      layeredBmp.LayerName[layeredBmp.AddOwnedLayer(mask,boXor)] := 'Xor';
+      AValue.DiscardXorMask;
     end;
-    Assign(layeredBmp,True,AUndoable);
+  end
+  else
+  begin
+    layeredBmp.AddLayer(AValue);
+    if Assigned(AValue.XorMask) then
+    begin
+      mask := AValue.XorMask.Duplicate as TBGRABitmap;
+      mask.AlphaFill(255);
+      mask.ReplaceColor(BGRABlack,BGRAPixelTransparent);
+      layeredBmp.LayerName[layeredBmp.AddOwnedLayer(mask,boXor)] := 'Xor';
+    end;
   end;
+  layeredBmp.LayerName[0] := ACaption;
+  layeredBmp.LayerOpacity[0] := AOpacity;
+  Assign(layeredBmp,True,AUndoable);
 end;
 
 procedure TLazPaintImage.Assign(const AValue: TBGRALayeredBitmap;
