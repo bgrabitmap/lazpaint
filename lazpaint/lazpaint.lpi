@@ -11,6 +11,8 @@
       <UseXPManifest Value="True"/>
       <XPManifest>
         <DpiAware Value="True"/>
+        <TextName Value="LazPaint"/>
+        <TextDesc Value="Paint program made with Lazarus"/>
       </XPManifest>
       <Icon Value="0"/>
     </General>
