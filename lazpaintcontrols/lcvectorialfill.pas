@@ -109,6 +109,7 @@ type
     function Duplicate: TVectorialFill; virtual;
     destructor Destroy; override;
     function Equals(Obj: TObject): boolean; override;
+    class function Equal(AFill1, AFill2: TVectorialFill): boolean;
     procedure Assign(Obj: TObject);
     property FillType: TVectorialFillType read GetFillType;
     property IsEditable: boolean read GetIsEditable;
@@ -171,7 +172,7 @@ end;
 
 function TVectorialFillDiff.IsIdentity: boolean;
 begin
-  result := FStart.Equals(FEnd);
+  result := TVectorialFill.Equal(FStart,FEnd);
 end;
 
 function TVectorialFillDiff.CanAppend(ADiff: TCustomVectorialFillDiff
@@ -613,6 +614,16 @@ begin
     end;
   end else
     result:= false;
+end;
+
+class function TVectorialFill.Equal(AFill1, AFill2: TVectorialFill): boolean;
+begin
+  if AFill1 = nil then
+  begin
+    if AFill2 = nil then result := true
+    else result := (AFill2.FillType = vftNone);
+  end else
+    result := AFill1.Equals(AFill2);
 end;
 
 procedure TVectorialFill.Assign(Obj: TObject);

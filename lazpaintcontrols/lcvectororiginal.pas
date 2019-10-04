@@ -601,9 +601,9 @@ end;
 
 function TVectorShapeCommonFillDiff.IsIdentity: boolean;
 begin
-  result := FStartPenFill.Equals(FEndPenFill) and
-    FStartBackFill.Equals(FEndBackFill) and
-    FStartOutlineFill.Equals(FEndOutlineFill);
+  result := TVectorialFill.Equal(FStartPenFill, FEndPenFill) and
+    TVectorialFill.Equal(FStartBackFill, FEndBackFill) and
+    TVectorialFill.Equal(FStartOutlineFill, FEndOutlineFill);
 end;
 
 { TVectorOriginalShapeRangeDiff }
