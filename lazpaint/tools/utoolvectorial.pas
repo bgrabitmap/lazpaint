@@ -968,6 +968,7 @@ end;
 function TEditShapeTool.ToolKeyDown(var key: Word): TRect;
 var
   handled: boolean;
+  keyUtf8: TUTF8Char;
 begin
   Result:= EmptyRect;
   if (Key = VK_SNAP) or (Key = VK_SNAP2) then Key := VK_CONTROL;
@@ -985,6 +986,12 @@ begin
   begin
     include(FShiftState, ssAlt);
     key := 0;
+  end else
+  if (Key = VK_SPACE) and (GetEditMode = esmShape) and (GetVectorOriginal.SelectedShape is TTextShape) then
+  begin
+    keyUtf8:= ' ';
+    result := ToolKeyPress(keyUtf8);
+    Key := 0;
   end else
   begin
     if GetEditMode in [esmShape,esmNoShape] then
