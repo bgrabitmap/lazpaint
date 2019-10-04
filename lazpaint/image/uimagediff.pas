@@ -2241,7 +2241,7 @@ begin
         if duplicateOriginal then
         begin
           stream:= TMemoryStream.Create;
-          SaveOriginalToStream(sourceLayerIndex, stream);
+          SaveOriginalToStream(LayerOriginalGuid[sourceLayerIndex], stream);
           stream.Position:= 0;
           AddOriginalFromStream(stream, duplicateGuid, true);
           stream.Free;
