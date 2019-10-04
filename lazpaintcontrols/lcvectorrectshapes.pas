@@ -39,6 +39,7 @@ type
     FOriginBackup,FXUnitBackup,FYUnitBackup,
     FXAxisBackup,FYAxisBackup: TPointF;
     FXSizeBackup,FYSizeBackup: single;
+    FMatrixBackup: TAffineMatrix;
     FFixedRatio: single;
     procedure DoMoveXAxis(ANewCoord: TPointF; AShift: TShiftState; AFactor: single);
     procedure DoMoveYAxis(ANewCoord: TPointF; AShift: TShiftState; AFactor: single);
@@ -53,6 +54,7 @@ type
     procedure OnMoveXYNegCorner({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnMoveXNegYNegCorner({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnStartMove({%H-}ASender: TObject; {%H-}APointIndex: integer; {%H-}AShift: TShiftState);
+    procedure UpdateFillMatrixFromRect;
     function GetCornerPositition: single; virtual; abstract;
     function GetOrthoRect(AMatrix: TAffineMatrix; out ARect: TRectF): boolean;
     function AllowShearTransform: boolean; virtual;
@@ -484,6 +486,7 @@ begin
     end;
   end;
   EnsureRatio(-AFactor,0);
+  UpdateFillMatrixFromRect;
   EndUpdate;
 end;
 
@@ -522,6 +525,7 @@ begin
     end;
   end;
   EnsureRatio(0,-AFactor);
+  UpdateFillMatrixFromRect;
   EndUpdate;
 end;
 
@@ -581,6 +585,7 @@ begin
     end;
   end;
   EnsureRatio(-AFactorX,-AFactorY);
+  UpdateFillMatrixFromRect;
   EndUpdate;
 end;
 
@@ -650,6 +655,23 @@ begin
   FYUnitBackup := FYAxis-FOrigin;
   FYSizeBackup := VectLen(FYUnitBackup);
   if FYSizeBackup <> 0 then FYUnitBackup := (1/FYSizeBackup)*FYUnitBackup;
+  FMatrixBackup := AffineMatrix(FXAxis-FOrigin, FYAxis-FOrigin, FOrigin);
+end;
+
+procedure TCustomRectShape.UpdateFillMatrixFromRect;
+var
+  newMatrix, matrixDiff: TAffineMatrix;
+begin
+  newMatrix := AffineMatrix(FXAxis-FOrigin, FYAxis-FOrigin, FOrigin);
+  if IsAffineMatrixInversible(newMatrix) and IsAffineMatrixInversible(FMatrixBackup) then
+  begin
+    if vsfBackFill in Fields then
+    begin
+      matrixDiff := newMatrix*AffineMatrixInverse(FMatrixBackup);
+      BackFill.Transform(matrixDiff);
+    end;
+    FMatrixBackup := newMatrix;
+  end;
 end;
 
 function TCustomRectShape.GetAffineBox(const AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
