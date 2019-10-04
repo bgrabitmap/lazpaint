@@ -5,10 +5,10 @@ unit LCVectorClipboard;
 interface
 
 uses
-  Classes, SysUtils, Clipbrd, LCLType, LCVectorOriginal;
+  Classes, SysUtils, Clipbrd, LCLType, LCVectorOriginal, BGRATransform;
 
-function CopyShapesToClipboard(AShapes: array of TVectorShape): boolean;
-procedure PasteShapesFromClipboard(ATargetContainer: TVectorOriginal);
+function CopyShapesToClipboard(AShapes: array of TVectorShape; const AMatrix: TAffineMatrix): boolean;
+procedure PasteShapesFromClipboard(ATargetContainer: TVectorOriginal; const ATargetMatrix: TAffineMatrix);
 function ClipboardHasShapes: boolean;
 
 implementation
@@ -16,11 +16,12 @@ implementation
 var
   vectorClipboardFormat : TClipboardFormat;
 
-function CopyShapesToClipboard(AShapes: array of TVectorShape): boolean;
+function CopyShapesToClipboard(AShapes: array of TVectorShape; const AMatrix: TAffineMatrix): boolean;
 var
   tempContainer: TVectorOriginal;
   mem: TMemoryStream;
   i: Integer;
+  s: TVectorShape;
 begin
   result:= false;
   if length(AShapes)=0 then exit;
@@ -28,7 +29,11 @@ begin
   mem := TMemoryStream.Create;
   try
     for i := 0 to high(AShapes) do
-      tempContainer.AddShape(AShapes[i].Duplicate);
+    begin
+      s := AShapes[i].Duplicate;
+      s.Transform(AMatrix);
+      tempContainer.AddShape(s);
+    end;
     tempContainer.SaveToStream(mem);
     Clipboard.Clear;
     mem.Position:= 0;
@@ -39,13 +44,16 @@ begin
   end;
 end;
 
-procedure PasteShapesFromClipboard(ATargetContainer: TVectorOriginal);
+procedure PasteShapesFromClipboard(ATargetContainer: TVectorOriginal; const ATargetMatrix: TAffineMatrix);
 var
   tempContainer: TVectorOriginal;
   mem: TMemoryStream;
   i: Integer;
   pastedShape: TVectorShape;
+  invMatrix: TAffineMatrix;
 begin
+  if not IsAffineMatrixInversible(ATargetMatrix) then exit;
+  invMatrix := AffineMatrixInverse(ATargetMatrix);
   if Clipboard.HasFormat(vectorClipboardFormat) then
   begin
     mem := TMemoryStream.Create;
@@ -58,8 +66,10 @@ begin
         for i := 0 to tempContainer.ShapeCount-1 do
         begin
           pastedShape := tempContainer.Shape[i].Duplicate;
+          pastedShape.Transform(invMatrix);
           ATargetContainer.AddShape(pastedShape);
-          ATargetContainer.SelectShape(pastedShape);
+          if i = tempContainer.ShapeCount-1 then
+            ATargetContainer.SelectShape(pastedShape);
         end;
       end;
     finally

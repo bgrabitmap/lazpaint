@@ -115,6 +115,7 @@ type
     function GetIsSelectingTool: boolean; override;
     function GetVectorOriginal: TVectorOriginal;
     function GetGradientOriginal: TBGRALayerGradientOriginal;
+    function GetOriginalTransform: TAffineMatrix;
     function FixLayerOffset: boolean; override;
     function GetCurrentSplineMode: TToolSplineMode;
     procedure SetCurrentSplineMode(AMode: TToolSplineMode);
@@ -763,6 +764,11 @@ begin
   result := Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex] as TBGRALayerGradientOriginal;
 end;
 
+function TEditShapeTool.GetOriginalTransform: TAffineMatrix;
+begin
+  result := Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex];
+end;
+
 function TEditShapeTool.FixLayerOffset: boolean;
 begin
   Result:= false;
@@ -1209,7 +1215,9 @@ begin
     MakeVectorOriginal;
     if GetCurrentLayerKind = lkVectorial then
     begin
-      PasteShapesFromClipboard(GetVectorOriginal);
+      BindOriginalEvent(true);
+      PasteShapesFromClipboard(GetVectorOriginal, GetOriginalTransform);
+      BindOriginalEvent(false);
       result := true;
     end;
   end else
@@ -1224,9 +1232,9 @@ begin
           tcMoveToFront: GetVectorOriginal.SelectedShape.BringToFront;
           tcMoveDown: GetVectorOriginal.SelectedShape.MoveDown(true);
           tcMoveToBack: GetVectorOriginal.SelectedShape.SendToBack;
-          tcCopy: Result:= CopyShapesToClipboard([GetVectorOriginal.SelectedShape]);
+          tcCopy: Result:= CopyShapesToClipboard([GetVectorOriginal.SelectedShape], GetOriginalTransform);
           tcCut: begin
-                   result := CopyShapesToClipboard([GetVectorOriginal.SelectedShape]) and
+                   result := CopyShapesToClipboard([GetVectorOriginal.SelectedShape], GetOriginalTransform) and
                              GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
                  end;
           tcAlignLeft..tcAlignBottom: AlignShape(GetVectorOriginal.SelectedShape, ACommand,
@@ -1869,33 +1877,33 @@ var
   r: TRect;
   toolDest: TBGRABitmap;
 begin
+  result := false;
   case ACommand of
-  tcCopy: begin
+  tcCopy:
       if ToolProvideCommand(tcCopy) then
-        result := CopyShapesToClipboard([FShape])
-      else
-        Result:= false;
-    end;
-  tcCut: begin
+        result := CopyShapesToClipboard([FShape], VectorTransform(false));
+  tcCut:
       if ToolCommand(tcCopy) then
       begin
         toolDest := GetToolDrawingLayer;
         r := CancelShape;
         Action.NotifyChange(toolDest, r);
         result := true;
-      end else
-        result := false;
-    end;
+      end;
   tcFinish: begin
-            r := ValidateShape;
-            Action.NotifyChange(toolDest, r);
-            result := true;
+              toolDest := GetToolDrawingLayer;
+              r := ValidateShape;
+              Action.NotifyChange(toolDest, r);
+              result := true;
           end;
   tcAlignLeft..tcAlignBottom:
       if ToolProvideCommand(ACommand) then
+      begin
         AlignShape(FShape, ACommand,
                  Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex],
                  rect(0,0,Manager.Image.Width,Manager.Image.Height));
+        result := true;
+      end;
   else
     result := false;
   end;
