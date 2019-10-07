@@ -481,6 +481,11 @@ end;
 
 procedure TLazPaintImage.UpdateMultiImage(AOutputFilename: string = '');
 begin
+  if not FileManager.FileExists(AOutputFilename) then
+  begin
+    ShowMessage(rsFileNotFound);
+    exit;
+  end;
   if IsIconCursor then
     UpdateIconFileUTF8(currentFilenameUTF8, AOutputFilename)
   else if IsTiff then
@@ -573,7 +578,10 @@ begin
     else
     begin
       newFrameIndex := FrameIndex;
-      tiff.Delete(newFrameIndex);
+      if newFrameIndex >= tiff.Count then
+        newFrameIndex := tiff.Count
+      else
+        tiff.Delete(newFrameIndex);
       tiff.Move(addedTiff,0,newFrameIndex);
     end;
 
