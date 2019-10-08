@@ -205,6 +205,7 @@ type
     FOriginalRenderStatus: TOriginalRenderStatus;
     FOriginalMatrix: TAffineMatrix;
     FOriginalDraft: boolean;
+    FOriginalGuid: TGuid;
   public
     constructor Create(ALayeredImage: TBGRALayeredBitmap; AIndex: integer);
     constructor Create(ALayeredImage: TBGRALayeredBitmap; AIndex: integer;
@@ -1069,7 +1070,8 @@ begin
       inherited Create(ALayeredImage.LayerBitmap[AIndex]);
 
     FOriginalData := TMemoryStream.Create;
-    ALayeredImage.SaveOriginalToStream(ALayeredImage.LayerOriginalGuid[AIndex], FOriginalData);
+    FOriginalGuid := ALayeredImage.LayerOriginalGuid[AIndex];
+    ALayeredImage.SaveOriginalToStream(FOriginalGuid, FOriginalData);
     FOriginalMatrix := ALayeredImage.LayerOriginalMatrix[AIndex];
     FOriginalDraft := ALayeredImage.LayerOriginalRenderStatus[AIndex] in[orsDraft,orsPartialDraft];
   end else
@@ -1092,7 +1094,7 @@ begin
   if Assigned(FOriginalData) then
   begin
     FOriginalData.Position:= 0;
-    idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData, true);
+    idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData, FOriginalGuid, true);
 
     if not FOriginalBitmapStored then
     begin
@@ -1120,7 +1122,7 @@ begin
   if Assigned(FOriginalData) then
   begin
     FOriginalData.Position:= 0;
-    idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData, true);
+    idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData, FOriginalGuid, true);
     if not FOriginalBitmapStored then
     begin
       ALayeredImage.LayerOriginalGuid[FIndex] := ALayeredImage.OriginalGuid[idxOrig];

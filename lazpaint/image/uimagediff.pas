@@ -705,7 +705,9 @@ begin
   img := AState as TImageState;
   idxOrig := img.LayeredBitmap.IndexOfOriginal(FOriginalGuid);
   if idxOrig<>-1 then
-    FDiff.Apply(img.LayeredBitmap.Original[idxOrig]);
+    FDiff.Apply(img.LayeredBitmap.Original[idxOrig])
+  else
+    raise exception.Create('Cannot find original');
 end;
 
 procedure TVectorOriginalEmbeddedDifference.UnapplyTo(AState: TState);
@@ -717,7 +719,9 @@ begin
   img := AState as TImageState;
   idxOrig := img.LayeredBitmap.IndexOfOriginal(FOriginalGuid);
   if idxOrig<>-1 then
-    FDiff.Unapply(img.LayeredBitmap.Original[idxOrig]);
+    FDiff.Unapply(img.LayeredBitmap.Original[idxOrig])
+  else
+    raise exception.Create('Cannot find original');
 end;
 
 { TDiscardOriginalDifference }
