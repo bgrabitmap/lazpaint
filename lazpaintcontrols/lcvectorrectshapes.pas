@@ -49,10 +49,18 @@ type
     procedure OnMoveYAxis({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnMoveXAxisNeg({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnMoveYAxisNeg({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveXAxisAlt({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveYAxisAlt({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveXAxisNegAlt({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveYAxisNegAlt({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnMoveXYCorner({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnMoveXNegYCorner({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnMoveXYNegCorner({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnMoveXNegYNegCorner({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveXYCornerAlt({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveXNegYCornerAlt({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveXYNegCornerAlt({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveXNegYNegCornerAlt({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnStartMove({%H-}ASender: TObject; {%H-}APointIndex: integer; {%H-}AShift: TShiftState);
     procedure UpdateFillMatrixFromRect;
     function GetCornerPositition: single; virtual; abstract;
@@ -620,6 +628,30 @@ begin
   DoMoveYAxis(ANewCoord, AShift, -1);
 end;
 
+procedure TCustomRectShape.OnMoveXAxisAlt(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  DoMoveXAxis(ANewCoord, AShift+[ssAlt], 1);
+end;
+
+procedure TCustomRectShape.OnMoveYAxisAlt(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  DoMoveYAxis(ANewCoord, AShift+[ssAlt], 1);
+end;
+
+procedure TCustomRectShape.OnMoveXAxisNegAlt(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  DoMoveXAxis(ANewCoord, AShift+[ssAlt], -1);
+end;
+
+procedure TCustomRectShape.OnMoveYAxisNegAlt(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  DoMoveYAxis(ANewCoord, AShift+[ssAlt], -1);
+end;
+
 procedure TCustomRectShape.OnMoveXYCorner(ASender: TObject; APrevCoord,
   ANewCoord: TPointF; AShift: TShiftState);
 begin
@@ -642,6 +674,30 @@ procedure TCustomRectShape.OnMoveXNegYNegCorner(ASender: TObject; APrevCoord,
   ANewCoord: TPointF; AShift: TShiftState);
 begin
   DoMoveXYCorner(ANewCoord, AShift, -1, -1);
+end;
+
+procedure TCustomRectShape.OnMoveXYCornerAlt(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  DoMoveXYCorner(ANewCoord, AShift+[ssAlt], 1, 1);
+end;
+
+procedure TCustomRectShape.OnMoveXNegYCornerAlt(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  DoMoveXYCorner(ANewCoord, AShift+[ssAlt], -1, 1);
+end;
+
+procedure TCustomRectShape.OnMoveXYNegCornerAlt(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  DoMoveXYCorner(ANewCoord, AShift+[ssAlt], 1, -1);
+end;
+
+procedure TCustomRectShape.OnMoveXNegYNegCornerAlt(ASender: TObject;
+  APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+begin
+  DoMoveXYCorner(ANewCoord, AShift+[ssAlt], -1, -1);
 end;
 
 procedure TCustomRectShape.OnStartMove(ASender: TObject; APointIndex: integer;
@@ -782,7 +838,7 @@ procedure TCustomRectShape.ConfigureCustomEditor(AEditor: TBGRAOriginalEditor);
 var
   d: Single;
   u, v: TPointF;
-  idxOrig, idxX,idxY,idxXNeg,idxYNeg: Integer;
+  idx,idxOrig, idxX,idxY,idxXNeg,idxYNeg: Integer;
 begin
   u := FXAxis - FOrigin;
   v := FYAxis - FOrigin;
@@ -790,10 +846,14 @@ begin
   d := GetCornerPositition;
   if d <> 0 then
   begin
-    AEditor.AddPoint(FOrigin + (u+v)*d, @OnMoveXYCorner, false);
-    AEditor.AddPoint(FOrigin + (-u+v)*d, @OnMoveXNegYCorner, false);
-    AEditor.AddPoint(FOrigin + (u-v)*d, @OnMoveXYNegCorner, false);
-    AEditor.AddPoint(FOrigin + (-u-v)*d, @OnMoveXNegYNegCorner, false);
+    idx := AEditor.AddPoint(FOrigin + (u+v)*d, @OnMoveXYCorner, false);
+    AEditor.AddPointAlternateMove(idx, @OnMoveXYCornerAlt);
+    idx := AEditor.AddPoint(FOrigin + (-u+v)*d, @OnMoveXNegYCorner, false);
+    AEditor.AddPointAlternateMove(idx, @OnMoveXNegYCornerAlt);
+    idx := AEditor.AddPoint(FOrigin + (u-v)*d, @OnMoveXYNegCorner, false);
+    AEditor.AddPointAlternateMove(idx, @OnMoveXYNegCornerAlt);
+    idx := AEditor.AddPoint(FOrigin + (-u-v)*d, @OnMoveXNegYNegCorner, false);
+    AEditor.AddPointAlternateMove(idx, @OnMoveXNegYNegCornerAlt);
   end;
   if ShowArrows then
   begin
@@ -808,6 +868,10 @@ begin
     idxXNeg := AEditor.AddPoint(FOrigin - u, @OnMoveXAxisNeg);
     idxYNeg := AEditor.AddPoint(FOrigin - v, @OnMoveYAxisNeg);
   end;
+  AEditor.AddPointAlternateMove(idxX, @OnMoveXAxisAlt);
+  AEditor.AddPointAlternateMove(idxY, @OnMoveYAxisAlt);
+  AEditor.AddPointAlternateMove(idxXNeg, @OnMoveXAxisNegAlt);
+  AEditor.AddPointAlternateMove(idxYNeg, @OnMoveYAxisNegAlt);
   idxOrig := AEditor.AddPoint(FOrigin, @OnMoveOrigin, true);
   if ShowArrows then
   begin
