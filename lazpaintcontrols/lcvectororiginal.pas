@@ -15,6 +15,7 @@ const
   InfiniteRect : TRect = (Left: -MaxLongInt; Top: -MaxLongInt; Right: MaxLongInt; Bottom: MaxLongInt);
   EmptyTextureId = 0;
   DefaultShapeOutlineWidth = 2;
+  MediumShapeCost = 100;
 
 type
   TVectorOriginal = class;
@@ -224,6 +225,7 @@ type
     function Duplicate: TVectorShape;
     class function StorageClassName: RawByteString; virtual; abstract;
     function GetIsSlow(const {%H-}AMatrix: TAffineMatrix): boolean; virtual;
+    function GetGenericCost: integer; virtual;
     function GetUsedTextures: ArrayOfBGRABitmap; virtual;
     procedure Transform(const AMatrix: TAffineMatrix); virtual;
     class function Fields: TVectorShapeFields; virtual;
@@ -359,6 +361,7 @@ type
     procedure SelectShape(AIndex: integer); overload;
     procedure SelectShape(AShape: TVectorShape); overload;
     procedure DeselectShape;
+    function GetShapesCost: integer;
     procedure MouseClick(APoint: TPointF);
     procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); override;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
@@ -1202,6 +1205,28 @@ end;
 function TVectorShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;
 begin
   result := false;
+end;
+
+function TVectorShape.GetGenericCost: integer;
+begin
+  if vsfBackFill in Fields then
+  begin
+    case BackFill.FillType of
+    vftGradient: result := 25;
+    vftTexture: result := 10;
+    vftSolid: result := 4;
+    else {vftNone} result := 1;
+    end
+  end else
+  if vsfPenStyle in Fields then
+  begin
+    if PenStyleEqual(PenStyle, SolidPenStyle) or
+       PenStyleEqual(PenStyle, ClearPenStyle) then
+       result := 1
+    else
+      result := 2;
+  end else
+    result := 1;
 end;
 
 function TVectorShape.GetUsedTextures: ArrayOfBGRABitmap;
@@ -2573,6 +2598,15 @@ end;
 procedure TVectorOriginal.DeselectShape;
 begin
   SelectShape(nil);
+end;
+
+function TVectorOriginal.GetShapesCost: integer;
+var
+  i: Integer;
+begin
+  result := 0;
+  for i := 0 to ShapeCount-1 do
+    inc(result, Shape[i].GetGenericCost);
 end;
 
 procedure TVectorOriginal.MouseClick(APoint: TPointF);

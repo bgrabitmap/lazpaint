@@ -36,7 +36,6 @@ type
     FLastPos: TPointF;
     FLastShapeTransform: TAffineMatrix;
     FUseOriginal: boolean;
-    function GetShapesCost(AOriginal: TVectorOriginal): integer;
     function AlwaysRasterizeShape: boolean; virtual;
     function CreateShape: TVectorShape; virtual; abstract;
     function UseOriginal: boolean; virtual;
@@ -1479,22 +1478,6 @@ begin
   result := FShape = nil;
 end;
 
-function TVectorialTool.GetShapesCost(AOriginal: TVectorOriginal): integer;
-var
-  i: Integer;
-begin
-  result := 0;
-  for i := 0 to AOriginal.ShapeCount-1 do
-    if (AOriginal.Shape[i] is TPhongShape) or
-       (AOriginal.Shape[i] is TTextShape) then
-       inc(result, 5)
-    else if ((vsfBackFill in AOriginal.Shape[i].Fields) and
-       (AOriginal.Shape[i].BackFill.FillType = vftGradient)) then
-       inc(result,15)
-    else
-      inc(result,2);
-end;
-
 function TVectorialTool.AlwaysRasterizeShape: boolean;
 begin
   result := false;
@@ -1647,7 +1630,7 @@ begin
   if FShape=nil then
   begin
     if UseOriginal and
-      (GetShapesCost(Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex] as TVectorOriginal) >= 50) then
+      ((Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex] as TVectorOriginal).GetShapesCost >= MediumShapeCost) then
     begin
       MessagePopup(rsTooManyShapesInLayer, 3000);
     end

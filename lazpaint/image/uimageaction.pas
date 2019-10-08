@@ -1074,6 +1074,7 @@ procedure TImageActions.MergeLayerOver;
 begin
   if (Image.CurrentLayerIndex <> -1) and (image.NbLayers > 1) then
   begin
+    ChooseTool(ptHand);
     Image.MergeLayerOver;
     FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
   end;

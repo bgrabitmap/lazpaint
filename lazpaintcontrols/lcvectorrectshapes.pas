@@ -179,6 +179,7 @@ type
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; override;
     function GetIsSlow(const AMatrix: TAffineMatrix): boolean; override;
+    function GetGenericCost: integer; override;
     procedure Transform(const AMatrix: TAffineMatrix); override;
     class function StorageClassName: RawByteString; override;
     property ShapeKind: TPhongShapeKind read FShapeKind write SetShapeKind;
@@ -1653,6 +1654,11 @@ begin
   if not BackVisible then exit(false);
   ab := GetAffineBox(AMatrix, true);
   result := ab.Surface > 320*240;
+end;
+
+function TPhongShape.GetGenericCost: integer;
+begin
+  Result:= 10;
 end;
 
 procedure TPhongShape.Transform(const AMatrix: TAffineMatrix);
