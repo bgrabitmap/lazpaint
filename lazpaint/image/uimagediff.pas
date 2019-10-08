@@ -484,6 +484,7 @@ type
     layerOverCompressedBackup: TStoredLayer;
     layerUnderCompressedBackup: TStoredLayer;
     mergeVectorial: boolean;
+    mergeVectorialGuid: TGuid;
     constructor Create(ADestination: TState; ALayerOverIndex: integer);
     function UsedMemory: int64; override;
     function TryCompress: boolean; override;
@@ -2114,6 +2115,7 @@ constructor TMergeLayerOverStateDifference.Create(ADestination: TState;
   ALayerOverIndex: integer);
 var
   imgDest: TImageState;
+  totalCost: Integer;
 begin
   inherited Create(ADestination);
   imgDest := ADestination as TImageState;
@@ -2122,18 +2124,28 @@ begin
   if ALayerOverIndex = 0 then
     raise exception.Create('First layer cannot be merged over');
 
+  mergeVectorial := false;
+  mergeVectorialGuid := GUID_NULL;
   layerOverIndex := ALayerOverIndex;
   with imgDest.LayeredBitmap do
   begin
     previousActiveLayerId:= LayerUniqueId[imgDest.SelectedImageLayerIndex];
     layerOverCompressedBackup := TStoredLayer.Create(imgDest.LayeredBitmap, ALayerOverIndex, true);
     layerUnderCompressedBackup := TStoredLayer.Create(imgDest.LayeredBitmap, ALayerOverIndex-1, true);
-    mergeVectorial := (LayerOriginalClass[ALayerOverIndex] = TVectorOriginal) and
-       (LayerOriginalClass[ALayerOverIndex-1] = TVectorOriginal) and
-       (TVectorOriginal(LayerOriginal[ALayerOverIndex]).GetShapesCost +
-        TVectorOriginal(LayerOriginal[ALayerOverIndex-1]).GetShapesCost <= MediumShapeCost) and
-        (BlendOperation[ALayerOverIndex] = boTransparent) and
-        (BlendOperation[ALayerOverIndex-1] = boTransparent);
+    if ((LayerOriginalClass[ALayerOverIndex] = TVectorOriginal) or
+       (LayerOriginalClass[ALayerOverIndex-1] = TVectorOriginal)) and
+       (BlendOperation[ALayerOverIndex] = boTransparent) and
+       (BlendOperation[ALayerOverIndex-1] = boTransparent) then
+    begin
+      totalCost := 0;
+      if LayerOriginalClass[ALayerOverIndex] = TVectorOriginal then
+        inc(totalCost, TVectorOriginal(LayerOriginal[ALayerOverIndex]).GetShapesCost)
+      else inc(totalCost, 10);
+      if LayerOriginalClass[ALayerOverIndex-1] = TVectorOriginal then
+        inc(totalCost, TVectorOriginal(LayerOriginal[ALayerOverIndex-1]).GetShapesCost)
+      else inc(totalCost, 10);
+      if totalCost <= MediumShapeCost then mergeVectorial := true;
+    end;
   end;
 
   //select layer under and merge
@@ -2155,10 +2167,64 @@ end;
 procedure TMergeLayerOverStateDifference.ApplyTo(AState: TState);
 var
   merged: TBGRABitmap;
-  origOver, origUnder, mergedOriginal: TVectorOriginal;
-  i: Integer;
-  mOver, mUnder: TAffineMatrix;
-  s: TVectorShape;
+  mergedOriginal: TVectorOriginal;
+
+  procedure AppendToMergedOriginal(ALayeredBitmap: TBGRALayeredBitmap; ALayerIndex: integer);
+  var
+    vectOrig: TVectorOriginal;
+    m: TAffineMatrix;
+    i: Integer;
+    s: TVectorShape;
+    temp: TBGRABitmap;
+    b: TRect;
+    c: TBGRALayerOriginalAny;
+  begin
+    c := ALayeredBitmap.LayerOriginalClass[ALayerIndex];
+    m := ALayeredBitmap.LayerOriginalMatrix[ALayerIndex];
+    if c = TVectorOriginal then
+    begin
+      vectOrig := ALayeredBitmap.LayerOriginal[ALayerIndex] as TVectorOriginal;
+      for i := 0 to vectOrig.ShapeCount-1 do
+      begin
+        s := vectOrig.Shape[i].Duplicate;
+        s.Transform(m);
+        mergedOriginal.AddShape(s);
+      end;
+    end else
+    if c = TBGRALayerImageOriginal then
+    begin
+      temp := (ALayeredBitmap.LayerOriginal[ALayerIndex] as TBGRALayerImageOriginal).GetImageCopy;
+      if Assigned(temp) then
+      begin
+        s := TRectShape.Create(mergedOriginal);
+        s.PenStyle := ClearPenStyle;
+        s.BackFill.SetTexture(temp, AffineMatrixIdentity, 255, trNone);
+        temp.FreeReference;
+        s.QuickDefine(PointF(-0.5,-0.5), PointF(temp.width-0.5,temp.Height-0.5));
+        s.Transform(m);
+        mergedOriginal.AddShape(s);
+      end;
+    end else
+    begin
+      if Assigned(ALayeredBitmap.LayerBitmap[ALayerIndex]) then
+      begin
+        b := ALayeredBitmap.LayerBitmap[ALayerIndex].GetImageBounds;
+        if not b.IsEmpty then
+        begin
+          temp := ALayeredBitmap.LayerBitmap[ALayerIndex].GetPart(b) as TBGRABitmap;
+          s := TRectShape.Create(mergedOriginal);
+          s.PenStyle := ClearPenStyle;
+          s.BackFill.SetTexture(temp, AffineMatrixIdentity, 255, trNone);
+          temp.FreeReference;
+          s.QuickDefine(PointF(-0.5,-0.5), PointF(temp.width-0.5,temp.Height-0.5));
+          with ALayeredBitmap.LayerOffset[ALayerIndex] do
+            s.Transform(AffineMatrixTranslation(b.Left+X,b.Top+Y));
+          mergedOriginal.AddShape(s);
+        end;
+      end;
+    end;
+  end;
+
 begin
   inherited ApplyTo(AState);
   with AState as TImageState do
@@ -2169,23 +2235,11 @@ begin
      if mergeVectorial then
      begin
        mergedOriginal := TVectorOriginal.Create;
-       origOver := LayerOriginal[layerOverIndex] as TVectorOriginal;
-       mOver := LayeredBitmap.LayerOriginalMatrix[layerOverIndex];
-       origUnder := LayerOriginal[layerOverIndex-1] as TVectorOriginal;
-       mUnder := LayeredBitmap.LayerOriginalMatrix[layerOverIndex-1];
-       for i := 0 to origUnder.ShapeCount-1 do
-       begin
-         s := origUnder.Shape[i].Duplicate;
-         s.Transform(mUnder);
-         mergedOriginal.AddShape(s);
-       end;
-       for i := 0 to origOver.ShapeCount-1 do
-       begin
-         s := origOver.Shape[i].Duplicate;
-         s.Transform(mOver);
-         mergedOriginal.AddShape(s);
-       end;
+       mergedOriginal.Guid := mergeVectorialGuid;
+       AppendToMergedOriginal(LayeredBitmap, layerOverIndex-1);
+       AppendToMergedOriginal(LayeredBitmap, layerOverIndex);
        LayeredBitmap.AddOriginal(mergedOriginal);
+       mergeVectorialGuid := mergedOriginal.Guid;
        LayeredBitmap.LayerOriginalGuid[layerOverIndex-1] := mergedOriginal.Guid;
        LayeredBitmap.LayerOriginalMatrix[layerOverIndex-1] := AffineMatrixIdentity;
        LayeredBitmap.RenderLayerFromOriginal(layerOverIndex-1);
