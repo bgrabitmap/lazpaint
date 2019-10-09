@@ -1094,7 +1094,9 @@ begin
   if Assigned(FOriginalData) then
   begin
     FOriginalData.Position:= 0;
-    idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData, FOriginalGuid, true);
+    idxOrig := ALayeredImage.IndexOfOriginal(FOriginalGuid);
+    if idxOrig = -1 then
+      idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData, FOriginalGuid, true);
 
     if not FOriginalBitmapStored then
     begin
@@ -1122,7 +1124,9 @@ begin
   if Assigned(FOriginalData) then
   begin
     FOriginalData.Position:= 0;
-    idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData, FOriginalGuid, true);
+    idxOrig := ALayeredImage.IndexOfOriginal(FOriginalGuid);
+    if idxOrig = -1 then
+      idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData, FOriginalGuid, true);
     if not FOriginalBitmapStored then
     begin
       ALayeredImage.LayerOriginalGuid[FIndex] := ALayeredImage.OriginalGuid[idxOrig];
