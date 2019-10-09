@@ -940,28 +940,35 @@ begin
     temp := (imgState.LayeredBitmap.LayerOriginal[ALayerIndex] as TBGRALayerImageOriginal).GetImageCopy;
     if temp <> nil then
     begin
-      shape := TRectShape.Create(orig);
-      shape.QuickDefine(PointF(-0.5,-0.5),PointF(temp.Width-0.5,temp.Height-0.5));
-      shape.PenStyle := ClearPenStyle;
-      shape.BackFill.SetTexture(temp,AffineMatrixIdentity,255,trNone);
+      if not temp.Empty then
+      begin
+        shape := TRectShape.Create(orig);
+        shape.QuickDefine(PointF(-0.5,-0.5),PointF(temp.Width-0.5,temp.Height-0.5));
+        shape.PenStyle := ClearPenStyle;
+        if temp.Equals(temp.GetPixel(0,0)) then
+          shape.BackFill.SetSolid(temp.GetPixel(0,0))
+          else shape.BackFill.SetTexture(temp,AffineMatrixIdentity,255,trNone);
+        shape.Transform(imgState.LayeredBitmap.LayerOriginalMatrix[ALayerIndex]);
+        with imgState.LayeredBitmap.LayerOffset[ALayerIndex] do
+          shape.Transform(AffineMatrixTranslation(-X-FSourceBounds.Left,-Y-FSourceBounds.Top));
+        orig.AddShape(shape);
+      end;
       temp.FreeReference;
-      shape.Transform(imgState.LayeredBitmap.LayerOriginalMatrix[ALayerIndex]);
-      with imgState.LayeredBitmap.LayerOffset[ALayerIndex] do
-        shape.Transform(AffineMatrixTranslation(-X-FSourceBounds.Left,-Y-FSourceBounds.Top));
-      orig.AddShape(shape);
     end;
   end else
   begin
     source := imgState.LayeredBitmap.LayerBitmap[ALayerIndex];
     if not source.Empty then
     begin
+      temp := source.GetPart(FSourceBounds) as TBGRABitmap;
       shape := TRectShape.Create(orig);
       shape.QuickDefine(PointF(-0.5,-0.5),PointF(FSourceBounds.Width-0.5,FSourceBounds.Height-0.5));
       shape.PenStyle := ClearPenStyle;
-      temp := source.GetPart(FSourceBounds) as TBGRABitmap;
-      shape.BackFill.SetTexture(temp,AffineMatrixIdentity,255,trNone);
-      temp.FreeReference;
+      if temp.Equals(temp.GetPixel(0,0)) then
+        shape.BackFill.SetSolid(temp.GetPixel(0,0))
+        else shape.BackFill.SetTexture(temp,AffineMatrixIdentity,255,trNone);
       orig.AddShape(shape);
+      temp.FreeReference;
     end;
   end;
   result := orig;
@@ -2196,13 +2203,18 @@ var
       temp := (ALayeredBitmap.LayerOriginal[ALayerIndex] as TBGRALayerImageOriginal).GetImageCopy;
       if Assigned(temp) then
       begin
-        s := TRectShape.Create(mergedOriginal);
-        s.PenStyle := ClearPenStyle;
-        s.BackFill.SetTexture(temp, AffineMatrixIdentity, 255, trNone);
+        if not temp.Empty then
+        begin
+          s := TRectShape.Create(mergedOriginal);
+          s.PenStyle := ClearPenStyle;
+          if temp.Equals(temp.GetPixel(0,0)) then
+            s.BackFill.SetSolid(temp.GetPixel(0,0))
+            else s.BackFill.SetTexture(temp, AffineMatrixIdentity, 255, trNone);
+          s.QuickDefine(PointF(-0.5,-0.5), PointF(temp.width-0.5,temp.Height-0.5));
+          s.Transform(m);
+          mergedOriginal.AddShape(s);
+        end;
         temp.FreeReference;
-        s.QuickDefine(PointF(-0.5,-0.5), PointF(temp.width-0.5,temp.Height-0.5));
-        s.Transform(m);
-        mergedOriginal.AddShape(s);
       end;
     end else
     begin
@@ -2214,12 +2226,14 @@ var
           temp := ALayeredBitmap.LayerBitmap[ALayerIndex].GetPart(b) as TBGRABitmap;
           s := TRectShape.Create(mergedOriginal);
           s.PenStyle := ClearPenStyle;
-          s.BackFill.SetTexture(temp, AffineMatrixIdentity, 255, trNone);
-          temp.FreeReference;
+          if temp.Equals(temp.GetPixel(0,0)) then
+            s.BackFill.SetSolid(temp.GetPixel(0,0))
+            else s.BackFill.SetTexture(temp, AffineMatrixIdentity, 255, trNone);
           s.QuickDefine(PointF(-0.5,-0.5), PointF(temp.width-0.5,temp.Height-0.5));
           with ALayeredBitmap.LayerOffset[ALayerIndex] do
             s.Transform(AffineMatrixTranslation(b.Left+X,b.Top+Y));
           mergedOriginal.AddShape(s);
+          temp.FreeReference;
         end;
       end;
     end;
