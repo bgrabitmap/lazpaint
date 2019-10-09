@@ -90,7 +90,7 @@ type
     procedure OnClickPoint({%H-}ASender: TObject; APointIndex: integer; {%H-}AShift: TShiftState); virtual;
     procedure DoClickPoint({%H-}APointIndex: integer; {%H-}AShift: TShiftState); virtual;
     function CanMovePoints: boolean; virtual;
-    procedure InsertPointAuto;
+    procedure InsertPointAuto(AShift: TShiftState);
     function ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean;
       AStrokeMatrix: TAffineMatrix): ArrayOfTPointF; override;
   public
@@ -645,11 +645,12 @@ begin
   result := true;
 end;
 
-procedure TCustomPolypointShape.InsertPointAuto;
+procedure TCustomPolypointShape.InsertPointAuto(AShift: TShiftState);
 var
   bestSegmentIndex, i: Integer;
-  bestSegmentDist, segmentLen, segmentPos: single;
-  u, n: TPointF;
+  bestSegmentDist,
+  segmentLen, segmentPos: single;
+  u, n, bestProjection: TPointF;
   segmentDist: single;
 begin
   if isEmptyPointF(FMousePos) then exit;
@@ -659,6 +660,7 @@ begin
 
   bestSegmentIndex := -1;
   bestSegmentDist := MaxSingle;
+  bestProjection := EmptyPointF;
   for i := 0 to PointCount-1 do
   if FAddingPoint and (i >= PointCount-2) then break else
   begin
@@ -677,13 +679,17 @@ begin
         begin
           bestSegmentDist := segmentDist;
           bestSegmentIndex := i;
+          bestProjection := Points[i]+segmentPos*u;
         end;
       end;
     end;
   end;
   if bestSegmentIndex <> -1 then
   begin
-    InsertPoint(bestSegmentIndex+1, FMousePos);
+    if ssShift in AShift then
+      InsertPoint(bestSegmentIndex+1, bestProjection)
+    else
+      InsertPoint(bestSegmentIndex+1, FMousePos);
     FHoverPoint:= bestSegmentIndex+1;
   end;
 end;
@@ -816,7 +822,7 @@ begin
       RemovePoint(PointCount-2);
     AHandled:= true;
   end else
-  if (Key = skInsert) then InsertPointAuto else
+  if (Key = skInsert) then InsertPointAuto(Shift) else
     inherited KeyDown(Shift, Key, AHandled);
 end;
 
