@@ -1305,7 +1305,8 @@ begin
     result := nil;
     pointerData := AStorage.RawString[AName+'-ptr'];
     if length(pointerData)<>sizeof(result) then
-      raise exception.Create('Invalid stored pointer');
+      raise exception.Create('Invalid stored pointer (expected size '+
+        inttostr(sizeof(result))+' but encountered '+inttostr(length(pointerData))+')');
     move(pointerData[1],result,sizeof(result));
   end else
   if Assigned(Container) then
