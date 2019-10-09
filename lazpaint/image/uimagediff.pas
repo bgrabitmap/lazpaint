@@ -1172,6 +1172,7 @@ begin
     imgState.LayeredBitmap.LayerOriginalRenderStatus[layerIdx] := orsNone;
     imgState.LayeredBitmap.RenderLayerFromOriginal(layerIdx);
   end;
+  imgState.LayeredBitmap.RemoveUnusedOriginals;
 end;
 
 procedure TReplaceLayerByOriginalDifference.UnapplyTo(AState: TState);
