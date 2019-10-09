@@ -637,7 +637,18 @@ end;
 procedure TCustomPolypointShape.DoClickPoint(APointIndex: integer;
   AShift: TShiftState);
 begin
-  //nothing
+  if (APointIndex = 0) and (UserMode = vsuCreate) and not Closed then
+  begin
+    if PointCount > 2 then
+    begin
+      RemovePoint(PointCount-1);
+      Closed := true;
+      UserMode := vsuEdit;
+    end else
+    begin
+      Remove;
+    end;
+  end;
 end;
 
 function TCustomPolypointShape.CanMovePoints: boolean;

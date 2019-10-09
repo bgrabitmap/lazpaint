@@ -61,6 +61,7 @@ type
     procedure OnTryStop({%H-}sender: TCustomLayerAction); override;
     procedure UpdateUseOriginal;
     function ReplaceLayerAndAddShape(out ARect: TRect): TCustomImageDifference; virtual;
+    procedure ShapeValidated; virtual;
   public
     function ValidateShape: TRect;
     function CancelShape: TRect;
@@ -1440,6 +1441,11 @@ begin
   FShape := nil;
 end;
 
+procedure TVectorialTool.ShapeValidated;
+begin
+  //nothing
+end;
+
 function TVectorialTool.ValidateShape: TRect;
 var
   layerId: LongInt;
@@ -1482,6 +1488,7 @@ begin
     Cursor := crDefault;
     result := OnlyRenderChange;
     UpdateUseOriginal;
+    ShapeValidated;
   end else
     result := EmptyRect;
 end;
