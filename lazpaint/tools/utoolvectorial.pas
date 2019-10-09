@@ -410,9 +410,12 @@ begin
   if not handled and (GetEditMode in [esmShape,esmGradient,esmNoShape]) then
   begin
     BindOriginalEvent(true);
-    UpdateSnap(Manager.Image.CurrentState.LayeredBitmap.OriginalEditor);
-    Manager.Image.CurrentState.LayeredBitmap.MouseDown(rightBtn, FShiftState, ptF.X,ptF.Y, cur, handled);
-    BindOriginalEvent(false);
+    try
+      UpdateSnap(Manager.Image.CurrentState.LayeredBitmap.OriginalEditor);
+      Manager.Image.CurrentState.LayeredBitmap.MouseDown(rightBtn, FShiftState, ptF.X,ptF.Y, cur, handled);
+    finally
+      BindOriginalEvent(false);
+    end;
     if handled then
     begin
       Cursor := OriginalCursorToCursor(cur);
@@ -435,9 +438,12 @@ begin
   esmGradient, esmShape, esmNoShape:
     begin
       BindOriginalEvent(true);
-      UpdateSnap(Manager.Image.CurrentState.LayeredBitmap.OriginalEditor);
-      Manager.Image.CurrentState.LayeredBitmap.MouseMove(FShiftState, ptF.X,ptF.Y, cur, handled);
-      BindOriginalEvent(false);
+      try
+        UpdateSnap(Manager.Image.CurrentState.LayeredBitmap.OriginalEditor);
+        Manager.Image.CurrentState.LayeredBitmap.MouseMove(FShiftState, ptF.X,ptF.Y, cur, handled);
+      finally
+        BindOriginalEvent(false);
+      end;
       Cursor := OriginalCursorToCursor(cur);
     end;
   esmSelection, esmOtherOriginal:
@@ -465,10 +471,10 @@ begin
   case GetEditMode of
   esmShape:
     with GetVectorOriginal do
-    begin
+    try
+      BindOriginalEvent(true);
       m := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
       zoom := (VectLen(m[1,1],m[2,1])+VectLen(m[1,2],m[2,2]))/2;
-      BindOriginalEvent(true);
       if IsGradientShape(SelectedShape) then
       begin
         SelectedShape.BackFill.Gradient.StartColor := Manager.ForeColor;
@@ -582,10 +588,11 @@ begin
           BorderSizePercent := Manager.PhongShapeBorderSize;
         end;
       end;
+    finally
       BindOriginalEvent(false);
     end;
   esmGradient:
-    begin
+    try
       BindOriginalEvent(true);
       with GetGradientOriginal do
       begin
@@ -601,6 +608,7 @@ begin
         end;
         ColorInterpolation := Manager.GradientColorspace;
       end;
+    finally
       BindOriginalEvent(false);
     end;
   end;
@@ -996,16 +1004,19 @@ begin
     if GetEditMode in [esmShape,esmNoShape] then
     begin
       BindOriginalEvent(true);
-      Manager.Image.CurrentState.LayeredBitmap.KeyDown(FShiftState, LCLKeyToSpecialKey(key, FShiftState), handled);
-      if handled then key := 0 else
-      begin
-        if (key = VK_DELETE) and Assigned(GetVectorOriginal.SelectedShape) then
+      try
+        Manager.Image.CurrentState.LayeredBitmap.KeyDown(FShiftState, LCLKeyToSpecialKey(key, FShiftState), handled);
+        if handled then key := 0 else
         begin
-          GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
-          key := 0;
+          if (key = VK_DELETE) and Assigned(GetVectorOriginal.SelectedShape) then
+          begin
+            GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
+            key := 0;
+          end;
         end;
+      finally
+        BindOriginalEvent(false);
       end;
-      BindOriginalEvent(false);
     end else
     begin
       if key = VK_RETURN then
@@ -1041,9 +1052,12 @@ begin
     end else
     begin
       BindOriginalEvent(true);
-      Manager.Image.CurrentState.LayeredBitmap.KeyPress(key, handled);
-      if handled then key := #0;
-      BindOriginalEvent(false);
+      try
+        Manager.Image.CurrentState.LayeredBitmap.KeyPress(key, handled);
+        if handled then key := #0;
+      finally
+        BindOriginalEvent(false);
+      end;
     end;
   end;
 end;
@@ -1073,9 +1087,12 @@ begin
     if GetEditMode in [esmShape,esmNoShape] then
     begin
       BindOriginalEvent(true);
-      Manager.Image.CurrentState.LayeredBitmap.KeyUp(FShiftState, LCLKeyToSpecialKey(key, FShiftState), handled);
-      if handled then key := 0;
-      BindOriginalEvent(false);
+      try
+        Manager.Image.CurrentState.LayeredBitmap.KeyUp(FShiftState, LCLKeyToSpecialKey(key, FShiftState), handled);
+        if handled then key := 0;
+      finally
+        BindOriginalEvent(false);
+      end;
     end;
   end;
 end;
@@ -1111,13 +1128,16 @@ begin
     if not handled and FLayerOriginalCapture and (GetEditMode in [esmGradient, esmShape, esmNoShape]) then
     begin
       BindOriginalEvent(true);
-      Manager.Image.CurrentState.LayeredBitmap.MouseUp(FRightButton, FShiftState, FLastPos.X,FLastPos.Y, cur, handled);
-      if handled then
-      begin
-        Cursor := OriginalCursorToCursor(cur);
-        result := OnlyRenderChange;
+      try
+        Manager.Image.CurrentState.LayeredBitmap.MouseUp(FRightButton, FShiftState, FLastPos.X,FLastPos.Y, cur, handled);
+        if handled then
+        begin
+          Cursor := OriginalCursorToCursor(cur);
+          result := OnlyRenderChange;
+        end;
+      finally
+        BindOriginalEvent(false);
       end;
-      BindOriginalEvent(false);
     end;
     if not handled and not Manager.Image.SelectionMaskEmpty then
     begin
@@ -1145,8 +1165,11 @@ begin
         begin
           m := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
           BindOriginalEvent(true);
-          GetVectorOriginal.MouseClick(m*FLastPos);
-          BindOriginalEvent(false);
+          try
+            GetVectorOriginal.MouseClick(m*FLastPos);
+          finally
+            BindOriginalEvent(false);
+          end;
           if Assigned(GetVectorOriginal.SelectedShape) then handled := true;
         end;
       esmGradient:
@@ -1222,8 +1245,11 @@ begin
     if GetCurrentLayerKind = lkVectorial then
     begin
       BindOriginalEvent(true);
-      PasteShapesFromClipboard(GetVectorOriginal, GetOriginalTransform);
-      BindOriginalEvent(false);
+      try
+        PasteShapesFromClipboard(GetVectorOriginal, GetOriginalTransform);
+      finally
+        BindOriginalEvent(false);
+      end;
       result := true;
     end;
   end else
@@ -1231,7 +1257,7 @@ begin
     result := true;
     case GetEditMode of
     esmShape:
-      begin
+      try
         BindOriginalEvent(true);
         case ACommand of
           tcMoveUp: GetVectorOriginal.SelectedShape.MoveUp(true);
@@ -1249,6 +1275,7 @@ begin
           tcShapeToSpline: result := ConvertToSpline;
           else result := false;
         end;
+      finally
         BindOriginalEvent(false);
       end;
     esmOtherOriginal:
