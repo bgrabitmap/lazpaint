@@ -182,6 +182,7 @@ type
     procedure MergeLayerOver;
     procedure MoveLayer(AFromIndex,AToIndex: integer);
     procedure RemoveLayer;
+    procedure ClearLayer;
 
     procedure HorizontalFlip(ALayerIndex: integer); overload;
     procedure VerticalFlip(ALayerIndex: integer); overload;
@@ -1925,6 +1926,16 @@ begin
   try
     AddUndo(FCurrentState.RemoveLayer);
   except on ex: exception do NotifyException('RemoveLayer',ex);
+  end;
+  ImageMayChangeCompletely;
+end;
+
+procedure TLazPaintImage.ClearLayer;
+begin
+  if not CheckNoAction then exit;
+  try
+    AddUndo(FCurrentState.ClearLayer);
+  except on ex: exception do NotifyException('ClearLayer',ex);
   end;
   ImageMayChangeCompletely;
 end;

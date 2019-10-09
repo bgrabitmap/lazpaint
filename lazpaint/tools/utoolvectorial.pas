@@ -1020,6 +1020,12 @@ begin
       end;
     end else
     begin
+      if (Key = VK_DELETE) and (GetEditMode in [esmGradient,esmOtherOriginal]) then
+      begin
+        StopEdit(true, true);
+        Manager.Image.ClearLayer;
+        Key := 0;
+      end else
       if key = VK_RETURN then
       begin
         if IsEditing then
