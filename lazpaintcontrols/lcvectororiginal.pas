@@ -180,6 +180,7 @@ type
     procedure LoadFill(AStorage: TBGRACustomOriginalStorage; AObjectName: string; var AValue: TVectorialFill);
     procedure SaveFill(AStorage: TBGRACustomOriginalStorage; AObjectName: string; AValue: TVectorialFill);
     function ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean; AStrokeMatrix: TAffineMatrix): ArrayOfTPointF; virtual;
+    function ComputeStrokeEnvelope(APoints: ArrayOfTPointF; AClosed: boolean; AWidth: single): ArrayOfTPointF; virtual;
     function GetStroker: TBGRAPenStroker;
     property Stroker: TBGRAPenStroker read GetStroker;
     procedure FillChange({%H-}ASender: TObject; var ADiff: TCustomVectorialFillDiff); virtual;
@@ -202,7 +203,8 @@ type
     procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); virtual;
     function GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; virtual; abstract;
     function SuggestGradientBox(AMatrix: TAffineMatrix): TAffineBox; virtual;
-    function PointInShape(APoint: TPointF): boolean; virtual; abstract;
+    function PointInShape(APoint: TPointF): boolean; overload; virtual; abstract;
+    function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; virtual; abstract;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); virtual; abstract;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); virtual;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); virtual;
@@ -362,7 +364,7 @@ type
     procedure SelectShape(AShape: TVectorShape); overload;
     procedure DeselectShape;
     function GetShapesCost: integer;
-    procedure MouseClick(APoint: TPointF);
+    procedure MouseClick(APoint: TPointF; ARadius: single);
     procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); override;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
     function CreateEditor: TBGRAOriginalEditor; override;
@@ -1658,6 +1660,16 @@ begin
     result := Stroker.ComputePolyline(APoints, PenWidth, PenColor);
 end;
 
+function TVectorShape.ComputeStrokeEnvelope(APoints: ArrayOfTPointF;
+  AClosed: boolean; AWidth: single): ArrayOfTPointF;
+var
+  opt: TBGRAPolyLineOptions;
+begin
+  opt := [];
+  if AClosed then include(opt, plCycle);
+  result := ComputeWidePolyPolylinePoints(APoints, AWidth, BGRABlack, pecRound, pjsMiter, SolidPenStyle, opt);
+end;
+
 function TVectorShape.GetStroker: TBGRAPenStroker;
 begin
   if FStroker = nil then
@@ -2611,12 +2623,18 @@ begin
     inc(result, Shape[i].GetGenericCost);
 end;
 
-procedure TVectorOriginal.MouseClick(APoint: TPointF);
+procedure TVectorOriginal.MouseClick(APoint: TPointF; ARadius: single);
 var
   i: LongInt;
 begin
   for i:= FShapes.Count-1 downto 0 do
     if FShapes[i].PointInShape(APoint) then
+    begin
+      SelectShape(i);
+      exit;
+    end;
+  for i:= FShapes.Count-1 downto 0 do
+    if FShapes[i].PointInShape(APoint, ARadius) then
     begin
       SelectShape(i);
       exit;

@@ -1112,6 +1112,7 @@ var
   handled: boolean;
   m: TAffineMatrix;
   ptView, ptSel: TPointF;
+  zoom: Single;
 begin
   Result:= EmptyRect;
   if FLeftButton or FRightButton then
@@ -1173,9 +1174,10 @@ begin
       esmShape, esmNoShape:
         begin
           m := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
+          zoom := (VectLen(m[1,1],m[2,1])+VectLen(m[1,2],m[2,2]))/2/Manager.Image.ZoomFactor;
           BindOriginalEvent(true);
           try
-            GetVectorOriginal.MouseClick(m*FLastPos);
+            GetVectorOriginal.MouseClick(m*FLastPos, DoScaleX(PointSize, OriginalDPI)*zoom);
           finally
             BindOriginalEvent(false);
           end;

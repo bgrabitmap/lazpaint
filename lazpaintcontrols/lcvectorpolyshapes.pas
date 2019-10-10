@@ -130,7 +130,8 @@ type
     class function Fields: TVectorShapeFields; override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
-    function PointInShape(APoint: TPointF): boolean; override;
+    function PointInShape(APoint: TPointF): boolean; overload; override;
+    function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
     function GetIsSlow(const {%H-}AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
   end;
@@ -1064,6 +1065,16 @@ begin
     if IsPointInPolygon(pts, APoint, true) then exit(true);
   end;
   result := false;
+end;
+
+function TPolylineShape.PointInShape(APoint: TPointF; ARadius: single): boolean;
+var
+  pts: ArrayOfTPointF;
+begin
+  if not BackVisible and not PenVisible then exit(false);
+  pts := GetCurve(AffineMatrixIdentity);
+  pts := ComputeStrokeEnvelope(pts, Closed, ARadius*2);
+  result := IsPointInPolygon(pts, APoint, true);
 end;
 
 function TPolylineShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;

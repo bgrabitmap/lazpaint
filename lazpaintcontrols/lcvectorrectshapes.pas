@@ -103,7 +103,8 @@ type
     class function Fields: TVectorShapeFields; override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
-    function PointInShape(APoint: TPointF): boolean; override;
+    function PointInShape(APoint: TPointF): boolean; overload; override;
+    function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
     function GetIsSlow(const AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
   end;
@@ -121,7 +122,8 @@ type
     function GetAlignBounds(const {%H-}ALayoutRect: TRect; const AMatrix: TAffineMatrix): TRectF; override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
-    function PointInShape(APoint: TPointF): boolean; override;
+    function PointInShape(APoint: TPointF): boolean; overload; override;
+    function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
     function GetIsSlow(const AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
   end;
@@ -170,6 +172,7 @@ type
     procedure SetShapeAltitudePercent(AValue: single);
     procedure SetShapeKind(AValue: TPhongShapeKind);
     function BackVisible: boolean;
+    function GetEnvelope: ArrayOfTPointF;
   protected
     function AllowShearTransform: boolean; override;
   public
@@ -185,7 +188,8 @@ type
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
-    function PointInShape(APoint: TPointF): boolean; override;
+    function PointInShape(APoint: TPointF): boolean; overload; override;
+    function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
     function GetIsSlow(const AMatrix: TAffineMatrix): boolean; override;
     function GetGenericCost: integer; override;
     procedure Transform(const AMatrix: TAffineMatrix); override;
@@ -1091,6 +1095,20 @@ begin
     result := false;
 end;
 
+function TRectShape.PointInShape(APoint: TPointF; ARadius: single): boolean;
+var
+  pts: ArrayOfTPointF;
+  box: TAffineBox;
+begin
+  if PenVisible or BackVisible then
+  begin
+    box := GetAffineBox(AffineMatrixIdentity, true);
+    pts := ComputeStrokeEnvelope(box.AsPolygon, true, ARadius*2);
+    result:= IsPointInPolygon(pts, APoint, true);
+  end
+  else result := false;
+end;
+
 class function TRectShape.StorageClassName: RawByteString;
 begin
   result := 'rect';
@@ -1323,6 +1341,19 @@ begin
     result := false;
 end;
 
+function TEllipseShape.PointInShape(APoint: TPointF; ARadius: single): boolean;
+var
+  pts: ArrayOfTPointF;
+begin
+  if PenVisible or BackVisible then
+  begin
+    pts := ComputeEllipse(FOrigin, FXAxis, FYAxis);
+    pts := ComputeStrokeEnvelope(pts, true, ARadius*2);
+    result:= IsPointInPolygon(pts, APoint, true);
+  end else
+    result := false;
+end;
+
 function TEllipseShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;
 var
   ab: TAffineBox;
@@ -1395,6 +1426,21 @@ end;
 function TPhongShape.BackVisible: boolean;
 begin
   result := not BackFill.IsFullyTransparent;
+end;
+
+function TPhongShape.GetEnvelope: ArrayOfTPointF;
+var
+  box: TAffineBox;
+begin
+  case ShapeKind of
+    pskHalfSphere, pskConeTop: result := ComputeEllipse(FOrigin, FXAxis, FYAxis);
+    pskConeSide: result := PointsF([FOrigin - (FYAxis-FOrigin), FYAxis + (FXAxis-FOrigin), FYAxis - (FXAxis-FOrigin)]);
+  else
+    begin
+      box := GetAffineBox(AffineMatrixIdentity, true);
+      result := box.AsPolygon;
+    end;
+  end;
 end;
 
 function TPhongShape.AllowShearTransform: boolean;
@@ -1691,24 +1737,23 @@ end;
 
 function TPhongShape.PointInShape(APoint: TPointF): boolean;
 var
-  box: TAffineBox;
   pts: ArrayOfTPointF;
 begin
   if not BackVisible then exit(false);
-  if ShapeKind in [pskHalfSphere, pskConeTop] then
+  pts := GetEnvelope;
+  result := IsPointInPolygon(pts, APoint, true);
+end;
+
+function TPhongShape.PointInShape(APoint: TPointF; ARadius: single): boolean;
+var
+  pts: ArrayOfTPointF;
+begin
+  if BackVisible then
   begin
-    pts := ComputeEllipse(FOrigin, FXAxis, FYAxis);
-    result := IsPointInPolygon(pts, APoint, true);
-  end else
-  if ShapeKind = pskConeSide then
-  begin
-    pts:= PointsF([FOrigin - (FYAxis-FOrigin), FYAxis + (FXAxis-FOrigin), FYAxis - (FXAxis-FOrigin)]);
-    result := IsPointInPolygon(pts, APoint, true);
-  end else
-  begin
-    box := GetAffineBox(AffineMatrixIdentity, true);
-    result:= box.Contains(APoint);
-  end;
+    pts := ComputeStrokeEnvelope(GetEnvelope, true, ARadius*2);
+    result:= IsPointInPolygon(pts, APoint, true);
+  end
+    else result := false;
 end;
 
 function TPhongShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;
