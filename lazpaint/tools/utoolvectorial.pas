@@ -87,6 +87,7 @@ type
     FDownHandled,FRectEditorCapture,FLayerOriginalCapture,
     FLeftButton,FRightButton: boolean;
     FLastPos: TPointF;
+    FOriginalLayerId: integer;
     FOriginalRect: TRectShape;
     FOriginalRectUntransformed: TRectF;
     FRectEditor: TBGRAOriginalEditor;
@@ -823,6 +824,8 @@ var
   orig, xAxis, yAxis: TPointF;
   viewMatrix: TAffineMatrix;
 begin
+  if Assigned(FOriginalRect) and (FOriginalLayerId <> Manager.Image.LayerId[Manager.Image.CurrentLayerIndex]) then
+    StopEdit(false,false);
   with LayerOffset do
   begin
     orig := BitmapToVirtualScreen(PointF(-X,-Y));
@@ -947,7 +950,7 @@ end;
 function TEditShapeTool.GetEditMode: TEditShapeMode;
 begin
   if Assigned(FSelectionRect) then exit(esmSelection)
-  else if Assigned(FOriginalRect) then exit(esmOtherOriginal)
+  else if Assigned(FOriginalRect) and (FOriginalLayerId = Manager.Image.LayerId[Manager.Image.CurrentLayerIndex]) then exit(esmOtherOriginal)
   else
   case GetCurrentLayerKind of
   lkGradient: if FIsEditingGradient then exit(esmGradient) else exit(esmNone);
@@ -1204,6 +1207,7 @@ begin
             FOriginalRectUntransformed := rectF(Left,Top,Right,Bottom);
           FOriginalRect := CreateRect(FOriginalRectUntransformed,
             Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
+          FOriginalLayerId:= Manager.Image.LayerId[Manager.Image.CurrentLayerIndex];
           result := OnlyRenderChange;
         end;
       end;
