@@ -32,7 +32,7 @@ type
   end;
 
   TImageDifferenceKind = (idkChangeImageAndSelection, idkChangeStack, idkChangeSelection,
-                           idkChangeImage, idkChangeLayer);
+                           idkChangeImage);
 
   { TCustomImageDifference }
 
@@ -417,16 +417,12 @@ begin
   for i := 0 to FDiffs.Count-1 do
     case FDiffs[i].GetImageDifferenceKind of
       idkChangeImageAndSelection: result := idkChangeImageAndSelection;
-      idkChangeSelection: if result in[idkChangeImage,idkChangeLayer,idkChangeImageAndSelection] then
+      idkChangeSelection: if result in[idkChangeImage,idkChangeImageAndSelection] then
                             result := idkChangeImageAndSelection
                           else result := idkChangeSelection;
       idkChangeImage: if result in[idkChangeImageAndSelection,idkChangeSelection] then
                             result := idkChangeImageAndSelection
                           else result := idkChangeImage;
-      idkChangeLayer: if result in[idkChangeImageAndSelection,idkChangeSelection] then
-                            result := idkChangeImageAndSelection
-                      else if result = idkChangeStack then
-                        result := idkChangeLayer;
     end;
 end;
 

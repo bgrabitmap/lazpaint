@@ -981,11 +981,6 @@ begin
         ImageMayChange(ADiff.ChangingBounds)
       else
         ImageMayChangeCompletely;
-  idkChangeLayer:
-      if ADiff.ChangingBoundsDefined then
-        LayerMayChange(CurrentLayerReadOnly, ADiff.ChangingBounds)
-      else
-        LayerMayChangeCompletely(CurrentLayerReadOnly);
   idkChangeSelection:
       if ADiff.ChangingBoundsDefined then
         SelectionMaskMayChange(ADiff.ChangingBounds)

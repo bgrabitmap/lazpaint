@@ -105,8 +105,11 @@ type
   private
     previousOpacity,nextOpacity: byte;
     layerId: integer;
+    layerBounds: TRect;
   protected
     function GetImageDifferenceKind: TImageDifferenceKind; override;
+    function GetChangingBounds: TRect; override;
+    function GetChangingBoundsDefined: boolean; override;
     function GetIsIdentity: boolean; override;
   public
     constructor Create(ADestination: TState; ALayerId: integer; ANewOpacity: byte);
@@ -202,8 +205,11 @@ type
   private
     previousVisible,nextVisible: boolean;
     layerId: integer;
+    layerBounds: TRect;
   protected
     function GetImageDifferenceKind: TImageDifferenceKind; override;
+    function GetChangingBounds: TRect; override;
+    function GetChangingBoundsDefined: boolean; override;
     function GetIsIdentity: boolean; override;
   public
     constructor Create(ADestination: TState; ALayerId: integer; ANewVisible: boolean);
@@ -217,8 +223,11 @@ type
   private
     previousBlendOp,nextBlendOp: TBlendOperation;
     layerId: integer;
+    layerBounds: TRect;
   protected
     function GetImageDifferenceKind: TImageDifferenceKind; override;
+    function GetChangingBounds: TRect; override;
+    function GetChangingBoundsDefined: boolean; override;
     function GetIsIdentity: boolean; override;
   public
     constructor Create(ADestination: TState; ALayerId: integer; ANewBlendOp: TBlendOperation);
@@ -1667,7 +1676,17 @@ end;
 
 function TSetLayerBlendOpStateDifference.GetImageDifferenceKind: TImageDifferenceKind;
 begin
-  Result:= idkChangeLayer;
+  Result:= idkChangeImage;
+end;
+
+function TSetLayerBlendOpStateDifference.GetChangingBounds: TRect;
+begin
+  Result:= layerBounds;
+end;
+
+function TSetLayerBlendOpStateDifference.GetChangingBoundsDefined: boolean;
+begin
+  Result:= true;
 end;
 
 function TSetLayerBlendOpStateDifference.GetIsIdentity: boolean;
@@ -1688,6 +1707,8 @@ begin
   if idx =-1 then
     raise exception.Create('Layer not found');
   previousBlendOp:= imgDest.BlendOperation[idx];
+  layerBounds := imgDest.LayerBitmap[idx].GetImageBounds;
+  with imgDest.LayerOffset[idx] do layerBounds.Offset(x,y);
   ApplyTo(imgDest);
 end;
 
@@ -1715,7 +1736,17 @@ end;
 
 function TSetLayerVisibleStateDifference.GetImageDifferenceKind: TImageDifferenceKind;
 begin
-  Result:= idkChangeLayer;
+  Result:= idkChangeImage;
+end;
+
+function TSetLayerVisibleStateDifference.GetChangingBounds: TRect;
+begin
+  Result:= layerBounds;
+end;
+
+function TSetLayerVisibleStateDifference.GetChangingBoundsDefined: boolean;
+begin
+  Result:= true;
 end;
 
 function TSetLayerVisibleStateDifference.GetIsIdentity: boolean;
@@ -1736,6 +1767,8 @@ begin
   if idx =-1 then
     raise exception.Create('Layer not found');
   previousVisible:= imgDest.LayerVisible[idx];
+  layerBounds := imgDest.LayerBitmap[idx].GetImageBounds;
+  with imgDest.LayerOffset[idx] do layerBounds.Offset(x,y);
   ApplyTo(imgDest);
 end;
 
@@ -1763,7 +1796,17 @@ end;
 
 function TSetLayerOpacityStateDifference.GetImageDifferenceKind: TImageDifferenceKind;
 begin
-  Result:= idkChangeLayer;
+  Result:= idkChangeImage;
+end;
+
+function TSetLayerOpacityStateDifference.GetChangingBounds: TRect;
+begin
+  Result:= layerBounds;
+end;
+
+function TSetLayerOpacityStateDifference.GetChangingBoundsDefined: boolean;
+begin
+  Result:= true;
 end;
 
 function TSetLayerOpacityStateDifference.GetIsIdentity: boolean;
@@ -1784,6 +1827,8 @@ begin
   if idx =-1 then
     raise exception.Create('Layer not found');
   previousOpacity:= imgDest.LayerOpacity[idx];
+  layerBounds := imgDest.LayerBitmap[idx].GetImageBounds;
+  with imgDest.LayerOffset[idx] do layerBounds.Offset(x,y);
   ApplyTo(imgDest);
 end;
 
