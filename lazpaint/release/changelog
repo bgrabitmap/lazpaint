@@ -94,15 +94,16 @@ lazpaint (7.0.7) stable; urgency=low
   * merging vector layers will make a vector layer if possible
   * merging a vector with a raster layer will convert the latter to a vector shape
   * transform texture when modifying rectangular shape
-  * handling case when saving current file that has been renamed/deleted
+  * select vector shape even if clicking a bit aside
   * allow Space key when editing text object
-  * faster saving of layers with vectors
-  * context menu of toolbar in the upper toolbar background
   * update contextual toolbar when selecting shape with edit shape tool
+  * context menu of toolbar in the upper toolbar background
+  * handling case when saving current file that has been renamed/deleted
+  * faster saving of layers with vectors
   * fix bug with undo of deleted vector layer
   * fix transform when copying shapes between layers
   * fix crop layer with layer offset
   * clear layer when deleting it in shape editor
 
--- circular <circular@operamail.com>  Wed, 9 Oct 2019 17:50:00 +0100
+-- circular <circular@operamail.com>  Wed, 10 Oct 2019 17:37:00 +0100
 
