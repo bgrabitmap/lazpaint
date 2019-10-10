@@ -249,6 +249,8 @@ begin
     AShape.Usermode := vsuEditBackFill;
   end else
   begin
+    if AShape.Usermode in [vsuEditBackFill, vsuEditPenFill] then
+      AShape.Usermode := vsuEdit;
     opt := Manager.ShapeOptions;
     if AShape.Fields*[vsfPenFill,vsfBackFill,vsfPenStyle] = [vsfPenFill,vsfBackFill,vsfPenStyle] then
     begin
