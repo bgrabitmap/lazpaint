@@ -2,7 +2,7 @@
 set -e
 
 if ! [ ${OSTYPE:0:6} = "darwin" ]; then
-  echo " This script is for OS X only"
+  echo "This script is for OS X only"
   exit 1
 fi
 
@@ -22,6 +22,7 @@ VOL_NAME="$appnamenospaces${appversion}_macos"
 DMG_TMP="${VOL_NAME}-temp.dmg"
 DMG_FINAL="${VOL_NAME}.dmg"         
 STAGING_DIR="./staging"             # we copy all our stuff into this dir
+SOURCE_DIR="$(cd ../bin; pwd)"
 
 # Check the background image DPI and convert it if it isn't 72x72
 _BACKGROUND_IMAGE_DPI_H=`sips -g dpiHeight ${DMG_BACKGROUND_IMG} | grep -Eo '[0-9]+\.[0-9]+'`
@@ -46,12 +47,22 @@ mkdir -p "${STAGING_DIR}"
 cp -rpf "./$appbundle" "${STAGING_DIR}"
 # ... cp anything else you want in the DMG - documentation, etc.
 
-pushd "${STAGING_DIR}"
+echo Staging files...
+pushd "${STAGING_DIR}/${appbundle}" >/dev/null
+ pushd Contents >/dev/null
+  pushd MacOS >/dev/null
+   unlink delete.me
+   cp "${SOURCE_DIR}/${appnamenospaces}" .
+  popd >/dev/null
+  pushd Resources >/dev/null
+   cp -r "${SOURCE_DIR}/i18n" .
+   cp -r "${SOURCE_DIR}/models" .
+   cp "${SOURCE_DIR}/readme.txt" .
+  popd >/dev/null
+ popd >/dev/null
+popd >/dev/null
 
-# ... perform any other stripping/compressing of libs and executables
-
-popd
-
+echo Making uncompressed DMG
 # figure out how big our DMG needs to be
 #  assumes our contents are at least 1M!
 SIZE=`du -sh "${STAGING_DIR}" | sed 's/\([0-9\.]*\)M\(.*\)/\1/'`
@@ -66,8 +77,7 @@ fi
 hdiutil create -srcfolder "${STAGING_DIR}" -volname "${VOL_NAME}" -fs HFS+ \
       -fsargs "-c c=64,a=16,e=16" -format UDRW -size ${SIZE}M "${DMG_TMP}"
 
-echo "Created DMG: ${DMG_TMP}"
-
+echo Mounting DMG...
 # mount it and save the device
 DEVICE=$(hdiutil attach -readwrite -noverify "${DMG_TMP}" | \
          egrep '^/dev/' | sed 1q | awk '{print $1}')
@@ -75,12 +85,13 @@ DEVICE=$(hdiutil attach -readwrite -noverify "${DMG_TMP}" | \
 sleep 2
 
 # add a link to the Applications dir
-echo "Add link to /Applications"
-pushd /Volumes/"${VOL_NAME}"
+echo "Adding link to Applications..."
+pushd /Volumes/"${VOL_NAME}" >/dev/null
 ln -s /Applications
-popd
+popd >/dev/null
 
 # add a background image
+echo "Adding background image..."
 mkdir /Volumes/"${VOL_NAME}"/.background
 cp "${DMG_BACKGROUND_IMG}" /Volumes/"${VOL_NAME}"/.background/
 
@@ -118,13 +129,8 @@ echo "Creating compressed image"
 hdiutil convert "${DMG_TMP}" -format UDZO -imagekey zlib-level=9 -o "${DMG_FINAL}"
 
 # clean up
+echo Cleaning up...
 rm -rf "${DMG_TMP}"
 rm -rf "${STAGING_DIR}"
 
 echo 'Done.'
-
-if [ -e "debian/$bindir" ]; then
-  rm -R debian
-fi
-
-exit
