@@ -2141,7 +2141,9 @@ begin
     layerOverCompressedBackup := TStoredLayer.Create(imgDest.LayeredBitmap, ALayerOverIndex, true);
     layerUnderCompressedBackup := TStoredLayer.Create(imgDest.LayeredBitmap, ALayerOverIndex-1, true);
     if ((LayerOriginalClass[ALayerOverIndex] = TVectorOriginal) or
-       (LayerOriginalClass[ALayerOverIndex-1] = TVectorOriginal)) and
+       (LayerOriginalClass[ALayerOverIndex-1] = TVectorOriginal) or
+       (LayerOriginalClass[ALayerOverIndex] = TBGRALayerGradientOriginal) or
+       (LayerOriginalClass[ALayerOverIndex-1] = TBGRALayerGradientOriginal)) and
        (BlendOperation[ALayerOverIndex] = boTransparent) and
        (BlendOperation[ALayerOverIndex-1] = boTransparent) then
     begin
@@ -2198,6 +2200,15 @@ var
         s.Transform(m);
         mergedOriginal.AddShape(s);
       end;
+    end else
+    if c = TBGRALayerGradientOriginal then
+    begin
+      s := TRectShape.Create(mergedOriginal);
+      s.PenStyle := ClearPenStyle;
+      s.BackFill.SetGradient(ALayeredBitmap.LayerOriginal[ALayerIndex] as TBGRALayerGradientOriginal, false);
+      s.BackFill.Transform(m);
+      s.QuickDefine(PointF(-0.5,-0.5), PointF(ALayeredBitmap.width-0.5,ALayeredBitmap.Height-0.5));
+      mergedOriginal.AddShape(s);
     end else
     if c = TBGRALayerImageOriginal then
     begin
