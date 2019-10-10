@@ -2690,6 +2690,7 @@ begin
   begin
     idx := lState.LayeredBitmap.GetLayerIndexFromId(layerId);
     if idx = -1 then raise exception.Create('Layer not found');
+    lState.LayeredBitmap.Unfreeze(idx);
     if ChangeImageLayer and (lState.LayeredBitmap.LayerOriginalGuid[idx] <> GUID_NULL) then raise exception.Create('Does not apply to originals');
     if ChangeImageLayer then
     begin
@@ -2714,6 +2715,7 @@ begin
   begin
     idx := lState.LayeredBitmap.GetLayerIndexFromId(layerId);
     if idx = -1 then raise exception.Create('Layer not found');
+    lState.LayeredBitmap.Unfreeze(idx);
     if ChangeImageLayer and (lState.LayeredBitmap.LayerOriginalGuid[idx] <> GUID_NULL) then raise exception.Create('Does not apply to originals');
     if ChangeImageLayer then
     begin
