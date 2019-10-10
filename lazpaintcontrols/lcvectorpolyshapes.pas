@@ -1055,7 +1055,7 @@ function TPolylineShape.PointInShape(APoint: TPointF): boolean;
 var
   pts: ArrayOfTPointF;
 begin
-  if not BackVisible and not PenVisible then exit;
+  if not BackVisible and not PenVisible then exit(false);
   pts := GetCurve(AffineMatrixIdentity);
   if BackVisible and IsPointInPolygon(pts, APoint, true) then exit(true);
   if PenVisible then

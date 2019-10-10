@@ -2503,6 +2503,7 @@ begin
   idx := FShapes.IndexOf(AShape);
   if idx = -1 then exit(false);
   DeleteShapeRange(idx, 1);
+  result := true;
 end;
 
 procedure TVectorOriginal.DeleteShape(AIndex: integer);
