@@ -482,9 +482,9 @@ end;
 
 procedure TLazPaintImage.UpdateMultiImage(AOutputFilename: string = '');
 begin
-  if not FileManager.FileExists(AOutputFilename) then
+  if not FileManager.FileExists(currentFilenameUTF8) then
   begin
-    ShowMessage(rsFileNotFound);
+    ShowMessage(rsFileNotFound + LineEnding + LineEnding + currentFilenameUTF8);
     exit;
   end;
   if IsIconCursor then
