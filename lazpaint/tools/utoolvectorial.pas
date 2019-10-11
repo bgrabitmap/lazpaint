@@ -116,6 +116,7 @@ type
     function GetIsSelectingTool: boolean; override;
     function GetVectorOriginal: TVectorOriginal;
     function GetGradientOriginal: TBGRALayerGradientOriginal;
+    function GetImageOriginal: TBGRALayerImageOriginal;
     function GetOriginalTransform: TAffineMatrix;
     function FixLayerOffset: boolean; override;
     function GetCurrentSplineMode: TToolSplineMode;
@@ -142,7 +143,7 @@ implementation
 
 uses LazPaintType, LCVectorPolyShapes, LCVectorTextShapes, LCVectorialFill, BGRASVGOriginal,
   ULoading, BGRATransform, math, UImageDiff, Controls, BGRAPen, UResourceStrings, ugraph,
-  LCScaleDPI, LCVectorClipboard, BGRAGradientScanner;
+  LCScaleDPI, LCVectorClipboard, BGRAGradientScanner, UClipboard;
 
 const PointSize = 6;
 
@@ -776,6 +777,11 @@ begin
   result := Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex] as TBGRALayerGradientOriginal;
 end;
 
+function TEditShapeTool.GetImageOriginal: TBGRALayerImageOriginal;
+begin
+  result := Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex] as TBGRALayerImageOriginal;
+end;
+
 function TEditShapeTool.GetOriginalTransform: TAffineMatrix;
 begin
   result := Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex];
@@ -1254,6 +1260,9 @@ end;
 function TEditShapeTool.ToolCommand(ACommand: TToolCommand): boolean;
 var
   key: Word;
+  b: TRect;
+  bmp: TBGRABitmap;
+  s: TRectShape;
 begin
   if not ToolProvideCommand(ACommand) then exit(false);
   if ACommand = tcDelete then
@@ -1308,9 +1317,60 @@ begin
       finally
         BindOriginalEvent(false);
       end;
+    esmGradient:
+      begin
+        case ACommand of
+          tcCut,tcCopy: begin
+            s := TRectShape.Create(nil);
+            try
+              s.PenStyle := ClearPenStyle;
+              s.QuickDefine(PointF(-0.5,-0.5),PointF(Manager.Image.Width-0.5,Manager.Image.Height-0.5));
+              s.BackFill.SetGradient(GetGradientOriginal, false);
+              s.BackFill.Transform(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
+              CopyShapesToClipboard([s],AffineMatrixIdentity);
+            finally
+              s.free;
+            end;
+            if ACommand = tcCut then ToolCommand(tcDelete);
+          end;
+          else result := false;
+        end;
+      end;
     esmOtherOriginal:
       begin
         case ACommand of
+          tcCut,tcCopy: begin
+              b := Manager.Image.CurrentLayerReadOnly.GetImageBounds;
+              if not b.IsEmpty then
+              begin
+                if GetCurrentLayerKind = lkTransformedBitmap then
+                begin
+                  bmp := GetImageOriginal.GetImageCopy;
+                  s:= TRectShape.Create(nil);
+                  s.QuickDefine(PointF(-0.5,-0.5),PointF(bmp.Width-0.5,bmp.Height-0.5));
+                  s.PenStyle := ClearPenStyle;
+                  s.BackFill.SetTexture(bmp,AffineMatrixIdentity,255,trNone);
+                  s.Transform(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
+                  bmp.FreeReference;
+                end else
+                begin
+                  bmp := Manager.Image.CurrentLayerReadOnly.GetPart(b) as TBGRABitmap;
+                  s:= TRectShape.Create(nil);
+                  s.QuickDefine(PointF(b.Left-0.5,b.Top-0.5),PointF(b.Right-0.5,b.Bottom-0.5));
+                  s.PenStyle := ClearPenStyle;
+                  s.BackFill.SetTexture(bmp,AffineMatrixTranslation(b.Left,b.Top),255,trNone);
+                  with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
+                    s.Transform(AffineMatrixTranslation(x,y));
+                  bmp.FreeReference;
+                end;
+                try
+                  CopyShapesToClipboard([s],AffineMatrixIdentity);
+                finally
+                  s.Free;
+                end;
+                if ACommand = tcCut then ToolCommand(tcDelete);
+              end;
+            end;
           tcAlignLeft..tcAlignBottom:
               begin
                 AlignShape(FOriginalRect, ACommand,
@@ -1336,7 +1396,7 @@ end;
 function TEditShapeTool.ToolProvideCommand(ACommand: TToolCommand): boolean;
 begin
   case ACommand of
-  tcCut,tcCopy,tcDelete: result:= GetEditMode = esmShape;
+  tcCut,tcCopy,tcDelete: result:= GetEditMode in[esmShape,esmOtherOriginal,esmGradient];
   tcShapeToSpline: result:= (GetEditMode = esmShape)
                             and TCurveShape.CanCreateFrom(GetVectorOriginal.SelectedShape);
   tcAlignLeft..tcAlignBottom: result:= GetEditMode in [esmShape, esmOtherOriginal, esmSelection];
@@ -1698,7 +1758,7 @@ begin
       MessagePopup(rsTooManyShapesInLayer, 3000);
     end
     else
-    if GetCurrentLayerKind = lkSVG then
+    if (GetCurrentLayerKind = lkSVG) and not IsSelectingTool then
     begin
       MessagePopup(rsCannotDrawShapeOnSVGLayer, 3000);
     end
