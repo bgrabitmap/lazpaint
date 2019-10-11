@@ -123,6 +123,7 @@ type
     function IsGradientShape(AShape: TVectorShape): boolean;
     function ConvertToSpline: boolean;
     function GetEditMode: TEditShapeMode;
+    function InvalidEditMode: boolean;
   public
     constructor Create(AManager: TToolManager); override;
     destructor Destroy; override;
@@ -824,8 +825,7 @@ var
   orig, xAxis, yAxis: TPointF;
   viewMatrix: TAffineMatrix;
 begin
-  if Assigned(FOriginalRect) and (FOriginalLayerId <> Manager.Image.LayerId[Manager.Image.CurrentLayerIndex]) then
-    StopEdit(false,false);
+  if InvalidEditMode then StopEdit(false,false);
   with LayerOffset do
   begin
     orig := BitmapToVirtualScreen(PointF(-X,-Y));
@@ -949,14 +949,29 @@ end;
 
 function TEditShapeTool.GetEditMode: TEditShapeMode;
 begin
+  if InvalidEditMode then exit(esmNone);
   if Assigned(FSelectionRect) then exit(esmSelection)
-  else if Assigned(FOriginalRect) and (FOriginalLayerId = Manager.Image.LayerId[Manager.Image.CurrentLayerIndex]) then exit(esmOtherOriginal)
+  else if Assigned(FOriginalRect) then exit(esmOtherOriginal)
   else
   case GetCurrentLayerKind of
   lkGradient: if FIsEditingGradient then exit(esmGradient) else exit(esmNone);
   lkVectorial: if Assigned(GetVectorOriginal.SelectedShape) then exit(esmShape) else exit(esmNoShape);
   else exit(esmNone);
   end;
+end;
+
+function TEditShapeTool.InvalidEditMode: boolean;
+begin
+  if Assigned(FOriginalRect) and
+     ((FOriginalLayerId <> Manager.Image.LayerId[Manager.Image.CurrentLayerIndex])
+      or not (GetCurrentLayerKind in[lkTransformedBitmap,lkSVG,lkOther])) then
+      result := true
+  else if Assigned(FSelectionRect) and
+       Manager.Image.SelectionMaskEmpty then result := true
+  else if FIsEditingGradient and (GetCurrentLayerKind <> lkGradient) then
+      result := true
+  else
+    result := false;
 end;
 
 constructor TEditShapeTool.Create(AManager: TToolManager);

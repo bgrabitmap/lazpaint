@@ -1066,7 +1066,9 @@ procedure TImageActions.RasterizeLayer;
 begin
   if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping] then
     ChooseTool(ptHand);
+  ToolManager.ToolCloseDontReopen;
   Image.RasterizeLayer;
+  ToolManager.ToolOpen;
   FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
 end;
 
