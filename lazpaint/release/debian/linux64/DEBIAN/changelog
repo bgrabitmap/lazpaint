@@ -104,6 +104,7 @@ lazpaint (7.0.7) stable; urgency=low
   * fix transform when copying shapes between layers
   * fix crop layer with layer offset
   * clear layer when deleting it in shape editor
+  * duplicate entry in GIF or TIFF
 
 -- circular <circular@operamail.com>  Wed, 10 Oct 2019 17:37:00 +0100
 
