@@ -59,8 +59,10 @@ type
                         bmp,bmpMaxlight: TBGRABitmap; end;
     Lightscale: record bounds: TRect;
                       bmp: TBGRABitmap; end;
+    LightCursorRect: TRect;
     Alphascale: record bounds: TRect;
                        bmp: TBGRABitmap; end;
+    AlphaCursorRect: TRect;
     function GetAvailableBmpHeight: integer;
     function GetAvailableBmpWidth: integer;
     procedure SetAvailableBmpHeight(AValue: integer);
@@ -70,7 +72,7 @@ type
     function ColorWithLight(c: TBGRAPixel; light: word): TBGRAPixel;
     function BitmapWithLight(bmpsrc: TBGRABitmap; light: word; lookFor: TBGRAPixel; var pColorX,pColorY: integer): TBGRABitmap;
     function ColorLightOf(c: TBGRAPixel): word;
-    procedure DrawTriangleCursor(dest: TBGRABitmap; bounds: TRect; value: byte);
+    function DrawTriangleCursor(dest: TBGRABitmap; bounds: TRect; value: byte): TRect;
     procedure DoSelect(X,Y: integer);
     function MakeIconBase(size: integer): TBitmap;
     function MakeAddIcon(size: integer): TBitmap;
@@ -271,12 +273,12 @@ begin
       SelectZone := szColorCircle;
       DoSelect(X,Y);
     end else
-    if PtInRect(Point(X,Y),Alphascale.Bounds) then
+    if PtInRect(Point(X,Y),Alphascale.Bounds) or PtInRect(Point(X,Y),AlphaCursorRect) then
     begin
       SelectZone := szAlphascale;
       DoSelect(X,Y);
     end else
-    if PtInRect(Point(X,Y),lightscale.Bounds) then
+    if PtInRect(Point(X,Y),lightscale.Bounds) or PtInRect(Point(X,Y),LightCursorRect) then
     begin
       SelectZone := szLightscale;
       DoSelect(X,Y);
@@ -322,8 +324,8 @@ begin
     boundRight := x-4;
     Bitmap.PutImage(alphascale.bounds.Left,alphascale.bounds.top,alphascale.Bmp,dmDrawWithTransparency);
     Bitmap.Rectangle(alphascale.bounds,BGRA(FormTextColor.red,FormTextColor.green,FormTextColor.Blue,128),dmDrawWithTransparency);
-    DrawTriangleCursor(Bitmap, alphascale.bounds, currentColor.alpha);
-  end;
+    AlphaCursorRect := DrawTriangleCursor(Bitmap, alphascale.bounds, currentColor.alpha);
+  end else AlphaCursorRect := EmptyRect;
   if Lightscale.Bmp<>nil then
   begin
     w := Bitmap.TextSize(rsLight).cx;
@@ -334,8 +336,8 @@ begin
     boundRight := x-4;
     Bitmap.PutImage(Lightscale.bounds.Left,Lightscale.bounds.top,Lightscale.Bmp,dmFastBlend);
     Bitmap.Rectangle(Lightscale.bounds,BGRA(FormTextColor.red,FormTextColor.green,FormTextColor.Blue,128),dmDrawWithTransparency);
-    DrawTriangleCursor(Bitmap, Lightscale.bounds, colorLight div 256);
-  end;
+    LightCursorRect := DrawTriangleCursor(Bitmap, Lightscale.bounds, colorLight div 256);
+  end else LightCursorRect := EmptyRect;
   if (colorCircle.Bmp<>nil) and not LazPaintInstance.BlackAndWhite then
   begin
     w := Bitmap.TextSize(rsColors).cx;
@@ -357,13 +359,14 @@ begin
   end;
 end;
 
-procedure TFChooseColor.DrawTriangleCursor(dest: TBGRABitmap; bounds: TRect;
-  value: byte);
+function TFChooseColor.DrawTriangleCursor(dest: TBGRABitmap; bounds: TRect;
+  value: byte): TRect;
 var x,y: integer;
 begin
-     x := bounds.right+cursormargin;
-     y := bounds.bottom-1 + integer(round(value/255*(bounds.top-(bounds.bottom-1))));
-     dest.FillPolyAntialias([pointF(x,y),pointF(x+cursorsize,y-cursorsize),pointF(x+cursorsize,y+cursorsize)],FormTextColor);
+  x := bounds.right+cursormargin;
+  y := bounds.bottom-1 + integer(round(value/255*(bounds.top-(bounds.bottom-1))));
+  dest.FillPolyAntialias([pointF(x,y),pointF(x+cursorsize,y-cursorsize),pointF(x+cursorsize,y+cursorsize)],FormTextColor);
+  result := rect(floor(x-cursorsize/2),floor(y-cursorsize*1.5),ceil(x+cursorsize*1.5),ceil(y+cursorsize*1.5));
 end;
 
 procedure TFChooseColor.DoSelect(X, Y: integer);
