@@ -1,5 +1,10 @@
-To make application bundle:
+To make the DMG file:
+- compile the program in release mode for a CPU target (32 or 64)
+- open a shell in this macOS folder and run ./makedmg.sh
+- rename the created DMG file by appending the CPU target
+
+Alternatively, you can make an application bundle by hand:
 - make copy the LazPaint.app folder
 - copy "lazpaint" executable file into subfolder /Contents/MacOS
-- copy additionnal files into subfolder /Contents/Resources
-(including i18n and models folders, but not the application bundle)
+- copy aditionnal files into subfolder /Contents/Resources
+(readme file, i18n and models folders, but not the auto-created application bundle)
