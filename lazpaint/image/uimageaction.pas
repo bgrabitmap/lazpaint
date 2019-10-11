@@ -1064,7 +1064,7 @@ end;
 
 procedure TImageActions.RasterizeLayer;
 begin
-  if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptDeformation] then
+  if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptTextureMapping,ptDeformation] then
     ChooseTool(ptHand);
   ToolManager.ToolCloseDontReopen;
   Image.RasterizeLayer;
@@ -1088,7 +1088,7 @@ begin
   if (Image.CurrentLayerIndex <> -1) and (Image.NbLayers > 1) then
   begin
     idx := Image.CurrentLayerIndex;
-    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptDeformation] then
+    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptTextureMapping,ptDeformation] then
       ChooseTool(ptHand);
     ToolManager.ToolCloseDontReopen;
     Image.RemoveLayer;
