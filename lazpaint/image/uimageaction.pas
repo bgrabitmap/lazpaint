@@ -1016,7 +1016,11 @@ begin
   end;}
   if image.NbLayers < MaxLayersToAdd then
   begin
+    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptTextureMapping,ptDeformation] then
+      ChooseTool(ptHand);
+    ToolManager.ToolCloseDontReopen;
     Image.AddNewLayer;
+    ToolManager.ToolOpen;
     FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
   end;
 end;
@@ -1026,7 +1030,11 @@ function TImageActions.NewLayer(ALayer: TBGRABitmap; AName: string;
 begin
   if image.NbLayers < MaxLayersToAdd then
   begin
+    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptTextureMapping,ptDeformation] then
+      ChooseTool(ptHand);
+    ToolManager.ToolCloseDontReopen;
     Image.AddNewLayer(ALayer, AName, ABlendOp);
+    ToolManager.ToolOpen;
     FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
     result := true;
   end else
@@ -1042,7 +1050,11 @@ function TImageActions.NewLayer(ALayer: TBGRALayerCustomOriginal;
 begin
   if image.NbLayers < MaxLayersToAdd then
   begin
+    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptTextureMapping,ptDeformation] then
+      ChooseTool(ptHand);
+    ToolManager.ToolCloseDontReopen;
     Image.AddNewLayer(ALayer, AName, ABlendOp, AMatrix);
+    ToolManager.ToolOpen;
     FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
     result := true;
   end else
