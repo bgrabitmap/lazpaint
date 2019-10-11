@@ -1729,6 +1729,10 @@ msgstr ""
 msgid "Dither layer using palette"
 msgstr "Dither auf Palette dieser Ebene anwenden"
 
+#: uresourcestrings.rsduplicateimage
+msgid "Duplicate image"
+msgstr "Bild duplizieren"
+
 #: uresourcestrings.rseditmask
 msgid "Edit mask"
 msgstr "Maske bearbeiten"

@@ -1698,6 +1698,10 @@ msgstr "El directorio no esta vacío"
 msgid "Dither layer using palette"
 msgstr "Entramado de capa usando paleta"
 
+#: uresourcestrings.rsduplicateimage
+msgid "Duplicate image"
+msgstr "Duplicar imagen"
+
 #: uresourcestrings.rseditmask
 msgctxt "uresourcestrings.rseditmask"
 msgid "Edit mask"
