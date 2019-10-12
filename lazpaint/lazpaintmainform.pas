@@ -3861,7 +3861,7 @@ end;
 procedure TFMain.InvalidatePicture;
 begin
   if Assigned(FImageView) and Assigned(FLayout) then
-    FImageView.InvalidatePicture(False, FLayout.WorkArea, Point(0,0), self);
+    FImageView.InvalidatePicture(True, FLayout.WorkArea, Point(0,0), self);
 end;
 
 function TFMain.GetUseImageBrowser: boolean;
