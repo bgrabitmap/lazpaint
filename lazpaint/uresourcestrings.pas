@@ -63,6 +63,7 @@ resourcestring
   rsMergeSelection='Do you want to merge selection?';
   rsSave='Save';
   rsNewImage='New image';
+  rsDuplicateImage='Duplicate image';
   rsOpen='Open';
   rsReload='Reload';
   rsReloadChanged='Bitmap has been modified. Do you really want to reload?';

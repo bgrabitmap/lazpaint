@@ -836,8 +836,9 @@ type
 
     procedure PaintPictureNow;
     procedure InvalidatePicture;
-    function TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean=True; ALoadedImage: PImageEntry = nil;
-      ASkipDialogIfSingleImage: boolean = false): Boolean;
+    function TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean=True;
+      ALoadedImage: PImageEntry = nil; ASkipDialogIfSingleImage: boolean = false;
+      AAllowDuplicate: boolean = false): Boolean;
     function PictureCanvasOfs: TPoint;
     procedure UpdateLineCapBar;
     procedure UpdateColorToolbar(AUpdateColorDiff: boolean);
@@ -1297,7 +1298,8 @@ begin
     if AVars.IsReferenceDefined(vFileName) then
     begin
       FLazPaintInstance.ShowTopmost(topInfo);
-      if TryOpenFileUTF8(AVars.GetString(vFilename), true, nil) then
+      if TryOpenFileUTF8(AVars.GetString(vFilename), true, nil,
+           false, AVars.Booleans['AllowDuplicate']) then
         result := srOk
       else
         result := srException;
@@ -3023,6 +3025,7 @@ var
 begin
   openParams := TVariableSet.Create('FileOpen');
   openParams.AddString('FileName',Image.currentFilenameUTF8);
+  openParams.AddBoolean('AllowDuplicate',true);
   Scripting.CallScriptFunction(openParams);
   openParams.Free;
 end;
@@ -3547,10 +3550,12 @@ begin
 end;
 
 function TFMain.TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean;
-     ALoadedImage: PImageEntry; ASkipDialogIfSingleImage: boolean): Boolean;
+     ALoadedImage: PImageEntry; ASkipDialogIfSingleImage: boolean;
+     AAllowDuplicate: boolean): Boolean;
 var
   newPicture: TImageEntry;
   format: TBGRAImageFormat;
+  dupIndex: Integer;
 
   procedure StartImport;
   begin
@@ -3631,14 +3636,30 @@ begin
     else
     if format in[ifIco,ifTiff] then
     begin
-      newPicture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8, 'TIFF', ASkipDialogIfSingleImage);
-      ImportNewPicture;
+      if (format = ifTiff) and AAllowDuplicate and (Image.FrameIndex <> -1) then dupIndex := Image.FrameIndex else dupIndex := -1;
+      newPicture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8, 'TIFF',
+        ASkipDialogIfSingleImage, dupIndex);
+      if newPicture.isDuplicate then
+      begin
+        newPicture.FreeAndNil;
+        Image.FrameIndex:= newPicture.frameIndex;
+        Image.OnImageChanged.NotifyObservers;
+      end
+      else ImportNewPicture;
     end
     else
     if format = ifGif then
     begin
-      newPicture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8, rsAnimatedGIF, ASkipDialogIfSingleImage);
-      ImportNewPicture;
+      if AAllowDuplicate and (Image.FrameIndex <> -1) then dupIndex := Image.FrameIndex else dupIndex := -1;
+      newPicture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8, rsAnimatedGIF,
+        ASkipDialogIfSingleImage, dupIndex);
+      if newPicture.isDuplicate then
+      begin
+        newPicture.FreeAndNil;
+        Image.FrameIndex:= newPicture.frameIndex;
+        Image.OnImageChanged.NotifyObservers;
+      end
+      else ImportNewPicture;
     end else
     begin
       StartImport;

@@ -167,24 +167,25 @@ begin
   if ASelected then
   begin
     result.NameRect := rect(layerpos.X+round(LayerRectWidth*0.95),layerpos.Y,layerpos.X+StackWidth,layerPos.Y+LayerRectHeight div 2);
-    barwidth := StackWidth-InterruptorWidth-Int32or64(round(LayerRectWidth*1.1));
-    if barwidth > LayerRectWidth then barwidth := LayerRectWidth;
-    result.OpacityBar := rect(layerpos.X+LayerRectWidth,layerpos.Y+LayerRectHeight div 2,layerpos.X+LayerRectWidth+barwidth,layerpos.Y+LayerRectHeight);
-    rOpacity := rect(result.OpacityBar.left,(result.OpacityBar.top*7+result.OpacityBar.bottom) div 8,result.OpacityBar.right,
-        (result.OpacityBar.top+result.OpacityBar.bottom*7) div 8);
+    barwidth := StackWidth-InterruptorWidth-round(LayerRectWidth*0.92)-ABitmap.FontFullHeight div 2;
+    result.OpacityBar := rect(layerpos.X+round(LayerRectWidth*0.92),layerpos.Y+LayerRectHeight div 2,
+                              layerpos.X+round(LayerRectWidth*0.92)+barwidth,layerpos.Y+LayerRectHeight);
+    rOpacity := rect(result.OpacityBar.left,(result.OpacityBar.top*7+result.OpacityBar.bottom) div 8,
+                     result.OpacityBar.right,(result.OpacityBar.top+result.OpacityBar.bottom*7) div 8);
     ABitmap.Rectangle(rOpacity,lColor,dmSet);
     rOpacity.Inflate(-1,-1);
     bmpOpacity := TBGRABitmap.Create(rOpacity.Width,rOpacity.Height,BGRABlack);
     rFill := rect(0,0,round(bmpOpacity.Width*LazPaintInstance.Image.LayerOpacity[LayerIndex]/255),bmpOpacity.Height);
     bmpOpacity.ClipRect := rFill;
     bmpOpacity.FillRect(rFill, CSSSilver,dmSet);
-    bmpOpacity.FontFullHeight := bmpOpacity.Height;
+    bmpOpacity.FontFullHeight := min(bmpOpacity.Height, ABitmap.FontFullHeight*2);
     bmpOpacity.FontName := ABitmap.FontName;
     bmpOpacity.FontStyle:= [fsBold];
+    bmpOpacity.FontVerticalAnchor:= fvaCenter;
     percentStr := IntToStr(round(LazPaintInstance.Image.LayerOpacity[LayerIndex]*100/255))+'%';
-    bmpOpacity.TextOut(bmpOpacity.Width/2,0, percentStr, BGRABlack, taCenter);
+    bmpOpacity.TextOut(bmpOpacity.Width/2,bmpOpacity.Height/2, percentStr, BGRABlack, taCenter);
     bmpOpacity.ClipRect := rect(rFill.Right,rFill.Top,bmpOpacity.Width,rFill.Bottom);
-    bmpOpacity.TextOut(bmpOpacity.Width/2,0, percentStr, BGRAWhite, taCenter);
+    bmpOpacity.TextOut(bmpOpacity.Width/2,bmpOpacity.Height/2, percentStr, BGRAWhite, taCenter);
     ABitmap.FillMask(rOpacity.Left,rOpacity.Top,bmpOpacity, lColor, dmDrawWithTransparency);
     bmpOpacity.Free;
   end

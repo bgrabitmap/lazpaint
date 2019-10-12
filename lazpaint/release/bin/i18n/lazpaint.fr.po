@@ -1720,6 +1720,10 @@ msgstr "Le dossier n'est pas vide"
 msgid "Dither layer using palette"
 msgstr "Tramer le calque en utilisant la palette"
 
+#: uresourcestrings.rsduplicateimage
+msgid "Duplicate image"
+msgstr "Dupliquer l'image"
+
 #: uresourcestrings.rseditmask
 msgctxt "uresourcestrings.rseditmask"
 msgid "Edit mask"
