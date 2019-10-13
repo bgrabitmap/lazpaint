@@ -33,7 +33,7 @@ msgstr "Farbe der Palette hinzufügen"
 
 #: tfchoosecolor.bcbutton_removefrompalette.hint
 msgid "Remove color from palette"
-msgstr "Farbe von der Palette entfernen"
+msgstr "Farbe von Palette entfernen"
 
 #: tfchoosecolor.caption
 msgctxt "tfchoosecolor.caption"
@@ -42,7 +42,7 @@ msgstr "Farbe"
 
 #: tfchoosecolor.lcolor.hint
 msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
-msgstr "Farbbeschreibung: Anklicken um einen Farbnamen oder CSS Farbcode mit der Tastatur einzugeben"
+msgstr "Farbbeschreibung: Anklicken, um Farbnamen oder CSS Farbcode mit der Tastatur einzugeben"
 
 #: tflayerstack.caption
 msgctxt "tflayerstack.caption"
@@ -56,12 +56,12 @@ msgstr "Überblendungseffekt auswählen"
 #: tflayerstack.toolzoomlayerstackin.hint
 msgctxt "tflayerstack.toolzoomlayerstackin.hint"
 msgid "Zoom layer stack in"
-msgstr "Ebenenfenster einzoomen"
+msgstr "Ebenefenster einzoomen"
 
 #: tflayerstack.toolzoomlayerstackout.hint
 msgctxt "tflayerstack.toolzoomlayerstackout.hint"
 msgid "Zoom layer stack out"
-msgstr "Ebenenfenster auszoomen"
+msgstr "Ebenefenster auszoomen"
 
 #: tfmain.brushcreategeometric.hint
 msgctxt "tfmain.brushcreategeometric.hint"
@@ -75,7 +75,7 @@ msgstr "Pinsel aus Datei laden..."
 
 #: tfmain.brushremovecurrent.hint
 msgid "Remove current brush"
-msgstr "aktuellen Pinsel entfernen"
+msgstr "Aktuellen Pinsel entfernen"
 
 #: tfmain.caption
 msgctxt "tfmain.caption"
@@ -84,7 +84,7 @@ msgstr "LazPaint"
 
 #: tfmain.colorcolorize.caption
 msgid "Colorize..."
-msgstr "Färben..."
+msgstr "Kolorieren..."
 
 #: tfmain.colorcurves.caption
 msgid "Curves..."
@@ -114,7 +114,7 @@ msgstr "Farben tauschen..."
 
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
-msgstr ""
+msgstr "Stiftstil"
 
 #: tfmain.editcopy.caption
 msgid "Copy"
@@ -153,19 +153,19 @@ msgstr "Auswahl umkehren"
 
 #: tfmain.editmovedown.hint
 msgid "Move down"
-msgstr ""
+msgstr "Nach unten verlegen"
 
 #: tfmain.editmovetoback.hint
 msgid "Send to back"
-msgstr ""
+msgstr "Hinterlegen"
 
 #: tfmain.editmovetofront.hint
 msgid "Bring to front"
-msgstr ""
+msgstr "Vorne bringen"
 
 #: tfmain.editmoveup.hint
 msgid "Move up"
-msgstr ""
+msgstr "Nach oben bringen"
 
 #: tfmain.editpaste.hint
 msgctxt "TFMAIN.EDITPASTE.HINT"
@@ -183,7 +183,7 @@ msgstr "Als neue Ebene einfügen"
 #: tfmain.editredo.hint
 msgctxt "TFMAIN.EDITREDO.HINT"
 msgid "Redo"
-msgstr "Rückgängig"
+msgstr "Wiederholen"
 
 #: tfmain.editselectall.caption
 msgctxt "tfmain.editselectall.caption"
@@ -206,31 +206,31 @@ msgstr "An Auswahl anpassen"
 
 #: tfmain.editshapealignbottom.hint
 msgid "Align shape to the bottom"
-msgstr ""
+msgstr "Form unten angleichen"
 
 #: tfmain.editshapealignleft.hint
 msgid "Align shape left"
-msgstr ""
+msgstr "Form links angleichen"
 
 #: tfmain.editshapealignright.hint
 msgid "Align shape right"
-msgstr ""
+msgstr "Form rechts angleichen"
 
 #: tfmain.editshapealigntop.hint
 msgid "Align shape to the top"
-msgstr ""
+msgstr "Form oben angleichen"
 
 #: tfmain.editshapecenterhorizontally.hint
 msgid "Center shape horizontally"
-msgstr ""
+msgstr "Form horizontal zentrieren"
 
 #: tfmain.editshapecentervertically.hint
 msgid "Center shape vertically"
-msgstr ""
+msgstr "Form vertikal zentrieren"
 
 #: tfmain.editshapetocurve.hint
 msgid "Convert shape to curve"
-msgstr ""
+msgstr "Form zu Kurve konvertieren"
 
 #: tfmain.editundo.caption
 msgid "Undo"
@@ -238,7 +238,7 @@ msgstr "Rückgängig"
 
 #: tfmain.editundo.hint
 msgid "Undo last modification"
-msgstr "Letzte Änderung rückgängig"
+msgstr "Rückgängig"
 
 #: tfmain.embeddedcancel.caption
 msgctxt "TFMAIN.EMBEDDEDCANCEL.CAPTION"
@@ -259,15 +259,15 @@ msgstr "Änderungen prüfen"
 
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
-msgstr ""
+msgstr "Eintrag auswählen"
 
 #: tfmain.filechooseentry.hint
 msgid "Choose entry within file"
-msgstr ""
+msgstr "Eintrag von Datei auswählen"
 
 #: tfmain.fileimport3d.caption
 msgid "Import 3D object..."
-msgstr "Importiere 3D-Objekt..."
+msgstr "3D-Objekt importieren..."
 
 #: tfmain.fileloadselection.caption
 msgid "Load selection..."
@@ -279,7 +279,7 @@ msgstr "Neu..."
 
 #: tfmain.filenew.hint
 msgid "Create a new file"
-msgstr "Erstelle eine neue Datei"
+msgstr "Neue Datei erstellen"
 
 #: tfmain.fileopen.caption
 msgid "Open..."
@@ -288,7 +288,7 @@ msgstr "Öffnen..."
 #: tfmain.fileopen.hint
 msgctxt "TFMAIN.FILEOPEN.HINT"
 msgid "Open existing file"
-msgstr "Öffne eine existierende Datei"
+msgstr "Datei öffnen"
 
 #: tfmain.fileprint.caption
 msgid "Print..."
@@ -306,7 +306,7 @@ msgstr "Neu laden"
 
 #: tfmain.fileremembersaveformat.hint
 msgid "Remember save format"
-msgstr ""
+msgstr "Sich Speicherformat einprägen"
 
 #: tfmain.filesave.caption
 msgctxt "TFMAIN.FILESAVE.CAPTION"
@@ -327,17 +327,17 @@ msgstr "Datei speichern als"
 
 #: tfmain.filesaveasinsamefolder.caption
 msgid "Save in same folder..."
-msgstr "Speichern in dem selben Dateiverzeichnis..."
+msgstr "Speichern in demselben Verzeichnis..."
 
 #: tfmain.filesaveselectionas.caption
 msgctxt "TFMAIN.FILESAVESELECTIONAS.CAPTION"
 msgid "Save selection as..."
-msgstr "Auswahl sichern unter..."
+msgstr "Auswahl speichern unter..."
 
 #: tfmain.fileuseimagebrowser.caption
 msgctxt "tfmain.fileuseimagebrowser.caption"
 msgid "Use image browser"
-msgstr ""
+msgstr "Bild-Browser verwenden"
 
 #: tfmain.filterblurbox.caption
 msgid "Box blur..."
@@ -388,11 +388,11 @@ msgstr "Inverses Cleartype"
 
 #: tfmain.filtercomplementarycolor.caption
 msgid "Complementary colors"
-msgstr "Komplementär Farben"
+msgstr "Komplementärfarben"
 
 #: tfmain.filtercontour.caption
 msgid "Contour"
-msgstr "Kontur"
+msgstr "Umriss"
 
 #: tfmain.filtercylinder.caption
 msgid "Cylinder"
@@ -468,15 +468,15 @@ msgstr "Wirbel..."
 
 #: tfmain.filterwavedisplacement.caption
 msgid "Wave diplacement..."
-msgstr ""
+msgstr "Wellen-Wandel..."
 
 #: tfmain.forgetdialoganswers.caption
 msgid "Forget dialog box answers"
-msgstr ""
+msgstr "Dialog-Eingaben vergessen"
 
 #: tfmain.forgetdialoganswers.hint
 msgid "Forget answers given to dialog boxes"
-msgstr ""
+msgstr "Die Eingaben im Dialog-Box vergessen"
 
 #: tfmain.helpabout.caption
 msgid "About..."
@@ -500,7 +500,7 @@ msgstr "Freistellen"
 
 #: tfmain.imagecroplayer.caption
 msgid "Crop to selection and current layer"
-msgstr "Zuschneiden auf Auswahl und aktuelle Ebene"
+msgstr "Auf Auswahl und aktuelle Ebene zuschneiden"
 
 #: tfmain.imagefillbackground.caption
 msgid "Fill background with antialiasing"
@@ -518,7 +518,7 @@ msgstr "Horizontal spiegeln"
 #: tfmain.imagehorizontalflip.hint
 msgctxt "tfmain.imagehorizontalflip.hint"
 msgid "Flip image horizontally"
-msgstr "Spiegle das Bild horizontal"
+msgstr "Das Bild horizontal spiegeln"
 
 #: tfmain.imagelinearnegative.caption
 msgctxt "tfmain.imagelinearnegative.caption"
@@ -544,11 +544,11 @@ msgstr "Bild resamplen"
 
 #: tfmain.imagerotateccw.caption
 msgid "Rotate 90° CCW"
-msgstr "Drehung 90° Gegenuhrzeigersinn"
+msgstr "Drehung 90° gegen den UZS"
 
 #: tfmain.imagerotatecw.caption
 msgid "Rotate 90° CW"
-msgstr "Drehung 90° Uhrzeigersinn"
+msgstr "Drehung 90° im Uhrzeigersinn (UZS)"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
@@ -565,7 +565,7 @@ msgstr "Vertikal spiegeln"
 
 #: tfmain.imageverticalflip.hint
 msgid "Flip image vertically"
-msgstr "Spiegle das Bild vertikal"
+msgstr "Das Bild vertikal spiegeln"
 
 #: tfmain.image_currenttexture.hint
 msgctxt "tfmain.image_currenttexture.hint"
@@ -580,16 +580,16 @@ msgstr "Gewähltes Werkzeug"
 #: tfmain.image_swapcolors.hint
 msgctxt "tfmain.image_swapcolors.hint"
 msgid "Switch color"
-msgstr "Tausche Farben"
+msgstr "Farben tauschen"
 
 #: tfmain.itemdocklayersandcolors.caption
 msgid "Dock layers and colors"
-msgstr "Ebenenfenster und Farbenfenster andocken"
+msgstr "Ebenenfenster und Farbenfenster anheften"
 
 #: tfmain.itemdonate.caption
 msgctxt "tfmain.itemdonate.caption"
 msgid "Donate..."
-msgstr "Spenden Sie..."
+msgstr "Spenden..."
 
 #: tfmain.itemfullscreen.caption
 msgid "Fullscreen"
@@ -598,7 +598,7 @@ msgstr "Vollbild"
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
 msgid "Use image browser"
-msgstr ""
+msgstr "Bild-Browser verwenden"
 
 #: tfmain.itemviewdocktoolbox.caption
 msgid "Dock toolbox"
@@ -687,7 +687,7 @@ msgstr "Rahmen"
 
 #: tfmain.label_ratio.caption
 msgid "Ratio"
-msgstr ""
+msgstr "Verhältnis"
 
 #: tfmain.label_shadowoffset.caption
 msgctxt "TFMAIN.LABEL_SHADOWOFFSET.CAPTION"
@@ -721,7 +721,7 @@ msgstr "Toleranz"
 #: tfmain.layeraddnew.hint
 msgctxt "tfmain.layeraddnew.hint"
 msgid "Add new layer"
-msgstr "Neue Ebene hinzufügen"
+msgstr "Neue Ebene hinfügen"
 
 #: tfmain.layerduplicate.hint
 msgctxt "tfmain.layerduplicate.hint"
@@ -731,16 +731,16 @@ msgstr "Ausgewählte Ebene duplizieren"
 #: tfmain.layerfromfile.hint
 msgctxt "tfmain.layerfromfile.hint"
 msgid "Import layer from file..."
-msgstr "Importiere Ebene aus Datei..."
+msgstr "Ebene aus Datei importieren..."
 
 #: tfmain.layerhorizontalflip.hint
 msgid "Flip layer horizontally"
-msgstr "Spiegle Ebene horizontal"
+msgstr "Ebene horizontal spiegeln"
 
 #: tfmain.layermergeover.hint
 msgctxt "tfmain.layermergeover.hint"
 msgid "Merge layer over"
-msgstr "Mit darunter liegender Ebene verbinden"
+msgstr "Mit darunterliegender Ebene verschmelzen"
 
 #: tfmain.layermove.hint
 msgctxt "tfmain.layermove.hint"
@@ -749,7 +749,7 @@ msgstr "Ebene verschieben"
 
 #: tfmain.layerrasterize.hint
 msgid "Rasterize layer"
-msgstr ""
+msgstr "Ebene rastern"
 
 #: tfmain.layerremovecurrent.hint
 msgctxt "tfmain.layerremovecurrent.hint"
@@ -764,11 +764,11 @@ msgstr "Ebene drehen"
 #: tfmain.layerverticalflip.hint
 msgctxt "tfmain.layerverticalflip.hint"
 msgid "Flip layer vertically"
-msgstr "Spiegle Ebene vertikal"
+msgstr "Ebene vertikal spiegeln"
 
 #: tfmain.layerzoom.hint
 msgid "Zoom layer"
-msgstr ""
+msgstr "Ebene zoomen"
 
 #: tfmain.loadselectiondialog.title
 msgid "Load selection"
@@ -785,7 +785,7 @@ msgstr "Koordinaten anzeigen"
 
 #: tfmain.menucopypastetoolbar.caption
 msgid "Show copy/paste toolbar"
-msgstr "Zeige Kopieren/Einfüge Werkzeug"
+msgstr "Kopieren/einfügen-Werkzeugleiste anzeigen"
 
 #: tfmain.menudocktoolboxleft.caption
 msgid "Dock left"
@@ -806,7 +806,7 @@ msgstr "Datei"
 
 #: tfmain.menufiletoolbar.caption
 msgid "Show file toolbar"
-msgstr ""
+msgstr "Datei-Werkzeugleiste anzeigen"
 
 #: tfmain.menufilter.caption
 msgctxt "tfmain.menufilter.caption"
@@ -856,7 +856,7 @@ msgstr "Auswahl"
 #: tfmain.menushowpalette.caption
 msgctxt "tfmain.menushowpalette.caption"
 msgid "Show palette"
-msgstr "Palette zeigen"
+msgstr "Palette anzeigen"
 
 #: tfmain.menutool.caption
 #| msgid "Tool"
@@ -870,7 +870,7 @@ msgstr "Lösen"
 
 #: tfmain.menuundoredotoolbar.caption
 msgid "Show undo/redo toolbar"
-msgstr "Zeige Rückgängig/Wiederholen Werkzeug"
+msgstr "Rückgängig/Wiederholen-Werkzeugleiste anzeigen"
 
 #: tfmain.menuview.caption
 msgctxt "tfmain.menuview.caption"
@@ -879,20 +879,20 @@ msgstr "Ansicht"
 
 #: tfmain.menuzoomtoolbar.caption
 msgid "Show zoom toolbar"
-msgstr "Zeige Zoom Werkzeug"
+msgstr "Zoom-Werkzeugleiste anzeigen"
 
 #: tfmain.open3dobjectdialog.title
 msgctxt "tfmain.open3dobjectdialog.title"
 msgid "Import 3D object"
-msgstr "Importiere 3D-Objekt"
+msgstr "3D-Objekt importieren"
 
 #: tfmain.openbrushdialog.title
 msgid "Open brush"
-msgstr "Pinsel öffnen"
+msgstr "Pinseldatei öffnen"
 
 #: tfmain.openpicturedialog1.title
 msgid "Open existing image"
-msgstr "Öffne eine existierende Datei"
+msgstr "Bilddatei öffnen"
 
 #: tfmain.opentexturedialog.title
 msgctxt "tfmain.opentexturedialog.title"
@@ -907,7 +907,7 @@ msgstr "Bild wiederholen"
 #: tfmain.perspective_twoplanes.hint
 msgctxt "tfmain.perspective_twoplanes.hint"
 msgid "Draw opposite plane too"
-msgstr "Zeichne auch die gegenüberliegende Fläche"
+msgstr "Gegenüberliegende Fläche zeichnen"
 
 #: tfmain.rendercamouflage.caption
 msgid "Camouflage"
@@ -919,7 +919,7 @@ msgstr "Wolken"
 
 #: tfmain.rendercustomwater.caption
 msgid "Water with custom colors"
-msgstr "Wasser mit eigenen Farben"
+msgstr "Wasser mit benutzerdefinierten Farben"
 
 #: tfmain.rendercyclicperlinnoise.caption
 msgctxt "tfmain.rendercyclicperlinnoise.caption"
@@ -965,7 +965,7 @@ msgstr "Holz"
 
 #: tfmain.renderwoodvertical.caption
 msgid "Vertical wood"
-msgstr "Holz vertikal"
+msgstr "Holz, vertikal"
 
 #: tfmain.savepicturedialog1.title
 msgid "Save file as..."
@@ -974,15 +974,15 @@ msgstr "Datei speichern als..."
 #: tfmain.saveselectiondialog.title
 msgctxt "TFMAIN.SAVESELECTIONDIALOG.TITLE"
 msgid "Save selection as..."
-msgstr "Auswahl sichern unter..."
+msgstr "Auswahl speichern unter..."
 
 #: tfmain.selectionhorizontalflip.hint
 msgid "Flip selection horizontally"
-msgstr ""
+msgstr "Auswahl horizontal spiegeln"
 
 #: tfmain.selectionverticalflip.hint
 msgid "Flip selection vertically"
-msgstr ""
+msgstr "Auswahl vertikal spiegeln"
 
 #: tfmain.shape_backcolor.hint
 msgctxt "tfmain.shape_backcolor.hint"
@@ -1066,7 +1066,7 @@ msgstr "Textgröße"
 #: tfmain.spinedit_textureopacity.hint
 msgctxt "tfmain.spinedit_textureopacity.hint"
 msgid "Texture opacity"
-msgstr "Textur Deckkraft"
+msgstr "Deckkraft der Textur"
 
 #: tfmain.toolbrush.hint
 msgctxt "tfmain.toolbrush.hint"
@@ -1080,7 +1080,7 @@ msgstr "Haftposition wechseln"
 
 #: tfmain.toolclone.hint
 msgid "Clone tool"
-msgstr "Klon Werkzeug"
+msgstr "Klon-Werkzeug"
 
 #: tfmain.toolcolorpicker.hint
 msgctxt "TFMAIN.TOOLCOLORPICKER.HINT"
@@ -1097,7 +1097,7 @@ msgstr "Verformungsgitter"
 
 #: tfmain.tooleditshape.hint
 msgid "Edit shape"
-msgstr ""
+msgstr "Form bearbeiten"
 
 #: tfmain.toolellipse.hint
 msgctxt "TFMAIN.TOOLELLIPSE.HINT"
@@ -1115,11 +1115,11 @@ msgstr "Füllung"
 
 #: tfmain.toolgradient.caption
 msgid "Gradient"
-msgstr "Verlauf"
+msgstr "Farbverlauf"
 
 #: tfmain.toolgradient.hint
 msgid "Render gradient"
-msgstr "Verlauf darstellen"
+msgstr "Farbverlauf darstellen"
 
 #: tfmain.toolhand.caption
 msgid "Hand"
@@ -1127,21 +1127,21 @@ msgstr "Hand"
 
 #: tfmain.toolhand.hint
 msgid "Move and scroll picture"
-msgstr "Bild bewegen und rollen"
+msgstr "Bild bewegen und abrollen"
 
 #: tfmain.toolhotspot.caption
 msgctxt "tfmain.toolhotspot.caption"
 msgid "Hot spot"
-msgstr ""
+msgstr "Hot-Spot"
 
 #: tfmain.toolhotspot.hint
 msgid "Choose hot spot of a cursor"
-msgstr ""
+msgstr "Cursor-Hot-Spot auswählen"
 
 #: tfmain.toollayermapping.hint
 msgctxt "tfmain.toollayermapping.hint"
 msgid "Layer perspective"
-msgstr "Ebenenperspektive"
+msgstr "Perspektive"
 
 #: tfmain.toolloadtexture.hint
 msgctxt "tfmain.toolloadtexture.hint"
@@ -1251,7 +1251,7 @@ msgstr "Texturzuweisung"
 
 #: tfmain.tool_aliasing.hint
 msgid "Disable antialiasing"
-msgstr ""
+msgstr "Antialiasing austellen"
 
 #: tfmain.tool_capflat.hint
 msgctxt "TFMAIN.TOOL_CAPFLAT.HINT"
@@ -1303,7 +1303,7 @@ msgstr "Rahmen zeichnen"
 #: tfmain.tool_erasealpha.hint
 msgctxt "tfmain.tool_erasealpha.hint"
 msgid "Make transparent"
-msgstr "Transparent machen"
+msgstr "Durchsichtig machen"
 
 #: tfmain.tool_eraseblur.hint
 msgctxt "tfmain.tool_eraseblur.hint"
@@ -1363,7 +1363,7 @@ msgstr "Abgerundetes Rechteck"
 #: tfmain.tool_phongshapesphere.hint
 msgctxt "tfmain.tool_phongshapesphere.hint"
 msgid "Sphere"
-msgstr "Kugele"
+msgstr "Kugel"
 
 #: tfmain.tool_phongshapeverticalcone.hint
 msgctxt "tfmain.tool_phongshapeverticalcone.hint"
@@ -1403,7 +1403,7 @@ msgstr "Sinusverlauf"
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
 msgid "Choose font..."
-msgstr "Wählen Sie die Schriftart..."
+msgstr "Schriftart auswählen..."
 
 #: tfmain.tool_textoutline.hint
 #| msgid "Progressive floodfill"
@@ -1428,7 +1428,7 @@ msgstr "Farben"
 
 #: tfmain.viewdarktheme.caption
 msgid "Dark theme"
-msgstr ""
+msgstr "Dunkler Untergrund"
 
 #: tfmain.viewgrid.caption
 msgctxt "TFMAIN.VIEWGRID.CAPTION"
@@ -1447,12 +1447,12 @@ msgstr "Ebenen"
 #: tfmain.viewlayerstackbutton.caption
 msgctxt "tfmain.viewlayerstackbutton.caption"
 msgid "Show layers"
-msgstr "Zeige Ebenen"
+msgstr "Ebenen anzeigen"
 
 #: tfmain.viewlayerstackbutton.hint
 msgctxt "tfmain.viewlayerstackbutton.hint"
 msgid "Show or hide layer stack window"
-msgstr "Ebenenfenster zeigen oder verbergen"
+msgstr "Ebenenfenster anzeigen oder verbergen"
 
 #: tfmain.viewpalette.caption
 msgctxt "tfmain.viewpalette.caption"
@@ -1461,7 +1461,7 @@ msgstr "Palette"
 
 #: tfmain.viewstatusbar.caption
 msgid "Status bar"
-msgstr ""
+msgstr "Statusleiste"
 
 #: tfmain.viewtoolbox.caption
 msgid "Toolbox"
@@ -1469,7 +1469,7 @@ msgstr "Werkzeugleiste"
 
 #: tfmain.viewworkspacecolor.caption
 msgid "Set workspace color..."
-msgstr ""
+msgstr "Arbeitsbereich-Farbe auswählen"
 
 #: tfmain.viewzoomfit.caption
 msgctxt "tfmain.viewzoomfit.caption"
@@ -1479,7 +1479,7 @@ msgstr "Zoom anpassen"
 #: tfmain.viewzoomfit.hint
 msgctxt "TFMAIN.VIEWZOOMFIT.HINT"
 msgid "Zoom to fit in the window"
-msgstr "Zoom an das Fenster anpassen"
+msgstr "Zoom an Fenster anpassen"
 
 #: tfmain.viewzoomin.hint
 msgctxt "TFMAIN.VIEWZOOMIN.HINT"
@@ -1537,19 +1537,19 @@ msgstr "OK"
 
 #: tfwavedisplacement.caption
 msgid "Wave displacement"
-msgstr ""
+msgstr "Wellen-Wandel"
 
 #: tfwavedisplacement.label_displacement.caption
 msgid "Displacement :"
-msgstr ""
+msgstr "Versatz:"
 
 #: tfwavedisplacement.label_phase.caption
 msgid "Phase :"
-msgstr ""
+msgstr "Phase:"
 
 #: tfwavedisplacement.label_wavelength.caption
 msgid "Wavelength :"
-msgstr ""
+msgstr "Wellenlänge:"
 
 #: uresourcestrings.rsactioninprogress
 msgid "Action in progress"
@@ -1557,11 +1557,11 @@ msgstr "Aktion wird durchgeführt"
 
 #: uresourcestrings.rsaddtoimagelist
 msgid "Add files to the image processing list"
-msgstr "Bild zur Bildverarbeitungsliste hinzufügen"
+msgstr "Bild zur Bildverarbeitungsliste hinfügen"
 
 #: uresourcestrings.rsalignshape
 msgid "Align shape"
-msgstr ""
+msgstr "Form angleichen"
 
 #: uresourcestrings.rsallapplications
 msgid "all"
@@ -1577,7 +1577,7 @@ msgstr "ALT"
 
 #: uresourcestrings.rsholdkeysscalemode
 msgid "Hold %1 or %2 to scale"
-msgstr "Halten Sie %1 oder %2 zum Skalieren"
+msgstr "%1 oder %2 halten zum Skalieren"
 
 #: uresourcestrings.rsanimatedgif
 msgid "Animated GIF"
@@ -1585,7 +1585,7 @@ msgstr "Animiertes GIF"
 
 #: uresourcestrings.rsautodetect
 msgid "Autodetect"
-msgstr ""
+msgstr "Autodetect"
 
 #: uresourcestrings.rsbackspaceremovelastpoint
 msgid "Press BACKSPACE to remove last point"
@@ -1622,7 +1622,7 @@ msgstr "Abbruch"
 
 #: uresourcestrings.rscannotdrawshapeonsvglayer
 msgid "Cannot draw shape on SVG layer"
-msgstr ""
+msgstr "Form kann nicht auf SVG-Ebene gezeichnet werden"
 
 #: uresourcestrings.rscannotopenfile
 msgid "Cannot open file"
@@ -1639,7 +1639,7 @@ msgstr "CD"
 
 #: uresourcestrings.rsclearpalette
 msgid "Clear palette"
-msgstr "Palette entfernen"
+msgstr "Palette räumen"
 
 #: uresourcestrings.rscloserequest
 msgid "Close request"
@@ -1652,19 +1652,19 @@ msgstr "Farben"
 
 #: uresourcestrings.rsconfirmdeletefromcontainer
 msgid "Are you sure you want to delete this file from the container?"
-msgstr ""
+msgstr "Möchten Sie wirklich diese Datei aus dem Containerdatei löschen?"
 
 #: uresourcestrings.rsconfirmdeletemultiplefromcontainer
 msgid "Are you sure you want to delete these %1 files from the container?"
-msgstr ""
+msgstr "Möchten Sie wirklich diese %1 Datei aus dem Containerdatei löschen?"
 
 #: uresourcestrings.rsconfirmmovemultipletotrash
 msgid "Are you sure you want to move these %1 files to the trash?"
-msgstr "Sind Sie sicher diese %1 Dateien in den Papierkorb verschieben möchten?"
+msgstr "Möchten Sie wirklich diese %1 Datei in den Papierkorb verschieben?"
 
 #: uresourcestrings.rsconfirmmovetotrash
 msgid "Are you sure you want to move this file to the trash?"
-msgstr "Sind Sie sicher diese Datei in den Papierkorb verschieben möchten?"
+msgstr "Möchten Sie wirklich diese %1 Datei in den Papierkorb verschieben?"
 
 #: uresourcestrings.rsconflictingactions
 msgid "Conflicting actions"
@@ -1677,12 +1677,12 @@ msgstr "Kontrast"
 #: uresourcestrings.rscorrectedhueccw
 msgctxt "uresourcestrings.rscorrectedhueccw"
 msgid "Corr. Hue CCW"
-msgstr ""
+msgstr "Färbung gegen UZS, korr."
 
 #: uresourcestrings.rscorrectedhuecw
 msgctxt "uresourcestrings.rscorrectedhuecw"
 msgid "Corr. Hue CW"
-msgstr ""
+msgstr "Färbung in UZS, korrigiert"
 
 #: uresourcestrings.rscosine
 msgid "Cosine"
@@ -1690,7 +1690,7 @@ msgstr "Kosinus"
 
 #: uresourcestrings.rscrop
 msgid "Crop"
-msgstr "Beschneiden"
+msgstr "Zuchneiden"
 
 #: uresourcestrings.rsctrl
 msgid "CTRL"
@@ -1706,7 +1706,7 @@ msgstr "Halten Sie %1 für stufenweise Drehung"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
-msgstr "S oder X drücken um die Farbkurve auf den letzten Punkt zu setzen"
+msgstr "S oder X drücken um das Kurvenmodus des letzten Punkt zu bestimmen"
 
 #: uresourcestrings.rsdefaultpalette
 msgid "Default palette"
@@ -1719,15 +1719,15 @@ msgstr "Löschen"
 
 #: uresourcestrings.rsdeleteimageentry
 msgid "Delete selected image entry?"
-msgstr ""
+msgstr "Ausgewählte Bildeintrag löschen?"
 
 #: uresourcestrings.rsdirectorynotempty
 msgid "Directory is not empty"
-msgstr ""
+msgstr "Das Verzeichnis ist nicht leer"
 
 #: uresourcestrings.rsditherlayerusingpalette
 msgid "Dither layer using palette"
-msgstr "Dither auf Palette dieser Ebene anwenden"
+msgstr "Dithering auf dieser Ebene mit der Palette anwenden"
 
 #: uresourcestrings.rsduplicateimage
 msgid "Duplicate image"
@@ -1739,7 +1739,7 @@ msgstr "Maske bearbeiten"
 
 #: uresourcestrings.rseditselection
 msgid "Edit selection"
-msgstr "Bearbeite Auswahl"
+msgstr "Auswahl bearbeiten"
 
 #: uresourcestrings.rsedittexture
 msgid "Edit texture"
@@ -1747,23 +1747,23 @@ msgstr "Textur bearbeiten"
 
 #: uresourcestrings.rsemptylayer
 msgid "Layer is empty"
-msgstr "Ebene ist leer"
+msgstr "Die Ebene ist leer"
 
 #: uresourcestrings.rsemptyselection
 msgid "Selection is empty"
-msgstr "Auswahl ist leer"
+msgstr "Der Auswahl ist leer"
 
 #: uresourcestrings.rsenterfolderorcontainername
 msgid "Enter name for new folder or container (using RES or LRS extension):"
-msgstr ""
+msgstr "Namen für neues Verzeichnis oder Container (mit RES oder LRS Erweiterung) eingeben"
 
 #: uresourcestrings.rsenterlayername
 msgid "Enter layer name:"
-msgstr "Geben Sie den Ebenennamen ein:"
+msgstr "Ebenenamen eingeben:"
 
 #: uresourcestrings.rsentries
 msgid "Entries"
-msgstr ""
+msgstr "Einträge"
 
 #: uresourcestrings.rserror
 msgid "Error"
@@ -1771,7 +1771,7 @@ msgstr "Fehler"
 
 #: uresourcestrings.rserrorloadingoriginal
 msgid "Error while loading original however layer can be rasterized."
-msgstr ""
+msgstr "Fehler beim Laden vom Original, die Ebene kann aber gerastert weredn"
 
 #: uresourcestrings.rserroronopeningfile
 msgid "Error on opening file \"%1\""
@@ -1799,7 +1799,7 @@ msgstr "Schnell"
 
 #: uresourcestrings.rsfilecannotbeempty
 msgid "File cannot be empty"
-msgstr ""
+msgstr "Datei darf nicht leer sein"
 
 #: uresourcestrings.rsfiledate
 msgid "Date"
@@ -1811,7 +1811,7 @@ msgstr "Diese Dateierweiterung wird nicht unterstützt."
 
 #: uresourcestrings.rsfileformatnotrecognized
 msgid "The file format has not been recognized."
-msgstr "Diese Dateiformat konnte nicht erkannt werden."
+msgstr "Dieses Dateiformat konnte nicht erkannt werden."
 
 #: uresourcestrings.rsfilename
 msgid "Filename"
@@ -1819,7 +1819,7 @@ msgstr "Dateiname"
 
 #: uresourcestrings.rsfilenotfound
 msgid "File not found!"
-msgstr "Datei nicht gefunden"
+msgstr "Datei nicht gefunden!"
 
 #: uresourcestrings.rsfilenotsaved
 msgid "File not saved"
@@ -1847,7 +1847,7 @@ msgstr "Ordner"
 
 #: uresourcestrings.rsfolderorcontaineralreadyexists
 msgid "Folder or container already exists."
-msgstr ""
+msgstr "Ordner oder Container existiert schon."
 
 #: uresourcestrings.rsfollowingerrorsoccured
 msgid "Following errors occured:"
@@ -1855,7 +1855,7 @@ msgstr "Folgende Fehler traten auf:"
 
 #: uresourcestrings.rsframes
 msgid "Frames"
-msgstr ""
+msgstr "Rahmen"
 
 #: uresourcestrings.rsfunctionnotdefined
 msgid "The function %1 is not defined."
@@ -1871,7 +1871,7 @@ msgstr "Halber Kosinus"
 
 #: uresourcestrings.rsholdkeysnaptopixel
 msgid "Hold %1 to snap to pixels"
-msgstr "Halten Sie %1 zum Ausrichten am raster"
+msgstr "Halten Sie %1 zum Ausrichten am Raster"
 
 #: uresourcestrings.rsshift
 msgid "SHIFT"
@@ -1879,12 +1879,12 @@ msgstr "UMSCHALT"
 
 #: uresourcestrings.rsholdkeyforsquare
 msgid "Hold %1 to draw a square or a circle"
-msgstr "Halten Sie %2 für ein Quadrat / einen Kreis"
+msgstr "Halten Sie %1 für ein Quadrat / einen Kreis"
 
 #: uresourcestrings.rshotspot
 msgctxt "uresourcestrings.rshotspot"
 msgid "Hot spot"
-msgstr ""
+msgstr "Hot-Spot"
 
 #: uresourcestrings.rshue
 msgctxt "uresourcestrings.rshue"
@@ -1894,25 +1894,25 @@ msgstr "Farbton"
 #: uresourcestrings.rshueccw
 msgctxt "uresourcestrings.rshueccw"
 msgid "Hue CCW"
-msgstr ""
+msgstr "Färbung gegen UZS"
 
 #: uresourcestrings.rshuecw
 msgctxt "uresourcestrings.rshuecw"
 msgid "Hue CW"
-msgstr ""
+msgstr "Färbung in UZS"
 
 #: uresourcestrings.rsiconimagealreadyexists
 msgid "There is already an image with this size and depth."
-msgstr ""
+msgstr "Es gibt schon ein Bild mit dieser Größe und Tiefe"
 
 #: uresourcestrings.rsiconorcursor
 msgid "Icon/cursor"
-msgstr "Icon/Cursor"
+msgstr "Ikon/Cursor"
 
 #: uresourcestrings.rsiconsize
 msgctxt "uresourcestrings.rsiconsize"
 msgid "Icon size"
-msgstr ""
+msgstr "Ikongröße"
 
 #: uresourcestrings.rsimagetoobig
 msgid "Image is too big"
@@ -1921,7 +1921,7 @@ msgstr "Bild ist zu groß"
 #: uresourcestrings.rsinfinity
 msgctxt "uresourcestrings.rsinfinity"
 msgid "Infinity"
-msgstr ""
+msgstr "Unendlichkeit"
 
 #: uresourcestrings.rsinformation
 msgid "Information"
@@ -1938,7 +1938,7 @@ msgstr "Interner Fehler"
 
 #: uresourcestrings.rsinvalidname
 msgid "Invalid name"
-msgstr ""
+msgstr "Ungültiger Name"
 
 #: uresourcestrings.rsinvalidopacity
 msgid "Invalid opacity : "
@@ -1954,11 +1954,11 @@ msgstr "Ungültige Größe für neu:"
 
 #: uresourcestrings.rskeepchanges
 msgid "Do you want to keep changes?"
-msgstr "Wollen Sie die Änderungen beibehalten?"
+msgstr "Möchten Sie die Änderungen beibehalten?"
 
 #: uresourcestrings.rskeepemptyspace
 msgid "Keep empty space around opaque pixels?"
-msgstr "Freiraum um durchsichtige Pixel behalten?"
+msgstr "Freiraum um undurchsichtige Pixel behalten?"
 
 #: uresourcestrings.rslanczos
 msgid "Lanczos %1"
@@ -1974,7 +1974,7 @@ msgstr "Die letzte online-verfügbare Version von LazPaint ist"
 
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
-msgstr "Ebenenbild"
+msgstr "Bild mit Ebenen"
 
 #: uresourcestrings.rslayers
 msgctxt "uresourcestrings.rslayers"
@@ -2009,7 +2009,7 @@ msgstr "Linear"
 
 #: uresourcestrings.rslinearrgb
 msgid "Linear RGB"
-msgstr ""
+msgstr "Linear RGB"
 
 #: uresourcestrings.rsloadandmergepalette
 msgid "Load and merge palette..."
@@ -2017,23 +2017,23 @@ msgstr "Palette laden und zusammenfügen"
 
 #: uresourcestrings.rsloading
 msgid "Loading"
-msgstr "Laden"
+msgstr "Datei wird geladen"
 
 #: uresourcestrings.rsloadpalette
 msgid "Load palette..."
-msgstr "Palette laden"
+msgstr "Palette laden..."
 
 #: uresourcestrings.rsloopcount
 msgid "Loop count"
-msgstr ""
+msgstr "Loop-Zahl"
 
 #: uresourcestrings.rsmakencolorspalettefrombitmap
 msgid "Make %1-colors palette from image"
-msgstr "Erstelle eine %1-Farben-Palette des Bildes"
+msgstr "Eine %1-Farben-Palette des Bildes erstellen"
 
 #: uresourcestrings.rsmergeselection
 msgid "Do you want to merge selection?"
-msgstr "Wollen Sie die Auswahl zusammenfügen?"
+msgstr "Möchten Sie die Auswahl zusammenfügen?"
 
 #: uresourcestrings.rsmitchell
 msgid "Mitchell"
@@ -2049,11 +2049,11 @@ msgstr "Auswahl wird bewegt oder gedreht"
 
 #: uresourcestrings.rsmustreleaseselection
 msgid "You must first release the selection"
-msgstr "Heben Sie zuerst die Auswahl auf"
+msgstr "Bitte heben Sie zuerst die Auswahl auf"
 
 #: uresourcestrings.rsmustshowlayer
 msgid "You must first make the layer visible"
-msgstr "Machen Sie die Ebene zuerst sichtbar"
+msgstr "Bitte machen Sie die Ebene zuerst sichtbar"
 
 #: uresourcestrings.rsnetworkdrive
 msgid "Network"
@@ -2098,7 +2098,7 @@ msgstr "Es gibt nichts zurückzuholen"
 
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
-msgstr "Es wird nicht empfohlen solch ein großes Bild in diesem Dateiformat zu speichern."
+msgstr "Es wird nicht empfohlen, ein so großes Bild in diesem Dateiformat zu speichern."
 
 #: uresourcestrings.rsnumber
 msgid "№"
@@ -2114,11 +2114,11 @@ msgstr "Deckkraft"
 
 #: uresourcestrings.rsopen
 msgid "Open"
-msgstr "Öffne"
+msgstr "Öffnen"
 
 #: uresourcestrings.rsopenfilesaslayers
 msgid "Open files as layers in a single image"
-msgstr "Öffne Dateien als einzelne Ebenen in einem Bild"
+msgstr "Dateien als Ebenen in einem einzigen Bild öffnen"
 
 #: uresourcestrings.rsopenfirstfileonly
 msgid "Open the first file only"
@@ -2126,11 +2126,11 @@ msgstr "Öffne nur die erste Datei"
 
 #: uresourcestrings.rsopening
 msgid "Opening"
-msgstr "Beim Öffnen"
+msgstr "Datei wird geöffnet"
 
 #: uresourcestrings.rsopenmultipleimagefiles
 msgid "Open multiple image files"
-msgstr "Öffne in mehreren Bilddateien"
+msgstr "Mehrere Bilddateien öffnen"
 
 #: uresourcestrings.rsotherblendop
 msgid "Other..."
@@ -2138,7 +2138,7 @@ msgstr "Andere..."
 
 #: uresourcestrings.rsoverwritefile
 msgid "File already exists. Do you want to overwrite it?"
-msgstr "Datei existiert schon. Wollen Sie sie überschreiben?"
+msgstr "Die Datei existiert schon. Möchten Sie sie überschreiben?"
 
 #: uresourcestrings.rspaletteincludesalphachannel
 msgid "Palette includes alpha channel"
@@ -2159,7 +2159,7 @@ msgstr "Hochformat"
 
 #: uresourcestrings.rsposterizelayerusingpalette
 msgid "Posterize layer using palette"
-msgstr "Posterisierung auf Palette dieser Ebene anwenden"
+msgstr "Posterisierung der Ebene mit der Palette anwenden"
 
 #: uresourcestrings.rspresetname
 msgid "Preset name"
@@ -2175,11 +2175,11 @@ msgstr "RAM-Disk"
 
 #: uresourcestrings.rsrasterlayer
 msgid "Raster layer"
-msgstr ""
+msgstr "Raster-Ebene"
 
 #: uresourcestrings.rsrecentdirectories
 msgid "Recent directories:"
-msgstr "Letzte Verzeichnisse"
+msgstr "Letzte Verzeichnisse:"
 
 #: uresourcestrings.rsred
 msgid "Red"
@@ -2192,7 +2192,7 @@ msgstr "Neu laden"
 
 #: uresourcestrings.rsreloadchanged
 msgid "Bitmap has been modified. Do you really want to reload?"
-msgstr "Die Bitmap wurde verändert. Wollen Sie sie wirklich neu laden?"
+msgstr "Die Bitmap wurde verändert. Möchten Sie sie wirklich neu laden?"
 
 #: uresourcestrings.rsremovabledrive
 msgid "Removable"
@@ -2205,7 +2205,7 @@ msgstr "Bild wiederholen"
 
 #: uresourcestrings.rsretrieveselectedarea
 msgid "Do you want to retrieve selected area?"
-msgstr "Wollen Sie den ausgewählten Bereich zurückholen?"
+msgstr "Möchten Sie den ausgewählten Bereich zurückholen?"
 
 #: uresourcestrings.rsreturnvalides
 msgid "Press ENTER to validate"
@@ -2237,7 +2237,7 @@ msgstr "Mit angegebenem Dateinamen speichern"
 
 #: uresourcestrings.rssavechanges
 msgid "Current bitmap has been modified. Do you want to save changes?"
-msgstr "Aktuelle Bitmap wurde geändert. Wollen Sie die Änderungen speichern?"
+msgstr "Das aktuelle Bitmap wurde geändert. Möchten Sie die Änderungen speichern?"
 
 #: uresourcestrings.rssavepaletteas
 msgid "Save palette as..."
@@ -2254,7 +2254,7 @@ msgstr "Palette anzeigen"
 
 #: uresourcestrings.rssourceposition
 msgid "Source position"
-msgstr "Quellposition"
+msgstr "Quellenposition"
 
 #: uresourcestrings.rsspline
 msgctxt "uresourcestrings.rsspline"
@@ -2272,11 +2272,11 @@ msgstr "Texturzuweisung"
 
 #: uresourcestrings.rstherearenocheckeditems
 msgid "There are no checked items. Check some items or add some new ones."
-msgstr "Es gibt keine gewählten Elemente. Wähle Elemente oder füge neue hinzu."
+msgstr "Es gibt keine gewählten Elemente. Wählen Sie Elemente oder fügen Sie neue hinzu."
 
 #: uresourcestrings.rsthereisnofilenamegivenforthisfileusesaveas
 msgid "There is no file name given for this file. Use \"Save as...\" from the main menu."
-msgstr "Es wurde kein Dateiname für diese Datei vergeben. Verwende \"Speichern unter...\" aus dem Hauptmenü."
+msgstr "Es wurde kein Dateiname für diese Datei gegeben. Verwenden Sie \"Speichern unter...\" aus dem Hauptmenü."
 
 #: uresourcestrings.rstodo
 msgid "To do"
@@ -2284,23 +2284,23 @@ msgstr "Verw."
 
 #: uresourcestrings.rstodoimages
 msgid "Images left: %1"
-msgstr "Bilder verbleibend: %1"
+msgstr "Verbleibende Bilder: %1"
 
 #: uresourcestrings.rstooloninvisiblelayer
 msgid "Tool cannot be used on an invisible layer"
-msgstr ""
+msgstr "Das Werkzeug kann nicht an einer unsichtbaren Ebene verwendet"
 
 #: uresourcestrings.rstoomanylayers
 msgid "Too many layers"
-msgstr "Zu viel Ebene"
+msgstr "Zu viele Ebene"
 
 #: uresourcestrings.rstoomanyshapesinlayer
 msgid "Too many shapes in layer"
-msgstr ""
+msgstr "Zu viele Formen in der Ebene"
 
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"
-msgstr "Bilder Gesamt: %1"
+msgstr "Bilder insgesamt: %1"
 
 #: uresourcestrings.rstransferselectiontootherlayer
 msgid "Transfer selection to other layer?"
@@ -2308,11 +2308,11 @@ msgstr "Auswahl auf andere Ebene verschieben?"
 
 #: uresourcestrings.rstransformedrasterlayer
 msgid "Transformed raster layer"
-msgstr ""
+msgstr "Verformte Raster-Ebene"
 
 #: uresourcestrings.rstransformselectioncontent
 msgid "Do you want to transform content of the selection?"
-msgstr ""
+msgstr "Möchten Sie den Inhalt der Auswahl verformen?"
 
 #: uresourcestrings.rsunabletoapplyfilter
 msgid "Unable to apply filter : "
@@ -2324,7 +2324,7 @@ msgstr "Kann Datei nicht laden: "
 
 #: uresourcestrings.rsunabletosavefile
 msgid "Unable to save file : "
-msgstr "Kann Datei nicht sichern: "
+msgstr "Kann Datei nicht speichern: "
 
 #: uresourcestrings.rsunknowncommand
 msgid "Unknown command : "
@@ -2332,11 +2332,11 @@ msgstr "Unbekannter Befehl: "
 
 #: uresourcestrings.rsunknownoriginal
 msgid "Unknown original"
-msgstr ""
+msgstr "Unbekanntes Original"
 
 #: uresourcestrings.rsvectoriallayer
 msgid "Vectorial layer"
-msgstr ""
+msgstr "Vektor-Ebene"
 
 #: uresourcestrings.rsyes
 msgid "Yes"
