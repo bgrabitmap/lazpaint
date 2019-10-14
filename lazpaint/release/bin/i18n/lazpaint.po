@@ -1700,6 +1700,10 @@ msgstr ""
 msgid "Dither layer using palette"
 msgstr ""
 
+#: uresourcestrings.rsduplicateimage
+msgid "Duplicate image"
+msgstr ""
+
 #: uresourcestrings.rseditmask
 msgctxt "uresourcestrings.rseditmask"
 msgid "Edit mask"

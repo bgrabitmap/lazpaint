@@ -5,6 +5,7 @@ begin
   if FToolbarElementsInitDone then exit;
   FToolbarElementsInitDone:= true;
 
+  Panel_ToolbarBackground.PopupMenu := PopupToolbar;
   Perspective_Repeat.OnClick := @Perspective_RepeatClick;
   Perspective_TwoPlanes.OnClick := @Perspective_TwoPlanesClick;
   Shape_PenColor.OnMouseDown := @Shape_PenColorMouseDown;

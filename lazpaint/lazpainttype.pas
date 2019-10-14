@@ -10,7 +10,7 @@ uses
   {$IFDEF LINUX}, InterfaceBase{$ENDIF};
 
 const
-  LazPaintVersion = 7000500;
+  LazPaintVersion = 7000700;
 
   function LazPaintVersionStr: string;
 
@@ -118,6 +118,7 @@ type
       bmp: TBGRABitmap;
       bpp: integer;
       frameIndex: integer;
+      isDuplicate: boolean;
       class function Empty: TImageEntry; static;
       class function NewFrameIndex: integer; static;
       procedure FreeAndNil;
@@ -527,6 +528,7 @@ begin
   result.bmp := nil;
   result.bpp := 0;
   result.frameIndex := 0;
+  result.isDuplicate:= false;
 end;
 
 class function TImageEntry.NewFrameIndex: integer;
