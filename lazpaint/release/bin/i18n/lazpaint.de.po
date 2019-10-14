@@ -2344,11 +2344,11 @@ msgstr "Ja"
 
 #: tablet.getprocfailed
 msgid "Procedure %s failed to load properly."
-msgstr ""
+msgstr "Prozedur %s konnte nicht ordnungsgemäß geladen werden."
 
 #: tablet.openfailed
 msgid "Tablet context failed to open."
-msgstr ""
+msgstr "Tablet-Kontext konnte nicht geöffnet werden."
 
 #: tfabout.button_donate.caption
 msgctxt "tfabout.button_donate.caption"
@@ -2506,7 +2506,7 @@ msgstr "Bilder durchsuchen"
 
 #: tfbrowseimages.checkbox_usedirectoryonstartup.caption
 msgid "Use this directory on startup"
-msgstr ""
+msgstr "Verwenden Sie dieses Verzeichnis beim Start"
 
 #: tfbrowseimages.label_status.caption
 msgctxt "tfbrowseimages.label_status.caption"
@@ -2515,7 +2515,7 @@ msgstr "."
 
 #: tfbrowseimages.toolbutton_createfolderorcontainer.hint
 msgid "Create folder or container"
-msgstr ""
+msgstr "Ordner oder Container erstellen"
 
 #: tfbrowseimages.toolbutton_goup.hint
 msgid "Go one directory up"
@@ -2676,11 +2676,11 @@ msgstr "Gravur"
 
 #: tfemboss.checkbox_preservecolors.caption
 msgid "Preserve colors"
-msgstr ""
+msgstr "Farben erhalten"
 
 #: tfemboss.checkbox_transparent.caption
 msgid "Transparent"
-msgstr ""
+msgstr "Transparent"
 
 #: tfemboss.label_direction.caption
 msgctxt "tfemboss.label_direction.caption"
@@ -2952,7 +2952,7 @@ msgstr ""
 
 #: tfnewimage.label_bitdepth.caption
 msgid "Bit depth :"
-msgstr ""
+msgstr "Bittiefe:"
 
 #: tfnewimage.label_height.caption
 msgctxt "tfnewimage.label_height.caption"
@@ -2961,11 +2961,11 @@ msgstr "Höhe:"
 
 #: tfnewimage.label_height1.caption
 msgid "Ratio :"
-msgstr ""
+msgstr "Verhältnis:"
 
 #: tfnewimage.label_memoryrequired.caption
 msgid "Memory required :"
-msgstr ""
+msgstr "Speicher benötigt:"
 
 #: tfnewimage.label_width.caption
 msgctxt "tfnewimage.label_width.caption"
@@ -3248,7 +3248,7 @@ msgstr "Stufen:"
 
 #: tfpreviewdialog.caption
 msgid "Preview"
-msgstr ""
+msgstr "Vorschau"
 
 #: tfpreviewdialog.lstatus.caption
 msgctxt "tfpreviewdialog.lstatus.caption"
@@ -3329,11 +3329,11 @@ msgstr "Breite:"
 
 #: tfquestion.caption
 msgid "Question"
-msgstr ""
+msgstr "Frage"
 
 #: tfquestion.checkbox_rememberchoice.caption
 msgid "Remember this choice"
-msgstr ""
+msgstr "Wahl erinneren"
 
 #: tfquestion.label_message.caption
 msgctxt "tfquestion.label_message.caption"
