@@ -7920,7 +7920,7 @@ object FMain: TFMain
       Caption = 'Shift colors...'
       ImageIndex = 69
       OnExecute = ScriptExecute
-      ShortCut = 24576
+      ShortCut = 24648
     end
     object ColorColorize: TAction
       Category = 'Colors'

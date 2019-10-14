@@ -90,7 +90,7 @@ type
     procedure OnClickPoint({%H-}ASender: TObject; APointIndex: integer; {%H-}AShift: TShiftState); virtual;
     procedure DoClickPoint({%H-}APointIndex: integer; {%H-}AShift: TShiftState); virtual;
     function CanMovePoints: boolean; virtual;
-    procedure InsertPointAuto;
+    procedure InsertPointAuto(AShift: TShiftState);
     function ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean;
       AStrokeMatrix: TAffineMatrix): ArrayOfTPointF; override;
   public
@@ -130,7 +130,8 @@ type
     class function Fields: TVectorShapeFields; override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
-    function PointInShape(APoint: TPointF): boolean; override;
+    function PointInShape(APoint: TPointF): boolean; overload; override;
+    function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
     function GetIsSlow(const {%H-}AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
   end;
@@ -637,7 +638,18 @@ end;
 procedure TCustomPolypointShape.DoClickPoint(APointIndex: integer;
   AShift: TShiftState);
 begin
-  //nothing
+  if (APointIndex = 0) and (UserMode = vsuCreate) and not Closed then
+  begin
+    if PointCount > 2 then
+    begin
+      RemovePoint(PointCount-1);
+      Closed := true;
+      UserMode := vsuEdit;
+    end else
+    begin
+      Remove;
+    end;
+  end;
 end;
 
 function TCustomPolypointShape.CanMovePoints: boolean;
@@ -645,11 +657,12 @@ begin
   result := true;
 end;
 
-procedure TCustomPolypointShape.InsertPointAuto;
+procedure TCustomPolypointShape.InsertPointAuto(AShift: TShiftState);
 var
   bestSegmentIndex, i: Integer;
-  bestSegmentDist, segmentLen, segmentPos: single;
-  u, n: TPointF;
+  bestSegmentDist,
+  segmentLen, segmentPos: single;
+  u, n, bestProjection: TPointF;
   segmentDist: single;
 begin
   if isEmptyPointF(FMousePos) then exit;
@@ -659,6 +672,7 @@ begin
 
   bestSegmentIndex := -1;
   bestSegmentDist := MaxSingle;
+  bestProjection := EmptyPointF;
   for i := 0 to PointCount-1 do
   if FAddingPoint and (i >= PointCount-2) then break else
   begin
@@ -677,13 +691,17 @@ begin
         begin
           bestSegmentDist := segmentDist;
           bestSegmentIndex := i;
+          bestProjection := Points[i]+segmentPos*u;
         end;
       end;
     end;
   end;
   if bestSegmentIndex <> -1 then
   begin
-    InsertPoint(bestSegmentIndex+1, FMousePos);
+    if ssShift in AShift then
+      InsertPoint(bestSegmentIndex+1, bestProjection)
+    else
+      InsertPoint(bestSegmentIndex+1, FMousePos);
     FHoverPoint:= bestSegmentIndex+1;
   end;
 end;
@@ -816,7 +834,7 @@ begin
       RemovePoint(PointCount-2);
     AHandled:= true;
   end else
-  if (Key = skInsert) then InsertPointAuto else
+  if (Key = skInsert) then InsertPointAuto(Shift) else
     inherited KeyDown(Shift, Key, AHandled);
 end;
 
@@ -1038,7 +1056,7 @@ function TPolylineShape.PointInShape(APoint: TPointF): boolean;
 var
   pts: ArrayOfTPointF;
 begin
-  if not BackVisible and not PenVisible then exit;
+  if not BackVisible and not PenVisible then exit(false);
   pts := GetCurve(AffineMatrixIdentity);
   if BackVisible and IsPointInPolygon(pts, APoint, true) then exit(true);
   if PenVisible then
@@ -1047,6 +1065,16 @@ begin
     if IsPointInPolygon(pts, APoint, true) then exit(true);
   end;
   result := false;
+end;
+
+function TPolylineShape.PointInShape(APoint: TPointF; ARadius: single): boolean;
+var
+  pts: ArrayOfTPointF;
+begin
+  if not BackVisible and not PenVisible then exit(false);
+  pts := GetCurve(AffineMatrixIdentity);
+  pts := ComputeStrokeEnvelope(pts, Closed, ARadius*2);
+  result := IsPointInPolygon(pts, APoint, true);
 end;
 
 function TPolylineShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;

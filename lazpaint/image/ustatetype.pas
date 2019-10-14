@@ -32,7 +32,7 @@ type
   end;
 
   TImageDifferenceKind = (idkChangeImageAndSelection, idkChangeStack, idkChangeSelection,
-                           idkChangeImage, idkChangeLayer);
+                           idkChangeImage);
 
   { TCustomImageDifference }
 
@@ -205,6 +205,7 @@ type
     FOriginalRenderStatus: TOriginalRenderStatus;
     FOriginalMatrix: TAffineMatrix;
     FOriginalDraft: boolean;
+    FOriginalGuid: TGuid;
   public
     constructor Create(ALayeredImage: TBGRALayeredBitmap; AIndex: integer);
     constructor Create(ALayeredImage: TBGRALayeredBitmap; AIndex: integer;
@@ -416,16 +417,12 @@ begin
   for i := 0 to FDiffs.Count-1 do
     case FDiffs[i].GetImageDifferenceKind of
       idkChangeImageAndSelection: result := idkChangeImageAndSelection;
-      idkChangeSelection: if result in[idkChangeImage,idkChangeLayer,idkChangeImageAndSelection] then
+      idkChangeSelection: if result in[idkChangeImage,idkChangeImageAndSelection] then
                             result := idkChangeImageAndSelection
                           else result := idkChangeSelection;
       idkChangeImage: if result in[idkChangeImageAndSelection,idkChangeSelection] then
                             result := idkChangeImageAndSelection
                           else result := idkChangeImage;
-      idkChangeLayer: if result in[idkChangeImageAndSelection,idkChangeSelection] then
-                            result := idkChangeImageAndSelection
-                      else if result = idkChangeStack then
-                        result := idkChangeLayer;
     end;
 end;
 
@@ -1069,7 +1066,8 @@ begin
       inherited Create(ALayeredImage.LayerBitmap[AIndex]);
 
     FOriginalData := TMemoryStream.Create;
-    ALayeredImage.SaveOriginalToStream(ALayeredImage.LayerOriginalGuid[AIndex], FOriginalData);
+    FOriginalGuid := ALayeredImage.LayerOriginalGuid[AIndex];
+    ALayeredImage.SaveOriginalToStream(FOriginalGuid, FOriginalData);
     FOriginalMatrix := ALayeredImage.LayerOriginalMatrix[AIndex];
     FOriginalDraft := ALayeredImage.LayerOriginalRenderStatus[AIndex] in[orsDraft,orsPartialDraft];
   end else
@@ -1092,7 +1090,9 @@ begin
   if Assigned(FOriginalData) then
   begin
     FOriginalData.Position:= 0;
-    idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData, true);
+    idxOrig := ALayeredImage.IndexOfOriginal(FOriginalGuid);
+    if idxOrig = -1 then
+      idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData, FOriginalGuid, true);
 
     if not FOriginalBitmapStored then
     begin
@@ -1120,7 +1120,9 @@ begin
   if Assigned(FOriginalData) then
   begin
     FOriginalData.Position:= 0;
-    idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData, true);
+    idxOrig := ALayeredImage.IndexOfOriginal(FOriginalGuid);
+    if idxOrig = -1 then
+      idxOrig := ALayeredImage.AddOriginalFromStream(FOriginalData, FOriginalGuid, true);
     if not FOriginalBitmapStored then
     begin
       ALayeredImage.LayerOriginalGuid[FIndex] := ALayeredImage.OriginalGuid[idxOrig];

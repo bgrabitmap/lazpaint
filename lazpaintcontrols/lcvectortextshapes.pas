@@ -151,8 +151,10 @@ type
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
     procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
-    function PointInShape(APoint: TPointF): boolean; override;
+    function PointInShape(APoint: TPointF): boolean; overload; override;
+    function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
     function GetIsSlow(const {%H-}AMatrix: TAffineMatrix): boolean; override;
+    function GetGenericCost: integer; override;
     procedure MouseMove({%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); override;
     procedure MouseDown({%H-}RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); override;
     procedure MouseUp({%H-}RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); override;
@@ -1467,9 +1469,19 @@ begin
   result := GetAffineBox(AffineMatrixIdentity,true).Contains(APoint);
 end;
 
+function TTextShape.PointInShape(APoint: TPointF; ARadius: single): boolean;
+begin
+  result := false;
+end;
+
 function TTextShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;
 begin
   Result:= true;
+end;
+
+function TTextShape.GetGenericCost: integer;
+begin
+  Result:= 10;
 end;
 
 procedure TTextShape.MouseMove(Shift: TShiftState; X, Y: single;

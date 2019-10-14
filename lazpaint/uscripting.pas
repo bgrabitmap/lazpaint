@@ -51,6 +51,7 @@ type
     function GetSubsetByName(const AName: string): TVariableSet;
     function GetListByName(const AName: string): string;
     function GetVariablesAsString: string;
+    function GetVarName(AIndex: integer): string;
     procedure SetBooleanByName(const AName: string; AValue: boolean);
     procedure SetFloatByName(const AName: string; AValue: double);
     procedure SetIntegerByName(const AName: string; AValue: TScriptInteger);
@@ -126,6 +127,7 @@ type
     function CopyValuesTo(ASet: TVariableSet): boolean;
     property FunctionName: string read FFunctionName;
     property Count: NativeInt read GetCount;
+    property VariableName[AIndex: integer]: string read GetVarName;
     property VariablesAsString: string read GetVariablesAsString;
     property Floats[const AName: string]: double read GetFloatByName write SetFloatByName;
     property Integers[const AName: string]: TScriptInteger read GetIntegerByName write SetIntegerByName;
@@ -384,6 +386,26 @@ begin
     result := result+FSubsets[i].name+VariableDefinitionToken+' { '+FSubsets[i].value.VariablesAsString+ ' }';
   end;
 
+end;
+
+function TVariableSet.GetVarName(AIndex: integer): string;
+begin
+  if AIndex < 0 then raise exception.Create('Index out of bounds');
+
+  if AIndex < FNbScalars then exit(FScalars[AIndex].name)
+  else dec(AIndex, FNbScalars);
+  if AIndex < FNbStrings then exit(FStrings[AIndex].name)
+  else dec(AIndex, FNbStrings);
+  if AIndex < FNbBoolLists then exit(FBoolLists[AIndex].name)
+  else dec(AIndex, FNbBoolLists);
+  if AIndex < FNbScalarLists then exit(FScalarLists[AIndex].name)
+  else dec(AIndex, FNbScalarLists);
+  if AIndex < FNbStrLists then exit(FStrLists[AIndex].name)
+  else dec(AIndex, FNbStrLists);
+  if AIndex < FNbSubsets then exit(FSubsets[AIndex].name)
+  else dec(AIndex, FNbSubsets);
+
+  raise exception.Create('Index out of bounds');
 end;
 
 function TVariableSet.LoadFromVariablesAsString(AVariablesAsString: string
