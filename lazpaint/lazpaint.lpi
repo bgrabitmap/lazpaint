@@ -17,7 +17,7 @@
       <Icon Value="0"/>
     </General>
     <i18n>
-      <EnableI18N Value="True"/>
+      <EnableI18N Value="True" LFM="False"/>
       <OutDir Value="release\bin\i18n"/>
     </i18n>
     <VersionInfo>
