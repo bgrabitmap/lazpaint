@@ -56,7 +56,7 @@ function GetRawFileImage(AFilename: string): TBGRABitmap;
 
 implementation
 
-uses process, BGRAThumbnail, UResourceStrings, UFileSystem, Forms;
+uses process, BGRAThumbnail, UResourceStrings, UFileSystem, Forms, LazFileUtils;
 
 function GetAllRawExtensions: string;
 var
@@ -93,8 +93,15 @@ begin
 
     p := TProcess.Create(nil);
     try
-      p.Options:= p.Options+[poStderrToOutPut];
+      p.Options:= p.Options+[poStderrToOutPut, poNoConsole];
+      {$IFDEF WINDOWS}
+      p.CurrentDirectory:= ExtractFilePath(Application.ExeName);
+      p.Executable:= 'dcraw.exe';
+      if not FileExistsUTF8(p.CurrentDirectory+p.Executable) then
+        raise exception.Create('Cannot find DCRaw binary');
+      {$ELSE}
       p.Executable:= 'dcraw';
+      {$ENDIF}
 
       consoleOut := false;
       tiffOut := false;
