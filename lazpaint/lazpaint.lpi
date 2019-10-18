@@ -342,7 +342,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="99">
+    <Units Count="100">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -928,6 +928,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="USelectionHighlight"/>
       </Unit98>
+      <Unit99>
+        <Filename Value="uraw.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="URaw"/>
+      </Unit99>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
