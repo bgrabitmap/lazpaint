@@ -18,6 +18,7 @@ if not exist ..\bin\lazpaint32.exe goto :missingbin32
 echo Staging 32-bit version...
 if not exist lazpaint32 mkdir lazpaint32
 copy ..\bin\lazpaint32.exe lazpaint32\lazpaint.exe >nul
+copy dcraw\dcraw32.exe lazpaint32\dcraw.exe >nul
 copy ..\bin\readme.txt lazpaint32 >nul
 copy ..\bin\*.ini lazpaint32 >nul
 if not exist lazpaint32\i18n mkdir lazpaint32\i18n
@@ -34,6 +35,7 @@ if not exist ..\bin\lazpaint_x64.exe goto :missingbin64
 echo Staging 64-bit version...
 if not exist lazpaint64 mkdir lazpaint64
 copy ..\bin\lazpaint_x64.exe lazpaint64\lazpaint.exe >nul
+copy dcraw\dcraw_x64.exe lazpaint64\dcraw.exe >nul
 copy ..\bin\readme.txt lazpaint32 >nul
 copy ..\bin\*.ini lazpaint32 >nul
 if not exist lazpaint64\i18n mkdir lazpaint64\i18n
