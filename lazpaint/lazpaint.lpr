@@ -93,7 +93,30 @@ end;
 
 {$R *.res}
 
+{$IFDEF DARWIN}{$IFDEF DEBUG}
+var
+  OldOutput: TextFile;
+
+  procedure InitOutput;
+  begin
+    OldOutput := Output;
+    AssignFile(Output, '/dev/ttys000');
+    Append(Output);
+    Writeln;
+    Writeln('Debug started');
+  end;
+
+  procedure DoneOutput;
+  begin
+    Writeln('Debug ended');
+    CloseFile(Output);
+    Output := OldOutput;
+  end;
+{$ENDIF}{$ENDIF}
+
 begin
+  {$IFDEF DARWIN}{$IFDEF DEBUG}InitOutput;{$ENDIF}{$ENDIF}
+
   ActualConfig := GetActualConfig;
   TranslateLazPaint(ActualConfig);
 
@@ -121,5 +144,7 @@ begin
   RestartQuery := LazpaintApplication.RestartQuery;
   LazpaintApplication.Free;
   if RestartQuery then RestartApplication;
+
+  {$IFDEF DARWIN}{$IFDEF DEBUG}DoneOutput;{$ENDIF}{$ENDIF}
 end.
 

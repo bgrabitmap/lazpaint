@@ -539,8 +539,7 @@ type
     procedure SpinEdit_TextureOpacityChange(Sender: TObject; AByUser: boolean);
     procedure SpinEdit_TextBlurChange(Sender: TObject; AByUser: boolean);
     procedure GridNb_SpinEditChange(Sender: TObject; AByUser: boolean);
-    procedure Image_CurrentTextureMouseDown(Sender: TObject;
-      {%H-}Button: TMouseButton; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
+    procedure Image_CurrentTextureClick(Sender: TObject);
     procedure PaintBox_PenPreviewPaint(Sender: TObject);
     procedure PaintBox_PictureMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -715,7 +714,7 @@ type
     initialized: boolean;
     shouldArrangeOnResize: boolean;
     btnLeftDown, btnRightDown, btnMiddleDown: boolean;
-    spacePressed: boolean;
+    spacePressed, altPressed, snapPressed, shiftPressed: boolean;
     FormMouseMovePos: TPoint;
     InFormMouseMove: boolean;
     InFormPaint: boolean;
@@ -796,6 +795,7 @@ type
     procedure LabelAutosize(ALabel: TLabel);
     procedure AskMergeSelection(ACaption: string);
     procedure ReleaseMouseButtons(Shift: TShiftState);
+    procedure UpdateSpecialKeys({%H-}Shift: TShiftState);
     procedure UpdateCurveModeToolbar;
     function ShowOpenTextureDialog: boolean;
     procedure ShowNoPicture;
@@ -836,8 +836,9 @@ type
 
     procedure PaintPictureNow;
     procedure InvalidatePicture;
-    function TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean=True; ALoadedImage: PImageEntry = nil;
-      ASkipDialogIfSingleImage: boolean = false): Boolean;
+    function TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean=True;
+      ALoadedImage: PImageEntry = nil; ASkipDialogIfSingleImage: boolean = false;
+      AAllowDuplicate: boolean = false): Boolean;
     function PictureCanvasOfs: TPoint;
     procedure UpdateLineCapBar;
     procedure UpdateColorToolbar(AUpdateColorDiff: boolean);
@@ -910,6 +911,10 @@ begin
   btnRightDown := false;
   btnMiddleDown:= false;
   FTablet := TLazTablet.Create(self);
+  spacePressed:= false;
+  altPressed:= false;
+  snapPressed:= false;
+  shiftPressed:= false;
 
   //recursive calls
   InFormMouseMove:= false;
@@ -1141,7 +1146,7 @@ procedure TFMain.FormMouseDown(Sender: TObject; Button: TMouseButton;
 begin
   if not Assigned(FImageView) then exit;
   ReleaseMouseButtons(Shift);
-  if not (Button in[mbLeft,mbRight,mbMiddle]) then exit;
+  if not (Button in[mbLeft,mbRight,mbMiddle]) or not FImageView.PictureCoordsDefined then exit;
   CanCompressOrUpdateStack := false;
   Image.OnImageChanged.DelayedStackUpdate := True;
 
@@ -1153,9 +1158,11 @@ begin
   if Button = mbMiddle then
   begin
     btnMiddleDown:= true;
-    if not ToolManager.ToolSleeping then ToolManager.ToolSleep;
+    if not ToolManager.ToolSleeping and not (ssAlt in Shift) then ToolManager.ToolSleep;
   end;
-  if ToolManager.ToolDown(FImageView.FormToBitmap(X,Y),btnRightDown,CurrentPressure) then
+  if ToolManager.ToolDown(FImageView.FormToBitmap(X,Y),
+      btnRightDown{$IFDEF DARWIN} or (ssCtrl in Shift){$ENDIF},
+      CurrentPressure) then
       PaintPictureNow;
   UpdateToolbar;
 end;
@@ -1171,6 +1178,7 @@ begin
   if not Assigned(FImageView) then exit;
 
   ReleaseMouseButtons(Shift);
+  UpdateSpecialKeys(Shift);
   HidePenPreview;
   if LazPaintInstance.TopMostHasFocus then
   begin
@@ -1185,7 +1193,13 @@ begin
   FormMouseMovePos := Point(X,Y);
   if InFormMouseMove then exit;
   InFormMouseMove := True;
-  //Application.ProcessMessages; //empty message stack
+  if not FImageView.PictureCoordsDefined then
+    Application.ProcessMessages; //empty message stack
+  if not FImageView.PictureCoordsDefined then
+  begin
+    InFormMouseMove:= false;
+    exit;
+  end;
 
   BmpPos := FImageView.FormToBitmap(FormMouseMovePos);
   FCoordinatesCaption := IntToStr(round(BmpPos.X))+','+IntToStr(round(BmpPos.Y));
@@ -1201,7 +1215,6 @@ begin
   if ToolManager.ToolMove(BmpPos,CurrentPressure) then
   begin
     FImageView.UpdatePicture(PictureCanvasOfs, FLayout.WorkArea, self);
-    ToolManager.ToolMoveAfter(FImageView.FormToBitmap(FormMouseMovePos)); //new BmpPos after repaint
   end else
     updateForVSCursor := true;
   UpdateToolbar;
@@ -1229,7 +1242,9 @@ begin
   if (btnLeftDown and (Button = mbLeft)) or (btnRightDown and (Button=mbRight))
     or (btnMiddleDown and (Button = mbMiddle)) then
   begin
-    redraw := ToolManager.ToolMove(FImageView.FormToBitmap(X,Y),CurrentPressure);
+    if FImageView.PictureCoordsDefined then
+      redraw := ToolManager.ToolMove(FImageView.FormToBitmap(X,Y),CurrentPressure)
+      else redraw := false;
     if ToolManager.ToolUp then redraw := true;
     btnLeftDown := false;
     btnRightDown := false;
@@ -1283,7 +1298,8 @@ begin
     if AVars.IsReferenceDefined(vFileName) then
     begin
       FLazPaintInstance.ShowTopmost(topInfo);
-      if TryOpenFileUTF8(AVars.GetString(vFilename), true, nil) then
+      if TryOpenFileUTF8(AVars.GetString(vFilename), true, nil,
+           false, AVars.Booleans['AllowDuplicate']) then
         result := srOk
       else
         result := srException;
@@ -1638,6 +1654,9 @@ procedure TFMain.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState
   );
 begin
   try
+    if Key = VK_MENU then altPressed:= true
+    else if (Key = VK_SNAP) or (Key = VK_SNAP2) then snapPressed:= true
+    else if Key = VK_SHIFT then shiftPressed:= true;
     if Zoom.EditingZoom then exit;
     if not ((CurrentTool = ptText) and TextSpinEditFocused and (Key = VK_BACK)) and ToolManager.ToolKeyDown(Key) then
     begin
@@ -1680,7 +1699,7 @@ end;
 
 procedure TFMain.EditUndoUpdate(Sender: TObject);
 begin
-  EditUndo.Enabled := image.CanUndo;
+  EditUndo.Enabled := image.CanUndo or ToolManager.ToolProvideCommand(tcFinish);
 end;
 
 procedure TFMain.EmbeddedCancelExecute(Sender: TObject);
@@ -2023,6 +2042,9 @@ end;
 
 procedure TFMain.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
+  if Key = VK_MENU then altPressed:= false
+  else if (Key = VK_SNAP) or (Key = VK_SNAP2) then snapPressed:= false
+  else if Key = VK_SHIFT then shiftPressed:= false;
   if ToolManager.ToolKeyUp(Key) then
   begin
     DelayedPaintPicture := True;
@@ -2345,7 +2367,7 @@ end;
 procedure TFMain.FormMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin
-  if not Assigned(FImageView) then exit;
+  if not Assigned(FImageView) or not FImageView.PictureCoordsDefined then exit;
   Zoom.SetPosition(FImageView.FormToBitmap(MousePos.X,MousePos.Y), MousePos);
   if WheelDelta > 0 then Zoom.ZoomIn(ssCtrl in Shift) else
   if WheelDelta < 0 then Zoom.ZoomOut(ssCtrl in Shift);
@@ -2507,7 +2529,8 @@ end;
 
 procedure TFMain.ToolNoTextureUpdate(Sender: TObject);
 begin
-  ToolNoTexture.Enabled := ToolManager.GetTexture <> nil;
+  ToolNoTexture.Enabled := (ToolManager.GetTexture <> nil)
+    and (CurrentTool <> ptTextureMapping);
 end;
 
 procedure TFMain.ViewColorsExecute(Sender: TObject);
@@ -3002,6 +3025,7 @@ var
 begin
   openParams := TVariableSet.Create('FileOpen');
   openParams.AddString('FileName',Image.currentFilenameUTF8);
+  openParams.AddBoolean('AllowDuplicate',true);
   Scripting.CallScriptFunction(openParams);
   openParams.Free;
 end;
@@ -3132,9 +3156,13 @@ begin
 end;
 
 procedure TFMain.ForgetDialogAnswersExecute(Sender: TObject);
+var
+  m: TToolPopupMessage;
 begin
   Config.SetDefaultTransformSelectionAnswer(0);
   Config.SetDefaultRetrieveSelectionAnswer(0);
+  for m := low(TToolPopupMessage) to high(TToolPopupMessage) do
+    Config.SetToolPopupMessageShownCount(ord(m), 0);
 end;
 
 procedure TFMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -3305,6 +3333,28 @@ begin
     CanCompressOrUpdateStack := true;
     Image.OnImageChanged.DelayedStackUpdate := False;
   end;
+end;
+
+procedure TFMain.UpdateSpecialKeys(Shift: TShiftState);
+  procedure UpdateKey(AShift: TShiftStateEnum; ACode: Word; var APressed: boolean);
+  begin
+    if (AShift in Shift) and not APressed then
+    begin
+      if ToolManager.ToolKeyDown(ACode) then PaintPictureNow;
+      APressed:= true;
+    end else
+    if not (AShift in Shift) and APressed then
+    begin
+      if ToolManager.ToolKeyUp(ACode) then PaintPictureNow;
+      APressed:= false;
+    end;
+  end;
+begin
+  {$IFDEF DARWIN}
+  UpdateKey(ssSnap, VK_SNAP, snapPressed);
+  UpdateKey(ssAlt, VK_MENU, altPressed);
+  UpdateKey(ssShift, VK_SHIFT, shiftPressed);
+  {$ENDIF}
 end;
 
 function TFMain.ShowOpenTextureDialog: boolean;
@@ -3500,10 +3550,12 @@ begin
 end;
 
 function TFMain.TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean;
-     ALoadedImage: PImageEntry; ASkipDialogIfSingleImage: boolean): Boolean;
+     ALoadedImage: PImageEntry; ASkipDialogIfSingleImage: boolean;
+     AAllowDuplicate: boolean): Boolean;
 var
   newPicture: TImageEntry;
   format: TBGRAImageFormat;
+  dupIndex: Integer;
 
   procedure StartImport;
   begin
@@ -3584,14 +3636,30 @@ begin
     else
     if format in[ifIco,ifTiff] then
     begin
-      newPicture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8, 'TIFF', ASkipDialogIfSingleImage);
-      ImportNewPicture;
+      if (format = ifTiff) and AAllowDuplicate and (Image.FrameIndex <> -1) then dupIndex := Image.FrameIndex else dupIndex := -1;
+      newPicture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8, 'TIFF',
+        ASkipDialogIfSingleImage, dupIndex);
+      if newPicture.isDuplicate then
+      begin
+        newPicture.FreeAndNil;
+        Image.FrameIndex:= newPicture.frameIndex;
+        Image.OnImageChanged.NotifyObservers;
+      end
+      else ImportNewPicture;
     end
     else
     if format = ifGif then
     begin
-      newPicture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8, rsAnimatedGIF, ASkipDialogIfSingleImage);
-      ImportNewPicture;
+      if AAllowDuplicate and (Image.FrameIndex <> -1) then dupIndex := Image.FrameIndex else dupIndex := -1;
+      newPicture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8, rsAnimatedGIF,
+        ASkipDialogIfSingleImage, dupIndex);
+      if newPicture.isDuplicate then
+      begin
+        newPicture.FreeAndNil;
+        Image.FrameIndex:= newPicture.frameIndex;
+        Image.OnImageChanged.NotifyObservers;
+      end
+      else ImportNewPicture;
     end else
     begin
       StartImport;
@@ -3814,7 +3882,7 @@ end;
 procedure TFMain.InvalidatePicture;
 begin
   if Assigned(FImageView) and Assigned(FLayout) then
-    FImageView.InvalidatePicture(False, FLayout.WorkArea, Point(0,0), self);
+    FImageView.InvalidatePicture(True, FLayout.WorkArea, Point(0,0), self);
 end;
 
 function TFMain.GetUseImageBrowser: boolean;

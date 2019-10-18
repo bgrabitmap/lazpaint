@@ -36,7 +36,9 @@ type
     function GetContextualToolbars: TContextualToolbars; override;
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
     procedure BeforeGridSizeChange; override;
-    procedure AfterGridSizeChange(NewNbX,NewNbY: Integer); override;
+    procedure AfterGridSizeChange({%H-}NewNbX,{%H-}NewNbY: Integer); override;
+    function ToolCommand(ACommand: TToolCommand): boolean; override;
+    function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
     destructor Destroy; override;
   end;
 
@@ -84,6 +86,8 @@ type
     function ToolUp: TRect; override;
     function GetContextualToolbars: TContextualToolbars; override;
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
+    function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
+    function ToolCommand(ACommand: TToolCommand): boolean; override;
     destructor Destroy; override;
   end;
 
@@ -398,7 +402,7 @@ var n: integer;
 begin
   if not FHintShowed then
   begin
-    Manager.ToolPopup(tpmAltShiftScaleMode);
+    Manager.ToolPopup(tpmHoldKeysScaleMode, VK_SHIFT);
     FHintShowed:= true;
   end;
   result := EmptyRect;
@@ -576,7 +580,7 @@ begin
     key := 0;
   end
   else
-  if Key = VK_CONTROL then
+  if Key = VK_SNAP then
   begin
     snapToPixel:= true;
     key := 0;
@@ -614,7 +618,7 @@ end;
 function TToolTextureMapping.ToolKeyUp(var key: Word): TRect;
 begin
   result := EmptyRect;
-  if Key = VK_CONTROL then
+  if Key = VK_SNAP then
   begin
     snapToPixel:= false;
     key := 0;
@@ -717,6 +721,29 @@ begin
     DrawPoints(quad,192);
 end;
 
+function TToolTextureMapping.ToolProvideCommand(ACommand: TToolCommand
+  ): boolean;
+begin
+  case ACommand of
+    tcFinish: result := quadDefined;
+  else result := false;
+  end;
+end;
+
+function TToolTextureMapping.ToolCommand(ACommand: TToolCommand): boolean;
+begin
+  case ACommand of
+    tcFinish: if quadDefined then
+      begin
+        ValidateQuad;
+        Manager.QueryExitTool;
+        result := true;
+      end  else
+        result := false;
+  else result := false;
+  end;
+end;
+
 destructor TToolTextureMapping.Destroy;
 begin
   ValidateAction;
@@ -758,12 +785,32 @@ begin
   DeformationGridTexCoord := nil;
 end;
 
-{$hints off}
 procedure TToolDeformationGrid.AfterGridSizeChange(NewNbX,NewNbY: Integer);
 begin
   //grid will be created when needed
 end;
-{$hints on}
+
+function TToolDeformationGrid.ToolCommand(ACommand: TToolCommand): boolean;
+begin
+  case ACommand of
+    tcFinish: if DoingDeformation then
+      begin
+        ValidateDeformationGrid;
+        result := true;
+      end
+      else result := false;
+  else result := false;
+  end;
+end;
+
+function TToolDeformationGrid.ToolProvideCommand(ACommand: TToolCommand
+  ): boolean;
+begin
+  case ACommand of
+    tcFinish: result := DoingDeformation;
+  else result := false;
+  end;
+end;
 
 destructor TToolDeformationGrid.Destroy;
 begin
@@ -1012,7 +1059,7 @@ begin
   result := EmptyRect;
   if Key = VK_RETURN then
   begin
-    if Action <> nil then
+    if DoingDeformation then
     begin
       ValidateDeformationGrid;
       result := EmptyRect;
@@ -1022,7 +1069,7 @@ begin
   end else
   if Key = VK_ESCAPE then
   begin
-    if Action <> nil then
+    if DoingDeformation then
     begin
       CancelActionPartially;
       result := OnlyRenderChange;

@@ -20,9 +20,11 @@ type
     procedure FormDestroy(Sender: TObject);
   private
     FPreview: TImagePreview;
+    function GetDuplicateSourceIndex: integer;
     function GetEntryCount: integer;
     function GetFilename: string;
     function GetLazPaintInstance: TLazPaintCustomInstance;
+    procedure SetDuplicateSourceIndex(AValue: integer);
     procedure SetFilename(AValue: string);
     procedure PreviewValidate(Sender: TObject);
     procedure PreviewEscape(Sender: TObject);
@@ -32,21 +34,23 @@ type
     property Filename: string read GetFilename write SetFilename;
     property LazPaintInstance: TLazPaintCustomInstance read GetLazPaintInstance write SetLazPaintInstance;
     property EntryCount: integer read GetEntryCount;
+    property DuplicateSourceIndex: integer read GetDuplicateSourceIndex write SetDuplicateSourceIndex;
   end;
 
 var
   FPreviewDialog: TFPreviewDialog;
 
 function ShowPreviewDialog(AInstance: TLazPaintCustomInstance; AFilename: string; ATitle: string = '';
-  ASkipIfSingleImage: boolean = false): TImageEntry;
+  ASkipIfSingleImage: boolean = false; ADuplicateSourceIndex: integer = -1): TImageEntry;
 
 implementation
 
 function ShowPreviewDialog(AInstance: TLazPaintCustomInstance; AFilename: string; ATitle: string;
-  ASkipIfSingleImage: boolean): TImageEntry;
+  ASkipIfSingleImage: boolean; ADuplicateSourceIndex: integer): TImageEntry;
 var f: TFPreviewDialog;
 begin
   f := TFPreviewDialog.Create(nil);
+  f.DuplicateSourceIndex := ADuplicateSourceIndex;
   f.LazPaintInstance := AInstance;
   if ATitle <> '' then f.Caption := ATitle;
   f.Filename:= AFilename;
@@ -90,9 +94,19 @@ begin
     result := 0;
 end;
 
+function TFPreviewDialog.GetDuplicateSourceIndex: integer;
+begin
+  result := FPreview.DuplicateEntrySourceIndex;
+end;
+
 function TFPreviewDialog.GetLazPaintInstance: TLazPaintCustomInstance;
 begin
   result := FPreview.LazPaintInstance;
+end;
+
+procedure TFPreviewDialog.SetDuplicateSourceIndex(AValue: integer);
+begin
+  FPreview.DuplicateEntrySourceIndex:= AValue;
 end;
 
 procedure TFPreviewDialog.SetFilename(AValue: string);

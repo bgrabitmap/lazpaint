@@ -30,7 +30,8 @@ type
     function SmartZoom3: boolean;
     procedure Undo;
     procedure Redo;
-    procedure SetCurrentBitmap(bmp: TBGRABitmap; AUndoable: boolean);
+    procedure SetCurrentBitmap(bmp: TBGRABitmap; AUndoable: boolean;
+      ACaption: string = ''; AOpacity: byte = 255);
     procedure CropToSelectionAndLayer;
     procedure CropToSelection;
     procedure HorizontalFlip(AOption: TFlipOption);
@@ -274,8 +275,8 @@ end;
 procedure TImageActions.Undo;
 begin
   try
-    if CurrentTool in[ptTextureMapping,ptLayerMapping,ptMoveSelection,ptRotateSelection] then
-      ChooseTool(ptHand);
+    if CurrentTool in[ptMoveSelection,ptRotateSelection] then ChooseTool(ptHand);
+    if ToolManager.ToolProvideCommand(tcFinish) then ToolManager.ToolCommand(tcFinish);
     if image.CanUndo then
     begin
       ToolManager.ToolCloseDontReopen;
@@ -388,7 +389,7 @@ begin
           end;
           FInstance.ShowTopmost(top);
         end;
-        SetCurrentBitmap(partial,true);
+        SetCurrentBitmap(partial,true,image.LayerName[image.CurrentLayerIndex],image.LayerOpacity[image.CurrentLayerIndex]);
       end
       else
         partial.Free;
@@ -401,15 +402,14 @@ end;
 
 procedure TImageActions.CropToSelection;
 var cropped: TLayeredBitmapAndSelection;
-    r: TRect;
+    r, subBounds: TRect;
     i,selectedLayer: integer;
+    ofs: TPoint;
+    tempLayer, flattened: TBGRABitmap;
+    selectionIsRect: Boolean;
+    top: TTopMostInfo;
 begin
   if not image.CheckNoAction then exit;
-  if image.NbLayers = 1 then
-  begin
-    CropToSelectionAndLayer;
-    exit;
-  end;
   try
     if image.SelectionMaskEmpty then
     begin
@@ -421,15 +421,68 @@ begin
       r := image.SelectionMaskBounds;
       if (r.left = 0) and (r.Top = 0) and (r.right = image.width) and (r.Bottom =image.height) then exit;
       cropped := image.MakeLayeredBitmapAndSelectionCopy;
+      BGRAReplace(cropped.selection,cropped.selection.GetPart(r));
+      selectionIsRect := cropped.selection.Equals(BGRAWhite);
+      if cropped.selectionLayer <> nil then BGRAReplace(cropped.selectionLayer,cropped.selectionLayer.GetPart(r));
       selectedLayer := image.CurrentLayerIndex;
       for i := 0 to cropped.layeredBitmap.NbLayers-1 do
       begin
-        cropped.layeredBitmap.LayerBitmap[i].ApplyMask(cropped.selection);
-        cropped.layeredBitmap.SetLayerBitmap(i, cropped.layeredBitmap.LayerBitmap[i].GetPart(r) as TBGRABitmap, true);
+        tempLayer := TBGRABitmap.Create(r.Width,r.Height);
+        if selectionIsRect and (cropped.layeredBitmap.LayerOriginalGuid[i]<>GUID_NULL) and
+          cropped.layeredBitmap.LayerOriginalKnown[i] then
+        begin
+          ofs := cropped.layeredBitmap.LayerOffset[i];
+          cropped.layeredBitmap.LayerOriginalMatrix[i] :=
+             AffineMatrixTranslation(-r.Left, -r.Top)*
+             cropped.layeredBitmap.LayerOriginalMatrix[i];
+          cropped.layeredBitmap.RenderLayerFromOriginal(i);
+        end else
+        begin
+          ofs := cropped.layeredBitmap.LayerOffset[i];
+          tempLayer.PutImage(ofs.x-r.Left,ofs.y-r.Top, cropped.layeredBitmap.LayerBitmap[i], dmSet);
+          tempLayer.ApplyMask(cropped.selection);
+          cropped.layeredBitmap.SetLayerBitmap(i, tempLayer, true);
+          cropped.layeredBitmap.LayerOffset[i] := Point(0,0);
+        end;
+      end;
+      if cropped.selectionLayer = nil then
+      begin
+        FreeAndNil(cropped.selection);
+        if (CurrentTool in [ptMoveSelection,ptRotateSelection]) then
+          ChooseTool(ptHand);
       end;
       cropped.layeredBitmap.SetSize(r.right-r.left,r.Bottom-r.top);
-      BGRAReplace(cropped.selection,cropped.selection.GetPart(r));
-      if cropped.selectionLayer <> nil then BGRAReplace(cropped.selectionLayer,cropped.selectionLayer.GetPart(r));
+      cropped.layeredBitmap.RemoveUnusedOriginals;
+      flattened := cropped.layeredBitmap.ComputeFlatImage;
+      subBounds := flattened.GetImageBounds;
+      flattened.Free;
+      if cropped.selectionLayer<>nil then
+        subBounds := RectUnion(subBounds, cropped.selectionLayer.GetImageBounds);
+      if (subBounds.Left > 0) or (subBounds.Top > 0) or
+        (subBounds.Right < cropped.layeredBitmap.Width) or (subBounds.Bottom < cropped.layeredBitmap.Height) then
+      begin
+        top := FInstance.HideTopmost;
+        case MessageDlg(rsCrop,rsKeepEmptySpace,mtConfirmation,mbYesNo,0) of
+        mrNo: begin
+            for i := 0 to cropped.layeredBitmap.NbLayers-1 do
+            begin
+              if cropped.layeredBitmap.LayerOriginalGuid[i]=GUID_NULL then
+              begin
+                ofs := cropped.layeredBitmap.LayerOffset[i];
+                cropped.layeredBitmap.LayerOffset[i] := Point(ofs.x-subBounds.Left,ofs.y-subBounds.Top);
+              end else
+              begin
+                cropped.layeredBitmap.LayerOriginalMatrix[i] :=
+                  AffineMatrixTranslation(-subBounds.Left,-subBounds.Top)*
+                  cropped.layeredBitmap.LayerOriginalMatrix[i];
+                cropped.layeredBitmap.RenderLayerFromOriginal(i);
+              end;
+            end;
+            cropped.layeredBitmap.SetSize(subBounds.Width, subBounds.Height);
+          end;
+        end;
+        FInstance.ShowTopmost(top);
+      end;
       image.Assign(cropped,true,true);
       image.SetCurrentLayerByIndex(selectedLayer);
     end;
@@ -439,11 +492,12 @@ begin
   end;
 end;
 
-procedure TImageActions.SetCurrentBitmap(bmp: TBGRABitmap; AUndoable : boolean);
+procedure TImageActions.SetCurrentBitmap(bmp: TBGRABitmap; AUndoable : boolean;
+  ACaption: string; AOpacity: byte);
 begin
   ToolManager.ToolCloseDontReopen;
   try
-    image.Assign(bmp,True,AUndoable);
+    image.Assign(bmp,True,AUndoable, ACaption,AOpacity);
   finally
     ToolManager.ToolOpen;
   end;
@@ -962,7 +1016,11 @@ begin
   end;}
   if image.NbLayers < MaxLayersToAdd then
   begin
+    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptTextureMapping,ptDeformation] then
+      ChooseTool(ptHand);
+    ToolManager.ToolCloseDontReopen;
     Image.AddNewLayer;
+    ToolManager.ToolOpen;
     FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
   end;
 end;
@@ -972,7 +1030,11 @@ function TImageActions.NewLayer(ALayer: TBGRABitmap; AName: string;
 begin
   if image.NbLayers < MaxLayersToAdd then
   begin
+    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptTextureMapping,ptDeformation] then
+      ChooseTool(ptHand);
+    ToolManager.ToolCloseDontReopen;
     Image.AddNewLayer(ALayer, AName, ABlendOp);
+    ToolManager.ToolOpen;
     FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
     result := true;
   end else
@@ -988,7 +1050,11 @@ function TImageActions.NewLayer(ALayer: TBGRALayerCustomOriginal;
 begin
   if image.NbLayers < MaxLayersToAdd then
   begin
+    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptTextureMapping,ptDeformation] then
+      ChooseTool(ptHand);
+    ToolManager.ToolCloseDontReopen;
     Image.AddNewLayer(ALayer, AName, ABlendOp, AMatrix);
+    ToolManager.ToolOpen;
     FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
     result := true;
   end else
@@ -1010,9 +1076,11 @@ end;
 
 procedure TImageActions.RasterizeLayer;
 begin
-  if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping] then
+  if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptTextureMapping,ptDeformation] then
     ChooseTool(ptHand);
+  ToolManager.ToolCloseDontReopen;
   Image.RasterizeLayer;
+  ToolManager.ToolOpen;
   FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
 end;
 
@@ -1020,6 +1088,7 @@ procedure TImageActions.MergeLayerOver;
 begin
   if (Image.CurrentLayerIndex <> -1) and (image.NbLayers > 1) then
   begin
+    ChooseTool(ptHand);
     Image.MergeLayerOver;
     FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
   end;
@@ -1031,7 +1100,11 @@ begin
   if (Image.CurrentLayerIndex <> -1) and (Image.NbLayers > 1) then
   begin
     idx := Image.CurrentLayerIndex;
+    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptTextureMapping,ptDeformation] then
+      ChooseTool(ptHand);
+    ToolManager.ToolCloseDontReopen;
     Image.RemoveLayer;
+    ToolManager.ToolOpen;
     FInstance.ScrollLayerStackOnItem(idx);
   end;
 end;

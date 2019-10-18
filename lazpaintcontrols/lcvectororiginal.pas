@@ -15,6 +15,7 @@ const
   InfiniteRect : TRect = (Left: -MaxLongInt; Top: -MaxLongInt; Right: MaxLongInt; Bottom: MaxLongInt);
   EmptyTextureId = 0;
   DefaultShapeOutlineWidth = 2;
+  MediumShapeCost = 100;
 
 type
   TVectorOriginal = class;
@@ -179,6 +180,7 @@ type
     procedure LoadFill(AStorage: TBGRACustomOriginalStorage; AObjectName: string; var AValue: TVectorialFill);
     procedure SaveFill(AStorage: TBGRACustomOriginalStorage; AObjectName: string; AValue: TVectorialFill);
     function ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean; AStrokeMatrix: TAffineMatrix): ArrayOfTPointF; virtual;
+    function ComputeStrokeEnvelope(APoints: ArrayOfTPointF; AClosed: boolean; AWidth: single): ArrayOfTPointF; virtual;
     function GetStroker: TBGRAPenStroker;
     property Stroker: TBGRAPenStroker read GetStroker;
     procedure FillChange({%H-}ASender: TObject; var ADiff: TCustomVectorialFillDiff); virtual;
@@ -201,7 +203,8 @@ type
     procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); virtual;
     function GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; virtual; abstract;
     function SuggestGradientBox(AMatrix: TAffineMatrix): TAffineBox; virtual;
-    function PointInShape(APoint: TPointF): boolean; virtual; abstract;
+    function PointInShape(APoint: TPointF): boolean; overload; virtual; abstract;
+    function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; virtual; abstract;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); virtual; abstract;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); virtual;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); virtual;
@@ -224,6 +227,7 @@ type
     function Duplicate: TVectorShape;
     class function StorageClassName: RawByteString; virtual; abstract;
     function GetIsSlow(const {%H-}AMatrix: TAffineMatrix): boolean; virtual;
+    function GetGenericCost: integer; virtual;
     function GetUsedTextures: ArrayOfBGRABitmap; virtual;
     procedure Transform(const AMatrix: TAffineMatrix); virtual;
     class function Fields: TVectorShapeFields; virtual;
@@ -359,7 +363,8 @@ type
     procedure SelectShape(AIndex: integer); overload;
     procedure SelectShape(AShape: TVectorShape); overload;
     procedure DeselectShape;
-    procedure MouseClick(APoint: TPointF);
+    function GetShapesCost: integer;
+    procedure MouseClick(APoint: TPointF; ARadius: single);
     procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); override;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
     function CreateEditor: TBGRAOriginalEditor; override;
@@ -601,9 +606,9 @@ end;
 
 function TVectorShapeCommonFillDiff.IsIdentity: boolean;
 begin
-  result := FStartPenFill.Equals(FEndPenFill) and
-    FStartBackFill.Equals(FEndBackFill) and
-    FStartOutlineFill.Equals(FEndOutlineFill);
+  result := TVectorialFill.Equal(FStartPenFill, FEndPenFill) and
+    TVectorialFill.Equal(FStartBackFill, FEndBackFill) and
+    TVectorialFill.Equal(FStartOutlineFill, FEndOutlineFill);
 end;
 
 { TVectorOriginalShapeRangeDiff }
@@ -1204,6 +1209,28 @@ begin
   result := false;
 end;
 
+function TVectorShape.GetGenericCost: integer;
+begin
+  if vsfBackFill in Fields then
+  begin
+    case BackFill.FillType of
+    vftGradient: result := 25;
+    vftTexture: result := 10;
+    vftSolid: result := 4;
+    else {vftNone} result := 1;
+    end
+  end else
+  if vsfPenStyle in Fields then
+  begin
+    if PenStyleEqual(PenStyle, SolidPenStyle) or
+       PenStyleEqual(PenStyle, ClearPenStyle) then
+       result := 1
+    else
+      result := 2;
+  end else
+    result := 1;
+end;
+
 function TVectorShape.GetUsedTextures: ArrayOfBGRABitmap;
 var
   f: TVectorShapeFields;
@@ -1280,7 +1307,8 @@ begin
     result := nil;
     pointerData := AStorage.RawString[AName+'-ptr'];
     if length(pointerData)<>sizeof(result) then
-      raise exception.Create('Invalid stored pointer');
+      raise exception.Create('Invalid stored pointer (expected size '+
+        inttostr(sizeof(result))+' but encountered '+inttostr(length(pointerData))+')');
     move(pointerData[1],result,sizeof(result));
   end else
   if Assigned(Container) then
@@ -1630,6 +1658,16 @@ begin
     result := Stroker.ComputePolygon(APoints, PenWidth)
   else
     result := Stroker.ComputePolyline(APoints, PenWidth, PenColor);
+end;
+
+function TVectorShape.ComputeStrokeEnvelope(APoints: ArrayOfTPointF;
+  AClosed: boolean; AWidth: single): ArrayOfTPointF;
+var
+  opt: TBGRAPolyLineOptions;
+begin
+  opt := [];
+  if AClosed then include(opt, plCycle);
+  result := ComputeWidePolyPolylinePoints(APoints, AWidth, BGRABlack, pecRound, pjsMiter, SolidPenStyle, opt);
 end;
 
 function TVectorShape.GetStroker: TBGRAPenStroker;
@@ -2477,6 +2515,7 @@ begin
   idx := FShapes.IndexOf(AShape);
   if idx = -1 then exit(false);
   DeleteShapeRange(idx, 1);
+  result := true;
 end;
 
 procedure TVectorOriginal.DeleteShape(AIndex: integer);
@@ -2575,12 +2614,27 @@ begin
   SelectShape(nil);
 end;
 
-procedure TVectorOriginal.MouseClick(APoint: TPointF);
+function TVectorOriginal.GetShapesCost: integer;
+var
+  i: Integer;
+begin
+  result := 0;
+  for i := 0 to ShapeCount-1 do
+    inc(result, Shape[i].GetGenericCost);
+end;
+
+procedure TVectorOriginal.MouseClick(APoint: TPointF; ARadius: single);
 var
   i: LongInt;
 begin
   for i:= FShapes.Count-1 downto 0 do
     if FShapes[i].PointInShape(APoint) then
+    begin
+      SelectShape(i);
+      exit;
+    end;
+  for i:= FShapes.Count-1 downto 0 do
+    if FShapes[i].PointInShape(APoint, ARadius) then
     begin
       SelectShape(i);
       exit;

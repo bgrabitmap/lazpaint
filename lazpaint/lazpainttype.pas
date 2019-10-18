@@ -10,7 +10,7 @@ uses
   {$IFDEF LINUX}, InterfaceBase{$ENDIF};
 
 const
-  LazPaintVersion = 7000500;
+  LazPaintVersion = 7000700;
 
   function LazPaintVersionStr: string;
 
@@ -19,22 +19,14 @@ const
   Improvements accepted:
   ----------------------
   Mac:
-  - Combobox ownerdrawn (brush, arrow)
-  - update image preview when saving
-  - filename fix
-  - ctrl shortcut to change
+  - combobox dropdown rect without scrollbar
   Scripting
   Color picker
   - From final image
   - With radius
   Translation of curve modes (in dropdown)
   Lasso
-  Raccourcis clavier pour utiliser le bouton droit
   Utiliser les touches de direction
-  Indiquer l'outil actif
-  Rotation des objets des outils
-  Afficher les coordonnees des points (snap de la valeur en haut?)
-  Ajout barre d'outils pour les coordonnees de la selection 
   Mettre a jour le curseur quand on change d'outil (notamment avec Espace)
 
   Possible improvements:
@@ -49,7 +41,6 @@ const
   - load/save RAW
 
   Filters:
-  - filtre de vagues concentriques
   - filtre de vagues en translation
   - filtre pontillisme
   - G'MIC filters
@@ -127,6 +118,7 @@ type
       bmp: TBGRABitmap;
       bpp: integer;
       frameIndex: integer;
+      isDuplicate: boolean;
       class function Empty: TImageEntry; static;
       class function NewFrameIndex: integer; static;
       procedure FreeAndNil;
@@ -536,6 +528,7 @@ begin
   result.bmp := nil;
   result.bpp := 0;
   result.frameIndex := 0;
+  result.isDuplicate:= false;
 end;
 
 class function TImageEntry.NewFrameIndex: integer;

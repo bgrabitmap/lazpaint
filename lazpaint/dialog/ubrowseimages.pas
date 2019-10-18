@@ -68,6 +68,9 @@ type
     procedure Tool_SelectDriveClick(Sender: TObject);
     function OnDeleteConfirmation({%H-}AForm:TForm; const AFiles: array of string; AContained: boolean): boolean;
   private
+    function GetCurrentDirectory: string;
+    procedure SetCurrentDirectory(AValue: string);
+  private
     FLazPaintInstance: TLazPaintCustomInstance;
     FDefaultExtension: string;
     { private declarations }
@@ -124,6 +127,7 @@ type
     procedure DeleteSelectedFiles;
     procedure SelectFile(AName: string);
     procedure PreviewValidate({%H-}ASender: TObject);
+    property CurrentDirectory: string read GetCurrentDirectory write SetCurrentDirectory;
   public
     { public declarations }
     ShowRememberStartupDirectory: boolean;
@@ -295,8 +299,7 @@ begin
   BGRAPaintNet.RegisterPaintNetFormat;
   BGRAOpenRaster.RegisterOpenRasterFormat;
 
-  FFileSystems := FileManager.GetFileSystems;
-  if length(FFileSystems)>0 then
+  if FileManager.CanGetFileSystems then
   begin
     Tool_SelectDrive.Visible := true;
   end else
@@ -335,8 +338,8 @@ begin
   if not IsSaveDialog then FFilename:= FPreviewFilename;
   Timer1.Enabled := false;
   vsList.Anchors := [akLeft,akTop,akRight,akBottom];
-  FLastDirectory := DirectoryEdit1.Text;
-  DirectoryEdit1.Text := '';
+  FLastDirectory := CurrentDirectory;
+  CurrentDirectory := '';
   UpdatePreview('');
 end;
 
@@ -403,9 +406,9 @@ begin
   end;
   if FLastBigIcon then ViewBigIcons;
   if (FLastDirectory = '') or not FileManager.IsDirectory(FLastDirectory) then
-    DirectoryEdit1.Text := DefaultPicturesDirectory
+    CurrentDirectory := DefaultPicturesDirectory
   else
-    DirectoryEdit1.Text := FLastDirectory;
+    CurrentDirectory := FLastDirectory;
   Timer1.Enabled := true;
   vsList.Anchors := [akLeft,akTop];
   ShellListView1.SetFocus;
@@ -449,8 +452,8 @@ procedure TFBrowseImages.ListBox_RecentDirsClick(Sender: TObject);
 begin
   if ListBox_RecentDirs.ItemIndex <> -1 then
   begin
-    if ChompPathDelim(DirectoryEdit1.Text) <> ChompPathDelim(ListBox_RecentDirs.Items[ListBox_RecentDirs.ItemIndex]) then
-      DirectoryEdit1.Text := AppendPathDelim(ListBox_RecentDirs.Items[ListBox_RecentDirs.ItemIndex]);
+    if ChompPathDelim(CurrentDirectory) <> ChompPathDelim(ListBox_RecentDirs.Items[ListBox_RecentDirs.ItemIndex]) then
+      CurrentDirectory := AppendPathDelim(ListBox_RecentDirs.Items[ListBox_RecentDirs.ItemIndex]);
   end;
 end;
 
@@ -604,13 +607,13 @@ var
   newName: String;
   newFullname: string;
 begin
-  if pos(PathDelim, DirectoryEdit1.Text) = 0 then exit;
+  if pos(PathDelim, CurrentDirectory) = 0 then exit;
   newName := InputBox(FCreateFolderOrContainerCaption, rsEnterFolderOrContainerName, '');
   if newName = '' then exit;
   if (pos(':',newName) <> 0) or (pos('\',newName) <> 0) then
     MessageDlg(rsInvalidName, mtError, [mbOK], 0) else
   begin
-    newFullname := ChompPathDelim(DirectoryEdit1.Text)+PathDelim+newName;
+    newFullname := ChompPathDelim(CurrentDirectory)+PathDelim+newName;
     if FileManager.IsDirectory(newFullname) then
       MessageDlg(rsFolderOrContainerAlreadyExists, mtInformation, [mbOK], 0)
     else
@@ -667,7 +670,7 @@ end;
 
 procedure TFBrowseImages.Tool_SelectDriveClick(Sender: TObject);
 begin
-  DirectoryEdit1.Text := ':';
+  CurrentDirectory := ':';
 end;
 
 function TFBrowseImages.OnDeleteConfirmation(AForm: TForm;
@@ -686,6 +689,17 @@ begin
     result := QuestionDlg(rsDeleteFile,StringReplace(rsConfirmMoveMultipleToTrash,'%1',IntToStr(length(AFiles)),[]),mtConfirmation,[mrOK,rsOkay,mrCancel,rsCancel],0)=mrOk
   else
     result := true;
+end;
+
+function TFBrowseImages.GetCurrentDirectory: string;
+begin
+  result := DirectoryEdit1.Text;
+end;
+
+procedure TFBrowseImages.SetCurrentDirectory(AValue: string);
+begin
+  DirectoryEdit1.Text := AValue;
+  ResetDirectory(False);
 end;
 
 procedure TFBrowseImages.UpdateToolButtonOpen;
@@ -838,7 +852,7 @@ var I: integer;
 begin
   ListBox_RecentDirs.ItemIndex := -1;
   for I := 0 to ListBox_RecentDirs.Count-1 do
-    if ChompPathDelim(ListBox_RecentDirs.Items[i]) = ChompPathDelim(DirectoryEdit1.Text) then
+    if ChompPathDelim(ListBox_RecentDirs.Items[i]) = ChompPathDelim(CurrentDirectory) then
     begin
       ListBox_RecentDirs.ItemIndex:= I;
       break;
@@ -936,7 +950,7 @@ begin
     fullName := ShellListView1.ItemFullName[ShellListView1.SelectedIndex];
     if ShellListView1.ItemIsFolder[ShellListView1.SelectedIndex] then
     begin
-      DirectoryEdit1.Text := fullName;
+      CurrentDirectory := fullName;
       InFilenameChange := true;
       Edit_Filename.text := '';
       InFilenameChange := false;
@@ -977,10 +991,10 @@ begin
       ModalResult:= mrOk;
     end;
   end else
-    if IsSaveDialog and (Trim(Edit_Filename.Text)<>'') and (DirectoryEdit1.Text <> ':') and
-      FileManager.IsDirectory(trim(DirectoryEdit1.Text)) then
+    if IsSaveDialog and (Trim(Edit_Filename.Text)<>'') and (CurrentDirectory <> ':') and
+      FileManager.IsDirectory(trim(CurrentDirectory)) then
     begin
-      FFilename:= IncludeTrailingPathDelimiter(trim(DirectoryEdit1.Text))+Edit_Filename.Text;
+      FFilename:= IncludeTrailingPathDelimiter(trim(CurrentDirectory))+Edit_Filename.Text;
       if (ExtractFileExt(FFilename)='') then
       begin
         if (ComboBox_FileExtension.ItemIndex > 0) then
@@ -1004,15 +1018,15 @@ procedure TFBrowseImages.GoDirUp;
 var dir: string;
   itemToSelect: string;
 begin
-  dir := DirectoryEdit1.Text;
+  dir := CurrentDirectory;
   FileManager.RemoveLastPathElement(dir, itemToSelect);
   if dir = '' then
   begin
     FFileSystems:= FileManager.GetFileSystems;
-    if length(FFileSystems)>0 then DirectoryEdit1.Text := ':';
+    if length(FFileSystems)>0 then CurrentDirectory := ':';
     itemToSelect := '';
   end else
-    DirectoryEdit1.Text := dir;
+    CurrentDirectory := dir;
   ShellListView1.SetFocus;
   UpdatePreview('');
   InFilenameChange := true;

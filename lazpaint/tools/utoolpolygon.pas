@@ -34,10 +34,15 @@ type
 
   TToolPolygon = class(TVectorialTool)
   protected
+    initiallyClosed : boolean;
     function CreateShape: TVectorShape; override;
     procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
     procedure UpdateUserMode; virtual;
+    procedure ShapeValidated; override;
   public
+    function ToolUp: TRect; override;
+    function ToolKeyPress(var key: TUTF8Char): TRect; override;
+    function ToolKeyDown(var key: Word): TRect; override;
     function GetContextualToolbars: TContextualToolbars; override;
   end;
 
@@ -152,21 +157,12 @@ begin
 end;
 
 function TToolSpline.ToolKeyPress(var key: TUTF8Char): TRect;
-var keyCode: Word;
 begin
   if (Key='z') or (Key = 'Z') then
   begin
     CurrentMode:= tsmMovePoint;
     result := OnlyRenderChange;
     Key := #0;
-  end else
-  if (Key='i') or (Key='I') then
-  begin
-    keyCode := VK_INSERT;
-    ToolKeyDown(keyCode);
-    keyCode := VK_INSERT;
-    ToolKeyUp(keyCode);
-    result := EmptyRect;
   end else
   begin
     Result:=inherited ToolKeyPress(key);
@@ -184,6 +180,7 @@ end;
 function TToolPolygon.CreateShape: TVectorShape;
 begin
   result := TPolylineShape.Create(nil);
+  initiallyClosed := toCloseShape in Manager.ShapeOptions;
 end;
 
 procedure TToolPolygon.AssignShapeStyle(AMatrix: TAffineMatrix);
@@ -201,6 +198,58 @@ procedure TToolPolygon.UpdateUserMode;
 begin
   if FShape = nil then exit;
   if FQuickDefine then FShape.Usermode := vsuCreate;
+end;
+
+procedure TToolPolygon.ShapeValidated;
+begin
+  inherited ShapeValidated;
+  if not initiallyClosed then
+    Manager.ShapeOptions := Manager.ShapeOptions - [toCloseShape];
+end;
+
+function TToolPolygon.ToolUp: TRect;
+var
+  opt: TShapeOptions;
+begin
+  Result:=inherited ToolUp;
+  if Assigned(FShape) then
+  begin
+    opt := Manager.ShapeOptions;
+    if (FShape as TCustomPolypointShape).Closed then
+      include(opt, toCloseShape)
+    else
+      exclude(opt, toCloseShape);
+    Manager.ShapeOptions:= opt;
+  end;
+end;
+
+function TToolPolygon.ToolKeyPress(var key: TUTF8Char): TRect;
+var
+  keyCode: Word;
+begin
+  if (Key='i') or (Key='I') then
+  begin
+    keyCode := VK_INSERT;
+    ToolKeyDown(keyCode);
+    if keyCode = 0 then key := #0;
+    keyCode := VK_INSERT;
+    ToolKeyUp(keyCode);
+    result := EmptyRect;
+  end else
+    Result:=inherited ToolKeyPress(key);
+end;
+
+function TToolPolygon.ToolKeyDown(var key: Word): TRect;
+begin
+  if (key = VK_RETURN) and Assigned(FShape)
+   and (FShape.Usermode = vsuCreate) then
+  begin
+    FShape.Usermode:= vsuEdit;
+    result := OnlyRenderChange;
+    key := 0;
+    exit;
+  end else
+    Result:=inherited ToolKeyDown(key);
 end;
 
 function TToolPolygon.GetContextualToolbars: TContextualToolbars;

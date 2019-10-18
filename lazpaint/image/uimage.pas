@@ -182,12 +182,14 @@ type
     procedure MergeLayerOver;
     procedure MoveLayer(AFromIndex,AToIndex: integer);
     procedure RemoveLayer;
+    procedure ClearLayer;
 
     procedure HorizontalFlip(ALayerIndex: integer); overload;
     procedure VerticalFlip(ALayerIndex: integer); overload;
 
     // whole image
-    procedure Assign(const AValue: TBGRABitmap; AOwned: boolean; AUndoable: boolean); overload;
+    procedure Assign(const AValue: TBGRABitmap; AOwned: boolean; AUndoable: boolean;
+                     ACaption: string = ''; AOpacity: byte = 255); overload;
     procedure Assign(const AValue: TBGRALayeredBitmap; AOwned: boolean; AUndoable: boolean); overload;
     procedure Assign(const AValue: TLayeredBitmapAndSelection; AOwned: boolean; AUndoable: boolean); overload;
 
@@ -315,26 +317,41 @@ end;
 
 function TLazPaintImage.MakeCroppedLayer: TBGRABitmap;
 var r: TRect;
+  cropped: TBGRABitmap;
+  ofs: TPoint;
 begin
+  ofs := Point(0,0);
   result := DuplicateBitmap(FCurrentState.SelectionLayer);
   if (result <> nil) and (SelectionMask <> nil) then result.ApplyMask(SelectionMask);
   if (result <> nil) and result.Empty then FreeAndNil(result);
   if result = nil then
   begin
+    ofs := LayerOffset[CurrentLayerIndex];
     result := DuplicateBitmap(GetSelectedImageLayer);
-    if (result <> nil) and (SelectionMask <> nil) then result.ApplyMask(SelectionMask);
+    if (result <> nil) and (SelectionMask <> nil) then
+      result.ApplyMask(SelectionMask, rect(0,0,result.Width,result.Height),
+                       Point(ofs.X,ofs.Y));
   end;
   if result <> nil then
   begin
     if SelectionMask = nil then
       r := result.GetImageBounds
     else
+    begin
       r := SelectionMaskBounds;
+      OffsetRect(r, -ofs.x, -ofs.y);
+    end;
     if IsRectEmpty(r) then
       FreeAndNil(result)
     else
+    begin
       if (r.left <> 0) or (r.top <> 0) or (r.right <> result.Width) or (r.bottom <> result.Height) then
-        BGRAReplace(result, result.GetPart(r));
+      begin
+        cropped := TBGRABitmap.Create(r.Width,r.Height);
+        cropped.PutImage(-r.Left, -r.Top, result, dmSet);
+        BGRAReplace(result, cropped);
+      end;
+    end;
   end;
 end;
 
@@ -465,6 +482,11 @@ end;
 
 procedure TLazPaintImage.UpdateMultiImage(AOutputFilename: string = '');
 begin
+  if not FileManager.FileExists(currentFilenameUTF8) then
+  begin
+    ShowMessage(rsFileNotFound + LineEnding + LineEnding + currentFilenameUTF8);
+    exit;
+  end;
   if IsIconCursor then
     UpdateIconFileUTF8(currentFilenameUTF8, AOutputFilename)
   else if IsTiff then
@@ -557,7 +579,10 @@ begin
     else
     begin
       newFrameIndex := FrameIndex;
-      tiff.Delete(newFrameIndex);
+      if newFrameIndex >= tiff.Count then
+        newFrameIndex := tiff.Count
+      else
+        tiff.Delete(newFrameIndex);
       tiff.Move(addedTiff,0,newFrameIndex);
     end;
 
@@ -956,11 +981,6 @@ begin
         ImageMayChange(ADiff.ChangingBounds)
       else
         ImageMayChangeCompletely;
-  idkChangeLayer:
-      if ADiff.ChangingBoundsDefined then
-        LayerMayChange(CurrentLayerReadOnly, ADiff.ChangingBounds)
-      else
-        LayerMayChangeCompletely(CurrentLayerReadOnly);
   idkChangeSelection:
       if ADiff.ChangingBoundsDefined then
         SelectionMaskMayChange(ADiff.ChangingBounds)
@@ -1669,48 +1689,40 @@ begin
   if Assigned(Zoom) then result := Zoom.Factor else result := 1;
 end;
 
-procedure TLazPaintImage.Assign(const AValue: TBGRABitmap; AOwned: boolean; AUndoable: boolean);
+procedure TLazPaintImage.Assign(const AValue: TBGRABitmap; AOwned: boolean; AUndoable: boolean;
+  ACaption: string; AOpacity: byte);
 var layeredBmp: TBGRALayeredBitmap;
   mask: TBGRABitmap;
 begin
   if not CheckNoAction then exit;
   CursorHotSpot := AValue.HotSpot;
-  if not AUndoable then
+  layeredBmp := TBGRALayeredBitmap.Create(AValue.Width,AValue.Height);
+  if AOwned then
   begin
-    FCurrentState.Assign(AValue, AOwned);
-    FCurrentState.RemoveSelection;
-    LayeredBitmapReplaced;
-    ImageMayChangeCompletely;
-    SelectionMaskMayChangeCompletely;
-    ClearUndo;
-  end else
-  begin
-    layeredBmp := TBGRALayeredBitmap.Create(AValue.Width,AValue.Height);
-    if AOwned then
+    layeredBmp.AddOwnedLayer(AValue);
+    if Assigned(AValue.XorMask) then
     begin
-      layeredBmp.AddOwnedLayer(AValue);
-      if Assigned(AValue.XorMask) then
-      begin
-        mask := AValue.XorMask.Duplicate as TBGRABitmap;
-        mask.AlphaFill(255);
-        mask.ReplaceColor(BGRABlack,BGRAPixelTransparent);
-        layeredBmp.LayerName[layeredBmp.AddOwnedLayer(mask,boXor)] := 'Xor';
-        AValue.DiscardXorMask;
-      end;
-    end
-    else
-    begin
-      layeredBmp.AddLayer(AValue);
-      if Assigned(AValue.XorMask) then
-      begin
-        mask := AValue.XorMask.Duplicate as TBGRABitmap;
-        mask.AlphaFill(255);
-        mask.ReplaceColor(BGRABlack,BGRAPixelTransparent);
-        layeredBmp.LayerName[layeredBmp.AddOwnedLayer(mask,boXor)] := 'Xor';
-      end;
+      mask := AValue.XorMask.Duplicate as TBGRABitmap;
+      mask.AlphaFill(255);
+      mask.ReplaceColor(BGRABlack,BGRAPixelTransparent);
+      layeredBmp.LayerName[layeredBmp.AddOwnedLayer(mask,boXor)] := 'Xor';
+      AValue.DiscardXorMask;
     end;
-    Assign(layeredBmp,True,AUndoable);
+  end
+  else
+  begin
+    layeredBmp.AddLayer(AValue);
+    if Assigned(AValue.XorMask) then
+    begin
+      mask := AValue.XorMask.Duplicate as TBGRABitmap;
+      mask.AlphaFill(255);
+      mask.ReplaceColor(BGRABlack,BGRAPixelTransparent);
+      layeredBmp.LayerName[layeredBmp.AddOwnedLayer(mask,boXor)] := 'Xor';
+    end;
   end;
+  layeredBmp.LayerName[0] := ACaption;
+  layeredBmp.LayerOpacity[0] := AOpacity;
+  Assign(layeredBmp,True,AUndoable);
 end;
 
 procedure TLazPaintImage.Assign(const AValue: TBGRALayeredBitmap;
@@ -1852,10 +1864,22 @@ begin
 end;
 
 procedure TLazPaintImage.MergeLayerOver;
+var
+  remove: TCustomImageDifference;
+  nextId: LongInt;
 begin
+  if CurrentLayerIndex = 0 then exit;
   if not CheckNoAction then exit;
   try
-    AddUndo(FCurrentState.MergerLayerOver(CurrentLayerIndex));
+    if LayerBitmap[CurrentLayerIndex].Empty then
+    begin
+      nextId := LayerId[CurrentLayerIndex-1];
+      remove := FCurrentState.RemoveLayer;
+      if remove is TRemoveLayerStateDifference then
+        TRemoveLayerStateDifference(remove).nextActiveLayerId:= nextId;
+      AddUndo(remove);
+    end else
+      AddUndo(FCurrentState.MergerLayerOver(CurrentLayerIndex));
   except on ex: exception do NotifyException('MergeLayerOver',ex);
   end;
   ImageMayChangeCompletely;
@@ -1897,6 +1921,16 @@ begin
   try
     AddUndo(FCurrentState.RemoveLayer);
   except on ex: exception do NotifyException('RemoveLayer',ex);
+  end;
+  ImageMayChangeCompletely;
+end;
+
+procedure TLazPaintImage.ClearLayer;
+begin
+  if not CheckNoAction then exit;
+  try
+    AddUndo(FCurrentState.ClearLayer);
+  except on ex: exception do NotifyException('ClearLayer',ex);
   end;
   ImageMayChangeCompletely;
 end;

@@ -372,7 +372,7 @@ begin
 end;
 
 procedure TMainFormMenu.Apply;
-const ImageBrowser = {$IFNDEF DARWIN}'FileUseImageBrowser,'{$ELSE}''{$ENDIF};
+const ImageBrowser = 'FileUseImageBrowser,';
 var i,j,tbHeight,tbHeightOrig: NativeInt;
 begin
   for i := 0 to FActionList.ActionCount-1 do

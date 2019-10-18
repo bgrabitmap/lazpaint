@@ -2,9 +2,9 @@
 Image editor, like PaintBrush or Paint.Net, written in Lazarus (Free Pascal). Uses BGRABitmap library.
 
 # Download
-[Download LazPaint 6.4.1](https://github.com/bgrabitmap/lazpaint/releases/tag/v6.4.1) for Windows, Mac and Linux.
+[Download LazPaint](https://github.com/bgrabitmap/lazpaint/releases) for Windows, Mac and Linux.
 
-[Download LazPaint 6.4.1 Portable](https://framakey.org/Portables/LazPaintPortable) for Windows.
+[Download LazPaint Portable](https://framakey.org/Portables/LazPaintPortable) for Windows.
 
 # Official Sites
 [LazPaint Wiki](http://wiki.freepascal.org/LazPaint)

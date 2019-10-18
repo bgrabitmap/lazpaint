@@ -5,9 +5,14 @@ unit UTool;
 interface
 
 uses
-  Classes, SysUtils, Graphics, BGRABitmap, BGRABitmapTypes, uimage,
-  UImageType, ULayerAction, LCLType, Controls, UBrushType, UConfig,
-  LCVectorPolyShapes, BGRAGradientScanner, LCVectorRectShapes;
+  Classes, SysUtils, Graphics, BGRABitmap, BGRABitmapTypes, uimage, UImageType,
+  ULayerAction, LCLType, Controls, UBrushType, UConfig, LCVectorPolyShapes,
+  BGRAGradientScanner, BGRALayerOriginal, LCVectorRectShapes;
+
+const
+  VK_SNAP = {$IFDEF DARWIN}VK_LWIN{$ELSE}VK_CONTROL{$ENDIF};
+  VK_SNAP2 = {$IFDEF DARWIN}VK_RWIN{$ELSE}VK_CONTROL{$ENDIF};
+  ssSnap = {$IFDEF DARWIN}ssMeta{$ELSE}ssCtrl{$ENDIF};
 
 type TPaintToolType = (ptHand,ptHotSpot, ptMoveLayer,ptRotateLayer,ptZoomLayer,
                    ptPen, ptBrush, ptClone, ptColorPicker, ptEraser,
@@ -39,7 +44,7 @@ type
   TBitmapToVirtualScreenFunction = function(PtF: TPointF): TPointF of object;
 
   TEraserMode = (emEraseAlpha, emSoften);
-  TToolCommand = (tcCut, tcCopy, tcPaste, tcDelete, tcMoveUp, tcMoveDown, tcMoveToFront, tcMoveToBack,
+  TToolCommand = (tcCut, tcCopy, tcPaste, tcDelete, tcFinish, tcMoveUp, tcMoveDown, tcMoveToFront, tcMoveToBack,
     tcAlignLeft, tcCenterHorizontally, tcAlignRight, tcAlignTop, tcCenterVertically, tcAlignBottom,
     tcShapeToSpline);
 
@@ -47,6 +52,8 @@ function GradientColorSpaceToDisplay(AValue: TBGRAColorInterpolation): string;
 function DisplayToGradientColorSpace(AValue: string): TBGRAColorInterpolation;
 
 type
+  TLayerKind = (lkUnknown, lkEmpty, lkBitmap, lkTransformedBitmap, lkGradient, lkVectorial, lkSVG, lkOther);
+
   { TGenericTool }
 
   TGenericTool = class
@@ -64,12 +71,12 @@ type
     function FixLayerOffset: boolean; virtual;
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF; rightBtn: boolean): TRect; virtual;
     function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect; virtual;
-    procedure DoToolMoveAfter(pt: TPoint; ptF: TPointF); virtual;
     function DoToolUpdate(toolDest: TBGRABitmap): TRect; virtual;
     procedure OnTryStop(sender: TCustomLayerAction); virtual;
     function SelectionMaxPointDistance: single;
     function GetStatusText: string; virtual;
     function DoGetToolDrawingLayer: TBGRABitmap; virtual;
+    function GetCurrentLayerKind: TLayerKind;
   public
     ToolUpdateNeeded: boolean;
     Cursor: TCursor;
@@ -84,7 +91,6 @@ type
     function ToolUpdate: TRect;
     function ToolDown(X,Y: single; rightBtn: boolean): TRect;
     function ToolMove(X,Y: single): TRect;
-    procedure ToolMoveAfter(X,Y: single);
     function ToolKeyDown(var key: Word): TRect; virtual;
     function ToolKeyUp(var key: Word): TRect; virtual;
     function ToolKeyPress(var key: TUTF8Char): TRect; virtual;
@@ -117,13 +123,13 @@ type
 
   TToolClass = class of TGenericTool;
 
-  TToolPopupMessage= (tpmNone,tpmHoldShiftForSquare, tpmHoldCtrlSnapToPixel,
-    tpmReturnValides, tpmBackspaceRemoveLastPoint, tpmCtrlRestrictRotation,
-    tpmAltShiftScaleMode, tpmCurveModeHint, tpmBlendOpBackground,
+  TToolPopupMessage= (tpmNone,tpmHoldKeyForSquare, tpmHoldKeySnapToPixel,
+    tpmReturnValides, tpmBackspaceRemoveLastPoint, tpmHoldKeyRestrictRotation,
+    tpmHoldKeysScaleMode, tpmCurveModeHint, tpmBlendOpBackground,
     tpmRightClickForSource);
 
   TOnToolChangedHandler = procedure(sender: TToolManager; ANewToolType: TPaintToolType) of object;
-  TOnPopupToolHandler = procedure(sender: TToolManager; APopupMessage: TToolPopupMessage) of object;
+  TOnPopupToolHandler = procedure(sender: TToolManager; APopupMessage: TToolPopupMessage; AKey: Word) of object;
 
   TShapeOption = (toAliasing, toDrawShape, toFillShape, toCloseShape);
   TShapeOptions = set of TShapeOption;
@@ -272,10 +278,8 @@ type
 
     function ToolDown(X,Y: single; ARightBtn: boolean; APressure: single): boolean; overload;
     function ToolMove(X,Y: single; APressure: single): boolean; overload;
-    procedure ToolMoveAfter(X,Y: single); overload;
     function ToolDown(ACoord: TPointF; ARightBtn: boolean; APressure: single): boolean; overload;
     function ToolMove(ACoord: TPointF; APressure: single): boolean; overload;
-    procedure ToolMoveAfter(coord: TPointF); overload;
     function ToolKeyDown(var key: Word): boolean;
     function ToolKeyUp(var key: Word): boolean;
     function ToolKeyPress(var key: TUTF8Char): boolean;
@@ -286,7 +290,7 @@ type
     procedure ToolOpen;
     function ToolUpdate: boolean;
     function ToolUpdateNeeded: boolean;
-    procedure ToolPopup(AMessage: TToolPopupMessage);
+    procedure ToolPopup(AMessage: TToolPopupMessage; AKey: Word = 0);
     procedure HintReturnValidates;
 
     function IsSelectingTool: boolean;
@@ -368,12 +372,12 @@ type
    end;
 
 procedure RegisterTool(ATool: TPaintToolType; AClass: TToolClass);
-function ToolPopupMessageToStr(AMessage :TToolPopupMessage): string;
+function ToolPopupMessageToStr(AMessage :TToolPopupMessage; AKey: Word = 0): string;
 
 implementation
 
 uses Types, ugraph, LCScaleDPI, LazPaintType, UCursors, BGRATextFX, ULoading, uresourcestrings,
-  BGRATransform;
+  BGRATransform, LCVectorOriginal, BGRAGradientOriginal, BGRASVGOriginal;
 
 function StrToPaintToolType(const s: ansistring): TPaintToolType;
 var pt: TPaintToolType;
@@ -421,15 +425,25 @@ begin
   PaintTools[ATool] := AClass;
 end;
 
-function ToolPopupMessageToStr(AMessage: TToolPopupMessage): string;
+function ReplaceKey(AText: string; AKey: Word; AParam: integer = 1): string;
+begin
+  if AKey = VK_SHIFT then result := StringReplace(AText, '%'+inttostr(AParam), rsShift, []) else
+  if AKey = VK_CONTROL then result := StringReplace(AText, '%'+inttostr(AParam), rsCtrl, []) else
+  if AKey = VK_MENU then result := StringReplace(AText, '%'+inttostr(AParam), rsAlt, []) else
+  if AKey = VK_LWIN then result := StringReplace(AText, '%'+inttostr(AParam), rsCmd, []) else
+    result := AText;
+
+end;
+
+function ToolPopupMessageToStr(AMessage: TToolPopupMessage; AKey: Word = 0): string;
 begin
   case AMessage of
-  tpmHoldShiftForSquare: result := rsHoldShiftForSquare;
-  tpmHoldCtrlSnapToPixel: result := rsHoldCtrlSnapToPixel;
+  tpmHoldKeyForSquare: result := ReplaceKey(rsHoldKeyForSquare, AKey);
+  tpmHoldKeySnapToPixel: result := ReplaceKey(rsHoldKeySnapToPixel, AKey);
   tpmReturnValides: result := rsReturnValides;
   tpmBackspaceRemoveLastPoint: result := rsBackspaceRemoveLastPoint;
-  tpmCtrlRestrictRotation: result := rsCtrlRestrictRotation;
-  tpmAltShiftScaleMode: result := rsAltShiftScaleMode;
+  tpmHoldKeyRestrictRotation: result := ReplaceKey(rsHoldKeyRestrictRotation, AKey);
+  tpmHoldKeysScaleMode: result := ReplaceKey(ReplaceKey(rsHoldKeysScaleMode, AKey, 2), VK_MENU);
   tpmCurveModeHint: result := rsCurveModeHint;
   tpmBlendOpBackground: result := rsBlendOpNotUsedForBackground;
   tpmRightClickForSource: result := rsRightClickForSource;
@@ -502,6 +516,28 @@ begin
     result := Action.DrawingLayer;
 end;
 
+function TGenericTool.GetCurrentLayerKind: TLayerKind;
+var
+  c: TBGRALayerOriginalAny;
+begin
+  if not Manager.Image.LayerOriginalDefined[Manager.Image.CurrentLayerIndex] then
+  begin
+    if Manager.Image.CurrentLayerEmpty then exit(lkEmpty)
+    else exit(lkBitmap);
+  end else
+  if not Manager.Image.LayerOriginalKnown[Manager.Image.CurrentLayerIndex] then
+   exit(lkUnknown)
+  else
+  begin
+    c := Manager.Image.LayerOriginalClass[Manager.Image.CurrentLayerIndex];
+    if c = TVectorOriginal then exit(lkVectorial) else
+    if c = TBGRALayerImageOriginal then exit(lkTransformedBitmap) else
+    if c = TBGRALayerGradientOriginal then exit(lkGradient) else
+    if c = TBGRALayerSVGOriginal then exit(lkSVG) else
+      exit(lkOther);
+  end;
+end;
+
 function TGenericTool.GetAction: TLayerAction;
 begin
   if not Assigned(FAction) then
@@ -547,14 +583,6 @@ function TGenericTool.DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF
 begin
   result := EmptyRect;
 end;
-{$hints on}
-
-{$hints off}
-procedure TGenericTool.DoToolMoveAfter(pt: TPoint; ptF: TPointF);
-begin
-  //nothing
-end;
-
 {$hints on}
 
 constructor TGenericTool.Create(AManager: TToolManager);
@@ -710,21 +738,6 @@ begin
     ptF := AffineMatrixInverse(Manager.Image.SelectionTransform)*ptF;
 
   result := DoToolMove(toolDest,ptF.Round,ptF);
-end;
-
-procedure TGenericTool.ToolMoveAfter(X, Y: single);
-var
-  pt: TPoint;
-  ptF: TPointF;
-begin
-  if FixLayerOffset then
-  begin
-    x -= LayerOffset.x;
-    y -= LayerOffset.y;
-  end;
-  pt := Point(round(x),round(y));
-  ptF := PointF(x,y);
-  DoToolMoveAfter(pt,ptF);
 end;
 
 {$hints off}
@@ -1674,12 +1687,6 @@ begin
   if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
 end;
 
-procedure TToolManager.ToolMoveAfter(X, Y: single); overload;
-begin
-  if ToolCanBeUsed then
-    currentTool.ToolMoveAfter(X,Y);
-end;
-
 function TToolManager.ToolKeyDown(var key: Word): boolean;
 var changed: TRect;
 begin
@@ -1725,7 +1732,10 @@ end;
 function TToolManager.ToolCommand(ACommand: TToolCommand): boolean;
 begin
   if Assigned(FCurrentTool) then
-    result := FCurrentTool.ToolCommand(ACommand)
+  begin
+    result := FCurrentTool.ToolCommand(ACommand);
+    CheckExitTool;
+  end
   else
     result := false;
 end;
@@ -1797,10 +1807,10 @@ begin
     result := true;
 end;
 
-procedure TToolManager.ToolPopup(AMessage: TToolPopupMessage);
+procedure TToolManager.ToolPopup(AMessage: TToolPopupMessage; AKey: Word = 0);
 begin
   if Assigned(FOnPopupToolHandler) then
-    FOnPopupToolHandler(self, AMessage);
+    FOnPopupToolHandler(self, AMessage, AKey);
 end;
 
 function TToolManager.IsSelectingTool: boolean;
@@ -1844,11 +1854,6 @@ end;
 function TToolManager.ToolMove(ACoord: TPointF; APressure: single): boolean;
 begin
   result := ToolMove(ACoord.x,ACoord.y,APressure)
-end;
-
-procedure TToolManager.ToolMoveAfter(coord: TPointF); overload;
-begin
-  ToolMoveAfter(coord.x,coord.y);
 end;
 
 initialization

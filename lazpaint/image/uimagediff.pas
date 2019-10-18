@@ -105,8 +105,11 @@ type
   private
     previousOpacity,nextOpacity: byte;
     layerId: integer;
+    layerBounds: TRect;
   protected
     function GetImageDifferenceKind: TImageDifferenceKind; override;
+    function GetChangingBounds: TRect; override;
+    function GetChangingBoundsDefined: boolean; override;
     function GetIsIdentity: boolean; override;
   public
     constructor Create(ADestination: TState; ALayerId: integer; ANewOpacity: byte);
@@ -202,8 +205,11 @@ type
   private
     previousVisible,nextVisible: boolean;
     layerId: integer;
+    layerBounds: TRect;
   protected
     function GetImageDifferenceKind: TImageDifferenceKind; override;
+    function GetChangingBounds: TRect; override;
+    function GetChangingBoundsDefined: boolean; override;
     function GetIsIdentity: boolean; override;
   public
     constructor Create(ADestination: TState; ALayerId: integer; ANewVisible: boolean);
@@ -217,8 +223,11 @@ type
   private
     previousBlendOp,nextBlendOp: TBlendOperation;
     layerId: integer;
+    layerBounds: TRect;
   protected
     function GetImageDifferenceKind: TImageDifferenceKind; override;
+    function GetChangingBounds: TRect; override;
+    function GetChangingBoundsDefined: boolean; override;
     function GetIsIdentity: boolean; override;
   public
     constructor Create(ADestination: TState; ALayerId: integer; ANewBlendOp: TBlendOperation);
@@ -272,8 +281,8 @@ type
 
   TRemoveLayerStateDifference = class(TCustomImageDifference)
   protected
-    content: TStoredLayer;
-    nextActiveLayerId: integer;
+    FContent: TStoredLayer;
+    FNextActiveLayerId: integer;
     function GetImageDifferenceKind: TImageDifferenceKind; override;
   public
     function UsedMemory: int64; override;
@@ -282,6 +291,7 @@ type
     procedure UnapplyTo(AState: TState); override;
     constructor Create(AState: TState);
     destructor Destroy; override;
+    property nextActiveLayerId: integer read FNextActiveLayerId write FNextActiveLayerId;
   end;
 
   { TReplaceLayerByOriginalDifference }
@@ -482,6 +492,8 @@ type
     layerOverIndex: integer;
     layerOverCompressedBackup: TStoredLayer;
     layerUnderCompressedBackup: TStoredLayer;
+    mergeVectorial: boolean;
+    mergeVectorialGuid: TGuid;
     constructor Create(ADestination: TState; ALayerOverIndex: integer);
     function UsedMemory: int64; override;
     function TryCompress: boolean; override;
@@ -703,7 +715,9 @@ begin
   img := AState as TImageState;
   idxOrig := img.LayeredBitmap.IndexOfOriginal(FOriginalGuid);
   if idxOrig<>-1 then
-    FDiff.Apply(img.LayeredBitmap.Original[idxOrig]);
+    FDiff.Apply(img.LayeredBitmap.Original[idxOrig])
+  else
+    raise exception.Create('Cannot find original');
 end;
 
 procedure TVectorOriginalEmbeddedDifference.UnapplyTo(AState: TState);
@@ -715,7 +729,9 @@ begin
   img := AState as TImageState;
   idxOrig := img.LayeredBitmap.IndexOfOriginal(FOriginalGuid);
   if idxOrig<>-1 then
-    FDiff.Unapply(img.LayeredBitmap.Original[idxOrig]);
+    FDiff.Unapply(img.LayeredBitmap.Original[idxOrig])
+  else
+    raise exception.Create('Cannot find original');
 end;
 
 { TDiscardOriginalDifference }
@@ -928,17 +944,40 @@ begin
     shape.BackFill.Transform(imgState.LayeredBitmap.LayerOriginalMatrix[ALayerIndex]);
     orig.AddShape(shape);
   end else
+  if imgState.LayeredBitmap.LayerOriginalClass[ALayerIndex]=TBGRALayerImageOriginal then
+  begin
+    temp := (imgState.LayeredBitmap.LayerOriginal[ALayerIndex] as TBGRALayerImageOriginal).GetImageCopy;
+    if temp <> nil then
+    begin
+      if not temp.Empty then
+      begin
+        shape := TRectShape.Create(orig);
+        shape.QuickDefine(PointF(-0.5,-0.5),PointF(temp.Width-0.5,temp.Height-0.5));
+        shape.PenStyle := ClearPenStyle;
+        if temp.Equals(temp.GetPixel(0,0)) then
+          shape.BackFill.SetSolid(temp.GetPixel(0,0))
+          else shape.BackFill.SetTexture(temp,AffineMatrixIdentity,255,trNone);
+        shape.Transform(imgState.LayeredBitmap.LayerOriginalMatrix[ALayerIndex]);
+        with imgState.LayeredBitmap.LayerOffset[ALayerIndex] do
+          shape.Transform(AffineMatrixTranslation(-X-FSourceBounds.Left,-Y-FSourceBounds.Top));
+        orig.AddShape(shape);
+      end;
+      temp.FreeReference;
+    end;
+  end else
   begin
     source := imgState.LayeredBitmap.LayerBitmap[ALayerIndex];
     if not source.Empty then
     begin
+      temp := source.GetPart(FSourceBounds) as TBGRABitmap;
       shape := TRectShape.Create(orig);
       shape.QuickDefine(PointF(-0.5,-0.5),PointF(FSourceBounds.Width-0.5,FSourceBounds.Height-0.5));
       shape.PenStyle := ClearPenStyle;
-      temp := source.GetPart(FSourceBounds) as TBGRABitmap;
-      shape.BackFill.SetTexture(temp,AffineMatrixIdentity,255,trNone);
-      temp.FreeReference;
+      if temp.Equals(temp.GetPixel(0,0)) then
+        shape.BackFill.SetSolid(temp.GetPixel(0,0))
+        else shape.BackFill.SetTexture(temp,AffineMatrixIdentity,255,trNone);
       orig.AddShape(shape);
+      temp.FreeReference;
     end;
   end;
   result := orig;
@@ -1142,6 +1181,7 @@ begin
     imgState.LayeredBitmap.LayerOriginalRenderStatus[layerIdx] := orsNone;
     imgState.LayeredBitmap.RenderLayerFromOriginal(layerIdx);
   end;
+  imgState.LayeredBitmap.RemoveUnusedOriginals;
 end;
 
 procedure TReplaceLayerByOriginalDifference.UnapplyTo(AState: TState);
@@ -1636,7 +1676,17 @@ end;
 
 function TSetLayerBlendOpStateDifference.GetImageDifferenceKind: TImageDifferenceKind;
 begin
-  Result:= idkChangeLayer;
+  Result:= idkChangeImage;
+end;
+
+function TSetLayerBlendOpStateDifference.GetChangingBounds: TRect;
+begin
+  Result:= layerBounds;
+end;
+
+function TSetLayerBlendOpStateDifference.GetChangingBoundsDefined: boolean;
+begin
+  Result:= true;
 end;
 
 function TSetLayerBlendOpStateDifference.GetIsIdentity: boolean;
@@ -1657,6 +1707,8 @@ begin
   if idx =-1 then
     raise exception.Create('Layer not found');
   previousBlendOp:= imgDest.BlendOperation[idx];
+  layerBounds := imgDest.LayerBitmap[idx].GetImageBounds;
+  with imgDest.LayerOffset[idx] do layerBounds.Offset(x,y);
   ApplyTo(imgDest);
 end;
 
@@ -1684,7 +1736,17 @@ end;
 
 function TSetLayerVisibleStateDifference.GetImageDifferenceKind: TImageDifferenceKind;
 begin
-  Result:= idkChangeLayer;
+  Result:= idkChangeImage;
+end;
+
+function TSetLayerVisibleStateDifference.GetChangingBounds: TRect;
+begin
+  Result:= layerBounds;
+end;
+
+function TSetLayerVisibleStateDifference.GetChangingBoundsDefined: boolean;
+begin
+  Result:= true;
 end;
 
 function TSetLayerVisibleStateDifference.GetIsIdentity: boolean;
@@ -1705,6 +1767,8 @@ begin
   if idx =-1 then
     raise exception.Create('Layer not found');
   previousVisible:= imgDest.LayerVisible[idx];
+  layerBounds := imgDest.LayerBitmap[idx].GetImageBounds;
+  with imgDest.LayerOffset[idx] do layerBounds.Offset(x,y);
   ApplyTo(imgDest);
 end;
 
@@ -1732,7 +1796,17 @@ end;
 
 function TSetLayerOpacityStateDifference.GetImageDifferenceKind: TImageDifferenceKind;
 begin
-  Result:= idkChangeLayer;
+  Result:= idkChangeImage;
+end;
+
+function TSetLayerOpacityStateDifference.GetChangingBounds: TRect;
+begin
+  Result:= layerBounds;
+end;
+
+function TSetLayerOpacityStateDifference.GetChangingBoundsDefined: boolean;
+begin
+  Result:= true;
 end;
 
 function TSetLayerOpacityStateDifference.GetIsIdentity: boolean;
@@ -1753,6 +1827,8 @@ begin
   if idx =-1 then
     raise exception.Create('Layer not found');
   previousOpacity:= imgDest.LayerOpacity[idx];
+  layerBounds := imgDest.LayerBitmap[idx].GetImageBounds;
+  with imgDest.LayerOffset[idx] do layerBounds.Offset(x,y);
   ApplyTo(imgDest);
 end;
 
@@ -2022,15 +2098,15 @@ end;
 
 function TRemoveLayerStateDifference.UsedMemory: int64;
 begin
-  if Assigned(content) then
-    result := content.UsedMemory
+  if Assigned(FContent) then
+    result := FContent.UsedMemory
   else
     result := 0;
 end;
 
 function TRemoveLayerStateDifference.TryCompress: boolean;
 begin
-  Result:= content.Compress;
+  Result:= FContent.Compress;
 end;
 
 procedure TRemoveLayerStateDifference.ApplyTo(AState: TState);
@@ -2039,10 +2115,10 @@ begin
   inherited ApplyTo(AState);
   with AState as TImageState do
   begin
-    idx := LayeredBitmap.GetLayerIndexFromId(content.LayerId);
+    idx := LayeredBitmap.GetLayerIndexFromId(FContent.LayerId);
     LayeredBitmap.RemoveLayer(idx);
     LayeredBitmap.RemoveUnusedOriginals;
-    SelectedImageLayerIndex := LayeredBitmap.GetLayerIndexFromId(self.nextActiveLayerId);
+    SelectedImageLayerIndex := LayeredBitmap.GetLayerIndexFromId(self.FNextActiveLayerId);
   end;
 end;
 
@@ -2051,8 +2127,8 @@ begin
   inherited UnapplyTo(AState);
   with AState as TImageState do
   begin
-    content.Restore(LayeredBitmap);
-    SelectedImageLayerIndex := content.LayerIndex;
+    FContent.Restore(LayeredBitmap);
+    SelectedImageLayerIndex := FContent.LayerIndex;
   end;
 end;
 
@@ -2069,15 +2145,15 @@ begin
   idx := imgState.SelectedImageLayerIndex;
   if idx = -1 then
     raise exception.Create('No layer selected');
-  self.content := TStoredLayer.Create(imgState.LayeredBitmap, idx);
+  self.FContent := TStoredLayer.Create(imgState.LayeredBitmap, idx);
   if idx+1 < imgState.NbLayers then
     nextIdx := idx+1 else nextIdx := idx-1;
-  self.nextActiveLayerId := imgState.LayeredBitmap.LayerUniqueId[nextIdx];
+  self.FNextActiveLayerId := imgState.LayeredBitmap.LayerUniqueId[nextIdx];
 end;
 
 destructor TRemoveLayerStateDifference.Destroy;
 begin
-  self.content.Free;
+  self.FContent.Free;
   inherited Destroy;
 end;
 
@@ -2092,6 +2168,7 @@ constructor TMergeLayerOverStateDifference.Create(ADestination: TState;
   ALayerOverIndex: integer);
 var
   imgDest: TImageState;
+  totalCost: Integer;
 begin
   inherited Create(ADestination);
   imgDest := ADestination as TImageState;
@@ -2100,12 +2177,30 @@ begin
   if ALayerOverIndex = 0 then
     raise exception.Create('First layer cannot be merged over');
 
+  mergeVectorial := false;
+  mergeVectorialGuid := GUID_NULL;
   layerOverIndex := ALayerOverIndex;
   with imgDest.LayeredBitmap do
   begin
     previousActiveLayerId:= LayerUniqueId[imgDest.SelectedImageLayerIndex];
     layerOverCompressedBackup := TStoredLayer.Create(imgDest.LayeredBitmap, ALayerOverIndex, true);
     layerUnderCompressedBackup := TStoredLayer.Create(imgDest.LayeredBitmap, ALayerOverIndex-1, true);
+    if ((LayerOriginalClass[ALayerOverIndex] = TVectorOriginal) or
+       (LayerOriginalClass[ALayerOverIndex-1] = TVectorOriginal) or
+       (LayerOriginalClass[ALayerOverIndex] = TBGRALayerGradientOriginal) or
+       (LayerOriginalClass[ALayerOverIndex-1] = TBGRALayerGradientOriginal)) and
+       (BlendOperation[ALayerOverIndex] = boTransparent) and
+       (BlendOperation[ALayerOverIndex-1] = boTransparent) then
+    begin
+      totalCost := 0;
+      if LayerOriginalClass[ALayerOverIndex] = TVectorOriginal then
+        inc(totalCost, TVectorOriginal(LayerOriginal[ALayerOverIndex]).GetShapesCost)
+      else inc(totalCost, 10);
+      if LayerOriginalClass[ALayerOverIndex-1] = TVectorOriginal then
+        inc(totalCost, TVectorOriginal(LayerOriginal[ALayerOverIndex-1]).GetShapesCost)
+      else inc(totalCost, 10);
+      if totalCost <= MediumShapeCost then mergeVectorial := true;
+    end;
   end;
 
   //select layer under and merge
@@ -2127,6 +2222,80 @@ end;
 procedure TMergeLayerOverStateDifference.ApplyTo(AState: TState);
 var
   merged: TBGRABitmap;
+  mergedOriginal: TVectorOriginal;
+
+  procedure AppendToMergedOriginal(ALayeredBitmap: TBGRALayeredBitmap; ALayerIndex: integer);
+  var
+    vectOrig: TVectorOriginal;
+    m: TAffineMatrix;
+    i: Integer;
+    s: TVectorShape;
+    temp: TBGRABitmap;
+    b: TRect;
+    c: TBGRALayerOriginalAny;
+  begin
+    c := ALayeredBitmap.LayerOriginalClass[ALayerIndex];
+    m := ALayeredBitmap.LayerOriginalMatrix[ALayerIndex];
+    if c = TVectorOriginal then
+    begin
+      vectOrig := ALayeredBitmap.LayerOriginal[ALayerIndex] as TVectorOriginal;
+      for i := 0 to vectOrig.ShapeCount-1 do
+      begin
+        s := vectOrig.Shape[i].Duplicate;
+        s.Transform(m);
+        mergedOriginal.AddShape(s);
+      end;
+    end else
+    if c = TBGRALayerGradientOriginal then
+    begin
+      s := TRectShape.Create(mergedOriginal);
+      s.PenStyle := ClearPenStyle;
+      s.BackFill.SetGradient(ALayeredBitmap.LayerOriginal[ALayerIndex] as TBGRALayerGradientOriginal, false);
+      s.BackFill.Transform(m);
+      s.QuickDefine(PointF(-0.5,-0.5), PointF(ALayeredBitmap.width-0.5,ALayeredBitmap.Height-0.5));
+      mergedOriginal.AddShape(s);
+    end else
+    if c = TBGRALayerImageOriginal then
+    begin
+      temp := (ALayeredBitmap.LayerOriginal[ALayerIndex] as TBGRALayerImageOriginal).GetImageCopy;
+      if Assigned(temp) then
+      begin
+        if not temp.Empty then
+        begin
+          s := TRectShape.Create(mergedOriginal);
+          s.PenStyle := ClearPenStyle;
+          if temp.Equals(temp.GetPixel(0,0)) then
+            s.BackFill.SetSolid(temp.GetPixel(0,0))
+            else s.BackFill.SetTexture(temp, AffineMatrixIdentity, 255, trNone);
+          s.QuickDefine(PointF(-0.5,-0.5), PointF(temp.width-0.5,temp.Height-0.5));
+          s.Transform(m);
+          mergedOriginal.AddShape(s);
+        end;
+        temp.FreeReference;
+      end;
+    end else
+    begin
+      if Assigned(ALayeredBitmap.LayerBitmap[ALayerIndex]) then
+      begin
+        b := ALayeredBitmap.LayerBitmap[ALayerIndex].GetImageBounds;
+        if not b.IsEmpty then
+        begin
+          temp := ALayeredBitmap.LayerBitmap[ALayerIndex].GetPart(b) as TBGRABitmap;
+          s := TRectShape.Create(mergedOriginal);
+          s.PenStyle := ClearPenStyle;
+          if temp.Equals(temp.GetPixel(0,0)) then
+            s.BackFill.SetSolid(temp.GetPixel(0,0))
+            else s.BackFill.SetTexture(temp, AffineMatrixIdentity, 255, trNone);
+          s.QuickDefine(PointF(-0.5,-0.5), PointF(temp.width-0.5,temp.Height-0.5));
+          with ALayeredBitmap.LayerOffset[ALayerIndex] do
+            s.Transform(AffineMatrixTranslation(b.Left+X,b.Top+Y));
+          mergedOriginal.AddShape(s);
+          temp.FreeReference;
+        end;
+      end;
+    end;
+  end;
+
 begin
   inherited ApplyTo(AState);
   with AState as TImageState do
@@ -2134,6 +2303,18 @@ begin
     if layerOverIndex >= NbLayers then exit;
 
      SelectedImageLayerIndex := layerOverIndex-1;
+     if mergeVectorial then
+     begin
+       mergedOriginal := TVectorOriginal.Create;
+       mergedOriginal.Guid := mergeVectorialGuid;
+       AppendToMergedOriginal(LayeredBitmap, layerOverIndex-1);
+       AppendToMergedOriginal(LayeredBitmap, layerOverIndex);
+       LayeredBitmap.AddOriginal(mergedOriginal);
+       mergeVectorialGuid := mergedOriginal.Guid;
+       LayeredBitmap.LayerOriginalGuid[layerOverIndex-1] := mergedOriginal.Guid;
+       LayeredBitmap.LayerOriginalMatrix[layerOverIndex-1] := AffineMatrixIdentity;
+       LayeredBitmap.RenderLayerFromOriginal(layerOverIndex-1);
+     end else
      if (LayerBitmap[layerOverIndex-1].Width <> Width) or
         (LayerBitmap[layerOverIndex-1].Height <> Height) or
         (LayerOffset[layerOverIndex-1].X <> 0) or
@@ -2240,7 +2421,7 @@ begin
         if duplicateOriginal then
         begin
           stream:= TMemoryStream.Create;
-          SaveOriginalToStream(sourceLayerIndex, stream);
+          SaveOriginalToStream(LayerOriginalGuid[sourceLayerIndex], stream);
           stream.Position:= 0;
           AddOriginalFromStream(stream, duplicateGuid, true);
           stream.Free;
@@ -2282,7 +2463,7 @@ begin
   begin
     self.sourceLayerId := LayeredBitmap.LayerUniqueId[SelectedImageLayerIndex];
     self.duplicateId := LayeredBitmap.ProduceLayerUniqueId;
-    self.duplicateOriginal := useOriginal and (LayeredBitmap.OriginalClass[SelectedImageLayerIndex]=TVectorOriginal);
+    self.duplicateOriginal := useOriginal and (LayeredBitmap.LayerOriginalClass[SelectedImageLayerIndex]=TVectorOriginal);
     if self.duplicateOriginal then
       CreateGUID(duplicateGuid);
   end;
@@ -2509,6 +2690,7 @@ begin
   begin
     idx := lState.LayeredBitmap.GetLayerIndexFromId(layerId);
     if idx = -1 then raise exception.Create('Layer not found');
+    lState.LayeredBitmap.Unfreeze(idx);
     if ChangeImageLayer and (lState.LayeredBitmap.LayerOriginalGuid[idx] <> GUID_NULL) then raise exception.Create('Does not apply to originals');
     if ChangeImageLayer then
     begin
@@ -2533,6 +2715,7 @@ begin
   begin
     idx := lState.LayeredBitmap.GetLayerIndexFromId(layerId);
     if idx = -1 then raise exception.Create('Layer not found');
+    lState.LayeredBitmap.Unfreeze(idx);
     if ChangeImageLayer and (lState.LayeredBitmap.LayerOriginalGuid[idx] <> GUID_NULL) then raise exception.Create('Does not apply to originals');
     if ChangeImageLayer then
     begin

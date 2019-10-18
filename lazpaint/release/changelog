@@ -67,6 +67,44 @@ lazpaint (7.0.5) stable; urgency=low
   * shortcuts for colorpicker is "C", for curve move point "Z", for curve insert point "I" as well of Insert
   * dutch translation
   * filling of workarea with maximum zoom
+  * paste vector shape on empty layer
+  * alignment of vector shapes to pixels with CTRL
+  * return key to finish polygon shape
+  * reset counter of popups on "forget dialogs"
+  * fix TIFF loading error on some systems
 
 -- circular <circular@operamail.com>  Sun, 24 Aug 2019 11:46:00 +0100
+
+lazpaint (7.0.6) stable; urgency=low
+
+  * fix merge bitmap layer
+  * fix mouse scroll on MacOS
+  * clipboard image format with transparency
+  * allow undo when creating shape
+  * fix texture panel
+  * merging empty layer simply deletes it
+  * fix layer offset after undoing merge layer
+
+-- circular <circular@operamail.com>  Wed, 11 Sep 2019 18:20:00 +0100
+
+lazpaint (7.0.7) stable; urgency=low
+
+  * polygon: clicking first point closes the polygon, holding Shift while inserting new point will align it on segment
+  * rectangular shape: right-clicking on border will rotate/shear the shape as with Alt key  * clipboard image format with transparency
+  * merging vector layers will make a vector layer if possible
+  * merging a vector with a raster layer will convert the latter to a vector shape
+  * transform texture when modifying rectangular shape
+  * select vector shape even if clicking a bit aside
+  * allow Space key when editing text object
+  * update contextual toolbar when selecting shape with edit shape tool
+  * context menu of toolbar in the upper toolbar background
+  * handling case when saving current file that has been renamed/deleted
+  * faster saving of layers with vectors
+  * fix bug with undo of deleted vector layer
+  * fix transform when copying shapes between layers
+  * fix crop layer with layer offset
+  * clear layer when deleting it in shape editor
+  * duplicate entry in GIF or TIFF
+
+-- circular <circular@operamail.com>  Wed, 10 Oct 2019 17:37:00 +0100
 

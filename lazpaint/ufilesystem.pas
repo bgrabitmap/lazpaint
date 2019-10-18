@@ -28,10 +28,14 @@ const
 
   //more Linux file systems
   fsSysV = 'sysv';     // Unix System V
-  rsXFS = 'XFS';       //IRIX
-  rsJFS = 'JFS';       //AIX journaled file system
-  rsXiaFS = 'xiafs';   //extension of Minix file system
+  fsXFS = 'XFS';       //IRIX
+  fsJFS = 'JFS';       //AIX journaled file system
+  fsXiaFS = 'xiafs';   //extension of Minix file system
   fsReiserFS = 'Reiserfs';  //ReiserFS
+
+  //Apple file systems
+  fsAPFS = 'APFS';
+  fsHFS = 'HFS';
 
   //Misc
   fsHPFS = 'HPFS';     // OS/2 'High Performance File System'
@@ -73,6 +77,7 @@ type
     function RemovePathTrail(ADir: string): string;
     procedure RemoveLastPathElement(var ADir: string; out ALastElement: string);
     function GetFileSystems: TFileSystemArray;
+    function CanGetFileSystems: boolean;
     function MoveToTrash(AForm: TForm; const AFilenamesUTF8: array of string; AConfirmationCallback: TDeleteConfirmationFunction): boolean;
     function CreateFileStream(AFilenameUTF8: string; AMode: Word): TStream; overload;
     procedure CancelStreamAndFree(AStream: TStream);
@@ -96,7 +101,7 @@ implementation
 uses BGRAUTF8, BGRAWinResource, BGRALazResource, LazFileUtils, Dialogs
 {$IFDEF WINDOWS}, Windows{$ENDIF}
 {$IFDEF LINUX}, Process{$ENDIF}
-;
+{$IFDEF DARWIN}, Process{$ENDIF};
 
 type
   TExtendedFilename = record
@@ -104,11 +109,29 @@ type
     SubFilename: string;
   end;
 
+procedure LinuxBundleToFileSystem(ABundle: string; out AFilesystem: string;
+      out ALongFilenames: boolean; out ACaseSensitive: boolean);
+begin
+  if (ABundle = 'ntfs') or (ABundle = 'fuseblk') then AFilesystem := fsNTFS else
+  if (ABundle = 'msdos') or (ABundle = 'umsdos') or (ABundle='vfat') then AFilesystem := fsFAT else
+  if ABundle = 'iso9660' then AFilesystem:= fsCDFS else
+  if ABundle = 'hpfs' then AFilesystem := fsHPFS else
+  if ABundle = 'udf' then AFilesystem := fsUDF else
+  if ABundle = 'ncp' then AFilesystem := fsNWFS else
+  if ABundle = 'apfs' then AFilesystem := fsAPFS else
+  if ABundle = 'hfs' then AFilesystem := fsHFS else
+  if ABundle = 'exfat' then AFilesystem := fsExFAT else
+    AFilesystem := ABundle;
+  ALongFilenames := (ABundle <> 'minix') and (ABundle <> 'msdos');
+  ACaseSensitive := (ABundle <> 'msdos') and (ABundle <> 'umsdos') and (ABundle <> 'vfat')
+                and (ABundle <> 'exfat');
+end;
+
 {$IFDEF LINUX}
-const LinuxFileSystems: array[0..20] of string =
+const LinuxFileSystems: array[0..21] of string =
  ('minix', 'ext2', 'ext3', 'ext4',
   'sysv', 'XFS', 'JFS', 'xiafs', 'Reiserfs',
-  {FAT} 'msdos', 'umsdos', 'vfat', {NTFS} 'ntfs', 'fuseblk',
+  {FAT} 'msdos', 'umsdos', 'vfat', 'exfat', {NTFS} 'ntfs', 'fuseblk',
   {CDFS} 'iso9660', {UDF} 'udf',
   {HPFS} 'hpfs', {NWFS} 'ncp',
   'nfs', 'smb', 'ncpfs');
@@ -179,10 +202,6 @@ begin
               fileSystem := lFileSystem;
               path := UnespacePath(parsedDesc[1]);
               device := parsedDesc[0];
-              longFilenames := (fileSystem <> 'minix') and
-                (fileSystem <> 'msdos');
-              caseSensitive := (fileSystem <> 'msdos') and
-                (fileSystem <> 'umsdos') and (fileSystem <> 'vfat');
               readonly:= (copy(parsedDesc[3],1,3) <> 'rw,') and (parsedDesc[3]<>'rw');
 
               //detecting device type
@@ -221,12 +240,7 @@ begin
                 name := ExtractFileName(path);
 
               //formatting file system
-              if (fileSystem = 'ntfs') or (fileSystem = 'fuseblk') then fileSystem := fsNTFS else
-              if (fileSystem = 'msdos') or (fileSystem = 'umsdos') or (fileSystem='vfat') then fileSystem := fsFAT else
-              if fileSystem = 'iso9660' then fileSystem:= fsCDFS else
-              if fileSystem = 'hpfs' then fileSystem := fsHPFS else
-              if fileSystem = 'udf' then fileSystem := fsUDF else
-              if fileSystem = 'ncp' then fileSystem := fsNWFS;
+              LinuxBundleToFileSystem(fileSystem, fileSystem, longFilenames, caseSensitive);
             end;
           end;
         end;
@@ -294,6 +308,105 @@ begin
 end;
 {$ENDIF}
 
+{$IFDEF DARWIN}
+var
+  darwinFilesystemsDate: TDateTime;
+  darwinFilesystemsCached: TFileSystemArray;
+
+function GetDarwinFileSystems: TFileSystemArray;
+  procedure FindDevices;
+  var
+    runResult, headers, curLine, fs, mountPath: string;
+    lines: TStringList;
+    blocksPos, mountedPos, i, endFS: integer;
+    count: integer;
+  begin
+    if not RunCommand('df',['-P'],runResult) then exit;
+    lines := TStringList.Create;
+    lines.Text:= runResult;
+    headers := lines[0];
+    blocksPos := pos('-blocks', headers);
+    mountedPos := pos('Mounted on', headers);
+    if (blocksPos <> 0) and (mountedPos <> 0) then
+    begin
+      inc(blocksPos, 5);
+      count := 0;
+      setlength(result, lines.Count-1);
+      for i := 1 to lines.Count-1 do
+      begin
+        curLine := lines[i];
+        endFS := blocksPos;
+        if endFS > length(curLine) then continue;
+        while (endFS > 1) and (curLine[endFS] in['0'..'9']) do dec(endFS);
+        while (endFS > 1) and (curLine[endFS] in[#0..#32]) do dec(endFS);
+        fs := copy(curLine,1,endFS);
+        if fs.StartsWith('/dev/') then
+        begin
+          mountPath := copy(curLine, mountedPos, length(curLine)-mountedPos+1);
+          if (mountPath <> '/var/vm') and (mountPath <> '/private/var/vm') then
+          begin
+            result[count].path := mountPath;
+            inc(count);
+          end;
+        end;
+      end;
+      setlength(result, count);
+    end;
+    lines.Free;
+  end;
+
+  procedure FetchDiskInfo(var fsi: TFileSystemInfo);
+  var
+    runResult, curLine, key, value: string;
+    lines: TStringList;
+    posColon: SizeInt;
+    i: Integer;
+  begin
+    if not RunCommand('diskutil',['info',fsi.path],runResult) then exit;
+    lines := TStringList.Create;
+    lines.Text:= runResult;
+    fsi.name:= '';
+    fsi.device := '?';
+    fsi.fileSystem := '?';
+    fsi.longFilenames:= true;
+    for i := 0 to lines.Count-1 do
+    begin
+      curLine := lines[i];
+      posColon := pos(':',curLine);
+      if posColon <> 0 then
+      begin
+        key := copy(curLine,1,posColon-1).TrimLeft;
+        value := copy(curLine,posColon+1,length(curLine)-posColon).Trim;
+        if key = 'Optical Drive Type' then fsi.device := rsCdRom else
+        if (key = 'Removable Media') and (fsi.device = '?') then
+        begin
+          if value = 'Fixed' then fsi.device := rsFixedDrive
+          else fsi.device := rsRemovableDrive;
+        end else
+        if key = 'Type (Bundle)' then
+        begin
+          LinuxBundleToFileSystem(value, fsi.fileSystem, fsi.longFilenames, fsi.caseSensitive);
+        end else
+        if key = 'Volume Name' then fsi.name:= value else
+        if key = 'Read-Only Volume' then fsi.readonly:= value='Yes';
+      end;
+    end;
+    lines.Free;
+  end;
+
+var i: integer;
+begin
+  if (darwinFilesystemsDate <> 0) and (Now < darwinFilesystemsDate + (10/(60*60*24))) then
+    exit(darwinFilesystemsCached);
+  result := nil;
+  FindDevices;
+  for i := 0 to high(result) do
+    FetchDiskInfo(result[i]);
+  darwinFilesystemsCached := result;
+  darwinFilesystemsDate:= Now;
+end;
+{$ENDIF}
+
 function TFileManager.RemovePathTrail(ADir: string): string;
 begin
   if (length(ADir)>=1) and (ADir[length(ADir)]=PathDelim) then
@@ -328,8 +441,21 @@ begin
     {$IFDEF WINDOWS}
     result := GetWindowsFileSystems;
     {$ELSE}
-    result := nil;
+      {$IFDEF DARWIN}
+      result := GetDarwinFileSystems;
+      {$ELSE}
+      result := nil;
+      {$ENDIF}
     {$ENDIF}
+  {$ENDIF}
+end;
+
+function TFileManager.CanGetFileSystems: boolean;
+begin
+  {$IFDEF DARWIN}
+  result := true;
+  {$ELSE}
+  result := length(GetFileSystems)>0;
   {$ENDIF}
 end;
 

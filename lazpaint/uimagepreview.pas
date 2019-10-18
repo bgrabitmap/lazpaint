@@ -33,13 +33,14 @@ type
     FTiff: TTiff;                     //has entries
     FIconCursor: TBGRAIconCursor;     //has entries
     FThumbnails: TBGRABitmapList;
+    FDuplicateEntrySourceIndex: integer;
 
     FSelectedMenuIndex: integer;
     FImageMenu: array of record
                  Area, IconArea: TRect;
                  DeleteArea: TRect;
                  FrameIndex: integer;
-                 IsNew,IsLoopCount: boolean;
+                 IsNew,IsDuplicate,IsLoopCount: boolean;
                end;
 
     FOnValidate: TNotifyEvent;
@@ -63,6 +64,7 @@ type
     procedure ScrollToSelectedMenu;
 
     function CanAddNewEntry: boolean;
+    function CanDuplicateEntry: boolean;
     function CanDeleteEntry(index: integer): boolean;
     procedure DeleteEntry(i: integer);
     function GetEntryCount: integer;
@@ -70,6 +72,7 @@ type
     function GetEntryHeight(index: integer): integer;
     function GetEntryBitDepth(index: integer): integer;
     function GetEntryBitmap(index: integer): TImageEntry;
+    procedure SetEntryBitmap(var AEntry: TImageEntry);
     function GetEntryThumbnail(index: integer; stretchWidth, stretchHeight: integer): TBGRABitmap;
 
     procedure DrawCurrentFrame(Bitmap: TBGRABitmap);
@@ -91,6 +94,7 @@ type
     property OnEscape: TNotifyEvent read FOnEscape write FOnEscape;
     property EntryCount: integer read GetEntryCount;
     function GetPreviewBitmap: TImageEntry;
+    property DuplicateEntrySourceIndex: integer read FDuplicateEntrySourceIndex write FDuplicateEntrySourceIndex;
   end;
 
 implementation
@@ -265,7 +269,8 @@ begin
   begin
     Key := 0;
     if (FSelectedMenuIndex >= 0) and (FSelectedMenuIndex <= high(FImageMenu)) and
-      not FImageMenu[FSelectedMenuIndex].IsNew then
+      not FImageMenu[FSelectedMenuIndex].IsNew and
+      not FImageMenu[FSelectedMenuIndex].IsDuplicate then
     begin
       DeleteEntry(FImageMenu[FSelectedMenuIndex].FrameIndex);
     end;
@@ -309,16 +314,31 @@ begin
 end;
 
 procedure TImagePreview.DrawMenu(Bitmap: TBGRABitmap);
+
+  procedure DrawSheet(x,y,sw,sh: single);
+  var
+    ptsF,ptsF2: ArrayOfTPointF;
+    j: integer;
+  begin
+    ptsF := PointsF([PointF(x+sw*0.20,y+sh*0.1),PointF(x+sw*0.55,y+sh*0.1),PointF(x+sw*0.75,y+sh*0.3),
+                     PointF(x+sw*0.75,y+sh*0.9),PointF(x+sw*0.20,y+sh*0.9)]);
+    setlength(ptsF2,length(ptsF));
+    for j := 0 to high(ptsF) do
+        ptsF2[j] := ptsF[j] + PointF(3,3);
+    bitmap.FillPolyAntialias(ptsF2, BGRA(0,0,0,96));
+    bitmap.FillPolyAntialias(ptsF, BGRAWhite);
+    bitmap.DrawPolygonAntialias(ptsF, BGRABlack, 1.5);
+    bitmap.DrawPolyLineAntialias([PointF(x+sw*0.55,y+sh*0.1),PointF(x+sw*0.55,y+sh*0.3),PointF(x+sw*0.75,y+sh*0.3)], BGRABlack,1.5);
+  end;
+
 var scrollPos, totalHeight, maxScroll, availableWidth: integer;
-  i,j: integer;
+  i: integer;
   x,y,sw,sh: integer;
   textRight, bpp: integer;
   iconCaption: string;
-  ptsF,ptsF2: ArrayOfTPointF;
   scrolledArea, inter: TRect;
 begin
   if (Bitmap.Width < 8) or (Bitmap.Height < 8) or (GetEntryCount = 0) then exit;
-
   if Assigned(FScrollbar) then
   begin
     scrollPos := FScrollbar.Position;
@@ -364,10 +384,12 @@ begin
     FSelectedMenuIndex:= -1;
   if (FSelectedMenuIndex = -1) and (length(FImageMenu) > 0) then
   begin
-    if (length(FImageMenu)>=2) and FImageMenu[0].IsNew then
-      FSelectedMenuIndex:= 1 //do not select "add new" entry by default
-    else
-      FSelectedMenuIndex:= 0;
+    FSelectedMenuIndex:= 0;
+    while (FSelectedMenuIndex < length(FImageMenu)) and
+      (FImageMenu[FSelectedMenuIndex].IsNew or FImageMenu[FSelectedMenuIndex].IsDuplicate
+       or FImageMenu[FSelectedMenuIndex].IsLoopCount) do
+      inc(FSelectedMenuIndex);
+    //do not select special entries by default
   end;
 
   for i := 0 to high(FImageMenu) do
@@ -382,7 +404,7 @@ begin
     if i = FSelectedMenuIndex then
     begin
       bitmap.FillRect(scrolledArea, ColorToRGB(clHighlight));
-      if not IsNew and not IsLoopCount and (Area.Right - IconArea.Right > 32) and CanDeleteEntry(FrameIndex) then
+      if not IsNew and not IsLoopCount and not IsDuplicate and (Area.Right - IconArea.Right > 32) and CanDeleteEntry(FrameIndex) then
       begin
         sh := (Area.Right - IconArea.Right - 8) div 4;
         if sh < 16 then sh := 16;
@@ -416,15 +438,13 @@ begin
     end else
     if IsNew then
     begin
-      ptsF := PointsF([PointF(x+sw*0.20,y+sh*0.1),PointF(x+sw*0.55,y+sh*0.1),PointF(x+sw*0.75,y+sh*0.3),
-                       PointF(x+sw*0.75,y+sh*0.9),PointF(x+sw*0.20,y+sh*0.9)]);
-      setlength(ptsF2,length(ptsF));
-      for j := 0 to high(ptsF) do
-          ptsF2[j] := ptsF[j] + PointF(3,3);
-      bitmap.FillPolyAntialias(ptsF2, BGRA(0,0,0,96));
-      bitmap.FillPolyAntialias(ptsF, BGRAWhite);
-      bitmap.DrawPolygonAntialias(ptsF, BGRABlack, 1.5);
-      bitmap.DrawPolyLineAntialias([PointF(x+sw*0.55,y+sh*0.1),PointF(x+sw*0.55,y+sh*0.3),PointF(x+sw*0.75,y+sh*0.3)], BGRABlack,1.5);
+      DrawSheet(x,y,sw,sh);
+    end else
+    if IsDuplicate then
+    begin
+      DrawSheet(x-sw*0.15,y-sh*0.1,sw,sh*0.9);
+      DrawSheet(x+sw*0.1,y+sh*0.1,sw,sh*0.9);
+      bitmap.FontFullHeight:= round(sh*0.7);
     end else
     begin
       bitmap.FillRect(rect(x+2,y+2, x+sw+2,y+sh+2), BGRA(0,0,0,96), dmDrawWithTransparency);
@@ -432,6 +452,7 @@ begin
     end;
 
     if IsNew then iconCaption := rsNewImage else
+    if IsDuplicate then iconCaption := rsDuplicateImage else
     if IsLoopCount then
     begin
       iconCaption:= rsLoopCount+': ';
@@ -466,7 +487,8 @@ end;
 
 function TImagePreview.TryMenuLayout(AWidth: integer; AColCount, ABottom: integer): integer;
 var x,y,i,frameIndex,h,w,sw,sh: integer;
-  newItem, LoopCountItem, colLeft,colRight, maxWidth, maxHeight: integer;
+  newItem, LoopCountItem, DuplicateItem,
+  colLeft,colRight, maxWidth, maxHeight: integer;
   currentCol: integer;
 
   procedure ComputeColumn;
@@ -490,8 +512,9 @@ begin
 
   if Assigned(FAnimatedGif) then LoopCountItem := 1 else LoopCountItem:= 0;
   if CanAddNewEntry then NewItem := 1 else NewItem := 0;
-  setlength(FImageMenu, GetEntryCount + NewItem + LoopCountItem);
-  for i := 0 to GetEntryCount-1 + NewItem + LoopCountItem do
+  if CanDuplicateEntry then DuplicateItem := 1 else DuplicateItem := 0;
+  setlength(FImageMenu, GetEntryCount + LoopCountItem + NewItem + DuplicateItem);
+  for i := 0 to high(FImageMenu) do
   begin
     if (LoopCountItem = 1) and (i = 0) then
     begin
@@ -508,8 +531,16 @@ begin
       h := 32;
     end
     else
+    if (DuplicateItem = 1) and (i = LoopCountItem + NewItem) then
     begin
-      frameIndex := i-NewItem-LoopCountItem;
+      frameIndex := GetEntryCount;
+      FImageMenu[i].IsDuplicate := true;
+      w := 32;
+      h := 32;
+    end
+    else
+    begin
+      frameIndex := i-NewItem-LoopCountItem-DuplicateItem;
       w := GetEntryWidth(frameIndex);
       h := GetEntryHeight(frameIndex);
     end;
@@ -547,6 +578,12 @@ end;
 function TImagePreview.CanAddNewEntry: boolean;
 begin
   result := Assigned(FIconCursor) or Assigned(FTiff) or Assigned(FAnimatedGif);
+end;
+
+function TImagePreview.CanDuplicateEntry: boolean;
+begin
+  result := (Assigned(FTiff) or Assigned(FAnimatedGif)) and
+    (FDuplicateEntrySourceIndex >= 0) and (FDuplicateEntrySourceIndex < EntryCount);
 end;
 
 function TImagePreview.GetEntryCount: integer;
@@ -637,6 +674,56 @@ begin
         result.bpp := GetEntryBitDepth(index);
         result.frameIndex:= index;
       end;
+    end;
+  end;
+end;
+
+procedure TImagePreview.SetEntryBitmap(var AEntry: TImageEntry);
+var
+  sAddedTiff: TMemoryStream;
+  addedTiff: TTiff;
+  sOut: TStream;
+begin
+  if (AEntry.frameIndex < 0) or (AEntry.frameIndex > GetEntryCount) then
+    raise exception.Create('Index out of bounds');
+  if Filename = '' then raise exception.create('Filename undefined');
+
+  if Assigned(FTiff) then
+  begin
+    addedTiff := TTiff.Create;
+    sAddedTiff := TMemoryStream.Create;
+    try
+      AEntry.bmp.SaveToStreamAs(sAddedTiff, ifTiff);
+      sAddedTiff.Position:= 0;
+      if addedTiff.LoadFromStream(sAddedTiff) <> teNone then
+        raise Exception.Create(rsInternalError);
+      if AEntry.frameIndex > FTiff.Count then
+        AEntry.frameIndex := FTiff.Count;
+      FTiff.Move(addedTiff,0, AEntry.frameIndex);
+
+      sOut := FileManager.CreateFileStream(Filename,fmCreate);
+      try
+        FTiff.SaveToStream(sOut);
+      finally
+        sOut.Free;
+      end;
+    finally
+      sAddedTiff.Free;
+      addedTiff.Free;
+    end;
+  end else
+  if Assigned(FAnimatedGif) then
+  begin
+    if AEntry.frameIndex >= FAnimatedGif.Count then
+      AEntry.frameIndex := FAnimatedGif.AddFullFrame(AEntry.bmp, FAnimatedGif.AverageDelayMs)
+    else
+      FAnimatedGif.ReplaceFullFrame(AEntry.frameIndex, AEntry.bmp, FAnimatedGif.FrameDelayMs[AEntry.frameIndex]);
+
+    sOut := FileManager.CreateFileStream(Filename,fmCreate);
+    try
+      FAnimatedGif.SaveToStream(sOut);
+    finally
+      sOut.Free;
     end;
   end;
 end;
@@ -749,6 +836,7 @@ var reader: TFPCustomImageReader;
   jpegReader: TBGRAReaderJpeg;
   source: TStream;
   svg: TBGRASVG;
+  tr: TTiffError;
 begin
   if FInUpdatePreview then
   begin
@@ -775,8 +863,9 @@ begin
         begin
           try
             FTiff := TTiff.Create;
-            if FTiff.LoadFromStream(source) <> teNone then
-              raise exception.Create(rsCannotOpenFile);
+            tr := FTiff.LoadFromStream(source);
+            if tr <> teNone then
+              raise exception.Create(rsCannotOpenFile+' (TIFF '+inttostr(ord(tr))+')');
 
             FImageNbLayers := 1;
             if FTiff.Count = 0 then
@@ -978,6 +1067,7 @@ begin
   FStatus := AStatus;
   FAnimate:= AAnimate;
   FSelectedMenuIndex := -1;
+  FDuplicateEntrySourceIndex := -1;
   {$IFDEF WINDOWS}
   ASurface.Color := clAppWorkspace;
   {$ENDIF}
@@ -1093,6 +1183,14 @@ begin
             result.frameIndex:= TImageEntry.NewFrameIndex;
           end;
         end else
+        if FImageMenu[FSelectedMenuIndex].IsDuplicate then
+        begin
+          result := GetEntryBitmap(DuplicateEntrySourceIndex);
+          result.frameIndex:= GetEntryCount;
+          result.isDuplicate:= true;
+          SetEntryBitmap(result);
+        end
+        else
           result := GetEntryBitmap(FImageMenu[FSelectedMenuIndex].FrameIndex);
       end;
     end else
@@ -1120,6 +1218,14 @@ begin
               result.bmp := TBGRABitmap.Create(FAnimatedGif.Width,FAnimatedGif.Height,BGRAPixelTransparent);
               result.frameIndex:= TImageEntry.NewFrameIndex;
           end else
+          if FImageMenu[FSelectedMenuIndex].IsDuplicate then
+          begin
+            result := GetEntryBitmap(DuplicateEntrySourceIndex);
+            result.frameIndex:= GetEntryCount;
+            result.isDuplicate:= true;
+            SetEntryBitmap(result);
+          end
+          else
             result := GetEntryBitmap(FImageMenu[FSelectedMenuIndex].FrameIndex);
         end;
       end else

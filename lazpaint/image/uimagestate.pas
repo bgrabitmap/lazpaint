@@ -124,6 +124,7 @@ type
     function SwapRedBlue: TCustomImageDifference;
     function LinearNegative: TCustomImageDifference;
     function Negative: TCustomImageDifference;
+    function ClearLayer: TCustomImageDifference;
     function ComputeLayerOffsetDifference(AOffsetX, AOffsetY: integer): TCustomImageDifference;
     function ComputeSelectionTransformDifference: TCustomImageDifference;
     function ComputeLayerMatrixDifference(AIndex: integer; APrevMatrix, ANewMatrix: TAffineMatrix): TCustomImageDifference;
@@ -172,7 +173,7 @@ type
 implementation
 
 uses BGRAStreamLayers, UImageDiff, BGRALzpCommon, UFileSystem, BGRATransform,
-  UResourceStrings;
+  UResourceStrings, LCVectorOriginal;
 
 { TImageState }
 
@@ -745,9 +746,21 @@ begin
 end;
 
 procedure TImageState.SaveToStreamAs(AStream: TStream; AFormat: TBGRAImageFormat);
+var
+  i: Integer;
+  curGuid: TGuid;
 begin
   if LayeredBitmap <> nil then
+  begin
+    if AFormat = ifLazPaint then
+    begin
+      curGuid := LayeredBitmap.LayerOriginalGuid[GetCurrentLayerIndex];
+      for i := 0 to LayeredBitmap.OriginalCount-1 do
+        if LayeredBitmap.OriginalGuid[i] <> curGuid then
+          LayeredBitmap.UnloadOriginal(i);
+    end;
     LayeredBitmap.SaveToStreamAs(AStream, SuggestImageExtension(AFormat));
+  end;
 end;
 
 procedure TImageState.SaveOriginalToStream(AStream: TStream);
@@ -1025,6 +1038,18 @@ begin
     newImg.LayerName[idxLayer] := LayerName[i];
   end;
   result := AssignWithUndo(newImg, true, SelectedImageLayerIndex);
+end;
+
+function TImageState.ClearLayer: TCustomImageDifference;
+begin
+  if (LayeredBitmap = nil) or SelectedImageLayer.Empty then
+    result := nil
+  else
+  begin
+    result := TReplaceLayerByCustomOriginalDifference.Create(self,
+                   SelectedImageLayerIndex, true,
+                   TVectorOriginal.Create);
+  end;
 end;
 
 function TImageState.RotateCW: TCustomImageDifference;

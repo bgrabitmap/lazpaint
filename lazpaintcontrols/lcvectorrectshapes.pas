@@ -39,6 +39,7 @@ type
     FOriginBackup,FXUnitBackup,FYUnitBackup,
     FXAxisBackup,FYAxisBackup: TPointF;
     FXSizeBackup,FYSizeBackup: single;
+    FMatrixBackup: TAffineMatrix;
     FFixedRatio: single;
     procedure DoMoveXAxis(ANewCoord: TPointF; AShift: TShiftState; AFactor: single);
     procedure DoMoveYAxis(ANewCoord: TPointF; AShift: TShiftState; AFactor: single);
@@ -48,11 +49,20 @@ type
     procedure OnMoveYAxis({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnMoveXAxisNeg({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnMoveYAxisNeg({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveXAxisAlt({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveYAxisAlt({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveXAxisNegAlt({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveYAxisNegAlt({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnMoveXYCorner({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnMoveXNegYCorner({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnMoveXYNegCorner({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnMoveXNegYNegCorner({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveXYCornerAlt({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveXNegYCornerAlt({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveXYNegCornerAlt({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+    procedure OnMoveXNegYNegCornerAlt({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnStartMove({%H-}ASender: TObject; {%H-}APointIndex: integer; {%H-}AShift: TShiftState);
+    procedure UpdateFillMatrixFromRect;
     function GetCornerPositition: single; virtual; abstract;
     function GetOrthoRect(AMatrix: TAffineMatrix; out ARect: TRectF): boolean;
     function AllowShearTransform: boolean; virtual;
@@ -93,7 +103,8 @@ type
     class function Fields: TVectorShapeFields; override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
-    function PointInShape(APoint: TPointF): boolean; override;
+    function PointInShape(APoint: TPointF): boolean; overload; override;
+    function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
     function GetIsSlow(const AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
   end;
@@ -111,7 +122,8 @@ type
     function GetAlignBounds(const {%H-}ALayoutRect: TRect; const AMatrix: TAffineMatrix): TRectF; override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
-    function PointInShape(APoint: TPointF): boolean; override;
+    function PointInShape(APoint: TPointF): boolean; overload; override;
+    function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
     function GetIsSlow(const AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
   end;
@@ -160,6 +172,7 @@ type
     procedure SetShapeAltitudePercent(AValue: single);
     procedure SetShapeKind(AValue: TPhongShapeKind);
     function BackVisible: boolean;
+    function GetEnvelope: ArrayOfTPointF;
   protected
     function AllowShearTransform: boolean; override;
   public
@@ -175,8 +188,10 @@ type
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
-    function PointInShape(APoint: TPointF): boolean; override;
+    function PointInShape(APoint: TPointF): boolean; overload; override;
+    function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
     function GetIsSlow(const AMatrix: TAffineMatrix): boolean; override;
+    function GetGenericCost: integer; override;
     procedure Transform(const AMatrix: TAffineMatrix); override;
     class function StorageClassName: RawByteString; override;
     property ShapeKind: TPhongShapeKind read FShapeKind write SetShapeKind;
@@ -484,6 +499,7 @@ begin
     end;
   end;
   EnsureRatio(-AFactor,0);
+  UpdateFillMatrixFromRect;
   EndUpdate;
 end;
 
@@ -522,6 +538,7 @@ begin
     end;
   end;
   EnsureRatio(0,-AFactor);
+  UpdateFillMatrixFromRect;
   EndUpdate;
 end;
 
@@ -581,6 +598,7 @@ begin
     end;
   end;
   EnsureRatio(-AFactorX,-AFactorY);
+  UpdateFillMatrixFromRect;
   EndUpdate;
 end;
 
@@ -614,6 +632,30 @@ begin
   DoMoveYAxis(ANewCoord, AShift, -1);
 end;
 
+procedure TCustomRectShape.OnMoveXAxisAlt(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  DoMoveXAxis(ANewCoord, AShift+[ssAlt], 1);
+end;
+
+procedure TCustomRectShape.OnMoveYAxisAlt(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  DoMoveYAxis(ANewCoord, AShift+[ssAlt], 1);
+end;
+
+procedure TCustomRectShape.OnMoveXAxisNegAlt(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  DoMoveXAxis(ANewCoord, AShift+[ssAlt], -1);
+end;
+
+procedure TCustomRectShape.OnMoveYAxisNegAlt(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  DoMoveYAxis(ANewCoord, AShift+[ssAlt], -1);
+end;
+
 procedure TCustomRectShape.OnMoveXYCorner(ASender: TObject; APrevCoord,
   ANewCoord: TPointF; AShift: TShiftState);
 begin
@@ -638,6 +680,30 @@ begin
   DoMoveXYCorner(ANewCoord, AShift, -1, -1);
 end;
 
+procedure TCustomRectShape.OnMoveXYCornerAlt(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  DoMoveXYCorner(ANewCoord, AShift+[ssAlt], 1, 1);
+end;
+
+procedure TCustomRectShape.OnMoveXNegYCornerAlt(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  DoMoveXYCorner(ANewCoord, AShift+[ssAlt], -1, 1);
+end;
+
+procedure TCustomRectShape.OnMoveXYNegCornerAlt(ASender: TObject; APrevCoord,
+  ANewCoord: TPointF; AShift: TShiftState);
+begin
+  DoMoveXYCorner(ANewCoord, AShift+[ssAlt], 1, -1);
+end;
+
+procedure TCustomRectShape.OnMoveXNegYNegCornerAlt(ASender: TObject;
+  APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
+begin
+  DoMoveXYCorner(ANewCoord, AShift+[ssAlt], -1, -1);
+end;
+
 procedure TCustomRectShape.OnStartMove(ASender: TObject; APointIndex: integer;
   AShift: TShiftState);
 begin
@@ -650,6 +716,23 @@ begin
   FYUnitBackup := FYAxis-FOrigin;
   FYSizeBackup := VectLen(FYUnitBackup);
   if FYSizeBackup <> 0 then FYUnitBackup := (1/FYSizeBackup)*FYUnitBackup;
+  FMatrixBackup := AffineMatrix(FXAxis-FOrigin, FYAxis-FOrigin, FOrigin);
+end;
+
+procedure TCustomRectShape.UpdateFillMatrixFromRect;
+var
+  newMatrix, matrixDiff: TAffineMatrix;
+begin
+  newMatrix := AffineMatrix(FXAxis-FOrigin, FYAxis-FOrigin, FOrigin);
+  if IsAffineMatrixInversible(newMatrix) and IsAffineMatrixInversible(FMatrixBackup) then
+  begin
+    if vsfBackFill in Fields then
+    begin
+      matrixDiff := newMatrix*AffineMatrixInverse(FMatrixBackup);
+      BackFill.Transform(matrixDiff);
+    end;
+    FMatrixBackup := newMatrix;
+  end;
 end;
 
 function TCustomRectShape.GetAffineBox(const AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
@@ -759,7 +842,7 @@ procedure TCustomRectShape.ConfigureCustomEditor(AEditor: TBGRAOriginalEditor);
 var
   d: Single;
   u, v: TPointF;
-  idxOrig, idxX,idxY,idxXNeg,idxYNeg: Integer;
+  idx,idxOrig, idxX,idxY,idxXNeg,idxYNeg: Integer;
 begin
   u := FXAxis - FOrigin;
   v := FYAxis - FOrigin;
@@ -767,10 +850,14 @@ begin
   d := GetCornerPositition;
   if d <> 0 then
   begin
-    AEditor.AddPoint(FOrigin + (u+v)*d, @OnMoveXYCorner, false);
-    AEditor.AddPoint(FOrigin + (-u+v)*d, @OnMoveXNegYCorner, false);
-    AEditor.AddPoint(FOrigin + (u-v)*d, @OnMoveXYNegCorner, false);
-    AEditor.AddPoint(FOrigin + (-u-v)*d, @OnMoveXNegYNegCorner, false);
+    idx := AEditor.AddPoint(FOrigin + (u+v)*d, @OnMoveXYCorner, false);
+    AEditor.AddPointAlternateMove(idx, @OnMoveXYCornerAlt);
+    idx := AEditor.AddPoint(FOrigin + (-u+v)*d, @OnMoveXNegYCorner, false);
+    AEditor.AddPointAlternateMove(idx, @OnMoveXNegYCornerAlt);
+    idx := AEditor.AddPoint(FOrigin + (u-v)*d, @OnMoveXYNegCorner, false);
+    AEditor.AddPointAlternateMove(idx, @OnMoveXYNegCornerAlt);
+    idx := AEditor.AddPoint(FOrigin + (-u-v)*d, @OnMoveXNegYNegCorner, false);
+    AEditor.AddPointAlternateMove(idx, @OnMoveXNegYNegCornerAlt);
   end;
   if ShowArrows then
   begin
@@ -785,6 +872,10 @@ begin
     idxXNeg := AEditor.AddPoint(FOrigin - u, @OnMoveXAxisNeg);
     idxYNeg := AEditor.AddPoint(FOrigin - v, @OnMoveYAxisNeg);
   end;
+  AEditor.AddPointAlternateMove(idxX, @OnMoveXAxisAlt);
+  AEditor.AddPointAlternateMove(idxY, @OnMoveYAxisAlt);
+  AEditor.AddPointAlternateMove(idxXNeg, @OnMoveXAxisNegAlt);
+  AEditor.AddPointAlternateMove(idxYNeg, @OnMoveYAxisNegAlt);
   idxOrig := AEditor.AddPoint(FOrigin, @OnMoveOrigin, true);
   if ShowArrows then
   begin
@@ -1002,6 +1093,20 @@ begin
     result:= IsPointInPolygon(pts, APoint, true);
   end else
     result := false;
+end;
+
+function TRectShape.PointInShape(APoint: TPointF; ARadius: single): boolean;
+var
+  pts: ArrayOfTPointF;
+  box: TAffineBox;
+begin
+  if PenVisible or BackVisible then
+  begin
+    box := GetAffineBox(AffineMatrixIdentity, true);
+    pts := ComputeStrokeEnvelope(box.AsPolygon, true, ARadius*2);
+    result:= IsPointInPolygon(pts, APoint, true);
+  end
+  else result := false;
 end;
 
 class function TRectShape.StorageClassName: RawByteString;
@@ -1236,6 +1341,19 @@ begin
     result := false;
 end;
 
+function TEllipseShape.PointInShape(APoint: TPointF; ARadius: single): boolean;
+var
+  pts: ArrayOfTPointF;
+begin
+  if PenVisible or BackVisible then
+  begin
+    pts := ComputeEllipse(FOrigin, FXAxis, FYAxis);
+    pts := ComputeStrokeEnvelope(pts, true, ARadius*2);
+    result:= IsPointInPolygon(pts, APoint, true);
+  end else
+    result := false;
+end;
+
 function TEllipseShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;
 var
   ab: TAffineBox;
@@ -1308,6 +1426,21 @@ end;
 function TPhongShape.BackVisible: boolean;
 begin
   result := not BackFill.IsFullyTransparent;
+end;
+
+function TPhongShape.GetEnvelope: ArrayOfTPointF;
+var
+  box: TAffineBox;
+begin
+  case ShapeKind of
+    pskHalfSphere, pskConeTop: result := ComputeEllipse(FOrigin, FXAxis, FYAxis);
+    pskConeSide: result := PointsF([FOrigin - (FYAxis-FOrigin), FYAxis + (FXAxis-FOrigin), FYAxis - (FXAxis-FOrigin)]);
+  else
+    begin
+      box := GetAffineBox(AffineMatrixIdentity, true);
+      result := box.AsPolygon;
+    end;
+  end;
 end;
 
 function TPhongShape.AllowShearTransform: boolean;
@@ -1604,24 +1737,23 @@ end;
 
 function TPhongShape.PointInShape(APoint: TPointF): boolean;
 var
-  box: TAffineBox;
   pts: ArrayOfTPointF;
 begin
   if not BackVisible then exit(false);
-  if ShapeKind in [pskHalfSphere, pskConeTop] then
+  pts := GetEnvelope;
+  result := IsPointInPolygon(pts, APoint, true);
+end;
+
+function TPhongShape.PointInShape(APoint: TPointF; ARadius: single): boolean;
+var
+  pts: ArrayOfTPointF;
+begin
+  if BackVisible then
   begin
-    pts := ComputeEllipse(FOrigin, FXAxis, FYAxis);
-    result := IsPointInPolygon(pts, APoint, true);
-  end else
-  if ShapeKind = pskConeSide then
-  begin
-    pts:= PointsF([FOrigin - (FYAxis-FOrigin), FYAxis + (FXAxis-FOrigin), FYAxis - (FXAxis-FOrigin)]);
-    result := IsPointInPolygon(pts, APoint, true);
-  end else
-  begin
-    box := GetAffineBox(AffineMatrixIdentity, true);
-    result:= box.Contains(APoint);
-  end;
+    pts := ComputeStrokeEnvelope(GetEnvelope, true, ARadius*2);
+    result:= IsPointInPolygon(pts, APoint, true);
+  end
+    else result := false;
 end;
 
 function TPhongShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;
@@ -1631,6 +1763,11 @@ begin
   if not BackVisible then exit(false);
   ab := GetAffineBox(AMatrix, true);
   result := ab.Surface > 320*240;
+end;
+
+function TPhongShape.GetGenericCost: integer;
+begin
+  Result:= 10;
 end;
 
 procedure TPhongShape.Transform(const AMatrix: TAffineMatrix);
