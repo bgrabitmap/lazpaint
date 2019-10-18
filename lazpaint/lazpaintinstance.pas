@@ -1157,11 +1157,25 @@ end;
 
 procedure TLazPaintInstance.UpdateWindows;
 begin
+  {$IFDEF LINUX}
+  if Assigned(FMain) then FMain.Enabled:= false;
+  if Assigned(FToolbox) then FToolbox.Enabled:= false;
+  if Assigned(FChooseColor) then FChooseColor.Enabled:= false;
+  if Assigned(FLayerStack) then FLayerStack.Enabled:= false;
+  if Assigned(FImageList) then FImageList.Enabled:= false;
+  Application.ProcessMessages;
+  if Assigned(FMain) then FMain.Enabled:= true;
+  if Assigned(FToolbox) then FToolbox.Enabled:= true;
+  if Assigned(FChooseColor) then FChooseColor.Enabled:= true;
+  if Assigned(FLayerStack) then FLayerStack.Enabled:= true;
+  if Assigned(FImageList) then FImageList.Enabled:= true;
+  {$ELSE}
   if Assigned(FMain) then FMain.Update;
   if Assigned(FToolbox) then FToolbox.Update;
   if Assigned(FChooseColor) then FChooseColor.Update;
   if Assigned(FLayerStack) then FLayerStack.Update;
   if Assigned(FImageList) then FImageList.Update;
+  {$ENDIF}
 end;
 
 procedure TLazPaintInstance.NotifyImageChange(RepaintNow: boolean; ARect: TRect);
