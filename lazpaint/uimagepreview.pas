@@ -100,7 +100,7 @@ type
 implementation
 
 uses FPimage, BGRAReadJpeg, BGRAOpenRaster, BGRAPaintNet, BGRAReadLzp, Dialogs, UNewimage,
-  LCLType, BGRAPhoxo, BGRASVG, math;
+  LCLType, BGRAPhoxo, BGRASVG, math, URaw;
 
 { TImagePreview }
 
@@ -844,6 +844,19 @@ begin
     try
       source := FileManager.CreateFileStream(FFilename, fmOpenRead or fmShareDenyWrite);
       FImageFormat := DetectFileFormat(source,ExtractFileExt(FFilename));
+      if IsRawFilename(FFilename) then
+      begin
+        try
+          FSingleImage := GetRawStreamImage(source);
+          FImageNbLayers := 1;
+        except
+          on ex: Exception do
+          begin
+            FLoadError:= ex.Message;
+            FreeAndNil(FSingleImage);
+          end;
+        end;
+      end else
       case FImageFormat of
       ifGif:
         begin

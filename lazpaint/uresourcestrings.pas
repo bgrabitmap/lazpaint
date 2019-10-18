@@ -30,6 +30,7 @@ resourcestring
   rsEnterLayerName='Enter layer name:';
   rsFileExtensionNotSupported='This file extension is not supported.';
   rsFileFormatNotRecognized='The file format has not been recognized.';
+  rsErrorDecodingRaw='Error decoding raw image.';
   rsErrorLoadingOriginal='Error while loading original however layer can be rasterized.';
   rsRasterLayer = 'Raster layer';
   rsTransformedRasterLayer = 'Transformed raster layer';
@@ -95,6 +96,7 @@ resourcestring
 
   rsRepeatImage='Repeat image';
   rsCanvasSize='Canvas size';
+  rsResamplingImage='Resampling image...';
 
   rsRed='Red';
   rsGreen='Green';

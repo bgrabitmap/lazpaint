@@ -18,7 +18,7 @@ implementation
 uses FileUtil, BGRAAnimatedGif, Graphics, UMultiImage,
   BGRAReadLzp, LCLProc, BGRABitmapTypes, BGRAReadPng,
   UFileSystem, BGRAIconCursor, BGRAReadTiff,
-  Dialogs, math;
+  Dialogs, math, URaw;
 
 function LoadIcoMultiImageFromStream(AStream: TStream): ArrayOfImageEntry;
 var ico: TBGRAIconCursor; i: integer;
@@ -120,6 +120,7 @@ function AbleToLoadUTF8(AFilename: string): boolean;
 var
   s: TStream;
 begin
+  if IsRawFilename(AFilename) then exit(true);
   s := FileManager.CreateFileStream(AFilename, fmOpenRead or fmShareDenyWrite);
   try
     result := DefaultBGRAImageReader[DetectFileFormat(s, ExtractFileExt(AFilename))] <> nil;
@@ -187,6 +188,11 @@ begin
   s := FileManager.CreateFileStream(AFilename, fmOpenRead or fmShareDenyWrite);
   try
     format := DetectFileFormat(s, ExtractFileExt(AFilename));
+    if IsRawFilename(AFilename) then
+    begin
+      result.bmp := GetRawStreamImage(s);
+      result.bpp:= 0;
+    end else
     if format in[ifIco,ifCur] then
     begin
       multi := LoadIcoMultiImageFromStream(s);

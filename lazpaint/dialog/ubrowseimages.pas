@@ -160,7 +160,7 @@ uses BGRAThumbnail, BGRAPaintNet, BGRAOpenRaster, BGRAReadLzp,
     Types, UResourceStrings,
     UConfig, bgrareadjpeg, FPReadJPEG,
     UFileExtensions, BGRAUTF8, LazFileUtils,
-    UGraph;
+    UGraph, URaw;
 
 var
   IconCache: TStringList;
@@ -498,7 +498,8 @@ begin
   if AType = 'Folder' then AType := rsFolder else
   begin
     format := SuggestImageFormat(AType);
-    if format = ifPng then AType := 'PNG' //too long to write explicitely
+    if IsRawFilename('noname'+AType) then AType := 'Raw'
+    else if format = ifPng then AType := 'PNG' //too long to write explicitely
     else if format = ifGIF then AType := 'GIF' //do not know if animated or not
     else if format = ifIco then AType := 'Icon'
     else if format = ifCur then AType := 'Cursor'
@@ -541,7 +542,11 @@ var i: integer;
           try
             s := FileManager.CreateFileStream(itemPath, fmOpenRead or fmShareDenyWrite);
             try
-              found := GetStreamThumbnail(s,ShellListView1.LargeIconSize,ShellListView1.LargeIconSize, BGRAPixelTransparent, True, ExtractFileExt(itemPath), FBmpIcon) <> nil;
+              if IsRawFilename(itemPath) then
+              begin
+                found := GetRawStreamThumbnail(s,ShellListView1.LargeIconSize,ShellListView1.LargeIconSize, BGRAPixelTransparent, True, FBmpIcon) <> nil;
+              end else
+                found := GetStreamThumbnail(s,ShellListView1.LargeIconSize,ShellListView1.LargeIconSize, BGRAPixelTransparent, True, ExtractFileExt(itemPath), FBmpIcon) <> nil;
             finally
               s.Free;
             end;

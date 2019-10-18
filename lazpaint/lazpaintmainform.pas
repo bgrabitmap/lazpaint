@@ -863,7 +863,7 @@ implementation
 uses LCLIntf, BGRAUTF8, ugraph, math, umac, uclipboard, ucursors,
    ufilters, ULoadImage, ULoading, UFileExtensions, UBrushType,
    ugeometricbrush, UPreviewDialog, UQuestion, BGRALayerOriginal,
-   BGRATransform, LCVectorPolyShapes;
+   BGRATransform, LCVectorPolyShapes, URaw;
 
 const PenWidthFactor = 10;
 
@@ -3588,7 +3588,12 @@ var
       StartImport;
       with ComputeAcceptableImageSize(newPicture.bmp.Width,newPicture.bmp.Height) do
         if (cx < newPicture.bmp.Width) or (cy < newPicture.bmp.Height) then
+        begin
+          MessagePopupForever(rsResamplingImage);
+          LazPaintInstance.UpdateWindows;
           BGRAReplace(newPicture.bmp, newPicture.bmp.Resample(cx,cy,rmFineResample));
+          MessagePopupHide
+        end;
       image.Assign(newPicture.bmp,True, false);
       newPicture.bmp := nil;
       EndImport(newPicture.bpp, newPicture.frameIndex);
@@ -3628,6 +3633,12 @@ begin
       ImportNewPicture;
     end
     else
+    if IsRawFilename(filenameUTF8) then
+    begin
+      newPicture.bmp := GetRawFileImage(filenameUTF8);
+      newPicture.bpp := 0;
+      ImportNewPicture;
+    end else
     if format in[ifIco,ifCur] then
     begin
       newPicture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8, rsIconOrCursor, ASkipDialogIfSingleImage);

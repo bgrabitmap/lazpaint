@@ -39,7 +39,7 @@ uses
   UMainFormLayout, USaveOption, UBrushType, ugeometricbrush,
   URainType, UFormRain, UPaletteToolbar, uselectionhighlight,
   UImagePreview, UPreviewDialog, UQuestion, UTiff, UImageView,
-  UDarkTheme;
+  UDarkTheme, URaw;
 
 //sometimes LResources disappear in the uses clause
 
