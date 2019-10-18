@@ -433,8 +433,12 @@ begin
       if FObjectTypes * [otFolders] <> [] then FileManager.GetDirectoryElements(FRoot, '', FObjectTypes * [otFolders], Dirs, fstAlphabet);
       if FObjectTypes - [otFolders] <> [] then FileManager.GetDirectoryElements(FRoot, FMask, FObjectTypes - [otFolders], Files, fstAlphabet);
       setlength(FData, Dirs.Count+Files.Count);
-      fileType := rsFolder;
-      if Assigned(FOnFormatType) then FOnFormatType(self, fileType);
+      if Assigned(FOnFormatType) then
+      begin
+        fileType := 'Folder';
+        FOnFormatType(self, fileType);
+      end else
+        fileType := rsFolder;
       for i := 0 to Dirs.Count - 1 do
       if (Dirs.Items[i].Filename <> '') and (Dirs.Items[i].Filename[1] <> '.') then
       begin
