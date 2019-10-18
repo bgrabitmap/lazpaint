@@ -499,6 +499,7 @@ begin
   begin
     format := SuggestImageFormat(AType);
     if IsRawFilename('noname'+AType) then AType := 'Raw'
+    else if format = ifPortableAnyMap then AType := UTF8UpperCase(copy(AType,2,length(AType)-1))
     else if format = ifPng then AType := 'PNG' //too long to write explicitely
     else if format = ifGIF then AType := 'GIF' //do not know if animated or not
     else if format = ifIco then AType := 'Icon'
