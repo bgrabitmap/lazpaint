@@ -8716,6 +8716,11 @@ object FMain: TFMain
       OnExecute = EditShapeToCurveExecute
       OnUpdate = EditShapeToCurveUpdate
     end
+    object FileRunScript: TAction
+      Category = 'File'
+      Caption = 'Run script...'
+      OnExecute = FileRunScriptExecute
+    end
   end
   object ColorDialog1: TColorDialog
     Title = 'Choose color'

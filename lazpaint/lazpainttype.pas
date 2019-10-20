@@ -231,9 +231,10 @@ type
     procedure NotifyStackChange; virtual; abstract;
     function TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean = false): boolean; virtual; abstract;
     function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): boolean; virtual; abstract;
+    function RunScript(AFilename: string): boolean; virtual; abstract;
     procedure ColorFromFChooseColor; virtual; abstract;
     procedure ColorToFChooseColor; virtual; abstract;
-    function ShowSaveOptionDlg(AParameters: TVariableSet; AOutputFilenameUTF8: string): boolean; virtual; abstract;
+    function ShowSaveOptionDlg(AParameters: TVariableSet; AOutputFilenameUTF8: string; ASkipOptions: boolean): boolean; virtual; abstract;
     function ShowColorIntensityDlg(AParameters: TVariableSet): boolean; virtual; abstract;
     function ShowColorLightnessDlg(AParameters: TVariableSet): boolean; virtual; abstract;
     function ShowShiftColorsDlg(AParameters: TVariableSet): boolean; virtual; abstract;

@@ -106,7 +106,7 @@ type
     property PngStreamNeeded: boolean read GetPngStreamNeeded;
   end;
 
-function ShowSaveOptionDialog(AInstance: TLazPaintCustomInstance; AOutputFilenameUTF8: string): boolean;
+function ShowSaveOptionDialog(AInstance: TLazPaintCustomInstance; AOutputFilenameUTF8: string; ASkipOptions: boolean): boolean;
 
 implementation
 
@@ -114,11 +114,11 @@ uses UGraph, FPWriteJPEG, UResourceStrings, FPWriteBMP, BMPcomn,
   UMySLV, BGRAWriteBmpMioMap, BGRADithering, UFileSystem, LCScaleDPI,
   BGRAThumbnail, BGRAIconCursor, BGRAWinResource;
 
-function ShowSaveOptionDialog(AInstance: TLazPaintCustomInstance; AOutputFilenameUTF8: string): boolean;
+function ShowSaveOptionDialog(AInstance: TLazPaintCustomInstance; AOutputFilenameUTF8: string; ASkipOptions: boolean): boolean;
 var f: TFSaveOption;
 begin
   result := false;
-  if SuggestImageFormat(AOutputFilenameUTF8) in[ifBmp,ifJpeg,ifPng,ifIco,ifCur] then
+  if not ASkipOptions and (SuggestImageFormat(AOutputFilenameUTF8) in[ifBmp,ifJpeg,ifPng,ifIco,ifCur]) then
   begin
     f := TFSaveOption.Create(nil);
     try

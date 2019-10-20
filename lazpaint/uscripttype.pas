@@ -20,10 +20,13 @@ const
   VariableDefinitionToken : string = ':';
   TrueToken : string = 'True';
   FalseToken : string = 'False';
-  NilToken : string = 'Nil';
+  UndefinedToken : string = 'None';
   CharToken1 : string = 'Chr';
   CharToken2 : string = 'Char';
-  StringDelimiter: string = '"';
+  StringDelimiter1 = '"';
+  StringDelimiter2 = '''';
+  EscapePrefix = '\';
+  StringDelimiters = [StringDelimiter1, StringDelimiter2];
   IdentifierCharStart: set of char = ['a'..'z','A'..'Z','_',#128..#255];
   IdentifierCharMiddle: set of char = ['a'..'z','A'..'Z','_',#128..#255,'0'..'9'];
   IgnoredWhitespaces : set of char = [#9,#13,#10,' '];
@@ -72,9 +75,18 @@ const
     (svtFloat, svtInteger, svtBoolean, svtString, svtPixel, svtObject);
   EmptyListExpression : array[svtFloatList..svtObjectList] of string =
     ('[~0.0]', '[~0]', '[~False]', '[~""]','[~#000]','[~Nil]');
+  InterpretationErrorToStr: array[TInterpretationError] of string =
+    ('Too many closing brackets', 'Ending quote not found',
+     'Opening bracket not found', 'Closing bracket not found',
+     'Constant expression expected', 'Unexpected char',
+     'Invalid number', 'Invalid color', 'Invalid boolean',
+     'Duplicate identifier', 'Unexpected opening bracket kind',
+     'Unexpected closing bracket kind',
+     'Unknown list type', 'Missing value');
 
 function ScriptQuote(const S: string): string;
 function ScriptUnquote(const S: string): string;
+function UnescapeString(const S: string): string;
 function TryScriptUnquote(const S: String; out unquotedS: string): TInterpretationErrors;
 function FloatToStrUS(AValue: double): string;
 function ScalarToStr(AVarType: TScriptVariableType; var AValue): string;
@@ -82,8 +94,11 @@ function ParseLitteral(var cur: integer; expr: string; var errors: TInterpretati
 function ParseListType(s: string): TScriptVariableType;
 function FloatToPixel(AValue: double): TBGRAPixel;
 function IntToPixel(AValue: TScriptInteger): TBGRAPixel;
+function InterpretationErrorsToStr(AErrors: TInterpretationErrors): string;
 
 implementation
+
+uses BGRAUTF8;
 
 {$i quote.inc}
 
@@ -141,7 +156,7 @@ begin
     svtInteger: result := IntToStr(TScriptInteger(AValue));
     svtPixel: result := '#'+BGRAToStr(TBGRAPixel(AValue));
     svtBoolean: result := BoolToStr(Boolean(AValue),TrueToken,FalseToken);
-    svtObject: if TScriptInteger(AValue) = 0 then result := NilToken else result := 'Object';
+    svtObject: if TScriptInteger(AValue) = 0 then result := UndefinedToken else result := 'Object';
   else raise exception.Create('Not a scalar type');
   end;
 end;
@@ -150,7 +165,7 @@ function ParseLitteral(var cur: integer; expr: string; var errors: TInterpretati
 var startIdentifier: integer;
     inIdentifier, notConstant: boolean;
     inBracket: integer;
-    isString, isBoolean: boolean;
+    isString, isBoolean, isUndefined: boolean;
   procedure CheckIdentifier;
   var idStr: string;
   begin
@@ -165,6 +180,11 @@ var startIdentifier: integer;
       if inBracket = 0 then isBoolean := true;
     end
     else
+    if (CompareText(idStr,UndefinedToken) = 0) then
+    begin
+      if inBracket = 0 then isUndefined := true;
+    end
+    else
       notConstant := true;
   end;
 
@@ -173,7 +193,8 @@ var
   valueStr: string;
   start: integer;
   unquotedStr: string;
-  inQuote, inNumber, inPixel: boolean;
+  inQuote: char;
+  inNumber, inPixel: boolean;
   isNumber, isPixel: boolean;
   valueInt: TScriptInteger;
   valueFloat: double;
@@ -187,14 +208,9 @@ begin
   result.valueInt := 0;
   result.valuePixel := BGRAPixelTransparent;
   result.valueBool:= false;
-  if CompareText(trim(expr),NilToken) = 0 then
-  begin
-    result.valueType := svtObject;
-    exit;
-  end;
   start := cur;
   inBracket:= 0;
-  inQuote:= false;
+  inQuote:= #0;
   inIdentifier:= false;
   inNumber:= false;
   inPixel:= false;
@@ -203,13 +219,14 @@ begin
   isBoolean:= false;
   isNumber:= false;
   isPixel := false;
+  isUndefined := false;
   startIdentifier:= 1; //initialize
   notConstant:= false;
   while cur <= length(expr) do
   begin
-    if inQuote then
+    if inQuote<>#0 then
     begin
-      if expr[cur] = StringDelimiter then inQuote := false else
+      if expr[cur] = inQuote then inQuote := #0 else
       if expr[cur] in[#13,#10] then
       begin
         errors += [ieEndingQuoteNotFound];
@@ -241,9 +258,9 @@ begin
           dec(inBracket);
           if inBracket < 0 then errors += [ieTooManyClosingBrackets];
         end else
-        if expr[cur] = StringDelimiter then
+        if expr[cur] in StringDelimiters then
         begin
-          inQuote := true;
+          inQuote := expr[cur];
           if inBracket = 0 then isString:= true;
         end else
         if expr[cur] in IdentifierCharStart then
@@ -273,10 +290,14 @@ begin
   if inNumber then inNumber:= false;
   if inPixel then inPixel := false;
   if inIdentifier then CheckIdentifier;
-  if inQuote then errors += [ieEndingQuoteNotFound];
+  if inQuote<>#0 then errors += [ieEndingQuoteNotFound];
   if inBracket > 0 then errors += [ieClosingBracketNotFound];
   if notConstant then errors += [ieConstantExpressionExpected];
   valueStr := Trim(copy(expr,start,cur-start));
+  if isUndefined then
+  begin
+    result.valueType := svtUndefined;
+  end else
   if isString then
   begin
     errors := errors + TryScriptUnquote(valueStr, unquotedStr);
@@ -364,6 +385,11 @@ begin
   svtPixel: result := svtPixList;
   svtString: result := svtStrList;
   svtObject: result := svtObjectList;
+  svtUndefined:
+    begin
+      include(errors, ieUnknownListType);
+      result := svtUndefined;
+    end
   else
     result := svtUndefined;
   end;
@@ -385,6 +411,19 @@ begin
   if AValue <= 0 then result := BGRABlack else
   if AValue >= 255 then result := BGRAWhite else
     result := BGRA(AValue,AValue,AValue,255);
+end;
+
+function InterpretationErrorsToStr(AErrors: TInterpretationErrors): string;
+var
+  e: TInterpretationError;
+begin
+  result := '';
+  for e := low(TInterpretationError) to high(TInterpretationError) do
+    if e in AErrors then
+    begin
+      if result <> '' then result += ', ';
+      result += InterpretationErrorToStr[e];
+    end;
 end;
 
 end.

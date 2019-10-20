@@ -94,6 +94,8 @@ type
     procedure SetDefaultBrushDirectory(value: string);
     function DefaultPaletteDirectory: string;
     procedure SetDefaultPaletteDirectory(value: string);
+    function DefaultScriptDirectory: string;
+    procedure SetDefaultScriptDirectory(value: string);
 
     function DefaultIconSize(defaultValue: integer): integer;
     procedure SetDefaultIconSize(value: integer);
@@ -1561,6 +1563,16 @@ end;
 procedure TLazPaintConfig.SetDefaultPaletteDirectory(value: string);
 begin
   iniOptions.WriteString('General','PaletteDirectory',ChompPathDelim(value))
+end;
+
+function TLazPaintConfig.DefaultScriptDirectory: string;
+begin
+  result := iniOptions.ReadString('General','ScriptDirectory','');
+end;
+
+procedure TLazPaintConfig.SetDefaultScriptDirectory(value: string);
+begin
+  iniOptions.WriteString('General','ScriptDirectory',ChompPathDelim(value))
 end;
 
 function TLazPaintConfig.DefaultIconSize(defaultValue: integer): integer;

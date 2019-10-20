@@ -10,6 +10,11 @@ uses
 type
   TVariableSet = class;
   TScriptResult = (srOk, srInvalidParameters, srCancelledByUser, srException, srFunctionNotDefined);
+const
+  ScriptResultToStr: array[TScriptResult] of string =
+    ('Ok', 'Invalid parameters', 'Cancelled by user', 'Exception', 'Function not defined');
+
+type
   TScriptFunction = function(AVars: TVariableSet): TScriptResult of object;
   TScriptVariableReference = record
     variableSet: TVariableSet;
@@ -417,16 +422,23 @@ var varName: string;
     subsetStr: string;
     s: TVariableSet;
     start: integer;
-    inQuote: boolean;
+    inQuote: char;
+    escaping: boolean;
   begin
     if cur > length(expr) then exit;
     start := cur;
-    inQuote := false;
+    inQuote := #0;
     inSubset := 0;
+    escaping := true;
     repeat
-      if inQuote then
+      if inQuote <> #0 then
       begin
-        if expr[cur] = StringDelimiter then inQuote:= false;
+        if not escaping then
+        begin
+          if expr[cur] = inQuote then inQuote:= #0 else
+          if expr[cur] = '\' then escaping := true;
+        end else
+          escaping := false;
       end else
       begin
         if expr[cur] = '{' then
@@ -439,11 +451,11 @@ var varName: string;
           dec(inSubset);
           if inSubset = 0 then break;
         end
-        else if expr[cur] = StringDelimiter then inQuote:= true;
+        else if expr[cur] in StringDelimiters then inQuote:= expr[cur];
       end;
       inc(cur);
     until cur > length(expr);
-    if inQuote then result += [ieEndingQuoteNotFound];
+    if inQuote <> #0 then result += [ieEndingQuoteNotFound];
     subsetStr := copy(expr,start,cur-start);
     s := TVariableSet.Create('');
     result += s.LoadFromVariablesAsString(subsetStr);
@@ -455,16 +467,23 @@ var varName: string;
   var inBracket: integer;
     listStr: string;
     start: integer;
-    inQuote: boolean;
+    inQuote: char;
+    escaping: boolean;
   begin
     if cur > length(expr) then exit;
     start := cur;
-    inQuote := false;
+    inQuote := #0;
     inBracket := 0;
+    escaping := false;
     repeat
-      if inQuote then
+      if inQuote <> #0 then
       begin
-        if expr[cur] = StringDelimiter then inQuote:= false;
+        if not escaping then
+        begin
+          if expr[cur] = inQuote then inQuote:= #0 else
+          if expr[cur] = '\' then escaping := true;
+        end else
+          escaping := false;
       end else
       begin
         if expr[cur] in['(','['] then
@@ -478,16 +497,16 @@ var varName: string;
           dec(inBracket);
           if inBracket = 0 then
           begin
-            inc(cur);
             if expr[cur] <> ']' then result += [ieUnexpectedClosingBracketKind];
+            inc(cur);
             break;
           end;
         end
-        else if expr[cur] = StringDelimiter then inQuote:= true;
+        else if expr[cur] in StringDelimiters then inQuote:= expr[cur];
       end;
       inc(cur);
     until cur > length(expr);
-    if inQuote then result += [ieEndingQuoteNotFound];
+    if inQuote <> #0 then result += [ieEndingQuoteNotFound];
     listStr := copy(expr,start,cur-start);
     AddList(varName, listStr);
   end;
@@ -502,6 +521,8 @@ begin
   while idxEq <> 0 do
   begin
     varName := trim(copy(AVariablesAsString,1,idxEq-1));
+    if (length(varName)>=2) and (varName[1]='''') and (varName[length(varName)]='''') then
+      varName := UnescapeString(Copy(varName,2,length(varName)-2));
     cur := idxEq+2;
     while (cur <= length(AVariablesAsString)) and (AVariablesAsString[cur] in IgnoredWhitespaces) do inc(cur);
     if (cur <= length(AVariablesAsString)) and (AVariablesAsString[cur]='{') then
@@ -1345,7 +1366,8 @@ class function TVariableSet.AssignList(const ADest: TScriptVariableReference;
   AListExpr: string): TInterpretationErrors;
 var
   tilde,expectingValue: boolean;
-  inQuote: boolean;
+  inQuote: char;
+  escaping: boolean;
   start,cur: integer;
 
   procedure AppendValue(AValue: string);
@@ -1383,19 +1405,25 @@ begin
   end else
     cur := 1;
   tilde := false;
-  inQuote:= false;
+  inQuote:= #0;
+  escaping := false;
   start := 0;
   expectingValue := false;
   while cur <= length(AListExpr) do
   begin
-    if inQuote then
+    if inQuote <> #0 then
     begin
-      if AListExpr[cur]=StringDelimiter then inQuote:= false;
+      if not escaping then
+      begin
+        if AListExpr[cur]=inQuote then inQuote:= #0 else
+        if AListExpr[cur]='\' then escaping := true;
+      end else
+        escaping := false;
     end else
     if (start = 0) and (AListExpr[cur]='~') then tilde := true else
     begin
       if (start = 0) and not (AListExpr[cur] in IgnoredWhitespaces) then start := cur;
-      if AListExpr[cur] = StringDelimiter then inQuote:=true else
+      if AListExpr[cur] in StringDelimiters then inQuote:= AListExpr[cur] else
       if AListExpr[cur]=',' then
       begin
         if start = 0 then result += [ieMissingValue]

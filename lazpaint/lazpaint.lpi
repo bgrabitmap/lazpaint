@@ -342,7 +342,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="100">
+    <Units Count="102">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -933,6 +933,16 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="URaw"/>
       </Unit99>
+      <Unit100>
+        <Filename Value="uprocessauto.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UProcessAuto"/>
+      </Unit100>
+      <Unit101>
+        <Filename Value="upython.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UPython"/>
+      </Unit101>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

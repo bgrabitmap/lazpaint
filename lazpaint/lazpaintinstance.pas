@@ -14,7 +14,8 @@ uses
   ucolorintensity, ushiftcolors, ucolorize, uadjustcurves,
   ucustomblur, uimagelist,
 
-  ULoading, UImage, UTool, uconfig, IniFiles, uresourcestrings, uscripting;
+  ULoading, UImage, UTool, uconfig, IniFiles, uresourcestrings, uscripting,
+  UScriptType;
 
 const
   MaxToolPopupShowCount = 3;
@@ -41,6 +42,9 @@ type
     function ScriptImageResample(AParams: TVariableSet): TScriptResult;
     procedure SelectionInstanceOnRun(AInstance: TLazPaintCustomInstance);
     procedure ToolColorChanged(Sender: TObject);
+    procedure PythonScriptCommand({%H-}ASender: TObject; ACommand, AParam: UTF8String; out
+      AResult: UTF8String);
+    function ScriptShowMessage(AVars: TVariableSet): TScriptResult;
 
   protected
     InColorFromFChooseColor: boolean;
@@ -155,9 +159,10 @@ type
     procedure NotifyImageChangeCompletely(RepaintNow: boolean); override;
     function TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean = false): boolean; override;
     function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): boolean; override;
+    function RunScript(AFilename: string): boolean; override;
     procedure ColorFromFChooseColor; override;
     procedure ColorToFChooseColor; override;
-    function ShowSaveOptionDlg({%H-}AParameters: TVariableSet; AOutputFilenameUTF8: string): boolean; override;
+    function ShowSaveOptionDlg({%H-}AParameters: TVariableSet; AOutputFilenameUTF8: string; ASkipOptions: boolean): boolean; override;
     function ShowColorIntensityDlg(AParameters: TVariableSet): boolean; override;
     function ShowColorLightnessDlg(AParameters: TVariableSet): boolean; override;
     function ShowShiftColorsDlg(AParameters: TVariableSet): boolean; override;
@@ -213,7 +218,7 @@ uses LCLType, Types, Forms, Dialogs, FileUtil, LCLIntf, Math,
      UImageAction, USharpen, uposterize, UPhongFilter, UFilterFunction,
      uprint, USaveOption, UFormRain,
 
-     ugraph, LCScaleDPI, ucommandline, uabout;
+     ugraph, LCScaleDPI, ucommandline, uabout, UPython;
 
 { TLazPaintInstance }
 
@@ -280,6 +285,7 @@ begin
   ScriptContext.RegisterScriptFunction('ColorLightness',@ScriptColorLightness,ARegister);
   ScriptContext.RegisterScriptFunction('ColorShiftColors',@ScriptColorShiftColors,ARegister);
   ScriptContext.RegisterScriptFunction('ColorIntensity',@ScriptColorIntensity,ARegister);
+  ScriptContext.RegisterScriptFunction('ShowMessage',@ScriptShowMessage,ARegister);
 end;
 
 procedure TLazPaintInstance.Init(AEmbedded: boolean);
@@ -564,6 +570,61 @@ begin
     result := FMain.Visible
   else
     result := false;
+end;
+
+procedure TLazPaintInstance.PythonScriptCommand(ASender: TObject; ACommand,
+  AParam: UTF8String; out AResult: UTF8String);
+var
+  params: TVariableSet;
+  err: TInterpretationErrors;
+  scriptErr: TScriptResult;
+  vRes: TScriptVariableReference;
+begin
+  AResult := 'None';
+  if Assigned(FScriptContext) then
+  begin
+    params := TVariableSet.Create(ACommand);
+    AParam := trim(AParam);
+    if length(AParam)>0 then
+    begin
+      if AParam[1] = '{' then
+      begin
+        delete(AParam,1,1);
+        if (length(AParam)>0) and (AParam[length(AParam)] = '}') then
+          delete(AParam, length(AParam), 1);
+        err := params.LoadFromVariablesAsString(AParam);
+        if err <> [] then
+          raise exception.Create('Error in parameter format: '+InterpretationErrorsToStr(err));
+      end else
+        raise exception.Create('Error in parameter format: dictionary not found');
+    end;
+    try
+      scriptErr := FScriptContext.CallScriptFunction(params);
+      if scriptErr = srOk then
+      begin
+        vRes := params.GetVariable('Result');
+        if params.IsReferenceDefined(vRes) then
+        begin
+          case vRes.variableType of
+          svtFloat: AResult := FloatToStr(params.GetFloat(vRes));
+          svtInteger: AResult := IntToStr(params.GetInteger(vRes));
+          svtBoolean: AResult := BoolToStr(params.GetBoolean(vRes),'True','False');
+          svtString: AResult := ScriptQuote(params.GetString(vRes));
+          svtPixel: AResult := '"'+BGRAToStr(params.GetPixel(vRes))+'"';
+          end;
+        end;
+      end else
+        raise exception.Create(ScriptResultToStr[scriptErr]+' ('+ACommand+')');
+    finally
+      params.Free;
+    end;
+  end;
+end;
+
+function TLazPaintInstance.ScriptShowMessage(AVars: TVariableSet): TScriptResult;
+begin
+  ShowMessage('Script', AVars.Strings['Message']);
+  result := srOk;
 end;
 
 procedure TLazPaintInstance.OnLayeredBitmapLoadStartHandler(AFilenameUTF8: string);
@@ -1214,6 +1275,35 @@ begin
   vars.Free;
 end;
 
+function TLazPaintInstance.RunScript(AFilename: string): boolean;
+var
+  p: TPythonScript;
+  errorLines: TStringList;
+begin
+  p := TPythonScript.Create;
+  try
+    p.OnCommand:=@PythonScriptCommand;
+    p.Run(AFilename);
+    if p.ErrorText<>'' then
+    begin
+      errorLines := TStringList.Create;
+      errorLines.Text := Trim(p.ErrorText);
+      if errorLines.Count > 0 then
+        ShowError(ChangeFileExt(ExtractFileName(AFilename),''), errorLines[errorLines.Count-1]);
+      errorLines.Free;
+      result := false;
+    end else
+      result := true;
+  except
+    on ex:exception do
+    begin
+      ShowError('Python', ex.Message);
+      result := false;
+    end;
+  end;
+  p.Free;
+end;
+
 procedure TLazPaintInstance.ColorFromFChooseColor;
 begin
   FormsNeeded;
@@ -1237,9 +1327,9 @@ begin
 end;
 
 function TLazPaintInstance.ShowSaveOptionDlg(AParameters: TVariableSet;
-  AOutputFilenameUTF8: string): boolean;
+  AOutputFilenameUTF8: string; ASkipOptions: boolean): boolean;
 begin
-  result := USaveOption.ShowSaveOptionDialog(self,AOutputFilenameUTF8);
+  result := USaveOption.ShowSaveOptionDialog(self,AOutputFilenameUTF8,ASkipOptions);
 end;
 
 procedure TLazPaintInstance.MoveToolboxTo(X, Y: integer);

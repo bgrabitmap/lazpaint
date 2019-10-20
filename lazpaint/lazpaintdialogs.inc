@@ -86,7 +86,7 @@ begin
     result := srInvalidParameters;
     exit;
   end;
-  if Image.IsFileModified then
+  if Image.IsFileModified and not AVars.Booleans['IgnoreModified'] then
   begin
     case SaveQuestion(rsNewImage) of
     IDYES: begin
@@ -119,6 +119,7 @@ begin
   image.Assign(bitmapRepl, True, False);
   Image.CurrentFilenameUTF8 := '';
   image.SetSavedFlag;
+  UpdateWindows;
   result := srOk;
 end;
 
@@ -396,7 +397,7 @@ begin
   self.ShowTopmost(top);
 end;
 
-function TLazPaintInstance.ShowwaveDisplacementDlg(AFilterConnector: TObject): boolean;
+function TLazPaintInstance.ShowWaveDisplacementDlg(AFilterConnector: TObject): boolean;
 var oldSelectionNormal: boolean;
     top: TTopMostInfo;
 begin

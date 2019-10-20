@@ -21,6 +21,8 @@ type
     procedure ChooseTool(ATool: TPaintToolType);
     procedure RegisterScripts(ARegister: Boolean);
     function GenericScriptFunction(AVars: TVariableSet): TScriptResult;
+    function ScriptPutImage(AVars: TVariableSet): TScriptResult;
+    function ScriptLayerFill(AVars: TVariableSet): TScriptResult;
     procedure ReleaseSelection;
   public
     constructor Create(AInstance: TLazPaintCustomInstance);
@@ -61,6 +63,9 @@ type
     procedure RemoveLayer;
     procedure EditSelection(ACallback: TModifyImageCallback);
     procedure Import3DObject(AFilenameUTF8: string);
+    function GetPixel(X,Y: Integer): TBGRAPixel;
+    function PutImage(X,Y,AWidth,AHeight: integer; AImage: TBGRACustomBitmap; AMode: TDrawMode; AOpacity: byte): boolean;
+    function LayerFill(AColor: TBGRAPixel; AMode: TDrawMode): boolean;
     function TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: TBGRABitmap = nil): boolean;
     function AddLayerFromBitmap(ABitmap: TBGRABitmap; AName: string): boolean;
     function AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal; AName: string): boolean;
@@ -138,6 +143,12 @@ begin
   Scripting.RegisterScriptFunction('LayerRasterize',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerMergeOver',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerRemoveCurrent',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('GetLayerCount',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('GetPixel',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('GetImageWidth',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('GetImageHeight',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('PutImage',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerFill',@GenericScriptFunction,ARegister);
 end;
 
 constructor TImageActions.Create(AInstance: TLazPaintCustomInstance);
@@ -192,7 +203,114 @@ begin
   if f = 'LayerRasterize' then RasterizeLayer else
   if f = 'LayerMergeOver' then MergeLayerOver else
   if f = 'LayerRemoveCurrent' then RemoveLayer else
+  if f = 'GetLayerCount' then AVars.Integers['Result']:= Image.NbLayers else
+  if f = 'GetPixel' then AVars.Pixels['Result']:= GetPixel(AVars.Integers['X'],AVars.Integers['Y']) else
+  if f = 'GetImageWidth' then AVars.Integers['Result']:= Image.Width else
+  if f = 'GetImageHeight' then AVars.Integers['Result']:= Image.Height else
+  if f = 'PutImage' then result := ScriptPutImage(AVars) else
+  if f = 'LayerFill' then result := ScriptLayerFill(AVars) else
     result := srFunctionNotDefined;
+end;
+
+function TImageActions.ScriptPutImage(AVars: TVariableSet): TScriptResult;
+var
+  x, y, width, height, opacity, yb, dataPos, xb: integer;
+  dataStr, modeStr: String;
+  mode: TDrawMode;
+  bmp: TBGRABitmap;
+  p: PBGRAPixel;
+
+  function HexDigit(APos: integer): byte;
+  begin
+    result := ord(dataStr[APos]);
+    if result < ord('0') then result := 0
+    else if result <= ord('9') then dec(result, ord('0'))
+    else if result < ord('A') then result := 9
+    else if result <= ord('F') then result := result - ord('A') + 10
+    else result := 15;
+  end;
+
+  function HexValue(APos: integer): byte;
+  begin
+    result := (HexDigit(APos) shl 4) + HexDigit(APos+1);
+  end;
+
+begin
+  x := AVars.Integers['X'];
+  y := AVars.Integers['Y'];
+  width := AVars.Integers['Width'];
+  height := AVars.Integers['Height'];
+  dataStr := AVars.Strings['Data'];
+  modeStr := AVars.Strings['Mode'];
+  opacity := AVars.Integers['Opacity'];
+  case modeStr of
+  'dmDrawWithTransparency': mode := dmDrawWithTransparency;
+  'dmLinearBlend': mode := dmLinearBlend;
+  'dmSet': mode := dmSet;
+  'dmSetExceptTransparent': mode := dmSetExceptTransparent;
+  'dmXor': mode := dmXor;
+  else exit(srInvalidParameters);
+  end;
+  if (opacity < 0) or (opacity > 255) then exit(srInvalidParameters);
+  if length(dataStr)<>width*height*8 then exit(srInvalidParameters);
+
+  if (width = 0) or (height = 0) then exit(srOk);
+  if opacity = 0 then exit(srOk);
+  bmp := TBGRABitmap.Create(width,height);
+  try
+    dataPos := 1;
+    for yb := 0 to height-1 do
+    begin
+      p := bmp.ScanLine[yb];
+      for xb := 0 to width-1 do
+      begin
+        p^.alpha := HexValue(dataPos+6);
+        if p^.alpha = 0 then p^ := BGRAPixelTransparent
+        else
+        begin
+          p^.red := HexValue(dataPos);
+          p^.green := HexValue(dataPos+2);
+          p^.blue := HexValue(dataPos+4);
+        end;
+        inc(dataPos,8);
+        inc(p);
+      end;
+    end;
+    bmp.InvalidateBitmap;
+
+    if PutImage(x,y,width,height,bmp,mode,opacity) then
+    begin
+      result := srOk;
+      FInstance.UpdateWindows;
+    end
+    else
+      result := srException;
+  finally
+    bmp.Free;
+  end;
+end;
+
+function TImageActions.ScriptLayerFill(AVars: TVariableSet): TScriptResult;
+var
+  modeStr: String;
+  mode: TDrawMode;
+begin
+  modeStr := AVars.Strings['Mode'];
+  case modeStr of
+  'dmDrawWithTransparency': mode := dmDrawWithTransparency;
+  'dmLinearBlend': mode := dmLinearBlend;
+  'dmSet': mode := dmSet;
+  'dmSetExceptTransparent': mode := dmSetExceptTransparent;
+  'dmXor': mode := dmXor;
+  else exit(srInvalidParameters);
+  end;
+  if LayerFill(AVars.Pixels['Color'], mode) then
+  begin
+    result := srOk;
+    FInstance.UpdateWindows;
+  end
+  else
+    result := srException;
 end;
 
 procedure TImageActions.ClearAlpha;
@@ -322,6 +440,60 @@ begin
     on ex:Exception do
       FInstance.ShowError('Import3DObject',ex.Message);
   end;
+end;
+
+function TImageActions.GetPixel(X, Y: Integer): TBGRAPixel;
+var
+  ofs: TPoint;
+begin
+  ofs := Image.LayerOffset[Image.CurrentLayerIndex];
+  result := Image.LayerBitmap[Image.CurrentLayerIndex].GetPixel(X-ofs.X,y-ofs.Y);
+end;
+
+function TImageActions.PutImage(X, Y, AWidth, AHeight: integer; AImage: TBGRACustomBitmap;
+  AMode: TDrawMode; AOpacity: byte): boolean;
+var
+  LayerAction: TLayerAction;
+begin
+  result := false;
+  if not Image.CheckNoAction then exit;
+  LayerAction := nil;
+  try
+    LayerAction := Image.CreateAction(true);
+    LayerAction.ChangeBoundsNotified:= true;
+    LayerAction.SelectedImageLayer.PutImage(X,Y,AImage,AMode,AOpacity);
+    LayerAction.NotifyChange(LayerAction.SelectedImageLayer, RectWithSize(X,Y,AImage.Width,AImage.Height));
+    LayerAction.Validate;
+    result := true;
+  except
+    on ex:Exception do
+      FInstance.ShowError('PutImage',ex.Message);
+  end;
+  LayerAction.Free;
+end;
+
+function TImageActions.LayerFill(AColor: TBGRAPixel; AMode: TDrawMode): boolean;
+var
+  LayerAction: TLayerAction;
+begin
+  if (AColor.alpha=0) and (AMode in[dmDrawWithTransparency,dmLinearBlend]) then exit(true);
+  result := false;
+  if not Image.CheckNoAction then exit;
+  LayerAction := nil;
+  try
+    LayerAction := Image.CreateAction(true);
+    LayerAction.ChangeBoundsNotified:= true;
+    LayerAction.SelectedImageLayer.Fill(AColor, AMode);
+    LayerAction.NotifyChange(LayerAction.SelectedImageLayer,
+        rect(0,0,LayerAction.SelectedImageLayer.Width,
+              LayerAction.SelectedImageLayer.Height));
+    LayerAction.Validate;
+    result := true;
+  except
+    on ex:Exception do
+      FInstance.ShowError('LayerFill',ex.Message);
+  end;
+  LayerAction.Free;
 end;
 
 function TImageActions.LoadSelection(AFilenameUTF8: string; ALoadedImage: PImageEntry = nil): boolean;

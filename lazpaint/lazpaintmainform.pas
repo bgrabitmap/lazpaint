@@ -28,6 +28,7 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    FileRunScript: TAction;
     EditShapeToCurve: TAction;
     EditShapeAlignBottom: TAction;
     EditShapeCenterVertically: TAction;
@@ -471,6 +472,7 @@ type
     procedure FileImport3DUpdate(Sender: TObject);
     procedure FilePrintExecute(Sender: TObject);
     procedure FileRememberSaveFormatExecute(Sender: TObject);
+    procedure FileRunScriptExecute(Sender: TObject);
     procedure FileSaveAsInSameFolderExecute(Sender: TObject);
     procedure FileSaveAsInSameFolderUpdate(Sender: TObject);
     procedure FileUseImageBrowserExecute(Sender: TObject);
@@ -811,6 +813,7 @@ type
     function ScriptFileOpen(AVars: TVariableSet): TScriptResult;
     function ScriptFileSaveAs(AVars: TVariableSet): TScriptResult;
     function ScriptFileSave({%H-}AVars: TVariableSet): TScriptResult;
+    function ScriptFileGetFilename(AVars: TVariableSet): TScriptResult;
     function ScriptFileReload({%H-}AVars: TVariableSet): TScriptResult;
     function ScriptFileLoadSelection(AVars: TVariableSet): TScriptResult;
     function ScriptFileSaveSelectionAs(AVars: TVariableSet): TScriptResult;
@@ -863,7 +866,7 @@ implementation
 uses LCLIntf, BGRAUTF8, ugraph, math, umac, uclipboard, ucursors,
    ufilters, ULoadImage, ULoading, UFileExtensions, UBrushType,
    ugeometricbrush, UPreviewDialog, UQuestion, BGRALayerOriginal,
-   BGRATransform, LCVectorPolyShapes, URaw;
+   BGRATransform, LCVectorPolyShapes, URaw, UFileSystem;
 
 const PenWidthFactor = 10;
 
@@ -1128,6 +1131,7 @@ begin
   Scripting.RegisterScriptFunction('FileOpen',@ScriptFileOpen,ARegister);
   Scripting.RegisterScriptFunction('FileSaveAs',@ScriptFileSaveAs,ARegister);
   Scripting.RegisterScriptFunction('FileSave',@ScriptFileSave,ARegister);
+  Scripting.RegisterScriptFunction('GetFileName',@ScriptFileGetFilename,ARegister);
   Scripting.RegisterScriptFunction('FileReload',@ScriptFileReload,ARegister);
   Scripting.RegisterScriptFunction('FileLoadSelection',@ScriptFileLoadSelection,ARegister);
   Scripting.RegisterScriptFunction('FileSaveSelectionAs',@ScriptFileSaveSelectionAs,ARegister);
@@ -1275,7 +1279,7 @@ begin
   loadedImage := TImageEntry.Empty;
   try
     topInfo.defined:= false;
-    if Image.IsFileModified then
+    if Image.IsFileModified and not AVars.Booleans['IgnoreModified'] then
     begin
       topInfo := FLazPaintInstance.HideTopmost;
       case LazPaintInstance.SaveQuestion(rsOpen) of
@@ -1420,7 +1424,7 @@ function TFMain.ScriptFileSaveAs(AVars: TVariableSet): TScriptResult;
         end
         else
         begin
-          if not LazPaintInstance.ShowSaveOptionDlg(nil,filename) then
+          if not LazPaintInstance.ShowSaveOptionDlg(nil,filename,AVars.Booleans['SkipOptions']) then
             result := srCancelledByUser
           else
             saved := true;
@@ -1452,12 +1456,23 @@ var filename: string;
     vFileName: TScriptVariableReference;
     topMost: TTopMostInfo;
     defaultExt: string;
+    initialDir: string;
 begin
   AskMergeSelection(rsSave);
   filename := ExtractFileName(Image.CurrentFilenameUTF8);
   vFileName := AVars.GetVariable('FileName');
-  if AVars.IsReferenceDefined(vFileName) then filename := AVars.GetString(vFileName);
+  if AVars.IsReferenceDefined(vFileName) then
+  begin
+    filename := AVars.GetString(vFileName);
+    initialDir := ExtractFilePath(filename);
+    {$WARNINGS OFF}
+    if PathDelim <> '\' then initialDir := StringReplace(initialDir, '\', PathDelim, [rfReplaceAll]);
+    if PathDelim <> '/' then initialDir := StringReplace(initialDir, '/', PathDelim, [rfReplaceAll]);
+    {$WARNINGS ON}
+    filename := ExtractFileName(filename);
+  end else initialDir:= '';
   if filename = '' then filename := rsNoName;
+  if initialDir = '' then initialDir:= FSaveInitialDir;
   if SavePictureDialog1.FilterIndex > 1 then
     filename := ApplySelectedFilterExtension(filename,SavePictureDialog1.Filter,SavePictureDialog1.FilterIndex);
   if not Image.AbleToSaveAsUTF8(filename) then
@@ -1466,7 +1481,6 @@ begin
     filename := ChangeFileExt(Filename,'');
   end;
   SavePictureDialog1.FileName := filename;
-  topMost := LazPaintInstance.HideTopmost;
 
   case SuggestImageFormat(Image.CurrentFilenameUTF8) of
   ifCur: defaultExt := '.cur';
@@ -1478,36 +1492,49 @@ begin
     end;
   end;
 
-  if UseImageBrowser then
+  if AVars.Booleans['Validate'] and (initialDir <> '') then
   begin
-    if not assigned(FSaveImage) then
+    if FileManager.FileExists(initialDir+filename) then
     begin
-      FSaveImage := TFBrowseImages.Create(self);
-      FSaveImage.LazPaintInstance := LazPaintInstance;
-      FSaveImage.IsSaveDialog := true;
-      FSaveImage.Caption := SavePictureDialog1.Title;
-      FSaveImage.ShowRememberStartupDirectory:= true;
-      if Config.DefaultRememberSaveFormat then
-        FSaveImage.DefaultExtensions:= Config.DefaultSaveExtensions;
+      if QuestionDlg(rsSave, rsOverwriteFile, mtConfirmation,
+          [mrOk, rsOkay, mrCancel, rsCancel],0) <> mrOk then
+             exit(srCancelledByUser);
     end;
-    FSaveImage.InitialFilename := filename;
-    FSaveImage.DefaultExtension := defaultExt;
-    FSaveImage.InitialDirectory:= FSaveInitialDir;
-    if FSaveImage.ShowModal = mrOK then
-      result := DoSaveAs(FSaveImage.FileName)
-    else
-      result := srCancelledByUser;
+    result := DoSaveAs(initialDir+filename);
   end else
   begin
-    SavePictureDialog1.DefaultExt := defaultExt;
-    SavePictureDialog1.InitialDir:= FSaveInitialDir;
-    if SavePictureDialog1.Execute then
+    topMost := LazPaintInstance.HideTopmost;
+    if UseImageBrowser then
     begin
-      result := DoSaveAs(SavePictureDialog1.FileName);
+      if not assigned(FSaveImage) then
+      begin
+        FSaveImage := TFBrowseImages.Create(self);
+        FSaveImage.LazPaintInstance := LazPaintInstance;
+        FSaveImage.IsSaveDialog := true;
+        FSaveImage.Caption := SavePictureDialog1.Title;
+        FSaveImage.ShowRememberStartupDirectory:= true;
+        if Config.DefaultRememberSaveFormat then
+          FSaveImage.DefaultExtensions:= Config.DefaultSaveExtensions;
+      end;
+      FSaveImage.InitialFilename := filename;
+      FSaveImage.DefaultExtension := defaultExt;
+      FSaveImage.InitialDirectory:= initialDir;
+      if FSaveImage.ShowModal = mrOK then
+        result := DoSaveAs(FSaveImage.FileName)
+      else
+        result := srCancelledByUser;
     end else
-      result := srCancelledByUser;
+    begin
+      SavePictureDialog1.DefaultExt := defaultExt;
+      SavePictureDialog1.InitialDir:= initialDir;
+      if SavePictureDialog1.Execute then
+      begin
+        result := DoSaveAs(SavePictureDialog1.FileName);
+      end else
+        result := srCancelledByUser;
+    end;
+    LazPaintInstance.ShowTopmost(topMost);
   end;
-  LazPaintInstance.ShowTopmost(topMost);
 end;
 
 function TFMain.ScriptFileSave(AVars: TVariableSet): TScriptResult;
@@ -1524,7 +1551,7 @@ begin
         end
         else
         begin
-          if LazPaintInstance.ShowSaveOptionDlg(nil,Image.currentFilenameUTF8) then
+          if LazPaintInstance.ShowSaveOptionDlg(nil,Image.currentFilenameUTF8,AVars.Booleans['SkipOptions']) then
             result := srOk
           else
             result := srCancelledByUser;
@@ -1538,6 +1565,12 @@ begin
         end;
       end;
     end;
+end;
+
+function TFMain.ScriptFileGetFilename(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Strings['Result'] := Image.currentFilenameUTF8;
+  result := srOk;
 end;
 
 procedure TFMain.FileSaveUpdate(Sender: TObject);
@@ -1807,7 +1840,7 @@ begin
     result := srOk;
     exit;
   end;
-  if Image.IsFileModified then
+  if Image.IsFileModified and not AVars.Booleans['IgnoreModified'] then
   begin
     topmostInfo := LazPaintInstance.HideTopmost;
     res := MessageDlg(rsReload,rsReloadChanged,mtWarning,mbYesNo,0);
@@ -3130,6 +3163,28 @@ procedure TFMain.FileRememberSaveFormatExecute(Sender: TObject);
 begin
   FileRememberSaveFormat.Checked := not FileRememberSaveFormat.Checked;
   Config.SetRememberSaveFormat(FileRememberSaveFormat.Checked);
+end;
+
+procedure TFMain.FileRunScriptExecute(Sender: TObject);
+var
+  dlg: TOpenDialog;
+begin
+  dlg := TOpenDialog.Create(nil);
+  try
+    dlg.Title := FileRunScript.Caption;
+    dlg.InitialDir:= Config.DefaultScriptDirectory;
+    dlg.DefaultExt:= 'py';
+    dlg.Filter:= 'Python (*.py)|*.py';
+    if dlg.Execute then
+    begin
+      Config.SetDefaultScriptDirectory(ExtractFilePath(dlg.FileName));
+      LazPaintInstance.RunScript(dlg.FileName);
+    end;
+  except
+    on ex:exception do
+      LazPaintInstance.ShowError(FileRunScript.Caption, ex.Message);
+  end;
+  dlg.Free;
 end;
 
 procedure TFMain.FileSaveAsInSameFolderExecute(Sender: TObject);
