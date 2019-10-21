@@ -1438,9 +1438,13 @@ function TFMain.ScriptFileSaveAs(AVars: TVariableSet): TScriptResult;
           if Config.DefaultRememberStartupTargetDirectory then
             Config.SetStartupTargetDirectory(FSaveInitialDir);
           Image.CurrentFilenameUTF8 := filename;
+          AVars.Strings['Result'] := filename;
           result := srOk;
           if Assigned(Scripting.RecordingFunctionParameters) then
-             Scripting.RecordingFunctionParameters.AddString('FileName',filename);
+          begin
+            Scripting.RecordingFunctionParameters.AddString('FileName',filename);
+            Scripting.RecordingFunctionParameters.AddBoolean('Validate',True);
+          end;
         end;
       except
         on ex: Exception do
@@ -1494,7 +1498,7 @@ begin
 
   if AVars.Booleans['Validate'] and (initialDir <> '') then
   begin
-    if FileManager.FileExists(initialDir+filename) then
+    if not AVars.Booleans['Overwrite'] and (FileManager.FileExists(initialDir+filename)) then
     begin
       if QuestionDlg(rsSave, rsOverwriteFile, mtConfirmation,
           [mrOk, rsOkay, mrCancel, rsCancel],0) <> mrOk then
@@ -1547,12 +1551,16 @@ begin
         if SuggestImageFormat(Image.currentFilenameUTF8) in [ifIco,ifCur,ifTiff,ifGif] then
         begin
            Image.UpdateMultiImage;
+           AVars.Strings['Result'] := Image.currentFilenameUTF8;
            result := srOk;
         end
         else
         begin
           if LazPaintInstance.ShowSaveOptionDlg(nil,Image.currentFilenameUTF8,AVars.Booleans['SkipOptions']) then
-            result := srOk
+          begin
+            AVars.Strings['Result'] := Image.currentFilenameUTF8;
+            result := srOk;
+          end
           else
             result := srCancelledByUser;
         end;
@@ -1863,19 +1871,31 @@ begin
 end;
 
 function TFMain.ScriptFileSaveSelectionAs(AVars: TVariableSet): TScriptResult;
-var filename: string;
+var filename, initialDir: string;
     vFileName: TScriptVariableReference;
 begin
   if Image.SelectionMaskEmpty then
   begin
-    result := srOk;
+    result := srException;
     exit;
   end;
   filename := '';
   vFileName := AVars.GetVariable('FileName');
   if AVars.IsReferenceDefined(vFileName) then
+  begin
     filename:= AVars.GetString(vFileName);
+    {$WARNINGS OFF}
+    if PathDelim <> '\' then filename := StringReplace(filename, '\', PathDelim, [rfReplaceAll]);
+    if PathDelim <> '/' then filename := StringReplace(filename, '/', PathDelim, [rfReplaceAll]);
+    {$WARNINGS ON}
+    if ExtractFilePath(filename)<>'' then fileName := ExpandFileName(filename);
+  end;
   if filename = '' then filename := FSaveSelectionInitialFilename;
+  initialDir := ExtractFilePath(filename);
+  if AVars.Booleans['Validate'] and (filename <> '') and (initialDir <> '') then
+  begin
+    //skip
+  end else
   if UseImageBrowser then
   begin
     if not assigned(FSaveSelection) then
@@ -1886,7 +1906,7 @@ begin
       FSaveSelection.Caption := SaveSelectionDialog.Title;
       FSaveSelection.DefaultExtension := SaveSelectionDialog.DefaultExt;
     end;
-    if pos(PathDelim,filename)<>0 then FSaveSelection.InitialDirectory := ExtractFilePath(filename);
+    if initialDir<>'' then FSaveSelection.InitialDirectory := initialDir;
     FSaveSelection.InitialFilename := ExtractFileName(filename);
     if (FSaveSelection.ShowModal = mrOk) and (FSaveSelection.Filename <> '') then
       filename := FSaveSelection.Filename
@@ -1899,7 +1919,7 @@ begin
     begin
       filename := SaveSelectionDialog.FileName;
       SaveSelectionDialog.FileName := ExtractFileName(filename);
-      SaveSelectionDialog.InitialDir := ExtractFilePath(filename);
+      if initialDir<>'' then SaveSelectionDialog.InitialDir := initialDir;
     end;
     if SaveSelectionDialog.Execute then
       filename := SaveSelectionDialog.FileName
@@ -1916,9 +1936,14 @@ begin
     begin
       try
         Image.SaveSelectionMaskToFileUTF8(filename);
+        FSaveSelectionInitialFilename := filename;
         result := srOk;
         if Assigned(Scripting.RecordingFunctionParameters) then
-           Scripting.RecordingFunctionParameters.AddString('FileName',filename);
+        begin
+          Scripting.RecordingFunctionParameters.AddString('FileName',filename);
+          Scripting.RecordingFunctionParameters.AddBoolean('Validate',True);
+        end;
+        AVars.Strings['Result'] := filename;
       except
         on ex: Exception do
         begin

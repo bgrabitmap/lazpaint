@@ -14,13 +14,19 @@ def file_open(file_name=None, ignore_modified=False):
   command("FileOpen", FileName=file_name, IgnoreModified=ignore_modified)
 
 def file_save(skip_options=False):
-  command("FileSave", SkipOptions=skip_options)
+  return command("FileSave?", SkipOptions=skip_options)
 
-def file_save_as(file_name=None, validate=False, skip_options=False):
-  command("FileSaveAs", FileName=file_name, Validate=validate, SkipOptions=skip_options) 
+def file_save_as(file_name=None, validate=False, overwrite=False, skip_options=False):
+  return command("FileSaveAs?", FileName=file_name, Validate=validate, Overwrite=overwrite, SkipOptions=skip_options) 
 
 def file_reload(ignore_modified=False):
   command("FileReload", IgnoreModified=ignore_modified)
+
+def file_load_selection(file_name=None):
+  command("FileLoadSelection", FileName=file_name)
+
+def file_save_selection_as(file_name=None):
+  return command("FileSaveSelectionAs?", FileName=file_name)
 
 def get_file_name():
   return command("GetFileName?") 
