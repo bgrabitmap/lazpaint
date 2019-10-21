@@ -7,7 +7,7 @@ if input('') != chr(27) + 'LazPaint':
   exit()
 
 # sends a command to LazPaint
-def command(command, **keywords):
+def send(command, **keywords):
   if keywords is None:
     print(chr(27) + command)
   else:
@@ -16,3 +16,9 @@ def command(command, **keywords):
     return ast.literal_eval(input(''))
   else:
     return
+
+def show_message(message):
+  send("ShowMessage?", Message=message)
+
+if __name__ == "__main__":
+  show_message("Library to communicate with LazPaint.")
