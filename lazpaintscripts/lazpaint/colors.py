@@ -1,8 +1,8 @@
 import collections
-from lazpaint import command
+from lazpaint import dialog
 
 if __name__ == "__main__":
-  command.show_message("Library defining colors.")
+  dialog.show_message("Library defining colors.")
 
 CustomRGBA = collections.namedtuple("RGBA", "red, green, blue, alpha")
 class RGBA(CustomRGBA):

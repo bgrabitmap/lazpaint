@@ -1,7 +1,7 @@
-from lazpaint import command, colors
+from lazpaint import command, dialog, colors
 
 if __name__ == "__main__":
-  command.show_message("Library to access layer content.")
+  dialog.show_message("Library to access layer content.")
 
 DM_DRAW = "dmDrawWithTransparency"
 DM_LINEAR = "dmLinearBlend"

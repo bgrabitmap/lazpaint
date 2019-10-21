@@ -4,6 +4,7 @@ import ast
 print("LazPaint script\t")
 # wait for LazPaint response
 if input('') != chr(27) + 'LazPaint': 
+  print("Needs to be run from LazPaint.")
   exit()
 
 # sends a command to LazPaint
@@ -17,8 +18,3 @@ def send(command, **keywords):
   else:
     return
 
-def show_message(message):
-  send("ShowMessage?", Message=message)
-
-if __name__ == "__main__":
-  show_message("Library to communicate with LazPaint.")

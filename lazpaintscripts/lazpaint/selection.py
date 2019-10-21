@@ -1,7 +1,13 @@
-from lazpaint import command
+from lazpaint import command, dialog
 
 if __name__ == "__main__":
-  command.show_message("Library to access selection.")
+  dialog.show_message("Library to access selection.")
+
+def load(file_name=None):
+  command.send("FileLoadSelection", FileName=file_name)
+
+def save_as(file_name=None):
+  return command.send("FileSaveSelectionAs?", FileName=file_name)
 
 def invert():
   command.send("EditInvertSelection")

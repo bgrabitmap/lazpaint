@@ -1,25 +1,31 @@
-from lazpaint import image, io, colors, layer, selection, command
+from lazpaint import image, colors, layer, selection, dialog
 
-command.show_message("name is " + str(io.get_name()))
+current_file_name = image.get_name()
+if current_file_name is not None: 
+  dialog.show_message("Filename is \"" + current_file_name + "\"")
+else:
+  dialog.show_message("Image doesn't have a filename")  
 
 if selection.is_mask_empty():
   selection_name = None
+  dialog.show_message("There is no selection mask")
 else: 
-  selection_name = io.save_selection_as("script_test_selection.png")
-  command.show_message("Selection saved")
+  selection_name = selection.save_as("script_test_selection.png")
+  dialog.show_message("Selection saved")
 
 image.new(100, 100, colors.RED)
 
 if selection_name is not None:
-  io.load_selection(selection_name)
-  command.show_message("Selection restored")
+  selection.load(selection_name)
+  dialog.show_message("Selection restored")
 
-file_name = io.save_as("script_test_file.png", skip_options=True)
+wanted_file_name = dialog.input_text("Test file name:", "script_test_file.png")
+file_name = image.save_as(wanted_file_name, skip_options=True)
 image.new(100, 100, colors.LIME)
-io.save_as(file_name, validate=True, overwrite=True, skip_options=True)
+image.save_as(file_name, validate=True, overwrite=True, skip_options=True)
 
 layer.fill(colors.BLUE)
-io.reload(ignore_modified=True)
+image.reload(ignore_modified=True)
 
 layer.fill(colors.PURPLE)
-io.save(skip_options=True)
+image.save(skip_options=True)
