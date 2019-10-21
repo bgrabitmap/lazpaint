@@ -136,6 +136,7 @@ begin
   Scripting.RegisterScriptFunction('EditPasteAsNewLayer',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditSelectAll',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditSelectionFit',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('IsSelectionMaskEmpty',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerHorizontalFlip',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerVerticalFlip',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerAddNew',@GenericScriptFunction,ARegister);
@@ -196,6 +197,7 @@ begin
   if f = 'EditPasteAsNewLayer' then PasteAsNewLayer else
   if f = 'EditSelectAll' then SelectAll else
   if f = 'EditSelectionFit' then SelectionFit else
+  if f = 'IsSelectionMaskEmpty' then AVars.Booleans['Result'] := Image.SelectionMaskEmpty else
   if f = 'LayerHorizontalFlip' then HorizontalFlip(foCurrentLayer) else
   if f = 'LayerVerticalFlip' then VerticalFlip(foCurrentLayer) else
   if f = 'LayerAddNew' then NewLayer else
