@@ -1577,7 +1577,10 @@ end;
 
 function TFMain.ScriptFileGetFilename(AVars: TVariableSet): TScriptResult;
 begin
-  AVars.Strings['Result'] := Image.currentFilenameUTF8;
+  if Image.currentFilenameUTF8='' then
+    AVars.Remove('Result')
+  else
+    AVars.Strings['Result'] := Image.currentFilenameUTF8;
   result := srOk;
 end;
 

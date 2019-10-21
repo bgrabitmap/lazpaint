@@ -27,6 +27,8 @@ type
 
   TLazPaintInstance = class(TLazPaintCustomInstance)
   private
+    FScriptName: String;
+
     function GetMainFormVisible: boolean;
     procedure OnLayeredBitmapLoadStartHandler(AFilenameUTF8: string);
     procedure OnLayeredBitmapLoadProgressHandler(APercentage: integer);
@@ -45,6 +47,7 @@ type
     procedure PythonScriptCommand({%H-}ASender: TObject; ACommand, AParam: UTF8String; out
       AResult: UTF8String);
     function ScriptShowMessage(AVars: TVariableSet): TScriptResult;
+    function ScriptInputBox(AVars: TVariableSet): TScriptResult;
 
   protected
     InColorFromFChooseColor: boolean;
@@ -286,6 +289,7 @@ begin
   ScriptContext.RegisterScriptFunction('ColorShiftColors',@ScriptColorShiftColors,ARegister);
   ScriptContext.RegisterScriptFunction('ColorIntensity',@ScriptColorIntensity,ARegister);
   ScriptContext.RegisterScriptFunction('ShowMessage',@ScriptShowMessage,ARegister);
+  ScriptContext.RegisterScriptFunction('InputBox',@ScriptInputBox,ARegister);
 end;
 
 procedure TLazPaintInstance.Init(AEmbedded: boolean);
@@ -623,8 +627,21 @@ end;
 
 function TLazPaintInstance.ScriptShowMessage(AVars: TVariableSet): TScriptResult;
 begin
-  ShowMessage('Script', AVars.Strings['Message']);
+  ShowMessage(ExtractFileName(FScriptName), AVars.Strings['Message']);
   result := srOk;
+end;
+
+function TLazPaintInstance.ScriptInputBox(AVars: TVariableSet): TScriptResult;
+var
+  str: String;
+begin
+  str := AVars.Strings['Default'];
+  if InputQuery(ExtractFileName(FScriptName), AVars.Strings['Prompt'], str) then
+  begin
+    AVars.Strings['Result'] := str;
+    result := srOk;
+  end else
+    result := srCancelledByUser;
 end;
 
 procedure TLazPaintInstance.OnLayeredBitmapLoadStartHandler(AFilenameUTF8: string);
@@ -1283,6 +1300,7 @@ var
 begin
   p := TPythonScript.Create;
   try
+    FScriptName := AFilename;
     p.OnCommand:=@PythonScriptCommand;
     p.Run(AFilename);
     if p.ErrorText<>'' then
