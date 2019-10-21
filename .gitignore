@@ -5,6 +5,7 @@ lazpaint/release/bin/*.exe
 backup/*
 lib
 debug
+__pycache__
 *.res
 *.lrt
 /lazpaint/*.lrj
