@@ -69,6 +69,7 @@ type
 const
   ScriptVariableListTypes : set of TScriptVariableType = [svtFloatList, svtIntList, svtBoolList, svtStrList, svtPixList, svtObjectList];
   ScriptScalarListTypes : set of TScriptVariableType = [svtFloatList, svtIntList, svtPixList, svtObjectList];
+  ScriptScalarTypes : set of TScriptVariableType = [svtFloat, svtInteger, svtBoolean, svtPixel];
   ScalarListElementSize : array[svtFloatList..svtObjectList] of NativeInt =
     (sizeof(double), sizeof(TScriptInteger), 0, 0, sizeof(TBGRAPixel), sizeof(TScriptInteger));
   ListElementType : array[svtFloatList..svtObjectList] of TScriptVariableType =

@@ -75,6 +75,8 @@ type
     constructor Create(AFunctionName: string);
     constructor Create(AFunctionName: string; AVariablesAsString: string);
     function LoadFromVariablesAsString(AVariablesAsString: string): TInterpretationErrors;
+    function Remove(const AName: string): boolean;
+    function Remove(var ADest: TScriptVariableReference): boolean;
     destructor Destroy; override;
     function AddFloat(const AName: string; AValue: double): boolean;
     function AddInteger(const AName: string; AValue: TScriptInteger): boolean;
@@ -112,6 +114,8 @@ type
     class function AssignList(const ADest: TScriptVariableReference; AListExpr: string): TInterpretationErrors; static;
     class function AssignVariable(const ADest, ASource: TScriptVariableReference): boolean; static;
     class function IsReferenceDefined(const AReference: TScriptVariableReference): boolean; static;
+    class function IsList(const AReference: TScriptVariableReference): boolean; static;
+    class function IsSubSet(const AReference: TScriptVariableReference): boolean; static;
     class function GetFloat(const ASource: TScriptVariableReference) : double; static;
     class function GetInteger(const ASource: TScriptVariableReference) : TScriptInteger; static;
     class function GetObject(const ASource: TScriptVariableReference) : TScriptInteger; static;
@@ -309,8 +313,16 @@ end;
 { TVariableSet }
 
 function TVariableSet.GetCount: NativeInt;
+var
+  i: Integer;
 begin
-  result := FNbScalars+FNbStrings+FNbBoolLists+FNbScalarLists+FNbStrLists+FNbSubsets;
+  result := 0;
+  for i := 0 to FNbScalars-1 do if FScalars[i].name <> '' then inc(result);
+  for i := 0 to FNbStrings-1 do if FStrings[i].name <> '' then inc(result);
+  for i := 0 to FNbBoolLists-1 do if FBoolLists[i].name <> '' then inc(result);
+  for i := 0 to FNbScalarLists-1 do if FScalarLists[i].name <> '' then inc(result);
+  for i := 0 to FNbStrLists-1 do if FStrLists[i].name <> '' then inc(result);
+  for i := 0 to FNbSubsets-1 do if FSubsets[i].name <> '' then inc(result);
 end;
 
 function TVariableSet.GetBooleanByName(const AName: string): boolean;
@@ -394,21 +406,47 @@ begin
 end;
 
 function TVariableSet.GetVarName(AIndex: integer): string;
+var
+  i: Integer;
 begin
   if AIndex < 0 then raise exception.Create('Index out of bounds');
 
-  if AIndex < FNbScalars then exit(FScalars[AIndex].name)
-  else dec(AIndex, FNbScalars);
-  if AIndex < FNbStrings then exit(FStrings[AIndex].name)
-  else dec(AIndex, FNbStrings);
-  if AIndex < FNbBoolLists then exit(FBoolLists[AIndex].name)
-  else dec(AIndex, FNbBoolLists);
-  if AIndex < FNbScalarLists then exit(FScalarLists[AIndex].name)
-  else dec(AIndex, FNbScalarLists);
-  if AIndex < FNbStrLists then exit(FStrLists[AIndex].name)
-  else dec(AIndex, FNbStrLists);
-  if AIndex < FNbSubsets then exit(FSubsets[AIndex].name)
-  else dec(AIndex, FNbSubsets);
+  for i := 0 to FNbScalars-1 do
+    if FScalars[i].name <> '' then
+    begin
+      if AIndex = 0 then exit(FScalars[AIndex].name)
+      else dec(AIndex);
+    end;
+  for i := 0 to FNbStrings-1 do
+    if FStrings[i].name <> '' then
+    begin
+      if AIndex = 0 then exit(FStrings[AIndex].name)
+      else dec(AIndex);
+    end;
+  for i := 0 to FNbBoolLists-1 do
+    if FBoolLists[i].name <> '' then
+    begin
+      if AIndex = 0 then exit(FBoolLists[AIndex].name)
+      else dec(AIndex);
+    end;
+  for i := 0 to FNbScalarLists-1 do
+    if FScalarLists[i].name <> '' then
+    begin
+      if AIndex = 0 then exit(FScalarLists[AIndex].name)
+      else dec(AIndex);
+    end;
+  for i := 0 to FNbStrLists-1 do
+    if FStrLists[i].name <> '' then
+    begin
+      if AIndex = 0 then exit(FStrLists[AIndex].name)
+      else dec(AIndex);
+    end;
+  for i := 0 to FNbSubsets-1 do
+    if FSubsets[i].name <> '' then
+    begin
+      if AIndex = 0 then exit(FSubsets[AIndex].name)
+      else dec(AIndex);
+    end;
 
   raise exception.Create('Index out of bounds');
 end;
@@ -547,6 +585,59 @@ begin
   end;
 end;
 
+function TVariableSet.Remove(const AName: string): boolean;
+var
+  v: TScriptVariableReference;
+begin
+  v := GetVariable(AName);
+  if not IsReferenceDefined(v) then result := false
+  else result := Remove(v);
+end;
+
+function TVariableSet.Remove(var ADest: TScriptVariableReference): boolean;
+begin
+  if ADest.variableType in ScriptScalarTypes then
+  begin
+    FScalars[ADest.variableIndex].name:= '';
+    FScalars[ADest.variableIndex].varType:= svtUndefined;
+  end else
+  if ADest.variableType in ScriptScalarListTypes then
+  begin
+    FScalarLists[ADest.variableIndex].name:= '';
+    FScalarLists[ADest.variableIndex].varType:= svtUndefined;
+    FScalarLists[ADest.variableIndex].count := 0;
+    FScalarLists[ADest.variableIndex].size := 0;
+    ReallocMem(FScalarLists[ADest.variableIndex].list, 0);
+  end else
+  if ADest.variableType = svtString then
+  begin
+    FStrings[ADest.variableIndex].name:= '';
+    FStrings[ADest.variableIndex].value:= '';
+  end else
+  if ADest.variableType = svtStrList then
+  begin
+    FStrLists[ADest.variableIndex].name:= '';
+    FStrLists[ADest.variableIndex].list:= nil;
+    FStrLists[ADest.variableIndex].count:= 0;
+  end else
+  if ADest.variableType = svtBoolList then
+  begin
+    FBoolLists[ADest.variableIndex].name:= '';
+    FreeAndNil(FBoolLists[ADest.variableIndex].list);
+    FBoolLists[ADest.variableIndex].count:= 0;
+  end else
+  if IsSubSet(ADest) then
+  begin
+    FSubsets[ADest.variableIndex].name:= '';
+    FreeAndNil(FSubsets[ADest.variableIndex].value);
+  end else
+    exit(false);
+  ADest.variableType:= svtUndefined;
+  ADest.variableIndex:= -1;
+  ADest.variableSet := nil;
+  result := true;
+end;
+
 procedure TVariableSet.SetBooleanByName(const AName: string; AValue: boolean);
 var v: TScriptVariableReference;
 begin
@@ -660,7 +751,7 @@ end;
 function TVariableSet.AddScalar(const AName: string; AType: TScriptVariableType
   ): boolean;
 begin
-  if IsDefined(AName) then
+  if IsDefined(AName) or (AName = '') then
   begin
     result := false;
     exit;
@@ -679,7 +770,7 @@ end;
 function TVariableSet.AddScalarList(const AName: string;
   AType: TScriptVariableType): TScriptVariableReference;
 begin
-  if IsDefined(AName) then
+  if IsDefined(AName) or (AName = '') then
   begin
     result.variableSet := nil;
     result.variableType := svtUndefined;
@@ -761,7 +852,7 @@ end;
 
 function TVariableSet.AddString(const AName: string; AValue: string): boolean;
 begin
-  if IsDefined(AName) then
+  if IsDefined(AName) or (AName = '') then
   begin
     result := false;
     exit;
@@ -780,7 +871,7 @@ end;
 function TVariableSet.AddSubset(const AName: string; AValue: TVariableSet
   ): boolean;
 begin
-  if IsDefined(AName) then
+  if IsDefined(AName) or (AName = '') then
   begin
     result := false;
     exit;
@@ -810,7 +901,7 @@ function TVariableSet.AddList(const AName: string; AListExpr: string): TInterpre
 var listType: TScriptVariableType;
   ref: TScriptVariableReference;
 begin
-  if IsDefined(AName) then
+  if IsDefined(AName) or (AName = '') then
   begin
     result := [ieDuplicateIdentifier];
     exit;
@@ -834,7 +925,7 @@ end;
 function TVariableSet.AddBooleanList(const AName: string
   ): TScriptVariableReference;
 begin
-  if IsDefined(AName) then
+  if IsDefined(AName) or (AName = '') then
   begin
     result.variableSet := nil;
     result.variableType := svtUndefined;
@@ -882,7 +973,7 @@ end;
 function TVariableSet.AddStringList(const AName: string
   ): TScriptVariableReference;
 begin
-  if IsDefined(AName) then
+  if IsDefined(AName) or (AName = '') then
   begin
     result.variableSet := nil;
     result.variableType := svtUndefined;
@@ -905,54 +996,57 @@ end;
 function TVariableSet.GetVariable(const AName: string): TScriptVariableReference;
 var i: NativeInt;
 begin
-  for i := 0 to FNbScalars-1 do
-    if CompareText(AName, FScalars[i].name)= 0 then
-    begin
-      result.variableSet := self;
-      result.variableType := FScalars[i].varType;
-      result.variableIndex := i;
-      exit;
-    end;
-  for i := 0 to FNbStrLists-1 do
-    if CompareText(AName, FStrLists[i].name)= 0 then
-    begin
-      result.variableSet := self;
-      result.variableType := svtStrList;
-      result.variableIndex := i;
-      exit;
-    end;
-  for i := 0 to FNbBoolLists-1 do
-    if CompareText(AName, FBoolLists[i].name)= 0 then
-    begin
-      result.variableSet := self;
-      result.variableType := svtBoolList;
-      result.variableIndex := i;
-      exit;
-    end;
-  for i := 0 to FNbScalarLists-1 do
-    if CompareText(AName, FScalarLists[i].name)= 0 then
-    begin
-      result.variableSet := self;
-      result.variableType := FScalarLists[i].varType;
-      result.variableIndex := i;
-      exit;
-    end;
-  for i := 0 to FNbStrings-1 do
-    if CompareText(AName, FStrings[i].name)= 0 then
-    begin
-      result.variableSet := self;
-      result.variableType := svtString;
-      result.variableIndex := i;
-      exit;
-    end;
-  for i := 0 to FNbSubsets-1 do
-    if CompareText(AName, FSubsets[i].name)= 0 then
-    begin
-      result.variableSet := self;
-      result.variableType := svtSubset;
-      result.variableIndex := i;
-      exit;
-    end;
+  if AName <> '' then
+  begin
+    for i := 0 to FNbScalars-1 do
+      if CompareText(AName, FScalars[i].name)= 0 then
+      begin
+        result.variableSet := self;
+        result.variableType := FScalars[i].varType;
+        result.variableIndex := i;
+        exit;
+      end;
+    for i := 0 to FNbStrLists-1 do
+      if CompareText(AName, FStrLists[i].name)= 0 then
+      begin
+        result.variableSet := self;
+        result.variableType := svtStrList;
+        result.variableIndex := i;
+        exit;
+      end;
+    for i := 0 to FNbBoolLists-1 do
+      if CompareText(AName, FBoolLists[i].name)= 0 then
+      begin
+        result.variableSet := self;
+        result.variableType := svtBoolList;
+        result.variableIndex := i;
+        exit;
+      end;
+    for i := 0 to FNbScalarLists-1 do
+      if CompareText(AName, FScalarLists[i].name)= 0 then
+      begin
+        result.variableSet := self;
+        result.variableType := FScalarLists[i].varType;
+        result.variableIndex := i;
+        exit;
+      end;
+    for i := 0 to FNbStrings-1 do
+      if CompareText(AName, FStrings[i].name)= 0 then
+      begin
+        result.variableSet := self;
+        result.variableType := svtString;
+        result.variableIndex := i;
+        exit;
+      end;
+    for i := 0 to FNbSubsets-1 do
+      if CompareText(AName, FSubsets[i].name)= 0 then
+      begin
+        result.variableSet := self;
+        result.variableType := svtSubset;
+        result.variableIndex := i;
+        exit;
+      end;
+  end;
   result.variableSet := nil;
   result.variableType := svtUndefined;
   result.variableIndex := -1;
@@ -1503,6 +1597,18 @@ class function TVariableSet.IsReferenceDefined(
   const AReference: TScriptVariableReference): boolean;
 begin
   result := AReference.variableIndex <> -1;
+end;
+
+class function TVariableSet.IsList(const AReference: TScriptVariableReference
+  ): boolean;
+begin
+  result := AReference.variableType in [svtFloatList, svtIntList, svtBoolList, svtStrList, svtPixList];
+end;
+
+class function TVariableSet.IsSubSet(const AReference: TScriptVariableReference
+  ): boolean;
+begin
+  result := AReference.variableType = svtSubset;
 end;
 
 class function TVariableSet.GetFloat(const ASource: TScriptVariableReference
