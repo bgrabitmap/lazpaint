@@ -211,7 +211,7 @@ type
 
 implementation
 
-uses LCLType, Types, Forms, Dialogs, FileUtil, LCLIntf, Math,
+uses LCLType, Types, Forms, Dialogs, FileUtil, StdCtrls, LCLIntf, Math,
 
      uradialblur, umotionblur, uemboss, UTwirl, UWaveDisplacement,
      unewimage, uresample, upixelate, unoisefilter, ufilters,
@@ -1278,7 +1278,8 @@ end;
 function TLazPaintInstance.RunScript(AFilename: string): boolean;
 var
   p: TPythonScript;
-  errorLines: TStringList;
+  fError: TForm;
+  memo: TMemo;
 begin
   p := TPythonScript.Create;
   try
@@ -1286,11 +1287,21 @@ begin
     p.Run(AFilename);
     if p.ErrorText<>'' then
     begin
-      errorLines := TStringList.Create;
-      errorLines.Text := Trim(p.ErrorText);
-      if errorLines.Count > 0 then
-        ShowError(ChangeFileExt(ExtractFileName(AFilename),''), errorLines[errorLines.Count-1]);
-      errorLines.Free;
+      fError := TForm.Create(nil);
+      try
+        fError.Caption := ChangeFileExt(ExtractFileName(AFilename),'');
+        fError.Position:= poDesktopCenter;
+        fError.Width := Screen.Width*3 div 4;
+        fError.Height := Screen.Height*3 div 4;
+        memo := TMemo.Create(fError);
+        memo.Align:= alClient;
+        memo.Parent := fError;
+        memo.Font.Name:= 'monospace';
+        memo.Text := p.ErrorText;
+        fError.ShowModal;
+      finally
+        fError.Free;
+      end;
       result := false;
     end else
       result := true;
