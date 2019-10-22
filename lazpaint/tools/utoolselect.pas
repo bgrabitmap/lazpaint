@@ -178,7 +178,7 @@ end;
 
 function TToolSelectSpline.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctSplineStyle];
+  Result:= [ctSplineStyle, ctCloseShape];
 end;
 
 { TToolSelectPoly }

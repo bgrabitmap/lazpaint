@@ -35,7 +35,7 @@ function StrToPaintToolType(const s: ansistring): TPaintToolType;
 
 type
   TContextualToolbar = (ctColor, ctPenWidth, ctPenStyle, ctAliasing, ctShape, ctEraserOption, ctTolerance,
-    ctGradient, ctDeformation, ctLineCap, ctJoinStyle, ctSplineStyle, ctText, ctTextShadow,
+    ctGradient, ctDeformation, ctCloseShape, ctLineCap, ctJoinStyle, ctSplineStyle, ctText, ctTextShadow,
     ctPhong, ctAltitude, ctPerspective, ctBrush, ctTexture, ctRatio);
   TContextualToolbars = set of TContextualToolbar;
 
@@ -1461,7 +1461,7 @@ begin
   SetControlsVisible(PenWidthControls, (ctPenWidth in contextualToolbars) and (toDrawShape in ShapeOptions));
   SetControlsVisible(JoinStyleControls, (ctJoinStyle in contextualToolbars) and (toDrawShape in ShapeOptions));
   SetControlsVisible(PenStyleControls, (ctPenStyle in contextualToolbars) and (toDrawShape in ShapeOptions));
-  SetControlsVisible(CloseShapeControls, ctLineCap in contextualToolbars);
+  SetControlsVisible(CloseShapeControls, (ctCloseShape in contextualToolbars) or (ctLineCap in contextualToolbars));
   SetControlsVisible(LineCapControls, (ctLineCap in contextualToolbars) and not (toCloseShape in ShapeOptions) and (toDrawShape in ShapeOptions));
   SetControlsVisible(AliasingControls, ctAliasing in contextualToolbars);
   SetControlsVisible(SplineStyleControls, ctSplineStyle in contextualToolbars);
