@@ -12,6 +12,237 @@ msgstr ""
 "Language: cs\n"
 "X-Generator: Poedit 1.5.4\n"
 
+#: tablet.getprocfailed
+msgid "Procedure %s failed to load properly."
+msgstr ""
+
+#: tablet.openfailed
+msgid "Tablet context failed to open."
+msgstr ""
+
+#: tfabout.button_donate.caption
+msgctxt "tfabout.button_donate.caption"
+msgid "Donate..."
+msgstr "Přispět..."
+
+#: tfabout.caption
+msgctxt "tfabout.caption"
+msgid "About"
+msgstr "O programu"
+
+#: tfabout.labelurl.caption
+msgid "http://sourceforge.net/projects/lazpaint/"
+msgstr "http://sourceforge.net/projects/lazpaint/"
+
+#: tfabout.label_authors.caption
+msgctxt "tfabout.label_authors.caption"
+msgid "Authors:"
+msgstr "Autoři:"
+
+#: tfabout.label_authorsvalue.caption
+#| msgid "Circular help by FabienWang and Lainz"
+msgctxt "tfabout.label_authorsvalue.caption"
+msgid "Circular helped by FabienWang, Lainz and others"
+msgstr "Circular s pomocí FabienWang, Lainz a dalších"
+
+#: tfabout.label_homepage.caption
+msgctxt "tfabout.label_homepage.caption"
+msgid "Homepage:"
+msgstr "Domovská stránka:"
+
+#: tfabout.label_libraries.caption
+msgctxt "tfabout.label_libraries.caption"
+msgid "Libraries used:"
+msgstr "Použité knihovny:"
+
+#: tfabout.label_licence.caption
+msgctxt "tfabout.label_licence.caption"
+msgid "Licence:"
+msgstr "Licence:"
+
+#: tfabout.label_opensource.caption
+msgctxt "tfabout.label_opensource.caption"
+msgid "Open source (GPLv3)"
+msgstr "Otevřený kód (GPLv3)"
+
+#: tfadjustcurves.button_cancel.caption
+msgctxt "tfadjustcurves.button_cancel.caption"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfadjustcurves.button_ok.caption
+msgctxt "tfadjustcurves.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfadjustcurves.caption
+msgid "Adjust curves"
+msgstr "Nastavit křivky"
+
+#: tfadjustcurves.toolbutton_newcurve.hint
+msgid "Discard current curve and start a new one"
+msgstr "Zahodit aktuální křivku a začít novou"
+
+#: tfadjustcurves.toolbutton_posterize.hint
+msgctxt "tfadjustcurves.toolbutton_posterize.hint"
+msgid "Posterize"
+msgstr "Posterizace"
+
+#: tfadjustcurves.toolbutton_removepoint.hint
+msgid "Remove selected point (Del)"
+msgstr "Odebrat vybrané body (Del)"
+
+#: tfblendop.button_cancel.caption
+msgctxt "tfblendop.button_cancel.caption"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfblendop.button_ok.caption
+msgctxt "tfblendop.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfblendop.caption
+msgid "Blend operation"
+msgstr "Operace míchání"
+
+#: tfblendop.label_blendopcategory.caption
+msgctxt "tfblendop.label_blendopcategory.caption"
+msgid "Category of blend operation"
+msgstr "Kategorie operace mísení"
+
+#: tfblendop.label_blendopvalue.caption
+msgctxt "tfblendop.label_blendopvalue.caption"
+msgid "."
+msgstr "."
+
+#: tfblendop.label_kritaover.caption
+msgctxt "tfblendop.label_kritaover.caption"
+msgid "Krita"
+msgstr "Krita"
+
+#: tfblendop.label_kritaover.hint
+msgid "Blend operations that are available in Krita"
+msgstr "Operace mísení jsou dostupné v Krita"
+
+#: tfblendop.label_otherover.caption
+msgctxt "tfblendop.label_otherover.caption"
+msgid "Other"
+msgstr "Jiné"
+
+#: tfblendop.label_otherover.hint
+msgid "Blend operations of LazPaint and Paint.NET"
+msgstr "Operace mísení LazPaint a Paint.NET"
+
+#: tfblendop.label_patternover.caption
+msgctxt "tfblendop.label_patternover.caption"
+msgid "Pattern over"
+msgstr "Vzor přes"
+
+#: tfblendop.label_patternover.hint
+msgid "Preview blend operation with the specified image on top"
+msgstr "Náhled operace mísení se zadaným obrázkem nahoře"
+
+#: tfblendop.label_patternunder.caption
+msgctxt "tfblendop.label_patternunder.caption"
+msgid "Pattern under"
+msgstr "Vzor pod"
+
+#: tfblendop.label_patternunder.hint
+msgid "Preview blend operation with the specified image underneath"
+msgstr "Náhled operace mísení se zadaným obrázkem pod"
+
+#: tfblendop.label_previewwith.caption
+msgctxt "tfblendop.label_previewwith.caption"
+msgid "Preview with"
+msgstr "Náhled s"
+
+#: tfblendop.label_selectedblendop.caption
+msgid "Selected blend operation :"
+msgstr "Vybraná operace míchání :"
+
+#: tfblendop.label_svgover.caption
+msgctxt "tfblendop.label_svgover.caption"
+msgid "Basic SVG"
+msgstr "Základní SVG"
+
+#: tfblendop.label_svgover.hint
+msgid "Basic blend operations that are available in virtually all image editors"
+msgstr "Základní operace mísení, který je dostupná prakticky ve všech editorech obrázků"
+
+#: tfbrowseimages.caption
+msgid "Browse images"
+msgstr "Procházet obrázky"
+
+#: tfbrowseimages.checkbox_usedirectoryonstartup.caption
+msgid "Use this directory on startup"
+msgstr ""
+
+#: tfbrowseimages.label_status.caption
+msgctxt "tfbrowseimages.label_status.caption"
+msgid "."
+msgstr "."
+
+#: tfbrowseimages.toolbutton_createfolderorcontainer.hint
+msgid "Create folder or container"
+msgstr ""
+
+#: tfbrowseimages.toolbutton_goup.hint
+msgid "Go one directory up"
+msgstr "Jít o adresář výše"
+
+#: tfbrowseimages.toolbutton_openselectedfiles.hint
+msgid "Open selected files"
+msgstr ""
+
+#: tfbrowseimages.toolbutton_viewbigicon.hint
+msgctxt "tfbrowseimages.toolbutton_viewbigicon.hint"
+msgid "Show big icons"
+msgstr "Ukázat velké ikony"
+
+#: tfbrowseimages.toolbutton_viewdetails.hint
+msgctxt "tfbrowseimages.toolbutton_viewdetails.hint"
+msgid "Show details and preview"
+msgstr "Ukázat podrobnosti a náhled"
+
+#: tfbrowseimages.tool_selectdrive.hint
+msgid "Select drive"
+msgstr ""
+
+#: tfcanvassize.button_cancel.caption
+msgctxt "TFCANVASSIZE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfcanvassize.button_ok.caption
+msgctxt "TFCANVASSIZE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfcanvassize.caption
+msgctxt "tfcanvassize.caption"
+msgid "Canvas size"
+msgstr "Velikost plátna"
+
+#: tfcanvassize.checkbox_flipmode.caption
+msgid "Flip mode"
+msgstr "Převrácený režim"
+
+#: tfcanvassize.label_anchor.caption
+msgctxt "tfcanvassize.label_anchor.caption"
+msgid "Anchor :"
+msgstr "Kotva :"
+
+#: tfcanvassize.label_height.caption
+msgctxt "tfcanvassize.label_height.caption"
+msgid "Height :"
+msgstr "Výška :"
+
+#: tfcanvassize.label_width.caption
+msgctxt "tfcanvassize.label_width.caption"
+msgid "Width :"
+msgstr "Šířka :"
+
 #: tfchoosecolor.bcbutton_addtopalette.hint
 msgid "Add color to palette"
 msgstr ""
@@ -28,6 +259,321 @@ msgstr "Barva"
 #: tfchoosecolor.lcolor.hint
 msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
 msgstr "Popis barvy: klikněte pro zadání barvy klávesnicí pomocí jména barvy nebo zápisu CSS "
+
+#: tfcolorintensity.button_cancel.caption
+msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfcolorintensity.button_ok.caption
+msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfcolorintensity.caption
+msgctxt "tfcolorintensity.caption"
+msgid "Intensity"
+msgstr "Jas"
+
+#: tfcolorintensity.label_multiply.caption
+msgctxt "tfcolorintensity.label_multiply.caption"
+msgid "Multiply"
+msgstr "Násobek"
+
+#: tfcolorintensity.label_shift.caption
+msgctxt "tfcolorintensity.label_shift.caption"
+msgid "Shift"
+msgstr "Posun"
+
+#: tfcolorize.button_cancel.caption
+msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfcolorize.button_ok.caption
+msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfcolorize.caption
+msgctxt "tfcolorize.caption"
+msgid "Colorize"
+msgstr "Obarvení"
+
+#: tfcolorize.checkbox_gsba.caption
+msgctxt "tfcolorize.checkbox_gsba.caption"
+msgid "Corrected hue and lightness"
+msgstr "Opravený odstín a světlost"
+
+#: tfcolorize.label_colorness.caption
+msgctxt "tfcolorize.label_colorness.caption"
+msgid "Colorness"
+msgstr "Barevný"
+
+#: tfcolorize.label_hue.caption
+msgctxt "tfcolorize.label_hue.caption"
+msgid "Hue"
+msgstr "Odstín"
+
+#: tfcolorize.label_preset.caption
+msgid "Preset"
+msgstr "Předvolba"
+
+#: tfcustomblur.button_cancel.caption
+msgctxt "TFCUSTOMBLUR.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfcustomblur.button_editmask.caption
+msgid "Edit mask..."
+msgstr "Upravit masku..."
+
+#: tfcustomblur.button_loadmask.caption
+msgid "Load mask..."
+msgstr "Načíst masku..."
+
+#: tfcustomblur.button_ok.caption
+msgctxt "TFCUSTOMBLUR.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfcustomblur.caption
+msgctxt "tfcustomblur.caption"
+msgid "Custom blur"
+msgstr "Vlastní rozostření"
+
+#: tfcustomblur.openpicturedialog1.title
+msgid "Open grayscale file"
+msgstr "Otevřít černobílý obrázek"
+
+#: tfemboss.button_cancel.caption
+msgctxt "TFEMBOSS.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfemboss.button_ok.caption
+msgctxt "TFEMBOSS.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfemboss.caption
+msgctxt "tfemboss.caption"
+msgid "Emboss"
+msgstr "Vytlačit"
+
+#: tfemboss.checkbox_preservecolors.caption
+msgid "Preserve colors"
+msgstr ""
+
+#: tfemboss.checkbox_transparent.caption
+msgid "Transparent"
+msgstr ""
+
+#: tfemboss.label_direction.caption
+msgctxt "tfemboss.label_direction.caption"
+msgid "Direction :"
+msgstr "Směr :"
+
+#: tffilterfunction.button_cancel.caption
+msgctxt "tffilterfunction.button_cancel.caption"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tffilterfunction.button_ok.caption
+msgctxt "tffilterfunction.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tffilterfunction.caption
+msgid "Apply function"
+msgstr "Použít funkci"
+
+#: tffilterfunction.checkbox_gsba.caption
+msgctxt "tffilterfunction.checkbox_gsba.caption"
+msgid "Corrected hue and lightness"
+msgstr "Opravný odstín a světlost"
+
+#: tffilterfunction.label_alphaequals.caption
+msgctxt "tffilterfunction.label_alphaequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_blueequals.caption
+msgctxt "tffilterfunction.label_blueequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_greenequals.caption
+msgctxt "tffilterfunction.label_greenequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_hueequals.caption
+msgctxt "tffilterfunction.label_hueequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_lightnessequals.caption
+msgctxt "tffilterfunction.label_lightnessequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_redequals.caption
+msgctxt "tffilterfunction.label_redequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_saturationequals.caption
+msgctxt "tffilterfunction.label_saturationequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_variables.caption
+msgid "Variables :"
+msgstr "Proměnné :"
+
+#: tffilterfunction.tabsheet_hsl.caption
+msgid "HSL"
+msgstr "HSL"
+
+#: tffilterfunction.tabsheet_rgb.caption
+msgctxt "tffilterfunction.tabsheet_rgb.caption"
+msgid "RGB"
+msgstr "RGB"
+
+#: tfgeometricbrush.button_cancel.caption
+msgctxt "tfgeometricbrush.button_cancel.caption"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfgeometricbrush.button_ok.caption
+msgctxt "tfgeometricbrush.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfgeometricbrush.caption
+msgid "Geometric brush"
+msgstr ""
+
+#: tfgeometricbrush.checkbox_isgradient.caption
+msgid "Opacity gradient"
+msgstr ""
+
+#: tfgeometricbrush.label1.caption
+msgid "Number of sides:"
+msgstr ""
+
+#: tfimagelist.caption
+msgid "Image List"
+msgstr "Seznam obrázků"
+
+#: tfimagelist.pmautouncheckonopen.caption
+msgid "Autouncheck files after being open"
+msgstr "Samo odškrtnutí souborů po otevření"
+
+#: tfimagelist.pmautouncheckonsave.caption
+msgid "Autouncheck files after being edited and saved"
+msgstr "Samo odškrtnutí souborů po úpravě a uložení"
+
+#: tfimagelist.pmremoveall.caption
+msgid "Empty image list"
+msgstr "Prázdný seznam obrázků"
+
+#: tfimagelist.pmremovenonexisting.caption
+msgid "Remove nonexisting images"
+msgstr "Odebrat neexistující obrázky"
+
+#: tfimagelist.pmremoveunchecked.caption
+msgid "Remove unchecked images"
+msgstr "Odstranit nezaškrtnuté soubory"
+
+#: tfimagelist.pmunchecknonexisting.caption
+msgid "Uncheck nonexisting files"
+msgstr "Odškrtnout neexistující soubory"
+
+#: tfimagelist.stringgrid1.columns[0].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[0].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.stringgrid1.columns[1].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[1].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.stringgrid1.columns[2].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[2].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.stringgrid1.columns[3].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[3].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.tbaddfiles.hint
+msgid "Add images to list"
+msgstr "Přidat obrázek do seznamu"
+
+#: tfimagelist.tbautouncheck.hint
+msgid "Enable/disable autounchecking for processed files"
+msgstr "Povolení/zakázaní samo zaškrtnutí pro zpracované soubory"
+
+#: tfimagelist.tbautozoomfit.hint
+msgid "Enable/disable autofitting images in the LazPaint window"
+msgstr "Povolit/zakázat samopřiblížení obrázků v okně LazPaint"
+
+#: tfimagelist.tbcheckall.hint
+msgid "Check all files for processing"
+msgstr "Zaškrtněte všechny soubory ke zpracování"
+
+#: tfimagelist.tbminiwindow.hint
+msgid "Switch to miniwindow"
+msgstr "Přepnout na malé okno"
+
+#: tfimagelist.tbmovedown.hint
+msgid "Move selected items down"
+msgstr "Přesunout vybrané položky dolů"
+
+#: tfimagelist.tbmoveup.hint
+msgid "Move selected items up"
+msgstr "Přesunout vybrané položky nahoru"
+
+#: tfimagelist.tbnormalwindows.hint
+msgid "Switch to normal window"
+msgstr "Přepnout na normální okno"
+
+#: tfimagelist.tbopenimage.hint
+msgid "Open current image"
+msgstr "Otevřít aktuální obrázek"
+
+#: tfimagelist.tbopennext.hint
+msgctxt "tfimagelist.tbopennext.hint"
+msgid "Open next image (Alt-Right)"
+msgstr "Otevřít další soubor (Alt+Right)"
+
+#: tfimagelist.tbopennextsw.hint
+msgctxt "tfimagelist.tbopennextsw.hint"
+msgid "Open next image"
+msgstr "Otevřít další soubor"
+
+#: tfimagelist.tbopenprev.hint
+msgctxt "tfimagelist.tbopenprev.hint"
+msgid "Open previous image (Alt-Left)"
+msgstr "Otevřít předchozí obrázek (Alt-Left)"
+
+#: tfimagelist.tbopenprevsw.hint
+msgctxt "tfimagelist.tbopenprevsw.hint"
+msgid "Open previous image"
+msgstr "Otevřít předchozí obrázek"
+
+#: tfimagelist.tbremoveitem.hint
+msgid "Remove selected images from list"
+msgstr "Odebrat vybrané obrázky ze seznamu"
+
+#: tfimagelist.tbuncheckall.hint
+msgid "Uncheck all files for processing"
+msgstr "Odškrtnout všechny soubory pro zpracování"
 
 #: tflayerstack.caption
 msgctxt "tflayerstack.caption"
@@ -47,6 +593,11 @@ msgstr "Přiblížit sadu vrstev"
 msgctxt "tflayerstack.toolzoomlayerstackout.hint"
 msgid "Zoom layer stack out"
 msgstr "Oddálit sadu vrstev"
+
+#: tfloading.caption
+msgctxt "tfloading.caption"
+msgid "Loading..."
+msgstr "Načítání..."
 
 #: tfmain.brushcreategeometric.hint
 msgctxt "tfmain.brushcreategeometric.hint"
@@ -291,6 +842,10 @@ msgstr "Obnovit"
 
 #: tfmain.fileremembersaveformat.hint
 msgid "Remember save format"
+msgstr ""
+
+#: tfmain.filerunscript.caption
+msgid "Run script..."
 msgstr ""
 
 #: tfmain.filesave.caption
@@ -1484,1379 +2039,6 @@ msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
 msgid "Zoom out"
 msgstr "Oddálit"
 
-#: tftwirl.button_cancel.caption
-msgctxt "TFTWIRL.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tftwirl.button_ok.caption
-msgctxt "TFTWIRL.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tftwirl.caption
-msgctxt "tftwirl.caption"
-msgid "Twirl"
-msgstr "Víření"
-
-#: tftwirl.label_angle.caption
-msgctxt "tftwirl.label_angle.caption"
-msgid "Angle :"
-msgstr "Úhel :"
-
-#: tftwirl.label_radius.caption
-msgctxt "tftwirl.label_radius.caption"
-msgid "Radius :"
-msgstr "Poloměr :"
-
-#: tfwavedisplacement.button_cancel.caption
-msgctxt "tfwavedisplacement.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfwavedisplacement.button_ok.caption
-msgctxt "tfwavedisplacement.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tfwavedisplacement.caption
-msgid "Wave displacement"
-msgstr ""
-
-#: tfwavedisplacement.label_displacement.caption
-msgid "Displacement :"
-msgstr ""
-
-#: tfwavedisplacement.label_phase.caption
-msgid "Phase :"
-msgstr ""
-
-#: tfwavedisplacement.label_wavelength.caption
-msgid "Wavelength :"
-msgstr ""
-
-#: uresourcestrings.rsactioninprogress
-msgid "Action in progress"
-msgstr "Akce v běhu"
-
-#: uresourcestrings.rsaddtoimagelist
-msgid "Add files to the image processing list"
-msgstr "Přidat soubory do seznamu obrázků ke zpracování"
-
-#: uresourcestrings.rsalignshape
-msgid "Align shape"
-msgstr ""
-
-#: uresourcestrings.rsallapplications
-msgid "all"
-msgstr "všechny"
-
-#: uresourcestrings.rsallsupportedfiletypes
-msgid "All supported filetypes"
-msgstr "Všechny podporované formáty souborů"
-
-#: uresourcestrings.rsholdkeysscalemode
-msgid "Hold %1 or %2 to scale"
-msgstr "Držte %1 nebo %2 pro měřítko "
-
-#: uresourcestrings.rsanimatedgif
-msgid "Animated GIF"
-msgstr ""
-
-#: uresourcestrings.rsautodetect
-msgid "Autodetect"
-msgstr ""
-
-#: uresourcestrings.rsbackspaceremovelastpoint
-msgid "Press BACKSPACE to remove last point"
-msgstr "Stiskněte BACKSPACE pro odstranění posledního bodu"
-
-#: uresourcestrings.rsbestquality
-msgid "Best quality"
-msgstr "Nejlepší kvalita"
-
-#: uresourcestrings.rsbitmap
-msgid "Bitmap"
-msgstr ""
-
-#: uresourcestrings.rsblendopnotusedforbackground
-msgid "The blend operation is applied only if there is a layer underneath"
-msgstr "Operace mísení je použita pouze pokud je vespodu vrstva"
-
-#: uresourcestrings.rsblue
-msgid "Blue"
-msgstr ""
-
-#: uresourcestrings.rsbrightness
-msgid "Brightness"
-msgstr "Světlost"
-
-#: uresourcestrings.rsbytes
-msgid "Bytes"
-msgstr ""
-
-#: uresourcestrings.rscancel
-msgctxt "uresourcestrings.rscancel"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: uresourcestrings.rscannotdrawshapeonsvglayer
-msgid "Cannot draw shape on SVG layer"
-msgstr ""
-
-#: uresourcestrings.rscannotopenfile
-msgid "Cannot open file"
-msgstr "Nelze otevřít soubor"
-
-#: uresourcestrings.rscanvassize
-msgctxt "uresourcestrings.rscanvassize"
-msgid "Canvas size"
-msgstr "Velikost plátna"
-
-#: uresourcestrings.rscdrom
-msgid "CD"
-msgstr ""
-
-#: uresourcestrings.rsclearpalette
-msgid "Clear palette"
-msgstr ""
-
-#: uresourcestrings.rscloserequest
-msgid "Close request"
-msgstr "Uzavřit požadavek"
-
-#: uresourcestrings.rscolors
-msgctxt "uresourcestrings.rscolors"
-msgid "Colors"
-msgstr "Barvy"
-
-#: uresourcestrings.rsconfirmdeletefromcontainer
-msgid "Are you sure you want to delete this file from the container?"
-msgstr ""
-
-#: uresourcestrings.rsconfirmdeletemultiplefromcontainer
-msgid "Are you sure you want to delete these %1 files from the container?"
-msgstr ""
-
-#: uresourcestrings.rsconfirmmovemultipletotrash
-msgid "Are you sure you want to move these %1 files to the trash?"
-msgstr ""
-
-#: uresourcestrings.rsconfirmmovetotrash
-msgid "Are you sure you want to move this file to the trash?"
-msgstr ""
-
-#: uresourcestrings.rsconflictingactions
-msgid "Conflicting actions"
-msgstr "Kolidující akce"
-
-#: uresourcestrings.rscontrast
-msgid "Contrast"
-msgstr "Kontrast"
-
-#: uresourcestrings.rscorrectedhueccw
-msgctxt "uresourcestrings.rscorrectedhueccw"
-msgid "Corr. Hue CCW"
-msgstr ""
-
-#: uresourcestrings.rscorrectedhuecw
-msgctxt "uresourcestrings.rscorrectedhuecw"
-msgid "Corr. Hue CW"
-msgstr ""
-
-#: uresourcestrings.rscosine
-msgid "Cosine"
-msgstr "Kosinus"
-
-#: uresourcestrings.rscrop
-msgid "Crop"
-msgstr "Oříznout"
-
-#: uresourcestrings.rsholdkeyrestrictrotation
-msgid "Hold %1 to restrict rotation angle"
-msgstr "Přidržte %1 pro omezení úhlu otočení"
-
-#: uresourcestrings.rscurvemodehint
-msgid "Press S or X to set the curve mode of the last point"
-msgstr "Stiskni S nebo X k nastavení režimu křivky posledního bodu"
-
-#: uresourcestrings.rsdefaultpalette
-msgid "Default palette"
-msgstr ""
-
-#: uresourcestrings.rsdeletefile
-msgctxt "uresourcestrings.rsdeletefile"
-msgid "Delete"
-msgstr "Smazat"
-
-#: uresourcestrings.rsdeleteimageentry
-msgid "Delete selected image entry?"
-msgstr ""
-
-#: uresourcestrings.rsdirectorynotempty
-msgid "Directory is not empty"
-msgstr ""
-
-#: uresourcestrings.rsditherlayerusingpalette
-msgid "Dither layer using palette"
-msgstr ""
-
-#: uresourcestrings.rseditmask
-msgid "Edit mask"
-msgstr "Upravit masku"
-
-#: uresourcestrings.rseditselection
-msgid "Edit selection"
-msgstr "Upravit výběr"
-
-#: uresourcestrings.rsedittexture
-msgid "Edit texture"
-msgstr "Upravit texturu"
-
-#: uresourcestrings.rsemptylayer
-msgid "Layer is empty"
-msgstr "Vrstva je prázdná"
-
-#: uresourcestrings.rsemptyselection
-msgid "Selection is empty"
-msgstr "Výběr je prázdný"
-
-#: uresourcestrings.rsenterfolderorcontainername
-msgid "Enter name for new folder or container (using RES or LRS extension):"
-msgstr ""
-
-#: uresourcestrings.rsenterlayername
-msgid "Enter layer name:"
-msgstr "Zadejte jméno vrstvy:"
-
-#: uresourcestrings.rsentries
-msgid "Entries"
-msgstr ""
-
-#: uresourcestrings.rserror
-msgid "Error"
-msgstr "Chyba"
-
-#: uresourcestrings.rserrorloadingoriginal
-msgid "Error while loading original however layer can be rasterized."
-msgstr ""
-
-#: uresourcestrings.rserroronopeningfile
-msgid "Error on opening file \"%1\""
-msgstr ""
-
-#: uresourcestrings.rsexitrequest
-msgid "Exit request"
-msgstr "Požadavek na odchod"
-
-#: uresourcestrings.rsexpect1parameter
-msgid "expects one parameter : "
-msgstr "očekává jeden parametr : "
-
-#: uresourcestrings.rsexpect2parameters
-msgid "expects two parameters : "
-msgstr "očekává dva parametry : "
-
-#: uresourcestrings.rsexpectnparameters
-msgid "expects N parameters : "
-msgstr "očekává N parametry : "
-
-#: uresourcestrings.rsfast
-msgid "Fast"
-msgstr "Rychle"
-
-#: uresourcestrings.rsfilecannotbeempty
-msgid "File cannot be empty"
-msgstr ""
-
-#: uresourcestrings.rsfiledate
-msgid "Date"
-msgstr ""
-
-#: uresourcestrings.rsfileextensionnotsupported
-msgid "This file extension is not supported."
-msgstr "Nepodporované rozšíření souboru."
-
-#: uresourcestrings.rsfileformatnotrecognized
-msgid "The file format has not been recognized."
-msgstr "Nerozpoznán formát souboru."
-
-#: uresourcestrings.rsfilename
-msgid "Filename"
-msgstr "Jméno souboru"
-
-#: uresourcestrings.rsfilenotfound
-msgid "File not found!"
-msgstr "Soubor nenalezen!"
-
-#: uresourcestrings.rsfilenotsaved
-msgid "File not saved"
-msgstr "Neuložený soubor"
-
-#: uresourcestrings.rsfilesize
-msgid "Size"
-msgstr "Velikost"
-
-#: uresourcestrings.rsfilesystem
-msgid "File system"
-msgstr ""
-
-#: uresourcestrings.rsfiletype
-msgid "Type"
-msgstr "Typ"
-
-#: uresourcestrings.rsfixeddrive
-msgid "Fixed"
-msgstr ""
-
-#: uresourcestrings.rsfolder
-msgid "Folder"
-msgstr "Složka"
-
-#: uresourcestrings.rsfolderorcontaineralreadyexists
-msgid "Folder or container already exists."
-msgstr ""
-
-#: uresourcestrings.rsfollowingerrorsoccured
-msgid "Following errors occured:"
-msgstr ""
-
-#: uresourcestrings.rsframes
-msgid "Frames"
-msgstr ""
-
-#: uresourcestrings.rsfunctionnotdefined
-msgid "The function %1 is not defined."
-msgstr "Funkce %1 není určena."
-
-#: uresourcestrings.rsgreen
-msgid "Green"
-msgstr ""
-
-#: uresourcestrings.rshalfcosine
-msgid "Half-cosine"
-msgstr "Poloviční-kosinus"
-
-#: uresourcestrings.rsholdkeysnaptopixel
-msgid "Hold %1 to snap to pixels"
-msgstr "Přidržte %1 pro přichycení k bodům"
-
-#: uresourcestrings.rsholdkeyforsquare
-msgid "Hold %1 to draw a square or a circle"
-msgstr "Přidržte %1 pro kreslení čtverce nebo kruhu"
-
-#: uresourcestrings.rshotspot
-msgctxt "uresourcestrings.rshotspot"
-msgid "Hot spot"
-msgstr ""
-
-#: uresourcestrings.rshue
-msgctxt "uresourcestrings.rshue"
-msgid "Hue"
-msgstr "Odstín"
-
-#: uresourcestrings.rshueccw
-msgctxt "uresourcestrings.rshueccw"
-msgid "Hue CCW"
-msgstr ""
-
-#: uresourcestrings.rshuecw
-msgctxt "uresourcestrings.rshuecw"
-msgid "Hue CW"
-msgstr ""
-
-#: uresourcestrings.rsiconimagealreadyexists
-msgid "There is already an image with this size and depth."
-msgstr ""
-
-#: uresourcestrings.rsiconorcursor
-msgid "Icon/cursor"
-msgstr ""
-
-#: uresourcestrings.rsiconsize
-msgctxt "uresourcestrings.rsiconsize"
-msgid "Icon size"
-msgstr ""
-
-#: uresourcestrings.rsimagetoobig
-msgid "Image is too big"
-msgstr "Obrázek je příliš velký"
-
-#: uresourcestrings.rsinfinity
-msgctxt "uresourcestrings.rsinfinity"
-msgid "Infinity"
-msgstr ""
-
-#: uresourcestrings.rsinformation
-msgid "Information"
-msgstr "Informace"
-
-#: uresourcestrings.rsintensity
-msgctxt "uresourcestrings.rsintensity"
-msgid "Intensity"
-msgstr "Jas"
-
-#: uresourcestrings.rsinternalerror
-msgid "Internal error"
-msgstr "Vnitřní chyba"
-
-#: uresourcestrings.rsinvalidname
-msgid "Invalid name"
-msgstr ""
-
-#: uresourcestrings.rsinvalidopacity
-msgid "Invalid opacity : "
-msgstr "Neplatná průhlednost :"
-
-#: uresourcestrings.rsinvalidresamplesize
-msgid "Invalid resample size : "
-msgstr "Neplatná velikost převzorkování :"
-
-#: uresourcestrings.rsinvalidsizefornew
-msgid "Invalid size for new : "
-msgstr "Neplatná velikost pro nový :"
-
-#: uresourcestrings.rskeepchanges
-msgid "Do you want to keep changes?"
-msgstr "Chcete ponechat změny?"
-
-#: uresourcestrings.rskeepemptyspace
-msgid "Keep empty space around opaque pixels?"
-msgstr "Nechat volné místo okolo neprůhledných bodů?"
-
-#: uresourcestrings.rslanczos
-msgid "Lanczos %1"
-msgstr "Lanczos %1"
-
-#: uresourcestrings.rslandscape
-msgid "Landscape"
-msgstr "Na šířku"
-
-#: uresourcestrings.rslatestversion
-msgid "The latest version of LazPaint available online is"
-msgstr "Je dostupná poslední online verze LazPaint"
-
-#: uresourcestrings.rslayeredimage
-msgid "Layered image"
-msgstr ""
-
-#: uresourcestrings.rslayers
-msgctxt "uresourcestrings.rslayers"
-msgid "Layers"
-msgstr "Vrstvy"
-
-#: uresourcestrings.rslazpaint
-msgctxt "uresourcestrings.rslazpaint"
-msgid "LazPaint"
-msgstr "LazPaint"
-
-#: uresourcestrings.rslazpaintonly
-msgid "LazPaint only"
-msgstr "Pouze LazPaint"
-
-#: uresourcestrings.rslight
-msgid "Light"
-msgstr "Světlo"
-
-#: uresourcestrings.rslightness
-msgctxt "uresourcestrings.rslightness"
-msgid "Lightness"
-msgstr "Světlost"
-
-#: uresourcestrings.rslightposition
-msgid "Light position"
-msgstr "Pozice světla"
-
-#: uresourcestrings.rslinear
-msgid "Linear"
-msgstr "Lineární"
-
-#: uresourcestrings.rslinearrgb
-msgid "Linear RGB"
-msgstr ""
-
-#: uresourcestrings.rsloadandmergepalette
-msgid "Load and merge palette..."
-msgstr ""
-
-#: uresourcestrings.rsloading
-msgid "Loading"
-msgstr "Načítání"
-
-#: uresourcestrings.rsloadpalette
-msgid "Load palette..."
-msgstr ""
-
-#: uresourcestrings.rsloopcount
-msgid "Loop count"
-msgstr ""
-
-#: uresourcestrings.rsmakencolorspalettefrombitmap
-msgid "Make %1-colors palette from image"
-msgstr ""
-
-#: uresourcestrings.rsmergeselection
-msgid "Do you want to merge selection?"
-msgstr "Chcete sloučit výběr?"
-
-#: uresourcestrings.rsmitchell
-msgid "Mitchell"
-msgstr "Mitchell"
-
-#: uresourcestrings.rsmorethanonefile
-msgid "You are trying to open more than one file. How would you like these files to be opened?"
-msgstr "Snažíte se otevřít více než jeden soubor. Jak chcete tyto soubor otevřít?"
-
-#: uresourcestrings.rsmovingorrotatingselection
-msgid "Moving or rotating selection"
-msgstr "Přesunutí nebo otočení výběru"
-
-#: uresourcestrings.rsmustreleaseselection
-msgid "You must first release the selection"
-msgstr "Musíte nejdříve uvolnit výběr"
-
-#: uresourcestrings.rsmustshowlayer
-msgid "You must first make the layer visible"
-msgstr "Musíte nejdříve vrstvu udělat viditelnou"
-
-#: uresourcestrings.rsnetworkdrive
-msgid "Network"
-msgstr ""
-
-#: uresourcestrings.rsnewimage
-msgctxt "uresourcestrings.rsnewimage"
-msgid "New image"
-msgstr "Nový obrázek"
-
-#: uresourcestrings.rsno
-msgid "No"
-msgstr "Ne"
-
-#: uresourcestrings.rsnoactivelayer
-msgid "No active layer"
-msgstr "Žádná aktivní vrstva"
-
-#: uresourcestrings.rsnoactiveselection
-msgid "There is no active selection"
-msgstr "Žádný aktivní výběr"
-
-#: uresourcestrings.rsnoandproceedtonext
-msgid "Do not save and open another file"
-msgstr "Neukládat a otevírat další soubory"
-
-#: uresourcestrings.rsnoname
-msgid "noname"
-msgstr "bez jména"
-
-#: uresourcestrings.rsnormalblendop
-msgid "Normal"
-msgstr "Běžné"
-
-#: uresourcestrings.rsnothingtobedeformed
-msgid "There is nothing to be deformed"
-msgstr "Nic k pokřivení"
-
-#: uresourcestrings.rsnothingtoberetrieved
-msgid "There is nothing to be retrieved"
-msgstr "Nic k obdržení"
-
-#: uresourcestrings.rsnotreasonableformat
-msgid "It is not reasonable to save such a big image in this file format."
-msgstr "Není rozumně ukládat tak velký obrázek v tomto formátu."
-
-#: uresourcestrings.rsnumber
-msgid "№"
-msgstr "Č."
-
-#: uresourcestrings.rsokay
-msgid "Okay"
-msgstr "Ok"
-
-#: uresourcestrings.rsopacity
-msgid "Opacity"
-msgstr "Průhlednost"
-
-#: uresourcestrings.rsopen
-msgid "Open"
-msgstr "Otevřít"
-
-#: uresourcestrings.rsopenfilesaslayers
-msgid "Open files as layers in a single image"
-msgstr "Otevřít obrázky jako vrstvy v jednom obrázku"
-
-#: uresourcestrings.rsopenfirstfileonly
-msgid "Open the first file only"
-msgstr "Otevřít pouze první soubor"
-
-#: uresourcestrings.rsopening
-msgid "Opening"
-msgstr "Otevírání"
-
-#: uresourcestrings.rsopenmultipleimagefiles
-msgid "Open multiple image files"
-msgstr "Otevřít více obrazových souborů"
-
-#: uresourcestrings.rsotherblendop
-msgid "Other..."
-msgstr "Jiné..."
-
-#: uresourcestrings.rsoverwritefile
-msgid "File already exists. Do you want to overwrite it?"
-msgstr ""
-
-#: uresourcestrings.rspaletteincludesalphachannel
-msgid "Palette includes alpha channel"
-msgstr ""
-
-#: uresourcestrings.rspaletteoptions
-msgid "Palette options"
-msgstr ""
-
-#: uresourcestrings.rspercent
-msgctxt "uresourcestrings.rspercent"
-msgid "%"
-msgstr "%"
-
-#: uresourcestrings.rsportait
-msgid "Portrait"
-msgstr "Na výšku"
-
-#: uresourcestrings.rsposterizelayerusingpalette
-msgid "Posterize layer using palette"
-msgstr ""
-
-#: uresourcestrings.rspresetname
-msgid "Preset name"
-msgstr "Jméno předvolby"
-
-#: uresourcestrings.rspx
-msgid "px"
-msgstr "px"
-
-#: uresourcestrings.rsramdisk
-msgid "RAM disk"
-msgstr ""
-
-#: uresourcestrings.rsrasterlayer
-msgid "Raster layer"
-msgstr ""
-
-#: uresourcestrings.rsrecentdirectories
-msgid "Recent directories:"
-msgstr "Nedávné adresáře:"
-
-#: uresourcestrings.rsred
-msgid "Red"
-msgstr ""
-
-#: uresourcestrings.rsreload
-msgctxt "uresourcestrings.rsreload"
-msgid "Reload"
-msgstr "Obnovit"
-
-#: uresourcestrings.rsreloadchanged
-msgid "Bitmap has been modified. Do you really want to reload?"
-msgstr "Bitová mapa byla upravena. Chcete jí opravdu načíst znovu?"
-
-#: uresourcestrings.rsremovabledrive
-msgid "Removable"
-msgstr ""
-
-#: uresourcestrings.rsrepeatimage
-msgctxt "uresourcestrings.rsrepeatimage"
-msgid "Repeat image"
-msgstr "Opakovat obrázek"
-
-#: uresourcestrings.rsretrieveselectedarea
-msgid "Do you want to retrieve selected area?"
-msgstr "Chcete obdržet vybranou oblast?"
-
-#: uresourcestrings.rsreturnvalides
-msgid "Press ENTER to validate"
-msgstr "Stiskněte ENTER k ověření"
-
-#: uresourcestrings.rsrgb
-msgctxt "uresourcestrings.rsrgb"
-msgid "RGB"
-msgstr "RGB"
-
-#: uresourcestrings.rsrightclickforsource
-msgid "Use RIGHT click to define source"
-msgstr ""
-
-#: uresourcestrings.rssaturation
-msgctxt "uresourcestrings.rssaturation"
-msgid "Saturation"
-msgstr "Barevnost"
-
-#: uresourcestrings.rssave
-msgctxt "uresourcestrings.rssave"
-msgid "Save"
-msgstr "Uložit"
-
-#: uresourcestrings.rssaveasbuttonhint
-msgctxt "uresourcestrings.rssaveasbuttonhint"
-msgid "Save with specified filename"
-msgstr ""
-
-#: uresourcestrings.rssavechanges
-msgid "Current bitmap has been modified. Do you want to save changes?"
-msgstr "Aktuální bitová mapa byla změněna. Chcete uložit změny?"
-
-#: uresourcestrings.rssavepaletteas
-msgid "Save palette as..."
-msgstr ""
-
-#: uresourcestrings.rsscript
-msgid "Script"
-msgstr "Skript"
-
-#: uresourcestrings.rsshowpalette
-msgctxt "uresourcestrings.rsshowpalette"
-msgid "Show palette"
-msgstr ""
-
-#: uresourcestrings.rssourceposition
-msgid "Source position"
-msgstr ""
-
-#: uresourcestrings.rsspline
-msgctxt "uresourcestrings.rsspline"
-msgid "Spline"
-msgstr "Spline"
-
-#: uresourcestrings.rsstoragedevice
-msgid "Device"
-msgstr ""
-
-#: uresourcestrings.rstexturemapping
-msgctxt "uresourcestrings.rstexturemapping"
-msgid "Texture mapping"
-msgstr "Mapování textůr"
-
-#: uresourcestrings.rstherearenocheckeditems
-msgid "There are no checked items. Check some items or add some new ones."
-msgstr "Nejsou žádné zaškrtnuté položky. Zaškrtněte nějaké položky nebo přidejte nové."
-
-#: uresourcestrings.rsthereisnofilenamegivenforthisfileusesaveas
-msgid "There is no file name given for this file. Use \"Save as...\" from the main menu."
-msgstr "Pro tento soubor nezadáno jméno. Použijte \"Uložit jako...\" z hlavní nabídky."
-
-#: uresourcestrings.rstodo
-msgid "To do"
-msgstr "To do"
-
-#: uresourcestrings.rstodoimages
-msgid "Images left: %1"
-msgstr ""
-
-#: uresourcestrings.rstooloninvisiblelayer
-msgid "Tool cannot be used on an invisible layer"
-msgstr ""
-
-#: uresourcestrings.rstoomanylayers
-msgid "Too many layers"
-msgstr ""
-
-#: uresourcestrings.rstoomanyshapesinlayer
-msgid "Too many shapes in layer"
-msgstr ""
-
-#: uresourcestrings.rstotalimages
-msgid "Total images: %1"
-msgstr ""
-
-#: uresourcestrings.rstransferselectiontootherlayer
-msgid "Transfer selection to other layer?"
-msgstr "Přenést výběr do jiné vrstvy?"
-
-#: uresourcestrings.rstransformedrasterlayer
-msgid "Transformed raster layer"
-msgstr ""
-
-#: uresourcestrings.rstransformselectioncontent
-msgid "Do you want to transform content of the selection?"
-msgstr ""
-
-#: uresourcestrings.rsunabletoapplyfilter
-msgid "Unable to apply filter : "
-msgstr "Nelze použít filtr :"
-
-#: uresourcestrings.rsunabletoloadfile
-msgid "Unable to load file : "
-msgstr "Nelze načíst soubor :"
-
-#: uresourcestrings.rsunabletosavefile
-msgid "Unable to save file : "
-msgstr "Nelze uložit soubor :"
-
-#: uresourcestrings.rsunknowncommand
-msgid "Unknown command : "
-msgstr "Neznámý příkaz :"
-
-#: uresourcestrings.rsunknownoriginal
-msgid "Unknown original"
-msgstr ""
-
-#: uresourcestrings.rsvectoriallayer
-msgid "Vectorial layer"
-msgstr ""
-
-#: uresourcestrings.rsyes
-msgid "Yes"
-msgstr "Ano"
-
-#: tablet.getprocfailed
-msgid "Procedure %s failed to load properly."
-msgstr ""
-
-#: tablet.openfailed
-msgid "Tablet context failed to open."
-msgstr ""
-
-#: tfabout.button_donate.caption
-msgctxt "tfabout.button_donate.caption"
-msgid "Donate..."
-msgstr "Přispět..."
-
-#: tfabout.caption
-msgctxt "tfabout.caption"
-msgid "About"
-msgstr "O programu"
-
-#: tfabout.labelurl.caption
-msgid "http://sourceforge.net/projects/lazpaint/"
-msgstr "http://sourceforge.net/projects/lazpaint/"
-
-#: tfabout.label_authors.caption
-msgctxt "tfabout.label_authors.caption"
-msgid "Authors:"
-msgstr "Autoři:"
-
-#: tfabout.label_authorsvalue.caption
-#| msgid "Circular help by FabienWang and Lainz"
-msgctxt "tfabout.label_authorsvalue.caption"
-msgid "Circular helped by FabienWang, Lainz and others"
-msgstr "Circular s pomocí FabienWang, Lainz a dalších"
-
-#: tfabout.label_homepage.caption
-msgctxt "tfabout.label_homepage.caption"
-msgid "Homepage:"
-msgstr "Domovská stránka:"
-
-#: tfabout.label_libraries.caption
-msgctxt "tfabout.label_libraries.caption"
-msgid "Libraries used:"
-msgstr "Použité knihovny:"
-
-#: tfabout.label_licence.caption
-msgctxt "tfabout.label_licence.caption"
-msgid "Licence:"
-msgstr "Licence:"
-
-#: tfabout.label_opensource.caption
-msgctxt "tfabout.label_opensource.caption"
-msgid "Open source (GPLv3)"
-msgstr "Otevřený kód (GPLv3)"
-
-#: tfadjustcurves.button_cancel.caption
-msgctxt "tfadjustcurves.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfadjustcurves.button_ok.caption
-msgctxt "tfadjustcurves.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tfadjustcurves.caption
-msgid "Adjust curves"
-msgstr "Nastavit křivky"
-
-#: tfadjustcurves.toolbutton_newcurve.hint
-msgid "Discard current curve and start a new one"
-msgstr "Zahodit aktuální křivku a začít novou"
-
-#: tfadjustcurves.toolbutton_posterize.hint
-msgctxt "tfadjustcurves.toolbutton_posterize.hint"
-msgid "Posterize"
-msgstr "Posterizace"
-
-#: tfadjustcurves.toolbutton_removepoint.hint
-msgid "Remove selected point (Del)"
-msgstr "Odebrat vybrané body (Del)"
-
-#: tfblendop.button_cancel.caption
-msgctxt "tfblendop.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfblendop.button_ok.caption
-msgctxt "tfblendop.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tfblendop.caption
-msgid "Blend operation"
-msgstr "Operace míchání"
-
-#: tfblendop.label_blendopcategory.caption
-msgctxt "tfblendop.label_blendopcategory.caption"
-msgid "Category of blend operation"
-msgstr "Kategorie operace mísení"
-
-#: tfblendop.label_blendopvalue.caption
-msgctxt "tfblendop.label_blendopvalue.caption"
-msgid "."
-msgstr "."
-
-#: tfblendop.label_kritaover.caption
-msgctxt "tfblendop.label_kritaover.caption"
-msgid "Krita"
-msgstr "Krita"
-
-#: tfblendop.label_kritaover.hint
-msgid "Blend operations that are available in Krita"
-msgstr "Operace mísení jsou dostupné v Krita"
-
-#: tfblendop.label_otherover.caption
-msgctxt "tfblendop.label_otherover.caption"
-msgid "Other"
-msgstr "Jiné"
-
-#: tfblendop.label_otherover.hint
-msgid "Blend operations of LazPaint and Paint.NET"
-msgstr "Operace mísení LazPaint a Paint.NET"
-
-#: tfblendop.label_patternover.caption
-msgctxt "tfblendop.label_patternover.caption"
-msgid "Pattern over"
-msgstr "Vzor přes"
-
-#: tfblendop.label_patternover.hint
-msgid "Preview blend operation with the specified image on top"
-msgstr "Náhled operace mísení se zadaným obrázkem nahoře"
-
-#: tfblendop.label_patternunder.caption
-msgctxt "tfblendop.label_patternunder.caption"
-msgid "Pattern under"
-msgstr "Vzor pod"
-
-#: tfblendop.label_patternunder.hint
-msgid "Preview blend operation with the specified image underneath"
-msgstr "Náhled operace mísení se zadaným obrázkem pod"
-
-#: tfblendop.label_previewwith.caption
-msgctxt "tfblendop.label_previewwith.caption"
-msgid "Preview with"
-msgstr "Náhled s"
-
-#: tfblendop.label_selectedblendop.caption
-msgid "Selected blend operation :"
-msgstr "Vybraná operace míchání :"
-
-#: tfblendop.label_svgover.caption
-msgctxt "tfblendop.label_svgover.caption"
-msgid "Basic SVG"
-msgstr "Základní SVG"
-
-#: tfblendop.label_svgover.hint
-msgid "Basic blend operations that are available in virtually all image editors"
-msgstr "Základní operace mísení, který je dostupná prakticky ve všech editorech obrázků"
-
-#: tfbrowseimages.caption
-msgid "Browse images"
-msgstr "Procházet obrázky"
-
-#: tfbrowseimages.checkbox_usedirectoryonstartup.caption
-msgid "Use this directory on startup"
-msgstr ""
-
-#: tfbrowseimages.label_status.caption
-msgctxt "tfbrowseimages.label_status.caption"
-msgid "."
-msgstr "."
-
-#: tfbrowseimages.toolbutton_createfolderorcontainer.hint
-msgid "Create folder or container"
-msgstr ""
-
-#: tfbrowseimages.toolbutton_goup.hint
-msgid "Go one directory up"
-msgstr "Jít o adresář výše"
-
-#: tfbrowseimages.toolbutton_openselectedfiles.hint
-msgid "Open selected files"
-msgstr ""
-
-#: tfbrowseimages.toolbutton_viewbigicon.hint
-msgctxt "tfbrowseimages.toolbutton_viewbigicon.hint"
-msgid "Show big icons"
-msgstr "Ukázat velké ikony"
-
-#: tfbrowseimages.toolbutton_viewdetails.hint
-msgctxt "tfbrowseimages.toolbutton_viewdetails.hint"
-msgid "Show details and preview"
-msgstr "Ukázat podrobnosti a náhled"
-
-#: tfbrowseimages.tool_selectdrive.hint
-msgid "Select drive"
-msgstr ""
-
-#: tfcanvassize.button_cancel.caption
-msgctxt "TFCANVASSIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfcanvassize.button_ok.caption
-msgctxt "TFCANVASSIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tfcanvassize.caption
-msgctxt "tfcanvassize.caption"
-msgid "Canvas size"
-msgstr "Velikost plátna"
-
-#: tfcanvassize.checkbox_flipmode.caption
-msgid "Flip mode"
-msgstr "Převrácený režim"
-
-#: tfcanvassize.label_anchor.caption
-msgctxt "tfcanvassize.label_anchor.caption"
-msgid "Anchor :"
-msgstr "Kotva :"
-
-#: tfcanvassize.label_height.caption
-msgctxt "tfcanvassize.label_height.caption"
-msgid "Height :"
-msgstr "Výška :"
-
-#: tfcanvassize.label_width.caption
-msgctxt "tfcanvassize.label_width.caption"
-msgid "Width :"
-msgstr "Šířka :"
-
-#: tfcolorintensity.button_cancel.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfcolorintensity.button_ok.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tfcolorintensity.caption
-msgctxt "tfcolorintensity.caption"
-msgid "Intensity"
-msgstr "Jas"
-
-#: tfcolorintensity.label_multiply.caption
-msgctxt "tfcolorintensity.label_multiply.caption"
-msgid "Multiply"
-msgstr "Násobek"
-
-#: tfcolorintensity.label_shift.caption
-msgctxt "tfcolorintensity.label_shift.caption"
-msgid "Shift"
-msgstr "Posun"
-
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tfcolorize.caption
-msgctxt "tfcolorize.caption"
-msgid "Colorize"
-msgstr "Obarvení"
-
-#: tfcolorize.checkbox_gsba.caption
-msgctxt "tfcolorize.checkbox_gsba.caption"
-msgid "Corrected hue and lightness"
-msgstr "Opravený odstín a světlost"
-
-#: tfcolorize.label_colorness.caption
-msgctxt "tfcolorize.label_colorness.caption"
-msgid "Colorness"
-msgstr "Barevný"
-
-#: tfcolorize.label_hue.caption
-msgctxt "tfcolorize.label_hue.caption"
-msgid "Hue"
-msgstr "Odstín"
-
-#: tfcolorize.label_preset.caption
-msgid "Preset"
-msgstr "Předvolba"
-
-#: tfcustomblur.button_cancel.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfcustomblur.button_editmask.caption
-msgid "Edit mask..."
-msgstr "Upravit masku..."
-
-#: tfcustomblur.button_loadmask.caption
-msgid "Load mask..."
-msgstr "Načíst masku..."
-
-#: tfcustomblur.button_ok.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tfcustomblur.caption
-msgctxt "tfcustomblur.caption"
-msgid "Custom blur"
-msgstr "Vlastní rozostření"
-
-#: tfcustomblur.openpicturedialog1.title
-msgid "Open grayscale file"
-msgstr "Otevřít černobílý obrázek"
-
-#: tfemboss.button_cancel.caption
-msgctxt "TFEMBOSS.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfemboss.button_ok.caption
-msgctxt "TFEMBOSS.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tfemboss.caption
-msgctxt "tfemboss.caption"
-msgid "Emboss"
-msgstr "Vytlačit"
-
-#: tfemboss.checkbox_preservecolors.caption
-msgid "Preserve colors"
-msgstr ""
-
-#: tfemboss.checkbox_transparent.caption
-msgid "Transparent"
-msgstr ""
-
-#: tfemboss.label_direction.caption
-msgctxt "tfemboss.label_direction.caption"
-msgid "Direction :"
-msgstr "Směr :"
-
-#: tffilterfunction.button_cancel.caption
-msgctxt "tffilterfunction.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tffilterfunction.button_ok.caption
-msgctxt "tffilterfunction.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tffilterfunction.caption
-msgid "Apply function"
-msgstr "Použít funkci"
-
-#: tffilterfunction.checkbox_gsba.caption
-msgctxt "tffilterfunction.checkbox_gsba.caption"
-msgid "Corrected hue and lightness"
-msgstr "Opravný odstín a světlost"
-
-#: tffilterfunction.label_alphaequals.caption
-msgctxt "tffilterfunction.label_alphaequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_blueequals.caption
-msgctxt "tffilterfunction.label_blueequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_greenequals.caption
-msgctxt "tffilterfunction.label_greenequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_hueequals.caption
-msgctxt "tffilterfunction.label_hueequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_lightnessequals.caption
-msgctxt "tffilterfunction.label_lightnessequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_redequals.caption
-msgctxt "tffilterfunction.label_redequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_saturationequals.caption
-msgctxt "tffilterfunction.label_saturationequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_variables.caption
-msgid "Variables :"
-msgstr "Proměnné :"
-
-#: tffilterfunction.tabsheet_hsl.caption
-msgid "HSL"
-msgstr "HSL"
-
-#: tffilterfunction.tabsheet_rgb.caption
-msgctxt "tffilterfunction.tabsheet_rgb.caption"
-msgid "RGB"
-msgstr "RGB"
-
-#: tfgeometricbrush.button_cancel.caption
-msgctxt "tfgeometricbrush.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfgeometricbrush.button_ok.caption
-msgctxt "tfgeometricbrush.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tfgeometricbrush.caption
-msgid "Geometric brush"
-msgstr ""
-
-#: tfgeometricbrush.checkbox_isgradient.caption
-msgid "Opacity gradient"
-msgstr ""
-
-#: tfgeometricbrush.label1.caption
-msgid "Number of sides:"
-msgstr ""
-
-#: tfimagelist.caption
-msgid "Image List"
-msgstr "Seznam obrázků"
-
-#: tfimagelist.pmautouncheckonopen.caption
-msgid "Autouncheck files after being open"
-msgstr "Samo odškrtnutí souborů po otevření"
-
-#: tfimagelist.pmautouncheckonsave.caption
-msgid "Autouncheck files after being edited and saved"
-msgstr "Samo odškrtnutí souborů po úpravě a uložení"
-
-#: tfimagelist.pmremoveall.caption
-msgid "Empty image list"
-msgstr "Prázdný seznam obrázků"
-
-#: tfimagelist.pmremovenonexisting.caption
-msgid "Remove nonexisting images"
-msgstr "Odebrat neexistující obrázky"
-
-#: tfimagelist.pmremoveunchecked.caption
-msgid "Remove unchecked images"
-msgstr "Odstranit nezaškrtnuté soubory"
-
-#: tfimagelist.pmunchecknonexisting.caption
-msgid "Uncheck nonexisting files"
-msgstr "Odškrtnout neexistující soubory"
-
-#: tfimagelist.stringgrid1.columns[0].title.caption
-msgctxt "tfimagelist.stringgrid1.columns[0].title.caption"
-msgid "-"
-msgstr "-"
-
-#: tfimagelist.stringgrid1.columns[1].title.caption
-msgctxt "tfimagelist.stringgrid1.columns[1].title.caption"
-msgid "-"
-msgstr "-"
-
-#: tfimagelist.stringgrid1.columns[2].title.caption
-msgctxt "tfimagelist.stringgrid1.columns[2].title.caption"
-msgid "-"
-msgstr "-"
-
-#: tfimagelist.stringgrid1.columns[3].title.caption
-msgctxt "tfimagelist.stringgrid1.columns[3].title.caption"
-msgid "-"
-msgstr "-"
-
-#: tfimagelist.tbaddfiles.hint
-msgid "Add images to list"
-msgstr "Přidat obrázek do seznamu"
-
-#: tfimagelist.tbautouncheck.hint
-msgid "Enable/disable autounchecking for processed files"
-msgstr "Povolení/zakázaní samo zaškrtnutí pro zpracované soubory"
-
-#: tfimagelist.tbautozoomfit.hint
-msgid "Enable/disable autofitting images in the LazPaint window"
-msgstr "Povolit/zakázat samopřiblížení obrázků v okně LazPaint"
-
-#: tfimagelist.tbcheckall.hint
-msgid "Check all files for processing"
-msgstr "Zaškrtněte všechny soubory ke zpracování"
-
-#: tfimagelist.tbminiwindow.hint
-msgid "Switch to miniwindow"
-msgstr "Přepnout na malé okno"
-
-#: tfimagelist.tbmovedown.hint
-msgid "Move selected items down"
-msgstr "Přesunout vybrané položky dolů"
-
-#: tfimagelist.tbmoveup.hint
-msgid "Move selected items up"
-msgstr "Přesunout vybrané položky nahoru"
-
-#: tfimagelist.tbnormalwindows.hint
-msgid "Switch to normal window"
-msgstr "Přepnout na normální okno"
-
-#: tfimagelist.tbopenimage.hint
-msgid "Open current image"
-msgstr "Otevřít aktuální obrázek"
-
-#: tfimagelist.tbopennext.hint
-msgctxt "tfimagelist.tbopennext.hint"
-msgid "Open next image (Alt-Right)"
-msgstr "Otevřít další soubor (Alt+Right)"
-
-#: tfimagelist.tbopennextsw.hint
-msgctxt "tfimagelist.tbopennextsw.hint"
-msgid "Open next image"
-msgstr "Otevřít další soubor"
-
-#: tfimagelist.tbopenprev.hint
-msgctxt "tfimagelist.tbopenprev.hint"
-msgid "Open previous image (Alt-Left)"
-msgstr "Otevřít předchozí obrázek (Alt-Left)"
-
-#: tfimagelist.tbopenprevsw.hint
-msgctxt "tfimagelist.tbopenprevsw.hint"
-msgid "Open previous image"
-msgstr "Otevřít předchozí obrázek"
-
-#: tfimagelist.tbremoveitem.hint
-msgid "Remove selected images from list"
-msgstr "Odebrat vybrané obrázky ze seznamu"
-
-#: tfimagelist.tbuncheckall.hint
-msgid "Uncheck all files for processing"
-msgstr "Odškrtnout všechny soubory pro zpracování"
-
-#: tfloading.caption
-msgctxt "tfloading.caption"
-msgid "Loading..."
-msgstr "Načítání..."
-
 #: tfmotionblur.button_cancel.caption
 msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -3501,4 +2683,870 @@ msgstr "Barevnost"
 msgctxt "tftoolbox.caption"
 msgid "Tools"
 msgstr "Nástroje"
+
+#: tftwirl.button_cancel.caption
+msgctxt "TFTWIRL.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tftwirl.button_ok.caption
+msgctxt "TFTWIRL.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tftwirl.caption
+msgctxt "tftwirl.caption"
+msgid "Twirl"
+msgstr "Víření"
+
+#: tftwirl.label_angle.caption
+msgctxt "tftwirl.label_angle.caption"
+msgid "Angle :"
+msgstr "Úhel :"
+
+#: tftwirl.label_radius.caption
+msgctxt "tftwirl.label_radius.caption"
+msgid "Radius :"
+msgstr "Poloměr :"
+
+#: tfwavedisplacement.button_cancel.caption
+msgctxt "tfwavedisplacement.button_cancel.caption"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: tfwavedisplacement.button_ok.caption
+msgctxt "tfwavedisplacement.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfwavedisplacement.caption
+msgid "Wave displacement"
+msgstr ""
+
+#: tfwavedisplacement.label_displacement.caption
+msgid "Displacement :"
+msgstr ""
+
+#: tfwavedisplacement.label_phase.caption
+msgid "Phase :"
+msgstr ""
+
+#: tfwavedisplacement.label_wavelength.caption
+msgid "Wavelength :"
+msgstr ""
+
+#: uresourcestrings.rsactioninprogress
+msgid "Action in progress"
+msgstr "Akce v běhu"
+
+#: uresourcestrings.rsaddtoimagelist
+msgid "Add files to the image processing list"
+msgstr "Přidat soubory do seznamu obrázků ke zpracování"
+
+#: uresourcestrings.rsalignshape
+msgid "Align shape"
+msgstr ""
+
+#: uresourcestrings.rsallapplications
+msgid "all"
+msgstr "všechny"
+
+#: uresourcestrings.rsallsupportedfiletypes
+msgid "All supported filetypes"
+msgstr "Všechny podporované formáty souborů"
+
+#: uresourcestrings.rsalt
+msgid "ALT"
+msgstr ""
+
+#: uresourcestrings.rsanimatedgif
+msgid "Animated GIF"
+msgstr ""
+
+#: uresourcestrings.rsautodetect
+msgid "Autodetect"
+msgstr ""
+
+#: uresourcestrings.rsbackspaceremovelastpoint
+msgid "Press BACKSPACE to remove last point"
+msgstr "Stiskněte BACKSPACE pro odstranění posledního bodu"
+
+#: uresourcestrings.rsbestquality
+msgid "Best quality"
+msgstr "Nejlepší kvalita"
+
+#: uresourcestrings.rsbitmap
+msgid "Bitmap"
+msgstr ""
+
+#: uresourcestrings.rsblendopnotusedforbackground
+msgid "The blend operation is applied only if there is a layer underneath"
+msgstr "Operace mísení je použita pouze pokud je vespodu vrstva"
+
+#: uresourcestrings.rsblue
+msgid "Blue"
+msgstr ""
+
+#: uresourcestrings.rsbrightness
+msgid "Brightness"
+msgstr "Světlost"
+
+#: uresourcestrings.rsbytes
+msgid "Bytes"
+msgstr ""
+
+#: uresourcestrings.rscancel
+msgctxt "uresourcestrings.rscancel"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: uresourcestrings.rscancelledbyuser
+msgid "Cancelled by user"
+msgstr ""
+
+#: uresourcestrings.rscannotdrawshapeonsvglayer
+msgid "Cannot draw shape on SVG layer"
+msgstr ""
+
+#: uresourcestrings.rscannotopenfile
+msgid "Cannot open file"
+msgstr "Nelze otevřít soubor"
+
+#: uresourcestrings.rscanvassize
+msgctxt "uresourcestrings.rscanvassize"
+msgid "Canvas size"
+msgstr "Velikost plátna"
+
+#: uresourcestrings.rscdrom
+msgid "CD"
+msgstr ""
+
+#: uresourcestrings.rsclearpalette
+msgid "Clear palette"
+msgstr ""
+
+#: uresourcestrings.rscloserequest
+msgid "Close request"
+msgstr "Uzavřit požadavek"
+
+#: uresourcestrings.rscmd
+msgid "CMD"
+msgstr ""
+
+#: uresourcestrings.rscolors
+msgctxt "uresourcestrings.rscolors"
+msgid "Colors"
+msgstr "Barvy"
+
+#: uresourcestrings.rsconfirmdeletefromcontainer
+msgid "Are you sure you want to delete this file from the container?"
+msgstr ""
+
+#: uresourcestrings.rsconfirmdeletemultiplefromcontainer
+msgid "Are you sure you want to delete these %1 files from the container?"
+msgstr ""
+
+#: uresourcestrings.rsconfirmmovemultipletotrash
+msgid "Are you sure you want to move these %1 files to the trash?"
+msgstr ""
+
+#: uresourcestrings.rsconfirmmovetotrash
+msgid "Are you sure you want to move this file to the trash?"
+msgstr ""
+
+#: uresourcestrings.rsconflictingactions
+msgid "Conflicting actions"
+msgstr "Kolidující akce"
+
+#: uresourcestrings.rscontrast
+msgid "Contrast"
+msgstr "Kontrast"
+
+#: uresourcestrings.rscorrectedhueccw
+msgctxt "uresourcestrings.rscorrectedhueccw"
+msgid "Corr. Hue CCW"
+msgstr ""
+
+#: uresourcestrings.rscorrectedhuecw
+msgctxt "uresourcestrings.rscorrectedhuecw"
+msgid "Corr. Hue CW"
+msgstr ""
+
+#: uresourcestrings.rscosine
+msgid "Cosine"
+msgstr "Kosinus"
+
+#: uresourcestrings.rscrop
+msgid "Crop"
+msgstr "Oříznout"
+
+#: uresourcestrings.rsctrl
+msgid "CTRL"
+msgstr ""
+
+#: uresourcestrings.rscurvemodehint
+msgid "Press S or X to set the curve mode of the last point"
+msgstr "Stiskni S nebo X k nastavení režimu křivky posledního bodu"
+
+#: uresourcestrings.rsdefaultpalette
+msgid "Default palette"
+msgstr ""
+
+#: uresourcestrings.rsdeletefile
+msgctxt "uresourcestrings.rsdeletefile"
+msgid "Delete"
+msgstr "Smazat"
+
+#: uresourcestrings.rsdeleteimageentry
+msgid "Delete selected image entry?"
+msgstr ""
+
+#: uresourcestrings.rsdirectorynotempty
+msgid "Directory is not empty"
+msgstr ""
+
+#: uresourcestrings.rsditherlayerusingpalette
+msgid "Dither layer using palette"
+msgstr ""
+
+#: uresourcestrings.rsduplicateimage
+msgid "Duplicate image"
+msgstr ""
+
+#: uresourcestrings.rseditmask
+msgid "Edit mask"
+msgstr "Upravit masku"
+
+#: uresourcestrings.rseditselection
+msgid "Edit selection"
+msgstr "Upravit výběr"
+
+#: uresourcestrings.rsedittexture
+msgid "Edit texture"
+msgstr "Upravit texturu"
+
+#: uresourcestrings.rsemptylayer
+msgid "Layer is empty"
+msgstr "Vrstva je prázdná"
+
+#: uresourcestrings.rsemptyselection
+msgid "Selection is empty"
+msgstr "Výběr je prázdný"
+
+#: uresourcestrings.rsenterfolderorcontainername
+msgid "Enter name for new folder or container (using RES or LRS extension):"
+msgstr ""
+
+#: uresourcestrings.rsenterlayername
+msgid "Enter layer name:"
+msgstr "Zadejte jméno vrstvy:"
+
+#: uresourcestrings.rsentries
+msgid "Entries"
+msgstr ""
+
+#: uresourcestrings.rserror
+msgid "Error"
+msgstr "Chyba"
+
+#: uresourcestrings.rserrordecodingraw
+msgid "Error decoding raw image."
+msgstr ""
+
+#: uresourcestrings.rserrorloadingoriginal
+msgid "Error while loading original however layer can be rasterized."
+msgstr ""
+
+#: uresourcestrings.rserroronopeningfile
+msgid "Error on opening file \"%1\""
+msgstr ""
+
+#: uresourcestrings.rsexception
+msgid "An exception was encountered"
+msgstr ""
+
+#: uresourcestrings.rsexitrequest
+msgid "Exit request"
+msgstr "Požadavek na odchod"
+
+#: uresourcestrings.rsexpect1parameter
+msgid "expects one parameter : "
+msgstr "očekává jeden parametr : "
+
+#: uresourcestrings.rsexpect2parameters
+msgid "expects two parameters : "
+msgstr "očekává dva parametry : "
+
+#: uresourcestrings.rsexpectnparameters
+msgid "expects N parameters : "
+msgstr "očekává N parametry : "
+
+#: uresourcestrings.rsfast
+msgid "Fast"
+msgstr "Rychle"
+
+#: uresourcestrings.rsfilecannotbeempty
+msgid "File cannot be empty"
+msgstr ""
+
+#: uresourcestrings.rsfiledate
+msgid "Date"
+msgstr ""
+
+#: uresourcestrings.rsfileextensionnotsupported
+msgid "This file extension is not supported."
+msgstr "Nepodporované rozšíření souboru."
+
+#: uresourcestrings.rsfileformatnotrecognized
+msgid "The file format has not been recognized."
+msgstr "Nerozpoznán formát souboru."
+
+#: uresourcestrings.rsfilename
+msgid "Filename"
+msgstr "Jméno souboru"
+
+#: uresourcestrings.rsfilenotfound
+msgid "File not found!"
+msgstr "Soubor nenalezen!"
+
+#: uresourcestrings.rsfilenotsaved
+msgid "File not saved"
+msgstr "Neuložený soubor"
+
+#: uresourcestrings.rsfilesize
+msgid "Size"
+msgstr "Velikost"
+
+#: uresourcestrings.rsfilesystem
+msgid "File system"
+msgstr ""
+
+#: uresourcestrings.rsfiletype
+msgid "Type"
+msgstr "Typ"
+
+#: uresourcestrings.rsfixeddrive
+msgid "Fixed"
+msgstr ""
+
+#: uresourcestrings.rsfolder
+msgid "Folder"
+msgstr "Složka"
+
+#: uresourcestrings.rsfolderorcontaineralreadyexists
+msgid "Folder or container already exists."
+msgstr ""
+
+#: uresourcestrings.rsfollowingerrorsoccured
+msgid "Following errors occured:"
+msgstr ""
+
+#: uresourcestrings.rsframes
+msgid "Frames"
+msgstr ""
+
+#: uresourcestrings.rsfunctionnotdefined
+msgid "The function %1 is not defined."
+msgstr "Funkce %1 není určena."
+
+#: uresourcestrings.rsgreen
+msgid "Green"
+msgstr ""
+
+#: uresourcestrings.rshalfcosine
+msgid "Half-cosine"
+msgstr "Poloviční-kosinus"
+
+#: uresourcestrings.rsholdkeyforsquare
+msgid "Hold %1 to draw a square or a circle"
+msgstr "Přidržte %1 pro kreslení čtverce nebo kruhu"
+
+#: uresourcestrings.rsholdkeyrestrictrotation
+msgid "Hold %1 to restrict rotation angle"
+msgstr "Přidržte %1 pro omezení úhlu otočení"
+
+#: uresourcestrings.rsholdkeysnaptopixel
+msgid "Hold %1 to snap to pixels"
+msgstr "Přidržte %1 pro přichycení k bodům"
+
+#: uresourcestrings.rsholdkeysscalemode
+msgid "Hold %1 or %2 to scale"
+msgstr "Držte %1 nebo %2 pro měřítko "
+
+#: uresourcestrings.rshotspot
+msgctxt "uresourcestrings.rshotspot"
+msgid "Hot spot"
+msgstr ""
+
+#: uresourcestrings.rshue
+msgctxt "uresourcestrings.rshue"
+msgid "Hue"
+msgstr "Odstín"
+
+#: uresourcestrings.rshueccw
+msgctxt "uresourcestrings.rshueccw"
+msgid "Hue CCW"
+msgstr ""
+
+#: uresourcestrings.rshuecw
+msgctxt "uresourcestrings.rshuecw"
+msgid "Hue CW"
+msgstr ""
+
+#: uresourcestrings.rsiconimagealreadyexists
+msgid "There is already an image with this size and depth."
+msgstr ""
+
+#: uresourcestrings.rsiconorcursor
+msgid "Icon/cursor"
+msgstr ""
+
+#: uresourcestrings.rsiconsize
+msgctxt "uresourcestrings.rsiconsize"
+msgid "Icon size"
+msgstr ""
+
+#: uresourcestrings.rsimagetoobig
+msgid "Image is too big"
+msgstr "Obrázek je příliš velký"
+
+#: uresourcestrings.rsinfinity
+msgctxt "uresourcestrings.rsinfinity"
+msgid "Infinity"
+msgstr ""
+
+#: uresourcestrings.rsinformation
+msgid "Information"
+msgstr "Informace"
+
+#: uresourcestrings.rsintensity
+msgctxt "uresourcestrings.rsintensity"
+msgid "Intensity"
+msgstr "Jas"
+
+#: uresourcestrings.rsinternalerror
+msgid "Internal error"
+msgstr "Vnitřní chyba"
+
+#: uresourcestrings.rsinvalidname
+msgid "Invalid name"
+msgstr ""
+
+#: uresourcestrings.rsinvalidopacity
+msgid "Invalid opacity : "
+msgstr "Neplatná průhlednost :"
+
+#: uresourcestrings.rsinvalidparameters
+msgid "Invalid parameters"
+msgstr ""
+
+#: uresourcestrings.rsinvalidresamplesize
+msgid "Invalid resample size : "
+msgstr "Neplatná velikost převzorkování :"
+
+#: uresourcestrings.rsinvalidsizefornew
+msgid "Invalid size for new : "
+msgstr "Neplatná velikost pro nový :"
+
+#: uresourcestrings.rskeepchanges
+msgid "Do you want to keep changes?"
+msgstr "Chcete ponechat změny?"
+
+#: uresourcestrings.rskeepemptyspace
+msgid "Keep empty space around opaque pixels?"
+msgstr "Nechat volné místo okolo neprůhledných bodů?"
+
+#: uresourcestrings.rslanczos
+msgid "Lanczos %1"
+msgstr "Lanczos %1"
+
+#: uresourcestrings.rslandscape
+msgid "Landscape"
+msgstr "Na šířku"
+
+#: uresourcestrings.rslatestversion
+msgid "The latest version of LazPaint available online is"
+msgstr "Je dostupná poslední online verze LazPaint"
+
+#: uresourcestrings.rslayeredimage
+msgid "Layered image"
+msgstr ""
+
+#: uresourcestrings.rslayers
+msgctxt "uresourcestrings.rslayers"
+msgid "Layers"
+msgstr "Vrstvy"
+
+#: uresourcestrings.rslazpaint
+msgctxt "uresourcestrings.rslazpaint"
+msgid "LazPaint"
+msgstr "LazPaint"
+
+#: uresourcestrings.rslazpaintonly
+msgid "LazPaint only"
+msgstr "Pouze LazPaint"
+
+#: uresourcestrings.rslight
+msgid "Light"
+msgstr "Světlo"
+
+#: uresourcestrings.rslightness
+msgctxt "uresourcestrings.rslightness"
+msgid "Lightness"
+msgstr "Světlost"
+
+#: uresourcestrings.rslightposition
+msgid "Light position"
+msgstr "Pozice světla"
+
+#: uresourcestrings.rslinear
+msgid "Linear"
+msgstr "Lineární"
+
+#: uresourcestrings.rslinearrgb
+msgid "Linear RGB"
+msgstr ""
+
+#: uresourcestrings.rsloadandmergepalette
+msgid "Load and merge palette..."
+msgstr ""
+
+#: uresourcestrings.rsloading
+msgid "Loading"
+msgstr "Načítání"
+
+#: uresourcestrings.rsloadpalette
+msgid "Load palette..."
+msgstr ""
+
+#: uresourcestrings.rsloopcount
+msgid "Loop count"
+msgstr ""
+
+#: uresourcestrings.rsmakencolorspalettefrombitmap
+msgid "Make %1-colors palette from image"
+msgstr ""
+
+#: uresourcestrings.rsmergeselection
+msgid "Do you want to merge selection?"
+msgstr "Chcete sloučit výběr?"
+
+#: uresourcestrings.rsmitchell
+msgid "Mitchell"
+msgstr "Mitchell"
+
+#: uresourcestrings.rsmorethanonefile
+msgid "You are trying to open more than one file. How would you like these files to be opened?"
+msgstr "Snažíte se otevřít více než jeden soubor. Jak chcete tyto soubor otevřít?"
+
+#: uresourcestrings.rsmovingorrotatingselection
+msgid "Moving or rotating selection"
+msgstr "Přesunutí nebo otočení výběru"
+
+#: uresourcestrings.rsmustreleaseselection
+msgid "You must first release the selection"
+msgstr "Musíte nejdříve uvolnit výběr"
+
+#: uresourcestrings.rsmustshowlayer
+msgid "You must first make the layer visible"
+msgstr "Musíte nejdříve vrstvu udělat viditelnou"
+
+#: uresourcestrings.rsnetworkdrive
+msgid "Network"
+msgstr ""
+
+#: uresourcestrings.rsnewimage
+msgctxt "uresourcestrings.rsnewimage"
+msgid "New image"
+msgstr "Nový obrázek"
+
+#: uresourcestrings.rsno
+msgid "No"
+msgstr "Ne"
+
+#: uresourcestrings.rsnoactivelayer
+msgid "No active layer"
+msgstr "Žádná aktivní vrstva"
+
+#: uresourcestrings.rsnoactiveselection
+msgid "There is no active selection"
+msgstr "Žádný aktivní výběr"
+
+#: uresourcestrings.rsnoandproceedtonext
+msgid "Do not save and open another file"
+msgstr "Neukládat a otevírat další soubory"
+
+#: uresourcestrings.rsnoname
+msgid "noname"
+msgstr "bez jména"
+
+#: uresourcestrings.rsnormalblendop
+msgid "Normal"
+msgstr "Běžné"
+
+#: uresourcestrings.rsnothingtobedeformed
+msgid "There is nothing to be deformed"
+msgstr "Nic k pokřivení"
+
+#: uresourcestrings.rsnothingtoberetrieved
+msgid "There is nothing to be retrieved"
+msgstr "Nic k obdržení"
+
+#: uresourcestrings.rsnotreasonableformat
+msgid "It is not reasonable to save such a big image in this file format."
+msgstr "Není rozumně ukládat tak velký obrázek v tomto formátu."
+
+#: uresourcestrings.rsnumber
+msgid "№"
+msgstr "Č."
+
+#: uresourcestrings.rsokay
+msgid "Okay"
+msgstr "Ok"
+
+#: uresourcestrings.rsopacity
+msgid "Opacity"
+msgstr "Průhlednost"
+
+#: uresourcestrings.rsopen
+msgid "Open"
+msgstr "Otevřít"
+
+#: uresourcestrings.rsopenfilesaslayers
+msgid "Open files as layers in a single image"
+msgstr "Otevřít obrázky jako vrstvy v jednom obrázku"
+
+#: uresourcestrings.rsopenfirstfileonly
+msgid "Open the first file only"
+msgstr "Otevřít pouze první soubor"
+
+#: uresourcestrings.rsopening
+msgid "Opening"
+msgstr "Otevírání"
+
+#: uresourcestrings.rsopenmultipleimagefiles
+msgid "Open multiple image files"
+msgstr "Otevřít více obrazových souborů"
+
+#: uresourcestrings.rsotherblendop
+msgid "Other..."
+msgstr "Jiné..."
+
+#: uresourcestrings.rsoverwritefile
+msgid "File already exists. Do you want to overwrite it?"
+msgstr ""
+
+#: uresourcestrings.rspaletteincludesalphachannel
+msgid "Palette includes alpha channel"
+msgstr ""
+
+#: uresourcestrings.rspaletteoptions
+msgid "Palette options"
+msgstr ""
+
+#: uresourcestrings.rspercent
+msgctxt "uresourcestrings.rspercent"
+msgid "%"
+msgstr "%"
+
+#: uresourcestrings.rsportait
+msgid "Portrait"
+msgstr "Na výšku"
+
+#: uresourcestrings.rsposterizelayerusingpalette
+msgid "Posterize layer using palette"
+msgstr ""
+
+#: uresourcestrings.rspresetname
+msgid "Preset name"
+msgstr "Jméno předvolby"
+
+#: uresourcestrings.rspx
+msgid "px"
+msgstr "px"
+
+#: uresourcestrings.rspythonunexpectedversion
+msgid "Expected python version %1 but %2 found."
+msgstr ""
+
+#: uresourcestrings.rsramdisk
+msgid "RAM disk"
+msgstr ""
+
+#: uresourcestrings.rsrasterlayer
+msgid "Raster layer"
+msgstr ""
+
+#: uresourcestrings.rsrecentdirectories
+msgid "Recent directories:"
+msgstr "Nedávné adresáře:"
+
+#: uresourcestrings.rsred
+msgid "Red"
+msgstr ""
+
+#: uresourcestrings.rsreload
+msgctxt "uresourcestrings.rsreload"
+msgid "Reload"
+msgstr "Obnovit"
+
+#: uresourcestrings.rsreloadchanged
+msgid "Bitmap has been modified. Do you really want to reload?"
+msgstr "Bitová mapa byla upravena. Chcete jí opravdu načíst znovu?"
+
+#: uresourcestrings.rsremovabledrive
+msgid "Removable"
+msgstr ""
+
+#: uresourcestrings.rsrepeatimage
+msgctxt "uresourcestrings.rsrepeatimage"
+msgid "Repeat image"
+msgstr "Opakovat obrázek"
+
+#: uresourcestrings.rsresamplingimage
+msgid "Resampling image..."
+msgstr ""
+
+#: uresourcestrings.rsretrieveselectedarea
+msgid "Do you want to retrieve selected area?"
+msgstr "Chcete obdržet vybranou oblast?"
+
+#: uresourcestrings.rsreturnvalides
+msgid "Press ENTER to validate"
+msgstr "Stiskněte ENTER k ověření"
+
+#: uresourcestrings.rsrgb
+msgctxt "uresourcestrings.rsrgb"
+msgid "RGB"
+msgstr "RGB"
+
+#: uresourcestrings.rsrightclickforsource
+msgid "Use RIGHT click to define source"
+msgstr ""
+
+#: uresourcestrings.rssaturation
+msgctxt "uresourcestrings.rssaturation"
+msgid "Saturation"
+msgstr "Barevnost"
+
+#: uresourcestrings.rssave
+msgctxt "uresourcestrings.rssave"
+msgid "Save"
+msgstr "Uložit"
+
+#: uresourcestrings.rssaveasbuttonhint
+msgctxt "uresourcestrings.rssaveasbuttonhint"
+msgid "Save with specified filename"
+msgstr ""
+
+#: uresourcestrings.rssavechanges
+msgid "Current bitmap has been modified. Do you want to save changes?"
+msgstr "Aktuální bitová mapa byla změněna. Chcete uložit změny?"
+
+#: uresourcestrings.rssavepaletteas
+msgid "Save palette as..."
+msgstr ""
+
+#: uresourcestrings.rsscript
+msgid "Script"
+msgstr "Skript"
+
+#: uresourcestrings.rsshift
+msgid "SHIFT"
+msgstr ""
+
+#: uresourcestrings.rsshowpalette
+msgctxt "uresourcestrings.rsshowpalette"
+msgid "Show palette"
+msgstr ""
+
+#: uresourcestrings.rssourceposition
+msgid "Source position"
+msgstr ""
+
+#: uresourcestrings.rsspline
+msgctxt "uresourcestrings.rsspline"
+msgid "Spline"
+msgstr "Spline"
+
+#: uresourcestrings.rsstoragedevice
+msgid "Device"
+msgstr ""
+
+#: uresourcestrings.rstexturemapping
+msgctxt "uresourcestrings.rstexturemapping"
+msgid "Texture mapping"
+msgstr "Mapování textůr"
+
+#: uresourcestrings.rstherearenocheckeditems
+msgid "There are no checked items. Check some items or add some new ones."
+msgstr "Nejsou žádné zaškrtnuté položky. Zaškrtněte nějaké položky nebo přidejte nové."
+
+#: uresourcestrings.rsthereisnofilenamegivenforthisfileusesaveas
+msgid "There is no file name given for this file. Use \"Save as...\" from the main menu."
+msgstr "Pro tento soubor nezadáno jméno. Použijte \"Uložit jako...\" z hlavní nabídky."
+
+#: uresourcestrings.rstodo
+msgid "To do"
+msgstr "To do"
+
+#: uresourcestrings.rstodoimages
+msgid "Images left: %1"
+msgstr ""
+
+#: uresourcestrings.rstooloninvisiblelayer
+msgid "Tool cannot be used on an invisible layer"
+msgstr ""
+
+#: uresourcestrings.rstoomanylayers
+msgid "Too many layers"
+msgstr ""
+
+#: uresourcestrings.rstoomanyshapesinlayer
+msgid "Too many shapes in layer"
+msgstr ""
+
+#: uresourcestrings.rstotalimages
+msgid "Total images: %1"
+msgstr ""
+
+#: uresourcestrings.rstransferselectiontootherlayer
+msgid "Transfer selection to other layer?"
+msgstr "Přenést výběr do jiné vrstvy?"
+
+#: uresourcestrings.rstransformedrasterlayer
+msgid "Transformed raster layer"
+msgstr ""
+
+#: uresourcestrings.rstransformselectioncontent
+msgid "Do you want to transform content of the selection?"
+msgstr ""
+
+#: uresourcestrings.rsunabletoapplyfilter
+msgid "Unable to apply filter : "
+msgstr "Nelze použít filtr :"
+
+#: uresourcestrings.rsunabletoloadfile
+msgid "Unable to load file : "
+msgstr "Nelze načíst soubor :"
+
+#: uresourcestrings.rsunabletosavefile
+msgid "Unable to save file : "
+msgstr "Nelze uložit soubor :"
+
+#: uresourcestrings.rsunknowncommand
+msgid "Unknown command : "
+msgstr "Neznámý příkaz :"
+
+#: uresourcestrings.rsunknownoriginal
+msgid "Unknown original"
+msgstr ""
+
+#: uresourcestrings.rsvectoriallayer
+msgid "Vectorial layer"
+msgstr ""
+
+#: uresourcestrings.rsyes
+msgid "Yes"
+msgstr "Ano"
 
