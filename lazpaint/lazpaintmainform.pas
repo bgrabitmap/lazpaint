@@ -1392,7 +1392,7 @@ begin
   except
     on ex: Exception do
     begin
-      LazPaintInstance.ShowError('FileOpen',ex.Message);
+      LazPaintInstance.ShowError(RemoveTrail(FileOpen.Caption),ex.Message);
       result := srException;
     end;
   end;
@@ -1453,7 +1453,7 @@ function TFMain.ScriptFileSaveAs(AVars: TVariableSet): TScriptResult;
       except
         on ex: Exception do
         begin
-          LazPaintInstance.ShowError('FileSaveAs',ex.Message);
+          LazPaintInstance.ShowError(RemoveTrail(FileSaveAs.Caption), ex.Message);
           result := srException;
         end;
       end;
@@ -1689,7 +1689,6 @@ end;
 procedure TFMain.FilterAnyExecute(Sender: TObject);
 var filterName: string;
     params: TVariableSet;
-    s: string;
 begin
   if Sender is TAction then
   begin
@@ -1699,10 +1698,7 @@ begin
           delete(filterName,1,6);
     params := TVariableSet.Create('Filter');
     params.AddString('Name', filterName);
-    s := (Sender as TAction).Caption;
-    while (s<>'') and (s[length(s)] in[' ',':','.','?','!']) do
-      delete(s,length(s),1);
-    params.AddString('Caption', s);
+    params.AddString('Caption', RemoveTrail((Sender as TAction).Caption));
     CallScriptFunction(params);
     params.Free;
   end;
@@ -2048,7 +2044,7 @@ begin
       except
         on ex: Exception do
         begin
-          LazPaintInstance.ShowError('FileSaveSelectionAs',ex.Message);
+          LazPaintInstance.ShowError(RemoveTrail(FileSaveSelectionAs.Caption),ex.Message);
           result := srException;
         end;
       end;
@@ -2355,7 +2351,7 @@ begin
     except
       on ex: Exception do
       begin
-        LazPaintInstance.ShowError('LayerFromFile',ex.Message);
+        LazPaintInstance.ShowError(RemoveTrail(LayerFromFile.Hint),ex.Message);
       end;
     end;
     FBrowseImages.OpenLayerIcon := false;
@@ -2682,7 +2678,7 @@ begin
 
   except
     on ex:Exception do
-      LazPaintInstance.ShowError('ToolNoTextureExecute',ex.Message);
+      LazPaintInstance.ShowError(RemoveTrail(ToolNoTexture.Hint),ex.Message);
   end;
 end;
 
@@ -2815,7 +2811,7 @@ begin
   except on ex:exception do
     begin
       Cursor := crDefault;
-      LazPaintInstance.ShowError(rsLazPaint, ex.Message);
+      LazPaintInstance.ShowError(RemoveTrail(EditPasteAsNew.Caption), ex.Message);
       result := srException;
     end;
   end;
@@ -3306,7 +3302,7 @@ begin
     end;
   except
     on ex:exception do
-      LazPaintInstance.ShowError(FileRunScript.Caption, ex.Message);
+      LazPaintInstance.ShowError(RemoveTrail(FileRunScript.Caption), ex.Message);
   end;
   dlg.Free;
 end;
@@ -3592,7 +3588,7 @@ begin
     end;
   except
     on ex:Exception do
-      LazPaintInstance.ShowError('ShowOpenTextureDialog',ex.Message);
+      LazPaintInstance.ShowError(rsOpen,ex.Message);
   end;
   FreeAndNil(newTex);
   LazPaintInstance.ShowTopmost(topMostInfo);
@@ -3654,7 +3650,7 @@ begin
     end;
   except
     on ex:Exception do
-      LazPaintInstance.ShowError('ShowOpenBrushDialog',ex.Message);
+      LazPaintInstance.ShowError(rsOpen,ex.Message);
   end;
   FreeAndNil(newBrushBmp);
   LazPaintInstance.ShowTopmost(topMostInfo);

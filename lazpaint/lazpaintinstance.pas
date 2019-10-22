@@ -618,7 +618,7 @@ begin
           end;
         end;
       end else
-        raise exception.Create(ScriptResultToStr[scriptErr]+' ('+ACommand+')');
+        raise exception.Create(ScriptResultToStr(scriptErr, ACommand)+' ('+ACommand+')');
     finally
       params.Free;
     end;
@@ -1298,8 +1298,9 @@ var
   fError: TForm;
   memo: TMemo;
 begin
-  p := TPythonScript.Create;
+  p := nil;
   try
+    p := TPythonScript.Create;
     FScriptName := AFilename;
     p.OnCommand:=@PythonScriptCommand;
     p.Run(AFilename);
@@ -1326,7 +1327,7 @@ begin
   except
     on ex:exception do
     begin
-      ShowError('Python', ex.Message);
+      ShowError(ChangeFileExt(ExtractFileName(AFilename),''), ex.Message);
       result := false;
     end;
   end;

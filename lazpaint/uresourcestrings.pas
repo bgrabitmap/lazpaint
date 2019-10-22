@@ -19,6 +19,7 @@ resourcestring
   rsLazPaint = 'LazPaint';
   rsScript = 'Script';
   rsFunctionNotDefined = 'The function %1 is not defined.';
+  rsPythonUnexpectedVersion = 'Expected python version %1 but %2 found.';
   rsOpening='Opening';
   rsLoading='Loading';
   rsRecentDirectories='Recent directories:';
@@ -159,6 +160,8 @@ resourcestring
   rsExpectNParameters='expects N parameters : ';
   rsExpect1Parameter='expects one parameter : ';
   rsExpect2Parameters='expects two parameters : ';
+  rsInvalidParameters='Invalid parameters';
+  rsException='An exception was encountered';
 
   rsPercent='%';
   rsPx='px';
@@ -171,6 +174,7 @@ resourcestring
   rsNo='No';
   rsOkay='Okay';
   rsCancel='Cancel';
+  rsCancelledByUser='Cancelled by user';
   rsNoAndProceedToNext='Do not save and open another file';
   rsInformation='Information';
   rsError='Error';
@@ -228,7 +232,16 @@ resourcestring
   rsShowPalette = 'Show palette';
   rsPaletteOptions = 'Palette options';
 
+function RemoveTrail(ACaption: string): string;
+
 implementation
+
+function RemoveTrail(ACaption: string): string;
+begin
+  result := Trim(ACaption);
+  while (result<>'') and (result[length(result)] in[' ',':','.','?','!']) do
+    delete(result,length(result),1);
+end;
 
 function ApplyShortcutStr(ACaption, AShortcut: string): string;
 var idxPar: integer;

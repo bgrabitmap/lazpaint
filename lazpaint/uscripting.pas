@@ -10,9 +10,8 @@ uses
 type
   TVariableSet = class;
   TScriptResult = (srOk, srInvalidParameters, srCancelledByUser, srException, srFunctionNotDefined);
-const
-  ScriptResultToStr: array[TScriptResult] of string =
-    ('Ok', 'Invalid parameters', 'Cancelled by user', 'Exception', 'Function not defined');
+
+function ScriptResultToStr(AResult: TScriptResult; AFunction: string): string;
 
 type
   TScriptFunction = function(AVars: TVariableSet): TScriptResult of object;
@@ -180,7 +179,19 @@ type
 
 implementation
 
-uses Dialogs;
+uses Dialogs, UResourceStrings;
+
+function ScriptResultToStr(AResult: TScriptResult; AFunction: string): string;
+begin
+  case AResult of
+    srOk: result := rsOkay;
+    srInvalidParameters: result := rsInvalidParameters;
+    srCancelledByUser: result := rsCancelledByUser;
+    srException: result := rsException;
+    srFunctionNotDefined: result := StringReplace(rsFunctionNotDefined,'%1','"'+AFunction+'"',[]);
+    else result := rsInternalError;
+  end;
+end;
 
 { TScriptContext }
 

@@ -221,7 +221,7 @@ begin
       except
         on ex:Exception do
         begin
-          LazPaintInstance.ShowError('LoadMask',ex.Message);
+          LazPaintInstance.ShowError(rsOpen,ex.Message);
         end;
       end;
     end;

@@ -415,7 +415,7 @@ begin
     AddUndo(FCurrentState.GetUndoAfterAssign(backup));
     SelectionMaskMayChangeCompletely;
     backup.Free;
-  except on ex: exception do NotifyException('Resample',ex);
+  except on ex: exception do NotifyException(RemoveTrail(rsResamplingImage),ex);
   end;
 end;
 

@@ -45,7 +45,7 @@ function GetPythonVersion(APythonBin: string = DefaultPythonBin): string;
 
 implementation
 
-uses process;
+uses process, UResourceStrings;
 
 function GetPythonVersion(APythonBin: string = DefaultPythonBin): string;
 const PythonVersionPrefix = 'Python ';
@@ -167,7 +167,10 @@ var
   errPos: integer;
 begin
   posDot := pos('.',PythonVersion);
-  val(copy(PythonVersion,1,posDot-1), result, errPos);
+  if posDot = 0 then
+    result := 0
+  else
+    val(copy(PythonVersion,1,posDot-1), result, errPos);
 end;
 
 procedure TPythonScript.Run(AScriptFilename: UTF8String;
@@ -175,7 +178,10 @@ procedure TPythonScript.Run(AScriptFilename: UTF8String;
 begin
   FLinePrefix := '';
   if PythonVersionMajor <> APythonVersion then
-    raise exception.Create('Expected python version is '+inttostr(APythonVersion)+' but '+inttostr(PythonVersionMajor)+' found.');
+    raise exception.Create(
+      StringReplace( StringReplace(rsPythonUnexpectedVersion,
+        '%1',inttostr(APythonVersion),[]),
+        '%2',inttostr(PythonVersionMajor),[]) );
   FFirstOutput:= true;
   RunProcessAutomation(FPythonBin, ['-u', AScriptFilename], FPythonSend, @PythonOutput, @PythonError);
   FPythonSend := nil;
