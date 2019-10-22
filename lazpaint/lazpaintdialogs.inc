@@ -118,7 +118,7 @@ begin
   ChooseTool(ptHand);
   image.Assign(bitmapRepl, True, False);
   Image.CurrentFilenameUTF8 := '';
-  image.SetSavedFlag;
+  image.SetSavedFlag(0,-1,0);
   UpdateWindows;
   result := srOk;
 end;

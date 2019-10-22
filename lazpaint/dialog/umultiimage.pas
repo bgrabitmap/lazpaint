@@ -111,6 +111,7 @@ begin
       result.bmp := images[selectedIndex].bmp.Duplicate(AFormat = ifCur,True) as TBGRABitmap;
       result.bpp := images[selectedIndex].bpp;
       result.frameIndex := images[selectedIndex].frameIndex;
+      result.frameCount := images[selectedIndex].frameCount;
       result.isDuplicate:= images[selectedIndex].isDuplicate;
     end;
   end;

@@ -639,6 +639,7 @@ begin
   if (index < 0) or (index >= GetEntryCount) then
     raise exception.Create('Index out of bounds');
   result := TImageEntry.Empty;
+  result.frameCount:= EntryCount;
   try
     if Assigned(FIconCursor) then
     begin
@@ -687,6 +688,8 @@ begin
   if (AEntry.frameIndex < 0) or (AEntry.frameIndex > GetEntryCount) then
     raise exception.Create('Index out of bounds');
   if Filename = '' then raise exception.create('Filename undefined');
+
+  AEntry.frameCount:= GetEntryCount;
 
   if Assigned(FTiff) then
   begin
@@ -1037,6 +1040,7 @@ begin
               LazPaintInstance.Image.FrameIndex := TImageEntry.NewFrameIndex;
             LazPaintInstance.Image.OnImageChanged.NotifyObservers;
           end;
+          dec(LazPaintInstance.Image.FrameCount);
         except on ex: Exception do
           begin
             FileManager.CancelStreamAndFree(outputStream);
@@ -1155,6 +1159,7 @@ var tx,ty,bpp: integer; back: TBGRAPixel;
 begin
   FinishUpdatePreview;
   result := TImageEntry.Empty;
+  result.frameCount := GetEntryCount;
 
   if Assigned(FIconCursor) then
   begin
@@ -1213,6 +1218,7 @@ begin
   if Assigned(FSingleImage) then
   begin
     result.bmp := FSingleImage;
+    result.frameIndex:= 0;
     FSingleImage := nil;
   end else
   if Assigned(FAnimatedGif) then

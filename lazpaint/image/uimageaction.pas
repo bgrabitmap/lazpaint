@@ -23,6 +23,7 @@ type
     function GenericScriptFunction(AVars: TVariableSet): TScriptResult;
     function ScriptPutImage(AVars: TVariableSet): TScriptResult;
     function ScriptLayerFill(AVars: TVariableSet): TScriptResult;
+    function ScriptGetFrameIndex(AVars: TVariableSet): TScriptResult;
     procedure ReleaseSelection;
   public
     constructor Create(AInstance: TLazPaintCustomInstance);
@@ -145,11 +146,13 @@ begin
   Scripting.RegisterScriptFunction('LayerMergeOver',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerRemoveCurrent',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('GetLayerCount',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('GetFrameIndex',@ScriptGetFrameIndex,ARegister);
+  Scripting.RegisterScriptFunction('GetFrameCount',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('GetPixel',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('GetImageWidth',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('GetImageHeight',@GenericScriptFunction,ARegister);
-  Scripting.RegisterScriptFunction('PutImage',@GenericScriptFunction,ARegister);
-  Scripting.RegisterScriptFunction('LayerFill',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('PutImage',@ScriptPutImage,ARegister);
+  Scripting.RegisterScriptFunction('LayerFill',@ScriptLayerFill,ARegister);
 end;
 
 constructor TImageActions.Create(AInstance: TLazPaintCustomInstance);
@@ -206,11 +209,10 @@ begin
   if f = 'LayerMergeOver' then MergeLayerOver else
   if f = 'LayerRemoveCurrent' then RemoveLayer else
   if f = 'GetLayerCount' then AVars.Integers['Result']:= Image.NbLayers else
+  if f = 'GetFrameCount' then AVars.Integers['Result']:= Image.FrameCount else
   if f = 'GetPixel' then AVars.Pixels['Result']:= GetPixel(AVars.Integers['X'],AVars.Integers['Y']) else
   if f = 'GetImageWidth' then AVars.Integers['Result']:= Image.Width else
   if f = 'GetImageHeight' then AVars.Integers['Result']:= Image.Height else
-  if f = 'PutImage' then result := ScriptPutImage(AVars) else
-  if f = 'LayerFill' then result := ScriptLayerFill(AVars) else
     result := srFunctionNotDefined;
 end;
 
@@ -313,6 +315,15 @@ begin
   end
   else
     result := srException;
+end;
+
+function TImageActions.ScriptGetFrameIndex(AVars: TVariableSet): TScriptResult;
+begin
+  if Image.FrameIndex <> -1 then
+    AVars.Integers['Result']:= Image.FrameIndex+1
+  else
+    AVars.Remove('Result');
+  result := srOk;
 end;
 
 procedure TImageActions.ClearAlpha;

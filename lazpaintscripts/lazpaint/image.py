@@ -15,6 +15,18 @@ def get_height():
 def get_layer_count():
   return command.send("GetLayerCount?")
 
+def get_frame_index():
+  return command.send("GetFrameIndex?")
+
+def get_frame_count():
+  return command.send("GetFrameCount?")
+
+def load_frame(frame_index=None, ignore_modified=False):
+  return command.send("FileChooseEntry?", EntryIndex=frame_index, IgnoreModified=ignore_modified)
+
+def new_frame(width=None, height=None, back_color=colors.TRANSPARENT, ignore_modified=False):
+  command.send("FileNewEntry", Width=width, Height=height, BackColor=back_color, IgnoreModified=ignore_modified)
+
 def open(file_name=None, ignore_modified=False):
   command.send("FileOpen", FileName=file_name, IgnoreModified=ignore_modified)
 

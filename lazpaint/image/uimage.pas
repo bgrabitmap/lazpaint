@@ -126,7 +126,7 @@ type
     ImageOffset: TPoint;
     Zoom: TZoom;
     CursorHotSpot: TPoint;
-    BPP, FrameIndex: integer;
+    BPP, FrameIndex, FrameCount: integer;
 
     // make copy
     function MakeLayeredBitmapCopy: TBGRALayeredBitmap;
@@ -216,13 +216,17 @@ type
     function AbleToSaveSelectionAsUTF8(AFilename: string): boolean;
     procedure SaveToFileUTF8(AFilename: string);
     procedure UpdateMultiImage(AOutputFilename: string = '');
-    procedure SetSavedFlag(ASavedBPP: integer = 0; ASavedFrameIndex: integer = 0);
+    procedure SetSavedFlag(ASavedBPP: integer = 0;
+                           ASavedFrameIndex: integer = 0;
+                           ASavedFrameCount: integer = 1);
     function IsFileModified: boolean;
     function IsFileModifiedAndSaved: boolean;
     procedure SaveOriginalToStream(AStream: TStream);
 
     function CheckCurrentLayerVisible: boolean;
     function CheckNoAction(ASilent: boolean = false): boolean;
+    function CanDuplicateFrame: boolean;
+    function CanHaveFrames: boolean;
     procedure ZoomFit;
 
     property CurrentState: TImageState read FCurrentState;
@@ -534,7 +538,7 @@ begin
     s := FileManager.CreateFileStream(AOutputFilename,fmCreate);
     try
       icoCur.SaveToStream(s);
-      SetSavedFlag(bpp, newFrameIndex);
+      SetSavedFlag(bpp, newFrameIndex, icoCur.Count);
     finally
       s.Free;
     end;
@@ -589,7 +593,7 @@ begin
     s := FileManager.CreateFileStream(AOutputFilename,fmCreate);
     try
       tiff.SaveToStream(s);
-      SetSavedFlag(bpp, newFrameIndex);
+      SetSavedFlag(bpp, newFrameIndex, tiff.Count);
     finally
       FreeAndNil(s);
     end;
@@ -633,7 +637,7 @@ begin
     s := FileManager.CreateFileStream(AOutputFilename,fmCreate);
     try
       gif.SaveToStream(s);
-      SetSavedFlag(bpp, newFrameIndex);
+      SetSavedFlag(bpp, newFrameIndex, gif.Count);
     finally
       FreeAndNil(s);
     end;
@@ -685,12 +689,13 @@ begin
   end;
 end;
 
-procedure TLazPaintImage.SetSavedFlag(ASavedBPP: integer; ASavedFrameIndex: integer);
+procedure TLazPaintImage.SetSavedFlag(ASavedBPP: integer; ASavedFrameIndex: integer; ASavedFrameCount: integer);
 var i: integer;
 begin
   FCurrentState.saved := true;
   self.BPP := ASavedBPP;
   self.FrameIndex := ASavedFrameIndex;
+  self.FrameCount := ASavedFrameCount;
   for i := 0 to FUndoList.Count-1 do
   begin
     TCustomImageDifference(FUndoList[i]).SavedBefore := (i = FUndoPos+1);
@@ -1474,6 +1479,16 @@ begin
   end;
 end;
 
+function TLazPaintImage.CanDuplicateFrame: boolean;
+begin
+  result := IsGif or IsTiff;
+end;
+
+function TLazPaintImage.CanHaveFrames: boolean;
+begin
+  result := IsGif or IsTiff or IsIconCursor;
+end;
+
 procedure TLazPaintImage.ZoomFit;
 begin
   if Assigned(Zoom) then Zoom.ZoomFit(Width,Height);
@@ -2126,6 +2141,8 @@ begin
   FUndoList := TList.Create;
   FUndoPos := -1;
   ImageOffset := Point(0,0);
+  FrameIndex := -1;
+  FrameCount := 0;
 end;
 
 destructor TLazPaintImage.Destroy;

@@ -117,7 +117,7 @@ type
     TImageEntry = object
       bmp: TBGRABitmap;
       bpp: integer;
-      frameIndex: integer;
+      frameIndex, frameCount: integer;
       isDuplicate: boolean;
       class function Empty: TImageEntry; static;
       class function NewFrameIndex: integer; static;
@@ -528,7 +528,8 @@ class function TImageEntry.Empty: TImageEntry;
 begin
   result.bmp := nil;
   result.bpp := 0;
-  result.frameIndex := 0;
+  result.frameIndex := -1;
+  result.frameCount := 0;
   result.isDuplicate:= false;
 end;
 

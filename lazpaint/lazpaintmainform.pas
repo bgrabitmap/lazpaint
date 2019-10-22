@@ -19,7 +19,7 @@ uses
   UImageObservation, UConfig, LCScaleDPI, UResourceStrings,
   UMenu, uscripting, ubrowseimages, UToolPolygon, UToolVectorial, LCVectorRectShapes,
 
-  laztablet, udarktheme;
+  laztablet, udarktheme, UScriptType;
 
 const
   MinPenWidthValue = 10;
@@ -813,6 +813,8 @@ type
     function ScriptFileOpen(AVars: TVariableSet): TScriptResult;
     function ScriptFileSaveAs(AVars: TVariableSet): TScriptResult;
     function ScriptFileSave({%H-}AVars: TVariableSet): TScriptResult;
+    function ScriptFileNewEntry(AVars: TVariableSet): TScriptResult;
+    function ScriptFileChooseEntry(AVars: TVariableSet): TScriptResult;
     function ScriptFileGetFilename(AVars: TVariableSet): TScriptResult;
     function ScriptFileReload({%H-}AVars: TVariableSet): TScriptResult;
     function ScriptFileLoadSelection(AVars: TVariableSet): TScriptResult;
@@ -841,7 +843,7 @@ type
     procedure InvalidatePicture;
     function TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean=True;
       ALoadedImage: PImageEntry = nil; ASkipDialogIfSingleImage: boolean = false;
-      AAllowDuplicate: boolean = false): Boolean;
+      AAllowDuplicate: boolean = false; AEntryToLoad: integer = -1): Boolean;
     function PictureCanvasOfs: TPoint;
     procedure UpdateLineCapBar;
     procedure UpdateColorToolbar(AUpdateColorDiff: boolean);
@@ -1071,7 +1073,7 @@ begin
 
   FImageActions.SetCurrentBitmap(TBGRABitmap.Create(Config.DefaultImageWidth,Config.DefaultImageHeight,Config.DefaultImageBackgroundColor), false);
   image.ClearUndo;
-  image.SetSavedFlag;
+  image.SetSavedFlag(0, -1, 0);
 
   ViewGrid.Checked := LazPaintInstance.GridVisible;
   ColorCurves.Visible := not LazPaintInstance.BlackAndWhite;
@@ -1133,6 +1135,8 @@ begin
   Scripting.RegisterScriptFunction('FileSave',@ScriptFileSave,ARegister);
   Scripting.RegisterScriptFunction('GetFileName',@ScriptFileGetFilename,ARegister);
   Scripting.RegisterScriptFunction('FileReload',@ScriptFileReload,ARegister);
+  Scripting.RegisterScriptFunction('FileChooseEntry',@ScriptFileChooseEntry,ARegister);
+  Scripting.RegisterScriptFunction('FileNewEntry',@ScriptFileNewEntry,ARegister);
   Scripting.RegisterScriptFunction('FileLoadSelection',@ScriptFileLoadSelection,ARegister);
   Scripting.RegisterScriptFunction('FileSaveSelectionAs',@ScriptFileSaveSelectionAs,ARegister);
   Scripting.RegisterScriptFunction('EditPasteAsNew',@ScriptEditPasteAsNew,ARegister);
@@ -1303,7 +1307,7 @@ begin
     begin
       FLazPaintInstance.ShowTopmost(topInfo);
       if TryOpenFileUTF8(AVars.GetString(vFilename), true, nil,
-           false, AVars.Booleans['AllowDuplicate']) then
+           false, false) then
         result := srOk
       else
         result := srException;
@@ -1573,6 +1577,99 @@ begin
         end;
       end;
     end;
+end;
+
+function TFMain.ScriptFileNewEntry(AVars: TVariableSet): TScriptResult;
+var w,h: integer;
+  topInfo: TTopMostInfo;
+  backColor: TBGRAPixel;
+begin
+  if (Image.currentFilenameUTF8='') or not Image.CanHaveFrames then exit(srException);
+  topInfo.defined:= false;
+  if Image.IsFileModified and not AVars.Booleans['IgnoreModified'] then
+  begin
+    topInfo := FLazPaintInstance.HideTopmost;
+    case LazPaintInstance.SaveQuestion(rsOpen) of
+    IDYES: begin
+             result := Scripting.CallScriptFunction('FileSave');
+             if result <> srOk then
+             begin
+               FLazPaintInstance.ShowTopmost(topInfo);
+               exit;
+             end;
+           end;
+    IDCANCEL: begin
+                FLazPaintInstance.ShowTopmost(topInfo);
+                result := srCancelledByUser;
+                exit;
+              end;
+    end;
+  end;
+  FLazPaintInstance.ShowTopmost(topInfo);
+
+  if Image.CanDuplicateFrame then
+  begin
+    w := Image.Width;
+    h := Image.Height;
+  end else
+  begin
+    w := 0;
+    h := 0;
+  end;
+  if AVars.IsDefined('Width') then w := AVars.Integers['Width'];
+  if AVars.IsDefined('Height') then h := AVars.Integers['Height'];
+  if (h <= 0) or (w <= 0) then exit(srInvalidParameters);
+  if Image.IsGif and ((w <> Image.Width) or (h <> Image.Height)) then exit(srInvalidParameters);
+  backColor := AVars.Pixels['BackColor'];
+
+  Image.Assign(TBGRABitmap.Create(w,h,backColor),true,false);
+  Image.SetSavedFlag(0,-1,Image.FrameCount);
+  result := srOk;
+end;
+
+function TFMain.ScriptFileChooseEntry(AVars: TVariableSet): TScriptResult;
+var
+  topInfo: TTopMostInfo;
+  entryToLoad: integer;
+  vEntryIndex: TScriptVariableReference;
+begin
+  if (Image.currentFilenameUTF8='') or not Image.CanHaveFrames then exit(srException);
+  topInfo.defined:= false;
+  if Image.IsFileModified and not AVars.Booleans['IgnoreModified'] then
+  begin
+    topInfo := FLazPaintInstance.HideTopmost;
+    case LazPaintInstance.SaveQuestion(rsOpen) of
+    IDYES: begin
+             result := Scripting.CallScriptFunction('FileSave');
+             if result <> srOk then
+             begin
+               FLazPaintInstance.ShowTopmost(topInfo);
+               exit;
+             end;
+           end;
+    IDCANCEL: begin
+                FLazPaintInstance.ShowTopmost(topInfo);
+                result := srCancelledByUser;
+                exit;
+              end;
+    end;
+  end;
+  FLazPaintInstance.ShowTopmost(topInfo);
+  vEntryIndex := AVars.GetVariable('EntryIndex');
+  if AVars.IsReferenceDefined(vEntryIndex) then
+  begin
+    entryToLoad := AVars.GetInteger(vEntryIndex)-1;
+    if entryToLoad < 0 then entryToLoad := -1;
+  end
+  else entryToLoad := -1;
+  if TryOpenFileUTF8(Image.currentFilenameUTF8, false, nil,
+       true, Image.CanDuplicateFrame, entryToLoad) then
+  begin
+    AVars.Integers['Result'] := Image.FrameIndex;
+    result := srOk;
+  end
+  else
+    result := srException;
 end;
 
 function TFMain.ScriptFileGetFilename(AVars: TVariableSet): TScriptResult;
@@ -1862,7 +1959,8 @@ begin
       exit;
     end;
   end;
-  if TryOpenFileUTF8(Image.CurrentFilenameUTF8) then
+  if TryOpenFileUTF8(Image.CurrentFilenameUTF8,false,nil,
+                     true,false,Image.FrameIndex) then
     result := srOk
   else
     result := srException;
@@ -2704,7 +2802,7 @@ begin
         end;
         image.Assign(bmp,true,false);
         Image.CurrentFilenameUTF8 := '';
-        image.SetSavedFlag;
+        image.SetSavedFlag(0, -1, 0);
         result := srOk;
       end
        else
@@ -3084,9 +3182,7 @@ procedure TFMain.FileChooseEntryExecute(Sender: TObject);
 var
   openParams: TVariableSet;
 begin
-  openParams := TVariableSet.Create('FileOpen');
-  openParams.AddString('FileName',Image.currentFilenameUTF8);
-  openParams.AddBoolean('AllowDuplicate',true);
+  openParams := TVariableSet.Create('FileChooseEntry');
   Scripting.CallScriptFunction(openParams);
   openParams.Free;
 end;
@@ -3634,7 +3730,7 @@ end;
 
 function TFMain.TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean;
      ALoadedImage: PImageEntry; ASkipDialogIfSingleImage: boolean;
-     AAllowDuplicate: boolean): Boolean;
+     AAllowDuplicate: boolean; AEntryToLoad: integer): Boolean;
 var
   newPicture: TImageEntry;
   format: TBGRAImageFormat;
@@ -3649,7 +3745,7 @@ var
     ShowNoPicture;
     Image.OnImageChanged.NotifyObservers;
   end;
-  procedure EndImport(BPP: integer = 0; frameIndex: integer = 0);
+  procedure EndImport(BPP: integer = 0; frameIndex: integer = 0; frameCount: integer = 1);
   begin
     if AddToRecent then
     begin
@@ -3658,7 +3754,7 @@ var
     end;
     Image.CurrentFilenameUTF8 := filenameUTF8;
     image.ClearUndo;
-    image.SetSavedFlag(BPP, frameIndex);
+    image.SetSavedFlag(BPP, frameIndex, frameCount);
     ToolManager.ToolOpen;
     ZoomFitIfTooBig;
     ToolHotSpotUpdate(nil);
@@ -3679,7 +3775,7 @@ var
         end;
       image.Assign(newPicture.bmp,True, false);
       newPicture.bmp := nil;
-      EndImport(newPicture.bpp, newPicture.frameIndex);
+      EndImport(newPicture.bpp, newPicture.frameIndex, newPicture.frameCount);
     end else FreeAndNil(newPicture.bmp);
   end;
 
@@ -3720,6 +3816,8 @@ begin
     begin
       newPicture.bmp := GetRawFileImage(filenameUTF8);
       newPicture.bpp := 0;
+      newPicture.frameIndex:= 0;
+      newPicture.frameCount:= 1;
       ImportNewPicture;
     end else
     if format in[ifIco,ifCur] then
@@ -3728,33 +3826,26 @@ begin
       ImportNewPicture;
     end
     else
-    if format in[ifIco,ifTiff] then
+    if format in[ifIco,ifGif,ifTiff] then
     begin
-      if (format = ifTiff) and AAllowDuplicate and (Image.FrameIndex <> -1) then dupIndex := Image.FrameIndex else dupIndex := -1;
-      newPicture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8, 'TIFF',
-        ASkipDialogIfSingleImage, dupIndex);
+      if AEntryToLoad <> -1 then
+        newPicture := LoadFlatImageUTF8(FilenameUTF8, AEntryToLoad) else
+      begin
+        if (format in[ifGif,ifTiff]) and AAllowDuplicate and (Image.FrameIndex <> -1) then
+          dupIndex := Image.FrameIndex else dupIndex := -1;
+        newPicture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8,
+          GetImageFormatName(format),ASkipDialogIfSingleImage, dupIndex);
+      end;
       if newPicture.isDuplicate then
       begin
         newPicture.FreeAndNil;
         Image.FrameIndex:= newPicture.frameIndex;
+        Image.FrameCount:= newPicture.frameCount;
         Image.OnImageChanged.NotifyObservers;
       end
       else ImportNewPicture;
     end
     else
-    if format = ifGif then
-    begin
-      if AAllowDuplicate and (Image.FrameIndex <> -1) then dupIndex := Image.FrameIndex else dupIndex := -1;
-      newPicture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8, rsAnimatedGIF,
-        ASkipDialogIfSingleImage, dupIndex);
-      if newPicture.isDuplicate then
-      begin
-        newPicture.FreeAndNil;
-        Image.FrameIndex:= newPicture.frameIndex;
-        Image.OnImageChanged.NotifyObservers;
-      end
-      else ImportNewPicture;
-    end else
     begin
       StartImport;
       image.LoadFromFileUTF8(filenameUTF8);
