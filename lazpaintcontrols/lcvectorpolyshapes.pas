@@ -93,6 +93,8 @@ type
     procedure InsertPointAuto(AShift: TShiftState);
     function ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean;
       AStrokeMatrix: TAffineMatrix): ArrayOfTPointF; override;
+    function GetLoopStartIndex: integer;
+    function GetLoopPointCount: integer;
   public
     constructor Create(AContainer: TVectorOriginal); override;
     procedure Clear;
@@ -637,17 +639,34 @@ end;
 
 procedure TCustomPolypointShape.DoClickPoint(APointIndex: integer;
   AShift: TShiftState);
+var
+  nb: Integer;
 begin
-  if (APointIndex = 0) and (UserMode = vsuCreate) and not Closed then
+  if FAddingPoint and ((APointIndex = GetLoopStartIndex) or
+     ((APointIndex = PointCount-2) and (ssRight in AShift))) then
   begin
-    if PointCount > 2 then
+    nb := GetLoopPointCount;
+    if nb > 2 then
     begin
+      BeginUpdate;
       RemovePoint(PointCount-1);
-      Closed := true;
+      if APointIndex < PointCount-2 then Closed := true;
+      EndUpdate;
       UserMode := vsuEdit;
     end else
     begin
-      Remove;
+      if GetLoopStartIndex = 0 then
+        Remove
+      else
+      begin
+        BeginUpdate;
+        while nb > 0 do
+        begin
+          RemovePoint(PointCount-1);
+          dec(nb);
+        end;
+        RemovePoint(PointCount-1); //remove separator
+      end;
     end;
   end;
 end;
@@ -659,11 +678,12 @@ end;
 
 procedure TCustomPolypointShape.InsertPointAuto(AShift: TShiftState);
 var
-  bestSegmentIndex, i: Integer;
+  bestSegmentIndex, i,j, loopStart: Integer;
   bestSegmentDist,
   segmentLen, segmentPos: single;
   u, n, bestProjection: TPointF;
   segmentDist: single;
+  isLooping: Boolean;
 begin
   if isEmptyPointF(FMousePos) then exit;
 
@@ -673,11 +693,21 @@ begin
   bestSegmentIndex := -1;
   bestSegmentDist := MaxSingle;
   bestProjection := EmptyPointF;
+  loopStart := 0;
   for i := 0 to PointCount-1 do
   if FAddingPoint and (i >= PointCount-2) then break else
   begin
-    if (i = PointCount-1) and not Closed then break;
-    u := Points[(i+1) mod PointCount] - Points[i];
+    if IsEmptyPointF(Points[i]) then
+    begin
+      loopStart := i+1;
+      continue;
+    end;
+    isLooping := (i = PointCount-1) or IsEmptyPointF(Points[i+1]);
+    if isLooping and not Closed then break;
+    if isLooping then
+      j := loopStart
+      else j := i+1;
+    u := Points[j] - Points[i];
     segmentLen := VectLen(u);
     if segmentLen > 0 then
     begin
@@ -720,6 +750,20 @@ begin
   Result:=inherited ComputeStroke(APoints, AClosed, AStrokeMatrix);
   Stroker.Arrow.StartAsNone;
   Stroker.Arrow.EndAsNone;
+end;
+
+function TCustomPolypointShape.GetLoopStartIndex: integer;
+var
+  i: Integer;
+begin
+  for i := PointCount-1 downto 0 do
+    if isEmptyPointF(Points[i]) then exit(i+1);
+  exit(0);
+end;
+
+function TCustomPolypointShape.GetLoopPointCount: integer;
+begin
+  result := PointCount-GetLoopStartIndex;
 end;
 
 constructor TCustomPolypointShape.Create(AContainer: TVectorOriginal);
@@ -805,11 +849,25 @@ begin
     end else
       Usermode := vsuEdit;
     AHandled:= true;
+  end else
+  begin
+    if (ssShift in Shift) and (Usermode = vsuEdit) then
+    begin
+      BeginUpdate;
+      AddPoint(EmptyPointF);
+      FMousePos := PointF(X,Y);
+      AddPoint(FMousePos);
+      EndUpdate;
+      USerMode := vsuCreate;
+      AHandled:= true;
+    end;
   end;
 end;
 
 procedure TCustomPolypointShape.KeyDown(Shift: TShiftState; Key: TSpecialKey;
   var AHandled: boolean);
+var
+  nb: Integer;
 begin
   if (Key = skDelete) and (FAddingPoint or ((FHoverPoint >= 0) and (FHoverPoint < PointCount))) then
   begin
@@ -817,7 +875,14 @@ begin
     begin
       BeginUpdate(TCustomPolypointShapeDiff);
       RemovePoint(FHoverPoint);
-      if (FHoverPoint < PointCount) and IsEmptyPointF(Points[FHoverPoint]) then RemovePoint(FHoverPoint);
+      if ((FHoverPoint = PointCount) or IsEmptyPointF(Points[FHoverPoint])) and
+         ((FHoverPoint = 0) or IsEmptyPointF(Points[FHoverPoint-1])) then
+      begin
+        if FHoverPoint < PointCount then
+          RemovePoint(FHoverPoint)
+        else if FHoverPoint > 0 then
+          RemovePoint(FHoverPoint-1);
+      end;
       EndUpdate;
       if PointCount = 0 then self.Remove;
     end;
@@ -825,13 +890,18 @@ begin
   end else
   if (Key = skBackspace) and FAddingPoint then
   begin
-    If PointCount <= 2 then self.Remove else
-    If isEmptyPointF(Points[PointCount-3]) then
+    nb := GetLoopPointCount;
+    if nb > 2 then
+      RemovePoint(PointCount-2)
+    else
     begin
-      RemovePointRange(PointCount-3, PointCount);
-      Usermode:= vsuEdit;
-    end else
-      RemovePoint(PointCount-2);
+      if GetLoopStartIndex = 0 then self.Remove
+      else
+      begin
+        RemovePointRange(PointCount-3, PointCount);
+        Usermode:= vsuEdit;
+      end;
+    end;
     AHandled:= true;
   end else
   if (Key = skInsert) then InsertPointAuto(Shift) else
@@ -903,21 +973,22 @@ end;
 
 procedure TCustomPolypointShape.ConfigureCustomEditor(AEditor: TBGRAOriginalEditor);
 var
-  i, nb: Integer;
+  i, nbTotal: Integer;
 begin
   AEditor.AddStartMoveHandler(@OnStartMove);
   AEditor.AddClickPointHandler(@OnClickPoint);
   AEditor.AddHoverPointHandler(@OnHoverPoint);
-  nb := 0;
+
   FCenterPoint := PointF(0,0);
+  nbTotal := 0;
   for i:= 0 to PointCount-1 do
     if isEmptyPointF(Points[i]) then
       FPoints[i].editorIndex := -1
-    else if (FAddingPoint and (i = PointCount-1) and (PointCount > 1)) then
+    else if (FAddingPoint and (i = PointCount-1) and (GetLoopPointCount > 1)) then
     begin
       FPoints[i].editorIndex := -1;
       FCenterPoint += Points[i];
-      inc(nb);
+      inc(nbTotal);
     end
     else
     begin
@@ -926,12 +997,12 @@ begin
       else
         FPoints[i].editorIndex := AEditor.AddFixedPoint(Points[i], false);
       FCenterPoint += Points[i];
-      inc(nb);
+      inc(nbTotal);
     end;
 
-  if (FAddingPoint and (nb > 2)) or (not FAddingPoint and (nb > 1)) then
+  if (FAddingPoint and (nbTotal > 2)) or (not FAddingPoint and (nbTotal > 1)) then
   begin
-    FCenterPoint *= 1/nb;
+    FCenterPoint *= 1/nbTotal;
     FCenterPointEditorIndex := AEditor.AddPoint(FCenterPoint, @OnMoveCenterPoint, true);
   end;
 end;
