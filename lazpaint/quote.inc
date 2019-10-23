@@ -228,7 +228,6 @@ const
   StringDelimiter = StringDelimiter1;
   EscapeChars = [#0,#7..#13,#26,#27,'\',StringDelimiter];
 var i, j, count: integer;
-  inQuote: boolean;
 
   procedure FlushChars;
   var NbFlush: integer;
@@ -241,7 +240,6 @@ var i, j, count: integer;
 
 begin
   result := StringDelimiter;
-  inQuote := false;
   count := length(s);
   i := 0;
   j := 0;

@@ -103,9 +103,9 @@ type
     handMoving, snapToPixel: boolean;
     handOriginF: TPointF;
     selectionTransformBefore: TAffineMatrix;
-    function DoToolDown({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF;
+    function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
       {%H-}rightBtn: boolean): TRect; override;
-    function DoToolMove({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF): TRect; override;
+    function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect; override;
   public
     constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;

@@ -25,9 +25,9 @@ type
     FLayerBounds: TRect;
     FLayerBoundsDefined: boolean;
     function GetIsSelectingTool: boolean; override;
-    function DoToolDown({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF;
+    function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
       {%H-}rightBtn: boolean): TRect; override;
-    function DoToolMove({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF): TRect; override;
+    function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect; override;
     function UseOriginal: boolean;
     procedure NeedLayerBounds;
     function GetAction: TLayerAction; override;

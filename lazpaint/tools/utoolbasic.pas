@@ -18,9 +18,9 @@ type
     handOriginF: TPointF;
     function FixSelectionTransform: boolean; override;
     function FixLayerOffset: boolean; override;
-    function DoToolDown({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF;
+    function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
       {%H-}rightBtn: boolean): TRect; override;
-    function DoToolMove({%H-}toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF): TRect; override;
+    function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect; override;
     function GetStatusText: string; override;
   public
     constructor Create(AManager: TToolManager); override;
