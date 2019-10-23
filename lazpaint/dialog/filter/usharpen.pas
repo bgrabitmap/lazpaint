@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, Spin, ExtCtrls, UFilterConnector;
+  StdCtrls, Spin, ExtCtrls, UFilterConnector, UScripting;
 
 type
   TSharpenMode = (smSharpen);
@@ -31,16 +31,17 @@ type
     FMode :TSharpenMode;
     FInitializing: boolean;
     FFilterConnector: TFilterConnector;
+    FVars: TVariableSet;
     procedure PreviewNeeded;
   end;
 
-function ShowSharpenDlg(AFilterConnector: TObject; AMode : TSharpenMode):boolean;
+function ShowSharpenDlg(AFilterConnector: TObject; AMode : TSharpenMode): TScriptResult;
 
 implementation
 
 uses LCScaleDPI, UMac, LazPaintType, BGRABitmap, BGRABitmapTypes;
 
-function ShowSharpenDlg(AFilterConnector: TObject; AMode : TSharpenMode): boolean;
+function ShowSharpenDlg(AFilterConnector: TObject; AMode : TSharpenMode): TScriptResult;
 var FSharpen: TFSharpen;
 begin
   FSharpen := TFSharpen.Create(nil);
@@ -48,16 +49,18 @@ begin
   try
     FSharpen.FFilterConnector := AFilterConnector as TFilterConnector;
     FSharpen.FFilterConnector.OnTryStopAction := @FSharpen.OnTryStopAction;
+    FSharpen.FVars:= FSharpen.FFilterConnector.Parameters;
   except
     on ex: exception do
     begin
       (AFilterConnector as TFilterConnector).LazPaintInstance.ShowError('ShowSharpenDlg',ex.Message);
-      result := false;
+      result := srException;
       exit;
     end;
   end;
   try
-    result := FSharpen.ShowModal = mrOK;
+    if FSharpen.ShowModal = mrOK then
+      result := srOk else result := srCancelledByUser;
   finally
     FSharpen.FFilterConnector.OnTryStopAction := nil;
     FSharpen.Free;
@@ -79,7 +82,10 @@ procedure TFSharpen.FormShow(Sender: TObject);
 var idxSlash: integer;
 begin
   FInitializing := true;
-  SpinEdit_Amount.Value := round(FFilterConnector.LazPaintInstance.Config.DefaultSharpenAmount*100);
+  if Assigned(FVars) and FVars.IsDefined('Amount') then
+    SpinEdit_Amount.Value := round(FVars.Floats['Amount']*100)
+  else
+     SpinEdit_Amount.Value := round(FFilterConnector.LazPaintInstance.Config.DefaultSharpenAmount*100);
   FInitializing := false;
   PreviewNeeded;
   idxSlash:= Pos('/',Caption);

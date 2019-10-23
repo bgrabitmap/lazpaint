@@ -161,29 +161,29 @@ type
     procedure NotifyImageChange(RepaintNow: boolean; ARect: TRect); override;
     procedure NotifyImageChangeCompletely(RepaintNow: boolean); override;
     function TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean = false): boolean; override;
-    function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): boolean; override;
+    function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): TScriptResult; override;
     function RunScript(AFilename: string): boolean; override;
     procedure ColorFromFChooseColor; override;
     procedure ColorToFChooseColor; override;
     function ShowSaveOptionDlg({%H-}AParameters: TVariableSet; AOutputFilenameUTF8: string; ASkipOptions: boolean): boolean; override;
-    function ShowColorIntensityDlg(AParameters: TVariableSet): boolean; override;
-    function ShowColorLightnessDlg(AParameters: TVariableSet): boolean; override;
-    function ShowShiftColorsDlg(AParameters: TVariableSet): boolean; override;
-    function ShowColorizeDlg(AParameters: TVariableSet): boolean; override;
-    function ShowColorCurvesDlg(AParameters: TVariableSet): boolean; override;
-    function ShowRadialBlurDlg(AFilterConnector: TObject;blurType:TRadialBlurType; ACaption: string = ''):boolean; override;
-    function ShowMotionBlurDlg(AFilterConnector: TObject):boolean; override;
-    function ShowCustomBlurDlg(AFilterConnector: TObject):boolean; override;
-    function ShowEmbossDlg(AFilterConnector: TObject):boolean; override;
-    function ShowRainDlg(AFilterConnector: TObject):boolean; override;
-    function ShowPixelateDlg(AFilterConnector: TObject):boolean; override;
-    function ShowNoiseFilterDlg(AFilterConnector: TObject):boolean; override;
-    function ShowTwirlDlg(AFilterConnector: TObject):boolean; override;
-    function ShowWaveDisplacementDlg(AFilterConnector: TObject):boolean; override;
-    function ShowPhongFilterDlg(AFilterConnector: TObject): boolean; override;
-    function ShowFunctionFilterDlg(AFilterConnector: TObject): boolean; override;
-    function ShowSharpenDlg(AFilterConnector: TObject):boolean; override;
-    function ShowPosterizeDlg(AParameters: TVariableSet):boolean; override;
+    function ShowColorIntensityDlg(AParameters: TVariableSet): TScriptResult; override;
+    function ShowColorLightnessDlg(AParameters: TVariableSet): TScriptResult; override;
+    function ShowShiftColorsDlg(AParameters: TVariableSet): TScriptResult; override;
+    function ShowColorizeDlg(AParameters: TVariableSet): TScriptResult; override;
+    function ShowColorCurvesDlg(AParameters: TVariableSet): TScriptResult; override;
+    function ShowRadialBlurDlg(AFilterConnector: TObject; blurType:TRadialBlurType; ACaption: string = ''): TScriptResult; override;
+    function ShowMotionBlurDlg(AFilterConnector: TObject): TScriptResult; override;
+    function ShowCustomBlurDlg(AFilterConnector: TObject): TScriptResult; override;
+    function ShowEmbossDlg(AFilterConnector: TObject): TScriptResult; override;
+    function ShowRainDlg(AFilterConnector: TObject): TScriptResult; override;
+    function ShowPixelateDlg(AFilterConnector: TObject): TScriptResult; override;
+    function ShowNoiseFilterDlg(AFilterConnector: TObject): TScriptResult; override;
+    function ShowTwirlDlg(AFilterConnector: TObject): TScriptResult; override;
+    function ShowWaveDisplacementDlg(AFilterConnector: TObject): TScriptResult; override;
+    function ShowPhongFilterDlg(AFilterConnector: TObject): TScriptResult; override;
+    function ShowFunctionFilterDlg(AFilterConnector: TObject): TScriptResult; override;
+    function ShowSharpenDlg(AFilterConnector: TObject): TScriptResult; override;
+    function ShowPosterizeDlg(AParameters: TVariableSet): TScriptResult; override;
     procedure ApplyDocking; override;
     procedure ShowPrintDlg; override;
     function HideTopmost: TTopMostInfo; override;
@@ -216,8 +216,8 @@ implementation
 
 uses LCLType, Types, Forms, Dialogs, FileUtil, StdCtrls, LCLIntf, Math,
 
-     uradialblur, umotionblur, uemboss, UTwirl, UWaveDisplacement,
-     unewimage, uresample, upixelate, unoisefilter, ufilters,
+     URadialBlur, UMotionBlur, UEmboss, UTwirl, UWaveDisplacement,
+     unewimage, uresample, UPixelate, unoisefilter, ufilters,
      UImageAction, USharpen, uposterize, UPhongFilter, UFilterFunction,
      uprint, USaveOption, UFormRain,
 
@@ -1278,12 +1278,12 @@ begin
 end;
 
 function TLazPaintInstance.ExecuteFilter(filter: TPictureFilter;
-  skipDialog: boolean): boolean;
+  skipDialog: boolean): TScriptResult;
 var vars: TVariableSet;
 begin
   if filter = pfNone then
   begin
-    result := false;
+    result := srInvalidParameters;
     exit;
   end;
   vars := TVariableSet.Create('Filter');

@@ -835,6 +835,7 @@
       <Unit81>
         <Filename Value="uraintype.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="URainType"/>
       </Unit81>
       <Unit82>
         <Filename Value="dialog\filter\uformrain.pas"/>

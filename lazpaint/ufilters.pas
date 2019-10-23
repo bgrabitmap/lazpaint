@@ -7,22 +7,35 @@ interface
 uses
   Classes, SysUtils, LazPaintType, uscripting;
 
-function ExecuteFilter(AInstance: TLazPaintCustomInstance; filter: TPictureFilter; AParameters: TVariableSet; skipDialog: boolean = false): boolean;
+function ExecuteFilter(AInstance: TLazPaintCustomInstance; filter: TPictureFilter;
+  AParameters: TVariableSet; skipDialog: boolean = false; defaultCaption: string = ''): TScriptResult;
 
 implementation
 
 uses UFilterConnector, BGRABitmap, BGRABitmapTypes, UGraph, BGRAGradients, Dialogs, UColorFilters;
 
-function ExecuteFilter(AInstance: TLazPaintCustomInstance;filter: TPictureFilter; AParameters: TVariableSet; skipDialog: boolean = false): boolean;
+function ExecuteFilter(AInstance: TLazPaintCustomInstance; filter: TPictureFilter;
+  AParameters: TVariableSet; skipDialog: boolean = false; defaultCaption: string = ''): TScriptResult;
 var
     FilterConnector: TFilterConnector;
     filteredLayer: TBGRABitmap;
+
+  function GetCaption: string;
+  begin
+    result := Trim(AParameters.Strings['Caption']);
+    if result = '' then result := defaultCaption;
+  end;
+
+  function GetSkip: boolean;
+  begin
+    result := skipDialog or AParameters.Booleans['Validate'];
+  end;
 
   procedure DoBlurCustom;
   var
     blurMask,blurMaskCopy: TBGRABitmap;
   begin
-    if skipDialog and (AInstance.Config.DefaultCustomBlurMaskUTF8 <> '') then
+    if GetSkip and (AInstance.Config.DefaultCustomBlurMaskUTF8 <> '') then
     begin
       try
         blurMask := TBGRABitmap.Create(AInstance.Config.DefaultCustomBlurMaskUTF8,True);
@@ -38,12 +51,13 @@ var
       end;
     end
     else
-      AInstance.ShowCustomBlurDlg(FilterConnector);
+      result := AInstance.ShowCustomBlurDlg(FilterConnector);
   end;
 
   procedure DoSimpleBlur;
   var
     blurType: TRadialBlurType;
+    radiusX,radiusY: single;
   begin
     case filter of
       pfBlurPrecise: blurType := rbPrecise;
@@ -55,10 +69,54 @@ var
     else
       exit;
     end;
-    if skipDialog then
-      filteredLayer := FilterConnector.ActiveLayer.FilterBlurRadial(FilterConnector.WorkArea, AInstance.Config.DefaultBlurRadius,blurType) as TBGRABitmap
+
+    if GetSkip then
+    begin
+      if AParameters.IsDefined('Radius') then
+      begin
+        radiusX := AParameters.Floats['Radius'];
+        radiusY := radiusX;
+      end else
+      begin
+        if AParameters.IsDefined('RadiusX') then
+          radiusX := AParameters.Floats['RadiusX']
+        else radiusX := AInstance.Config.DefaultBlurRadius;
+
+        if AParameters.IsDefined('RadiusY') then
+          radiusY := AParameters.Floats['RadiusY']
+        else radiusY := AInstance.Config.DefaultBlurRadius;
+      end;
+
+      filteredLayer := FilterConnector.ActiveLayer.FilterBlurRadial(FilterConnector.WorkArea, radiusX,radiusY,blurType) as TBGRABitmap
+    end
     else
-      AInstance.ShowRadialBlurDlg(FilterConnector,blurType,AParameters.Strings['Caption']);
+      result := AInstance.ShowRadialBlurDlg(FilterConnector, blurType, GetCaption);
+  end;
+
+  procedure DoBlurMotion;
+  var
+    oriented: Boolean;
+    distance, angle: Double;
+  begin
+    if GetSkip then
+    begin
+      if AParameters.IsDefined('Oriented') then
+        oriented := AParameters.Booleans['Oriented']
+      else oriented := AInstance.Config.DefaultBlurMotionOriented;
+
+      if AParameters.IsDefined('Distance') then
+        distance := AParameters.Floats['Distance']
+      else distance := AInstance.Config.DefaultBlurMotionDistance;
+
+      if AParameters.IsDefined('Angle') then
+        angle := AParameters.Floats['Angle']
+      else angle := AInstance.Config.DefaultBlurMotionAngle;
+
+      filteredLayer := FilterConnector.ActiveLayer.FilterBlurMotion(FilterConnector.WorkArea,
+                          distance,angle,oriented) as TBGRABitmap
+    end
+    else
+      result := AInstance.ShowMotionBlurDlg(FilterConnector);
   end;
 
   procedure DoMetalFloor;
@@ -71,18 +129,32 @@ var
 
   procedure DoSharpen;
   var
-    amountDefined: boolean;
     amount: single;
   begin
-    amountDefined := AParameters.IsDefined('Amount');
-    if skipDialog or amountDefined then
+    if GetSkip then
     begin
-      amount := AInstance.Config.DefaultSharpenAmount;
-      if amountDefined then amount := AParameters.Floats['Amount'];
+      if AParameters.IsDefined('Amount') then
+        amount := AParameters.Floats['Amount']
+      else amount := AInstance.Config.DefaultSharpenAmount;
       filteredLayer := FilterConnector.ActiveLayer.FilterSharpen(FilterConnector.WorkArea,amount) as TBGRABitmap;
       AParameters.Floats['Amount'] := amount;
     end
-    else AInstance.ShowSharpenDlg(FilterConnector);
+    else result := AInstance.ShowSharpenDlg(FilterConnector);
+  end;
+
+  procedure DoEmboss;
+  var
+    angle: Double;
+  begin
+    if GetSkip then
+    begin
+      if AParameters.IsDefined('Angle') then
+        angle := AParameters.Floats['Angle']
+      else angle := AInstance.Config.DefaultEmbossAngle;
+      filteredLayer := FilterConnector.ActiveLayer.FilterEmboss(angle, FilterConnector.WorkArea) as TBGRABitmap
+    end
+    else
+      result := AInstance.ShowEmbossDlg(FilterConnector);
   end;
 
 var
@@ -90,14 +162,14 @@ var
   applyOfsBefore: Boolean;
 
 begin
-  result := false;
-  if filter = pfNone then exit;
+  result := srException;
+  if filter = pfNone then exit(srInvalidParameters);
   if not AInstance.Image.CheckNoAction then exit;
   if not AInstance.image.CheckCurrentLayerVisible then exit;
   if (filter = pfLinearNegative) and AInstance.Image.SelectionMaskEmpty and (AInstance.Image.NbLayers = 1) then
   begin
       AInstance.Image.LinearNegativeAll;
-      result := true;
+      result := srOk;
       exit;
   end;
 
@@ -138,36 +210,24 @@ begin
         FilterComplementaryColor(filteredLayer,FilterConnector.WorkArea);
       end;
     pfBlurPrecise, pfBlurRadial, pfBlurCorona, pfBlurDisk, pfBlurFast, pfBlurBox: DoSimpleBlur;
-    pfBlurMotion:
-        if skipDialog then
-          filteredLayer := layer.FilterBlurMotion(FilterConnector.WorkArea, AInstance.Config.DefaultBlurMotionDistance,AInstance.Config.DefaultBlurMotionAngle,AInstance.Config.DefaultBlurMotionOriented) as TBGRABitmap
-        else
-          AInstance.ShowMotionBlurDlg(FilterConnector);
+    pfBlurMotion: DoBlurMotion;
     pfBlurCustom: DoBlurCustom;
-    pfEmboss:
-        if skipDialog then
-          filteredLayer := layer.FilterEmboss(AInstance.Config.DefaultEmbossAngle,FilterConnector.WorkArea) as TBGRABitmap
-        else
-          AInstance.ShowEmbossDlg(FilterConnector);
-    pfRain: AInstance.ShowRainDlg(FilterConnector);
-    pfPhong: AInstance.ShowPhongFilterDlg(FilterConnector);
-    pfFunction: AInstance.ShowFunctionFilterDlg(FilterConnector);
-    pfNoise: AInstance.ShowNoiseFilterDlg(FilterConnector);
-    pfPixelate:
-        if skipDialog then
-          filteredLayer := DoPixelate(layer,AInstance.Config.DefaultPixelateSize,AInstance.config.DefaultPixelateQuality)
-        else
-          AInstance.ShowPixelateDlg(FilterConnector);
+    pfEmboss: DoEmboss;
+    pfRain: result := AInstance.ShowRainDlg(FilterConnector);
+    pfPhong: result := AInstance.ShowPhongFilterDlg(FilterConnector);
+    pfFunction: result := AInstance.ShowFunctionFilterDlg(FilterConnector);
+    pfNoise: result := AInstance.ShowNoiseFilterDlg(FilterConnector);
+    pfPixelate: result := AInstance.ShowPixelateDlg(FilterConnector);
     pfTwirl:
-        if skipDialog then
+        if GetSkip then
           filteredLayer := layer.FilterTwirl(FilterConnector.WorkArea, Point(layer.Width div 2,layer.Height div 2), AInstance.Config.DefaultTwirlRadius, AInstance.Config.DefaultTwirlTurn ) as TBGRABitmap
         else
-          AInstance.ShowTwirlDlg(FilterConnector);
+          result := AInstance.ShowTwirlDlg(FilterConnector);
     pfWaveDisplacement:
-        if skipDialog then
+        if GetSkip then
           filteredLayer := ugraph.WaveDisplacementFilter(layer,FilterConnector.WorkArea, PointF(layer.Width/2,layer.Height/2), AInstance.Config.DefaultWaveDisplacementWavelength, AInstance.Config.DefaultWaveDisplacementAmount, AInstance.Config.DefaultWaveDisplacementPhase ) as TBGRABitmap
         else
-          AInstance.ShowWaveDisplacementDlg(FilterConnector);
+          result := AInstance.ShowWaveDisplacementDlg(FilterConnector);
     pfContour: filteredLayer := layer.FilterContour as TBGRABitmap;
     pfGrayscale: filteredLayer := layer.FilterGrayscale(FilterConnector.WorkArea) as TBGRABitmap;
     pfPerlinNoise: filteredLayer := CreatePerlinNoiseMap(layer.Width,layer.Height,layer.Width/256,layer.Height/256,1,rfBestQuality);
@@ -208,7 +268,8 @@ begin
     on ex: Exception do
       AInstance.ShowError(PictureFilterStr[filter],ex.Message);
   end;
-  result:= FilterConnector.ActionDone;
+  if FilterConnector.ActionDone then
+    result := srOk;
   FilterConnector.Free;
 end;
 

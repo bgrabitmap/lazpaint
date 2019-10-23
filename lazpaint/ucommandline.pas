@@ -13,7 +13,7 @@ implementation
 
 uses
   SysUtils, BGRAUTF8, LazFileUtils, BGRABitmap, BGRABitmapTypes, Dialogs, uparse,
-  UImage, UImageAction, ULayerAction;
+  UImage, UImageAction, ULayerAction, UScripting;
 
 function ParamStrUTF8(AIndex: integer): string;
 begin
@@ -81,7 +81,7 @@ begin
       Filter := StrToPictureFilter(CommandStr);
       if Filter <> pfNone then
       begin
-        if not instance.ExecuteFilter(Filter,True) then
+        if instance.ExecuteFilter(Filter,True) <> srOk then
         begin
           instance.ShowError(CommandStr, rsUnableToApplyFilter+CommandStr);
           errorEncountered := true;

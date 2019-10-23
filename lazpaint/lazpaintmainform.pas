@@ -1698,7 +1698,6 @@ begin
           delete(filterName,1,6);
     params := TVariableSet.Create('Filter');
     params.AddString('Name', filterName);
-    params.AddString('Caption', RemoveTrail((Sender as TAction).Caption));
     CallScriptFunction(params);
     params.Free;
   end;
@@ -2055,16 +2054,23 @@ end;
 
 function TFMain.ScriptFilter(AVars: TVariableSet): TScriptResult;
 var filter: TPictureFilter;
+  a: TContainedAction;
+  defaultCaption: String;
 begin
-  filter := StrToPictureFilter(AVars.GetString(AVars.GetVariable('Name')));
+  filter := StrToPictureFilter(AVars.Strings['Name']);
   if filter = pfNone then
      result := srInvalidParameters
   else
   begin
-    if ExecuteFilter(LazPaintInstance, filter, AVars) then
-      result := srOk
+    defaultCaption := '';
+
+    a := ActionList1.ActionByName('Filter'+AVars.Strings['Name']);
+    if Assigned(a) then
+      defaultCaption := RemoveTrail((a as TAction).Caption)
     else
-      result := srException;
+      defaultCaption := AVars.Strings['Name'];
+
+    result := ExecuteFilter(LazPaintInstance, filter, AVars, false, defaultCaption);
   end;
 end;
 
@@ -3288,23 +3294,29 @@ end;
 procedure TFMain.FileRunScriptExecute(Sender: TObject);
 var
   dlg: TOpenDialog;
+  tmi: TTopMostInfo;
 begin
-  dlg := TOpenDialog.Create(nil);
+  tmi := LazPaintInstance.HideTopmost;
   try
-    dlg.Title := FileRunScript.Caption;
-    dlg.InitialDir:= Config.DefaultScriptDirectory;
-    dlg.DefaultExt:= 'py';
-    dlg.Filter:= 'Python (*.py)|*.py';
-    if dlg.Execute then
-    begin
-      Config.SetDefaultScriptDirectory(ExtractFilePath(dlg.FileName));
-      LazPaintInstance.RunScript(dlg.FileName);
+    dlg := TOpenDialog.Create(nil);
+    try
+      dlg.Title := FileRunScript.Caption;
+      dlg.InitialDir:= Config.DefaultScriptDirectory;
+      dlg.DefaultExt:= 'py';
+      dlg.Filter:= 'Python (*.py)|*.py';
+      if dlg.Execute then
+      begin
+        Config.SetDefaultScriptDirectory(ExtractFilePath(dlg.FileName));
+        LazPaintInstance.RunScript(dlg.FileName);
+      end;
+    except
+      on ex:exception do
+        LazPaintInstance.ShowError(RemoveTrail(FileRunScript.Caption), ex.Message);
     end;
-  except
-    on ex:exception do
-      LazPaintInstance.ShowError(RemoveTrail(FileRunScript.Caption), ex.Message);
+    dlg.Free;
+  finally
+    LazPaintInstance.ShowTopmost(tmi);
   end;
-  dlg.Free;
 end;
 
 procedure TFMain.FileSaveAsInSameFolderExecute(Sender: TObject);

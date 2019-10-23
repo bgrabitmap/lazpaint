@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, ExtCtrls, Spin, UFilterConnector, BGRABitmapTypes, BGRABitmap;
+  StdCtrls, ExtCtrls, Spin, UFilterConnector, BGRABitmapTypes, BGRABitmap,
+  UScripting;
 
 type
 
@@ -60,25 +61,27 @@ type
     property CurrentLightPos: TPointF read GetCurrentLightPos;
   end;
 
-function ShowPhongFilterDlg(AFilterConnector: TObject):boolean;
+function ShowPhongFilterDlg(AFilterConnector: TObject): TScriptResult;
 
 implementation
 
 uses LCScaleDPI, UMac, BGRAGradients, LazPaintType;
 
-function ShowPhongFilterDlg(AFilterConnector: TObject): boolean;
+function ShowPhongFilterDlg(AFilterConnector: TObject): TScriptResult;
 var
   FPhongFilter: TFPhongFilter;
 begin
-  result := false;
   FPhongFilter:= TFPhongFilter.create(nil);
   FPhongFilter.FilterConnector := AFilterConnector as TFilterConnector;
   FPhongFilter.FWorkspaceColor:= FPhongFilter.FilterConnector.LazPaintInstance.Config.GetWorkspaceColor;
   try
     if FPhongFilter.FilterConnector.ActiveLayer <> nil then
-      result:= (FPhongFilter.showModal = mrOk)
+    begin
+      if FPhongFilter.showModal = mrOk then result := srOk
+      else result := srCancelledByUser;
+    end
     else
-      result := false;
+      result := srException;
   finally
     FPhongFilter.free;
   end;

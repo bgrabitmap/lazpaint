@@ -7,7 +7,8 @@ interface
 uses
   Classes, SysUtils, LResources, Forms, Controls, Graphics, Dialogs,
   StdCtrls, ExtCtrls, ExtDlgs,  bgrabitmap, LazPaintType, LCScaleDPI,
-  UResourceStrings, UFilterConnector, UFilterThread, ubrowseimages;
+  UResourceStrings, UFilterConnector, UFilterThread, ubrowseimages,
+  UScripting;
 
 type
 
@@ -42,7 +43,7 @@ type
     procedure SetLazPaintInstance(const AValue: TLazPaintCustomInstance);
     procedure OnTaskEvent({%H-}ASender: TObject; AEvent: TThreadManagerEvent);
   public
-    function ShowDlg(AFilterConnector: TObject): boolean;
+    function ShowDlg(AFilterConnector: TObject): TScriptResult;
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
   end;
 
@@ -172,16 +173,19 @@ begin
   end;
 end;
 
-function TFCustomBlur.ShowDlg(AFilterConnector: TObject): boolean;
+function TFCustomBlur.ShowDlg(AFilterConnector: TObject): TScriptResult;
 begin
   FFilterConnector := AFilterConnector as TFilterConnector;
   FThreadManager := TFilterThreadManager.Create(FFilterConnector);
   FThreadManager.OnEvent := @OnTaskEvent;
   try
     if FFilterConnector.ActiveLayer <> nil then
-      result:= (ShowModal = mrOk)
+    begin
+      if ShowModal = mrOk then result := srOk
+      else result := srCancelledByUser;
+    end
     else
-      result := false;
+      result := srException;
   finally
     FFilterConnector := nil;
     FThreadManager.Free;

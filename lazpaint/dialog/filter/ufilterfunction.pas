@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
   StdCtrls, ExtCtrls, ComCtrls, fpexprpars, UFilterConnector, BGRABitmap,
-  BGRABitmapTypes;
+  BGRABitmapTypes, UScripting;
 
 type
 
@@ -48,13 +48,13 @@ type
     procedure Edit_SaturationChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure PageControl_ColorChange(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
   private
     { private declarations }
     FRedExpr,FGreenExpr,FBlueExpr,FAlphaExpr,FHueExpr,FSaturationExpr,FLightnessExpr: TFPExpressionParser;
     FRedError,FGreenError,FBlueError,FAlphaError,FHueError,FSaturationError,FLightnessError: boolean;
-    FExprChanged: boolean;
     FComputing: boolean;
     FComputedImage: TBGRABitmap;
     FComputedLines: integer;
@@ -62,30 +62,43 @@ type
     FInitializing: boolean;
     procedure UpdateExpr(AExpr: TFPExpressionParser; AEdit: TEdit;
       var AError: boolean);
+    procedure InitParams;
     procedure PreviewNeeded;
     function CreateExpr: TFPExpressionParser;
   public
     { public declarations }
   end;
 
-function ShowFilterFunctionDlg(AFilterConnector: TObject):boolean;
+function ShowFilterFunctionDlg(AFilterConnector: TObject): TScriptResult;
 
 implementation
 
 uses LCScaleDPI, UMac, LazPaintType;
 
-function ShowFilterFunctionDlg(AFilterConnector: TObject): boolean;
+function ShowFilterFunctionDlg(AFilterConnector: TObject): TScriptResult;
 var
   FFilterFunction: TFFilterFunction;
 begin
-  result := false;
   FFilterFunction:= TFFilterFunction.create(nil);
   FFilterFunction.FFilterConnector := AFilterConnector as TFilterConnector;
   try
     if FFilterFunction.FFilterConnector.ActiveLayer <> nil then
-      result:= (FFilterFunction.showModal = mrOk)
+    begin
+      if Assigned(FFilterFunction.FFilterConnector.Parameters) and
+        FFilterFunction.FFilterConnector.Parameters.Booleans['Validate'] then
+      begin
+        FFilterFunction.InitParams;
+        FFilterFunction.PreviewNeeded;
+        while FFilterFunction.FComputing do FFilterFunction.Timer1Timer(FFilterFunction);
+        FFilterFunction.FFilterConnector.ValidateAction;
+      end else
+      begin
+        if FFilterFunction.showModal = mrOk then result := srOk
+        else result:= srCancelledByUser;
+      end;
+    end
     else
-      result := false;
+      result := srException;
   finally
     FFilterFunction.free;
   end;
@@ -113,22 +126,6 @@ begin
   FSaturationError := false;
   FLightnessExpr := CreateExpr;
   FLightnessError := false;
-
-  FInitializing := true;
-  Edit_Red.Text := 'red';
-  Edit_RedChange(nil);
-  Edit_Green.Text := 'green';
-  Edit_GreenChange(nil);
-  Edit_Blue.Text := 'blue';
-  Edit_BlueChange(nil);
-  Edit_Alpha.Text := 'alpha';
-  Edit_AlphaChange(nil);
-  Edit_Hue.Text := 'hue';
-  Edit_HueChange(nil);
-  Edit_Saturation.Text := 'saturation';
-  Edit_SaturationChange(nil);
-  Edit_Lightness.Text := 'lightness';
-  Edit_LightnessChange(nil);
   Label_RedEquals.Caption := 'red =';
   Label_GreenEquals.Caption := 'green =';
   Label_BlueEquals.Caption := 'blue =';
@@ -136,10 +133,7 @@ begin
   Label_HueEquals.Caption := 'hue =';
   Label_SaturationEquals.Caption := 'saturation =';
   Label_LightnessEquals.Caption := 'lightness =';
-
-  FExprChanged:= false;
   Label_Variables.Caption := Label_Variables.Caption+' x,y,width,height,random';
-  FInitializing := false;
 end;
 
 procedure TFFilterFunction.FormDestroy(Sender: TObject);
@@ -154,9 +148,15 @@ begin
   FLightnessExpr.Free;
 end;
 
+procedure TFFilterFunction.FormShow(Sender: TObject);
+begin
+  InitParams;
+  PreviewNeeded;
+end;
+
 procedure TFFilterFunction.PageControl_ColorChange(Sender: TObject);
 begin
-  if not FInitializing and FExprChanged then PreviewNeeded;
+  if not FInitializing then PreviewNeeded;
 end;
 
 procedure TFFilterFunction.Timer1Timer(Sender: TObject);
@@ -455,7 +455,6 @@ end;
 procedure TFFilterFunction.UpdateExpr(AExpr: TFPExpressionParser; AEdit: TEdit; var AError: boolean);
 begin
   if AExpr.Expression = Trim(AEdit.Text) then exit;
-  FExprChanged:= true;
   try
     AExpr.Expression := Trim(AEdit.Text);
     AEdit.Color := clWindow;
@@ -488,6 +487,42 @@ begin
   end;
 end;
 
+procedure TFFilterFunction.InitParams;
+begin
+  FInitializing:= true;
+  Edit_Red.Text := 'red';
+  Edit_Green.Text := 'green';
+  Edit_Blue.Text := 'blue';
+  Edit_Alpha.Text := 'alpha';
+  Edit_Hue.Text := 'hue';
+  Edit_Saturation.Text := 'saturation';
+  Edit_Lightness.Text := 'lightness';
+
+  if Assigned(FFilterConnector.Parameters) then
+    with FFilterConnector.Parameters do
+    begin
+      if IsDefined('Red') then Edit_Red.Text := Strings['Red'];
+      if IsDefined('Green') then Edit_Green.Text := Strings['Green'];
+      if IsDefined('Blue') then Edit_Blue.Text := Strings['Blue'];
+      if IsDefined('Alpha') then Edit_Alpha.Text := Strings['Alpha'];
+      if IsDefined('Hue') then Edit_Hue.Text := Strings['Hue'];
+      if IsDefined('Saturation') then Edit_Saturation.Text := Strings['Saturation'];
+      if IsDefined('Lightness') then Edit_Lightness.Text := Strings['Lightness'];
+      if IsDefined('CorrectedHue') then CheckBox_GSBA.Checked:= Booleans['CorrectedHue'];
+      if IsDefined('Hue') or IsDefined('Saturation') or IsDefined('Lightness') then
+        PageControl_Color.ActivePage := TabSheet_HSL;
+    end;
+
+  Edit_RedChange(nil);
+  Edit_GreenChange(nil);
+  Edit_BlueChange(nil);
+  Edit_AlphaChange(nil);
+  Edit_HueChange(nil);
+  Edit_SaturationChange(nil);
+  Edit_LightnessChange(nil);
+  FInitializing:= false;
+end;
+
 function TFFilterFunction.CreateExpr: TFPExpressionParser;
 begin
   result := TFPExpressionParser.Create(nil);
@@ -514,7 +549,7 @@ end;
 
 procedure TFFilterFunction.CheckBox_GSBAChange(Sender: TObject);
 begin
-  if not FInitializing and FExprChanged then PreviewNeeded;
+  if not FInitializing then PreviewNeeded;
 end;
 
 procedure TFFilterFunction.Button_CancelClick(Sender: TObject);

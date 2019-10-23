@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  Spin, UFilterConnector, BGRABitmap, BGRABitmapTypes, LazPaintType;
+  Spin, UFilterConnector, BGRABitmap, BGRABitmapTypes, LazPaintType,
+  UScripting;
 
 type
 
@@ -50,24 +51,26 @@ type
 var
   FWaveDisplacement: TFWaveDisplacement;
 
-function ShowWaveDisplacementDlg(AFilterConnector: TObject):boolean;
+function ShowWaveDisplacementDlg(AFilterConnector: TObject): TScriptResult;
 
 implementation
 
 uses umac, ugraph, LCScaleDPI;
 
-function ShowWaveDisplacementDlg(AFilterConnector: TObject):boolean;
+function ShowWaveDisplacementDlg(AFilterConnector: TObject): TScriptResult;
 var
   FWaveDisplacement: TFWaveDisplacement;
 begin
-  result := false;
   FWaveDisplacement:= TFWaveDisplacement.create(nil);
   FWaveDisplacement.FilterConnector := AFilterConnector as TFilterConnector;
   try
     if FWaveDisplacement.FilterConnector.ActiveLayer <> nil then
-      result:= (FWaveDisplacement.showModal = mrOk)
+    begin
+      if FWaveDisplacement.showModal = mrOk then result := srOk
+      else result := srCancelledByUser;
+    end
     else
-      result := false;
+      result := srException;
   finally
     FWaveDisplacement.free;
   end;

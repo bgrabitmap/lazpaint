@@ -65,7 +65,7 @@ type
     procedure EditSelection(ACallback: TModifyImageCallback);
     procedure Import3DObject(AFilenameUTF8: string);
     function GetPixel(X,Y: Integer): TBGRAPixel;
-    function PutImage(X,Y,AWidth,AHeight: integer; AImage: TBGRACustomBitmap; AMode: TDrawMode; AOpacity: byte): boolean;
+    function PutImage(X,Y: integer; AImage: TBGRACustomBitmap; AMode: TDrawMode; AOpacity: byte): boolean;
     function LayerFill(AColor: TBGRAPixel; AMode: TDrawMode): boolean;
     function TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: TBGRABitmap = nil): boolean;
     function AddLayerFromBitmap(ABitmap: TBGRABitmap; AName: string): boolean;
@@ -282,7 +282,7 @@ begin
     end;
     bmp.InvalidateBitmap;
 
-    if PutImage(x,y,width,height,bmp,mode,opacity) then
+    if PutImage(x,y,bmp,mode,opacity) then
     begin
       result := srOk;
       FInstance.UpdateWindows;
@@ -463,7 +463,7 @@ begin
   result := Image.LayerBitmap[Image.CurrentLayerIndex].GetPixel(X-ofs.X,y-ofs.Y);
 end;
 
-function TImageActions.PutImage(X, Y, AWidth, AHeight: integer; AImage: TBGRACustomBitmap;
+function TImageActions.PutImage(X, Y: integer; AImage: TBGRACustomBitmap;
   AMode: TDrawMode; AOpacity: byte): boolean;
 var
   LayerAction: TLayerAction;

@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, Spin, ExtCtrls, BGRABitmap, LazPaintType, LCScaleDPI, ufilterconnector, BGRABitmapTypes;
+  StdCtrls, Spin, ExtCtrls, BGRABitmap, LazPaintType, LCScaleDPI,
+  UFilterConnector, BGRABitmapTypes, UScripting;
 
 type
 
@@ -45,24 +46,26 @@ type
     FilterConnector: TFilterConnector;
   end;
 
-function ShowTwirlDlg(AFilterConnector: TObject):boolean;
+function ShowTwirlDlg(AFilterConnector: TObject): TScriptResult;
 
 implementation
 
 uses umac;
 
-function ShowTwirlDlg(AFilterConnector: TObject):boolean;
+function ShowTwirlDlg(AFilterConnector: TObject): TScriptResult;
 var
   FTwirl: TFTwirl;
 begin
-  result := false;
   FTwirl:= TFTwirl.create(nil);
   FTwirl.FilterConnector := AFilterConnector as TFilterConnector;
   try
     if FTwirl.FilterConnector.ActiveLayer <> nil then
-      result:= (FTwirl.showModal = mrOk)
+    begin
+      if FTwirl.showModal = mrOk then result := srOk
+      else result := srCancelledByUser;
+    end
     else
-      result := false;
+      result := srException;
   finally
     FTwirl.free;
   end;

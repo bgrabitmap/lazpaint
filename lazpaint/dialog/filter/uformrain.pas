@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
   ExtCtrls, StdCtrls, ComCtrls, UFilterConnector, BGRABitmapTypes, BGRABitmap,
-  URainType;
+  URainType, UScripting;
 
 type
 
@@ -43,12 +43,14 @@ type
     InPaintBoxMouseMove: boolean;
     PaintBoxMouseMovePos: TPoint;
     selectingWind: boolean;
+    FVars: TVariableSet;
     function GetRainRenderer: TRainRenderer;
     function GetRainQuantity: single;
     procedure SetRainQuantity(AValue: single);
     procedure ComputeWind(X,{%H-}Y: integer);
     function ComputeFilteredLayer: TBGRABitmap;
     procedure PreviewNeeded;
+    procedure InitParams;
     property RainQuantity: single read GetRainQuantity write SetRainQuantity;
     property RainRenderer: TRainRenderer read GetRainRenderer;
   public
@@ -57,24 +59,36 @@ type
     renderTimeInS: Double;
   end;
 
-function ShowRainDlg(AFilterConnector: TObject):boolean;
+function ShowRainDlg(AFilterConnector: TObject): TScriptResult;
 
 implementation
 
 uses LCScaleDPI, umac, LazPaintType;
 
-function ShowRainDlg(AFilterConnector: TObject):boolean;
+function ShowRainDlg(AFilterConnector: TObject): TScriptResult;
 var
   FRain: TFRain;
 begin
-  result := false;
   FRain := TFRain.create(nil);
   FRain.FilterConnector := AFilterConnector as TFilterConnector;
+  FRain.FVars := FRain.FilterConnector.Parameters;
   try
     if FRain.FilterConnector.ActiveLayer <> nil then
-      result:= (FRain.showModal = mrOk)
+    begin
+      if Assigned(FRain.FVars) and FRain.FVars.Booleans['Validate'] then
+      begin
+        FRain.InitParams;
+        FRain.PreviewNeeded;
+        FRain.FilterConnector.ValidateAction;
+        result := srOk;
+      end else
+      begin
+        if FRain.showModal = mrOk then result := srOk
+        else result := srCancelledByUser;
+      end;
+    end
     else
-      result := false;
+      result := srException;
   finally
     FRain.free;
   end;
@@ -109,8 +123,7 @@ end;
 
 procedure TFRain.FormShow(Sender: TObject);
 begin
-  wind := FilterConnector.LazPaintInstance.Config.DefaultRainWind;
-  RainQuantity := FilterConnector.LazPaintInstance.Config.DefaultRainQuantity;
+  InitParams;
   PreviewNeeded;
   Left := FilterConnector.LazPaintInstance.MainFormBounds.Left;
   Timer1.Enabled := true;
@@ -224,6 +237,16 @@ end;
 procedure TFRain.PreviewNeeded;
 begin
   FilterConnector.PutImage(ComputeFilteredLayer,False,True);
+end;
+
+procedure TFRain.InitParams;
+begin
+  if Assigned(FVars) and FVars.IsDefined('Wind') then
+    wind := FVars.Floats['Wind']
+  else wind := FilterConnector.LazPaintInstance.Config.DefaultRainWind;
+  if Assigned(FVars) and FVars.IsDefined('Amount') then
+    RainQuantity := FVars.Floats['Amount']
+  else RainQuantity := FilterConnector.LazPaintInstance.Config.DefaultRainQuantity;
 end;
 
 {$R *.lfm}

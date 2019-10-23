@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
   ExtCtrls, StdCtrls, ComCtrls, BGRABitmap, LazPaintType, LCScaleDPI,
-  ufilterconnector;
+  UFilterConnector, UScripting;
 
 type
 
@@ -47,9 +47,10 @@ type
     procedure PreviewNeeded;
   public
     FilterConnector: TFilterConnector;
+    FVars: TVariableSet;
   end;
 
-function ShowEmbossDlg(AFilterConnector: TObject):boolean;
+function ShowEmbossDlg(AFilterConnector: TObject): TScriptResult;
 
 implementation
 
@@ -57,18 +58,21 @@ uses BGRABitmapTypes, math, ugraph, umac;
 
 { TFEmboss }
 
-function ShowEmbossDlg(AFilterConnector: TObject):boolean;
+function ShowEmbossDlg(AFilterConnector: TObject): TScriptResult;
 var
   FEmboss: TFEmboss;
 begin
-  result := false;
   FEmboss:= TFEmboss.create(nil);
   FEmboss.FilterConnector := AFilterConnector as TFilterConnector;
+  FEmboss.FVars := FEmboss.FilterConnector.Parameters;
   try
     if FEmboss.FilterConnector.ActiveLayer <> nil then
-      result:= (FEmboss.showModal = mrOk)
+    begin
+      if FEmboss.showModal = mrOk then result := srOk
+      else result := srCancelledByUser;
+    end
     else
-      result := false;
+      result := srException;
   finally
     FEmboss.free;
   end;
@@ -89,7 +93,9 @@ end;
 
 procedure TFEmboss.FormShow(Sender: TObject);
 begin
-  angle := FilterConnector.LazPaintInstance.Config.DefaultEmbossAngle;
+  if Assigned(FVars) and FVars.IsDefined('Angle') then
+    angle := FVars.Floats['Angle'] else
+    angle := FilterConnector.LazPaintInstance.Config.DefaultEmbossAngle;
   PreviewNeeded;
   Left := FilterConnector.LazPaintInstance.MainFormBounds.Left
 end;

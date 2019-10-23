@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, Spin, ExtCtrls, BGRABitmap, BGRABitmapTypes, UFilterConnector;
+  StdCtrls, Spin, ExtCtrls, BGRABitmap, BGRABitmapTypes, UFilterConnector,
+  UScripting;
 
 type
   { TFNoiseFilter }
@@ -33,6 +34,7 @@ type
     { private declarations }
     FComputedLayer: TBGRABitmap;
     FClosing: boolean;
+    procedure InitParams;
   public
     FInitializing: boolean;
     FFilterConnector: TFilterConnector;
@@ -40,24 +42,35 @@ type
     procedure PreviewNeeded(ARecomputeRandom: boolean);
   end;
 
-function ShowNoiseFilterDlg(AFilterConnector: TObject):boolean;
+function ShowNoiseFilterDlg(AFilterConnector: TObject): TScriptResult;
 
 implementation
 
 uses BGRAGradientScanner, umac, LCScaleDPI, LazPaintType;
 
-function ShowNoiseFilterDlg(AFilterConnector: TObject):boolean;
+function ShowNoiseFilterDlg(AFilterConnector: TObject): TScriptResult;
 var
   FNoiseFilter: TFNoiseFilter;
 begin
-  result := false;
   FNoiseFilter:= TFNoiseFilter.create(nil);
   FNoiseFilter.FFilterConnector := AFilterConnector as TFilterConnector;
   try
     if FNoiseFilter.FFilterConnector.ActiveLayer <> nil then
-      result:= (FNoiseFilter.showModal = mrOk)
+    begin
+      if Assigned(FNoiseFilter.FFilterConnector.Parameters) and
+        FNoiseFilter.FFilterConnector.Parameters.Booleans['Validate'] then
+      begin
+        FNoiseFilter.InitParams;
+        FNoiseFilter.PreviewNeeded(true);
+        FNoiseFilter.FFilterConnector.ValidateAction;
+      end else
+      begin
+        if FNoiseFilter.showModal = mrOk then result := srOk
+        else result := srCancelledByUser;
+      end;
+    end
     else
-      result := false;
+      result := srException;
   finally
     FNoiseFilter.free;
   end;
@@ -107,12 +120,8 @@ begin
   FInitializing := true;
   FClosing := false;
   Top := FFilterConnector.LazPaintInstance.MainFormBounds.Top;
-  if FFilterConnector.LazPaintInstance.BlackAndWhite then
-  begin
-    Radio_GrayscaleNoise.Checked := true;
-    Radio_RGBNoise.Enabled := False;
-  end;
   FInitializing := false;
+  InitParams;
   PreviewNeeded(True);
 end;
 
@@ -122,6 +131,27 @@ begin
   if FComputedLayer = nil then ComputeFilteredLayer;
   FComputedLayer.AlphaFill(SpinEdit_Alpha.Value);
   PreviewNeeded(False);
+end;
+
+procedure TFNoiseFilter.InitParams;
+begin
+  FInitializing:= true;
+  if FFilterConnector.LazPaintInstance.BlackAndWhite then
+  begin
+    Radio_GrayscaleNoise.Checked := true;
+    Radio_RGBNoise.Enabled := False;
+  end else
+  begin
+    Radio_RGBNoise.Enabled := true;
+    Radio_RGBNoise.Checked := true;
+  end;
+  if Assigned(FFilterConnector.Parameters) then
+  with FFilterConnector.Parameters do
+  begin
+    if Booleans['Grayscale'] then Radio_GrayscaleNoise.Checked:= true;
+    if IsDefined('Opacity') then SpinEdit_Alpha.Value := Integers['Opacity'];
+  end;
+  FInitializing:= false;
 end;
 
 procedure TFNoiseFilter.ComputeFilteredLayer;
@@ -137,7 +167,12 @@ end;
 procedure TFNoiseFilter.PreviewNeeded(ARecomputeRandom: boolean);
 begin
   if ARecomputeRandom or (FComputedLayer = nil) then ComputeFilteredLayer;
-  FFilterConnector.PutImage(FComputedLayer,Radio_RGBNoise.Checked,False);
+  if SpinEdit_Alpha.Value <> 255 then
+  begin
+    FFilterConnector.RestoreBackup;
+    FFilterConnector.PutImage(FComputedLayer,Radio_RGBNoise.Checked,False,dmDrawWithTransparency);
+  end else
+    FFilterConnector.PutImage(FComputedLayer,Radio_RGBNoise.Checked,False,dmSet);
 end;
 
 end.
