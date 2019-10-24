@@ -26,7 +26,6 @@ type
     procedure Button_OKClick(Sender: TObject);
     procedure CheckBox_Change(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure PaintBox1MouseDown(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; X, Y: Integer);
@@ -42,9 +41,11 @@ type
     PaintBoxMouseMovePos: TPoint;
     angle: single;
     selectingAngle: boolean;
+    FInitializing: boolean;
     procedure ComputeAngle(X,Y: integer);
     function ComputeFilteredLayer: TBGRABitmap;
     procedure PreviewNeeded;
+    procedure InitParams;
   public
     FilterConnector: TFilterConnector;
     FVars: TVariableSet;
@@ -68,8 +69,17 @@ begin
   try
     if FEmboss.FilterConnector.ActiveLayer <> nil then
     begin
-      if FEmboss.showModal = mrOk then result := srOk
-      else result := srCancelledByUser;
+      if Assigned(FEmboss.FilterConnector.Parameters) and
+        FEmboss.FilterConnector.Parameters.Booleans['Validate'] then
+      begin
+        FEmboss.InitParams;
+        FEmboss.PreviewNeeded;
+        FEmboss.FilterConnector.ValidateAction;
+      end else
+      begin
+        if FEmboss.showModal = mrOk then result := srOk
+        else result := srCancelledByUser;
+      end;
     end
     else
       result := srException;
@@ -86,16 +96,9 @@ begin
   CheckOKCancelBtns(Button_OK{,Button_Cancel});
 end;
 
-procedure TFEmboss.FormDestroy(Sender: TObject);
-begin
-
-end;
-
 procedure TFEmboss.FormShow(Sender: TObject);
 begin
-  if Assigned(FVars) and FVars.IsDefined('Angle') then
-    angle := FVars.Floats['Angle'] else
-    angle := FilterConnector.LazPaintInstance.Config.DefaultEmbossAngle;
+  InitParams;
   PreviewNeeded;
   Left := FilterConnector.LazPaintInstance.MainFormBounds.Left
 end;
@@ -188,6 +191,21 @@ end;
 procedure TFEmboss.PreviewNeeded;
 begin
   FilterConnector.PutImage(ComputeFilteredLayer,False,True);
+end;
+
+procedure TFEmboss.InitParams;
+begin
+  FInitializing:= true;
+  angle := FilterConnector.LazPaintInstance.Config.DefaultEmbossAngle;
+  if Assigned(FVars) then
+  begin
+    if FVars.IsDefined('Angle') then angle := FVars.Floats['Angle'];
+    if FVars.IsDefined('Transparent') then
+      CheckBox_Transparent.Checked := FVars.Booleans['Transparent'];
+    if FVars.IsDefined('PreserveColors') then
+      CheckBox_PreserveColors.Checked := FVars.Booleans['PreserveColors'];
+  end;
+  FInitializing:= false;
 end;
 
 {$R *.lfm}

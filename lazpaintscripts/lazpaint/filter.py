@@ -54,6 +54,18 @@ PIXELATE_QUALITY_MITCHELL = 'Mitchell'
 PIXELATE_QUALITY_SPLINE = 'Spline'
 PIXELATE_QUALITY_BEST = PIXELATE_QUALITY_MITCHELL
 
+PHONG_COLOR_LAYER = 'Layer'
+PHONG_COLOR_PEN = 'Pen'
+PHONG_COLOR_BACK = 'Back'
+
+PHONG_ALTITUDE_LIGHTNESS = 'Lightness'
+PHONG_ALTITUDE_LINEAR_LIGHTNESS = 'LinearLightness'
+PHONG_ALTITUDE_SATURATION = 'Saturation'
+PHONG_ALTITUDE_ALPHA_CHANNEL = 'Alpha'
+PHONG_ALTITUDE_RED_CHANNEL = 'Red'
+PHONG_ALTITUDE_GREEN_CHANNEL = 'Green'
+PHONG_ALTITUDE_BLUE_CHANNEL = 'Blue'
+
 def run(name, validate=True):
   command.send("Filter", Name=name, Validate=validate)
 
@@ -75,12 +87,15 @@ def pixelate(pixel_size=None, quality=None, validate=True):
 def filter_function(red=None, green=None, blue=None, alpha=None, hue=None, saturation=None, lightness=None, validate=True):
   command.send("Filter", Name=FILTER_FUNCTION, Red=red, Green=green, Blue=blue, Alpha=alpha, Hue=hue, Saturation=saturation, Lightness=lightness, Validate=validate)
 
-def emboss(angle=None, validate=True):
-  command.send("Filter", Name=EMBOSS, Angle=angle, Validate=validate)
+def emboss(angle=None, transparent=None, preserve_colors=None, validate=True):
+  command.send("Filter", Name=EMBOSS, Angle=angle, Transparent=transparent, PreserveColors=preserve_colors, Validate=validate)
 
 def rain(amount=None, wind=None, validate=True):
   command.send("Filter", Name=RAIN, Amount=amount, Wind=wind, Validate=validate)
 
 def posterize(levels=None, by_lightness=None, validate=True):
   command.send("Filter", Name=POSTERIZE, Levels=levels, ByLightness=by_lightness, Validate=validate)
+
+def phong(color_source=None, altitude_percent=None, altitude_source=None, light_x_percent=None, light_y_percent=None, validate=True):
+  command.send("Filter", Name=PHONG, ColorSource=color_source, AltitudePercent=altitude_percent, AltitudeSource=altitude_source, LightXPercent=light_x_percent, LightYPercent=light_y_percent, Validate=validate)
 

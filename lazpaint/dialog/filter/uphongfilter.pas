@@ -54,6 +54,7 @@ type
     FHeightMap: TBGRABitmap;
     FWorkspaceColor: TColor;
     function GetCurrentLightPos: TPointF;
+    procedure InitParams;
     procedure PreviewNeeded;
     function ComputeFilteredLayer: TBGRABitmap;
   public
@@ -77,8 +78,18 @@ begin
   try
     if FPhongFilter.FilterConnector.ActiveLayer <> nil then
     begin
-      if FPhongFilter.showModal = mrOk then result := srOk
-      else result := srCancelledByUser;
+      if Assigned(FPhongFilter.FilterConnector.Parameters) and
+        FPhongFilter.FilterConnector.Parameters.Booleans['Validate'] then
+      begin
+        FPhongFilter.InitParams;
+        FPhongFilter.PreviewNeeded;
+        FPhongFilter.FilterConnector.PutImage(FPhongFilter.ComputeFilteredLayer,true,true);
+        FPhongFilter.FilterConnector.ValidateAction;
+      end else
+      begin
+        if FPhongFilter.showModal = mrOk then result := srOk
+        else result := srCancelledByUser;
+      end;
     end
     else
       result := srException;
@@ -113,16 +124,7 @@ end;
 
 procedure TFPhongFilter.FormShow(Sender: TObject);
 begin
-  FInitializing:= true;
-  Radio_UseTexture.Enabled := (FilterConnector.LazPaintInstance.ToolManager.GetTexture <> nil);
-  if Radio_UseTexture.Enabled then Radio_UseTexture.Checked := true
-  else Radio_UsePenColor.Checked := true;
-  SpinEdit_Altitude.Value := FilterConnector.LazPaintInstance.Config.DefaultPhongFilterAltitude;
-  SpinEdit_AltitudeChange(nil);
-  with FilterConnector.LazPaintInstance.ToolManager.LightPosition do
-    FCenter := PointF(X/FilterConnector.LazPaintInstance.Image.Width,
-        Y/FilterConnector.LazPaintInstance.Image.Height);
-  FInitializing := false;
+  InitParams;
   PreviewNeeded;
 end;
 
@@ -207,6 +209,46 @@ function TFPhongFilter.GetCurrentLightPos: TPointF;
 begin
   result := PointF(FCenter.X*FilterConnector.ActiveLayer.Width,
     FCenter.Y*FilterConnector.ActiveLayer.Height);
+end;
+
+procedure TFPhongFilter.InitParams;
+begin
+  FInitializing:= true;
+  Radio_UseTexture.Enabled := (FilterConnector.LazPaintInstance.ToolManager.GetTexture <> nil);
+  if Radio_UseTexture.Enabled then Radio_UseTexture.Checked := true
+  else Radio_UsePenColor.Checked := true;
+  SpinEdit_Altitude.Value := FilterConnector.LazPaintInstance.Config.DefaultPhongFilterAltitude;
+  with FilterConnector.LazPaintInstance.ToolManager.LightPosition do
+    FCenter := PointF(X/FilterConnector.LazPaintInstance.Image.Width,
+        Y/FilterConnector.LazPaintInstance.Image.Height);
+  if Assigned(FilterConnector.Parameters) then
+  with FilterConnector.Parameters do
+  begin
+    if IsDefined('ColorSource') then
+    case Strings['ColorSource'] of
+    'Pen': Radio_UsePenColor.checked := true;
+    'Back': Radio_UseBackColor.checked := true;
+    'Layer': Radio_UseKeep.checked := true;
+    end;
+    if IsDefined('AltitudePercent') then
+      SpinEdit_Altitude.Value := Integers['AltitudePercent'];
+    if IsDefined('LightXPercent') then
+      FCenter.x := Floats['LightXPercent']/100;
+    if IsDefined('LightYPercent') then
+      FCenter.y := Floats['LightYPercent']/100;
+    if IsDefined('AltitudeSource') then
+    case Strings['AltitudeSource'] of
+    'Lightness': Radio_MapLightness.Checked:= true;
+    'LinearLightness': Radio_MapLinearLightness.Checked:= true;
+    'Saturation': Radio_MapSaturation.Checked:= true;
+    'Alpha': Radio_MapAlpha.Checked:= true;
+    'Red': Radio_MapRed.Checked:= true;
+    'Green': Radio_MapGreen.Checked:= true;
+    'Blue': Radio_MapBlue.Checked:= true;
+    end;
+  end;
+  SpinEdit_AltitudeChange(nil);
+  FInitializing := false;
 end;
 
 procedure ScanLineMapLightness(psrc,pdest: PBGRAPixel; count: integer);

@@ -142,21 +142,6 @@ var
     else result := AInstance.ShowSharpenDlg(FilterConnector);
   end;
 
-  procedure DoEmboss;
-  var
-    angle: Double;
-  begin
-    if GetSkip then
-    begin
-      if AParameters.IsDefined('Angle') then
-        angle := AParameters.Floats['Angle']
-      else angle := AInstance.Config.DefaultEmbossAngle;
-      filteredLayer := FilterConnector.ActiveLayer.FilterEmboss(angle, FilterConnector.WorkArea) as TBGRABitmap
-    end
-    else
-      result := AInstance.ShowEmbossDlg(FilterConnector);
-  end;
-
 var
   layer: TBGRABitmap;
   applyOfsBefore: Boolean;
@@ -166,6 +151,8 @@ begin
   if filter = pfNone then exit(srInvalidParameters);
   if not AInstance.Image.CheckNoAction then exit;
   if not AInstance.image.CheckCurrentLayerVisible then exit;
+  if skipDialog then AParameters.Booleans['Validate'] := true;
+
   if (filter = pfLinearNegative) and AInstance.Image.SelectionMaskEmpty and (AInstance.Image.NbLayers = 1) then
   begin
       AInstance.Image.LinearNegativeAll;
@@ -212,7 +199,7 @@ begin
     pfBlurPrecise, pfBlurRadial, pfBlurCorona, pfBlurDisk, pfBlurFast, pfBlurBox: DoSimpleBlur;
     pfBlurMotion: DoBlurMotion;
     pfBlurCustom: DoBlurCustom;
-    pfEmboss: DoEmboss;
+    pfEmboss: result := AInstance.ShowEmbossDlg(FilterConnector);
     pfRain: result := AInstance.ShowRainDlg(FilterConnector);
     pfPhong: result := AInstance.ShowPhongFilterDlg(FilterConnector);
     pfFunction: result := AInstance.ShowFunctionFilterDlg(FilterConnector);
