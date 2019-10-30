@@ -99,3 +99,5 @@ def posterize(levels=None, by_lightness=None, validate=True):
 def phong(color_source=None, altitude_percent=None, altitude_source=None, light_x_percent=None, light_y_percent=None, validate=True):
   command.send("Filter", Name=PHONG, ColorSource=color_source, AltitudePercent=altitude_percent, AltitudeSource=altitude_source, LightXPercent=light_x_percent, LightYPercent=light_y_percent, Validate=validate)
 
+def twirl(radius=None, angle=None, center_x_percent=None, center_y_percent=None, validate=True):
+  command.send("Filter", Name=TWIRL, Radius=radius, Angle=angle, CenterXPercent=center_x_percent, CenterYPercent=center_y_percent, Validate=validate)

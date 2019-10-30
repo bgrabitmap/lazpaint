@@ -40,6 +40,7 @@ type
     { private declarations }
     FInitializing: boolean;
     FCenter: TPointF;
+    procedure InitParams;
     procedure PreviewNeeded;
     function ComputeFilteredLayer: TBGRABitmap;
   public
@@ -61,8 +62,18 @@ begin
   try
     if FTwirl.FilterConnector.ActiveLayer <> nil then
     begin
-      if FTwirl.showModal = mrOk then result := srOk
-      else result := srCancelledByUser;
+      if Assigned(FTwirl.FilterConnector.Parameters) and
+        FTwirl.FilterConnector.Parameters.Booleans['Validate'] then
+      begin
+        FTwirl.InitParams;
+        FTwirl.FilterConnector.PutImage(FTwirl.ComputeFilteredLayer,False,true);
+        FTwirl.FilterConnector.ValidateAction;
+        result := srOk;
+      end else
+      begin
+        if FTwirl.showModal = mrOk then result := srOk
+        else result := srCancelledByUser;
+      end;
     end
     else
       result := srException;
@@ -80,8 +91,6 @@ begin
   CheckSpinEdit(SpinEdit_Radius);
   CheckSpinEdit(SpinEdit_Angle);
   CheckOKCancelBtns(Button_OK{,Button_Cancel});
-
-  FCenter := PointF(0.5,0.5);
 end;
 
 procedure TFTwirl.FormDestroy(Sender: TObject);
@@ -90,10 +99,7 @@ end;
 
 procedure TFTwirl.FormShow(Sender: TObject);
 begin
-  FInitializing:= true;
-  SpinEdit_Radius.Value := round(FilterConnector.LazPaintInstance.Config.DefaultTwirlRadius);
-  SpinEdit_Angle.Value := round(FilterConnector.LazPaintInstance.Config.DefaultTwirlTurn*360);
-  FInitializing := false;
+  InitParams;
   PreviewNeeded;
   Left := FilterConnector.LazPaintInstance.MainFormBounds.Left;
 end;
@@ -147,6 +153,23 @@ begin
   Timer1.Enabled := false;
   FilterConnector.PutImage(ComputeFilteredLayer,False,true);
   Button_OK.Enabled := true;
+end;
+
+procedure TFTwirl.InitParams;
+begin
+  FInitializing:= true;
+  SpinEdit_Radius.Value := round(FilterConnector.LazPaintInstance.Config.DefaultTwirlRadius);
+  SpinEdit_Angle.Value := round(FilterConnector.LazPaintInstance.Config.DefaultTwirlTurn*360);
+  FCenter := PointF(0.5,0.5);
+  if Assigned(FilterConnector.Parameters) then
+  with FilterConnector.Parameters do
+  begin
+    if IsDefined('Radius') then SpinEdit_Radius.Value := Floats['Radius'];
+    if IsDefined('Angle') then SpinEdit_Angle.Value:= Floats['Angle'];
+    if IsDefined('CenterXPercent') then FCenter.X := Floats['CenterXPercent']/100;
+    if IsDefined('CenterYPercent') then FCenter.Y := Floats['CenterYPercent']/100;
+  end;
+  FInitializing := false;
 end;
 
 procedure TFTwirl.PreviewNeeded;

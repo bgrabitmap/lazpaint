@@ -188,7 +188,8 @@ type
     procedure ShowPrintDlg; override;
     function HideTopmost: TTopMostInfo; override;
     procedure ShowTopmost(AInfo: TTopMostInfo); override;
-    procedure UpdateWindows;  override;
+    procedure UpdateWindows; override;
+    procedure Wait(ACheckActive: TCheckFunction; ADelayMs: integer); override;
     procedure ShowCanvasSizeDlg; override;
     procedure ShowRepeatImageDlg; override;
     procedure MoveToolboxTo(X,Y: integer); override;
@@ -1254,6 +1255,30 @@ begin
   if Assigned(FLayerStack) then FLayerStack.Update;
   if Assigned(FImageList) then FImageList.Update;
   {$ENDIF}
+end;
+
+procedure TLazPaintInstance.Wait(ACheckActive: TCheckFunction; ADelayMs: integer);
+var
+  tmi: TTopMostInfo;
+  wasEnabled: Boolean;
+begin
+  tmi := HideTopmost;
+  if Assigned(FMain) then
+  begin
+    wasEnabled := FMain.Enabled;
+    FMain.Enabled:= false;
+  end
+  else wasEnabled := false;
+  try
+    repeat
+      Application.ProcessMessages;
+      sleep(ADelayMs);
+    until not ACheckActive();
+  finally
+    if Assigned(FMain) then
+      FMain.Enabled := wasEnabled;
+    ShowTopmost(tmi);
+  end;
 end;
 
 procedure TLazPaintInstance.NotifyImageChange(RepaintNow: boolean; ARect: TRect);

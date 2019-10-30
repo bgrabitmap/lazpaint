@@ -34,7 +34,7 @@ type
     destructor Destroy; override;
     procedure WantPreview(ATask: TFilterTask);
     procedure Quit;
-    procedure RegularCheck;
+    function RegularCheck: boolean;
     property Quitting: boolean read FQuitting;
     property ReadyToClose: boolean read GetReadyToClose;
     property CancellingPreview: boolean read FCancellingPreview;
@@ -195,7 +195,7 @@ begin
   FreeAndNil(FNextTask);
 end;
 
-procedure TFilterThreadManager.RegularCheck;
+function TFilterThreadManager.RegularCheck: boolean;
 var filteredLayer: TBGRABitmap;
   currentY: integer;
   changedBounds: TRect;
@@ -219,6 +219,7 @@ begin
   begin
     if not FCancellingPreview then StartNextTask;
   end;
+  result := Assigned(FThread);
 end;
 
 { TFilterThread }

@@ -49,6 +49,7 @@ type
     FQuitQuery: boolean;
     procedure UpdateStep;
     procedure ComputeAngle(X,Y: integer);
+    procedure InitParams;
     procedure PreviewNeeded;
     procedure OnTaskEvent({%H-}ASender: TObject; AEvent: TThreadManagerEvent);
   end;
@@ -71,8 +72,19 @@ begin
   try
     if FMotionBlur.FFilterConnector.ActiveLayer <> nil then
     begin
-      if FMotionBlur.ShowModal = mrOk then result := srOk
-      else result := srCancelledByUser;
+      if Assigned(FMotionBlur.FFilterConnector.Parameters) and
+        FMotionBlur.FFilterConnector.Parameters.Booleans['Validate'] then
+      begin
+        FMotionBlur.InitParams;
+        FMotionBlur.PreviewNeeded;
+        FMotionBlur.FFilterConnector.LazPaintInstance.Wait(@FMotionBlur.FThreadManager.RegularCheck, 50);
+        FMotionBlur.FFilterConnector.ValidateAction;
+        result := srOk;
+      end else
+      begin
+        if FMotionBlur.ShowModal = mrOk then result := srOk
+        else result := srCancelledByUser;
+      end;
     end
     else
       result := srException;
@@ -150,6 +162,26 @@ begin
   PaintBox1.Repaint;
 end;
 
+procedure TFMotionBlur.InitParams;
+begin
+  if Assigned(FVars) and (FVars.IsDefined('Oriented')) then
+    Checkbox_Oriented.Checked := FVars.Booleans['Oriented']
+  else
+    Checkbox_Oriented.Checked := FFilterConnector.LazPaintInstance.Config.DefaultBlurMotionOriented;
+
+  if Assigned(FVars) and (FVars.IsDefined('Distance')) then
+    SpinEdit_Distance.Value := FVars.Floats['Distance']
+  else
+    SpinEdit_Distance.Value := FFilterConnector.LazPaintInstance.Config.DefaultBlurMotionDistance;
+
+  UpdateStep;
+
+  if Assigned(FVars) and (FVars.IsDefined('Angle')) then
+    angle := FVars.Floats['Angle']
+  else
+    angle := FFilterConnector.LazPaintInstance.Config.DefaultBlurMotionAngle;
+end;
+
 procedure TFMotionBlur.PreviewNeeded;
 begin
   FThreadManager.WantPreview(CreateMotionBlurTask(FFilterConnector.BackupLayer,
@@ -191,24 +223,7 @@ end;
 procedure TFMotionBlur.FormShow(Sender: TObject);
 begin
   FQuitQuery := false;
-
-  if Assigned(FVars) and (FVars.IsDefined('Oriented')) then
-    Checkbox_Oriented.Checked := FVars.Booleans['Oriented']
-  else
-    Checkbox_Oriented.Checked := FFilterConnector.LazPaintInstance.Config.DefaultBlurMotionOriented;
-
-  if Assigned(FVars) and (FVars.IsDefined('Distance')) then
-    SpinEdit_Distance.Value := FVars.Floats['Distance']
-  else
-    SpinEdit_Distance.Value := FFilterConnector.LazPaintInstance.Config.DefaultBlurMotionDistance;
-
-  UpdateStep;
-
-  if Assigned(FVars) and (FVars.IsDefined('Angle')) then
-    angle := FVars.Floats['Angle']
-  else
-    angle := FFilterConnector.LazPaintInstance.Config.DefaultBlurMotionAngle;
-
+  InitParams;
   PreviewNeeded;
   Left := FFilterConnector.LazPaintInstance.MainFormBounds.Left;
 end;

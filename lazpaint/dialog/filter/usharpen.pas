@@ -31,7 +31,7 @@ type
     FMode :TSharpenMode;
     FInitializing: boolean;
     FFilterConnector: TFilterConnector;
-    FVars: TVariableSet;
+    procedure InitParams;
     procedure PreviewNeeded;
   end;
 
@@ -49,7 +49,6 @@ begin
   try
     FSharpen.FFilterConnector := AFilterConnector as TFilterConnector;
     FSharpen.FFilterConnector.OnTryStopAction := @FSharpen.OnTryStopAction;
-    FSharpen.FVars:= FSharpen.FFilterConnector.Parameters;
   except
     on ex: exception do
     begin
@@ -59,8 +58,18 @@ begin
     end;
   end;
   try
-    if FSharpen.ShowModal = mrOK then
-      result := srOk else result := srCancelledByUser;
+    if Assigned(FSharpen.FFilterConnector.Parameters) and
+      FSharpen.FFilterConnector.Parameters.Booleans['Validate'] then
+    begin
+      FSharpen.InitParams;
+      FSharpen.PreviewNeeded;
+      FSharpen.FFilterConnector.ValidateAction;
+      result := srOk;
+    end else
+    begin
+      if FSharpen.ShowModal = mrOK then
+        result := srOk else result := srCancelledByUser;
+    end;
   finally
     FSharpen.FFilterConnector.OnTryStopAction := nil;
     FSharpen.Free;
@@ -81,12 +90,7 @@ end;
 procedure TFSharpen.FormShow(Sender: TObject);
 var idxSlash: integer;
 begin
-  FInitializing := true;
-  if Assigned(FVars) and FVars.IsDefined('Amount') then
-    SpinEdit_Amount.Value := round(FVars.Floats['Amount']*100)
-  else
-     SpinEdit_Amount.Value := round(FFilterConnector.LazPaintInstance.Config.DefaultSharpenAmount*100);
-  FInitializing := false;
+  InitParams;
   PreviewNeeded;
   idxSlash:= Pos('/',Caption);
   if idxSlash <> 0 then
@@ -112,6 +116,16 @@ end;
 procedure TFSharpen.OnTryStopAction(sender: TFilterConnector);
 begin
   if self.visible then Close;
+end;
+
+procedure TFSharpen.InitParams;
+begin
+  FInitializing := true;
+  if Assigned(FFilterConnector.Parameters) and FFilterConnector.Parameters.IsDefined('Amount') then
+    SpinEdit_Amount.Value := round(FFilterConnector.Parameters.Floats['Amount']*100)
+  else
+     SpinEdit_Amount.Value := round(FFilterConnector.LazPaintInstance.Config.DefaultSharpenAmount*100);
+  FInitializing := false;
 end;
 
 procedure TFSharpen.PreviewNeeded;

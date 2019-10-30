@@ -93,53 +93,12 @@ var
       result := AInstance.ShowRadialBlurDlg(FilterConnector, blurType, GetCaption);
   end;
 
-  procedure DoBlurMotion;
-  var
-    oriented: Boolean;
-    distance, angle: Double;
-  begin
-    if GetSkip then
-    begin
-      if AParameters.IsDefined('Oriented') then
-        oriented := AParameters.Booleans['Oriented']
-      else oriented := AInstance.Config.DefaultBlurMotionOriented;
-
-      if AParameters.IsDefined('Distance') then
-        distance := AParameters.Floats['Distance']
-      else distance := AInstance.Config.DefaultBlurMotionDistance;
-
-      if AParameters.IsDefined('Angle') then
-        angle := AParameters.Floats['Angle']
-      else angle := AInstance.Config.DefaultBlurMotionAngle;
-
-      filteredLayer := FilterConnector.ActiveLayer.FilterBlurMotion(FilterConnector.WorkArea,
-                          distance,angle,oriented) as TBGRABitmap
-    end
-    else
-      result := AInstance.ShowMotionBlurDlg(FilterConnector);
-  end;
-
   procedure DoMetalFloor;
   var temp: TBGRABitmap;
   begin
      temp := CreateMetalFloorTexture(100);
      filteredLayer := temp.GetPart(rect(0,0,FilterConnector.ActiveLayer.Width,FilterConnector.ActiveLayer.Height)) as TBGRABitmap;
      temp.Free;
-  end;
-
-  procedure DoSharpen;
-  var
-    amount: single;
-  begin
-    if GetSkip then
-    begin
-      if AParameters.IsDefined('Amount') then
-        amount := AParameters.Floats['Amount']
-      else amount := AInstance.Config.DefaultSharpenAmount;
-      filteredLayer := FilterConnector.ActiveLayer.FilterSharpen(FilterConnector.WorkArea,amount) as TBGRABitmap;
-      AParameters.Floats['Amount'] := amount;
-    end
-    else result := AInstance.ShowSharpenDlg(FilterConnector);
   end;
 
 var
@@ -172,7 +131,7 @@ begin
 
     filteredLayer := nil;
     case filter of
-    pfSharpen: DoSharpen;
+    pfSharpen: result := AInstance.ShowSharpenDlg(FilterConnector);
     pfSmooth: filteredLayer := layer.FilterSmooth as TBGRABitmap;
     pfClearTypeInverse: filteredLayer := ClearTypeInverseFilter(layer) as TBGRABitmap;
     pfClearType: filteredLayer := ClearTypeFilter(layer) as TBGRABitmap;
@@ -197,7 +156,7 @@ begin
         FilterComplementaryColor(filteredLayer,FilterConnector.WorkArea);
       end;
     pfBlurPrecise, pfBlurRadial, pfBlurCorona, pfBlurDisk, pfBlurFast, pfBlurBox: DoSimpleBlur;
-    pfBlurMotion: DoBlurMotion;
+    pfBlurMotion: result := AInstance.ShowMotionBlurDlg(FilterConnector);
     pfBlurCustom: DoBlurCustom;
     pfEmboss: result := AInstance.ShowEmbossDlg(FilterConnector);
     pfRain: result := AInstance.ShowRainDlg(FilterConnector);
@@ -205,11 +164,7 @@ begin
     pfFunction: result := AInstance.ShowFunctionFilterDlg(FilterConnector);
     pfNoise: result := AInstance.ShowNoiseFilterDlg(FilterConnector);
     pfPixelate: result := AInstance.ShowPixelateDlg(FilterConnector);
-    pfTwirl:
-        if GetSkip then
-          filteredLayer := layer.FilterTwirl(FilterConnector.WorkArea, Point(layer.Width div 2,layer.Height div 2), AInstance.Config.DefaultTwirlRadius, AInstance.Config.DefaultTwirlTurn ) as TBGRABitmap
-        else
-          result := AInstance.ShowTwirlDlg(FilterConnector);
+    pfTwirl: result := AInstance.ShowTwirlDlg(FilterConnector);
     pfWaveDisplacement:
         if GetSkip then
           filteredLayer := ugraph.WaveDisplacementFilter(layer,FilterConnector.WorkArea, PointF(layer.Width/2,layer.Height/2), AInstance.Config.DefaultWaveDisplacementWavelength, AInstance.Config.DefaultWaveDisplacementAmount, AInstance.Config.DefaultWaveDisplacementPhase ) as TBGRABitmap

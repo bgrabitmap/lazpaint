@@ -138,6 +138,7 @@ type
      defined: boolean;
      toolboxHidden, choosecolorHidden, layerstackHidden, imagelistHidden: NativeInt;
   end;
+  TCheckFunction = function: boolean of object;
 
   { TLazPaintCustomInstance }
 
@@ -269,6 +270,7 @@ type
     function ShowNewImageDlg(out bitmap: TBGRABitmap):boolean; virtual; abstract;
     function ShowResampleDialog(AParameters: TVariableSet):boolean; virtual; abstract;
     procedure UpdateWindows; virtual; abstract;
+    procedure Wait(ACheckActive: TCheckFunction; ADelayMs: integer); virtual; abstract;
     procedure ApplyDocking; virtual; abstract;
     procedure AddColorToPalette(AColor: TBGRAPixel); virtual; abstract;
     procedure RemoveColorFromPalette(AColor: TBGRAPixel); virtual; abstract;
