@@ -824,9 +824,12 @@ type
     function ScriptChooseTool(AVars: TVariableSet): TScriptResult;
     function ScriptViewZoomIn({%H-}AVars: TVariableSet): TScriptResult;
     function ScriptViewZoomOut({%H-}AVars: TVariableSet): TScriptResult;
+    function ScriptViewZoomGet({%H-}AVars: TVariableSet): TScriptResult;
+    function ScriptViewZoomSet({%H-}AVars: TVariableSet): TScriptResult;
     function ScriptViewZoomOriginal({%H-}AVars: TVariableSet): TScriptResult;
     function ScriptViewZoomFit({%H-}AVars: TVariableSet): TScriptResult;
     function ScriptViewGrid(AVars: TVariableSet): TScriptResult;
+    function ScriptViewGridGet(AVars: TVariableSet): TScriptResult;
     function GetScriptContext: TScriptContext;
     procedure CallScriptFunction(AName:string); overload;
     procedure CallScriptFunction(AParams:TVariableSet); overload;
@@ -1144,9 +1147,12 @@ begin
   Scripting.RegisterScriptFunction('ChooseTool',@ScriptChooseTool,ARegister);
   Scripting.RegisterScriptFunction('ViewZoomIn',@ScriptViewZoomIn,ARegister);
   Scripting.RegisterScriptFunction('ViewZoomOut',@ScriptViewZoomOut,ARegister);
+  Scripting.RegisterScriptFunction('ViewZoomGet',@ScriptViewZoomGet,ARegister);
+  Scripting.RegisterScriptFunction('ViewZoomSet',@ScriptViewZoomSet,ARegister);
   Scripting.RegisterScriptFunction('ViewZoomOriginal',@ScriptViewZoomOriginal,ARegister);
   Scripting.RegisterScriptFunction('ViewZoomFit',@ScriptViewZoomFit,ARegister);
   Scripting.RegisterScriptFunction('ViewGrid',@ScriptViewGrid,ARegister);
+  Scripting.RegisterScriptFunction('ViewGridGet',@ScriptViewGridGet,ARegister);
 end;
 
 procedure TFMain.FormMouseDown(Sender: TObject; Button: TMouseButton;
@@ -3055,20 +3061,32 @@ end;
 
 function TFMain.ScriptViewZoomIn(AVars: TVariableSet): TScriptResult;
 begin
-  Zoom.ZoomIn;
+  Zoom.ZoomIn(AVars.Booleans['Fine']);
   result := srOk;
 end;
 
 function TFMain.ScriptViewZoomOut(AVars: TVariableSet): TScriptResult;
 begin
-  Zoom.ZoomOut;
+  Zoom.ZoomOut(AVars.Booleans['Fine']);
+  result := srOk;
+end;
+
+function TFMain.ScriptViewZoomGet(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Floats['Result'] := Zoom.Factor;
+  result := srOk;
+end;
+
+function TFMain.ScriptViewZoomSet(AVars: TVariableSet): TScriptResult;
+begin
+  Zoom.Factor := AVars.Floats['Factor'];
   result := srOk;
 end;
 
 function TFMain.ScriptViewZoomOriginal(AVars: TVariableSet): TScriptResult;
 begin
-  Zoom.ZoomOriginal;
-  result := srOk;
+  AVars.Floats['Factor'] := 1;
+  result := GetScriptContext.CallScriptFunction(AVars, true);
 end;
 
 function TFMain.ScriptViewZoomFit(AVars: TVariableSet): TScriptResult;
@@ -3085,6 +3103,12 @@ begin
       ToggleGridVisible;
   end else
     ToggleGridVisible;
+  result := srOk;
+end;
+
+function TFMain.ScriptViewGridGet(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Booleans['Result'] := LazPaintInstance.GridVisible;
   result := srOk;
 end;
 
