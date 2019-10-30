@@ -12,6 +12,12 @@ def get_width():
 def get_height():
   return command.send("GetImageHeight?")
 
+def get_layer_index():
+  return command.send("GetLayerIndex?")
+
+def select_layer_index(index):
+  return command.send("SelectLayerIndex", Index=index)
+
 def get_layer_count():
   return command.send("GetLayerCount?")
 

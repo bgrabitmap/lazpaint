@@ -9,6 +9,33 @@ DM_SET = "dmSet"
 DM_SET_EXCEPT_TRANSPARENT = "dmSetExceptTransparent"
 DM_XOR = "dmXor"
 
+def get_id():
+  return command.send("LayerGetId?")
+
+def select_id(id):
+  command.send("LayerSelectId", Id=id)
+
+def new():
+  return command.send("LayerAddNew?")
+
+def add_from_file(file_name):
+  return command.send("LayerFromFile?", FileName=file_name)
+
+def duplicate():
+  return command.send("LayerDuplicate?")
+
+def merge_over():
+  command.send("LayerMergeOver")
+
+def remove():
+  command.send("LayerRemoveCurrent")
+
+def get_count():
+  return command.send("GetLayerCount?")
+
+def rasterize():
+  command.send("LayerRasterize")
+
 def put_image(x, y, image, mode=DM_DRAW, opacity=255):
   height = len(image)
   if height == 0: return
@@ -23,3 +50,10 @@ def get_pixel(x, y):
 
 def fill(color, mode=DM_DRAW):
   command.send("LayerFill", Color=color, Mode=mode)
+
+def horizontal_flip():
+  command.send("LayerHorizontalFlip")
+
+def vertical_flip():
+  command.send("LayerVerticalFlip")
+

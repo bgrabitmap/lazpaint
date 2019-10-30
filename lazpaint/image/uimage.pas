@@ -174,6 +174,7 @@ type
     procedure SetLayerOffset(AIndex: integer; AValue: TPoint; APrecomputedLayerBounds: TRect);
     function CurrentLayerReadOnly: TBGRABitmap;
 
+    function GetLayerIndexById(AId: integer): integer;
     procedure AddNewLayer;
     procedure AddNewLayer(AOriginal: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix);
     procedure AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation);
@@ -2125,6 +2126,11 @@ end;
 function TLazPaintImage.CurrentLayerReadOnly: TBGRABitmap;
 begin
   result := GetSelectedImageLayer;
+end;
+
+function TLazPaintImage.GetLayerIndexById(AId: integer): integer;
+begin
+  result := FCurrentState.LayeredBitmap.GetLayerIndexFromId(AId);
 end;
 
 constructor TLazPaintImage.Create;

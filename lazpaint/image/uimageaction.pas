@@ -21,10 +21,15 @@ type
     procedure ChooseTool(ATool: TPaintToolType);
     procedure RegisterScripts(ARegister: Boolean);
     function GenericScriptFunction(AVars: TVariableSet): TScriptResult;
+    function ScriptLayerFromFile(AVars: TVariableSet): TScriptResult;
+    function ScriptLayerSelectId(AVars: TVariableSet): TScriptResult;
+    function ScriptLayerAddNew(AVars: TVariableSet): TScriptResult;
+    function ScriptLayerDuplicate(AVars: TVariableSet): TScriptResult;
     function ScriptPutImage(AVars: TVariableSet): TScriptResult;
     function ScriptLayerFill(AVars: TVariableSet): TScriptResult;
     function ScriptGetFrameIndex(AVars: TVariableSet): TScriptResult;
     procedure ReleaseSelection;
+    function ScriptSelectLayerIndex(AVars: TVariableSet): TScriptResult;
   public
     constructor Create(AInstance: TLazPaintCustomInstance);
     destructor Destroy; override;
@@ -55,13 +60,13 @@ type
     procedure PasteAsNewLayer;
     procedure SelectAll;
     procedure SelectionFit;
-    procedure NewLayer; overload;
+    function NewLayer: boolean; overload;
     function NewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation): boolean; overload;
     function NewLayer(ALayer: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix): boolean; overload;
-    procedure DuplicateLayer;
+    function DuplicateLayer: boolean;
     procedure RasterizeLayer;
     procedure MergeLayerOver;
-    procedure RemoveLayer;
+    function RemoveLayer: boolean;
     procedure EditSelection(ACallback: TModifyImageCallback);
     procedure Import3DObject(AFilenameUTF8: string);
     function GetPixel(X,Y: Integer): TBGRAPixel;
@@ -140,11 +145,16 @@ begin
   Scripting.RegisterScriptFunction('IsSelectionMaskEmpty',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerHorizontalFlip',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerVerticalFlip',@GenericScriptFunction,ARegister);
-  Scripting.RegisterScriptFunction('LayerAddNew',@GenericScriptFunction,ARegister);
-  Scripting.RegisterScriptFunction('LayerDuplicate',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerGetId',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerSelectId',@ScriptLayerSelectId,ARegister);
+  Scripting.RegisterScriptFunction('LayerAddNew',@ScriptLayerAddNew,ARegister);
+  Scripting.RegisterScriptFunction('LayerFromFile',@ScriptLayerFromFile,ARegister);
+  Scripting.RegisterScriptFunction('LayerDuplicate',@ScriptLayerDuplicate,ARegister);
   Scripting.RegisterScriptFunction('LayerRasterize',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerMergeOver',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerRemoveCurrent',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('GetLayerIndex',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('SelectLayerIndex',@ScriptSelectLayerIndex,ARegister);
   Scripting.RegisterScriptFunction('GetLayerCount',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('GetFrameIndex',@ScriptGetFrameIndex,ARegister);
   Scripting.RegisterScriptFunction('GetFrameCount',@GenericScriptFunction,ARegister);
@@ -203,17 +213,56 @@ begin
   if f = 'IsSelectionMaskEmpty' then AVars.Booleans['Result'] := Image.SelectionMaskEmpty else
   if f = 'LayerHorizontalFlip' then HorizontalFlip(foCurrentLayer) else
   if f = 'LayerVerticalFlip' then VerticalFlip(foCurrentLayer) else
-  if f = 'LayerAddNew' then NewLayer else
-  if f = 'LayerDuplicate' then DuplicateLayer else
+  if f = 'LayerGetId' then AVars.Integers['Result'] := Image.LayerId[Image.CurrentLayerIndex] else
   if f = 'LayerRasterize' then RasterizeLayer else
   if f = 'LayerMergeOver' then MergeLayerOver else
-  if f = 'LayerRemoveCurrent' then RemoveLayer else
+  if f = 'LayerRemoveCurrent' then begin if not RemoveLayer then result := srException end else
+  if f = 'GetLayerIndex' then AVars.Integers['Result']:= Image.CurrentLayerIndex+1 else
   if f = 'GetLayerCount' then AVars.Integers['Result']:= Image.NbLayers else
   if f = 'GetFrameCount' then AVars.Integers['Result']:= Image.FrameCount else
   if f = 'GetPixel' then AVars.Pixels['Result']:= GetPixel(AVars.Integers['X'],AVars.Integers['Y']) else
   if f = 'GetImageWidth' then AVars.Integers['Result']:= Image.Width else
   if f = 'GetImageHeight' then AVars.Integers['Result']:= Image.Height else
     result := srFunctionNotDefined;
+end;
+
+function TImageActions.ScriptLayerFromFile(AVars: TVariableSet): TScriptResult;
+begin
+  if not AVars.IsDefined('FileName') then exit(srInvalidParameters) else
+  if not TryAddLayerFromFile(AVars.Strings['FileName']) then exit(srException) else
+  begin
+    AVars.Integers['Result'] := Image.LayerId[Image.CurrentLayerIndex];
+    exit(srOk);
+  end;
+end;
+
+function TImageActions.ScriptLayerSelectId(AVars: TVariableSet): TScriptResult;
+var
+  idx: Integer;
+begin
+  idx := Image.GetLayerIndexById(AVars.Integers['Id']);
+  if idx = -1 then exit(srInvalidParameters)
+  else if not Image.SetCurrentLayerByIndex(idx) then exit(srException)
+  else exit(srOk);
+end;
+
+function TImageActions.ScriptLayerAddNew(AVars: TVariableSet): TScriptResult;
+begin
+  if not NewLayer then result := srException
+  else
+  begin
+    AVars.Integers['Result'] := Image.LayerId[Image.CurrentLayerIndex];
+    result := srOk;
+  end;
+end;
+
+function TImageActions.ScriptLayerDuplicate(AVars: TVariableSet): TScriptResult;
+begin
+  if not DuplicateLayer then result := srException else
+  begin
+    AVars.Integers['Result'] := Image.LayerId[Image.CurrentLayerIndex];
+    result := srOk;
+  end;
 end;
 
 function TImageActions.ScriptPutImage(AVars: TVariableSet): TScriptResult;
@@ -1057,6 +1106,16 @@ begin
   layeraction.Free;
 end;
 
+function TImageActions.ScriptSelectLayerIndex(AVars: TVariableSet): TScriptResult;
+var
+  index: Int64;
+begin
+  index := AVars.Integers['Index'];
+  if (AVars.Integers['Index'] < 1) or (AVars.Integers['Index'] > Image.NbLayers) then exit(srInvalidParameters);
+  if not Image.SetCurrentLayerByIndex(index-1) then result := srException
+  else result := srOk;
+end;
+
 procedure TImageActions.Paste;
 var partial: TBGRABitmap;
     layeraction: TLayerAction;
@@ -1188,7 +1247,7 @@ begin
   end;
 end;
 
-procedure TImageActions.NewLayer;
+function TImageActions.NewLayer: boolean;
 {var top: TTopMostInfo;
     res: integer;}
 begin
@@ -1207,7 +1266,9 @@ begin
     Image.AddNewLayer;
     ToolManager.ToolOpen;
     FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
-  end;
+    result := true;
+  end else
+    result := false;
 end;
 
 function TImageActions.NewLayer(ALayer: TBGRABitmap; AName: string;
@@ -1250,13 +1311,15 @@ begin
   end;
 end;
 
-procedure TImageActions.DuplicateLayer;
+function TImageActions.DuplicateLayer: boolean;
 begin
   if image.NbLayers < MaxLayersToAdd then
   begin
     Image.DuplicateLayer;
     FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
-  end;
+    result := true;
+  end else
+    result := false;
 end;
 
 procedure TImageActions.RasterizeLayer;
@@ -1279,7 +1342,7 @@ begin
   end;
 end;
 
-procedure TImageActions.RemoveLayer;
+function TImageActions.RemoveLayer: boolean;
 var idx: integer;
 begin
   if (Image.CurrentLayerIndex <> -1) and (Image.NbLayers > 1) then
@@ -1291,7 +1354,8 @@ begin
     Image.RemoveLayer;
     ToolManager.ToolOpen;
     FInstance.ScrollLayerStackOnItem(idx);
-  end;
+    result := true;
+  end else result := false;
 end;
 
 procedure TImageActions.EditSelection(ACallback: TModifyImageCallback);
