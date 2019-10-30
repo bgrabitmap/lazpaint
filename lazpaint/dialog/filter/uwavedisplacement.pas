@@ -42,6 +42,7 @@ type
     { private declarations }
     FInitializing: boolean;
     FCenter: TPointF;
+    procedure InitParams;
     procedure PreviewNeeded;
     function ComputeFilteredLayer: TBGRABitmap;
   public
@@ -66,8 +67,18 @@ begin
   try
     if FWaveDisplacement.FilterConnector.ActiveLayer <> nil then
     begin
-      if FWaveDisplacement.showModal = mrOk then result := srOk
-      else result := srCancelledByUser;
+      if Assigned(FWaveDisplacement.FilterConnector.Parameters) and
+        FWaveDisplacement.FilterConnector.Parameters.Booleans['Validate'] then
+      begin
+        FWaveDisplacement.InitParams;
+        FWaveDisplacement.FilterConnector.PutImage(FWaveDisplacement.ComputeFilteredLayer,False,true);
+        FWaveDisplacement.FilterConnector.ValidateAction;
+        result := srOk;
+      end else
+      begin
+        if FWaveDisplacement.showModal = mrOk then result := srOk
+        else result := srCancelledByUser;
+      end;
     end
     else
       result := srException;
@@ -86,17 +97,11 @@ begin
   CheckSpinEdit(SpinEdit_Displacement);
   CheckSpinEdit(SpinEdit_Phase);
   CheckOKCancelBtns(Button_OK{,Button_Cancel});
-
-  FCenter := PointF(0.5,0.5);
 end;
 
 procedure TFWaveDisplacement.FormShow(Sender: TObject);
 begin
-  FInitializing:= true;
-  SpinEdit_Wavelength.Value := round(FilterConnector.LazPaintInstance.Config.DefaultWaveDisplacementWavelength);
-  SpinEdit_Displacement.Value := round(FilterConnector.LazPaintInstance.Config.DefaultWaveDisplacementAmount);
-  SpinEdit_Phase.Value := round(FilterConnector.LazPaintInstance.Config.DefaultWaveDisplacementPhase);
-  FInitializing := false;
+  InitParams;
   PreviewNeeded;
   Left := FilterConnector.LazPaintInstance.MainFormBounds.Left;
 end;
@@ -155,6 +160,25 @@ begin
   Timer1.Enabled := false;
   FilterConnector.PutImage(ComputeFilteredLayer,False,true);
   Button_OK.Enabled := true;
+end;
+
+procedure TFWaveDisplacement.InitParams;
+begin
+  FInitializing:= true;
+  SpinEdit_Wavelength.Value := round(FilterConnector.LazPaintInstance.Config.DefaultWaveDisplacementWavelength);
+  SpinEdit_Displacement.Value := round(FilterConnector.LazPaintInstance.Config.DefaultWaveDisplacementAmount);
+  SpinEdit_Phase.Value := round(FilterConnector.LazPaintInstance.Config.DefaultWaveDisplacementPhase);
+  FCenter := PointF(0.5,0.5);
+  if Assigned(FilterConnector.Parameters) then
+  with FilterConnector.Parameters do
+  begin
+    if IsDefined('WaveLength') then SpinEdit_Wavelength.Value := Integers['WaveLength'];
+    if IsDefined('Displacement') then SpinEdit_Displacement.Value := Integers['Displacement'];
+    if IsDefined('Phase') then SpinEdit_Phase.Value := Integers['Phase'];
+    if IsDefined('CenterXPercent') then FCenter.X := Floats['CenterXPercent']/100;
+    if IsDefined('CenterYPercent') then FCenter.Y := Floats['CenterYPercent']/100;
+  end;
+  FInitializing := false;
 end;
 
 procedure TFWaveDisplacement.PreviewNeeded;

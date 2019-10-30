@@ -101,3 +101,6 @@ def phong(color_source=None, altitude_percent=None, altitude_source=None, light_
 
 def twirl(radius=None, angle=None, center_x_percent=None, center_y_percent=None, validate=True):
   command.send("Filter", Name=TWIRL, Radius=radius, Angle=angle, CenterXPercent=center_x_percent, CenterYPercent=center_y_percent, Validate=validate)
+
+def wave_displacement(wave_length=None, displacement=None, phase=None, center_x_percent=None, center_y_percent=None, validate=True):
+  command.send("Filter", Name=WAVE_DISPLACEMENT, WaveLength=wave_length, Displacement=displacement, Phase=phase, CenterXPercent=center_x_percent, CenterYPercent=center_y_percent, Validate=validate)

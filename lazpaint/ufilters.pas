@@ -165,11 +165,7 @@ begin
     pfNoise: result := AInstance.ShowNoiseFilterDlg(FilterConnector);
     pfPixelate: result := AInstance.ShowPixelateDlg(FilterConnector);
     pfTwirl: result := AInstance.ShowTwirlDlg(FilterConnector);
-    pfWaveDisplacement:
-        if GetSkip then
-          filteredLayer := ugraph.WaveDisplacementFilter(layer,FilterConnector.WorkArea, PointF(layer.Width/2,layer.Height/2), AInstance.Config.DefaultWaveDisplacementWavelength, AInstance.Config.DefaultWaveDisplacementAmount, AInstance.Config.DefaultWaveDisplacementPhase ) as TBGRABitmap
-        else
-          result := AInstance.ShowWaveDisplacementDlg(FilterConnector);
+    pfWaveDisplacement: result := AInstance.ShowWaveDisplacementDlg(FilterConnector);
     pfContour: filteredLayer := layer.FilterContour as TBGRABitmap;
     pfGrayscale: filteredLayer := layer.FilterGrayscale(FilterConnector.WorkArea) as TBGRABitmap;
     pfPerlinNoise: filteredLayer := CreatePerlinNoiseMap(layer.Width,layer.Height,layer.Width/256,layer.Height/256,1,rfBestQuality);

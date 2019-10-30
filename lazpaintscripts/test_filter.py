@@ -7,4 +7,5 @@ from lazpaint import filter, image
 #filter.pixelate(20, filter.PIXELATE_QUALITY_BEST)
 #filter.twirl(radius=min(image.get_width(),image.get_height())/2, angle=360)
 #filter.blur_motion(50, 45, True)
-filter.sharpen(1)
+#filter.sharpen(1)
+filter.wave_displacement(100,30,0,25,25)
