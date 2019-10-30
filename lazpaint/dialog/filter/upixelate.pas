@@ -59,6 +59,7 @@ begin
         FPixelate.InitParams;
         FPixelate.PreviewNeeded;
         FPixelate.FFilterConnector.ValidateAction;
+        result := srOk;
       end else
       begin
         if FPixelate.showModal = mrOk then result := srOk

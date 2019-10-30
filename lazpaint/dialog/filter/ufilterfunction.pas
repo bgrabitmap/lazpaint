@@ -91,6 +91,7 @@ begin
         FFilterFunction.PreviewNeeded;
         while FFilterFunction.FComputing do FFilterFunction.Timer1Timer(FFilterFunction);
         FFilterFunction.FFilterConnector.ValidateAction;
+        result := srOk;
       end else
       begin
         if FFilterFunction.showModal = mrOk then result := srOk

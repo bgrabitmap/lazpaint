@@ -63,6 +63,7 @@ begin
         FNoiseFilter.InitParams;
         FNoiseFilter.PreviewNeeded(true);
         FNoiseFilter.FFilterConnector.ValidateAction;
+        result := srOk;
       end else
       begin
         if FNoiseFilter.showModal = mrOk then result := srOk

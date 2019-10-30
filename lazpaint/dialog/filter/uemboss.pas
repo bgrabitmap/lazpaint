@@ -75,6 +75,7 @@ begin
         FEmboss.InitParams;
         FEmboss.PreviewNeeded;
         FEmboss.FilterConnector.ValidateAction;
+        result := srOk;
       end else
       begin
         if FEmboss.showModal = mrOk then result := srOk

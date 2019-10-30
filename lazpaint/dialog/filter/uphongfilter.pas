@@ -85,6 +85,7 @@ begin
         FPhongFilter.PreviewNeeded;
         FPhongFilter.FilterConnector.PutImage(FPhongFilter.ComputeFilteredLayer,true,true);
         FPhongFilter.FilterConnector.ValidateAction;
+        result := srOk;
       end else
       begin
         if FPhongFilter.showModal = mrOk then result := srOk
