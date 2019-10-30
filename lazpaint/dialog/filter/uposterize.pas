@@ -29,6 +29,7 @@ type
     FInitializing: boolean;
     FFilterConnector: TFilterConnector;
     procedure OnTryStopAction({%H-}sender: TFilterConnector);
+    procedure InitParams;
     procedure PreviewNeeded;
     { private declarations }
   public
@@ -59,10 +60,20 @@ begin
   end;
   topmostInfo := AInstance.HideTopmost;
   try
-    if FPosterize.ShowModal = mrOK then
-      result := srOk
-    else
-      result := srCancelledByUser;
+    if Assigned(FPosterize.FFilterConnector.Parameters) and
+       FPosterize.FFilterConnector.Parameters.Booleans['Validate'] then
+    begin
+      FPosterize.InitParams;
+      FPosterize.PreviewNeeded;
+      FPosterize.FFilterConnector.ValidateAction;
+      result := srOk;
+    end else
+    begin
+      if FPosterize.ShowModal = mrOK then
+        result := srOk
+      else
+        result := srCancelledByUser;
+    end;
   finally
     AInstance.ShowTopmost(topmostInfo);
     FPosterize.FFilterConnector.OnTryStopAction := nil;
@@ -96,18 +107,7 @@ end;
 
 procedure TFPosterize.FormShow(Sender: TObject);
 begin
-  FInitializing := true;
-  if Assigned(FFilterConnector.Parameters) and
-     FFilterConnector.Parameters.IsDefined('Levels') then
-    SpinEdit_Levels.Value := FFilterConnector.Parameters.Integers['Levels']
-  else
-    SpinEdit_Levels.Value := FFilterConnector.LazPaintInstance.Config.DefaultPosterizeLevels;
-  if Assigned(FFilterConnector.Parameters) and
-     FFilterConnector.Parameters.IsDefined('ByLightness') then
-    CheckBox_ByLightness.Checked := FFilterConnector.Parameters.Booleans['ByLightness']
-  else
-    CheckBox_ByLightness.Checked := FFilterConnector.LazPaintInstance.Config.DefaultPosterizeByLightness;
-  FInitializing := false;
+  InitParams;
   PreviewNeeded;
   Top := FFilterConnector.LazPaintInstance.MainFormBounds.Top;
 end;
@@ -120,6 +120,22 @@ end;
 procedure TFPosterize.OnTryStopAction(sender: TFilterConnector);
 begin
   if self.visible then Close;
+end;
+
+procedure TFPosterize.InitParams;
+begin
+  FInitializing := true;
+  if Assigned(FFilterConnector.Parameters) and
+     FFilterConnector.Parameters.IsDefined('Levels') then
+    SpinEdit_Levels.Value := FFilterConnector.Parameters.Integers['Levels']
+  else
+    SpinEdit_Levels.Value := FFilterConnector.LazPaintInstance.Config.DefaultPosterizeLevels;
+  if Assigned(FFilterConnector.Parameters) and
+     FFilterConnector.Parameters.IsDefined('ByLightness') then
+    CheckBox_ByLightness.Checked := FFilterConnector.Parameters.Booleans['ByLightness']
+  else
+    CheckBox_ByLightness.Checked := FFilterConnector.LazPaintInstance.Config.DefaultPosterizeByLightness;
+  FInitializing := false;
 end;
 
 procedure TFPosterize.PreviewNeeded;

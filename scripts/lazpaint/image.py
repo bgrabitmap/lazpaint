@@ -18,6 +18,9 @@ def get_layer_index():
 def select_layer_index(index):
   return command.send("SelectLayerIndex", Index=index)
 
+def move_layer_index(from_index, to_index):
+  return command.send("ImageMoveLayerIndex", FromIndex=from_index, ToIndex=to_index)
+
 def get_layer_count():
   return command.send("GetLayerCount?")
 

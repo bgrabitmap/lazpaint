@@ -1919,6 +1919,8 @@ end;
 
 procedure TLazPaintImage.MoveLayer(AFromIndex, AToIndex: integer);
 begin
+  if (AFromIndex < 0) or (AFromIndex >= NbLayers) then
+    raise exception.Create('Index out of bounds');
   if not CheckNoAction then exit;
   try
     AddUndo(FCurrentState.MoveLayer(AFromIndex,AToIndex));

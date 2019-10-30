@@ -296,6 +296,7 @@ end;
 function TFColorize.ShowModal(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): integer;
 var gsbaOptionFromConfig: boolean;
     topmostInfo: TTopMostInfo;
+    h, s: Double; corr: boolean;
 begin
   try
     FFilterConnector := TFilterConnector.Create(AInstance,AParameters,false);
@@ -310,9 +311,15 @@ begin
   end;
   try
     FInstance := AInstance;
-    if AParameters.IsDefined('Correction') and AParameters.IsDefined('Hue') and AParameters.IsDefined('Saturation') then
+    if AParameters.Booleans['Validate'] then
     begin
-      Colorize(FFilterConnector, AParameters.Floats['Hue'], AParameters.Floats['Saturation'], AParameters.Booleans['Correction']);
+      if AParameters.IsDefined('Hue') then h := AParameters.Floats['Hue']
+      else h := FloatSpinEdit_Hue.Value;
+      if AParameters.IsDefined('Saturation') then s := AParameters.Floats['Saturation']
+      else s := FloatSpinEdit_Saturation.Value;
+      if AParameters.IsDefined('Correction') then corr := AParameters.Booleans['Correction']
+      else corr := AInstance.Config.DefaultUseGSBA;
+      Colorize(FFilterConnector, h, s, corr);
       FFilterConnector.ValidateAction;
       result := mrOk;
     end else

@@ -642,15 +642,47 @@ end;
 
 procedure TFAdjustCurves.EnsureCurveExist(AParameters: TVariableSet;
   AName: string);
+var
+  listX, listY: TScriptVariableReference;
+  post: Boolean;
+  cnt: NativeInt;
+  i: Integer;
 begin
   if not AParameters.IsDefined(AName) then
-  with AParameters.AddSubset(AName) do
-  begin
-    if AParameters.Booleans['Posterize'] then
-      AddList('X','[0.0, 0.5]') else
-      AddList('X','[0.0, 1.0]');
+    AParameters.AddSubset(AName);
 
-    AddList('Y','[0.0, 1.0]');
+  with AParameters.Subsets[AName] do
+  begin
+    post := Booleans['Posterize'];
+    listX := GetVariable('X');
+    listY := GetVariable('Y');
+    if not IsList(listX) or (GetListCount(listX)<=integer(not post)) then Remove(listX);
+    if not IsList(listY) or (GetListCount(listY)<=integer(not post)) then Remove(listY);
+
+    if IsReferenceDefined(listX) then cnt := GetListCount(listX)
+    else if IsReferenceDefined(listY) then cnt := GetListCount(listY)
+    else cnt := 2;
+
+    if not IsReferenceDefined(listX) then
+    begin
+      listX := AddFloatList('X');
+      if Booleans['Posterize'] then
+        for i := 0 to cnt-1 do
+          AppendFloat(listX, i/cnt)
+      else
+        for i := 0 to cnt-1 do
+          AppendFloat(listX, i/(cnt-1));
+    end;
+
+    if not IsReferenceDefined(listY) then
+    begin
+      listY := AddFloatList('Y');
+      if cnt > 0 then
+        for i := 0 to cnt-1 do
+          AppendFloat(listY, i/(cnt-1))
+      else
+        AppendFloat(listY, 0);
+    end;
   end;
 end;
 
@@ -790,6 +822,7 @@ function TFAdjustCurves.ShowModal(AInstance: TLazPaintCustomInstance;
 var
   topmostInfo: TTopMostInfo;
   tempParameters: TVariableSet;
+  task: TAdjustCurvesTask;
 
   procedure CopyCurveIfNonTrivial(ASource: TVariableSet; AName: string);
   var subset: TVariableSet;
@@ -841,7 +874,18 @@ begin
     topmostInfo := AInstance.HideTopmost;
     ToolBar8.Images := AInstance.Icons[DoScaleY(16,OriginalDPI)];
     try
-      Result := self.ShowModal;
+      if tempParameters.Booleans['Validate'] then
+      begin
+        task := TAdjustCurvesTask.Create(FFilterConnector);
+        try
+          task.Execute;
+        finally
+          task.Free;
+        end;
+        FFilterConnector.ValidateAction;
+        result := mrOk;
+      end else
+        Result := self.ShowModal;
     except
       on ex: Exception do
       begin

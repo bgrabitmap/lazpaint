@@ -21,6 +21,7 @@ type
     procedure ChooseTool(ATool: TPaintToolType);
     procedure RegisterScripts(ARegister: Boolean);
     function GenericScriptFunction(AVars: TVariableSet): TScriptResult;
+    function ScriptImageMoveLayerIndex(AVars: TVariableSet): TScriptResult;
     function ScriptLayerFromFile(AVars: TVariableSet): TScriptResult;
     function ScriptLayerSelectId(AVars: TVariableSet): TScriptResult;
     function ScriptLayerAddNew(AVars: TVariableSet): TScriptResult;
@@ -153,6 +154,7 @@ begin
   Scripting.RegisterScriptFunction('LayerRasterize',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerMergeOver',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerRemoveCurrent',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('ImageMoveLayerIndex',@ScriptImageMoveLayerIndex,ARegister);
   Scripting.RegisterScriptFunction('GetLayerIndex',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('SelectLayerIndex',@ScriptSelectLayerIndex,ARegister);
   Scripting.RegisterScriptFunction('GetLayerCount',@GenericScriptFunction,ARegister);
@@ -224,6 +226,16 @@ begin
   if f = 'GetImageWidth' then AVars.Integers['Result']:= Image.Width else
   if f = 'GetImageHeight' then AVars.Integers['Result']:= Image.Height else
     result := srFunctionNotDefined;
+end;
+
+function TImageActions.ScriptImageMoveLayerIndex(AVars: TVariableSet): TScriptResult;
+begin
+  try
+    Image.MoveLayer(AVars.Integers['FromIndex']-1, AVars.Integers['ToIndex']-1);
+  except
+    on ex:exception do
+      result := srException;
+  end;
 end;
 
 function TImageActions.ScriptLayerFromFile(AVars: TVariableSet): TScriptResult;

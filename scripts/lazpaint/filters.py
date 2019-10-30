@@ -3,6 +3,7 @@ from lazpaint import command, dialog
 if __name__ == "__main__":
   dialog.show_message("Library to execute filters on the current layer.")
 
+#filters
 BLUR_PRECISE = 'BlurPrecise'
 BLUR_RADIAL = 'BlurRadial'
 BLUR_FAST = 'BlurFast'
@@ -11,42 +12,24 @@ BLUR_CORONA = 'BlurCorona'
 BLUR_DISK = 'BlurDisk'
 BLUR_MOTION = 'BlurMotion'
 BLUR_CUSTOM = 'BlurCustom'
+PIXELATE = 'Pixelate'
+
 SHARPEN = 'Sharpen'
 SMOOTH = 'Smooth'
 MEDIAN = 'Median'
 NOISE = 'Noise'
-PIXELATE = 'Pixelate'
 CLEAR_TYPE = 'ClearType'
 CLEAR_TYPE_INVERSE = 'ClearTypeInverse'
 FILTER_FUNCTION = 'Function'
+CONTOUR = 'Contour'
 EMBOSS = 'Emboss'
 PHONG = 'Phong'
-CONTOUR = 'Contour'
-GRAYSCALE = 'Grayscale'
-NEGATIVE = 'Negative'
-LINEAR_NEGATIVE = 'LinearNegative'
-COMPLEMENTARY_COLOR = 'ComplementaryColor'
-NORMALIZE = 'Normalize'
+
 SPHERE = 'Sphere'
 TWIRL = 'Twirl'
 WAVE_DISPLACEMENT = 'WaveDisplacement'
 CYLINDER = 'Cylinder'
 PLANE = 'Plane'
-PERLIN_NOISE = 'PerlinNoise'
-CYCLIC_PERLIN_NOISE = 'CyclicPerlinNoise'
-CLOUDS = 'Clouds'
-CUSTOM_WATER = 'CustomWater'
-WATER = 'Water'
-RAIN = 'Rain'
-WOOD = 'Wood'
-WOOD_VERTICAL = 'WoodVertical'
-PLASTIK = 'Plastik'
-METAL_FLOOR = 'MetalFloor'
-CAMOUFLAGE = 'Camouflage'
-SNOW_PRINT = 'SnowPrint'
-STONE = 'Stone'
-ROUND_STONE = 'RoundStone'
-MARBLE = 'Marble'
 
 PIXELATE_QUALITY_FAST = 'Fast'
 PIXELATE_QUALITY_LINEAR = 'Linear'
@@ -66,10 +49,37 @@ PHONG_ALTITUDE_RED_CHANNEL = 'Red'
 PHONG_ALTITUDE_GREEN_CHANNEL = 'Green'
 PHONG_ALTITUDE_BLUE_CHANNEL = 'Blue'
 
-def run(name, validate=True):
-  command.send("Filter", Name=name, Validate=validate)
+#colors
+COLOR_COMPLEMENTARY = 'ComplementaryColor'
+COLOR_NEGATIVE = 'Negative'
+COLOR_LINEAR_NEGATIVE = 'LinearNegative'
+COLOR_NORMALIZE = 'Normalize'
+COLOR_GRAYSCALE = 'Grayscale'
 
-def blur(name, radius=None, radius_x=None, radius_y=None, validate=True):
+#render
+RENDER_PERLIN_NOISE = 'PerlinNoise'
+RENDER_CYCLIC_PERLIN_NOISE = 'CyclicPerlinNoise'
+RENDER_CLOUDS = 'Clouds'
+RENDER_CUSTOM_WATER = 'CustomWater'
+RENDER_WATER = 'Water'
+RENDER_RAIN = 'Rain'
+RENDER_WOOD = 'Wood'
+RENDER_WOOD_VERTICAL = 'WoodVertical'
+RENDER_PLASTIK = 'Plastik'
+RENDER_METAL_FLOOR = 'MetalFloor'
+RENDER_CAMOUFLAGE = 'Camouflage'
+RENDER_SNOW_PRINT = 'SnowPrint'
+RENDER_STONE = 'Stone'
+RENDER_ROUND_STONE = 'RoundStone'
+RENDER_MARBLE = 'Marble'
+
+def run(name, validate=True):
+  if name[0:5] == "Color":
+    command.send(name, Validate=validate)
+  else:
+    command.send("Filter", Name=name, Validate=validate)
+
+def blur(name=BLUR_FAST, radius=None, radius_x=None, radius_y=None, validate=True):
   command.send("Filter", Name=name, Radius=radius, RadiusX=radius_x, RadiusY=radius_y, Validate=validate)
 
 def blur_motion(distance=None, angle=None, oriented=None, validate=True):
@@ -92,9 +102,6 @@ def emboss(angle=None, transparent=None, preserve_colors=None, validate=True):
 
 def rain(amount=None, wind=None, validate=True):
   command.send("Filter", Name=RAIN, Amount=amount, Wind=wind, Validate=validate)
-
-def posterize(levels=None, by_lightness=None, validate=True):
-  command.send("Filter", Name=POSTERIZE, Levels=levels, ByLightness=by_lightness, Validate=validate)
 
 def phong(color_source=None, altitude_percent=None, altitude_source=None, light_x_percent=None, light_y_percent=None, validate=True):
   command.send("Filter", Name=PHONG, ColorSource=color_source, AltitudePercent=altitude_percent, AltitudeSource=altitude_source, LightXPercent=light_x_percent, LightYPercent=light_y_percent, Validate=validate)
