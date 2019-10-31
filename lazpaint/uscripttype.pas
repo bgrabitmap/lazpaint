@@ -42,8 +42,8 @@ type
                           ieDuplicateIdentifier, ieUnexpectedOpeningBracketKind, ieUnexpectedClosingBracketKind,
                           ieUnknownListType, ieMissingValue);
   TInterpretationErrors = set of TInterpretationError;
-  TScriptVariableType = (svtUndefined, svtObject, svtFloat, svtInteger, svtBoolean, svtString, svtPixel, svtSubset,
-                         svtFloatList, svtIntList, svtBoolList, svtStrList, svtPixList, svtObjectList);
+  TScriptVariableType = (svtUndefined, svtFloat, svtInteger, svtBoolean, svtString, svtPixel, svtSubset,
+                         svtFloatList, svtIntList, svtBoolList, svtStrList, svtPixList);
   TScriptFunctionExceptionHandler = procedure(AFunctionName: string; AException: Exception) of object;
 
   TParsedLitteral = record
@@ -60,22 +60,22 @@ type
     varType: TScriptVariableType;
     case TScriptVariableType of
       svtFloat: (valueFloat: double);
-      svtInteger,svtObject: (valueInt: TScriptInteger);
+      svtInteger: (valueInt: TScriptInteger);
       svtBoolean: (valueBool: boolean);
       svtPixel: (valuePix: TBGRAPixel);
       svtUndefined: (valueBytes: packed array[0..7] of byte);
   end;
 
 const
-  ScriptVariableListTypes : set of TScriptVariableType = [svtFloatList, svtIntList, svtBoolList, svtStrList, svtPixList, svtObjectList];
-  ScriptScalarListTypes : set of TScriptVariableType = [svtFloatList, svtIntList, svtPixList, svtObjectList];
+  ScriptVariableListTypes : set of TScriptVariableType = [svtFloatList, svtIntList, svtBoolList, svtStrList, svtPixList];
+  ScriptScalarListTypes : set of TScriptVariableType = [svtFloatList, svtIntList, svtPixList];
   ScriptScalarTypes : set of TScriptVariableType = [svtFloat, svtInteger, svtBoolean, svtPixel];
-  ScalarListElementSize : array[svtFloatList..svtObjectList] of NativeInt =
-    (sizeof(double), sizeof(TScriptInteger), 0, 0, sizeof(TBGRAPixel), sizeof(TScriptInteger));
-  ListElementType : array[svtFloatList..svtObjectList] of TScriptVariableType =
-    (svtFloat, svtInteger, svtBoolean, svtString, svtPixel, svtObject);
-  EmptyListExpression : array[svtFloatList..svtObjectList] of string =
-    ('[~0.0]', '[~0]', '[~False]', '[~""]','[~#000]','[~Nil]');
+  ScalarListElementSize : array[svtFloatList..svtPixList] of NativeInt =
+    (sizeof(double), sizeof(TScriptInteger), 0, 0, sizeof(TBGRAPixel));
+  ListElementType : array[svtFloatList..svtPixList] of TScriptVariableType =
+    (svtFloat, svtInteger, svtBoolean, svtString, svtPixel);
+  EmptyListExpression : array[svtFloatList..svtPixList] of string =
+    ('[~0.0]', '[~0]', '[~False]', '[~""]','[~#000]');
   InterpretationErrorToStr: array[TInterpretationError] of string =
     ('Too many closing brackets', 'Ending quote not found',
      'Opening bracket not found', 'Closing bracket not found',
@@ -158,7 +158,6 @@ begin
     svtInteger: result := IntToStr(TScriptInteger(AValue));
     svtPixel: result := '#'+BGRAToStr(TBGRAPixel(AValue));
     svtBoolean: result := BoolToStr(Boolean(AValue),TrueToken,FalseToken);
-    svtObject: if TScriptInteger(AValue) = 0 then result := UndefinedToken else result := 'Object';
   else raise exception.Create('Not a scalar type');
   end;
 end;
@@ -386,7 +385,6 @@ begin
   svtInteger: result := svtIntList;
   svtPixel: result := svtPixList;
   svtString: result := svtStrList;
-  svtObject: result := svtObjectList;
   svtUndefined:
     begin
       include(errors, ieUnknownListType);

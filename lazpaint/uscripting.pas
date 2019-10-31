@@ -49,7 +49,6 @@ type
     function GetCount: NativeInt;
     function GetFloatByName(const AName: string): double;
     function GetIntegerByName(const AName: string): TScriptInteger;
-    function GetObjectByName(const AName: string): TScriptInteger;
     function GetPixelByName(const AName: string): TBGRAPixel;
     function GetStringByName(const AName: string): string;
     function GetSubsetByName(const AName: string): TVariableSet;
@@ -59,7 +58,6 @@ type
     procedure SetBooleanByName(const AName: string; AValue: boolean);
     procedure SetFloatByName(const AName: string; AValue: double);
     procedure SetIntegerByName(const AName: string; AValue: TScriptInteger);
-    procedure SetObjectByName(const AName: string; AValue: TScriptInteger);
     procedure SetListByName(const AName: string; AValue: string);
     procedure SetPixelByName(const AName: string; AValue: TBGRAPixel);
     procedure SetStringByName(const AName: string; AValue: string);
@@ -79,7 +77,6 @@ type
     destructor Destroy; override;
     function AddFloat(const AName: string; AValue: double): boolean;
     function AddInteger(const AName: string; AValue: TScriptInteger): boolean;
-    function AddObject(const AName: string; AValue: TScriptInteger): boolean;
     function AddBoolean(const AName: string; AValue: boolean): boolean;
     function AddPixel(const AName: string; const AValue: TBGRAPixel): boolean;
     function AddString(const AName: string; AValue: string): boolean;
@@ -88,7 +85,6 @@ type
     function AddList(const AName: string; AListExpr: string): TInterpretationErrors;
     function AddBooleanList(const AName: string): TScriptVariableReference;
     function AddIntegerList(const AName: string): TScriptVariableReference;
-    function AddObjectList(const AName: string): TScriptVariableReference;
     function AddFloatList(const AName: string): TScriptVariableReference;
     function AddPixelList(const AName: string): TScriptVariableReference;
     function AddStringList(const AName: string): TScriptVariableReference;
@@ -101,9 +97,6 @@ type
     class function AppendInteger(const ADest: TScriptVariableReference; AValue: TScriptInteger): boolean; overload; static;
     class function AssignInteger(const ADest: TScriptVariableReference; AValue: TScriptInteger): boolean; overload; static;
     class function AssignIntegerAt(const ADest: TScriptVariableReference; AIndex: NativeInt; AValue: TScriptInteger): boolean; static;
-    class function AppendObject(const ADest: TScriptVariableReference; AValue: TScriptInteger): boolean; overload; static;
-    class function AssignObject(const ADest: TScriptVariableReference; AValue: TScriptInteger): boolean; overload; static;
-    class function AssignObjectAt(const ADest: TScriptVariableReference; AIndex: NativeInt; AValue: TScriptInteger): boolean; static;
     class function AppendBoolean(const ADest: TScriptVariableReference; AValue: boolean): boolean; overload; static;
     class function AssignBoolean(const ADest: TScriptVariableReference; AValue: boolean): boolean; overload; static;
     class function AppendString(const ADest: TScriptVariableReference; AValue: string): boolean; overload; static;
@@ -117,7 +110,6 @@ type
     class function IsSubSet(const AReference: TScriptVariableReference): boolean; static;
     class function GetFloat(const ASource: TScriptVariableReference) : double; static;
     class function GetInteger(const ASource: TScriptVariableReference) : TScriptInteger; static;
-    class function GetObject(const ASource: TScriptVariableReference) : TScriptInteger; static;
     class function GetBoolean(const ASource: TScriptVariableReference) : boolean; static;
     class function GetString(const ASource: TScriptVariableReference) : string; static;
     class function GetPixel(const ASource: TScriptVariableReference) : TBGRAPixel; static;
@@ -126,7 +118,6 @@ type
     class function GetListCount(const ASource: TScriptVariableReference) : NativeInt; static;
     class function GetFloatAt(const ASource: TScriptVariableReference; AIndex: NativeInt) : double; static;
     class function GetIntegerAt(const ASource: TScriptVariableReference; AIndex: NativeInt) : TScriptInteger; static;
-    class function GetObjectAt(const ASource: TScriptVariableReference; AIndex: NativeInt) : TScriptInteger; static;
     class function GetBooleanAt(const ASource: TScriptVariableReference; AIndex: NativeInt) : boolean; static;
     class function GetStringAt(const ASource: TScriptVariableReference; AIndex: NativeInt) : string; static;
     class function GetPixelAt(const ASource: TScriptVariableReference; AIndex: NativeInt) : TBGRAPixel; static;
@@ -139,7 +130,6 @@ type
     property VariablesAsString: string read GetVariablesAsString;
     property Floats[const AName: string]: double read GetFloatByName write SetFloatByName;
     property Integers[const AName: string]: TScriptInteger read GetIntegerByName write SetIntegerByName;
-    property Objects[const AName: string]: TScriptInteger read GetObjectByName write SetObjectByName;
     property Booleans[const AName: string]: boolean read GetBooleanByName write SetBooleanByName;
     property Strings[const AName: string]: string read GetStringByName write SetStringByName;
     property Pixels[const AName: string]: TBGRAPixel read GetPixelByName write SetPixelByName;
@@ -349,11 +339,6 @@ end;
 function TVariableSet.GetIntegerByName(const AName: string): TScriptInteger;
 begin
   result := GetInteger(GetVariable(AName));
-end;
-
-function TVariableSet.GetObjectByName(const AName: string): TScriptInteger;
-begin
-  result := GetObject(GetVariable(AName));
 end;
 
 function TVariableSet.GetPixelByName(const AName: string): TBGRAPixel;
@@ -670,14 +655,6 @@ begin
   if IsReferenceDefined(v) then AssignInteger(v,AValue) else AddInteger(AName,AValue);
 end;
 
-procedure TVariableSet.SetObjectByName(const AName: string;
-  AValue: TScriptInteger);
-var v: TScriptVariableReference;
-begin
-  v := GetVariable(AName);
-  if IsReferenceDefined(v) then AssignObject(v,AValue) else AddObject(AName,AValue);
-end;
-
 procedure TVariableSet.SetListByName(const AName: string; AValue: string);
 var v: TScriptVariableReference;
 begin
@@ -842,13 +819,6 @@ begin
   if result then FScalars[FNbScalars-1].valueInt := AValue;
 end;
 
-function TVariableSet.AddObject(const AName: string; AValue: TScriptInteger
-  ): boolean;
-begin
-  result := AddScalar(AName, svtObject);
-  if result then FScalars[FNbScalars-1].valueInt := AValue;
-end;
-
 function TVariableSet.AddBoolean(const AName: string; AValue: boolean): boolean;
 begin
   result := AddScalar(AName, svtBoolean);
@@ -961,12 +931,6 @@ function TVariableSet.AddIntegerList(const AName: string
   ): TScriptVariableReference;
 begin
   result := AddScalarList(AName, svtIntList);
-end;
-
-function TVariableSet.AddObjectList(const AName: string
-  ): TScriptVariableReference;
-begin
-  result := AddScalarList(AName, svtObjectList);
 end;
 
 function TVariableSet.AddFloatList(const AName: string
@@ -1223,54 +1187,6 @@ begin
   result := true;
 end;
 
-class function TVariableSet.AppendObject(const ADest: TScriptVariableReference;
-  AValue: TScriptInteger): boolean;
-begin
-  result := false;
-  if ADest.variableSet = nil then exit;
-  if ADest.variableType = svtObjectList then
-      with ADest.variableSet.FScalarLists[ADest.variableIndex] do
-      begin
-        if count = ListMaxLength then exit;
-        if size = count then
-        begin
-          if count = 0 then size := 4 else size := count*2;
-          ReAllocMem(list,size*sizeof(TScriptInteger));
-        end;
-        (PScriptInteger(list)+count)^ := AValue;
-        inc(count);
-        result := true;
-      end;
-end;
-
-class function TVariableSet.AssignObject(const ADest: TScriptVariableReference;
-  AValue: TScriptInteger): boolean;
-begin
-  result := false;
-  if ADest.variableSet = nil then exit;
-  if ADest.variableType = svtObject then
-  begin
-    ADest.variableSet.FScalars[ADest.variableIndex].valueInt := AValue;
-    result := true;
-  end;
-end;
-
-class function TVariableSet.AssignObjectAt(
-  const ADest: TScriptVariableReference; AIndex: NativeInt;
-  AValue: TScriptInteger): boolean;
-begin
-  result := false;
-  if (ADest.variableSet = nil) or (AIndex < 0) then exit;
-  if not (Adest.variableType in ScriptVariableListTypes) then exit;
-  if AIndex >= GetListCount(ADest) then exit;
-  if ADest.variableType = svtObjectList then
-  begin
-      with ADest.variableSet.FScalarLists[ADest.variableIndex] do
-            (PScriptInteger(list)+AIndex)^ := AValue;
-      result := true;
-  end;
-end;
-
 class function TVariableSet.AppendBoolean(
   const ADest: TScriptVariableReference; AValue: boolean): boolean;
 begin
@@ -1488,7 +1404,6 @@ var
       svtFloat: AppendFloat(ADest, litteral.valueFloat);
       svtString: AppendString(ADest, litteral.valueStr);
       svtPixel: AppendPixel(ADest, litteral.valuePixel);
-      svtObject: AppendObject(ADest, litteral.valueInt);
     end;
   end;
 
@@ -1686,20 +1601,6 @@ begin
   result := 0;
 end;
 
-class function TVariableSet.GetObject(const ASource: TScriptVariableReference
-  ): TScriptInteger;
-begin
-  if ASource.variableSet <> nil then
-  begin
-    if ASource.variableType = svtObject then
-    begin
-        result := ASource.variableSet.FScalars[ASource.variableIndex].valueInt;
-        exit;
-    end;
-  end;
-  result := 0;
-end;
-
 class function TVariableSet.GetBoolean(const ASource: TScriptVariableReference
   ): boolean;
 begin
@@ -1857,22 +1758,6 @@ begin
     begin
       if AIndex >= count then exit;
       val(list[AIndex],result,errPos)
-    end;
-end;
-
-class function TVariableSet.GetObjectAt(
-  const ASource: TScriptVariableReference; AIndex: NativeInt): TScriptInteger;
-begin
-  result := 0;
-  if (ASource.variableSet = nil) or (AIndex < 0) then exit;
-  if not (ASource.variableType in ScriptVariableListTypes) then exit;
-  if ASource.variableType in ScriptScalarListTypes then
-    with ASource.variableSet.FScalarLists[ASource.variableIndex] do
-    begin
-      if AIndex >= count then exit;
-      case ASource.variableType of
-        svtObjectList: result := (PScriptInteger(list)+AIndex)^;
-      end;
     end;
 end;
 
