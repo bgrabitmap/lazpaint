@@ -95,6 +95,7 @@ function ParseLitteral(var cur: integer; expr: string; var errors: TInterpretati
 function ParseListType(s: string): TScriptVariableType;
 function FloatToPixel(AValue: double): TBGRAPixel;
 function IntToPixel(AValue: TScriptInteger): TBGRAPixel;
+function PixelToInt(AValue: TBGRAPixel): TScriptInteger;
 function InterpretationErrorsToStr(AErrors: TInterpretationErrors): string;
 
 implementation
@@ -412,6 +413,11 @@ begin
   if AValue <= 0 then result := BGRABlack else
   if AValue >= 255 then result := BGRAWhite else
     result := BGRA(AValue,AValue,AValue,255);
+end;
+
+function PixelToInt(AValue: TBGRAPixel): TScriptInteger;
+begin
+  result := AValue.ToGrayscale.green;
 end;
 
 function InterpretationErrorsToStr(AErrors: TInterpretationErrors): string;

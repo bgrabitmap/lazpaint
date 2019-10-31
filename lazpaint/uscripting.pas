@@ -1637,6 +1637,14 @@ begin
         result := ASource.variableSet.FScalars[ASource.variableIndex].valueInt;
         exit;
       end;
+      svtPixel: begin
+        result := PixelToInt(ASource.variableSet.FScalars[ASource.variableIndex].valuePix);
+        exit;
+      end;
+      svtBoolean: begin
+        result := integer(ASource.variableSet.FScalars[ASource.variableIndex].valueBool);
+        exit;
+      end;
       svtString: begin
         val(ASource.variableSet.FStrings[ASource.variableIndex].value, result, errPos);
         exit;
@@ -1655,6 +1663,18 @@ begin
     case ASource.variableType of
       svtInteger: begin
         result := ASource.variableSet.FScalars[ASource.variableIndex].valueInt;
+        exit;
+      end;
+      svtFloat: begin
+        result := round(ASource.variableSet.FScalars[ASource.variableIndex].valueFloat);
+        exit;
+      end;
+      svtBoolean: begin
+        result := integer(ASource.variableSet.FScalars[ASource.variableIndex].valueBool);
+        exit;
+      end;
+      svtPixel: begin
+        result := PixelToInt(ASource.variableSet.FScalars[ASource.variableIndex].valuePix);
         exit;
       end;
       svtString: begin
@@ -1699,31 +1719,25 @@ begin
   result := false;
 end;
 
-class function TVariableSet.GetString(const ASource: TScriptVariableReference
-  ): string;
+class function TVariableSet.GetString(const ASource: TScriptVariableReference): string;
 begin
+  result := '';
   if ASource.variableSet <> nil then
   begin
+    if ASource.variableType in ScriptScalarTypes then
+      result := ScalarToStr(ASource.variableType, ASource.variableSet.FScalars[ASource.variableIndex].valueBytes)
+    else if ASource.variableType in ScriptScalarListTypes then
+      result := ASource.variableSet.GetScalarListAsString(ASource.variableIndex)
+    else
     case ASource.variableType of
-      svtInteger: begin
-        result := IntToStr(ASource.variableSet.FScalars[ASource.variableIndex].valueInt);
-        exit;
-      end;
-      svtString: begin
-        result := ASource.variableSet.FStrings[ASource.variableIndex].value;
-        exit;
-      end;
-      svtPixel: begin
-        result := BGRAToStr(ASource.variableSet.FScalars[ASource.variableIndex].valuePix);
-        exit;
-      end;
+      svtString: result := ASource.variableSet.FStrings[ASource.variableIndex].value;
+      svtBoolList: result := ASource.variableSet.GetBoolListAsString(ASource.variableIndex);
+      svtStrList: result := ASource.variableSet.GetStrListAsString(ASource.variableIndex);
     end;
   end;
-  result := '';
 end;
 
-class function TVariableSet.GetPixel(const ASource: TScriptVariableReference
-  ): TBGRAPixel;
+class function TVariableSet.GetPixel(const ASource: TScriptVariableReference): TBGRAPixel;
 begin
   if ASource.variableSet <> nil then
   begin
