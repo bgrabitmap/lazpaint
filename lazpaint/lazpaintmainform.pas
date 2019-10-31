@@ -3086,7 +3086,7 @@ end;
 function TFMain.ScriptViewZoomOriginal(AVars: TVariableSet): TScriptResult;
 begin
   AVars.Floats['Factor'] := 1;
-  result := GetScriptContext.CallScriptFunction(AVars, true);
+  result := GetScriptContext.CallScriptFunction('ViewZoomSet', true, AVars);
 end;
 
 function TFMain.ScriptViewZoomFit(AVars: TVariableSet): TScriptResult;
