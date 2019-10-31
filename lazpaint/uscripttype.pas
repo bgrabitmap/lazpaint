@@ -8,15 +8,6 @@ uses
   Classes, SysUtils, BGRABitmapTypes;
 
 const
-  ScriptKeywords : array[1..40] of string = ('var','procedure','function','and',
-    'or','xor','not','true','false','if','then','case','begin','end','of',
-    'exit','new','class','is','const','div','do','downto','to','else','for',
-    'in','mod','nil','object','record','repeat','self','shl','shr','string',
-    'unit','until','uses','while');
-  ScriptSymbols : array[1..38] of string = ('+','-','*','/','=','<','>','[',']',
-  '.',',','(',')',':','^','@','{','}','$','#','&','%','<<','>>','**','<>','><',
-  '<=','>=',':=','+=','-=','*=','/=','(*','*)','//','..');
-
   VariableDefinitionToken : string = ':';
   TrueToken : string = 'True';
   FalseToken : string = 'False';
