@@ -10,7 +10,7 @@ uses
 
   LazPaintMainForm, UMainFormLayout,
 
-  utoolbox, uchoosecolor, ulayerstack, ucanvassize,
+  utoolbox, uchoosecolor, ulayerstack, UCanvassize,
   ucolorintensity, ushiftcolors, ucolorize, uadjustcurves,
   ucustomblur, uimagelist,
 
@@ -41,6 +41,8 @@ type
     function ScriptColorPosterize(AVars: TVariableSet): TScriptResult;
     function ScriptColorShiftColors(AVars: TVariableSet): TScriptResult;
     function ScriptFileNew(AVars: TVariableSet): TScriptResult;
+    function ScriptImageCanvasSize(AVars: TVariableSet): TScriptResult;
+    function ScriptImageRepeat(AVars: TVariableSet): TScriptResult;
     function ScriptImageResample(AParams: TVariableSet): TScriptResult;
     procedure SelectionInstanceOnRun(AInstance: TLazPaintCustomInstance);
     procedure ToolColorChanged(Sender: TObject);
@@ -283,6 +285,8 @@ begin
   if not Assigned(ScriptContext) then exit;
   ScriptContext.RegisterScriptFunction('FileNew',@ScriptFileNew,ARegister);
   ScriptContext.RegisterScriptFunction('ImageResample',@ScriptImageResample,ARegister);
+  ScriptContext.RegisterScriptFunction('ImageCanvasSize',@ScriptImageCanvasSize,ARegister);
+  ScriptContext.RegisterScriptFunction('ImageRepeat',@ScriptImageRepeat,ARegister);
   ScriptContext.RegisterScriptFunction('ColorCurves',@ScriptColorCurves,ARegister);
   ScriptContext.RegisterScriptFunction('ColorPosterize',@ScriptColorPosterize,ARegister);
   ScriptContext.RegisterScriptFunction('ColorColorize',@ScriptColorColorize,ARegister);

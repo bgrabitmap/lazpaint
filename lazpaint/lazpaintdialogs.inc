@@ -123,6 +123,46 @@ begin
   result := srOk;
 end;
 
+function TLazPaintInstance.ScriptImageCanvasSize(AVars: TVariableSet): TScriptResult;
+var
+  w, h: Int64;
+  anchor: String;
+begin
+  w := AVars.Integers['Width'];
+  h := AVars.Integers['Height'];
+  if (w = Image.Width) and (h = Image.Height) then exit(srOk);
+  if (w < 1) or (h < 1) or (w > MaxImageWidth) or (h > MaxImageHeight) then exit(srInvalidParameters);
+  anchor := AVars.Strings['Anchor'];
+  try
+    Image.Assign(ComputeNewCanvasSize(self, w,h, anchor, false,false), true, True);
+  except
+    on ex: exception do
+      result := srException;
+  end;
+  result := srOk;
+end;
+
+function TLazPaintInstance.ScriptImageRepeat(AVars: TVariableSet): TScriptResult;
+var
+  w, h: Int64;
+  anchor: String;
+  flipMode: Boolean;
+begin
+  w := AVars.Integers['Width'];
+  h := AVars.Integers['Height'];
+  if (w = Image.Width) and (h = Image.Height) then exit(srOk);
+  if (w < 1) or (h < 1) or (w > MaxImageWidth) or (h > MaxImageHeight) then exit(srInvalidParameters);
+  anchor := AVars.Strings['Anchor'];
+  flipMode := AVars.Booleans['Flip'];
+  try
+    Image.Assign(ComputeNewCanvasSize(self, w,h, anchor, true,flipMode), true, True);
+  except
+    on ex: exception do
+      result := srException;
+  end;
+  result := srOk;
+end;
+
 function TLazPaintInstance.ShowNewImageDlg(out bitmap: TBGRABitmap
   ): boolean;
 var tx,ty,bpp: integer;
@@ -158,6 +198,7 @@ begin
       on ex:exception do
         result := srException;
     end;
+    UpdateWindows;
   end else
     if ShowResampleDialog(AParams) then
       result := srOk

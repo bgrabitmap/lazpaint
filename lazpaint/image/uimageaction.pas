@@ -31,11 +31,15 @@ type
     function ScriptGetFrameIndex(AVars: TVariableSet): TScriptResult;
     procedure ReleaseSelection;
     function ScriptSelectLayerIndex(AVars: TVariableSet): TScriptResult;
+    function ScriptClearAlpha(AVars: TVariableSet): TScriptResult;
+    function ScriptFillBackground(AVars: TVariableSet): TScriptResult;
   public
     constructor Create(AInstance: TLazPaintCustomInstance);
     destructor Destroy; override;
     procedure ClearAlpha;
     procedure FillBackground;
+    procedure ClearAlpha(AColor: TBGRAPixel);
+    procedure FillBackground(AColor: TBGRAPixel);
     function SmartZoom3: boolean;
     procedure Undo;
     procedure Redo;
@@ -43,6 +47,7 @@ type
       ACaption: string = ''; AOpacity: byte = 255);
     procedure CropToSelectionAndLayer;
     procedure CropToSelection;
+    procedure Flatten;
     procedure HorizontalFlip(AOption: TFlipOption);
     procedure VerticalFlip(AOption: TFlipOption);
     procedure RotateCW;
@@ -118,20 +123,22 @@ procedure TImageActions.RegisterScripts(ARegister: Boolean);
 var Scripting: TScriptContext;
 begin
   Scripting := FInstance.ScriptContext;
+  Scripting.RegisterScriptFunction('ImageCrop',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('ImageCropLayer',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('ImageFlatten',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('ImageClearAlpha',@ScriptClearAlpha,ARegister);
+  Scripting.RegisterScriptFunction('ImageFillBackground',@ScriptFillBackground,ARegister);
+  Scripting.RegisterScriptFunction('ImageSmartZoom3',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageHorizontalFlip',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageVerticalFlip',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('SelectionHorizontalFlip',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('SelectionVerticalFlip',@GenericScriptFunction,ARegister);
-  Scripting.RegisterScriptFunction('ImageSmartZoom3',@GenericScriptFunction,ARegister);
-  Scripting.RegisterScriptFunction('ImageCropLayer',@GenericScriptFunction,ARegister);
-  Scripting.RegisterScriptFunction('ImageClearAlpha',@GenericScriptFunction,ARegister);
-  Scripting.RegisterScriptFunction('ImageCrop',@GenericScriptFunction,ARegister);
-  Scripting.RegisterScriptFunction('ImageFillBackground',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageRotateCW',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageRotateCCW',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageLinearNegative',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageNegative',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageSwapRedBlue',@GenericScriptFunction,ARegister);
+
   Scripting.RegisterScriptFunction('EditUndo',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditRedo',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditInvertSelection',@GenericScriptFunction,ARegister);
@@ -144,6 +151,7 @@ begin
   Scripting.RegisterScriptFunction('EditSelectAll',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditSelectionFit',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('IsSelectionMaskEmpty',@GenericScriptFunction,ARegister);
+
   Scripting.RegisterScriptFunction('LayerHorizontalFlip',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerVerticalFlip',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerGetId',@GenericScriptFunction,ARegister);
@@ -193,9 +201,8 @@ begin
   //those script functions are the same as the menu actions
   if f = 'ImageSmartZoom3' then SmartZoom3 else
   if f = 'ImageCropLayer' then CropToSelectionAndLayer else
-  if f = 'ImageClearAlpha' then ClearAlpha else
   if f = 'ImageCrop' then CropToSelection else
-  if f = 'ImageFillBackground' then FillBackground else
+  if f = 'ImageFlatten' then Flatten else
   if f = 'ImageRotateCW' then RotateCW else
   if f = 'ImageRotateCCW' then RotateCCW else
   if f = 'ImageLinearNegative' then LinearNegativeAll else
@@ -388,18 +395,33 @@ begin
 end;
 
 procedure TImageActions.ClearAlpha;
-var c: TBGRAPixel;
-    n: integer;
+var
+  c: TBGRAPixel;
+begin
+  c := ToolManager.BackColor;
+  c.alpha := 255;
+  ClearAlpha(c);
+end;
+
+procedure TImageActions.FillBackground;
+var
+  c: TBGRAPixel;
+begin
+  c := ToolManager.BackColor;
+  c.alpha := 255;
+  FillBackground(c);
+end;
+
+procedure TImageActions.ClearAlpha(AColor: TBGRAPixel);
+var n: integer;
     p: PBGRAPixel;
     LayerAction: TLayerAction;
 begin
   if not Image.CheckNoAction then exit;
   LayerAction := nil;
   try
-    c := ToolManager.BackColor;
-    c.alpha := 255;
     LayerAction := Image.CreateAction(true);
-    LayerAction.SelectedImageLayer.ReplaceColor(BGRAPixelTransparent,c);
+    LayerAction.SelectedImageLayer.ReplaceColor(BGRAPixelTransparent, AColor);
     p := LayerAction.SelectedImageLayer.Data;
     for n := LayerAction.SelectedImageLayer.NbPixels-1 downto 0 do
     begin
@@ -416,22 +438,19 @@ begin
   LayerAction.Free;
 end;
 
-procedure TImageActions.FillBackground;
+procedure TImageActions.FillBackground(AColor: TBGRAPixel);
 var tempBmp: TBGRABitmap;
-    c: TBGRAPixel;
     LayerAction: TLayerAction;
     y: Integer;
 begin
   if not Image.CheckNoAction then exit;
   LayerAction := nil;
   try
-    c := ToolManager.BackColor;
-    c.alpha := 255;
     LayerAction := Image.CreateAction(True);
     tempBmp := TBGRABitmap.Create(LayerAction.SelectedImageLayer.Width,1);
     for y := 0 to LayerAction.SelectedImageLayer.Height-1 do
     begin
-       tempBmp.Fill(c);
+       tempBmp.Fill(AColor);
        tempBmp.PutImage(0,-y,LayerAction.SelectedImageLayer,dmDrawWithTransparency);
        LayerAction.SelectedImageLayer.PutImage(0,y,tempBmp,dmSet);
     end;
@@ -736,6 +755,12 @@ begin
     on ex:Exception do
       FInstance.ShowError('CropToSelection',ex.Message);
   end;
+end;
+
+procedure TImageActions.Flatten;
+begin
+  ChooseTool(ptHand);
+  image.Flatten;
 end;
 
 procedure TImageActions.SetCurrentBitmap(bmp: TBGRABitmap; AUndoable : boolean;
@@ -1126,6 +1151,24 @@ begin
   if (AVars.Integers['Index'] < 1) or (AVars.Integers['Index'] > Image.NbLayers) then exit(srInvalidParameters);
   if not Image.SetCurrentLayerByIndex(index-1) then result := srException
   else result := srOk;
+end;
+
+function TImageActions.ScriptClearAlpha(AVars: TVariableSet): TScriptResult;
+begin
+  if AVars.IsDefined('BackColor') then
+    ClearAlpha(AVars.Pixels['BackColor'])
+  else
+    ClearAlpha;
+  result := srOk;
+end;
+
+function TImageActions.ScriptFillBackground(AVars: TVariableSet): TScriptResult;
+begin
+  if AVars.IsDefined('BackColor') then
+    FillBackground(AVars.Pixels['BackColor'])
+  else
+    FillBackground;
+  result := srOk;
 end;
 
 procedure TImageActions.Paste;
