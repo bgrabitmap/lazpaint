@@ -65,10 +65,10 @@ def set_opacity(opacity):
   return command.send("LayerSetOpacity", Opacity=opacity)
 
 def set_blend_op(blend_op):
-  return command.send("LayerGetBlendOp", BlendOp=blend_op)
+  return command.send("LayerSetBlendOp", BlendOp=blend_op)
 
 def set_visible(visible):
-  return command.send("LayerGetVisible", Visible=visible)
+  return command.send("LayerSetVisible", Visible=visible)
 
 def new():
   return command.send("LayerAddNew?")
