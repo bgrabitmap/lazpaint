@@ -9,11 +9,66 @@ DM_SET = "dmSet"
 DM_SET_EXCEPT_TRANSPARENT = "dmSetExceptTransparent"
 DM_XOR = "dmXor"
 
+BLEND_DRAW = 'Transparent'
+BLEND_LINEAR = 'LinearBlend'
+BLEND_LIGHTEN = 'Lighten'
+BLEND_SCREEN = 'Screen'
+BLEND_ADD = 'Additive'
+BLEND_LINEAR_ADD = 'LinearAdd'
+BLEND_COLOR_DODGE = 'ColorDodge'
+BLEND_DIVIDE = 'Divide'
+BLEND_NICE_GLOW = 'NiceGlow'
+BLEND_SOFT_LIGHT = 'SoftLight'
+BLEND_HARD_LIGHT = 'HardLight'
+BLEND_GLOW = 'Glow'
+BLEND_REFLECT = 'Reflect'
+BLEND_OVERLAY = 'Overlay'
+BLEND_DARK_OVERLAY = 'DarkOverlay'
+BLEND_DARKEN = 'Darken'
+BLEND_MULTIPLY = 'Multiply'
+BLEND_COLOR_BURN = 'ColorBurn'
+BLEND_DIFFERENCE = 'Difference'
+BLEND_LINEAR_DIFFERENCE = 'LinearDifference'
+BLEND_EXCLUSION = 'Exclusion'
+BLEND_LINEAR_EXCLUSION = 'LinearExclusion'
+BLEND_SUBTRACT = 'Subtract'
+BLEND_LINEAR_SUBTRACT = 'LinearSubtract'
+BLEND_SUBTRACT_INVERSE = 'SubtractInverse'
+BLEND_LINEAR_SUBTRACT_INVERSE = 'LinearSubtractInverse'
+BLEND_NEGATION = 'Negation'
+BLEND_LINEAR_NEGATION = 'LinearNegation'
+BLEND_XOR = 'Xor'
+BLEND_SVG_SOFT_LIGHT = 'SvgSoftLight'
+
 def get_id():
   return command.send("LayerGetId?")
 
+def get_name():
+  return command.send("LayerGetName?")
+
+def get_opacity():
+  return command.send("LayerGetOpacity?")
+
+def get_blend_op():
+  return command.send("LayerGetBlendOp?")
+
+def get_visible():
+  return command.send("LayerGetVisible?")
+
 def select_id(id):
   command.send("LayerSelectId", Id=id)
+
+def set_name(name):
+  return command.send("LayerSetName", Name=name)
+
+def set_opacity(opacity):
+  return command.send("LayerSetOpacity", Opacity=opacity)
+
+def set_blend_op(blend_op):
+  return command.send("LayerGetBlendOp", BlendOp=blend_op)
+
+def set_visible(visible):
+  return command.send("LayerGetVisible", Visible=visible)
 
 def new():
   return command.send("LayerAddNew?")

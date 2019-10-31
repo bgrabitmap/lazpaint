@@ -155,7 +155,15 @@ begin
   Scripting.RegisterScriptFunction('LayerHorizontalFlip',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerVerticalFlip',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerGetId',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerGetName',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerGetOpacity',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerGetBlendOp',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerGetVisible',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerSelectId',@ScriptLayerSelectId,ARegister);
+  Scripting.RegisterScriptFunction('LayerSetName',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerSetOpacity',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerSetBlendOp',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerSetVisible',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerAddNew',@ScriptLayerAddNew,ARegister);
   Scripting.RegisterScriptFunction('LayerFromFile',@ScriptLayerFromFile,ARegister);
   Scripting.RegisterScriptFunction('LayerDuplicate',@ScriptLayerDuplicate,ARegister);
@@ -223,6 +231,14 @@ begin
   if f = 'LayerHorizontalFlip' then HorizontalFlip(foCurrentLayer) else
   if f = 'LayerVerticalFlip' then VerticalFlip(foCurrentLayer) else
   if f = 'LayerGetId' then AVars.Integers['Result'] := Image.LayerId[Image.CurrentLayerIndex] else
+  if f = 'LayerGetName' then AVars.Strings['Result'] := Image.LayerName[Image.CurrentLayerIndex] else
+  if f = 'LayerGetOpacity' then AVars.Integers['Result'] := Image.LayerOpacity[Image.CurrentLayerIndex] else
+  if f = 'LayerGetBlendOp' then AVars.Strings['Result'] := BlendOperationStr[Image.BlendOperation[Image.CurrentLayerIndex]] else
+  if f = 'LayerGetVisible' then AVars.Booleans['Result'] := Image.LayerVisible[Image.CurrentLayerIndex] else
+  if f = 'LayerSetName' then Image.LayerName[Image.CurrentLayerIndex] := AVars.Strings['Name'] else
+  if f = 'LayerSetOpacity' then Image.LayerOpacity[Image.CurrentLayerIndex] := AVars.Integers['Opacity'] else
+  if f = 'LayerSetBlendOp' then Image.BlendOperation[Image.CurrentLayerIndex] := StrToBlendOperation(AVars.Strings['BlendOp']) else
+  if f = 'LayerSetVisible' then Image.LayerVisible[Image.CurrentLayerIndex] := AVars.Booleans['Visible'] else
   if f = 'LayerRasterize' then RasterizeLayer else
   if f = 'LayerMergeOver' then MergeLayerOver else
   if f = 'LayerRemoveCurrent' then begin if not RemoveLayer then result := srException end else
