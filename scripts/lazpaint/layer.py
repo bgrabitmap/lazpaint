@@ -57,3 +57,8 @@ def horizontal_flip():
 def vertical_flip():
   command.send("LayerVerticalFlip")
 
+def clear_alpha(back_color=None):
+  command.send("ImageClearAlpha", BackColor=back_color)
+
+def fill_background(back_color=None):
+  command.send("ImageFillBackground", BackColor=back_color)
