@@ -1,4 +1,4 @@
-import collections
+import collections, math
 from lazpaint import dialog, command, filters
 
 GAMMA = 2.2
@@ -7,10 +7,10 @@ if __name__ == "__main__":
   dialog.show_message("Library defining colors.")
 
 def to_linear(std_value):
-  return (std_value/255)^(1/gamma)
+  return math.pow(std_value/255, 1/GAMMA)
 
 def to_std(linear_value):
-  return round((linear_value^gamma)*255)
+  return round(math.pow(linear_value, GAMMA)*255)
 
 CustomRGBA = collections.namedtuple("RGBA", "red, green, blue, alpha")
 class RGBA(CustomRGBA):
@@ -21,10 +21,17 @@ class RGBA(CustomRGBA):
       return '#{:02X}{:02X}{:02X}'.format(self.red,self.green,self.blue) 
   def __str__(self):
     return '{:02X}{:02X}{:02X}{:02X}'.format(self.red,self.green,self.blue,self.alpha)
+  def __eq__(self, other):
+    if isinstance(other, RGBA):
+      return (other.red == self.red) and (other.green == self.green) and (other.blue == self.blue) and (other.alpha == self.alpha)
+    else:
+      return NotImplemented
   def negative(self):
     return RGBA(to_std(1-to_linear(self.red)), to_std(1-to_linear(self.green)), to_std(1-to_linear(self.blue)), self.alpha)
   def linear_negative(self):
     return RGBA(255-self.red, 255-self.green, 255-self.blue, self.alpha)
+  def swap_red_blue(self):
+    return RGBA(self.blue, self.green, self.red, self.alpha)
   def grayscale(self):
     gray = to_std(to_linear(self.red)*0.299 + to_linear(self.green)*0.587 + to_linear(self.blue)*0.114)
     return RGBA(gray, gray, gray, self.alpha)
