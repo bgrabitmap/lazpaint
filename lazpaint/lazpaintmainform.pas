@@ -2920,7 +2920,8 @@ begin
           begin
             useSelection:= false;
             newTexture := nil;
-            if not image.SelectionMaskEmpty and not image.SelectionLayerIsEmpty then
+            if not image.SelectionMaskEmpty and (not image.SelectionLayerIsEmpty
+              or not image.CurrentLayerEmpty) then
             begin
               topmostInfo := LazPaintInstance.HideTopmost;
               if Config.DefaultTransformSelectionAnswer <> mrNone then
@@ -2935,6 +2936,8 @@ begin
               case res.ButtonResult of
                 mrYes: begin
                   useSelection:= true;
+                  if image.SelectionLayerIsEmpty then
+                    GetScriptContext.CallScriptFunction('EditSelectionFit', false);
                   if image.SelectionLayerReadonly <> nil then
                   begin
                     newTexture := image.SelectionLayerReadonly.Duplicate as TBGRABitmap;

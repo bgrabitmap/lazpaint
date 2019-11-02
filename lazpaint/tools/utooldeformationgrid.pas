@@ -52,7 +52,7 @@ type
     FCanReadaptTexture: boolean;
     FHighQuality: boolean;
     procedure ToolQuadNeeded;
-    procedure ValidateQuad;
+    procedure ValidateQuad; virtual;
     procedure DrawQuad; virtual;
     function GetAdaptedTexture: TBGRABitmap;
 
@@ -61,6 +61,7 @@ type
     snapToPixel: boolean;
     boundsMode: boolean;
     quadDefined: boolean;
+    definingQuad: boolean;
     quad: array of TPointF;
     boundsPts: array of TPointF;
     quadMovingIndex: integer;
@@ -102,7 +103,9 @@ type
     procedure PrepareBackground(toolDest: TBGRABitmap; {%H-}AFirstTime: boolean); override;
     function GetTexture: TBGRABitmap; override;
     function DefaultTextureCenter: TPointF; override;
+    procedure ValidateQuad; override;
   public
+    constructor Create(AManager: TToolManager); override;
     function GetContextualToolbars: TContextualToolbars; override;
     destructor Destroy; override;
   end;
@@ -154,6 +157,18 @@ function TToolLayerMapping.DefaultTextureCenter: TPointF;
 begin
   PrepareTexture;
   result := FDefaultTextureCenter;
+end;
+
+procedure TToolLayerMapping.ValidateQuad;
+begin
+  inherited ValidateQuad;
+  Manager.QueryExitTool;
+end;
+
+constructor TToolLayerMapping.Create(AManager: TToolManager);
+begin
+  inherited Create(AManager);
+  ToolQuadNeeded;
 end;
 
 function TToolLayerMapping.GetContextualToolbars: TContextualToolbars;
@@ -355,8 +370,20 @@ var
 begin
   result := EmptyRect;
   if rightBtn then exit;
-  ToolQuadNeeded;
-  if not quadDefined then exit;
+
+  if not quadDefined then
+  begin
+    if not definingQuad then
+    begin
+      definingQuad := true;
+      setlength(quad,4);
+      quad[0] := ptF;
+      quad[1] := ptF;
+      quad[2] := ptF;
+      quad[3] := ptF;
+    end;
+    exit;
+  end;
 
   if boundsMode then
     pts := boundsPts
@@ -399,13 +426,34 @@ var n: integer;
   delta,prevSize,newSize: TPointF;
   curBounds: array of TPointF;
   ratioX,ratioY,ratio: single;
+  avgSize: single;
 begin
+  if definingQuad then
+  begin
+    if ShiftKey then
+    begin
+      if (Manager.GetTexture <> nil) and (Manager.GetTexture.Height <> 0)
+        and (Manager.GetTexture.Width <> 0) then
+        ratio := Manager.GetTexture.Width/Manager.GetTexture.Height;
+
+      newSize := ptF - quad[0];
+      avgSize := (abs(newSize.x)+abs(newSize.y))/2;
+      ptF.x := quad[0].x+avgSize*NonZero(sign(newSize.x),1)*ratio/((ratio+1)/2);
+      ptF.y := quad[0].y+avgSize*NonZero(sign(newSize.y),1)*1/((ratio+1)/2);
+    end;
+    quad[2] := ptF;
+    quad[1].x := ptF.x;
+    quad[3].y := ptF.y;
+    result := OnlyRenderChange;
+    exit;
+  end;
+
+  result := EmptyRect;
   if not FHintShowed then
   begin
     Manager.ToolPopup(tpmHoldKeysScaleMode, VK_SHIFT);
     FHintShowed:= true;
   end;
-  result := EmptyRect;
   Manager.HintReturnValidates;
   if quadMoving then
   begin
@@ -562,7 +610,8 @@ begin
   inherited Create(AManager);
   FCurrentBounds := EmptyRect;
   FHighQuality:= False;
-  ToolQuadNeeded;
+  quadDefined:= false;
+  definingQuad:= false;
 end;
 
 function TToolTextureMapping.ToolKeyDown(var key: Word): TRect;
@@ -591,7 +640,6 @@ begin
     begin
       ValidateQuad;
       result := EmptyRect;
-      manager.QueryExitTool;
       key := 0;
     end;
   end else
@@ -648,6 +696,17 @@ var prevSize,newSize: TPointF;
   i: integer;
   redraw: boolean;
 begin
+  if definingQuad then
+  begin
+    definingQuad:= false;
+    quadDefined:= true;
+    PrepareBackground(GetToolDrawingLayer,False);
+    FCanReadaptTexture:= true;
+    DrawQuad;
+    FCanReadaptTexture:= false;
+    result := FCurrentBounds;
+    exit;
+  end;
   if quadMoving then
   begin
     redraw := not Manager.ToolPerspectiveRepeat;
@@ -712,7 +771,7 @@ function TToolTextureMapping.Render(VirtualScreen: TBGRABitmap;
 
 begin
   result := EmptyRect;
-  if not quadDefined then exit;
+  if not quadDefined and not definingQuad then exit;
   if boundsMode or quadMovingBounds then
   begin
     DrawPoints(quad,80);
@@ -736,7 +795,6 @@ begin
     tcFinish: if quadDefined then
       begin
         ValidateQuad;
-        Manager.QueryExitTool;
         result := true;
       end  else
         result := false;
