@@ -822,6 +822,9 @@ type
     function ScriptEditPasteAsNew({%H-}AVars: TVariableSet): TScriptResult;
     function ScriptFilter(AVars: TVariableSet): TScriptResult;
     function ScriptChooseTool(AVars: TVariableSet): TScriptResult;
+    function ScriptToolMouse(AVars: TVariableSet): TScriptResult;
+    function ScriptToolKeys(AVars: TVariableSet): TScriptResult;
+    function ScriptToolWrite(AVars: TVariableSet): TScriptResult;
     function ScriptViewZoomIn({%H-}AVars: TVariableSet): TScriptResult;
     function ScriptViewZoomOut({%H-}AVars: TVariableSet): TScriptResult;
     function ScriptViewZoomGet({%H-}AVars: TVariableSet): TScriptResult;
@@ -1145,6 +1148,9 @@ begin
   Scripting.RegisterScriptFunction('EditPasteAsNew',@ScriptEditPasteAsNew,ARegister);
   Scripting.RegisterScriptFunction('Filter',@ScriptFilter,ARegister);
   Scripting.RegisterScriptFunction('ChooseTool',@ScriptChooseTool,ARegister);
+  Scripting.RegisterScriptFunction('ToolMouse',@ScriptToolMouse,ARegister);
+  Scripting.RegisterScriptFunction('ToolKeys',@ScriptToolKeys,ARegister);
+  Scripting.RegisterScriptFunction('ToolWrite',@ScriptToolWrite,ARegister);
   Scripting.RegisterScriptFunction('ViewZoomIn',@ScriptViewZoomIn,ARegister);
   Scripting.RegisterScriptFunction('ViewZoomOut',@ScriptViewZoomOut,ARegister);
   Scripting.RegisterScriptFunction('ViewZoomGet',@ScriptViewZoomGet,ARegister);
@@ -3057,6 +3063,209 @@ begin
     end;
   end else
     result := srInvalidParameters;
+end;
+
+function TFMain.ScriptToolMouse(AVars: TVariableSet): TScriptResult;
+var
+  state, x, y, pressure: TScriptVariableReference;
+  nb, i: integer;
+  ptF: TPointF;
+  shiftState: TShiftState;
+  needUpdate: Boolean;
+  p: Double;
+  keyCode: word;
+begin
+  state := AVars.GetVariable('State');
+  x := AVars.GetVariable('X');
+  y := AVars.GetVariable('Y');
+  pressure := AVars.GetVariable('Pressure');
+  if not TVariableSet.IsReferenceDefined(x) or
+     not TVariableSet.IsReferenceDefined(y) or
+     not TVariableSet.IsReferenceDefined(pressure) then
+       exit(srInvalidParameters);
+  nb := min(min(AVars.GetListCount(x), AVars.GetListCount(y)), AVars.GetListCount(pressure));
+  if nb < 1 then
+    exit(srInvalidParameters);
+  shiftState := [];
+  if TVariableSet.IsReferenceDefined(state) then
+  begin
+    for i := 0 to AVars.GetListCount(state)-1 do
+      case AVars.GetStringAt(state, i) of
+        'Left': include(shiftState, ssLeft);
+        'Right': include(shiftState, ssRight);
+        'Shift': include(shiftState, ssShift);
+        'Ctrl': include(shiftState, ssSnap);
+        'Alt': include(shiftState, ssAlt);
+      end;
+    if (ssLeft in shiftState) and (ssRight in ShiftState) then
+      exit(srInvalidParameters);
+
+    needUpdate := false;
+    for i := 0 to AVars.GetListCount(state)-1 do
+      case AVars.GetStringAt(state, i) of
+        'Shift': begin keyCode := VK_SHIFT; if ToolManager.ToolKeyDown(keyCode) then needUpdate := true; end;
+        'Ctrl': begin keyCode := VK_SNAP; if ToolManager.ToolKeyDown(keyCode) then needUpdate := true; end;
+        'Alt': begin keyCode := VK_MENU; if ToolManager.ToolKeyDown(keyCode) then needUpdate := true; end;
+      end;
+  end;
+
+  for i := 0 to nb-1 do
+  begin
+    ptF := PointF(AVars.GetFloatAt(x, i), AVars.GetFloatAt(y, i));
+    p := AVars.GetFloatAt(pressure, i);
+    if ToolManager.ToolMove(ptF,p) then needUpdate := true;
+    if (ssLeft in ShiftState) or (ssRight in shiftState) then
+    begin
+      if i = 0 then
+        if ToolManager.ToolDown(ptF, ssRight in shiftState, p) then
+          needUpdate := true;
+      if i = nb-1 then
+        if ToolManager.ToolUp then
+          needUpdate := true;
+    end;
+  end;
+
+  if TVariableSet.IsReferenceDefined(state) then
+    for i := 0 to AVars.GetListCount(state)-1 do
+      case AVars.GetStringAt(state, i) of
+        'Shift': begin keyCode := VK_SHIFT; if ToolManager.ToolKeyUp(keyCode) then needUpdate := true; end;
+        'Ctrl': begin keyCode := VK_SNAP; if ToolManager.ToolKeyUp(keyCode) then needUpdate := true; end;
+        'Alt': begin keyCode := VK_MENU; if ToolManager.ToolKeyUp(keyCode) then needUpdate := true; end;
+      end;
+
+  if needUpdate then
+  begin
+    FImageView.UpdatePicture(PictureCanvasOfs, FLayout.WorkArea, self);
+    PaintPictureNow;
+    UpdateToolbar;
+  end;
+  result := srOk;
+end;
+
+function TFMain.ScriptToolKeys(AVars: TVariableSet): TScriptResult;
+var
+  state, keys: TScriptVariableReference;
+  i: Integer;
+  needUpdate: Boolean;
+  sk, foundSk: TSpecialKey;
+  keyStr: String;
+  keyCode: Word;
+  shiftState: TShiftState;
+  utf8Char: TUTF8Char;
+begin
+  state := AVars.GetVariable('State');
+  keys := AVars.GetVariable('Keys');
+  if not TVariableSet.IsReferenceDefined(keys) then
+       exit(srInvalidParameters);
+
+  result := srOk;
+  needUpdate := false;
+
+  shiftState := [];
+  if TVariableSet.IsReferenceDefined(state) then
+    for i := 0 to AVars.GetListCount(state)-1 do
+      case AVars.GetStringAt(state, i) of
+        'Shift': begin include(shiftState, ssShift); keyCode := VK_SHIFT; if ToolManager.ToolKeyDown(keyCode) then needUpdate := true; end;
+        'Ctrl': begin include(shiftState, ssSnap); keyCode := VK_SNAP; if ToolManager.ToolKeyDown(keyCode) then needUpdate := true; end;
+        'Alt': begin include(shiftState, ssCtrl); keyCode := VK_MENU; if ToolManager.ToolKeyDown(keyCode) then needUpdate := true; end;
+      end;
+  for i := 0 to AVars.GetListCount(keys)-1 do
+  begin
+    keyStr := AVars.GetStringAt(keys, i);
+    foundSk := skUnknown;
+    for sk := low(TSpecialKey) to high(TSpecialKey) do
+      if SpecialKeyStr[sk] = keyStr then
+      begin
+        foundSk := sk;
+        break;
+      end;
+    if foundSk in[skUnknown, skShift,skCtrl,skAlt] then
+    begin
+      result := srInvalidParameters;
+      break;
+    end;
+    keyCode := SpecialKeyToLCL[foundSk];
+    if ToolManager.ToolKeyDown(keyCode) then needUpdate := true;
+    if (keyCode <> 0) then
+    begin
+      utf8Char:= #0;
+      if foundSk in [skNum0..skNum9] then utf8Char := chr(ord(foundSk)-ord(skNum0)+ord('0'))
+      else if foundSk in [sk0..sk9] then utf8Char := chr(ord(foundSk)-ord(sk0)+ord('0'))
+      else if foundSk in [skA..skZ] then
+      begin
+        if [ssShift,ssSnap,ssAlt]*shiftState = [] then utf8Char := chr(ord(foundSk)-ord(skA)+ord('a'))
+        else if [ssShift,ssSnap,ssAlt]*shiftState = [sSShift] then utf8Char := chr(ord(foundSk)-ord(skA)+ord('A'));
+      end
+      else if (foundSk = skTab) and ([ssSnap,ssAlt]*shiftState = []) then utf8Char := #9
+      else if (foundSk = skBackspace) and ([ssSnap,ssAlt]*shiftState = []) then utf8Char := #8;
+      if (utf8Char <> #0) and ToolManager.ToolKeyPress(utf8Char) then needUpdate := true;
+    end;
+    keyCode := SpecialKeyToLCL[foundSk];
+    if ToolManager.ToolKeyUp(keyCode) then needUpdate := true;
+  end;
+  if TVariableSet.IsReferenceDefined(state) then
+    for i := 0 to AVars.GetListCount(state)-1 do
+      case AVars.GetStringAt(state, i) of
+        'Shift': begin keyCode := VK_SHIFT; if ToolManager.ToolKeyUp(keyCode) then needUpdate := true; end;
+        'Ctrl': begin keyCode := VK_SNAP; if ToolManager.ToolKeyUp(keyCode) then needUpdate := true; end;
+        'Alt': begin keyCode := VK_MENU; if ToolManager.ToolKeyUp(keyCode) then needUpdate := true; end;
+      end;
+
+  if needUpdate then
+  begin
+    FImageView.UpdatePicture(PictureCanvasOfs, FLayout.WorkArea, self);
+    PaintPictureNow;
+    UpdateToolbar;
+  end;
+end;
+
+function TFMain.ScriptToolWrite(AVars: TVariableSet): TScriptResult;
+var
+  txt: String;
+  utf8char: TUTF8Char;
+  p, pEnd: PChar;
+  needUpdate: Boolean;
+  utf8len: integer;
+  keyCode,keyParam: word;
+begin
+  result := srOk;
+  txt := AVars.Strings['Text'];
+  if txt <> '' then
+  begin
+    needUpdate := false;
+    p := @txt[1];
+    pEnd := @txt[length(txt)];
+    while p <= pEnd do
+    begin
+      utf8len := min(UTF8CharacterLength(p), (pEnd-p)+1);
+      if utf8len = 0 then break;
+      setlength(utf8char, utf8len);
+      move(p^, utf8char[1], utf8len);
+      if utf8char = #10 then keyCode := VK_RETURN
+      else if utf8char = #8 then keyCode := VK_BACK
+      else if utf8char = #9 then keyCode := VK_TAB
+      else keyCode := 0;
+
+      if keyCode<>0 then
+      begin
+        keyParam := keyCode;
+        if ToolManager.ToolKeyDown(keyParam) then needUpdate:= true;
+      end else keyParam := VK_UNDEFINED;
+      if keyParam <> 0 then if ToolManager.ToolKeyPress(utf8char) then needUpdate:= true;
+      if keyCode<>0 then
+      begin
+        keyParam := keyCode;
+        if ToolManager.ToolKeyUp(keyParam) then needUpdate:= true;
+      end;
+      inc(p, utf8len);
+    end;
+    if needUpdate then
+    begin
+      FImageView.UpdatePicture(PictureCanvasOfs, FLayout.WorkArea, self);
+      PaintPictureNow;
+      UpdateToolbar;
+    end;
+  end;
 end;
 
 function TFMain.ScriptViewZoomIn(AVars: TVariableSet): TScriptResult;

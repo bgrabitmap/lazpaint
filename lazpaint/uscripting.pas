@@ -1751,6 +1751,7 @@ begin
       if AIndex >= count then exit;
       case ASource.variableType of
         svtIntList: result := (PScriptInteger(list)+AIndex)^;
+        svtFloatList: result := round((PDouble(list)+AIndex)^);
       end;
     end else
   if ASource.variableType = svtStrList then
