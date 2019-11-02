@@ -1793,6 +1793,7 @@ begin
           delete(toolName,1,4);
     params := TVariableSet.Create('ChooseTool');
     params.AddString('Name', toolName);
+    params.AddBoolean('FromGUI', true);
     CallScriptFunction(params);
     params.Free;
   end;
@@ -2840,6 +2841,7 @@ var params: TVariableSet;
 begin
   params := TVariableSet.Create('ChooseTool');
   params.AddString('Name', PaintToolTypeStr[Tool]);
+  params.AddBoolean('FromGUI', true);
   result := Scripting.CallScriptFunction(params) = srOk;
   params.Free;
 end;
@@ -3027,7 +3029,8 @@ begin
               result := srException;
               exit;
             end;
-            if not (prevTool in [ptMoveSelection,ptRotateSelection,ptEditShape]) then
+            if AVars.Booleans['FromGUI'] and
+               not (prevTool in [ptMoveSelection,ptRotateSelection,ptEditShape]) then
             begin
               if image.CurrentLayerVisible and not image.SelectionMaskEmpty and image.SelectionLayerIsEmpty and not image.CurrentLayerEmpty then
               begin
