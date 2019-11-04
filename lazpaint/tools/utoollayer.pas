@@ -156,6 +156,7 @@ begin
   result := EmptyRect;
   if not handMoving then
   begin
+    GetAction;
     handMoving := true;
     handOriginF := ptF;
     idx := Manager.Image.CurrentLayerIndex;
@@ -226,7 +227,6 @@ procedure TToolMoveLayer.NeedLayerBounds;
 var
   idx: Integer;
 begin
-  GetAction;
   idx := Manager.Image.CurrentLayerIndex;
   if not FLayerBoundsDefined then
   begin
