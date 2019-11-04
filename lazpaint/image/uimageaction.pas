@@ -1277,8 +1277,6 @@ begin
     on ex:Exception do
       FInstance.ShowError('Paste',ex.Message);
   end;
-  finally
-  end;
 end;
 
 procedure TImageActions.SelectAll;
