@@ -33,3 +33,10 @@ def fit():
 def is_mask_empty():
   return command.send("IsSelectionMaskEmpty?")
 
+def is_layer_empty():
+  return command.send("IsSelectionLayerEmpty?")
+
+def paste():
+  command.send("EditPaste")
+
+

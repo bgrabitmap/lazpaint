@@ -25,6 +25,7 @@ type
     function ScriptLayerFromFile(AVars: TVariableSet): TScriptResult;
     function ScriptLayerSelectId(AVars: TVariableSet): TScriptResult;
     function ScriptLayerAddNew(AVars: TVariableSet): TScriptResult;
+    function ScriptPasteAsNewLayer(AVars: TVariableSet): TScriptResult;
     function ScriptLayerDuplicate(AVars: TVariableSet): TScriptResult;
     function ScriptPutImage(AVars: TVariableSet): TScriptResult;
     function ScriptLayerFill(AVars: TVariableSet): TScriptResult;
@@ -63,7 +64,7 @@ type
     procedure DeleteSelection;
     procedure RemoveSelection;
     procedure Paste;
-    procedure PasteAsNewLayer;
+    function PasteAsNewLayer: integer;
     procedure SelectAll;
     procedure SelectionFit;
     function NewLayer: boolean; overload;
@@ -147,7 +148,7 @@ begin
   Scripting.RegisterScriptFunction('EditCut',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditDeleteSelection',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditPaste',@GenericScriptFunction,ARegister);
-  Scripting.RegisterScriptFunction('EditPasteAsNewLayer',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('EditPasteAsNewLayer',@ScriptPasteAsNewLayer,ARegister);
   Scripting.RegisterScriptFunction('EditSelectAll',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditSelectionFit',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('IsSelectionMaskEmpty',@GenericScriptFunction,ARegister);
@@ -226,7 +227,6 @@ begin
   if f = 'EditCut' then CutSelection else
   if f = 'EditDeleteSelection' then DeleteSelection else
   if f = 'EditPaste' then Paste else
-  if f = 'EditPasteAsNewLayer' then PasteAsNewLayer else
   if f = 'EditSelectAll' then SelectAll else
   if f = 'EditSelectionFit' then SelectionFit else
   if f = 'IsSelectionMaskEmpty' then AVars.Booleans['Result'] := Image.SelectionMaskEmpty else
@@ -293,6 +293,17 @@ begin
     AVars.Integers['Result'] := Image.LayerId[Image.CurrentLayerIndex];
     result := srOk;
   end;
+end;
+
+function TImageActions.ScriptPasteAsNewLayer(AVars: TVariableSet
+  ): TScriptResult;
+var
+  id: Integer;
+begin
+  id := PasteAsNewLayer;
+  if id >= 0 then AVars.Integers['Result'] := id
+  else AVars.Remove('Result');
+  result := srOk;
 end;
 
 function TImageActions.ScriptLayerDuplicate(AVars: TVariableSet): TScriptResult;
@@ -1235,9 +1246,10 @@ begin
   end;
 end;
 
-procedure TImageActions.PasteAsNewLayer;
+function TImageActions.PasteAsNewLayer: integer;
 var partial: TBGRABitmap;
 begin
+  result := -1;
   try
     partial := GetBitmapFromClipboard;
     if partial<>nil then
@@ -1246,6 +1258,7 @@ begin
       begin
         AddLayerFromBitmap(partial,'');
         ChooseTool(ptMoveLayer);
+        result := Image.LayerId[Image.CurrentLayerIndex];
       end
       else
         partial.Free;

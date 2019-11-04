@@ -28,6 +28,9 @@ ANCHOR_BOTTOM_RIGHT = 'BottomRight'
 def new(width, height, color=colors.TRANSPARENT, ignore_modified=False):
   command.send("FileNew", Width=width, Height=height, BackColor=color, IgnoreModified=ignore_modified)
 
+def paste_as_new():
+  command.send("EditPasteAsNew")
+
 def get_width():
   return command.send("GetImageWidth?")
 

@@ -73,6 +73,9 @@ def set_visible(visible):
 def new():
   return command.send("LayerAddNew?")
 
+def paste_as_new():
+  return command.send("EditPasteAsNewLayer?")
+
 def add_from_file(file_name):
   return command.send("LayerFromFile?", FileName=file_name)
 
