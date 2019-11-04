@@ -82,6 +82,9 @@ def duplicate():
 def merge_over():
   command.send("LayerMergeOver")
 
+def is_empty():
+  return command.send("IsLayerEmpty?")
+
 def remove():
   command.send("LayerRemoveCurrent")
 
