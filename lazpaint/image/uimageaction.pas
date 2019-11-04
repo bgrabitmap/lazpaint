@@ -93,7 +93,7 @@ implementation
 
 uses Controls, Dialogs, UResourceStrings, UObject3D,
      ULoadImage, UGraph, UClipboard, Types, BGRAGradientOriginal,
-     BGRATransform, ULoading, math, LCVectorClipboard;
+     BGRATransform, ULoading, math, LCVectorClipboard, LCVectorOriginal;
 
 { TImageActions }
 
@@ -1248,24 +1248,36 @@ end;
 
 function TImageActions.PasteAsNewLayer: integer;
 var partial: TBGRABitmap;
+  orig: TVectorOriginal;
 begin
   result := -1;
   try
-    partial := GetBitmapFromClipboard;
-    if partial<>nil then
+    if ClipboardHasShapes then
     begin
-      if partial.NbPixels <> 0 then
-      begin
-        AddLayerFromBitmap(partial,'');
-        ChooseTool(ptMoveLayer);
+      orig := TVectorOriginal.Create;
+      PasteShapesFromClipboard(orig, AffineMatrixIdentity);
+      if AddLayerFromOriginal(orig, '') then
         result := Image.LayerId[Image.CurrentLayerIndex];
-      end
-      else
-        partial.Free;
+    end else
+    begin
+      partial := GetBitmapFromClipboard;
+      if partial<>nil then
+      begin
+        if partial.NbPixels <> 0 then
+        begin
+          AddLayerFromBitmap(partial,'');
+          ChooseTool(ptMoveLayer);
+          result := Image.LayerId[Image.CurrentLayerIndex];
+        end
+        else
+          partial.Free;
+      end else
     end;
   except
     on ex:Exception do
       FInstance.ShowError('Paste',ex.Message);
+  end;
+  finally
   end;
 end;
 
