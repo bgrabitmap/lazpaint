@@ -115,3 +115,9 @@ def canvas_size(width, height, anchor=ANCHOR_MIDDLE):
 def repeat(width, height, anchor=ANCHOR_MIDDLE, flip=False):
   command.send("ImageRepeat", Width=width, Height=height, Anchor=anchor, Flip=flip)
 
+def undo():
+  command.send("EditUndo")
+
+def redo():
+  command.send("EditRedo")
+
