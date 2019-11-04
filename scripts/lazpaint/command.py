@@ -14,7 +14,11 @@ def send(command, **keywords):
   else:
     print(chr(27) + command + chr(29) + str(keywords))
   if command[-1] == '?':
-    return ast.literal_eval(input(''))
+    result_str =  input('')
+    if result_str[:1] == "#":
+      return result_str
+    else:
+      return ast.literal_eval(result_str)
   else:
     return
 
