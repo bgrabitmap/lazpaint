@@ -185,8 +185,14 @@ end;
 
 procedure TVolatileScrollBar.Draw(ADest: TBGRABitmap);
 var lThumb: TRect; h: integer;
+  c: TBGRAPixel;
 begin
-  ADest.FillRect(FBounds,ColorToBGRA(ColorToRGB(clBtnFace),192),dmDrawWithTransparency);
+  if GetLightness(ColorToBGRA(clWindow)) >= 32768 then
+    c := ColorToBGRA(clBlack,48)
+  else
+    c := ColorToBGRA(clWhite,48);
+
+  ADest.FillRect(FBounds,c,dmDrawWithTransparency);
   lThumb := GetScrollThumbBounds;
   if FScrollThumbDown then
     h := -3
