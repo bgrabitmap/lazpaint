@@ -48,6 +48,7 @@ type
     procedure ToolColorChanged(Sender: TObject);
     procedure PythonScriptCommand({%H-}ASender: TObject; ACommand, AParam: UTF8String; out
       AResult: UTF8String);
+    procedure PythonBusy({%H-}Sender: TObject);
     function ScriptShowMessage(AVars: TVariableSet): TScriptResult;
     function ScriptInputBox(AVars: TVariableSet): TScriptResult;
 
@@ -676,6 +677,11 @@ begin
     FreeAndNil(FLoadingLayers);
     UpdateWindows;
   end;
+end;
+
+procedure TLazPaintInstance.PythonBusy(Sender: TObject);
+begin
+  Application.ProcessMessages;
 end;
 
 function TLazPaintInstance.GetShowSelectionNormal: boolean;
@@ -1334,6 +1340,7 @@ begin
     p := TPythonScript.Create;
     FScriptName := AFilename;
     p.OnCommand:=@PythonScriptCommand;
+    p.OnBusy := @PythonBusy;
     p.Run(AFilename);
     if p.ErrorText<>'' then
     begin

@@ -18,11 +18,13 @@ uses
 type
   TReceiveLineEvent = procedure(ALine: RawByteString) of object;
   TSendLineMethod = procedure(const ALine: RawByteString) of object;
+  TBusyEvent = procedure(var ASleep: boolean) of object;
 
 procedure RunProcessAutomation(AExecutable: string; AParameters: array of string;
   out ASendLine: TSendLineMethod;
   AOnReceiveOutput: TReceiveLineEvent;
-  AOnReceiveError: TReceiveLineEvent);
+  AOnReceiveError: TReceiveLineEvent;
+  AOnBusy: TBusyEvent);
 
 implementation
 
@@ -42,7 +44,8 @@ type
 procedure RunProcessAutomation(AExecutable: string; AParameters: array of string;
   out ASendLine: TSendLineMethod;
   AOnReceiveOutput: TReceiveLineEvent;
-  AOnReceiveError: TReceiveLineEvent);
+  AOnReceiveError: TReceiveLineEvent;
+  AOnBusy: TBusyEvent);
 
 type
   TReceiveBuffer = record
@@ -110,6 +113,7 @@ var
   p: TAutomatedProcess;
   Output, Error: TReceiveBuffer;
   i: integer;
+  shouldSleep: Boolean;
 begin
   p := TAutomatedProcess.Create(nil);
   ASendLine := @p.SendLine;
@@ -124,7 +128,11 @@ begin
     begin
       if not Receive(p.Output, Output) and
          not Receive(p.Stderr, Error) then
-        sleep(15);
+      begin
+        shouldSleep := true;
+        AOnBusy(shouldSleep);
+        if shouldSleep then sleep(15);
+      end;
     end;
     Receive(p.Output, Output);
     Receive(p.Stderr, Error);

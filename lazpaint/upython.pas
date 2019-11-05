@@ -18,6 +18,7 @@ type
 
   TPythonScript = class
   private
+    FOnBusy: TNotifyEvent;
     FPythonBin: string;
     FPythonVersion: string;
     FLinePrefix: RawByteString;
@@ -30,12 +31,14 @@ type
     function GetPythonVersionMajor: integer;
     procedure PythonError(ALine: RawByteString);
     procedure PythonOutput(ALine: RawByteString);
+    procedure PythonBusy(var ASleep: boolean);
   public
     constructor Create(APythonBin: string = DefaultPythonBin);
     procedure Run(AScriptFilename: UTF8String; APythonVersion: integer = 3);
     property OnOutputLine: TReceiveLineEvent read FOnOutputLine write FOnOutputLine;
     property OnError: TReceiveLineEvent read FOnError write FOnError;
     property OnCommand: TCommandEvent read FOnCommand write FOnCommand;
+    property OnBusy: TNotifyEvent read FOnBusy write FOnBusy;
     property PythonVersion: string read FPythonVersion;
     property PythonVersionMajor: integer read GetPythonVersionMajor;
     property ErrorText: UTF8String read FErrorText;
@@ -147,6 +150,11 @@ begin
   end;
 end;
 
+procedure TPythonScript.PythonBusy(var ASleep: boolean);
+begin
+  if Assigned(FOnBusy) then FOnBusy(self);
+end;
+
 constructor TPythonScript.Create(APythonBin: string);
 begin
   FPythonBin := APythonBin;
@@ -183,7 +191,7 @@ begin
         '%1',inttostr(APythonVersion),[]),
         '%2',inttostr(PythonVersionMajor),[]) );
   FFirstOutput:= true;
-  RunProcessAutomation(FPythonBin, ['-u', AScriptFilename], FPythonSend, @PythonOutput, @PythonError);
+  RunProcessAutomation(FPythonBin, ['-u', AScriptFilename], FPythonSend, @PythonOutput, @PythonError, @PythonBusy);
   FPythonSend := nil;
 end;
 

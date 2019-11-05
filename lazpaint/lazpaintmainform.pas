@@ -3536,6 +3536,7 @@ var
   tmi: TTopMostInfo;
 begin
   tmi := LazPaintInstance.HideTopmost;
+  self.Enabled := false;
   try
     dlg := TOpenDialog.Create(nil);
     try
@@ -3554,6 +3555,7 @@ begin
     end;
     dlg.Free;
   finally
+    self.Enabled := true;
     LazPaintInstance.ShowTopmost(tmi);
   end;
 end;
