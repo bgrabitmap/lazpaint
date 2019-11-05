@@ -100,7 +100,7 @@ type
 implementation
 
 uses FPimage, BGRAReadJpeg, BGRAOpenRaster, BGRAPaintNet, BGRAReadLzp, Dialogs, UNewimage,
-  LCLType, BGRAPhoxo, BGRASVG, math, URaw;
+  LCLType, BGRAPhoxo, BGRASVG, math, URaw, UImage;
 
 { TImagePreview }
 
@@ -933,8 +933,9 @@ begin
       ifSvg:
         begin
           svg := TBGRASVG.Create(source);
-          FSingleImage := TBGRABitmap.Create(ceil(svg.WidthAsPixel),ceil(svg.HeightAsPixel));
-          svg.Draw(FSingleImage.Canvas2d,0,0);
+          with ComputeAcceptableImageSize(ceil(svg.WidthAsPixel),ceil(svg.HeightAsPixel)) do
+            FSingleImage := TBGRABitmap.Create(cx,cy);
+          svg.StretchDraw(FSingleImage.Canvas2d,0,0,FSingleImage.Width,FSingleImage.Height);
           svg.Free;
           FImageNbLayers:= 1;
         end
