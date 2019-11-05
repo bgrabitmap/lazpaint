@@ -16,8 +16,10 @@ type
     LStatus: TLabel;
     Panel1: TPanel;
     vsPreview: TBGRAVirtualScreen;
+    procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     FPreview: TImagePreview;
     function GetDuplicateSourceIndex: integer;
@@ -76,9 +78,48 @@ begin
   FPreview.OnEscape:= @PreviewEscape;
 end;
 
+procedure TFPreviewDialog.FormCloseQuery(Sender: TObject; var CanClose: boolean);
+var r:TRect;
+begin
+  LazPaintInstance.Config.SetDefaultPreviewDialogMaximized(self.WindowState = wsMaximized);
+  if self.WindowState = wsNormal then
+  begin
+    r.left := Left;
+    r.top := Top;
+    r.right := r.left+ClientWidth;
+    r.Bottom := r.top+ClientHeight;
+    LazPaintInstance.Config.SetDefaultPreviewDialogPosition(r);
+  end
+  else
+    LazPaintInstance.Config.SetDefaultPreviewDialogPosition(TRect.Empty);
+end;
+
 procedure TFPreviewDialog.FormDestroy(Sender: TObject);
 begin
   FPreview.Free;
+end;
+
+procedure TFPreviewDialog.FormShow(Sender: TObject);
+var
+  r: TRect;
+begin
+  if Assigned(LazPaintInstance) then
+  begin
+    if LazPaintInstance.Config.DefaultPreviewDialogMaximized then self.WindowState := wsMaximized
+      else
+    begin
+      self.WindowState := wsNormal;
+      r := LazPaintInstance.Config.DefaultPreviewDialogPosition;
+      if (r.right > r.left) and (r.bottom > r.top) then
+      begin
+        self.Position := poDesigned;
+        self.Left := r.Left;
+        self.Top := r.Top;
+        self.ClientWidth := r.right-r.left;
+        self.ClientHeight := r.bottom-r.top
+      end;
+    end;
+  end;
 end;
 
 function TFPreviewDialog.GetFilename: string;

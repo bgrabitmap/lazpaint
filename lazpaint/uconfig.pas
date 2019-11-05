@@ -150,6 +150,10 @@ type
     procedure SetDefaultBrowseWindowMaximized(value: boolean);
     function DefaultBrowseWindowPosition: TRect;
     procedure SetDefaultBrowseWindowPosition(value: TRect);
+    function DefaultPreviewDialogMaximized: boolean;
+    procedure SetDefaultPreviewDialogMaximized(value: boolean);
+    function DefaultPreviewDialogPosition: TRect;
+    procedure SetDefaultPreviewDialogPosition(value: TRect);
 
     function DefaultPaletteToolbarVisible: boolean;
     procedure SetDefaultPaletteToolbarVisible(value: boolean);
@@ -588,6 +592,26 @@ end;
 procedure TLazPaintConfig.SetDefaultBrowseWindowPosition(value: TRect);
 begin
   iniOptions.WriteString('Window','BrowseWindowPosition',RectToStr(value));
+end;
+
+function TLazPaintConfig.DefaultPreviewDialogMaximized: boolean;
+begin
+  result := iniOptions.ReadBool('Window','PreviewDialogMaximized',false);
+end;
+
+procedure TLazPaintConfig.SetDefaultPreviewDialogMaximized(value: boolean);
+begin
+  iniOptions.WriteBool('Window','PreviewDialogMaximized',value);
+end;
+
+function TLazPaintConfig.DefaultPreviewDialogPosition: TRect;
+begin
+  result := StrToRect(iniOptions.ReadString('Window','PreviewDialogPosition',''));
+end;
+
+procedure TLazPaintConfig.SetDefaultPreviewDialogPosition(value: TRect);
+begin
+  iniOptions.WriteString('Window','PreviewDialogPosition',RectToStr(value));
 end;
 
 function TLazPaintConfig.DefaultPaletteToolbarVisible: boolean;
