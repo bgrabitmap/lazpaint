@@ -224,7 +224,7 @@ uses LCLType, Types, Forms, Dialogs, FileUtil, StdCtrls, LCLIntf, Math,
      UImageAction, USharpen, uposterize, UPhongFilter, UFilterFunction,
      uprint, USaveOption, UFormRain,
 
-     ugraph, LCScaleDPI, ucommandline, uabout, UPython;
+     ugraph, LCScaleDPI, ucommandline, uabout, UPython, UVolatileScrollBar;
 
 { TLazPaintInstance }
 
@@ -299,6 +299,8 @@ end;
 
 procedure TLazPaintInstance.Init(AEmbedded: boolean);
 begin
+  TVolatileScrollBar.InitDPI;
+
   Title := 'LazPaint ' + LazPaintCurrentVersion;
   FCustomImageList := TImageListList.Create;
   FTopMostInfo.choosecolorHidden := 0;
