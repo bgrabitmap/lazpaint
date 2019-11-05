@@ -1,221 +1,263 @@
 object FSaveOption: TFSaveOption
   Left = 375
-  Height = 444
+  Height = 491
   Top = 181
   Width = 596
   BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'Save'
-  ClientHeight = 444
+  ClientHeight = 491
   ClientWidth = 596
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnHide = FormHide
-  LCLVersion = '1.8.2.0'
+  LCLVersion = '2.0.2.0'
   object Panel_Option: TPanel
     Left = 0
-    Height = 444
+    Height = 491
     Top = 0
-    Width = 104
+    Width = 134
     Align = alLeft
+    AutoSize = True
     BevelOuter = bvNone
-    ClientHeight = 444
-    ClientWidth = 104
+    ClientHeight = 491
+    ClientWidth = 134
     TabOrder = 0
     object Panel_BitsPerPixel: TPanel
       Left = 0
-      Height = 152
+      Height = 187
       Top = 0
-      Width = 104
+      Width = 134
       Align = alTop
-      ClientHeight = 152
-      ClientWidth = 104
+      AutoSize = True
+      ChildSizing.LeftRightSpacing = 4
+      ChildSizing.TopBottomSpacing = 4
+      ChildSizing.Layout = cclLeftToRightThenTopToBottom
+      ChildSizing.ControlsPerLine = 1
+      ClientHeight = 187
+      ClientWidth = 134
       TabOrder = 0
       object Label_ColorDepth: TLabel
-        Left = 5
+        Left = 4
         Height = 17
-        Top = 3
-        Width = 68
+        Top = 4
+        Width = 93
         Caption = 'Color depth:'
         ParentColor = False
       end
       object RadioButton_2Colors: TRadioButton
-        Left = 5
-        Height = 22
-        Top = 20
-        Width = 68
+        Left = 4
+        Height = 23
+        Top = 21
+        Width = 93
         Caption = '2 colors'
         OnChange = RadioButton_BitsPerPixelChange
         TabOrder = 0
       end
       object RadioButton_16Colors: TRadioButton
-        Left = 5
-        Height = 22
-        Top = 36
-        Width = 75
+        Left = 4
+        Height = 23
+        Top = 44
+        Width = 93
         Caption = '16 colors'
         OnChange = RadioButton_BitsPerPixelChange
         TabOrder = 1
       end
       object RadioButton_256Colors: TRadioButton
-        Left = 5
-        Height = 22
-        Top = 52
-        Width = 82
+        Left = 4
+        Height = 23
+        Top = 67
+        Width = 93
         Caption = '256 colors'
         OnChange = RadioButton_BitsPerPixelChange
         TabOrder = 3
       end
-      object RadioButton_24BitsPerPixel: TRadioButton
-        Left = 5
-        Height = 22
-        Top = 84
-        Width = 61
-        Caption = '24 bits'
-        OnChange = RadioButton_BitsPerPixelChange
-        TabOrder = 2
-      end
-      object CheckBox_Dithering: TCheckBox
-        Left = 4
-        Height = 22
-        Top = 120
-        Width = 76
-        Caption = 'Dithering'
-        Checked = True
-        OnChange = CheckBox_DitheringChange
-        State = cbChecked
-        TabOrder = 4
-      end
       object RadioButton_MioMap: TRadioButton
-        Left = 5
-        Height = 22
-        Top = 68
-        Width = 70
+        Left = 4
+        Height = 23
+        Top = 90
+        Width = 93
         Caption = 'MioMap'
         OnChange = RadioButton_BitsPerPixelChange
         TabOrder = 5
       end
+      object RadioButton_24BitsPerPixel: TRadioButton
+        Left = 4
+        Height = 23
+        Top = 113
+        Width = 93
+        Caption = '24 bits'
+        OnChange = RadioButton_BitsPerPixelChange
+        TabOrder = 2
+      end
       object RadioButton_32BitsPerPixel: TRadioButton
-        Left = 5
-        Height = 22
-        Top = 100
-        Width = 61
+        Left = 4
+        Height = 23
+        Top = 136
+        Width = 93
         Caption = '32 bits'
         Checked = True
         OnChange = RadioButton_BitsPerPixelChange
         TabOrder = 6
         TabStop = True
       end
+      object CheckBox_Dithering: TCheckBox
+        Left = 4
+        Height = 23
+        Top = 159
+        Width = 93
+        Caption = 'Dithering'
+        Checked = True
+        OnChange = CheckBox_DitheringChange
+        State = cbChecked
+        TabOrder = 4
+      end
     end
     object Panel_Quality: TPanel
       Left = 0
       Height = 206
-      Top = 152
-      Width = 104
+      Top = 187
+      Width = 134
       Align = alTop
+      BorderWidth = 4
       ClientHeight = 206
-      ClientWidth = 104
+      ClientWidth = 134
       TabOrder = 1
       object TrackBar_Quality: TTrackBar
-        Left = 28
-        Height = 154
-        Top = 46
-        Width = 25
+        Left = 5
+        Height = 150
+        Top = 51
+        Width = 100
         Frequency = 10
         Max = 100
         OnChange = TrackBar_QualityChange
         Orientation = trVertical
         Position = 100
         Reversed = True
+        Align = alClient
         TabOrder = 0
       end
       object Label1: TLabel
         Left = 5
         Height = 17
-        Top = 3
-        Width = 42
+        Top = 5
+        Width = 124
+        Align = alTop
         Caption = 'Quality:'
         ParentColor = False
       end
       object Edit_QualityValue: TEdit
-        Left = 16
-        Height = 27
+        Left = 5
+        Height = 29
         Top = 22
-        Width = 59
+        Width = 124
+        Align = alTop
+        MaxLength = 4
         OnChange = Edit_QualityValueChange
         OnExit = Edit_QualityValueExit
         TabOrder = 1
       end
-      object Label_0: TLabel
-        Left = 60
-        Height = 17
-        Top = 180
-        Width = 7
-        Caption = '0'
-        ParentColor = False
-      end
-      object Label_1: TLabel
-        Left = 60
-        Height = 17
-        Top = 50
-        Width = 21
-        Caption = '100'
-        ParentColor = False
-      end
-      object Label_50: TLabel
-        Left = 60
-        Height = 17
-        Top = 115
-        Width = 14
-        Caption = '50'
-        ParentColor = False
+      object Panel_Percent: TPanel
+        Left = 105
+        Height = 150
+        Top = 51
+        Width = 24
+        Align = alRight
+        AutoSize = True
+        BevelOuter = bvNone
+        ClientHeight = 150
+        ClientWidth = 24
+        TabOrder = 2
+        object Label_1: TLabel
+          Left = 0
+          Height = 17
+          Top = 0
+          Width = 24
+          Align = alTop
+          Caption = '100'
+          ParentColor = False
+        end
+        object Label_0: TLabel
+          Left = 0
+          Height = 17
+          Top = 133
+          Width = 24
+          Align = alBottom
+          Caption = '0'
+          ParentColor = False
+        end
+        object Label_50: TLabel
+          Left = 0
+          Height = 116
+          Top = 17
+          Width = 24
+          Align = alClient
+          Caption = '50'
+          Layout = tlCenter
+          ParentColor = False
+        end
       end
     end
     object Panel_OkCancel: TPanel
       Left = 0
-      Height = 80
-      Top = 358
-      Width = 104
+      Height = 89
+      Top = 393
+      Width = 134
       Align = alTop
-      ClientHeight = 80
-      ClientWidth = 104
+      AutoSize = True
+      BorderWidth = 4
+      ClientHeight = 89
+      ClientWidth = 134
       TabOrder = 2
-      object Button_Cancel: TButton
-        Left = 5
-        Height = 22
-        Top = 53
-        Width = 91
-        Anchors = [akTop, akRight]
-        Cancel = True
-        Caption = 'Cancel'
-        ModalResult = 2
-        TabOrder = 0
-      end
-      object Button_OK: TButton
-        Left = 5
-        Height = 22
-        Top = 28
-        Width = 91
-        Anchors = [akTop, akRight]
-        Caption = 'OK'
-        Default = True
-        OnClick = Button_OKClick
-        TabOrder = 1
-      end
       object Label_Size: TLabel
-        Left = 7
+        Left = 5
         Height = 17
-        Top = 7
-        Width = 26
+        Top = 5
+        Width = 124
+        Align = alTop
         Caption = 'Size:'
         ParentColor = False
+      end
+      object Panel_Buttons: TPanel
+        Left = 71
+        Height = 62
+        Top = 22
+        Width = 58
+        Align = alRight
+        AutoSize = True
+        BevelOuter = bvNone
+        ChildSizing.Layout = cclLeftToRightThenTopToBottom
+        ChildSizing.ControlsPerLine = 1
+        ClientHeight = 62
+        ClientWidth = 58
+        TabOrder = 0
+        object Button_OK: TButton
+          Left = 0
+          Height = 31
+          Top = 0
+          Width = 58
+          Caption = 'OK'
+          Default = True
+          OnClick = Button_OKClick
+          TabOrder = 0
+        end
+        object Button_Cancel: TButton
+          Left = 0
+          Height = 31
+          Top = 31
+          Width = 58
+          Cancel = True
+          Caption = 'Cancel'
+          ModalResult = 2
+          TabOrder = 1
+        end
       end
     end
   end
   object BGRAPreview: TBGRAVirtualScreen
-    Left = 104
-    Height = 444
+    Left = 134
+    Height = 491
     Top = 0
-    Width = 492
+    Width = 462
     OnRedraw = BGRAPreviewRedraw
     Align = alClient
     Alignment = taLeftJustify
@@ -227,7 +269,7 @@ object FSaveOption: TFSaveOption
     Enabled = False
     Interval = 500
     OnTimer = Timer_UpdateTimer
-    left = 39
-    top = 393
+    left = 152
+    top = 32
   end
 end

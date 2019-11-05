@@ -20,11 +20,13 @@ type
     CheckBox_Dithering: TCheckBox;
     Edit_QualityValue: TEdit;
     Label1: TLabel;
-    Label_Size: TLabel;
     Label_0: TLabel;
     Label_1: TLabel;
     Label_50: TLabel;
+    Label_Size: TLabel;
     Label_ColorDepth: TLabel;
+    Panel_Buttons: TPanel;
+    Panel_Percent: TPanel;
     Panel_OkCancel: TPanel;
     Panel_Quality: TPanel;
     Panel_BitsPerPixel: TPanel;
@@ -194,8 +196,13 @@ procedure TFSaveOption.Edit_QualityValueChange(Sender: TObject);
 var v,err: integer;
 begin
   if FInit then exit;
-  val(Edit_QualityValue.Text, v, err);
-  if err <> 0 then exit;
+  try
+    val(Edit_QualityValue.Text, v, err);
+    if err <> 0 then exit;
+  except
+    on ex: exception do
+      exit;
+  end;
   FInit := true;
   TrackBar_Quality.Position := v;
   FInit := false;
