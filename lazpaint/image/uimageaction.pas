@@ -44,6 +44,8 @@ type
     function SmartZoom3: boolean;
     procedure Undo;
     procedure Redo;
+    procedure DoBegin;
+    function DoEnd: boolean;
     procedure SetCurrentBitmap(bmp: TBGRABitmap; AUndoable: boolean;
       ACaption: string = ''; AOpacity: byte = 255);
     procedure CropToSelectionAndLayer;
@@ -142,6 +144,8 @@ begin
 
   Scripting.RegisterScriptFunction('EditUndo',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditRedo',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('EditDoBegin',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('EditDoEnd',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditInvertSelection',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditDeselect',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditCopy',@GenericScriptFunction,ARegister);
@@ -221,6 +225,8 @@ begin
   if f = 'ImageSwapRedBlue' then SwapRedBlueAll else
   if f = 'EditUndo' then Undo else
   if f = 'EditRedo' then Redo else
+  if f = 'EditDoBegin' then DoBegin else
+  if f = 'EditDoEnd' then AVars.Booleans['Result'] := DoEnd else
   if f = 'EditInvertSelection' then InvertSelection else
   if f = 'EditDeselect' then Deselect else
   if f = 'EditCopy' then CopySelection else
@@ -546,6 +552,23 @@ begin
     on ex:Exception do
       FInstance.ShowError('Redo',ex.Message);
   end;
+end;
+
+procedure TImageActions.DoBegin;
+begin
+  if CurrentTool in[ptMoveSelection,ptRotateSelection] then ChooseTool(ptHand);
+  if ToolManager.ToolProvideCommand(tcFinish) then ToolManager.ToolCommand(tcFinish);
+  Image.DoBegin;
+end;
+
+function TImageActions.DoEnd: boolean;
+var
+  found: boolean;
+begin
+  if CurrentTool in[ptMoveSelection,ptRotateSelection] then ChooseTool(ptHand);
+  if ToolManager.ToolProvideCommand(tcFinish) then ToolManager.ToolCommand(tcFinish);
+  Image.DoEnd(found, result);
+  if not found then raise exception.Create(rsEndWithoutMatchingBegin);
 end;
 
 procedure TImageActions.Import3DObject(AFilenameUTF8: string);

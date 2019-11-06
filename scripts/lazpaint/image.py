@@ -124,3 +124,11 @@ def undo():
 def redo():
   command.send("EditRedo")
 
+# starts a series of actions (undoable with only one call to "undo")
+def do_begin():
+  command.send("EditDoBegin")
+
+# returns True if some action was done within the series of actions
+def do_end():
+  return command.send("EditDoEnd?")
+

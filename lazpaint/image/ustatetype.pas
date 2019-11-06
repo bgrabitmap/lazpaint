@@ -64,15 +64,19 @@ type
   TComposedImageDifference = class(TCustomImageDifference)
   private
     function GetCount: integer;
+    function GetItem(AIndex: integer): TCustomImageDifference;
+    function GetTotalCount: integer;
   protected
     FDiffs: TImageDifferenceList;
+    FAgglutinate: boolean;
     function GetIsIdentity: boolean; override;
     function GetImageDifferenceKind: TImageDifferenceKind; override;
     function GetChangingBounds: TRect; override;
     function GetChangingBoundsDefined: boolean; override;
   public
-    constructor Create;
+    constructor Create(AAgglutinate: boolean = false);
     procedure ReleaseDiffs;
+    procedure StopAgglutinate;
     destructor Destroy; override;
     function TryCompress: boolean; override;
     function UsedMemory: int64; override;
@@ -80,8 +84,15 @@ type
     procedure AddRange(AComposed: TComposedImageDifference);
     procedure ApplyTo(AState: TState); override;
     procedure UnapplyTo(AState: TState); override;
+    procedure Clear;
+    procedure Delete(AIndex: integer);
+    procedure DeleteFrom(AIndex: integer);
+    function GetLast: TCustomImageDifference;
     function ToString: ansistring; override;
     property Count: integer read GetCount;
+    property TotalCount: integer read GetTotalCount;
+    property Agglutinate: boolean read FAgglutinate;
+    property Item[AIndex: integer]: TCustomImageDifference read GetItem; default;
   end;
 
 {*********** Layer info *************}
@@ -400,10 +411,28 @@ begin
   result := FDiffs.Count;
 end;
 
+function TComposedImageDifference.GetItem(AIndex: integer): TCustomImageDifference;
+begin
+  result := FDiffs[AIndex];
+end;
+
+function TComposedImageDifference.GetTotalCount: integer;
+var
+  i: Integer;
+begin
+  result := 0;
+  for i := 0 to FDiffs.Count-1 do
+    if FDiffs[i] is TComposedImageDifference then
+      inc(result, TComposedImageDifference(FDiffs[i]).TotalCount)
+    else
+      inc(result);
+end;
+
 function TComposedImageDifference.GetIsIdentity: boolean;
 var
   i: Integer;
 begin
+  if FAgglutinate then exit(false);
   for i := 0 to FDiffs.Count-1 do
     if not FDiffs[i].GetIsIdentity then exit(false);
   exit(true);
@@ -452,9 +481,10 @@ begin
   exit(true);
 end;
 
-constructor TComposedImageDifference.Create;
+constructor TComposedImageDifference.Create(AAgglutinate: boolean);
 begin
   FDiffs := TImageDifferenceList.Create;
+  FAgglutinate:= AAgglutinate;
 end;
 
 procedure TComposedImageDifference.ReleaseDiffs;
@@ -462,6 +492,11 @@ begin
   FDiffs.FreeObjects:= false;
   FDiffs.Clear;
   FDiffs.FreeObjects:= true;
+end;
+
+procedure TComposedImageDifference.StopAgglutinate;
+begin
+  FAgglutinate:= false;
 end;
 
 destructor TComposedImageDifference.Destroy;
@@ -515,6 +550,30 @@ var
 begin
   for i := FDiffs.Count-1 downto 0 do
     FDiffs[i].UnapplyTo(AState);
+end;
+
+procedure TComposedImageDifference.Clear;
+begin
+  FDiffs.Clear;
+end;
+
+procedure TComposedImageDifference.Delete(AIndex: integer);
+begin
+  FDiffs.Delete(AIndex);
+end;
+
+procedure TComposedImageDifference.DeleteFrom(AIndex: integer);
+var
+  i: Integer;
+begin
+  for i := Count-1 downto AIndex do
+    Delete(i);
+end;
+
+function TComposedImageDifference.GetLast: TCustomImageDifference;
+begin
+  if Count = 0 then result := nil
+  else result := FDiffs[Count-1];
 end;
 
 function TComposedImageDifference.ToString: ansistring;

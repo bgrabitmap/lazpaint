@@ -1334,6 +1334,7 @@ var
   p: TPythonScript;
   fError: TForm;
   memo: TMemo;
+  doFound, somethingDone: boolean;
 begin
   p := nil;
   try
@@ -1370,6 +1371,10 @@ begin
     end;
   end;
   p.Free;
+  //ensure we are out of any do group
+  repeat
+    Image.DoEnd(doFound, somethingDone);
+  until not doFound;
 end;
 
 procedure TLazPaintInstance.ColorFromFChooseColor;

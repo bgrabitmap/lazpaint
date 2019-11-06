@@ -47,8 +47,9 @@ type
     FRenderedImage: TBGRABitmap;
     FRenderedImageInvalidated: TRect;
     FOnImageChanged: TLazPaintImageObservable;
-    FUndoList: TList;
+    FUndoList: TComposedImageDifference;
     FUndoPos: integer;
+    FNextUndoBegin: integer;
     FRenderUpdateRectInPicCoord, FRenderUpdateRectInVSCoord: TRect;
     FOnCurrentFilenameChanged: TOnCurrentFilenameChanged;
 
@@ -113,7 +114,6 @@ type
     procedure CompressUndoIfNecessary;
     procedure NotifyException(AFunctionName: string; AException: Exception);
     procedure SetSelectionTransform(ATransform: TAffineMatrix);
-    procedure ClearUndoAfter;
     procedure UpdateIconFileUTF8(AFilename: string; AOutputFilename: string = '');
     procedure UpdateTiffFileUTF8(AFilename: string; AOutputFilename: string = '');
     procedure UpdateGifFileUTF8(AFilename: string; AOutputFilename: string = '');
@@ -140,6 +140,8 @@ type
     function CanRedo: boolean;
     procedure Undo;
     procedure Redo;
+    procedure DoBegin;
+    procedure DoEnd(out ADoFound: boolean; out ASomethingDone: boolean);
     procedure ClearUndo;
     procedure CompressUndo;
     function UsedMemory: int64;
@@ -699,8 +701,8 @@ begin
   self.FrameCount := ASavedFrameCount;
   for i := 0 to FUndoList.Count-1 do
   begin
-    TCustomImageDifference(FUndoList[i]).SavedBefore := (i = FUndoPos+1);
-    TCustomImageDifference(FUndoList[i]).SavedAfter := (i = FUndoPos);
+    FUndoList[i].SavedBefore := (i = FUndoPos+1);
+    FUndoList[i].SavedAfter := (i = FUndoPos);
   end;
   OnImageChanged.NotifyObservers;
 end;
@@ -768,6 +770,8 @@ end;
 procedure TLazPaintImage.AddUndo(AUndoAction: TCustomImageDifference);
 var
   prevAction: TCustomImageDifference;
+  prevGroup: TComposedImageDifference;
+  prevActionIndex: Integer;
 begin
   if AUndoAction <> nil then
   begin
@@ -776,16 +780,32 @@ begin
       AUndoAction.Free;
       exit;
     end;
-    if FUndoPos > -1 then
+    prevGroup := FUndoList;
+    prevActionIndex := FUndoPos;
+    if prevActionIndex > -1 then
     begin
-      prevAction := TObject(FUndoList[FUndoPos]) as TCustomImageDifference;
+      prevAction := prevGroup[prevActionIndex];
+      while (prevAction is TComposedImageDifference) and
+        TComposedImageDifference(prevAction).Agglutinate do
+      begin
+        prevGroup := TComposedImageDifference(prevAction);
+        prevActionIndex := prevGroup.Count-1;
+        if prevActionIndex>=0 then
+          prevAction := prevGroup[prevActionIndex]
+        else
+          prevAction := nil;
+      end;
+    end else
+      prevAction := nil;
+    if assigned(prevAction) then
+    begin
       if IsInverseImageDiff(AUndoAction,prevAction) then
       begin
         //writeln('Inverse');
         AUndoAction.Free;
         FCurrentState.saved := prevAction.SavedBefore;
-        Dec(FUndoPos);
-        ClearUndoAfter;
+        prevGroup.DeleteFrom(prevActionIndex);
+        if prevGroup = FUndoList then FUndoPos := prevActionIndex-1;
         exit;
       end else
       if not prevAction.savedAfter and TryCombineImageDiff(AUndoAction,prevAction) then
@@ -795,21 +815,30 @@ begin
         begin
           //writeln('Inverse (combine)');
           FCurrentState.saved := prevAction.SavedBefore;
-          Dec(FUndoPos);
-          ClearUndoAfter;
+          prevGroup.DeleteFrom(prevActionIndex);
+          if prevGroup = FUndoList then FUndoPos := prevActionIndex-1;
         end;
         exit;
       end;
     end;
-    ClearUndoAfter;
-    if FUndoList.Count >= MaxUndoCount then
+    prevGroup.DeleteFrom(prevActionIndex+1);
+    if prevGroup.TotalCount >= MaxUndoCount then
     begin
-      FUndoList.Delete(0);
-      FUndoList.Add(AUndoAction);
+      if prevGroup = FUndoList then
+      begin
+        FUndoList.Delete(0);
+        FUndoList.Add(AUndoAction);
+      end else
+      begin
+        MessagePopup(rsTooManyActions, 4000);
+        AUndoAction.UnapplyTo(FCurrentState);
+        InvalidateImageDifference(AUndoAction);
+        exit;
+      end;
     end else
     begin
-      FUndoList.Add(AUndoAction);
-      inc(FUndoPos);
+      prevGroup.Add(AUndoAction);
+      if prevGroup = FUndoList then inc(FUndoPos);
     end;
     //writeln(AUndoAction.ToString);
     FCurrentState.saved := AUndoAction.SavedAfter;
@@ -823,7 +852,7 @@ begin
   for i := 0 to FUndoList.Count-1 do
     if UsedMemory <= MaxUsedMemoryWithoutCompression then break else
     repeat
-      if not (TObject(FUndoList[i]) as TStateDifference).TryCompress then break;
+      if not FUndoList[i].TryCompress then break;
     until UsedMemory <= MaxUsedMemoryWithoutCompression;
 end;
 
@@ -861,16 +890,6 @@ begin
     diff.ApplyTo(FCurrentState);
     InvalidateTransformedSelection;
     AddUndo(diff);
-  end;
-end;
-
-procedure TLazPaintImage.ClearUndoAfter;
-var I: integer;
-begin
-  for I := FUndoList.Count-1 downto FUndoPos+1 do
-  begin
-    TObject(FUndoList[i]).Free;
-    FUndoList.Delete(i);
   end;
 end;
 
@@ -942,16 +961,31 @@ begin
 end;
 
 procedure TLazPaintImage.Undo;
-var diff: TCustomImageDifference;
+var prevAction: TCustomImageDifference;
+  prevGroup: TComposedImageDifference;
+  prevActionIndex: Integer;
 begin
   if CanUndo then
   begin
     if not CheckNoAction then exit;
     try
-      diff := TCustomImageDifference(FUndoList[FUndoPos]);
-      diff.UnapplyTo(FCurrentState);
-      Dec(FUndoPos);
-      InvalidateImageDifference(diff);
+      prevGroup := FUndoList;
+      prevActionIndex := FUndoPos;
+      prevAction := prevGroup[prevActionIndex];
+      while (prevAction is TComposedImageDifference) and
+        TComposedImageDifference(prevAction).Agglutinate and
+        (TComposedImageDifference(prevAction).Count > 0) do
+      begin
+        prevGroup := TComposedImageDifference(prevAction);
+        prevActionIndex := prevGroup.Count-1;
+        prevAction := prevGroup[prevActionIndex];
+      end;
+      prevAction.UnapplyTo(FCurrentState);
+      InvalidateImageDifference(prevAction);
+      if prevGroup = FUndoList then
+        Dec(FUndoPos)
+      else
+        prevGroup.Delete(prevActionIndex);
     except
       on ex:Exception do
       begin
@@ -1023,7 +1057,7 @@ begin
     if not CheckNoAction then exit;
     try
       inc(FUndoPos);
-      diff := TCustomImageDifference(FUndoList[FUndoPos]);
+      diff := FUndoList[FUndoPos];
       diff.ApplyTo(FCurrentState);
       InvalidateImageDifference(diff);
     except
@@ -1039,27 +1073,66 @@ begin
   end;
 end;
 
-procedure TLazPaintImage.ClearUndo;
-var i: integer;
+procedure TLazPaintImage.DoBegin;
 begin
-  try
-    for i := 0 to FUndoList.Count-1 do
-      TObject(FUndoList[i]).Free;
-  except
-    on ex: exception do
+  AddUndo(TComposedImageDifference.Create(True));
+end;
+
+procedure TLazPaintImage.DoEnd(out ADoFound: boolean; out ASomethingDone: boolean);
+var
+  curDiff, insideDiff: TCustomImageDifference;
+  curGroup: TComposedImageDifference;
+  curIndex: Integer;
+begin
+  ADoFound := false;
+  ASomethingDone := false;
+  if FUndoPos >= 0 then
+  begin
+    curGroup := FUndoList;
+    curIndex := FUndoPos;
+    curDiff := curGroup[curIndex];
+    if not ((curDiff is TComposedImageDifference) and
+      TComposedImageDifference(curDiff).Agglutinate) then
+        exit;
+    ADoFound:= true;
+    ASomethingDone := true;
+    repeat
+      insideDiff := TComposedImageDifference(curDiff).GetLast;
+      if (insideDiff <> nil) and (insideDiff is TComposedImageDifference) and
+         TComposedImageDifference(insideDiff).Agglutinate then
+      begin
+        curGroup := TComposedImageDifference(curDiff);
+        curIndex := curGroup.Count-1;
+        curDiff := insideDiff;
+      end
+      else
+        break;
+    until false;
+    TComposedImageDifference(curDiff).StopAgglutinate;
+    if TComposedImageDifference(curDiff).Count = 0 then
     begin
-      //ignore
+      curGroup.Delete(curIndex);
+      if curGroup = FUndoList then dec(FUndoPos);
+      ASomethingDone := false;
     end;
   end;
-  FUndoList.Clear;
-  FUndoPos := -1;
+end;
+
+procedure TLazPaintImage.ClearUndo;
+begin
+  try
+    FUndoList.Clear;
+    FUndoPos := -1;
+  except on ex:exception do
+    MessagePopup(ex.Message, 4000);
+  end;
 end;
 
 procedure TLazPaintImage.CompressUndo;
 var i: integer;
 begin
   for i := 0 to FUndoList.Count-1 do
-    if (TObject(FUndoList[i]) as TStateDifference).TryCompress then exit;
+    if FUndoList[i].TryCompress then exit;
 end;
 
 function TLazPaintImage.UsedMemory: int64;
@@ -1068,7 +1141,7 @@ begin
   result := 0;
   if Assigned(FUndoList) then
     for i := 0 to FUndoList.Count-1 do
-      result += (TObject(FUndoList[i]) as TStateDifference).UsedMemory;
+      result += FUndoList[i].UsedMemory;
 end;
 
 function TLazPaintImage.CreateAction(AApplyOfsBefore: boolean;
@@ -2146,7 +2219,7 @@ begin
   FOnSelectedLayerIndexChanged := nil;
   FOnStackChanged := nil;
   FOnImageChanged := TLazPaintImageObservable.Create(self);
-  FUndoList := TList.Create;
+  FUndoList := TComposedImageDifference.Create;
   FUndoPos := -1;
   ImageOffset := Point(0,0);
   FrameIndex := -1;

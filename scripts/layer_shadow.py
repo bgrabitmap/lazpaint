@@ -14,69 +14,91 @@ if layer.is_empty():
 
 ############ image processing
 
+MAX_RADIUS = 100
+MAX_OFFSET = 100
+
+image.do_begin()
 chosen_radius = 10
 chosen_offset = (10, 10)
 
-#create shadow layer
-shadow_layer_done = False
-def undo_shadow_layer():
-    global shadow_layer_done
-    if shadow_layer_done:
-        image.undo()
-        image.undo()
-        image.undo()
-        image.undo()
-        shadow_layer_done = False 
-
 def create_shadow_layer():
-    global shadow_layer_done
+    image.do_begin()
     layer.duplicate()
     shadow_index = image.get_layer_index()
     image.move_layer_index(shadow_index, shadow_index-1)
     colors.lightness(shift=-1)
     opacity = layer.get_opacity() 
-    layer.set_opacity(opacity*2/3)
-    shadow_layer_done = True
+    layer.set_opacity(opacity*2/3)    
+    image.do_end()
 
 blur_done = False
-def undo_blur():
-    global blur_done
-    if blur_done:
-        image.undo()
-        image.undo()
-        blur_done = False
+offset_done = False
 
 def apply_blur():
-    global blur_done
-    undo_blur()
+    global blur_done, offset_done
+    if offset_done:
+        image.undo()
+        offset_done = False
+    if blur_done:
+        image.undo()
+        blur_done = False
+    image.do_begin() 
     filters.blur(radius=chosen_radius)
+    blur_done = image.do_end()
+    apply_offset()
+
+def apply_offset():
+    global offset_done
+    if offset_done:
+        image.undo()
+        offset_done = False
+    image.do_begin()
     tools.choose(tools.MOVE_LAYER)
     tools.mouse([(0,0), chosen_offset])
-    blur_done = True
+    offset_done = image.do_end()
 
 ######## interface
 
 def button_ok_click():
+    image.do_end()
     exit()
 
 def button_cancel_click():
-    undo_blur()
-    undo_shadow_layer()
+    if image.do_end():
+        image.undo()
     exit()
 
 scale_radius_update_job = None
 
 def scale_radius_update_do():
     global scale_radius_update_job, chosen_radius, scale_radius
-    chosen_radius = scale_radius.get()
-    apply_blur()
+    new_radius = scale_radius.get() 
+    if new_radius != chosen_radius:
+        chosen_radius = new_radius
+        apply_blur()
     scale_radius_update_job = None    
 
 def scale_radius_update(event):
     global window, scale_radius_update_job
     if scale_radius_update_job:
         window.after_cancel(scale_radius_update_job)
-    scale_radius_update_job = window.after(500, scale_radius_update_do)    
+    scale_radius_update_job = window.after(500, scale_radius_update_do)
+
+scale_offset_update_job = None
+
+def scale_offset_update_do():
+    global chosen_offset 
+    new_offset = (scale_offset_x.get(), scale_offset_y.get())
+    if new_offset != chosen_offset:
+        chosen_offset = new_offset
+        apply_offset()
+    scale_offset_update_job = None
+
+def scale_offset_update(event):   
+    global window, scale_offset_update_job
+    if scale_offset_update_job:
+        window.after_cancel(scale_offset_update_job)
+    scale_offset_update_job = window.after(100, scale_offset_update_do)
 
 window = Tk()
 window.title("Layer shadow")
@@ -87,16 +109,16 @@ frame.pack()
 
 label_radius = Label(frame, text="Radius:")
 label_radius.grid(column=0, row=0)
-scale_radius = Scale(frame, from_=1, to=100, orient=HORIZONTAL, command=scale_radius_update)
+scale_radius = Scale(frame, from_=0, to=MAX_RADIUS, orient=HORIZONTAL, command=scale_radius_update)
 scale_radius.grid(column=1, row=0, columnspan=2, sticky=W+E, padx=10)
 scale_radius.set(chosen_radius)
 
 label_offset = Label(frame, text="Offset:")
 label_offset.grid(column=0, row=1)
-scale_offset_x = Scale(frame, from_=-100, to=100, orient=HORIZONTAL)
+scale_offset_x = Scale(frame, from_=-MAX_OFFSET, to=MAX_OFFSET, orient=HORIZONTAL, command=scale_offset_update)
 scale_offset_x.grid(column=1, row=1, sticky=W+E, padx=10)
 scale_offset_x.set(chosen_offset[0])
-scale_offset_y = Scale(frame, from_=-100, to=100, orient=HORIZONTAL)
+scale_offset_y = Scale(frame, from_=-MAX_OFFSET, to=MAX_OFFSET, orient=HORIZONTAL, command=scale_offset_update)
 scale_offset_y.grid(column=2, row=1, sticky=W+E, padx=10)
 scale_offset_y.set(chosen_offset[1])
 
@@ -120,5 +142,4 @@ screen_width = window.winfo_screenwidth()
 window.geometry('+%d+0' % (int((screen_width - window_width) / 2)))
 
 window.mainloop()
-
 button_cancel_click()

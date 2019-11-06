@@ -178,6 +178,7 @@ resourcestring
   rsNoAndProceedToNext='Do not save and open another file';
   rsInformation='Information';
   rsError='Error';
+  rsEndWithoutMatchingBegin = 'End without matching begin';
   rsThereAreNoCheckedItems='There are no checked items. Check some items or add some new ones.';
   rsThereIsNoFileNameGivenForThisFileUseSaveAs='There is no file name given for this file. Use "Save as..." from the main menu.';
   rsFileNotFound='File not found!';
@@ -187,6 +188,7 @@ resourcestring
   rsOpenFilesAsLayers='Open files as layers in a single image';
   rsTooManyLayers='Too many layers';
   rsTooManyShapesInLayer='Too many shapes in layer';
+  rsTooManyActions='Too many actions';
   rsCannotDrawShapeOnSVGLayer='Cannot draw shape on SVG layer';
   rsAddToImageList='Add files to the image processing list';
   rsOpenFirstFileOnly='Open the first file only';
