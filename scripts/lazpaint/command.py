@@ -7,6 +7,12 @@ if input('') != chr(27) + 'LazPaint':
   print("Needs to be run from LazPaint.")
   exit()
 
+def parse_str(text):
+  if text[:1] == "#":
+    return text
+  else:
+    return ast.literal_eval(text)
+
 # sends a command to LazPaint
 def send(command, **keywords):
   if keywords is None:
@@ -14,11 +20,7 @@ def send(command, **keywords):
   else:
     print(chr(27) + command + chr(29) + str(keywords))
   if command[-1] == '?':
-    result_str =  input('')
-    if result_str[:1] == "#":
-      return result_str
-    else:
-      return ast.literal_eval(result_str)
+    return parse_str(input(''))
   else:
     return
 

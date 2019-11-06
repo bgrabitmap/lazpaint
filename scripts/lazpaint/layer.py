@@ -88,6 +88,20 @@ def merge_over():
 def is_empty():
   return command.send("IsLayerEmpty?")
 
+def get_registry(identifier):
+  str_result = command.send("LayerGetRegistry?", Identifier=identifier)
+  if str_result == "":
+    return None
+  else:
+    return command.parse_str(str_result)
+
+def set_registry(identifier, value):
+  if value == None:
+    value = ""
+  else:
+    value = str(value)
+  command.send("LayerSetRegistry", Identifier=identifier, Value=value)
+
 def remove():
   command.send("LayerRemoveCurrent")
 

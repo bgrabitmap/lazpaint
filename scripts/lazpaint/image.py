@@ -37,8 +37,22 @@ def get_width():
 def get_height():
   return command.send("GetImageHeight?")
 
-def get_layer_index():
-  return command.send("GetLayerIndex?")
+def get_registry(identifier):
+  str_result = command.send("ImageGetRegistry?", Identifier=identifier)
+  if str_result == "":
+    return None
+  else:
+    return command.parse_str(str_result)
+
+def set_registry(identifier, value):
+  if value == None:
+    value = ""
+  else:
+    value = str(value)
+  command.send("ImageSetRegistry", Identifier=identifier, Value=value)
+
+def get_layer_index(layer_id=None):
+  return command.send("GetLayerIndex?", LayerId=layer_id)
 
 def select_layer_index(index):
   return command.send("SelectLayerIndex", Index=index)

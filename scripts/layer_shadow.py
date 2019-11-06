@@ -17,13 +17,35 @@ if layer.is_empty():
 MAX_RADIUS = 100
 MAX_OFFSET = 100
 
-image.do_begin()
-chosen_radius = 10
-chosen_offset = (10, 10)
+source_layer_id = layer.get_id()
+source_layer_name = layer.get_name()
+
+chosen_radius = layer.get_registry("shadow-radius")
+if chosen_radius == None: 
+    chosen_radius = image.get_registry("shadow-radius")
+if chosen_radius == None:
+    chosen_radius = 10
+
+chosen_offset = layer.get_registry("shadow-offset")
+if chosen_offset == None or len(chosen_offset) != 2:
+    chosen_offset = image.get_registry("shadow-offset")
+if chosen_offset == None or len(chosen_offset) != 2:
+    chosen_offset = (10, 10)
+
+shadow_layer_id = layer.get_registry("shadow-layer-id")
+if image.get_layer_index(shadow_layer_id) == None:
+    shadow_layer_id = None
 
 def create_shadow_layer():
+    global shadow_layer_id
     image.do_begin()
+    if shadow_layer_id != None:
+        layer.select_id(shadow_layer_id)
+        layer.remove()
+    layer.select_id(source_layer_id)
     layer.duplicate()
+    layer.set_name("Shadow of "+source_layer_name)
+    shadow_layer_id = layer.get_id()
     shadow_index = image.get_layer_index()
     image.move_layer_index(shadow_index, shadow_index-1)
     colors.lightness(shift=-1)
@@ -60,12 +82,20 @@ def apply_offset():
 ######## interface
 
 def button_ok_click():
+    global source_layer_id, chosen_radius, chosen_offset
+    layer.select_id(source_layer_id)
+    layer.set_registry("shadow-radius", chosen_radius)
+    layer.set_registry("shadow-offset", chosen_offset)
+    layer.set_registry("shadow-layer-id", shadow_layer_id)
+    image.set_registry("shadow-radius", chosen_radius)
+    image.set_registry("shadow-offset", chosen_offset)
     image.do_end()
     exit()
 
-def button_cancel_click():
+def button_cancel_click():    
     if image.do_end():
         image.undo()
+    layer.select_id(source_layer_id)
     exit()
 
 scale_radius_update_job = None
@@ -133,6 +163,7 @@ button_ok.pack(side=RIGHT, padx=10, pady=10)
 button_cancel = Button(window, text="Cancel", command=button_cancel_click)
 button_cancel.pack(side=RIGHT, pady=10)
 
+image.do_begin()
 create_shadow_layer()
 apply_blur()
 

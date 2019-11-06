@@ -24,8 +24,12 @@ type
     function ScriptGetLayerIndex(AVars: TVariableSet): TScriptResult;
     function ScriptImageMoveLayerIndex(AVars: TVariableSet): TScriptResult;
     function ScriptLayerFromFile(AVars: TVariableSet): TScriptResult;
+    function ScriptImageGetRegistry(AVars: TVariableSet): TScriptResult;
+    function ScriptLayerGetRegistry(AVars: TVariableSet): TScriptResult;
     function ScriptLayerSelectId(AVars: TVariableSet): TScriptResult;
     function ScriptLayerAddNew(AVars: TVariableSet): TScriptResult;
+    function ScriptImageSetRegistry(AVars: TVariableSet): TScriptResult;
+    function ScriptLayerSetRegistry(AVars: TVariableSet): TScriptResult;
     function ScriptPasteAsNewLayer(AVars: TVariableSet): TScriptResult;
     function ScriptLayerDuplicate(AVars: TVariableSet): TScriptResult;
     function ScriptPutImage(AVars: TVariableSet): TScriptResult;
@@ -178,6 +182,10 @@ begin
   Scripting.RegisterScriptFunction('LayerRasterize',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerMergeOver',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerRemoveCurrent',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerGetRegistry',@ScriptLayerGetRegistry,ARegister);
+  Scripting.RegisterScriptFunction('LayerSetRegistry',@ScriptLayerSetRegistry,ARegister);
+  Scripting.RegisterScriptFunction('ImageGetRegistry',@ScriptImageGetRegistry,ARegister);
+  Scripting.RegisterScriptFunction('ImageSetRegistry',@ScriptImageSetRegistry,ARegister);
   Scripting.RegisterScriptFunction('ImageMoveLayerIndex',@ScriptImageMoveLayerIndex,ARegister);
   Scripting.RegisterScriptFunction('GetLayerIndex',@ScriptGetLayerIndex,ARegister);
   Scripting.RegisterScriptFunction('SelectLayerIndex',@ScriptSelectLayerIndex,ARegister);
@@ -253,7 +261,6 @@ begin
   if f = 'LayerRasterize' then RasterizeLayer else
   if f = 'LayerMergeOver' then MergeLayerOver else
   if f = 'LayerRemoveCurrent' then begin if not RemoveLayer then result := srException end else
-  if f = 'GetLayerIndex' then AVars.Integers['Result']:= Image.CurrentLayerIndex+1 else
   if f = 'GetLayerCount' then AVars.Integers['Result']:= Image.NbLayers else
   if f = 'GetFrameCount' then AVars.Integers['Result']:= Image.FrameCount else
   if f = 'GetPixel' then AVars.Pixels['Result']:= GetPixel(AVars.Integers['X'],AVars.Integers['Y']) else
@@ -299,6 +306,26 @@ begin
   end;
 end;
 
+function TImageActions.ScriptImageGetRegistry(AVars: TVariableSet): TScriptResult;
+var
+  identifier: String;
+begin
+  identifier := AVars.Strings['Identifier'];
+  if length(identifier)=0 then exit(srInvalidParameters);
+  AVars.Strings['Result'] := Image.CurrentState.LayeredBitmap.GetGlobalRegistry(identifier);
+  result := srOk;
+end;
+
+function TImageActions.ScriptLayerGetRegistry(AVars: TVariableSet): TScriptResult;
+var
+  identifier: String;
+begin
+  identifier := AVars.Strings['Identifier'];
+  if length(identifier)=0 then exit(srInvalidParameters);
+  AVars.Strings['Result'] := Image.CurrentState.LayeredBitmap.GetLayerRegistry(Image.CurrentLayerIndex, identifier);
+  result := srOk;
+end;
+
 function TImageActions.ScriptLayerSelectId(AVars: TVariableSet): TScriptResult;
 var
   idx: Integer;
@@ -317,6 +344,28 @@ begin
     AVars.Integers['Result'] := Image.LayerId[Image.CurrentLayerIndex];
     result := srOk;
   end;
+end;
+
+function TImageActions.ScriptImageSetRegistry(AVars: TVariableSet): TScriptResult;
+var
+  identifier: String;
+begin
+  identifier := AVars.Strings['Identifier'];
+  if length(identifier)=0 then exit(srInvalidParameters);
+  if not AVars.IsDefined('Value') then exit(srInvalidParameters);
+  Image.CurrentState.LayeredBitmap.SetGlobalRegistry(identifier, AVars.Strings['Value']);
+  result := srOk;
+end;
+
+function TImageActions.ScriptLayerSetRegistry(AVars: TVariableSet): TScriptResult;
+var
+  identifier: String;
+begin
+  identifier := AVars.Strings['Identifier'];
+  if length(identifier)=0 then exit(srInvalidParameters);
+  if not AVars.IsDefined('Value') then exit(srInvalidParameters);
+  Image.CurrentState.LayeredBitmap.SetLayerRegistry(Image.CurrentLayerIndex, identifier, AVars.Strings['Value']);
+  result := srOk;
 end;
 
 function TImageActions.ScriptPasteAsNewLayer(AVars: TVariableSet
