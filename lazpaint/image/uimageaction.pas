@@ -21,6 +21,7 @@ type
     procedure ChooseTool(ATool: TPaintToolType);
     procedure RegisterScripts(ARegister: Boolean);
     function GenericScriptFunction(AVars: TVariableSet): TScriptResult;
+    function ScriptGetLayerIndex(AVars: TVariableSet): TScriptResult;
     function ScriptImageMoveLayerIndex(AVars: TVariableSet): TScriptResult;
     function ScriptLayerFromFile(AVars: TVariableSet): TScriptResult;
     function ScriptLayerSelectId(AVars: TVariableSet): TScriptResult;
@@ -178,7 +179,7 @@ begin
   Scripting.RegisterScriptFunction('LayerMergeOver',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerRemoveCurrent',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageMoveLayerIndex',@ScriptImageMoveLayerIndex,ARegister);
-  Scripting.RegisterScriptFunction('GetLayerIndex',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('GetLayerIndex',@ScriptGetLayerIndex,ARegister);
   Scripting.RegisterScriptFunction('SelectLayerIndex',@ScriptSelectLayerIndex,ARegister);
   Scripting.RegisterScriptFunction('GetLayerCount',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('GetFrameIndex',@ScriptGetFrameIndex,ARegister);
@@ -259,6 +260,23 @@ begin
   if f = 'GetImageWidth' then AVars.Integers['Result']:= Image.Width else
   if f = 'GetImageHeight' then AVars.Integers['Result']:= Image.Height else
     result := srFunctionNotDefined;
+end;
+
+function TImageActions.ScriptGetLayerIndex(AVars: TVariableSet): TScriptResult;
+var
+  idx,layerId: Integer;
+begin
+  if AVars.IsDefined('LayerId') then
+  begin
+    layerId := AVars.Integers['LayerId'];
+    idx := Image.CurrentState.LayeredBitmap.GetLayerIndexFromId(layerId);
+    if idx <> -1 then
+      AVars.Integers['Result']:= idx+1
+    else
+      AVars.Remove('Result');
+  end else
+    AVars.Integers['Result']:= Image.CurrentLayerIndex+1;
+  result := srOk;
 end;
 
 function TImageActions.ScriptImageMoveLayerIndex(AVars: TVariableSet): TScriptResult;
