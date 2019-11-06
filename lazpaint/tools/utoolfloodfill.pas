@@ -134,15 +134,15 @@ begin
   begin
     floodFillMask := TBGRABitmap.Create(toolDest.Width,toolDest.Height,BGRABlack);
     floodFillTex := Manager.GetTextureAfterAlpha.GetPart(rect(0,0,toolDest.Width,toolDest.Height)) as TBGRABitmap;
-    toolDest.ParallelFloodFill(pt.X,pt.Y,floodFillMask,BGRAWhite,fmSet,Manager.ToolTolerance);
+    toolDest.ParallelFloodFill(pt.X, pt.Y, floodFillMask, BGRAWhite, fmSet, Manager.Tolerance);
     floodFillTex.ApplyMask(floodFillMask);
     toolDest.PutImage(0,0,floodFillTex,dmDrawWithTransparency);
     floodFillMask.Free;
     floodFillTex.Free;
   end else
     if Manager.ToolFloodFillOptionProgressive then
-      toolDest.FloodFill(pt.X,pt.Y,penColor,fmProgressive,Manager.ToolTolerance) else
-        toolDest.FloodFill(pt.X,pt.Y,penColor,fmDrawWithTransparency,Manager.ToolTolerance);
+      toolDest.FloodFill(pt.X, pt.Y, penColor, fmProgressive, Manager.Tolerance) else
+        toolDest.FloodFill(pt.X, pt.Y, penColor, fmDrawWithTransparency, Manager.Tolerance);
   Action.NotifyChange(toolDest, rect(0,0,toolDest.Width,toolDest.Height));
   ValidateAction;
   result := OnlyRenderChange;

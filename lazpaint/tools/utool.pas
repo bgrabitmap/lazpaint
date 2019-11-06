@@ -5,7 +5,7 @@ unit UTool;
 interface
 
 uses
-  Classes, SysUtils, Graphics, BGRABitmap, BGRABitmapTypes, uimage, UImageType,
+  Classes, Types, SysUtils, Graphics, BGRABitmap, BGRABitmapTypes, uimage, UImageType,
   ULayerAction, LCLType, Controls, UBrushType, UConfig, LCVectorPolyShapes,
   BGRAGradientScanner, BGRALayerOriginal, LCVectorRectShapes;
 
@@ -138,37 +138,27 @@ type
 
   TToolManager = class
   private
-    FOnColorChanged: TNotifyEvent;
-    FOnGradientChanged: TNotifyEvent;
-    FOnJoinStyleChanged: TNotifyEvent;
-    FOnLineCapChanged: TNotifyEvent;
-    FOnPenStyleChanged: TNotifyEvent;
-    FOnPenWidthChanged: TNotifyEvent;
-    FOnPhongShapeChanged: TNotifyEvent;
-    FOnSplineStyleChanged: TNotifyEvent;
-    FOnTextFontChanged: TNotifyEvent;
-    FOnTextOutlineChanged: TNotifyEvent;
-    FOnTextPhongChanged: TNotifyEvent;
-    FOnTextShadowChanged: TNotifyEvent;
-    FOnTextureChanged: TNotifyEvent;
-    FOnShapeOptionChanged: TNotifyEvent;
+    FConfigProvider: IConfigProvider;
     FShouldExitTool: boolean;
-    FOnToolChangedHandler: TOnToolChangedHandler;
-    FOnPopupToolHandler: TOnPopupToolHandler;
     FImage: TLazPaintImage;
+    FBlackAndWhite: boolean;
     FCurrentTool : TGenericTool;
     FCurrentToolType : TPaintToolType;
+    FToolCurrentCursorPos: TPointF;
     FSleepingTool: TGenericTool;
     FSleepingToolType: TPaintToolType;
-    FDeformationGridNbX,FDeformationGridNbY: integer;
+    FReturnValidatesHintShown: boolean;
+    FOnToolChangedHandler: TOnToolChangedHandler;
+    FOnPopupToolHandler: TOnPopupToolHandler;
+
     FForeColor, FBackColor: TBGRAPixel;
-    FReturnValidatesHintShowed: boolean;
+    FEraserMode: TEraserMode;
+    FEraserAlpha: byte;
     FTexture: TBGRABitmap;
     FTextureAfterAlpha: TBGRABitmap;
     FTextureOpactiy: byte;
     FBrushInfoList: TList;
     FBrushInfoListChanged: boolean;
-    FConfigProvider: IConfigProvider;
     FPenStyle: TPenStyle;
     FJoinStyle: TPenJoinStyle;
     FNormalPenWidth, FEraserWidth: Single;
@@ -188,6 +178,25 @@ type
     FPhongShapeAltitude: integer;
     FPhongShapeBorderSize: integer;
     FPhongShapeKind: TPhongShapeKind;
+    FDeformationGridNbX,FDeformationGridNbY: integer;
+    FTolerance: byte;
+
+    FOnColorChanged: TNotifyEvent;
+    FOnEraserChanged: TNotifyEvent;
+    FOnGradientChanged: TNotifyEvent;
+    FOnJoinStyleChanged: TNotifyEvent;
+    FOnLineCapChanged: TNotifyEvent;
+    FOnPenStyleChanged: TNotifyEvent;
+    FOnPenWidthChanged: TNotifyEvent;
+    FOnPhongShapeChanged: TNotifyEvent;
+    FOnSplineStyleChanged: TNotifyEvent;
+    FOnTextFontChanged: TNotifyEvent;
+    FOnTextOutlineChanged: TNotifyEvent;
+    FOnTextPhongChanged: TNotifyEvent;
+    FOnTextShadowChanged: TNotifyEvent;
+    FOnTextureChanged: TNotifyEvent;
+    FOnShapeOptionChanged: TNotifyEvent;
+    FOnToleranceChanged: TNotifyEvent;
 
     function GetCursor: TCursor;
     function GetBackColor: TBGRAPixel;
@@ -209,6 +218,8 @@ type
     procedure SetArrowSize(AValue: TPointF);
     procedure SetArrowStart(AValue: TArrowKind);
     procedure SetBackColor(AValue: TBGRAPixel);
+    procedure SetEraserAlpha(AValue: byte);
+    procedure SetEraserMode(AValue: TEraserMode);
     procedure SetForeColor(AValue: TBGRAPixel);
     procedure SetGradientColorspace(AValue: TBGRAColorInterpolation);
     procedure SetGradientSine(AValue: boolean);
@@ -225,6 +236,7 @@ type
     procedure SetTextPhong(AValue: boolean);
     procedure SetTextShadow(AValue: boolean);
     procedure SetTextureOpacity(AValue: byte);
+    procedure SetTolerance(AValue: byte);
     procedure ToolCloseAndReopenImmediatly;
   protected
     function CheckExitTool: boolean;
@@ -232,6 +244,7 @@ type
     procedure InternalSetCurrentToolType(tool: TPaintToolType);
     function InternalBitmapToVirtualScreen(PtF: TPointF): TPointF;
     function AddLayerOffset(ARect: TRect) : TRect;
+    procedure SetDeformationGridSizeProc(const ASize: TSize);
   public
     BitmapToVirtualScreen: TBitmapToVirtualScreenFunction;
     PenWidthControls, AliasingControls, EraserControls, ToleranceControls,
@@ -241,12 +254,7 @@ type
     PerspectiveControls,PenColorControls,TextureControls,
     BrushControls, RatioControls: TList;
 
-    BlackAndWhite: boolean;
-
     //tools configuration
-    ToolEraserMode: TEraserMode;
-    ToolCurrentCursorPos: TPointF;
-    ToolEraserAlpha, ToolTolerance: byte;
     ToolFloodFillOptionProgressive: boolean;
     ToolPerspectiveRepeat,ToolPerspectiveTwoPlanes: boolean;
     ToolDeformationGridMoveWithoutDeformation: boolean;
@@ -300,15 +308,6 @@ type
     procedure RenderTool(formBitmap: TBGRABitmap);
     function GetRenderBounds(VirtualScreenWidth, VirtualScreenHeight: integer): TRect;
 
-    property Image: TLazPaintImage read FImage;
-    property CurrentTool: TGenericTool read FCurrentTool;
-
-    property DeformationGridNbX: integer read FDeformationGridNbX;
-    property DeformationGridNbY: integer read FDeformationGridNbY;
-    property ForeColor: TBGRAPixel read GetForeColor write SetForeColor;
-    property BackColor: TBGRAPixel read GetBackColor write SetBackColor;
-
-    function SetDeformationGridSize(NbX,NbY: integer): boolean;
     procedure SwapToolColors;
     procedure SetTexture(ATexture: TBGRABitmap); overload;
     procedure SetTexture(ATexture: TBGRABitmap; AOpacity: byte); overload;
@@ -321,25 +320,22 @@ type
     procedure SetTextFont(AFont: TFont);
     function GetTextFont: TFont;
     procedure SetTextOutline(AEnabled: boolean; AWidth: single);
+    function GetDeformationGridSize: TSize;
+    function SetDeformationGridSize(ASize: TSize): boolean;
 
-    property OnToolChanged: TOnToolChangedHandler read FOnToolChangedHandler write FOnToolChangedHandler;
-    property OnPopup: TOnPopupToolHandler read FOnPopupToolHandler write FOnPopupToolHandler;
-    property OnTextureChanged: TNotifyEvent read FOnTextureChanged write FOnTextureChanged;
-    property OnColorChanged: TNotifyEvent read FOnColorChanged write FOnColorChanged;
-    property OnPenWidthChanged: TNotifyEvent read FOnPenWidthChanged write FOnPenWidthChanged;
-    property OnPenStyleChanged: TNotifyEvent read FOnPenStyleChanged write FOnPenStyleChanged;
-    property OnJoinStyleChanged: TNotifyEvent read FOnJoinStyleChanged write FOnJoinStyleChanged;
-    property OnShapeOptionChanged: TNotifyEvent read FOnShapeOptionChanged write FOnShapeOptionChanged;
-    property OnTextFontChanged: TNotifyEvent read FOnTextFontChanged write FOnTextFontChanged;
-    property OnTextOutlineChanged: TNotifyEvent read FOnTextOutlineChanged write FOnTextOutlineChanged;
-    property OnTextPhongChanged: TNotifyEvent read FOnTextPhongChanged write FOnTextPhongChanged;
-    property OnTextShadowChanged: TNotifyEvent read FOnTextShadowChanged write FOnTextShadowChanged;
-    property OnLineCapChanged: TNotifyEvent read FOnLineCapChanged write FOnLineCapChanged;
-    property OnSplineStyleChanged: TNotifyEvent read FOnSplineStyleChanged write FOnSplineStyleChanged;
-    property OnGradientChanged: TNotifyEvent read FOnGradientChanged write FOnGradientChanged;
-    property OnPhongShapeChanged: TNotifyEvent read FOnPhongShapeChanged write FOnPhongShapeChanged;
-    property Cursor: TCursor read GetCursor;
+    property Image: TLazPaintImage read FImage;
+    property BlackAndWhite: boolean read FBlackAndWhite write FBlackAndWhite;
+    property CurrentTool: TGenericTool read FCurrentTool;
+    property ToolCurrentCursorPos: TPointF read FToolCurrentCursorPos;
     property ToolSleeping: boolean read GetToolSleeping;
+    property Cursor: TCursor read GetCursor;
+
+    property ForeColor: TBGRAPixel read GetForeColor write SetForeColor;
+    property BackColor: TBGRAPixel read GetBackColor write SetBackColor;
+    property EraserMode: TEraserMode read FEraserMode write SetEraserMode;
+    property EraserAlpha: byte read FEraserAlpha write SetEraserAlpha;
+    property Texture: TBGRABitmap read GetTexture write SetTexture;
+    property TextureAfterAlpha: TBGRABitmap read GetTextureAfterAlpha;
     property TextureOpacity: byte read GetTextureOpacity write SetTextureOpacity;
     property PenWidth: single read GetPenWidth write SetPenWidth;
     property PenStyle: TPenStyle read FPenStyle write SetPenStyle;
@@ -369,14 +365,37 @@ type
     property PhongShapeAltitude: integer read FPhongShapeAltitude write SetPhongShapeAltitude;
     property PhongShapeBorderSize: integer read FPhongShapeBorderSize write SetPhongShapeBorderSize;
     property PhongShapeKind: TPhongShapeKind read FPhongShapeKind write SetPhongShapeKind;
-   end;
+    property DeformationGridNbX: integer read FDeformationGridNbX;
+    property DeformationGridNbY: integer read FDeformationGridNbY;
+    property DeformationGridSize: TSize read GetDeformationGridSize write SetDeformationGridSizeProc;
+    property Tolerance: byte read FTolerance write SetTolerance;
+
+    property OnToolChanged: TOnToolChangedHandler read FOnToolChangedHandler write FOnToolChangedHandler;
+    property OnPopup: TOnPopupToolHandler read FOnPopupToolHandler write FOnPopupToolHandler;
+    property OnEraserChanged: TNotifyEvent read FOnEraserChanged write FOnEraserChanged;
+    property OnTextureChanged: TNotifyEvent read FOnTextureChanged write FOnTextureChanged;
+    property OnColorChanged: TNotifyEvent read FOnColorChanged write FOnColorChanged;
+    property OnPenWidthChanged: TNotifyEvent read FOnPenWidthChanged write FOnPenWidthChanged;
+    property OnPenStyleChanged: TNotifyEvent read FOnPenStyleChanged write FOnPenStyleChanged;
+    property OnJoinStyleChanged: TNotifyEvent read FOnJoinStyleChanged write FOnJoinStyleChanged;
+    property OnShapeOptionChanged: TNotifyEvent read FOnShapeOptionChanged write FOnShapeOptionChanged;
+    property OnTextFontChanged: TNotifyEvent read FOnTextFontChanged write FOnTextFontChanged;
+    property OnTextOutlineChanged: TNotifyEvent read FOnTextOutlineChanged write FOnTextOutlineChanged;
+    property OnTextPhongChanged: TNotifyEvent read FOnTextPhongChanged write FOnTextPhongChanged;
+    property OnTextShadowChanged: TNotifyEvent read FOnTextShadowChanged write FOnTextShadowChanged;
+    property OnLineCapChanged: TNotifyEvent read FOnLineCapChanged write FOnLineCapChanged;
+    property OnSplineStyleChanged: TNotifyEvent read FOnSplineStyleChanged write FOnSplineStyleChanged;
+    property OnGradientChanged: TNotifyEvent read FOnGradientChanged write FOnGradientChanged;
+    property OnPhongShapeChanged: TNotifyEvent read FOnPhongShapeChanged write FOnPhongShapeChanged;
+    property OnToleranceChanged: TNotifyEvent read FOnToleranceChanged write FOnToleranceChanged;
+  end;
 
 procedure RegisterTool(ATool: TPaintToolType; AClass: TToolClass);
 function ToolPopupMessageToStr(AMessage :TToolPopupMessage; AKey: Word = 0): string;
 
 implementation
 
-uses Types, ugraph, LCScaleDPI, LazPaintType, UCursors, BGRATextFX, ULoading, uresourcestrings,
+uses UGraph, LCScaleDPI, LazPaintType, UCursors, BGRATextFX, ULoading, uresourcestrings,
   BGRATransform, LCVectorOriginal, BGRAGradientOriginal, BGRASVGOriginal;
 
 function StrToPaintToolType(const s: ansistring): TPaintToolType;
@@ -474,10 +493,10 @@ end;
 
 procedure TToolManager.HintReturnValidates;
 begin
-  if not FReturnValidatesHintShowed then
+  if not FReturnValidatesHintShown then
   begin
     ToolPopup(tpmReturnValides);
-    FReturnValidatesHintShowed:= true;
+    FReturnValidatesHintShown:= true;
   end;
 end;
 
@@ -718,7 +737,7 @@ var
   ptF: TPointF;
 begin
   ptF := PointF(x,y);
-  Manager.ToolCurrentCursorPos := ptF;
+  Manager.FToolCurrentCursorPos := ptF;
   result := EmptyRect;
   toolDest := GetToolDrawingLayer;
   if toolDest = nil then exit;
@@ -882,6 +901,20 @@ begin
   if Assigned(FOnColorChanged) then FOnColorChanged(self);
 end;
 
+procedure TToolManager.SetEraserAlpha(AValue: byte);
+begin
+  if FEraserAlpha=AValue then Exit;
+  FEraserAlpha:=AValue;
+  if Assigned(FOnEraserChanged) then FOnEraserChanged(self);
+end;
+
+procedure TToolManager.SetEraserMode(AValue: TEraserMode);
+begin
+  if FEraserMode=AValue then Exit;
+  FEraserMode:=AValue;
+  if Assigned(FOnEraserChanged) then FOnEraserChanged(self);
+end;
+
 procedure TToolManager.SetForeColor(AValue: TBGRAPixel);
 begin
   if (AValue.red = FForeColor.red) and
@@ -1008,6 +1041,13 @@ begin
   FreeAndNil(FTextureAfterAlpha);
   FTextureOpactiy := AValue;
   if Assigned(FOnTextureChanged) then FOnTextureChanged(self);
+end;
+
+procedure TToolManager.SetTolerance(AValue: byte);
+begin
+  if FTolerance=AValue then Exit;
+  FTolerance:=AValue;
+  if Assigned(FOnToleranceChanged) then FOnToleranceChanged(self);
 end;
 
 function TToolManager.CheckExitTool: boolean;
@@ -1164,14 +1204,17 @@ begin
   FShouldExitTool:= false;
   FConfigProvider := AConfigProvider;
 
-  ForeColor := BGRABlack;
-  BackColor := BGRA(0,0,255);
+  FForeColor := BGRABlack;
+  FBackColor := BGRA(0,0,255);
+  FTexture := nil;
+  FTextureOpactiy:= 255;
+  FTextureAfterAlpha := nil;
   FNormalPenWidth := 5;
   FEraserWidth := 10;
-  ToolEraserMode := emEraseAlpha;
-  ShapeOptions := [toDrawShape, toFillShape, toCloseShape];
-  ToolTolerance := 64;
-  BlackAndWhite := ABlackAndWhite;
+  FEraserMode := emEraseAlpha;
+  FShapeOptions := [toDrawShape, toFillShape, toCloseShape];
+  Tolerance := 64;
+  FBlackAndWhite := ABlackAndWhite;
 
   ToolBrushSpacing := 1;
   ReloadBrushes;
@@ -1186,28 +1229,25 @@ begin
   ArrowEnd := akNone;
   ArrowSize := PointF(2,2);
   PenStyle := psSolid;
-  ToolEraserAlpha := 255;
+  FEraserAlpha := 255;
   SplineStyle := ssEasyBezier;
   FTextOutline := False;
   FTextOutlineWidth := 2;
-  TextShadow := false;
+  FTextShadow := false;
   FTextFont := TFont.Create;
   FTextFont.Size := 10;
   FTextFont.Name := 'Arial';
   ToolTextAlign := taLeftJustify;
-  TextPhong := False;
+  FTextPhong := False;
   TextShadowBlurRadius := 4;
   TextShadowOffset := Point(5,5);
   LightPosition := PointF(0,0);
   LightAltitude := 100;
-  PhongShapeAltitude := 50;
-  PhongShapeBorderSize := 20;
-  PhongShapeKind := pskRectangle;
+  FPhongShapeAltitude := 50;
+  FPhongShapeBorderSize := 20;
+  FPhongShapeKind := pskRectangle;
   ToolPerspectiveRepeat := false;
   ToolPerspectiveTwoPlanes := false;
-  FTextureOpactiy:= 255;
-  FTexture := nil;
-  FTextureAfterAlpha := nil;
 
   FDeformationGridNbX := 5;
   FDeformationGridNbY := 5;
@@ -1296,7 +1336,7 @@ begin
   if Config.DefaultToolOptionDrawShape then include(opt, toDrawShape);
   if Config.DefaultToolOptionFillShape then include(opt, toFillShape);
   if Config.DefaultToolOptionCloseShape then include(opt, toCloseShape);
-  ToolTolerance := Config.DefaultToolTolerance;
+  Tolerance := Config.DefaultToolTolerance;
   TextShadow := Config.DefaultToolTextShadow;
   FTextOutline := Config.DefaultToolTextOutline;
   FTextOutlineWidth := Config.DefaultToolTextOutlineWidth;
@@ -1328,7 +1368,7 @@ begin
   Config.SetDefaultToolOptionDrawShape(toDrawShape in ShapeOptions);
   Config.SetDefaultToolOptionFillShape(toFillShape in ShapeOptions);
   Config.SetDefaultToolOptionCloseShape(toCloseShape in ShapeOptions);
-  Config.SetDefaultToolTolerance(ToolTolerance);
+  Config.SetDefaultToolTolerance(Tolerance);
 
   Config.SetDefaultToolTextFont(FTextFont);
   Config.SetDefaultToolTextShadow(TextShadow);
@@ -1501,6 +1541,11 @@ begin
     OffsetRect(result, FCurrentTool.LayerOffset.X,FCurrentTool.LayerOffset.Y);
 end;
 
+procedure TToolManager.SetDeformationGridSizeProc(const ASize: TSize);
+begin
+  SetDeformationGridSize(ASize);
+end;
+
 procedure TToolManager.ToolWakeUp;
 begin
   if FSleepingTool <> nil then
@@ -1526,17 +1571,17 @@ end;
 
 { tool implementation }
 
-function TToolManager.SetDeformationGridSize(NbX, NbY: integer): boolean;
+function TToolManager.SetDeformationGridSize(ASize: TSize): boolean;
 begin
   result := false;
-  if NbX < 3 then NbX := 3;
-  if NbY < 3 then NbY := 3;
-  if (NbX <> DeformationGridNbX) or (NbY <> DeformationGridNbY) then
+  if ASize.cx < 3 then ASize.cx := 3;
+  if ASize.cy < 3 then ASize.cy := 3;
+  if (ASize.cx <> DeformationGridNbX) or (ASize.cy <> DeformationGridNbY) then
   begin
     CurrentTool.BeforeGridSizeChange;
-    FDeformationGridNbX := NbX;
-    FDeformationGridNbY := NbY;
-    CurrentTool.AfterGridSizeChange(NbX,NbY);
+    FDeformationGridNbX := ASize.cx;
+    FDeformationGridNbY := ASize.cy;
+    CurrentTool.AfterGridSizeChange(ASize.cx,ASize.cy);
     result := true;
   end;
 end;
@@ -1843,6 +1888,11 @@ begin
     result := currentTool.Render(nil,VirtualScreenWidth,VirtualScreenHeight, @InternalBitmapToVirtualScreen)
   else
     result := EmptyRect;
+end;
+
+function TToolManager.GetDeformationGridSize: TSize;
+begin
+  result := Size(DeformationGridNbX, DeformationGridNbY);
 end;
 
 function TToolManager.ToolDown(ACoord: TPointF; ARightBtn: boolean;

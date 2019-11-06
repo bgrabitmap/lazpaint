@@ -95,7 +95,7 @@ end;
 
 function TToolErase.BlurRadius: single;
 begin
-  result := manager.PenWidth/4*Manager.ToolEraserAlpha/255;
+  result := manager.PenWidth/4*Manager.EraserAlpha/255;
 end;
 
 function TToolErase.StartDrawing(toolDest: TBGRABitmap; ptF: TPointF;
@@ -104,7 +104,7 @@ var ix,iy: integer;
   areaCopy, mask: TBGRABitmap;
   r: TRect;
 begin
-  if Manager.ToolEraserMode = emSoften then
+  if Manager.EraserMode = emSoften then
   begin
     result := GetShapeBounds([ptF],Manager.PenWidth+BlurRadius);
     if IntersectRect(result, result, rect(0,0,toolDest.width,toolDest.height)) then
@@ -134,7 +134,7 @@ begin
     begin
       ix := round(ptF.X);
       iy := round(ptF.Y);
-      toolDest.ErasePixel(ix,iy,round(Manager.ToolEraserAlpha*Manager.ToolPressure));
+      toolDest.ErasePixel(ix,iy,round(Manager.EraserAlpha*Manager.ToolPressure));
       result := rect(ix,iy,ix+1,iy+1);
     end
     else
@@ -145,9 +145,9 @@ begin
       begin
         r := rect(round(ptF.X-Manager.PenWidth/2+0.5),round(ptF.Y-Manager.PenWidth/2+0.5),
              round(ptF.X+Manager.PenWidth/2+0.5),round(ptF.Y+Manager.PenWidth/2+0.5));
-        toolDest.EraseEllipseInRect(r,round(Manager.ToolEraserAlpha*Manager.ToolPressure));
+        toolDest.EraseEllipseInRect(r,round(Manager.EraserAlpha*Manager.ToolPressure));
       end else
-        toolDest.EraseEllipseAntialias(ptF.X,ptF.Y,Manager.PenWidth/2,Manager.PenWidth/2,round(Manager.ToolEraserAlpha*Manager.ToolPressure));
+        toolDest.EraseEllipseAntialias(ptF.X,ptF.Y,Manager.PenWidth/2,Manager.PenWidth/2,round(Manager.EraserAlpha*Manager.ToolPressure));
       toolDest.NoClip;
     end;
   end;
@@ -158,7 +158,7 @@ function TToolErase.ContinueDrawing(toolDest: TBGRABitmap; originF,
 var areaCopy, mask: TBGRABitmap;
   pts: ArrayOfTPointF;
 begin
-  if Manager.ToolEraserMode = emSoften then
+  if Manager.EraserMode = emSoften then
   begin
     result := GetShapeBounds([destF,originF],Manager.PenWidth+BlurRadius);
     if IntersectRect(result, result, rect(0,0,toolDest.width,toolDest.height)) then
@@ -189,23 +189,23 @@ begin
   begin
     if Manager.PenWidth = 1 then
     begin
-      toolDest.EraseLine(round(destF.X),round(destF.Y),round(originF.X),round(originF.Y),round(Manager.ToolEraserAlpha*Manager.ToolPressure),false);
+      toolDest.EraseLine(round(destF.X),round(destF.Y),round(originF.X),round(originF.Y),round(Manager.EraserAlpha*Manager.ToolPressure),false);
       result := GetShapeBounds([destF,originF],1);
     end else
     begin
       pts := toolDest.Pen.ComputePolyline([PointF(destF.X,destF.Y),PointF(originF.X,originF.Y)],Manager.PenWidth,BGRAPixelTransparent,False);
-      toolDest.ErasePoly(pts, round(Manager.ToolEraserAlpha*Manager.ToolPressure));
+      toolDest.ErasePoly(pts, round(Manager.EraserAlpha*Manager.ToolPressure));
       result := GetShapeBounds([destF,originF],Manager.PenWidth);
     end;
   end else
   begin
     if snapToPixel and (Manager.PenWidth = 1) then
     begin
-      toolDest.EraseLineAntialias(round(destF.X),round(destF.Y),round(originF.X),round(originF.Y),round(Manager.ToolEraserAlpha*Manager.ToolPressure),false);
+      toolDest.EraseLineAntialias(round(destF.X),round(destF.Y),round(originF.X),round(originF.Y),round(Manager.EraserAlpha*Manager.ToolPressure),false);
       result := GetShapeBounds([destF,originF],1);
     end else
     begin
-      toolDest.EraseLineAntialias(destF.X,destF.Y,originF.X,originF.Y,round(Manager.ToolEraserAlpha*Manager.ToolPressure),Manager.PenWidth,False);
+      toolDest.EraseLineAntialias(destF.X,destF.Y,originF.X,originF.Y,round(Manager.EraserAlpha*Manager.ToolPressure),Manager.PenWidth,False);
       result := GetShapeBounds([destF,originF],Manager.PenWidth);
     end;
   end;

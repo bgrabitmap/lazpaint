@@ -298,6 +298,18 @@ begin
   UpdateLineCapBar;
 end;
 
+procedure TFMain.UpdateEraserToolbar;
+begin
+  if FInEraserOption then exit;
+  FInEraserOption:= true;
+  case ToolManager.EraserMode of
+  emEraseAlpha: Tool_EraseAlpha.Down:= true;
+  emSoften: Tool_EraseBlur.Down:= true;
+  end;
+  SpinEdit_Eraser.Value := ToolManager.EraserAlpha;
+  FInEraserOption:= false;
+end;
+
 procedure TFMain.UpdatePenStyleToolbar;
 begin
   ComboBox_PenStyle.ItemIndex := ord(ToolManager.PenStyle);
@@ -337,6 +349,11 @@ begin
   end;
   SpinEdit_ShapeAltitude.Value := ToolManager.PhongShapeAltitude;
   SpinEdit_PhongBorderSize.Value := ToolManager.PhongShapeBorderSize;
+end;
+
+procedure TFMain.UpdateToleranceToolbar;
+begin
+  SpinEdit_Tolerance.Value:= ToolManager.Tolerance;
 end;
 
 procedure TFMain.UpdateJoinStyleToolbar;
@@ -422,8 +439,8 @@ begin
   end;
   UpdateLineCapToolbar;
   UpdateToolOptions;
-  SpinEdit_Eraser.Value := ToolManager.ToolEraserAlpha;
-  SpinEdit_Tolerance.Value := ToolManager.ToolTolerance;
+  SpinEdit_Eraser.Value := ToolManager.EraserAlpha;
+  SpinEdit_Tolerance.Value := ToolManager.Tolerance;
   Tool_ProgressiveFloodfill.Down := ToolManager.ToolFloodFillOptionProgressive;
   UpdateGradientToolbar;
   Tool_GridMoveWithoutDeformation.Down := ToolManager.ToolDeformationGridMoveWithoutDeformation;
@@ -658,7 +675,7 @@ end;
 procedure TFMain.GridNb_SpinEditChange(Sender: TObject; AByUser: boolean);
 begin
   if not AByUser or not initialized then exit;
-  if ToolManager.SetDeformationGridSize(SpinEdit_GridNbX.Value+1,SpinEdit_GridNbY.Value+1) then
+  if ToolManager.SetDeformationGridSize(Size(SpinEdit_GridNbX.Value+1,SpinEdit_GridNbY.Value+1)) then
     image.OnImageChanged.NotifyObservers;
 end;
 
@@ -810,8 +827,8 @@ procedure TFMain.SpinEdit_ToleranceChange(Sender: TObject; AByUser: boolean);
 begin
   if AByUser and initialized then
   begin
-    if ToolManager.ToolTolerance = SpinEdit_Tolerance.Value then exit;
-    ToolManager.ToolTolerance := SpinEdit_Tolerance.Value;
+    if ToolManager.Tolerance = SpinEdit_Tolerance.Value then exit;
+    ToolManager.Tolerance := SpinEdit_Tolerance.Value;
   end;
 end;
 
@@ -1078,17 +1095,22 @@ end;
 
 procedure TFMain.SpinEdit_EraserChange(Sender: TObject; AByUser: boolean);
 begin
-    if AByUser and initialized then
+    if AByUser and initialized and not FInEraserOption then
     begin
-      if ToolManager.ToolEraserAlpha = SpinEdit_Eraser.value then exit;
-      ToolManager.ToolEraserAlpha := SpinEdit_Eraser.Value;
+      if ToolManager.EraserAlpha = SpinEdit_Eraser.value then exit;
+      FInEraserOption := true;
+      ToolManager.EraserAlpha := SpinEdit_Eraser.Value;
+      FInEraserOption := false;
     end;
 end;
 
 procedure TFMain.Tool_EraseOptionClick(Sender: TObject);
 begin
-  if Tool_EraseAlpha.Down then ToolManager.ToolEraserMode:= emEraseAlpha else
-  if Tool_EraseBlur.Down then ToolManager.ToolEraserMode:= emSoften;
+  if FInEraserOption then exit;
+  FInEraserOption := true;
+  if Tool_EraseAlpha.Down then ToolManager.EraserMode:= emEraseAlpha else
+  if Tool_EraseBlur.Down then ToolManager.EraserMode:= emSoften;
+  FInEraserOption := false;
 end;
 
 procedure TFMain.Tool_GridMoveWithoutDeformationClick(Sender: TObject);
@@ -1383,38 +1405,38 @@ end;
 
 procedure TFMain.Tool_LinearGradientClick(Sender: TObject);
 begin
-     if Tool_LinearGradient.Down then
-     begin
-       ToolManager.GradientType := gtLinear;
-       UpdateEditPicture;
-     end;
+  if Tool_LinearGradient.Down then
+  begin
+    ToolManager.GradientType := gtLinear;
+    UpdateEditPicture;
+  end;
 end;
 
 procedure TFMain.Tool_ReflectedGradientClick(Sender: TObject);
 begin
-     if Tool_ReflectedGradient.Down then
-     begin
-       ToolManager.GradientType := gtReflected;
-       UpdateEditPicture;
-     end;
+  if Tool_ReflectedGradient.Down then
+  begin
+    ToolManager.GradientType := gtReflected;
+    UpdateEditPicture;
+  end;
 end;
 
 procedure TFMain.Tool_DiamondGradientClick(Sender: TObject);
 begin
-     if Tool_DiamondGradient.Down then
-     begin
-       ToolManager.GradientType := gtDiamond;
-       UpdateEditPicture;
-     end;
+  if Tool_DiamondGradient.Down then
+  begin
+    ToolManager.GradientType := gtDiamond;
+    UpdateEditPicture;
+  end;
 end;
 
 procedure TFMain.Tool_RadialGradientClick(Sender: TObject);
 begin
-     if Tool_RadialGradient.Down then
-     begin
-       ToolManager.GradientType := gtRadial;
-       UpdateEditPicture;
-     end;
+  if Tool_RadialGradient.Down then
+  begin
+    ToolManager.GradientType := gtRadial;
+    UpdateEditPicture;
+  end;
 end;
 
 procedure TFMain.Tool_SinGradientClick(Sender: TObject);

@@ -677,10 +677,11 @@ type
     procedure ComboBox_PenStyleDrawSelectedItem(Sender: TObject;
       const ABGRA: TBGRABitmap; AState: TBCButtonState; ARect: TRect);
     function GetImage: TLazPaintImage;
+    procedure ManagerEraserChanged(Sender: TObject);
     procedure ManagerGradientChanged(Sender: TObject);
     procedure ManagerJoinStyleChanged(Sender: TObject);
     procedure ManagerLineCapChanged(Sender: TObject);
-    procedure ManagerOnPhongShapeChanged(Sender: TObject);
+    procedure ManagerPhongShapeChanged(Sender: TObject);
     procedure ManagerPenStyleChanged(Sender: TObject);
     procedure ManagerPenWidthChanged(Sender: TObject);
     procedure ManagerSplineStyleChanged(Sender: TObject);
@@ -690,6 +691,7 @@ type
     procedure ManagerTextShadowChanged(Sender: TObject);
     procedure ManagerTextureChanged(Sender: TObject);
     procedure ManagerShapeOptionChanged(Sender: TObject);
+    procedure ManagerToleranceChanged(Sender: TObject);
   private
     { private declarations }
     FLayout: TMainFormLayout;
@@ -712,6 +714,7 @@ type
     FSaveSelectionInitialFilename: string;
     FInTextFont: boolean;
     FInPenWidthChange: boolean;
+    FInEraserOption: Boolean;
     FOnlineUpdater: TLazPaintCustomOnlineUpdater;
     initialized: boolean;
     shouldArrangeOnResize: boolean;
@@ -752,6 +755,7 @@ type
     procedure RegisterToolbarElements;
     procedure InitToolbarElements;
     procedure UpdateToolOptions;
+    procedure UpdateEraserToolbar;
     procedure UpdatePenStyleToolbar;
     procedure UpdateJoinStyleToolbar;
     procedure UpdateTextFontToolbar;
@@ -763,6 +767,7 @@ type
     procedure UpdateGradientToolbar;
     procedure UpdatePenWidthToolbar;
     procedure UpdatePhongToolbar;
+    procedure UpdateToleranceToolbar;
     function ShowOpenBrushDialog: boolean;
     function TextSpinEditFocused: boolean;
     procedure UpdateBrush;
@@ -990,6 +995,7 @@ begin
   begin
     if ToolManager.OnToolChanged = @ManagerToolChanged then ToolManager.OnToolChanged := nil;
     if ToolManager.OnTextureChanged = @ManagerTextureChanged then ToolManager.OnTextureChanged := nil;
+    if ToolManager.OnEraserChanged = @ManagerEraserChanged then ToolManager.OnEraserChanged := nil;
     if ToolManager.OnPenWidthChanged = @ManagerPenWidthChanged then ToolManager.OnPenWidthChanged := nil;
     if ToolManager.OnPenStyleChanged = @ManagerPenStyleChanged then ToolManager.OnPenStyleChanged := nil;
     if ToolManager.OnJoinStyleChanged = @ManagerJoinStyleChanged then ToolManager.OnJoinStyleChanged := nil;
@@ -1001,7 +1007,8 @@ begin
     if ToolManager.OnLineCapChanged = @ManagerLineCapChanged then ToolManager.OnLineCapChanged := nil;
     if ToolManager.OnSplineStyleChanged = @ManagerSplineStyleChanged then ToolManager.OnSplineStyleChanged := nil;
     if ToolManager.OnGradientChanged = @ManagerGradientChanged then ToolManager.OnGradientChanged := nil;
-    if ToolManager.OnPhongShapeChanged = @ManagerOnPhongShapeChanged then ToolManager.OnPhongShapeChanged := nil;
+    if ToolManager.OnPhongShapeChanged = @ManagerPhongShapeChanged then ToolManager.OnPhongShapeChanged := nil;
+    if ToolManager.OnToleranceChanged = @ManagerToleranceChanged then ToolManager.OnToleranceChanged := nil;
   end;
   FreeAndNil(Zoom);
   FreeAndNil(FOnlineUpdater);
@@ -1062,6 +1069,7 @@ begin
   ToolManager.SetCurrentToolType(ptHand);
   ToolManager.OnToolChanged  :=  @ManagerToolChanged;
   ToolManager.OnTextureChanged := @ManagerTextureChanged;
+  ToolManager.OnEraserChanged:=@ManagerEraserChanged;
   ToolManager.OnPenWidthChanged:= @ManagerPenWidthChanged;
   ToolManager.OnPenStyleChanged:= @ManagerPenStyleChanged;
   ToolManager.OnJoinStyleChanged:= @ManagerJoinStyleChanged;
@@ -1073,7 +1081,8 @@ begin
   ToolManager.OnLineCapChanged := @ManagerLineCapChanged;
   ToolManager.OnSplineStyleChanged:=@ManagerSplineStyleChanged;
   ToolManager.OnGradientChanged:=@ManagerGradientChanged;
-  ToolManager.OnPhongShapeChanged:=@ManagerOnPhongShapeChanged;
+  ToolManager.OnPhongShapeChanged:=@ManagerPhongShapeChanged;
+  ToolManager.OnToleranceChanged:=@ManagerToleranceChanged;
 
   InitToolbarElements;
 
@@ -4234,6 +4243,11 @@ begin
   result := LazPaintInstance.Image;
 end;
 
+procedure TFMain.ManagerEraserChanged(Sender: TObject);
+begin
+  UpdateEraserToolbar;
+end;
+
 procedure TFMain.ManagerGradientChanged(Sender: TObject);
 begin
   UpdateGradientToolbar;
@@ -4249,7 +4263,7 @@ begin
   UpdateLineCapToolbar;
 end;
 
-procedure TFMain.ManagerOnPhongShapeChanged(Sender: TObject);
+procedure TFMain.ManagerPhongShapeChanged(Sender: TObject);
 begin
   UpdatePhongToolbar;
 end;
@@ -4299,6 +4313,11 @@ procedure TFMain.ManagerShapeOptionChanged(Sender: TObject);
 begin
   UpdateToolOptions;
   FLayout.Arrange;
+end;
+
+procedure TFMain.ManagerToleranceChanged(Sender: TObject);
+begin
+  UpdateToleranceToolbar;
 end;
 
 procedure TFMain.UpdateStatusText;

@@ -625,8 +625,8 @@ begin
   end;
   if rightBtn then penColor := BGRABlack else penColor := BGRAWhite;
   ofs := Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex];
-  Manager.Image.CurrentLayerReadOnly.ParallelFloodFill(pt.X-ofs.X,pt.Y-ofs.Y,
-    toolDest,penColor,fmDrawWithTransparency,Manager.ToolTolerance,ofs.X,ofs.Y);
+  Manager.Image.CurrentLayerReadOnly.ParallelFloodFill(pt.X-ofs.X, pt.Y-ofs.Y,
+    toolDest, penColor, fmDrawWithTransparency, Manager.Tolerance, ofs.X, ofs.Y);
   result := rect(0,0,toolDest.Width,toolDest.Height);
   Action.NotifyChange(toolDest, result);
   ValidateAction;
