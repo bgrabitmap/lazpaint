@@ -147,6 +147,39 @@ type
     procedure UnapplyTo(AState: TState); override;
   end;
 
+  { TSetLayerRegistryDifference }
+
+  TSetLayerRegistryDifference = class(TCustomImageDifference)
+  private
+    identifier: string;
+    previousValue,nextValue: RawByteString;
+    layerId: integer;
+  protected
+    function GetImageDifferenceKind: TImageDifferenceKind; override;
+    function GetIsIdentity: boolean; override;
+    function GetCost: integer; override;
+  public
+    constructor Create(ADestination: TState; ALayerId: integer; AIdentifier: string; ANewValue: RawByteString; AApplyNow: boolean);
+    procedure ApplyTo(AState: TState); override;
+    procedure UnapplyTo(AState: TState); override;
+  end;
+
+  { TSetImageRegistryDifference }
+
+  TSetImageRegistryDifference = class(TCustomImageDifference)
+  private
+    identifier: string;
+    previousValue,nextValue: RawByteString;
+  protected
+    function GetImageDifferenceKind: TImageDifferenceKind; override;
+    function GetIsIdentity: boolean; override;
+    function GetCost: integer; override;
+  public
+    constructor Create(ADestination: TState; AIdentifier: string; ANewValue: RawByteString; AApplyNow: boolean);
+    procedure ApplyTo(AState: TState); override;
+    procedure UnapplyTo(AState: TState); override;
+  end;
+
   { TSetSelectionTransformDifference }
 
   TSetSelectionTransformDifference = class(TCustomImageDifference)
@@ -641,6 +674,104 @@ begin
       result := false;
   end else
     result := false;
+end;
+
+{ TSetImageRegistryDifference }
+
+function TSetImageRegistryDifference.GetImageDifferenceKind: TImageDifferenceKind;
+begin
+  Result:= idkChangeStack;
+end;
+
+function TSetImageRegistryDifference.GetIsIdentity: boolean;
+begin
+  Result:= previousValue = nextValue;
+end;
+
+function TSetImageRegistryDifference.GetCost: integer;
+begin
+  Result:= 0;
+end;
+
+constructor TSetImageRegistryDifference.Create(ADestination: TState;
+  AIdentifier: string; ANewValue: RawByteString; AApplyNow: boolean);
+var
+  imgState: TImageState;
+begin
+  inherited Create(ADestination);
+  identifier := AIdentifier;
+  nextValue := ANewValue;
+  imgState := ADestination as TImageState;
+  previousValue:= imgState.LayeredBitmap.GetGlobalRegistry(identifier);
+  if AApplyNow then ApplyTo(ADestination);
+end;
+
+procedure TSetImageRegistryDifference.ApplyTo(AState: TState);
+var
+  imgState: TImageState;
+begin
+  inherited ApplyTo(AState);
+  imgState := AState as TImageState;
+  imgState.LayeredBitmap.SetGlobalRegistry(identifier, nextValue);
+end;
+
+procedure TSetImageRegistryDifference.UnapplyTo(AState: TState);
+var
+  imgState: TImageState;
+begin
+  inherited UnapplyTo(AState);
+  imgState := AState as TImageState;
+  imgState.LayeredBitmap.SetGlobalRegistry(identifier, previousValue);
+end;
+
+{ TSetLayerRegistryDifference }
+
+function TSetLayerRegistryDifference.GetImageDifferenceKind: TImageDifferenceKind;
+begin
+  Result:= idkChangeStack;
+end;
+
+function TSetLayerRegistryDifference.GetIsIdentity: boolean;
+begin
+  Result:= previousValue = nextValue;
+end;
+
+function TSetLayerRegistryDifference.GetCost: integer;
+begin
+  Result:= 0;
+end;
+
+constructor TSetLayerRegistryDifference.Create(ADestination: TState;
+  ALayerId: integer; AIdentifier: string; ANewValue: RawByteString;
+  AApplyNow: boolean);
+var
+  imgState: TImageState;
+begin
+  inherited Create(ADestination);
+  layerId := ALayerId;
+  identifier := AIdentifier;
+  nextValue := ANewValue;
+  imgState := ADestination as TImageState;
+  previousValue:= imgState.LayeredBitmap.GetLayerRegistry(imgState.LayeredBitmap.GetLayerIndexFromId(layerId), identifier);
+  if AApplyNow then ApplyTo(ADestination);
+end;
+
+procedure TSetLayerRegistryDifference.ApplyTo(AState: TState);
+var
+  imgState: TImageState;
+begin
+  inherited ApplyTo(AState);
+  imgState := AState as TImageState;
+  imgState.LayeredBitmap.SetLayerRegistry(imgState.LayeredBitmap.GetLayerIndexFromId(layerId), identifier, nextValue);
+end;
+
+procedure TSetLayerRegistryDifference.UnapplyTo(AState: TState);
+var
+  imgState: TImageState;
+begin
+  inherited UnapplyTo(AState);
+  imgState := AState as TImageState;
+  imgState.LayeredBitmap.SetLayerRegistry(imgState.LayeredBitmap.GetLayerIndexFromId(layerId), identifier, previousValue);
 end;
 
 { TReplaceLayerByCustomOriginalDifference }

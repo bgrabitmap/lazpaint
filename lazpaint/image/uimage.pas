@@ -176,6 +176,11 @@ type
     procedure SetLayerOffset(AIndex: integer; AValue: TPoint; APrecomputedLayerBounds: TRect);
     function CurrentLayerReadOnly: TBGRABitmap;
 
+    procedure SetLayerRegistry(ALayerIndex: integer; AIdentifier: string; AValue: RawByteString);
+    function GetLayerRegistry(ALayerIndex: integer; AIdentifier: string): RawByteString;
+    procedure SetRegistry(AIdentifier: string; AValue: RawByteString);
+    function GetRegistry(AIdentifier: string): RawByteString;
+
     function GetLayerIndexById(AId: integer): integer;
     procedure AddNewLayer;
     procedure AddNewLayer(AOriginal: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix);
@@ -2201,6 +2206,29 @@ end;
 function TLazPaintImage.CurrentLayerReadOnly: TBGRABitmap;
 begin
   result := GetSelectedImageLayer;
+end;
+
+procedure TLazPaintImage.SetLayerRegistry(ALayerIndex: integer;
+  AIdentifier: string; AValue: RawByteString);
+begin
+  AddUndo(TSetLayerRegistryDifference.Create(FCurrentState, LayerId[ALayerIndex], AIdentifier, AValue, true));
+end;
+
+function TLazPaintImage.GetLayerRegistry(ALayerIndex: integer;
+  AIdentifier: string): RawByteString;
+begin
+  result := FCurrentState.LayeredBitmap.GetLayerRegistry(ALayerIndex, AIdentifier);
+end;
+
+procedure TLazPaintImage.SetRegistry(AIdentifier: string;
+  AValue: RawByteString);
+begin
+  AddUndo(TSetImageRegistryDifference.Create(FCurrentState, AIdentifier, AValue, true));
+end;
+
+function TLazPaintImage.GetRegistry(AIdentifier: string): RawByteString;
+begin
+  result := FCurrentState.LayeredBitmap.GetGlobalRegistry(AIdentifier);
 end;
 
 function TLazPaintImage.GetLayerIndexById(AId: integer): integer;

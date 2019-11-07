@@ -312,7 +312,7 @@ var
 begin
   identifier := AVars.Strings['Identifier'];
   if length(identifier)=0 then exit(srInvalidParameters);
-  AVars.Strings['Result'] := Image.CurrentState.LayeredBitmap.GetGlobalRegistry(identifier);
+  AVars.Strings['Result'] := Image.GetRegistry(identifier);
   result := srOk;
 end;
 
@@ -322,7 +322,7 @@ var
 begin
   identifier := AVars.Strings['Identifier'];
   if length(identifier)=0 then exit(srInvalidParameters);
-  AVars.Strings['Result'] := Image.CurrentState.LayeredBitmap.GetLayerRegistry(Image.CurrentLayerIndex, identifier);
+  AVars.Strings['Result'] := Image.GetLayerRegistry(Image.CurrentLayerIndex, identifier);
   result := srOk;
 end;
 
@@ -353,7 +353,7 @@ begin
   identifier := AVars.Strings['Identifier'];
   if length(identifier)=0 then exit(srInvalidParameters);
   if not AVars.IsDefined('Value') then exit(srInvalidParameters);
-  Image.CurrentState.LayeredBitmap.SetGlobalRegistry(identifier, AVars.Strings['Value']);
+  Image.SetRegistry(identifier, AVars.Strings['Value']);
   result := srOk;
 end;
 
@@ -364,12 +364,11 @@ begin
   identifier := AVars.Strings['Identifier'];
   if length(identifier)=0 then exit(srInvalidParameters);
   if not AVars.IsDefined('Value') then exit(srInvalidParameters);
-  Image.CurrentState.LayeredBitmap.SetLayerRegistry(Image.CurrentLayerIndex, identifier, AVars.Strings['Value']);
+  Image.SetLayerRegistry(Image.CurrentLayerIndex, identifier, AVars.Strings['Value']);
   result := srOk;
 end;
 
-function TImageActions.ScriptPasteAsNewLayer(AVars: TVariableSet
-  ): TScriptResult;
+function TImageActions.ScriptPasteAsNewLayer(AVars: TVariableSet): TScriptResult;
 var
   id: Integer;
 begin

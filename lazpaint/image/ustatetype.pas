@@ -43,6 +43,7 @@ type
     function GetImageDifferenceKind: TImageDifferenceKind; virtual;
     function GetChangingBounds: TRect; virtual;
     function GetChangingBoundsDefined: boolean; virtual;
+    function GetCost: integer; virtual;
   public
     constructor Create(AFromState: TState; AToState: TState);
     constructor Create(AFromState: TState);
@@ -425,7 +426,7 @@ begin
     if FDiffs[i] is TComposedImageDifference then
       inc(result, TComposedImageDifference(FDiffs[i]).TotalCount)
     else
-      inc(result);
+      inc(result, FDiffs[i].GetCost);
 end;
 
 function TComposedImageDifference.GetIsIdentity: boolean;
@@ -774,6 +775,11 @@ end;
 function TCustomImageDifference.GetChangingBoundsDefined: boolean;
 begin
   result := false;
+end;
+
+function TCustomImageDifference.GetCost: integer;
+begin
+  result := 1;
 end;
 
 constructor TCustomImageDifference.Create(AFromState: TState; AToState: TState);
