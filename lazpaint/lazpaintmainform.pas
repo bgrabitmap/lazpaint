@@ -677,10 +677,13 @@ type
     procedure ComboBox_PenStyleDrawSelectedItem(Sender: TObject;
       const ABGRA: TBGRABitmap; AState: TBCButtonState; ARect: TRect);
     function GetImage: TLazPaintImage;
+    procedure ManagerDeformationGridSizeChanged(Sender: TObject);
     procedure ManagerEraserChanged(Sender: TObject);
+    procedure ManagerFloodFillOptionChanged(Sender: TObject);
     procedure ManagerGradientChanged(Sender: TObject);
     procedure ManagerJoinStyleChanged(Sender: TObject);
     procedure ManagerLineCapChanged(Sender: TObject);
+    procedure ManagerPerspectiveOptionChanged(Sender: TObject);
     procedure ManagerPhongShapeChanged(Sender: TObject);
     procedure ManagerPenStyleChanged(Sender: TObject);
     procedure ManagerPenWidthChanged(Sender: TObject);
@@ -712,9 +715,9 @@ type
 
     FLoadInitialDir, FSaveInitialDir: string;
     FSaveSelectionInitialFilename: string;
-    FInTextFont: boolean;
-    FInPenWidthChange: boolean;
-    FInEraserOption: Boolean;
+    FInTextFont, FInPenWidthChange, FInEraserOption,
+    FInGridNb, FInFloodfillOption, FInSplineStyleChange,
+    FInTolerance, FInPerspective : Boolean;
     FOnlineUpdater: TLazPaintCustomOnlineUpdater;
     initialized: boolean;
     shouldArrangeOnResize: boolean;
@@ -742,7 +745,6 @@ type
     FLastPaintDate: TDateTime;
     FUpdateStackWhenIdle: boolean;
     FToolbarElementsInitDone: boolean;
-    FInSplineStyleChange: Boolean;
 
     function GetCurrentPressure: single;
     function GetDarkTheme: boolean;
@@ -768,6 +770,9 @@ type
     procedure UpdatePenWidthToolbar;
     procedure UpdatePhongToolbar;
     procedure UpdateToleranceToolbar;
+    procedure UpdateDeformationGridToolbar;
+    procedure UpdateFloodfillToolbar;
+    procedure UpdatePerspectiveToolbar;
     function ShowOpenBrushDialog: boolean;
     function TextSpinEditFocused: boolean;
     procedure UpdateBrush;
@@ -1009,6 +1014,9 @@ begin
     if ToolManager.OnGradientChanged = @ManagerGradientChanged then ToolManager.OnGradientChanged := nil;
     if ToolManager.OnPhongShapeChanged = @ManagerPhongShapeChanged then ToolManager.OnPhongShapeChanged := nil;
     if ToolManager.OnToleranceChanged = @ManagerToleranceChanged then ToolManager.OnToleranceChanged := nil;
+    if ToolManager.OnDeformationGridSizeChanged = @ManagerDeformationGridSizeChanged then ToolManager.OnDeformationGridSizeChanged := nil;
+    if ToolManager.OnFloodFillOptionChanged = @ManagerFloodFillOptionChanged then ToolManager.OnFloodFillOptionChanged := nil;
+    if ToolManager.OnPerspectiveOptionChanged = @ManagerPerspectiveOptionChanged then ToolManager.OnPerspectiveOptionChanged := nil;
   end;
   FreeAndNil(Zoom);
   FreeAndNil(FOnlineUpdater);
@@ -1083,6 +1091,9 @@ begin
   ToolManager.OnGradientChanged:=@ManagerGradientChanged;
   ToolManager.OnPhongShapeChanged:=@ManagerPhongShapeChanged;
   ToolManager.OnToleranceChanged:=@ManagerToleranceChanged;
+  ToolManager.OnDeformationGridSizeChanged:=@ManagerDeformationGridSizeChanged;
+  ToolManager.OnFloodFillOptionChanged:=@ManagerFloodFillOptionChanged;
+  ToolManager.OnPerspectiveOptionChanged:=@ManagerPerspectiveOptionChanged;
 
   InitToolbarElements;
 
@@ -4243,9 +4254,19 @@ begin
   result := LazPaintInstance.Image;
 end;
 
+procedure TFMain.ManagerDeformationGridSizeChanged(Sender: TObject);
+begin
+  UpdateDeformationGridToolbar;
+end;
+
 procedure TFMain.ManagerEraserChanged(Sender: TObject);
 begin
   UpdateEraserToolbar;
+end;
+
+procedure TFMain.ManagerFloodFillOptionChanged(Sender: TObject);
+begin
+  UpdateFloodFillToolbar;
 end;
 
 procedure TFMain.ManagerGradientChanged(Sender: TObject);
@@ -4261,6 +4282,11 @@ end;
 procedure TFMain.ManagerLineCapChanged(Sender: TObject);
 begin
   UpdateLineCapToolbar;
+end;
+
+procedure TFMain.ManagerPerspectiveOptionChanged(Sender: TObject);
+begin
+  UpdatePerspectiveToolbar;
 end;
 
 procedure TFMain.ManagerPhongShapeChanged(Sender: TObject);

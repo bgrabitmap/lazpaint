@@ -86,7 +86,6 @@ type
     procedure ValidateActionPartially;
     procedure CancelAction;
     procedure CancelActionPartially;
-    procedure BeforeGridSizeChange; virtual;
     procedure AfterGridSizeChange(NewNbX,NewNbY: Integer); virtual;
     function ToolUpdate: TRect;
     function ToolDown(X,Y: single; rightBtn: boolean): TRect;
@@ -134,6 +133,12 @@ type
   TShapeOption = (toAliasing, toDrawShape, toFillShape, toCloseShape);
   TShapeOptions = set of TShapeOption;
 
+  TFloodFillOption = (ffProgressive, ffFillAll);
+  TFloodFillOptions = set of TFloodFillOption;
+
+  TPerspectiveOption = (poRepeat, poTwoPlanes);
+  TPerspectiveOptions = set of TPerspectiveOption;
+
   { TToolManager }
 
   TToolManager = class
@@ -180,6 +185,8 @@ type
     FPhongShapeKind: TPhongShapeKind;
     FDeformationGridNbX,FDeformationGridNbY: integer;
     FTolerance: byte;
+    FFloodFillOptions: TFloodFillOptions;
+    FPerspectiveOptions: TPerspectiveOptions;
 
     FOnColorChanged: TNotifyEvent;
     FOnEraserChanged: TNotifyEvent;
@@ -196,7 +203,10 @@ type
     FOnTextShadowChanged: TNotifyEvent;
     FOnTextureChanged: TNotifyEvent;
     FOnShapeOptionChanged: TNotifyEvent;
+    FOnDeformationGridSizeChanged: TNotifyEvent;
     FOnToleranceChanged: TNotifyEvent;
+    FOnFloodFillOptionChanged: TNotifyEvent;
+    FOnPerspectiveOptionChanged: TNotifyEvent;
 
     function GetCursor: TCursor;
     function GetBackColor: TBGRAPixel;
@@ -220,6 +230,7 @@ type
     procedure SetBackColor(AValue: TBGRAPixel);
     procedure SetEraserAlpha(AValue: byte);
     procedure SetEraserMode(AValue: TEraserMode);
+    procedure SetFloodFillOptions(AValue: TFloodFillOptions);
     procedure SetForeColor(AValue: TBGRAPixel);
     procedure SetGradientColorspace(AValue: TBGRAColorInterpolation);
     procedure SetGradientSine(AValue: boolean);
@@ -255,8 +266,6 @@ type
     BrushControls, RatioControls: TList;
 
     //tools configuration
-    ToolFloodFillOptionProgressive: boolean;
-    ToolPerspectiveRepeat,ToolPerspectiveTwoPlanes: boolean;
     ToolDeformationGridMoveWithoutDeformation: boolean;
     TextShadowBlurRadius: single;
     TextShadowOffset: TPoint;
@@ -369,6 +378,8 @@ type
     property DeformationGridNbY: integer read FDeformationGridNbY;
     property DeformationGridSize: TSize read GetDeformationGridSize write SetDeformationGridSizeProc;
     property Tolerance: byte read FTolerance write SetTolerance;
+    property FloodFillOptions: TFloodFillOptions read FFloodFillOptions write SetFloodFillOptions;
+    property PerspectiveOptions: TPerspectiveOptions read FPerspectiveOptions write FPerspectiveOptions;
 
     property OnToolChanged: TOnToolChangedHandler read FOnToolChangedHandler write FOnToolChangedHandler;
     property OnPopup: TOnPopupToolHandler read FOnPopupToolHandler write FOnPopupToolHandler;
@@ -387,7 +398,10 @@ type
     property OnSplineStyleChanged: TNotifyEvent read FOnSplineStyleChanged write FOnSplineStyleChanged;
     property OnGradientChanged: TNotifyEvent read FOnGradientChanged write FOnGradientChanged;
     property OnPhongShapeChanged: TNotifyEvent read FOnPhongShapeChanged write FOnPhongShapeChanged;
+    property OnDeformationGridSizeChanged: TNotifyEvent read FOnDeformationGridSizeChanged write FOnDeformationGridSizeChanged;
     property OnToleranceChanged: TNotifyEvent read FOnToleranceChanged write FOnToleranceChanged;
+    property OnFloodFillOptionChanged: TNotifyEvent read FOnFloodFillOptionChanged write FOnFloodFillOptionChanged;
+    property OnPerspectiveOptionChanged: TNotifyEvent read FOnPerspectiveOptionChanged write FOnPerspectiveOptionChanged;
   end;
 
 procedure RegisterTool(ATool: TPaintToolType; AClass: TToolClass);
@@ -659,12 +673,6 @@ begin
   end;
 end;
 
-procedure TGenericTool.BeforeGridSizeChange;
-begin
-  //nothing
-end;
-
-{$hints off}
 function TGenericTool.DoToolUpdate(toolDest: TBGRABitmap): TRect;
 begin
   result := EmptyRect;
@@ -686,8 +694,6 @@ procedure TGenericTool.AfterGridSizeChange(NewNbX,NewNbY: Integer);
 begin
  //nothing
 end;
-
-{$hints on}
 
 function TGenericTool.ToolUpdate: TRect;
 var toolDest :TBGRABitmap;
@@ -913,6 +919,13 @@ begin
   if FEraserMode=AValue then Exit;
   FEraserMode:=AValue;
   if Assigned(FOnEraserChanged) then FOnEraserChanged(self);
+end;
+
+procedure TToolManager.SetFloodFillOptions(AValue: TFloodFillOptions);
+begin
+  if FFloodFillOptions=AValue then Exit;
+  FFloodFillOptions:=AValue;
+  if Assigned(FOnFloodFillOptionChanged) then FOnFloodFillOptionChanged(self);
 end;
 
 procedure TToolManager.SetForeColor(AValue: TBGRAPixel);
@@ -1222,7 +1235,7 @@ begin
   GradientType := gtLinear;
   GradientSine := false;
   GradientColorspace := ciLinearRGB;
-  ToolFloodFillOptionProgressive := true;
+  FFloodFillOptions := [ffProgressive];
   LineCap := pecRound;
   JoinStyle := pjsRound;
   ArrowStart := akNone;
@@ -1246,8 +1259,7 @@ begin
   FPhongShapeAltitude := 50;
   FPhongShapeBorderSize := 20;
   FPhongShapeKind := pskRectangle;
-  ToolPerspectiveRepeat := false;
-  ToolPerspectiveTwoPlanes := false;
+  FPerspectiveOptions:= [poRepeat];
 
   FDeformationGridNbX := 5;
   FDeformationGridNbY := 5;
@@ -1578,9 +1590,9 @@ begin
   if ASize.cy < 3 then ASize.cy := 3;
   if (ASize.cx <> DeformationGridNbX) or (ASize.cy <> DeformationGridNbY) then
   begin
-    CurrentTool.BeforeGridSizeChange;
     FDeformationGridNbX := ASize.cx;
     FDeformationGridNbY := ASize.cy;
+    if Assigned(FOnDeformationGridSizeChanged) then FOnDeformationGridSizeChanged(self);
     CurrentTool.AfterGridSizeChange(ASize.cx,ASize.cy);
     result := true;
   end;

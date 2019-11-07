@@ -140,7 +140,7 @@ begin
     floodFillMask.Free;
     floodFillTex.Free;
   end else
-    if Manager.ToolFloodFillOptionProgressive then
+    if ffProgressive in Manager.FloodFillOptions then
       toolDest.FloodFill(pt.X, pt.Y, penColor, fmProgressive, Manager.Tolerance) else
         toolDest.FloodFill(pt.X, pt.Y, penColor, fmDrawWithTransparency, Manager.Tolerance);
   Action.NotifyChange(toolDest, rect(0,0,toolDest.Width,toolDest.Height));

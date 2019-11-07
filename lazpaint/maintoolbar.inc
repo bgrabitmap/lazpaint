@@ -353,7 +353,28 @@ end;
 
 procedure TFMain.UpdateToleranceToolbar;
 begin
+  if FInTolerance then exit;
   SpinEdit_Tolerance.Value:= ToolManager.Tolerance;
+end;
+
+procedure TFMain.UpdateDeformationGridToolbar;
+begin
+  if FInGridNb then exit;
+  SpinEdit_GridNbX.Value := ToolManager.DeformationGridNbX-1;
+  SpinEdit_GridNbY.Value := ToolManager.DeformationGridNbY-1;
+end;
+
+procedure TFMain.UpdateFloodfillToolbar;
+begin
+  if FInFloodfillOption then exit;
+  Tool_ProgressiveFloodfill.Down := ffProgressive in ToolManager.FloodFillOptions;
+end;
+
+procedure TFMain.UpdatePerspectiveToolbar;
+begin
+  if FInPerspective then exit;
+  Perspective_Repeat.Down := poRepeat in ToolManager.PerspectiveOptions;
+  Perspective_TwoPlanes.Down := poTwoPlanes in ToolManager.PerspectiveOptions;
 end;
 
 procedure TFMain.UpdateJoinStyleToolbar;
@@ -439,17 +460,17 @@ begin
   end;
   UpdateLineCapToolbar;
   UpdateToolOptions;
-  SpinEdit_Eraser.Value := ToolManager.EraserAlpha;
-  SpinEdit_Tolerance.Value := ToolManager.Tolerance;
-  Tool_ProgressiveFloodfill.Down := ToolManager.ToolFloodFillOptionProgressive;
+  UpdateEraserToolbar;
+  UpdateToleranceToolbar;
+  UpdateFloodfillToolbar;
+  UpdatePerspectiveToolbar;
   UpdateGradientToolbar;
   Tool_GridMoveWithoutDeformation.Down := ToolManager.ToolDeformationGridMoveWithoutDeformation;
-  SpinEdit_GridNbX.Value := ToolManager.DeformationGridNbX-1;
-  SpinEdit_GridNbY.Value := ToolManager.DeformationGridNbY-1;
+  UpdateDeformationGridToolbar;
   UpdateSplineStyleToolbar;
   UpdateCurveModeToolbar;
   UpdateTextOutlineToolbar;
-  Tool_TextPhong.Down := ToolManager.TextPhong;
+  UpdateTextPhongToolbar;
   UpdateTextFontToolbar;
   UpdateTextShadowToolbar;
   SpinEdit_TextureOpacity.Value := ToolManager.TextureOpacity;
@@ -675,8 +696,10 @@ end;
 procedure TFMain.GridNb_SpinEditChange(Sender: TObject; AByUser: boolean);
 begin
   if not AByUser or not initialized then exit;
+  FInGridNb := true;
   if ToolManager.SetDeformationGridSize(Size(SpinEdit_GridNbX.Value+1,SpinEdit_GridNbY.Value+1)) then
     image.OnImageChanged.NotifyObservers;
+  FInGridNb := false;
 end;
 
 procedure TFMain.SpinEdit_GridNbExit(Sender: TObject);
@@ -733,7 +756,12 @@ procedure TFMain.Perspective_RepeatClick(Sender: TObject);
 begin
   if initialized then
   begin
-    ToolManager.ToolPerspectiveRepeat := Perspective_Repeat.Down;
+    FInPerspective:= true;
+    if Perspective_Repeat.Down then
+      ToolManager.PerspectiveOptions := ToolManager.PerspectiveOptions + [poRepeat]
+    else
+      ToolManager.PerspectiveOptions := ToolManager.PerspectiveOptions - [poRepeat];
+    FInPerspective:= false;
     UpdateEditPicture;
   end;
 end;
@@ -742,7 +770,12 @@ procedure TFMain.Perspective_TwoPlanesClick(Sender: TObject);
 begin
   if initialized then
   begin
-    ToolManager.ToolPerspectiveTwoPlanes := Perspective_TwoPlanes.Down;
+    FInPerspective:= true;
+    if Perspective_Repeat.Down then
+      ToolManager.PerspectiveOptions := ToolManager.PerspectiveOptions + [poTwoPlanes]
+    else
+      ToolManager.PerspectiveOptions := ToolManager.PerspectiveOptions - [poTwoPlanes];
+    FInPerspective:= false;
     UpdateEditPicture;
   end;
 end;
@@ -828,7 +861,9 @@ begin
   if AByUser and initialized then
   begin
     if ToolManager.Tolerance = SpinEdit_Tolerance.Value then exit;
+    FInTolerance:= true;
     ToolManager.Tolerance := SpinEdit_Tolerance.Value;
+    FInTolerance:= false;
   end;
 end;
 
@@ -1218,8 +1253,15 @@ end;
 
 procedure TFMain.Tool_ProgressiveFloodfillClick(Sender: TObject);
 begin
-     if initialized then
-       ToolManager.ToolFloodFillOptionProgressive := Tool_ProgressiveFloodfill.Down;
+  if initialized then
+  begin
+    FInFloodfillOption:= true;
+    if Tool_ProgressiveFloodfill.Down then
+      ToolManager.FloodFillOptions := ToolManager.FloodFillOptions + [ffProgressive]
+    else
+      ToolManager.FloodFillOptions := ToolManager.FloodFillOptions - [ffProgressive];
+    FInFloodfillOption:= true;
+  end;
 end;
 
 procedure TFMain.ShowPenPreview(ShouldRepaint: boolean);
