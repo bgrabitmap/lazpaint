@@ -653,7 +653,7 @@ begin
     LayeredBitmap.Free;
     SetLayeredBitmap(AValue);
   end else
-    LayeredBitmap.Assign(AValue,true);
+    LayeredBitmap.Assign(AValue, true, true);
   if NbLayers > 0 then
   begin
     SelectedImageLayerIndex := 0
