@@ -17,6 +17,7 @@ type
     BGRAPreview: TBGRAVirtualScreen;
     Button_Cancel: TButton;
     Button_OK: TButton;
+    CheckBox_Lossless: TCheckBox;
     CheckBox_Dithering: TCheckBox;
     Edit_QualityValue: TEdit;
     Label1: TLabel;
@@ -42,6 +43,7 @@ type
     procedure BGRAPreviewRedraw(Sender: TObject; Bitmap: TBGRABitmap);
     procedure Button_OKClick(Sender: TObject);
     procedure CheckBox_DitheringChange(Sender: TObject);
+    procedure CheckBox_LosslessChange(Sender: TObject);
     procedure Edit_QualityValueChange(Sender: TObject);
     procedure Edit_QualityValueExit(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -55,24 +57,30 @@ type
     FInit: boolean;
     FLazPaintInstance: TLazPaintCustomInstance;
     FOutputFilename: string;
-    FQualityVisible, FBitsPerPixelVisible: boolean;
-    FFlattenedOriginal, FJpegPreview: TBGRABitmap;
-    FBmpStream, FJpegStream, FPngStream: TMemoryStream;
+    FQualityVisible, FLosslessVisible, FBitsPerPixelVisible: boolean;
+    FFlattenedOriginal, FJpegPreview, FWebPPreview: TBGRABitmap;
+    FBmpStream, FJpegStream, FWebPStream, FPngStream: TMemoryStream;
     FFormTitle: string;
     FImageFormat: TBGRAImageFormat;
     FQuantizer, FQuantizer1bit: TBGRAColorQuantizer;
     FSizeCaption: string;
     function GetBmpStreamNeeded: boolean;
     procedure BmpQualityChanged;
+    function GetLosslessVisible: boolean;
     function GetPngStreamNeeded: boolean;
+    function GetWebPLossless: boolean;
     procedure PngQualityChanged;
     function GetBitsPerPixelVisible: boolean;
     function GetColorQuantizer: TBGRAColorQuantizer;
     function GetJpegPreview: TBGRABitmap;
     procedure RequireJpegStream;
+    function GetWebPPreview: TBGRABitmap;
+    procedure RequireWebPStream;
     procedure MakeBmpStreamIfNeeded;
     function GetWantedBitsPerPixel: integer;
     procedure SetJpegQuality(AValue: integer);
+    procedure SetLosslessVisible(AValue: boolean);
+    procedure SetWebPLossless(AValue: boolean);
     procedure UpdateFileSize;
     procedure UpdateFileSizeTo(AValue: int64);
     function GetJpegQuality: integer;
@@ -90,11 +98,13 @@ type
     function GetOriginalBitDepth: integer;
     procedure DoUpdateBitmap;
     procedure JpegQualityChanged;
+    procedure WebPQualityChanged;
     procedure LayoutRadioButtonDepth;
     procedure MakePngStreamIfNeeded;
   public
     { public declarations }
     property QualityVisible: boolean read GetQualityVisible write SetQualityVisible;
+    property LosslessVisible: boolean read GetLosslessVisible write SetLosslessVisible;
     property BitsPerPixelVisible: boolean read GetBitsPerPixelVisible write SetBitsPerPixelVisible;
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
     property OutputFilename: string read FOutputFilename write SetOutputFilename;
@@ -103,6 +113,8 @@ type
     property QuantizerNeeded: boolean read GetQuantizerNeeded;
     property JpegPreview: TBGRABitmap read GetJpegPreview;
     property JpegQuality: integer read GetJpegQuality write SetJpegQuality;
+    property WebPPreview: TBGRABitmap read GetWebPPreview;
+    property WebPLossless: boolean read GetWebPLossless write SetWebPLossless;
     property WantedBitsPerPixel: integer read GetWantedBitsPerPixel;
     property BmpStreamNeeded: boolean read GetBmpStreamNeeded;
     property PngStreamNeeded: boolean read GetPngStreamNeeded;
@@ -114,13 +126,13 @@ implementation
 
 uses UGraph, FPWriteJPEG, UResourceStrings, FPWriteBMP, BMPcomn,
   UMySLV, BGRAWriteBmpMioMap, BGRADithering, UFileSystem, LCScaleDPI,
-  BGRAThumbnail, BGRAIconCursor, BGRAWinResource;
+  BGRAThumbnail, BGRAIconCursor, BGRAWinResource, BGRAWriteWebP;
 
 function ShowSaveOptionDialog(AInstance: TLazPaintCustomInstance; AOutputFilenameUTF8: string; ASkipOptions: boolean): boolean;
 var f: TFSaveOption;
 begin
   result := false;
-  if not ASkipOptions and (SuggestImageFormat(AOutputFilenameUTF8) in[ifBmp,ifJpeg,ifPng,ifIco,ifCur]) then
+  if not ASkipOptions and (SuggestImageFormat(AOutputFilenameUTF8) in[ifBmp,ifJpeg,ifWebP,ifPng,ifIco,ifCur]) then
   begin
     f := TFSaveOption.Create(nil);
     try
@@ -153,6 +165,7 @@ begin
   UpdateQualityTextBox;
   FFormTitle:= Caption;
   FQualityVisible:= false;
+  FLosslessVisible:= true;
   FBitsPerPixelVisible:= false;
   Panel_Quality.Visible := FQualityVisible;
   Panel_BitsPerPixel.Visible := FBitsPerPixelVisible;
@@ -166,8 +179,10 @@ begin
   FreeAndNil(FQuantizer);
   FreeAndNil(FQuantizer1bit);
   FreeAndNil(FJpegPreview);
+  FreeAndNil(FWebPPreview);
   FreeAndNil(FBmpStream);
   FreeAndNil(FJpegStream);
+  FreeAndNil(FWebPStream);
   FreeAndNil(FPngStream);
 end;
 
@@ -271,7 +286,12 @@ begin
   if ImageFormat = ifJpeg then
   begin
     mustFreePic:= false;
-    picture := GetJpegPreview;
+    picture := JpegPreview;
+  end else
+  if (ImageFormat = ifWebP) and not WebPLossless then
+  begin
+    mustFreePic:= false;
+    picture := WebPPreview;
   end else
   if BmpStreamNeeded and (FBmpStream = nil) then
   begin
@@ -293,6 +313,7 @@ begin
     picture := FFlattenedOriginal;
   end;
   MakePngStreamIfNeeded;
+  if ImageFormat = ifWebP then RequireWebPStream;
 
   if (Bitmap.Width = 0) or (Bitmap.Height = 0) or (picture.Width = 0) or (picture.Height = 0) then exit;
   ratioX := Bitmap.Width/picture.Width;
@@ -447,11 +468,31 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
     end;
   end;
 
+  procedure SaveWebP;
+  var outputStream: TStream;
+  begin
+    RequireWebPStream;
+    outputStream := FileManager.CreateFileStream(FOutputFilename,fmCreate);
+    try
+      FWebPStream.Position := 0;
+      outputStream.CopyFrom(FWebPStream, FWebPStream.Size);
+      FLazPaintInstance.Config.SetDefaultJpegQuality(JpegQuality);
+      FLazPaintInstance.Config.SetDefaultWebPLossless(WebPLossless);
+      if FLazPaintInstance.Image.NbLayers = 1 then FLazPaintInstance.Image.SetSavedFlag;
+    finally
+      outputStream.Free;
+    end;
+  end;
+
 begin
   try
     Case ImageFormat of
     ifJpeg: begin
               SaveJpeg;
+              ModalResult := mrOK;
+            end;
+    ifWebP: begin
+              SaveWebP;
               ModalResult := mrOK;
             end;
     ifBmp:
@@ -489,6 +530,12 @@ begin
   NeedBitmapUpdate(True);
 end;
 
+procedure TFSaveOption.CheckBox_LosslessChange(Sender: TObject);
+begin
+  if FInit then exit;
+  WebPQualityChanged;
+end;
+
 procedure TFSaveOption.Edit_QualityValueExit(Sender: TObject);
 begin
   if FInit then exit;
@@ -519,12 +566,22 @@ begin
   FreeAndNil(FBmpStream);
 end;
 
+function TFSaveOption.GetLosslessVisible: boolean;
+begin
+  result := FLosslessVisible;
+end;
+
 function TFSaveOption.GetPngStreamNeeded: boolean;
 begin
   result := (ImageFormat = ifPng) or
         ( (ImageFormat in[ifIco,ifCur]) and
           ((FFlattenedOriginal.Width >= 256) or (FFlattenedOriginal.Height >= 256)) and
           ((FFlattenedOriginal.XorMask = nil) or FFlattenedOriginal.XorMask.Empty) );
+end;
+
+function TFSaveOption.GetWebPLossless: boolean;
+begin
+  result := CheckBox_Lossless.Checked;
 end;
 
 procedure TFSaveOption.UpdateQualityTextBox;
@@ -596,6 +653,33 @@ begin
   end;
 end;
 
+function TFSaveOption.GetWebPPreview: TBGRABitmap;
+begin
+  RequireWebPStream;
+  if not Assigned(FWebPPreview) then
+  begin
+    FWebPPreview := TBGRABitmap.Create;
+    FWebPStream.Position := 0;
+    FWebPPreview.LoadFromStream(FWebPStream);
+  end;
+  result := FWebPPreview;
+end;
+
+procedure TFSaveOption.RequireWebPStream;
+var writer: TBGRAWriterWebP;
+begin
+  if not Assigned(FWebPStream) then
+  begin
+    FWebPStream := TMemoryStream.Create;
+    writer := TBGRAWriterWebP.Create;
+    writer.QualityPercent := JpegQuality;
+    writer.Lossless:= WebPLossless;
+    FFlattenedOriginal.SaveToStream(FWebPStream, writer);
+    writer.Free;
+    UpdateFileSize;
+  end;
+end;
+
 procedure TFSaveOption.MakeBmpStreamIfNeeded;
 begin
   if RadioButton_MioMap.Checked then
@@ -636,6 +720,18 @@ begin
   FInit := oldInit;
 end;
 
+procedure TFSaveOption.SetLosslessVisible(AValue: boolean);
+begin
+  if FLosslessVisible = AValue then exit;
+  FLosslessVisible := AValue;
+  CheckBox_Lossless.Visible := FLosslessVisible;
+end;
+
+procedure TFSaveOption.SetWebPLossless(AValue: boolean);
+begin
+  CheckBox_Lossless.Checked := AValue;
+end;
+
 procedure TFSaveOption.UpdateFileSize;
 var size: int64;
 begin
@@ -666,6 +762,10 @@ begin
              UpdateFileSizeTo(-1)
           else
              UpdateFileSizeTo(FJpegStream.Size);
+  ifWebP: if FWebPStream = nil then
+             UpdateFileSizeTo(-1)
+          else
+             UpdateFileSizeTo(FWebPStream.Size);
   ifPng: if FPngStream = nil then
              UpdateFileSizeTo(-1)
           else
@@ -701,7 +801,8 @@ var origBPP: integer;
 begin
   if FImageFormat=AValue then Exit;
   FImageFormat:=AValue;
-  QualityVisible := FImageFormat = ifJpeg;
+  QualityVisible := FImageFormat in[ifJpeg, ifWebP];
+  LosslessVisible := (FImageFormat = ifWebP);
   BitsPerPixelVisible := FImageFormat in[ifPng,ifBmp,ifIco,ifCur];
   if FInit then exit;
   FInit := true;
@@ -792,8 +893,12 @@ begin
   FLazPaintInstance:=AValue;
   FreeAndNil(FQuantizer);
   FreeAndNil(FQuantizer1bit);
+  FreeAndNil(FJpegStream);
   FreeAndNil(FJpegPreview);
+  FreeAndNil(FWebPStream);
+  FreeAndNil(FWebPPreview);
   JpegQuality := FLazPaintInstance.Config.DefaultJpegQuality;
+  WebPLossless := FLazPaintInstance.Config.DefaultWebPLossless;
   FFlattenedOriginal := FLazPaintInstance.Image.RenderedImage;
   UpdateFileSize;
   if LazPaintInstance.Config.DefaultSaveOptionDialogMaximized then
@@ -862,6 +967,16 @@ procedure TFSaveOption.JpegQualityChanged;
 begin
   FreeAndNil(FJpegPreview);
   FreeAndNil(FJpegStream);
+  FreeAndNil(FWebPPreview);
+  FreeAndNil(FWebPStream);
+  UpdateFileSize;
+  NeedBitmapUpdate(False);
+end;
+
+procedure TFSaveOption.WebPQualityChanged;
+begin
+  FreeAndNil(FWebPPreview);
+  FreeAndNil(FWebPStream);
   UpdateFileSize;
   NeedBitmapUpdate(False);
 end;

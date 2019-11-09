@@ -61,6 +61,8 @@ type
     procedure SetBrushes(ABrushes: TStringList);
     function DefaultJpegQuality: integer;
     procedure SetDefaultJpegQuality(value: integer);
+    function DefaultWebPLossless: boolean;
+    procedure SetDefaultWebPLossless(value: boolean);
     function DefaultSaveOptionDialogMaximized: boolean;
     procedure SetDefaultSaveOptionDialogMaximized(value: boolean);
 
@@ -1387,6 +1389,16 @@ end;
 procedure TLazPaintConfig.SetDefaultJpegQuality(value: integer);
 begin
   iniOptions.WriteInteger('General','JpegQuality',value);
+end;
+
+function TLazPaintConfig.DefaultWebPLossless: boolean;
+begin
+  result := iniOptions.ReadBool('General','WebPLossless',true);
+end;
+
+procedure TLazPaintConfig.SetDefaultWebPLossless(value: boolean);
+begin
+  iniOptions.WriteBool('General','WebPLossless',value);
 end;
 
 function TLazPaintConfig.DefaultSaveOptionDialogMaximized: boolean;
