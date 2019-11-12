@@ -677,6 +677,8 @@ type
     procedure ComboBox_PenStyleDrawSelectedItem(Sender: TObject;
       const ABGRA: TBGRABitmap; AState: TBCButtonState; ARect: TRect);
     function GetImage: TLazPaintImage;
+    procedure ManagerBrushChanged(Sender: TObject);
+    procedure ManagerBrushListChanged(Sender: TObject);
     procedure ManagerDeformationGridSizeChanged(Sender: TObject);
     procedure ManagerEraserChanged(Sender: TObject);
     procedure ManagerFloodFillOptionChanged(Sender: TObject);
@@ -715,9 +717,9 @@ type
 
     FLoadInitialDir, FSaveInitialDir: string;
     FSaveSelectionInitialFilename: string;
-    FInTextFont, FInPenWidthChange, FInEraserOption,
-    FInGridNb, FInFloodfillOption, FInSplineStyleChange,
-    FInTolerance, FInPerspective : Boolean;
+    FInPenWidthChange, FInBrush, FInEraserOption,
+    FInSplineStyleChange, FInFloodfillOption, FInTolerance,
+    FInTextFont, FInPerspective, FInGridNb: Boolean;
     FOnlineUpdater: TLazPaintCustomOnlineUpdater;
     initialized: boolean;
     shouldArrangeOnResize: boolean;
@@ -776,6 +778,7 @@ type
     function ShowOpenBrushDialog: boolean;
     function TextSpinEditFocused: boolean;
     procedure UpdateBrush;
+    procedure UpdateBrushList;
 
     procedure CreateMenuAndToolbar;
     function GetToolManager: TToolManager;
@@ -1002,6 +1005,8 @@ begin
     if ToolManager.OnTextureChanged = @ManagerTextureChanged then ToolManager.OnTextureChanged := nil;
     if ToolManager.OnEraserChanged = @ManagerEraserChanged then ToolManager.OnEraserChanged := nil;
     if ToolManager.OnPenWidthChanged = @ManagerPenWidthChanged then ToolManager.OnPenWidthChanged := nil;
+    if ToolManager.OnBrushChanged = @ManagerBrushChanged then ToolManager.OnBrushChanged := nil;
+    if ToolManager.OnBrushListChanged = @ManagerBrushListChanged then ToolManager.OnBrushListChanged := nil;
     if ToolManager.OnPenStyleChanged = @ManagerPenStyleChanged then ToolManager.OnPenStyleChanged := nil;
     if ToolManager.OnJoinStyleChanged = @ManagerJoinStyleChanged then ToolManager.OnJoinStyleChanged := nil;
     if ToolManager.OnShapeOptionChanged = @ManagerShapeOptionChanged then ToolManager.OnShapeOptionChanged := nil;
@@ -1014,7 +1019,7 @@ begin
     if ToolManager.OnGradientChanged = @ManagerGradientChanged then ToolManager.OnGradientChanged := nil;
     if ToolManager.OnPhongShapeChanged = @ManagerPhongShapeChanged then ToolManager.OnPhongShapeChanged := nil;
     if ToolManager.OnToleranceChanged = @ManagerToleranceChanged then ToolManager.OnToleranceChanged := nil;
-    if ToolManager.OnDeformationGridSizeChanged = @ManagerDeformationGridSizeChanged then ToolManager.OnDeformationGridSizeChanged := nil;
+    if ToolManager.OnDeformationGridChanged = @ManagerDeformationGridSizeChanged then ToolManager.OnDeformationGridChanged := nil;
     if ToolManager.OnFloodFillOptionChanged = @ManagerFloodFillOptionChanged then ToolManager.OnFloodFillOptionChanged := nil;
     if ToolManager.OnPerspectiveOptionChanged = @ManagerPerspectiveOptionChanged then ToolManager.OnPerspectiveOptionChanged := nil;
   end;
@@ -1079,6 +1084,8 @@ begin
   ToolManager.OnTextureChanged := @ManagerTextureChanged;
   ToolManager.OnEraserChanged:=@ManagerEraserChanged;
   ToolManager.OnPenWidthChanged:= @ManagerPenWidthChanged;
+  ToolManager.OnBrushChanged:=@ManagerBrushChanged;
+  ToolManager.OnBrushListChanged:=@ManagerBrushListChanged;
   ToolManager.OnPenStyleChanged:= @ManagerPenStyleChanged;
   ToolManager.OnJoinStyleChanged:= @ManagerJoinStyleChanged;
   ToolManager.OnShapeOptionChanged:=@ManagerShapeOptionChanged;
@@ -1091,7 +1098,7 @@ begin
   ToolManager.OnGradientChanged:=@ManagerGradientChanged;
   ToolManager.OnPhongShapeChanged:=@ManagerPhongShapeChanged;
   ToolManager.OnToleranceChanged:=@ManagerToleranceChanged;
-  ToolManager.OnDeformationGridSizeChanged:=@ManagerDeformationGridSizeChanged;
+  ToolManager.OnDeformationGridChanged:=@ManagerDeformationGridSizeChanged;
   ToolManager.OnFloodFillOptionChanged:=@ManagerFloodFillOptionChanged;
   ToolManager.OnPerspectiveOptionChanged:=@ManagerPerspectiveOptionChanged;
 
@@ -3351,11 +3358,7 @@ procedure TFMain.BrushCreateGeometricExecute(Sender: TObject);
 var b: TLazPaintBrush;
 begin
   b := ShowGeometricBrushDialog(LazPaintInstance);
-  if Assigned(b) then
-  begin
-    ToolManager.AddBrush(b);
-    UpdateBrush;
-  end;
+  if Assigned(b) then ToolManager.AddBrush(b);
 end;
 
 procedure TFMain.BrushCreateGeometricUpdate(Sender: TObject);
@@ -3914,7 +3917,6 @@ begin
         FreeAndNil(newBrushBmp);
         ToolManager.AddBrush(newBrush);
         result := true;
-        UpdateBrush;
         Config.SetDefaultBrushDirectory(ExtractFilePath(brushFilename));
       except
         on ex:Exception do
@@ -4252,6 +4254,16 @@ end;
 function TFMain.GetImage: TLazPaintImage;
 begin
   result := LazPaintInstance.Image;
+end;
+
+procedure TFMain.ManagerBrushChanged(Sender: TObject);
+begin
+  UpdateBrush;
+end;
+
+procedure TFMain.ManagerBrushListChanged(Sender: TObject);
+begin
+  UpdateBrushList;
 end;
 
 procedure TFMain.ManagerDeformationGridSizeChanged(Sender: TObject);

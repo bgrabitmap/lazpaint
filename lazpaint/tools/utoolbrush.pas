@@ -109,7 +109,7 @@ begin
     end;
     toolDest.ClipRect := result;
     source.ScanOffset := Point(sourcePosition.x, sourcePosition.y);
-    toolDest.FillMask(round(x),round(y),BrushInfo.BrushImage,source,dmDrawWithTransparency,round(Manager.ToolPressure*255));
+    toolDest.FillMask(round(x),round(y),BrushInfo.BrushImage,source,dmDrawWithTransparency,Manager.ApplyPressure(255));
     source.ScanOffset := Point(0,0);
     toolDest.NoClip;
   end;
@@ -191,9 +191,9 @@ begin
   result := rect(floor(x-0.5),floor(y-0.5),ceil(x+0.5)+coloredBrushImage.Width,ceil(y+0.5)+coloredBrushImage.Height);
   toolDest.ClipRect := result;
   if not SubPixelAccuracy then
-    toolDest.PutImage(round(x),round(y),coloredBrushImage,dmDrawWithTransparency,GetBrushAlpha(round(Manager.ToolPressure*255)))
+    toolDest.PutImage(round(x),round(y),coloredBrushImage,dmDrawWithTransparency,GetBrushAlpha(Manager.ApplyPressure(255)))
   else
-    toolDest.PutImageSubpixel(x,y,coloredBrushImage,GetBrushAlpha(round(Manager.ToolPressure*255)));
+    toolDest.PutImageSubpixel(x,y,coloredBrushImage,GetBrushAlpha(Manager.ApplyPressure(255)));
   toolDest.NoClip;
 end;
 
@@ -268,7 +268,7 @@ begin
     minLen := round(power(BrushInfo.Size/10,0.8));
     if minLen < 1 then minLen := 1;
     if minLen > 5 then minLen := 5;
-    minLen *=Manager.ToolBrushSpacing;
+    minLen *=Manager.BrushSpacing;
     if len >= minLen then
     begin
       v := v*(1/len)*minLen;

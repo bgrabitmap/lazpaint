@@ -955,7 +955,7 @@ begin
   Manager.HintReturnValidates;
 
   if not deformationGridMoving then exit;
-  if Manager.ToolDeformationGridMoveWithoutDeformation then
+  if Manager.DeformationGridMoveWithoutDeformation then
   begin
     ReleaseGrid;
     DeformationGrid[deformationGridY,deformationGridX] := PointF(

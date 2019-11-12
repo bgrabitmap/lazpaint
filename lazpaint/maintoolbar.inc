@@ -362,6 +362,7 @@ begin
   if FInGridNb then exit;
   SpinEdit_GridNbX.Value := ToolManager.DeformationGridNbX-1;
   SpinEdit_GridNbY.Value := ToolManager.DeformationGridNbY-1;
+  Tool_GridMoveWithoutDeformation.Down := ToolManager.DeformationGridMoveWithoutDeformation;
 end;
 
 procedure TFMain.UpdateFloodfillToolbar;
@@ -465,7 +466,6 @@ begin
   UpdateFloodfillToolbar;
   UpdatePerspectiveToolbar;
   UpdateGradientToolbar;
-  Tool_GridMoveWithoutDeformation.Down := ToolManager.ToolDeformationGridMoveWithoutDeformation;
   UpdateDeformationGridToolbar;
   UpdateSplineStyleToolbar;
   UpdateCurveModeToolbar;
@@ -622,6 +622,14 @@ begin
 end;
 
 procedure TFMain.UpdateBrush;
+begin
+  if FInBrush then exit;
+  SpinEdit_BrushSpacing.Value:= ToolManager.BrushSpacing;
+  if (ToolManager.BrushIndex >= 0) and (ToolManager.BrushIndex < ComboBox_BrushSelect.Items.Count) then
+    ComboBox_BrushSelect.ItemIndex := ToolManager.BrushIndex;
+end;
+
+procedure TFMain.UpdateBrushList;
 var oldInit: boolean;
   i: Integer;
 begin
@@ -632,9 +640,9 @@ begin
     ComboBox_BrushSelect.Clear;
     for i := 0 to ToolManager.BrushCount-1 do
       ComboBox_BrushSelect.Items.Add(inttostr(i));
-    if (ToolManager.ToolBrushInfoIndex >= 0) and
-      (ToolManager.ToolBrushInfoIndex < ComboBox_BrushSelect.Items.Count) then
-      ComboBox_BrushSelect.ItemIndex := ToolManager.ToolBrushInfoIndex;
+    if (ToolManager.BrushIndex >= 0) and
+      (ToolManager.BrushIndex < ComboBox_BrushSelect.Items.Count) then
+      ComboBox_BrushSelect.ItemIndex := ToolManager.BrushIndex;
   except
     on ex:exception do
       LazPaintInstance.ShowError(rsLazPaint,ex.Message);
@@ -1023,13 +1031,12 @@ end;
 
 procedure TFMain.BrushRemoveCurrentExecute(Sender: TObject);
 begin
-  ToolManager.RemoveBrushAt(ToolManager.ToolBrushInfoIndex);
-  UpdateBrush;
+  ToolManager.RemoveBrushAt(ToolManager.BrushIndex);
 end;
 
 procedure TFMain.BrushRemoveCurrentUpdate(Sender: TObject);
 begin
-  BrushRemoveCurrent.Enabled := ToolManager.ToolBrushInfoIndex > 0;
+  BrushRemoveCurrent.Enabled := ToolManager.BrushIndex > 0;
 end;
 
 procedure TFMain.ComboBox_PenStyleChange(Sender: TObject);
@@ -1151,7 +1158,7 @@ end;
 procedure TFMain.Tool_GridMoveWithoutDeformationClick(Sender: TObject);
 begin
     if initialized then
-      ToolManager.ToolDeformationGridMoveWithoutDeformation :=
+      ToolManager.DeformationGridMoveWithoutDeformation :=
         Tool_GridMoveWithoutDeformation.Down;
 end;
 
@@ -1700,7 +1707,9 @@ procedure TFMain.ComboBox_BrushSelectChange(Sender: TObject);
 begin
   if initialized then
   begin
-    ToolManager.ToolBrushInfoIndex := ComboBox_BrushSelect.ItemIndex;
+    FInBrush := true;
+    ToolManager.BrushIndex := ComboBox_BrushSelect.ItemIndex;
+    FInBrush := false;
     Panel_PenWidthPreview.Invalidate;
   end;
 end;
@@ -1709,8 +1718,10 @@ procedure TFMain.SpinEdit_BrushSpacingChange(Sender: TObject; AByUser: boolean);
 begin
   if AByUser and initialized then
   begin
-    if ToolManager.ToolBrushSpacing = SpinEdit_BrushSpacing.Value then exit;
-    ToolManager.ToolBrushSpacing := SpinEdit_BrushSpacing.Value;
+    if ToolManager.BrushSpacing = SpinEdit_BrushSpacing.Value then exit;
+    FInBrush := true;
+    ToolManager.BrushSpacing := SpinEdit_BrushSpacing.Value;
+    FInBrush := false;
   end;
 end;
 

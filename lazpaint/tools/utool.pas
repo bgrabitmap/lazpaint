@@ -147,6 +147,7 @@ type
     FShouldExitTool: boolean;
     FImage: TLazPaintImage;
     FBlackAndWhite: boolean;
+    FToolPressure: single;
     FCurrentTool : TGenericTool;
     FCurrentToolType : TPaintToolType;
     FToolCurrentCursorPos: TPointF;
@@ -164,6 +165,8 @@ type
     FTextureOpactiy: byte;
     FBrushInfoList: TList;
     FBrushInfoListChanged: boolean;
+    FBrushIndex: integer;
+    FBrushSpacing: integer;
     FPenStyle: TPenStyle;
     FJoinStyle: TPenJoinStyle;
     FNormalPenWidth, FEraserWidth: Single;
@@ -184,6 +187,7 @@ type
     FPhongShapeBorderSize: integer;
     FPhongShapeKind: TPhongShapeKind;
     FDeformationGridNbX,FDeformationGridNbY: integer;
+    FDeformationGridMoveWithoutDeformation: boolean;
     FTolerance: byte;
     FFloodFillOptions: TFloodFillOptions;
     FPerspectiveOptions: TPerspectiveOptions;
@@ -195,6 +199,7 @@ type
     FOnLineCapChanged: TNotifyEvent;
     FOnPenStyleChanged: TNotifyEvent;
     FOnPenWidthChanged: TNotifyEvent;
+    FOnBrushChanged, FOnBrushListChanged: TNotifyEvent;
     FOnPhongShapeChanged: TNotifyEvent;
     FOnSplineStyleChanged: TNotifyEvent;
     FOnTextFontChanged: TNotifyEvent;
@@ -203,7 +208,7 @@ type
     FOnTextShadowChanged: TNotifyEvent;
     FOnTextureChanged: TNotifyEvent;
     FOnShapeOptionChanged: TNotifyEvent;
-    FOnDeformationGridSizeChanged: TNotifyEvent;
+    FOnDeformationGridChanged: TNotifyEvent;
     FOnToleranceChanged: TNotifyEvent;
     FOnFloodFillOptionChanged: TNotifyEvent;
     FOnPerspectiveOptionChanged: TNotifyEvent;
@@ -223,11 +228,14 @@ type
     function GetTextFontSize: integer;
     function GetTextFontStyle: TFontStyles;
     function GetTextureOpacity: byte;
+    procedure SetBrushIndex(AValue: integer);
+    procedure SetBrushSpacing(AValue: integer);
     procedure SetControlsVisible(Controls: TList; Visible: Boolean);
     procedure SetArrowEnd(AValue: TArrowKind);
     procedure SetArrowSize(AValue: TPointF);
     procedure SetArrowStart(AValue: TArrowKind);
     procedure SetBackColor(AValue: TBGRAPixel);
+    procedure SetDeformationGridMoveWithoutDeformation(AValue: boolean);
     procedure SetEraserAlpha(AValue: byte);
     procedure SetEraserMode(AValue: TEraserMode);
     procedure SetFloodFillOptions(AValue: TFloodFillOptions);
@@ -266,15 +274,11 @@ type
     BrushControls, RatioControls: TList;
 
     //tools configuration
-    ToolDeformationGridMoveWithoutDeformation: boolean;
     TextShadowBlurRadius: single;
     TextShadowOffset: TPoint;
+    ToolTextAlign: TAlignment;
     LightPosition: TPointF;
     LightAltitude: integer;
-    ToolTextAlign: TAlignment;
-    ToolBrushInfoIndex: integer;
-    ToolBrushSpacing: integer;
-    ToolPressure: single;
     ToolRatio: Single;
 
     constructor Create(AImage: TLazPaintImage; AConfigProvider: IConfigProvider; ABitmapToVirtualScreen: TBitmapToVirtualScreenFunction = nil; ABlackAndWhite : boolean = false);
@@ -284,6 +288,7 @@ type
     procedure ReloadBrushes;
     procedure SaveBrushes;
     function ApplyPressure(AColor: TBGRAPixel): TBGRAPixel;
+    function ApplyPressure(AOpacity: byte): byte;
     procedure SetPressure(APressure: single);
 
     function GetCurrentToolType: TPaintToolType;
@@ -356,6 +361,8 @@ type
     property BrushInfo: TLazPaintBrush read GetBrushInfo;
     property BrushAt[AIndex: integer]: TLazPaintBrush read GetBrushAt;
     property BrushCount: integer read GetBrushCount;
+    property BrushIndex: integer read FBrushIndex write SetBrushIndex;
+    property BrushSpacing: integer read FBrushSpacing write SetBrushSpacing;
     property TextFontName: string read GetTextFontName;
     property TextFontSize: integer read GetTextFontSize;
     property TextFontStyle: TFontStyles read GetTextFontStyle;
@@ -377,6 +384,7 @@ type
     property DeformationGridNbX: integer read FDeformationGridNbX;
     property DeformationGridNbY: integer read FDeformationGridNbY;
     property DeformationGridSize: TSize read GetDeformationGridSize write SetDeformationGridSizeProc;
+    property DeformationGridMoveWithoutDeformation: boolean read FDeformationGridMoveWithoutDeformation write SetDeformationGridMoveWithoutDeformation;
     property Tolerance: byte read FTolerance write SetTolerance;
     property FloodFillOptions: TFloodFillOptions read FFloodFillOptions write SetFloodFillOptions;
     property PerspectiveOptions: TPerspectiveOptions read FPerspectiveOptions write FPerspectiveOptions;
@@ -387,6 +395,8 @@ type
     property OnTextureChanged: TNotifyEvent read FOnTextureChanged write FOnTextureChanged;
     property OnColorChanged: TNotifyEvent read FOnColorChanged write FOnColorChanged;
     property OnPenWidthChanged: TNotifyEvent read FOnPenWidthChanged write FOnPenWidthChanged;
+    property OnBrushChanged: TNotifyEvent read FOnBrushChanged write FOnBrushChanged;
+    property OnBrushListChanged: TNotifyEvent read FOnBrushListChanged write FOnBrushListChanged;
     property OnPenStyleChanged: TNotifyEvent read FOnPenStyleChanged write FOnPenStyleChanged;
     property OnJoinStyleChanged: TNotifyEvent read FOnJoinStyleChanged write FOnJoinStyleChanged;
     property OnShapeOptionChanged: TNotifyEvent read FOnShapeOptionChanged write FOnShapeOptionChanged;
@@ -398,7 +408,7 @@ type
     property OnSplineStyleChanged: TNotifyEvent read FOnSplineStyleChanged write FOnSplineStyleChanged;
     property OnGradientChanged: TNotifyEvent read FOnGradientChanged write FOnGradientChanged;
     property OnPhongShapeChanged: TNotifyEvent read FOnPhongShapeChanged write FOnPhongShapeChanged;
-    property OnDeformationGridSizeChanged: TNotifyEvent read FOnDeformationGridSizeChanged write FOnDeformationGridSizeChanged;
+    property OnDeformationGridChanged: TNotifyEvent read FOnDeformationGridChanged write FOnDeformationGridChanged;
     property OnToleranceChanged: TNotifyEvent read FOnToleranceChanged write FOnToleranceChanged;
     property OnFloodFillOptionChanged: TNotifyEvent read FOnFloodFillOptionChanged write FOnFloodFillOptionChanged;
     property OnPerspectiveOptionChanged: TNotifyEvent read FOnPerspectiveOptionChanged write FOnPerspectiveOptionChanged;
@@ -907,6 +917,13 @@ begin
   if Assigned(FOnColorChanged) then FOnColorChanged(self);
 end;
 
+procedure TToolManager.SetDeformationGridMoveWithoutDeformation(AValue: boolean);
+begin
+  if FDeformationGridMoveWithoutDeformation=AValue then Exit;
+  FDeformationGridMoveWithoutDeformation:=AValue;
+  if Assigned(FOnDeformationGridChanged) then FOnDeformationGridChanged(self);
+end;
+
 procedure TToolManager.SetEraserAlpha(AValue: byte);
 begin
   if FEraserAlpha=AValue then Exit;
@@ -1126,12 +1143,12 @@ end;
 
 function TToolManager.GetBrushInfo: TLazPaintBrush;
 begin
-  if (ToolBrushInfoIndex < 0) or (ToolBrushInfoIndex > FBrushInfoList.Count) then
-    ToolBrushInfoIndex := 0;
-  if ToolBrushInfoIndex > FBrushInfoList.Count then
+  if (FBrushIndex < 0) or (FBrushIndex > FBrushInfoList.Count) then
+    FBrushIndex := 0;
+  if FBrushIndex > FBrushInfoList.Count then
     result := nil
   else
-    result := TObject(FBrushInfoList[ToolBrushInfoIndex]) as TLazPaintBrush;
+    result := TObject(FBrushInfoList[FBrushIndex]) as TLazPaintBrush;
 end;
 
 function TToolManager.GetCursor: TCursor;
@@ -1210,6 +1227,20 @@ begin
   result := FTextureOpactiy;
 end;
 
+procedure TToolManager.SetBrushIndex(AValue: integer);
+begin
+  if FBrushIndex=AValue then Exit;
+  FBrushIndex:=AValue;
+  if Assigned(FOnBrushChanged) then FOnBrushChanged(self);
+end;
+
+procedure TToolManager.SetBrushSpacing(AValue: integer);
+begin
+  if FBrushSpacing=AValue then Exit;
+  FBrushSpacing:=AValue;
+  if Assigned(FOnBrushChanged) then FOnBrushChanged(self);
+end;
+
 constructor TToolManager.Create(AImage: TLazPaintImage; AConfigProvider: IConfigProvider; ABitmapToVirtualScreen: TBitmapToVirtualScreenFunction; ABlackAndWhite : boolean);
 begin
   FImage:= AImage;
@@ -1229,7 +1260,7 @@ begin
   Tolerance := 64;
   FBlackAndWhite := ABlackAndWhite;
 
-  ToolBrushSpacing := 1;
+  FBrushSpacing := 1;
   ReloadBrushes;
 
   GradientType := gtLinear;
@@ -1263,7 +1294,7 @@ begin
 
   FDeformationGridNbX := 5;
   FDeformationGridNbY := 5;
-  ToolDeformationGridMoveWithoutDeformation := false;
+  FDeformationGridMoveWithoutDeformation := false;
 
   PenWidthControls := TList.Create;
   AliasingControls := TList.Create;
@@ -1452,7 +1483,7 @@ end;
 function TToolManager.ApplyPressure(AColor: TBGRAPixel): TBGRAPixel;
 var alpha: integer;
 begin
-  alpha := round(AColor.alpha*ToolPressure);
+  alpha := round(AColor.alpha*FToolPressure);
   if alpha <= 0 then
     result := BGRAPixelTransparent
   else if alpha >= 255 then
@@ -1464,14 +1495,19 @@ begin
   end;
 end;
 
+function TToolManager.ApplyPressure(AOpacity: byte): byte;
+begin
+  result := round(AOpacity*FToolPressure);
+end;
+
 procedure TToolManager.SetPressure(APressure: single);
 begin
   if APressure <= 0 then
-    ToolPressure := 0
+    FToolPressure := 0
   else if APressure >= 1 then
-    ToolPressure := 1
+    FToolPressure := 1
   else
-    ToolPressure:= APressure;
+    FToolPressure:= APressure;
 end;
 
 procedure TToolManager.InternalSetCurrentToolType(tool: TPaintToolType);
@@ -1592,7 +1628,7 @@ begin
   begin
     FDeformationGridNbX := ASize.cx;
     FDeformationGridNbY := ASize.cy;
-    if Assigned(FOnDeformationGridSizeChanged) then FOnDeformationGridSizeChanged(self);
+    if Assigned(FOnDeformationGridChanged) then FOnDeformationGridChanged(self);
     CurrentTool.AfterGridSizeChange(ASize.cx,ASize.cy);
     result := true;
   end;
@@ -1655,8 +1691,9 @@ end;
 
 procedure TToolManager.AddBrush(brush: TLazPaintBrush);
 begin
-  ToolBrushInfoIndex := FBrushInfoList.Add(brush);
+  FBrushIndex := FBrushInfoList.Add(brush);
   FBrushInfoListChanged := true;
+  if Assigned(FOnBrushListChanged) then FOnBrushListChanged(self);
 end;
 
 procedure TToolManager.RemoveBrushAt(index: integer);
@@ -1667,13 +1704,14 @@ begin
     begin
       BrushAt[index].Free;
       FBrushInfoList.Delete(index);
-      if index < ToolBrushInfoIndex then dec(ToolBrushInfoIndex)
-      else if index = ToolBrushInfoIndex then
+      if index < FBrushIndex then dec(FBrushIndex)
+      else if index = FBrushIndex then
         begin
-          if ToolBrushInfoIndex >= BrushCount then
-            dec(ToolBrushInfoIndex);
+          if FBrushIndex >= BrushCount then
+            dec(FBrushIndex);
         end;
       FBrushInfoListChanged := true;
+      if Assigned(FOnBrushListChanged) then FOnBrushListChanged(self);
     end;
   end;
 end;
