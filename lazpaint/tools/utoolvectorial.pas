@@ -335,7 +335,7 @@ begin
     Manager.TextPhong := PenPhong;
     Manager.LightPosition := m*LightPosition;
     Manager.PhongShapeAltitude := round(AltitudePercent);
-    Manager.ToolTextAlign:= ParagraphAlignment;
+    Manager.TextAlign:= ParagraphAlignment;
     Manager.SetTextFont(FontName,round(FontEmHeight*zoom*72/Manager.Image.DPI),FontStyle);
     Manager.TextShadow:= false;
     if OutlineFill.FillType = vftNone then
@@ -573,7 +573,7 @@ begin
           PenPhong := Manager.TextPhong;
           LightPosition := m*Manager.LightPosition;
           AltitudePercent := Manager.PhongShapeAltitude;
-          ParagraphAlignment := Manager.ToolTextAlign;
+          ParagraphAlignment := Manager.TextAlign;
           FontName:= Manager.TextFontName;
           FontEmHeight:= Manager.TextFontSize*zoom*Manager.Image.DPI/72;
           FontStyle := Manager.TextFontStyle;

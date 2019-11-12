@@ -387,10 +387,26 @@ begin
   end;
 end;
 
+procedure TFMain.UpdateShapeRatio;
+begin
+  if FInShapeRatio then exit;
+  Combo_Ratio.Text := RatioToStr(ToolManager.ShapeRatio);
+end;
+
 procedure TFMain.UpdateTextFontToolbar;
 begin
   SpinEdit_TextSize.Value := ToolManager.TextFontSize;
   UpdateTextSizeIncrement;
+end;
+
+procedure TFMain.UpdateTextAlign;
+begin
+  if FInTextAlign then exit;
+  case ToolManager.TextAlign of
+  taLeftJustify: Tool_TextAlignLeft.Down := true;
+  taCenter: Tool_TextAlignCenter.Down := true;
+  taRightJustify: Tool_TextAlignRight.Down := true;
+  end;
 end;
 
 procedure TFMain.UpdateTextOutlineToolbar;
@@ -411,6 +427,7 @@ procedure TFMain.UpdateTextShadowToolbar;
 var
   shadowOn: Boolean;
 begin
+  if FInTextShadow then exit;
   shadowOn := ToolManager.TextShadow;
   Tool_TextShadow.Down := shadowOn;
   SpinEdit_TextShadowX.Value := ToolManager.TextShadowOffset.X;
@@ -421,6 +438,8 @@ begin
   Label_ShadowOffset.Visible := shadowOn;
   SpinEdit_TextShadowX.Visible := shadowOn;
   SpinEdit_TextShadowY.Visible := shadowOn;
+  if Panel_TextShadow.Visible then
+    FLayout.Arrange;
 end;
 
 procedure TFMain.UpdateLineCapToolbar;
@@ -525,12 +544,6 @@ begin
     SpinEdit_GridNbX.MaxValue := maxGridNbX;
   if SpinEdit_GridNbY.MaxValue <> maxGridNbY then
     SpinEdit_GridNbY.MaxValue := maxGridNbY;
-
-  case ToolManager.ToolTextAlign of
-  taLeftJustify: Tool_TextAlignLeft.Down := true;
-  taCenter: Tool_TextAlignCenter.Down := true;
-  taRightJustify: Tool_TextAlignRight.Down := true;
-  end;
 
   UpdateCurveModeToolbar;
 end;
@@ -695,7 +708,9 @@ begin
   if AByUser and initialized then
   begin
     if ToolManager.TextShadowBlurRadius = SpinEdit_TextBlur.Value/PenWidthFactor then exit;
+    FInTextShadow := true;
     ToolManager.TextShadowBlurRadius := SpinEdit_TextBlur.Value/PenWidthFactor;
+    FInTextShadow := false;
     UpdateEditPicture(True);
     FActiveSpinEdit := SpinEdit_TextBlur;
   end;
@@ -743,7 +758,9 @@ begin
   if AByUser and initialized then
   begin
     if ToolManager.TextShadowOffset.X = SpinEdit_TextShadowX.Value then exit;
-    ToolManager.TextShadowOffset.X := SpinEdit_TextShadowX.Value;
+    FInTextShadow := true;
+    ToolManager.TextShadowOffset := Point(SpinEdit_TextShadowX.Value, ToolManager.TextShadowOffset.Y);
+    FInTextShadow := false;
     UpdateEditPicture(True);
     FActiveSpinEdit := SpinEdit_TextShadowX;
   end;
@@ -754,7 +771,9 @@ begin
   if AByUser and initialized then
   begin
     if ToolManager.TextShadowOffset.Y = SpinEdit_TextShadowY.Value then exit;
-    ToolManager.TextShadowOffset.Y := SpinEdit_TextShadowY.Value;
+    FInTextShadow := true;
+    ToolManager.TextShadowOffset := Point(ToolManager.TextShadowOffset.X, SpinEdit_TextShadowY.Value);
+    FInTextShadow := false;
     UpdateEditPicture(True);
     FActiveSpinEdit := SpinEdit_TextShadowY;
   end;
@@ -1604,9 +1623,11 @@ begin
     newAlign := taLeftJustify;
     if Tool_TextAlignCenter.Down then newAlign:= taCenter;
     if Tool_TextAlignRight.Down then newAlign := taRightJustify;
-    if newAlign <> ToolManager.ToolTextAlign then
+    if newAlign <> ToolManager.TextAlign then
     begin
-      ToolManager.ToolTextAlign := newAlign;
+      FInTextAlign := true;
+      ToolManager.TextAlign := newAlign;
+      FInTextAlign := false;
       UpdateEditPicture;
     end;
   end;
@@ -1632,7 +1653,6 @@ begin
      if ToolManager.TextShadow <> Tool_TextShadow.Down then
      begin
        ToolManager.TextShadow:= Tool_TextShadow.Down;
-       FLayout.Arrange;
        UpdateEditPicture;
      end;
   end;
@@ -1727,13 +1747,18 @@ end;
 
 procedure TFMain.Combo_RatioChange(Sender: TObject);
 var
-  prevRatio: Single;
+  newRatio: Single;
 begin
   if initialized then
   begin
-    prevRatio := ToolManager.ToolRatio;
-    ToolManager.ToolRatio := ComputeRatio(Combo_Ratio.Text);
-    if ToolManager.ToolRatio<>prevRatio then ToolManager.ToolUpdate;
+    newRatio := ComputeRatio(Combo_Ratio.Text);
+    if newRatio <> ToolManager.ShapeRatio then
+    begin
+      FInShapeRatio := true;
+      ToolManager.ShapeRatio := newRatio;
+      FInShapeRatio := false;
+      ToolManager.ToolUpdate;
+    end;
   end;
 end;
 

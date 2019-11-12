@@ -689,7 +689,9 @@ type
     procedure ManagerPhongShapeChanged(Sender: TObject);
     procedure ManagerPenStyleChanged(Sender: TObject);
     procedure ManagerPenWidthChanged(Sender: TObject);
+    procedure ManagerShapeRatioChanged(Sender: TObject);
     procedure ManagerSplineStyleChanged(Sender: TObject);
+    procedure ManagerTextAlignChanged(Sender: TObject);
     procedure ManagerTextFontChanged(Sender: TObject);
     procedure ManagerTextOutlineChanged(Sender: TObject);
     procedure ManagerTextPhongChanged(Sender: TObject);
@@ -717,9 +719,10 @@ type
 
     FLoadInitialDir, FSaveInitialDir: string;
     FSaveSelectionInitialFilename: string;
-    FInPenWidthChange, FInBrush, FInEraserOption,
+    FInPenWidthChange, FInBrush, FInShapeRatio, FInEraserOption,
     FInSplineStyleChange, FInFloodfillOption, FInTolerance,
-    FInTextFont, FInPerspective, FInGridNb: Boolean;
+    FInTextFont, FInTextAlign, FInTextShadow,
+    FInPerspective, FInGridNb: Boolean;
     FOnlineUpdater: TLazPaintCustomOnlineUpdater;
     initialized: boolean;
     shouldArrangeOnResize: boolean;
@@ -762,7 +765,9 @@ type
     procedure UpdateEraserToolbar;
     procedure UpdatePenStyleToolbar;
     procedure UpdateJoinStyleToolbar;
+    procedure UpdateShapeRatio;
     procedure UpdateTextFontToolbar;
+    procedure UpdateTextAlign;
     procedure UpdateTextOutlineToolbar;
     procedure UpdateTextPhongToolbar;
     procedure UpdateTextShadowToolbar;
@@ -1010,7 +1015,9 @@ begin
     if ToolManager.OnPenStyleChanged = @ManagerPenStyleChanged then ToolManager.OnPenStyleChanged := nil;
     if ToolManager.OnJoinStyleChanged = @ManagerJoinStyleChanged then ToolManager.OnJoinStyleChanged := nil;
     if ToolManager.OnShapeOptionChanged = @ManagerShapeOptionChanged then ToolManager.OnShapeOptionChanged := nil;
+    if ToolManager.OnShapeRatioChanged = @ManagerShapeRatioChanged then ToolManager.OnShapeRatioChanged := nil;
     if ToolManager.OnTextFontChanged = @ManagerTextFontChanged then ToolManager.OnTextFontChanged := nil;
+    if ToolManager.OnTextAlignChanged = @ManagerTextAlignChanged then ToolManager.OnTextAlignChanged := nil;
     if ToolManager.OnTextOutlineChanged = @ManagerTextOutlineChanged then ToolManager.OnTextOutlineChanged := nil;
     if ToolManager.OnTextPhongChanged = @ManagerTextPhongChanged then ToolManager.OnTextPhongChanged := nil;
     if ToolManager.OnTextShadowChanged = @ManagerTextShadowChanged then ToolManager.OnTextShadowChanged := nil;
@@ -1089,7 +1096,9 @@ begin
   ToolManager.OnPenStyleChanged:= @ManagerPenStyleChanged;
   ToolManager.OnJoinStyleChanged:= @ManagerJoinStyleChanged;
   ToolManager.OnShapeOptionChanged:=@ManagerShapeOptionChanged;
+  ToolManager.OnShapeRatioChanged:=@ManagerShapeRatioChanged;
   ToolManager.OnTextFontChanged := @ManagerTextFontChanged;
+  ToolManager.OnTextAlignChanged:=@ManagerTextAlignChanged;
   ToolManager.OnTextOutlineChanged:=@ManagerTextOutlineChanged;
   ToolManager.OnTextPhongChanged:=@ManagerTextPhongChanged;
   ToolManager.OnTextShadowChanged:=@ManagerTextShadowChanged;
@@ -4316,9 +4325,19 @@ begin
   UpdatePenWidthToolbar;
 end;
 
+procedure TFMain.ManagerShapeRatioChanged(Sender: TObject);
+begin
+  UpdateShapeRatio;
+end;
+
 procedure TFMain.ManagerSplineStyleChanged(Sender: TObject);
 begin
   UpdateSplineStyleToolbar;
+end;
+
+procedure TFMain.ManagerTextAlignChanged(Sender: TObject);
+begin
+  UpdateTextAlign;
 end;
 
 procedure TFMain.ManagerTextFontChanged(Sender: TObject);

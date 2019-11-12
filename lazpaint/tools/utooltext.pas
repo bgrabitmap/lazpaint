@@ -138,7 +138,7 @@ end;
 procedure TToolText.ShapeEditingChange(ASender: TObject);
 begin
   with (FShape as TTextShape) do
-    Manager.ToolTextAlign := ParagraphAlignment;
+    Manager.TextAlign := ParagraphAlignment;
   inherited ShapeEditingChange(ASender);
 end;
 
@@ -180,7 +180,7 @@ begin
 
     LightPosition := AMatrix*Manager.LightPosition;
     AltitudePercent:= Manager.PhongShapeAltitude;
-    ParagraphAlignment:= Manager.ToolTextAlign;
+    ParagraphAlignment:= Manager.TextAlign;
     PenPhong := Manager.TextPhong;
   end;
   if (Manager.TextShadow <> FPrevShadow) or

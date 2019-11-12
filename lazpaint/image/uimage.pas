@@ -49,7 +49,6 @@ type
     FOnImageChanged: TLazPaintImageObservable;
     FUndoList: TComposedImageDifference;
     FUndoPos: integer;
-    FNextUndoBegin: integer;
     FRenderUpdateRectInPicCoord, FRenderUpdateRectInVSCoord: TRect;
     FOnCurrentFilenameChanged: TOnCurrentFilenameChanged;
 

@@ -213,10 +213,10 @@ begin
   AssignSelectShapeStyle(FShape, FSwapColor);
   if FShape is TCustomRectShape then
   begin
-    if Manager.ToolRatio = 0 then
+    if Manager.ShapeRatio = 0 then
       TCustomRectShape(FShape).FixedRatio:= EmptySingle
     else
-      TCustomRectShape(FShape).FixedRatio:= Manager.ToolRatio;
+      TCustomRectShape(FShape).FixedRatio:= Manager.ShapeRatio;
   end;
 end;
 

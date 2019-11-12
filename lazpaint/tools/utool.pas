@@ -71,8 +71,8 @@ type
     function FixLayerOffset: boolean; virtual;
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF; rightBtn: boolean): TRect; virtual;
     function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect; virtual;
-    function DoToolUpdate(toolDest: TBGRABitmap): TRect; virtual;
-    procedure OnTryStop(sender: TCustomLayerAction); virtual;
+    function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; virtual;
+    procedure OnTryStop({%H-}sender: TCustomLayerAction); virtual;
     function SelectionMaxPointDistance: single;
     function GetStatusText: string; virtual;
     function DoGetToolDrawingLayer: TBGRABitmap; virtual;
@@ -172,10 +172,15 @@ type
     FNormalPenWidth, FEraserWidth: Single;
     FShapeOptions: TShapeOptions;
     FTextFont: TFont;
+    FTextAlign: TAlignment;
     FTextOutline: boolean;
     FTextOutlineWidth: single;
     FTextPhong: boolean;
+    FLightPosition: TPointF;
+    FLightAltitude: integer;
     FTextShadow: boolean;
+    FTextShadowBlurRadius: single;
+    FTextShadowOffset: TPoint;
     FLineCap: TPenEndCap;
     FArrowStart,FArrowEnd: TArrowKind;
     FArrowSize: TPointF;
@@ -191,6 +196,7 @@ type
     FTolerance: byte;
     FFloodFillOptions: TFloodFillOptions;
     FPerspectiveOptions: TPerspectiveOptions;
+    FShapeRatio: Single;
 
     FOnColorChanged: TNotifyEvent;
     FOnEraserChanged: TNotifyEvent;
@@ -202,12 +208,12 @@ type
     FOnBrushChanged, FOnBrushListChanged: TNotifyEvent;
     FOnPhongShapeChanged: TNotifyEvent;
     FOnSplineStyleChanged: TNotifyEvent;
-    FOnTextFontChanged: TNotifyEvent;
+    FOnTextFontChanged, FOnTextAlignChanged: TNotifyEvent;
     FOnTextOutlineChanged: TNotifyEvent;
-    FOnTextPhongChanged: TNotifyEvent;
+    FOnTextPhongChanged, FOnLightChanged: TNotifyEvent;
     FOnTextShadowChanged: TNotifyEvent;
     FOnTextureChanged: TNotifyEvent;
-    FOnShapeOptionChanged: TNotifyEvent;
+    FOnShapeOptionChanged, FOnShapeRatioChanged: TNotifyEvent;
     FOnDeformationGridChanged: TNotifyEvent;
     FOnToleranceChanged: TNotifyEvent;
     FOnFloodFillOptionChanged: TNotifyEvent;
@@ -244,6 +250,8 @@ type
     procedure SetGradientSine(AValue: boolean);
     procedure SetGradientType(AValue: TGradientType);
     procedure SetJoinStyle(AValue: TPenJoinStyle);
+    procedure SetLightAltitude(AValue: integer);
+    procedure SetLightPosition(AValue: TPointF);
     procedure SetLineCap(AValue: TPenEndCap);
     procedure SetPhongShapeAltitude(AValue: integer);
     procedure SetPhongShapeBorderSize(AValue: integer);
@@ -251,9 +259,13 @@ type
     procedure SetShapeOptions(AValue: TShapeOptions);
     procedure SetPenStyle(AValue: TPenStyle);
     procedure SetPenWidth(AValue: single);
+    procedure SetShapeRatio(AValue: Single);
     procedure SetSplineStyle(AValue: TSplineStyle);
+    procedure SetTextAlign(AValue: TAlignment);
     procedure SetTextPhong(AValue: boolean);
     procedure SetTextShadow(AValue: boolean);
+    procedure SetTextShadowBlurRadius(AValue: single);
+    procedure SetTextShadowOffset(AValue: TPoint);
     procedure SetTextureOpacity(AValue: byte);
     procedure SetTolerance(AValue: byte);
     procedure ToolCloseAndReopenImmediatly;
@@ -272,14 +284,6 @@ type
     TextControls, TextShadowControls, PhongControls, AltitudeControls,
     PerspectiveControls,PenColorControls,TextureControls,
     BrushControls, RatioControls: TList;
-
-    //tools configuration
-    TextShadowBlurRadius: single;
-    TextShadowOffset: TPoint;
-    ToolTextAlign: TAlignment;
-    LightPosition: TPointF;
-    LightAltitude: integer;
-    ToolRatio: Single;
 
     constructor Create(AImage: TLazPaintImage; AConfigProvider: IConfigProvider; ABitmapToVirtualScreen: TBitmapToVirtualScreenFunction = nil; ABlackAndWhite : boolean = false);
     destructor Destroy; override;
@@ -358,6 +362,7 @@ type
     property ShapeOptionDraw: boolean read GetShapeOptionDraw;
     property ShapeOptionFill: boolean read GetShapeOptionFill;
     property ShapeOptionAliasing: boolean read GetShapeOptionAliasing;
+    property ShapeRatio: Single read FShapeRatio write SetShapeRatio;
     property BrushInfo: TLazPaintBrush read GetBrushInfo;
     property BrushAt[AIndex: integer]: TLazPaintBrush read GetBrushAt;
     property BrushCount: integer read GetBrushCount;
@@ -366,9 +371,15 @@ type
     property TextFontName: string read GetTextFontName;
     property TextFontSize: integer read GetTextFontSize;
     property TextFontStyle: TFontStyles read GetTextFontStyle;
+    property TextAlign: TAlignment read FTextAlign write SetTextAlign;
     property TextOutline: boolean read FTextOutline;
     property TextOutlineWidth: single read FTextOutlineWidth;
     property TextPhong: boolean read FTextPhong write SetTextPhong;
+    property LightPosition: TPointF read FLightPosition write SetLightPosition;
+    property LightAltitude: integer read FLightAltitude write SetLightAltitude;
+    property TextShadow: boolean read FTextShadow write SetTextShadow;
+    property TextShadowBlurRadius: single read FTextShadowBlurRadius write SetTextShadowBlurRadius;
+    property TextShadowOffset: TPoint read FTextShadowOffset write SetTextShadowOffset;
     property LineCap: TPenEndCap read FLineCap write SetLineCap;
     property ArrowStart: TArrowKind read FArrowStart write SetArrowStart;
     property ArrowEnd: TArrowKind read FArrowEnd write SetArrowEnd;
@@ -377,7 +388,6 @@ type
     property GradientType: TGradientType read FGradientType write SetGradientType;
     property GradientSine: boolean read FGradientSine write SetGradientSine;
     property GradientColorspace: TBGRAColorInterpolation read FGradientColorspace write SetGradientColorspace;
-    property TextShadow: boolean read FTextShadow write SetTextShadow;
     property PhongShapeAltitude: integer read FPhongShapeAltitude write SetPhongShapeAltitude;
     property PhongShapeBorderSize: integer read FPhongShapeBorderSize write SetPhongShapeBorderSize;
     property PhongShapeKind: TPhongShapeKind read FPhongShapeKind write SetPhongShapeKind;
@@ -400,9 +410,12 @@ type
     property OnPenStyleChanged: TNotifyEvent read FOnPenStyleChanged write FOnPenStyleChanged;
     property OnJoinStyleChanged: TNotifyEvent read FOnJoinStyleChanged write FOnJoinStyleChanged;
     property OnShapeOptionChanged: TNotifyEvent read FOnShapeOptionChanged write FOnShapeOptionChanged;
+    property OnShapeRatioChanged: TNotifyEvent read FOnShapeRatioChanged write FOnShapeRatioChanged;
     property OnTextFontChanged: TNotifyEvent read FOnTextFontChanged write FOnTextFontChanged;
+    property OnTextAlignChanged: TNotifyEvent read FOnTextAlignChanged write FOnTextAlignChanged;
     property OnTextOutlineChanged: TNotifyEvent read FOnTextOutlineChanged write FOnTextOutlineChanged;
     property OnTextPhongChanged: TNotifyEvent read FOnTextPhongChanged write FOnTextPhongChanged;
+    property OnLightChanged: TNotifyEvent read FOnLightChanged write FOnLightChanged;
     property OnTextShadowChanged: TNotifyEvent read FOnTextShadowChanged write FOnTextShadowChanged;
     property OnLineCapChanged: TNotifyEvent read FOnLineCapChanged write FOnLineCapChanged;
     property OnSplineStyleChanged: TNotifyEvent read FOnSplineStyleChanged write FOnSplineStyleChanged;
@@ -983,6 +996,20 @@ begin
   if Assigned(FOnJoinStyleChanged) then FOnJoinStyleChanged(self);
 end;
 
+procedure TToolManager.SetLightAltitude(AValue: integer);
+begin
+  if FLightAltitude=AValue then Exit;
+  FLightAltitude:=AValue;
+  if Assigned(FOnLightChanged) then FOnLightChanged(self);
+end;
+
+procedure TToolManager.SetLightPosition(AValue: TPointF);
+begin
+  if FLightPosition=AValue then Exit;
+  FLightPosition:=AValue;
+  if Assigned(FOnLightChanged) then FOnLightChanged(self);
+end;
+
 procedure TToolManager.SetLineCap(AValue: TPenEndCap);
 begin
   if FLineCap=AValue then Exit;
@@ -1044,11 +1071,25 @@ begin
   end;
 end;
 
+procedure TToolManager.SetShapeRatio(AValue: Single);
+begin
+  if FShapeRatio=AValue then Exit;
+  FShapeRatio:=AValue;
+  if Assigned(FOnShapeRatioChanged) then FOnShapeRatioChanged(self);
+end;
+
 procedure TToolManager.SetSplineStyle(AValue: TSplineStyle);
 begin
   if FSplineStyle=AValue then Exit;
   FSplineStyle:=AValue;
   if Assigned(FOnSplineStyleChanged) then FOnSplineStyleChanged(self);
+end;
+
+procedure TToolManager.SetTextAlign(AValue: TAlignment);
+begin
+  if FTextAlign=AValue then Exit;
+  FTextAlign:=AValue;
+  if Assigned(FOnTextAlignChanged) then FOnTextAlignChanged(self);
 end;
 
 procedure TToolManager.SetTextPhong(AValue: boolean);
@@ -1063,6 +1104,19 @@ begin
   if FTextShadow=AValue then Exit;
   FTextShadow:=AValue;
   if Assigned(FOnTextShadowChanged) then FOnTextShadowChanged(self);
+end;
+
+procedure TToolManager.SetTextShadowBlurRadius(AValue: single);
+begin
+  if FTextShadowBlurRadius=AValue then Exit;
+  FTextShadowBlurRadius:=AValue;
+
+end;
+
+procedure TToolManager.SetTextShadowOffset(AValue: TPoint);
+begin
+  if FTextShadowOffset=AValue then Exit;
+  FTextShadowOffset:=AValue;
 end;
 
 procedure TToolManager.SetTextureOpacity(AValue: byte);
@@ -1247,6 +1301,7 @@ begin
   BitmapToVirtualScreen := ABitmapToVirtualScreen;
   FShouldExitTool:= false;
   FConfigProvider := AConfigProvider;
+  FBlackAndWhite := ABlackAndWhite;
 
   FForeColor := BGRABlack;
   FBackColor := BGRA(0,0,255);
@@ -1255,43 +1310,39 @@ begin
   FTextureAfterAlpha := nil;
   FNormalPenWidth := 5;
   FEraserWidth := 10;
-  FEraserMode := emEraseAlpha;
-  FShapeOptions := [toDrawShape, toFillShape, toCloseShape];
-  Tolerance := 64;
-  FBlackAndWhite := ABlackAndWhite;
-
-  FBrushSpacing := 1;
-  ReloadBrushes;
-
-  GradientType := gtLinear;
-  GradientSine := false;
-  GradientColorspace := ciLinearRGB;
-  FFloodFillOptions := [ffProgressive];
-  LineCap := pecRound;
-  JoinStyle := pjsRound;
-  ArrowStart := akNone;
-  ArrowEnd := akNone;
-  ArrowSize := PointF(2,2);
-  PenStyle := psSolid;
   FEraserAlpha := 255;
-  SplineStyle := ssEasyBezier;
+  FEraserMode := emEraseAlpha;
+  ReloadBrushes;
+  FBrushSpacing := 1;
+  FShapeOptions := [toDrawShape, toFillShape, toCloseShape];
+  FPenStyle := psSolid;
+  FLineCap := pecRound;
+  FJoinStyle := pjsRound;
+  FArrowStart := akNone;
+  FArrowEnd := akNone;
+  FArrowSize := PointF(2,2);
+  FSplineStyle := ssEasyBezier;
+  FFloodFillOptions := [ffProgressive];
+  FTolerance := 64;
+  FGradientType := gtLinear;
+  FGradientSine := false;
+  FGradientColorspace := ciLinearRGB;
   FTextOutline := False;
   FTextOutlineWidth := 2;
   FTextShadow := false;
   FTextFont := TFont.Create;
   FTextFont.Size := 10;
   FTextFont.Name := 'Arial';
-  ToolTextAlign := taLeftJustify;
+  FTextAlign := taLeftJustify;
   FTextPhong := False;
-  TextShadowBlurRadius := 4;
-  TextShadowOffset := Point(5,5);
-  LightPosition := PointF(0,0);
-  LightAltitude := 100;
+  FTextShadowBlurRadius := 4;
+  FTextShadowOffset := Point(5,5);
+  FLightPosition := PointF(0,0);
+  FLightAltitude := 100;
+  FPhongShapeKind := pskRectangle;
   FPhongShapeAltitude := 50;
   FPhongShapeBorderSize := 20;
-  FPhongShapeKind := pskRectangle;
   FPerspectiveOptions:= [poRepeat];
-
   FDeformationGridNbX := 5;
   FDeformationGridNbY := 5;
   FDeformationGridMoveWithoutDeformation := false;
@@ -1375,25 +1426,28 @@ begin
   BackColor := Config.DefaultToolBackColor;
   FNormalPenWidth := Config.DefaultToolPenWidth;
   FEraserWidth := Config.DefaultToolEraserWidth;
+  if Assigned(FOnPenWidthChanged) then FOnPenWidthChanged(self);
+  ReloadBrushes;
   opt := [];
   if Config.DefaultToolOptionDrawShape then include(opt, toDrawShape);
   if Config.DefaultToolOptionFillShape then include(opt, toFillShape);
   if Config.DefaultToolOptionCloseShape then include(opt, toCloseShape);
+  ShapeOptions:= opt;
   Tolerance := Config.DefaultToolTolerance;
+
   TextShadow := Config.DefaultToolTextShadow;
-  FTextOutline := Config.DefaultToolTextOutline;
-  FTextOutlineWidth := Config.DefaultToolTextOutlineWidth;
+  SetTextOutline(Config.DefaultToolTextOutline, Config.DefaultToolTextOutlineWidth);
   TextPhong := Config.DefaultToolTextPhong;
   with Config.DefaultToolTextFont do
     SetTextFont(Name, Size, Style);
   TextShadowBlurRadius := Config.DefaultToolTextBlur;
   TextShadowOffset := Config.DefaultToolTextShadowOffset;
+
   LightPosition := Config.DefaultToolLightPosition;
   LightAltitude := Config.DefaultToolLightAltitude;
   PhongShapeAltitude := Config.DefaultToolShapeAltitude;
   PhongShapeBorderSize := Config.DefaultToolShapeBorderSize;
   PhongShapeKind := Config.DefaultToolShapeType;
-  ReloadBrushes;
 end;
 
 procedure TToolManager.SaveToConfig;

@@ -12,6 +12,7 @@ const FrameDashLength = 4;
   NicePointMaxRadius = 4;
 
 function ComputeRatio(ARatio: string): single;
+function RatioToStr(ARatio: single): string;
 
 function RectUnion(const rect1,Rect2: TRect): TRect;
 function RectInter(const rect1,Rect2: TRect): TRect;
@@ -221,6 +222,50 @@ begin
   if errPos <> 0 then exit;
   if denom <= 0 then exit;
   result := num/denom;
+end;
+
+function RatioToStr(ARatio: single): string;
+var
+  num,denom: integer;
+
+  procedure InvFrac;
+  var temp: integer;
+  begin
+    temp := num;
+    num := denom;
+    denom := num;
+  end;
+
+  procedure AddFrac(AValue: integer);
+  begin
+    inc(num, AValue*denom);
+  end;
+
+const MaxDev = 3;
+var
+  dev: array[1..MaxDev] of integer;
+  devCount, i: integer;
+  curVal, remain: Single;
+
+begin
+  if ARatio < 0 then ARatio := -ARatio;
+  curVal := ARatio;
+  devCount := 0;
+  repeat
+    inc(devCount);
+    dev[devCount] := trunc(ARatio);
+    remain := frac(curVal);
+    if abs(remain) < 1e-3 then break;
+    curVal := 1/remain;
+  until devCount = MaxDev;
+  num := dev[devCount];
+  denom := 1;
+  for i := devCount-1 downto 1 do
+  begin
+    InvFrac;
+    AddFrac(dev[i]);
+  end;
+  result := IntToStr(num)+':'+IntToStr(denom);
 end;
 
 function RectUnion(const rect1, Rect2: TRect): TRect;
