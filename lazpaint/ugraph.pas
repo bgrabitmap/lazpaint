@@ -62,7 +62,7 @@ procedure BCAssignSystemStyle(ACombo: TBCComboBox; ADarkTheme: boolean; AFontHei
 
 implementation
 
-uses GraphType, math, Types, BGRAUTF8, FileUtil, dialogs, BGRAAnimatedGif,
+uses GraphType, math, Types, FileUtil, dialogs, BGRAAnimatedGif,
   BGRAGradients, BGRATextFX, uresourcestrings, LCScaleDPI, BCTypes,
   BGRAThumbnail, LCVectorPolyShapes, udarktheme;
 
@@ -233,7 +233,7 @@ var
   begin
     temp := num;
     num := denom;
-    denom := num;
+    denom := temp;
   end;
 
   procedure AddFrac(AValue: integer);
