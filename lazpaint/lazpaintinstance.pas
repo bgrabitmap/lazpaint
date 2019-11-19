@@ -1335,8 +1335,20 @@ var
   fError: TForm;
   memo: TMemo;
   doFound, somethingDone: boolean;
+  tmi: TTopMostInfo;
 begin
   p := nil;
+
+  if ToolManager.TextShadow then
+  begin
+    //text shadow will be replaced in the future so do not allow it
+    if ToolManager.ToolProvideCommand(tcFinish) then
+      ToolManager.ToolCommand(tcFinish);
+    ToolManager.TextShadow := false;
+  end;
+
+  tmi := HideTopmost;
+  if Assigned(FMain) then FMain.Enabled:= false;
   try
     p := TPythonScript.Create;
     FScriptName := AFilename;
@@ -1371,6 +1383,8 @@ begin
     end;
   end;
   p.Free;
+  if Assigned(FMain) then FMain.Enabled:= true;
+  ShowTopmost(tmi);
   //ensure we are out of any do group
   repeat
     Image.DoEnd(doFound, somethingDone);
@@ -1386,7 +1400,6 @@ begin
     ToolManager.ForeColor := FChooseColor.GetCurrentColor else
   if FChooseColor.colorTarget = ctBackColor then
     ToolManager.BackColor := FChooseColor.GetCurrentColor;
-  if Assigned(FMain) then FMain.UpdateEditPicture;
   InColorFromFChooseColor := false;
 end;
 
