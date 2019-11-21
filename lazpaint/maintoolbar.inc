@@ -101,7 +101,7 @@ begin
   SpinEdit_Tolerance.OnChange := @SpinEdit_ToleranceChange;
 
   SpinEdit_PenWidth.MinValue := 1;
-  SpinEdit_PenWidth.MaxValue := 9999;
+  SpinEdit_PenWidth.MaxValue := round(MaxPenWidth*10);
   SpinEdit_PenWidth.Increment := 10;
   SpinEdit_PenWidth.OnChange := @SpinEdit_PenWidthChange;
   SpinEdit_PenWidth.OnMouseMove := @SpinEdit_PenWidthMouseMove;
@@ -182,7 +182,7 @@ begin
   SpinEdit_ShapeAltitude.OnChange := @SpinEdit_ShapeAltitudeChange;
 
   SpinEdit_BrushSpacing.MinValue := 1;
-  SpinEdit_BrushSpacing.MaxValue := 99;
+  SpinEdit_BrushSpacing.MaxValue := MaxBrushSpacing;
   SpinEdit_BrushSpacing.Value := 1;
   SpinEdit_BrushSpacing.Increment := 1;
   SpinEdit_BrushSpacing.OnChange := @SpinEdit_BrushSpacingChange;
@@ -395,7 +395,8 @@ end;
 
 procedure TFMain.UpdateTextFontToolbar;
 begin
-  SpinEdit_TextSize.Value := ToolManager.TextFontSize;
+  if FInTextFont then exit;
+  SpinEdit_TextSize.Value := round(ToolManager.TextFontSize);
   UpdateTextSizeIncrement;
 end;
 
@@ -549,9 +550,16 @@ begin
 end;
 
 procedure TFMain.UpdateLineCapBar;
+var
+  newVisible: Boolean;
 begin
-  Panel_LineCap.Visible := Panel_CloseShape.Visible and not (toCloseShape in ToolManager.ShapeOptions) and
+  newVisible := Panel_CloseShape.Visible and not (toCloseShape in ToolManager.ShapeOptions) and
     (toDrawShape in ToolManager.ShapeOptions);
+  if newVisible <> Panel_LineCap.Visible then
+  begin
+    Panel_LineCap.Visible := newVisible;
+    if Assigned(FLayout) then FLayout.Arrange;
+  end;
 end;
 
 procedure TFMain.UpdateToolImage(AForceUpdate: boolean);
@@ -683,11 +691,12 @@ procedure TFMain.SpinEdit_TextSizeChange(Sender: TObject; AByUser: boolean);
 begin
   if AByUser and initialized and not FInTextFont then
   begin
-    if ToolManager.TextFontSize = SpinEdit_TextSize.Value then exit;
+    if round(ToolManager.TextFontSize) = SpinEdit_TextSize.Value then exit;
+    FInTextFont:= true;
     ToolManager.SetTextFont(ToolManager.TextFontName,
       SpinEdit_TextSize.Value, ToolManager.TextFontStyle);
     UpdateTextSizeIncrement;
-    UpdateEditPicture(True);
+    FInTextFont:= false;
     FActiveSpinEdit := SpinEdit_TextSize;
   end;
 end;
@@ -720,8 +729,7 @@ procedure TFMain.GridNb_SpinEditChange(Sender: TObject; AByUser: boolean);
 begin
   if not AByUser or not initialized then exit;
   FInGridNb := true;
-  if ToolManager.SetDeformationGridSize(Size(SpinEdit_GridNbX.Value+1,SpinEdit_GridNbY.Value+1)) then
-    image.OnImageChanged.NotifyObservers;
+  ToolManager.SetDeformationGridSize(Size(SpinEdit_GridNbX.Value+1,SpinEdit_GridNbY.Value+1));
   FInGridNb := false;
 end;
 
@@ -744,13 +752,7 @@ end;
 procedure TFMain.SpinEdit_TextOutlineWidthChange(Sender: TObject; AByUser: boolean);
 begin
   if AByUser and initialized then
-  begin
-     if ToolManager.TextOutlineWidth <> SpinEdit_TextOutlineWidth.Value/PenWidthFactor then
-     begin
-       ToolManager.SetTextOutline(ToolManager.TextOutline, SpinEdit_TextOutlineWidth.Value/PenWidthFactor);
-       UpdateEditPicture;
-     end;
-  end;
+    ToolManager.SetTextOutline(ToolManager.TextOutline, SpinEdit_TextOutlineWidth.Value/PenWidthFactor);
 end;
 
 procedure TFMain.SpinEdit_TextShadowXChange(Sender: TObject; AByUser: boolean);
@@ -858,11 +860,7 @@ procedure TFMain.ShowColorDialogForBack;
 begin
   ColorDialog1.Color := BGRAToColor(ToolManager.BackColor);
   if ColorDialog1.Execute then
-  begin
     ToolManager.BackColor := ColorToBGRA(ColorDialog1.Color,ToolManager.BackColor.alpha);
-    LazPaintInstance.ColorToFChooseColor;
-    UpdateEditPicture;
-  end;
 end;
 
 procedure TFMain.SpinEdit_BackOpacityChange(Sender: TObject; AByUser: boolean);
@@ -872,8 +870,6 @@ begin
     if ToolManager.BackColor.alpha = SpinEdit_BackOpacity.value then exit;
     with ToolManager.BackColor do
       ToolManager.BackColor := BGRA(red,green,blue,SpinEdit_BackOpacity.value);
-    LazPaintInstance.ColorToFChooseColor;
-    UpdateEditPicture;
   end;
 end;
 
@@ -908,7 +904,6 @@ begin
       ToolManager.ShapeOptions := ToolManager.ShapeOptions + [toAliasing]
     else
       ToolManager.ShapeOptions := ToolManager.ShapeOptions - [toAliasing];
-    UpdateEditPicture;
   end;
 end;
 
@@ -924,9 +919,7 @@ begin
      if Tool_DrawShapeBorder.Down then include(opt, toDrawShape) else exclude(opt, toDrawShape);
      if Tool_FillShape.Down then include(opt, toFillShape) else exclude(opt, toFillShape);
      ToolManager.ShapeOptions := opt;
-     ToolManager.UpdateContextualToolbars;
      FLayout.Arrange;
-     UpdateEditPicture;
   end;
 end;
 
@@ -942,9 +935,6 @@ begin
      if Tool_DrawShapeBorder.Down then include(opt, toDrawShape) else exclude(opt, toDrawShape);
      if Tool_FillShape.Down then include(opt, toFillShape) else exclude(opt, toFillShape);
      ToolManager.ShapeOptions := opt;
-     ToolManager.UpdateContextualToolbars;
-     FLayout.Arrange;
-     UpdateEditPicture;
   end;
 end;
 
@@ -958,8 +948,6 @@ begin
           ToolManager.ShapeOptions := ToolManager.ShapeOptions + [toCloseShape]
         else
           ToolManager.ShapeOptions := ToolManager.ShapeOptions - [toCloseShape];
-       FLayout.Arrange;
-       UpdateEditPicture;
      end;
   end;
 end;
@@ -1069,10 +1057,7 @@ begin
   begin
     newPS := TPenStyle(cb.ItemIndex);
     if newPS <> ToolManager.PenStyle then
-    begin
       ToolManager.PenStyle := newPS;
-      UpdateEditPicture;
-    end;
   end;
 end;
 
@@ -1130,28 +1115,19 @@ end;
 procedure TFMain.Tool_JoinBevelClick(Sender: TObject);
 begin
   if Tool_JoinBevel.Down then
-  begin
     ToolManager.JoinStyle := pjsBevel;
-    UpdateEditPicture;
-  end;
 end;
 
 procedure TFMain.Tool_JoinRoundClick(Sender: TObject);
 begin
   if Tool_JoinRound.Down then
-  begin
     ToolManager.JoinStyle := pjsRound;
-    UpdateEditPicture;
-  end;
 end;
 
 procedure TFMain.Tool_JoinMiterClick(Sender: TObject);
 begin
   if Tool_JoinMiter.Down then
-  begin
     ToolManager.JoinStyle := pjsMiter;
-    UpdateEditPicture;
-  end;
 end;
 
 procedure TFMain.SpinEdit_EraserChange(Sender: TObject; AByUser: boolean);
@@ -1338,29 +1314,31 @@ begin
 end;
 
 procedure TFMain.UpdatePenWidthFromSpinEdit;
+var
+  newWidth: single;
 begin
-  if round(ToolManager.PenWidth*PenWidthFactor) = max(SpinEdit_PenWidth.Value,MinPenWidthValue) then exit;
+  newWidth := max(SpinEdit_PenWidth.Value/PenWidthFactor, MinPenWidth);
+  if newWidth = ToolManager.PenWidth then exit;
   FInPenWidthChange:= true;
-  ToolManager.PenWidth := max(SpinEdit_PenWidth.Value,MinPenWidthValue)/PenWidthFactor;
+  ToolManager.PenWidth := newWidth;
   ShowPenPreview(True);
-  UpdateEditPicture;
   FInPenWidthChange:= false;
 end;
 
 procedure TFMain.SpinEdit_PenWidthExit(Sender: TObject);
 begin
-  if SpinEdit_PenWidth.Value < MinPenWidthValue then SpinEdit_PenWidth.Value := MinPenWidthValue;
+  if SpinEdit_PenWidth.Value < MinPenWidth*PenWidthFactor then SpinEdit_PenWidth.Value := MinPenWidth*PenWidthFactor;
 end;
 
 procedure TFMain.IncreasePenSize;
 begin
-  SpinEdit_PenWidth.Value := max(SpinEdit_PenWidth.Value+PenSizeDelta(1),MinPenWidthValue);
+  SpinEdit_PenWidth.Value := max(SpinEdit_PenWidth.Value+PenSizeDelta(1),MinPenWidth*PenWidthFactor);
   UpdatePenWidthFromSpinEdit;
 end;
 
 procedure TFMain.DecreasePenSize;
 begin
-  SpinEdit_PenWidth.Value := max(SpinEdit_PenWidth.Value-PenSizeDelta(-1),MinPenWidthValue);
+  SpinEdit_PenWidth.Value := max(SpinEdit_PenWidth.Value-PenSizeDelta(-1),MinPenWidth*PenWidthFactor);
   UpdatePenWidthFromSpinEdit;
 end;
 
@@ -1602,7 +1580,9 @@ procedure TFMain.Tool_TextFontClick(Sender: TObject);
 var topmostInfo: TTopMostInfo;
 begin
   FInTextFont := true;
-  FontDialog1.Font.Assign(ToolManager.GetTextFont);
+  FontDialog1.Font.Name := ToolManager.TextFontName;
+  FontDialog1.Font.Size := round(ToolManager.TextFontSize);
+  FontDialog1.Font.Style := ToolManager.TextFontStyle;
   FontDialog1.Font.Color := BGRAToColor(ToolManager.ForeColor);
   topmostInfo := LazPaintInstance.HideTopmost;
   if FontDialog1.Execute then
@@ -1661,13 +1641,7 @@ end;
 procedure TFMain.Tool_TextOutlineClick(Sender: TObject);
 begin
   if initialized then
-  begin
-     if ToolManager.TextOutline <> Tool_TextOutline.Down then
-     begin
-       ToolManager.SetTextOutline(Tool_TextOutline.Down, ToolManager.TextOutlineWidth);
-       UpdateEditPicture;
-     end;
-  end;
+    ToolManager.SetTextOutline(Tool_TextOutline.Down, ToolManager.TextOutlineWidth);
 end;
 
 procedure TFMain.ComboBox_BrushSelectDrawItem(Control: TWinControl;

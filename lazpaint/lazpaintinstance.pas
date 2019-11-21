@@ -318,7 +318,7 @@ begin
   FImage := TLazPaintImage.Create;
   FImage.OnStackChanged:= @OnStackChanged;
   FImage.OnException := @OnFunctionException;
-  FToolManager := TToolManager.Create(FImage, self, nil, BlackAndWhite);
+  FToolManager := TToolManager.Create(FImage, self, nil, BlackAndWhite, FScriptContext);
   UseConfig(TIniFile.Create(''));
   FToolManager.OnPopup := @OnToolPopup;
   FToolManager.OnColorChanged:=@ToolColorChanged;

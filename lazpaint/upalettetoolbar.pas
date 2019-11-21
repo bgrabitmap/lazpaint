@@ -636,8 +636,6 @@ begin
       LazPaintInstance.ToolManager.BackColor := c;
     end else
         exit;
-    LazPaintInstance.UpdateToolbar;
-    LazPaintInstance.UpdateEditPicture(False);
   end;
 end;
 

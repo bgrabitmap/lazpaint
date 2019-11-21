@@ -31,10 +31,10 @@ type
   TInterpretationError = (ieTooManyClosingBrackets, ieEndingQuoteNotFound, ieOpeningBracketNotFound, ieClosingBracketNotFound,
                           ieConstantExpressionExpected, ieUnexpectedChar, ieInvalidNumber, ieInvalidColor, ieInvalidBoolean,
                           ieDuplicateIdentifier, ieUnexpectedOpeningBracketKind, ieUnexpectedClosingBracketKind,
-                          ieUnknownListType, ieMissingValue);
+                          ieUnknownListType, ieMissingValue, ieTooManyValues);
   TInterpretationErrors = set of TInterpretationError;
-  TScriptVariableType = (svtUndefined, svtFloat, svtInteger, svtBoolean, svtString, svtPixel, svtSubset,
-                         svtFloatList, svtIntList, svtBoolList, svtStrList, svtPixList);
+  TScriptVariableType = (svtUndefined, svtFloat, svtInteger, svtPoint, svtBoolean, svtString, svtPixel, svtSubset,
+                         svtFloatList, svtIntList, svtPointList, svtBoolList, svtStrList, svtPixList);
   TScriptFunctionExceptionHandler = procedure(AFunctionName: string; AException: Exception) of object;
 
   TParsedLitteral = record
@@ -44,6 +44,7 @@ type
     valueBool: boolean;
     valueStr: string;
     valuePixel: TBGRAPixel;
+    valuePoint: TPoint3D;
   end;
 
   TScalarVariable = record
@@ -51,6 +52,7 @@ type
     varType: TScriptVariableType;
     case TScriptVariableType of
       svtFloat: (valueFloat: double);
+      svtPoint: (valuePoint: TPoint3D);
       svtInteger: (valueInt: TScriptInteger);
       svtBoolean: (valueBool: boolean);
       svtPixel: (valuePix: TBGRAPixel);
@@ -58,15 +60,15 @@ type
   end;
 
 const
-  ScriptVariableListTypes : set of TScriptVariableType = [svtFloatList, svtIntList, svtBoolList, svtStrList, svtPixList];
-  ScriptScalarListTypes : set of TScriptVariableType = [svtFloatList, svtIntList, svtPixList];
-  ScriptScalarTypes : set of TScriptVariableType = [svtFloat, svtInteger, svtBoolean, svtPixel];
+  ScriptVariableListTypes : set of TScriptVariableType = [svtFloatList, svtIntList, svtPointList, svtBoolList, svtStrList, svtPixList];
+  ScriptScalarListTypes : set of TScriptVariableType = [svtFloatList, svtIntList, svtPointList, svtPixList];
+  ScriptScalarTypes : set of TScriptVariableType = [svtFloat, svtInteger, svtPoint, svtBoolean, svtPixel];
   ScalarListElementSize : array[svtFloatList..svtPixList] of NativeInt =
-    (sizeof(double), sizeof(TScriptInteger), 0, 0, sizeof(TBGRAPixel));
+    (sizeof(double), sizeof(TScriptInteger), sizeof(TPoint3D), 0, 0, sizeof(TBGRAPixel));
   ListElementType : array[svtFloatList..svtPixList] of TScriptVariableType =
-    (svtFloat, svtInteger, svtBoolean, svtString, svtPixel);
+    (svtFloat, svtInteger, svtPoint, svtBoolean, svtString, svtPixel);
   EmptyListExpression : array[svtFloatList..svtPixList] of string =
-    ('[~0.0]', '[~0]', '[~False]', '[~""]','[~#000]');
+    ('[~0.0]', '[~0]', '[(0.0,0.0)]', '[~False]', '[~""]','[~#000]');
   InterpretationErrorToStr: array[TInterpretationError] of string =
     ('Too many closing brackets', 'Ending quote not found',
      'Opening bracket not found', 'Closing bracket not found',
@@ -74,7 +76,7 @@ const
      'Invalid number', 'Invalid color', 'Invalid boolean',
      'Duplicate identifier', 'Unexpected opening bracket kind',
      'Unexpected closing bracket kind',
-     'Unknown list type', 'Missing value');
+     'Unknown list type', 'Missing value', 'Too many values');
 
 function ScriptQuote(const S: string): string;
 function ScriptUnquote(const S: string): string;
@@ -147,6 +149,13 @@ begin
   case AVarType of
     svtFloat: result := FloatToStrUS(double(AValue));
     svtInteger: result := IntToStr(TScriptInteger(AValue));
+    svtPoint: with TPoint3D(AValue) do
+              begin
+                if z <> EmptySingle then
+                  result := '(' + FloatToStrUS(x)+', '+FloatToStrUS(y)+', '+FloatToStrUS(z)+')'
+                else
+                  result := '(' + FloatToStrUS(x)+', '+FloatToStrUS(y)+')';
+              end;
     svtPixel: result := '#'+BGRAToStr(TBGRAPixel(AValue));
     svtBoolean: result := BoolToStr(Boolean(AValue),TrueToken,FalseToken);
   else raise exception.Create('Not a scalar type');
@@ -192,7 +201,7 @@ var
   valueFloat: double;
   valueBool: boolean;
   valuePixel: TBGRAPixel;
-  errPos: integer;
+  errPos,coordIndex,posComma: integer;
   missingFlag,errorFlag: boolean;
 begin
   result.valueType := svtUndefined;
@@ -273,7 +282,7 @@ begin
           if inBracket = 0 then IsPixel:= true;
         end
         else
-        if expr[cur] = ',' then break;
+        if (expr[cur] in[',','}']) and (inBracket = 0) then break;
       end;
     end;
     previousChar:= expr[cur];
@@ -337,6 +346,40 @@ begin
       result.valueType:= svtPixel;
       result.valuePixel := valuePixel;
     end;
+  end else
+  if (length(valueStr)>=2) and (valueStr[1] = '(') and (valueStr[length(valueStr)] = ')') then
+  begin
+    result.valuePoint:= Point3D(0,0,EmptySingle);
+    valueStr := trim(copy(valueStr,2,length(valueStr)-2));
+    coordIndex := 0;
+    while valueStr<>'' do
+    begin
+      if coordIndex >= 3 then
+      begin
+        errors := errors + [ieTooManyValues];
+        break;
+      end;
+      posComma := pos(',', valueStr);
+      if posComma > 0 then
+        val(copy(valueStr,1,posComma-1),valueFloat,errPos)
+      else
+        val(valueStr,valueFloat,errPos);
+      if errPos <> 0 then
+      begin
+        errors := errors + [ieInvalidNumber];
+        break;
+      end;
+      case coordIndex of
+        0: result.valuePoint.x := valueFloat;
+        1: result.valuePoint.y := valueFloat;
+        2: result.valuePoint.z := valueFloat;
+      end;
+      inc(coordIndex);
+      if posComma = 0 then valueStr := ''
+      else delete(valueStr, 1, posComma);
+    end;
+    if coordIndex >= 2 then
+      result.valueType:= svtPoint;
   end else
     errors := errors + [ieConstantExpressionExpected];
 end;

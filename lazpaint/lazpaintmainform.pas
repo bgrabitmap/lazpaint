@@ -21,9 +21,6 @@ uses
 
   laztablet, udarktheme, UScriptType;
 
-const
-  MinPenWidthValue = 10;
-
 type
   { TFMain }
 
@@ -699,6 +696,7 @@ type
     procedure ManagerTextureChanged(Sender: TObject);
     procedure ManagerShapeOptionChanged(Sender: TObject);
     procedure ManagerToleranceChanged(Sender: TObject);
+    procedure ManagerToolbarChanged(Sender: TObject);
   private
     { private declarations }
     FLayout: TMainFormLayout;
@@ -1007,6 +1005,7 @@ begin
   If Assigned(ToolManager) then
   begin
     if ToolManager.OnToolChanged = @ManagerToolChanged then ToolManager.OnToolChanged := nil;
+    if ToolManager.OnToolbarChanged = @ManagerToolbarChanged then ToolManager.OnToolbarChanged := nil;
     if ToolManager.OnTextureChanged = @ManagerTextureChanged then ToolManager.OnTextureChanged := nil;
     if ToolManager.OnEraserChanged = @ManagerEraserChanged then ToolManager.OnEraserChanged := nil;
     if ToolManager.OnPenWidthChanged = @ManagerPenWidthChanged then ToolManager.OnPenWidthChanged := nil;
@@ -1088,6 +1087,7 @@ begin
 
   ToolManager.SetCurrentToolType(ptHand);
   ToolManager.OnToolChanged  :=  @ManagerToolChanged;
+  ToolManager.OnToolbarChanged:=@ManagerToolbarChanged;
   ToolManager.OnTextureChanged := @ManagerTextureChanged;
   ToolManager.OnEraserChanged:=@ManagerEraserChanged;
   ToolManager.OnPenWidthChanged:= @ManagerPenWidthChanged;
@@ -1158,7 +1158,7 @@ begin
   LazPaintInstance.ShowTopmost(FTopMostInfo);
   if Position = poDefault then LazPaintInstance.RestoreMainWindowPosition;
 
-  FLayout.Arrange;
+  ToolManager.UpdateContextualToolbars;
   UpdateToolImage;
   UpdateToolBar;
   shouldArrangeOnResize := true;
@@ -2729,8 +2729,6 @@ procedure TFMain.ToolNoTextureExecute(Sender: TObject);
 begin
   try
     ToolManager.SetTexture(nil);
-    UpdateEditPicture;
-
   except
     on ex:Exception do
       LazPaintInstance.ShowError(RemoveTrail(ToolNoTexture.Hint),ex.Message);
@@ -3862,7 +3860,6 @@ begin
         newTex.FreeReference;
         newTex := nil;
         result := true;
-        UpdateEditPicture;
         Config.SetDefaultTextureDirectory(ExtractFilePath(texFilename));
       except
         on ex:Exception do
@@ -3980,11 +3977,9 @@ procedure TFMain.ManagerToolChanged(sender: TToolManager; ANewTool: TPaintToolTy
 begin
   if self.Visible then
   begin
-    FLayout.Arrange;
     PaintBox_PenPreview.Invalidate;
     Image.OnImageChanged.NotifyObservers;
     UpdateToolImage;
-    UpdateToolBar;
     UpdatePenWidthToolbar;
     UpdateCurveModeToolbar;
   end;
@@ -4367,12 +4362,17 @@ end;
 procedure TFMain.ManagerShapeOptionChanged(Sender: TObject);
 begin
   UpdateToolOptions;
-  FLayout.Arrange;
+  ToolManager.UpdateContextualToolbars;
 end;
 
 procedure TFMain.ManagerToleranceChanged(Sender: TObject);
 begin
   UpdateToleranceToolbar;
+end;
+
+procedure TFMain.ManagerToolbarChanged(Sender: TObject);
+begin
+  if Assigned(FLayout) then FLayout.Arrange;
 end;
 
 procedure TFMain.UpdateStatusText;

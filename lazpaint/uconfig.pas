@@ -211,7 +211,7 @@ type
     function DefaultToolTextShadow: boolean;
     procedure SetDefaultToolTextShadow(value: boolean);
     function DefaultToolTextFont: TFont;
-    procedure SetDefaultToolTextFont(AFont: TFont);
+    procedure SetDefaultToolTextFont(AName: string; ASize: single; AStyle: TFontStyles);
     function DefaultToolTextBlur: single;
     procedure SetDefaultToolTextBlur(value: single);
     function DefaultToolTextShadowOffsetX: integer;
@@ -893,17 +893,16 @@ begin
   result := tempFont;
 end;
 
-procedure TLazPaintConfig.SetDefaultToolTextFont(AFont: TFont);
+procedure TLazPaintConfig.SetDefaultToolTextFont(AName: string; ASize: single;
+  AStyle: TFontStyles);
 begin
-  tempFont.Assign(AFont);
-
-  iniOptions.WriteString('Tool','TextFontName',tempFont.Name);
-  iniOptions.WriteInteger('Tool','TextFontHeight',tempFont.Height);
-  iniOptions.WriteInteger('Tool','TextFontSize',tempFont.Size);
-  iniOptions.WriteBool('Tool','TextFontBold',fsBold in tempFont.Style);
-  iniOptions.WriteBool('Tool','TextFontItalic',fsItalic in tempFont.Style);
-  iniOptions.WriteBool('Tool','TextFontStrikeOut',fsStrikeOut in tempFont.Style);
-  iniOptions.WriteBool('Tool','TextFontUnderline',fsUnderline in tempFont.Style);
+  iniOptions.WriteString('Tool','TextFontName',AName);
+  iniOptions.WriteInteger('Tool','TextFontSize',round(ASize));
+  iniOptions.DeleteKey('Tool','TextFontHeight');
+  iniOptions.WriteBool('Tool','TextFontBold',fsBold in AStyle);
+  iniOptions.WriteBool('Tool','TextFontItalic',fsItalic in AStyle);
+  iniOptions.WriteBool('Tool','TextFontStrikeOut',fsStrikeOut in AStyle);
+  iniOptions.WriteBool('Tool','TextFontUnderline',fsUnderline in AStyle);
 end;
 
 function TLazPaintConfig.DefaultToolTextBlur: single;

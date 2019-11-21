@@ -7,7 +7,7 @@ interface
 uses
   Classes, Types, SysUtils, Graphics, BGRABitmap, BGRABitmapTypes, uimage, UImageType,
   ULayerAction, LCLType, Controls, UBrushType, UConfig, LCVectorPolyShapes,
-  BGRAGradientScanner, BGRALayerOriginal, LCVectorRectShapes;
+  BGRAGradientScanner, BGRALayerOriginal, LCVectorRectShapes, UScripting;
 
 const
   VK_SNAP = {$IFDEF DARWIN}VK_LWIN{$ELSE}VK_CONTROL{$ENDIF};
@@ -48,6 +48,11 @@ type
     tcAlignLeft, tcCenterHorizontally, tcAlignRight, tcAlignTop, tcCenterVertically, tcAlignBottom,
     tcShapeToSpline);
 
+const
+  MaxPenWidth = 999.9;
+  MinPenWidth = 1;
+  MaxBrushSpacing = 99;
+
 function GradientColorSpaceToDisplay(AValue: TBGRAColorInterpolation): string;
 function DisplayToGradientColorSpace(AValue: string): TBGRAColorInterpolation;
 
@@ -86,7 +91,6 @@ type
     procedure ValidateActionPartially;
     procedure CancelAction;
     procedure CancelActionPartially;
-    procedure AfterGridSizeChange(NewNbX,NewNbY: Integer); virtual;
     function ToolUpdate: TRect;
     function ToolDown(X,Y: single; rightBtn: boolean): TRect;
     function ToolMove(X,Y: single): TRect;
@@ -147,7 +151,9 @@ type
     FShouldExitTool: boolean;
     FImage: TLazPaintImage;
     FBlackAndWhite: boolean;
+    FScriptContext: TScriptContext;
     FToolPressure: single;
+    FInTool: boolean;
     FCurrentTool : TGenericTool;
     FCurrentToolType : TPaintToolType;
     FToolCurrentCursorPos: TPointF;
@@ -155,6 +161,7 @@ type
     FSleepingToolType: TPaintToolType;
     FReturnValidatesHintShown: boolean;
     FOnToolChangedHandler: TOnToolChangedHandler;
+    FOnToolbarChanged: TNotifyEvent;
     FOnPopupToolHandler: TOnPopupToolHandler;
 
     FForeColor, FBackColor: TBGRAPixel;
@@ -171,7 +178,9 @@ type
     FJoinStyle: TPenJoinStyle;
     FNormalPenWidth, FEraserWidth: Single;
     FShapeOptions: TShapeOptions;
-    FTextFont: TFont;
+    FTextFontName: string;
+    FTextFontSize: single;
+    FTextFontStyle: TFontStyles;
     FTextAlign: TAlignment;
     FTextOutline: boolean;
     FTextOutlineWidth: single;
@@ -231,12 +240,49 @@ type
     function GetPenWidth: single;
     function GetToolSleeping: boolean;
     function GetTextFontName: string;
-    function GetTextFontSize: integer;
+    function GetTextFontSize: single;
     function GetTextFontStyle: TFontStyles;
     function GetTextureOpacity: byte;
+    function ScriptGetBackColor(AVars: TVariableSet): TScriptResult;
+    function ScriptGetBrushCount(AVars: TVariableSet): TScriptResult;
+    function ScriptGetBrushIndex(AVars: TVariableSet): TScriptResult;
+    function ScriptGetBrushSpacing(AVars: TVariableSet): TScriptResult;
+    function ScriptGetEraserAlpha(AVars: TVariableSet): TScriptResult;
+    function ScriptGetEraserMode(AVars: TVariableSet): TScriptResult;
+    function ScriptGetFontName(AVars: TVariableSet): TScriptResult;
+    function ScriptGetFontSize(AVars: TVariableSet): TScriptResult;
+    function ScriptGetFontStyle(AVars: TVariableSet): TScriptResult;
+    function ScriptGetJoinStyle(AVars: TVariableSet): TScriptResult;
+    function ScriptGetPenColor(AVars: TVariableSet): TScriptResult;
+    function ScriptGetPenStyle(AVars: TVariableSet): TScriptResult;
+    function ScriptGetPenWidth(AVars: TVariableSet): TScriptResult;
+    function ScriptGetShapeOptions(AVars: TVariableSet): TScriptResult;
+    function ScriptGetShapeRatio(AVars: TVariableSet): TScriptResult;
+    function ScriptGetTextAlign(AVars: TVariableSet): TScriptResult;
+    function ScriptGetTextOutline(AVars: TVariableSet): TScriptResult;
+    function ScriptGetTextPhong(AVars: TVariableSet): TScriptResult;
+    function ScriptGetTolerance(AVars: TVariableSet): TScriptResult;
+    function ScriptSetBackColor(AVars: TVariableSet): TScriptResult;
+    function ScriptSetBrushIndex(AVars: TVariableSet): TScriptResult;
+    function ScriptSetBrushSpacing(AVars: TVariableSet): TScriptResult;
+    function ScriptSetEraserAlpha(AVars: TVariableSet): TScriptResult;
+    function ScriptSetEraserMode(AVars: TVariableSet): TScriptResult;
+    function ScriptSetFontName(AVars: TVariableSet): TScriptResult;
+    function ScriptSetFontSize(AVars: TVariableSet): TScriptResult;
+    function ScriptSetFontStyle(AVars: TVariableSet): TScriptResult;
+    function ScriptSetJoinStyle(AVars: TVariableSet): TScriptResult;
+    function ScriptSetPenColor(AVars: TVariableSet): TScriptResult;
+    function ScriptSetPenStyle(AVars: TVariableSet): TScriptResult;
+    function ScriptSetPenWidth(AVars: TVariableSet): TScriptResult;
+    function ScriptSetShapeOptions(AVars: TVariableSet): TScriptResult;
+    function ScriptSetShapeRatio(AVars: TVariableSet): TScriptResult;
+    function ScriptSetTextAlign(AVars: TVariableSet): TScriptResult;
+    function ScriptSetTextOutline(AVars: TVariableSet): TScriptResult;
+    function ScriptSetTextPhong(AVars: TVariableSet): TScriptResult;
+    function ScriptSetTolerance(AVars: TVariableSet): TScriptResult;
     procedure SetBrushIndex(AValue: integer);
     procedure SetBrushSpacing(AValue: integer);
-    procedure SetControlsVisible(Controls: TList; Visible: Boolean);
+    function SetControlsVisible(Controls: TList; Visible: Boolean): boolean;
     procedure SetArrowEnd(AValue: TArrowKind);
     procedure SetArrowSize(AValue: TPointF);
     procedure SetArrowStart(AValue: TArrowKind);
@@ -253,6 +299,7 @@ type
     procedure SetLightAltitude(AValue: integer);
     procedure SetLightPosition(AValue: TPointF);
     procedure SetLineCap(AValue: TPenEndCap);
+    procedure SetPerspectiveOptions(AValue: TPerspectiveOptions);
     procedure SetPhongShapeAltitude(AValue: integer);
     procedure SetPhongShapeBorderSize(AValue: integer);
     procedure SetPhongShapeKind(AValue: TPhongShapeKind);
@@ -275,7 +322,7 @@ type
     procedure InternalSetCurrentToolType(tool: TPaintToolType);
     function InternalBitmapToVirtualScreen(PtF: TPointF): TPointF;
     function AddLayerOffset(ARect: TRect) : TRect;
-    procedure SetDeformationGridSizeProc(const ASize: TSize);
+    procedure RegisterScriptFunctions(ARegister: boolean);
   public
     BitmapToVirtualScreen: TBitmapToVirtualScreenFunction;
     PenWidthControls, AliasingControls, EraserControls, ToleranceControls,
@@ -285,7 +332,10 @@ type
     PerspectiveControls,PenColorControls,TextureControls,
     BrushControls, RatioControls: TList;
 
-    constructor Create(AImage: TLazPaintImage; AConfigProvider: IConfigProvider; ABitmapToVirtualScreen: TBitmapToVirtualScreenFunction = nil; ABlackAndWhite : boolean = false);
+    constructor Create(AImage: TLazPaintImage; AConfigProvider: IConfigProvider;
+      ABitmapToVirtualScreen: TBitmapToVirtualScreenFunction = nil;
+      ABlackAndWhite : boolean = false;
+      AScriptContext: TScriptContext = nil);
     destructor Destroy; override;
     procedure LoadFromConfig;
     procedure SaveToConfig;
@@ -297,7 +347,7 @@ type
 
     function GetCurrentToolType: TPaintToolType;
     function SetCurrentToolType(tool: TPaintToolType): boolean;
-    procedure UpdateContextualToolbars;
+    function UpdateContextualToolbars: boolean;
     function ToolCanBeUsed: boolean;
     procedure ToolWakeUp;
     procedure ToolSleep;
@@ -334,12 +384,11 @@ type
     function BorrowTexture: TBGRABitmap;
     procedure AddBrush(brush: TLazPaintBrush);
     procedure RemoveBrushAt(index: integer);
-    procedure SetTextFont(AName: string; ASize: integer; AStyle: TFontStyles);
+    procedure SetTextFont(AName: string; ASize: single; AStyle: TFontStyles);
     procedure SetTextFont(AFont: TFont);
-    function GetTextFont: TFont;
     procedure SetTextOutline(AEnabled: boolean; AWidth: single);
     function GetDeformationGridSize: TSize;
-    function SetDeformationGridSize(ASize: TSize): boolean;
+    procedure SetDeformationGridSize(ASize: TSize);
 
     property Image: TLazPaintImage read FImage;
     property BlackAndWhite: boolean read FBlackAndWhite write FBlackAndWhite;
@@ -369,7 +418,7 @@ type
     property BrushIndex: integer read FBrushIndex write SetBrushIndex;
     property BrushSpacing: integer read FBrushSpacing write SetBrushSpacing;
     property TextFontName: string read GetTextFontName;
-    property TextFontSize: integer read GetTextFontSize;
+    property TextFontSize: single read GetTextFontSize;
     property TextFontStyle: TFontStyles read GetTextFontStyle;
     property TextAlign: TAlignment read FTextAlign write SetTextAlign;
     property TextOutline: boolean read FTextOutline;
@@ -393,13 +442,14 @@ type
     property PhongShapeKind: TPhongShapeKind read FPhongShapeKind write SetPhongShapeKind;
     property DeformationGridNbX: integer read FDeformationGridNbX;
     property DeformationGridNbY: integer read FDeformationGridNbY;
-    property DeformationGridSize: TSize read GetDeformationGridSize write SetDeformationGridSizeProc;
+    property DeformationGridSize: TSize read GetDeformationGridSize write SetDeformationGridSize;
     property DeformationGridMoveWithoutDeformation: boolean read FDeformationGridMoveWithoutDeformation write SetDeformationGridMoveWithoutDeformation;
     property Tolerance: byte read FTolerance write SetTolerance;
     property FloodFillOptions: TFloodFillOptions read FFloodFillOptions write SetFloodFillOptions;
-    property PerspectiveOptions: TPerspectiveOptions read FPerspectiveOptions write FPerspectiveOptions;
+    property PerspectiveOptions: TPerspectiveOptions read FPerspectiveOptions write SetPerspectiveOptions;
 
     property OnToolChanged: TOnToolChangedHandler read FOnToolChangedHandler write FOnToolChangedHandler;
+    property OnToolbarChanged: TNotifyEvent read FOnToolbarChanged write FOnToolbarChanged;
     property OnPopup: TOnPopupToolHandler read FOnPopupToolHandler write FOnPopupToolHandler;
     property OnEraserChanged: TNotifyEvent read FOnEraserChanged write FOnEraserChanged;
     property OnTextureChanged: TNotifyEvent read FOnTextureChanged write FOnTextureChanged;
@@ -432,7 +482,7 @@ function ToolPopupMessageToStr(AMessage :TToolPopupMessage; AKey: Word = 0): str
 
 implementation
 
-uses UGraph, LCScaleDPI, LazPaintType, UCursors, BGRATextFX, ULoading, uresourcestrings,
+uses UGraph, LCScaleDPI, LazPaintType, UCursors, BGRATextFX, ULoading, UResourceStrings,
   BGRATransform, LCVectorOriginal, BGRAGradientOriginal, BGRASVGOriginal;
 
 function StrToPaintToolType(const s: ansistring): TPaintToolType;
@@ -713,11 +763,6 @@ begin
   result /= Manager.Image.ZoomFactor;
 end;
 
-procedure TGenericTool.AfterGridSizeChange(NewNbX,NewNbY: Integer);
-begin
- //nothing
-end;
-
 function TGenericTool.ToolUpdate: TRect;
 var toolDest :TBGRABitmap;
 begin
@@ -885,24 +930,33 @@ begin
   else result := false;
 end;
 
-procedure TToolManager.SetControlsVisible(Controls: TList; Visible: Boolean);
+function TToolManager.SetControlsVisible(Controls: TList; Visible: Boolean): boolean;
+  procedure SetVisibility(AControl: TControl);
+  begin
+    if AControl.Visible <> Visible then
+    begin
+      AControl.Visible := Visible;
+      result := true;
+    end;
+  end;
+
 var i: integer;
 begin
+  result := false;
   if Visible then
   begin
     for i := 0 to Controls.Count-1 do
-      (TObject(Controls[i]) as TControl).Visible := Visible;
+      SetVisibility(TObject(Controls[i]) as TControl);
   end else
-  begin
     for i := Controls.Count-1 downto 0 do
-      (TObject(Controls[i]) as TControl).Visible := Visible;
-  end;
+      SetVisibility(TObject(Controls[i]) as TControl);
 end;
 
 procedure TToolManager.SetArrowEnd(AValue: TArrowKind);
 begin
   if FArrowEnd=AValue then Exit;
   FArrowEnd:=AValue;
+  ToolUpdate;
   if Assigned(FOnLineCapChanged) then FOnLineCapChanged(self);
 end;
 
@@ -910,6 +964,7 @@ procedure TToolManager.SetArrowSize(AValue: TPointF);
 begin
   if FArrowSize=AValue then Exit;
   FArrowSize:=AValue;
+  ToolUpdate;
   if Assigned(FOnLineCapChanged) then FOnLineCapChanged(self);
 end;
 
@@ -917,6 +972,7 @@ procedure TToolManager.SetArrowStart(AValue: TArrowKind);
 begin
   if FArrowStart=AValue then Exit;
   FArrowStart:=AValue;
+  ToolUpdate;
   if Assigned(FOnLineCapChanged) then FOnLineCapChanged(self);
 end;
 
@@ -927,6 +983,7 @@ begin
      (AValue.blue = FBackColor.blue) and
      (AValue.alpha = FBackColor.alpha) then exit;
   FBackColor := AValue;
+  ToolUpdate;
   if Assigned(FOnColorChanged) then FOnColorChanged(self);
 end;
 
@@ -934,6 +991,7 @@ procedure TToolManager.SetDeformationGridMoveWithoutDeformation(AValue: boolean)
 begin
   if FDeformationGridMoveWithoutDeformation=AValue then Exit;
   FDeformationGridMoveWithoutDeformation:=AValue;
+  ToolUpdate;
   if Assigned(FOnDeformationGridChanged) then FOnDeformationGridChanged(self);
 end;
 
@@ -941,6 +999,7 @@ procedure TToolManager.SetEraserAlpha(AValue: byte);
 begin
   if FEraserAlpha=AValue then Exit;
   FEraserAlpha:=AValue;
+  ToolUpdate;
   if Assigned(FOnEraserChanged) then FOnEraserChanged(self);
 end;
 
@@ -948,6 +1007,7 @@ procedure TToolManager.SetEraserMode(AValue: TEraserMode);
 begin
   if FEraserMode=AValue then Exit;
   FEraserMode:=AValue;
+  ToolUpdate;
   if Assigned(FOnEraserChanged) then FOnEraserChanged(self);
 end;
 
@@ -955,6 +1015,7 @@ procedure TToolManager.SetFloodFillOptions(AValue: TFloodFillOptions);
 begin
   if FFloodFillOptions=AValue then Exit;
   FFloodFillOptions:=AValue;
+  ToolUpdate;
   if Assigned(FOnFloodFillOptionChanged) then FOnFloodFillOptionChanged(self);
 end;
 
@@ -965,6 +1026,7 @@ begin
      (AValue.blue = FForeColor.blue) and
      (AValue.alpha = FForeColor.alpha) then exit;
   FForeColor := AValue;
+  ToolUpdate;
   if Assigned(FOnColorChanged) then FOnColorChanged(self);
 end;
 
@@ -972,6 +1034,7 @@ procedure TToolManager.SetGradientColorspace(AValue: TBGRAColorInterpolation);
 begin
   if FGradientColorspace=AValue then Exit;
   FGradientColorspace:=AValue;
+  ToolUpdate;
   if Assigned(FOnGradientChanged) then FOnGradientChanged(self);
 end;
 
@@ -979,6 +1042,7 @@ procedure TToolManager.SetGradientSine(AValue: boolean);
 begin
   if FGradientSine=AValue then Exit;
   FGradientSine:=AValue;
+  ToolUpdate;
   if Assigned(FOnGradientChanged) then FOnGradientChanged(self);
 end;
 
@@ -986,6 +1050,7 @@ procedure TToolManager.SetGradientType(AValue: TGradientType);
 begin
   if FGradientType=AValue then Exit;
   FGradientType:=AValue;
+  ToolUpdate;
   if Assigned(FOnGradientChanged) then FOnGradientChanged(self);
 end;
 
@@ -993,6 +1058,7 @@ procedure TToolManager.SetJoinStyle(AValue: TPenJoinStyle);
 begin
   if FJoinStyle=AValue then Exit;
   FJoinStyle:=AValue;
+  ToolUpdate;
   if Assigned(FOnJoinStyleChanged) then FOnJoinStyleChanged(self);
 end;
 
@@ -1000,6 +1066,7 @@ procedure TToolManager.SetLightAltitude(AValue: integer);
 begin
   if FLightAltitude=AValue then Exit;
   FLightAltitude:=AValue;
+  ToolUpdate;
   if Assigned(FOnLightChanged) then FOnLightChanged(self);
 end;
 
@@ -1007,6 +1074,7 @@ procedure TToolManager.SetLightPosition(AValue: TPointF);
 begin
   if FLightPosition=AValue then Exit;
   FLightPosition:=AValue;
+  ToolUpdate;
   if Assigned(FOnLightChanged) then FOnLightChanged(self);
 end;
 
@@ -1014,13 +1082,23 @@ procedure TToolManager.SetLineCap(AValue: TPenEndCap);
 begin
   if FLineCap=AValue then Exit;
   FLineCap:=AValue;
+  ToolUpdate;
   if Assigned(FOnLineCapChanged) then FOnLineCapChanged(self);
+end;
+
+procedure TToolManager.SetPerspectiveOptions(AValue: TPerspectiveOptions);
+begin
+  if FPerspectiveOptions=AValue then Exit;
+  FPerspectiveOptions:=AValue;
+  ToolUpdate;
+  if Assigned(FOnPerspectiveOptionChanged) then FOnPerspectiveOptionChanged(self);
 end;
 
 procedure TToolManager.SetPhongShapeAltitude(AValue: integer);
 begin
   if FPhongShapeAltitude=AValue then Exit;
   FPhongShapeAltitude:=AValue;
+  ToolUpdate;
   if Assigned(FOnPhongShapeChanged) then FOnPhongShapeChanged(self);
 end;
 
@@ -1028,6 +1106,7 @@ procedure TToolManager.SetPhongShapeBorderSize(AValue: integer);
 begin
   if FPhongShapeBorderSize=AValue then Exit;
   FPhongShapeBorderSize:=AValue;
+  ToolUpdate;
   if Assigned(FOnPhongShapeChanged) then FOnPhongShapeChanged(self);
 end;
 
@@ -1035,6 +1114,7 @@ procedure TToolManager.SetPhongShapeKind(AValue: TPhongShapeKind);
 begin
   if FPhongShapeKind=AValue then Exit;
   FPhongShapeKind:=AValue;
+  ToolUpdate;
   if Assigned(FOnPhongShapeChanged) then FOnPhongShapeChanged(self);
 end;
 
@@ -1042,6 +1122,7 @@ procedure TToolManager.SetShapeOptions(AValue: TShapeOptions);
 begin
   if FShapeOptions=AValue then Exit;
   FShapeOptions:=AValue;
+  ToolUpdate;
   if Assigned(FOnShapeOptionChanged) then FOnShapeOptionChanged(self);
 end;
 
@@ -1049,16 +1130,20 @@ procedure TToolManager.SetPenStyle(AValue: TPenStyle);
 begin
   if FPenStyle=AValue then Exit;
   FPenStyle:=AValue;
+  ToolUpdate;
   if Assigned(FOnPenStyleChanged) then FOnPenStyleChanged(self);
 end;
 
 procedure TToolManager.SetPenWidth(AValue: single);
 begin
+  if AValue < MinPenWidth then AValue := MinPenWidth;
+  if AValue > MaxPenWidth then AValue := MaxPenWidth;
   if GetCurrentToolType = ptEraser then
   begin
     if FEraserWidth <> AValue then
     begin
       FEraserWidth := AValue;
+      ToolUpdate;
       if Assigned(FOnPenWidthChanged) then FOnPenWidthChanged(self);
     end;
   end else
@@ -1066,6 +1151,7 @@ begin
     if FNormalPenWidth <> AValue then
     begin
       FNormalPenWidth := AValue;
+      ToolUpdate;
       if Assigned(FOnPenWidthChanged) then FOnPenWidthChanged(self);
     end;
   end;
@@ -1075,6 +1161,7 @@ procedure TToolManager.SetShapeRatio(AValue: Single);
 begin
   if FShapeRatio=AValue then Exit;
   FShapeRatio:=AValue;
+  ToolUpdate;
   if Assigned(FOnShapeRatioChanged) then FOnShapeRatioChanged(self);
 end;
 
@@ -1082,6 +1169,7 @@ procedure TToolManager.SetSplineStyle(AValue: TSplineStyle);
 begin
   if FSplineStyle=AValue then Exit;
   FSplineStyle:=AValue;
+  ToolUpdate;
   if Assigned(FOnSplineStyleChanged) then FOnSplineStyleChanged(self);
 end;
 
@@ -1089,6 +1177,7 @@ procedure TToolManager.SetTextAlign(AValue: TAlignment);
 begin
   if FTextAlign=AValue then Exit;
   FTextAlign:=AValue;
+  ToolUpdate;
   if Assigned(FOnTextAlignChanged) then FOnTextAlignChanged(self);
 end;
 
@@ -1096,6 +1185,7 @@ procedure TToolManager.SetTextPhong(AValue: boolean);
 begin
   if FTextPhong=AValue then Exit;
   FTextPhong:=AValue;
+  ToolUpdate;
   if Assigned(FOnTextPhongChanged) then FOnTextPhongChanged(self);
 end;
 
@@ -1103,6 +1193,7 @@ procedure TToolManager.SetTextShadow(AValue: boolean);
 begin
   if FTextShadow=AValue then Exit;
   FTextShadow:=AValue;
+  ToolUpdate;
   if Assigned(FOnTextShadowChanged) then FOnTextShadowChanged(self);
 end;
 
@@ -1110,13 +1201,16 @@ procedure TToolManager.SetTextShadowBlurRadius(AValue: single);
 begin
   if FTextShadowBlurRadius=AValue then Exit;
   FTextShadowBlurRadius:=AValue;
-
+  ToolUpdate;
+  if Assigned(FOnTextShadowChanged) then FOnTextShadowChanged(self);
 end;
 
 procedure TToolManager.SetTextShadowOffset(AValue: TPoint);
 begin
   if FTextShadowOffset=AValue then Exit;
   FTextShadowOffset:=AValue;
+  ToolUpdate;
+  if Assigned(FOnTextShadowChanged) then FOnTextShadowChanged(self);
 end;
 
 procedure TToolManager.SetTextureOpacity(AValue: byte);
@@ -1124,6 +1218,7 @@ begin
   if AValue = FTextureOpactiy then exit;
   FreeAndNil(FTextureAfterAlpha);
   FTextureOpactiy := AValue;
+  ToolUpdate;
   if Assigned(FOnTextureChanged) then FOnTextureChanged(self);
 end;
 
@@ -1131,6 +1226,7 @@ procedure TToolManager.SetTolerance(AValue: byte);
 begin
   if FTolerance=AValue then Exit;
   FTolerance:=AValue;
+  ToolUpdate;
   if Assigned(FOnToleranceChanged) then FOnToleranceChanged(self);
 end;
 
@@ -1263,17 +1359,17 @@ end;
 
 function TToolManager.GetTextFontName: string;
 begin
-  result := FTextFont.Name;
+  result := FTextFontName;
 end;
 
-function TToolManager.GetTextFontSize: integer;
+function TToolManager.GetTextFontSize: single;
 begin
-  result := FTextFont.Size;
+  result := FTextFontSize;
 end;
 
 function TToolManager.GetTextFontStyle: TFontStyles;
 begin
-  result := FTextFont.Style;
+  result := FTextFontStyle;
 end;
 
 function TToolManager.GetTextureOpacity: byte;
@@ -1281,27 +1377,383 @@ begin
   result := FTextureOpactiy;
 end;
 
+function TToolManager.ScriptGetBackColor(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Pixels['Result'] := BackColor;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetBrushCount(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Integers['Result'] := BrushCount;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetBrushIndex(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Integers['Result'] := BrushIndex;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetBrushSpacing(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Integers['Result'] := BrushSpacing;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetEraserAlpha(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Integers['Result'] := EraserAlpha;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetEraserMode(AVars: TVariableSet): TScriptResult;
+begin
+  result := srOk;
+  case EraserMode of
+  emEraseAlpha: AVars.Strings['Result'] := 'EraseAlpha';
+  emSoften: AVars.Strings['Result'] := 'Soften';
+  else result := srException;
+  end;
+end;
+
+function TToolManager.ScriptGetFontName(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Strings['Name'] := TextFontName;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetFontSize(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Floats['Result'] := TextFontSize;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetFontStyle(AVars: TVariableSet): TScriptResult;
+var
+  styles: TScriptVariableReference;
+  style: TFontStyle;
+begin
+  styles := AVars.AddStringList('Result');
+  for style := low(TFontStyle) to high(TFontStyle) do
+    if style in TextFontStyle then
+    case style of
+    fsBold: AVars.AppendString(styles, 'Bold');
+    fsItalic: Avars.AppendString(styles, 'Italic');
+    fsUnderline: Avars.AppendString(styles, 'Underline');
+    fsStrikeOut: Avars.AppendString(styles, 'StrikeOut');
+    end;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetJoinStyle(AVars: TVariableSet): TScriptResult;
+begin
+  result := srOk;
+  case JoinStyle of
+  pjsBevel: AVars.Strings['Result'] := 'Bevel';
+  pjsRound: AVars.Strings['Result'] := 'Round';
+  pjsMiter: AVars.Strings['Result'] := 'Miter';
+  else result := srException;
+  end;
+end;
+
+function TToolManager.ScriptGetPenColor(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Pixels['Result'] := ForeColor;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetPenStyle(AVars: TVariableSet): TScriptResult;
+begin
+  result := srOk;
+  case PenStyle of
+  psSolid: AVars.Strings['Result'] := 'Solid';
+  psDash: AVars.Strings['Result'] := 'Dash';
+  psDot: AVars.Strings['Result'] := 'Dot';
+  psDashDot: AVars.Strings['Result'] := 'DashDot';
+  psDashDotDot: AVars.Strings['Result'] := 'DashDotDot';
+  else result := srException;
+  end;
+end;
+
+function TToolManager.ScriptGetPenWidth(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Floats['Result'] := PenWidth;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetShapeOptions(AVars: TVariableSet): TScriptResult;
+var
+  options: TScriptVariableReference;
+  opt: TShapeOption;
+begin
+  options := AVars.AddStringList('Result');
+  for opt := low(TShapeOption) to high(TShapeOption) do
+    if opt in ShapeOptions then
+    case opt of
+    toAliasing: AVars.AppendString(options, 'Aliasing');
+    toDrawShape: Avars.AppendString(options, 'DrawShape');
+    toFillShape: Avars.AppendString(options, 'FillShape');
+    toCloseShape: Avars.AppendString(options, 'CloseShape');
+    end;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetShapeRatio(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Floats['Result'] := ShapeRatio;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetTextAlign(AVars: TVariableSet): TScriptResult;
+begin
+  case TextAlign of
+  taLeftJustify: AVars.Strings['Result'] := 'Left';
+  taCenter: AVars.Strings['Result'] := 'Center';
+  taRightJustify: AVars.Strings['Result'] := 'Right';
+  else exit(srException);
+  end;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetTextOutline(AVars: TVariableSet): TScriptResult;
+begin
+  if TextOutline then
+    AVars.Floats['Result'] := TextOutlineWidth
+  else
+    AVars.Floats['Result'] := 0;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetTextPhong(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Booleans['Result'] := TextPhong;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetTolerance(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Integers['Result'] := Tolerance;
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetBackColor(AVars: TVariableSet): TScriptResult;
+begin
+  BackColor := AVars.Pixels['Color'];
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetBrushIndex(AVars: TVariableSet): TScriptResult;
+var
+  index: Int64;
+begin
+  index := AVars.Integers['Index'];
+  if (index < 0) or (index >= BrushCount) then exit(srException);
+  BrushIndex:= index;
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetBrushSpacing(AVars: TVariableSet): TScriptResult;
+begin
+  BrushSpacing := AVars.Integers['Spacing'];
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetEraserAlpha(AVars: TVariableSet): TScriptResult;
+var
+  alpha: Int64;
+begin
+  alpha := AVars.Integers['Alpha'];
+  if alpha < 0 then alpha := 0;
+  if alpha > 255 then alpha := 255;
+  EraserAlpha:= alpha;
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetEraserMode(AVars: TVariableSet): TScriptResult;
+begin
+  result := srOk;
+  case AVars.Strings['Mode'] of
+  'EraseAlpha': EraserMode:= emEraseAlpha;
+  'Soften': EraserMode := emSoften;
+  else result := srInvalidParameters;
+  end;
+end;
+
+function TToolManager.ScriptSetFontName(AVars: TVariableSet): TScriptResult;
+begin
+  SetTextFont(AVars.Strings['Name'], TextFontSize, TextFontStyle);
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetFontSize(AVars: TVariableSet): TScriptResult;
+begin
+  SetTextFont(TextFontName, AVars.Floats['Size'], TextFontStyle);
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetFontStyle(AVars: TVariableSet): TScriptResult;
+var style: TFontStyles;
+  styles: TScriptVariableReference;
+  i: Integer;
+  styleStr: string;
+begin
+  style := [];
+  styles := AVars.GetVariable('Style');
+  for i := 0 to AVars.GetListCount(styles)-1 do
+  begin
+    styleStr := AVars.GetStringAt(styles, i);
+    case styleStr of
+    'Bold': include(style, fsBold);
+    'Italic': include(style, fsItalic);
+    'Underline': include(style, fsUnderline);
+    'StrikeOut': include(style, fsStrikeOut);
+    else exit(srInvalidParameters);
+    end;
+  end;
+  SetTextFont(TextFontName, TextFontSize, style);
+  result := srOk;
+end;
+function TToolManager.ScriptSetJoinStyle(AVars: TVariableSet): TScriptResult;
+begin
+  result := srOk;
+  case AVars.Strings['Style'] of
+  'Bevel': JoinStyle := pjsBevel;
+  'Miter': JoinStyle := pjsMiter;
+  'Round': JoinStyle := pjsRound;
+  else result := srInvalidParameters;
+  end;
+end;
+
+function TToolManager.ScriptSetPenColor(AVars: TVariableSet): TScriptResult;
+begin
+  ForeColor := AVars.Pixels['Color'];
+  ToolUpdate;
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetPenStyle(AVars: TVariableSet): TScriptResult;
+begin
+  result := srOk;
+  case AVars.Strings['Style'] of
+  'Solid': PenStyle := psSolid;
+  'Dash': PenStyle := psDash;
+  'Dot': PenStyle := psDot;
+  'DashDot': PenStyle := psDashDot;
+  'DashDotDot': PenStyle := psDashDotDot;
+  else result := srInvalidParameters;
+  end;
+end;
+
+function TToolManager.ScriptSetPenWidth(AVars: TVariableSet): TScriptResult;
+begin
+  PenWidth:= AVars.Floats['Width'];
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetShapeOptions(AVars: TVariableSet): TScriptResult;
+var so: TShapeOptions;
+  options: TScriptVariableReference;
+  i: Integer;
+  opt: String;
+begin
+  so := [];
+  options := AVars.GetVariable('Options');
+  for i := 0 to AVars.GetListCount(options)-1 do
+  begin
+    opt := AVars.GetStringAt(options, i);
+    case opt of
+    'Aliasing': include(so, toAliasing);
+    'DrawShape': include(so, toDrawShape);
+    'FillShape': include(so, toFillShape);
+    'CloseShape': include(so, toCloseShape);
+    else exit(srInvalidParameters);
+    end;
+  end;
+  if [toDrawShape,toFillShape]*so = [] then
+    so := so + [toDrawShape,toFillShape]*ShapeOptions;
+  ShapeOptions := so;
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetShapeRatio(AVars: TVariableSet): TScriptResult;
+var
+  ratio: single;
+begin
+  ratio := AVars.Floats['Ratio'];
+  if ratio <= 0 then result := srException else
+  begin
+    ShapeRatio := ratio;
+    result := srOk;
+  end;
+end;
+
+function TToolManager.ScriptSetTextAlign(AVars: TVariableSet): TScriptResult;
+begin
+  case AVars.Strings['Align'] of
+  'Left': TextAlign:= taLeftJustify;
+  'Center': TextAlign:= taCenter;
+  'Right': TextAlign:= taRightJustify;
+  else exit(srInvalidParameters);
+  end;
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetTextOutline(AVars: TVariableSet): TScriptResult;
+begin
+  if AVars.IsDefined('Width') and (AVars.Floats['Width'] > 0) then
+    SetTextOutline(true, AVars.Floats['Width'])
+  else
+    SetTextOutline(false, TextOutlineWidth);
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetTextPhong(AVars: TVariableSet): TScriptResult;
+begin
+  TextPhong:= AVars.Booleans['Enabled'];
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetTolerance(AVars: TVariableSet): TScriptResult;
+var
+  alpha: Int64;
+begin
+  alpha := AVars.Integers['Tolerance'];
+  if alpha < 0 then alpha := 0;
+  if alpha > 255 then alpha := 255;
+  Tolerance:= alpha;
+  result := srOk;
+end;
+
 procedure TToolManager.SetBrushIndex(AValue: integer);
 begin
   if FBrushIndex=AValue then Exit;
   FBrushIndex:=AValue;
+  ToolUpdate;
   if Assigned(FOnBrushChanged) then FOnBrushChanged(self);
 end;
 
 procedure TToolManager.SetBrushSpacing(AValue: integer);
 begin
+  if AValue < 0 then AValue := 0;
+  if AValue > MaxBrushSpacing then AValue := MaxBrushSpacing;
   if FBrushSpacing=AValue then Exit;
   FBrushSpacing:=AValue;
+  ToolUpdate;
   if Assigned(FOnBrushChanged) then FOnBrushChanged(self);
 end;
 
-constructor TToolManager.Create(AImage: TLazPaintImage; AConfigProvider: IConfigProvider; ABitmapToVirtualScreen: TBitmapToVirtualScreenFunction; ABlackAndWhite : boolean);
+constructor TToolManager.Create(AImage: TLazPaintImage; AConfigProvider: IConfigProvider;
+  ABitmapToVirtualScreen: TBitmapToVirtualScreenFunction;
+  ABlackAndWhite : boolean; AScriptContext: TScriptContext);
 begin
   FImage:= AImage;
   BitmapToVirtualScreen := ABitmapToVirtualScreen;
   FShouldExitTool:= false;
   FConfigProvider := AConfigProvider;
   FBlackAndWhite := ABlackAndWhite;
+  FScriptContext := AScriptContext;
+  RegisterScriptFunctions(True);
 
   FForeColor := BGRABlack;
   FBackColor := BGRA(0,0,255);
@@ -1330,9 +1782,9 @@ begin
   FTextOutline := False;
   FTextOutlineWidth := 2;
   FTextShadow := false;
-  FTextFont := TFont.Create;
-  FTextFont.Size := 10;
-  FTextFont.Name := 'Arial';
+  FTextFontSize := 10;
+  FTextFontName := 'Arial';
+  FTextFontStyle:= [];
   FTextAlign := taLeftJustify;
   FTextPhong := False;
   FTextShadowBlurRadius := 4;
@@ -1409,7 +1861,8 @@ begin
   FTexture.FreeReference;
   FTexture := nil;
   FTextureAfterAlpha.Free;
-  FTextFont.Free;
+
+  RegisterScriptFunctions(False);
   inherited Destroy;
 end;
 
@@ -1467,7 +1920,7 @@ begin
   Config.SetDefaultToolOptionCloseShape(toCloseShape in ShapeOptions);
   Config.SetDefaultToolTolerance(Tolerance);
 
-  Config.SetDefaultToolTextFont(FTextFont);
+  Config.SetDefaultToolTextFont(FTextFontName, FTextFontSize, FTextFontStyle);
   Config.SetDefaultToolTextShadow(TextShadow);
   Config.SetDefaultToolTextOutline(TextOutline);
   Config.SetDefaultToolTextOutlineWidth(TextOutlineWidth);
@@ -1575,51 +2028,58 @@ begin
       FCurrentTool := nil;
 
     FCurrentToolType:= tool;
+
+    if not IsSelectingTool then
+      Image.ReleaseEmptySelection;
+
+    Image.RenderMayChange(rect(0,0,Image.Width,Image.Height),True);
+
+    UpdateContextualToolbars;
+    If Assigned(FOnToolChangedHandler) then
+      FOnToolChangedHandler(self, FCurrentToolType);
   end;
-
-  if not IsSelectingTool then
-    Image.ReleaseEmptySelection;
-
-  Image.RenderMayChange(rect(0,0,Image.Width,Image.Height),True);
-
-  UpdateContextualToolbars;
-
   FShouldExitTool:= false;
 end;
 
-procedure TToolManager.UpdateContextualToolbars;
+function TToolManager.UpdateContextualToolbars: boolean;
 var
   contextualToolbars: TContextualToolbars;
+
+  procedure OrResult(AValue: boolean);
+  begin
+    if AValue then result := true;
+  end;
+
 begin
+  result := false;
   if Assigned(FCurrentTool) then
     contextualToolbars := FCurrentTool.GetContextualToolbars
   else
     contextualToolbars := [ctColor,ctTexture];
 
-  SetControlsVisible(PenColorControls, ctColor in contextualToolbars);
-  SetControlsVisible(TextureControls, ctTexture in contextualToolbars);
-  SetControlsVisible(BrushControls, ctBrush in contextualToolbars);
-  SetControlsVisible(ShapeControls, ctShape in contextualToolbars);
-  SetControlsVisible(PenWidthControls, (ctPenWidth in contextualToolbars) and (toDrawShape in ShapeOptions));
-  SetControlsVisible(JoinStyleControls, (ctJoinStyle in contextualToolbars) and (toDrawShape in ShapeOptions));
-  SetControlsVisible(PenStyleControls, (ctPenStyle in contextualToolbars) and (toDrawShape in ShapeOptions));
-  SetControlsVisible(CloseShapeControls, (ctCloseShape in contextualToolbars) or (ctLineCap in contextualToolbars));
-  SetControlsVisible(LineCapControls, (ctLineCap in contextualToolbars) and not (toCloseShape in ShapeOptions) and (toDrawShape in ShapeOptions));
-  SetControlsVisible(AliasingControls, ctAliasing in contextualToolbars);
-  SetControlsVisible(SplineStyleControls, ctSplineStyle in contextualToolbars);
-  SetControlsVisible(EraserControls, ctEraserOption in contextualToolbars);
-  SetControlsVisible(ToleranceControls, ctTolerance in contextualToolbars);
-  SetControlsVisible(GradientControls, ctGradient in contextualToolbars);
-  SetControlsVisible(DeformationControls, ctDeformation in contextualToolbars);
-  SetControlsVisible(TextControls, ctText in contextualToolbars);
-  SetControlsVisible(TextShadowControls, ctTextShadow in contextualToolbars);
-  SetControlsVisible(PhongControls, ctPhong in contextualToolbars);
-  SetControlsVisible(AltitudeControls, ctAltitude in contextualToolbars);
-  SetControlsVisible(PerspectiveControls, ctPerspective in contextualToolbars);
-  SetControlsVisible(RatioControls, ctRatio in contextualToolbars);
+  OrResult(SetControlsVisible(PenColorControls, ctColor in contextualToolbars));
+  OrResult(SetControlsVisible(TextureControls, ctTexture in contextualToolbars));
+  OrResult(SetControlsVisible(BrushControls, ctBrush in contextualToolbars));
+  OrResult(SetControlsVisible(ShapeControls, ctShape in contextualToolbars));
+  OrResult(SetControlsVisible(PenWidthControls, (ctPenWidth in contextualToolbars) and (toDrawShape in ShapeOptions)));
+  OrResult(SetControlsVisible(JoinStyleControls, (ctJoinStyle in contextualToolbars) and (toDrawShape in ShapeOptions)));
+  OrResult(SetControlsVisible(PenStyleControls, (ctPenStyle in contextualToolbars) and (toDrawShape in ShapeOptions)));
+  OrResult(SetControlsVisible(CloseShapeControls, (ctCloseShape in contextualToolbars) or (ctLineCap in contextualToolbars)));
+  OrResult(SetControlsVisible(LineCapControls, (ctLineCap in contextualToolbars) and not (toCloseShape in ShapeOptions) and (toDrawShape in ShapeOptions)));
+  OrResult(SetControlsVisible(AliasingControls, ctAliasing in contextualToolbars));
+  OrResult(SetControlsVisible(SplineStyleControls, ctSplineStyle in contextualToolbars));
+  OrResult(SetControlsVisible(EraserControls, ctEraserOption in contextualToolbars));
+  OrResult(SetControlsVisible(ToleranceControls, ctTolerance in contextualToolbars));
+  OrResult(SetControlsVisible(GradientControls, ctGradient in contextualToolbars));
+  OrResult(SetControlsVisible(DeformationControls, ctDeformation in contextualToolbars));
+  OrResult(SetControlsVisible(TextControls, ctText in contextualToolbars));
+  OrResult(SetControlsVisible(TextShadowControls, ctTextShadow in contextualToolbars));
+  OrResult(SetControlsVisible(PhongControls, ctPhong in contextualToolbars));
+  OrResult(SetControlsVisible(AltitudeControls, ctAltitude in contextualToolbars));
+  OrResult(SetControlsVisible(PerspectiveControls, ctPerspective in contextualToolbars));
+  OrResult(SetControlsVisible(RatioControls, ctRatio in contextualToolbars));
 
-  If Assigned(FOnToolChangedHandler) then
-    FOnToolChangedHandler(self, FCurrentToolType);
+  if result and Assigned(FOnToolbarChanged) then FOnToolbarChanged(self);
 end;
 
 function TToolManager.InternalBitmapToVirtualScreen(PtF: TPointF): TPointF;
@@ -1643,9 +2103,80 @@ begin
     OffsetRect(result, FCurrentTool.LayerOffset.X,FCurrentTool.LayerOffset.Y);
 end;
 
-procedure TToolManager.SetDeformationGridSizeProc(const ASize: TSize);
+procedure TToolManager.RegisterScriptFunctions(ARegister: boolean);
 begin
-  SetDeformationGridSize(ASize);
+  if not Assigned(FScriptContext) then exit;
+  FScriptContext.RegisterScriptFunction('ToolSetPenColor', @ScriptSetPenColor, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetPenColor', @ScriptGetPenColor, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetBackColor', @ScriptSetBackColor, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetBackColor', @ScriptGetBackColor, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetEraserMode', @ScriptSetEraserMode, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetEraserMode', @ScriptGetEraserMode, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetEraserAlpha', @ScriptSetEraserAlpha, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetEraserAlpha', @ScriptGetEraserAlpha, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetPenWidth', @ScriptSetPenWidth, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetPenWidth', @ScriptGetPenWidth, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetPenStyle', @ScriptSetPenStyle, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetPenStyle', @ScriptGetPenStyle, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetJoinStyle', @ScriptSetJoinStyle, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetJoinStyle', @ScriptGetJoinStyle, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetShapeOptions', @ScriptSetShapeOptions, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetShapeOptions', @ScriptGetShapeOptions, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetShapeRatio', @ScriptSetShapeRatio, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetShapeRatio', @ScriptGetShapeRatio, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetBrushIndex', @ScriptSetBrushIndex, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetBrushIndex', @ScriptGetBrushIndex, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetBrushCount', @ScriptGetBrushCount, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetBrushSpacing', @ScriptSetBrushSpacing, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetBrushSpacing', @ScriptGetBrushSpacing, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetFontName', @ScriptSetFontName, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetFontName', @ScriptGetFontName, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetFontSize', @ScriptSetFontSize, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetFontSize', @ScriptGetFontSize, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetFontStyle', @ScriptSetFontStyle, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetFontStyle', @ScriptGetFontStyle, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetTextAlign', @ScriptSetTextAlign, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetTextAlign', @ScriptGetTextAlign, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetTextOutline', @ScriptSetTextOutline, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetTextOutline', @ScriptGetTextOutline, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetTextPhong', @ScriptSetTextPhong, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetTextPhong', @ScriptGetTextPhong, ARegister);
+{  FScriptContext.RegisterScriptFunction('ToolSetLightPosition', @ScriptSetLightPosition, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetLightPosition', @ScriptGetLightPosition, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetLightAltitude', @ScriptSetLightAltitude, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetLightAltitude', @ScriptGetLightAltitude, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetLineCap', @ScriptSetLineCap, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetLineCap', @ScriptGetLineCap, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetArrowStart', @ScriptSetArrowStart, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetArrowStart', @ScriptGetArrowStart, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetArrowEnd', @ScriptSetArrowEnd, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetArrowEnd', @ScriptGetArrowEnd, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetArrowSize', @ScriptSetArrowSize, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetArrowSize', @ScriptGetArrowSize, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetSplineStyle', @ScriptSetSplineStyle, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetSplineStyle', @ScriptGetSplineStyle, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetGradientType', @ScriptSetGradientType, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetGradientType', @ScriptGetGradientType, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetGradientSine', @ScriptSetGradientSine, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetGradientSine', @ScriptGetGradientSine, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetGradientColorspace', @ScriptSetGradientColorspace, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetGradientColorspace', @ScriptGetGradientColorspace, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetPhongShapeAltitude', @ScriptSetPhongShapeAltitude, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetPhongShapeAltitude', @ScriptGetPhongShapeAltitude, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetPhongShapeBorderSize', @ScriptSetPhongShapeBorderSize, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetPhongShapeBorderSize', @ScriptGetPhongShapeBorderSize, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetPhongShapeKind', @ScriptSetPhongShapeKind, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetPhongShapeKind', @ScriptGetPhongShapeKind, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetDeformationGridSize', @ScriptSetDeformationGridSize, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetDeformationGridSize', @ScriptGetDeformationGridSize, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetDeformationGridMode', @ScriptSetDeformationGridMode, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetDeformationGridMode', @ScriptGetDeformationGridMode, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetTolerance', @ScriptSetTolerance, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetTolerance', @ScriptGetTolerance, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetFloodFillOptions', @ScriptSetFloodFillOptions, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetFloodFillOptions', @ScriptGetFloodFillOptions, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetPerspectiveOptions', @ScriptSetPerspectiveOptions, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetPerspectiveOptions', @ScriptGetPerspectiveOptions, ARegister);}
 end;
 
 procedure TToolManager.ToolWakeUp;
@@ -1673,18 +2204,16 @@ end;
 
 { tool implementation }
 
-function TToolManager.SetDeformationGridSize(ASize: TSize): boolean;
+procedure TToolManager.SetDeformationGridSize(ASize: TSize);
 begin
-  result := false;
   if ASize.cx < 3 then ASize.cx := 3;
   if ASize.cy < 3 then ASize.cy := 3;
   if (ASize.cx <> DeformationGridNbX) or (ASize.cy <> DeformationGridNbY) then
   begin
     FDeformationGridNbX := ASize.cx;
     FDeformationGridNbY := ASize.cy;
+    ToolUpdate;
     if Assigned(FOnDeformationGridChanged) then FOnDeformationGridChanged(self);
-    CurrentTool.AfterGridSizeChange(ASize.cx,ASize.cy);
-    result := true;
   end;
 end;
 
@@ -1717,6 +2246,7 @@ begin
   end;
   FTextureOpactiy:= AOpacity;
   FreeAndNil(FTextureAfterAlpha);
+  ToolUpdate;
   if Assigned(FOnTextureChanged) then FOnTextureChanged(self);
 end;
 
@@ -1770,16 +2300,17 @@ begin
   end;
 end;
 
-procedure TToolManager.SetTextFont(AName: string; ASize: integer;
+procedure TToolManager.SetTextFont(AName: string; ASize: single;
   AStyle: TFontStyles);
 begin
-  if (FTextFont.Name <> AName) or
-    (FTextFont.Size <> ASize) or
-    (FTextFont.Style <> AStyle) then
+  if (FTextFontName <> AName) or
+    (FTextFontSize <> ASize) or
+    (FTextFontStyle <> AStyle) then
   begin
-    FTextFont.Name := AName;
-    FTextFont.Size := ASize;
-    FTextFont.Style := AStyle;
+    FTextFontName := AName;
+    if ASize >= 0 then FTextFontSize := ASize;
+    FTextFontStyle := AStyle;
+    ToolUpdate;
     if Assigned(FOnTextFontChanged) then FOnTextFontChanged(self);
   end;
 end;
@@ -1789,11 +2320,6 @@ begin
   SetTextFont(AFont.Name, AFont.Size, AFont.Style);
 end;
 
-function TToolManager.GetTextFont: TFont;
-begin
-  result := FTextFont;
-end;
-
 procedure TToolManager.SetTextOutline(AEnabled: boolean; AWidth: single);
 begin
   if (FTextOutline <> AEnabled) or
@@ -1801,6 +2327,7 @@ begin
   begin
     FTextOutlineWidth := AWidth;
     FTextOutline := AEnabled;
+    ToolUpdate;
     if Assigned(FOnTextOutlineChanged) then FOnTextOutlineChanged(self);
   end;
 end;
@@ -1809,84 +2336,120 @@ function TToolManager.ToolDown(X, Y: single; ARightBtn: boolean;
   APressure: single): boolean;
 var changed: TRect;
 begin
-  SetPressure(APressure);
-  if ToolCanBeUsed then
-    changed := currentTool.ToolDown(X,Y,ARightBtn)
-  else
-    changed := EmptyRect;
-  result := not IsRectEmpty(changed);
-  if IsOnlyRenderChange(changed) then changed := EmptyRect;
+  if FInTool then exit(false);
+  FInTool := true;
+  try
+    SetPressure(APressure);
+    if ToolCanBeUsed then
+      changed := currentTool.ToolDown(X,Y,ARightBtn)
+    else
+      changed := EmptyRect;
+    result := not IsRectEmpty(changed);
+    if IsOnlyRenderChange(changed) then changed := EmptyRect;
 
-  if CheckExitTool then result := true;
-  if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
+    if CheckExitTool then result := true;
+    if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
+  finally
+    FInTool := false;
+  end;
 end;
 
 function TToolManager.ToolMove(X, Y: single; APressure: single): boolean;
 var changed: TRect;
 begin
-  SetPressure(APressure);
-  if ToolCanBeUsed then
-    changed := currentTool.ToolMove(X,Y)
-  else
-    changed := EmptyRect;
-  result := not IsRectEmpty(changed);
-  if IsOnlyRenderChange(changed) then changed := EmptyRect;
+  if FInTool then exit(false);
+  FInTool := true;
+  try
+    SetPressure(APressure);
+    if ToolCanBeUsed then
+      changed := currentTool.ToolMove(X,Y)
+    else
+      changed := EmptyRect;
+    result := not IsRectEmpty(changed);
+    if IsOnlyRenderChange(changed) then changed := EmptyRect;
 
-  if CheckExitTool then result := true;
-  if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
+    if CheckExitTool then result := true;
+    if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
+  finally
+    FInTool := false;
+  end;
 end;
 
 function TToolManager.ToolKeyDown(var key: Word): boolean;
 var changed: TRect;
 begin
-  if ToolCanBeUsed then
-    changed := currentTool.ToolKeyDown(key)
-  else
-    changed := EmptyRect;
-  result := not IsRectEmpty(changed);
-  if IsOnlyRenderChange(changed) then changed := EmptyRect;
+  if FInTool then exit(false);
+  FInTool := true;
+  try
+    if ToolCanBeUsed then
+      changed := currentTool.ToolKeyDown(key)
+    else
+      changed := EmptyRect;
+    result := not IsRectEmpty(changed);
+    if IsOnlyRenderChange(changed) then changed := EmptyRect;
 
-  if CheckExitTool then result := true;
-  if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
+    if CheckExitTool then result := true;
+    if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
+  finally
+    FInTool := false;
+  end;
 end;
 
 function TToolManager.ToolKeyUp(var key: Word): boolean;
 var changed: TRect;
 begin
-  if ToolCanBeUsed then
-    changed := currentTool.ToolKeyUp(key)
-  else
-    changed := EmptyRect;
-  result := not IsRectEmpty(changed);
-  if IsOnlyRenderChange(changed) then changed := EmptyRect;
+  if FInTool then exit(false);
+  FInTool := true;
+  try
+    if ToolCanBeUsed then
+      changed := currentTool.ToolKeyUp(key)
+    else
+      changed := EmptyRect;
+    result := not IsRectEmpty(changed);
+    if IsOnlyRenderChange(changed) then changed := EmptyRect;
 
-  if CheckExitTool then result := true;
-  if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
+    if CheckExitTool then result := true;
+    if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
+  finally
+    FInTool := false;
+  end;
 end;
 
 function TToolManager.ToolKeyPress(var key: TUTF8Char): boolean;
 var changed: TRect;
 begin
-  if ToolCanBeUsed then
-    changed := currentTool.ToolKeyPress(key)
-  else
-    changed := EmptyRect;
-  result := not IsRectEmpty(changed);
-  if IsOnlyRenderChange(changed) then changed := EmptyRect;
+  if FInTool then exit(false);
+  FInTool := true;
+  try
+    if ToolCanBeUsed then
+      changed := currentTool.ToolKeyPress(key)
+    else
+      changed := EmptyRect;
+    result := not IsRectEmpty(changed);
+    if IsOnlyRenderChange(changed) then changed := EmptyRect;
 
-  if CheckExitTool then result := true;
-  if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
+    if CheckExitTool then result := true;
+    if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
+  finally
+    FInTool := false;
+  end;
 end;
 
 function TToolManager.ToolCommand(ACommand: TToolCommand): boolean;
 begin
-  if Assigned(FCurrentTool) then
-  begin
-    result := FCurrentTool.ToolCommand(ACommand);
-    CheckExitTool;
-  end
-  else
-    result := false;
+  if FInTool then exit(false);
+  FInTool := true;
+  try
+    if Assigned(FCurrentTool) then
+    begin
+      result := FCurrentTool.ToolCommand(ACommand);
+      CheckExitTool;
+    end
+    else
+      result := false;
+  finally
+    FInTool := false;
+  end;
 end;
 
 function TToolManager.ToolProvideCommand(ACommand: TToolCommand): boolean;
@@ -1900,28 +2463,43 @@ end;
 function TToolManager.ToolUp: boolean;
 var changed: TRect;
 begin
-  if ToolCanBeUsed then
-    changed := currentTool.ToolUp
-  else
-    changed := EmptyRect;
-  result := not IsRectEmpty(changed);
-  if IsOnlyRenderChange(changed) then changed := EmptyRect;
+  if FInTool then exit(false);
+  FInTool := true;
+  try
+    if ToolCanBeUsed then
+      changed := currentTool.ToolUp
+    else
+      changed := EmptyRect;
+    result := not IsRectEmpty(changed);
+    if IsOnlyRenderChange(changed) then changed := EmptyRect;
 
-  if CheckExitTool then result := true;
-  if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
+    if CheckExitTool then result := true;
+    if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
+  finally
+    FInTool := false;
+  end;
 end;
 
 procedure TToolManager.ToolCloseDontReopen;
 begin
   if CurrentTool <> nil then
+  begin
+    if FInTool then raise exception.Create('Cannot close active tool');
     FreeAndNil(FCurrentTool);
+  end;
 end;
 
 procedure TToolManager.ToolCloseAndReopenImmediatly;
 begin
   if CurrentTool <> nil then
   begin
-    FreeAndNil(FCurrentTool);
+    if FInTool then raise exception.Create('Cannot close active tool');
+    FInTool := true;
+    try
+      FreeAndNil(FCurrentTool);
+    finally
+      FInTool := false;
+    end;
     ToolOpen;
   end;
 end;
@@ -1929,21 +2507,35 @@ end;
 procedure TToolManager.ToolOpen;
 begin
   if (FCurrentTool = nil) and (PaintTools[FCurrentToolType] <> nil) then
-    FCurrentTool := PaintTools[FCurrentToolType].Create(self);
+  begin
+    if FInTool then raise exception.Create('Internal error');
+    FInTool := true;
+    try
+      FCurrentTool := PaintTools[FCurrentToolType].Create(self);
+    finally
+      FInTool := false;
+    end;
+  end;
 end;
 
 function TToolManager.ToolUpdate: boolean;
 var changed: TRect;
 begin
-  if ToolCanBeUsed then
-    changed := currentTool.ToolUpdate
-  else
-    changed := EmptyRect;
-  result := not IsRectEmpty(changed);
-  if IsOnlyRenderChange(changed) then changed := EmptyRect;
+  if FInTool then exit(false);
+  FInTool := true;
+  try
+    if ToolCanBeUsed then
+      changed := currentTool.ToolUpdate
+    else
+      changed := EmptyRect;
+    result := not IsRectEmpty(changed);
+    if IsOnlyRenderChange(changed) then changed := EmptyRect;
 
-  if CheckExitTool then result := true;
-  if result then NotifyImageOrSelectionChanged(CurrentTool.LastToolDrawingLayer, changed);
+    if CheckExitTool then result := true;
+    if result then NotifyImageOrSelectionChanged(CurrentTool.LastToolDrawingLayer, changed);
+  finally
+    FInTool := false;
+  end;
 end;
 
 function TToolManager.ToolUpdateNeeded: boolean;
@@ -1982,8 +2574,15 @@ end;
 
 procedure TToolManager.RenderTool(formBitmap: TBGRABitmap);
 begin
-  if ToolCanBeUsed then
-    Image.RenderMayChange(currentTool.Render(formBitmap,formBitmap.Width,formBitmap.Height, @InternalBitmapToVirtualScreen));
+  if ToolCanBeUsed and not FInTool then
+  begin
+    FInTool := true;
+    try
+      Image.RenderMayChange(currentTool.Render(formBitmap,formBitmap.Width,formBitmap.Height, @InternalBitmapToVirtualScreen));
+    finally
+      FInTool := false;
+    end;
+  end;
 end;
 
 function TToolManager.GetRenderBounds(VirtualScreenWidth, VirtualScreenHeight: integer): TRect;

@@ -30,12 +30,12 @@ type
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): Trect;
       override;
     function GetIsSelectingTool: boolean; override;
+    function DoToolUpdate(toolDest: TBGRABitmap): TRect; override;
   public
     function ToolKeyDown(var key: Word): TRect; override;
     function ToolUp: TRect; override;
     function GetContextualToolbars: TContextualToolbars; override;
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
-    procedure AfterGridSizeChange({%H-}NewNbX,{%H-}NewNbY: Integer); override;
     function ToolCommand(ACommand: TToolCommand): boolean; override;
     function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
     destructor Destroy; override;
@@ -837,14 +837,6 @@ begin
   result := true;
 end;
 
-procedure TToolDeformationGrid.AfterGridSizeChange(NewNbX,NewNbY: Integer);
-begin
-  ReleaseGrid;
-  DeformationGrid := nil;
-  DeformationGridTexCoord := nil;
-  //grid will be created when needed
-end;
-
 function TToolDeformationGrid.ToolCommand(ACommand: TToolCommand): boolean;
 begin
   case ACommand of
@@ -1057,6 +1049,20 @@ end;
 function TToolDeformationGrid.GetIsSelectingTool: boolean;
 begin
   Result:= false;
+end;
+
+function TToolDeformationGrid.DoToolUpdate(toolDest: TBGRABitmap): TRect;
+begin
+  if (deformationGridNbX <> Manager.DeformationGridNbX) or
+     (deformationGridNbY <> Manager.DeformationGridNbY) then
+  begin
+    ReleaseGrid;
+    DeformationGrid := nil;
+    DeformationGridTexCoord := nil;
+    Result:= OnlyRenderChange;
+  end
+  else
+    result := EmptyRect;
 end;
 
 function TToolDeformationGrid.Render(VirtualScreen: TBGRABitmap;

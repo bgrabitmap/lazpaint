@@ -38,6 +38,24 @@ STATE_SHIFT = 'Shift'
 STATE_ALT = 'Alt'
 STATE_CTRL = 'Ctrl'
 
+ERASER_MODE_ALPHA = 'EraseAlpha'
+ERASER_MODE_SOFTEN = 'Soften'
+
+PEN_STYLE_SOLD = 'Solid'
+PEN_STYLE_DASH = 'Dash'
+PEN_STYLE_DOT = 'Dot'
+PEN_STYLE_DASH_DOT = 'DashDot'
+PEN_STYLE_DASH_DOT_DOT = 'DashDotDot'
+
+JOIN_STYLE_BEVEL = 'Bevel'
+JOIN_STYLE_MITER = 'Miter'
+JOIN_STYLE_ROUND = 'Round'
+
+SHAPE_OPTION_ALIASING = 'Aliasing'
+SHAPE_OPTION_DRAW_SHAPE = 'DrawShape'
+SHAPE_OPTION_FILL_SHAPE = 'FillShape'
+SHAPE_OPTION_CLOSE_SHAPE = 'CloseShape'
+
 KEY_UNKNOWN = 'Unknown'
 KEY_BACKSPACE = 'Backspace'
 KEY_TAB = 'Tab'
@@ -139,4 +157,52 @@ def keys(keys, state=[]):
 
 def write(text):
   command.send("ToolWrite", Text=text)
+
+def set_pen_color(color):
+  command.send("ToolSetPenColor", Color=color)
+
+def set_back_color(color):
+  command.send("ToolSetBackColor", Color=color)
+
+def get_pen_color():
+  return str_to_RGBA(command.send("ToolGetPenColor?"))
+
+def get_back_color():
+  return str_to_RGBA(command.send("ToolGetBackColor?"))
+
+def set_eraser_mode(mode):
+  command.send('ToolSetEraserMode', Mode=mode)
+
+def get_eraser_mode():
+  return command.send('ToolGetEraserMode?')
+
+def set_eraser_alpha(alpha):
+  command.send('ToolSetEraserAlpha', Alpha=alpha)
+
+def get_eraser_alpha():
+  return command.send('ToolGetEraserAlpha?')
+
+def set_pen_width(width):
+  command.send('ToolSetPenWidth', Width=width)
+
+def get_pen_width():
+  return command.send('ToolGetPenWidth?')
+
+def set_pen_style(style):
+  command.send('ToolSetPenStyle', Style=style)
+
+def get_pen_style():
+  return command.send('ToolGetPenStyle?')
+
+def set_join_style(style):
+  command.send('ToolSetJoinStyle', Style=style)
+
+def get_join_style():
+  return command.send('ToolGetJoinStyle?')
+
+def set_shape_options(options):
+  command.send('ToolSetShapeOptions', Options=options)
+
+def get_shape_options():
+  return command.send('ToolGetShapeOptions?')
 
