@@ -41,10 +41,10 @@ type
     valueType: TScriptVariableType;
     valueFloat: double;
     valueInt: TScriptInteger;
+    valuePoint: TPoint3D;
     valueBool: boolean;
     valueStr: string;
     valuePixel: TBGRAPixel;
-    valuePoint: TPoint3D;
   end;
 
   TScalarVariable = record
@@ -52,11 +52,11 @@ type
     varType: TScriptVariableType;
     case TScriptVariableType of
       svtFloat: (valueFloat: double);
-      svtPoint: (valuePoint: TPoint3D);
       svtInteger: (valueInt: TScriptInteger);
+      svtPoint: (valuePoint: TPoint3D);
       svtBoolean: (valueBool: boolean);
       svtPixel: (valuePix: TBGRAPixel);
-      svtUndefined: (valueBytes: packed array[0..7] of byte);
+      svtUndefined: (valueBytes: packed array[0..11] of byte);
   end;
 
 const
@@ -83,7 +83,7 @@ function ScriptUnquote(const S: string): string;
 function UnescapeString(const S: string): string;
 function TryScriptUnquote(const S: String; out unquotedS: string): TInterpretationErrors;
 function FloatToStrUS(AValue: double): string;
-function ScalarToStr(AVarType: TScriptVariableType; var AValue): string;
+function ScalarToStr(AVarType: TScriptVariableType; const AValue): string;
 function ParseLitteral(var cur: integer; expr: string; var errors: TInterpretationErrors): TParsedLitteral;
 function ParseListType(s: string): TScriptVariableType;
 function FloatToPixel(AValue: double): TBGRAPixel;
@@ -144,7 +144,7 @@ begin
   if (idxE = 0) and (idxPt = 0) then result := result+'.0';
 end;
 
-function ScalarToStr(AVarType: TScriptVariableType; var AValue): string;
+function ScalarToStr(AVarType: TScriptVariableType; const AValue): string;
 begin
   case AVarType of
     svtFloat: result := FloatToStrUS(double(AValue));
@@ -385,7 +385,7 @@ begin
 end;
 
 function ParseListType(s: string): TScriptVariableType;
-var cur,start: integer;
+var cur,start,inPar: integer;
   inQuote: boolean;
   firstVal: TParsedLitteral;
   errors: TInterpretationErrors;
@@ -396,6 +396,7 @@ begin
   if (cur <= length(s)) and (s[cur]='~') then inc(cur);
   while (cur <= length(s)) and (s[cur] in IgnoredWhitespaces) do inc(cur);
   inQuote:= false;
+  inPar := 0;
   start := cur;
   while (cur <= length(s)) do
   begin
@@ -405,7 +406,12 @@ begin
     end else
     begin
       if s[cur]='"' then inQuote:= true else
-      if s[cur] in ['[',']',','] then break;
+      if s[cur]='(' then inc(inPar) else
+      if s[cur]=')' then
+      begin
+        if inPar > 0 then dec(inPar) else break;
+      end else
+      if (inPar = 0) and (s[cur] in ['[',']',',']) then break;
     end;
     inc(cur);
   end;
@@ -416,6 +422,7 @@ begin
   case firstval.valueType of
   svtBoolean: result := svtBoolList;
   svtFloat: result := svtFloatList;
+  svtPoint: result := svtPointList;
   svtInteger: result := svtIntList;
   svtPixel: result := svtPixList;
   svtString: result := svtStrList;

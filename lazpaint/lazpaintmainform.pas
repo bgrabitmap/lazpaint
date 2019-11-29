@@ -3107,7 +3107,7 @@ end;
 
 function TFMain.ScriptToolMouse(AVars: TVariableSet): TScriptResult;
 var
-  state, x, y, pressure: TScriptVariableReference;
+  state, xy, pressure: TScriptVariableReference;
   nb, i: integer;
   ptF: TPointF;
   shiftState: TShiftState;
@@ -3116,14 +3116,12 @@ var
   keyCode: word;
 begin
   state := AVars.GetVariable('State');
-  x := AVars.GetVariable('X');
-  y := AVars.GetVariable('Y');
+  xy := AVars.GetVariable('Coords');
   pressure := AVars.GetVariable('Pressure');
-  if not TVariableSet.IsReferenceDefined(x) or
-     not TVariableSet.IsReferenceDefined(y) or
+  if not TVariableSet.IsReferenceDefined(xy) or
      not TVariableSet.IsReferenceDefined(pressure) then
        exit(srInvalidParameters);
-  nb := min(min(AVars.GetListCount(x), AVars.GetListCount(y)), AVars.GetListCount(pressure));
+  nb := min(AVars.GetListCount(xy), AVars.GetListCount(pressure));
   if nb < 1 then
     exit(srInvalidParameters);
   shiftState := [];
@@ -3151,7 +3149,7 @@ begin
 
   for i := 0 to nb-1 do
   begin
-    ptF := PointF(AVars.GetFloatAt(x, i), AVars.GetFloatAt(y, i));
+    ptF := AVars.GetPoint2DAt(xy, i);
     p := AVars.GetFloatAt(pressure, i);
     if ToolManager.ToolMove(ptF,p) then needUpdate := true;
     if (ssLeft in ShiftState) or (ssRight in shiftState) then

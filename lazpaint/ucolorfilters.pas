@@ -340,7 +340,7 @@ type
     result:= ACurve.x <> nil;
   end;
   function GetCurve(ASubset: TVariableSet; AFactor: NativeInt): TCurveInfo;
-  var XList,YList: TScriptVariableReference;
+  var pointList: TScriptVariableReference;
       i,pointCount: NativeInt;
       trivial: boolean;
       slopeValue,slopeX,slopeY: double;
@@ -349,18 +349,17 @@ type
     result.maxValue := 0;
     if Assigned(ASubset) then
     begin
-      XList := ASubset.GetVariable('X');
-      YList := ASubset.GetVariable('Y');
-      if ASubset.IsReferenceDefined(XList) and
-        ASubset.IsReferenceDefined(YList) then
+      pointList := ASubset.GetVariable('Points');
+      if ASubset.IsReferenceDefined(pointList) then
       begin
-        pointCount := ASubset.GetListCount(XList);
+        pointCount := ASubset.GetListCount(pointList);
         if ASubset.Booleans['Posterize'] then trivial := false
         else
           begin
             trivial := true;
             for i := 0 to pointCount-1 do
-              if abs(ASubset.GetFloatAt(XList, i)-ASubset.GetFloatAt(YList, i)) > 1e-6 then trivial := false;
+              with ASubset.GetPoint2DAt(pointList, i) do
+                if abs(x - y) > 1e-6 then trivial := false;
           end;
         if not trivial then
         begin
@@ -368,9 +367,10 @@ type
           setlength(result.y,pointCount);
           setlengtH(result.slope,pointCount-1);
           for i := 0 to pointCount-1 do
+          with ASubset.GetPoint2DAt(pointList, i) do
           begin
-            result.x[i] := trunc(ASubset.GetFloatAt(XList, i)*AFactor+0.5);
-            result.y[i] := trunc(ASubset.GetFloatAt(YList, i)*AFactor+0.5);
+            result.x[i] := trunc(x*AFactor+0.5);
+            result.y[i] := trunc(y*AFactor+0.5);
           end;
           if ASubset.Booleans['Posterize'] then
           begin

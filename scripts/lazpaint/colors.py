@@ -71,7 +71,7 @@ OLIVE = RGB(128,128,0)
 SILVER = RGB(192,192,192)
 
 def get_curve(points, posterize=False):
-  return {'X': [float(pt[0]) for pt in points], 'Y': [float(pt[1]) for pt in points], 'Posterize': posterize}
+  return {'Points': points, 'Posterize': posterize}
 
 def curves(red=[], red_posterize=False, green=[], green_posterize=False, blue=[], blue_posterize=False, hue=[], hue_posterize=False, saturation=[], saturation_posterize=False, lightness=[], lightness_posterize=False, validate=True):
   command.send('ColorCurves', Red=get_curve(red, red_posterize), Green=get_curve(green, green_posterize), Blue=get_curve(blue, blue_posterize), Hue=get_curve(hue, hue_posterize), Saturation=get_curve(saturation, saturation_posterize), Lightness=get_curve(lightness, lightness_posterize), Validate=validate)

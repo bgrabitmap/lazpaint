@@ -40,7 +40,7 @@ function ShowPosterizeDlg(AInstance: TLazPaintCustomInstance; AParameters: TVari
 
 implementation
 
-uses LCScaleDPI, UMac, UColorFilters;
+uses BGRABitmapTypes, LCScaleDPI, UMac, UColorFilters;
 
 function ShowPosterizeDlg(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): TScriptResult;
 var FPosterize: TFPosterize;
@@ -144,19 +144,15 @@ var params:TVariableSet;
 
   procedure AddPosterize(AChannel :string);
   var
-    XList,YList: TScriptVariableReference;
+    pointList: TScriptVariableReference;
     i: integer;
   begin
     with params.AddSubset(AChannel) do
     begin
       Booleans['Posterize'] := true;
-      XList := AddFloatList('X');
-      YList := AddFloatList('Y');
+      pointList := AddPointList('Points');
       for i := 0 to levels-1 do
-      begin
-        AppendFloat(XList, i/levels);
-        AppendFloat(YList, i/(levels-1));
-      end;
+        AppendPoint(pointList, PointF(i/levels, i/(levels-1)));
     end;
   end;
 

@@ -136,7 +136,7 @@ procedure TFAdjustCurves.vsChartRedraw(Sender: TObject; Bitmap: TBGRABitmap);
 var
   i: Integer;
   curve: TVariableSet;
-  XList,YList: TScriptVariableReference;
+  pointList: TScriptVariableReference;
   pointCount: integer;
   pts,symbols: array of TPointF;
   symbolsColor: array of TBGRAPixel;
@@ -164,14 +164,14 @@ begin
   curve := SelectedCurve;
   if Assigned(curve) then
   begin
-    XList := curve.GetVariable('X');
-    YList := curve.GetVariable('Y');
-    pointCount := curve.GetListCount(XList);
+    pointList := curve.GetVariable('Points');
+    pointCount := curve.GetListCount(pointList);
     setlength(symbols, pointCount);
     setlength(symbolsColor, pointCount);
     for i := 0 to pointCount-1 do
     begin
-      symbols[i] := CoordToBitmap(curve.GetFloatAt(XList,i),curve.GetFloatAt(YList,i));
+      with curve.GetPoint2DAt(pointList,i) do
+        symbols[i] := CoordToBitmap(x, y);
       symbolsColor[i] := CurveColor;
     end;
     if curve.Booleans['Posterize'] then
@@ -204,7 +204,7 @@ begin
       hueGradient.Free;
       for i := 0 to pointCount-1 do
       begin
-        hsla.hue := round(curve.GetFloatAt(XList,i)*65535) and 65535;
+        hsla.hue := round(curve.GetPoint2DAt(pointList,i).x*65535) and 65535;
         symbolsColor[i] := HSLAToBGRA(hsla);
         with symbols[i] do Bitmap.FillEllipseAntialias(x,y,FPointSize,FPointSize,symbolsColor[i]);
       end;
@@ -226,7 +226,7 @@ begin
       hueGradient.Free;
       for i := 0 to pointCount-1 do
       begin
-        hsla.saturation := max(0,min(65535,round(curve.GetFloatAt(XList,i)*65535)));
+        hsla.saturation := max(0,min(65535,round(curve.GetPoint2DAt(pointList,i).x*65535)));
         symbolsColor[i] := GSBAToBGRA(hsla);
         with symbols[i] do Bitmap.FillEllipseAntialias(x,y,FPointSize,FPointSize,symbolsColor[i]);
       end;
@@ -249,7 +249,7 @@ begin
       for i := 0 to pointCount-1 do
       begin
         hsla.alpha := 220*$101;
-        hsla.lightness := max(0,min(65535,round(65535 div 8+curve.GetFloatAt(XList,i)*65535*6/8)));
+        hsla.lightness := max(0,min(65535,round(65535 div 8+curve.GetPoint2DAt(pointList,i).x*65535*6/8)));
         c1 := GSBAToBGRA(hsla);
         hsla.alpha := hsla.lightness;
         hsla.lightness:= 65535-hsla.lightness;
@@ -405,7 +405,7 @@ var curve: TVariableSet;
 begin
   curve := SelectedCurve;
   if curve = nil then result := 0
-  else result := curve.GetListCount(curve.GetVariable('X'));
+  else result := curve.GetListCount(curve.GetVariable('Points'));
 end;
 
 function TFAdjustCurves.GetPosterize: boolean;
@@ -572,7 +572,7 @@ end;
 function TFAdjustCurves.NearestPoint(xBmp, yBmp: single): integer;
 var
   curve: TVariableSet;
-  XList,YList: TScriptVariableReference;
+  pointList: TScriptVariableReference;
   i,pointCount: integer;
   minDist,dist: single;
   pt: TPointF;
@@ -580,13 +580,12 @@ begin
   result := -1;
   curve := SelectedCurve;
   if curve = nil then exit;
-  XList := curve.GetVariable('X');
-  YList := curve.GetVariable('Y');
-  pointCount := curve.GetListCount(XList);
+  pointList := curve.GetVariable('Points');
+  pointCount := curve.GetListCount(pointList);
   minDist := sqr(ScaleX(20,96)+0.0);
   for i := 0 to pointCount-1 do
   begin
-    pt := PointF(curve.GetFloatAt(XList,i),curve.GetFloatAt(YList,i));
+    pt := curve.GetPoint2DAt(pointList,i);
     pt := CoordToBitmap(pt.x,pt.y);
     dist := sqr(pt.x-xBmp)+sqr(pt.y-yBmp);
     if dist < minDist then
@@ -600,29 +599,25 @@ end;
 function TFAdjustCurves.InsertPoint(xBmp, yBmp: single): integer;
 var
   curve: TVariableSet;
-  XList,YList: TScriptVariableReference;
+  pointList: TScriptVariableReference;
   i,j,pointCount: integer;
   pt1,pt2,coord: TPointF;
 begin
   result := -1;
   curve := SelectedCurve;
   if curve = nil then exit;
-  XList := curve.GetVariable('X');
-  YList := curve.GetVariable('Y');
-  pointCount := curve.GetListCount(XList);
+  pointList := curve.GetVariable('Points');
+  pointCount := curve.GetListCount(pointList);
   for i := 1 to pointCount-1 do
   begin
-    pt1 := CoordToBitmap(curve.GetFloatAt(XList,i-1),curve.GetFloatAt(YList,i-1));
-    pt2 := CoordToBitmap(curve.GetFloatAt(XList,i),curve.GetFloatAt(YList,i));
+    with curve.GetPoint2DAt(pointList,i-1) do pt1 := CoordToBitmap(x, y);
+    with curve.GetPoint2DAt(pointList,i) do pt2 := CoordToBitmap(x, y);
     if (pt1.x <= xBmp-1) and (pt2.x >= xBmp+1) then
     begin
       coord := BitmapToCoord(xBmp,yBmp);
-      curve.AppendFloat(XList, curve.GetFloatAt(XList, pointCount-1));
-      for j := pointCount-1 downto i do curve.AssignFloatAt(XList, j+1, curve.GetFloatAt(XList, j));
-      curve.AssignFloatAt(XList, i, coord.x);
-      curve.AppendFloat(YList, curve.GetFloatAt(YList, pointCount-1));
-      for j := pointCount-1 downto i do curve.AssignFloatAt(YList, j+1, curve.GetFloatAt(YList, j));
-      curve.AssignFloatAt(YList, i, coord.y);
+      curve.AppendPoint(pointList, curve.GetPoint2DAt(pointList, pointCount-1));
+      for j := pointCount-1 downto i do curve.AssignPointAt(pointList, j+1, curve.GetPoint2DAt(pointList, j));
+      curve.AssignPointAt(pointList, i, coord);
       result := i;
       FEffectUpdated := false;
     end;
@@ -631,8 +626,7 @@ begin
       coord := BitmapToCoord(xBmp,yBmp);
       if coord.x <= 1 then
       begin
-        curve.AppendFloat(XList, coord.x);
-        curve.AppendFloat(YList, coord.y);
+        curve.AppendPoint(pointList, coord);
         result := i+1;
         FEffectUpdated := false;
       end;
@@ -643,7 +637,7 @@ end;
 procedure TFAdjustCurves.EnsureCurveExist(AParameters: TVariableSet;
   AName: string);
 var
-  listX, listY: TScriptVariableReference;
+  pointList: TScriptVariableReference;
   post: Boolean;
   cnt: NativeInt;
   i: Integer;
@@ -654,34 +648,21 @@ begin
   with AParameters.Subsets[AName] do
   begin
     post := Booleans['Posterize'];
-    listX := GetVariable('X');
-    listY := GetVariable('Y');
-    if not IsList(listX) or (GetListCount(listX)<=integer(not post)) then Remove(listX);
-    if not IsList(listY) or (GetListCount(listY)<=integer(not post)) then Remove(listY);
+    pointList := GetVariable('Points');
+    if not IsList(pointList) or (GetListCount(pointList)<=integer(not post)) then Remove(pointList);
 
-    if IsReferenceDefined(listX) then cnt := GetListCount(listX)
-    else if IsReferenceDefined(listY) then cnt := GetListCount(listY)
+    if IsReferenceDefined(pointList) then cnt := GetListCount(pointList)
     else cnt := 2;
 
-    if not IsReferenceDefined(listX) then
+    if not IsReferenceDefined(pointList) then
     begin
-      listX := AddFloatList('X');
+      pointList := AddPointList('Points');
       if Booleans['Posterize'] then
         for i := 0 to cnt-1 do
-          AppendFloat(listX, i/cnt)
+          AppendPoint(pointList, PointF(i/cnt, i/(cnt-1)) )
       else
         for i := 0 to cnt-1 do
-          AppendFloat(listX, i/(cnt-1));
-    end;
-
-    if not IsReferenceDefined(listY) then
-    begin
-      listY := AddFloatList('Y');
-      if cnt > 0 then
-        for i := 0 to cnt-1 do
-          AppendFloat(listY, i/(cnt-1))
-      else
-        AppendFloat(listY, 0);
+          AppendPoint(pointList, PointF(i/(cnt-1), i/(cnt-1)) );
     end;
   end;
 end;
@@ -689,53 +670,50 @@ end;
 procedure TFAdjustCurves.SetPointCoord(AIndex: integer; ACoord: TPointF);
 var
   curve: TVariableSet;
-  XList,YList: TScriptVariableReference;
+  pointList: TScriptVariableReference;
   pointCount: integer;
 begin
   curve := SelectedCurve;
   if curve = nil then exit;
-  XList := curve.GetVariable('X');
-  YList := curve.GetVariable('Y');
-  pointCount := curve.GetListCount(XList);
+  pointList := curve.GetVariable('Points');
+  pointCount := curve.GetListCount(pointList);
   if (AIndex < 0) or (AIndex >= pointCount) then exit;
   if AIndex = 0 then ACoord.x := 0 else
-    ACoord.x := max(ACoord.x, curve.GetFloatAt(XList, AIndex-1));
+    ACoord.x := max(ACoord.x, curve.GetPoint2DAt(pointList, AIndex-1).X);
   if AIndex = pointCount-1 then
   begin
     if not Posterize then ACoord.x := 1 else
       if ACoord.x > 1 then ACoord.x := 1;
   end else
-    ACoord.x := min(ACoord.x, curve.GetFloatAt(XList, AIndex+1));
+    ACoord.x := min(ACoord.x, curve.GetPoint2DAt(pointList, AIndex+1).X);
   if ACoord.y < 0 then ACoord.y := 0;
   if ACoord.y > 1 then ACoord.y := 1;
-  curve.AssignFloatAt(XList, AIndex, ACoord.x);
-  curve.AssignFloatAt(YList, AIndex, ACoord.y);
+  curve.AssignPointAt(pointList, AIndex, ACoord);
   FEffectUpdated:= false;
 end;
 
 function TFAdjustCurves.RemovePoint(AIndex: integer): boolean;
 var
   curve: TVariableSet;
-  XList,YList: TScriptVariableReference;
+  pointList: TScriptVariableReference;
   pointCount: integer;
 begin
   result := false;
   curve := SelectedCurve;
   if curve = nil then exit;
-  XList := curve.GetVariable('X');
-  YList := curve.GetVariable('Y');
-  pointCount := curve.GetListCount(XList);
+  pointList := curve.GetVariable('Points');
+  pointCount := curve.GetListCount(pointList);
   if (AIndex <= 0) or (AIndex >= pointCount-1) then exit;
-  if curve.RemoveAt(XList, AIndex) then result := true;
-  if curve.RemoveAt(YList, AIndex) then result := true;
+  if curve.RemoveAt(pointList, AIndex) then result := true;
   if result then FEffectUpdated:= false;
 end;
 
 procedure TFAdjustCurves.SetPosterize(AValue: boolean);
 var
   curve: TVariableSet;
-  XList: TScriptVariableReference;
+  pointList: TScriptVariableReference;
   pointCount: integer;
+  lastCoord: TPointF;
 begin
   curve := SelectedCurve;
   if curve = nil then exit;
@@ -744,13 +722,20 @@ begin
     curve.Booleans['Posterize'] := AValue; //try to set it
     if curve.Booleans['Posterize'] <> AValue then exit;
 
-    XList := curve.GetVariable('X');
-    pointCount := curve.GetListCount(XList);
+    pointList := curve.GetVariable('Points');
+    pointCount := curve.GetListCount(pointList);
 
-    if AValue then
-      curve.AssignFloatAt(XList, pointCount-1, (curve.GetFloatAt(XList, pointCount-1)+curve.GetFloatAt(XList, pointCount-2))/2)
-    else
-      curve.AssignFloatAt(XList, pointCount-1, 1);
+    if pointCount >= 2 then
+    begin
+      lastCoord := curve.GetPoint2DAt(pointList, pointCount-1);
+
+      if AValue then
+        lastCoord.x := (lastCoord.x + curve.GetPoint2DAt(pointList, pointCount-2).x)/2
+      else
+        lastCoord.x := 1;
+
+      curve.AssignPointAt(pointList, pointCount-1, lastCoord);
+    end;
 
     FEffectUpdated:= false;
     vsChart.RedrawBitmap;
@@ -826,22 +811,26 @@ var
 
   procedure CopyCurveIfNonTrivial(ASource: TVariableSet; AName: string);
   var subset: TVariableSet;
-    XList,YList: TScriptVariableReference;
+    pointList: TScriptVariableReference;
     pointCount,i: integer;
     trivial: boolean;
   begin
     subset := asource.Subsets[AName];
     if Assigned(subset) then
     begin
-      XList := subset.GetVariable('X');
-      YList := subset.GetVariable('Y');
-      if subset.IsReferenceDefined(XList) and
-        subset.IsReferenceDefined(YList) then
+      pointList := subset.GetVariable('Points');
+      if subset.IsReferenceDefined(pointList) then
       begin
-        pointCount := subset.GetListCount(XList);
-        trivial := true;
-        for i := 0 to pointCount-1 do
-          if abs(subset.GetFloatAt(XList, i)-subset.GetFloatAt(YList, i)) > 1e-6 then trivial := false;
+        pointCount := subset.GetListCount(pointList);
+        if subset.Booleans['Posterize'] then
+          trivial := false
+        else
+        begin
+          trivial := true;
+          for i := 0 to pointCount-1 do
+            with subset.GetPoint2DAt(pointList, i) do
+              if abs(x-y) > 1e-6 then trivial := false;
+        end;
         if not trivial or AParameters.IsDefined(AName) then
           AParameters.Subsets[AName] := subset;
       end;

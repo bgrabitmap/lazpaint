@@ -138,17 +138,15 @@ def choose(name):
 
 def mouse(coords, state=[STATE_LEFT], default_pressure=1.0):
   if not isinstance(coords, list):
-      x = [float(coords[0])]
-      y = [float(coords[1])]
+      xy = [(float(coords[0]), float(coords[1]))]
       if len(coords)>2:
         pressure = [float(coords[2])]
       else:
         pressure = [default_pressure]
   else:
-      x = [float(c[0]) for c in coords]
-      y = [float(c[1]) for c in coords]
+      xy = [(float(c[0]), float(c[1])) for c in coords]
       pressure = [float(c[2]) if len(c)>2 else default_pressure for c in coords]      
-  command.send("ToolMouse", X=x, Y=y, State=state, Pressure=pressure)
+  command.send("ToolMouse", Coords=xy, State=state, Pressure=pressure)
 
 def keys(keys, state=[]):
   if isinstance(keys, str):
