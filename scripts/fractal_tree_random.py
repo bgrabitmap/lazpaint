@@ -1,10 +1,22 @@
 from lazpaint import tools, image, layer, dialog
 import math, random
 
+line_buf = []
+
 def line(x, y, x2, y2):
+  global line_buf
+  if len(line_buf) > 0 and line_buf[-1] == (x, y):
+    line_buf.append( (x2, y2) )
+  else:
+    flush_line()
+    line_buf = [(x, y), (x2, y2)]
+
+def flush_line():
+  global line_buf
+  if len(line_buf) > 0:
     tools.choose(tools.PEN)
-    tools.mouse([(x, y), (x2, y2)])
-    tools.keys(tools.KEY_RETURN)
+    tools.mouse(line_buf)
+  line_buf = []
 
 MULTIPLIER = dialog.input_value("Zoom", 10)
 DEG_TO_RAD = math.pi / 180
@@ -21,3 +33,4 @@ def drawTree(x1, y1, angle, depth):
 
 layer.new()
 drawTree(image.get_width() / 2, image.get_height(), -91, 9)
+flush_line()
