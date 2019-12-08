@@ -2932,8 +2932,10 @@ var toolName: string;
   useSelection: boolean;
   newTexture: TBGRABitmap;
   res: TQuestionResult;
+  texMapBounds: TRect;
 begin
   if ToolManager.ToolSleeping then exit;
+  texMapBounds := EmptyRect;
   toolName := AVars.Strings['Name'];
   Tool := StrToPaintToolType(toolName);
   if CompareText(PaintToolTypeStr[Tool],toolName)=0 then
@@ -2986,7 +2988,8 @@ begin
                     else
                     begin
                       FImageActions.RemoveSelection;
-                      BGRAReplace(newTexture, newTexture.GetPart(newTexture.GetImageBounds));
+                      texMapBounds := newTexture.GetImageBounds;
+                      BGRAReplace(newTexture, newTexture.GetPart(texMapBounds));
                       ToolManager.SetTexture(newTexture);
                       newTexture.FreeReference;
                     end;
@@ -3092,6 +3095,13 @@ begin
         end;
       end;
       ToolManager.SetCurrentToolType(Tool);
+      if not texMapBounds.IsEmpty then
+      begin
+        ToolManager.PerspectiveOptions:= [];
+        ToolManager.ToolDown(texMapBounds.Left-0.5, texMapBounds.Top-0.5, false, 1);
+        ToolManager.ToolMove(texMapBounds.Right-0.5, texMapBounds.Bottom-0.5, 1);
+        ToolManager.ToolUp;
+      end;
       if Assigned(FImageView) then
         FImageView.FillSelectionHighlight := ToolManager.DisplayFilledSelection and not FShowSelectionNormal;
     except
