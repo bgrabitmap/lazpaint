@@ -9,14 +9,14 @@ def zoom_out(fine=False):
 def zoom_fit():
   command.send("ViewZoomFit")
 
-def set_zoom(factor=1):
+def set_zoom(factor=1.0):
   command.send("ViewZoomSet", Factor=factor)
 
-def get_zoom():
+def get_zoom() -> float:
   return command.send("ViewZoomGet?")
 
 def set_grid_visible(visible=None):
   command.send("ViewGrid", Visible=visible)
 
-def get_grid_visible():
+def get_grid_visible() -> bool:
   return command.send("ViewGridGet?")

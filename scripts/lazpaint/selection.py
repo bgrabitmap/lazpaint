@@ -6,7 +6,7 @@ if __name__ == "__main__":
 def load(file_name=None):
   command.send("FileLoadSelection", FileName=file_name)
 
-def save_as(file_name=None):
+def save_as(file_name=None) -> str:
   return command.send("FileSaveSelectionAs?", FileName=file_name)
 
 def invert():
@@ -30,10 +30,10 @@ def select_all():
 def fit():
   command.send("EditSelectionFit")
 
-def is_mask_empty():
+def is_mask_empty() -> bool:
   return command.send("IsSelectionMaskEmpty?")
 
-def is_layer_empty():
+def is_layer_empty() -> bool:
   return command.send("IsSelectionLayerEmpty?")
 
 def paste():

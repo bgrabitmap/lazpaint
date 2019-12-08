@@ -82,7 +82,7 @@ function ScriptQuote(const S: string): string;
 function ScriptUnquote(const S: string): string;
 function UnescapeString(const S: string): string;
 function TryScriptUnquote(const S: String; out unquotedS: string): TInterpretationErrors;
-function FloatToStrUS(AValue: double): string;
+function FloatToStrUS(AValue: double; AExplicitDot: boolean = true): string;
 function ScalarToStr(AVarType: TScriptVariableType; const AValue): string;
 function ParseLitteral(var cur: integer; expr: string; var errors: TInterpretationErrors): TParsedLitteral;
 function ParseListType(s: string): TScriptVariableType;
@@ -97,10 +97,13 @@ uses BGRAUTF8;
 
 {$i quote.inc}
 
-function FloatToStrUS(AValue: double): string;
+function FloatToStrUS(AValue: double; AExplicitDot: boolean = true): string;
 var idxE,idxPt,beforeE,afterE: integer;
 begin
-  str(AValue,result);
+  if frac(AValue) = 0 then
+    str(AValue:15:0, result)
+  else
+    str(AValue,result);
   result := trim(result);
   idxE := pos('E',result);
   idxPt := pos('.',result);
@@ -141,7 +144,7 @@ begin
   end;
   idxE := pos('E',result);
   idxPt := pos('.',result);
-  if (idxE = 0) and (idxPt = 0) then result := result+'.0';
+  if AExplicitDot and (idxE = 0) and (idxPt = 0) then result := result+'.0';
 end;
 
 function ScalarToStr(AVarType: TScriptVariableType; const AValue): string;
@@ -152,9 +155,9 @@ begin
     svtPoint: with TPoint3D(AValue) do
               begin
                 if z <> EmptySingle then
-                  result := '(' + FloatToStrUS(x)+', '+FloatToStrUS(y)+', '+FloatToStrUS(z)+')'
+                  result := '(' + FloatToStrUS(x, false)+', '+FloatToStrUS(y, false)+', '+FloatToStrUS(z, false)+')'
                 else
-                  result := '(' + FloatToStrUS(x)+', '+FloatToStrUS(y)+')';
+                  result := '(' + FloatToStrUS(x, false)+', '+FloatToStrUS(y, false)+')';
               end;
     svtPixel: result := '#'+BGRAToStr(TBGRAPixel(AValue));
     svtBoolean: result := BoolToStr(Boolean(AValue),TrueToken,FalseToken);

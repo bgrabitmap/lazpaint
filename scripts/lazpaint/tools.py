@@ -200,13 +200,13 @@ def set_eraser_mode(mode):
 def get_eraser_mode():
   return command.send('ToolGetEraserMode?')
 
-def set_eraser_alpha(alpha):
+def set_eraser_alpha(alpha: int): #0..255
   command.send('ToolSetEraserAlpha', Alpha=alpha)
 
-def get_eraser_alpha():
+def get_eraser_alpha() -> int:
   return command.send('ToolGetEraserAlpha?')
 
-def set_pen_width(width):
+def set_pen_width(width: float):
   command.send('ToolSetPenWidth', Width=width)
 
 def get_pen_width():
@@ -230,54 +230,52 @@ def set_line_cap(cap):
 def get_line_cap():
   return command.send('ToolGetLineCap?')
 
-def set_shape_options(options):
+def set_shape_options(options: list):
   command.send('ToolSetShapeOptions', Options=options)
 
-def get_shape_options():
+def get_shape_options() -> list:
   return command.send('ToolGetShapeOptions?')
 
-def set_aliasing(enabled):
+def set_aliasing(enabled: bool):
   command.send('ToolSetAliasing', Enabled=enabled)
 
-def get_aliasing():
+def get_aliasing() -> bool:
   return command.send('ToolGetAliasing?')
 
-def set_shape_ratio(ratio):
+def set_shape_ratio(ratio: float):
   command.send('ToolSetShapeRatio', Ratio=ratio)
 
-def get_shape_ratio():
+def get_shape_ratio() -> float:
   return command.send('ToolGetShapeRatio?')
 
-def set_brush_index(index):
+def set_brush_index(index: int):
   command.send('ToolSetBrushIndex', Index=index)
 
-def get_brush_index():
+def get_brush_index() -> int:
   return command.send('ToolGetBrushIndex?')
 
-def get_brush_count(): 
+def get_brush_count() -> int: 
   return command.send('ToolGetBrushCount?')
 
-def set_brush_spacing(index):
-  command.send('ToolSetBrushSpacing', Index=index)
+def set_brush_spacing(spacing: int):
+  command.send('ToolSetBrushSpacing', Spacing=spacing)
 
-def get_brush_spacing():
+def get_brush_spacing() -> int:
   return command.send('ToolGetBrushSpacing?')
 
-def set_font_name(name):
+def set_font_name(name: str):
   command.send('ToolSetFontName', Name=name)
 
-def get_font_name():
+def get_font_name() -> str:
   return command.send('ToolGetFontName?')
 
-def set_font_size(size):
+def set_font_size(size: float):
   command.send('ToolSetFontSize', Size=size)
 
-def get_font_size():
+def get_font_size() -> float:
   return command.send('ToolGetFontSize?')
 
-def set_font_style(style):
-  if not isinstance(style, list):
-    style = [style]
+def set_font_style(style: list):
   command.send('ToolSetFontStyle', Style=style)
 
 def get_font_style():
@@ -289,22 +287,22 @@ def set_text_align(align):
 def get_text_align():
   return command.send('ToolGetTextAlign?')
 
-def set_text_outline(width):
+def set_text_outline(width: float):
   command.send('ToolSetTextOutline', Width=width)
 
-def get_text_outline():
+def get_text_outline() -> float:
   return command.send('ToolGetTextOutline?')
 
-def set_text_phong(enabled):
+def set_text_phong(enabled: bool):
   command.send('ToolSetTextPhong', Enabled=enabled)
 
-def get_text_phong():
+def get_text_phong() -> bool:
   return command.send('ToolGetTextPhong?')
 
-def set_light_position(x, y):
+def set_light_position(x: float, y: float):
   command.send('ToolSetLightPosition', Position=(x, y))
 
-def get_light_position():
+def get_light_position() -> tuple:
   return command.send('ToolGetLightPosition?')
 
 def set_arrow_start(arrow):
@@ -322,6 +320,6 @@ def get_arrow_end():
 def set_arrow_size(x, y):
   command.send('ToolSetArrowSize', Size=(x, y))
 
-def get_arrow_size():
+def get_arrow_size() -> tuple:
   return command.send('ToolGetArrowSize?')
 

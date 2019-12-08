@@ -233,6 +233,8 @@ begin
     end;
     if IsDefined('AltitudePercent') then
       SpinEdit_Altitude.Value := Integers['AltitudePercent'];
+    if IsDefined('LightPosPercent') then
+      FCenter := Points2D['LightPosPercent']*(1/100);
     if IsDefined('LightXPercent') then
       FCenter.x := Floats['LightXPercent']/100;
     if IsDefined('LightYPercent') then

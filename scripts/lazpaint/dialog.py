@@ -5,7 +5,7 @@ def show_message(message):
   # wait for validation before continuing script
   command.send("ShowMessage?", Message=message)
 
-def input_text(prompt, default=None):
+def input_text(prompt, default=None) -> str:
   return command.send("InputBox?", Prompt=prompt, Default=default)
 
 def input_value(prompt, default):

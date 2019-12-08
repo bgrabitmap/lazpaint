@@ -618,7 +618,7 @@ begin
         if params.IsReferenceDefined(vRes) then
         begin
           case vRes.variableType of
-          svtFloat, svtInteger, svtBoolean: AResult := params.GetString(vRes);
+          svtFloat, svtInteger, svtPoint, svtBoolean: AResult := params.GetString(vRes);
           svtString: AResult := ScriptQuote(params.GetString(vRes));
           svtPixel: AResult := '"'+BGRAToStr(params.GetPixel(vRes))+'"';
           svtFloatList..svtPixList: AResult := params.GetString(vRes);

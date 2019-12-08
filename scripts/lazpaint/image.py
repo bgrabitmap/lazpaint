@@ -25,17 +25,20 @@ ANCHOR_BOTTOM_LEFT = 'BottomLeft'
 ANCHOR_BOTTOM = 'Bottom'
 ANCHOR_BOTTOM_RIGHT = 'BottomRight' 
 
-def new(width, height, color=colors.TRANSPARENT, ignore_modified=False):
+def new(width: int, height: int, color=colors.TRANSPARENT, ignore_modified=False):
   command.send("FileNew", Width=width, Height=height, BackColor=color, IgnoreModified=ignore_modified)
 
 def paste_as_new():
   command.send("EditPasteAsNew")
 
-def get_width():
+def get_width() -> int:
   return command.send("GetImageWidth?")
 
-def get_height():
+def get_height() -> int:
   return command.send("GetImageHeight?")
+
+def get_size() -> tuple:
+  return command.send("GetImageSize?")
 
 def get_registry(identifier):
   str_result = command.send("ImageGetRegistry?", Identifier=identifier)
@@ -51,46 +54,46 @@ def set_registry(identifier, value):
     value = str(value)
   command.send("ImageSetRegistry", Identifier=identifier, Value=value)
 
-def get_layer_index(layer_id=None):
+def get_layer_index(layer_id=None) -> int:
   return command.send("GetLayerIndex?", LayerId=layer_id)
 
-def select_layer_index(index):
+def select_layer_index(index: int): #1..layer_count
   return command.send("SelectLayerIndex", Index=index)
 
-def move_layer_index(from_index, to_index):
+def move_layer_index(from_index: int, to_index: int):
   return command.send("ImageMoveLayerIndex", FromIndex=from_index, ToIndex=to_index)
 
-def get_layer_count():
+def get_layer_count() -> int:
   return command.send("GetLayerCount?")
 
-def get_frame_index():
+def get_frame_index() -> int: #1..frame_count
   return command.send("GetFrameIndex?")
 
-def get_frame_count():
+def get_frame_count() -> int:
   return command.send("GetFrameCount?")
 
-def load_frame(frame_index=None, ignore_modified=False):
+def load_frame(frame_index=None, ignore_modified=False) -> int:
   return command.send("FileChooseEntry?", EntryIndex=frame_index, IgnoreModified=ignore_modified)
 
-def new_frame(width=None, height=None, back_color=colors.TRANSPARENT, ignore_modified=False):
+def new_frame(width=None, height=None, back_color=colors.TRANSPARENT, ignore_modified=False) -> int:
   command.send("FileNewEntry", Width=width, Height=height, BackColor=back_color, IgnoreModified=ignore_modified)
 
 def open(file_name=None, ignore_modified=False):
   command.send("FileOpen", FileName=file_name, IgnoreModified=ignore_modified)
 
-def save(skip_options=False):
+def save(skip_options=False) -> str:
   return command.send("FileSave?", SkipOptions=skip_options)
 
-def save_as(file_name=None, validate=False, overwrite=False, skip_options=False):
+def save_as(file_name=None, validate=False, overwrite=False, skip_options=False) -> str:
   return command.send("FileSaveAs?", FileName=file_name, Validate=validate, Overwrite=overwrite, SkipOptions=skip_options) 
 
 def reload(ignore_modified=False):
   command.send("FileReload", IgnoreModified=ignore_modified)
 
-def get_name():
+def get_name() -> str:
   return command.send("GetFileName?")
 
-def resample(width, height, quality=RESAMPLE_QUALITY_BEST):
+def resample(width: int, height: int, quality=RESAMPLE_QUALITY_BEST):
   command.send("ImageResample", Width=width, Height=height, Quality=quality, Validate=True)
 
 def smart_zoom3():
@@ -126,10 +129,10 @@ def crop_to_selection_and_layer():
 def flatten():
   command.send("ImageFlatten")
 
-def canvas_size(width, height, anchor=ANCHOR_MIDDLE):
+def canvas_size(width: int, height: int, anchor=ANCHOR_MIDDLE):
   command.send("ImageCanvasSize", Width=width, Height=height, Anchor=anchor)
 
-def repeat(width, height, anchor=ANCHOR_MIDDLE, flip=False):
+def repeat(width: int, height: int, anchor=ANCHOR_MIDDLE, flip=False):
   command.send("ImageRepeat", Width=width, Height=height, Anchor=anchor, Flip=flip)
 
 def undo():
@@ -143,6 +146,6 @@ def do_begin():
   command.send("EditDoBegin")
 
 # returns True if some action was done within the series of actions
-def do_end():
+def do_end() -> bool:
   return command.send("EditDoEnd?")
 

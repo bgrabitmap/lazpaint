@@ -1,5 +1,6 @@
 from lazpaint import image, layer, colors, view, dialog
 
+dialog.show_message(image.get_size())
 w = 256
 h = 256
 image.new(2, 2)

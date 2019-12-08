@@ -2,14 +2,16 @@ import collections, math
 from lazpaint import dialog, command, filters
 
 GAMMA = 2.2
+ALPHA_OPAQUE = 255
+ALPHA_TRANSPARENT = 0
 
 if __name__ == "__main__":
   dialog.show_message("Library defining colors.")
 
-def to_linear(std_value):
+def to_linear(std_value: int): #0..255
   return math.pow(std_value/255, 1/GAMMA)
 
-def to_std(linear_value):
+def to_std(linear_value: float):
   return round(math.pow(linear_value, GAMMA)*255)
 
 CustomRGBA = collections.namedtuple("RGBA", "red, green, blue, alpha")
@@ -36,10 +38,10 @@ class RGBA(CustomRGBA):
     gray = to_std(to_linear(self.red)*0.299 + to_linear(self.green)*0.587 + to_linear(self.blue)*0.114)
     return RGBA(gray, gray, gray, self.alpha)
 
-def RGB(red,green,blue):
-  return RGBA(red,green,blue,255)
+def RGB(red: int, green: int, blue: int): #0..255
+  return RGBA(red, green, blue, 255)
 
-def str_to_RGBA(s):
+def str_to_RGBA(s: str):
   if s[0:1] == "#":
     s = s[1:]
   if len(s) == 6:
@@ -70,7 +72,7 @@ PURPLE = RGB(128,0,128)
 OLIVE = RGB(128,128,0)
 SILVER = RGB(192,192,192)
 
-def get_curve(points, posterize=False):
+def get_curve(points: list, posterize=False):
   return {'Points': points, 'Posterize': posterize}
 
 def curves(red=[], red_posterize=False, green=[], green_posterize=False, blue=[], blue_posterize=False, hue=[], hue_posterize=False, saturation=[], saturation_posterize=False, lightness=[], lightness_posterize=False, validate=True):
@@ -79,19 +81,19 @@ def curves(red=[], red_posterize=False, green=[], green_posterize=False, blue=[]
 def posterize(levels=None, by_lightness=True, validate=True):
   command.send('ColorPosterize', Levels=levels, ByLightness=by_lightness, Validate=validate)
 
-def colorize(hue_angle=None, saturation=None, correction=None, validate=True):
+def colorize(hue_angle=None, saturation=None, correction=None, validate=True): #saturation: 0..1
   command.send('ColorColorize', Hue=hue_angle, Saturation=saturation, Correction=correction, Validate=validate)
 
 def complementary():
   filters.run(filters.COLOR_COMPLEMENTARY)
 
-def shift(hue_angle=None, saturation=None, correction=None, validate=True):
+def shift(hue_angle=None, saturation=None, correction=None, validate=True): #saturation shift: -2..2
   command.send('ColorShiftColors', Hue=hue_angle, Saturation=saturation, Correction=correction, Validate=validate)
 
-def intensity(factor=None, shift=None, validate=True):
+def intensity(factor=None, shift=None, validate=True): #factor and shift: -2..2
   command.send('ColorIntensity', Factor=factor, Shift=shift, Validate=validate)
 
-def lightness(factor=None, shift=None, validate=True):
+def lightness(factor=None, shift=None, validate=True): #factor and shift: -2..2
   command.send('ColorLightness', Factor=factor, Shift=shift, Validate=validate)
 
 def negative():

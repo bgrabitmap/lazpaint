@@ -175,6 +175,7 @@ begin
     if IsDefined('WaveLength') then SpinEdit_Wavelength.Value := Integers['WaveLength'];
     if IsDefined('Displacement') then SpinEdit_Displacement.Value := Integers['Displacement'];
     if IsDefined('Phase') then SpinEdit_Phase.Value := Integers['Phase'];
+    if IsDefined('CenterPosPercent') then FCenter := Points2D['CenterPosPercent']*(1/100);
     if IsDefined('CenterXPercent') then FCenter.X := Floats['CenterXPercent']/100;
     if IsDefined('CenterYPercent') then FCenter.Y := Floats['CenterYPercent']/100;
   end;

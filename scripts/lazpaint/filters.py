@@ -79,35 +79,39 @@ def run(name, validate=True):
   else:
     command.send("Filter", Name=name, Validate=validate)
 
-def blur(name=BLUR_FAST, radius=None, radius_x=None, radius_y=None, validate=True):
+def blur(name=BLUR_FAST, radius=None, validate=True): #radius: float or (x,y) 
+  if isinstance(radius, tuple):
+    radius_x = radius[0]
+    radius_y = radius[1]
+    radius = None
   command.send("Filter", Name=name, Radius=radius, RadiusX=radius_x, RadiusY=radius_y, Validate=validate)
 
-def blur_motion(distance=None, angle=None, oriented=None, validate=True):
+def blur_motion(distance=None, angle=None, oriented=None, validate=True): #oriented: bool
   command.send("Filter", Name=BLUR_MOTION, Distance=distance, Angle=angle, Oriented=oriented, Validate=validate)
 
-def sharpen(amount=None, validate=True):
+def sharpen(amount=None, validate=True): #amout: 0..10
   command.send("Filter", Name=SHARPEN, Amount=amount, Validate=validate)
 
-def noise(grayscale=None, opacity=None, validate=True):
+def noise(grayscale=None, opacity=None, validate=True): #grayscale: bool, opacity: 0..255
   command.send("Filter", Name=NOISE, Grayscale=grayscale, Opacity=opacity, Validate=validate)
 
 def pixelate(pixel_size=None, quality=None, validate=True):
   command.send("Filter", Name=PIXELATE, PixelSize=pixel_size, Quality=quality, Validate=validate)
 
-def filter_function(red=None, green=None, blue=None, alpha=None, hue=None, saturation=None, lightness=None, validate=True):
+def filter_function(red=None, green=None, blue=None, alpha=None, hue=None, saturation=None, lightness=None, validate=True): #expressions: str
   command.send("Filter", Name=FILTER_FUNCTION, Red=red, Green=green, Blue=blue, Alpha=alpha, Hue=hue, Saturation=saturation, Lightness=lightness, Validate=validate)
 
 def emboss(angle=None, transparent=None, preserve_colors=None, validate=True):
   command.send("Filter", Name=EMBOSS, Angle=angle, Transparent=transparent, PreserveColors=preserve_colors, Validate=validate)
 
-def rain(amount=None, wind=None, validate=True):
-  command.send("Filter", Name=RAIN, Amount=amount, Wind=wind, Validate=validate)
+def rain(amount=None, wind=None, validate=True): #amount and wind: 0..2
+  command.send("Filter", Name=RENDER_RAIN, Amount=amount, Wind=wind, Validate=validate)
 
-def phong(color_source=None, altitude_percent=None, altitude_source=None, light_x_percent=None, light_y_percent=None, validate=True):
-  command.send("Filter", Name=PHONG, ColorSource=color_source, AltitudePercent=altitude_percent, AltitudeSource=altitude_source, LightXPercent=light_x_percent, LightYPercent=light_y_percent, Validate=validate)
+def phong(color_source=None, altitude_percent=None, altitude_source=None, light_pos_percent=None, light_x_percent=None, light_y_percent=None, validate=True):  
+  command.send("Filter", Name=PHONG, ColorSource=color_source, AltitudePercent=altitude_percent, AltitudeSource=altitude_source, LightPosPercent=light_pos_percent, LightXPercent=light_x_percent, LightYPercent=light_y_percent, Validate=validate)
 
-def twirl(radius=None, angle=None, center_x_percent=None, center_y_percent=None, validate=True):
-  command.send("Filter", Name=TWIRL, Radius=radius, Angle=angle, CenterXPercent=center_x_percent, CenterYPercent=center_y_percent, Validate=validate)
+def twirl(radius=None, angle=None, center_pos_percent=None, center_x_percent=None, center_y_percent=None, validate=True):
+  command.send("Filter", Name=TWIRL, Radius=radius, Angle=angle, CenterPosPercent=center_pos_percent, CenterXPercent=center_x_percent, CenterYPercent=center_y_percent, Validate=validate)
 
-def wave_displacement(wave_length=None, displacement=None, phase=None, center_x_percent=None, center_y_percent=None, validate=True):
-  command.send("Filter", Name=WAVE_DISPLACEMENT, WaveLength=wave_length, Displacement=displacement, Phase=phase, CenterXPercent=center_x_percent, CenterYPercent=center_y_percent, Validate=validate)
+def wave_displacement(wave_length=None, displacement=None, phase=None, center_pos_percent=None, center_x_percent=None, center_y_percent=None, validate=True): #phase: 0..360
+  command.send("Filter", Name=WAVE_DISPLACEMENT, WaveLength=wave_length, Displacement=displacement, Phase=phase, CenterPosPercent=center_pos_percent, CenterXPercent=center_x_percent, CenterYPercent=center_y_percent, Validate=validate)

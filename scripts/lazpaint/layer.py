@@ -43,49 +43,49 @@ BLEND_SVG_SOFT_LIGHT = 'SvgSoftLight'
 def get_id():
   return command.send("LayerGetId?")
 
-def get_name():
+def get_name() -> str:
   return command.send("LayerGetName?")
 
-def get_opacity():
+def get_opacity() -> int:
   return command.send("LayerGetOpacity?")
 
 def get_blend_op():
   return command.send("LayerGetBlendOp?")
 
-def get_visible():
+def get_visible() -> bool:
   return command.send("LayerGetVisible?")
 
 def select_id(id):
   command.send("LayerSelectId", Id=id)
 
-def set_name(name):
+def set_name(name: str):
   return command.send("LayerSetName", Name=name)
 
-def set_opacity(opacity):
+def set_opacity(opacity: int):
   return command.send("LayerSetOpacity", Opacity=opacity)
 
 def set_blend_op(blend_op):
   return command.send("LayerSetBlendOp", BlendOp=blend_op)
 
-def set_visible(visible):
+def set_visible(visible: bool):
   return command.send("LayerSetVisible", Visible=visible)
 
-def new():
+def new(): #-> id
   return command.send("LayerAddNew?")
 
-def paste_as_new():
+def paste_as_new(): #-> id
   return command.send("EditPasteAsNewLayer?")
 
-def add_from_file(file_name):
+def add_from_file(file_name): #-> id
   return command.send("LayerFromFile?", FileName=file_name)
 
-def duplicate():
+def duplicate(): #-> id
   return command.send("LayerDuplicate?")
 
 def merge_over():
   command.send("LayerMergeOver")
 
-def is_empty():
+def is_empty() -> bool:
   return command.send("IsLayerEmpty?")
 
 def get_registry(identifier):
@@ -105,13 +105,13 @@ def set_registry(identifier, value):
 def remove():
   command.send("LayerRemoveCurrent")
 
-def get_count():
+def get_count() -> int:
   return command.send("GetLayerCount?")
 
 def rasterize():
   command.send("LayerRasterize")
 
-def put_image(x, y, image, mode=DM_DRAW, opacity=255):
+def put_image(x: int, y: int, image, mode=DM_DRAW, opacity=255):
   height = len(image)
   if height == 0: return
   width = max([len(scanline) for scanline in image])
@@ -120,7 +120,7 @@ def put_image(x, y, image, mode=DM_DRAW, opacity=255):
     flattened += "".join([str(color) for color in scanline]) + "00000000" * (width - len(scanline))
   command.send("PutImage", X=x, Y=y, Width=width, Height=height, Data=flattened, Mode=mode, Opacity=opacity)
 
-def get_pixel(x, y):
+def get_pixel(x: int, y: int):
   return colors.str_to_RGBA(command.send("GetPixel?", X=x, Y=y))
 
 def fill(color, mode=DM_DRAW):

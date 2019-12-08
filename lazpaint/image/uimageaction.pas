@@ -195,6 +195,7 @@ begin
   Scripting.RegisterScriptFunction('GetPixel',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('GetImageWidth',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('GetImageHeight',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('GetImageSize',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('PutImage',@ScriptPutImage,ARegister);
   Scripting.RegisterScriptFunction('LayerFill',@ScriptLayerFill,ARegister);
 end;
@@ -264,6 +265,7 @@ begin
   if f = 'GetLayerCount' then AVars.Integers['Result']:= Image.NbLayers else
   if f = 'GetFrameCount' then AVars.Integers['Result']:= Image.FrameCount else
   if f = 'GetPixel' then AVars.Pixels['Result']:= GetPixel(AVars.Integers['X'],AVars.Integers['Y']) else
+  if f = 'GetImageSize' then AVars.Points2D['Result']:= PointF(Image.Width,Image.Height) else
   if f = 'GetImageWidth' then AVars.Integers['Result']:= Image.Width else
   if f = 'GetImageHeight' then AVars.Integers['Result']:= Image.Height else
     result := srFunctionNotDefined;
