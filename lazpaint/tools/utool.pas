@@ -243,6 +243,10 @@ type
     function GetTextFontSize: single;
     function GetTextFontStyle: TFontStyles;
     function GetTextureOpacity: byte;
+    function ScriptGetAliasing(AVars: TVariableSet): TScriptResult;
+    function ScriptGetArrowEnd(AVars: TVariableSet): TScriptResult;
+    function ScriptGetArrowSize(AVars: TVariableSet): TScriptResult;
+    function ScriptGetArrowStart(AVars: TVariableSet): TScriptResult;
     function ScriptGetBackColor(AVars: TVariableSet): TScriptResult;
     function ScriptGetBrushCount(AVars: TVariableSet): TScriptResult;
     function ScriptGetBrushIndex(AVars: TVariableSet): TScriptResult;
@@ -253,6 +257,8 @@ type
     function ScriptGetFontSize(AVars: TVariableSet): TScriptResult;
     function ScriptGetFontStyle(AVars: TVariableSet): TScriptResult;
     function ScriptGetJoinStyle(AVars: TVariableSet): TScriptResult;
+    function ScriptGetLightPosition(AVars: TVariableSet): TScriptResult;
+    function ScriptGetLineCap(AVars: TVariableSet): TScriptResult;
     function ScriptGetPenColor(AVars: TVariableSet): TScriptResult;
     function ScriptGetPenStyle(AVars: TVariableSet): TScriptResult;
     function ScriptGetPenWidth(AVars: TVariableSet): TScriptResult;
@@ -262,6 +268,10 @@ type
     function ScriptGetTextOutline(AVars: TVariableSet): TScriptResult;
     function ScriptGetTextPhong(AVars: TVariableSet): TScriptResult;
     function ScriptGetTolerance(AVars: TVariableSet): TScriptResult;
+    function ScriptSetAliasing(AVars: TVariableSet): TScriptResult;
+    function ScriptSetArrowEnd(AVars: TVariableSet): TScriptResult;
+    function ScriptSetArrowSize(AVars: TVariableSet): TScriptResult;
+    function ScriptSetArrowStart(AVars: TVariableSet): TScriptResult;
     function ScriptSetBackColor(AVars: TVariableSet): TScriptResult;
     function ScriptSetBrushIndex(AVars: TVariableSet): TScriptResult;
     function ScriptSetBrushSpacing(AVars: TVariableSet): TScriptResult;
@@ -271,6 +281,8 @@ type
     function ScriptSetFontSize(AVars: TVariableSet): TScriptResult;
     function ScriptSetFontStyle(AVars: TVariableSet): TScriptResult;
     function ScriptSetJoinStyle(AVars: TVariableSet): TScriptResult;
+    function ScriptSetLightPosition(AVars: TVariableSet): TScriptResult;
+    function ScriptSetLineCap(AVars: TVariableSet): TScriptResult;
     function ScriptSetPenColor(AVars: TVariableSet): TScriptResult;
     function ScriptSetPenStyle(AVars: TVariableSet): TScriptResult;
     function ScriptSetPenWidth(AVars: TVariableSet): TScriptResult;
@@ -1377,6 +1389,30 @@ begin
   result := FTextureOpactiy;
 end;
 
+function TToolManager.ScriptGetAliasing(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Booleans['Result'] := toAliasing in ShapeOptions;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetArrowEnd(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Strings['Result'] := CSSToPascalCase(ArrowKindToStr[ArrowEnd]);
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetArrowSize(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Points2D['Result'] := ArrowSize;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetArrowStart(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Strings['Result'] := CSSToPascalCase(ArrowKindToStr[ArrowStart]);
+  result := srOk;
+end;
+
 function TToolManager.ScriptGetBackColor(AVars: TVariableSet): TScriptResult;
 begin
   AVars.Pixels['Result'] := BackColor;
@@ -1457,6 +1493,23 @@ begin
   end;
 end;
 
+function TToolManager.ScriptGetLightPosition(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Points2D['Result'] := LightPosition;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetLineCap(AVars: TVariableSet): TScriptResult;
+begin
+  case LineCap of
+  pecSquare: AVars.Strings['Result'] := 'Square';
+  pecRound: AVars.Strings['Result'] := 'Round';
+  pecFlat: AVars.Strings['Result'] := 'Flat';
+  else exit(srException);
+  end;
+  result := srOk;
+end;
+
 function TToolManager.ScriptGetPenColor(AVars: TVariableSet): TScriptResult;
 begin
   AVars.Pixels['Result'] := ForeColor;
@@ -1491,7 +1544,6 @@ begin
   for opt := low(TShapeOption) to high(TShapeOption) do
     if opt in ShapeOptions then
     case opt of
-    toAliasing: AVars.AppendString(options, 'Aliasing');
     toDrawShape: Avars.AppendString(options, 'DrawShape');
     toFillShape: Avars.AppendString(options, 'FillShape');
     toCloseShape: Avars.AppendString(options, 'CloseShape');
@@ -1534,6 +1586,49 @@ end;
 function TToolManager.ScriptGetTolerance(AVars: TVariableSet): TScriptResult;
 begin
   AVars.Integers['Result'] := Tolerance;
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetAliasing(AVars: TVariableSet): TScriptResult;
+begin
+  if AVars.Booleans['Enabled'] then
+    ShapeOptions:= ShapeOptions + [toAliasing]
+  else
+    ShapeOptions:= ShapeOptions - [toAliasing];
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetArrowEnd(AVars: TVariableSet): TScriptResult;
+var ak: TArrowKind;
+  kindStr: String;
+begin
+  kindStr := PascalToCSSCase(AVars.Strings['Kind']);
+  ak := StrToArrowKind(kindStr);
+  if (ak = akNone) and (kindStr <> ArrowKindToStr[akNone]) then
+    exit(srInvalidParameters);
+  ArrowEnd := ak;
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetArrowSize(AVars: TVariableSet): TScriptResult;
+var
+  s: TPointF;
+begin
+  s := AVars.Points2D['Size'];
+  if isEmptyPointF(s) then exit(srInvalidParameters);
+  ArrowSize := s;
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetArrowStart(AVars: TVariableSet): TScriptResult;
+var ak: TArrowKind;
+  kindStr: String;
+begin
+  kindStr := PascalToCSSCase(AVars.Strings['Kind']);
+  ak := StrToArrowKind(kindStr);
+  if (ak = akNone) and (kindStr <> ArrowKindToStr[akNone]) then
+    exit(srInvalidParameters);
+  ArrowStart := ak;
   result := srOk;
 end;
 
@@ -1625,6 +1720,30 @@ begin
   end;
 end;
 
+function TToolManager.ScriptSetLightPosition(AVars: TVariableSet): TScriptResult;
+var
+  ptF: TPointF;
+begin
+  ptF := AVars.Points2D['Position'];
+  if IsEmptyPointF(ptF) then exit(srInvalidParameters);
+  LightPosition := ptF;
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetLineCap(AVars: TVariableSet): TScriptResult;
+var
+  capStr: String;
+begin
+  capStr := AVars.Strings['Cap'];
+  case capStr of
+  'Round': LineCap := pecRound;
+  'Square': LineCap := pecSquare;
+  'Flat': LineCap := pecFlat;
+  else exit(srInvalidParameters);
+  end;
+  result := srOk;
+end;
+
 function TToolManager.ScriptSetPenColor(AVars: TVariableSet): TScriptResult;
 begin
   ForeColor := AVars.Pixels['Color'];
@@ -1658,12 +1777,12 @@ var so: TShapeOptions;
   opt: String;
 begin
   so := [];
+  if toAliasing in ShapeOptions then include(so, toAliasing);
   options := AVars.GetVariable('Options');
   for i := 0 to AVars.GetListCount(options)-1 do
   begin
     opt := AVars.GetStringAt(options, i);
     case opt of
-    'Aliasing': include(so, toAliasing);
     'DrawShape': include(so, toDrawShape);
     'FillShape': include(so, toFillShape);
     'CloseShape': include(so, toCloseShape);
@@ -2122,6 +2241,8 @@ begin
   FScriptContext.RegisterScriptFunction('ToolGetJoinStyle', @ScriptGetJoinStyle, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetShapeOptions', @ScriptSetShapeOptions, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetShapeOptions', @ScriptGetShapeOptions, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetAliasing', @ScriptSetAliasing, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetAliasing', @ScriptGetAliasing, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetShapeRatio', @ScriptSetShapeRatio, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetShapeRatio', @ScriptGetShapeRatio, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetBrushIndex', @ScriptSetBrushIndex, ARegister);
@@ -2141,10 +2262,10 @@ begin
   FScriptContext.RegisterScriptFunction('ToolGetTextOutline', @ScriptGetTextOutline, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetTextPhong', @ScriptSetTextPhong, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetTextPhong', @ScriptGetTextPhong, ARegister);
-{  FScriptContext.RegisterScriptFunction('ToolSetLightPosition', @ScriptSetLightPosition, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetLightPosition', @ScriptSetLightPosition, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetLightPosition', @ScriptGetLightPosition, ARegister);
-  FScriptContext.RegisterScriptFunction('ToolSetLightAltitude', @ScriptSetLightAltitude, ARegister);
-  FScriptContext.RegisterScriptFunction('ToolGetLightAltitude', @ScriptGetLightAltitude, ARegister);
+{  FScriptContext.RegisterScriptFunction('ToolSetLightAltitude', @ScriptSetLightAltitude, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetLightAltitude', @ScriptGetLightAltitude, ARegister);}
   FScriptContext.RegisterScriptFunction('ToolSetLineCap', @ScriptSetLineCap, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetLineCap', @ScriptGetLineCap, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetArrowStart', @ScriptSetArrowStart, ARegister);
@@ -2153,7 +2274,7 @@ begin
   FScriptContext.RegisterScriptFunction('ToolGetArrowEnd', @ScriptGetArrowEnd, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetArrowSize', @ScriptSetArrowSize, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetArrowSize', @ScriptGetArrowSize, ARegister);
-  FScriptContext.RegisterScriptFunction('ToolSetSplineStyle', @ScriptSetSplineStyle, ARegister);
+{  FScriptContext.RegisterScriptFunction('ToolSetSplineStyle', @ScriptSetSplineStyle, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetSplineStyle', @ScriptGetSplineStyle, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetGradientType', @ScriptSetGradientType, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetGradientType', @ScriptGetGradientType, ARegister);

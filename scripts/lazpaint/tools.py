@@ -51,10 +51,36 @@ JOIN_STYLE_BEVEL = 'Bevel'
 JOIN_STYLE_MITER = 'Miter'
 JOIN_STYLE_ROUND = 'Round'
 
-SHAPE_OPTION_ALIASING = 'Aliasing'
+LINE_CAP_ROUND = 'Round'
+LINE_CAP_SQUARE = 'Square'
+LINE_CAP_FLAT = 'Flat'
+
+FONT_STYLE_BOLD = 'Bold'
+FONT_STYLE_ITALIC = 'Italic'
+FONT_STYLE_UNDERLINE = 'Underline'
+FONT_STYLE_STRIKE_OUT = 'StrikeOut'
+
+ALIGN_LEFT = 'Left'
+ALIGN_CENTER = 'Center'
+ALIGN_RIGHT = 'Right'
+
 SHAPE_OPTION_DRAW_SHAPE = 'DrawShape'
 SHAPE_OPTION_FILL_SHAPE = 'FillShape'
 SHAPE_OPTION_CLOSE_SHAPE = 'CloseShape'
+
+ARROW_NONE = 'None'
+ARROW_TAIL = 'Tail'
+ARROW_TIP = 'Tip'
+ARROW_NORMAL = 'Normal'
+ARROW_CUT = 'Cut'
+ARROW_FLIPPED = 'Flipped'
+ARROW_FLIPPED_CUT = 'FlippedCut'
+ARROW_TRIANGLE = 'Triangle'
+ARROW_TRIANGLE_BACK1 = 'TriangleBack1'
+ARROW_TRIANGLE_BACK2 = 'TriangleBack2'
+ARROW_HOLLOW_TRIANGLE = 'HollowTriangle'
+ARROW_HOLLOW_TRIANGLE_BACK1 = 'HollowTriangleBack1'
+ARROW_HOLLOW_TRIANGLE_BACK2 = 'HollowTriangleBack2'
 
 KEY_UNKNOWN = 'Unknown'
 KEY_BACKSPACE = 'Backspace'
@@ -198,9 +224,104 @@ def set_join_style(style):
 def get_join_style():
   return command.send('ToolGetJoinStyle?')
 
+def set_line_cap(cap):
+  command.send('ToolSetLineCap', Cap=cap)
+
+def get_line_cap():
+  return command.send('ToolGetLineCap?')
+
 def set_shape_options(options):
   command.send('ToolSetShapeOptions', Options=options)
 
 def get_shape_options():
   return command.send('ToolGetShapeOptions?')
+
+def set_aliasing(enabled):
+  command.send('ToolSetAliasing', Enabled=enabled)
+
+def get_aliasing():
+  return command.send('ToolGetAliasing?')
+
+def set_shape_ratio(ratio):
+  command.send('ToolSetShapeRatio', Ratio=ratio)
+
+def get_shape_ratio():
+  return command.send('ToolGetShapeRatio?')
+
+def set_brush_index(index):
+  command.send('ToolSetBrushIndex', Index=index)
+
+def get_brush_index():
+  return command.send('ToolGetBrushIndex?')
+
+def get_brush_count(): 
+  return command.send('ToolGetBrushCount?')
+
+def set_brush_spacing(index):
+  command.send('ToolSetBrushSpacing', Index=index)
+
+def get_brush_spacing():
+  return command.send('ToolGetBrushSpacing?')
+
+def set_font_name(name):
+  command.send('ToolSetFontName', Name=name)
+
+def get_font_name():
+  return command.send('ToolGetFontName?')
+
+def set_font_size(size):
+  command.send('ToolSetFontSize', Size=size)
+
+def get_font_size():
+  return command.send('ToolGetFontSize?')
+
+def set_font_style(style):
+  if not isinstance(style, list):
+    style = [style]
+  command.send('ToolSetFontStyle', Style=style)
+
+def get_font_style():
+  return command.send('ToolGetFontStyle?')
+
+def set_text_align(align):
+  command.send('ToolSetTextAlign', Align=align)
+
+def get_text_align():
+  return command.send('ToolGetTextAlign?')
+
+def set_text_outline(width):
+  command.send('ToolSetTextOutline', Width=width)
+
+def get_text_outline():
+  return command.send('ToolGetTextOutline?')
+
+def set_text_phong(enabled):
+  command.send('ToolSetTextPhong', Enabled=enabled)
+
+def get_text_phong():
+  return command.send('ToolGetTextPhong?')
+
+def set_light_position(x, y):
+  command.send('ToolSetLightPosition', Position=(x, y))
+
+def get_light_position():
+  return command.send('ToolGetLightPosition?')
+
+def set_arrow_start(arrow):
+  command.send('ToolSetArrowStart', Arrow=arrow)
+
+def get_arrow_start():
+  return command.send('ToolGetArrowStart?')
+
+def set_arrow_end(arrow):
+  command.send('ToolSetArrowEnd', Arrow=arrow)
+
+def get_arrow_end():
+  return command.send('ToolGetArrowEnd?')
+
+def set_arrow_size(x, y):
+  command.send('ToolSetArrowSize', Size=(x, y))
+
+def get_arrow_size():
+  return command.send('ToolGetArrowSize?')
 

@@ -341,6 +341,8 @@ procedure SetWindowFullHeight(AForm: TForm; AHeight: integer);
 procedure SetWindowFullSize(AForm: TForm; AWidth,AHeight: integer);
 procedure SetWindowTopLeftCorner(AForm: TForm; X,Y: integer);
 function GetWindowTopLeftCorner(AForm: TForm): TPoint;
+function PascalToCSSCase(AIdentifier: string): string;
+function CSSToPascalCase(AIdentifier: string): string;
 
 implementation
 
@@ -522,6 +524,32 @@ end;
 function GetWindowTopLeftCorner(AForm: TForm): TPoint;
 begin
   result := Point(AForm.Left,AForm.Top);
+end;
+
+function PascalToCSSCase(AIdentifier: string): string;
+var
+  i: Integer;
+begin
+  result := AIdentifier;
+  for i := length(result) downto 1 do
+    if result[i] <> lowercase(result[i]) then
+    begin
+      result[i] := lowercase(result[i]);
+      if i > 1 then Insert('-', result, i);
+    end;
+end;
+
+function CSSToPascalCase(AIdentifier: string): string;
+var
+  i: Integer;
+begin
+  result := AIdentifier;
+  for i := length(result) downto 1 do
+  begin
+    if (i = 1) or (result[i-1] = '-') then
+      result[i] := upcase(result[i]) else
+    if result[i] = '-' then delete(result, i, 1);
+  end;
 end;
 
 { TImageEntry }
