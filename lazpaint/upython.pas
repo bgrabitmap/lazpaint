@@ -31,7 +31,7 @@ type
     function GetPythonVersionMajor: integer;
     procedure PythonError(ALine: RawByteString);
     procedure PythonOutput(ALine: RawByteString);
-    procedure PythonBusy(var ASleep: boolean);
+    procedure PythonBusy(var {%H-}ASleep: boolean);
   public
     constructor Create(APythonBin: string = DefaultPythonBin);
     procedure Run(AScriptFilename: UTF8String; APythonVersion: integer = 3);
@@ -172,7 +172,7 @@ end;
 function TPythonScript.GetPythonVersionMajor: integer;
 var
   posDot: SizeInt;
-  errPos: integer;
+  {%H-}errPos: integer;
 begin
   posDot := pos('.',PythonVersion);
   if posDot = 0 then

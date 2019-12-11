@@ -30,7 +30,7 @@ type
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): Trect;
       override;
     function GetIsSelectingTool: boolean; override;
-    function DoToolUpdate(toolDest: TBGRABitmap): TRect; override;
+    function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
   public
     function ToolKeyDown(var key: Word): TRect; override;
     function ToolUp: TRect; override;

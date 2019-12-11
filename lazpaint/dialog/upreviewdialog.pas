@@ -16,7 +16,7 @@ type
     LStatus: TLabel;
     Panel1: TPanel;
     vsPreview: TBGRAVirtualScreen;
-    procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
+    procedure FormCloseQuery(Sender: TObject; var {%H-}CanClose: boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
