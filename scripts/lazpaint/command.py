@@ -18,7 +18,7 @@ def send(command: str, **keywords):
   if keywords is None:
     print(chr(27) + command)
   else:
-    print(chr(27) + command + chr(29) + str(keywords))
+    print(chr(27) + command + chr(29) + repr(keywords))
   if command[-1] == '?':
     return parse_str(input(''))
   else:

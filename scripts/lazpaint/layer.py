@@ -98,8 +98,8 @@ def get_registry(identifier):
 def set_registry(identifier, value):
   if value == None:
     value = ""
-  else:
-    value = str(value)
+  elif isinstance(value, str):
+    value = repr(value)
   command.send("LayerSetRegistry", Identifier=identifier, Value=value)
 
 def remove():

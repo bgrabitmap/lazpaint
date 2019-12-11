@@ -84,6 +84,9 @@ def blur(name=BLUR_FAST, radius=None, validate=True): #radius: float or (x,y)
     radius_x = radius[0]
     radius_y = radius[1]
     radius = None
+  else:
+    radius_x = None
+    radius_y = None
   command.send("Filter", Name=name, Radius=radius, RadiusX=radius_x, RadiusY=radius_y, Validate=validate)
 
 def blur_motion(distance=None, angle=None, oriented=None, validate=True): #oriented: bool
