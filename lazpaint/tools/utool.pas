@@ -48,10 +48,19 @@ type
     tcAlignLeft, tcCenterHorizontally, tcAlignRight, tcAlignTop, tcCenterVertically, tcAlignBottom,
     tcShapeToSpline);
 
+  TDeformationGridMode = (gmDeform, gmMovePointWithoutDeformation);
+
 const
   MaxPenWidth = 999.9;
   MinPenWidth = 1;
+  MaxArrowSize = 9.9;
+  MinArrowSize = 1;
   MaxBrushSpacing = 99;
+  MinPhongShapeAltitude = 1;
+  MaxPhongShapeAltitude = 100;
+  MinPhongBorderSize = 1;
+  MaxPhongBorderSize = 100;
+  MinDeformationGridSize = 3;
 
 function GradientColorSpaceToDisplay(AValue: TBGRAColorInterpolation): string;
 function DisplayToGradientColorSpace(AValue: string): TBGRAColorInterpolation;
@@ -201,7 +210,7 @@ type
     FPhongShapeBorderSize: integer;
     FPhongShapeKind: TPhongShapeKind;
     FDeformationGridNbX,FDeformationGridNbY: integer;
-    FDeformationGridMoveWithoutDeformation: boolean;
+    FDeformationGridMode: TDeformationGridMode;
     FTolerance: byte;
     FFloodFillOptions: TFloodFillOptions;
     FPerspectiveOptions: TPerspectiveOptions;
@@ -234,6 +243,7 @@ type
     function GetBrushCount: integer;
     function GetBrushInfo: TLazPaintBrush;
     function GetForeColor: TBGRAPixel;
+    function GetMaxDeformationGridSize: TSize;
     function GetShapeOptionAliasing: boolean;
     function GetShapeOptionDraw: boolean;
     function GetShapeOptionFill: boolean;
@@ -251,19 +261,30 @@ type
     function ScriptGetBrushCount(AVars: TVariableSet): TScriptResult;
     function ScriptGetBrushIndex(AVars: TVariableSet): TScriptResult;
     function ScriptGetBrushSpacing(AVars: TVariableSet): TScriptResult;
+    function ScriptGetDeformationGridMode(AVars: TVariableSet): TScriptResult;
+    function ScriptGetDeformationGridSize(AVars: TVariableSet): TScriptResult;
     function ScriptGetEraserAlpha(AVars: TVariableSet): TScriptResult;
     function ScriptGetEraserMode(AVars: TVariableSet): TScriptResult;
+    function ScriptGetFloodFillOptions(AVars: TVariableSet): TScriptResult;
     function ScriptGetFontName(AVars: TVariableSet): TScriptResult;
     function ScriptGetFontSize(AVars: TVariableSet): TScriptResult;
     function ScriptGetFontStyle(AVars: TVariableSet): TScriptResult;
+    function ScriptGetGradientColorspace(AVars: TVariableSet): TScriptResult;
+    function ScriptGetGradientSine(AVars: TVariableSet): TScriptResult;
+    function ScriptGetGradientType(AVars: TVariableSet): TScriptResult;
     function ScriptGetJoinStyle(AVars: TVariableSet): TScriptResult;
     function ScriptGetLightPosition(AVars: TVariableSet): TScriptResult;
     function ScriptGetLineCap(AVars: TVariableSet): TScriptResult;
     function ScriptGetPenColor(AVars: TVariableSet): TScriptResult;
     function ScriptGetPenStyle(AVars: TVariableSet): TScriptResult;
     function ScriptGetPenWidth(AVars: TVariableSet): TScriptResult;
+    function ScriptGetPerspectiveOptions(AVars: TVariableSet): TScriptResult;
+    function ScriptGetPhongShapeAltitude(AVars: TVariableSet): TScriptResult;
+    function ScriptGetPhongShapeBorderSize(AVars: TVariableSet): TScriptResult;
+    function ScriptGetPhongShapeKind(AVars: TVariableSet): TScriptResult;
     function ScriptGetShapeOptions(AVars: TVariableSet): TScriptResult;
     function ScriptGetShapeRatio(AVars: TVariableSet): TScriptResult;
+    function ScriptGetSplineStyle(AVars: TVariableSet): TScriptResult;
     function ScriptGetTextAlign(AVars: TVariableSet): TScriptResult;
     function ScriptGetTextOutline(AVars: TVariableSet): TScriptResult;
     function ScriptGetTextPhong(AVars: TVariableSet): TScriptResult;
@@ -275,19 +296,30 @@ type
     function ScriptSetBackColor(AVars: TVariableSet): TScriptResult;
     function ScriptSetBrushIndex(AVars: TVariableSet): TScriptResult;
     function ScriptSetBrushSpacing(AVars: TVariableSet): TScriptResult;
+    function ScriptSetDeformationGridMode(AVars: TVariableSet): TScriptResult;
+    function ScriptSetDeformationGridSize(AVars: TVariableSet): TScriptResult;
     function ScriptSetEraserAlpha(AVars: TVariableSet): TScriptResult;
     function ScriptSetEraserMode(AVars: TVariableSet): TScriptResult;
+    function ScriptSetFloodFillOptions(AVars: TVariableSet): TScriptResult;
     function ScriptSetFontName(AVars: TVariableSet): TScriptResult;
     function ScriptSetFontSize(AVars: TVariableSet): TScriptResult;
     function ScriptSetFontStyle(AVars: TVariableSet): TScriptResult;
+    function ScriptSetGradientColorspace(AVars: TVariableSet): TScriptResult;
+    function ScriptSetGradientSine(AVars: TVariableSet): TScriptResult;
+    function ScriptSetGradientType(AVars: TVariableSet): TScriptResult;
     function ScriptSetJoinStyle(AVars: TVariableSet): TScriptResult;
     function ScriptSetLightPosition(AVars: TVariableSet): TScriptResult;
     function ScriptSetLineCap(AVars: TVariableSet): TScriptResult;
     function ScriptSetPenColor(AVars: TVariableSet): TScriptResult;
     function ScriptSetPenStyle(AVars: TVariableSet): TScriptResult;
     function ScriptSetPenWidth(AVars: TVariableSet): TScriptResult;
+    function ScriptSetPerspectiveOptions(AVars: TVariableSet): TScriptResult;
+    function ScriptSetPhongShapeAltitude(AVars: TVariableSet): TScriptResult;
+    function ScriptSetPhongShapeBorderSize(AVars: TVariableSet): TScriptResult;
+    function ScriptSetPhongShapeKind(AVars: TVariableSet): TScriptResult;
     function ScriptSetShapeOptions(AVars: TVariableSet): TScriptResult;
     function ScriptSetShapeRatio(AVars: TVariableSet): TScriptResult;
+    function ScriptSetSplineStyle(AVars: TVariableSet): TScriptResult;
     function ScriptSetTextAlign(AVars: TVariableSet): TScriptResult;
     function ScriptSetTextOutline(AVars: TVariableSet): TScriptResult;
     function ScriptSetTextPhong(AVars: TVariableSet): TScriptResult;
@@ -299,7 +331,7 @@ type
     procedure SetArrowSize(AValue: TPointF);
     procedure SetArrowStart(AValue: TArrowKind);
     procedure SetBackColor(AValue: TBGRAPixel);
-    procedure SetDeformationGridMoveWithoutDeformation(AValue: boolean);
+    procedure SetDeformationGridMode(AValue: TDeformationGridMode);
     procedure SetEraserAlpha(AValue: byte);
     procedure SetEraserMode(AValue: TEraserMode);
     procedure SetFloodFillOptions(AValue: TFloodFillOptions);
@@ -455,7 +487,8 @@ type
     property DeformationGridNbX: integer read FDeformationGridNbX;
     property DeformationGridNbY: integer read FDeformationGridNbY;
     property DeformationGridSize: TSize read GetDeformationGridSize write SetDeformationGridSize;
-    property DeformationGridMoveWithoutDeformation: boolean read FDeformationGridMoveWithoutDeformation write SetDeformationGridMoveWithoutDeformation;
+    property MaxDeformationGridSize: TSize read GetMaxDeformationGridSize;
+    property DeformationGridMode: TDeformationGridMode read FDeformationGridMode write SetDeformationGridMode;
     property Tolerance: byte read FTolerance write SetTolerance;
     property FloodFillOptions: TFloodFillOptions read FFloodFillOptions write SetFloodFillOptions;
     property PerspectiveOptions: TPerspectiveOptions read FPerspectiveOptions write SetPerspectiveOptions;
@@ -495,7 +528,7 @@ function ToolPopupMessageToStr(AMessage :TToolPopupMessage; AKey: Word = 0): str
 implementation
 
 uses UGraph, LCScaleDPI, LazPaintType, UCursors, BGRATextFX, ULoading, UResourceStrings,
-  BGRATransform, LCVectorOriginal, BGRAGradientOriginal, BGRASVGOriginal;
+  BGRATransform, LCVectorOriginal, BGRAGradientOriginal, BGRASVGOriginal, math;
 
 function StrToPaintToolType(const s: ansistring): TPaintToolType;
 var pt: TPaintToolType;
@@ -974,6 +1007,10 @@ end;
 
 procedure TToolManager.SetArrowSize(AValue: TPointF);
 begin
+  if AValue.x < MinArrowSize then AValue.x := MinArrowSize;
+  if AValue.x > MaxArrowSize then AValue.x := MaxArrowSize;
+  if AValue.y < MinArrowSize then AValue.y := MinArrowSize;
+  if AValue.y > MaxArrowSize then AValue.y := MaxArrowSize;
   if FArrowSize=AValue then Exit;
   FArrowSize:=AValue;
   ToolUpdate;
@@ -999,10 +1036,10 @@ begin
   if Assigned(FOnColorChanged) then FOnColorChanged(self);
 end;
 
-procedure TToolManager.SetDeformationGridMoveWithoutDeformation(AValue: boolean);
+procedure TToolManager.SetDeformationGridMode(AValue: TDeformationGridMode);
 begin
-  if FDeformationGridMoveWithoutDeformation=AValue then Exit;
-  FDeformationGridMoveWithoutDeformation:=AValue;
+  if FDeformationGridMode=AValue then Exit;
+  FDeformationGridMode:=AValue;
   ToolUpdate;
   if Assigned(FOnDeformationGridChanged) then FOnDeformationGridChanged(self);
 end;
@@ -1108,6 +1145,8 @@ end;
 
 procedure TToolManager.SetPhongShapeAltitude(AValue: integer);
 begin
+  if AValue < MinPhongShapeAltitude then AValue := MinPhongShapeAltitude;
+  if AValue > MaxPhongShapeAltitude then AValue := MaxPhongShapeAltitude;
   if FPhongShapeAltitude=AValue then Exit;
   FPhongShapeAltitude:=AValue;
   ToolUpdate;
@@ -1116,6 +1155,8 @@ end;
 
 procedure TToolManager.SetPhongShapeBorderSize(AValue: integer);
 begin
+  if AValue < MinPhongBorderSize then AValue := MinPhongBorderSize;
+  if AValue > MaxPhongBorderSize then AValue := MaxPhongBorderSize;
   if FPhongShapeBorderSize=AValue then Exit;
   FPhongShapeBorderSize:=AValue;
   ToolUpdate;
@@ -1343,6 +1384,12 @@ begin
     result := FForeColor;
 end;
 
+function TToolManager.GetMaxDeformationGridSize: TSize;
+begin
+  result.cx := Max(MinDeformationGridSize,Min(image.Width div 2,50)+1);
+  result.cy := Max(MinDeformationGridSize,Min(image.Height div 2,50)+1);
+end;
+
 function TToolManager.GetShapeOptionAliasing: boolean;
 begin
   result := toAliasing in FShapeOptions;
@@ -1437,6 +1484,23 @@ begin
   result := srOk;
 end;
 
+function TToolManager.ScriptGetDeformationGridMode(AVars: TVariableSet): TScriptResult;
+begin
+  result := srOk;
+  case DeformationGridMode of
+  gmDeform: AVars.Strings['Result'] := 'Deform';
+  gmMovePointWithoutDeformation: AVars.Strings['Result'] := 'MovePointWithoutDeformation';
+  else result := srException;
+  end;
+end;
+
+function TToolManager.ScriptGetDeformationGridSize(AVars: TVariableSet): TScriptResult;
+begin
+  result := srOk;
+  with DeformationGridSize do
+    AVars.Points2D['Result'] := PointF(cx,cy);
+end;
+
 function TToolManager.ScriptGetEraserAlpha(AVars: TVariableSet): TScriptResult;
 begin
   AVars.Integers['Result'] := EraserAlpha;
@@ -1451,6 +1515,21 @@ begin
   emSoften: AVars.Strings['Result'] := 'Soften';
   else result := srException;
   end;
+end;
+
+function TToolManager.ScriptGetFloodFillOptions(AVars: TVariableSet): TScriptResult;
+var
+  optionsVar: TScriptVariableReference;
+  option: TFloodFillOption;
+begin
+  optionsVar := AVars.AddStringList('Result');
+  for option := low(TFloodFillOption) to high(TFloodFillOption) do
+    if option in FloodFillOptions then
+    case option of
+    ffProgressive: AVars.AppendString(optionsVar, 'Progressive');
+    ffFillAll: Avars.AppendString(optionsVar, 'FillAll');
+    end;
+  result := srOk;
 end;
 
 function TToolManager.ScriptGetFontName(AVars: TVariableSet): TScriptResult;
@@ -1480,6 +1559,39 @@ begin
     fsStrikeOut: Avars.AppendString(styles, 'StrikeOut');
     end;
   result := srOk;
+end;
+
+function TToolManager.ScriptGetGradientColorspace(AVars: TVariableSet): TScriptResult;
+begin
+  result := srOk;
+  case GradientColorspace of
+  ciStdRGB: AVars.Strings['Result'] := 'StdRGB';
+  ciLinearRGB: AVars.Strings['Result'] := 'LinearRGB';
+  ciLinearHSLPositive: AVars.Strings['Result'] := 'LinearHSLPositive';
+  ciLinearHSLNegative: AVars.Strings['Result'] := 'LinearHSLNegative';
+  ciGSBPositive: AVars.Strings['Result'] := 'GSBPositive';
+  ciGSBNegative: AVars.Strings['Result'] := 'GSBNegative';
+  else result := srException;
+  end;
+end;
+
+function TToolManager.ScriptGetGradientSine(AVars: TVariableSet): TScriptResult;
+begin
+  result := srOk;
+  AVars.Booleans['Result'] := GradientSine;
+end;
+
+function TToolManager.ScriptGetGradientType(AVars: TVariableSet): TScriptResult;
+begin
+  result := srOk;
+  case GradientType of
+  gtLinear: AVars.Strings['Result'] := 'Linear';
+  gtReflected: AVars.Strings['Result'] := 'Reflected';
+  gtDiamond: AVars.Strings['Result'] := 'Diamond';
+  gtRadial: AVars.Strings['Result'] := 'Radial';
+  gtAngular: AVars.Strings['Result'] := 'Angular';
+  else result := srException;
+  end;
 end;
 
 function TToolManager.ScriptGetJoinStyle(AVars: TVariableSet): TScriptResult;
@@ -1535,6 +1647,48 @@ begin
   result := srOk;
 end;
 
+function TToolManager.ScriptGetPerspectiveOptions(AVars: TVariableSet): TScriptResult;
+var
+  optionsVar: TScriptVariableReference;
+  option: TPerspectiveOption;
+begin
+  optionsVar := AVars.AddStringList('Result');
+  for option := low(TPerspectiveOption) to high(TPerspectiveOption) do
+    if option in PerspectiveOptions then
+    case option of
+    poRepeat: AVars.AppendString(optionsVar, 'Repeat');
+    poTwoPlanes: Avars.AppendString(optionsVar, 'TwoPlanes');
+    end;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetPhongShapeAltitude(AVars: TVariableSet): TScriptResult;
+begin
+  result := srOk;
+  AVars.Integers['Result'] := PhongShapeAltitude;
+end;
+
+function TToolManager.ScriptGetPhongShapeBorderSize(AVars: TVariableSet): TScriptResult;
+begin
+  result := srOk;
+  AVars.Integers['Result'] := PhongShapeBorderSize;
+end;
+
+function TToolManager.ScriptGetPhongShapeKind(AVars: TVariableSet): TScriptResult;
+begin
+  result := srOk;
+  case PhongShapeKind of
+  pskRectangle: AVars.Strings['Result'] := 'Rectangle';
+  pskRoundRectangle: AVars.Strings['Result'] := 'RoundRectangle';
+  pskHalfSphere: AVars.Strings['Result'] := 'HalfSphere';
+  pskConeTop: AVars.Strings['Result'] := 'ConeTop';
+  pskConeSide: AVars.Strings['Result'] := 'ConeSide';
+  pskHorizCylinder: AVars.Strings['Result'] := 'HorizCylinder';
+  pskVertCylinder: AVars.Strings['Result'] := 'VertCylinder';
+  else result := srException;
+  end;
+end;
+
 function TToolManager.ScriptGetShapeOptions(AVars: TVariableSet): TScriptResult;
 var
   options: TScriptVariableReference;
@@ -1554,6 +1708,26 @@ end;
 function TToolManager.ScriptGetShapeRatio(AVars: TVariableSet): TScriptResult;
 begin
   AVars.Floats['Result'] := ShapeRatio;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetSplineStyle(AVars: TVariableSet): TScriptResult;
+var
+  s: String;
+begin
+  case SplineStyle of
+    ssInside: s := 'Inside';
+    ssInsideWithEnds: s := 'InsideWithEnds';
+    ssCrossing: s := 'Crossing';
+    ssCrossingWithEnds: s := 'CrossingWithEnds';
+    ssOutside: s := 'Outside';
+    ssRoundOutside: s := 'RoundOutside';
+    ssVertexToSide: s := 'VertexToSide';
+    ssEasyBezier: s := 'EasyBezier';
+  else
+    exit(srException);
+  end;
+  AVars.Strings['Result'] := s;
   result := srOk;
 end;
 
@@ -1654,6 +1828,27 @@ begin
   result := srOk;
 end;
 
+function TToolManager.ScriptSetDeformationGridMode(AVars: TVariableSet): TScriptResult;
+begin
+  result := srOk;
+  case AVars.Strings['Mode'] of
+  'Deform': DeformationGridMode := gmDeform;
+  'MovePointWithoutDeformation': DeformationGridMode := gmMovePointWithoutDeformation;
+  else result := srInvalidParameters;
+  end;
+end;
+
+function TToolManager.ScriptSetDeformationGridSize(AVars: TVariableSet): TScriptResult;
+var
+  s: TPointF;
+begin
+  s := AVars.Points2D['Size'];
+  if s.x < MinDeformationGridSize then exit(srInvalidParameters);
+  if s.y < MinDeformationGridSize then exit(srInvalidParameters);
+  DeformationGridSize := Size(round(s.x),round(s.y));
+  result := srOk;
+end;
+
 function TToolManager.ScriptSetEraserAlpha(AVars: TVariableSet): TScriptResult;
 var
   alpha: Int64;
@@ -1673,6 +1868,27 @@ begin
   'Soften': EraserMode := emSoften;
   else result := srInvalidParameters;
   end;
+end;
+
+function TToolManager.ScriptSetFloodFillOptions(AVars: TVariableSet): TScriptResult;
+var optionsSet: TFloodFillOptions;
+  optionsVar: TScriptVariableReference;
+  i: Integer;
+  optionStr: string;
+begin
+  optionsSet := [];
+  optionsVar := AVars.GetVariable('Options');
+  for i := 0 to AVars.GetListCount(optionsVar)-1 do
+  begin
+    optionStr := AVars.GetStringAt(optionsVar, i);
+    case optionStr of
+    'Progressive': include(optionsSet, ffProgressive);
+    'FillAll': include(optionsSet, ffFillAll);
+    else exit(srInvalidParameters);
+    end;
+  end;
+  FloodFillOptions:= optionsSet;
+  result := srOk;
 end;
 
 function TToolManager.ScriptSetFontName(AVars: TVariableSet): TScriptResult;
@@ -1709,6 +1925,40 @@ begin
   SetTextFont(TextFontName, TextFontSize, style);
   result := srOk;
 end;
+
+function TToolManager.ScriptSetGradientColorspace(AVars: TVariableSet): TScriptResult;
+begin
+  result := srOk;
+  case AVars.Strings['Colorspace'] of
+  'StdRGB': GradientColorspace := ciStdRGB;
+  'LinearRGB': GradientColorspace := ciLinearRGB;
+  'LinearHSLPositive': GradientColorspace := ciLinearHSLPositive;
+  'LinearHSLNegative': GradientColorspace := ciLinearHSLNegative;
+  'GSBPositive': GradientColorspace := ciGSBPositive;
+  'GSBNegative': GradientColorspace := ciGSBNegative;
+  else result := srInvalidParameters;
+  end;
+end;
+
+function TToolManager.ScriptSetGradientSine(AVars: TVariableSet): TScriptResult;
+begin
+  result := srOk;
+  GradientSine:= AVars.Booleans['Enabled'];
+end;
+
+function TToolManager.ScriptSetGradientType(AVars: TVariableSet): TScriptResult;
+begin
+  result := srOk;
+  case AVars.Strings['GradientType'] of
+  'Linear': GradientType:= gtLinear;
+  'Reflected': GradientType := gtReflected;
+  'Diamond': GradientType := gtDiamond;
+  'Radial': GradientType := gtRadial;
+  'Angular': GradientType := gtAngular;
+  else result := srInvalidParameters;
+  end;
+end;
+
 function TToolManager.ScriptSetJoinStyle(AVars: TVariableSet): TScriptResult;
 begin
   result := srOk;
@@ -1770,6 +2020,58 @@ begin
   result := srOk;
 end;
 
+function TToolManager.ScriptSetPerspectiveOptions(AVars: TVariableSet): TScriptResult;
+var optionsSet: TPerspectiveOptions;
+  optionsVar: TScriptVariableReference;
+  i: Integer;
+  optionStr: string;
+begin
+  optionsSet := [];
+  optionsVar := AVars.GetVariable('Options');
+  for i := 0 to AVars.GetListCount(optionsVar)-1 do
+  begin
+    optionStr := AVars.GetStringAt(optionsVar, i);
+    case optionStr of
+    'Repeat': include(optionsSet, poRepeat);
+    'TwoPlanes': include(optionsSet, poTwoPlanes);
+    else exit(srInvalidParameters);
+    end;
+  end;
+  PerspectiveOptions := optionsSet;
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetPhongShapeAltitude(AVars: TVariableSet): TScriptResult;
+begin
+  if (AVars.Floats['Size'] < MinPhongShapeAltitude) or
+     (AVars.Floats['Size'] > MaxPhongShapeAltitude) then exit(srInvalidParameters);
+  result := srOk;
+  PhongShapeAltitude := AVars.Integers['Altitude'];
+end;
+
+function TToolManager.ScriptSetPhongShapeBorderSize(AVars: TVariableSet): TScriptResult;
+begin
+  if (AVars.Floats['Size'] < MinPhongBorderSize) or
+     (AVars.Floats['Size'] > MaxPhongBorderSize) then exit(srInvalidParameters);
+  result := srOk;
+  PhongShapeBorderSize := AVars.Integers['Size'];
+end;
+
+function TToolManager.ScriptSetPhongShapeKind(AVars: TVariableSet): TScriptResult;
+begin
+  result := srOk;
+  case AVars.Strings['Kind'] of
+  'Rectangle': PhongShapeKind := pskRectangle;
+  'RoundRectangle': PhongShapeKind := pskRoundRectangle;
+  'HalfSphere': PhongShapeKind := pskHalfSphere;
+  'ConeTop': PhongShapeKind := pskConeTop;
+  'ConeSide': PhongShapeKind := pskConeSide;
+  'HorizCylinder': PhongShapeKind := pskHorizCylinder;
+  'VertCylinder': PhongShapeKind := pskVertCylinder;
+  else result := srInvalidParameters;
+  end;
+end;
+
 function TToolManager.ScriptSetShapeOptions(AVars: TVariableSet): TScriptResult;
 var so: TShapeOptions;
   options: TScriptVariableReference;
@@ -1805,6 +2107,26 @@ begin
     ShapeRatio := ratio;
     result := srOk;
   end;
+end;
+
+function TToolManager.ScriptSetSplineStyle(AVars: TVariableSet): TScriptResult;
+var
+  s: TSplineStyle;
+begin
+  case AVars.Strings['Style'] of
+    'Inside': s := ssInside;
+    'InsideWithEnds': s := ssInsideWithEnds;
+    'Crossing': s := ssCrossing;
+    'CrossingWithEnds': s := ssCrossingWithEnds;
+    'Outside': s := ssOutside;
+    'RoundOutside': s := ssRoundOutside;
+    'VertexToSide': s := ssVertexToSide;
+    'EasyBezier': s := ssEasyBezier;
+  else
+    exit(srInvalidParameters);
+  end;
+  SplineStyle := s;
+  result := srOk;
 end;
 
 function TToolManager.ScriptSetTextAlign(AVars: TVariableSet): TScriptResult;
@@ -1916,7 +2238,7 @@ begin
   FPerspectiveOptions:= [poRepeat];
   FDeformationGridNbX := 5;
   FDeformationGridNbY := 5;
-  FDeformationGridMoveWithoutDeformation := false;
+  FDeformationGridMode := gmDeform;
 
   PenWidthControls := TList.Create;
   AliasingControls := TList.Create;
@@ -2274,7 +2596,7 @@ begin
   FScriptContext.RegisterScriptFunction('ToolGetArrowEnd', @ScriptGetArrowEnd, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetArrowSize', @ScriptSetArrowSize, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetArrowSize', @ScriptGetArrowSize, ARegister);
-{  FScriptContext.RegisterScriptFunction('ToolSetSplineStyle', @ScriptSetSplineStyle, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetSplineStyle', @ScriptSetSplineStyle, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetSplineStyle', @ScriptGetSplineStyle, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetGradientType', @ScriptSetGradientType, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetGradientType', @ScriptGetGradientType, ARegister);
@@ -2297,7 +2619,7 @@ begin
   FScriptContext.RegisterScriptFunction('ToolSetFloodFillOptions', @ScriptSetFloodFillOptions, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetFloodFillOptions', @ScriptGetFloodFillOptions, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetPerspectiveOptions', @ScriptSetPerspectiveOptions, ARegister);
-  FScriptContext.RegisterScriptFunction('ToolGetPerspectiveOptions', @ScriptGetPerspectiveOptions, ARegister);}
+  FScriptContext.RegisterScriptFunction('ToolGetPerspectiveOptions', @ScriptGetPerspectiveOptions, ARegister);
 end;
 
 procedure TToolManager.ToolWakeUp;

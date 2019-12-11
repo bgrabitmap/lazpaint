@@ -82,6 +82,45 @@ ARROW_HOLLOW_TRIANGLE = 'HollowTriangle'
 ARROW_HOLLOW_TRIANGLE_BACK1 = 'HollowTriangleBack1'
 ARROW_HOLLOW_TRIANGLE_BACK2 = 'HollowTriangleBack2'
 
+SPLINE_STYLE_INSIDE = 'Inside'
+SPLINE_STYLE_INSIDE_WITH_ENDS = 'InsideWithEnds'
+SPLINE_STYLE_CROSSING = 'Crossing'
+SPLINE_STYLE_CROSSING_WITH_ENDS = 'CrossingWithEnds'
+SPLINE_STYLE_OUTSIDE = 'Outside'
+SPLINE_STYLE_ROUND_OUTSIDE = 'RoundOutside'
+SPLINE_STYLE_VERTEX_TO_SIDE = 'VertexToSide'
+SPLINE_STYLE_EASY_BEZIER = 'EasyBezier'
+
+GRADIENT_TYPE_LINEAR = 'Linear'
+GRADIENT_TYPE_REFLECTED = 'Reflected'
+GRADIENT_TYPE_DIAMOND = 'Diamond'
+GRADIENT_TYPE_RADIAL =  'Radial'
+GRADIENT_TYPE_ANGULAR = 'Angular'
+
+GRADIENT_COLORSPACE_STD_RGB = 'StdRGB'
+GRADIENT_COLORSPACE_LINEAR_RGB = 'LinearRGB'
+GRADIENT_COLORSPACE_LINEAR_HSL_POSITIVE = 'LinearHSLPositive'
+GRADIENT_COLORSPACE_LINEAR_HSL_NEGATIVE = 'LinearHSLNegative'
+GRADIENT_COLORSPACE_CORR_HSL_POSITIVE = 'GSBPositive'
+GRADIENT_COLORSPACE_CORR_HSL_NEGATIVE = 'GSBNegative'
+
+SHAPE_KIND_RECTANGLE = 'Rectangle'
+SHAPE_KIND_ROUND_RECTANGLE = 'RoundRectangle'
+SHAPE_KIND_HALF_SPHERE = 'HalfSphere'
+SHAPE_KIND_CONE_TOP = 'ConeTop'
+SHAPE_KIND_CONE_SIDE = 'ConeSide'
+SHAPE_KIND_HORIZ_CYLINDER = 'HorizCylinder'
+SHAPE_KIND_VERT_CYLINDER = 'VertCylinder'
+
+DEFORMATION_MODE_DEFORM = 'Deform'
+DEFORMATION_MODE_MOVE_POINT_WITHOUT_DEFORMATION = 'MovePointWithoutDeformation'
+
+FLOOD_FILL_PROGRESSIVE = 'Progressive'
+FLOOD_FILL_FILL_ALL = 'FillAll' #not implemented
+
+PERSPECTIVE_REPEAT = 'Repeat'
+PERSPECTIVE_TWO_PLANES = 'TwoPlanes'
+
 KEY_UNKNOWN = 'Unknown'
 KEY_BACKSPACE = 'Backspace'
 KEY_TAB = 'Tab'
@@ -278,7 +317,7 @@ def get_font_size() -> float:
 def set_font_style(style: list):
   command.send('ToolSetFontStyle', Style=style)
 
-def get_font_style():
+def get_font_style() -> list:
   return command.send('ToolGetFontStyle?')
 
 def set_text_align(align):
@@ -322,4 +361,52 @@ def set_arrow_size(x, y):
 
 def get_arrow_size() -> tuple:
   return command.send('ToolGetArrowSize?')
+
+def set_spline_style(style):
+  command.send('ToolSetSplineStyle', Style=style)
+
+def get_spline_style():
+  return command.send('ToolGetSplineStyle?')
+
+def set_gradient_type(gradient_type):
+  command.send('ToolSetGradientType', GradientType=gradient_type)
+
+def get_gradient_type():
+  return command.send('ToolGetGradientType?')
+
+def set_gradient_colorspace(colorspace):
+  command.send('ToolSetGradientColorspace', Colorspace=colorspace)
+
+def get_gradient_colorspace():
+  return command.send('ToolGetGradientColorspace?')
+
+def set_gradient_type(gradient_type):
+  command.send('ToolSetGradientType', GradientType=gradient_type)
+
+def get_gradient_type():
+  return command.send('ToolGetGradientType?')
+
+def set_phong_shape_kind(kind):
+  command.send('ToolSetPhongShapeKind', Kind=kind)
+
+def get_phong_shape_kind():
+  return command.send('ToolGetPhongShapeKind?')
+
+def set_grid_deformation_mode(mode):
+  command.send('ToolSetDeformationGridMode', Mode=mode)
+
+def get_grid_deformation_mode():
+  return command.send('ToolGetDeformationGridMode?')
+
+def set_flood_fill_options(options: list):
+  command.send('ToolSetFloodFillOptions', Options=options)
+
+def get_flood_fill_options() -> list:
+  return command.send('ToolGetFloodFillOptions?')
+
+def set_perspective_options(options: list):
+  command.send('ToolSetPerspectiveOptions', Options=options)
+
+def get_perspective_options() -> list:
+  return command.send('ToolGetPerspectiveOptions?')
 

@@ -101,21 +101,21 @@ begin
   SpinEdit_Tolerance.OnChange := @SpinEdit_ToleranceChange;
 
   SpinEdit_PenWidth.MinValue := 1;
-  SpinEdit_PenWidth.MaxValue := round(MaxPenWidth*10);
+  SpinEdit_PenWidth.MaxValue := round(MaxPenWidth*PenWidthFactor);
   SpinEdit_PenWidth.Increment := 10;
   SpinEdit_PenWidth.OnChange := @SpinEdit_PenWidthChange;
   SpinEdit_PenWidth.OnMouseMove := @SpinEdit_PenWidthMouseMove;
   SpinEdit_PenWidth.OnExit:= @SpinEdit_PenWidthExit;
   SpinEdit_PenWidth.BarExponent := 3;
 
-  SpinEdit_ArrowSizeX.MinValue := 10;
-  SpinEdit_ArrowSizeX.MaxValue := 99;
+  SpinEdit_ArrowSizeX.MinValue := round(MinArrowSize*PenWidthFactor);
+  SpinEdit_ArrowSizeX.MaxValue := round(MaxArrowSize*PenWidthFactor);
   SpinEdit_ArrowSizeX.Value := 20;
   SpinEdit_ArrowSizeX.Increment := 5;
   SpinEdit_ArrowSizeX.OnChange := @SpinEdit_ArrowSizeChange;
 
-  SpinEdit_ArrowSizeY.MinValue := 10;
-  SpinEdit_ArrowSizeY.MaxValue := 99;
+  SpinEdit_ArrowSizeY.MinValue := round(MinArrowSize*PenWidthFactor);
+  SpinEdit_ArrowSizeY.MaxValue := round(MaxArrowSize*PenWidthFactor);
   SpinEdit_ArrowSizeY.Value := 20;
   SpinEdit_ArrowSizeY.Increment := 5;
   SpinEdit_ArrowSizeY.OnChange := @SpinEdit_ArrowSizeChange;
@@ -154,28 +154,28 @@ begin
   SpinEdit_TextBlur.BarExponent:= 3;
   SpinEdit_TextBlur.OnChange := @SpinEdit_TextBlurChange;
 
-  SpinEdit_GridNbX.MinValue := 1;
+  SpinEdit_GridNbX.MinValue := MinDeformationGridSize-1;
   SpinEdit_GridNbX.MaxValue := 100;
   SpinEdit_GridNbX.Value := 10;
   SpinEdit_GridNbX.Increment := 1;
   SpinEdit_GridNbX.OnChange := @GridNb_SpinEditChange;
   SpinEdit_GridNbX.OnExit := @SpinEdit_GridNbExit;
 
-  SpinEdit_GridNbY.MinValue := 1;
+  SpinEdit_GridNbY.MinValue := MinDeformationGridSize-1;
   SpinEdit_GridNbY.MaxValue := 100;
   SpinEdit_GridNbY.Value := 10;
   SpinEdit_GridNbY.Increment := 1;
   SpinEdit_GridNbY.OnChange := @GridNb_SpinEditChange;
   SpinEdit_GridNbY.OnExit := @SpinEdit_GridNbExit;
 
-  SpinEdit_PhongBorderSize.MinValue := 1;
-  SpinEdit_PhongBorderSize.MaxValue := 100;
+  SpinEdit_PhongBorderSize.MinValue := MinPhongBorderSize;
+  SpinEdit_PhongBorderSize.MaxValue := MaxPhongBorderSize;
   SpinEdit_PhongBorderSize.Value := 10;
   SpinEdit_PhongBorderSize.Increment := 3;
   SpinEdit_PhongBorderSize.OnChange := @SpinEdit_PhongBorderSizeChange;
 
-  SpinEdit_ShapeAltitude.MinValue := 1;
-  SpinEdit_ShapeAltitude.MaxValue := 100;
+  SpinEdit_ShapeAltitude.MinValue := MinPhongShapeAltitude;
+  SpinEdit_ShapeAltitude.MaxValue := MaxPhongShapeAltitude;
   SpinEdit_ShapeAltitude.Value := 10;
   SpinEdit_ShapeAltitude.Increment := 1;
   SpinEdit_ShapeAltitude.BarExponent:= 3;
@@ -362,7 +362,7 @@ begin
   if FInGridNb then exit;
   SpinEdit_GridNbX.Value := ToolManager.DeformationGridNbX-1;
   SpinEdit_GridNbY.Value := ToolManager.DeformationGridNbY-1;
-  Tool_GridMoveWithoutDeformation.Down := ToolManager.DeformationGridMoveWithoutDeformation;
+  Tool_GridMoveWithoutDeformation.Down := (ToolManager.DeformationGridMode = gmMovePointWithoutDeformation);
 end;
 
 procedure TFMain.UpdateFloodfillToolbar;
@@ -537,14 +537,11 @@ begin
 end;
 
 procedure TFMain.UpdateToolbar;
-var maxGridNbX,maxGridNbY: integer;
+var maxGridNb: TSize;
 begin
-  maxGridNbX := Max(2,Min(image.Width div 2,50));
-  maxGridNbY := Max(2,Min(image.Height div 2,50));
-  if SpinEdit_GridNbX.MaxValue <> maxGridNbX then
-    SpinEdit_GridNbX.MaxValue := maxGridNbX;
-  if SpinEdit_GridNbY.MaxValue <> maxGridNbY then
-    SpinEdit_GridNbY.MaxValue := maxGridNbY;
+  maxGridNb := ToolManager.MaxDeformationGridSize;
+  SpinEdit_GridNbX.MaxValue := maxGridNb.cx-1;
+  SpinEdit_GridNbY.MaxValue := maxGridNb.cy-1;
 
   UpdateCurveModeToolbar;
 end;
@@ -735,8 +732,8 @@ end;
 
 procedure TFMain.SpinEdit_GridNbExit(Sender: TObject);
 begin
-  if SpinEdit_GridNbX.Value < 2 then SpinEdit_GridNbX.Value := 2;
-  if SpinEdit_GridNbY.Value < 2 then SpinEdit_GridNbY.Value := 2;
+  if SpinEdit_GridNbX.Value < MinDeformationGridSize-1 then SpinEdit_GridNbX.Value := MinDeformationGridSize-1;
+  if SpinEdit_GridNbY.Value < MinDeformationGridSize-1 then SpinEdit_GridNbY.Value := MinDeformationGridSize-1;
 end;
 
 procedure TFMain.ViewWorkspaceColorExecute(Sender: TObject);
@@ -1152,9 +1149,13 @@ end;
 
 procedure TFMain.Tool_GridMoveWithoutDeformationClick(Sender: TObject);
 begin
-    if initialized then
-      ToolManager.DeformationGridMoveWithoutDeformation :=
-        Tool_GridMoveWithoutDeformation.Down;
+  if initialized then
+  begin
+    if Tool_GridMoveWithoutDeformation.Down then
+      ToolManager.DeformationGridMode := gmMovePointWithoutDeformation
+    else
+      ToolManager.DeformationGridMode := gmDeform;
+  end;
 end;
 
 procedure TFMain.SetCurveMode(AMode: TToolSplineMode);
