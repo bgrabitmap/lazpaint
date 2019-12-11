@@ -25,6 +25,7 @@ type
     function ScriptImageMoveLayerIndex(AVars: TVariableSet): TScriptResult;
     function ScriptLayerFromFile(AVars: TVariableSet): TScriptResult;
     function ScriptImageGetRegistry(AVars: TVariableSet): TScriptResult;
+    function ScriptLayerGetId(AVars: TVariableSet): TScriptResult;
     function ScriptLayerGetRegistry(AVars: TVariableSet): TScriptResult;
     function ScriptLayerSelectId(AVars: TVariableSet): TScriptResult;
     function ScriptLayerAddNew(AVars: TVariableSet): TScriptResult;
@@ -166,7 +167,7 @@ begin
 
   Scripting.RegisterScriptFunction('LayerHorizontalFlip',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerVerticalFlip',@GenericScriptFunction,ARegister);
-  Scripting.RegisterScriptFunction('LayerGetId',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerGetId',@ScriptLayerGetId,ARegister);
   Scripting.RegisterScriptFunction('LayerGetName',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerGetOpacity',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerGetBlendOp',@GenericScriptFunction,ARegister);
@@ -250,7 +251,6 @@ begin
   if f = 'IsLayerEmpty' then AVars.Booleans['Result'] := Image.CurrentLayerEmpty else
   if f = 'LayerHorizontalFlip' then HorizontalFlip(foCurrentLayer) else
   if f = 'LayerVerticalFlip' then VerticalFlip(foCurrentLayer) else
-  if f = 'LayerGetId' then AVars.Integers['Result'] := Image.LayerId[Image.CurrentLayerIndex] else
   if f = 'LayerGetName' then AVars.Strings['Result'] := Image.LayerName[Image.CurrentLayerIndex] else
   if f = 'LayerGetOpacity' then AVars.Integers['Result'] := Image.LayerOpacity[Image.CurrentLayerIndex] else
   if f = 'LayerGetBlendOp' then AVars.Strings['Result'] := BlendOperationStr[Image.BlendOperation[Image.CurrentLayerIndex]] else
@@ -273,12 +273,14 @@ end;
 
 function TImageActions.ScriptGetLayerIndex(AVars: TVariableSet): TScriptResult;
 var
-  idx,layerId: Integer;
+  idx: Integer;
+  layerGuid: TGUID;
 begin
   if AVars.IsDefined('LayerId') then
   begin
-    layerId := AVars.Integers['LayerId'];
-    idx := Image.CurrentState.LayeredBitmap.GetLayerIndexFromId(layerId);
+    if not TryStringToGUID('{'+AVars.Strings['LayerId']+'}', layerGuid) then
+      exit(srInvalidParameters);
+    idx := Image.GetLayerIndexByGuid(layerGuid);
     if idx <> -1 then
       AVars.Integers['Result']:= idx+1
     else
@@ -318,6 +320,17 @@ begin
   result := srOk;
 end;
 
+function TImageActions.ScriptLayerGetId(AVars: TVariableSet): TScriptResult;
+var
+  guidStr: String;
+begin
+  guidStr := LowerCase(GUIDToString(Image.LayerGuid[Image.CurrentLayerIndex]));
+  if (length(guidStr)>0) and (guidStr[1]='{') and (guidStr[length(guidStr)]='}') then
+    guidStr := copy(guidStr,2,length(guidStr)-2);
+  AVars.Strings['Result'] := guidStr;
+  result := srOk;
+end;
+
 function TImageActions.ScriptLayerGetRegistry(AVars: TVariableSet): TScriptResult;
 var
   identifier: String;
@@ -331,8 +344,11 @@ end;
 function TImageActions.ScriptLayerSelectId(AVars: TVariableSet): TScriptResult;
 var
   idx: Integer;
+  layerGuid: TGUID;
 begin
-  idx := Image.GetLayerIndexById(AVars.Integers['Id']);
+  if not TryStringToGUID('{'+AVars.Strings['Id']+'}', layerGuid) then
+    exit(srInvalidParameters);
+  idx := Image.GetLayerIndexByGuid(layerGuid);
   if idx = -1 then exit(srInvalidParameters)
   else if not Image.SetCurrentLayerByIndex(idx) then exit(srException)
   else exit(srOk);

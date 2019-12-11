@@ -64,6 +64,7 @@ type
     function GetIsTiff: boolean;
     function GetIsGif: boolean;
     function GetLayerBitmapById(AId: integer): TBGRABitmap;
+    function GetLayerGuid(AIndex: integer): TGuid;
     function GetLayerId(AIndex: integer): integer;
     function GetLayerOriginal(AIndex: integer): TBGRALayerCustomOriginal;
     function GetLayerOriginalClass(AIndex: integer): TBGRALayerOriginalAny;
@@ -181,6 +182,7 @@ type
     function GetRegistry(AIdentifier: string): RawByteString;
 
     function GetLayerIndexById(AId: integer): integer;
+    function GetLayerIndexByGuid(AGuid: TGuid): integer;
     procedure AddNewLayer;
     procedure AddNewLayer(AOriginal: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix);
     procedure AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation);
@@ -263,6 +265,7 @@ type
     property LayerOriginalClass[AIndex: integer]: TBGRALayerOriginalAny read GetLayerOriginalClass;
     property LayerOriginalMatrix[AIndex: integer]: TAffineMatrix read GetLayerOriginalMatrix write SetLayerOriginalMatrix;
     property LayerId[AIndex: integer]: integer read GetLayerId;
+    property LayerGuid[AIndex: integer]: TGuid read GetLayerGuid;
     property LayerVisible[AIndex: integer]: boolean read GetLayerVisible write SetLayerVisible;
     property LayerOpacity[AIndex: integer]: byte read GetLayerOpacity write SetLayerOpacity;
     property LayerOffset[AIndex: integer]: TPoint read GetLayerOffset write SetLayerOffset;
@@ -1352,6 +1355,20 @@ begin
   result := FCurrentState.LayerBitmapById[AId];
 end;
 
+function TLazPaintImage.GetLayerGuid(AIndex: integer): TGuid;
+var
+  guidStr: RawByteString;
+begin
+  guidStr := GetLayerRegistry(AIndex, 'guid');
+  if guidStr<>'' then
+    result := StringToGUID(guidStr)
+  else
+  begin
+    CreateGUID(result);
+    SetLayerRegistry(AIndex, 'guid', GUIDToString(result));
+  end;
+end;
+
 function TLazPaintImage.GetLayerId(AIndex: integer): integer;
 begin
   result := FCurrentState.LayerId[AIndex];
@@ -2233,6 +2250,17 @@ end;
 function TLazPaintImage.GetLayerIndexById(AId: integer): integer;
 begin
   result := FCurrentState.LayeredBitmap.GetLayerIndexFromId(AId);
+end;
+
+function TLazPaintImage.GetLayerIndexByGuid(AGuid: TGuid): integer;
+var
+  guidStr: String;
+  i: Integer;
+begin
+  guidStr := GUIDToString(AGuid);
+  for i := 0 to NbLayers-1 do
+    if CompareText(GetLayerRegistry(i, 'guid'),guidStr)=0 then exit(i);
+  exit(-1);
 end;
 
 constructor TLazPaintImage.Create;
