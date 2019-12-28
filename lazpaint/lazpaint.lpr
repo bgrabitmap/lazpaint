@@ -62,6 +62,11 @@ type
   TMyLazPaintInstance = class(TLazPaintInstance)
     FMyOnlineUpdater: TLazPaintOnlineUpdater;
     function GetOnlineUpdater: TLazPaintCustomOnlineUpdater; override;
+    constructor Create; override;
+    constructor Create(AEmbedded: boolean); override;
+    destructor Destroy; override;
+  private
+    procedure ApplicationException(Sender: TObject; E: Exception);
   end;
 
 var
@@ -89,6 +94,57 @@ begin
     on ex:exception do
       result := nil;
   end;
+end;
+
+constructor TMyLazPaintInstance.Create;
+begin
+  inherited Create;
+  Application.OnException:=@ApplicationException;
+end;
+
+constructor TMyLazPaintInstance.Create(AEmbedded: boolean);
+begin
+  inherited Create(AEmbedded);
+  Application.OnException:=@ApplicationException;
+end;
+
+destructor TMyLazPaintInstance.Destroy;
+begin
+  if Application.OnException = @ApplicationException then
+    Application.OnException:= nil;
+  inherited Destroy;
+end;
+
+procedure TMyLazPaintInstance.ApplicationException(Sender: TObject; E: Exception);
+var
+  I: Integer;
+  Frames: PPointer;
+  Report: string;
+begin
+  if Initialized then
+    Report := 'Unhandled exception!' + LineEnding
+  else
+    Report := 'Error initializing application!' + LineEnding;
+  Report += LineEnding;
+  if E <> nil then
+  begin
+    if E.ClassName <> 'Exception' then
+      Report += 'Exception class: ' + E.ClassName + LineEnding;
+    Report += 'Message: ' + E.Message + LineEnding;
+  end;
+  Report += 'Stacktrace:' + LineEnding;
+  Report := Report + '  ' + BackTraceStrFunc(ExceptAddr) + LineEnding;
+  Frames := ExceptFrames;
+  for I := 0 to ExceptFrameCount - 1 do
+    Report := Report + '  ' + BackTraceStrFunc(Frames[I]) + LineEnding;
+  Report += LineEnding;
+  if Initialized then
+    Report += 'It is recommanded to save a backup and restart the application.'
+  else
+    Report += 'Application will now close.';
+  ShowError(rsLazPaint, Report);
+  if not Initialized then
+    Halt; // End of program execution
 end;
 
 {$R *.res}

@@ -651,8 +651,8 @@ procedure TFMain.UpdateBrushList;
 var oldInit: boolean;
   i: Integer;
 begin
-  oldInit:= initialized;
-  initialized := false;
+  oldInit:= FInitialized;
+  FInitialized := false;
   try
     Panel_PenWidthPreview.Invalidate;
     ComboBox_BrushSelect.Clear;
@@ -665,7 +665,7 @@ begin
     on ex:exception do
       LazPaintInstance.ShowError(rsLazPaint,ex.Message);
   end;
-  initialized := oldInit;
+  FInitialized := oldInit;
 end;
 
 procedure TFMain.SpinEdit_ShapeAltitudeChange(Sender: TObject; AByUser: boolean);

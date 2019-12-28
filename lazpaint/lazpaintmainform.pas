@@ -722,7 +722,7 @@ type
     FInTextFont, FInTextAlign, FInTextShadow,
     FInPerspective, FInGridNb: Boolean;
     FOnlineUpdater: TLazPaintCustomOnlineUpdater;
-    initialized: boolean;
+    FInitialized: boolean;
     shouldArrangeOnResize: boolean;
     btnLeftDown, btnRightDown, btnMiddleDown: boolean;
     spacePressed, altPressed, snapPressed, shiftPressed: boolean;
@@ -883,6 +883,7 @@ type
     property UseImageBrowser: boolean read GetUseImageBrowser;
     property CurrentPressure: single read GetCurrentPressure;
     property DarkTheme: boolean read GetDarkTheme write SetDarkTheme;
+    property Initialized: boolean read FInitialized;
   end;
 
 implementation
@@ -900,7 +901,7 @@ const PenWidthFactor = 10;
 
 procedure TFMain.FormCreate(Sender: TObject);
 begin
-  initialized := false;
+  FInitialized := false;
 
   FLayout := TMainFormLayout.Create(self);
   FImageView := nil;
@@ -959,7 +960,7 @@ begin
   {$ENDIF}
 
   FLayout.OnPictureAreaChange := @LayoutPictureAreaChange;
-  initialized := true;
+  FInitialized := true;
   FirstPaint := true;
 end;
 
@@ -1059,7 +1060,7 @@ end;
 
 procedure TFMain.Init;
 begin
-  initialized := false;
+  FInitialized := false;
   Config := LazPaintInstance.Config;
   CreateMenuAndToolbar;
 
@@ -1141,7 +1142,6 @@ begin
   end;
   if Config.DefaultToolboxWindowVisible and (FLayout.DefaultToolboxDocking <> twWindow) then
     FLayout.ToolBoxVisible := true;
-  initialized := true;
 
   RegisterScripts(True);
 
@@ -1150,6 +1150,7 @@ begin
   Image.Zoom := Zoom;
   UpdateWindowCaption;
   Image.OnCurrentFilenameChanged := @ImageCurrentFilenameChanged;
+  FInitialized := true;
 end;
 
 procedure TFMain.FormShow(Sender: TObject);

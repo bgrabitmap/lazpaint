@@ -29,6 +29,7 @@ type
   private
     FScriptName: String;
 
+    function GetInitialized: boolean;
     function GetMainFormVisible: boolean;
     procedure OnLayeredBitmapLoadStartHandler(AFilenameUTF8: string);
     procedure OnLayeredBitmapLoadProgressHandler(APercentage: integer);
@@ -214,6 +215,7 @@ type
     procedure UpdateEditPicture(ADelayed: boolean); override;
     procedure AddColorToPalette(AColor: TBGRAPixel); override;
     procedure RemoveColorFromPalette(AColor: TBGRAPixel); override;
+    property Initialized: boolean read GetInitialized;
   end;
 
 implementation
@@ -582,6 +584,11 @@ begin
     result := FMain.Visible
   else
     result := false;
+end;
+
+function TLazPaintInstance.GetInitialized: boolean;
+begin
+  result := Assigned(FMain) and FMain.Initialized;
 end;
 
 procedure TLazPaintInstance.PythonScriptCommand(ASender: TObject; ACommand,
