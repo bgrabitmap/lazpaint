@@ -17,13 +17,16 @@ const
   SaturationTab = 4;
   LightnessTab = 5;
   AlphaTab = 6;
+  CurveTabCount = 7;
+  HistogramBarCount = 30;
 
 type
   { TFAdjustCurves }
 
   TFAdjustCurves = class(TForm)
     Panel2: TPanel;
-    Timer1: TTimer;
+    Timer_Chart: TTimer;
+    Timer_Thread: TTimer;
     ToolBar8: TToolBar;
     ToolButton_Posterize: TToolButton;
     ToolButton_RemovePoint: TToolButton;
@@ -40,7 +43,8 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
     procedure FormShow(Sender: TObject);
     procedure TabControl1Change(Sender: TObject);
-    procedure Timer1Timer(Sender: TObject);
+    procedure Timer_ChartTimer(Sender: TObject);
+    procedure Timer_ThreadTimer(Sender: TObject);
     procedure ToolButton_PosterizeClick(Sender: TObject);
     procedure ToolButton_RemovePointClick(Sender: TObject);
     procedure ToolButton_NewCurveClick(Sender: TObject);
@@ -69,6 +73,10 @@ type
     FEffectUpdated: boolean;
     FIgnoreInput: boolean;
     FThreadManager: TFilterThreadManager;
+    FHistogram: array[0..CurveTabCount-1, 0..HistogramBarCount-1] of integer;
+    FHistogramComputed, FHistogramDelay: array[0..CurveTabCount-1] of boolean;
+    FHistogramMax: array[0..CurveTabCount-1] of integer;
+    FHistogramRedraw: boolean;
     function GetCurveColor: TBGRAPixel;
     function GetCurveName: string;
     function GetHueTabSelected: boolean;
@@ -88,6 +96,9 @@ type
     procedure SetPosterize(AValue: boolean);
     procedure TryRemovePoint;
     procedure PreviewNeeded;
+    function NeedHistogram(ATab: integer): boolean;
+    procedure DiscardHistogram;
+    procedure QueryHistogramRedraw;
     procedure OnTaskEvent({%H-}ASender: TObject; AEvent: TThreadManagerEvent);
   public
     { public declarations }
@@ -137,7 +148,7 @@ var
   i: Integer;
   curve: TVariableSet;
   pointList: TScriptVariableReference;
-  pointCount: integer;
+  pointCount, histoTab: integer;
   pts,symbols: array of TPointF;
   symbolsColor: array of TBGRAPixel;
   hueGradient: TBGRAHueGradient;
@@ -160,6 +171,25 @@ begin
         Bitmap.DrawLineAntialias(System.round(FPoint0.x),System.round(y),Bitmap.Width,System.round(y),FGridColor,BGRAPixelTransparent,FTickSize,false);
         Bitmap.DrawLineAntialias(System.round(x),System.round(FPoint0.y),System.round(x),0,FGridColor,BGRAPixelTransparent,FTickSize,false);
       end;
+  end;
+  histoTab := SelectedTab;
+  if FHistogramDelay[histoTab] then
+  begin
+    FHistogramDelay[histoTab] := false;
+    QueryHistogramRedraw;
+  end
+  else
+  begin
+    if NeedHistogram(histoTab) and
+      (FHistogramMax[histoTab] > 0) then
+    begin
+      for i := 0 to HistogramBarCount-1 do
+        Bitmap.FillRectAntialias(
+           RectF(CoordToBitmap(i/HistogramBarCount,
+                               FHistogram[histoTab, i]/FHistogramMax[histoTab]),
+                 CoordToBitmap((i+0.9)/HistogramBarCount,
+                               0)), BGRA(0,0,0,96) );
+    end;
   end;
   curve := SelectedCurve;
   if Assigned(curve) then
@@ -281,7 +311,7 @@ procedure TFAdjustCurves.FormHide(Sender: TObject);
 begin
   FreeAndNil(FGraphBackgroundLeft);
   FreeAndNil(FGraphBackgroundBottom);
-  Timer1.Enabled:= false;
+  Timer_Thread.Enabled:= false;
 end;
 
 procedure TFAdjustCurves.FormKeyDown(Sender: TObject; var Key: Word;
@@ -296,6 +326,7 @@ end;
 procedure TFAdjustCurves.FormShow(Sender: TObject);
 begin
   vsChart.DiscardBitmap;
+  DiscardHistogram;
 end;
 
 procedure TFAdjustCurves.TabControl1Change(Sender: TObject);
@@ -305,15 +336,25 @@ begin
   FIgnoreInput:= true;
   ToolButton_Posterize.Down := Posterize;
   FIgnoreInput:= false;
-  vsChart.RedrawBitmap;
+  vsChart.DiscardBitmap;
 end;
 
-procedure TFAdjustCurves.Timer1Timer(Sender: TObject);
+procedure TFAdjustCurves.Timer_ChartTimer(Sender: TObject);
 begin
-  Timer1.Enabled:= false;
+  Timer_Chart.Enabled := false;
+  if FHistogramRedraw then
+  begin
+    vsChart.RedrawBitmap;
+    FHistogramRedraw := false;
+  end;
+end;
+
+procedure TFAdjustCurves.Timer_ThreadTimer(Sender: TObject);
+begin
+  Timer_Thread.Enabled:= false;
   FThreadManager.RegularCheck;
-  Timer1.Interval := 200;
-  Timer1.Enabled:= true;
+  Timer_Thread.Interval := 200;
+  Timer_Thread.Enabled:= true;
 end;
 
 procedure TFAdjustCurves.ToolButton_PosterizeClick(Sender: TObject);
@@ -757,13 +798,111 @@ begin
   FThreadManager.WantPreview(TAdjustCurvesTask.Create(FFilterConnector));
 end;
 
+function TFAdjustCurves.NeedHistogram(ATab: integer): boolean;
+  procedure InitCompute(ATab: integer);
+  var
+    i: Integer;
+  begin
+    for i := 0 to HistogramBarCount-1 do
+      FHistogram[ATab, i] := 0;
+  end;
+
+  procedure FinishCompute(ATab: integer);
+  var i: integer;
+  begin
+    FHistogramMax[ATab] := 0;
+    for i := 0 to HistogramBarCount-1 do
+      FHistogramMax[ATab] := max(FHistogramMax[ATab], FHistogram[ATab, i]);
+    FHistogramComputed[ATab] := true;
+  end;
+
+var
+  i: Integer;
+  p: PBGRAPixel;
+  yb, xb, nbx: LongInt;
+  hslaValue: THSLAPixel;
+
+begin
+  if (ATab < 0) or (ATab > CurveTabCount) then exit(false);
+  if FHistogramComputed[ATab] then exit(true);
+  if ATab in [HueTab, SaturationTab, LightnessTab] then
+  begin
+    InitCompute(HueTab);
+    InitCompute(SaturationTab);
+    InitCompute(LightnessTab);
+  end else
+    InitCompute(ATab);
+
+  nbx := FFilterConnector.WorkArea.Width;
+  for yb := FFilterConnector.WorkArea.Top to
+            FFilterConnector.WorkArea.Bottom-1 do
+  begin
+    p := FFilterConnector.BackupLayer.ScanLine[yb] + FFilterConnector.WorkArea.Left;
+    case ATab of
+    RedTab: for xb := nbx-1 downto 0 do begin
+              inc(FHistogram[ATab, GammaExpansionTab[p^.red]*HistogramBarCount shr 16]);
+              inc(p); end;
+    GreenTab: for xb := nbx-1 downto 0 do begin
+                inc(FHistogram[ATab, GammaExpansionTab[p^.green]*HistogramBarCount shr 16]);
+                inc(p); end;
+    BlueTab: for xb := nbx-1 downto 0 do begin
+                inc(FHistogram[ATab, GammaExpansionTab[p^.blue]*HistogramBarCount shr 16]);
+                inc(p); end;
+    HueTab, SaturationTab, LightnessTab:
+      for xb := nbx-1 downto 0 do begin
+         hslaValue := p^.ToHSLAPixel;
+         if (hslaValue.saturation > 0) and (hslaValue.lightness > 0)
+            and (hslaValue.lightness < 65535) then
+            inc(FHistogram[HueTab, hslaValue.hue*HistogramBarCount shr 16]);
+         if (hslaValue.lightness > 0) and (hslaValue.lightness < 65535) then
+           inc(FHistogram[SaturationTab, hslaValue.saturation*HistogramBarCount shr 16]);
+         inc(FHistogram[LightnessTab, hslaValue.lightness*HistogramBarCount shr 16]);
+         inc(p); end;
+    AlphaTab: for xb := nbx-1 downto 0 do begin
+                inc(FHistogram[ATab, p^.alpha*HistogramBarCount shr 8]);
+                inc(p); end;
+    end;
+  end;
+
+  if ATab in [HueTab, SaturationTab, LightnessTab] then
+  begin
+    FinishCompute(HueTab);
+    FinishCompute(SaturationTab);
+    FinishCompute(LightnessTab);
+  end else
+    FinishCompute(ATab);
+  result := true;
+end;
+
+procedure TFAdjustCurves.DiscardHistogram;
+var
+  i: Integer;
+begin
+  for i := 0 to CurveTabCount-1 do
+  begin
+    FHistogramComputed[i] := false;
+    FHistogramDelay[i] := true;
+  end;
+  FHistogramDelay[RedTab] := false;
+  FHistogramDelay[GreenTab] := false;
+  FHistogramDelay[BlueTab] := false;
+  FHistogramDelay[AlphaTab] := false;
+  FHistogramRedraw:= false;
+end;
+
+procedure TFAdjustCurves.QueryHistogramRedraw;
+begin
+  FHistogramRedraw:= true;
+  Timer_Chart.Enabled := true;
+end;
+
 procedure TFAdjustCurves.OnTaskEvent(ASender: TObject;
   AEvent: TThreadManagerEvent);
 begin
   case AEvent of
   tmeAbortedTask,tmeCompletedTask:
     begin
-      Timer1.Enabled := false;
+      Timer_Thread.Enabled := false;
       if FThreadManager.ReadyToClose then
         Close
       else
@@ -771,9 +910,9 @@ begin
     end;
   tmeStartingNewTask:
     begin
-      Timer1.Enabled := false;
-      Timer1.Interval := 100;
-      Timer1.Enabled := true;
+      Timer_Thread.Enabled := false;
+      Timer_Thread.Interval := 100;
+      Timer_Thread.Enabled := true;
       Button_OK.Enabled := false;
     end;
   end;

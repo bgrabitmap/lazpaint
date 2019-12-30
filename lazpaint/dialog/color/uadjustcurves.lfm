@@ -129,11 +129,18 @@ object FAdjustCurves: TFAdjustCurves
       TabOrder = 1
     end
   end
-  object Timer1: TTimer
+  object Timer_Thread: TTimer
     Enabled = False
     Interval = 200
-    OnTimer = Timer1Timer
-    left = 39
-    top = 294
+    OnTimer = Timer_ThreadTimer
+    left = 62
+    top = 466
+  end
+  object Timer_Chart: TTimer
+    Enabled = False
+    Interval = 20
+    OnTimer = Timer_ChartTimer
+    left = 123
+    top = 467
   end
 end
