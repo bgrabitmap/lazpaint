@@ -24,6 +24,7 @@ type
   TVectorialFillInterface = class(TComponent)
   protected
     FFillType: TVectorialFillType;
+    FAllowedFillTypes: TVectorialFillTypes;
     FSolidColor: TBGRAPixel;
 
     FGradStartColor, FGradEndColor: TBGRAPixel;
@@ -87,6 +88,7 @@ type
     procedure SetCanAdjustToShape(AValue: boolean);
     procedure SetContainer(AValue: TWinControl);
     procedure SetFillType(AValue: TVectorialFillType);
+    procedure SetAllowedFillTypes(AValue: TVectorialFillTypes);
     procedure SetSolidColor(AValue: TBGRAPixel);
     procedure SetGradientType(AValue: TGradientType);
     procedure SetGradEndColor(AValue: TBGRAPixel);
@@ -149,6 +151,7 @@ type
     property Container: TWinControl read FContainer write SetContainer;
     property ImageListSize: TSize read FImageListSize write SetImageListSize;
     property PreferredSize: TSize read GetPreferredSize;
+    property AllowedFillTypes: TVectorialFillTypes read FAllowedFillTypes write SetAllowedFillTypes;
   end;
 
 implementation
@@ -566,6 +569,7 @@ var
 begin
   FContainer := nil;
 
+  FAllowedFillTypes := [vftNone, vftSolid, vftGradient, vftTexture];
   FFillType:= vftSolid;
   FSolidColor:= BGRAWhite;
   FGradStartColor:= CSSRed;
@@ -739,6 +743,33 @@ begin
   if (FImageListSize.cx=AValue.cx) and (FImageListSize.cy=AValue.cy) then Exit;
   FImageListSize:=AValue;
   if FImageListLoaded then LoadImageList;
+end;
+
+procedure TVectorialFillInterface.SetAllowedFillTypes(
+  AValue: TVectorialFillTypes);
+var
+  x: Integer;
+begin
+  Include(AValue, FFillType); //cannot exclude current type
+  if FAllowedFillTypes=AValue then Exit;
+  FAllowedFillTypes:=AValue;
+  FToolbar.BeginUpdate;
+  x := FToolbar.Indent;
+  FButtonFillNone.Left := x;
+  FButtonFillNone.Wrap := [vftSolid,vftGradient,vftTexture]*FAllowedFillTypes = [];
+  FButtonFillNone.Visible:= vftNone in FAllowedFillTypes;
+  if vftNone in FAllowedFillTypes then inc(x, FButtonFillNone.Width);
+  FButtonFillSolid.Left := x;
+  FButtonFillSolid.Wrap := [vftGradient,vftTexture]*FAllowedFillTypes = [];
+  FButtonFillSolid.Visible:= vftSolid in FAllowedFillTypes;
+  if vftSolid in FAllowedFillTypes then inc(x, FButtonFillSolid.Width);
+  FButtonFillGradient.Left := x;
+  FButtonFillGradient.Wrap := [vftTexture]*FAllowedFillTypes = [];
+  FButtonFillGradient.Visible:= vftGradient in FAllowedFillTypes;
+  if vftGradient in FAllowedFillTypes then inc(x, FButtonFillGradient.Width);
+  FButtonFillTexture.Left := x;
+  FButtonFillTexture.Visible:= vftTexture in FAllowedFillTypes;
+  FToolbar.EndUpdate;
 end;
 
 procedure TVectorialFillInterface.AdjustToShapeClick(Sender: TObject);

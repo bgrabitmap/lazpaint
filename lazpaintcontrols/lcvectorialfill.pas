@@ -11,6 +11,7 @@ uses
 type
   TTextureRepetition = (trNone, trRepeatX, trRepeatY, trRepeatBoth);
   TVectorialFillType = (vftNone, vftSolid, vftGradient, vftTexture);
+  TVectorialFillTypes = set of TVectorialFillType;
   TVectorialFill = class;
 
   TCustomVectorialFillDiff = class

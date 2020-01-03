@@ -22,6 +22,7 @@ type
 
   TLCVectorialFillControl = class(TWinControl)
   private
+    function GetAllowedFillTypes: TVectorialFillTypes;
     function GetCanAdjustToShape: boolean;
     function GetFillType: TVectorialFillType;
     function GetGradEndColor: TBGRAPixel;
@@ -34,6 +35,7 @@ type
     function GetTexRepetition: TTextureRepetition;
     function GetTexture: TBGRABitmap;
     function GetToolIconSize: integer;
+    procedure SetAllowedFillTypes(AValue: TVectorialFillTypes);
     procedure SetCanAdjustToShape(AValue: boolean);
     procedure SetFillType(AValue: TVectorialFillType);
     procedure SetGradEndColor(AValue: TBGRAPixel);
@@ -86,6 +88,7 @@ type
     property Enabled;
     property Visible;
     property ToolIconSize: integer read GetToolIconSize write SetToolIconSize;
+    property AllowedFillTypes: TVectorialFillTypes read GetAllowedFillTypes write SetAllowedFillTypes;
   end;
 
 procedure Register;
@@ -100,6 +103,11 @@ begin
 end;
 
 { TLCVectorialFillControl }
+
+function TLCVectorialFillControl.GetAllowedFillTypes: TVectorialFillTypes;
+begin
+  result := FInterface.AllowedFillTypes;
+end;
 
 function TLCVectorialFillControl.GetCanAdjustToShape: boolean;
 begin
@@ -159,6 +167,12 @@ end;
 function TLCVectorialFillControl.GetToolIconSize: integer;
 begin
   result := FInterface.ImageListSize.cy;
+end;
+
+procedure TLCVectorialFillControl.SetAllowedFillTypes(
+  AValue: TVectorialFillTypes);
+begin
+  FInterface.AllowedFillTypes:= AValue;
 end;
 
 procedure TLCVectorialFillControl.SetCanAdjustToShape(AValue: boolean);
