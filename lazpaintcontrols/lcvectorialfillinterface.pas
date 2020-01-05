@@ -18,7 +18,8 @@ const
 
 type
   TLCFillTarget = (ftPen, ftBack, ftOutline);
-  TChooseColorEvent = procedure(ASender: TObject; AColorIndex: integer; var AColorValue: TBGRAPixel; out AHandled: boolean) of object;
+  TChooseColorEvent = procedure(ASender: TObject; AButton: TMouseButton; AColorIndex: integer;
+    var AColorValue: TBGRAPixel; out AHandled: boolean) of object;
 
   { TVectorialFillInterface }
 
@@ -120,7 +121,7 @@ type
     procedure UpDownSolidAlphaChange(Sender: TObject; AByUser: boolean);
     procedure UpDownStartAlphaChange(Sender: TObject; AByUser: boolean);
     procedure UpDownTexAlphaChange(Sender: TObject; AByUser: boolean);
-    procedure ChooseColor(AColorIndex: integer);
+    procedure ChooseColor(AColorIndex: integer; AButton: TMouseButton);
     procedure CreateSolidColorInterface;
     procedure CreateGradientInterface;
     procedure CreateTextureInterface;
@@ -278,13 +279,13 @@ end;
 procedure TVectorialFillInterface.ShapeSolidColorMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  ChooseColor(-1);
+  ChooseColor(-1, Button);
 end;
 
 procedure TVectorialFillInterface.ShapeStartColorMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  ChooseColor(0);
+  ChooseColor(0, Button);
 end;
 
 procedure TVectorialFillInterface.UpdateAccordingToFillType;
@@ -409,7 +410,7 @@ begin
   end;
 end;
 
-procedure TVectorialFillInterface.ChooseColor(AColorIndex: integer);
+procedure TVectorialFillInterface.ChooseColor(AColorIndex: integer; AButton: TMouseButton);
 
   procedure AssignNewColor(AColor: TBGRAPixel);
   begin
@@ -433,7 +434,7 @@ begin
   end;
   if Assigned(FOnChooseColor) then
   begin
-    FOnChooseColor(self, AColorIndex, curColorBGRA, handled);
+    FOnChooseColor(self, AButton, AColorIndex, curColorBGRA, handled);
     if handled then
     begin
       AssignNewColor( curColorBGRA );
@@ -699,7 +700,7 @@ end;
 procedure TVectorialFillInterface.ShapeEndColorMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  ChooseColor(1);
+  ChooseColor(1, Button);
 end;
 
 procedure TVectorialFillInterface.SetGradientType(AValue: TGradientType);

@@ -66,8 +66,8 @@ type
     procedure DoOnTextureClick(Sender: TObject);
     procedure DoOnTextureChange(Sender: TObject);
     procedure DoOnResize; override;
-    procedure DoOnChooseColor(ASender: TObject; AColorIndex: integer;
-      var AColorValue: TBGRAPixel; out AHandled: boolean);
+    procedure DoOnChooseColor(ASender: TObject; AButton: TMouseButton;
+      AColorIndex: integer; var AColorValue: TBGRAPixel; out AHandled: boolean);
   public
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -113,11 +113,11 @@ end;
 
 { TLCVectorialFillControl }
 
-procedure TLCVectorialFillControl.DoOnChooseColor(ASender: TObject;
+procedure TLCVectorialFillControl.DoOnChooseColor(ASender: TObject; AButton: TMouseButton;
   AColorIndex: integer; var AColorValue: TBGRAPixel; out AHandled: boolean);
 begin
   If Assigned(FOnChooseColor) then
-    FOnChooseColor(self, AColorValue, AColorValue, AHandled)
+    FOnChooseColor(self, AButton, AColorValue, AColorValue, AHandled)
   else
     AHandled := false;
 end;
