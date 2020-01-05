@@ -548,6 +548,7 @@ begin
   FUpDownTexAlpha.Height := FToolbar.ButtonHeight;
   FUpDownTexAlpha.MinValue := 0;
   FUpDownTexAlpha.MaxValue := 255;
+  FUpDownTexAlpha.Increment:= 15;
   FUpDownTexAlpha.OnChange:=@UpDownTexAlphaChange;
   AddToolbarControl(FToolbar, FUpDownTexAlpha);
   FButtonLoadTexture := AddToolbarButton(FToolbar, 'Load texture...', 22, @ButtonLoadTextureClick);
