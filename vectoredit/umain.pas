@@ -114,7 +114,6 @@ type
     BCPanelToolbar: TBCPanel;
     ToolImageList48: TBGRAImageList;
     BGRAVirtualScreen1: TBGRAVirtualScreen;
-    ColorDialog1: TColorDialog;
     OpenDialog1: TOpenDialog;
     OpenPictureDialog1: TOpenPictureDialog;
     SaveDialog1: TSaveDialog;
