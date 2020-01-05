@@ -18,6 +18,7 @@ const
 
 type
   TLCFillTarget = (ftPen, ftBack, ftOutline);
+  TChooseColorEvent = procedure(ASender: TObject; AColorIndex: integer; var AColorValue: TBGRAPixel; out AHandled: boolean) of object;
 
   { TVectorialFillInterface }
 
@@ -26,6 +27,7 @@ type
     FFillType: TVectorialFillType;
     FAllowedFillTypes: TVectorialFillTypes;
     FSolidColor: TBGRAPixel;
+    FOnChooseColor: TChooseColorEvent;
 
     FGradStartColor, FGradEndColor: TBGRAPixel;
     FGradType: TGradientType;
@@ -53,6 +55,7 @@ type
     FButtonAdjustToTexture, FButtonTexRepeat, FButtonLoadTexture: TToolButton;
     FUpDownTexAlpha: TBCTrackbarUpdown;
     FTexturePreview: TImage;
+    FOnTextureClick: TNotifyEvent;
     FOnAdjustToShape, FOnTextureChange: TNotifyEvent;
 
     FGradientInterfaceCreated: boolean;
@@ -99,22 +102,25 @@ type
     procedure SetTexture(AValue: TBGRABitmap);
     procedure SetTextureRepetition(AValue: TTextureRepetition);
     procedure SetTextureOpacity(AValue: byte);
+    procedure SetOnTextureClick(AValue: TNotifyEvent);
     procedure ShapeEndColorMouseUp({%H-}Sender: TObject; {%H-}Button: TMouseButton;
       {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure ShapeSolidColorMouseUp({%H-}Sender: TObject; {%H-}Button: TMouseButton;
       {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure ShapeStartColorMouseUp({%H-}Sender: TObject; {%H-}Button: TMouseButton;
       {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
+    procedure TexturePreviewClick(Sender: TObject);
     procedure UpdateAccordingToFillType;
     procedure UpdateShapeSolidColor;
     procedure UpdateTextureParams;
     procedure UpdateTextureThumbnail;
+    procedure UpdateTextureCursor;
     procedure UpdateGradientParams;
     procedure UpDownEndAlphaChange(Sender: TObject; AByUser: boolean);
     procedure UpDownSolidAlphaChange(Sender: TObject; AByUser: boolean);
     procedure UpDownStartAlphaChange(Sender: TObject; AByUser: boolean);
     procedure UpDownTexAlphaChange(Sender: TObject; AByUser: boolean);
-    function ChooseColor(AColor: TColor): TColor;
+    procedure ChooseColor(AColorIndex: integer);
     procedure CreateSolidColorInterface;
     procedure CreateGradientInterface;
     procedure CreateTextureInterface;
@@ -146,8 +152,10 @@ type
     property CanAdjustToShape: boolean read FCanAdjustToShape write SetCanAdjustToShape;
     property OnFillChange: TNotifyEvent read FOnFillChange write FOnFillChange;
     property OnTextureChange: TNotifyEvent read FOnTextureChange write FOnTextureChange;
+    property OnTextureClick: TNotifyEvent read FOnTextureClick write SetOnTextureClick;
     property OnAdjustToShape: TNotifyEvent read FOnAdjustToShape write FOnAdjustToShape;
     property OnFillTypeChange: TNotifyEvent read FOnFillTypeChange write FOnFillTypeChange;
+    property OnChooseColor: TChooseColorEvent read FOnChooseColor write FOnChooseColor;
     property Container: TWinControl read FContainer write SetContainer;
     property ImageListSize: TSize read FImageListSize write SetImageListSize;
     property PreferredSize: TSize read GetPreferredSize;
@@ -269,32 +277,14 @@ end;
 
 procedure TVectorialFillInterface.ShapeSolidColorMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var
-  newColor: TColor;
 begin
-  newColor := ChooseColor(FShapeSolidColor.Brush.Color);
-  if newColor <> clNone then
-  begin
-    if SolidColor.alpha <> 0 then
-      SolidColor := ColorToBGRA(newColor, SolidColor.alpha)
-    else
-      SolidColor := newColor;
-  end;
+  ChooseColor(-1);
 end;
 
 procedure TVectorialFillInterface.ShapeStartColorMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var
-  newColor: TColor;
 begin
-  newColor := ChooseColor(FShapeStartColor.Brush.Color);
-  if newColor <> clNone then
-  begin
-    if GradStartColor.alpha <> 0 then
-      GradStartColor := ColorToBGRA(newColor, GradStartColor.alpha)
-    else
-      GradStartColor := newColor;
-  end;
+  ChooseColor(0);
 end;
 
 procedure TVectorialFillInterface.UpdateAccordingToFillType;
@@ -356,8 +346,18 @@ begin
     FTexturePreview.Picture.Assign(bmpThumb);
     bmpThumb.Free;
   end else
-  begin
     FTexturePreview.Picture.Clear;
+  UpdateTextureCursor;
+end;
+
+procedure TVectorialFillInterface.UpdateTextureCursor;
+begin
+  if Assigned(FTexturePreview) then
+  begin
+    if Assigned(Texture) and Assigned(FOnTextureClick) then
+      FTexturePreview.Cursor := crHandPoint
+    else
+      FTexturePreview.Cursor := crDefault;
   end;
 end;
 
@@ -409,13 +409,46 @@ begin
   end;
 end;
 
-function TVectorialFillInterface.ChooseColor(AColor: TColor): TColor;
+procedure TVectorialFillInterface.ChooseColor(AColorIndex: integer);
+
+  procedure AssignNewColor(AColor: TBGRAPixel);
+  begin
+    case AColorIndex of
+      -1: SolidColor := AColor;
+      0: GradStartColor := AColor;
+      1: GradEndColor := AColor;
+    end;
+  end;
+
+var
+  curColorBGRA: TBGRAPixel;
+  curColor: TColor;
+  handled: boolean;
 begin
-  FColorDlg.Color := AColor;
+  case AColorIndex of
+    -1: curColorBGRA := SolidColor;
+    0: curColorBGRA := GradStartColor;
+    1: curColorBGRA := GradEndColor;
+  else exit;
+  end;
+  if Assigned(FOnChooseColor) then
+  begin
+    FOnChooseColor(self, AColorIndex, curColorBGRA, handled);
+    if handled then
+    begin
+      AssignNewColor( curColorBGRA );
+      exit;
+    end;
+  end;
+  curColor := RGBToColor(curColorBGRA.red, curColorBGRA.green, curColorBGRA.blue);
+  FColorDlg.Color := curColor;
   if FColorDlg.Execute then
-    result := FColorDlg.Color
-  else
-    result := clNone;
+  begin
+    if curColorBGRA.alpha = 0 then
+      AssignNewColor( ColorToBGRA(FColorDlg.Color) )
+    else
+      AssignNewColor( ColorToBGRA(FColorDlg.Color, curColorBGRA.alpha) );
+  end;
 end;
 
 procedure TVectorialFillInterface.CreateSolidColorInterface;
@@ -518,6 +551,8 @@ begin
   FTexturePreview := TImage.Create(FToolbar);
   FTexturePreview.Width := FToolbar.ButtonWidth;
   FTexturePreview.Height := FToolbar.ButtonHeight;
+  FTexturePreview.OnClick:=@TexturePreviewClick;
+
   UpdateTextureThumbnail;
   AddToolbarControl(FToolbar, FTexturePreview);
 
@@ -659,17 +694,8 @@ end;
 
 procedure TVectorialFillInterface.ShapeEndColorMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var
-  newColor: TColor;
 begin
-  newColor := ChooseColor(FShapeEndColor.Brush.Color);
-  if newColor <> clNone then
-  begin
-    if GradEndColor.alpha <> 0 then
-      GradEndColor := ColorToBGRA(newColor, GradEndColor.alpha)
-    else
-      GradEndColor := newColor;
-  end;
+  ChooseColor(1);
 end;
 
 procedure TVectorialFillInterface.SetGradientType(AValue: TGradientType);
@@ -770,6 +796,18 @@ begin
   FButtonFillTexture.Left := x;
   FButtonFillTexture.Visible:= vftTexture in FAllowedFillTypes;
   FToolbar.EndUpdate;
+end;
+
+procedure TVectorialFillInterface.TexturePreviewClick(Sender: TObject);
+begin
+  if Assigned(FOnTextureClick) then FOnTextureClick(self);
+end;
+
+procedure TVectorialFillInterface.SetOnTextureClick(AValue: TNotifyEvent);
+begin
+  if FOnTextureClick=AValue then Exit;
+  FOnTextureClick:=AValue;
+  UpdateTextureCursor;
 end;
 
 procedure TVectorialFillInterface.AdjustToShapeClick(Sender: TObject);

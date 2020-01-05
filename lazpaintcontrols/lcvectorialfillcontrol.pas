@@ -43,6 +43,8 @@ type
     procedure SetGradInterpolation(AValue: TBGRAColorInterpolation);
     procedure SetGradRepetition(AValue: TBGRAGradientRepetition);
     procedure SetGradStartColor(AValue: TBGRAPixel);
+    procedure SetOnChooseColor(AValue: TChooseColorEvent);
+    procedure SetOnTextureClick(AValue: TNotifyEvent);
     procedure SetSolidColor(AValue: TBGRAPixel);
     procedure SetTexture(AValue: TBGRABitmap);
     procedure SetTextureOpacity(AValue: byte);
@@ -51,16 +53,21 @@ type
   protected
     FInterface: TVectorialFillInterface;
     FOnAdjustToShape: TNotifyEvent;
+    FOnChooseColor: TChooseColorEvent;
     FOnFillChange: TNotifyEvent;
     FOnFillTypeChange: TNotifyEvent;
+    FOnTextureClick: TNotifyEvent;
     FOnTextureChange: TNotifyEvent;
     procedure CalculatePreferredSize(var PreferredWidth, PreferredHeight: integer;
       {%H-}WithThemeSpace: Boolean); override;
     procedure DoOnAdjustToShape(Sender: TObject);
     procedure DoOnFillChange(Sender: TObject);
     procedure DoOnFillTypeChange(Sender: TObject);
+    procedure DoOnTextureClick(Sender: TObject);
     procedure DoOnTextureChange(Sender: TObject);
     procedure DoOnResize; override;
+    procedure DoOnChooseColor(ASender: TObject; AColorIndex: integer;
+      var AColorValue: TBGRAPixel; out AHandled: boolean);
   public
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -78,10 +85,6 @@ type
     property TextureRepetition: TTextureRepetition read GetTexRepetition write SetTextureRepetition;
     property TextureOpacity: byte read GetTexOpacity write SetTextureOpacity;
     property CanAdjustToShape: boolean read GetCanAdjustToShape write SetCanAdjustToShape;
-    property OnFillChange: TNotifyEvent read FOnFillChange write FOnFillChange;
-    property OnTextureChange: TNotifyEvent read FOnTextureChange write FOnTextureChange;
-    property OnAdjustToShape: TNotifyEvent read FOnAdjustToShape write FOnAdjustToShape;
-    property OnFillTypeChange: TNotifyEvent read FOnFillTypeChange write FOnFillTypeChange;
   published
     property AutoSize;
     property Align;
@@ -89,6 +92,12 @@ type
     property Visible;
     property ToolIconSize: integer read GetToolIconSize write SetToolIconSize;
     property AllowedFillTypes: TVectorialFillTypes read GetAllowedFillTypes write SetAllowedFillTypes;
+    property OnChooseColor: TChooseColorEvent read FOnChooseColor write SetOnChooseColor;
+    property OnFillChange: TNotifyEvent read FOnFillChange write FOnFillChange;
+    property OnTextureChange: TNotifyEvent read FOnTextureChange write FOnTextureChange;
+    property OnAdjustToShape: TNotifyEvent read FOnAdjustToShape write FOnAdjustToShape;
+    property OnFillTypeChange: TNotifyEvent read FOnFillTypeChange write FOnFillTypeChange;
+    property OnTextureClick: TNotifyEvent read FOnTextureClick write SetOnTextureClick;
   end;
 
 procedure Register;
@@ -103,6 +112,20 @@ begin
 end;
 
 { TLCVectorialFillControl }
+
+procedure TLCVectorialFillControl.DoOnChooseColor(ASender: TObject;
+  AColorIndex: integer; var AColorValue: TBGRAPixel; out AHandled: boolean);
+begin
+  If Assigned(FOnChooseColor) then
+    FOnChooseColor(self, AColorValue, AColorValue, AHandled)
+  else
+    AHandled := false;
+end;
+
+procedure TLCVectorialFillControl.DoOnTextureClick(Sender: TObject);
+begin
+  if Assigned(FOnTextureClick) then FOnTextureClick(self);
+end;
 
 function TLCVectorialFillControl.GetAllowedFillTypes: TVectorialFillTypes;
 begin
@@ -212,6 +235,22 @@ begin
   FInterface.GradStartColor := AValue;
 end;
 
+procedure TLCVectorialFillControl.SetOnChooseColor(AValue: TChooseColorEvent);
+begin
+  if FOnChooseColor=AValue then Exit;
+  FOnChooseColor:=AValue;
+end;
+
+procedure TLCVectorialFillControl.SetOnTextureClick(AValue: TNotifyEvent);
+begin
+  if FOnTextureClick=AValue then Exit;
+  FOnTextureClick:=AValue;
+  if Assigned(FOnTextureClick) then
+    FInterface.OnTextureClick:= @DoOnTextureClick
+  else
+    FInterface.OnTextureClick:= nil;
+end;
+
 procedure TLCVectorialFillControl.SetSolidColor(AValue: TBGRAPixel);
 begin
   FInterface.SolidColor := AValue;
@@ -281,6 +320,7 @@ constructor TLCVectorialFillControl.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
   FInterface := TVectorialFillInterface.Create(nil, 16,16);
+  FInterface.OnChooseColor:=@DoOnChooseColor;
   FInterface.OnFillChange:=@DoOnFillChange;
   FInterface.OnTextureChange:=@DoOnTextureChange;
   FInterface.OnAdjustToShape:=@DoOnAdjustToShape;
