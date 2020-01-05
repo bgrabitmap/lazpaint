@@ -467,6 +467,7 @@ begin
   FUpDownSolidAlpha.Height := FToolbar.ButtonHeight;
   FUpDownSolidAlpha.MinValue := 0;
   FUpDownSolidAlpha.MaxValue := 255;
+  FUpDownSolidAlpha.Increment:= 15;
   FUpDownSolidAlpha.OnChange:=@UpDownSolidAlphaChange;
   AddToolbarControl(FToolbar, FUpDownSolidAlpha);
 end;
@@ -490,6 +491,7 @@ begin
   FUpDownStartAlpha.Height := FToolbar.ButtonHeight;
   FUpDownStartAlpha.MinValue := 0;
   FUpDownStartAlpha.MaxValue := 255;
+  FUpDownStartAlpha.Increment:= 15;
   FUpDownStartAlpha.OnChange:=@UpDownStartAlphaChange;
   AddToolbarControl(FToolbar, FUpDownStartAlpha);
   FButtonSwapColor := AddToolbarButton(FToolbar, 'Swap colors', 23, @ButtonSwapColorClick);
@@ -503,6 +505,7 @@ begin
   FUpDownEndAlpha.Height := FToolbar.ButtonHeight;
   FUpDownEndAlpha.MinValue := 0;
   FUpDownEndAlpha.MaxValue := 255;
+  FUpDownEndAlpha.Increment:= 15;
   FUpDownEndAlpha.OnChange:=@UpDownEndAlphaChange;
   AddToolbarControl(FToolbar, FUpDownEndAlpha);
   FButtonGradRepetition := AddToolbarButton(FToolbar, 'Gradient repetition...', 7+ord(FGradRepetition), @ButtonGradRepetitionClick);
