@@ -1,16 +1,16 @@
 object FMain: TFMain
-  Left = 462
-  Height = 779
-  Top = 16
-  Width = 924
+  Left = 420
+  Height = 781
+  Top = 0
+  Width = 1108
   AllowDropFiles = True
   Caption = 'LazPaint'
   ClientHeight = 749
-  ClientWidth = 924
+  ClientWidth = 1108
   Color = clSkyBlue
-  Constraints.MinWidth = 400
-  DesignTimePPI = 120
-  Font.Height = -15
+  Constraints.MinWidth = 480
+  DesignTimePPI = 144
+  Font.Height = -18
   KeyPreview = True
   Menu = MainMenu1
   OnClose = FormClose
@@ -34,37 +34,37 @@ object FMain: TFMain
   ShowHint = True
   LCLVersion = '2.0.2.0'
   object Panel_ToolbarBackground: TPanel
-    Left = 10
-    Height = 45
-    Top = 10
-    Width = 40
+    Left = 12
+    Height = 54
+    Top = 12
+    Width = 48
     BevelOuter = bvNone
-    Font.Height = -15
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
-    TabOrder = 9
+    TabOrder = 8
   end
   object Panel_File: TPanel
-    Left = 60
-    Height = 45
-    Top = 10
-    Width = 150
-    ClientHeight = 45
-    ClientWidth = 150
-    Font.Height = -15
+    Left = 72
+    Height = 54
+    Top = 12
+    Width = 180
+    ClientHeight = 54
+    ClientWidth = 180
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
     PopupMenu = PopupToolbar
     TabOrder = 0
     object ToolBar2: TToolBar
-      Left = 1
-      Height = 28
-      Top = 1
-      Width = 146
+      Left = 2
+      Height = 33
+      Top = 2
+      Width = 176
       Align = alNone
       AutoSize = True
       EdgeBorders = []
-      Font.Height = -15
+      Font.Height = -18
       Images = ImageList16
       ParentColor = False
       ParentFont = False
@@ -75,87 +75,87 @@ object FMain: TFMain
         Action = FileNew
       end
       object ToolButton16: TToolButton
-        Left = 30
+        Left = 36
         Top = 0
         Action = FileOpen
       end
       object ToolButton17: TToolButton
-        Left = 59
+        Left = 71
         Top = 0
         Action = FileSave
       end
       object ToolButton18: TToolButton
-        Left = 88
+        Left = 106
         Top = 0
         Action = FileSaveAs
       end
       object ToolButton8: TToolButton
-        Left = 117
+        Left = 141
         Top = 0
         Action = FileChooseEntry
       end
     end
   end
   object Panel_Tool: TPanel
-    Left = 870
-    Height = 45
-    Top = 10
-    Width = 36
-    ClientHeight = 45
-    ClientWidth = 36
-    Font.Height = -15
+    Left = 1044
+    Height = 54
+    Top = 12
+    Width = 44
+    ClientHeight = 54
+    ClientWidth = 44
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
     PopupMenu = PopupToolbar
     TabOrder = 1
     object Image_CurrentTool: TImage
-      Left = 2
-      Height = 28
+      Left = 3
+      Height = 33
       Hint = 'Selected tool'
-      Top = 1
-      Width = 30
+      Top = 2
+      Width = 36
       Center = True
     end
   end
   object Panel_Zoom: TPanel
-    Left = 350
-    Height = 45
-    Top = 10
-    Width = 202
-    ClientHeight = 45
-    ClientWidth = 202
-    Font.Height = -15
+    Left = 420
+    Height = 54
+    Top = 12
+    Width = 243
+    ClientHeight = 54
+    ClientWidth = 243
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
     PopupMenu = PopupToolbar
     TabOrder = 2
     object Label_CurrentZoom: TLabel
       Left = 4
-      Height = 25
+      Height = 30
       Hint = 'Current zoom'
-      Top = 2
-      Width = 48
+      Top = 3
+      Width = 57
       Alignment = taCenter
       AutoSize = False
       Caption = '%'
       Color = clWindow
       Font.Color = clWindowText
-      Font.Height = -15
+      Font.Height = -18
       Layout = tlCenter
       ParentColor = False
       ParentFont = False
       Transparent = False
     end
     object ToolBar3: TToolBar
-      Left = 54
-      Height = 28
-      Top = 1
-      Width = 146
+      Left = 64
+      Height = 33
+      Top = 2
+      Width = 176
       Align = alNone
       AutoSize = True
       Color = clBtnFace
       EdgeBorders = []
-      Font.Height = -15
+      Font.Height = -18
       Images = ImageList16
       ParentColor = False
       ParentFont = False
@@ -166,22 +166,22 @@ object FMain: TFMain
         Action = ViewZoomOriginal
       end
       object ToolButton5: TToolButton
-        Left = 30
+        Left = 36
         Top = 0
         Action = ViewZoomIn
       end
       object ToolButton6: TToolButton
-        Left = 59
+        Left = 71
         Top = 0
         Action = ViewZoomOut
       end
       object ToolButton14: TToolButton
-        Left = 88
+        Left = 106
         Top = 0
         Action = ViewZoomFit
       end
       object ToolButton_ViewLayerStack: TToolButton
-        Left = 117
+        Left = 141
         Top = 0
         Action = ViewLayerStackButton
       end
@@ -189,303 +189,71 @@ object FMain: TFMain
     object Edit_Zoom: TEdit
       Left = 4
       Height = 34
-      Top = 30
-      Width = 48
-      Font.Height = -15
+      Top = 36
+      Width = 57
+      Font.Height = -18
       MaxLength = 5
       ParentFont = False
       TabOrder = 1
       Visible = False
     end
   end
-  object Panel_Color: TPanel
-    Left = 10
-    Height = 45
-    Top = 70
-    Width = 302
-    ClientHeight = 45
-    ClientWidth = 302
-    Font.Height = -15
+  object Panel_ColorDiff: TPanel
+    Left = 384
+    Height = 54
+    Top = 84
+    Width = 60
+    ClientHeight = 54
+    ClientWidth = 60
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
     PopupMenu = PopupToolbar
     TabOrder = 3
-    object Label_Pen: TLabel
-      Left = 5
-      Height = 28
-      Top = 1
-      Width = 30
-      AutoSize = False
-      Caption = 'Pen'
-      Font.Height = -15
-      Layout = tlCenter
-      ParentColor = False
-      ParentFont = False
-    end
-    object Label_Back: TLabel
-      Left = 138
-      Height = 28
-      Top = 1
-      Width = 39
-      AutoSize = False
-      Caption = 'Back'
-      Font.Height = -15
-      Layout = tlCenter
-      ParentColor = False
-      ParentFont = False
-    end
-    object Image_SwapColors: TImage
-      Left = 112
-      Height = 20
-      Hint = 'Switch color'
-      Top = 5
-      Width = 20
-      Center = True
-      Picture.Data = {
-        1754506F727461626C654E6574776F726B47726170686963D103000089504E47
-        0D0A1A0A0000000D49484452000000100000001008060000001FF3FF61000000
-        017352474200AECE1CE90000000467414D410000B18F0BFC6105000000097048
-        597300001BAE00001BAE018C5D73F80000000774494D4507D70C1A130F15CD9E
-        39C00000001974455874536F667477617265005061696E742E4E45542076332E
-        352E36D083AD5A0000032E49444154384F75D27F4C535714C0F13B741B710667
-        2035FED8CCF8674F83997F3818E81C827FB0C4C448862310FE985650EA045AA5
-        E23425DDC8609B200BACD0021DC80F8BC00C0A73D9D24C090BC1A41AADEC0F75
-        99299992D190A285B50EBF3BB6C6C4C4DDBC4FDEBBE7BE77EE39374F5DB8D667
-        2CEAF9643EB55E23A35123D391C84EA7464E87467E67D4C7ED1A3B5B343E6CD2
-        F8E05B8D94931A877A0FCC778FB59B545E5BDE7CBFA79FAEF12E1CA30E5A875B
-        71FCEAA06BACEB7FB9C65D9CBB7A8E5C7BDEBC5A7B6C15B5EE5AAA2F56D379A1
-        93FBB7EE73FEB7F3D4FE524B83BB814677E30B392E3948AD4A45E94CCB31F59B
-        681E68263C156621B08073D449C540458465D042E560E573AA86AAA8FBB98ECD
-        9F6F46BD56148B7DC04E6826C4D45F53D87A6D149F2CA6BCB91C6B8B158BDD82
-        A1C380D1657CC6DC678E244EAD940AB65BB7117E1826381DC4E7F371E78F3BCC
-        FA66610EF857C8A8FBA98E82EF0BD8DBB6177DBB1EFD693DA5674A49B7A6A336
-        54ACE786EF3A0FA61E448C7A4719F60EE3B9EB612230C1CDE99B140D1691EDCC
-        26B739975D4DBBC86FC9C770C6C0D6CAF7516B0FACE6237B0E233746E0210C5D
-        1A22E95412193D1964F56691D527E45EEFAEE7DEEFF7D037EA493C9E88EEB00E
-        95AD504B0B5E451528128C0978FFF4464A3E7BED2CCAA6886B8B43B5C94B0D0A
-        E39831DA8F74A79569A85C893F49B062CFEBA842792853ACA95983EBBA8B4DFD
-        9B5076C592EF96B0CCB60CF5B5AC5B15D6CB561E871FE31DF79261D98ECA91F8
-        1BFBE28939F812EAA84CBE10A784ECBAE5E21608C88E41E107CF6D0F5726AE10
-        F83BC0AC5FCA902BA5F41DD45B85092C2E5984FA4C3EFC4A34896EC58EF11DD1
-        929F8E1966989C9EC43FE9E7D1DCA34834FDF8BBA875FB752C3A14F37C821E49
-        32242E8B11F183A851ECB6EF26E80F129C0B92F24D32717B249E64D011532C2D
-        54C8E449AF7278AA43F4891F9F26928427866B2024DB2E40B22D197550B17A9F
-        1C72E6B1F5A18492A5C49A17135B2D1A44AB382D5CA25B386328739BE11FD8E6
-        94BF4FDA7DB9EC15367CBA32A4B22D695F6696BF194A33C59376441C15E678DE
-        93794A89288EE7EDFD7151874569D446E3CAD0C6C25555FF01E3A570E78DDA12
-        390000000049454E44AE426082
-      }
-    end
     object Label_CurrentDiff: TLabel
-      Left = 251
-      Height = 25
+      Left = 3
+      Height = 30
       Hint = 'Color difference'
       Top = 2
-      Width = 42
+      Width = 51
       Alignment = taCenter
       AutoSize = False
       Caption = '100%'
-      Font.Height = -13
+      Font.Height = -15
       Layout = tlCenter
       ParentColor = False
       ParentFont = False
     end
-    object Shape_PenColor: TShape
-      Left = 38
-      Height = 25
-      Hint = 'Select pen color'
-      Top = 2
-      Width = 22
-    end
-    object Shape_BackColor: TShape
-      Left = 179
-      Height = 25
-      Hint = 'Select secondary color'
-      Top = 2
-      Width = 22
-    end
-    object SpinEdit_PenOpacity: TBCTrackbarUpdown
-      Left = 59
-      Height = 25
-      Hint = 'Pen opacity'
-      Top = 2
-      Width = 51
-      AllowNegativeValues = False
-      BarExponent = 1
-      Increment = 1
-      LongTimeInterval = 400
-      MinValue = 0
-      MaxValue = 255
-      Value = 255
-      ShortTimeInterval = 100
-      Background.Color = clWindow
-      Background.Gradient1.StartColor = clWhite
-      Background.Gradient1.EndColor = clBlack
-      Background.Gradient1.GradientType = gtLinear
-      Background.Gradient1.Point1XPercent = 0
-      Background.Gradient1.Point1YPercent = 0
-      Background.Gradient1.Point2XPercent = 0
-      Background.Gradient1.Point2YPercent = 100
-      Background.Gradient2.StartColor = clWhite
-      Background.Gradient2.EndColor = clBlack
-      Background.Gradient2.GradientType = gtLinear
-      Background.Gradient2.Point1XPercent = 0
-      Background.Gradient2.Point1YPercent = 0
-      Background.Gradient2.Point2XPercent = 0
-      Background.Gradient2.Point2YPercent = 100
-      Background.Gradient1EndPercent = 35
-      Background.Style = bbsColor
-      ButtonBackground.Gradient1.StartColor = clBtnShadow
-      ButtonBackground.Gradient1.EndColor = clBtnFace
-      ButtonBackground.Gradient1.GradientType = gtLinear
-      ButtonBackground.Gradient1.Point1XPercent = 0
-      ButtonBackground.Gradient1.Point1YPercent = -50
-      ButtonBackground.Gradient1.Point2XPercent = 0
-      ButtonBackground.Gradient1.Point2YPercent = 50
-      ButtonBackground.Gradient2.StartColor = clBtnFace
-      ButtonBackground.Gradient2.EndColor = clBtnShadow
-      ButtonBackground.Gradient2.GradientType = gtLinear
-      ButtonBackground.Gradient2.Point1XPercent = 0
-      ButtonBackground.Gradient2.Point1YPercent = 50
-      ButtonBackground.Gradient2.Point2XPercent = 0
-      ButtonBackground.Gradient2.Point2YPercent = 150
-      ButtonBackground.Gradient1EndPercent = 50
-      ButtonBackground.Style = bbsGradient
-      ButtonDownBackground.Color = clBtnShadow
-      ButtonDownBackground.Gradient1.StartColor = clWhite
-      ButtonDownBackground.Gradient1.EndColor = clBlack
-      ButtonDownBackground.Gradient1.GradientType = gtLinear
-      ButtonDownBackground.Gradient1.Point1XPercent = 0
-      ButtonDownBackground.Gradient1.Point1YPercent = 0
-      ButtonDownBackground.Gradient1.Point2XPercent = 0
-      ButtonDownBackground.Gradient1.Point2YPercent = 100
-      ButtonDownBackground.Gradient2.StartColor = clWhite
-      ButtonDownBackground.Gradient2.EndColor = clBlack
-      ButtonDownBackground.Gradient2.GradientType = gtLinear
-      ButtonDownBackground.Gradient2.Point1XPercent = 0
-      ButtonDownBackground.Gradient2.Point1YPercent = 0
-      ButtonDownBackground.Gradient2.Point2XPercent = 0
-      ButtonDownBackground.Gradient2.Point2YPercent = 100
-      ButtonDownBackground.Gradient1EndPercent = 35
-      ButtonDownBackground.Style = bbsColor
-      Border.Color = clWindowText
-      Border.Style = bboSolid
-      Rounding.RoundX = 1
-      Rounding.RoundY = 1
-      Font.Color = clWindowText
-      Font.Name = 'Arial'
-      HasTrackBar = True
-      ArrowColor = clBtnText
-      TabOrder = 0
-      TabStop = True
-      UseDockManager = False
-    end
-    object SpinEdit_BackOpacity: TBCTrackbarUpdown
-      Left = 200
-      Height = 25
-      Hint = 'Secondary color opacity'
-      Top = 2
-      Width = 51
-      AllowNegativeValues = False
-      BarExponent = 1
-      Increment = 1
-      LongTimeInterval = 400
-      MinValue = 0
-      MaxValue = 255
-      Value = 255
-      ShortTimeInterval = 100
-      Background.Color = clWindow
-      Background.Gradient1.StartColor = clWhite
-      Background.Gradient1.EndColor = clBlack
-      Background.Gradient1.GradientType = gtLinear
-      Background.Gradient1.Point1XPercent = 0
-      Background.Gradient1.Point1YPercent = 0
-      Background.Gradient1.Point2XPercent = 0
-      Background.Gradient1.Point2YPercent = 100
-      Background.Gradient2.StartColor = clWhite
-      Background.Gradient2.EndColor = clBlack
-      Background.Gradient2.GradientType = gtLinear
-      Background.Gradient2.Point1XPercent = 0
-      Background.Gradient2.Point1YPercent = 0
-      Background.Gradient2.Point2XPercent = 0
-      Background.Gradient2.Point2YPercent = 100
-      Background.Gradient1EndPercent = 35
-      Background.Style = bbsColor
-      ButtonBackground.Gradient1.StartColor = clBtnShadow
-      ButtonBackground.Gradient1.EndColor = clBtnFace
-      ButtonBackground.Gradient1.GradientType = gtLinear
-      ButtonBackground.Gradient1.Point1XPercent = 0
-      ButtonBackground.Gradient1.Point1YPercent = -50
-      ButtonBackground.Gradient1.Point2XPercent = 0
-      ButtonBackground.Gradient1.Point2YPercent = 50
-      ButtonBackground.Gradient2.StartColor = clBtnFace
-      ButtonBackground.Gradient2.EndColor = clBtnShadow
-      ButtonBackground.Gradient2.GradientType = gtLinear
-      ButtonBackground.Gradient2.Point1XPercent = 0
-      ButtonBackground.Gradient2.Point1YPercent = 50
-      ButtonBackground.Gradient2.Point2XPercent = 0
-      ButtonBackground.Gradient2.Point2YPercent = 150
-      ButtonBackground.Gradient1EndPercent = 50
-      ButtonBackground.Style = bbsGradient
-      ButtonDownBackground.Color = clBtnShadow
-      ButtonDownBackground.Gradient1.StartColor = clWhite
-      ButtonDownBackground.Gradient1.EndColor = clBlack
-      ButtonDownBackground.Gradient1.GradientType = gtLinear
-      ButtonDownBackground.Gradient1.Point1XPercent = 0
-      ButtonDownBackground.Gradient1.Point1YPercent = 0
-      ButtonDownBackground.Gradient1.Point2XPercent = 0
-      ButtonDownBackground.Gradient1.Point2YPercent = 100
-      ButtonDownBackground.Gradient2.StartColor = clWhite
-      ButtonDownBackground.Gradient2.EndColor = clBlack
-      ButtonDownBackground.Gradient2.GradientType = gtLinear
-      ButtonDownBackground.Gradient2.Point1XPercent = 0
-      ButtonDownBackground.Gradient2.Point1YPercent = 0
-      ButtonDownBackground.Gradient2.Point2XPercent = 0
-      ButtonDownBackground.Gradient2.Point2YPercent = 100
-      ButtonDownBackground.Gradient1EndPercent = 35
-      ButtonDownBackground.Style = bbsColor
-      Border.Color = clWindowText
-      Border.Style = bboSolid
-      Rounding.RoundX = 1
-      Rounding.RoundY = 1
-      Font.Color = clWindowText
-      Font.Name = 'Arial'
-      HasTrackBar = True
-      ArrowColor = clBtnText
-      TabOrder = 1
-      TabStop = True
-      UseDockManager = False
-    end
   end
   object Panel_PenWidth: TPanel
-    Left = 760
-    Height = 45
-    Top = 180
-    Width = 122
-    ClientHeight = 45
-    ClientWidth = 122
-    Font.Height = -15
+    Left = 912
+    Height = 54
+    Top = 216
+    Width = 147
+    ClientHeight = 54
+    ClientWidth = 147
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
     TabOrder = 4
     object Label_PenWidth: TLabel
-      Left = 5
-      Height = 28
-      Top = 1
-      Width = 48
+      Left = 6
+      Height = 33
+      Top = 2
+      Width = 57
       AutoSize = False
       Caption = 'Width'
-      Font.Height = -15
+      Font.Height = -18
       Layout = tlCenter
       ParentColor = False
       ParentFont = False
     end
     object SpinEdit_PenWidth: TBCTrackbarUpdown
-      Left = 59
-      Height = 25
+      Left = 70
+      Height = 30
       Hint = 'Pen width'
-      Top = 2
-      Width = 58
+      Top = 3
+      Width = 69
       AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
@@ -558,37 +326,37 @@ object FMain: TFMain
     end
   end
   object Panel_Eraser: TPanel
-    Left = 555
-    Height = 45
-    Top = 70
-    Width = 171
-    ClientHeight = 45
-    ClientWidth = 171
-    Font.Height = -15
+    Left = 576
+    Height = 54
+    Top = 84
+    Width = 206
+    ClientHeight = 54
+    ClientWidth = 206
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
     TabOrder = 5
     object Label_Eraser: TLabel
       Left = 4
-      Height = 28
-      Top = 1
-      Width = 42
+      Height = 33
+      Top = 2
+      Width = 51
       AutoSize = False
       Caption = 'Erase'
-      Font.Height = -15
+      Font.Height = -18
       Layout = tlCenter
       ParentColor = False
       ParentFont = False
     end
     object ToolBar19: TToolBar
-      Left = 105
-      Height = 28
-      Top = 1
-      Width = 59
+      Left = 126
+      Height = 33
+      Top = 2
+      Width = 71
       Align = alNone
       AutoSize = True
       EdgeBorders = []
-      Font.Height = -15
+      Font.Height = -18
       Images = ImageList16
       ParentFont = False
       TabOrder = 0
@@ -602,7 +370,7 @@ object FMain: TFMain
         Style = tbsCheck
       end
       object Tool_EraseBlur: TToolButton
-        Left = 30
+        Left = 36
         Hint = 'Soften'
         Top = 0
         Grouped = True
@@ -611,11 +379,11 @@ object FMain: TFMain
       end
     end
     object SpinEdit_Eraser: TBCTrackbarUpdown
-      Left = 52
-      Height = 25
+      Left = 63
+      Height = 30
       Hint = 'Eraser opacity'
-      Top = 2
-      Width = 51
+      Top = 3
+      Width = 62
       AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
@@ -688,37 +456,37 @@ object FMain: TFMain
     end
   end
   object Panel_Tolerance: TPanel
-    Left = 349
-    Height = 45
-    Top = 370
-    Width = 175
-    ClientHeight = 45
-    ClientWidth = 175
-    Font.Height = -15
+    Left = 418
+    Height = 54
+    Top = 444
+    Width = 210
+    ClientHeight = 54
+    ClientWidth = 210
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
     TabOrder = 6
     object Label_Tolerance: TLabel
-      Left = 5
-      Height = 28
-      Top = 1
-      Width = 72
+      Left = 6
+      Height = 33
+      Top = 2
+      Width = 87
       AutoSize = False
       Caption = 'Tolerance'
-      Font.Height = -15
+      Font.Height = -18
       Layout = tlCenter
       ParentColor = False
       ParentFont = False
     end
     object ToolBar6: TToolBar
-      Left = 136
-      Height = 28
-      Top = 1
-      Width = 30
+      Left = 164
+      Height = 33
+      Top = 2
+      Width = 36
       Align = alNone
       AutoSize = True
       EdgeBorders = []
-      Font.Height = -15
+      Font.Height = -18
       Images = ImageList16
       ParentFont = False
       TabOrder = 0
@@ -732,10 +500,10 @@ object FMain: TFMain
       end
     end
     object SpinEdit_Tolerance: TBCTrackbarUpdown
-      Left = 82
-      Height = 25
-      Top = 2
-      Width = 51
+      Left = 99
+      Height = 30
+      Top = 3
+      Width = 62
       AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
@@ -808,25 +576,25 @@ object FMain: TFMain
     end
   end
   object Panel_ShapeOption: TPanel
-    Left = 10
-    Height = 45
-    Top = 130
-    Width = 64
-    ClientHeight = 45
-    ClientWidth = 64
-    Font.Height = -15
+    Left = 12
+    Height = 54
+    Top = 156
+    Width = 76
+    ClientHeight = 54
+    ClientWidth = 76
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
     TabOrder = 7
     object ToolBar5: TToolBar
-      Left = 1
-      Height = 28
-      Top = 1
-      Width = 59
+      Left = 2
+      Height = 33
+      Top = 2
+      Width = 71
       Align = alNone
       AutoSize = True
       EdgeBorders = []
-      Font.Height = -15
+      Font.Height = -18
       Images = ImageList16
       ParentFont = False
       TabOrder = 0
@@ -838,7 +606,7 @@ object FMain: TFMain
         Style = tbsCheck
       end
       object Tool_FillShape: TToolButton
-        Left = 30
+        Left = 36
         Hint = 'Fill shape'
         Top = 0
         ImageIndex = 9
@@ -846,194 +614,27 @@ object FMain: TFMain
       end
     end
   end
-  object Panel_GradientType: TPanel
-    Left = 340
-    Height = 45
-    Top = 190
-    Width = 332
-    ClientHeight = 45
-    ClientWidth = 332
-    Font.Height = -15
-    ParentColor = False
-    ParentFont = False
-    TabOrder = 8
-    object ToolBar7: TToolBar
-      Left = 1
-      Height = 28
-      Top = 1
-      Width = 146
-      Align = alNone
-      AutoSize = True
-      EdgeBorders = []
-      Font.Height = -15
-      Images = ImageList16
-      ParentFont = False
-      TabOrder = 0
-      object Tool_LinearGradient: TToolButton
-        Left = 1
-        Hint = 'Linear gradient'
-        Top = 0
-        Down = True
-        Grouped = True
-        ImageIndex = 11
-        Style = tbsCheck
-      end
-      object Tool_ReflectedGradient: TToolButton
-        Left = 30
-        Hint = 'Reflected gradient'
-        Top = 0
-        Grouped = True
-        ImageIndex = 12
-        Style = tbsCheck
-      end
-      object Tool_DiamondGradient: TToolButton
-        Left = 59
-        Hint = 'Diamond gradient'
-        Top = 0
-        Grouped = True
-        ImageIndex = 13
-        Style = tbsCheck
-      end
-      object Tool_RadialGradient: TToolButton
-        Left = 88
-        Hint = 'Radial gradient'
-        Top = 0
-        Grouped = True
-        ImageIndex = 14
-        Style = tbsCheck
-      end
-      object Tool_SinGradient: TToolButton
-        Left = 117
-        Hint = 'Sine gradient'
-        Top = 0
-        ImageIndex = 41
-        Style = tbsCheck
-      end
-    end
-    object Combo_GradientColorspace: TBCComboBox
-      Left = 150
-      Height = 26
-      Top = 2
-      Width = 165
-      ItemIndex = -1
-      ArrowSize = 8
-      ArrowWidth = 16
-      DropDownBorderColor = clBlack
-      GlobalOpacity = 255
-      MemoryUsage = bmuHigh
-      Rounding.RoundX = 3
-      Rounding.RoundY = 3
-      StateClicked.Background.Gradient1.StartColor = clBtnShadow
-      StateClicked.Background.Gradient1.EndColor = clBtnFace
-      StateClicked.Background.Gradient1.GradientType = gtLinear
-      StateClicked.Background.Gradient1.Point1XPercent = 0
-      StateClicked.Background.Gradient1.Point1YPercent = 0
-      StateClicked.Background.Gradient1.Point2XPercent = 0
-      StateClicked.Background.Gradient1.Point2YPercent = 250
-      StateClicked.Background.Gradient2.StartColor = clBtnShadow
-      StateClicked.Background.Gradient2.EndColor = clBtnText
-      StateClicked.Background.Gradient2.GradientType = gtLinear
-      StateClicked.Background.Gradient2.Point1XPercent = 0
-      StateClicked.Background.Gradient2.Point1YPercent = 0
-      StateClicked.Background.Gradient2.Point2XPercent = 0
-      StateClicked.Background.Gradient2.Point2YPercent = 100
-      StateClicked.Background.Gradient1EndPercent = 70
-      StateClicked.Background.Style = bbsGradient
-      StateClicked.Border.Color = clBtnShadow
-      StateClicked.Border.LightOpacity = 100
-      StateClicked.Border.LightWidth = 1
-      StateClicked.Border.Style = bboSolid
-      StateClicked.FontEx.Color = clBtnText
-      StateClicked.FontEx.FontQuality = fqFineAntialiasing
-      StateClicked.FontEx.Shadow = False
-      StateClicked.FontEx.ShadowRadius = 5
-      StateClicked.FontEx.ShadowOffsetX = 5
-      StateClicked.FontEx.ShadowOffsetY = 5
-      StateClicked.FontEx.Style = []
-      StateClicked.FontEx.TextAlignment = bcaLeftCenter
-      StateClicked.FontEx.PaddingLeft = 3
-      StateHover.Background.Gradient1.StartColor = clBtnFace
-      StateHover.Background.Gradient1.EndColor = clBtnHighlight
-      StateHover.Background.Gradient1.GradientType = gtLinear
-      StateHover.Background.Gradient1.Point1XPercent = 0
-      StateHover.Background.Gradient1.Point1YPercent = 0
-      StateHover.Background.Gradient1.Point2XPercent = 0
-      StateHover.Background.Gradient1.Point2YPercent = 150
-      StateHover.Background.Gradient2.StartColor = clBtnFace
-      StateHover.Background.Gradient2.EndColor = clBtnShadow
-      StateHover.Background.Gradient2.GradientType = gtLinear
-      StateHover.Background.Gradient2.Point1XPercent = 0
-      StateHover.Background.Gradient2.Point1YPercent = 0
-      StateHover.Background.Gradient2.Point2XPercent = 0
-      StateHover.Background.Gradient2.Point2YPercent = 100
-      StateHover.Background.Gradient1EndPercent = 85
-      StateHover.Background.Style = bbsGradient
-      StateHover.Border.Color = clBtnShadow
-      StateHover.Border.LightOpacity = 200
-      StateHover.Border.LightWidth = 1
-      StateHover.Border.Style = bboSolid
-      StateHover.FontEx.Color = clBtnText
-      StateHover.FontEx.FontQuality = fqFineAntialiasing
-      StateHover.FontEx.Shadow = False
-      StateHover.FontEx.ShadowRadius = 5
-      StateHover.FontEx.ShadowOffsetX = 5
-      StateHover.FontEx.ShadowOffsetY = 5
-      StateHover.FontEx.Style = []
-      StateHover.FontEx.TextAlignment = bcaLeftCenter
-      StateHover.FontEx.PaddingLeft = 3
-      StateNormal.Background.Gradient1.StartColor = clBtnFace
-      StateNormal.Background.Gradient1.EndColor = clBtnHighlight
-      StateNormal.Background.Gradient1.GradientType = gtLinear
-      StateNormal.Background.Gradient1.Point1XPercent = 0
-      StateNormal.Background.Gradient1.Point1YPercent = 0
-      StateNormal.Background.Gradient1.Point2XPercent = 0
-      StateNormal.Background.Gradient1.Point2YPercent = 150
-      StateNormal.Background.Gradient2.StartColor = clBtnFace
-      StateNormal.Background.Gradient2.EndColor = clBtnShadow
-      StateNormal.Background.Gradient2.GradientType = gtLinear
-      StateNormal.Background.Gradient2.Point1XPercent = 0
-      StateNormal.Background.Gradient2.Point1YPercent = 0
-      StateNormal.Background.Gradient2.Point2XPercent = 0
-      StateNormal.Background.Gradient2.Point2YPercent = 100
-      StateNormal.Background.Gradient1EndPercent = 70
-      StateNormal.Background.Style = bbsGradient
-      StateNormal.Border.Color = clBtnShadow
-      StateNormal.Border.LightOpacity = 200
-      StateNormal.Border.LightWidth = 1
-      StateNormal.Border.Style = bboSolid
-      StateNormal.FontEx.Color = clBtnText
-      StateNormal.FontEx.FontQuality = fqFineAntialiasing
-      StateNormal.FontEx.Shadow = False
-      StateNormal.FontEx.ShadowRadius = 5
-      StateNormal.FontEx.ShadowOffsetX = 5
-      StateNormal.FontEx.ShadowOffsetY = 5
-      StateNormal.FontEx.Style = []
-      StateNormal.FontEx.TextAlignment = bcaLeftCenter
-      StateNormal.FontEx.PaddingLeft = 3
-      StaticButton = False
-    end
-  end
   object Panel_Undo: TPanel
-    Left = 570
-    Height = 45
-    Top = 10
-    Width = 64
-    ClientHeight = 45
-    ClientWidth = 64
-    Font.Height = -15
+    Left = 684
+    Height = 54
+    Top = 12
+    Width = 76
+    ClientHeight = 54
+    ClientWidth = 76
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
     PopupMenu = PopupToolbar
-    TabOrder = 10
+    TabOrder = 9
     object ToolBar8: TToolBar
-      Left = 1
-      Height = 28
-      Top = 1
-      Width = 59
+      Left = 2
+      Height = 33
+      Top = 2
+      Width = 71
       Align = alNone
       AutoSize = True
       EdgeBorders = []
-      Font.Height = -15
+      Font.Height = -18
       Images = ImageList16
       ParentFont = False
       TabOrder = 0
@@ -1043,33 +644,33 @@ object FMain: TFMain
         Action = EditUndo
       end
       object ToolButton24: TToolButton
-        Left = 30
+        Left = 36
         Top = 0
         Action = EditRedo
       end
     end
   end
   object Panel_CopyPaste: TPanel
-    Left = 650
-    Height = 45
-    Top = 10
-    Width = 95
-    ClientHeight = 45
-    ClientWidth = 95
-    Font.Height = -15
+    Left = 780
+    Height = 54
+    Top = 12
+    Width = 114
+    ClientHeight = 54
+    ClientWidth = 114
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
     PopupMenu = PopupToolbar
-    TabOrder = 11
+    TabOrder = 10
     object ToolBar9: TToolBar
-      Left = 1
-      Height = 28
-      Top = 1
-      Width = 88
+      Left = 2
+      Height = 33
+      Top = 2
+      Width = 106
       Align = alNone
       AutoSize = True
       EdgeBorders = []
-      Font.Height = -15
+      Font.Height = -18
       Images = ImageList16
       ParentFont = False
       TabOrder = 0
@@ -1079,64 +680,64 @@ object FMain: TFMain
         Action = EditCopy
       end
       object ToolButton30: TToolButton
-        Left = 30
+        Left = 36
         Top = 0
         Action = EditPaste
       end
       object ToolButton4: TToolButton
-        Left = 59
+        Left = 71
         Top = 0
         Action = EditDeselect
       end
     end
   end
   object Panel_Coordinates: TPanel
-    Left = 760
-    Height = 45
-    Top = 10
-    Width = 90
-    ClientHeight = 45
-    ClientWidth = 90
-    Font.Height = -15
+    Left = 912
+    Height = 54
+    Top = 12
+    Width = 108
+    ClientHeight = 54
+    ClientWidth = 108
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
     PopupMenu = PopupToolbar
-    TabOrder = 12
+    TabOrder = 11
     object Label_Coordinates: TLabel
       Left = 4
-      Height = 25
+      Height = 30
       Hint = 'Coordinates'
-      Top = 2
-      Width = 78
+      Top = 3
+      Width = 93
       Alignment = taCenter
       AutoSize = False
       Caption = '9999x9999'
-      Font.Height = -13
+      Font.Height = -15
       Layout = tlCenter
       ParentColor = False
       ParentFont = False
     end
   end
   object Panel_LineCap: TPanel
-    Left = 144
-    Height = 45
-    Top = 130
-    Width = 318
-    ClientHeight = 45
-    ClientWidth = 318
-    Font.Height = -15
+    Left = 172
+    Height = 54
+    Top = 156
+    Width = 381
+    ClientHeight = 54
+    ClientWidth = 381
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
-    TabOrder = 13
+    TabOrder = 12
     object ToolBar10: TToolBar
-      Left = 221
-      Height = 28
-      Top = 1
-      Width = 88
+      Left = 266
+      Height = 33
+      Top = 2
+      Width = 106
       Align = alNone
       AutoSize = True
       EdgeBorders = []
-      Font.Height = -15
+      Font.Height = -18
       Images = ImageList16
       ParentFont = False
       TabOrder = 0
@@ -1149,7 +750,7 @@ object FMain: TFMain
         Style = tbsCheck
       end
       object Tool_CapRound: TToolButton
-        Left = 30
+        Left = 36
         Hint = 'Round cap'
         Top = 0
         Down = True
@@ -1158,7 +759,7 @@ object FMain: TFMain
         Style = tbsCheck
       end
       object Tool_CapSquare: TToolButton
-        Left = 59
+        Left = 71
         Hint = 'Square cap'
         Top = 0
         Grouped = True
@@ -1167,11 +768,11 @@ object FMain: TFMain
       end
     end
     object SpinEdit_ArrowSizeX: TBCTrackbarUpdown
-      Left = 116
-      Height = 25
+      Left = 140
+      Height = 30
       Hint = 'Horizontal size of the arrow'
-      Top = 2
-      Width = 51
+      Top = 3
+      Width = 62
       AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
@@ -1243,11 +844,11 @@ object FMain: TFMain
       UseDockManager = False
     end
     object SpinEdit_ArrowSizeY: TBCTrackbarUpdown
-      Left = 169
-      Height = 25
+      Left = 202
+      Height = 30
       Hint = 'Vertical size of the arrow'
-      Top = 2
-      Width = 51
+      Top = 3
+      Width = 62
       AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
@@ -1319,10 +920,10 @@ object FMain: TFMain
       UseDockManager = False
     end
     object ComboBox_ArrowStart: TBCComboBox
-      Left = 2
-      Height = 26
-      Top = 1
-      Width = 54
+      Left = 3
+      Height = 32
+      Top = 2
+      Width = 64
       ItemIndex = -1
       ArrowSize = 8
       ArrowWidth = 16
@@ -1421,10 +1022,10 @@ object FMain: TFMain
       StaticButton = False
     end
     object ComboBox_ArrowEnd: TBCComboBox
-      Left = 59
-      Height = 26
-      Top = 1
-      Width = 54
+      Left = 70
+      Height = 32
+      Top = 2
+      Width = 64
       ItemIndex = -1
       ArrowSize = 8
       ArrowWidth = 16
@@ -1524,25 +1125,25 @@ object FMain: TFMain
     end
   end
   object Panel_JoinStyle: TPanel
-    Left = 480
-    Height = 45
-    Top = 130
-    Width = 94
-    ClientHeight = 45
-    ClientWidth = 94
-    Font.Height = -15
+    Left = 576
+    Height = 54
+    Top = 156
+    Width = 112
+    ClientHeight = 54
+    ClientWidth = 112
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
-    TabOrder = 14
+    TabOrder = 13
     object ToolBar11: TToolBar
-      Left = 1
-      Height = 28
-      Top = 1
-      Width = 88
+      Left = 2
+      Height = 33
+      Top = 2
+      Width = 106
       Align = alNone
       AutoSize = True
       EdgeBorders = []
-      Font.Height = -15
+      Font.Height = -18
       Images = ImageList16
       ParentFont = False
       TabOrder = 0
@@ -1555,7 +1156,7 @@ object FMain: TFMain
         Style = tbsCheck
       end
       object Tool_JoinRound: TToolButton
-        Left = 30
+        Left = 36
         Hint = 'Round join'
         Top = 0
         Down = True
@@ -1564,7 +1165,7 @@ object FMain: TFMain
         Style = tbsCheck
       end
       object Tool_JoinMiter: TToolButton
-        Left = 59
+        Left = 71
         Hint = 'Miter join'
         Top = 0
         Grouped = True
@@ -1574,22 +1175,22 @@ object FMain: TFMain
     end
   end
   object Panel_PenStyle: TPanel
-    Left = 584
-    Height = 45
-    Top = 130
-    Width = 70
-    ClientHeight = 45
-    ClientWidth = 70
-    Font.Height = -15
+    Left = 700
+    Height = 54
+    Top = 156
+    Width = 84
+    ClientHeight = 54
+    ClientWidth = 84
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
-    TabOrder = 15
+    TabOrder = 14
     object ComboBox_PenStyle: TBCComboBox
-      Left = 2
-      Height = 26
+      Left = 3
+      Height = 32
       Hint = 'Pen style'
-      Top = 1
-      Width = 54
+      Top = 2
+      Width = 64
       ItemIndex = -1
       ArrowSize = 8
       ArrowWidth = 16
@@ -1688,171 +1289,51 @@ object FMain: TFMain
       StaticButton = False
     end
   end
-  object Panel_Texture: TPanel
-    Left = 352
-    Height = 45
-    Top = 70
-    Width = 154
-    ClientHeight = 45
-    ClientWidth = 154
-    Font.Height = -15
-    ParentColor = False
-    ParentFont = False
-    PopupMenu = PopupToolbar
-    TabOrder = 16
-    object ToolBar4: TToolBar
-      Left = 82
-      Height = 28
-      Top = 1
-      Width = 59
-      Align = alNone
-      AutoSize = True
-      EdgeBorders = []
-      Font.Height = -15
-      Images = ImageList16
-      ParentFont = False
-      TabOrder = 0
-      object ToolButton1: TToolButton
-        Left = 1
-        Top = 0
-        Action = ToolLoadTexture
-      end
-      object ToolButton2: TToolButton
-        Left = 30
-        Top = 0
-        Action = ToolNoTexture
-      end
-    end
-    object Image_CurrentTexture: TImage
-      Left = 2
-      Height = 28
-      Hint = 'Current texture'
-      Top = 1
-      Width = 30
-      Center = True
-    end
-    object SpinEdit_TextureOpacity: TBCTrackbarUpdown
-      Left = 32
-      Height = 25
-      Hint = 'Texture opacity'
-      Top = 2
-      Width = 51
-      AllowNegativeValues = False
-      BarExponent = 1
-      Increment = 1
-      LongTimeInterval = 400
-      MinValue = 0
-      MaxValue = 255
-      Value = 255
-      ShortTimeInterval = 100
-      Background.Color = clWindow
-      Background.Gradient1.StartColor = clWhite
-      Background.Gradient1.EndColor = clBlack
-      Background.Gradient1.GradientType = gtLinear
-      Background.Gradient1.Point1XPercent = 0
-      Background.Gradient1.Point1YPercent = 0
-      Background.Gradient1.Point2XPercent = 0
-      Background.Gradient1.Point2YPercent = 100
-      Background.Gradient2.StartColor = clWhite
-      Background.Gradient2.EndColor = clBlack
-      Background.Gradient2.GradientType = gtLinear
-      Background.Gradient2.Point1XPercent = 0
-      Background.Gradient2.Point1YPercent = 0
-      Background.Gradient2.Point2XPercent = 0
-      Background.Gradient2.Point2YPercent = 100
-      Background.Gradient1EndPercent = 35
-      Background.Style = bbsColor
-      ButtonBackground.Gradient1.StartColor = clBtnShadow
-      ButtonBackground.Gradient1.EndColor = clBtnFace
-      ButtonBackground.Gradient1.GradientType = gtLinear
-      ButtonBackground.Gradient1.Point1XPercent = 0
-      ButtonBackground.Gradient1.Point1YPercent = -50
-      ButtonBackground.Gradient1.Point2XPercent = 0
-      ButtonBackground.Gradient1.Point2YPercent = 50
-      ButtonBackground.Gradient2.StartColor = clBtnFace
-      ButtonBackground.Gradient2.EndColor = clBtnShadow
-      ButtonBackground.Gradient2.GradientType = gtLinear
-      ButtonBackground.Gradient2.Point1XPercent = 0
-      ButtonBackground.Gradient2.Point1YPercent = 50
-      ButtonBackground.Gradient2.Point2XPercent = 0
-      ButtonBackground.Gradient2.Point2YPercent = 150
-      ButtonBackground.Gradient1EndPercent = 50
-      ButtonBackground.Style = bbsGradient
-      ButtonDownBackground.Color = clBtnShadow
-      ButtonDownBackground.Gradient1.StartColor = clWhite
-      ButtonDownBackground.Gradient1.EndColor = clBlack
-      ButtonDownBackground.Gradient1.GradientType = gtLinear
-      ButtonDownBackground.Gradient1.Point1XPercent = 0
-      ButtonDownBackground.Gradient1.Point1YPercent = 0
-      ButtonDownBackground.Gradient1.Point2XPercent = 0
-      ButtonDownBackground.Gradient1.Point2YPercent = 100
-      ButtonDownBackground.Gradient2.StartColor = clWhite
-      ButtonDownBackground.Gradient2.EndColor = clBlack
-      ButtonDownBackground.Gradient2.GradientType = gtLinear
-      ButtonDownBackground.Gradient2.Point1XPercent = 0
-      ButtonDownBackground.Gradient2.Point1YPercent = 0
-      ButtonDownBackground.Gradient2.Point2XPercent = 0
-      ButtonDownBackground.Gradient2.Point2YPercent = 100
-      ButtonDownBackground.Gradient1EndPercent = 35
-      ButtonDownBackground.Style = bbsColor
-      Border.Color = clWindowText
-      Border.Style = bboSolid
-      Rounding.RoundX = 1
-      Rounding.RoundY = 1
-      Font.Color = clWindowText
-      Font.Name = 'Arial'
-      HasTrackBar = True
-      ArrowColor = clBtnText
-      TabOrder = 1
-      TabStop = True
-      UseDockManager = False
-    end
-  end
   object Panel_Grid: TPanel
-    Left = 530
-    Height = 45
-    Top = 370
-    Width = 215
-    ClientHeight = 45
-    ClientWidth = 215
-    Font.Height = -15
+    Left = 636
+    Height = 54
+    Top = 444
+    Width = 258
+    ClientHeight = 54
+    ClientWidth = 258
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
-    TabOrder = 17
+    TabOrder = 15
     object Label_Grid: TLabel
-      Left = 5
-      Height = 28
-      Top = 2
-      Width = 38
+      Left = 6
+      Height = 33
+      Top = 3
+      Width = 45
       AutoSize = False
       Caption = 'Grid'
-      Font.Height = -15
+      Font.Height = -18
       Layout = tlCenter
       ParentColor = False
       ParentFont = False
     end
     object Label_GridX: TLabel
-      Left = 99
-      Height = 28
-      Top = 1
-      Width = 20
+      Left = 118
+      Height = 33
+      Top = 2
+      Width = 24
       Alignment = taCenter
       AutoSize = False
       Caption = 'x'
-      Font.Height = -15
+      Font.Height = -18
       Layout = tlCenter
       ParentColor = False
       ParentFont = False
     end
     object ToolBar13: TToolBar
-      Left = 176
-      Height = 28
-      Top = 1
-      Width = 30
+      Left = 212
+      Height = 33
+      Top = 2
+      Width = 36
       Align = alNone
       AutoSize = True
       EdgeBorders = []
-      Font.Height = -15
+      Font.Height = -18
       Images = ImageList16
       ParentFont = False
       TabOrder = 0
@@ -1865,10 +1346,10 @@ object FMain: TFMain
       end
     end
     object SpinEdit_GridNbX: TBCTrackbarUpdown
-      Left = 48
-      Height = 25
-      Top = 2
-      Width = 51
+      Left = 57
+      Height = 30
+      Top = 3
+      Width = 62
       AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
@@ -1940,10 +1421,10 @@ object FMain: TFMain
       UseDockManager = False
     end
     object SpinEdit_GridNbY: TBCTrackbarUpdown
-      Left = 120
-      Height = 25
-      Top = 2
-      Width = 51
+      Left = 144
+      Height = 30
+      Top = 3
+      Width = 62
       AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
@@ -2016,77 +1497,77 @@ object FMain: TFMain
     end
   end
   object Panel_PenWidthPreview: TPanel
-    Left = 760
-    Height = 130
-    Top = 220
-    Width = 132
-    ClientHeight = 130
-    ClientWidth = 132
+    Left = 912
+    Height = 156
+    Top = 264
+    Width = 159
+    ClientHeight = 156
+    ClientWidth = 159
     Color = clBtnFace
-    Font.Height = -15
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
-    TabOrder = 18
+    TabOrder = 16
     Visible = False
     object PaintBox_PenPreview: TPaintBox
-      Left = 8
-      Height = 114
-      Top = 8
-      Width = 116
-      Font.Height = -15
+      Left = 9
+      Height = 136
+      Top = 9
+      Width = 140
+      Font.Height = -18
       ParentFont = False
     end
   end
   object Panel_SplineStyle: TPanel
-    Left = 10
-    Height = 45
-    Top = 190
-    Width = 315
-    ClientHeight = 45
-    ClientWidth = 315
-    Font.Height = -15
+    Left = 12
+    Height = 54
+    Top = 228
+    Width = 378
+    ClientHeight = 54
+    ClientWidth = 378
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
-    TabOrder = 19
+    TabOrder = 17
     object Label_Curve: TLabel
-      Left = 5
-      Height = 28
-      Top = 1
-      Width = 48
+      Left = 6
+      Height = 33
+      Top = 2
+      Width = 57
       AutoSize = False
       Caption = 'Curve'
-      Font.Height = -15
+      Font.Height = -18
       Layout = tlCenter
       ParentColor = False
       ParentFont = False
     end
     object ToolBar20: TToolBar
-      Left = 190
-      Height = 28
+      Left = 228
+      Height = 33
       Top = 0
-      Width = 117
+      Width = 141
       Align = alNone
       AutoSize = True
       EdgeBorders = []
-      Font.Height = -15
+      Font.Height = -18
       Images = ImageList16
       ParentFont = False
       TabOrder = 0
       object Tool_CurveModeAngle: TToolButton
-        Left = 59
+        Left = 71
         Hint = 'Draw an angle'
         Top = 0
         ImageIndex = 101
         Style = tbsCheck
       end
       object Tool_CurveModeCurve: TToolButton
-        Left = 88
+        Left = 106
         Hint = 'Draw a curve'
         Top = 0
         ImageIndex = 102
       end
       object Tool_CurveModeAuto: TToolButton
-        Left = 30
+        Left = 36
         Hint = 'Autodetect angles'
         Top = 0
         ImageIndex = 100
@@ -2102,10 +1583,10 @@ object FMain: TFMain
       end
     end
     object Combo_SplineStyle: TBCComboBox
-      Left = 56
-      Height = 26
-      Top = 2
-      Width = 132
+      Left = 68
+      Height = 32
+      Top = 3
+      Width = 159
       ItemIndex = -1
       ArrowSize = 8
       ArrowWidth = 16
@@ -2205,36 +1686,36 @@ object FMain: TFMain
     end
   end
   object Panel_Embedded: TPanel
-    Left = 240
-    Height = 45
-    Top = 10
-    Width = 95
-    ClientHeight = 45
-    ClientWidth = 95
-    Font.Height = -15
+    Left = 288
+    Height = 54
+    Top = 12
+    Width = 114
+    ClientHeight = 54
+    ClientWidth = 114
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
     PopupMenu = PopupToolbar
-    TabOrder = 20
+    TabOrder = 18
     object ToolBar14: TToolBar
-      Left = 1
-      Height = 28
-      Top = 1
-      Width = 88
+      Left = 2
+      Height = 33
+      Top = 2
+      Width = 106
       Align = alNone
       AutoSize = True
       EdgeBorders = []
-      Font.Height = -15
+      Font.Height = -18
       Images = ImageList16
       ParentFont = False
       TabOrder = 0
       object ToolButton19: TToolButton
-        Left = 30
+        Left = 36
         Top = 0
         Action = EmbeddedValidate
       end
       object ToolButton20: TToolButton
-        Left = 59
+        Left = 71
         Top = 0
         Action = EmbeddedCancel
       end
@@ -2246,37 +1727,37 @@ object FMain: TFMain
     end
   end
   object Panel_Text: TPanel
-    Left = 10
-    Height = 45
-    Top = 250
-    Width = 262
-    ClientHeight = 45
-    ClientWidth = 262
-    Font.Height = -15
+    Left = 12
+    Height = 54
+    Top = 300
+    Width = 315
+    ClientHeight = 54
+    ClientWidth = 315
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
-    TabOrder = 21
+    TabOrder = 19
     object Label_Text: TLabel
-      Left = 5
-      Height = 28
-      Top = 1
-      Width = 35
+      Left = 6
+      Height = 33
+      Top = 2
+      Width = 42
       AutoSize = False
       Caption = 'Text'
-      Font.Height = -15
+      Font.Height = -18
       Layout = tlCenter
       ParentColor = False
       ParentFont = False
     end
     object ToolBar15: TToolBar
-      Left = 106
-      Height = 28
-      Top = 1
-      Width = 146
+      Left = 128
+      Height = 33
+      Top = 2
+      Width = 176
       Align = alNone
       AutoSize = True
       EdgeBorders = []
-      Font.Height = -15
+      Font.Height = -18
       Images = ImageList16
       ParentFont = False
       TabOrder = 0
@@ -2287,14 +1768,14 @@ object FMain: TFMain
         ImageIndex = 61
       end
       object Tool_TextPhong: TToolButton
-        Left = 117
+        Left = 141
         Hint = 'Text phong shading'
         Top = 0
         ImageIndex = 74
         Style = tbsCheck
       end
       object Tool_TextAlignLeft: TToolButton
-        Left = 30
+        Left = 36
         Top = 0
         Down = True
         Grouped = True
@@ -2302,14 +1783,14 @@ object FMain: TFMain
         Style = tbsCheck
       end
       object Tool_TextAlignCenter: TToolButton
-        Left = 59
+        Left = 71
         Top = 0
         Grouped = True
         ImageIndex = 85
         Style = tbsCheck
       end
       object Tool_TextAlignRight: TToolButton
-        Left = 88
+        Left = 106
         Top = 0
         Grouped = True
         ImageIndex = 86
@@ -2317,11 +1798,11 @@ object FMain: TFMain
       end
     end
     object SpinEdit_TextSize: TBCTrackbarUpdown
-      Left = 46
-      Height = 25
+      Left = 56
+      Height = 30
       Hint = 'Text size'
-      Top = 2
-      Width = 58
+      Top = 3
+      Width = 69
       AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
@@ -2394,50 +1875,50 @@ object FMain: TFMain
     end
   end
   object Panel_PhongShape: TPanel
-    Left = 10
-    Height = 45
-    Top = 310
-    Width = 382
-    ClientHeight = 45
-    ClientWidth = 382
-    Font.Height = -15
+    Left = 12
+    Height = 54
+    Top = 372
+    Width = 459
+    ClientHeight = 54
+    ClientWidth = 459
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
-    TabOrder = 22
+    TabOrder = 20
     Visible = False
     object Label_Shape: TLabel
-      Left = 5
-      Height = 28
-      Top = 1
-      Width = 51
+      Left = 6
+      Height = 33
+      Top = 2
+      Width = 62
       AutoSize = False
       Caption = 'Shape'
-      Font.Height = -15
+      Font.Height = -18
       Layout = tlCenter
       ParentColor = False
       ParentFont = False
     end
     object Label_PhongBorder: TLabel
-      Left = 268
-      Height = 28
-      Top = 1
-      Width = 54
+      Left = 321
+      Height = 33
+      Top = 2
+      Width = 64
       AutoSize = False
       Caption = 'Border'
-      Font.Height = -15
+      Font.Height = -18
       Layout = tlCenter
       ParentColor = False
       ParentFont = False
     end
     object ToolBar16: TToolBar
-      Left = 60
-      Height = 28
-      Top = 1
-      Width = 204
+      Left = 72
+      Height = 33
+      Top = 2
+      Width = 246
       Align = alNone
       AutoSize = True
       EdgeBorders = []
-      Font.Height = -15
+      Font.Height = -18
       Images = ImageList16
       ParentFont = False
       TabOrder = 0
@@ -2451,7 +1932,7 @@ object FMain: TFMain
         Style = tbsCheck
       end
       object Tool_PhongShapeRoundRect: TToolButton
-        Left = 30
+        Left = 36
         Hint = 'Rounded rectangle'
         Top = 0
         Grouped = True
@@ -2459,7 +1940,7 @@ object FMain: TFMain
         Style = tbsCheck
       end
       object Tool_PhongShapeSphere: TToolButton
-        Left = 59
+        Left = 71
         Hint = 'Sphere'
         Top = 0
         Grouped = True
@@ -2467,7 +1948,7 @@ object FMain: TFMain
         Style = tbsCheck
       end
       object Tool_PhongShapeCone: TToolButton
-        Left = 88
+        Left = 106
         Hint = 'Cone'
         Top = 0
         Grouped = True
@@ -2475,7 +1956,7 @@ object FMain: TFMain
         Style = tbsCheck
       end
       object Tool_PhongShapeVerticalCone: TToolButton
-        Left = 117
+        Left = 141
         Hint = 'Vertical cone'
         Top = 0
         Grouped = True
@@ -2483,7 +1964,7 @@ object FMain: TFMain
         Style = tbsCheck
       end
       object Tool_PhongShapeHorizontalCylinder: TToolButton
-        Left = 146
+        Left = 176
         Hint = 'Horizontal cylinder'
         Top = 0
         Grouped = True
@@ -2491,7 +1972,7 @@ object FMain: TFMain
         Style = tbsCheck
       end
       object Tool_PhongShapeVerticalCylinder: TToolButton
-        Left = 175
+        Left = 211
         Hint = 'Vertical cylinder'
         Top = 0
         Grouped = True
@@ -2500,11 +1981,11 @@ object FMain: TFMain
       end
     end
     object SpinEdit_PhongBorderSize: TBCTrackbarUpdown
-      Left = 328
-      Height = 25
+      Left = 393
+      Height = 30
       Hint = 'Border size'
-      Top = 2
-      Width = 51
+      Top = 3
+      Width = 62
       AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
@@ -2577,34 +2058,34 @@ object FMain: TFMain
     end
   end
   object Panel_Altitude: TPanel
-    Left = 414
-    Height = 45
-    Top = 310
-    Width = 139
-    ClientHeight = 45
-    ClientWidth = 139
-    Font.Height = -15
+    Left = 496
+    Height = 54
+    Top = 372
+    Width = 166
+    ClientHeight = 54
+    ClientWidth = 166
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
-    TabOrder = 23
+    TabOrder = 21
     object Label_Altitude: TLabel
-      Left = 9
-      Height = 28
-      Top = 1
-      Width = 62
+      Left = 10
+      Height = 33
+      Top = 2
+      Width = 75
       AutoSize = False
       Caption = 'Altitude'
-      Font.Height = -15
+      Font.Height = -18
       Layout = tlCenter
       ParentColor = False
       ParentFont = False
     end
     object SpinEdit_ShapeAltitude: TBCTrackbarUpdown
-      Left = 76
-      Height = 25
+      Left = 92
+      Height = 30
       Hint = 'Shape altitude'
-      Top = 2
-      Width = 51
+      Top = 3
+      Width = 62
       AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
@@ -2677,37 +2158,37 @@ object FMain: TFMain
     end
   end
   object Panel_TextOutline: TPanel
-    Left = 599
-    Height = 45
-    Top = 250
-    Width = 146
-    ClientHeight = 45
-    ClientWidth = 146
-    Font.Height = -15
+    Left = 718
+    Height = 54
+    Top = 300
+    Width = 176
+    ClientHeight = 54
+    ClientWidth = 176
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
-    TabOrder = 24
+    TabOrder = 22
     object Label_OutlineWidth: TLabel
-      Left = 38
-      Height = 28
-      Top = 1
-      Width = 52
+      Left = 45
+      Height = 33
+      Top = 2
+      Width = 63
       AutoSize = False
       Caption = 'Width'
-      Font.Height = -15
+      Font.Height = -18
       Layout = tlCenter
       ParentColor = False
       ParentFont = False
     end
     object ToolBar17: TToolBar
-      Left = 2
-      Height = 28
-      Top = 1
-      Width = 30
+      Left = 3
+      Height = 33
+      Top = 2
+      Width = 36
       Align = alNone
       AutoSize = True
       EdgeBorders = []
-      Font.Height = -15
+      Font.Height = -18
       Images = ImageList16
       ParentFont = False
       TabOrder = 0
@@ -2720,11 +2201,11 @@ object FMain: TFMain
       end
     end
     object SpinEdit_TextOutlineWidth: TBCTrackbarUpdown
-      Left = 92
-      Height = 25
+      Left = 111
+      Height = 30
       Hint = 'Text outline width'
-      Top = 2
-      Width = 51
+      Top = 3
+      Width = 62
       AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
@@ -2797,25 +2278,25 @@ object FMain: TFMain
     end
   end
   object Panel_PerspectiveOption: TPanel
-    Left = 660
-    Height = 45
-    Top = 310
-    Width = 64
-    ClientHeight = 45
-    ClientWidth = 64
-    Font.Height = -15
+    Left = 792
+    Height = 54
+    Top = 372
+    Width = 76
+    ClientHeight = 54
+    ClientWidth = 76
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
-    TabOrder = 25
+    TabOrder = 23
     object ToolBar18: TToolBar
-      Left = 1
-      Height = 28
-      Top = 1
-      Width = 59
+      Left = 2
+      Height = 33
+      Top = 2
+      Width = 71
       Align = alNone
       AutoSize = True
       EdgeBorders = []
-      Font.Height = -15
+      Font.Height = -18
       Images = ImageList16
       ParentFont = False
       TabOrder = 0
@@ -2827,7 +2308,7 @@ object FMain: TFMain
         Style = tbsCheck
       end
       object Perspective_TwoPlanes: TToolButton
-        Left = 30
+        Left = 36
         Hint = 'Draw opposite plane too'
         Top = 0
         ImageIndex = 89
@@ -2836,12 +2317,12 @@ object FMain: TFMain
     end
   end
   object PaintBox_Picture: TPaintBox
-    Left = 760
-    Height = 70
-    Top = 90
-    Width = 140
+    Left = 840
+    Height = 122
+    Top = 84
+    Width = 216
     Anchors = [akTop, akLeft, akRight, akBottom]
-    Font.Height = -15
+    Font.Height = -18
     ParentFont = False
     Visible = False
     OnMouseDown = PaintBox_PictureMouseDown
@@ -2852,50 +2333,50 @@ object FMain: TFMain
     OnPaint = PaintBox_PicturePaint
   end
   object Panel_Brush: TPanel
-    Left = 10
-    Height = 45
-    Top = 370
-    Width = 332
-    ClientHeight = 45
-    ClientWidth = 332
-    Font.Height = -15
+    Left = 12
+    Height = 54
+    Top = 444
+    Width = 399
+    ClientHeight = 54
+    ClientWidth = 399
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
-    TabOrder = 26
+    TabOrder = 24
     object Label_Brush: TLabel
-      Left = 5
-      Height = 28
-      Top = 1
-      Width = 48
+      Left = 6
+      Height = 33
+      Top = 2
+      Width = 57
       AutoSize = False
       Caption = 'Brush'
-      Font.Height = -15
+      Font.Height = -18
       Layout = tlCenter
       ParentColor = False
       ParentFont = False
     end
     object Label_Spacing: TLabel
-      Left = 118
-      Height = 28
-      Top = 1
-      Width = 59
+      Left = 141
+      Height = 33
+      Top = 2
+      Width = 70
       AutoSize = False
       Caption = 'Spacing'
-      Font.Height = -15
+      Font.Height = -18
       Layout = tlCenter
       ParentColor = False
       ParentFont = False
     end
     object ToolBar21: TToolBar
-      Left = 232
-      Height = 28
-      Top = 1
-      Width = 88
+      Left = 279
+      Height = 33
+      Top = 2
+      Width = 106
       Align = alNone
       AutoSize = True
       Color = clBtnFace
       EdgeBorders = []
-      Font.Height = -15
+      Font.Height = -18
       Images = ImageList16
       ParentColor = False
       ParentFont = False
@@ -2906,22 +2387,22 @@ object FMain: TFMain
         Action = BrushCreateGeometric
       end
       object ToolButton22: TToolButton
-        Left = 30
+        Left = 36
         Top = 0
         Action = BrushLoadFromFile
       end
       object ToolButton7: TToolButton
-        Left = 59
+        Left = 71
         Top = 0
         Action = BrushRemoveCurrent
       end
     end
     object SpinEdit_BrushSpacing: TBCTrackbarUpdown
-      Left = 181
-      Height = 25
+      Left = 218
+      Height = 30
       Hint = 'Spacing between patterns'
-      Top = 2
-      Width = 48
+      Top = 3
+      Width = 57
       AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
@@ -2993,10 +2474,10 @@ object FMain: TFMain
       UseDockManager = False
     end
     object ComboBox_BrushSelect: TBCComboBox
-      Left = 54
-      Height = 26
-      Top = 2
-      Width = 58
+      Left = 64
+      Height = 32
+      Top = 3
+      Width = 69
       ItemIndex = -1
       ArrowSize = 8
       ArrowWidth = 16
@@ -3096,22 +2577,22 @@ object FMain: TFMain
     end
   end
   object Panel_Ratio: TPanel
-    Left = 10
-    Height = 45
-    Top = 432
-    Width = 184
-    ClientHeight = 45
-    ClientWidth = 184
-    Font.Height = -15
+    Left = 480
+    Height = 54
+    Top = 224
+    Width = 220
+    ClientHeight = 54
+    ClientWidth = 220
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
-    TabOrder = 27
+    TabOrder = 25
     object Combo_Ratio: TComboBox
-      Left = 52
+      Left = 63
       Height = 34
-      Top = 1
-      Width = 120
-      Font.Height = -15
+      Top = 2
+      Width = 144
+      Font.Height = -18
       ItemHeight = 0
       Items.Strings = (
         ''
@@ -3126,38 +2607,38 @@ object FMain: TFMain
       TabOrder = 0
     end
     object Label_Ratio: TLabel
-      Left = 5
-      Height = 28
-      Top = 1
-      Width = 42
+      Left = 6
+      Height = 33
+      Top = 2
+      Width = 51
       AutoSize = False
       Caption = 'Ratio'
-      Font.Height = -15
+      Font.Height = -18
       Layout = tlCenter
       ParentColor = False
       ParentFont = False
     end
   end
   object Panel_Aliasing: TPanel
-    Left = 214
-    Height = 45
-    Top = 432
-    Width = 36
-    ClientHeight = 45
-    ClientWidth = 36
-    Font.Height = -15
+    Left = 488
+    Height = 54
+    Top = 84
+    Width = 44
+    ClientHeight = 54
+    ClientWidth = 44
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
-    TabOrder = 28
+    TabOrder = 26
     object ToolBar22: TToolBar
-      Left = 1
-      Height = 28
-      Top = 1
-      Width = 30
+      Left = 2
+      Height = 33
+      Top = 2
+      Width = 36
       Align = alNone
       AutoSize = True
       EdgeBorders = []
-      Font.Height = -15
+      Font.Height = -18
       Images = ImageList16
       ParentFont = False
       TabOrder = 0
@@ -3171,25 +2652,25 @@ object FMain: TFMain
     end
   end
   object Panel_CloseShape: TPanel
-    Left = 88
-    Height = 46
-    Top = 130
-    Width = 44
-    ClientHeight = 46
-    ClientWidth = 44
-    Font.Height = -15
+    Left = 105
+    Height = 56
+    Top = 156
+    Width = 52
+    ClientHeight = 56
+    ClientWidth = 52
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
-    TabOrder = 29
+    TabOrder = 27
     object ToolBar23: TToolBar
-      Left = 1
-      Height = 28
-      Top = 1
-      Width = 30
+      Left = 2
+      Height = 33
+      Top = 2
+      Width = 36
       Align = alNone
       AutoSize = True
       EdgeBorders = []
-      Font.Height = -15
+      Font.Height = -18
       Images = ImageList16
       ParentFont = False
       TabOrder = 0
@@ -3203,25 +2684,25 @@ object FMain: TFMain
     end
   end
   object Panel_TextShadow: TPanel
-    Left = 280
-    Height = 45
-    Top = 250
-    Width = 308
-    ClientHeight = 45
-    ClientWidth = 308
-    Font.Height = -15
+    Left = 336
+    Height = 54
+    Top = 300
+    Width = 369
+    ClientHeight = 54
+    ClientWidth = 369
+    Font.Height = -18
     ParentColor = False
     ParentFont = False
-    TabOrder = 30
+    TabOrder = 28
     object ToolBar24: TToolBar
-      Left = 1
-      Height = 28
-      Top = 1
-      Width = 30
+      Left = 2
+      Height = 33
+      Top = 2
+      Width = 36
       Align = alNone
       AutoSize = True
       EdgeBorders = []
-      Font.Height = -15
+      Font.Height = -18
       Images = ImageList16
       ParentFont = False
       TabOrder = 0
@@ -3234,23 +2715,23 @@ object FMain: TFMain
       end
     end
     object Label_TextBlur: TLabel
-      Left = 35
-      Height = 28
-      Top = 1
-      Width = 40
+      Left = 42
+      Height = 33
+      Top = 2
+      Width = 48
       AutoSize = False
       Caption = 'Blur'
-      Font.Height = -15
+      Font.Height = -18
       Layout = tlCenter
       ParentColor = False
       ParentFont = False
     end
     object SpinEdit_TextBlur: TBCTrackbarUpdown
-      Left = 75
-      Height = 25
+      Left = 90
+      Height = 30
       Hint = 'Shadow blur'
-      Top = 1
-      Width = 51
+      Top = 2
+      Width = 62
       AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
@@ -3322,23 +2803,23 @@ object FMain: TFMain
       UseDockManager = False
     end
     object Label_ShadowOffset: TLabel
-      Left = 138
-      Height = 28
+      Left = 165
+      Height = 33
       Top = 0
-      Width = 54
+      Width = 64
       AutoSize = False
       Caption = 'Offset'
-      Font.Height = -15
+      Font.Height = -18
       Layout = tlCenter
       ParentColor = False
       ParentFont = False
     end
     object SpinEdit_TextShadowX: TBCTrackbarUpdown
-      Left = 192
-      Height = 25
+      Left = 231
+      Height = 30
       Hint = 'Horizontal shadow offset'
-      Top = 1
-      Width = 51
+      Top = 2
+      Width = 62
       AllowNegativeValues = True
       BarExponent = 1
       Increment = 1
@@ -3410,11 +2891,11 @@ object FMain: TFMain
       UseDockManager = False
     end
     object SpinEdit_TextShadowY: TBCTrackbarUpdown
-      Left = 246
-      Height = 25
+      Left = 296
+      Height = 30
       Hint = 'Vertical shadow offset'
-      Top = 1
-      Width = 51
+      Top = 2
+      Width = 62
       AllowNegativeValues = True
       BarExponent = 1
       Increment = 1
@@ -3486,9 +2967,132 @@ object FMain: TFMain
       UseDockManager = False
     end
   end
+  object Panel_PenFill: TPanel
+    Left = 12
+    Height = 54
+    Top = 84
+    Width = 144
+    ClientHeight = 54
+    ClientWidth = 144
+    Font.Height = -18
+    ParentColor = False
+    ParentFont = False
+    PopupMenu = PopupToolbar
+    TabOrder = 29
+    object Label_Pen: TLabel
+      Left = 2
+      Height = 33
+      Top = 2
+      Width = 36
+      AutoSize = False
+      Caption = 'Pen'
+      Font.Height = -18
+      Layout = tlCenter
+      ParentColor = False
+      ParentFont = False
+    end
+    object VectorialFill_Pen: TLCVectorialFillControl
+      Left = 44
+      Height = 40
+      Top = 2
+      Width = 64
+      AutoSize = True
+      ToolIconSize = 16
+      AllowedFillTypes = [vftSolid, vftGradient, vftTexture]
+    end
+  end
+  object Panel_SwapColor: TPanel
+    Left = 168
+    Height = 54
+    Top = 84
+    Width = 39
+    ClientHeight = 54
+    ClientWidth = 39
+    Font.Height = -18
+    ParentColor = False
+    ParentFont = False
+    PopupMenu = PopupToolbar
+    TabOrder = 30
+    object Image_SwapColors: TImage
+      Left = 6
+      Height = 24
+      Hint = 'Switch color'
+      Top = 6
+      Width = 24
+      Center = True
+      Picture.Data = {
+        1754506F727461626C654E6574776F726B47726170686963D103000089504E47
+        0D0A1A0A0000000D49484452000000100000001008060000001FF3FF61000000
+        017352474200AECE1CE90000000467414D410000B18F0BFC6105000000097048
+        597300001BAE00001BAE018C5D73F80000000774494D4507D70C1A130F15CD9E
+        39C00000001974455874536F667477617265005061696E742E4E45542076332E
+        352E36D083AD5A0000032E49444154384F75D27F4C535714C0F13B741B710667
+        2035FED8CCF8674F83997F3818E81C827FB0C4C448862310FE985650EA045AA5
+        E23425DDC8609B200BACD0021DC80F8BC00C0A73D9D24C090BC1A41AADEC0F75
+        99299992D190A285B50EBF3BB6C6C4C4DDBC4FDEBBE7BE77EE39374F5DB8D667
+        2CEAF9643EB55E23A35123D391C84EA7464E87467E67D4C7ED1A3B5B343E6CD2
+        F8E05B8D94931A877A0FCC778FB59B545E5BDE7CBFA79FAEF12E1CA30E5A875B
+        71FCEAA06BACEB7FB9C65D9CBB7A8E5C7BDEBC5A7B6C15B5EE5AAA2F56D379A1
+        93FBB7EE73FEB7F3D4FE524B83BB814677E30B392E3948AD4A45E94CCB31F59B
+        681E68263C156621B08073D449C540458465D042E560E573AA86AAA8FBB98ECD
+        9F6F46BD56148B7DC04E6826C4D45F53D87A6D149F2CA6BCB91C6B8B158BDD82
+        A1C380D1657CC6DC678E244EAD940AB65BB7117E1826381DC4E7F371E78F3BCC
+        FA66610EF857C8A8FBA98E82EF0BD8DBB6177DBB1EFD693DA5674A49B7A6A336
+        54ACE786EF3A0FA61E448C7A4719F60EE3B9EB612230C1CDE99B140D1691EDCC
+        26B739975D4DBBC86FC9C770C6C0D6CAF7516B0FACE6237B0E233746E0210C5D
+        1A22E95412193D1964F56691D527E45EEFAEE7DEEFF7D037EA493C9E88EEB00E
+        95AD504B0B5E451528128C0978FFF4464A3E7BED2CCAA6886B8B43B5C94B0D0A
+        E39831DA8F74A79569A85C893F49B062CFEBA842792853ACA95983EBBA8B4DFD
+        9B5076C592EF96B0CCB60CF5B5AC5B15D6CB561E871FE31DF79261D98ECA91F8
+        1BFBE28939F812EAA84CBE10A784ECBAE5E21608C88E41E107CF6D0F5726AE10
+        F83BC0AC5FCA902BA5F41DD45B85092C2E5984FA4C3EFC4A34896EC58EF11DD1
+        929F8E1966989C9EC43FE9E7D1DCA34834FDF8BBA875FB752C3A14F37C821E49
+        32242E8B11F183A851ECB6EF26E80F129C0B92F24D32717B249E64D011532C2D
+        54C8E449AF7278AA43F4891F9F26928427866B2024DB2E40B22D197550B17A9F
+        1C72E6B1F5A18492A5C49A17135B2D1A44AB382D5CA25B386328739BE11FD8E6
+        94BF4FDA7DB9EC15367CBA32A4B22D695F6696BF194A33C59376441C15E678DE
+        93794A89288EE7EDFD7151874569D446E3CAD0C6C25555FF01E3A570E78DDA12
+        390000000049454E44AE426082
+      }
+    end
+  end
+  object Panel_BackFill: TPanel
+    Left = 216
+    Height = 54
+    Top = 84
+    Width = 158
+    ClientHeight = 54
+    ClientWidth = 158
+    Font.Height = -18
+    ParentColor = False
+    ParentFont = False
+    PopupMenu = PopupToolbar
+    TabOrder = 31
+    object Label_Back: TLabel
+      Left = 2
+      Height = 33
+      Top = 2
+      Width = 51
+      AutoSize = False
+      Caption = 'Back'
+      Font.Height = -18
+      Layout = tlCenter
+      ParentColor = False
+      ParentFont = False
+    end
+    object VectorialFill_Back: TLCVectorialFillControl
+      Left = 56
+      Height = 40
+      Top = 2
+      Width = 64
+      AutoSize = True
+      ToolIconSize = 16
+      AllowedFillTypes = [vftSolid, vftGradient, vftTexture]
+    end
+  end
   object ImageList16: TBGRAImageList
-    left = 48
-    top = 673
+    left = 57
+    top = 807
     Bitmap = {
       4C69820000001000000010000000FFFFFF00B6B6B6FFB6B6B6FFB6B6B6FFB6B6
       B6FFB6B6B6FFB6B6B6FFB6B6B6FFB6B6B6FFB6B6B6FFB6B6B6EFB6B6B6300000
@@ -7655,8 +7259,8 @@ object FMain: TFMain
   end
   object ActionList1: TActionList
     Images = ImageList16
-    left = 48
-    top = 593
+    left = 64
+    top = 640
     object FileNew: TAction
       Category = 'File'
       Caption = 'New...'
@@ -8585,20 +8189,6 @@ object FMain: TFMain
       ImageIndex = 60
       OnExecute = ToolAnyExecute
     end
-    object ToolLoadTexture: TAction
-      Category = 'Tool'
-      Hint = 'Load texture...'
-      ImageIndex = 1
-      OnExecute = ToolLoadTextureExecute
-    end
-    object ToolNoTexture: TAction
-      Category = 'Tool'
-      Enabled = False
-      Hint = 'No texture'
-      ImageIndex = 39
-      OnExecute = ToolNoTextureExecute
-      OnUpdate = ToolNoTextureUpdate
-    end
     object ToolDeformation: TAction
       Category = 'Tool'
       Caption = 'Deformation'
@@ -8747,13 +8337,13 @@ object FMain: TFMain
       'ColorS=F0FBFF'
       'ColorT=A4A0A0'
     )
-    left = 268
-    top = 593
+    left = 328
+    top = 640
   end
   object MainMenu1: TMainMenu
     Images = ImageList16
-    left = 48
-    top = 513
+    left = 64
+    top = 544
     object MenuFile: TMenuItem
       Caption = 'File'
       OnClick = MenuFileClick
@@ -8846,8 +8436,8 @@ object FMain: TFMain
   object TimerHidePenPreview: TTimer
     Enabled = False
     Interval = 3000
-    left = 808
-    top = 360
+    left = 969
+    top = 432
   end
   object FontDialog1: TFontDialog
     Font.CharSet = ANSI_CHARSET
@@ -8857,73 +8447,73 @@ object FMain: TFMain
     Font.Quality = fqDraft
     MinFontSize = 0
     MaxFontSize = 0
-    left = 268
-    top = 673
+    left = 321
+    top = 807
   end
   object LoadSelectionDialog: TOpenPictureDialog
     Title = 'Load selection'
     Options = [ofNoDereferenceLinks, ofEnableSizing, ofViewDetail]
-    left = 413
-    top = 513
+    left = 502
+    top = 544
   end
   object OpenPictureDialog1: TOpenDialog
     Title = 'Open existing image'
     Options = [ofNoDereferenceLinks, ofEnableSizing, ofViewDetail]
-    left = 564
-    top = 513
+    left = 684
+    top = 544
   end
   object OpenTextureDialog: TOpenDialog
     Title = 'Open texture'
     DefaultExt = '.png'
     Options = [ofNoDereferenceLinks, ofEnableSizing, ofViewDetail]
-    left = 413
-    top = 673
+    left = 495
+    top = 807
   end
   object TimerUpdate: TTimer
     Interval = 50
     OnTimer = TimerUpdateTimer
-    left = 268
-    top = 513
+    left = 328
+    top = 544
   end
   object Open3DObjectDialog: TOpenDialog
     Title = 'Import 3D object'
     DefaultExt = '.obj'
     Filter = 'Wavefront Object file (*.obj)|*.obj;*.Obj;*.OBJ'
     Options = [ofNoDereferenceLinks, ofEnableSizing, ofViewDetail]
-    left = 564
-    top = 673
+    left = 677
+    top = 807
   end
   object SavePictureDialog1: TSaveDialog
     Title = 'Save file as...'
     DefaultExt = '.png'
     Options = [ofOverwritePrompt, ofEnableSizing, ofViewDetail]
-    left = 564
-    top = 593
+    left = 684
+    top = 640
   end
   object TimerDocking: TTimer
     Interval = 200
     OnTimer = TimerDockingTimer
-    left = 716
-    top = 593
+    left = 867
+    top = 640
   end
   object SaveSelectionDialog: TSaveDialog
     Title = 'Save selection as...'
     DefaultExt = '.lzp'
     Options = [ofOverwritePrompt, ofEnableSizing, ofViewDetail]
-    left = 413
-    top = 593
+    left = 502
+    top = 640
   end
   object OpenBrushDialog: TOpenDialog
     Title = 'Open brush'
     DefaultExt = '.lzp'
     Options = [ofNoDereferenceLinks, ofEnableSizing, ofViewDetail]
-    left = 716
-    top = 513
+    left = 867
+    top = 544
   end
   object PopupToolbar: TPopupMenu
     OnPopup = PopupToolbarPopup
-    left = 156
-    top = 593
+    left = 195
+    top = 640
     object MenuFileToolbar: TMenuItem
       Caption = 'Show file toolbar'
       OnClick = MenuFileToolbarClick
@@ -8951,8 +8541,8 @@ object FMain: TFMain
   end
   object PopupToolbox: TPopupMenu
     OnPopup = PopupToolboxPopup
-    left = 156
-    top = 513
+    left = 195
+    top = 544
     object MenuDockToolboxLeft: TMenuItem
       Caption = 'Dock left'
       OnClick = MenuDockToolboxLeftClick
@@ -8969,8 +8559,8 @@ object FMain: TFMain
   object ImageList48: TBGRAImageList
     Height = 48
     Width = 48
-    left = 156
-    top = 673
+    left = 188
+    top = 807
     Bitmap = {
       4C69820000003000000030000000000000000000000000000000000000000000
       0000000000000000000F000000720000007F0000007F0000007F0000007F0000

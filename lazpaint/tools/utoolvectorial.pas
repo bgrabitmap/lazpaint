@@ -72,6 +72,7 @@ type
     function ToolKeyUp(var key: Word): TRect; override;
     function ToolCommand(ACommand: TToolCommand): boolean; override;
     function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
+    function SuggestGradientBox: TAffineBox; override;
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
     property IsIdle: boolean read GetIsIdle;
     property IsHandDrawing: boolean read GetIsHandDrawing;
@@ -121,7 +122,6 @@ type
     function FixLayerOffset: boolean; override;
     function GetCurrentSplineMode: TToolSplineMode;
     procedure SetCurrentSplineMode(AMode: TToolSplineMode);
-    function IsGradientShape(AShape: TVectorShape): boolean;
     function ConvertToSpline: boolean;
     function GetEditMode: TEditShapeMode;
     function InvalidEditMode: boolean;
@@ -136,6 +136,7 @@ type
     function ToolUp: TRect; override;
     function ToolCommand(ACommand: TToolCommand): boolean; override;
     function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
+    function SuggestGradientBox: TAffineBox; override;
     property CurrentSplineMode: TToolSplineMode read GetCurrentSplineMode write SetCurrentSplineMode;
   end;
 
@@ -200,6 +201,22 @@ begin
   end;
 end;
 
+procedure AssignFill(ATarget, ASource: TVectorialFill; const ABox: TAffineBox);
+var
+  temp: TVectorialFill;
+begin
+  if ASource.IsFullyTransparent then ATarget.Clear
+  else if ATarget.FillType <> ASource.FillType then
+  begin
+    temp := ATarget.Duplicate;
+    temp.AssignExceptGeometry(ASource);
+    temp.FitGeometry(ABox);
+    ATarget.Assign(temp);
+    temp.Free;
+  end else
+    ATarget.AssignExceptGeometry(ASource);
+end;
+
 { TEditShapeTool }
 
 procedure TEditShapeTool.SelectShape(ASender: TObject; AShape: TVectorShape;
@@ -241,93 +258,75 @@ var
 begin
   m := Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex];
   zoom := (VectLen(m[1,1],m[2,1])+VectLen(m[1,2],m[2,2]))/2;
-  if IsGradientShape(AShape) then
+  if AShape.Usermode in [vsuEditBackFill, vsuEditPenFill] then
+    AShape.Usermode := vsuEdit;
+  opt := Manager.ShapeOptions;
+  if AShape.Fields*[vsfPenFill,vsfBackFill,vsfPenStyle] = [vsfPenFill,vsfBackFill,vsfPenStyle] then
   begin
-    Manager.ForeColor := AShape.BackFill.Gradient.StartColor;
-    Manager.BackColor := AShape.BackFill.Gradient.EndColor;
-    Manager.GradientType:= AShape.BackFill.Gradient.GradientType;
-    Manager.GradientColorspace:= AShape.BackFill.Gradient.ColorInterpolation;
-    Manager.GradientSine:= AShape.BackFill.Gradient.Repetition = grSine;
-    Manager.SetTexture(nil);
-    AShape.Usermode := vsuEditBackFill;
+    if AShape.BackFill.FillType = vftNone then
+    begin;
+      exclude(opt,toFillShape);
+      doFill := false;
+    end
+    else
+    begin
+      include(opt,toFillShape);
+      doFill := true;
+    end;
+    ps := BGRAToPenStyle(AShape.PenStyle);
+    if (ps = psClear) or (AShape.PenFill.FillType = vftNone) then
+    begin
+      exclude(opt,toDrawShape);
+      doDraw := false;
+    end
+    else
+    begin
+      include(opt,toDrawShape);
+      Manager.PenStyle := ps;
+      doDraw := true;
+    end;
   end else
   begin
-    if AShape.Usermode in [vsuEditBackFill, vsuEditPenFill] then
-      AShape.Usermode := vsuEdit;
-    opt := Manager.ShapeOptions;
-    if AShape.Fields*[vsfPenFill,vsfBackFill,vsfPenStyle] = [vsfPenFill,vsfBackFill,vsfPenStyle] then
-    begin
-      if AShape.BackFill.FillType = vftNone then
-      begin;
-        exclude(opt,toFillShape);
-        doFill := false;
-      end
-      else
-      begin
-        include(opt,toFillShape);
-        doFill := true;
-      end;
-      ps := BGRAToPenStyle(AShape.PenStyle);
-      if (ps = psClear) or (AShape.PenFill.FillType = vftNone) then
-      begin
-        exclude(opt,toDrawShape);
-        doDraw := false;
-      end
-      else
-      begin
-        include(opt,toDrawShape);
-        Manager.PenStyle := ps;
-        doDraw := true;
-      end;
-    end else
-    begin
-      doDraw := vsfPenFill in AShape.Fields;
-      doFill := vsfBackFill in AShape.Fields;
-    end;
-
-    if doDraw then
-    begin
-      case AShape.PenFill.FillType of
-        vftSolid: Manager.ForeColor := AShape.PenFill.SolidColor;
-        vftNone: Manager.ForeColor := BGRA(Manager.ForeColor.red,
-          Manager.ForeColor.green,Manager.ForeColor.blue,0);
-      end;
-    end;
-    if doFill then
-    begin
-      case AShape.BackFill.FillType of
-        vftSolid: Manager.BackColor := AShape.BackFill.SolidColor;
-        vftNone: Manager.BackColor := BGRA(Manager.BackColor.red,
-          Manager.BackColor.green,Manager.BackColor.blue,0);
-      end;
-    end;
-    if doFill and (AShape.BackFill.FillType = vftTexture) then
-      Manager.SetTexture(AShape.BackFill.Texture,AShape.BackFill.TextureOpacity)
-    else if doDraw and (AShape.PenFill.FillType = vftTexture) then
-      Manager.SetTexture(AShape.PenFill.Texture,AShape.PenFill.TextureOpacity)
-    else
-      Manager.SetTexture(nil);
-
-    if toDrawShape in opt then
-    begin
-      if vsfPenWidth in AShape.Fields then Manager.PenWidth := AShape.PenWidth*zoom;
-      if vsfJoinStyle in AShape.Fields then Manager.JoinStyle:= AShape.JoinStyle;
-      if AShape is TCustomPolypointShape then
-      begin
-        if TCustomPolypointShape(AShape).Closed then
-          include(opt, toCloseShape)
-        else
-          exclude(opt, toCloseShape);
-        Manager.LineCap := TCustomPolypointShape(AShape).LineCap;
-        Manager.ArrowSize := TCustomPolypointShape(AShape).ArrowSize;
-        Manager.ArrowStart := TCustomPolypointShape(AShape).ArrowStartKind;
-        Manager.ArrowEnd := TCustomPolypointShape(AShape).ArrowEndKind;
-      end;
-      if AShape is TCurveShape then
-        Manager.SplineStyle := TCurveShape(AShape).SplineStyle;
-    end;
-    Manager.ShapeOptions := opt;
+    doDraw := vsfPenFill in AShape.Fields;
+    doFill := vsfBackFill in AShape.Fields;
   end;
+
+  if doDraw then
+  begin
+    if AShape.PenFill.FillType = vftNone then
+      Manager.ForeColor := BGRA(Manager.ForeColor.red,
+        Manager.ForeColor.green,Manager.ForeColor.blue,0)
+    else
+      Manager.ForeFill.Assign(AShape.PenFill);
+  end;
+  if doFill then
+  begin
+    if AShape.BackFill.FillType = vftNone then
+      Manager.BackColor := BGRA(Manager.BackColor.red,
+        Manager.BackColor.green,Manager.BackColor.blue,0)
+    else
+      Manager.BackFill.Assign(AShape.BackFill);
+  end;
+
+  if toDrawShape in opt then
+  begin
+    if vsfPenWidth in AShape.Fields then Manager.PenWidth := AShape.PenWidth*zoom;
+    if vsfJoinStyle in AShape.Fields then Manager.JoinStyle:= AShape.JoinStyle;
+    if AShape is TCustomPolypointShape then
+    begin
+      if TCustomPolypointShape(AShape).Closed then
+        include(opt, toCloseShape)
+      else
+        exclude(opt, toCloseShape);
+      Manager.LineCap := TCustomPolypointShape(AShape).LineCap;
+      Manager.ArrowSize := TCustomPolypointShape(AShape).ArrowSize;
+      Manager.ArrowStart := TCustomPolypointShape(AShape).ArrowStartKind;
+      Manager.ArrowEnd := TCustomPolypointShape(AShape).ArrowEndKind;
+    end;
+    if AShape is TCurveShape then
+      Manager.SplineStyle := TCurveShape(AShape).SplineStyle;
+  end;
+  Manager.ShapeOptions := opt;
 
   if AShape is TTextShape then
   with TTextShape(AShape) do
@@ -342,8 +341,7 @@ begin
       Manager.SetTextOutline(false, Manager.TextOutlineWidth) else
     begin
       Manager.SetTextOutline(true, OutlineWidth);
-      if OutlineFill.FillType = vftSolid then
-        Manager.BackColor := OutlineFill.SolidColor;
+      Manager.BackFill.Assign(OutlineFill);
     end;
   end;
 
@@ -473,126 +471,75 @@ var
   doDraw, doFill: Boolean;
   m: TAffineMatrix;
   zoom: Single;
+  gradBox: TAffineBox;
 begin
   case GetEditMode of
   esmShape:
     with GetVectorOriginal do
     try
       BindOriginalEvent(true);
+      gradBox := SelectedShape.SuggestGradientBox(AffineMatrixIdentity);
       m := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
       zoom := (VectLen(m[1,1],m[2,1])+VectLen(m[1,2],m[2,2]))/2;
-      if IsGradientShape(SelectedShape) then
+      if SelectedShape.Fields*[vsfPenFill,vsfBackFill,vsfPenStyle] = [vsfPenFill,vsfBackFill,vsfPenStyle] then
       begin
-        SelectedShape.BackFill.Gradient.StartColor := Manager.ForeColor;
-        SelectedShape.BackFill.Gradient.EndColor := Manager.BackColor;
-        SelectedShape.BackFill.Gradient.GradientType := Manager.GradientType;
-        SelectedShape.BackFill.Gradient.ColorInterpolation := Manager.GradientColorspace;
-        if (SelectedShape.BackFill.Gradient.Repetition in[grSine,grPad]) or
-          Manager.GradientSine then
+        doDraw := toDrawShape in Manager.ShapeOptions;
+        doFill := toFillShape in Manager.ShapeOptions;
+
+        if doDraw then
+          SelectedShape.PenStyle := PenStyleToBGRA(Manager.PenStyle)
+        else
+          SelectedShape.PenStyle := ClearPenStyle;
+
+        if vsfPenWidth in SelectedShape.Fields then SelectedShape.PenWidth := Manager.PenWidth*zoom;
+        if vsfJoinStyle in SelectedShape.Fields then SelectedShape.JoinStyle := Manager.JoinStyle;
+        if SelectedShape is TCustomPolypointShape then
         begin
-          if Manager.GradientSine then
-            SelectedShape.BackFill.Gradient.Repetition := grSine
-          else
-            SelectedShape.BackFill.Gradient.Repetition := grPad;
+          TCustomPolypointShape(SelectedShape).Closed := toCloseShape in Manager.ShapeOptions;
+          if not TCustomPolypointShape(SelectedShape).Closed then
+          begin
+            TCustomPolypointShape(SelectedShape).LineCap:= Manager.LineCap;
+            TCustomPolypointShape(SelectedShape).ArrowSize:= Manager.ArrowSize;
+            TCustomPolypointShape(SelectedShape).ArrowStartKind:= Manager.ArrowStart;
+            TCustomPolypointShape(SelectedShape).ArrowEndKind:= Manager.ArrowEnd;
+          end;
         end;
+        if SelectedShape is TCurveShape then
+          TCurveShape(SelectedShape).SplineStyle:= Manager.SplineStyle;
       end else
       begin
-        if SelectedShape.Fields*[vsfPenFill,vsfBackFill,vsfPenStyle] = [vsfPenFill,vsfBackFill,vsfPenStyle] then
-        begin
-          doDraw := toDrawShape in Manager.ShapeOptions;
-          doFill := toFillShape in Manager.ShapeOptions;
+        doDraw := vsfPenFill in SelectedShape.Fields;
+        doFill := vsfBackFill in SelectedShape.Fields;
+      end;
+      if doFill then AssignFill(SelectedShape.BackFill, Manager.BackFill, gradBox)
+      else if vsfBackFill in SelectedShape.Fields then
+          SelectedShape.BackFill.Clear;
+      if doDraw then AssignFill(SelectedShape.PenFill, Manager.ForeFill, gradBox);
 
-          if doDraw then
-            SelectedShape.PenStyle := PenStyleToBGRA(Manager.PenStyle)
-          else
-            SelectedShape.PenStyle := ClearPenStyle;
-
-          if vsfPenWidth in SelectedShape.Fields then SelectedShape.PenWidth := Manager.PenWidth*zoom;
-          if vsfJoinStyle in SelectedShape.Fields then SelectedShape.JoinStyle := Manager.JoinStyle;
-          if SelectedShape is TCustomPolypointShape then
-          begin
-            TCustomPolypointShape(SelectedShape).Closed := toCloseShape in Manager.ShapeOptions;
-            if not TCustomPolypointShape(SelectedShape).Closed then
-            begin
-              TCustomPolypointShape(SelectedShape).LineCap:= Manager.LineCap;
-              TCustomPolypointShape(SelectedShape).ArrowSize:= Manager.ArrowSize;
-              TCustomPolypointShape(SelectedShape).ArrowStartKind:= Manager.ArrowStart;
-              TCustomPolypointShape(SelectedShape).ArrowEndKind:= Manager.ArrowEnd;
-            end;
-          end;
-          if SelectedShape is TCurveShape then
-            TCurveShape(SelectedShape).SplineStyle:= Manager.SplineStyle;
+      if SelectedShape is TTextShape then
+      with TTextShape(SelectedShape) do
+      begin
+        PenPhong := Manager.TextPhong;
+        LightPosition := m*Manager.LightPosition;
+        AltitudePercent := Manager.PhongShapeAltitude;
+        ParagraphAlignment := Manager.TextAlign;
+        FontName:= Manager.TextFontName;
+        FontEmHeight:= Manager.TextFontSize*zoom*Manager.Image.DPI/72;
+        FontStyle := Manager.TextFontStyle;
+        if Manager.TextOutline then
+        begin
+          OutlineWidth := Manager.TextOutlineWidth;
+          AssignFill(OutLineFill, Manager.BackFill, gradBox);
         end else
-        begin
-          doDraw := vsfPenFill in SelectedShape.Fields;
-          doFill := vsfBackFill in SelectedShape.Fields;
-        end;
-        if doFill then
-        begin
-          if Assigned(Manager.GetTexture) then
-          begin
-            if SelectedShape.BackFill.FillType = vftTexture then
-            begin
-              SelectedShape.BackFill.SetTexture(Manager.GetTexture,
-                SelectedShape.BackFill.TextureMatrix,Manager.TextureOpacity,
-                SelectedShape.BackFill.TextureRepetition);
-            end else
-            if SelectedShape.BackFill.FillType <> vftGradient then
-              SelectedShape.BackFill.SetTexture(Manager.GetTexture, AffineMatrixIdentity,
-                    Manager.TextureOpacity);
-          end else
-          begin
-            if SelectedShape.BackFill.FillType <> vftGradient then
-              SelectedShape.BackFill.SetSolid(Manager.BackColor);
-          end;
-        end else
-          if vsfBackFill in SelectedShape.Fields then
-            SelectedShape.BackFill.Clear;
-        if doDraw then
-        begin
-          if Assigned(Manager.GetTexture) and not doFill then
-          begin
-            if SelectedShape.PenFill.FillType = vftTexture then
-            begin
-              SelectedShape.PenFill.SetTexture(Manager.GetTexture,
-                SelectedShape.PenFill.TextureMatrix,Manager.TextureOpacity,
-                SelectedShape.PenFill.TextureRepetition);
-            end else
-            if SelectedShape.PenFill.FillType <> vftGradient then
-              SelectedShape.PenFill.SetTexture(Manager.GetTexture, AffineMatrixIdentity,
-                    Manager.TextureOpacity);
-          end else
-          begin
-            if SelectedShape.PenFill.FillType <> vftGradient then
-              SelectedShape.PenFill.SetSolid(Manager.ForeColor);
-          end;
-        end;
-        if SelectedShape is TTextShape then
-        with TTextShape(SelectedShape) do
-        begin
-          PenPhong := Manager.TextPhong;
-          LightPosition := m*Manager.LightPosition;
-          AltitudePercent := Manager.PhongShapeAltitude;
-          ParagraphAlignment := Manager.TextAlign;
-          FontName:= Manager.TextFontName;
-          FontEmHeight:= Manager.TextFontSize*zoom*Manager.Image.DPI/72;
-          FontStyle := Manager.TextFontStyle;
-          if Manager.TextOutline then
-          begin
-            OutlineWidth := Manager.TextOutlineWidth;
-            if OutlineFill.FillType in[vftNone,vftSolid] then
-              OutlineFill.SetSolid(Manager.BackColor);
-          end else
-            OutlineFill.Clear;
-        end;
-        if SelectedShape is TPhongShape then
-        with TPhongShape(SelectedShape) do
-        begin
-          ShapeKind := Manager.PhongShapeKind;
-          LightPosition := Manager.LightPosition;
-          ShapeAltitudePercent := Manager.PhongShapeAltitude;
-          BorderSizePercent := Manager.PhongShapeBorderSize;
-        end;
+          OutlineFill.Clear;
+      end;
+      if SelectedShape is TPhongShape then
+      with TPhongShape(SelectedShape) do
+      begin
+        ShapeKind := Manager.PhongShapeKind;
+        LightPosition := Manager.LightPosition;
+        ShapeAltitudePercent := Manager.PhongShapeAltitude;
+        BorderSizePercent := Manager.PhongShapeBorderSize;
       end;
     finally
       BindOriginalEvent(false);
@@ -600,19 +547,9 @@ begin
   esmGradient:
     try
       BindOriginalEvent(true);
-      with GetGradientOriginal do
-      begin
-        StartColor := Manager.ForeColor;
-        EndColor := Manager.BackColor;
-        GradientType:= Manager.GradientType;
-        if (Repetition in [grSine,grPad]) or Manager.GradientSine then
-        begin
-          if Manager.GradientSine then
-            Repetition := grSine
-          else
-            Repetition := grPad;
-        end;
-        ColorInterpolation := Manager.GradientColorspace;
+      case Manager.BackFill.FillType of
+      vftGradient: GetGradientOriginal.AssignExceptGeometry(Manager.BackFill.Gradient);
+      vftSolid: GetGradientOriginal.SetColors(Manager.BackFill.SolidColor, Manager.BackFill.SolidColor);
       end;
     finally
       BindOriginalEvent(false);
@@ -802,7 +739,7 @@ function TEditShapeTool.GetContextualToolbars: TContextualToolbars;
 var
   shape: TVectorShape;
 begin
-  Result:= [ctColor,ctTexture];
+  Result:= [ctFill];
   case GetEditMode of
   esmShape:
     begin
@@ -817,10 +754,8 @@ begin
         result := result + [ctText];
         if TTextShape(shape).PenPhong then include(result, ctAltitude);
       end;
-      if IsGradientShape(shape) then
-        result := result - [ctShape,ctTexture,ctPenWidth,ctPenStyle,ctJoinStyle,ctLineCap] + [ctGradient];
     end;
-  esmGradient: result := [ctColor,ctGradient];
+  esmGradient: result := [ctFill];
   end;
 end;
 
@@ -924,13 +859,6 @@ begin
                         if c.PointCount > 1 then c.CurveMode[c.PointCount-2] := cmCurve;
     end;
   end;
-end;
-
-function TEditShapeTool.IsGradientShape(AShape: TVectorShape): boolean;
-begin
-  result := (vsfBackFill in AShape.Fields) and (AShape.BackFill.FillType = vftGradient) and
-        (not (vsfPenFill in AShape.Fields) or (AShape.PenFill.FillType = vftNone)) and
-        (not (vsfOutlineFill in AShape.Fields) or (AShape.OutlineFill.FillType = vftNone));
 end;
 
 function TEditShapeTool.ConvertToSpline: boolean;
@@ -1239,14 +1167,7 @@ begin
       if not FIsEditingGradient then
       begin
         FIsEditingGradient:= true;
-        with GetGradientOriginal do
-        begin
-          Manager.ForeColor := StartColor;
-          Manager.BackColor := EndColor;
-          Manager.GradientType := GradientType;
-          Manager.GradientSine := (Repetition = grSine);
-          Manager.GradientColorspace := ColorInterpolation;
-        end;
+        Manager.BackFill.SetGradient(GetGradientOriginal, false);
         Manager.UpdateContextualToolbars;
         handled := true;
         result := OnlyRenderChange;
@@ -1408,6 +1329,14 @@ begin
   else
     result := false;
   end;
+end;
+
+function TEditShapeTool.SuggestGradientBox: TAffineBox;
+begin
+  if GetEditMode = esmShape then
+    result := GetVectorOriginal.SelectedShape.SuggestGradientBox(AffineMatrixIdentity)
+  else
+    result:= inherited SuggestGradientBox;
 end;
 
 { TVectorialTool }
@@ -1626,22 +1555,19 @@ procedure TVectorialTool.AssignShapeStyle(AMatrix: TAffineMatrix);
 var
   f: TVectorShapeFields;
   zoom: Single;
+  gradBox: TAffineBox;
 begin
   zoom := (VectLen(AMatrix[1,1],AMatrix[2,1])+VectLen(AMatrix[1,2],AMatrix[2,2]))/2;
   f:= FShape.Fields;
+  gradBox := FShape.SuggestGradientBox(AffineMatrixIdentity);
   if vsfPenFill in f then
   begin
     if Manager.ShapeOptionDraw then
     begin
-      if (not (vsfBackFill in f) or not Manager.ShapeOptionFill) and (Manager.GetTexture <> nil) then
-        FShape.PenFill.SetTexture(Manager.GetTexture,AMatrix,Manager.TextureOpacity)
+      if FSwapColor then
+        AssignFill(FShape.PenFill, Manager.BackFill, gradBox)
       else
-      begin
-        if FSwapColor then
-          FShape.PenFill.SetSolid(Manager.BackColor)
-        else
-          FShape.PenFill.SetSolid(Manager.ForeColor);
-      end;
+        AssignFill(FShape.PenFill, Manager.ForeFill, gradBox);
     end else
       FShape.PenFill.Clear;
   end;
@@ -1652,15 +1578,10 @@ begin
   begin
     if Manager.ShapeOptionFill then
     begin
-      if Manager.GetTexture <> nil then
-        FShape.BackFill.SetTexture(Manager.GetTexture,AffineMatrixIdentity,Manager.TextureOpacity)
+      if FSwapColor then
+        AssignFill(FShape.BackFill, Manager.ForeFill, gradBox)
       else
-      begin
-        if FSwapColor then
-          FShape.BackFill.SetSolid(Manager.ForeColor)
-        else
-          FShape.BackFill.SetSolid(Manager.BackColor);
-      end;
+        AssignFill(FShape.BackFill, Manager.BackFill, gradBox);
     end else
       FShape.BackFill.Clear;
   end;
@@ -2034,6 +1955,14 @@ begin
           and not AlwaysRasterizeShape and Manager.Image.SelectionMaskEmpty and not FLayerWasEmpty;
   else result := false;
   end;
+end;
+
+function TVectorialTool.SuggestGradientBox: TAffineBox;
+begin
+  if Assigned(FShape) then
+    result := FShape.SuggestGradientBox(AffineMatrixIdentity)
+  else
+    result:= inherited SuggestGradientBox;
 end;
 
 function TVectorialTool.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,

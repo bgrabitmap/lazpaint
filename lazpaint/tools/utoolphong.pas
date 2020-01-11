@@ -37,7 +37,7 @@ end;
 
 function TToolPhong.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctTexture,ctPhong,ctAltitude];
+  Result:= [ctFill,ctTexture,ctPhong,ctAltitude];
 end;
 
 procedure TToolPhong.ShapeChange(ASender: TObject; ABounds: TRectF; ADiff: TVectorShapeDiff);

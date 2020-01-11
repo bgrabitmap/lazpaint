@@ -109,7 +109,7 @@ end;
 
 function TToolGradient.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor, ctGradient];
+  Result:= [ctFill, ctGradient];
 end;
 
 function TToolGradient.SlowShape: boolean;
@@ -150,7 +150,7 @@ end;
 
 function TToolFloodFill.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctTexture,ctTolerance];
+  Result:= [ctFill,ctTexture,ctTolerance];
 end;
 
 initialization

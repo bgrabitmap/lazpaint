@@ -361,7 +361,7 @@ end;
 
 function TToolPen.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctTexture,ctPenWidth,ctAliasing];
+  Result:= [ctFill,ctTexture,ctPenWidth,ctAliasing];
 end;
 
 destructor TToolPen.Destroy;
@@ -406,7 +406,7 @@ end;
 
 function TToolColorPicker.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor];
+  Result:= [ctFill];
 end;
 
 { TToolHand }

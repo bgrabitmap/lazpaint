@@ -47,6 +47,8 @@ type
   private
     class var FHintShowed: boolean;
     FCurrentBounds: TRect;
+    FLastTexture: TBGRABitmap;
+    FTextureAfterAlpha: TBGRABitmap;
     FAdaptedTexture: TBGRABitmap;
     FCanReadaptTexture: boolean;
     FHighQuality: boolean;
@@ -431,9 +433,9 @@ begin
   begin
     if ShiftKey then
     begin
-      if (Manager.GetTexture <> nil) and (Manager.GetTexture.Height <> 0)
-        and (Manager.GetTexture.Width <> 0) then
-        ratio := Manager.GetTexture.Width/Manager.GetTexture.Height;
+      if (Manager.BackFill.Texture <> nil) and (Manager.BackFill.Texture.Height <> 0)
+        and (Manager.BackFill.Texture.Width <> 0) then
+        ratio := Manager.BackFill.Texture.Width/Manager.BackFill.Texture.Height;
 
       newSize := ptF - quad[0];
       avgSize := (abs(newSize.x)+abs(newSize.y))/2;
@@ -539,7 +541,27 @@ end;
 
 function TToolTextureMapping.GetTexture: TBGRABitmap;
 begin
-  result := Manager.GetTextureAfterAlpha;
+  if Manager.BackFill.Texture = FLastTexture then
+  begin
+    if FTextureAfterAlpha <> nil then
+      result := FTextureAfterAlpha
+    else
+      result := Manager.BackFill.Texture;
+  end
+  else
+  begin
+    if (Manager.BackFill.Texture <> nil) and (Manager.BackFill.TextureOpacity <> 255) then
+    begin
+      FTextureAfterAlpha := Manager.BackFill.Texture.Duplicate as TBGRABitmap;
+      FTextureAfterAlpha.ApplyGlobalOpacity(Manager.BackFill.TextureOpacity);
+      result := FTextureAfterAlpha;
+    end else
+    begin
+      result := Manager.BackFill.Texture;
+      FreeAndNil(FTextureAfterAlpha);
+    end;
+    FLastTexture := Manager.BackFill.Texture;
+  end;
 end;
 
 procedure TToolTextureMapping.OnTryStop(sender: TCustomLayerAction);
@@ -609,6 +631,7 @@ begin
   inherited Create(AManager);
   FCurrentBounds := EmptyRect;
   FHighQuality:= False;
+  FLastTexture := nil;
   quadDefined:= false;
   definingQuad:= false;
 end;
@@ -745,7 +768,7 @@ end;
 
 function TToolTextureMapping.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctTexture,ctPerspective];
+  Result:= [ctFill,ctPerspective];
 end;
 
 function TToolTextureMapping.Render(VirtualScreen: TBGRABitmap;
@@ -804,6 +827,7 @@ end;
 destructor TToolTextureMapping.Destroy;
 begin
   ValidateAction;
+  FreeAndNil(FTextureAfterAlpha);
   FreeAndNil(FAdaptedTexture);
   inherited Destroy;
 end;

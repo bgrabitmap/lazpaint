@@ -79,7 +79,7 @@ end;
 
 function TToolEllipse.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctTexture,ctShape,ctPenWidth,ctPenStyle];
+  Result:= [ctFill,ctShape,ctPenWidth,ctPenStyle];
 end;
 
 { TToolRectangle }
@@ -91,7 +91,7 @@ end;
 
 function TToolRectangle.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctTexture,ctShape,ctPenWidth,ctPenStyle,ctJoinStyle];
+  Result:= [ctFill,ctShape,ctPenWidth,ctPenStyle,ctJoinStyle];
 end;
 
 { TToolSpline }
@@ -172,7 +172,7 @@ end;
 
 function TToolSpline.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctTexture,ctShape,ctPenWidth,ctPenStyle,ctLineCap,ctSplineStyle];
+  Result:= [ctFill,ctShape,ctPenWidth,ctPenStyle,ctLineCap,ctSplineStyle];
 end;
 
 { TToolPolygon }
@@ -254,7 +254,7 @@ end;
 
 function TToolPolygon.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctTexture,ctShape,ctPenWidth,ctPenStyle,ctJoinStyle,ctLineCap];
+  Result:= [ctFill,ctShape,ctPenWidth,ctPenStyle,ctJoinStyle,ctLineCap];
 end;
 
 initialization

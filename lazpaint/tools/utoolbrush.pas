@@ -216,7 +216,7 @@ end;
 
 function TToolBrush.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctPenWidth,ctBrush];
+  Result:= [ctFill,ctPenWidth,ctBrush];
 end;
 
 { TToolGenericBrush }

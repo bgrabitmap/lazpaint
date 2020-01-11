@@ -52,7 +52,7 @@ implementation
 
 uses UResourceStrings, BGRAUTF8, LCScaleDPI, ComCtrls, Graphics,
   StdCtrls, BGRAText, math, udarktheme, BCTrackbarUpdown, BCTypes,
-  ugraph, BCComboBox, BGRABitmapTypes;
+  ugraph, BCComboBox, BGRABitmapTypes, LCVectorialFillControl;
 
 { TMainFormMenu }
 
@@ -414,6 +414,11 @@ begin
         if assigned(FImageList) then TToolbar(Controls[j]).Images := FImageList;
         TToolbar(Controls[j]).ButtonWidth := TToolbar(Controls[j]).Images.Width+ScaleX(6, 96);
         TToolbar(Controls[j]).ButtonHeight := TToolbar(Controls[j]).Images.Height+ScaleY(6, 96);
+      end else
+      if Controls[j] is TLCVectorialFillControl then
+      begin
+        if assigned(FImageList) then
+          TLCVectorialFillControl(Controls[j]).ToolIconSize:= FImageList.Height;
       end;
     end;
   end;
