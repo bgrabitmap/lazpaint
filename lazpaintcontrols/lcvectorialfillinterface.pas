@@ -38,6 +38,8 @@ type
     FTexRepetition: TTextureRepetition;
     FTexture: TBGRABitmap;
     FTexOpacity: byte;
+    FTextureAverageColor: TBGRAPixel;
+    FTextureAverageColorComputed: boolean;
 
     //interface
     FContainer: TWinControl;
@@ -89,6 +91,7 @@ type
     procedure OnClickGradInterp(ASender: TObject);
     procedure OnClickGradRepeat(ASender: TObject);
     function GetPreferredSize: TSize;
+    function GetAverageColor: TBGRAPixel;
     procedure SetCanAdjustToShape(AValue: boolean);
     procedure SetContainer(AValue: TWinControl);
     procedure SetFillType(AValue: TVectorialFillType);
@@ -142,6 +145,7 @@ type
     procedure UpdateShapeFill(AShape: TVectorShape; ATarget: TLCFillTarget);
     property FillType: TVectorialFillType read FFillType write SetFillType;
     property SolidColor: TBGRAPixel read FSolidColor write SetSolidColor;
+    property AverageColor: TBGRAPixel read GetAverageColor;
     property GradientType: TGradientType read FGradType write SetGradientType;
     property GradStartColor: TBGRAPixel read FGradStartColor write SetGradStartColor;
     property GradEndColor: TBGRAPixel read FGradEndColor write SetGradEndColor;
@@ -340,6 +344,7 @@ procedure TVectorialFillInterface.UpdateTextureThumbnail;
 var
   bmpThumb: TBitmap;
 begin
+  FTextureAverageColorComputed:= false;
   if not Assigned(FTexturePreview) then exit;
   if Assigned(Texture) then
   begin
@@ -815,6 +820,26 @@ begin
   UpdateTextureCursor;
 end;
 
+function TVectorialFillInterface.GetAverageColor: TBGRAPixel;
+begin
+  case FillType of
+  vftNone: result := BGRAPixelTransparent;
+  vftGradient: result := MergeBGRAWithGammaCorrection(GradStartColor, 1, GradEndColor, 1);
+  vftTexture: begin
+      if not FTextureAverageColorComputed then
+      begin
+        if Assigned(FTexture) then
+          FTextureAverageColor := FTexture.AverageColor
+        else
+          FTextureAverageColor := BGRAPixelTransparent;
+        FTextureAverageColorComputed := true;
+      end;
+      result := FTextureAverageColor;
+    end
+  else {vftSolid} result := SolidColor;
+  end;
+end;
+
 procedure TVectorialFillInterface.AdjustToShapeClick(Sender: TObject);
 begin
   if Assigned(FOnAdjustToShape) then FOnAdjustToShape(self);
@@ -941,51 +966,26 @@ function TVectorialFillInterface.CreateShapeFill(AShape: TVectorShape): TVectori
 var
   grad: TBGRALayerGradientOriginal;
   sx,sy: single;
-  box: TAffineBox;
   u, v: TPointF;
 begin
   if FillType = vftSolid then
-    result := TVectorialFill.CreateAsSolid(SolidColor)
+    exit(TVectorialFill.CreateAsSolid(SolidColor))
   else if (FillType = vftTexture) and Assigned(Texture) then
-  begin
-    box := AShape.SuggestGradientBox(AffineMatrixIdentity);
-    if not (TextureRepetition in [trRepeatX,trRepeatBoth]) and (Texture.Width > 0) then
-      sx:= 1/Texture.Width else if box.Width > 0 then sx:= 1/box.Width else sx := 1;
-    if not (TextureRepetition in [trRepeatY,trRepeatBoth]) and (Texture.Height > 0) then
-      sy:= 1/Texture.Height else if box.Height > 0 then sy:= 1/box.Height else sy := 1;
-
-    u := (box.TopRight-box.TopLeft)*sx;
-    v := (box.BottomLeft-box.TopLeft)*sy;
-    result := TVectorialFill.CreateAsTexture(Texture,AffineMatrix(u,v,box.TopLeft),
-           TextureOpacity, TextureRepetition);
-  end
+    result := TVectorialFill.CreateAsTexture(Texture, AffineMatrixIdentity,
+         TextureOpacity, TextureRepetition)
   else if FillType = vftGradient then
   begin
-    box := AShape.SuggestGradientBox(AffineMatrixIdentity);
     grad := TBGRALayerGradientOriginal.Create;
     grad.StartColor := GradStartColor;
     grad.EndColor := GradEndColor;
     grad.GradientType:= GradientType;
     grad.Repetition := GradRepetition;
     grad.ColorInterpolation:= GradInterpolation;
-    if grad.GradientType = gtLinear then
-    begin
-      grad.Origin := box.TopLeft;
-      grad.XAxis := box.BottomRight;
-    end else
-    begin
-      grad.Origin := (box.TopLeft + box.BottomRight)*0.5;
-      if grad.GradientType = gtReflected then
-        grad.XAxis := box.BottomRight
-      else
-      begin
-        grad.XAxis := (box.TopRight + box.BottomRight)*0.5;
-        grad.YAxis := (box.BottomLeft + box.BottomRight)*0.5;
-      end;
-    end;
     result := TVectorialFill.CreateAsGradient(grad, true);
   end
-  else result := nil; //none
+  else exit(nil); //none
+
+  result.FitGeometry(AShape.SuggestGradientBox(AffineMatrixIdentity));
 end;
 
 procedure TVectorialFillInterface.UpdateShapeFill(AShape: TVectorShape;

@@ -23,6 +23,7 @@ type
   TLCVectorialFillControl = class(TWinControl)
   private
     function GetAllowedFillTypes: TVectorialFillTypes;
+    function GetAverageColor: TBGRAPixel;
     function GetCanAdjustToShape: boolean;
     function GetFillType: TVectorialFillType;
     function GetGradEndColor: TBGRAPixel;
@@ -75,6 +76,7 @@ type
     function CreateShapeFill(AShape: TVectorShape): TVectorialFill;
     procedure UpdateShapeFill(AShape: TVectorShape; ATarget: TLCFillTarget);
     property FillType: TVectorialFillType read GetFillType write SetFillType;
+    property AverageColor: TBGRAPixel read GetAverageColor;
     property SolidColor: TBGRAPixel read GetSolidColor write SetSolidColor;
     property GradientType: TGradientType read GetGradType write SetGradientType;
     property GradStartColor: TBGRAPixel read GetGradStartColor write SetGradStartColor;
@@ -130,6 +132,11 @@ end;
 function TLCVectorialFillControl.GetAllowedFillTypes: TVectorialFillTypes;
 begin
   result := FInterface.AllowedFillTypes;
+end;
+
+function TLCVectorialFillControl.GetAverageColor: TBGRAPixel;
+begin
+  result := FInterface.AverageColor;
 end;
 
 function TLCVectorialFillControl.GetCanAdjustToShape: boolean;

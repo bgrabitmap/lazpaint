@@ -66,6 +66,8 @@ type
     FTextureMatrixBackup: TAffineMatrix;
     FTextureOpacity: byte;
     FTextureRepetition: TTextureRepetition;
+    FTextureAverageColor: TBGRAPixel;
+    FTextureAverageColorComputed: boolean;
     FGradient: TBGRALayerGradientOriginal;
     FOnChange: TVectorialFillChangeEvent;
     FOnBeforeChange: TNotifyEvent;
@@ -74,6 +76,7 @@ type
     procedure Init; virtual;
     function GetFillType: TVectorialFillType;
     function GetIsEditable: boolean;
+    function GetAverageColor: TBGRAPixel;
     procedure SetOnChange(AValue: TVectorialFillChangeEvent);
     procedure SetTextureMatrix(AValue: TAffineMatrix);
     procedure SetTextureOpacity(AValue: byte);
@@ -112,10 +115,13 @@ type
     function Equals(Obj: TObject): boolean; override;
     class function Equal(AFill1, AFill2: TVectorialFill): boolean;
     procedure Assign(Obj: TObject);
+    procedure AssignExceptGeometry(Obj: TObject);
+    procedure FitGeometry(const ABox: TAffineBox);
     property FillType: TVectorialFillType read GetFillType;
     property IsEditable: boolean read GetIsEditable;
     property Gradient: TBGRALayerGradientOriginal read FGradient;
     property SolidColor: TBGRAPixel read FColor write SetSolid;
+    property AverageColor: TBGRAPixel read GetAverageColor;
     property Texture: TBGRABitmap read FTexture;
     property TextureMatrix: TAffineMatrix read FTextureMatrix write SetTextureMatrix;
     property TextureOpacity: byte read FTextureOpacity write SetTextureOpacity;
@@ -274,6 +280,7 @@ begin
   FColor := BGRAPixelTransparent;
   FTextureMatrix := AffineMatrixIdentity;
   FTextureRepetition:= trRepeatBoth;
+  FTextureAverageColorComputed:= false;
 end;
 
 procedure TVectorialFill.BeginUpdate;
@@ -390,6 +397,7 @@ begin
   FTexture := nil;
   FTextureMatrix := AffineMatrixIdentity;
   FTextureOpacity:= 255;
+  FTextureAverageColorComputed:= false;
   FGradient := nil;
   FIsSolid := false;
 end;
@@ -414,6 +422,26 @@ begin
   else if Assigned(FGradient) then result := vftGradient
   else if Assigned(FTexture) then result := vftTexture
   else result := vftNone;
+end;
+
+function TVectorialFill.GetAverageColor: TBGRAPixel;
+begin
+  case FillType of
+  vftNone: result := BGRAPixelTransparent;
+  vftGradient: result := Gradient.AverageColor;
+  vftTexture: begin
+      if not FTextureAverageColorComputed then
+      begin
+        if Assigned(FTexture) then
+          FTextureAverageColor := FTexture.AverageColor
+        else
+          FTextureAverageColor := BGRAPixelTransparent;
+        FTextureAverageColorComputed := true;
+      end;
+      result := FTextureAverageColor;
+    end
+  else {vftSolid} result := SolidColor;
+  end;
 end;
 
 procedure TVectorialFill.GradientChange(ASender: TObject; ABounds: PRectF; var ADiff: TBGRAOriginalDiff);
@@ -489,6 +517,7 @@ begin
   FTextureMatrix := AMatrix;
   FTextureOpacity:= AOpacity;
   FTextureRepetition:= ATextureRepetition;
+  FTextureAverageColorComputed:= false;
   EndUpdate;
 end;
 
@@ -637,12 +666,58 @@ begin
     other := TVectorialFill(Obj);
     case other.FillType of
     vftSolid: SetSolid(other.SolidColor);
-    vftGradient: SetGradient(other.Gradient,false);
-    vftTexture: SetTexture(other.Texture,other.TextureMatrix,other.TextureOpacity,other.TextureRepetition);
+    vftGradient: SetGradient(other.Gradient, false);
+    vftTexture: SetTexture(other.Texture, other.TextureMatrix, other.TextureOpacity, other.TextureRepetition);
     else Clear;
     end;
   end else
     raise exception.Create('Incompatible type');
+end;
+
+procedure TVectorialFill.AssignExceptGeometry(Obj: TObject);
+var
+  other: TVectorialFill;
+  tempGrad: TBGRALayerGradientOriginal;
+begin
+  if Obj = nil then Clear else
+  if Obj is TVectorialFill then
+  begin
+    other := TVectorialFill(Obj);
+    case other.FillType of
+    vftSolid: SetSolid(other.SolidColor);
+    vftGradient: begin
+        tempGrad := self.Gradient.Duplicate as TBGRALayerGradientOriginal;
+        tempGrad.AssignExceptGeometry(other.Gradient);
+        SetGradient(tempGrad, true);
+      end;
+    vftTexture: SetTexture(other.Texture, self.TextureMatrix, other.TextureOpacity, other.TextureRepetition);
+    else Clear;
+    end;
+  end else
+    raise exception.Create('Incompatible type');
+end;
+
+procedure TVectorialFill.FitGeometry(const ABox: TAffineBox);
+var
+  sx,sy: single;
+  u, v: TPointF;
+begin
+  case FillType of
+  vftTexture:
+    if Assigned(Texture) then
+    begin
+      if not (TextureRepetition in [trRepeatX,trRepeatBoth]) and (Texture.Width > 0) then
+        sx:= 1/Texture.Width else if ABox.Width > 0 then sx:= 1/ABox.Width else sx := 1;
+      if not (TextureRepetition in [trRepeatY,trRepeatBoth]) and (Texture.Height > 0) then
+        sy:= 1/Texture.Height else if ABox.Height > 0 then sy:= 1/ABox.Height else sy := 1;
+
+      u := (ABox.TopRight-ABox.TopLeft)*sx;
+      v := (ABox.BottomLeft-ABox.TopLeft)*sy;
+      TextureMatrix := AffineMatrix(u, v, ABox.TopLeft);
+    end;
+  vftGradient:
+    Gradient.FitGeometry(ABox);
+  end;
 end;
 
 end.
