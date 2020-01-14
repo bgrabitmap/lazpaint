@@ -74,6 +74,9 @@ type
   TGenericTool = class
   private
     FAction: TLayerAction;
+    FForeFill, FBackFill: TVectorialFill;
+    FBackFillScan, FForeFillScan: TBGRACustomScanner;
+    function GetUniversalBrush(ASource: TVectorialFill; var ADest: TVectorialFill; var AScan: TBGRACustomScanner): TUniversalBrush;
     function GetLayerOffset: TPoint;
   protected
     FManager: TToolManager;
@@ -97,6 +100,9 @@ type
     Cursor: TCursor;
     constructor Create(AManager: TToolManager); virtual;
     destructor Destroy; override;
+    function GetForeUniversalBrush: TUniversalBrush;
+    function GetBackUniversalBrush: TUniversalBrush;
+    procedure ReleaseUniversalBrushes;
     procedure ValidateAction;
     procedure ValidateActionPartially;
     procedure CancelAction;
@@ -124,6 +130,7 @@ type
     property StatusText: string read GetStatusText;
     property Validating: boolean read FValidating;
     property Canceling: boolean read FCanceling;
+    property ForeUniversalBrush: TUniversalBrush read GetForeUniversalBrush;
   end;
 
   { TReadonlyTool }
@@ -395,6 +402,7 @@ type
     function ApplyPressure(AColor: TBGRAPixel): TBGRAPixel;
     function ApplyPressure(AOpacity: byte): byte;
     procedure SetPressure(APressure: single);
+    function GetPressureB: Byte;
 
     function GetCurrentToolType: TPaintToolType;
     function SetCurrentToolType(tool: TPaintToolType): boolean;
@@ -644,6 +652,35 @@ begin
       result := Point(0,0);
 end;
 
+function TGenericTool.GetUniversalBrush(ASource: TVectorialFill;
+  var ADest: TVectorialFill; var AScan: TBGRACustomScanner): TUniversalBrush;
+begin
+  FreeAndNil(AScan);
+  FreeAndNil(ADest);
+  case ASource.FillType of
+  vftNone: TBGRABitmap.IdleBrush(result);
+  vftSolid: TBGRABitmap.SolidBrush(result, Manager.ApplyPressure(ASource.SolidColor));
+  else
+    begin
+      ADest := ASource.Duplicate;
+      ADest.FitGeometry(TAffineBox.AffineBox(RectF(0,0,Manager.Image.Width,Manager.Image.Height)));
+      ADest.ApplyOpacity(Manager.GetPressureB);
+      AScan := ADest.CreateScanner(AffineMatrixIdentity, false);
+      TBGRABitmap.ScannerBrush(result, AScan);
+    end;
+  end;
+end;
+
+function TGenericTool.GetForeUniversalBrush: TUniversalBrush;
+begin
+  result := GetUniversalBrush(Manager.ForeFill, FForeFill, FForeFillScan);
+end;
+
+function TGenericTool.GetBackUniversalBrush: TUniversalBrush;
+begin
+  result := GetUniversalBrush(Manager.BackFill, FBackFill, FBackFillScan);
+end;
+
 function TGenericTool.GetStatusText: string;
 begin
   result := '';
@@ -745,6 +782,14 @@ destructor TGenericTool.Destroy;
 begin
   FAction.Free;
   inherited Destroy;
+end;
+
+procedure TGenericTool.ReleaseUniversalBrushes;
+begin
+  FreeAndNil(FForeFillScan);
+  FreeAndNil(FForeFill);
+  FreeAndNil(FBackFillScan);
+  FreeAndNil(FBackFill);
 end;
 
 procedure TGenericTool.ValidateAction;
@@ -2538,6 +2583,11 @@ begin
     FToolPressure := 1
   else
     FToolPressure:= APressure;
+end;
+
+function TToolManager.GetPressureB: Byte;
+begin
+  result := round(FToolPressure*255);
 end;
 
 procedure TToolManager.InternalSetCurrentToolType(tool: TPaintToolType);
