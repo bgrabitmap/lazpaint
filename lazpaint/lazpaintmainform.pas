@@ -943,7 +943,7 @@ begin
   m.PredefinedMainMenus([MenuFile,MenuEdit,MenuSelect,MenuView, MenuImage,MenuRemoveTransparency,
     MenuColors,MenuTool, MenuFilter,MenuRadialBlur, MenuRender,MenuHelp]);
   m.Toolbars([Panel_Embedded,Panel_File,Panel_Zoom,Panel_Undo,Panel_CopyPaste,Panel_Coordinates,
-    Panel_Tool,Panel_ColorDiff,Panel_Grid,
+    Panel_Tool,Panel_PenFill,Panel_SwapColor,Panel_BackFill,Panel_ColorDiff,Panel_Grid,
     Panel_ShapeOption,Panel_PenWidth,Panel_PenStyle,Panel_JoinStyle,
     Panel_CloseShape,Panel_LineCap,Panel_Aliasing,
     Panel_SplineStyle,Panel_Eraser,Panel_Tolerance,Panel_Text,Panel_TextShadow,Panel_TextOutline,

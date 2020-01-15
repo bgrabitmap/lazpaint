@@ -268,6 +268,9 @@ begin
   ToolManager.PhongControls.Add(Panel_PhongShape);
   ToolManager.AltitudeControls.Add(Panel_Altitude);
   ToolManager.PerspectiveControls.Add(Panel_PerspectiveOption);
+  ToolManager.FillControls.Add(Panel_PenFill);
+  ToolManager.FillControls.Add(Panel_SwapColor);
+  ToolManager.FillControls.Add(Panel_BackFill);
   ToolManager.FillControls.Add(Panel_ColorDiff);
   ToolManager.BrushControls.Add(Panel_Brush);
   ToolManager.RatioControls.Add(Panel_Ratio);
@@ -477,12 +480,15 @@ var
   colorChange: boolean;
   prevPenColor, prevBackColor, newPenColor, newBackColor: TBGRAPixel;
 begin
+  if FInFillChange then exit;
+  FInFillChange:= true;
   prevPenColor := VectorialFill_Pen.AverageColor;
   prevBackColor := VectorialFill_Back.AverageColor;
   VectorialFill_Pen.AssignFill(ToolManager.ForeFill);
   VectorialFill_Back.AssignFill(ToolManager.BackFill);
   newPenColor := VectorialFill_Pen.AverageColor;
   newBackColor := VectorialFill_Back.AverageColor;
+  FInFillChange:= false;
 
   colorChange := (newPenColor <> prevPenColor) or (newBackColor <> prevBackColor);
 
@@ -728,10 +734,22 @@ begin
 end;
 
 procedure TFMain.VectorialFill_BackChange(Sender: TObject);
+var
+  tempFill: TVectorialFill;
 begin
   if FInFillChange then exit;
   FInFillChange:= true;
-  ToolManager.BackFill.Assign(VectorialFill_Back);
+
+  if ToolManager.BackFill.FillType <> VectorialFill_Back.FillType then
+  begin
+    tempFill := TVectorialFill.Create;
+    VectorialFill_Back.UpdateFillExceptGeometry(tempFill);
+    tempFill.FitGeometry(ToolManager.SuggestGradientBox);
+    ToolManager.BackFill.Assign(tempFill);
+    tempFill.Free;
+  end else
+    VectorialFill_Back.UpdateFillExceptGeometry(ToolManager.BackFill);
+
   if (VectorialFill_Back.FillType = vftSolid) and
      (LazPaintInstance.ChooseColorTarget in [ctBackColorStartGrad,ctBackColorEndGrad]) then
     LazPaintInstance.ChooseColorTarget := ctBackColorSolid else
@@ -747,10 +765,22 @@ begin
 end;
 
 procedure TFMain.VectorialFill_PenChange(Sender: TObject);
+var
+  tempFill: TVectorialFill;
 begin
   if FInFillChange then exit;
   FInFillChange:= true;
-  ToolManager.ForeFill.Assign(VectorialFill_Pen);
+
+  if ToolManager.ForeFill.FillType <> VectorialFill_Pen.FillType then
+  begin
+    tempFill := TVectorialFill.Create;
+    VectorialFill_Pen.UpdateFillExceptGeometry(tempFill);
+    tempFill.FitGeometry(ToolManager.SuggestGradientBox);
+    ToolManager.ForeFill.Assign(tempFill);
+    tempFill.Free;
+  end else
+    VectorialFill_Pen.UpdateFillExceptGeometry(ToolManager.ForeFill);
+
   if (VectorialFill_Pen.FillType = vftSolid) and
      (LazPaintInstance.ChooseColorTarget in [ctForeColorStartGrad,ctForeColorEndGrad]) then
     LazPaintInstance.ChooseColorTarget := ctForeColorSolid else

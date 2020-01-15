@@ -2429,6 +2429,8 @@ begin
 
   FForeFill.Free;
   FBackFill.Free;
+  FForeLastGradient.Free;
+  FBackLastGradient.Free;
 
   RegisterScriptFunctions(False);
   inherited Destroy;

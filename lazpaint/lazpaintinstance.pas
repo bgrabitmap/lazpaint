@@ -1546,11 +1546,15 @@ end;
 
 function TLazPaintInstance.GetChooseColorTarget: TColorTarget;
 begin
-  Result:= FChooseColor.colorTarget;
+  if Assigned(FChooseColor) then
+    Result:= FChooseColor.colorTarget
+  else
+    result := ctForeColorSolid;
 end;
 
 procedure TLazPaintInstance.SetChooseColorTarget(const AValue: TColorTarget);
 begin
+  if not Assigned(FChooseColor) then exit;
   FChooseColor.colorTarget:= AValue;
   ColorToFChooseColor;
 end;

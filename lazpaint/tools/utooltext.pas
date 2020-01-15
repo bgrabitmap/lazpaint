@@ -156,23 +156,18 @@ begin
     FontName:= Manager.TextFontName;
     FontStyle:= Manager.TextFontStyle;
 
-    if Manager.GetTexture <> nil then
-      FShape.PenFill.SetTexture(Manager.GetTexture,AffineMatrixIdentity,Manager.TextureOpacity)
+    if FSwapColor then
+      FShape.PenFill.AssignExceptGeometry(Manager.BackFill)
     else
-    begin
-      if FSwapColor then
-        FShape.PenFill.SetSolid(Manager.BackColor)
-      else
-        FShape.PenFill.SetSolid(Manager.ForeColor);
-    end;
+      FShape.PenFill.AssignExceptGeometry(Manager.ForeFill);
 
     if Manager.TextOutline and (Manager.TextOutlineWidth>0) and
        (Manager.BackColor.alpha > 0) then
     begin
       if FSwapColor then
-        FShape.OutlineFill.SetSolid(Manager.ForeColor)
+        FShape.OutlineFill.AssignExceptGeometry(Manager.ForeFill)
       else
-        FShape.OutlineFill.SetSolid(Manager.BackColor);
+        FShape.OutlineFill.AssignExceptGeometry(Manager.BackFill);
       OutlineWidth := Manager.TextOutlineWidth;
     end
     else
@@ -216,7 +211,7 @@ end;
 
 function TToolText.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctFill,ctTexture,ctText,ctTextShadow];
+  Result:= [ctFill,ctText,ctTextShadow];
   if Manager.TextPhong then include(result, ctAltitude);
 end;
 

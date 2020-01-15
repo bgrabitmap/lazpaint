@@ -81,7 +81,7 @@ type
   protected
     function GetIsSelectingTool: boolean; override;
     function StartDrawing(toolDest: TBGRABitmap; ptF: TPointF; rightBtn: boolean): TRect; override;
-    function ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF): TRect; override;
+    function ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF; rightBtn: boolean): TRect; override;
   public
     function GetContextualToolbars: TContextualToolbars; override;
   end;
@@ -588,6 +588,8 @@ end;
 
 function TToolSelectionPen.StartDrawing(toolDest: TBGRABitmap; ptF: TPointF;
   rightBtn: boolean): TRect;
+var
+  penColor: TBGRAPixel;
 begin
   if rightBtn then penColor := BGRABlack else penColor := BGRAWhite;
   toolDest.DrawLineAntialias(ptF.X,ptF.Y,ptF.X,ptF.Y,penColor,Manager.PenWidth,True);
@@ -595,8 +597,11 @@ begin
 end;
 
 function TToolSelectionPen.ContinueDrawing(toolDest: TBGRABitmap; originF,
-  destF: TPointF): TRect;
+  destF: TPointF; rightBtn: boolean): TRect;
+var
+  penColor: TBGRAPixel;
 begin
+  if rightBtn then penColor := BGRABlack else penColor := BGRAWhite;
   toolDest.DrawLineAntialias(destF.X,destF.Y,originF.X,originF.Y,penColor,Manager.PenWidth,False);
   result := GetShapeBounds([destF,originF],Manager.PenWidth+1);
 end;

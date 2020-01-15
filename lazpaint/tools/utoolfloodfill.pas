@@ -14,7 +14,6 @@ type
 
   TToolFloodFill = class(TGenericTool)
   protected
-    penColor: TBGRAPixel;
     function GetIsSelectingTool: boolean; override;
   public
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF;
@@ -40,7 +39,7 @@ type
 implementation
 
 uses ugraph, LazPaintType, BGRAGradientScanner, LCVectorRectShapes,
-  BGRATransform, UImageDiff;
+  BGRATransform, UImageDiff, LCVectorialFill;
 
 { TToolGradient }
 
@@ -60,17 +59,8 @@ end;
 
 procedure TToolGradient.AssignShapeStyle(AMatrix: TAffineMatrix);
 begin
-  with FShape.BackFill.Gradient do
-  begin
-    StartColor := Manager.ForeColor;
-    EndColor := Manager.BackColor;
-    GradientType := Manager.GradientType;
-    ColorInterpolation := Manager.GradientColorspace;
-    if Manager.GradientSine then
-      Repetition := grSine
-    else
-      Repetition := grPad;
-  end;
+  if Manager.BackFill.FillType = vftGradient then
+    FShape.BackFill.AssignExceptGeometry(Manager.BackFill);
 end;
 
 procedure TToolGradient.QuickDefineShape(AStart, AEnd: TPointF);
@@ -109,7 +99,7 @@ end;
 
 function TToolGradient.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctFill, ctGradient];
+  Result:= [ctFill];
 end;
 
 function TToolGradient.SlowShape: boolean;
@@ -127,22 +117,12 @@ end;
 function TToolFloodFill.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
 var
-   floodFillMask,floodFillTex: TBGRABitmap;
+  b: TUniversalBrush;
 begin
-  if rightBtn then penColor := Manager.BackColor else penColor := Manager.ForeColor;
-  if Manager.GetTextureAfterAlpha <> nil then
-  begin
-    floodFillMask := TBGRABitmap.Create(toolDest.Width,toolDest.Height,BGRABlack);
-    floodFillTex := Manager.GetTextureAfterAlpha.GetPart(rect(0,0,toolDest.Width,toolDest.Height)) as TBGRABitmap;
-    toolDest.ParallelFloodFill(pt.X, pt.Y, floodFillMask, BGRAWhite, fmSet, Manager.Tolerance);
-    floodFillTex.ApplyMask(floodFillMask);
-    toolDest.PutImage(0,0,floodFillTex,dmDrawWithTransparency);
-    floodFillMask.Free;
-    floodFillTex.Free;
-  end else
-    if ffProgressive in Manager.FloodFillOptions then
-      toolDest.FloodFill(pt.X, pt.Y, penColor, fmProgressive, Manager.Tolerance) else
-        toolDest.FloodFill(pt.X, pt.Y, penColor, fmDrawWithTransparency, Manager.Tolerance);
+  if rightBtn then b := GetBackUniversalBrush
+  else b := GetForeUniversalBrush;
+  toolDest.FloodFill(pt.X, pt.Y, b, ffProgressive in Manager.FloodFillOptions, Manager.Tolerance*$101);
+  ReleaseUniversalBrushes;
   Action.NotifyChange(toolDest, rect(0,0,toolDest.Width,toolDest.Height));
   ValidateAction;
   result := OnlyRenderChange;
@@ -150,7 +130,7 @@ end;
 
 function TToolFloodFill.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctFill,ctTexture,ctTolerance];
+  Result:= [ctFill,ctTolerance];
 end;
 
 initialization
