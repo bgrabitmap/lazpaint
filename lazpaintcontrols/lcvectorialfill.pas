@@ -440,6 +440,7 @@ begin
         FTextureAverageColorComputed := true;
       end;
       result := FTextureAverageColor;
+      result.alpha := BGRABlend.ApplyOpacity(result.alpha, TextureOpacity);
     end
   else {vftSolid} result := SolidColor;
   end;
