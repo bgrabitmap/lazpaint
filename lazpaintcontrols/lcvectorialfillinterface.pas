@@ -141,6 +141,7 @@ type
     procedure ContainerSizeChanged;
     function GetTextureThumbnail(AWidth, AHeight: integer; ABackColor: TColor): TBitmap;
     procedure AssignFill(AFill: TVectorialFill);
+    procedure UpdateFillExceptGeometry(ATargetFill: TVectorialFill);
     function CreateShapeFill(AShape: TVectorShape): TVectorialFill;
     procedure UpdateShapeFill(AShape: TVectorShape; ATarget: TLCFillTarget);
     property FillType: TVectorialFillType read FFillType write SetFillType;
@@ -962,6 +963,16 @@ begin
   end;
 end;
 
+procedure TVectorialFillInterface.UpdateFillExceptGeometry(ATargetFill: TVectorialFill);
+var
+  f: TVectorialFill;
+begin
+  f := CreateShapeFill(nil);
+  if Assigned(ATargetFill) then
+    ATargetFill.AssignExceptGeometry(f);
+  f.Free;
+end;
+
 function TVectorialFillInterface.CreateShapeFill(AShape: TVectorShape): TVectorialFill;
 var
   grad: TBGRALayerGradientOriginal;
@@ -985,7 +996,8 @@ begin
   end
   else exit(nil); //none
 
-  result.FitGeometry(AShape.SuggestGradientBox(AffineMatrixIdentity));
+  if Assigned(AShape) then
+    result.FitGeometry(AShape.SuggestGradientBox(AffineMatrixIdentity));
 end;
 
 procedure TVectorialFillInterface.UpdateShapeFill(AShape: TVectorShape;

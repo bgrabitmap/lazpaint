@@ -75,6 +75,7 @@ type
     procedure AssignFill(AFill: TVectorialFill);
     function CreateShapeFill(AShape: TVectorShape): TVectorialFill;
     procedure UpdateShapeFill(AShape: TVectorShape; ATarget: TLCFillTarget);
+    procedure UpdateFillExceptGeometry(ATargetFill: TVectorialFill);
     property FillType: TVectorialFillType read GetFillType write SetFillType;
     property AverageColor: TBGRAPixel read GetAverageColor;
     property SolidColor: TBGRAPixel read GetSolidColor write SetSolidColor;
@@ -355,6 +356,11 @@ procedure TLCVectorialFillControl.UpdateShapeFill(AShape: TVectorShape;
   ATarget: TLCFillTarget);
 begin
   FInterface.UpdateShapeFill(AShape, ATarget);
+end;
+
+procedure TLCVectorialFillControl.UpdateFillExceptGeometry(ATargetFill: TVectorialFill);
+begin
+  FInterface.UpdateFillExceptGeometry(ATargetFill);
 end;
 
 end.

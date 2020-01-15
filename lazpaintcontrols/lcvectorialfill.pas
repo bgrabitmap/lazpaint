@@ -687,11 +687,16 @@ begin
     case other.FillType of
     vftSolid: SetSolid(other.SolidColor);
     vftGradient: begin
-        tempGrad := self.Gradient.Duplicate as TBGRALayerGradientOriginal;
+        if self.FillType = vftGradient then
+          tempGrad := self.Gradient.Duplicate as TBGRALayerGradientOriginal
+        else
+          tempGrad := TBGRALayerGradientOriginal.Create;
         tempGrad.AssignExceptGeometry(other.Gradient);
         SetGradient(tempGrad, true);
       end;
-    vftTexture: SetTexture(other.Texture, self.TextureMatrix, other.TextureOpacity, other.TextureRepetition);
+    vftTexture: if self.FillType = vftTexture then
+        SetTexture(other.Texture, self.TextureMatrix, other.TextureOpacity, other.TextureRepetition)
+        else SetTexture(other.Texture, AffineMatrixIdentity, other.TextureOpacity, other.TextureRepetition);
     else Clear;
     end;
   end else
