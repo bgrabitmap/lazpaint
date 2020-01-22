@@ -810,7 +810,10 @@ begin
   if LazPaintInstance.ChooseColorVisible and (AButton = mbLeft) then
     LazPaintInstance.ChooseColorTarget := target
   else
-    ShowColorDialogFor(target);
+  begin
+    if ShowColorDialogFor(target) then
+      AColorValue := LazPaintInstance.GetColor(target);
+  end;
 end;
 
 procedure TFMain.VectorialFill_BackChooseColor(ASender: TObject; AButton: TMouseButton;
@@ -828,16 +831,23 @@ begin
   if LazPaintInstance.ChooseColorVisible and (AButton = mbLeft) then
     LazPaintInstance.ChooseColorTarget := target
   else
-    ShowColorDialogFor(target);
+  begin
+    if ShowColorDialogFor(target) then
+      AColorValue := LazPaintInstance.GetColor(target);
+  end;
 end;
 
-procedure TFMain.ShowColorDialogFor(ATarget: TColorTarget);
+function TFMain.ShowColorDialogFor(ATarget: TColorTarget): boolean;
 var sourceColor: TBGRAPixel;
 begin
   sourceColor := LazPaintInstance.GetColor(ATarget);
   ColorDialog1.Color := sourceColor.ToColor;
   if ColorDialog1.Execute then
+  begin
     LazPaintInstance.SetColor(ATarget, ColorToBGRA(ColorDialog1.Color,sourceColor.alpha));
+    result := true;
+  end else
+    result := false;
 end;
 
 procedure TFMain.Image_SwapColorsMouseDown(Sender: TObject; Button: TMouseButton;

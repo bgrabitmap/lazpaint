@@ -120,7 +120,7 @@ procedure TLCVectorialFillControl.DoOnChooseColor(ASender: TObject; AButton: TMo
   AColorIndex: integer; var AColorValue: TBGRAPixel; out AHandled: boolean);
 begin
   If Assigned(FOnChooseColor) then
-    FOnChooseColor(self, AButton, AColorValue, AColorValue, AHandled)
+    FOnChooseColor(self, AButton, AColorIndex, AColorValue, AHandled)
   else
     AHandled := false;
 end;

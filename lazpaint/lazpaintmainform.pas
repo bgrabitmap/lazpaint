@@ -774,7 +774,7 @@ type
     procedure ToggleImageListVisible;
     procedure ToggleColorsVisible;
     procedure ToggleLayersVisible;
-    procedure ShowColorDialogFor(ATarget: TColorTarget);
+    function ShowColorDialogFor(ATarget: TColorTarget): boolean;
     procedure ShowPenPreview(ShouldRepaint: boolean= False);
     procedure HidePenPreview(TimeMs: Integer = 300);
     procedure OnPaintHandler;
