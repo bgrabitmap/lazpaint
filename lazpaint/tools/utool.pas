@@ -144,10 +144,10 @@ type
 
   TToolClass = class of TGenericTool;
 
-  TToolPopupMessage= (tpmNone,tpmHoldKeyForSquare, tpmHoldKeySnapToPixel,
+  TToolPopupMessage= (tpmNone, tpmHoldKeyForSquare, tpmHoldKeySnapToPixel,
     tpmReturnValides, tpmBackspaceRemoveLastPoint, tpmHoldKeyRestrictRotation,
     tpmHoldKeysScaleMode, tpmCurveModeHint, tpmBlendOpBackground,
-    tpmRightClickForSource);
+    tpmRightClickForSource, tpmNothingToBeDeformed);
 
   TOnToolChangedHandler = procedure(sender: TToolManager; ANewToolType: TPaintToolType) of object;
   TOnPopupToolHandler = procedure(sender: TToolManager; APopupMessage: TToolPopupMessage; AKey: Word) of object;
@@ -437,6 +437,8 @@ type
     function SuggestGradientBox: TAffineBox;
 
     procedure SwapToolColors;
+    procedure NeedBackGradient;
+    procedure NeedForeGradient;
     procedure AddBrush(brush: TLazPaintBrush);
     procedure RemoveBrushAt(index: integer);
     procedure SetTextFont(AName: string; ASize: single; AStyle: TFontStyles);
@@ -603,6 +605,7 @@ begin
   tpmCurveModeHint: result := rsCurveModeHint;
   tpmBlendOpBackground: result := rsBlendOpNotUsedForBackground;
   tpmRightClickForSource: result := rsRightClickForSource;
+  tpmNothingToBeDeformed: result := rsNothingToBeDeformed;
   else
     result := '';
   end;
@@ -2818,6 +2821,34 @@ begin
     FBackLastGradient := FBackFill.Gradient.Duplicate as TBGRALayerGradientOriginal;
   end;
   if Assigned(FOnFillChanged) then FOnFillChanged(self);
+end;
+
+procedure TToolManager.NeedBackGradient;
+var
+  tempFill: TVectorialFill;
+begin
+  if BackFill.FillType <> vftGradient then
+  begin
+    tempFill := TVectorialFill.Create;
+    tempFill.SetGradient(FBackLastGradient, False);
+    tempFill.FitGeometry(SuggestGradientBox);
+    BackFill.Assign(tempFill);
+    tempFill.Free;
+  end;
+end;
+
+procedure TToolManager.NeedForeGradient;
+var
+  tempFill: TVectorialFill;
+begin
+  if ForeFill.FillType <> vftGradient then
+  begin
+    tempFill := TVectorialFill.Create;
+    tempFill.SetGradient(FForeLastGradient, False);
+    tempFill.FitGeometry(SuggestGradientBox);
+    ForeFill.Assign(tempFill);
+    tempFill.Free;
+  end;
 end;
 
 procedure TToolManager.AddBrush(brush: TLazPaintBrush);

@@ -236,6 +236,8 @@ begin
     ValidateAction;
     quadDefined := false;
     quad := nil;
+    FLastTexture.FreeReference;
+    FLastTexture := nil;
   end;
 end;
 
@@ -376,12 +378,17 @@ begin
   begin
     if not definingQuad then
     begin
-      definingQuad := true;
-      setlength(quad,4);
-      quad[0] := ptF;
-      quad[1] := ptF;
-      quad[2] := ptF;
-      quad[3] := ptF;
+      if GetTexture = nil then
+        Manager.ToolPopup(tpmNothingToBeDeformed)
+      else
+        begin
+          definingQuad := true;
+          setlength(quad,4);
+          quad[0] := ptF;
+          quad[1] := ptF;
+          quad[2] := ptF;
+          quad[3] := ptF;
+        end;
     end;
     exit;
   end;
@@ -433,9 +440,9 @@ begin
   begin
     if ShiftKey then
     begin
-      if (Manager.BackFill.Texture <> nil) and (Manager.BackFill.Texture.Height <> 0)
-        and (Manager.BackFill.Texture.Width <> 0) then
-        ratio := Manager.BackFill.Texture.Width/Manager.BackFill.Texture.Height;
+      if (GetTexture <> nil) and (GetTexture.Height <> 0)
+        and (GetTexture.Width <> 0) then
+        ratio := GetTexture.Width/GetTexture.Height;
 
       newSize := ptF - quad[0];
       avgSize := (abs(newSize.x)+abs(newSize.y))/2;
@@ -541,12 +548,12 @@ end;
 
 function TToolTextureMapping.GetTexture: TBGRABitmap;
 begin
-  if Manager.BackFill.Texture = FLastTexture then
+  if (Manager.BackFill.Texture = nil) or (Manager.BackFill.Texture = FLastTexture) then
   begin
     if FTextureAfterAlpha <> nil then
       result := FTextureAfterAlpha
     else
-      result := Manager.BackFill.Texture;
+      result := FLastTexture;
   end
   else
   begin
@@ -560,7 +567,8 @@ begin
       result := Manager.BackFill.Texture;
       FreeAndNil(FTextureAfterAlpha);
     end;
-    FLastTexture := Manager.BackFill.Texture;
+    FLastTexture.FreeReference;
+    FLastTexture := Manager.BackFill.Texture.NewReference as TBGRABitmap;
   end;
 end;
 
@@ -827,6 +835,7 @@ end;
 destructor TToolTextureMapping.Destroy;
 begin
   ValidateAction;
+  FLastTexture.FreeReference;
   FreeAndNil(FTextureAfterAlpha);
   FreeAndNil(FAdaptedTexture);
   inherited Destroy;

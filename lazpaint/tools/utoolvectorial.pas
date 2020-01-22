@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, LCLType, BGRABitmap, BGRABitmapTypes,
-  BGRALayerOriginal, BGRAGraphics, LCVectorOriginal,
+  BGRALayerOriginal, BGRAGraphics, LCVectorOriginal, LCVectorialFill,
   UTool, UImageType, ULayerAction, LCVectorRectShapes,
   BGRAGradientOriginal, UStateType;
 
@@ -41,7 +41,7 @@ type
     function UseOriginal: boolean; virtual;
     function GetCustomShapeBounds(ADestBounds: TRect; AMatrix: TAffineMatrix; {%H-}ADraft: boolean): TRect; virtual;
     procedure DrawCustomShape(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); virtual;
-    procedure AssignShapeStyle(AMatrix: TAffineMatrix); virtual;
+    procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); virtual;
     procedure QuickDefineShape(AStart,AEnd: TPointF); virtual;
     function RoundCoordinate(ptF: TPointF): TPointF; virtual;
     function GetIsSelectingTool: boolean; override;
@@ -140,9 +140,11 @@ type
     property CurrentSplineMode: TToolSplineMode read GetCurrentSplineMode write SetCurrentSplineMode;
   end;
 
+procedure AssignFill(ATarget, ASource: TVectorialFill; const ABox: TAffineBox; AAlwaysFit: boolean);
+
 implementation
 
-uses LazPaintType, LCVectorPolyShapes, LCVectorTextShapes, LCVectorialFill, BGRASVGOriginal,
+uses LazPaintType, LCVectorPolyShapes, LCVectorTextShapes, BGRASVGOriginal,
   ULoading, BGRATransform, math, UImageDiff, Controls, BGRAPen, UResourceStrings, ugraph,
   LCScaleDPI, LCVectorClipboard, BGRAGradientScanner, UClipboard;
 
@@ -201,12 +203,12 @@ begin
   end;
 end;
 
-procedure AssignFill(ATarget, ASource: TVectorialFill; const ABox: TAffineBox);
+procedure AssignFill(ATarget, ASource: TVectorialFill; const ABox: TAffineBox; AAlwaysFit: boolean);
 var
   temp: TVectorialFill;
 begin
   if ASource.IsFullyTransparent then ATarget.Clear
-  else if ATarget.FillType <> ASource.FillType then
+  else if (ATarget.FillType <> ASource.FillType) or AAlwaysFit then
   begin
     temp := ATarget.Duplicate;
     temp.AssignExceptGeometry(ASource);
@@ -511,10 +513,10 @@ begin
         doDraw := vsfPenFill in SelectedShape.Fields;
         doFill := vsfBackFill in SelectedShape.Fields;
       end;
-      if doFill then AssignFill(SelectedShape.BackFill, Manager.BackFill, gradBox)
+      if doFill then AssignFill(SelectedShape.BackFill, Manager.BackFill, gradBox, false)
       else if vsfBackFill in SelectedShape.Fields then
           SelectedShape.BackFill.Clear;
-      if doDraw then AssignFill(SelectedShape.PenFill, Manager.ForeFill, gradBox);
+      if doDraw then AssignFill(SelectedShape.PenFill, Manager.ForeFill, gradBox, false);
 
       if SelectedShape is TTextShape then
       with TTextShape(SelectedShape) do
@@ -529,7 +531,7 @@ begin
         if Manager.TextOutline then
         begin
           OutlineWidth := Manager.TextOutlineWidth;
-          AssignFill(OutLineFill, Manager.BackFill, gradBox);
+          AssignFill(OutLineFill, Manager.BackFill, gradBox, false);
         end else
           OutlineFill.Clear;
       end;
@@ -1551,7 +1553,7 @@ begin
   FShape.Render(ADest,AMatrix,ADraft);
 end;
 
-procedure TVectorialTool.AssignShapeStyle(AMatrix: TAffineMatrix);
+procedure TVectorialTool.AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean);
 var
   f: TVectorShapeFields;
   zoom: Single;
@@ -1565,9 +1567,9 @@ begin
     if Manager.ShapeOptionDraw then
     begin
       if FSwapColor then
-        AssignFill(FShape.PenFill, Manager.BackFill, gradBox)
+        AssignFill(FShape.PenFill, Manager.BackFill, gradBox, AAlwaysFit)
       else
-        AssignFill(FShape.PenFill, Manager.ForeFill, gradBox);
+        AssignFill(FShape.PenFill, Manager.ForeFill, gradBox, AAlwaysFit);
     end else
       FShape.PenFill.Clear;
   end;
@@ -1579,9 +1581,9 @@ begin
     if Manager.ShapeOptionFill then
     begin
       if FSwapColor then
-        AssignFill(FShape.BackFill, Manager.ForeFill, gradBox)
+        AssignFill(FShape.BackFill, Manager.ForeFill, gradBox, AAlwaysFit)
       else
-        AssignFill(FShape.BackFill, Manager.BackFill, gradBox);
+        AssignFill(FShape.BackFill, Manager.BackFill, gradBox, AAlwaysFit);
     end else
       FShape.BackFill.Clear;
   end;
@@ -1704,7 +1706,7 @@ begin
         shapePt := AffineMatrixInverse(VectorTransform(true))*FLastPos;
         handled := false;
         FShape.MouseMove(FShiftState, shapePt.X,shapePt.Y, cur, handled);
-        AssignShapeStyle(FLastShapeTransform);
+        AssignShapeStyle(FLastShapeTransform, true);
       FShape.EndUpdate;
       FShape.OnChange:= @ShapeChange;
       FShape.OnEditingChange:=@ShapeEditingChange;
@@ -1741,7 +1743,7 @@ begin
       QuickDefineShape(FQuickDefineStartPoint, FQuickDefineEndPoint);
       FLastShapeTransform := AffineMatrixInverse(VectorTransform(false));
       FShape.Transform(FLastShapeTransform);
-      AssignShapeStyle(FLastShapeTransform);
+      AssignShapeStyle(FLastShapeTransform, true);
     FShape.EndUpdate;
     result := OnlyRenderChange;
   end else
@@ -1764,7 +1766,7 @@ begin
   if Assigned(FShape) then
   begin
     FShape.BeginUpdate;
-    AssignShapeStyle(FLastShapeTransform);
+    AssignShapeStyle(FLastShapeTransform, false);
     FShape.EndUpdate;
   end;
   result := EmptyRect;

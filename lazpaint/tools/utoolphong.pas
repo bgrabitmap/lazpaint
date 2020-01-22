@@ -15,7 +15,7 @@ type
   protected
     FMatrix: TAffineMatrix;
     procedure ShapeChange({%H-}ASender: TObject; ABounds: TRectF; ADiff: TVectorShapeDiff); override;
-    procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
+    procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); override;
     function CreateShape: TVectorShape; override;
     function SlowShape: boolean; override;
   public
@@ -49,9 +49,9 @@ begin
   inherited ShapeChange(ASender, ABounds, ADiff);
 end;
 
-procedure TToolPhong.AssignShapeStyle(AMatrix: TAffineMatrix);
+procedure TToolPhong.AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean);
 begin
-  inherited AssignShapeStyle(AMatrix);
+  inherited AssignShapeStyle(AMatrix, AAlwaysFit);
   FMatrix := AMatrix;
   with (FShape as TPhongShape) do
   begin

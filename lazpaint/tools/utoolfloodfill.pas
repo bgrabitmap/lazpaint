@@ -27,7 +27,7 @@ type
   protected
     function CreateShape: TVectorShape; override;
     procedure DrawCustomShape(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
-    procedure AssignShapeStyle({%H-}AMatrix: TAffineMatrix); override;
+    procedure AssignShapeStyle({%H-}AMatrix: TAffineMatrix; {%H-}AAlwaysFit: boolean); override;
     procedure QuickDefineShape(AStart,AEnd: TPointF); override;
     function SlowShape: boolean; override;
     function GetStatusText: string; override;
@@ -57,8 +57,9 @@ begin
   FShape.BackFill.Gradient.Render(ADest,AMatrix,ADraft,dmDrawWithTransparency);
 end;
 
-procedure TToolGradient.AssignShapeStyle(AMatrix: TAffineMatrix);
+procedure TToolGradient.AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean);
 begin
+  Manager.NeedBackGradient;
   if Manager.BackFill.FillType = vftGradient then
     FShape.BackFill.AssignExceptGeometry(Manager.BackFill);
 end;

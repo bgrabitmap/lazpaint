@@ -25,7 +25,7 @@ type
     procedure DrawCustomShape(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     procedure ShapeChange(ASender: TObject; ABounds: TRectF; ADiff: TVectorShapeDiff); override;
     procedure ShapeEditingChange(ASender: TObject); override;
-    procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
+    procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); override;
     function SlowShape: boolean; override;
     procedure QuickDefineEnd; override;
     function RoundCoordinate(ptF: TPointF): TPointF; override;
@@ -142,11 +142,12 @@ begin
   inherited ShapeEditingChange(ASender);
 end;
 
-procedure TToolText.AssignShapeStyle(AMatrix: TAffineMatrix);
+procedure TToolText.AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean);
 var
   r: TRect;
   toolDest: TBGRABitmap;
   zoom: Single;
+  gradBox: TAffineBox;
 begin
   FMatrix := AMatrix;
   with TTextShape(FShape) do
@@ -155,19 +156,20 @@ begin
     FontEmHeight:= zoom*Manager.TextFontSize*Manager.Image.DPI/72;
     FontName:= Manager.TextFontName;
     FontStyle:= Manager.TextFontStyle;
+    gradBox := self.SuggestGradientBox;
 
     if FSwapColor then
-      FShape.PenFill.AssignExceptGeometry(Manager.BackFill)
+      AssignFill(FShape.PenFill, Manager.BackFill, gradBox, AAlwaysFit)
     else
-      FShape.PenFill.AssignExceptGeometry(Manager.ForeFill);
+      AssignFill(FShape.PenFill, Manager.ForeFill, gradBox, AAlwaysFit);
 
     if Manager.TextOutline and (Manager.TextOutlineWidth>0) and
        (Manager.BackColor.alpha > 0) then
     begin
       if FSwapColor then
-        FShape.OutlineFill.AssignExceptGeometry(Manager.ForeFill)
+        AssignFill(FShape.OutlineFill, Manager.ForeFill, gradBox, AAlwaysFit)
       else
-        FShape.OutlineFill.AssignExceptGeometry(Manager.BackFill);
+        AssignFill(FShape.OutlineFill, Manager.BackFill, gradBox, AAlwaysFit);
       OutlineWidth := Manager.TextOutlineWidth;
     end
     else

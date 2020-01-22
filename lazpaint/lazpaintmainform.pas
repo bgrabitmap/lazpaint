@@ -2899,6 +2899,10 @@ begin
       if self.Visible then
       begin
         case Tool of
+          ptGradient:
+            begin
+              VectorialFill_Back.FillType:= vftGradient;
+            end;
           ptTextureMapping:
           begin
             useSelection:= false;

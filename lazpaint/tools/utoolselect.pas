@@ -15,7 +15,7 @@ type
   TVectorialSelectTool = class(TVectorialTool)
   protected
     function GetIsSelectingTool: boolean; override;
-    procedure AssignShapeStyle({%H-}AMatrix: TAffineMatrix); override;
+    procedure AssignShapeStyle({%H-}AMatrix: TAffineMatrix; {%H-}AAlwaysFit: boolean); override;
     function RoundCoordinate(ptF: TPointF): TPointF; override;
     function UpdateShape(toolDest: TBGRABitmap): TRect; override;
     procedure QuickDefineEnd; override;
@@ -48,7 +48,7 @@ type
 
   TToolSelectPoly = class(TToolPolygon)
   protected
-    procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
+    procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); override;
     function GetIsSelectingTool: boolean; override;
   public
     function GetContextualToolbars: TContextualToolbars; override;
@@ -58,7 +58,7 @@ type
 
   TToolSelectSpline = class(TToolSpline)
   protected
-    procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
+    procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); override;
     function GetIsSelectingTool: boolean; override;
   public
     function GetContextualToolbars: TContextualToolbars; override;
@@ -163,10 +163,10 @@ end;
 
 { TToolSelectSpline }
 
-procedure TToolSelectSpline.AssignShapeStyle(AMatrix: TAffineMatrix);
+procedure TToolSelectSpline.AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean);
 begin
   FShape.BeginUpdate;
-  inherited AssignShapeStyle(AMatrix);
+  inherited AssignShapeStyle(AMatrix, AAlwaysFit);
   AssignSelectShapeStyle(FShape, FSwapColor);
   FShape.EndUpdate;
 end;
@@ -183,10 +183,10 @@ end;
 
 { TToolSelectPoly }
 
-procedure TToolSelectPoly.AssignShapeStyle(AMatrix: TAffineMatrix);
+procedure TToolSelectPoly.AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean);
 begin
   FShape.BeginUpdate;
-  inherited AssignShapeStyle(AMatrix);
+  inherited AssignShapeStyle(AMatrix, AAlwaysFit);
   AssignSelectShapeStyle(FShape, FSwapColor);
   FShape.EndUpdate;
 end;
@@ -208,7 +208,7 @@ begin
   Result:= true;
 end;
 
-procedure TVectorialSelectTool.AssignShapeStyle(AMatrix: TAffineMatrix);
+procedure TVectorialSelectTool.AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean);
 begin
   AssignSelectShapeStyle(FShape, FSwapColor);
   if FShape is TCustomRectShape then
