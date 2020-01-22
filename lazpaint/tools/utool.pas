@@ -171,7 +171,7 @@ type
     FBlackAndWhite: boolean;
     FScriptContext: TScriptContext;
     FToolPressure: single;
-    FInTool, FInToolUpdate: boolean;
+    FInTool, FInToolUpdate, FInSwapFill: boolean;
     FCurrentTool : TGenericTool;
     FCurrentToolType : TPaintToolType;
     FToolCurrentCursorPos: TPointF;
@@ -1391,7 +1391,7 @@ end;
 procedure TToolManager.BackFillChange(ASender: TObject;
   var ADiff: TCustomVectorialFillDiff);
 begin
-  if FInToolUpdate then exit;
+  if FInToolUpdate or FInSwapFill then exit;
   ToolUpdate;
   if Assigned(FOnFillChanged) then FOnFillChanged(self);
   if FBackFill.FillType = vftGradient then
@@ -1464,7 +1464,7 @@ end;
 procedure TToolManager.ForeFillChange(ASender: TObject;
   var ADiff: TCustomVectorialFillDiff);
 begin
-  if FInToolUpdate then exit;
+  if FInToolUpdate or FInSwapFill then exit;
   ToolUpdate;
   if Assigned(FOnFillChanged) then FOnFillChanged(self);
   if FForeFill.FillType = vftGradient then
@@ -2805,7 +2805,9 @@ procedure TToolManager.SwapToolColors;
 var
   tmpFill: TVectorialFill;
 begin
+  if FInSwapFill then exit;
   if FForeFill.Equals(FBackFill) then exit;
+  FInSwapFill:= true;
   tmpFill := FForeFill.Duplicate;
   FForeFill.Assign(FBackFill);
   FBackFill.Assign(tmpFill);
@@ -2821,6 +2823,7 @@ begin
     FBackLastGradient := FBackFill.Gradient.Duplicate as TBGRALayerGradientOriginal;
   end;
   if Assigned(FOnFillChanged) then FOnFillChanged(self);
+  FInSwapFill:= false;
 end;
 
 procedure TToolManager.NeedBackGradient;
