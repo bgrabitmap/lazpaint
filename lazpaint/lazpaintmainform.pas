@@ -44,6 +44,8 @@ type
     Label_Back: TLabel;
     Label_ShadowOffset: TLabel;
     Label_TextBlur: TLabel;
+    TimerHideFill: TTimer;
+    TimerArrange: TTimer;
     VectorialFill_Pen: TLCVectorialFillControl;
     VectorialFill_Back: TLCVectorialFillControl;
     Panel_BackFill: TPanel;
@@ -523,6 +525,8 @@ type
     procedure SpinEdit_TextSizeChange(Sender: TObject; AByUser: boolean);
     procedure SpinEdit_TextBlurChange(Sender: TObject; AByUser: boolean);
     procedure GridNb_SpinEditChange(Sender: TObject; AByUser: boolean);
+    procedure TimerArrangeTimer(Sender: TObject);
+    procedure TimerHideFillTimer(Sender: TObject);
     procedure VectorialFill_TextureClick(Sender: TObject);
     procedure PaintBox_PenPreviewPaint(Sender: TObject);
     procedure PaintBox_PictureMouseDown(Sender: TObject; Button: TMouseButton;
@@ -670,7 +674,13 @@ type
     procedure ManagerToleranceChanged(Sender: TObject);
     procedure ManagerToolbarChanged(Sender: TObject);
     procedure VectorialFill_BackChange(Sender: TObject);
+    procedure VectorialFill_BackResize(Sender: TObject);
     procedure VectorialFill_PenChange(Sender: TObject);
+    procedure VectorialFill_PenResize(Sender: TObject);
+    procedure VectorialFill_ShowBackFill(Sender: TObject; Shift: TShiftState;
+      X, Y: Integer);
+    procedure VectorialFill_ShowPenFill(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
   private
     { private declarations }
     FLayout: TMainFormLayout;
@@ -776,7 +786,10 @@ type
     procedure ToggleLayersVisible;
     function ShowColorDialogFor(ATarget: TColorTarget): boolean;
     procedure ShowPenPreview(ShouldRepaint: boolean= False);
-    procedure HidePenPreview(TimeMs: Integer = 300);
+    procedure HidePenPreview(ATimeMs: Integer = 300; AClearTime: boolean = false);
+    procedure ShowPenFill;
+    procedure ShowBackFill;
+    procedure HideFill(ATimeMs: Integer = 300; AClearTime: boolean = false);
     procedure OnPaintHandler;
     procedure OnImageChangedHandler({%H-}AEvent: TLazPaintImageObservationEvent);
     procedure LabelAutosize(ALabel: TLabel);
@@ -839,6 +852,7 @@ type
     procedure UpdateLineCapBar;
     procedure UpdateFillToolbar(AUpdateColorDiff: boolean);
     procedure UpdateToolbar;
+    procedure QueryArrange;
     function ChooseTool(Tool : TPaintToolType): boolean;
     procedure PictureSelectedLayerIndexChanged({%H-}sender: TLazPaintImage);
     procedure PictureSelectedLayerIndexChanging({%H-}sender: TLazPaintImage);
@@ -1202,6 +1216,7 @@ begin
   ReleaseMouseButtons(Shift);
   UpdateSpecialKeys(Shift);
   HidePenPreview;
+  HideFill;
   if LazPaintInstance.TopMostHasFocus then
   begin
     if LazPaintInstance.TopMostOkToUnfocus then
@@ -1835,7 +1850,7 @@ end;
 
 procedure TFMain.FormResize(Sender: TObject);
 begin
-  if shouldArrangeOnResize then FLayout.Arrange;
+  if shouldArrangeOnResize then QueryArrange;
 end;
 
 procedure TFMain.ImageActionExecute(Sender: TObject);
@@ -3626,14 +3641,14 @@ procedure TFMain.MenuCoordinatesToolbarClick(Sender: TObject);
 begin
   Panel_Coordinates.Visible := not Panel_Coordinates.Visible;
   Config.SetDefaultCoordinatesToolbarVisible(Panel_Coordinates.Visible);
-  Layout.Arrange;
+  QueryArrange;
 end;
 
 procedure TFMain.MenuCopyPasteToolbarClick(Sender: TObject);
 begin
   Panel_CopyPaste.Visible := not Panel_CopyPaste.Visible;
   Config.SetDefaultCopyPasteToolbarVisible(Panel_CopyPaste.Visible);
-  Layout.Arrange;
+  QueryArrange;
 end;
 
 procedure TFMain.MenuDockToolboxLeftClick(Sender: TObject);
@@ -3650,7 +3665,7 @@ procedure TFMain.MenuFileToolbarClick(Sender: TObject);
 begin
   Panel_File.Visible := not Panel_File.Visible;
   Config.SetDefaultFileToolbarVisible(Panel_File.Visible);
-  Layout.Arrange;
+  QueryArrange;
 end;
 
 procedure TFMain.MenuShowPaletteClick(Sender: TObject);
@@ -3667,7 +3682,7 @@ procedure TFMain.MenuUndoRedoToolbarClick(Sender: TObject);
 begin
   Panel_Undo.Visible := not Panel_Undo.Visible;
   Config.SetDefaultUndoRedoToolbarVisible(Panel_Undo.Visible);
-  Layout.Arrange;
+  QueryArrange;
 end;
 
 procedure TFMain.MenuViewClick(Sender: TObject);
@@ -3684,7 +3699,7 @@ procedure TFMain.MenuZoomToolbarClick(Sender: TObject);
 begin
   Panel_Zoom.Visible := not Panel_Zoom.Visible;
   Config.SetDefaultZoomToolbarVisible(Panel_Zoom.Visible);
-  Layout.Arrange;
+  QueryArrange;
 end;
 
 procedure TFMain.EditPasteUpdate(Sender: TObject);
@@ -4323,7 +4338,7 @@ end;
 
 procedure TFMain.ManagerToolbarChanged(Sender: TObject);
 begin
-  if Assigned(FLayout) then FLayout.Arrange;
+  QueryArrange;
 end;
 
 procedure TFMain.UpdateStatusText;

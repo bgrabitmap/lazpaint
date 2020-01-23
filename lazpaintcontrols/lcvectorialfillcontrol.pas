@@ -36,6 +36,15 @@ type
     function GetTexRepetition: TTextureRepetition;
     function GetTexture: TBGRABitmap;
     function GetToolIconSize: integer;
+    function GetVerticalPadding: integer;
+    procedure InterfaceMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure InterfaceMouseEnter(Sender: TObject);
+    procedure InterfaceMouseLeave(Sender: TObject);
+    procedure InterfaceMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
+    procedure InterfaceMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure SetAllowedFillTypes(AValue: TVectorialFillTypes);
     procedure SetCanAdjustToShape(AValue: boolean);
     procedure SetFillType(AValue: TVectorialFillType);
@@ -51,6 +60,7 @@ type
     procedure SetTextureOpacity(AValue: byte);
     procedure SetTextureRepetition(AValue: TTextureRepetition);
     procedure SetToolIconSize(AValue: integer);
+    procedure SetVerticalPadding(AValue: integer);
   protected
     FInterface: TVectorialFillInterface;
     FOnAdjustToShape: TNotifyEvent;
@@ -94,6 +104,7 @@ type
     property Enabled;
     property Visible;
     property ToolIconSize: integer read GetToolIconSize write SetToolIconSize;
+    property VerticalPadding: integer read GetVerticalPadding write SetVerticalPadding;
     property AllowedFillTypes: TVectorialFillTypes read GetAllowedFillTypes write SetAllowedFillTypes;
     property OnChooseColor: TChooseColorEvent read FOnChooseColor write SetOnChooseColor;
     property OnFillChange: TNotifyEvent read FOnFillChange write FOnFillChange;
@@ -101,6 +112,11 @@ type
     property OnAdjustToShape: TNotifyEvent read FOnAdjustToShape write FOnAdjustToShape;
     property OnFillTypeChange: TNotifyEvent read FOnFillTypeChange write FOnFillTypeChange;
     property OnTextureClick: TNotifyEvent read FOnTextureClick write SetOnTextureClick;
+    property OnMouseDown;
+    property OnMouseMove;
+    property OnMouseUp;
+    property OnMouseEnter;
+    property OnMouseLeave;
   end;
 
 procedure Register;
@@ -200,6 +216,39 @@ begin
   result := FInterface.ImageListSize.cy;
 end;
 
+function TLCVectorialFillControl.GetVerticalPadding: integer;
+begin
+  result := FInterface.VerticalPadding;
+end;
+
+procedure TLCVectorialFillControl.InterfaceMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  if Assigned(OnMouseDown) then OnMouseDown(self, Button, Shift, X,Y);
+end;
+
+procedure TLCVectorialFillControl.InterfaceMouseEnter(Sender: TObject);
+begin
+  if Assigned(OnMouseEnter) then OnMouseEnter(self);
+end;
+
+procedure TLCVectorialFillControl.InterfaceMouseLeave(Sender: TObject);
+begin
+  if Assigned(OnMouseLeave) then OnMouseLeave(self);
+end;
+
+procedure TLCVectorialFillControl.InterfaceMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  if Assigned(OnMouseMove) then OnMouseMove(self, Shift, X,Y);
+end;
+
+procedure TLCVectorialFillControl.InterfaceMouseUp(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  if Assigned(OnMouseUp) then OnMouseUp(self, Button, Shift, X,Y);
+end;
+
 procedure TLCVectorialFillControl.SetAllowedFillTypes(
   AValue: TVectorialFillTypes);
 begin
@@ -285,6 +334,11 @@ begin
   FInterface.ImageListSize := Size(AValue,AValue);
 end;
 
+procedure TLCVectorialFillControl.SetVerticalPadding(AValue: integer);
+begin
+  FInterface.VerticalPadding:= AValue;
+end;
+
 procedure TLCVectorialFillControl.CalculatePreferredSize(var PreferredWidth,
   PreferredHeight: integer; WithThemeSpace: Boolean);
 begin
@@ -333,6 +387,11 @@ begin
   FInterface.OnTextureChange:=@DoOnTextureChange;
   FInterface.OnAdjustToShape:=@DoOnAdjustToShape;
   FInterface.OnFillTypeChange:=@DoOnFillTypeChange;
+  FInterface.OnMouseMove:=@InterfaceMouseMove;
+  FInterface.OnMouseDown:=@InterfaceMouseDown;
+  FInterface.OnMouseUp:=@InterfaceMouseUp;
+  FInterface.OnMouseEnter:=@InterfaceMouseEnter;
+  FInterface.OnMouseLeave:=@InterfaceMouseLeave;
   FInterface.Container := self;
 end;
 

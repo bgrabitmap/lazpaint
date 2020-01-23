@@ -35,6 +35,7 @@ type
     procedure ApplyShortcuts;
     procedure ActionShortcut(AName: string; AShortcut: TUTF8Char);
     procedure ApplyTheme;
+    function GetIndividualToolbarHeight: integer;
   public
     constructor Create(AInstance: TLazPaintCustomInstance; AActionList: TActionList);
     procedure PredefinedMainMenus(const AMainMenus: array of TMenuItem);
@@ -307,6 +308,11 @@ begin
   end;
 end;
 
+function TMainFormMenu.GetIndividualToolbarHeight: integer;
+begin
+  result := DoScaleY(26,OriginalDPI);
+end;
+
 constructor TMainFormMenu.Create(AInstance: TLazPaintCustomInstance; AActionList: TActionList);
 begin
   FInstance := AInstance;
@@ -324,6 +330,7 @@ end;
 
 procedure TMainFormMenu.Toolbars(const AToolbars: array of TPanel; AToolbarBackground: TPanel);
 var i,j: NativeInt;
+  prefWidth, prefHeight: integer;
 begin
   setlength(FToolbars, length(AToolbars));
   for i := 0 to high(FToolbars) do
@@ -339,9 +346,7 @@ begin
         if (Controls[j].Name = 'Label_Coordinates') or
            (Controls[j].Name = 'Label_CurrentZoom') or
            (Controls[j].Name = 'Label_CurrentDiff') then
-          Controls[j].Font.Height := -Controls[j].Height*55 div ScreenInfo.PixelsPerInchY
-        else
-          Controls[j].Font.Height := -Controls[j].Height*50 div ScreenInfo.PixelsPerInchY;
+          Controls[j].Font.Height := -Controls[j].Height*55 div 96;
       end;
     end;
   end;
@@ -399,7 +404,7 @@ begin
   if Assigned(FImageList) then
     FActionList.Images := FImageList;
 
-  tbHeightOrig := DoScaleY(26,OriginalDPI);
+  tbHeightOrig := GetIndividualToolbarHeight;
   tbHeight := tbHeightOrig;
   for i := 0 to high(FToolbars) do
   with FToolbars[i].tb do
@@ -434,8 +439,11 @@ begin
 end;
 
 procedure TMainFormMenu.ArrangeToolbars(ClientWidth: integer);
-var i,j,k,curx,cury,maxh, w, minNextX, delta: integer; tb: TPanel;
+var i,j,k,curx,cury,maxh, w, minNextX, delta,
+  tbNormalHeight: integer;
+  tb: TPanel;
 begin
+   tbNormalHeight := GetIndividualToolbarHeight;
    curx := 0;
    cury := 0;
    maxh := 0;
@@ -448,7 +456,7 @@ begin
        for j := 0 to tb.ControlCount-1 do
        begin
          tb.Controls[j].Top := 1;
-         tb.Controls[j].Height := tb.Height-3;
+         tb.Controls[j].Height := tbNormalHeight-3;
          if tb.Controls[j] is TToolBar then
          begin
            minNextX := MaxLongInt;
@@ -482,6 +490,7 @@ begin
        tb.Top := cury;
        inc(curx, tb.Width);
        if tb.Height > maxh then maxh := tb.Height;
+       maxh := min(maxh, tbNormalHeight);
      end else
      begin
        //hide fix for Gtk

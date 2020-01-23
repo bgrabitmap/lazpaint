@@ -8,12 +8,22 @@ begin
   Panel_ToolbarBackground.PopupMenu := PopupToolbar;
   Perspective_Repeat.OnClick := @Perspective_RepeatClick;
   Perspective_TwoPlanes.OnClick := @Perspective_TwoPlanesClick;
+  VectorialFill_Pen.VerticalPadding:= DoScaleY(6, OriginalDPI);
+  VectorialFill_Back.VerticalPadding:= DoScaleY(6, OriginalDPI);
   VectorialFill_Pen.OnChooseColor := @VectorialFill_PenChooseColor;
   VectorialFill_Back.OnChooseColor := @VectorialFill_BackChooseColor;
   VectorialFill_Pen.OnTextureClick := @VectorialFill_TextureClick;
   VectorialFill_Back.OnTextureClick := @VectorialFill_TextureClick;
   VectorialFill_Pen.OnFillChange:=@VectorialFill_PenChange;
   VectorialFill_Back.OnFillChange:=@VectorialFill_BackChange;
+  VectorialFill_Pen.OnResize:=@VectorialFill_PenResize;
+  VectorialFill_Back.OnResize:=@VectorialFill_BackResize;
+  Label_Pen.OnMouseMove:=@VectorialFill_ShowPenFill;
+  Panel_PenFill.OnMouseMove:=@VectorialFill_ShowPenFill;
+  VectorialFill_Pen.OnMouseMove:=@VectorialFill_ShowPenFill;
+  Label_Back.OnMouseMove:=@VectorialFill_ShowBackFill;
+  Panel_BackFill.OnMouseMove:=@VectorialFill_ShowBackFill;
+  VectorialFill_Back.OnMouseMove:=@VectorialFill_ShowBackFill;
   Image_SwapColors.OnMouseDown := @Image_SwapColorsMouseDown;
   Tool_DrawShapeBorder.OnClick := @Tool_DrawShapeBorderClick;
   Tool_Aliasing.OnClick := @Tool_AliasingClick;
@@ -193,6 +203,7 @@ begin
   LabelAutosize(Label_OutlineWidth);
   LabelAutosize(Label_Brush);
   LabelAutosize(Label_Spacing);
+  LabelAutosize(Label_Ratio);
   Image_SwapColors.Hint := Image_SwapColors.Hint + ' (X)';
 
   Tool_CurveModeAuto.Hint := Tool_CurveModeAuto.Hint + ' (A)';
@@ -225,27 +236,34 @@ end;
 
 procedure TFMain.LabelAutosize(ALabel: TLabel);
 var
-  NewSize,Delta: integer;
-  Container: TWinControl;
-  ANext: TControl;
-  I: Integer;
+  delta, nextPos: integer;
+  container: TWinControl;
+  nextControl: TControl;
+  I, prefWidth, prefHeight: Integer;
 begin
-  ALabel.Canvas.Font.Name := ALabel.Font.Name;
-  ALabel.Canvas.Font.Height := ALabel.Font.Height;
-  ALabel.Canvas.Font.Style := ALabel.Font.Style;
-  NewSize := ALabel.Canvas.TextWidth(ALabel.Caption+' ');
-  if ALabel.Width <> NewSize then
+  ALabel.Font.Height := -ALabel.Height*50 div 96;
+  prefWidth := ALabel.Width;
+  prefHeight := ALabel.Width;
+  ALabel.GetPreferredSize(prefWidth, prefHeight);
+  ALabel.Width := prefWidth+DoScaleX(5, OriginalDPI);
+  nextPos := MaxLongInt;
+  container := ALabel.Parent;
+  for i := 0 to container.ControlCount-1 do
   begin
-    Delta := NewSize-ALabel.Width;
-    Container := ALabel.Parent;
-    Container.Width := Container.Width+Delta;
-    For I := 0 to Container.ControlCount-1 do
+    nextControl := container.Controls[I];
+    if (nextControl.Left > ALabel.Left) and (nextControl.Left < nextPos) then
+      nextPos := nextControl.Left;
+  end;
+  if nextPos < MaxLongInt then
+  begin
+    delta := ALabel.Left+ALabel.Width-nextPos;
+    for i := 0 to container.ControlCount-1 do
     begin
-      ANext := Container.Controls[I];
-      if ANext.Left > ALabel.Left then
-        ANext.Left := ANext.Left+Delta;
+      nextControl := container.Controls[I];
+      if nextControl.Left > ALabel.Left then
+        nextControl.Left := nextControl.Left + delta;
     end;
-    ALabel.Width := NewSize;
+    container.Width := container.Width + delta;
   end;
 end;
 
@@ -414,8 +432,7 @@ begin
   Label_ShadowOffset.Visible := shadowOn;
   SpinEdit_TextShadowX.Visible := shadowOn;
   SpinEdit_TextShadowY.Visible := shadowOn;
-  if Panel_TextShadow.Visible then
-    FLayout.Arrange;
+  if Panel_TextShadow.Visible then QueryArrange;
 end;
 
 procedure TFMain.UpdateLineCapToolbar;
@@ -509,6 +526,11 @@ begin
   UpdateCurveModeToolbar;
 end;
 
+procedure TFMain.QueryArrange;
+begin
+  TimerArrange.Enabled := true;
+end;
+
 procedure TFMain.UpdateLineCapBar;
 var
   newVisible: Boolean;
@@ -518,7 +540,7 @@ begin
   if newVisible <> Panel_LineCap.Visible then
   begin
     Panel_LineCap.Visible := newVisible;
-    if Assigned(FLayout) then FLayout.Arrange;
+    QueryArrange;
   end;
 end;
 
@@ -653,6 +675,19 @@ begin
   FInGridNb := false;
 end;
 
+procedure TFMain.TimerArrangeTimer(Sender: TObject);
+begin
+  TimerArrange.Enabled:= false;
+  if Assigned(FLayout) then FLayout.Arrange;
+end;
+
+procedure TFMain.TimerHideFillTimer(Sender: TObject);
+begin
+  TimerHideFill.Enabled := false;
+  Panel_PenFill.Height := Panel_SwapColor.Height;
+  Panel_BackFill.Height := Panel_SwapColor.Height;
+end;
+
 procedure TFMain.SpinEdit_GridNbExit(Sender: TObject);
 begin
   if SpinEdit_GridNbX.Value < MinDeformationGridSize-1 then SpinEdit_GridNbX.Value := MinDeformationGridSize-1;
@@ -764,6 +799,12 @@ begin
   FInFillChange:= false;
 end;
 
+procedure TFMain.VectorialFill_BackResize(Sender: TObject);
+begin
+  Panel_BackFill.Width := VectorialFill_Back.Left + VectorialFill_Back.Width + DoScaleX(6, OriginalDPI);
+  QueryArrange;
+end;
+
 procedure TFMain.VectorialFill_PenChange(Sender: TObject);
 var
   tempFill: TVectorialFill;
@@ -793,6 +834,24 @@ begin
       LazPaintInstance.ColorToFChooseColor;
   UpdateEditPicture;
   FInFillChange:= false;
+end;
+
+procedure TFMain.VectorialFill_PenResize(Sender: TObject);
+begin
+  Panel_PenFill.Width := VectorialFill_Pen.Left + VectorialFill_Pen.Width + DoScaleX(6, OriginalDPI);
+  QueryArrange;
+end;
+
+procedure TFMain.VectorialFill_ShowBackFill(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  ShowBackFill;
+end;
+
+procedure TFMain.VectorialFill_ShowPenFill(Sender: TObject; Shift: TShiftState;
+  X, Y: Integer);
+begin
+  ShowPenFill;
 end;
 
 procedure TFMain.VectorialFill_PenChooseColor(ASender: TObject; AButton: TMouseButton;
@@ -913,7 +972,7 @@ begin
      if Tool_DrawShapeBorder.Down then include(opt, toDrawShape) else exclude(opt, toDrawShape);
      if Tool_FillShape.Down then include(opt, toFillShape) else exclude(opt, toFillShape);
      ToolManager.ShapeOptions := opt;
-     FLayout.Arrange;
+     QueryArrange;
   end;
 end;
 
@@ -1268,29 +1327,49 @@ procedure TFMain.ShowPenPreview(ShouldRepaint: boolean);
 begin
   if not Panel_PenWidthPreview.Visible then
   begin
-    Panel_PenWidthPreview.Left := Panel_PenWidth.Left;
+    Panel_PenWidthPreview.Left := min(Panel_PenWidth.Left, ClientWidth-Panel_PenWidthPreview.Width);
     Panel_PenWidthPreview.Top := Panel_PenWidth.Top+Panel_PenWidth.Height;
     Panel_PenWidthPreview.Visible := True;
   end else
     if ShouldRepaint then
       PaintBox_PenPreview.Repaint;
-  TimerHidePenPreview.Enabled := false;
-  HidePenPreview(3000);
+  HidePenPreview(3000, true);
 end;
 
-procedure TFMain.HidePenPreview(TimeMs: Integer);
+procedure TFMain.HidePenPreview(ATimeMs: Integer; AClearTime: boolean);
 begin
+  if AClearTime then TimerHidePenPreview.Enabled := false;
   if Panel_PenWidthPreview.Visible then
   begin
-    TimerHidePenPreview.Interval := TimeMs;
+    TimerHidePenPreview.Interval := ATimeMs;
     TimerHidePenPreview.Enabled := true;
   end;
+end;
+
+procedure TFMain.ShowPenFill;
+begin
+  Panel_PenFill.Height := VectorialFill_Pen.Top+VectorialFill_Pen.Height+DoScaleY(3, OriginalDPI);
+  HideFill(3000, true);
+end;
+
+procedure TFMain.ShowBackFill;
+begin
+  Panel_BackFill.Height := VectorialFill_Back.Top+VectorialFill_Back.height+DoScaleY(3, OriginalDPI);
+  HideFill(3000, true);
+end;
+
+procedure TFMain.HideFill(ATimeMs: Integer; AClearTime: boolean);
+begin
+  if AClearTime then TimerHideFill.Enabled := false;
+  TimerHideFill.Interval := ATimeMs;
+  TimerHideFill.Enabled := true;
 end;
 
 procedure TFMain.Panel_ToolbarBackgroundMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 begin
-  HidePenPreview();
+  HidePenPreview;
+  HideFill;
 end;
 
 procedure TFMain.Panel_PenWidthMouseMove(Sender: TObject; Shift: TShiftState;
@@ -1564,7 +1643,7 @@ begin
      if ToolManager.TextPhong <> Tool_TextPhong.Down then
      begin
        ToolManager.TextPhong:= Tool_TextPhong.Down;
-       FLayout.Arrange;
+       QueryArrange;
        UpdateEditPicture;
      end;
   end;
