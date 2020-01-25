@@ -776,7 +776,7 @@ end;
 
 function TToolTextureMapping.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctFill,ctPerspective];
+  Result:= [ctBackFill,ctPerspective];
 end;
 
 function TToolTextureMapping.Render(VirtualScreen: TBGRABitmap;

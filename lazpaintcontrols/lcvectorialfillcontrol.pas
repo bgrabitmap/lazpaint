@@ -5,7 +5,7 @@ unit LCVectorialFillControl;
 interface
 
 uses
-  Classes, SysUtils, Controls, LCVectorialFillInterface,
+  Types, Classes, SysUtils, Controls, LCVectorialFillInterface,
   LCVectorialFill, BGRABitmap, BGRABitmapTypes, BGRAGradientScanner,
   LCVectorOriginal;
 
@@ -31,6 +31,7 @@ type
     function GetGradRepetition: TBGRAGradientRepetition;
     function GetGradStartColor: TBGRAPixel;
     function GetGradType: TGradientType;
+    function GetPreferredSizeAsSize: TSize;
     function GetSolidColor: TBGRAPixel;
     function GetTexOpacity: byte;
     function GetTexRepetition: TTextureRepetition;
@@ -98,6 +99,7 @@ type
     property TextureRepetition: TTextureRepetition read GetTexRepetition write SetTextureRepetition;
     property TextureOpacity: byte read GetTexOpacity write SetTextureOpacity;
     property CanAdjustToShape: boolean read GetCanAdjustToShape write SetCanAdjustToShape;
+    property PreferredSize: TSize read GetPreferredSizeAsSize;
   published
     property AutoSize;
     property Align;
@@ -122,8 +124,6 @@ type
 procedure Register;
 
 implementation
-
-uses Types;
 
 procedure Register;
 begin
@@ -189,6 +189,13 @@ end;
 function TLCVectorialFillControl.GetGradType: TGradientType;
 begin
   result := FInterface.GradientType;
+end;
+
+function TLCVectorialFillControl.GetPreferredSizeAsSize: TSize;
+begin
+  result.cx:= Width;
+  result.cy:= Height;
+  GetPreferredSize(result.cx, result.cy);
 end;
 
 function TLCVectorialFillControl.GetSolidColor: TBGRAPixel;

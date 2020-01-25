@@ -661,12 +661,14 @@ procedure TLazPaintCustomInstance.SetColor(ATarget: TColorTarget;
   AColor: TBGRAPixel);
 begin
   case ATarget of
-    ctForeColorSolid: ToolManager.ForeColor := AColor;
+    ctForeColorSolid: if ToolManager.ForeFill.FillType = vftSolid then
+                        ToolManager.ForeColor := AColor;
     ctForeColorStartGrad: if ToolManager.ForeFill.FillType = vftGradient then
                             ToolManager.ForeFill.Gradient.StartColor := AColor;
     ctForeColorEndGrad: if ToolManager.ForeFill.FillType = vftGradient then
                           ToolManager.ForeFill.Gradient.EndColor := AColor;
-    ctBackColorSolid: ToolManager.BackColor := AColor;
+    ctBackColorSolid: if ToolManager.BackFill.FillType = vftSolid then
+                        ToolManager.BackColor := AColor;
     ctBackColorStartGrad: if ToolManager.BackFill.FillType = vftGradient then
                             ToolManager.BackFill.Gradient.StartColor := AColor;
     ctBackColorEndGrad: if ToolManager.BackFill.FillType = vftGradient then

@@ -16,6 +16,10 @@ begin
   VectorialFill_Back.OnTextureClick := @VectorialFill_TextureClick;
   VectorialFill_Pen.OnFillChange:=@VectorialFill_PenChange;
   VectorialFill_Back.OnFillChange:=@VectorialFill_BackChange;
+  VectorialFill_Pen.AutoSize := False;
+  VectorialFill_Back.AutoSize := False;
+  VectorialFill_Pen.OnFillTypeChange:=@VectorialFill_PenTypeChange;
+  VectorialFill_Back.OnFillTypeChange:=@VectorialFill_BackTypeChange;
   VectorialFill_Pen.OnResize:=@VectorialFill_PenResize;
   VectorialFill_Back.OnResize:=@VectorialFill_BackResize;
   Label_Pen.OnMouseMove:=@VectorialFill_ShowPenFill;
@@ -684,6 +688,8 @@ end;
 procedure TFMain.TimerHideFillTimer(Sender: TObject);
 begin
   TimerHideFill.Enabled := false;
+  VectorialFill_Pen.Height := VectorialFill_Pen.ToolIconSize + VectorialFill_Pen.VerticalPadding;
+  VectorialFill_Back.Height := VectorialFill_Back.ToolIconSize + VectorialFill_Back.VerticalPadding;
   Panel_PenFill.Height := Panel_SwapColor.Height;
   Panel_BackFill.Height := Panel_SwapColor.Height;
 end;
@@ -762,10 +768,31 @@ begin
   end;
 end;
 
+procedure TFMain.UpdateChooseColors;
+begin
+  if (VectorialFill_Back.FillType = vftSolid) and
+     (LazPaintInstance.ChooseColorTarget in [ctBackColorStartGrad,ctBackColorEndGrad]) then
+    LazPaintInstance.ChooseColorTarget := ctBackColorSolid else
+  if (VectorialFill_Back.FillType = vftGradient) and
+     (LazPaintInstance.ChooseColorTarget = ctBackColorSolid) then
+    LazPaintInstance.ChooseColorTarget := ctBackColorStartGrad else
+  if (VectorialFill_Pen.FillType = vftSolid) and
+     (LazPaintInstance.ChooseColorTarget in [ctForeColorStartGrad,ctForeColorEndGrad]) then
+    LazPaintInstance.ChooseColorTarget := ctForeColorSolid else
+  if (VectorialFill_Pen.FillType = vftGradient) and
+     (LazPaintInstance.ChooseColorTarget = ctForeColorSolid) then
+    LazPaintInstance.ChooseColorTarget := ctForeColorStartGrad else
+      LazPaintInstance.ColorToFChooseColor;
+end;
+
 procedure TFMain.SwitchColors;
 begin
-  ToolManager.SwapToolColors;
-  UpdateEditPicture;
+  if ToolManager.SwapToolColors then
+  begin
+    HideFill;
+    UpdateChooseColors;
+    UpdateEditPicture;
+  end;
 end;
 
 procedure TFMain.VectorialFill_BackChange(Sender: TObject);
@@ -785,24 +812,19 @@ begin
   end else
     VectorialFill_Back.UpdateFillExceptGeometry(ToolManager.BackFill);
 
-  if (VectorialFill_Back.FillType = vftSolid) and
-     (LazPaintInstance.ChooseColorTarget in [ctBackColorStartGrad,ctBackColorEndGrad]) then
-    LazPaintInstance.ChooseColorTarget := ctBackColorSolid else
-  if (VectorialFill_Back.FillType = vftGradient) and
-     (LazPaintInstance.ChooseColorTarget = ctBackColorSolid) then
-    LazPaintInstance.ChooseColorTarget := ctBackColorStartGrad else
-  if (VectorialFill_Back.FillType in [vftSolid,vftGradient]) and
-     (LazPaintInstance.ChooseColorTarget in
-     [ctBackColorSolid,ctBackColorStartGrad,ctBackColorEndGrad]) then
-      LazPaintInstance.ColorToFChooseColor;
+  UpdateChooseColors;
   UpdateEditPicture;
   FInFillChange:= false;
 end;
 
 procedure TFMain.VectorialFill_BackResize(Sender: TObject);
 begin
-  Panel_BackFill.Width := VectorialFill_Back.Left + VectorialFill_Back.Width + DoScaleX(6, OriginalDPI);
   QueryArrange;
+end;
+
+procedure TFMain.VectorialFill_BackTypeChange(Sender: TObject);
+begin
+  VectorialFill_Back.Width := VectorialFill_Back.PreferredSize.cx;
 end;
 
 procedure TFMain.VectorialFill_PenChange(Sender: TObject);
@@ -822,24 +844,19 @@ begin
   end else
     VectorialFill_Pen.UpdateFillExceptGeometry(ToolManager.ForeFill);
 
-  if (VectorialFill_Pen.FillType = vftSolid) and
-     (LazPaintInstance.ChooseColorTarget in [ctForeColorStartGrad,ctForeColorEndGrad]) then
-    LazPaintInstance.ChooseColorTarget := ctForeColorSolid else
-  if (VectorialFill_Pen.FillType = vftGradient) and
-     (LazPaintInstance.ChooseColorTarget = ctForeColorSolid) then
-    LazPaintInstance.ChooseColorTarget := ctForeColorStartGrad else
-  if (VectorialFill_Pen.FillType in [vftSolid,vftGradient]) and
-     (LazPaintInstance.ChooseColorTarget in
-     [ctForeColorSolid,ctForeColorStartGrad,ctForeColorEndGrad]) then
-      LazPaintInstance.ColorToFChooseColor;
+  UpdateChooseColors;
   UpdateEditPicture;
   FInFillChange:= false;
 end;
 
 procedure TFMain.VectorialFill_PenResize(Sender: TObject);
 begin
-  Panel_PenFill.Width := VectorialFill_Pen.Left + VectorialFill_Pen.Width + DoScaleX(6, OriginalDPI);
   QueryArrange;
+end;
+
+procedure TFMain.VectorialFill_PenTypeChange(Sender: TObject);
+begin
+  VectorialFill_Pen.Width := VectorialFill_Pen.PreferredSize.cx;
 end;
 
 procedure TFMain.VectorialFill_ShowBackFill(Sender: TObject;
@@ -1348,12 +1365,14 @@ end;
 
 procedure TFMain.ShowPenFill;
 begin
+  VectorialFill_Pen.Height := VectorialFill_Pen.PreferredSize.cy;
   Panel_PenFill.Height := VectorialFill_Pen.Top+VectorialFill_Pen.Height+DoScaleY(3, OriginalDPI);
   HideFill(3000, true);
 end;
 
 procedure TFMain.ShowBackFill;
 begin
+  VectorialFill_Back.Height := VectorialFill_Back.PreferredSize.cy;
   Panel_BackFill.Height := VectorialFill_Back.Top+VectorialFill_Back.height+DoScaleY(3, OriginalDPI);
   HideFill(3000, true);
 end;

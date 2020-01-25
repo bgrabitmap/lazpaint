@@ -35,7 +35,7 @@ const
 function StrToPaintToolType(const s: ansistring): TPaintToolType;
 
 type
-  TContextualToolbar = (ctFill, ctPenWidth, ctPenStyle, ctAliasing, ctShape, ctEraserOption, ctTolerance,
+  TContextualToolbar = (ctFill, ctBackFill, ctPenWidth, ctPenStyle, ctAliasing, ctShape, ctEraserOption, ctTolerance,
     ctDeformation, ctCloseShape, ctLineCap, ctJoinStyle, ctSplineStyle, ctText, ctTextShadow,
     ctPhong, ctAltitude, ctPerspective, ctBrush, ctRatio);
   TContextualToolbars = set of TContextualToolbar;
@@ -344,7 +344,7 @@ type
     function ScriptSetTolerance(AVars: TVariableSet): TScriptResult;
     procedure SetBrushIndex(AValue: integer);
     procedure SetBrushSpacing(AValue: integer);
-    function SetControlsVisible(Controls: TList; Visible: Boolean): boolean;
+    function SetControlsVisible(AControls: TList; AVisible: Boolean; AName: string = ''): boolean;
     procedure SetArrowEnd(AValue: TArrowKind);
     procedure SetArrowSize(AValue: TPointF);
     procedure SetArrowStart(AValue: TArrowKind);
@@ -436,7 +436,7 @@ type
     function GetRenderBounds(VirtualScreenWidth, VirtualScreenHeight: integer): TRect;
     function SuggestGradientBox: TAffineBox;
 
-    procedure SwapToolColors;
+    function SwapToolColors: boolean;
     procedure NeedBackGradient;
     procedure NeedForeGradient;
     procedure AddBrush(brush: TLazPaintBrush);
@@ -1032,12 +1032,12 @@ begin
   else result := false;
 end;
 
-function TToolManager.SetControlsVisible(Controls: TList; Visible: Boolean): boolean;
-  procedure SetVisibility(AControl: TControl);
+function TToolManager.SetControlsVisible(AControls: TList; AVisible: Boolean; AName: string): boolean;
+  procedure SetVisibility(AControl: TControl; AVisible: boolean);
   begin
-    if AControl.Visible <> Visible then
+    if AControl.Visible <> AVisible then
     begin
-      AControl.Visible := Visible;
+      AControl.Visible := AVisible;
       result := true;
     end;
   end;
@@ -1045,13 +1045,24 @@ function TToolManager.SetControlsVisible(Controls: TList; Visible: Boolean): boo
 var i: integer;
 begin
   result := false;
-  if Visible then
+  if AName <> '' then
   begin
-    for i := 0 to Controls.Count-1 do
-      SetVisibility(TObject(Controls[i]) as TControl);
+    for i := AControls.Count-1 downto 0 do
+      if (TObject(AControls[i]) as TControl).Name <> AName then
+        SetVisibility(TObject(AControls[i]) as TControl, False);
+    for i := 0 to AControls.Count-1 do
+      if (TObject(AControls[i]) as TControl).Name = AName then
+        SetVisibility(TObject(AControls[i]) as TControl, True);
   end else
-    for i := Controls.Count-1 downto 0 do
-      SetVisibility(TObject(Controls[i]) as TControl);
+  begin
+    if AVisible then
+    begin
+      for i := 0 to AControls.Count-1 do
+        SetVisibility(TObject(AControls[i]) as TControl, True);
+    end else
+      for i := AControls.Count-1 downto 0 do
+        SetVisibility(TObject(AControls[i]) as TControl, False);
+  end;
 end;
 
 procedure TToolManager.SetArrowEnd(AValue: TArrowKind);
@@ -2635,7 +2646,10 @@ begin
   else
     contextualToolbars := [ctFill];
 
-  OrResult(SetControlsVisible(FillControls, ctFill in contextualToolbars));
+  if ctBackFill in contextualToolbars then
+    OrResult(SetControlsVisible(FillControls, True, 'Panel_BackFill'))
+  else
+    OrResult(SetControlsVisible(FillControls, ctFill in contextualToolbars));
   OrResult(SetControlsVisible(BrushControls, ctBrush in contextualToolbars));
   OrResult(SetControlsVisible(ShapeControls, ctShape in contextualToolbars));
   OrResult(SetControlsVisible(PenWidthControls, (ctPenWidth in contextualToolbars) and (toDrawShape in ShapeOptions)));
@@ -2801,10 +2815,11 @@ begin
   end;
 end;
 
-procedure TToolManager.SwapToolColors;
+function TToolManager.SwapToolColors: boolean;
 var
   tmpFill: TVectorialFill;
 begin
+  result := false;
   if FInSwapFill then exit;
   if FForeFill.Equals(FBackFill) then exit;
   FInSwapFill:= true;
@@ -2824,6 +2839,7 @@ begin
   end;
   if Assigned(FOnFillChanged) then FOnFillChanged(self);
   FInSwapFill:= false;
+  result := true;
 end;
 
 procedure TToolManager.NeedBackGradient;

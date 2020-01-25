@@ -757,7 +757,7 @@ begin
         if TTextShape(shape).PenPhong then include(result, ctAltitude);
       end;
     end;
-  esmGradient: result := [ctFill];
+  esmGradient: result := [ctBackFill];
   end;
 end;
 

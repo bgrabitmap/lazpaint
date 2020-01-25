@@ -442,6 +442,7 @@ procedure TMainFormMenu.ArrangeToolbars(ClientWidth: integer);
 var i,j,k,curx,cury,maxh, w, minNextX, delta,
   tbNormalHeight: integer;
   tb: TPanel;
+  vfc: TLCVectorialFillControl;
 begin
    tbNormalHeight := GetIndividualToolbarHeight;
    curx := 0;
@@ -456,7 +457,15 @@ begin
        for j := 0 to tb.ControlCount-1 do
        begin
          tb.Controls[j].Top := 1;
-         tb.Controls[j].Height := tbNormalHeight-3;
+         if tb.Controls[j] is TLCVectorialFillControl then
+         begin
+           vfc := TLCVectorialFillControl(tb.Controls[j]);
+           if tb.Height < vfc.PreferredSize.cy then
+             vfc.Height := vfc.ToolIconSize + vfc.VerticalPadding
+           else
+             vfc.Height := vfc.PreferredSize.cy;
+         end else
+           tb.Controls[j].Height := tbNormalHeight-3;
          if tb.Controls[j] is TToolBar then
          begin
            minNextX := MaxLongInt;
@@ -471,11 +480,11 @@ begin
        end;
      end;
 
-     w := 2;
+     w := DoScaleX(4, OriginalDPI);
      for j := 0 to tb.ControlCount-1 do
        if tb.Controls[j].Visible then
          w := max(w, tb.Controls[j].Left + tb.Controls[j].Width);
-     w += 2;
+     w += DoScaleX(4, OriginalDPI);
      tb.Width := w;
 
      if tb.Visible then

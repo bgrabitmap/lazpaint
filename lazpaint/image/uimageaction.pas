@@ -624,7 +624,7 @@ end;
 procedure TImageActions.Redo;
 begin
   try
-    if CurrentTool in[ptTextureMapping,ptLayerMapping,ptMoveSelection,ptRotateSelection] then
+    if CurrentTool in[ptLayerMapping,ptMoveSelection,ptRotateSelection] then
       ChooseTool(ptHand);
     if image.CanRedo then
     begin
@@ -743,7 +743,7 @@ begin
     else
       newSelection := LoadFlatImageUTF8(AFilenameUTF8).bmp;
     newSelection.InplaceGrayscale;
-    if not (CurrentTool in[ptDeformation,ptTextureMapping,ptLayerMapping,ptMoveSelection,ptRotateSelection]) then
+    if not (CurrentTool in[ptDeformation,ptLayerMapping,ptMoveSelection,ptRotateSelection]) then
       ChooseTool(ptMoveSelection);
 
     if Image.CheckNoAction then
@@ -775,7 +775,7 @@ begin
       FInstance.ShowMessage(rsCrop, rsEmptySelection);
       exit;
     end;
-    if (CurrentTool in[ptRotateSelection,ptMoveSelection,ptDeformation,ptTextureMapping,ptLayerMapping]) then
+    if (CurrentTool in[ptRotateSelection,ptMoveSelection,ptDeformation,ptLayerMapping]) then
       ChooseTool(ptHand);
     partial := image.MakeCroppedLayer;
     if partial <> nil then
@@ -964,7 +964,7 @@ var
 begin
   if (ABitmap <> nil) and (ABitmap.Width > 0) and (ABitmap.Height > 0) then
   begin
-    if CurrentTool in [ptDeformation,ptRotateSelection,ptMoveSelection,ptTextureMapping,
+    if CurrentTool in [ptDeformation,ptRotateSelection,ptMoveSelection,
          ptLayerMapping,ptEditShape] then
       ChooseTool(ptHand);
     if image.CheckNoAction then
@@ -1021,7 +1021,7 @@ function TImageActions.AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal;
 begin
   if AOriginal <> nil then
   begin
-    if CurrentTool in [ptDeformation,ptRotateSelection,ptMoveSelection,ptTextureMapping,
+    if CurrentTool in [ptDeformation,ptRotateSelection,ptMoveSelection,
          ptLayerMapping,ptEditShape] then
       ChooseTool(ptHand);
     if image.CheckNoAction then
@@ -1465,7 +1465,7 @@ begin
   end;}
   if image.NbLayers < MaxLayersToAdd then
   begin
-    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptTextureMapping,ptDeformation] then
+    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptDeformation] then
       ChooseTool(ptHand);
     ToolManager.ToolCloseDontReopen;
     Image.AddNewLayer;
@@ -1481,7 +1481,7 @@ function TImageActions.NewLayer(ALayer: TBGRABitmap; AName: string;
 begin
   if image.NbLayers < MaxLayersToAdd then
   begin
-    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptTextureMapping,ptDeformation] then
+    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptDeformation] then
       ChooseTool(ptHand);
     ToolManager.ToolCloseDontReopen;
     Image.AddNewLayer(ALayer, AName, ABlendOp);
@@ -1501,7 +1501,7 @@ function TImageActions.NewLayer(ALayer: TBGRALayerCustomOriginal;
 begin
   if image.NbLayers < MaxLayersToAdd then
   begin
-    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptTextureMapping,ptDeformation] then
+    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptDeformation] then
       ChooseTool(ptHand);
     ToolManager.ToolCloseDontReopen;
     Image.AddNewLayer(ALayer, AName, ABlendOp, AMatrix);
@@ -1529,7 +1529,7 @@ end;
 
 procedure TImageActions.RasterizeLayer;
 begin
-  if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptTextureMapping,ptDeformation] then
+  if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptDeformation] then
     ChooseTool(ptHand);
   ToolManager.ToolCloseDontReopen;
   Image.RasterizeLayer;
@@ -1553,7 +1553,7 @@ begin
   if (Image.CurrentLayerIndex <> -1) and (Image.NbLayers > 1) then
   begin
     idx := Image.CurrentLayerIndex;
-    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptTextureMapping,ptDeformation] then
+    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptDeformation] then
       ChooseTool(ptHand);
     ToolManager.ToolCloseDontReopen;
     Image.RemoveLayer;

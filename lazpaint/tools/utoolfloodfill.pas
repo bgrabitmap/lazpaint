@@ -100,7 +100,7 @@ end;
 
 function TToolGradient.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctFill];
+  Result:= [ctBackFill];
 end;
 
 function TToolGradient.SlowShape: boolean;

@@ -675,8 +675,10 @@ type
     procedure ManagerToolbarChanged(Sender: TObject);
     procedure VectorialFill_BackChange(Sender: TObject);
     procedure VectorialFill_BackResize(Sender: TObject);
+    procedure VectorialFill_BackTypeChange(Sender: TObject);
     procedure VectorialFill_PenChange(Sender: TObject);
     procedure VectorialFill_PenResize(Sender: TObject);
+    procedure VectorialFill_PenTypeChange(Sender: TObject);
     procedure VectorialFill_ShowBackFill(Sender: TObject; Shift: TShiftState;
       X, Y: Integer);
     procedure VectorialFill_ShowPenFill(Sender: TObject; Shift: TShiftState; X,
@@ -741,6 +743,7 @@ type
     function GetCurrentToolAction: TAction;
     procedure RegisterToolbarElements;
     procedure InitToolbarElements;
+    procedure UpdateChooseColors;
     procedure UpdateToolOptions;
     procedure UpdateEraserToolbar;
     procedure UpdatePenStyleToolbar;
@@ -2510,7 +2513,7 @@ begin
     CanClose := false;
     exit;
   end;
-  if CurrentTool in [ptDeformation,ptLayerMapping,ptTextureMapping] then
+  if CurrentTool in [ptDeformation,ptLayerMapping] then
     ChooseTool(ptHand)
   else
     if not Image.CheckNoAction then
@@ -3988,7 +3991,7 @@ var
   procedure StartImport;
   begin
     ToolManager.ToolCloseDontReopen;
-    if (CurrentTool in [ptDeformation,ptRotateSelection,ptMoveSelection,ptTextureMapping,ptLayerMapping])
+    if (CurrentTool in [ptDeformation,ptRotateSelection,ptMoveSelection,ptLayerMapping])
      or ((CurrentTool = ptHotSpot) and (format <> ifCur)) then
       ChooseTool(ptHand);
     ShowNoPicture;
