@@ -6,7 +6,6 @@ begin
   FToolbarElementsInitDone:= true;
 
   Panel_ToolbarBackground.PopupMenu := PopupToolbar;
-  Perspective_Repeat.OnClick := @Perspective_RepeatClick;
   Perspective_TwoPlanes.OnClick := @Perspective_TwoPlanesClick;
   VectorialFill_Pen.VerticalPadding:= DoScaleY(6, OriginalDPI);
   VectorialFill_Back.VerticalPadding:= DoScaleY(6, OriginalDPI);
@@ -371,7 +370,6 @@ end;
 procedure TFMain.UpdatePerspectiveToolbar;
 begin
   if FInPerspective then exit;
-  Perspective_Repeat.Down := poRepeat in ToolManager.PerspectiveOptions;
   Perspective_TwoPlanes.Down := poTwoPlanes in ToolManager.PerspectiveOptions;
 end;
 
@@ -740,26 +738,12 @@ begin
   end;
 end;
 
-procedure TFMain.Perspective_RepeatClick(Sender: TObject);
-begin
-  if initialized then
-  begin
-    FInPerspective:= true;
-    if Perspective_Repeat.Down then
-      ToolManager.PerspectiveOptions := ToolManager.PerspectiveOptions + [poRepeat]
-    else
-      ToolManager.PerspectiveOptions := ToolManager.PerspectiveOptions - [poRepeat];
-    FInPerspective:= false;
-    UpdateEditPicture;
-  end;
-end;
-
 procedure TFMain.Perspective_TwoPlanesClick(Sender: TObject);
 begin
   if initialized then
   begin
     FInPerspective:= true;
-    if Perspective_Repeat.Down then
+    if Perspective_TwoPlanes.Down then
       ToolManager.PerspectiveOptions := ToolManager.PerspectiveOptions + [poTwoPlanes]
     else
       ToolManager.PerspectiveOptions := ToolManager.PerspectiveOptions - [poTwoPlanes];

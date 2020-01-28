@@ -1,7 +1,7 @@
 object FMain: TFMain
-  Left = 420
+  Left = 406
   Height = 597
-  Top = 0
+  Top = 113
   Width = 739
   AllowDropFiles = True
   Caption = 'LazPaint'
@@ -198,7 +198,7 @@ object FMain: TFMain
     end
   end
   object Panel_ColorDiff: TPanel
-    Left = 256
+    Left = 296
     Height = 36
     Top = 56
     Width = 40
@@ -2277,12 +2277,12 @@ object FMain: TFMain
     end
   end
   object Panel_PerspectiveOption: TPanel
-    Left = 528
+    Left = 479
     Height = 36
-    Top = 248
-    Width = 51
+    Top = 152
+    Width = 32
     ClientHeight = 36
-    ClientWidth = 51
+    ClientWidth = 32
     Font.Height = -12
     ParentColor = False
     ParentFont = False
@@ -2291,7 +2291,7 @@ object FMain: TFMain
       Left = 1
       Height = 22
       Top = 1
-      Width = 47
+      Width = 24
       Align = alNone
       AutoSize = True
       EdgeBorders = []
@@ -2299,15 +2299,8 @@ object FMain: TFMain
       Images = ImageList16
       ParentFont = False
       TabOrder = 0
-      object Perspective_Repeat: TToolButton
-        Left = 1
-        Hint = 'Repeat image'
-        Top = 0
-        ImageIndex = 88
-        Style = tbsCheck
-      end
       object Perspective_TwoPlanes: TToolButton
-        Left = 24
+        Left = 1
         Hint = 'Draw opposite plane too'
         Top = 0
         ImageIndex = 89
@@ -2576,9 +2569,9 @@ object FMain: TFMain
     end
   end
   object Panel_Ratio: TPanel
-    Left = 320
+    Left = 288
     Height = 36
-    Top = 149
+    Top = 152
     Width = 147
     ClientHeight = 36
     ClientWidth = 147
@@ -2619,7 +2612,7 @@ object FMain: TFMain
     end
   end
   object Panel_Aliasing: TPanel
-    Left = 325
+    Left = 344
     Height = 36
     Top = 56
     Width = 29
@@ -2970,9 +2963,9 @@ object FMain: TFMain
     Left = 8
     Height = 36
     Top = 56
-    Width = 96
+    Width = 112
     ClientHeight = 36
-    ClientWidth = 96
+    ClientWidth = 112
     Font.Height = -12
     ParentColor = False
     ParentFont = False
@@ -2994,14 +2987,15 @@ object FMain: TFMain
       Left = 29
       Height = 40
       Top = 1
-      Width = 64
+      Width = 80
       AutoSize = True
       ToolIconSize = 16
+      VerticalPadding = 4
       AllowedFillTypes = [vftSolid, vftGradient, vftTexture]
     end
   end
   object Panel_SwapColor: TPanel
-    Left = 112
+    Left = 128
     Height = 36
     Top = 56
     Width = 26
@@ -3056,12 +3050,12 @@ object FMain: TFMain
     end
   end
   object Panel_BackFill: TPanel
-    Left = 144
+    Left = 162
     Height = 36
     Top = 56
-    Width = 105
+    Width = 118
     ClientHeight = 36
-    ClientWidth = 105
+    ClientWidth = 118
     Font.Height = -12
     ParentColor = False
     ParentFont = False
@@ -3083,9 +3077,10 @@ object FMain: TFMain
       Left = 37
       Height = 40
       Top = 1
-      Width = 64
+      Width = 80
       AutoSize = True
       ToolIconSize = 16
+      VerticalPadding = 4
       AllowedFillTypes = [vftSolid, vftGradient, vftTexture]
     end
   end

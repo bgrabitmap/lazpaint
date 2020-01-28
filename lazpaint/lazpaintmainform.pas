@@ -168,7 +168,6 @@ type
     MenuHelp: TMenuItem;
     Open3DObjectDialog: TOpenDialog;
     Panel_PerspectiveOption: TPanel;
-    Perspective_Repeat: TToolButton;
     Perspective_TwoPlanes: TToolButton;
     ToolBar18: TToolBar;
     ToolBar19: TToolBar;
@@ -518,7 +517,6 @@ type
     procedure LayerRotateUpdate(Sender: TObject);
     procedure ItemDonateClick(Sender: TObject);
     procedure PaintBox_PictureMouseEnter(Sender: TObject);
-    procedure Perspective_RepeatClick(Sender: TObject);
     procedure Perspective_TwoPlanesClick(Sender: TObject);
     procedure SpinEdit_ShapeAltitudeChange(Sender: TObject; AByUser: boolean);
     procedure SpinEdit_BrushSpacingChange(Sender: TObject; AByUser: boolean);
