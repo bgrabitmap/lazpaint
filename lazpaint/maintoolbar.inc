@@ -19,6 +19,8 @@ begin
   VectorialFill_Back.AutoSize := False;
   VectorialFill_Pen.OnFillTypeChange:=@VectorialFill_PenTypeChange;
   VectorialFill_Back.OnFillTypeChange:=@VectorialFill_BackTypeChange;
+  VectorialFill_Pen.OnAdjustToShape:=@VectorialFill_PenAdjustToShape;
+  VectorialFill_Back.OnAdjustToShape:=@VectorialFill_BackAdjustToShape;
   VectorialFill_Pen.OnResize:=@VectorialFill_PenResize;
   VectorialFill_Back.OnResize:=@VectorialFill_BackResize;
   Label_Pen.OnMouseMove:=@VectorialFill_ShowPenFill;
@@ -809,6 +811,16 @@ end;
 procedure TFMain.VectorialFill_BackTypeChange(Sender: TObject);
 begin
   VectorialFill_Back.Width := VectorialFill_Back.PreferredSize.cx;
+end;
+
+procedure TFMain.VectorialFill_BackAdjustToShape(Sender: TObject);
+begin
+  ToolManager.ToolCommand(tcBackAdjustToShape);
+end;
+
+procedure TFMain.VectorialFill_PenAdjustToShape(Sender: TObject);
+begin
+  ToolManager.ToolCommand(tcPenAdjustToShape);
 end;
 
 procedure TFMain.VectorialFill_PenChange(Sender: TObject);

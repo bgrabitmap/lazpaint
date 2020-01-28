@@ -1234,6 +1234,8 @@ begin
           tcAlignLeft..tcAlignBottom: AlignShape(GetVectorOriginal.SelectedShape, ACommand,
                        Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex],
                        rect(0,0,Manager.Image.Width,Manager.Image.Height));
+          tcPenAdjustToShape: GetVectorOriginal.SelectedShape.PenFill.FitGeometry(SuggestGradientBox);
+          tcBackAdjustToShape: GetVectorOriginal.SelectedShape.BackFill.FitGeometry(SuggestGradientBox);
           tcShapeToSpline: result := ConvertToSpline;
           else result := false;
         end;
@@ -1243,6 +1245,7 @@ begin
     esmGradient:
       begin
         case ACommand of
+          tcBackAdjustToShape: GetGradientOriginal.FitGeometry(SuggestGradientBox);
           tcCut,tcCopy: begin
             s := TRectShape.Create(nil);
             try
@@ -1319,7 +1322,9 @@ end;
 function TEditShapeTool.ToolProvideCommand(ACommand: TToolCommand): boolean;
 begin
   case ACommand of
-  tcCut,tcCopy,tcDelete: result:= GetEditMode in[esmShape,esmOtherOriginal,esmGradient];
+  tcCut,tcCopy,tcDelete: result:= GetEditMode in [esmShape,esmOtherOriginal,esmGradient];
+  tcPenAdjustToShape: result := GetEditMode = esmShape;
+  tcBackAdjustToShape: result := GetEditMode in [esmShape,esmGradient];
   tcShapeToSpline: result:= (GetEditMode = esmShape)
                             and TCurveShape.CanCreateFrom(GetVectorOriginal.SelectedShape);
   tcAlignLeft..tcAlignBottom: result:= GetEditMode in [esmShape, esmOtherOriginal, esmSelection];
@@ -1926,6 +1931,8 @@ begin
         Action.NotifyChange(toolDest, r);
         result := true;
       end;
+  tcPenAdjustToShape: if Assigned(FShape) then FShape.PenFill.FitGeometry(SuggestGradientBox);
+  tcBackAdjustToShape: if Assigned(FShape) then FShape.BackFill.FitGeometry(SuggestGradientBox);
   tcFinish: begin
               toolDest := GetToolDrawingLayer;
               r := ValidateShape;
@@ -1950,6 +1957,7 @@ begin
   case ACommand of
   tcCopy,tcCut: Result:= not IsSelectingTool and not FQuickDefine and Assigned(FShape);
   tcFinish: result := not IsIdle;
+  tcPenAdjustToShape, tcBackAdjustToShape: result := not IsSelectingTool and Assigned(FShape);
   tcShapeToSpline: result:= not IsSelectingTool and not FQuickDefine and Assigned(FShape)
                             and TCurveShape.CanCreateFrom(FShape);
   tcAlignLeft..tcAlignBottom: Result:= not FQuickDefine and Assigned(FShape);
