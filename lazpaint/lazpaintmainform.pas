@@ -1141,6 +1141,8 @@ begin
   LazPaintInstance.ShowTopmost(FTopMostInfo);
   if Position = poDefault then LazPaintInstance.RestoreMainWindowPosition;
 
+  VectorialFill_Pen.Width := VectorialFill_Pen.PreferredSize.Width;
+  VectorialFill_Back.Width := VectorialFill_Back.PreferredSize.Width;
   ToolManager.UpdateContextualToolbars;
   UpdateToolImage;
   UpdateToolBar;
