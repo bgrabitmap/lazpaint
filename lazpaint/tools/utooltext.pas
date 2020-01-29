@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, UTool, UToolVectorial, LCLType, Graphics, BGRABitmap, BGRABitmapTypes, BGRATextFX,
-  BGRAGradients, LCVectorOriginal;
+  BGRAGradients, LCVectorOriginal, LCVectorialFill;
 
 type
 
@@ -29,6 +29,10 @@ type
     function SlowShape: boolean; override;
     procedure QuickDefineEnd; override;
     function RoundCoordinate(ptF: TPointF): TPointF; override;
+    function ForeGradTexMode: TVectorShapeUsermode; override;
+    function BackGradTexMode: TVectorShapeUsermode; override;
+    function ShapeForeFill: TVectorialFill; override;
+    function ShapeBackFill: TVectorialFill; override;
   public
     constructor Create(AManager: TToolManager); override;
     function GetContextualToolbars: TContextualToolbars; override;
@@ -203,6 +207,38 @@ end;
 function TToolText.RoundCoordinate(ptF: TPointF): TPointF;
 begin
   result := PointF(floor(ptF.x)+0.5,floor(ptF.y)+0.5);
+end;
+
+function TToolText.ForeGradTexMode: TVectorShapeUsermode;
+begin
+  if FSwapColor then result := vsuEditOutlineFill else
+    result := vsuEditPenFill;
+end;
+
+function TToolText.BackGradTexMode: TVectorShapeUsermode;
+begin
+  if FSwapColor then result := vsuEditPenFill else
+    result := vsuEditOutlineFill;
+end;
+
+function TToolText.ShapeForeFill: TVectorialFill;
+begin
+  if Assigned(FShape) then
+  begin
+    if FSwapColor then result := FShape.OutlineFill else
+      result := FShape.PenFill;
+  end else
+    result := nil;
+end;
+
+function TToolText.ShapeBackFill: TVectorialFill;
+begin
+  if Assigned(FShape) then
+  begin
+    if FSwapColor then result := FShape.PenFill else
+      result := FShape.OutlineFill;
+  end else
+    result := nil;
 end;
 
 constructor TToolText.Create(AManager: TToolManager);

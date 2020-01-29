@@ -25,6 +25,7 @@ type
     function GetAllowedFillTypes: TVectorialFillTypes;
     function GetAverageColor: TBGRAPixel;
     function GetCanAdjustToShape: boolean;
+    function GetCanEditGradTexPoints: boolean;
     function GetFillType: TVectorialFillType;
     function GetGradEndColor: TBGRAPixel;
     function GetGradInterp: TBGRAColorInterpolation;
@@ -48,6 +49,7 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure SetAllowedFillTypes(AValue: TVectorialFillTypes);
     procedure SetCanAdjustToShape(AValue: boolean);
+    procedure SetCanEditGradTexPoints(AValue: boolean);
     procedure SetFillType(AValue: TVectorialFillType);
     procedure SetGradEndColor(AValue: TBGRAPixel);
     procedure SetGradientType(AValue: TGradientType);
@@ -65,6 +67,7 @@ type
   protected
     FInterface: TVectorialFillInterface;
     FOnAdjustToShape: TNotifyEvent;
+    FOnEditGradTexPoints: TNotifyEvent;
     FOnChooseColor: TChooseColorEvent;
     FOnFillChange: TNotifyEvent;
     FOnFillTypeChange: TNotifyEvent;
@@ -73,6 +76,7 @@ type
     procedure CalculatePreferredSize(var PreferredWidth, PreferredHeight: integer;
       {%H-}WithThemeSpace: Boolean); override;
     procedure DoOnAdjustToShape(Sender: TObject);
+    procedure DoOnEditGradTexPoints(Sender: TObject);
     procedure DoOnFillChange(Sender: TObject);
     procedure DoOnFillTypeChange(Sender: TObject);
     procedure DoOnTextureClick(Sender: TObject);
@@ -108,10 +112,12 @@ type
     property ToolIconSize: integer read GetToolIconSize write SetToolIconSize;
     property VerticalPadding: integer read GetVerticalPadding write SetVerticalPadding;
     property AllowedFillTypes: TVectorialFillTypes read GetAllowedFillTypes write SetAllowedFillTypes;
+    property CanEditGradTexPoints: boolean read GetCanEditGradTexPoints write SetCanEditGradTexPoints;
     property OnChooseColor: TChooseColorEvent read FOnChooseColor write SetOnChooseColor;
     property OnFillChange: TNotifyEvent read FOnFillChange write FOnFillChange;
     property OnTextureChange: TNotifyEvent read FOnTextureChange write FOnTextureChange;
     property OnAdjustToShape: TNotifyEvent read FOnAdjustToShape write FOnAdjustToShape;
+    property OnEditGradTexPoints: TNotifyEvent read FOnEditGradTexPoints write FOnEditGradTexPoints;
     property OnFillTypeChange: TNotifyEvent read FOnFillTypeChange write FOnFillTypeChange;
     property OnTextureClick: TNotifyEvent read FOnTextureClick write SetOnTextureClick;
     property OnMouseDown;
@@ -159,6 +165,11 @@ end;
 function TLCVectorialFillControl.GetCanAdjustToShape: boolean;
 begin
   result := FInterface.CanAdjustToShape;
+end;
+
+function TLCVectorialFillControl.GetCanEditGradTexPoints: boolean;
+begin
+  result := FInterface.CanEditGradTexPoints;
 end;
 
 function TLCVectorialFillControl.GetFillType: TVectorialFillType;
@@ -267,6 +278,11 @@ begin
   FInterface.CanAdjustToShape := AValue;
 end;
 
+procedure TLCVectorialFillControl.SetCanEditGradTexPoints(AValue: boolean);
+begin
+  FInterface.CanEditGradTexPoints:= AValue;
+end;
+
 procedure TLCVectorialFillControl.SetFillType(AValue: TVectorialFillType);
 begin
   FInterface.FillType := AValue;
@@ -361,6 +377,11 @@ begin
   if Assigned(FOnAdjustToShape) then FOnAdjustToShape(self);
 end;
 
+procedure TLCVectorialFillControl.DoOnEditGradTexPoints(Sender: TObject);
+begin
+  if Assigned(FOnEditGradTexPoints) then FOnEditGradTexPoints(self);
+end;
+
 procedure TLCVectorialFillControl.DoOnFillChange(Sender: TObject);
 begin
   if Assigned(FOnFillChange) then FOnFillChange(self);
@@ -393,6 +414,7 @@ begin
   FInterface.OnFillChange:=@DoOnFillChange;
   FInterface.OnTextureChange:=@DoOnTextureChange;
   FInterface.OnAdjustToShape:=@DoOnAdjustToShape;
+  FInterface.OnEditGradTexPoints:=@DoOnEditGradTexPoints;
   FInterface.OnFillTypeChange:=@DoOnFillTypeChange;
   FInterface.OnMouseMove:=@InterfaceMouseMove;
   FInterface.OnMouseDown:=@InterfaceMouseDown;

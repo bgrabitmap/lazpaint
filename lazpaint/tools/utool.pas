@@ -47,7 +47,7 @@ type
   TEraserMode = (emEraseAlpha, emSoften);
   TToolCommand = (tcCut, tcCopy, tcPaste, tcDelete, tcFinish, tcMoveUp, tcMoveDown, tcMoveToFront, tcMoveToBack,
     tcAlignLeft, tcCenterHorizontally, tcAlignRight, tcAlignTop, tcCenterVertically, tcAlignBottom,
-    tcShapeToSpline, tcPenAdjustToShape, tcBackAdjustToShape);
+    tcShapeToSpline, tcForeAdjustToShape, tcBackAdjustToShape, tcForeEditGradTexPoints, tcBackEditGradTexPoints);
 
   TDeformationGridMode = (gmDeform, gmMovePointWithoutDeformation);
 

@@ -62,6 +62,10 @@ type
     procedure UpdateUseOriginal;
     function ReplaceLayerAndAddShape(out ARect: TRect): TCustomImageDifference; virtual;
     procedure ShapeValidated; virtual;
+    function ForeGradTexMode: TVectorShapeUsermode; virtual;
+    function BackGradTexMode: TVectorShapeUsermode; virtual;
+    function ShapeForeFill: TVectorialFill; virtual;
+    function ShapeBackFill: TVectorialFill; virtual;
   public
     function ValidateShape: TRect;
     function CancelShape: TRect;
@@ -125,6 +129,10 @@ type
     function ConvertToSpline: boolean;
     function GetEditMode: TEditShapeMode;
     function InvalidEditMode: boolean;
+    function ForeGradTexMode: TVectorShapeUsermode; virtual;
+    function BackGradTexMode: TVectorShapeUsermode; virtual;
+    function ShapeForeFill: TVectorialFill; virtual;
+    function ShapeBackFill: TVectorialFill; virtual;
   public
     constructor Create(AManager: TToolManager); override;
     destructor Destroy; override;
@@ -916,6 +924,37 @@ begin
     result := false;
 end;
 
+function TEditShapeTool.ForeGradTexMode: TVectorShapeUsermode;
+begin
+  result := vsuEditPenFill;
+end;
+
+function TEditShapeTool.BackGradTexMode: TVectorShapeUsermode;
+begin
+  if (GetEditMode = esmShape) and (GetVectorOriginal.SelectedShape is TTextShape) then
+    result := vsuEditOutlineFill
+  else
+    result := vsuEditBackFill;
+end;
+
+function TEditShapeTool.ShapeForeFill: TVectorialFill;
+begin
+  if GetEditMode = esmShape then result := GetVectorOriginal.SelectedShape.PenFill
+  else result := nil;
+end;
+
+function TEditShapeTool.ShapeBackFill: TVectorialFill;
+begin
+  if GetEditMode = esmShape then
+  begin
+    if GetVectorOriginal.SelectedShape is TTextShape then
+      result := GetVectorOriginal.SelectedShape.OutlineFill
+    else
+      result := GetVectorOriginal.SelectedShape.BackFill;
+  end
+  else result := nil;
+end;
+
 constructor TEditShapeTool.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
@@ -1240,8 +1279,14 @@ begin
           tcAlignLeft..tcAlignBottom: AlignShape(GetVectorOriginal.SelectedShape, ACommand,
                        Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex],
                        rect(0,0,Manager.Image.Width,Manager.Image.Height));
-          tcPenAdjustToShape: GetVectorOriginal.SelectedShape.PenFill.FitGeometry(SuggestGradientBox);
-          tcBackAdjustToShape: GetVectorOriginal.SelectedShape.BackFill.FitGeometry(SuggestGradientBox);
+          tcForeEditGradTexPoints: if GetVectorOriginal.SelectedShape.Usermode = ForeGradTexMode then
+                                    GetVectorOriginal.SelectedShape.Usermode := vsuEdit else
+                                    GetVectorOriginal.SelectedShape.Usermode := ForeGradTexMode;
+          tcBackEditGradTexPoints: if GetVectorOriginal.SelectedShape.Usermode = BackGradTexMode then
+                                    GetVectorOriginal.SelectedShape.Usermode := vsuEdit else
+                                    GetVectorOriginal.SelectedShape.Usermode := BackGradTexMode;
+          tcForeAdjustToShape: ShapeForeFill.FitGeometry(SuggestGradientBox);
+          tcBackAdjustToShape: ShapeBackFill.FitGeometry(SuggestGradientBox);
           tcShapeToSpline: result := ConvertToSpline;
           else result := false;
         end;
@@ -1329,8 +1374,12 @@ function TEditShapeTool.ToolProvideCommand(ACommand: TToolCommand): boolean;
 begin
   case ACommand of
   tcCut,tcCopy,tcDelete: result:= GetEditMode in [esmShape,esmOtherOriginal,esmGradient];
-  tcPenAdjustToShape: result := GetEditMode = esmShape;
+  tcForeAdjustToShape: result := GetEditMode = esmShape;
   tcBackAdjustToShape: result := GetEditMode in [esmShape,esmGradient];
+  tcForeEditGradTexPoints: result := (GetEditMode = esmShape) and
+                     (ForeGradTexMode in GetVectorOriginal.SelectedShape.Usermodes);
+  tcBackEditGradTexPoints: result := (GetEditMode = esmShape) and
+                     (BackGradTexMode in GetVectorOriginal.SelectedShape.Usermodes);
   tcShapeToSpline: result:= (GetEditMode = esmShape)
                             and TCurveShape.CanCreateFrom(GetVectorOriginal.SelectedShape);
   tcAlignLeft..tcAlignBottom: result:= GetEditMode in [esmShape, esmOtherOriginal, esmSelection];
@@ -1475,6 +1524,38 @@ end;
 procedure TVectorialTool.ShapeValidated;
 begin
   //nothing
+end;
+
+function TVectorialTool.ForeGradTexMode: TVectorShapeUsermode;
+begin
+  if FSwapColor then result := vsuEditBackFill else
+    result := vsuEditPenFill;
+end;
+
+function TVectorialTool.BackGradTexMode: TVectorShapeUsermode;
+begin
+  if FSwapColor then result := vsuEditPenFill else
+    result := vsuEditBackFill;
+end;
+
+function TVectorialTool.ShapeForeFill: TVectorialFill;
+begin
+  if Assigned(FShape) then
+  begin
+    if FSwapColor then result := FShape.BackFill else
+      result := FShape.PenFill;
+  end else
+    result := nil;
+end;
+
+function TVectorialTool.ShapeBackFill: TVectorialFill;
+begin
+  if Assigned(FShape) then
+  begin
+    if FSwapColor then result := FShape.PenFill else
+      result := FShape.BackFill;
+  end else
+    result := nil;
 end;
 
 function TVectorialTool.ValidateShape: TRect;
@@ -1937,8 +2018,20 @@ begin
         Action.NotifyChange(toolDest, r);
         result := true;
       end;
-  tcPenAdjustToShape: if Assigned(FShape) then FShape.PenFill.FitGeometry(SuggestGradientBox);
-  tcBackAdjustToShape: if Assigned(FShape) then FShape.BackFill.FitGeometry(SuggestGradientBox);
+  tcForeAdjustToShape: if Assigned(FShape) then ShapeForeFill.FitGeometry(SuggestGradientBox);
+  tcBackAdjustToShape: if Assigned(FShape) then ShapeBackFill.FitGeometry(SuggestGradientBox);
+  tcForeEditGradTexPoints: if Assigned(FShape) and not FQuickDefine then
+                          begin
+                            if FShape.Usermode = ForeGradTexMode then
+                              FShape.Usermode := vsuEdit else
+                              FShape.Usermode := ForeGradTexMode;
+                          end;
+  tcBackEditGradTexPoints: if Assigned(FShape) and not FQuickDefine then
+                          begin
+                            if FShape.Usermode = BackGradTexMode then
+                              FShape.Usermode := vsuEdit else
+                              FShape.Usermode := BackGradTexMode;
+                          end;
   tcFinish: begin
               toolDest := GetToolDrawingLayer;
               r := ValidateShape;
@@ -1963,7 +2056,11 @@ begin
   case ACommand of
   tcCopy,tcCut: Result:= not IsSelectingTool and not FQuickDefine and Assigned(FShape);
   tcFinish: result := not IsIdle;
-  tcPenAdjustToShape, tcBackAdjustToShape: result := not IsSelectingTool and Assigned(FShape);
+  tcForeAdjustToShape, tcBackAdjustToShape: result := not IsSelectingTool and Assigned(FShape) and not FQuickDefine;
+  tcForeEditGradTexPoints: result := not IsSelectingTool and Assigned(FShape) and not FQuickDefine and
+                            (vsuEditPenFill in FShape.Usermodes);
+  tcBackEditGradTexPoints: result := not IsSelectingTool and Assigned(FShape) and not FQuickDefine and
+                            (vsuEditPenFill in FShape.Usermodes);
   tcShapeToSpline: result:= not IsSelectingTool and not FQuickDefine and Assigned(FShape)
                             and TCurveShape.CanCreateFrom(FShape);
   tcAlignLeft..tcAlignBottom: Result:= not FQuickDefine and Assigned(FShape);

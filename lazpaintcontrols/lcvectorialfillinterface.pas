@@ -25,13 +25,16 @@ type
 
   TVectorialFillInterface = class(TComponent)
   private
+    FCanEditGradTexPoints: boolean;
     FOnMouseDown: TMouseEvent;
     FOnMouseEnter: TNotifyEvent;
     FOnMouseLeave: TNotifyEvent;
     FOnMouseMove: TMouseMoveEvent;
     FOnMouseUp: TMouseEvent;
+    procedure EditGradTextPointsClick(Sender: TObject);
     procedure Preview_MouseUp(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; X, {%H-}Y: Integer);
+    procedure SetCanEditGradTexPoints(AValue: boolean);
     procedure SetVerticalPadding(AValue: integer);
     procedure ToolbarMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -74,8 +77,8 @@ type
     FButtonFillNone, FButtonFillSolid,
     FButtonFillGradient, FButtonFillTexture: TToolButton;
     FOnFillChange, FOnFillTypeChange: TNotifyEvent;
-    FButtonAdjustToShape: TToolButton;
-    FOnAdjustToShape: TNotifyEvent;
+    FButtonEditGradTexPoints, FButtonAdjustToShape: TToolButton;
+    FOnEditGradTexPoints, FOnAdjustToShape: TNotifyEvent;
 
     FSolidColorInterfaceCreated: boolean;
     FShapeSolidColor: TShape;
@@ -142,6 +145,7 @@ type
 //    procedure ShapeStartColorMouseUp({%H-}Sender: TObject; {%H-}Button: TMouseButton;
 //      {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure UpdateAccordingToFillType;
+    procedure UpdateTopToolbar;
     procedure UpdatePreview;
     procedure UpdateShapeSolidColor;
     procedure UpdateTextureParams;
@@ -187,10 +191,12 @@ type
     property TextureRepetition: TTextureRepetition read FTexRepetition write SetTextureRepetition;
     property TextureOpacity: byte read FTexOpacity write SetTextureOpacity;
     property CanAdjustToShape: boolean read FCanAdjustToShape write SetCanAdjustToShape;
+    property CanEditGradTexPoints: boolean read FCanEditGradTexPoints write SetCanEditGradTexPoints;
     property OnFillChange: TNotifyEvent read FOnFillChange write FOnFillChange;
     property OnTextureChange: TNotifyEvent read FOnTextureChange write FOnTextureChange;
     property OnTextureClick: TNotifyEvent read FOnTextureClick write SetOnTextureClick;
     property OnAdjustToShape: TNotifyEvent read FOnAdjustToShape write FOnAdjustToShape;
+    property OnEditGradTexPoints: TNotifyEvent read FOnEditGradTexPoints write FOnEditGradTexPoints;
     property OnFillTypeChange: TNotifyEvent read FOnFillTypeChange write FOnFillTypeChange;
     property OnChooseColor: TChooseColorEvent read FOnChooseColor write FOnChooseColor;
     property OnMouseDown: TMouseEvent read FOnMouseDown write FOnMouseDown;
@@ -313,8 +319,11 @@ begin
 end;
 
 procedure TVectorialFillInterface.SetFillType(AValue: TVectorialFillType);
+var
+  prevValue: TVectorialFillType;
 begin
   if FFillType=AValue then Exit;
+  prevValue := FFillType;
   FFillType:=AValue;
   UpdateAccordingToFillType;
   UpdatePreview;
@@ -365,6 +374,38 @@ begin
       ShowAppendToolButtons([FButtonTexRepeat,FUpDownTexAlpha,FButtonLoadTexture]);
     end;
   end;
+end;
+
+procedure TVectorialFillInterface.UpdateTopToolbar;
+var
+  x: Integer;
+begin
+  FToolbar.BeginUpdate;
+  x := FToolbar.Indent;
+  FButtonFillNone.Left := x;
+  //FButtonFillNone.Wrap := [vftSolid,vftGradient,vftTexture]*FAllowedFillTypes = [];
+  FButtonFillNone.Visible:= vftNone in FAllowedFillTypes;
+  if vftNone in FAllowedFillTypes then inc(x, FButtonFillNone.Width);
+  FButtonFillSolid.Left := x;
+  //FButtonFillSolid.Wrap := [vftGradient,vftTexture]*FAllowedFillTypes = [];
+  FButtonFillSolid.Visible:= vftSolid in FAllowedFillTypes;
+  if vftSolid in FAllowedFillTypes then inc(x, FButtonFillSolid.Width);
+  FButtonFillGradient.Left := x;
+  //FButtonFillGradient.Wrap := [vftTexture]*FAllowedFillTypes = [];
+  FButtonFillGradient.Visible:= vftGradient in FAllowedFillTypes;
+  if vftGradient in FAllowedFillTypes then inc(x, FButtonFillGradient.Width);
+  FButtonFillTexture.Left := x;
+  FButtonFillTexture.Visible:= vftTexture in FAllowedFillTypes;
+  if vftTexture in FAllowedFillTypes then inc(x, FButtonFillTexture.Width);
+
+  FPreview.Left := x;
+  inc(x, FPreview.Width);
+
+  FButtonEditGradTexPoints.Left := x;
+  inc(x, FButtonEditGradTexPoints.Width);
+
+  FButtonAdjustToShape.Left := x;
+  FToolbar.EndUpdate;
 end;
 
 procedure TVectorialFillInterface.UpdatePreview;
@@ -457,7 +498,21 @@ end;
 procedure TVectorialFillInterface.UpdateButtonAdjustToShape;
 begin
   if Assigned(FButtonAdjustToShape) then
+  begin
     FButtonAdjustToShape.Enabled := FCanAdjustToShape and (FillType in[vftGradient,vftTexture]);
+    if FillType in[vftGradient,vftTexture] then
+      FButtonAdjustToShape.Style := tbsButton
+    else
+      FButtonAdjustToShape.Style := tbsDivider;
+  end;
+  if Assigned(FButtonEditGradTexPoints) then
+  begin
+    FButtonEditGradTexPoints.Enabled := FCanEditGradTexPoints and (FillType in [vftGradient,vftTexture]);
+    if FillType in [vftGradient,vftTexture] then
+      FButtonEditGradTexPoints.Style := tbsButton
+    else
+      FButtonEditGradTexPoints.Style := tbsDivider;
+  end;
 end;
 
 procedure TVectorialFillInterface.UpDownEndAlphaChange(Sender: TObject;
@@ -752,6 +807,8 @@ begin
   AddToolbarControl(FToolbar, FPreview);
   AttachMouseEvent(FPreview);
 
+  FButtonEditGradTexPoints := AddToolbarButton(FToolbar, 'Edit gradient/texture points', 25, @EditGradTextPointsClick);
+  AttachMouseEvent(FButtonEditGradTexPoints);
   FButtonAdjustToShape := AddToolbarButton(FToolbar, 'Adjust to shape', 21, @AdjustToShapeClick);
   AttachMouseEvent(FButtonAdjustToShape);
   FButtonAdjustToShape.Wrap := true;
@@ -928,33 +985,11 @@ end;
 
 procedure TVectorialFillInterface.SetAllowedFillTypes(
   AValue: TVectorialFillTypes);
-var
-  x: Integer;
 begin
   Include(AValue, FFillType); //cannot exclude current type
   if FAllowedFillTypes=AValue then Exit;
   FAllowedFillTypes:=AValue;
-  FToolbar.BeginUpdate;
-  x := FToolbar.Indent;
-  FButtonFillNone.Left := x;
-  //FButtonFillNone.Wrap := [vftSolid,vftGradient,vftTexture]*FAllowedFillTypes = [];
-  FButtonFillNone.Visible:= vftNone in FAllowedFillTypes;
-  if vftNone in FAllowedFillTypes then inc(x, FButtonFillNone.Width);
-  FButtonFillSolid.Left := x;
-  //FButtonFillSolid.Wrap := [vftGradient,vftTexture]*FAllowedFillTypes = [];
-  FButtonFillSolid.Visible:= vftSolid in FAllowedFillTypes;
-  if vftSolid in FAllowedFillTypes then inc(x, FButtonFillSolid.Width);
-  FButtonFillGradient.Left := x;
-  //FButtonFillGradient.Wrap := [vftTexture]*FAllowedFillTypes = [];
-  FButtonFillGradient.Visible:= vftGradient in FAllowedFillTypes;
-  if vftGradient in FAllowedFillTypes then inc(x, FButtonFillGradient.Width);
-  FButtonFillTexture.Left := x;
-  FButtonFillTexture.Visible:= vftTexture in FAllowedFillTypes;
-  if vftTexture in FAllowedFillTypes then inc(x, FButtonFillTexture.Width);
-  FPreview.Left := x;
-  inc(x, FPreview.Width);
-  FButtonAdjustToShape.Left := x;
-  FToolbar.EndUpdate;
+  UpdateTopToolbar;
 end;
 
 procedure TVectorialFillInterface.SetOnTextureClick(AValue: TNotifyEvent);
@@ -1053,6 +1088,18 @@ begin
   vftTexture: if Assigned(Texture) and Assigned(FOnTextureClick) then
                 FOnTextureClick(self);
   end;
+end;
+
+procedure TVectorialFillInterface.EditGradTextPointsClick(Sender: TObject);
+begin
+  if Assigned(FOnEditGradTexPoints) then FOnEditGradTexPoints(self);
+end;
+
+procedure TVectorialFillInterface.SetCanEditGradTexPoints(AValue: boolean);
+begin
+  if FCanEditGradTexPoints=AValue then Exit;
+  FCanEditGradTexPoints:=AValue;
+  UpdateButtonAdjustToShape;
 end;
 
 procedure TVectorialFillInterface.ToolbarMouseEnter(Sender: TObject);

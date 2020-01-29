@@ -21,6 +21,8 @@ begin
   VectorialFill_Back.OnFillTypeChange:=@VectorialFill_BackTypeChange;
   VectorialFill_Pen.OnAdjustToShape:=@VectorialFill_PenAdjustToShape;
   VectorialFill_Back.OnAdjustToShape:=@VectorialFill_BackAdjustToShape;
+  VectorialFill_Pen.OnEditGradTexPoints:=@VectorialFill_PenEditGradTexPoints;
+  VectorialFill_Back.OnEditGradTexPoints:=@VectorialFill_BackEditGradTexPoints;
   VectorialFill_Pen.OnResize:=@VectorialFill_PenResize;
   VectorialFill_Back.OnResize:=@VectorialFill_BackResize;
   Label_Pen.OnMouseMove:=@VectorialFill_ShowPenFill;
@@ -529,8 +531,10 @@ begin
 
   UpdateCurveModeToolbar;
 
-  VectorialFill_Pen.CanAdjustToShape := ToolManager.ToolProvideCommand(tcPenAdjustToShape);
+  VectorialFill_Pen.CanAdjustToShape := ToolManager.ToolProvideCommand(tcForeAdjustToShape);
   VectorialFill_Back.CanAdjustToShape := ToolManager.ToolProvideCommand(tcBackAdjustToShape);
+  VectorialFill_Pen.CanEditGradTexPoints := ToolManager.ToolProvideCommand(tcForeEditGradTexPoints);
+  VectorialFill_Back.CanEditGradTexPoints := ToolManager.ToolProvideCommand(tcBackEditGradTexPoints);
 end;
 
 procedure TFMain.QueryArrange;
@@ -806,6 +810,11 @@ begin
   FInFillChange:= false;
 end;
 
+procedure TFMain.VectorialFill_BackEditGradTexPoints(Sender: TObject);
+begin
+  ToolManager.ToolCommand(tcBackEditGradTexPoints);
+end;
+
 procedure TFMain.VectorialFill_BackResize(Sender: TObject);
 begin
   QueryArrange;
@@ -823,7 +832,7 @@ end;
 
 procedure TFMain.VectorialFill_PenAdjustToShape(Sender: TObject);
 begin
-  ToolManager.ToolCommand(tcPenAdjustToShape);
+  ToolManager.ToolCommand(tcForeAdjustToShape);
 end;
 
 procedure TFMain.VectorialFill_PenChange(Sender: TObject);
@@ -846,6 +855,11 @@ begin
   UpdateChooseColors;
   UpdateEditPicture;
   FInFillChange:= false;
+end;
+
+procedure TFMain.VectorialFill_PenEditGradTexPoints(Sender: TObject);
+begin
+  ToolManager.ToolCommand(tcForeEditGradTexPoints);
 end;
 
 procedure TFMain.VectorialFill_PenResize(Sender: TObject);

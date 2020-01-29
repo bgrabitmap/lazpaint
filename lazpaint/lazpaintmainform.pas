@@ -673,10 +673,12 @@ type
     procedure ManagerToolbarChanged(Sender: TObject);
     procedure VectorialFill_BackAdjustToShape(Sender: TObject);
     procedure VectorialFill_BackChange(Sender: TObject);
+    procedure VectorialFill_BackEditGradTexPoints(Sender: TObject);
     procedure VectorialFill_BackResize(Sender: TObject);
     procedure VectorialFill_BackTypeChange(Sender: TObject);
     procedure VectorialFill_PenAdjustToShape(Sender: TObject);
     procedure VectorialFill_PenChange(Sender: TObject);
+    procedure VectorialFill_PenEditGradTexPoints(Sender: TObject);
     procedure VectorialFill_PenResize(Sender: TObject);
     procedure VectorialFill_PenTypeChange(Sender: TObject);
     procedure VectorialFill_ShowBackFill(Sender: TObject; Shift: TShiftState;
