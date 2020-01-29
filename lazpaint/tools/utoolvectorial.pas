@@ -208,7 +208,13 @@ var
   temp: TVectorialFill;
 begin
   if ASource.IsFullyTransparent then ATarget.Clear
-  else if (ATarget.FillType <> ASource.FillType) or AAlwaysFit then
+  else if (ATarget.FillType <> ASource.FillType) or
+    ((ATarget.FillType = vftGradient) and (ASource.FillType = vftGradient) and
+     (ATarget.Gradient.GradientType <> ASource.Gradient.GradientType) and
+     not ([ATarget.Gradient.GradientType,ASource.Gradient.GradientType] <= [gtRadial,gtDiamond,gtAngular])) or
+    ((ATarget.FillType = vftTexture) and (ASource.FillType = vftTexture) and
+     (ATarget.TextureRepetition <> ASource.TextureRepetition)) or
+     AAlwaysFit then
   begin
     temp := ATarget.Duplicate;
     temp.AssignExceptGeometry(ASource);

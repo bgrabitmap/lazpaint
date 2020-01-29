@@ -528,6 +528,9 @@ begin
   SpinEdit_GridNbY.MaxValue := maxGridNb.cy-1;
 
   UpdateCurveModeToolbar;
+
+  VectorialFill_Pen.CanAdjustToShape := ToolManager.ToolProvideCommand(tcPenAdjustToShape);
+  VectorialFill_Back.CanAdjustToShape := ToolManager.ToolProvideCommand(tcBackAdjustToShape);
 end;
 
 procedure TFMain.QueryArrange;
