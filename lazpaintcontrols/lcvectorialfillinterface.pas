@@ -30,7 +30,6 @@ type
     FOnMouseLeave: TNotifyEvent;
     FOnMouseMove: TMouseMoveEvent;
     FOnMouseUp: TMouseEvent;
-    FVerticalPadding: integer;
     procedure Preview_MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure SetVerticalPadding(AValue: integer);
@@ -69,6 +68,7 @@ type
 
     //interface
     FContainer: TWinControl;
+    FVerticalPadding: integer;
 
     FPreview: TImage;
     FButtonFillNone, FButtonFillSolid,
@@ -368,11 +368,11 @@ var
   bmpCopy: TBitmap;
   ratio: single;
 begin
-  if not FImageListLoaded then exit;
-
-  FPreview.Width:= FToolbar.ButtonWidth;
+  FPreview.Width:= round(FToolbar.ButtonWidth*1.2);
   FPreview.Height:= FToolbar.ButtonHeight;
-  bmp := TBGRABitmap.Create(FPreview.Width, FPreview.Height - VerticalPadding);
+
+  if not FImageListLoaded then exit;
+  bmp := TBGRABitmap.Create(FToolbar.ButtonWidth, FPreview.Height - VerticalPadding);
   bmp.DrawCheckers(bmp.ClipRect, CSSWhite, CSSSilver);
   case FillType of
     vftSolid: bmp.Fill(SolidColor, dmDrawWithTransparency);
@@ -711,8 +711,6 @@ begin
   FToolbar.Wrapable := false;
   AttachMouseEvent(FToolbar);
   FPreview := TImage.Create(FToolbar);
-  FPreview.Width:= FToolbar.ButtonWidth;
-  FPreview.Height:= FToolbar.ButtonHeight;
   FPreview.Center:= true;
   FPreview.OnMouseUp:=@Preview_MouseUp;
   FPreview.Hint := 'Preview';
