@@ -31,7 +31,7 @@ type
     FOnMouseMove: TMouseMoveEvent;
     FOnMouseUp: TMouseEvent;
     procedure Preview_MouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
+      {%H-}Shift: TShiftState; X, {%H-}Y: Integer);
     procedure SetVerticalPadding(AValue: integer);
     procedure ToolbarMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -74,6 +74,8 @@ type
     FButtonFillNone, FButtonFillSolid,
     FButtonFillGradient, FButtonFillTexture: TToolButton;
     FOnFillChange, FOnFillTypeChange: TNotifyEvent;
+    FButtonAdjustToShape: TToolButton;
+    FOnAdjustToShape: TNotifyEvent;
 
     FSolidColorInterfaceCreated: boolean;
     FShapeSolidColor: TShape;
@@ -82,13 +84,13 @@ type
 
     FTextureInterfaceCreated: boolean;
     FCanAdjustToShape: boolean;
-    FButtonAdjustToTexture, FButtonTexRepeat, FButtonLoadTexture: TToolButton;
+    FButtonTexRepeat, FButtonLoadTexture: TToolButton;
     FUpDownTexAlpha: TBCTrackbarUpdown;
     FOnTextureClick: TNotifyEvent;
-    FOnAdjustToShape, FOnTextureChange: TNotifyEvent;
+    FOnTextureChange: TNotifyEvent;
 
     FGradientInterfaceCreated: boolean;
-    FShapeStartColor, FShapeEndColor: TShape;
+    //FShapeStartColor, FShapeEndColor: TShape;
     FUpDownStartAlpha, FUpDownEndAlpha: TBCTrackbarUpdown;
     FButtonSwapColor, FButtonGradRepetition, FButtonGradInterp: TToolButton;
     FGradTypeMenu, FGradRepetitionMenu, FGradInterpMenu: TPopupMenu;
@@ -111,7 +113,7 @@ type
     procedure ButtonLoadTextureClick(Sender: TObject);
     procedure ButtonSwapColorClick(Sender: TObject);
     procedure ButtonTexRepeatClick(Sender: TObject);
-    procedure Changed;
+    procedure Changed(AUpdatePreview: boolean = True);
     procedure OnClickBackGradType(ASender: TObject);
     procedure OnClickBackTexRepeat(ASender: TObject);
     procedure OnClickGradInterp(ASender: TObject);
@@ -133,17 +135,18 @@ type
     procedure SetTextureRepetition(AValue: TTextureRepetition);
     procedure SetTextureOpacity(AValue: byte);
     procedure SetOnTextureClick(AValue: TNotifyEvent);
-    procedure ShapeEndColorMouseUp({%H-}Sender: TObject; {%H-}Button: TMouseButton;
-      {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
+//    procedure ShapeEndColorMouseUp({%H-}Sender: TObject; {%H-}Button: TMouseButton;
+//      {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure ShapeSolidColorMouseUp({%H-}Sender: TObject; {%H-}Button: TMouseButton;
       {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
-    procedure ShapeStartColorMouseUp({%H-}Sender: TObject; {%H-}Button: TMouseButton;
-      {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
+//    procedure ShapeStartColorMouseUp({%H-}Sender: TObject; {%H-}Button: TMouseButton;
+//      {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure UpdateAccordingToFillType;
     procedure UpdatePreview;
     procedure UpdateShapeSolidColor;
     procedure UpdateTextureParams;
     procedure UpdateGradientParams;
+    procedure UpdateButtonAdjustToShape;
     procedure UpDownEndAlphaChange(Sender: TObject; AByUser: boolean);
     procedure UpDownSolidAlphaChange(Sender: TObject; AByUser: boolean);
     procedure UpDownStartAlphaChange(Sender: TObject; AByUser: boolean);
@@ -240,9 +243,9 @@ begin
   UpdatePreview;
 end;
 
-procedure TVectorialFillInterface.Changed;
+procedure TVectorialFillInterface.Changed(AUpdatePreview: boolean);
 begin
-  UpdatePreview;
+  if AUpdatePreview then UpdatePreview;
   if Assigned(FOnFillChange) then
     FOnFillChange(self);
 end;
@@ -314,8 +317,9 @@ begin
   if FFillType=AValue then Exit;
   FFillType:=AValue;
   UpdateAccordingToFillType;
+  UpdatePreview;
   if Assigned(FOnFillTypeChange) then FOnFillTypeChange(self);
-  Changed;
+  Changed(False);
 end;
 
 procedure TVectorialFillInterface.ShapeSolidColorMouseUp(Sender: TObject;
@@ -324,11 +328,11 @@ begin
   ChooseColor(-1, Button);
 end;
 
-procedure TVectorialFillInterface.ShapeStartColorMouseUp(Sender: TObject;
+{procedure TVectorialFillInterface.ShapeStartColorMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   ChooseColor(0, Button);
-end;
+end;}
 
 procedure TVectorialFillInterface.UpdateAccordingToFillType;
 begin
@@ -336,6 +340,7 @@ begin
   FButtonFillSolid.Down := FillType = vftSolid;
   FButtonFillGradient.Down := FillType = vftGradient;
   FButtonFillTexture.Down := FillType = vftTexture;
+  UpdateButtonAdjustToShape;
 
   if FillType <> vftSolid then HideSolidColorInterface;
   if FillType <> vftGradient then HideGradientInterface;
@@ -350,13 +355,14 @@ begin
     vftGradient: begin
       CreateGradientInterface;
       UpdateGradientParams;
-      ShowAppendToolButtons([FShapeStartColor,FUpDownStartAlpha,FButtonSwapColor,
-                           FShapeEndColor,FUpDownEndAlpha,FButtonGradRepetition,FButtonGradInterp]);
+      ShowAppendToolButtons([FButtonGradRepetition,FButtonGradInterp,
+                           {FShapeStartColor,}FUpDownStartAlpha,FButtonSwapColor,
+                           {FShapeEndColor,}FUpDownEndAlpha]);
     end;
     vftTexture: begin
       CreateTextureInterface;
       UpdateTextureParams;
-      ShowAppendToolButtons([FButtonLoadTexture,FButtonAdjustToTexture,FButtonTexRepeat,FUpDownTexAlpha]);
+      ShowAppendToolButtons([FButtonTexRepeat,FUpDownTexAlpha,FButtonLoadTexture]);
     end;
   end;
 end;
@@ -367,12 +373,16 @@ var
   grad: TBGRALayerGradientOriginal;
   bmpCopy: TBitmap;
   ratio: single;
+  previewWidth: Integer;
 begin
-  FPreview.Width:= round(FToolbar.ButtonWidth*1.2);
+  if FillType = vftGradient then
+    previewWidth := round(FToolbar.ButtonWidth*1.5)
+  else previewWidth := FToolbar.ButtonWidth;
+  FPreview.Width:= previewWidth + round(FToolbar.ButtonWidth*0.2);
   FPreview.Height:= FToolbar.ButtonHeight;
 
   if not FImageListLoaded then exit;
-  bmp := TBGRABitmap.Create(FToolbar.ButtonWidth, FPreview.Height - VerticalPadding);
+  bmp := TBGRABitmap.Create(previewWidth, FPreview.Height - VerticalPadding);
   bmp.DrawCheckers(bmp.ClipRect, CSSWhite, CSSSilver);
   case FillType of
     vftSolid: bmp.Fill(SolidColor, dmDrawWithTransparency);
@@ -428,27 +438,39 @@ begin
 end;
 
 procedure TVectorialFillInterface.UpdateGradientParams;
-var
-  c: TBGRAPixel;
+{var
+  c: TBGRAPixel;}
 begin
-  c := GradStartColor;
+{  c := GradStartColor;
   c.alpha := 255;
-  if Assigned(FShapeStartColor) then FShapeStartColor.Brush.Color := c;
+  if Assigned(FShapeStartColor) then FShapeStartColor.Brush.Color := c;}
   if Assigned(FUpDownStartAlpha) then FUpDownStartAlpha.Value := GradStartColor.alpha;
-  c := GradEndColor;
+{  c := GradEndColor;
   c.alpha := 255;
-  if Assigned(FShapeEndColor) then FShapeEndColor.Brush.Color := c;
+  if Assigned(FShapeEndColor) then FShapeEndColor.Brush.Color := c;}
   if Assigned(FUpDownEndAlpha) then FUpDownEndAlpha.Value := GradEndColor.alpha;
 
   if Assigned(FButtonGradRepetition) then FButtonGradRepetition.ImageIndex := 7+ord(FGradRepetition);
   if Assigned(FButtonGradInterp) then FButtonGradInterp.ImageIndex := 11+ord(FGradInterp);
 end;
 
+procedure TVectorialFillInterface.UpdateButtonAdjustToShape;
+begin
+  if Assigned(FButtonAdjustToShape) then
+    FButtonAdjustToShape.Enabled := FCanAdjustToShape and (FillType in[vftGradient,vftTexture]);
+end;
+
 procedure TVectorialFillInterface.UpDownEndAlphaChange(Sender: TObject;
   AByUser: boolean);
+var
+  c: TBGRAPixel;
 begin
   if AByUser then
-    GradEndColor:= ColorToBGRA(FShapeEndColor.Brush.Color, FUpDownEndAlpha.Value);
+  begin
+    c := GradEndColor;
+    c.alpha := FUpDownEndAlpha.Value;
+    GradEndColor:= c;
+  end;
 end;
 
 procedure TVectorialFillInterface.UpDownSolidAlphaChange(Sender: TObject;
@@ -460,9 +482,15 @@ end;
 
 procedure TVectorialFillInterface.UpDownStartAlphaChange(Sender: TObject;
   AByUser: boolean);
+var
+  c: TBGRAPixel;
 begin
   if AByUser then
-    GradStartColor:= ColorToBGRA(FShapeStartColor.Brush.Color, FUpDownStartAlpha.Value);
+  begin
+    c := GradStartColor;
+    c.alpha := FUpDownStartAlpha.Value;
+    GradStartColor:= c;
+  end;
 end;
 
 procedure TVectorialFillInterface.UpDownTexAlphaChange(Sender: TObject;
@@ -550,12 +578,17 @@ begin
   if FGradientInterfaceCreated then exit;
   FGradientInterfaceCreated := true;
 
-  FShapeStartColor := TShape.Create(FToolbar);
-  FShapeStartColor.Width := FToolbar.ButtonWidth;
+  FButtonGradRepetition := AddToolbarButton(FToolbar, 'Gradient repetition...', 7+ord(FGradRepetition), @ButtonGradRepetitionClick);
+  AttachMouseEvent(FButtonGradRepetition);
+  FButtonGradInterp := AddToolbarButton(FToolbar, 'Color interpolation...', 11+ord(FGradInterp), @ButtonGradInterpClick);
+  AttachMouseEvent(FButtonGradInterp);
+
+{  FShapeStartColor := TShape.Create(FToolbar);
+  FShapeStartColor.Width := FToolbar.ButtonWidth*3 div 4;
   FShapeStartColor.Height := FToolbar.ButtonHeight;
   FShapeStartColor.OnMouseUp:=@ShapeStartColorMouseUp;
   FShapeStartColor.Hint := 'Start color';
-  AddToolbarControl(FToolbar, FShapeStartColor);
+  AddToolbarControl(FToolbar, FShapeStartColor);}
   FUpDownStartAlpha := TBCTrackbarUpdown.Create(FToolbar);
   FUpDownStartAlpha.Width := FToolbar.ButtonWidth*2;
   FUpDownStartAlpha.Height := FToolbar.ButtonHeight;
@@ -568,12 +601,12 @@ begin
   AttachMouseEvent(FUpDownStartAlpha);
   FButtonSwapColor := AddToolbarButton(FToolbar, 'Swap colors', 23, @ButtonSwapColorClick);
   AttachMouseEvent(FButtonSwapColor);
-  FShapeEndColor := TShape.Create(FToolbar);
-  FShapeEndColor.Width := FToolbar.ButtonWidth;
+{  FShapeEndColor := TShape.Create(FToolbar);
+  FShapeEndColor.Width := FToolbar.ButtonWidth*3 div 4;
   FShapeEndColor.Height := FToolbar.ButtonHeight;
   FShapeEndColor.OnMouseUp:=@ShapeEndColorMouseUp;
   FShapeEndColor.Hint := 'End color';
-  AddToolbarControl(FToolbar, FShapeEndColor);
+  AddToolbarControl(FToolbar, FShapeEndColor);}
   FUpDownEndAlpha := TBCTrackbarUpdown.Create(FToolbar);
   FUpDownEndAlpha.Width := FToolbar.ButtonWidth*2;
   FUpDownEndAlpha.Height := FToolbar.ButtonHeight;
@@ -584,10 +617,6 @@ begin
   FUpDownEndAlpha.Hint := 'End opacity';
   AddToolbarControl(FToolbar, FUpDownEndAlpha);
   AttachMouseEvent(FUpDownEndAlpha);
-  FButtonGradRepetition := AddToolbarButton(FToolbar, 'Gradient repetition...', 7+ord(FGradRepetition), @ButtonGradRepetitionClick);
-  AttachMouseEvent(FButtonGradRepetition);
-  FButtonGradInterp := AddToolbarButton(FToolbar, 'Color interpolation...', 11+ord(FGradInterp), @ButtonGradInterpClick);
-  AttachMouseEvent(FButtonGradInterp);
 
   FGradRepetitionMenu := TPopupMenu.Create(self);
   FGradRepetitionMenu.Images := FImageList;
@@ -618,9 +647,6 @@ begin
   if FTextureInterfaceCreated then exit;
   FTextureInterfaceCreated := true;
 
-  FButtonAdjustToTexture := AddToolbarButton(FToolbar, 'Adjust to shape', 21, @AdjustToShapeClick);
-  FButtonAdjustToTexture.Enabled := FCanAdjustToShape;
-  AttachMouseEvent(FButtonAdjustToTexture);
   FButtonTexRepeat := AddToolbarButton(FToolbar, 'Texture repetition...', -1, @ButtonTexRepeatClick);
   AttachMouseEvent(FButtonTexRepeat);
   FUpDownTexAlpha := TBCTrackbarUpdown.Create(FToolbar);
@@ -657,19 +683,18 @@ end;
 procedure TVectorialFillInterface.HideGradientInterface;
 begin
   if not FGradientInterfaceCreated then exit;
-  FShapeStartColor.Visible := false;
-  FUpDownStartAlpha.Visible := false;
-  FButtonSwapColor.Visible := false;
-  FShapeEndColor.Visible := false;
-  FUpDownEndAlpha.Visible := false;
   FButtonGradRepetition.Visible := false;
   FButtonGradInterp.Visible := false;
+  //FShapeStartColor.Visible := false;
+  FUpDownStartAlpha.Visible := false;
+  FButtonSwapColor.Visible := false;
+  //FShapeEndColor.Visible := false;
+  FUpDownEndAlpha.Visible := false;
 end;
 
 procedure TVectorialFillInterface.HideTextureInterface;
 begin
   if not FTextureInterfaceCreated then exit;
-  FButtonAdjustToTexture.Visible := false;
   FButtonTexRepeat.Visible := false;
   FUpDownTexAlpha.Visible := false;
   FButtonLoadTexture.Visible := false;
@@ -710,13 +735,6 @@ begin
   FToolbar := CreateToolBar(FImageList);
   FToolbar.Wrapable := false;
   AttachMouseEvent(FToolbar);
-  FPreview := TImage.Create(FToolbar);
-  FPreview.Center:= true;
-  FPreview.OnMouseUp:=@Preview_MouseUp;
-  FPreview.Hint := 'Preview';
-  UpdatePreview;
-  AddToolbarControl(FToolbar, FPreview);
-  AttachMouseEvent(FPreview);
   FButtonFillNone := AddToolbarCheckButton(FToolbar, 'No fill', 0, @ButtonFillChange, False, False);
   AttachMouseEvent(FButtonFillNone);
   FButtonFillSolid := AddToolbarCheckButton(FToolbar, 'Solid color', 1, @ButtonFillChange, False, False);
@@ -725,7 +743,19 @@ begin
   AttachMouseEvent(FButtonFillGradient);
   FButtonFillTexture := AddToolbarButton(FToolbar, 'Texture fill', 24, @ButtonFillTexClick);
   AttachMouseEvent(FButtonFillTexture);
-  FButtonFillTexture.Wrap := true;
+
+  FPreview := TImage.Create(FToolbar);
+  FPreview.Center:= true;
+  FPreview.OnMouseUp:=@Preview_MouseUp;
+  FPreview.Hint := 'Preview';
+  UpdatePreview;
+  AddToolbarControl(FToolbar, FPreview);
+  AttachMouseEvent(FPreview);
+
+  FButtonAdjustToShape := AddToolbarButton(FToolbar, 'Adjust to shape', 21, @AdjustToShapeClick);
+  AttachMouseEvent(FButtonAdjustToShape);
+  FButtonAdjustToShape.Wrap := true;
+  UpdateButtonAdjustToShape;
 
   //menu to access gradient interface
   FGradTypeMenu := TPopupMenu.Create(self);
@@ -818,11 +848,11 @@ begin
   If FillType = vftTexture then Changed;
 end;
 
-procedure TVectorialFillInterface.ShapeEndColorMouseUp(Sender: TObject;
+{procedure TVectorialFillInterface.ShapeEndColorMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   ChooseColor(1, Button);
-end;
+end;}
 
 procedure TVectorialFillInterface.SetGradientType(AValue: TGradientType);
 begin
@@ -886,8 +916,7 @@ procedure TVectorialFillInterface.SetCanAdjustToShape(AValue: boolean);
 begin
   if FCanAdjustToShape=AValue then Exit;
   FCanAdjustToShape:=AValue;
-  if FTextureInterfaceCreated then
-    FButtonAdjustToTexture.Enabled := AValue;
+  UpdateButtonAdjustToShape;
 end;
 
 procedure TVectorialFillInterface.SetImageListSize(AValue: TSize);
@@ -908,19 +937,23 @@ begin
   FToolbar.BeginUpdate;
   x := FToolbar.Indent;
   FButtonFillNone.Left := x;
-  FButtonFillNone.Wrap := [vftSolid,vftGradient,vftTexture]*FAllowedFillTypes = [];
+  //FButtonFillNone.Wrap := [vftSolid,vftGradient,vftTexture]*FAllowedFillTypes = [];
   FButtonFillNone.Visible:= vftNone in FAllowedFillTypes;
   if vftNone in FAllowedFillTypes then inc(x, FButtonFillNone.Width);
   FButtonFillSolid.Left := x;
-  FButtonFillSolid.Wrap := [vftGradient,vftTexture]*FAllowedFillTypes = [];
+  //FButtonFillSolid.Wrap := [vftGradient,vftTexture]*FAllowedFillTypes = [];
   FButtonFillSolid.Visible:= vftSolid in FAllowedFillTypes;
   if vftSolid in FAllowedFillTypes then inc(x, FButtonFillSolid.Width);
   FButtonFillGradient.Left := x;
-  FButtonFillGradient.Wrap := [vftTexture]*FAllowedFillTypes = [];
+  //FButtonFillGradient.Wrap := [vftTexture]*FAllowedFillTypes = [];
   FButtonFillGradient.Visible:= vftGradient in FAllowedFillTypes;
   if vftGradient in FAllowedFillTypes then inc(x, FButtonFillGradient.Width);
   FButtonFillTexture.Left := x;
   FButtonFillTexture.Visible:= vftTexture in FAllowedFillTypes;
+  if vftTexture in FAllowedFillTypes then inc(x, FButtonFillTexture.Width);
+  FPreview.Left := x;
+  inc(x, FPreview.Width);
+  FButtonAdjustToShape.Left := x;
   FToolbar.EndUpdate;
 end;
 
