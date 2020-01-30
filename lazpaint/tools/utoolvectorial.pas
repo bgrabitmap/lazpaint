@@ -1207,16 +1207,20 @@ begin
     begin
       case GetEditMode of
       esmShape, esmNoShape:
+        if not FDownHandled then
         begin
           m := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
           zoom := (VectLen(m[1,1],m[2,1])+VectLen(m[1,2],m[2,2]))/2/Manager.Image.ZoomFactor;
           BindOriginalEvent(true);
           try
-            GetVectorOriginal.MouseClick(m*FLastPos, DoScaleX(PointSize, OriginalDPI)*zoom);
+            if GetVectorOriginal.MouseClick(m*FLastPos, DoScaleX(PointSize, OriginalDPI)*zoom) then
+            begin
+              handled := true;
+              result := OnlyRenderChange;
+            end;
           finally
             BindOriginalEvent(false);
           end;
-          if Assigned(GetVectorOriginal.SelectedShape) then handled := true;
         end;
       esmGradient:
         begin
