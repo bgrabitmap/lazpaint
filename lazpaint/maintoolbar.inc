@@ -531,6 +531,7 @@ begin
 
   UpdateCurveModeToolbar;
 
+  UpdateAllowedFillTypes;
   VectorialFill_Pen.CanAdjustToShape := ToolManager.ToolProvideCommand(tcForeAdjustToShape);
   VectorialFill_Back.CanAdjustToShape := ToolManager.ToolProvideCommand(tcBackAdjustToShape);
   VectorialFill_Pen.CanEditGradTexPoints := ToolManager.ToolProvideCommand(tcForeEditGradTexPoints);
@@ -690,8 +691,12 @@ end;
 
 procedure TFMain.TimerArrangeTimer(Sender: TObject);
 begin
+  if Assigned(FLayout) then
+  begin
+    UpdateAllowedFillTypes;
+    FLayout.Arrange;
+  end;
   TimerArrange.Enabled:= false;
-  if Assigned(FLayout) then FLayout.Arrange;
 end;
 
 procedure TFMain.TimerHideFillTimer(Sender: TObject);
@@ -778,6 +783,57 @@ begin
      (LazPaintInstance.ChooseColorTarget = ctForeColorSolid) then
     LazPaintInstance.ChooseColorTarget := ctForeColorStartGrad else
       LazPaintInstance.ColorToFChooseColor;
+end;
+
+procedure TFMain.UpdateAllowedFillTypes;
+begin
+  if VectorialFill_Pen.AllowedFillTypes <> ToolManager.AllowedForeFillTypes then
+  begin
+    if not (VectorialFill_Pen.FillType in ToolManager.AllowedForeFillTypes) then
+    begin
+      if vftGradient in ToolManager.AllowedForeFillTypes then
+      begin
+        VectorialFill_Pen.AllowedFillTypes:= [VectorialFill_Pen.FillType] + ToolManager.AllowedForeFillTypes;
+        ToolManager.NeedForeGradient;
+      end else
+      if vftTexture in ToolManager.AllowedForeFillTypes then
+      begin
+        VectorialFill_Pen.AllowedFillTypes:= [VectorialFill_Pen.FillType] + ToolManager.AllowedForeFillTypes;
+        Vectorialfill_Pen.FillType := vftTexture;
+      end else
+      if vftSolid in ToolManager.AllowedForeFillTypes then
+      begin
+        VectorialFill_Pen.AllowedFillTypes:= [VectorialFill_Pen.FillType] + ToolManager.AllowedForeFillTypes;
+        Vectorialfill_Pen.FillType := vftSolid;
+      end;
+    end;
+    VectorialFill_Pen.AllowedFillTypes:= ToolManager.AllowedForeFillTypes;
+    VectorialFill_Pen.Width := VectorialFill_Pen.PreferredSize.cx;
+  end;
+
+  if VectorialFill_Back.AllowedFillTypes <> ToolManager.AllowedBackFillTypes then
+  begin
+    if not (VectorialFill_Back.FillType in ToolManager.AllowedBackFillTypes) then
+    begin
+      if vftGradient in ToolManager.AllowedBackFillTypes then
+      begin
+        VectorialFill_Back.AllowedFillTypes:= [VectorialFill_Back.FillType] + ToolManager.AllowedBackFillTypes;
+        ToolManager.NeedBackGradient;
+      end else
+      if vftTexture in ToolManager.AllowedBackFillTypes then
+      begin
+        VectorialFill_Back.AllowedFillTypes:= [VectorialFill_Back.FillType] + ToolManager.AllowedBackFillTypes;
+        Vectorialfill_Back.FillType := vftTexture;
+      end else
+      if vftSolid in ToolManager.AllowedBackFillTypes then
+      begin
+        VectorialFill_Back.AllowedFillTypes:= [VectorialFill_Back.FillType] + ToolManager.AllowedBackFillTypes;
+        Vectorialfill_Back.FillType := vftSolid;
+      end;
+    end;
+    VectorialFill_Back.AllowedFillTypes:= ToolManager.AllowedBackFillTypes;
+    VectorialFill_Back.Width := VectorialFill_Back.PreferredSize.cx;
+  end;
 end;
 
 procedure TFMain.SwitchColors;

@@ -82,6 +82,7 @@ type
     function DefaultTextureCenter: TPointF; virtual;
     function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
     function GetStatusText: string; override;
+    function GetAllowedBackFillTypes: TVectorialFillTypes; override;
   public
     constructor Create(AManager: TToolManager); override;
     function ToolKeyDown(var key: Word): TRect; override;
@@ -105,7 +106,9 @@ type
     procedure PrepareBackground(toolDest: TBGRABitmap; {%H-}AFirstTime: boolean); override;
     function GetTexture: TBGRABitmap; override;
     function DefaultTextureCenter: TPointF; override;
+    function GetTextureRepetition: TTextureRepetition; override;
     procedure ValidateQuad; override;
+    function GetAllowedBackFillTypes: TVectorialFillTypes; override;
   public
     constructor Create(AManager: TToolManager); override;
     function GetContextualToolbars: TContextualToolbars; override;
@@ -161,10 +164,20 @@ begin
   result := FDefaultTextureCenter;
 end;
 
+function TToolLayerMapping.GetTextureRepetition: TTextureRepetition;
+begin
+  Result:= trNone;
+end;
+
 procedure TToolLayerMapping.ValidateQuad;
 begin
   inherited ValidateQuad;
   Manager.QueryExitTool;
+end;
+
+function TToolLayerMapping.GetAllowedBackFillTypes: TVectorialFillTypes;
+begin
+  Result:= [vftSolid,vftGradient,vftTexture];
 end;
 
 constructor TToolLayerMapping.Create(AManager: TToolManager);
@@ -656,6 +669,11 @@ begin
     result += 'x'+inttostr(i+1)+' = '+inttostr(round(quad[i].x+0.5))+'|'+
        'y'+inttostr(i+1)+' = '+inttostr(round(quad[i].y+0.5));
   end;
+end;
+
+function TToolTextureMapping.GetAllowedBackFillTypes: TVectorialFillTypes;
+begin
+  Result:= [vftTexture];
 end;
 
 constructor TToolTextureMapping.Create(AManager: TToolManager);

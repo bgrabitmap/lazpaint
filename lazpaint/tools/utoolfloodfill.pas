@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, UTool, UToolVectorial, BGRABitmap, BGRABitmapTypes,
-  BGRAGradientOriginal, BGRALayerOriginal, LCVectorOriginal, UStateType;
+  BGRAGradientOriginal, BGRALayerOriginal, LCVectorOriginal, UStateType, LCVectorialFill;
 
 type
 
@@ -32,6 +32,7 @@ type
     function SlowShape: boolean; override;
     function GetStatusText: string; override;
     function ReplaceLayerAndAddShape(out ARect: TRect): TCustomImageDifference; override;
+    function GetAllowedBackFillTypes: TVectorialFillTypes; override;
   public
     function GetContextualToolbars: TContextualToolbars; override;
   end;
@@ -39,7 +40,7 @@ type
 implementation
 
 uses ugraph, LazPaintType, BGRAGradientScanner, LCVectorRectShapes,
-  BGRATransform, UImageDiff, LCVectorialFill;
+  BGRATransform, UImageDiff;
 
 { TToolGradient }
 
@@ -59,7 +60,6 @@ end;
 
 procedure TToolGradient.AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean);
 begin
-  Manager.NeedBackGradient;
   if Manager.BackFill.FillType = vftGradient then
     FShape.BackFill.AssignExceptGeometry(Manager.BackFill);
 end;
@@ -96,6 +96,11 @@ begin
     ARect := rect(0,0,Manager.Image.Width,Manager.Image.Height);
   end else
     Result:= inherited ReplaceLayerAndAddShape(ARect);
+end;
+
+function TToolGradient.GetAllowedBackFillTypes: TVectorialFillTypes;
+begin
+  result := [vftGradient];
 end;
 
 function TToolGradient.GetContextualToolbars: TContextualToolbars;

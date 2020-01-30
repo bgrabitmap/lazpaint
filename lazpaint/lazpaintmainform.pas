@@ -746,6 +746,7 @@ type
     procedure RegisterToolbarElements;
     procedure InitToolbarElements;
     procedure UpdateChooseColors;
+    procedure UpdateAllowedFillTypes;
     procedure UpdateToolOptions;
     procedure UpdateEraserToolbar;
     procedure UpdatePenStyleToolbar;
@@ -2921,10 +2922,6 @@ begin
       if self.Visible then
       begin
         case Tool of
-          ptGradient:
-            begin
-              VectorialFill_Back.FillType:= vftGradient;
-            end;
           ptTextureMapping:
           begin
             useSelection:= false;

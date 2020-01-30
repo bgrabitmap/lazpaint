@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, UToolBasic, BGRABitmapTypes, BGRABitmap, UTool,
-  UBrushType;
+  UBrushType, LCVectorialFill;
 
 type
 
@@ -41,6 +41,8 @@ type
     function DrawBrushAt(toolDest: TBGRABitmap; x, y: single): TRect; override;
     procedure PrepareBrush({%H-}rightBtn: boolean); override;
     procedure ReleaseBrush; override;
+    function GetAllowedForeFillTypes: TVectorialFillTypes; override;
+    function GetAllowedBackFillTypes: TVectorialFillTypes; override;
   public
     destructor Destroy; override;
     function GetContextualToolbars: TContextualToolbars; override;
@@ -209,6 +211,16 @@ end;
 procedure TToolBrush.ReleaseBrush;
 begin
   FreeAndNil(coloredBrushImage);
+end;
+
+function TToolBrush.GetAllowedForeFillTypes: TVectorialFillTypes;
+begin
+  Result:= [vftSolid];
+end;
+
+function TToolBrush.GetAllowedBackFillTypes: TVectorialFillTypes;
+begin
+  Result:= [vftSolid];
 end;
 
 destructor TToolBrush.Destroy;

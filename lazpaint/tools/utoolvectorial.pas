@@ -144,6 +144,7 @@ type
     function BackFitMode: TFitMode;
     function GetIsForeEditGradTexPoints: boolean; override;
     function GetIsBackEditGradTexPoints: boolean; override;
+    function GetAllowedBackFillTypes: TVectorialFillTypes; override;
   public
     constructor Create(AManager: TToolManager); override;
     destructor Destroy; override;
@@ -989,6 +990,13 @@ end;
 function TEditShapeTool.GetIsBackEditGradTexPoints: boolean;
 begin
   result := (GetEditMode = esmShape) and (GetVectorOriginal.SelectedShape.Usermode = BackGradTexMode);
+end;
+
+function TEditShapeTool.GetAllowedBackFillTypes: TVectorialFillTypes;
+begin
+  if GetEditMode = esmGradient then
+    result := [vftGradient] else
+    Result:=inherited GetAllowedBackFillTypes;
 end;
 
 constructor TEditShapeTool.Create(AManager: TToolManager);

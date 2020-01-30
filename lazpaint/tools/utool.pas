@@ -97,6 +97,8 @@ type
     function GetCurrentLayerKind: TLayerKind;
     function GetIsForeEditGradTexPoints: boolean; virtual;
     function GetIsBackEditGradTexPoints: boolean; virtual;
+    function GetAllowedBackFillTypes: TVectorialFillTypes; virtual;
+    function GetAllowedForeFillTypes: TVectorialFillTypes; virtual;
   public
     ToolUpdateNeeded: boolean;
     Cursor: TCursor;
@@ -135,6 +137,8 @@ type
     property ForeUniversalBrush: TUniversalBrush read GetForeUniversalBrush;
     property IsForeEditGradTexPoints: boolean read GetIsForeEditGradTexPoints;
     property IsBackEditGradTexPoints: boolean read GetIsBackEditGradTexPoints;
+    property AllowedForeFillTypes: TVectorialFillTypes read GetAllowedForeFillTypes;
+    property AllowedBackFillTypes: TVectorialFillTypes read GetAllowedBackFillTypes;
   end;
 
   { TReadonlyTool }
@@ -245,6 +249,8 @@ type
 
     procedure BackFillChange(ASender: TObject;
       var ADiff: TCustomVectorialFillDiff);
+    function GetAllowedBackFillTypes: TVectorialFillTypes;
+    function GetAllowedForeFillTypes: TVectorialFillTypes;
     function GetCursor: TCursor;
     function GetBackColor: TBGRAPixel;
     function GetBrushAt(AIndex: integer): TLazPaintBrush;
@@ -461,7 +467,9 @@ type
     property Cursor: TCursor read GetCursor;
 
     property ForeFill: TVectorialFill read FForeFill;
+    property AllowedForeFillTypes: TVectorialFillTypes read GetAllowedForeFillTypes;
     property BackFill: TVectorialFill read FBackFill;
+    property AllowedBackFillTypes: TVectorialFillTypes read GetAllowedBackFillTypes;
     property ForeColor: TBGRAPixel read GetForeColor write SetForeColor;
     property BackColor: TBGRAPixel read GetBackColor write SetBackColor;
     property EraserMode: TEraserMode read FEraserMode write SetEraserMode;
@@ -678,6 +686,16 @@ begin
       TBGRABitmap.ScannerBrush(result, AScan);
     end;
   end;
+end;
+
+function TGenericTool.GetAllowedBackFillTypes: TVectorialFillTypes;
+begin
+  result := [vftSolid,vftGradient,vftTexture];
+end;
+
+function TGenericTool.GetAllowedForeFillTypes: TVectorialFillTypes;
+begin
+  result := [vftSolid,vftGradient,vftTexture];
 end;
 
 function TGenericTool.GetIsBackEditGradTexPoints: boolean;
@@ -1426,6 +1444,18 @@ begin
     FBackLastGradient.Free;
     FBackLastGradient := FBackFill.Gradient.Duplicate as TBGRALayerGradientOriginal;
   end;
+end;
+
+function TToolManager.GetAllowedBackFillTypes: TVectorialFillTypes;
+begin
+  if Assigned(CurrentTool) then result := currentTool.AllowedBackFillTypes
+  else result := [vftSolid,vftGradient,vftTexture];
+end;
+
+function TToolManager.GetAllowedForeFillTypes: TVectorialFillTypes;
+begin
+  if Assigned(CurrentTool) then result := currentTool.AllowedForeFillTypes
+  else result := [vftSolid,vftGradient,vftTexture];
 end;
 
 function TToolManager.GetForeColor: TBGRAPixel;
