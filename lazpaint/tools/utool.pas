@@ -2799,7 +2799,10 @@ begin
     FCurrentTool := FSleepingTool;
     FSleepingTool := nil;
     FCurrentToolType := FSleepingToolType;
-    InternalSetCurrentToolType(FCurrentToolType);
+    Image.RenderMayChange(rect(0,0,Image.Width,Image.Height),True);
+    UpdateContextualToolbars;
+    If Assigned(FOnToolChangedHandler) then
+      FOnToolChangedHandler(self, FCurrentToolType);
   end;
 end;
 
