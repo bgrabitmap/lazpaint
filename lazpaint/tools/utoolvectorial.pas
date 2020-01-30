@@ -16,6 +16,9 @@ type
 function ToolSplineModeFromShape(AShape: TVectorShape): TToolSplineMode;
 
 type
+  TFitMode = (fmNever, fmIfChange, fmAlways);
+
+type
   { TVectorialTool }
 
   TVectorialTool = class(TGenericTool)
@@ -66,6 +69,10 @@ type
     function BackGradTexMode: TVectorShapeUsermode; virtual;
     function ShapeForeFill: TVectorialFill; virtual;
     function ShapeBackFill: TVectorialFill; virtual;
+    function ForeFitMode: TFitMode;
+    function BackFitMode: TFitMode;
+    function GetIsForeEditGradTexPoints: boolean; override;
+    function GetIsBackEditGradTexPoints: boolean; override;
   public
     function ValidateShape: TRect;
     function CancelShape: TRect;
@@ -133,6 +140,10 @@ type
     function BackGradTexMode: TVectorShapeUsermode; virtual;
     function ShapeForeFill: TVectorialFill; virtual;
     function ShapeBackFill: TVectorialFill; virtual;
+    function ForeFitMode: TFitMode;
+    function BackFitMode: TFitMode;
+    function GetIsForeEditGradTexPoints: boolean; override;
+    function GetIsBackEditGradTexPoints: boolean; override;
   public
     constructor Create(AManager: TToolManager); override;
     destructor Destroy; override;
@@ -148,7 +159,7 @@ type
     property CurrentSplineMode: TToolSplineMode read GetCurrentSplineMode write SetCurrentSplineMode;
   end;
 
-procedure AssignFill(ATarget, ASource: TVectorialFill; const ABox: TAffineBox; AAlwaysFit: boolean);
+procedure AssignFill(ATarget, ASource: TVectorialFill; const ABox: TAffineBox; AFitMode: TFitMode);
 
 implementation
 
@@ -211,26 +222,29 @@ begin
   end;
 end;
 
-procedure AssignFill(ATarget, ASource: TVectorialFill; const ABox: TAffineBox; AAlwaysFit: boolean);
+procedure AssignFill(ATarget, ASource: TVectorialFill; const ABox: TAffineBox; AFitMode: TFitMode);
 var
   temp: TVectorialFill;
+  change: Boolean;
 begin
-  if ASource.IsFullyTransparent then ATarget.Clear
-  else if (ATarget.FillType <> ASource.FillType) or
-    ((ATarget.FillType = vftGradient) and (ASource.FillType = vftGradient) and
-     (ATarget.Gradient.GradientType <> ASource.Gradient.GradientType) and
-     not ([ATarget.Gradient.GradientType,ASource.Gradient.GradientType] <= [gtRadial,gtDiamond,gtAngular])) or
-    ((ATarget.FillType = vftTexture) and (ASource.FillType = vftTexture) and
-     (ATarget.TextureRepetition <> ASource.TextureRepetition)) or
-     AAlwaysFit then
+  if ASource.IsFullyTransparent then ATarget.Clear else
   begin
-    temp := ATarget.Duplicate;
-    temp.AssignExceptGeometry(ASource);
-    temp.FitGeometry(ABox);
-    ATarget.Assign(temp);
-    temp.Free;
-  end else
-    ATarget.AssignExceptGeometry(ASource);
+    change := ((ATarget.FillType = vftGradient) and (ASource.FillType = vftGradient) and
+       (ATarget.Gradient.GradientType <> ASource.Gradient.GradientType) and
+       not ([ATarget.Gradient.GradientType,ASource.Gradient.GradientType] <= [gtRadial,gtDiamond,gtAngular])) or
+      ((ATarget.FillType = vftTexture) and (ASource.FillType = vftTexture) and
+       (ATarget.TextureRepetition <> ASource.TextureRepetition));
+    if ((AFitMode = fmIfChange) and change) or (AFitMode = fmAlways)
+        or (ATarget.FillType <> ASource.FillType) then
+    begin
+      temp := ATarget.Duplicate;
+      temp.AssignExceptGeometry(ASource);
+      temp.FitGeometry(ABox);
+      ATarget.Assign(temp);
+      temp.Free;
+    end else
+      ATarget.AssignExceptGeometry(ASource);
+  end;
 end;
 
 { TEditShapeTool }
@@ -527,10 +541,10 @@ begin
         doDraw := vsfPenFill in SelectedShape.Fields;
         doFill := vsfBackFill in SelectedShape.Fields;
       end;
-      if doFill then AssignFill(SelectedShape.BackFill, Manager.BackFill, gradBox, false)
+      if doFill then AssignFill(SelectedShape.BackFill, Manager.BackFill, gradBox, BackFitMode)
       else if vsfBackFill in SelectedShape.Fields then
           SelectedShape.BackFill.Clear;
-      if doDraw then AssignFill(SelectedShape.PenFill, Manager.ForeFill, gradBox, false);
+      if doDraw then AssignFill(SelectedShape.PenFill, Manager.ForeFill, gradBox, ForeFitMode);
 
       if SelectedShape is TTextShape then
       with TTextShape(SelectedShape) do
@@ -545,7 +559,7 @@ begin
         if Manager.TextOutline then
         begin
           OutlineWidth := Manager.TextOutlineWidth;
-          AssignFill(OutLineFill, Manager.BackFill, gradBox, false);
+          AssignFill(OutLineFill, Manager.BackFill, gradBox, BackFitMode);
         end else
           OutlineFill.Clear;
       end;
@@ -953,6 +967,28 @@ begin
       result := GetVectorOriginal.SelectedShape.BackFill;
   end
   else result := nil;
+end;
+
+function TEditShapeTool.ForeFitMode: TFitMode;
+begin
+  if IsForeEditGradTexPoints then result := fmNever
+  else result := fmIfChange;
+end;
+
+function TEditShapeTool.BackFitMode: TFitMode;
+begin
+  if IsBackEditGradTexPoints then result := fmNever
+  else result := fmIfChange;
+end;
+
+function TEditShapeTool.GetIsForeEditGradTexPoints: boolean;
+begin
+  result := (GetEditMode = esmShape) and (GetVectorOriginal.SelectedShape.Usermode = ForeGradTexMode);
+end;
+
+function TEditShapeTool.GetIsBackEditGradTexPoints: boolean;
+begin
+  result := (GetEditMode = esmShape) and (GetVectorOriginal.SelectedShape.Usermode = BackGradTexMode);
 end;
 
 constructor TEditShapeTool.Create(AManager: TToolManager);
@@ -1558,6 +1594,28 @@ begin
     result := nil;
 end;
 
+function TVectorialTool.ForeFitMode: TFitMode;
+begin
+  if IsForeEditGradTexPoints then result := fmNever
+  else result := fmIfChange;
+end;
+
+function TVectorialTool.BackFitMode: TFitMode;
+begin
+  if IsBackEditGradTexPoints then result := fmNever
+  else result := fmIfChange;
+end;
+   
+function TVectorialTool.GetIsForeEditGradTexPoints: boolean;
+begin
+  result := Assigned(FShape) and (FShape.Usermode = ForeGradTexMode);
+end;
+
+function TVectorialTool.GetIsBackEditGradTexPoints: boolean;
+begin
+  result := Assigned(FShape) and (FShape.Usermode = BackGradTexMode);
+end;
+
 function TVectorialTool.ValidateShape: TRect;
 var
   layerId: LongInt;
@@ -1650,6 +1708,7 @@ var
   f: TVectorShapeFields;
   zoom: Single;
   gradBox: TAffineBox;
+  fitMode: TFitMode;
 begin
   zoom := (VectLen(AMatrix[1,1],AMatrix[2,1])+VectLen(AMatrix[1,2],AMatrix[2,2]))/2;
   f:= FShape.Fields;
@@ -1658,10 +1717,11 @@ begin
   begin
     if Manager.ShapeOptionDraw then
     begin
+      if AAlwaysFit then fitMode := fmAlways else fitMode := ForeFitMode;
       if FSwapColor then
-        AssignFill(FShape.PenFill, Manager.BackFill, gradBox, AAlwaysFit)
+        AssignFill(FShape.PenFill, Manager.BackFill, gradBox, fitMode)
       else
-        AssignFill(FShape.PenFill, Manager.ForeFill, gradBox, AAlwaysFit);
+        AssignFill(FShape.PenFill, Manager.ForeFill, gradBox, fitMode);
     end else
       FShape.PenFill.Clear;
   end;
@@ -1672,10 +1732,11 @@ begin
   begin
     if Manager.ShapeOptionFill then
     begin
+      if AAlwaysFit then fitMode := fmAlways else fitMode := BackFitMode;
       if FSwapColor then
-        AssignFill(FShape.BackFill, Manager.ForeFill, gradBox, AAlwaysFit)
+        AssignFill(FShape.BackFill, Manager.ForeFill, gradBox, fitMode)
       else
-        AssignFill(FShape.BackFill, Manager.BackFill, gradBox, AAlwaysFit);
+        AssignFill(FShape.BackFill, Manager.BackFill, gradBox, fitMode);
     end else
       FShape.BackFill.Clear;
   end;

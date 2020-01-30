@@ -32,9 +32,11 @@ type
     FOnMouseMove: TMouseMoveEvent;
     FOnMouseUp: TMouseEvent;
     procedure EditGradTextPointsClick(Sender: TObject);
+    function GetEditingGradTexPoints: boolean;
     procedure Preview_MouseUp(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; X, {%H-}Y: Integer);
     procedure SetCanEditGradTexPoints(AValue: boolean);
+    procedure SetEditingGradTexPoints(AValue: boolean);
     procedure SetVerticalPadding(AValue: integer);
     procedure ToolbarMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -192,6 +194,7 @@ type
     property TextureOpacity: byte read FTexOpacity write SetTextureOpacity;
     property CanAdjustToShape: boolean read FCanAdjustToShape write SetCanAdjustToShape;
     property CanEditGradTexPoints: boolean read FCanEditGradTexPoints write SetCanEditGradTexPoints;
+    property EditingGradTexPoints: boolean read GetEditingGradTexPoints write SetEditingGradTexPoints;
     property OnFillChange: TNotifyEvent read FOnFillChange write FOnFillChange;
     property OnTextureChange: TNotifyEvent read FOnTextureChange write FOnTextureChange;
     property OnTextureClick: TNotifyEvent read FOnTextureClick write SetOnTextureClick;
@@ -509,7 +512,7 @@ begin
   begin
     FButtonEditGradTexPoints.Enabled := FCanEditGradTexPoints and (FillType in [vftGradient,vftTexture]);
     if FillType in [vftGradient,vftTexture] then
-      FButtonEditGradTexPoints.Style := tbsButton
+      FButtonEditGradTexPoints.Style := tbsCheck
     else
       FButtonEditGradTexPoints.Style := tbsDivider;
   end;
@@ -807,7 +810,7 @@ begin
   AddToolbarControl(FToolbar, FPreview);
   AttachMouseEvent(FPreview);
 
-  FButtonEditGradTexPoints := AddToolbarButton(FToolbar, 'Edit gradient/texture points', 25, @EditGradTextPointsClick);
+  FButtonEditGradTexPoints := AddToolbarCheckButton(FToolbar, 'Edit gradient/texture points', 25, @EditGradTextPointsClick, false, false);
   AttachMouseEvent(FButtonEditGradTexPoints);
   FButtonAdjustToShape := AddToolbarButton(FToolbar, 'Adjust to shape', 21, @AdjustToShapeClick);
   AttachMouseEvent(FButtonAdjustToShape);
@@ -1095,11 +1098,24 @@ begin
   if Assigned(FOnEditGradTexPoints) then FOnEditGradTexPoints(self);
 end;
 
+function TVectorialFillInterface.GetEditingGradTexPoints: boolean;
+begin
+  if Assigned(FButtonEditGradTexPoints) then
+    result := FButtonEditGradTexPoints.Down
+  else result := false;
+end;
+
 procedure TVectorialFillInterface.SetCanEditGradTexPoints(AValue: boolean);
 begin
   if FCanEditGradTexPoints=AValue then Exit;
   FCanEditGradTexPoints:=AValue;
   UpdateButtonAdjustToShape;
+end;
+
+procedure TVectorialFillInterface.SetEditingGradTexPoints(AValue: boolean);
+begin
+  if Assigned(FButtonEditGradTexPoints) then
+    FButtonEditGradTexPoints.Down := AValue;
 end;
 
 procedure TVectorialFillInterface.ToolbarMouseEnter(Sender: TObject);

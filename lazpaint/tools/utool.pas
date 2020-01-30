@@ -95,6 +95,8 @@ type
     function GetStatusText: string; virtual;
     function DoGetToolDrawingLayer: TBGRABitmap; virtual;
     function GetCurrentLayerKind: TLayerKind;
+    function GetIsForeEditGradTexPoints: boolean; virtual;
+    function GetIsBackEditGradTexPoints: boolean; virtual;
   public
     ToolUpdateNeeded: boolean;
     Cursor: TCursor;
@@ -131,6 +133,8 @@ type
     property Validating: boolean read FValidating;
     property Canceling: boolean read FCanceling;
     property ForeUniversalBrush: TUniversalBrush read GetForeUniversalBrush;
+    property IsForeEditGradTexPoints: boolean read GetIsForeEditGradTexPoints;
+    property IsBackEditGradTexPoints: boolean read GetIsBackEditGradTexPoints;
   end;
 
   { TReadonlyTool }
@@ -430,6 +434,8 @@ type
 
     function IsSelectingTool: boolean;
     function DisplayFilledSelection: boolean;
+    function IsForeEditGradTexPoints: boolean;
+    function IsBackEditGradTexPoints: boolean;
     procedure QueryExitTool;
 
     procedure RenderTool(formBitmap: TBGRABitmap);
@@ -672,6 +678,16 @@ begin
       TBGRABitmap.ScannerBrush(result, AScan);
     end;
   end;
+end;
+
+function TGenericTool.GetIsBackEditGradTexPoints: boolean;
+begin
+  result := false;
+end;
+
+function TGenericTool.GetIsForeEditGradTexPoints: boolean;
+begin
+  result := false;
 end;
 
 function TGenericTool.GetForeUniversalBrush: TUniversalBrush;
@@ -3162,6 +3178,18 @@ end;
 function TToolManager.DisplayFilledSelection: boolean;
 begin
   result := IsSelectingTool or (FCurrentToolType = ptEditShape);
+end;
+
+function TToolManager.IsForeEditGradTexPoints: boolean;
+begin
+  if Assigned(CurrentTool) then result := CurrentTool.IsForeEditGradTexPoints
+  else result := false;
+end;
+
+function TToolManager.IsBackEditGradTexPoints: boolean;
+begin
+  if Assigned(CurrentTool) then result := CurrentTool.IsBackEditGradTexPoints
+  else result := false;
 end;
 
 procedure TToolManager.QueryExitTool;

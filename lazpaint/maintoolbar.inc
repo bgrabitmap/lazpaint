@@ -535,6 +535,8 @@ begin
   VectorialFill_Back.CanAdjustToShape := ToolManager.ToolProvideCommand(tcBackAdjustToShape);
   VectorialFill_Pen.CanEditGradTexPoints := ToolManager.ToolProvideCommand(tcForeEditGradTexPoints);
   VectorialFill_Back.CanEditGradTexPoints := ToolManager.ToolProvideCommand(tcBackEditGradTexPoints);
+  VectorialFill_Pen.EditingGradTexPoints := ToolManager.IsForeEditGradTexPoints;
+  VectorialFill_Back.EditingGradTexPoints := ToolManager.IsBackEditGradTexPoints;
 end;
 
 procedure TFMain.QueryArrange;

@@ -26,6 +26,7 @@ type
     function GetAverageColor: TBGRAPixel;
     function GetCanAdjustToShape: boolean;
     function GetCanEditGradTexPoints: boolean;
+    function GetEditingGradTexPoints: boolean;
     function GetFillType: TVectorialFillType;
     function GetGradEndColor: TBGRAPixel;
     function GetGradInterp: TBGRAColorInterpolation;
@@ -50,6 +51,7 @@ type
     procedure SetAllowedFillTypes(AValue: TVectorialFillTypes);
     procedure SetCanAdjustToShape(AValue: boolean);
     procedure SetCanEditGradTexPoints(AValue: boolean);
+    procedure SetEditingGradTexPoints(AValue: boolean);
     procedure SetFillType(AValue: TVectorialFillType);
     procedure SetGradEndColor(AValue: TBGRAPixel);
     procedure SetGradientType(AValue: TGradientType);
@@ -113,6 +115,7 @@ type
     property VerticalPadding: integer read GetVerticalPadding write SetVerticalPadding;
     property AllowedFillTypes: TVectorialFillTypes read GetAllowedFillTypes write SetAllowedFillTypes;
     property CanEditGradTexPoints: boolean read GetCanEditGradTexPoints write SetCanEditGradTexPoints;
+    property EditingGradTexPoints: boolean read GetEditingGradTexPoints write SetEditingGradTexPoints;
     property OnChooseColor: TChooseColorEvent read FOnChooseColor write SetOnChooseColor;
     property OnFillChange: TNotifyEvent read FOnFillChange write FOnFillChange;
     property OnTextureChange: TNotifyEvent read FOnTextureChange write FOnTextureChange;
@@ -170,6 +173,11 @@ end;
 function TLCVectorialFillControl.GetCanEditGradTexPoints: boolean;
 begin
   result := FInterface.CanEditGradTexPoints;
+end;
+
+function TLCVectorialFillControl.GetEditingGradTexPoints: boolean;
+begin
+  result := FInterface.EditingGradTexPoints;
 end;
 
 function TLCVectorialFillControl.GetFillType: TVectorialFillType;
@@ -281,6 +289,11 @@ end;
 procedure TLCVectorialFillControl.SetCanEditGradTexPoints(AValue: boolean);
 begin
   FInterface.CanEditGradTexPoints:= AValue;
+end;
+
+procedure TLCVectorialFillControl.SetEditingGradTexPoints(AValue: boolean);
+begin
+  FInterface.EditingGradTexPoints := AValue;
 end;
 
 procedure TLCVectorialFillControl.SetFillType(AValue: TVectorialFillType);

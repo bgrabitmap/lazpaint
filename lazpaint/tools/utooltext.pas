@@ -152,6 +152,7 @@ var
   toolDest: TBGRABitmap;
   zoom: Single;
   gradBox: TAffineBox;
+  fitMode: TFitMode;
 begin
   FMatrix := AMatrix;
   with TTextShape(FShape) do
@@ -162,18 +163,20 @@ begin
     FontStyle:= Manager.TextFontStyle;
     gradBox := self.SuggestGradientBox;
 
+    if AAlwaysFit then fitMode := fmAlways else fitMode := ForeFitMode;
     if FSwapColor then
-      AssignFill(FShape.PenFill, Manager.BackFill, gradBox, AAlwaysFit)
+      AssignFill(FShape.PenFill, Manager.BackFill, gradBox, fitMode)
     else
-      AssignFill(FShape.PenFill, Manager.ForeFill, gradBox, AAlwaysFit);
+      AssignFill(FShape.PenFill, Manager.ForeFill, gradBox, fitMode);
 
     if Manager.TextOutline and (Manager.TextOutlineWidth>0) and
        (Manager.BackColor.alpha > 0) then
     begin
+      if AAlwaysFit then fitMode := fmAlways else fitMode := BackFitMode;
       if FSwapColor then
-        AssignFill(FShape.OutlineFill, Manager.ForeFill, gradBox, AAlwaysFit)
+        AssignFill(FShape.OutlineFill, Manager.ForeFill, gradBox, fitMode)
       else
-        AssignFill(FShape.OutlineFill, Manager.BackFill, gradBox, AAlwaysFit);
+        AssignFill(FShape.OutlineFill, Manager.BackFill, gradBox, fitMode);
       OutlineWidth := Manager.TextOutlineWidth;
     end
     else
