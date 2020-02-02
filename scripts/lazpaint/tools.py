@@ -1,4 +1,4 @@
-from lazpaint import command
+from lazpaint import command, colors
 
 HAND = 'Hand'
 HOT_SPOT = 'HotSpot'
@@ -97,12 +97,17 @@ GRADIENT_TYPE_DIAMOND = 'Diamond'
 GRADIENT_TYPE_RADIAL =  'Radial'
 GRADIENT_TYPE_ANGULAR = 'Angular'
 
-GRADIENT_COLORSPACE_STD_RGB = 'StdRGB'
-GRADIENT_COLORSPACE_LINEAR_RGB = 'LinearRGB'
-GRADIENT_COLORSPACE_LINEAR_HSL_POSITIVE = 'LinearHSLPositive'
-GRADIENT_COLORSPACE_LINEAR_HSL_NEGATIVE = 'LinearHSLNegative'
-GRADIENT_COLORSPACE_CORR_HSL_POSITIVE = 'GSBPositive'
-GRADIENT_COLORSPACE_CORR_HSL_NEGATIVE = 'GSBNegative'
+GRADIENT_INTERPOLATION_STD_RGB = 'StdRGB'
+GRADIENT_INTERPOLATION_LINEAR_RGB = 'LinearRGB'
+GRADIENT_INTERPOLATION_LINEAR_HSL_POSITIVE = 'LinearHSLPositive'
+GRADIENT_INTERPOLATION_LINEAR_HSL_NEGATIVE = 'LinearHSLNegative'
+GRADIENT_INTERPOLATION_CORR_HSL_POSITIVE = 'GSBPositive'
+GRADIENT_INTERPOLATION_CORR_HSL_NEGATIVE = 'GSBNegative'
+
+GRADIENT_REPETITION_PAD = 'Pad'
+GRADIENT_REPETITION_REPEAT = 'Repeat'
+GRADIENT_REPETITION_REFLECT = 'Reflect'
+GRADIENT_REPETITION_SINE = 'Sine'
 
 SHAPE_KIND_RECTANGLE = 'Rectangle'
 SHAPE_KIND_ROUND_RECTANGLE = 'RoundRectangle'
@@ -228,10 +233,10 @@ def set_back_color(color):
   command.send("ToolSetBackColor", Color=color)
 
 def get_pen_color():
-  return str_to_RGBA(command.send("ToolGetPenColor?"))
+  return colors.str_to_RGBA(command.send("ToolGetPenColor?"))
 
 def get_back_color():
-  return str_to_RGBA(command.send("ToolGetBackColor?"))
+  return colors.str_to_RGBA(command.send("ToolGetBackColor?"))
 
 def set_eraser_mode(mode):
   command.send('ToolSetEraserMode', Mode=mode)
@@ -368,23 +373,53 @@ def set_spline_style(style):
 def get_spline_style():
   return command.send('ToolGetSplineStyle?')
 
-def set_gradient_type(gradient_type):
-  command.send('ToolSetGradientType', GradientType=gradient_type)
+def set_pen_gradient_type(gradient_type):
+  command.send('ToolSetPenGradientType', GradientType=gradient_type)
 
-def get_gradient_type():
+def get_pen_gradient_type():
+  return command.send('ToolGetPenGradientType?')
+
+def set_pen_gradient_colors(colors: list):
+  command.send('ToolSetPenGradientColors', Colors=colors)
+
+def get_pen_gradient_colors() -> list:
+  return colors.str_to_RGBA(command.send('ToolGetPenGradientColors?'))
+
+def set_pen_gradient_interpolation(interpolation):
+  command.send('ToolSetPenGradientInterpolation', Interpolation=interpolation)
+
+def get_pen_gradient_interpolation():
+  return command.send('ToolGetPenGradientInterpolation?')
+
+def set_pen_gradient_repetition(repetition):
+  command.send('ToolSetPenGradientRepetition', Repetition=repetition)
+
+def get_pen_gradient_repetition():
+  return command.send('ToolGetPenGradientRepetition?')
+
+def set_back_gradient_type(gradient_type):
+  command.send('ToolSetBackGradientType', GradientType=gradient_type)
+
+def get_back_gradient_type():
   return command.send('ToolGetGradientType?')
 
-def set_gradient_colorspace(colorspace):
-  command.send('ToolSetGradientColorspace', Colorspace=colorspace)
+def set_back_gradient_interpolation(interpolation):
+  command.send('ToolSetBackGradientInterpolation', Interpolation=interpolation)
 
-def get_gradient_colorspace():
-  return command.send('ToolGetGradientColorspace?')
+def get_back_gradient_interpolation():
+  return command.send('ToolGetBackGradientInterpolation?')
 
-def set_gradient_type(gradient_type):
-  command.send('ToolSetGradientType', GradientType=gradient_type)
+def set_back_gradient_colors(colors: list):
+  command.send('ToolSetBackGradientColors', Colors=colors)
 
-def get_gradient_type():
-  return command.send('ToolGetGradientType?')
+def get_back_gradient_colors() -> list:
+  return colors.str_to_RGBA(command.send('ToolGetBackGradientColors?'))
+
+def set_back_gradient_repetition(repetition):
+  command.send('ToolSetBackGradientRepetition', Repetition=repetition)
+
+def get_back_gradient_repetition():
+  return command.send('ToolGetBackGradientRepetition?')
 
 def set_phong_shape_kind(kind):
   command.send('ToolSetPhongShapeKind', Kind=kind)

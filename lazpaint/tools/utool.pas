@@ -266,7 +266,6 @@ type
     function GetTextFontName: string;
     function GetTextFontSize: single;
     function GetTextFontStyle: TFontStyles;
-    function GetTextureOpacity: byte;
     procedure ForeFillChange({%H-}ASender: TObject;
       var ADiff: TCustomVectorialFillDiff);
     function ScriptGetAliasing(AVars: TVariableSet): TScriptResult;
@@ -285,15 +284,18 @@ type
     function ScriptGetFontName(AVars: TVariableSet): TScriptResult;
     function ScriptGetFontSize(AVars: TVariableSet): TScriptResult;
     function ScriptGetFontStyle(AVars: TVariableSet): TScriptResult;
-    function ScriptGetGradientColorspace(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+    function ScriptGetGradientInterpolation(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
     function ScriptGetGradientRepetition(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
     function ScriptGetGradientType(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
-    function ScriptGetBackGradientColorspace(AVars: TVariableSet): TScriptResult;
+    function ScriptGetGradientColors(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+    function ScriptGetBackGradientInterpolation(AVars: TVariableSet): TScriptResult;
     function ScriptGetBackGradientRepetition(AVars: TVariableSet): TScriptResult;
     function ScriptGetBackGradientType(AVars: TVariableSet): TScriptResult;
-    function ScriptGetForeGradientColorspace(AVars: TVariableSet): TScriptResult;
+    function ScriptGetBackGradientColors(AVars: TVariableSet): TScriptResult;
+    function ScriptGetForeGradientInterpolation(AVars: TVariableSet): TScriptResult;
     function ScriptGetForeGradientRepetition(AVars: TVariableSet): TScriptResult;
     function ScriptGetForeGradientType(AVars: TVariableSet): TScriptResult;
+    function ScriptGetForeGradientColors(AVars: TVariableSet): TScriptResult;
     function ScriptGetJoinStyle(AVars: TVariableSet): TScriptResult;
     function ScriptGetLightPosition(AVars: TVariableSet): TScriptResult;
     function ScriptGetLineCap(AVars: TVariableSet): TScriptResult;
@@ -326,15 +328,18 @@ type
     function ScriptSetFontName(AVars: TVariableSet): TScriptResult;
     function ScriptSetFontSize(AVars: TVariableSet): TScriptResult;
     function ScriptSetFontStyle(AVars: TVariableSet): TScriptResult;
-    function ScriptSetGradientColorspace(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+    function ScriptSetGradientInterpolation(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
     function ScriptSetGradientRepetition(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
     function ScriptSetGradientType(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
-    function ScriptSetBackGradientColorspace(AVars: TVariableSet): TScriptResult;
+    function ScriptSetGradientColors(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+    function ScriptSetBackGradientInterpolation(AVars: TVariableSet): TScriptResult;
     function ScriptSetBackGradientRepetition(AVars: TVariableSet): TScriptResult;
     function ScriptSetBackGradientType(AVars: TVariableSet): TScriptResult;
-    function ScriptSetForeGradientColorspace(AVars: TVariableSet): TScriptResult;
+    function ScriptSetBackGradientColors(AVars: TVariableSet): TScriptResult;
+    function ScriptSetForeGradientInterpolation(AVars: TVariableSet): TScriptResult;
     function ScriptSetForeGradientRepetition(AVars: TVariableSet): TScriptResult;
     function ScriptSetForeGradientType(AVars: TVariableSet): TScriptResult;
+    function ScriptSetForeGradientColors(AVars: TVariableSet): TScriptResult;
     function ScriptSetJoinStyle(AVars: TVariableSet): TScriptResult;
     function ScriptSetLightPosition(AVars: TVariableSet): TScriptResult;
     function ScriptSetLineCap(AVars: TVariableSet): TScriptResult;
@@ -1513,11 +1518,6 @@ begin
   result := FTextFontStyle;
 end;
 
-function TToolManager.GetTextureOpacity: byte;
-begin
-
-end;
-
 procedure TToolManager.ForeFillChange(ASender: TObject;
   var ADiff: TCustomVectorialFillDiff);
 begin
@@ -1656,7 +1656,7 @@ begin
   result := srOk;
 end;
 
-function TToolManager.ScriptGetGradientColorspace(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+function TToolManager.ScriptGetGradientInterpolation(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
 begin
   result := srOk;
   if AFill.FillType <> vftGradient then result := srException else
@@ -1698,9 +1698,23 @@ begin
   end;
 end;
 
-function TToolManager.ScriptGetBackGradientColorspace(AVars: TVariableSet): TScriptResult;
+function TToolManager.ScriptGetGradientColors(AVars: TVariableSet;
+  AFill: TVectorialFill): TScriptResult;
+var
+  colors: TScriptVariableReference;
 begin
-  result := ScriptGetGradientColorspace(AVars, FBackFill);
+  result := srOk;
+  if AFill.FillType <> vftGradient then result := srException else
+  begin
+    colors := AVars.AddPixelList('Result');
+    TVariableSet.AppendPixel(colors, AFill.Gradient.StartColor);
+    TVariableSet.AppendPixel(colors, AFill.Gradient.EndColor);
+  end;
+end;
+
+function TToolManager.ScriptGetBackGradientInterpolation(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptGetGradientInterpolation(AVars, FBackFill);
 end;
 
 function TToolManager.ScriptGetBackGradientRepetition(AVars: TVariableSet): TScriptResult;
@@ -1713,9 +1727,14 @@ begin
   result := ScriptGetGradientType(AVars, FBackFill);
 end;
 
-function TToolManager.ScriptGetForeGradientColorspace(AVars: TVariableSet): TScriptResult;
+function TToolManager.ScriptGetBackGradientColors(AVars: TVariableSet): TScriptResult;
 begin
-  result := ScriptGetGradientColorspace(AVars, FForeFill);
+  result := ScriptGetGradientColors(AVars, FBackFill);
+end;
+
+function TToolManager.ScriptGetForeGradientInterpolation(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptGetGradientInterpolation(AVars, FForeFill);
 end;
 
 function TToolManager.ScriptGetForeGradientRepetition(AVars: TVariableSet): TScriptResult;
@@ -1726,6 +1745,11 @@ end;
 function TToolManager.ScriptGetForeGradientType(AVars: TVariableSet): TScriptResult;
 begin
   result := ScriptGetGradientType(AVars, FForeFill);
+end;
+
+function TToolManager.ScriptGetForeGradientColors(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptGetGradientColors(AVars, FForeFill);
 end;
 
 function TToolManager.ScriptGetJoinStyle(AVars: TVariableSet): TScriptResult;
@@ -2060,11 +2084,11 @@ begin
   result := srOk;
 end;
 
-function TToolManager.ScriptSetGradientColorspace(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+function TToolManager.ScriptSetGradientInterpolation(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
 begin
   if AFill.FillType <> vftGradient then exit(srException);
   result := srOk;
-  case AVars.Strings['Colorspace'] of
+  case AVars.Strings['Interpolation'] of
   'StdRGB': AFill.Gradient.ColorInterpolation:= ciStdRGB;
   'LinearRGB': AFill.Gradient.ColorInterpolation:= ciLinearRGB;
   'LinearHSLPositive': AFill.Gradient.ColorInterpolation:= ciLinearHSLPositive;
@@ -2092,6 +2116,7 @@ function TToolManager.ScriptSetGradientType(AVars: TVariableSet; AFill: TVectori
 var
   gt: TGradientType;
   b: TAffineBox;
+  lastGrad: TBGRALayerGradientOriginal;
 begin
   result := srOk;
   case AVars.Strings['GradientType'] of
@@ -2106,22 +2131,59 @@ begin
     AFill.Gradient.GradientType:= gt
   else
   begin
-    FBackLastGradient.GradientType:= gt;
+    if AFill = BackFill then
+      lastGrad := FBackLastGradient
+    else lastGrad := FForeLastGradient;
+
+    lastGrad.GradientType:= gt;
     b := SuggestGradientBox;
-    if gt = gtLinear then FBackLastGradient.Origin := b.TopLeft else
-      FBackLastGradient.Origin := (b.TopLeft+b.BottomRight)*0.5;
-    FBackLastGradient.XAxis := b.BottomRight;
-    FBackLastGradient.YAxis := EmptyPointF;
-    FBackLastGradient.FocalPoint := EmptyPointF;
-    FBackLastGradient.Radius := 1;
-    FBackLastGradient.FocalRadius := 0;
-    AFill.SetGradient(FBackLastGradient, False);
+    if gt = gtLinear then lastGrad.Origin := b.TopLeft else
+      lastGrad.Origin := (b.TopLeft+b.BottomRight)*0.5;
+    lastGrad.XAxis := b.BottomRight;
+    lastGrad.YAxis := EmptyPointF;
+    lastGrad.FocalPoint := EmptyPointF;
+    lastGrad.Radius := 1;
+    lastGrad.FocalRadius := 0;
+    AFill.SetGradient(lastGrad, False);
   end;
 end;
 
-function TToolManager.ScriptSetBackGradientColorspace(AVars: TVariableSet): TScriptResult;
+function TToolManager.ScriptSetGradientColors(AVars: TVariableSet;
+  AFill: TVectorialFill): TScriptResult;
+var
+  colors: TScriptVariableReference;
+  lastGrad: TBGRALayerGradientOriginal;
+  b: TAffineBox;
 begin
-  result := ScriptSetGradientColorspace(AVars, FBackFill);
+  result := srOk;
+  colors := AVars.GetVariable('Colors');
+  if TVariableSet.GetListCount(colors) <> 2 then
+    exit(srInvalidParameters);
+
+  if AFill.FillType = vftGradient then
+    AFill.Gradient.SetColors(TVariableSet.GetPixelAt(colors, 0), TVariableSet.GetPixelAt(colors, 1))
+  else
+  begin
+    if AFill = BackFill then
+      lastGrad := FBackLastGradient
+    else lastGrad := FForeLastGradient;
+
+    b := SuggestGradientBox;
+    if lastGrad.GradientType = gtLinear then lastGrad.Origin := b.TopLeft else
+      lastGrad.Origin := (b.TopLeft+b.BottomRight)*0.5;
+    lastGrad.XAxis := b.BottomRight;
+    lastGrad.YAxis := EmptyPointF;
+    lastGrad.FocalPoint := EmptyPointF;
+    lastGrad.Radius := 1;
+    lastGrad.FocalRadius := 0;
+    lastGrad.SetColors(TVariableSet.GetPixelAt(colors, 0), TVariableSet.GetPixelAt(colors, 1));
+    AFill.SetGradient(lastGrad, False);
+  end;
+end;
+
+function TToolManager.ScriptSetBackGradientInterpolation(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptSetGradientInterpolation(AVars, FBackFill);
 end;
 
 function TToolManager.ScriptSetBackGradientRepetition(AVars: TVariableSet): TScriptResult;
@@ -2134,9 +2196,14 @@ begin
   result := ScriptSetGradientType(AVars, FBackFill);
 end;
 
-function TToolManager.ScriptSetForeGradientColorspace(AVars: TVariableSet): TScriptResult;
+function TToolManager.ScriptSetBackGradientColors(AVars: TVariableSet): TScriptResult;
 begin
-  result := ScriptSetGradientColorspace(AVars, FForeFill);
+  result := ScriptSetGradientColors(AVars, FBackFill);
+end;
+
+function TToolManager.ScriptSetForeGradientInterpolation(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptSetGradientInterpolation(AVars, FForeFill);
 end;
 
 function TToolManager.ScriptSetForeGradientRepetition(AVars: TVariableSet): TScriptResult;
@@ -2147,6 +2214,11 @@ end;
 function TToolManager.ScriptSetForeGradientType(AVars: TVariableSet): TScriptResult;
 begin
   result := ScriptSetGradientType(AVars, FForeFill);
+end;
+
+function TToolManager.ScriptSetForeGradientColors(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptSetGradientColors(AVars, FForeFill);
 end;
 
 function TToolManager.ScriptSetJoinStyle(AVars: TVariableSet): TScriptResult;
@@ -2797,14 +2869,18 @@ begin
   FScriptContext.RegisterScriptFunction('ToolGetForeGradientType', @ScriptGetForeGradientType, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetForeGradientRepetition', @ScriptSetForeGradientRepetition, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetForeGradientRepetition', @ScriptGetForeGradientRepetition, ARegister);
-  FScriptContext.RegisterScriptFunction('ToolSetForeGradientColorspace', @ScriptSetForeGradientColorspace, ARegister);
-  FScriptContext.RegisterScriptFunction('ToolGetForeGradientColorspace', @ScriptGetForeGradientColorspace, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetForeGradientInterpolation', @ScriptSetForeGradientInterpolation, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetForeGradientInterpolation', @ScriptGetForeGradientInterpolation, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetForeGradientColors', @ScriptSetForeGradientColors, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetForeGradientColors', @ScriptGetForeGradientColors, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetBackGradientType', @ScriptSetBackGradientType, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetBackGradientType', @ScriptGetBackGradientType, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetBackGradientRepetition', @ScriptSetBackGradientRepetition, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetBackGradientRepetition', @ScriptGetBackGradientRepetition, ARegister);
-  FScriptContext.RegisterScriptFunction('ToolSetBackGradientColorspace', @ScriptSetBackGradientColorspace, ARegister);
-  FScriptContext.RegisterScriptFunction('ToolGetBackGradientColorspace', @ScriptGetBackGradientColorspace, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetBackGradientInterpolation', @ScriptSetBackGradientInterpolation, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetBackGradientInterpolation', @ScriptGetBackGradientInterpolation, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetBackGradientColors', @ScriptSetBackGradientColors, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetBackGradientColors', @ScriptGetBackGradientColors, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetPhongShapeAltitude', @ScriptSetPhongShapeAltitude, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetPhongShapeAltitude', @ScriptGetPhongShapeAltitude, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetPhongShapeBorderSize', @ScriptSetPhongShapeBorderSize, ARegister);

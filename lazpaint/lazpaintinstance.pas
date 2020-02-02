@@ -598,6 +598,7 @@ var
   err: TInterpretationErrors;
   scriptErr: TScriptResult;
   vRes: TScriptVariableReference;
+  i: Integer;
 begin
   AResult := 'None';
   if Assigned(FScriptContext) then
@@ -627,8 +628,17 @@ begin
           case vRes.variableType of
           svtFloat, svtInteger, svtPoint, svtBoolean: AResult := params.GetString(vRes);
           svtString: AResult := ScriptQuote(params.GetString(vRes));
-          svtPixel: AResult := '"'+BGRAToStr(params.GetPixel(vRes))+'"';
-          svtFloatList..svtPixList: AResult := params.GetString(vRes);
+          svtPixel: AResult := '"'+BGRAToStr(params.GetPixel(vRes), nil,0,true)+'"';
+          svtFloatList, svtIntList, svtPointList, svtBoolList, svtStrList: AResult := params.GetString(vRes);
+          svtPixList: begin
+              AResult := '[';
+              for i := 0 to TVariableSet.GetListCount(vRes)-1 do
+              begin
+                if i > 0 then AResult += ', ';
+                AResult += '"'+BGRAToStr(params.GetPixelAt(vRes, i), nil,0,true)+'"'
+              end;
+              AResult += ']';
+            end;
           svtSubset: AResult := '{'+params.GetSubset(vRes).VariablesAsString+'}';
           end;
         end;
