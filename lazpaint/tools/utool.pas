@@ -166,7 +166,7 @@ type
   TFloodFillOption = (ffProgressive, ffFillAll);
   TFloodFillOptions = set of TFloodFillOption;
 
-  TPerspectiveOption = (poTwoPlanes);
+  TPerspectiveOption = (poRepeat, poTwoPlanes);
   TPerspectiveOptions = set of TPerspectiveOption;
 
   { TToolManager }
@@ -1790,6 +1790,7 @@ begin
   for option := low(TPerspectiveOption) to high(TPerspectiveOption) do
     if option in PerspectiveOptions then
     case option of
+    poRepeat: Avars.AppendString(optionsVar, 'Repeat');
     poTwoPlanes: Avars.AppendString(optionsVar, 'TwoPlanes');
     end;
   result := srOk;
@@ -2221,6 +2222,7 @@ begin
   begin
     optionStr := AVars.GetStringAt(optionsVar, i);
     case optionStr of
+    'Repeat': include(optionsSet, poRepeat);
     'TwoPlanes': include(optionsSet, poTwoPlanes);
     else exit(srInvalidParameters);
     end;

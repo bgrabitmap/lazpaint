@@ -166,7 +166,8 @@ end;
 
 function TToolLayerMapping.GetTextureRepetition: TTextureRepetition;
 begin
-  Result:= trNone;
+  if poRepeat in Manager.PerspectiveOptions then
+    Result:= trRepeatBoth;
 end;
 
 procedure TToolLayerMapping.ValidateQuad;

@@ -6,6 +6,7 @@ begin
   FToolbarElementsInitDone:= true;
 
   Panel_ToolbarBackground.PopupMenu := PopupToolbar;
+  Perspective_Repeat.OnClick:=@Perspective_RepeatClick;
   Perspective_TwoPlanes.OnClick := @Perspective_TwoPlanesClick;
   VectorialFill_Pen.VerticalPadding:= DoScaleY(6, OriginalDPI);
   VectorialFill_Back.VerticalPadding:= DoScaleY(6, OriginalDPI);
@@ -768,6 +769,20 @@ begin
   end;
 end;
 
+procedure TFMain.Perspective_RepeatClick(Sender: TObject);
+begin
+  if initialized then
+  begin
+    FInPerspective:= true;
+    if Perspective_Repeat.Down then
+      ToolManager.PerspectiveOptions := ToolManager.PerspectiveOptions + [poRepeat]
+    else
+      ToolManager.PerspectiveOptions := ToolManager.PerspectiveOptions - [poRepeat];
+    FInPerspective:= false;
+    UpdateEditPicture;
+  end;
+end;
+
 procedure TFMain.UpdateChooseColors;
 begin
   if (VectorialFill_Back.FillType = vftSolid) and
@@ -834,6 +849,8 @@ begin
     VectorialFill_Back.AllowedFillTypes:= ToolManager.AllowedBackFillTypes;
     VectorialFill_Back.Width := VectorialFill_Back.PreferredSize.cx;
   end;
+
+  Perspective_Repeat.Visible := (CurrentTool = ptLayerMapping);
 end;
 
 procedure TFMain.SwitchColors;

@@ -2280,9 +2280,9 @@ object FMain: TFMain
     Left = 479
     Height = 36
     Top = 152
-    Width = 32
+    Width = 65
     ClientHeight = 36
-    ClientWidth = 32
+    ClientWidth = 65
     Font.Height = -12
     ParentColor = False
     ParentFont = False
@@ -2291,7 +2291,7 @@ object FMain: TFMain
       Left = 1
       Height = 22
       Top = 1
-      Width = 24
+      Width = 47
       Align = alNone
       AutoSize = True
       EdgeBorders = []
@@ -2300,10 +2300,17 @@ object FMain: TFMain
       ParentFont = False
       TabOrder = 0
       object Perspective_TwoPlanes: TToolButton
-        Left = 1
+        Left = 24
         Hint = 'Draw opposite plane too'
         Top = 0
         ImageIndex = 89
+        Style = tbsCheck
+      end
+      object Perspective_Repeat: TToolButton
+        Left = 1
+        Hint = 'Repeat image'
+        Top = 0
+        ImageIndex = 88
         Style = tbsCheck
       end
     end

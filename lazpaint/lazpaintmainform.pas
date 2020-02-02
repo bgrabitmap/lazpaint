@@ -46,6 +46,7 @@ type
     Label_TextBlur: TLabel;
     TimerHideFill: TTimer;
     TimerArrange: TTimer;
+    Perspective_Repeat: TToolButton;
     VectorialFill_Pen: TLCVectorialFillControl;
     VectorialFill_Back: TLCVectorialFillControl;
     Panel_BackFill: TPanel;
@@ -671,6 +672,7 @@ type
     procedure ManagerShapeOptionChanged(Sender: TObject);
     procedure ManagerToleranceChanged(Sender: TObject);
     procedure ManagerToolbarChanged(Sender: TObject);
+    procedure Perspective_RepeatClick(Sender: TObject);
     procedure VectorialFill_BackAdjustToShape(Sender: TObject);
     procedure VectorialFill_BackChange(Sender: TObject);
     procedure VectorialFill_BackEditGradTexPoints(Sender: TObject);
