@@ -2131,9 +2131,9 @@ begin
   tcFinish: result := not IsIdle;
   tcForeAdjustToShape, tcBackAdjustToShape: result := not IsSelectingTool and Assigned(FShape) and not FQuickDefine;
   tcForeEditGradTexPoints: result := not IsSelectingTool and Assigned(FShape) and not FQuickDefine and
-                            (vsuEditPenFill in FShape.Usermodes);
+                            (vsuEditPenFill in FShape.Usermodes) and not (FShape.Usermode = vsuCreate);
   tcBackEditGradTexPoints: result := not IsSelectingTool and Assigned(FShape) and not FQuickDefine and
-                            (vsuEditPenFill in FShape.Usermodes);
+                            (vsuEditPenFill in FShape.Usermodes) and not (FShape.Usermode = vsuCreate);
   tcShapeToSpline: result:= not IsSelectingTool and not FQuickDefine and Assigned(FShape)
                             and TCurveShape.CanCreateFrom(FShape);
   tcAlignLeft..tcAlignBottom: Result:= not FQuickDefine and Assigned(FShape);

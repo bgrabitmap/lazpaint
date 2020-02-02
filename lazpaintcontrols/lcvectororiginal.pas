@@ -197,6 +197,7 @@ type
     destructor Destroy; override;
     procedure BeginUpdate(ADiffHandler: TVectorShapeDiffAny=nil);
     procedure EndUpdate;
+    procedure FillFit;
     procedure QuickDefine(const APoint1,APoint2: TPointF); virtual; abstract;
     //one of the two Render functions must be overriden
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); virtual;
@@ -1591,6 +1592,18 @@ begin
         DoOnChange(FBoundsBeforeUpdate, nil);
     end;
   end;
+end;
+
+procedure TVectorShape.FillFit;
+var
+  box: TAffineBox;
+begin
+  BeginUpdate;
+  box := SuggestGradientBox(AffineMatrixIdentity);
+  if vsfPenFill in Fields then PenFill.FitGeometry(box);
+  if vsfBackFill in Fields then BackFill.FitGeometry(box);
+  if vsfOutlineFill in Fields then OutlineFill.FitGeometry(box);
+  EndUpdate;
 end;
 
 procedure TVectorShape.BeginEditingUpdate;

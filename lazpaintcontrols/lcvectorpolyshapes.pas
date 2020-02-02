@@ -828,10 +828,13 @@ begin
   FMousePos := PointF(X,Y);
   if FAddingPoint then
   begin
+    BeginUpdate;
     if (PointCount = 1) and (FMousePos <> Points[PointCount-1]) then
       Points[PointCount] := FMousePos
     else
       Points[PointCount-1] := FMousePos;
+    FillFit;
+    EndUpdate;
     AHandled:= true;
   end;
 end;
@@ -857,6 +860,7 @@ begin
       AddPoint(EmptyPointF);
       FMousePos := PointF(X,Y);
       AddPoint(FMousePos);
+      FillFit;
       EndUpdate;
       USerMode := vsuCreate;
       AHandled:= true;
