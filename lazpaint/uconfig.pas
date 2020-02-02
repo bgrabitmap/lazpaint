@@ -192,6 +192,10 @@ type
     function DefaultToolBackColor: TBGRAPixel;
     procedure SetDefaultToolForeColor(value: TBGRAPixel);
     procedure SetDefaultToolBackColor(value: TBGRAPixel);
+    function DefaultToolForeGradient: string;
+    function DefaultToolBackGradient: string;
+    procedure SetDefaultToolForeGradient(value: string);
+    procedure SetDefaultToolBackGradient(value: string);
     function DefaultToolPenWidth: single;
     procedure SetDefaultToolPenWidth(value: single);
     function DefaultToolEraserWidth: single;
@@ -787,6 +791,26 @@ end;
 procedure TLazPaintConfig.SetDefaultToolBackColor(value: TBGRAPixel);
 begin
   iniOptions.WriteString('Tool','BackColor',BGRAToStr(value));
+end;
+
+function TLazPaintConfig.DefaultToolForeGradient: string;
+begin
+  result := iniOptions.ReadString('Tool','ForeGradient','');
+end;
+
+function TLazPaintConfig.DefaultToolBackGradient: string;
+begin
+  result := iniOptions.ReadString('Tool','BackGradient','');
+end;
+
+procedure TLazPaintConfig.SetDefaultToolForeGradient(value: string);
+begin
+  iniOptions.WriteString('Tool','ForeGradient',value);
+end;
+
+procedure TLazPaintConfig.SetDefaultToolBackGradient(value: string);
+begin
+  iniOptions.WriteString('Tool','BackGradient',value);
 end;
 
 function TLazPaintConfig.DefaultToolPenWidth: single;

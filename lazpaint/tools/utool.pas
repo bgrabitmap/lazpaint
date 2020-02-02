@@ -63,8 +63,8 @@ const
   MaxPhongBorderSize = 100;
   MinDeformationGridSize = 3;
 
-function GradientColorSpaceToDisplay(AValue: TBGRAColorInterpolation): string;
-function DisplayToGradientColorSpace(AValue: string): TBGRAColorInterpolation;
+function GradientInterpolationToDisplay(AValue: TBGRAColorInterpolation): string;
+function DisplayToGradientInterpolation(AValue: string): TBGRAColorInterpolation;
 
 type
   TLayerKind = (lkUnknown, lkEmpty, lkBitmap, lkTransformedBitmap, lkGradient, lkVectorial, lkSVG, lkOther);
@@ -247,8 +247,8 @@ type
     FOnFloodFillOptionChanged: TNotifyEvent;
     FOnPerspectiveOptionChanged: TNotifyEvent;
 
-    procedure BackFillChange(ASender: TObject;
-      var ADiff: TCustomVectorialFillDiff);
+    procedure BackFillChange({%H-}ASender: TObject;
+      var {%H-}ADiff: TCustomVectorialFillDiff);
     function GetAllowedBackFillTypes: TVectorialFillTypes;
     function GetAllowedForeFillTypes: TVectorialFillTypes;
     function GetCursor: TCursor;
@@ -477,6 +477,8 @@ type
     property AllowedBackFillTypes: TVectorialFillTypes read GetAllowedBackFillTypes;
     property ForeColor: TBGRAPixel read GetForeColor write SetForeColor;
     property BackColor: TBGRAPixel read GetBackColor write SetBackColor;
+    property ForeLastGradient: TBGRALayerGradientOriginal read FForeLastGradient;
+    property BackLastGradient: TBGRALayerGradientOriginal read FBackLastGradient;
     property EraserMode: TEraserMode read FEraserMode write SetEraserMode;
     property EraserAlpha: byte read FEraserAlpha write SetEraserAlpha;
     property PenWidth: single read GetPenWidth write SetPenWidth;
@@ -570,10 +572,10 @@ begin
     end;
 end;
 
-function GradientColorSpaceToDisplay(AValue: TBGRAColorInterpolation): string;
+function GradientInterpolationToDisplay(AValue: TBGRAColorInterpolation): string;
 begin
   case AValue of
-    ciStdRGB: result := rsLinearRGB;
+    ciLinearRGB: result := rsLinearRGB;
     ciLinearHSLPositive: result := rsHueCW;
     ciLinearHSLNegative: result := rsHueCCW;
     ciGSBPositive: result := rsCorrectedHueCW;
@@ -583,15 +585,86 @@ begin
   end;
 end;
 
-function DisplayToGradientColorSpace(AValue: string): TBGRAColorInterpolation;
+function DisplayToGradientInterpolation(AValue: string): TBGRAColorInterpolation;
 begin
-  if AValue=rsLinearRGB then result := ciStdRGB else
+  if AValue=rsLinearRGB then result := ciLinearRGB else
   if AValue=rsHueCW then result := ciLinearHSLPositive else
   if AValue=rsHueCCW then result := ciLinearHSLNegative else
   if AValue=rsCorrectedHueCW then result := ciGSBPositive else
   if AValue=rsCorrectedHueCCW then result := ciGSBNegative
   else
+    result := ciStdRGB;
+end;
+
+function GradientInterpolationToStr(AValue: TBGRAColorInterpolation): string;
+begin
+  case AValue of
+    ciStdRGB: result := 'StdRGB';
+    ciLinearHSLPositive: result := 'LinearHSLPositive';
+    ciLinearHSLNegative: result := 'LinearHSLNegative';
+    ciGSBPositive: result := 'GSBPositive';
+    ciGSBNegative: result := 'GSBNegative';
+  else
+    result := 'LinearRGB';
+  end;
+end;
+
+function StrToGradientInterpolation(AValue: string): TBGRAColorInterpolation;
+begin
+  if AValue='StdRGB' then result := ciStdRGB else
+  if AValue='LinearHSLPositive' then result := ciLinearHSLPositive else
+  if AValue='LinearHSLNegative' then result := ciLinearHSLNegative else
+  if AValue='GSBPositive' then result := ciGSBPositive else
+  if AValue='GSBNegative' then result := ciGSBNegative
+  else
     result := ciLinearRGB;
+end;
+
+function GradientRepetitionToStr(AValue: TBGRAGradientRepetition): string;
+begin
+  case AValue of
+    grRepeat: result:= 'Repeat';
+    grReflect: result:= 'Reflect';
+    grSine: result:= 'Sine';
+    else result := 'Pad';
+  end;
+end;
+
+function StrToGradientRepetition(AValue: string): TBGRAGradientRepetition;
+begin
+  case AValue of
+    'Repeat': result:= grRepeat;
+    'Reflect': result:= grReflect;
+    'Sine': result:= grSine;
+    else result := grPad;
+  end;
+end;
+
+function GradientToConfigStr(AGradient: TBGRALayerGradientOriginal): string;
+var
+  vars: TVariableSet;
+begin
+  vars := TVariableSet.Create('');
+  vars.Pixels['StartColor'] := AGradient.StartColor;
+  vars.Pixels['EndColor'] := AGradient.EndColor;
+  vars.Strings['GradientType'] := GradientTypeStr[AGradient.GradientType];
+  vars.Strings['ColorInterpolation'] := GradientInterpolationToStr(AGradient.ColorInterpolation);
+  vars.Strings['Repetition'] := GradientRepetitionToStr(AGradient.Repetition);
+  result := vars.VariablesAsString;
+  vars.Free;
+end;
+
+procedure AssignGradientFromConfigStr(AGradient: TBGRALayerGradientOriginal; AValue: string);
+var
+  vars: TVariableSet;
+begin
+  vars := TVariableSet.Create('', AValue);
+  if vars.IsDefined('StartColor') then AGradient.StartColor := vars.Pixels['StartColor'];
+  if vars.IsDefined('EndColor') then AGradient.EndColor := vars.Pixels['EndColor'];
+  if vars.IsDefined('GradientType') then AGradient.GradientType := StrToGradientType(vars.Strings['GradientType']);
+  if vars.IsDefined('ColorInterpolation') then AGradient.ColorInterpolation := StrToGradientInterpolation(vars.Strings['ColorInterpolation']);
+  if vars.IsDefined('Repetition') then AGradient.Repetition := StrToGradientRepetition(vars.Strings['Repetition']);
+  vars.Free;
 end;
 
 var
@@ -1660,42 +1733,21 @@ function TToolManager.ScriptGetGradientInterpolation(AVars: TVariableSet; AFill:
 begin
   result := srOk;
   if AFill.FillType <> vftGradient then result := srException else
-  case AFill.Gradient.ColorInterpolation of
-  ciStdRGB: AVars.Strings['Result'] := 'StdRGB';
-  ciLinearRGB: AVars.Strings['Result'] := 'LinearRGB';
-  ciLinearHSLPositive: AVars.Strings['Result'] := 'LinearHSLPositive';
-  ciLinearHSLNegative: AVars.Strings['Result'] := 'LinearHSLNegative';
-  ciGSBPositive: AVars.Strings['Result'] := 'GSBPositive';
-  ciGSBNegative: AVars.Strings['Result'] := 'GSBNegative';
-  else result := srException;
-  end;
+  AVars.Strings['Result'] := GradientInterpolationToStr(AFill.Gradient.ColorInterpolation);
 end;
 
 function TToolManager.ScriptGetGradientRepetition(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
 begin
   result := srOk;
   if AFill.FillType <> vftGradient then result := srException else
-  case AFill.Gradient.Repetition of
-  grPad: AVars.Strings['Result'] := 'Pad';
-  grRepeat: AVars.Strings['Result'] := 'Repeat';
-  grReflect: AVars.Strings['Result'] := 'Reflect';
-  grSine: AVars.Strings['Result'] := 'Sine';
-  else result := srException;
-  end;
+  AVars.Strings['Result'] := GradientRepetitionToStr(AFill.Gradient.Repetition);
 end;
 
 function TToolManager.ScriptGetGradientType(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
 begin
   result := srOk;
   if AFill.FillType <> vftGradient then result := srException else
-  case AFill.Gradient.GradientType of
-  gtLinear: AVars.Strings['Result'] := 'Linear';
-  gtReflected: AVars.Strings['Result'] := 'Reflected';
-  gtDiamond: AVars.Strings['Result'] := 'Diamond';
-  gtRadial: AVars.Strings['Result'] := 'Radial';
-  gtAngular: AVars.Strings['Result'] := 'Angular';
-  else result := srException;
-  end;
+  AVars.Strings['Result'] := GradientTypeStr[AFill.Gradient.GradientType];
 end;
 
 function TToolManager.ScriptGetGradientColors(AVars: TVariableSet;
@@ -2085,31 +2137,27 @@ begin
 end;
 
 function TToolManager.ScriptSetGradientInterpolation(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+var
+  ci: TBGRAColorInterpolation;
 begin
   if AFill.FillType <> vftGradient then exit(srException);
   result := srOk;
-  case AVars.Strings['Interpolation'] of
-  'StdRGB': AFill.Gradient.ColorInterpolation:= ciStdRGB;
-  'LinearRGB': AFill.Gradient.ColorInterpolation:= ciLinearRGB;
-  'LinearHSLPositive': AFill.Gradient.ColorInterpolation:= ciLinearHSLPositive;
-  'LinearHSLNegative': AFill.Gradient.ColorInterpolation:= ciLinearHSLNegative;
-  'GSBPositive': AFill.Gradient.ColorInterpolation:= ciGSBPositive;
-  'GSBNegative': AFill.Gradient.ColorInterpolation:= ciGSBNegative;
-  else result := srInvalidParameters;
-  end;
+  ci := StrToGradientInterpolation(AVars.Strings['Interpolation']);
+  if GradientInterpolationToStr(ci) <> AVars.Strings['Interpolation'] then
+    result := srInvalidParameters
+  else AFill.Gradient.ColorInterpolation:= ci;
 end;
 
 function TToolManager.ScriptSetGradientRepetition(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+var
+  gr: TBGRAGradientRepetition;
 begin
   if AFill.FillType <> vftGradient then exit(srException);
   result := srOk;
-  case AVars.Strings['Repetition'] of
-    'Pad': AFill.Gradient.Repetition:= grPad;
-    'Repeat': AFill.Gradient.Repetition:= grRepeat;
-    'Reflect': AFill.Gradient.Repetition:= grReflect;
-    'Sine': AFill.Gradient.Repetition:= grSine;
-    else result := srInvalidParameters;
-  end;
+  gr := StrToGradientRepetition(AVars.Strings['Repetition']);
+  if GradientRepetitionToStr(gr) <> AVars.Strings['Repetition'] then
+    result := srInvalidParameters
+  else AFill.Gradient.Repetition:= gr;
 end;
 
 function TToolManager.ScriptSetGradientType(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
@@ -2119,14 +2167,9 @@ var
   lastGrad: TBGRALayerGradientOriginal;
 begin
   result := srOk;
-  case AVars.Strings['GradientType'] of
-  'Linear': gt := gtLinear;
-  'Reflected': gt := gtReflected;
-  'Diamond': gt := gtDiamond;
-  'Radial': gt := gtRadial;
-  'Angular': gt := gtAngular;
-  else result := srInvalidParameters;
-  end;
+  gt := StrToGradientType(AVars.Strings['GradientType']);
+  if GradientTypeStr[gt] <> AVars.Strings['GradientType'] then
+    exit(srInvalidParameters);
   if AFill.FillType = vftGradient then
     AFill.Gradient.GradientType:= gt
   else
@@ -2579,6 +2622,8 @@ begin
     exit;
   ForeColor := Config.DefaultToolForeColor;
   BackColor := Config.DefaultToolBackColor;
+  AssignGradientFromConfigStr(FForeLastGradient, Config.DefaultToolForeGradient);
+  AssignGradientFromConfigStr(FBackLastGradient, Config.DefaultToolBackGradient);
   FNormalPenWidth := Config.DefaultToolPenWidth;
   FEraserWidth := Config.DefaultToolEraserWidth;
   if Assigned(FOnPenWidthChanged) then FOnPenWidthChanged(self);
@@ -2613,8 +2658,10 @@ begin
     Config := FConfigProvider.GetConfig
   else
     exit;
-  Config.SetDefaultToolForeColor(ForeColor);
-  Config.SetDefaultToolBackColor(BackColor);
+  if ForeFill.FillType = vftSolid then Config.SetDefaultToolForeColor(ForeColor);
+  if BackFill.FillType = vftSolid then Config.SetDefaultToolBackColor(BackColor);
+  Config.SetDefaultToolForeGradient(GradientToConfigStr(FForeLastGradient));
+  Config.SetDefaultToolBackGradient(GradientToConfigStr(FBackLastGradient));
   Config.SetDefaultToolPenWidth(FNormalPenWidth);
   Config.SetDefaultToolEraserWidth(FEraserWidth);
   Config.SetDefaultToolOptionDrawShape(toDrawShape in ShapeOptions);

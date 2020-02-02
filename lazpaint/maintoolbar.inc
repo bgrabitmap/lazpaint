@@ -26,6 +26,22 @@ begin
   VectorialFill_Back.OnEditGradTexPoints:=@VectorialFill_BackEditGradTexPoints;
   VectorialFill_Pen.OnResize:=@VectorialFill_PenResize;
   VectorialFill_Back.OnResize:=@VectorialFill_BackResize;
+  with ToolManager.ForeLastGradient do
+  begin
+    VectorialFill_Pen.GradStartColor:= StartColor;
+    VectorialFill_Pen.GradEndColor:= EndColor;
+    VectorialFill_Pen.GradientType:= GradientType;
+    VectorialFill_Pen.GradRepetition:= Repetition;
+    VectorialFill_Pen.GradInterpolation:= ColorInterpolation;
+  end;
+  with ToolManager.BackLastGradient do
+  begin
+    VectorialFill_Back.GradStartColor:= StartColor;
+    VectorialFill_Back.GradEndColor:= EndColor;
+    VectorialFill_Back.GradientType:= GradientType;
+    VectorialFill_Back.GradRepetition:= Repetition;
+    VectorialFill_Back.GradInterpolation:= ColorInterpolation;
+  end;
   Label_Pen.OnMouseMove:=@VectorialFill_ShowPenFill;
   Panel_PenFill.OnMouseMove:=@VectorialFill_ShowPenFill;
   VectorialFill_Pen.OnMouseMove:=@VectorialFill_ShowPenFill;
