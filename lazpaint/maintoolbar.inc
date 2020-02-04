@@ -8,6 +8,8 @@ begin
   Panel_ToolbarBackground.PopupMenu := PopupToolbar;
   Perspective_Repeat.OnClick:=@Perspective_RepeatClick;
   Perspective_TwoPlanes.OnClick := @Perspective_TwoPlanesClick;
+  Panel_PenFill.PopupMenu := nil;
+  Panel_BackFill.PopupMenu := nil;
   VectorialFill_Pen.VerticalPadding:= DoScaleY(6, OriginalDPI);
   VectorialFill_Back.VerticalPadding:= DoScaleY(6, OriginalDPI);
   VectorialFill_Pen.OnChooseColor := @VectorialFill_PenChooseColor;
