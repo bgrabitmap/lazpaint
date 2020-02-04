@@ -39,6 +39,7 @@ type
   TToolSelectEllipse = class(TVectorialSelectTool)
   protected
     function CreateShape: TVectorShape; override;
+    function GetGridMatrix: TAffineMatrix; override;
   public
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
     function GetContextualToolbars: TContextualToolbars; override;
@@ -301,6 +302,11 @@ end;
 function TToolSelectEllipse.CreateShape: TVectorShape;
 begin
   result := TEllipseShape.Create(nil);
+end;
+
+function TToolSelectEllipse.GetGridMatrix: TAffineMatrix;
+begin
+  result := AffineMatrixScale(0.5,0.5);
 end;
 
 function TToolSelectEllipse.Render(VirtualScreen: TBGRABitmap;

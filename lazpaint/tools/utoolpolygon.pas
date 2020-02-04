@@ -26,6 +26,7 @@ type
   TToolEllipse = class(TVectorialTool)
   protected
     function CreateShape: TVectorShape; override;
+    function GetGridMatrix: TAffineMatrix; override;
   public
     function GetContextualToolbars: TContextualToolbars; override;
   end;
@@ -68,13 +69,18 @@ type
 
 implementation
 
-uses LazPaintType, LCVectorRectShapes, LCVectorPolyShapes;
+uses LazPaintType, LCVectorRectShapes, LCVectorPolyShapes, BGRATransform;
 
 { TToolEllipse }
 
 function TToolEllipse.CreateShape: TVectorShape;
 begin
   result := TEllipseShape.Create(nil);
+end;
+
+function TToolEllipse.GetGridMatrix: TAffineMatrix;
+begin
+  Result:= AffineMatrixScale(0.5, 0.5);
 end;
 
 function TToolEllipse.GetContextualToolbars: TContextualToolbars;

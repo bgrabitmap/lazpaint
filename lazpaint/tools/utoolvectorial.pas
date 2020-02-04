@@ -73,6 +73,7 @@ type
     function BackFitMode: TFitMode;
     function GetIsForeEditGradTexPoints: boolean; override;
     function GetIsBackEditGradTexPoints: boolean; override;
+    function GetGridMatrix: TAffineMatrix; virtual;
   public
     function ValidateShape: TRect;
     function CancelShape: TRect;
@@ -1628,6 +1629,21 @@ begin
   result := Assigned(FShape) and (FShape.Usermode = BackGradTexMode);
 end;
 
+function TVectorialTool.GetGridMatrix: TAffineMatrix;
+begin
+  if Manager.Image.ZoomFactor > DoScaleX(35, OriginalDPI)/10 then
+    result := AffineMatrixScale(0.5,0.5)
+  else
+  begin
+    if Assigned(FShape) and
+         (not (vsfPenFill in FShape.Fields) or
+           (FShape.PenFill.IsFullyTransparent)) then
+      result := AffineMatrixTranslation(0.5, 0.5)
+    else
+      result := AffineMatrixIdentity;
+  end;
+end;
+
 function TVectorialTool.ValidateShape: TRect;
 var
   layerId: LongInt;
@@ -1892,6 +1908,7 @@ var
   handled: boolean;
   cur: TOriginalEditorCursor;
 begin
+  FEditor.GridMatrix := GetGridMatrix;
   with LayerOffset do
     FLastPos := AffineMatrixTranslation(X,Y)*ptF;
   if FQuickDefine then
@@ -1943,7 +1960,7 @@ begin
   UpdateUseOriginal;
   FPreviousUpdateBounds := EmptyRect;
   FEditor := TVectorOriginalEditor.Create(nil);
-  FEditor.GridMatrix := AffineMatrixScale(0.5,0.5);
+  FEditor.GridMatrix := GetGridMatrix;
   FEditor.Focused := true;
   FPreviousEditorBounds := EmptyRect;
   FLastShapeTransform := AffineMatrixIdentity;
