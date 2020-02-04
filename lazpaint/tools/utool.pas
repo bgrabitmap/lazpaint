@@ -267,7 +267,7 @@ type
     function GetTextFontSize: single;
     function GetTextFontStyle: TFontStyles;
     procedure ForeFillChange({%H-}ASender: TObject;
-      var ADiff: TCustomVectorialFillDiff);
+      var {%H-}ADiff: TCustomVectorialFillDiff);
     function ScriptGetAliasing(AVars: TVariableSet): TScriptResult;
     function ScriptGetArrowEnd(AVars: TVariableSet): TScriptResult;
     function ScriptGetArrowSize(AVars: TVariableSet): TScriptResult;

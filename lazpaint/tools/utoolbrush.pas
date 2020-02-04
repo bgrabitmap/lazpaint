@@ -23,7 +23,7 @@ type
     procedure PrepareBrush(rightBtn: boolean); virtual; abstract;
     procedure ReleaseBrush; virtual; abstract;
     function StartDrawing(toolDest: TBGRABitmap; ptF: TPointF; rightBtn: boolean): TRect; override;
-    function ContinueDrawing(toolDest: TBGRABitmap; {%H-}originF, destF: TPointF; rightBtn: boolean): TRect; override;
+    function ContinueDrawing(toolDest: TBGRABitmap; {%H-}originF, destF: TPointF; {%H-}rightBtn: boolean): TRect; override;
     function GetBrushAlpha(AAlpha: byte): byte;
   public
     constructor Create(AManager: TToolManager); override;

@@ -817,7 +817,6 @@ function TFAdjustCurves.NeedHistogram(ATab: integer): boolean;
   end;
 
 var
-  i: Integer;
   p: PBGRAPixel;
   yb, xb, nbx: LongInt;
   hslaValue: THSLAPixel;

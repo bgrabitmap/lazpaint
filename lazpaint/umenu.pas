@@ -330,7 +330,6 @@ end;
 
 procedure TMainFormMenu.Toolbars(const AToolbars: array of TPanel; AToolbarBackground: TPanel);
 var i,j: NativeInt;
-  prefWidth, prefHeight: integer;
 begin
   setlength(FToolbars, length(AToolbars));
   for i := 0 to high(FToolbars) do

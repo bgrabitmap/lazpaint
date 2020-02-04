@@ -683,10 +683,10 @@ type
     procedure VectorialFill_PenEditGradTexPoints(Sender: TObject);
     procedure VectorialFill_PenResize(Sender: TObject);
     procedure VectorialFill_PenTypeChange(Sender: TObject);
-    procedure VectorialFill_ShowBackFill(Sender: TObject; Shift: TShiftState;
-      X, Y: Integer);
-    procedure VectorialFill_ShowPenFill(Sender: TObject; Shift: TShiftState; X,
-      Y: Integer);
+    procedure VectorialFill_ShowBackFill(Sender: TObject; {%H-}Shift: TShiftState;
+      {%H-}X, {%H-}Y: Integer);
+    procedure VectorialFill_ShowPenFill(Sender: TObject; {%H-}Shift: TShiftState; {%H-}X,
+      {%H-}Y: Integer);
   private
     { private declarations }
     FLayout: TMainFormLayout;
