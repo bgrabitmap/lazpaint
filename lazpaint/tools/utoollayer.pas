@@ -34,6 +34,8 @@ type
     function DoGetToolDrawingLayer: TBGRABitmap; override;
     procedure OnTryStop({%H-}sender: TCustomLayerAction); override;
     function FixLayerOffset: boolean; override;
+    function DoTranslate(dx,dy: single): TRect;
+    procedure SaveOffsetBefore;
   public
     constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
@@ -137,7 +139,7 @@ type
 
 implementation
 
-uses LazPaintType, ugraph, LCLType, Types, BGRALayerOriginal;
+uses LazPaintType, ugraph, LCLType, Types, BGRALayerOriginal, math;
 
 const
   VeryBigValue = maxLongInt div 2;
@@ -151,7 +153,6 @@ end;
 
 function TToolMoveLayer.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
-var idx: integer;
 begin
   result := EmptyRect;
   if not handMoving then
@@ -159,35 +160,19 @@ begin
     GetAction;
     handMoving := true;
     handOriginF := ptF;
-    idx := Manager.Image.CurrentLayerIndex;
-    if not FStartLayerOffsetDefined then
-    begin
-      FStartLayerOffsetDefined := true;
-      NeedLayerBounds;
-      FStartLayerOffset := Manager.Image.LayerOffset[idx];
-      FStartLayerMatrix := Manager.Image.LayerOriginalMatrix[idx];
-    end;
-    if UseOriginal then
-    begin
-      Manager.Image.DraftOriginal := true;
-      originalTransformBefore := Manager.Image.LayerOriginalMatrix[idx];
-    end else
-      originalTransformBefore := AffineMatrixIdentity;
-    layerOffsetBefore := Manager.Image.LayerOffset[idx];
+    if UseOriginal then Manager.Image.DraftOriginal := true;
+    SaveOffsetBefore;
   end;
 end;
 
 function TToolMoveLayer.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF): TRect;
-var idx: integer;
+var
   dx, dy: Single;
-  newTransform: TAffineMatrix;
-  newOfs: TPoint;
 begin
   result := EmptyRect;
   if handMoving then
   begin
-    idx := Manager.Image.CurrentLayerIndex;
     dx := ptF.X-HandOriginF.X;
     dy := ptF.Y-HandOriginF.Y;
     if snapToPixel then
@@ -195,24 +180,7 @@ begin
       dx := round(dx);
       dy := round(dy);
     end;
-    if UseOriginal then
-    begin
-      newTransform := AffineMatrixTranslation(dx,dy)*originalTransformBefore;
-      if Manager.Image.LayerOriginalMatrix[idx] <> newTransform then
-      begin
-        Manager.Image.LayerOriginalMatrix[idx] := newTransform;
-        result := OnlyRenderChange;
-      end;
-    end else
-    begin
-      newOfs := Point(layerOffsetBefore.X+round(dx),
-                      layerOffsetBefore.Y+round(dy));
-      if Manager.Image.LayerOffset[idx]<>newOfs then
-      begin
-        Manager.Image.SetLayerOffset(idx, newOfs, FLayerBounds);
-        result := OnlyRenderChange;
-      end;
-    end;
+    result := DoTranslate(dx,dy);
   end;
 end;
 
@@ -266,6 +234,53 @@ begin
   Result:= false;
 end;
 
+function TToolMoveLayer.DoTranslate(dx, dy: single): TRect;
+var
+  idx: integer;
+  newTransform: TAffineMatrix;
+  newOfs: TPoint;
+begin
+  idx := Manager.Image.CurrentLayerIndex;
+  if not FStartLayerOffsetDefined then
+  begin
+    FStartLayerOffsetDefined := true;
+    NeedLayerBounds;
+    FStartLayerOffset := Manager.Image.LayerOffset[idx];
+    FStartLayerMatrix := Manager.Image.LayerOriginalMatrix[idx];
+  end;
+
+  if UseOriginal then
+  begin
+    newTransform := AffineMatrixTranslation(dx,dy)*originalTransformBefore;
+    if Manager.Image.LayerOriginalMatrix[idx] <> newTransform then
+    begin
+      Manager.Image.LayerOriginalMatrix[idx] := newTransform;
+      result := OnlyRenderChange;
+    end;
+  end else
+  begin
+    newOfs := Point(layerOffsetBefore.X+round(dx),
+                    layerOffsetBefore.Y+round(dy));
+    if Manager.Image.LayerOffset[idx]<>newOfs then
+    begin
+      Manager.Image.SetLayerOffset(idx, newOfs, FLayerBounds);
+      result := OnlyRenderChange;
+    end;
+  end;
+end;
+
+procedure TToolMoveLayer.SaveOffsetBefore;
+var
+  idx: Integer;
+begin
+  idx := Manager.Image.CurrentLayerIndex;
+  if UseOriginal then
+    originalTransformBefore := Manager.Image.LayerOriginalMatrix[idx]
+  else
+    originalTransformBefore := AffineMatrixIdentity;
+  layerOffsetBefore := Manager.Image.LayerOffset[idx];
+end;
+
 constructor TToolMoveLayer.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
@@ -282,6 +297,20 @@ begin
 end;
 
 function TToolMoveLayer.ToolKeyDown(var key: Word): TRect;
+  function Translate(dx,dy: integer): TRect;
+  begin
+    if handMoving then exit(EmptyRect);
+    key := 0;
+    GetAction;
+    SaveOffsetBefore;
+    if snapToPixel then
+    begin
+      dx := dx*max(Manager.Image.Width div 20, 2);
+      dy := dy*max(Manager.Image.Height div 20, 2);
+    end;
+    result := DoTranslate(dx,dy);
+  end;
+
 var idx: integer;
 begin
   if key = VK_RETURN then
@@ -310,7 +339,12 @@ begin
       result := EmptyRect;
     Manager.QueryExitTool;
     Key := 0;
-  end else
+  end
+  else if key = VK_LEFT then result := Translate(-1, 0)
+  else if key = VK_RIGHT then result := Translate(1, 0)
+  else if key = VK_UP then result := Translate(0,-1)
+  else if key = VK_DOWN then result := Translate(0,1)
+  else
     Result:=inherited ToolKeyDown(key);
 end;
 
@@ -331,13 +365,34 @@ begin
 end;
 
 function TToolMoveLayer.ToolCommand(ACommand: TToolCommand): boolean;
+var
+  actualBounds: TRect;
+  idx: Integer;
 begin
   if not ToolProvideCommand(ACommand) then exit(false);
+  idx := Manager.Image.CurrentLayerIndex;
   case ACommand of
-  tcMoveDown: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, Manager.Image.CurrentLayerIndex-1);
-  tcMoveToBack: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, 0);
-  tcMoveUp: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, Manager.Image.CurrentLayerIndex+1);
-  tcMoveToFront: Manager.Image.MoveLayer(Manager.Image.CurrentLayerIndex, Manager.Image.NbLayers-1);
+  tcAlignLeft,tcAlignRight,tcAlignTop,tcAlignBottom,tcCenterHorizontally,tcCenterVertically:
+      if handMoving then exit(false) else
+      begin
+        NeedLayerBounds;
+        actualBounds := FLayerBounds;
+        if not UseOriginal then actualBounds.Offset(Manager.Image.LayerOffset[idx]);
+        GetAction;
+        SaveOffsetBefore;
+        case ACommand of
+          tcAlignLeft: DoTranslate(-actualBounds.Left, 0);
+          tcAlignRight: DoTranslate(Manager.Image.Width-actualBounds.Right, 0);
+          tcAlignTop: DoTranslate(0, -actualBounds.Top);
+          tcAlignBottom: DoTranslate(0, Manager.Image.Height-actualBounds.Bottom);
+          tcCenterHorizontally: DoTranslate((Manager.Image.Width-(actualBounds.Left+actualBounds.Right)) div 2, 0);
+          tcCenterVertically: DoTranslate(0, (Manager.Image.Height-(actualBounds.Top+actualBounds.Bottom)) div 2);
+        end;
+      end;
+  tcMoveDown: Manager.Image.MoveLayer(idx, idx-1);
+  tcMoveToBack: Manager.Image.MoveLayer(idx, 0);
+  tcMoveUp: Manager.Image.MoveLayer(idx, idx+1);
+  tcMoveToFront: Manager.Image.MoveLayer(idx, Manager.Image.NbLayers-1);
   end;
   result := true;
 end;
@@ -345,6 +400,8 @@ end;
 function TToolMoveLayer.ToolProvideCommand(ACommand: TToolCommand): boolean;
 begin
   case ACommand of
+  tcAlignLeft,tcAlignRight,tcAlignTop,tcAlignBottom,tcCenterHorizontally,tcCenterVertically:
+    result := not handMoving;
   tcMoveDown,tcMoveToBack: result := Manager.Image.CurrentLayerIndex > 0;
   tcMoveUp,tcMoveToFront: result := Manager.Image.CurrentLayerIndex < Manager.Image.NbLayers-1;
   else result := false;
