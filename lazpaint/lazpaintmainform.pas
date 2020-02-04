@@ -2570,10 +2570,17 @@ procedure TFMain.FormMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin
   if not Assigned(FImageView) or not FImageView.PictureCoordsDefined then exit;
-  Zoom.SetPosition(FImageView.FormToBitmap(MousePos.X,MousePos.Y), MousePos);
-  if WheelDelta > 0 then Zoom.ZoomIn(ssCtrl in Shift) else
-  if WheelDelta < 0 then Zoom.ZoomOut(ssCtrl in Shift);
-  Zoom.ClearPosition;
+  if ssAlt in Shift then
+  begin
+    if WheelDelta > 0 then IncreasePenSize
+    else if WheelDelta < 0 then DecreasePenSize;
+  end else
+  begin
+    Zoom.SetPosition(FImageView.FormToBitmap(MousePos.X,MousePos.Y), MousePos);
+    if WheelDelta > 0 then Zoom.ZoomIn(ssCtrl in Shift) else
+    if WheelDelta < 0 then Zoom.ZoomOut(ssCtrl in Shift);
+    Zoom.ClearPosition;
+  end;
   Handled := True;
 end;
 
