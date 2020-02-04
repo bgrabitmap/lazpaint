@@ -15,7 +15,7 @@ type
   TVectorialSelectTool = class(TVectorialTool)
   protected
     function GetIsSelectingTool: boolean; override;
-    procedure AssignShapeStyle({%H-}AMatrix: TAffineMatrix); override;
+    procedure AssignShapeStyle({%H-}AMatrix: TAffineMatrix; {%H-}AAlwaysFit: boolean); override;
     function RoundCoordinate(ptF: TPointF): TPointF; override;
     function UpdateShape(toolDest: TBGRABitmap): TRect; override;
     procedure QuickDefineEnd; override;
@@ -48,7 +48,7 @@ type
 
   TToolSelectPoly = class(TToolPolygon)
   protected
-    procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
+    procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); override;
     function GetIsSelectingTool: boolean; override;
   public
     function GetContextualToolbars: TContextualToolbars; override;
@@ -58,7 +58,7 @@ type
 
   TToolSelectSpline = class(TToolSpline)
   protected
-    procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
+    procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); override;
     function GetIsSelectingTool: boolean; override;
   public
     function GetContextualToolbars: TContextualToolbars; override;
@@ -81,7 +81,7 @@ type
   protected
     function GetIsSelectingTool: boolean; override;
     function StartDrawing(toolDest: TBGRABitmap; ptF: TPointF; rightBtn: boolean): TRect; override;
-    function ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF): TRect; override;
+    function ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF; rightBtn: boolean): TRect; override;
   public
     function GetContextualToolbars: TContextualToolbars; override;
   end;
@@ -163,10 +163,10 @@ end;
 
 { TToolSelectSpline }
 
-procedure TToolSelectSpline.AssignShapeStyle(AMatrix: TAffineMatrix);
+procedure TToolSelectSpline.AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean);
 begin
   FShape.BeginUpdate;
-  inherited AssignShapeStyle(AMatrix);
+  inherited AssignShapeStyle(AMatrix, AAlwaysFit);
   AssignSelectShapeStyle(FShape, FSwapColor);
   FShape.EndUpdate;
 end;
@@ -183,10 +183,10 @@ end;
 
 { TToolSelectPoly }
 
-procedure TToolSelectPoly.AssignShapeStyle(AMatrix: TAffineMatrix);
+procedure TToolSelectPoly.AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean);
 begin
   FShape.BeginUpdate;
-  inherited AssignShapeStyle(AMatrix);
+  inherited AssignShapeStyle(AMatrix, AAlwaysFit);
   AssignSelectShapeStyle(FShape, FSwapColor);
   FShape.EndUpdate;
 end;
@@ -208,7 +208,7 @@ begin
   Result:= true;
 end;
 
-procedure TVectorialSelectTool.AssignShapeStyle(AMatrix: TAffineMatrix);
+procedure TVectorialSelectTool.AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean);
 begin
   AssignSelectShapeStyle(FShape, FSwapColor);
   if FShape is TCustomRectShape then
@@ -588,6 +588,8 @@ end;
 
 function TToolSelectionPen.StartDrawing(toolDest: TBGRABitmap; ptF: TPointF;
   rightBtn: boolean): TRect;
+var
+  penColor: TBGRAPixel;
 begin
   if rightBtn then penColor := BGRABlack else penColor := BGRAWhite;
   toolDest.DrawLineAntialias(ptF.X,ptF.Y,ptF.X,ptF.Y,penColor,Manager.PenWidth,True);
@@ -595,8 +597,11 @@ begin
 end;
 
 function TToolSelectionPen.ContinueDrawing(toolDest: TBGRABitmap; originF,
-  destF: TPointF): TRect;
+  destF: TPointF; rightBtn: boolean): TRect;
+var
+  penColor: TBGRAPixel;
 begin
+  if rightBtn then penColor := BGRABlack else penColor := BGRAWhite;
   toolDest.DrawLineAntialias(destF.X,destF.Y,originF.X,originF.Y,penColor,Manager.PenWidth,False);
   result := GetShapeBounds([destF,originF],Manager.PenWidth+1);
 end;

@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, UTool, UToolVectorial, LCLType, Graphics, BGRABitmap, BGRABitmapTypes, BGRATextFX,
-  BGRAGradients, LCVectorOriginal;
+  BGRAGradients, LCVectorOriginal, LCVectorialFill;
 
 type
 
@@ -25,10 +25,14 @@ type
     procedure DrawCustomShape(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     procedure ShapeChange(ASender: TObject; ABounds: TRectF; ADiff: TVectorShapeDiff); override;
     procedure ShapeEditingChange(ASender: TObject); override;
-    procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
+    procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); override;
     function SlowShape: boolean; override;
     procedure QuickDefineEnd; override;
     function RoundCoordinate(ptF: TPointF): TPointF; override;
+    function ForeGradTexMode: TVectorShapeUsermode; override;
+    function BackGradTexMode: TVectorShapeUsermode; override;
+    function ShapeForeFill: TVectorialFill; override;
+    function ShapeBackFill: TVectorialFill; override;
   public
     constructor Create(AManager: TToolManager); override;
     function GetContextualToolbars: TContextualToolbars; override;
@@ -142,11 +146,13 @@ begin
   inherited ShapeEditingChange(ASender);
 end;
 
-procedure TToolText.AssignShapeStyle(AMatrix: TAffineMatrix);
+procedure TToolText.AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean);
 var
   r: TRect;
   toolDest: TBGRABitmap;
   zoom: Single;
+  gradBox: TAffineBox;
+  fitMode: TFitMode;
 begin
   FMatrix := AMatrix;
   with TTextShape(FShape) do
@@ -155,24 +161,22 @@ begin
     FontEmHeight:= zoom*Manager.TextFontSize*Manager.Image.DPI/72;
     FontName:= Manager.TextFontName;
     FontStyle:= Manager.TextFontStyle;
+    gradBox := self.SuggestGradientBox;
 
-    if Manager.GetTexture <> nil then
-      FShape.PenFill.SetTexture(Manager.GetTexture,AffineMatrixIdentity,Manager.TextureOpacity)
+    if AAlwaysFit then fitMode := fmAlways else fitMode := ForeFitMode;
+    if FSwapColor then
+      AssignFill(FShape.PenFill, Manager.BackFill, gradBox, fitMode)
     else
-    begin
-      if FSwapColor then
-        FShape.PenFill.SetSolid(Manager.BackColor)
-      else
-        FShape.PenFill.SetSolid(Manager.ForeColor);
-    end;
+      AssignFill(FShape.PenFill, Manager.ForeFill, gradBox, fitMode);
 
     if Manager.TextOutline and (Manager.TextOutlineWidth>0) and
        (Manager.BackColor.alpha > 0) then
     begin
+      if AAlwaysFit then fitMode := fmAlways else fitMode := BackFitMode;
       if FSwapColor then
-        FShape.OutlineFill.SetSolid(Manager.ForeColor)
+        AssignFill(FShape.OutlineFill, Manager.ForeFill, gradBox, fitMode)
       else
-        FShape.OutlineFill.SetSolid(Manager.BackColor);
+        AssignFill(FShape.OutlineFill, Manager.BackFill, gradBox, fitMode);
       OutlineWidth := Manager.TextOutlineWidth;
     end
     else
@@ -208,6 +212,38 @@ begin
   result := PointF(floor(ptF.x)+0.5,floor(ptF.y)+0.5);
 end;
 
+function TToolText.ForeGradTexMode: TVectorShapeUsermode;
+begin
+  if FSwapColor then result := vsuEditOutlineFill else
+    result := vsuEditPenFill;
+end;
+
+function TToolText.BackGradTexMode: TVectorShapeUsermode;
+begin
+  if FSwapColor then result := vsuEditPenFill else
+    result := vsuEditOutlineFill;
+end;
+
+function TToolText.ShapeForeFill: TVectorialFill;
+begin
+  if Assigned(FShape) then
+  begin
+    if FSwapColor then result := FShape.OutlineFill else
+      result := FShape.PenFill;
+  end else
+    result := nil;
+end;
+
+function TToolText.ShapeBackFill: TVectorialFill;
+begin
+  if Assigned(FShape) then
+  begin
+    if FSwapColor then result := FShape.PenFill else
+      result := FShape.OutlineFill;
+  end else
+    result := nil;
+end;
+
 constructor TToolText.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
@@ -216,7 +252,7 @@ end;
 
 function TToolText.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctTexture,ctText,ctTextShadow];
+  Result:= [ctFill,ctText,ctTextShadow];
   if Manager.TextPhong then include(result, ctAltitude);
 end;
 

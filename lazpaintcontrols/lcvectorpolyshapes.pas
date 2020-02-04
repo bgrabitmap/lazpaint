@@ -678,9 +678,9 @@ end;
 
 procedure TCustomPolypointShape.InsertPointAuto(AShift: TShiftState);
 var
-  bestSegmentIndex, i,j, loopStart: Integer;
-  bestSegmentDist,
-  segmentLen, segmentPos: single;
+  i,j, loopStart: Integer;
+  bestSegmentIndex,bestPointIndex: integer;
+  bestSegmentDist,bestPointDist, segmentLen, segmentPos: single;
   u, n, bestProjection: TPointF;
   segmentDist: single;
   isLooping: Boolean;
@@ -726,6 +726,28 @@ begin
       end;
     end;
   end;
+
+
+  bestPointIndex := -1;
+  bestPointDist := MaxSingle;
+  if not FAddingPoint then
+    for i := 0 to PointCount-1 do
+      if ((i = 0) or isEmptyPointF(Points[i-1])) and
+         ((i = PointCount-1) or isEmptyPointF(Points[i+1])) then
+      begin
+        segmentDist := VectLen(FMousePos-Points[i]);
+        if segmentDist < bestPointDist then
+        begin
+          bestPointDist := segmentDist;
+          bestPointIndex := i;
+        end;
+      end;
+
+  if (bestPointIndex <> -1) and ((bestSegmentIndex = -1) or (bestPointDist < bestSegmentDist)) then
+  begin
+    InsertPoint(bestPointIndex+1, FMousePos);
+    FHoverPoint := bestPointIndex+1;
+  end else
   if bestSegmentIndex <> -1 then
   begin
     if ssShift in AShift then
@@ -828,10 +850,13 @@ begin
   FMousePos := PointF(X,Y);
   if FAddingPoint then
   begin
+    BeginUpdate;
     if (PointCount = 1) and (FMousePos <> Points[PointCount-1]) then
       Points[PointCount] := FMousePos
     else
       Points[PointCount-1] := FMousePos;
+    FillFit;
+    EndUpdate;
     AHandled:= true;
   end;
 end;
@@ -857,6 +882,7 @@ begin
       AddPoint(EmptyPointF);
       FMousePos := PointF(X,Y);
       AddPoint(FMousePos);
+      FillFit;
       EndUpdate;
       USerMode := vsuCreate;
       AHandled:= true;

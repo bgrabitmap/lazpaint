@@ -117,6 +117,7 @@ type
     procedure Assign(Obj: TObject);
     procedure AssignExceptGeometry(Obj: TObject);
     procedure FitGeometry(const ABox: TAffineBox);
+    procedure ApplyOpacity(AOpacity: Byte);
     property FillType: TVectorialFillType read GetFillType;
     property IsEditable: boolean read GetIsEditable;
     property Gradient: TBGRALayerGradientOriginal read FGradient;
@@ -132,7 +133,7 @@ type
 
 implementation
 
-uses BGRAGradientScanner;
+uses BGRAGradientScanner, BGRABlend;
 
 { TVectorialFillDiff }
 
@@ -439,6 +440,7 @@ begin
         FTextureAverageColorComputed := true;
       end;
       result := FTextureAverageColor;
+      result.alpha := BGRABlend.ApplyOpacity(result.alpha, TextureOpacity);
     end
   else {vftSolid} result := SolidColor;
   end;
@@ -686,11 +688,16 @@ begin
     case other.FillType of
     vftSolid: SetSolid(other.SolidColor);
     vftGradient: begin
-        tempGrad := self.Gradient.Duplicate as TBGRALayerGradientOriginal;
+        if self.FillType = vftGradient then
+          tempGrad := self.Gradient.Duplicate as TBGRALayerGradientOriginal
+        else
+          tempGrad := TBGRALayerGradientOriginal.Create;
         tempGrad.AssignExceptGeometry(other.Gradient);
         SetGradient(tempGrad, true);
       end;
-    vftTexture: SetTexture(other.Texture, self.TextureMatrix, other.TextureOpacity, other.TextureRepetition);
+    vftTexture: if self.FillType = vftTexture then
+        SetTexture(other.Texture, self.TextureMatrix, other.TextureOpacity, other.TextureRepetition)
+        else SetTexture(other.Texture, AffineMatrixIdentity, other.TextureOpacity, other.TextureRepetition);
     else Clear;
     end;
   end else
@@ -717,6 +724,21 @@ begin
     end;
   vftGradient:
     Gradient.FitGeometry(ABox);
+  end;
+end;
+
+procedure TVectorialFill.ApplyOpacity(AOpacity: byte);
+var
+  c: TBGRAPixel;
+begin
+  case FillType of
+  vftSolid: begin
+      c := SolidColor;
+      c.alpha := BGRABlend.ApplyOpacity(c.alpha, AOpacity);
+      SolidColor := c;
+    end;
+  vftGradient: Gradient.ApplyOpacity(AOpacity);
+  vftTexture: TextureOpacity := BGRABlend.ApplyOpacity(TextureOpacity, AOpacity);
   end;
 end;
 

@@ -949,7 +949,10 @@ end;
 
 function TFSaveOption.GetOriginalBitDepth: integer;
 begin
-  result := BGRARequiredBitDepth(FFlattenedOriginal, acFullChannelInPalette);
+  if ImageFormat in[ifIco,ifCur] then
+    result := BGRABitDepthIconCursor(FFlattenedOriginal)
+  else
+    result := BGRARequiredBitDepth(FFlattenedOriginal, acFullChannelInPalette);
 end;
 
 procedure TFSaveOption.DoUpdateBitmap;

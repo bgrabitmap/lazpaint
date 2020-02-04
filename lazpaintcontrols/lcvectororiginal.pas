@@ -197,6 +197,7 @@ type
     destructor Destroy; override;
     procedure BeginUpdate(ADiffHandler: TVectorShapeDiffAny=nil);
     procedure EndUpdate;
+    procedure FillFit;
     procedure QuickDefine(const APoint1,APoint2: TPointF); virtual; abstract;
     //one of the two Render functions must be overriden
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); virtual;
@@ -364,7 +365,7 @@ type
     procedure SelectShape(AShape: TVectorShape); overload;
     procedure DeselectShape;
     function GetShapesCost: integer;
-    procedure MouseClick(APoint: TPointF; ARadius: single);
+    function MouseClick(APoint: TPointF; ARadius: single): boolean;
     procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); override;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
     function CreateEditor: TBGRAOriginalEditor; override;
@@ -1593,6 +1594,18 @@ begin
   end;
 end;
 
+procedure TVectorShape.FillFit;
+var
+  box: TAffineBox;
+begin
+  BeginUpdate;
+  box := SuggestGradientBox(AffineMatrixIdentity);
+  if vsfPenFill in Fields then PenFill.FitGeometry(box);
+  if vsfBackFill in Fields then BackFill.FitGeometry(box);
+  if vsfOutlineFill in Fields then OutlineFill.FitGeometry(box);
+  EndUpdate;
+end;
+
 procedure TVectorShape.BeginEditingUpdate;
 begin
   inc(FUpdateEditingCount);
@@ -2623,23 +2636,36 @@ begin
     inc(result, Shape[i].GetGenericCost);
 end;
 
-procedure TVectorOriginal.MouseClick(APoint: TPointF; ARadius: single);
+function TVectorOriginal.MouseClick(APoint: TPointF; ARadius: single): boolean;
 var
   i: LongInt;
 begin
   for i:= FShapes.Count-1 downto 0 do
     if FShapes[i].PointInShape(APoint) then
     begin
-      SelectShape(i);
-      exit;
+      if SelectedShape <> FShapes[i] then
+      begin
+        SelectShape(i);
+        exit(true);
+      end else
+        exit(false);
     end;
   for i:= FShapes.Count-1 downto 0 do
     if FShapes[i].PointInShape(APoint, ARadius) then
     begin
-      SelectShape(i);
-      exit;
+      if SelectedShape <> FShapes[i] then
+      begin
+        SelectShape(i);
+        exit(true);
+      end else
+        exit(false);
     end;
-  DeselectShape;
+  if SelectedShape <> nil then
+  begin
+    DeselectShape;
+    exit(true);
+  end else
+    exit(false);
 end;
 
 procedure TVectorOriginal.Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix;

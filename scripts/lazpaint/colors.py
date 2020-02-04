@@ -41,15 +41,18 @@ class RGBA(CustomRGBA):
 def RGB(red: int, green: int, blue: int): #0..255
   return RGBA(red, green, blue, 255)
 
-def str_to_RGBA(s: str):
-  if s[0:1] == "#":
-    s = s[1:]
-  if len(s) == 6:
-    return RGBA(int(s[0:2],16), int(s[2:4],16), int(s[4:6],16), 255)
-  elif len(s) == 8:
-    return RGBA(int(s[0:2],16), int(s[2:4],16), int(s[4:6],16), int(s[6:8],16))
+def str_to_RGBA(s):
+  if isinstance(s, list):
+    return [str_to_RGBA(c) for c in s]
   else:
-    raise ValueError("Invalid color string")
+    if s[0:1] == "#":
+      s = s[1:]
+    if len(s) == 6:
+      return RGBA(int(s[0:2],16), int(s[2:4],16), int(s[4:6],16), 255)
+    elif len(s) == 8:
+      return RGBA(int(s[0:2],16), int(s[2:4],16), int(s[4:6],16), int(s[6:8],16))
+    else:
+      raise ValueError("Invalid color string")
 
 TRANSPARENT = RGBA(0,0,0,0)
 

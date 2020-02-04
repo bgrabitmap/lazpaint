@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, Types, Math, SysUtils, utool, BGRABitmapTypes, BGRABitmap, UImage,
-  UImageType, ULayerAction;
+  UImageType, ULayerAction, LCVectorialFill;
 
 type
 
@@ -47,6 +47,8 @@ type
   private
     class var FHintShowed: boolean;
     FCurrentBounds: TRect;
+    FLastTexture: TBGRABitmap;
+    FTextureAfterAlpha: TBGRABitmap;
     FAdaptedTexture: TBGRABitmap;
     FCanReadaptTexture: boolean;
     FHighQuality: boolean;
@@ -73,12 +75,14 @@ type
       override;
     function GetIsSelectingTool: boolean; override;
     function GetTexture: TBGRABitmap; virtual;
+    function GetTextureRepetition: TTextureRepetition; virtual;
     procedure OnTryStop({%H-}sender: TCustomLayerAction); override;
     function ComputeBoundsPoints: ArrayOfTPointF;
     procedure PrepareBackground({%H-}toolDest: TBGRABitmap; AFirstTime: boolean); virtual;
     function DefaultTextureCenter: TPointF; virtual;
     function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
     function GetStatusText: string; override;
+    function GetAllowedBackFillTypes: TVectorialFillTypes; override;
   public
     constructor Create(AManager: TToolManager); override;
     function ToolKeyDown(var key: Word): TRect; override;
@@ -102,7 +106,9 @@ type
     procedure PrepareBackground(toolDest: TBGRABitmap; {%H-}AFirstTime: boolean); override;
     function GetTexture: TBGRABitmap; override;
     function DefaultTextureCenter: TPointF; override;
+    function GetTextureRepetition: TTextureRepetition; override;
     procedure ValidateQuad; override;
+    function GetAllowedBackFillTypes: TVectorialFillTypes; override;
   public
     constructor Create(AManager: TToolManager); override;
     function GetContextualToolbars: TContextualToolbars; override;
@@ -158,10 +164,21 @@ begin
   result := FDefaultTextureCenter;
 end;
 
+function TToolLayerMapping.GetTextureRepetition: TTextureRepetition;
+begin
+  if poRepeat in Manager.PerspectiveOptions then
+    Result:= trRepeatBoth;
+end;
+
 procedure TToolLayerMapping.ValidateQuad;
 begin
   inherited ValidateQuad;
   Manager.QueryExitTool;
+end;
+
+function TToolLayerMapping.GetAllowedBackFillTypes: TVectorialFillTypes;
+begin
+  Result:= [vftSolid,vftGradient,vftTexture];
 end;
 
 constructor TToolLayerMapping.Create(AManager: TToolManager);
@@ -234,6 +251,8 @@ begin
     ValidateAction;
     quadDefined := false;
     quad := nil;
+    FLastTexture.FreeReference;
+    FLastTexture := nil;
   end;
 end;
 
@@ -245,6 +264,8 @@ var
   dest: TBGRABitmap;
   quadHQ: array of TPointF;
   i: integer;
+  scanRepeat: TBGRABitmapScanner;
+  scan: IBGRAScanner;
 
   function AlmostInt(value: single): boolean;
   begin
@@ -263,7 +284,7 @@ begin
     if tex <> nil then
     begin
 
-      if poRepeat in Manager.PerspectiveOptions then
+      if GetTextureRepetition <> trNone then
         FCurrentBounds := rect(0,0,Manager.Image.Width,Manager.Image.Height)
       else
         FCurrentBounds := GetShapeBounds([quad[0],quad[1],quad[2],quad[3]],1);
@@ -281,13 +302,26 @@ begin
         dest.ClipRect := FCurrentBounds;
       end;
 
-      if poRepeat in Manager.PerspectiveOptions then
+      if GetTextureRepetition <> trNone then
       begin
-        persp := TBGRAPerspectiveScannerTransform.Create(tex,[PointF(-0.5,-0.5),PointF(tex.Width-0.5,-0.5),
+        if GetTextureRepetition <> trRepeatBoth then
+        begin
+          scanRepeat := TBGRABitmapScanner.Create(tex,
+            GetTextureRepetition in [trRepeatX,trRepeatBoth],
+            GetTextureRepetition in [trRepeatY,trRepeatBoth], Point(0,0) );
+          scan := scanRepeat;
+        end else
+        begin
+          scanRepeat := nil;
+          scan := tex;
+        end;
+        persp := TBGRAPerspectiveScannerTransform.Create(scan,[PointF(-0.5,-0.5),PointF(tex.Width-0.5,-0.5),
           PointF(tex.Width-0.5,tex.Height-0.5),PointF(-0.5,tex.Height-0.5)],quadHQ);
         persp.IncludeOppositePlane := poTwoPlanes in Manager.PerspectiveOptions;
         dest.FillRect(0,0,dest.Width,dest.Height,persp,dmDrawWithTransparency);
         persp.Free;
+        scan := nil;
+        scanRepeat.Free;
       end else
       begin
         dest.FillQuadPerspectiveMappingAntialias(quadHQ[0],quadHQ[1],quadHQ[2],quadHQ[3],tex,PointF(-0.5,-0.5),PointF(tex.Width-0.5,-0.5),
@@ -312,7 +346,7 @@ function TToolTextureMapping.GetAdaptedTexture: TBGRABitmap;
 var tx,ty: integer;
   precisionFactor: single;
 begin
-  if poRepeat in Manager.PerspectiveOptions then //cannot optimize size
+  if GetTextureRepetition <> trNone then //cannot optimize size
   begin
     result := GetTexture;
     exit;
@@ -374,12 +408,17 @@ begin
   begin
     if not definingQuad then
     begin
-      definingQuad := true;
-      setlength(quad,4);
-      quad[0] := ptF;
-      quad[1] := ptF;
-      quad[2] := ptF;
-      quad[3] := ptF;
+      if GetTexture = nil then
+        Manager.ToolPopup(tpmNothingToBeDeformed)
+      else
+        begin
+          definingQuad := true;
+          setlength(quad,4);
+          quad[0] := ptF;
+          quad[1] := ptF;
+          quad[2] := ptF;
+          quad[3] := ptF;
+        end;
     end;
     exit;
   end;
@@ -431,9 +470,9 @@ begin
   begin
     if ShiftKey then
     begin
-      if (Manager.GetTexture <> nil) and (Manager.GetTexture.Height <> 0)
-        and (Manager.GetTexture.Width <> 0) then
-        ratio := Manager.GetTexture.Width/Manager.GetTexture.Height;
+      if (GetTexture <> nil) and (GetTexture.Height <> 0)
+        and (GetTexture.Width <> 0) then
+        ratio := GetTexture.Width/GetTexture.Height;
 
       newSize := ptF - quad[0];
       avgSize := (abs(newSize.x)+abs(newSize.y))/2;
@@ -539,7 +578,36 @@ end;
 
 function TToolTextureMapping.GetTexture: TBGRABitmap;
 begin
-  result := Manager.GetTextureAfterAlpha;
+  if (Manager.BackFill.Texture = nil) or (Manager.BackFill.Texture = FLastTexture) then
+  begin
+    if FTextureAfterAlpha <> nil then
+      result := FTextureAfterAlpha
+    else
+      result := FLastTexture;
+  end
+  else
+  begin
+    if (Manager.BackFill.Texture <> nil) and (Manager.BackFill.TextureOpacity <> 255) then
+    begin
+      FTextureAfterAlpha := Manager.BackFill.Texture.Duplicate as TBGRABitmap;
+      FTextureAfterAlpha.ApplyGlobalOpacity(Manager.BackFill.TextureOpacity);
+      result := FTextureAfterAlpha;
+    end else
+    begin
+      result := Manager.BackFill.Texture;
+      FreeAndNil(FTextureAfterAlpha);
+    end;
+    FLastTexture.FreeReference;
+    FLastTexture := Manager.BackFill.Texture.NewReference as TBGRABitmap;
+  end;
+end;
+
+function TToolTextureMapping.GetTextureRepetition: TTextureRepetition;
+begin
+  if Manager.BackFill.FillType = vftTexture then
+    result := Manager.BackFill.TextureRepetition
+  else
+    result := trNone;
 end;
 
 procedure TToolTextureMapping.OnTryStop(sender: TCustomLayerAction);
@@ -604,11 +672,17 @@ begin
   end;
 end;
 
+function TToolTextureMapping.GetAllowedBackFillTypes: TVectorialFillTypes;
+begin
+  Result:= [vftTexture];
+end;
+
 constructor TToolTextureMapping.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
   FCurrentBounds := EmptyRect;
   FHighQuality:= False;
+  FLastTexture := nil;
   quadDefined:= false;
   definingQuad:= false;
 end;
@@ -708,7 +782,7 @@ begin
   end;
   if quadMoving then
   begin
-    redraw := not (poRepeat in Manager.PerspectiveOptions);
+    redraw := GetTextureRepetition = trNone;
     if quadMovingBounds then
     begin
       oldBounds := ComputeBoundsPoints;
@@ -745,7 +819,7 @@ end;
 
 function TToolTextureMapping.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctTexture,ctPerspective];
+  Result:= [ctBackFill,ctPerspective];
 end;
 
 function TToolTextureMapping.Render(VirtualScreen: TBGRABitmap;
@@ -804,6 +878,8 @@ end;
 destructor TToolTextureMapping.Destroy;
 begin
   ValidateAction;
+  FLastTexture.FreeReference;
+  FreeAndNil(FTextureAfterAlpha);
   FreeAndNil(FAdaptedTexture);
   inherited Destroy;
 end;

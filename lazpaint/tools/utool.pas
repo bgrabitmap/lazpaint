@@ -7,7 +7,8 @@ interface
 uses
   Classes, Types, SysUtils, Graphics, BGRABitmap, BGRABitmapTypes, uimage, UImageType,
   ULayerAction, LCLType, Controls, UBrushType, UConfig, LCVectorPolyShapes,
-  BGRAGradientScanner, BGRALayerOriginal, LCVectorRectShapes, UScripting;
+  BGRAGradientScanner, BGRALayerOriginal, LCVectorRectShapes, UScripting,
+  LCVectorialFill, BGRAGradientOriginal;
 
 const
   VK_SNAP = {$IFDEF DARWIN}VK_LWIN{$ELSE}VK_CONTROL{$ENDIF};
@@ -34,9 +35,9 @@ const
 function StrToPaintToolType(const s: ansistring): TPaintToolType;
 
 type
-  TContextualToolbar = (ctColor, ctPenWidth, ctPenStyle, ctAliasing, ctShape, ctEraserOption, ctTolerance,
-    ctGradient, ctDeformation, ctCloseShape, ctLineCap, ctJoinStyle, ctSplineStyle, ctText, ctTextShadow,
-    ctPhong, ctAltitude, ctPerspective, ctBrush, ctTexture, ctRatio);
+  TContextualToolbar = (ctFill, ctBackFill, ctPenWidth, ctPenStyle, ctAliasing, ctShape, ctEraserOption, ctTolerance,
+    ctDeformation, ctCloseShape, ctLineCap, ctJoinStyle, ctSplineStyle, ctText, ctTextShadow,
+    ctPhong, ctAltitude, ctPerspective, ctBrush, ctRatio);
   TContextualToolbars = set of TContextualToolbar;
 
 type
@@ -46,7 +47,7 @@ type
   TEraserMode = (emEraseAlpha, emSoften);
   TToolCommand = (tcCut, tcCopy, tcPaste, tcDelete, tcFinish, tcMoveUp, tcMoveDown, tcMoveToFront, tcMoveToBack,
     tcAlignLeft, tcCenterHorizontally, tcAlignRight, tcAlignTop, tcCenterVertically, tcAlignBottom,
-    tcShapeToSpline);
+    tcShapeToSpline, tcForeAdjustToShape, tcBackAdjustToShape, tcForeEditGradTexPoints, tcBackEditGradTexPoints);
 
   TDeformationGridMode = (gmDeform, gmMovePointWithoutDeformation);
 
@@ -62,8 +63,8 @@ const
   MaxPhongBorderSize = 100;
   MinDeformationGridSize = 3;
 
-function GradientColorSpaceToDisplay(AValue: TBGRAColorInterpolation): string;
-function DisplayToGradientColorSpace(AValue: string): TBGRAColorInterpolation;
+function GradientInterpolationToDisplay(AValue: TBGRAColorInterpolation): string;
+function DisplayToGradientInterpolation(AValue: string): TBGRAColorInterpolation;
 
 type
   TLayerKind = (lkUnknown, lkEmpty, lkBitmap, lkTransformedBitmap, lkGradient, lkVectorial, lkSVG, lkOther);
@@ -73,6 +74,9 @@ type
   TGenericTool = class
   private
     FAction: TLayerAction;
+    FForeFill, FBackFill: TVectorialFill;
+    FBackFillScan, FForeFillScan: TBGRACustomScanner;
+    function GetUniversalBrush(ASource: TVectorialFill; var ADest: TVectorialFill; var AScan: TBGRACustomScanner): TUniversalBrush;
     function GetLayerOffset: TPoint;
   protected
     FManager: TToolManager;
@@ -91,11 +95,18 @@ type
     function GetStatusText: string; virtual;
     function DoGetToolDrawingLayer: TBGRABitmap; virtual;
     function GetCurrentLayerKind: TLayerKind;
+    function GetIsForeEditGradTexPoints: boolean; virtual;
+    function GetIsBackEditGradTexPoints: boolean; virtual;
+    function GetAllowedBackFillTypes: TVectorialFillTypes; virtual;
+    function GetAllowedForeFillTypes: TVectorialFillTypes; virtual;
   public
     ToolUpdateNeeded: boolean;
     Cursor: TCursor;
     constructor Create(AManager: TToolManager); virtual;
     destructor Destroy; override;
+    function GetForeUniversalBrush: TUniversalBrush;
+    function GetBackUniversalBrush: TUniversalBrush;
+    procedure ReleaseUniversalBrushes;
     procedure ValidateAction;
     procedure ValidateActionPartially;
     procedure CancelAction;
@@ -109,6 +120,7 @@ type
     function ToolUp: TRect; virtual;
     function ToolCommand({%H-}ACommand: TToolCommand): boolean; virtual;
     function ToolProvideCommand({%H-}ACommand: TToolCommand): boolean; virtual;
+    function SuggestGradientBox: TAffineBox; virtual;
     function GetContextualToolbars: TContextualToolbars; virtual;
     function GetToolDrawingLayer: TBGRABitmap;
     procedure RestoreBackupDrawingLayer;
@@ -122,6 +134,11 @@ type
     property StatusText: string read GetStatusText;
     property Validating: boolean read FValidating;
     property Canceling: boolean read FCanceling;
+    property ForeUniversalBrush: TUniversalBrush read GetForeUniversalBrush;
+    property IsForeEditGradTexPoints: boolean read GetIsForeEditGradTexPoints;
+    property IsBackEditGradTexPoints: boolean read GetIsBackEditGradTexPoints;
+    property AllowedForeFillTypes: TVectorialFillTypes read GetAllowedForeFillTypes;
+    property AllowedBackFillTypes: TVectorialFillTypes read GetAllowedBackFillTypes;
   end;
 
   { TReadonlyTool }
@@ -135,10 +152,10 @@ type
 
   TToolClass = class of TGenericTool;
 
-  TToolPopupMessage= (tpmNone,tpmHoldKeyForSquare, tpmHoldKeySnapToPixel,
+  TToolPopupMessage= (tpmNone, tpmHoldKeyForSquare, tpmHoldKeySnapToPixel,
     tpmReturnValides, tpmBackspaceRemoveLastPoint, tpmHoldKeyRestrictRotation,
     tpmHoldKeysScaleMode, tpmCurveModeHint, tpmBlendOpBackground,
-    tpmRightClickForSource);
+    tpmRightClickForSource, tpmNothingToBeDeformed);
 
   TOnToolChangedHandler = procedure(sender: TToolManager; ANewToolType: TPaintToolType) of object;
   TOnPopupToolHandler = procedure(sender: TToolManager; APopupMessage: TToolPopupMessage; AKey: Word) of object;
@@ -162,7 +179,7 @@ type
     FBlackAndWhite: boolean;
     FScriptContext: TScriptContext;
     FToolPressure: single;
-    FInTool: boolean;
+    FInTool, FInToolUpdate, FInSwapFill: boolean;
     FCurrentTool : TGenericTool;
     FCurrentToolType : TPaintToolType;
     FToolCurrentCursorPos: TPointF;
@@ -173,12 +190,10 @@ type
     FOnToolbarChanged: TNotifyEvent;
     FOnPopupToolHandler: TOnPopupToolHandler;
 
-    FForeColor, FBackColor: TBGRAPixel;
+    FForeFill, FBackFill: TVectorialFill;
+    FForeLastGradient, FBackLastGradient: TBGRALayerGradientOriginal;
     FEraserMode: TEraserMode;
     FEraserAlpha: byte;
-    FTexture: TBGRABitmap;
-    FTextureAfterAlpha: TBGRABitmap;
-    FTextureOpactiy: byte;
     FBrushInfoList: TList;
     FBrushInfoListChanged: boolean;
     FBrushIndex: integer;
@@ -203,9 +218,6 @@ type
     FArrowStart,FArrowEnd: TArrowKind;
     FArrowSize: TPointF;
     FSplineStyle: TSplineStyle;
-    FGradientType: TGradientType;
-    FGradientSine: boolean;
-    FGradientColorspace: TBGRAColorInterpolation;
     FPhongShapeAltitude: integer;
     FPhongShapeBorderSize: integer;
     FPhongShapeKind: TPhongShapeKind;
@@ -216,9 +228,8 @@ type
     FPerspectiveOptions: TPerspectiveOptions;
     FShapeRatio: Single;
 
-    FOnColorChanged: TNotifyEvent;
+    FOnFillChanged: TNotifyEvent;
     FOnEraserChanged: TNotifyEvent;
-    FOnGradientChanged: TNotifyEvent;
     FOnJoinStyleChanged: TNotifyEvent;
     FOnLineCapChanged: TNotifyEvent;
     FOnPenStyleChanged: TNotifyEvent;
@@ -230,13 +241,16 @@ type
     FOnTextOutlineChanged: TNotifyEvent;
     FOnTextPhongChanged, FOnLightChanged: TNotifyEvent;
     FOnTextShadowChanged: TNotifyEvent;
-    FOnTextureChanged: TNotifyEvent;
     FOnShapeOptionChanged, FOnShapeRatioChanged: TNotifyEvent;
     FOnDeformationGridChanged: TNotifyEvent;
     FOnToleranceChanged: TNotifyEvent;
     FOnFloodFillOptionChanged: TNotifyEvent;
     FOnPerspectiveOptionChanged: TNotifyEvent;
 
+    procedure BackFillChange({%H-}ASender: TObject;
+      var {%H-}ADiff: TCustomVectorialFillDiff);
+    function GetAllowedBackFillTypes: TVectorialFillTypes;
+    function GetAllowedForeFillTypes: TVectorialFillTypes;
     function GetCursor: TCursor;
     function GetBackColor: TBGRAPixel;
     function GetBrushAt(AIndex: integer): TLazPaintBrush;
@@ -252,7 +266,8 @@ type
     function GetTextFontName: string;
     function GetTextFontSize: single;
     function GetTextFontStyle: TFontStyles;
-    function GetTextureOpacity: byte;
+    procedure ForeFillChange({%H-}ASender: TObject;
+      var ADiff: TCustomVectorialFillDiff);
     function ScriptGetAliasing(AVars: TVariableSet): TScriptResult;
     function ScriptGetArrowEnd(AVars: TVariableSet): TScriptResult;
     function ScriptGetArrowSize(AVars: TVariableSet): TScriptResult;
@@ -269,13 +284,22 @@ type
     function ScriptGetFontName(AVars: TVariableSet): TScriptResult;
     function ScriptGetFontSize(AVars: TVariableSet): TScriptResult;
     function ScriptGetFontStyle(AVars: TVariableSet): TScriptResult;
-    function ScriptGetGradientColorspace(AVars: TVariableSet): TScriptResult;
-    function ScriptGetGradientSine(AVars: TVariableSet): TScriptResult;
-    function ScriptGetGradientType(AVars: TVariableSet): TScriptResult;
+    function ScriptGetGradientInterpolation(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+    function ScriptGetGradientRepetition(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+    function ScriptGetGradientType(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+    function ScriptGetGradientColors(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+    function ScriptGetBackGradientInterpolation(AVars: TVariableSet): TScriptResult;
+    function ScriptGetBackGradientRepetition(AVars: TVariableSet): TScriptResult;
+    function ScriptGetBackGradientType(AVars: TVariableSet): TScriptResult;
+    function ScriptGetBackGradientColors(AVars: TVariableSet): TScriptResult;
+    function ScriptGetForeGradientInterpolation(AVars: TVariableSet): TScriptResult;
+    function ScriptGetForeGradientRepetition(AVars: TVariableSet): TScriptResult;
+    function ScriptGetForeGradientType(AVars: TVariableSet): TScriptResult;
+    function ScriptGetForeGradientColors(AVars: TVariableSet): TScriptResult;
     function ScriptGetJoinStyle(AVars: TVariableSet): TScriptResult;
     function ScriptGetLightPosition(AVars: TVariableSet): TScriptResult;
     function ScriptGetLineCap(AVars: TVariableSet): TScriptResult;
-    function ScriptGetPenColor(AVars: TVariableSet): TScriptResult;
+    function ScriptGetForeColor(AVars: TVariableSet): TScriptResult;
     function ScriptGetPenStyle(AVars: TVariableSet): TScriptResult;
     function ScriptGetPenWidth(AVars: TVariableSet): TScriptResult;
     function ScriptGetPerspectiveOptions(AVars: TVariableSet): TScriptResult;
@@ -304,13 +328,22 @@ type
     function ScriptSetFontName(AVars: TVariableSet): TScriptResult;
     function ScriptSetFontSize(AVars: TVariableSet): TScriptResult;
     function ScriptSetFontStyle(AVars: TVariableSet): TScriptResult;
-    function ScriptSetGradientColorspace(AVars: TVariableSet): TScriptResult;
-    function ScriptSetGradientSine(AVars: TVariableSet): TScriptResult;
-    function ScriptSetGradientType(AVars: TVariableSet): TScriptResult;
+    function ScriptSetGradientInterpolation(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+    function ScriptSetGradientRepetition(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+    function ScriptSetGradientType(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+    function ScriptSetGradientColors(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+    function ScriptSetBackGradientInterpolation(AVars: TVariableSet): TScriptResult;
+    function ScriptSetBackGradientRepetition(AVars: TVariableSet): TScriptResult;
+    function ScriptSetBackGradientType(AVars: TVariableSet): TScriptResult;
+    function ScriptSetBackGradientColors(AVars: TVariableSet): TScriptResult;
+    function ScriptSetForeGradientInterpolation(AVars: TVariableSet): TScriptResult;
+    function ScriptSetForeGradientRepetition(AVars: TVariableSet): TScriptResult;
+    function ScriptSetForeGradientType(AVars: TVariableSet): TScriptResult;
+    function ScriptSetForeGradientColors(AVars: TVariableSet): TScriptResult;
     function ScriptSetJoinStyle(AVars: TVariableSet): TScriptResult;
     function ScriptSetLightPosition(AVars: TVariableSet): TScriptResult;
     function ScriptSetLineCap(AVars: TVariableSet): TScriptResult;
-    function ScriptSetPenColor(AVars: TVariableSet): TScriptResult;
+    function ScriptSetForeColor(AVars: TVariableSet): TScriptResult;
     function ScriptSetPenStyle(AVars: TVariableSet): TScriptResult;
     function ScriptSetPenWidth(AVars: TVariableSet): TScriptResult;
     function ScriptSetPerspectiveOptions(AVars: TVariableSet): TScriptResult;
@@ -326,7 +359,7 @@ type
     function ScriptSetTolerance(AVars: TVariableSet): TScriptResult;
     procedure SetBrushIndex(AValue: integer);
     procedure SetBrushSpacing(AValue: integer);
-    function SetControlsVisible(Controls: TList; Visible: Boolean): boolean;
+    function SetControlsVisible(AControls: TList; AVisible: Boolean; AName: string = ''): boolean;
     procedure SetArrowEnd(AValue: TArrowKind);
     procedure SetArrowSize(AValue: TPointF);
     procedure SetArrowStart(AValue: TArrowKind);
@@ -336,9 +369,6 @@ type
     procedure SetEraserMode(AValue: TEraserMode);
     procedure SetFloodFillOptions(AValue: TFloodFillOptions);
     procedure SetForeColor(AValue: TBGRAPixel);
-    procedure SetGradientColorspace(AValue: TBGRAColorInterpolation);
-    procedure SetGradientSine(AValue: boolean);
-    procedure SetGradientType(AValue: TGradientType);
     procedure SetJoinStyle(AValue: TPenJoinStyle);
     procedure SetLightAltitude(AValue: integer);
     procedure SetLightPosition(AValue: TPointF);
@@ -357,7 +387,6 @@ type
     procedure SetTextShadow(AValue: boolean);
     procedure SetTextShadowBlurRadius(AValue: single);
     procedure SetTextShadowOffset(AValue: TPoint);
-    procedure SetTextureOpacity(AValue: byte);
     procedure SetTolerance(AValue: byte);
     procedure ToolCloseAndReopenImmediatly;
   protected
@@ -371,9 +400,9 @@ type
     BitmapToVirtualScreen: TBitmapToVirtualScreenFunction;
     PenWidthControls, AliasingControls, EraserControls, ToleranceControls,
     ShapeControls, PenStyleControls, JoinStyleControls, SplineStyleControls,
-    CloseShapeControls, LineCapControls, GradientControls, DeformationControls,
+    CloseShapeControls, LineCapControls, DeformationControls,
     TextControls, TextShadowControls, PhongControls, AltitudeControls,
-    PerspectiveControls,PenColorControls,TextureControls,
+    PerspectiveControls,FillControls,
     BrushControls, RatioControls: TList;
 
     constructor Create(AImage: TLazPaintImage; AConfigProvider: IConfigProvider;
@@ -388,6 +417,7 @@ type
     function ApplyPressure(AColor: TBGRAPixel): TBGRAPixel;
     function ApplyPressure(AOpacity: byte): byte;
     procedure SetPressure(APressure: single);
+    function GetPressureB: Byte;
 
     function GetCurrentToolType: TPaintToolType;
     function SetCurrentToolType(tool: TPaintToolType): boolean;
@@ -415,17 +445,17 @@ type
 
     function IsSelectingTool: boolean;
     function DisplayFilledSelection: boolean;
+    function IsForeEditGradTexPoints: boolean;
+    function IsBackEditGradTexPoints: boolean;
     procedure QueryExitTool;
 
     procedure RenderTool(formBitmap: TBGRABitmap);
     function GetRenderBounds(VirtualScreenWidth, VirtualScreenHeight: integer): TRect;
+    function SuggestGradientBox: TAffineBox;
 
-    procedure SwapToolColors;
-    procedure SetTexture(ATexture: TBGRABitmap); overload;
-    procedure SetTexture(ATexture: TBGRABitmap; AOpacity: byte); overload;
-    function GetTextureAfterAlpha: TBGRABitmap;
-    function GetTexture: TBGRABitmap;
-    function BorrowTexture: TBGRABitmap;
+    function SwapToolColors: boolean;
+    procedure NeedBackGradient;
+    procedure NeedForeGradient;
     procedure AddBrush(brush: TLazPaintBrush);
     procedure RemoveBrushAt(index: integer);
     procedure SetTextFont(AName: string; ASize: single; AStyle: TFontStyles);
@@ -441,13 +471,16 @@ type
     property ToolSleeping: boolean read GetToolSleeping;
     property Cursor: TCursor read GetCursor;
 
+    property ForeFill: TVectorialFill read FForeFill;
+    property AllowedForeFillTypes: TVectorialFillTypes read GetAllowedForeFillTypes;
+    property BackFill: TVectorialFill read FBackFill;
+    property AllowedBackFillTypes: TVectorialFillTypes read GetAllowedBackFillTypes;
     property ForeColor: TBGRAPixel read GetForeColor write SetForeColor;
     property BackColor: TBGRAPixel read GetBackColor write SetBackColor;
+    property ForeLastGradient: TBGRALayerGradientOriginal read FForeLastGradient;
+    property BackLastGradient: TBGRALayerGradientOriginal read FBackLastGradient;
     property EraserMode: TEraserMode read FEraserMode write SetEraserMode;
     property EraserAlpha: byte read FEraserAlpha write SetEraserAlpha;
-    property Texture: TBGRABitmap read GetTexture write SetTexture;
-    property TextureAfterAlpha: TBGRABitmap read GetTextureAfterAlpha;
-    property TextureOpacity: byte read GetTextureOpacity write SetTextureOpacity;
     property PenWidth: single read GetPenWidth write SetPenWidth;
     property PenStyle: TPenStyle read FPenStyle write SetPenStyle;
     property JoinStyle: TPenJoinStyle read FJoinStyle write SetJoinStyle;
@@ -478,9 +511,6 @@ type
     property ArrowEnd: TArrowKind read FArrowEnd write SetArrowEnd;
     property ArrowSize: TPointF read FArrowSize write SetArrowSize;
     property SplineStyle: TSplineStyle read FSplineStyle write SetSplineStyle;
-    property GradientType: TGradientType read FGradientType write SetGradientType;
-    property GradientSine: boolean read FGradientSine write SetGradientSine;
-    property GradientColorspace: TBGRAColorInterpolation read FGradientColorspace write SetGradientColorspace;
     property PhongShapeAltitude: integer read FPhongShapeAltitude write SetPhongShapeAltitude;
     property PhongShapeBorderSize: integer read FPhongShapeBorderSize write SetPhongShapeBorderSize;
     property PhongShapeKind: TPhongShapeKind read FPhongShapeKind write SetPhongShapeKind;
@@ -497,8 +527,7 @@ type
     property OnToolbarChanged: TNotifyEvent read FOnToolbarChanged write FOnToolbarChanged;
     property OnPopup: TOnPopupToolHandler read FOnPopupToolHandler write FOnPopupToolHandler;
     property OnEraserChanged: TNotifyEvent read FOnEraserChanged write FOnEraserChanged;
-    property OnTextureChanged: TNotifyEvent read FOnTextureChanged write FOnTextureChanged;
-    property OnColorChanged: TNotifyEvent read FOnColorChanged write FOnColorChanged;
+    property OnFillChanged: TNotifyEvent read FOnFillChanged write FOnFillChanged;
     property OnPenWidthChanged: TNotifyEvent read FOnPenWidthChanged write FOnPenWidthChanged;
     property OnBrushChanged: TNotifyEvent read FOnBrushChanged write FOnBrushChanged;
     property OnBrushListChanged: TNotifyEvent read FOnBrushListChanged write FOnBrushListChanged;
@@ -514,7 +543,6 @@ type
     property OnTextShadowChanged: TNotifyEvent read FOnTextShadowChanged write FOnTextShadowChanged;
     property OnLineCapChanged: TNotifyEvent read FOnLineCapChanged write FOnLineCapChanged;
     property OnSplineStyleChanged: TNotifyEvent read FOnSplineStyleChanged write FOnSplineStyleChanged;
-    property OnGradientChanged: TNotifyEvent read FOnGradientChanged write FOnGradientChanged;
     property OnPhongShapeChanged: TNotifyEvent read FOnPhongShapeChanged write FOnPhongShapeChanged;
     property OnDeformationGridChanged: TNotifyEvent read FOnDeformationGridChanged write FOnDeformationGridChanged;
     property OnToleranceChanged: TNotifyEvent read FOnToleranceChanged write FOnToleranceChanged;
@@ -528,7 +556,7 @@ function ToolPopupMessageToStr(AMessage :TToolPopupMessage; AKey: Word = 0): str
 implementation
 
 uses UGraph, LCScaleDPI, LazPaintType, UCursors, BGRATextFX, ULoading, UResourceStrings,
-  BGRATransform, LCVectorOriginal, BGRAGradientOriginal, BGRASVGOriginal, math;
+  BGRATransform, LCVectorOriginal, BGRASVGOriginal, math;
 
 function StrToPaintToolType(const s: ansistring): TPaintToolType;
 var pt: TPaintToolType;
@@ -544,10 +572,10 @@ begin
     end;
 end;
 
-function GradientColorSpaceToDisplay(AValue: TBGRAColorInterpolation): string;
+function GradientInterpolationToDisplay(AValue: TBGRAColorInterpolation): string;
 begin
   case AValue of
-    ciStdRGB: result := rsLinearRGB;
+    ciLinearRGB: result := rsLinearRGB;
     ciLinearHSLPositive: result := rsHueCW;
     ciLinearHSLNegative: result := rsHueCCW;
     ciGSBPositive: result := rsCorrectedHueCW;
@@ -557,15 +585,86 @@ begin
   end;
 end;
 
-function DisplayToGradientColorSpace(AValue: string): TBGRAColorInterpolation;
+function DisplayToGradientInterpolation(AValue: string): TBGRAColorInterpolation;
 begin
-  if AValue=rsLinearRGB then result := ciStdRGB else
+  if AValue=rsLinearRGB then result := ciLinearRGB else
   if AValue=rsHueCW then result := ciLinearHSLPositive else
   if AValue=rsHueCCW then result := ciLinearHSLNegative else
   if AValue=rsCorrectedHueCW then result := ciGSBPositive else
   if AValue=rsCorrectedHueCCW then result := ciGSBNegative
   else
+    result := ciStdRGB;
+end;
+
+function GradientInterpolationToStr(AValue: TBGRAColorInterpolation): string;
+begin
+  case AValue of
+    ciStdRGB: result := 'StdRGB';
+    ciLinearHSLPositive: result := 'LinearHSLPositive';
+    ciLinearHSLNegative: result := 'LinearHSLNegative';
+    ciGSBPositive: result := 'GSBPositive';
+    ciGSBNegative: result := 'GSBNegative';
+  else
+    result := 'LinearRGB';
+  end;
+end;
+
+function StrToGradientInterpolation(AValue: string): TBGRAColorInterpolation;
+begin
+  if AValue='StdRGB' then result := ciStdRGB else
+  if AValue='LinearHSLPositive' then result := ciLinearHSLPositive else
+  if AValue='LinearHSLNegative' then result := ciLinearHSLNegative else
+  if AValue='GSBPositive' then result := ciGSBPositive else
+  if AValue='GSBNegative' then result := ciGSBNegative
+  else
     result := ciLinearRGB;
+end;
+
+function GradientRepetitionToStr(AValue: TBGRAGradientRepetition): string;
+begin
+  case AValue of
+    grRepeat: result:= 'Repeat';
+    grReflect: result:= 'Reflect';
+    grSine: result:= 'Sine';
+    else result := 'Pad';
+  end;
+end;
+
+function StrToGradientRepetition(AValue: string): TBGRAGradientRepetition;
+begin
+  case AValue of
+    'Repeat': result:= grRepeat;
+    'Reflect': result:= grReflect;
+    'Sine': result:= grSine;
+    else result := grPad;
+  end;
+end;
+
+function GradientToConfigStr(AGradient: TBGRALayerGradientOriginal): string;
+var
+  vars: TVariableSet;
+begin
+  vars := TVariableSet.Create('');
+  vars.Pixels['StartColor'] := AGradient.StartColor;
+  vars.Pixels['EndColor'] := AGradient.EndColor;
+  vars.Strings['GradientType'] := GradientTypeStr[AGradient.GradientType];
+  vars.Strings['ColorInterpolation'] := GradientInterpolationToStr(AGradient.ColorInterpolation);
+  vars.Strings['Repetition'] := GradientRepetitionToStr(AGradient.Repetition);
+  result := vars.VariablesAsString;
+  vars.Free;
+end;
+
+procedure AssignGradientFromConfigStr(AGradient: TBGRALayerGradientOriginal; AValue: string);
+var
+  vars: TVariableSet;
+begin
+  vars := TVariableSet.Create('', AValue);
+  if vars.IsDefined('StartColor') then AGradient.StartColor := vars.Pixels['StartColor'];
+  if vars.IsDefined('EndColor') then AGradient.EndColor := vars.Pixels['EndColor'];
+  if vars.IsDefined('GradientType') then AGradient.GradientType := StrToGradientType(vars.Strings['GradientType']);
+  if vars.IsDefined('ColorInterpolation') then AGradient.ColorInterpolation := StrToGradientInterpolation(vars.Strings['ColorInterpolation']);
+  if vars.IsDefined('Repetition') then AGradient.Repetition := StrToGradientRepetition(vars.Strings['Repetition']);
+  vars.Free;
 end;
 
 var
@@ -598,6 +697,7 @@ begin
   tpmCurveModeHint: result := rsCurveModeHint;
   tpmBlendOpBackground: result := rsBlendOpNotUsedForBackground;
   tpmRightClickForSource: result := rsRightClickForSource;
+  tpmNothingToBeDeformed: result := rsNothingToBeDeformed;
   else
     result := '';
   end;
@@ -645,6 +745,55 @@ begin
       result := Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex]
     else
       result := Point(0,0);
+end;
+
+function TGenericTool.GetUniversalBrush(ASource: TVectorialFill;
+  var ADest: TVectorialFill; var AScan: TBGRACustomScanner): TUniversalBrush;
+begin
+  FreeAndNil(AScan);
+  FreeAndNil(ADest);
+  case ASource.FillType of
+  vftNone: TBGRABitmap.IdleBrush(result);
+  vftSolid: TBGRABitmap.SolidBrush(result, Manager.ApplyPressure(ASource.SolidColor));
+  else
+    begin
+      ADest := ASource.Duplicate;
+      ADest.FitGeometry(TAffineBox.AffineBox(RectF(0,0,Manager.Image.Width,Manager.Image.Height)));
+      ADest.ApplyOpacity(Manager.GetPressureB);
+      AScan := ADest.CreateScanner(AffineMatrixIdentity, false);
+      TBGRABitmap.ScannerBrush(result, AScan);
+    end;
+  end;
+end;
+
+function TGenericTool.GetAllowedBackFillTypes: TVectorialFillTypes;
+begin
+  result := [vftSolid,vftGradient,vftTexture];
+end;
+
+function TGenericTool.GetAllowedForeFillTypes: TVectorialFillTypes;
+begin
+  result := [vftSolid,vftGradient,vftTexture];
+end;
+
+function TGenericTool.GetIsBackEditGradTexPoints: boolean;
+begin
+  result := false;
+end;
+
+function TGenericTool.GetIsForeEditGradTexPoints: boolean;
+begin
+  result := false;
+end;
+
+function TGenericTool.GetForeUniversalBrush: TUniversalBrush;
+begin
+  result := GetUniversalBrush(Manager.ForeFill, FForeFill, FForeFillScan);
+end;
+
+function TGenericTool.GetBackUniversalBrush: TUniversalBrush;
+begin
+  result := GetUniversalBrush(Manager.BackFill, FBackFill, FBackFillScan);
 end;
 
 function TGenericTool.GetStatusText: string;
@@ -748,6 +897,14 @@ destructor TGenericTool.Destroy;
 begin
   FAction.Free;
   inherited Destroy;
+end;
+
+procedure TGenericTool.ReleaseUniversalBrushes;
+begin
+  FreeAndNil(FForeFillScan);
+  FreeAndNil(FForeFill);
+  FreeAndNil(FBackFillScan);
+  FreeAndNil(FBackFill);
 end;
 
 procedure TGenericTool.ValidateAction;
@@ -915,9 +1072,21 @@ begin
   result := false;
 end;
 
+function TGenericTool.SuggestGradientBox: TAffineBox;
+var
+  m: TAffineMatrix;
+begin
+  result := TAffineBox.AffineBox(RectF(PointF(0,0),PointF(Manager.Image.Width,Manager.Image.Height)));
+  if not IsSelectingTool and Manager.Image.SelectionMaskEmpty then
+  begin
+    m := Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex];
+    result := AffineMatrixInverse(m)*result;
+  end;
+end;
+
 function TGenericTool.GetContextualToolbars: TContextualToolbars;
 begin
-  result := [ctColor,ctTexture];
+  result := [ctFill];
 end;
 
 function TGenericTool.GetToolDrawingLayer: TBGRABitmap;
@@ -975,12 +1144,12 @@ begin
   else result := false;
 end;
 
-function TToolManager.SetControlsVisible(Controls: TList; Visible: Boolean): boolean;
-  procedure SetVisibility(AControl: TControl);
+function TToolManager.SetControlsVisible(AControls: TList; AVisible: Boolean; AName: string): boolean;
+  procedure SetVisibility(AControl: TControl; AVisible: boolean);
   begin
-    if AControl.Visible <> Visible then
+    if AControl.Visible <> AVisible then
     begin
-      AControl.Visible := Visible;
+      AControl.Visible := AVisible;
       result := true;
     end;
   end;
@@ -988,13 +1157,24 @@ function TToolManager.SetControlsVisible(Controls: TList; Visible: Boolean): boo
 var i: integer;
 begin
   result := false;
-  if Visible then
+  if AName <> '' then
   begin
-    for i := 0 to Controls.Count-1 do
-      SetVisibility(TObject(Controls[i]) as TControl);
+    for i := AControls.Count-1 downto 0 do
+      if (TObject(AControls[i]) as TControl).Name <> AName then
+        SetVisibility(TObject(AControls[i]) as TControl, False);
+    for i := 0 to AControls.Count-1 do
+      if (TObject(AControls[i]) as TControl).Name = AName then
+        SetVisibility(TObject(AControls[i]) as TControl, True);
   end else
-    for i := Controls.Count-1 downto 0 do
-      SetVisibility(TObject(Controls[i]) as TControl);
+  begin
+    if AVisible then
+    begin
+      for i := 0 to AControls.Count-1 do
+        SetVisibility(TObject(AControls[i]) as TControl, True);
+    end else
+      for i := AControls.Count-1 downto 0 do
+        SetVisibility(TObject(AControls[i]) as TControl, False);
+  end;
 end;
 
 procedure TToolManager.SetArrowEnd(AValue: TArrowKind);
@@ -1027,13 +1207,7 @@ end;
 
 procedure TToolManager.SetBackColor(AValue: TBGRAPixel);
 begin
-  if (AValue.red = FBackColor.red) and
-     (AValue.green = FBackColor.green) and
-     (AValue.blue = FBackColor.blue) and
-     (AValue.alpha = FBackColor.alpha) then exit;
-  FBackColor := AValue;
-  ToolUpdate;
-  if Assigned(FOnColorChanged) then FOnColorChanged(self);
+  FBackFill.SolidColor := AValue;
 end;
 
 procedure TToolManager.SetDeformationGridMode(AValue: TDeformationGridMode);
@@ -1070,37 +1244,7 @@ end;
 
 procedure TToolManager.SetForeColor(AValue: TBGRAPixel);
 begin
-  if (AValue.red = FForeColor.red) and
-     (AValue.green = FForeColor.green) and
-     (AValue.blue = FForeColor.blue) and
-     (AValue.alpha = FForeColor.alpha) then exit;
-  FForeColor := AValue;
-  ToolUpdate;
-  if Assigned(FOnColorChanged) then FOnColorChanged(self);
-end;
-
-procedure TToolManager.SetGradientColorspace(AValue: TBGRAColorInterpolation);
-begin
-  if FGradientColorspace=AValue then Exit;
-  FGradientColorspace:=AValue;
-  ToolUpdate;
-  if Assigned(FOnGradientChanged) then FOnGradientChanged(self);
-end;
-
-procedure TToolManager.SetGradientSine(AValue: boolean);
-begin
-  if FGradientSine=AValue then Exit;
-  FGradientSine:=AValue;
-  ToolUpdate;
-  if Assigned(FOnGradientChanged) then FOnGradientChanged(self);
-end;
-
-procedure TToolManager.SetGradientType(AValue: TGradientType);
-begin
-  if FGradientType=AValue then Exit;
-  FGradientType:=AValue;
-  ToolUpdate;
-  if Assigned(FOnGradientChanged) then FOnGradientChanged(self);
+  FForeFill.SolidColor := AValue;
 end;
 
 procedure TToolManager.SetJoinStyle(AValue: TPenJoinStyle);
@@ -1266,15 +1410,6 @@ begin
   if Assigned(FOnTextShadowChanged) then FOnTextShadowChanged(self);
 end;
 
-procedure TToolManager.SetTextureOpacity(AValue: byte);
-begin
-  if AValue = FTextureOpactiy then exit;
-  FreeAndNil(FTextureAfterAlpha);
-  FTextureOpactiy := AValue;
-  ToolUpdate;
-  if Assigned(FOnTextureChanged) then FOnTextureChanged(self);
-end;
-
 procedure TToolManager.SetTolerance(AValue: byte);
 begin
   if FTolerance=AValue then Exit;
@@ -1323,9 +1458,9 @@ end;
 function TToolManager.GetBackColor: TBGRAPixel;
 begin
   if BlackAndWhite then
-    result := BGRAToGrayscale(FBackColor)
+    result := BGRAToGrayscale(FBackFill.AverageColor)
   else
-    result := FBackColor;
+    result := FBackFill.AverageColor;
 end;
 
 function TToolManager.GetBrushAt(AIndex: integer): TLazPaintBrush;
@@ -1376,12 +1511,37 @@ begin
   if toolCursor <> crDefault then result := toolCursor;
 end;
 
+procedure TToolManager.BackFillChange(ASender: TObject;
+  var ADiff: TCustomVectorialFillDiff);
+begin
+  if FInToolUpdate or FInSwapFill then exit;
+  ToolUpdate;
+  if Assigned(FOnFillChanged) then FOnFillChanged(self);
+  if FBackFill.FillType = vftGradient then
+  begin
+    FBackLastGradient.Free;
+    FBackLastGradient := FBackFill.Gradient.Duplicate as TBGRALayerGradientOriginal;
+  end;
+end;
+
+function TToolManager.GetAllowedBackFillTypes: TVectorialFillTypes;
+begin
+  if Assigned(CurrentTool) then result := currentTool.AllowedBackFillTypes
+  else result := [vftSolid,vftGradient,vftTexture];
+end;
+
+function TToolManager.GetAllowedForeFillTypes: TVectorialFillTypes;
+begin
+  if Assigned(CurrentTool) then result := currentTool.AllowedForeFillTypes
+  else result := [vftSolid,vftGradient,vftTexture];
+end;
+
 function TToolManager.GetForeColor: TBGRAPixel;
 begin
   if BlackAndWhite then
-    result := BGRAToGrayscale(FForeColor)
+    result := BGRAToGrayscale(FForeFill.AverageColor)
   else
-    result := FForeColor;
+    result := FForeFill.AverageColor;
 end;
 
 function TToolManager.GetMaxDeformationGridSize: TSize;
@@ -1431,9 +1591,17 @@ begin
   result := FTextFontStyle;
 end;
 
-function TToolManager.GetTextureOpacity: byte;
+procedure TToolManager.ForeFillChange(ASender: TObject;
+  var ADiff: TCustomVectorialFillDiff);
 begin
-  result := FTextureOpactiy;
+  if FInToolUpdate or FInSwapFill then exit;
+  ToolUpdate;
+  if Assigned(FOnFillChanged) then FOnFillChanged(self);
+  if FForeFill.FillType = vftGradient then
+  begin
+    FForeLastGradient.Free;
+    FForeLastGradient := FForeFill.Gradient.Duplicate as TBGRALayerGradientOriginal;
+  end;
 end;
 
 function TToolManager.ScriptGetAliasing(AVars: TVariableSet): TScriptResult;
@@ -1561,37 +1729,79 @@ begin
   result := srOk;
 end;
 
-function TToolManager.ScriptGetGradientColorspace(AVars: TVariableSet): TScriptResult;
+function TToolManager.ScriptGetGradientInterpolation(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
 begin
   result := srOk;
-  case GradientColorspace of
-  ciStdRGB: AVars.Strings['Result'] := 'StdRGB';
-  ciLinearRGB: AVars.Strings['Result'] := 'LinearRGB';
-  ciLinearHSLPositive: AVars.Strings['Result'] := 'LinearHSLPositive';
-  ciLinearHSLNegative: AVars.Strings['Result'] := 'LinearHSLNegative';
-  ciGSBPositive: AVars.Strings['Result'] := 'GSBPositive';
-  ciGSBNegative: AVars.Strings['Result'] := 'GSBNegative';
-  else result := srException;
+  if AFill.FillType <> vftGradient then result := srException else
+  AVars.Strings['Result'] := GradientInterpolationToStr(AFill.Gradient.ColorInterpolation);
+end;
+
+function TToolManager.ScriptGetGradientRepetition(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+begin
+  result := srOk;
+  if AFill.FillType <> vftGradient then result := srException else
+  AVars.Strings['Result'] := GradientRepetitionToStr(AFill.Gradient.Repetition);
+end;
+
+function TToolManager.ScriptGetGradientType(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+begin
+  result := srOk;
+  if AFill.FillType <> vftGradient then result := srException else
+  AVars.Strings['Result'] := GradientTypeStr[AFill.Gradient.GradientType];
+end;
+
+function TToolManager.ScriptGetGradientColors(AVars: TVariableSet;
+  AFill: TVectorialFill): TScriptResult;
+var
+  colors: TScriptVariableReference;
+begin
+  result := srOk;
+  if AFill.FillType <> vftGradient then result := srException else
+  begin
+    colors := AVars.AddPixelList('Result');
+    TVariableSet.AppendPixel(colors, AFill.Gradient.StartColor);
+    TVariableSet.AppendPixel(colors, AFill.Gradient.EndColor);
   end;
 end;
 
-function TToolManager.ScriptGetGradientSine(AVars: TVariableSet): TScriptResult;
+function TToolManager.ScriptGetBackGradientInterpolation(AVars: TVariableSet): TScriptResult;
 begin
-  result := srOk;
-  AVars.Booleans['Result'] := GradientSine;
+  result := ScriptGetGradientInterpolation(AVars, FBackFill);
 end;
 
-function TToolManager.ScriptGetGradientType(AVars: TVariableSet): TScriptResult;
+function TToolManager.ScriptGetBackGradientRepetition(AVars: TVariableSet): TScriptResult;
 begin
-  result := srOk;
-  case GradientType of
-  gtLinear: AVars.Strings['Result'] := 'Linear';
-  gtReflected: AVars.Strings['Result'] := 'Reflected';
-  gtDiamond: AVars.Strings['Result'] := 'Diamond';
-  gtRadial: AVars.Strings['Result'] := 'Radial';
-  gtAngular: AVars.Strings['Result'] := 'Angular';
-  else result := srException;
-  end;
+  result := ScriptGetGradientRepetition(AVars, FBackFill);
+end;
+
+function TToolManager.ScriptGetBackGradientType(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptGetGradientType(AVars, FBackFill);
+end;
+
+function TToolManager.ScriptGetBackGradientColors(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptGetGradientColors(AVars, FBackFill);
+end;
+
+function TToolManager.ScriptGetForeGradientInterpolation(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptGetGradientInterpolation(AVars, FForeFill);
+end;
+
+function TToolManager.ScriptGetForeGradientRepetition(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptGetGradientRepetition(AVars, FForeFill);
+end;
+
+function TToolManager.ScriptGetForeGradientType(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptGetGradientType(AVars, FForeFill);
+end;
+
+function TToolManager.ScriptGetForeGradientColors(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptGetGradientColors(AVars, FForeFill);
 end;
 
 function TToolManager.ScriptGetJoinStyle(AVars: TVariableSet): TScriptResult;
@@ -1622,7 +1832,7 @@ begin
   result := srOk;
 end;
 
-function TToolManager.ScriptGetPenColor(AVars: TVariableSet): TScriptResult;
+function TToolManager.ScriptGetForeColor(AVars: TVariableSet): TScriptResult;
 begin
   AVars.Pixels['Result'] := ForeColor;
   result := srOk;
@@ -1656,7 +1866,7 @@ begin
   for option := low(TPerspectiveOption) to high(TPerspectiveOption) do
     if option in PerspectiveOptions then
     case option of
-    poRepeat: AVars.AppendString(optionsVar, 'Repeat');
+    poRepeat: Avars.AppendString(optionsVar, 'Repeat');
     poTwoPlanes: Avars.AppendString(optionsVar, 'TwoPlanes');
     end;
   result := srOk;
@@ -1926,37 +2136,132 @@ begin
   result := srOk;
 end;
 
-function TToolManager.ScriptSetGradientColorspace(AVars: TVariableSet): TScriptResult;
+function TToolManager.ScriptSetGradientInterpolation(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+var
+  ci: TBGRAColorInterpolation;
+begin
+  if AFill.FillType <> vftGradient then exit(srException);
+  result := srOk;
+  ci := StrToGradientInterpolation(AVars.Strings['Interpolation']);
+  if GradientInterpolationToStr(ci) <> AVars.Strings['Interpolation'] then
+    result := srInvalidParameters
+  else AFill.Gradient.ColorInterpolation:= ci;
+end;
+
+function TToolManager.ScriptSetGradientRepetition(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+var
+  gr: TBGRAGradientRepetition;
+begin
+  if AFill.FillType <> vftGradient then exit(srException);
+  result := srOk;
+  gr := StrToGradientRepetition(AVars.Strings['Repetition']);
+  if GradientRepetitionToStr(gr) <> AVars.Strings['Repetition'] then
+    result := srInvalidParameters
+  else AFill.Gradient.Repetition:= gr;
+end;
+
+function TToolManager.ScriptSetGradientType(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+var
+  gt: TGradientType;
+  b: TAffineBox;
+  lastGrad: TBGRALayerGradientOriginal;
 begin
   result := srOk;
-  case AVars.Strings['Colorspace'] of
-  'StdRGB': GradientColorspace := ciStdRGB;
-  'LinearRGB': GradientColorspace := ciLinearRGB;
-  'LinearHSLPositive': GradientColorspace := ciLinearHSLPositive;
-  'LinearHSLNegative': GradientColorspace := ciLinearHSLNegative;
-  'GSBPositive': GradientColorspace := ciGSBPositive;
-  'GSBNegative': GradientColorspace := ciGSBNegative;
-  else result := srInvalidParameters;
+  gt := StrToGradientType(AVars.Strings['GradientType']);
+  if GradientTypeStr[gt] <> AVars.Strings['GradientType'] then
+    exit(srInvalidParameters);
+  if AFill.FillType = vftGradient then
+    AFill.Gradient.GradientType:= gt
+  else
+  begin
+    if AFill = BackFill then
+      lastGrad := FBackLastGradient
+    else lastGrad := FForeLastGradient;
+
+    lastGrad.GradientType:= gt;
+    b := SuggestGradientBox;
+    if gt = gtLinear then lastGrad.Origin := b.TopLeft else
+      lastGrad.Origin := (b.TopLeft+b.BottomRight)*0.5;
+    lastGrad.XAxis := b.BottomRight;
+    lastGrad.YAxis := EmptyPointF;
+    lastGrad.FocalPoint := EmptyPointF;
+    lastGrad.Radius := 1;
+    lastGrad.FocalRadius := 0;
+    AFill.SetGradient(lastGrad, False);
   end;
 end;
 
-function TToolManager.ScriptSetGradientSine(AVars: TVariableSet): TScriptResult;
+function TToolManager.ScriptSetGradientColors(AVars: TVariableSet;
+  AFill: TVectorialFill): TScriptResult;
+var
+  colors: TScriptVariableReference;
+  lastGrad: TBGRALayerGradientOriginal;
+  b: TAffineBox;
 begin
   result := srOk;
-  GradientSine:= AVars.Booleans['Enabled'];
+  colors := AVars.GetVariable('Colors');
+  if TVariableSet.GetListCount(colors) <> 2 then
+    exit(srInvalidParameters);
+
+  if AFill.FillType = vftGradient then
+    AFill.Gradient.SetColors(TVariableSet.GetPixelAt(colors, 0), TVariableSet.GetPixelAt(colors, 1))
+  else
+  begin
+    if AFill = BackFill then
+      lastGrad := FBackLastGradient
+    else lastGrad := FForeLastGradient;
+
+    b := SuggestGradientBox;
+    if lastGrad.GradientType = gtLinear then lastGrad.Origin := b.TopLeft else
+      lastGrad.Origin := (b.TopLeft+b.BottomRight)*0.5;
+    lastGrad.XAxis := b.BottomRight;
+    lastGrad.YAxis := EmptyPointF;
+    lastGrad.FocalPoint := EmptyPointF;
+    lastGrad.Radius := 1;
+    lastGrad.FocalRadius := 0;
+    lastGrad.SetColors(TVariableSet.GetPixelAt(colors, 0), TVariableSet.GetPixelAt(colors, 1));
+    AFill.SetGradient(lastGrad, False);
+  end;
 end;
 
-function TToolManager.ScriptSetGradientType(AVars: TVariableSet): TScriptResult;
+function TToolManager.ScriptSetBackGradientInterpolation(AVars: TVariableSet): TScriptResult;
 begin
-  result := srOk;
-  case AVars.Strings['GradientType'] of
-  'Linear': GradientType:= gtLinear;
-  'Reflected': GradientType := gtReflected;
-  'Diamond': GradientType := gtDiamond;
-  'Radial': GradientType := gtRadial;
-  'Angular': GradientType := gtAngular;
-  else result := srInvalidParameters;
-  end;
+  result := ScriptSetGradientInterpolation(AVars, FBackFill);
+end;
+
+function TToolManager.ScriptSetBackGradientRepetition(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptSetGradientRepetition(AVars, FBackFill);
+end;
+
+function TToolManager.ScriptSetBackGradientType(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptSetGradientType(AVars, FBackFill);
+end;
+
+function TToolManager.ScriptSetBackGradientColors(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptSetGradientColors(AVars, FBackFill);
+end;
+
+function TToolManager.ScriptSetForeGradientInterpolation(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptSetGradientInterpolation(AVars, FForeFill);
+end;
+
+function TToolManager.ScriptSetForeGradientRepetition(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptSetGradientRepetition(AVars, FForeFill);
+end;
+
+function TToolManager.ScriptSetForeGradientType(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptSetGradientType(AVars, FForeFill);
+end;
+
+function TToolManager.ScriptSetForeGradientColors(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptSetGradientColors(AVars, FForeFill);
 end;
 
 function TToolManager.ScriptSetJoinStyle(AVars: TVariableSet): TScriptResult;
@@ -1994,7 +2299,7 @@ begin
   result := srOk;
 end;
 
-function TToolManager.ScriptSetPenColor(AVars: TVariableSet): TScriptResult;
+function TToolManager.ScriptSetForeColor(AVars: TVariableSet): TScriptResult;
 begin
   ForeColor := AVars.Pixels['Color'];
   ToolUpdate;
@@ -2196,11 +2501,16 @@ begin
   FScriptContext := AScriptContext;
   RegisterScriptFunctions(True);
 
-  FForeColor := BGRABlack;
-  FBackColor := BGRA(0,0,255);
-  FTexture := nil;
-  FTextureOpactiy:= 255;
-  FTextureAfterAlpha := nil;
+  FForeFill := TVectorialFill.Create;
+  FForeFill.SolidColor := BGRABlack;
+  FForeFill.OnChange:=@ForeFillChange;
+  FBackFill := TVectorialFill.Create;
+  FBackFill.SolidColor := CSSSkyBlue;
+  FBackFill.OnChange:=@BackFillChange;
+  FForeLastGradient:= TBGRALayerGradientOriginal.Create;
+  FForeLastGradient.ColorInterpolation:= ciLinearRGB;
+  FBackLastGradient:= TBGRALayerGradientOriginal.Create;
+  FBackLastGradient.ColorInterpolation:= ciLinearRGB;
   FNormalPenWidth := 5;
   FEraserWidth := 10;
   FEraserAlpha := 255;
@@ -2217,9 +2527,6 @@ begin
   FSplineStyle := ssEasyBezier;
   FFloodFillOptions := [ffProgressive];
   FTolerance := 64;
-  FGradientType := gtLinear;
-  FGradientSine := false;
-  FGradientColorspace := ciLinearRGB;
   FTextOutline := False;
   FTextOutlineWidth := 2;
   FTextShadow := false;
@@ -2235,7 +2542,7 @@ begin
   FPhongShapeKind := pskRectangle;
   FPhongShapeAltitude := 50;
   FPhongShapeBorderSize := 20;
-  FPerspectiveOptions:= [poRepeat];
+  FPerspectiveOptions:= [];
   FDeformationGridNbX := 5;
   FDeformationGridNbY := 5;
   FDeformationGridMode := gmDeform;
@@ -2250,15 +2557,13 @@ begin
   SplineStyleControls := TList.Create;
   EraserControls := TList.Create;
   ToleranceControls := TList.Create;
-  GradientControls := TList.Create;
   DeformationControls := TList.Create;
   TextControls := TList.Create;
   TextShadowControls := TList.Create;
   PhongControls := TList.Create;
   AltitudeControls := TList.Create;
   PerspectiveControls := TList.Create;
-  PenColorControls := TList.Create;
-  TextureControls := TList.Create;
+  FillControls := TList.Create;
   BrushControls := TList.Create;
   RatioControls := TList.Create;
 
@@ -2283,15 +2588,13 @@ begin
   SplineStyleControls.Free;
   EraserControls.Free;
   ToleranceControls.Free;
-  GradientControls.Free;
   DeformationControls.Free;
   TextControls.Free;
   TextShadowControls.Free;
   PhongControls.Free;
   AltitudeControls.Free;
   PerspectiveControls.Free;
-  PenColorControls.Free;
-  TextureControls.Free;
+  FillControls.Free;
   BrushControls.Free;
   RatioControls.Free;
 
@@ -2299,9 +2602,10 @@ begin
     BrushAt[i].Free;
   FBrushInfoList.Free;
 
-  FTexture.FreeReference;
-  FTexture := nil;
-  FTextureAfterAlpha.Free;
+  FForeFill.Free;
+  FBackFill.Free;
+  FForeLastGradient.Free;
+  FBackLastGradient.Free;
 
   RegisterScriptFunctions(False);
   inherited Destroy;
@@ -2318,6 +2622,8 @@ begin
     exit;
   ForeColor := Config.DefaultToolForeColor;
   BackColor := Config.DefaultToolBackColor;
+  AssignGradientFromConfigStr(FForeLastGradient, Config.DefaultToolForeGradient);
+  AssignGradientFromConfigStr(FBackLastGradient, Config.DefaultToolBackGradient);
   FNormalPenWidth := Config.DefaultToolPenWidth;
   FEraserWidth := Config.DefaultToolEraserWidth;
   if Assigned(FOnPenWidthChanged) then FOnPenWidthChanged(self);
@@ -2352,8 +2658,10 @@ begin
     Config := FConfigProvider.GetConfig
   else
     exit;
-  Config.SetDefaultToolForeColor(ForeColor);
-  Config.SetDefaultToolBackColor(BackColor);
+  if ForeFill.FillType = vftSolid then Config.SetDefaultToolForeColor(ForeColor);
+  if BackFill.FillType = vftSolid then Config.SetDefaultToolBackColor(BackColor);
+  Config.SetDefaultToolForeGradient(GradientToConfigStr(FForeLastGradient));
+  Config.SetDefaultToolBackGradient(GradientToConfigStr(FBackLastGradient));
   Config.SetDefaultToolPenWidth(FNormalPenWidth);
   Config.SetDefaultToolEraserWidth(FEraserWidth);
   Config.SetDefaultToolOptionDrawShape(toDrawShape in ShapeOptions);
@@ -2458,6 +2766,11 @@ begin
     FToolPressure:= APressure;
 end;
 
+function TToolManager.GetPressureB: Byte;
+begin
+  result := round(FToolPressure*255);
+end;
+
 procedure TToolManager.InternalSetCurrentToolType(tool: TPaintToolType);
 begin
   if (tool <> FCurrentToolType) or (FCurrentTool=nil) then
@@ -2496,10 +2809,12 @@ begin
   if Assigned(FCurrentTool) then
     contextualToolbars := FCurrentTool.GetContextualToolbars
   else
-    contextualToolbars := [ctColor,ctTexture];
+    contextualToolbars := [ctFill];
 
-  OrResult(SetControlsVisible(PenColorControls, ctColor in contextualToolbars));
-  OrResult(SetControlsVisible(TextureControls, ctTexture in contextualToolbars));
+  if ctBackFill in contextualToolbars then
+    OrResult(SetControlsVisible(FillControls, True, 'Panel_BackFill'))
+  else
+    OrResult(SetControlsVisible(FillControls, ctFill in contextualToolbars));
   OrResult(SetControlsVisible(BrushControls, ctBrush in contextualToolbars));
   OrResult(SetControlsVisible(ShapeControls, ctShape in contextualToolbars));
   OrResult(SetControlsVisible(PenWidthControls, (ctPenWidth in contextualToolbars) and (toDrawShape in ShapeOptions)));
@@ -2511,7 +2826,6 @@ begin
   OrResult(SetControlsVisible(SplineStyleControls, ctSplineStyle in contextualToolbars));
   OrResult(SetControlsVisible(EraserControls, ctEraserOption in contextualToolbars));
   OrResult(SetControlsVisible(ToleranceControls, ctTolerance in contextualToolbars));
-  OrResult(SetControlsVisible(GradientControls, ctGradient in contextualToolbars));
   OrResult(SetControlsVisible(DeformationControls, ctDeformation in contextualToolbars));
   OrResult(SetControlsVisible(TextControls, ctText in contextualToolbars));
   OrResult(SetControlsVisible(TextShadowControls, ctTextShadow in contextualToolbars));
@@ -2547,8 +2861,8 @@ end;
 procedure TToolManager.RegisterScriptFunctions(ARegister: boolean);
 begin
   if not Assigned(FScriptContext) then exit;
-  FScriptContext.RegisterScriptFunction('ToolSetPenColor', @ScriptSetPenColor, ARegister);
-  FScriptContext.RegisterScriptFunction('ToolGetPenColor', @ScriptGetPenColor, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetForeColor', @ScriptSetForeColor, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetForeColor', @ScriptGetForeColor, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetBackColor', @ScriptSetBackColor, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetBackColor', @ScriptGetBackColor, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetEraserMode', @ScriptSetEraserMode, ARegister);
@@ -2598,12 +2912,22 @@ begin
   FScriptContext.RegisterScriptFunction('ToolGetArrowSize', @ScriptGetArrowSize, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetSplineStyle', @ScriptSetSplineStyle, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetSplineStyle', @ScriptGetSplineStyle, ARegister);
-  FScriptContext.RegisterScriptFunction('ToolSetGradientType', @ScriptSetGradientType, ARegister);
-  FScriptContext.RegisterScriptFunction('ToolGetGradientType', @ScriptGetGradientType, ARegister);
-  FScriptContext.RegisterScriptFunction('ToolSetGradientSine', @ScriptSetGradientSine, ARegister);
-  FScriptContext.RegisterScriptFunction('ToolGetGradientSine', @ScriptGetGradientSine, ARegister);
-  FScriptContext.RegisterScriptFunction('ToolSetGradientColorspace', @ScriptSetGradientColorspace, ARegister);
-  FScriptContext.RegisterScriptFunction('ToolGetGradientColorspace', @ScriptGetGradientColorspace, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetForeGradientType', @ScriptSetForeGradientType, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetForeGradientType', @ScriptGetForeGradientType, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetForeGradientRepetition', @ScriptSetForeGradientRepetition, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetForeGradientRepetition', @ScriptGetForeGradientRepetition, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetForeGradientInterpolation', @ScriptSetForeGradientInterpolation, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetForeGradientInterpolation', @ScriptGetForeGradientInterpolation, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetForeGradientColors', @ScriptSetForeGradientColors, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetForeGradientColors', @ScriptGetForeGradientColors, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetBackGradientType', @ScriptSetBackGradientType, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetBackGradientType', @ScriptGetBackGradientType, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetBackGradientRepetition', @ScriptSetBackGradientRepetition, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetBackGradientRepetition', @ScriptGetBackGradientRepetition, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetBackGradientInterpolation', @ScriptSetBackGradientInterpolation, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetBackGradientInterpolation', @ScriptGetBackGradientInterpolation, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetBackGradientColors', @ScriptSetBackGradientColors, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetBackGradientColors', @ScriptGetBackGradientColors, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetPhongShapeAltitude', @ScriptSetPhongShapeAltitude, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetPhongShapeAltitude', @ScriptGetPhongShapeAltitude, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetPhongShapeBorderSize', @ScriptSetPhongShapeBorderSize, ARegister);
@@ -2630,7 +2954,10 @@ begin
     FCurrentTool := FSleepingTool;
     FSleepingTool := nil;
     FCurrentToolType := FSleepingToolType;
-    InternalSetCurrentToolType(FCurrentToolType);
+    Image.RenderMayChange(rect(0,0,Image.Width,Image.Height),True);
+    UpdateContextualToolbars;
+    If Assigned(FOnToolChangedHandler) then
+      FOnToolChangedHandler(self, FCurrentToolType);
   end;
 end;
 
@@ -2660,60 +2987,59 @@ begin
   end;
 end;
 
-procedure TToolManager.SwapToolColors;
+function TToolManager.SwapToolColors: boolean;
 var
-  tmp: TBGRAPixel;
+  tmpFill: TVectorialFill;
 begin
-  if (FForeColor.red = FBackColor.red) and
-     (FForeColor.green = FBackColor.green) and
-     (FForeColor.blue = FBackColor.blue) and
-     (FForeColor.alpha = FBackColor.alpha) then exit;
-  tmp := FForeColor;
-  FForeColor := FBackColor;
-  FBackColor := tmp;
-  if Assigned(FOnColorChanged) then FOnColorChanged(self);
-end;
-
-procedure TToolManager.SetTexture(ATexture: TBGRABitmap);
-begin
-  SetTexture(ATexture, TextureOpacity);
-end;
-
-procedure TToolManager.SetTexture(ATexture: TBGRABitmap; AOpacity: byte);
-begin
-  if (ATexture = FTexture) and (AOpacity = FTextureOpactiy) then exit;
-  if ATexture<>FTexture then
+  result := false;
+  if FInSwapFill then exit;
+  if FForeFill.Equals(FBackFill) then exit;
+  FInSwapFill:= true;
+  tmpFill := FForeFill.Duplicate;
+  FForeFill.Assign(FBackFill);
+  FBackFill.Assign(tmpFill);
+  tmpFill.Free;
+  if FForeFill.FillType = vftGradient then
   begin
-    FTexture.FreeReference;
-    FTexture := ATexture.NewReference as TBGRABitmap;
+    FForeLastGradient.Free;
+    FForeLastGradient := FForeFill.Gradient.Duplicate as TBGRALayerGradientOriginal;
   end;
-  FTextureOpactiy:= AOpacity;
-  FreeAndNil(FTextureAfterAlpha);
-  ToolUpdate;
-  if Assigned(FOnTextureChanged) then FOnTextureChanged(self);
-end;
-
-function TToolManager.GetTextureAfterAlpha: TBGRABitmap;
-begin
-  if (FTextureAfterAlpha = nil) and (FTexture <> nil) then
+  if FBackFill.FillType = vftGradient then
   begin
-    FTextureAfterAlpha := FTexture.Duplicate as TBGRABitmap;
-    FTextureAfterAlpha.ApplyGlobalOpacity(FTextureOpactiy);
+    FBackLastGradient.Free;
+    FBackLastGradient := FBackFill.Gradient.Duplicate as TBGRALayerGradientOriginal;
   end;
-  result := FTextureAfterAlpha;
+  if Assigned(FOnFillChanged) then FOnFillChanged(self);
+  FInSwapFill:= false;
+  result := true;
 end;
 
-function TToolManager.GetTexture: TBGRABitmap;
+procedure TToolManager.NeedBackGradient;
+var
+  tempFill: TVectorialFill;
 begin
-  result := FTexture;
+  if BackFill.FillType <> vftGradient then
+  begin
+    tempFill := TVectorialFill.Create;
+    tempFill.SetGradient(FBackLastGradient, False);
+    tempFill.FitGeometry(SuggestGradientBox);
+    BackFill.Assign(tempFill);
+    tempFill.Free;
+  end;
 end;
 
-function TToolManager.BorrowTexture: TBGRABitmap;
+procedure TToolManager.NeedForeGradient;
+var
+  tempFill: TVectorialFill;
 begin
-  result := FTexture;
-  FTexture := nil;
-  FreeAndNil(FTextureAfterAlpha);
-  if Assigned(FOnTextureChanged) then FOnTextureChanged(self);
+  if ForeFill.FillType <> vftGradient then
+  begin
+    tempFill := TVectorialFill.Create;
+    tempFill.SetGradient(FForeLastGradient, False);
+    tempFill.FitGeometry(SuggestGradientBox);
+    ForeFill.Assign(tempFill);
+    tempFill.Free;
+  end;
 end;
 
 procedure TToolManager.AddBrush(brush: TLazPaintBrush);
@@ -2966,6 +3292,7 @@ var changed: TRect;
 begin
   if FInTool then exit(false);
   FInTool := true;
+  FInToolUpdate := true;
   try
     if ToolCanBeUsed then
       changed := currentTool.ToolUpdate
@@ -2978,6 +3305,7 @@ begin
     if result then NotifyImageOrSelectionChanged(CurrentTool.LastToolDrawingLayer, changed);
   finally
     FInTool := false;
+    FInToolUpdate := false;
   end;
 end;
 
@@ -3010,6 +3338,18 @@ begin
   result := IsSelectingTool or (FCurrentToolType = ptEditShape);
 end;
 
+function TToolManager.IsForeEditGradTexPoints: boolean;
+begin
+  if Assigned(CurrentTool) then result := CurrentTool.IsForeEditGradTexPoints
+  else result := false;
+end;
+
+function TToolManager.IsBackEditGradTexPoints: boolean;
+begin
+  if Assigned(CurrentTool) then result := CurrentTool.IsBackEditGradTexPoints
+  else result := false;
+end;
+
 procedure TToolManager.QueryExitTool;
 begin
   FShouldExitTool:= true;
@@ -3034,6 +3374,14 @@ begin
     result := currentTool.Render(nil,VirtualScreenWidth,VirtualScreenHeight, @InternalBitmapToVirtualScreen)
   else
     result := EmptyRect;
+end;
+
+function TToolManager.SuggestGradientBox: TAffineBox;
+begin
+  if Assigned(CurrentTool) then
+    result := CurrentTool.SuggestGradientBox
+  else
+    result := TAffineBox.AffineBox(RectF(PointF(0,0),PointF(Image.Width,Image.Height)));
 end;
 
 function TToolManager.GetDeformationGridSize: TSize;

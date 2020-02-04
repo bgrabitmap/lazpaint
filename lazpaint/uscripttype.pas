@@ -159,7 +159,7 @@ begin
                 else
                   result := '(' + FloatToStrUS(x, false)+', '+FloatToStrUS(y, false)+')';
               end;
-    svtPixel: result := '#'+BGRAToStr(TBGRAPixel(AValue));
+    svtPixel: result := '#'+BGRAToStr(TBGRAPixel(AValue), nil,0,true);
     svtBoolean: result := BoolToStr(Boolean(AValue),TrueToken,FalseToken);
   else raise exception.Create('Not a scalar type');
   end;

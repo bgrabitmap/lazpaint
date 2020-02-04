@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, UToolBasic, BGRABitmapTypes, BGRABitmap, UTool,
-  UBrushType;
+  UBrushType, LCVectorialFill;
 
 type
 
@@ -23,7 +23,7 @@ type
     procedure PrepareBrush(rightBtn: boolean); virtual; abstract;
     procedure ReleaseBrush; virtual; abstract;
     function StartDrawing(toolDest: TBGRABitmap; ptF: TPointF; rightBtn: boolean): TRect; override;
-    function ContinueDrawing(toolDest: TBGRABitmap; {%H-}originF, destF: TPointF): TRect; override;
+    function ContinueDrawing(toolDest: TBGRABitmap; {%H-}originF, destF: TPointF; rightBtn: boolean): TRect; override;
     function GetBrushAlpha(AAlpha: byte): byte;
   public
     constructor Create(AManager: TToolManager); override;
@@ -41,6 +41,8 @@ type
     function DrawBrushAt(toolDest: TBGRABitmap; x, y: single): TRect; override;
     procedure PrepareBrush({%H-}rightBtn: boolean); override;
     procedure ReleaseBrush; override;
+    function GetAllowedForeFillTypes: TVectorialFillTypes; override;
+    function GetAllowedBackFillTypes: TVectorialFillTypes; override;
   public
     destructor Destroy; override;
     function GetContextualToolbars: TContextualToolbars; override;
@@ -198,14 +200,27 @@ begin
 end;
 
 procedure TToolBrush.PrepareBrush(rightBtn: boolean);
+var
+  penColor: TBGRAPixel;
 begin
   FreeAndNil(coloredBrushImage);
+  if rightBtn then penColor := Manager.BackColor else penColor := Manager.ForeColor;
   coloredBrushImage := BrushInfo.MakeColoredBrushImage(BGRA(penColor.red,penColor.green,penColor.blue,GetBrushAlpha(penColor.alpha)));
 end;
 
 procedure TToolBrush.ReleaseBrush;
 begin
   FreeAndNil(coloredBrushImage);
+end;
+
+function TToolBrush.GetAllowedForeFillTypes: TVectorialFillTypes;
+begin
+  Result:= [vftSolid];
+end;
+
+function TToolBrush.GetAllowedBackFillTypes: TVectorialFillTypes;
+begin
+  Result:= [vftSolid];
 end;
 
 destructor TToolBrush.Destroy;
@@ -216,7 +231,7 @@ end;
 
 function TToolBrush.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctPenWidth,ctBrush];
+  Result:= [ctFill,ctPenWidth,ctBrush];
 end;
 
 { TToolGenericBrush }
@@ -239,14 +254,13 @@ begin
   if not SubPixelAccuracy then
     brushOrigin:= PointF(round(ptF.x),round(ptF.y))
   else brushOrigin := ptF;
-  if rightBtn then penColor := Manager.BackColor else penColor := Manager.ForeColor;
   originDrawn := false;
   PrepareBrush(rightBtn);
-  result := ContinueDrawing(toolDest,brushOrigin,brushOrigin);
+  result := ContinueDrawing(toolDest, brushOrigin, brushOrigin, rightBtn);
 end;
 
 function TToolGenericBrush.ContinueDrawing(toolDest: TBGRABitmap; originF,
-  destF: TPointF): TRect;
+  destF: TPointF; rightBtn: boolean): TRect;
 var v: TPointF;
   count: integer;
   len, minLen: single;
