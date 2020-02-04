@@ -561,7 +561,8 @@ end;
 
 procedure TFMain.QueryArrange;
 begin
-  TimerArrange.Enabled := true;
+  if FShouldArrange then
+    TimerArrange.Enabled := true;
 end;
 
 procedure TFMain.UpdateLineCapBar;

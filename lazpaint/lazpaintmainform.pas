@@ -712,7 +712,7 @@ type
     FInPerspective, FInGridNb: Boolean;
     FOnlineUpdater: TLazPaintCustomOnlineUpdater;
     FInitialized: boolean;
-    shouldArrangeOnResize: boolean;
+    FShouldArrange: boolean;
     btnLeftDown, btnRightDown, btnMiddleDown: boolean;
     spacePressed, altPressed, snapPressed, shiftPressed: boolean;
     FormMouseMovePos: TPoint;
@@ -1151,7 +1151,8 @@ begin
   ToolManager.UpdateContextualToolbars;
   UpdateToolImage;
   UpdateToolBar;
-  shouldArrangeOnResize := true;
+  FShouldArrange := true;
+  QueryArrange;
 end;
 
 procedure TFMain.OnLatestVersionUpdate(ANewVersion: string);
@@ -1860,7 +1861,7 @@ end;
 
 procedure TFMain.FormResize(Sender: TObject);
 begin
-  if shouldArrangeOnResize then QueryArrange;
+  QueryArrange;
 end;
 
 procedure TFMain.ImageActionExecute(Sender: TObject);
@@ -2560,7 +2561,7 @@ end;
 
 procedure TFMain.FormHide(Sender: TObject);
 begin
-  shouldArrangeOnResize := false;
+  FShouldArrange := false;
   FTopMostInfo := LazPaintInstance.HideTopmost;
   LazPaintInstance.SaveMainWindowPosition;
 end;
