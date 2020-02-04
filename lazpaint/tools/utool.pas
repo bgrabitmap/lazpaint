@@ -2817,7 +2817,7 @@ begin
     OrResult(SetControlsVisible(FillControls, ctFill in contextualToolbars));
   OrResult(SetControlsVisible(BrushControls, ctBrush in contextualToolbars));
   OrResult(SetControlsVisible(ShapeControls, ctShape in contextualToolbars));
-  OrResult(SetControlsVisible(PenWidthControls, (ctPenWidth in contextualToolbars) and (toDrawShape in ShapeOptions)));
+  OrResult(SetControlsVisible(PenWidthControls, (ctPenWidth in contextualToolbars) and ((toDrawShape in ShapeOptions) or not (ctShape in contextualToolbars))));
   OrResult(SetControlsVisible(JoinStyleControls, (ctJoinStyle in contextualToolbars) and (toDrawShape in ShapeOptions)));
   OrResult(SetControlsVisible(PenStyleControls, (ctPenStyle in contextualToolbars) and (toDrawShape in ShapeOptions)));
   OrResult(SetControlsVisible(CloseShapeControls, (ctCloseShape in contextualToolbars) or (ctLineCap in contextualToolbars)));
