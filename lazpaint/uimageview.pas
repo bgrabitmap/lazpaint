@@ -77,7 +77,7 @@ type
 
 implementation
 
-uses BGRATransform, LCLIntf, Types, ugraph, math, UTool, BGRAThumbnail;
+uses BGRATransform, LCLIntf, Types, ugraph, math, UTool, BGRAThumbnail, LCScaleDPI;
 
 function TImageView.GetFillSelectionHighlight: boolean;
 begin
@@ -180,7 +180,7 @@ begin
 
   //draw image (with merged selection)
   FVirtualScreen.StretchPutImage(renderRect,Image.RenderedImage,dmDrawWithTransparency);
-  if (Zoom.Factor > MinZoomForGrid) and LazPaintInstance.GridVisible then
+  if (Zoom.Factor > DoScaleX(MinZoomForGrid, OriginalDPI)) and LazPaintInstance.GridVisible then
     DrawGrid(FVirtualScreen,FLastPictureParameters.zoomFactorX,FLastPictureParameters.zoomFactorY,
        FLastPictureParameters.originInVS.X,FLastPictureParameters.originInVS.Y);
 
