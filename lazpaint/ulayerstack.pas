@@ -30,10 +30,8 @@ type
     BGRALayerStack: TBGRAVirtualScreen;
     Panel1: TPanel;
     TimerScroll: TTimer;
-    ToolBar1: TToolBar;
-    ToolBar2: TToolBar;
     ToolBar3: TToolBar;
-    ToolButton1: TToolButton;
+    ToolRemoveLayer: TToolButton;
     ToolZoomLayerStackIn: TToolButton;
     ToolZoomLayerStackOut: TToolButton;
     ToolBlendOp: TToolButton;
@@ -85,6 +83,7 @@ type
     timerScrollDeltaY: integer;
     updatingImageOnly: boolean;
     ScrollStackItemIntoView : boolean;
+    FCustomButtonCount: integer;
     procedure ComputeLayout(ABitmap: TBGRABitmap);
     procedure ComputeScrolling(AWithHorzScrollBar,AWithVertScrollBar: boolean);
     function DrawLayerItem(ABitmap: TBGRABitmap; layerPos: TPoint;
@@ -105,7 +104,6 @@ type
     procedure InvalidateStack(AScrollIntoView: boolean);
     procedure SetLayerStackScrollPosOnItem(idx: integer);
     procedure AddButton(AAction: TBasicAction);
-    procedure AddSeparator;
     property CompletelyResizeable: boolean read FCompletelyResizeable write SetCompletelyResizeable;
     property DarkTheme: boolean read FDarkTheme write SetDarkTheme;
   end;
@@ -114,8 +112,8 @@ var TFLayerStack_CustomDPI: integer = 96;
 
 implementation
 
-uses BGRAFillInfo,LCScaleDPI,uresourcestrings,ublendop, uimage, utool, BGRAText, BGRAThumbnail,
-   BGRALayerOriginal, math, BGRATransform, BGRASVGOriginal, udarktheme, ugraph;
+uses BGRAFillInfo, LCScaleDPI, UResourceStrings, UBlendOp, UImage, UTool, BGRAText, BGRAThumbnail,
+   BGRALayerOriginal, math, BGRATransform, BGRASVGOriginal, UDarkTheme, UGraph, LCToolbars;
 
 function TFLayerStack.DrawLayerItem(ABitmap: TBGRABitmap; layerPos: TPoint; layerIndex: integer; ASelected: boolean): TDrawLayerItemResult;
 var
@@ -249,42 +247,36 @@ end;
 
 procedure TFLayerStack.FormShow(Sender: TObject);
 var iconSize: integer;
+    toolbarMinWidth,panelMinWidth, panelMargin: integer;
     images: TImageList;
 begin
   LazPaintInstance.Image.OnImageChanged.AddObserver(@OnImageChangedHandler);
-  iconSize := DoScaleX(16, 96, TFLayerStack_CustomDPI);
 
+  iconSize := DoScaleX(16, OriginalDPI, TFLayerStack_CustomDPI);
+  panelMargin := DoScaleX(2, OriginalDPI, TFLayerStack_CustomDPI);
   images := LazPaintInstance.Icons[iconSize];
-  ToolBar1.Images := images;
-  ToolBar1.ButtonWidth := images.Width+DoScaleX(4,96,TFLayerStack_CustomDPI);
-  ToolBar1.ButtonHeight := images.Height+DoScaleY(4,96,TFLayerStack_CustomDPI);
-  ToolBar1.Height := ToolBar1.ButtonHeight+1;
-  ToolBar2.Images := images;
-  ToolBar2.ButtonWidth := images.Width+DoScaleX(4,96,TFLayerStack_CustomDPI);
-  ToolBar2.ButtonHeight := images.Height+DoScaleY(4,96,TFLayerStack_CustomDPI);
-  ToolBar2.Height := ToolBar1.ButtonHeight+1;
+
+  ToolBar3.BeginUpdate;
   ToolBar3.Images := images;
-  ToolBar3.ButtonWidth := images.Width+DoScaleX(4,96,TFLayerStack_CustomDPI);
-  ToolBar3.ButtonHeight := images.Height+DoScaleY(4,96,TFLayerStack_CustomDPI);
-  ToolBar3.Height := ToolBar1.ButtonHeight+1;
+  ToolBar3.ButtonWidth := images.Width + DoScaleX(4, OriginalDPI, TFLayerStack_CustomDPI);
+  ToolBar3.ButtonHeight := images.Height + DoScaleY(4, OriginalDPI, TFLayerStack_CustomDPI);
+  Toolbar3.Align := alNone;
+  Toolbar3.Left := panelMargin;
+  Toolbar3.Top := panelMargin;
+  Toolbar3.Width := Panel1.Width - 2*panelMargin;
+  Toolbar3.Height := Panel1.Height - 2*panelMargin;
+  Toolbar3.Anchors:= [akTop, akLeft, akRight, akBottom];
+  Toolbar3.EndUpdate;
 
-  ClientWidth := ToolBar2.ButtonCount * (ToolBar2.ButtonWidth+1) + 5 + Toolbar2.Left;
-  Constraints.MinWidth := Width;
+  toolbarMinWidth := FCustomButtonCount*Toolbar3.ButtonWidth;
+  panelMinWidth := toolbarMinWidth + 2*panelMargin;
 
-  ToolBar1.Width := ToolBar1.ButtonCount * (ToolBar1.ButtonWidth+1) + 8;
-  ToolBar3.Width := ToolBar3.ButtonCount * (ToolBar3.ButtonWidth+1) + 5;
+  ComboBox_BlendOp.Width := toolbarMinWidth - 2*panelMargin - 4*Toolbar3.ButtonWidth;
+  ComboBox_BlendOp.Height := ToolBar3.ButtonHeight;
+  Panel1.Height := Toolbar3.ButtonWidth*2 + 2*panelMargin;
 
-  ComboBox_BlendOp.Left := Toolbar3.Left+Toolbar3.Width;
-  Toolbar1.Left := ClientWidth-Toolbar1.Width-6;
-  ComboBox_BlendOp.Width := Toolbar1.Left - ComboBox_BlendOp.Left;
-  Toolbar2.Top := Toolbar1.Top + Toolbar1.Height;
-  Panel1.Height := Toolbar2.Top+Toolbar2.Height+2;
-
-  ComboBox_BlendOp.Top := ToolBar1.Top-1;
-  ComboBox_BlendOp.Height := ToolBar1.ButtonHeight+2;
-
-  if Toolbar2.Top+Toolbar2.Height+2 > Panel1.Height then
-    Panel1.Height := Toolbar2.Top+Toolbar2.Height+2;
+  Constraints.MinWidth := panelMinWidth + (Width-ClientWidth);
+  ClientWidth := panelMinWidth;
 
   ApplyTheme;
 end;
@@ -537,18 +529,12 @@ end;
 procedure TFLayerStack.AddButton(AAction: TBasicAction);
 var button: TToolButton;
 begin
-  button := TToolButton.Create(ToolBar2);
-  button.Parent := Toolbar2;
+  button := TToolButton.Create(ToolBar3);
+  button.Top := Toolbar3.ButtonHeight;
   button.Action := AAction;
   button.Style := tbsButton;
-end;
-
-procedure TFLayerStack.AddSeparator;
-var button: TToolButton;
-begin
-  button := TToolButton.Create(Toolbar2);
-  button.Style := tbsSeparator;
-  button.Parent := Toolbar2;
+  button.Parent := Toolbar3;
+  inc(FCustomButtonCount);
 end;
 
 procedure TFLayerStack.BGRALayerStackRedraw(Sender: TObject; Bitmap: TBGRABitmap);
@@ -840,12 +826,8 @@ end;
 procedure TFLayerStack.ApplyTheme;
 begin
   FSysColorSelection:= BGRADiff(ColorToBGRA(clHighlight), clDarkBtnFace)>=64;
-  DarkThemeInstance.Apply(Panel1, DarkTheme);
-  DarkThemeInstance.Apply(ToolBar1, DarkTheme);
-  DarkThemeInstance.Apply(ToolBar2, DarkTheme);
-  DarkThemeInstance.Apply(ToolBar3, DarkTheme);
+  DarkThemeInstance.Apply(self, DarkTheme);
   BGRALayerStack.Color:= GetBackColor(False);
-  BCAssignSystemStyle(ComboBox_BlendOp, DarkTheme, 0.55);
 end;
 
 function TFLayerStack.GetTextColor(ASelected: boolean): TColor;

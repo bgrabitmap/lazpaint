@@ -467,18 +467,15 @@ end;
 
 procedure TFChooseColor.ApplyTheme;
 begin
-  BCAssignSystemStyle(BCButton_AddToPalette, FDarkTheme);
-  BCAssignSystemStyle(BCButton_RemoveFromPalette, FDarkTheme);
+  DarkThemeInstance.Apply(self, FDarkTheme);
+  DarkThemeInstance.Apply(BCButton_AddToPalette, FDarkTheme);
+  DarkThemeInstance.Apply(BCButton_RemoveFromPalette, FDarkTheme);
   if DarkTheme then
   begin
-    Color := clDarkBtnFace;
-    LColor.Font.Color := clLightText;
     FormBackgroundColor := clDarkBtnFace;
     FormTextColor := clLightText;
   end else
   begin
-    Color := clBtnFace;
-    LColor.Font.Color := clWindowText;
     FormBackgroundColor := ColorToBGRA(ColorToRGB({$IFDEF DARWIN}clWindow{$ELSE}clBtnFace{$ENDIF}));
     FormTextColor := ColorToBGRA(ColorToRGB(clWindowText));
   end;

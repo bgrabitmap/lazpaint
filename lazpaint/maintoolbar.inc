@@ -916,6 +916,7 @@ end;
 
 procedure TFMain.VectorialFill_BackTypeChange(Sender: TObject);
 begin
+  DarkThemeInstance.Apply(VectorialFill_Back, DarkTheme);
   VectorialFill_Back.Width := VectorialFill_Back.PreferredSize.cx;
 end;
 
@@ -963,6 +964,7 @@ end;
 
 procedure TFMain.VectorialFill_PenTypeChange(Sender: TObject);
 begin
+  DarkThemeInstance.Apply(VectorialFill_Pen, DarkTheme);
   VectorialFill_Pen.Width := VectorialFill_Pen.PreferredSize.cx;
 end;
 

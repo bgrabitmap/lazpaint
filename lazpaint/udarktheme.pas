@@ -5,7 +5,8 @@ unit UDarkTheme;
 interface
 
 uses
-  Classes, SysUtils, Forms, ComCtrls, Controls, ExtCtrls;
+  Classes, SysUtils, Forms, ComCtrls, StdCtrls, Controls, ExtCtrls,
+  LazPaintType, BCButton, BCComboBox, BCTrackbarUpdown, LCVectorialFillControl;
 
 const
   clDarkBtnHighlight = $e0e0e0;
@@ -23,17 +24,66 @@ type
     procedure PanelPaint(Sender: TObject);
     procedure ToolBarPaint(Sender: TObject);
     procedure ToolBarPaintButton(Sender: TToolButton; State: integer);
+    procedure Apply(AForm: TForm; AThemeEnabled: boolean); overload;
     procedure Apply(APanel: TPanel; AThemeEnabled: boolean); overload;
+    procedure Apply(AVectorialFill: TLCVectorialFillControl; AThemeEnabled: boolean); overload;
     procedure Apply(AToolbar: TToolbar; AThemeEnabled: boolean); overload;
+    procedure Apply(AButton: TBCButton; ADarkTheme: boolean; AFontHeightRatio: single = 0.5); overload;
+    procedure Apply(ACombo: TBCComboBox; ADarkTheme: boolean; AFontHeightRatio: single = 0.5); overload;
+    procedure Apply(AUpDown: TBCTrackbarUpdown; ADarkTheme: boolean); overload;
+    procedure Apply(ALabel: TLabel; ADarkTheme: boolean); overload;
   end;
 
 var
   DarkThemeInstance: TDarkTheme;
 
+
 implementation
 
 uses
-  BGRABitmap, BGRABitmapTypes, GraphType, Graphics, BGRACustomDrawn;
+  BCTypes, BGRABitmap, BGRABitmapTypes, GraphType, Graphics, BGRACustomDrawn, LCScaleDPI;
+
+procedure BCAssignSystemState(AState: TBCButtonState; AFontColor, ATopColor, AMiddleTopColor, AMiddleBottomColor, ABottomColor, ABorderColor: TColor);
+begin
+  with AState do
+  begin
+    Border.Style := bboSolid;
+    Border.Color := ABorderColor;
+    Border.ColorOpacity := 255;
+    FontEx.Color := AFontColor;
+    FontEx.Style := [];
+    FontEx.Shadow := True;
+    FontEx.ShadowColor := clBlack;
+    FontEx.ShadowColorOpacity := 192;
+    FontEx.ShadowOffsetX := 1;
+    FontEx.ShadowOffsetY := 1;
+    FontEx.ShadowRadius := 2;
+    Background.Gradient1EndPercent := 60;
+    Background.Style := bbsGradient;
+    // Gradient1
+    with Background.Gradient1 do
+    begin
+      GradientType := gtLinear;
+      StartColor := ATopColor;
+      EndColor := AMiddleTopColor;
+      Point1XPercent := 0;
+      Point1YPercent := 0;
+      Point2XPercent := 0;
+      Point2YPercent := 100;
+    end;
+    // Gradient2
+    with Background.Gradient2 do
+    begin
+      StartColor := AMiddleBottomColor;
+      EndColor := ABottomColor;
+      GradientType := gtLinear;
+      Point1XPercent := 0;
+      Point1YPercent := 0;
+      Point2XPercent := 0;
+      Point2YPercent := 100;
+    end;
+  end;
+end;
 
 { TDarkTheme }
 
@@ -155,7 +205,8 @@ begin
     Bitmap.Free;
   end;
 
-  if Sender.Parent is TToolBar then
+  if (Sender.Parent is TToolBar) and
+     (Sender.Style in [tbsButton,tbsButtonDrop,tbsCheck]) then
   begin
     T := TToolBar(Sender.Parent);
     imgW := T.Images.Width;
@@ -171,7 +222,31 @@ begin
   end;
 end;
 
+procedure TDarkTheme.Apply(AForm: TForm; AThemeEnabled: boolean);
+var
+  i: Integer;
+begin
+  if AThemeEnabled then
+    AForm.Color := clDarkBtnFace
+  else
+    AForm.Color := clBtnFace;
+
+  for i := 0 to AForm.ControlCount-1 do
+  begin
+    if AForm.Controls[i] is TPanel then
+      Apply(TPanel(AForm.Controls[i]), AThemeEnabled) else
+    if AForm.Controls[i] is TToolBar then
+      Apply(TToolBar(AForm.Controls[i]), AThemeEnabled) else
+    if AForm.Controls[i] is TBCButton then
+      Apply(TBCButton(AForm.Controls[i]), AThemeEnabled) else
+    if AForm.Controls[i] is TLabel then
+      Apply(TLabel(AForm.Controls[i]), AThemeEnabled);
+  end;
+end;
+
 procedure TDarkTheme.Apply(APanel: TPanel; AThemeEnabled: boolean);
+var
+  i: Integer;
 begin
   if AThemeEnabled then
   begin
@@ -184,9 +259,49 @@ begin
     if APanel.OnPaint = @PanelPaint then APanel.OnPaint := nil;
     APanel.Color := clBtnFace;
   end;
+  for i := 0 to APanel.ControlCount-1 do
+  begin
+    if APanel.Controls[i] is TPanel then
+      Apply(TPanel(APanel.Controls[i]), AThemeEnabled) else
+    if APanel.Controls[i] is TToolBar then
+      Apply(TToolBar(APanel.Controls[i]), AThemeEnabled) else
+    if APanel.Controls[i] is TBCComboBox then
+      Apply(TBCComboBox(APanel.Controls[i]), AThemeEnabled) else
+    if APanel.Controls[i] is TBCTrackbarUpdown then
+      Apply(TBCTrackbarUpdown(APanel.Controls[i]), AThemeEnabled) else
+    if APanel.Controls[i] is TLabel then
+      Apply(TLabel(APanel.Controls[i]), AThemeEnabled) else
+    if APanel.Controls[i] is TLCVectorialFillControl then
+      Apply(TLCVectorialFillControl(APanel.Controls[i]), AThemeEnabled);
+  end;
+end;
+
+procedure TDarkTheme.Apply(AVectorialFill: TLCVectorialFillControl;
+  AThemeEnabled: boolean);
+var
+  i: Integer;
+begin
+  if AThemeEnabled then
+    AVectorialFill.Color := clDarkBtnFace
+  else
+    AVectorialFill.Color := clBtnFace;
+
+  for i := 0 to AVectorialFill.ControlCount-1 do
+  begin
+    if AVectorialFill.Controls[i] is TPanel then
+      Apply(TPanel(AVectorialFill.Controls[i]), AThemeEnabled) else
+    if AVectorialFill.Controls[i] is TToolBar then
+      Apply(TToolBar(AVectorialFill.Controls[i]), AThemeEnabled) else
+    if AVectorialFill.Controls[i] is TBCButton then
+      Apply(TBCButton(AVectorialFill.Controls[i]), AThemeEnabled) else
+    if AVectorialFill.Controls[i] is TLabel then
+      Apply(TLabel(AVectorialFill.Controls[i]), AThemeEnabled);
+  end;
 end;
 
 procedure TDarkTheme.Apply(AToolbar: TToolbar; AThemeEnabled: boolean);
+var
+  i: Integer;
 begin
   if AThemeEnabled then
   begin
@@ -197,6 +312,137 @@ begin
     if AToolbar.OnPaintButton = @ToolBarPaintButton then AToolbar.OnPaintButton := nil;
     AToolbar.Color := clBtnFace;
   end;
+  for i := 0 to AToolbar.ControlCount-1 do
+  begin
+    if AToolbar.Controls[i] is TBCButton then
+      Apply(TBCButton(AToolbar.Controls[i]), AThemeEnabled, 0.55) else
+    if AToolbar.Controls[i] is TBCComboBox then
+      Apply(TBCComboBox(AToolbar.Controls[i]), AThemeEnabled, 0.55) else
+    if AToolbar.Controls[i] is TBCTrackbarUpdown then
+      Apply(TBCTrackbarUpdown(AToolbar.Controls[i]), AThemeEnabled);
+  end;
+end;
+
+procedure TDarkTheme.Apply(AButton: TBCButton; ADarkTheme: boolean; AFontHeightRatio: single);
+
+  function MergeColor(AColor1,AColor2:TColor):TColor;
+  begin
+    result:= BGRAToColor(MergeBGRAWithGammaCorrection(ColorToBGRA(ColorToRGB(AColor1)),1,
+    ColorToBGRA(ColorToRGB(AColor2)),1));
+  end;
+
+  function HoverColor(AColor1: TColor): TColor;
+  var hsla1, hsla2: THSLAPixel;
+  begin
+    hsla1 := BGRAToHSLA(ColorToBGRA(ColorToRGB(AColor1)));
+    hsla2 := BGRAToHSLA(ColorToBGRA(ColorToRGB(clHighlight)));
+    hsla1.hue := hsla2.hue;
+    hsla1.saturation:= hsla2.saturation;
+    result := BGRAToColor(HSLAToBGRA(hsla1));
+  end;
+
+var highlight, btnFace, btnShadow, btnText: TColor;
+  fh: Int64;
+begin
+  if ADarkTheme then
+  begin
+    highlight := $a0a0a0;
+    btnFace := clDarkEditableFace;
+    btnText := clLightText;
+    btnShadow:= clDarkPanelShadow;
+  end else
+  begin
+    {$IFDEF DARWIN}
+    highlight := MergeColor(clBtnFace,clWhite);
+    {$ELSE}
+    highlight := clBtnHighlight;
+    {$ENDIF}
+    btnFace := clBtnFace;
+    btnText := clBtnText;
+    btnShadow := clBtnShadow;
+  end;
+  with AButton do
+  begin
+    Rounding.RoundX := DoScaleX(3, OriginalDPI);
+    Rounding.RoundY := DoScaleX(3, OriginalDPI);
+    BCAssignSystemState(StateNormal, btnText, btnFace, highlight, btnFace, btnShadow, btnShadow);
+    BCAssignSystemState(StateHover, HoverColor(btnText), HoverColor(btnFace), HoverColor(highlight), HoverColor(btnFace), HoverColor(btnShadow), HoverColor(btnShadow));
+    BCAssignSystemState(StateClicked, HoverColor(btnText), HoverColor(MergeColor(btnFace,btnShadow)), HoverColor(btnFace), HoverColor(MergeColor(btnFace,btnShadow)), HoverColor(btnShadow), HoverColor(btnShadow));
+    fh := round((AButton.Height+4)*AFontHeightRatio);
+    StateNormal.Border.LightWidth := 0;
+    StateNormal.FontEx.Height := fh;
+    StateNormal.FontEx.ShadowColorOpacity:= 70;
+    StateNormal.FontEx.TextAlignment:= bcaLeftCenter;
+    StateNormal.FontEx.PaddingLeft:= DoScaleX(3, OriginalDPI);
+    StateHover.Border.LightWidth := 0;
+    StateHover.FontEx.Height := fh;
+    StateHover.FontEx.ShadowColorOpacity:= 70;
+    StateHover.FontEx.TextAlignment:= bcaLeftCenter;
+    StateHover.FontEx.PaddingLeft:= DoScaleX(3, OriginalDPI);
+    StateClicked.Border.LightWidth := 0;
+    StateClicked.FontEx.Height := fh;
+    StateClicked.FontEx.ShadowColorOpacity:= 70;
+    StateClicked.FontEx.TextAlignment:= bcaLeftCenter;
+    StateClicked.FontEx.PaddingLeft:= DoScaleX(3, OriginalDPI);
+  end;
+end;
+
+procedure TDarkTheme.Apply(ACombo: TBCComboBox; ADarkTheme: boolean;
+  AFontHeightRatio: single);
+var
+  fh: Int64;
+begin
+  Apply(ACombo.Button, ADarkTheme, AFontHeightRatio);
+  with ACombo do
+  begin
+    fh := round((Height+4)*AFontHeightRatio);
+    Button.StateNormal.FontEx.Height := fh;
+    Button.StateNormal.FontEx.ShadowColorOpacity:= 96;
+    Button.StateClicked.FontEx.Height := fh;
+    Button.StateClicked.FontEx.ShadowColorOpacity:= 96;
+    Button.StateHover.FontEx.Height := fh;
+    Button.StateHover.FontEx.ShadowColorOpacity:= 96;
+    if ADarkTheme then
+    begin
+      DropDownBorderColor:= clBlack;
+      DropDownFontColor:= clLightText;
+      DropDownColor:= clDarkBtnFace;
+    end else
+    begin
+      DropDownBorderColor := MergeBGRA(ColorToBGRA(clWindowText),ColorToBGRA(clWindow));
+      DropDownFontColor:= clWindowText;
+      DropDownColor:= clWindow;
+    end;
+    DropDownFontHighlight:= clHighlightText;
+    DropDownHighlight:= clHighlight;
+  end;
+end;
+
+procedure TDarkTheme.Apply(AUpDown: TBCTrackbarUpdown; ADarkTheme: boolean);
+begin
+  if ADarkTheme then
+  begin
+    AUpDown.Border.Color := clDarkPanelShadow;
+    AUpDown.Background.Color := clDarkEditableFace;
+    AUpDown.ButtonBackground.Style:= bbsColor;
+    AUpDown.ButtonBackground.Color:= $a0a0a0;
+    AUpDown.Font.Color := clLightText;
+  end else
+  begin
+    AUpDown.Border.Color := MergeBGRA(ColorToBGRA(clWindowText),ColorToBGRA(clBtnFace));
+    AUpDown.Background.Color := clWindow;
+    AUpDown.ButtonBackground.Style:= bbsColor;
+    AUpDown.ButtonBackground.Color:= clBtnFace;
+    AUpDown.Font.Color := clWindowText;
+  end;
+end;
+
+procedure TDarkTheme.Apply(ALabel: TLabel; ADarkTheme: boolean);
+begin
+  if ADarkTheme then
+    ALabel.Font.Color := clLightText
+  else
+    ALabel.Font.Color := clWindowText;
 end;
 
 initialization

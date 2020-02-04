@@ -267,7 +267,7 @@ begin
     FPanelPalette.DiscardBitmap;
   end;
   if Assigned(FMenuButton) then
-    BCAssignSystemStyle(FMenuButton, DarkTheme);
+    DarkThemeInstance.Apply(FMenuButton, DarkTheme);
 end;
 
 procedure TPaletteToolbar.DoClearPalette(Sender: TObject);
@@ -479,7 +479,7 @@ begin
 
     FMenuButton := TBCButton.Create(FPanelPalette);
     FMenuButton.Cursor := crArrow;
-    BCAssignSystemStyle(FMenuButton, DarkTheme);
+    DarkThemeInstance.Apply(FMenuButton, DarkTheme);
     FMenuButton.DropDownArrow := true;
     FMenuButton.DropDownArrowSize := DoScaleY(FPaletteItemHeight div 2, OriginalDPI);
     glyphBmp := TBitmap.Create;

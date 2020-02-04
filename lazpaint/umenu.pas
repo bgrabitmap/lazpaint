@@ -241,40 +241,6 @@ begin
     begin
       DarkThemeInstance.Apply(FToolbars[i].tb, DarkTheme);
       for j := 0 to ControlCount-1 do
-        if Controls[j] is TToolBar then
-        begin
-          if FDarkTheme then
-          begin
-            Controls[j].Color := clDarkBtnFace;
-            TToolbar(Controls[j]).OnPaintButton:= @DarkThemeInstance.ToolBarPaintButton;
-          end
-          else
-          begin
-            Controls[j].Color := clBtnFace;
-            TToolbar(Controls[j]).OnPaintButton:= nil;
-          end;
-        end else
-        if Controls[j] is TBCComboBox then
-          BCAssignSystemStyle(TBCComboBox(Controls[j]), FDarkTheme, 0.50) else
-        if Controls[j] is TBCTrackbarUpdown then
-        begin
-          if FDarkTheme then
-          begin
-            TBCTrackbarUpdown(Controls[j]).Border.Color := clDarkPanelShadow;
-            TBCTrackbarUpdown(Controls[j]).Background.Color := clDarkEditableFace;
-            TBCTrackbarUpdown(Controls[j]).ButtonBackground.Style:= bbsColor;
-            TBCTrackbarUpdown(Controls[j]).ButtonBackground.Color:= $a0a0a0;
-            Controls[j].Font.Color := clLightText;
-          end
-          else
-          begin
-            TBCTrackbarUpdown(Controls[j]).Border.Color := MergeBGRA(ColorToBGRA(clWindowText),ColorToBGRA(clBtnFace));
-            TBCTrackbarUpdown(Controls[j]).Background.Color := clWindow;
-            TBCTrackbarUpdown(Controls[j]).ButtonBackground.Style:= bbsColor;
-            TBCTrackbarUpdown(Controls[j]).ButtonBackground.Color:= clBtnFace;
-            Controls[j].Font.Color := clWindowText;
-          end;
-        end else
         if Controls[j] is TLabel then
         begin
           if (Controls[j].Name = 'Label_CurrentZoom') then
@@ -289,12 +255,6 @@ begin
               Controls[j].Color := clWindow;
               Controls[j].Font.Color := clWindowText;
             end;
-          end else
-          begin
-            if FDarkTheme then
-              Controls[j].Font.Color := clLightText
-            else
-              Controls[j].Font.Color := clBlack;
           end;
         end;
     end;

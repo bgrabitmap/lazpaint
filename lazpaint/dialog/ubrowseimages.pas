@@ -160,7 +160,7 @@ uses BGRAThumbnail, BGRAPaintNet, BGRAOpenRaster, BGRAReadLzp,
     Types, UResourceStrings,
     UConfig, bgrareadjpeg, FPReadJPEG,
     UFileExtensions, BGRAUTF8, LazFileUtils,
-    UGraph, URaw;
+    UGraph, URaw, UDarkTheme;
 
 var
   IconCache: TStringList;
@@ -266,7 +266,7 @@ begin
   FPreview.OnValidate:= @PreviewValidate;
   FChosenImage := TImageEntry.Empty;
 
-  BCAssignSystemStyle(ComboBox_FileExtension, False, 0.40);
+  DarkThemeInstance.Apply(ComboBox_FileExtension, False, 0.40);
   InitComboExt;
 
   bmp := TBitmap.Create;
