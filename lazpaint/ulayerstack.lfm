@@ -63,6 +63,7 @@ object FLayerStack: TFLayerStack
       ParentShowHint = False
       ShowHint = True
       TabOrder = 0
+      Wrapable = False
       object ToolBlendOp: TToolButton
         Left = 0
         Hint = 'Select blend operation'

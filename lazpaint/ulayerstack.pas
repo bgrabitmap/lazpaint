@@ -63,6 +63,7 @@ type
   private
     FCompletelyResizeable: boolean;
     FDarkTheme, FSysColorSelection: boolean;
+    FPanelMinWidth: integer;
     { private declarations }
     UpdatingComboBlendOp : boolean;
     background,iconBackground: TBGRABitmap;
@@ -113,7 +114,7 @@ var TFLayerStack_CustomDPI: integer = 96;
 implementation
 
 uses BGRAFillInfo, LCScaleDPI, UResourceStrings, UBlendOp, UImage, UTool, BGRAText, BGRAThumbnail,
-   BGRALayerOriginal, math, BGRATransform, BGRASVGOriginal, UDarkTheme, UGraph, LCToolbars;
+   BGRALayerOriginal, math, BGRATransform, BGRASVGOriginal, UDarkTheme, UGraph;
 
 function TFLayerStack.DrawLayerItem(ABitmap: TBGRABitmap; layerPos: TPoint; layerIndex: integer; ASelected: boolean): TDrawLayerItemResult;
 var
@@ -205,6 +206,7 @@ procedure TFLayerStack.FormCreate(Sender: TObject);
 begin
   ScaleControl(Self,OriginalDPI,TFLayerStack_CustomDPI,TFLayerStack_CustomDPI);
   FCompletelyResizeable:= true;
+  FPanelMinWidth := ClientWidth;
   Position := poDesigned;
   ZoomFactor := TFLayerStack_CustomDPI/96;
   ScrollPos := point(0,0);
@@ -247,7 +249,7 @@ end;
 
 procedure TFLayerStack.FormShow(Sender: TObject);
 var iconSize: integer;
-    toolbarMinWidth,panelMinWidth, panelMargin: integer;
+    toolbarMinWidth,panelMargin: integer;
     images: TImageList;
 begin
   LazPaintInstance.Image.OnImageChanged.AddObserver(@OnImageChangedHandler);
@@ -269,14 +271,14 @@ begin
   Toolbar3.EndUpdate;
 
   toolbarMinWidth := FCustomButtonCount*Toolbar3.ButtonWidth;
-  panelMinWidth := toolbarMinWidth + 2*panelMargin;
+  FPanelMinWidth := toolbarMinWidth + 2*panelMargin;
 
   ComboBox_BlendOp.Width := toolbarMinWidth - 2*panelMargin - 4*Toolbar3.ButtonWidth;
   ComboBox_BlendOp.Height := ToolBar3.ButtonHeight;
   Panel1.Height := Toolbar3.ButtonWidth*2 + 2*panelMargin;
 
-  Constraints.MinWidth := panelMinWidth + (Width-ClientWidth);
-  ClientWidth := panelMinWidth;
+  Constraints.MinWidth := FPanelMinWidth + (Width-ClientWidth);
+  ClientWidth := FPanelMinWidth;
 
   ApplyTheme;
 end;
@@ -431,7 +433,7 @@ begin
   temp := ScaleY(7,OriginalDPI);
   if InterruptorHeight < temp then InterruptorHeight := temp;
   if InterruptorWidth < temp then InterruptorWidth := temp;
-  StackWidth := InterruptorWidth+LayerRectWidth+ABitmap.TextSize('Some layer name').cx;
+  StackWidth := FPanelMinWidth;
   StackHeight := LayerRectHeight*LazPaintInstance.Image.NbLayers;
   for i := 0 to LazPaintInstance.Image.NbLayers-1 do
   begin
@@ -530,7 +532,7 @@ procedure TFLayerStack.AddButton(AAction: TBasicAction);
 var button: TToolButton;
 begin
   button := TToolButton.Create(ToolBar3);
-  button.Top := Toolbar3.ButtonHeight;
+  button.Top := 1000;
   button.Action := AAction;
   button.Style := tbsButton;
   button.Parent := Toolbar3;
