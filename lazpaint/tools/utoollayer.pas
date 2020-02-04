@@ -18,7 +18,7 @@ type
     handOriginF: TPointF;
     originalTransformBefore: TAffineMatrix;
     layerOffsetBefore: TPoint;
-    snapToPixel: boolean;
+    altPressed, snapToPixel: boolean;
     FStartLayerOffset: TPoint;
     FStartLayerMatrix: TAffineMatrix;
     FStartLayerOffsetDefined: boolean;
@@ -139,7 +139,7 @@ type
 
 implementation
 
-uses LazPaintType, ugraph, LCLType, Types, BGRALayerOriginal, math;
+uses LazPaintType, ugraph, LCLType, Types, BGRALayerOriginal, math, LCVectorOriginal;
 
 const
   VeryBigValue = maxLongInt div 2;
@@ -287,6 +287,7 @@ begin
   handMoving := false;
   FStartLayerOffsetDefined:= false;
   snapToPixel:= false;
+  altPressed := false;
 end;
 
 function TToolMoveLayer.ToolUp: TRect;
@@ -299,7 +300,7 @@ end;
 function TToolMoveLayer.ToolKeyDown(var key: Word): TRect;
   function Translate(dx,dy: integer): TRect;
   begin
-    if handMoving then exit(EmptyRect);
+    if handMoving or altPressed then exit(EmptyRect);
     key := 0;
     GetAction;
     SaveOffsetBefore;
@@ -318,6 +319,11 @@ begin
     Manager.QueryExitTool;
     result := EmptyRect;
     Key := 0;
+  end
+  else if key = VK_MENU then
+  begin
+    altPressed := true;
+    key := 0;
   end
   else if (key = VK_SNAP) or (key = VK_SNAP2) then
   begin
@@ -350,6 +356,11 @@ end;
 
 function TToolMoveLayer.ToolKeyUp(var key: Word): TRect;
 begin
+  if key = VK_MENU then
+  begin
+    altPressed := false;
+    key := 0;
+  end else
   if (key = VK_SNAP) or (key = VK_SNAP2) then
   begin
     snapToPixel:= false;
@@ -368,6 +379,7 @@ function TToolMoveLayer.ToolCommand(ACommand: TToolCommand): boolean;
 var
   actualBounds: TRect;
   idx: Integer;
+  orig: TBGRALayerCustomOriginal;
 begin
   if not ToolProvideCommand(ACommand) then exit(false);
   idx := Manager.Image.CurrentLayerIndex;
@@ -376,8 +388,23 @@ begin
       if handMoving then exit(false) else
       begin
         NeedLayerBounds;
-        actualBounds := FLayerBounds;
-        if not UseOriginal then actualBounds.Offset(Manager.Image.LayerOffset[idx]);
+        if UseOriginal then
+        begin
+          orig := Manager.Image.LayerOriginal[idx];
+          if orig is TVectorOriginal then
+            actualBounds := TVectorOriginal(orig).GetAlignBounds(
+                          Rect(-VeryBigValue,-VeryBigValue,VeryBigValue,VeryBigValue),
+                          Manager.Image.LayerOriginalMatrix[idx])
+          else
+            actualBounds := orig.GetRenderBounds(
+                          Rect(-VeryBigValue,-VeryBigValue,VeryBigValue,VeryBigValue),
+                          Manager.Image.LayerOriginalMatrix[idx]);
+        end
+        else
+        begin
+          actualBounds := FLayerBounds;
+          actualBounds.Offset(Manager.Image.LayerOffset[idx]);
+        end;
         GetAction;
         SaveOffsetBefore;
         case ACommand of

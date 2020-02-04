@@ -8270,6 +8270,7 @@ object FMain: TFMain
       Hint = 'Align shape left'
       OnExecute = EditShapeAlignLeftExecute
       OnUpdate = EditShapeAlignLeftUpdate
+      ShortCut = 32805
     end
     object EditShapeCenterHorizontally: TAction
       Category = 'Edit'
@@ -8282,12 +8283,14 @@ object FMain: TFMain
       Hint = 'Align shape right'
       OnExecute = EditShapeAlignRightExecute
       OnUpdate = EditShapeAlignRightUpdate
+      ShortCut = 32807
     end
     object EditShapeAlignTop: TAction
       Category = 'Edit'
       Hint = 'Align shape to the top'
       OnExecute = EditShapeAlignTopExecute
       OnUpdate = EditShapeAlignTopUpdate
+      ShortCut = 32806
     end
     object EditShapeCenterVertically: TAction
       Category = 'Edit'
@@ -8300,6 +8303,7 @@ object FMain: TFMain
       Hint = 'Align shape to the bottom'
       OnExecute = EditShapeAlignBottomExecute
       OnUpdate = EditShapeAlignBottomUpdate
+      ShortCut = 32808
     end
     object EditShapeToCurve: TAction
       Category = 'Edit'

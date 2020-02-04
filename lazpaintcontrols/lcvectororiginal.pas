@@ -370,6 +370,7 @@ type
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
     function CreateEditor: TBGRAOriginalEditor; override;
     function GetRenderBounds(ADestRect: TRect; {%H-}AMatrix: TAffineMatrix): TRect; override;
+    function GetAlignBounds(ADestRect: TRect; {%H-}AMatrix: TAffineMatrix): TRect;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     function IndexOfShape(AShape: TVectorShape): integer;
@@ -2785,6 +2786,24 @@ begin
       end;
     end;
     shapeArea := FShapes[i].GetRenderBounds(ADestRect, AMatrix);
+    area := area.Union(shapeArea, true);
+  end;
+
+  if IsEmptyRectF(area) then
+    result := EmptyRect
+  else
+    result := rect(floor(area.Left),floor(area.Top),ceil(area.Right),ceil(area.Bottom));
+end;
+
+function TVectorOriginal.GetAlignBounds(ADestRect: TRect; AMatrix: TAffineMatrix): TRect;
+var
+  area, shapeArea: TRectF;
+  i: Integer;
+begin
+  area:= EmptyRectF;
+  for i:= 0 to FShapes.Count-1 do
+  begin
+    shapeArea := FShapes[i].GetAlignBounds(ADestRect, AMatrix);
     area := area.Union(shapeArea, true);
   end;
 
