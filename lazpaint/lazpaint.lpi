@@ -23,7 +23,7 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <MajorVersionNr Value="7"/>
-      <RevisionNr Value="7"/>
+      <RevisionNr Value="8"/>
       <CharSet Value="04B0"/>
       <StringTable CompanyName="http://sourceforge.net/projects/lazpaint/" ProductName="LazPaint" InternalName="lazpaint" OriginalFilename="lazpaint.exe"/>
     </VersionInfo>
@@ -325,12 +325,12 @@
     </RunParams>
     <RequiredPackages Count="5">
       <Item1>
-        <PackageName Value="bgracontrols"/>
-        <MinVersion Major="6" Minor="5" Valid="True"/>
+        <PackageName Value="BGRABitmapPack"/>
+        <MinVersion Major="10" Minor="6" Release="5" Valid="True"/>
       </Item1>
       <Item2>
-        <PackageName Value="BGRABitmapPack"/>
-        <MinVersion Major="10" Minor="6" Release="3" Valid="True"/>
+        <PackageName Value="bgracontrols"/>
+        <MinVersion Major="6" Minor="5" Valid="True"/>
       </Item2>
       <Item3>
         <PackageName Value="lazpaintcontrols"/>
