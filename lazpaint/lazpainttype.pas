@@ -5,8 +5,8 @@ unit LazPaintType;
 interface
 
 uses
-  Classes, SysUtils, Inifiles, BGRABitmap, BGRABitmapTypes, uconfig, uimage, utool, Forms, BGRALayers, Graphics, Menus,
-  uscripting, Dialogs, Controls
+  Classes, SysUtils, Inifiles, BGRABitmap, BGRABitmapTypes, UConfig, UImage, UTool, Forms, BGRALayers, Graphics, Menus,
+  UScripting, Dialogs, Controls
   {$IFDEF LINUX}, InterfaceBase{$ENDIF};
 
 const
@@ -107,7 +107,8 @@ function IsOnlyRenderChange(const ARect:TRect): boolean;
 
 type
     ArrayOfBGRABitmap = array of TBGRABitmap;
-    TColorTarget = (ctForeColor, ctBackColor);
+    TColorTarget = (ctForeColorSolid, ctForeColorStartGrad, ctForeColorEndGrad,
+                    ctBackColorSolid, ctBackColorStartGrad, ctBackColorEndGrad);
     TFlipOption = (foAuto, foWholePicture, foSelection, foCurrentLayer);
 
     PImageEntry = ^TImageEntry;
@@ -217,7 +218,7 @@ type
     procedure UseConfig(ini: TInifile); virtual; abstract;
     procedure AssignBitmap(bmp: TBGRABitmap); virtual; abstract;
     procedure EditBitmap(var bmp: TBGRABitmap; ConfigStream: TStream = nil; ATitle: String = ''; AOnRun: TLazPaintInstanceEvent = nil; AOnExit: TLazPaintInstanceEvent = nil; ABlackAndWhite : boolean = false); virtual; abstract;
-    procedure EditTexture; virtual; abstract;
+    function EditTexture(ASource: TBGRABitmap): TBGRABitmap; virtual; abstract;
     procedure EditSelection; virtual; abstract;
     function ProcessCommandLine: boolean; virtual; abstract;
     function ProcessCommands(commands: TStringList): boolean; virtual; abstract;
@@ -235,6 +236,8 @@ type
     function RunScript(AFilename: string): boolean; virtual; abstract;
     procedure ColorFromFChooseColor; virtual; abstract;
     procedure ColorToFChooseColor; virtual; abstract;
+    function GetColor(ATarget: TColorTarget): TBGRAPixel;
+    procedure SetColor(ATarget: TColorTarget; AColor: TBGRAPixel);
     function ShowSaveOptionDlg(AParameters: TVariableSet; AOutputFilenameUTF8: string; ASkipOptions: boolean): boolean; virtual; abstract;
     function ShowColorIntensityDlg(AParameters: TVariableSet): TScriptResult; virtual; abstract;
     function ShowColorLightnessDlg(AParameters: TVariableSet): TScriptResult; virtual; abstract;
@@ -346,7 +349,7 @@ function CSSToPascalCase(AIdentifier: string): string;
 
 implementation
 
-uses LCLType, BGRAUTF8, LCLIntf, FileUtil, UResourceStrings;
+uses LCLType, BGRAUTF8, LCLIntf, FileUtil, UResourceStrings, LCVectorialFill;
 
 function LazPaintVersionStr: string;
 var numbers: TStringList;
@@ -630,6 +633,47 @@ end;
 function TLazPaintCustomInstance.GetZoomFactor: single;
 begin
   result := 1;
+end;
+
+function TLazPaintCustomInstance.GetColor(ATarget: TColorTarget): TBGRAPixel;
+begin
+  case ATarget of
+    ctForeColorSolid: result := ToolManager.ForeColor;
+    ctForeColorStartGrad: if ToolManager.ForeFill.FillType = vftGradient then
+                            result := ToolManager.ForeFill.Gradient.StartColor
+                          else result := ToolManager.ForeColor;
+    ctForeColorEndGrad: if ToolManager.ForeFill.FillType = vftGradient then
+                          result := ToolManager.ForeFill.Gradient.EndColor
+                        else result := ToolManager.ForeColor;
+    ctBackColorSolid: result := ToolManager.BackColor;
+    ctBackColorStartGrad: if ToolManager.BackFill.FillType = vftGradient then
+                            result := ToolManager.BackFill.Gradient.StartColor
+                          else result := ToolManager.BackColor;
+    ctBackColorEndGrad: if ToolManager.BackFill.FillType = vftGradient then
+                          result := ToolManager.BackFill.Gradient.EndColor
+                        else result := ToolManager.BackColor;
+  else
+    result := BGRAPixelTransparent;
+  end;
+end;
+
+procedure TLazPaintCustomInstance.SetColor(ATarget: TColorTarget;
+  AColor: TBGRAPixel);
+begin
+  case ATarget of
+    ctForeColorSolid: if ToolManager.ForeFill.FillType = vftSolid then
+                        ToolManager.ForeColor := AColor;
+    ctForeColorStartGrad: if ToolManager.ForeFill.FillType = vftGradient then
+                            ToolManager.ForeFill.Gradient.StartColor := AColor;
+    ctForeColorEndGrad: if ToolManager.ForeFill.FillType = vftGradient then
+                          ToolManager.ForeFill.Gradient.EndColor := AColor;
+    ctBackColorSolid: if ToolManager.BackFill.FillType = vftSolid then
+                        ToolManager.BackColor := AColor;
+    ctBackColorStartGrad: if ToolManager.BackFill.FillType = vftGradient then
+                            ToolManager.BackFill.Gradient.StartColor := AColor;
+    ctBackColorEndGrad: if ToolManager.BackFill.FillType = vftGradient then
+                          ToolManager.BackFill.Gradient.EndColor := AColor;
+  end;
 end;
 
 procedure TLazPaintCustomInstance.SetBlackAndWhite(AValue: boolean);

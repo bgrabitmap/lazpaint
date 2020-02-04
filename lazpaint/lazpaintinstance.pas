@@ -46,7 +46,7 @@ type
     function ScriptImageRepeat(AVars: TVariableSet): TScriptResult;
     function ScriptImageResample(AParams: TVariableSet): TScriptResult;
     procedure SelectionInstanceOnRun(AInstance: TLazPaintCustomInstance);
-    procedure ToolColorChanged(Sender: TObject);
+    procedure ToolFillChanged(Sender: TObject);
     procedure PythonScriptCommand({%H-}ASender: TObject; ACommand, AParam: UTF8String; out
       AResult: UTF8String);
     procedure PythonBusy({%H-}Sender: TObject);
@@ -152,7 +152,7 @@ type
     procedure AssignBitmap(bmp: TBGRABitmap); override;
     procedure EditBitmap(var bmp: TBGRABitmap; ConfigStream: TStream = nil; ATitle: String = ''; AOnRun: TLazPaintInstanceEvent = nil; AOnExit: TLazPaintInstanceEvent = nil; ABlackAndWhite: boolean = false); override;
     procedure EditSelection; override;
-    procedure EditTexture; override;
+    function EditTexture(ASource: TBGRABitmap): TBGRABitmap; override;
     function ProcessCommandLine: boolean; override;
     function ProcessCommands(commands: TStringList): boolean; override;
     procedure ChangeIconSize(size: integer); override;
@@ -323,7 +323,7 @@ begin
   FToolManager := TToolManager.Create(FImage, self, nil, BlackAndWhite, FScriptContext);
   UseConfig(TIniFile.Create(''));
   FToolManager.OnPopup := @OnToolPopup;
-  FToolManager.OnColorChanged:=@ToolColorChanged;
+  FToolManager.OnFillChanged:= @ToolFillChanged;
   FSelectionEditConfig := nil;
   FTextureEditConfig := nil;
 
@@ -598,6 +598,7 @@ var
   err: TInterpretationErrors;
   scriptErr: TScriptResult;
   vRes: TScriptVariableReference;
+  i: Integer;
 begin
   AResult := 'None';
   if Assigned(FScriptContext) then
@@ -627,8 +628,17 @@ begin
           case vRes.variableType of
           svtFloat, svtInteger, svtPoint, svtBoolean: AResult := params.GetString(vRes);
           svtString: AResult := ScriptQuote(params.GetString(vRes));
-          svtPixel: AResult := '"'+BGRAToStr(params.GetPixel(vRes))+'"';
-          svtFloatList..svtPixList: AResult := params.GetString(vRes);
+          svtPixel: AResult := '"'+BGRAToStr(params.GetPixel(vRes), nil,0,true)+'"';
+          svtFloatList, svtIntList, svtPointList, svtBoolList, svtStrList: AResult := params.GetString(vRes);
+          svtPixList: begin
+              AResult := '[';
+              for i := 0 to TVariableSet.GetListCount(vRes)-1 do
+              begin
+                if i > 0 then AResult += ', ';
+                AResult += '"'+BGRAToStr(params.GetPixelAt(vRes, i), nil,0,true)+'"'
+              end;
+              AResult += ']';
+            end;
           svtSubset: AResult := '{'+params.GetSubset(vRes).VariablesAsString+'}';
           end;
         end;
@@ -916,19 +926,18 @@ begin
   imageActions.Free;
 end;
 
-procedure TLazPaintInstance.EditTexture;
-var tex: TBGRABitmap;
+function TLazPaintInstance.EditTexture(ASource: TBGRABitmap): TBGRABitmap;
 begin
   try
     if FTextureEditConfig = nil then
       FTextureEditConfig := TStringStream.Create('[General]'+LineEnding+
         'DefaultImageWidth=256'+LineEnding+
         'DefaultImageHeight=256'+LineEnding);
-    tex := ToolManager.BorrowTexture;
+    result := ASource.Duplicate as TBGRABitmap;
     try
-      EditBitmap(tex,FTextureEditConfig,rsEditTexture,nil,nil,BlackAndWhite);
+      EditBitmap(result,FTextureEditConfig,rsEditTexture,nil,nil,BlackAndWhite);
     finally
-      ToolManager.SetTexture(tex);
+      if result.Equals(ASource) then FreeAndNil(result);
     end;
   except
     on ex: Exception do
@@ -942,10 +951,10 @@ begin
   AInstance.Config.SetDefaultImageHeight(Image.Height);
 end;
 
-procedure TLazPaintInstance.ToolColorChanged(Sender: TObject);
+procedure TLazPaintInstance.ToolFillChanged(Sender: TObject);
 begin
   ColorToFChooseColor;
-  if Assigned(FMain) then FMain.UpdateColorToolbar(false);
+  if Assigned(FMain) then FMain.UpdateFillToolbar(false);
 end;
 
 function TLazPaintInstance.GetIcons(ASize: integer): TImageList;
@@ -1403,20 +1412,14 @@ begin
   FormsNeeded;
   if InColorFromFChooseColor then exit;
   InColorFromFChooseColor := True;
-  if FChooseColor.colorTarget = ctForeColor then
-    ToolManager.ForeColor := FChooseColor.GetCurrentColor else
-  if FChooseColor.colorTarget = ctBackColor then
-    ToolManager.BackColor := FChooseColor.GetCurrentColor;
+  SetColor(FChooseColor.colorTarget, FChooseColor.GetCurrentColor);
   InColorFromFChooseColor := false;
 end;
 
 procedure TLazPaintInstance.ColorToFChooseColor;
 begin
   if not Assigned(FChooseColor) or InColorFromFChooseColor then exit;
-  if FChooseColor.colorTarget = ctForeColor then
-    FChooseColor.SetCurrentColor(ToolManager.ForeColor) else
-  if FChooseColor.colorTarget = ctBackColor then
-    FChooseColor.SetCurrentColor(ToolManager.BackColor);
+  FChooseColor.SetCurrentColor(GetColor(FChooseColor.colorTarget));
 end;
 
 function TLazPaintInstance.ShowSaveOptionDlg(AParameters: TVariableSet;
@@ -1553,11 +1556,15 @@ end;
 
 function TLazPaintInstance.GetChooseColorTarget: TColorTarget;
 begin
-  Result:= FChooseColor.colorTarget;
+  if Assigned(FChooseColor) then
+    Result:= FChooseColor.colorTarget
+  else
+    result := ctForeColorSolid;
 end;
 
 procedure TLazPaintInstance.SetChooseColorTarget(const AValue: TColorTarget);
 begin
+  if not Assigned(FChooseColor) then exit;
   FChooseColor.colorTarget:= AValue;
   ColorToFChooseColor;
 end;

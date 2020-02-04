@@ -53,6 +53,7 @@ type
     FCenter: TPointF;
     FHeightMap: TBGRABitmap;
     FWorkspaceColor: TColor;
+    FTexture: TBGRACustomBitmap;
     function GetCurrentLightPos: TPointF;
     procedure InitParams;
     procedure PreviewNeeded;
@@ -120,6 +121,7 @@ end;
 procedure TFPhongFilter.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(FHeightMap);
+  if Assigned(FTexture) then FTexture.Free;
 end;
 
 
@@ -213,10 +215,27 @@ begin
 end;
 
 procedure TFPhongFilter.InitParams;
+var
+  texOpacity: Byte;
 begin
   FInitializing:= true;
-  Radio_UseTexture.Enabled := (FilterConnector.LazPaintInstance.ToolManager.GetTexture <> nil);
-  if Radio_UseTexture.Enabled then Radio_UseTexture.Checked := true
+  Radio_UseTexture.Enabled := (FilterConnector.LazPaintInstance.ToolManager.BackFill.Texture <> nil);
+  if FTexture <> nil then
+  begin
+    FTexture.FreeReference;
+    FTexture := nil;
+  end;
+  if Radio_UseTexture.Enabled then
+  begin
+    Radio_UseTexture.Checked := true;
+    texOpacity := FilterConnector.LazPaintInstance.ToolManager.BackFill.TextureOpacity;
+    if texOpacity <> 255 then
+    begin
+      FTexture := FilterConnector.LazPaintInstance.ToolManager.BackFill.Texture.Duplicate;
+      FTexture.ApplyGlobalOpacity(texOpacity);
+    end else
+      FTexture := FilterConnector.LazPaintInstance.ToolManager.BackFill.Texture.NewReference;
+  end
   else Radio_UsePenColor.Checked := true;
   SpinEdit_Altitude.Value := FilterConnector.LazPaintInstance.Config.DefaultPhongFilterAltitude;
   with FilterConnector.LazPaintInstance.ToolManager.LightPosition do
@@ -377,7 +396,7 @@ begin
   if FHeightMap <> nil then
   begin
     if Radio_UseTexture.Checked then
-      shader.DrawScan(result, FHeightMap, SpinEdit_Altitude.Value,0,0,FilterConnector.LazPaintInstance.ToolManager.GetTextureAfterAlpha)
+      shader.DrawScan(result, FHeightMap, SpinEdit_Altitude.Value, 0, 0, FTexture)
     else if Radio_UsePenColor.Checked then
       shader.Draw(result, FHeightMap, SpinEdit_Altitude.Value,0,0,FilterConnector.LazPaintInstance.ToolManager.ForeColor)
     else if Radio_UseKeep.Checked then

@@ -45,13 +45,12 @@ type
   TToolPen = class(TGenericTool)
   protected
     class var HintShowed: boolean;
-    penDrawing: boolean;
+    penDrawing, penDrawingRight: boolean;
     penOrigin: TPointF;
-    penColor: TBGRAPixel;
     snapToPixel: boolean;
     function GetIsSelectingTool: boolean; override;
     function StartDrawing(toolDest: TBGRABitmap; ptF: TPointF; rightBtn: boolean): TRect; virtual;
-    function ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF): TRect; virtual;
+    function ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF; rightBtn: boolean): TRect; virtual;
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF; rightBtn: boolean): TRect; override;
     function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect; override;
   public
@@ -70,7 +69,7 @@ type
     procedure ApplySoften(var image: TBGRABitmap);
     function BlurRadius: single;
     function StartDrawing(toolDest: TBGRABitmap; ptF: TPointF; {%H-}rightBtn: boolean): TRect; override;
-    function ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF): TRect; override;
+    function ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF; {%H-}rightBtn: boolean): TRect; override;
   public
     function GetContextualToolbars: TContextualToolbars; override;
   end;
@@ -154,7 +153,7 @@ begin
 end;
 
 function TToolErase.ContinueDrawing(toolDest: TBGRABitmap; originF,
-  destF: TPointF): TRect;
+  destF: TPointF; rightBtn: boolean): TRect;
 var areaCopy, mask: TBGRABitmap;
   pts: ArrayOfTPointF;
 begin
@@ -227,13 +226,15 @@ function TToolPen.StartDrawing(toolDest: TBGRABitmap; ptF: TPointF;
   rightBtn: boolean): TRect;
 var ix,iy: integer;
   r: TRect;
+  b: TUniversalBrush;
 begin
-  if rightBtn then penColor := Manager.BackColor else penColor := Manager.ForeColor;
-  if (snapToPixel or Manager.ShapeOptionAliasing) and (Manager.PenWidth = 1) and (Manager.GetTexture = nil) then
+  if rightBtn then b := GetBackUniversalBrush
+  else b := GetForeUniversalBrush;
+  if (snapToPixel or Manager.ShapeOptionAliasing) and (Manager.PenWidth = 1) then
   begin
     ix := round(ptF.X);
     iy := round(ptF.Y);
-    toolDest.DrawPixel(ix,iy,Manager.ApplyPressure(penColor));
+    toolDest.DrawPixel(ix, iy, b);
     result := rect(ix,iy,ix+1,iy+1);
   end else
   begin
@@ -243,32 +244,29 @@ begin
     begin
       r := rect(round(ptF.X-Manager.PenWidth/2+0.5),round(ptF.Y-Manager.PenWidth/2+0.5),
                 round(ptF.X+Manager.PenWidth/2+0.5),round(ptF.Y+Manager.PenWidth/2+0.5));
-      if Manager.GetTextureAfterAlpha <> nil then
-        toolDest.FillEllipseInRect(r,Manager.GetTextureAfterAlpha,dmDrawWithTransparency)
-      else
-        toolDest.FillEllipseInRect(r,Manager.ApplyPressure(penColor),dmDrawWithTransparency);
+      toolDest.FillEllipseInRect(r, b);
     end
     else
-    begin
-      if Manager.GetTextureAfterAlpha <> nil then
-        toolDest.FillEllipseAntialias(ptF.X,ptF.Y,Manager.PenWidth/2,Manager.PenWidth/2,Manager.GetTextureAfterAlpha)
-      else
-        toolDest.FillEllipseAntialias(ptF.X,ptF.Y,Manager.PenWidth/2,Manager.PenWidth/2,Manager.ApplyPressure(penColor));
-    end;
+      toolDest.FillEllipseAntialias(ptF.X, ptF.Y, Manager.PenWidth/2, Manager.PenWidth/2, b);
     toolDest.NoClip;
   end;
+  ReleaseUniversalBrushes;
 end;
 
-function TToolPen.ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF): TRect;
+function TToolPen.ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF; rightBtn: boolean): TRect;
 var
   pts: ArrayOfTPointF;
+  b: TUniversalBrush;
 begin
-  if (snapToPixel or Manager.ShapeOptionAliasing) and (Manager.PenWidth = 1) and (Manager.GetTexture = nil) then
+  if rightBtn then b := GetBackUniversalBrush
+  else b := GetForeUniversalBrush;
+  if (snapToPixel or Manager.ShapeOptionAliasing) and (Manager.PenWidth = 1) then
   begin
     if Manager.ShapeOptionAliasing then
-      toolDest.DrawLine(round(destF.X),round(destF.Y),round(originF.X),round(originF.Y),Manager.ApplyPressure(penColor),false)
+      toolDest.DrawLine(round(destF.X), round(destF.Y), round(originF.X), round(originF.Y), b, false)
     else
-      toolDest.DrawLineAntialias(round(destF.X),round(destF.Y),round(originF.X),round(originF.Y),Manager.ApplyPressure(penColor),false);
+      toolDest.DrawLineAntialias(round(destF.X), round(destF.Y),
+        round(originF.X), round(originF.Y), b, false);
     result := GetShapeBounds([destF,originF],1);
   end else
   begin
@@ -276,20 +274,14 @@ begin
     toolDest.ClipRect := result;
     if Manager.ShapeOptionAliasing then
     begin
-      pts := toolDest.Pen.ComputePolyline([PointF(destF.X,destF.Y),PointF(originF.X,originF.Y)],Manager.PenWidth,BGRAPixelTransparent,False);
-      if Manager.GetTextureAfterAlpha <> nil then
-        toolDest.FillPoly(pts,Manager.GetTextureAfterAlpha,dmDrawWithTransparency)
-      else
-        toolDest.FillPoly(pts,Manager.ApplyPressure(penColor),dmDrawWithTransparency);
+      pts := toolDest.Pen.ComputePolyline([PointF(destF.X,destF.Y),PointF(originF.X,originF.Y)],
+       Manager.PenWidth, BGRAPixelTransparent, False);
+      toolDest.FillPoly(pts, b);
     end else
-    begin
-      if Manager.GetTextureAfterAlpha <> nil then
-        toolDest.DrawLineAntialias(destF.X,destF.Y,originF.X,originF.Y,Manager.GetTextureAfterAlpha,Manager.PenWidth,False)
-      else
-        toolDest.DrawLineAntialias(destF.X,destF.Y,originF.X,originF.Y,Manager.ApplyPressure(penColor),Manager.PenWidth,False);
-    end;
+      toolDest.DrawLineAntialias(destF.X, destF.Y, originF.X, originF.Y, b, Manager.PenWidth, False);
     toolDest.NoClip;
   end;
+  ReleaseUniversalBrushes;
 end;
 
 function TToolPen.DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;
@@ -300,6 +292,7 @@ begin
   begin
     toolDest.PenStyle := psSolid;
     penDrawing := true;
+    penDrawingRight := rightBtn;
     result := StartDrawing(toolDest,ptF,rightBtn);
     penOrigin := ptF;
   end else
@@ -318,7 +311,7 @@ begin
   if penDrawing and (sqr(penOrigin.X-ptF.X)+sqr(penOrigin.Y-ptF.Y) >= 0.999) then
   begin
     toolDest.PenStyle := psSolid;
-    result := ContinueDrawing(toolDest,penOrigin,ptF);
+    result := ContinueDrawing(toolDest,penOrigin,ptF,penDrawingRight);
     penOrigin := ptF;
   end;
 end;
@@ -354,6 +347,7 @@ begin
   if penDrawing then
   begin
     penDrawing:= false;
+    penDrawingRight := false;
     ValidateActionPartially;
   end;
   result := EmptyRect;
@@ -361,7 +355,7 @@ end;
 
 function TToolPen.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctTexture,ctPenWidth,ctAliasing];
+  Result:= [ctFill,ctPenWidth,ctAliasing];
 end;
 
 destructor TToolPen.Destroy;
@@ -406,7 +400,7 @@ end;
 
 function TToolColorPicker.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor];
+  Result:= [ctFill];
 end;
 
 { TToolHand }
