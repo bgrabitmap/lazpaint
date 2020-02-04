@@ -291,7 +291,7 @@ var
   aff: TBGRAAffineBitmapTransform;
   x,y: integer;
   b: TRectF;
-  transf, imgRect: TRect;
+  transf: TRect;
   band: TBGRABitmap;
 
 begin
@@ -313,13 +313,12 @@ begin
     aff.Free;
   end;
 
-  imgRect := rect(0,0,FImage.Width,FImage.Height);
   for y := 0 to FGridRows-1 do
     for x := 0 to FGridCols-1 do
     begin
       b := rectF(x*GridSize,y*GridSize,(x+1)*GridSize,(y+1)*GridSize);
       transf := (m*TAffineBox.AffineBox(b)).RectBounds;
-      if transf.IntersectsWith(imgRect) then
+      if transf.IntersectsWith(ADestination.ClipRect) then
       begin
         ComputeGridCell(x,y);
         if x = 0 then b.Left -= 1;
