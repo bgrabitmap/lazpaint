@@ -52,8 +52,8 @@ type
 implementation
 
 uses UResourceStrings, BGRAUTF8, LCScaleDPI, ComCtrls, Graphics,
-  StdCtrls, BGRAText, math, udarktheme, BCTrackbarUpdown, BCTypes,
-  ugraph, BCComboBox, BGRABitmapTypes, LCVectorialFillControl;
+  StdCtrls, BGRAText, math, udarktheme,
+  ugraph, BGRABitmapTypes, LCVectorialFillControl;
 
 { TMainFormMenu }
 
