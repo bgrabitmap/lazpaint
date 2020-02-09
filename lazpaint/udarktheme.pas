@@ -24,8 +24,8 @@ type
     procedure PanelPaint(Sender: TObject);
     procedure ToolBarPaint(Sender: TObject);
     procedure ToolBarPaintButton(Sender: TToolButton; State: integer);
-    procedure Apply(AForm: TForm; AThemeEnabled: boolean); overload;
-    procedure Apply(APanel: TPanel; AThemeEnabled: boolean); overload;
+    procedure Apply(AForm: TForm; AThemeEnabled: boolean; ARecursive: boolean = true); overload;
+    procedure Apply(APanel: TPanel; AThemeEnabled: boolean; ARecursive: boolean = true); overload;
     procedure Apply(AVectorialFill: TLCVectorialFillControl; AThemeEnabled: boolean); overload;
     procedure Apply(AToolbar: TToolbar; AThemeEnabled: boolean); overload;
     procedure Apply(AButton: TBCButton; ADarkTheme: boolean; AFontHeightRatio: single = 0.5); overload;
@@ -222,7 +222,7 @@ begin
   end;
 end;
 
-procedure TDarkTheme.Apply(AForm: TForm; AThemeEnabled: boolean);
+procedure TDarkTheme.Apply(AForm: TForm; AThemeEnabled: boolean; ARecursive: boolean);
 var
   i: Integer;
 begin
@@ -230,7 +230,7 @@ begin
     AForm.Color := clDarkBtnFace
   else
     AForm.Color := clBtnFace;
-
+  if ARecursive then
   for i := 0 to AForm.ControlCount-1 do
   begin
     if AForm.Controls[i] is TPanel then
@@ -244,7 +244,7 @@ begin
   end;
 end;
 
-procedure TDarkTheme.Apply(APanel: TPanel; AThemeEnabled: boolean);
+procedure TDarkTheme.Apply(APanel: TPanel; AThemeEnabled: boolean; ARecursive: boolean);
 var
   i: Integer;
 begin
@@ -259,6 +259,7 @@ begin
     if APanel.OnPaint = @PanelPaint then APanel.OnPaint := nil;
     APanel.Color := clBtnFace;
   end;
+  if ARecursive then
   for i := 0 to APanel.ControlCount-1 do
   begin
     if APanel.Controls[i] is TPanel then

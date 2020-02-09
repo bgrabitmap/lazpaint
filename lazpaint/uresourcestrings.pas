@@ -87,7 +87,10 @@ resourcestring
   rsHoldKeyRestrictRotation = 'Hold %1 to restrict rotation angle';
   rsHoldKeysScaleMode = 'Hold %1 or %2 to scale';
   rsCurveModeHint = 'Press S or X to set the curve mode of the last point';
+  rsSelectBlendOperation = 'Select blend operation';
   rsBlendOpNotUsedForBackground = 'The blend operation is applied only if there is a layer underneath';
+  rsZoomLayerStackIn = 'Zoom layer stack in';
+  rsZoomLayerStackOut = 'Zoom layer stack out';
   rsRightClickForSource = 'Use RIGHT click to define source';
 
   rsFileCannotBeEmpty = 'File cannot be empty';

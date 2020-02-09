@@ -13,7 +13,13 @@ var
   VolatileBorderSize : integer = 3;
 
 type
+  TScrollBarKind = Forms.TScrollBarKind;
 
+const
+  sbHorizontal = Forms.sbHorizontal;
+  sbVertical = Forms.sbVertical;
+
+type
   { TVolatileScrollBar }
 
   TVolatileScrollBar = class

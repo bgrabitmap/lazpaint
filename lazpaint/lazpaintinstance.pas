@@ -206,7 +206,7 @@ type
     function ShowResampleDialog(AParameters: TVariableSet):boolean; override;
     property MainFormVisible: boolean read GetMainFormVisible;
     procedure NotifyStackChange; override;
-    procedure ScrollLayerStackOnItem(AIndex: integer); override;
+    procedure ScrollLayerStackOnItem(AIndex: integer; ADelayedUpdate: boolean = true); override;
     function MakeNewBitmapReplacement(AWidth, AHeight: integer; AColor: TBGRAPixel): TBGRABitmap; override;
     procedure ChooseTool(Tool : TPaintToolType); override;
     function OpenImage (FileName: string; AddToRecent: Boolean= True): boolean; override;
@@ -398,6 +398,7 @@ begin
   FLayerStack.LazPaintInstance := self;
   FLayerStack.DarkTheme:= Config.GetDarkTheme;
 
+  FLayerStack.AddButton(FMain.LayerRemoveCurrent);
   FLayerStack.AddButton(FMain.LayerAddNew);
   FLayerStack.AddButton(FMain.LayerFromFile);
   FLayerStack.AddButton(FMain.LayerDuplicate);
@@ -1483,16 +1484,13 @@ begin
   OnStackChanged(image,False);
 end;
 
-procedure TLazPaintInstance.ScrollLayerStackOnItem(AIndex: integer);
+procedure TLazPaintInstance.ScrollLayerStackOnItem(AIndex: integer; ADelayedUpdate: boolean);
 begin
   if FLayerStack<> nil then
   begin
-    FLayerStack.SetLayerStackScrollPosOnItem(AIndex);
-    if FMain <> nil then
-    begin
-      FMain.UpdateStackOnTimer := true;
-    end else
-      NotifyStackChange;
+    if not Assigned(FMain) then ADelayedUpdate:= false;
+    FLayerStack.ScrollToItem(AIndex, not ADelayedUpdate);
+    if ADelayedUpdate then FMain.UpdateStackOnTimer := true;
   end;
 end;
 
@@ -1606,7 +1604,6 @@ begin
 
     if LayerWindowVisible then
     begin
-      FLayerStack.CompletelyResizeable := false;
       SetWindowTopLeftCorner(FLayerStack, xDest,yDest);
       SetWindowFullHeight(FLayerStack, h);
       yDest += GetWindowFullHeight(FLayerStack)-WindowOutermostBorderHeight;
@@ -1627,7 +1624,6 @@ begin
   begin
     if LayerWindowVisible then
     begin
-      FLayerStack.CompletelyResizeable := true;
       FLayerStack.FormStyle := fsStayOnTop;
     end;
     if FChooseColor <> nil then FChooseColor.FormStyle := fsStayOnTop;

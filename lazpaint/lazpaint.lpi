@@ -342,7 +342,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="102">
+    <Units Count="103">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -944,6 +944,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UPython"/>
       </Unit101>
+      <Unit102>
+        <Filename Value="dialog\ulayerstackinterface.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ULayerStackInterface"/>
+      </Unit102>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

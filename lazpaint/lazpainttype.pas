@@ -280,7 +280,7 @@ type
 
     property BlackAndWhite: boolean read FBlackAndWhite write SetBlackAndWhite;
 
-    procedure ScrollLayerStackOnItem(AIndex: integer); virtual; abstract;
+    procedure ScrollLayerStackOnItem(AIndex: integer; ADelayedUpdate: boolean = true); virtual; abstract;
     function MakeNewBitmapReplacement(AWidth, AHeight: integer; AColor: TBGRAPixel): TBGRABitmap; virtual; abstract;
     procedure ChooseTool(Tool : TPaintToolType); virtual; abstract;
     function GetOnlineUpdater: TLazPaintCustomOnlineUpdater; virtual;
