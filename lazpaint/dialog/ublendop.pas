@@ -371,6 +371,7 @@ begin
     w := ARect.Right-ARect.Left;
     h := ARect.Bottom-ARect.Top;
     background := TBGRABitmap.Create(w,h,ColorToBGRA(ColorToRGB(clBtnFace)));
+    background.DrawCheckers(background.ClipRect, ImageCheckersColor1, ImageCheckersColor2);
     preview := GetPattern(w,h,ListBox_PatternUnder.Items[ListBox_PatternUnder.ItemIndex],False).Duplicate as TBGRABitmap;
     over := GetPattern(w,h,ListBox_PatternOver.Items[ListBox_PatternOver.ItemIndex],False);
     preview.BlendImageOver(0,0,over,StrToBlendOperation(BlendStr));
