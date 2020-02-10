@@ -101,6 +101,7 @@ begin
     HalfApplyChosenShift;
     FPendingRows:= false;
   end;
+  Button_OK.Enabled := true;
 end;
 
 procedure TFShiftColors.TrackBar_Change(Sender: TObject);
@@ -253,6 +254,7 @@ end;
 
 procedure TFShiftColors.Button_OKClick(Sender: TObject);
 begin
+  Button_OK.Enabled := false;
   if FPendingRows then
   begin
     HalfApplyChosenShift;
@@ -293,6 +295,7 @@ end;
 
 procedure TFShiftColors.ParametersChanged;
 begin
+  Button_OK.Enabled := false;
   HalfApplyChosenShift;
   FPendingRows:= true;
   TimerDrawPendingRows.Enabled := true;
