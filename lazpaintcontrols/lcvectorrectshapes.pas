@@ -202,7 +202,7 @@ type
 
 implementation
 
-uses BGRAPen, BGRAGraphics, BGRAFillInfo, BGRAPath, math, LCVectorialFill;
+uses BGRAPen, BGRAGraphics, BGRAFillInfo, BGRAPath, math, LCVectorialFill, LCResourceString;
 
 { TPhongShapeDiff }
 
@@ -1527,7 +1527,7 @@ begin
   inherited ConfigureCustomEditor(AEditor);
   idxLight := AEditor.AddPoint(FLightPosition, @OnMoveLightPos, true);
   if AEditor is TVectorOriginalEditor then
-    TVectorOriginalEditor(AEditor).AddLabel(idxLight, LightPositionCaption, taCenter, tlTop);
+    TVectorOriginalEditor(AEditor).AddLabel(idxLight, rsLightPosition, taCenter, tlTop);
 end;
 
 procedure TPhongShape.MouseDown(RightButton: boolean; Shift: TShiftState; X,

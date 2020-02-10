@@ -133,7 +133,7 @@ type
 
 implementation
 
-uses BGRAGradientScanner, BGRABlend;
+uses BGRAGradientScanner, BGRABlend, LCResourceString;
 
 { TVectorialFillDiff }
 
@@ -249,7 +249,7 @@ end;
 
 procedure TVectorialFill.SetTextureMatrix(AValue: TAffineMatrix);
 begin
-  if FillType <> vftTexture then raise exception.Create('Not a texture fill');
+  if FillType <> vftTexture then raise exception.Create(rsNotTextureFill);
   if FTextureMatrix=AValue then Exit;
   BeginUpdate;
   FTextureMatrix:=AValue;
@@ -258,7 +258,7 @@ end;
 
 procedure TVectorialFill.SetTextureOpacity(AValue: byte);
 begin
-  if FillType <> vftTexture then raise exception.Create('Not a texture fill');
+  if FillType <> vftTexture then raise exception.Create(rsNotTextureFill);
   if FTextureOpacity=AValue then Exit;
   BeginUpdate;
   FTextureOpacity:=AValue;
@@ -410,7 +410,7 @@ end;
 
 procedure TVectorialFill.SetTextureRepetition(AValue: TTextureRepetition);
 begin
-  if FillType <> vftTexture then raise exception.Create('Not a texture fill');
+  if FillType <> vftTexture then raise exception.Create(rsNotTextureFill);
   if FTextureRepetition=AValue then Exit;
   BeginUpdate;
   FTextureRepetition:=AValue;
@@ -673,7 +673,7 @@ begin
     else Clear;
     end;
   end else
-    raise exception.Create('Incompatible type');
+    raise exception.Create(rsIncompatibleType);
 end;
 
 procedure TVectorialFill.AssignExceptGeometry(Obj: TObject);
@@ -701,7 +701,7 @@ begin
     else Clear;
     end;
   end else
-    raise exception.Create('Incompatible type');
+    raise exception.Create(rsIncompatibleType);
 end;
 
 procedure TVectorialFill.FitGeometry(const ABox: TAffineBox);

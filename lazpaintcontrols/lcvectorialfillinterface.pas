@@ -11,10 +11,9 @@ uses
   BGRABitmap, BGRABitmapTypes, LCVectorialFill, LCVectorOriginal,
   BGRAGradientScanner, Graphics, BGRAGraphics;
 
-const
-  GradRepetitionToStr : array[TBGRAGradientRepetition] of string = ('Pad', 'Repeat', 'Reflect', 'Sine');
-  ColorInterpToStr : array[TBGRAColorInterpolation] of string = ('sRGB', 'RGB', 'HSL CW', 'HSL CCW', 'Corr. HSL CW', 'Corr. HSL CCW');
-  TextureRepetitionToStr: array[TTextureRepetition] of string = ('No repetition', 'Repeat X', 'Repeat Y', 'Repeat both');
+function GradRepetitionToStr(AValue: TBGRAGradientRepetition): string;
+function ColorInterpToStr(AValue: TBGRAColorInterpolation): string;
+function TextureRepetitionToStr(AValue: TTextureRepetition): string;
 
 type
   TLCFillTarget = (ftPen, ftBack, ftOutline);
@@ -217,7 +216,43 @@ type
 implementation
 
 uses LCToolbars, BGRAThumbnail, LResources,
-  LCVectorShapes, BGRAGradientOriginal, BGRATransform, math;
+  LCVectorShapes, BGRAGradientOriginal, BGRATransform, math,
+  LCResourceString;
+
+function GradRepetitionToStr(AValue: TBGRAGradientRepetition): string;
+begin
+  case AValue of
+    grPad: result := rsGrPad;
+    grRepeat: result := rsGrRepeat;
+    grReflect: result := rsGrReflect;
+    grSine: result := rsGrSine;
+    else result := '';
+  end;
+end;
+
+function ColorInterpToStr(AValue: TBGRAColorInterpolation): string;
+begin
+  case AValue of
+    ciStdRGB: result := rsCiStdRGB;
+    ciLinearRGB: result := rsCiLinearRGB;
+    ciLinearHSLPositive: result := rsCiLinearHSLPositive;
+    ciLinearHSLNegative: result := rsCiLinearHSLNegative;
+    ciGSBPositive: result := rsCiGSBPositive;
+    ciGSBNegative: result := rsCiGSBNegative;
+    else result := '';
+  end;
+end;
+
+function TextureRepetitionToStr(AValue: TTextureRepetition): string;
+begin
+  case AValue of
+    trNone: result := rsTrNone;
+    trRepeatX: result := rsTrRepeatX;
+    trRepeatY: result := rsTrRepeatY;
+    trRepeatBoth: result := rsTrRepeatBoth;
+    else result := '';
+  end;
+end;
 
 { TVectorialFillInterface }
 
@@ -322,11 +357,8 @@ begin
 end;
 
 procedure TVectorialFillInterface.SetFillType(AValue: TVectorialFillType);
-var
-  prevValue: TVectorialFillType;
 begin
   if FFillType=AValue then Exit;
-  prevValue := FFillType;
   FFillType:=AValue;
   UpdateAccordingToFillType;
   UpdatePreview;
@@ -613,7 +645,7 @@ begin
   FShapeSolidColor.Width := FToolbar.ButtonWidth;
   FShapeSolidColor.Height := FToolbar.ButtonHeight;
   FShapeSolidColor.OnMouseUp:= @ShapeSolidColorMouseUp;
-  FShapeSolidColor.Hint := 'Color';
+  FShapeSolidColor.Hint := rsColor;
   AddToolbarControl(FToolbar, FShapeSolidColor);
   FUpDownSolidAlpha := TBCTrackbarUpdown.Create(FToolbar);
   FUpDownSolidAlpha.Width := FToolbar.ButtonWidth*2;
@@ -622,7 +654,7 @@ begin
   FUpDownSolidAlpha.MaxValue := 255;
   FUpDownSolidAlpha.Increment:= 15;
   FUpDownSolidAlpha.OnChange:=@UpDownSolidAlphaChange;
-  FUpDownSolidAlpha.Hint := 'Opacity';
+  FUpDownSolidAlpha.Hint := rsOpacity;
   AddToolbarControl(FToolbar, FUpDownSolidAlpha);
   AttachMouseEvent(FUpDownSolidAlpha);
 end;
@@ -636,9 +668,9 @@ begin
   if FGradientInterfaceCreated then exit;
   FGradientInterfaceCreated := true;
 
-  FButtonGradRepetition := AddToolbarButton(FToolbar, 'Gradient repetition...', 7+ord(FGradRepetition), @ButtonGradRepetitionClick);
+  FButtonGradRepetition := AddToolbarButton(FToolbar, rsGradientRepetition+'...', 7+ord(FGradRepetition), @ButtonGradRepetitionClick);
   AttachMouseEvent(FButtonGradRepetition);
-  FButtonGradInterp := AddToolbarButton(FToolbar, 'Color interpolation...', 11+ord(FGradInterp), @ButtonGradInterpClick);
+  FButtonGradInterp := AddToolbarButton(FToolbar, rsColorInterpolation+'...', 11+ord(FGradInterp), @ButtonGradInterpClick);
   AttachMouseEvent(FButtonGradInterp);
 
 {  FShapeStartColor := TShape.Create(FToolbar);
@@ -654,10 +686,10 @@ begin
   FUpDownStartAlpha.MaxValue := 255;
   FUpDownStartAlpha.Increment:= 15;
   FUpDownStartAlpha.OnChange:=@UpDownStartAlphaChange;
-  FUpDownStartAlpha.Hint := 'Start opacity';
+  FUpDownStartAlpha.Hint := rsStartOpacity;
   AddToolbarControl(FToolbar, FUpDownStartAlpha);
   AttachMouseEvent(FUpDownStartAlpha);
-  FButtonSwapColor := AddToolbarButton(FToolbar, 'Swap colors', 23, @ButtonSwapColorClick);
+  FButtonSwapColor := AddToolbarButton(FToolbar, rsSwapColors, 23, @ButtonSwapColorClick);
   AttachMouseEvent(FButtonSwapColor);
 {  FShapeEndColor := TShape.Create(FToolbar);
   FShapeEndColor.Width := FToolbar.ButtonWidth*3 div 4;
@@ -672,7 +704,7 @@ begin
   FUpDownEndAlpha.MaxValue := 255;
   FUpDownEndAlpha.Increment:= 15;
   FUpDownEndAlpha.OnChange:=@UpDownEndAlphaChange;
-  FUpDownEndAlpha.Hint := 'End opacity';
+  FUpDownEndAlpha.Hint := rsEndOpacity;
   AddToolbarControl(FToolbar, FUpDownEndAlpha);
   AttachMouseEvent(FUpDownEndAlpha);
 
@@ -680,7 +712,7 @@ begin
   FGradRepetitionMenu.Images := FImageList;
   for gr := low(TBGRAGradientRepetition) to high(TBGRAGradientRepetition) do
   begin
-    item := TMenuItem.Create(FGradRepetitionMenu);  item.Caption := GradRepetitionToStr[gr];
+    item := TMenuItem.Create(FGradRepetitionMenu);  item.Caption := GradRepetitionToStr(gr);
     item.OnClick:=@OnClickGradRepeat;               item.Tag := ord(gr);
     item.ImageIndex:= 7+ord(gr);
     FGradRepetitionMenu.Items.Add(item);
@@ -690,7 +722,7 @@ begin
   FGradInterpMenu.Images := FImageList;
   for ci := low(TBGRAColorInterpolation) to high(TBGRAColorInterpolation) do
   begin
-    item := TMenuItem.Create(FGradInterpMenu);  item.Caption := ColorInterpToStr[ci];
+    item := TMenuItem.Create(FGradInterpMenu);  item.Caption := ColorInterpToStr(ci);
     item.OnClick:=@OnClickGradInterp;           item.Tag := ord(ci);
     item.ImageIndex:= 11+ord(ci);
     FGradInterpMenu.Items.Add(item);
@@ -705,7 +737,7 @@ begin
   if FTextureInterfaceCreated then exit;
   FTextureInterfaceCreated := true;
 
-  FButtonTexRepeat := AddToolbarButton(FToolbar, 'Texture repetition...', -1, @ButtonTexRepeatClick);
+  FButtonTexRepeat := AddToolbarButton(FToolbar, rsTextureRepetition+'...', -1, @ButtonTexRepeatClick);
   AttachMouseEvent(FButtonTexRepeat);
   FUpDownTexAlpha := TBCTrackbarUpdown.Create(FToolbar);
   FUpDownTexAlpha.Width := FToolbar.ButtonWidth*2;
@@ -714,9 +746,10 @@ begin
   FUpDownTexAlpha.MaxValue := 255;
   FUpDownTexAlpha.Increment:= 15;
   FUpDownTexAlpha.OnChange:=@UpDownTexAlphaChange;
+  FUpDownTexAlpha.Hint := rsOpacity;
   AddToolbarControl(FToolbar, FUpDownTexAlpha);
   AttachMouseEvent(FUpDownTexAlpha);
-  FButtonLoadTexture := AddToolbarButton(FToolbar, 'Load texture...', 22, @ButtonLoadTextureClick);
+  FButtonLoadTexture := AddToolbarButton(FToolbar, rsLoadTexture+'...', 22, @ButtonLoadTextureClick);
   AttachMouseEvent(FButtonLoadTexture);
   FTextureAverageColorComputed := false;
 
@@ -724,7 +757,7 @@ begin
   FTexRepetitionMenu.Images := FImageList;
   for tr := low(TTextureRepetition) to high(TTextureRepetition) do
   begin
-    item := TMenuItem.Create(FTexRepetitionMenu);  item.Caption := TextureRepetitionToStr[tr];
+    item := TMenuItem.Create(FTexRepetitionMenu);  item.Caption := TextureRepetitionToStr(tr);
     item.OnClick:=@OnClickBackTexRepeat;           item.Tag := ord(tr);
     item.ImageIndex:= 17+ord(tr);
     FTexRepetitionMenu.Items.Add(item);
@@ -793,26 +826,26 @@ begin
   FToolbar := CreateToolBar(FImageList);
   FToolbar.Wrapable := false;
   AttachMouseEvent(FToolbar);
-  FButtonFillNone := AddToolbarCheckButton(FToolbar, 'No fill', 0, @ButtonFillChange, False, False);
+  FButtonFillNone := AddToolbarCheckButton(FToolbar, rsNoFill, 0, @ButtonFillChange, False, False);
   AttachMouseEvent(FButtonFillNone);
-  FButtonFillSolid := AddToolbarCheckButton(FToolbar, 'Solid color', 1, @ButtonFillChange, False, False);
+  FButtonFillSolid := AddToolbarCheckButton(FToolbar, rsSolidColor, 1, @ButtonFillChange, False, False);
   AttachMouseEvent(FButtonFillSolid);
-  FButtonFillGradient := AddToolbarButton(FToolbar, 'Gradient fill', 2+ord(FGradType), @ButtonFillGradClick);
+  FButtonFillGradient := AddToolbarButton(FToolbar, rsGradientFill, 2+ord(FGradType), @ButtonFillGradClick);
   AttachMouseEvent(FButtonFillGradient);
-  FButtonFillTexture := AddToolbarButton(FToolbar, 'Texture fill', 24, @ButtonFillTexClick);
+  FButtonFillTexture := AddToolbarButton(FToolbar, rsTextureFill, 24, @ButtonFillTexClick);
   AttachMouseEvent(FButtonFillTexture);
 
   FPreview := TImage.Create(FToolbar);
   FPreview.Center:= true;
   FPreview.OnMouseUp:=@Preview_MouseUp;
-  FPreview.Hint := 'Preview';
+  FPreview.Hint := rsPreview;
   UpdatePreview;
   AddToolbarControl(FToolbar, FPreview);
   AttachMouseEvent(FPreview);
 
-  FButtonEditGradTexPoints := AddToolbarCheckButton(FToolbar, 'Edit gradient/texture points', 25, @EditGradTextPointsClick, false, false);
+  FButtonEditGradTexPoints := AddToolbarCheckButton(FToolbar, rsEditGradTexPoints, 25, @EditGradTextPointsClick, false, false);
   AttachMouseEvent(FButtonEditGradTexPoints);
-  FButtonAdjustToShape := AddToolbarButton(FToolbar, 'Adjust to shape', 21, @AdjustToShapeClick);
+  FButtonAdjustToShape := AddToolbarButton(FToolbar, rsAdjustToShape, 21, @AdjustToShapeClick);
   AttachMouseEvent(FButtonAdjustToShape);
   FButtonAdjustToShape.Wrap := true;
   UpdateButtonAdjustToShape;
@@ -1295,6 +1328,7 @@ begin
     ftPen: curFill:= AShape.PenFill;
     ftBack: curFill := AShape.BackFill;
     ftOutline: curFill := AShape.OutlineFill;
+    else exit;
   end;
 
   if (FillType = vftTexture) and (TextureOpacity = 0) then

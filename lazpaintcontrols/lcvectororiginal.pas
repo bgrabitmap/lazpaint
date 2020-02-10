@@ -6,16 +6,27 @@ interface
 
 uses
   Classes, SysUtils, BGRABitmap, BGRALayerOriginal, fgl, BGRAGradientOriginal, BGRABitmapTypes,
-  BGRAPen, LCVectorialFill;
-
-var
-  LightPositionCaption : string = 'Light position';
+  BGRAPen, LCVectorialFill, LCResourceString;
 
 const
   InfiniteRect : TRect = (Left: -MaxLongInt; Top: -MaxLongInt; Right: MaxLongInt; Bottom: MaxLongInt);
   EmptyTextureId = 0;
   DefaultShapeOutlineWidth = 2;
   MediumShapeCost = 100;
+
+  //not translated because unexpected internal errors are not useful for users
+  errDuplicateVectorClass = 'Duplicate class name "%1" for vector shape';
+  errMergeNotAllowed = 'Merge not allowed';
+  errCannotBeComputedFromShape = 'Cannot be computed from shape';
+  errFillFieldMismatch = 'Fill field mismatch';
+  errInvalidStoredPointer = 'Invalid stored pointer';
+  errUndefinedContainer = 'Undefined container';
+  errContainerAlreadyAssigned = 'Container already assigned';
+  errDiffHandlerOnlyDuringUpdate = 'Diff handler expected only between BeginUpdate and EndUpdate';
+  errUnexpectedNil = 'Unexpected nil value';
+  errContainerMismatch = 'Container mismatch';
+  errAlreadyRemovingShape = 'Already removing shape';
+  errUnableToFindTexture = 'Unable to find texture';
 
 type
   TVectorOriginal = class;
@@ -446,7 +457,7 @@ begin
   for i := 0 to high(VectorShapeClasses) do
     if VectorShapeClasses[i]=AClass then exit;
   if Assigned(GetVectorShapeByStorageClassName(AClass.StorageClassName)) then
-    raise exception.Create('Duplicate class name "'+AClass.StorageClassName+'" for vector shape');
+    raise exception.Create(StringReplace(errDuplicateVectorClass, '%1', AClass.StorageClassName, []));
   setlength(VectorShapeClasses, length(VectorShapeClasses)+1);
   VectorShapeClasses[high(VectorShapeClasses)] := AClass;
 end;
@@ -690,7 +701,7 @@ end;
 
 procedure TVectorOriginalShapeRangeDiff.Append(ADiff: TBGRAOriginalDiff);
 begin
-  raise exception.Create('Merge not allowed');
+  raise exception.Create(errMergeNotAllowed);
 end;
 
 function TVectorOriginalShapeRangeDiff.IsIdentity: boolean;
@@ -735,7 +746,7 @@ begin
   if CanAppend(ADiff) then
     FShapeDiff.Append(TVectorOriginalShapeDiff(ADiff).FShapeDiff)
   else
-    raise exception.Create('Merge not allowed');
+    raise exception.Create(errMergeNotAllowed);
 end;
 
 function TVectorOriginalShapeDiff.IsIdentity: boolean;
@@ -823,7 +834,7 @@ end;
 
 constructor TVectorShapeEmbeddedFillDiff.Create(AStartShape: TVectorShape);
 begin
-  raise exception.Create('Cannot be created from shape');
+  raise exception.Create(errCannotBeComputedFromShape);
 end;
 
 destructor TVectorShapeEmbeddedFillDiff.Destroy;
@@ -834,7 +845,7 @@ end;
 
 procedure TVectorShapeEmbeddedFillDiff.ComputeDiff(AEndShape: TVectorShape);
 begin
-  raise exception.Create('Cannot be computed from shape');
+  raise exception.Create(errCannotBeComputedFromShape);
 end;
 
 procedure TVectorShapeEmbeddedFillDiff.Apply(AStartShape: TVectorShape);
@@ -867,7 +878,7 @@ var
   next: TVectorShapeEmbeddedFillDiff;
 begin
   next := ADiff as TVectorShapeEmbeddedFillDiff;
-  if next.FField <> FField then raise exception.Create('Fill field mismatch');
+  if next.FField <> FField then raise exception.Create(errFillFieldMismatch);
   FFillDiff.Append(next.FFillDiff);
 end;
 
@@ -898,7 +909,7 @@ end;
 
 constructor TVectorShapeComposedDiff.Create(AStartShape: TVectorShape);
 begin
-  raise exception.Create('Cannot be created from shape');
+  raise exception.Create(errCannotBeComputedFromShape);
 end;
 
 destructor TVectorShapeComposedDiff.Destroy;
@@ -913,7 +924,7 @@ end;
 
 procedure TVectorShapeComposedDiff.ComputeDiff(AEndShape: TVectorShape);
 begin
-  raise exception.Create('Cannot be computed from shape');
+  raise exception.Create(errCannotBeComputedFromShape);
 end;
 
 procedure TVectorShapeComposedDiff.Apply(AStartShape: TVectorShape);
@@ -1309,8 +1320,7 @@ begin
     result := nil;
     pointerData := AStorage.RawString[AName+'-ptr'];
     if length(pointerData)<>sizeof(result) then
-      raise exception.Create('Invalid stored pointer (expected size '+
-        inttostr(sizeof(result))+' but encountered '+inttostr(length(pointerData))+')');
+      raise exception.Create(errInvalidStoredPointer);
     move(pointerData[1],result,sizeof(result));
   end else
   if Assigned(Container) then
@@ -1318,7 +1328,7 @@ begin
     texId := AStorage.Int[AName+'-id'];
     result := Container.GetTexture(texId);
   end else
-    raise exception.Create('Undefined container');
+    raise exception.Create(errUndefinedContainer);
 end;
 
 procedure TVectorShape.SaveTexture(AStorage: TBGRACustomOriginalStorage;
@@ -1338,7 +1348,7 @@ begin
     texId := Container.GetTextureId(AValue);
     AStorage.Int[AName+'-id'] := texId;
   end else
-    raise exception.Create('Undefined container');
+    raise exception.Create(errUndefinedContainer);
 end;
 
 procedure TVectorShape.LoadFill(AStorage: TBGRACustomOriginalStorage;
@@ -1474,7 +1484,7 @@ end;
 procedure TVectorShape.SetContainer(AValue: TVectorOriginal);
 begin
   if FContainer=AValue then Exit;
-  if Assigned(FContainer) then raise exception.Create('Container already assigned');
+  if Assigned(FContainer) then raise exception.Create(errContainerAlreadyAssigned);
   FContainer:=AValue;
 end;
 
@@ -1822,7 +1832,7 @@ var
 begin
   result := nil;
   if FUpdateCount <= 0 then
-    raise exception.Create('Diff handler expected only between BeginUpdate and EndUpdate');
+    raise exception.Create(errDiffHandlerOnlyDuringUpdate);
   if Assigned(FOnChange) then
   begin
     if FDiffs = nil then FDiffs := TVectorShapeDiffList.Create;
@@ -1905,9 +1915,9 @@ var
   shapeClass: TVectorShapeAny;
 begin
   objClassName := AStorage.RawString['class'];
-  if objClassName = '' then raise exception.Create('Shape class not defined');
+  if objClassName = '' then raise exception.Create(rsShapeClassNotSpecified);
   shapeClass:= GetVectorShapeByStorageClassName(objClassName);
-  if shapeClass = nil then raise exception.Create('Unknown shape class "'+objClassName+'"');
+  if shapeClass = nil then raise exception.Create(StringReplace(rsUnknownShapeClass, '%1', objClassName, []));
   result := shapeClass.Create(AContainer);
   result.LoadFromStorage(AStorage);
 end;
@@ -2115,7 +2125,7 @@ begin
     if handled then exit;
   end;
   if Assigned(Container) then Container.RemoveShape(self)
-  else raise exception.Create('Shape does not have a container');
+  else raise exception.Create(errUndefinedContainer);
 end;
 
 procedure TVectorShape.AlignHorizontally(AAlign: TAlignment;
@@ -2164,7 +2174,7 @@ var temp: TBGRAMemOriginalStorage;
   shapeClass: TVectorShapeAny;
 begin
   shapeClass:= GetVectorShapeByStorageClassName(StorageClassName);
-  if shapeClass = nil then raise exception.Create('Shape class "'+StorageClassName+'" not registered');
+  if shapeClass = nil then raise exception.Create(StringReplace(rsUnknownShapeClass, '%1', StorageClassName, []));
 
   result := nil;
   temp := TBGRAMemOriginalStorage.Create;
@@ -2242,16 +2252,16 @@ var
   texs: ArrayOfBGRABitmap;
   i: Integer;
 begin
-  if AShape = nil then raise exception.Create('Unexpected nil value');
+  if AShape = nil then raise exception.Create(errUnexpectedNil);
   if AShape.Container <> self then
   begin
     if AShape.Container = nil then
       AShape.Container := self
     else
-      raise exception.Create('Container mismatch');
+      raise exception.Create(errContainerMismatch);
   end;
   if (AIndex < 0) or (AIndex > FShapes.Count) then
-    raise exception.Create('Index out of bounds');
+    raise exception.Create(rsIndexOutOfBounds);
   FShapes.Insert(AIndex, AShape);
   inc(FLastShapeId);
   AShape.Id := FLastShapeId;
@@ -2290,10 +2300,10 @@ var
 begin
   result := EmptyRectF;
   if (AStartIndex < 0) or (AStartIndex+ACount > ShapeCount) then
-    raise exception.Create('Range out of bounds');
+    raise exception.Create(rsIndexOutOfBounds);
   for i := AStartIndex to AStartIndex+ACount-1 do
     if Shape[i].FRemoving then
-      raise exception.Create('Already removing shape');
+      raise exception.Create(errAlreadyRemovingShape);
   for i := AStartIndex to AStartIndex+ACount-1 do Shape[i].FRemoving := true;
   for i := AStartIndex to AStartIndex+ACount-1 do
     if Shape[i] = SelectedShape then DeselectShape;
@@ -2389,8 +2399,7 @@ procedure TVectorOriginal.ClearTextures;
 var
   i: Integer;
 begin
-  if Assigned(FShapes) and (FShapes.Count > 0) then
-    raise exception.Create('There are still shapes that could use textures');
+  //note that there are still shapes that could use textures
   for i := 0 to FTextureCount-1 do
   begin
     FTextures[i].Bitmap.FreeReference;
@@ -2545,7 +2554,7 @@ end;
 procedure TVectorOriginal.ReplaceShape(AIndex: integer; ANewShape: TVectorShape);
 var newShapes: TVectorShapes;
 begin
-  if ANewShape = nil then raise exception.Create('Unexpected nil value');
+  if ANewShape = nil then raise exception.Create(errUnexpectedNil);
   newShapes:= TVectorShapes.Create;
   newShapes.Add(ANewShape);
   ReplaceShapeRange(AIndex, 1, newShapes);
@@ -2561,7 +2570,7 @@ var
   i: Integer;
 begin
   if (AStartIndex < 0) or (AStartIndex+ACountBefore > ShapeCount) then
-    raise exception.Create('Range out of bounds');
+    raise exception.Create(rsIndexOutOfBounds);
   if DiffExpected then
   begin
     if ACountBefore > 0 then
@@ -2584,7 +2593,7 @@ begin
   else
   begin
     if (AIndex < 0) or (AIndex >= FShapes.Count) then
-      raise ERangeError.Create('Index out of bounds');
+      raise ERangeError.Create(rsIndexOutOfBounds);
     SelectShape(FShapes[AIndex]);
   end;
 end;
@@ -2598,7 +2607,7 @@ begin
   begin
     if AShape <> nil then
       if FShapes.IndexOf(AShape)=-1 then
-        raise exception.Create('Shape not found');
+        raise exception.Create(rsShapeNotFound);
     prev := FSelectedShape;
     FSelectedShape := nil;
     if Assigned(prev) then
@@ -2840,7 +2849,7 @@ begin
         try
           if not texObj.ReadFile(texName+'.png', mem) and
              not texObj.ReadFile(texName+'.jpg', mem) then
-             raise exception.Create('Unable to find texture');
+             raise exception.Create(errUnableToFindTexture);
           mem.Position:= 0;
           bmp := TBGRABitmap.Create(mem);
           AddTextureWithId(bmp, texId);

@@ -84,7 +84,7 @@ type
     procedure DoOnTextureClick(Sender: TObject);
     procedure DoOnTextureChange(Sender: TObject);
     procedure DoOnResize; override;
-    procedure DoOnChooseColor(ASender: TObject; AButton: TMouseButton;
+    procedure DoOnChooseColor({%H-}ASender: TObject; AButton: TMouseButton;
       AColorIndex: integer; var AColorValue: TBGRAPixel; out AHandled: boolean);
   public
     constructor Create(TheOwner: TComponent); override;

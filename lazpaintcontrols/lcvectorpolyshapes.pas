@@ -14,6 +14,7 @@ type
                 akHollowTriangle, akHollowTriangleBack1, akHollowTriangleBack2);
 
 const
+  errShapeNotHandled = 'Shape not handled';
   ArrowKindToStr: array[TArrowKind] of string =
     ('none', 'tail', 'tip', 'normal', 'cut', 'flipped', 'flipped-cut',
      'triangle', 'triangle-back1', 'triangle-back2',
@@ -192,7 +193,7 @@ procedure ApplyArrowStyle(AArrow: TBGRACustomArrow; AStart: boolean; AKind: TArr
 implementation
 
 uses BGRAPen, BGRAFillInfo, BGRAPath, math, LCVectorialFill,
-  BGRAArrow, LCVectorRectShapes;
+  BGRAArrow, LCVectorRectShapes, LCResourceString;
 
 function StrToArrowKind(AStr: string): TArrowKind;
 var
@@ -438,7 +439,7 @@ end;
 function TCustomPolypointShape.GetPoint(AIndex: integer): TPointF;
 begin
   if (AIndex < 0) or (AIndex >= length(FPoints)) then
-    raise ERangeError.Create('Index out of bounds');
+    raise ERangeError.Create(rsIndexOutOfBounds);
   result := FPoints[AIndex].coord;
 end;
 
@@ -495,7 +496,7 @@ end;
 procedure TCustomPolypointShape.SetPoint(AIndex: integer; AValue: TPointF);
 begin
   if (AIndex < 0) or (AIndex > length(FPoints)) then
-    raise ERangeError.Create('Index out of bounds');
+    raise ERangeError.Create(rsIndexOutOfBounds);
   BeginUpdate(TCustomPolypointShapeDiff);
   if AIndex = length(FPoints) then
   begin
@@ -833,7 +834,7 @@ procedure TCustomPolypointShape.InsertPoint(AIndex: integer; APoint: TPointF);
 var
   i: Integer;
 begin
-  if (AIndex < 0) or (AIndex > PointCount) then raise exception.Create('Index out of bounds');
+  if (AIndex < 0) or (AIndex > PointCount) then raise exception.Create(rsIndexOutOfBounds);
   BeginUpdate(TCustomPolypointShapeDiff);
   setlength(FPoints, PointCount+1);
   for i := PointCount-1 downto AIndex+1 do
@@ -1304,14 +1305,15 @@ begin
     AddPoint(r.Origin+v-u, cmAngle);
     Closed := true;
   end else
-  if AShape is TPolylineShape then
+  if (AShape is TPolylineShape) and not
+     (AShape is TCurveShape) then
   begin
     p := AShape as TCustomPolypointShape;
     for i := 0 to p.PointCount-1 do
       AddPoint(p.Points[i], cmAngle);
     Closed := p.Closed;
   end else
-    raise exception.Create('Shape not handled');
+    raise exception.Create(errShapeNotHandled);
 
   f := AShape.Fields;
   if vsfPenFill in f then PenFill.Assign(AShape.PenFill);

@@ -193,7 +193,7 @@ implementation
 
 uses BGRATransform, BGRAText, BGRAVectorize, LCVectorialFill, math,
   BGRAUTF8, BGRAUnicode, Graphics, Clipbrd, LCLType, LCLIntf,
-  BGRAGradients, BGRACustomTextFX;
+  BGRAGradients, BGRACustomTextFX, LCResourceString;
 
 function FontStyleToStr(AStyle: TFontStyles): string;
 begin
@@ -1173,7 +1173,7 @@ begin
   begin
     idxLight := AEditor.AddPoint(FLightPosition, @OnMoveLightPos, true);
     if AEditor is TVectorOriginalEditor then
-      TVectorOriginalEditor(AEditor).AddLabel(idxLight, LightPositionCaption, taCenter, tlTop);
+      TVectorOriginalEditor(AEditor).AddLabel(idxLight, rsLightPosition, taCenter, tlTop);
   end;
 end;
 

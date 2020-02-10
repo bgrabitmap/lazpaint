@@ -21,7 +21,7 @@
       </Linking>
     </CompilerOptions>
     <Version Minor="1"/>
-    <Files Count="11">
+    <Files Count="12">
       <Item1>
         <Filename Value="lctoolbars.pas"/>
         <UnitName Value="LCToolbars"/>
@@ -67,7 +67,15 @@
         <Filename Value="lcvectorclipboard.pas"/>
         <UnitName Value="LCVectorClipboard"/>
       </Item11>
+      <Item12>
+        <Filename Value="lcresourcestring.pas"/>
+        <UnitName Value="LCResourceString"/>
+      </Item12>
     </Files>
+    <i18n>
+      <EnableI18N Value="True"/>
+      <OutDir Value="../lazpaint/release/bin/i18n"/>
+    </i18n>
     <RequiredPkgs Count="4">
       <Item1>
         <PackageName Value="bgracontrols"/>

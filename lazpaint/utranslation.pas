@@ -114,7 +114,9 @@ begin
   if FileExistsUTF8(POFile) then
     Translations.TranslateUnitResourceStrings('LCLStrConsts',POFile);
 
-  LightPositionCaption := rsLightPosition;
+  POFile:=LanguagePathUTF8+'lcresourcestring.'+Language+'.po';
+  if FileExistsUTF8(POFile) then
+    Translations.TranslateUnitResourceStrings('LCResourceString',POFile);
 end;
 
 //fill language list for configuration
