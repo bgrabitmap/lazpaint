@@ -33,7 +33,7 @@ procedure TranslateLazPaint(AConfig: TIniFile);
 implementation
 
 uses Forms, LCLProc, LazUTF8, BGRAUTF8, LCLTranslator, LResources, Translations,
-  LazPaintType, LCVectorOriginal, UResourceStrings;
+  LazPaintType, LCVectorOriginal;
 
 {$ifdef Darwin}
 function GetResourcesPath(): string;
