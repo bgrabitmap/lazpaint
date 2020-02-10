@@ -31,11 +31,13 @@ type
 
     function GetInitialized: boolean;
     function GetMainFormVisible: boolean;
-    procedure OnImageActionProgress(ASender: TObject; AProgressPercent: integer
-      );
+    procedure OnImageActionProgress(ASender: TObject; AProgressPercent: integer);
     procedure OnLayeredBitmapLoadStartHandler(AFilenameUTF8: string);
     procedure OnLayeredBitmapLoadProgressHandler(APercentage: integer);
     procedure OnLayeredBitmapLoadedHandler;
+    procedure OnLayeredBitmapSavedHandler();
+    procedure OnLayeredBitmapSaveProgressHandler(APercentage: integer);
+    procedure OnLayeredBitmapSaveStartHandler(AFilenameUTF8: string);
     procedure RegisterScripts(ARegister: Boolean);
     function ScriptColorColorize(AVars: TVariableSet): TScriptResult;
     function ScriptColorCurves(AVars: TVariableSet): TScriptResult;
@@ -88,7 +90,7 @@ type
     FLayerStackPositionDefined,
     FImageListPositionDefined : boolean;
     FCustomImageList: TImageListList;
-    FLoadingFilename: string;
+    FLoadingFilename, FSavingFilename: string;
 
     function GetIcons(ASize: integer): TImageList; override;
     function GetToolBoxWindowPopup: TPopupMenu; override;
@@ -150,6 +152,8 @@ type
     constructor Create(AEmbedded: boolean); override;
     procedure StartLoadingImage(AFilename: string); override;
     procedure EndLoadingImage; override;
+    procedure StartSavingImage(AFilename: string); override;
+    procedure EndSavingImage; override;
     procedure Donate; override;
     procedure SaveMainWindowPosition; override;
     procedure RestoreMainWindowPosition; override;
@@ -259,6 +263,19 @@ begin
   BGRALayers.UnregisterLoadingHandler(@OnLayeredBitmapLoadStartHandler,@OnLayeredBitmapLoadProgressHandler,@OnLayeredBitmapLoadedHandler);
   FreeAndNil(FLoadingLayers);
   FLoadingFilename:= '';
+end;
+
+procedure TLazPaintInstance.StartSavingImage(AFilename: string);
+begin
+  FSavingFilename:= AFilename;
+  BGRALayers.RegisterSavingHandler(@OnLayeredBitmapSaveStartHandler,@OnLayeredBitmapSaveProgressHandler,@OnLayeredBitmapSavedHandler);
+end;
+
+procedure TLazPaintInstance.EndSavingImage;
+begin
+  BGRALayers.UnregisterSavingHandler(@OnLayeredBitmapSaveStartHandler,@OnLayeredBitmapSaveProgressHandler,@OnLayeredBitmapSavedHandler);
+  FreeAndNil(FLoadingLayers);
+  FSavingFilename:= '';
 end;
 
 procedure TLazPaintInstance.Donate;
@@ -718,6 +735,34 @@ begin
     FreeAndNil(FLoadingLayers);
     UpdateWindows;
   end;
+end;
+
+procedure TLazPaintInstance.OnLayeredBitmapSavedHandler;
+begin
+  if FLoadingLayers <> nil then
+  begin
+    FreeAndNil(FLoadingLayers);
+    UpdateWindows;
+  end;
+end;
+
+procedure TLazPaintInstance.OnLayeredBitmapSaveProgressHandler(
+  APercentage: integer);
+begin
+  if FLoadingLayers <> nil then
+  begin
+    FLoadingLayers.ShowMessage(rsSave+' (' +inttostr(APercentage)+'%)');
+    UpdateWindows;
+  end;
+end;
+
+procedure TLazPaintInstance.OnLayeredBitmapSaveStartHandler(
+  AFilenameUTF8: string);
+begin
+  if FLoadingLayers = nil then FLoadingLayers := TFLoading.Create(nil);
+  if (AFilenameUTF8 = '<Stream>') and (FSavingFilename <> '') then AFilenameUTF8 := FSavingFilename;
+  FLoadingLayers.ShowMessage(rsSave+' ' +AFilenameUTF8+'...');
+  UpdateWindows;
 end;
 
 procedure TLazPaintInstance.PythonBusy(Sender: TObject);
@@ -1197,6 +1242,7 @@ begin
   ToolManager.SaveToConfig;
 
   BGRALayers.UnregisterLoadingHandler(@OnLayeredBitmapLoadStartHandler,@OnLayeredBitmapLoadProgressHandler,@OnLayeredBitmapLoadedHandler);
+  BGRALayers.UnregisterLoadingHandler(@OnLayeredBitmapSaveStartHandler,@OnLayeredBitmapSaveProgressHandler,@OnLayeredBitmapSavedHandler);
   if FLoadingLayers <> nil then FreeAndNil(FLoadingLayers);
 
   FreeAndNil(FLayerStack);

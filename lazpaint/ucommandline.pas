@@ -195,14 +195,16 @@ begin
     end else
     begin
       OutputFilename := CommandStr;
+      instance.StartSavingImage(OutputFilename);
       try
-         instance.Image.SaveToFileUTF8(OutputFilename)
+        instance.Image.SaveToFileUTF8(OutputFilename)
       except
         on ex: Exception do
         begin
           instance.ShowError(rsSave, rsUnableToSaveFile+OutputFilename);
         end;
       end;
+      instance.EndSavingImage;
       fileSaved:= true;
       exit;
     end;

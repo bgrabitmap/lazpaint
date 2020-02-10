@@ -598,16 +598,18 @@ begin
        mrYes :
           begin
             if Length(LazPaintInstance.Image.currentFilenameUTF8)=0 //TODO: Should I use < something. For Windows length cannot be less than 4.
-                then begin QuestionDlg (rsInformation, rsThereIsNoFileNameGivenForThisFileUseSaveAs, mtInformation, [mrOk, rsOkay],''); Exit; end;
-             try
-                LazPaintInstance.Image.SaveToFileUTF8(LazPaintInstance.Image.currentFilenameUTF8);
-             Except
-                on ex:exception do
-                begin
-                  LazPaintInstance.ShowError('FileSaveAs',ex.Message);
-                  Result:=False;
-                end;
-             end;
+            then begin QuestionDlg (rsInformation, rsThereIsNoFileNameGivenForThisFileUseSaveAs, mtInformation, [mrOk, rsOkay],''); Exit; end;
+            LazPaintInstance.StartSavingImage(LazPaintInstance.Image.currentFilenameUTF8);
+            try
+              LazPaintInstance.Image.SaveToFileUTF8(LazPaintInstance.Image.currentFilenameUTF8);
+            Except
+              on ex:exception do
+              begin
+                LazPaintInstance.ShowError('FileSaveAs',ex.Message);
+                Result:=False;
+              end;
+            end;
+            LazPaintInstance.EndSavingImage;
           end;
         mrCancel: Result:=False;
         end;

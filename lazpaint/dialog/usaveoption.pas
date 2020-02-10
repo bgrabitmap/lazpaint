@@ -147,6 +147,7 @@ begin
   end
   else
   begin
+    AInstance.StartSavingImage(AOutputFilenameUTF8);
     try
       AInstance.Image.SaveToFileUTF8(AOutputFilenameUTF8);
       result := true;
@@ -154,6 +155,7 @@ begin
       on ex:Exception do
         AInstance.ShowError('ShowSaveOptionDialog',ex.Message);
     end;
+    AInstance.EndSavingImage;
   end;
 end;
 
