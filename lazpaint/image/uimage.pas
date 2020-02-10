@@ -38,6 +38,7 @@ type
   TLazPaintImage = class
   private
     FActionInProgress: TCustomLayerAction;
+    FOnActionProgress: TLayeredActionProgressEvent;
     FOnSelectedLayerIndexChanging: TOnCurrentLayerIndexChanged;
     FOnSelectionMaskChanged: TOnSelectionMaskChanged;
     FOnSelectedLayerIndexChanged: TOnCurrentLayerIndexChanged;
@@ -75,6 +76,8 @@ type
     function GetSelectionMaskBounds: TRect;
     function GetSelectionMaskEmpty: boolean;
     function GetSelectionTransform: TAffineMatrix;
+    procedure LayeredActionDone(Sender: TObject);
+    procedure LayeredActionProgress(ASender: TObject; AProgressPercent: integer);
     procedure NeedSelectionLayerAfterMask;
     function GetBlendOperation(AIndex: integer): TBlendOperation;
     function GetCurrentFilenameUTF8: string;
@@ -113,6 +116,7 @@ type
     function GetDrawingLayer: TBGRABitmap;
     procedure CompressUndoIfNecessary;
     procedure NotifyException(AFunctionName: string; AException: Exception);
+    procedure SetOnActionProgress(AValue: TLayeredActionProgressEvent);
     procedure SetSelectionTransform(ATransform: TAffineMatrix);
     procedure UpdateIconFileUTF8(AFilename: string; AOutputFilename: string = '');
     procedure UpdateTiffFileUTF8(AFilename: string; AOutputFilename: string = '');
@@ -250,6 +254,7 @@ type
     property OnSelectedLayerIndexChanged: TOnCurrentLayerIndexChanged read FOnSelectedLayerIndexChanged write FOnSelectedLayerIndexChanged;
     property OnStackChanged: TOnStackChanged read FOnStackChanged write FOnStackChanged;
     property OnImageChanged: TLazPaintImageObservable read FOnImageChanged;
+    property OnActionProgress: TLayeredActionProgressEvent read FOnActionProgress write SetOnActionProgress;
     property NbLayers: integer read GetNbLayers;
     property Empty: boolean read GetEmpty;
     property SelectionLayerBounds: TRect read GetSelectionLayerBounds;
@@ -872,6 +877,12 @@ begin
     MessageDlg(AFunctionName,AException.Message,mtError,[mbOk],0);
 end;
 
+procedure TLazPaintImage.SetOnActionProgress(AValue: TLayeredActionProgressEvent);
+begin
+  if FOnActionProgress=AValue then Exit;
+  FOnActionProgress:=AValue;
+end;
+
 procedure TLazPaintImage.SetSelectionTransform(ATransform: TAffineMatrix);
 
   procedure InvalidateTransformedSelection;
@@ -1425,6 +1436,19 @@ end;
 function TLazPaintImage.GetSelectionTransform: TAffineMatrix;
 begin
   result := FCurrentState.SelectionTransform;
+end;
+
+procedure TLazPaintImage.LayeredActionDone(Sender: TObject);
+begin
+  if Assigned(OnActionProgress) then
+    OnActionProgress(self, 100);
+end;
+
+procedure TLazPaintImage.LayeredActionProgress(ASender: TObject;
+  AProgressPercent: integer);
+begin
+  if Assigned(OnActionProgress) then
+    OnActionProgress(self, AProgressPercent);
 end;
 
 procedure TLazPaintImage.NeedSelectionLayerAfterMask;
@@ -2266,8 +2290,10 @@ end;
 constructor TLazPaintImage.Create;
 begin
   FCurrentState := TImageState.Create;
-  FCurrentState.OnOriginalChange:=@OriginalChange;
-  FCurrentState.OnOriginalEditingChange:=@OriginalEditingChange;
+  FCurrentState.OnOriginalChange:= @OriginalChange;
+  FCurrentState.OnOriginalEditingChange:= @OriginalEditingChange;
+  FCurrentState.OnActionProgress:= @LayeredActionProgress;
+  FCurrentState.OnActionDone:=@LayeredActionDone;
   FRenderUpdateRectInPicCoord := rect(0,0,0,0);
   FRenderUpdateRectInVSCoord := rect(0,0,0,0);
   FOnSelectionMaskChanged := nil;

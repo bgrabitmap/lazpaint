@@ -14,6 +14,8 @@ type
   TImageState = class(TState)
   private
     FLayeredBitmap: TBGRALayeredBitmap;
+    FOnActionDone: TNotifyEvent;
+    FOnActionProgress: TLayeredActionProgressEvent;
     FOnOriginalChange: TEmbeddedOriginalChangeEvent;
     FOnOriginalEditingChange: TEmbeddedOriginalEditingChangeEvent;
     FSelectionMask: TBGRABitmap;
@@ -42,6 +44,8 @@ type
     function GetLinearBlend: boolean;
     function GetNbLayers: integer;
     function GetWidth: integer;
+    procedure LayeredActionDone(Sender: TObject);
+    procedure LayeredActionProgress(ASender: TObject; AProgressPercent: integer);
     procedure OriginalChange({%H-}ASender: TObject;
       AOriginal: TBGRALayerCustomOriginal; var ADiff: TBGRAOriginalDiff);
     procedure OriginalEditingChange({%H-}ASender: TObject;
@@ -50,6 +54,8 @@ type
     procedure SelectImageLayerByIndex(AValue: integer);
     procedure SetLayeredBitmap(AValue: TBGRALayeredBitmap);
     procedure SetLinearBlend(AValue: boolean);
+    procedure SetOnActionDone(AValue: TNotifyEvent);
+    procedure SetOnActionProgress(AValue: TLayeredActionProgressEvent);
     procedure SetSelectionMask(AValue: TBGRABitmap);
   public
     SelectionLayer: TBGRABitmap;
@@ -168,6 +174,8 @@ type
     property SelectionTransform: TAffineMatrix read FSelectionTransform write FSelectionTransform;
     property OnOriginalChange: TEmbeddedOriginalChangeEvent read FOnOriginalChange write FOnOriginalChange;
     property OnOriginalEditingChange: TEmbeddedOriginalEditingChangeEvent read FOnOriginalEditingChange write FOnOriginalEditingChange;
+    property OnActionProgress: TLayeredActionProgressEvent read FOnActionProgress write SetOnActionProgress;
+    property OnActionDone: TNotifyEvent read FOnActionDone write SetOnActionDone;
   end;
 
 implementation
@@ -357,6 +365,19 @@ begin
     result := LayeredBitmap.Width;
 end;
 
+procedure TImageState.LayeredActionDone(Sender: TObject);
+begin
+  if Assigned(FOnActionDone) then
+    FOnActionDone(self);
+end;
+
+procedure TImageState.LayeredActionProgress(ASender: TObject;
+  AProgressPercent: integer);
+begin
+  if Assigned(FOnActionProgress) then
+    FOnActionProgress(self, AProgressPercent);
+end;
+
 procedure TImageState.OriginalChange(ASender: TObject;
   AOriginal: TBGRALayerCustomOriginal; var ADiff: TBGRAOriginalDiff);
 begin
@@ -409,12 +430,16 @@ begin
   begin
     FLayeredBitmap.OnOriginalChange:= nil;
     FLayeredBitmap.OnOriginalEditingChange:= nil;
+    FLayeredBitmap.OnActionProgress:= nil;
+    FLayeredBitmap.OnActionDone:= nil;
   end;
   FLayeredBitmap:=AValue;
   if Assigned(FLayeredBitmap) then
   begin
-    FLayeredBitmap.OnOriginalChange:=@OriginalChange;
-    FLayeredBitmap.OnOriginalEditingChange:=@OriginalEditingChange;
+    FLayeredBitmap.OnOriginalChange:= @OriginalChange;
+    FLayeredBitmap.OnOriginalEditingChange:= @OriginalEditingChange;
+    FLayeredBitmap.OnActionProgress:= @LayeredActionProgress;
+    FLayeredBitmap.OnActionDone:=@LayeredActionDone;
   end;
 end;
 
@@ -491,6 +516,18 @@ procedure TImageState.SetLinearBlend(AValue: boolean);
 begin
   if LayeredBitmap <> nil then
     LayeredBitmap.LinearBlend := AValue;
+end;
+
+procedure TImageState.SetOnActionDone(AValue: TNotifyEvent);
+begin
+  if FOnActionDone=AValue then Exit;
+  FOnActionDone:=AValue;
+end;
+
+procedure TImageState.SetOnActionProgress(AValue: TLayeredActionProgressEvent);
+begin
+  if FOnActionProgress=AValue then Exit;
+  FOnActionProgress:=AValue;
 end;
 
 procedure TImageState.SetSelectionMask(AValue: TBGRABitmap);

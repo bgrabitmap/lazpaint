@@ -263,6 +263,7 @@ begin
     ModalResult := mrCancel
   else
   begin
+    Button_OK.Enabled := false;
     filter := CaptionToResampleFilter(ComboBox_Quality.Text);
     FParameters.Integers['Width']:=NewWidth;
     FParameters.Integers['Height']:=NewHeight;

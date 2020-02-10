@@ -31,6 +31,8 @@ type
 
     function GetInitialized: boolean;
     function GetMainFormVisible: boolean;
+    procedure OnImageActionProgress(ASender: TObject; AProgressPercent: integer
+      );
     procedure OnLayeredBitmapLoadStartHandler(AFilenameUTF8: string);
     procedure OnLayeredBitmapLoadProgressHandler(APercentage: integer);
     procedure OnLayeredBitmapLoadedHandler;
@@ -336,6 +338,7 @@ begin
   FImage := TLazPaintImage.Create;
   FImage.OnStackChanged:= @OnStackChanged;
   FImage.OnException := @OnFunctionException;
+  FImage.OnActionProgress:=@OnImageActionProgress;
   FToolManager := TToolManager.Create(FImage, self, nil, BlackAndWhite, FScriptContext);
   UseConfig(TIniFile.Create(''));
   FToolManager.OnPopup := @OnToolPopup;
@@ -595,6 +598,16 @@ begin
     result := FMain.Visible
   else
     result := false;
+end;
+
+procedure TLazPaintInstance.OnImageActionProgress(ASender: TObject;
+  AProgressPercent: integer);
+var
+  delay: Integer;
+begin
+  if AProgressPercent < 100 then delay := 10000 else delay := 1000;
+  MessagePopup(rsActionInProgress+'... '+inttostr(AProgressPercent)+'%', delay);
+  UpdateWindows;
 end;
 
 function TLazPaintInstance.GetInitialized: boolean;
