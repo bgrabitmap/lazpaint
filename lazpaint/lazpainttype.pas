@@ -212,6 +212,8 @@ type
 
     constructor Create; virtual; abstract;
     constructor Create(AEmbedded: boolean); virtual; abstract;
+    procedure StartLoadingImage(AFilename: string); virtual; abstract;
+    procedure EndLoadingImage; virtual; abstract;
     procedure SaveMainWindowPosition; virtual; abstract;
     procedure RestoreMainWindowPosition; virtual; abstract;
     procedure Donate; virtual; abstract;

@@ -944,7 +944,14 @@ begin
         ALoadedImage := nil;
       end
       else
-        newPicture := LoadFlatImageUTF8(AFilenameUTF8).bmp;
+      begin
+        if Assigned(FInstance) then FInstance.StartLoadingImage(AFilenameUTF8);
+        try
+          newPicture := LoadFlatImageUTF8(AFilenameUTF8).bmp;
+        finally
+          if Assigned(FInstance) then FInstance.EndLoadingImage;
+        end;
+      end;
       AddLayerFromBitmap(newPicture, ExtractFileName(AFilenameUTF8));
     end;
 

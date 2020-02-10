@@ -2183,7 +2183,7 @@ begin
                   //begin
                     Errors:= Errors + StringReplace(rsErrorOnOpeningFile, '%1', FileNames[i], [])+ ' ('+ ex.Message + ')'+ LineEnding;
                   //end;
-                  end; //try except
+                end; //try except
               end; //for
               MessagePopupForever(rsOpening+'...');
               LazPaintInstance.UpdateWindows;
@@ -3848,6 +3848,7 @@ begin
     end;
     if texFilename <> '' then
     begin
+      LazPaintInstance.StartLoadingImage(texFilename);
       try
         if not Assigned(newTex) then
           newTex := LoadFlatImageUTF8(texFilename).bmp;
@@ -3861,8 +3862,12 @@ begin
         Config.SetDefaultTextureDirectory(ExtractFilePath(texFilename));
       except
         on ex:Exception do
+        begin
+          LazPaintInstance.EndLoadingImage;
           LazPaintInstance.ShowError(rsOpen,ex.Message);
+        end;
       end;
+      LazPaintInstance.EndLoadingImage;
     end;
   except
     on ex:Exception do
@@ -3911,6 +3916,7 @@ begin
     end;
     if brushFilename <> '' then
     begin
+      LazPaintInstance.StartLoadingImage(brushFilename);
       try
         if not assigned(newBrushBmp) then
           newBrushBmp := LoadFlatImageUTF8(brushFilename).bmp;
@@ -3922,8 +3928,12 @@ begin
         Config.SetDefaultBrushDirectory(ExtractFilePath(brushFilename));
       except
         on ex:Exception do
+        begin
+          LazPaintInstance.EndLoadingImage;
           LazPaintInstance.ShowError(rsOpen,ex.Message);
+        end;
       end;
+      LazPaintInstance.EndLoadingImage;
     end;
   except
     on ex:Exception do
@@ -4007,8 +4017,9 @@ var
   format: TBGRAImageFormat;
   dupIndex: Integer;
 
-  procedure StartImport;
+  procedure StartImport(AFilename: string);
   begin
+    LazPaintInstance.StartLoadingImage(AFilename);
     ToolManager.ToolCloseDontReopen;
     if (CurrentTool in [ptDeformation,ptRotateSelection,ptMoveSelection,ptLayerMapping])
      or ((CurrentTool = ptHotSpot) and (format <> ifCur)) then
@@ -4018,6 +4029,7 @@ var
   end;
   procedure EndImport(BPP: integer = 0; frameIndex: integer = 0; frameCount: integer = 1);
   begin
+    LazPaintInstance.EndLoadingImage;
     if AddToRecent then
     begin
       Config.AddRecentFile(filenameUTF8);
@@ -4035,7 +4047,7 @@ var
   begin
     if (newPicture.bmp <> nil) and (newPicture.bmp.Width > 0) and (newPicture.bmp.Height > 0) then
     begin
-      StartImport;
+      StartImport('<'+rsNewImage+'>');
       with ComputeAcceptableImageSize(newPicture.bmp.Width,newPicture.bmp.Height) do
         if (cx < newPicture.bmp.Width) or (cy < newPicture.bmp.Height) then
         begin
@@ -4054,7 +4066,7 @@ var
   var
     layered: TBGRALayeredBitmap;
   begin
-    StartImport;
+    StartImport(filenameUTF8);
     layered := LoadSVGImageUTF8(filenameUTF8);
     Image.Assign(layered,true, false);
     EndImport;
@@ -4118,7 +4130,7 @@ begin
     end
     else
     begin
-      StartImport;
+      StartImport(filenameUTF8);
       image.LoadFromFileUTF8(filenameUTF8);
       EndImport;
     end;

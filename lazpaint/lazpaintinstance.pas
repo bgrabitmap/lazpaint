@@ -86,6 +86,7 @@ type
     FLayerStackPositionDefined,
     FImageListPositionDefined : boolean;
     FCustomImageList: TImageListList;
+    FLoadingFilename: string;
 
     function GetIcons(ASize: integer): TImageList; override;
     function GetToolBoxWindowPopup: TPopupMenu; override;
@@ -145,6 +146,8 @@ type
   public
     constructor Create; override;
     constructor Create(AEmbedded: boolean); override;
+    procedure StartLoadingImage(AFilename: string); override;
+    procedure EndLoadingImage; override;
     procedure Donate; override;
     procedure SaveMainWindowPosition; override;
     procedure RestoreMainWindowPosition; override;
@@ -243,6 +246,19 @@ begin
   Init(AEmbedded);
 end;
 
+procedure TLazPaintInstance.StartLoadingImage(AFilename: string);
+begin
+  FLoadingFilename:= AFilename;
+  BGRALayers.RegisterLoadingHandler(@OnLayeredBitmapLoadStartHandler,@OnLayeredBitmapLoadProgressHandler,@OnLayeredBitmapLoadedHandler);
+end;
+
+procedure TLazPaintInstance.EndLoadingImage;
+begin
+  BGRALayers.UnregisterLoadingHandler(@OnLayeredBitmapLoadStartHandler,@OnLayeredBitmapLoadProgressHandler,@OnLayeredBitmapLoadedHandler);
+  FreeAndNil(FLoadingLayers);
+  FLoadingFilename:= '';
+end;
+
 procedure TLazPaintInstance.Donate;
 begin
   OpenURL('http://sourceforge.net/donate/index.php?group_id=404555');
@@ -326,11 +342,6 @@ begin
   FToolManager.OnFillChanged:= @ToolFillChanged;
   FSelectionEditConfig := nil;
   FTextureEditConfig := nil;
-
-  if not AEmbedded then
-    BGRALayers.RegisterLoadingHandler(@OnLayeredBitmapLoadStartHandler,@OnLayeredBitmapLoadProgressHandler,@OnLayeredBitmapLoadedHandler)
-  else
-    FLoadingLayers := nil;
 end;
 
 procedure TLazPaintInstance.FormsNeeded;
@@ -671,8 +682,8 @@ end;
 
 procedure TLazPaintInstance.OnLayeredBitmapLoadStartHandler(AFilenameUTF8: string);
 begin
-  if FLoadingLayers = nil then
-    FLoadingLayers := TFLoading.Create(nil);
+  if FLoadingLayers = nil then FLoadingLayers := TFLoading.Create(nil);
+  if (AFilenameUTF8 = '<Stream>') and (FLoadingFilename <> '') then AFilenameUTF8 := FLoadingFilename;
   FLoadingLayers.ShowMessage(rsOpening+' ' +AFilenameUTF8+'...');
   UpdateWindows;
 end;
@@ -1172,11 +1183,9 @@ begin
   end;
   ToolManager.SaveToConfig;
 
-  if FLoadingLayers <> nil then
-  begin
-    FreeAndNil(FLoadingLayers);
-    BGRALayers.UnregisterLoadingHandler(@OnLayeredBitmapLoadStartHandler,@OnLayeredBitmapLoadProgressHandler,@OnLayeredBitmapLoadedHandler);
-  end;
+  BGRALayers.UnregisterLoadingHandler(@OnLayeredBitmapLoadStartHandler,@OnLayeredBitmapLoadProgressHandler,@OnLayeredBitmapLoadedHandler);
+  if FLoadingLayers <> nil then FreeAndNil(FLoadingLayers);
+
   FreeAndNil(FLayerStack);
   FreeAndNil(FCustomBlur);
   FreeAndNil(FColorize);
