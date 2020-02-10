@@ -1452,7 +1452,7 @@ end;
 
 function TToolManager.ToolCanBeUsed: boolean;
 begin
-  result := (currentTool <> nil) and ((FCurrentToolType = ptHand) or CurrentTool.IsSelectingTool or Image.CurrentLayerVisible);
+  result := (FCurrentToolType = ptHand) or ((CurrentTool <> nil) and (CurrentTool.IsSelectingTool or Image.CurrentLayerVisible));
 end;
 
 function TToolManager.GetBackColor: TBGRAPixel;
@@ -1526,13 +1526,13 @@ end;
 
 function TToolManager.GetAllowedBackFillTypes: TVectorialFillTypes;
 begin
-  if Assigned(CurrentTool) then result := currentTool.AllowedBackFillTypes
+  if Assigned(CurrentTool) then result := CurrentTool.AllowedBackFillTypes
   else result := [vftSolid,vftGradient,vftTexture];
 end;
 
 function TToolManager.GetAllowedForeFillTypes: TVectorialFillTypes;
 begin
-  if Assigned(CurrentTool) then result := currentTool.AllowedForeFillTypes
+  if Assigned(CurrentTool) then result := CurrentTool.AllowedForeFillTypes
   else result := [vftSolid,vftGradient,vftTexture];
 end;
 
@@ -3109,15 +3109,15 @@ begin
   FInTool := true;
   try
     SetPressure(APressure);
-    if ToolCanBeUsed then
-      changed := currentTool.ToolDown(X,Y,ARightBtn)
+    if ToolCanBeUsed and Assigned(CurrentTool) then
+      changed := CurrentTool.ToolDown(X,Y,ARightBtn)
     else
       changed := EmptyRect;
     result := not IsRectEmpty(changed);
     if IsOnlyRenderChange(changed) then changed := EmptyRect;
 
     if CheckExitTool then result := true;
-    if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
+    if result then NotifyImageOrSelectionChanged(CurrentTool.LastToolDrawingLayer, changed);
   finally
     FInTool := false;
   end;
@@ -3130,15 +3130,15 @@ begin
   FInTool := true;
   try
     SetPressure(APressure);
-    if ToolCanBeUsed then
-      changed := currentTool.ToolMove(X,Y)
+    if ToolCanBeUsed and Assigned(CurrentTool) then
+      changed := CurrentTool.ToolMove(X,Y)
     else
       changed := EmptyRect;
     result := not IsRectEmpty(changed);
     if IsOnlyRenderChange(changed) then changed := EmptyRect;
 
     if CheckExitTool then result := true;
-    if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
+    if result then NotifyImageOrSelectionChanged(CurrentTool.LastToolDrawingLayer, changed);
   finally
     FInTool := false;
   end;
@@ -3150,15 +3150,15 @@ begin
   if FInTool then exit(false);
   FInTool := true;
   try
-    if ToolCanBeUsed then
-      changed := currentTool.ToolKeyDown(key)
+    if ToolCanBeUsed and Assigned(CurrentTool) then
+      changed := CurrentTool.ToolKeyDown(key)
     else
       changed := EmptyRect;
     result := not IsRectEmpty(changed);
     if IsOnlyRenderChange(changed) then changed := EmptyRect;
 
     if CheckExitTool then result := true;
-    if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
+    if result then NotifyImageOrSelectionChanged(CurrentTool.LastToolDrawingLayer, changed);
   finally
     FInTool := false;
   end;
@@ -3170,15 +3170,15 @@ begin
   if FInTool then exit(false);
   FInTool := true;
   try
-    if ToolCanBeUsed then
-      changed := currentTool.ToolKeyUp(key)
+    if ToolCanBeUsed and Assigned(CurrentTool) then
+      changed := CurrentTool.ToolKeyUp(key)
     else
       changed := EmptyRect;
     result := not IsRectEmpty(changed);
     if IsOnlyRenderChange(changed) then changed := EmptyRect;
 
     if CheckExitTool then result := true;
-    if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
+    if result then NotifyImageOrSelectionChanged(CurrentTool.LastToolDrawingLayer, changed);
   finally
     FInTool := false;
   end;
@@ -3190,15 +3190,15 @@ begin
   if FInTool then exit(false);
   FInTool := true;
   try
-    if ToolCanBeUsed then
-      changed := currentTool.ToolKeyPress(key)
+    if ToolCanBeUsed and Assigned(CurrentTool) then
+      changed := CurrentTool.ToolKeyPress(key)
     else
       changed := EmptyRect;
     result := not IsRectEmpty(changed);
     if IsOnlyRenderChange(changed) then changed := EmptyRect;
 
     if CheckExitTool then result := true;
-    if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
+    if result then NotifyImageOrSelectionChanged(CurrentTool.LastToolDrawingLayer, changed);
   finally
     FInTool := false;
   end;
@@ -3235,15 +3235,15 @@ begin
   if FInTool then exit(false);
   FInTool := true;
   try
-    if ToolCanBeUsed then
-      changed := currentTool.ToolUp
+    if ToolCanBeUsed and Assigned(CurrentTool) then
+      changed := CurrentTool.ToolUp
     else
       changed := EmptyRect;
     result := not IsRectEmpty(changed);
     if IsOnlyRenderChange(changed) then changed := EmptyRect;
 
     if CheckExitTool then result := true;
-    if result then NotifyImageOrSelectionChanged(currentTool.LastToolDrawingLayer, changed);
+    if result then NotifyImageOrSelectionChanged(CurrentTool.LastToolDrawingLayer, changed);
   finally
     FInTool := false;
   end;
@@ -3294,8 +3294,8 @@ begin
   FInTool := true;
   FInToolUpdate := true;
   try
-    if ToolCanBeUsed then
-      changed := currentTool.ToolUpdate
+    if ToolCanBeUsed and Assigned(CurrentTool) then
+      changed := CurrentTool.ToolUpdate
     else
       changed := EmptyRect;
     result := not IsRectEmpty(changed);
@@ -3311,8 +3311,8 @@ end;
 
 function TToolManager.ToolUpdateNeeded: boolean;
 begin
-  if ToolCanBeUsed then
-    result := currentTool.ToolUpdateNeeded
+  if ToolCanBeUsed and Assigned(CurrentTool) then
+    result := CurrentTool.ToolUpdateNeeded
   else
     result := false;
   if CheckExitTool then
@@ -3328,7 +3328,7 @@ end;
 function TToolManager.IsSelectingTool: boolean;
 begin
   if CurrentTool <> nil then
-    result := currentTool.IsSelectingTool
+    result := CurrentTool.IsSelectingTool
   else
     result := false;
 end;
@@ -3357,11 +3357,11 @@ end;
 
 procedure TToolManager.RenderTool(formBitmap: TBGRABitmap);
 begin
-  if ToolCanBeUsed and not FInTool then
+  if ToolCanBeUsed and Assigned(CurrentTool) and not FInTool then
   begin
     FInTool := true;
     try
-      Image.RenderMayChange(currentTool.Render(formBitmap,formBitmap.Width,formBitmap.Height, @InternalBitmapToVirtualScreen));
+      Image.RenderMayChange(CurrentTool.Render(formBitmap,formBitmap.Width,formBitmap.Height, @InternalBitmapToVirtualScreen));
     finally
       FInTool := false;
     end;
@@ -3370,8 +3370,8 @@ end;
 
 function TToolManager.GetRenderBounds(VirtualScreenWidth, VirtualScreenHeight: integer): TRect;
 begin
-  if ToolCanBeUsed and not currentTool.Validating and not currentTool.Canceling then
-    result := currentTool.Render(nil,VirtualScreenWidth,VirtualScreenHeight, @InternalBitmapToVirtualScreen)
+  if ToolCanBeUsed and Assigned(CurrentTool) and not CurrentTool.Validating and not CurrentTool.Canceling then
+    result := CurrentTool.Render(nil,VirtualScreenWidth,VirtualScreenHeight, @InternalBitmapToVirtualScreen)
   else
     result := EmptyRect;
 end;

@@ -7477,6 +7477,7 @@ object FMain: TFMain
       Category = 'Edit'
       Caption = 'Selection fit'
       OnExecute = ScriptExecute
+      OnUpdate = EditSelectionFitUpdate
       ShortCut = 16454
     end
     object ImageClearAlpha: TAction

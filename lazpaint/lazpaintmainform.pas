@@ -437,6 +437,7 @@ type
     procedure EditMoveUpExecute(Sender: TObject);
     procedure EditMoveUpUpdate(Sender: TObject);
     procedure EditPasteExecute(Sender: TObject);
+    procedure EditSelectionFitUpdate(Sender: TObject);
     procedure EditSelectionUpdate(Sender: TObject);
     procedure EditShapeAlignBottomExecute(Sender: TObject);
     procedure EditShapeAlignBottomUpdate(Sender: TObject);
@@ -3471,7 +3472,9 @@ end;
 
 procedure TFMain.EditCutUpdate(Sender: TObject);
 begin
-  EditCut.Enabled := ToolManager.ToolProvideCommand(tcCut) or not image.SelectionMaskEmpty;
+  EditCut.Enabled := ToolManager.ToolProvideCommand(tcCut) or
+    (not image.SelectionMaskEmpty and
+       (not image.SelectionLayerIsEmpty or image.CurrentLayerVisible));
 end;
 
 procedure TFMain.EditDeleteSelectionExecute(Sender: TObject);
@@ -3531,6 +3534,11 @@ procedure TFMain.EditPasteExecute(Sender: TObject);
 begin
   if not ToolManager.ToolCommand(tcPaste) then
     Scripting.CallScriptFunction('EditPaste');
+end;
+
+procedure TFMain.EditSelectionFitUpdate(Sender: TObject);
+begin
+  EditSelectionFit.Enabled:= Image.CurrentLayerVisible;
 end;
 
 procedure TFMain.FileImport3DUpdate(Sender: TObject);
