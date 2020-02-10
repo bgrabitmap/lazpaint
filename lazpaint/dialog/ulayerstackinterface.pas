@@ -56,6 +56,7 @@ type
     FDarkTheme: boolean;
     FScrollStackItemIntoView: Boolean;
     FUpdatingComboBlendOp: Boolean;
+    FPartialRedraw: Boolean;
     FRenaming: Boolean;
     FDontUpdateStack: Boolean;
     FZoomFactor: single;
@@ -161,7 +162,7 @@ end;
 procedure TLayerStackInterface.BGRALayerStack_Redraw(Sender: TObject;
   Bitmap: TBGRABitmap);
 begin
-  DrawLayerStack(Bitmap, True, -1);
+  DrawLayerStack(Bitmap, not FPartialRedraw, -1);
 end;
 
 procedure TLayerStackInterface.BGRALayerStack_MouseDown(Sender: TObject;
@@ -786,8 +787,10 @@ procedure TLayerStackInterface.UpdateLayerStackItem(AIndex: integer);
 begin
   if Assigned(BGRALayerStack.Bitmap) then
   begin
+    FPartialRedraw := true;
     if (AIndex >= 0) and (AIndex < length(FLayerInfo)) then
       BGRALayerStack.RedrawBitmap(FLayerInfo[AIndex].FullRect);
+    FPartialRedraw := false;
   end;
 end;
 
