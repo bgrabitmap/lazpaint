@@ -908,13 +908,11 @@ end;
 
 function TLazPaintInstance.GetChooseColorHeight: integer;
 begin
-  FChooseColor.UpdateLayout;
   Result:= FChooseColor.Height;
 end;
 
 function TLazPaintInstance.GetChooseColorWidth: integer;
 begin
-  FChooseColor.UpdateLayout;
   Result:= FChooseColor.Width;
 end;
 
@@ -1480,14 +1478,14 @@ begin
   FormsNeeded;
   if InColorFromFChooseColor then exit;
   InColorFromFChooseColor := True;
-  SetColor(FChooseColor.colorTarget, FChooseColor.GetCurrentColor);
+  SetColor(FChooseColor.ColorTarget, FChooseColor.GetCurrentColor);
   InColorFromFChooseColor := false;
 end;
 
 procedure TLazPaintInstance.ColorToFChooseColor;
 begin
   if not Assigned(FChooseColor) or InColorFromFChooseColor then exit;
-  FChooseColor.SetCurrentColor(GetColor(FChooseColor.colorTarget));
+  FChooseColor.SetCurrentColor(GetColor(FChooseColor.ColorTarget));
 end;
 
 function TLazPaintInstance.ShowSaveOptionDlg(AParameters: TVariableSet;
@@ -1622,7 +1620,7 @@ end;
 function TLazPaintInstance.GetChooseColorTarget: TColorTarget;
 begin
   if Assigned(FChooseColor) then
-    Result:= FChooseColor.colorTarget
+    Result:= FChooseColor.ColorTarget
   else
     result := ctForeColorSolid;
 end;
@@ -1630,7 +1628,7 @@ end;
 procedure TLazPaintInstance.SetChooseColorTarget(const AValue: TColorTarget);
 begin
   if not Assigned(FChooseColor) then exit;
-  FChooseColor.colorTarget:= AValue;
+  FChooseColor.ColorTarget:= AValue;
   ColorToFChooseColor;
 end;
 
