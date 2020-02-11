@@ -37,7 +37,7 @@ var TFLayerStack_CustomDPI: integer = 96;
 
 implementation
 
-uses UDarkTheme;
+uses UDarkTheme, LCScaleDPI;
 
 { TFLayerStack }
 
@@ -59,6 +59,10 @@ procedure TFLayerStack.FormCreate(Sender: TObject);
 begin
   Position := poDesigned;
   self.EnsureVisible(False);
+  ClientWidth := DoScaleX(223, OriginalDPI, TFLayerStack_CustomDPI);
+  ClientHeight := DoScaleX(300, OriginalDPI, TFLayerStack_CustomDPI);
+  Constraints.MinWidth := ClientWidth div 2 + (Width - ClientWidth);
+  Constraints.MinHeight := ClientHeight div 2 + (Height - ClientHeight);
   Visible := false;
 end;
 
