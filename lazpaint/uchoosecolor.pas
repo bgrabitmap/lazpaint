@@ -124,11 +124,8 @@ begin
    LColor.Visible := true;
    LColor.Caption := '#FFFFFF';
    LColor.AdjustSize;
-   FTextAreaHeight := max(EColor.Height, LColor.Height);
    vsColorView.Left := ExternalMargin;
    vsColorView.Top := 0;
-   FormResize(Sender);
-   EColor.Visible := false;
 
    FColorXYSize := DoScaleX(3, OriginalDPI, TFChooseColor_CustomDPI);
    FCursorXYOpacity := DoScaleX(128, OriginalDPI, TFChooseColor_CustomDPI);
@@ -236,8 +233,12 @@ end;
 procedure TFChooseColor.FormShow(Sender: TObject);
 begin
   Position := poDesigned;
+  EColor.Show;
+  EColor.AdjustSize;
+  FTextAreaHeight := max(EColor.Height, LColor.Height);
+  EColor.Hide;
+  FormResize(self);
   FNeedUpdateLayout := true;
-  LColor.Top := ClientHeight-LColor.Height;
   self.EnsureVisible(False);
 end;
 
