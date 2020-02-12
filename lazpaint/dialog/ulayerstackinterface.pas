@@ -900,6 +900,10 @@ begin
   if PanelToolbar.BevelOuter <> bvNone then dec(spacing, PanelToolbar.BevelWidth);
   PanelToolbar.ChildSizing.TopBottomSpacing:= spacing;
   PanelToolbar.ChildSizing.LeftRightSpacing:= spacing;
+  if DarkTheme then
+    Container.Color := clDarkBtnFace
+  else
+    Container.Color := clBtnFace;
 end;
 
 procedure TLayerStackInterface.SetDPI(AValue: integer);
@@ -1054,9 +1058,9 @@ begin
   if DarkTheme and not (ASelected and FSysColorSelection) then
   begin
     if ASelected then
-     result := clLightText
+      result := clLightText
     else
-      result := clDarkBtnFace;
+      result := MergeBGRAWithGammaCorrection(ColorToBGRA(clDarkBtnFace), 1, ColorToBGRA(clDarkEditableFace), 1);
   end else
   begin
     if ASelected then
