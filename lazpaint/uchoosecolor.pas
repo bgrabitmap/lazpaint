@@ -631,12 +631,12 @@ begin
   if FInternalMargin < 0 then FInternalMargin := 0;
   FTitleFontHeight := max(AdaptSizeY(12), 10);
 
-  FWheelArea := Rect(FInternalMargin, FTopMargin, bmpWidth - FInternalMargin, bmpHeight - FMargin);
+  FWheelArea := Rect(FInternalMargin, FMargin, bmpWidth - FInternalMargin, bmpHeight - FMargin);
 
   if FLazPaintInstance.BlackAndWhite then
   begin
     FButtonsCenter := true;
-    if FWheelArea.Width <= bmpHeight - 2*FMargin then
+    if FWheelArea.Width <= FWheelArea.Height then
     begin
       FButtonsAlign := alLeft;
       FBarsAlign := alRight;
@@ -656,6 +656,8 @@ begin
       FBarsAlign := alRight else FBarsAlign := alBottom;
     UpdateButtonLayout;
   end;
+
+  FWheelArea.Top := FTopMargin;
 
   if FBarsAlign = alRight then
   begin
