@@ -35,6 +35,7 @@ type
     procedure PopupClose(Sender: TObject);
     procedure PopupOpen(Sender: TObject);
   private
+    FLastAddedColor: TBGRAPixel;
     FDarkTheme: boolean;
     FPaletteItemHeight: integer;
     FPaletteItemWidth: integer;
@@ -595,6 +596,7 @@ begin
       ShowMessage(ex.Message);
   end;
   tempPal.Free;
+  FLastAddedColor := BGRAPixelTransparent;
   PaletteChanged;
 end;
 
@@ -649,7 +651,7 @@ procedure TPaletteToolbar.RepaintPalette(Sender: TObject; Bitmap: TBGRABitmap);
 var i,x,y,w,aw,a,h: integer;
   c: TBGRAPixel;
   nbVisible, maxScroll: integer;
-  clInterm: TBGRAPixel;
+  clInterm, cSign: TBGRAPixel;
 begin
   if DarkTheme then
   begin
@@ -702,6 +704,15 @@ begin
     begin
       Bitmap.Rectangle(x,y,x+w,y+h,clInterm,c,dmSet);
     end;
+    if FColors.Color[i] = FLastAddedColor then
+    begin
+      if GetLightness(c)/65535 > 0.5 then
+        cSign := BGRABlack else cSign := BGRAWhite;
+      Bitmap.DrawPolyLineAntialias(
+        Bitmap.ComputeOpenedSpline([PointF(x+(w-aw)*1 div 5, y+h div 4), PointF(x+(w-aw)*2 div 5, y+h*5 div 6),
+            PointF(x+(w-aw)*3 div 5, y+h div 4), PointF(x+(w-aw)*4 div 5, y+h div 5)], ssEasyBezier),
+            cSign, DoScaleX(15, OriginalDPI)/10);
+    end;
     y += h-1;
   end;
   FPaletteColorRect.Bottom := y;
@@ -735,12 +746,14 @@ begin
     end;
     stream.Free;
   end;
+  FLastAddedColor := BGRAPixelTransparent;
   PaletteChanged;
 end;
 
 constructor TPaletteToolbar.Create;
 begin
   FPanelPalette := nil;
+  FLastAddedColor := BGRAPixelTransparent;
 end;
 
 destructor TPaletteToolbar.Destroy;
@@ -761,7 +774,9 @@ begin
   end;
   if LazPaintInstance.BlackAndWhite then
     AColor := BGRAToGrayscale(AColor);
-  if FColors.AddColor(AColor) then PaletteChanged;
+  FLastAddedColor := AColor;
+  if FColors.AddColor(AColor) then PaletteChanged
+  else PanelPalette.DiscardBitmap;
 end;
 
 procedure TPaletteToolbar.RemoveColor(AColor: TBGRAPixel);
@@ -773,6 +788,7 @@ begin
   end;
   if LazPaintInstance.BlackAndWhite then
     AColor := BGRAToGrayscale(AColor);
+  if AColor = FLastAddedColor then FLastAddedColor := BGRAPixelTransparent;
   if FColors.RemoveColor(AColor) then PaletteChanged;
 end;
 
