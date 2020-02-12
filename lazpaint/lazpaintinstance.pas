@@ -1611,7 +1611,7 @@ end;
 
 function TLazPaintInstance.GetTopMostOkToUnfocus: boolean;
 begin
-  if FChooseColor.Active and FChooseColor.EColor.Visible then
+  if FChooseColor.Active and FChooseColor.EditorVisible then
     result := false
   else
     result := true;

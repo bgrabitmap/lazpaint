@@ -17,22 +17,17 @@ type
   { TFChooseColor }
 
   TFChooseColor = class(TForm)
-    BCButton_AddToPalette: TBCButton;
-    BCButton_RemoveFromPalette: TBCButton;
-    vsColorView: TBGRAVirtualScreen;
-    EColor: TEdit;
-    LColor: TLabel;
-    procedure BCButton_AddToPaletteClick(Sender: TObject);
-    procedure BCButton_RemoveFromPaletteClick(Sender: TObject);
-    procedure EColorChange(Sender: TObject);
-    procedure EColorKeyDown(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
     procedure FormDeactivate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure LColorMouseDown(Sender: TObject; {%H-}Button: TMouseButton;
-      {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
+  private
+    vsColorView: TBGRAVirtualScreen;
+    BCButton_AddToPalette: TBCButton;
+    BCButton_RemoveFromPalette: TBCButton;
+    EColor: TEdit;
+    LColor: TLabel;
     procedure vsColorViewMouseDown(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; X, Y: Integer);
     procedure vsColorViewMouseMove(Sender: TObject; {%H-}Shift: TShiftState; X,
@@ -40,6 +35,12 @@ type
     procedure vsColorViewMouseUp(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure vsColorViewRedraw(Sender: TObject; Bitmap: TBGRABitmap);
+    procedure BCButton_AddToPaletteClick(Sender: TObject);
+    procedure BCButton_RemoveFromPaletteClick(Sender: TObject);
+    procedure EColorChange(Sender: TObject);
+    procedure EColorKeyDown(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
+    procedure LColorMouseDown(Sender: TObject; {%H-}Button: TMouseButton;
+      {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
   private
     FDarkTheme: boolean;
     FTextAreaHeight: integer;
@@ -49,16 +50,16 @@ type
     FColorTitleVisible: boolean;
     FNeedUpdateLayout: Boolean;
     FWheelArea: TRect;
-    FormBackgroundColor, FormTextColor: TBGRAPixel;
-    ColorBeforeEColor: TBGRAPixel;
+    FFormBackgroundColor, FFormTextColor: TBGRAPixel;
+    FColorBeforeEColor: TBGRAPixel;
 
-    InFormMouseMove: Boolean;
+    FInFormMouseMove: Boolean;
     FormMouseMovePos: TPoint;
 
     FCurrentColor: TBGRAPixel;
     FColorLight: word;
     ColorX,colorY: integer;
-    selectZone: (szNone, szColorCircle, szLightScale, szAlphascale);
+    FSelectZone: (szNone, szColorCircle, szLightScale, szAlphascale);
     FColorCircle: record center: TPointF;
                          bounds: TRect;
                          bmp,bmpMaxlight: TBGRABitmap; end;
@@ -70,6 +71,7 @@ type
                        cursorRect: TRect; end;
     function GetAvailableBmpHeight: integer;
     function GetAvailableBmpWidth: integer;
+    function GetEditorVisible: boolean;
     procedure SetAvailableBmpHeight(AValue: integer);
     procedure SetDarkTheme(AValue: boolean);
     procedure SetLazPaintInstance(AValue: TLazPaintCustomInstance);
@@ -98,10 +100,12 @@ type
     ColorTarget: TColorTarget;
     procedure SetCurrentColor(value: TBGRAPixel);
     function GetCurrentColor: TBGRAPixel;
+    procedure HideEditor;
     property AvailableBmpHeight: integer read GetAvailableBmpHeight write SetAvailableBmpHeight;
     property AvailableBmpWidth: integer read GetAvailableBmpWidth;
     property DarkTheme: boolean read FDarkTheme write SetDarkTheme;
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
+    property EditorVisible: boolean read GetEditorVisible;
   end;
 
 var TFChooseColor_CustomDPI: integer = 96;
@@ -114,25 +118,39 @@ uses ugraph, math, LCLType, BGRAText, udarktheme;
 
 procedure TFChooseColor.FormCreate(Sender: TObject);
 begin
-   BorderStyle := bsSizeToolWin;
+   EColor := TEdit.Create(self);
+   EColor.Parent := self;
+   EColor.OnChange:= @EColorChange;
+   EColor.OnKeyDown:= @EColorKeyDown;
+   LColor := TLabel.Create(self);
+   LColor.Parent := self;
+   LColor.OnMouseDown:= @LColorMouseDown;
+   vsColorView := TBGRAVirtualScreen.Create(self);
+   vsColorView.Caption := '';
+   vsColorView.Parent := self;
+   vsColorView.OnMouseDown:= @vsColorViewMouseDown;
+   vsColorView.OnMouseMove:= @vsColorViewMouseMove;
+   vsColorView.OnMouseUp:= @vsColorViewMouseUp;
+   vsColorView.OnRedraw:= @vsColorViewRedraw;
+   BCButton_AddToPalette := TBCButton.Create(vsColorView);
+   BCButton_AddToPalette.Parent := vsColorView;
+   BCButton_AddToPalette.OnClick := @BCButton_AddToPaletteClick;
+   BCButton_RemoveFromPalette := TBCButton.Create(vsColorView);
+   BCButton_RemoveFromPalette.Parent := vsColorView;
+   BCButton_RemoveFromPalette.OnClick := @BCButton_RemoveFromPaletteClick;
    ApplyTheme;
+   vsColorView.Color := FFormBackgroundColor;
 
    EColor.Font.Height := -FontEmHeightSign*DoScaleY(14,OriginalDPI,TFChooseColor_CustomDPI);
    LColor.Font.Height := -FontEmHeightSign*DoScaleY(14,OriginalDPI,TFChooseColor_CustomDPI);
    EColor.Text:= '#FFFFFF';
-   EColor.AdjustSize;
    LColor.Visible := true;
    LColor.Caption := '#FFFFFF';
-   LColor.AdjustSize;
    vsColorView.Left := ExternalMargin;
    vsColorView.Top := 0;
 
-   FColorXYSize := DoScaleX(3, OriginalDPI, TFChooseColor_CustomDPI);
-   FCursorXYOpacity := DoScaleX(128, OriginalDPI, TFChooseColor_CustomDPI);
-   if FCursorXYOpacity > 255 then FCursorXYOpacity := 255;
-
-   selectZone := szNone;
-   InFormMouseMove := False;
+   FSelectZone := szNone;
+   FInFormMouseMove := False;
 
    FAlphascale.bmp := nil;
    FLightscale.bmp := nil;
@@ -145,11 +163,7 @@ end;
 
 procedure TFChooseColor.FormDeactivate(Sender: TObject);
 begin
-  if EColor.Visible then
-    begin
-      EColor.Hide;
-      LColor.Show;
-    end;
+  HideEditor;
 end;
 
 procedure TFChooseColor.EColorChange(Sender: TObject);
@@ -171,10 +185,10 @@ begin
        end else
          error := true;
      end else
-       newColor := PartialStrToBGRA(EColor.Text,ColorBeforeEColor,error);
+       newColor := PartialStrToBGRA(EColor.Text,FColorBeforeEColor,error);
      if not error then
      begin
-       newColor.alpha := ColorBeforeEColor.alpha;
+       newColor.alpha := FColorBeforeEColor.alpha;
        SetCurrentColor(newColor);
        FLazPaintInstance.ColorFromFChooseColor;
      end;
@@ -198,13 +212,15 @@ begin
   begin
     EColor.Hide;
     LColor.Show;
+    Key := 0;
   end
   else
   if Key = VK_ESCAPE then
   begin
     EColor.Hide;
     LColor.Show;
-    SetCurrentColor(ColorBeforeEColor);
+    Key := 0;
+    SetCurrentColor(FColorBeforeEColor);
     FLazPaintInstance.ColorFromFChooseColor;
   end;
 end;
@@ -246,12 +262,12 @@ procedure TFChooseColor.LColorMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   LColor.Visible := false;
-  ColorBeforeEColor := GetCurrentColor;
+  FColorBeforeEColor := GetCurrentColor;
   if FLazPaintInstance.BlackAndWhite then
   begin
-    EColor.Text := inttostr(ColorBeforeEColor.green);
+    EColor.Text := inttostr(FColorBeforeEColor.green);
   end else
-    EColor.Text := '#' + copy(BGRAToStr(ColorBeforeEColor),1,6);
+    EColor.Text := '#' + copy(BGRAToStr(FColorBeforeEColor),1,6);
   EColor.Visible := true;
   EColor.Top := ClientHeight-EColor.Height;
   SafeSetFocus(EColor);
@@ -269,17 +285,17 @@ begin
     end;
     if PtInRect(Point(X,Y), FColorCircle.Bounds) then
     begin
-      SelectZone := szColorCircle;
+      FSelectZone := szColorCircle;
       DoSelect(X,Y);
     end else
     if PtInRect(Point(X,Y), FAlphascale.Bounds) or PtInRect(Point(X,Y), FAlphascale.cursorRect) then
     begin
-      SelectZone := szAlphascale;
+      FSelectZone := szAlphascale;
       DoSelect(X,Y);
     end else
     if PtInRect(Point(X,Y), FLightscale.Bounds) or PtInRect(Point(X,Y), FLightscale.cursorRect) then
     begin
-      SelectZone := szLightscale;
+      FSelectZone := szLightscale;
       DoSelect(X,Y);
     end;
   end;
@@ -289,17 +305,17 @@ procedure TFChooseColor.vsColorViewMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 begin
   FormMouseMovePos := Point(X,Y);
-  if InFormMouseMove then Exit;
-  InFormMouseMove := True;
+  if FInFormMouseMove then Exit;
+  FInFormMouseMove := True;
   Application.ProcessMessages; //empty message stack
   DoSelect(FormMouseMovePos.X,FormMouseMovePos.Y);
-  InFormMouseMove := False;
+  FInFormMouseMove := False;
 end;
 
 procedure TFChooseColor.vsColorViewMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  if Button = mbLeft then selectZone := szNone;
+  if Button = mbLeft then FSelectZone := szNone;
 end;
 
 procedure TFChooseColor.vsColorViewRedraw(Sender: TObject; Bitmap: TBGRABitmap);
@@ -316,7 +332,7 @@ begin
 
   Bitmap.FontHeight := FTitleFontHeight;
 
-  Bitmap.Fill(FormBackgroundColor);
+  Bitmap.Fill(FFormBackgroundColor);
   Bitmap.FontAntialias := True;
   boundRight := Bitmap.Width;
   if FAlphascale.Bmp<>nil then
@@ -327,11 +343,11 @@ begin
       x := (FAlphascale.bounds.Left+FAlphascale.bounds.Right-w) div 2;
       if x + w > boundRight then
         x := boundRight-w;
-      Bitmap.TextOut(x,FMargin div 2,rsOpacity,FormTextColor,taLeftJustify);
+      Bitmap.TextOut(x,FMargin div 2,rsOpacity,FFormTextColor,taLeftJustify);
       boundRight := x - FMargin div 2;
     end;
     Bitmap.PutImage(FAlphascale.bounds.Left,FAlphascale.bounds.top,FAlphascale.Bmp,dmDrawWithTransparency);
-    Bitmap.Rectangle(FAlphascale.bounds,BGRA(FormTextColor.red,FormTextColor.green,FormTextColor.Blue,128),dmDrawWithTransparency);
+    Bitmap.Rectangle(FAlphascale.bounds,BGRA(FFormTextColor.red,FFormTextColor.green,FFormTextColor.Blue,128),dmDrawWithTransparency);
     FAlphascale.cursorRect := DrawTriangleCursor(Bitmap, FAlphascale.bounds, FCurrentColor.alpha);
   end else FAlphascale.cursorRect := EmptyRect;
 
@@ -343,11 +359,11 @@ begin
       x := (FLightscale.bounds.Left+FLightscale.bounds.Right-w) div 2;
       if x+ w > boundRight then
         x:= boundRight-w;
-      Bitmap.TextOut(x,FMargin div 2,rsLight,FormTextColor,taLeftJustify);
+      Bitmap.TextOut(x,FMargin div 2,rsLight,FFormTextColor,taLeftJustify);
       boundRight := x - FMargin div 2;
     end;
     Bitmap.PutImage(FLightscale.bounds.Left,FLightscale.bounds.top,FLightscale.Bmp,dmFastBlend);
-    Bitmap.Rectangle(FLightscale.bounds,BGRA(FormTextColor.red,FormTextColor.green,FormTextColor.Blue,128),dmDrawWithTransparency);
+    Bitmap.Rectangle(FLightscale.bounds,BGRA(FFormTextColor.red,FFormTextColor.green,FFormTextColor.Blue,128),dmDrawWithTransparency);
     FLightscale.cursorRect := DrawTriangleCursor(Bitmap, FLightscale.bounds, FColorLight div 256);
   end else FLightscale.cursorRect := EmptyRect;
 
@@ -360,7 +376,7 @@ begin
       x := min(x, boundRight-w);
       x := max(x, FButtonSize + FMargin + FMargin div 2);
       if x <= boundRight-w then
-        Bitmap.TextOut(x,FMargin div 2,rsColors,FormTextColor,taLeftJustify);
+        Bitmap.TextOut(x,FMargin div 2,rsColors,FFormTextColor,taLeftJustify);
     end;
     Bitmap.PutImage(FColorCircle.bounds.Left,FColorCircle.bounds.top,FColorCircle.Bmp,dmDrawWithTransparency);
     x := FColorCircle.bounds.Left+ColorX;
@@ -388,7 +404,7 @@ begin
     x := bounds.right + FCursorMargin;
     y := bounds.bottom-1 - round(value/255*(bounds.height-1));
     dest.FillPolyAntialias([pointF(x, y), pointF(x+FCursorSize, y-FCursorSize),
-                            pointF(x+FCursorSize, y+FCursorSize)], FormTextColor);
+                            pointF(x+FCursorSize, y+FCursorSize)], FFormTextColor);
     result := rect(floor(x-FCursorSize/2), floor(y-FCursorSize*1.5),
                    ceil(x+FCursorSize*1.5), ceil(y+FCursorSize*1.5));
   end else
@@ -396,7 +412,7 @@ begin
     x := bounds.left + round(value/255*(bounds.Width-1));
     y := bounds.bottom + FCursorMargin;
     dest.FillPolyAntialias([pointF(x, y), pointF(x+FCursorSize,y+FCursorSize),
-                            pointF(x-FCursorSize, y+FCursorSize)], FormTextColor);
+                            pointF(x-FCursorSize, y+FCursorSize)], FFormTextColor);
     result := rect(floor(x-FCursorSize*1.5), floor(y-FCursorSize/2),
                    ceil(x+FCursorSize*1.5), ceil(y+FCursorSize*1.5));
   end;
@@ -406,7 +422,7 @@ procedure TFChooseColor.DoSelect(X, Y: integer);
 var pix: TBGRAPixel;
   newLight: Word;
 begin
-  case selectZone of
+  case FSelectZone of
   szAlphascale:
     begin
       if FBarsAlign = alRight then
@@ -514,12 +530,12 @@ begin
   DarkThemeInstance.Apply(BCButton_RemoveFromPalette, FDarkTheme);
   if DarkTheme then
   begin
-    FormBackgroundColor := clDarkBtnFace;
-    FormTextColor := clLightText;
+    FFormBackgroundColor := clDarkBtnFace;
+    FFormTextColor := clLightText;
   end else
   begin
-    FormBackgroundColor := ColorToBGRA(ColorToRGB({$IFDEF DARWIN}clWindow{$ELSE}clBtnFace{$ENDIF}));
-    FormTextColor := ColorToBGRA(ColorToRGB(clWindowText));
+    FFormBackgroundColor := ColorToBGRA(ColorToRGB({$IFDEF DARWIN}clWindow{$ELSE}clBtnFace{$ENDIF}));
+    FFormTextColor := ColorToBGRA(ColorToRGB(clWindowText));
   end;
   vsColorView.DiscardBitmap;
 end;
@@ -631,6 +647,9 @@ begin
   FInternalMargin := FMargin-ExternalMargin;
   if FInternalMargin < 0 then FInternalMargin := 0;
   FTitleFontHeight := max(AdaptSizeY(12), 10);
+  FColorXYSize := DoScaleX(3, OriginalDPI, TFChooseColor_CustomDPI);
+  FCursorXYOpacity := DoScaleX(128, OriginalDPI, TFChooseColor_CustomDPI);
+  if FCursorXYOpacity > 255 then FCursorXYOpacity := 255;
 
   FWheelArea := Rect(FInternalMargin, FMargin, bmpWidth - FInternalMargin, bmpHeight - FMargin);
 
@@ -677,16 +696,16 @@ begin
     BGRAReplace(FAlphascale.bmp, TBGRABitmap.Create(FAlphascale.Bounds.Width, FAlphascale.Bounds.Height));
     if FBarsAlign = alRight then
       FAlphascale.bmp.GradientFill(0, 0, FAlphascale.bmp.width, FAlphascale.bmp.height,
-        FormTextColor, Color, gtLinear,
+        FFormTextColor, Color, gtLinear,
         PointF(0, -0.5), PointF(0, FAlphascale.bmp.Height-0.5), dmSet, True)
     else
     begin
       FAlphascale.bmp.GradientFill(0, 0, FAlphascale.bmp.width, FAlphascale.bmp.height,
-        FormTextColor, Color, gtLinear,
+        FFormTextColor, Color, gtLinear,
         PointF(FAlphascale.bmp.Width-0.5, 0), PointF(-0.5, 0), dmSet, True);
       FAlphascale.bmp.FontHeight := FTitleFontHeight;
       FAlphascale.bmp.FontVerticalAnchor:= fvaCapCenter;
-      FAlphascale.bmp.TextOut(FMargin/2, FAlphascale.bmp.Height/2, rsOpacity, FormTextColor, taLeftJustify);
+      FAlphascale.bmp.TextOut(FMargin/2, FAlphascale.bmp.Height/2, rsOpacity, FFormTextColor, taLeftJustify);
       FAlphascale.bmp.FontVerticalAnchor:= fvaTop;
     end;
   end;
@@ -757,6 +776,15 @@ begin
    result := ColorWithLight(FCurrentColor,FColorLight);
 end;
 
+procedure TFChooseColor.HideEditor;
+begin
+   if EColor.Visible then
+   begin
+     EColor.Hide;
+     LColor.Show;
+   end;
+end;
+
 procedure TFChooseColor.UpdateColorview(UpdateColorCircle, UpdateLightScale, Redraw: boolean);
 var tempColor: TBGRAPixel;
   idxCSS: Integer;
@@ -815,6 +843,11 @@ end;
 function TFChooseColor.GetAvailableBmpWidth: integer;
 begin
   result := ClientWidth - ExternalMargin*2;
+end;
+
+function TFChooseColor.GetEditorVisible: boolean;
+begin
+  result := Assigned(EColor) and EColor.Visible;
 end;
 
 procedure TFChooseColor.SetAvailableBmpHeight(AValue: integer);
