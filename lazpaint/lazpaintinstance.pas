@@ -114,6 +114,8 @@ type
     procedure SetImageListWindowVisible(const AValue: boolean); override;
     function GetChooseColorHeight: integer; override;
     function GetChooseColorWidth: integer; override;
+    procedure SetChooseColorHeight(AValue: integer); override;
+    procedure SetChooseColorWidth(AValue: integer); override;
     function GetToolboxHeight: integer; override;
     function GetToolboxWidth: integer; override;
     function GetTopMostHasFocus: boolean; override;
@@ -971,6 +973,18 @@ end;
 function TLazPaintInstance.GetChooseColorWidth: integer;
 begin
   Result:= FChooseColor.Width;
+end;
+
+procedure TLazPaintInstance.SetChooseColorHeight(AValue: integer);
+begin
+  if FChooseColor <> nil then
+    FChooseColor.Height := AValue;
+end;
+
+procedure TLazPaintInstance.SetChooseColorWidth(AValue: integer);
+begin
+  if FChooseColor <> nil then
+    FChooseColor.Width := AValue;
 end;
 
 procedure TLazPaintInstance.AssignBitmap(bmp: TBGRABitmap);

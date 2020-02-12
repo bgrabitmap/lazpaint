@@ -1757,8 +1757,8 @@ begin
     if (r.right > r.left) and (r.bottom > r.top) then
     begin
       LazPaintInstance.MoveImageListWindowTo(r.left,r.top);
-      LazPaintInstance.ImageListWindowWidth:= r.right-r.left;
-      LazPaintInstance.ImageListWindowHeight:= r.Bottom-r.Top;
+      LazPaintInstance.ImageListWindowWidth:= r.Width;
+      LazPaintInstance.ImageListWindowHeight:= r.Height;
     end
     else
       LazPaintInstance.MoveImageListWindowTo(self.Left+self.Width-LazPaintInstance.ImageListWindowWidth,
@@ -1769,8 +1769,8 @@ begin
     if (r.right > r.left) and (r.bottom > r.top) then
     begin
       LazPaintInstance.MoveLayerWindowTo(r.left,r.top);
-      LazPaintInstance.LayerWindowWidth := r.right-r.left;
-      LazPaintInstance.LayerWindowHeight := r.Bottom-r.Top;
+      LazPaintInstance.LayerWindowWidth := r.Width;
+      LazPaintInstance.LayerWindowHeight := r.Height;
     end
     else
       LazPaintInstance.MoveLayerWindowTo(self.Left+self.Width-LazPaintInstance.LayerWindowWidth,
@@ -1779,7 +1779,11 @@ begin
 
     r := Config.DefaultColorWindowPosition;
     if (r.right > r.left) and (r.bottom > r.top) then
-      LazPaintInstance.MoveChooseColorTo(r.left,r.top)
+    begin
+      LazPaintInstance.MoveChooseColorTo(r.left,r.top);
+      LazPaintInstance.ChooseColorWidth := r.Width;
+      LazPaintInstance.ChooseColorHeight := r.Height;
+    end
     else
       LazPaintInstance.MoveChooseColorTo(self.Left+self.Width-LazPaintInstance.ChooseColorWidth,
                          self.Top+self.Height-LazPaintInstance.ChooseColorHeight);

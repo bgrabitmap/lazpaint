@@ -179,6 +179,8 @@ type
 
     function GetChooseColorHeight: integer; virtual; abstract;
     function GetChooseColorWidth: integer; virtual; abstract;
+    procedure SetChooseColorHeight(AValue: integer); virtual; abstract;
+    procedure SetChooseColorWidth(AValue: integer); virtual; abstract;
     function GetChooseColorVisible: boolean; virtual; abstract;
     procedure SetChooseColorVisible(const AValue: boolean); virtual; abstract;
     function GetChooseColorTarget: TColorTarget; virtual; abstract;
@@ -299,8 +301,8 @@ type
 
     procedure MoveChooseColorTo(X,Y: integer); virtual; abstract;
     property ChooseColorVisible: boolean read GetChooseColorVisible write SetChooseColorVisible;
-    property ChooseColorWidth: integer read GetChooseColorWidth;
-    property ChooseColorHeight: integer read GetChooseColorHeight;
+    property ChooseColorWidth: integer read GetChooseColorWidth write SetChooseColorWidth;
+    property ChooseColorHeight: integer read GetChooseColorHeight write SetChooseColorHeight;
 
     procedure MoveLayerWindowTo(X,Y: integer); virtual; abstract;
     property LayerWindowWidth: integer read GetLayerWindowWidth write SetLayerWindowWidth;
