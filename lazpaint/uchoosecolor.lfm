@@ -6,14 +6,24 @@ object FChooseColor: TFChooseColor
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSizeToolWin
   Caption = 'Color'
+  ClientHeight = 297
+  ClientWidth = 396
   DesignTimePPI = 144
   Font.Height = -18
   FormStyle = fsStayOnTop
   OnCreate = FormCreate
   OnDeactivate = FormDeactivate
   OnDestroy = FormDestroy
-  OnResize = FormResize
   OnShow = FormShow
   ShowInTaskBar = stNever
   LCLVersion = '2.0.2.0'
+  object ChooseColorControl: TPanel
+    Left = 0
+    Height = 297
+    Top = 0
+    Width = 396
+    Align = alClient
+    BevelOuter = bvNone
+    TabOrder = 0
+  end
 end

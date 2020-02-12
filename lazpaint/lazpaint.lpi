@@ -342,7 +342,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="103">
+    <Units Count="104">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -949,6 +949,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="ULayerStackInterface"/>
       </Unit102>
+      <Unit103>
+        <Filename Value="dialog\uchoosecolorinterface.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UChooseColorInterface"/>
+      </Unit103>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

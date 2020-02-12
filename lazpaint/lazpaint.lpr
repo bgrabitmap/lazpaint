@@ -39,7 +39,8 @@ uses
   UMainFormLayout, USaveOption, UBrushType, ugeometricbrush,
   URainType, UFormRain, UPaletteToolbar, uselectionhighlight,
   UImagePreview, UPreviewDialog, UQuestion, UTiff, UImageView,
-  UDarkTheme, URaw, UProcessAuto, UPython, ULayerStackInterface;
+  UDarkTheme, URaw, UProcessAuto, UPython, ULayerStackInterface,
+  UChooseColorInterface;
 
 //sometimes LResources disappear in the uses clause
 
