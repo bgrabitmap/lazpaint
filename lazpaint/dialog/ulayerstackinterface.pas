@@ -739,11 +739,11 @@ procedure TLayerStackInterface.HandleSelectLayer(i, x, y: integer);
 var topmostInfo: TTopMostInfo; res, prevIndex: integer;
 begin
   FInHandleSelectLayer := true;
-  if (i < LazPaintInstance.Image.NbLayers) and
-    (i <> LazPaintInstance.Image.CurrentLayerIndex) then
+  if (i < LazPaintInstance.Image.NbLayers) then
   begin
     prevIndex := LazPaintInstance.Image.CurrentLayerIndex;
-    if not LazPaintInstance.Image.SelectionLayerIsEmpty then
+    if not LazPaintInstance.Image.SelectionLayerIsEmpty and
+      (i <> LazPaintInstance.Image.CurrentLayerIndex) then
     begin
       topmostInfo := LazPaintInstance.HideTopmost;
       res := MessageDlg(rsTransferSelectionToOtherLayer,mtConfirmation,[mbOk,mbCancel],0);
@@ -762,11 +762,11 @@ begin
     if LazPaintInstance.Image.SetCurrentLayerByIndex(i) then
     begin
       FRenaming := false;
+      UpdateLayerStackItem(prevIndex);
       FMovingItemStart := true;
       FMovingItemSourceIndex := i;
       FMovingItemMouseOrigin := point(x,y);
       FMovingItemMousePos := point(x,y);
-      UpdateLayerStackItem(prevIndex);
       UpdateLayerStackItem(i);
     end;
   end;
