@@ -585,6 +585,7 @@ begin
     end;
     inc(layerPos.Y, FLayerRectHeight);
   end;
+  ABitmap.HorizLine(0, 0, ABitmap.Width-1, clDarkBtnFace, dmDrawWithTransparency, 32768);
 
   prevClip := ABitmap.ClipRect;
   if (clipping.right > clipping.left) and (clipping.bottom > clipping.top) then

@@ -107,6 +107,7 @@ type
     function GetCurrentColor: TBGRAPixel;
     procedure HideEditor;
     function GetPreferredSize: TSize;
+    procedure AdjustControlHeight;
 
     property DarkTheme: boolean read FDarkTheme write SetDarkTheme;
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
@@ -701,23 +702,26 @@ end;
 
 function TChooseColorInterface.PreferredBarsAlignWithWidth: TAlign;
 var
-  totalBarWidth, tx,ty: Integer;
+  oneBarWidth, tx,ty, internalMargin, margin: Integer;
 begin
-  totalBarWidth := (FBarWidth+FCursorPlace+FMargin)*2;
-  if Assigned(LazPaintInstance) and not LazPaintInstance.BlackAndWhite then
+  margin := DoScaleY(8, OriginalDPI, FDPI);
+  oneBarWidth := DoScaleX(18, OriginalDPI, FDPI) + DoScaleX(10, OriginalDPI, FDPI) +
+                 margin;
+  internalMargin := max(0, margin - ExternalMargin);
+  if (FLazPaintInstance = nil) or LazPaintInstance.BlackAndWhite then
   begin
-    tx := AvailableBmpWidth - 2*FInternalMargin;
-    ty := AvailableBmpHeight - FMargin - FTopMargin;
-    if tx >= ty + totalBarWidth then
-      result := alRight
-      else result := alBottom;
-  end else
-  begin
-    tx := AvailableBmpWidth - 2*FInternalMargin;
-    if tx <= totalBarWidth*4 then
+    tx := AvailableBmpWidth - 2*internalMargin;
+    if tx <= oneBarWidth*4 then
       result := alRight
     else
       result := alBottom;
+  end else
+  begin
+    tx := AvailableBmpWidth - 2*internalMargin;
+    ty := AvailableBmpHeight - 2*margin;
+    if tx >= ty then
+      result := alRight
+      else result := alBottom;
   end;
 end;
 
@@ -961,9 +965,35 @@ begin
     result.cy := DoScaleY(190, OriginalDPI, FDPI);
   end else
   begin
-    result.cx := DoScaleY(223, OriginalDPI, FDPI);
+    result.cx := DoScaleY(224, OriginalDPI, FDPI);
     result.cy := DoScaleY(190, OriginalDPI, FDPI);
   end;
+end;
+
+procedure TChooseColorInterface.AdjustControlHeight;
+var
+  oneBarWidth, h, margin, topMargin, barWidth, buttonSize: Integer;
+begin
+  margin := DoScaleY(8, OriginalDPI, FDPI);
+  topMargin := DoScaleY(27, OriginalDPI, FDPI);
+  barWidth := DoScaleX(18, OriginalDPI, FDPI);
+  buttonSize := barWidth;
+  oneBarWidth := barWidth + DoScaleX(10, OriginalDPI, FDPI) +
+                 margin;
+  if PreferredBarsAlignWithWidth = alRight then
+  begin
+    if (FLazPaintInstance = nil) or FLazPaintInstance.BlackAndWhite then
+      h := oneBarWidth*4 + margin
+    else
+      h := AvailableBmpWidth - oneBarWidth*2 + topMargin;
+  end else
+  begin
+    if (FLazPaintInstance = nil) or FLazPaintInstance.BlackAndWhite then
+      h := oneBarWidth*2 + buttonSize + margin
+    else
+      h := AvailableBmpWidth + oneBarWidth*2 + topMargin;
+  end;
+  Container.Height := h + FTextAreaHeight + ExternalMargin;
 end;
 
 end.

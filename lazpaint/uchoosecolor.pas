@@ -5,10 +5,9 @@ unit UChooseColor;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  ExtCtrls, BGRABitmap, BGRABitmapTypes, StdCtrls, Buttons,
-  BGRAVirtualScreen, BCButton, LazPaintType, LCScaleDPI, uresourcestrings,
-  UChooseColorInterface;
+  Classes, SysUtils, FileUtil, LResources, Forms, Controls, ExtCtrls,
+  BGRABitmap, BGRABitmapTypes,
+  LazPaintType, UChooseColorInterface;
 
 type
 
@@ -21,7 +20,6 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
-    FLazPaintInstance: TLazPaintCustomInstance;
     function GetColorTarget: TColorTarget;
     function GetDarkTheme: boolean;
     function GetEditorVisible: boolean;
@@ -35,6 +33,7 @@ type
     { public declarations }
     procedure SetCurrentColor(value: TBGRAPixel);
     function GetCurrentColor: TBGRAPixel;
+    procedure AdjustControlHeight;
     procedure HideEditor;
     property DarkTheme: boolean read GetDarkTheme write SetDarkTheme;
     property LazPaintInstance: TLazPaintCustomInstance read GetLazPaintInstance write SetLazPaintInstance;
@@ -45,8 +44,6 @@ type
 var TFChooseColor_CustomDPI: integer = 96;
 
 implementation
-
-uses ugraph, math, LCLType, BGRAText, udarktheme;
 
 { TFChooseColor }
 
@@ -85,6 +82,12 @@ begin
     result := BGRAWhite;
 end;
 
+procedure TFChooseColor.AdjustControlHeight;
+begin
+  if Assigned(FInterface) then
+    FInterface.AdjustControlHeight;
+end;
+
 procedure TFChooseColor.HideEditor;
 begin
   if Assigned(FInterface) then
@@ -110,6 +113,8 @@ begin
     begin
       ClientWidth := cx;
       ClientHeight := cy;
+      ChooseColorControl.Width := cx;
+      ChooseColorControl.Height := cy;
     end;
     Constraints.MinWidth := ClientWidth div 2 + (Width - ClientWidth);
     Constraints.MinHeight := ClientHeight div 2 + (Height - ClientHeight);

@@ -59,10 +59,12 @@ procedure TFLayerStack.FormCreate(Sender: TObject);
 begin
   Position := poDesigned;
   self.EnsureVisible(False);
-  ClientWidth := DoScaleX(223, OriginalDPI, TFLayerStack_CustomDPI);
+  ClientWidth := DoScaleX(224, OriginalDPI, TFLayerStack_CustomDPI);
   ClientHeight := DoScaleX(300, OriginalDPI, TFLayerStack_CustomDPI);
   Constraints.MinWidth := ClientWidth div 2 + (Width - ClientWidth);
   Constraints.MinHeight := ClientHeight div 2 + (Height - ClientHeight);
+  LayerStackControl.Width := ClientWidth;
+  LayerStackControl.Height := ClientHeight;
   Visible := false;
 end;
 
@@ -74,7 +76,6 @@ end;
 procedure TFLayerStack.FormShow(Sender: TObject);
 begin
   CreateStackInterface;
-  ClientWidth := StackInterface.GetWidthFor(11);
 end;
 
 procedure TFLayerStack.ScrollToItem(AIndex: integer; AUpdateStack: boolean);
@@ -98,7 +99,6 @@ end;
 procedure TFLayerStack.SetDarkTheme(AValue: boolean);
 begin
   DarkThemeInstance.Apply(self, AValue, False);
-  DarkThemeInstance.Apply(LayerStackControl, AValue, False);
   if Assigned(StackInterface) then
     StackInterface.DarkTheme:= AValue;
 end;

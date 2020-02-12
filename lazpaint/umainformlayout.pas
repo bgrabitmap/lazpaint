@@ -12,7 +12,7 @@ type
   TOnPictureAreaChange = procedure(ASender: TObject; ANewArea: TRect) of object;
   TToolWindowDocking = (twNone, twWindow, twLeft, twTop, twRight, twBottom);
   TLayoutStage = (lsAfterTopToolbar, lsAfterDockedToolBox, lsAfterPaletteToolbar,
-               lsAfterStatusBar);
+               lsAfterDockedControlsPanel, lsAfterStatusBar);
 
   { TMainFormLayout }
 
@@ -32,6 +32,7 @@ type
     FStatusBar: TStatusBar;
     FStatusText: string;
     FDarkTheme: boolean;
+    FDockedControlsPanel: TPanel;
     function GetPaletteVisible: boolean;
     function GetPopupToolbox: TPopupMenu;
     function GetStatusBarVisible: boolean;
@@ -53,6 +54,7 @@ type
     procedure RaisePictureAreaChange;
     procedure DoArrange;
     procedure ApplyTheme;
+    function DockedControlsPanelWidth: integer;
   public
     constructor Create(AForm: TForm);
     destructor Destroy; override;
@@ -61,6 +63,8 @@ type
     procedure DockedToolBoxSetImages(AImages: TImageList);
     procedure AddColorToPalette(AColor : TBGRAPixel);
     procedure RemoveColorFromPalette(AColor : TBGRAPixel);
+    procedure AddDockedControl(AControl: TControl);
+    procedure RemoveDockedControl(AControl: TControl);
     property Menu: TMainFormMenu read FMenu write FMenu;
     property ToolBoxDocking: TToolWindowDocking read FToolBoxDocking write SetToolBoxDocking;
     property ToolBoxVisible: boolean read GetToolBoxVisible write SetToolBoxVisible;
@@ -79,7 +83,7 @@ function StrToToolWindowDocking(AValue: string): TToolWindowDocking;
 
 implementation
 
-uses Graphics, Toolwin, math, udarktheme;
+uses Graphics, Toolwin, math, UDarkTheme, LCScaleDPI;
 
 function ToolWindowDockingToStr(AValue: TToolWindowDocking): string;
 begin
@@ -137,7 +141,10 @@ begin
   FPaletteToolbar := TPaletteToolbar.Create;
   FPaletteToolbar.DarkTheme:= DarkTheme;
   FPaletteToolbar.Container := FForm;
-  FPaletteToolbar.OnVisibilityChangedByUser:=@PaletteVisibilityChangedByUser;
+  FPaletteToolbar.OnVisibilityChangedByUser:= @PaletteVisibilityChangedByUser;
+  FDockedControlsPanel := TPanel.Create(FForm);
+  FDockedControlsPanel.Visible := false;
+  FForm.InsertControl(FDockedControlsPanel);
   FStatusBar := TStatusBar.Create(FForm);
   FStatusBar.SizeGrip := false;
   FStatusBar.Align := alNone;
@@ -148,6 +155,7 @@ end;
 
 destructor TMainFormLayout.Destroy;
 begin
+  FreeAndNil(FDockedControlsPanel);
   FreeAndNil(FStatusBar);
   FreeAndNil(FPaletteToolbar);
   FForm.RemoveControl(FPanelToolBox);
@@ -316,6 +324,9 @@ begin
   if PaletteVisible then result.Right -= FPaletteToolbar.Width;
   if AStage = lsAfterPaletteToolbar then exit;
 
+  if FDockedControlsPanel.ControlCount > 0 then result.Right -= DockedControlsPanelWidth;
+  if AStage = lsAfterDockedControlsPanel then exit;
+
   if StatusBarVisible then result.Bottom -= FStatusBar.Height;
   if AStage = lsAfterStatusBar then exit;
 end;
@@ -354,9 +365,25 @@ begin
   if PaletteVisible then
     with GetWorkAreaAt(lsAfterDockedToolBox) do
       FPaletteToolbar.SetBounds(Right - FPaletteToolbar.Width,Top,FPaletteToolbar.Width,Bottom-Top);
-  if StatusBarVisible then
+  if FDockedControlsPanel.ControlCount > 0 then
   begin
     with GetWorkAreaAt(lsAfterPaletteToolbar) do
+    begin
+      FDockedControlsPanel.SetBounds(Right - DockedControlsPanelWidth, Top,
+       DockedControlsPanelWidth, Bottom - Top);
+      for i := 0 to FDockedControlsPanel.ControlCount-1 do
+        if FDockedControlsPanel.Controls[i].Name = 'ChooseColorControl' then
+        begin
+          FDockedControlsPanel.Controls[i].Width := FDockedControlsPanel.ClientWidth - FDockedControlsPanel.ChildSizing.LeftRightSpacing*2;
+          LazPaintInstance.AdjustChooseColorHeight;
+        end;
+    end;
+    FDockedControlsPanel.Visible:= true;
+  end else
+    FDockedControlsPanel.Visible:= false;
+  if StatusBarVisible then
+  begin
+    with GetWorkAreaAt(lsAfterDockedControlsPanel) do
       FStatusBar.SetBounds(Left,Bottom-FStatusBar.Height,Right-Left,FStatusBar.Height);
     if not FStatusBar.SimplePanel then
     begin
@@ -370,6 +397,8 @@ begin
 end;
 
 procedure TMainFormLayout.ApplyTheme;
+var
+  bevelOfs, newSpacing, delta: Integer;
 begin
   if DarkTheme then
   begin
@@ -387,6 +416,28 @@ begin
     FDockedToolBoxToolBar.OnPaint := nil;
     FDockedToolBoxToolBar.OnPaintButton:= nil;
   end;
+  DarkThemeInstance.Apply(FDockedControlsPanel, DarkTheme, false);
+  bevelOfs := integer(FDockedControlsPanel.BevelOuter <> bvNone)*FDockedControlsPanel.BevelWidth;
+  newSpacing := DoScaleX(2, OriginalDPI) - bevelOfs;
+  delta := FDockedControlsPanel.ChildSizing.LeftRightSpacing - newSpacing;
+  FDockedControlsPanel.ChildSizing.LeftRightSpacing:= newSpacing;
+  FDockedControlsPanel.ChildSizing.TopBottomSpacing:= newSpacing;
+  FDockedControlsPanel.Width := FDockedControlsPanel.Width + delta*2;
+end;
+
+function TMainFormLayout.DockedControlsPanelWidth: integer;
+var
+  w, i, bevelOfs: Integer;
+begin
+  w := 0;
+  if FDockedControlsPanel.ControlCount > 0 then
+  begin
+    for i := 0 to FDockedControlsPanel.ControlCount-1 do
+      w := max(w, FDockedControlsPanel.Controls[i].Width);
+    bevelOfs := integer(FDockedControlsPanel.BevelOuter <> bvNone)*FDockedControlsPanel.BevelWidth;
+    inc(w, (FDockedControlsPanel.ChildSizing.LeftRightSpacing + bevelOfs)*2);
+  end;
+  result := w;
 end;
 
 procedure TMainFormLayout.Arrange;
@@ -434,6 +485,25 @@ end;
 procedure TMainFormLayout.RemoveColorFromPalette(AColor: TBGRAPixel);
 begin
   FPaletteToolbar.RemoveColor(AColor);
+end;
+
+procedure TMainFormLayout.AddDockedControl(AControl: TControl);
+begin
+  if not FDockedControlsPanel.ContainsControl(AControl) then
+  begin
+    if AControl.Name = 'ChooseColorControl' then
+      AControl.Align:= alTop;
+    FDockedControlsPanel.InsertControl(AControl);
+  end;
+end;
+
+procedure TMainFormLayout.RemoveDockedControl(AControl: TControl);
+begin
+  if FDockedControlsPanel.ContainsControl(AControl) then
+  begin
+    FDockedControlsPanel.RemoveControl(AControl);
+    AControl.Align:= alClient;
+  end;
 end;
 
 end.

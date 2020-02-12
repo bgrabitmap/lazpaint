@@ -861,6 +861,8 @@ type
     procedure UpdateLineCapBar;
     procedure UpdateFillToolbar(AUpdateColorDiff: boolean);
     procedure UpdateToolbar;
+    procedure AddDockedControl(AControl: TControl);
+    procedure RemoveDockedControl(AControl: TControl);
     procedure QueryArrange;
     function ChooseTool(Tool : TPaintToolType): boolean;
     procedure PictureSelectedLayerIndexChanged({%H-}sender: TLazPaintImage);
@@ -1761,7 +1763,7 @@ begin
     else
       LazPaintInstance.MoveImageListWindowTo(self.Left+self.Width-LazPaintInstance.ImageListWindowWidth,
                          self.Top+self.Height-LazPaintInstance.ChooseColorHeight-LazPaintInstance.ImageListWindowHeight);
-    if Config.DefaultImagelistWindowVisible then ToggleImageListVisible;
+    LazPaintInstance.ImageListWindowVisible := Config.DefaultImagelistWindowVisible;
 
     r := Config.DefaultLayerWindowPosition;
     if (r.right > r.left) and (r.bottom > r.top) then
@@ -1773,7 +1775,7 @@ begin
     else
       LazPaintInstance.MoveLayerWindowTo(self.Left+self.Width-LazPaintInstance.LayerWindowWidth,
                          self.Top+self.Height-LazPaintInstance.ChooseColorHeight-LazPaintInstance.LayerWindowHeight);
-    if Config.DefaultLayerWindowVisible then ToggleLayersVisible;
+    LazPaintInstance.LayerWindowVisible:= Config.DefaultLayerWindowVisible;
 
     r := Config.DefaultColorWindowPosition;
     if (r.right > r.left) and (r.bottom > r.top) then
@@ -1781,16 +1783,15 @@ begin
     else
       LazPaintInstance.MoveChooseColorTo(self.Left+self.Width-LazPaintInstance.ChooseColorWidth,
                          self.Top+self.Height-LazPaintInstance.ChooseColorHeight);
-    if Config.DefaultColorWindowVisible then ToggleColorsVisible;
+    LazPaintInstance.ChooseColorVisible:= Config.DefaultColorWindowVisible;
 
     r := Config.DefaultToolboxWindowPosition;
     if (r.right > r.left) and (r.bottom > r.top) then
       LazPaintInstance.MoveToolboxTo(r.left,r.Top)
     else
       LazPaintInstance.MoveToolboxTo(self.Left,self.Top+self.Height-LazPaintInstance.ToolBoxHeight);
-    if Config.DefaultToolboxWindowVisible and not LazPaintInstance.ToolboxVisible then ToggleToolboxVisible;
+    LazPaintInstance.ToolboxVisible := Config.DefaultToolboxWindowVisible;
   end;
-  LazPaintInstance.ApplyDocking;
 end;
 
 procedure TFMain.RenderAnyExecute(Sender: TObject);
@@ -3974,6 +3975,24 @@ end;
 procedure TFMain.ImageCurrentFilenameChanged(sender: TLazPaintImage);
 begin
   UpdateWindowCaption;
+end;
+
+procedure TFMain.AddDockedControl(AControl: TControl);
+begin
+  if Assigned(FLayout) then
+  begin
+    FLayout.AddDockedControl(AControl);
+    QueryArrange;
+  end;
+end;
+
+procedure TFMain.RemoveDockedControl(AControl: TControl);
+begin
+  if Assigned(FLayout) then
+  begin
+    FLayout.RemoveDockedControl(AControl);
+    QueryArrange;
+  end;
 end;
 
 function TFMain.GetCurrentTool: TPaintToolType;

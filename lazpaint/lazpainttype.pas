@@ -238,6 +238,7 @@ type
     function TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean = false): boolean; virtual; abstract;
     function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): TScriptResult; virtual; abstract;
     function RunScript(AFilename: string): boolean; virtual; abstract;
+    procedure AdjustChooseColorHeight; virtual; abstract;
     procedure ColorFromFChooseColor; virtual; abstract;
     procedure ColorToFChooseColor; virtual; abstract;
     function GetColor(ATarget: TColorTarget): TBGRAPixel;
@@ -278,7 +279,6 @@ type
     function ShowResampleDialog(AParameters: TVariableSet):boolean; virtual; abstract;
     procedure UpdateWindows; virtual; abstract;
     procedure Wait(ACheckActive: TCheckFunction; ADelayMs: integer); virtual; abstract;
-    procedure ApplyDocking; virtual; abstract;
     procedure AddColorToPalette(AColor: TBGRAPixel); virtual; abstract;
     procedure RemoveColorFromPalette(AColor: TBGRAPixel); virtual; abstract;
 

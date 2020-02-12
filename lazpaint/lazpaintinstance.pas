@@ -10,11 +10,11 @@ uses
 
   LazPaintMainForm, UMainFormLayout,
 
-  utoolbox, uchoosecolor, ulayerstack, UCanvassize,
-  ucolorintensity, ushiftcolors, ucolorize, uadjustcurves,
-  ucustomblur, uimagelist,
+  UToolbox, UChooseColor, ULayerstack, UCanvassize,
+  UColorintensity, UShiftColors, UColorize, uadjustcurves,
+  UCustomblur, uimagelist,
 
-  ULoading, UImage, UTool, uconfig, IniFiles, uresourcestrings, uscripting,
+  ULoading, UImage, UTool, uconfig, IniFiles, UResourceStrings, UScripting,
   UScriptType;
 
 const
@@ -82,6 +82,7 @@ type
     FTextureEditConfig: TStream;
     FScriptContext: TScriptContext;
     FInFormsNeeded: boolean;
+    FLayerControlVisible, FChooseColorControlVisible: boolean;
     FDockLayersAndColors, FFullscreen: boolean;
     FPrevDockArea: TRect;
     FInSetToolboxVisible: boolean;
@@ -146,6 +147,8 @@ type
     procedure EditSelectionHandler(var AImage: TBGRABitmap);
     function GetZoomFactor: single; override;
     procedure ApplyTheme(ADarkTheme: boolean); override;
+    procedure UpdateLayerControlVisibility;
+    procedure UpdateChooseColorControlVisibility;
 
   public
     constructor Create; override;
@@ -176,6 +179,7 @@ type
     function TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean = false): boolean; override;
     function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): TScriptResult; override;
     function RunScript(AFilename: string): boolean; override;
+    procedure AdjustChooseColorHeight; override;
     procedure ColorFromFChooseColor; override;
     procedure ColorToFChooseColor; override;
     function ShowSaveOptionDlg({%H-}AParameters: TVariableSet; AOutputFilenameUTF8: string; ASkipOptions: boolean): boolean; override;
@@ -197,7 +201,6 @@ type
     function ShowFunctionFilterDlg(AFilterConnector: TObject): TScriptResult; override;
     function ShowSharpenDlg(AFilterConnector: TObject): TScriptResult; override;
     function ShowPosterizeDlg(AParameters: TVariableSet): TScriptResult; override;
-    procedure ApplyDocking; override;
     procedure ShowPrintDlg; override;
     function HideTopmost: TTopMostInfo; override;
     procedure ShowTopmost(AInfo: TTopMostInfo); override;
@@ -404,6 +407,11 @@ begin
   ToolManager.LoadFromConfig;
   FGridVisible := Config.DefaultGridVisible;
   FDockLayersAndColors:= Config.DefaultDockLayersAndColors;
+  if FDockLayersAndColors then
+  begin
+    FChooseColorControlVisible := Config.DefaultColorWindowVisible;
+    FLayerControlVisible := Config.DefaultLayerWindowVisible;
+  end; //otherwise shown later
 end;
 
 function TLazPaintInstance.GetConfig: TLazPaintConfig;
@@ -737,7 +745,7 @@ begin
   end;
 end;
 
-procedure TLazPaintInstance.OnLayeredBitmapSavedHandler;
+procedure TLazPaintInstance.OnLayeredBitmapSavedHandler();
 begin
   if FLoadingLayers <> nil then
   begin
@@ -788,16 +796,13 @@ end;
 
 function TLazPaintInstance.GetLayerWindowVisible: boolean;
 begin
-  if FLayerStack <> nil then
-    result := FLayerStack.Visible
-  else
-    result := false;
+  result := FLayerControlVisible;
 end;
 
 procedure TLazPaintInstance.SetLayerWindowVisible(AValue: boolean);
 begin
-  if FLayerStack <> nil then
-    FLayerStack.Visible := AValue;
+  FLayerControlVisible := AValue;
+  UpdateLayerControlVisibility;
 end;
 
 procedure TLazPaintInstance.OnFunctionException(AFunctionName: string;
@@ -826,8 +831,12 @@ begin
     FSelectionEditConfig := TStringStream.Create('[Tool]'+LineEnding+
       'ForeColor=FFFFFFFF'+LineEnding+
       'BackColor=000000FF'+LineEnding+
-      '[Window]'+LineEnding+'LayerWindowVisible=False');
-  EditBitmap(AImage,FSelectionEditConfig,rsEditSelection,@SelectionInstanceOnRun,nil,True);
+      '[Window]'+LineEnding+
+      'LayerWindowVisible=False'+LineEnding+
+      'DockLayersAndColors='+BoolToStr(DockLayersAndColors, 'True', 'False')+LineEnding+
+      '[General]'+LineEnding+
+      'DarkTheme='+BoolToStr(DarkTheme, 'True', 'False')+LineEnding);
+  EditBitmap(AImage, FSelectionEditConfig, rsEditSelection, @SelectionInstanceOnRun, nil, True);
 end;
 
 function TLazPaintInstance.GetZoomFactor: single;
@@ -845,6 +854,54 @@ begin
   if Assigned(FToolbox) then FToolbox.DarkTheme:= ADarkTheme;
 end;
 
+procedure TLazPaintInstance.UpdateLayerControlVisibility;
+begin
+  if FLayerStack <> nil then
+  begin
+    if DockLayersAndColors then
+      FLayerStack.Visible := false
+    else
+      FLayerStack.Visible := FLayerControlVisible;
+  end;
+  if FMain <> nil then
+  begin
+    if (FLayerControlVisible and DockLayersAndColors) and (FLayerStack.LayerStackControl.Parent = FLayerStack) then
+    begin
+      FLayerStack.LayerStackControl.Parent := nil;
+      FMain.AddDockedControl(FLayerStack.LayerStackControl);
+    end else
+    if not (FLayerControlVisible and DockLayersAndColors) and (FLayerStack.LayerStackControl.Parent <> FLayerStack) then
+    begin
+      FMain.RemoveDockedControl(FLayerStack.LayerStackControl);
+      FLayerStack.LayerStackControl.Parent := FLayerStack;
+    end;
+  end;
+end;
+
+procedure TLazPaintInstance.UpdateChooseColorControlVisibility;
+begin
+  if FChooseColor <> nil then
+  begin
+    if DockLayersAndColors then
+      FChooseColor.Visible := false
+    else
+      FChooseColor.Visible := FChooseColorControlVisible;
+  end;
+  if FMain <> nil then
+  begin
+    if (FChooseColorControlVisible and DockLayersAndColors) and (FChooseColor.ChooseColorControl.Parent = FChooseColor) then
+    begin
+      FChooseColor.ChooseColorControl.Parent := nil;
+      FMain.AddDockedControl(FChooseColor.ChooseColorControl);
+    end else
+    if not (FChooseColorControlVisible and DockLayersAndColors) and (FChooseColor.ChooseColorControl.Parent <> FChooseColor) then
+    begin
+      FMain.RemoveDockedControl(FChooseColor.ChooseColorControl);
+      FChooseColor.ChooseColorControl.Parent := FChooseColor;
+    end;
+  end;
+end;
+
 function TLazPaintInstance.GetGridVisible: boolean;
 begin
   Result:= FGridVisible;
@@ -859,7 +916,7 @@ end;
 
 function TLazPaintInstance.GetChooseColorVisible: boolean;
 begin
-  result := FChooseColor.Visible;
+  result := FChooseColorControlVisible;
 end;
 
 function TLazPaintInstance.GetToolboxVisible: boolean;
@@ -880,8 +937,8 @@ end;
 
 procedure TLazPaintInstance.SetChooseColorVisible(const AValue: boolean);
 begin
-  if FChooseColor <> nil then
-    FChooseColor.Visible := AValue;
+  FChooseColorControlVisible:= AValue;
+  UpdateChooseColorControlVisibility;
 end;
 
 procedure TLazPaintInstance.SetToolBoxVisible(const AValue: boolean);
@@ -1106,26 +1163,10 @@ end;
 procedure TLazPaintInstance.SetDockLayersAndColors(AValue: boolean);
 begin
   if FDockLayersAndColors= AValue then exit;
-
-  if AValue = false then
-  begin
-    if FChooseColor <> nil then
-      with Config.DefaultColorWindowPosition do
-        if (Right > Left) and (Bottom > Top) then
-          SetWindowTopLeftCorner(FChooseColor, Left,Top);
-    if FLayerStack <> nil then
-      with Config.DefaultLayerWindowPosition do
-        if (Right > Left) and (Bottom > Top) then
-        FLayerStack.SetBounds(Left,Top,Right-Left,Bottom-Top);
-  end else
-  begin
-    Fullscreen:= false;
-    if FChooseColor <> nil then
-      Config.SetDefaultColorWindowPosition(FChooseColor.BoundsRect);
-    if FLayerStack <> nil then
-      Config.SetDefaultLayerWindowPosition(FLayerStack.BoundsRect);
-  end;
   FDockLayersAndColors:= AValue;
+  UpdateLayerControlVisibility;
+  UpdateChooseColorControlVisibility;
+  if Assigned(FMain) and FMain.Visible then FMain.QueryArrange;
 end;
 
 function TLazPaintInstance.GetScriptContext: TScriptContext;
@@ -1473,6 +1514,12 @@ begin
   until not doFound;
 end;
 
+procedure TLazPaintInstance.AdjustChooseColorHeight;
+begin
+  if Assigned(FChooseColor) then
+    FChooseColor.AdjustControlHeight;
+end;
+
 procedure TLazPaintInstance.ColorFromFChooseColor;
 begin
   FormsNeeded;
@@ -1630,70 +1677,6 @@ begin
   if not Assigned(FChooseColor) then exit;
   FChooseColor.ColorTarget:= AValue;
   ColorToFChooseColor;
-end;
-
-procedure TLazPaintInstance.ApplyDocking;
-var xDest,yDest: integer;
-    w,h: integer;
-    pos: TPoint;
-    r: TRect;
-begin
-  if FDockLayersAndColors and MainFormVisible then
-  begin
-    if (FMain.WindowState = wsMaximized) and (LayerWindowVisible or ChooseColorVisible) then
-    begin
-      w := GetWindowFullWidth(FMain) - WindowBorderWidth(FMain)*2;
-      h := GetWindowFullHeight(FMain) - WindowBorderTopHeight(FMain,False) - WindowBorderBottomHeight(FMain);
-      pos := GetWindowTopLeftCorner(FMain);
-      pos.x += WindowBorderWidth(FMain) - WindowOutermostBorderWidth;
-      pos.y += WindowBorderTopHeight(FMain,False) - WindowOutermostBorderHeight;
-      w += WindowOutermostBorderWidth*2;
-      h += WindowOutermostBorderHeight*2;
-      if ChooseColorVisible then w -= GetWindowFullWidth(FChooseColor) - WindowOutermostBorderWidth
-      else if LayerWindowVisible then w -= GetWindowFullWidth(FLayerStack) - WindowOutermostBorderWidth;
-      FMain.WindowState := wsNormal;
-      SetWindowTopLeftCorner(FMain,pos.x,pos.y);
-      SetWindowFullSize(FMain,w,h);
-    end;
-    xDest := FMain.Left+GetWindowFullWidth(FMain)-WindowOutermostBorderWidth;
-    yDest := FMain.Top;
-
-    r.left := FMain.Left+GetWindowFullWidth(FMain);
-    r.top := FMain.Top;
-    r.right := r.left;
-    r.bottom := r.top+GetWindowFullHeight(FMain);
-    if ChooseColorVisible then r.right := r.Left+GetWindowFullWidth(FChooseColor)-WindowOutermostBorderHeight;
-    if LayerWindowVisible then r.right := max(r.right, r.Left+GetWindowFullWidth(FLayerStack)-WindowOutermostBorderHeight);
-
-    h := GetWindowFullHeight(FMain);
-    if ChooseColorVisible then dec(h, GetWindowFullHeight(FChooseColor));
-
-    if LayerWindowVisible then
-    begin
-      SetWindowTopLeftCorner(FLayerStack, xDest,yDest);
-      SetWindowFullHeight(FLayerStack, h);
-      yDest += GetWindowFullHeight(FLayerStack)-WindowOutermostBorderHeight;
-      FLayerStack.FormStyle := fsNormal;
-    end;
-
-    if ChooseColorVisible then
-    begin
-      if LayerWindowVisible then
-        SetWindowFullWidth(FLayerStack, GetWindowFullWidth(FChooseColor));
-      SetWindowTopLeftCorner(FChooseColor, xDest,yDest);
-      yDest += GetWindowFullHeight(FChooseColor)-WindowOutermostBorderHeight;
-      FChooseColor.FormStyle := fsNormal;
-    end;
-
-    FPrevDockArea := r;
-  end else
-  begin
-    if LayerWindowVisible then
-    begin
-      FLayerStack.FormStyle := fsStayOnTop;
-    end;
-    if FChooseColor <> nil then FChooseColor.FormStyle := fsStayOnTop;
-  end;
 end;
 
 function TLazPaintInstance.OpenImage (FileName: string; AddToRecent: Boolean=True): boolean;
