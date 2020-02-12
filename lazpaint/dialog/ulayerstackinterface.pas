@@ -73,6 +73,7 @@ type
     FMovingItemSourceIndex: integer;
     FMovingItemMousePos, FMovingItemMouseOrigin, FMovingItemOrigin: TPoint;
     FTimerScrollDeltaY: integer;
+    FInHandleSelectLayer: Boolean;
     procedure ApplyThemeAndDPI;
     procedure SetDPI(AValue: integer);
     procedure SetDarkTheme(AValue: boolean);
@@ -418,7 +419,7 @@ var i: integer;
   layerPos: TPoint;
   lSelected: boolean;
   y: integer;
-  clipping: TRect;
+  clipping, prevClip: TRect;
   lColor, lColorTrans: TBGRAPixel;
 
   procedure DrawKindUnknown(rKind: TRect; out HintText: string);
@@ -585,12 +586,14 @@ begin
     inc(layerPos.Y, FLayerRectHeight);
   end;
 
-  if (clipping.right > clipping.left) and (clipping.bottom > clipping.top) then ABitmap.ClipRect := clipping;
+  prevClip := ABitmap.ClipRect;
+  if (clipping.right > clipping.left) and (clipping.bottom > clipping.top) then
+    ABitmap.IntersectClip(clipping);
   if VolatileHorzScrollBar <> nil then VolatileHorzScrollBar.Draw(ABitmap);
   if VolatileVertScrollBar <> nil then VolatileVertScrollBar.Draw(ABitmap);
   if not FScrollButtonRect.IsEmpty then
     ABitmap.FillRect(FScrollButtonRect, ColorToBGRA(ColorToRGB(clBtnFace)), dmSet);
-  ABitmap.NoClip;
+  ABitmap.ClipRect := prevClip;
 
   if ALayout then
   begin
@@ -733,12 +736,14 @@ begin
 end;
 
 procedure TLayerStackInterface.HandleSelectLayer(i, x, y: integer);
-var topmostInfo: TTopMostInfo; res: integer;
+var topmostInfo: TTopMostInfo; res, prevIndex: integer;
 begin
-  if i < LazPaintInstance.Image.NbLayers then
+  FInHandleSelectLayer := true;
+  if (i < LazPaintInstance.Image.NbLayers) and
+    (i <> LazPaintInstance.Image.CurrentLayerIndex) then
   begin
-    if not LazPaintInstance.Image.SelectionLayerIsEmpty and
-        (i <> LazPaintInstance.Image.CurrentLayerIndex) then
+    prevIndex := LazPaintInstance.Image.CurrentLayerIndex;
+    if not LazPaintInstance.Image.SelectionLayerIsEmpty then
     begin
       topmostInfo := LazPaintInstance.HideTopmost;
       res := MessageDlg(rsTransferSelectionToOtherLayer,mtConfirmation,[mbOk,mbCancel],0);
@@ -748,7 +753,8 @@ begin
         if LazPaintInstance.Image.SetCurrentLayerByIndex(i) then
         begin
           FRenaming := false;
-          BGRALayerStack.DiscardBitmap;
+          UpdateLayerStackItem(prevIndex);
+          UpdateLayerStackItem(i);
         end;
       end;
       exit;
@@ -760,9 +766,11 @@ begin
       FMovingItemSourceIndex := i;
       FMovingItemMouseOrigin := point(x,y);
       FMovingItemMousePos := point(x,y);
-      BGRALayerStack.DiscardBitmap;
+      UpdateLayerStackItem(prevIndex);
+      UpdateLayerStackItem(i);
     end;
   end;
+  FInHandleSelectLayer := false;
 end;
 
 procedure TLayerStackInterface.HandleChangeLayerOpacity(X, Y: integer);
@@ -797,7 +805,8 @@ end;
 procedure TLayerStackInterface.LazPaint_ImageChanged(
   AEvent: TLazPaintImageObservationEvent);
 begin
-  if not AEvent.DelayedStackUpdate then InvalidateStack(False);
+  if not AEvent.DelayedStackUpdate and
+     not FInHandleSelectLayer then InvalidateStack(False);
 end;
 
 procedure TLayerStackInterface.UpdateComboBlendOp;
