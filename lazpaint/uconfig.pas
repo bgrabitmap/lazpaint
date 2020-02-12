@@ -142,6 +142,8 @@ type
     procedure SetDefaultColorWindowPosition(value: TRect);
     function DefaultLayerWindowPosition: TRect;
     procedure SetDefaultLayerWindowPosition(value: TRect);
+    function DefaultLayerStackZoom: single;
+    procedure SetDefaultLayerStackZoom(value: single);
     function DefaultToolboxWindowPosition: TRect;
     procedure SetDefaultToolboxWindowPosition(value: TRect);
     function DefaultToolboxDocking: string;
@@ -548,6 +550,16 @@ end;
 procedure TLazPaintConfig.SetDefaultLayerWindowPosition(value: TRect);
 begin
   iniOptions.WriteString('Window','LayerWindowPosition',RectToStr(value));
+end;
+
+function TLazPaintConfig.DefaultLayerStackZoom: single;
+begin
+  result := iniOptions.ReadFloat('Window', 'LayerStackZoom', EmptySingle);
+end;
+
+procedure TLazPaintConfig.SetDefaultLayerStackZoom(value: single);
+begin
+  iniOptions.WriteFloat('Window', 'LayerStackZoom', value);
 end;
 
 function TLazPaintConfig.DefaultToolboxWindowPosition: TRect;

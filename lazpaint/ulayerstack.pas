@@ -21,8 +21,10 @@ type
     { private declarations }
     function GetDarkTheme: boolean;
     function GetInterface: TLayerStackInterface;
+    function GetZoomFactor: single;
     procedure SetDarkTheme(AValue: boolean);
     procedure CreateStackInterface;
+    procedure SetZoomFactor(AValue: single);
   public
     LazPaintInstance: TLazPaintCustomInstance;
     { public declarations }
@@ -31,6 +33,7 @@ type
     procedure InvalidateStack(AScrollIntoView: boolean);
     property DarkTheme: boolean read GetDarkTheme write SetDarkTheme;
     property StackInterface: TLayerStackInterface read GetInterface;
+    property ZoomFactor: single read GetZoomFactor write SetZoomFactor;
   end;
 
 var TFLayerStack_CustomDPI: integer = 96;
@@ -53,6 +56,12 @@ function TFLayerStack.GetInterface: TLayerStackInterface;
 begin
   CreateStackInterface;
   result := FStackInterface;
+end;
+
+function TFLayerStack.GetZoomFactor: single;
+begin
+  if Assigned(FStackInterface) then
+    result := FStackInterface.ZoomFactor;
 end;
 
 procedure TFLayerStack.FormCreate(Sender: TObject);
@@ -110,6 +119,12 @@ begin
     FStackInterface := TLayerStackInterface.Create(LayerStackControl, LazPaintInstance);
     FStackInterface.DPI := TFLayerStack_CustomDPI;
   end;
+end;
+
+procedure TFLayerStack.SetZoomFactor(AValue: single);
+begin
+  if Assigned(StackInterface) then
+    StackInterface.ZoomFactor := AValue;
 end;
 
 {$R *.lfm}

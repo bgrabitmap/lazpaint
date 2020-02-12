@@ -427,12 +427,17 @@ begin
 end;
 
 procedure TLazPaintInstance.CreateLayerStack;
+var
+  defaultZoom: Single;
 begin
   if Assigned(FLayerStack) then exit;
   TFLayerStack_CustomDPI := (Config.DefaultIconSize(DoScaleX(16,OriginalDPI))*96+8) div 16;
   Application.CreateForm(TFLayerStack,FLayerStack);
   FLayerStack.LazPaintInstance := self;
   FLayerStack.DarkTheme:= Config.GetDarkTheme;
+  defaultZoom := Config.DefaultLayerStackZoom;
+  if defaultZoom <> EmptySingle then
+    FLayerStack.ZoomFactor:= defaultZoom;
 
   FLayerStack.AddButton(FMain.LayerRemoveCurrent);
   FLayerStack.AddButton(FMain.LayerAddNew);
@@ -1296,6 +1301,7 @@ begin
   begin
     Config.SetDefaultLayerWindowVisible(LayerWindowVisible or (FTopMostInfo.layerstackHidden > 0));
     Config.SetDefaultLayerWindowPosition(FLayerStack.BoundsRect);
+    Config.SetDefaultLayerStackZoom(FLayerStack.ZoomFactor);
   end;
   if (FImageList <> nil) and FImageListPositionDefined then
   begin
