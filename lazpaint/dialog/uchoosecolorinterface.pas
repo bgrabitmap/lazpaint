@@ -89,6 +89,7 @@ type
     function MakeIconBase(size: integer): TBitmap;
     function MakeAddIcon(size: integer): TBitmap;
     function MakeRemoveIcon(size: integer): TBitmap;
+    procedure NeedTextAreaHeight;
 
     procedure ApplyTheme;
     procedure UpdateButtonLayout;
@@ -150,14 +151,7 @@ end;
 
 procedure TChooseColorInterface.ContainerResize(Sender: TObject);
 begin
-  if not FTextAreaHeightComputed then
-  begin
-    EColor.Show;
-    EColor.AdjustSize;
-    FTextAreaHeight := max(EColor.Height, LColor.Height);
-    FTextAreaHeightComputed := true;
-    EColor.Hide;
-  end;
+  NeedTextAreaHeight;
   vsColorView.Width := AvailableBmpWidth;
   vsColorView.Height := AvailableBmpHeight;
   EColor.Left := ExternalMargin;
@@ -632,6 +626,18 @@ begin
   end;
 end;
 
+procedure TChooseColorInterface.NeedTextAreaHeight;
+begin
+  if not FTextAreaHeightComputed then
+  begin
+    EColor.Show;
+    EColor.AdjustSize;
+    FTextAreaHeight := max(EColor.Height, LColor.Height);
+    FTextAreaHeightComputed := true;
+    EColor.Hide;
+  end;
+end;
+
 procedure TChooseColorInterface.ApplyTheme;
 begin
   DarkThemeInstance.Apply(BCButton_AddToPalette, FDarkTheme);
@@ -974,6 +980,8 @@ procedure TChooseColorInterface.AdjustControlHeight;
 var
   oneBarWidth, h, margin, topMargin, barWidth, buttonSize: Integer;
 begin
+  if not ((FLazPaintInstance = nil) or FLazPaintInstance.BlackAndWhite) then exit;
+
   margin := DoScaleY(8, OriginalDPI, FDPI);
   topMargin := DoScaleY(27, OriginalDPI, FDPI);
   barWidth := DoScaleX(18, OriginalDPI, FDPI);
@@ -993,6 +1001,7 @@ begin
     else
       h := AvailableBmpWidth + oneBarWidth*2 + topMargin;
   end;
+  NeedTextAreaHeight;
   Container.Height := h + FTextAreaHeight + ExternalMargin;
 end;
 

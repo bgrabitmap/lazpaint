@@ -409,11 +409,6 @@ begin
   ToolManager.LoadFromConfig;
   FGridVisible := Config.DefaultGridVisible;
   FDockLayersAndColors:= Config.DefaultDockLayersAndColors;
-  if FDockLayersAndColors then
-  begin
-    FChooseColorControlVisible := Config.DefaultColorWindowVisible;
-    FLayerControlVisible := Config.DefaultLayerWindowVisible;
-  end; //otherwise shown later
 end;
 
 function TLazPaintInstance.GetConfig: TLazPaintConfig;
@@ -610,13 +605,19 @@ end;
 procedure TLazPaintInstance.SetLayerWindowHeight(AValue: integer);
 begin
   if FLayerStack <> nil then
+  begin
     FLayerStack.Height := AValue;
+    FLayerStack.LayerStackControl.Height := AValue;
+  end;
 end;
 
 procedure TLazPaintInstance.SetLayerWindowWidth(AValue: integer);
 begin
   if FLayerStack <> nil then
+  begin
     FLayerStack.Width := AValue;
+    FLayerStack.LayerStackControl.Width := AValue;
+  end;
 end;
 
 function TLazPaintInstance.GetMainFormVisible: boolean;
@@ -870,11 +871,15 @@ begin
     if (FLayerControlVisible and DockLayersAndColors) and (FLayerStack.LayerStackControl.Parent = FLayerStack) then
     begin
       FLayerStack.LayerStackControl.Parent := nil;
+      FLayerStack.LayerStackControl.Align := alNone;
+      FLayerStack.LayerStackControl.Width := FLayerStack.ClientWidth;
+      FLayerStack.LayerStackControl.Height := FLayerStack.ClientHeight;
       FMain.AddDockedControl(FLayerStack.LayerStackControl);
     end else
     if not (FLayerControlVisible and DockLayersAndColors) and (FLayerStack.LayerStackControl.Parent <> FLayerStack) then
     begin
       FMain.RemoveDockedControl(FLayerStack.LayerStackControl);
+      FLayerStack.LayerStackControl.Align := alClient;
       FLayerStack.LayerStackControl.Parent := FLayerStack;
     end;
   end;
@@ -894,11 +899,15 @@ begin
     if (FChooseColorControlVisible and DockLayersAndColors) and (FChooseColor.ChooseColorControl.Parent = FChooseColor) then
     begin
       FChooseColor.ChooseColorControl.Parent := nil;
+      FChooseColor.ChooseColorControl.Align := alNone;
+      FChooseColor.ChooseColorControl.Width := FChooseColor.ClientWidth;
+      FChooseColor.ChooseColorControl.Height := FChooseColor.ClientHeight;
       FMain.AddDockedControl(FChooseColor.ChooseColorControl);
     end else
     if not (FChooseColorControlVisible and DockLayersAndColors) and (FChooseColor.ChooseColorControl.Parent <> FChooseColor) then
     begin
       FMain.RemoveDockedControl(FChooseColor.ChooseColorControl);
+      FChooseColor.ChooseColorControl.Align := alClient;
       FChooseColor.ChooseColorControl.Parent := FChooseColor;
     end;
   end;
@@ -978,13 +987,19 @@ end;
 procedure TLazPaintInstance.SetChooseColorHeight(AValue: integer);
 begin
   if FChooseColor <> nil then
+  begin
     FChooseColor.Height := AValue;
+    FChooseColor.ChooseColorControl.Height := AValue;
+  end;
 end;
 
 procedure TLazPaintInstance.SetChooseColorWidth(AValue: integer);
 begin
   if FChooseColor <> nil then
+  begin
     FChooseColor.Width := AValue;
+    FChooseColor.ChooseColorControl.Width := AValue;
+  end;
 end;
 
 procedure TLazPaintInstance.AssignBitmap(bmp: TBGRABitmap);
@@ -1275,12 +1290,12 @@ begin
   if (FChooseColor <> nil) and FChooseColorPositionDefined then
   begin
     Config.SetDefaultColorWindowVisible(ChooseColorVisible or (FTopMostInfo.choosecolorHidden > 0));
-    if not FDockLayersAndColors then Config.SetDefaultColorWindowPosition(FChooseColor.BoundsRect);
+    Config.SetDefaultColorWindowPosition(FChooseColor.BoundsRect);
   end;
   if (FLayerStack <> nil) and FLayerStackPositionDefined then
   begin
     Config.SetDefaultLayerWindowVisible(LayerWindowVisible or (FTopMostInfo.layerstackHidden > 0));
-    if not FDockLayersAndColors then Config.SetDefaultLayerWindowPosition(FLayerStack.BoundsRect);
+    Config.SetDefaultLayerWindowPosition(FLayerStack.BoundsRect);
   end;
   if (FImageList <> nil) and FImageListPositionDefined then
   begin

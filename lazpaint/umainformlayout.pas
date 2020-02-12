@@ -369,12 +369,12 @@ begin
   begin
     with GetWorkAreaAt(lsAfterPaletteToolbar) do
     begin
-      FDockedControlsPanel.SetBounds(Right - DockedControlsPanelWidth, Top,
-       DockedControlsPanelWidth, Bottom - Top);
+      w := DockedControlsPanelWidth;
+      FDockedControlsPanel.SetBounds(Right - w, Top, w, Bottom - Top);
       for i := 0 to FDockedControlsPanel.ControlCount-1 do
         if FDockedControlsPanel.Controls[i].Name = 'ChooseColorControl' then
         begin
-          FDockedControlsPanel.Controls[i].Width := FDockedControlsPanel.ClientWidth - FDockedControlsPanel.ChildSizing.LeftRightSpacing*2;
+          FDockedControlsPanel.Controls[i].Width := w - integer(FDockedControlsPanel.BevelOuter <> bvNone)*FDockedControlsPanel.BevelWidth*2 - FDockedControlsPanel.ChildSizing.LeftRightSpacing*2;
           LazPaintInstance.AdjustChooseColorHeight;
         end;
     end;
@@ -433,7 +433,7 @@ begin
   if FDockedControlsPanel.ControlCount > 0 then
   begin
     for i := 0 to FDockedControlsPanel.ControlCount-1 do
-      w := max(w, FDockedControlsPanel.Controls[i].Width);
+      w := max(w, FDockedControlsPanel.Controls[i].Tag);
     bevelOfs := integer(FDockedControlsPanel.BevelOuter <> bvNone)*FDockedControlsPanel.BevelWidth;
     inc(w, (FDockedControlsPanel.ChildSizing.LeftRightSpacing + bevelOfs)*2);
   end;
@@ -491,8 +491,11 @@ procedure TMainFormLayout.AddDockedControl(AControl: TControl);
 begin
   if not FDockedControlsPanel.ContainsControl(AControl) then
   begin
+    AControl.Tag := AControl.Width;
     if AControl.Name = 'ChooseColorControl' then
-      AControl.Align:= alTop;
+      AControl.Align:= alTop
+    else
+      AControl.Align:= alClient;
     FDockedControlsPanel.InsertControl(AControl);
   end;
 end;
@@ -502,7 +505,7 @@ begin
   if FDockedControlsPanel.ContainsControl(AControl) then
   begin
     FDockedControlsPanel.RemoveControl(AControl);
-    AControl.Align:= alClient;
+    AControl.Align:= alNone;
   end;
 end;
 
