@@ -33,10 +33,10 @@ type
     function BackGradTexMode: TVectorShapeUsermode; override;
     function ShapeForeFill: TVectorialFill; override;
     function ShapeBackFill: TVectorialFill; override;
+    function DoToolKeyDown(var key: Word): TRect; override;
   public
     constructor Create(AManager: TToolManager); override;
     function GetContextualToolbars: TContextualToolbars; override;
-    function ToolKeyDown(var key: Word): TRect; override;
     function ToolCommand(ACommand: TToolCommand): boolean; override;
     function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
   end;
@@ -256,7 +256,7 @@ begin
   if Manager.TextPhong then include(result, ctAltitude);
 end;
 
-function TToolText.ToolKeyDown(var key: Word): TRect;
+function TToolText.DoToolKeyDown(var key: Word): TRect;
 var
   keyUtf8: TUTF8Char;
   handled: Boolean;
@@ -275,10 +275,10 @@ begin
   if (Key = VK_RETURN) and Assigned(FShape) then
   begin
     handled := false;
-    FShape.KeyDown(FShiftState, skReturn, handled);
+    FShape.KeyDown(ShiftState, skReturn, handled);
     if handled then Key := 0;
   end else
-    Result:=inherited ToolKeyDown(key);
+    Result:=inherited DoToolKeyDown(key);
 end;
 
 function TToolText.ToolCommand(ACommand: TToolCommand): boolean;

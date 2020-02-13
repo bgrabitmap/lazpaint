@@ -73,6 +73,7 @@ type
 
   TGenericTool = class
   private
+    FShiftState: TShiftState;
     FAction: TLayerAction;
     FForeFill, FBackFill: TVectorialFill;
     FBackFillScan, FForeFillScan: TBGRACustomScanner;
@@ -89,6 +90,8 @@ type
     function FixLayerOffset: boolean; virtual;
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF; rightBtn: boolean): TRect; virtual;
     function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect; virtual;
+    function DoToolKeyDown(var key: Word): TRect; virtual;
+    function DoToolKeyUp(var key: Word): TRect; virtual;
     function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; virtual;
     procedure OnTryStop({%H-}sender: TCustomLayerAction); virtual;
     function SelectionMaxPointDistance: single;
@@ -99,6 +102,7 @@ type
     function GetIsBackEditGradTexPoints: boolean; virtual;
     function GetAllowedBackFillTypes: TVectorialFillTypes; virtual;
     function GetAllowedForeFillTypes: TVectorialFillTypes; virtual;
+    property ShiftState: TShiftState read FShiftState;
   public
     ToolUpdateNeeded: boolean;
     Cursor: TCursor;
@@ -114,8 +118,8 @@ type
     function ToolUpdate: TRect;
     function ToolDown(X,Y: single; rightBtn: boolean): TRect;
     function ToolMove(X,Y: single): TRect;
-    function ToolKeyDown(var key: Word): TRect; virtual;
-    function ToolKeyUp(var key: Word): TRect; virtual;
+    function ToolKeyDown(var key: Word): TRect;
+    function ToolKeyUp(var key: Word): TRect;
     function ToolKeyPress(var key: TUTF8Char): TRect; virtual;
     function ToolUp: TRect; virtual;
     function ToolCommand({%H-}ACommand: TToolCommand): boolean; virtual;
@@ -678,9 +682,8 @@ end;
 function ReplaceKey(AText: string; AKey: Word; AParam: integer = 1): string;
 begin
   if AKey = VK_SHIFT then result := StringReplace(AText, '%'+inttostr(AParam), rsShift, []) else
-  if AKey = VK_CONTROL then result := StringReplace(AText, '%'+inttostr(AParam), rsCtrl, []) else
+  if AKey = VK_CONTROL then result := StringReplace(AText, '%'+inttostr(AParam), {$IFDEF DARWIN}rsCmd{$ELSE}rsCtrl{$ENDIF}, []) else
   if AKey = VK_MENU then result := StringReplace(AText, '%'+inttostr(AParam), rsAlt, []) else
-  if AKey = VK_LWIN then result := StringReplace(AText, '%'+inttostr(AParam), rsCmd, []) else
     result := AText;
 
 end;
@@ -883,6 +886,19 @@ function TGenericTool.DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF
 begin
   result := EmptyRect;
 end;
+
+function TGenericTool.DoToolKeyDown(var key: Word): TRect;
+begin
+  result := EmptyRect;
+  //defined later
+end;
+
+function TGenericTool.DoToolKeyUp(var key: Word): TRect;
+begin
+  result := EmptyRect;
+  //defined later
+end;
+
 {$hints on}
 
 constructor TGenericTool.Create(AManager: TToolManager);
@@ -890,6 +906,7 @@ begin
   inherited Create;
   FManager := AManager;
   FAction := nil;
+  FShiftState:= [];
   Cursor := crDefault;
 end;
 
@@ -1037,15 +1054,66 @@ end;
 
 {$hints off}
 function TGenericTool.ToolKeyDown(var key: Word): TRect;
+var
+  key2: Word;
 begin
-  result := EmptyRect;
-  //defined later
+  if (Key = VK_SNAP) or (Key = VK_SNAP2) then
+  begin
+    key2 := VK_CONTROL;
+    result := DoToolKeyDown(key2);
+    if key2 = 0 then key := 0;
+  end else
+    result := DoToolKeyDown(key);
+
+  if key = VK_SHIFT then
+  begin
+    Include(FShiftState, ssShift);
+    key := 0;
+  end else
+  if (Key = VK_SNAP) or (Key = VK_SNAP2) then
+  begin
+    Include(FShiftState, ssSnap);
+    key := 0;
+  end else
+  if (key = VK_MENU) then
+  begin
+    Include(FShiftState, ssAlt);
+    key := 0;
+  end;
 end;
 
 function TGenericTool.ToolKeyUp(var key: Word): TRect;
+var
+  handled: Boolean;
+  key2: word;
 begin
-  result := EmptyRect;
-  //defined later
+  if (key = VK_SHIFT) and (ssShift in FShiftState) then
+  begin
+    Exclude(FShiftState, ssShift);
+    handled := true;
+  end else
+  if ((key = VK_SNAP) or (key = VK_SNAP2)) and (ssSnap in FShiftState) then
+  begin
+    Exclude(FShiftState, ssSnap);
+    handled := true;
+  end else
+  if (key = VK_MENU) and (ssAlt in FShiftState) then
+  begin
+    Exclude(FShiftState, ssAlt);
+    handled := true;
+  end else
+    handled := false;
+
+  //propagate in all cases to know when keys are released for unicode input
+  if (Key = VK_SNAP) or (Key = VK_SNAP2) then
+  begin
+    key2 := VK_CONTROL;
+    result := DoToolKeyUp(key2);
+    if key2 = 0 then key := 0;
+  end else
+    result := DoToolKeyUp(key);
+
+  if handled then key := 0;
 end;
 
 function TGenericTool.ToolKeyPress(var key: TUTF8Char): TRect;

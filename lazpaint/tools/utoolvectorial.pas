@@ -23,6 +23,7 @@ type
 
   TVectorialTool = class(TGenericTool)
   private
+    function GetEditor: TBGRAOriginalEditor;
     function GetIsHandDrawing: boolean;
     function GetIsIdle: boolean;
   protected
@@ -31,10 +32,8 @@ type
     FSwapColor: boolean;
     FQuickDefine: Boolean;
     FQuickDefineStartPoint, FQuickDefineEndPoint: TPointF;
-    FQuickSquare: boolean;
     FPreviousUpdateBounds, FPreviousEditorBounds: TRect;
     FEditor: TBGRAOriginalEditor;
-    FShiftState: TShiftState;
     FRightDown, FLeftDown: boolean;
     FLastPos: TPointF;
     FLastShapeTransform: TAffineMatrix;
@@ -55,6 +54,8 @@ type
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF; rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF): TRect; override;
     function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
+    function DoToolKeyDown(var key: Word): TRect; override;
+    function DoToolKeyUp(var key: Word): TRect; override;
     procedure ShapeChange({%H-}ASender: TObject; ABounds: TRectF; ADiff: TVectorShapeDiff); virtual;
     procedure ShapeEditingChange({%H-}ASender: TObject); virtual;
     procedure ShapeRemoveQuery({%H-}ASender: TObject; var AHandled: boolean);
@@ -74,14 +75,13 @@ type
     function GetIsForeEditGradTexPoints: boolean; override;
     function GetIsBackEditGradTexPoints: boolean; override;
     function GetGridMatrix: TAffineMatrix; virtual;
+    property Editor: TBGRAOriginalEditor read GetEditor;
   public
     function ValidateShape: TRect;
     function CancelShape: TRect;
     constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
-    function ToolKeyDown(var key: Word): TRect; override;
     function ToolKeyPress(var key: TUTF8Char): TRect; override;
-    function ToolKeyUp(var key: Word): TRect; override;
     function ToolCommand(ACommand: TToolCommand): boolean; override;
     function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
     function SuggestGradientBox: TAffineBox; override;
@@ -96,7 +96,6 @@ type
   TEditShapeMode = (esmNone, esmSelection, esmGradient, esmOtherOriginal, esmShape, esmNoShape);
   TEditShapeTool = class(TGenericTool)
   protected
-    FShiftState: TShiftState;
     FDownHandled,FRectEditorCapture,FLayerOriginalCapture,
     FLeftButton,FRightButton: boolean;
     FLastPos: TPointF;
@@ -114,6 +113,8 @@ type
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF; rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF): TRect; override;
     function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
+    function DoToolKeyDown(var key: Word): TRect; override;
+    function DoToolKeyUp(var key: Word): TRect; override;
     procedure UpdateSnap(AEditor: TBGRAOriginalEditor);
     function GetAction: TLayerAction; override;
     function DoGetToolDrawingLayer: TBGRABitmap; override;
@@ -151,9 +152,7 @@ type
     destructor Destroy; override;
     function GetContextualToolbars: TContextualToolbars; override;
     function Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
-    function ToolKeyDown(var key: Word): TRect; override;
     function ToolKeyPress(var key: TUTF8Char): TRect; override;
-    function ToolKeyUp(var key: Word): TRect; override;
     function ToolUp: TRect; override;
     function ToolCommand(ACommand: TToolCommand): boolean; override;
     function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
@@ -434,7 +433,7 @@ begin
   begin
     ptView := FRectEditor.Matrix*ptF;
     UpdateSnap(FRectEditor);
-    FRectEditor.MouseDown(rightBtn, FShiftState, ptView.X,ptView.Y, cur, handled);
+    FRectEditor.MouseDown(rightBtn, ShiftState, ptView.X,ptView.Y, cur, handled);
     Cursor := OriginalCursorToCursor(cur);
     if handled then
     begin
@@ -448,7 +447,7 @@ begin
     BindOriginalEvent(true);
     try
       UpdateSnap(Manager.Image.CurrentState.LayeredBitmap.OriginalEditor);
-      Manager.Image.CurrentState.LayeredBitmap.MouseDown(rightBtn, FShiftState, ptF.X,ptF.Y, cur, handled);
+      Manager.Image.CurrentState.LayeredBitmap.MouseDown(rightBtn, ShiftState, ptF.X,ptF.Y, cur, handled);
     finally
       BindOriginalEvent(false);
     end;
@@ -476,7 +475,7 @@ begin
       BindOriginalEvent(true);
       try
         UpdateSnap(Manager.Image.CurrentState.LayeredBitmap.OriginalEditor);
-        Manager.Image.CurrentState.LayeredBitmap.MouseMove(FShiftState, ptF.X,ptF.Y, cur, handled);
+        Manager.Image.CurrentState.LayeredBitmap.MouseMove(ShiftState, ptF.X,ptF.Y, cur, handled);
       finally
         BindOriginalEvent(false);
       end;
@@ -487,7 +486,7 @@ begin
     begin
       ptView := FRectEditor.Matrix*ptF;
       UpdateSnap(FRectEditor);
-      FRectEditor.MouseMove(FShiftState, ptView.X,ptView.Y, cur, handled);
+      FRectEditor.MouseMove(ShiftState, ptView.X,ptView.Y, cur, handled);
       Cursor := OriginalCursorToCursor(cur);
       if handled then
       begin
@@ -593,7 +592,7 @@ end;
 procedure TEditShapeTool.UpdateSnap(AEditor: TBGRAOriginalEditor);
 begin
   if Assigned(AEditor) then
-    AEditor.GridActive := ssCtrl in FShiftState;
+    AEditor.GridActive := ssSnap in ShiftState;
 end;
 
 function TEditShapeTool.GetAction: TLayerAction;
@@ -1019,28 +1018,12 @@ begin
     UpdateToolManagerFromShape(GetVectorOriginal.SelectedShape);
 end;
 
-function TEditShapeTool.ToolKeyDown(var key: Word): TRect;
+function TEditShapeTool.DoToolKeyDown(var key: Word): TRect;
 var
   handled: boolean;
   keyUtf8: TUTF8Char;
 begin
   Result:= EmptyRect;
-  if (Key = VK_SNAP) or (Key = VK_SNAP2) then Key := VK_CONTROL;
-  if key = VK_SHIFT then
-  begin
-    include(FShiftState, ssShift);
-    key := 0;
-  end else
-  if key = VK_CONTROL then
-  begin
-    include(FShiftState, ssCtrl);
-    key := 0;
-  end else
-  if key = VK_MENU then
-  begin
-    include(FShiftState, ssAlt);
-    key := 0;
-  end else
   if (Key = VK_SPACE) and (GetEditMode = esmShape) and (GetVectorOriginal.SelectedShape is TTextShape) then
   begin
     keyUtf8:= ' ';
@@ -1052,7 +1035,7 @@ begin
     begin
       BindOriginalEvent(true);
       try
-        Manager.Image.CurrentState.LayeredBitmap.KeyDown(FShiftState, LCLKeyToSpecialKey(key, FShiftState), handled);
+        Manager.Image.CurrentState.LayeredBitmap.KeyDown(ShiftState, LCLKeyToSpecialKey(key, ShiftState), handled);
         if handled then key := 0 else
         begin
           if (key = VK_DELETE) and Assigned(GetVectorOriginal.SelectedShape) then
@@ -1115,37 +1098,19 @@ begin
   end;
 end;
 
-function TEditShapeTool.ToolKeyUp(var key: Word): TRect;
+function TEditShapeTool.DoToolKeyUp(var key: Word): TRect;
 var
   handled: boolean;
 begin
   Result:= EmptyRect;
-  if (Key = VK_SNAP) or (Key = VK_SNAP2) then Key := VK_CONTROL;
-  if key = VK_SHIFT then
+  if GetEditMode in [esmShape,esmNoShape] then
   begin
-    exclude(FShiftState, ssShift);
-    key := 0;
-  end else
-  if key = VK_CONTROL then
-  begin
-    exclude(FShiftState, ssCtrl);
-    key := 0;
-  end else
-  if key = VK_MENU then
-  begin
-    exclude(FShiftState, ssAlt);
-    key := 0;
-  end else
-  begin
-    if GetEditMode in [esmShape,esmNoShape] then
-    begin
-      BindOriginalEvent(true);
-      try
-        Manager.Image.CurrentState.LayeredBitmap.KeyUp(FShiftState, LCLKeyToSpecialKey(key, FShiftState), handled);
-        if handled then key := 0;
-      finally
-        BindOriginalEvent(false);
-      end;
+    BindOriginalEvent(true);
+    try
+      Manager.Image.CurrentState.LayeredBitmap.KeyUp(ShiftState, LCLKeyToSpecialKey(key, ShiftState), handled);
+      if handled then key := 0;
+    finally
+      BindOriginalEvent(false);
     end;
   end;
 end;
@@ -1167,7 +1132,7 @@ begin
     begin
       ptView := FRectEditor.Matrix*FLastPos;
       UpdateSnap(FRectEditor);
-      FRectEditor.MouseUp(FRightButton, FShiftState, ptView.X,ptView.Y, cur, handled);
+      FRectEditor.MouseUp(FRightButton, ShiftState, ptView.X,ptView.Y, cur, handled);
       Cursor := OriginalCursorToCursor(cur);
       if handled then
       begin
@@ -1183,7 +1148,7 @@ begin
     begin
       BindOriginalEvent(true);
       try
-        Manager.Image.CurrentState.LayeredBitmap.MouseUp(FRightButton, FShiftState, FLastPos.X,FLastPos.Y, cur, handled);
+        Manager.Image.CurrentState.LayeredBitmap.MouseUp(FRightButton, ShiftState, FLastPos.X,FLastPos.Y, cur, handled);
         if handled then
         begin
           Cursor := OriginalCursorToCursor(cur);
@@ -1475,8 +1440,8 @@ var
   newEditorBounds, r: TRect;
 begin
   toolDest := GetToolDrawingLayer;
-  with (FEditor.Matrix*PointF(toolDest.Width,toolDest.Height)) do
-    newEditorBounds := FEditor.GetRenderBounds(rect(0,0,ceil(x),ceil(y)));
+  with (Editor.Matrix*PointF(toolDest.Width,toolDest.Height)) do
+    newEditorBounds := Editor.GetRenderBounds(rect(0,0,ceil(x),ceil(y)));
   r := RectUnion(FPreviousEditorBounds,newEditorBounds);
   if not r.IsEmpty then
   begin
@@ -1676,12 +1641,12 @@ begin
         Manager.Image.ImageMayChange(changeBounds);
       end;
       FreeAndNil(FShape);
-      FEditor.Clear;
+      Editor.Clear;
     end else
     begin
       ValidateActionPartially;
       FreeAndNil(FShape);
-      FEditor.Clear;
+      Editor.Clear;
     end;
     Cursor := crDefault;
     result := OnlyRenderChange;
@@ -1695,9 +1660,15 @@ function TVectorialTool.CancelShape: TRect;
 begin
   CancelActionPartially;
   FreeAndNil(FShape);
-  FEditor.Clear;
+  Editor.Clear;
   Cursor := crDefault;
   result := OnlyRenderChange;
+end;
+
+function TVectorialTool.GetEditor: TBGRAOriginalEditor;
+begin
+  FEditor.GridActive := ssSnap in ShiftState;
+  result := FEditor;
 end;
 
 function TVectorialTool.GetIsHandDrawing: boolean;
@@ -1842,12 +1813,12 @@ begin
     FLastPos := AffineMatrixTranslation(X,Y)*ptF;
   if Assigned(FShape) then
   begin
-    viewPt := FEditor.Matrix*AffineMatrixInverse(VectorTransform(true))*FLastPos;
-    FEditor.MouseDown(rightBtn, FShiftState, viewPt.X,viewPt.Y, cur, handled);
+    viewPt := Editor.Matrix*AffineMatrixInverse(VectorTransform(true))*FLastPos;
+    Editor.MouseDown(rightBtn, ShiftState, viewPt.X,viewPt.Y, cur, handled);
     if not handled and Assigned(FShape) then
     begin
       shapePt := AffineMatrixInverse(VectorTransform(true))*FLastPos;
-      FShape.MouseDown(rightBtn, FShiftState, shapePt.X,shapePt.Y, cur, handled);
+      FShape.MouseDown(rightBtn, ShiftState, shapePt.X,shapePt.Y, cur, handled);
     end;
     UpdateCursor(cur);
     if handled then exit
@@ -1886,7 +1857,7 @@ begin
         FShape.Transform(FLastShapeTransform);
         shapePt := AffineMatrixInverse(VectorTransform(true))*FLastPos;
         handled := false;
-        FShape.MouseMove(FShiftState, shapePt.X,shapePt.Y, cur, handled);
+        FShape.MouseMove(ShiftState, shapePt.X,shapePt.Y, cur, handled);
         AssignShapeStyle(FLastShapeTransform, true);
       FShape.EndUpdate;
       FShape.OnChange:= @ShapeChange;
@@ -1908,13 +1879,13 @@ var
   handled: boolean;
   cur: TOriginalEditorCursor;
 begin
-  FEditor.GridMatrix := GetGridMatrix;
+  Editor.GridMatrix := GetGridMatrix;
   with LayerOffset do
     FLastPos := AffineMatrixTranslation(X,Y)*ptF;
   if FQuickDefine then
   begin
     FQuickDefineEndPoint := RoundCoordinate(ptF);
-    if FQuickSquare then
+    if ssShift in ShiftState then
     begin
       s := FQuickDefineEndPoint-FQuickDefineStartPoint;
       avg := sqrt(abs(s.x*s.y));
@@ -1930,12 +1901,12 @@ begin
     result := OnlyRenderChange;
   end else
   begin
-    viewPt := FEditor.Matrix*AffineMatrixInverse(VectorTransform(true))*FLastPos;
-    FEditor.MouseMove(FShiftState, viewPt.X,viewPt.Y, cur, handled);
+    viewPt := Editor.Matrix*AffineMatrixInverse(VectorTransform(true))*FLastPos;
+    Editor.MouseMove(ShiftState, viewPt.X,viewPt.Y, cur, handled);
     if not handled and Assigned(FShape) then
     begin
       shapePt := AffineMatrixInverse(VectorTransform(true))*FLastPos;
-      FShape.MouseMove(FShiftState, shapePt.X,shapePt.Y, cur, handled);
+      FShape.MouseMove(ShiftState, shapePt.X,shapePt.Y, cur, handled);
     end;
     UpdateCursor(cur);
     if handled then result := OnlyRenderChange
@@ -1982,12 +1953,12 @@ begin
     QuickDefineEnd;
   end else
   begin
-    viewPt := FEditor.Matrix*AffineMatrixInverse(VectorTransform(true))*FLastPos;
-    FEditor.MouseUp(wasRight, FShiftState, viewPt.X,viewPt.Y, cur, handled);
+    viewPt := Editor.Matrix*AffineMatrixInverse(VectorTransform(true))*FLastPos;
+    Editor.MouseUp(wasRight, ShiftState, viewPt.X,viewPt.Y, cur, handled);
     if not handled and Assigned(FShape) then
     begin
       shapePt := AffineMatrixInverse(VectorTransform(true))*FLastPos;
-      FShape.MouseUp(wasRight, FShiftState, shapePt.X,shapePt.Y, cur, handled);
+      FShape.MouseUp(wasRight, ShiftState, shapePt.X,shapePt.Y, cur, handled);
     end;
     UpdateCursor(cur);
     result := EmptyRect;
@@ -1996,35 +1967,11 @@ begin
     result := UpdateShape(GetToolDrawingLayer);
 end;
 
-function TVectorialTool.ToolKeyDown(var key: Word): TRect;
+function TVectorialTool.DoToolKeyDown(var key: Word): TRect;
 var
   handled: boolean;
 begin
   result := EmptyRect;
-  if (Key = VK_SNAP) or (Key = VK_SNAP2) then Key := VK_CONTROL;
-  if Key = VK_SHIFT then
-  begin
-    if FQuickDefine then
-    begin
-      FQuickSquare:= true;
-      Key := 0;
-    end else
-    begin
-      Include(FShiftState, ssShift);
-      Key := 0;
-    end;
-  end else
-  if Key = VK_CONTROL then
-  begin
-    Include(FShiftState, ssCtrl);
-    if not FQuickDefine then FEditor.GridActive := true;
-    Key := 0;
-  end else
-  if (Key = VK_MENU) and not FQuickDefine then
-  begin
-    Include(FShiftState, ssAlt);
-    Key := 0;
-  end else
   if (Key = VK_RETURN) and not FQuickDefine and
     Assigned(FShape) then
   begin
@@ -2038,8 +1985,8 @@ begin
     Key := 0;
   end else
   begin
-    FEditor.KeyDown(FShiftState, LCLKeyToSpecialKey(Key, FShiftState), handled);
-    if not handled and Assigned(FShape) then FShape.KeyDown(FShiftState, LCLKeyToSpecialKey(Key, FShiftState), handled);
+    Editor.KeyDown(ShiftState, LCLKeyToSpecialKey(Key, ShiftState), handled);
+    if not handled and Assigned(FShape) then FShape.KeyDown(ShiftState, LCLKeyToSpecialKey(Key, ShiftState), handled);
     if handled then Key := 0;
   end;
 end;
@@ -2049,45 +1996,19 @@ var
   handled: boolean;
 begin
   result := EmptyRect;
-  FEditor.KeyPress(key, handled);
+  Editor.KeyPress(key, handled);
   if not handled and Assigned(FShape) then FShape.KeyPress(key, handled);
   if handled then Key := #0;
 end;
 
-function TVectorialTool.ToolKeyUp(var key: Word): TRect;
+function TVectorialTool.DoToolKeyUp(var key: Word): TRect;
 var
   handled: boolean;
 begin
   result := EmptyRect;
-  if (Key = VK_SNAP) or (Key = VK_SNAP2) then Key := VK_CONTROL;
-  if Key = VK_SHIFT then
-  begin
-    if FQuickDefine then
-    begin
-      FQuickSquare:= false;
-      Key := 0;
-    end else
-    begin
-      Exclude(FShiftState, ssShift);
-      Key := 0;
-    end;
-  end else
-  if Key = VK_CONTROL then
-  begin
-    Exclude(FShiftState, ssCtrl);
-    if not FQuickDefine then FEditor.GridActive := false;
-    Key := 0;
-  end else
-  if (Key = VK_MENU) and not FQuickDefine then
-  begin
-    Exclude(FShiftState, ssAlt);
-    Key := 0;
-  end else
-  begin
-    FEditor.KeyUp(FShiftState, LCLKeyToSpecialKey(Key, FShiftState), handled);
-    if not handled and Assigned(FShape) then FShape.KeyUp(FShiftState, LCLKeyToSpecialKey(Key, FShiftState), handled);
-    if handled then Key := 0;
-  end;
+  Editor.KeyUp(ShiftState, LCLKeyToSpecialKey(Key, ShiftState), handled);
+  if not handled and Assigned(FShape) then FShape.KeyUp(ShiftState, LCLKeyToSpecialKey(Key, ShiftState), handled);
+  if handled then Key := 0;
 end;
 
 function TVectorialTool.ToolCommand(ACommand: TToolCommand): boolean;
@@ -2182,18 +2103,18 @@ begin
       xAxis := BitmapToVirtualScreen(PointF(1,0));
       yAxis := BitmapToVirtualScreen(PointF(0,1));
     end;
-    FEditor.Matrix := AffineMatrix(xAxis-orig,yAxis-orig,orig)*VectorTransform(true);
-    FEditor.Clear;
-    FEditor.PointSize := DoScaleX(PointSize, OriginalDPI);
-    if Assigned(FShape) then FShape.ConfigureEditor(FEditor);
+    Editor.Matrix := AffineMatrix(xAxis-orig,yAxis-orig,orig)*VectorTransform(true);
+    Editor.Clear;
+    Editor.PointSize := DoScaleX(PointSize, OriginalDPI);
+    if Assigned(FShape) then FShape.ConfigureEditor(Editor);
     if Assigned(VirtualScreen) then
-      Result:= FEditor.Render(VirtualScreen, rect(0,0,VirtualScreen.Width,VirtualScreen.Height))
+      Result:= Editor.Render(VirtualScreen, rect(0,0,VirtualScreen.Width,VirtualScreen.Height))
     else
-      Result:= FEditor.GetRenderBounds(rect(0,0,VirtualScreenWidth,VirtualScreenHeight));
+      Result:= Editor.GetRenderBounds(rect(0,0,VirtualScreenWidth,VirtualScreenHeight));
   end else
   begin
     result := EmptyRect;
-    FEditor.Clear;
+    Editor.Clear;
   end;
   FPreviousEditorBounds := result;
 end;

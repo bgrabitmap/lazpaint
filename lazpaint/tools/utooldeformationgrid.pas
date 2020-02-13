@@ -29,10 +29,10 @@ type
       {%H-}rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): Trect;
       override;
+    function DoToolKeyDown(var key: Word): TRect; override;
     function GetIsSelectingTool: boolean; override;
     function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
   public
-    function ToolKeyDown(var key: Word): TRect; override;
     function ToolUp: TRect; override;
     function GetContextualToolbars: TContextualToolbars; override;
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
@@ -58,8 +58,6 @@ type
     function GetAdaptedTexture: TBGRABitmap;
 
   protected
-    shiftKey,altKey: boolean;
-    snapToPixel: boolean;
     boundsMode: boolean;
     quadDefined: boolean;
     definingQuad: boolean;
@@ -73,6 +71,8 @@ type
       {%H-}rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect;
       override;
+    function DoToolKeyDown(var key: Word): TRect; override;
+    function DoToolKeyUp(var key: Word): TRect; override;
     function GetIsSelectingTool: boolean; override;
     function GetTexture: TBGRABitmap; virtual;
     function GetTextureRepetition: TTextureRepetition; virtual;
@@ -85,8 +85,6 @@ type
     function GetAllowedBackFillTypes: TVectorialFillTypes; override;
   public
     constructor Create(AManager: TToolManager); override;
-    function ToolKeyDown(var key: Word): TRect; override;
-    function ToolKeyUp(var key: Word): TRect; override;
     function ToolUp: TRect; override;
     function GetContextualToolbars: TContextualToolbars; override;
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
@@ -390,7 +388,7 @@ end;
 
 function TToolTextureMapping.SnapIfNecessary(ptF: TPointF): TPointF;
 begin
-  if not snapToPixel then result := ptF else
+  if not (ssSnap in ShiftState) then result := ptF else
     result := PointF(round(ptF.X),round(ptF.Y));
 end;
 
@@ -468,7 +466,7 @@ var n: integer;
 begin
   if definingQuad then
   begin
-    if ShiftKey then
+    if ssShift in ShiftState then
     begin
       if (GetTexture <> nil) and (GetTexture.Height <> 0)
         and (GetTexture.Width <> 0) then
@@ -524,7 +522,7 @@ begin
           boundsPts[0].x := boundsPts[quadMovingIndex].x;
         end;
       end;
-      if ShiftKey then
+      if ssShift in ShiftState then
       begin
         curBounds := ComputeBoundsPoints;
         prevSize := curBounds[2]-curBounds[0];
@@ -687,26 +685,10 @@ begin
   definingQuad:= false;
 end;
 
-function TToolTextureMapping.ToolKeyDown(var key: Word): TRect;
+function TToolTextureMapping.DoToolKeyDown(var key: Word): TRect;
 begin
   result := EmptyRect;
 
-  if key = VK_MENU then
-  begin
-    AltKey := true;
-    key := 0;
-  end else
-  if Key = VK_SHIFT then
-  begin
-    ShiftKey := true;
-    key := 0;
-  end
-  else
-  if Key = VK_SNAP then
-  begin
-    snapToPixel:= true;
-    key := 0;
-  end else
   if Key = VK_RETURN then
   begin
     if quadDefined then
@@ -727,7 +709,7 @@ begin
     end;
   end;
 
-  if not boundsMode and not quadMoving and (AltKey or ShiftKey) then
+  if not boundsMode and not quadMoving and ([ssAlt, ssShift]*ShiftState <> []) then
   begin
     boundsMode := true;
     boundsPts := ComputeBoundsPoints;
@@ -736,26 +718,11 @@ begin
   end;
 end;
 
-function TToolTextureMapping.ToolKeyUp(var key: Word): TRect;
+function TToolTextureMapping.DoToolKeyUp(var key: Word): TRect;
 begin
   result := EmptyRect;
-  if Key = VK_SNAP then
-  begin
-    snapToPixel:= false;
-    key := 0;
-  end else
-  if key = VK_MENU then
-  begin
-    AltKey := false;
-    key := 0;
-  end else
-  if Key = VK_SHIFT then
-  begin
-    ShiftKey := false;
-    key := 0;
-  end;
 
-  if boundsMode and (not AltKey and not ShiftKey) then
+  if boundsMode and ([ssAlt, ssShift]*ShiftState = []) then
   begin
     boundsMode := false;
     if IsRectEmpty(result) then
@@ -1191,7 +1158,7 @@ begin
     end;
 end;
 
-function TToolDeformationGrid.ToolKeyDown(var key: Word): TRect;
+function TToolDeformationGrid.DoToolKeyDown(var key: Word): TRect;
 begin
   result := EmptyRect;
   if Key = VK_RETURN then

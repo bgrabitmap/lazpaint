@@ -40,10 +40,10 @@ type
     procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); override;
     procedure UpdateUserMode; virtual;
     procedure ShapeValidated; override;
+    function DoToolKeyDown(var key: Word): TRect; override;
   public
     function ToolUp: TRect; override;
     function ToolKeyPress(var key: TUTF8Char): TRect; override;
-    function ToolKeyDown(var key: Word): TRect; override;
     function GetContextualToolbars: TContextualToolbars; override;
   end;
 
@@ -245,7 +245,7 @@ begin
     Result:=inherited ToolKeyPress(key);
 end;
 
-function TToolPolygon.ToolKeyDown(var key: Word): TRect;
+function TToolPolygon.DoToolKeyDown(var key: Word): TRect;
 begin
   if (key = VK_RETURN) and Assigned(FShape)
    and (FShape.Usermode = vsuCreate) then

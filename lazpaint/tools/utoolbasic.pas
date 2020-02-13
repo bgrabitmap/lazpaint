@@ -47,16 +47,12 @@ type
     class var HintShowed: boolean;
     penDrawing, penDrawingRight: boolean;
     penOrigin: TPointF;
-    snapToPixel: boolean;
     function GetIsSelectingTool: boolean; override;
     function StartDrawing(toolDest: TBGRABitmap; ptF: TPointF; rightBtn: boolean): TRect; virtual;
     function ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF; rightBtn: boolean): TRect; virtual;
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF; rightBtn: boolean): TRect; override;
     function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect; override;
   public
-    constructor Create(AManager: TToolManager); override;
-    function ToolKeyDown(var key: Word): TRect; override;
-    function ToolKeyUp(var key: Word): TRect; override;
     function ToolUp: TRect; override;
     function GetContextualToolbars: TContextualToolbars; override;
     destructor Destroy; override;
@@ -129,7 +125,7 @@ begin
     end;
   end else
   begin
-    if (snapToPixel or Manager.ShapeOptionAliasing) and (Manager.PenWidth = 1) then
+    if ((ssSnap in ShiftState) or Manager.ShapeOptionAliasing) and (Manager.PenWidth = 1) then
     begin
       ix := round(ptF.X);
       iy := round(ptF.Y);
@@ -198,7 +194,7 @@ begin
     end;
   end else
   begin
-    if snapToPixel and (Manager.PenWidth = 1) then
+    if (ssSnap in ShiftState) and (Manager.PenWidth = 1) then
     begin
       toolDest.EraseLineAntialias(round(destF.X),round(destF.Y),round(originF.X),round(originF.Y),Manager.ApplyPressure(Manager.EraserAlpha),false);
       result := GetShapeBounds([destF,originF],1);
@@ -230,7 +226,7 @@ var ix,iy: integer;
 begin
   if rightBtn then b := GetBackUniversalBrush
   else b := GetForeUniversalBrush;
-  if (snapToPixel or Manager.ShapeOptionAliasing) and (Manager.PenWidth = 1) then
+  if ((ssSnap in ShiftState) or Manager.ShapeOptionAliasing) and (Manager.PenWidth = 1) then
   begin
     ix := round(ptF.X);
     iy := round(ptF.Y);
@@ -260,7 +256,7 @@ var
 begin
   if rightBtn then b := GetBackUniversalBrush
   else b := GetForeUniversalBrush;
-  if (snapToPixel or Manager.ShapeOptionAliasing) and (Manager.PenWidth = 1) then
+  if ((ssSnap in ShiftState) or Manager.ShapeOptionAliasing) and (Manager.PenWidth = 1) then
   begin
     if Manager.ShapeOptionAliasing then
       toolDest.DrawLine(round(destF.X), round(destF.Y), round(originF.X), round(originF.Y), b, false)
@@ -287,7 +283,7 @@ end;
 function TToolPen.DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;
   rightBtn: boolean): TRect;
 begin
-  if snapToPixel then ptF := PointF(pt.X,pt.Y);
+  if ssSnap in ShiftState then ptF := PointF(pt.X,pt.Y);
   if not penDrawing then
   begin
     toolDest.PenStyle := psSolid;
@@ -303,10 +299,10 @@ function TToolPen.DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): T
 begin
   if (manager.PenWidth <= 3) and not HintShowed then
   begin
-    Manager.ToolPopup(tpmHoldKeySnapToPixel, VK_SNAP);
+    Manager.ToolPopup(tpmHoldKeySnapToPixel, VK_CONTROL);
     HintShowed:= true;
   end;
-  if snapToPixel then ptF := PointF(pt.X,pt.Y);
+  if ssSnap in ShiftState then ptF := PointF(pt.X,pt.Y);
   result := EmptyRect;
   if penDrawing and (sqr(penOrigin.X-ptF.X)+sqr(penOrigin.Y-ptF.Y) >= 0.999) then
   begin
@@ -314,32 +310,6 @@ begin
     result := ContinueDrawing(toolDest,penOrigin,ptF,penDrawingRight);
     penOrigin := ptF;
   end;
-end;
-
-constructor TToolPen.Create(AManager: TToolManager);
-begin
-  inherited Create(AManager);
-  snapToPixel:= false;
-end;
-
-function TToolPen.ToolKeyDown(var key: Word): TRect;
-begin
-  if key = VK_SNAP then
-  begin
-    snapToPixel := true;
-    Key := 0;
-  end;
-  Result:=EmptyRect;
-end;
-
-function TToolPen.ToolKeyUp(var key: Word): TRect;
-begin
-  if key = VK_SNAP then
-  begin
-    snapToPixel := false;
-    key := 0;
-  end;
-  Result:=EmptyRect;
 end;
 
 function TToolPen.ToolUp: TRect;

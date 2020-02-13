@@ -162,6 +162,9 @@ implementation
 uses LCLType, UResourceStrings, LazPaintType, LazUTF8, Forms, Math,
   UFileSystem, LazFileUtils;
 
+const
+  ssSnap = {$IFDEF DARWIN}ssMeta{$ELSE}ssCtrl{$ENDIF};
+
 var
   SortTarget: TLCShellListView;
 
@@ -854,7 +857,7 @@ begin
   idx := GetItemAt(X,Y);
   prevItem := FSelectedIndex;
   prevItemWasSelected := (prevItem <> -1) and ItemSelected[prevItem];
-  if not (ssCtrl in Shift) or not FAllowMultiSelect then DeselectAll;
+  if not (ssSnap in Shift) or not FAllowMultiSelect then DeselectAll;
   if (ssShift in Shift) and (prevItem <> -1) and (idx <> -1) and FAllowMultiSelect then
   begin
     FSelectedIndex:= prevItem;

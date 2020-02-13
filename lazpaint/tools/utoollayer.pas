@@ -18,7 +18,6 @@ type
     handOriginF: TPointF;
     originalTransformBefore: TAffineMatrix;
     layerOffsetBefore: TPoint;
-    altPressed, snapToPixel: boolean;
     FStartLayerOffset: TPoint;
     FStartLayerMatrix: TAffineMatrix;
     FStartLayerOffsetDefined: boolean;
@@ -28,6 +27,7 @@ type
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
       {%H-}rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect; override;
+    function DoToolKeyDown(var key: Word): TRect; override;
     function UseOriginal: boolean;
     procedure NeedLayerBounds;
     function GetAction: TLayerAction; override;
@@ -39,8 +39,6 @@ type
   public
     constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
-    function ToolKeyDown(var key: Word): TRect; override;
-    function ToolKeyUp(var key: Word): TRect; override;
     function GetContextualToolbars: TContextualToolbars; override;
     function ToolCommand(ACommand: TToolCommand): boolean; override;
     function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
@@ -78,8 +76,9 @@ type
     function GetIsSelectingTool: boolean; override;
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
       rightBtn: boolean): TRect; override;
-    function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect;
-      override;
+    function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect; override;
+    function DoToolKeyDown(var key: Word): TRect; override;
+    function DoToolKeyUp(var key: Word): TRect; override;
     procedure CancelTransform;
     procedure ValidateTransform;
     function TransformOk: boolean; virtual; abstract;
@@ -97,8 +96,6 @@ type
     function GetContextualToolbars: TContextualToolbars; override;
     function ToolCommand(ACommand: TToolCommand): boolean; override;
     function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
-    function ToolKeyDown(var key: Word): TRect; override;
-    function ToolKeyUp(var key: Word): TRect; override;
     function ToolUp: TRect; override;
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth,
       {%H-}VirtualScreenHeight: integer;
@@ -175,7 +172,7 @@ begin
   begin
     dx := ptF.X-HandOriginF.X;
     dy := ptF.Y-HandOriginF.Y;
-    if snapToPixel then
+    if ssSnap in ShiftState then
     begin
       dx := round(dx);
       dy := round(dy);
@@ -286,8 +283,6 @@ begin
   inherited Create(AManager);
   handMoving := false;
   FStartLayerOffsetDefined:= false;
-  snapToPixel:= false;
-  altPressed := false;
 end;
 
 function TToolMoveLayer.ToolUp: TRect;
@@ -297,14 +292,14 @@ begin
   if UseOriginal then Manager.Image.DraftOriginal := false;
 end;
 
-function TToolMoveLayer.ToolKeyDown(var key: Word): TRect;
+function TToolMoveLayer.DoToolKeyDown(var key: Word): TRect;
   function Translate(dx,dy: integer): TRect;
   begin
-    if handMoving or altPressed then exit(EmptyRect);
+    if handMoving or (ssAlt in ShiftState) then exit(EmptyRect);
     key := 0;
     GetAction;
     SaveOffsetBefore;
-    if snapToPixel then
+    if ssSnap in ShiftState then
     begin
       dx := dx*max(Manager.Image.Width div 20, 2);
       dy := dy*max(Manager.Image.Height div 20, 2);
@@ -319,17 +314,6 @@ begin
     Manager.QueryExitTool;
     result := EmptyRect;
     Key := 0;
-  end
-  else if key = VK_MENU then
-  begin
-    altPressed := true;
-    key := 0;
-  end
-  else if (key = VK_SNAP) or (key = VK_SNAP2) then
-  begin
-    snapToPixel:= true;
-    result := EmptyRect;
-    key := 0;
   end
   else if key = VK_ESCAPE then
   begin
@@ -351,23 +335,7 @@ begin
   else if key = VK_UP then result := Translate(0,-1)
   else if key = VK_DOWN then result := Translate(0,1)
   else
-    Result:=inherited ToolKeyDown(key);
-end;
-
-function TToolMoveLayer.ToolKeyUp(var key: Word): TRect;
-begin
-  if key = VK_MENU then
-  begin
-    altPressed := false;
-    key := 0;
-  end else
-  if (key = VK_SNAP) or (key = VK_SNAP2) then
-  begin
-    snapToPixel:= false;
-    result := EmptyRect;
-    key := 0;
-  end
-  else Result:=inherited ToolKeyUp(key);
+    Result:=inherited DoToolKeyDown(key);
 end;
 
 function TToolMoveLayer.GetContextualToolbars: TContextualToolbars;
@@ -664,9 +632,9 @@ begin
   end;
 end;
 
-function TToolTransformLayer.ToolKeyDown(var key: Word): TRect;
+function TToolTransformLayer.DoToolKeyDown(var key: Word): TRect;
 begin
-  if (key = VK_SNAP) or (KEY = VK_SNAP2) then
+  if key = VK_CONTROL then
   begin
     FSnapDown:= true;
     if FTransforming and CtrlChangesTransform then
@@ -693,9 +661,9 @@ begin
     result := EmptyRect;
 end;
 
-function TToolTransformLayer.ToolKeyUp(var key: Word): TRect;
+function TToolTransformLayer.DoToolKeyUp(var key: Word): TRect;
 begin
-  if (key = VK_SNAP) or (KEY = VK_SNAP2) then
+  if key = VK_CONTROL then
   begin
     FSnapDown := false;
     if FTransforming and CtrlChangesTransform then

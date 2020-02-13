@@ -1693,7 +1693,11 @@ end;
 procedure TTextShape.KeyUp(Shift: TShiftState; Key: TSpecialKey;
   var AHandled: boolean);
 begin
-  if (Key in[skCtrl,skShift]) and FEnteringUnicode then InsertUnicodeValue;
+  if (Key in[skCtrl,skShift]) and FEnteringUnicode then
+  begin
+    InsertUnicodeValue;
+    AHandled := true;
+  end;
 end;
 
 procedure TTextShape.SetFontNameAndStyle(AFontName: string;

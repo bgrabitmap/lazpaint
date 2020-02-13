@@ -101,7 +101,7 @@ type
 
   TToolMoveSelection = class(TTransformSelectionTool)
   protected
-    handMoving, snapToPixel: boolean;
+    handMoving: boolean;
     handOriginF: TPointF;
     selectionTransformBefore: TAffineMatrix;
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
@@ -110,8 +110,6 @@ type
   public
     constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
-    function ToolKeyDown(var key: Word): TRect; override;
-    function ToolKeyUp(var key: Word): TRect; override;
     destructor Destroy; override;
   end;
 
@@ -130,12 +128,12 @@ type
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
       rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect; override;
+    function DoToolKeyDown(var key: Word): TRect; override;
+    function DoToolKeyUp(var key: Word): TRect; override;
     function GetStatusText: string; override;
     procedure UpdateTransform;
   public
     constructor Create(AManager: TToolManager); override;
-    function ToolKeyDown(var key: Word): TRect; override;
-    function ToolKeyUp(var key: Word): TRect; override;
     function ToolUp: TRect; override;
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
     destructor Destroy; override;
@@ -404,7 +402,7 @@ var angleDiff: single;
 begin
   if not HintShowed then
   begin
-    Manager.ToolPopup(tpmHoldKeyRestrictRotation, VK_SNAP);
+    Manager.ToolPopup(tpmHoldKeyRestrictRotation, VK_CONTROL);
     HintShowed:= true;
   end;
   if handMoving and ((handOrigin.X <> ptF.X) or (handOrigin.Y <> ptF.Y)) then
@@ -445,10 +443,10 @@ begin
   FCurrentAngle := 0;
 end;
 
-function TToolRotateSelection.ToolKeyDown(var key: Word): TRect;
+function TToolRotateSelection.DoToolKeyDown(var key: Word): TRect;
 begin
   result := EmptyRect;
-  if key = VK_SNAP then
+  if key = VK_CONTROL then
   begin
     if not snapRotate then
     begin
@@ -476,9 +474,9 @@ begin
   end;
 end;
 
-function TToolRotateSelection.ToolKeyUp(var key: Word): TRect;
+function TToolRotateSelection.DoToolKeyUp(var key: Word): TRect;
 begin
-  if key = VK_SNAP then
+  if key = VK_CONTROL then
   begin
     snapRotate := false;
     Key := 0;
@@ -530,7 +528,7 @@ begin
   begin
     dx := ptF.X-HandOriginF.X;
     dy := ptF.Y-HandOriginF.Y;
-    if snapToPixel then
+    if ssSnap in ShiftState then
     begin
       dx := round(dx);
       dy := round(dy);
@@ -548,35 +546,12 @@ constructor TToolMoveSelection.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
   handMoving := false;
-  snapToPixel:= false;
 end;
 
 function TToolMoveSelection.ToolUp: TRect;
 begin
   handMoving := false;
   result := EmptyRect;
-end;
-
-function TToolMoveSelection.ToolKeyDown(var key: Word): TRect;
-begin
-  if (Key = VK_SNAP) or (Key = VK_SNAP2) then
-  begin
-    result := EmptyRect;
-    snapToPixel:= true;
-    key := 0;
-  end else
-    Result:=inherited ToolKeyDown(key);
-end;
-
-function TToolMoveSelection.ToolKeyUp(var key: Word): TRect;
-begin
-  if (Key = VK_SNAP) or (Key = VK_SNAP2) then
-  begin
-    result := EmptyRect;
-    snapToPixel:= false;
-    key := 0;
-  end else
-    Result:=inherited ToolKeyUp(key);
 end;
 
 destructor TToolMoveSelection.Destroy;
