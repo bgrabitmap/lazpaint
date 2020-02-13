@@ -60,6 +60,7 @@ type
     procedure PrepareBrush(rightBtn: boolean); override;
     procedure ReleaseBrush; override;
     function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect; override;
+    function DoToolShiftClick(toolDest: TBGRABitmap; ptF: TPointF; rightBtn: boolean): TRect; override;
   public
     function SubPixelAccuracy: boolean; override;
     constructor Create(AManager: TToolManager); override;
@@ -132,6 +133,12 @@ function TToolClone.DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF
 begin
   Manager.ToolPopup(tpmRightClickForSource);
   Result:=inherited DoToolMove(toolDest, pt, ptF);
+end;
+
+function TToolClone.DoToolShiftClick(toolDest: TBGRABitmap; ptF: TPointF;
+  rightBtn: boolean): TRect;
+begin
+  Result:= EmptyRect;
 end;
 
 function TToolClone.SubPixelAccuracy: boolean;

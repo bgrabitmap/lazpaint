@@ -46,12 +46,14 @@ type
   protected
     class var HintShowed: boolean;
     penDrawing, penDrawingRight: boolean;
+    shiftClicking, shiftClickingRight: boolean;
     penOrigin: TPointF;
     function GetIsSelectingTool: boolean; override;
     function StartDrawing(toolDest: TBGRABitmap; ptF: TPointF; rightBtn: boolean): TRect; virtual;
     function ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF; rightBtn: boolean): TRect; virtual;
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF; rightBtn: boolean): TRect; override;
     function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect; override;
+    function DoToolShiftClick(toolDest: TBGRABitmap; ptF: TPointF; rightBtn: boolean): TRect; virtual;
   public
     function ToolUp: TRect; override;
     function GetContextualToolbars: TContextualToolbars; override;
@@ -286,11 +288,19 @@ begin
   if ssSnap in ShiftState then ptF := PointF(pt.X,pt.Y);
   if not penDrawing then
   begin
-    toolDest.PenStyle := psSolid;
-    penDrawing := true;
-    penDrawingRight := rightBtn;
-    result := StartDrawing(toolDest,ptF,rightBtn);
-    penOrigin := ptF;
+    if ssShift in ShiftState then
+    begin
+      result := DoToolShiftClick(toolDest, ptF, rightBtn);
+      shiftClicking := true;
+      shiftClickingRight := rightBtn;
+    end else
+    begin
+      toolDest.PenStyle := psSolid;
+      penDrawing := true;
+      penDrawingRight := rightBtn;
+      result := StartDrawing(toolDest,ptF,rightBtn);
+      penOrigin := ptF;
+    end;
   end else
     result := EmptyRect;
 end;
@@ -309,7 +319,20 @@ begin
     toolDest.PenStyle := psSolid;
     result := ContinueDrawing(toolDest,penOrigin,ptF,penDrawingRight);
     penOrigin := ptF;
-  end;
+  end else
+  if shiftClicking then
+    DoToolShiftClick(toolDest,ptF,shiftClickingRight);
+end;
+
+function TToolPen.DoToolShiftClick(toolDest: TBGRABitmap; ptF: TPointF;
+  rightBtn: boolean): TRect;
+var
+  c: TBGRAPixel;
+begin
+  c := toolDest.GetPixel(round(ptF.X),round(ptF.Y));
+  if rightBtn then Manager.BackColor := c
+    else Manager.ForeColor := c;
+  result := EmptyRect;
 end;
 
 function TToolPen.ToolUp: TRect;
@@ -319,6 +342,11 @@ begin
     penDrawing:= false;
     penDrawingRight := false;
     ValidateActionPartially;
+  end else
+  if shiftClicking then
+  begin
+    shiftClicking := false;
+    shiftClickingRight := false;
   end;
   result := EmptyRect;
 end;
