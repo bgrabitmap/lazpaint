@@ -2583,8 +2583,8 @@ begin
   end else
   begin
     Zoom.SetPosition(FImageView.FormToBitmap(MousePos.X,MousePos.Y), MousePos);
-    if WheelDelta > 0 then Zoom.ZoomIn(ssCtrl in Shift) else
-    if WheelDelta < 0 then Zoom.ZoomOut(ssCtrl in Shift);
+    if WheelDelta > 0 then Zoom.ZoomIn(ssSnap in Shift) else
+    if WheelDelta < 0 then Zoom.ZoomOut(ssSnap in Shift);
     Zoom.ClearPosition;
   end;
   Handled := True;
