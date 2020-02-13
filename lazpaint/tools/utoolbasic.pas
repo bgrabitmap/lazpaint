@@ -35,6 +35,7 @@ type
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;
       rightBtn: boolean): TRect; override;
     function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF): TRect; override;
+    function FixLayerOffset: boolean; override;
   public
     function ToolUp: TRect; override;
     function GetContextualToolbars: TContextualToolbars; override;
@@ -378,16 +379,26 @@ end;
 
 function TToolColorPicker.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF): TRect;
+var
+  c: TBGRAPixel;
 begin
   result := EmptyRect;
   if colorpicking then
   begin
     if (pt.X >= 0) and (pt.Y >= 0) and (pt.X < toolDest.Width) and (pt.Y < toolDest.Height) then
     begin
-      if colorpickingRight then Manager.BackColor := toolDest.GetPixel(pt.X,pt.Y) else
-        Manager.ForeColor := toolDest.GetPixel(pt.X,pt.Y);
+      if ssShift in ShiftState then
+        c := Manager.Image.RenderedImage.GetPixel(pt.X,pt.Y)
+        else c := toolDest.GetPixel(pt.X,pt.Y);
+      if colorpickingRight then Manager.BackColor := c
+        else Manager.ForeColor := c;
     end;
   end;
+end;
+
+function TToolColorPicker.FixLayerOffset: boolean;
+begin
+  Result:= not (ssShift in ShiftState);
 end;
 
 function TToolColorPicker.ToolUp: TRect;
