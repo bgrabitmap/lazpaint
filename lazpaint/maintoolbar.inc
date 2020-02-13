@@ -267,7 +267,7 @@ var
   nextControl: TControl;
   I, prefWidth, prefHeight: Integer;
 begin
-  ALabel.Font.Height := -ALabel.Height*50 div 96;
+  ALabel.Font.Height := -DoScaleY(12, OriginalDPI);
   prefWidth := ALabel.Width;
   prefHeight := ALabel.Width;
   ALabel.GetPreferredSize(prefWidth, prefHeight);

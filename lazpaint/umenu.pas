@@ -305,7 +305,7 @@ begin
         if (Controls[j].Name = 'Label_Coordinates') or
            (Controls[j].Name = 'Label_CurrentZoom') or
            (Controls[j].Name = 'Label_CurrentDiff') then
-          Controls[j].Font.Height := -Controls[j].Height*55 div 96;
+          Controls[j].Font.Height := -DoScaleY(12, OriginalDPI);
       end;
     end;
   end;
