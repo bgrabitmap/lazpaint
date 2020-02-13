@@ -3202,7 +3202,7 @@ begin
       case AVars.GetStringAt(state, i) of
         'Shift': begin include(shiftState, ssShift); keyCode := VK_SHIFT; if ToolManager.ToolKeyDown(keyCode) then needUpdate := true; end;
         'Ctrl': begin include(shiftState, ssSnap); keyCode := VK_SNAP; if ToolManager.ToolKeyDown(keyCode) then needUpdate := true; end;
-        'Alt': begin include(shiftState, ssCtrl); keyCode := VK_MENU; if ToolManager.ToolKeyDown(keyCode) then needUpdate := true; end;
+        'Alt': begin include(shiftState, ssAlt); keyCode := VK_MENU; if ToolManager.ToolKeyDown(keyCode) then needUpdate := true; end;
       end;
   for i := 0 to AVars.GetListCount(keys)-1 do
   begin
