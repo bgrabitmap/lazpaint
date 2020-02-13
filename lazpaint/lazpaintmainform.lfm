@@ -7749,7 +7749,7 @@ object FMain: TFMain
       ImageIndex = 83
       OnExecute = ImageFlattenExecute
       OnUpdate = ImageFlattenUpdate
-      ShortCut = 24646
+      ShortCut = 49222
     end
     object FileReload: TAction
       Category = 'File'
