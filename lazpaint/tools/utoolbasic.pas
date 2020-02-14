@@ -65,7 +65,7 @@ type
 
   TToolErase = class(TToolPen)
   protected
-    procedure ApplySoften(var image: TBGRABitmap);
+    procedure ApplyEraseMode(var image: TBGRABitmap);
     function BlurRadius: single;
     function StartDrawing(toolDest: TBGRABitmap; ptF: TPointF; {%H-}rightBtn: boolean): TRect; override;
     function ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF; {%H-}rightBtn: boolean): TRect; override;
@@ -77,18 +77,52 @@ type
 implementation
 
 uses Types, Graphics, ugraph, Controls, LazPaintType,
-  UResourceStrings, BGRAPen;
+  UResourceStrings, BGRAPen, math;
 
 { TToolErase }
 
-procedure TToolErase.ApplySoften(var image: TBGRABitmap);
+procedure TToolErase.ApplyEraseMode(var image: TBGRABitmap);
 var
   radius: single;
+  p: PBGRAPixel;
+  ec: TExpandedPixel;
+  curLight: Word;
+  i: Integer;
+  lightDiff: word;
 begin
-  radius := BlurRadius;
-  if radius < 2.5 then
-    BGRAReplace(image, image.FilterBlurRadial(round(radius*10),rbPrecise)) else
-    BGRAReplace(image, image.FilterBlurRadial(round(radius),rbFast));
+  case Manager.EraserMode of
+  emSoften: begin
+      radius := BlurRadius;
+      if radius < 2.5 then
+        BGRAReplace(image, image.FilterBlurRadial(round(radius*10),rbPrecise)) else
+        BGRAReplace(image, image.FilterBlurRadial(round(radius),rbFast));
+    end;
+  emSharpen: BGRAReplace(image, image.FilterSharpen(Manager.EraserAlpha/255));
+  emLighten:
+    begin
+      p := image.Data;
+      lightDiff := round(Manager.EraserAlpha*32768/255);
+      for i := 0 to image.NbPixels-1 do
+        begin
+          ec := p^.ToExpanded;
+          curLight := GetLightness(ec);
+          p^ := SetLightness(ec, min(curLight + lightDiff, 65535), curLight);
+          inc(p);
+        end;
+    end;
+  emDarken:
+    begin
+      p := image.Data;
+      lightDiff := round(Manager.EraserAlpha*32768/255);
+      for i := 0 to image.NbPixels-1 do
+        begin
+          ec := p^.ToExpanded;
+          curLight := GetLightness(ec);
+          p^ := SetLightness(ec, max(curLight - lightDiff, 0), curLight);
+          inc(p);
+        end;
+    end;
+  end;
 end;
 
 function TToolErase.BlurRadius: single;
@@ -102,13 +136,13 @@ var ix,iy: integer;
   areaCopy, mask: TBGRABitmap;
   r: TRect;
 begin
-  if Manager.EraserMode = emSoften then
+  if Manager.EraserMode <> emEraseAlpha then
   begin
     result := GetShapeBounds([ptF],Manager.PenWidth+BlurRadius);
     if IntersectRect(result, result, rect(0,0,toolDest.width,toolDest.height)) then
     begin
       areaCopy := toolDest.GetPart(result) as TBGRABitmap;
-      ApplySoften(areaCopy);
+      ApplyEraseMode(areaCopy);
       mask := TBGRABitmap.Create(result.Right-result.left,result.bottom-result.top, BGRABlack);
       mask.LinearAntialiasing := true;
       if Manager.ShapeOptionAliasing then
@@ -120,9 +154,9 @@ begin
       else
         mask.FillEllipseAntialias(ptF.X-result.left,ptF.Y-result.top,
           Manager.PenWidth/2,Manager.PenWidth/2,Manager.ApplyPressure(BGRAWhite));
-      mask.ScanOffset := Point(-result.left,-result.top);
       areaCopy.ScanOffset := Point(-result.left,-result.top);
-      toolDest.CrossFade(result,toolDest,areaCopy,mask,dmSet);
+      mask.ScanOffset := Point(-result.left,-result.top);
+      toolDest.CrossFade(result, toolDest, areaCopy, mask, dmSet);
       mask.Free;
       areaCopy.Free;
     end;
@@ -155,30 +189,36 @@ function TToolErase.ContinueDrawing(toolDest: TBGRABitmap; originF,
   destF: TPointF; rightBtn: boolean): TRect;
 var areaCopy, mask: TBGRABitmap;
   pts: ArrayOfTPointF;
+  cOpacity: TBGRAPixel;
 begin
-  if Manager.EraserMode = emSoften then
+  if Manager.EraserMode <> emEraseAlpha then
   begin
     result := GetShapeBounds([destF,originF],Manager.PenWidth+BlurRadius);
     if IntersectRect(result, result, rect(0,0,toolDest.width,toolDest.height)) then
     begin
       areaCopy := toolDest.GetPart(result) as TBGRABitmap;
-      ApplySoften(areaCopy);
+      ApplyEraseMode(areaCopy);
       mask := TBGRABitmap.Create(result.Right-result.left,result.bottom-result.top, BGRABlack);
       mask.LinearAntialiasing := true;
+
+      if Manager.EraserMode in [emLighten,emDarken] then
+        cOpacity := BGRA(0,0,0, Manager.EraserAlpha div 2)
+      else
+        cOpacity := BGRA(0,0,0, Manager.EraserAlpha);
+
+      pts := toolDest.Pen.ComputePolyline(
+        [PointF(destF.X-result.left,destF.Y-result.top),
+         PointF(originF.X-result.left,originF.Y-result.top)],
+         Manager.PenWidth,cOpacity,False);
+
       if Manager.ShapeOptionAliasing then
-      begin
-        pts := toolDest.Pen.ComputePolyline(
-          [PointF(destF.X-result.left,destF.Y-result.top),
-           PointF(originF.X-result.left,originF.Y-result.top)],
-           Manager.PenWidth,BGRAPixelTransparent,False);
-        mask.FillPoly(pts,BGRAWhite);
-      end else
-        mask.DrawLineAntialias(destF.X-result.left,destF.Y-result.top,originF.X-result.left,originF.Y-result.top,
-          Manager.ApplyPressure(BGRAWhite),
-          Manager.PenWidth,false);
-      mask.ScanOffset := Point(-result.left,-result.top);
+        mask.FillPoly(pts,BGRAWhite)
+      else
+        mask.FillPolyAntialias(pts,BGRAWhite);
+
       areaCopy.ScanOffset := Point(-result.left,-result.top);
-      toolDest.CrossFade(result,toolDest,areaCopy,mask,dmSet);
+      mask.ScanOffset := Point(-result.left,-result.top);
+      toolDest.CrossFade(result, toolDest, areaCopy, mask, dmSet);
       mask.Free;
       areaCopy.Free;
     end;

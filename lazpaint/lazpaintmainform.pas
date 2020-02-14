@@ -47,6 +47,9 @@ type
     TimerHideFill: TTimer;
     TimerArrange: TTimer;
     Perspective_Repeat: TToolButton;
+    Tool_EraseSharpen: TToolButton;
+    Tool_EraseLighten: TToolButton;
+    Tool_EraseDarken: TToolButton;
     VectorialFill_Pen: TLCVectorialFillControl;
     VectorialFill_Back: TLCVectorialFillControl;
     Panel_BackFill: TPanel;

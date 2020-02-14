@@ -44,7 +44,7 @@ type
   TToolManager = class;
   TBitmapToVirtualScreenFunction = function(PtF: TPointF): TPointF of object;
 
-  TEraserMode = (emEraseAlpha, emSoften);
+  TEraserMode = (emEraseAlpha, emSharpen, emSoften, emLighten, emDarken);
   TToolCommand = (tcCut, tcCopy, tcPaste, tcDelete, tcFinish, tcMoveUp, tcMoveDown, tcMoveToFront, tcMoveToBack,
     tcAlignLeft, tcCenterHorizontally, tcAlignRight, tcAlignTop, tcCenterVertically, tcAlignBottom,
     tcShapeToSpline, tcForeAdjustToShape, tcBackAdjustToShape, tcForeEditGradTexPoints, tcBackEditGradTexPoints);
@@ -1748,7 +1748,10 @@ begin
   result := srOk;
   case EraserMode of
   emEraseAlpha: AVars.Strings['Result'] := 'EraseAlpha';
+  emSharpen: AVars.Strings['Result'] := 'Sharpen';
   emSoften: AVars.Strings['Result'] := 'Soften';
+  emLighten: AVars.Strings['Result'] := 'Lighten';
+  emDarken: AVars.Strings['Result'] := 'Darken';
   else result := srException;
   end;
 end;

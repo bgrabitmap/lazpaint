@@ -71,8 +71,6 @@ begin
   ComboBox_PenStyle.OnDrawItem:=@ComboBox_PenStyleDrawItem;
   ComboBox_PenStyle.OnDrawSelectedItem:=@ComboBox_PenStyleDrawSelectedItem;
   for ps := psSolid to psDashDotDot do ComboBox_PenStyle.Items.Add(inttostr(ord(ps)));
-  Tool_EraseAlpha.OnClick := @Tool_EraseOptionClick;
-  Tool_EraseBlur.OnClick := @Tool_EraseOptionClick;
   Tool_GridMoveWithoutDeformation.OnClick := @Tool_GridMoveWithoutDeformationClick;
   Combo_SplineStyle.Items.Add('Inside');
   Combo_SplineStyle.Items.Add('Inside + ends');
@@ -118,6 +116,11 @@ begin
 
   SpinEdit_Eraser.Increment := 15;
   SpinEdit_Eraser.OnChange := @SpinEdit_EraserChange;
+  Tool_EraseAlpha.OnClick := @Tool_EraseOptionClick;
+  Tool_EraseSharpen.OnClick := @Tool_EraseOptionClick;
+  Tool_EraseBlur.OnClick := @Tool_EraseOptionClick;
+  Tool_EraseLighten.OnClick := @Tool_EraseOptionClick;
+  Tool_EraseDarken.OnClick := @Tool_EraseOptionClick;
 
   SpinEdit_Tolerance.Value := 128;
   SpinEdit_Tolerance.Increment := 5;
@@ -335,7 +338,10 @@ begin
   FInEraserOption:= true;
   case ToolManager.EraserMode of
   emEraseAlpha: Tool_EraseAlpha.Down:= true;
+  emSharpen: Tool_EraseSharpen.Down:= true;
   emSoften: Tool_EraseBlur.Down:= true;
+  emLighten: Tool_EraseLighten.Down:= true;
+  emDarken: Tool_EraseDarken.Down:= true;
   end;
   SpinEdit_Eraser.Value := ToolManager.EraserAlpha;
   FInEraserOption:= false;
@@ -1325,7 +1331,10 @@ begin
   if FInEraserOption then exit;
   FInEraserOption := true;
   if Tool_EraseAlpha.Down then ToolManager.EraserMode:= emEraseAlpha else
-  if Tool_EraseBlur.Down then ToolManager.EraserMode:= emSoften;
+  if Tool_EraseSharpen.Down then ToolManager.EraserMode:= emSharpen else
+  if Tool_EraseBlur.Down then ToolManager.EraserMode:= emSoften else
+  if Tool_EraseLighten.Down then ToolManager.EraserMode:= emLighten else
+  if Tool_EraseDarken.Down then ToolManager.EraserMode:= emDarken;
   FInEraserOption := false;
 end;
 
