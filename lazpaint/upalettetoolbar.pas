@@ -138,6 +138,7 @@ begin
       FScrollPos := FScrollBar.Position;
       PanelPalette.RedrawBitmap;
     end;
+    if FScrollbar.ScrollThumbDown then exit;
   end;
   PickColor(Shift,X,Y);
 end;
@@ -145,10 +146,6 @@ end;
 procedure TPaletteToolbar.PanelMouseMove(Sender: TObject; Shift: TShiftState;
   X, Y: Integer);
 begin
-  if PtInRect(Point(x,y),FPaletteColorRect) then
-    PanelPalette.Cursor := crCustomColorPicker
-  else
-    PanelPalette.Cursor := crArrow;
   if Assigned(FScrollbar) then
   begin
     if FScrollbar.MouseMove(X,Y) then
@@ -156,7 +153,12 @@ begin
       FScrollPos := FScrollBar.Position;
       PanelPalette.RedrawBitmap;
     end;
+    if FScrollbar.ScrollThumbDown then exit;
   end;
+  if PtInRect(Point(x,y),FPaletteColorRect) then
+    PanelPalette.Cursor := crCustomColorPicker
+  else
+    PanelPalette.Cursor := crArrow;
   PickColor(Shift,X,Y);
 end;
 
@@ -170,6 +172,11 @@ begin
       FScrollPos := FScrollBar.Position;
       PanelPalette.RedrawBitmap;
     end;
+    if FScrollbar.ScrollThumbDown then exit;
+    if PtInRect(Point(x,y),FPaletteColorRect) then
+      PanelPalette.Cursor := crCustomColorPicker
+    else
+      PanelPalette.Cursor := crArrow;
   end;
 end;
 
@@ -623,7 +630,7 @@ var idx: integer;
 begin
   if PtInRect(Point(X,Y),FPaletteColorRect) then
   begin
-    idx := (Y-FPaletteColorRect.Top) div FPaletteColorItemHeight;
+    idx := (Y-FPaletteColorRect.Top) div FPaletteColorItemHeight + FScrollPos;
     if (idx < 0) or (idx >= FColors.Count) then exit;
     if (ssLeft in Shift) and not (ssRight in Shift) then
     begin
@@ -650,7 +657,7 @@ end;
 procedure TPaletteToolbar.RepaintPalette(Sender: TObject; Bitmap: TBGRABitmap);
 var i,x,y,w,aw,a,h: integer;
   c: TBGRAPixel;
-  nbVisible, maxScroll: integer;
+  nbVisible, maxScroll, availHeight: integer;
   clInterm, cSign: TBGRAPixel;
 begin
   if DarkTheme then
@@ -668,7 +675,8 @@ begin
   aw := DoScaleX(FPaletteAlphaWidth, OriginalDPI);
   h := DoScaleY(FPaletteItemHeight, OriginalDPI);
   if h < 3 then h := 3;
-  nbVisible := (Bitmap.Height - 2 - y - 1) div (h-1);
+  availHeight := Bitmap.Height - 2 - y - 1;
+  nbVisible := availHeight div (h-1);
   if nbVisible < 1 then nbVisible:= 1;
   maxScroll := FColors.Count-nbVisible;
   if maxScroll < 0 then maxScroll:= 0;
@@ -685,6 +693,7 @@ begin
     w := Bitmap.Width-2-x;
   FPaletteColorRect := rect(x,y,x+w,y);
   FPaletteColorItemHeight := h-1;
+  nbVisible := (availHeight+h-2) div (h-1);
   for i := FScrollPos to FScrollPos+nbVisible-1 do
   if (i >= 0) and (i < FColors.Count) then
   begin
