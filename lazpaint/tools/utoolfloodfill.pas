@@ -40,7 +40,7 @@ type
 implementation
 
 uses ugraph, LazPaintType, BGRAGradientScanner, LCVectorRectShapes,
-  BGRATransform, UImageDiff;
+  BGRATransform, UImageDiff, BGRAPen;
 
 { TToolGradient }
 
@@ -124,13 +124,48 @@ function TToolFloodFill.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
 var
   b: TUniversalBrush;
+  f: TVectorialFill;
+  orig: TBGRALayerCustomOriginal;
+  diff: TCustomImageDifference;
+  rectShape: TRectShape;
 begin
-  if rightBtn then b := GetBackUniversalBrush
-  else b := GetForeUniversalBrush;
-  toolDest.FloodFill(pt.X, pt.Y, b, ffProgressive in Manager.FloodFillOptions, Manager.Tolerance*$101);
-  ReleaseUniversalBrushes;
-  Action.NotifyChange(toolDest, rect(0,0,toolDest.Width,toolDest.Height));
-  ValidateAction;
+  if Manager.Image.SelectionMaskEmpty and
+     toolDest.Empty then
+  begin
+    CancelAction;
+    if rightBtn then f := Manager.BackFill.Duplicate
+    else f := Manager.ForeFill.Duplicate;
+    try
+      f.ApplyOpacity(Manager.GetPressureB);
+      f.FitGeometry(SuggestGradientBox);
+      case f.FillType of
+      vftGradient: orig := f.Gradient.Duplicate;
+      else
+        begin
+          orig := TVectorOriginal.Create;
+          rectShape := TRectShape.Create(nil);
+          rectShape.QuickDefine(PointF(-0.5,-0.5), PointF(Manager.Image.Width-0.5,Manager.Image.Height-0.5));
+          rectShape.PenStyle := ClearPenStyle;
+          rectShape.BackFill.Assign(f);
+          TVectorOriginal(orig).AddShape(rectShape);
+        end;
+      end;
+      diff := TReplaceLayerByCustomOriginalDifference.Create(Manager.Image.CurrentState,
+                    Manager.Image.CurrentLayerIndex, false, orig);
+      Manager.Image.AddUndo(diff);
+      Manager.Image.ImageMayChangeCompletely;
+    finally
+      f.Free;
+    end;
+  end else
+  begin
+    if rightBtn then b := GetBackUniversalBrush
+    else b := GetForeUniversalBrush;
+    toolDest.FloodFill(pt.X, pt.Y, b, ffProgressive in Manager.FloodFillOptions, Manager.Tolerance*$101);
+    ReleaseUniversalBrushes;
+    Action.NotifyChange(toolDest, rect(0,0,toolDest.Width,toolDest.Height));
+    ValidateAction;
+  end;
   result := OnlyRenderChange;
 end;
 
