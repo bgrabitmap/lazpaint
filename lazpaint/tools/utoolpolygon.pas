@@ -255,7 +255,7 @@ begin
     key := 0;
     exit;
   end else
-    Result:=inherited ToolKeyDown(key);
+    Result:=inherited DoToolKeyDown(key);
 end;
 
 function TToolPolygon.GetContextualToolbars: TContextualToolbars;
