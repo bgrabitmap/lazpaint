@@ -209,16 +209,19 @@ begin
      (Sender.Style in [tbsButton,tbsButtonDrop,tbsCheck]) then
   begin
     T := TToolBar(Sender.Parent);
-    imgW := T.Images.Width;
-    imgH := T.Images.Height;
+    if Assigned(T.Images) then
+    begin
+      imgW := T.Images.Width;
+      imgH := T.Images.Height;
 
-    if Sender.Enabled then
-      imgS := gdeNormal
-    else
-      imgS := gdeDisabled;
+      if Sender.Enabled then
+        imgS := gdeNormal
+      else
+        imgS := gdeDisabled;
 
-    T.Images.Draw(Sender.Canvas, (Sender.Width - imgW) div 2, (Sender.Height - imgH) div
-      2, Sender.ImageIndex, imgS);
+      T.Images.Draw(Sender.Canvas, (Sender.Width - imgW) div 2, (Sender.Height - imgH) div
+        2, Sender.ImageIndex, imgS);
+    end;
   end;
 end;
 
