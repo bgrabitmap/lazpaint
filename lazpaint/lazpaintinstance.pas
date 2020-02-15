@@ -500,33 +500,26 @@ begin
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolHand);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolColorPicker);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolPen);
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolBrush);
+  FMain.Layout.DockedToolBoxAddGroup([FMain.ToolBrush, FMain.ToolClone]);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolEraser);
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolFloodfill);
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolClone);
+  FMain.Layout.DockedToolBoxAddGroup([FMain.ToolFloodfill, FMain.ToolGradient]);
 
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolEditShape);
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolRect);
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolEllipse);
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolPolygon);
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolSpline);
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolGradient);
+  FMain.Layout.DockedToolBoxAddGroup([FMain.ToolRect, FMain.ToolEllipse]);
+  FMain.Layout.DockedToolBoxAddGroup([FMain.ToolPolygon, FMain.ToolSpline]);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolPhong);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolText);
 
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolDeformation);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolTextureMapping);
 
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolSelectRect);
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolSelectEllipse);
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolSelectPoly);
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolSelectSpline);
+  FMain.Layout.DockedToolBoxAddGroup([FMain.ToolSelectRect, FMain.ToolSelectEllipse]);
+  FMain.Layout.DockedToolBoxAddGroup([FMain.ToolSelectPoly, FMain.ToolSelectSpline]);
 
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolSelectPen);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolMagicWand);
 
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolMoveSelection);
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolRotateSelection);
+  FMain.Layout.DockedToolBoxAddGroup([FMain.ToolMoveSelection, FMain.ToolRotateSelection]);
   FMain.Layout.DockedToolBoxAddButton(FMain.EditDeselect);
 
   FMain.Layout.DockedToolBoxSetImages(Icons[Config.DefaultIconSize(DoScaleX(20,OriginalDPI))]);
