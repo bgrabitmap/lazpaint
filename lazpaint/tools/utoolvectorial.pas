@@ -1267,7 +1267,7 @@ begin
     begin
       BindOriginalEvent(true);
       try
-        PasteShapesFromClipboard(GetVectorOriginal, GetOriginalTransform);
+        PasteShapesFromClipboard(GetVectorOriginal, GetOriginalTransform, Manager.Image.VisibleArea);
       finally
         BindOriginalEvent(false);
       end;

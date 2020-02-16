@@ -131,6 +131,7 @@ type
     Zoom: TZoom;
     CursorHotSpot: TPoint;
     BPP, FrameIndex, FrameCount: integer;
+    VisibleArea: TRectF;
 
     // make copy
     function MakeLayeredBitmapCopy: TBGRALayeredBitmap;

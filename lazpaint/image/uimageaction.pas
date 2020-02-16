@@ -1369,7 +1369,7 @@ begin
     if ClipboardHasShapes then
     begin
       orig := TVectorOriginal.Create;
-      PasteShapesFromClipboard(orig, AffineMatrixIdentity);
+      PasteShapesFromClipboard(orig, AffineMatrixIdentity, EmptyRectF);
       if AddLayerFromOriginal(orig, '') then
         result := Image.LayerId[Image.CurrentLayerIndex];
     end else

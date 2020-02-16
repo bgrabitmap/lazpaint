@@ -191,6 +191,9 @@ begin
   LazPaintInstance.ToolManager.RenderTool(FVirtualScreen);
 
   PaintVirtualScreenImplementation(ACanvasOfs, AWorkArea, AVSPart);
+  Image.VisibleArea := TRectF.Intersect(rectF(FormToBitmap(AWorkArea.Left, AWorkArea.Top),
+                                              FormToBitmap(AWorkArea.Right, AWorkArea.Bottom)),
+                          rectF(-0.5,-0.5,Image.Width-0.5,Image.Height-0.5));
 end;
 
 procedure TImageView.PaintVirtualScreenImplementation(ACanvasOfs: TPoint; AWorkArea: TRect; AVSPart: TRect);
