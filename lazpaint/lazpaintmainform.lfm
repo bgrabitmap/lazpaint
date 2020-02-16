@@ -1799,6 +1799,7 @@ object FMain: TFMain
       end
       object Tool_TextAlignLeft: TToolButton
         Left = 24
+        Hint = 'Align left'
         Top = 0
         Down = True
         Grouped = True
@@ -1807,6 +1808,7 @@ object FMain: TFMain
       end
       object Tool_TextAlignCenter: TToolButton
         Left = 47
+        Hint = 'Center'
         Top = 0
         Grouped = True
         ImageIndex = 85
@@ -1814,6 +1816,7 @@ object FMain: TFMain
       end
       object Tool_TextAlignRight: TToolButton
         Left = 70
+        Hint = 'Align right'
         Top = 0
         Grouped = True
         ImageIndex = 86
