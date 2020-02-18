@@ -278,12 +278,15 @@ type
     content: TStoredImage;
     previousActiveLayerId: integer;
     name: ansistring;
+    offset: TPoint;
     blendOp: TBlendOperation;
+    opacity: byte;
     function UsedMemory: int64; override;
     function TryCompress: boolean; override;
     procedure ApplyTo(AState: TState); override;
     procedure UnapplyTo(AState: TState); override;
-    constructor Create(ADestination: TState; AContent: TBGRABitmap; AName: ansistring; ABlendOp: TBlendOperation);
+    constructor Create(ADestination: TState; AContent: TBGRABitmap; AName: ansistring;
+        AOffset: TPoint; ABlendOp: TBlendOperation; AOpacity: byte);
     destructor Destroy; override;
   end;
 
@@ -300,13 +303,14 @@ type
     previousActiveLayerId: integer;
     name: ansistring;
     blendOp: TBlendOperation;
+    opacity: byte;
     matrix: TAffineMatrix;
     function UsedMemory: int64; override;
     function TryCompress: boolean; override;
     procedure ApplyTo(AState: TState); override;
     procedure UnapplyTo(AState: TState); override;
     constructor Create(ADestination: TState; AOriginal: TBGRALayerCustomOriginal;
-        AName: ansistring; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix);
+        AName: ansistring; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix; AOpacity: Byte = 255);
     destructor Destroy; override;
   end;
 
@@ -1589,7 +1593,7 @@ begin
   begin
     originalData.Position:= 0;
     origIdx:= LayeredBitmap.AddOriginalFromStream(originalData);
-    idx := LayeredBitmap.AddLayerFromOriginal(LayeredBitmap.Original[origIdx].Guid, self.blendOp);
+    idx := LayeredBitmap.AddLayerFromOriginal(LayeredBitmap.Original[origIdx].Guid, self.blendOp, self.opacity);
     LayeredBitmap.LayerUniqueId[idx] := self.layerId;
     LayeredBitmap.LayerName[idx] := name;
     LayeredBitmap.LayerOriginalMatrix[idx] := matrix;
@@ -1612,7 +1616,7 @@ end;
 
 constructor TAddLayerFromOwnedOriginalStateDifference.Create(ADestination: TState;
   AOriginal: TBGRALayerCustomOriginal; AName: ansistring;
-  ABlendOp: TBlendOperation; AMatrix: TAffineMatrix);
+  ABlendOp: TBlendOperation; AMatrix: TAffineMatrix; AOpacity: Byte);
 var idx: integer;
   imgDest: TImageState;
 begin
@@ -1628,7 +1632,7 @@ begin
   self.blendOp:= AblendOp;
   self.matrix := AMatrix;
   self.previousActiveLayerId := imgDest.LayeredBitmap.LayerUniqueId[imgDest.SelectedImageLayerIndex];
-  idx := imgDest.LayeredBitmap.AddLayerFromOwnedOriginal(AOriginal, ABlendOp);
+  idx := imgDest.LayeredBitmap.AddLayerFromOwnedOriginal(AOriginal, ABlendOp, AOpacity);
   imgDest.LayeredBitmap.LayerName[idx] := name;
   imgDest.LayeredBitmap.LayerOriginalMatrix[idx] := matrix;
   self.layerId := imgDest.LayeredBitmap.LayerUniqueId[idx];
@@ -2634,10 +2638,9 @@ begin
     bmp := content.GetBitmap;
     if bmp = nil then
       raise exception.Create('Bitmap not found');
-    idx := LayeredBitmap.AddOwnedLayer(bmp);
+    idx := LayeredBitmap.AddOwnedLayer(bmp, self.offset, self.blendOp, self.opacity);
     LayeredBitmap.LayerUniqueId[idx] := self.layerId;
     LayeredBitmap.LayerName[idx] := name;
-    LayeredBitmap.BlendOperation[idx] := self.blendOp;
     SelectedImageLayerIndex := idx;
   end;
 end;
@@ -2655,7 +2658,8 @@ begin
 end;
 
 constructor TAddLayerStateDifference.Create(ADestination: TState;
-  AContent: TBGRABitmap; AName: ansistring; ABlendOp: TBlendOperation);
+  AContent: TBGRABitmap; AName: ansistring; AOffset: TPoint;
+  ABlendOp: TBlendOperation; AOpacity: byte);
 var idx: integer;
   imgDest: TImageState;
 begin
@@ -2665,9 +2669,11 @@ begin
     raise exception.Create('Layered bitmap not created');
   self.content := TStoredImage.Create(AContent);
   self.name := AName;
+  self.offset := AOffset;
   self.blendOp:= AblendOp;
+  self.opacity:= AOpacity;
   self.previousActiveLayerId := imgDest.LayeredBitmap.LayerUniqueId[imgDest.SelectedImageLayerIndex];
-  idx := imgDest.LayeredBitmap.AddLayer(AContent, ABlendOp);
+  idx := imgDest.LayeredBitmap.AddLayer(AContent, AOffset, ABlendOp, AOpacity);
   imgDest.LayeredBitmap.LayerName[idx] := name;
   self.layerId := imgDest.LayeredBitmap.LayerUniqueId[idx];
   imgDest.SelectedImageLayerIndex := idx;

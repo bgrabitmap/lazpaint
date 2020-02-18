@@ -120,8 +120,8 @@ type
     procedure SaveToStreamAs(AStream: TStream; AFormat: TBGRAImageFormat);
     procedure SaveOriginalToStream(AStream: TStream);
     procedure SaveToFile(AFilenameUTF8: string);
-    function AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation): TCustomImageDifference;
-    function AddNewLayer(AOriginal: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix): TCustomImageDifference;
+    function AddNewLayer(ALayer: TBGRABitmap; AName: string; AOffset: TPoint; ABlendOp: TBlendOperation; AOpacity: byte = 255): TCustomImageDifference;
+    function AddNewLayer(AOriginal: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix; AOpacity: byte = 255): TCustomImageDifference;
     function DuplicateLayer: TCustomImageDifference;
     function MergerLayerOver(ALayerOverIndex: integer): TCustomImageDifference;
     function MoveLayer(AFromIndex,AToIndex: integer): TCustomImageDifference;
@@ -825,23 +825,26 @@ begin
   end;
 end;
 
-function TImageState.AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation): TCustomImageDifference;
+function TImageState.AddNewLayer(ALayer: TBGRABitmap; AName: string; AOffset: TPoint; ABlendOp: TBlendOperation; AOpacity: byte): TCustomImageDifference;
+var
+  idxLayer: Integer;
 begin
   //no undo if no previous image
   if LayeredBitmap = nil then
   begin
     SetLayeredBitmap(TBGRALayeredBitmap.Create);
-    LayeredBitmap.AddOwnedLayer(ALayer, ABlendOp);
+    idxLayer := LayeredBitmap.AddOwnedLayer(ALayer, ABlendOp, AOpacity);
+    LayeredBitmap.LayerOffset[idxLayer] := AOffset;
     result := nil;
   end else
   begin
-    result := TAddLayerStateDifference.Create(self, ALayer, AName, ABlendOp);
+    result := TAddLayerStateDifference.Create(self, ALayer, AName, AOffset, ABlendOp, AOpacity);
     ALayer.Free;
   end;
 end;
 
 function TImageState.AddNewLayer(AOriginal: TBGRALayerCustomOriginal;
-  AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix): TCustomImageDifference;
+  AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix; AOpacity: byte): TCustomImageDifference;
 var
   idx: Integer;
 begin
@@ -849,12 +852,12 @@ begin
   if LayeredBitmap = nil then
   begin
     SetLayeredBitmap(TBGRALayeredBitmap.Create);
-    idx := LayeredBitmap.AddLayerFromOwnedOriginal(AOriginal, ABlendOp);
+    idx := LayeredBitmap.AddLayerFromOwnedOriginal(AOriginal, ABlendOp, AOpacity);
     LayeredBitmap.LayerOriginalMatrix[idx] := AMatrix;
     LayeredBitmap.RenderLayerFromOriginal(idx);
     result := nil;
   end else
-    result := TAddLayerFromOwnedOriginalStateDifference.Create(self, AOriginal, AName, ABlendOp, AMatrix);
+    result := TAddLayerFromOwnedOriginalStateDifference.Create(self, AOriginal, AName, ABlendOp, AMatrix, AOpacity);
 end;
 
 function TImageState.DuplicateLayer: TCustomImageDifference;

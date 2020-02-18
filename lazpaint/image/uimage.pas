@@ -189,8 +189,9 @@ type
     function GetLayerIndexById(AId: integer): integer;
     function GetLayerIndexByGuid(AGuid: TGuid): integer;
     procedure AddNewLayer;
-    procedure AddNewLayer(AOriginal: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix);
-    procedure AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation);
+    procedure AddNewLayer(AOriginal: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix; AOpacity: byte = 255);
+    procedure AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation; AOpacity: byte = 255);
+    procedure AddNewLayer(ALayer: TBGRABitmap; AName: string; AOffset: TPoint; ABlendOp: TBlendOperation; AOpacity: byte = 255);
     procedure DuplicateLayer;
     procedure RasterizeLayer;
     procedure MergeLayerOver;
@@ -1949,37 +1950,51 @@ procedure TLazPaintImage.AddNewLayer;
 begin
   if not CheckNoAction then exit;
   try
-    AddUndo(FCurrentState.AddNewLayer(TBGRABitmap.Create(Width,Height),'',boTransparent));
+    AddUndo(FCurrentState.AddNewLayer(TBGRABitmap.Create(1,1), '', Point(0,0), boTransparent));
   except on ex: exception do NotifyException('AddNewLayer',ex);
   end;
   OnImageChanged.NotifyObservers;
 end;
 
 procedure TLazPaintImage.AddNewLayer(AOriginal: TBGRALayerCustomOriginal;
-  AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix);
+  AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix; AOpacity: byte);
 begin
   if not CheckNoAction then exit;
   try
-    AddUndo(FCurrentState.AddNewLayer(AOriginal,AName,ABlendOp,AMatrix));
+    AddUndo(FCurrentState.AddNewLayer(AOriginal, AName, ABlendOp, AMatrix, AOpacity));
     ImageMayChangeCompletely;
   except on ex: exception do NotifyException('AddNewLayer',ex);
   end;
   OnImageChanged.NotifyObservers;
 end;
 
-procedure TLazPaintImage.AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation);
+procedure TLazPaintImage.AddNewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation; AOpacity: byte);
 var temp: TBGRAbitmap;
 begin
   if not CheckNoAction then exit;
   try
-    If (ALayer.Width <> Width) or (ALayer.Height <> Height) then
+    If (ALayer.Width > Width) or (ALayer.Height > Height) then
     begin
       temp := TBGRABitmap.Create(Width,Height);
-      temp.PutImage((Width-ALayer.Width) div 2,(Height-ALayer.Height) div 2,ALayer,dmSet);
+      temp.PutImage((Width-ALayer.Width) div 2, (Height-ALayer.Height) div 2,ALayer,dmSet);
       ALayer.Free;
       ALayer := temp;
     end;
-    AddUndo(FCurrentState.AddNewLayer(ALayer, AName,ABlendOp));
+    AddUndo(FCurrentState.AddNewLayer(ALayer, AName,
+      Point((Width - ALayer.Width) div 2, (Height - ALayer.Height) div 2),
+      ABlendOp, AOpacity));
+    ImageMayChangeCompletely;
+  except on ex: exception do NotifyException('AddNewLayer',ex);
+  end;
+  OnImageChanged.NotifyObservers;
+end;
+
+procedure TLazPaintImage.AddNewLayer(ALayer: TBGRABitmap; AName: string;
+  AOffset: TPoint; ABlendOp: TBlendOperation; AOpacity: byte);
+begin
+  if not CheckNoAction then exit;
+  try
+    AddUndo(FCurrentState.AddNewLayer(ALayer, AName, AOffset, ABlendOp, AOpacity));
     ImageMayChangeCompletely;
   except on ex: exception do NotifyException('AddNewLayer',ex);
   end;

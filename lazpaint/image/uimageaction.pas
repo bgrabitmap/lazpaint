@@ -76,8 +76,9 @@ type
     procedure SelectAll;
     procedure SelectionFit;
     function NewLayer: boolean; overload;
-    function NewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation): boolean; overload;
-    function NewLayer(ALayer: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix): boolean; overload;
+    function NewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation; AOpacity: byte = 255): boolean; overload;
+    function NewLayer(ALayer: TBGRABitmap; AName: string; AOffset: TPoint; ABlendOp: TBlendOperation; AOpacity: byte = 255): boolean; overload;
+    function NewLayer(ALayer: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix; AOpacity: byte = 255): boolean; overload;
     function DuplicateLayer: boolean;
     procedure RasterizeLayer;
     procedure MergeLayerOver;
@@ -90,7 +91,7 @@ type
     function TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: TBGRABitmap = nil): boolean;
     function AddLayerFromBitmap(ABitmap: TBGRABitmap; AName: string): boolean;
     function AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal; AName: string): boolean;
-    function AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal; AName: string; AMatrix: TAffineMatrix): boolean;
+    function AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal; AName: string; AMatrix: TAffineMatrix; ABlendOp: TBlendOperation = boTransparent; AOpacity: byte = 255): boolean;
     function LoadSelection(AFilenameUTF8: string; ALoadedImage: PImageEntry = nil): boolean;
     property Image: TLazPaintImage read GetImage;
     property ToolManager: TToolManager read GetToolManager;
@@ -101,7 +102,8 @@ implementation
 
 uses Controls, Dialogs, UResourceStrings, UObject3D,
      ULoadImage, UGraph, UClipboard, Types, BGRAGradientOriginal,
-     BGRATransform, ULoading, math, LCVectorClipboard, LCVectorOriginal;
+     BGRATransform, ULoading, math, LCVectorClipboard, LCVectorOriginal,
+     BGRALayers, BGRAUTF8, UFileSystem;
 
 { TImageActions }
 
@@ -913,11 +915,29 @@ begin
 end;
 
 function TImageActions.TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: TBGRABitmap = nil): boolean;
+
+  function ComputeStretchMatrix(ASourceWidth, ASourceHeight: single): TAffineMatrix;
+  var
+    ratio: Single;
+  begin
+    ratio := max(ASourceWidth/Image.Width, ASourceHeight/Image.Height);
+    result := AffineMatrixTranslation(-ASourceWidth/2, -ASourceHeight/2);
+    if ratio > 1 then result := AffineMatrixScale(1/ratio, 1/ratio)*result;
+    result := AffineMatrixTranslation(Image.Width/2, Image.Height/2)*result;
+  end;
+
 var
   newPicture: TBGRABitmap;
   svgOrig: TBGRALayerSVGOriginal;
-  ratio: Single;
   m: TAffineMatrix;
+  ofsF: TPointF;
+  ext: String;
+  layeredBmp: TBGRACustomLayeredBitmap;
+  bmpOrig: TBGRALayerImageOriginal;
+  s: TStream;
+  i: Integer;
+  doFound, somethingDone: boolean;
+
 begin
   result := false;
   if not AbleToLoadUTF8(AFilenameUTF8) then
@@ -927,34 +947,85 @@ begin
     exit;
   end;
   try
-    if Image.DetectImageFormat(AFilenameUTF8) = ifSvg then
+    case Image.DetectImageFormat(AFilenameUTF8) of
+    ifSvg:
     begin
       svgOrig := LoadSVGOriginalUTF8(AFilenameUTF8);
-      ratio := max(svgOrig.Width/Image.Width, svgOrig.Height/Image.Height);
-      m := AffineMatrixTranslation(-svgOrig.Width/2,-svgOrig.Height/2);
-      if ratio > 1 then m := AffineMatrixScale(1/ratio,1/ratio)*m;
-      m := AffineMatrixTranslation(Image.Width/2,Image.Height/2)*m;
+      m := ComputeStretchMatrix(svgOrig.Width, svgOrig.Height);
       AddLayerFromOriginal(svgOrig, ExtractFileName(AFilenameUTF8), m);
       FreeAndNil(ALoadedImage);
-    end else
-    begin
-      if Assigned(ALoadedImage) then
-      begin
-        newPicture := ALoadedImage;
-        ALoadedImage := nil;
-      end
-      else
-      begin
-        if Assigned(FInstance) then FInstance.StartLoadingImage(AFilenameUTF8);
-        try
-          newPicture := LoadFlatImageUTF8(AFilenameUTF8).bmp;
-        finally
-          if Assigned(FInstance) then FInstance.EndLoadingImage;
-        end;
-      end;
-      AddLayerFromBitmap(newPicture, ExtractFileName(AFilenameUTF8));
     end;
-
+    ifLazPaint, ifOpenRaster, ifPaintDotNet, ifPhoxo:
+    begin
+      ext := UTF8LowerCase(ExtractFileExt(AFilenameUTF8));
+      layeredBmp := TryCreateLayeredBitmapReader(ext);
+      try
+        s := FileManager.CreateFileStream(AFilenameUTF8, fmOpenRead or fmShareDenyWrite);
+        try
+          if Assigned(FInstance) then FInstance.StartLoadingImage(AFilenameUTF8);
+          try
+            layeredBmp.LoadFromStream(s);
+          finally
+            if Assigned(FInstance) then FInstance.EndLoadingImage;
+          end;
+          m := ComputeStretchMatrix(layeredBmp.Width, layeredBmp.Height);
+          try
+            Image.DoBegin;
+            for i := 0 to layeredBmp.NbLayers-1 do
+            begin
+              if (layeredBmp.LayerOriginalGuid[i] <> GUID_NULL) and
+                 layeredBmp.LayerOriginalKnown[i] then
+              begin
+                AddLayerFromOriginal(layeredBmp.LayerOriginal[i].Duplicate,
+                  layeredBmp.LayerName[i], m*layeredBmp.LayerOriginalMatrix[i],
+                  layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]);
+              end else
+              begin
+                if IsAffineMatrixTranslation(m) then
+                begin
+                  ofsF := m*PointF(layeredBmp.LayerOffset[i].x, layeredBmp.LayerOffset[i].y);
+                  NewLayer(layeredBmp.GetLayerBitmapCopy(i), layeredBmp.LayerName[i],
+                           Point(round(ofsF.X), round(ofsF.Y)),
+                           layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]);
+                end else
+                begin
+                  bmpOrig := TBGRALayerImageOriginal.Create;
+                  bmpOrig.AssignImage(layeredBmp.GetLayerBitmapDirectly(i));
+                  AddLayerFromOriginal(bmpOrig, layeredBmp.LayerName[i],
+                    m * AffineMatrixTranslation(layeredBmp.LayerOffset[i].x, layeredBmp.LayerOffset[i].y),
+                    layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]);
+                end;
+              end;
+            end;
+          finally
+            image.DoEnd(doFound, somethingDone);
+          end;
+        finally
+          s.Free;
+        end;
+      finally
+        layeredBmp.Free;
+      end;
+    end
+    else
+      begin
+        if Assigned(ALoadedImage) then
+        begin
+          newPicture := ALoadedImage;
+          ALoadedImage := nil;
+        end
+        else
+        begin
+          if Assigned(FInstance) then FInstance.StartLoadingImage(AFilenameUTF8);
+          try
+            newPicture := LoadFlatImageUTF8(AFilenameUTF8).bmp;
+          finally
+            if Assigned(FInstance) then FInstance.EndLoadingImage;
+          end;
+        end;
+        AddLayerFromBitmap(newPicture, ExtractFileName(AFilenameUTF8));
+      end;
+    end;
   except
     on ex: Exception do
     begin
@@ -1024,7 +1095,7 @@ begin
 end;
 
 function TImageActions.AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal;
-  AName: string; AMatrix: TAffineMatrix): boolean;
+  AName: string; AMatrix: TAffineMatrix; ABlendOp: TBlendOperation; AOpacity: byte): boolean;
 begin
   if AOriginal <> nil then
   begin
@@ -1034,7 +1105,7 @@ begin
     if image.CheckNoAction then
     begin
       if not Image.SelectionMaskEmpty then ReleaseSelection;
-      result := NewLayer(AOriginal, AName, boTransparent, AMatrix);
+      result := NewLayer(AOriginal, AName, ABlendOp, AMatrix, AOpacity);
     end else
     begin
       AOriginal.Free;
@@ -1484,14 +1555,34 @@ begin
 end;
 
 function TImageActions.NewLayer(ALayer: TBGRABitmap; AName: string;
-  ABlendOp: TBlendOperation): boolean;
+  ABlendOp: TBlendOperation; AOpacity: byte): boolean;
 begin
   if image.NbLayers < MaxLayersToAdd then
   begin
     if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptDeformation] then
       ChooseTool(ptHand);
     ToolManager.ToolCloseDontReopen;
-    Image.AddNewLayer(ALayer, AName, ABlendOp);
+    Image.AddNewLayer(ALayer, AName, ABlendOp, AOpacity);
+    ToolManager.ToolOpen;
+    FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
+    result := true;
+  end else
+  begin
+    FInstance.ShowMessage(rsLayers, rsTooManyLayers);
+    ALayer.Free;
+    result := false;
+  end;
+end;
+
+function TImageActions.NewLayer(ALayer: TBGRABitmap; AName: string;
+  AOffset: TPoint; ABlendOp: TBlendOperation; AOpacity: byte): boolean;
+begin
+  if image.NbLayers < MaxLayersToAdd then
+  begin
+    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptDeformation] then
+      ChooseTool(ptHand);
+    ToolManager.ToolCloseDontReopen;
+    Image.AddNewLayer(ALayer, AName, AOffset, ABlendOp, AOpacity);
     ToolManager.ToolOpen;
     FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
     result := true;
@@ -1504,14 +1595,14 @@ begin
 end;
 
 function TImageActions.NewLayer(ALayer: TBGRALayerCustomOriginal;
-  AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix): boolean;
+  AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix; AOpacity: byte): boolean;
 begin
   if image.NbLayers < MaxLayersToAdd then
   begin
     if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptDeformation] then
       ChooseTool(ptHand);
     ToolManager.ToolCloseDontReopen;
-    Image.AddNewLayer(ALayer, AName, ABlendOp, AMatrix);
+    Image.AddNewLayer(ALayer, AName, ABlendOp, AMatrix, AOpacity);
     ToolManager.ToolOpen;
     FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
     result := true;
