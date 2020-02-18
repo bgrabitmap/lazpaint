@@ -20,6 +20,9 @@ type
   TSendLineMethod = procedure(const ALine: RawByteString) of object;
   TBusyEvent = procedure(var ASleep: boolean) of object;
 
+var
+  AutomationEnvironment: TStringList;
+
 procedure RunProcessAutomation(AExecutable: string; AParameters: array of string;
   out ASendLine: TSendLineMethod;
   AOnReceiveOutput: TReceiveLineEvent;
@@ -118,6 +121,8 @@ begin
   p := TAutomatedProcess.Create(nil);
   ASendLine := @p.SendLine;
   try
+    for i := 0 to AutomationEnvironment.Count-1 do
+      p.Environment.Add(AutomationEnvironment[i]);
     p.Executable:= AExecutable;
     for i := 0 to high(AParameters) do
       p.Parameters.Add(AParameters[i]);
@@ -156,6 +161,14 @@ begin
     Input.Write(ALine[1],length(ALine));
   Input.Write(LineEndingStr[1],length(LineEndingStr));
 end;
+
+initialization
+
+  AutomationEnvironment := TStringList.Create;
+
+finalization
+
+  AutomationEnvironment.Free;
 
 end.
 

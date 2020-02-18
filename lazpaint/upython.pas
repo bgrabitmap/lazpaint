@@ -48,7 +48,7 @@ function GetPythonVersion(APythonBin: string = DefaultPythonBin): string;
 
 implementation
 
-uses process, UResourceStrings;
+uses process, UResourceStrings, Forms;
 
 function GetPythonVersion(APythonBin: string = DefaultPythonBin): string;
 const PythonVersionPrefix = 'Python ';
@@ -191,7 +191,17 @@ begin
         '%1',inttostr(APythonVersion),[]),
         '%2',inttostr(PythonVersionMajor),[]) );
   FFirstOutput:= true;
-  RunProcessAutomation(FPythonBin, ['-u', AScriptFilename], FPythonSend, @PythonOutput, @PythonError, @PythonBusy);
+  AutomationEnvironment.Add('PYTHONPATH='+
+    {$IFDEF DEBUG}
+    ExtractFilePath(Application.ExeName)+PathDelim+'..'+PathDelim+'..'+PathDelim+'..'+PathDelim+'scripts'
+    {$ELSE}
+    ExtractFilePath(Application.ExeName)+PathDelim+'scripts'
+    {$ENDIF});
+  try
+    RunProcessAutomation(FPythonBin, ['-u', AScriptFilename], FPythonSend, @PythonOutput, @PythonError, @PythonBusy);
+  finally
+    AutomationEnvironment.Clear;
+  end;
   FPythonSend := nil;
 end;
 
