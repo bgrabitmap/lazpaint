@@ -928,6 +928,7 @@ begin
   OpenPictureDialog1.Filter := GetExtensionFilter([eoReadable]);
   OpenTextureDialog.Filter := OpenPictureDialog1.Filter;
   LoadSelectionDialog.Filter := OpenPictureDialog1.Filter;
+  OpenBrushDialog.Filter := OpenPictureDialog1.Filter;
   SavePictureDialog1.Filter := GetExtensionFilter([eoWritable]);
   SaveSelectionDialog.Filter := SavePictureDialog1.Filter;
 
@@ -1370,6 +1371,7 @@ begin
         begin
           FBrowseImages := TFBrowseImages.Create(self);
           FBrowseImages.LazPaintInstance := LazPaintInstance;
+          FBrowseImages.Filter:= OpenPictureDialog1.Filter;
           FBrowseImages.ShowRememberStartupDirectory := true;
         end;
       end;
@@ -1380,8 +1382,10 @@ begin
           self.Hide;
           FBrowseImages.InitialDirectory:= FLoadInitialDir;
           FBrowseImages.AllowMultiSelect:= true;
+          FBrowseImages.FilterIndex := OpenPictureDialog1.FilterIndex;
           if FBrowseImages.ShowModal = mrOK then
           begin
+            OpenPictureDialog1.FilterIndex := FBrowseImages.FilterIndex;
             setlength(chosenFiles, FBrowseImages.SelectedFileCount);
             for i := 0 to high(chosenFiles) do
               chosenFiles[i] := FBrowseImages.SelectedFile[i];
@@ -1538,7 +1542,6 @@ begin
     SavePictureDialog1.FilterIndex := 1;
     filename := ChangeFileExt(Filename,'');
   end;
-  SavePictureDialog1.FileName := filename;
 
   case SuggestImageFormat(Image.CurrentFilenameUTF8) of
   ifCur: defaultExt := '.cur';
@@ -1569,6 +1572,7 @@ begin
         FSaveImage := TFBrowseImages.Create(self);
         FSaveImage.LazPaintInstance := LazPaintInstance;
         FSaveImage.IsSaveDialog := true;
+        FSaveImage.Filter := SavePictureDialog1.Filter;
         FSaveImage.Caption := SavePictureDialog1.Title;
         FSaveImage.ShowRememberStartupDirectory:= true;
         if Config.DefaultRememberSaveFormat then
@@ -1577,12 +1581,17 @@ begin
       FSaveImage.InitialFilename := filename;
       FSaveImage.DefaultExtension := defaultExt;
       FSaveImage.InitialDirectory:= initialDir;
+      FSaveImage.FilterIndex := SavePictureDialog1.FilterIndex;
       if FSaveImage.ShowModal = mrOK then
-        result := DoSaveAs(FSaveImage.FileName)
+      begin
+        SavePictureDialog1.FilterIndex := FSaveImage.FilterIndex;
+        result := DoSaveAs(FSaveImage.FileName);
+      end
       else
         result := srCancelledByUser;
     end else
     begin
+      SavePictureDialog1.FileName := filename;
       SavePictureDialog1.DefaultExt := defaultExt;
       SavePictureDialog1.InitialDir:= initialDir;
       if SavePictureDialog1.Execute then
@@ -1943,13 +1952,16 @@ begin
       begin
         FBrowseSelections := TFBrowseImages.Create(self);
         FBrowseSelections.LazPaintInstance := LazPaintInstance;
+        FBrowseSelections.Filter := LoadSelectionDialog.Filter;
         FBrowseSelections.AllowMultiSelect := false;
         FBrowseSelections.Caption := LoadSelectionDialog.Title;
       end;
       self.Hide;
       try
+        FBrowseSelections.FilterIndex:= LoadSelectionDialog.FilterIndex;
         if FBrowseSelections.ShowModal = mrOK then
         begin
+          LoadSelectionDialog.FilterIndex := FBrowseSelections.FilterIndex;
           LazPaintInstance.ShowTopmost(topmost);
           selectionFileName := FBrowseSelections.Filename;
           loadedImage := FBrowseSelections.GetChosenImage;
@@ -2053,13 +2065,18 @@ begin
       FSaveSelection := TFBrowseImages.Create(self);
       FSaveSelection.LazPaintInstance := LazPaintInstance;
       FSaveSelection.IsSaveDialog := true;
+      FSaveSelection.Filter := SaveSelectionDialog.Filter;
       FSaveSelection.Caption := SaveSelectionDialog.Title;
       FSaveSelection.DefaultExtension := SaveSelectionDialog.DefaultExt;
     end;
     if initialDir<>'' then FSaveSelection.InitialDirectory := initialDir;
     FSaveSelection.InitialFilename := ExtractFileName(filename);
+    FSaveSelection.FilterIndex := SaveSelectionDialog.FilterIndex;
     if (FSaveSelection.ShowModal = mrOk) and (FSaveSelection.Filename <> '') then
-      filename := FSaveSelection.Filename
+    begin
+      SaveSelectionDialog.FilterIndex := FSaveSelection.FilterIndex;
+      filename := FSaveSelection.Filename;
+    end
     else
       filename := '';
   end else
@@ -2394,15 +2411,18 @@ begin
     begin
       FBrowseImages := TFBrowseImages.Create(self);
       FBrowseImages.LazPaintInstance := LazPaintInstance;
+      FBrowseImages.Filter := OpenPictureDialog1.Filter;
       FBrowseImages.ShowRememberStartupDirectory := true;
     end;
     self.Hide;
     FBrowseImages.InitialDirectory:= FLoadInitialDir;
     FBrowseImages.AllowMultiSelect := true;
     FBrowseImages.OpenLayerIcon := true;
+    FBrowseImages.FilterIndex:= OpenPictureDialog1.FilterIndex;
     try
       if FBrowseImages.ShowModal = mrOK then
       begin
+        OpenPictureDialog1.FilterIndex := FBrowseImages.FilterIndex;
         setlength(chosenFiles, FBrowseImages.SelectedFileCount);
         for i := 0 to high(chosenFiles) do
           chosenFiles[i] := FBrowseImages.SelectedFile[i];
@@ -3843,14 +3863,17 @@ begin
       begin
         FBrowseTextures := TFBrowseImages.Create(self);
         FBrowseTextures.LazPaintInstance := LazPaintInstance;
+        FBrowseTextures.Filter := OpenTextureDialog.Filter;
         FBrowseTextures.AllowMultiSelect := false;
         FBrowseTextures.Caption := OpenTextureDialog.Title;
       end;
       self.Hide;
       try
         FBrowseTextures.InitialDirectory := Config.DefaultTextureDirectory;
+        FBrowseTextures.FilterIndex:= OpenTextureDialog.FilterIndex;
         if FBrowseTextures.ShowModal = mrOK then
         begin
+          OpenTextureDialog.FilterIndex := FBrowseTextures.FilterIndex;
           texFilename := FBrowseTextures.Filename;
           newTex := FBrowseTextures.GetChosenImage.bmp;
         end;
@@ -3911,14 +3934,17 @@ begin
       begin
         FBrowseBrushes := TFBrowseImages.Create(self);
         FBrowseBrushes.LazPaintInstance := LazPaintInstance;
+        FBrowseBrushes.Filter := OpenBrushDialog.Filter;
         FBrowseBrushes.AllowMultiSelect := false;
         FBrowseBrushes.Caption := OpenBrushDialog.Title;
       end;
       self.Hide;
       try
         FBrowseBrushes.InitialDirectory := Config.DefaultBrushDirectory;
+        FBrowseBrushes.FilterIndex:= OpenBrushDialog.FilterIndex;
         if FBrowseBrushes.ShowModal = mrOK then
         begin
+          OpenBrushDialog.FilterIndex := FBrowseBrushes.FilterIndex;
           brushFilename := FBrowseBrushes.Filename;
           newBrushBmp := FBrowseBrushes.GetChosenImage.bmp;
         end;

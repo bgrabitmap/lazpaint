@@ -75,6 +75,7 @@ type
     FLazPaintInstance: TLazPaintCustomInstance;
     FDefaultExtension: string;
     { private declarations }
+    FFileExtensionFilter: string;
     FFileExtensions: array of string;
     FDefaultExtensions: string;
     FOpenButtonHint: string;
@@ -99,8 +100,11 @@ type
     FSelectedFiles: array of string;
     FCreateFolderOrContainerCaption: string;
     function GetCurrentExtensionFilter: string;
+    function GetFilterIndex: integer;
     function GetInitialFilename: string;
     function GetOpenLayerIcon: boolean;
+    procedure SetFileExtensionFilter(AValue: string);
+    procedure SetFilterIndex(AValue: integer);
     procedure SetInitialFilename(AValue: string);
     procedure SetLazPaintInstance(AValue: TLazPaintCustomInstance);
     procedure SetOpenLayerIcon(AValue: boolean);
@@ -146,6 +150,8 @@ type
     property DefaultExtensions: string read FDefaultExtensions write FDefaultExtensions;
     property InitialFilename: string read GetInitialFilename write SetInitialFilename;
     property CurrentExtensionFilter: string read GetCurrentExtensionFilter;
+    property Filter: string read FFileExtensionFilter write SetFileExtensionFilter;
+    property FilterIndex: integer read GetFilterIndex write SetFilterIndex;
     property OpenLayerIcon: boolean read GetOpenLayerIcon write SetOpenLayerIcon;
   end;
 
@@ -267,7 +273,6 @@ begin
   FChosenImage := TImageEntry.Empty;
 
   DarkThemeInstance.Apply(ComboBox_FileExtension, False, 0.40);
-  InitComboExt;
 
   bmp := TBitmap.Create;
   ImageList128.GetBitmap(0,bmp);
@@ -735,12 +740,36 @@ begin
   result := ToolButton_OpenSelectedFiles.ImageIndex = 7;
 end;
 
+procedure TFBrowseImages.SetFileExtensionFilter(AValue: string);
+begin
+  if FFileExtensionFilter=AValue then Exit;
+  FFileExtensionFilter:=AValue;
+  InitComboExt;
+end;
+
+procedure TFBrowseImages.SetFilterIndex(AValue: integer);
+begin
+  if AValue < 1 then AValue := 1;
+  if AValue > ComboBox_FileExtension.Items.Count then
+    AValue := ComboBox_FileExtension.Items.Count;
+  if AValue <> ComboBox_FileExtension.ItemIndex then
+  begin
+    ComboBox_FileExtension.ItemIndex := AValue-1;
+    if Visible then ComboBox_FileExtensionChange(nil);
+  end;
+end;
+
 function TFBrowseImages.GetCurrentExtensionFilter: string;
 begin
   if (ComboBox_FileExtension.ItemIndex >= 0) and (ComboBox_FileExtension.ItemIndex < length(FFileExtensions)) then
     result := FFileExtensions[ComboBox_FileExtension.ItemIndex]
   else
     result := '*.*';
+end;
+
+function TFBrowseImages.GetFilterIndex: integer;
+begin
+  result := ComboBox_FileExtension.ItemIndex+1;
 end;
 
 procedure TFBrowseImages.SetInitialFilename(AValue: string);
@@ -832,7 +861,6 @@ begin
     ToolButton_OpenSelectedFiles.ImageIndex := 5;
     ToolButton_OpenSelectedFiles.Hint := FOpenButtonHint;
   end;
-  InitComboExt;
 end;
 
 procedure TFBrowseImages.StartThumbnails;
@@ -1058,15 +1086,11 @@ begin
 end;
 
 procedure TFBrowseImages.InitComboExt;
-var extFilter: string;
+var
   parsedExt: TStringList;
   i: integer;
 begin
-  if IsSaveDialog then
-    extFilter := GetExtensionFilter([eoWritable],'')
-  else
-    extFilter := GetExtensionFilter([eoReadable],'');
-  parsedExt := TParseStringList.Create(extFilter,'|');
+  parsedExt := TParseStringList.Create(FFileExtensionFilter,'|');
   setlength(FFileExtensions, parsedExt.Count div 2);
   ComboBox_FileExtension.Clear;
   for i := 0 to high(FFileExtensions) do
