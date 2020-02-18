@@ -527,6 +527,7 @@ var
     begin
       maxScroll := ItemCount*32 - (h-textHeight)*32 div FActualRowHeight + 8;
       if maxScroll < 0 then maxScroll := 0;
+      if FVerticalScrollPos > maxScroll then FVerticalScrollPos:= maxScroll;
       FVScrollBar := TVolatileScrollBar.Create(w-VolatileScrollBarSize,textHeight,
          VolatileScrollBarSize,h-textHeight,sbVertical,FVerticalScrollPos,0,maxScroll);
     end;
@@ -619,6 +620,7 @@ var
     begin
       maxScroll := ((ItemCount+FIconsPerLine-1) div FIconsPerLine)*32*FIconsPerLine - (h*32*FIconsPerLine div totalIconVSize) + 8*FIconsPerLine;
       if maxScroll < 0 then maxScroll := 0;
+      if FVerticalScrollPos > maxScroll then FVerticalScrollPos:= maxScroll;
       FVScrollBar := TVolatileScrollBar.Create(w-VolatileScrollBarSize,0,
          VolatileScrollBarSize,h,sbVertical,FVerticalScrollPos,0,maxScroll);
     end;
