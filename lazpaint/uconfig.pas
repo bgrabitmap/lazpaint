@@ -718,7 +718,7 @@ end;
 
 function TLazPaintConfig.DefaultUndoRedoToolbarVisible: boolean;
 begin
-  result := iniOptions.ReadBool('Toolbar','UndoRedoToolbar',false);
+  result := iniOptions.ReadBool('Toolbar','UndoRedoToolbar',true);
 end;
 
 procedure TLazPaintConfig.SetDefaultUndoRedoToolbarVisible(value: boolean);
