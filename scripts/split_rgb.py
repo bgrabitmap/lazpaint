@@ -1,3 +1,4 @@
+# Split RGB channels
 from lazpaint import image, layer, tools, colors
 
 image.do_begin()

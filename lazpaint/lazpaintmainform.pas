@@ -28,6 +28,7 @@ type
   TFMain = class(TForm)
     FileExport: TAction;
     ExportPictureDialog: TSaveDialog;
+    MenuScript: TMenuItem;
     ToolOpenedCurve: TAction;
     ToolPolyline: TAction;
     FileRunScript: TAction;
@@ -976,7 +977,7 @@ begin
   m := TMainFormMenu.Create(LazPaintInstance, ActionList1);
   m.DarkTheme := Config.GetDarkTheme;
   m.PredefinedMainMenus([MenuFile,MenuEdit,MenuSelect,MenuView, MenuImage,MenuRemoveTransparency,
-    MenuColors,MenuTool, MenuFilter,MenuRadialBlur, MenuRender,MenuHelp]);
+    MenuColors,MenuTool, MenuFilter,MenuRadialBlur, MenuRender,MenuScript,MenuHelp]);
   m.Toolbars([Panel_Embedded,Panel_File,Panel_Zoom,Panel_Undo,Panel_CopyPaste,Panel_Coordinates,
     Panel_Tool,Panel_PenFill,Panel_SwapColor,Panel_BackFill,Panel_ColorDiff,Panel_Grid,
     Panel_ShapeOption,Panel_PenWidth,Panel_PenStyle,Panel_JoinStyle,

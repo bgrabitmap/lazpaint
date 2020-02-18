@@ -1,3 +1,4 @@
+# Layer shadow
 from lazpaint import dialog
 
 try:

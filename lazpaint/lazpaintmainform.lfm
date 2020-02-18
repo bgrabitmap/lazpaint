@@ -8608,6 +8608,10 @@ object FMain: TFMain
       Caption = 'Render'
       Visible = False
     end
+    object MenuScript: TMenuItem
+      Caption = 'Script'
+      Visible = False
+    end
     object MenuHelp: TMenuItem
       Caption = 'Help'
       Visible = False

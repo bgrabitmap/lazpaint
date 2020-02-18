@@ -27,17 +27,21 @@ type
     FImageList: TImageList;
     procedure IconSizeItemClick(Sender: TObject);
     procedure IconSizeMenuClick(Sender: TObject);
+    procedure Script_Click(Sender: TObject);
     procedure SetDarkTheme(AValue: boolean);
   protected
     FInstance: TLazPaintCustomInstance;
+    FInstalledScripts: TStringList;
     procedure AddMenus(AMenu: TMenuItem; AActionList: TActionList; AActionsCommaText: string; AIndex: integer = -1); overload;
     procedure AddMenus(AMenuName: string; AActionsCommaText: string); overload;
+    procedure AddInstalledScripts(AMenu: TMenuItem; AIndex: integer = -1);
     procedure ApplyShortcuts;
     procedure ActionShortcut(AName: string; AShortcut: TUTF8Char);
     procedure ApplyTheme;
     function GetIndividualToolbarHeight: integer;
   public
     constructor Create(AInstance: TLazPaintCustomInstance; AActionList: TActionList);
+    destructor Destroy; override;
     procedure PredefinedMainMenus(const AMainMenus: array of TMenuItem);
     procedure Toolbars(const AToolbars: array of TPanel; AToolbarBackground: TPanel);
     procedure CycleTool(var ATool: TPaintToolType; var AShortCut: TUTF8Char);
@@ -53,7 +57,8 @@ implementation
 
 uses UResourceStrings, BGRAUTF8, LCScaleDPI, ComCtrls, Graphics,
   StdCtrls, BGRAText, math, udarktheme,
-  ugraph, BGRABitmapTypes, LCVectorialFillControl;
+  ugraph, BGRABitmapTypes, LCVectorialFillControl,
+  UPython;
 
 { TMainFormMenu }
 
@@ -66,6 +71,19 @@ begin
   iconSize := FInstance.Config.DefaultIconSize(0);
   for i := 0 to menu.Count-1 do
     menu.Items[i].Checked := (menu.Items[i].Tag = iconSize);
+end;
+
+procedure TMainFormMenu.Script_Click(Sender: TObject);
+var
+  item: TMenuItem;
+  scriptIndex: integer;
+begin
+  if Assigned(FInstalledScripts) then
+  begin
+    item := Sender as TMenuItem;
+    scriptIndex := item.Tag;
+    FInstance.RunScript(FInstalledScripts[scriptIndex]);
+  end;
 end;
 
 procedure TMainFormMenu.SetDarkTheme(AValue: boolean);
@@ -123,6 +141,11 @@ begin
     begin
       AIndex := -1;
       Continue;
+    end;
+    if actions[i]='InstalledScripts' then
+    begin
+      AddInstalledScripts(AMenu, AIndex);
+      continue;
     end;
     item := TMenuItem.Create(nil);
     if trim(actions[i]) = '-' then
@@ -216,6 +239,43 @@ begin
     end;
 end;
 
+procedure TMainFormMenu.AddInstalledScripts(AMenu: TMenuItem; AIndex: integer);
+var
+  path, fullname, header, title: String;
+  searchRec: TSearchRec;
+  t: textFile;
+  item: TMenuItem;
+begin
+  if FInstalledScripts = nil then FInstalledScripts := TStringList.Create;
+  path := TPythonScript.DefaultScriptDirectory;
+  if FindFirstUTF8(path+PathDelim+'*.py', faAnyFile, searchRec)=0 then
+  begin
+    try
+      repeat
+        fullname := path+PathDelim+searchRec.Name;
+        if FileExistsUTF8(fullname) then
+        begin
+          assignFile(t, fullname);
+          reset(t);
+          readln(t, header);
+          closefile(t);
+          if header.StartsWith('#') then
+          begin
+            title := header.Substring(1).Trim;
+            item := TMenuItem.Create(AMenu);
+            item.Caption := title;
+            item.Tag := FInstalledScripts.Add(fullname);
+            item.OnClick:=@Script_Click;
+            AMenu.Add(item);
+          end;
+        end;
+      until FindNextUTF8(searchRec)<>0;
+    finally
+      FindCloseUTF8(searchRec);
+    end;
+  end;
+end;
+
 procedure TMainFormMenu.ActionShortcut(AName: string; AShortcut: TUTF8Char);
 var foundAction: TBasicAction;
   ShortcutStr: string;
@@ -278,6 +338,12 @@ begin
   FInstance := AInstance;
   FActionList := AActionList;
   FToolbarsHeight := 0;
+end;
+
+destructor TMainFormMenu.Destroy;
+begin
+  FInstalledScripts.Free;
+  inherited Destroy;
 end;
 
 procedure TMainFormMenu.PredefinedMainMenus(const AMainMenus: array of TMenuItem);
@@ -343,7 +409,7 @@ begin
   with FActionList.Actions[i] as TAction do
     if (Caption = '') and (Hint <> '') then Caption := Hint;
 
-  AddMenus('MenuFile',   'FileNew,FileOpen,LayerFromFile,FileChooseEntry,FileReload,MenuRecentFiles,-,FileSave,FileSaveAsInSameFolder,FileSaveAs,FileExport,-,FileRunScript,FileImport3D,-,FilePrint,-,'+ImageBrowser+'FileRememberSaveFormat,ForgetDialogAnswers,MenuLanguage,*');
+  AddMenus('MenuFile',   'FileNew,FileOpen,LayerFromFile,FileChooseEntry,FileReload,MenuRecentFiles,-,FileSave,FileSaveAsInSameFolder,FileSaveAs,FileExport,-,FileImport3D,-,FilePrint,-,'+ImageBrowser+'FileRememberSaveFormat,ForgetDialogAnswers,MenuLanguage,*');
   AddMenus('MenuEdit',   'EditUndo,EditRedo,-,EditCut,EditCopy,EditPaste,EditPasteAsNew,EditPasteAsNewLayer,EditDeleteSelection,-,EditMoveUp,EditMoveToFront,EditMoveDown,EditMoveToBack,EditShapeAlign,EditShapeToCurve');
   AddMenus('MenuSelect', 'EditSelection,FileLoadSelection,FileSaveSelectionAs,-,EditSelectAll,EditInvertSelection,EditSelectionFit,EditDeselect,-,ToolSelectRect,ToolSelectEllipse,ToolSelectPoly,ToolSelectSpline,-,ToolMoveSelection,ToolRotateSelection,SelectionHorizontalFlip,SelectionVerticalFlip,-,ToolSelectPen,ToolMagicWand');
   AddMenus('MenuView',   'ViewGrid,ViewZoomOriginal,ViewZoomIn,ViewZoomOut,ViewZoomFit,-,ViewToolBox,ViewColors,ViewPalette,ViewLayerStack,ViewImageList,ViewStatusBar,-,*,-,ViewDarkTheme,ViewWorkspaceColor,MenuIconSize');
@@ -354,6 +420,7 @@ begin
   AddMenus('MenuColors', 'ColorCurves,ColorPosterize,ColorColorize,ColorShiftColors,FilterComplementaryColor,ColorIntensity,-,ColorLightness,FilterNegative,FilterLinearNegative,FilterNormalize,FilterGrayscale');
   AddMenus('MenuTool',   'ToolHand,ToolHotSpot,ToolColorPicker,-,ToolPen,ToolBrush,ToolEraser,ToolFloodFill,ToolClone,-,ToolEditShape,ToolRect,ToolEllipse,ToolPolyline,ToolOpenedCurve,ToolPolygon,ToolSpline,ToolGradient,ToolPhong,ToolText,-,ToolDeformation,ToolTextureMapping');
   AddMenus('MenuRender', 'RenderPerlinNoise,RenderCyclicPerlinNoise,-,RenderWater,RenderCustomWater,RenderSnowPrint,RenderWood,RenderWoodVertical,RenderMetalFloor,RenderPlastik,RenderStone,RenderRoundStone,RenderMarble,RenderCamouflage,-,RenderClouds,FilterRain');
+  AddMenus('MenuScript', 'FileRunScript,-,InstalledScripts');
   AddMenus('MenuHelp',   'HelpIndex,-,HelpAbout');
   for i := 0 to high(FMainMenus) do
     if FMainMenus[i].Count = 0 then FMainMenus[i].visible := false;

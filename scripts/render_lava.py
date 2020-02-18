@@ -1,3 +1,4 @@
+# Render Lava
 from lazpaint import image, layer, filters, colors
 
 image.do_begin()
