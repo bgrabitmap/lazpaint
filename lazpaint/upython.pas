@@ -192,7 +192,7 @@ begin
         '%1',inttostr(APythonVersion),[]),
         '%2',inttostr(PythonVersionMajor),[]) );
   FFirstOutput:= true;
-  AutomationEnvironment.Add('PYTHONPATH='+DefaultScriptDirectory);
+  AutomationEnvironment.Values['PYTHONPATH'] := DefaultScriptDirectory;
   try
     RunProcessAutomation(FPythonBin, ['-u', AScriptFilename], FPythonSend, @PythonOutput, @PythonError, @PythonBusy);
   finally

@@ -121,8 +121,10 @@ begin
   p := TAutomatedProcess.Create(nil);
   ASendLine := @p.SendLine;
   try
+    for i := 1 to GetEnvironmentVariableCount do
+      p.Environment.Add(GetEnvironmentString(I));
     for i := 0 to AutomationEnvironment.Count-1 do
-      p.Environment.Add(AutomationEnvironment[i]);
+      p.Environment.Values[AutomationEnvironment.Names[i]] := AutomationEnvironment.Values[AutomationEnvironment.Names[i]];
     p.Executable:= AExecutable;
     for i := 0 to high(AParameters) do
       p.Parameters.Add(AParameters[i]);
