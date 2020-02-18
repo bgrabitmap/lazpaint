@@ -31,6 +31,8 @@ def drawTree(x1, y1, angle, depth):
         drawTree(x2, y2, angle - random.randint(10,25), depth - 3)
         drawTree(x2, y2, angle + random.randint(15,50), depth - 4)
 
+image.do_begin()
 layer.new()
-drawTree(image.get_width() / 2, image.get_height(), -91, 9)
+drawTree(image.get_width() / 2, image.get_height(), -91, 7)
 flush_line()
+image.do_end()

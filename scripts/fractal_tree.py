@@ -37,6 +37,8 @@ def drawTree(x1, y1, angle, depth):
         drawTree(x2, y2, angle - ANGLE, depth - 2)
         drawTree(x2, y2, angle + ANGLE, depth - 2)
 
+image.do_begin()
 layer.new()
 drawTree(image.get_width() / 2, image.get_height(), -90, 14)
 flush_line()
+image.do_end()
