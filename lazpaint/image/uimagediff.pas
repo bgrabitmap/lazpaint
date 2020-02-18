@@ -468,10 +468,10 @@ type
   protected
     FStreamBefore, FStreamAfter: TMemoryStream;
     FSelectionDiff,FSelectionLayerDiff: TImageDiff;
-    procedure Init(AState: TState; AValue: TBGRALayeredBitmap; AOwned: boolean; ASelectedLayerIndex: integer);
+    procedure Init(AState: TState; AValue: TBGRACustomLayeredBitmap; AOwned: boolean; ASelectedLayerIndex: integer);
   public
-    constructor Create(AState: TState; AValue: TBGRALayeredBitmap; AOwned: boolean; ASelectedLayerIndex: integer);
-    constructor Create(AState: TState; AValue: TBGRALayeredBitmap; AOwned: boolean; ASelectedLayerIndex: integer; ACurrentSelection: TBGRABitmap; ASelectionLayer: TBGRABitmap);
+    constructor Create(AState: TState; AValue: TBGRACustomLayeredBitmap; AOwned: boolean; ASelectedLayerIndex: integer);
+    constructor Create(AState: TState; AValue: TBGRACustomLayeredBitmap; AOwned: boolean; ASelectedLayerIndex: integer; ACurrentSelection: TBGRABitmap; ASelectionLayer: TBGRABitmap);
     function UsedMemory: int64; override;
     function TryCompress: boolean; override;
     procedure ApplyTo(AState: TState); override;
@@ -2055,7 +2055,7 @@ end;
 
 { TAssignStateDifference }
 
-procedure TAssignStateDifference.Init(AState: TState; AValue: TBGRALayeredBitmap; AOwned: boolean; ASelectedLayerIndex: integer);
+procedure TAssignStateDifference.Init(AState: TState; AValue: TBGRACustomLayeredBitmap; AOwned: boolean; ASelectedLayerIndex: integer);
 begin
   with AState as TImageState do
   begin
@@ -2071,18 +2071,18 @@ begin
 end;
 
 constructor TAssignStateDifference.Create(AState: TState;
-  AValue: TBGRALayeredBitmap; AOwned: boolean; ASelectedLayerIndex: integer);
+  AValue: TBGRACustomLayeredBitmap; AOwned: boolean; ASelectedLayerIndex: integer);
 begin
   inherited Create(AState);
-  Init(AState,AValue,AOwned,ASelectedLayerIndex);
+  Init(AState, AValue, AOwned, ASelectedLayerIndex);
 end;
 
 constructor TAssignStateDifference.Create(AState: TState;
-  AValue: TBGRALayeredBitmap; AOwned: boolean; ASelectedLayerIndex: integer;
+  AValue: TBGRACustomLayeredBitmap; AOwned: boolean; ASelectedLayerIndex: integer;
   ACurrentSelection: TBGRABitmap; ASelectionLayer: TBGRABitmap);
 begin
   inherited Create(AState);
-  Init(AState,AValue,AOwned,ASelectedLayerIndex);
+  Init(AState, AValue, AOwned, ASelectedLayerIndex);
   FSelectionDiff := TImageDiff.Create((AState as TImageState).SelectionMask, ACurrentSelection);
   FSelectionLayerDiff := TImageDiff.Create((AState as TImageState).SelectionLayer, ASelectionLayer);
   (AState as TImageState).ReplaceSelection(ACurrentSelection, ASelectionLayer);

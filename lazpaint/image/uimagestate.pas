@@ -74,7 +74,7 @@ type
     // whole image
     procedure SetSize(AWidth,AHeight: integer);
     procedure Assign(AValue: TBGRABitmap; AOwned: boolean);
-    procedure Assign(AValue: TBGRALayeredBitmap; AOwned: boolean);
+    procedure Assign(AValue: TBGRACustomLayeredBitmap; AOwned: boolean);
     procedure Assign(AValue: TImageState; AOwned: boolean);
 
     function RotateCW: TCustomImageDifference;
@@ -111,8 +111,8 @@ type
 
     procedure PrepareForRendering;
     function ComputeFlatImageWithoutSelection(ASeparateXorMask: boolean): TBGRABitmap;
-    function AssignWithUndo(AValue: TBGRALayeredBitmap; AOwned: boolean; ASelectedLayerIndex: integer): TCustomImageDifference;
-    function AssignWithUndo(AValue: TBGRALayeredBitmap; AOwned: boolean; ASelectedLayerIndex: integer; ACurrentSelection: TBGRABitmap; ASelectionLayer:TBGRABitmap): TCustomImageDifference;
+    function AssignWithUndo(AValue: TBGRACustomLayeredBitmap; AOwned: boolean; ASelectedLayerIndex: integer): TCustomImageDifference;
+    function AssignWithUndo(AValue: TBGRACustomLayeredBitmap; AOwned: boolean; ASelectedLayerIndex: integer; ACurrentSelection: TBGRABitmap; ASelectionLayer:TBGRABitmap): TCustomImageDifference;
     function AssignWithUndo(AState: TImageState; AOwned: boolean): TCustomImageDifference;
     function GetUndoAfterAssign(ABackup: TImageState): TCustomImageDifference;
     procedure LoadFromStream(AStream: TStream);
@@ -683,14 +683,17 @@ begin
   SelectedImageLayerIndex := 0;
 end;
 
-procedure TImageState.Assign(AValue: TBGRALayeredBitmap; AOwned: boolean);
+procedure TImageState.Assign(AValue: TBGRACustomLayeredBitmap; AOwned: boolean);
 begin
-  if AOwned then
+  if AOwned and (AValue is TBGRALayeredBitmap) then
   begin
     LayeredBitmap.Free;
-    SetLayeredBitmap(AValue);
+    SetLayeredBitmap(TBGRALayeredBitmap(AValue));
   end else
+  begin
     LayeredBitmap.Assign(AValue, true, true);
+    if AOwned then AValue.Free;
+  end;
   if NbLayers > 0 then
   begin
     SelectedImageLayerIndex := 0
@@ -735,7 +738,7 @@ begin
   end;
 end;
 
-function TImageState.AssignWithUndo(AValue: TBGRALayeredBitmap;
+function TImageState.AssignWithUndo(AValue: TBGRACustomLayeredBitmap;
   AOwned: boolean; ASelectedLayerIndex: integer): TCustomImageDifference;
 begin
   if LayeredBitmap = nil then
@@ -744,7 +747,7 @@ begin
     result := TAssignStateDifference.Create(self, AValue, AOwned, ASelectedLayerIndex);
 end;
 
-function TImageState.AssignWithUndo(AValue: TBGRALayeredBitmap;
+function TImageState.AssignWithUndo(AValue: TBGRACustomLayeredBitmap;
   AOwned: boolean; ASelectedLayerIndex: integer; ACurrentSelection: TBGRABitmap;
   ASelectionLayer: TBGRABitmap): TCustomImageDifference;
 begin

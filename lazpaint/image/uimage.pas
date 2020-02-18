@@ -204,7 +204,7 @@ type
     // whole image
     procedure Assign(const AValue: TBGRABitmap; AOwned: boolean; AUndoable: boolean;
                      ACaption: string = ''; AOpacity: byte = 255); overload;
-    procedure Assign(const AValue: TBGRALayeredBitmap; AOwned: boolean; AUndoable: boolean); overload;
+    procedure Assign(const AValue: TBGRACustomLayeredBitmap; AOwned: boolean; AUndoable: boolean); overload;
     procedure Assign(const AValue: TLayeredBitmapAndSelection; AOwned: boolean; AUndoable: boolean); overload;
 
     procedure SwapRedBlue;
@@ -672,7 +672,8 @@ procedure TLazPaintImage.LoadFromFileUTF8(AFilename: string);
 var s: TStream;
   ext: string;
   bmp: TBGRABitmap;
-  layeredBmp: TBGRALayeredBitmap;
+  layeredBmp: TBGRACustomLayeredBitmap;
+  temp: TBGRALayeredBitmap;
 begin
   if not CheckNoAction then exit;
 
@@ -682,15 +683,24 @@ begin
   try
     s := FileManager.CreateFileStream(AFilename, fmOpenRead or fmShareDenyWrite);
 
-    layeredBmp := TryCreateLayeredBitmapReader(ext) as TBGRALayeredBitmap;
+    layeredBmp := TryCreateLayeredBitmapReader(ext);
     if Assigned(layeredBmp) then
     begin
       layeredBmp.LoadFromStream(s);
       with ComputeAcceptableImageSize(layeredBmp.Width,layeredBmp.Height) do
         if (cx < layeredBmp.Width) or (cy < layeredBmp.Height) then
-          layeredBmp.Resample(cx,cy,rmFineResample);
+        begin
+          if not (layeredBmp is TBGRALayeredBitmap) then
+          begin
+            temp := TBGRALayeredBitmap.Create;
+            temp.Assign(layeredBmp, true, true);
+            layeredBmp.Free;
+            layeredBmp := temp;
+          end;
+          (layeredBmp as TBGRALayeredBitmap).Resample(cx, cy, rmFineResample);
+        end;
       CursorHotSpot := Point(0,0);
-      Assign(layeredBmp,true,false);
+      Assign(layeredBmp, true, false);
       if layeredBmp is TBGRALazPaintImage then
         SetCurrentLayerByIndex(TBGRALazPaintImage(layeredBmp).SelectedLayerIndex);
       layeredBmp := nil;
@@ -1863,7 +1873,7 @@ begin
   Assign(layeredBmp,True,AUndoable);
 end;
 
-procedure TLazPaintImage.Assign(const AValue: TBGRALayeredBitmap;
+procedure TLazPaintImage.Assign(const AValue: TBGRACustomLayeredBitmap;
   AOwned: boolean; AUndoable: boolean);
 var idx: integer;
 begin
@@ -1878,12 +1888,12 @@ begin
   begin
     idx := FCurrentState.SelectedImageLayerIndex;
     if idx > AValue.NbLayers-1 then idx := 0;
-    AddUndo(FCurrentState.AssignWithUndo(AValue,AOwned,idx,nil,nil));
+    AddUndo(FCurrentState.AssignWithUndo(AValue, AOwned, idx, nil, nil));
     ImageMayChangeCompletely;
     SelectionMaskMayChangeCompletely;
   end else
   begin
-    FCurrentState.Assign(AValue,AOwned);
+    FCurrentState.Assign(AValue, AOwned);
     FCurrentState.RemoveSelection;
     LayeredBitmapReplaced;
     ImageMayChangeCompletely;
