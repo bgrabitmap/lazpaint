@@ -81,8 +81,7 @@ type
   TToolSelectionPen = class(TToolPen)
   protected
     function GetIsSelectingTool: boolean; override;
-    function StartDrawing(toolDest: TBGRABitmap; ptF: TPointF; rightBtn: boolean): TRect; override;
-    function ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF; rightBtn: boolean): TRect; override;
+    function GetUniversalBrush(ARightButton: boolean): TUniversalBrush; override;
   public
     function GetContextualToolbars: TContextualToolbars; override;
   end;
@@ -567,29 +566,17 @@ begin
   Result:= true;
 end;
 
-function TToolSelectionPen.StartDrawing(toolDest: TBGRABitmap; ptF: TPointF;
-  rightBtn: boolean): TRect;
-var
-  penColor: TBGRAPixel;
+function TToolSelectionPen.GetUniversalBrush(ARightButton: boolean): TUniversalBrush;
 begin
-  if rightBtn then penColor := BGRABlack else penColor := BGRAWhite;
-  toolDest.DrawLineAntialias(ptF.X,ptF.Y,ptF.X,ptF.Y,penColor,Manager.PenWidth,True);
-  result := GetShapeBounds([ptF],Manager.PenWidth+1);
-end;
-
-function TToolSelectionPen.ContinueDrawing(toolDest: TBGRABitmap; originF,
-  destF: TPointF; rightBtn: boolean): TRect;
-var
-  penColor: TBGRAPixel;
-begin
-  if rightBtn then penColor := BGRABlack else penColor := BGRAWhite;
-  toolDest.DrawLineAntialias(destF.X,destF.Y,originF.X,originF.Y,penColor,Manager.PenWidth,False);
-  result := GetShapeBounds([destF,originF],Manager.PenWidth+1);
+  if ARightButton then
+    TBGRABitmap.SolidBrush(result, BGRABlack, dmLinearBlend)
+  else
+    TBGRABitmap.SolidBrush(result, BGRAWhite, dmLinearBlend);
 end;
 
 function TToolSelectionPen.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctPenWidth];
+  Result:= [ctPenWidth, ctAliasing];
 end;
 
 { TToolMagicWand }

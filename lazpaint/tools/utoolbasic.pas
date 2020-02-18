@@ -50,6 +50,7 @@ type
     shiftClicking, shiftClickingRight: boolean;
     penOrigin: TPointF;
     function GetIsSelectingTool: boolean; override;
+    function GetUniversalBrush(ARightButton: boolean): TUniversalBrush; virtual;
     function StartDrawing(toolDest: TBGRABitmap; ptF: TPointF; rightBtn: boolean): TRect; virtual;
     function ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF; rightBtn: boolean): TRect; virtual;
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF; rightBtn: boolean): TRect; override;
@@ -261,14 +262,19 @@ begin
   Result:= false;
 end;
 
+function TToolPen.GetUniversalBrush(ARightButton: boolean): TUniversalBrush;
+begin
+  if ARightButton then result := GetBackUniversalBrush
+  else result := GetForeUniversalBrush;
+end;
+
 function TToolPen.StartDrawing(toolDest: TBGRABitmap; ptF: TPointF;
   rightBtn: boolean): TRect;
 var ix,iy: integer;
   r: TRect;
   b: TUniversalBrush;
 begin
-  if rightBtn then b := GetBackUniversalBrush
-  else b := GetForeUniversalBrush;
+  b := GetUniversalBrush(rightBtn);
   if ((ssSnap in ShiftState) or Manager.ShapeOptionAliasing) and (Manager.PenWidth = 1) then
   begin
     ix := round(ptF.X);
@@ -297,8 +303,7 @@ var
   pts: ArrayOfTPointF;
   b: TUniversalBrush;
 begin
-  if rightBtn then b := GetBackUniversalBrush
-  else b := GetForeUniversalBrush;
+  b := GetUniversalBrush(rightBtn);
   if ((ssSnap in ShiftState) or Manager.ShapeOptionAliasing) and (Manager.PenWidth = 1) then
   begin
     if Manager.ShapeOptionAliasing then
