@@ -35,6 +35,7 @@ type
   public
     constructor Create(APythonBin: string = DefaultPythonBin);
     procedure Run(AScriptFilename: UTF8String; APythonVersion: integer = 3);
+    class function DefaultScriptDirectory: string;
     property OnOutputLine: TReceiveLineEvent read FOnOutputLine write FOnOutputLine;
     property OnError: TReceiveLineEvent read FOnError write FOnError;
     property OnCommand: TCommandEvent read FOnCommand write FOnCommand;
@@ -191,18 +192,22 @@ begin
         '%1',inttostr(APythonVersion),[]),
         '%2',inttostr(PythonVersionMajor),[]) );
   FFirstOutput:= true;
-  AutomationEnvironment.Add('PYTHONPATH='+
-    {$IFDEF DEBUG}
-    ExtractFilePath(Application.ExeName)+PathDelim+'..'+PathDelim+'..'+PathDelim+'..'+PathDelim+'scripts'
-    {$ELSE}
-    ExtractFilePath(Application.ExeName)+PathDelim+'scripts'
-    {$ENDIF});
+  AutomationEnvironment.Add('PYTHONPATH='+DefaultScriptDirectory);
   try
     RunProcessAutomation(FPythonBin, ['-u', AScriptFilename], FPythonSend, @PythonOutput, @PythonError, @PythonBusy);
   finally
     AutomationEnvironment.Clear;
   end;
   FPythonSend := nil;
+end;
+
+class function TPythonScript.DefaultScriptDirectory: string;
+begin
+  {$IFDEF DEBUG}
+  result := ExtractFilePath(Application.ExeName)+PathDelim+'..'+PathDelim+'..'+PathDelim+'..'+PathDelim+'scripts';
+  {$ELSE}
+  result := GetResourcePath('scripts');
+  {$ENDIF}
 end;
 
 end.

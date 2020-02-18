@@ -28,7 +28,7 @@ function LazPaintLanguageFile(ALanguage: string): string;
 {*************** Translation ***************}
 procedure FillLanguageList(AConfig: TLazPaintConfig);
 procedure TranslateLazPaint(AConfig: TIniFile);
-
+function GetResourcePath(AResource: string): string;
 
 implementation
 
@@ -36,7 +36,7 @@ uses Forms, LCLProc, LazUTF8, BGRAUTF8, LCLTranslator, LResources, Translations,
   LazPaintType, LCVectorOriginal;
 
 {$ifdef Darwin}
-function GetResourcesPath(): string;
+function GetDarwinResourcesPath: string;
 var
   pathRef: CFURLRef;
   pathCFStr: CFStringRef;
@@ -53,18 +53,23 @@ begin
 end;
 {$endif}
 
-function LanguagePathUTF8: string;
+function GetResourcePath(AResource: string): string;
 begin
   {$IFDEF WINDOWS}
-    result:=SysToUTF8(ExtractFilePath(Application.ExeName))+'i18n'+PathDelim;
+    result:=SysToUTF8(ExtractFilePath(Application.ExeName))+AResource+PathDelim;
   {$ELSE}
     {$IFDEF DARWIN}
-    if DirectoryExists(GetResourcesPath+'i18n') then
-      result := GetResourcesPath+'i18n'+PathDelim
+    if DirectoryExists(GetDarwinResourcesPath+AResource) then
+      result := GetDarwinResourcesPath+AResource+PathDelim
     else
     {$ENDIF}
-    result:=ExtractFilePath(Application.ExeName)+'i18n'+PathDelim;
+    result:=ExtractFilePath(Application.ExeName)+AResource+PathDelim;
   {$ENDIF}
+end;
+
+function LanguagePathUTF8: string;
+begin
+  result := GetResourcePath('i18n');
 end;
 
 function LazPaintLanguageFile(ALanguage: string): string;
