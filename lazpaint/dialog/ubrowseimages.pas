@@ -41,7 +41,6 @@ type
     Panel2: TPanel;
     Splitter1: TSplitter;
     Timer1: TTimer;
-    procedure CheckBox_UseDirectoryOnStartupChange(Sender: TObject);
     procedure ComboBox_FileExtensionChange(Sender: TObject);
     procedure DirectoryEdit1Change(Sender: TObject);
     procedure Edit_FilenameChange(Sender: TObject);
@@ -103,11 +102,13 @@ type
     function GetFilterIndex: integer;
     function GetInitialFilename: string;
     function GetOpenLayerIcon: boolean;
+    function GetRememberStartDirectory: boolean;
     procedure SetFileExtensionFilter(AValue: string);
     procedure SetFilterIndex(AValue: integer);
     procedure SetInitialFilename(AValue: string);
     procedure SetLazPaintInstance(AValue: TLazPaintCustomInstance);
     procedure SetOpenLayerIcon(AValue: boolean);
+    procedure SetRememberStartDirectory(AValue: boolean);
     procedure UpdateToolButtonOpen;
     function GetAllowMultiSelect: boolean;
     function GetSelectedFile(AIndex: integer): string;
@@ -153,6 +154,7 @@ type
     property Filter: string read FFileExtensionFilter write SetFileExtensionFilter;
     property FilterIndex: integer read GetFilterIndex write SetFilterIndex;
     property OpenLayerIcon: boolean read GetOpenLayerIcon write SetOpenLayerIcon;
+    property RememberStartDirectory: boolean read GetRememberStartDirectory write SetRememberStartDirectory;
   end;
 
 var
@@ -235,14 +237,6 @@ begin
       Edit_FilenameChange(nil);
   end else
     Edit_Filename.Text := '';
-end;
-
-procedure TFBrowseImages.CheckBox_UseDirectoryOnStartupChange(Sender: TObject);
-begin
-  if IsSaveDialog then
-    LazPaintInstance.Config.SetRememberStartupTargetDirectory(CheckBox_UseDirectoryOnStartup.Checked)
-  else
-    LazPaintInstance.Config.SetRememberStartupSourceDirectory(CheckBox_UseDirectoryOnStartup.Checked)
 end;
 
 procedure TFBrowseImages.FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -421,7 +415,7 @@ begin
   FreeAndNil(FChosenImage.bmp);
   UpdatePreview;
   UpdateToolButtonOpen;
-  if FDefaultExtensions<>'' then
+  if (FDefaultExtensions<>'') and (ComboBox_FileExtension.ItemIndex = -1) then
   begin
     for i := 0 to high(FFileExtensions) do
       if FFileExtensions[i] = FDefaultExtensions then
@@ -740,6 +734,11 @@ begin
   result := ToolButton_OpenSelectedFiles.ImageIndex = 7;
 end;
 
+function TFBrowseImages.GetRememberStartDirectory: boolean;
+begin
+  result := CheckBox_UseDirectoryOnStartup.Checked;
+end;
+
 procedure TFBrowseImages.SetFileExtensionFilter(AValue: string);
 begin
   if FFileExtensionFilter=AValue then Exit;
@@ -791,6 +790,11 @@ begin
     ToolButton_OpenSelectedFiles.ImageIndex := 7
   else
     ToolButton_OpenSelectedFiles.ImageIndex := 5;
+end;
+
+procedure TFBrowseImages.SetRememberStartDirectory(AValue: boolean);
+begin
+  CheckBox_UseDirectoryOnStartup.Checked := AValue;
 end;
 
 procedure TFBrowseImages.ResetDirectory(AFocus: boolean; AForceReload: boolean);
@@ -919,10 +923,6 @@ begin
     vsPreview.Visible := false;
     Label_Status.Caption := rsRecentDirectories;
     ListBox_RecentDirs.Visible := true;
-    if IsSaveDialog then
-      CheckBox_UseDirectoryOnStartup.Checked := FLazPaintInstance.Config.DefaultRememberStartupTargetDirectory
-    else
-      CheckBox_UseDirectoryOnStartup.Checked := FLazPaintInstance.Config.DefaultRememberStartupSourceDirectory;
     CheckBox_UseDirectoryOnStartup.Left := Label_Status.Left+Label_Status.Width + 10;
     CheckBox_UseDirectoryOnStartup.Visible := ShowRememberStartupDirectory;
     SelectCurrentDir;

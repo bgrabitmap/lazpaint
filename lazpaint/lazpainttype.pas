@@ -245,7 +245,8 @@ type
     procedure ColorToFChooseColor; virtual; abstract;
     function GetColor(ATarget: TColorTarget): TBGRAPixel;
     procedure SetColor(ATarget: TColorTarget; AColor: TBGRAPixel);
-    function ShowSaveOptionDlg(AParameters: TVariableSet; AOutputFilenameUTF8: string; ASkipOptions: boolean): boolean; virtual; abstract;
+    function ShowSaveOptionDlg(AParameters: TVariableSet; AOutputFilenameUTF8: string;
+                               ASkipOptions: boolean; AExport: boolean): boolean; virtual; abstract;
     function ShowColorIntensityDlg(AParameters: TVariableSet): TScriptResult; virtual; abstract;
     function ShowColorLightnessDlg(AParameters: TVariableSet): TScriptResult; virtual; abstract;
     function ShowShiftColorsDlg(AParameters: TVariableSet): TScriptResult; virtual; abstract;

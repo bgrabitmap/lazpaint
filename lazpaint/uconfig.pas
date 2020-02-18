@@ -47,12 +47,16 @@ type
     procedure FinalizeRecentFiles;
     function DefaultRememberStartupTargetDirectory: boolean;
     procedure SetRememberStartupTargetDirectory(AValue: boolean);
+    function DefaultRememberStartupExportDirectory: boolean;
+    procedure SetRememberStartupExportDirectory(AValue: boolean);
     function DefaultRememberStartupSourceDirectory: boolean;
     procedure SetRememberStartupSourceDirectory(AValue: boolean);
     function DefaultStartupSourceDirectory: string;
     procedure SetStartupSourceDirectory(AValue: string);
     function DefaultStartupTargetDirectory: string;
     procedure SetStartupTargetDirectory(AValue: string);
+    function DefaultStartupExportDirectory: string;
+    procedure SetStartupExportDirectory(AValue: string);
     function DefaultRememberSaveFormat: boolean;
     procedure SetRememberSaveFormat(AValue: boolean);
     function DefaultSaveExtensions: string;
@@ -1356,6 +1360,16 @@ begin
   iniOptions.WriteBool('Startup', 'RememberTargetDirectory', AValue);
 end;
 
+function TLazPaintConfig.DefaultRememberStartupExportDirectory: boolean;
+begin
+  result := iniOptions.ReadBool('Startup', 'RememberExportDirectory', false);
+end;
+
+procedure TLazPaintConfig.SetRememberStartupExportDirectory(AValue: boolean);
+begin
+  iniOptions.WriteBool('Startup', 'RememberExportDirectory', AValue);
+end;
+
 function TLazPaintConfig.DefaultRememberStartupSourceDirectory: boolean;
 begin
   result := iniOptions.ReadBool('Startup', 'RememberSourceDirectory', false);
@@ -1384,6 +1398,16 @@ end;
 procedure TLazPaintConfig.SetStartupTargetDirectory(AValue: string);
 begin
   iniOptions.WriteString('Startup', 'TargetDirectory', AValue);
+end;
+
+function TLazPaintConfig.DefaultStartupExportDirectory: string;
+begin
+  result := iniOptions.ReadString('Startup', 'ExportDirectory', '');
+end;
+
+procedure TLazPaintConfig.SetStartupExportDirectory(AValue: string);
+begin
+  iniOptions.WriteString('Startup', 'ExportDirectory', AValue);
 end;
 
 function TLazPaintConfig.DefaultRememberSaveFormat: boolean;

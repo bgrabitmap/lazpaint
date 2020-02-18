@@ -184,7 +184,8 @@ type
     procedure AdjustChooseColorHeight; override;
     procedure ColorFromFChooseColor; override;
     procedure ColorToFChooseColor; override;
-    function ShowSaveOptionDlg({%H-}AParameters: TVariableSet; AOutputFilenameUTF8: string; ASkipOptions: boolean): boolean; override;
+    function ShowSaveOptionDlg({%H-}AParameters: TVariableSet; AOutputFilenameUTF8: string;
+      ASkipOptions: boolean; AExport: boolean): boolean; override;
     function ShowColorIntensityDlg(AParameters: TVariableSet): TScriptResult; override;
     function ShowColorLightnessDlg(AParameters: TVariableSet): TScriptResult; override;
     function ShowShiftColorsDlg(AParameters: TVariableSet): TScriptResult; override;
@@ -1565,9 +1566,9 @@ begin
 end;
 
 function TLazPaintInstance.ShowSaveOptionDlg(AParameters: TVariableSet;
-  AOutputFilenameUTF8: string; ASkipOptions: boolean): boolean;
+  AOutputFilenameUTF8: string; ASkipOptions: boolean; AExport: boolean): boolean;
 begin
-  result := USaveOption.ShowSaveOptionDialog(self,AOutputFilenameUTF8,ASkipOptions);
+  result := USaveOption.ShowSaveOptionDialog(self, AOutputFilenameUTF8, ASkipOptions, AExport);
 end;
 
 procedure TLazPaintInstance.MoveToolboxTo(X, Y: integer);

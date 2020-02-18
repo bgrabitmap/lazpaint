@@ -27,6 +27,7 @@ type
 
   TFMain = class(TForm)
     FileExport: TAction;
+    ExportPictureDialog: TSaveDialog;
     ToolOpenedCurve: TAction;
     ToolPolyline: TAction;
     FileRunScript: TAction;
@@ -712,7 +713,7 @@ type
 
     FTablet: TLazTablet;
 
-    FLoadInitialDir, FSaveInitialDir: string;
+    FLoadInitialDir, FSaveInitialDir, FExportInitialDir: string;
     FSaveSelectionInitialFilename: string;
     FInFillChange, FInPenWidthChange, FInBrush, FInShapeRatio, FInEraserOption,
     FInSplineStyleChange, FInFloodfillOption, FInTolerance,
@@ -930,6 +931,7 @@ begin
   LoadSelectionDialog.Filter := OpenPictureDialog1.Filter;
   OpenBrushDialog.Filter := OpenPictureDialog1.Filter;
   SavePictureDialog1.Filter := GetExtensionFilter([eoWritable]);
+  ExportPictureDialog.Filter := SavePictureDialog1.Filter;
   SaveSelectionDialog.Filter := SavePictureDialog1.Filter;
 
   Zoom := TZoom.Create(Label_CurrentZoom,Edit_Zoom,FLayout);
@@ -1070,6 +1072,8 @@ begin
   MainMenu1.Images := LazPaintInstance.Icons[DoScaleX(20,OriginalDPI)];
   if Config.DefaultRememberStartupTargetDirectory then
     FSaveInitialDir := Config.DefaultStartupTargetDirectory;
+  if Config.DefaultRememberStartupExportDirectory then
+    FExportInitialDir := Config.DefaultStartupExportDirectory;
   if Config.DefaultRememberStartupSourceDirectory then
     FLoadInitialDir := Config.DefaultStartupSourceDirectory;
   FileRememberSaveFormat.Checked:= Config.DefaultRememberSaveFormat;
@@ -1327,6 +1331,7 @@ function TFMain.ScriptFileOpen(AVars: TVariableSet): TScriptResult;
 var vFilename: TScriptVariableReference;
     topInfo: TTopMostInfo;
     i: integer;
+    mr: TModalResult;
     cancelled: boolean;
     chosenFiles: array of string;
     loadedImage: TImageEntry;
@@ -1381,9 +1386,12 @@ begin
         begin
           self.Hide;
           FBrowseImages.InitialDirectory:= FLoadInitialDir;
+          FBrowseImages.RememberStartDirectory:= FLazPaintInstance.Config.DefaultRememberStartupSourceDirectory;
           FBrowseImages.AllowMultiSelect:= true;
           FBrowseImages.FilterIndex := OpenPictureDialog1.FilterIndex;
-          if FBrowseImages.ShowModal = mrOK then
+          mr := FBrowseImages.ShowModal;
+          LazPaintInstance.Config.SetRememberStartupSourceDirectory(FBrowseImages.RememberStartDirectory);
+          if mr = mrOK then
           begin
             OpenPictureDialog1.FilterIndex := FBrowseImages.FilterIndex;
             setlength(chosenFiles, FBrowseImages.SelectedFileCount);
@@ -1459,13 +1467,15 @@ begin
 end;
 
 function TFMain.ScriptFileSaveAs(AVars: TVariableSet): TScriptResult;
+var
+  dialogTitle: string;
 
-  function DoSaveAs(filename: string): TScriptResult;
+  function DoSaveAs(filename: string; AExport: boolean): TScriptResult;
   var saved: boolean;
   begin
     if not Image.AbleToSaveAsUTF8(filename) then
     begin
-      LazPaintInstance.ShowError(rsSave, rsFileExtensionNotSupported);
+      LazPaintInstance.ShowError(dialogTitle, rsFileExtensionNotSupported);
       result := srException;
     end else
     begin
@@ -1477,12 +1487,13 @@ function TFMain.ScriptFileSaveAs(AVars: TVariableSet): TScriptResult;
            ((SuggestImageFormat(Image.currentFilenameUTF8) = ifTiff)
            and (SuggestImageFormat(filename) = ifTiff)) ) then
         begin
-           Image.UpdateMultiImage(filename);
+           Image.UpdateMultiImage(filename, AExport);
            saved := true;
         end
         else
         begin
-          if not LazPaintInstance.ShowSaveOptionDlg(nil,filename,AVars.Booleans['SkipOptions']) then
+          if not LazPaintInstance.ShowSaveOptionDlg(nil, filename,
+                   AVars.Booleans['SkipOptions'], AExport) then
             result := srCancelledByUser
           else
             saved := true;
@@ -1490,12 +1501,20 @@ function TFMain.ScriptFileSaveAs(AVars: TVariableSet): TScriptResult;
 
         if saved then
         begin
-          Config.AddRecentFile(filename);
-          Config.AddRecentDirectory(ExtractFilePath(filename));
-          FSaveInitialDir := extractFilePath(filename);
-          if Config.DefaultRememberStartupTargetDirectory then
-            Config.SetStartupTargetDirectory(FSaveInitialDir);
-          Image.CurrentFilenameUTF8 := filename;
+          if AExport then
+          begin
+            FExportInitialDir := extractFilePath(filename);
+            if Config.DefaultRememberStartupExportDirectory then
+              Config.SetStartupExportDirectory(FExportInitialDir);
+          end else
+          begin
+            Config.AddRecentFile(filename);
+            Config.AddRecentDirectory(ExtractFilePath(filename));
+            FSaveInitialDir := extractFilePath(filename);
+            if Config.DefaultRememberStartupTargetDirectory then
+              Config.SetStartupTargetDirectory(FSaveInitialDir);
+            Image.CurrentFilenameUTF8 := filename;
+          end;
           AVars.Strings['Result'] := filename;
           result := srOk;
           if Assigned(Scripting.RecordingFunctionParameters) then
@@ -1507,7 +1526,7 @@ function TFMain.ScriptFileSaveAs(AVars: TVariableSet): TScriptResult;
       except
         on ex: Exception do
         begin
-          LazPaintInstance.ShowError(RemoveTrail(FileSaveAs.Caption), ex.Message);
+          LazPaintInstance.ShowError(dialogTitle, ex.Message);
           result := srException;
         end;
       end;
@@ -1519,8 +1538,15 @@ var filename: string;
     topMost: TTopMostInfo;
     defaultExt: string;
     initialDir: string;
+    saveDlg: TSaveDialog;
+    mr: TModalResult;
 begin
-  AskMergeSelection(rsSave);
+  if AVars.Booleans['Export'] then
+    saveDlg := ExportPictureDialog
+  else
+    saveDlg := SavePictureDialog1;
+  dialogTitle := RemoveTrail(saveDlg.Title);
+  AskMergeSelection(dialogTitle);
   filename := ExtractFileName(Image.CurrentFilenameUTF8);
   vFileName := AVars.GetVariable('FileName');
   if AVars.IsReferenceDefined(vFileName) then
@@ -1534,12 +1560,18 @@ begin
     filename := ExtractFileName(filename);
   end else initialDir:= '';
   if filename = '' then filename := rsNoName;
-  if initialDir = '' then initialDir:= FSaveInitialDir;
-  if SavePictureDialog1.FilterIndex > 1 then
-    filename := ApplySelectedFilterExtension(filename,SavePictureDialog1.Filter,SavePictureDialog1.FilterIndex);
+  if initialDir = '' then
+  begin
+    if AVars.Booleans['Export'] then
+      initialDir := FExportInitialDir
+    else
+      initialDir:= FSaveInitialDir;
+  end;
+  if saveDlg.FilterIndex > 1 then
+    filename := ApplySelectedFilterExtension(filename,saveDlg.Filter,saveDlg.FilterIndex);
   if not Image.AbleToSaveAsUTF8(filename) then
   begin
-    SavePictureDialog1.FilterIndex := 1;
+    saveDlg.FilterIndex := 1;
     filename := ChangeFileExt(Filename,'');
   end;
 
@@ -1561,7 +1593,7 @@ begin
           [mrOk, rsOkay, mrCancel, rsCancel],0) <> mrOk then
              exit(srCancelledByUser);
     end;
-    result := DoSaveAs(initialDir+filename);
+    result := DoSaveAs(initialDir+filename, AVars.Booleans['Export']);
   end else
   begin
     topMost := LazPaintInstance.HideTopmost;
@@ -1572,31 +1604,38 @@ begin
         FSaveImage := TFBrowseImages.Create(self);
         FSaveImage.LazPaintInstance := LazPaintInstance;
         FSaveImage.IsSaveDialog := true;
-        FSaveImage.Filter := SavePictureDialog1.Filter;
-        FSaveImage.Caption := SavePictureDialog1.Title;
         FSaveImage.ShowRememberStartupDirectory:= true;
         if Config.DefaultRememberSaveFormat then
           FSaveImage.DefaultExtensions:= Config.DefaultSaveExtensions;
       end;
+      FSaveImage.Filter := saveDlg.Filter;
+      FSaveImage.Caption := saveDlg.Title;
       FSaveImage.InitialFilename := filename;
       FSaveImage.DefaultExtension := defaultExt;
       FSaveImage.InitialDirectory:= initialDir;
-      FSaveImage.FilterIndex := SavePictureDialog1.FilterIndex;
-      if FSaveImage.ShowModal = mrOK then
+      if AVars.Booleans['Export'] then
+        FSaveImage.RememberStartDirectory:= FLazPaintInstance.Config.DefaultRememberStartupExportDirectory
+        else FSaveImage.RememberStartDirectory:= FLazPaintInstance.Config.DefaultRememberStartupTargetDirectory;
+      FSaveImage.FilterIndex := saveDlg.FilterIndex;
+      mr := FSaveImage.ShowModal;
+      if AVars.Booleans['Export'] then
+        LazPaintInstance.Config.SetRememberStartupExportDirectory(FSaveImage.RememberStartDirectory)
+        else LazPaintInstance.Config.SetRememberStartupTargetDirectory(FSaveImage.RememberStartDirectory);
+      if mr = mrOK then
       begin
-        SavePictureDialog1.FilterIndex := FSaveImage.FilterIndex;
-        result := DoSaveAs(FSaveImage.FileName);
+        saveDlg.FilterIndex := FSaveImage.FilterIndex;
+        result := DoSaveAs(FSaveImage.FileName, AVars.Booleans['Export']);
       end
       else
         result := srCancelledByUser;
     end else
     begin
-      SavePictureDialog1.FileName := filename;
-      SavePictureDialog1.DefaultExt := defaultExt;
-      SavePictureDialog1.InitialDir:= initialDir;
-      if SavePictureDialog1.Execute then
+      saveDlg.FileName := filename;
+      saveDlg.DefaultExt := defaultExt;
+      saveDlg.InitialDir:= initialDir;
+      if saveDlg.Execute then
       begin
-        result := DoSaveAs(SavePictureDialog1.FileName);
+        result := DoSaveAs(saveDlg.FileName, AVars.Booleans['Export']);
       end else
         result := srCancelledByUser;
     end;
@@ -1619,7 +1658,7 @@ begin
         end
         else
         begin
-          if LazPaintInstance.ShowSaveOptionDlg(nil,Image.currentFilenameUTF8,AVars.Booleans['SkipOptions']) then
+          if LazPaintInstance.ShowSaveOptionDlg(nil, Image.currentFilenameUTF8, AVars.Booleans['SkipOptions'], False) then
           begin
             AVars.Strings['Result'] := Image.currentFilenameUTF8;
             result := srOk;
@@ -2393,6 +2432,7 @@ end;
 
 procedure TFMain.LayerFromFileExecute(Sender: TObject);
 var i: integer;
+    mr : TModalResult;
     topmostInfo: TTopMostInfo;
     layerLoaded:boolean;
     chosenFiles: array of string;
@@ -2417,11 +2457,14 @@ begin
     end;
     self.Hide;
     FBrowseImages.InitialDirectory:= FLoadInitialDir;
+    FBrowseImages.RememberStartDirectory:= FLazPaintInstance.Config.DefaultRememberStartupSourceDirectory;
     FBrowseImages.AllowMultiSelect := true;
     FBrowseImages.OpenLayerIcon := true;
     FBrowseImages.FilterIndex:= OpenPictureDialog1.FilterIndex;
     try
-      if FBrowseImages.ShowModal = mrOK then
+      mr := FBrowseImages.ShowModal;
+      LazPaintInstance.Config.SetRememberStartupSourceDirectory(FBrowseImages.RememberStartDirectory);
+      if mr = mrOK then
       begin
         OpenPictureDialog1.FilterIndex := FBrowseImages.FilterIndex;
         setlength(chosenFiles, FBrowseImages.SelectedFileCount);
@@ -3487,8 +3530,13 @@ begin
 end;
 
 procedure TFMain.FileExportExecute(Sender: TObject);
+var
+  params: TVariableSet;
 begin
-
+  params := TVariableSet.Create('FileSaveAs');
+  params.Booleans['Export'] := true;
+  Scripting.CallScriptFunction(params);
+  params.Free;
 end;
 
 procedure TFMain.EditCopyExecute(Sender: TObject);

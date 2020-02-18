@@ -8674,7 +8674,7 @@ object FMain: TFMain
   object TimerLoadToolWin: TTimer
     Interval = 200
     OnTimer = TimerLoadToolWinTimer
-    left = 578
+    left = 680
     top = 427
   end
   object SaveSelectionDialog: TSaveDialog
@@ -47351,5 +47351,12 @@ object FMain: TFMain
     OnTimer = TimerHideFillTimer
     left = 680
     top = 496
+  end
+  object ExportPictureDialog: TSaveDialog
+    Title = 'Export as...'
+    DefaultExt = '.png'
+    Options = [ofOverwritePrompt, ofEnableSizing, ofViewDetail]
+    left = 578
+    top = 427
   end
 end

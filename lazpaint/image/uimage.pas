@@ -118,9 +118,9 @@ type
     procedure NotifyException(AFunctionName: string; AException: Exception);
     procedure SetOnActionProgress(AValue: TLayeredActionProgressEvent);
     procedure SetSelectionTransform(ATransform: TAffineMatrix);
-    procedure UpdateIconFileUTF8(AFilename: string; AOutputFilename: string = '');
-    procedure UpdateTiffFileUTF8(AFilename: string; AOutputFilename: string = '');
-    procedure UpdateGifFileUTF8(AFilename: string; AOutputFilename: string = '');
+    procedure UpdateIconFileUTF8(AFilename: string; AOutputFilename: string = ''; AExport: boolean = false);
+    procedure UpdateTiffFileUTF8(AFilename: string; AOutputFilename: string = ''; AExport: boolean = false);
+    procedure UpdateGifFileUTF8(AFilename: string; AOutputFilename: string = ''; AExport: boolean = false);
     procedure ReplaceCurrentSelectionWithoutUndo(const AValue: TBGRABitmap);
     procedure LayerActionNotifyChange({%H-}ASender: TObject; ALayer: TBGRABitmap; ARect: TRect);
     procedure LayerActionDestroy(Sender: TObject);
@@ -228,8 +228,8 @@ type
     procedure LoadFromFileUTF8(AFilename: string);
     function AbleToSaveAsUTF8(AFilename: string): boolean;
     function AbleToSaveSelectionAsUTF8(AFilename: string): boolean;
-    procedure SaveToFileUTF8(AFilename: string);
-    procedure UpdateMultiImage(AOutputFilename: string = '');
+    procedure SaveToFileUTF8(AFilename: string; AExport: boolean = false);
+    procedure UpdateMultiImage(AOutputFilename: string = ''; AExport: boolean = false);
     procedure SetSavedFlag(ASavedBPP: integer = 0;
                            ASavedFrameIndex: integer = 0;
                            ASavedFrameCount: integer = 1);
@@ -473,7 +473,7 @@ begin
       result := false;
 end;
 
-procedure TLazPaintImage.SaveToFileUTF8(AFilename: string);
+procedure TLazPaintImage.SaveToFileUTF8(AFilename: string; AExport: boolean);
 var s: TStream;
   format: TBGRAImageFormat;
 begin
@@ -486,7 +486,7 @@ begin
     finally
       s.Free;
     end;
-    SetSavedFlag;
+    if not AExport then SetSavedFlag;
   end else
   begin
     if RenderedImage = nil then exit;
@@ -496,11 +496,11 @@ begin
     finally
       s.Free;
     end;
-    if NbLayers = 1 then SetSavedFlag;
+    if (NbLayers = 1) and not AExport then SetSavedFlag;
   end;
 end;
 
-procedure TLazPaintImage.UpdateMultiImage(AOutputFilename: string = '');
+procedure TLazPaintImage.UpdateMultiImage(AOutputFilename: string; AExport: boolean);
 begin
   if not FileManager.FileExists(currentFilenameUTF8) then
   begin
@@ -508,16 +508,16 @@ begin
     exit;
   end;
   if IsIconCursor then
-    UpdateIconFileUTF8(currentFilenameUTF8, AOutputFilename)
+    UpdateIconFileUTF8(currentFilenameUTF8, AOutputFilename, AExport)
   else if IsTiff then
-    UpdateTiffFileUTF8(currentFilenameUTF8, AOutputFilename)
+    UpdateTiffFileUTF8(currentFilenameUTF8, AOutputFilename, AExport)
   else if IsGif then
-    UpdateGifFileUTF8(currentFilenameUTF8, AOutputFilename)
+    UpdateGifFileUTF8(currentFilenameUTF8, AOutputFilename, AExport)
   else
     ShowMessage(rsFileExtensionNotSupported);
 end;
 
-procedure TLazPaintImage.UpdateIconFileUTF8(AFilename: string; AOutputFilename: string);
+procedure TLazPaintImage.UpdateIconFileUTF8(AFilename: string; AOutputFilename: string; AExport: boolean);
 var
   s: TStream;
   icoCur: TBGRAIconCursor;
@@ -554,7 +554,8 @@ begin
     s := FileManager.CreateFileStream(AOutputFilename,fmCreate);
     try
       icoCur.SaveToStream(s);
-      SetSavedFlag(bpp, newFrameIndex, icoCur.Count);
+      if not AExport then
+        SetSavedFlag(bpp, newFrameIndex, icoCur.Count);
     finally
       s.Free;
     end;
@@ -566,7 +567,7 @@ begin
 end;
 
 procedure TLazPaintImage.UpdateTiffFileUTF8(AFilename: string;
-  AOutputFilename: string);
+  AOutputFilename: string; AExport: boolean);
 var
   s, sAdded: TStream;
   tiff, addedTiff: TTiff;
@@ -609,7 +610,8 @@ begin
     s := FileManager.CreateFileStream(AOutputFilename,fmCreate);
     try
       tiff.SaveToStream(s);
-      SetSavedFlag(bpp, newFrameIndex, tiff.Count);
+      if not AExport then
+        SetSavedFlag(bpp, newFrameIndex, tiff.Count);
     finally
       FreeAndNil(s);
     end;
@@ -624,7 +626,7 @@ begin
 end;
 
 procedure TLazPaintImage.UpdateGifFileUTF8(AFilename: string;
-  AOutputFilename: string);
+  AOutputFilename: string; AExport: boolean);
 var
   s: TStream;
   gif: TBGRAAnimatedGif;
@@ -653,7 +655,8 @@ begin
     s := FileManager.CreateFileStream(AOutputFilename,fmCreate);
     try
       gif.SaveToStream(s);
-      SetSavedFlag(bpp, newFrameIndex, gif.Count);
+      if not AExport then
+        SetSavedFlag(bpp, newFrameIndex, gif.Count);
     finally
       FreeAndNil(s);
     end;

@@ -343,7 +343,7 @@ begin
   with FActionList.Actions[i] as TAction do
     if (Caption = '') and (Hint <> '') then Caption := Hint;
 
-  AddMenus('MenuFile',   'FileNew,FileOpen,LayerFromFile,FileChooseEntry,FileReload,MenuRecentFiles,-,FileSave,FileSaveAsInSameFolder,FileSaveAs,-,FileRunScript,FileImport3D,-,FilePrint,-,'+ImageBrowser+'FileRememberSaveFormat,ForgetDialogAnswers,MenuLanguage,*');
+  AddMenus('MenuFile',   'FileNew,FileOpen,LayerFromFile,FileChooseEntry,FileReload,MenuRecentFiles,-,FileSave,FileSaveAsInSameFolder,FileSaveAs,FileExport,-,FileRunScript,FileImport3D,-,FilePrint,-,'+ImageBrowser+'FileRememberSaveFormat,ForgetDialogAnswers,MenuLanguage,*');
   AddMenus('MenuEdit',   'EditUndo,EditRedo,-,EditCut,EditCopy,EditPaste,EditPasteAsNew,EditPasteAsNewLayer,EditDeleteSelection,-,EditMoveUp,EditMoveToFront,EditMoveDown,EditMoveToBack,EditShapeAlign,EditShapeToCurve');
   AddMenus('MenuSelect', 'EditSelection,FileLoadSelection,FileSaveSelectionAs,-,EditSelectAll,EditInvertSelection,EditSelectionFit,EditDeselect,-,ToolSelectRect,ToolSelectEllipse,ToolSelectPoly,ToolSelectSpline,-,ToolMoveSelection,ToolRotateSelection,SelectionHorizontalFlip,SelectionVerticalFlip,-,ToolSelectPen,ToolMagicWand');
   AddMenus('MenuView',   'ViewGrid,ViewZoomOriginal,ViewZoomIn,ViewZoomOut,ViewZoomFit,-,ViewToolBox,ViewColors,ViewPalette,ViewLayerStack,ViewImageList,ViewStatusBar,-,*,-,ViewDarkTheme,ViewWorkspaceColor,MenuIconSize');

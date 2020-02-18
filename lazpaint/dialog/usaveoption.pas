@@ -102,6 +102,7 @@ type
     procedure LayoutRadioButtonDepth;
     procedure MakePngStreamIfNeeded;
   public
+    Exporting: boolean;
     { public declarations }
     property QualityVisible: boolean read GetQualityVisible write SetQualityVisible;
     property LosslessVisible: boolean read GetLosslessVisible write SetLosslessVisible;
@@ -120,7 +121,8 @@ type
     property PngStreamNeeded: boolean read GetPngStreamNeeded;
   end;
 
-function ShowSaveOptionDialog(AInstance: TLazPaintCustomInstance; AOutputFilenameUTF8: string; ASkipOptions: boolean): boolean;
+function ShowSaveOptionDialog(AInstance: TLazPaintCustomInstance; AOutputFilenameUTF8: string;
+  ASkipOptions: boolean; AExport: boolean): boolean;
 
 implementation
 
@@ -128,7 +130,8 @@ uses UGraph, FPWriteJPEG, UResourceStrings, FPWriteBMP, BMPcomn,
   UMySLV, BGRAWriteBmpMioMap, BGRADithering, UFileSystem, LCScaleDPI,
   BGRAThumbnail, BGRAIconCursor, BGRAWinResource, BGRAWriteWebP;
 
-function ShowSaveOptionDialog(AInstance: TLazPaintCustomInstance; AOutputFilenameUTF8: string; ASkipOptions: boolean): boolean;
+function ShowSaveOptionDialog(AInstance: TLazPaintCustomInstance; AOutputFilenameUTF8: string;
+  ASkipOptions: boolean; AExport: boolean): boolean;
 var f: TFSaveOption;
 begin
   result := false;
@@ -137,6 +140,7 @@ begin
     f := TFSaveOption.Create(nil);
     try
       f.LazPaintInstance := AInstance;
+      f.Exporting := AExport;
       f.OutputFilename := AOutputFilenameUTF8;
       result := f.ShowModal = mrOK;
     except
@@ -149,7 +153,7 @@ begin
   begin
     AInstance.StartSavingImage(AOutputFilenameUTF8);
     try
-      AInstance.Image.SaveToFileUTF8(AOutputFilenameUTF8);
+      AInstance.Image.SaveToFileUTF8(AOutputFilenameUTF8, AExport);
       result := true;
     except
       on ex:Exception do
@@ -353,7 +357,7 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
       try
         FPngStream.Position := 0;
         outputStream.CopyFrom(FPngStream, FPngStream.Size);
-        if FLazPaintInstance.Image.NbLayers = 1 then FLazPaintInstance.Image.SetSavedFlag;
+        if (FLazPaintInstance.Image.NbLayers = 1) and not Exporting then FLazPaintInstance.Image.SetSavedFlag;
       finally
         outputStream.Free;
       end;
@@ -369,7 +373,7 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
     begin
       FBmpStream.Position := 0;
       outputStream.CopyFrom(FBmpStream, FBmpStream.Size);
-      if FLazPaintInstance.Image.NbLayers = 1 then FLazPaintInstance.Image.SetSavedFlag;
+      if (FLazPaintInstance.Image.NbLayers = 1) and not Exporting then FLazPaintInstance.Image.SetSavedFlag;
     end else
     if QuantizerNeeded then
     begin
@@ -379,7 +383,7 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
       writer.BitsPerPixel := WantedBitsPerPixel;
       try
         dithered.SaveToStream(outputStream, writer);
-        if FLazPaintInstance.Image.NbLayers = 1 then FLazPaintInstance.Image.SetSavedFlag;
+        if (FLazPaintInstance.Image.NbLayers = 1) and not Exporting then FLazPaintInstance.Image.SetSavedFlag;
       finally
         writer.Free;
         dithered.Free;
@@ -390,7 +394,7 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
       writer.BitsPerPixel := WantedBitsPerPixel;
       try
         FFlattenedOriginal.SaveToStream(outputStream, writer);
-        if FLazPaintInstance.Image.NbLayers = 1 then FLazPaintInstance.Image.SetSavedFlag;
+        if (FLazPaintInstance.Image.NbLayers = 1) and not Exporting then FLazPaintInstance.Image.SetSavedFlag;
       finally
         writer.Free;
       end;
@@ -446,7 +450,7 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
       outputStream := FileManager.CreateFileStream(FOutputFilename,fmCreate);
       try
         icoCur.SaveToStream(outputStream);
-        FLazPaintInstance.Image.SetSavedFlag(bpp);
+        if not Exporting then FLazPaintInstance.Image.SetSavedFlag(bpp);
       finally
         outputStream.Free;
       end;
@@ -464,7 +468,7 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
       FJpegStream.Position := 0;
       outputStream.CopyFrom(FJpegStream, FJpegStream.Size);
       FLazPaintInstance.Config.SetDefaultJpegQuality(JpegQuality);
-      if FLazPaintInstance.Image.NbLayers = 1 then FLazPaintInstance.Image.SetSavedFlag;
+      if (FLazPaintInstance.Image.NbLayers = 1) and not Exporting then FLazPaintInstance.Image.SetSavedFlag;
     finally
       outputStream.Free;
     end;
@@ -480,7 +484,7 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
       outputStream.CopyFrom(FWebPStream, FWebPStream.Size);
       FLazPaintInstance.Config.SetDefaultJpegQuality(JpegQuality);
       FLazPaintInstance.Config.SetDefaultWebPLossless(WebPLossless);
-      if FLazPaintInstance.Image.NbLayers = 1 then FLazPaintInstance.Image.SetSavedFlag;
+      if (FLazPaintInstance.Image.NbLayers = 1) and not Exporting then FLazPaintInstance.Image.SetSavedFlag;
     finally
       outputStream.Free;
     end;
