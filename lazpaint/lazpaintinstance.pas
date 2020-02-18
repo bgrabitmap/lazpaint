@@ -234,7 +234,7 @@ type
 
 implementation
 
-uses LCLType, Types, Forms, Dialogs, FileUtil, StdCtrls, LCLIntf, Math,
+uses LCLType, Types, Forms, Dialogs, FileUtil, StdCtrls, LCLIntf,
 
      URadialBlur, UMotionBlur, UEmboss, UTwirl, UWaveDisplacement,
      unewimage, uresample, UPixelate, unoisefilter, ufilters,
@@ -506,6 +506,7 @@ begin
 
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolEditShape);
   FMain.Layout.DockedToolBoxAddGroup([FMain.ToolRect, FMain.ToolEllipse]);
+  FMain.Layout.DockedToolBoxAddGroup([FMain.ToolPolyline, FMain.ToolOpenedCurve]);
   FMain.Layout.DockedToolBoxAddGroup([FMain.ToolPolygon, FMain.ToolSpline]);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolPhong);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolText);

@@ -41,9 +41,11 @@ type
     function AlwaysRasterizeShape: boolean; virtual;
     function CreateShape: TVectorShape; virtual; abstract;
     function UseOriginal: boolean; virtual;
+    function HasBrush: boolean; virtual;
     function GetCustomShapeBounds(ADestBounds: TRect; AMatrix: TAffineMatrix; {%H-}ADraft: boolean): TRect; virtual;
     procedure DrawCustomShape(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); virtual;
     procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); virtual;
+    function GetManagerShapeOptions: TShapeOptions; virtual;
     procedure QuickDefineShape(AStart,AEnd: TPointF); virtual;
     function RoundCoordinate(ptF: TPointF): TPointF; virtual;
     function GetIsSelectingTool: boolean; override;
@@ -777,8 +779,8 @@ begin
       shape := GetVectorOriginal.SelectedShape;
       if shape is TRectShape then result := result + [ctShape,ctPenWidth,ctPenStyle,ctJoinStyle]
       else if shape is TEllipseShape then result := result + [ctShape,ctPenWidth,ctPenStyle]
-      else if shape is TCurveShape then result := result + [ctShape,ctPenWidth,ctPenStyle,ctLineCap,ctSplineStyle]
-      else if shape is TPolylineShape then result := result + [ctShape,ctPenWidth,ctPenStyle,ctJoinStyle,ctLineCap]
+      else if shape is TCurveShape then result := result + [ctShape,ctCloseShape,ctPenWidth,ctPenStyle,ctLineCap,ctSplineStyle]
+      else if shape is TPolylineShape then result := result + [ctShape,ctCloseShape,ctPenWidth,ctPenStyle,ctJoinStyle,ctLineCap]
       else if shape is TPhongShape then result := result + [ctPhong,ctAltitude]
       else if shape is TTextShape then
       begin
@@ -1691,6 +1693,11 @@ begin
   result := FUseOriginal;
 end;
 
+function TVectorialTool.HasBrush: boolean;
+begin
+  result := (toFillShape in GetManagerShapeOptions) or not (ctShape in GetContextualToolbars);
+end;
+
 function TVectorialTool.GetCustomShapeBounds(ADestBounds: TRect; AMatrix: TAffineMatrix; ADraft: boolean): TRect;
 begin
   with FShape.GetRenderBounds(ADestBounds,AMatrix,[]) do
@@ -1714,7 +1721,7 @@ begin
   gradBox := FShape.SuggestGradientBox(AffineMatrixIdentity);
   if vsfPenFill in f then
   begin
-    if Manager.ShapeOptionDraw then
+    if HasPen then
     begin
       if AAlwaysFit then fitMode := fmAlways else fitMode := ForeFitMode;
       if FSwapColor then
@@ -1729,7 +1736,7 @@ begin
   if vsfJoinStyle in f then FShape.JoinStyle:= Manager.JoinStyle;
   if vsfBackFill in f then
   begin
-    if Manager.ShapeOptionFill then
+    if HasBrush then
     begin
       if AAlwaysFit then fitMode := fmAlways else fitMode := BackFitMode;
       if FSwapColor then
@@ -1741,6 +1748,11 @@ begin
   end;
 end;
 
+function TVectorialTool.GetManagerShapeOptions: TShapeOptions;
+begin
+  result := Manager.ShapeOptions;
+end;
+
 procedure TVectorialTool.QuickDefineShape(AStart, AEnd: TPointF);
 begin
   FShape.QuickDefine(AStart, AEnd);
@@ -1748,7 +1760,7 @@ end;
 
 function TVectorialTool.RoundCoordinate(ptF: TPointF): TPointF;
 begin
-  if not Manager.ShapeOptionDraw or
+  if not (toDrawShape in GetManagerShapeOptions) or
     (Assigned(FShape) and not (vsfPenFill in FShape.Fields)) then
     result := PointF(floor(ptF.x)+0.5,floor(ptF.y)+0.5)
   else

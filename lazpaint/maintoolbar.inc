@@ -326,8 +326,8 @@ end;
 procedure TFMain.UpdateToolOptions;
 begin
   Tool_Aliasing.Down := toAliasing in ToolManager.ShapeOptions;
-  Tool_DrawShapeBorder.Down := ToolManager.ShapeOptionDraw;
-  Tool_FillShape.Down := ToolManager.ShapeOptionFill;
+  Tool_DrawShapeBorder.Down := toDrawShape in ToolManager.ShapeOptions;
+  Tool_FillShape.Down := toFillShape in ToolManager.ShapeOptions;
   Tool_CloseShape.Down := toCloseShape in ToolManager.ShapeOptions;
   UpdateLineCapBar;
 end;
@@ -575,8 +575,7 @@ procedure TFMain.UpdateLineCapBar;
 var
   newVisible: Boolean;
 begin
-  newVisible := Panel_CloseShape.Visible and not (toCloseShape in ToolManager.ShapeOptions) and
-    (toDrawShape in ToolManager.ShapeOptions);
+  newVisible := ToolManager.ToolHasLineCap;
   if newVisible <> Panel_LineCap.Visible then
   begin
     Panel_LineCap.Visible := newVisible;

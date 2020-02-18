@@ -26,6 +26,8 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    ToolOpenedCurve: TAction;
+    ToolPolyline: TAction;
     FileRunScript: TAction;
     EditShapeToCurve: TAction;
     EditShapeAlignBottom: TAction;

@@ -17,7 +17,7 @@ const
 
 type TPaintToolType = (ptHand,ptHotSpot, ptMoveLayer,ptRotateLayer,ptZoomLayer,
                    ptPen, ptBrush, ptClone, ptColorPicker, ptEraser,
-                   ptEditShape, ptRect, ptEllipse, ptPolygon, ptSpline,
+                   ptEditShape, ptRect, ptEllipse, ptPolygon, ptSpline, ptPolyline, ptOpenedCurve,
                    ptFloodFill, ptGradient, ptPhong,
                    ptSelectPen, ptSelectRect, ptSelectEllipse, ptSelectPoly, ptSelectSpline,
                    ptMoveSelection, ptRotateSelection, ptMagicWand, ptDeformation, ptTextureMapping, ptLayerMapping,
@@ -26,7 +26,7 @@ type TPaintToolType = (ptHand,ptHotSpot, ptMoveLayer,ptRotateLayer,ptZoomLayer,
 const
   PaintToolTypeStr : array[TPaintToolType] of string = ('Hand','HotSpot', 'MoveLayer','RotateLayer','ZoomLayer',
                    'Pen', 'Brush', 'Clone', 'ColorPicker', 'Eraser',
-                   'EditShape', 'Rect', 'Ellipse', 'Polygon', 'Spline',
+                   'EditShape', 'Rect', 'Ellipse', 'Polygon', 'Spline', 'Polyline', 'OpenedCurve',
                    'FloodFill', 'Gradient', 'Phong',
                    'SelectPen', 'SelectRect', 'SelectEllipse', 'SelectPoly', 'SelectSpline',
                    'MoveSelection', 'RotateSelection', 'MagicWand', 'Deformation', 'TextureMapping', 'LayerMapping',
@@ -110,11 +110,12 @@ type
     destructor Destroy; override;
     function GetForeUniversalBrush: TUniversalBrush;
     function GetBackUniversalBrush: TUniversalBrush;
-    procedure ReleaseUniversalBrushes;
+    procedure ReleaseUniversalBrushes; virtual;
     procedure ValidateAction;
     procedure ValidateActionPartially;
     procedure CancelAction;
     procedure CancelActionPartially;
+    function HasPen: boolean; virtual;
     function ToolUpdate: TRect;
     function ToolDown(X,Y: single; rightBtn: boolean): TRect;
     function ToolMove(X,Y: single): TRect;
@@ -263,8 +264,6 @@ type
     function GetForeColor: TBGRAPixel;
     function GetMaxDeformationGridSize: TSize;
     function GetShapeOptionAliasing: boolean;
-    function GetShapeOptionDraw: boolean;
-    function GetShapeOptionFill: boolean;
     function GetPenWidth: single;
     function GetToolSleeping: boolean;
     function GetTextFontName: string;
@@ -427,6 +426,7 @@ type
     function SetCurrentToolType(tool: TPaintToolType): boolean;
     function UpdateContextualToolbars: boolean;
     function ToolCanBeUsed: boolean;
+    function ToolHasLineCap: boolean;
     procedure ToolWakeUp;
     procedure ToolSleep;
 
@@ -489,8 +489,6 @@ type
     property PenStyle: TPenStyle read FPenStyle write SetPenStyle;
     property JoinStyle: TPenJoinStyle read FJoinStyle write SetJoinStyle;
     property ShapeOptions: TShapeOptions read FShapeOptions write SetShapeOptions;
-    property ShapeOptionDraw: boolean read GetShapeOptionDraw;
-    property ShapeOptionFill: boolean read GetShapeOptionFill;
     property ShapeOptionAliasing: boolean read GetShapeOptionAliasing;
     property ShapeRatio: Single read FShapeRatio write SetShapeRatio;
     property BrushInfo: TLazPaintBrush read GetBrushInfo;
@@ -963,6 +961,11 @@ begin
     FAction.PartialCancel;
     FCanceling := false;
   end;
+end;
+
+function TGenericTool.HasPen: boolean;
+begin
+  result := (toDrawShape in Manager.ShapeOptions) or not (ctShape in GetContextualToolbars);
 end;
 
 function TGenericTool.DoToolUpdate(toolDest: TBGRABitmap): TRect;
@@ -1523,6 +1526,20 @@ begin
   result := (FCurrentToolType = ptHand) or ((CurrentTool <> nil) and (CurrentTool.IsSelectingTool or Image.CurrentLayerVisible));
 end;
 
+function TToolManager.ToolHasLineCap: boolean;
+var
+  contextualToolbars: TContextualToolbars;
+begin
+  if CurrentTool = nil then
+    result := false
+  else
+  begin
+    contextualToolbars := CurrentTool.GetContextualToolbars;
+    result := (ctLineCap in contextualToolbars) and CurrentTool.HasPen and
+              (not (toCloseShape in ShapeOptions) or not (ctCloseShape in contextualToolbars));
+  end;
+end;
+
 function TToolManager.GetBackColor: TBGRAPixel;
 begin
   if BlackAndWhite then
@@ -1621,16 +1638,6 @@ end;
 function TToolManager.GetShapeOptionAliasing: boolean;
 begin
   result := toAliasing in FShapeOptions;
-end;
-
-function TToolManager.GetShapeOptionDraw: boolean;
-begin
-  result := toDrawShape in FShapeOptions;
-end;
-
-function TToolManager.GetShapeOptionFill: boolean;
-begin
-  result := toFillShape in FShapeOptions;
 end;
 
 function TToolManager.GetPenWidth: single;
@@ -2869,6 +2876,7 @@ end;
 function TToolManager.UpdateContextualToolbars: boolean;
 var
   contextualToolbars: TContextualToolbars;
+  hasPen: Boolean;
 
   procedure OrResult(AValue: boolean);
   begin
@@ -2878,9 +2886,15 @@ var
 begin
   result := false;
   if Assigned(FCurrentTool) then
-    contextualToolbars := FCurrentTool.GetContextualToolbars
+  begin
+    contextualToolbars := FCurrentTool.GetContextualToolbars;
+    hasPen := FCurrentTool.HasPen;
+  end
   else
+  begin
     contextualToolbars := [ctFill];
+    hasPen := false;
+  end;
 
   if ctBackFill in contextualToolbars then
     OrResult(SetControlsVisible(FillControls, True, 'Panel_BackFill'))
@@ -2888,11 +2902,11 @@ begin
     OrResult(SetControlsVisible(FillControls, ctFill in contextualToolbars));
   OrResult(SetControlsVisible(BrushControls, ctBrush in contextualToolbars));
   OrResult(SetControlsVisible(ShapeControls, ctShape in contextualToolbars));
-  OrResult(SetControlsVisible(PenWidthControls, (ctPenWidth in contextualToolbars) and ((toDrawShape in ShapeOptions) or not (ctShape in contextualToolbars))));
-  OrResult(SetControlsVisible(JoinStyleControls, (ctJoinStyle in contextualToolbars) and (toDrawShape in ShapeOptions)));
-  OrResult(SetControlsVisible(PenStyleControls, (ctPenStyle in contextualToolbars) and (toDrawShape in ShapeOptions)));
-  OrResult(SetControlsVisible(CloseShapeControls, (ctCloseShape in contextualToolbars) or (ctLineCap in contextualToolbars)));
-  OrResult(SetControlsVisible(LineCapControls, (ctLineCap in contextualToolbars) and not (toCloseShape in ShapeOptions) and (toDrawShape in ShapeOptions)));
+  OrResult(SetControlsVisible(PenWidthControls, (ctPenWidth in contextualToolbars) and hasPen));
+  OrResult(SetControlsVisible(JoinStyleControls, (ctJoinStyle in contextualToolbars) and hasPen));
+  OrResult(SetControlsVisible(PenStyleControls, (ctPenStyle in contextualToolbars) and hasPen));
+  OrResult(SetControlsVisible(CloseShapeControls, ctCloseShape in contextualToolbars));
+  OrResult(SetControlsVisible(LineCapControls, ToolHasLineCap));
   OrResult(SetControlsVisible(AliasingControls, ctAliasing in contextualToolbars));
   OrResult(SetControlsVisible(SplineStyleControls, ctSplineStyle in contextualToolbars));
   OrResult(SetControlsVisible(EraserControls, ctEraserOption in contextualToolbars));
