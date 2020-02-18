@@ -110,7 +110,8 @@ begin
   result := (FImageFormat in[ifJpeg,     {compression loss}
                              ifLazPaint, {layer loss}
                              ifOpenRaster,
-                             ifPhoxo])
+                             ifPhoxo,
+                             ifPaintDotNet])
          or (FAnimate and Assigned(FAnimatedGif) and (FAnimatedGif.Count > 1)); {frame loss}
 end;
 
