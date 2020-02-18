@@ -229,14 +229,14 @@ def keys(keys, state=[]):
 def write(text):
   command.send("ToolWrite", Text=text)
 
-def set_pen_color(color):
-  command.send("ToolSetPenColor", Color=color)
+def set_fore_color(color):
+  command.send("ToolSetForeColor", Color=color)
 
 def set_back_color(color):
   command.send("ToolSetBackColor", Color=color)
 
-def get_pen_color():
-  return colors.str_to_RGBA(command.send("ToolGetPenColor?"))
+def get_fore_color():
+  return colors.str_to_RGBA(command.send("ToolGetForeColor?"))
 
 def get_back_color():
   return colors.str_to_RGBA(command.send("ToolGetBackColor?"))
@@ -376,29 +376,29 @@ def set_spline_style(style):
 def get_spline_style():
   return command.send('ToolGetSplineStyle?')
 
-def set_pen_gradient_type(gradient_type):
-  command.send('ToolSetPenGradientType', GradientType=gradient_type)
+def set_fore_gradient_type(gradient_type):
+  command.send('ToolSetForeGradientType', GradientType=gradient_type)
 
-def get_pen_gradient_type():
-  return command.send('ToolGetPenGradientType?')
+def get_fore_gradient_type():
+  return command.send('ToolGetForeGradientType?')
 
-def set_pen_gradient_colors(colors: list):
-  command.send('ToolSetPenGradientColors', Colors=colors)
+def set_fore_gradient_colors(colors: list):
+  command.send('ToolSetForeGradientColors', Colors=colors)
 
-def get_pen_gradient_colors() -> list:
-  return colors.str_to_RGBA(command.send('ToolGetPenGradientColors?'))
+def get_fore_gradient_colors() -> list:
+  return colors.str_to_RGBA(command.send('ToolGetForeGradientColors?'))
 
-def set_pen_gradient_interpolation(interpolation):
-  command.send('ToolSetPenGradientInterpolation', Interpolation=interpolation)
+def set_fore_gradient_interpolation(interpolation):
+  command.send('ToolSetForeGradientInterpolation', Interpolation=interpolation)
 
-def get_pen_gradient_interpolation():
-  return command.send('ToolGetPenGradientInterpolation?')
+def get_fore_gradient_interpolation():
+  return command.send('ToolGetForeGradientInterpolation?')
 
-def set_pen_gradient_repetition(repetition):
-  command.send('ToolSetPenGradientRepetition', Repetition=repetition)
+def set_fore_gradient_repetition(repetition):
+  command.send('ToolSetForeGradientRepetition', Repetition=repetition)
 
-def get_pen_gradient_repetition():
-  return command.send('ToolGetPenGradientRepetition?')
+def get_fore_gradient_repetition():
+  return command.send('ToolGetForeGradientRepetition?')
 
 def set_back_gradient_type(gradient_type):
   command.send('ToolSetBackGradientType', GradientType=gradient_type)
