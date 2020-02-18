@@ -8484,6 +8484,13 @@ object FMain: TFMain
       ImageIndex = 133
       OnExecute = ToolAnyExecute
     end
+    object FileExport: TAction
+      Category = 'File'
+      Caption = 'Export...'
+      ImageIndex = 3
+      OnExecute = FileExportExecute
+      ShortCut = 49221
+    end
   end
   object ColorDialog1: TColorDialog
     Title = 'Choose color'

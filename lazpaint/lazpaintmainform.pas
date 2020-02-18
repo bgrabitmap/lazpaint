@@ -26,6 +26,7 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    FileExport: TAction;
     ToolOpenedCurve: TAction;
     ToolPolyline: TAction;
     FileRunScript: TAction;
@@ -460,6 +461,7 @@ type
     procedure EditShapeToCurveUpdate(Sender: TObject);
     procedure FileChooseEntryExecute(Sender: TObject);
     procedure FileChooseEntryUpdate(Sender: TObject);
+    procedure FileExportExecute(Sender: TObject);
     procedure FileImport3DUpdate(Sender: TObject);
     procedure FilePrintExecute(Sender: TObject);
     procedure FileRememberSaveFormatExecute(Sender: TObject);
@@ -3461,6 +3463,11 @@ end;
 procedure TFMain.FileChooseEntryUpdate(Sender: TObject);
 begin
   FileChooseEntry.Enabled := Image.IsIconCursor or Image.IsTiff or Image.IsGif;
+end;
+
+procedure TFMain.FileExportExecute(Sender: TObject);
+begin
+
 end;
 
 procedure TFMain.EditCopyExecute(Sender: TObject);

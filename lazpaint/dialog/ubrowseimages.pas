@@ -70,6 +70,7 @@ type
   private
     function GetCurrentDirectory: string;
     procedure SetCurrentDirectory(AValue: string);
+    function AdaptExtension: boolean;
   private
     FLazPaintInstance: TLazPaintCustomInstance;
     FDefaultExtension: string;
@@ -89,7 +90,7 @@ type
     FSavedDetailsViewWidth: integer;
     FLastDirectory: string;
     FFileSystems: TFileSystemArray;
-    FFilename: string;
+    FFilename, FInitialFilename: string;
     FBmpIcon: TBGRABitmap;
     FLastBigIcon: boolean;
     FImageFileNotChecked, FImageFileUnkown, FImageFolder,
@@ -224,8 +225,7 @@ begin
   StartThumbnails;
   if IsSaveDialog then
   begin
-    If (ExtractFileExt(Edit_Filename.Text) <> '') and (ComboBox_FileExtension.ItemIndex > 0) then
-      Edit_Filename.Text := ApplySelectedFilterExtension(Edit_Filename.Text, '?|'+CurrentExtensionFilter,1) else
+    if not AdaptExtension then
       Edit_FilenameChange(nil);
   end else
     Edit_Filename.Text := '';
@@ -383,7 +383,8 @@ begin
   for i := 0 to LazPaintInstance.Config.RecentDirectoriesCount-1 do
     ListBox_RecentDirs.Items.Add(LazPaintInstance.Config.RecentDirectory[i]);
   InFilenameChange := true;
-  if not IsSaveDialog then Edit_Filename.Text := '';
+  if not IsSaveDialog then Edit_Filename.Text := ''
+  else Edit_Filename.Text := InitialFilename;
   FFilename := '';
   FSelectedFiles := nil;
   InFilenameChange := false;
@@ -426,9 +427,7 @@ begin
   end;
   if IsSaveDialog then
   begin
-    If (ExtractFileExt(Edit_Filename.Text) <> '') and (ComboBox_FileExtension.ItemIndex > 0) then
-      Edit_Filename.Text := ApplySelectedFilterExtension(Edit_Filename.Text, '?|'+CurrentExtensionFilter,1)
-    else
+    If not AdaptExtension then
       Edit_FilenameChange(nil);
   end;
   FInFormShow:= false;
@@ -708,6 +707,17 @@ begin
   ResetDirectory(False);
 end;
 
+function TFBrowseImages.AdaptExtension: boolean;
+begin
+  If (ExtractFileExt(Edit_Filename.Text) <> '') and (ComboBox_FileExtension.ItemIndex > 0) then
+  begin
+    Edit_Filename.Text := ApplySelectedFilterExtension(Edit_Filename.Text, '?|'+CurrentExtensionFilter,1);
+    result := true;
+  end
+  else
+    result := false;
+end;
+
 procedure TFBrowseImages.UpdateToolButtonOpen;
 var chosenFilename: string;
 begin
@@ -717,7 +727,7 @@ end;
 
 function TFBrowseImages.GetInitialFilename: string;
 begin
-  result := Edit_Filename.Text;
+  result := FInitialFilename;
 end;
 
 function TFBrowseImages.GetOpenLayerIcon: boolean;
@@ -735,7 +745,7 @@ end;
 
 procedure TFBrowseImages.SetInitialFilename(AValue: string);
 begin
-  Edit_Filename.Text := Trim(AValue);
+  FInitialFilename := Trim(ExtractFileName(AValue));
 end;
 
 procedure TFBrowseImages.SetLazPaintInstance(AValue: TLazPaintCustomInstance);
@@ -958,8 +968,15 @@ begin
     begin
       CurrentDirectory := fullName;
       InFilenameChange := true;
-      Edit_Filename.text := '';
+      if IsSaveDialog then
+      begin
+        Edit_Filename.text := InitialFilename;
+        AdaptExtension;
+      end
+      else
+        Edit_Filename.text := '';
       InFilenameChange := false;
+      Edit_FilenameChange(nil);
       ShellListView1.SetFocus;
     end
     else
@@ -1003,10 +1020,9 @@ begin
       FFilename:= IncludeTrailingPathDelimiter(trim(CurrentDirectory))+Edit_Filename.Text;
       if (ExtractFileExt(FFilename)='') then
       begin
-        if (ComboBox_FileExtension.ItemIndex > 0) then
-          FFilename:= ApplySelectedFilterExtension(FFilename,'?|'+CurrentExtensionFilter,1)
-        else if DefaultExtension <> '' then
-          FFilename += DefaultExtension;
+        if not AdaptExtension then
+          if DefaultExtension <> '' then
+            FFilename += DefaultExtension;
       end;
       if FileManager.FileExists(FFilename) and IsSaveDialog and OverwritePrompt then
       begin
