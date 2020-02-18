@@ -8671,9 +8671,9 @@ object FMain: TFMain
     left = 456
     top = 427
   end
-  object TimerDocking: TTimer
+  object TimerLoadToolWin: TTimer
     Interval = 200
-    OnTimer = TimerDockingTimer
+    OnTimer = TimerLoadToolWinTimer
     left = 578
     top = 427
   end

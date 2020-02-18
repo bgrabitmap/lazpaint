@@ -144,7 +144,7 @@ type
     ItemViewDockToolbox: TMenuItem;
     SaveSelectionDialog: TSaveDialog;
     SavePictureDialog1: TSaveDialog;
-    TimerDocking: TTimer;
+    TimerLoadToolWin: TTimer;
     FileSaveAsInSameFolder: TAction;
     FilePrint: TAction;
     FilterNoise: TAction;
@@ -553,7 +553,7 @@ type
       {%H-}X, {%H-}Y: Integer);
     procedure RenderAnyExecute(Sender: TObject);
     procedure FilterAnyExecute(Sender: TObject);
-    procedure TimerDockingTimer(Sender: TObject);
+    procedure TimerLoadToolWinTimer(Sender: TObject);
     procedure ToolAnyExecute(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormHide(Sender: TObject);
@@ -1762,7 +1762,7 @@ begin
   end;
 end;
 
-procedure TFMain.TimerDockingTimer(Sender: TObject);
+procedure TFMain.TimerLoadToolWinTimer(Sender: TObject);
 var r: TRect;
 begin
   if LoadToolWindow then
@@ -1812,6 +1812,7 @@ begin
       LazPaintInstance.MoveToolboxTo(self.Left,self.Top+self.Height-LazPaintInstance.ToolBoxHeight);
     LazPaintInstance.ToolboxVisible := Config.DefaultToolboxWindowVisible;
   end;
+  TimerLoadToolWin.Enabled := false;
 end;
 
 procedure TFMain.RenderAnyExecute(Sender: TObject);
@@ -4221,6 +4222,7 @@ begin
   if FirstPaint then
   begin
     LoadToolwindow := True;
+    TimerLoadToolWin.Enabled := true;
     FirstPaint := false;
   end;
   if InFormPaint then exit;
