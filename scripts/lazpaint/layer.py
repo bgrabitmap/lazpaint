@@ -59,7 +59,7 @@ def select_id(id):
   command.send("LayerSelectId", Id=id)
 
 def set_name(name: str):
-  return command.send("LayerSetName", Name=name)
+  return command.send("LayerSetName", Name=str(name))
 
 def set_opacity(opacity: int):
   return command.send("LayerSetOpacity", Opacity=opacity)
@@ -71,7 +71,13 @@ def set_visible(visible: bool):
   return command.send("LayerSetVisible", Visible=visible)
 
 def new(): #-> id
-  return command.send("LayerAddNew?")
+  return 
+
+def new(name: str = None): #-> id
+  layer_id = command.send("LayerAddNew?")
+  if name is not None:
+    set_name(name)
+  return layer_id
 
 def paste_as_new(): #-> id
   return command.send("EditPasteAsNewLayer?")
