@@ -45,7 +45,7 @@ type
     function GetNbLayers: integer;
     function GetWidth: integer;
     procedure LayeredActionDone(Sender: TObject);
-    procedure LayeredActionProgress(ASender: TObject; AProgressPercent: integer);
+    procedure LayeredActionProgress({%H-}ASender: TObject; AProgressPercent: integer);
     procedure OriginalChange({%H-}ASender: TObject;
       AOriginal: TBGRALayerCustomOriginal; var ADiff: TBGRAOriginalDiff);
     procedure OriginalEditingChange({%H-}ASender: TObject;

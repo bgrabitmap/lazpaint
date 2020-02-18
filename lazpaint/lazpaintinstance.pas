@@ -31,7 +31,7 @@ type
 
     function GetInitialized: boolean;
     function GetMainFormVisible: boolean;
-    procedure OnImageActionProgress(ASender: TObject; AProgressPercent: integer);
+    procedure OnImageActionProgress({%H-}ASender: TObject; AProgressPercent: integer);
     procedure OnLayeredBitmapLoadStartHandler(AFilenameUTF8: string);
     procedure OnLayeredBitmapLoadProgressHandler(APercentage: integer);
     procedure OnLayeredBitmapLoadedHandler;

@@ -56,9 +56,9 @@ type
     function ShouldCloseShape: boolean; override;
     procedure UpdateManagerCloseShape({%H-}AClose: boolean); override;
     function GetManagerShapeOptions: TShapeOptions; override;
-    function HasPen: boolean; override;
     function HasBrush: boolean; override;
   public
+    function HasPen: boolean; override;
     function GetContextualToolbars: TContextualToolbars; override;
   end;
 
@@ -87,11 +87,11 @@ type
   TToolOpenedCurve = class(TToolSpline)
   protected
     function ShouldCloseShape: boolean; override;
-    procedure UpdateManagerCloseShape(AClose: boolean); override;
+    procedure UpdateManagerCloseShape({%H-}AClose: boolean); override;
     function GetManagerShapeOptions: TShapeOptions; override;
-    function HasPen: boolean; override;
     function HasBrush: boolean; override;
   public
+    function HasPen: boolean; override;
     function GetContextualToolbars: TContextualToolbars; override;
   end;
 

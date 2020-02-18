@@ -77,7 +77,7 @@ type
     function GetSelectionMaskEmpty: boolean;
     function GetSelectionTransform: TAffineMatrix;
     procedure LayeredActionDone(Sender: TObject);
-    procedure LayeredActionProgress(ASender: TObject; AProgressPercent: integer);
+    procedure LayeredActionProgress({%H-}ASender: TObject; AProgressPercent: integer);
     procedure NeedSelectionLayerAfterMask;
     function GetBlendOperation(AIndex: integer): TBlendOperation;
     function GetCurrentFilenameUTF8: string;

@@ -38,8 +38,8 @@ type
     function GetStatusBarVisible: boolean;
     function GetStatusText: string;
     function GetToolBoxVisible: boolean;
-    procedure ToolboxGroupMainButton_MouseMove(Sender: TObject; Shift: TShiftState; X,
-      Y: Integer);
+    procedure ToolboxGroupMainButton_MouseMove(Sender: TObject; {%H-}Shift: TShiftState; {%H-}X,
+      {%H-}Y: Integer);
     procedure SetDarkTheme(AValue: boolean);
     procedure SetLazPaintInstance(AValue: TLazPaintCustomInstance);
     procedure SetPaletteVisible(AValue: boolean);

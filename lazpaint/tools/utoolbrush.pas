@@ -60,7 +60,7 @@ type
     procedure PrepareBrush(rightBtn: boolean); override;
     procedure ReleaseBrush; override;
     function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect; override;
-    function DoToolShiftClick(toolDest: TBGRABitmap; ptF: TPointF; rightBtn: boolean): TRect; override;
+    function DoToolShiftClick({%H-}toolDest: TBGRABitmap; {%H-}ptF: TPointF; {%H-}rightBtn: boolean): TRect; override;
   public
     function SubPixelAccuracy: boolean; override;
     constructor Create(AManager: TToolManager); override;

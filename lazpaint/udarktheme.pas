@@ -187,14 +187,14 @@ begin
 
     if Sender.Enabled then
     begin
-      { Text Enabled }
+      // Text Enabled
       Bitmap.TextOut((Sender.Width - ts.cx) div 2, ((Sender.Height - ts.cy) div 2) -
         1, Sender.Caption, BGRA(47, 47, 47));
       Bitmap.TextOut((Sender.Width - ts.cx) div 2, (Sender.Height - ts.cy) div 2,
         Sender.Caption, BGRA(229, 229, 229));
     end
     else
-      { Text Disabled }
+      // Text Disabled
       Bitmap.TextOut((Sender.Width - ts.cx) div 2, (Sender.Height - ts.cy) div 2,
         Sender.Caption, BGRA(170, 170, 170));}
   end;
