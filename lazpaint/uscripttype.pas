@@ -90,6 +90,8 @@ function FloatToPixel(AValue: double): TBGRAPixel;
 function IntToPixel(AValue: TScriptInteger): TBGRAPixel;
 function PixelToInt(AValue: TBGRAPixel): TScriptInteger;
 function InterpretationErrorsToStr(AErrors: TInterpretationErrors): string;
+function ScriptGuidToStr(const AGuid: TGuid): string;
+function ScriptStrToGuid(AValue: string): TGuid;
 
 implementation
 
@@ -473,6 +475,19 @@ begin
       if result <> '' then result += ', ';
       result += InterpretationErrorToStr[e];
     end;
+end;
+
+function ScriptGuidToStr(const AGuid: TGuid): string;
+begin
+  result := LowerCase(GUIDToString(AGuid));
+  if (length(result)>0) and (result[1]='{') and (result[length(result)]='}') then
+    result := copy(result,2,length(result)-2);
+end;
+
+function ScriptStrToGuid(AValue: string): TGuid;
+begin
+  if not TryStringToGUID('{'+AValue+'}', result) then
+    result := GUID_NULL;
 end;
 
 end.

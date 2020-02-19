@@ -99,6 +99,7 @@ type
      c: TPointF;
      rx,ry: single;
   end;
+  ArrayOfLayerId = array of integer;
 
 const
   OnlyRenderChange : TRect = (left:-32768;top:-32768;right:0;bottom:0);

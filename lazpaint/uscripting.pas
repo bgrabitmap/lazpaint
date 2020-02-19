@@ -48,6 +48,7 @@ type
     function GetBooleanByName(const AName: string): boolean;
     function GetCount: NativeInt;
     function GetFloatByName(const AName: string): double;
+    function GetGuidByName(const AName: string): TGuid;
     function GetIntegerByName(const AName: string): TScriptInteger;
     function GetPixelByName(const AName: string): TBGRAPixel;
     function GetPoint2DByName(const AName: string): TPointF;
@@ -59,6 +60,7 @@ type
     function GetVarName(AIndex: integer): string;
     procedure SetBooleanByName(const AName: string; AValue: boolean);
     procedure SetFloatByName(const AName: string; AValue: double);
+    procedure SetGuidByName(const AName: string; const AValue: TGuid);
     procedure SetIntegerByName(const AName: string; AValue: TScriptInteger);
     procedure SetListByName(const AName: string; AValue: string);
     procedure SetPixelByName(const AName: string; AValue: TBGRAPixel);
@@ -86,6 +88,7 @@ type
     function AddBoolean(const AName: string; AValue: boolean): boolean;
     function AddPixel(const AName: string; const AValue: TBGRAPixel): boolean;
     function AddString(const AName: string; AValue: string): boolean;
+    function AddGuid(const AName: string; const AValue: TGuid): boolean;
     function AddSubset(const AName: string; AValue: TVariableSet): boolean;
     function AddSubset(const AName: string): TVariableSet;
     function AddList(const AName: string; AListExpr: string): TInterpretationErrors;
@@ -95,6 +98,7 @@ type
     function AddPointList(const AName: string): TScriptVariableReference;
     function AddPixelList(const AName: string): TScriptVariableReference;
     function AddStringList(const AName: string): TScriptVariableReference;
+    function AddGuidList(const AName: string): TScriptVariableReference;
     function GetVariable(const AName: string): TScriptVariableReference;
     function IsDefined(const AName: string): boolean;
     class procedure ClearList(const ADest: TScriptVariableReference); static;
@@ -114,6 +118,8 @@ type
     class function AssignBoolean(const ADest: TScriptVariableReference; AValue: boolean): boolean; overload; static;
     class function AppendString(const ADest: TScriptVariableReference; AValue: string): boolean; overload; static;
     class function AssignString(const ADest: TScriptVariableReference; AValue: string): boolean; overload; static;
+    class function AppendGuid(const ADest: TScriptVariableReference; const AValue: TGuid): boolean; overload; static;
+    class function AssignGuid(const ADest: TScriptVariableReference; const AValue: TGuid): boolean; overload; static;
     class function AppendPixel(const ADest: TScriptVariableReference; const AValue: TBGRAPixel): boolean; overload; static;
     class function AssignPixel(const ADest: TScriptVariableReference; const AValue: TBGRAPixel): boolean; overload; static;
     class function AssignList(const ADest: TScriptVariableReference; AListExpr: string): TInterpretationErrors; static;
@@ -127,6 +133,7 @@ type
     class function GetPoint3D(const ASource: TScriptVariableReference) : TPoint3D; static;
     class function GetBoolean(const ASource: TScriptVariableReference) : boolean; static;
     class function GetString(const ASource: TScriptVariableReference) : string; static;
+    class function GetGuid(const ASource: TScriptVariableReference) : TGuid; static;
     class function GetPixel(const ASource: TScriptVariableReference) : TBGRAPixel; static;
     class function GetSubset(const ASource: TScriptVariableReference) : TVariableSet; static;
     class function GetList(const ASource: TScriptVariableReference) : string; static;
@@ -138,6 +145,7 @@ type
     class function GetPoint3DAt(const ASource: TScriptVariableReference; AIndex: NativeInt; ADefaultZ: single): TPoint3D; static;
     class function GetBooleanAt(const ASource: TScriptVariableReference; AIndex: NativeInt) : boolean; static;
     class function GetStringAt(const ASource: TScriptVariableReference; AIndex: NativeInt) : string; static;
+    class function GetGuidAt(const ASource: TScriptVariableReference; AIndex: NativeInt) : TGuid; static;
     class function GetPixelAt(const ASource: TScriptVariableReference; AIndex: NativeInt) : TBGRAPixel; static;
     class function RemoveAt(const ASource: TScriptVariableReference; AIndex: NativeInt) : boolean; static;
     function Duplicate: TVariableSet;
@@ -155,6 +163,7 @@ type
     property Pixels[const AName: string]: TBGRAPixel read GetPixelByName write SetPixelByName;
     property Subsets[const AName: string]: TVariableSet read GetSubsetByName write SetSubSetByName;
     property Lists[const AName: string]: string read GetListByName write SetListByName;
+    property Guids[const AName: string]: TGuid read GetGuidByName write SetGuidByName;
   end;
 
   { TScriptContext }
@@ -354,6 +363,11 @@ end;
 function TVariableSet.GetFloatByName(const AName: string): double;
 begin
   result := GetFloat(GetVariable(AName));
+end;
+
+function TVariableSet.GetGuidByName(const AName: string): TGuid;
+begin
+  result := ScriptStrToGuid(Strings[AName]);
 end;
 
 function TVariableSet.GetIntegerByName(const AName: string): TScriptInteger;
@@ -679,6 +693,16 @@ begin
   if IsReferenceDefined(v) then AssignFloat(v,AValue) else AddFloat(AName,AValue);
 end;
 
+procedure TVariableSet.SetGuidByName(const AName: string; const AValue: TGuid);
+var
+  guidStr: String;
+begin
+  guidStr := LowerCase(GUIDToString(AValue));
+  if (length(guidStr)>0) and (guidStr[1]='{') and (guidStr[length(guidStr)]='}') then
+    guidStr := copy(guidStr,2,length(guidStr)-2);
+  Strings[AName] := guidStr;
+end;
+
 procedure TVariableSet.SetIntegerByName(const AName: string; AValue: TScriptInteger);
 var v: TScriptVariableReference;
 begin
@@ -905,6 +929,11 @@ begin
   result := true;
 end;
 
+function TVariableSet.AddGuid(const AName: string; const AValue: TGuid): boolean;
+begin
+  result := AddString(AName, ScriptGuidToStr(AValue));
+end;
+
 function TVariableSet.AddSubset(const AName: string; AValue: TVariableSet
   ): boolean;
 begin
@@ -1028,6 +1057,12 @@ begin
   result.variableType := svtStrList;
   result.variableIndex := FNbStrLists;
   inc(FNbStrLists);
+end;
+
+function TVariableSet.AddGuidList(const AName: string
+  ): TScriptVariableReference;
+begin
+  result := AddStringList(AName);
 end;
 
 function TVariableSet.GetVariable(const AName: string): TScriptVariableReference;
@@ -1483,6 +1518,18 @@ begin
   result := true;
 end;
 
+class function TVariableSet.AppendGuid(const ADest: TScriptVariableReference;
+  const AValue: TGuid): boolean;
+begin
+  result := AppendString(ADest, ScriptGuidToStr(AValue));
+end;
+
+class function TVariableSet.AssignGuid(const ADest: TScriptVariableReference;
+  const AValue: TGuid): boolean;
+begin
+  result := AssignString(ADest, ScriptGuidToStr(AValue));
+end;
+
 class function TVariableSet.AppendPixel(const ADest: TScriptVariableReference;
   const AValue: TBGRAPixel): boolean;
 begin
@@ -1816,6 +1863,12 @@ begin
   end;
 end;
 
+class function TVariableSet.GetGuid(const ASource: TScriptVariableReference
+  ): TGuid;
+begin
+  result := ScriptStrToGuid(GetString(ASource));
+end;
+
 class function TVariableSet.GetPixel(const ASource: TScriptVariableReference): TBGRAPixel;
 begin
   if ASource.variableSet <> nil then
@@ -2022,6 +2075,12 @@ begin
       if AIndex >= count then exit;
       result := list[AIndex];
     end;
+end;
+
+class function TVariableSet.GetGuidAt(const ASource: TScriptVariableReference;
+  AIndex: NativeInt): TGuid;
+begin
+  result := ScriptStrToGuid(GetStringAt(ASource, AIndex));
 end;
 
 class function TVariableSet.GetPixelAt(const ASource: TScriptVariableReference;

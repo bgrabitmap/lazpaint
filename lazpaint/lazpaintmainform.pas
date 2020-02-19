@@ -2499,13 +2499,13 @@ begin
   begin
     if Assigned(loadedImage) and (length(chosenFiles)=1) then
     begin
-      layerLoaded := FImageActions.TryAddLayerFromFile(chosenFiles[0], loadedImage);
+      layerLoaded := length(FImageActions.TryAddLayerFromFile(chosenFiles[0], loadedImage)) > 0;
     end else
     begin
       FreeAndNil(loadedImage);
       for i := 0 to high(chosenFiles) do
         begin
-          if FImageActions.TryAddLayerFromFile(chosenFiles[i]) then
+          if length(FImageActions.TryAddLayerFromFile(chosenFiles[i])) > 0 then
             layerLoaded := true;
         end;
     end;

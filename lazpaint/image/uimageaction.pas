@@ -90,7 +90,7 @@ type
     function GetPixel(X,Y: Integer): TBGRAPixel;
     function PutImage(X,Y: integer; AImage: TBGRACustomBitmap; AMode: TDrawMode; AOpacity: byte): boolean;
     function LayerFill(AColor: TBGRAPixel; AMode: TDrawMode): boolean;
-    function TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: TBGRABitmap = nil): boolean;
+    function TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: TBGRABitmap = nil): ArrayOfLayerId;
     function AddLayerFromBitmap(ABitmap: TBGRABitmap; AName: string): boolean;
     function AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal; AName: string): boolean;
     function AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal; AName: string; AMatrix: TAffineMatrix; ABlendOp: TBlendOperation = boTransparent; AOpacity: byte = 255): boolean;
@@ -306,12 +306,21 @@ begin
 end;
 
 function TImageActions.ScriptLayerFromFile(AVars: TVariableSet): TScriptResult;
+var
+  ids: ArrayOfLayerId;
+  i: Integer;
+  guidList: TScriptVariableReference;
 begin
   if not AVars.IsDefined('FileName') then exit(srInvalidParameters) else
-  if not TryAddLayerFromFile(AVars.Strings['FileName']) then exit(srException) else
   begin
-    AVars.Integers['Result'] := Image.LayerId[Image.CurrentLayerIndex];
-    exit(srOk);
+    ids := TryAddLayerFromFile(AVars.Strings['FileName']);
+    if length(ids) = 0 then exit(srException) else
+    begin
+      guidList := AVars.AddGuidList('Result');
+      for i := 0 to high(ids) do
+        AVars.AppendGuid(guidList, Image.LayerGuid[Image.GetLayerIndexById(ids[i])]);
+      exit(srOk);
+    end;
   end;
 end;
 
@@ -326,13 +335,8 @@ begin
 end;
 
 function TImageActions.ScriptLayerGetId(AVars: TVariableSet): TScriptResult;
-var
-  guidStr: String;
 begin
-  guidStr := LowerCase(GUIDToString(Image.LayerGuid[Image.CurrentLayerIndex]));
-  if (length(guidStr)>0) and (guidStr[1]='{') and (guidStr[length(guidStr)]='}') then
-    guidStr := copy(guidStr,2,length(guidStr)-2);
-  AVars.Strings['Result'] := guidStr;
+  AVars.Guids['Result'] := Image.LayerGuid[Image.CurrentLayerIndex];
   result := srOk;
 end;
 
@@ -390,8 +394,8 @@ var
   idx: Integer;
   layerGuid: TGUID;
 begin
-  if not TryStringToGUID('{'+AVars.Strings['Id']+'}', layerGuid) then
-    exit(srInvalidParameters);
+  layerGuid := AVars.Guids['Id'];
+  if layerGuid = GUID_NULL then exit(srInvalidParameters);
   idx := Image.GetLayerIndexByGuid(layerGuid);
   if idx = -1 then exit(srInvalidParameters)
   else if not Image.SetCurrentLayerByIndex(idx) then exit(srException)
@@ -403,7 +407,7 @@ begin
   if not NewLayer then result := srException
   else
   begin
-    AVars.Integers['Result'] := Image.LayerId[Image.CurrentLayerIndex];
+    AVars.Guids['Result'] := Image.LayerGuid[Image.CurrentLayerIndex];
     result := srOk;
   end;
 end;
@@ -432,10 +436,14 @@ end;
 
 function TImageActions.ScriptPasteAsNewLayer(AVars: TVariableSet): TScriptResult;
 var
-  id: Integer;
+  id, idx: Integer;
 begin
   id := PasteAsNewLayer;
-  if id >= 0 then AVars.Integers['Result'] := id
+  if id >= 0 then
+  begin
+    idx := Image.GetLayerIndexById(id);
+    AVars.Guids['Result'] := Image.LayerGuid[idx];
+  end
   else AVars.Remove('Result');
   result := srOk;
 end;
@@ -444,7 +452,7 @@ function TImageActions.ScriptLayerDuplicate(AVars: TVariableSet): TScriptResult;
 begin
   if not DuplicateLayer then result := srException else
   begin
-    AVars.Integers['Result'] := Image.LayerId[Image.CurrentLayerIndex];
+    AVars.Guids['Result'] := Image.LayerGuid[Image.CurrentLayerIndex];
     result := srOk;
   end;
 end;
@@ -956,7 +964,7 @@ begin
   end;
 end;
 
-function TImageActions.TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: TBGRABitmap = nil): boolean;
+function TImageActions.TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: TBGRABitmap = nil): ArrayOfLayerId;
 
   function ComputeStretchMatrix(ASourceWidth, ASourceHeight: single): TAffineMatrix;
   var
@@ -981,7 +989,7 @@ var
   doFound, somethingDone: boolean;
 
 begin
-  result := false;
+  result := nil;
   if not AbleToLoadUTF8(AFilenameUTF8) then
   begin
     FInstance.ShowMessage(rsOpen,rsFileExtensionNotSupported);
@@ -995,7 +1003,8 @@ begin
       svgOrig := LoadSVGOriginalUTF8(AFilenameUTF8);
       m := ComputeStretchMatrix(svgOrig.Width, svgOrig.Height);
       AddLayerFromOriginal(svgOrig, ExtractFileName(AFilenameUTF8), m);
-      result := true;
+      setlength(result, 1);
+      result[0] := Image.LayerId[image.CurrentLayerIndex];
       FreeAndNil(ALoadedImage);
     end;
     ifLazPaint, ifOpenRaster, ifPaintDotNet, ifPhoxo:
@@ -1019,31 +1028,32 @@ begin
               if (layeredBmp.LayerOriginalGuid[i] <> GUID_NULL) and
                  layeredBmp.LayerOriginalKnown[i] then
               begin
-                AddLayerFromOriginal(layeredBmp.LayerOriginal[i].Duplicate,
+                if not AddLayerFromOriginal(layeredBmp.LayerOriginal[i].Duplicate,
                   layeredBmp.LayerName[i], m*layeredBmp.LayerOriginalMatrix[i],
-                  layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]);
+                  layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]) then break;
               end else
               begin
                 if IsAffineMatrixTranslation(m) then
                 begin
                   ofsF := m*PointF(layeredBmp.LayerOffset[i].x, layeredBmp.LayerOffset[i].y);
-                  NewLayer(layeredBmp.GetLayerBitmapCopy(i), layeredBmp.LayerName[i],
+                  if not NewLayer(layeredBmp.GetLayerBitmapCopy(i), layeredBmp.LayerName[i],
                            Point(round(ofsF.X), round(ofsF.Y)),
-                           layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]);
+                           layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]) then break;
                 end else
                 begin
                   bmpOrig := TBGRALayerImageOriginal.Create;
                   bmpOrig.AssignImage(layeredBmp.GetLayerBitmapDirectly(i));
-                  AddLayerFromOriginal(bmpOrig, layeredBmp.LayerName[i],
+                  if not AddLayerFromOriginal(bmpOrig, layeredBmp.LayerName[i],
                     m * AffineMatrixTranslation(layeredBmp.LayerOffset[i].x, layeredBmp.LayerOffset[i].y),
-                    layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]);
+                    layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]) then break;
                 end;
               end;
+              setlength(result, length(result)+1);
+              result[high(result)] := Image.LayerId[image.CurrentLayerIndex];
             end;
           finally
             image.DoEnd(doFound, somethingDone);
           end;
-          result := true;
         finally
           s.Free;
         end;
@@ -1068,7 +1078,8 @@ begin
           end;
         end;
         AddLayerFromBitmap(newPicture, ExtractFileName(AFilenameUTF8));
-        result := true;
+        setlength(result, 1);
+        result[0] := Image.LayerId[image.CurrentLayerIndex];
       end;
     end;
   except

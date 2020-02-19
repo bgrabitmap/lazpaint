@@ -79,7 +79,7 @@ def new(name: str = None): #-> id
 def paste_as_new(): #-> id
   return command.send("EditPasteAsNewLayer?")
 
-def add_from_file(file_name): #-> id
+def add_from_file(file_name): #-> [id]
   return command.send("LayerFromFile?", FileName=file_name)
 
 def save_as(file_name:str, format:str = None): #-> str
