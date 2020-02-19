@@ -1040,7 +1040,7 @@ msgstr "Cortar a selección y capa actual"
 
 #: tfmain.imagefillbackground.caption
 msgid "Fill background with antialiasing"
-msgstr "Rellenar fondo con antiafilado"
+msgstr "Rellenar fondo con alisamiento"
 
 #: tfmain.imageflatten.caption
 msgid "Flatten image"
@@ -1784,7 +1784,7 @@ msgstr "Mapeo de texturas"
 
 #: tfmain.tool_aliasing.hint
 msgid "Disable antialiasing"
-msgstr "Desactivar antisolapamiento"
+msgstr "Desactivar alisamiento"
 
 #: tfmain.tool_capflat.hint
 msgctxt "TFMAIN.TOOL_CAPFLAT.HINT"
@@ -2161,7 +2161,7 @@ msgstr "Objeto 3D"
 
 #: tfobject3d.checkbox_antialiasing.caption
 msgid "Antialiasing"
-msgstr "Antiafilado"
+msgstr "Alisamiento"
 
 #: tfobject3d.checkbox_biface.caption
 msgid "2-sided faces"
