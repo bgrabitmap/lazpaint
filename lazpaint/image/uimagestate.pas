@@ -890,8 +890,7 @@ begin
     result := nil
   else
   begin
-    result := TRemoveLayerStateDifference.Create(self);
-    result.ApplyTo(self);
+    result := TRemoveLayerStateDifference.Create(self, True);
   end;
 end;
 

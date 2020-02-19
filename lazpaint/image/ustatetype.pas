@@ -218,6 +218,7 @@ type
     FOriginalMatrix: TAffineMatrix;
     FOriginalDraft: boolean;
     FOriginalGuid: TGuid;
+    FRegistryData: TMemoryStream;
   public
     constructor Create(ALayeredImage: TBGRALayeredBitmap; AIndex: integer);
     constructor Create(ALayeredImage: TBGRALayeredBitmap; AIndex: integer;
@@ -1140,10 +1141,13 @@ begin
     inherited Create(ALayeredImage.LayerBitmap[AIndex]);
     FOriginalData := nil;
   end;
+  FRegistryData := TMemoryStream.Create;
+  ALayeredImage.SaveLayerRegistryToStream(AIndex, FRegistryData);
 end;
 
 destructor TStoredLayer.Destroy;
 begin
+  FRegistryData.Free;
   FOriginalData.Free;
   inherited Destroy;
 end;
@@ -1175,6 +1179,8 @@ begin
     tempIdx := ALayeredImage.AddOwnedLayer(GetBitmap);
 
   ApplyLayerInfo(FInfo,ALayeredImage,tempIdx);
+  FRegistryData.Position := 0;
+  ALayeredImage.LoadLayerRegistryFromStream(tempIdx, FRegistryData);
   ALayeredImage.InsertLayer(FIndex,tempIdx);
 end;
 
@@ -1206,6 +1212,8 @@ begin
   ALayeredImage.RemoveUnusedOriginals;
 
   ApplyLayerInfo(FInfo,ALayeredImage,FIndex);
+  FRegistryData.Position := 0;
+  ALayeredImage.LoadLayerRegistryFromStream(FIndex, FRegistryData);
 end;
 
 end.

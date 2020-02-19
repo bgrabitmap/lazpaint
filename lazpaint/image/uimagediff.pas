@@ -326,7 +326,7 @@ type
     function TryCompress: boolean; override;
     procedure ApplyTo(AState: TState); override;
     procedure UnapplyTo(AState: TState); override;
-    constructor Create(AState: TState);
+    constructor Create(AState: TState; AApplyNow: boolean);
     destructor Destroy; override;
     property nextActiveLayerId: integer read FNextActiveLayerId write FNextActiveLayerId;
   end;
@@ -2267,7 +2267,7 @@ begin
   end;
 end;
 
-constructor TRemoveLayerStateDifference.Create(AState: TState);
+constructor TRemoveLayerStateDifference.Create(AState: TState; AApplyNow: boolean);
 var idx,nextIdx: integer;
   imgState: TImageState;
 begin
@@ -2284,6 +2284,7 @@ begin
   if idx+1 < imgState.NbLayers then
     nextIdx := idx+1 else nextIdx := idx-1;
   self.FNextActiveLayerId := imgState.LayeredBitmap.LayerUniqueId[nextIdx];
+  if AApplyNow then ApplyTo(AState);
 end;
 
 destructor TRemoveLayerStateDifference.Destroy;
