@@ -70,9 +70,6 @@ def set_blend_op(blend_op):
 def set_visible(visible: bool):
   return command.send("LayerSetVisible", Visible=visible)
 
-def new(): #-> id
-  return 
-
 def new(name: str = None): #-> id
   layer_id = command.send("LayerAddNew?")
   if name is not None:

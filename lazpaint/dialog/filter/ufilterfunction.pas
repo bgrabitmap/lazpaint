@@ -174,11 +174,12 @@ type
   TExprVariables = record
     XValue,YValue,RedValue,GreenValue,BlueValue,AlphaValue,
     HueValue,SaturationValue,LightnessValue,RandomValue: TFPExprIdentifierDef;
-    IsIdentity,RandomUsed: boolean;
+    IsIdentity,IsConstant,RandomUsed,RGBUsed,HSLUsed,XYUsed: boolean;
+    ConstantValue: integer;
   end;
 
 var
-  rgbUsed,hslUsed: boolean;
+  rgbUsedByAny,hslUsedByAny: boolean;
 
   function ContainsIdentifier(AExpr: string; AVar: string): boolean;
   var i: integer;
@@ -203,47 +204,23 @@ var
     end;
   end;
 
-  procedure PrepareXY(AExpr: TFPExpressionParser; out AVars: TExprVariables; AIdentityExpr: string);
-  begin
-    with AVars do
-    begin
-      IsIdentity := (CompareText(trim(AExpr.Expression), AIdentityExpr)= 0);
-      if ContainsIdentifier(AExpr.Expression,'hue') or
-         ContainsIdentifier(AExpr.Expression,'saturation') or
-         ContainsIdentifier(AExpr.Expression,'lightness') then hslUsed:= true;
-      if ContainsIdentifier(AExpr.Expression,'red') or
-         ContainsIdentifier(AExpr.Expression,'green') or
-         ContainsIdentifier(AExpr.Expression,'blue') then rgbUsed:= true;
-      RandomUsed:= ContainsIdentifier(AExpr.Expression,'random');
-      XValue := AExpr.IdentifierByName('x');
-      YValue:= AExpr.IdentifierByName('y');
-      RedValue:= AExpr.IdentifierByName('red');
-      GreenValue:= AExpr.IdentifierByName('green');
-      BlueValue:= AExpr.IdentifierByName('blue');
-      AlphaValue:= AExpr.IdentifierByName('alpha');
-      HueValue:= AExpr.IdentifierByName('hue');
-      SaturationValue:= AExpr.IdentifierByName('saturation');
-      LightnessValue:= AExpr.IdentifierByName('lightness');
-      RandomValue:= AExpr.IdentifierByName('random');
-      AExpr.IdentifierByName('width').AsInteger := FFilterConnector.BackupLayer.Width;
-      AExpr.IdentifierByName('height').AsInteger := FFilterConnector.BackupLayer.Height;
-    end;
-  end;
-
   function ComputeExpr(AExpr: TFPExpressionParser; AVars: TExprVariables; AX,AY: Integer; const AValues: TExprValues): integer;
   var {%H-}code: integer;
     floatValue: single;
   begin
-    AVars.XValue.AsFloat := AX/FFilterConnector.BackupLayer.Width;
-    AVars.YValue.AsFloat := AY/FFilterConnector.BackupLayer.Height;
-    if rgbUsed then
+    if AVars.XYUsed then
+    begin
+      AVars.XValue.AsFloat := AX/FFilterConnector.BackupLayer.Width;
+      AVars.YValue.AsFloat := AY/FFilterConnector.BackupLayer.Height;
+    end;
+    if AVars.RGBUsed then
     begin
       AVars.RedValue.AsFloat := AValues.Red;
       AVars.GreenValue.AsFloat := AValues.Green;
       AVars.BlueValue.AsFloat := AValues.Blue;
     end;
     AVars.AlphaValue.AsFloat := AValues.Alpha;
-    if hslUsed then
+    if AVars.HSLUsed then
     begin
       AVars.HueValue.AsFloat := AValues.Hue;
       AVars.SaturationValue.AsFloat := AValues.Saturation;
@@ -266,6 +243,44 @@ var
                     result := round(floatValue*65535);
                 end;
       else result := 0;
+      end;
+    end;
+  end;
+
+  procedure PrepareXY(AExpr: TFPExpressionParser; out AVars: TExprVariables; AIdentityExpr: string);
+  var dummyValues: TExprValues;
+  begin
+    with AVars do
+    begin
+      IsIdentity := (CompareText(trim(AExpr.Expression), AIdentityExpr)= 0);
+      HSLUsed := not IsIdentity and (ContainsIdentifier(AExpr.Expression,'hue') or
+         ContainsIdentifier(AExpr.Expression,'saturation') or
+         ContainsIdentifier(AExpr.Expression,'lightness'));
+      if HSLUsed then hslUsedByAny:= true;
+      RGBUsed := not IsIdentity and (ContainsIdentifier(AExpr.Expression,'red') or
+         ContainsIdentifier(AExpr.Expression,'green') or
+         ContainsIdentifier(AExpr.Expression,'blue'));
+      if RGBUsed then rgbUsedByAny:= true;
+      RandomUsed:= ContainsIdentifier(AExpr.Expression,'random');
+      XYUsed := ContainsIdentifier(AExpr.Expression,'x') or
+         ContainsIdentifier(AExpr.Expression,'y');
+      XValue := AExpr.IdentifierByName('x');
+      YValue:= AExpr.IdentifierByName('y');
+      RedValue:= AExpr.IdentifierByName('red');
+      GreenValue:= AExpr.IdentifierByName('green');
+      BlueValue:= AExpr.IdentifierByName('blue');
+      AlphaValue:= AExpr.IdentifierByName('alpha');
+      HueValue:= AExpr.IdentifierByName('hue');
+      SaturationValue:= AExpr.IdentifierByName('saturation');
+      LightnessValue:= AExpr.IdentifierByName('lightness');
+      RandomValue:= AExpr.IdentifierByName('random');
+      AExpr.IdentifierByName('width').AsInteger := FFilterConnector.BackupLayer.Width;
+      AExpr.IdentifierByName('height').AsInteger := FFilterConnector.BackupLayer.Height;
+      IsConstant := not HSLUsed and not RGBUsed and not XYUsed and not RandomUsed;
+      if IsConstant then
+      begin
+        fillchar({%H-}dummyValues, sizeof(dummyValues), 0);
+        ConstantValue := ComputeExpr(AExpr,AVars,0,0,dummyValues);
       end;
     end;
   end;
@@ -294,8 +309,8 @@ begin
     prevComputedLines:= FComputedLines;
     try
       rgbMode := PageControl_Color.ActivePage = TabSheet_RGB;
-      hslUsed := false;
-      rgbUsed:= false;
+      hslUsedByAny := false;
+      rgbUsedByAny := false;
       if rgbMode then
       begin
         PrepareXY(FRedExpr,RedVars,'red');
@@ -321,7 +336,7 @@ begin
             begin
               if gsba then
               begin
-                if rgbUsed then
+                if rgbUsedByAny then
                 with GammaExpansion(psrc^) do
                 begin
                   values.Red := red *oneOver65535;
@@ -331,20 +346,28 @@ begin
                 end else
                   values.Alpha := psrc^.alpha *oneOver255;
 
-                if hslUsed then
+                if hslUsedByAny then
                 with BGRAToGSBA(psrc^) do
                 begin
                   values.Hue := hue*oneOver65536;
                   values.Saturation := saturation*oneOver65535;
                   values.Lightness := lightness*oneOver65535;
                 end;
-                if RedVars.IsIdentity then pdest^.red := psrc^.red else pdest^.red := GammaCompressionTab[ComputeExpr(FRedExpr,RedVars,x,y,values)];
-                if GreenVars.IsIdentity then pdest^.green := psrc^.green else pdest^.green := GammaCompressionTab[ComputeExpr(FGreenExpr,GreenVars,x,y,values)];
-                if BlueVars.IsIdentity then pdest^.blue := psrc^.blue else pdest^.blue := GammaCompressionTab[ComputeExpr(FBlueExpr,BlueVars,x,y,values)];
-                if AlphaVars.IsIdentity then pdest^.alpha := psrc^.alpha else pdest^.alpha := GammaCompressionTab[ComputeExpr(FAlphaExpr,AlphaVars,x,y,values)];
+                if RedVars.IsIdentity then pdest^.red := psrc^.red else
+                if RedVars.IsConstant then pdest^.red := GammaCompressionTab[RedVars.ConstantValue] else
+                  pdest^.red := GammaCompressionTab[ComputeExpr(FRedExpr,RedVars,x,y,values)];
+                if GreenVars.IsIdentity then pdest^.green := psrc^.green else
+                if GreenVars.IsConstant then pdest^.green := GammaCompressionTab[GreenVars.ConstantValue] else
+                  pdest^.green := GammaCompressionTab[ComputeExpr(FGreenExpr,GreenVars,x,y,values)];
+                if BlueVars.IsIdentity then pdest^.blue := psrc^.blue else
+                if BlueVars.IsConstant then pdest^.blue := GammaCompressionTab[BlueVars.ConstantValue] else
+                  pdest^.blue := GammaCompressionTab[ComputeExpr(FBlueExpr,BlueVars,x,y,values)];
+                if AlphaVars.IsIdentity then pdest^.alpha := psrc^.alpha else
+                if AlphaVars.IsConstant then pdest^.alpha := AlphaVars.ConstantValue shr 8 else
+                  pdest^.alpha := ComputeExpr(FAlphaExpr,AlphaVars,x,y,values) shr 8;
               end else
               begin
-                if rgbUsed then
+                if rgbUsedByAny then
                 with psrc^ do
                 begin
                   values.Red := red *oneOver255;
@@ -354,17 +377,25 @@ begin
                 end else
                   values.Alpha := psrc^.alpha *oneOver255;
 
-                if hslUsed then
+                if hslUsedByAny then
                 with BGRAToHSLA(psrc^) do
                 begin
                   values.Hue := hue*oneOver65536;
                   values.Saturation := saturation*oneOver65535;
                   values.Lightness := lightness*oneOver65535;
                 end;
-                if RedVars.IsIdentity then pdest^.red := psrc^.red else pdest^.red := ComputeExpr(FRedExpr,RedVars,x,y,values) shr 8;
-                if GreenVars.IsIdentity then pdest^.green := psrc^.green else pdest^.green := ComputeExpr(FGreenExpr,GreenVars,x,y,values) shr 8;
-                if BlueVars.IsIdentity then pdest^.blue := psrc^.blue else pdest^.blue := ComputeExpr(FBlueExpr,BlueVars,x,y,values) shr 8;
-                if AlphaVars.IsIdentity then pdest^.alpha := psrc^.alpha else pdest^.alpha := ComputeExpr(FAlphaExpr,AlphaVars,x,y,values) shr 8;
+                if RedVars.IsIdentity then pdest^.red := psrc^.red else
+                if RedVars.IsConstant then pdest^.red := RedVars.ConstantValue shr 8 else
+                  pdest^.red := ComputeExpr(FRedExpr,RedVars,x,y,values) shr 8;
+                if GreenVars.IsIdentity then pdest^.green := psrc^.green else
+                if GreenVars.IsConstant then pdest^.green := GreenVars.ConstantValue shr 8 else
+                  pdest^.green := ComputeExpr(FGreenExpr,GreenVars,x,y,values) shr 8;
+                if BlueVars.IsIdentity then pdest^.blue := psrc^.blue else
+                if BlueVars.IsConstant then pdest^.blue := BlueVars.ConstantValue shr 8 else
+                  pdest^.blue := ComputeExpr(FBlueExpr,BlueVars,x,y,values) shr 8;
+                if AlphaVars.IsIdentity then pdest^.alpha := psrc^.alpha else
+                if AlphaVars.IsConstant then pdest^.alpha := AlphaVars.ConstantValue shr 8 else
+                  pdest^.alpha := ComputeExpr(FAlphaExpr,AlphaVars,x,y,values) shr 8;
               end;
               inc(pdest);
               inc(psrc);
@@ -375,7 +406,7 @@ begin
             begin
               if gsba then
               begin
-                if rgbUsed then
+                if rgbUsedByAny then
                 with GammaExpansion(psrc^) do
                 begin
                   values.Red := red *oneOver65535;
@@ -392,14 +423,22 @@ begin
                   values.Saturation := saturation*oneOver65535;
                   values.Lightness := lightness*oneOver65535;
                 end;
-                if HueVars.IsIdentity then hslaValue.hue := srcHslaValue.hue else hslaValue.hue := ComputeExpr(FHueExpr,HueVars,x,y,values);
-                if SaturationVars.IsIdentity then hslaValue.saturation := srcHslaValue.saturation else hslaValue.saturation := ComputeExpr(FSaturationExpr,SaturationVars,x,y,values);
-                if LightnessVars.IsIdentity then hslaValue.lightness := srcHslaValue.lightness else hslaValue.lightness := ComputeExpr(FLightnessExpr,LightnessVars,x,y,values);
-                if AlphaVars.IsIdentity then hslaValue.alpha := srcHslaValue.alpha else hslaValue.alpha := ComputeExpr(FAlphaExpr,AlphaVars,x,y,values);
+                if HueVars.IsIdentity then hslaValue.hue := srcHslaValue.hue else
+                if HueVars.IsConstant then hslaValue.hue := HueVars.ConstantValue else
+                  hslaValue.hue := ComputeExpr(FHueExpr,HueVars,x,y,values);
+                if SaturationVars.IsIdentity then hslaValue.saturation := srcHslaValue.saturation else
+                if SaturationVars.IsConstant then hslaValue.saturation := SaturationVars.ConstantValue else
+                   hslaValue.saturation := ComputeExpr(FSaturationExpr,SaturationVars,x,y,values);
+                if LightnessVars.IsIdentity then hslaValue.lightness := srcHslaValue.lightness else
+                if LightnessVars.IsConstant then hslaValue.lightness := LightnessVars.ConstantValue else
+                   hslaValue.lightness := ComputeExpr(FLightnessExpr,LightnessVars,x,y,values);
+                if AlphaVars.IsIdentity then hslaValue.alpha := srcHslaValue.alpha else
+                if AlphaVars.IsConstant then hslaValue.alpha := AlphaVars.ConstantValue else
+                   hslaValue.alpha := ComputeExpr(FAlphaExpr,AlphaVars,x,y,values);
                 pdest^ := GSBAToBGRA(hslaValue);
               end else
               begin
-                if rgbUsed then
+                if rgbUsedByAny then
                 with psrc^ do
                 begin
                   values.Red := red *oneOver255;
@@ -416,10 +455,18 @@ begin
                   values.Saturation := saturation*oneOver65535;
                   values.Lightness := lightness*oneOver65535;
                 end;
-                if HueVars.IsIdentity then hslaValue.hue := srcHslaValue.hue else hslaValue.hue := ComputeExpr(FHueExpr,HueVars,x,y,values);
-                if SaturationVars.IsIdentity then hslaValue.saturation := srcHslaValue.saturation else hslaValue.saturation := ComputeExpr(FSaturationExpr,SaturationVars,x,y,values);
-                if LightnessVars.IsIdentity then hslaValue.lightness := srcHslaValue.lightness else hslaValue.lightness := ComputeExpr(FLightnessExpr,LightnessVars,x,y,values);
-                if AlphaVars.IsIdentity then hslaValue.alpha := srcHslaValue.alpha else hslaValue.alpha := ComputeExpr(FAlphaExpr,AlphaVars,x,y,values);
+                if HueVars.IsIdentity then hslaValue.hue := srcHslaValue.hue else
+                if HueVars.IsConstant then hslaValue.hue := HueVars.ConstantValue else
+                  hslaValue.hue := ComputeExpr(FHueExpr,HueVars,x,y,values);
+                if SaturationVars.IsIdentity then hslaValue.saturation := srcHslaValue.saturation else
+                if SaturationVars.IsConstant then hslaValue.saturation := SaturationVars.ConstantValue else
+                   hslaValue.saturation := ComputeExpr(FSaturationExpr,SaturationVars,x,y,values);
+                if LightnessVars.IsIdentity then hslaValue.lightness := srcHslaValue.lightness else
+                if LightnessVars.IsConstant then hslaValue.lightness := LightnessVars.ConstantValue else
+                   hslaValue.lightness := ComputeExpr(FLightnessExpr,LightnessVars,x,y,values);
+                if AlphaVars.IsIdentity then hslaValue.alpha := srcHslaValue.alpha else
+                if AlphaVars.IsConstant then hslaValue.alpha := AlphaVars.ConstantValue else
+                   hslaValue.alpha := ComputeExpr(FAlphaExpr,AlphaVars,x,y,values);
                 pdest^ := HSLAToBGRA(hslaValue);
               end;
               inc(pdest);
