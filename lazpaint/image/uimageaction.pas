@@ -5,8 +5,9 @@ unit UImageAction;
 interface
 
 uses
-  Classes, SysUtils, LazPaintType, BGRABitmap, UImage, UTool, UScripting,
-  ULayerAction, UImageType, BGRABitmapTypes, BGRALayerOriginal, BGRASVGOriginal;
+  Classes, SysUtils, FPimage, LazPaintType, BGRABitmap, UImage, UTool,
+  UScripting, ULayerAction, UImageType, BGRABitmapTypes, BGRALayerOriginal,
+  BGRASVGOriginal;
 
 type
 
@@ -27,6 +28,7 @@ type
     function ScriptImageGetRegistry(AVars: TVariableSet): TScriptResult;
     function ScriptLayerGetId(AVars: TVariableSet): TScriptResult;
     function ScriptLayerGetRegistry(AVars: TVariableSet): TScriptResult;
+    function ScriptLayerSaveAs(AVars: TVariableSet): TScriptResult;
     function ScriptLayerSelectId(AVars: TVariableSet): TScriptResult;
     function ScriptLayerAddNew(AVars: TVariableSet): TScriptResult;
     function ScriptImageSetRegistry(AVars: TVariableSet): TScriptResult;
@@ -181,6 +183,7 @@ begin
   Scripting.RegisterScriptFunction('LayerSetVisible',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerAddNew',@ScriptLayerAddNew,ARegister);
   Scripting.RegisterScriptFunction('LayerFromFile',@ScriptLayerFromFile,ARegister);
+  Scripting.RegisterScriptFunction('LayerSaveAs',@ScriptLayerSaveAs,ARegister);
   Scripting.RegisterScriptFunction('LayerDuplicate',@ScriptLayerDuplicate,ARegister);
   Scripting.RegisterScriptFunction('LayerRasterize',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerMergeOver',@GenericScriptFunction,ARegister);
@@ -341,6 +344,45 @@ begin
   if length(identifier)=0 then exit(srInvalidParameters);
   AVars.Strings['Result'] := Image.GetLayerRegistry(Image.CurrentLayerIndex, identifier);
   result := srOk;
+end;
+
+function TImageActions.ScriptLayerSaveAs(AVars: TVariableSet): TScriptResult;
+var
+  name, ext: String;
+  layerCopy: TBGRABitmap;
+  layerIdx: Integer;
+  writer: TFPCustomImageWriter;
+  imgFormat: TBGRAImageFormat;
+begin
+  name := AVars.Strings['FileName'];
+  if AVars.Strings['Format'] = '' then
+    imgFormat := SuggestImageFormat(name)
+  else
+    imgFormat := SuggestImageFormat(AVars.Strings['Format']);
+  if imgFormat = ifUnknown then imgFormat := ifPng;
+  ext := UTF8LowerCase(ExtractFileExt(name));
+  if ext = '.tmp' then
+  begin
+    layerCopy := TBGRABitmap.Create(Image.Width, Image.Height);
+    writer := CreateBGRAImageWriter(imgFormat, true);
+    try
+      layerIdx := Image.CurrentLayerIndex;
+      layerCopy.PutImage(Image.LayerOffset[layerIdx].x, Image.LayerOffset[layerIdx].y,
+        Image.LayerBitmap[layerIdx], dmSet);
+      layerCopy.SaveToFileUTF8(name, writer);
+      result := srOk;
+      AVars.Strings['Result'] := name;
+    except
+      on ex: Exception do
+      begin
+        FInstance.ShowError(rsSave, ex.Message);
+        result := srException;
+      end;
+    end;
+    layerCopy.Free;
+    writer.Free;
+  end else
+    exit(srInvalidParameters);
 end;
 
 function TImageActions.ScriptLayerSelectId(AVars: TVariableSet): TScriptResult;
@@ -953,6 +995,7 @@ begin
       svgOrig := LoadSVGOriginalUTF8(AFilenameUTF8);
       m := ComputeStretchMatrix(svgOrig.Width, svgOrig.Height);
       AddLayerFromOriginal(svgOrig, ExtractFileName(AFilenameUTF8), m);
+      result := true;
       FreeAndNil(ALoadedImage);
     end;
     ifLazPaint, ifOpenRaster, ifPaintDotNet, ifPhoxo:
@@ -1000,6 +1043,7 @@ begin
           finally
             image.DoEnd(doFound, somethingDone);
           end;
+          result := true;
         finally
           s.Free;
         end;
@@ -1024,6 +1068,7 @@ begin
           end;
         end;
         AddLayerFromBitmap(newPicture, ExtractFileName(AFilenameUTF8));
+        result := true;
       end;
     end;
   except
