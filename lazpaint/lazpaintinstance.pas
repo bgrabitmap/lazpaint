@@ -45,6 +45,7 @@ type
     function ScriptColorLightness(AVars: TVariableSet): TScriptResult;
     function ScriptColorPosterize(AVars: TVariableSet): TScriptResult;
     function ScriptColorShiftColors(AVars: TVariableSet): TScriptResult;
+    function ScriptFileGetTemporaryName(AVars: TVariableSet): TScriptResult;
     function ScriptFileNew(AVars: TVariableSet): TScriptResult;
     function ScriptImageCanvasSize(AVars: TVariableSet): TScriptResult;
     function ScriptImageRepeat(AVars: TVariableSet): TScriptResult;
@@ -92,6 +93,8 @@ type
     FImageListPositionDefined : boolean;
     FCustomImageList: TImageListList;
     FLoadingFilename, FSavingFilename: string;
+    FInRunScript: boolean;
+    FScriptTempFileNames: TStringList;
 
     function GetIcons(ASize: integer): TImageList; override;
     function GetToolBoxWindowPopup: TPopupMenu; override;
@@ -235,7 +238,7 @@ type
 
 implementation
 
-uses LCLType, Types, Forms, Dialogs, FileUtil, StdCtrls, LCLIntf,
+uses LCLType, Types, Forms, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8,
 
      URadialBlur, UMotionBlur, UEmboss, UTwirl, UWaveDisplacement,
      unewimage, uresample, UPixelate, unoisefilter, ufilters,
@@ -327,6 +330,7 @@ end;
 procedure TLazPaintInstance.RegisterScripts(ARegister: Boolean);
 begin
   if not Assigned(ScriptContext) then exit;
+  ScriptContext.RegisterScriptFunction('FileGetTemporaryName', @ScriptFileGetTemporaryName,ARegister);
   ScriptContext.RegisterScriptFunction('FileNew',@ScriptFileNew,ARegister);
   ScriptContext.RegisterScriptFunction('ImageResample',@ScriptImageResample,ARegister);
   ScriptContext.RegisterScriptFunction('ImageCanvasSize',@ScriptImageCanvasSize,ARegister);
@@ -339,6 +343,32 @@ begin
   ScriptContext.RegisterScriptFunction('ColorIntensity',@ScriptColorIntensity,ARegister);
   ScriptContext.RegisterScriptFunction('ShowMessage',@ScriptShowMessage,ARegister);
   ScriptContext.RegisterScriptFunction('InputBox',@ScriptInputBox,ARegister);
+end;
+
+function TLazPaintInstance.ScriptFileGetTemporaryName(AVars: TVariableSet): TScriptResult;
+var
+  name: String;
+  t: file;
+begin
+  if FInRunScript and Assigned(FScriptTempFileNames) then
+  begin
+    try
+      name := GetTempFileName;
+      assignfile(t, name);
+      rewrite(t);
+      closefile(t);
+      AVars.Strings['Result'] := name;
+      FScriptTempFileNames.Add(name);
+      result := srOk;
+    except
+      on ex: exception do
+      begin
+        ShowError(rsScript, ex.Message);
+        result := srException;
+      end;
+    end;
+  end else
+    result := srException;
 end;
 
 procedure TLazPaintInstance.Init(AEmbedded: boolean);
@@ -1489,7 +1519,9 @@ var
   memo: TMemo;
   doFound, somethingDone: boolean;
   tmi: TTopMostInfo;
+  i: Integer;
 begin
+  if FInRunScript then exit;
   p := nil;
 
   if ToolManager.TextShadow then
@@ -1502,7 +1534,9 @@ begin
 
   tmi := HideTopmost;
   if Assigned(FMain) then FMain.Enabled:= false;
+  FInRunScript := true;
   try
+    FScriptTempFileNames := TStringList.Create;
     p := TPythonScript.Create;
     FScriptName := AFilename;
     p.OnCommand:=@PythonScriptCommand;
@@ -1535,6 +1569,20 @@ begin
       result := false;
     end;
   end;
+  FInRunScript := false;
+  FScriptName := '';
+  try
+    for i := 0 to FScriptTempFileNames.Count-1 do
+      if FileExistsUTF8(FScriptTempFileNames[i]) then
+        DeleteFileUTF8(FScriptTempFileNames[i]);
+  except
+    on ex:exception do
+    begin
+      ShowError(ChangeFileExt(ExtractFileName(AFilename),''), ex.Message);
+      result := false;
+    end;
+  end;
+  FScriptTempFileNames.Free;
   p.Free;
   if Assigned(FMain) then FMain.Enabled:= true;
   ShowTopmost(tmi);
