@@ -57,6 +57,9 @@ def set_registry(identifier, value):
 def get_layer_index(layer_id=None) -> int:
   return command.send("GetLayerIndex?", LayerId=layer_id)
 
+def contains_layer_id(layer_id) -> bool:
+  return get_layer_index(layer_id) is not None
+
 def select_layer_index(index: int): #1..layer_count
   return command.send("SelectLayerIndex", Index=index)
 
@@ -85,7 +88,10 @@ def save(skip_options=False) -> str:
   return command.send("FileSave?", SkipOptions=skip_options)
 
 def save_as(file_name=None, validate=False, overwrite=False, skip_options=False) -> str:
-  return command.send("FileSaveAs?", FileName=file_name, Validate=validate, Overwrite=overwrite, SkipOptions=skip_options) 
+  return command.send("FileSaveAs?", FileName=file_name, Validate=validate, Overwrite=overwrite, SkipOptions=skip_options)
+
+def get_temporary_name() -> str:
+  return command.send("FileGetTemporaryName?")
 
 def reload(ignore_modified=False):
   command.send("FileReload", IgnoreModified=ignore_modified)
