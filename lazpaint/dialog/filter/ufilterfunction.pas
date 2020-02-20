@@ -9,6 +9,10 @@ uses
   StdCtrls, ExtCtrls, ComCtrls, fpexprpars, UFilterConnector, BGRABitmap,
   BGRABitmapTypes, UScripting;
 
+const
+  StatsName: array[1..7] of string =
+  ('red','green','blue','alpha','hue','saturation','lightness');
+
 type
 
   { TFFilterFunction }
@@ -64,11 +68,21 @@ type
     FComputedLines: integer;
     FFilterConnector: TFilterConnector;
     FInitializing: boolean;
+    FStatsComputed: boolean;
+    FStats: array[low(StatsName)..high(StatsName)] of record
+        min,max,sum,avg: single;
+        count: integer;
+      end;
     procedure UpdateExpr(AExpr: TFPExpressionParser; AEdit: TEdit;
       var AError: boolean);
     procedure InitParams;
     procedure PreviewNeeded;
     function CreateExpr: TFPExpressionParser;
+    function ExprResultToFloat(const AResult: TFPExpressionResult): single;
+    procedure ExprFunctionMin_Call(Var Result : TFPExpressionResult; Const Args : TExprParameterArray);
+    procedure ExprFunctionMax_Call(Var Result : TFPExpressionResult; Const Args : TExprParameterArray);
+    procedure NeedStats;
+    function ReplaceStats(AExpr: string): string;
   public
     { public declarations }
   end;
@@ -77,7 +91,7 @@ function ShowFilterFunctionDlg(AFilterConnector: TObject): TScriptResult;
 
 implementation
 
-uses LCScaleDPI, UMac, LazPaintType;
+uses LCScaleDPI, UMac, LazPaintType, math;
 
 function ShowFilterFunctionDlg(AFilterConnector: TObject): TScriptResult;
 var
@@ -109,6 +123,54 @@ begin
   end;
 end;
 
+function LocateIdentifier(AExpr: string; AVar: string): integer;
+var i: integer;
+  inStr: boolean;
+begin
+  result := 0;
+  if (AExpr = '') or (AVar = '') then exit;
+  inStr := false;
+  for i := 1 to length(AExpr)-length(AVar)+1 do
+  if AExpr[i] = '''' then
+  begin
+    inStr := not inStr
+  end else
+  if (UpCase(AExpr[i]) = UpCase(AVar[1])) and not inStr then
+  begin
+    if (i = 1) or not (AExpr[i-1] in['a'..'z','A'..'Z','_','0'..'9']) then
+    begin
+      if (i+length(AVar) = length(AExpr)+1) or
+        not (AExpr[i+length(AVar)] in ['a'..'z','A'..'Z','_','0'..'9']) then
+      begin
+        if CompareText(copy(AExpr,i,length(AVar)), AVar) = 0 then
+        begin
+          result := i;
+          exit;
+        end;
+      end;
+    end;
+  end;
+end;
+
+function ContainsIdentifier(AExpr: string; AVar: string): boolean;
+begin
+  result := LocateIdentifier(AExpr, AVar) <> 0;
+end;
+
+function ReplaceIdentifier(AExpr: string; AVar, ANewVar: string): string;
+var
+  idx: Integer;
+begin
+  if LowerCase(ANewVar).Contains(LowerCase(AVar)) then exit;
+  result := AExpr;
+  repeat
+    idx := LocateIdentifier(result, AVar);
+    if idx = 0 then break;
+    delete(result, idx, length(AVar));
+    insert(ANewVar, result, idx);
+  until false;
+end;
+
 { TFFilterFunction }
 
 procedure TFFilterFunction.FormCreate(Sender: TObject);
@@ -138,7 +200,7 @@ begin
   Label_HueEquals.Caption := 'hue =';
   Label_SaturationEquals.Caption := 'saturation =';
   Label_LightnessEquals.Caption := 'lightness =';
-  Label_Variables.Caption := Label_Variables.Caption+' x,y,width,height,random';
+  Label_Variables.Caption := Label_Variables.Caption+' x,y,width,height,random,min,max,avg';
 end;
 
 procedure TFFilterFunction.FormDestroy(Sender: TObject);
@@ -204,30 +266,7 @@ var
     true: (gsbaValue: TGSBAPixel);
   end;
 
-  function ContainsIdentifier(AExpr: string; AVar: string): boolean;
-  var i: integer;
-  begin
-    result := false;
-    if (AExpr = '') or (AVar = '') then exit;
-    for i := 1 to length(AExpr)-length(AVar)+1 do
-    if UpCase(AExpr[i]) = UpCase(AVar[1]) then
-    begin
-      if (i = 1) or not (AExpr[i-1] in['a'..'z','A'..'Z']) then
-      begin
-        if (i+length(AVar) = length(AExpr)+1) or
-          not (AExpr[i+length(AVar)] in ['a'..'z','A'..'Z']) then
-        begin
-          if CompareText(copy(AExpr,i,length(AVar)), AVar) = 0 then
-          begin
-            result := true;
-            exit;
-          end;
-        end;
-      end;
-    end;
-  end;
-
-  function ComputeExpr(var AVars: TExprVariables; AX,AY: Integer; AFactor: integer = 65535): integer; inline;
+  function ComputeExpr(var AVars: TExprVariables; AFactor: integer = 65535): integer; inline;
   var {%H-}code: integer;
     floatValue: single;
   begin
@@ -271,11 +310,13 @@ var
       else result := 0;
       end;
     end;
+    if result < 0 then result := 0;
     if result > 65535 then dec(result, 65536);
   end;
 
   procedure PrepareXY(AExpr: TFPExpressionParser; out AVars: TExprVariables);
   var exprComp: string;
+    i: Integer;
   begin
     with AVars do
     begin
@@ -307,10 +348,20 @@ var
 
       IsCopySrc:= false;
       IsConstant := false;
+      for i := low(StatsName) to high(StatsName) do
+        if ContainsIdentifier(AExpr.Expression, 'min_'+StatsName[i]) or
+           ContainsIdentifier(AExpr.Expression, 'max_'+StatsName[i]) or
+           ContainsIdentifier(AExpr.Expression, 'avg_'+StatsName[i]) then
+        begin
+          NeedStats;
+          AExpr.IdentifierByName('min_'+StatsName[i]).AsFloat := FStats[i].min;
+          AExpr.IdentifierByName('max_'+StatsName[i]).AsFloat := FStats[i].max;
+          AExpr.IdentifierByName('avg_'+StatsName[i]).AsFloat := FStats[i].avg;
+        end;
 
       if not HSLUsed and not RGBUsed and not XYUsed and not RandomUsed and not AlphaUsed then
       begin
-        ConstantValue := ComputeExpr(AVars, 0, 0);
+        ConstantValue := ComputeExpr(AVars);
         IsConstant := true; //set flag after computing value
       end else
       begin
@@ -371,8 +422,10 @@ begin
       h := FFilterConnector.BackupLayer.Height;
       hslUsedByAny := false;
       rgbUsedByAny := false;
+      xyUsedByAny := false;
       hslUsedInExpr := false;
       rgbUsedInExpr := false;
+      xyUsedInExpr := false;
       fillchar({%H-}values, sizeOf(values), 0);
       if rgbMode then
       begin
@@ -441,16 +494,16 @@ begin
             begin
               if gammaCorr then
               begin
-                pdest^.red := GammaCompressionTab[ComputeExpr(RedVars, x, y)];
-                pdest^.green := GammaCompressionTab[ComputeExpr(GreenVars, x, y)];
-                pdest^.blue := GammaCompressionTab[ComputeExpr(BlueVars, x, y)];
-                pdest^.alpha := ComputeExpr(AlphaVars, x, y) shr 8;
+                pdest^.red := GammaCompressionTab[ComputeExpr(RedVars)];
+                pdest^.green := GammaCompressionTab[ComputeExpr(GreenVars)];
+                pdest^.blue := GammaCompressionTab[ComputeExpr(BlueVars)];
+                pdest^.alpha := ComputeExpr(AlphaVars) shr 8;
               end else
               begin
-                pdest^.red := ComputeExpr(RedVars, x, y) shr 8;
-                pdest^.green := ComputeExpr(GreenVars, x, y) shr 8;
-                pdest^.blue := ComputeExpr(BlueVars, x, y) shr 8;
-                pdest^.alpha := ComputeExpr(AlphaVars, x, y) shr 8;
+                pdest^.red := ComputeExpr(RedVars) shr 8;
+                pdest^.green := ComputeExpr(GreenVars) shr 8;
+                pdest^.blue := ComputeExpr(BlueVars) shr 8;
+                pdest^.alpha := ComputeExpr(AlphaVars) shr 8;
               end;
               inc(pdest);
               inc(psrc);
@@ -458,16 +511,16 @@ begin
             begin
               if gsba then
                 pdest^ := TGSBAPixel.New(
-                            ComputeExpr(HueVars, x, y, 65536),
-                            ComputeExpr(SaturationVars, x, y),
-                            ComputeExpr(LightnessVars, x, y),
-                            ComputeExpr(AlphaVars, x, y))
+                            ComputeExpr(HueVars, 65536),
+                            ComputeExpr(SaturationVars),
+                            ComputeExpr(LightnessVars),
+                            ComputeExpr(AlphaVars))
               else
                 pdest^ := THSLAPixel.New(
-                            ComputeExpr(HueVars, x, y, 65536),
-                            ComputeExpr(SaturationVars, x, y),
-                            ComputeExpr(LightnessVars, x, y),
-                            ComputeExpr(AlphaVars, x, y));
+                            ComputeExpr(HueVars, 65536),
+                            ComputeExpr(SaturationVars),
+                            ComputeExpr(LightnessVars),
+                            ComputeExpr(AlphaVars));
               inc(pdest);
               inc(psrc);
             end;
@@ -488,7 +541,7 @@ begin
       end;
     end;
     FFilterConnector.PutImage(FComputedImage, rect(0,prevComputedLines,FComputedImage.Width,FComputedLines), True,False);
-    if FComputedLines = FComputedImage.Height then
+    if FComputedLines = FFilterConnector.WorkArea.Bottom then
     begin
       FreeAndNil(FComputedImage);
       FComputing := false;
@@ -503,7 +556,7 @@ procedure TFFilterFunction.UpdateExpr(AExpr: TFPExpressionParser; AEdit: TEdit; 
 begin
   if AExpr.Expression = Trim(AEdit.Text) then exit;
   try
-    AExpr.Expression := Trim(AEdit.Text);
+    AExpr.Expression := ReplaceStats(Trim(AEdit.Text));
     AEdit.Color := clWindow;
     AEdit.Font.Color := clWindowText;
     AError:= length(AExpr.Expression) = 0;
@@ -574,9 +627,11 @@ begin
 end;
 
 function TFFilterFunction.CreateExpr: TFPExpressionParser;
+var
+  i: Integer;
 begin
   result := TFPExpressionParser.Create(nil);
-  result.BuiltIns := AllBuiltIns;
+  result.BuiltIns := AllBuiltIns - [bcAggregate];
   result.Identifiers.AddFloatVariable('x',0);
   result.Identifiers.AddFloatVariable('y',0);
   result.Identifiers.AddIntegerVariable('width',1);
@@ -589,6 +644,136 @@ begin
   result.Identifiers.AddFloatVariable('saturation',0);
   result.Identifiers.AddFloatVariable('lightness',0);
   result.Identifiers.AddFloatVariable('random',0);
+  result.Identifiers.AddFunction('min', 'F', 'FF', @ExprFunctionMin_Call);
+  result.Identifiers.AddFunction('max', 'F', 'FF', @ExprFunctionMax_Call);
+  for i := low(StatsName) to high(StatsName) do
+  begin
+    result.Identifiers.AddFloatVariable('min_'+StatsName[i],0);
+    result.Identifiers.AddFloatVariable('max_'+StatsName[i],0);
+    result.Identifiers.AddFloatVariable('avg_'+StatsName[i],0);
+  end;
+end;
+
+function TFFilterFunction.ExprResultToFloat(const AResult: TFPExpressionResult): single;
+var {%H-}code: integer;
+begin
+  case AResult.ResultType of
+  rtFloat: result := AResult.ResFloat;
+  rtInteger: result := AResult.ResInteger;
+  rtBoolean: if AResult.ResBoolean then result := 1 else result := 0;
+  rtDateTime: result := 0;
+  rtString: val(AResult.ResString, result, code);
+  else result := 0;
+  end;
+end;
+
+procedure TFFilterFunction.ExprFunctionMin_Call(
+  var Result: TFPExpressionResult; const Args: TExprParameterArray);
+begin
+  result.ResultType:= rtFloat;
+  result.ResFloat := min(ExprResultToFloat(Args[0]), ExprResultToFloat(Args[1]));
+end;
+
+procedure TFFilterFunction.ExprFunctionMax_Call(
+  var Result: TFPExpressionResult; const Args: TExprParameterArray);
+begin
+  result.ResultType:= rtFloat;
+  result.ResFloat := max(ExprResultToFloat(Args[0]), ExprResultToFloat(Args[1]));
+end;
+
+procedure TFFilterFunction.NeedStats;
+const
+  oneOver255 = 1/255;
+  oneOver65535 = 1/65535;
+  oneOver65536 = 1/65536;
+
+  procedure AggregateStat(AIndex: integer; AValue: single);
+  begin
+    FStats[AIndex].min := min(FStats[AIndex].min, AValue);
+    FStats[AIndex].max := max(FStats[AIndex].max, AValue);
+    FStats[AIndex].sum += AValue;
+    inc(FStats[AIndex].count);
+  end;
+
+var
+  i: Integer;
+  y, x: LongInt;
+  p: PBGRAPixel;
+  gammaCorr, gsba: Boolean;
+  ec: TExpandedPixel;
+  r,g,b,a,h,s,l: single;
+
+begin
+  if not FStatsComputed then
+  begin
+    for i := low(FStats) to high(FStats) do
+    begin
+      FStats[i].min := 1;
+      FStats[i].max := 0;
+      FStats[i].sum := 0;
+      FStats[i].avg := 0;
+      FStats[i].count := 0;
+    end;
+    gammaCorr := CheckBox_Gamma.Checked;
+    gsba := CheckBox_GSBA.Checked;
+    for y := FFilterConnector.WorkArea.Top to FFilterConnector.WorkArea.Bottom-1 do
+    begin
+      p := FFilterConnector.BackupLayer.ScanLine[y] + FFilterConnector.WorkArea.Left;
+      for x := FFilterConnector.WorkArea.Left to FFilterConnector.WorkArea.Right-1 do
+      begin
+        if gammaCorr then
+        begin
+          ec := p^.ToExpanded;
+          r := ec.red*oneOver65535;
+          g := ec.green*oneOver65535;
+          b := ec.blue*oneOver65535;
+        end else
+        begin
+          r := p^.red*oneOver255;
+          g := p^.green*oneOver255;
+          b := p^.blue*oneOver255;
+        end;
+        a := p^.alpha*oneOver255;
+        if gsba then
+        with p^.ToGSBAPixel do
+        begin
+          h := hue*oneOver65536;
+          s := saturation*oneOver65535;
+          l := lightness*oneOver65535;
+        end;
+        if a > 0 then
+        begin
+          AggregateStat(1, r);
+          AggregateStat(2, g);
+          AggregateStat(3, b);
+          AggregateStat(5, h);
+          AggregateStat(6, s);
+          AggregateStat(7, l);
+        end;
+        AggregateStat(4, a);
+        inc(p);
+      end;
+    end;
+    for i := low(FStats) to high(FStats) do
+    begin
+      if FStats[i].count > 0 then
+        FStats[i].avg := FStats[i].sum / FStats[i].count;
+    end;
+    FStatsComputed := true;
+  end;
+end;
+
+function TFFilterFunction.ReplaceStats(AExpr: string): string;
+var
+  i: Integer;
+begin
+  result := AExpr;
+  for i := low(StatsName) to high(StatsName) do
+  begin
+    result := ReplaceIdentifier(result, 'min('+StatsName[i]+')','min_'+StatsName[i]);
+    result := ReplaceIdentifier(result, 'max('+StatsName[i]+')','max_'+StatsName[i]);
+    result := ReplaceIdentifier(result, 'avg('+StatsName[i]+')','avg_'+StatsName[i]);
+  end;
 end;
 
 procedure TFFilterFunction.Button_OKClick(Sender: TObject);
@@ -599,12 +784,20 @@ end;
 
 procedure TFFilterFunction.CheckBox_GammaChange(Sender: TObject);
 begin
-  if not FInitializing then PreviewNeeded;
+  if not FInitializing then
+  begin
+    FStatsComputed := false;
+    PreviewNeeded;
+  end;
 end;
 
 procedure TFFilterFunction.CheckBox_GSBAChange(Sender: TObject);
 begin
-  if not FInitializing then PreviewNeeded;
+  if not FInitializing then
+  begin
+    FStatsComputed := false;
+    PreviewNeeded;
+  end;
 end;
 
 procedure TFFilterFunction.Button_CancelClick(Sender: TObject);
