@@ -1,22 +1,22 @@
 object FFilterFunction: TFFilterFunction
   Left = 437
-  Height = 241
+  Height = 251
   Top = 135
   Width = 430
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Apply function'
-  ClientHeight = 241
+  ClientHeight = 251
   ClientWidth = 430
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '1.0.10.0'
+  LCLVersion = '2.0.2.0'
   object Button_OK: TButton
-    Left = 137
+    Left = 145
     Height = 22
-    Top = 210
+    Top = 220
     Width = 59
     Anchors = [akLeft, akBottom]
     Caption = 'OK'
@@ -26,9 +26,9 @@ object FFilterFunction: TFFilterFunction
     TabOrder = 0
   end
   object Button_Cancel: TButton
-    Left = 201
+    Left = 209
     Height = 22
-    Top = 210
+    Top = 220
     Width = 73
     Anchors = [akLeft, akBottom]
     Cancel = True
@@ -39,46 +39,36 @@ object FFilterFunction: TFFilterFunction
   end
   object Label_AlphaEquals: TLabel
     Left = 20
-    Height = 16
-    Top = 157
+    Height = 17
+    Top = 189
     Width = 4
     Caption = '.'
     ParentColor = False
   end
   object Edit_Alpha: TEdit
     Left = 67
-    Height = 23
-    Top = 154
+    Height = 29
+    Top = 186
     Width = 348
     OnChange = Edit_AlphaChange
     TabOrder = 2
   end
-  object CheckBox_GSBA: TCheckBox
-    Left = 9
-    Height = 19
-    Top = 181
-    Width = 168
-    Anchors = [akLeft, akBottom]
-    Caption = 'Corrected hue and lightness'
-    OnChange = CheckBox_GSBAChange
-    TabOrder = 3
-  end
   object PageControl_Color: TPageControl
     Left = 8
-    Height = 120
+    Height = 153
     Top = 31
     Width = 416
     ActivePage = TabSheet_RGB
     TabIndex = 0
-    TabOrder = 4
+    TabOrder = 3
     OnChange = PageControl_ColorChange
     object TabSheet_RGB: TTabSheet
       Caption = 'RGB'
-      ClientHeight = 92
-      ClientWidth = 408
+      ClientHeight = 122
+      ClientWidth = 406
       object Label_RedEquals: TLabel
         Left = 9
-        Height = 16
+        Height = 17
         Top = 9
         Width = 4
         Caption = '.'
@@ -86,7 +76,7 @@ object FFilterFunction: TFFilterFunction
       end
       object Edit_Red: TEdit
         Left = 56
-        Height = 23
+        Height = 29
         Top = 6
         Width = 347
         OnChange = Edit_RedChange
@@ -94,7 +84,7 @@ object FFilterFunction: TFFilterFunction
       end
       object Edit_Green: TEdit
         Left = 56
-        Height = 23
+        Height = 29
         Top = 34
         Width = 347
         OnChange = Edit_GreenChange
@@ -102,7 +92,7 @@ object FFilterFunction: TFFilterFunction
       end
       object Label_GreenEquals: TLabel
         Left = 9
-        Height = 16
+        Height = 17
         Top = 37
         Width = 4
         Caption = '.'
@@ -110,7 +100,7 @@ object FFilterFunction: TFFilterFunction
       end
       object Label_BlueEquals: TLabel
         Left = 9
-        Height = 16
+        Height = 17
         Top = 65
         Width = 4
         Caption = '.'
@@ -118,20 +108,30 @@ object FFilterFunction: TFFilterFunction
       end
       object Edit_Blue: TEdit
         Left = 56
-        Height = 23
+        Height = 29
         Top = 62
         Width = 347
         OnChange = Edit_BlueChange
         TabOrder = 2
       end
+      object CheckBox_Gamma: TCheckBox
+        Left = 8
+        Height = 23
+        Top = 96
+        Width = 147
+        Anchors = [akLeft, akBottom]
+        Caption = 'Gamma correction'
+        OnChange = CheckBox_GammaChange
+        TabOrder = 3
+      end
     end
     object TabSheet_HSL: TTabSheet
       Caption = 'HSL'
-      ClientHeight = 92
-      ClientWidth = 408
+      ClientHeight = 122
+      ClientWidth = 406
       object Label_HueEquals: TLabel
         Left = 9
-        Height = 16
+        Height = 17
         Top = 9
         Width = 4
         Caption = '.'
@@ -139,7 +139,7 @@ object FFilterFunction: TFFilterFunction
       end
       object Edit_Hue: TEdit
         Left = 84
-        Height = 23
+        Height = 29
         Top = 6
         Width = 319
         OnChange = Edit_HueChange
@@ -147,7 +147,7 @@ object FFilterFunction: TFFilterFunction
       end
       object Edit_Saturation: TEdit
         Left = 84
-        Height = 23
+        Height = 29
         Top = 34
         Width = 319
         OnChange = Edit_SaturationChange
@@ -155,7 +155,7 @@ object FFilterFunction: TFFilterFunction
       end
       object Label_SaturationEquals: TLabel
         Left = 9
-        Height = 16
+        Height = 17
         Top = 37
         Width = 4
         Caption = '.'
@@ -163,7 +163,7 @@ object FFilterFunction: TFFilterFunction
       end
       object Label_LightnessEquals: TLabel
         Left = 9
-        Height = 16
+        Height = 17
         Top = 65
         Width = 4
         Caption = '.'
@@ -171,19 +171,29 @@ object FFilterFunction: TFFilterFunction
       end
       object Edit_Lightness: TEdit
         Left = 84
-        Height = 23
+        Height = 29
         Top = 62
         Width = 319
         OnChange = Edit_LightnessChange
         TabOrder = 2
       end
+      object CheckBox_GSBA: TCheckBox
+        Left = 8
+        Height = 23
+        Top = 96
+        Width = 208
+        Anchors = [akLeft, akBottom]
+        Caption = 'Corrected hue and lightness'
+        OnChange = CheckBox_GSBAChange
+        TabOrder = 3
+      end
     end
   end
   object Label_Variables: TLabel
     Left = 9
-    Height = 16
+    Height = 17
     Top = 8
-    Width = 54
+    Width = 68
     Caption = 'Variables :'
     ParentColor = False
   end
