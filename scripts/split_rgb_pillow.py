@@ -36,14 +36,9 @@ im = Image.open(temp_name)
 width, height = im.size
 
 zero = Image.new("L", (width, height))
-if im.mode == "RGBA":
-  alpha = im.getchannel("A")
-else:
-  alpha = Image.new("L", (width, height), 255)
-
-r = Image.merge("RGBA", [im.getchannel("R"), zero, zero, alpha])
-g = Image.merge("RGBA", [zero, im.getchannel("G"), zero, alpha])
-b = Image.merge("RGBA", [zero, zero, im.getchannel("B"), alpha])
+r = Image.merge("RGB", [im.getchannel("R"), zero, zero])
+g = Image.merge("RGB", [zero, im.getchannel("G"), zero])
+b = Image.merge("RGB", [zero, zero, im.getchannel("B")])
 
 image.do_begin()
 
@@ -52,8 +47,8 @@ layer.set_visible(False)
 
 channels = [(r, "Red", "R"), (g, "Green", "G"), (b, "Blue", "B")]
 if layer_transparent:
-  a = Image.merge("RGBA", [zero, zero, zero, alpha])
-  channels.append((a, "Alpha", "A"))
+  a = im.getchannel("A")
+  channels.insert(0, (a, "Alpha", "A"))
 
 channels_id = []
 for ch in channels:
@@ -61,7 +56,9 @@ for ch in channels:
   layer.add_from_file(temp_name)
   layer.set_name(ch[1] + " channel")
   layer.set_opacity(layer_opacity)
-  if ch[2] != channels[-1][2]:
+  if ch[2] == "A":
+    layer.set_blend_op(layer.BLEND_MASK)
+  elif ch[2] != channels[-1][2]:
     layer.set_blend_op(layer.BLEND_LIGHTEN)
   layer.set_registry("split-channel", ch[2])
   layer.set_registry("split-source-id", layer_id)

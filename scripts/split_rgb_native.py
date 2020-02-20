@@ -22,20 +22,22 @@ if layer.get_registry("split-channels-id") is not None:
 
 image.do_begin()
 channels = []
-channels.append({"name": "Red", "channel": "R", "red": "red", "green": "0", "blue": "0"})
-channels.append({"name": "Green", "channel": "G", "red": "0", "green": "green", "blue": "0"})
-channels.append({"name": "Blue", "channel": "B", "red": "0", "green": "0", "blue": "blue"})
 if layer_transparent:
-  channels.append({"name": "Alpha", "channel": "B", "red": "0", "green": "0", "blue": "0"})
+  channels.append({"name": "Alpha", "channel": "A", "red": "alpha", "green": "alpha", "blue": "alpha", "alpha": "255"})
+channels.append({"name": "Red", "channel": "R", "red": "red", "green": "0", "blue": "0", "alpha": "255"})
+channels.append({"name": "Green", "channel": "G", "red": "0", "green": "green", "blue": "0", "alpha": "255"})
+channels.append({"name": "Blue", "channel": "B", "red": "0", "green": "0", "blue": "blue", "alpha": "255"})
 
 channels_id = [] 
 for ch in channels:
   layer.select_id(layer_id)
   layer.duplicate()
-  filters.filter_function(red = ch["red"], green = ch["green"], blue = ch["blue"], gamma_correction = True)
+  filters.filter_function(red = ch["red"], green = ch["green"], blue = ch["blue"], alpha = ch["alpha"], gamma_correction = True)
   layer.set_name(ch["name"] + " channel")
   layer.set_opacity(layer_opacity)
-  if ch != channels[-1]:
+  if ch["channel"] == "A":
+    layer.set_blend_op(layer.BLEND_MASK)
+  elif ch != channels[-1]:
     layer.set_blend_op(layer.BLEND_LIGHTEN)
   layer.set_registry("split-channel", ch["channel"])
   layer.set_registry("split-source-id", layer_id)

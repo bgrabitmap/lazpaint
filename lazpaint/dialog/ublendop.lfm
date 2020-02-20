@@ -204,6 +204,7 @@ object FBlendOp: TFBlendOp
       'Difference'
       'Subtract'
       'Xor'
+      'Mask'
     )
     ItemHeight = 80
     OnDblClick = ListBox_BlendDblClick
