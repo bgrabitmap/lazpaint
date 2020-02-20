@@ -266,7 +266,10 @@ begin
             item.Caption := title;
             item.Tag := FInstalledScripts.Add(fullname);
             item.OnClick:=@Script_Click;
-            AMenu.Add(item);
+            if AIndex = -1 then
+              AMenu.Add(item)
+            else
+              AMenu.Insert(AIndex, item);
           end;
         end;
       until FindNextUTF8(searchRec)<>0;
