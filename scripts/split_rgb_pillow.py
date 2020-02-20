@@ -1,4 +1,4 @@
-# Split RGB channels
+# Split RGB channels (using Pillow)
 from lazpaint import image, dialog, layer
 
 try:
