@@ -7,9 +7,24 @@ except ImportError:
     dialog.show_message("Please install Pillow for Python.")
     exit()
 
-if layer.get_registry("split-channels-id") is not None or layer.get_registry("split-channel") is not None:
+# check if it is a channel
+if layer.get_registry("split-channel") is not None:
   dialog.show_message("Layer already split")
   exit()
+
+layer_id = layer.get_id()
+layer_index = image.get_layer_index()
+layer_opacity = layer.get_opacity()
+layer_transparent = layer.is_transparent()
+
+# check if it has been split
+if layer.get_registry("split-channels-id") is not None:
+  for i in range(1, layer.get_count()):
+    image.select_layer_index(i)
+    if layer.get_registry("split-source-id") == layer_id:
+      dialog.show_message("Layer already split")
+      exit()
+  layer.select_id(layer_id)
 
 temp_name = image.get_temporary_name()
 temp_name = layer.save_as(temp_name)
@@ -17,10 +32,6 @@ if temp_name is None:
   dialog.show_message("Failed to retrieve layer")
   exit()
 
-layer_id = layer.get_id()
-layer_index = image.get_layer_index()
-layer_opacity = layer.get_opacity()
-layer_transparent = layer.is_transparent()
 im = Image.open(temp_name)
 width, height = im.size
 
