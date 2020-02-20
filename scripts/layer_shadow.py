@@ -7,7 +7,7 @@ except ImportError:
     dialog.show_message("Please install tkinter.")
     exit()
         
-from lazpaint import colors, image, layer, filters, tools
+from lazpaint import colors, image, layer, filters, tools, selection
 
 if layer.is_empty():
     dialog.show_message("Layer is empty")
@@ -165,6 +165,7 @@ button_cancel = Button(window, text="Cancel", command=button_cancel_click)
 button_cancel.pack(side=RIGHT, pady=10)
 
 image.do_begin()
+selection.deselect()
 create_shadow_layer()
 apply_blur()
 

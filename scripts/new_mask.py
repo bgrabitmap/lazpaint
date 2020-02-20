@@ -1,8 +1,9 @@
 # New mask
-from lazpaint import image, layer, tools, colors
+from lazpaint import image, layer, tools, colors, selection
 
 image.do_begin()
 
+selection.deselect()
 layer_index = image.get_layer_index()
 layer.new("Mask")
 mask_index = image.get_layer_index()
