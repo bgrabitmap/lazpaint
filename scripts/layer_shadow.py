@@ -18,7 +18,11 @@ if layer.is_empty():
 MAX_RADIUS = 100
 MAX_OFFSET = 100
 
-source_layer_id = layer.get_id()
+source_layer_id = layer.get_registry("shadow-source-layer-id")
+if source_layer_id is not None:
+  layer.select_id(source_layer_id)
+else:
+  source_layer_id = layer.get_id()
 source_layer_name = layer.get_name()
 
 chosen_radius = layer.get_registry("shadow-radius")
@@ -40,18 +44,20 @@ if image.get_layer_index(shadow_layer_id) == None:
 def create_shadow_layer():
     global shadow_layer_id
     image.do_begin()
+    shadow_opacity = layer.get_opacity()*2/3 
     if shadow_layer_id != None:
         layer.select_id(shadow_layer_id)
+        shadow_opacity = layer.get_opacity()
         layer.remove()
     layer.select_id(source_layer_id)
     layer.duplicate()
     layer.set_name("Shadow of "+source_layer_name)
+    layer.set_registry("shadow-source-layer-id", source_layer_id)
     shadow_layer_id = layer.get_id()
     shadow_index = image.get_layer_index()
     image.move_layer_index(shadow_index, shadow_index-1)
     colors.lightness(shift=-1)
-    opacity = layer.get_opacity() 
-    layer.set_opacity(opacity*2/3)    
+    layer.set_opacity(shadow_opacity)    
     image.do_end()
 
 blur_done = False
