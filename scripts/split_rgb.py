@@ -2,6 +2,10 @@
 from lazpaint import image, dialog, layer
 from PIL import Image
 
+if layer.get_registry("split-channels-id") is not None or layer.get_registry("split-channel") is not None:
+  dialog.show_message("Layer already split")
+  exit()
+
 temp_name = image.get_temporary_name()
 temp_name = layer.save_as(temp_name)
 if temp_name is None:
