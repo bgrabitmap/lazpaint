@@ -61,7 +61,7 @@ for ch in channels:
   layer.add_from_file(temp_name)
   layer.set_name(ch[1] + " channel")
   layer.set_opacity(layer_opacity)
-  if ch[2] != "A":
+  if ch[2] != channels[-1][2]:
     layer.set_blend_op(layer.BLEND_LIGHTEN)
   layer.set_registry("split-channel", ch[2])
   layer.set_registry("split-source-id", layer_id)
