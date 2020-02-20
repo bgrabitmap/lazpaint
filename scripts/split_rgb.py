@@ -11,6 +11,7 @@ if temp_name is None:
 layer_id = layer.get_id()
 layer_index = image.get_layer_index()
 layer_opacity = layer.get_opacity()
+layer_transparent = layer.is_transparent()
 im = Image.open(temp_name)
 width, height = im.size
 
@@ -30,7 +31,7 @@ layer.select_id(layer_id)
 layer.set_visible(False)
 
 channels = [(r, "Red", "R"), (g, "Green", "G"), (b, "Blue", "B")]
-if im.mode == "RGBA":
+if layer_transparent:
   a = Image.merge("RGBA", [zero, zero, zero, alpha])
   channels.append((a, "Alpha", "A"))
 

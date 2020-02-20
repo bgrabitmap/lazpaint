@@ -168,6 +168,7 @@ begin
   Scripting.RegisterScriptFunction('IsSelectionMaskEmpty',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('IsSelectionLayerEmpty',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('IsLayerEmpty',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('IsLayerTransparent',@GenericScriptFunction,ARegister);
 
   Scripting.RegisterScriptFunction('LayerHorizontalFlip',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerVerticalFlip',@GenericScriptFunction,ARegister);
@@ -254,6 +255,7 @@ begin
   if f = 'IsSelectionMaskEmpty' then AVars.Booleans['Result'] := Image.SelectionMaskEmpty else
   if f = 'IsSelectionLayerEmpty' then AVars.Booleans['Result'] := Image.SelectionLayerIsEmpty else
   if f = 'IsLayerEmpty' then AVars.Booleans['Result'] := Image.CurrentLayerEmpty else
+  if f = 'IsLayerTransparent' then AVars.Booleans['Result'] := Image.CurrentLayerTransparent else
   if f = 'LayerHorizontalFlip' then HorizontalFlip(foCurrentLayer) else
   if f = 'LayerVerticalFlip' then VerticalFlip(foCurrentLayer) else
   if f = 'LayerGetName' then AVars.Strings['Result'] := Image.LayerName[Image.CurrentLayerIndex] else

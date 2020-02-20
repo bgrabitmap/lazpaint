@@ -94,6 +94,9 @@ def merge_over():
 def is_empty() -> bool:
   return command.send("IsLayerEmpty?")
 
+def is_transparent() -> bool:
+  return command.send("IsLayerTransparent?")
+
 def get_registry(identifier):
   str_result = command.send("LayerGetRegistry?", Identifier=identifier)
   if str_result == "":

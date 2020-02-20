@@ -176,6 +176,7 @@ type
     // image layer
     function SetCurrentLayerByIndex(AValue: integer): boolean;
     function CurrentLayerEmpty: boolean;
+    function CurrentLayerTransparent: boolean;
     function CurrentLayerEquals(AColor: TBGRAPixel): boolean;
     property CurrentLayerPixel[X,Y: Integer]: TBGRAPixel read GetSelectedLayerPixel;
     procedure SetLayerOffset(AIndex: integer; AValue: TPoint; APrecomputedLayerBounds: TRect);
@@ -2235,6 +2236,33 @@ end;
 function TLazPaintImage.CurrentLayerEmpty: boolean;
 begin
   result := GetSelectedImageLayer.Empty;
+end;
+
+function TLazPaintImage.CurrentLayerTransparent: boolean;
+var
+  r: TRect;
+  idx: Integer;
+  y, x: LongInt;
+  p: PBGRAPixel;
+begin
+  r := rect(0,0, Width, height);
+  idx := CurrentLayerIndex;
+  if RectWithSize(LayerOffset[idx].x, LayerOffset[idx].y,
+       LayerBitmap[idx].Width, LayerBitmap[idx].Height).Contains(r) then
+  begin
+    r.Offset(-LayerOffset[idx].x, -LayerOffset[idx].y);
+    for y := r.Top to r.Bottom-1 do
+    begin
+      p := LayerBitmap[idx].ScanLine[y] + r.Left;
+      for x := r.Left to r.Right-1 do
+      begin
+        if p^.alpha <> 255 then exit(true);
+        inc(p);
+      end;
+    end;
+    result := false;
+  end else
+    result := true;
 end;
 
 function TLazPaintImage.CurrentLayerEquals(AColor: TBGRAPixel): boolean;
