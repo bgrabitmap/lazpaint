@@ -1,6 +1,11 @@
 # Split RGB channels
 from lazpaint import image, dialog, layer
-from PIL import Image
+
+try:
+    from PIL import Image
+except ImportError:
+    dialog.show_message("Please install Pillow for Python.")
+    exit()
 
 if layer.get_registry("split-channels-id") is not None or layer.get_registry("split-channel") is not None:
   dialog.show_message("Layer already split")

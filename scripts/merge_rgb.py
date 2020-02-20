@@ -1,6 +1,11 @@
 # Merge RGB channels
 from lazpaint import image, dialog, layer
-from PIL import Image
+
+try:
+    from PIL import Image
+except ImportError:
+    dialog.show_message("Please install Pillow for Python.")
+    exit()
 
 channels_id = None
 image.do_begin()
