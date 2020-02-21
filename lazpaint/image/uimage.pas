@@ -304,7 +304,8 @@ uses UGraph, UResourceStrings, Dialogs,
     BGRAWriteLzp, BGRAUTF8,
     BGRAPalette, BGRAColorQuantization, UFileSystem,
     BGRAThumbnail, BGRAIconCursor, UTiff, LazPaintType,
-    BGRALazPaint, BGRAAnimatedGif;
+    BGRALazPaint, BGRAAnimatedGif,
+    BGRAGradientScanner;
 
 function ComputeAcceptableImageSize(AWidth, AHeight: integer): TSize;
 var ratio,newRatio: single;
@@ -1682,16 +1683,11 @@ end;
 
 function TLazPaintImage.GetRenderedImage: TBGRABitmap;
 var
-  backupFullLayer: TBGRABitmap;
-  backupFullLayerTopLeft: TPoint;
-  backupFullLayerGuid: TGuid;
-  backupFullLayerRenderStatus: TOriginalRenderStatus;
-  backupFullLayerMatrix: TAffineMatrix;
-  backupLayerPart : TBGRABitmap;
-  backupLayerPartTopLeft, ofs: TPoint;
-  shownSelectionLayer , temp: TBGRABitmap;
-  rectOutput, invalidatedRect, layerRect: TRect;
+  ofs: TPoint;
+  temp: TBGRABitmap;
+  rectOutput: TRect;
   actualTransformation: TAffineMatrix;
+  selectionScanner: TBGRACustomScanner;
 begin
   if (FRenderedImage = nil) or ((FRenderedImageInvalidated.Right > FRenderedImageInvalidated.Left) and
      (FRenderedImageInvalidated.Bottom > FRenderedImageInvalidated.Top)) then
@@ -1704,82 +1700,44 @@ begin
     end;
     PrepareForRendering;
 
-    backupLayerPart := nil;
-    backupLayerPartTopLeft := Point(0,0);
-    backupFullLayer := nil;
-    backupFullLayerTopLeft := Point(0,0);
+    selectionScanner := nil;
     //if there is an overlapping selection, then we must draw it on current layer
-    if (SelectionMask <> nil) and (GetSelectedImageLayer <> nil) then
+    if LayerVisible[CurrentLayerIndex] and (LayerOpacity[CurrentLayerIndex] > 0) and
+       (SelectionMask <> nil) and (SelectionLayerReadonly <> nil) then
     begin
-      shownSelectionLayer := FCurrentState.SelectionLayer;
-      if shownSelectionLayer <> nil then
+      if not SelectionMaskEmpty and not SelectionLayerIsEmpty then
       begin
-         if LayerOriginalDefined[CurrentLayerIndex] and LayerOriginalKnown[CurrentLayerIndex] then
-         begin
-           layerRect := RectWithSize(LayerOffset[CurrentLayerIndex].X,LayerOffset[CurrentLayerIndex].Y,
-                                     LayerBitmap[CurrentLayerIndex].Width,LayerBitmap[CurrentLayerIndex].Height);
-           layerRect.Intersect(rect(0,0,Width,Height));
-           if (layerRect.Width <> Width) or (layerRect.Height <> Height) then
-           begin
-             backupFullLayer := CurrentState.LayeredBitmap.TakeLayerBitmap(CurrentLayerIndex);
-             backupFullLayerTopLeft := CurrentState.LayeredBitmap.LayerOffset[CurrentLayerIndex];
-             backupFullLayerGuid := CurrentState.LayeredBitmap.LayerOriginalGuid[CurrentLayerIndex];
-             backupFullLayerRenderStatus := CurrentState.LayeredBitmap.LayerOriginalRenderStatus[CurrentLayerIndex];
-             backupFullLayerMatrix := CurrentState.LayeredBitmap.LayerOriginalMatrix[CurrentLayerIndex];
-             temp := TBGRABitmap.Create(Width,Height);
-             temp.PutImage(backupFullLayerTopLeft.X,backupFullLayerTopLeft.Y, backupFullLayer, dmSet);
-             CurrentState.LayeredBitmap.SetLayerBitmap(CurrentLayerIndex, temp,true);
-             CurrentState.LayeredBitmap.LayerOffset[CurrentLayerIndex] := Point(0,0);
-             temp := nil;
-           end;
-         end;
-         if not IsAffineMatrixIdentity(SelectionTransform) then
+         if not TBGRABitmap.IsAffineRoughlyTranslation(SelectionTransform, SelectionMaskBounds) then
          begin
            NeedSelectionLayerAfterMask;
-           ofs := LayerOffset[CurrentLayerIndex];
-           actualTransformation := AffineMatrixTranslation(-ofs.X,-ofs.Y)*SelectionTransform*
-                                AffineMatrixTranslation(FSelectionLayerAfterMaskOffset.X,FSelectionLayerAfterMaskOffset.Y);
-           if FSelectionLayerAfterMask <> nil then
-             shownSelectionLayer := FSelectionLayerAfterMask;
-           if shownSelectionLayer <> nil then
+           actualTransformation := SelectionTransform*AffineMatrixTranslation(FSelectionLayerAfterMaskOffset.X,FSelectionLayerAfterMaskOffset.Y);
+           rectOutput := SelectionMask.GetImageAffineBounds(actualTransformation, FSelectionLayerAfterMask.ClipRect);
+           rectOutput.Intersect(rect(0,0,self.Width,self.Height));
+           if not rectOutput.IsEmpty then
            begin
-             rectOutput := GetSelectedImageLayer.GetImageAffineBounds(
-                actualTransformation, shownSelectionLayer);
-             invalidatedRect := FRenderedImageInvalidated;
-             OffsetRect(invalidatedRect, -ofs.x,-ofs.y);
-             IntersectRect(rectOutput,rectOutput,invalidatedRect);
-             if not IsRectEmpty(rectOutput) then
-             begin
-               if backupFullLayer=nil then
-               begin
-                 backupLayerPart := GetSelectedImageLayer.GetPart(rectOutput) as TBGRABitmap;
-                 backupLayerPartTopLeft := rectoutput.TopLeft;
-               end;
-               GetSelectedImageLayer.PutImageAffine(
-                 actualTransformation, shownSelectionLayer,
-                 rectOutput,255,True);
-             end;
+             selectionScanner := TBGRAAffineBitmapTransform.Create(
+                                            FSelectionLayerAfterMask, false, rfCosine);
+             TBGRAAffineBitmapTransform(selectionScanner).ViewMatrix := actualTransformation;
+             FCurrentState.LayeredBitmap.SelectionScanner := selectionScanner;
+             FCurrentState.LayeredBitmap.SelectionRect:= rectOutput;
+             FCurrentState.LayeredBitmap.SelectionScannerOffset:= Point(0, 0);
+             FCurrentState.LayeredBitmap.SelectionLayerIndex:= CurrentLayerIndex;
            end;
          end else
          begin
            DiscardSelectionLayerAfterMask;
-           rectoutput := FRenderedImageInvalidated;
-           IntersectRect(rectoutput, rectoutput, SelectionLayerBounds);
-           IntersectRect(rectoutput, rectoutput, SelectionMaskBounds);
-           ofs := LayerOffset[CurrentLayerIndex];
-           OffsetRect(rectoutput, -ofs.X,-ofs.Y);
-           if not IsRectEmpty(rectoutput) then
+           rectOutput := TRect.Intersect(SelectionLayerBounds, SelectionMaskBounds);
+           ofs := Point(round(SelectionTransform[1, 3]), round(SelectionTransform[2, 3]));
+           rectOutput.Offset(ofs.x, ofs.y);
+           rectOutput.Intersect(rect(0,0,self.Width,self.Height));
+           if not IsRectEmpty(rectOutput) then
            begin
-             if backupFullLayer=nil then
-             begin
-               backupLayerPartTopLeft := rectOutput.TopLeft;
-               backupLayerPart := GetSelectedImageLayer.GetPart(rectoutput) as TBGRABitmap;
-             end;
-             shownSelectionLayer.ScanOffset := Point(ofs.x,ofs.y);
-             GetSelectedImageLayer.ClipRect := rectOutput;
-             GetSelectedImageLayer.FillMask(-ofs.X,-ofs.Y,SelectionMask, shownSelectionLayer, dmDrawWithTransparency);
-             shownSelectionLayer.ScanOffset := Point(0,0);
-             GetSelectedImageLayer.NoClip;
+             selectionScanner := TBGRATextureMaskScanner.Create(SelectionMask,
+               Point(0,0), FCurrentState.SelectionLayer);
+             FCurrentState.LayeredBitmap.SelectionScanner := selectionScanner;
+             FCurrentState.LayeredBitmap.SelectionRect:= rectOutput;
+             FCurrentState.LayeredBitmap.SelectionScannerOffset:= Point(-ofs.x, -ofs.y);
+             FCurrentState.LayeredBitmap.SelectionLayerIndex:= CurrentLayerIndex;
            end;
          end;
       end;
@@ -1809,21 +1767,8 @@ begin
       FCurrentState.DrawLayers(FRenderedImage,0,0,False);
       FRenderedImage.NoClip;
     end;
-
-    //restore
-    if backupLayerPart <> nil then
-    begin
-      GetSelectedImageLayer.PutImage(backupLayerPartTopLeft.X,backupLayerPartTopLeft.Y,backupLayerPart,dmSet);
-      backupLayerPart.Free;
-    end;
-    if backupFullLayer <> nil then
-    begin
-      CurrentState.LayeredBitmap.SetLayerBitmap(CurrentLayerIndex, backupFullLayer, true);
-      CurrentState.LayeredBitmap.LayerOffset[CurrentLayerIndex] := backupFullLayerTopLeft;
-      CurrentState.LayeredBitmap.LayerOriginalGuid[CurrentLayerIndex] := backupFullLayerGuid;
-      CurrentState.LayeredBitmap.LayerOriginalMatrix[CurrentLayerIndex] := backupFullLayerMatrix;
-      CurrentState.LayeredBitmap.LayerOriginalRenderStatus[CurrentLayerIndex] := backupFullLayerRenderStatus;
-    end;
+    FCurrentState.LayeredBitmap.DiscardSelection;
+    selectionScanner.Free;
     FRenderedImageInvalidated := EmptyRect; //up to date
   end;
   result := FRenderedImage;
