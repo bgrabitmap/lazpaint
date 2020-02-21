@@ -614,8 +614,6 @@ begin
       ABitmap.PutImage(FMovingItemOrigin.X + FMovingItemMousePos.X - FMovingItemMouseOrigin.X - FOffset.X,
                        y, FMovingItemBitmap, dmDrawWithTransparency,128);
     end;
-
-    UpdateComboBlendOp;
   end;
   FMovingItemStart := false;
 end;
@@ -807,6 +805,8 @@ end;
 procedure TLayerStackInterface.LazPaint_ImageChanged(
   AEvent: TLazPaintImageObservationEvent);
 begin
+  UpdateComboBlendOp;
+
   if not AEvent.DelayedStackUpdate and
      not FInHandleSelectLayer then InvalidateStack(False);
 end;

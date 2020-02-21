@@ -1962,6 +1962,7 @@ begin
   if not CheckNoAction then exit;
   try
     AddUndo(FCurrentState.AddNewLayer(TBGRABitmap.Create(1,1), '', Point(0,0), boTransparent));
+    LayerBlendMayChange(CurrentLayerIndex);
   except on ex: exception do NotifyException('AddNewLayer',ex);
   end;
   OnImageChanged.NotifyObservers;
