@@ -1538,10 +1538,6 @@ begin
 end;
 
 function TLazPaintImage.SetCurrentLayerByIndex(AValue: integer): boolean;
-var
-  composedDiff: TComposedImageDifference;
-  changeIndex: TSelectCurrentLayer;
-  applyOfs: TCustomImageDifference;
 begin
   if AValue = FCurrentState.SelectedImageLayerIndex then exit(true);
   if (AValue < 0) or (AValue >= NbLayers) then exit(false);
@@ -1552,30 +1548,7 @@ begin
   end;
 
   if assigned(OnSelectedLayerIndexChanging) then OnSelectedLayerIndexChanging(self);
-  if not SelectionLayerIsEmpty then
-  begin
-    composedDiff := TComposedImageDifference.Create;
-    try
-      changeIndex := TSelectCurrentLayer.Create(FCurrentState, AValue);
-      composedDiff.Add(changeIndex);
-      changeIndex.ApplyTo(FCurrentState);
-      try
-        with FCurrentState.LayerOffset[AValue] do
-          applyOfs := FCurrentState.ComputeLayerOffsetDifference(X,Y);
-        composedDiff.Add(applyOfs);
-      except
-        changeIndex.UnApplyTo(FCurrentState);
-        composedDiff.Free;
-        exit(false);
-      end;
-      applyOfs.ApplyTo(FCurrentState);
-      AddUndo(composedDiff);
-      composedDiff:= nil;
-    finally
-      composedDiff.Free;
-    end;
-  end else
-    FCurrentState.SelectedImageLayerIndex := AValue;
+  FCurrentState.SelectedImageLayerIndex := AValue;
   if assigned(OnSelectedLayerIndexChanged) then OnSelectedLayerIndexChanged(self);
   ImageMayChangeCompletely;
 
