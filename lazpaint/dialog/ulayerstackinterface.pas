@@ -758,6 +758,7 @@ begin
           UpdateLayerStackItem(i);
         end;
       end;
+      FInHandleSelectLayer := false;
       exit;
     end;
     if LazPaintInstance.Image.SetCurrentLayerByIndex(i) then

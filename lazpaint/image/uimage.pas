@@ -1281,10 +1281,20 @@ begin
 end;
 
 procedure TLazPaintImage.LayerBlendMayChange(AIndex: integer);
-var r: TRect;
+var r, rSel: TRect;
 begin
   r := FCurrentState.LayerBitmap[AIndex].GetImageBounds;
   with LayerOffset[AIndex] do OffsetRect(r, x,y);
+  if (AIndex = CurrentLayerIndex) and not SelectionMaskEmpty then
+  begin
+    rSel := TRect.Intersect(SelectionMaskBounds, SelectionLayerBounds);
+    rSel := SelectionMask.GetImageAffineBounds(SelectionTransform, rSel, false);
+    if not rSel.IsEmpty then
+    begin
+      if r.IsEmpty then r := rSel
+      else r := TRect.Union(r, rSel);
+    end;
+  end;
   ImageMayChange(r);
 end;
 
