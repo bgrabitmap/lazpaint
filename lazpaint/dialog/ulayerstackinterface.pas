@@ -64,7 +64,7 @@ type
     FLayerRectWidth, FLayerRectHeight, FStackWidth, FStackHeight: integer;
     FOffset, FScrollPos, FMaxScrollPos: TPoint;
     FAvailableWidth, FAvailableHeight: integer;
-    FChangingLayerOpacityIndex: integer;
+    FChangingLayerOpacityIndex, FAskTransferSelectionLayerIndex: integer;
     FScrollButtonRect: TRect;
     FInterruptorWidth,FInterruptorHeight: integer;
     FLayerInfo: array of TLayerItemInfo;
@@ -105,7 +105,7 @@ type
 
 implementation
 
-uses Dialogs, LCScaleDPI, GraphType, Graphics, Toolwin,
+uses Dialogs, LCScaleDPI, GraphType, Graphics, Toolwin, UITypes,
   BGRAFillInfo, BGRATransform, BGRALayerOriginal, BGRASVGOriginal, BGRAThumbnail,
   UTool, UImage, UBlendOp, UResourceStrings, math;
 
@@ -271,8 +271,10 @@ end;
 
 procedure TLayerStackInterface.BGRALayerStack_MouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var destinationIndex: integer;
+var destinationIndex, prevIndex: integer;
   indexF: single;
+  res: TModalResult;
+  topmostInfo: TTopMostInfo;
 begin
   if Button = mbLeft then
   begin
@@ -301,6 +303,25 @@ begin
       exit;
     end;
     if FChangingLayerOpacityIndex <> -1 then FChangingLayerOpacityIndex := -1;
+    if FAskTransferSelectionLayerIndex <> -1 then
+    begin
+      FInHandleSelectLayer := true;
+      topmostInfo := LazPaintInstance.HideTopmost;
+      res := MessageDlg(rsTransferSelectionToOtherLayer,mtConfirmation,[mbOk,mbCancel],0);
+      LazPaintInstance.ShowTopmost(topmostInfo);
+      if res = mrOk then
+      begin
+        prevIndex := LazPaintInstance.Image.CurrentLayerIndex;
+        if LazPaintInstance.Image.SetCurrentLayerByIndex(FAskTransferSelectionLayerIndex) then
+        begin
+          FRenaming := false;
+          UpdateLayerStackItem(prevIndex);
+          UpdateLayerStackItem(FAskTransferSelectionLayerIndex);
+        end;
+      end;
+      FInHandleSelectLayer := false;
+      FAskTransferSelectionLayerIndex := -1;
+    end;
   end;
 end;
 
@@ -735,7 +756,7 @@ begin
 end;
 
 procedure TLayerStackInterface.HandleSelectLayer(i, x, y: integer);
-var topmostInfo: TTopMostInfo; res, prevIndex: integer;
+var prevIndex: integer;
 begin
   FInHandleSelectLayer := true;
   if (i < LazPaintInstance.Image.NbLayers) then
@@ -744,19 +765,7 @@ begin
     if not LazPaintInstance.Image.SelectionLayerIsEmpty and
       (i <> LazPaintInstance.Image.CurrentLayerIndex) then
     begin
-      topmostInfo := LazPaintInstance.HideTopmost;
-      res := MessageDlg(rsTransferSelectionToOtherLayer,mtConfirmation,[mbOk,mbCancel],0);
-      LazPaintInstance.ShowTopmost(topmostInfo);
-      if res = mrOk then
-      begin
-        if LazPaintInstance.Image.SetCurrentLayerByIndex(i) then
-        begin
-          FRenaming := false;
-          UpdateLayerStackItem(prevIndex);
-          UpdateLayerStackItem(i);
-        end;
-      end;
-      FInHandleSelectLayer := false;
+      FAskTransferSelectionLayerIndex := i;
       exit;
     end;
     if LazPaintInstance.Image.SetCurrentLayerByIndex(i) then
@@ -959,6 +968,7 @@ begin
   FScrollPos := point(0,0);
   FZoomFactor := 1;
   FChangingLayerOpacityIndex:= -1;
+  FAskTransferSelectionLayerIndex := -1;
   VolatileHorzScrollBar := nil;
   VolatileVertScrollBar := nil;
 
