@@ -112,6 +112,11 @@ GRADIENT_REPETITION_REPEAT = 'Repeat'
 GRADIENT_REPETITION_REFLECT = 'Reflect'
 GRADIENT_REPETITION_SINE = 'Sine'
 
+TEXTURE_REPETITION_NONE = 'None';
+TEXTURE_REPETITION_X = 'RepeatX';
+TEXTURE_REPETITION_Y = 'RepeatY';
+TEXTURE_REPETITION_BOTH = 'RepeatBoth';
+
 SHAPE_KIND_RECTANGLE = 'Rectangle'
 SHAPE_KIND_ROUND_RECTANGLE = 'RoundRectangle'
 SHAPE_KIND_HALF_SPHERE = 'HalfSphere'
@@ -423,6 +428,36 @@ def set_back_gradient_repetition(repetition):
 
 def get_back_gradient_repetition():
   return command.send('ToolGetBackGradientRepetition?')
+
+def set_fore_texture(file_name):
+  command.send('ToolSetForeTexture', FileName=file_name)
+
+def set_fore_texture_repetition(repetition):
+  command.send('ToolSetForeTextureRepetition', Repetition=repetition)
+
+def get_fore_texture_repetition():
+  return command.send('ToolGetForeTextureRepetition?')
+
+def set_fore_texture_opacity(opacity: int):
+  command.send('ToolSetForeTextureOpacity', Opacity=opacity)
+
+def get_fore_texture_opacity(): #-> int 0..255
+  return command.send('ToolGetForeTextureOpacity?')
+
+def set_back_texture(file_name):
+  command.send('ToolSetBackTexture', FileName=file_name)
+
+def set_back_texture_repetition(repetition):
+  command.send('ToolSetBackTextureRepetition', Repetition=repetition)
+
+def get_back_texture_repetition():
+  return command.send('ToolGetBackTextureRepetition?')
+
+def set_back_texture_opacity(opacity: int):
+  command.send('ToolSetBackTextureOpacity', Opacity=opacity)
+
+def get_back_texture_opacity(): #-> int 0..255
+  return command.send('ToolGetBackTextureOpacity?')
 
 def set_phong_shape_kind(kind):
   command.send('ToolSetPhongShapeKind', Kind=kind)

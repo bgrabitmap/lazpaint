@@ -263,7 +263,7 @@ begin
   if f = 'LayerGetBlendOp' then AVars.Strings['Result'] := BlendOperationStr[Image.BlendOperation[Image.CurrentLayerIndex]] else
   if f = 'LayerGetVisible' then AVars.Booleans['Result'] := Image.LayerVisible[Image.CurrentLayerIndex] else
   if f = 'LayerSetName' then Image.LayerName[Image.CurrentLayerIndex] := AVars.Strings['Name'] else
-  if f = 'LayerSetOpacity' then Image.LayerOpacity[Image.CurrentLayerIndex] := AVars.Integers['Opacity'] else
+  if f = 'LayerSetOpacity' then Image.LayerOpacity[Image.CurrentLayerIndex] := min(255, max(0, AVars.Integers['Opacity'])) else
   if f = 'LayerSetBlendOp' then Image.BlendOperation[Image.CurrentLayerIndex] := StrToBlendOperation(AVars.Strings['BlendOp']) else
   if f = 'LayerSetVisible' then Image.LayerVisible[Image.CurrentLayerIndex] := AVars.Booleans['Visible'] else
   if f = 'LayerRasterize' then RasterizeLayer else

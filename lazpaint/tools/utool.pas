@@ -299,6 +299,12 @@ type
     function ScriptGetForeGradientRepetition(AVars: TVariableSet): TScriptResult;
     function ScriptGetForeGradientType(AVars: TVariableSet): TScriptResult;
     function ScriptGetForeGradientColors(AVars: TVariableSet): TScriptResult;
+    function ScriptGetTextureRepetition(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+    function ScriptGetTextureOpacity(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+    function ScriptGetBackTextureRepetition(AVars: TVariableSet): TScriptResult;
+    function ScriptGetBackTextureOpacity(AVars: TVariableSet): TScriptResult;
+    function ScriptGetForeTextureRepetition(AVars: TVariableSet): TScriptResult;
+    function ScriptGetForeTextureOpacity(AVars: TVariableSet): TScriptResult;
     function ScriptGetJoinStyle(AVars: TVariableSet): TScriptResult;
     function ScriptGetLightPosition(AVars: TVariableSet): TScriptResult;
     function ScriptGetLineCap(AVars: TVariableSet): TScriptResult;
@@ -343,6 +349,15 @@ type
     function ScriptSetForeGradientRepetition(AVars: TVariableSet): TScriptResult;
     function ScriptSetForeGradientType(AVars: TVariableSet): TScriptResult;
     function ScriptSetForeGradientColors(AVars: TVariableSet): TScriptResult;
+    function ScriptSetTexture(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+    function ScriptSetTextureRepetition(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+    function ScriptSetTextureOpacity(AVars: TVariableSet; AFill: TVectorialFill): TScriptResult;
+    function ScriptSetBackTexture(AVars: TVariableSet): TScriptResult;
+    function ScriptSetBackTextureRepetition(AVars: TVariableSet): TScriptResult;
+    function ScriptSetBackTextureOpacity(AVars: TVariableSet): TScriptResult;
+    function ScriptSetForeTexture(AVars: TVariableSet): TScriptResult;
+    function ScriptSetForeTextureRepetition(AVars: TVariableSet): TScriptResult;
+    function ScriptSetForeTextureOpacity(AVars: TVariableSet): TScriptResult;
     function ScriptSetJoinStyle(AVars: TVariableSet): TScriptResult;
     function ScriptSetLightPosition(AVars: TVariableSet): TScriptResult;
     function ScriptSetLineCap(AVars: TVariableSet): TScriptResult;
@@ -558,7 +573,7 @@ function ToolPopupMessageToStr(AMessage :TToolPopupMessage; AKey: Word = 0): str
 implementation
 
 uses UGraph, LCScaleDPI, LazPaintType, UCursors, BGRATextFX, ULoading, UResourceStrings,
-  BGRATransform, LCVectorOriginal, BGRASVGOriginal, math;
+  BGRATransform, LCVectorOriginal, BGRASVGOriginal, math, ULoadImage;
 
 function StrToPaintToolType(const s: ansistring): TPaintToolType;
 var pt: TPaintToolType;
@@ -1882,6 +1897,49 @@ begin
   result := ScriptGetGradientColors(AVars, FForeFill);
 end;
 
+function TToolManager.ScriptGetTextureRepetition(AVars: TVariableSet;
+  AFill: TVectorialFill): TScriptResult;
+begin
+  if AFill.FillType <> vftTexture then exit(srException);
+  result := srOk;
+  case AFill.TextureRepetition of
+  trNone: AVars.Strings['Result'] := 'None';
+  trRepeatX: AVars.Strings['Result'] := 'RepeatX';
+  trRepeatY: AVars.Strings['Result'] := 'RepeatY';
+  trRepeatBoth: AVars.Strings['Result'] := 'RepeatBoth';
+  else
+    result := srException;
+  end;
+end;
+
+function TToolManager.ScriptGetTextureOpacity(AVars: TVariableSet;
+  AFill: TVectorialFill): TScriptResult;
+begin
+  if AFill.FillType <> vftTexture then exit(srException);
+  AVars.Integers['Result'] := AFill.TextureOpacity;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetBackTextureRepetition(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptGetTextureRepetition(AVars, BackFill);
+end;
+
+function TToolManager.ScriptGetBackTextureOpacity(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptGetTextureOpacity(AVars, BackFill);
+end;
+
+function TToolManager.ScriptGetForeTextureRepetition(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptGetTextureRepetition(AVars, ForeFill);
+end;
+
+function TToolManager.ScriptGetForeTextureOpacity(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptGetTextureOpacity(AVars, ForeFill);
+end;
+
 function TToolManager.ScriptGetJoinStyle(AVars: TVariableSet): TScriptResult;
 begin
   result := srOk;
@@ -2340,6 +2398,79 @@ end;
 function TToolManager.ScriptSetForeGradientColors(AVars: TVariableSet): TScriptResult;
 begin
   result := ScriptSetGradientColors(AVars, FForeFill);
+end;
+
+function TToolManager.ScriptSetTexture(AVars: TVariableSet;
+  AFill: TVectorialFill): TScriptResult;
+var
+  fileName: String;
+  flatImg: TBGRABitmap;
+begin
+  fileName := trim(AVars.Strings['FileName']);
+  if fileName='' then exit(srInvalidParameters);
+  flatImg := LoadFlatImageUTF8(fileName).bmp;
+  if flatImg = nil then exit(srException);
+  try
+    if AFill.FillType <> vftTexture then
+      AFill.SetTexture(flatImg, AffineMatrixIdentity)
+    else
+      AFill.SetTexture(flatImg, AffineMatrixIdentity, AFill.TextureOpacity, AFill.TextureRepetition);
+    result := srOk;
+  finally
+    flatImg.FreeReference;
+  end;
+end;
+
+function TToolManager.ScriptSetTextureRepetition(AVars: TVariableSet;
+  AFill: TVectorialFill): TScriptResult;
+begin
+  if AFill.FillType <> vftTexture then exit(srException);
+  case AVars.Strings['Repetition'] of
+  'None': AFill.TextureRepetition:= trNone;
+  'RepeatX': AFill.TextureRepetition:= trRepeatX;
+  'RepeatY': AFill.TextureRepetition:= trRepeatY;
+  'RepeatBoth': AFill.TextureRepetition:= trRepeatBoth;
+  else exit(srInvalidParameters);
+  end;
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetTextureOpacity(AVars: TVariableSet;
+  AFill: TVectorialFill): TScriptResult;
+begin
+  if AFill.FillType <> vftTexture then exit(srException);
+  AFill.TextureOpacity := min(255, max(0, AVars.Integers['Opacity']));
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetBackTexture(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptSetTexture(AVars, BackFill);
+end;
+
+function TToolManager.ScriptSetBackTextureRepetition(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptSetTextureRepetition(AVars, BackFill);
+end;
+
+function TToolManager.ScriptSetBackTextureOpacity(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptSetTextureOpacity(AVars, BackFill);
+end;
+
+function TToolManager.ScriptSetForeTexture(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptSetTexture(AVars, ForeFill);
+end;
+
+function TToolManager.ScriptSetForeTextureRepetition(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptSetTextureRepetition(AVars, ForeFill);
+end;
+
+function TToolManager.ScriptSetForeTextureOpacity(AVars: TVariableSet): TScriptResult;
+begin
+  result := ScriptSetTextureOpacity(AVars, ForeFill);
 end;
 
 function TToolManager.ScriptSetJoinStyle(AVars: TVariableSet): TScriptResult;
@@ -3013,6 +3144,16 @@ begin
   FScriptContext.RegisterScriptFunction('ToolGetBackGradientInterpolation', @ScriptGetBackGradientInterpolation, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetBackGradientColors', @ScriptSetBackGradientColors, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetBackGradientColors', @ScriptGetBackGradientColors, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetForeTexture', @ScriptSetForeTexture, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetForeTextureRepetition', @ScriptSetForeTextureRepetition, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetForeTextureRepetition', @ScriptGetForeTextureRepetition, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetForeTextureOpacity', @ScriptSetForeTextureOpacity, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetForeTextureOpacity', @ScriptGetForeTextureOpacity, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetBackTexture', @ScriptSetBackTexture, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetBackTextureRepetition', @ScriptSetBackTextureRepetition, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetBackTextureRepetition', @ScriptGetBackTextureRepetition, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetBackTextureOpacity', @ScriptSetBackTextureOpacity, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetBackTextureOpacity', @ScriptGetBackTextureOpacity, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetPhongShapeAltitude', @ScriptSetPhongShapeAltitude, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetPhongShapeAltitude', @ScriptGetPhongShapeAltitude, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetPhongShapeBorderSize', @ScriptSetPhongShapeBorderSize, ARegister);
