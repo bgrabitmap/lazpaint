@@ -192,6 +192,7 @@ object FBlendOp: TFBlendOp
     Color = clBtnFace
     Items.Strings = (
       'DarkOverlay'
+      'LinearMultiplySaturation'
       'Additive'
       'LinearNegation'
       'Negation'

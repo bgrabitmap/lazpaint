@@ -40,6 +40,7 @@ BLEND_LINEAR_NEGATION = 'LinearNegation'
 BLEND_XOR = 'Xor'
 BLEND_SVG_SOFT_LIGHT = 'SvgSoftLight'
 BLEND_MASK = 'Mask'
+BLEND_LINEAR_MULTIPLY_SATURATION = 'LinearMultiplySaturation';
 
 def get_id():
   return command.send("LayerGetId?")
