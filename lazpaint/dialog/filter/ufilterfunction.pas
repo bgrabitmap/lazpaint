@@ -478,8 +478,15 @@ begin
             end;
             if hslUsedByAny then
             begin
-              if gsba then src.gsbaValue := BGRAToGSBA(psrc^)
-              else src.hslaValue := BGRAToHSLA(psrc^);
+              if gsba then src.gsbaValue := BGRAToGSBA(psrc^) else
+              if gammaCorr then src.hslaValue := BGRAToHSLA(psrc^) else
+              with psrc^.ToStdHSLA do
+              begin
+                src.hslaValue.hue := round(hue*(65536/360)) mod 65536;
+                src.hslaValue.saturation := round(saturation*65535);
+                src.hslaValue.lightness := round(lightness*65535);
+                src.hslaValue.alpha := psrc^.alpha + (psrc^.alpha shl 8);
+              end;
               if hslUsedInExpr then
               with src.hslaValue do
               begin
@@ -514,13 +521,19 @@ begin
                             ComputeExpr(HueVars, 65536),
                             ComputeExpr(SaturationVars),
                             ComputeExpr(LightnessVars),
-                            ComputeExpr(AlphaVars))
-              else
+                            ComputeExpr(AlphaVars)) else
+              if gammaCorr then
                 pdest^ := THSLAPixel.New(
                             ComputeExpr(HueVars, 65536),
                             ComputeExpr(SaturationVars),
                             ComputeExpr(LightnessVars),
-                            ComputeExpr(AlphaVars));
+                            ComputeExpr(AlphaVars))
+              else
+                pdest^ := TStdHSLA.New(
+                            ComputeExpr(HueVars, 65536)*(360/65536),
+                            ComputeExpr(SaturationVars)*oneOver65535,
+                            ComputeExpr(LightnessVars)*oneOver65535,
+                            ComputeExpr(AlphaVars)*oneOver65535);
               inc(pdest);
               inc(psrc);
             end;
