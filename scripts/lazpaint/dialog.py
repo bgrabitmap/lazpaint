@@ -11,3 +11,6 @@ def input_text(prompt, default=None) -> str:
 def input_value(prompt, default):
   return ast.literal_eval(input_text(prompt, str(default)))
 
+def show_color_dialog(color=None) -> str:
+  return command.send('ShowColorDialog?', Color=color);
+

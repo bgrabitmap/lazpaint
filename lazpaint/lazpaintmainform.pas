@@ -683,6 +683,7 @@ type
     procedure ManagerToleranceChanged(Sender: TObject);
     procedure ManagerToolbarChanged(Sender: TObject);
     procedure Perspective_RepeatClick(Sender: TObject);
+    function ScriptShowColorDialog(AVars: TVariableSet): TScriptResult;
     procedure VectorialFill_BackAdjustToShape(Sender: TObject);
     procedure VectorialFill_BackChange(Sender: TObject);
     procedure VectorialFill_BackEditGradTexPoints(Sender: TObject);
@@ -1202,6 +1203,7 @@ begin
   Scripting.RegisterScriptFunction('ViewZoomFit',@ScriptViewZoomFit,ARegister);
   Scripting.RegisterScriptFunction('ViewGrid',@ScriptViewGrid,ARegister);
   Scripting.RegisterScriptFunction('ViewGridGet',@ScriptViewGridGet,ARegister);
+  Scripting.RegisterScriptFunction('ShowColorDialog',@ScriptShowColorDialog,ARegister);
 end;
 
 procedure TFMain.FormMouseDown(Sender: TObject; Button: TMouseButton;
@@ -3425,6 +3427,17 @@ end;
 function TFMain.ScriptViewGridGet(AVars: TVariableSet): TScriptResult;
 begin
   AVars.Booleans['Result'] := LazPaintInstance.GridVisible;
+  result := srOk;
+end;
+
+function TFMain.ScriptShowColorDialog(AVars: TVariableSet): TScriptResult;
+begin
+  if AVars.IsDefined('Color') then
+    ColorDialog1.Color := AVars.Pixels['Color'].ToColor;
+  if ColorDialog1.Execute then
+    AVars.Pixels['Result'] := ColorToBGRA(ColorDialog1.Color)
+  else
+    AVars.Remove('Result');
   result := srOk;
 end;
 

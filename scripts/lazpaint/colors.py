@@ -111,6 +111,12 @@ def normalize():
 def grayscale():
   filters.run(filters.COLOR_GRAYSCALE)
 
+def show_dialog(color=None): #-> RGBA
+  result_str = dialog.show_color_dialog(color)
+  if result_str is None or len(result_str) == 0:
+    return None
+  else: 
+    return str_to_RGBA(result_str)
 
 
 
