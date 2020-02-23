@@ -2000,8 +2000,10 @@ begin
     raise exception.Create('Index out of bounds');
   if AToIndex < 0 then AToIndex := 0;
   if AToIndex >= NbLayers then AToIndex := NbLayers-1;
+  if AToIndex = AFromIndex then exit;
   if not CheckNoAction then exit;
   try
+    LayerBlendMayChange(AToIndex);
     AddUndo(FCurrentState.MoveLayer(AFromIndex,AToIndex));
     LayerBlendMayChange(AToIndex);
   except on ex: exception do
