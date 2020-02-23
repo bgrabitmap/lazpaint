@@ -9,10 +9,10 @@ if __name__ == "__main__":
   dialog.show_message("Library defining colors.")
 
 def to_linear(std_value: int): #0..255
-  return math.pow(std_value/255, 1/GAMMA)
+  return math.pow(std_value/255, GAMMA)
 
 def to_std(linear_value: float):
-  return round(math.pow(linear_value, GAMMA)*255)
+  return round(math.pow(linear_value, 1/GAMMA)*255)
 
 CustomRGBA = collections.namedtuple("RGBA", "red, green, blue, alpha")
 class RGBA(CustomRGBA):
