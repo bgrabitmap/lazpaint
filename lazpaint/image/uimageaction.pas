@@ -36,6 +36,7 @@ type
     function ScriptPasteAsNewLayer(AVars: TVariableSet): TScriptResult;
     function ScriptLayerDuplicate(AVars: TVariableSet): TScriptResult;
     function ScriptPutImage(AVars: TVariableSet): TScriptResult;
+    function ScriptGetImage(AVars: TVariableSet): TScriptResult;
     function ScriptLayerFill(AVars: TVariableSet): TScriptResult;
     function ScriptGetFrameIndex(AVars: TVariableSet): TScriptResult;
     procedure ReleaseSelection;
@@ -204,6 +205,7 @@ begin
   Scripting.RegisterScriptFunction('GetImageHeight',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('GetImageSize',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('PutImage',@ScriptPutImage,ARegister);
+  Scripting.RegisterScriptFunction('GetImage',@ScriptGetImage,ARegister);
   Scripting.RegisterScriptFunction('LayerFill',@ScriptLayerFill,ARegister);
 end;
 
@@ -535,6 +537,69 @@ begin
   finally
     bmp.Free;
   end;
+end;
+
+function TImageActions.ScriptGetImage(AVars: TVariableSet): TScriptResult;
+var
+  str: string;
+  strPos: integer;
+
+  procedure writeStrHex(AValue: byte);
+  const digits : array[0..15] of char = '0123456789ABCDEF';
+  begin
+    str[strPos] := digits[AValue shr 4];
+    str[strPos+1] := digits[AValue and 15];
+    inc(strPos, 2);
+  end;
+
+var
+  x, y, width, height, yb, xb: Integer;
+  copy, img: TBGRABitmap;
+  ofs: TPoint;
+  p: PBGRAPixel;
+
+
+begin
+  if not AVars.IsDefined('X') then
+    x := 0 else x := AVars.Integers['X'];
+  if not AVars.IsDefined('Y') then
+    y := 0 else y := AVars.Integers['Y'];
+  if not AVars.IsDefined('Width') then
+    width := Image.Width-x else width := AVars.Integers['Width'];
+  if not AVars.IsDefined('Height') then
+    height := Image.Height-y else height := AVars.Integers['Height'];
+  if (width > MaxImageWidth) or (height > MaxImageHeight) then exit(srException);
+  if Image.SelectionLayerIsEmpty then
+  begin
+    copy := TBGRABitmap.Create(width, height);
+    ofs := Image.LayerOffset[Image.CurrentLayerIndex];
+    copy.PutImage(ofs.X, ofs.Y, Image.LayerBitmap[Image.CurrentLayerIndex], dmSet);
+    img := copy
+  end else
+  begin
+    copy := nil;
+    img := Image.SelectionLayerReadonly;
+  end;
+  try
+    setlength(str, img.width*img.height*8);
+    strPos := 1;
+    for yb := 0 to img.Height-1 do
+    begin
+      p := img.ScanLine[yb];
+      for xb := img.Width-1 downto 0 do
+      begin
+        writeStrHex(p^.red);
+        writeStrHex(p^.green);
+        writeStrHex(p^.blue);
+        writeStrHex(p^.alpha);
+        inc(p);
+      end;
+    end;
+  finally
+    copy.Free;
+  end;
+  AVars.Strings['Result'] := str;
+  result := srOk;
 end;
 
 function TImageActions.ScriptLayerFill(AVars: TVariableSet): TScriptResult;

@@ -122,14 +122,38 @@ def get_count() -> int:
 def rasterize():
   command.send("LayerRasterize")
 
+def get_image_width(image) -> int:
+  return max([len(scanline) for scanline in image])
+
+def get_image_height(image) -> int:
+  return len(image)
+
+def get_image_size(image):
+  height = get_image_height(image)
+  if height == 0:
+    return (0,0)
+  else:
+    return (get_image_width(image), height)
+
 def put_image(x: int, y: int, image, mode=DM_DRAW, opacity=255):
-  height = len(image)
-  if height == 0: return
-  width = max([len(scanline) for scanline in image])
+  width, height = get_image_size(image)
+  if width == 0 or height == 0: return
   flattened = ""
   for scanline in image:
     flattened += "".join([str(color) for color in scanline]) + "00000000" * (width - len(scanline))
   command.send("PutImage", X=x, Y=y, Width=width, Height=height, Data=flattened, Mode=mode, Opacity=opacity)
+
+def get_image(x: int, y: int, width: int, height: int):
+  flattened = command.send("GetImage?", X=x, Y=y, Width=width, Height=height)
+  str_pos = 0
+  image = []
+  for yb in range(0, height):
+    scanline = []
+    for xb in range(0, width):       
+      scanline.append(colors.RGBA(int(flattened[str_pos:str_pos + 2],16), int(flattened[str_pos + 2:str_pos + 4],16), int(flattened[str_pos + 4:str_pos + 6],16), int(flattened[str_pos + 6:str_pos + 8],16)))
+      str_pos = str_pos + 8
+    image.append(scanline)
+  return image    
 
 def get_pixel(x: int, y: int):
   return colors.str_to_RGBA(command.send("GetPixel?", X=x, Y=y))
