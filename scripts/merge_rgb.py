@@ -17,7 +17,7 @@ if layer.get_registry("split-channel") is not None:
     channels_id = layer.get_registry("split-channels-id")
   else:
     channels_id = []
-    for i in range(1, image.get_layer_count()):
+    for i in range(1, image.get_layer_count()+1):
       image.select_layer_index(i)
       cur_layer_id = layer.get_registry("split-source-id")
       if cur_layer_id == layer_id:

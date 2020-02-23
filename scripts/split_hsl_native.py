@@ -13,7 +13,7 @@ layer_transparent = layer.is_transparent()
 
 # check if it has been split
 if layer.get_registry("split-channels-id") is not None:
-  for i in range(1, layer.get_count()):
+  for i in range(1, layer.get_count()+1):
     image.select_layer_index(i)
     if layer.get_registry("split-source-id") == layer_id:
       dialog.show_message("Layer already split")
