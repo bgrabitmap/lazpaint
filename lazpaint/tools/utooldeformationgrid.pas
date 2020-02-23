@@ -56,6 +56,7 @@ type
     procedure ValidateQuad; virtual;
     procedure DrawQuad; virtual;
     function GetAdaptedTexture: TBGRABitmap;
+    procedure UpdateBoundsMode(var ARectResult: TRect);
 
   protected
     boundsMode: boolean;
@@ -72,7 +73,6 @@ type
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect;
       override;
     function DoToolKeyDown(var key: Word): TRect; override;
-    function DoToolKeyUp(var key: Word): TRect; override;
     function GetIsSelectingTool: boolean; override;
     function GetTexture: TBGRABitmap; virtual;
     function GetTextureRepetition: TTextureRepetition; virtual;
@@ -386,6 +386,24 @@ begin
   end;
 end;
 
+procedure TToolTextureMapping.UpdateBoundsMode(var ARectResult: TRect);
+begin
+  if not boundsMode and not quadMoving and ([ssAlt, ssShift]*ShiftState <> []) then
+  begin
+    boundsMode := true;
+    boundsPts := ComputeBoundsPoints;
+    if IsRectEmpty(ARectResult) then
+      ARectResult := OnlyRenderChange;
+  end else
+  if boundsMode and not quadMoving and ([ssAlt, ssShift]*ShiftState = [])  then
+  begin
+    boundsMode := false;
+    boundsPts := ComputeBoundsPoints;
+    if IsRectEmpty(ARectResult) then
+      ARectResult := OnlyRenderChange;
+  end;
+end;
+
 function TToolTextureMapping.SnapIfNecessary(ptF: TPointF): TPointF;
 begin
   if not (ssSnap in ShiftState) then result := ptF else
@@ -421,6 +439,7 @@ begin
     exit;
   end;
 
+  UpdateBoundsMode(result);
   if boundsMode then
     pts := boundsPts
   else
@@ -447,7 +466,6 @@ begin
     quadMoving := true;
     quadMovingBounds  := boundsMode;
   end;
-
 end;
 
 function NonZero(AValue, ADefault: single): single;
@@ -567,6 +585,7 @@ begin
     DrawQuad;
     result := FCurrentBounds;
   end;
+  UpdateBoundsMode(result);
 end;
 
 function TToolTextureMapping.GetIsSelectingTool: boolean;
@@ -707,26 +726,6 @@ begin
       manager.QueryExitTool;
       key := 0;
     end;
-  end;
-
-  if not boundsMode and not quadMoving and ([ssAlt, ssShift]*ShiftState <> []) then
-  begin
-    boundsMode := true;
-    boundsPts := ComputeBoundsPoints;
-    if IsRectEmpty(result) then
-      result := OnlyRenderChange;
-  end;
-end;
-
-function TToolTextureMapping.DoToolKeyUp(var key: Word): TRect;
-begin
-  result := EmptyRect;
-
-  if boundsMode and ([ssAlt, ssShift]*ShiftState = []) then
-  begin
-    boundsMode := false;
-    if IsRectEmpty(result) then
-      result := OnlyRenderChange;
   end;
 end;
 
