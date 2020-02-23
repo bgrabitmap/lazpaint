@@ -887,6 +887,11 @@ begin
   end;
 end;
 
+function TFMain.EditingColors: boolean;
+begin
+  result := Assigned(ActiveControl) and (ActiveControl.Name = 'EColor');
+end;
+
 procedure TFMain.VectorialFill_BackChange(Sender: TObject);
 var
   tempFill: TVectorialFill;

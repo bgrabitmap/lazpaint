@@ -788,6 +788,7 @@ type
     procedure LayoutPictureAreaChange({%H-}ASender: TObject; {%H-}ANewArea: TRect);
     function GetCurrentTool: TPaintToolType;
     procedure SwitchColors;
+    function EditingColors: boolean;
     procedure Init;
     procedure OnLatestVersionUpdate(ANewVersion: string);
     procedure ManagerToolChanged({%H-}sender: TToolManager; {%H-}ANewTool: TPaintToolType);
@@ -1213,6 +1214,7 @@ begin
   ReleaseMouseButtons(Shift);
   if not (Button in[mbLeft,mbRight,mbMiddle]) or not FImageView.PictureCoordsDefined then exit;
   CanCompressOrUpdateStack := false;
+  if Assigned(LazPaintInstance) then LazPaintInstance.ExitColorEditor;
   Image.OnImageChanged.DelayedStackUpdate := True;
 
   if btnLeftDown or btnRightDown or btnMiddleDown then exit;
@@ -1899,7 +1901,7 @@ begin
     if Key = VK_MENU then altPressed:= true
     else if (Key = VK_SNAP) or (Key = VK_SNAP2) then snapPressed:= true
     else if Key = VK_SHIFT then shiftPressed:= true;
-    if Zoom.EditingZoom then exit;
+    if Zoom.EditingZoom or EditingColors then exit;
     if not ((CurrentTool = ptText) and TextSpinEditFocused and (Key = VK_BACK)) and ToolManager.ToolKeyDown(Key) then
     begin
       DelayedPaintPicture := True;
@@ -2343,7 +2345,7 @@ var selectedTool: TPaintToolType;
   toolProcessKey: boolean;
 begin
   try
-    if Zoom.EditingZoom then exit;
+    if Zoom.EditingZoom or EditingColors then exit;
     toolProcessKey:= true;
     if (CurrentTool in[ptText,ptEditShape]) and ((UTF8Key = #8) or ((length(UTF8Key)=1) and (UTF8Key[1] in['-','0'..'9']))) then
     begin

@@ -104,7 +104,7 @@ type
     constructor Create(AContainer: TWinControl; ADPI: integer);
     destructor Destroy; override;
 
-    procedure SetCurrentColor(value: TBGRAPixel);
+    procedure SetCurrentColor(value: TBGRAPixel; AFromEdit: boolean = false);
     function GetCurrentColor: TBGRAPixel;
     procedure HideEditor;
     function GetPreferredSize: TSize;
@@ -289,7 +289,7 @@ begin
      if not error then
      begin
        newColor.alpha := FColorBeforeEColor.alpha;
-       SetCurrentColor(newColor);
+       SetCurrentColor(newColor, true);
        FLazPaintInstance.ColorFromFChooseColor;
      end;
    end;
@@ -300,15 +300,13 @@ procedure TChooseColorInterface.EColorKeyDown(Sender: TObject; var Key: Word;
 begin
   if Key = VK_RETURN then
   begin
-    EColor.Hide;
-    LColor.Show;
+    HideEditor;
     Key := 0;
   end
   else
   if Key = VK_ESCAPE then
   begin
-    EColor.Hide;
-    LColor.Show;
+    HideEditor;
     Key := 0;
     SetCurrentColor(FColorBeforeEColor);
     FLazPaintInstance.ColorFromFChooseColor;
@@ -888,6 +886,7 @@ begin
   EColor.Parent := Container;
   EColor.OnChange:= @EColorChange;
   EColor.OnKeyDown:= @EColorKeyDown;
+  EColor.Name := 'EColor';
   LColor := TLabel.Create(Container);
   LColor.Parent := Container;
   LColor.OnMouseDown:= @LColorMouseDown;
@@ -935,7 +934,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TChooseColorInterface.SetCurrentColor(value: TBGRAPixel);
+procedure TChooseColorInterface.SetCurrentColor(value: TBGRAPixel; AFromEdit: boolean);
 var newcolorlight: word;
   newcurrentcolor: TBGRAPixel;
 begin
@@ -947,6 +946,7 @@ begin
      FCurrentColor := newcurrentcolor;
      UpdateColorView(true,true,true);
    end;
+   if not AFromEdit then HideEditor;
 end;
 
 function TChooseColorInterface.GetCurrentColor: TBGRAPixel;

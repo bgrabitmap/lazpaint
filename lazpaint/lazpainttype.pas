@@ -244,6 +244,7 @@ type
     procedure AdjustChooseColorHeight; virtual; abstract;
     procedure ColorFromFChooseColor; virtual; abstract;
     procedure ColorToFChooseColor; virtual; abstract;
+    procedure ExitColorEditor; virtual; abstract;
     function GetColor(ATarget: TColorTarget): TBGRAPixel;
     procedure SetColor(ATarget: TColorTarget; AColor: TBGRAPixel);
     function ShowSaveOptionDlg(AParameters: TVariableSet; AOutputFilenameUTF8: string;

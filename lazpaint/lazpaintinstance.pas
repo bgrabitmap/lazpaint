@@ -187,6 +187,7 @@ type
     procedure AdjustChooseColorHeight; override;
     procedure ColorFromFChooseColor; override;
     procedure ColorToFChooseColor; override;
+    procedure ExitColorEditor; override;
     function ShowSaveOptionDlg({%H-}AParameters: TVariableSet; AOutputFilenameUTF8: string;
       ASkipOptions: boolean; AExport: boolean): boolean; override;
     function ShowColorIntensityDlg(AParameters: TVariableSet): TScriptResult; override;
@@ -1611,6 +1612,11 @@ procedure TLazPaintInstance.ColorToFChooseColor;
 begin
   if not Assigned(FChooseColor) or InColorFromFChooseColor then exit;
   FChooseColor.SetCurrentColor(GetColor(FChooseColor.ColorTarget));
+end;
+
+procedure TLazPaintInstance.ExitColorEditor;
+begin
+  if Assigned(FChooseColor) then FChooseColor.HideEditor;
 end;
 
 function TLazPaintInstance.ShowSaveOptionDlg(AParameters: TVariableSet;
