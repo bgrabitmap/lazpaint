@@ -49,7 +49,7 @@ function GetPythonVersion(APythonBin: string = DefaultPythonBin): string;
 
 implementation
 
-uses process, UResourceStrings, Forms;
+uses process, UResourceStrings, Forms, UTranslation;
 
 function GetPythonVersion(APythonBin: string = DefaultPythonBin): string;
 const PythonVersionPrefix = 'Python ';
