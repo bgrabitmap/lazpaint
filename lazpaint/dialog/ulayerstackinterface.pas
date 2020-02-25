@@ -105,7 +105,7 @@ type
 
 implementation
 
-uses Dialogs, LCScaleDPI, GraphType, Graphics, Toolwin, UITypes,
+uses Dialogs, LCScaleDPI, GraphType, Graphics, Toolwin, Forms,
   BGRAFillInfo, BGRATransform, BGRALayerOriginal, BGRASVGOriginal, BGRAThumbnail,
   UTool, UImage, UBlendOp, UResourceStrings, math;
 
