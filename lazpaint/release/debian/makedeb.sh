@@ -36,5 +36,11 @@ mkdir "${SCRIPT_DIR}/lazpaint"
 find "${SOURCE_SCRIPT_DIR}/lazpaint" -maxdepth 1 -name *.py -exec cp {} "${SCRIPT_DIR}/lazpaint" \;
 
 dpkg-deb --build "${STAGING_DIR}" "${PACKAGE_NAME}.deb"
+NO_INSTALL_ARCHIVE="${PACKAGE_NAME}_no_install.tar.gz"
+echo "Making ${NO_INSTALL_ARCHIVE}..."
+cd "$BIN_DIR"
+cd ..
+tar -czf "../../../${NO_INSTALL_ARCHIVE}" "lazpaint"
+cd ../../..
 rm -rf "${STAGING_DIR}"
 
