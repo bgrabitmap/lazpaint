@@ -537,10 +537,9 @@ begin
   FMain.Layout.DockedToolBoxAddGroup([FMain.ToolFloodfill, FMain.ToolGradient]);
 
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolEditShape);
-  FMain.Layout.DockedToolBoxAddGroup([FMain.ToolRect, FMain.ToolEllipse]);
+  FMain.Layout.DockedToolBoxAddGroup([FMain.ToolRect, FMain.ToolEllipse, FMain.ToolPhong]);
   FMain.Layout.DockedToolBoxAddGroup([FMain.ToolPolyline, FMain.ToolOpenedCurve]);
   FMain.Layout.DockedToolBoxAddGroup([FMain.ToolPolygon, FMain.ToolSpline]);
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolPhong);
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolText);
 
   FMain.Layout.DockedToolBoxAddButton(FMain.ToolDeformation);
