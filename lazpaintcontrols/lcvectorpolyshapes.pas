@@ -121,6 +121,7 @@ type
     property ArrowEndKind: TArrowKind read FArrowEndKind write SetArrowEndKind;
     property ArrowSize: TPointF read FArrowSize write SetArrowSize;
     property LineCap: TPenEndCap read GetLineCap write SetLineCap;
+    property Center: TPointF read FCenterPoint;
   end;
 
   { TPolylineShape }
@@ -795,6 +796,7 @@ begin
   FMousePos := EmptyPointF;
   FClosed:= false;
   FHoverPoint:= -1;
+  FCenterPoint := EmptyPointF;
 end;
 
 procedure TCustomPolypointShape.Clear;
@@ -1027,11 +1029,12 @@ begin
       inc(nbTotal);
     end;
 
+  if nbTotal > 0 then
+    FCenterPoint *= 1/nbTotal
+    else FCenterPoint := EmptyPointF;
+
   if (FAddingPoint and (nbTotal > 2)) or (not FAddingPoint and (nbTotal > 1)) then
-  begin
-    FCenterPoint *= 1/nbTotal;
     FCenterPointEditorIndex := AEditor.AddPoint(FCenterPoint, @OnMoveCenterPoint, true);
-  end;
 end;
 
 procedure TCustomPolypointShape.Transform(const AMatrix: TAffineMatrix);

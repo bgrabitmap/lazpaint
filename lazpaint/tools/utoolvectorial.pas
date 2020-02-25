@@ -149,6 +149,7 @@ type
     function GetIsForeEditGradTexPoints: boolean; override;
     function GetIsBackEditGradTexPoints: boolean; override;
     function GetAllowedBackFillTypes: TVectorialFillTypes; override;
+    function GetStatusText: string; override;
   public
     constructor Create(AManager: TToolManager); override;
     destructor Destroy; override;
@@ -163,12 +164,14 @@ type
   end;
 
 procedure AssignFill(ATarget, ASource: TVectorialFill; const ABox: TAffineBox; AFitMode: TFitMode);
+function GetShapeStatusText(AShape: TVectorShape; const AMatrix: TAffineMatrix): string;
+function GetGradientStatusText(AGradient: TBGRALayerGradientOriginal; const AMatrix: TAffineMatrix): string;
 
 implementation
 
 uses LazPaintType, LCVectorPolyShapes, LCVectorTextShapes, BGRASVGOriginal,
   ULoading, BGRATransform, math, UImageDiff, Controls, BGRAPen, UResourceStrings, ugraph,
-  LCScaleDPI, LCVectorClipboard, BGRAGradientScanner, UClipboard;
+  LCScaleDPI, LCVectorClipboard, BGRAGradientScanner, UClipboard, BGRAUTF8;
 
 const PointSize = 6;
 
@@ -247,6 +250,74 @@ begin
       temp.Free;
     end else
       ATarget.AssignExceptGeometry(ASource);
+  end;
+end;
+
+function GetShapeStatusText(AShape: TVectorShape; const AMatrix: TAffineMatrix): string;
+var
+  orig, xa, ya, corner1, corner2: TPointF;
+  overline: string4;
+  i, nb: Integer;
+begin
+  if AShape is TEllipseShape then
+    with TEllipseShape(AShape) do
+    begin
+      orig := AMatrix*Origin;
+      xa := AMatrix*XAxis;
+      ya := AMatrix*YAxis;
+      result := 'x = '+FloatToStrF(orig.x,ffFixed,6,1)+'|y = '+FloatToStrF(orig.y,ffFixed,6,1)+'|'+
+      'rx = '+FloatToStrF(VectLen(xa-orig),ffFixed,6,1)+'|ry = '+FloatToStrF(VectLen(ya-orig),ffFixed,6,1)
+    end
+  else if AShape is TCustomRectShape then
+    with TCustomRectShape(AShape) do
+    begin
+      orig := AMatrix*Origin;
+      xa := AMatrix*XAxis;
+      ya := AMatrix*YAxis;
+      corner1 := orig-(xa-orig)-(ya-orig);
+      corner2 := xa + (ya-orig);
+      result := 'x1 = '+FloatToStrF(corner1.x,ffFixed,6,1)+'|y1 = '+FloatToStrF(corner1.y,ffFixed,6,1)+'|'+
+      'x2 = '+FloatToStrF(corner2.x,ffFixed,6,1)+'|y2 = '+FloatToStrF(corner2.y,ffFixed,6,1)+'|'+
+      'Δx = '+FloatToStrF(VectLen(xa-orig)*2,ffFixed,6,1)+'|Δy = '+FloatToStrF(VectLen(ya-orig)*2,ffFixed,6,1);
+    end
+  else if AShape is TCustomPolypointShape then
+    with TCustomPolypointShape(AShape) do
+    begin
+      result := 'count = ';
+      nb := 0;
+      for i := 0 to PointCount-1 do
+        if Points[i].IsEmpty then
+        begin
+          if nb > 0 then result += inttostr(nb)+', ';
+          nb := 0;
+        end else inc(nb);
+      result += inttostr(nb);
+      if not Center.IsEmpty then
+      begin
+        overline := UnicodeCharToUTF8($0305);
+        result +='|x'+overline+' = '+FloatToStrF(Center.x,ffFixed,6,1);
+        result +='|y'+overline+' = '+FloatToStrF(Center.y,ffFixed,6,1);
+        if (Usermode = vsuCreate) and (PointCount > 0) then
+        begin
+          result +='|x = '+FloatToStrF(Points[PointCount-1].x,ffFixed,6,1);
+          result +='|y = '+FloatToStrF(Points[PointCount-1].y,ffFixed,6,1);
+        end;
+      end;
+    end else
+      result := '';
+end;
+
+function GetGradientStatusText(AGradient: TBGRALayerGradientOriginal; const AMatrix: TAffineMatrix): string;
+var
+  orig, xa: TPointF;
+begin
+  with AGradient do
+  begin
+    orig := AMatrix*Origin;
+    xa := AMatrix*XAxis;
+    result := 'x1 = '+FloatToStrF(orig.x,ffFixed,6,1)+'|y1 = '+FloatToStrF(orig.y,ffFixed,6,1)+'|'+
+      'x2 = '+FloatToStrF(xa.x,ffFixed,6,1)+'|y2 = '+FloatToStrF(xa.y,ffFixed,6,1)+'|'+
+      'Δx = '+FloatToStrF(abs(xa.x-orig.x),ffFixed,6,1)+'|Δy = '+FloatToStrF(abs(xa.y-orig.y),ffFixed,6,1);
   end;
 end;
 
@@ -692,7 +763,7 @@ begin
   if not IsEditing then
   begin
     with Manager.Image.SelectionMaskBounds do
-      FSelectionRectUntransformed := rectF(Left,Top,Right,Bottom);
+      FSelectionRectUntransformed := rectF(Left-0.5, Top-0.5, Right-0.5, Bottom-0.5);
     FSelectionRect := CreateRect(FSelectionRectUntransformed, Manager.Image.SelectionTransform);
   end;
 end;
@@ -839,7 +910,7 @@ begin
         FRectEditor.PointSize := DoScaleX(PointSize,OriginalDPI);
       end;
       FRectEditor.Clear;
-      FRectEditor.Matrix := viewMatrix;
+      FRectEditor.Matrix := AffineMatrixTranslation(-0.5,-0.5)*viewMatrix*AffineMatrixTranslation(0.5,0.5);
       if Assigned(FOriginalRect) then FOriginalRect.ConfigureEditor(FRectEditor);
       if Assigned(FSelectionRect) then FSelectionRect.ConfigureEditor(FRectEditor);
       if Assigned(VirtualScreen) then
@@ -999,6 +1070,25 @@ begin
   if GetEditMode = esmGradient then
     result := [vftGradient] else
     Result:=inherited GetAllowedBackFillTypes;
+end;
+
+function TEditShapeTool.GetStatusText: string;
+var
+  m: TAffineMatrix;
+begin
+  m := AffineMatrixTranslation(-0.5, -0.5) *
+       Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] *
+       AffineMatrixTranslation(0.5, 0.5);
+
+  if (GetEditMode = esmShape) and Assigned(GetVectorOriginal.SelectedShape) then
+    result := GetShapeStatusText(GetVectorOriginal.SelectedShape, m) else
+  if (GetEditMode = esmSelection) and Assigned(FSelectionRect) then
+    result := GetShapeStatusText(FSelectionRect, AffineMatrixIdentity) else
+  if (GetEditMode = esmOtherOriginal) and Assigned(FOriginalRect) then
+    result := GetShapeStatusText(FOriginalRect, AffineMatrixIdentity) else
+  if (GetEditMode = esmGradient) then
+    result := GetGradientStatusText(GetGradientOriginal, m) else
+    Result:=inherited GetStatusText;
 end;
 
 constructor TEditShapeTool.Create(AManager: TToolManager);
@@ -1216,7 +1306,7 @@ begin
         begin
           with Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex].
             GetRenderBounds(InfiniteRect, AffineMatrixIdentity) do
-            FOriginalRectUntransformed := rectF(Left,Top,Right,Bottom);
+            FOriginalRectUntransformed := rectF(Left-0.5, Top-0.5, Right-0.5, Bottom-0.5);
           FOriginalRect := CreateRect(FOriginalRectUntransformed,
             Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
           FOriginalLayerId:= Manager.Image.LayerId[Manager.Image.CurrentLayerIndex];
@@ -1467,27 +1557,10 @@ begin
 end;
 
 function TVectorialTool.GetStatusText: string;
-var
-  corner1, corner2: TPointF;
 begin
   if Assigned(FShape) then
-  begin
-    if FShape is TEllipseShape then
-      with TEllipseShape(FShape) do
-        result := 'x = '+FloatToStrF(Origin.x,ffFixed,6,1)+'|y = '+FloatToStrF(Origin.y,ffFixed,6,1)+'|'+
-        'rx = '+FloatToStrF(VectLen(XAxis-Origin),ffFixed,6,1)+'|ry = '+FloatToStrF(VectLen(YAxis-Origin),ffFixed,6,1)
-    else if FShape is TCustomRectShape then
-      with TCustomRectShape(FShape) do
-      begin
-        corner1 := Origin-(XAxis-Origin)-(YAxis-Origin);
-        corner2 := XAxis + (YAxis-Origin);
-        result := 'x1 = '+FloatToStrF(corner1.x,ffFixed,6,1)+'|y1 = '+FloatToStrF(corner1.y,ffFixed,6,1)+'|'+
-        'x2 = '+FloatToStrF(corner2.x,ffFixed,6,1)+'|y2 = '+FloatToStrF(corner2.y,ffFixed,6,1)+'|'+
-        'Δx = '+FloatToStrF(VectLen(XAxis-Origin)*2,ffFixed,6,1)+'|Δy = '+FloatToStrF(VectLen(YAxis-Origin)*2,ffFixed,6,1);
-      end;
-  end
-  else
-    Result:=inherited GetStatusText;
+    result := GetShapeStatusText(FShape, VectorTransform(True))
+    else Result:=inherited GetStatusText;
 end;
 
 function TVectorialTool.SlowShape: boolean;

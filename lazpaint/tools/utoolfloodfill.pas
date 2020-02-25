@@ -74,14 +74,8 @@ end;
 function TToolGradient.GetStatusText: string;
 begin
   if Assigned(FShape) then
-  begin
-    with FShape.BackFill.Gradient do
-      result := 'x1 = '+FloatToStrF(Origin.x,ffFixed,6,1)+'|y1 = '+FloatToStrF(Origin.y,ffFixed,6,1)+'|'+
-      'x2 = '+FloatToStrF(XAxis.x,ffFixed,6,1)+'|y2 = '+FloatToStrF(XAxis.y,ffFixed,6,1)+'|'+
-      'Δx = '+FloatToStrF(abs(XAxis.x-Origin.x),ffFixed,6,1)+'|Δy = '+FloatToStrF(abs(XAxis.y-Origin.y),ffFixed,6,1);
-  end
-  else
-    Result:=inherited GetStatusText;
+    result := GetGradientStatusText(FShape.BackFill.Gradient, VectorTransform(True))
+    else Result:= inherited GetStatusText;
 end;
 
 function TToolGradient.ReplaceLayerAndAddShape(out ARect: TRect): TCustomImageDifference;
