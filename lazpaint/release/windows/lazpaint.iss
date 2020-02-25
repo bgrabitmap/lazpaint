@@ -6,6 +6,7 @@
 #define MyAppURL "http://sourceforge.net/projects/lazpaint/"
 #define MyAppExeName "lazpaint.exe"
 #define DCRawExeName "dcraw.exe"
+#define LibWebPDllName "libwebp.dll"
 #define ReleaseDir "..\bin\"
 
 [Setup]
@@ -96,6 +97,8 @@ Source: "{#ReleaseDir}lazpaint32.exe"; DestDir: "{app}"; DestName: "{#MyAppExeNa
 Source: "{#ReleaseDir}lazpaint_x64.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Flags: ignoreversion; Check: Is64BitInstallMode
 Source: "dcraw\dcraw32.exe"; DestDir: "{app}"; DestName: "{#DCRawExeName}"; Flags: ignoreversion; Check: not Is64BitInstallMode
 Source: "dcraw\dcraw_x64.exe"; DestDir: "{app}"; DestName: "{#DCRawExeName}"; Flags: ignoreversion; Check: Is64BitInstallMode
+Source: "libwebp\libwebp32.dll"; DestDir: "{app}"; DestName: "{#LibWebPDllName}"; Flags: ignoreversion; Check: not Is64BitInstallMode
+Source: "libwebp\libwebp64.exe"; DestDir: "{app}"; DestName: "{#LibWebPDllName}"; Flags: ignoreversion; Check: Is64BitInstallMode
 Source: "{#ReleaseDir}i18n\*.po"; DestDir: "{app}\i18n"; Excludes: "i18n\lazpaint_x64.po"; Flags: ignoreversion
 Source: "{#ReleaseDir}models\*.*"; DestDir: "{app}\models"; Flags: ignoreversion
 Source: "{#ReleaseDir}readme.txt"; DestDir: "{app}"; Flags: ignoreversion
