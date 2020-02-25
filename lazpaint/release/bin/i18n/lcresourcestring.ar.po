@@ -51,23 +51,23 @@ msgstr ""
 
 #: lcresourcestring.rsgradientdiamond
 msgid "Diamond"
-msgstr ""
+msgstr "الماس"
 
 #: lcresourcestring.rsgradientfill
 msgid "Gradient fill"
-msgstr ""
+msgstr "ميل"
 
 #: lcresourcestring.rsgradientlinear
 msgid "Linear"
-msgstr ""
+msgstr "خطي"
 
 #: lcresourcestring.rsgradientradial
 msgid "Radial"
-msgstr ""
+msgstr "شعاعي"
 
 #: lcresourcestring.rsgradientreflected
 msgid "Reflected"
-msgstr ""
+msgstr "معكوس"
 
 #: lcresourcestring.rsgradientrepetition
 msgid "Gradient repetition"
@@ -87,7 +87,7 @@ msgstr ""
 
 #: lcresourcestring.rsgrsine
 msgid "Sine"
-msgstr ""
+msgstr "الميل"
 
 #: lcresourcestring.rsincompatibletype
 msgid "Incompatible type"
@@ -99,11 +99,11 @@ msgstr ""
 
 #: lcresourcestring.rslightposition
 msgid "Light position"
-msgstr ""
+msgstr "موقع الضوء"
 
 #: lcresourcestring.rsloadtexture
 msgid "Load texture"
-msgstr ""
+msgstr "تحميل نسيج"
 
 #: lcresourcestring.rsnofill
 msgid "No fill"
@@ -115,7 +115,7 @@ msgstr ""
 
 #: lcresourcestring.rsopacity
 msgid "Opacity"
-msgstr ""
+msgstr "عتمة"
 
 #: lcresourcestring.rspreview
 msgid "Preview"
@@ -139,11 +139,11 @@ msgstr ""
 
 #: lcresourcestring.rsswapcolors
 msgid "Swap colors"
-msgstr ""
+msgstr "تبديل اللون"
 
 #: lcresourcestring.rstexturefill
 msgid "Texture fill"
-msgstr ""
+msgstr "نسيج"
 
 #: lcresourcestring.rstexturerepetition
 msgid "Texture repetition"

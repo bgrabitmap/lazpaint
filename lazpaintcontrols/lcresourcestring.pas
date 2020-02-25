@@ -4,6 +4,10 @@ unit LCResourceString;
 
 interface
 
+uses BGRABitmapTypes;
+
+function GradientTypeToTranslatedStr(AGradientType: TGradientType): string;
+
 resourcestring
   rsPreview = 'Preview';
   rsNoFill = 'No fill';
@@ -16,6 +20,12 @@ resourcestring
   rsSwapColors = 'Swap colors';
   rsStartOpacity = 'Start opacity';
   rsEndOpacity = 'End opacity';
+
+  rsGradientLinear = 'Linear';
+  rsGradientReflected = 'Reflected';
+  rsGradientDiamond = 'Diamond';
+  rsGradientRadial = 'Radial';
+  rsGradientAngular = 'Angular';
 
   rsGradientRepetition = 'Gradient repetition';
   rsGrPad = 'Pad';
@@ -53,6 +63,18 @@ resourcestring
   rsIndexOutOfBounds = 'Index out of bounds';
 
 implementation
+
+function GradientTypeToTranslatedStr(AGradientType: TGradientType): string;
+begin
+  case AGradientType of
+  gtLinear: result := rsGradientLinear;
+  gtReflected: result := rsGradientReflected;
+  gtDiamond: result := rsGradientDiamond;
+  gtRadial: result := rsGradientRadial;
+  gtAngular: result := rsGradientAngular;
+  else result := '?';
+  end;
+end;
 
 end.
 

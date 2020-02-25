@@ -51,7 +51,7 @@ msgstr ""
 
 #: lcresourcestring.rsgradientdiamond
 msgid "Diamond"
-msgstr ""
+msgstr "Diamantový"
 
 #: lcresourcestring.rsgradientfill
 msgid "Gradient fill"
@@ -59,15 +59,15 @@ msgstr ""
 
 #: lcresourcestring.rsgradientlinear
 msgid "Linear"
-msgstr ""
+msgstr "Lineární"
 
 #: lcresourcestring.rsgradientradial
 msgid "Radial"
-msgstr ""
+msgstr "Radiální"
 
 #: lcresourcestring.rsgradientreflected
 msgid "Reflected"
-msgstr ""
+msgstr "Odražený"
 
 #: lcresourcestring.rsgradientrepetition
 msgid "Gradient repetition"
@@ -103,7 +103,7 @@ msgstr ""
 
 #: lcresourcestring.rsloadtexture
 msgid "Load texture"
-msgstr ""
+msgstr "Načíst texturu"
 
 #: lcresourcestring.rsnofill
 msgid "No fill"
@@ -115,7 +115,7 @@ msgstr ""
 
 #: lcresourcestring.rsopacity
 msgid "Opacity"
-msgstr ""
+msgstr "Průhlednost"
 
 #: lcresourcestring.rspreview
 msgid "Preview"
@@ -139,7 +139,7 @@ msgstr ""
 
 #: lcresourcestring.rsswapcolors
 msgid "Swap colors"
-msgstr ""
+msgstr "Vybraný nástroj"
 
 #: lcresourcestring.rstexturefill
 msgid "Texture fill"

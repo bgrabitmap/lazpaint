@@ -387,6 +387,10 @@ msgstr "ОК"
 msgid "Apply function"
 msgstr "Применить функц"
 
+#: tffilterfunction.checkbox_gamma.caption
+msgid "Gamma correction"
+msgstr ""
+
 #: tffilterfunction.checkbox_gsba.caption
 msgctxt "tffilterfunction.checkbox_gsba.caption"
 msgid "Corrected hue and lightness"
@@ -580,6 +584,7 @@ msgid "Layers"
 msgstr "Слои"
 
 #: tflayerstack.toolblendop.hint
+msgctxt "tflayerstack.toolblendop.hint"
 msgid "Select blend operation"
 msgstr ""
 
@@ -791,12 +796,20 @@ msgstr "Подтвердить"
 msgid "Validate modifications"
 msgstr "Подтвердить изменения"
 
+#: tfmain.exportpicturedialog.title
+msgid "Export as..."
+msgstr ""
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr ""
 
 #: tfmain.filechooseentry.hint
 msgid "Choose entry within file"
+msgstr ""
+
+#: tfmain.fileexport.caption
+msgid "Export..."
 msgstr ""
 
 #: tfmain.fileimport3d.caption
@@ -1105,11 +1118,6 @@ msgstr "Вертикальное отражение"
 msgid "Flip image vertically"
 msgstr "Отразить изображение по вертикали"
 
-#: tfmain.image_currenttexture.hint
-msgctxt "tfmain.image_currenttexture.hint"
-msgid "Current texture"
-msgstr "Текущая текстура"
-
 #: tfmain.image_currenttool.hint
 msgctxt "TFMAIN.IMAGE_CURRENTTOOL.HINT"
 msgid "Selected tool"
@@ -1386,6 +1394,11 @@ msgctxt "tfmain.menurender.caption"
 msgid "Render"
 msgstr "Визуализация"
 
+#: tfmain.menuscript.caption
+msgctxt "tfmain.menuscript.caption"
+msgid "Script"
+msgstr ""
+
 #: tfmain.menuselect.caption
 msgctxt "tfmain.menuselect.caption"
 msgid "Select"
@@ -1521,15 +1534,6 @@ msgstr ""
 msgid "Flip selection vertically"
 msgstr ""
 
-#: tfmain.shape_backcolor.hint
-msgctxt "tfmain.shape_backcolor.hint"
-msgid "Select secondary color"
-msgstr "Выбранный вторичный цвет"
-
-#: tfmain.shape_pencolor.hint
-msgid "Select pen color"
-msgstr "Выбранный цвет пера"
-
 #: tfmain.spinedit_arrowsizex.hint
 msgctxt "tfmain.spinedit_arrowsizex.hint"
 msgid "Horizontal size of the arrow"
@@ -1540,11 +1544,6 @@ msgctxt "tfmain.spinedit_arrowsizey.hint"
 msgid "Vertical size of the arrow"
 msgstr ""
 
-#: tfmain.spinedit_backopacity.hint
-msgctxt "tfmain.spinedit_backopacity.hint"
-msgid "Secondary color opacity"
-msgstr "Вторичный цвет непрозрачности"
-
 #: tfmain.spinedit_brushspacing.hint
 msgctxt "tfmain.spinedit_brushspacing.hint"
 msgid "Spacing between patterns"
@@ -1554,11 +1553,6 @@ msgstr ""
 msgctxt "tfmain.spinedit_eraser.hint"
 msgid "Eraser opacity"
 msgstr "Ластик непрозрачности"
-
-#: tfmain.spinedit_penopacity.hint
-msgctxt "tfmain.spinedit_penopacity.hint"
-msgid "Pen opacity"
-msgstr "Непрозрачность пера"
 
 #: tfmain.spinedit_penwidth.hint
 msgctxt "tfmain.spinedit_penwidth.hint"
@@ -1598,11 +1592,6 @@ msgstr "Вертикальное смещение тени"
 #: tfmain.spinedit_textsize.hint
 msgctxt "tfmain.spinedit_textsize.hint"
 msgid "Text size"
-msgstr ""
-
-#: tfmain.spinedit_textureopacity.hint
-msgctxt "tfmain.spinedit_textureopacity.hint"
-msgid "Texture opacity"
 msgstr ""
 
 #: tfmain.toolbrush.hint
@@ -1680,11 +1669,6 @@ msgctxt "tfmain.toollayermapping.hint"
 msgid "Layer perspective"
 msgstr "Перспектива слоя"
 
-#: tfmain.toolloadtexture.hint
-msgctxt "tfmain.toolloadtexture.hint"
-msgid "Load texture..."
-msgstr "Загрузить текстуру ..."
-
 #: tfmain.toolmagicwand.caption
 msgid "Magic wand"
 msgstr "Волшебная палочка"
@@ -1698,10 +1682,9 @@ msgctxt "TFMAIN.TOOLMOVESELECTION.HINT"
 msgid "Move selection"
 msgstr "Переместить выделение"
 
-#: tfmain.toolnotexture.hint
-msgctxt "tfmain.toolnotexture.hint"
-msgid "No texture"
-msgstr "Без текстуры"
+#: tfmain.toolopenedcurve.hint
+msgid "Opened curve"
+msgstr ""
 
 #: tfmain.toolpen.caption
 msgctxt "TFMAIN.TOOLPEN.CAPTION"
@@ -1724,6 +1707,10 @@ msgstr "Многоугольник"
 #: tfmain.toolpolygon.hint
 msgid "Polygon or polyline"
 msgstr "Многоугольник или ломаная"
+
+#: tfmain.toolpolyline.hint
+msgid "Polyline"
+msgstr ""
 
 #: tfmain.toolrect.hint
 msgctxt "TFMAIN.TOOLRECT.HINT"
@@ -1827,11 +1814,6 @@ msgstr ""
 msgid "Move point"
 msgstr ""
 
-#: tfmain.tool_diamondgradient.hint
-msgctxt "tfmain.tool_diamondgradient.hint"
-msgid "Diamond gradient"
-msgstr "Алмазный градиент"
-
 #: tfmain.tool_drawshapeborder.hint
 msgctxt "tfmain.tool_drawshapeborder.hint"
 msgid "Draw border"
@@ -1845,6 +1827,18 @@ msgstr ""
 #: tfmain.tool_eraseblur.hint
 msgctxt "tfmain.tool_eraseblur.hint"
 msgid "Soften"
+msgstr ""
+
+#: tfmain.tool_erasedarken.hint
+msgid "Darken"
+msgstr ""
+
+#: tfmain.tool_eraselighten.hint
+msgid "Lighten"
+msgstr ""
+
+#: tfmain.tool_erasesharpen.hint
+msgid "Sharpen"
 msgstr ""
 
 #: tfmain.tool_fillshape.hint
@@ -1871,11 +1865,6 @@ msgstr "На 45° присоединить"
 msgctxt "TFMAIN.TOOL_JOINROUND.HINT"
 msgid "Round join"
 msgstr "Вокруг присоединить"
-
-#: tfmain.tool_lineargradient.hint
-msgctxt "tfmain.tool_lineargradient.hint"
-msgid "Linear gradient"
-msgstr "Линейный градиент"
 
 #: tfmain.tool_phongshapecone.hint
 msgctxt "tfmain.tool_phongshapecone.hint"
@@ -1922,20 +1911,17 @@ msgctxt "tfmain.tool_progressivefloodfill.hint"
 msgid "Progressive floodfill"
 msgstr "Прогрессивная заливка"
 
-#: tfmain.tool_radialgradient.hint
-msgctxt "tfmain.tool_radialgradient.hint"
-msgid "Radial gradient"
-msgstr "Радиальный градиент"
+#: tfmain.tool_textaligncenter.hint
+msgid "Center"
+msgstr ""
 
-#: tfmain.tool_reflectedgradient.hint
-msgctxt "tfmain.tool_reflectedgradient.hint"
-msgid "Reflected gradient"
-msgstr "Отраженный градиент"
+#: tfmain.tool_textalignleft.hint
+msgid "Align left"
+msgstr ""
 
-#: tfmain.tool_singradient.hint
-msgctxt "tfmain.tool_singradient.hint"
-msgid "Sine gradient"
-msgstr "Синусоидальный градиент"
+#: tfmain.tool_textalignright.hint
+msgid "Align right"
+msgstr ""
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
@@ -2928,6 +2914,10 @@ msgstr "Слой пуст"
 msgid "Selection is empty"
 msgstr "Выделение пустое"
 
+#: uresourcestrings.rsendwithoutmatchingbegin
+msgid "End without matching begin"
+msgstr ""
+
 #: uresourcestrings.rsenterfolderorcontainername
 msgid "Enter name for new folder or container (using RES or LRS extension):"
 msgstr ""
@@ -3445,7 +3435,13 @@ msgid "Save palette as..."
 msgstr ""
 
 #: uresourcestrings.rsscript
+msgctxt "uresourcestrings.rsscript"
 msgid "Script"
+msgstr ""
+
+#: uresourcestrings.rsselectblendoperation
+msgctxt "uresourcestrings.rsselectblendoperation"
+msgid "Select blend operation"
 msgstr ""
 
 #: uresourcestrings.rsshift
@@ -3493,6 +3489,10 @@ msgstr ""
 
 #: uresourcestrings.rstooloninvisiblelayer
 msgid "Tool cannot be used on an invisible layer"
+msgstr ""
+
+#: uresourcestrings.rstoomanyactions
+msgid "Too many actions"
 msgstr ""
 
 #: uresourcestrings.rstoomanylayers
@@ -3546,4 +3546,16 @@ msgstr ""
 #: uresourcestrings.rsyes
 msgid "Yes"
 msgstr ""
+
+#: uresourcestrings.rszoomlayerstackin
+#, fuzzy
+msgctxt "uresourcestrings.rszoomlayerstackin"
+msgid "Zoom layer stack in"
+msgstr "Увеличить стопку слоев внутри"
+
+#: uresourcestrings.rszoomlayerstackout
+#, fuzzy
+msgctxt "uresourcestrings.rszoomlayerstackout"
+msgid "Zoom layer stack out"
+msgstr "Увеличить стопку слоев вне"
 

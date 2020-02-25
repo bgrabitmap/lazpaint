@@ -23,23 +23,23 @@ msgstr ""
 
 #: lcresourcestring.rscilinearrgb
 msgid "RGB"
-msgstr ""
+msgstr "RGB"
 
 #: lcresourcestring.rscistdrgb
 msgid "sRGB"
-msgstr ""
+msgstr "sRGB"
 
 #: lcresourcestring.rscolor
 msgid "Color"
-msgstr ""
+msgstr "Färg"
 
 #: lcresourcestring.rscolorinterpolation
 msgid "Color interpolation"
-msgstr ""
+msgstr "Färginterpolering"
 
 #: lcresourcestring.rseditgradtexpoints
 msgid "Edit gradient/texture points"
-msgstr ""
+msgstr "Redigera gradient / texturpunkter"
 
 #: lcresourcestring.rsendopacity
 msgid "End opacity"
@@ -51,27 +51,27 @@ msgstr ""
 
 #: lcresourcestring.rsgradientdiamond
 msgid "Diamond"
-msgstr ""
+msgstr "Diamant"
 
 #: lcresourcestring.rsgradientfill
 msgid "Gradient fill"
-msgstr ""
+msgstr "Gradient"
 
 #: lcresourcestring.rsgradientlinear
 msgid "Linear"
-msgstr ""
+msgstr "Linjär"
 
 #: lcresourcestring.rsgradientradial
 msgid "Radial"
-msgstr ""
+msgstr "Cirkulär"
 
 #: lcresourcestring.rsgradientreflected
 msgid "Reflected"
-msgstr ""
+msgstr "Speglad"
 
 #: lcresourcestring.rsgradientrepetition
 msgid "Gradient repetition"
-msgstr ""
+msgstr "Gradient upprepning"
 
 #: lcresourcestring.rsgrpad
 msgid "Pad"
@@ -87,7 +87,7 @@ msgstr ""
 
 #: lcresourcestring.rsgrsine
 msgid "Sine"
-msgstr ""
+msgstr "Sinus"
 
 #: lcresourcestring.rsincompatibletype
 msgid "Incompatible type"
@@ -99,11 +99,11 @@ msgstr ""
 
 #: lcresourcestring.rslightposition
 msgid "Light position"
-msgstr ""
+msgstr "Ljusposition"
 
 #: lcresourcestring.rsloadtexture
 msgid "Load texture"
-msgstr ""
+msgstr "Ladda textur"
 
 #: lcresourcestring.rsnofill
 msgid "No fill"
@@ -115,7 +115,7 @@ msgstr ""
 
 #: lcresourcestring.rsopacity
 msgid "Opacity"
-msgstr ""
+msgstr "Opacitet"
 
 #: lcresourcestring.rspreview
 msgid "Preview"

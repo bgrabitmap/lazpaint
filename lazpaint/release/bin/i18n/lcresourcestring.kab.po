@@ -31,7 +31,7 @@ msgstr ""
 
 #: lcresourcestring.rscolor
 msgid "Color"
-msgstr ""
+msgstr "Ini"
 
 #: lcresourcestring.rscolorinterpolation
 msgid "Color interpolation"
@@ -51,23 +51,23 @@ msgstr ""
 
 #: lcresourcestring.rsgradientdiamond
 msgid "Diamond"
-msgstr ""
+msgstr "Am dyaman"
 
 #: lcresourcestring.rsgradientfill
 msgid "Gradient fill"
-msgstr ""
+msgstr "Tafesna n yini"
 
 #: lcresourcestring.rsgradientlinear
 msgid "Linear"
-msgstr ""
+msgstr "Tamziregt"
 
 #: lcresourcestring.rsgradientradial
 msgid "Radial"
-msgstr ""
+msgstr "Tazenẓarant"
 
 #: lcresourcestring.rsgradientreflected
 msgid "Reflected"
-msgstr ""
+msgstr "Ittusenddeden"
 
 #: lcresourcestring.rsgradientrepetition
 msgid "Gradient repetition"
@@ -99,11 +99,11 @@ msgstr ""
 
 #: lcresourcestring.rslightposition
 msgid "Light position"
-msgstr ""
+msgstr "Ideg n tafat"
 
 #: lcresourcestring.rsloadtexture
 msgid "Load texture"
-msgstr ""
+msgstr "Sali-d tizḍi"
 
 #: lcresourcestring.rsnofill
 msgid "No fill"
@@ -115,11 +115,11 @@ msgstr ""
 
 #: lcresourcestring.rsopacity
 msgid "Opacity"
-msgstr ""
+msgstr "Tiḍullest"
 
 #: lcresourcestring.rspreview
 msgid "Preview"
-msgstr ""
+msgstr "Tamuɣli"
 
 #: lcresourcestring.rsshapeclassnotspecified
 msgid "Shape class not specified"
@@ -139,7 +139,7 @@ msgstr ""
 
 #: lcresourcestring.rsswapcolors
 msgid "Swap colors"
-msgstr ""
+msgstr "Senfel initen"
 
 #: lcresourcestring.rstexturefill
 msgid "Texture fill"

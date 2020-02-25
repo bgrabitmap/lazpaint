@@ -31,7 +31,7 @@ msgstr ""
 
 #: lcresourcestring.rscolor
 msgid "Color"
-msgstr ""
+msgstr "Цвят"
 
 #: lcresourcestring.rscolorinterpolation
 msgid "Color interpolation"
@@ -55,19 +55,19 @@ msgstr ""
 
 #: lcresourcestring.rsgradientfill
 msgid "Gradient fill"
-msgstr ""
+msgstr "Преливане"
 
 #: lcresourcestring.rsgradientlinear
 msgid "Linear"
-msgstr ""
+msgstr "Линейно"
 
 #: lcresourcestring.rsgradientradial
 msgid "Radial"
-msgstr ""
+msgstr "Лъчево"
 
 #: lcresourcestring.rsgradientreflected
 msgid "Reflected"
-msgstr ""
+msgstr "Отражателно"
 
 #: lcresourcestring.rsgradientrepetition
 msgid "Gradient repetition"
@@ -87,7 +87,7 @@ msgstr ""
 
 #: lcresourcestring.rsgrsine
 msgid "Sine"
-msgstr ""
+msgstr "Синусоидално"
 
 #: lcresourcestring.rsincompatibletype
 msgid "Incompatible type"
@@ -99,7 +99,7 @@ msgstr ""
 
 #: lcresourcestring.rslightposition
 msgid "Light position"
-msgstr ""
+msgstr "Разположение на светлината"
 
 #: lcresourcestring.rsloadtexture
 msgid "Load texture"
@@ -115,7 +115,7 @@ msgstr ""
 
 #: lcresourcestring.rsopacity
 msgid "Opacity"
-msgstr ""
+msgstr "Прозрачност"
 
 #: lcresourcestring.rspreview
 msgid "Preview"
@@ -139,7 +139,7 @@ msgstr ""
 
 #: lcresourcestring.rsswapcolors
 msgid "Swap colors"
-msgstr ""
+msgstr "Превключване на цвета"
 
 #: lcresourcestring.rstexturefill
 msgid "Texture fill"

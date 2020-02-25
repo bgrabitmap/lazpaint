@@ -31,7 +31,7 @@ msgstr ""
 
 #: lcresourcestring.rscolor
 msgid "Color"
-msgstr ""
+msgstr "Väri"
 
 #: lcresourcestring.rscolorinterpolation
 msgid "Color interpolation"
@@ -51,23 +51,23 @@ msgstr ""
 
 #: lcresourcestring.rsgradientdiamond
 msgid "Diamond"
-msgstr ""
+msgstr "Nelisuuntainen"
 
 #: lcresourcestring.rsgradientfill
 msgid "Gradient fill"
-msgstr ""
+msgstr "Liukuvärjäys"
 
 #: lcresourcestring.rsgradientlinear
 msgid "Linear"
-msgstr ""
+msgstr "Lineaarinen"
 
 #: lcresourcestring.rsgradientradial
 msgid "Radial"
-msgstr ""
+msgstr "Säteittäinen"
 
 #: lcresourcestring.rsgradientreflected
 msgid "Reflected"
-msgstr ""
+msgstr "Heijastava"
 
 #: lcresourcestring.rsgradientrepetition
 msgid "Gradient repetition"
@@ -87,7 +87,7 @@ msgstr ""
 
 #: lcresourcestring.rsgrsine
 msgid "Sine"
-msgstr ""
+msgstr "Aaltomainen"
 
 #: lcresourcestring.rsincompatibletype
 msgid "Incompatible type"
@@ -99,7 +99,7 @@ msgstr ""
 
 #: lcresourcestring.rslightposition
 msgid "Light position"
-msgstr ""
+msgstr "Valon paikka"
 
 #: lcresourcestring.rsloadtexture
 msgid "Load texture"
@@ -115,7 +115,7 @@ msgstr ""
 
 #: lcresourcestring.rsopacity
 msgid "Opacity"
-msgstr ""
+msgstr "Peittävyys"
 
 #: lcresourcestring.rspreview
 msgid "Preview"

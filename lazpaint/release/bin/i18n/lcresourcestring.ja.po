@@ -31,7 +31,7 @@ msgstr ""
 
 #: lcresourcestring.rscolor
 msgid "Color"
-msgstr ""
+msgstr "色"
 
 #: lcresourcestring.rscolorinterpolation
 msgid "Color interpolation"
@@ -103,7 +103,7 @@ msgstr ""
 
 #: lcresourcestring.rsloadtexture
 msgid "Load texture"
-msgstr ""
+msgstr "テクスチャをロードする"
 
 #: lcresourcestring.rsnofill
 msgid "No fill"
@@ -115,7 +115,7 @@ msgstr ""
 
 #: lcresourcestring.rsopacity
 msgid "Opacity"
-msgstr ""
+msgstr "透過度"
 
 #: lcresourcestring.rspreview
 msgid "Preview"
@@ -139,7 +139,7 @@ msgstr ""
 
 #: lcresourcestring.rsswapcolors
 msgid "Swap colors"
-msgstr ""
+msgstr "切り変える"
 
 #: lcresourcestring.rstexturefill
 msgid "Texture fill"

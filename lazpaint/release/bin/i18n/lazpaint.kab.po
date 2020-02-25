@@ -12,6 +12,236 @@ msgstr ""
 "X-Generator: Poedit 2.2.4\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
+#: tablet.getprocfailed
+msgid "Procedure %s failed to load properly."
+msgstr ""
+
+#: tablet.openfailed
+msgid "Tablet context failed to open."
+msgstr ""
+
+#: tfabout.button_donate.caption
+msgctxt "tfabout.button_donate.caption"
+msgid "Donate..."
+msgstr "Ɛiwen s wedrim..."
+
+#: tfabout.caption
+msgctxt "tfabout.caption"
+msgid "About"
+msgstr "Ɣef"
+
+#: tfabout.labelurl.caption
+msgid "http://sourceforge.net/projects/lazpaint/"
+msgstr "http://sourceforge.net/projects/lazpaint/"
+
+#: tfabout.label_authors.caption
+msgctxt "tfabout.label_authors.caption"
+msgid "Authors:"
+msgstr "Imeskaren:"
+
+#: tfabout.label_authorsvalue.caption
+msgctxt "tfabout.label_authorsvalue.caption"
+msgid "Circular helped by FabienWang, Lainz and others"
+msgstr ""
+
+#: tfabout.label_homepage.caption
+msgctxt "tfabout.label_homepage.caption"
+msgid "Homepage:"
+msgstr "Asmel n Web:"
+
+#: tfabout.label_libraries.caption
+msgctxt "tfabout.label_libraries.caption"
+msgid "Libraries used:"
+msgstr "Timkarḍiyin yettwasqedcen:"
+
+#: tfabout.label_licence.caption
+msgctxt "tfabout.label_licence.caption"
+msgid "Licence:"
+msgstr "Turagt:"
+
+#: tfabout.label_opensource.caption
+msgctxt "tfabout.label_opensource.caption"
+msgid "Open source (GPLv3)"
+msgstr "Open source (GPLv3)"
+
+#: tfadjustcurves.button_cancel.caption
+msgctxt "tfadjustcurves.button_cancel.caption"
+msgid "Cancel"
+msgstr "Semmet"
+
+#: tfadjustcurves.button_ok.caption
+msgctxt "tfadjustcurves.button_ok.caption"
+msgid "OK"
+msgstr "Ih"
+
+#: tfadjustcurves.caption
+msgid "Adjust curves"
+msgstr "Sgaddi izligen"
+
+#: tfadjustcurves.toolbutton_newcurve.hint
+msgid "Discard current curve and start a new one"
+msgstr "Sfeḍ azlig amiran u bdu azlig amaynut"
+
+#: tfadjustcurves.toolbutton_posterize.hint
+msgctxt "tfadjustcurves.toolbutton_posterize.hint"
+msgid "Posterize"
+msgstr ""
+
+#: tfadjustcurves.toolbutton_removepoint.hint
+msgid "Remove selected point (Del)"
+msgstr "Kkes tanqiḍt yettwafernen (Del)"
+
+#: tfblendop.button_cancel.caption
+msgctxt "tfblendop.button_cancel.caption"
+msgid "Cancel"
+msgstr "Semmet"
+
+#: tfblendop.button_ok.caption
+msgctxt "tfblendop.button_ok.caption"
+msgid "OK"
+msgstr "Ih"
+
+#: tfblendop.caption
+msgid "Blend operation"
+msgstr "Tamhelt n usmezdi"
+
+#: tfblendop.label_blendopcategory.caption
+msgctxt "tfblendop.label_blendopcategory.caption"
+msgid "Category of blend operation"
+msgstr "Taggayt n temhelt n usmezdi"
+
+#: tfblendop.label_blendopvalue.caption
+msgctxt "tfblendop.label_blendopvalue.caption"
+msgid "."
+msgstr "."
+
+#: tfblendop.label_kritaover.caption
+msgctxt "tfblendop.label_kritaover.caption"
+msgid "Krita"
+msgstr "Krita"
+
+#: tfblendop.label_kritaover.hint
+msgid "Blend operations that are available in Krita"
+msgstr "Timehlin n usmezdi i iwejden di Krita"
+
+#: tfblendop.label_otherover.caption
+msgctxt "tfblendop.label_otherover.caption"
+msgid "Other"
+msgstr "Wayeḍ"
+
+#: tfblendop.label_otherover.hint
+msgid "Blend operations of LazPaint and Paint.NET"
+msgstr "Timehlin n usmezdi n LazPaint akked Paint.NET"
+
+#: tfblendop.label_patternover.caption
+msgctxt "tfblendop.label_patternover.caption"
+msgid "Pattern over"
+msgstr "Tizḍi sufella"
+
+#: tfblendop.label_patternover.hint
+msgid "Preview blend operation with the specified image on top"
+msgstr ""
+
+#: tfblendop.label_patternunder.caption
+msgctxt "tfblendop.label_patternunder.caption"
+msgid "Pattern under"
+msgstr "Tizḍi seddaw"
+
+#: tfblendop.label_patternunder.hint
+msgid "Preview blend operation with the specified image underneath"
+msgstr ""
+
+#: tfblendop.label_previewwith.caption
+msgctxt "tfblendop.label_previewwith.caption"
+msgid "Preview with"
+msgstr "Tamuɣli akked"
+
+#: tfblendop.label_selectedblendop.caption
+msgid "Selected blend operation :"
+msgstr "Tamhelt n usmezdi yettwafernen:"
+
+#: tfblendop.label_svgover.caption
+msgctxt "tfblendop.label_svgover.caption"
+msgid "Basic SVG"
+msgstr "SVG azadur"
+
+#: tfblendop.label_svgover.hint
+msgid "Basic blend operations that are available in virtually all image editors"
+msgstr "Timehlin tizadurin n usmezdi i iwejden di tegti n imaẓragen n tugna"
+
+#: tfbrowseimages.caption
+msgid "Browse images"
+msgstr "Snirrem tugniwin"
+
+#: tfbrowseimages.checkbox_usedirectoryonstartup.caption
+msgid "Use this directory on startup"
+msgstr "Seqdec akaram-agi deg usekker"
+
+#: tfbrowseimages.label_status.caption
+msgctxt "tfbrowseimages.label_status.caption"
+msgid "."
+msgstr "."
+
+#: tfbrowseimages.toolbutton_createfolderorcontainer.hint
+msgid "Create folder or container"
+msgstr "Snulfu-d akaram neɣ anagbar"
+
+#: tfbrowseimages.toolbutton_goup.hint
+msgid "Go one directory up"
+msgstr "Ali s yiwen n ukaram"
+
+#: tfbrowseimages.toolbutton_openselectedfiles.hint
+msgid "Open selected files"
+msgstr "Ldi ifuyla yettwafernen"
+
+#: tfbrowseimages.toolbutton_viewbigicon.hint
+msgctxt "tfbrowseimages.toolbutton_viewbigicon.hint"
+msgid "Show big icons"
+msgstr "Sken tignitin timeqranin"
+
+#: tfbrowseimages.toolbutton_viewdetails.hint
+msgctxt "tfbrowseimages.toolbutton_viewdetails.hint"
+msgid "Show details and preview"
+msgstr ""
+
+#: tfbrowseimages.tool_selectdrive.hint
+msgid "Select drive"
+msgstr "Fren ibenk"
+
+#: tfcanvassize.button_cancel.caption
+msgctxt "TFCANVASSIZE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Semmet"
+
+#: tfcanvassize.button_ok.caption
+msgctxt "TFCANVASSIZE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "Ih"
+
+#: tfcanvassize.caption
+msgctxt "tfcanvassize.caption"
+msgid "Canvas size"
+msgstr "Tiddi n teɣzut n usuneɣ"
+
+#: tfcanvassize.checkbox_flipmode.caption
+msgid "Flip mode"
+msgstr "Askar n tuzzya"
+
+#: tfcanvassize.label_anchor.caption
+msgctxt "tfcanvassize.label_anchor.caption"
+msgid "Anchor :"
+msgstr "Tamdeyt:"
+
+#: tfcanvassize.label_height.caption
+msgctxt "tfcanvassize.label_height.caption"
+msgid "Height :"
+msgstr "Teɣzi:"
+
+#: tfcanvassize.label_width.caption
+msgctxt "tfcanvassize.label_width.caption"
+msgid "Width :"
+msgstr "Tehri:"
+
 #: tfchoosecolor.bcbutton_addtopalette.hint
 msgid "Add color to palette"
 msgstr "Rnu ini ɣer tpaliḍt"
@@ -29,12 +259,332 @@ msgstr "Ini"
 msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
 msgstr "Aglam n yini: sit iwakken ad teskecmeḍ ini s unasiw s yismawen-nnsen neɣ s tira n CSS."
 
+#: tfcolorintensity.button_cancel.caption
+msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Semmet"
+
+#: tfcolorintensity.button_ok.caption
+msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "Ih"
+
+#: tfcolorintensity.caption
+msgctxt "tfcolorintensity.caption"
+msgid "Intensity"
+msgstr ""
+
+#: tfcolorintensity.label_multiply.caption
+msgctxt "tfcolorintensity.label_multiply.caption"
+msgid "Multiply"
+msgstr ""
+
+#: tfcolorintensity.label_shift.caption
+msgctxt "tfcolorintensity.label_shift.caption"
+msgid "Shift"
+msgstr "Sekḥer"
+
+#: tfcolorize.button_cancel.caption
+msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Semmet"
+
+#: tfcolorize.button_ok.caption
+msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "Ih"
+
+#: tfcolorize.caption
+msgctxt "tfcolorize.caption"
+msgid "Colorize"
+msgstr "Seɣmu"
+
+#: tfcolorize.checkbox_gsba.caption
+msgctxt "tfcolorize.checkbox_gsba.caption"
+msgid "Corrected hue and lightness"
+msgstr "Tasenfelt n yini akked tifawit yettwaseɣtin"
+
+#: tfcolorize.label_colorness.caption
+msgctxt "tfcolorize.label_colorness.caption"
+msgid "Colorness"
+msgstr ""
+
+#: tfcolorize.label_hue.caption
+msgctxt "tfcolorize.label_hue.caption"
+msgid "Hue"
+msgstr "Tasenfelt n yini"
+
+#: tfcolorize.label_preset.caption
+msgid "Preset"
+msgstr ""
+
+#: tfcustomblur.button_cancel.caption
+msgctxt "TFCUSTOMBLUR.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Semmet"
+
+#: tfcustomblur.button_editmask.caption
+msgid "Edit mask..."
+msgstr "Ẓreg tagelmust..."
+
+#: tfcustomblur.button_loadmask.caption
+msgid "Load mask..."
+msgstr "Sali-d tagelmust..."
+
+#: tfcustomblur.button_ok.caption
+msgctxt "TFCUSTOMBLUR.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "Ih"
+
+#: tfcustomblur.caption
+msgctxt "tfcustomblur.caption"
+msgid "Custom blur"
+msgstr "Aluɣu yugnen"
+
+#: tfcustomblur.openpicturedialog1.title
+msgid "Open grayscale file"
+msgstr "Ldi afaylu s tfesna n umelliɣdi"
+
+#: tfemboss.button_cancel.caption
+msgctxt "TFEMBOSS.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Semmet"
+
+#: tfemboss.button_ok.caption
+msgctxt "TFEMBOSS.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "Ih"
+
+#: tfemboss.caption
+msgctxt "tfemboss.caption"
+msgid "Emboss"
+msgstr "Eg tiɛnurin"
+
+#: tfemboss.checkbox_preservecolors.caption
+msgid "Preserve colors"
+msgstr "Ḥrez initen"
+
+#: tfemboss.checkbox_transparent.caption
+msgid "Transparent"
+msgstr "Afrawan"
+
+#: tfemboss.label_direction.caption
+msgctxt "tfemboss.label_direction.caption"
+msgid "Direction :"
+msgstr "Tanila:"
+
+#: tffilterfunction.button_cancel.caption
+msgctxt "tffilterfunction.button_cancel.caption"
+msgid "Cancel"
+msgstr "Semmet"
+
+#: tffilterfunction.button_ok.caption
+msgctxt "tffilterfunction.button_ok.caption"
+msgid "OK"
+msgstr "Ih"
+
+#: tffilterfunction.caption
+msgid "Apply function"
+msgstr "Snes tawuri"
+
+#: tffilterfunction.checkbox_gamma.caption
+msgid "Gamma correction"
+msgstr ""
+
+#: tffilterfunction.checkbox_gsba.caption
+msgctxt "tffilterfunction.checkbox_gsba.caption"
+msgid "Corrected hue and lightness"
+msgstr "Tasenfelt n yini akked tifawit yettwaseɣtin"
+
+#: tffilterfunction.label_alphaequals.caption
+msgctxt "tffilterfunction.label_alphaequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_blueequals.caption
+msgctxt "tffilterfunction.label_blueequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_greenequals.caption
+msgctxt "tffilterfunction.label_greenequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_hueequals.caption
+msgctxt "tffilterfunction.label_hueequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_lightnessequals.caption
+msgctxt "tffilterfunction.label_lightnessequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_redequals.caption
+msgctxt "tffilterfunction.label_redequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_saturationequals.caption
+msgctxt "tffilterfunction.label_saturationequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_variables.caption
+msgid "Variables :"
+msgstr ""
+
+#: tffilterfunction.tabsheet_hsl.caption
+msgid "HSL"
+msgstr "HSL"
+
+#: tffilterfunction.tabsheet_rgb.caption
+msgctxt "tffilterfunction.tabsheet_rgb.caption"
+msgid "RGB"
+msgstr "RGB"
+
+#: tfgeometricbrush.button_cancel.caption
+msgctxt "tfgeometricbrush.button_cancel.caption"
+msgid "Cancel"
+msgstr "Semmet"
+
+#: tfgeometricbrush.button_ok.caption
+msgctxt "tfgeometricbrush.button_ok.caption"
+msgid "OK"
+msgstr "Ih"
+
+#: tfgeometricbrush.caption
+msgid "Geometric brush"
+msgstr "Amfezwu anzeggan"
+
+#: tfgeometricbrush.checkbox_isgradient.caption
+msgid "Opacity gradient"
+msgstr "Tiḍullest n tfesna n yini"
+
+#: tfgeometricbrush.label1.caption
+msgid "Number of sides:"
+msgstr "Amḍan n idisan:"
+
+#: tfimagelist.caption
+msgid "Image List"
+msgstr "Tabdart n tugniwin"
+
+#: tfimagelist.pmautouncheckonopen.caption
+msgid "Autouncheck files after being open"
+msgstr ""
+
+#: tfimagelist.pmautouncheckonsave.caption
+msgid "Autouncheck files after being edited and saved"
+msgstr ""
+
+#: tfimagelist.pmremoveall.caption
+msgid "Empty image list"
+msgstr ""
+
+#: tfimagelist.pmremovenonexisting.caption
+msgid "Remove nonexisting images"
+msgstr "Kkes tugniwin ur nelli ara"
+
+#: tfimagelist.pmremoveunchecked.caption
+msgid "Remove unchecked images"
+msgstr "Kkes tugniwin ur nettwacreḍ ara"
+
+#: tfimagelist.pmunchecknonexisting.caption
+msgid "Uncheck nonexisting files"
+msgstr ""
+
+#: tfimagelist.stringgrid1.columns[0].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[0].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.stringgrid1.columns[1].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[1].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.stringgrid1.columns[2].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[2].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.stringgrid1.columns[3].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[3].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.tbaddfiles.hint
+msgid "Add images to list"
+msgstr "Rnu tugniwin ɣer tebdart"
+
+#: tfimagelist.tbautouncheck.hint
+msgid "Enable/disable autounchecking for processed files"
+msgstr ""
+
+#: tfimagelist.tbautozoomfit.hint
+msgid "Enable/disable autofitting images in the LazPaint window"
+msgstr "Sermed/sexsi asgaddi awurman n tugniwin deg usfaylu n LazPaint"
+
+#: tfimagelist.tbcheckall.hint
+msgid "Check all files for processing"
+msgstr "Creḍ akk ifuyla i usekker"
+
+#: tfimagelist.tbminiwindow.hint
+msgid "Switch to miniwindow"
+msgstr "Senfel ɣer usfaylu amecṭuḥ"
+
+#: tfimagelist.tbmovedown.hint
+msgid "Move selected items down"
+msgstr "Smutti d akessar iferdisen yettwafernen"
+
+#: tfimagelist.tbmoveup.hint
+msgid "Move selected items up"
+msgstr "Smutti d asawen iferdisen yettwafernen"
+
+#: tfimagelist.tbnormalwindows.hint
+msgid "Switch to normal window"
+msgstr "Senfel ɣer usfaylu amagnu"
+
+#: tfimagelist.tbopenimage.hint
+msgid "Open current image"
+msgstr "Ldi tugna tamirant"
+
+#: tfimagelist.tbopennext.hint
+msgctxt "tfimagelist.tbopennext.hint"
+msgid "Open next image (Alt-Right)"
+msgstr "Ldi tugna d-itteddun (Alt-Ayefus)"
+
+#: tfimagelist.tbopennextsw.hint
+msgctxt "tfimagelist.tbopennextsw.hint"
+msgid "Open next image"
+msgstr "Ldi tugna d-itteddun"
+
+#: tfimagelist.tbopenprev.hint
+msgctxt "tfimagelist.tbopenprev.hint"
+msgid "Open previous image (Alt-Left)"
+msgstr "Ldi tugna yezrin (Alt-Azelmaḍ)"
+
+#: tfimagelist.tbopenprevsw.hint
+msgctxt "tfimagelist.tbopenprevsw.hint"
+msgid "Open previous image"
+msgstr "Ldi tugna yezrin"
+
+#: tfimagelist.tbremoveitem.hint
+msgid "Remove selected images from list"
+msgstr "Kkes tugniwin yettwafernen si tebdart"
+
+#: tfimagelist.tbuncheckall.hint
+msgid "Uncheck all files for processing"
+msgstr ""
+
 #: tflayerstack.caption
 msgctxt "tflayerstack.caption"
 msgid "Layers"
 msgstr "Tissiyin"
 
 #: tflayerstack.toolblendop.hint
+msgctxt "tflayerstack.toolblendop.hint"
 msgid "Select blend operation"
 msgstr "Fren tamhelt n usmezdi"
 
@@ -47,6 +597,11 @@ msgstr "Semɣer taɣbirt n tissiyin"
 msgctxt "tflayerstack.toolzoomlayerstackout.hint"
 msgid "Zoom layer stack out"
 msgstr "Simecṭuḥ taɣbirt n tissiyin"
+
+#: tfloading.caption
+msgctxt "tfloading.caption"
+msgid "Loading..."
+msgstr "Asali..."
 
 #: tfmain.brushcreategeometric.hint
 msgctxt "tfmain.brushcreategeometric.hint"
@@ -240,6 +795,10 @@ msgstr "Sentem"
 msgid "Validate modifications"
 msgstr "Sentem ibeddilen"
 
+#: tfmain.exportpicturedialog.title
+msgid "Export as..."
+msgstr ""
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr "Fren anekcum..."
@@ -247,6 +806,10 @@ msgstr "Fren anekcum..."
 #: tfmain.filechooseentry.hint
 msgid "Choose entry within file"
 msgstr "Fren anekcum deg ufaylu"
+
+#: tfmain.fileexport.caption
+msgid "Export..."
+msgstr ""
 
 #: tfmain.fileimport3d.caption
 msgid "Import 3D object..."
@@ -290,6 +853,10 @@ msgstr "Ales asali"
 #: tfmain.fileremembersaveformat.hint
 msgid "Remember save format"
 msgstr "Cfu ɣef umasal n usekles"
+
+#: tfmain.filerunscript.caption
+msgid "Run script..."
+msgstr ""
 
 #: tfmain.filesave.caption
 msgctxt "TFMAIN.FILESAVE.CAPTION"
@@ -549,11 +1116,6 @@ msgstr "Tuzzya tabeddayt"
 #: tfmain.imageverticalflip.hint
 msgid "Flip image vertically"
 msgstr "Zzi tugna s tibeddi"
-
-#: tfmain.image_currenttexture.hint
-msgctxt "tfmain.image_currenttexture.hint"
-msgid "Current texture"
-msgstr "Tizḍi tamirant"
 
 #: tfmain.image_currenttool.hint
 msgctxt "TFMAIN.IMAGE_CURRENTTOOL.HINT"
@@ -829,6 +1391,12 @@ msgctxt "tfmain.menurender.caption"
 msgid "Render"
 msgstr "Tiririt"
 
+#: tfmain.menuscript.caption
+#, fuzzy
+msgctxt "tfmain.menuscript.caption"
+msgid "Script"
+msgstr "Askript"
+
 #: tfmain.menuselect.caption
 msgctxt "tfmain.menuselect.caption"
 msgid "Select"
@@ -965,15 +1533,6 @@ msgstr "Zzi tafrayt s uglawi"
 msgid "Flip selection vertically"
 msgstr "Zzi tafrayt s tibeddi"
 
-#: tfmain.shape_backcolor.hint
-msgctxt "tfmain.shape_backcolor.hint"
-msgid "Select secondary color"
-msgstr "Fren ini asnay"
-
-#: tfmain.shape_pencolor.hint
-msgid "Select pen color"
-msgstr "Fren ini n ukeryun"
-
 #: tfmain.spinedit_arrowsizex.hint
 msgctxt "tfmain.spinedit_arrowsizex.hint"
 msgid "Horizontal size of the arrow"
@@ -984,11 +1543,6 @@ msgctxt "tfmain.spinedit_arrowsizey.hint"
 msgid "Vertical size of the arrow"
 msgstr "Tiddi tabeddayt n tneccabt"
 
-#: tfmain.spinedit_backopacity.hint
-msgctxt "tfmain.spinedit_backopacity.hint"
-msgid "Secondary color opacity"
-msgstr "Tiḍullest n yini asnay"
-
 #: tfmain.spinedit_brushspacing.hint
 msgctxt "tfmain.spinedit_brushspacing.hint"
 msgid "Spacing between patterns"
@@ -998,11 +1552,6 @@ msgstr "Tallunt gar wudlifen"
 msgctxt "tfmain.spinedit_eraser.hint"
 msgid "Eraser opacity"
 msgstr "Tiḍullest n tsemsut"
-
-#: tfmain.spinedit_penopacity.hint
-msgctxt "tfmain.spinedit_penopacity.hint"
-msgid "Pen opacity"
-msgstr "Tiḍullest n ukeryun"
 
 #: tfmain.spinedit_penwidth.hint
 msgctxt "tfmain.spinedit_penwidth.hint"
@@ -1043,11 +1592,6 @@ msgstr "Asekḥer abedday n tili"
 msgctxt "tfmain.spinedit_textsize.hint"
 msgid "Text size"
 msgstr "Tiddi n uḍris"
-
-#: tfmain.spinedit_textureopacity.hint
-msgctxt "tfmain.spinedit_textureopacity.hint"
-msgid "Texture opacity"
-msgstr "Tiḍullest n tizḍi"
 
 #: tfmain.toolbrush.hint
 msgctxt "tfmain.toolbrush.hint"
@@ -1124,11 +1668,6 @@ msgctxt "tfmain.toollayermapping.hint"
 msgid "Layer perspective"
 msgstr "Amnad n tissi"
 
-#: tfmain.toolloadtexture.hint
-msgctxt "tfmain.toolloadtexture.hint"
-msgid "Load texture..."
-msgstr "Sali-d tizḍi..."
-
 #: tfmain.toolmagicwand.caption
 msgid "Magic wand"
 msgstr "Taɛekkazt taseḥḥart"
@@ -1142,10 +1681,9 @@ msgctxt "TFMAIN.TOOLMOVESELECTION.HINT"
 msgid "Move selection"
 msgstr "Smutti tafrayt"
 
-#: tfmain.toolnotexture.hint
-msgctxt "tfmain.toolnotexture.hint"
-msgid "No texture"
-msgstr "Ulac tizḍi"
+#: tfmain.toolopenedcurve.hint
+msgid "Opened curve"
+msgstr ""
 
 #: tfmain.toolpen.caption
 msgctxt "TFMAIN.TOOLPEN.CAPTION"
@@ -1168,6 +1706,10 @@ msgstr "Ageddis"
 #: tfmain.toolpolygon.hint
 msgid "Polygon or polyline"
 msgstr "Ageddis neɣ izirig yerrẓen"
+
+#: tfmain.toolpolyline.hint
+msgid "Polyline"
+msgstr ""
 
 #: tfmain.toolrect.hint
 msgctxt "TFMAIN.TOOLRECT.HINT"
@@ -1270,11 +1812,6 @@ msgstr "Suneɣ azlig"
 msgid "Move point"
 msgstr "Smutti tinqiḍin"
 
-#: tfmain.tool_diamondgradient.hint
-msgctxt "tfmain.tool_diamondgradient.hint"
-msgid "Diamond gradient"
-msgstr "Tafesna n yini am dyaman"
-
 #: tfmain.tool_drawshapeborder.hint
 msgctxt "tfmain.tool_drawshapeborder.hint"
 msgid "Draw border"
@@ -1289,6 +1826,18 @@ msgstr "Err d afrawan"
 msgctxt "tfmain.tool_eraseblur.hint"
 msgid "Soften"
 msgstr "Silweɣ"
+
+#: tfmain.tool_erasedarken.hint
+msgid "Darken"
+msgstr ""
+
+#: tfmain.tool_eraselighten.hint
+msgid "Lighten"
+msgstr ""
+
+#: tfmain.tool_erasesharpen.hint
+msgid "Sharpen"
+msgstr ""
 
 #: tfmain.tool_fillshape.hint
 msgctxt "tfmain.tool_fillshape.hint"
@@ -1314,11 +1863,6 @@ msgstr "Tasemyaggert s yiccer"
 msgctxt "TFMAIN.TOOL_JOINROUND.HINT"
 msgid "Round join"
 msgstr "Tasemyaggert timdewwert"
-
-#: tfmain.tool_lineargradient.hint
-msgctxt "tfmain.tool_lineargradient.hint"
-msgid "Linear gradient"
-msgstr "Tafesna n yini tamziregt"
 
 #: tfmain.tool_phongshapecone.hint
 msgctxt "tfmain.tool_phongshapecone.hint"
@@ -1365,19 +1909,16 @@ msgctxt "tfmain.tool_progressivefloodfill.hint"
 msgid "Progressive floodfill"
 msgstr "Taqbuct n teklut tafarayt"
 
-#: tfmain.tool_radialgradient.hint
-msgctxt "tfmain.tool_radialgradient.hint"
-msgid "Radial gradient"
-msgstr "Tafesna n yini tazenẓarant"
+#: tfmain.tool_textaligncenter.hint
+msgid "Center"
+msgstr ""
 
-#: tfmain.tool_reflectedgradient.hint
-msgctxt "tfmain.tool_reflectedgradient.hint"
-msgid "Reflected gradient"
-msgstr "Tafesna n yini ittusenddeden"
+#: tfmain.tool_textalignleft.hint
+msgid "Align left"
+msgstr ""
 
-#: tfmain.tool_singradient.hint
-msgctxt "tfmain.tool_singradient.hint"
-msgid "Sine gradient"
+#: tfmain.tool_textalignright.hint
+msgid "Align right"
 msgstr ""
 
 #: tfmain.tool_textfont.hint
@@ -1478,1418 +2019,6 @@ msgstr ""
 msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
 msgid "Zoom out"
 msgstr "Simecṭuḥ"
-
-#: tftwirl.button_cancel.caption
-msgctxt "TFTWIRL.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Semmet"
-
-#: tftwirl.button_ok.caption
-msgctxt "TFTWIRL.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Ih"
-
-#: tftwirl.caption
-msgctxt "tftwirl.caption"
-msgid "Twirl"
-msgstr "Abran"
-
-#: tftwirl.label_angle.caption
-msgctxt "tftwirl.label_angle.caption"
-msgid "Angle :"
-msgstr "Tiɣmert :"
-
-#: tftwirl.label_radius.caption
-msgctxt "tftwirl.label_radius.caption"
-msgid "Radius :"
-msgstr "Aqqar :"
-
-#: tfwavedisplacement.button_cancel.caption
-msgctxt "tfwavedisplacement.button_cancel.caption"
-msgid "Cancel"
-msgstr "Semmet"
-
-#: tfwavedisplacement.button_ok.caption
-msgctxt "tfwavedisplacement.button_ok.caption"
-msgid "OK"
-msgstr "Ih"
-
-#: tfwavedisplacement.caption
-msgid "Wave displacement"
-msgstr "Asekḥer n tayyugt"
-
-#: tfwavedisplacement.label_displacement.caption
-msgid "Displacement :"
-msgstr "Asekḥer :"
-
-#: tfwavedisplacement.label_phase.caption
-msgid "Phase :"
-msgstr "Annuf :"
-
-#: tfwavedisplacement.label_wavelength.caption
-msgid "Wavelength :"
-msgstr "Teɣzi n tayyugt :"
-
-#: uresourcestrings.rsactioninprogress
-msgid "Action in progress"
-msgstr "Tigawin itteddun"
-
-#: uresourcestrings.rsaddtoimagelist
-msgid "Add files to the image processing list"
-msgstr "Rnu ifuyla ɣer tebdart n ukala n tugniwin"
-
-#: uresourcestrings.rsalignshape
-msgid "Align shape"
-msgstr "Derrec talɣa"
-
-#: uresourcestrings.rsallapplications
-msgid "all"
-msgstr "akk"
-
-#: uresourcestrings.rsallsupportedfiletypes
-msgid "All supported filetypes"
-msgstr "Akk imasalen yettwassnen"
-
-#: uresourcestrings.rsalt
-msgid "ALT"
-msgstr "ALT"
-
-#: uresourcestrings.rsholdkeysscalemode
-msgid "Hold %1 or %2 to scale"
-msgstr "Ssed ɣef %1 neɣ %2 i teskala"
-
-#: uresourcestrings.rsanimatedgif
-msgid "Animated GIF"
-msgstr "GIF yettemwwiwilen"
-
-#: uresourcestrings.rsautodetect
-msgid "Autodetect"
-msgstr "Tifin tawurmant"
-
-#: uresourcestrings.rsbackspaceremovelastpoint
-msgid "Press BACKSPACE to remove last point"
-msgstr "Ssed BACKSPACE iwakken ad tekkseḍ tanqiḍt taneggarut"
-
-#: uresourcestrings.rsbestquality
-msgctxt "uresourcestrings.rsbestquality"
-msgid "Best quality"
-msgstr ""
-
-#: uresourcestrings.rsbitmap
-msgid "Bitmap"
-msgstr "Bitmap"
-
-#: uresourcestrings.rsblendopnotusedforbackground
-msgid "The blend operation is applied only if there is a layer underneath"
-msgstr "Iwakken ad tsiɣeḍ tamhelt n usmezdi isefk ad tili tissi seddaw"
-
-#: uresourcestrings.rsblue
-msgid "Blue"
-msgstr "Anili"
-
-#: uresourcestrings.rsbrightness
-msgid "Brightness"
-msgstr "Tifawit"
-
-#: uresourcestrings.rsbytes
-msgid "Bytes"
-msgstr "Itamḍanen"
-
-#: uresourcestrings.rscancel
-msgctxt "uresourcestrings.rscancel"
-msgid "Cancel"
-msgstr "Semmet"
-
-#: uresourcestrings.rscannotdrawshapeonsvglayer
-msgid "Cannot draw shape on SVG layer"
-msgstr "D awezɣi asuneɣ n talɣa ɣef tissi SVG"
-
-#: uresourcestrings.rscannotopenfile
-msgid "Cannot open file"
-msgstr "D awezɣi alday n ufaylu"
-
-#: uresourcestrings.rscanvassize
-msgctxt "uresourcestrings.rscanvassize"
-msgid "Canvas size"
-msgstr "Tiddi n teɣzut n usuneɣ"
-
-#: uresourcestrings.rscdrom
-msgid "CD"
-msgstr "CD"
-
-#: uresourcestrings.rsclearpalette
-msgid "Clear palette"
-msgstr "Sfeḍ tapaliḍt"
-
-#: uresourcestrings.rscloserequest
-msgctxt "uresourcestrings.rscloserequest"
-msgid "Close request"
-msgstr "Mdel asuter"
-
-#: uresourcestrings.rscolors
-msgctxt "uresourcestrings.rscolors"
-msgid "Colors"
-msgstr "Initen"
-
-#: uresourcestrings.rsconfirmdeletefromcontainer
-msgid "Are you sure you want to delete this file from the container?"
-msgstr "D tidet tebɣiḍ ad tekkseḍ afaylu-agi seg unagbar?"
-
-#: uresourcestrings.rsconfirmdeletemultiplefromcontainer
-msgid "Are you sure you want to delete these %1 files from the container?"
-msgstr "D tidet tebɣiḍ ad tekkseḍ %1 n ifuyla-agi seg unagbar?"
-
-#: uresourcestrings.rsconfirmmovemultipletotrash
-msgid "Are you sure you want to move these %1 files to the trash?"
-msgstr "D tidet tebɣiḍ ad terreḍ %1 n ifuyla-agi ɣer tqecwalt?"
-
-#: uresourcestrings.rsconfirmmovetotrash
-msgid "Are you sure you want to move this file to the trash?"
-msgstr "D tidet tebɣiḍ ad terreḍ afaylu-agi ɣer tqecwalt?"
-
-#: uresourcestrings.rsconflictingactions
-msgid "Conflicting actions"
-msgstr "Tigawin ittemgirriden"
-
-#: uresourcestrings.rscontrast
-msgid "Contrast"
-msgstr "Amyeẓli"
-
-#: uresourcestrings.rscorrectedhueccw
-msgctxt "uresourcestrings.rscorrectedhueccw"
-msgid "Corr. Hue CCW"
-msgstr ""
-
-#: uresourcestrings.rscorrectedhuecw
-msgctxt "uresourcestrings.rscorrectedhuecw"
-msgid "Corr. Hue CW"
-msgstr ""
-
-#: uresourcestrings.rscosine
-msgctxt "uresourcestrings.rscosine"
-msgid "Cosine"
-msgstr ""
-
-#: uresourcestrings.rscrop
-msgid "Crop"
-msgstr "Ɣeẓ"
-
-#: uresourcestrings.rsctrl
-msgid "CTRL"
-msgstr "CTRL"
-
-#: uresourcestrings.rscmd
-msgid "CMD"
-msgstr "CMD"
-
-#: uresourcestrings.rsholdkeyrestrictrotation
-msgid "Hold %1 to restrict rotation angle"
-msgstr "Ssed %1 iwakken ad tḥettemeḍ tiɣmert n tuzzya"
-
-#: uresourcestrings.rscurvemodehint
-msgid "Press S or X to set the curve mode of the last point"
-msgstr "Ssed S neɣ X iwakken ad tbeddeleḍ askar n uzlig i tenqiḍt taneggarut"
-
-#: uresourcestrings.rsdefaultpalette
-msgid "Default palette"
-msgstr "Tapaliḍt n lexṣas"
-
-#: uresourcestrings.rsdeletefile
-msgctxt "uresourcestrings.rsdeletefile"
-msgid "Delete"
-msgstr "Kkes"
-
-#: uresourcestrings.rsdeleteimageentry
-msgid "Delete selected image entry?"
-msgstr "Ad tekkseḍ anekcum n tugna yettwafernen ?"
-
-#: uresourcestrings.rsdirectorynotempty
-msgid "Directory is not empty"
-msgstr "Akaram mačči d ilem"
-
-#: uresourcestrings.rsditherlayerusingpalette
-msgid "Dither layer using palette"
-msgstr ""
-
-#: uresourcestrings.rsduplicateimage
-msgid "Duplicate image"
-msgstr "Sisleg tugna"
-
-#: uresourcestrings.rseditmask
-msgctxt "uresourcestrings.rseditmask"
-msgid "Edit mask"
-msgstr "Ẓreg tagelmust"
-
-#: uresourcestrings.rseditselection
-msgid "Edit selection"
-msgstr "Ẓreg tafrayt"
-
-#: uresourcestrings.rsedittexture
-msgctxt "uresourcestrings.rsedittexture"
-msgid "Edit texture"
-msgstr "Ẓreg tizḍi"
-
-#: uresourcestrings.rsemptylayer
-msgid "Layer is empty"
-msgstr "Tissi d tilemt"
-
-#: uresourcestrings.rsemptyselection
-msgid "Selection is empty"
-msgstr "Tafrayt d tilemt"
-
-#: uresourcestrings.rsenterfolderorcontainername
-msgid "Enter name for new folder or container (using RES or LRS extension):"
-msgstr "Sekcem isem n ukaram neɣ n unagbar (s ttawil n usiɣzef RES neɣ LRS) :"
-
-#: uresourcestrings.rsenterlayername
-msgid "Enter layer name:"
-msgstr "Sekcem isem n tissi:"
-
-#: uresourcestrings.rsentries
-msgid "Entries"
-msgstr "Inekcumen"
-
-#: uresourcestrings.rserror
-msgid "Error"
-msgstr "Tuccḍa"
-
-#: uresourcestrings.rserrorloadingoriginal
-msgid "Error while loading original however layer can be rasterized."
-msgstr ""
-
-#: uresourcestrings.rserroronopeningfile
-msgid "Error on opening file \"%1\""
-msgstr "Tuccḍa deg ulday n ufaylu \"%1\""
-
-#: uresourcestrings.rsexitrequest
-msgctxt "uresourcestrings.rsexitrequest"
-msgid "Exit request"
-msgstr "Ffeɣ seg usuter"
-
-#: uresourcestrings.rsexpect1parameter
-msgid "expects one parameter : "
-msgstr "yettraǧu yiwen n uɣewwar : "
-
-#: uresourcestrings.rsexpect2parameters
-msgid "expects two parameters : "
-msgstr "yettraǧu sin n iɣewwaren : "
-
-#: uresourcestrings.rsexpectnparameters
-msgid "expects N parameters : "
-msgstr "yettraǧu N iɣewwaren : "
-
-#: uresourcestrings.rsfast
-msgctxt "uresourcestrings.rsfast"
-msgid "Fast"
-msgstr "Yettɣawal"
-
-#: uresourcestrings.rsfilecannotbeempty
-msgid "File cannot be empty"
-msgstr "Afaylu ulamek ara yili d ilem"
-
-#: uresourcestrings.rsfiledate
-msgid "Date"
-msgstr "Azemz"
-
-#: uresourcestrings.rsfileextensionnotsupported
-msgctxt "uresourcestrings.rsfileextensionnotsupported"
-msgid "This file extension is not supported."
-msgstr "Asiɣzef-agi n ufaylu ur itteddu ara."
-
-#: uresourcestrings.rsfileformatnotrecognized
-msgid "The file format has not been recognized."
-msgstr "Amasal n ufaylu ur yettwaɛqel ara."
-
-#: uresourcestrings.rsfilename
-msgid "Filename"
-msgstr "Isem n ufaylu"
-
-#: uresourcestrings.rsfilenotfound
-msgid "File not found!"
-msgstr "Afaylu ur yettwaf ara!"
-
-#: uresourcestrings.rsfilenotsaved
-msgid "File not saved"
-msgstr "Afaylu ur yeklis ara"
-
-#: uresourcestrings.rsfilesize
-msgid "Size"
-msgstr "Tiddi"
-
-#: uresourcestrings.rsfilesystem
-msgid "File system"
-msgstr "Anagraw n ifuyla"
-
-#: uresourcestrings.rsfiletype
-msgid "Type"
-msgstr "Anaw"
-
-#: uresourcestrings.rsfixeddrive
-msgid "Fixed"
-msgstr "Usbiḍ"
-
-#: uresourcestrings.rsfolder
-msgid "Folder"
-msgstr "Akaram"
-
-#: uresourcestrings.rsfolderorcontaineralreadyexists
-msgid "Folder or container already exists."
-msgstr "Akaram neɣ anagbar yella yakan."
-
-#: uresourcestrings.rsfollowingerrorsoccured
-msgid "Following errors occured:"
-msgstr "Ḍrant-d tuccḍiwin-agi:"
-
-#: uresourcestrings.rsframes
-msgid "Frames"
-msgstr "Ikataren"
-
-#: uresourcestrings.rsfunctionnotdefined
-msgid "The function %1 is not defined."
-msgstr "Tawuri %1 ur tettusbadu ara."
-
-#: uresourcestrings.rsgreen
-msgid "Green"
-msgstr "Azegzaw"
-
-#: uresourcestrings.rshalfcosine
-msgctxt "uresourcestrings.rshalfcosine"
-msgid "Half-cosine"
-msgstr ""
-
-#: uresourcestrings.rsholdkeysnaptopixel
-msgid "Hold %1 to snap to pixels"
-msgstr ""
-
-#: uresourcestrings.rsshift
-msgid "SHIFT"
-msgstr "SHIFT"
-
-#: uresourcestrings.rsholdkeyforsquare
-msgid "Hold %1 to draw a square or a circle"
-msgstr "Ssed %1 iwakken ad tsunɣeḍ amkuẓ neɣ tawinest"
-
-#: uresourcestrings.rshotspot
-msgctxt "uresourcestrings.rshotspot"
-msgid "Hot spot"
-msgstr "Tinqiḍin n uḥulfu"
-
-#: uresourcestrings.rshue
-msgctxt "uresourcestrings.rshue"
-msgid "Hue"
-msgstr "Tasenfelt n yini"
-
-#: uresourcestrings.rshueccw
-msgctxt "uresourcestrings.rshueccw"
-msgid "Hue CCW"
-msgstr ""
-
-#: uresourcestrings.rshuecw
-msgctxt "uresourcestrings.rshuecw"
-msgid "Hue CW"
-msgstr ""
-
-#: uresourcestrings.rsiconimagealreadyexists
-msgid "There is already an image with this size and depth."
-msgstr "Tella yakan tugna s tiddi-agi akked umḍan-agi n yiniten."
-
-#: uresourcestrings.rsiconorcursor
-msgid "Icon/cursor"
-msgstr "Tignit/taḥnacaḍt"
-
-#: uresourcestrings.rsiconsize
-msgctxt "uresourcestrings.rsiconsize"
-msgid "Icon size"
-msgstr "Tiddi n tignit"
-
-#: uresourcestrings.rsimagetoobig
-msgid "Image is too big"
-msgstr "Tugna bezzaf temeqqer"
-
-#: uresourcestrings.rsinfinity
-msgctxt "uresourcestrings.rsinfinity"
-msgid "Infinity"
-msgstr "War tagara"
-
-#: uresourcestrings.rsinformation
-msgid "Information"
-msgstr "Talɣut"
-
-#: uresourcestrings.rsintensity
-msgctxt "uresourcestrings.rsintensity"
-msgid "Intensity"
-msgstr ""
-
-#: uresourcestrings.rsinternalerror
-msgid "Internal error"
-msgstr "Tuccḍa tagensant"
-
-#: uresourcestrings.rsinvalidname
-msgid "Invalid name"
-msgstr "Isem d armeɣtu"
-
-#: uresourcestrings.rsinvalidopacity
-msgid "Invalid opacity : "
-msgstr "Tiḍullest d tarmeɣtut : "
-
-#: uresourcestrings.rsinvalidresamplesize
-msgid "Invalid resample size : "
-msgstr "Tiddi n wallus n ulemmec d tarmeɣtut : "
-
-#: uresourcestrings.rsinvalidsizefornew
-msgid "Invalid size for new : "
-msgstr ""
-
-#: uresourcestrings.rskeepchanges
-msgctxt "uresourcestrings.rskeepchanges"
-msgid "Do you want to keep changes?"
-msgstr "Tebɣiḍ ad tḥerzeḍ ibeddilen?"
-
-#: uresourcestrings.rskeepemptyspace
-msgid "Keep empty space around opaque pixels?"
-msgstr "Tebɣiḍ ad tḥerzeḍ tallunt izin ɣef ipiksilen imḍullesen?"
-
-#: uresourcestrings.rslanczos
-msgid "Lanczos %1"
-msgstr "Lanczos %1"
-
-#: uresourcestrings.rslandscape
-msgid "Landscape"
-msgstr "S tehri"
-
-#: uresourcestrings.rslatestversion
-msgid "The latest version of LazPaint available online is"
-msgstr "Lqem aneggaru n LazPaint i iwejden ɣef Internet d"
-
-#: uresourcestrings.rslayeredimage
-msgid "Layered image"
-msgstr "Tugna s tissiyin"
-
-#: uresourcestrings.rslayers
-msgctxt "uresourcestrings.rslayers"
-msgid "Layers"
-msgstr "Tissiyin"
-
-#: uresourcestrings.rslazpaint
-msgctxt "uresourcestrings.rslazpaint"
-msgid "LazPaint"
-msgstr "LazPaint"
-
-#: uresourcestrings.rslazpaintonly
-msgid "LazPaint only"
-msgstr "LazPaint kan"
-
-#: uresourcestrings.rslight
-msgctxt "uresourcestrings.rslight"
-msgid "Light"
-msgstr "Tafat"
-
-#: uresourcestrings.rslightness
-msgctxt "uresourcestrings.rslightness"
-msgid "Lightness"
-msgstr ""
-
-#: uresourcestrings.rslightposition
-msgid "Light position"
-msgstr "Ideg n tafat"
-
-#: uresourcestrings.rslinear
-msgctxt "uresourcestrings.rslinear"
-msgid "Linear"
-msgstr "Imzireg"
-
-#: uresourcestrings.rslinearrgb
-msgid "Linear RGB"
-msgstr "RGB imzireg"
-
-#: uresourcestrings.rsloadandmergepalette
-msgid "Load and merge palette..."
-msgstr "Sali yerna smezdi tapaliḍt..."
-
-#: uresourcestrings.rsloading
-msgid "Loading"
-msgstr "Asali"
-
-#: uresourcestrings.rsloadpalette
-msgid "Load palette..."
-msgstr "Sali-d tapaliḍt..."
-
-#: uresourcestrings.rsloopcount
-msgid "Loop count"
-msgstr ""
-
-#: uresourcestrings.rsmakencolorspalettefrombitmap
-msgid "Make %1-colors palette from image"
-msgstr "Eg tapaliḍt n %1 n yiniten seg tugna"
-
-#: uresourcestrings.rsmergeselection
-msgid "Do you want to merge selection?"
-msgstr "Tebɣiḍ ad tesmezdiḍ tafrayt?"
-
-#: uresourcestrings.rsmitchell
-msgctxt "uresourcestrings.rsmitchell"
-msgid "Mitchell"
-msgstr "Mitchell"
-
-#: uresourcestrings.rsmorethanonefile
-msgid "You are trying to open more than one file. How would you like these files to be opened?"
-msgstr "Ala tettaɛraḍeḍ ad teldiḍ ugar n yiwen n ufaylu. Amek tebɣiḍ ad ldin ifuyla-agi ?"
-
-#: uresourcestrings.rsmovingorrotatingselection
-msgctxt "uresourcestrings.rsmovingorrotatingselection"
-msgid "Moving or rotating selection"
-msgstr "Smutti neɣ zzi tafrayt"
-
-#: uresourcestrings.rsmustreleaseselection
-msgid "You must first release the selection"
-msgstr "Isefk di tazwara ad teslelliḍ tafrayt"
-
-#: uresourcestrings.rsmustshowlayer
-msgid "You must first make the layer visible"
-msgstr ""
-
-#: uresourcestrings.rsnetworkdrive
-msgid "Network"
-msgstr "Azeḍḍa"
-
-#: uresourcestrings.rsnewimage
-msgctxt "uresourcestrings.rsnewimage"
-msgid "New image"
-msgstr "Tugna tamaynutt"
-
-#: uresourcestrings.rsno
-msgid "No"
-msgstr "Ala"
-
-#: uresourcestrings.rsnoactivelayer
-msgid "No active layer"
-msgstr "Ulac tissi turmidt"
-
-#: uresourcestrings.rsnoactiveselection
-msgid "There is no active selection"
-msgstr "Ulac tafrayt turmidt"
-
-#: uresourcestrings.rsnoandproceedtonext
-msgid "Do not save and open another file"
-msgstr "Ur seklas ur tteldi afaylu-nniḍen"
-
-#: uresourcestrings.rsnoname
-msgctxt "uresourcestrings.rsnoname"
-msgid "noname"
-msgstr "warisem"
-
-#: uresourcestrings.rsnormalblendop
-msgid "Normal"
-msgstr "Amagnu"
-
-#: uresourcestrings.rsnothingtobedeformed
-msgctxt "uresourcestrings.rsnothingtobedeformed"
-msgid "There is nothing to be deformed"
-msgstr "Ulac d acu ara yettuzelgen"
-
-#: uresourcestrings.rsnothingtoberetrieved
-msgctxt "uresourcestrings.rsnothingtoberetrieved"
-msgid "There is nothing to be retrieved"
-msgstr "Ulac d acu ara d-terreḍ"
-
-#: uresourcestrings.rsnotreasonableformat
-msgid "It is not reasonable to save such a big image in this file format."
-msgstr "Ur iwulem ara ad teskelseḍ tugna s umasal-agi n ufaylu."
-
-#: uresourcestrings.rsnumber
-msgid "№"
-msgstr "№"
-
-#: uresourcestrings.rsokay
-msgid "Okay"
-msgstr "Ih"
-
-#: uresourcestrings.rsopacity
-msgctxt "uresourcestrings.rsopacity"
-msgid "Opacity"
-msgstr "Tiḍullest"
-
-#: uresourcestrings.rsopen
-msgid "Open"
-msgstr "Ldi"
-
-#: uresourcestrings.rsopenfilesaslayers
-msgid "Open files as layers in a single image"
-msgstr "Ldi ifuyla amzun d tissiyin n yiwet n tugna"
-
-#: uresourcestrings.rsopenfirstfileonly
-msgid "Open the first file only"
-msgstr "Ldi kan afaylu amezwaru"
-
-#: uresourcestrings.rsopening
-msgid "Opening"
-msgstr "Alday"
-
-#: uresourcestrings.rsopenmultipleimagefiles
-msgid "Open multiple image files"
-msgstr "Ldi aṭṭas n ifuyla n tugniwin"
-
-#: uresourcestrings.rsotherblendop
-msgid "Other..."
-msgstr "Wayeḍ..."
-
-#: uresourcestrings.rsoverwritefile
-msgid "File already exists. Do you want to overwrite it?"
-msgstr "Afaylu yella yakan. Tebɣiḍ ad t-tesemselsiḍ?"
-
-#: uresourcestrings.rspaletteincludesalphachannel
-msgid "Palette includes alpha channel"
-msgstr "Seddu abadu alfa di tpaliḍt"
-
-#: uresourcestrings.rspaletteoptions
-msgid "Palette options"
-msgstr "Tinefrunin n tpaliḍt"
-
-#: uresourcestrings.rspercent
-msgctxt "uresourcestrings.rspercent"
-msgid "%"
-msgstr "%"
-
-#: uresourcestrings.rsportait
-msgid "Portrait"
-msgstr "S teɣzi"
-
-#: uresourcestrings.rsposterizelayerusingpalette
-msgid "Posterize layer using palette"
-msgstr ""
-
-#: uresourcestrings.rspresetname
-msgid "Preset name"
-msgstr "Sbadu isem"
-
-#: uresourcestrings.rspx
-msgid "px"
-msgstr "px"
-
-#: uresourcestrings.rsramdisk
-msgid "RAM disk"
-msgstr "RAM aḍebsi"
-
-#: uresourcestrings.rsrasterlayer
-msgid "Raster layer"
-msgstr "Tissi s ipiksilen"
-
-#: uresourcestrings.rsrecentdirectories
-msgid "Recent directories:"
-msgstr "Ikaramen n melmi kan:"
-
-#: uresourcestrings.rsred
-msgid "Red"
-msgstr "Azeggaɣ"
-
-#: uresourcestrings.rsreload
-msgctxt "uresourcestrings.rsreload"
-msgid "Reload"
-msgstr "Ales asali"
-
-#: uresourcestrings.rsreloadchanged
-msgid "Bitmap has been modified. Do you really want to reload?"
-msgstr "Tugna tettwabeddel. D tidet tebɣiḍ ad s-talseḍ asali?"
-
-#: uresourcestrings.rsremovabledrive
-msgid "Removable"
-msgstr "Aziraz"
-
-#: uresourcestrings.rsrepeatimage
-msgctxt "uresourcestrings.rsrepeatimage"
-msgid "Repeat image"
-msgstr "Ales tugna"
-
-#: uresourcestrings.rsretrieveselectedarea
-msgctxt "uresourcestrings.rsretrieveselectedarea"
-msgid "Do you want to retrieve selected area?"
-msgstr "Tebɣiḍ ad d-terreḍ taɣzut n tefrayt?"
-
-#: uresourcestrings.rsreturnvalides
-msgid "Press ENTER to validate"
-msgstr "Ssed ɣef ENTER iwakken ad tsentemeḍ"
-
-#: uresourcestrings.rsrgb
-msgctxt "uresourcestrings.rsrgb"
-msgid "RGB"
-msgstr "RGB"
-
-#: uresourcestrings.rsrightclickforsource
-msgid "Use RIGHT click to define source"
-msgstr "Seqdec asiti ayefus iwakken ad tesbaduḍ aɣbalu"
-
-#: uresourcestrings.rssaturation
-msgctxt "uresourcestrings.rssaturation"
-msgid "Saturation"
-msgstr "Tawant"
-
-#: uresourcestrings.rssave
-msgctxt "uresourcestrings.rssave"
-msgid "Save"
-msgstr "Sekles"
-
-#: uresourcestrings.rssaveasbuttonhint
-msgctxt "uresourcestrings.rssaveasbuttonhint"
-msgid "Save with specified filename"
-msgstr "Sekles s yisem n ufaylu i d-ittunefken"
-
-#: uresourcestrings.rssavechanges
-msgctxt "uresourcestrings.rssavechanges"
-msgid "Current bitmap has been modified. Do you want to save changes?"
-msgstr "Tugna bitmap tamirant tettwabeddel. Tebɣiḍ ad teskelseḍ ibeddien?"
-
-#: uresourcestrings.rssavepaletteas
-msgid "Save palette as..."
-msgstr "Sekles tapaliḍt am..."
-
-#: uresourcestrings.rsscript
-msgid "Script"
-msgstr "Askript"
-
-#: uresourcestrings.rsshowpalette
-msgctxt "uresourcestrings.rsshowpalette"
-msgid "Show palette"
-msgstr "Sken tapaliḍt"
-
-#: uresourcestrings.rssourceposition
-msgid "Source position"
-msgstr "Ideg n uɣbalu"
-
-#: uresourcestrings.rsspline
-msgctxt "uresourcestrings.rsspline"
-msgid "Spline"
-msgstr "Izirig ittleɣwayen"
-
-#: uresourcestrings.rsstoragedevice
-msgid "Device"
-msgstr "Ibenk"
-
-#: uresourcestrings.rstexturemapping
-msgctxt "uresourcestrings.rstexturemapping"
-msgid "Texture mapping"
-msgstr "Ḍlu tizḍi"
-
-#: uresourcestrings.rstherearenocheckeditems
-msgid "There are no checked items. Check some items or add some new ones."
-msgstr "Ulac iferdisen yettwafernen. Fren kra n iferdisen neɣ rnu imaynuten."
-
-#: uresourcestrings.rsthereisnofilenamegivenforthisfileusesaveas
-msgid "There is no file name given for this file. Use \"Save as...\" from the main menu."
-msgstr "Ulac isem i ufaylu-agi. Seqdec \"Sekles am...\" seg wumuɣ agejdan."
-
-#: uresourcestrings.rstodo
-msgid "To do"
-msgstr ""
-
-#: uresourcestrings.rstodoimages
-msgid "Images left: %1"
-msgstr "Tugniwin i d-yegran: %1"
-
-#: uresourcestrings.rstooloninvisiblelayer
-msgid "Tool cannot be used on an invisible layer"
-msgstr "Afecku ulamek ara yettwaseqdec deg tissi yeffren"
-
-#: uresourcestrings.rstoomanylayers
-msgid "Too many layers"
-msgstr "Bezzaf n tissiyin"
-
-#: uresourcestrings.rstoomanyshapesinlayer
-msgid "Too many shapes in layer"
-msgstr "Bezzaf n talɣiwin deg tissi"
-
-#: uresourcestrings.rstotalimages
-msgid "Total images: %1"
-msgstr "Aɣrud n tugniwin: %1"
-
-#: uresourcestrings.rstransferselectiontootherlayer
-msgid "Transfer selection to other layer?"
-msgstr "Tebɣiḍ ad tawiḍ tafrayt ɣer tissi-nniḍen?"
-
-#: uresourcestrings.rstransformedrasterlayer
-msgid "Transformed raster layer"
-msgstr ""
-
-#: uresourcestrings.rstransformselectioncontent
-msgid "Do you want to transform content of the selection?"
-msgstr "Tebɣiḍ ad tselkteḍ agbur n tefrayt?"
-
-#: uresourcestrings.rsunabletoapplyfilter
-msgid "Unable to apply filter : "
-msgstr "D awezɣi asnes n testayt : "
-
-#: uresourcestrings.rsunabletoloadfile
-msgid "Unable to load file : "
-msgstr "D awezɣi asali n ufaylu : "
-
-#: uresourcestrings.rsunabletosavefile
-msgid "Unable to save file : "
-msgstr "Dawezɣi asekles n ufaylu : "
-
-#: uresourcestrings.rsunknowncommand
-msgid "Unknown command : "
-msgstr "Anezḍay arussin : "
-
-#: uresourcestrings.rsunknownoriginal
-msgid "Unknown original"
-msgstr ""
-
-#: uresourcestrings.rsvectoriallayer
-msgid "Vectorial layer"
-msgstr "Tissi tamawayt"
-
-#: uresourcestrings.rsyes
-msgid "Yes"
-msgstr "Ih"
-
-#: tablet.getprocfailed
-msgid "Procedure %s failed to load properly."
-msgstr ""
-
-#: tablet.openfailed
-msgid "Tablet context failed to open."
-msgstr ""
-
-#: tfabout.button_donate.caption
-msgctxt "tfabout.button_donate.caption"
-msgid "Donate..."
-msgstr "Ɛiwen s wedrim..."
-
-#: tfabout.caption
-msgctxt "tfabout.caption"
-msgid "About"
-msgstr "Ɣef"
-
-#: tfabout.labelurl.caption
-msgid "http://sourceforge.net/projects/lazpaint/"
-msgstr "http://sourceforge.net/projects/lazpaint/"
-
-#: tfabout.label_authors.caption
-msgctxt "tfabout.label_authors.caption"
-msgid "Authors:"
-msgstr "Imeskaren:"
-
-#: tfabout.label_authorsvalue.caption
-msgctxt "tfabout.label_authorsvalue.caption"
-msgid "Circular helped by FabienWang, Lainz and others"
-msgstr ""
-
-#: tfabout.label_homepage.caption
-msgctxt "tfabout.label_homepage.caption"
-msgid "Homepage:"
-msgstr "Asmel n Web:"
-
-#: tfabout.label_libraries.caption
-msgctxt "tfabout.label_libraries.caption"
-msgid "Libraries used:"
-msgstr "Timkarḍiyin yettwasqedcen:"
-
-#: tfabout.label_licence.caption
-msgctxt "tfabout.label_licence.caption"
-msgid "Licence:"
-msgstr "Turagt:"
-
-#: tfabout.label_opensource.caption
-msgctxt "tfabout.label_opensource.caption"
-msgid "Open source (GPLv3)"
-msgstr "Open source (GPLv3)"
-
-#: tfadjustcurves.button_cancel.caption
-msgctxt "tfadjustcurves.button_cancel.caption"
-msgid "Cancel"
-msgstr "Semmet"
-
-#: tfadjustcurves.button_ok.caption
-msgctxt "tfadjustcurves.button_ok.caption"
-msgid "OK"
-msgstr "Ih"
-
-#: tfadjustcurves.caption
-msgid "Adjust curves"
-msgstr "Sgaddi izligen"
-
-#: tfadjustcurves.toolbutton_newcurve.hint
-msgid "Discard current curve and start a new one"
-msgstr "Sfeḍ azlig amiran u bdu azlig amaynut"
-
-#: tfadjustcurves.toolbutton_posterize.hint
-msgctxt "tfadjustcurves.toolbutton_posterize.hint"
-msgid "Posterize"
-msgstr ""
-
-#: tfadjustcurves.toolbutton_removepoint.hint
-msgid "Remove selected point (Del)"
-msgstr "Kkes tanqiḍt yettwafernen (Del)"
-
-#: tfblendop.button_cancel.caption
-msgctxt "tfblendop.button_cancel.caption"
-msgid "Cancel"
-msgstr "Semmet"
-
-#: tfblendop.button_ok.caption
-msgctxt "tfblendop.button_ok.caption"
-msgid "OK"
-msgstr "Ih"
-
-#: tfblendop.caption
-msgid "Blend operation"
-msgstr "Tamhelt n usmezdi"
-
-#: tfblendop.label_blendopcategory.caption
-msgctxt "tfblendop.label_blendopcategory.caption"
-msgid "Category of blend operation"
-msgstr "Taggayt n temhelt n usmezdi"
-
-#: tfblendop.label_blendopvalue.caption
-msgctxt "tfblendop.label_blendopvalue.caption"
-msgid "."
-msgstr "."
-
-#: tfblendop.label_kritaover.caption
-msgctxt "tfblendop.label_kritaover.caption"
-msgid "Krita"
-msgstr "Krita"
-
-#: tfblendop.label_kritaover.hint
-msgid "Blend operations that are available in Krita"
-msgstr "Timehlin n usmezdi i iwejden di Krita"
-
-#: tfblendop.label_otherover.caption
-msgctxt "tfblendop.label_otherover.caption"
-msgid "Other"
-msgstr "Wayeḍ"
-
-#: tfblendop.label_otherover.hint
-msgid "Blend operations of LazPaint and Paint.NET"
-msgstr "Timehlin n usmezdi n LazPaint akked Paint.NET"
-
-#: tfblendop.label_patternover.caption
-msgctxt "tfblendop.label_patternover.caption"
-msgid "Pattern over"
-msgstr "Tizḍi sufella"
-
-#: tfblendop.label_patternover.hint
-msgid "Preview blend operation with the specified image on top"
-msgstr ""
-
-#: tfblendop.label_patternunder.caption
-msgctxt "tfblendop.label_patternunder.caption"
-msgid "Pattern under"
-msgstr "Tizḍi seddaw"
-
-#: tfblendop.label_patternunder.hint
-msgid "Preview blend operation with the specified image underneath"
-msgstr ""
-
-#: tfblendop.label_previewwith.caption
-msgctxt "tfblendop.label_previewwith.caption"
-msgid "Preview with"
-msgstr "Tamuɣli akked"
-
-#: tfblendop.label_selectedblendop.caption
-msgid "Selected blend operation :"
-msgstr "Tamhelt n usmezdi yettwafernen:"
-
-#: tfblendop.label_svgover.caption
-msgctxt "tfblendop.label_svgover.caption"
-msgid "Basic SVG"
-msgstr "SVG azadur"
-
-#: tfblendop.label_svgover.hint
-msgid "Basic blend operations that are available in virtually all image editors"
-msgstr "Timehlin tizadurin n usmezdi i iwejden di tegti n imaẓragen n tugna"
-
-#: tfbrowseimages.caption
-msgid "Browse images"
-msgstr "Snirrem tugniwin"
-
-#: tfbrowseimages.checkbox_usedirectoryonstartup.caption
-msgid "Use this directory on startup"
-msgstr "Seqdec akaram-agi deg usekker"
-
-#: tfbrowseimages.label_status.caption
-msgctxt "tfbrowseimages.label_status.caption"
-msgid "."
-msgstr "."
-
-#: tfbrowseimages.toolbutton_createfolderorcontainer.hint
-msgid "Create folder or container"
-msgstr "Snulfu-d akaram neɣ anagbar"
-
-#: tfbrowseimages.toolbutton_goup.hint
-msgid "Go one directory up"
-msgstr "Ali s yiwen n ukaram"
-
-#: tfbrowseimages.toolbutton_openselectedfiles.hint
-msgid "Open selected files"
-msgstr "Ldi ifuyla yettwafernen"
-
-#: tfbrowseimages.toolbutton_viewbigicon.hint
-msgctxt "tfbrowseimages.toolbutton_viewbigicon.hint"
-msgid "Show big icons"
-msgstr "Sken tignitin timeqranin"
-
-#: tfbrowseimages.toolbutton_viewdetails.hint
-msgctxt "tfbrowseimages.toolbutton_viewdetails.hint"
-msgid "Show details and preview"
-msgstr ""
-
-#: tfbrowseimages.tool_selectdrive.hint
-msgid "Select drive"
-msgstr "Fren ibenk"
-
-#: tfcanvassize.button_cancel.caption
-msgctxt "TFCANVASSIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Semmet"
-
-#: tfcanvassize.button_ok.caption
-msgctxt "TFCANVASSIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Ih"
-
-#: tfcanvassize.caption
-msgctxt "tfcanvassize.caption"
-msgid "Canvas size"
-msgstr "Tiddi n teɣzut n usuneɣ"
-
-#: tfcanvassize.checkbox_flipmode.caption
-msgid "Flip mode"
-msgstr "Askar n tuzzya"
-
-#: tfcanvassize.label_anchor.caption
-msgctxt "tfcanvassize.label_anchor.caption"
-msgid "Anchor :"
-msgstr "Tamdeyt:"
-
-#: tfcanvassize.label_height.caption
-msgctxt "tfcanvassize.label_height.caption"
-msgid "Height :"
-msgstr "Teɣzi:"
-
-#: tfcanvassize.label_width.caption
-msgctxt "tfcanvassize.label_width.caption"
-msgid "Width :"
-msgstr "Tehri:"
-
-#: tfcolorintensity.button_cancel.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Semmet"
-
-#: tfcolorintensity.button_ok.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Ih"
-
-#: tfcolorintensity.caption
-msgctxt "tfcolorintensity.caption"
-msgid "Intensity"
-msgstr ""
-
-#: tfcolorintensity.label_multiply.caption
-msgctxt "tfcolorintensity.label_multiply.caption"
-msgid "Multiply"
-msgstr ""
-
-#: tfcolorintensity.label_shift.caption
-msgctxt "tfcolorintensity.label_shift.caption"
-msgid "Shift"
-msgstr "Sekḥer"
-
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Semmet"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Ih"
-
-#: tfcolorize.caption
-msgctxt "tfcolorize.caption"
-msgid "Colorize"
-msgstr "Seɣmu"
-
-#: tfcolorize.checkbox_gsba.caption
-msgctxt "tfcolorize.checkbox_gsba.caption"
-msgid "Corrected hue and lightness"
-msgstr "Tasenfelt n yini akked tifawit yettwaseɣtin"
-
-#: tfcolorize.label_colorness.caption
-msgctxt "tfcolorize.label_colorness.caption"
-msgid "Colorness"
-msgstr ""
-
-#: tfcolorize.label_hue.caption
-msgctxt "tfcolorize.label_hue.caption"
-msgid "Hue"
-msgstr "Tasenfelt n yini"
-
-#: tfcolorize.label_preset.caption
-msgid "Preset"
-msgstr ""
-
-#: tfcustomblur.button_cancel.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Semmet"
-
-#: tfcustomblur.button_editmask.caption
-msgid "Edit mask..."
-msgstr "Ẓreg tagelmust..."
-
-#: tfcustomblur.button_loadmask.caption
-msgid "Load mask..."
-msgstr "Sali-d tagelmust..."
-
-#: tfcustomblur.button_ok.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Ih"
-
-#: tfcustomblur.caption
-msgctxt "tfcustomblur.caption"
-msgid "Custom blur"
-msgstr "Aluɣu yugnen"
-
-#: tfcustomblur.openpicturedialog1.title
-msgid "Open grayscale file"
-msgstr "Ldi afaylu s tfesna n umelliɣdi"
-
-#: tfemboss.button_cancel.caption
-msgctxt "TFEMBOSS.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Semmet"
-
-#: tfemboss.button_ok.caption
-msgctxt "TFEMBOSS.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Ih"
-
-#: tfemboss.caption
-msgctxt "tfemboss.caption"
-msgid "Emboss"
-msgstr "Eg tiɛnurin"
-
-#: tfemboss.checkbox_preservecolors.caption
-msgid "Preserve colors"
-msgstr "Ḥrez initen"
-
-#: tfemboss.checkbox_transparent.caption
-msgid "Transparent"
-msgstr "Afrawan"
-
-#: tfemboss.label_direction.caption
-msgctxt "tfemboss.label_direction.caption"
-msgid "Direction :"
-msgstr "Tanila:"
-
-#: tffilterfunction.button_cancel.caption
-msgctxt "tffilterfunction.button_cancel.caption"
-msgid "Cancel"
-msgstr "Semmet"
-
-#: tffilterfunction.button_ok.caption
-msgctxt "tffilterfunction.button_ok.caption"
-msgid "OK"
-msgstr "Ih"
-
-#: tffilterfunction.caption
-msgid "Apply function"
-msgstr "Snes tawuri"
-
-#: tffilterfunction.checkbox_gsba.caption
-msgctxt "tffilterfunction.checkbox_gsba.caption"
-msgid "Corrected hue and lightness"
-msgstr "Tasenfelt n yini akked tifawit yettwaseɣtin"
-
-#: tffilterfunction.label_alphaequals.caption
-msgctxt "tffilterfunction.label_alphaequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_blueequals.caption
-msgctxt "tffilterfunction.label_blueequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_greenequals.caption
-msgctxt "tffilterfunction.label_greenequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_hueequals.caption
-msgctxt "tffilterfunction.label_hueequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_lightnessequals.caption
-msgctxt "tffilterfunction.label_lightnessequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_redequals.caption
-msgctxt "tffilterfunction.label_redequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_saturationequals.caption
-msgctxt "tffilterfunction.label_saturationequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_variables.caption
-msgid "Variables :"
-msgstr ""
-
-#: tffilterfunction.tabsheet_hsl.caption
-msgid "HSL"
-msgstr "HSL"
-
-#: tffilterfunction.tabsheet_rgb.caption
-msgctxt "tffilterfunction.tabsheet_rgb.caption"
-msgid "RGB"
-msgstr "RGB"
-
-#: tfgeometricbrush.button_cancel.caption
-msgctxt "tfgeometricbrush.button_cancel.caption"
-msgid "Cancel"
-msgstr "Semmet"
-
-#: tfgeometricbrush.button_ok.caption
-msgctxt "tfgeometricbrush.button_ok.caption"
-msgid "OK"
-msgstr "Ih"
-
-#: tfgeometricbrush.caption
-msgid "Geometric brush"
-msgstr "Amfezwu anzeggan"
-
-#: tfgeometricbrush.checkbox_isgradient.caption
-msgid "Opacity gradient"
-msgstr "Tiḍullest n tfesna n yini"
-
-#: tfgeometricbrush.label1.caption
-msgid "Number of sides:"
-msgstr "Amḍan n idisan:"
-
-#: tfimagelist.caption
-msgid "Image List"
-msgstr "Tabdart n tugniwin"
-
-#: tfimagelist.pmautouncheckonopen.caption
-msgid "Autouncheck files after being open"
-msgstr ""
-
-#: tfimagelist.pmautouncheckonsave.caption
-msgid "Autouncheck files after being edited and saved"
-msgstr ""
-
-#: tfimagelist.pmremoveall.caption
-msgid "Empty image list"
-msgstr ""
-
-#: tfimagelist.pmremovenonexisting.caption
-msgid "Remove nonexisting images"
-msgstr "Kkes tugniwin ur nelli ara"
-
-#: tfimagelist.pmremoveunchecked.caption
-msgid "Remove unchecked images"
-msgstr "Kkes tugniwin ur nettwacreḍ ara"
-
-#: tfimagelist.pmunchecknonexisting.caption
-msgid "Uncheck nonexisting files"
-msgstr ""
-
-#: tfimagelist.stringgrid1.columns[0].title.caption
-msgctxt "tfimagelist.stringgrid1.columns[0].title.caption"
-msgid "-"
-msgstr "-"
-
-#: tfimagelist.stringgrid1.columns[1].title.caption
-msgctxt "tfimagelist.stringgrid1.columns[1].title.caption"
-msgid "-"
-msgstr "-"
-
-#: tfimagelist.stringgrid1.columns[2].title.caption
-msgctxt "tfimagelist.stringgrid1.columns[2].title.caption"
-msgid "-"
-msgstr "-"
-
-#: tfimagelist.stringgrid1.columns[3].title.caption
-msgctxt "tfimagelist.stringgrid1.columns[3].title.caption"
-msgid "-"
-msgstr "-"
-
-#: tfimagelist.tbaddfiles.hint
-msgid "Add images to list"
-msgstr "Rnu tugniwin ɣer tebdart"
-
-#: tfimagelist.tbautouncheck.hint
-msgid "Enable/disable autounchecking for processed files"
-msgstr ""
-
-#: tfimagelist.tbautozoomfit.hint
-msgid "Enable/disable autofitting images in the LazPaint window"
-msgstr "Sermed/sexsi asgaddi awurman n tugniwin deg usfaylu n LazPaint"
-
-#: tfimagelist.tbcheckall.hint
-msgid "Check all files for processing"
-msgstr "Creḍ akk ifuyla i usekker"
-
-#: tfimagelist.tbminiwindow.hint
-msgid "Switch to miniwindow"
-msgstr "Senfel ɣer usfaylu amecṭuḥ"
-
-#: tfimagelist.tbmovedown.hint
-msgid "Move selected items down"
-msgstr "Smutti d akessar iferdisen yettwafernen"
-
-#: tfimagelist.tbmoveup.hint
-msgid "Move selected items up"
-msgstr "Smutti d asawen iferdisen yettwafernen"
-
-#: tfimagelist.tbnormalwindows.hint
-msgid "Switch to normal window"
-msgstr "Senfel ɣer usfaylu amagnu"
-
-#: tfimagelist.tbopenimage.hint
-msgid "Open current image"
-msgstr "Ldi tugna tamirant"
-
-#: tfimagelist.tbopennext.hint
-msgctxt "tfimagelist.tbopennext.hint"
-msgid "Open next image (Alt-Right)"
-msgstr "Ldi tugna d-itteddun (Alt-Ayefus)"
-
-#: tfimagelist.tbopennextsw.hint
-msgctxt "tfimagelist.tbopennextsw.hint"
-msgid "Open next image"
-msgstr "Ldi tugna d-itteddun"
-
-#: tfimagelist.tbopenprev.hint
-msgctxt "tfimagelist.tbopenprev.hint"
-msgid "Open previous image (Alt-Left)"
-msgstr "Ldi tugna yezrin (Alt-Azelmaḍ)"
-
-#: tfimagelist.tbopenprevsw.hint
-msgctxt "tfimagelist.tbopenprevsw.hint"
-msgid "Open previous image"
-msgstr "Ldi tugna yezrin"
-
-#: tfimagelist.tbremoveitem.hint
-msgid "Remove selected images from list"
-msgstr "Kkes tugniwin yettwafernen si tebdart"
-
-#: tfimagelist.tbuncheckall.hint
-msgid "Uncheck all files for processing"
-msgstr ""
-
-#: tfloading.caption
-msgctxt "tfloading.caption"
-msgid "Loading..."
-msgstr "Asali..."
 
 #: tfmotionblur.button_cancel.caption
 msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"
@@ -3535,3 +2664,918 @@ msgstr "Tawant"
 msgctxt "tftoolbox.caption"
 msgid "Tools"
 msgstr "Ifecka"
+
+#: tftwirl.button_cancel.caption
+msgctxt "TFTWIRL.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Semmet"
+
+#: tftwirl.button_ok.caption
+msgctxt "TFTWIRL.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "Ih"
+
+#: tftwirl.caption
+msgctxt "tftwirl.caption"
+msgid "Twirl"
+msgstr "Abran"
+
+#: tftwirl.label_angle.caption
+msgctxt "tftwirl.label_angle.caption"
+msgid "Angle :"
+msgstr "Tiɣmert :"
+
+#: tftwirl.label_radius.caption
+msgctxt "tftwirl.label_radius.caption"
+msgid "Radius :"
+msgstr "Aqqar :"
+
+#: tfwavedisplacement.button_cancel.caption
+msgctxt "tfwavedisplacement.button_cancel.caption"
+msgid "Cancel"
+msgstr "Semmet"
+
+#: tfwavedisplacement.button_ok.caption
+msgctxt "tfwavedisplacement.button_ok.caption"
+msgid "OK"
+msgstr "Ih"
+
+#: tfwavedisplacement.caption
+msgid "Wave displacement"
+msgstr "Asekḥer n tayyugt"
+
+#: tfwavedisplacement.label_displacement.caption
+msgid "Displacement :"
+msgstr "Asekḥer :"
+
+#: tfwavedisplacement.label_phase.caption
+msgid "Phase :"
+msgstr "Annuf :"
+
+#: tfwavedisplacement.label_wavelength.caption
+msgid "Wavelength :"
+msgstr "Teɣzi n tayyugt :"
+
+#: uresourcestrings.rsactioninprogress
+msgid "Action in progress"
+msgstr "Tigawin itteddun"
+
+#: uresourcestrings.rsaddtoimagelist
+msgid "Add files to the image processing list"
+msgstr "Rnu ifuyla ɣer tebdart n ukala n tugniwin"
+
+#: uresourcestrings.rsalignshape
+msgid "Align shape"
+msgstr "Derrec talɣa"
+
+#: uresourcestrings.rsallapplications
+msgid "all"
+msgstr "akk"
+
+#: uresourcestrings.rsallsupportedfiletypes
+msgid "All supported filetypes"
+msgstr "Akk imasalen yettwassnen"
+
+#: uresourcestrings.rsalt
+msgid "ALT"
+msgstr "ALT"
+
+#: uresourcestrings.rsanimatedgif
+msgid "Animated GIF"
+msgstr "GIF yettemwwiwilen"
+
+#: uresourcestrings.rsautodetect
+msgid "Autodetect"
+msgstr "Tifin tawurmant"
+
+#: uresourcestrings.rsbackspaceremovelastpoint
+msgid "Press BACKSPACE to remove last point"
+msgstr "Ssed BACKSPACE iwakken ad tekkseḍ tanqiḍt taneggarut"
+
+#: uresourcestrings.rsbestquality
+msgctxt "uresourcestrings.rsbestquality"
+msgid "Best quality"
+msgstr ""
+
+#: uresourcestrings.rsbitmap
+msgid "Bitmap"
+msgstr "Bitmap"
+
+#: uresourcestrings.rsblendopnotusedforbackground
+msgid "The blend operation is applied only if there is a layer underneath"
+msgstr "Iwakken ad tsiɣeḍ tamhelt n usmezdi isefk ad tili tissi seddaw"
+
+#: uresourcestrings.rsblue
+msgid "Blue"
+msgstr "Anili"
+
+#: uresourcestrings.rsbrightness
+msgid "Brightness"
+msgstr "Tifawit"
+
+#: uresourcestrings.rsbytes
+msgid "Bytes"
+msgstr "Itamḍanen"
+
+#: uresourcestrings.rscancel
+msgctxt "uresourcestrings.rscancel"
+msgid "Cancel"
+msgstr "Semmet"
+
+#: uresourcestrings.rscancelledbyuser
+msgid "Cancelled by user"
+msgstr ""
+
+#: uresourcestrings.rscannotdrawshapeonsvglayer
+msgid "Cannot draw shape on SVG layer"
+msgstr "D awezɣi asuneɣ n talɣa ɣef tissi SVG"
+
+#: uresourcestrings.rscannotopenfile
+msgid "Cannot open file"
+msgstr "D awezɣi alday n ufaylu"
+
+#: uresourcestrings.rscanvassize
+msgctxt "uresourcestrings.rscanvassize"
+msgid "Canvas size"
+msgstr "Tiddi n teɣzut n usuneɣ"
+
+#: uresourcestrings.rscdrom
+msgid "CD"
+msgstr "CD"
+
+#: uresourcestrings.rsclearpalette
+msgid "Clear palette"
+msgstr "Sfeḍ tapaliḍt"
+
+#: uresourcestrings.rscloserequest
+msgctxt "uresourcestrings.rscloserequest"
+msgid "Close request"
+msgstr "Mdel asuter"
+
+#: uresourcestrings.rscmd
+msgid "CMD"
+msgstr "CMD"
+
+#: uresourcestrings.rscolors
+msgctxt "uresourcestrings.rscolors"
+msgid "Colors"
+msgstr "Initen"
+
+#: uresourcestrings.rsconfirmdeletefromcontainer
+msgid "Are you sure you want to delete this file from the container?"
+msgstr "D tidet tebɣiḍ ad tekkseḍ afaylu-agi seg unagbar?"
+
+#: uresourcestrings.rsconfirmdeletemultiplefromcontainer
+msgid "Are you sure you want to delete these %1 files from the container?"
+msgstr "D tidet tebɣiḍ ad tekkseḍ %1 n ifuyla-agi seg unagbar?"
+
+#: uresourcestrings.rsconfirmmovemultipletotrash
+msgid "Are you sure you want to move these %1 files to the trash?"
+msgstr "D tidet tebɣiḍ ad terreḍ %1 n ifuyla-agi ɣer tqecwalt?"
+
+#: uresourcestrings.rsconfirmmovetotrash
+msgid "Are you sure you want to move this file to the trash?"
+msgstr "D tidet tebɣiḍ ad terreḍ afaylu-agi ɣer tqecwalt?"
+
+#: uresourcestrings.rsconflictingactions
+msgid "Conflicting actions"
+msgstr "Tigawin ittemgirriden"
+
+#: uresourcestrings.rscontrast
+msgid "Contrast"
+msgstr "Amyeẓli"
+
+#: uresourcestrings.rscorrectedhueccw
+msgctxt "uresourcestrings.rscorrectedhueccw"
+msgid "Corr. Hue CCW"
+msgstr ""
+
+#: uresourcestrings.rscorrectedhuecw
+msgctxt "uresourcestrings.rscorrectedhuecw"
+msgid "Corr. Hue CW"
+msgstr ""
+
+#: uresourcestrings.rscosine
+msgctxt "uresourcestrings.rscosine"
+msgid "Cosine"
+msgstr ""
+
+#: uresourcestrings.rscrop
+msgid "Crop"
+msgstr "Ɣeẓ"
+
+#: uresourcestrings.rsctrl
+msgid "CTRL"
+msgstr "CTRL"
+
+#: uresourcestrings.rscurvemodehint
+msgid "Press S or X to set the curve mode of the last point"
+msgstr "Ssed S neɣ X iwakken ad tbeddeleḍ askar n uzlig i tenqiḍt taneggarut"
+
+#: uresourcestrings.rsdefaultpalette
+msgid "Default palette"
+msgstr "Tapaliḍt n lexṣas"
+
+#: uresourcestrings.rsdeletefile
+msgctxt "uresourcestrings.rsdeletefile"
+msgid "Delete"
+msgstr "Kkes"
+
+#: uresourcestrings.rsdeleteimageentry
+msgid "Delete selected image entry?"
+msgstr "Ad tekkseḍ anekcum n tugna yettwafernen ?"
+
+#: uresourcestrings.rsdirectorynotempty
+msgid "Directory is not empty"
+msgstr "Akaram mačči d ilem"
+
+#: uresourcestrings.rsditherlayerusingpalette
+msgid "Dither layer using palette"
+msgstr ""
+
+#: uresourcestrings.rsduplicateimage
+msgid "Duplicate image"
+msgstr "Sisleg tugna"
+
+#: uresourcestrings.rseditmask
+msgctxt "uresourcestrings.rseditmask"
+msgid "Edit mask"
+msgstr "Ẓreg tagelmust"
+
+#: uresourcestrings.rseditselection
+msgid "Edit selection"
+msgstr "Ẓreg tafrayt"
+
+#: uresourcestrings.rsedittexture
+msgctxt "uresourcestrings.rsedittexture"
+msgid "Edit texture"
+msgstr "Ẓreg tizḍi"
+
+#: uresourcestrings.rsemptylayer
+msgid "Layer is empty"
+msgstr "Tissi d tilemt"
+
+#: uresourcestrings.rsemptyselection
+msgid "Selection is empty"
+msgstr "Tafrayt d tilemt"
+
+#: uresourcestrings.rsendwithoutmatchingbegin
+msgid "End without matching begin"
+msgstr ""
+
+#: uresourcestrings.rsenterfolderorcontainername
+msgid "Enter name for new folder or container (using RES or LRS extension):"
+msgstr "Sekcem isem n ukaram neɣ n unagbar (s ttawil n usiɣzef RES neɣ LRS) :"
+
+#: uresourcestrings.rsenterlayername
+msgid "Enter layer name:"
+msgstr "Sekcem isem n tissi:"
+
+#: uresourcestrings.rsentries
+msgid "Entries"
+msgstr "Inekcumen"
+
+#: uresourcestrings.rserror
+msgid "Error"
+msgstr "Tuccḍa"
+
+#: uresourcestrings.rserrordecodingraw
+msgid "Error decoding raw image."
+msgstr ""
+
+#: uresourcestrings.rserrorloadingoriginal
+msgid "Error while loading original however layer can be rasterized."
+msgstr ""
+
+#: uresourcestrings.rserroronopeningfile
+msgid "Error on opening file \"%1\""
+msgstr "Tuccḍa deg ulday n ufaylu \"%1\""
+
+#: uresourcestrings.rsexception
+msgid "An exception was encountered"
+msgstr ""
+
+#: uresourcestrings.rsexitrequest
+msgctxt "uresourcestrings.rsexitrequest"
+msgid "Exit request"
+msgstr "Ffeɣ seg usuter"
+
+#: uresourcestrings.rsexpect1parameter
+msgid "expects one parameter : "
+msgstr "yettraǧu yiwen n uɣewwar : "
+
+#: uresourcestrings.rsexpect2parameters
+msgid "expects two parameters : "
+msgstr "yettraǧu sin n iɣewwaren : "
+
+#: uresourcestrings.rsexpectnparameters
+msgid "expects N parameters : "
+msgstr "yettraǧu N iɣewwaren : "
+
+#: uresourcestrings.rsfast
+msgctxt "uresourcestrings.rsfast"
+msgid "Fast"
+msgstr "Yettɣawal"
+
+#: uresourcestrings.rsfilecannotbeempty
+msgid "File cannot be empty"
+msgstr "Afaylu ulamek ara yili d ilem"
+
+#: uresourcestrings.rsfiledate
+msgid "Date"
+msgstr "Azemz"
+
+#: uresourcestrings.rsfileextensionnotsupported
+msgctxt "uresourcestrings.rsfileextensionnotsupported"
+msgid "This file extension is not supported."
+msgstr "Asiɣzef-agi n ufaylu ur itteddu ara."
+
+#: uresourcestrings.rsfileformatnotrecognized
+msgid "The file format has not been recognized."
+msgstr "Amasal n ufaylu ur yettwaɛqel ara."
+
+#: uresourcestrings.rsfilename
+msgid "Filename"
+msgstr "Isem n ufaylu"
+
+#: uresourcestrings.rsfilenotfound
+msgid "File not found!"
+msgstr "Afaylu ur yettwaf ara!"
+
+#: uresourcestrings.rsfilenotsaved
+msgid "File not saved"
+msgstr "Afaylu ur yeklis ara"
+
+#: uresourcestrings.rsfilesize
+msgid "Size"
+msgstr "Tiddi"
+
+#: uresourcestrings.rsfilesystem
+msgid "File system"
+msgstr "Anagraw n ifuyla"
+
+#: uresourcestrings.rsfiletype
+msgid "Type"
+msgstr "Anaw"
+
+#: uresourcestrings.rsfixeddrive
+msgid "Fixed"
+msgstr "Usbiḍ"
+
+#: uresourcestrings.rsfolder
+msgid "Folder"
+msgstr "Akaram"
+
+#: uresourcestrings.rsfolderorcontaineralreadyexists
+msgid "Folder or container already exists."
+msgstr "Akaram neɣ anagbar yella yakan."
+
+#: uresourcestrings.rsfollowingerrorsoccured
+msgid "Following errors occured:"
+msgstr "Ḍrant-d tuccḍiwin-agi:"
+
+#: uresourcestrings.rsframes
+msgid "Frames"
+msgstr "Ikataren"
+
+#: uresourcestrings.rsfunctionnotdefined
+msgid "The function %1 is not defined."
+msgstr "Tawuri %1 ur tettusbadu ara."
+
+#: uresourcestrings.rsgreen
+msgid "Green"
+msgstr "Azegzaw"
+
+#: uresourcestrings.rshalfcosine
+msgctxt "uresourcestrings.rshalfcosine"
+msgid "Half-cosine"
+msgstr ""
+
+#: uresourcestrings.rsholdkeyforsquare
+msgid "Hold %1 to draw a square or a circle"
+msgstr "Ssed %1 iwakken ad tsunɣeḍ amkuẓ neɣ tawinest"
+
+#: uresourcestrings.rsholdkeyrestrictrotation
+msgid "Hold %1 to restrict rotation angle"
+msgstr "Ssed %1 iwakken ad tḥettemeḍ tiɣmert n tuzzya"
+
+#: uresourcestrings.rsholdkeysnaptopixel
+msgid "Hold %1 to snap to pixels"
+msgstr ""
+
+#: uresourcestrings.rsholdkeysscalemode
+msgid "Hold %1 or %2 to scale"
+msgstr "Ssed ɣef %1 neɣ %2 i teskala"
+
+#: uresourcestrings.rshotspot
+msgctxt "uresourcestrings.rshotspot"
+msgid "Hot spot"
+msgstr "Tinqiḍin n uḥulfu"
+
+#: uresourcestrings.rshue
+msgctxt "uresourcestrings.rshue"
+msgid "Hue"
+msgstr "Tasenfelt n yini"
+
+#: uresourcestrings.rshueccw
+msgctxt "uresourcestrings.rshueccw"
+msgid "Hue CCW"
+msgstr ""
+
+#: uresourcestrings.rshuecw
+msgctxt "uresourcestrings.rshuecw"
+msgid "Hue CW"
+msgstr ""
+
+#: uresourcestrings.rsiconimagealreadyexists
+msgid "There is already an image with this size and depth."
+msgstr "Tella yakan tugna s tiddi-agi akked umḍan-agi n yiniten."
+
+#: uresourcestrings.rsiconorcursor
+msgid "Icon/cursor"
+msgstr "Tignit/taḥnacaḍt"
+
+#: uresourcestrings.rsiconsize
+msgctxt "uresourcestrings.rsiconsize"
+msgid "Icon size"
+msgstr "Tiddi n tignit"
+
+#: uresourcestrings.rsimagetoobig
+msgid "Image is too big"
+msgstr "Tugna bezzaf temeqqer"
+
+#: uresourcestrings.rsinfinity
+msgctxt "uresourcestrings.rsinfinity"
+msgid "Infinity"
+msgstr "War tagara"
+
+#: uresourcestrings.rsinformation
+msgid "Information"
+msgstr "Talɣut"
+
+#: uresourcestrings.rsintensity
+msgctxt "uresourcestrings.rsintensity"
+msgid "Intensity"
+msgstr ""
+
+#: uresourcestrings.rsinternalerror
+msgid "Internal error"
+msgstr "Tuccḍa tagensant"
+
+#: uresourcestrings.rsinvalidname
+msgid "Invalid name"
+msgstr "Isem d armeɣtu"
+
+#: uresourcestrings.rsinvalidopacity
+msgid "Invalid opacity : "
+msgstr "Tiḍullest d tarmeɣtut : "
+
+#: uresourcestrings.rsinvalidparameters
+msgid "Invalid parameters"
+msgstr ""
+
+#: uresourcestrings.rsinvalidresamplesize
+msgid "Invalid resample size : "
+msgstr "Tiddi n wallus n ulemmec d tarmeɣtut : "
+
+#: uresourcestrings.rsinvalidsizefornew
+msgid "Invalid size for new : "
+msgstr ""
+
+#: uresourcestrings.rskeepchanges
+msgctxt "uresourcestrings.rskeepchanges"
+msgid "Do you want to keep changes?"
+msgstr "Tebɣiḍ ad tḥerzeḍ ibeddilen?"
+
+#: uresourcestrings.rskeepemptyspace
+msgid "Keep empty space around opaque pixels?"
+msgstr "Tebɣiḍ ad tḥerzeḍ tallunt izin ɣef ipiksilen imḍullesen?"
+
+#: uresourcestrings.rslanczos
+msgid "Lanczos %1"
+msgstr "Lanczos %1"
+
+#: uresourcestrings.rslandscape
+msgid "Landscape"
+msgstr "S tehri"
+
+#: uresourcestrings.rslatestversion
+msgid "The latest version of LazPaint available online is"
+msgstr "Lqem aneggaru n LazPaint i iwejden ɣef Internet d"
+
+#: uresourcestrings.rslayeredimage
+msgid "Layered image"
+msgstr "Tugna s tissiyin"
+
+#: uresourcestrings.rslayers
+msgctxt "uresourcestrings.rslayers"
+msgid "Layers"
+msgstr "Tissiyin"
+
+#: uresourcestrings.rslazpaint
+msgctxt "uresourcestrings.rslazpaint"
+msgid "LazPaint"
+msgstr "LazPaint"
+
+#: uresourcestrings.rslazpaintonly
+msgid "LazPaint only"
+msgstr "LazPaint kan"
+
+#: uresourcestrings.rslight
+msgctxt "uresourcestrings.rslight"
+msgid "Light"
+msgstr "Tafat"
+
+#: uresourcestrings.rslightness
+#, fuzzy
+msgctxt "uresourcestrings.rslightness"
+msgid "Lightness"
+msgstr "Tafat"
+
+#: uresourcestrings.rslightposition
+msgid "Light position"
+msgstr "Ideg n tafat"
+
+#: uresourcestrings.rslinear
+msgctxt "uresourcestrings.rslinear"
+msgid "Linear"
+msgstr "Imzireg"
+
+#: uresourcestrings.rslinearrgb
+msgid "Linear RGB"
+msgstr "RGB imzireg"
+
+#: uresourcestrings.rsloadandmergepalette
+msgid "Load and merge palette..."
+msgstr "Sali yerna smezdi tapaliḍt..."
+
+#: uresourcestrings.rsloading
+msgid "Loading"
+msgstr "Asali"
+
+#: uresourcestrings.rsloadpalette
+msgid "Load palette..."
+msgstr "Sali-d tapaliḍt..."
+
+#: uresourcestrings.rsloopcount
+msgid "Loop count"
+msgstr ""
+
+#: uresourcestrings.rsmakencolorspalettefrombitmap
+msgid "Make %1-colors palette from image"
+msgstr "Eg tapaliḍt n %1 n yiniten seg tugna"
+
+#: uresourcestrings.rsmergeselection
+msgid "Do you want to merge selection?"
+msgstr "Tebɣiḍ ad tesmezdiḍ tafrayt?"
+
+#: uresourcestrings.rsmitchell
+msgctxt "uresourcestrings.rsmitchell"
+msgid "Mitchell"
+msgstr "Mitchell"
+
+#: uresourcestrings.rsmorethanonefile
+msgid "You are trying to open more than one file. How would you like these files to be opened?"
+msgstr "Ala tettaɛraḍeḍ ad teldiḍ ugar n yiwen n ufaylu. Amek tebɣiḍ ad ldin ifuyla-agi ?"
+
+#: uresourcestrings.rsmovingorrotatingselection
+msgctxt "uresourcestrings.rsmovingorrotatingselection"
+msgid "Moving or rotating selection"
+msgstr "Smutti neɣ zzi tafrayt"
+
+#: uresourcestrings.rsmustreleaseselection
+msgid "You must first release the selection"
+msgstr "Isefk di tazwara ad teslelliḍ tafrayt"
+
+#: uresourcestrings.rsmustshowlayer
+msgid "You must first make the layer visible"
+msgstr ""
+
+#: uresourcestrings.rsnetworkdrive
+msgid "Network"
+msgstr "Azeḍḍa"
+
+#: uresourcestrings.rsnewimage
+msgctxt "uresourcestrings.rsnewimage"
+msgid "New image"
+msgstr "Tugna tamaynutt"
+
+#: uresourcestrings.rsno
+msgid "No"
+msgstr "Ala"
+
+#: uresourcestrings.rsnoactivelayer
+msgid "No active layer"
+msgstr "Ulac tissi turmidt"
+
+#: uresourcestrings.rsnoactiveselection
+msgid "There is no active selection"
+msgstr "Ulac tafrayt turmidt"
+
+#: uresourcestrings.rsnoandproceedtonext
+msgid "Do not save and open another file"
+msgstr "Ur seklas ur tteldi afaylu-nniḍen"
+
+#: uresourcestrings.rsnoname
+msgctxt "uresourcestrings.rsnoname"
+msgid "noname"
+msgstr "warisem"
+
+#: uresourcestrings.rsnormalblendop
+msgid "Normal"
+msgstr "Amagnu"
+
+#: uresourcestrings.rsnothingtobedeformed
+msgctxt "uresourcestrings.rsnothingtobedeformed"
+msgid "There is nothing to be deformed"
+msgstr "Ulac d acu ara yettuzelgen"
+
+#: uresourcestrings.rsnothingtoberetrieved
+msgctxt "uresourcestrings.rsnothingtoberetrieved"
+msgid "There is nothing to be retrieved"
+msgstr "Ulac d acu ara d-terreḍ"
+
+#: uresourcestrings.rsnotreasonableformat
+msgid "It is not reasonable to save such a big image in this file format."
+msgstr "Ur iwulem ara ad teskelseḍ tugna s umasal-agi n ufaylu."
+
+#: uresourcestrings.rsnumber
+msgid "№"
+msgstr "№"
+
+#: uresourcestrings.rsokay
+msgid "Okay"
+msgstr "Ih"
+
+#: uresourcestrings.rsopacity
+msgctxt "uresourcestrings.rsopacity"
+msgid "Opacity"
+msgstr "Tiḍullest"
+
+#: uresourcestrings.rsopen
+msgid "Open"
+msgstr "Ldi"
+
+#: uresourcestrings.rsopenfilesaslayers
+msgid "Open files as layers in a single image"
+msgstr "Ldi ifuyla amzun d tissiyin n yiwet n tugna"
+
+#: uresourcestrings.rsopenfirstfileonly
+msgid "Open the first file only"
+msgstr "Ldi kan afaylu amezwaru"
+
+#: uresourcestrings.rsopening
+msgid "Opening"
+msgstr "Alday"
+
+#: uresourcestrings.rsopenmultipleimagefiles
+msgid "Open multiple image files"
+msgstr "Ldi aṭṭas n ifuyla n tugniwin"
+
+#: uresourcestrings.rsotherblendop
+msgid "Other..."
+msgstr "Wayeḍ..."
+
+#: uresourcestrings.rsoverwritefile
+msgid "File already exists. Do you want to overwrite it?"
+msgstr "Afaylu yella yakan. Tebɣiḍ ad t-tesemselsiḍ?"
+
+#: uresourcestrings.rspaletteincludesalphachannel
+msgid "Palette includes alpha channel"
+msgstr "Seddu abadu alfa di tpaliḍt"
+
+#: uresourcestrings.rspaletteoptions
+msgid "Palette options"
+msgstr "Tinefrunin n tpaliḍt"
+
+#: uresourcestrings.rspercent
+msgctxt "uresourcestrings.rspercent"
+msgid "%"
+msgstr "%"
+
+#: uresourcestrings.rsportait
+msgid "Portrait"
+msgstr "S teɣzi"
+
+#: uresourcestrings.rsposterizelayerusingpalette
+msgid "Posterize layer using palette"
+msgstr ""
+
+#: uresourcestrings.rspresetname
+msgid "Preset name"
+msgstr "Sbadu isem"
+
+#: uresourcestrings.rspx
+msgid "px"
+msgstr "px"
+
+#: uresourcestrings.rspythonunexpectedversion
+msgid "Expected python version %1 but %2 found."
+msgstr ""
+
+#: uresourcestrings.rsramdisk
+msgid "RAM disk"
+msgstr "RAM aḍebsi"
+
+#: uresourcestrings.rsrasterlayer
+msgid "Raster layer"
+msgstr "Tissi s ipiksilen"
+
+#: uresourcestrings.rsrecentdirectories
+msgid "Recent directories:"
+msgstr "Ikaramen n melmi kan:"
+
+#: uresourcestrings.rsred
+msgid "Red"
+msgstr "Azeggaɣ"
+
+#: uresourcestrings.rsreload
+msgctxt "uresourcestrings.rsreload"
+msgid "Reload"
+msgstr "Ales asali"
+
+#: uresourcestrings.rsreloadchanged
+msgid "Bitmap has been modified. Do you really want to reload?"
+msgstr "Tugna tettwabeddel. D tidet tebɣiḍ ad s-talseḍ asali?"
+
+#: uresourcestrings.rsremovabledrive
+msgid "Removable"
+msgstr "Aziraz"
+
+#: uresourcestrings.rsrepeatimage
+msgctxt "uresourcestrings.rsrepeatimage"
+msgid "Repeat image"
+msgstr "Ales tugna"
+
+#: uresourcestrings.rsresamplingimage
+msgid "Resampling image..."
+msgstr ""
+
+#: uresourcestrings.rsretrieveselectedarea
+msgctxt "uresourcestrings.rsretrieveselectedarea"
+msgid "Do you want to retrieve selected area?"
+msgstr "Tebɣiḍ ad d-terreḍ taɣzut n tefrayt?"
+
+#: uresourcestrings.rsreturnvalides
+msgid "Press ENTER to validate"
+msgstr "Ssed ɣef ENTER iwakken ad tsentemeḍ"
+
+#: uresourcestrings.rsrgb
+msgctxt "uresourcestrings.rsrgb"
+msgid "RGB"
+msgstr "RGB"
+
+#: uresourcestrings.rsrightclickforsource
+msgid "Use RIGHT click to define source"
+msgstr "Seqdec asiti ayefus iwakken ad tesbaduḍ aɣbalu"
+
+#: uresourcestrings.rssaturation
+msgctxt "uresourcestrings.rssaturation"
+msgid "Saturation"
+msgstr "Tawant"
+
+#: uresourcestrings.rssave
+msgctxt "uresourcestrings.rssave"
+msgid "Save"
+msgstr "Sekles"
+
+#: uresourcestrings.rssaveasbuttonhint
+msgctxt "uresourcestrings.rssaveasbuttonhint"
+msgid "Save with specified filename"
+msgstr "Sekles s yisem n ufaylu i d-ittunefken"
+
+#: uresourcestrings.rssavechanges
+msgctxt "uresourcestrings.rssavechanges"
+msgid "Current bitmap has been modified. Do you want to save changes?"
+msgstr "Tugna bitmap tamirant tettwabeddel. Tebɣiḍ ad teskelseḍ ibeddien?"
+
+#: uresourcestrings.rssavepaletteas
+msgid "Save palette as..."
+msgstr "Sekles tapaliḍt am..."
+
+#: uresourcestrings.rsscript
+msgctxt "uresourcestrings.rsscript"
+msgid "Script"
+msgstr "Askript"
+
+#: uresourcestrings.rsselectblendoperation
+#, fuzzy
+msgctxt "uresourcestrings.rsselectblendoperation"
+msgid "Select blend operation"
+msgstr "Fren tamhelt n usmezdi"
+
+#: uresourcestrings.rsshift
+msgid "SHIFT"
+msgstr "SHIFT"
+
+#: uresourcestrings.rsshowpalette
+msgctxt "uresourcestrings.rsshowpalette"
+msgid "Show palette"
+msgstr "Sken tapaliḍt"
+
+#: uresourcestrings.rssourceposition
+msgid "Source position"
+msgstr "Ideg n uɣbalu"
+
+#: uresourcestrings.rsspline
+msgctxt "uresourcestrings.rsspline"
+msgid "Spline"
+msgstr "Izirig ittleɣwayen"
+
+#: uresourcestrings.rsstoragedevice
+msgid "Device"
+msgstr "Ibenk"
+
+#: uresourcestrings.rstexturemapping
+msgctxt "uresourcestrings.rstexturemapping"
+msgid "Texture mapping"
+msgstr "Ḍlu tizḍi"
+
+#: uresourcestrings.rstherearenocheckeditems
+msgid "There are no checked items. Check some items or add some new ones."
+msgstr "Ulac iferdisen yettwafernen. Fren kra n iferdisen neɣ rnu imaynuten."
+
+#: uresourcestrings.rsthereisnofilenamegivenforthisfileusesaveas
+msgid "There is no file name given for this file. Use \"Save as...\" from the main menu."
+msgstr "Ulac isem i ufaylu-agi. Seqdec \"Sekles am...\" seg wumuɣ agejdan."
+
+#: uresourcestrings.rstodo
+msgid "To do"
+msgstr ""
+
+#: uresourcestrings.rstodoimages
+msgid "Images left: %1"
+msgstr "Tugniwin i d-yegran: %1"
+
+#: uresourcestrings.rstooloninvisiblelayer
+msgid "Tool cannot be used on an invisible layer"
+msgstr "Afecku ulamek ara yettwaseqdec deg tissi yeffren"
+
+#: uresourcestrings.rstoomanyactions
+msgid "Too many actions"
+msgstr ""
+
+#: uresourcestrings.rstoomanylayers
+msgid "Too many layers"
+msgstr "Bezzaf n tissiyin"
+
+#: uresourcestrings.rstoomanyshapesinlayer
+msgid "Too many shapes in layer"
+msgstr "Bezzaf n talɣiwin deg tissi"
+
+#: uresourcestrings.rstotalimages
+msgid "Total images: %1"
+msgstr "Aɣrud n tugniwin: %1"
+
+#: uresourcestrings.rstransferselectiontootherlayer
+msgid "Transfer selection to other layer?"
+msgstr "Tebɣiḍ ad tawiḍ tafrayt ɣer tissi-nniḍen?"
+
+#: uresourcestrings.rstransformedrasterlayer
+msgid "Transformed raster layer"
+msgstr ""
+
+#: uresourcestrings.rstransformselectioncontent
+msgid "Do you want to transform content of the selection?"
+msgstr "Tebɣiḍ ad tselkteḍ agbur n tefrayt?"
+
+#: uresourcestrings.rsunabletoapplyfilter
+msgid "Unable to apply filter : "
+msgstr "D awezɣi asnes n testayt : "
+
+#: uresourcestrings.rsunabletoloadfile
+msgid "Unable to load file : "
+msgstr "D awezɣi asali n ufaylu : "
+
+#: uresourcestrings.rsunabletosavefile
+msgid "Unable to save file : "
+msgstr "Dawezɣi asekles n ufaylu : "
+
+#: uresourcestrings.rsunknowncommand
+msgid "Unknown command : "
+msgstr "Anezḍay arussin : "
+
+#: uresourcestrings.rsunknownoriginal
+msgid "Unknown original"
+msgstr ""
+
+#: uresourcestrings.rsvectoriallayer
+msgid "Vectorial layer"
+msgstr "Tissi tamawayt"
+
+#: uresourcestrings.rsyes
+msgid "Yes"
+msgstr "Ih"
+
+#: uresourcestrings.rszoomlayerstackin
+#, fuzzy
+msgctxt "uresourcestrings.rszoomlayerstackin"
+msgid "Zoom layer stack in"
+msgstr "Semɣer taɣbirt n tissiyin"
+
+#: uresourcestrings.rszoomlayerstackout
+#, fuzzy
+msgctxt "uresourcestrings.rszoomlayerstackout"
+msgid "Zoom layer stack out"
+msgstr "Simecṭuḥ taɣbirt n tissiyin"
+

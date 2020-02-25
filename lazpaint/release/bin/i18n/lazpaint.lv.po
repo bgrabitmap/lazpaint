@@ -390,6 +390,10 @@ msgstr "Labi"
 msgid "Apply function"
 msgstr "Pielietot funkciju"
 
+#: tffilterfunction.checkbox_gamma.caption
+msgid "Gamma correction"
+msgstr ""
+
 #: tffilterfunction.checkbox_gsba.caption
 msgctxt "TFFILTERFUNCTION.CHECKBOX_GSBA.CAPTION"
 msgid "Corrected hue and lightness"
@@ -583,6 +587,7 @@ msgid "Layers"
 msgstr "Slāņi"
 
 #: tflayerstack.toolblendop.hint
+msgctxt "tflayerstack.toolblendop.hint"
 msgid "Select blend operation"
 msgstr "Izvēlies sapludināšanu"
 
@@ -794,12 +799,20 @@ msgstr "Pārbaudīt"
 msgid "Validate modifications"
 msgstr "Pārbaudīt izmaiņas"
 
+#: tfmain.exportpicturedialog.title
+msgid "Export as..."
+msgstr ""
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr ""
 
 #: tfmain.filechooseentry.hint
 msgid "Choose entry within file"
+msgstr ""
+
+#: tfmain.fileexport.caption
+msgid "Export..."
 msgstr ""
 
 #: tfmain.fileimport3d.caption
@@ -1108,11 +1121,6 @@ msgstr "Apmest stateniski"
 msgid "Flip image vertically"
 msgstr "Apmet attēlu caur augšmalu (spoguļattēls kājām gaisā)"
 
-#: tfmain.image_currenttexture.hint
-msgctxt "tfmain.image_currenttexture.hint"
-msgid "Current texture"
-msgstr "Virsmas raksts"
-
 #: tfmain.image_currenttool.hint
 msgctxt "TFMAIN.IMAGE_CURRENTTOOL.HINT"
 msgid "Selected tool"
@@ -1389,6 +1397,11 @@ msgctxt "TFMAIN.MENURENDER.CAPTION"
 msgid "Render"
 msgstr "Atveidot"
 
+#: tfmain.menuscript.caption
+msgctxt "tfmain.menuscript.caption"
+msgid "Script"
+msgstr ""
+
 #: tfmain.menuselect.caption
 msgctxt "TFMAIN.MENUSELECT.CAPTION"
 msgid "Select"
@@ -1524,15 +1537,6 @@ msgstr ""
 msgid "Flip selection vertically"
 msgstr ""
 
-#: tfmain.shape_backcolor.hint
-msgctxt "tfmain.shape_backcolor.hint"
-msgid "Select secondary color"
-msgstr "Izvēlies otru krāsu"
-
-#: tfmain.shape_pencolor.hint
-msgid "Select pen color"
-msgstr "Izvēlies otas krāsu"
-
 #: tfmain.spinedit_arrowsizex.hint
 msgctxt "tfmain.spinedit_arrowsizex.hint"
 msgid "Horizontal size of the arrow"
@@ -1543,11 +1547,6 @@ msgctxt "tfmain.spinedit_arrowsizey.hint"
 msgid "Vertical size of the arrow"
 msgstr ""
 
-#: tfmain.spinedit_backopacity.hint
-msgctxt "tfmain.spinedit_backopacity.hint"
-msgid "Secondary color opacity"
-msgstr "Otrās krāsas redzamība"
-
 #: tfmain.spinedit_brushspacing.hint
 msgctxt "tfmain.spinedit_brushspacing.hint"
 msgid "Spacing between patterns"
@@ -1557,11 +1556,6 @@ msgstr "Attālums starp pieskārieniem"
 msgctxt "tfmain.spinedit_eraser.hint"
 msgid "Eraser opacity"
 msgstr "Dzēšgumijas caurredzamība"
-
-#: tfmain.spinedit_penopacity.hint
-msgctxt "tfmain.spinedit_penopacity.hint"
-msgid "Pen opacity"
-msgstr "Otas caurredzamība"
 
 #: tfmain.spinedit_penwidth.hint
 msgctxt "tfmain.spinedit_penwidth.hint"
@@ -1602,11 +1596,6 @@ msgstr ""
 msgctxt "tfmain.spinedit_textsize.hint"
 msgid "Text size"
 msgstr ""
-
-#: tfmain.spinedit_textureopacity.hint
-msgctxt "tfmain.spinedit_textureopacity.hint"
-msgid "Texture opacity"
-msgstr "Virsmas raksta redzmība"
 
 #: tfmain.toolbrush.hint
 msgctxt "tfmain.toolbrush.hint"
@@ -1682,11 +1671,6 @@ msgctxt "TFMAIN.TOOLLAYERMAPPING.HINT"
 msgid "Layer perspective"
 msgstr ""
 
-#: tfmain.toolloadtexture.hint
-msgctxt "tfmain.toolloadtexture.hint"
-msgid "Load texture..."
-msgstr "Ielasīt virsmas rakstu ..."
-
 #: tfmain.toolmagicwand.caption
 msgid "Magic wand"
 msgstr "Iezīmēt līdzīgos"
@@ -1700,10 +1684,9 @@ msgctxt "TFMAIN.TOOLMOVESELECTION.HINT"
 msgid "Move selection"
 msgstr "Pārvietot iezīmējumu"
 
-#: tfmain.toolnotexture.hint
-msgctxt "tfmain.toolnotexture.hint"
-msgid "No texture"
-msgstr "Bez virsmas raksta"
+#: tfmain.toolopenedcurve.hint
+msgid "Opened curve"
+msgstr ""
 
 #: tfmain.toolpen.caption
 msgctxt "TFMAIN.TOOLPEN.CAPTION"
@@ -1726,6 +1709,10 @@ msgstr "Daudzstūris"
 #: tfmain.toolpolygon.hint
 msgid "Polygon or polyline"
 msgstr "Daudzstūris vai lauzta līnija"
+
+#: tfmain.toolpolyline.hint
+msgid "Polyline"
+msgstr ""
 
 #: tfmain.toolrect.hint
 msgctxt "TFMAIN.TOOLRECT.HINT"
@@ -1829,11 +1816,6 @@ msgstr ""
 msgid "Move point"
 msgstr ""
 
-#: tfmain.tool_diamondgradient.hint
-msgctxt "TFMAIN.TOOL_DIAMONDGRADIENT.HINT"
-msgid "Diamond gradient"
-msgstr "Rombiska pāreja"
-
 #: tfmain.tool_drawshapeborder.hint
 msgctxt "TFMAIN.TOOL_DRAWSHAPEBORDER.HINT"
 msgid "Draw border"
@@ -1847,6 +1829,18 @@ msgstr ""
 #: tfmain.tool_eraseblur.hint
 msgctxt "TFMAIN.TOOL_ERASEBLUR.HINT"
 msgid "Soften"
+msgstr ""
+
+#: tfmain.tool_erasedarken.hint
+msgid "Darken"
+msgstr ""
+
+#: tfmain.tool_eraselighten.hint
+msgid "Lighten"
+msgstr ""
+
+#: tfmain.tool_erasesharpen.hint
+msgid "Sharpen"
 msgstr ""
 
 #: tfmain.tool_fillshape.hint
@@ -1873,11 +1867,6 @@ msgstr ""
 msgctxt "TFMAIN.TOOL_JOINROUND.HINT"
 msgid "Round join"
 msgstr ""
-
-#: tfmain.tool_lineargradient.hint
-msgctxt "TFMAIN.TOOL_LINEARGRADIENT.HINT"
-msgid "Linear gradient"
-msgstr "Vienmērīga pāreja"
 
 #: tfmain.tool_phongshapecone.hint
 msgctxt "TFMAIN.TOOL_PHONGSHAPECONE.HINT"
@@ -1925,20 +1914,17 @@ msgctxt "TFMAIN.TOOL_PROGRESSIVEFLOODFILL.HINT"
 msgid "Progressive floodfill"
 msgstr "Vienmērīgs aizpildījums"
 
-#: tfmain.tool_radialgradient.hint
-msgctxt "TFMAIN.TOOL_RADIALGRADIENT.HINT"
-msgid "Radial gradient"
-msgstr "Apļveida pāreja"
+#: tfmain.tool_textaligncenter.hint
+msgid "Center"
+msgstr ""
 
-#: tfmain.tool_reflectedgradient.hint
-msgctxt "TFMAIN.TOOL_REFLECTEDGRADIENT.HINT"
-msgid "Reflected gradient"
-msgstr "Spoguļveida pāreja"
+#: tfmain.tool_textalignleft.hint
+msgid "Align left"
+msgstr ""
 
-#: tfmain.tool_singradient.hint
-msgctxt "TFMAIN.TOOL_SINGRADIENT.HINT"
-msgid "Sine gradient"
-msgstr "Viļnveida pāreja"
+#: tfmain.tool_textalignright.hint
+msgid "Align right"
+msgstr ""
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
@@ -2933,6 +2919,10 @@ msgstr "Slānis ir tukšs"
 msgid "Selection is empty"
 msgstr "Iezīmējums ir tukšs"
 
+#: uresourcestrings.rsendwithoutmatchingbegin
+msgid "End without matching begin"
+msgstr ""
+
 #: uresourcestrings.rsenterfolderorcontainername
 msgid "Enter name for new folder or container (using RES or LRS extension):"
 msgstr ""
@@ -3448,8 +3438,15 @@ msgid "Save palette as..."
 msgstr "Saglabāt paleti kā ..."
 
 #: uresourcestrings.rsscript
+msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr ""
+
+#: uresourcestrings.rsselectblendoperation
+#, fuzzy
+msgctxt "uresourcestrings.rsselectblendoperation"
+msgid "Select blend operation"
+msgstr "Izvēlies sapludināšanu"
 
 #: uresourcestrings.rsshift
 msgid "SHIFT"
@@ -3496,6 +3493,10 @@ msgstr "Palicis: %1"
 
 #: uresourcestrings.rstooloninvisiblelayer
 msgid "Tool cannot be used on an invisible layer"
+msgstr ""
+
+#: uresourcestrings.rstoomanyactions
+msgid "Too many actions"
 msgstr ""
 
 #: uresourcestrings.rstoomanylayers
@@ -3549,4 +3550,16 @@ msgstr ""
 #: uresourcestrings.rsyes
 msgid "Yes"
 msgstr "Jā"
+
+#: uresourcestrings.rszoomlayerstackin
+#, fuzzy
+msgctxt "uresourcestrings.rszoomlayerstackin"
+msgid "Zoom layer stack in"
+msgstr "Pietuvināt slāņu sarakstu"
+
+#: uresourcestrings.rszoomlayerstackout
+#, fuzzy
+msgctxt "uresourcestrings.rszoomlayerstackout"
+msgid "Zoom layer stack out"
+msgstr "Attālināt slāņu sarakstu"
 

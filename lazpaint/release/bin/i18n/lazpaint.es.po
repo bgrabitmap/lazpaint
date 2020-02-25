@@ -386,6 +386,10 @@ msgstr "Aceptar"
 msgid "Apply function"
 msgstr "Aplicar función"
 
+#: tffilterfunction.checkbox_gamma.caption
+msgid "Gamma correction"
+msgstr "Corregir gamma"
+
 #: tffilterfunction.checkbox_gsba.caption
 msgctxt "tffilterfunction.checkbox_gsba.caption"
 msgid "Corrected hue and lightness"
@@ -579,6 +583,7 @@ msgid "Layers"
 msgstr "Capas"
 
 #: tflayerstack.toolblendop.hint
+msgctxt "tflayerstack.toolblendop.hint"
 msgid "Select blend operation"
 msgstr "Seleccionar operación de mezcla"
 
@@ -789,6 +794,10 @@ msgstr "Validar"
 msgid "Validate modifications"
 msgstr "Validar modificaciones"
 
+#: tfmain.exportpicturedialog.title
+msgid "Export as..."
+msgstr "Exportar como..."
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr "Elegir entrada..."
@@ -796,6 +805,10 @@ msgstr "Elegir entrada..."
 #: tfmain.filechooseentry.hint
 msgid "Choose entry within file"
 msgstr "Elegir entrada dentro del archivo"
+
+#: tfmain.fileexport.caption
+msgid "Export..."
+msgstr "Exportar..."
 
 #: tfmain.fileimport3d.caption
 msgid "Import 3D object..."
@@ -1079,12 +1092,12 @@ msgid "Resample image"
 msgstr "Redimensionar imágen"
 
 #: tfmain.imagerotateccw.caption
-msgid "Rotate 90° CCW"
-msgstr "Rotar 90º CCW"
+msgid "Rotate 90° CCR"
+msgstr "Rotar 90º CCR"
 
 #: tfmain.imagerotatecw.caption
-msgid "Rotate 90° CW"
-msgstr "Rotar 90º CW"
+msgid "Rotate 90° CR"
+msgstr "Rotar 90º CR"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
@@ -1102,11 +1115,6 @@ msgstr "Voltear verticalmente"
 #: tfmain.imageverticalflip.hint
 msgid "Flip image vertically"
 msgstr "Voltear imágen verticalmente"
-
-#: tfmain.image_currenttexture.hint
-msgctxt "tfmain.image_currenttexture.hint"
-msgid "Current texture"
-msgstr "Textura actual"
 
 #: tfmain.image_currenttool.hint
 msgctxt "TFMAIN.IMAGE_CURRENTTOOL.HINT"
@@ -1382,6 +1390,12 @@ msgctxt "tfmain.menurender.caption"
 msgid "Render"
 msgstr "Renderizar"
 
+#: tfmain.menuscript.caption
+#, fuzzy
+msgctxt "tfmain.menuscript.caption"
+msgid "Script"
+msgstr "Guión"
+
 #: tfmain.menuselect.caption
 msgctxt "tfmain.menuselect.caption"
 msgid "Select"
@@ -1517,15 +1531,6 @@ msgstr "Voltear selección horizontalmente"
 msgid "Flip selection vertically"
 msgstr "Voltear selección verticalmente"
 
-#: tfmain.shape_backcolor.hint
-msgctxt "tfmain.shape_backcolor.hint"
-msgid "Select secondary color"
-msgstr "Seleccionar color secundario"
-
-#: tfmain.shape_pencolor.hint
-msgid "Select pen color"
-msgstr "Seleccionar color de pluma"
-
 #: tfmain.spinedit_arrowsizex.hint
 msgctxt "tfmain.spinedit_arrowsizex.hint"
 msgid "Horizontal size of the arrow"
@@ -1536,11 +1541,6 @@ msgctxt "tfmain.spinedit_arrowsizey.hint"
 msgid "Vertical size of the arrow"
 msgstr "Tamaño vertical de la flecha"
 
-#: tfmain.spinedit_backopacity.hint
-msgctxt "tfmain.spinedit_backopacity.hint"
-msgid "Secondary color opacity"
-msgstr "Opacidad de color secundario"
-
 #: tfmain.spinedit_brushspacing.hint
 msgctxt "tfmain.spinedit_brushspacing.hint"
 msgid "Spacing between patterns"
@@ -1550,11 +1550,6 @@ msgstr "Espaciado entre patrones"
 msgctxt "tfmain.spinedit_eraser.hint"
 msgid "Eraser opacity"
 msgstr "Opacidad del borrador"
-
-#: tfmain.spinedit_penopacity.hint
-msgctxt "tfmain.spinedit_penopacity.hint"
-msgid "Pen opacity"
-msgstr "Opacidad de pluma"
 
 #: tfmain.spinedit_penwidth.hint
 msgctxt "tfmain.spinedit_penwidth.hint"
@@ -1595,11 +1590,6 @@ msgstr "Offset de sombra vertical"
 msgctxt "tfmain.spinedit_textsize.hint"
 msgid "Text size"
 msgstr "Tamaño de texto"
-
-#: tfmain.spinedit_textureopacity.hint
-msgctxt "tfmain.spinedit_textureopacity.hint"
-msgid "Texture opacity"
-msgstr "Opacidad de textura"
 
 #: tfmain.toolbrush.hint
 msgctxt "tfmain.toolbrush.hint"
@@ -1676,11 +1666,6 @@ msgctxt "tfmain.toollayermapping.hint"
 msgid "Layer perspective"
 msgstr "Perspectiva de capa"
 
-#: tfmain.toolloadtexture.hint
-msgctxt "tfmain.toolloadtexture.hint"
-msgid "Load texture..."
-msgstr "Cargar textura..."
-
 #: tfmain.toolmagicwand.caption
 msgid "Magic wand"
 msgstr "Varita mágica"
@@ -1694,10 +1679,9 @@ msgctxt "TFMAIN.TOOLMOVESELECTION.HINT"
 msgid "Move selection"
 msgstr "Mover selección"
 
-#: tfmain.toolnotexture.hint
-msgctxt "tfmain.toolnotexture.hint"
-msgid "No texture"
-msgstr "Sin textura"
+#: tfmain.toolopenedcurve.hint
+msgid "Opened curve"
+msgstr "Curva abierta"
 
 #: tfmain.toolpen.caption
 msgctxt "TFMAIN.TOOLPEN.CAPTION"
@@ -1720,6 +1704,10 @@ msgstr "Polígono"
 #: tfmain.toolpolygon.hint
 msgid "Polygon or polyline"
 msgstr "Polígono o polilínea"
+
+#: tfmain.toolpolyline.hint
+msgid "Polyline"
+msgstr "Polilínea"
 
 #: tfmain.toolrect.hint
 msgctxt "TFMAIN.TOOLRECT.HINT"
@@ -1823,11 +1811,6 @@ msgstr "Dibujar une curva"
 msgid "Move point"
 msgstr "Mover punto"
 
-#: tfmain.tool_diamondgradient.hint
-msgctxt "tfmain.tool_diamondgradient.hint"
-msgid "Diamond gradient"
-msgstr "Degradado diamante"
-
 #: tfmain.tool_drawshapeborder.hint
 msgctxt "tfmain.tool_drawshapeborder.hint"
 msgid "Draw border"
@@ -1842,6 +1825,18 @@ msgstr "Hacer transparente"
 msgctxt "tfmain.tool_eraseblur.hint"
 msgid "Soften"
 msgstr "Suavizar"
+
+#: tfmain.tool_erasedarken.hint
+msgid "Darken"
+msgstr "Oscurecer"
+
+#: tfmain.tool_eraselighten.hint
+msgid "Lighten"
+msgstr "Aclarar"
+
+#: tfmain.tool_erasesharpen.hint
+msgid "Sharpen"
+msgstr "Nítido"
 
 #: tfmain.tool_fillshape.hint
 msgctxt "tfmain.tool_fillshape.hint"
@@ -1867,11 +1862,6 @@ msgstr "Junta inglete"
 msgctxt "TFMAIN.TOOL_JOINROUND.HINT"
 msgid "Round join"
 msgstr "Junta redonda"
-
-#: tfmain.tool_lineargradient.hint
-msgctxt "tfmain.tool_lineargradient.hint"
-msgid "Linear gradient"
-msgstr "Degradado linear"
 
 #: tfmain.tool_phongshapecone.hint
 msgctxt "tfmain.tool_phongshapecone.hint"
@@ -1918,20 +1908,17 @@ msgctxt "tfmain.tool_progressivefloodfill.hint"
 msgid "Progressive floodfill"
 msgstr "Relleno de flujo progresivo"
 
-#: tfmain.tool_radialgradient.hint
-msgctxt "tfmain.tool_radialgradient.hint"
-msgid "Radial gradient"
-msgstr "Degradado radial"
+#: tfmain.tool_textaligncenter.hint
+msgid "Center"
+msgstr "Centrar"
 
-#: tfmain.tool_reflectedgradient.hint
-msgctxt "tfmain.tool_reflectedgradient.hint"
-msgid "Reflected gradient"
-msgstr "Degradado reflejado"
+#: tfmain.tool_textalignleft.hint
+msgid "Align left"
+msgstr "Alinear a la izquierda"
 
-#: tfmain.tool_singradient.hint
-msgctxt "tfmain.tool_singradient.hint"
-msgid "Sine gradient"
-msgstr "Gradiente seno"
+#: tfmain.tool_textalignright.hint
+msgid "Align right"
+msgstr "Alinear a la derecha"
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
@@ -2931,6 +2918,10 @@ msgstr "La capa esta vacia"
 msgid "Selection is empty"
 msgstr "La selección está vacia"
 
+#: uresourcestrings.rsendwithoutmatchingbegin
+msgid "End without matching begin"
+msgstr "Fin sin comienzo correspondiente"
+
 #: uresourcestrings.rsenterfolderorcontainername
 msgid "Enter name for new folder or container (using RES or LRS extension):"
 msgstr "Ingresa el nombre para la nueva carpeta o contenedor (usando extensión RES ó LRS):"
@@ -3461,8 +3452,15 @@ msgid "Save palette as..."
 msgstr "Guardar paleta como..."
 
 #: uresourcestrings.rsscript
+msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "Guión"
+
+#: uresourcestrings.rsselectblendoperation
+#, fuzzy
+msgctxt "uresourcestrings.rsselectblendoperation"
+msgid "Select blend operation"
+msgstr "Seleccionar operación de mezcla"
 
 #: uresourcestrings.rsshift
 msgid "SHIFT"
@@ -3510,6 +3508,10 @@ msgstr "Quedan: %1"
 #: uresourcestrings.rstooloninvisiblelayer
 msgid "Tool cannot be used on an invisible layer"
 msgstr "La herramienta no puede ser usada en una capa invisible"
+
+#: uresourcestrings.rstoomanyactions
+msgid "Too many actions"
+msgstr "Demasiado acciones"
 
 #: uresourcestrings.rstoomanylayers
 msgid "Too many layers"
@@ -3562,4 +3564,16 @@ msgstr "Capa vectorial"
 #: uresourcestrings.rsyes
 msgid "Yes"
 msgstr "Sí"
+
+#: uresourcestrings.rszoomlayerstackin
+#, fuzzy
+msgctxt "uresourcestrings.rszoomlayerstackin"
+msgid "Zoom layer stack in"
+msgstr "Hacer zoom en capa"
+
+#: uresourcestrings.rszoomlayerstackout
+#, fuzzy
+msgctxt "uresourcestrings.rszoomlayerstackout"
+msgid "Zoom layer stack out"
+msgstr "Deshacer zoom en capa"
 

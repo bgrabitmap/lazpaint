@@ -31,7 +31,7 @@ msgstr ""
 
 #: lcresourcestring.rscolor
 msgid "Color"
-msgstr ""
+msgstr "Krāsa"
 
 #: lcresourcestring.rscolorinterpolation
 msgid "Color interpolation"
@@ -51,23 +51,23 @@ msgstr ""
 
 #: lcresourcestring.rsgradientdiamond
 msgid "Diamond"
-msgstr ""
+msgstr "Rombiska"
 
 #: lcresourcestring.rsgradientfill
 msgid "Gradient fill"
-msgstr ""
+msgstr "Pāreja"
 
 #: lcresourcestring.rsgradientlinear
 msgid "Linear"
-msgstr ""
+msgstr "Vienmērīga"
 
 #: lcresourcestring.rsgradientradial
 msgid "Radial"
-msgstr ""
+msgstr "Apļveida"
 
 #: lcresourcestring.rsgradientreflected
 msgid "Reflected"
-msgstr ""
+msgstr "Spoguļveida"
 
 #: lcresourcestring.rsgradientrepetition
 msgid "Gradient repetition"
@@ -87,7 +87,7 @@ msgstr ""
 
 #: lcresourcestring.rsgrsine
 msgid "Sine"
-msgstr ""
+msgstr "Viļnveida"
 
 #: lcresourcestring.rsincompatibletype
 msgid "Incompatible type"
@@ -99,11 +99,11 @@ msgstr ""
 
 #: lcresourcestring.rslightposition
 msgid "Light position"
-msgstr ""
+msgstr "Gaismas avots"
 
 #: lcresourcestring.rsloadtexture
 msgid "Load texture"
-msgstr ""
+msgstr "Ielasīt virsmas rakstu"
 
 #: lcresourcestring.rsnofill
 msgid "No fill"
@@ -115,11 +115,11 @@ msgstr ""
 
 #: lcresourcestring.rsopacity
 msgid "Opacity"
-msgstr ""
+msgstr "Redzamība"
 
 #: lcresourcestring.rspreview
 msgid "Preview"
-msgstr ""
+msgstr "Priekšskatīt"
 
 #: lcresourcestring.rsshapeclassnotspecified
 msgid "Shape class not specified"
@@ -139,7 +139,7 @@ msgstr ""
 
 #: lcresourcestring.rsswapcolors
 msgid "Swap colors"
-msgstr ""
+msgstr "Apmainīt krāsas vietām"
 
 #: lcresourcestring.rstexturefill
 msgid "Texture fill"

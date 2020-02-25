@@ -403,6 +403,10 @@ msgstr "OK"
 msgid "Apply function"
 msgstr "Funktion anwenden"
 
+#: tffilterfunction.checkbox_gamma.caption
+msgid "Gamma correction"
+msgstr "Korrigiert gamma"
+
 #: tffilterfunction.checkbox_gsba.caption
 msgctxt "tffilterfunction.checkbox_gsba.caption"
 msgid "Corrected hue and lightness"
@@ -596,6 +600,7 @@ msgid "Layers"
 msgstr "Ebenen"
 
 #: tflayerstack.toolblendop.hint
+msgctxt "tflayerstack.toolblendop.hint"
 msgid "Select blend operation"
 msgstr "Überblendungseffekt auswählen"
 
@@ -808,6 +813,10 @@ msgstr "Prüfen"
 msgid "Validate modifications"
 msgstr "Änderungen prüfen"
 
+#: tfmain.exportpicturedialog.title
+msgid "Export as..."
+msgstr "Ausführen als..."
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr "Eintrag auswählen"
@@ -815,6 +824,10 @@ msgstr "Eintrag auswählen"
 #: tfmain.filechooseentry.hint
 msgid "Choose entry within file"
 msgstr "Eintrag von Datei auswählen"
+
+#: tfmain.fileexport.caption
+msgid "Export..."
+msgstr "Ausführen..."
 
 #: tfmain.fileimport3d.caption
 msgid "Import 3D object..."
@@ -1122,11 +1135,6 @@ msgstr "Vertikal spiegeln"
 msgid "Flip image vertically"
 msgstr "Das Bild vertikal spiegeln"
 
-#: tfmain.image_currenttexture.hint
-msgctxt "tfmain.image_currenttexture.hint"
-msgid "Current texture"
-msgstr "Aktuelle Textur"
-
 #: tfmain.image_currenttool.hint
 msgctxt "TFMAIN.IMAGE_CURRENTTOOL.HINT"
 msgid "Selected tool"
@@ -1403,6 +1411,12 @@ msgctxt "tfmain.menurender.caption"
 msgid "Render"
 msgstr "Rendering"
 
+#: tfmain.menuscript.caption
+#, fuzzy
+msgctxt "tfmain.menuscript.caption"
+msgid "Script"
+msgstr "Skript"
+
 #: tfmain.menuselect.caption
 msgctxt "tfmain.menuselect.caption"
 msgid "Select"
@@ -1539,15 +1553,6 @@ msgstr "Auswahl horizontal spiegeln"
 msgid "Flip selection vertically"
 msgstr "Auswahl vertikal spiegeln"
 
-#: tfmain.shape_backcolor.hint
-msgctxt "tfmain.shape_backcolor.hint"
-msgid "Select secondary color"
-msgstr "Zweite Farbe wählen"
-
-#: tfmain.shape_pencolor.hint
-msgid "Select pen color"
-msgstr "Stiftfarbe wählen"
-
 #: tfmain.spinedit_arrowsizex.hint
 msgctxt "tfmain.spinedit_arrowsizex.hint"
 msgid "Horizontal size of the arrow"
@@ -1558,11 +1563,6 @@ msgctxt "tfmain.spinedit_arrowsizey.hint"
 msgid "Vertical size of the arrow"
 msgstr "Vertikale Größe des Pfeils"
 
-#: tfmain.spinedit_backopacity.hint
-msgctxt "tfmain.spinedit_backopacity.hint"
-msgid "Secondary color opacity"
-msgstr "Deckkraft der zweiten Farbe"
-
 #: tfmain.spinedit_brushspacing.hint
 msgctxt "tfmain.spinedit_brushspacing.hint"
 msgid "Spacing between patterns"
@@ -1572,11 +1572,6 @@ msgstr "Abstand der Muster"
 msgctxt "tfmain.spinedit_eraser.hint"
 msgid "Eraser opacity"
 msgstr "Deckkraft des Radierers"
-
-#: tfmain.spinedit_penopacity.hint
-msgctxt "tfmain.spinedit_penopacity.hint"
-msgid "Pen opacity"
-msgstr "Deckkraft des Stiftes"
 
 #: tfmain.spinedit_penwidth.hint
 msgctxt "tfmain.spinedit_penwidth.hint"
@@ -1617,11 +1612,6 @@ msgstr "Vertikaler Versatz des Schattens"
 msgctxt "tfmain.spinedit_textsize.hint"
 msgid "Text size"
 msgstr "Textgröße"
-
-#: tfmain.spinedit_textureopacity.hint
-msgctxt "tfmain.spinedit_textureopacity.hint"
-msgid "Texture opacity"
-msgstr "Deckkraft der Textur"
 
 #: tfmain.toolbrush.hint
 msgctxt "tfmain.toolbrush.hint"
@@ -1698,11 +1688,6 @@ msgctxt "tfmain.toollayermapping.hint"
 msgid "Layer perspective"
 msgstr "Perspektive"
 
-#: tfmain.toolloadtexture.hint
-msgctxt "tfmain.toolloadtexture.hint"
-msgid "Load texture..."
-msgstr "Textur laden..."
-
 #: tfmain.toolmagicwand.caption
 msgid "Magic wand"
 msgstr "Zauberstab"
@@ -1716,10 +1701,9 @@ msgctxt "TFMAIN.TOOLMOVESELECTION.HINT"
 msgid "Move selection"
 msgstr "Auswahl bewegen"
 
-#: tfmain.toolnotexture.hint
-msgctxt "tfmain.toolnotexture.hint"
-msgid "No texture"
-msgstr "Keine Textur"
+#: tfmain.toolopenedcurve.hint
+msgid "Opened curve"
+msgstr "Geöffnete Kurve"
 
 #: tfmain.toolpen.caption
 msgctxt "TFMAIN.TOOLPEN.CAPTION"
@@ -1742,6 +1726,10 @@ msgstr "Polygon"
 #: tfmain.toolpolygon.hint
 msgid "Polygon or polyline"
 msgstr "Polygon oder Polylinie"
+
+#: tfmain.toolpolyline.hint
+msgid "Polyline"
+msgstr "Polylinie"
 
 #: tfmain.toolrect.hint
 msgctxt "TFMAIN.TOOLRECT.HINT"
@@ -1845,11 +1833,6 @@ msgstr "Kurve zeichnen"
 msgid "Move point"
 msgstr "Punkt bewegen"
 
-#: tfmain.tool_diamondgradient.hint
-msgctxt "tfmain.tool_diamondgradient.hint"
-msgid "Diamond gradient"
-msgstr "Diamantverlauf"
-
 #: tfmain.tool_drawshapeborder.hint
 msgctxt "tfmain.tool_drawshapeborder.hint"
 msgid "Draw border"
@@ -1864,6 +1847,18 @@ msgstr "Durchsichtig machen"
 msgctxt "tfmain.tool_eraseblur.hint"
 msgid "Soften"
 msgstr "Weichzeichnen"
+
+#: tfmain.tool_erasedarken.hint
+msgid "Darken"
+msgstr "Dunkel machen"
+
+#: tfmain.tool_eraselighten.hint
+msgid "Lighten"
+msgstr "Aufhellen"
+
+#: tfmain.tool_erasesharpen.hint
+msgid "Sharpen"
+msgstr "Scharfzeichnen"
 
 #: tfmain.tool_fillshape.hint
 msgctxt "tfmain.tool_fillshape.hint"
@@ -1889,11 +1884,6 @@ msgstr "Fugenverbindung"
 msgctxt "TFMAIN.TOOL_JOINROUND.HINT"
 msgid "Round join"
 msgstr "Runde Verbindung"
-
-#: tfmain.tool_lineargradient.hint
-msgctxt "tfmain.tool_lineargradient.hint"
-msgid "Linear gradient"
-msgstr "Linearer Verlauf"
 
 #: tfmain.tool_phongshapecone.hint
 msgctxt "tfmain.tool_phongshapecone.hint"
@@ -1940,20 +1930,17 @@ msgctxt "tfmain.tool_progressivefloodfill.hint"
 msgid "Progressive floodfill"
 msgstr "Progressive Füllung"
 
-#: tfmain.tool_radialgradient.hint
-msgctxt "tfmain.tool_radialgradient.hint"
-msgid "Radial gradient"
-msgstr "Radialer Verlauf"
+#: tfmain.tool_textaligncenter.hint
+msgid "Center"
+msgstr "Zentrieren"
 
-#: tfmain.tool_reflectedgradient.hint
-msgctxt "tfmain.tool_reflectedgradient.hint"
-msgid "Reflected gradient"
-msgstr "Reflektierter Verlauf"
+#: tfmain.tool_textalignleft.hint
+msgid "Align left"
+msgstr "Links angleichen"
 
-#: tfmain.tool_singradient.hint
-msgctxt "tfmain.tool_singradient.hint"
-msgid "Sine gradient"
-msgstr "Sinusverlauf"
+#: tfmain.tool_textalignright.hint
+msgid "Align right"
+msgstr "Rechts angleichen"
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
@@ -2640,7 +2627,7 @@ msgstr "2 Farben"
 
 #: tfsaveoption.radiobutton_32bitsperpixel.caption
 msgid "32 bits"
-msgstr ""
+msgstr "32 bits"
 
 #: tfsaveoption.radiobutton_miomap.caption
 msgid "MioMap"
@@ -2948,6 +2935,10 @@ msgstr "Die Ebene ist leer"
 #: uresourcestrings.rsemptyselection
 msgid "Selection is empty"
 msgstr "Der Auswahl ist leer"
+
+#: uresourcestrings.rsendwithoutmatchingbegin
+msgid "End without matching begin"
+msgstr "Ende ohne Anfang"
 
 #: uresourcestrings.rsenterfolderorcontainername
 msgid "Enter name for new folder or container (using RES or LRS extension):"
@@ -3464,8 +3455,15 @@ msgid "Save palette as..."
 msgstr "Palette speichern als..."
 
 #: uresourcestrings.rsscript
+msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "Skript"
+
+#: uresourcestrings.rsselectblendoperation
+#, fuzzy
+msgctxt "uresourcestrings.rsselectblendoperation"
+msgid "Select blend operation"
+msgstr "Überblendungseffekt auswählen"
 
 #: uresourcestrings.rsshift
 msgid "SHIFT"
@@ -3513,6 +3511,10 @@ msgstr "Verbleibende Bilder: %1"
 #: uresourcestrings.rstooloninvisiblelayer
 msgid "Tool cannot be used on an invisible layer"
 msgstr "Das Werkzeug kann nicht an einer unsichtbaren Ebene verwendet"
+
+#: uresourcestrings.rstoomanyactions
+msgid "Too many actions"
+msgstr "Zu viele Aktionen"
 
 #: uresourcestrings.rstoomanylayers
 msgid "Too many layers"
@@ -3565,4 +3567,16 @@ msgstr "Vektor-Ebene"
 #: uresourcestrings.rsyes
 msgid "Yes"
 msgstr "Ja"
+
+#: uresourcestrings.rszoomlayerstackin
+#, fuzzy
+msgctxt "uresourcestrings.rszoomlayerstackin"
+msgid "Zoom layer stack in"
+msgstr "Ebenefenster einzoomen"
+
+#: uresourcestrings.rszoomlayerstackout
+#, fuzzy
+msgctxt "uresourcestrings.rszoomlayerstackout"
+msgid "Zoom layer stack out"
+msgstr "Ebenefenster auszoomen"
 

@@ -392,6 +392,10 @@ msgstr "موافق"
 msgid "Apply function"
 msgstr "تطبيق الوضيفة"
 
+#: tffilterfunction.checkbox_gamma.caption
+msgid "Gamma correction"
+msgstr ""
+
 #: tffilterfunction.checkbox_gsba.caption
 msgctxt "tffilterfunction.checkbox_gsba.caption"
 msgid "Corrected hue and lightness"
@@ -585,6 +589,7 @@ msgid "Layers"
 msgstr "طبقات"
 
 #: tflayerstack.toolblendop.hint
+msgctxt "tflayerstack.toolblendop.hint"
 msgid "Select blend operation"
 msgstr "تحديد عملية المزج"
 
@@ -796,12 +801,20 @@ msgstr "ثبت"
 msgid "Validate modifications"
 msgstr "ثبت التعديل"
 
+#: tfmain.exportpicturedialog.title
+msgid "Export as..."
+msgstr ""
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr ""
 
 #: tfmain.filechooseentry.hint
 msgid "Choose entry within file"
+msgstr ""
+
+#: tfmain.fileexport.caption
+msgid "Export..."
 msgstr ""
 
 #: tfmain.fileimport3d.caption
@@ -1110,11 +1123,6 @@ msgstr "قلب عمودي"
 msgid "Flip image vertically"
 msgstr "قلب الصورة عموديا"
 
-#: tfmain.image_currenttexture.hint
-msgctxt "tfmain.image_currenttexture.hint"
-msgid "Current texture"
-msgstr "النسيج الحالي"
-
 #: tfmain.image_currenttool.hint
 msgctxt "TFMAIN.IMAGE_CURRENTTOOL.HINT"
 msgid "Selected tool"
@@ -1391,6 +1399,12 @@ msgctxt "tfmain.menurender.caption"
 msgid "Render"
 msgstr "تصيير"
 
+#: tfmain.menuscript.caption
+#, fuzzy
+msgctxt "tfmain.menuscript.caption"
+msgid "Script"
+msgstr "سكريبت"
+
 #: tfmain.menuselect.caption
 msgctxt "tfmain.menuselect.caption"
 msgid "Select"
@@ -1526,15 +1540,6 @@ msgstr ""
 msgid "Flip selection vertically"
 msgstr ""
 
-#: tfmain.shape_backcolor.hint
-msgctxt "tfmain.shape_backcolor.hint"
-msgid "Select secondary color"
-msgstr "تحديد الون الثانوي"
-
-#: tfmain.shape_pencolor.hint
-msgid "Select pen color"
-msgstr "تحديد لون القلم"
-
 #: tfmain.spinedit_arrowsizex.hint
 msgctxt "tfmain.spinedit_arrowsizex.hint"
 msgid "Horizontal size of the arrow"
@@ -1545,11 +1550,6 @@ msgctxt "tfmain.spinedit_arrowsizey.hint"
 msgid "Vertical size of the arrow"
 msgstr ""
 
-#: tfmain.spinedit_backopacity.hint
-msgctxt "tfmain.spinedit_backopacity.hint"
-msgid "Secondary color opacity"
-msgstr "تعتيم اللون الثاني"
-
 #: tfmain.spinedit_brushspacing.hint
 msgctxt "tfmain.spinedit_brushspacing.hint"
 msgid "Spacing between patterns"
@@ -1559,11 +1559,6 @@ msgstr ""
 msgctxt "tfmain.spinedit_eraser.hint"
 msgid "Eraser opacity"
 msgstr "محو الشفافية"
-
-#: tfmain.spinedit_penopacity.hint
-msgctxt "tfmain.spinedit_penopacity.hint"
-msgid "Pen opacity"
-msgstr "تعتيم القلم"
 
 #: tfmain.spinedit_penwidth.hint
 msgctxt "tfmain.spinedit_penwidth.hint"
@@ -1603,11 +1598,6 @@ msgstr "ظل الإزاحة العمودي"
 #: tfmain.spinedit_textsize.hint
 msgctxt "tfmain.spinedit_textsize.hint"
 msgid "Text size"
-msgstr ""
-
-#: tfmain.spinedit_textureopacity.hint
-msgctxt "tfmain.spinedit_textureopacity.hint"
-msgid "Texture opacity"
 msgstr ""
 
 #: tfmain.toolbrush.hint
@@ -1685,11 +1675,6 @@ msgctxt "tfmain.toollayermapping.hint"
 msgid "Layer perspective"
 msgstr "منظور الطبقة"
 
-#: tfmain.toolloadtexture.hint
-msgctxt "tfmain.toolloadtexture.hint"
-msgid "Load texture..."
-msgstr "تحميل نسيج"
-
 #: tfmain.toolmagicwand.caption
 msgid "Magic wand"
 msgstr "عصا سحرية"
@@ -1703,10 +1688,9 @@ msgctxt "TFMAIN.TOOLMOVESELECTION.HINT"
 msgid "Move selection"
 msgstr "تحريك التحدد"
 
-#: tfmain.toolnotexture.hint
-msgctxt "tfmain.toolnotexture.hint"
-msgid "No texture"
-msgstr "بدون نسيج"
+#: tfmain.toolopenedcurve.hint
+msgid "Opened curve"
+msgstr ""
 
 #: tfmain.toolpen.caption
 msgctxt "TFMAIN.TOOLPEN.CAPTION"
@@ -1729,6 +1713,10 @@ msgstr "مضلع"
 #: tfmain.toolpolygon.hint
 msgid "Polygon or polyline"
 msgstr "مضلع او مضلع خطي"
+
+#: tfmain.toolpolyline.hint
+msgid "Polyline"
+msgstr ""
 
 #: tfmain.toolrect.hint
 msgctxt "TFMAIN.TOOLRECT.HINT"
@@ -1832,11 +1820,6 @@ msgstr "رسم منحنى"
 msgid "Move point"
 msgstr "تحريك النقطة"
 
-#: tfmain.tool_diamondgradient.hint
-msgctxt "tfmain.tool_diamondgradient.hint"
-msgid "Diamond gradient"
-msgstr "ميل الماس"
-
 #: tfmain.tool_drawshapeborder.hint
 msgctxt "tfmain.tool_drawshapeborder.hint"
 msgid "Draw border"
@@ -1851,6 +1834,18 @@ msgstr "جعلها شفافة"
 msgctxt "tfmain.tool_eraseblur.hint"
 msgid "Soften"
 msgstr "لين"
+
+#: tfmain.tool_erasedarken.hint
+msgid "Darken"
+msgstr ""
+
+#: tfmain.tool_eraselighten.hint
+msgid "Lighten"
+msgstr ""
+
+#: tfmain.tool_erasesharpen.hint
+msgid "Sharpen"
+msgstr ""
 
 #: tfmain.tool_fillshape.hint
 msgctxt "tfmain.tool_fillshape.hint"
@@ -1876,11 +1871,6 @@ msgstr "وسيط البرمة"
 msgctxt "TFMAIN.TOOL_JOINROUND.HINT"
 msgid "Round join"
 msgstr "برمة الوصلة"
-
-#: tfmain.tool_lineargradient.hint
-msgctxt "tfmain.tool_lineargradient.hint"
-msgid "Linear gradient"
-msgstr "ميل خطي"
 
 #: tfmain.tool_phongshapecone.hint
 msgctxt "tfmain.tool_phongshapecone.hint"
@@ -1927,20 +1917,17 @@ msgctxt "tfmain.tool_progressivefloodfill.hint"
 msgid "Progressive floodfill"
 msgstr "ملء  متدرج"
 
-#: tfmain.tool_radialgradient.hint
-msgctxt "tfmain.tool_radialgradient.hint"
-msgid "Radial gradient"
-msgstr "ميل شعاعي"
+#: tfmain.tool_textaligncenter.hint
+msgid "Center"
+msgstr ""
 
-#: tfmain.tool_reflectedgradient.hint
-msgctxt "tfmain.tool_reflectedgradient.hint"
-msgid "Reflected gradient"
-msgstr "ميل معكوس"
+#: tfmain.tool_textalignleft.hint
+msgid "Align left"
+msgstr ""
 
-#: tfmain.tool_singradient.hint
-msgctxt "tfmain.tool_singradient.hint"
-msgid "Sine gradient"
-msgstr "جيب الميل"
+#: tfmain.tool_textalignright.hint
+msgid "Align right"
+msgstr ""
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
@@ -2935,6 +2922,10 @@ msgstr "الطبقة فارغة"
 msgid "Selection is empty"
 msgstr "التحديد فارغ"
 
+#: uresourcestrings.rsendwithoutmatchingbegin
+msgid "End without matching begin"
+msgstr ""
+
 #: uresourcestrings.rsenterfolderorcontainername
 msgid "Enter name for new folder or container (using RES or LRS extension):"
 msgstr ""
@@ -3450,8 +3441,15 @@ msgid "Save palette as..."
 msgstr ""
 
 #: uresourcestrings.rsscript
+msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "سكريبت"
+
+#: uresourcestrings.rsselectblendoperation
+#, fuzzy
+msgctxt "uresourcestrings.rsselectblendoperation"
+msgid "Select blend operation"
+msgstr "تحديد عملية المزج"
 
 #: uresourcestrings.rsshift
 msgid "SHIFT"
@@ -3498,6 +3496,10 @@ msgstr ""
 
 #: uresourcestrings.rstooloninvisiblelayer
 msgid "Tool cannot be used on an invisible layer"
+msgstr ""
+
+#: uresourcestrings.rstoomanyactions
+msgid "Too many actions"
 msgstr ""
 
 #: uresourcestrings.rstoomanylayers
@@ -3551,4 +3553,16 @@ msgstr ""
 #: uresourcestrings.rsyes
 msgid "Yes"
 msgstr "نعم"
+
+#: uresourcestrings.rszoomlayerstackin
+#, fuzzy
+msgctxt "uresourcestrings.rszoomlayerstackin"
+msgid "Zoom layer stack in"
+msgstr "تكبير مكدس الطبقات"
+
+#: uresourcestrings.rszoomlayerstackout
+#, fuzzy
+msgctxt "uresourcestrings.rszoomlayerstackout"
+msgid "Zoom layer stack out"
+msgstr "تصغير مكدس الطبقات"
 

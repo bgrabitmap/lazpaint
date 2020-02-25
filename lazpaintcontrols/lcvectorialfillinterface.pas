@@ -855,7 +855,7 @@ begin
   FGradTypeMenu.Images := FImageList;
   for gt := low(TGradientType) to high(TGradientType) do
   begin
-    item := TMenuItem.Create(FGradTypeMenu);  item.Caption := GradientTypeStr[gt];
+    item := TMenuItem.Create(FGradTypeMenu);  item.Caption := GradientTypeToTranslatedStr(gt);
     item.OnClick:=@OnClickBackGradType;       item.Tag := ord(gt);
     item.ImageIndex:= 2+ord(gt);
     FGradTypeMenu.Items.Add(item);

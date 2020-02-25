@@ -388,6 +388,10 @@ msgstr "OK"
 msgid "Apply function"
 msgstr "Použít funkci"
 
+#: tffilterfunction.checkbox_gamma.caption
+msgid "Gamma correction"
+msgstr ""
+
 #: tffilterfunction.checkbox_gsba.caption
 msgctxt "tffilterfunction.checkbox_gsba.caption"
 msgid "Corrected hue and lightness"
@@ -581,6 +585,7 @@ msgid "Layers"
 msgstr "Vrstvy"
 
 #: tflayerstack.toolblendop.hint
+msgctxt "tflayerstack.toolblendop.hint"
 msgid "Select blend operation"
 msgstr "Vybrat operaci mísení"
 
@@ -793,12 +798,20 @@ msgstr "Ověřit"
 msgid "Validate modifications"
 msgstr "Ověřit úpravy"
 
+#: tfmain.exportpicturedialog.title
+msgid "Export as..."
+msgstr ""
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr ""
 
 #: tfmain.filechooseentry.hint
 msgid "Choose entry within file"
+msgstr ""
+
+#: tfmain.fileexport.caption
+msgid "Export..."
 msgstr ""
 
 #: tfmain.fileimport3d.caption
@@ -1107,11 +1120,6 @@ msgstr "Svislé obrácení"
 msgid "Flip image vertically"
 msgstr "Obrátit obrázek svisle"
 
-#: tfmain.image_currenttexture.hint
-msgctxt "tfmain.image_currenttexture.hint"
-msgid "Current texture"
-msgstr "Aktuální textura"
-
 #: tfmain.image_currenttool.hint
 msgctxt "TFMAIN.IMAGE_CURRENTTOOL.HINT"
 msgid "Selected tool"
@@ -1388,6 +1396,12 @@ msgctxt "tfmain.menurender.caption"
 msgid "Render"
 msgstr "Vykreslit"
 
+#: tfmain.menuscript.caption
+#, fuzzy
+msgctxt "tfmain.menuscript.caption"
+msgid "Script"
+msgstr "Skript"
+
 #: tfmain.menuselect.caption
 msgctxt "tfmain.menuselect.caption"
 msgid "Select"
@@ -1524,15 +1538,6 @@ msgstr ""
 msgid "Flip selection vertically"
 msgstr ""
 
-#: tfmain.shape_backcolor.hint
-msgctxt "tfmain.shape_backcolor.hint"
-msgid "Select secondary color"
-msgstr "Vyberte druhotnou barvu"
-
-#: tfmain.shape_pencolor.hint
-msgid "Select pen color"
-msgstr "Vyberte barvu pera"
-
 #: tfmain.spinedit_arrowsizex.hint
 msgctxt "tfmain.spinedit_arrowsizex.hint"
 msgid "Horizontal size of the arrow"
@@ -1543,11 +1548,6 @@ msgctxt "tfmain.spinedit_arrowsizey.hint"
 msgid "Vertical size of the arrow"
 msgstr ""
 
-#: tfmain.spinedit_backopacity.hint
-msgctxt "tfmain.spinedit_backopacity.hint"
-msgid "Secondary color opacity"
-msgstr "Průhlednost druhotné barvy"
-
 #: tfmain.spinedit_brushspacing.hint
 msgctxt "tfmain.spinedit_brushspacing.hint"
 msgid "Spacing between patterns"
@@ -1557,11 +1557,6 @@ msgstr ""
 msgctxt "tfmain.spinedit_eraser.hint"
 msgid "Eraser opacity"
 msgstr "Průhlednost gumy"
-
-#: tfmain.spinedit_penopacity.hint
-msgctxt "tfmain.spinedit_penopacity.hint"
-msgid "Pen opacity"
-msgstr "Průhlednost pera"
 
 #: tfmain.spinedit_penwidth.hint
 msgctxt "tfmain.spinedit_penwidth.hint"
@@ -1601,11 +1596,6 @@ msgstr "Posun svislého stínu"
 #: tfmain.spinedit_textsize.hint
 msgctxt "tfmain.spinedit_textsize.hint"
 msgid "Text size"
-msgstr ""
-
-#: tfmain.spinedit_textureopacity.hint
-msgctxt "tfmain.spinedit_textureopacity.hint"
-msgid "Texture opacity"
 msgstr ""
 
 #: tfmain.toolbrush.hint
@@ -1683,11 +1673,6 @@ msgctxt "tfmain.toollayermapping.hint"
 msgid "Layer perspective"
 msgstr "Pohled vrsvy"
 
-#: tfmain.toolloadtexture.hint
-msgctxt "tfmain.toolloadtexture.hint"
-msgid "Load texture..."
-msgstr "Načíst texturu..."
-
 #: tfmain.toolmagicwand.caption
 msgid "Magic wand"
 msgstr "Magická hůlka"
@@ -1701,10 +1686,9 @@ msgctxt "TFMAIN.TOOLMOVESELECTION.HINT"
 msgid "Move selection"
 msgstr "Přesunout výběr"
 
-#: tfmain.toolnotexture.hint
-msgctxt "tfmain.toolnotexture.hint"
-msgid "No texture"
-msgstr "Žádná textura"
+#: tfmain.toolopenedcurve.hint
+msgid "Opened curve"
+msgstr ""
 
 #: tfmain.toolpen.caption
 msgctxt "TFMAIN.TOOLPEN.CAPTION"
@@ -1727,6 +1711,10 @@ msgstr "Mnohoúhelník"
 #: tfmain.toolpolygon.hint
 msgid "Polygon or polyline"
 msgstr "Mnohoúhelník nebo lomená čára"
+
+#: tfmain.toolpolyline.hint
+msgid "Polyline"
+msgstr "Lomená čára"
 
 #: tfmain.toolrect.hint
 msgctxt "TFMAIN.TOOLRECT.HINT"
@@ -1830,11 +1818,6 @@ msgstr "Kreslit křivku"
 msgid "Move point"
 msgstr "Posunout bod"
 
-#: tfmain.tool_diamondgradient.hint
-msgctxt "tfmain.tool_diamondgradient.hint"
-msgid "Diamond gradient"
-msgstr "Diamantový gradient"
-
 #: tfmain.tool_drawshapeborder.hint
 msgctxt "tfmain.tool_drawshapeborder.hint"
 msgid "Draw border"
@@ -1849,6 +1832,18 @@ msgstr "Změnit na průhledný"
 msgctxt "tfmain.tool_eraseblur.hint"
 msgid "Soften"
 msgstr "Zjemnit"
+
+#: tfmain.tool_erasedarken.hint
+msgid "Darken"
+msgstr ""
+
+#: tfmain.tool_eraselighten.hint
+msgid "Lighten"
+msgstr ""
+
+#: tfmain.tool_erasesharpen.hint
+msgid "Sharpen"
+msgstr ""
 
 #: tfmain.tool_fillshape.hint
 msgctxt "tfmain.tool_fillshape.hint"
@@ -1874,11 +1869,6 @@ msgstr "Uzavřit tvar"
 msgctxt "TFMAIN.TOOL_JOINROUND.HINT"
 msgid "Round join"
 msgstr "Vyplnit tvar"
-
-#: tfmain.tool_lineargradient.hint
-msgctxt "tfmain.tool_lineargradient.hint"
-msgid "Linear gradient"
-msgstr "Lineární gradient"
 
 #: tfmain.tool_phongshapecone.hint
 msgctxt "tfmain.tool_phongshapecone.hint"
@@ -1925,20 +1915,17 @@ msgctxt "tfmain.tool_progressivefloodfill.hint"
 msgid "Progressive floodfill"
 msgstr "Vzrůstající výplň"
 
-#: tfmain.tool_radialgradient.hint
-msgctxt "tfmain.tool_radialgradient.hint"
-msgid "Radial gradient"
-msgstr "Radiální gradient"
+#: tfmain.tool_textaligncenter.hint
+msgid "Center"
+msgstr ""
 
-#: tfmain.tool_reflectedgradient.hint
-msgctxt "tfmain.tool_reflectedgradient.hint"
-msgid "Reflected gradient"
-msgstr "Odražený gradient"
+#: tfmain.tool_textalignleft.hint
+msgid "Align left"
+msgstr ""
 
-#: tfmain.tool_singradient.hint
-msgctxt "tfmain.tool_singradient.hint"
-msgid "Sine gradient"
-msgstr "Sinusový gradient"
+#: tfmain.tool_textalignright.hint
+msgid "Align right"
+msgstr ""
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
@@ -2933,6 +2920,10 @@ msgstr "Vrstva je prázdná"
 msgid "Selection is empty"
 msgstr "Výběr je prázdný"
 
+#: uresourcestrings.rsendwithoutmatchingbegin
+msgid "End without matching begin"
+msgstr ""
+
 #: uresourcestrings.rsenterfolderorcontainername
 msgid "Enter name for new folder or container (using RES or LRS extension):"
 msgstr ""
@@ -3448,8 +3439,15 @@ msgid "Save palette as..."
 msgstr ""
 
 #: uresourcestrings.rsscript
+msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "Skript"
+
+#: uresourcestrings.rsselectblendoperation
+#, fuzzy
+msgctxt "uresourcestrings.rsselectblendoperation"
+msgid "Select blend operation"
+msgstr "Vybrat operaci mísení"
 
 #: uresourcestrings.rsshift
 msgid "SHIFT"
@@ -3496,6 +3494,10 @@ msgstr ""
 
 #: uresourcestrings.rstooloninvisiblelayer
 msgid "Tool cannot be used on an invisible layer"
+msgstr ""
+
+#: uresourcestrings.rstoomanyactions
+msgid "Too many actions"
 msgstr ""
 
 #: uresourcestrings.rstoomanylayers
@@ -3549,4 +3551,16 @@ msgstr ""
 #: uresourcestrings.rsyes
 msgid "Yes"
 msgstr "Ano"
+
+#: uresourcestrings.rszoomlayerstackin
+#, fuzzy
+msgctxt "uresourcestrings.rszoomlayerstackin"
+msgid "Zoom layer stack in"
+msgstr "Přiblížit sadu vrstev"
+
+#: uresourcestrings.rszoomlayerstackout
+#, fuzzy
+msgctxt "uresourcestrings.rszoomlayerstackout"
+msgid "Zoom layer stack out"
+msgstr "Oddálit sadu vrstev"
 

@@ -45,9 +45,29 @@ msgstr "Modifier les points de gradient/texture"
 msgid "End opacity"
 msgstr "Opacité finale"
 
+#: lcresourcestring.rsgradientangular
+msgid "Angular"
+msgstr "Angulaire"
+
+#: lcresourcestring.rsgradientdiamond
+msgid "Diamond"
+msgstr "Losange"
+
 #: lcresourcestring.rsgradientfill
 msgid "Gradient fill"
 msgstr "Dégradé"
+
+#: lcresourcestring.rsgradientlinear
+msgid "Linear"
+msgstr "Linéaire"
+
+#: lcresourcestring.rsgradientradial
+msgid "Radial"
+msgstr "Radial"
+
+#: lcresourcestring.rsgradientreflected
+msgid "Reflected"
+msgstr "Réfléchi"
 
 #: lcresourcestring.rsgradientrepetition
 msgid "Gradient repetition"

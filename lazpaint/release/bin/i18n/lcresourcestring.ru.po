@@ -23,19 +23,19 @@ msgstr ""
 
 #: lcresourcestring.rscilinearrgb
 msgid "RGB"
-msgstr ""
+msgstr "RGB"
 
 #: lcresourcestring.rscistdrgb
 msgid "sRGB"
-msgstr ""
+msgstr "sRGB"
 
 #: lcresourcestring.rscolor
 msgid "Color"
-msgstr ""
+msgstr "Цвет"
 
 #: lcresourcestring.rscolorinterpolation
 msgid "Color interpolation"
-msgstr ""
+msgstr "цветовая интерполяция"
 
 #: lcresourcestring.rseditgradtexpoints
 msgid "Edit gradient/texture points"
@@ -51,23 +51,23 @@ msgstr ""
 
 #: lcresourcestring.rsgradientdiamond
 msgid "Diamond"
-msgstr ""
+msgstr "Алмазный"
 
 #: lcresourcestring.rsgradientfill
 msgid "Gradient fill"
-msgstr ""
+msgstr "Градиент"
 
 #: lcresourcestring.rsgradientlinear
 msgid "Linear"
-msgstr ""
+msgstr "Линейный"
 
 #: lcresourcestring.rsgradientradial
 msgid "Radial"
-msgstr ""
+msgstr "Радиальный"
 
 #: lcresourcestring.rsgradientreflected
 msgid "Reflected"
-msgstr ""
+msgstr "Отраженный"
 
 #: lcresourcestring.rsgradientrepetition
 msgid "Gradient repetition"
@@ -87,7 +87,7 @@ msgstr ""
 
 #: lcresourcestring.rsgrsine
 msgid "Sine"
-msgstr ""
+msgstr "Синусоидальный"
 
 #: lcresourcestring.rsincompatibletype
 msgid "Incompatible type"
@@ -95,15 +95,15 @@ msgstr ""
 
 #: lcresourcestring.rsindexoutofbounds
 msgid "Index out of bounds"
-msgstr ""
+msgstr "Индекс вне диапазона"
 
 #: lcresourcestring.rslightposition
 msgid "Light position"
-msgstr ""
+msgstr "Позиция света"
 
 #: lcresourcestring.rsloadtexture
 msgid "Load texture"
-msgstr ""
+msgstr "Загрузить текстуру"
 
 #: lcresourcestring.rsnofill
 msgid "No fill"
@@ -115,7 +115,7 @@ msgstr ""
 
 #: lcresourcestring.rsopacity
 msgid "Opacity"
-msgstr ""
+msgstr "Непроз-ть"
 
 #: lcresourcestring.rspreview
 msgid "Preview"
@@ -131,7 +131,7 @@ msgstr ""
 
 #: lcresourcestring.rssolidcolor
 msgid "Solid color"
-msgstr ""
+msgstr "сплошной цвет"
 
 #: lcresourcestring.rsstartopacity
 msgid "Start opacity"
@@ -139,7 +139,7 @@ msgstr ""
 
 #: lcresourcestring.rsswapcolors
 msgid "Swap colors"
-msgstr ""
+msgstr "Switch color"
 
 #: lcresourcestring.rstexturefill
 msgid "Texture fill"
