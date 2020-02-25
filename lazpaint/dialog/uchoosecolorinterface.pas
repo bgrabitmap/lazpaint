@@ -46,7 +46,6 @@ type
     FButtonsCenter: boolean;
     FTitleFontHeight: integer;
     FColorTitleVisible: boolean;
-    FNeedUpdateLayout: Boolean;
     FWheelArea: TRect;
     FFormBackgroundColor, FFormTextColor: TBGRAPixel;
     FColorBeforeEColor: TBGRAPixel;
@@ -96,6 +95,10 @@ type
     function SetRectBounds(var ABounds: TRect; ANewBounds: TRect): boolean;
     function PreferredBarsAlignWithWidth: TAlign;
     procedure UpdateLayout;
+    function GetAlphaScaleBmp: TBGRABitmap;
+    function GetLightScaleBmp: TBGRABitmap;
+    function GetColorCircleMaxLightBmp: TBGRABitmap;
+    function GetColorCircleBmp: TBGRABitmap;
     property AvailableBmpHeight: integer read GetAvailableBmpHeight;
     property AvailableBmpWidth: integer read GetAvailableBmpWidth;
   public
@@ -160,7 +163,7 @@ begin
   LColor.Width := Container.ClientWidth - 2*ExternalMargin;
   EColor.Top := Container.ClientHeight - FTextAreaHeight + (FTextAreaHeight-EColor.Height) div 2;
   LColor.Top := Container.ClientHeight - FTextAreaHeight + (FTextAreaHeight-LColor.Height) div 2;
-  FNeedUpdateLayout:= true;
+  UpdateLayout;
 end;
 
 procedure TChooseColorInterface.vsColorViewMouseMove(Sender: TObject;
@@ -187,16 +190,10 @@ var x,y: integer;
   size: single;
   c: TBGRAPixel;
 begin
-  if FNeedUpdateLayout then
-  begin
-    UpdateLayout;
-    FNeedUpdateLayout := false;
-  end;
-
   Bitmap.FontHeight := FTitleFontHeight;
   Bitmap.FontAntialias := True;
   boundRight := Bitmap.Width;
-  if FAlphascale.Bmp<>nil then
+  if Assigned(GetAlphaScaleBmp) then
   begin
     w := Bitmap.TextSize(rsOpacity).cx;
     if FBarsAlign = alRight then
@@ -204,31 +201,36 @@ begin
       x := (FAlphascale.bounds.Left+FAlphascale.bounds.Right-w) div 2;
       if x + w > boundRight then
         x := boundRight-w;
-      Bitmap.TextOut(x,FMargin div 2,rsOpacity,FFormTextColor,taLeftJustify);
+      Bitmap.TextOut(x, FMargin div 2, rsOpacity, FFormTextColor, taLeftJustify);
       boundRight := x - FMargin div 2;
     end;
-    Bitmap.PutImage(FAlphascale.bounds.Left,FAlphascale.bounds.top,FAlphascale.Bmp,dmDrawWithTransparency);
-    Bitmap.Rectangle(FAlphascale.bounds,BGRA(FFormTextColor.red,FFormTextColor.green,FFormTextColor.Blue,128),dmDrawWithTransparency);
+    Bitmap.PutImage(FAlphascale.bounds.Left, FAlphascale.bounds.top,
+                    GetAlphaScaleBmp, dmDrawWithTransparency);
+    Bitmap.Rectangle(FAlphascale.bounds,
+                     BGRA(FFormTextColor.red, FFormTextColor.green, FFormTextColor.Blue,128),
+                     dmDrawWithTransparency);
     FAlphascale.cursorRect := DrawTriangleCursor(Bitmap, FAlphascale.bounds, FCurrentColor.alpha);
   end else FAlphascale.cursorRect := EmptyRect;
 
-  if FLightscale.Bmp<>nil then
+  if Assigned(GetLightscaleBmp) then
   begin
     w := Bitmap.TextSize(rsLight).cx;
     if FBarsAlign = alRight then
     begin
-      x := (FLightscale.bounds.Left+FLightscale.bounds.Right-w) div 2;
+      x := (FLightscale.bounds.Left + FLightscale.bounds.Right-w) div 2;
       if x+ w > boundRight then
         x:= boundRight-w;
-      Bitmap.TextOut(x,FMargin div 2,rsLight,FFormTextColor,taLeftJustify);
+      Bitmap.TextOut(x, FMargin div 2, rsLight, FFormTextColor, taLeftJustify);
       boundRight := x - FMargin div 2;
     end;
-    Bitmap.PutImage(FLightscale.bounds.Left,FLightscale.bounds.top,FLightscale.Bmp,dmFastBlend);
-    Bitmap.Rectangle(FLightscale.bounds,BGRA(FFormTextColor.red,FFormTextColor.green,FFormTextColor.Blue,128),dmDrawWithTransparency);
+    Bitmap.PutImage(FLightscale.bounds.Left, FLightscale.bounds.top, GetLightscaleBmp, dmFastBlend);
+    Bitmap.Rectangle(FLightscale.bounds,
+                     BGRA(FFormTextColor.red, FFormTextColor.green, FFormTextColor.Blue, 128),
+                     dmDrawWithTransparency);
     FLightscale.cursorRect := DrawTriangleCursor(Bitmap, FLightscale.bounds, FColorLight div 256);
   end else FLightscale.cursorRect := EmptyRect;
 
-  if (FColorCircle.Bmp<>nil) and not FLazPaintInstance.BlackAndWhite then
+  if Assigned(GetColorCircleBmp) and not FColorCircle.bounds.IsEmpty then
   begin
     if FColorTitleVisible then
     begin
@@ -237,14 +239,17 @@ begin
       x := min(x, boundRight-w);
       x := max(x, FButtonSize + FMargin + FMargin div 2);
       if x <= boundRight-w then
-        Bitmap.TextOut(x,FMargin div 2,rsColors,FFormTextColor,taLeftJustify);
+        Bitmap.TextOut(x, FMargin div 2, rsColors, FFormTextColor, taLeftJustify);
     end;
-    Bitmap.PutImage(FColorCircle.bounds.Left,FColorCircle.bounds.top,FColorCircle.Bmp,dmDrawWithTransparency);
+    Bitmap.PutImage(FColorCircle.bounds.Left, FColorCircle.bounds.top, GetColorCircleBmp, dmDrawWithTransparency);
     x := FColorCircle.bounds.Left+ColorX;
     y := FColorCircle.bounds.top+ColorY;
-    Bitmap.Rectangle(x-FColorXYSize-1,y-FColorXYSize-1,x+FColorXYSize+2,y+FColorXYSize+2,BGRA(0,0,0,FCursorXYOpacity),dmDrawWithTransparency);
-    Bitmap.Rectangle(x-FColorXYSize,y-FColorXYSize,x+FColorXYSize+1,y+FColorXYSize+1,BGRA(255,255,255,FCursorXYOpacity),dmDrawWithTransparency);
-    Bitmap.Rectangle(x-FColorXYSize+1,y-FColorXYSize+1,x+FColorXYSize,y+FColorXYSize,BGRA(0,0,0,FCursorXYOpacity),dmDrawWithTransparency);
+    Bitmap.Rectangle(x-FColorXYSize-1, y-FColorXYSize-1, x+FColorXYSize+2, y+FColorXYSize+2,
+                     BGRA(0,0,0,FCursorXYOpacity), dmDrawWithTransparency);
+    Bitmap.Rectangle(x-FColorXYSize, y-FColorXYSize, x+FColorXYSize+1, y+FColorXYSize+1,
+                     BGRA(255,255,255,FCursorXYOpacity), dmDrawWithTransparency);
+    Bitmap.Rectangle(x-FColorXYSize+1, y-FColorXYSize+1, x+FColorXYSize, y+FColorXYSize,
+                     BGRA(0,0,0,FCursorXYOpacity), dmDrawWithTransparency);
     size := round(FBarWidth*0.9);
     c := GetCurrentColor;
     c.alpha := 255;
@@ -252,7 +257,7 @@ begin
     if FBarsAlign = alBottom then y := round(FLightscale.bounds.Top-FMargin-1-size)
     else y := round(Bitmap.Height - FMargin - size);
     Bitmap.RoundRectAntialias(x, y, x + size, y + size,
-        size/6,size/6, BGRA(0,0,0,192),1,c, []);
+        size/6,size/6, BGRA(0,0,0,192), 1, c, []);
   end;
 end;
 
@@ -364,33 +369,8 @@ var tempColor: TBGRAPixel;
   strColor:string;
 begin
    if not FInitialized then exit;
-   if UpdateLightScale and (FLightscale.Bounds.Right > FLightscale.Bounds.Left) then
-   begin
-     if FLightscale.bmp <> nil then FreeAndNil(FLightscale.bmp);
-     FLightscale.bmp := TBGRABitmap.Create(FLightscale.Bounds.Right-FLightscale.Bounds.Left,FLightscale.Bounds.Bottom-FLightscale.Bounds.Top);
-     tempColor := ColorWithLight(FCurrentColor,$FFFF);
-     tempColor.alpha := 255;
-     if FBarsAlign = alRight then
-       FLightscale.bmp.GradientFill(0, 0, FLightscale.bmp.width, FLightscale.bmp.height,
-         tempColor, BGRABlack, gtLinear,
-         PointF(0, -0.5), PointF(0, FLightscale.bmp.height-0.5), dmSet, True)
-     else
-     begin
-       FLightscale.bmp.GradientFill(0, 0, FLightscale.bmp.width, FLightscale.bmp.height,
-         tempColor, BGRABlack, gtLinear,
-         PointF(FLightscale.bmp.width-0.5, 0), PointF(-0.5, 0), dmSet, True);
-       FLightscale.bmp.FontHeight := FTitleFontHeight;
-       FLightscale.bmp.FontVerticalAnchor:= fvaCapCenter;
-       FLightscale.bmp.TextOut(FMargin/2, FLightscale.bmp.Height/2, rsLight, BGRA(210,210,210), taLeftJustify);
-       FLightscale.bmp.FontVerticalAnchor:= fvaTop;
-     end;
-   end;
-
-   if UpdateColorCircle and (FColorCircle.bmpMaxLight <> nil) then
-   begin
-     if FColorCircle.bmp <> nil then FreeAndNil(FColorCircle.bmp);
-     FColorCircle.bmp := BitmapWithLight(FColorCircle.bmpMaxlight, max(10000, FColorLight), FCurrentColor,ColorX,ColorY);
-   end;
+   if UpdateLightScale then FreeAndNil(FLightscale.bmp);
+   if UpdateColorCircle then FreeAndNil(FColorCircle.bmp);
 
    tempColor := GetCurrentColor;
    if (FLazPaintInstance = nil) or FLazPaintInstance.BlackAndWhite then
@@ -403,8 +383,8 @@ begin
          strColor := strColor+ '  rgba(' + IntToStr(tempColor.red) + ',' + IntToStr(tempColor.green) + ',' +
            IntToStr(tempColor.blue) + ',' + FloatToStr(round(tempColor.alpha/255*100)/100) + ')';
      end;
-
    LColor.Caption := strColor;
+
    if Redraw then vsColorView.RedrawBitmap;
 end;
 
@@ -413,7 +393,7 @@ begin
   if FColorLight <> value then
   begin
     FColorLight := value;
-    UpdateColorview(True,False,True);
+    UpdateColorview(True, False, True);
   end;
 end;
 
@@ -529,10 +509,10 @@ begin
       if FBarsAlign = alRight then
         FCurrentColor.alpha := max(0, min(255, 255-round((Y-FAlphascale.Bounds.Top)/(FAlphascale.Bounds.Height-1)*255)))
         else FCurrentColor.alpha := max(0, min(255, round((X-FAlphascale.Bounds.Left)/(FAlphascale.Bounds.Width-1)*255)));
-      UpdateColorview(False,False,True);
+      UpdateColorview(False, False, True);
     end;
   szColorCircle:
-    if PtInRect(point(x,y),FColorCircle.Bounds) then
+    if PtInRect(point(x,y), FColorCircle.Bounds) and Assigned(FColorCircle.bmpMaxlight) then
     begin
       pix := FColorCircle.bmpMaxlight.GetPixel(x-FColorCircle.Bounds.Left,y-FColorCircle.Bounds.top);
       if pix.alpha <> 0 then
@@ -540,7 +520,7 @@ begin
         FCurrentColor := BGRA(pix.Red,pix.Green,pix.Blue,FCurrentColor.Alpha);
         ColorX := x-FColorCircle.Bounds.Left;
         ColorY := y-FColorCircle.Bounds.top;
-        UpdateColorview(False,True,True);
+        UpdateColorview(False, True, True);
       end;
     end;
   szLightScale:
@@ -811,23 +791,7 @@ begin
     FWheelArea.Bottom := newAlphaBounds.Top - FMargin;
   end;
   if SetRectBounds(FAlphascale.bounds, newAlphaBounds) or (FBarsAlign <> prevBarsAlign) then
-  begin
-    BGRAReplace(FAlphascale.bmp, TBGRABitmap.Create(FAlphascale.Bounds.Width, FAlphascale.Bounds.Height));
-    if FBarsAlign = alRight then
-      FAlphascale.bmp.GradientFill(0, 0, FAlphascale.bmp.width, FAlphascale.bmp.height,
-        FFormTextColor, vsColorView.Color, gtLinear,
-        PointF(0, -0.5), PointF(0, FAlphascale.bmp.Height-0.5), dmSet, True)
-    else
-    begin
-      FAlphascale.bmp.GradientFill(0, 0, FAlphascale.bmp.width, FAlphascale.bmp.height,
-        FFormTextColor, vsColorView.Color, gtLinear,
-        PointF(FAlphascale.bmp.Width-0.5, 0), PointF(-0.5, 0), dmSet, True);
-      FAlphascale.bmp.FontHeight := FTitleFontHeight;
-      FAlphascale.bmp.FontVerticalAnchor:= fvaCapCenter;
-      FAlphascale.bmp.TextOut(FMargin/2, FAlphascale.bmp.Height/2, rsOpacity, FFormTextColor, taLeftJustify);
-      FAlphascale.bmp.FontVerticalAnchor:= fvaTop;
-    end;
-  end;
+    FreeAndNil(FAlphascale.bmp);
 
   if FBarsAlign = alRight then
   begin
@@ -869,11 +833,76 @@ begin
                                (FWheelArea.Top + FWheelArea.Bottom)/2 - 0.5);
 
   needUpdateColorCircle := SetRectBounds(FColorCircle.bounds, FWheelArea);
-  if needUpdateColorCircle then
-    BGRAReplace(FColorCircle.bmpMaxlight,
-                ComputeColorCircle(FColorCircle.Bounds.Width, FColorCircle.Bounds.Height, $FFFF));
+  if needUpdateColorCircle then FreeAndNil(FColorCircle.bmpMaxlight);
 
   UpdateColorview(needUpdateColorCircle, needUpdateLightscale, False);
+end;
+
+function TChooseColorInterface.GetAlphaScaleBmp: TBGRABitmap;
+begin
+  if (FAlphascale.bmp = nil) and not FAlphascale.Bounds.IsEmpty then
+  begin
+    FAlphascale.bmp := TBGRABitmap.Create(FAlphascale.Bounds.Width, FAlphascale.Bounds.Height);
+    if FBarsAlign = alRight then
+      FAlphascale.bmp.GradientFill(0, 0, FAlphascale.bmp.width, FAlphascale.bmp.height,
+        FFormTextColor, vsColorView.Color, gtLinear,
+        PointF(0, -0.5), PointF(0, FAlphascale.bmp.Height-0.5), dmSet, True)
+    else
+    begin
+      FAlphascale.bmp.GradientFill(0, 0, FAlphascale.bmp.width, FAlphascale.bmp.height,
+        FFormTextColor, vsColorView.Color, gtLinear,
+        PointF(FAlphascale.bmp.Width-0.5, 0), PointF(-0.5, 0), dmSet, True);
+      FAlphascale.bmp.FontHeight := FTitleFontHeight;
+      FAlphascale.bmp.FontVerticalAnchor:= fvaCapCenter;
+      FAlphascale.bmp.TextOut(FMargin/2, FAlphascale.bmp.Height/2, rsOpacity, FFormTextColor, taLeftJustify);
+      FAlphascale.bmp.FontVerticalAnchor:= fvaTop;
+    end;
+  end;
+  result := FAlphascale.bmp;
+end;
+
+function TChooseColorInterface.GetLightScaleBmp: TBGRABitmap;
+var
+  tempColor: TBGRAPixel;
+begin
+  if (FLightscale.bmp = nil) and not FLightscale.Bounds.IsEmpty then
+  begin
+    FLightscale.bmp := TBGRABitmap.Create(FLightscale.Bounds.Width, FLightscale.Bounds.Height);
+    tempColor := ColorWithLight(FCurrentColor,$FFFF);
+    tempColor.alpha := 255;
+    if FBarsAlign = alRight then
+      FLightscale.bmp.GradientFill(0, 0, FLightscale.bmp.width, FLightscale.bmp.height,
+        tempColor, BGRABlack, gtLinear,
+        PointF(0, -0.5), PointF(0, FLightscale.bmp.height-0.5), dmSet, True)
+    else
+    begin
+      FLightscale.bmp.GradientFill(0, 0, FLightscale.bmp.width, FLightscale.bmp.height,
+        tempColor, BGRABlack, gtLinear,
+        PointF(FLightscale.bmp.width-0.5, 0), PointF(-0.5, 0), dmSet, True);
+      FLightscale.bmp.FontHeight := FTitleFontHeight;
+      FLightscale.bmp.FontVerticalAnchor:= fvaCapCenter;
+      FLightscale.bmp.TextOut(FMargin/2, FLightscale.bmp.Height/2, rsLight, BGRA(210,210,210), taLeftJustify);
+      FLightscale.bmp.FontVerticalAnchor:= fvaTop;
+    end;
+  end;
+  result := FLightscale.bmp;
+end;
+
+function TChooseColorInterface.GetColorCircleMaxLightBmp: TBGRABitmap;
+begin
+  if (FColorCircle.bmpMaxlight = nil) and not LazPaintInstance.BlackAndWhite
+     and not FColorCircle.bounds.IsEmpty then
+    FColorCircle.bmpMaxlight := ComputeColorCircle(FColorCircle.Bounds.Width, FColorCircle.Bounds.Height, $FFFF);
+
+  result := FColorCircle.bmpMaxlight;
+end;
+
+function TChooseColorInterface.GetColorCircleBmp: TBGRABitmap;
+begin
+  if (FColorCircle.bmp = nil) and Assigned(GetColorCircleMaxLightBmp) then
+    FColorCircle.bmp := BitmapWithLight(GetColorCircleMaxLightBmp, max(10000, FColorLight),
+                                        FCurrentColor, ColorX, ColorY);
+  result := FColorCircle.bmp;
 end;
 
 constructor TChooseColorInterface.Create(AContainer: TWinControl; ADPI: integer);
@@ -944,7 +973,7 @@ begin
    begin
      FColorLight := newcolorlight;
      FCurrentColor := newcurrentcolor;
-     UpdateColorView(true,true,true);
+     UpdateColorView(true, true, true);
    end;
    if not AFromEdit then HideEditor;
 end;
