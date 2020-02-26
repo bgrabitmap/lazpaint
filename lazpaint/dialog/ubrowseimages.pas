@@ -994,12 +994,20 @@ end;
 
 procedure TFBrowseImages.ValidateFileOrDir;
 var fullName: string;
-  i,count: integer;
+  i,selCount: integer;
 begin
-  if ShellListView1.SelectedIndex <> -1 then
+  selCount := 0;
+  for i := 0 to ShellListView1.ItemCount-1 do
+    if ShellListView1.ItemSelected[i] and not ShellListView1.ItemIsFolder[i] then inc(selCount);
+
+  if (selCount > 0) or (ShellListView1.SelectedIndex <> -1) then
   begin
-    fullName := ShellListView1.ItemFullName[ShellListView1.SelectedIndex];
-    if ShellListView1.ItemIsFolder[ShellListView1.SelectedIndex] then
+    if ShellListView1.SelectedIndex <> -1 then
+      fullName := ShellListView1.ItemFullName[ShellListView1.SelectedIndex]
+    else
+      fullName := '';
+
+    if (ShellListView1.SelectedIndex <> -1) and ShellListView1.ItemIsFolder[ShellListView1.SelectedIndex] then
     begin
       CurrentDirectory := fullName;
       InFilenameChange := true;
@@ -1015,28 +1023,26 @@ begin
       ShellListView1.SetFocus;
     end
     else
+    if selCount > 0 then
     begin
-      count := 0;
-      for i := 0 to ShellListView1.ItemCount-1 do
-        if ShellListView1.ItemSelected[i] and not ShellListView1.ItemIsFolder[i] then inc(count);
-      if (count > 0) and IsSaveDialog and OverwritePrompt then
+      if IsSaveDialog and OverwritePrompt then
       begin
         if QuestionDlg(rsSave, rsOverwriteFile, mtConfirmation, [mrOk, rsOkay, mrCancel, rsCancel],0) <> mrOk then exit;
       end;
-      setlength(FSelectedFiles,count);
-      count := 0;
+      setlength(FSelectedFiles,selCount);
+      selCount := 0;
       for i := 0 to ShellListView1.ItemCount-1 do
         if ShellListView1.ItemSelected[i] and not ShellListView1.ItemIsFolder[i] then
         begin
-          FSelectedFiles[count] := ShellListView1.ItemFullName[i];
-          inc(count);
+          FSelectedFiles[selCount] := ShellListView1.ItemFullName[i];
+          inc(selCount);
         end;
-      if IsSaveDialog and (count > 0) then FFilename := FSelectedFiles[0];
+      if IsSaveDialog and (selCount > 0) then FFilename := FSelectedFiles[0];
       UpdatePreview(fullName);
 
       //if we are opening one image and its preview contains all data
       //then we can provide the loaded image / frame
-      if not IsSaveDialog and (count = 1)
+      if not IsSaveDialog and (selCount = 1)
          and (FPreview.Filename = FPreviewFilename)
          and not FPreview.PreviewDataLoss then
       begin
