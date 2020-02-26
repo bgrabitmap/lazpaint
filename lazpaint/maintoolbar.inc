@@ -1487,6 +1487,7 @@ end;
 
 procedure TFMain.ShowPenFill;
 begin
+  VectorialFill_Pen.BringToFront;
   VectorialFill_Pen.Height := VectorialFill_Pen.PreferredSize.cy;
   Panel_PenFill.Height := VectorialFill_Pen.Top+VectorialFill_Pen.Height+DoScaleY(3, OriginalDPI);
   HideFill(3000, true);
@@ -1494,6 +1495,7 @@ end;
 
 procedure TFMain.ShowBackFill;
 begin
+  VectorialFill_Back.BringToFront;
   VectorialFill_Back.Height := VectorialFill_Back.PreferredSize.cy;
   Panel_BackFill.Height := VectorialFill_Back.Top+VectorialFill_Back.height+DoScaleY(3, OriginalDPI);
   HideFill(3000, true);

@@ -139,7 +139,7 @@ end;
 constructor TMainFormLayout.Create(AForm: TForm);
 begin
   FForm := AForm;
-  FPanelToolBox := TPanel.Create(FForm);
+  FPanelToolBox := TPanel.Create(nil);
   FPanelToolBox.BevelInner := bvNone;
   FPanelToolBox.BevelOuter := bvNone;
   FPanelToolBox.Width := 20;
@@ -155,19 +155,23 @@ begin
   FDockedToolBoxToolBar.Cursor := crArrow;
   FPanelToolBox.InsertControl(FDockedToolBoxToolBar);
   FForm.InsertControl(FPanelToolBox);
+
   FPaletteToolbar := TPaletteToolbar.Create;
   FPaletteToolbar.DarkTheme:= DarkTheme;
-  FPaletteToolbar.Container := FForm;
   FPaletteToolbar.OnVisibilityChangedByUser:= @PaletteVisibilityChangedByUser;
-  FDockedControlsPanel := TPanel.Create(FForm);
+  FPaletteToolbar.Container := FForm;
+
+  FDockedControlsPanel := TPanel.Create(nil);
   FDockedControlsPanel.Visible := false;
   FForm.InsertControl(FDockedControlsPanel);
-  FStatusBar := TStatusBar.Create(FForm);
+
+  FStatusBar := TStatusBar.Create(nil);
   FStatusBar.SizeGrip := false;
   FStatusBar.Align := alNone;
   FStatusBar.Visible := false;
-  ApplyTheme;
   FForm.InsertControl(FStatusBar);
+
+  ApplyTheme;
 end;
 
 destructor TMainFormLayout.Destroy;
@@ -175,7 +179,6 @@ begin
   FreeAndNil(FDockedControlsPanel);
   FreeAndNil(FStatusBar);
   FreeAndNil(FPaletteToolbar);
-  FForm.RemoveControl(FPanelToolBox);
   FreeAndNil(FPanelToolBox);
   FreeAndNil(FMenu);
   inherited Destroy;
@@ -440,7 +443,11 @@ begin
       if FToolBoxDocking = twLeft then FPanelToolBox.Left:= Left
       else FPanelToolBox.Left:= Right-FPanelToolBox.Width;
     end;
-    FPanelToolBox.Visible := true;
+    if not FPanelToolBox.Visible then
+    begin
+      FPanelToolBox.Visible := true;
+      FPanelToolBox.SendToBack;
+    end;
   end else
     FPanelToolBox.Visible := false;
   if PaletteVisible then
@@ -459,7 +466,11 @@ begin
           LazPaintInstance.AdjustChooseColorHeight;
         end;
     end;
-    FDockedControlsPanel.Visible:= true;
+    if not FDockedControlsPanel.Visible then
+    begin
+      FDockedControlsPanel.Visible:= true;
+      FDockedControlsPanel.SendToBack;
+    end;
   end else
     FDockedControlsPanel.Visible:= false;
   if StatusBarVisible then
@@ -472,7 +483,11 @@ begin
       for i := 0 to FStatusBar.Panels.Count-1 do
         FStatusBar.Panels[i].Width := w;
     end;
-    FStatusBar.Visible := true;
+    if not FStatusBar.Visible then
+    begin
+      FStatusBar.Visible := true;
+      FStatusBar.SendToBack;
+    end;
   end
   else FStatusBar.Visible := false;
 end;
