@@ -101,7 +101,7 @@ def noise(grayscale=None, opacity=None, validate=True): #grayscale: bool, opacit
 def pixelate(pixel_size=None, quality=None, validate=True):
   command.send("Filter", Name=PIXELATE, PixelSize=pixel_size, Quality=quality, Validate=validate)
 
-def filter_function(red=None, green=None, blue=None, alpha=None, hue=None, saturation=None, lightness=None, corrected_hue=None, gamma_correction=None, validate=True): #expressions: str
+def filter_function(red=None, green=None, blue=None, alpha=None, hue=None, saturation=None, lightness=None, L=None, a=None, b=None, corrected_hue=None, gamma_correction=None, validate=True): #expressions: str
   command.send("Filter", Name=FILTER_FUNCTION, Red=red, Green=green, Blue=blue, Alpha=alpha, Hue=hue, Saturation=saturation, Lightness=lightness, CorrectedHue=corrected_hue, GammaCorrection=gamma_correction, Validate=validate)
 
 def emboss(angle=None, transparent=None, preserve_colors=None, validate=True):

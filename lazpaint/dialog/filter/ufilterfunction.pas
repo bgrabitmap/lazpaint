@@ -10,10 +10,11 @@ uses
   BGRABitmapTypes, UScripting;
 
 const
-  StatsName: array[1..7] of string =
-  ('red','green','blue','alpha','hue','saturation','lightness');
+  StatsName: array[1..10] of string =
+  ('red','green','blue','alpha','hue','saturation','lightness','L','a','b');
 
 type
+  TLabABitmap = specialize TGenericUniversalBitmap<TLabA,TLabAColorspace>;
 
   { TFFilterFunction }
 
@@ -26,31 +27,46 @@ type
     Edit_Blue: TEdit;
     Edit_Green: TEdit;
     Edit_Hue: TEdit;
+    Edit_L: TEdit;
     Edit_Lightness: TEdit;
+    Edit_b: TEdit;
     Edit_Red: TEdit;
     Edit_Saturation: TEdit;
+    Edit_a: TEdit;
     Label_BlueEquals: TLabel;
     Label_GreenEquals: TLabel;
     Label_HueEquals: TLabel;
+    Label_bEquals: TLabel;
+    Label_LEquals: TLabel;
     Label_LightnessEquals: TLabel;
     Label_RedEquals: TLabel;
+    Label_aEquals: TLabel;
     Label_SaturationEquals: TLabel;
     Label_Variables: TLabel;
     Label_AlphaEquals: TLabel;
     PageControl_Color: TPageControl;
+    PanelLab: TPanel;
+    PanelLabelLab: TPanel;
+    PanelLabelRGB: TPanel;
+    PanelLabelHSL: TPanel;
     PanelRGB: TPanel;
     PanelHSL: TPanel;
+    TabSheet_Lab: TTabSheet;
     TabSheet_RGB: TTabSheet;
     TabSheet_HSL: TTabSheet;
     Timer1: TTimer;
+    Timer_AdjustVerticalSize: TTimer;
     procedure Button_CancelClick(Sender: TObject);
     procedure Button_OKClick(Sender: TObject);
     procedure CheckBox_GammaChange(Sender: TObject);
     procedure CheckBox_GSBAChange(Sender: TObject);
+    procedure Edit_aChange(Sender: TObject);
     procedure Edit_AlphaChange(Sender: TObject);
+    procedure Edit_bChange(Sender: TObject);
     procedure Edit_BlueChange(Sender: TObject);
     procedure Edit_GreenChange(Sender: TObject);
     procedure Edit_HueChange(Sender: TObject);
+    procedure Edit_LChange(Sender: TObject);
     procedure Edit_LightnessChange(Sender: TObject);
     procedure Edit_RedChange(Sender: TObject);
     procedure Edit_SaturationChange(Sender: TObject);
@@ -59,21 +75,25 @@ type
     procedure FormShow(Sender: TObject);
     procedure PageControl_ColorChange(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
+    procedure Timer_AdjustVerticalSizeTimer(Sender: TObject);
   private
     { private declarations }
     FRedExpr, FGreenExpr, FBlueExpr, FAlphaExpr,
-    FHueExpr, FSaturationExpr, FLightnessExpr: TFPExpressionParser;
+    FHueExpr, FSaturationExpr, FLightnessExpr,
+    FLExpr, FaExpr, FbExpr: TFPExpressionParser;
     FRedError, FGreenError, FBlueError, FAlphaError,
-    FHueError, FSaturationError, FLightnessError: boolean;
+    FHueError, FSaturationError, FLightnessError,
+    FLError, FaError, FbError: boolean;
     FComputing: boolean;
+    FSourceAsLab: TLabABitmap;
     FComputedImage: TBGRABitmap;
     FComputedLines: integer;
     FFilterConnector: TFilterConnector;
     FInitializing: boolean;
-    FStatsComputed: boolean;
     FStats: array[low(StatsName)..high(StatsName)] of record
         min,max,sum,avg: single;
         count: integer;
+        computed: boolean;
       end;
     procedure UpdateExpr(AExpr: TFPExpressionParser; AEdit: TEdit;
       var AError: boolean);
@@ -83,7 +103,8 @@ type
     function ExprResultToFloat(const AResult: TFPExpressionResult): single;
     procedure ExprFunctionMin_Call(Var Result : TFPExpressionResult; Const Args : TExprParameterArray);
     procedure ExprFunctionMax_Call(Var Result : TFPExpressionResult; Const Args : TExprParameterArray);
-    procedure NeedStats;
+    procedure StatsNotComputed(AFrom,ATo: integer);
+    procedure NeedStats(AStatIndex: integer);
     function ReplaceStats(AExpr: string): string;
   public
     { public declarations }
@@ -93,7 +114,7 @@ function ShowFilterFunctionDlg(AFilterConnector: TObject): TScriptResult;
 
 implementation
 
-uses LCScaleDPI, UMac, LazPaintType, math;
+uses UMac, LazPaintType, math;
 
 function ShowFilterFunctionDlg(AFilterConnector: TObject): TScriptResult;
 var
@@ -193,18 +214,30 @@ begin
   FSaturationError := false;
   FLightnessExpr := CreateExpr;
   FLightnessError := false;
-  Label_RedEquals.Caption := 'red =';
-  Label_GreenEquals.Caption := 'green =';
-  Label_BlueEquals.Caption := 'blue =';
-  Label_AlphaEquals.Caption := 'alpha =';
-  Label_HueEquals.Caption := 'hue =';
-  Label_SaturationEquals.Caption := 'saturation =';
-  Label_LightnessEquals.Caption := 'lightness =';
+  FLExpr := CreateExpr;
+  FLError := false;
+  FaExpr := CreateExpr;
+  FaError := false;
+  FbExpr := CreateExpr;
+  FbError := false;
+  Label_RedEquals.Caption := 'red (0..1) = ';
+  Label_GreenEquals.Caption := 'green (0..1) = ';
+  Label_BlueEquals.Caption := 'blue (0..1) = ';
+  Label_AlphaEquals.Caption := 'alpha (0..1) = ';
+  Label_HueEquals.Caption := 'hue (0..1) = ';
+  Label_SaturationEquals.Caption := 'saturation (0..1) = ';
+  Label_LightnessEquals.Caption := 'lightness (0..1) = ';
+  Label_LEquals.Caption := 'L (0..1) = ';
+  Label_aEquals.Caption := 'a (-1..1) = ';
+  Label_bEquals.Caption := 'b (-1..1) = ';
   Label_Variables.Caption := Label_Variables.Caption+' x,y,width,height,random,min,max,avg';
+
+  StatsNotComputed(low(FStats), high(FStats));
 end;
 
 procedure TFFilterFunction.FormDestroy(Sender: TObject);
 begin
+  FSourceAsLab.Free;
   FComputedImage.Free;
   FRedExpr.Free;
   FGreenExpr.Free;
@@ -213,12 +246,22 @@ begin
   FHueExpr.Free;
   FSaturationExpr.Free;
   FLightnessExpr.Free;
+  FLExpr.Free;
+  FaExpr.Free;
+  FbExpr.Free;
 end;
 
 procedure TFFilterFunction.FormShow(Sender: TObject);
 begin
+  PanelLabelRGB.ChildSizing.TopBottomSpacing:= Edit_Red.Top + (Edit_Red.Height - Label_RedEquals.Height) div 2;
+  PanelLabelRGB.ChildSizing.VerticalSpacing:= (Edit_Green.Top - Edit_Red.Top) - Label_RedEquals.Height;
+  PanelLabelHSL.ChildSizing.TopBottomSpacing := PanelLabelRGB.ChildSizing.TopBottomSpacing;
+  PanelLabelHSL.ChildSizing.VerticalSpacing := PanelLabelRGB.ChildSizing.VerticalSpacing;
+  PanelLabelLab.ChildSizing.TopBottomSpacing := PanelLabelRGB.ChildSizing.TopBottomSpacing;
+  PanelLabelLab.ChildSizing.VerticalSpacing := PanelLabelRGB.ChildSizing.VerticalSpacing;
   InitParams;
   PreviewNeeded;
+  Timer_AdjustVerticalSize.Enabled := true;
 end;
 
 procedure TFFilterFunction.PageControl_ColorChange(Sender: TObject);
@@ -236,7 +279,8 @@ type
   TExprValues = record
     Red, Green, Blue, Alpha,
     X, Y, Random,
-    Hue, Saturation, Lightness: TExprFloat;
+    Hue, Saturation, Lightness,
+    L, a, b: TExprFloat;
   end;
 
   TEvaluateFunc = function: TFPExpressionResult of object;
@@ -246,33 +290,31 @@ type
     XValue, YValue,
     RedValue, GreenValue, BlueValue, AlphaValue,
     HueValue, SaturationValue, LightnessValue,
+    LValue, aValue, bValue,
     RandomValue: TFPExprIdentifierDef;
-    XYUsed, RGBUsed, AlphaUsed, HSLUsed, RandomUsed: boolean;
+    XYUsed, RGBUsed, AlphaUsed, HSLUsed, LabUsed, RandomUsed: boolean;
     IsCopySrc: boolean;
     CopyOffset: PtrInt;
     IsConstant: boolean;
     ConstantValue: Word;
+    ConstantValueF: single;
   end;
 
 var
   values: TExprValues;
-  rgbUsedByAny,hslUsedByAny,xyUsedByAny: boolean;
-  rgbUsedInExpr,hslUsedInExpr,xyUsedInExpr: boolean;
+  rgbUsedByAny, hslUsedByAny, labUsedByAny, xyUsedByAny: boolean;
+  rgbUsedInExpr, hslUsedInExpr, xyUsedInExpr: boolean;
   src: packed record
     red,green,blue,alpha: word;
+    L,a,b,filler: word;
     x,y: word;
     case boolean of
     false: (hslaValue: THSLAPixel);
     true: (gsbaValue: TGSBAPixel);
   end;
 
-  function ComputeExpr(var AVars: TExprVariables; AFactor: integer = 65535): integer; inline;
-  var {%H-}code: integer;
-    floatValue: single;
+  procedure InitUsedValues(var AVars: TExprVariables); inline;
   begin
-    if AVars.IsCopySrc then exit((PWord(@src) + AVars.CopyOffset)^) else
-    if AVars.IsConstant then exit(AVars.ConstantValue);
-
     if AVars.XYUsed then
     begin
       AVars.XValue.AsFloat := values.x;
@@ -291,7 +333,22 @@ var
       AVars.SaturationValue.AsFloat := values.Saturation;
       AVars.LightnessValue.AsFloat := values.Lightness;
     end;
+    if AVars.LabUsed then
+    begin
+      AVars.LValue.AsFloat := values.L;
+      AVars.aValue.AsFloat := values.a;
+      AVars.bValue.AsFloat := values.b;
+    end;
     if AVars.RandomUsed then AVars.RandomValue.AsFloat := Random;
+  end;
+
+  function ComputeExpr(var AVars: TExprVariables; AFactor: integer = 65535): integer; inline;
+  var {%H-}code: integer;
+    floatValue: single;
+  begin
+    if AVars.IsCopySrc then exit((PWord(@src) + AVars.CopyOffset)^) else
+    if AVars.IsConstant then exit(AVars.ConstantValue);
+    InitUsedValues(AVars);
     with AVars.Evaluate do
     begin
       case ResultType of
@@ -314,6 +371,33 @@ var
     if result > 65535 then dec(result, 65536);
   end;
 
+  function ComputeExprF(var AVars: TExprVariables): single; inline;
+  var {%H-}code: integer;
+  begin
+    if AVars.IsCopySrc then
+    begin
+      case AVars.CopyOffset of
+      4: result := values.L;
+      5: result := values.a;
+      6: result := values.b;
+      else exit((PWord(@src) + AVars.CopyOffset)^ / 65535);
+      end;
+    end else
+    if AVars.IsConstant then exit(AVars.ConstantValueF);
+    InitUsedValues(AVars);
+    with AVars.Evaluate do
+    begin
+      case ResultType of
+      rtFloat: result := ResFloat;
+      rtInteger: result := ResInteger;
+      rtBoolean: if ResBoolean then result := 1 else result := 0;
+      rtDateTime: result := 0;
+      rtString: val(ResString, result, code);
+      else result := 0;
+      end;
+    end;
+  end;
+
   procedure PrepareXY(AExpr: TFPExpressionParser; out AVars: TExprVariables);
   var exprComp: string;
     i: Integer;
@@ -330,6 +414,9 @@ var
       HSLUsed := (ContainsIdentifier(AExpr.Expression,'hue') or
          ContainsIdentifier(AExpr.Expression,'saturation') or
          ContainsIdentifier(AExpr.Expression,'lightness'));
+      LabUsed := (ContainsIdentifier(AExpr.Expression,'L') or
+         ContainsIdentifier(AExpr.Expression,'a') or
+         ContainsIdentifier(AExpr.Expression,'b'));
       RandomUsed:= ContainsIdentifier(AExpr.Expression,'random');
       AlphaUsed:= ContainsIdentifier(AExpr.Expression,'alpha');
 
@@ -342,6 +429,9 @@ var
       HueValue:= AExpr.IdentifierByName('hue');
       SaturationValue:= AExpr.IdentifierByName('saturation');
       LightnessValue:= AExpr.IdentifierByName('lightness');
+      LValue:= AExpr.IdentifierByName('L');
+      aValue:= AExpr.IdentifierByName('a');
+      bValue:= AExpr.IdentifierByName('b');
       RandomValue:= AExpr.IdentifierByName('random');
       AExpr.IdentifierByName('width').AsInteger := FFilterConnector.BackupLayer.Width;
       AExpr.IdentifierByName('height').AsInteger := FFilterConnector.BackupLayer.Height;
@@ -353,19 +443,21 @@ var
            ContainsIdentifier(AExpr.Expression, 'max_'+StatsName[i]) or
            ContainsIdentifier(AExpr.Expression, 'avg_'+StatsName[i]) then
         begin
-          NeedStats;
+          NeedStats(i);
           AExpr.IdentifierByName('min_'+StatsName[i]).AsFloat := FStats[i].min;
           AExpr.IdentifierByName('max_'+StatsName[i]).AsFloat := FStats[i].max;
           AExpr.IdentifierByName('avg_'+StatsName[i]).AsFloat := FStats[i].avg;
         end;
 
-      if not HSLUsed and not RGBUsed and not XYUsed and not RandomUsed and not AlphaUsed then
+      if not HSLUsed and not RGBUsed and not LabUsed and not XYUsed and not RandomUsed and not AlphaUsed then
       begin
         ConstantValue := ComputeExpr(AVars);
+        ConstantValueF := ComputeExprF(AVars);
         IsConstant := true; //set flag after computing value
       end else
       begin
         ConstantValue := 0;
+        ConstantValueF := 0;
         IsConstant := false;
       end;
 
@@ -377,16 +469,20 @@ var
       'green': copyOffset := 1;
       'blue': copyOffset := 2;
       'alpha': copyOffset := 3;
-      'x': copyOffset := 4;
-      'y': copyOffset := 5;
-      'hue': copyOffset := 6;
-      'saturation': copyOffset := 7;
-      'lightness': copyOffset := 8;
+      'l': copyOffset := 4;
+      'a': copyOffset := 5;
+      'b': copyOffset := 6;
+      'x': copyOffset := 8;
+      'y': copyOffset := 9;
+      'hue': copyOffset := 10;
+      'saturation': copyOffset := 11;
+      'lightness': copyOffset := 12;
       else IsCopySrc:= false;
       end;
 
       if RGBUsed then rgbUsedByAny:= true;
       if HSLUsed then hslUsedByAny:= true;
+      if LabUsed then labUsedByAny:= true;
       if XYUsed then xyUsedByAny:= true;
       if RGBUsed and not IsCopySrc then rgbUsedInExpr:= true;
       if HSLUsed and not IsCopySrc then hslUsedInExpr:= true;
@@ -397,10 +493,14 @@ var
 var PrevDate: TDateTime;
   x,y,w,h,xcount: integer;
   pdest,psrc: PBGRAPixel;
+  psrcLab: PLabA;
   RedVars, GreenVars, BlueVars, AlphaVars,
-  HueVars, SaturationVars, LightnessVars: TExprVariables;
+  HueVars, SaturationVars, LightnessVars,
+  LVars, aVars, bVars: TExprVariables;
   prevComputedLines: integer;
-  gsba,rgbMode, gammaCorr: boolean;
+  gsba,rgbMode,hslMode,labMode,gammaCorr: boolean;
+  labValue: TLabA;
+  converter: TBridgedConversion;
 
 begin
   Timer1.Enabled:= false;
@@ -418,13 +518,16 @@ begin
     prevComputedLines:= FComputedLines;
     try
       rgbMode := PageControl_Color.ActivePage = TabSheet_RGB;
+      hslMode := PageControl_Color.ActivePage = TabSheet_HSL;
+      labMode := PageControl_Color.ActivePage = TabSheet_Lab;
       w := FFilterConnector.BackupLayer.Width;
       h := FFilterConnector.BackupLayer.Height;
-      hslUsedByAny := false;
       rgbUsedByAny := false;
+      hslUsedByAny := false;
+      labUsedByAny := false;
       xyUsedByAny := false;
-      hslUsedInExpr := false;
       rgbUsedInExpr := false;
+      hslUsedInExpr := false;
       xyUsedInExpr := false;
       fillchar({%H-}values, sizeOf(values), 0);
       if rgbMode then
@@ -433,17 +536,43 @@ begin
         PrepareXY(FGreenExpr, GreenVars);
         PrepareXY(FBlueExpr, BlueVars);
       end else
+      if hslMode then
       begin
         PrepareXY(FHueExpr, HueVars);
         PrepareXY(FSaturationExpr, SaturationVars);
         PrepareXY(FLightnessExpr, LightnessVars);
-      end;
+      end else
+      if labMode then
+      begin
+        PrepareXY(FLExpr, LVars);
+        PrepareXY(FaExpr, aVars);
+        PrepareXY(FbExpr, bVars);
+      end
+      else raise exception.Create('Unknown selected page');
       PrepareXY(FAlphaExpr, AlphaVars);
+
+      if labUsedByAny then
+      begin
+        if Assigned(FSourceAsLab) and ((FSourceAsLab.Width <> FFilterConnector.WorkArea.Width)
+          or (FSourceAsLab.Height <> FFilterConnector.WorkArea.Height)) then FreeAndNil(FSourceAsLab);
+        if FSourceAsLab = nil then
+        begin
+          Screen.Cursor := crHourGlass;
+          FSourceAsLab := TLabABitmap.Create(FFilterConnector.WorkArea.Width, FFilterConnector.WorkArea.Height, BGRAPixelTransparent);
+          converter := FFilterConnector.BackupLayer.Colorspace.GetBridgedConversion(FSourceAsLab.Colorspace);
+          for y := FFilterConnector.WorkArea.Top to FFilterConnector.WorkArea.Bottom-1 do
+            converter.Convert(FFilterConnector.BackupLayer.ScanLine[y] + FFilterConnector.WorkArea.Left,
+              FSourceAsLab.ScanLine[y - FFilterConnector.WorkArea.Top], FSourceAsLab.Width,
+              sizeof(TBGRAPixel), sizeof(TLabA), nil);
+          Screen.Cursor := crDefault;
+        end;
+      end;
 
       while FComputedLines < FFilterConnector.WorkArea.Bottom do
       begin
         y := FComputedLines;
         psrc := FFilterConnector.BackupLayer.ScanLine[y]+FFilterConnector.WorkArea.Left;
+        if labUsedByAny then psrcLab:= PLabA(FSourceAsLab.GetPixelAddress(0, y - FFilterConnector.WorkArea.Top));
         pdest := FComputedImage.ScanLine[y]+FFilterConnector.WorkArea.Left;
         xcount := FFilterConnector.WorkArea.Right - FFilterConnector.WorkArea.Left;
         src.y := (y*65535+(h shr 1)) div h;
@@ -495,6 +624,17 @@ begin
                 values.Lightness := lightness*oneOver65535;
               end;
             end;
+            if labUsedByAny then
+            begin
+              labValue := psrcLab^;
+              inc(psrcLab);
+              values.L := labValue.L/100;
+              values.a := labValue.a/127;
+              values.b := labValue.b/127;
+              src.L := min(65535,max(0,round(values.L*65535)));
+              src.a := min(65535,max(0,round(values.a*65535)));
+              src.b := min(65535,max(0,round(values.b*65535)));
+            end;
             src.alpha := psrc^.alpha + (psrc^.alpha shl 8);
             values.Alpha := psrc^.alpha * oneOver255;
             if rgbMode then
@@ -515,6 +655,7 @@ begin
               inc(pdest);
               inc(psrc);
             end else
+            if hslMode then
             begin
               if gsba then
                 pdest^ := TGSBAPixel.New(
@@ -534,6 +675,15 @@ begin
                             ComputeExpr(SaturationVars)*oneOver65535,
                             ComputeExpr(LightnessVars)*oneOver65535,
                             ComputeExpr(AlphaVars)*oneOver65535);
+              inc(pdest);
+              inc(psrc);
+            end else
+            begin
+              pdest^ := TLabA.New(
+                            ComputeExprF(LVars)*100,
+                            ComputeExprF(aVars)*127,
+                            ComputeExprF(bVars)*127,
+                            ComputeExprF(AlphaVars));
               inc(pdest);
               inc(psrc);
             end;
@@ -563,6 +713,17 @@ begin
     Timer1.Interval := 15;
     Timer1.Enabled := True;
   end;
+end;
+
+procedure TFFilterFunction.Timer_AdjustVerticalSizeTimer(Sender: TObject);
+begin
+  PageControl_Color.Height := PanelRGB.Top + Edit_Blue.Top + Edit_Blue.Height +
+    TabSheet_RGB.ChildSizing.VerticalSpacing +
+    CheckBox_Gamma.Height + TabSheet_RGB.ChildSizing.TopBottomSpacing +
+    (PageControl_Color.Height - TabSheet_RGB.Height);
+  ClientHeight := PageControl_Color.Top + PageControl_Color.Height +
+    Label_Variables.Top + (ClientHeight - Edit_Alpha.Top);
+  Timer_AdjustVerticalSize.Enabled := false;
 end;
 
 procedure TFFilterFunction.UpdateExpr(AExpr: TFPExpressionParser; AEdit: TEdit; var AError: boolean);
@@ -611,6 +772,9 @@ begin
   Edit_Hue.Text := 'hue';
   Edit_Saturation.Text := 'saturation';
   Edit_Lightness.Text := 'lightness';
+  Edit_L.Text := 'L';
+  Edit_a.Text := 'a';
+  Edit_b.Text := 'b';
   CheckBox_Gamma.Checked := true;
 
   if Assigned(FFilterConnector.Parameters) then
@@ -623,10 +787,15 @@ begin
       if IsDefined('Hue') then Edit_Hue.Text := Strings['Hue'];
       if IsDefined('Saturation') then Edit_Saturation.Text := Strings['Saturation'];
       if IsDefined('Lightness') then Edit_Lightness.Text := Strings['Lightness'];
+      if IsDefined('L') then Edit_Hue.Text := Strings['L'];
+      if IsDefined('a') then Edit_Saturation.Text := Strings['a'];
+      if IsDefined('b') then Edit_Lightness.Text := Strings['b'];
       if IsDefined('GammaCorrection') then CheckBox_Gamma.Checked:= Booleans['GammaCorrection'];
       if IsDefined('CorrectedHue') then CheckBox_GSBA.Checked:= Booleans['CorrectedHue'];
       if IsDefined('Hue') or IsDefined('Saturation') or IsDefined('Lightness') then
-        PageControl_Color.ActivePage := TabSheet_HSL;
+        PageControl_Color.ActivePage := TabSheet_HSL else
+      if IsDefined('L') or IsDefined('a') or IsDefined('b') then
+        PageControl_Color.ActivePage := TabSheet_Lab;
     end;
 
   Edit_RedChange(nil);
@@ -636,6 +805,9 @@ begin
   Edit_HueChange(nil);
   Edit_SaturationChange(nil);
   Edit_LightnessChange(nil);
+  Edit_LChange(nil);
+  Edit_aChange(nil);
+  Edit_bChange(nil);
   FInitializing:= false;
 end;
 
@@ -656,6 +828,9 @@ begin
   result.Identifiers.AddFloatVariable('hue',0);
   result.Identifiers.AddFloatVariable('saturation',0);
   result.Identifiers.AddFloatVariable('lightness',0);
+  result.Identifiers.AddFloatVariable('L',0);
+  result.Identifiers.AddFloatVariable('a',0);
+  result.Identifiers.AddFloatVariable('b',0);
   result.Identifiers.AddFloatVariable('random',0);
   result.Identifiers.AddFunction('min', 'F', 'FF', @ExprFunctionMin_Call);
   result.Identifiers.AddFunction('max', 'F', 'FF', @ExprFunctionMax_Call);
@@ -694,7 +869,14 @@ begin
   result.ResFloat := max(ExprResultToFloat(Args[0]), ExprResultToFloat(Args[1]));
 end;
 
-procedure TFFilterFunction.NeedStats;
+procedure TFFilterFunction.StatsNotComputed(AFrom,ATo: integer);
+var i: integer;
+begin
+  for i := AFrom to ATo do
+    FStats[i].computed := false;
+end;
+
+procedure TFFilterFunction.NeedStats(AStatIndex: integer);
 const
   oneOver255 = 1/255;
   oneOver65535 = 1/65535;
@@ -708,18 +890,11 @@ const
     inc(FStats[AIndex].count);
   end;
 
-var
-  i: Integer;
-  y, x: LongInt;
-  p: PBGRAPixel;
-  gammaCorr, gsba: Boolean;
-  ec: TExpandedPixel;
-  r,g,b,a,h,s,l: single;
-
-begin
-  if not FStatsComputed then
+  procedure StartCompute(AFrom,ATo: integer);
+  var
+    i: Integer;
   begin
-    for i := low(FStats) to high(FStats) do
+    for i := AFrom to ATo do
     begin
       FStats[i].min := 1;
       FStats[i].max := 0;
@@ -727,52 +902,123 @@ begin
       FStats[i].avg := 0;
       FStats[i].count := 0;
     end;
-    gammaCorr := CheckBox_Gamma.Checked;
-    gsba := CheckBox_GSBA.Checked;
-    for y := FFilterConnector.WorkArea.Top to FFilterConnector.WorkArea.Bottom-1 do
-    begin
-      p := FFilterConnector.BackupLayer.ScanLine[y] + FFilterConnector.WorkArea.Left;
-      for x := FFilterConnector.WorkArea.Left to FFilterConnector.WorkArea.Right-1 do
-      begin
-        if gammaCorr then
-        begin
-          ec := p^.ToExpanded;
-          r := ec.red*oneOver65535;
-          g := ec.green*oneOver65535;
-          b := ec.blue*oneOver65535;
-        end else
-        begin
-          r := p^.red*oneOver255;
-          g := p^.green*oneOver255;
-          b := p^.blue*oneOver255;
-        end;
-        a := p^.alpha*oneOver255;
-        if gsba then
-        with p^.ToGSBAPixel do
-        begin
-          h := hue*oneOver65536;
-          s := saturation*oneOver65535;
-          l := lightness*oneOver65535;
-        end;
-        if a > 0 then
-        begin
-          AggregateStat(1, r);
-          AggregateStat(2, g);
-          AggregateStat(3, b);
-          AggregateStat(5, h);
-          AggregateStat(6, s);
-          AggregateStat(7, l);
-        end;
-        AggregateStat(4, a);
-        inc(p);
-      end;
-    end;
-    for i := low(FStats) to high(FStats) do
+  end;
+
+  procedure EndCompute(AFrom,ATo: integer);
+  var
+    i: Integer;
+  begin
+    for i := AFrom to ATo do
     begin
       if FStats[i].count > 0 then
         FStats[i].avg := FStats[i].sum / FStats[i].count;
+      FStats[i].computed:= true;
     end;
-    FStatsComputed := true;
+  end;
+
+var
+  y, x: LongInt;
+  p: PBGRAPixel;
+  gammaCorr, gsba: Boolean;
+  ec: TExpandedPixel;
+  r,g,b,h,s,l: single;
+
+begin
+  if not FStats[AStatIndex].computed then
+  begin
+    gammaCorr := CheckBox_Gamma.Checked;
+    gsba := CheckBox_GSBA.Checked;
+    if (AStatIndex >= 1) and (AStatIndex <= 4) then
+    begin
+      StartCompute(1,4);
+      for y := FFilterConnector.WorkArea.Top to FFilterConnector.WorkArea.Bottom-1 do
+      begin
+        p := FFilterConnector.BackupLayer.ScanLine[y] + FFilterConnector.WorkArea.Left;
+        for x := FFilterConnector.WorkArea.Left to FFilterConnector.WorkArea.Right-1 do
+        begin
+          if p^.alpha > 0 then
+          begin
+            if gammaCorr then
+            begin
+              ec := p^.ToExpanded;
+              r := ec.red*oneOver65535;
+              g := ec.green*oneOver65535;
+              b := ec.blue*oneOver65535;
+            end else
+            begin
+              r := p^.red*oneOver255;
+              g := p^.green*oneOver255;
+              b := p^.blue*oneOver255;
+            end;
+            AggregateStat(1, r);
+            AggregateStat(2, g);
+            AggregateStat(3, b);
+          end;
+          AggregateStat(4, p^.blue*oneOver255);
+          inc(p);
+        end;
+      end;
+      EndCompute(1,4);
+    end else
+    if (AStatIndex >= 5) and (AStatIndex <= 7) then
+    begin
+      StartCompute(5,7);
+      for y := FFilterConnector.WorkArea.Top to FFilterConnector.WorkArea.Bottom-1 do
+      begin
+        p := FFilterConnector.BackupLayer.ScanLine[y] + FFilterConnector.WorkArea.Left;
+        for x := FFilterConnector.WorkArea.Left to FFilterConnector.WorkArea.Right-1 do
+        begin
+          if p^.alpha > 0 then
+          begin
+            if gsba then
+            with p^.ToGSBAPixel do
+            begin
+              h := hue*oneOver65536;
+              s := saturation*oneOver65535;
+              l := lightness*oneOver65535;
+            end else
+            if gammaCorr then
+            with p^.ToHSLAPixel do
+            begin
+              h := hue*oneOver65536;
+              s := saturation*oneOver65535;
+              l := lightness*oneOver65535;
+            end else
+            with p^.ToStdHSLA do
+            begin
+              h := hue/360;
+              s := saturation;
+              l := lightness;
+            end;
+            AggregateStat(5, h);
+            AggregateStat(6, s);
+            AggregateStat(7, l);
+          end;
+          inc(p);
+        end;
+      end;
+      EndCompute(5,7);
+    end else
+    if (AStatIndex >= 8) and (AStatIndex <= 10) then
+    begin
+      StartCompute(8,10);
+      for y := FFilterConnector.WorkArea.Top to FFilterConnector.WorkArea.Bottom-1 do
+      begin
+        p := FFilterConnector.BackupLayer.ScanLine[y] + FFilterConnector.WorkArea.Left;
+        for x := FFilterConnector.WorkArea.Left to FFilterConnector.WorkArea.Right-1 do
+        begin
+          if p^.alpha > 0 then
+            with p^.ToLabA do
+            begin
+              AggregateStat(8, L/100);
+              AggregateStat(9, a/127);
+              AggregateStat(10, b/127);
+            end;
+          inc(p);
+        end;
+      end;
+      EndCompute(8,10);
+    end;
   end;
 end;
 
@@ -799,7 +1045,8 @@ procedure TFFilterFunction.CheckBox_GammaChange(Sender: TObject);
 begin
   if not FInitializing then
   begin
-    FStatsComputed := false;
+    StatsNotComputed(1,3);
+    if not CheckBox_GSBA.Checked then StatsNotComputed(5,7);
     PreviewNeeded;
   end;
 end;
@@ -808,9 +1055,14 @@ procedure TFFilterFunction.CheckBox_GSBAChange(Sender: TObject);
 begin
   if not FInitializing then
   begin
-    FStatsComputed := false;
+    StatsNotComputed(5,7);
     PreviewNeeded;
   end;
+end;
+
+procedure TFFilterFunction.Edit_aChange(Sender: TObject);
+begin
+  UpdateExpr(FaExpr,Edit_a,FaError);
 end;
 
 procedure TFFilterFunction.Button_CancelClick(Sender: TObject);
@@ -821,6 +1073,11 @@ end;
 procedure TFFilterFunction.Edit_AlphaChange(Sender: TObject);
 begin
   UpdateExpr(FAlphaExpr,Edit_Alpha,FAlphaError);
+end;
+
+procedure TFFilterFunction.Edit_bChange(Sender: TObject);
+begin
+  UpdateExpr(FbExpr,Edit_b,FbError);
 end;
 
 procedure TFFilterFunction.Edit_BlueChange(Sender: TObject);
@@ -836,6 +1093,11 @@ end;
 procedure TFFilterFunction.Edit_HueChange(Sender: TObject);
 begin
   UpdateExpr(FHueExpr,Edit_Hue,FHueError);
+end;
+
+procedure TFFilterFunction.Edit_LChange(Sender: TObject);
+begin
+  UpdateExpr(FLExpr,Edit_L,FLError);
 end;
 
 procedure TFFilterFunction.Edit_LightnessChange(Sender: TObject);
