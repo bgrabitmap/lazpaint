@@ -177,8 +177,6 @@ end;
 
 procedure TFFilterFunction.FormCreate(Sender: TObject);
 begin
-  ScaleControl(Self,OriginalDPI);
-
   CheckOKCancelBtns(Button_OK,Button_Cancel);
 
   FRedExpr := CreateExpr;
