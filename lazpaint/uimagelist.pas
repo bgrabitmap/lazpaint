@@ -105,6 +105,7 @@ type
     WidthMinimal: integer;
     HeightMinimal: integer;
     ManualResize: Boolean;
+    FResizedImageList: TBGRAImageList;
 //    ILConfig: TLazPaintConfig;
     procedure EnsureGridRectVisible(ARect: TGridRect);
   public
@@ -123,7 +124,7 @@ implementation
 
 {$R *.lfm}
 
-uses LCLType, UFileExtensions, LazFileUtils, UFileSystem;
+uses LCLType, UFileExtensions, LazFileUtils, UFileSystem, LCScaleDPI;
 
 { TFImageList }
 
@@ -183,6 +184,7 @@ end;
 procedure TFImageList.NormalWindow (Normalsize: Boolean= True);
 begin
   StringGrid1.Visible:=Normalsize;
+  lblStatus.Visible := Normalsize;
   pnlButtonsNormalWindow.Visible:=Normalsize;
   pnlButtonsSmallWindow.Visible:=not Normalsize;
   if Normalsize = True then
@@ -196,12 +198,12 @@ begin
     end
   else
     begin
-      Self.Constraints.MinWidth:=80;
-      Self.Constraints.MinHeight:=28;
+      Self.Constraints.MinWidth:= DoScaleX(80, OriginalDPI);
+      Self.Constraints.MinHeight:=DoScaleY(28, OriginalDPI);
       Self.Constraints.MaxWidth:=Self.Constraints.MinWidth;
       Self.Constraints.MaxHeight:=Self.Constraints.MinHeight;
-      Self.Width:=80;
-      Self.Height:=28;
+      Self.Width:= DoScaleX(80, OriginalDPI);
+      Self.Height:=DoScaleY(28, OriginalDPI);
     end;
 end; //sub
 
@@ -257,10 +259,10 @@ end;
 
 procedure TFImageList.FormCreate(Sender: TObject);
 begin
-  WidthNormal:=500;
-  HeightNormal:=360;
-  WidthMinimal:=340;
-  HeightMinimal:=200;
+  WidthNormal:= DoScaleX(500, OriginalDPI);
+  HeightNormal:=DoScaleY(360, OriginalDPI);
+  WidthMinimal:=DoScaleX(340, OriginalDPI);
+  HeightMinimal:=DoScaleY(200, OriginalDPI);
   ManualResize:=True;
 
   Self.Constraints.MinWidth:=WidthMinimal;
@@ -269,6 +271,27 @@ begin
   Self.Constraints.MaxHeight:=0;
   Self.Width:=WidthNormal;
   Self.Height:=HeightNormal;
+
+  if DoScaleX(ImageList1.Width, OriginalDPI) <> ImageList1.Width then
+  begin
+    FResizedImageList := TBGRAImageList.Create(self);
+    ScaleImageList(ImageList1, DoScaleX(ImageList1.Width, OriginalDPI),
+      DoScaleY(ImageList1.Height, OriginalDPI), FResizedImageList);
+    tbButtonsNormalWindows.Images := FResizedImageList;
+    tbButtonsSmallWindow.Images := FResizedImageList;
+  end;
+  tbButtonsNormalWindows.ButtonHeight := tbButtonsNormalWindows.Images.Height + DoScaleY(4, OriginalDPI);
+  tbButtonsNormalWindows.Align:= alClient;
+  tbButtonsSmallWindow.ButtonHeight := tbButtonsSmallWindow.Images.Height + DoScaleY(4, OriginalDPI);
+  tbButtonsSmallWindow.Align:= alClient;
+  pnlButtonsNormalWindow.Height := tbButtonsNormalWindows.ButtonHeight + DoScaleY(4, OriginalDPI);
+  pnlButtonsNormalWindow.Align := alBottom;
+  pnlButtonsSmallWindow.Height := tbButtonsSmallWindow.ButtonHeight + DoScaleY(4, OriginalDPI);
+  pnlButtonsSmallWindow.Align := alBottom;
+
+  lblStatus.Caption:='';
+  lblStatus.AutoSize := true;
+  lblStatus.Align := alBottom;
 
   StringGrid1.Columns.Items[colNumber].Title.Column.Title.Caption:=rsNumber;
   StringGrid1.Columns.Items[ColShortFname].Title.Column.Title.Caption:=rsFilename;
@@ -280,14 +303,14 @@ begin
   StringGrid1.Columns.Items[ColShortFname].ReadOnly:=True;
   StringGrid1.Columns.Items[ColCB].ReadOnly:=False;
   StringGrid1.Columns.Items[ColLongFname].ReadOnly:=True;
-  StringGrid1.Columns.Items[colNumber].Width:=30;
-  StringGrid1.Columns.Items[ColCB].Width:=80;
+  StringGrid1.Columns.Items[colNumber].Width:= DoScaleX(30, OriginalDPI);
+  StringGrid1.Columns.Items[ColCB].Width:= DoScaleX(80, OriginalDPI);
   StringGrid1.Columns.Items[ColShortFname].Width:=StringGrid1.Width- StringGrid1.Columns.Items[colNumber].Width- StringGrid1.Columns.Items[ColCB].Width-5;
   StringGrid1.Columns.Items[ColLongFname].Width:=0;
   StringGrid1.Columns.Items[ColLongFname].Visible:=False;
+  StringGrid1.Align := alClient;
+
   OpenDialog1.Filter:= GetExtensionFilter([eoReadable]);
-  lblStatus.Caption:='';
-  lblStatus.AutoSize := true;
   EnableButtons;
 end;
 
@@ -361,10 +384,6 @@ procedure TFImageList.FormResize(Sender: TObject);
 begin
   if ManualResize then
   begin
-    StringGrid1.Left := 0;
-    StringGrid1.Top := 0;
-    StringGrid1.Width:= ClientWidth;
-    StringGrid1.Height:= ClientHeight - pnlButtonsNormalWindow.Height -lblStatus.Height - 4;
     StringGrid1.Columns.Items[ColShortFname].Width:=StringGrid1.Width- StringGrid1.Columns.Items[colNumber].Width- StringGrid1.Columns.Items[ColCB].Width-5 - {vert scrollbar width, 0 if invisible} (StringGrid1.Width-StringGrid1.ClientWidth);
     HeightNormal:=Self.Height;
     WidthNormal:=Self.Width;
