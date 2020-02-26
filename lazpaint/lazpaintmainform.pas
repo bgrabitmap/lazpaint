@@ -3198,6 +3198,7 @@ begin
   if nb < 1 then
     exit(srInvalidParameters);
   shiftState := [];
+  needUpdate := false;
   if TVariableSet.IsReferenceDefined(state) then
   begin
     for i := 0 to AVars.GetListCount(state)-1 do
@@ -3211,7 +3212,6 @@ begin
     if (ssLeft in shiftState) and (ssRight in ShiftState) then
       exit(srInvalidParameters);
 
-    needUpdate := false;
     for i := 0 to AVars.GetListCount(state)-1 do
       case AVars.GetStringAt(state, i) of
         'Shift': begin keyCode := VK_SHIFT; if ToolManager.ToolKeyDown(keyCode) then needUpdate := true; end;
