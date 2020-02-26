@@ -1089,7 +1089,6 @@ begin
 
   Image.OnSelectedLayerIndexChanged:= @PictureSelectedLayerIndexChanged;
   Image.OnSelectedLayerIndexChanging:= @PictureSelectedLayerIndexChanging;
-  Image.CurrentFilenameUTF8 := '';
 
   RegisterToolbarElements;
 
@@ -1119,6 +1118,7 @@ begin
 
   InitToolbarElements;
 
+  Image.CurrentFilenameUTF8 := '';
   FImageActions.SetCurrentBitmap(TBGRABitmap.Create(Config.DefaultImageWidth,Config.DefaultImageHeight,Config.DefaultImageBackgroundColor), false);
   image.ClearUndo;
   image.SetSavedFlag(0, -1, 0);
