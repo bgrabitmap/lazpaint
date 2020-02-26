@@ -253,14 +253,9 @@ end;
 
 procedure TFFilterFunction.FormShow(Sender: TObject);
 begin
-  PanelLabelRGB.ChildSizing.TopBottomSpacing:= Edit_Red.Top + (Edit_Red.Height - Label_RedEquals.Height) div 2;
-  PanelLabelRGB.ChildSizing.VerticalSpacing:= (Edit_Green.Top - Edit_Red.Top) - Label_RedEquals.Height;
-  PanelLabelHSL.ChildSizing.TopBottomSpacing := PanelLabelRGB.ChildSizing.TopBottomSpacing;
-  PanelLabelHSL.ChildSizing.VerticalSpacing := PanelLabelRGB.ChildSizing.VerticalSpacing;
-  PanelLabelLab.ChildSizing.TopBottomSpacing := PanelLabelRGB.ChildSizing.TopBottomSpacing;
-  PanelLabelLab.ChildSizing.VerticalSpacing := PanelLabelRGB.ChildSizing.VerticalSpacing;
   InitParams;
   PreviewNeeded;
+  Timer_AdjustVerticalSize.Interval:= 50;
   Timer_AdjustVerticalSize.Enabled := true;
 end;
 
@@ -717,6 +712,12 @@ end;
 
 procedure TFFilterFunction.Timer_AdjustVerticalSizeTimer(Sender: TObject);
 begin
+  PanelLabelRGB.ChildSizing.TopBottomSpacing:= Edit_Red.Top + (Edit_Red.Height - Label_RedEquals.Height) div 2;
+  PanelLabelRGB.ChildSizing.VerticalSpacing:= (Edit_Green.Top - Edit_Red.Top) - Label_RedEquals.Height;
+  PanelLabelHSL.ChildSizing.TopBottomSpacing := PanelLabelRGB.ChildSizing.TopBottomSpacing;
+  PanelLabelHSL.ChildSizing.VerticalSpacing := PanelLabelRGB.ChildSizing.VerticalSpacing;
+  PanelLabelLab.ChildSizing.TopBottomSpacing := PanelLabelRGB.ChildSizing.TopBottomSpacing;
+  PanelLabelLab.ChildSizing.VerticalSpacing := PanelLabelRGB.ChildSizing.VerticalSpacing;
   PageControl_Color.Height := PanelRGB.Top + Edit_Blue.Top + Edit_Blue.Height +
     TabSheet_RGB.ChildSizing.VerticalSpacing +
     CheckBox_Gamma.Height + TabSheet_RGB.ChildSizing.TopBottomSpacing +
