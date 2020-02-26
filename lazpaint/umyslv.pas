@@ -124,6 +124,7 @@ type
     procedure SetFocus;
     function GetItemAt(X,Y: Integer): integer;
     procedure DeselectAll;
+    procedure SelectAll;
     procedure Sort;
     procedure RemoveItemFromList(AIndex: integer);
     function IndexByName(AName: string; ACaseSensitive: boolean): integer;
@@ -826,8 +827,12 @@ begin
   begin
     Key := 0;
     if SelectedIndex > 0 then KeySelectRange(Max(0,SelectedIndex-FItemsPerPage));
+  end else
+  if (Key = VK_A) and (ssSnap in Shift) then
+  begin
+    Key := 0;
+    SelectAll;
   end;
-
 end;
 
 procedure TLCShellListView.MouseDoubleClick(Sender: TObject);
@@ -1292,6 +1297,22 @@ begin
       discard := true;
     end;
   FSelectedIndex := -1;
+  if discard then InvalidateView;
+end;
+
+procedure TLCShellListView.SelectAll;
+var i:integer;
+  discard: boolean;
+begin
+  discard:= false;
+  for i := 0 to ItemCount-1 do
+    if not FData[i].isSelected then
+    begin
+      FData[i].isSelected := true;
+      if not discard then
+        FSelectedIndex := i;
+      discard := true;
+    end;
   if discard then InvalidateView;
 end;
 
