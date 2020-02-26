@@ -384,6 +384,13 @@ begin
   InFilenameChange := true;
   if not IsSaveDialog then Edit_Filename.Text := ''
   else Edit_Filename.Text := InitialFilename;
+  if Filter = '' then //default filter
+  begin
+    if IsSaveDialog then
+      Filter := GetExtensionFilter([eoWritable])
+    else
+      Filter := GetExtensionFilter([eoReadable]);
+  end;
   FFilename := '';
   FSelectedFiles := nil;
   InFilenameChange := false;
