@@ -7,7 +7,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs,
-  Grids, StdCtrls, Buttons, ComCtrls, ExtCtrls, Menus,
+  Grids, StdCtrls, Buttons, ComCtrls, ExtCtrls, Menus, UImageObservation,
   LazPaintType, UResourceStrings, UConfig, BGRAImageList, ubrowseimages;
 
 type
@@ -90,7 +90,7 @@ type
     procedure tbCheckAllClick(Sender: TObject);
     procedure tbCleanListClick(Sender: TObject);
     procedure tbAddFilesClick(Sender: TObject);
-    function RowChecked(Row: integer): Boolean;
+    function GetRowChecked(Row: integer): Boolean;
     function CheckedExist (Verbose: Boolean=True): Boolean;
     function SelectedRow: integer;
     procedure NormalWindow (Normalsize: Boolean= True);
@@ -108,9 +108,14 @@ type
     FResizedImageList: TBGRAImageList;
 //    ILConfig: TLazPaintConfig;
     procedure EnsureGridRectVisible(ARect: TGridRect);
+    function GetFileCount: integer;
+    procedure ImageSaving(AEvent: TLazPaintImageObservationEvent);
+    procedure SetRowChecked(AIndex: integer; AValue: boolean);
   public
-      LazPaintInstance: TLazPaintCustomInstance;
-      procedure AddFiles (const FileNames: array of String);
+    LazPaintInstance: TLazPaintCustomInstance;
+    procedure AddFiles (const FileNames: array of String);
+    property FileChecked[AIndex: integer]: boolean read GetRowChecked write SetRowChecked;
+    property FileCount: integer read GetFileCount;
   end;
 
 var
@@ -221,20 +226,17 @@ var
   TodoFiles: integer=0;
 begin
   //first line contains headers
-  TF:=(StringGrid1.RowCount>=2);
+  TF:= FileCount > 0;
   tbRemoveItem.Enabled:=TF;
   tbCheckAll.Enabled:=TF;
   tbUncheckAll.Enabled:=TF;
   StringGrid1.Enabled := TF;
 
-  if TF= true then
-    begin
+  if TF then
+  begin
     TF:= False;
-    for i:=1 to StringGrid1.RowCount-1 do
-     if RowChecked(i) then
-        begin
-          TF:=True;
-        end;
+    for i:=1 to FileCount do
+      if FileChecked[i] then TF := true;
   end;
   tbOpenPrev.Enabled:=TF;
   tbOpenNext.Enabled:=TF;
@@ -243,12 +245,12 @@ begin
   tbMoveDown.Enabled:=TF;
   tbMoveUp.Enabled:=TF;
   StringGrid1.Columns.Items[ColShortFname].Width:=StringGrid1.Width- StringGrid1.Columns.Items[colNumber].Width- StringGrid1.Columns.Items[ColCB].Width-5 - {vert scrollbar width, 0 if invisible} (StringGrid1.Width-StringGrid1.ClientWidth);
-  tbOpenImage.Enabled:=RowChecked(SelectedRow);
-  for i:= 1 to (StringGrid1.RowCount-1) do
-     if (StringGrid1.Cells[ColCB,i]='1') then inc (TodoFiles);
-  lblStatus.Caption:= StringReplace(rsTotalImages,'%1',IntToStr(StringGrid1.RowCount-1),[])+ ';  '+
+  tbOpenImage.Enabled:= TF and FileChecked[SelectedRow];
+  for i:= 1 to (FileCount) do
+    if FileChecked[i] then inc(TodoFiles);
+  lblStatus.Caption:= StringReplace(rsTotalImages,'%1',IntToStr(FileCount),[])+ ';  '+
      StringReplace(rsToDoImages,'%1',IntToStr(TodoFiles),[]) + '  '
-    +'(' + IntToStr(trunc(percent(StringGrid1.RowCount-1,TodoFiles)))+ '%)';
+    +'(' + IntToStr(trunc(percent(FileCount,TodoFiles)))+ '%)';
 end;
 
 procedure TFImageList.FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -316,6 +318,11 @@ end;
 
 procedure TFImageList.FormDestroy(Sender: TObject);
 begin
+  if Assigned(LazPaintInstance.Image) then
+  begin
+    LazPaintInstance.Image.OnImageSaving.RemoveObserver(@ImageSaving);
+    LazPaintInstance.Image.OnImageExport.RemoveObserver(@ImageSaving);
+  end;
   FreeAndNil(FBrowseImages);
 end;
 
@@ -332,7 +339,7 @@ var
 begin
   if Length(FileNames) > 0 then
   begin
-       shouldOpenFirst := StringGrid1.RowCount-StringGrid1.FixedRows = 0;
+       shouldOpenFirst := FileCount = 0;
        LazPaintInstance.Config.SetImageListLastFolder(ExtractFileDir(FileNames[0]));
        PrevRowCount:=StringGrid1.RowCount;
        Row:=PrevRowCount;
@@ -351,8 +358,8 @@ begin
        StringGrid1.RowCount:=Row;
        if shouldOpenFirst then
        begin
-            tbOpenImageClick(nil);
-            if tbAutoZoomFit.Down then LazPaintInstance.Image.ZoomFit;
+          tbOpenImageClick(nil);
+          if tbAutoZoomFit.Down then LazPaintInstance.Image.ZoomFit;
        end;
   end; //if
   EnableButtons;
@@ -397,6 +404,11 @@ begin
   tbAutoZoomFit.Down:= LazPaintInstance.Config.ImageListAutoZoom;
   pmAutouncheckOnSave.Checked:=LazPaintInstance.Config.ImageListAutoUncheckMode=0;
   pmAutouncheckOnOpen.Checked:=LazPaintInstance.Config.ImageListAutoUncheckMode=1;
+  if Assigned(LazPaintInstance.Image) then
+  begin
+    LazPaintInstance.Image.OnImageSaving.AddObserver(@ImageSaving);
+    LazPaintInstance.Image.OnImageExport.AddObserver(@ImageSaving);
+  end;
 end;
 
 procedure TFImageList.pmAutouncheckClose(Sender: TObject);
@@ -428,7 +440,7 @@ end;
 procedure TFImageList.pmRemoveAllClick(Sender: TObject);
 begin
   StringGrid1.Clean;
-  StringGrid1.RowCount:=1;
+  StringGrid1.RowCount:= StringGrid1.FixedRows;
   EnableButtons;
 end;
 
@@ -443,7 +455,7 @@ var
   needRenumber: boolean;
 begin
   needRenumber := false;
-  for i:=StringGrid1.RowCount-1 downto 1 do
+  for i:=FileCount downto 1 do
    if not FileManager.FileExists(StringGrid1.Cells[ColLongFname,i])
       then begin DeleteRow(StringGrid1,i); needRenumber :=true; end;
   if needRenumber then Renumber;
@@ -459,8 +471,8 @@ procedure TFImageList.Renumber;
 var
   i:integer;
 begin
-  if StringGrid1.RowCount>1 then
-     for i:=0 to StringGrid1.RowCount-1 do
+  if FileCount > 0 then
+     for i:= 1 to FileCount do
         StringGrid1.Cells[colNumber,i]:=IntToStr(i);
 end;
 
@@ -480,15 +492,36 @@ begin
   else if (SelectedRows <= VisibleRows) and (StringGrid1.TopRow < MinTopRow) then StringGrid1.TopRow := MinTopRow;
 end;
 
+function TFImageList.GetFileCount: integer;
+begin
+  result := StringGrid1.RowCount - StringGrid1.FixedRows;
+end;
+
+procedure TFImageList.ImageSaving(AEvent: TLazPaintImageObservationEvent);
+var
+  i: Integer;
+begin
+  if not pmAutouncheckOnSave.Checked then exit;
+  for i:= 1 to FileCount do
+   if StringGrid1.Cells[ColLongFname,i] = LazPaintInstance.Image.currentFilenameUTF8 then
+     FileChecked[i] := false;
+end;
+
+procedure TFImageList.SetRowChecked(AIndex: integer; AValue: boolean);
+begin
+  StringGrid1.Cells[ColCB,AIndex]:= BoolToStr(AValue, '1', '0');
+  EnableButtons;
+end;
+
 procedure TFImageList.pmRemoveUncheckedClick(Sender: TObject);
 var
   i:integer;
   needRenumber: boolean;
 begin
   needRenumber := false;
-  for i:=StringGrid1.RowCount-1 downto 1 do
-   if not RowChecked(i)
-      then begin DeleteRow(StringGrid1,i); needRenumber :=true; end;
+  for i:=FileCount downto 1 do
+   if not FileChecked[i] then
+      begin DeleteRow(StringGrid1,i); needRenumber :=true; end;
   if needRenumber then Renumber;
   EnableButtons;
 end;
@@ -502,9 +535,9 @@ procedure TFImageList.pmUncheckNonExistingClick(Sender: TObject);
 var
 i: integer;
 begin
-  for i:= 1 to StringGrid1.RowCount-1 do
+  for i:= 1 to FileCount do
      if not FileManager.FileExists(StringGrid1.Cells[ColLongFname,i])
-         then StringGrid1.Cells[ColCB,i]:='0';
+         then FileChecked[i] := false;
   EnableButtons;
 end;
 
@@ -515,16 +548,13 @@ end;
 
 procedure TFImageList.StringGrid1SelectCell(Sender: TObject; aCol, aRow: Integer; var CanSelect: Boolean);
 begin
-    tbOpenImage.Enabled:=RowChecked(aRow);
+  tbOpenImage.Enabled:= FileChecked[ARow];
 end;
 
 procedure TFImageList.StringGrid1SetCheckboxState(Sender: TObject; ACol,
   ARow: Integer; const Value: TCheckboxState);
 begin
-  if Value=cbChecked
-    then begin StringGrid1.Cells[ColCB,ARow]:='1'; end
-    else begin StringGrid1.Cells[ColCB,ARow]:='0'; end;
-  EnableButtons;
+  FileChecked[ARow] := (Value=cbChecked);
 end;
 
 procedure TFImageList.tbAutoUncheckClick(Sender: TObject);
@@ -541,7 +571,7 @@ procedure TFImageList.tbMoveDownClick(Sender: TObject);
 var
    SelRect: TGridRect;
 begin
-   if (StringGrid1.RowCount>2) and (StringGrid1.Selection.Bottom< StringGrid1.RowCount-1) then
+   if (StringGrid1.RowCount>2) and (StringGrid1.Selection.Bottom< FileCount) then
    begin
      SelRect:=StringGrid1.Selection;
      StringGrid1.MoveColRow(False,SelRect.Bottom+1,SelRect.Top);
@@ -573,19 +603,17 @@ begin
   NormalWindow;
 end;
 
-function TFImageList.RowChecked(Row: integer): Boolean;
+function TFImageList.GetRowChecked(Row: integer): Boolean;
 begin
-   if StringGrid1.Cells[ColCB, Row]='1'
-      then Result:=True
-      else Result:=False;
+   Result:= (StringGrid1.Cells[ColCB, Row] = '1')
 end;
 
 procedure TFImageList.tbOpenImageClick(Sender: TObject);
 begin
    if SaveModified= True then
    begin
-   if (tbAutoUncheck.Down and pmAutouncheckOnOpen.Checked) or (tbAutoUncheck.Down and pmAutouncheckOnSave.Checked and LazPaintInstance.Image.IsFileModifiedAndSaved) then
-       begin StringGrid1.Cells[ColCB, SelectedRow]:='0'; EnableButtons; end;
+     if tbAutoUncheck.Down and pmAutouncheckOnOpen.Checked then
+       FileChecked[SelectedRow]:= false;
      OpenImage (StringGrid1.Cells[ColLongFname,SelectedRow]);
    end;
 end;
@@ -601,15 +629,15 @@ var
 begin
   Result:=False;
   for i:=1 to StringGrid1.RowCount -1 do
-      if RowChecked(i) then
-        begin
-          Result:=True;
-          Break;
-        end;
+    if FileChecked[i] then
+      begin
+        Result:=True;
+        Break;
+      end;
   if (Result = false) and (Verbose= True) then QuestionDlg (rsInformation, rsThereAreNoCheckedItems, mtInformation, [mrOk, rsOkay],'');
 end;
 
-function TFImageList.SaveModified: Boolean;
+function TFImageList.SaveModified: boolean;
 begin
   Result:=True;
   if LazPaintInstance.Image.IsFileModified=True then
@@ -640,26 +668,24 @@ var
 begin
   if not CheckedExist then Exit;
   if SaveModified= False then exit;
-  if (tbAutoUncheck.Down and pmAutouncheckOnSave.Checked and LazPaintInstance.Image.IsFileModifiedAndSaved) then
-     begin StringGrid1.Cells[ColCB, SelectedRow]:='0'; EnableButtons; end;
-  if SelectedRow<StringGrid1.RowCount-1
+  if SelectedRow<FileCount
      then
-       for i:= SelectedRow + 1 to StringGrid1.RowCount-1 do
-         if RowChecked(i) then
+       for i:= SelectedRow + 1 to FileCount do
+         if FileChecked[i] then
            begin
               OpenImage(StringGrid1.Cells[ColLongFname,i]);
               SelectRow(StringGrid1,i, pnlButtonsNormalWindow.Visible);
               if (tbAutoUncheck.Down and pmAutouncheckOnOpen.Checked) then
-              begin StringGrid1.Cells[ColCB, SelectedRow]:='0'; EnableButtons; end;
+                FileChecked[SelectedRow]:= false;
               Exit;
            end;
        for i:= 1 to SelectedRow-1 do
-          if RowChecked(i) then
+          if FileChecked[i] then
             begin
               OpenImage(StringGrid1.Cells[ColLongFname,i]);
               SelectRow(StringGrid1,i,pnlButtonsNormalWindow.Visible);
               if (tbAutoUncheck.Down and pmAutouncheckOnOpen.Checked) then
-              begin StringGrid1.Cells[ColCB, SelectedRow]:='0'; EnableButtons; end;
+                FileChecked[SelectedRow]:= false;
               Exit;
             end;
 end;
@@ -670,25 +696,23 @@ var
 begin
   if not CheckedExist then Exit;
   if SaveModified= False then exit;
-  if (tbAutoUncheck.Down and pmAutouncheckOnSave.Checked and LazPaintInstance.Image.IsFileModifiedAndSaved) then
-     begin StringGrid1.Cells[ColCB, SelectedRow]:='0'; EnableButtons; end;
   if SelectedRow>1 then
      for i:= SelectedRow -1 downto 1 do
-       if RowChecked(i) then
+       if FileChecked[i] then
          begin
             OpenImage(StringGrid1.Cells[ColLongFname,i]);
             SelectRow(StringGrid1,i,pnlButtonsNormalWindow.Visible);
             if (tbAutoUncheck.Down and pmAutouncheckOnOpen.Checked) then
-            begin StringGrid1.Cells[ColCB, SelectedRow]:='0'; EnableButtons; end;
+              FileChecked[SelectedRow]:= false;
             Exit;
          end; //if
-  for i:= StringGrid1.RowCount-1 downto SelectedRow+1 do
-    if RowChecked(i) then
+  for i:= FileCount downto SelectedRow+1 do
+    if FileChecked[i] then
       begin
         OpenImage(StringGrid1.Cells[ColLongFname,i]);
         SelectRow(StringGrid1,i,pnlButtonsNormalWindow.Visible);
         if (tbAutoUncheck.Down and pmAutouncheckOnOpen.Checked) then
-        begin StringGrid1.Cells[ColCB, SelectedRow]:='0'; EnableButtons; end;
+          FileChecked[SelectedRow] := false;
         Exit;
       end; //if
 end;
@@ -715,8 +739,8 @@ procedure TFImageList.tbUncheckAllClick(Sender: TObject);
 var
   i: integer;
 begin
-    for i:= 1 to StringGrid1.RowCount-1 do
-      StringGrid1.Cells[ColCB,i]:='0';
+    for i:= 1 to FileCount do
+      StringGrid1.Cells[ColCB,i]:= '0';
     EnableButtons;
 end;
 
@@ -724,8 +748,8 @@ procedure TFImageList.tbCheckAllClick(Sender: TObject);
   var
   i: integer;
 begin
-  for i:= 1 to StringGrid1.RowCount-1 do
-    StringGrid1.Cells[ColCB,i]:='1';
+  for i:= 1 to FileCount do
+    StringGrid1.Cells[ColCB,i]:= '1';
   EnableButtons;
 end;
 

@@ -47,7 +47,7 @@ type
     FCurrentState: TImageState;
     FRenderedImage: TBGRABitmap;
     FRenderedImageInvalidated: TRect;
-    FOnImageChanged: TLazPaintImageObservable;
+    FOnImageChanged, FOnImageSaving, FOnImageExport: TLazPaintImageObservable;
     FUndoList: TComposedImageDifference;
     FUndoPos: integer;
     FRenderUpdateRectInPicCoord, FRenderUpdateRectInVSCoord: TRect;
@@ -234,9 +234,9 @@ type
     procedure UpdateMultiImage(AOutputFilename: string = ''; AExport: boolean = false);
     procedure SetSavedFlag(ASavedBPP: integer = 0;
                            ASavedFrameIndex: integer = 0;
-                           ASavedFrameCount: integer = 1);
+                           ASavedFrameCount: integer = 1;
+                           AOpening: boolean = false);
     function IsFileModified: boolean;
-    function IsFileModifiedAndSaved: boolean;
     procedure SaveOriginalToStream(AStream: TStream);
 
     function CheckCurrentLayerVisible: boolean;
@@ -257,6 +257,8 @@ type
     property OnSelectedLayerIndexChanged: TOnCurrentLayerIndexChanged read FOnSelectedLayerIndexChanged write FOnSelectedLayerIndexChanged;
     property OnStackChanged: TOnStackChanged read FOnStackChanged write FOnStackChanged;
     property OnImageChanged: TLazPaintImageObservable read FOnImageChanged;
+    property OnImageSaving: TLazPaintImageObservable read FOnImageSaving;
+    property OnImageExport: TLazPaintImageObservable read FOnImageExport;
     property OnActionProgress: TLayeredActionProgressEvent read FOnActionProgress write SetOnActionProgress;
     property NbLayers: integer read GetNbLayers;
     property Empty: boolean read GetEmpty;
@@ -489,7 +491,7 @@ begin
     finally
       s.Free;
     end;
-    if not AExport then SetSavedFlag;
+    if not AExport then SetSavedFlag else OnImageExport.NotifyObservers;
   end else
   begin
     if RenderedImage = nil then exit;
@@ -499,7 +501,12 @@ begin
     finally
       s.Free;
     end;
-    if (NbLayers = 1) and not AExport then SetSavedFlag;
+    if not AExport then
+    begin
+      if NbLayers = 1 then SetSavedFlag
+      else OnImageSaving.NotifyObservers;
+    end
+      else OnImageExport.NotifyObservers;
   end;
 end;
 
@@ -558,7 +565,8 @@ begin
     try
       icoCur.SaveToStream(s);
       if not AExport then
-        SetSavedFlag(bpp, newFrameIndex, icoCur.Count);
+        SetSavedFlag(bpp, newFrameIndex, icoCur.Count)
+      else OnImageExport.NotifyObservers;
     finally
       s.Free;
     end;
@@ -614,7 +622,8 @@ begin
     try
       tiff.SaveToStream(s);
       if not AExport then
-        SetSavedFlag(bpp, newFrameIndex, tiff.Count);
+        SetSavedFlag(bpp, newFrameIndex, tiff.Count)
+      else OnImageExport.NotifyObservers;
     finally
       FreeAndNil(s);
     end;
@@ -659,7 +668,8 @@ begin
     try
       gif.SaveToStream(s);
       if not AExport then
-        SetSavedFlag(bpp, newFrameIndex, gif.Count);
+        SetSavedFlag(bpp, newFrameIndex, gif.Count)
+      else OnImageExport.NotifyObservers;
     finally
       FreeAndNil(s);
     end;
@@ -721,7 +731,8 @@ begin
   end;
 end;
 
-procedure TLazPaintImage.SetSavedFlag(ASavedBPP: integer; ASavedFrameIndex: integer; ASavedFrameCount: integer);
+procedure TLazPaintImage.SetSavedFlag(ASavedBPP: integer; ASavedFrameIndex: integer;
+  ASavedFrameCount: integer; AOpening: boolean);
 var i: integer;
 begin
   FCurrentState.saved := true;
@@ -734,21 +745,13 @@ begin
     FUndoList[i].SavedAfter := (i = FUndoPos);
   end;
   OnImageChanged.NotifyObservers;
+  if (currentFilenameUTF8 <> '') and not AOpening then
+    OnImageSaving.NotifyObservers;
 end;
 
 function TLazPaintImage.IsFileModified: boolean;
 begin
   result := not FCurrentState.saved;
-end;
-
-function TLazPaintImage.IsFileModifiedAndSaved: boolean;
-var
-  undolistcount: integer;
-  saved:Boolean;
-begin
-  undolistcount:= FUndoList.Count;
-  saved:= FCurrentState.saved;
-  result := saved and (undolistcount>0);
 end;
 
 function TLazPaintImage.FlatImageEquals(ABitmap: TBGRABitmap): boolean;
@@ -1825,6 +1828,7 @@ begin
   begin
     FCurrentState.Assign(AValue, AOwned);
     FCurrentState.RemoveSelection;
+    FCurrentState.saved := false;
     LayeredBitmapReplaced;
     ImageMayChangeCompletely;
     SelectionMaskMayChangeCompletely;
@@ -2290,6 +2294,8 @@ begin
   FOnSelectedLayerIndexChanged := nil;
   FOnStackChanged := nil;
   FOnImageChanged := TLazPaintImageObservable.Create(self);
+  FOnImageSaving := TLazPaintImageObservable.Create(self);
+  FOnImageExport := TLazPaintImageObservable.Create(self);
   FUndoList := TComposedImageDifference.Create;
   FUndoPos := -1;
   ImageOffset := Point(0,0);
@@ -2304,6 +2310,8 @@ begin
   FreeAndNil(FRenderedImage);
   FCurrentState.Free;
   FOnImageChanged.Free;
+  FOnImageSaving.Free;
+  FOnImageExport.Free;
   FSelectionLayerAfterMask.Free;
   inherited Destroy;
 end;

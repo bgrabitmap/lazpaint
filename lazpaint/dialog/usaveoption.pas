@@ -347,6 +347,16 @@ begin
 end;
 
 procedure TFSaveOption.Button_OKClick(Sender: TObject);
+  procedure DoneSave(AMultiLayerSave: boolean = false);
+  begin
+    if not Exporting then
+    begin
+      if AMultiLayerSave or (FLazPaintInstance.Image.NbLayers = 1) then FLazPaintInstance.Image.SetSavedFlag
+        else FLazPaintInstance.Image.OnImageSaving.NotifyObservers;
+    end else
+      FLazPaintInstance.Image.OnImageExport.NotifyObservers;
+  end;
+
   procedure SavePng;
   var outputStream: TStream;
   begin
@@ -357,7 +367,7 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
       try
         FPngStream.Position := 0;
         outputStream.CopyFrom(FPngStream, FPngStream.Size);
-        if (FLazPaintInstance.Image.NbLayers = 1) and not Exporting then FLazPaintInstance.Image.SetSavedFlag;
+        DoneSave;
       finally
         outputStream.Free;
       end;
@@ -373,7 +383,7 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
     begin
       FBmpStream.Position := 0;
       outputStream.CopyFrom(FBmpStream, FBmpStream.Size);
-      if (FLazPaintInstance.Image.NbLayers = 1) and not Exporting then FLazPaintInstance.Image.SetSavedFlag;
+      DoneSave;
     end else
     if QuantizerNeeded then
     begin
@@ -383,7 +393,7 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
       writer.BitsPerPixel := WantedBitsPerPixel;
       try
         dithered.SaveToStream(outputStream, writer);
-        if (FLazPaintInstance.Image.NbLayers = 1) and not Exporting then FLazPaintInstance.Image.SetSavedFlag;
+        DoneSave;
       finally
         writer.Free;
         dithered.Free;
@@ -394,7 +404,7 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
       writer.BitsPerPixel := WantedBitsPerPixel;
       try
         FFlattenedOriginal.SaveToStream(outputStream, writer);
-        if (FLazPaintInstance.Image.NbLayers = 1) and not Exporting then FLazPaintInstance.Image.SetSavedFlag;
+        DoneSave;
       finally
         writer.Free;
       end;
@@ -450,7 +460,7 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
       outputStream := FileManager.CreateFileStream(FOutputFilename,fmCreate);
       try
         icoCur.SaveToStream(outputStream);
-        if not Exporting then FLazPaintInstance.Image.SetSavedFlag(bpp);
+        DoneSave(true);
       finally
         outputStream.Free;
       end;
@@ -468,7 +478,7 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
       FJpegStream.Position := 0;
       outputStream.CopyFrom(FJpegStream, FJpegStream.Size);
       FLazPaintInstance.Config.SetDefaultJpegQuality(JpegQuality);
-      if (FLazPaintInstance.Image.NbLayers = 1) and not Exporting then FLazPaintInstance.Image.SetSavedFlag;
+      DoneSave;
     finally
       outputStream.Free;
     end;
@@ -484,7 +494,7 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
       outputStream.CopyFrom(FWebPStream, FWebPStream.Size);
       FLazPaintInstance.Config.SetDefaultJpegQuality(JpegQuality);
       FLazPaintInstance.Config.SetDefaultWebPLossless(WebPLossless);
-      if (FLazPaintInstance.Image.NbLayers = 1) and not Exporting then FLazPaintInstance.Image.SetSavedFlag;
+      DoneSave;
     finally
       outputStream.Free;
     end;

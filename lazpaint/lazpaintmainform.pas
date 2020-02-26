@@ -1725,8 +1725,9 @@ begin
   if Image.IsGif and ((w <> Image.Width) or (h <> Image.Height)) then exit(srInvalidParameters);
   backColor := AVars.Pixels['BackColor'];
 
-  Image.Assign(TBGRABitmap.Create(w,h,backColor),true,false);
-  Image.SetSavedFlag(0,-1,Image.FrameCount);
+  Image.BPP:= 0;
+  Image.FrameIndex:= -1;
+  Image.Assign(TBGRABitmap.Create(w,h,backColor), true, false);
   result := srOk;
 end;
 
@@ -4139,7 +4140,7 @@ function TFMain.TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean;
      ALoadedImage: PImageEntry; ASkipDialogIfSingleImage: boolean;
      AAllowDuplicate: boolean; AEntryToLoad: integer): Boolean;
 var
-  newPicture: TImageEntry;
+  picture: TImageEntry;
   format: TBGRAImageFormat;
   dupIndex: Integer;
 
@@ -4153,7 +4154,7 @@ var
     ShowNoPicture;
     Image.OnImageChanged.NotifyObservers;
   end;
-  procedure EndImport(BPP: integer = 0; frameIndex: integer = 0; frameCount: integer = 1);
+  procedure EndImport(ABPP: integer = 0; AFrameIndex: integer = 0; AFrameCount: integer = 1; AIsNewFrame: boolean = false);
   begin
     LazPaintInstance.EndLoadingImage;
     if AddToRecent then
@@ -4163,29 +4164,38 @@ var
     end;
     Image.CurrentFilenameUTF8 := filenameUTF8;
     image.ClearUndo;
-    image.SetSavedFlag(BPP, frameIndex, frameCount);
+    if AIsNewFrame then
+    begin
+      Image.BPP:= ABPP;
+      Image.FrameIndex:= AFrameIndex;
+      Image.FrameCount:= AFrameCount;
+    end else
+      image.SetSavedFlag(ABPP, AFrameIndex, AFrameCount, True);
     ToolManager.ToolOpen;
     ZoomFitIfTooBig;
     ToolHotSpotUpdate(nil);
     result := true;
   end;
-  procedure ImportNewPicture;
+  procedure ImportPicture(AIsNewFrame: boolean = false);
   begin
-    if (newPicture.bmp <> nil) and (newPicture.bmp.Width > 0) and (newPicture.bmp.Height > 0) then
+    if (picture.bmp <> nil) and (picture.bmp.Width > 0) and (picture.bmp.Height > 0) then
     begin
-      StartImport('<'+rsNewImage+'>');
-      with ComputeAcceptableImageSize(newPicture.bmp.Width,newPicture.bmp.Height) do
-        if (cx < newPicture.bmp.Width) or (cy < newPicture.bmp.Height) then
+      if AIsNewFrame then
+        StartImport('<'+rsNewImage+'>')
+      else
+        StartImport(filenameUTF8);
+      with ComputeAcceptableImageSize(picture.bmp.Width,picture.bmp.Height) do
+        if (cx < picture.bmp.Width) or (cy < picture.bmp.Height) then
         begin
           MessagePopupForever(rsResamplingImage);
           LazPaintInstance.UpdateWindows;
-          BGRAReplace(newPicture.bmp, newPicture.bmp.Resample(cx,cy,rmFineResample));
+          BGRAReplace(picture.bmp, picture.bmp.Resample(cx,cy,rmFineResample));
           MessagePopupHide
         end;
-      image.Assign(newPicture.bmp,True, false);
-      newPicture.bmp := nil;
-      EndImport(newPicture.bpp, newPicture.frameIndex, newPicture.frameCount);
-    end else FreeAndNil(newPicture.bmp);
+      image.Assign(picture.bmp,True, false);
+      picture.bmp := nil;
+      EndImport(picture.bpp, picture.frameIndex, picture.frameCount, AIsNewFrame);
+    end else FreeAndNil(picture.bmp);
   end;
 
   procedure ImportSvg;
@@ -4207,7 +4217,7 @@ begin
     LazPaintInstance.ShowMessage(rsOpen,rsFileFormatNotRecognized);
     exit;
   end;
-  newPicture := TImageEntry.Empty;
+  picture := TImageEntry.Empty;
   try
     format := Image.DetectImageFormat(filenameUTF8);
     if format = ifSvg then
@@ -4216,43 +4226,44 @@ begin
     end else
     if Assigned(ALoadedImage) and Assigned(ALoadedImage^.bmp) then
     begin
-      newPicture := ALoadedImage^;
+      picture := ALoadedImage^;
       ALoadedImage^.bmp := nil;
-      ImportNewPicture;
+      ImportPicture;
     end
     else
     if IsRawFilename(filenameUTF8) then
     begin
-      newPicture.bmp := GetRawFileImage(filenameUTF8);
-      newPicture.bpp := 0;
-      newPicture.frameIndex:= 0;
-      newPicture.frameCount:= 1;
-      ImportNewPicture;
+      picture.bmp := GetRawFileImage(filenameUTF8);
+      picture.bpp := 0;
+      picture.frameIndex:= 0;
+      picture.frameCount:= 1;
+      ImportPicture;
     end else
     if format in[ifIco,ifCur] then
     begin
-      newPicture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8, rsIconOrCursor, ASkipDialogIfSingleImage);
-      ImportNewPicture;
+      picture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8, rsIconOrCursor, ASkipDialogIfSingleImage);
+      ImportPicture;
     end
     else
     if format in[ifIco,ifGif,ifTiff] then
     begin
       if AEntryToLoad <> -1 then
-        newPicture := LoadFlatImageUTF8(FilenameUTF8, AEntryToLoad) else
+        picture := LoadFlatImageUTF8(FilenameUTF8, AEntryToLoad) else
       begin
         if (format in[ifGif,ifTiff]) and AAllowDuplicate and (Image.FrameIndex <> -1) then
           dupIndex := Image.FrameIndex else dupIndex := -1;
-        newPicture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8,
+        picture := ShowPreviewDialog(LazPaintInstance, FilenameUTF8,
           GetImageFormatName(format),ASkipDialogIfSingleImage, dupIndex);
       end;
-      if newPicture.isDuplicate then
+      if picture.isDuplicate then
       begin
-        newPicture.FreeAndNil;
-        Image.FrameIndex:= newPicture.frameIndex;
-        Image.FrameCount:= newPicture.frameCount;
+        picture.FreeAndNil;
+        Image.FrameIndex:= picture.frameIndex;
+        Image.FrameCount:= picture.frameCount;
         Image.OnImageChanged.NotifyObservers;
       end
-      else ImportNewPicture;
+      else
+        ImportPicture(picture.frameIndex = picture.NewFrameIndex);
     end
     else
     begin
@@ -4264,7 +4275,7 @@ begin
   except
     on ex: Exception do
     begin
-      newPicture.FreeAndNil;
+      picture.FreeAndNil;
       ToolManager.ToolOpen;
       Image.OnImageChanged.NotifyObservers;
       LazPaintInstance.ShowError(rsOpen,ex.Message);
