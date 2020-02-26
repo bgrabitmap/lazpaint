@@ -90,6 +90,9 @@ def save(skip_options=False) -> str:
 def save_as(file_name=None, validate=False, overwrite=False, skip_options=False) -> str:
   return command.send("FileSaveAs?", FileName=file_name, Validate=validate, Overwrite=overwrite, SkipOptions=skip_options)
 
+def export(file_name=None, validate=False, overwrite=False, skip_options=False) -> str:
+  return command.send("FileSaveAs?", FileName=file_name, Validate=validate, Overwrite=overwrite, SkipOptions=skip_options, Export=True)
+
 def get_temporary_name() -> str:
   return command.send("FileGetTemporaryName?")
 
