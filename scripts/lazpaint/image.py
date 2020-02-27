@@ -1,4 +1,4 @@
-from lazpaint import command, dialog, colors
+from lazpaint import command, dialog, colors, layer
 import os
 
 if __name__ == "__main__":
@@ -57,6 +57,16 @@ def set_registry(identifier, value):
 
 def get_layer_index(layer_id=None) -> int:
   return command.send("GetLayerIndex?", LayerId=layer_id)
+
+def iterate_layers():
+  prev_id = layer.get_id()
+  for layer_id in get_all_layers_id():
+    layer.select_id(layer_id)
+    yield layer_id
+  layer.select_id(prev_id)
+
+def get_all_layers_id() -> list:
+  return command.send("GetAllLayersId?")
 
 def contains_layer_id(layer_id) -> bool:
   return get_layer_index(layer_id) is not None

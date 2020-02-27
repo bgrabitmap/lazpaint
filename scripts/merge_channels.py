@@ -13,13 +13,12 @@ if layer.get_registry("split-channel") is not None:
     new_layer_index = image.get_layer_index() + 1
   else:
     channels_id = []
-    for i in range(1, image.get_layer_count()+1):
-      image.select_layer_index(i)
-      cur_layer_id = layer.get_registry("split-source-id")
-      if cur_layer_id == layer_id:
-        channels_id.insert(0, layer.get_id())   
+    for cur_layer_id in image.iterate_layers():
+      cur_source_id = layer.get_registry("split-source-id")
+      if cur_source_id == layer_id:
+        channels_id.insert(0, cur_layer_id)   
         if new_layer_index is None:
-          new_layer_index = i
+          new_layer_index = image.get_layer_index()
 else:
   layer_id = layer.get_id()
   channels_id = layer.get_registry("split-channels-id")

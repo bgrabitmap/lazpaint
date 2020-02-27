@@ -22,6 +22,7 @@ type
     procedure ChooseTool(ATool: TPaintToolType);
     procedure RegisterScripts(ARegister: Boolean);
     function GenericScriptFunction(AVars: TVariableSet): TScriptResult;
+    function ScriptGetAllLayersId(AVars: TVariableSet): TScriptResult;
     function ScriptGetLayerIndex(AVars: TVariableSet): TScriptResult;
     function ScriptImageMoveLayerIndex(AVars: TVariableSet): TScriptResult;
     function ScriptLayerFromFile(AVars: TVariableSet): TScriptResult;
@@ -196,6 +197,7 @@ begin
   Scripting.RegisterScriptFunction('ImageSetRegistry',@ScriptImageSetRegistry,ARegister);
   Scripting.RegisterScriptFunction('ImageMoveLayerIndex',@ScriptImageMoveLayerIndex,ARegister);
   Scripting.RegisterScriptFunction('GetLayerIndex',@ScriptGetLayerIndex,ARegister);
+  Scripting.RegisterScriptFunction('GetAllLayersId',@ScriptGetAllLayersId,ARegister);
   Scripting.RegisterScriptFunction('SelectLayerIndex',@ScriptSelectLayerIndex,ARegister);
   Scripting.RegisterScriptFunction('GetLayerCount',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('GetFrameIndex',@ScriptGetFrameIndex,ARegister);
@@ -278,6 +280,18 @@ begin
   if f = 'GetImageWidth' then AVars.Integers['Result']:= Image.Width else
   if f = 'GetImageHeight' then AVars.Integers['Result']:= Image.Height else
     result := srFunctionNotDefined;
+end;
+
+function TImageActions.ScriptGetAllLayersId(AVars: TVariableSet): TScriptResult;
+var
+  idList: TScriptVariableReference;
+  i: Integer;
+begin
+  idList := AVars.AddGuidList('Result');
+  for i := 0 to Image.NbLayers-1 do
+    if not AVars.AppendGuid(idList, Image.LayerGuid[i]) then
+      exit(srException);
+  result := srOk;
 end;
 
 function TImageActions.ScriptGetLayerIndex(AVars: TVariableSet): TScriptResult;
