@@ -972,25 +972,10 @@ begin
 end;
 
 procedure TFMain.CreateMenuAndToolbar;
-var m: TMainFormMenu;
 begin
   CreateToolbarElements;
-
-  m := TMainFormMenu.Create(LazPaintInstance, ActionList1);
-  m.DarkTheme := Config.GetDarkTheme;
-  m.PredefinedMainMenus([MenuFile,MenuEdit,MenuSelect,MenuView, MenuImage,MenuRemoveTransparency,
-    MenuColors,MenuTool, MenuFilter,MenuRadialBlur, MenuRender,MenuScript,MenuHelp]);
-  m.Toolbars([Panel_Embedded,Panel_File,Panel_Zoom,Panel_Undo,Panel_CopyPaste,Panel_Coordinates,
-    Panel_Tool,Panel_PenFill,Panel_SwapColor,Panel_BackFill,Panel_ColorDiff,Panel_Grid,
-    Panel_ShapeOption,Panel_PenWidth,Panel_PenStyle,Panel_JoinStyle,
-    Panel_CloseShape,Panel_LineCap,Panel_Aliasing,
-    Panel_SplineStyle,Panel_Eraser,Panel_Tolerance,Panel_Text,Panel_TextShadow,Panel_TextOutline,
-    Panel_PhongShape,Panel_Altitude,Panel_PerspectiveOption,Panel_Brush,Panel_Ratio],Panel_ToolbarBackground);
-  m.ImageList := LazPaintInstance.Icons[ScaleY(16, 96)];
-  m.Apply;
-  FLayout.Menu := m;
-  FLayout.DarkTheme := m.DarkTheme;
-  DarkThemeInstance.Apply(Panel_PenWidthPreview, m.DarkTheme);
+  FLayout.DarkTheme := Config.GetDarkTheme;
+  DarkThemeInstance.Apply(Panel_PenWidthPreview, Config.GetDarkTheme);
 end;
 
 function TFMain.GetToolManager: TToolManager;
@@ -1132,7 +1117,9 @@ begin
   FilterGrayscale.Visible := not LazPaintInstance.BlackAndWhite;
   FilterClearType.Visible := not LazPaintInstance.BlackAndWhite;
   FilterClearTypeInverse.Visible := not LazPaintInstance.BlackAndWhite;
-  Panel_File.Visible := Config.DefaultFileToolbarVisible;
+  Panel_Embedded.Visible := LazPaintInstance.Embedded;
+  Panel_File.Visible := Config.DefaultFileToolbarVisible and not LazPaintInstance.Embedded;
+  MenuFileToolbar.Visible:= not LazPaintInstance.Embedded;
   Panel_Zoom.Visible := Config.DefaultZoomToolbarVisible;
   Panel_Undo.Visible := Config.DefaultUndoRedoToolbarVisible;
   Panel_CopyPaste.Visible := Config.DefaultCopyPasteToolbarVisible;
@@ -1159,7 +1146,26 @@ begin
 end;
 
 procedure TFMain.FormShow(Sender: TObject);
+var
+  m: TMainFormMenu;
 begin
+  if FLayout.Menu = nil then
+  begin
+    m := TMainFormMenu.Create(LazPaintInstance, ActionList1);
+    m.DarkTheme := Config.GetDarkTheme;
+    m.PredefinedMainMenus([MenuFile,MenuEdit,MenuSelect,MenuView, MenuImage,MenuRemoveTransparency,
+      MenuColors,MenuTool, MenuFilter,MenuRadialBlur, MenuRender,MenuScript,MenuHelp]);
+    m.Toolbars([Panel_Embedded,Panel_File,Panel_Zoom,Panel_Undo,Panel_CopyPaste,Panel_Coordinates,
+      Panel_Tool,Panel_PenFill,Panel_SwapColor,Panel_BackFill,Panel_ColorDiff,Panel_Grid,
+      Panel_ShapeOption,Panel_PenWidth,Panel_PenStyle,Panel_JoinStyle,
+      Panel_CloseShape,Panel_LineCap,Panel_Aliasing,
+      Panel_SplineStyle,Panel_Eraser,Panel_Tolerance,Panel_Text,Panel_TextShadow,Panel_TextOutline,
+      Panel_PhongShape,Panel_Altitude,Panel_PerspectiveOption,Panel_Brush,Panel_Ratio],Panel_ToolbarBackground);
+    m.ImageList := LazPaintInstance.Icons[ScaleY(16, 96)];
+    m.Apply;
+    FLayout.Menu := m;
+  end;
+
   LazPaintInstance.ColorToFChooseColor;
   LazPaintInstance.ShowTopmost(FTopMostInfo);
   if Position = poDefault then LazPaintInstance.RestoreMainWindowPosition;
@@ -3788,8 +3794,8 @@ end;
 
 procedure TFMain.MenuFileToolbarClick(Sender: TObject);
 begin
-  Panel_File.Visible := not Panel_File.Visible;
-  Config.SetDefaultFileToolbarVisible(Panel_File.Visible);
+  Config.SetDefaultFileToolbarVisible(not Config.DefaultFileToolbarVisible);
+  Panel_File.Visible := Config.DefaultFileToolbarVisible and not LazPaintInstance.Embedded;
   QueryArrange;
 end;
 

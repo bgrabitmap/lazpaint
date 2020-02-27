@@ -489,9 +489,6 @@ var
   i: Integer;
   ak: TArrowKind;
 begin
-  Panel_Embedded.Visible := LazPaintInstance.Embedded;
-  Panel_File.Visible := not LazPaintInstance.Embedded;
-
   UpdateToolImage;
   UpdateFillToolbar(true);
   UpdatePenWidthToolbar;
@@ -1588,7 +1585,7 @@ end;
 
 procedure TFMain.PopupToolbarPopup(Sender: TObject);
 begin
-  MenuFileToolbar.Checked := Panel_File.Visible;
+  MenuFileToolbar.Checked := Config.DefaultFileToolbarVisible;
   MenuZoomToolbar.Checked := Panel_Zoom.Visible;
   MenuCopyPasteToolbar.Checked := Panel_CopyPaste.Visible;
   MenuCoordinatesToolbar.Checked := Panel_Coordinates.Visible;
