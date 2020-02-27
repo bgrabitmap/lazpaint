@@ -8,7 +8,8 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs,
   Grids, StdCtrls, Buttons, ComCtrls, ExtCtrls, Menus, UImageObservation,
-  LazPaintType, UResourceStrings, UConfig, BGRAImageList, ubrowseimages;
+  LazPaintType, UResourceStrings, UConfig, BGRAImageList, ubrowseimages,
+  UScripting;
 
 type
   String1D= array of string;
@@ -92,13 +93,14 @@ type
     procedure tbAddFilesClick(Sender: TObject);
     function GetRowChecked(Row: integer): Boolean;
     function CheckedExist (Verbose: Boolean=True): Boolean;
-    function SelectedRow: integer;
+    function GetSelectedRow: integer;
     procedure NormalWindow (Normalsize: Boolean= True);
     function SaveModified: boolean;
     function OpenImage (FileName: string): boolean;
     function IsExtensionIsValid (FileName:string): boolean;
     procedure Renumber;
   private
+    FLazPaintInstance: TLazPaintCustomInstance;
     FBrowseImages: TFBrowseImages;
     WidthNormal: integer;
     HeightNormal: integer;
@@ -109,13 +111,42 @@ type
 //    ILConfig: TLazPaintConfig;
     procedure EnsureGridRectVisible(ARect: TGridRect);
     function GetFileCount: integer;
-    procedure ImageSaving(AEvent: TLazPaintImageObservationEvent);
+    function GetLongFileName(AIndex: integer): string;
+    procedure ImageSaving({%H-}AEvent: TLazPaintImageObservationEvent);
+    function ScriptAddFiles(AVars: TVariableSet): TScriptResult;
+    function ScriptGetAutoUncheckMode(AVars: TVariableSet): TScriptResult;
+    function ScriptGetAutoZoomFit(AVars: TVariableSet): TScriptResult;
+    function ScriptGetFileChecked(AVars: TVariableSet): TScriptResult;
+    function ScriptGetFileCount(AVars: TVariableSet): TScriptResult;
+    function ScriptGetFileName(AVars: TVariableSet): TScriptResult;
+    function ScriptGetSelectedIndex(AVars: TVariableSet): TScriptResult;
+    function ScriptIndexOfFileName(AVars: TVariableSet): TScriptResult;
+    function ScriptOpenFirst(AVars: TVariableSet): TScriptResult;
+    function ScriptOpenNext(AVars: TVariableSet): TScriptResult;
+    function ScriptOpenPrevious(AVars: TVariableSet): TScriptResult;
+    function ScriptOpenSelected(AVars: TVariableSet): TScriptResult;
+    function ScriptRemoveAll(AVars: TVariableSet): TScriptResult;
+    function ScriptRemoveIndex(AVars: TVariableSet): TScriptResult;
+    function ScriptRemoveNonExistent(AVars: TVariableSet): TScriptResult;
+    function ScriptRemoveUnchecked(AVars: TVariableSet): TScriptResult;
+    function ScriptSetAutoUncheckMode(AVars: TVariableSet): TScriptResult;
+    function ScriptSetAutoZoomFit(AVars: TVariableSet): TScriptResult;
+    function ScriptSetFileChecked(AVars: TVariableSet): TScriptResult;
+    function ScriptSetSelectedIndex(AVars: TVariableSet): TScriptResult;
+    function ScriptUncheckNonExistent(AVars: TVariableSet): TScriptResult;
+    procedure SetLazPaintInstance(AValue: TLazPaintCustomInstance);
     procedure SetRowChecked(AIndex: integer; AValue: boolean);
+    procedure RegisterScriptFunctions(ARegister: boolean);
+    procedure CallScriptFunction(AName: string); overload;
+    function CallScriptFunction(AVars: TVariableSet): TScriptResult; overload;
+    procedure SetSelectedRow(AValue: integer);
   public
-    LazPaintInstance: TLazPaintCustomInstance;
-    procedure AddFiles (const FileNames: array of String);
+    function AddFiles (const FileNames: array of String; AAutoOpen: boolean): integer;
     property FileChecked[AIndex: integer]: boolean read GetRowChecked write SetRowChecked;
+    property LongFileName[AIndex: integer]: string read GetLongFileName;
     property FileCount: integer read GetFileCount;
+    property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
+    property SelectedRow: integer read GetSelectedRow write SetSelectedRow;
   end;
 
 var
@@ -132,19 +163,6 @@ implementation
 uses LCLType, UFileExtensions, LazFileUtils, UFileSystem, LCScaleDPI;
 
 { TFImageList }
-
-procedure SelectRow (aStringGrid: TStringGrid; Row: integer; aSetFocus: Boolean= True);
-var
-   GridRect: TGridRect;
-begin
-  GridRect:= aStringGrid.Selection;
-  GridRect.Top:=Row;
-  GridRect.Bottom:=Row;
-   if Row> aStringGrid.RowCount-1 then Exit;
-   aStringGrid.Row:=Row;
-   aStringGrid.Selection:=GridRect;
-  if aSetFocus then SafeSetFocus(aStringGrid);
-end;
 
 function StringExists (aStringGrid: TStringGrid; Column: integer ;  aStr: String): Boolean;
 var
@@ -331,43 +349,45 @@ begin
   result := IsExtensionReadable(Filename);
 end;
 
-procedure TFImageList.AddFiles (const FileNames: array of String);
+function TFImageList.AddFiles (const FileNames: array of String; AAutoOpen: boolean): integer;
 var
   PrevRowCount, Row: integer;
   i: integer;
   shouldOpenFirst: boolean;
 begin
+  result := 0;
   if Length(FileNames) > 0 then
   begin
-       shouldOpenFirst := FileCount = 0;
-       LazPaintInstance.Config.SetImageListLastFolder(ExtractFileDir(FileNames[0]));
-       PrevRowCount:=StringGrid1.RowCount;
-       Row:=PrevRowCount;
-       StringGrid1.RowCount:= PrevRowCount+Length(FileNames);
-       for i:= 0 to length(FileNames)- 1 do
-         begin
-           if (not StringExists (StringGrid1,ColLongFname,FileNames[i])) and (IsExtensionIsValid(FileNames[i]))then
-             begin
-               StringGrid1.Cells[colNumber,Row]:=IntToStr (Row);
-               StringGrid1.Cells[ColShortFname,Row]:=ExtractFileName(FileNames[i]);
-               StringGrid1.Cells[ColCB,Row]:='1';   //Checkbox is checked
-               StringGrid1.Cells[ColLongFname,Row]:=FileNames[i];
-               Inc(Row);
-             end;  //if StringExists
-         end;  //for i
-       StringGrid1.RowCount:=Row;
-       if shouldOpenFirst then
+     shouldOpenFirst := AAutoOpen and (FileCount = 0);
+     LazPaintInstance.Config.SetImageListLastFolder(ExtractFileDir(FileNames[0]));
+     PrevRowCount:=StringGrid1.RowCount;
+     Row:=PrevRowCount;
+     StringGrid1.RowCount:= PrevRowCount+Length(FileNames);
+     for i:= 0 to length(FileNames)- 1 do
        begin
-          tbOpenImageClick(nil);
-          if tbAutoZoomFit.Down then LazPaintInstance.Image.ZoomFit;
-       end;
+         if (not StringExists (StringGrid1,ColLongFname,FileNames[i])) and (IsExtensionIsValid(FileNames[i]))then
+           begin
+             StringGrid1.Cells[colNumber,Row]:=IntToStr (Row);
+             StringGrid1.Cells[ColShortFname,Row]:=ExtractFileName(FileNames[i]);
+             StringGrid1.Cells[ColCB,Row]:='1';   //Checkbox is checked
+             StringGrid1.Cells[ColLongFname,Row]:=FileNames[i];
+             Inc(Row);
+             inc(result);
+           end;  //if StringExists
+       end;  //for i
+     StringGrid1.RowCount:=Row;
+     if shouldOpenFirst then
+     begin
+        tbOpenImageClick(nil);
+        if tbAutoZoomFit.Down then LazPaintInstance.Image.ZoomFit;
+     end;
+     EnableButtons;
   end; //if
-  EnableButtons;
 end;
 
 procedure TFImageList.FormDropFiles(Sender: TObject;  const FileNames: array of String);
 begin
-   AddFiles(FileNames);
+   AddFiles(FileNames, true);
 end;
 
 procedure TFImageList.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -439,9 +459,7 @@ end;
 
 procedure TFImageList.pmRemoveAllClick(Sender: TObject);
 begin
-  StringGrid1.Clean;
-  StringGrid1.RowCount:= StringGrid1.FixedRows;
-  EnableButtons;
+  CallScriptFunction('ImageListRemoveAll');
 end;
 
 procedure TFImageList.pmRemoveClose(Sender: TObject);
@@ -450,16 +468,8 @@ begin
 end;
 
 procedure TFImageList.pmRemoveNonexistentClick(Sender: TObject);
-var
-  i:integer;
-  needRenumber: boolean;
 begin
-  needRenumber := false;
-  for i:=FileCount downto 1 do
-   if not FileManager.FileExists(StringGrid1.Cells[ColLongFname,i])
-      then begin DeleteRow(StringGrid1,i); needRenumber :=true; end;
-  if needRenumber then Renumber;
-  EnableButtons;
+  CallScriptFunction('ImageListRemoveNonexistent');
 end;
 
 procedure TFImageList.pmRemovePopup(Sender: TObject);
@@ -497,23 +507,264 @@ begin
   result := StringGrid1.RowCount - StringGrid1.FixedRows;
 end;
 
+function TFImageList.GetLongFileName(AIndex: integer): string;
+begin
+  result := StringGrid1.Cells[ColLongFname, AIndex];
+end;
+
 procedure TFImageList.ImageSaving(AEvent: TLazPaintImageObservationEvent);
 var
   i: Integer;
 begin
   if not pmAutouncheckOnSave.Checked then exit;
   for i:= 1 to FileCount do
-   if StringGrid1.Cells[ColLongFname,i] = LazPaintInstance.Image.currentFilenameUTF8 then
+   if LongFileName[i] = LazPaintInstance.Image.currentFilenameUTF8 then
      FileChecked[i] := false;
 end;
 
-procedure TFImageList.SetRowChecked(AIndex: integer; AValue: boolean);
+function TFImageList.ScriptAddFiles(AVars: TVariableSet): TScriptResult;
+var
+  files: TScriptVariableReference;
+  fileArray: array of string;
+  i: Integer;
 begin
-  StringGrid1.Cells[ColCB,AIndex]:= BoolToStr(AValue, '1', '0');
-  EnableButtons;
+  files := AVars.GetVariable('FileNames');
+  setLength(fileArray, AVars.GetListCount(files));
+  for i := 0 to high(fileArray) do
+    fileArray[i] := AVars.GetStringAt(files, i);
+  AVars.Integers['Result'] := AddFiles(fileArray, false);
+  result := srOk;
 end;
 
-procedure TFImageList.pmRemoveUncheckedClick(Sender: TObject);
+function TFImageList.ScriptGetAutoUncheckMode(AVars: TVariableSet): TScriptResult;
+begin
+  if tbAutoUncheck.Down then
+  begin
+    if pmAutouncheckOnOpen.Checked then
+      AVars.Strings['Result'] := 'UncheckOnOpen'
+    else
+      AVars.Strings['Result'] := 'UncheckOnSave';
+  end else
+    AVars.Strings['Result'] := 'UncheckOff';
+  result := srOk;
+end;
+
+function TFImageList.ScriptGetAutoZoomFit(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Booleans['Result'] := tbAutoZoomFit.Down;
+  result := srOk;
+end;
+
+function TFImageList.ScriptGetFileChecked(AVars: TVariableSet): TScriptResult;
+var
+  idx: Int64;
+begin
+  if AVars.IsDefined('Index') then
+  begin
+    idx := AVars.Integers['Index'];
+    if (idx < 1) or (idx > FileCount) then exit(srInvalidParameters);
+    AVars.Booleans['Result'] := FileChecked[idx];
+    result := srOk;
+  end else
+  begin
+    if SelectedRow >= 1 then
+    begin
+      AVars.Booleans['Result'] := FileChecked[SelectedRow];
+      result := srOk;
+    end else
+      result := srException;
+  end;
+end;
+
+function TFImageList.ScriptGetFileCount(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Integers['Result'] := FileCount;
+  result := srOk;
+end;
+
+function TFImageList.ScriptGetFileName(AVars: TVariableSet): TScriptResult;
+var
+  idx: Int64;
+begin
+  if AVars.IsDefined('Index') then
+  begin
+    idx := AVars.Integers['Index'];
+    if (idx < 1) or (idx > FileCount) then exit(srInvalidParameters);
+    AVars.Strings['Result'] := LongFileName[idx];
+    result := srOk;
+  end else
+  begin
+    if SelectedRow >= 1 then
+    begin
+      AVars.Strings['Result'] := LongFileName[SelectedRow];
+      result := srOk;
+    end else
+      result := srException;
+  end;
+end;
+
+function TFImageList.ScriptGetSelectedIndex(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Integers['Result'] := SelectedRow;
+  result := srOk;
+end;
+
+function TFImageList.ScriptIndexOfFileName(AVars: TVariableSet): TScriptResult;
+var
+  fn: String;
+  i: Integer;
+begin
+  fn := AVars.Strings['FileName'];
+  for i := 1 to FileCount do
+    if LongFileName[i] = fn then
+    begin
+      AVars.Integers['Result'] := i;
+      exit(srOk);
+    end;
+  AVars.Remove('Result');
+  result := srOk;
+end;
+
+function TFImageList.ScriptOpenFirst(AVars: TVariableSet): TScriptResult;
+var
+  i: Integer;
+  subVars: TVariableSet;
+begin
+  for i := 1 to FileCount do
+    if FileChecked[i] then
+    begin
+      SelectedRow := i;
+      subVars := TVariableSet.Create('ImageListOpenSelected');
+      subVars.Booleans['SkipSave'] := Avars.Booleans['SkipSave'];
+      result := CallScriptFunction(subVars);
+      AVars.Booleans['Result'] := true;
+      subVars.Free;
+      exit;
+    end;
+  AVars.Booleans['Result'] := false;
+  result := srOk;
+end;
+
+function TFImageList.ScriptOpenNext(AVars: TVariableSet): TScriptResult;
+var
+  i:integer;
+begin
+  if not CheckedExist(not AVars.Booleans['Silent']) then
+  begin
+    AVars.Booleans['Result'] := false;
+    exit(srOk);
+  end;
+  if not (AVars.Booleans['SkipSave'] or SaveModified) then exit(srCancelledByUser);
+  if SelectedRow < FileCount then
+    for i:= SelectedRow + 1 to FileCount do
+      if FileChecked[i] then
+        begin
+          if not OpenImage(LongFileName[i]) then exit(srException);
+          SelectedRow := i;
+          if (tbAutoUncheck.Down and pmAutouncheckOnOpen.Checked) then
+            FileChecked[SelectedRow]:= false;
+          AVars.Booleans['Result'] := true;
+          Exit(srOk);
+        end;
+  if AVars.Booleans['CanCycle'] then
+    for i:= 1 to SelectedRow do
+      if FileChecked[i] then
+        begin
+          if not OpenImage(LongFileName[i]) then exit(srException);
+          SelectedRow := i;
+          if (tbAutoUncheck.Down and pmAutouncheckOnOpen.Checked) then
+            FileChecked[SelectedRow]:= false;
+          AVars.Booleans['Result'] := true;
+          Exit(srOk);
+        end;
+  AVars.Booleans['Result'] := false;
+  exit(srOk);
+end;
+
+function TFImageList.ScriptOpenPrevious(AVars: TVariableSet): TScriptResult;
+var
+    i:integer;
+begin
+  if not CheckedExist(not AVars.Booleans['Silent']) then
+  begin
+    AVars.Booleans['Result'] := false;
+    exit(srOk);
+  end;
+  if not (AVars.Booleans['SkipSave'] or SaveModified) then exit;
+  if SelectedRow > 1 then
+    for i:= SelectedRow -1 downto 1 do
+      if FileChecked[i] then
+        begin
+          if not OpenImage(LongFileName[i]) then exit(srException);
+          SelectedRow := i;
+          if (tbAutoUncheck.Down and pmAutouncheckOnOpen.Checked) then
+            FileChecked[SelectedRow]:= false;
+          AVars.Booleans['Result'] := true;
+          Exit(srOk);
+        end; //if
+  if AVars.Booleans['CanCycle'] then
+    for i:= FileCount downto SelectedRow do
+      if FileChecked[i] then
+        begin
+          if not OpenImage(LongFileName[i]) then exit(srException);
+          SelectedRow := i;
+          if (tbAutoUncheck.Down and pmAutouncheckOnOpen.Checked) then
+            FileChecked[SelectedRow] := false;
+          AVars.Booleans['Result'] := true;
+          Exit(srOk);
+        end; //if
+  AVars.Booleans['Result'] := false;
+  exit(srOk);
+end;
+
+function TFImageList.ScriptOpenSelected(AVars: TVariableSet): TScriptResult;
+begin
+   if AVars.Booleans['SkipSave'] or SaveModified then
+   begin
+     if tbAutoUncheck.Down and pmAutouncheckOnOpen.Checked then
+       FileChecked[SelectedRow]:= false;
+     if not OpenImage (LongFileName[SelectedRow]) then
+       result := srException
+     else
+       result := srOk;
+   end else
+     result := srCancelledByUser;
+end;
+
+function TFImageList.ScriptRemoveAll(AVars: TVariableSet): TScriptResult;
+begin
+  StringGrid1.Clean;
+  StringGrid1.RowCount:= StringGrid1.FixedRows;
+  EnableButtons;
+  result := srOk;
+end;
+
+function TFImageList.ScriptRemoveIndex(AVars: TVariableSet): TScriptResult;
+var
+  idx: Int64;
+begin
+  idx := AVars.Integers['Index'];
+  if (idx < 1) or (idx > FileCount) then exit(srInvalidParameters);
+  DeleteRow(StringGrid1, idx);
+  EnableButtons;
+  result := srOk;
+end;
+
+function TFImageList.ScriptRemoveNonExistent(AVars: TVariableSet): TScriptResult;
+var
+  i:integer;
+  needRenumber: boolean;
+begin
+  needRenumber := false;
+  for i:=FileCount downto 1 do
+   if not FileManager.FileExists(LongFileName[i])
+      then begin DeleteRow(StringGrid1,i); needRenumber :=true; end;
+  if needRenumber then Renumber;
+  EnableButtons;
+  result := srOk;
+end;
+
+function TFImageList.ScriptRemoveUnchecked(AVars: TVariableSet): TScriptResult;
 var
   i:integer;
   needRenumber: boolean;
@@ -524,6 +775,150 @@ begin
       begin DeleteRow(StringGrid1,i); needRenumber :=true; end;
   if needRenumber then Renumber;
   EnableButtons;
+  result := srOk;
+end;
+
+function TFImageList.ScriptSetAutoUncheckMode(AVars: TVariableSet): TScriptResult;
+begin
+  case AVars.Strings['Mode'] of
+    'UncheckOnOpen': begin
+      tbAutoUncheck.Down := true;
+      pmAutouncheckOnSave.Checked := false;
+      pmAutouncheckOnOpen.Checked := true;
+      LazPaintInstance.Config.SetImageListAutoUncheckMode(1);
+    end;
+    'UncheckOnSave': begin
+      tbAutoUncheck.Down := true;
+      pmAutouncheckOnSave.Checked := true;
+      pmAutouncheckOnOpen.Checked := false;
+      LazPaintInstance.Config.SetImageListAutoUncheckMode(0);
+    end;
+    else
+      tbAutoUncheck.Down := false;
+  end;
+  LazPaintInstance.Config.SetImageListAutoUncheck(true);
+  result := srOk;
+end;
+
+function TFImageList.ScriptSetAutoZoomFit(AVars: TVariableSet): TScriptResult;
+begin
+  tbAutoZoomFit.Down := AVars.Booleans['Enabled'];
+  LazPaintInstance.Config.SetImageListAutoZoom(AVars.Booleans['Enabled']);
+  result := srOk;
+end;
+
+function TFImageList.ScriptSetFileChecked(AVars: TVariableSet): TScriptResult;
+var
+  idx: Int64;
+begin
+  if AVars.IsDefined('Index') then
+  begin
+    idx := AVars.Integers['Index'];
+    if (idx < 1) or (idx > FileCount) then exit(srInvalidParameters);
+    FileChecked[idx] := AVars.Booleans['Checked'];
+    result := srOk;
+  end else
+  begin
+    if SelectedRow >= 1 then
+    begin
+      FileChecked[SelectedRow] := AVars.Booleans['Checked'];
+      result := srOk;
+    end else
+      result := srException;
+  end;
+end;
+
+function TFImageList.ScriptSetSelectedIndex(AVars: TVariableSet): TScriptResult;
+var
+  idx: Int64;
+begin
+  idx := AVars.Integers['Index'];
+  if (idx < 1) or (idx > FileCount) then exit(srInvalidParameters);
+  SelectedRow := idx;
+  result := srOk;
+end;
+
+function TFImageList.ScriptUncheckNonExistent(AVars: TVariableSet): TScriptResult;
+var
+  i: integer;
+begin
+  for i:= 1 to FileCount do
+     if not FileManager.FileExists(LongFileName[i])
+         then FileChecked[i] := false;
+  EnableButtons;
+  result := srOk;
+end;
+
+procedure TFImageList.SetLazPaintInstance(AValue: TLazPaintCustomInstance);
+begin
+  if FLazPaintInstance=AValue then Exit;
+  RegisterScriptFunctions(False);
+  FLazPaintInstance:=AValue;
+  RegisterScriptFunctions(True);
+end;
+
+procedure TFImageList.SetRowChecked(AIndex: integer; AValue: boolean);
+begin
+  StringGrid1.Cells[ColCB,AIndex]:= BoolToStr(AValue, '1', '0');
+  EnableButtons;
+end;
+
+procedure TFImageList.RegisterScriptFunctions(ARegister: boolean);
+begin
+  if LazPaintInstance = nil then exit;
+  LazPaintInstance.ScriptContext.RegisterScriptFunction('ImageListGetFileCount', @ScriptGetFileCount, ARegister);
+  LazPaintInstance.ScriptContext.RegisterScriptFunction('ImageListAddFiles', @ScriptAddFiles, ARegister);
+  LazPaintInstance.ScriptContext.RegisterScriptFunction('ImageListRemoveIndex', @ScriptRemoveIndex, ARegister);
+  LazPaintInstance.ScriptContext.RegisterScriptFunction('ImageListRemoveUnchecked', @ScriptRemoveUnchecked, ARegister);
+  LazPaintInstance.ScriptContext.RegisterScriptFunction('ImageListRemoveNonExistent', @ScriptRemoveNonExistent, ARegister);
+  LazPaintInstance.ScriptContext.RegisterScriptFunction('ImageListRemoveAll', @ScriptRemoveAll, ARegister);
+  LazPaintInstance.ScriptContext.RegisterScriptFunction('ImageListUncheckNonExistent', @ScriptUncheckNonExistent, ARegister);
+  LazPaintInstance.ScriptContext.RegisterScriptFunction('ImageListOpenFirst', @ScriptOpenFirst, ARegister);
+  LazPaintInstance.ScriptContext.RegisterScriptFunction('ImageListOpenSelected', @ScriptOpenSelected, ARegister);
+  LazPaintInstance.ScriptContext.RegisterScriptFunction('ImageListOpenNext', @ScriptOpenNext, ARegister);
+  LazPaintInstance.ScriptContext.RegisterScriptFunction('ImageListOpenPrevious', @ScriptOpenPrevious, ARegister);
+  LazPaintInstance.ScriptContext.RegisterScriptFunction('ImageListGetSelectedIndex', @ScriptGetSelectedIndex, ARegister);
+  LazPaintInstance.ScriptContext.RegisterScriptFunction('ImageListSetSelectedIndex', @ScriptSetSelectedIndex, ARegister);
+  LazPaintInstance.ScriptContext.RegisterScriptFunction('ImageListIndexOfFileName', @ScriptIndexOfFileName, ARegister);
+  LazPaintInstance.ScriptContext.RegisterScriptFunction('ImageListGetFileName', @ScriptGetFileName, ARegister);
+  LazPaintInstance.ScriptContext.RegisterScriptFunction('ImageListGetFileChecked', @ScriptGetFileChecked, ARegister);
+  LazPaintInstance.ScriptContext.RegisterScriptFunction('ImageListSetFileChecked', @ScriptSetFileChecked, ARegister);
+  LazPaintInstance.ScriptContext.RegisterScriptFunction('ImageListGetAutoUncheckMode', @ScriptGetAutoUncheckMode, ARegister);
+  LazPaintInstance.ScriptContext.RegisterScriptFunction('ImageListSetAutoUncheckMode', @ScriptSetAutoUncheckMode, ARegister);
+  LazPaintInstance.ScriptContext.RegisterScriptFunction('ImageListGetAutoZoomFit', @ScriptGetAutoZoomFit, ARegister);
+  LazPaintInstance.ScriptContext.RegisterScriptFunction('ImageListSetAutoZoomFit', @ScriptSetAutoZoomFit, ARegister);
+end;
+
+procedure TFImageList.CallScriptFunction(AName: string);
+begin
+  case LazPaintInstance.ScriptContext.CallScriptFunction(AName) of
+    srFunctionNotDefined: LazPaintInstance.ShowMessage(rsScript, StringReplace(rsFunctionNotDefined, '%1', AName, []));
+  end;
+end;
+
+function TFImageList.CallScriptFunction(AVars: TVariableSet): TScriptResult;
+begin
+  result := LazPaintInstance.ScriptContext.CallScriptFunction(AVars);
+  case result of
+    srFunctionNotDefined: LazPaintInstance.ShowMessage(rsScript, StringReplace(rsFunctionNotDefined, '%1', AVars.FunctionName, []));
+  end;
+end;
+
+procedure TFImageList.SetSelectedRow(AValue: integer);
+var
+  gr: TGridRect;
+begin
+  StringGrid1.Row := AValue;
+  gr := StringGrid1.Selection;
+  gr.Top := AValue;
+  gr.Bottom:= AValue;
+  StringGrid1.Selection := gr;
+  if pnlButtonsNormalWindow.Visible and self.Visible then SafeSetFocus(StringGrid1);
+end;
+
+procedure TFImageList.pmRemoveUncheckedClick(Sender: TObject);
+begin
+  CallScriptFunction('ImageListRemoveUnchecked');
 end;
 
 procedure TFImageList.pmUncheckClose(Sender: TObject);
@@ -532,13 +927,8 @@ begin
 end;
 
 procedure TFImageList.pmUncheckNonexistentClick(Sender: TObject);
-var
-i: integer;
 begin
-  for i:= 1 to FileCount do
-     if not FileManager.FileExists(StringGrid1.Cells[ColLongFname,i])
-         then FileChecked[i] := false;
-  EnableButtons;
+  CallScriptFunction('ImageListUncheckNonexistent');
 end;
 
 procedure TFImageList.pmUncheckPopup(Sender: TObject);
@@ -610,15 +1000,10 @@ end;
 
 procedure TFImageList.tbOpenImageClick(Sender: TObject);
 begin
-   if SaveModified= True then
-   begin
-     if tbAutoUncheck.Down and pmAutouncheckOnOpen.Checked then
-       FileChecked[SelectedRow]:= false;
-     OpenImage (StringGrid1.Cells[ColLongFname,SelectedRow]);
-   end;
+  CallScriptFunction('ImageListOpenSelected');
 end;
 
-function TFImageList.SelectedRow: integer;
+function TFImageList.GetSelectedRow: integer;
 begin
   Result:=StringGrid1.Selection.Top;
 end;
@@ -634,7 +1019,8 @@ begin
         Result:=True;
         Break;
       end;
-  if (Result = false) and (Verbose= True) then QuestionDlg (rsInformation, rsThereAreNoCheckedItems, mtInformation, [mrOk, rsOkay],'');
+  if (Result = false) and (Verbose= True) then
+    QuestionDlg (rsInformation, rsThereAreNoCheckedItems, mtInformation, [mrOk, rsOkay],'');
 end;
 
 function TFImageList.SaveModified: boolean;
@@ -664,57 +1050,22 @@ end;
 
 procedure TFImageList.tbOpenNextClick(Sender: TObject);
 var
-  i:integer;
+  vars: TVariableSet;
 begin
-  if not CheckedExist then Exit;
-  if SaveModified= False then exit;
-  if SelectedRow<FileCount
-     then
-       for i:= SelectedRow + 1 to FileCount do
-         if FileChecked[i] then
-           begin
-              OpenImage(StringGrid1.Cells[ColLongFname,i]);
-              SelectRow(StringGrid1,i, pnlButtonsNormalWindow.Visible);
-              if (tbAutoUncheck.Down and pmAutouncheckOnOpen.Checked) then
-                FileChecked[SelectedRow]:= false;
-              Exit;
-           end;
-       for i:= 1 to SelectedRow-1 do
-          if FileChecked[i] then
-            begin
-              OpenImage(StringGrid1.Cells[ColLongFname,i]);
-              SelectRow(StringGrid1,i,pnlButtonsNormalWindow.Visible);
-              if (tbAutoUncheck.Down and pmAutouncheckOnOpen.Checked) then
-                FileChecked[SelectedRow]:= false;
-              Exit;
-            end;
+  vars := TVariableSet.Create('ImageListOpenNext');
+  vars.Booleans['CanCycle'] := true;
+  CallScriptFunction(vars);
+  vars.Free;
 end;
 
 procedure TFImageList.tbOpenPrevClick(Sender: TObject);
 var
-    i:integer;
+  vars: TVariableSet;
 begin
-  if not CheckedExist then Exit;
-  if SaveModified= False then exit;
-  if SelectedRow>1 then
-     for i:= SelectedRow -1 downto 1 do
-       if FileChecked[i] then
-         begin
-            OpenImage(StringGrid1.Cells[ColLongFname,i]);
-            SelectRow(StringGrid1,i,pnlButtonsNormalWindow.Visible);
-            if (tbAutoUncheck.Down and pmAutouncheckOnOpen.Checked) then
-              FileChecked[SelectedRow]:= false;
-            Exit;
-         end; //if
-  for i:= FileCount downto SelectedRow+1 do
-    if FileChecked[i] then
-      begin
-        OpenImage(StringGrid1.Cells[ColLongFname,i]);
-        SelectRow(StringGrid1,i,pnlButtonsNormalWindow.Visible);
-        if (tbAutoUncheck.Down and pmAutouncheckOnOpen.Checked) then
-          FileChecked[SelectedRow] := false;
-        Exit;
-      end; //if
+  vars := TVariableSet.Create('ImageListOpenPrevious');
+  vars.Booleans['CanCycle'] := true;
+  CallScriptFunction(vars);
+  vars.Free;
 end;
 
 procedure TFImageList.tbRemoveItemClick(Sender: TObject);
@@ -792,13 +1143,13 @@ begin
       setlength(fileNames,FBrowseImages.SelectedFileCount);
       for i := 0 to high(fileNames) do
         fileNames[i] := FBrowseImages.SelectedFile[i];
-      AddFiles(Filenames);
+      AddFiles(Filenames, true);
       FBrowseImages.FreeChosenImage;
     end;
   end else
   begin
     if Length(LazPaintInstance.Config.ImageListLastFolder)>0 then OpenDialog1.InitialDir:=LazPaintInstance.Config.ImageListLastFolder;
-    if OpenDialog1.Execute= True then AddFiles(StringsToStringArray(OpenDialog1.Files));
+    if OpenDialog1.Execute= True then AddFiles(StringsToStringArray(OpenDialog1.Files), true);
   end;
 
   LazPaintInstance.ShowTopmost(topMostInfo);

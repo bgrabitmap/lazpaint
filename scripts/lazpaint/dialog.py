@@ -5,6 +5,9 @@ def show_message(message):
   # wait for validation before continuing script
   command.send("ShowMessage?", Message=message)
 
+def show_directory_dialog(prompt, initial_dir=None) -> str:
+  return command.send("ShowDirectoryDialog?", Prompt=prompt, InitialDir=initial_dir)
+
 def input_text(prompt, default=None) -> str:
   return command.send("InputBox?", Prompt=prompt, Default=default)
 

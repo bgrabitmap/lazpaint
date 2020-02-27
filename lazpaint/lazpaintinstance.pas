@@ -50,6 +50,7 @@ type
     function ScriptImageCanvasSize(AVars: TVariableSet): TScriptResult;
     function ScriptImageRepeat(AVars: TVariableSet): TScriptResult;
     function ScriptImageResample(AParams: TVariableSet): TScriptResult;
+    function ScriptShowDirectoryDialog(AVars: TVariableSet): TScriptResult;
     procedure SelectionInstanceOnRun(AInstance: TLazPaintCustomInstance);
     procedure ToolFillChanged(Sender: TObject);
     procedure PythonScriptCommand({%H-}ASender: TObject; ACommand, AParam: UTF8String; out
@@ -343,6 +344,7 @@ begin
   ScriptContext.RegisterScriptFunction('ColorShiftColors',@ScriptColorShiftColors,ARegister);
   ScriptContext.RegisterScriptFunction('ColorIntensity',@ScriptColorIntensity,ARegister);
   ScriptContext.RegisterScriptFunction('ShowMessage',@ScriptShowMessage,ARegister);
+  ScriptContext.RegisterScriptFunction('ShowDirectoryDialog',@ScriptShowDirectoryDialog,ARegister);
   ScriptContext.RegisterScriptFunction('InputBox',@ScriptInputBox,ARegister);
 end;
 
@@ -1771,7 +1773,7 @@ end;
 procedure TLazPaintInstance.AddToImageList(const FileNames: array of String);
 begin
   if FImageList <> nil then
-    FImageList.AddFiles (FileNames);
+    FImageList.AddFiles (FileNames, true);
 end;
 
 procedure TLazPaintInstance.UpdateToolbar;

@@ -1,4 +1,5 @@
 from lazpaint import command, dialog, colors
+import os
 
 if __name__ == "__main__":
   dialog.show_message("Library to act on the whole image.")
@@ -92,6 +93,12 @@ def save_as(file_name=None, validate=False, overwrite=False, skip_options=False)
 
 def export(file_name=None, validate=False, overwrite=False, skip_options=False) -> str:
   return command.send("FileSaveAs?", FileName=file_name, Validate=validate, Overwrite=overwrite, SkipOptions=skip_options, Export=True)
+
+def change_file_extension(file_name: str, new_extension: str) -> str:
+  base, ext = os.path.splitext(file_name)
+  if len(new_extension) > 0 and new_extension[0:1] != ".":
+    new_extension = "." + new_extension
+  return base + new_extension
 
 def get_temporary_name() -> str:
   return command.send("FileGetTemporaryName?")

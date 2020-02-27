@@ -206,6 +206,18 @@ begin
       result := srCancelledByUser;
 end;
 
+function TLazPaintInstance.ScriptShowDirectoryDialog(AVars: TVariableSet): TScriptResult;
+var
+  chosenDir: string;
+begin
+  if SelectDirectory(AVars.Strings['Prompt'], AVars.Strings['InitialDir'], chosenDir) then
+  begin
+    Avars.Strings['Result'] := chosenDir;
+    result := srOk;
+  end else
+    result := srCancelledByUser;
+end;
+
 function TLazPaintInstance.ShowResampleDialog(AParameters: TVariableSet): boolean;
 begin
   FormsNeeded;
