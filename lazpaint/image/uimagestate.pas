@@ -687,7 +687,7 @@ procedure TImageState.Assign(AValue: TBGRACustomLayeredBitmap; AOwned: boolean);
 begin
   if AOwned and (AValue is TBGRALayeredBitmap) then
   begin
-    LayeredBitmap.Free;
+    FreeAndNil(FLayeredBitmap);
     SetLayeredBitmap(TBGRALayeredBitmap(AValue));
   end else
   begin
