@@ -223,6 +223,11 @@ begin
         begin
           enableScript := true;
         end else
+        if lowerCmd = 'scriptbasedir' then
+        begin
+          if not NextAsFuncParam then exit;
+          CustomScriptDirectory:= ChompPathDelim(ExpandFileNameUTF8(commandStr));
+        end else
         if lowerCmd = 'quit' then
         begin
           quitQuery:= true;
@@ -238,12 +243,14 @@ begin
     end else
     if enableScript and (CompareText(ExtractFileExt(CommandStr), '.py') = 0) then
     begin
+      ForcePathDelims(commandStr);
       if not FileExistsUTF8(commandStr) and
         (pos(PathDelim, commandStr) = 0) then
         commandStr := TPythonScript.DefaultScriptDirectory + PathDelim + commandStr;
       if not instance.RunScript(commandStr) then exit;
     end else
     begin
+      ForcePathDelims(CommandStr);
       OutputFilename := CommandStr;
       instance.StartSavingImage(OutputFilename);
       try

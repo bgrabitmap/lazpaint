@@ -318,9 +318,16 @@
       <Version Value="2"/>
     </PublishOptions>
     <RunParams>
+      <local>
+        <CommandLineParams Value="-scriptbasedir ..\..\..\scripts"/>
+      </local>
       <FormatVersion Value="2"/>
       <Modes Count="1">
-        <Mode0 Name="default"/>
+        <Mode0 Name="default">
+          <local>
+            <CommandLineParams Value="-scriptbasedir ..\..\..\scripts"/>
+          </local>
+        </Mode0>
       </Modes>
     </RunParams>
     <RequiredPackages Count="5">
@@ -528,6 +535,7 @@
       <Unit27>
         <Filename Value="uparse.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UParse"/>
       </Unit27>
       <Unit28>
         <Filename Value="tools\utooldeformationgrid.pas"/>

@@ -424,7 +424,8 @@ end;
 procedure TMainFormLayout.DoArrange;
 var nbY,nbX,w,i: integer;
 begin
-  FMenu.ArrangeToolbars(FForm.ClientWidth);
+  if Assigned(FMenu) then
+    FMenu.ArrangeToolbars(FForm.ClientWidth);
   if FToolBoxDocking in [twLeft,twRight] then
   begin
     with GetWorkAreaAt(lsAfterTopToolbar) do
@@ -597,7 +598,8 @@ begin
     RaisePictureAreaChange;
     FLastWorkArea := newPicArea;
   end;
-  FMenu.RepaintToolbar;
+  if Assigned(FMenu) then
+    FMenu.RepaintToolbar;
 end;
 
 procedure TMainFormLayout.DockedToolBoxAddButton(AAction: TBasicAction);

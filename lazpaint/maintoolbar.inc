@@ -585,6 +585,8 @@ var img: integer; ToolBmp, IconBmp: TBitmap; IconBGRA, Blur, ToolBGRA: TBGRABitm
     a: TAction;
     il: TImageList;
 begin
+  if not Visible then exit;
+
   a := CurrentToolAction;
   if a <> nil then
   begin

@@ -47,6 +47,9 @@ type
 
 function GetPythonVersion(APythonBin: string = DefaultPythonBin): string;
 
+var
+  CustomScriptDirectory: string;
+
 implementation
 
 uses process, UResourceStrings, Forms, UTranslation;
@@ -203,11 +206,10 @@ end;
 
 class function TPythonScript.DefaultScriptDirectory: string;
 begin
-  {$IFDEF DEBUG}
-  result := ExtractFilePath(Application.ExeName)+PathDelim+'..'+PathDelim+'..'+PathDelim+'..'+PathDelim+'scripts';
-  {$ELSE}
-  result := GetResourcePath('scripts');
-  {$ENDIF}
+  if CustomScriptDirectory<>'' then
+    result := CustomScriptDirectory
+  else
+    result := GetResourcePath('scripts');
 end;
 
 end.
