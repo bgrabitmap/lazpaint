@@ -491,16 +491,16 @@ msgstr "Desmarque os arquivos depois de serem editados e salvos"
 msgid "Empty image list"
 msgstr "Limpar lista de imagens"
 
-#: tfimagelist.pmremovenonexisting.caption
-msgid "Remove nonexisting images"
+#: tfimagelist.pmremovenonexistent.caption
+msgid "Remove nonexistent images"
 msgstr "Remover imagens inexistentes"
 
 #: tfimagelist.pmremoveunchecked.caption
 msgid "Remove unchecked images"
 msgstr "Remover imagens desmarcadas"
 
-#: tfimagelist.pmunchecknonexisting.caption
-msgid "Uncheck nonexisting files"
+#: tfimagelist.pmunchecknonexistent.caption
+msgid "Uncheck nonexistent files"
 msgstr "Desmarque arquivos inexistentes"
 
 #: tfimagelist.stringgrid1.columns[0].title.caption

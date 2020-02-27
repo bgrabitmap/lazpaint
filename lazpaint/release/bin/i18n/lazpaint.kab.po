@@ -482,16 +482,16 @@ msgstr ""
 msgid "Empty image list"
 msgstr ""
 
-#: tfimagelist.pmremovenonexisting.caption
-msgid "Remove nonexisting images"
+#: tfimagelist.pmremovenonexistent.caption
+msgid "Remove nonexistent images"
 msgstr "Kkes tugniwin ur nelli ara"
 
 #: tfimagelist.pmremoveunchecked.caption
 msgid "Remove unchecked images"
 msgstr "Kkes tugniwin ur nettwacreḍ ara"
 
-#: tfimagelist.pmunchecknonexisting.caption
-msgid "Uncheck nonexisting files"
+#: tfimagelist.pmunchecknonexistent.caption
+msgid "Uncheck nonexistent files"
 msgstr ""
 
 #: tfimagelist.stringgrid1.columns[0].title.caption

@@ -500,16 +500,16 @@ msgstr "Саморазмятане на файловете след обрабо
 msgid "Empty image list"
 msgstr "Изпразване на списъка"
 
-#: tfimagelist.pmremovenonexisting.caption
-msgid "Remove nonexisting images"
+#: tfimagelist.pmremovenonexistent.caption
+msgid "Remove nonexistent images"
 msgstr "Премахване на несъществуващите изображения"
 
 #: tfimagelist.pmremoveunchecked.caption
 msgid "Remove unchecked images"
 msgstr "Премахване на неотметнатите изображения"
 
-#: tfimagelist.pmunchecknonexisting.caption
-msgid "Uncheck nonexisting files"
+#: tfimagelist.pmunchecknonexistent.caption
+msgid "Uncheck nonexistent files"
 msgstr "Размятане на несъществуващите изображения"
 
 #: tfimagelist.stringgrid1.columns[0].title.caption

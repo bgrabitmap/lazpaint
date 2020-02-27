@@ -518,16 +518,16 @@ msgstr "Automatisch bestanden uitvinken na bewerking en opslag"
 msgid "Empty image list"
 msgstr "Schoon beeldlijst op"
 
-#: tfimagelist.pmremovenonexisting.caption
-msgid "Remove nonexisting images"
+#: tfimagelist.pmremovenonexistent.caption
+msgid "Remove nonexistent images"
 msgstr "Verwijder niet-bestaande beelden"
 
 #: tfimagelist.pmremoveunchecked.caption
 msgid "Remove unchecked images"
 msgstr "Verwijder uitgevinkte beelden"
 
-#: tfimagelist.pmunchecknonexisting.caption
-msgid "Uncheck nonexisting files"
+#: tfimagelist.pmunchecknonexistent.caption
+msgid "Uncheck nonexistent files"
 msgstr "Vink niet-bestaande bestanden uit"
 
 #: tfimagelist.stringgrid1.columns[0].title.caption

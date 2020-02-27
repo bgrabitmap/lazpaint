@@ -498,16 +498,16 @@ msgstr "Nach Bearbeiten und Speichern Datei automatisch abwahlen"
 msgid "Empty image list"
 msgstr "Bilderliste leeren"
 
-#: tfimagelist.pmremovenonexisting.caption
-msgid "Remove nonexisting images"
+#: tfimagelist.pmremovenonexistent.caption
+msgid "Remove nonexistent images"
 msgstr "Nichtexistierende Bilder entfernen"
 
 #: tfimagelist.pmremoveunchecked.caption
 msgid "Remove unchecked images"
 msgstr "Nichtgewählte Bilder entfernen"
 
-#: tfimagelist.pmunchecknonexisting.caption
-msgid "Uncheck nonexisting files"
+#: tfimagelist.pmunchecknonexistent.caption
+msgid "Uncheck nonexistent files"
 msgstr "Nichtexistierende Dateien abwählen"
 
 #: tfimagelist.stringgrid1.columns[0].title.caption

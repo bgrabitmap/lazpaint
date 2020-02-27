@@ -20,9 +20,9 @@ type
     lblStatus: TLabel;
     pmAutouncheckOnOpen: TMenuItem;
     pmAutouncheckOnSave: TMenuItem;
-    pmUncheckNonExisting: TMenuItem;
+    pmUncheckNonexistent: TMenuItem;
     pmRemoveAll: TMenuItem;
-    pmRemoveNonexisting: TMenuItem;
+    pmRemoveNonexistent: TMenuItem;
     pmRemoveUnchecked: TMenuItem;
     OpenDialog1: TOpenDialog;
     pnlButtonsSmallWindow: TPanel;
@@ -68,11 +68,11 @@ type
     procedure pmAutouncheckPopup(Sender: TObject);
     procedure pmRemoveAllClick(Sender: TObject);
     procedure pmRemoveClose(Sender: TObject);
-    procedure pmRemoveNonexistingClick(Sender: TObject);
+    procedure pmRemoveNonexistentClick(Sender: TObject);
     procedure pmRemovePopup(Sender: TObject);
     procedure pmRemoveUncheckedClick(Sender: TObject);
     procedure pmUncheckClose(Sender: TObject);
-    procedure pmUncheckNonExistingClick(Sender: TObject);
+    procedure pmUncheckNonexistentClick(Sender: TObject);
     procedure pmUncheckPopup(Sender: TObject);
     procedure StringGrid1SelectCell(Sender: TObject; {%H-}aCol, aRow: Integer; var {%H-}CanSelect: Boolean);
     procedure StringGrid1SetCheckboxState(Sender: TObject; {%H-}ACol, ARow: Integer; const Value: TCheckboxState);
@@ -449,7 +449,7 @@ begin
   tbRemoveDropDown.Down := false;
 end;
 
-procedure TFImageList.pmRemoveNonexistingClick(Sender: TObject);
+procedure TFImageList.pmRemoveNonexistentClick(Sender: TObject);
 var
   i:integer;
   needRenumber: boolean;
@@ -531,7 +531,7 @@ begin
   tbUncheckDropDown.Down := false;
 end;
 
-procedure TFImageList.pmUncheckNonExistingClick(Sender: TObject);
+procedure TFImageList.pmUncheckNonexistentClick(Sender: TObject);
 var
 i: integer;
 begin

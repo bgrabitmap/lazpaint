@@ -483,16 +483,16 @@ msgstr "Samo odškrtnutí souborů po úpravě a uložení"
 msgid "Empty image list"
 msgstr "Prázdný seznam obrázků"
 
-#: tfimagelist.pmremovenonexisting.caption
-msgid "Remove nonexisting images"
+#: tfimagelist.pmremovenonexistent.caption
+msgid "Remove nonexistent images"
 msgstr "Odebrat neexistující obrázky"
 
 #: tfimagelist.pmremoveunchecked.caption
 msgid "Remove unchecked images"
 msgstr "Odstranit nezaškrtnuté soubory"
 
-#: tfimagelist.pmunchecknonexisting.caption
-msgid "Uncheck nonexisting files"
+#: tfimagelist.pmunchecknonexistent.caption
+msgid "Uncheck nonexistent files"
 msgstr "Odškrtnout neexistující soubory"
 
 #: tfimagelist.stringgrid1.columns[0].title.caption

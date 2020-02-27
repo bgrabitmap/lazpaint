@@ -485,16 +485,16 @@ msgstr "Noņemt ķeksi, kad attēls labots un saglabāts"
 msgid "Empty image list"
 msgstr "Tukšs attēlu saraksts"
 
-#: tfimagelist.pmremovenonexisting.caption
-msgid "Remove nonexisting images"
+#: tfimagelist.pmremovenonexistent.caption
+msgid "Remove nonexistent images"
 msgstr "Izņemt neesošus attēlus"
 
 #: tfimagelist.pmremoveunchecked.caption
 msgid "Remove unchecked images"
 msgstr "Izņemt neatzīmētus attēlus"
 
-#: tfimagelist.pmunchecknonexisting.caption
-msgid "Uncheck nonexisting files"
+#: tfimagelist.pmunchecknonexistent.caption
+msgid "Uncheck nonexistent files"
 msgstr "Izņemt atzīmējumu neesošiem failiem"
 
 #: tfimagelist.stringgrid1.columns[0].title.caption

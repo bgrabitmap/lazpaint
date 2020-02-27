@@ -487,16 +487,16 @@ msgstr "تعيين آلي للملفات عند التحرير و الحفظ"
 msgid "Empty image list"
 msgstr "قائمة الصور فارغة"
 
-#: tfimagelist.pmremovenonexisting.caption
-msgid "Remove nonexisting images"
+#: tfimagelist.pmremovenonexistent.caption
+msgid "Remove nonexistent images"
 msgstr "حذف الصور الغير موجودة"
 
 #: tfimagelist.pmremoveunchecked.caption
 msgid "Remove unchecked images"
 msgstr "حذف الصور الغير معينة"
 
-#: tfimagelist.pmunchecknonexisting.caption
-msgid "Uncheck nonexisting files"
+#: tfimagelist.pmunchecknonexistent.caption
+msgid "Uncheck nonexistent files"
 msgstr "إزالة تعيين الملفات الغير موجودة"
 
 #: tfimagelist.stringgrid1.columns[0].title.caption

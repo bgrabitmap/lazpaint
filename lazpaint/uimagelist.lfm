@@ -314,9 +314,9 @@ object FImageList: TFImageList
     OnClose = pmRemoveClose
     left = 48
     top = 248
-    object pmRemoveNonexisting: TMenuItem
-      Caption = 'Remove nonexisting images'
-      OnClick = pmRemoveNonexistingClick
+    object pmRemoveNonexistent: TMenuItem
+      Caption = 'Remove nonexistent images'
+      OnClick = pmRemoveNonexistentClick
     end
     object pmRemoveUnchecked: TMenuItem
       Caption = 'Remove unchecked images'
@@ -332,9 +332,9 @@ object FImageList: TFImageList
     OnClose = pmUncheckClose
     left = 112
     top = 248
-    object pmUncheckNonExisting: TMenuItem
-      Caption = 'Uncheck nonexisting files'
-      OnClick = pmUncheckNonExistingClick
+    object pmUncheckNonexistent: TMenuItem
+      Caption = 'Uncheck nonexistent files'
+      OnClick = pmUncheckNonexistentClick
     end
   end
   object pmAutouncheck: TPopupMenu
