@@ -386,7 +386,7 @@ const
   LazPaintProcessorInfo = ' (32-bit)';
 {$ENDIF}
 begin
-  result := LazPaintVersionStr + LazPaintProcessorInfo;
+  result := LazPaintVersionStr {$IFDEF DEBUG} + ' Beta'{$ENDIF} + LazPaintProcessorInfo;
 end;
 
 function IsOnlyRenderChange(const ARect: TRect): boolean;
