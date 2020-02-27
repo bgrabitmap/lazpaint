@@ -6,21 +6,22 @@ interface
 
 uses classes, LazpaintType, uresourcestrings;
 
-procedure ProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList; out errorEncountered, fileSaved: boolean);
+procedure ProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList; out errorEncountered, fileSaved, quitQuery: boolean);
 function ParamStrUTF8(AIndex: integer): string;
 
 implementation
 
 uses
   SysUtils, BGRAUTF8, LazFileUtils, BGRABitmap, BGRABitmapTypes, Dialogs, uparse,
-  UImage, UImageAction, ULayerAction, UScripting;
+  UImage, UImageAction, ULayerAction, UScripting, UPython;
 
 function ParamStrUTF8(AIndex: integer): string;
 begin
   result := SysToUTF8(ParamStr(AIndex)); //not perfect
 end;
 
-procedure InternalProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList; out errorEncountered, fileSaved: boolean; AImageActions: TImageActions);
+procedure InternalProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList;
+  out errorEncountered, fileSaved, quitQuery: boolean; AImageActions: TImageActions);
 var
   commandPrefix: set of char;
   InputFilename:string;
@@ -45,9 +46,11 @@ var
   gt: TGradientType;
   o1,o2: TPointF;
   layerAction: TLayerAction;
+  enableScript: Boolean;
 
 begin
   fileSaved := True;
+  quitQuery:= false;
   errorEncountered := false;
   if commandsUTF8.count = 0 then exit;
 
@@ -185,6 +188,15 @@ begin
           end;
           instance.Image.Assign(instance.MakeNewBitmapReplacement(w,h,BGRAPixelTransparent),True,False);
         end else
+        if lowerCmd = 'script' then
+        begin
+          enableScript := true;
+        end else
+        if lowerCmd = 'quit' then
+        begin
+          quitQuery:= true;
+          exit;
+        end else
         if Copy(CommandStr,1,4) <> 'psn_' then //ignore mac parameter
         begin
           instance.ShowError('Command line', rsUnknownCommand+CommandStr);
@@ -192,6 +204,13 @@ begin
           exit;
         end;
       end;
+    end else
+    if enableScript and (CompareText(ExtractFileExt(CommandStr), '.py') = 0) then
+    begin
+      if not FileExistsUTF8(commandStr) and
+        (pos(PathDelim, commandStr) = 0) then
+        commandStr := TPythonScript.DefaultScriptDirectory + PathDelim + commandStr;
+      if not instance.RunScript(commandStr) then exit;
     end else
     begin
       OutputFilename := CommandStr;
@@ -212,11 +231,12 @@ begin
 
 end;
 
-procedure ProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList; out errorEncountered, fileSaved: boolean);
+procedure ProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList;
+  out errorEncountered, fileSaved, quitQuery: boolean);
 var imageActions: TImageActions;
 begin
   imageActions := TImageActions.Create(instance);
-  InternalProcessCommands(instance,commandsUTF8,errorEncountered,fileSaved,imageActions);
+  InternalProcessCommands(instance, commandsUTF8, errorEncountered, fileSaved, quitQuery, imageActions);
   imageActions.Free;
 end;
 

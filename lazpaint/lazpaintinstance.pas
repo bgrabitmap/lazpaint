@@ -96,6 +96,7 @@ type
     FLoadingFilename, FSavingFilename: string;
     FInRunScript: boolean;
     FScriptTempFileNames: TStringList;
+    FInCommandLine: boolean;
 
     function GetIcons(ASize: integer): TImageList; override;
     function GetToolBoxWindowPopup: TPopupMenu; override;
@@ -266,7 +267,8 @@ end;
 procedure TLazPaintInstance.StartLoadingImage(AFilename: string);
 begin
   FLoadingFilename:= AFilename;
-  BGRALayers.RegisterLoadingHandler(@OnLayeredBitmapLoadStartHandler,@OnLayeredBitmapLoadProgressHandler,@OnLayeredBitmapLoadedHandler);
+  if not FInCommandLine then
+    BGRALayers.RegisterLoadingHandler(@OnLayeredBitmapLoadStartHandler,@OnLayeredBitmapLoadProgressHandler,@OnLayeredBitmapLoadedHandler);
 end;
 
 procedure TLazPaintInstance.EndLoadingImage;
@@ -279,7 +281,8 @@ end;
 procedure TLazPaintInstance.StartSavingImage(AFilename: string);
 begin
   FSavingFilename:= AFilename;
-  BGRALayers.RegisterSavingHandler(@OnLayeredBitmapSaveStartHandler,@OnLayeredBitmapSaveProgressHandler,@OnLayeredBitmapSavedHandler);
+  if not FInCommandLine then
+    BGRALayers.RegisterSavingHandler(@OnLayeredBitmapSaveStartHandler,@OnLayeredBitmapSaveProgressHandler,@OnLayeredBitmapSavedHandler);
 end;
 
 procedure TLazPaintInstance.EndSavingImage;
@@ -576,6 +579,7 @@ procedure TLazPaintInstance.OnToolPopup(sender: TToolManager; AMessage: TToolPop
 var messageStr: string;
     idx: integer;
 begin
+  if FInCommandLine then exit;
   if Assigned(Config) then
   begin
     idx := ord(AMessage);
@@ -1237,7 +1241,7 @@ end;
 
 function TLazPaintInstance.ProcessCommandLine: boolean;
 var commands: TStringList;
-    error,saved: boolean;
+    error, saved, quitQuery: boolean;
     i: Integer;
 begin
   if paramCount = 0 then
@@ -1247,24 +1251,30 @@ begin
   end;
 
   FormsNeeded;
+  FInCommandLine := true;
   commands := TStringList.Create;
-  for i := 1 to paramCount do
-    commands.Add( ParamStrUtf8(i));
-  ucommandline.ProcessCommands(self,commands,error,saved);
-  commands.free;
-  result := error or saved;
+  try
+    for i := 1 to paramCount do
+      commands.Add(ParamStrUtf8(i));
+    ucommandline.ProcessCommands(self, commands, error, saved, quitQuery);
+  finally
+    commands.free;
+    FInCommandLine := false;
+  end;
+  result := error or saved or quitQuery;
 end;
 
 function TLazPaintInstance.ProcessCommands(commands: TStringList): boolean;
-var saved: boolean;
+var saved, quitQuery: boolean;
 begin
+  quitQuery := false;
   if paramCount = 0 then
   begin
     result := true;
     exit;
   end;
   FormsNeeded;
-  ucommandline.ProcessCommands(self,commands,result,saved);
+  ucommandline.ProcessCommands(self, commands, result, saved, quitQuery);
 end;
 
 procedure TLazPaintInstance.ChangeIconSize(size: integer);
