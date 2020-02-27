@@ -245,11 +245,15 @@ var
   searchRec: TSearchRec;
   t: textFile;
   item: TMenuItem;
+  items: TStringList;
+  i: Integer;
 begin
   if FInstalledScripts = nil then FInstalledScripts := TStringList.Create;
   path := TPythonScript.DefaultScriptDirectory;
   if FindFirstUTF8(path+PathDelim+'*.py', faAnyFile, searchRec)=0 then
   begin
+    items := TStringList.Create;
+    items.Sorted := true;
     try
       repeat
         fullname := path+PathDelim+searchRec.Name;
@@ -266,15 +270,23 @@ begin
             item.Caption := title;
             item.Tag := FInstalledScripts.Add(fullname);
             item.OnClick:=@Script_Click;
-            if AIndex = -1 then
-              AMenu.Add(item)
-            else
-              AMenu.Insert(AIndex, item);
+            items.AddObject(title, item);
           end;
         end;
       until FindNextUTF8(searchRec)<>0;
     finally
       FindCloseUTF8(searchRec);
+      for i := 0 to items.Count-1 do
+      begin
+        if AIndex = -1 then
+          AMenu.Add(TMenuItem(items.Objects[i]))
+        else
+        begin
+          AMenu.Insert(AIndex, TMenuItem(items.Objects[i]));
+          inc(AIndex);
+        end;
+      end;
+      items.Free;
     end;
   end;
 end;
