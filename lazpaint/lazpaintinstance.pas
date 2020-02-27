@@ -62,7 +62,9 @@ type
   protected
     InColorFromFChooseColor: boolean;
     FMain: TFMain;
-    FToolbox: TFToolbox;
+    FFormToolbox: TFToolbox;
+    FFormToolboxInitialPopup: TPopupMenu;
+    FFormToolboxInitialPosition: TPoint;
     FImageList: TFImageList;
     FChooseColor: TFChooseColor;
     FLayerStack: TFLayerStack;
@@ -390,6 +392,8 @@ begin
   FEmbedded:= AEmbedded;
   FScriptContext := TScriptContext.Create;
   FScriptContext.OnFunctionException:= @OnFunctionException;
+  FFormToolboxInitialPopup := nil;
+  FFormToolboxInitialPosition := Point(0,0);
 
   RegisterScripts(True);
 
@@ -423,8 +427,6 @@ begin
   Application.CreateForm(TFChooseColor, FChooseColor);
   FChooseColor.LazPaintInstance := self;
   FChooseColor.DarkTheme:= Config.GetDarkTheme;
-
-  CreateToolBox;
 
   Application.CreateForm(TFCanvasSize, FCanvasSize);
   FCanvasSize.LazPaintInstance := self;
@@ -492,74 +494,53 @@ end;
 
 procedure TLazPaintInstance.CreateToolBox;
 begin
-  if Assigned(FToolBox) or not Assigned(FMain) then exit;
-  Application.CreateForm(TFToolbox, FToolbox);
-  FToolbox.LazPaintInstance := self;
-  FToolbox.DarkTheme := Config.GetDarkTheme;
+  if Assigned(FFormToolbox) or not Assigned(FMain) then exit;
+  Application.CreateForm(TFToolbox, FFormToolbox);
+  FFormToolbox.LazPaintInstance := self;
+  FFormToolbox.DarkTheme := Config.GetDarkTheme;
 
   //needed to attach to the right instance of FMain
-  FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolHand);
-  FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolColorPicker);
-  FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolPen);
-  FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolBrush);
-  FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolEraser);
-  FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolFloodfill);
-  FToolbox.AddButton(FToolbox.Toolbar1, FMain.ToolClone);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar1, FMain.ToolHand);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar1, FMain.ToolColorPicker);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar1, FMain.ToolPen);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar1, FMain.ToolBrush);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar1, FMain.ToolEraser);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar1, FMain.ToolFloodfill);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar1, FMain.ToolClone);
 
-  FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolRect);
-  FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolEllipse);
-  FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolPolygon);
-  FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolSpline);
-  FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolGradient);
-  FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolPhong);
-  FToolbox.AddButton(FToolbox.Toolbar2, FMain.ToolText);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar2, FMain.ToolRect);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar2, FMain.ToolEllipse);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar2, FMain.ToolPolygon);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar2, FMain.ToolSpline);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar2, FMain.ToolGradient);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar2, FMain.ToolPhong);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar2, FMain.ToolText);
 
-  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolEditShape);
-  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolDeformation);
-  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolTextureMapping);
-  FToolbox.AddButton(FToolbox.Toolbar3, FMain.EditSelectAll);
-  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolMoveSelection);
-  FToolbox.AddButton(FToolbox.Toolbar3, FMain.ToolRotateSelection);
-  FToolbox.AddButton(FToolbox.Toolbar3, FMain.EditDeselect);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar3, FMain.ToolEditShape);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar3, FMain.ToolDeformation);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar3, FMain.ToolTextureMapping);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar3, FMain.EditSelectAll);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar3, FMain.ToolMoveSelection);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar3, FMain.ToolRotateSelection);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar3, FMain.EditDeselect);
 
-  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolSelectRect);
-  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolSelectEllipse);
-  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolSelectPoly);
-  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolSelectSpline);
-  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolSelectPen);
-  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolMagicWand);
-  FToolbox.AddButton(FToolbox.Toolbar4, FMain.ToolHotSpot);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar4, FMain.ToolSelectRect);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar4, FMain.ToolSelectEllipse);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar4, FMain.ToolSelectPoly);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar4, FMain.ToolSelectSpline);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar4, FMain.ToolSelectPen);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar4, FMain.ToolMagicWand);
+  FFormToolbox.AddButton(FFormToolbox.Toolbar4, FMain.ToolHotSpot);
 
-  FToolBox.SetImages(Icons[Config.DefaultIconSize(DoScaleX(20,OriginalDPI))]);
+  FFormToolbox.SetImages(Icons[Config.DefaultIconSize(DoScaleX(20,OriginalDPI))]);
 
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolChangeDocking);
+  FFormToolbox.PopupMenu := FFormToolboxInitialPopup;
 
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolHand);
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolColorPicker);
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolPen);
-  FMain.Layout.DockedToolBoxAddGroup([FMain.ToolBrush, FMain.ToolClone]);
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolEraser);
-  FMain.Layout.DockedToolBoxAddGroup([FMain.ToolFloodfill, FMain.ToolGradient]);
-
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolEditShape);
-  FMain.Layout.DockedToolBoxAddGroup([FMain.ToolRect, FMain.ToolEllipse, FMain.ToolPhong]);
-  FMain.Layout.DockedToolBoxAddGroup([FMain.ToolPolyline, FMain.ToolOpenedCurve]);
-  FMain.Layout.DockedToolBoxAddGroup([FMain.ToolPolygon, FMain.ToolSpline]);
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolText);
-
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolDeformation);
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolTextureMapping);
-
-  FMain.Layout.DockedToolBoxAddGroup([FMain.ToolSelectRect, FMain.ToolSelectEllipse]);
-  FMain.Layout.DockedToolBoxAddGroup([FMain.ToolSelectPoly, FMain.ToolSelectSpline]);
-
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolSelectPen);
-  FMain.Layout.DockedToolBoxAddButton(FMain.ToolMagicWand);
-
-  FMain.Layout.DockedToolBoxAddGroup([FMain.ToolMoveSelection, FMain.ToolRotateSelection]);
-  FMain.Layout.DockedToolBoxAddButton(FMain.EditDeselect);
-
-  FMain.Layout.DockedToolBoxSetImages(Icons[Config.DefaultIconSize(DoScaleX(20,OriginalDPI))]);
+  if FToolBoxPositionDefined then
+  begin
+    FFormToolbox.Left := FFormToolboxInitialPosition.X;
+    FFormToolbox.Top := FFormToolboxInitialPosition.Y;
+  end;
 end;
 
 procedure TLazPaintInstance.SetBlackAndWhite(AValue: boolean);
@@ -890,7 +871,7 @@ begin
   if Assigned(FChooseColor) then FChooseColor.DarkTheme := ADarkTheme;
   if Assigned(FLayerStack) then FLayerStack.DarkTheme := ADarkTheme;
   if Assigned(FMain) then FMain.DarkTheme := ADarkTheme;
-  if Assigned(FToolbox) then FToolbox.DarkTheme:= ADarkTheme;
+  if Assigned(FFormToolbox) then FFormToolbox.DarkTheme:= ADarkTheme;
 end;
 
 procedure TLazPaintInstance.UpdateLayerControlVisibility;
@@ -968,10 +949,8 @@ end;
 
 function TLazPaintInstance.GetToolboxVisible: boolean;
 begin
-  if FToolbox <> nil then
-    Result:= FToolbox.Visible or ((FMain <> nil) and not (FMain.Layout.ToolBoxDocking in [twNone,twWindow]))
-  else
-    Result := false;
+  Result:= ((FFormToolbox <> nil) and FFormToolbox.Visible) or
+           ((FMain <> nil) and not (FMain.Layout.ToolBoxDocking in [twNone,twWindow]));
 end;
 
 function TLazPaintInstance.GetImageListWindowVisible: boolean;
@@ -989,19 +968,21 @@ begin
 end;
 
 procedure TLazPaintInstance.SetToolBoxVisible(const AValue: boolean);
+var winVisible: boolean;
 begin
   if FInSetToolboxVisible then exit;
-  if FToolbox <> nil then
+  FInSetToolboxVisible := true;
+  if Assigned(FMain) then
   begin
-    FInSetToolboxVisible := true;
-    if Assigned(FMain) then
-    begin
-      FMain.Layout.ToolBoxVisible := AValue;
-      FToolbox.Visible := (FMain.Layout.ToolBoxDocking = twWindow);
-    end else
-      FToolbox.Visible := AValue;
-    FInSetToolboxVisible := false;
-  end;
+    FMain.Layout.ToolBoxVisible := AValue;
+    winVisible := (FMain.Layout.ToolBoxDocking = twWindow);
+  end else
+    winVisible := AValue;
+
+  if winVisible and not Assigned(FFormToolbox) then CreateToolBox;
+  if Assigned(FFormToolbox) then FFormToolbox.Visible := winVisible;
+
+  FInSetToolboxVisible := false;
 end;
 
 procedure TLazPaintInstance.SetImageListWindowVisible(const AValue: boolean);
@@ -1184,17 +1165,18 @@ end;
 
 function TLazPaintInstance.GetToolBoxWindowPopup: TPopupMenu;
 begin
-  if Assigned(FToolbox) then
-    result := FToolbox.PopupMenu
+  if Assigned(FFormToolbox) then
+    result := FFormToolbox.PopupMenu
   else
-    result := nil;
+    result := FFormToolboxInitialPopup;
 end;
 
 procedure TLazPaintInstance.SetToolBoxWindowPopup(AValue: TPopupMenu);
 begin
-  CreateToolBox;
-  if Assigned(FToolbox) then
-    FToolbox.PopupMenu := AValue;
+  if Assigned(FFormToolbox) then
+    FFormToolbox.PopupMenu := AValue
+  else
+    FFormToolboxInitialPopup := AValue;
 end;
 
 function TLazPaintInstance.GetFullscreen: boolean;
@@ -1345,10 +1327,10 @@ begin
     Config.SetDefaultImagelistWindowVisible (ImageListWindowVisible or (FTopMostInfo.imagelistHidden > 0));
     Config.SetDefaultImagelistWindowPosition(FImageList.BoundsRect);
   end;
-  if (FToolbox <> nil) and FToolBoxPositionDefined then
+  if (FFormToolbox <> nil) and FToolBoxPositionDefined then
   begin
     Config.SetDefaultToolboxWindowVisible(ToolboxVisible or (FTopMostInfo.toolboxHidden > 0));
-    Config.SetDefaultToolboxWindowPosition(FToolBox.BoundsRect);
+    Config.SetDefaultToolboxWindowPosition(FFormToolbox.BoundsRect);
   end;
   ToolManager.SaveToConfig;
 
@@ -1364,7 +1346,7 @@ begin
   FreeAndNil(FColorIntensity);
   FreeAndNil(FCanvasSize);
   FreeAndNil(FChooseColor);
-  FreeAndNil(FToolbox);
+  FreeAndNil(FFormToolbox);
   FreeAndNil(FToolManager);
   FreeAndNil(FMain);
   FreeAndNil(FImage);
@@ -1383,9 +1365,9 @@ begin
   result.defined:= false;
   if FDestroying then exit;
 
-  if (FToolBox <> nil) and FToolBox.Visible then
+  if (FFormToolbox <> nil) and FFormToolbox.Visible then
   begin
-    FToolbox.Hide;
+    FFormToolbox.Hide;
     result.toolboxHidden := 1;
   end else
     result.toolboxHidden := 0;
@@ -1434,9 +1416,9 @@ begin
     FChooseColor.Show;
     dec(FTopMostInfo.choosecolorHidden);
   end;
-  if Assigned(FToolbox) and (AInfo.toolboxHidden > 0) then
+  if Assigned(FFormToolbox) and (AInfo.toolboxHidden > 0) then
   begin
-    FToolbox.Show;
+    FFormToolbox.Show;
     dec(FTopMostInfo.toolboxHidden);
   end;
 end;
@@ -1445,13 +1427,13 @@ procedure TLazPaintInstance.UpdateWindows;
 begin
   {$IFDEF LINUX}
   if Assigned(FMain) then FMain.Enabled:= false;
-  if Assigned(FToolbox) then FToolbox.Enabled:= false;
+  if Assigned(FFormToolbox) then FFormToolbox.Enabled:= false;
   if Assigned(FChooseColor) then FChooseColor.Enabled:= false;
   if Assigned(FLayerStack) then FLayerStack.Enabled:= false;
   if Assigned(FImageList) then FImageList.Enabled:= false;
   Application.ProcessMessages;
   if Assigned(FMain) then FMain.Enabled:= true;
-  if Assigned(FToolbox) then FToolbox.Enabled:= true;
+  if Assigned(FFormToolbox) then FFormToolbox.Enabled:= true;
   if Assigned(FChooseColor) then FChooseColor.Enabled:= true;
   if Assigned(FLayerStack) then FLayerStack.Enabled:= true;
   if Assigned(FImageList) then FImageList.Enabled:= true;
@@ -1638,9 +1620,12 @@ end;
 
 procedure TLazPaintInstance.MoveToolboxTo(X, Y: integer);
 begin
-  FormsNeeded;
-  FToolbox.Left := X;
-  FToolbox.Top := Y;
+  if Assigned(FFormToolbox) then
+  begin
+    FFormToolbox.Left := X;
+    FFormToolbox.Top := Y;
+  end else
+    FFormToolboxInitialPosition := Point(X, Y);
   FToolBoxPositionDefined := true;
 end;
 
@@ -1715,12 +1700,25 @@ end;
 
 function TLazPaintInstance.GetToolboxHeight: integer;
 begin
-  Result:= FToolbox.Height;
+  if Assigned(FFormToolbox) then
+    Result:= FFormToolbox.Height
+  else
+  begin
+    Result := DoScaleY(99, OriginalDPI);
+    if Assigned(FMain) then
+      Inc(result, FMain.Height-FMain.ClientHeight);
+  end;
 end;
 
 function TLazPaintInstance.GetToolboxWidth: integer;
 begin
-  Result:= FToolbox.Width;
+  if Assigned(FFormToolbox) then
+    Result:= FFormToolbox.Width else
+  begin
+    Result := DoScaleX(143, OriginalDPI);
+    if Assigned(FMain) then
+      Inc(result, FMain.Width-FMain.ClientWidth);
+  end;
 end;
 
 function TLazPaintInstance.GetTopMostHasFocus: boolean;
@@ -1732,7 +1730,7 @@ begin
   end;
 
   result := false;
-  if (FToolBox <> nil) and FToolBox.Visible and FToolBox.Active then
+  if (FFormToolbox <> nil) and FFormToolbox.Visible and FFormToolbox.Active then
     result := true;
   if (FChooseColor <> nil) and FChooseColor.Visible and FChooseColor.Active then
     result := true;
@@ -1748,7 +1746,8 @@ begin
     exit;
   end;
   FormsNeeded;
-  result := FToolBox.Visible or FChooseColor.Visible or FLayerStack.Visible;
+  result := (Assigned(FFormToolbox) and FFormToolbox.Visible) or
+            FChooseColor.Visible or FLayerStack.Visible;
 end;
 
 function TLazPaintInstance.GetTopMostOkToUnfocus: boolean;

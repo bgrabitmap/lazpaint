@@ -1164,6 +1164,35 @@ begin
     m.ImageList := LazPaintInstance.Icons[ScaleY(16, 96)];
     m.Apply;
     FLayout.Menu := m;
+
+    Layout.DockedToolBoxAddButton(ToolChangeDocking);
+
+    Layout.DockedToolBoxAddButton(ToolHand);
+    Layout.DockedToolBoxAddButton(ToolColorPicker);
+    Layout.DockedToolBoxAddButton(ToolPen);
+    Layout.DockedToolBoxAddGroup([ToolBrush, ToolClone]);
+    Layout.DockedToolBoxAddButton(ToolEraser);
+    Layout.DockedToolBoxAddGroup([ToolFloodfill, ToolGradient]);
+
+    Layout.DockedToolBoxAddButton(ToolEditShape);
+    Layout.DockedToolBoxAddGroup([ToolRect, ToolEllipse, ToolPhong]);
+    Layout.DockedToolBoxAddGroup([ToolPolyline, ToolOpenedCurve]);
+    Layout.DockedToolBoxAddGroup([ToolPolygon, ToolSpline]);
+    Layout.DockedToolBoxAddButton(ToolText);
+
+    Layout.DockedToolBoxAddButton(ToolDeformation);
+    Layout.DockedToolBoxAddButton(ToolTextureMapping);
+
+    Layout.DockedToolBoxAddGroup([ToolSelectRect, ToolSelectEllipse]);
+    Layout.DockedToolBoxAddGroup([ToolSelectPoly, ToolSelectSpline]);
+
+    Layout.DockedToolBoxAddButton(ToolSelectPen);
+    Layout.DockedToolBoxAddButton(ToolMagicWand);
+
+    Layout.DockedToolBoxAddGroup([ToolMoveSelection, ToolRotateSelection]);
+    Layout.DockedToolBoxAddButton(EditDeselect);
+
+    Layout.DockedToolBoxSetImages(LazPaintInstance.Icons[Config.DefaultIconSize(DoScaleX(20,OriginalDPI))]);
   end;
 
   LazPaintInstance.ColorToFChooseColor;
