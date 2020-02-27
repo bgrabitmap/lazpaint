@@ -29,6 +29,12 @@ type
   private
     FScriptName: String;
 
+    function GetFormAdjustCurves: TFAdjustCurves;
+    function GetFormCanvasSize: TFCanvasSize;
+    function GetFormColorIntensity: TFColorIntensity;
+    function GetFormColorize: TFColorize;
+    function GetFormCustomBlur: TFCustomBlur;
+    function GetFormShiftColors: TFShiftColors;
     function GetInitialized: boolean;
     function GetMainFormVisible: boolean;
     procedure OnImageActionProgress({%H-}ASender: TObject; AProgressPercent: integer);
@@ -68,12 +74,12 @@ type
     FImageList: TFImageList;
     FChooseColor: TFChooseColor;
     FLayerStack: TFLayerStack;
-    FCanvasSize: TFCanvasSize;
-    FColorIntensity: TFColorIntensity;
-    FShiftColors: TFShiftColors;
-    FColorize: TFColorize;
-    FColorCurves: TFAdjustCurves;
-    FCustomBlur: TFCustomBlur;
+    FFormCanvasSize: TFCanvasSize;
+    FFormColorIntensity: TFColorIntensity;
+    FFormShiftColors: TFShiftColors;
+    FFormColorize: TFColorize;
+    FFormAdjustCurves: TFAdjustCurves;
+    FFormCustomBlur: TFCustomBlur;
     FLoadingLayers: TFLoading;
     FTopMostInfo: TTopMostInfo;
     FGridVisible: boolean;
@@ -158,6 +164,12 @@ type
     procedure ApplyTheme(ADarkTheme: boolean); override;
     procedure UpdateLayerControlVisibility;
     procedure UpdateChooseColorControlVisibility;
+    property FormCanvasSize: TFCanvasSize read GetFormCanvasSize;
+    property FormColorIntensity: TFColorIntensity read GetFormColorIntensity;
+    property FormShiftColors: TFShiftColors read GetFormShiftColors;
+    property FormColorize: TFColorize read GetFormColorize;
+    property FormAdjustCurves: TFAdjustCurves read GetFormAdjustCurves;
+    property FormCustomBlur: TFCustomBlur read GetFormCustomBlur;
 
   public
     constructor Create; override;
@@ -428,16 +440,6 @@ begin
   FChooseColor.LazPaintInstance := self;
   FChooseColor.DarkTheme:= Config.GetDarkTheme;
 
-  Application.CreateForm(TFCanvasSize, FCanvasSize);
-  FCanvasSize.LazPaintInstance := self;
-  Application.CreateForm(TFColorIntensity, FColorIntensity);
-  Application.CreateForm(TFShiftColors, FShiftColors);
-  Application.CreateForm(TFColorize, FColorize);
-  Application.CreateForm(TFAdjustCurves, FColorCurves);
-  Application.CreateForm(TFCustomBlur, FCustomBlur);
-  FCustomBlur.LazPaintInstance := self;
-
-
   FInFormsNeeded := false;
 end;
 
@@ -658,6 +660,54 @@ end;
 function TLazPaintInstance.GetInitialized: boolean;
 begin
   result := Assigned(FMain) and FMain.Initialized;
+end;
+
+function TLazPaintInstance.GetFormCanvasSize: TFCanvasSize;
+begin
+  if FFormCanvasSize = nil then
+  begin
+    Application.CreateForm(TFCanvasSize, FFormCanvasSize);
+    FFormCanvasSize.LazPaintInstance := self;
+  end;
+  result := FFormCanvasSize;
+end;
+
+function TLazPaintInstance.GetFormAdjustCurves: TFAdjustCurves;
+begin
+  if FFormAdjustCurves = nil then
+    Application.CreateForm(TFAdjustCurves, FFormAdjustCurves);
+  result := FFormAdjustCurves;
+end;
+
+function TLazPaintInstance.GetFormColorIntensity: TFColorIntensity;
+begin
+  if FFormColorIntensity = nil then
+    Application.CreateForm(TFColorIntensity, FFormColorIntensity);
+  result := FFormColorIntensity;
+end;
+
+function TLazPaintInstance.GetFormColorize: TFColorize;
+begin
+  if FFormColorize = nil then
+    Application.CreateForm(TFColorize, FFormColorize);
+  result := FFormColorize;
+end;
+
+function TLazPaintInstance.GetFormCustomBlur: TFCustomBlur;
+begin
+  if FFormCustomBlur = nil then
+  begin
+    Application.CreateForm(TFCustomBlur, FFormCustomBlur);
+    FFormCustomBlur.LazPaintInstance := self;
+  end;
+  result := FFormCustomBlur;
+end;
+
+function TLazPaintInstance.GetFormShiftColors: TFShiftColors;
+begin
+  if FFormShiftColors = nil then
+    Application.CreateForm(TFShiftColors, FFormShiftColors);
+  result := FFormShiftColors;
 end;
 
 procedure TLazPaintInstance.PythonScriptCommand(ASender: TObject; ACommand,
@@ -1339,12 +1389,12 @@ begin
   if FLoadingLayers <> nil then FreeAndNil(FLoadingLayers);
 
   FreeAndNil(FLayerStack);
-  FreeAndNil(FCustomBlur);
-  FreeAndNil(FColorize);
-  FreeAndNil(FColorCurves);
-  FreeAndNil(FShiftColors);
-  FreeAndNil(FColorIntensity);
-  FreeAndNil(FCanvasSize);
+  FreeAndNil(FFormCustomBlur);
+  FreeAndNil(FFormColorize);
+  FreeAndNil(FFormAdjustCurves);
+  FreeAndNil(FFormShiftColors);
+  FreeAndNil(FFormColorIntensity);
+  FreeAndNil(FFormCanvasSize);
   FreeAndNil(FChooseColor);
   FreeAndNil(FFormToolbox);
   FreeAndNil(FToolManager);

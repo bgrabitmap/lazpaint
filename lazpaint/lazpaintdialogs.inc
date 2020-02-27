@@ -21,9 +21,9 @@ begin
   FormsNeeded;
   topmostInfo := HideTopmost;
   try
-    FCanvasSize.repeatImage := False;
-    if FCanvasSize.ShowModal = mrOk then
-      Image.Assign(FCanvasSize.canvasSizeResult, true, True);
+    FormCanvasSize.repeatImage := False;
+    if FormCanvasSize.ShowModal = mrOk then
+      Image.Assign(FormCanvasSize.canvasSizeResult, true, True);
   except
     on ex:Exception do
       ShowError('ShowCanvasSizeDlg',ex.Message);
@@ -37,9 +37,9 @@ begin
   FormsNeeded;
   topmostInfo := HideTopmost;
   try
-    FCanvasSize.repeatImage := True;
-    if FCanvasSize.ShowModal = mrOk then
-      image.Assign(FCanvasSize.canvasSizeResult,true,True);
+    FormCanvasSize.repeatImage := True;
+    if FormCanvasSize.ShowModal = mrOk then
+      image.Assign(FormCanvasSize.canvasSizeResult,true,True);
   except
     on ex:Exception do
       ShowError('ShowRepeatImageDlg',ex.Message);
@@ -239,7 +239,7 @@ begin
   oldSelectionNormal := ShowSelectionNormal;
   ShowSelectionNormal := true;
   try
-    case FColorIntensity.ShowModal(self,ciIntensity,AParameters) of
+    case FormColorIntensity.ShowModal(self,ciIntensity,AParameters) of
     mrOK: result := srOk;
     else result := srCancelledByUser;
     end;
@@ -247,7 +247,7 @@ begin
     on ex:Exception do
     begin
       result := srException;
-      ShowError(FColorIntensity.Caption, ex.Message);
+      ShowError(FormColorIntensity.Caption, ex.Message);
     end;
   end;
   ShowSelectionNormal := oldSelectionNormal;
@@ -269,7 +269,7 @@ begin
   oldSelectionNormal := ShowSelectionNormal;
   ShowSelectionNormal := true;
   try
-    case FColorIntensity.ShowModal(self,ciLightness,AParameters) of
+    case FormColorIntensity.ShowModal(self,ciLightness,AParameters) of
     mrOk: result := srOk;
     else result := srCancelledByUser;
     end;
@@ -277,7 +277,7 @@ begin
     on ex:Exception do
     begin
       result := srException;
-      ShowError(FColorIntensity.Caption,ex.Message);
+      ShowError(FormColorIntensity.Caption,ex.Message);
     end;
   end;
   ShowSelectionNormal := oldSelectionNormal;
@@ -298,7 +298,7 @@ begin
   oldSelectionNormal := ShowSelectionNormal;
   ShowSelectionNormal := true;
   try
-    case FShiftColors.ShowModal(self,AParameters) of
+    case FormShiftColors.ShowModal(self,AParameters) of
     mrOk: result := srOk;
     else result := srCancelledByUser;
     end;
@@ -306,7 +306,7 @@ begin
     on ex:Exception do
     begin
       result := srException;
-      ShowError(FShiftColors.Caption,ex.Message);
+      ShowError(FormShiftColors.Caption,ex.Message);
     end;
   end;
   ShowSelectionNormal := oldSelectionNormal;
@@ -327,7 +327,7 @@ begin
   oldSelectionNormal := ShowSelectionNormal;
   ShowSelectionNormal := true;
   try
-    case FColorize.ShowModal(self,AParameters) of
+    case FormColorize.ShowModal(self,AParameters) of
     mrOk: result := srOk;
     else result := srCancelledByUser;
     end;
@@ -335,7 +335,7 @@ begin
     on ex:Exception do
     begin
       result := srException;
-      ShowError(FColorize.Caption, ex.Message);
+      ShowError(FormColorize.Caption, ex.Message);
     end;
   end;
   ShowSelectionNormal := oldSelectionNormal;
@@ -356,7 +356,7 @@ begin
   oldSelectionNormal := ShowSelectionNormal;
   ShowSelectionNormal := true;
   try
-    case FColorCurves.ShowModal(self,AParameters) of
+    case FormAdjustCurves.ShowModal(self,AParameters) of
     mrOk: result := srOk;
     else result := srCancelledByUser;
     end;
@@ -401,7 +401,7 @@ begin
   top := self.HideTopmost;
   oldSelectionNormal := ShowSelectionNormal;
   ShowSelectionNormal := true;
-  result := FCustomBlur.ShowDlg(AFilterConnector);
+  result := FormCustomBlur.ShowDlg(AFilterConnector);
   ShowSelectionNormal := oldSelectionNormal;
   self.ShowTopmost(top);
 end;
