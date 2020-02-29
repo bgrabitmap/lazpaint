@@ -1119,6 +1119,8 @@ begin
         ADest.FillPolyAntialias(pts, penScan) else
         ADest.FillPolyAntialias(pts, PenColor);
     end;
+
+    penScan.Free;
   end;
 end;
 
