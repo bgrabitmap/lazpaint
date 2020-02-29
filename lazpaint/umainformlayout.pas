@@ -71,6 +71,7 @@ type
     procedure ApplyThemeToDockedToolboxGroup(AGroupIndex: integer);
     procedure ShowToolboxGroup(AGroupIndex: integer);
     procedure HideToolboxGroup(AGroupIndex: integer);
+    procedure HideToolboxGroups;
   public
     constructor Create(AForm: TForm);
     destructor Destroy; override;
@@ -582,11 +583,20 @@ begin
   FDockedToolboxGroup[AGroupIndex].Timer.Enabled := false;
 end;
 
+procedure TMainFormLayout.HideToolboxGroups;
+var
+  i: Integer;
+begin
+  for i := 0 to High(FDockedToolboxGroup) do
+    HideToolboxGroup(i);
+end;
+
 procedure TMainFormLayout.Arrange;
 var picAreaBeforeArrange,newPicArea: TRect;
 begin
   picAreaBeforeArrange := WorkArea;
   DoArrange;
+  HideToolboxGroups;
   newPicArea := WorkArea;
   if (newPicArea.Left <> picAreaBeforeArrange.Left) or
      (newPicArea.Top <> picAreaBeforeArrange.Top) or
