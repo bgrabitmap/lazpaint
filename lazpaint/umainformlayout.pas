@@ -443,6 +443,8 @@ begin
       FPanelToolBox.Width := w;
       if FToolBoxDocking = twLeft then FPanelToolBox.Left:= Left
       else FPanelToolBox.Left:= Right-FPanelToolBox.Width;
+      for i := 0 to FDockedToolBoxToolBar.ButtonCount-1 do
+        FDockedToolBoxToolBar.Buttons[i].Top := i*FDockedToolBoxToolBar.ButtonHeight;
     end;
     if not FPanelToolBox.Visible then
     begin
