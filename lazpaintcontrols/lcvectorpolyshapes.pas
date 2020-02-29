@@ -874,12 +874,18 @@ procedure TCustomPolypointShape.MouseDown(RightButton: boolean;
   Shift: TShiftState; X, Y: single; var ACursor: TOriginalEditorCursor; var
   AHandled: boolean);
 begin
+  FMousePos := PointF(X,Y);
   if FAddingPoint then
   begin
     if not RightButton then
     begin
-      if (PointCount>1) and not PointsEqual(Points[PointCount-1],Points[PointCount-2]) then
-        AddPoint(Points[PointCount-1]);
+      if (PointCount>1) and not PointsEqual(FMousePos,Points[PointCount-2]) then
+      begin
+        BeginUpdate;
+        Points[PointCount-1] := FMousePos;
+        AddPoint(FMousePos);
+        EndUpdate;
+      end;
     end else
       Usermode := vsuEdit;
     AHandled:= true;
@@ -889,11 +895,10 @@ begin
     begin
       BeginUpdate;
       AddPoint(EmptyPointF);
-      FMousePos := PointF(X,Y);
       AddPoint(FMousePos);
       FillFit;
       EndUpdate;
-      USerMode := vsuCreate;
+      UserMode := vsuCreate;
       AHandled:= true;
     end;
   end;

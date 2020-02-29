@@ -1927,6 +1927,7 @@ begin
     if not handled and Assigned(FShape) then
     begin
       shapePt := AffineMatrixInverse(VectorTransform(true))*FLastPos;
+      If Editor.GridActive then shapePt := Editor.SnapToGrid(shapePt, false);
       FShape.MouseDown(rightBtn, ShiftState, shapePt.X,shapePt.Y, cur, handled);
     end;
     UpdateCursor(cur);
@@ -2015,6 +2016,7 @@ begin
     if not handled and Assigned(FShape) then
     begin
       shapePt := AffineMatrixInverse(VectorTransform(true))*FLastPos;
+      If Editor.GridActive then shapePt := Editor.SnapToGrid(shapePt, false);
       FShape.MouseMove(ShiftState, shapePt.X,shapePt.Y, cur, handled);
     end;
     UpdateCursor(cur);
