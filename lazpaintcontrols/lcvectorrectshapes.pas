@@ -934,7 +934,9 @@ begin
         totalSurface := penSurface;
     end else
       totalSurface := backSurface;
-    result := (totalSurface > 800*600) or ((totalSurface > 320*240) and (BackFill.IsSlow(AMatrix) or (BackFill.FillType = vftGradient)));
+    result := (totalSurface > 800*600) or
+              ((backSurface > 320*240) and BackVisible and BackFill.IsSlow(AMatrix)) or
+              ((penSurface > 320*240) and PenVisible and PenFill.IsSlow(AMatrix));
   end;
 end;
 
@@ -1374,7 +1376,9 @@ begin
         totalSurface := penSurface;
     end else
       totalSurface := backSurface;
-    result := (totalSurface > 640*480) or ((totalSurface > 320*240) and BackFill.IsSlow(AMatrix));
+    result := (totalSurface > 640*480) or
+              ((backSurface > 320*240) and BackVisible and BackFill.IsSlow(AMatrix)) or
+              ((penSurface > 320*240) and PenVisible and PenFill.IsSlow(AMatrix));
   end;
 end;
 

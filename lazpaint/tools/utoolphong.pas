@@ -17,7 +17,6 @@ type
     procedure ShapeChange({%H-}ASender: TObject; ABounds: TRectF; ADiff: TVectorShapeDiff); override;
     procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); override;
     function CreateShape: TVectorShape; override;
-    function SlowShape: boolean; override;
   public
     constructor Create(AManager: TToolManager); override;
     function GetContextualToolbars: TContextualToolbars; override;
@@ -65,11 +64,6 @@ end;
 function TToolPhong.CreateShape: TVectorShape;
 begin
   result := TPhongShape.Create(nil);
-end;
-
-function TToolPhong.SlowShape: boolean;
-begin
-  Result:= true;
 end;
 
 initialization

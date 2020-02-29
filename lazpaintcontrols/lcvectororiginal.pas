@@ -202,6 +202,7 @@ type
     function CanHaveRenderStorage: boolean;
     function AddDiffHandler(AClass: TVectorShapeDiffAny): TVectorShapeDiff;
     function GetDiffHandler(AClass: TVectorShapeDiffAny): TVectorShapeDiff;
+    function GetIsFollowingMouse: boolean; virtual;
   public
     constructor Create(AContainer: TVectorOriginal); virtual;
     class function CreateFromStorage(AStorage: TBGRACustomOriginalStorage; AContainer: TVectorOriginal): TVectorShape;
@@ -263,6 +264,7 @@ type
     property IsBack: boolean read GetIsBack;
     property IsRemoving: boolean read FRemoving;
     property Id: integer read FId write SetId;
+    property IsFollowingMouse: boolean read GetIsFollowingMouse;
   end;
   TVectorShapes = specialize TFPGList<TVectorShape>;
   TVectorShapeAny = class of TVectorShape;
@@ -376,6 +378,7 @@ type
     procedure SelectShape(AShape: TVectorShape); overload;
     procedure DeselectShape;
     function GetShapesCost: integer;
+    function PreferDraftMode(AEditor: TBGRAOriginalEditor; const AMatrix: TAffineMatrix): boolean;
     function MouseClick(APoint: TPointF; ARadius: single): boolean;
     procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); override;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
@@ -1556,6 +1559,11 @@ begin
   result := Assigned(Container) and (Container.IndexOfShape(self)=0);
 end;
 
+function TVectorShape.GetIsFollowingMouse: boolean;
+begin
+  result := false;
+end;
+
 function TVectorShape.GetIsFront: boolean;
 begin
   result := Assigned(Container) and (Container.IndexOfShape(self)=Container.ShapeCount-1);
@@ -2644,6 +2652,16 @@ begin
   result := 0;
   for i := 0 to ShapeCount-1 do
     inc(result, Shape[i].GetGenericCost);
+end;
+
+function TVectorOriginal.PreferDraftMode(AEditor: TBGRAOriginalEditor; const AMatrix: TAffineMatrix): boolean;
+begin
+  if Assigned(SelectedShape) then
+  begin
+    result := (AEditor.IsMovingPoint or SelectedShape.IsFollowingMouse) and
+              SelectedShape.GetIsSlow(AMatrix);
+  end else
+    result := false;
 end;
 
 function TVectorOriginal.MouseClick(APoint: TPointF; ARadius: single): boolean;

@@ -564,7 +564,7 @@ begin
       result := bmpTransf;
   end else
   if Assigned(FGradient) then
-    result := FGradient.CreateScanner(AMatrix)
+    result := FGradient.CreateScanner(AMatrix, ADraft)
   else if FIsSolid then
     result := TBGRAConstantScanner.Create(FColor)
   else
@@ -580,7 +580,7 @@ begin
     m := AMatrix*FTextureMatrix;
     result := not TBGRABitmap.IsAffineRoughlyTranslation(m, rect(0,0,FTexture.Width,FTexture.Height));
   end else
-    result := false;
+    result := (FillType = vftGradient);
 end;
 
 function TVectorialFill.IsFullyTransparent: boolean;

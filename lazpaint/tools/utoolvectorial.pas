@@ -29,6 +29,7 @@ type
   protected
     FLayerWasEmpty: boolean;
     FShape: TVectorShape;
+    FLastDraftUpdate: Boolean;
     FSwapColor: boolean;
     FQuickDefine: Boolean;
     FQuickDefineStartPoint, FQuickDefineEndPoint: TPointF;
@@ -50,6 +51,7 @@ type
     function RoundCoordinate(ptF: TPointF): TPointF; virtual;
     function GetIsSelectingTool: boolean; override;
     function UpdateShape(toolDest: TBGRABitmap): TRect; virtual;
+    function PreferDraftUpdate: boolean;
     function VectorTransform(APixelCentered: boolean): TAffineMatrix;
     procedure UpdateCursor(ACursor: TOriginalEditorCursor);
     function FixLayerOffset: boolean; override;
@@ -110,6 +112,7 @@ type
     FIsEditingGradient: boolean;
     procedure RetrieveLightPosition;
     procedure UpdateToolManagerFromShape(AShape: TVectorShape);
+    procedure UpdateDraftMode;
     procedure BindOriginalEvent(ABind: boolean);
     procedure SelectShape({%H-}ASender: TObject; AShape: TVectorShape; {%H-}APreviousShape: TVectorShape);
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF; rightBtn: boolean): TRect; override;
@@ -459,6 +462,15 @@ begin
   end;
 end;
 
+procedure TEditShapeTool.UpdateDraftMode;
+begin
+  case GetEditMode of
+  esmShape: Manager.Image.DraftOriginal:= GetVectorOriginal.PreferDraftMode(Manager.Image.CurrentState.LayeredBitmap.OriginalEditor, GetOriginalTransform);
+  esmNoShape: Manager.Image.DraftOriginal:= false;
+  else Manager.Image.DraftOriginal:= FLeftButton or FRightButton;
+  end;
+end;
+
 procedure TEditShapeTool.BindOriginalEvent(ABind: boolean);
 begin
   case GetCurrentLayerKind of
@@ -495,7 +507,6 @@ var
   ptView: TPointF;
 begin
   Result:= EmptyRect;
-  Manager.Image.DraftOriginal := true;
   FRightButton:= rightBtn;
   FLeftButton:= not rightBtn;
   FRectEditorCapture:= false;
@@ -542,6 +553,8 @@ var
 begin
   FLastPos := ptF;
   Result:= EmptyRect;
+  UpdateDraftMode;
+
   case GetEditMode of
   esmGradient, esmShape, esmNoShape:
     begin
@@ -1218,7 +1231,6 @@ begin
   Result:= EmptyRect;
   if FLeftButton or FRightButton then
   begin
-    Manager.Image.DraftOriginal := false;
     handled := false;
     if not handled and FRectEditorCapture and Assigned(FRectEditor) then
     begin
@@ -1328,6 +1340,8 @@ begin
     end;
     FLeftButton:= false;
     FRightButton:= false;
+    if Manager.Image.DraftOriginal then
+      UpdateDraftMode;
   end;
 end;
 
@@ -1565,7 +1579,10 @@ end;
 
 function TVectorialTool.SlowShape: boolean;
 begin
-  result := false;
+  if Assigned(FShape) then
+    result := FShape.GetIsSlow(VectorTransform(false))
+  else
+    result := false;
 end;
 
 procedure TVectorialTool.QuickDefineEnd;
@@ -1849,19 +1866,26 @@ function TVectorialTool.UpdateShape(toolDest: TBGRABitmap): TRect;
 var
   newBounds: TRect;
   oldClip: TRect;
-  draft: Boolean;
   matrix: TAffineMatrix;
 begin
   result := FPreviousUpdateBounds;
   RestoreBackupDrawingLayer;
   matrix := VectorTransform(false);
-  draft := (FRightDown or FLeftDown) and SlowShape;
-  newBounds := GetCustomShapeBounds(toolDest.ClipRect,matrix,draft);
+  FLastDraftUpdate := PreferDraftUpdate;
+  newBounds := GetCustomShapeBounds(toolDest.ClipRect,matrix,FLastDraftUpdate);
   result := RectUnion(result, newBounds);
   oldClip := toolDest.IntersectClip(newBounds);
-  DrawCustomShape(toolDest,matrix,draft);
+  DrawCustomShape(toolDest,matrix,FLastDraftUpdate);
   toolDest.ClipRect := oldClip;
   FPreviousUpdateBounds := newBounds;
+end;
+
+function TVectorialTool.PreferDraftUpdate: boolean;
+begin
+  if Assigned(FShape) then
+    result := (FEditor.IsMovingPoint or FShape.IsFollowingMouse) and SlowShape
+  else
+    result := false;
 end;
 
 function TVectorialTool.VectorTransform(APixelCentered: boolean): TAffineMatrix;
@@ -2048,7 +2072,7 @@ begin
     UpdateCursor(cur);
     result := EmptyRect;
   end;
-  if SlowShape and Assigned(FShape) then
+  if (FLastDraftUpdate and not PreferDraftUpdate) and Assigned(FShape) then
     result := UpdateShape(GetToolDrawingLayer);
 end;
 

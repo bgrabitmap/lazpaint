@@ -96,6 +96,7 @@ type
       AStrokeMatrix: TAffineMatrix): ArrayOfTPointF; override;
     function GetLoopStartIndex: integer;
     function GetLoopPointCount: integer;
+    function GetIsFollowingMouse: boolean; override;
   public
     constructor Create(AContainer: TVectorOriginal); override;
     procedure Clear;
@@ -790,6 +791,11 @@ begin
   result := PointCount-GetLoopStartIndex;
 end;
 
+function TCustomPolypointShape.GetIsFollowingMouse: boolean;
+begin
+  Result:= Usermode = vsuCreate;
+end;
+
 constructor TCustomPolypointShape.Create(AContainer: TVectorOriginal);
 begin
   inherited Create(AContainer);
@@ -1179,8 +1185,52 @@ begin
 end;
 
 function TPolylineShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;
+var pts: ArrayOfTPointF;
+  i: Integer;
+  ptsBounds: TRectF;
+  backSurface: Single;
+  penLength, zoomFactor, penSurface, totalSurface: single;
 begin
-  Result:= PointCount > 40;
+  if not PenVisible and not BackVisible or (PointCount = 0) then exit(false);
+
+  setlength(pts, PointCount);
+  for i := 0 to high(pts) do
+    pts[i] := AMatrix * Points[i];
+
+  if PenVisible then
+  begin
+    penLength := 0;
+    zoomFactor := max(VectLen(AMatrix[1,1],AMatrix[2,1]), VectLen(AMatrix[1,2],AMatrix[2,2]));
+    for i := 0 to high(pts) do
+      if (i > 0) then
+      begin
+        if pts[i-1].IsEmpty then
+        begin
+          if not pts[i].IsEmpty and (LineCap <> pecFlat) then penLength += penWidth/2*zoomFactor;
+        end else
+        if pts[i].IsEmpty then
+        begin
+          if not pts[i-1].IsEmpty and (LineCap <> pecFlat) then penLength += penWidth/2*zoomFactor;
+        end else
+          penLength += VectLen(pts[i]-pts[i-1]);
+      end;
+    penSurface := penLength*PenWidth*zoomFactor;
+  end else penSurface := 0;
+
+  if BackVisible then
+  begin
+    ptsBounds := GetPointsBoundsF(pts);
+    backSurface := ptsBounds.Width*ptsBounds.Height;
+  end else
+    backSurface := 0;
+
+  if PenVisible and BackVisible then totalSurface := backSurface+penSurface/2
+  else totalSurface := backSurface+penSurface;
+
+  Result:= (PointCount > 40) or
+           ((penSurface > 320*240) and PenFill.IsSlow(AMatrix)) or
+           ((backSurface > 320*240) and BackFill.IsSlow(AMatrix)) or
+           (totalSurface > 640*480);
 end;
 
 class function TPolylineShape.StorageClassName: RawByteString;

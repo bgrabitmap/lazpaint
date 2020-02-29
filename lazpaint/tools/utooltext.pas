@@ -26,7 +26,6 @@ type
     procedure ShapeChange(ASender: TObject; ABounds: TRectF; ADiff: TVectorShapeDiff); override;
     procedure ShapeEditingChange(ASender: TObject); override;
     procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); override;
-    function SlowShape: boolean; override;
     procedure QuickDefineEnd; override;
     function RoundCoordinate(ptF: TPointF): TPointF; override;
     function ForeGradTexMode: TVectorShapeUsermode; override;
@@ -195,11 +194,6 @@ begin
     r:= UpdateShape(toolDest);
     Action.NotifyChange(toolDest, r);
   end;
-end;
-
-function TToolText.SlowShape: boolean;
-begin
-  Result:= true;
 end;
 
 procedure TToolText.QuickDefineEnd;
