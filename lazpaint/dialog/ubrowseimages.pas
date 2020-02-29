@@ -70,6 +70,7 @@ type
     function GetCurrentDirectory: string;
     procedure SetCurrentDirectory(AValue: string);
     function AdaptExtension: boolean;
+    procedure ShellListView1SelectionChanged(Sender: TObject);
   private
     FLazPaintInstance: TLazPaintCustomInstance;
     FDefaultExtension: string;
@@ -169,7 +170,7 @@ uses BGRAThumbnail, BGRAPaintNet, BGRAOpenRaster, BGRAReadLzp,
     Types, UResourceStrings,
     UConfig, bgrareadjpeg, FPReadJPEG,
     UFileExtensions, BGRAUTF8, LazFileUtils,
-    UGraph, URaw, UDarkTheme;
+    UGraph, URaw, UDarkTheme, ShellCtrls;
 
 var
   IconCache: TStringList;
@@ -292,8 +293,10 @@ begin
   SetShellMask;
   ShellListView1.OnDblClick := @ShellListView1DblClick;
   ShellListView1.OnSelectItem := @ShellListView1SelectItem;
+  ShellListView1.OnSelectionChanged:=@ShellListView1SelectionChanged;
   ShellListView1.OnSort := @ShellListView1OnSort;
   ShellListView1.OnFormatType := @ShellListView1OnFormatType;
+  ShellListView1.SelectAllAction := [otNonFolders];
 
   BGRAPaintNet.RegisterPaintNetFormat;
   BGRAOpenRaster.RegisterOpenRasterFormat;
@@ -474,20 +477,19 @@ begin
   wasTimer := Timer1.Enabled;
   Timer1.Enabled := false;
 
-  if not InFilenameChange and ShellListView1.ItemSelected[Item] then
+  if not InFilenameChange and Selected then
   begin
     InFilenameChange := true;
     Edit_Filename.Text := ShellListView1.ItemName[Item];
     InFilenameChange := false;
   end;
 
-  if ShellListView1.ItemSelected[Item] and not ShellListView1.ItemIsFolder[Item] then
+  if Selected and not ShellListView1.ItemIsFolder[Item] then
     UpdatePreview(ShellListView1.ItemFullName[Item])
   else
     if FPreviewFilename = ShellListView1.ItemFullName[Item] then
       UpdatePreview('');
 
-  UpdateToolButtonOpen;
   Timer1.Enabled := wasTimer;
 end;
 
@@ -722,6 +724,11 @@ begin
   end
   else
     result := false;
+end;
+
+procedure TFBrowseImages.ShellListView1SelectionChanged(Sender: TObject);
+begin
+  UpdateToolButtonOpen;
 end;
 
 procedure TFBrowseImages.UpdateToolButtonOpen;
