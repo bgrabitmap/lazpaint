@@ -2953,7 +2953,7 @@ msgstr "Selectie is leeg"
 
 #: uresourcestrings.rsendwithoutmatchingbegin
 msgid "End without matching begin"
-msgstr ""
+msgstr "Einde zonder begin"
 
 #: uresourcestrings.rsenterfolderorcontainername
 msgid "Enter name for new folder or container (using RES or LRS extension):"

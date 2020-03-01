@@ -43,7 +43,7 @@ msgstr "Verloop/textuurpunten bewerken"
 
 #: lcresourcestring.rsendopacity
 msgid "End opacity"
-msgstr ""
+msgstr "Einde opaciteit"
 
 #: lcresourcestring.rsgradientangular
 msgid "Angular"
@@ -75,7 +75,7 @@ msgstr "Verloopherhaling"
 
 #: lcresourcestring.rsgrpad
 msgid "Pad"
-msgstr ""
+msgstr "Opvullen"
 
 #: lcresourcestring.rsgrreflect
 msgid "Reflect"
@@ -111,7 +111,7 @@ msgstr "Geen vulling"
 
 #: lcresourcestring.rsnottexturefill
 msgid "It is not a texture fill"
-msgstr ""
+msgstr "Het is geen textuurvulling"
 
 #: lcresourcestring.rsopacity
 msgid "Opacity"
@@ -123,11 +123,11 @@ msgstr "Voorbeeld"
 
 #: lcresourcestring.rsshapeclassnotspecified
 msgid "Shape class not specified"
-msgstr ""
+msgstr "Vormklasse niet gespecificeerd"
 
 #: lcresourcestring.rsshapenotfound
 msgid "Shape not found"
-msgstr ""
+msgstr "Vorm niet gevonden"
 
 #: lcresourcestring.rssolidcolor
 msgid "Solid color"
@@ -135,7 +135,7 @@ msgstr "Monochroom"
 
 #: lcresourcestring.rsstartopacity
 msgid "Start opacity"
-msgstr ""
+msgstr "Start dekking"
 
 #: lcresourcestring.rsswapcolors
 msgid "Swap colors"
@@ -167,5 +167,5 @@ msgstr "Y herhalen"
 
 #: lcresourcestring.rsunknownshapeclass
 msgid "Unknown shape class \"%1\""
-msgstr ""
+msgstr "Onbekende vormklasse \"%1\""
 
