@@ -1,0 +1,3574 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Project-Id-Version: Lazpaint 7.0.7\n"
+"POT-Creation-Date: 2020-02-29 23:18+0800\n"
+"PO-Revision-Date: 2020-03-01 13:30+0800\n"
+"Last-Translator: backdream <backdream@yeah.net>\n"
+"Language-Team: backdream (backdream@yeah.net)\n"
+"MIME-Version: 1.0\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: zh_CN\n"
+"X-Generator: Poedit 2.3\n"
+
+#: tablet.getprocfailed
+msgid "Procedure %s failed to load properly."
+msgstr "过程 %s 无法正确加载。"
+
+#: tablet.openfailed
+msgid "Tablet context failed to open."
+msgstr "无法打开平板上下文。"
+
+#: tfabout.button_donate.caption
+msgctxt "tfabout.button_donate.caption"
+msgid "Donate..."
+msgstr "捐赠..."
+
+#: tfabout.caption
+msgctxt "tfabout.caption"
+msgid "About"
+msgstr "关于"
+
+#: tfabout.labelurl.caption
+msgid "http://sourceforge.net/projects/lazpaint/"
+msgstr "http://sourceforge.net/projects/lazpaint/"
+
+#: tfabout.label_authors.caption
+msgctxt "tfabout.label_authors.caption"
+msgid "Authors:"
+msgstr "作者："
+
+#: tfabout.label_authorsvalue.caption
+msgctxt "tfabout.label_authorsvalue.caption"
+msgid "Circular helped by FabienWang, Lainz and others"
+msgstr "FabienWang, Lainz 等"
+
+#: tfabout.label_homepage.caption
+msgctxt "tfabout.label_homepage.caption"
+msgid "Homepage:"
+msgstr "网页："
+
+#: tfabout.label_libraries.caption
+msgctxt "tfabout.label_libraries.caption"
+msgid "Libraries used:"
+msgstr "使用的库："
+
+#: tfabout.label_licence.caption
+msgctxt "tfabout.label_licence.caption"
+msgid "Licence:"
+msgstr "许可："
+
+#: tfabout.label_opensource.caption
+msgctxt "tfabout.label_opensource.caption"
+msgid "Open source (GPLv3)"
+msgstr "开源（GPLv3）"
+
+#: tfadjustcurves.button_cancel.caption
+msgctxt "tfadjustcurves.button_cancel.caption"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfadjustcurves.button_ok.caption
+msgctxt "tfadjustcurves.button_ok.caption"
+msgid "OK"
+msgstr "确定"
+
+#: tfadjustcurves.caption
+msgid "Adjust curves"
+msgstr "调整曲线"
+
+#: tfadjustcurves.toolbutton_newcurve.hint
+msgid "Discard current curve and start a new one"
+msgstr "放弃当前曲线并启动新曲线"
+
+#: tfadjustcurves.toolbutton_posterize.hint
+msgctxt "tfadjustcurves.toolbutton_posterize.hint"
+msgid "Posterize"
+msgstr "海报"
+
+#: tfadjustcurves.toolbutton_removepoint.hint
+msgid "Remove selected point (Del)"
+msgstr "删除选中的点 (Del)"
+
+#: tfblendop.button_cancel.caption
+msgctxt "tfblendop.button_cancel.caption"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfblendop.button_ok.caption
+msgctxt "tfblendop.button_ok.caption"
+msgid "OK"
+msgstr "确定"
+
+#: tfblendop.caption
+msgid "Blend operation"
+msgstr "混合操作"
+
+#: tfblendop.label_blendopcategory.caption
+msgctxt "tfblendop.label_blendopcategory.caption"
+msgid "Category of blend operation"
+msgstr "混合操作类别"
+
+#: tfblendop.label_blendopvalue.caption
+msgctxt "tfblendop.label_blendopvalue.caption"
+msgid "."
+msgstr "."
+
+#: tfblendop.label_kritaover.caption
+msgctxt "tfblendop.label_kritaover.caption"
+msgid "Krita"
+msgstr "Krita"
+
+#: tfblendop.label_kritaover.hint
+msgid "Blend operations that are available in Krita"
+msgstr "Krita 中可用的混合操作"
+
+#: tfblendop.label_otherover.caption
+msgctxt "tfblendop.label_otherover.caption"
+msgid "Other"
+msgstr "其他"
+
+#: tfblendop.label_otherover.hint
+msgid "Blend operations of LazPaint and Paint.NET"
+msgstr "LazPaint 和Paint.NET的混合操作"
+
+#: tfblendop.label_patternover.caption
+msgctxt "tfblendop.label_patternover.caption"
+msgid "Pattern over"
+msgstr "模式覆盖"
+
+#: tfblendop.label_patternover.hint
+msgid "Preview blend operation with the specified image on top"
+msgstr "使用最上方的指定图像预览混合操作"
+
+#: tfblendop.label_patternunder.caption
+msgctxt "tfblendop.label_patternunder.caption"
+msgid "Pattern under"
+msgstr "模式"
+
+#: tfblendop.label_patternunder.hint
+msgid "Preview blend operation with the specified image underneath"
+msgstr "使用最下方的指定图像预览混合操作"
+
+#: tfblendop.label_previewwith.caption
+msgctxt "tfblendop.label_previewwith.caption"
+msgid "Preview with"
+msgstr "预览"
+
+#: tfblendop.label_selectedblendop.caption
+msgid "Selected blend operation :"
+msgstr "选择混合操作："
+
+#: tfblendop.label_svgover.caption
+msgctxt "tfblendop.label_svgover.caption"
+msgid "Basic SVG"
+msgstr "基本 SVG"
+
+#: tfblendop.label_svgover.hint
+msgid "Basic blend operations that are available in virtually all image editors"
+msgstr "几乎所有图像编辑器都提供的基本混合操作"
+
+#: tfbrowseimages.caption
+msgid "Browse images"
+msgstr "浏览图片"
+
+#: tfbrowseimages.checkbox_usedirectoryonstartup.caption
+msgid "Use this directory on startup"
+msgstr "启动时使用此目录"
+
+#: tfbrowseimages.label_status.caption
+msgctxt "tfbrowseimages.label_status.caption"
+msgid "."
+msgstr "."
+
+#: tfbrowseimages.toolbutton_createfolderorcontainer.hint
+msgid "Create folder or container"
+msgstr "创建文件夹或容器"
+
+#: tfbrowseimages.toolbutton_goup.hint
+msgid "Go one directory up"
+msgstr "向上一级目录"
+
+#: tfbrowseimages.toolbutton_openselectedfiles.hint
+msgid "Open selected files"
+msgstr "打开所选文件"
+
+#: tfbrowseimages.toolbutton_viewbigicon.hint
+msgctxt "tfbrowseimages.toolbutton_viewbigicon.hint"
+msgid "Show big icons"
+msgstr "显示大图标"
+
+#: tfbrowseimages.toolbutton_viewdetails.hint
+msgctxt "tfbrowseimages.toolbutton_viewdetails.hint"
+msgid "Show details and preview"
+msgstr "显示详细信息和预览"
+
+#: tfbrowseimages.tool_selectdrive.hint
+msgid "Select drive"
+msgstr "选择驱动器"
+
+#: tfcanvassize.button_cancel.caption
+msgctxt "TFCANVASSIZE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfcanvassize.button_ok.caption
+msgctxt "TFCANVASSIZE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "确定"
+
+#: tfcanvassize.caption
+msgctxt "tfcanvassize.caption"
+msgid "Canvas size"
+msgstr "画布大小"
+
+#: tfcanvassize.checkbox_flipmode.caption
+msgid "Flip mode"
+msgstr "翻转模式"
+
+#: tfcanvassize.label_anchor.caption
+msgctxt "tfcanvassize.label_anchor.caption"
+msgid "Anchor :"
+msgstr "链接 :"
+
+#: tfcanvassize.label_height.caption
+msgctxt "tfcanvassize.label_height.caption"
+msgid "Height :"
+msgstr "高度 :"
+
+#: tfcanvassize.label_width.caption
+msgctxt "tfcanvassize.label_width.caption"
+msgid "Width :"
+msgstr "宽度 :"
+
+#: tfchoosecolor.bcbutton_addtopalette.hint
+msgid "Add color to palette"
+msgstr "向调色板添加颜色"
+
+#: tfchoosecolor.bcbutton_removefrompalette.hint
+msgid "Remove color from palette"
+msgstr "从调色板中删除颜色"
+
+#: tfchoosecolor.caption
+msgctxt "tfchoosecolor.caption"
+msgid "Color"
+msgstr "颜色"
+
+#: tfchoosecolor.lcolor.hint
+msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
+msgstr "颜色说明：单击以键入颜色名称或 CSS 表示。"
+
+#: tfcolorintensity.button_cancel.caption
+msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfcolorintensity.button_ok.caption
+msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "确定"
+
+#: tfcolorintensity.caption
+msgctxt "tfcolorintensity.caption"
+msgid "Intensity"
+msgstr "强度"
+
+#: tfcolorintensity.label_multiply.caption
+msgctxt "tfcolorintensity.label_multiply.caption"
+msgid "Multiply"
+msgstr "倍增"
+
+#: tfcolorintensity.label_shift.caption
+msgctxt "tfcolorintensity.label_shift.caption"
+msgid "Shift"
+msgstr "位移"
+
+#: tfcolorize.button_cancel.caption
+msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfcolorize.button_ok.caption
+msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "确定"
+
+#: tfcolorize.caption
+msgctxt "tfcolorize.caption"
+msgid "Colorize"
+msgstr "着色"
+
+#: tfcolorize.checkbox_gsba.caption
+msgctxt "tfcolorize.checkbox_gsba.caption"
+msgid "Corrected hue and lightness"
+msgstr "修正色调和亮度"
+
+#: tfcolorize.label_colorness.caption
+msgctxt "tfcolorize.label_colorness.caption"
+msgid "Colorness"
+msgstr "色彩"
+
+#: tfcolorize.label_hue.caption
+msgctxt "tfcolorize.label_hue.caption"
+msgid "Hue"
+msgstr "色调"
+
+#: tfcolorize.label_preset.caption
+msgid "Preset"
+msgstr "预设"
+
+#: tfcustomblur.button_cancel.caption
+msgctxt "TFCUSTOMBLUR.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfcustomblur.button_editmask.caption
+msgid "Edit mask..."
+msgstr "编辑蒙版..."
+
+#: tfcustomblur.button_loadmask.caption
+msgid "Load mask..."
+msgstr "加载蒙版..."
+
+#: tfcustomblur.button_ok.caption
+msgctxt "TFCUSTOMBLUR.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "确定"
+
+#: tfcustomblur.caption
+msgctxt "tfcustomblur.caption"
+msgid "Custom blur"
+msgstr "自定义模糊"
+
+#: tfcustomblur.openpicturedialog1.title
+msgid "Open grayscale file"
+msgstr "打开灰度文件"
+
+#: tfemboss.button_cancel.caption
+msgctxt "TFEMBOSS.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfemboss.button_ok.caption
+msgctxt "TFEMBOSS.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "确定"
+
+#: tfemboss.caption
+msgctxt "tfemboss.caption"
+msgid "Emboss"
+msgstr "浮雕"
+
+#: tfemboss.checkbox_preservecolors.caption
+msgid "Preserve colors"
+msgstr "保留颜色"
+
+#: tfemboss.checkbox_transparent.caption
+msgid "Transparent"
+msgstr "透明"
+
+#: tfemboss.label_direction.caption
+msgctxt "tfemboss.label_direction.caption"
+msgid "Direction :"
+msgstr "方向 :"
+
+#: tffilterfunction.button_cancel.caption
+msgctxt "tffilterfunction.button_cancel.caption"
+msgid "Cancel"
+msgstr "取消"
+
+#: tffilterfunction.button_ok.caption
+msgctxt "tffilterfunction.button_ok.caption"
+msgid "OK"
+msgstr "确定"
+
+#: tffilterfunction.caption
+msgid "Apply function"
+msgstr "应用函数"
+
+#: tffilterfunction.checkbox_gamma.caption
+msgid "Gamma correction"
+msgstr "伽玛校正"
+
+#: tffilterfunction.checkbox_gsba.caption
+msgctxt "tffilterfunction.checkbox_gsba.caption"
+msgid "Corrected hue and lightness"
+msgstr "修正色调和亮度"
+
+#: tffilterfunction.label_alphaequals.caption
+msgctxt "tffilterfunction.label_alphaequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_blueequals.caption
+msgctxt "tffilterfunction.label_blueequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_greenequals.caption
+msgctxt "tffilterfunction.label_greenequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_hueequals.caption
+msgctxt "tffilterfunction.label_hueequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_lightnessequals.caption
+msgctxt "tffilterfunction.label_lightnessequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_redequals.caption
+msgctxt "tffilterfunction.label_redequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_saturationequals.caption
+msgctxt "tffilterfunction.label_saturationequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_variables.caption
+msgid "Variables :"
+msgstr "变量 :"
+
+#: tffilterfunction.tabsheet_hsl.caption
+msgid "HSL"
+msgstr "HSL"
+
+#: tffilterfunction.tabsheet_rgb.caption
+msgctxt "tffilterfunction.tabsheet_rgb.caption"
+msgid "RGB"
+msgstr "RGB"
+
+#: tfgeometricbrush.button_cancel.caption
+msgctxt "tfgeometricbrush.button_cancel.caption"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfgeometricbrush.button_ok.caption
+msgctxt "tfgeometricbrush.button_ok.caption"
+msgid "OK"
+msgstr "确定"
+
+#: tfgeometricbrush.caption
+msgid "Geometric brush"
+msgstr "几何笔刷"
+
+#: tfgeometricbrush.checkbox_isgradient.caption
+msgid "Opacity gradient"
+msgstr "透明度渐变"
+
+#: tfgeometricbrush.label1.caption
+msgid "Number of sides:"
+msgstr "边数 :"
+
+#: tfimagelist.caption
+msgid "Image List"
+msgstr "图像列表"
+
+#: tfimagelist.pmautouncheckonopen.caption
+msgid "Autouncheck files after being open"
+msgstr ""
+
+#: tfimagelist.pmautouncheckonsave.caption
+msgid "Autouncheck files after being edited and saved"
+msgstr ""
+
+#: tfimagelist.pmremoveall.caption
+msgid "Empty image list"
+msgstr "空图像列表"
+
+#: tfimagelist.pmremovenonexistent.caption
+msgid "Remove nonexistent images"
+msgstr "删除不存在的图像"
+
+#: tfimagelist.pmremoveunchecked.caption
+msgid "Remove unchecked images"
+msgstr "删除未选中的图像"
+
+#: tfimagelist.pmunchecknonexistent.caption
+msgid "Uncheck nonexistent files"
+msgstr "取消选中不存在的文件"
+
+#: tfimagelist.stringgrid1.columns[0].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[0].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.stringgrid1.columns[1].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[1].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.stringgrid1.columns[2].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[2].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.stringgrid1.columns[3].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[3].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.tbaddfiles.hint
+msgid "Add images to list"
+msgstr "将图像添加到列表"
+
+#: tfimagelist.tbautouncheck.hint
+msgid "Enable/disable autounchecking for processed files"
+msgstr "启用/禁用 自动取消已处理文件"
+
+#: tfimagelist.tbautozoomfit.hint
+msgid "Enable/disable autofitting images in the LazPaint window"
+msgstr "启用/禁用 在 LazPaint 窗口中自动适应图像"
+
+#: tfimagelist.tbcheckall.hint
+msgid "Check all files for processing"
+msgstr "选中所有待处理文件"
+
+#: tfimagelist.tbminiwindow.hint
+msgid "Switch to miniwindow"
+msgstr "切换到迷你窗口"
+
+#: tfimagelist.tbmovedown.hint
+msgid "Move selected items down"
+msgstr "向下移动选定项目"
+
+#: tfimagelist.tbmoveup.hint
+msgid "Move selected items up"
+msgstr "向上移动选定项目"
+
+#: tfimagelist.tbnormalwindows.hint
+msgid "Switch to normal window"
+msgstr "切换到普通窗口"
+
+#: tfimagelist.tbopenimage.hint
+msgid "Open current image"
+msgstr "打开当前图像"
+
+#: tfimagelist.tbopennext.hint
+msgctxt "tfimagelist.tbopennext.hint"
+msgid "Open next image (Alt-Right)"
+msgstr "打开下一个图像 (Alt-Right)"
+
+#: tfimagelist.tbopennextsw.hint
+msgctxt "tfimagelist.tbopennextsw.hint"
+msgid "Open next image"
+msgstr "打开下一个图像"
+
+#: tfimagelist.tbopenprev.hint
+msgctxt "tfimagelist.tbopenprev.hint"
+msgid "Open previous image (Alt-Left)"
+msgstr "打开上一个图像 (Alt-Left)"
+
+#: tfimagelist.tbopenprevsw.hint
+msgctxt "tfimagelist.tbopenprevsw.hint"
+msgid "Open previous image"
+msgstr "打开上一个图像"
+
+#: tfimagelist.tbremoveitem.hint
+msgid "Remove selected images from list"
+msgstr "从列表中删除选定图像"
+
+#: tfimagelist.tbuncheckall.hint
+msgid "Uncheck all files for processing"
+msgstr "取消选中所有待处理文件"
+
+#: tflayerstack.caption
+msgctxt "tflayerstack.caption"
+msgid "Layers"
+msgstr "图层"
+
+#: tflayerstack.toolblendop.hint
+msgctxt "tflayerstack.toolblendop.hint"
+msgid "Select blend operation"
+msgstr "选择混合操作"
+
+#: tflayerstack.toolzoomlayerstackin.hint
+msgctxt "tflayerstack.toolzoomlayerstackin.hint"
+msgid "Zoom layer stack in"
+msgstr "将图层堆栈放大"
+
+#: tflayerstack.toolzoomlayerstackout.hint
+msgctxt "tflayerstack.toolzoomlayerstackout.hint"
+msgid "Zoom layer stack out"
+msgstr "将图层堆栈缩小"
+
+#: tfloading.caption
+msgctxt "tfloading.caption"
+msgid "Loading..."
+msgstr "加载..."
+
+#: tfmain.brushcreategeometric.hint
+msgctxt "tfmain.brushcreategeometric.hint"
+msgid "Create geometric brush"
+msgstr "创建几何画笔"
+
+#: tfmain.brushloadfromfile.hint
+msgctxt "tfmain.brushloadfromfile.hint"
+msgid "Load brush from file..."
+msgstr "从文件加载画笔..."
+
+#: tfmain.brushremovecurrent.hint
+msgid "Remove current brush"
+msgstr "移除当前画笔"
+
+#: tfmain.caption
+msgctxt "tfmain.caption"
+msgid "LazPaint"
+msgstr "LazPaint"
+
+#: tfmain.colorcolorize.caption
+msgid "Colorize..."
+msgstr "着色..."
+
+#: tfmain.colorcurves.caption
+msgid "Curves..."
+msgstr "曲线..."
+
+#: tfmain.colordialog1.title
+msgid "Choose color"
+msgstr "选择颜色"
+
+#: tfmain.colorintensity.caption
+msgid "Intensity..."
+msgstr "强度..."
+
+#: tfmain.colorlightness.caption
+msgid "Brightness / Contrast..."
+msgstr "亮度/对比度..."
+
+#: tfmain.colorposterize.caption
+msgid "Posterize..."
+msgstr "海报..."
+
+#: tfmain.colorshiftcolors.caption
+msgctxt "tfmain.colorshiftcolors.caption"
+msgid "Shift colors..."
+msgstr "转移颜色..."
+
+#: tfmain.combobox_penstyle.hint
+msgid "Pen style"
+msgstr "线型"
+
+#: tfmain.editcopy.caption
+msgid "Copy"
+msgstr "复制"
+
+#: tfmain.editcopy.hint
+msgid "Copy selection"
+msgstr "复制选择"
+
+#: tfmain.editcut.caption
+msgid "Cut"
+msgstr "剪切"
+
+#: tfmain.editcut.hint
+msgid "Cut selection"
+msgstr "剪切选择"
+
+#: tfmain.editdeleteselection.caption
+msgctxt "tfmain.editdeleteselection.caption"
+msgid "Delete"
+msgstr "删除"
+
+#: tfmain.editdeleteselection.hint
+msgid "Delete selection"
+msgstr "删除选择"
+
+#: tfmain.editdeselect.hint
+msgctxt "TFMAIN.EDITDESELECT.HINT"
+msgid "Deselect"
+msgstr "取消选择"
+
+#: tfmain.editinvertselection.hint
+msgctxt "TFMAIN.EDITINVERTSELECTION.HINT"
+msgid "Invert selection"
+msgstr "反选"
+
+#: tfmain.editmovedown.hint
+msgid "Move down"
+msgstr "下移"
+
+#: tfmain.editmovetoback.hint
+msgid "Send to back"
+msgstr "发送回"
+
+#: tfmain.editmovetofront.hint
+msgid "Bring to front"
+msgstr "返回前台"
+
+#: tfmain.editmoveup.hint
+msgid "Move up"
+msgstr "上移"
+
+#: tfmain.editpaste.hint
+msgctxt "TFMAIN.EDITPASTE.HINT"
+msgid "Paste"
+msgstr "粘贴"
+
+#: tfmain.editpasteasnew.caption
+msgid "Paste as new image"
+msgstr "粘贴为新图像"
+
+#: tfmain.editpasteasnewlayer.caption
+msgid "Paste as new layer"
+msgstr "粘贴为新图层"
+
+#: tfmain.editredo.hint
+msgctxt "TFMAIN.EDITREDO.HINT"
+msgid "Redo"
+msgstr "重做"
+
+#: tfmain.editselectall.caption
+msgctxt "tfmain.editselectall.caption"
+msgid "Select all"
+msgstr "全选"
+
+#: tfmain.editselectall.hint
+msgctxt "tfmain.editselectall.hint"
+msgid "Select all"
+msgstr "全选"
+
+#: tfmain.editselection.caption
+msgid "Edit selection..."
+msgstr "编辑选区..."
+
+#: tfmain.editselectionfit.caption
+msgid "Selection fit"
+msgstr "自适应选择"
+
+#: tfmain.editshapealignbottom.hint
+msgid "Align shape to the bottom"
+msgstr "向底部对齐形状"
+
+#: tfmain.editshapealignleft.hint
+msgid "Align shape left"
+msgstr "向左对齐形状"
+
+#: tfmain.editshapealignright.hint
+msgid "Align shape right"
+msgstr "向右对齐形状"
+
+#: tfmain.editshapealigntop.hint
+msgid "Align shape to the top"
+msgstr "向顶部对齐形状"
+
+#: tfmain.editshapecenterhorizontally.hint
+msgid "Center shape horizontally"
+msgstr "水平居中形状"
+
+#: tfmain.editshapecentervertically.hint
+msgid "Center shape vertically"
+msgstr "垂直居中形状"
+
+#: tfmain.editshapetocurve.hint
+msgid "Convert shape to curve"
+msgstr "将形状转换为曲线"
+
+#: tfmain.editundo.caption
+msgid "Undo"
+msgstr "撤销"
+
+#: tfmain.editundo.hint
+msgid "Undo last modification"
+msgstr "撤销最后一次更改"
+
+#: tfmain.embeddedcancel.caption
+msgctxt "TFMAIN.EMBEDDEDCANCEL.CAPTION"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfmain.embeddedcancel.hint
+msgid "Cancel modifications"
+msgstr "取消更改"
+
+#: tfmain.embeddedvalidate.caption
+msgid "Validate"
+msgstr "确认"
+
+#: tfmain.embeddedvalidate.hint
+msgid "Validate modifications"
+msgstr "确认更改"
+
+#: tfmain.exportpicturedialog.title
+msgid "Export as..."
+msgstr "导出为..."
+
+#: tfmain.filechooseentry.caption
+msgid "Choose entry..."
+msgstr "选择条目..."
+
+#: tfmain.filechooseentry.hint
+msgid "Choose entry within file"
+msgstr "选择文件中的条目"
+
+#: tfmain.fileexport.caption
+msgid "Export..."
+msgstr "导出..."
+
+#: tfmain.fileimport3d.caption
+msgid "Import 3D object..."
+msgstr "导入 3D 对象..."
+
+#: tfmain.fileloadselection.caption
+msgid "Load selection..."
+msgstr "加载选区..."
+
+#: tfmain.filenew.caption
+msgid "New..."
+msgstr "新建..."
+
+#: tfmain.filenew.hint
+msgid "Create a new file"
+msgstr "新建新文件"
+
+#: tfmain.fileopen.caption
+msgid "Open..."
+msgstr "打开..."
+
+#: tfmain.fileopen.hint
+msgctxt "TFMAIN.FILEOPEN.HINT"
+msgid "Open existing file"
+msgstr "打开文件"
+
+#: tfmain.fileprint.caption
+msgid "Print..."
+msgstr "打印..."
+
+#: tfmain.filequit.hint
+msgctxt "TFMAIN.FILEQUIT.HINT"
+msgid "Quit"
+msgstr "退出"
+
+#: tfmain.filereload.caption
+msgctxt "tfmain.filereload.caption"
+msgid "Reload"
+msgstr "重新加载"
+
+#: tfmain.fileremembersaveformat.hint
+msgid "Remember save format"
+msgstr "记住保存格式"
+
+#: tfmain.filerunscript.caption
+msgid "Run script..."
+msgstr "运行脚本..."
+
+#: tfmain.filesave.caption
+msgctxt "TFMAIN.FILESAVE.CAPTION"
+msgid "Save"
+msgstr "保存"
+
+#: tfmain.filesave.hint
+msgid "Save current file"
+msgstr "保存当前文件"
+
+#: tfmain.filesaveas.caption
+msgid "Save as..."
+msgstr "保存为..."
+
+#: tfmain.filesaveas.hint
+msgid "Save file as"
+msgstr "另存为"
+
+#: tfmain.filesaveasinsamefolder.caption
+msgid "Save in same folder..."
+msgstr "保存在同一文件夹中..."
+
+#: tfmain.filesaveselectionas.caption
+msgctxt "TFMAIN.FILESAVESELECTIONAS.CAPTION"
+msgid "Save selection as..."
+msgstr "选区另存为..."
+
+#: tfmain.fileuseimagebrowser.caption
+msgctxt "tfmain.fileuseimagebrowser.caption"
+msgid "Use image browser"
+msgstr "使用图像浏览器"
+
+#: tfmain.filterblurbox.caption
+msgid "Box blur..."
+msgstr "框形模糊..."
+
+#: tfmain.filterblurcorona.caption
+msgctxt "tfmain.filterblurcorona.caption"
+msgid "Corona blur..."
+msgstr "科罗纳模糊..."
+
+#: tfmain.filterblurcustom.caption
+msgctxt "tfmain.filterblurcustom.caption"
+msgid "Custom blur..."
+msgstr "自定义模糊..."
+
+#: tfmain.filterblurdisk.caption
+msgctxt "tfmain.filterblurdisk.caption"
+msgid "Disk blur..."
+msgstr "盘形模糊..."
+
+#: tfmain.filterblurfast.caption
+msgctxt "tfmain.filterblurfast.caption"
+msgid "Fast blur..."
+msgstr "快速模糊..."
+
+#: tfmain.filterblurmotion.caption
+msgctxt "tfmain.filterblurmotion.caption"
+msgid "Motion blur..."
+msgstr "运动模糊..."
+
+#: tfmain.filterblurprecise.caption
+msgctxt "tfmain.filterblurprecise.caption"
+msgid "Precise blur..."
+msgstr "精确模糊..."
+
+#: tfmain.filterblurradial.caption
+msgctxt "tfmain.filterblurradial.caption"
+msgid "Gaussian blur..."
+msgstr "高斯模糊..."
+
+#: tfmain.filtercleartype.caption
+msgid "ClearType"
+msgstr "清除类型"
+
+#: tfmain.filtercleartypeinverse.caption
+msgid "Inverse ClearType"
+msgstr "反向清除类型"
+
+#: tfmain.filtercomplementarycolor.caption
+msgid "Complementary colors"
+msgstr "互补颜色"
+
+#: tfmain.filtercontour.caption
+msgid "Contour"
+msgstr "轮廓"
+
+#: tfmain.filtercylinder.caption
+msgid "Cylinder"
+msgstr "圆柱体"
+
+#: tfmain.filteremboss.caption
+msgid "Emboss..."
+msgstr "浮雕..."
+
+#: tfmain.filterfunction.caption
+msgid "Apply function..."
+msgstr "应用函数..."
+
+#: tfmain.filtergrayscale.caption
+msgid "Grayscale"
+msgstr "灰度"
+
+#: tfmain.filterlinearnegative.caption
+msgctxt "tfmain.filterlinearnegative.caption"
+msgid "Linear negative"
+msgstr "线性反转"
+
+#: tfmain.filtermedian.caption
+msgid "Median"
+msgstr "平均"
+
+#: tfmain.filternegative.caption
+msgctxt "tfmain.filternegative.caption"
+msgid "Negative"
+msgstr "反转"
+
+#: tfmain.filternoise.caption
+msgid "Noise filter..."
+msgstr "噪声..."
+
+#: tfmain.filternormalize.caption
+msgid "Normalize"
+msgstr "正常化"
+
+#: tfmain.filterphong.caption
+msgctxt "tfmain.filterphong.caption"
+msgid "Shaded map..."
+msgstr "阴影映射..."
+
+#: tfmain.filterpixelate.caption
+msgid "Pixelate..."
+msgstr "像素化..."
+
+#: tfmain.filterplane.caption
+msgid "Plane (slow)"
+msgstr "平面 (慢速)"
+
+#: tfmain.filterrain.caption
+msgid "Rain..."
+msgstr "雨..."
+
+#: tfmain.filtersharpen.caption
+msgid "Sharpen..."
+msgstr "锐化..."
+
+#: tfmain.filtersmooth.caption
+msgid "Smooth"
+msgstr "平滑"
+
+#: tfmain.filtersphere.caption
+msgctxt "TFMAIN.FILTERSPHERE.CAPTION"
+msgid "Sphere"
+msgstr "球面"
+
+#: tfmain.filtertwirl.caption
+msgid "Twirl..."
+msgstr "卷曲..."
+
+#: tfmain.filterwavedisplacement.caption
+msgid "Wave diplacement..."
+msgstr "波形移位..."
+
+#: tfmain.forgetdialoganswers.caption
+msgid "Forget dialog box answers"
+msgstr "遗忘对话框答案"
+
+#: tfmain.forgetdialoganswers.hint
+msgid "Forget answers given to dialog boxes"
+msgstr "遗忘给对话框的答案"
+
+#: tfmain.helpabout.caption
+msgid "About..."
+msgstr "关于..."
+
+#: tfmain.helpindex.caption
+msgid "Index..."
+msgstr "索引..."
+
+#: tfmain.imagechangecanvassize.caption
+msgid "Canvas size..."
+msgstr "画布大小..."
+
+#: tfmain.imageclearalpha.caption
+msgid "Clear alpha channel and set background"
+msgstr "清除 Alpha 通道并设置背景"
+
+#: tfmain.imagecrop.caption
+msgid "Crop to selection"
+msgstr "裁剪到选择"
+
+#: tfmain.imagecroplayer.caption
+msgid "Crop to selection and current layer"
+msgstr "裁剪到选择和当前图层"
+
+#: tfmain.imagefillbackground.caption
+msgid "Fill background with antialiasing"
+msgstr "使用防锯齿填充背景"
+
+#: tfmain.imageflatten.caption
+msgid "Flatten image"
+msgstr "拼合图像"
+
+#: tfmain.imagehorizontalflip.caption
+msgctxt "tfmain.imagehorizontalflip.caption"
+msgid "Horizontal flip"
+msgstr "水平翻转"
+
+#: tfmain.imagehorizontalflip.hint
+msgctxt "tfmain.imagehorizontalflip.hint"
+msgid "Flip image horizontally"
+msgstr "水平翻转图像"
+
+#: tfmain.imagelinearnegative.caption
+msgctxt "tfmain.imagelinearnegative.caption"
+msgid "Linear negative"
+msgstr "线性反转"
+
+#: tfmain.imagenegative.caption
+msgctxt "tfmain.imagenegative.caption"
+msgid "Negative"
+msgstr "反转"
+
+#: tfmain.imagerepeat.caption
+msgid "Repeat..."
+msgstr "重复..."
+
+#: tfmain.imageresample.caption
+msgid "Resample..."
+msgstr "重新采样..."
+
+#: tfmain.imageresample.hint
+msgid "Resample image"
+msgstr "重新采样图像"
+
+#: tfmain.imagerotateccw.caption
+msgid "Rotate 90° CCW"
+msgstr "逆时针旋转 90°"
+
+#: tfmain.imagerotatecw.caption
+msgid "Rotate 90° CW"
+msgstr "顺时针旋转 90°"
+
+#: tfmain.imagesmartzoom3.caption
+msgid "Smart zoom x3"
+msgstr "智能变焦 x3"
+
+#: tfmain.imageswapredblue.caption
+msgid "Swap red and blue channels"
+msgstr "交换红蓝色通道"
+
+#: tfmain.imageverticalflip.caption
+msgctxt "tfmain.imageverticalflip.caption"
+msgid "Vertical flip"
+msgstr "垂直翻转"
+
+#: tfmain.imageverticalflip.hint
+msgid "Flip image vertically"
+msgstr "垂直翻转图像"
+
+#: tfmain.image_currenttool.hint
+msgctxt "TFMAIN.IMAGE_CURRENTTOOL.HINT"
+msgid "Selected tool"
+msgstr "所选工具"
+
+#: tfmain.image_swapcolors.hint
+msgctxt "tfmain.image_swapcolors.hint"
+msgid "Switch color"
+msgstr "切换颜色"
+
+#: tfmain.itemdocklayersandcolors.caption
+msgid "Dock layers and colors"
+msgstr "停靠图层和颜色"
+
+#: tfmain.itemdonate.caption
+msgctxt "tfmain.itemdonate.caption"
+msgid "Donate..."
+msgstr "捐赠..."
+
+#: tfmain.itemfullscreen.caption
+msgid "Fullscreen"
+msgstr "全屏"
+
+#: tfmain.itemuseimagebrowser.caption
+msgctxt "tfmain.itemuseimagebrowser.caption"
+msgid "Use image browser"
+msgstr "使用图像浏览器"
+
+#: tfmain.itemviewdocktoolbox.caption
+msgid "Dock toolbox"
+msgstr "停靠工具箱"
+
+#: tfmain.label_altitude.caption
+msgid "Altitude"
+msgstr "高度"
+
+#: tfmain.label_back.caption
+msgid "Back"
+msgstr "返回"
+
+#: tfmain.label_brush.caption
+msgctxt "tfmain.label_brush.caption"
+msgid "Brush"
+msgstr "笔刷"
+
+#: tfmain.label_coordinates.caption
+msgid "9999x9999"
+msgstr "9999x9999"
+
+#: tfmain.label_coordinates.hint
+msgid "Coordinates"
+msgstr "坐标"
+
+#: tfmain.label_currentdiff.caption
+msgctxt "TFMAIN.LABEL_CURRENTDIFF.CAPTION"
+msgid "100%"
+msgstr "100%"
+
+#: tfmain.label_currentdiff.hint
+msgid "Color difference"
+msgstr "颜色差异"
+
+#: tfmain.label_currentzoom.caption
+msgctxt "TFMAIN.LABEL_CURRENTZOOM.CAPTION"
+msgid "%"
+msgstr "%"
+
+#: tfmain.label_currentzoom.hint
+msgid "Current zoom"
+msgstr "当前缩放"
+
+#: tfmain.label_curve.caption
+msgctxt "TFMAIN.LABEL_CURVE.CAPTION"
+msgid "Curve"
+msgstr "曲线"
+
+#: tfmain.label_eraser.caption
+msgctxt "tfmain.label_eraser.caption"
+msgid "Erase"
+msgstr "擦除"
+
+#: tfmain.label_grid.caption
+msgctxt "TFMAIN.LABEL_GRID.CAPTION"
+msgid "Grid"
+msgstr "网格"
+
+#: tfmain.label_gridx.caption
+msgctxt "tfmain.label_gridx.caption"
+msgid "x"
+msgstr "x"
+
+#: tfmain.label_outlinewidth.caption
+msgctxt "tfmain.label_outlinewidth.caption"
+msgid "Width"
+msgstr "宽度"
+
+#: tfmain.label_pen.caption
+msgctxt "TFMAIN.LABEL_PEN.CAPTION"
+msgid "Pen"
+msgstr "钢笔"
+
+#: tfmain.label_penwidth.caption
+msgctxt "tfmain.label_penwidth.caption"
+msgid "Width"
+msgstr "宽度"
+
+#: tfmain.label_phongborder.caption
+msgctxt "tfmain.label_phongborder.caption"
+msgid "Border"
+msgstr "边框"
+
+#: tfmain.label_ratio.caption
+msgid "Ratio"
+msgstr "比例"
+
+#: tfmain.label_shadowoffset.caption
+msgctxt "TFMAIN.LABEL_SHADOWOFFSET.CAPTION"
+msgid "Offset"
+msgstr "偏移"
+
+#: tfmain.label_shape.caption
+msgctxt "TFMAIN.LABEL_SHAPE.CAPTION"
+msgid "Shape"
+msgstr "形状"
+
+#: tfmain.label_spacing.caption
+msgid "Spacing"
+msgstr "间距"
+
+#: tfmain.label_text.caption
+msgctxt "TFMAIN.LABEL_TEXT.CAPTION"
+msgid "Text"
+msgstr "文本"
+
+#: tfmain.label_textblur.caption
+msgctxt "TFMAIN.LABEL_TEXTBLUR.CAPTION"
+msgid "Blur"
+msgstr "模糊度"
+
+#: tfmain.label_tolerance.caption
+msgctxt "tfmain.label_tolerance.caption"
+msgid "Tolerance"
+msgstr "宽容度"
+
+#: tfmain.layeraddnew.hint
+msgctxt "tfmain.layeraddnew.hint"
+msgid "Add new layer"
+msgstr "添加新图层"
+
+#: tfmain.layerduplicate.hint
+msgctxt "tfmain.layerduplicate.hint"
+msgid "Duplicate selected layer"
+msgstr "复制所选图层"
+
+#: tfmain.layerfromfile.hint
+msgctxt "tfmain.layerfromfile.hint"
+msgid "Import layer from file..."
+msgstr "从文件导入图层..."
+
+#: tfmain.layerhorizontalflip.hint
+msgid "Flip layer horizontally"
+msgstr "水平翻转图层"
+
+#: tfmain.layermergeover.hint
+msgctxt "tfmain.layermergeover.hint"
+msgid "Merge layer over"
+msgstr "将图层合并"
+
+#: tfmain.layermove.hint
+msgctxt "tfmain.layermove.hint"
+msgid "Move layer"
+msgstr "移动图层"
+
+#: tfmain.layerrasterize.hint
+msgid "Rasterize layer"
+msgstr "栅格化图层"
+
+#: tfmain.layerremovecurrent.hint
+msgctxt "tfmain.layerremovecurrent.hint"
+msgid "Remove layer"
+msgstr "移除图层"
+
+#: tfmain.layerrotate.hint
+msgctxt "tfmain.layerrotate.hint"
+msgid "Rotate layer"
+msgstr "旋转图层"
+
+#: tfmain.layerverticalflip.hint
+msgctxt "tfmain.layerverticalflip.hint"
+msgid "Flip layer vertically"
+msgstr "垂直翻转图层"
+
+#: tfmain.layerzoom.hint
+msgid "Zoom layer"
+msgstr "缩放图层"
+
+#: tfmain.loadselectiondialog.title
+msgid "Load selection"
+msgstr "加载选区"
+
+#: tfmain.menucolors.caption
+msgctxt "tfmain.menucolors.caption"
+msgid "Colors"
+msgstr "颜色"
+
+#: tfmain.menucoordinatestoolbar.caption
+msgid "Show coordinates"
+msgstr "显示坐标"
+
+#: tfmain.menucopypastetoolbar.caption
+msgid "Show copy/paste toolbar"
+msgstr "显示复制/粘贴工具栏"
+
+#: tfmain.menudocktoolboxleft.caption
+msgid "Dock left"
+msgstr "停靠左侧"
+
+#: tfmain.menudocktoolboxright.caption
+msgid "Dock right"
+msgstr "停靠右侧"
+
+#: tfmain.menuedit.caption
+msgctxt "tfmain.menuedit.caption"
+msgid "Edit"
+msgstr "编辑"
+
+#: tfmain.menufile.caption
+msgid "File"
+msgstr "文件"
+
+#: tfmain.menufiletoolbar.caption
+msgid "Show file toolbar"
+msgstr "显示文件工具栏"
+
+#: tfmain.menufilter.caption
+msgctxt "tfmain.menufilter.caption"
+msgid "Filter"
+msgstr "滤镜"
+
+#: tfmain.menuhelp.caption
+msgctxt "tfmain.menuhelp.caption"
+msgid "Help"
+msgstr "帮助"
+
+#: tfmain.menuimage.caption
+msgctxt "tfmain.menuimage.caption"
+msgid "Image"
+msgstr "图像"
+
+#: tfmain.menulanguage.caption
+msgctxt "tfmain.menulanguage.caption"
+msgid "Language"
+msgstr "语言"
+
+#: tfmain.menuradialblur.caption
+msgctxt "tfmain.menuradialblur.caption"
+msgid "Radial blur"
+msgstr "径向模糊"
+
+#: tfmain.menurecentfiles.caption
+msgctxt "tfmain.menurecentfiles.caption"
+msgid "Recent files"
+msgstr "最近的文件"
+
+#: tfmain.menuremovetransparency.caption
+msgctxt "tfmain.menuremovetransparency.caption"
+msgid "Remove transparency"
+msgstr "删除透明度"
+
+#: tfmain.menurender.caption
+msgctxt "tfmain.menurender.caption"
+msgid "Render"
+msgstr "渲染"
+
+#: tfmain.menuscript.caption
+msgctxt "tfmain.menuscript.caption"
+msgid "Script"
+msgstr "脚本"
+
+#: tfmain.menuselect.caption
+msgctxt "tfmain.menuselect.caption"
+msgid "Select"
+msgstr "选择"
+
+#: tfmain.menushowpalette.caption
+msgctxt "tfmain.menushowpalette.caption"
+msgid "Show palette"
+msgstr "显示调色板"
+
+#: tfmain.menutool.caption
+msgctxt "tfmain.menutool.caption"
+msgid "Tools"
+msgstr "工具"
+
+#: tfmain.menuundocktoolbox.caption
+msgid "Undock"
+msgstr "取消停靠"
+
+#: tfmain.menuundoredotoolbar.caption
+msgid "Show undo/redo toolbar"
+msgstr "显示撤消/重做工具栏"
+
+#: tfmain.menuview.caption
+msgctxt "tfmain.menuview.caption"
+msgid "View"
+msgstr "视图"
+
+#: tfmain.menuzoomtoolbar.caption
+msgid "Show zoom toolbar"
+msgstr "显示缩放工具栏"
+
+#: tfmain.open3dobjectdialog.title
+msgctxt "tfmain.open3dobjectdialog.title"
+msgid "Import 3D object"
+msgstr "导入 3D 对象"
+
+#: tfmain.openbrushdialog.title
+msgid "Open brush"
+msgstr "打开笔刷"
+
+#: tfmain.openpicturedialog1.title
+msgctxt "TFMAIN.OPENPICTUREDIALOG1.TITLE"
+msgid "Open existing image"
+msgstr "打开已有图像"
+
+#: tfmain.opentexturedialog.title
+msgctxt "tfmain.opentexturedialog.title"
+msgid "Open texture"
+msgstr "打开纹理"
+
+#: tfmain.perspective_repeat.hint
+msgctxt "tfmain.perspective_repeat.hint"
+msgid "Repeat image"
+msgstr "重复图像"
+
+#: tfmain.perspective_twoplanes.hint
+msgctxt "tfmain.perspective_twoplanes.hint"
+msgid "Draw opposite plane too"
+msgstr "绘制相反的平面"
+
+#: tfmain.rendercamouflage.caption
+msgid "Camouflage"
+msgstr "迷彩"
+
+#: tfmain.renderclouds.caption
+msgid "Clouds"
+msgstr "云"
+
+#: tfmain.rendercustomwater.caption
+msgid "Water with custom colors"
+msgstr "当前颜色水波"
+
+#: tfmain.rendercyclicperlinnoise.caption
+msgctxt "tfmain.rendercyclicperlinnoise.caption"
+msgid "Cyclic Perlin noise"
+msgstr "环状佩林噪声"
+
+#: tfmain.rendermarble.caption
+msgid "Marble"
+msgstr "大理石"
+
+#: tfmain.rendermetalfloor.caption
+msgid "Metal floor"
+msgstr "金属地板"
+
+#: tfmain.renderperlinnoise.caption
+msgid "Perlin noise"
+msgstr "佩林噪声"
+
+#: tfmain.renderplastik.caption
+msgid "Plastik"
+msgstr "塑料"
+
+#: tfmain.renderroundstone.caption
+msgid "Round stone"
+msgstr "圆形石材"
+
+#: tfmain.rendersnowprint.caption
+msgid "Snow print"
+msgstr "雪印"
+
+#: tfmain.renderstone.caption
+msgid "Stone"
+msgstr "石头"
+
+#: tfmain.renderwater.caption
+msgctxt "tfmain.renderwater.caption"
+msgid "Water"
+msgstr "水波"
+
+#: tfmain.renderwood.caption
+msgid "Wood"
+msgstr "木材"
+
+#: tfmain.renderwoodvertical.caption
+msgid "Vertical wood"
+msgstr "直木材"
+
+#: tfmain.savepicturedialog1.title
+msgid "Save file as..."
+msgstr "文件另存为..."
+
+#: tfmain.saveselectiondialog.title
+msgctxt "TFMAIN.SAVESELECTIONDIALOG.TITLE"
+msgid "Save selection as..."
+msgstr "选区另存为..."
+
+#: tfmain.selectionhorizontalflip.hint
+msgid "Flip selection horizontally"
+msgstr "水平翻转选区"
+
+#: tfmain.selectionverticalflip.hint
+msgid "Flip selection vertically"
+msgstr "垂直翻转选区"
+
+#: tfmain.spinedit_arrowsizex.hint
+msgctxt "tfmain.spinedit_arrowsizex.hint"
+msgid "Horizontal size of the arrow"
+msgstr "箭头的水平大小"
+
+#: tfmain.spinedit_arrowsizey.hint
+msgctxt "tfmain.spinedit_arrowsizey.hint"
+msgid "Vertical size of the arrow"
+msgstr "箭头的垂直大小"
+
+#: tfmain.spinedit_brushspacing.hint
+msgctxt "tfmain.spinedit_brushspacing.hint"
+msgid "Spacing between patterns"
+msgstr "图案间距"
+
+#: tfmain.spinedit_eraser.hint
+msgctxt "tfmain.spinedit_eraser.hint"
+msgid "Eraser opacity"
+msgstr "橡皮擦透明度"
+
+#: tfmain.spinedit_penwidth.hint
+msgctxt "tfmain.spinedit_penwidth.hint"
+msgid "Pen width"
+msgstr "钢笔宽度"
+
+#: tfmain.spinedit_phongbordersize.hint
+msgctxt "tfmain.spinedit_phongbordersize.hint"
+msgid "Border size"
+msgstr "边框大小"
+
+#: tfmain.spinedit_shapealtitude.hint
+msgctxt "tfmain.spinedit_shapealtitude.hint"
+msgid "Shape altitude"
+msgstr "形状高度"
+
+#: tfmain.spinedit_textblur.hint
+msgctxt "tfmain.spinedit_textblur.hint"
+msgid "Shadow blur"
+msgstr "阴影模糊"
+
+#: tfmain.spinedit_textoutlinewidth.hint
+msgctxt "tfmain.spinedit_textoutlinewidth.hint"
+msgid "Text outline width"
+msgstr "文本发光宽度"
+
+#: tfmain.spinedit_textshadowx.hint
+msgctxt "tfmain.spinedit_textshadowx.hint"
+msgid "Horizontal shadow offset"
+msgstr "水平阴影偏移"
+
+#: tfmain.spinedit_textshadowy.hint
+msgctxt "tfmain.spinedit_textshadowy.hint"
+msgid "Vertical shadow offset"
+msgstr "垂直阴影偏移"
+
+#: tfmain.spinedit_textsize.hint
+msgctxt "tfmain.spinedit_textsize.hint"
+msgid "Text size"
+msgstr "文本大小"
+
+#: tfmain.toolbrush.hint
+msgctxt "tfmain.toolbrush.hint"
+msgid "Brush"
+msgstr "笔刷"
+
+#: tfmain.toolchangedocking.hint
+msgctxt "tfmain.toolchangedocking.hint"
+msgid "Change docking"
+msgstr "更改停靠"
+
+#: tfmain.toolclone.hint
+msgid "Clone tool"
+msgstr "克隆工具"
+
+#: tfmain.toolcolorpicker.hint
+msgctxt "TFMAIN.TOOLCOLORPICKER.HINT"
+msgid "Color picker"
+msgstr "颜色选取器"
+
+#: tfmain.tooldeformation.caption
+msgid "Deformation"
+msgstr "变形"
+
+#: tfmain.tooldeformation.hint
+msgid "Deformation grid"
+msgstr "变形网格"
+
+#: tfmain.tooleditshape.hint
+msgid "Edit shape"
+msgstr "编辑形状"
+
+#: tfmain.toolellipse.hint
+msgctxt "TFMAIN.TOOLELLIPSE.HINT"
+msgid "Ellipse"
+msgstr "椭圆"
+
+#: tfmain.tooleraser.hint
+msgctxt "TFMAIN.TOOLERASER.HINT"
+msgid "Eraser"
+msgstr "橡皮擦"
+
+#: tfmain.toolfloodfill.hint
+msgid "Floodfill"
+msgstr "填充"
+
+#: tfmain.toolgradient.caption
+msgid "Gradient"
+msgstr "渐变"
+
+#: tfmain.toolgradient.hint
+msgid "Render gradient"
+msgstr "渐变渲染"
+
+#: tfmain.toolhand.caption
+msgid "Hand"
+msgstr "手形"
+
+#: tfmain.toolhand.hint
+msgid "Move and scroll picture"
+msgstr "移动和滚动图片"
+
+#: tfmain.toolhotspot.caption
+msgctxt "tfmain.toolhotspot.caption"
+msgid "Hot spot"
+msgstr "热点"
+
+#: tfmain.toolhotspot.hint
+msgid "Choose hot spot of a cursor"
+msgstr "选择光标的热点"
+
+#: tfmain.toollayermapping.hint
+msgctxt "tfmain.toollayermapping.hint"
+msgid "Layer perspective"
+msgstr "图层透视"
+
+#: tfmain.toolmagicwand.caption
+msgid "Magic wand"
+msgstr "魔术棒选择"
+
+#: tfmain.toolmagicwand.hint
+msgid "Magic wand select"
+msgstr "魔术棒选择"
+
+#: tfmain.toolmoveselection.hint
+msgctxt "TFMAIN.TOOLMOVESELECTION.HINT"
+msgid "Move selection"
+msgstr "移动选区"
+
+#: tfmain.toolopenedcurve.hint
+msgid "Opened curve"
+msgstr "打开的曲线"
+
+#: tfmain.toolpen.caption
+msgctxt "TFMAIN.TOOLPEN.CAPTION"
+msgid "Pen"
+msgstr "钢笔"
+
+#: tfmain.toolpen.hint
+msgid "Simple pen"
+msgstr "钢笔"
+
+#: tfmain.toolphong.hint
+msgctxt "TFMAIN.TOOLPHONG.HINT"
+msgid "Shaded shape"
+msgstr "立体形状"
+
+#: tfmain.toolpolygon.caption
+msgid "Polygon"
+msgstr "多边形"
+
+#: tfmain.toolpolygon.hint
+msgid "Polygon or polyline"
+msgstr "多边形或折线"
+
+#: tfmain.toolpolyline.hint
+msgid "Polyline"
+msgstr "折线"
+
+#: tfmain.toolrect.hint
+msgctxt "TFMAIN.TOOLRECT.HINT"
+msgid "Rectangle"
+msgstr "矩形"
+
+#: tfmain.toolrotateselection.hint
+msgctxt "TFMAIN.TOOLROTATESELECTION.HINT"
+msgid "Rotate selection"
+msgstr "旋转选区"
+
+#: tfmain.toolselectellipse.hint
+msgctxt "TFMAIN.TOOLSELECTELLIPSE.HINT"
+msgid "Select ellipse"
+msgstr "椭圆选择"
+
+#: tfmain.toolselectpen.caption
+msgctxt "tfmain.toolselectpen.caption"
+msgid "Selection pen"
+msgstr "钢笔选择"
+
+#: tfmain.toolselectpen.hint
+msgctxt "tfmain.toolselectpen.hint"
+msgid "Draw selection with pen"
+msgstr "用钢笔绘制选区"
+
+#: tfmain.toolselectpoly.hint
+msgctxt "TFMAIN.TOOLSELECTPOLY.HINT"
+msgid "Select polygon"
+msgstr "多边形选择"
+
+#: tfmain.toolselectrect.hint
+msgctxt "TFMAIN.TOOLSELECTRECT.HINT"
+msgid "Select rectangle"
+msgstr "矩形选择"
+
+#: tfmain.toolselectspline.hint
+msgctxt "tfmain.toolselectspline.hint"
+msgid "Select curve"
+msgstr "曲线选择"
+
+#: tfmain.toolspline.caption
+msgctxt "TFMAIN.TOOLSPLINE.CAPTION"
+msgid "Curve"
+msgstr "曲线"
+
+#: tfmain.toolspline.hint
+msgctxt "tfmain.toolspline.hint"
+msgid "Curve"
+msgstr "曲线"
+
+#: tfmain.tooltext.hint
+msgctxt "TFMAIN.TOOLTEXT.HINT"
+msgid "Text"
+msgstr "文本"
+
+#: tfmain.tooltexturemapping.hint
+msgctxt "tfmain.tooltexturemapping.hint"
+msgid "Texture mapping"
+msgstr "纹理贴图"
+
+#: tfmain.tool_aliasing.hint
+msgid "Disable antialiasing"
+msgstr "禁用抗锯齿"
+
+#: tfmain.tool_capflat.hint
+msgctxt "TFMAIN.TOOL_CAPFLAT.HINT"
+msgid "Flat cap"
+msgstr "平盖"
+
+#: tfmain.tool_capround.hint
+msgctxt "TFMAIN.TOOL_CAPROUND.HINT"
+msgid "Round cap"
+msgstr "圆盖"
+
+#: tfmain.tool_capsquare.hint
+msgctxt "TFMAIN.TOOL_CAPSQUARE.HINT"
+msgid "Square cap"
+msgstr "方形盖"
+
+#: tfmain.tool_closeshape.hint
+msgctxt "tfmain.tool_closeshape.hint"
+msgid "Close shape"
+msgstr "关闭形状"
+
+#: tfmain.tool_curvemodeangle.hint
+msgid "Draw an angle"
+msgstr "绘制角度"
+
+#: tfmain.tool_curvemodeauto.hint
+msgctxt "tfmain.tool_curvemodeauto.hint"
+msgid "Autodetect angles"
+msgstr "自动检测角度"
+
+#: tfmain.tool_curvemodecurve.hint
+msgid "Draw a curve"
+msgstr "绘制曲线"
+
+#: tfmain.tool_curvemovepoint.hint
+msgid "Move point"
+msgstr "移动点"
+
+#: tfmain.tool_drawshapeborder.hint
+msgctxt "tfmain.tool_drawshapeborder.hint"
+msgid "Draw border"
+msgstr "绘制边框"
+
+#: tfmain.tool_erasealpha.hint
+msgctxt "tfmain.tool_erasealpha.hint"
+msgid "Make transparent"
+msgstr "透明"
+
+#: tfmain.tool_eraseblur.hint
+msgctxt "tfmain.tool_eraseblur.hint"
+msgid "Soften"
+msgstr "柔化"
+
+#: tfmain.tool_erasedarken.hint
+msgid "Darken"
+msgstr "变暗"
+
+#: tfmain.tool_eraselighten.hint
+msgid "Lighten"
+msgstr "变亮"
+
+#: tfmain.tool_erasesharpen.hint
+msgid "Sharpen"
+msgstr "锐化"
+
+#: tfmain.tool_fillshape.hint
+msgctxt "tfmain.tool_fillshape.hint"
+msgid "Fill shape"
+msgstr "填充形状"
+
+#: tfmain.tool_gridmovewithoutdeformation.hint
+msgctxt "tfmain.tool_gridmovewithoutdeformation.hint"
+msgid "Move grid without deformation"
+msgstr "不变形移动网格"
+
+#: tfmain.tool_joinbevel.hint
+msgctxt "TFMAIN.TOOL_JOINBEVEL.HINT"
+msgid "Bevel join"
+msgstr "斜面联接"
+
+#: tfmain.tool_joinmiter.hint
+msgctxt "TFMAIN.TOOL_JOINMITER.HINT"
+msgid "Miter join"
+msgstr "直角联接"
+
+#: tfmain.tool_joinround.hint
+msgctxt "TFMAIN.TOOL_JOINROUND.HINT"
+msgid "Round join"
+msgstr "圆角联接"
+
+#: tfmain.tool_phongshapecone.hint
+msgctxt "tfmain.tool_phongshapecone.hint"
+msgid "Cone"
+msgstr "锥形"
+
+#: tfmain.tool_phongshapehorizontalcylinder.hint
+msgctxt "tfmain.tool_phongshapehorizontalcylinder.hint"
+msgid "Horizontal cylinder"
+msgstr "水平圆柱体"
+
+#: tfmain.tool_phongshaperectangle.hint
+msgctxt "tfmain.tool_phongshaperectangle.hint"
+msgid "Rectangle"
+msgstr "矩形"
+
+#: tfmain.tool_phongshaperoundrect.hint
+msgctxt "tfmain.tool_phongshaperoundrect.hint"
+msgid "Rounded rectangle"
+msgstr "圆角矩形"
+
+#: tfmain.tool_phongshapesphere.hint
+msgctxt "tfmain.tool_phongshapesphere.hint"
+msgid "Sphere"
+msgstr "球面"
+
+#: tfmain.tool_phongshapeverticalcone.hint
+msgctxt "tfmain.tool_phongshapeverticalcone.hint"
+msgid "Vertical cone"
+msgstr "垂直锥体"
+
+#: tfmain.tool_phongshapeverticalcylinder.hint
+msgctxt "tfmain.tool_phongshapeverticalcylinder.hint"
+msgid "Vertical cylinder"
+msgstr "垂直圆柱体"
+
+#: tfmain.tool_progressivefloodfill.caption
+msgctxt "tfmain.tool_progressivefloodfill.caption"
+msgid "Progressive floodfill"
+msgstr "渐进式填充"
+
+#: tfmain.tool_progressivefloodfill.hint
+msgctxt "tfmain.tool_progressivefloodfill.hint"
+msgid "Progressive floodfill"
+msgstr "渐进式填充"
+
+#: tfmain.tool_textaligncenter.hint
+msgid "Center"
+msgstr "居中"
+
+#: tfmain.tool_textalignleft.hint
+msgid "Align left"
+msgstr "向左对齐"
+
+#: tfmain.tool_textalignright.hint
+msgid "Align right"
+msgstr "向右对齐"
+
+#: tfmain.tool_textfont.hint
+msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
+msgid "Choose font..."
+msgstr "选择字体..."
+
+#: tfmain.tool_textoutline.hint
+msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
+msgid "Text outline"
+msgstr "文本发光"
+
+#: tfmain.tool_textphong.hint
+msgctxt "TFMAIN.TOOL_TEXTPHONG.HINT"
+msgid "Text phong shading"
+msgstr "文本高光渲染"
+
+#: tfmain.tool_textshadow.hint
+msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
+msgid "Text shadow"
+msgstr "文本阴影"
+
+#: tfmain.viewcolors.caption
+msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
+msgid "Colors"
+msgstr "颜色"
+
+#: tfmain.viewdarktheme.caption
+msgid "Dark theme"
+msgstr "深色主题"
+
+#: tfmain.viewgrid.caption
+msgctxt "TFMAIN.VIEWGRID.CAPTION"
+msgid "Grid"
+msgstr "网格"
+
+#: tfmain.viewimagelist.caption
+msgid "Image list"
+msgstr "图像列表"
+
+#: tfmain.viewlayerstack.caption
+msgctxt "tfmain.viewlayerstack.caption"
+msgid "Layers"
+msgstr "图层"
+
+#: tfmain.viewlayerstackbutton.caption
+msgctxt "tfmain.viewlayerstackbutton.caption"
+msgid "Show layers"
+msgstr "显示图层"
+
+#: tfmain.viewlayerstackbutton.hint
+msgctxt "tfmain.viewlayerstackbutton.hint"
+msgid "Show or hide layer stack window"
+msgstr "显示或隐藏图层堆栈窗口"
+
+#: tfmain.viewpalette.caption
+msgctxt "tfmain.viewpalette.caption"
+msgid "Palette"
+msgstr "调色板"
+
+#: tfmain.viewstatusbar.caption
+msgid "Status bar"
+msgstr "状态栏"
+
+#: tfmain.viewtoolbox.caption
+msgid "Toolbox"
+msgstr "工具箱"
+
+#: tfmain.viewworkspacecolor.caption
+msgid "Set workspace color..."
+msgstr "设置工作区颜色..."
+
+#: tfmain.viewzoomfit.caption
+msgctxt "tfmain.viewzoomfit.caption"
+msgid "Zoom fit"
+msgstr "自适应缩放"
+
+#: tfmain.viewzoomfit.hint
+msgctxt "TFMAIN.VIEWZOOMFIT.HINT"
+msgid "Zoom to fit in the window"
+msgstr "适合窗口缩放"
+
+#: tfmain.viewzoomin.hint
+msgctxt "TFMAIN.VIEWZOOMIN.HINT"
+msgid "Zoom in"
+msgstr "放大"
+
+#: tfmain.viewzoomoriginal.caption
+msgctxt "TFMAIN.VIEWZOOMORIGINAL.CAPTION"
+msgid "Original size"
+msgstr "原始大小"
+
+#: tfmain.viewzoomoriginal.hint
+msgid "Zoom to original pixel size"
+msgstr "缩放至原始像素大小"
+
+#: tfmain.viewzoomout.hint
+msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
+msgid "Zoom out"
+msgstr "缩小"
+
+#: tfmotionblur.button_cancel.caption
+msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfmotionblur.button_ok.caption
+msgctxt "TFMOTIONBLUR.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "确定"
+
+#: tfmotionblur.caption
+msgctxt "tfmotionblur.caption"
+msgid "Motion blur"
+msgstr "运动模糊"
+
+#: tfmotionblur.checkbox_oriented.caption
+msgid "Oriented"
+msgstr "方向"
+
+#: tfmotionblur.label_distance.caption
+msgctxt "tfmotionblur.label_distance.caption"
+msgid "Distance :"
+msgstr "距离 :"
+
+#: tfmultiimage.button_cancel.caption
+msgctxt "tfmultiimage.button_cancel.caption"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfmultiimage.button_ok.caption
+msgctxt "tfmultiimage.button_ok.caption"
+msgid "OK"
+msgstr "确定"
+
+#: tfmultiimage.caption
+msgid "Choose image"
+msgstr "选择图像"
+
+#: tfnewimage.button_cancel.caption
+msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfnewimage.button_ok.caption
+msgctxt "TFNEWIMAGE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "确定"
+
+#: tfnewimage.caption
+msgctxt "tfnewimage.caption"
+msgid "New image"
+msgstr "新图像"
+
+#: tfnewimage.combobox_bitdepth.text
+msgid "32"
+msgstr "32"
+
+#: tfnewimage.label_bitdepth.caption
+msgid "Bit depth :"
+msgstr "位深度 :"
+
+#: tfnewimage.label_height.caption
+msgctxt "tfnewimage.label_height.caption"
+msgid "Height :"
+msgstr "高度 :"
+
+#: tfnewimage.label_height1.caption
+msgid "Ratio :"
+msgstr "比例 :"
+
+#: tfnewimage.label_memoryrequired.caption
+msgid "Memory required :"
+msgstr "需要内存 :"
+
+#: tfnewimage.label_width.caption
+msgctxt "tfnewimage.label_width.caption"
+msgid "Width :"
+msgstr "宽度 :"
+
+#: tfnoisefilter.button_cancel.caption
+msgctxt "tfnoisefilter.button_cancel.caption"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfnoisefilter.button_ok.caption
+msgctxt "tfnoisefilter.button_ok.caption"
+msgid "OK"
+msgstr "确定"
+
+#: tfnoisefilter.caption
+msgid "Noise filter"
+msgstr "噪声滤镜"
+
+#: tfnoisefilter.label_opacity.caption
+msgid "Opacity:"
+msgstr "透明度 :"
+
+#: tfnoisefilter.radio_grayscalenoise.caption
+msgid "Grayscale noise"
+msgstr "灰度噪声"
+
+#: tfnoisefilter.radio_rgbnoise.caption
+msgid "RGB noise"
+msgstr "RGB 噪声"
+
+#: tfobject3d.button_cancel.caption
+msgctxt "tfobject3d.button_cancel.caption"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfobject3d.button_loadtex.caption
+msgid "Texture..."
+msgstr "纹理..."
+
+#: tfobject3d.button_notex.caption
+msgid "No tex."
+msgstr "无纹理"
+
+#: tfobject3d.button_ok.caption
+msgctxt "tfobject3d.button_ok.caption"
+msgid "OK"
+msgstr "确定"
+
+#: tfobject3d.caption
+msgid "3D object"
+msgstr "3D 对象"
+
+#: tfobject3d.checkbox_antialiasing.caption
+msgid "Antialiasing"
+msgstr "抗锯齿"
+
+#: tfobject3d.checkbox_biface.caption
+msgid "2-sided faces"
+msgstr "双面"
+
+#: tfobject3d.checkbox_textureinterp.caption
+msgid "Texture interpolation"
+msgstr "纹理插值"
+
+#: tfobject3d.groupbox_selectedlight.caption
+msgid "Selected light"
+msgstr "所选亮度"
+
+#: tfobject3d.groupbox_selectedmaterial.caption
+msgctxt "tfobject3d.groupbox_selectedmaterial.caption"
+msgid "Selected material"
+msgstr "所选材质"
+
+#: tfobject3d.label_color.caption
+msgctxt "tfobject3d.label_color.caption"
+msgid "Color :"
+msgstr "颜色 :"
+
+#: tfobject3d.label_color1.caption
+msgctxt "tfobject3d.label_color1.caption"
+msgid "Color :"
+msgstr "颜色 :"
+
+#: tfobject3d.label_height.caption
+msgctxt "tfobject3d.label_height.caption"
+msgid "Height :"
+msgstr "高度 :"
+
+#: tfobject3d.label_lightingnormals.caption
+msgctxt "tfobject3d.label_lightingnormals.caption"
+msgid "Lighting normals :"
+msgstr "亮度法线 :"
+
+#: tfobject3d.label_lights.caption
+msgid "Lights :"
+msgstr "光源 :"
+
+#: tfobject3d.label_materials.caption
+msgctxt "tfobject3d.label_materials.caption"
+msgid "Materials :"
+msgstr "材质 :"
+
+#: tfobject3d.label_opacity.caption
+msgctxt "tfobject3d.label_opacity.caption"
+msgid "Opacity :"
+msgstr "透明度 :"
+
+#: tfobject3d.label_specularindex.caption
+msgctxt "tfobject3d.label_specularindex.caption"
+msgid "Spec. index :"
+msgstr "规格索引 :"
+
+#: tfobject3d.label_width.caption
+msgctxt "tfobject3d.label_width.caption"
+msgid "Width :"
+msgstr "宽度 :"
+
+#: tfobject3d.label_zoom.caption
+msgctxt "tfobject3d.label_zoom.caption"
+msgid "Zoom"
+msgstr "缩放"
+
+#: tfobject3d.lights.caption
+msgid "Lights"
+msgstr "光源"
+
+#: tfobject3d.materials.caption
+msgid "Materials"
+msgstr "材质"
+
+#: tfobject3d.opentexturedialog.title
+msgctxt "tfobject3d.opentexturedialog.title"
+msgid "Open texture"
+msgstr "打开纹理"
+
+#: tfobject3d.rendering.caption
+msgid "Rendering"
+msgstr "渲染"
+
+#: tfobject3d.tooladddirectional.hint
+msgid "Add a directional light"
+msgstr "添加方向光源"
+
+#: tfobject3d.toolpointlight.hint
+msgid "Add a point light"
+msgstr "添加点光源"
+
+#: tfobject3d.toolremoveselectedlight.hint
+msgid "Remove selected light"
+msgstr "删除所选光源"
+
+#: tfphongfilter.button_cancel.caption
+msgctxt "tfphongfilter.button_cancel.caption"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfphongfilter.button_ok.caption
+msgctxt "tfphongfilter.button_ok.caption"
+msgid "OK"
+msgstr "确定"
+
+#: tfphongfilter.caption
+msgctxt "tfphongfilter.caption"
+msgid "Shaded map"
+msgstr "立体映射"
+
+#: tfphongfilter.groupbox_color.caption
+msgctxt "tfphongfilter.groupbox_color.caption"
+msgid "Color"
+msgstr "颜色"
+
+#: tfphongfilter.groupbox_color1.caption
+msgid "Altitude map"
+msgstr "海拔映射"
+
+#: tfphongfilter.label_altitude.caption
+msgid "Global altitude :"
+msgstr "海拔高度 :"
+
+#: tfphongfilter.label_lightposition.caption
+msgid "Light position :"
+msgstr "光源位置 :"
+
+#: tfphongfilter.radio_mapalpha.caption
+msgid "Alpha"
+msgstr "Alpha 通道"
+
+#: tfphongfilter.radio_mapblue.caption
+msgid "B"
+msgstr "蓝"
+
+#: tfphongfilter.radio_mapgreen.caption
+msgid "G"
+msgstr "绿"
+
+#: tfphongfilter.radio_maplightness.caption
+msgctxt "tfphongfilter.radio_maplightness.caption"
+msgid "Lightness"
+msgstr "亮度"
+
+#: tfphongfilter.radio_maplinearlightness.caption
+msgid "Linear lightness"
+msgstr "线性亮度"
+
+#: tfphongfilter.radio_mapred.caption
+msgid "R"
+msgstr "红"
+
+#: tfphongfilter.radio_mapsaturation.caption
+msgctxt "tfphongfilter.radio_mapsaturation.caption"
+msgid "Saturation"
+msgstr "饱和度"
+
+#: tfphongfilter.radio_usebackcolor.caption
+msgid "Back color"
+msgstr "背景色"
+
+#: tfphongfilter.radio_usekeep.caption
+msgid "Keep"
+msgstr "保留"
+
+#: tfphongfilter.radio_usepencolor.caption
+msgid "Pen color"
+msgstr "钢笔颜色"
+
+#: tfphongfilter.radio_usetexture.caption
+msgctxt "tfphongfilter.radio_usetexture.caption"
+msgid "Current texture"
+msgstr "当前纹理"
+
+#: tfpixelate.button_cancel.caption
+msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfpixelate.button_ok.caption
+msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "确定"
+
+#: tfpixelate.caption
+msgctxt "tfpixelate.caption"
+msgid "Pixelate"
+msgstr "像素"
+
+#: tfpixelate.label_pixelsize.caption
+msgctxt "tfpixelate.label_pixelsize.caption"
+msgid "Pixel size :"
+msgstr "像素大小 :"
+
+#: tfpixelate.label_quality.caption
+msgctxt "tfpixelate.label_quality.caption"
+msgid "Quality :"
+msgstr "品质 :"
+
+#: tfposterize.button_cancel.caption
+msgctxt "tfposterize.button_cancel.caption"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfposterize.button_ok.caption
+msgctxt "tfposterize.button_ok.caption"
+msgid "OK"
+msgstr "确定"
+
+#: tfposterize.caption
+msgctxt "tfposterize.caption"
+msgid "Posterize"
+msgstr "海报"
+
+#: tfposterize.checkbox_bylightness.caption
+msgid "By lightness"
+msgstr "按亮度"
+
+#: tfposterize.label_levels.caption
+msgid "Levels :"
+msgstr "级别 :"
+
+#: tfpreviewdialog.caption
+msgid "Preview"
+msgstr "预览"
+
+#: tfpreviewdialog.lstatus.caption
+msgctxt "tfpreviewdialog.lstatus.caption"
+msgid "."
+msgstr "."
+
+#: tfprint.button_configureprinter.caption
+msgid "Configure..."
+msgstr "设置..."
+
+#: tfprint.button_print.caption
+msgid "Print!"
+msgstr "打印!"
+
+#: tfprint.button_zoomfit.caption
+msgctxt "tfprint.button_zoomfit.caption"
+msgid "Zoom fit"
+msgstr "自适应缩放"
+
+#: tfprint.caption
+msgid "Print"
+msgstr "打印"
+
+#: tfprint.checkbox_ratio.caption
+msgctxt "tfprint.checkbox_ratio.caption"
+msgid "Keep aspect ratio"
+msgstr "保持纵横比"
+
+#: tfprint.groupbox_imagesize.caption
+msgid "Image size"
+msgstr "图像大小"
+
+#: tfprint.groupbox_margins.caption
+msgid "Margins"
+msgstr "边距"
+
+#: tfprint.label_bottom.caption
+msgid "Bottom:"
+msgstr "底部:"
+
+#: tfprint.label_dpix.caption
+msgctxt "tfprint.label_dpix.caption"
+msgid "."
+msgstr "."
+
+#: tfprint.label_dpiy.caption
+msgctxt "tfprint.label_dpiy.caption"
+msgid "."
+msgstr "."
+
+#: tfprint.label_height.caption
+msgid "Height:"
+msgstr "高度:"
+
+#: tfprint.label_left.caption
+msgid "Left:"
+msgstr "左:"
+
+#: tfprint.label_orientation.caption
+msgid "Orientation:"
+msgstr "方向:"
+
+#: tfprint.label_printerandpaper.caption
+msgid "Printer and paper:"
+msgstr "打印机和纸张:"
+
+#: tfprint.label_right.caption
+msgid "Right:"
+msgstr "右:"
+
+#: tfprint.label_top.caption
+msgid "Top:"
+msgstr "顶部:"
+
+#: tfprint.label_width.caption
+msgid "Width:"
+msgstr "宽度:"
+
+#: tfquestion.caption
+msgid "Question"
+msgstr "问题"
+
+#: tfquestion.checkbox_rememberchoice.caption
+msgid "Remember this choice"
+msgstr "记住选择"
+
+#: tfquestion.label_message.caption
+msgctxt "tfquestion.label_message.caption"
+msgid "."
+msgstr "."
+
+#: tfradialblur.button_cancel.caption
+msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfradialblur.button_ok.caption
+msgctxt "TFRADIALBLUR.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "确定"
+
+#: tfradialblur.caption
+msgctxt "tfradialblur.caption"
+msgid "Radial blur"
+msgstr "径向模糊"
+
+#: tfradialblur.label_radius.caption
+msgctxt "tfradialblur.label_radius.caption"
+msgid "Radius :"
+msgstr "半径 :"
+
+#: tfrain.button_cancel.caption
+msgctxt "tfrain.button_cancel.caption"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfrain.button_ok.caption
+msgctxt "tfrain.button_ok.caption"
+msgid "OK"
+msgstr "确定"
+
+#: tfrain.caption
+msgid "Rain"
+msgstr "雨"
+
+#: tfrain.label_quantity.caption
+msgid "Quantity:"
+msgstr "数量:"
+
+#: tfrain.label_wind.caption
+msgid "Wind :"
+msgstr "风 :"
+
+#: tfresample.button_cancel.caption
+msgctxt "TFRESAMPLE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfresample.button_ok.caption
+msgctxt "TFRESAMPLE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "确定"
+
+#: tfresample.caption
+msgctxt "tfresample.caption"
+msgid "Resample"
+msgstr "重新采样"
+
+#: tfresample.checkbox_ratio.caption
+msgctxt "tfresample.checkbox_ratio.caption"
+msgid "Keep aspect ratio"
+msgstr "Keep aspect ratio"
+
+#: tfresample.label_height.caption
+msgctxt "tfresample.label_height.caption"
+msgid "Height :"
+msgstr "高度 :"
+
+#: tfresample.label_quality.caption
+msgctxt "tfresample.label_quality.caption"
+msgid "Quality :"
+msgstr "品质 :"
+
+#: tfresample.label_width.caption
+msgctxt "tfresample.label_width.caption"
+msgid "Width :"
+msgstr "宽度 :"
+
+#: tfsaveoption.button_cancel.caption
+msgctxt "tfsaveoption.button_cancel.caption"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfsaveoption.button_ok.caption
+msgctxt "tfsaveoption.button_ok.caption"
+msgid "OK"
+msgstr "确定"
+
+#: tfsaveoption.caption
+msgctxt "tfsaveoption.caption"
+msgid "Save"
+msgstr "保存"
+
+#: tfsaveoption.checkbox_dithering.caption
+msgid "Dithering"
+msgstr "抖动"
+
+#: tfsaveoption.label1.caption
+msgid "Quality:"
+msgstr "品质:"
+
+#: tfsaveoption.label_0.caption
+msgid "0"
+msgstr "0"
+
+#: tfsaveoption.label_1.caption
+msgid "100"
+msgstr "1000"
+
+#: tfsaveoption.label_50.caption
+msgid "50"
+msgstr "50"
+
+#: tfsaveoption.label_colordepth.caption
+msgid "Color depth:"
+msgstr "颜色深度:"
+
+#: tfsaveoption.label_size.caption
+msgid "Size:"
+msgstr "大小:"
+
+#: tfsaveoption.radiobutton_16colors.caption
+msgid "16 colors"
+msgstr "16 色"
+
+#: tfsaveoption.radiobutton_24bitsperpixel.caption
+msgid "24 bits"
+msgstr "24 位色"
+
+#: tfsaveoption.radiobutton_256colors.caption
+msgid "256 colors"
+msgstr "256 色"
+
+#: tfsaveoption.radiobutton_2colors.caption
+msgid "2 colors"
+msgstr "2 色"
+
+#: tfsaveoption.radiobutton_32bitsperpixel.caption
+msgid "32 bits"
+msgstr "32 位色"
+
+#: tfsaveoption.radiobutton_miomap.caption
+msgid "MioMap"
+msgstr "MioMap"
+
+#: tfsharpen.button_cancel.caption
+msgctxt "tfsharpen.button_cancel.caption"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfsharpen.button_ok.caption
+msgctxt "tfsharpen.button_ok.caption"
+msgid "OK"
+msgstr "确定"
+
+#: tfsharpen.caption
+msgid "Sharpen/Smooth"
+msgstr "锐化/平滑"
+
+#: tfsharpen.label_amount.caption
+msgctxt "tfsharpen.label_amount.caption"
+msgid "Amount :"
+msgstr "数量 :"
+
+#: tfshiftcolors.button_cancel.caption
+msgctxt "TFSHIFTCOLORS.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfshiftcolors.button_ok.caption
+msgctxt "TFSHIFTCOLORS.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "确定"
+
+#: tfshiftcolors.caption
+msgctxt "tfshiftcolors.caption"
+msgid "Shift colors"
+msgstr "转移颜色"
+
+#: tfshiftcolors.checkbox_gsba.caption
+msgctxt "tfshiftcolors.checkbox_gsba.caption"
+msgid "Corrected hue and lightness"
+msgstr "修正色调和亮度"
+
+#: tfshiftcolors.label1.caption
+msgctxt "TFSHIFTCOLORS.LABEL1.CAPTION"
+msgid "Hue"
+msgstr "色调"
+
+#: tfshiftcolors.label2.caption
+msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
+msgid "Saturation"
+msgstr "饱和度"
+
+#: tftoolbox.caption
+msgctxt "tftoolbox.caption"
+msgid "Tools"
+msgstr "工具"
+
+#: tftwirl.button_cancel.caption
+msgctxt "TFTWIRL.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "取消"
+
+#: tftwirl.button_ok.caption
+msgctxt "TFTWIRL.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "确定"
+
+#: tftwirl.caption
+msgctxt "tftwirl.caption"
+msgid "Twirl"
+msgstr "卷曲"
+
+#: tftwirl.label_angle.caption
+msgctxt "tftwirl.label_angle.caption"
+msgid "Angle :"
+msgstr "角度 :"
+
+#: tftwirl.label_radius.caption
+msgctxt "tftwirl.label_radius.caption"
+msgid "Radius :"
+msgstr "半径 :"
+
+#: tfwavedisplacement.button_cancel.caption
+msgctxt "tfwavedisplacement.button_cancel.caption"
+msgid "Cancel"
+msgstr "取消"
+
+#: tfwavedisplacement.button_ok.caption
+msgctxt "tfwavedisplacement.button_ok.caption"
+msgid "OK"
+msgstr "确定"
+
+#: tfwavedisplacement.caption
+msgid "Wave displacement"
+msgstr "波形移位"
+
+#: tfwavedisplacement.label_displacement.caption
+msgid "Displacement :"
+msgstr "位移 :"
+
+#: tfwavedisplacement.label_phase.caption
+msgid "Phase :"
+msgstr "相位 :"
+
+#: tfwavedisplacement.label_wavelength.caption
+msgid "Wavelength :"
+msgstr "波长 :"
+
+#: uresourcestrings.rsactioninprogress
+msgid "Action in progress"
+msgstr "操作正在进行中"
+
+#: uresourcestrings.rsaddtoimagelist
+msgid "Add files to the image processing list"
+msgstr "将文件添加到图像处理列表"
+
+#: uresourcestrings.rsalignshape
+msgid "Align shape"
+msgstr "对齐形状"
+
+#: uresourcestrings.rsallapplications
+msgid "all"
+msgstr "全部"
+
+#: uresourcestrings.rsallsupportedfiletypes
+msgid "All supported filetypes"
+msgstr "所有支持的文件类型"
+
+#: uresourcestrings.rsalt
+msgid "ALT"
+msgstr "ALT"
+
+#: uresourcestrings.rsanimatedgif
+msgid "Animated GIF"
+msgstr "动画 GIF"
+
+#: uresourcestrings.rsautodetect
+msgid "Autodetect"
+msgstr "自动检测"
+
+#: uresourcestrings.rsbackspaceremovelastpoint
+msgid "Press BACKSPACE to remove last point"
+msgstr "按 \"BACKSPACE\" 删除最后一点"
+
+#: uresourcestrings.rsbestquality
+msgctxt "uresourcestrings.rsbestquality"
+msgid "Best quality"
+msgstr "最佳品质"
+
+#: uresourcestrings.rsbitmap
+msgid "Bitmap"
+msgstr "位图"
+
+#: uresourcestrings.rsblendopnotusedforbackground
+msgid "The blend operation is applied only if there is a layer underneath"
+msgstr "仅当下面有图层时，才会应用混合操作"
+
+#: uresourcestrings.rsblue
+msgid "Blue"
+msgstr "蓝"
+
+#: uresourcestrings.rsbrightness
+msgid "Brightness"
+msgstr "亮度"
+
+#: uresourcestrings.rsbytes
+msgid "Bytes"
+msgstr "字节"
+
+#: uresourcestrings.rscancel
+msgctxt "uresourcestrings.rscancel"
+msgid "Cancel"
+msgstr "取消"
+
+#: uresourcestrings.rscancelledbyuser
+msgid "Cancelled by user"
+msgstr "用户取消"
+
+#: uresourcestrings.rscannotdrawshapeonsvglayer
+msgid "Cannot draw shape on SVG layer"
+msgstr "无法在 SVG 图层上绘制形状"
+
+#: uresourcestrings.rscannotopenfile
+msgid "Cannot open file"
+msgstr "无法打开文件"
+
+#: uresourcestrings.rscanvassize
+msgctxt "uresourcestrings.rscanvassize"
+msgid "Canvas size"
+msgstr "画布大小"
+
+#: uresourcestrings.rscdrom
+msgid "CD"
+msgstr "光盘"
+
+#: uresourcestrings.rsclearpalette
+msgid "Clear palette"
+msgstr "清除调色板"
+
+#: uresourcestrings.rscloserequest
+msgctxt "uresourcestrings.rscloserequest"
+msgid "Close request"
+msgstr "关闭请求"
+
+#: uresourcestrings.rscmd
+msgid "CMD"
+msgstr "CMD"
+
+#: uresourcestrings.rscolors
+msgctxt "uresourcestrings.rscolors"
+msgid "Colors"
+msgstr "颜色"
+
+#: uresourcestrings.rsconfirmdeletefromcontainer
+msgid "Are you sure you want to delete this file from the container?"
+msgstr "确定要从容器中删除此文件？"
+
+#: uresourcestrings.rsconfirmdeletemultiplefromcontainer
+msgid "Are you sure you want to delete these %1 files from the container?"
+msgstr "确定要从容器中删除这些 %1 文件？"
+
+#: uresourcestrings.rsconfirmmovemultipletotrash
+msgid "Are you sure you want to move these %1 files to the trash?"
+msgstr "确定要将这些 %1 文件移动到回收站？"
+
+#: uresourcestrings.rsconfirmmovetotrash
+msgid "Are you sure you want to move this file to the trash?"
+msgstr "确定要将此文件移动到回收站？"
+
+#: uresourcestrings.rsconflictingactions
+msgid "Conflicting actions"
+msgstr "操作冲突"
+
+#: uresourcestrings.rscontrast
+msgid "Contrast"
+msgstr "对比度"
+
+#: uresourcestrings.rscorrectedhueccw
+msgctxt "uresourcestrings.rscorrectedhueccw"
+msgid "Corr. Hue CCW"
+msgstr "逆时针校正色调"
+
+#: uresourcestrings.rscorrectedhuecw
+msgctxt "uresourcestrings.rscorrectedhuecw"
+msgid "Corr. Hue CW"
+msgstr "顺时针校正色调"
+
+#: uresourcestrings.rscosine
+msgctxt "uresourcestrings.rscosine"
+msgid "Cosine"
+msgstr "余弦"
+
+#: uresourcestrings.rscrop
+msgid "Crop"
+msgstr "裁切"
+
+#: uresourcestrings.rsctrl
+msgid "CTRL"
+msgstr "CTRL"
+
+#: uresourcestrings.rscurvemodehint
+msgid "Press S or X to set the curve mode of the last point"
+msgstr "按 ENTER 设置曲线最后一个点"
+
+#: uresourcestrings.rsdefaultpalette
+msgid "Default palette"
+msgstr "默认调色板"
+
+#: uresourcestrings.rsdeletefile
+msgctxt "uresourcestrings.rsdeletefile"
+msgid "Delete"
+msgstr "删除"
+
+#: uresourcestrings.rsdeleteimageentry
+msgid "Delete selected image entry?"
+msgstr "删除选定的图像条目？"
+
+#: uresourcestrings.rsdirectorynotempty
+msgid "Directory is not empty"
+msgstr "目录不为空"
+
+#: uresourcestrings.rsditherlayerusingpalette
+msgid "Dither layer using palette"
+msgstr "使用调色板的抖动图层"
+
+#: uresourcestrings.rsduplicateimage
+msgid "Duplicate image"
+msgstr "重复图像"
+
+#: uresourcestrings.rseditmask
+msgctxt "uresourcestrings.rseditmask"
+msgid "Edit mask"
+msgstr "编辑蒙版"
+
+#: uresourcestrings.rseditselection
+msgid "Edit selection"
+msgstr "编辑选区"
+
+#: uresourcestrings.rsedittexture
+msgctxt "uresourcestrings.rsedittexture"
+msgid "Edit texture"
+msgstr "编辑纹理"
+
+#: uresourcestrings.rsemptylayer
+msgid "Layer is empty"
+msgstr "图层为空"
+
+#: uresourcestrings.rsemptyselection
+msgid "Selection is empty"
+msgstr "选区为空"
+
+#: uresourcestrings.rsendwithoutmatchingbegin
+msgid "End without matching begin"
+msgstr "结束和开始不匹配"
+
+#: uresourcestrings.rsenterfolderorcontainername
+msgid "Enter name for new folder or container (using RES or LRS extension):"
+msgstr "输入新文件夹或容器名称 (使用 RES 或 LRS 扩展名):"
+
+#: uresourcestrings.rsenterlayername
+msgid "Enter layer name:"
+msgstr "输入图层名称："
+
+#: uresourcestrings.rsentries
+msgid "Entries"
+msgstr "条目"
+
+#: uresourcestrings.rserror
+msgid "Error"
+msgstr "错误"
+
+#: uresourcestrings.rserrordecodingraw
+msgid "Error decoding raw image."
+msgstr "原始图像解码错误。"
+
+#: uresourcestrings.rserrorloadingoriginal
+msgid "Error while loading original however layer can be rasterized."
+msgstr "加载原始图层出错，但可以栅格化。"
+
+#: uresourcestrings.rserroronopeningfile
+msgid "Error on opening file \"%1\""
+msgstr "\"%1\""
+
+#: uresourcestrings.rsexception
+msgid "An exception was encountered"
+msgstr "发生异常"
+
+#: uresourcestrings.rsexitrequest
+msgctxt "uresourcestrings.rsexitrequest"
+msgid "Exit request"
+msgstr "退出请求"
+
+#: uresourcestrings.rsexpect1parameter
+msgid "expects one parameter : "
+msgstr "需要一个参数 :"
+
+#: uresourcestrings.rsexpect2parameters
+msgid "expects two parameters : "
+msgstr "需要两个参数 :"
+
+#: uresourcestrings.rsexpectnparameters
+msgid "expects N parameters : "
+msgstr "需要 N 个参数 :"
+
+#: uresourcestrings.rsfast
+msgctxt "uresourcestrings.rsfast"
+msgid "Fast"
+msgstr "快速"
+
+#: uresourcestrings.rsfilecannotbeempty
+msgid "File cannot be empty"
+msgstr "文件不能为空"
+
+#: uresourcestrings.rsfiledate
+msgid "Date"
+msgstr "日期"
+
+#: uresourcestrings.rsfileextensionnotsupported
+msgctxt "uresourcestrings.rsfileextensionnotsupported"
+msgid "This file extension is not supported."
+msgstr "不支持此文件扩展名。"
+
+#: uresourcestrings.rsfileformatnotrecognized
+msgid "The file format has not been recognized."
+msgstr "无法识别文件格式。"
+
+#: uresourcestrings.rsfilename
+msgid "Filename"
+msgstr "文件名"
+
+#: uresourcestrings.rsfilenotfound
+msgid "File not found!"
+msgstr "未找到文件！"
+
+#: uresourcestrings.rsfilenotsaved
+msgid "File not saved"
+msgstr "文件未保存"
+
+#: uresourcestrings.rsfilesize
+msgid "Size"
+msgstr "大小"
+
+#: uresourcestrings.rsfilesystem
+msgid "File system"
+msgstr "文件系统"
+
+#: uresourcestrings.rsfiletype
+msgid "Type"
+msgstr "类型"
+
+#: uresourcestrings.rsfixeddrive
+msgid "Fixed"
+msgstr "固定"
+
+#: uresourcestrings.rsfolder
+msgid "Folder"
+msgstr "文件夹"
+
+#: uresourcestrings.rsfolderorcontaineralreadyexists
+msgid "Folder or container already exists."
+msgstr "文件夹或容器已存在。"
+
+#: uresourcestrings.rsfollowingerrorsoccured
+msgid "Following errors occured:"
+msgstr "发生以下错误："
+
+#: uresourcestrings.rsframes
+msgid "Frames"
+msgstr "帧"
+
+#: uresourcestrings.rsfunctionnotdefined
+msgid "The function %1 is not defined."
+msgstr "函数 %1 未定义。"
+
+#: uresourcestrings.rsgreen
+msgid "Green"
+msgstr "绿"
+
+#: uresourcestrings.rshalfcosine
+msgctxt "uresourcestrings.rshalfcosine"
+msgid "Half-cosine"
+msgstr "半角余弦"
+
+#: uresourcestrings.rsholdkeyforsquare
+msgid "Hold %1 to draw a square or a circle"
+msgstr "按住 %1 以绘制正方形或圆形"
+
+#: uresourcestrings.rsholdkeyrestrictrotation
+msgid "Hold %1 to restrict rotation angle"
+msgstr "按住 %1 来限制旋转角度"
+
+#: uresourcestrings.rsholdkeysnaptopixel
+msgid "Hold %1 to snap to pixels"
+msgstr "按住 %1 捕捉像素"
+
+#: uresourcestrings.rsholdkeysscalemode
+msgid "Hold %1 or %2 to scale"
+msgstr "按住 %1 或 %2 进行缩放"
+
+#: uresourcestrings.rshotspot
+msgctxt "uresourcestrings.rshotspot"
+msgid "Hot spot"
+msgstr "热点"
+
+#: uresourcestrings.rshue
+msgctxt "uresourcestrings.rshue"
+msgid "Hue"
+msgstr "色调"
+
+#: uresourcestrings.rshueccw
+msgctxt "uresourcestrings.rshueccw"
+msgid "Hue CCW"
+msgstr "逆时针色调"
+
+#: uresourcestrings.rshuecw
+msgctxt "uresourcestrings.rshuecw"
+msgid "Hue CW"
+msgstr "顺时针色调"
+
+#: uresourcestrings.rsiconimagealreadyexists
+msgid "There is already an image with this size and depth."
+msgstr "已经有一个此大小和深度的图像。"
+
+#: uresourcestrings.rsiconorcursor
+msgid "Icon/cursor"
+msgstr "图标/光标"
+
+#: uresourcestrings.rsiconsize
+msgctxt "uresourcestrings.rsiconsize"
+msgid "Icon size"
+msgstr "图标大小"
+
+#: uresourcestrings.rsimagetoobig
+msgid "Image is too big"
+msgstr "图像太大"
+
+#: uresourcestrings.rsinfinity
+msgctxt "uresourcestrings.rsinfinity"
+msgid "Infinity"
+msgstr "无限"
+
+#: uresourcestrings.rsinformation
+msgid "Information"
+msgstr "信息"
+
+#: uresourcestrings.rsintensity
+msgctxt "uresourcestrings.rsintensity"
+msgid "Intensity"
+msgstr "强度"
+
+#: uresourcestrings.rsinternalerror
+msgid "Internal error"
+msgstr "内部错误"
+
+#: uresourcestrings.rsinvalidname
+msgid "Invalid name"
+msgstr "无效名称"
+
+#: uresourcestrings.rsinvalidopacity
+msgid "Invalid opacity : "
+msgstr "无效透明度 :"
+
+#: uresourcestrings.rsinvalidparameters
+msgid "Invalid parameters"
+msgstr "无效参数"
+
+#: uresourcestrings.rsinvalidresamplesize
+msgid "Invalid resample size : "
+msgstr "无效的重新采样大小  :"
+
+#: uresourcestrings.rsinvalidsizefornew
+msgid "Invalid size for new : "
+msgstr "无效的新图像大小"
+
+#: uresourcestrings.rskeepchanges
+msgctxt "uresourcestrings.rskeepchanges"
+msgid "Do you want to keep changes?"
+msgstr "是否要保留更改？"
+
+#: uresourcestrings.rskeepemptyspace
+msgid "Keep empty space around opaque pixels?"
+msgstr "在不透明像素周围保留空白空间？"
+
+#: uresourcestrings.rslanczos
+msgid "Lanczos %1"
+msgstr "Lanczos %1"
+
+#: uresourcestrings.rslandscape
+msgid "Landscape"
+msgstr "景观"
+
+#: uresourcestrings.rslatestversion
+msgid "The latest version of LazPaint available online is"
+msgstr "最新 LazPaint 版本是"
+
+#: uresourcestrings.rslayeredimage
+msgid "Layered image"
+msgstr "分层图像"
+
+#: uresourcestrings.rslayers
+msgctxt "uresourcestrings.rslayers"
+msgid "Layers"
+msgstr "图层"
+
+#: uresourcestrings.rslazpaint
+msgctxt "uresourcestrings.rslazpaint"
+msgid "LazPaint"
+msgstr "LazPaint"
+
+#: uresourcestrings.rslazpaintonly
+msgid "LazPaint only"
+msgstr "仅 LazPaint"
+
+#: uresourcestrings.rslight
+msgctxt "uresourcestrings.rslight"
+msgid "Light"
+msgstr "亮度"
+
+#: uresourcestrings.rslightness
+msgctxt "uresourcestrings.rslightness"
+msgid "Lightness"
+msgstr "亮度"
+
+#: uresourcestrings.rslightposition
+msgid "Light position"
+msgstr "灯光位置"
+
+#: uresourcestrings.rslinear
+msgctxt "uresourcestrings.rslinear"
+msgid "Linear"
+msgstr "线性"
+
+#: uresourcestrings.rslinearrgb
+msgid "Linear RGB"
+msgstr "线性 RGB"
+
+#: uresourcestrings.rsloadandmergepalette
+msgid "Load and merge palette..."
+msgstr "加载和合并调色板..."
+
+#: uresourcestrings.rsloading
+msgid "Loading"
+msgstr "加载"
+
+#: uresourcestrings.rsloadpalette
+msgid "Load palette..."
+msgstr "加载调色板..."
+
+#: uresourcestrings.rsloopcount
+msgid "Loop count"
+msgstr "循环数量"
+
+#: uresourcestrings.rsmakencolorspalettefrombitmap
+msgid "Make %1-colors palette from image"
+msgstr "从图像生成 %1 颜色调色板"
+
+#: uresourcestrings.rsmergeselection
+msgid "Do you want to merge selection?"
+msgstr "是否要合并选区？"
+
+#: uresourcestrings.rsmitchell
+msgctxt "uresourcestrings.rsmitchell"
+msgid "Mitchell"
+msgstr "Mitchell"
+
+#: uresourcestrings.rsmorethanonefile
+msgid "You are trying to open more than one file. How would you like these files to be opened?"
+msgstr "您正尝试打开多个文件。您希望如何打开这些文件？"
+
+#: uresourcestrings.rsmovingorrotatingselection
+msgctxt "uresourcestrings.rsmovingorrotatingselection"
+msgid "Moving or rotating selection"
+msgstr "移动或旋转选区"
+
+#: uresourcestrings.rsmustreleaseselection
+msgid "You must first release the selection"
+msgstr "您必须首先释放所选内容"
+
+#: uresourcestrings.rsmustshowlayer
+msgid "You must first make the layer visible"
+msgstr "您必须首先使图层可见"
+
+#: uresourcestrings.rsnetworkdrive
+msgid "Network"
+msgstr "网络"
+
+#: uresourcestrings.rsnewimage
+msgctxt "uresourcestrings.rsnewimage"
+msgid "New image"
+msgstr "新图像"
+
+#: uresourcestrings.rsno
+msgid "No"
+msgstr "否"
+
+#: uresourcestrings.rsnoactivelayer
+msgid "No active layer"
+msgstr "无活动图层"
+
+#: uresourcestrings.rsnoactiveselection
+msgid "There is no active selection"
+msgstr "没有活动选区"
+
+#: uresourcestrings.rsnoandproceedtonext
+msgid "Do not save and open another file"
+msgstr "不要保存并打开另一个文件"
+
+#: uresourcestrings.rsnoname
+msgctxt "uresourcestrings.rsnoname"
+msgid "noname"
+msgstr "无名"
+
+#: uresourcestrings.rsnormalblendop
+msgid "Normal"
+msgstr "正常"
+
+#: uresourcestrings.rsnothingtobedeformed
+msgctxt "uresourcestrings.rsnothingtobedeformed"
+msgid "There is nothing to be deformed"
+msgstr "没有可变形内容"
+
+#: uresourcestrings.rsnothingtoberetrieved
+msgctxt "uresourcestrings.rsnothingtoberetrieved"
+msgid "There is nothing to be retrieved"
+msgstr "没有可接收内容"
+
+#: uresourcestrings.rsnotreasonableformat
+msgid "It is not reasonable to save such a big image in this file format."
+msgstr "此文件格式不适合保存如此大的图像。"
+
+#: uresourcestrings.rsnumber
+msgid "№"
+msgstr "№"
+
+#: uresourcestrings.rsokay
+msgid "Okay"
+msgstr "好"
+
+#: uresourcestrings.rsopacity
+msgctxt "uresourcestrings.rsopacity"
+msgid "Opacity"
+msgstr "透明度"
+
+#: uresourcestrings.rsopen
+msgid "Open"
+msgstr "打开"
+
+#: uresourcestrings.rsopenfilesaslayers
+msgid "Open files as layers in a single image"
+msgstr "在单个图像的图层中打开文件"
+
+#: uresourcestrings.rsopenfirstfileonly
+msgid "Open the first file only"
+msgstr "仅打开第一个文件"
+
+#: uresourcestrings.rsopening
+msgid "Opening"
+msgstr "打开"
+
+#: uresourcestrings.rsopenmultipleimagefiles
+msgid "Open multiple image files"
+msgstr "打开多个图像文件"
+
+#: uresourcestrings.rsotherblendop
+msgid "Other..."
+msgstr "其他..."
+
+#: uresourcestrings.rsoverwritefile
+msgid "File already exists. Do you want to overwrite it?"
+msgstr "文件已存在。是否要覆盖它？"
+
+#: uresourcestrings.rspaletteincludesalphachannel
+msgid "Palette includes alpha channel"
+msgstr "调色板包含 Alpha 通道"
+
+#: uresourcestrings.rspaletteoptions
+msgid "Palette options"
+msgstr "调色板选项"
+
+#: uresourcestrings.rspercent
+msgctxt "uresourcestrings.rspercent"
+msgid "%"
+msgstr "%"
+
+#: uresourcestrings.rsportait
+msgid "Portrait"
+msgstr "人像"
+
+#: uresourcestrings.rsposterizelayerusingpalette
+msgid "Posterize layer using palette"
+msgstr "使用调色板对图层进行海报化"
+
+#: uresourcestrings.rspresetname
+msgid "Preset name"
+msgstr "预设名称"
+
+#: uresourcestrings.rspx
+msgid "px"
+msgstr "px"
+
+#: uresourcestrings.rspythonunexpectedversion
+msgid "Expected python version %1 but %2 found."
+msgstr "需要 python 版本 %1 但找到 %2。"
+
+#: uresourcestrings.rsramdisk
+msgid "RAM disk"
+msgstr "RAM 磁盘"
+
+#: uresourcestrings.rsrasterlayer
+msgid "Raster layer"
+msgstr "栅格层"
+
+#: uresourcestrings.rsrecentdirectories
+msgid "Recent directories:"
+msgstr "最近的目录:"
+
+#: uresourcestrings.rsred
+msgid "Red"
+msgstr "红"
+
+#: uresourcestrings.rsreload
+msgctxt "uresourcestrings.rsreload"
+msgid "Reload"
+msgstr "重新加载"
+
+#: uresourcestrings.rsreloadchanged
+msgid "Bitmap has been modified. Do you really want to reload?"
+msgstr "位图已被修改。您真的想重新加载吗？"
+
+#: uresourcestrings.rsremovabledrive
+msgid "Removable"
+msgstr "可移动"
+
+#: uresourcestrings.rsrepeatimage
+msgctxt "uresourcestrings.rsrepeatimage"
+msgid "Repeat image"
+msgstr "重复图像"
+
+#: uresourcestrings.rsresamplingimage
+msgid "Resampling image..."
+msgstr "重新采样图像..."
+
+#: uresourcestrings.rsretrieveselectedarea
+msgctxt "uresourcestrings.rsretrieveselectedarea"
+msgid "Do you want to retrieve selected area?"
+msgstr "是否确认旋转所选区域？"
+
+#: uresourcestrings.rsreturnvalides
+msgid "Press ENTER to validate"
+msgstr "按 ENTER 确认"
+
+#: uresourcestrings.rsrgb
+msgctxt "uresourcestrings.rsrgb"
+msgid "RGB"
+msgstr "RGB"
+
+#: uresourcestrings.rsrightclickforsource
+msgid "Use RIGHT click to define source"
+msgstr "单击右键来定义源"
+
+#: uresourcestrings.rssaturation
+msgctxt "uresourcestrings.rssaturation"
+msgid "Saturation"
+msgstr "饱和度"
+
+#: uresourcestrings.rssave
+msgctxt "uresourcestrings.rssave"
+msgid "Save"
+msgstr "保存"
+
+#: uresourcestrings.rssaveasbuttonhint
+msgctxt "uresourcestrings.rssaveasbuttonhint"
+msgid "Save with specified filename"
+msgstr "使用指定的文件名保存"
+
+#: uresourcestrings.rssavechanges
+msgctxt "uresourcestrings.rssavechanges"
+msgid "Current bitmap has been modified. Do you want to save changes?"
+msgstr "当前位图已被修改。是否要保存更改？"
+
+#: uresourcestrings.rssavepaletteas
+msgid "Save palette as..."
+msgstr "将调色板另存为..."
+
+#: uresourcestrings.rsscript
+msgctxt "uresourcestrings.rsscript"
+msgid "Script"
+msgstr "脚本"
+
+#: uresourcestrings.rsselectblendoperation
+msgctxt "uresourcestrings.rsselectblendoperation"
+msgid "Select blend operation"
+msgstr "选择混合操作"
+
+#: uresourcestrings.rsshift
+msgid "SHIFT"
+msgstr "位移"
+
+#: uresourcestrings.rsshowpalette
+msgctxt "uresourcestrings.rsshowpalette"
+msgid "Show palette"
+msgstr "显示调色板"
+
+#: uresourcestrings.rssourceposition
+msgid "Source position"
+msgstr "源位置"
+
+#: uresourcestrings.rsspline
+msgctxt "uresourcestrings.rsspline"
+msgid "Spline"
+msgstr "插值"
+
+#: uresourcestrings.rsstoragedevice
+msgid "Device"
+msgstr "设备"
+
+#: uresourcestrings.rstexturemapping
+msgctxt "uresourcestrings.rstexturemapping"
+msgid "Texture mapping"
+msgstr "纹理贴图"
+
+#: uresourcestrings.rstherearenocheckeditems
+msgid "There are no checked items. Check some items or add some new ones."
+msgstr "没有已选中项目。选择一些项目或添加一些新项目。"
+
+#: uresourcestrings.rsthereisnofilenamegivenforthisfileusesaveas
+msgid "There is no file name given for this file. Use \"Save as...\" from the main menu."
+msgstr "此文件无文件名，使用主菜单中的\"另存为...\"。"
+
+#: uresourcestrings.rstodo
+msgid "To do"
+msgstr "计划"
+
+#: uresourcestrings.rstodoimages
+msgid "Images left: %1"
+msgstr "图像左侧: %1"
+
+#: uresourcestrings.rstooloninvisiblelayer
+msgid "Tool cannot be used on an invisible layer"
+msgstr "工具不能在不可见图层上使用"
+
+#: uresourcestrings.rstoomanyactions
+msgid "Too many actions"
+msgstr "操作太多"
+
+#: uresourcestrings.rstoomanylayers
+msgid "Too many layers"
+msgstr "图层太多"
+
+#: uresourcestrings.rstoomanyshapesinlayer
+msgid "Too many shapes in layer"
+msgstr "图层中的形状太多"
+
+#: uresourcestrings.rstotalimages
+msgid "Total images: %1"
+msgstr "图像总计: %1"
+
+#: uresourcestrings.rstransferselectiontootherlayer
+msgid "Transfer selection to other layer?"
+msgstr "将选区移动到其他图层？"
+
+#: uresourcestrings.rstransformedrasterlayer
+msgid "Transformed raster layer"
+msgstr "已变换的栅格图层"
+
+#: uresourcestrings.rstransformselectioncontent
+msgid "Do you want to transform content of the selection?"
+msgstr "是否要转换所选内容？"
+
+#: uresourcestrings.rsunabletoapplyfilter
+msgid "Unable to apply filter : "
+msgstr "无法应用滤镜 :"
+
+#: uresourcestrings.rsunabletoloadfile
+msgid "Unable to load file : "
+msgstr "无法加载文件 :"
+
+#: uresourcestrings.rsunabletosavefile
+msgid "Unable to save file : "
+msgstr "无法保存文件 :"
+
+#: uresourcestrings.rsunknowncommand
+msgid "Unknown command : "
+msgstr "未知命令 :"
+
+#: uresourcestrings.rsunknownoriginal
+msgid "Unknown original"
+msgstr "未知源"
+
+#: uresourcestrings.rsvectoriallayer
+msgid "Vectorial layer"
+msgstr "矢量图层"
+
+#: uresourcestrings.rsyes
+msgid "Yes"
+msgstr "是"
+
+#: uresourcestrings.rszoomlayerstackin
+msgctxt "uresourcestrings.rszoomlayerstackin"
+msgid "Zoom layer stack in"
+msgstr "将图层堆栈放大"
+
+#: uresourcestrings.rszoomlayerstackout
+msgctxt "uresourcestrings.rszoomlayerstackout"
+msgid "Zoom layer stack out"
+msgstr "将图层堆栈缩小"
