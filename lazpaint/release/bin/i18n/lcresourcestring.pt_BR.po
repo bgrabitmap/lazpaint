@@ -7,19 +7,19 @@ msgstr "Ajuste-se à forma"
 
 #: lcresourcestring.rscigsbnegative
 msgid "Corr. HSL CCW"
-msgstr ""
+msgstr "HSL corr. CCW"
 
 #: lcresourcestring.rscigsbpositive
 msgid "Corr. HSL CW"
-msgstr ""
+msgstr "HSL corr. CW"
 
 #: lcresourcestring.rscilinearhslnegative
 msgid "HSL CCW"
-msgstr ""
+msgstr "HSL CCW"
 
 #: lcresourcestring.rscilinearhslpositive
 msgid "HSL CW"
-msgstr ""
+msgstr "HSL CW"
 
 #: lcresourcestring.rscilinearrgb
 msgid "RGB"
@@ -43,7 +43,7 @@ msgstr "Editar pontos de gradiente/textura"
 
 #: lcresourcestring.rsendopacity
 msgid "End opacity"
-msgstr ""
+msgstr "Opacidade final"
 
 #: lcresourcestring.rsgradientangular
 msgid "Angular"
@@ -75,7 +75,7 @@ msgstr "Repetição de gradiente"
 
 #: lcresourcestring.rsgrpad
 msgid "Pad"
-msgstr ""
+msgstr "Acolchoar"
 
 #: lcresourcestring.rsgrreflect
 msgid "Reflect"
@@ -111,7 +111,7 @@ msgstr "Sem preenchimento"
 
 #: lcresourcestring.rsnottexturefill
 msgid "It is not a texture fill"
-msgstr ""
+msgstr "Não é um preenchimento de textura"
 
 #: lcresourcestring.rsopacity
 msgid "Opacity"
@@ -123,11 +123,11 @@ msgstr "Prévia"
 
 #: lcresourcestring.rsshapeclassnotspecified
 msgid "Shape class not specified"
-msgstr ""
+msgstr "Classe de forma não especificada"
 
 #: lcresourcestring.rsshapenotfound
 msgid "Shape not found"
-msgstr ""
+msgstr "Forma não encontrada"
 
 #: lcresourcestring.rssolidcolor
 msgid "Solid color"
@@ -135,7 +135,7 @@ msgstr "Monocromático"
 
 #: lcresourcestring.rsstartopacity
 msgid "Start opacity"
-msgstr ""
+msgstr "Opacidade inicial"
 
 #: lcresourcestring.rsswapcolors
 msgid "Swap colors"
@@ -167,5 +167,5 @@ msgstr "Repetir Y"
 
 #: lcresourcestring.rsunknownshapeclass
 msgid "Unknown shape class \"%1\""
-msgstr ""
+msgstr "Classe de forma desconhecida \"%1\""
 
