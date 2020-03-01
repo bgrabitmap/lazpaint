@@ -261,6 +261,7 @@ var
   orig, xa, ya, corner1, corner2: TPointF;
   overline: string4;
   i, nb: Integer;
+  rF: TRectF;
 begin
   if AShape is TEllipseShape then
     with TEllipseShape(AShape) do
@@ -297,14 +298,25 @@ begin
       result += inttostr(nb);
       if not Center.IsEmpty then
       begin
+        orig := AMatrix*Center;
         overline := UnicodeCharToUTF8($0305);
-        result +='|x'+overline+' = '+FloatToStrF(Center.x,ffFixed,6,1);
-        result +='|y'+overline+' = '+FloatToStrF(Center.y,ffFixed,6,1);
-        if (Usermode = vsuCreate) and (PointCount > 0) then
-        begin
-          result +='|x = '+FloatToStrF(Points[PointCount-1].x,ffFixed,6,1);
-          result +='|y = '+FloatToStrF(Points[PointCount-1].y,ffFixed,6,1);
-        end;
+        result += '|x'+overline+' = '+FloatToStrF(orig.x,ffFixed,6,1);
+        result += '|y'+overline+' = '+FloatToStrF(orig.y,ffFixed,6,1);
+        rF := GetPointBounds(AMatrix);
+        result += '|Δx = '+FloatToStrF(rF.Width,ffFixed,6,1);
+        result += '|Δy = '+FloatToStrF(rF.Height,ffFixed,6,1);
+      end;
+      if (Usermode = vsuCreate) and (PointCount > 0) then
+      begin
+        xa := AMatrix*Points[PointCount-1];
+        result += '|x = '+FloatToStrF(xa.x,ffFixed,6,1);
+        result += '|y = '+FloatToStrF(xa.y,ffFixed,6,1);
+      end else
+      if HoverPoint <> -1 then
+      begin
+        xa := AMatrix*Points[HoverPoint];
+        result += '|x = '+FloatToStrF(xa.x,ffFixed,6,1);
+        result += '|y = '+FloatToStrF(xa.y,ffFixed,6,1);
       end;
     end else
       result := '';
