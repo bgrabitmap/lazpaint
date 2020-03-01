@@ -241,13 +241,20 @@ begin
         end;
       end;
     end else
-    if enableScript and (CompareText(ExtractFileExt(CommandStr), '.py') = 0) then
+    if enableScript then
     begin
       ForcePathDelims(commandStr);
+      if (CompareText(ExtractFileExt(CommandStr), '.py') <> 0) then
+      begin
+        instance.ShowError('Command line', rsFileExtensionNotSupported + ' ('+ExtractFileExt(commandStr)+')');
+        errorEncountered:= true;
+        exit;
+      end;
       if not FileExistsUTF8(commandStr) and
         (pos(PathDelim, commandStr) = 0) then
         commandStr := TPythonScript.DefaultScriptDirectory + PathDelim + commandStr;
       if not instance.RunScript(commandStr) then exit;
+      enableScript := false;
     end else
     begin
       ForcePathDelims(CommandStr);
