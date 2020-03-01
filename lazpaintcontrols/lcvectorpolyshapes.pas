@@ -61,12 +61,16 @@ type
   TCustomPolypointShape = class(TVectorShape)
   private
     FClosed: boolean;
+    function GetHoverPoint: integer;
     function GetLineCap: TPenEndCap;
     function GetPoint(AIndex: integer): TPointF;
     function GetPointCount: integer;
     procedure SetArrowEndKind(AValue: TArrowKind);
     procedure SetArrowSize(AValue: TPointF);
     procedure SetArrowStartKind(AValue: TArrowKind);
+    procedure SetCenterPoint(AValue: TPointF);
+    procedure SetHoverCenter(AValue: boolean);
+    procedure SetHoverPoint(AValue: integer);
     procedure SetLineCap(AValue: TPenEndCap);
     procedure SetPoint(AIndex: integer; AValue: TPointF);
   protected
@@ -77,8 +81,10 @@ type
     FAddingPoint: boolean;
     FMousePos: TPointF;
     FHoverPoint: integer;
+    FHoverCenter: boolean;
     FArrowStartKind,FArrowEndKind: TArrowKind;
     FArrowSize: TPointF;
+    FViewMatrix, FViewMatrixInverse, FGridMatrix: TAffineMatrix;
     procedure OnMovePoint({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; {%H-}AShift: TShiftState);
     procedure OnMoveCenterPoint({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; {%H-}AShift: TShiftState);
     procedure OnStartMove({%H-}ASender: TObject; APointIndex: integer; {%H-}AShift: TShiftState);
@@ -104,6 +110,7 @@ type
     function RemovePoint(AIndex: integer): boolean;
     procedure RemovePointRange(AFromIndex, AToIndexPlus1: integer);
     procedure InsertPoint(AIndex: integer; APoint: TPointF);
+    function GetPointBounds(AMatrix: TAffineMatrix): TRectF;
     procedure MouseMove({%H-}Shift: TShiftState; X, Y: single; var {%H-}ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
     procedure MouseDown(RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
     procedure KeyDown({%H-}Shift: TShiftState; Key: TSpecialKey; var AHandled: boolean); override;
@@ -117,12 +124,13 @@ type
     property Points[AIndex:integer]: TPointF read GetPoint write SetPoint;
     property PointCount: integer read GetPointCount;
     property Closed: boolean read GetClosed write SetClosed;
-    property HoverPoint: integer read FHoverPoint;
+    property HoverPoint: integer read GetHoverPoint write SetHoverPoint;
+    property HoverCenter: boolean read FHoverCenter write SetHoverCenter;
     property ArrowStartKind: TArrowKind read FArrowStartKind write SetArrowStartKind;
     property ArrowEndKind: TArrowKind read FArrowEndKind write SetArrowEndKind;
     property ArrowSize: TPointF read FArrowSize write SetArrowSize;
     property LineCap: TPenEndCap read GetLineCap write SetLineCap;
-    property Center: TPointF read FCenterPoint;
+    property Center: TPointF read FCenterPoint write SetCenterPoint;
   end;
 
   { TPolylineShape }
@@ -450,6 +458,13 @@ begin
   result := Stroker.LineCap;
 end;
 
+function TCustomPolypointShape.GetHoverPoint: integer;
+begin
+  if (FHoverPoint >= 0) and (FHoverPoint < PointCount) and
+     not Points[FHoverPoint].IsEmpty then
+       result := FHoverPoint else result := -1;
+end;
+
 function TCustomPolypointShape.GetPointCount: integer;
 begin
   result:= length(FPoints);
@@ -477,6 +492,47 @@ begin
   BeginUpdate(TCustomPolypointShapeDiff);
   FArrowStartKind:=AValue;
   EndUpdate;
+end;
+
+procedure TCustomPolypointShape.SetCenterPoint(AValue: TPointF);
+var
+  i: Integer;
+  delta: TPointF;
+begin
+  if FCenterPoint=AValue then Exit;
+
+  BeginUpdate(TCustomPolypointShapeDiff);
+  delta := AValue - FCenterPoint;
+  for i := 0 to PointCount-1 do
+    Points[i] := Points[i]+delta;
+  if vsfBackFill in Fields then
+    BackFill.Transform(AffineMatrixTranslation(delta.x, delta.y));
+  if vsfPenFill in Fields then
+    PenFill.Transform(AffineMatrixTranslation(delta.x, delta.y));
+  FCenterPoint:=AValue;
+  EndUpdate;
+end;
+
+procedure TCustomPolypointShape.SetHoverCenter(AValue: boolean);
+begin
+  if FHoverCenter=AValue then Exit;
+  BeginEditingUpdate;
+  if AValue then FHoverPoint := -1;
+  FHoverCenter:=AValue;
+  EndEditingUpdate;
+end;
+
+procedure TCustomPolypointShape.SetHoverPoint(AValue: integer);
+begin
+  if (AValue < 0) or (AValue >= PointCount) or
+     Points[AValue].IsEmpty then AValue := -1;
+  if AValue <> FHoverPoint then
+  begin
+    BeginEditingUpdate;
+    FHoverPoint := AValue;
+    if AValue <> -1 then FHoverCenter:= false;
+    EndEditingUpdate;
+  end;
 end;
 
 procedure TCustomPolypointShape.SetLineCap(AValue: TPenEndCap);
@@ -516,26 +572,13 @@ procedure TCustomPolypointShape.OnMovePoint(ASender: TObject; APrevCoord,
   ANewCoord: TPointF; AShift: TShiftState);
 begin
   if FCurPoint = -1 then exit;
-  BeginUpdate(TCustomPolypointShapeDiff);
   Points[FCurPoint] := ANewCoord;
-  EndUpdate;
 end;
 
 procedure TCustomPolypointShape.OnMoveCenterPoint(ASender: TObject; APrevCoord,
   ANewCoord: TPointF; AShift: TShiftState);
-var
-  i: Integer;
-  delta: TPointF;
 begin
-  BeginUpdate(TCustomPolypointShapeDiff);
-  delta := ANewCoord - APrevCoord;
-  for i := 0 to PointCount-1 do
-    Points[i] := Points[i]+delta;
-  if vsfBackFill in Fields then
-    BackFill.Transform(AffineMatrixTranslation(delta.x, delta.y));
-  if vsfPenFill in Fields then
-    PenFill.Transform(AffineMatrixTranslation(delta.x, delta.y));
-  EndUpdate;
+  Center := ANewCoord;
 end;
 
 procedure TCustomPolypointShape.OnStartMove(ASender: TObject; APointIndex: integer;
@@ -610,18 +653,25 @@ end;
 procedure TCustomPolypointShape.OnHoverPoint(ASender: TObject;
   APointIndex: integer);
 var
-  i: Integer;
+  i, newHoverPoint: Integer;
 begin
-  FHoverPoint:= -1;
+  if APointIndex = FCenterPointEditorIndex then
+  begin
+    HoverCenter := true;
+    exit;
+  end;
+  newHoverPoint:= -1;
   if APointIndex <> -1 then
   begin
     for i:= 0 to PointCount-1 do
       if FPoints[i].editorIndex = APointIndex then
       begin
-        FHoverPoint:= i;
+        newHoverPoint:= i;
         break;
       end;
   end;
+  HoverPoint := newHoverPoint;
+  HoverCenter:= false;
 end;
 
 procedure TCustomPolypointShape.OnClickPoint(ASender: TObject;
@@ -749,7 +799,7 @@ begin
   if (bestPointIndex <> -1) and ((bestSegmentIndex = -1) or (bestPointDist < bestSegmentDist)) then
   begin
     InsertPoint(bestPointIndex+1, FMousePos);
-    FHoverPoint := bestPointIndex+1;
+    HoverPoint := bestPointIndex+1;
   end else
   if bestSegmentIndex <> -1 then
   begin
@@ -757,7 +807,7 @@ begin
       InsertPoint(bestSegmentIndex+1, bestProjection)
     else
       InsertPoint(bestSegmentIndex+1, FMousePos);
-    FHoverPoint:= bestSegmentIndex+1;
+    HoverPoint:= bestSegmentIndex+1;
   end;
 end;
 
@@ -835,6 +885,8 @@ begin
   for i := AFromIndex to PointCount-DelCount-1 do
     FPoints[i] := FPoints[i+delCount];
   setlength(FPoints, PointCount-delCount);
+  if (HoverPoint >= AFromIndex) and (HoverPoint < AToIndexPlus1) then HoverPoint := -1
+  else if (HoverPoint <> -1) and (HoverPoint >= AToIndexPlus1) then HoverPoint := HoverPoint - delCount;
   EndUpdate;
 end;
 
@@ -850,7 +902,13 @@ begin
   FPoints[AIndex].coord := APoint;
   FPoints[AIndex].editorIndex:= -1;
   FPoints[AIndex].data := 0;
+  if (HoverPoint <> -1) and (HoverPoint >= AIndex) then HoverPoint := HoverPoint + 1;
   EndUpdate;
+end;
+
+function TCustomPolypointShape.GetPointBounds(AMatrix: TAffineMatrix): TRectF;
+begin
+  result := GetPointsBoundsF(GetCurve(AMatrix));
 end;
 
 procedure TCustomPolypointShape.MouseMove(Shift: TShiftState; X, Y: single; var
@@ -907,21 +965,23 @@ end;
 procedure TCustomPolypointShape.KeyDown(Shift: TShiftState; Key: TSpecialKey;
   var AHandled: boolean);
 var
-  nb: Integer;
+  nb, idx: Integer;
+  dx, dy, d: TPointF;
 begin
-  if (Key = skDelete) and (FAddingPoint or ((FHoverPoint >= 0) and (FHoverPoint < PointCount))) then
+  if (Key = skDelete) and (FAddingPoint or (HoverPoint <> -1)) then
   begin
-    if (FHoverPoint >= 0) and (FHoverPoint < PointCount) then
+    if (HoverPoint <> -1) then
     begin
       BeginUpdate(TCustomPolypointShapeDiff);
-      RemovePoint(FHoverPoint);
-      if ((FHoverPoint = PointCount) or IsEmptyPointF(Points[FHoverPoint])) and
-         ((FHoverPoint = 0) or IsEmptyPointF(Points[FHoverPoint-1])) then
+      idx := HoverPoint;
+      RemovePoint(idx);
+      if ((idx = PointCount) or IsEmptyPointF(Points[idx])) and
+         ((idx = 0) or IsEmptyPointF(Points[idx-1])) then
       begin
-        if FHoverPoint < PointCount then
-          RemovePoint(FHoverPoint)
-        else if FHoverPoint > 0 then
-          RemovePoint(FHoverPoint-1);
+        if idx < PointCount then
+          RemovePoint(idx)
+        else if idx > 0 then
+          RemovePoint(idx-1);
       end;
       EndUpdate;
       if PointCount = 0 then self.Remove;
@@ -944,7 +1004,34 @@ begin
     end;
     AHandled:= true;
   end else
-  if (Key = skInsert) then InsertPointAuto(Shift) else
+  if (Key = skInsert) then
+  begin
+    InsertPointAuto(Shift);
+    AHandled := true;
+  end else
+  if (Key in [skLeft,skUp,skRight,skDown]) and ((HoverPoint <> -1) or HoverCenter) then
+  begin
+    if ssCtrl in Shift then
+    begin
+      dx := PointF(FGridMatrix[1,1], FGridMatrix[2,1]);
+      dy := PointF(FGridMatrix[1,2], FGridMatrix[2,2]);
+    end else
+    begin
+      dx := PointF(FViewMatrixInverse[1,1], FViewMatrixInverse[2,1]);
+      dy := PointF(FViewMatrixInverse[1,2], FViewMatrixInverse[2,2]);
+    end;
+    case Key of
+    skLeft: d := -dx;
+    skRight: d := dx;
+    skUp: d := -dy;
+    skDown: d := dy;
+    end;
+    if HoverCenter then
+      Center := Center + d
+    else
+      Points[HoverPoint] := Points[HoverPoint] + d;
+    AHandled := true;
+  end else
     inherited KeyDown(Shift, Key, AHandled);
 end;
 
@@ -1015,6 +1102,10 @@ procedure TCustomPolypointShape.ConfigureCustomEditor(AEditor: TBGRAOriginalEdit
 var
   i, nbTotal: Integer;
 begin
+  FViewMatrix := AEditor.Matrix;
+  FViewMatrixInverse := AffineMatrixInverse(FViewMatrix);
+  FGridMatrix := AEditor.GridMatrix;
+
   AEditor.AddStartMoveHandler(@OnStartMove);
   AEditor.AddClickPointHandler(@OnClickPoint);
   AEditor.AddHoverPointHandler(@OnHoverPoint);
@@ -1037,6 +1128,8 @@ begin
       else
         FPoints[i].editorIndex := AEditor.AddFixedPoint(Points[i], false);
       FCenterPoint += Points[i];
+      if i = HoverPoint then
+        AEditor.PointHighlighted[FPoints[i].editorIndex] := true;
       inc(nbTotal);
     end;
 
@@ -1045,7 +1138,11 @@ begin
     else FCenterPoint := EmptyPointF;
 
   if (FAddingPoint and (nbTotal > 2)) or (not FAddingPoint and (nbTotal > 1)) then
+  begin
     FCenterPointEditorIndex := AEditor.AddPoint(FCenterPoint, @OnMoveCenterPoint, true);
+    AEditor.PointHighlighted[FCenterPointEditorIndex] := HoverCenter;
+  end else
+    FCenterPointEditorIndex := -1;
 end;
 
 procedure TCustomPolypointShape.Transform(const AMatrix: TAffineMatrix);
@@ -1413,8 +1510,8 @@ procedure TCurveShape.KeyPress(UTF8Key: string; var AHandled: boolean);
 var
   targetPoint: Integer;
 begin
-  if FHoverPoint<>-1 then
-    targetPoint := FHoverPoint
+  if HoverPoint<>-1 then
+    targetPoint := HoverPoint
   else if FAddingPoint and (PointCount > 1) then
     targetPoint := PointCount-2
   else
