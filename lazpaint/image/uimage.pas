@@ -687,6 +687,7 @@ var s: TStream;
   bmp: TBGRABitmap;
   layeredBmp: TBGRACustomLayeredBitmap;
   temp: TBGRALayeredBitmap;
+  selIndex: Integer;
 begin
   if not CheckNoAction then exit;
 
@@ -713,9 +714,11 @@ begin
           (layeredBmp as TBGRALayeredBitmap).Resample(cx, cy, rmFineResample);
         end;
       CursorHotSpot := Point(0,0);
-      Assign(layeredBmp, true, false);
       if layeredBmp is TBGRALazPaintImage then
-        SetCurrentLayerByIndex(TBGRALazPaintImage(layeredBmp).SelectedLayerIndex);
+        selIndex := TBGRALazPaintImage(layeredBmp).SelectedLayerIndex
+        else selIndex := -1;
+      Assign(layeredBmp, true, false);
+      if selIndex <> -1 then SetCurrentLayerByIndex(selIndex);
       layeredBmp := nil;
     end else
     begin
