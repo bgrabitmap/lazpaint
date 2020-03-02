@@ -1016,7 +1016,7 @@ msgid "Twirl..."
 msgstr "卷曲..."
 
 #: tfmain.filterwavedisplacement.caption
-msgid "Wave diplacement..."
+msgid "Wave displacement..."
 msgstr "波形移位..."
 
 #: tfmain.forgetdialoganswers.caption

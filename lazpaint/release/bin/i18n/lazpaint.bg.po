@@ -1038,7 +1038,7 @@ msgid "Twirl..."
 msgstr "Усукване..."
 
 #: tfmain.filterwavedisplacement.caption
-msgid "Wave diplacement..."
+msgid "Wave displacement..."
 msgstr "Вълново изместване..."
 
 #: tfmain.forgetdialoganswers.caption

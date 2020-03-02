@@ -1023,7 +1023,7 @@ msgid "Twirl..."
 msgstr "Torsion..."
 
 #: tfmain.filterwavedisplacement.caption
-msgid "Wave diplacement..."
+msgid "Wave displacement..."
 msgstr "Décalage d'onde..."
 
 #: tfmain.forgetdialoganswers.caption

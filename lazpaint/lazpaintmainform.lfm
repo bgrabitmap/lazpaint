@@ -8240,7 +8240,7 @@ object FMain: TFMain
     end
     object FilterWaveDisplacement: TAction
       Category = 'Filter'
-      Caption = 'Wave diplacement...'
+      Caption = 'Wave displacement...'
       OnExecute = FilterAnyExecute
     end
     object ToolHand: TAction

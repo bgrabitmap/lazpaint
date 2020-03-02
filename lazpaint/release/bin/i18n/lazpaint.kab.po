@@ -1017,7 +1017,7 @@ msgid "Twirl..."
 msgstr "Abran..."
 
 #: tfmain.filterwavedisplacement.caption
-msgid "Wave diplacement..."
+msgid "Wave displacement..."
 msgstr "Asekḥer n tayyugt..."
 
 #: tfmain.forgetdialoganswers.caption
