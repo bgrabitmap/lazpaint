@@ -1253,20 +1253,26 @@ begin
   Image.OnImageChanged.DelayedStackUpdate := True;
 
   if btnLeftDown or btnRightDown or btnMiddleDown then exit;
-  if Button = mbLeft then
-    btnLeftDown := true else
-  if Button = mbRight then
-    btnRightDown := true else
+
   if Button = mbMiddle then
   begin
     btnMiddleDown:= true;
     if not ToolManager.ToolSleeping and not (ssAlt in Shift) then ToolManager.ToolSleep;
   end;
-  if ToolManager.ToolDown(FImageView.FormToBitmap(X,Y),
-      btnRightDown{$IFDEF DARWIN} or (ssCtrl in Shift){$ENDIF},
-      CurrentPressure) then
-      PaintPictureNow;
-  UpdateToolbar;
+
+  if FImageView.PictureCoordsDefined then
+  begin
+    if Button = mbLeft then
+      btnLeftDown := true else
+    if Button = mbRight then
+      btnRightDown := true;
+
+    if ToolManager.ToolDown(FImageView.FormToBitmap(X,Y),
+        btnRightDown{$IFDEF DARWIN} or (ssCtrl in Shift){$ENDIF},
+        CurrentPressure) then
+        PaintPictureNow;
+    UpdateToolbar;
+  end;
 end;
 
 procedure TFMain.FormMouseMove(Sender: TObject; Shift: TShiftState; X,

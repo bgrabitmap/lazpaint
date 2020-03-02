@@ -156,21 +156,14 @@ begin
 
   if Assigned(FVirtualScreen) and ((FVirtualScreen.Width <> FLastPictureParameters.virtualScreenArea.Right-FLastPictureParameters.virtualScreenArea.Left) or
      (FVirtualScreen.Height <> FLastPictureParameters.virtualScreenArea.Bottom-FLastPictureParameters.virtualScreenArea.Top)) then
-  begin
     FreeAndNil(FVirtualScreen);
-    FLastPictureParameters.defined := false;
-  end;
 
   if not Assigned(FVirtualScreen) then
-  begin
     FVirtualScreen := TBGRABitmap.Create(FLastPictureParameters.virtualScreenArea.Right-FLastPictureParameters.virtualScreenArea.Left,
                                         FLastPictureParameters.virtualScreenArea.Bottom-FLastPictureParameters.virtualScreenArea.Top);
-    FLastPictureParameters.defined := false;
-  end;
 
   if picParamWereDefined then FVirtualScreen.ClipRect := GetRenderUpdateRectVS(False);
   Image.ResetRenderUpdateRect;
-  FLastPictureParameters.defined := true;
 
   renderRect := FLastPictureParameters.scaledArea;
   OffsetRect(renderRect, -FLastPictureParameters.virtualScreenArea.Left,
