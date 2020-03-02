@@ -808,6 +808,15 @@ begin
   needUpdateLightscale := SetRectBounds(FLightscale.bounds, newLightscaleBounds)
                           or (FBarsAlign <> prevBarsAlign);
 
+  if FButtonsAlign = alLeft then
+  begin
+    delta := FMargin - (FWheelArea.Left + round(min(FWheelArea.Width, FWheelArea.Height)*(1-0.8)) - (FMargin - ExternalMargin + FButtonSize));
+    if delta >= 0 then
+    begin
+      inc(FWheelArea.Left, delta);
+    end;
+  end;
+
   diffXY := FWheelArea.Width - FWheelArea.Height;
   if diffXY > 0 then
   begin
@@ -818,6 +827,7 @@ begin
     dec(FWheelArea.Top, diffXY div 2);
     FWheelArea.Bottom := FWheelArea.Top + FWheelArea.Width;
   end;
+
   delta := min(FWheelArea.Left - (FButtonSize + FMargin) div 2, FWheelArea.Top - FMargin div 2);
   delta := min(delta, DoScaleX(120, OriginalDPI, FDPI) - FWheelArea.Width);
   if delta > 0 then
