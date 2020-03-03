@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <XML_DIZ_INFO>
 	<MASTER_PAD_VERSION_INFO>
 		<MASTER_PAD_VERSION>3.11</MASTER_PAD_VERSION>
@@ -109,11 +109,11 @@
 	</Program_Descriptions>
 	<Web_Info>
 		<Application_URLs>
-			<Application_Info_URL>http://sourceforge.net/projects/lazpaint/</Application_Info_URL>
-			<Application_Order_URL>http://sourceforge.net/projects/lazpaint/</Application_Order_URL>
-			<Application_Screenshot_URL>http://lazpaint.sourceforge.net/pad_screenshot.png</Application_Screenshot_URL>
-			<Application_Icon_URL>http://lazpaint.sourceforge.net/pad_icon.png</Application_Icon_URL>
-			<Application_XML_File_URL>http://lazpaint.sourceforge.net/pad_file.xml</Application_XML_File_URL>
+			<Application_Info_URL>https://wiki.freepascal.org/LazPaint</Application_Info_URL>
+			<Application_Order_URL>sourceforge.net/donate/index.php?group_id=404555</Application_Order_URL>
+			<Application_Screenshot_URL>https://gitcdn.link/repo/bgrabitmap/lazpaint/master/lazpaint/release/stable/pad_screenshot.png</Application_Screenshot_URL>
+			<Application_Icon_URL>https://gitcdn.link/repo/bgrabitmap/lazpaint/master/lazpaint/release/stable/pad_icon.png</Application_Icon_URL>
+			<Application_XML_File_URL>https://gitcdn.link/repo/bgrabitmap/lazpaint/master/lazpaint/release/stable/pad_file.xml</Application_XML_File_URL>
 		</Application_URLs>
 		<Download_URLs>
 			<Primary_Download_URL>https://github.com/bgrabitmap/lazpaint/releases/download/v7.0.7/lazpaint7.0.7_setup_win32_win64.exe</Primary_Download_URL>
