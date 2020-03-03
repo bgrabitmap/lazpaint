@@ -317,6 +317,7 @@ function TImageActions.ScriptImageMoveLayerIndex(AVars: TVariableSet): TScriptRe
 begin
   try
     Image.MoveLayer(AVars.Integers['FromIndex']-1, AVars.Integers['ToIndex']-1);
+    result := srOk;
   except
     on ex:exception do
       result := srException;
