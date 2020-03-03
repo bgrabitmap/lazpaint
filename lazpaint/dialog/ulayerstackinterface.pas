@@ -953,6 +953,7 @@ begin
   ComboBox_BlendOp := TBCComboBox.Create(ToolBar);
   ComboBox_BlendOp.Parent := Toolbar;
   ComboBox_BlendOp.OnChange:= @ComboBox_BlendOpChange;
+  UpdateComboBlendOp;
   AddButton(rsSelectBlendOperation, 103, @ToolSelectBlendOperation_Click);
   AddButton(rsZoomLayerStackIn, 6, @ToolZoomLayerStackIn_Click);
   AddButton(rsZoomLayerStackOut, 7, @ToolZoomLayerStackOut_Click);
