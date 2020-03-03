@@ -1489,7 +1489,7 @@ begin
   if Assigned(FImageList) then FImageList.Enabled:= true;
   {$ELSE}
   if Assigned(FMain) then FMain.Update;
-  if Assigned(FToolbox) then FToolbox.Update;
+  if Assigned(FFormToolbox) then FFormToolbox.Update;
   if Assigned(FChooseColor) then FChooseColor.Update;
   if Assigned(FLayerStack) then FLayerStack.Update;
   if Assigned(FImageList) then FImageList.Update;
