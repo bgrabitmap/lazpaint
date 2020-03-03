@@ -256,8 +256,9 @@ begin
     x := FMargin - ExternalMargin;
     if FBarsAlign = alBottom then y := round(FLightscale.bounds.Top-FMargin-1-size)
     else y := round(Bitmap.Height - FMargin - size);
-    Bitmap.RoundRectAntialias(x, y, x + size, y + size,
-        size/6,size/6, BGRA(0,0,0,192), 1, c, []);
+    if y >= BCButton_RemoveFromPalette.Top + BCButton_RemoveFromPalette.Height + FMargin div 2 then
+      Bitmap.RoundRectAntialias(x, y, x + size, y + size,
+          size/6,size/6, BGRA(0,0,0,192), 1, c, []);
   end;
 end;
 

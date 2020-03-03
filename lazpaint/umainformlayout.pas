@@ -33,6 +33,7 @@ type
     FStatusText: string;
     FDarkTheme: boolean;
     FDockedControlsPanel: TPanel;
+    FDockedChooseColorSplitter: TSplitter;
     function GetPaletteVisible: boolean;
     function GetPopupToolbox: TPopupMenu;
     function GetStatusBarVisible: boolean;
@@ -424,6 +425,7 @@ end;
 
 procedure TMainFormLayout.DoArrange;
 var nbY,nbX,w,i: integer;
+  updateChooseColorHeight: Boolean;
 begin
   if Assigned(FMenu) then
     FMenu.ArrangeToolbars(FForm.ClientWidth);
@@ -462,12 +464,14 @@ begin
     with GetWorkAreaAt(lsAfterPaletteToolbar) do
     begin
       w := DockedControlsPanelWidth;
+      updateChooseColorHeight := (FDockedControlsPanel.Width <> w) or not FDockedControlsPanel.Visible;
       FDockedControlsPanel.SetBounds(Right - w, Top, w, Bottom - Top);
       for i := 0 to FDockedControlsPanel.ControlCount-1 do
         if FDockedControlsPanel.Controls[i].Name = 'ChooseColorControl' then
         begin
           FDockedControlsPanel.Controls[i].Width := w - integer(FDockedControlsPanel.BevelOuter <> bvNone)*FDockedControlsPanel.BevelWidth*2 - FDockedControlsPanel.ChildSizing.LeftRightSpacing*2;
-          LazPaintInstance.AdjustChooseColorHeight;
+          if updateChooseColorHeight then
+            LazPaintInstance.AdjustChooseColorHeight;
         end;
     end;
     if not FDockedControlsPanel.Visible then
@@ -718,6 +722,16 @@ begin
     else
       AControl.Align:= alClient;
     FDockedControlsPanel.InsertControl(AControl);
+
+    if (AControl.Name = 'ChooseColorControl') and not Assigned(FDockedChooseColorSplitter) then
+    begin
+      FDockedChooseColorSplitter := TSplitter.Create(FDockedControlsPanel);
+      FDockedChooseColorSplitter.Align := alTop;
+      FDockedChooseColorSplitter.Height := DoScaleY(8, OriginalDPI);
+      FDockedChooseColorSplitter.MinSize:= DoScaleY(85, OriginalDPI);
+      FDockedChooseColorSplitter.Top := AControl.Height;
+      FDockedControlsPanel.InsertControl(FDockedChooseColorSplitter);
+    end;
   end;
 end;
 
@@ -725,6 +739,11 @@ procedure TMainFormLayout.RemoveDockedControl(AControl: TControl);
 begin
   if FDockedControlsPanel.ContainsControl(AControl) then
   begin
+    if (AControl.Name = 'ChooseColorControl') and Assigned(FDockedChooseColorSplitter) then
+    begin
+      FDockedControlsPanel.RemoveControl(FDockedChooseColorSplitter);
+      FreeAndNil(FDockedChooseColorSplitter);
+    end;
     FDockedControlsPanel.RemoveControl(AControl);
     AControl.Align:= alNone;
   end;
