@@ -308,6 +308,8 @@ begin
     until false;
     if FStatusBar.SimplePanel <> false then
       FStatusBar.SimplePanel := false;
+    while FStatusBar.Panels.Count > elems.Count do
+      FStatusBar.Panels.Delete(FStatusBar.Panels.Count-1);
     while FStatusBar.Panels.Count < elems.Count do
       with FStatusBar.Panels.Add do
         Width := FStatusBar.Height*10;

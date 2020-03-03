@@ -302,9 +302,6 @@ begin
         overline := UnicodeCharToUTF8($0305);
         result += '|x'+overline+' = '+FloatToStrF(orig.x,ffFixed,6,1);
         result += '|y'+overline+' = '+FloatToStrF(orig.y,ffFixed,6,1);
-        rF := GetPointBounds(AMatrix);
-        result += '|Δx = '+FloatToStrF(rF.Width,ffFixed,6,1);
-        result += '|Δy = '+FloatToStrF(rF.Height,ffFixed,6,1);
       end;
       if (Usermode = vsuCreate) and (PointCount > 0) then
       begin
@@ -317,6 +314,11 @@ begin
         xa := AMatrix*Points[HoverPoint];
         result += '|x = '+FloatToStrF(xa.x,ffFixed,6,1);
         result += '|y = '+FloatToStrF(xa.y,ffFixed,6,1);
+      end else
+      begin
+        rF := GetPointBounds(AMatrix);
+        result += '|Δx = '+FloatToStrF(rF.Width,ffFixed,6,1);
+        result += '|Δy = '+FloatToStrF(rF.Height,ffFixed,6,1);
       end;
     end else
       result := '';
