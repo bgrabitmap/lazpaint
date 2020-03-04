@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, UProcessAuto;
 
 const
-  DefaultPythonBin = {$IFDEF WINDOWS}'py'{$ELSE}'python3'{$ENDIF};
+  DefaultPythonBin = {$IFDEF WINDOWS}'pyw'{$ELSE}'python3'{$ENDIF};
 
 type
   TReceiveLineEvent = procedure(ASender: TObject; ALine: UTF8String) of object;
@@ -54,16 +54,27 @@ implementation
 
 uses process, UResourceStrings, Forms, UTranslation;
 
+var
+  PythonVersionCache: record
+    Bin: string;
+    Version: string;
+  end;
+
 function GetPythonVersion(APythonBin: string = DefaultPythonBin): string;
 const PythonVersionPrefix = 'Python ';
 var versionStr: string;
 begin
-  RunCommand(APythonBin, ['-V'], versionStr, [poStderrToOutPut]);
-  if versionStr.StartsWith(PythonVersionPrefix) then
-    result := trim(copy(versionStr,length(PythonVersionPrefix)+1,
-           length(versionStr)-length(PythonVersionPrefix)))
-  else
-    result := '?';
+  if (PythonVersionCache.Bin <> APythonBin) or (PythonVersionCache.Version = '?') then
+  begin
+    RunCommand(APythonBin, ['-V'], versionStr, [poStderrToOutPut]);
+    PythonVersionCache.Bin := APythonBin;
+    if versionStr.StartsWith(PythonVersionPrefix) then
+      PythonVersionCache.Version := trim(copy(versionStr,length(PythonVersionPrefix)+1,
+             length(versionStr)-length(PythonVersionPrefix)))
+    else
+      PythonVersionCache.Version := '?';
+  end;
+  result := PythonVersionCache.Version;
 end;
 
 { TPythonScript }
