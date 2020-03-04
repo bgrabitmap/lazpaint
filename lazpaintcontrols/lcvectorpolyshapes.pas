@@ -114,7 +114,7 @@ type
     procedure MouseMove({%H-}Shift: TShiftState; X, Y: single; var {%H-}ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
     procedure MouseDown(RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
     procedure KeyDown({%H-}Shift: TShiftState; Key: TSpecialKey; var AHandled: boolean); override;
-    procedure QuickDefine(const APoint1,APoint2: TPointF); override;
+    procedure QuickDefine(constref APoint1,APoint2: TPointF); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
@@ -1035,7 +1035,7 @@ begin
     inherited KeyDown(Shift, Key, AHandled);
 end;
 
-procedure TCustomPolypointShape.QuickDefine(const APoint1, APoint2: TPointF);
+procedure TCustomPolypointShape.QuickDefine(constref APoint1, APoint2: TPointF);
 begin
   BeginUpdate(TCustomPolypointShapeDiff);
   FPoints := nil;

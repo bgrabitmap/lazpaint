@@ -75,7 +75,7 @@ type
     procedure SetFixedRatio(AValue: single);
     procedure EnsureRatio(ACenterX,ACenterY: single);
   public
-    procedure QuickDefine(const APoint1,APoint2: TPointF); override;
+    procedure QuickDefine(constref APoint1,APoint2: TPointF); override;
     function SuggestGradientBox(AMatrix: TAffineMatrix): TAffineBox; override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
@@ -798,7 +798,7 @@ begin
   result := true;
 end;
 
-procedure TCustomRectShape.QuickDefine(const APoint1, APoint2: TPointF);
+procedure TCustomRectShape.QuickDefine(constref APoint1, APoint2: TPointF);
 begin
   BeginUpdate(TCustomRectShapeDiff);
   FOrigin := (APoint1+APoint2)*0.5;

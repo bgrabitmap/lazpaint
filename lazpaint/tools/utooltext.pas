@@ -27,7 +27,7 @@ type
     procedure ShapeEditingChange(ASender: TObject); override;
     procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); override;
     procedure QuickDefineEnd; override;
-    function RoundCoordinate(ptF: TPointF): TPointF; override;
+    function RoundCoordinate(constref ptF: TPointF): TPointF; override;
     function ForeGradTexMode: TVectorShapeUsermode; override;
     function BackGradTexMode: TVectorShapeUsermode; override;
     function ShapeForeFill: TVectorialFill; override;
@@ -201,7 +201,7 @@ begin
   FShape.Usermode := vsuEditText;
 end;
 
-function TToolText.RoundCoordinate(ptF: TPointF): TPointF;
+function TToolText.RoundCoordinate(constref ptF: TPointF): TPointF;
 begin
   result := PointF(floor(ptF.x)+0.5,floor(ptF.y)+0.5);
 end;

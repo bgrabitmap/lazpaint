@@ -43,7 +43,7 @@ type
     procedure UpdateUserMode; virtual;
     procedure ShapeValidated; override;
     function DoToolKeyDown(var key: Word): TRect; override;
-    function RoundCoordinate(ptF: TPointF): TPointF; override;
+    function RoundCoordinate(constref ptF: TPointF): TPointF; override;
   public
     function ToolUp: TRect; override;
     function ToolKeyPress(var key: TUTF8Char): TRect; override;
@@ -358,7 +358,7 @@ begin
     Result:=inherited DoToolKeyDown(key);
 end;
 
-function TToolPolygon.RoundCoordinate(ptF: TPointF): TPointF;
+function TToolPolygon.RoundCoordinate(constref ptF: TPointF): TPointF;
 begin
   If Editor.GridActive then
     result := Editor.SnapToGrid(ptF, false)

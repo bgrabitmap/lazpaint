@@ -48,7 +48,7 @@ type
     procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); virtual;
     function GetManagerShapeOptions: TShapeOptions; virtual;
     procedure QuickDefineShape(AStart,AEnd: TPointF); virtual;
-    function RoundCoordinate(ptF: TPointF): TPointF; virtual;
+    function RoundCoordinate(constref ptF: TPointF): TPointF; virtual;
     function GetIsSelectingTool: boolean; override;
     function UpdateShape(toolDest: TBGRABitmap): TRect; virtual;
     function PreferDraftUpdate: boolean;
@@ -1862,7 +1862,7 @@ begin
   FShape.QuickDefine(AStart, AEnd);
 end;
 
-function TVectorialTool.RoundCoordinate(ptF: TPointF): TPointF;
+function TVectorialTool.RoundCoordinate(constref ptF: TPointF): TPointF;
 begin
   if not (toDrawShape in GetManagerShapeOptions) or
     (Assigned(FShape) and not (vsfPenFill in FShape.Fields)) then

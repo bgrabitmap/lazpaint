@@ -210,7 +210,7 @@ type
     procedure BeginUpdate(ADiffHandler: TVectorShapeDiffAny=nil);
     procedure EndUpdate;
     procedure FillFit;
-    procedure QuickDefine(const APoint1,APoint2: TPointF); virtual; abstract;
+    procedure QuickDefine(constref APoint1,APoint2: TPointF); virtual; abstract;
     //one of the two Render functions must be overriden
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); virtual;
     procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); virtual;

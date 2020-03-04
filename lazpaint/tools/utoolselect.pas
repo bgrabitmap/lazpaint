@@ -16,7 +16,7 @@ type
   protected
     function GetIsSelectingTool: boolean; override;
     procedure AssignShapeStyle({%H-}AMatrix: TAffineMatrix; {%H-}AAlwaysFit: boolean); override;
-    function RoundCoordinate(ptF: TPointF): TPointF; override;
+    function RoundCoordinate(constref ptF: TPointF): TPointF; override;
     function UpdateShape(toolDest: TBGRABitmap): TRect; override;
     procedure QuickDefineEnd; override;
     function BigImage: boolean;
@@ -219,7 +219,7 @@ begin
   end;
 end;
 
-function TVectorialSelectTool.RoundCoordinate(ptF: TPointF): TPointF;
+function TVectorialSelectTool.RoundCoordinate(constref ptF: TPointF): TPointF;
 begin
   Result:= PointF(floor(ptF.x)+0.5,floor(ptF.y)+0.5);
 end;

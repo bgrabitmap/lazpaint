@@ -136,7 +136,7 @@ type
     procedure InsertUnicodeValue;
   public
     constructor Create(AContainer: TVectorOriginal); override;
-    procedure QuickDefine(const APoint1,APoint2: TPointF); override;
+    procedure QuickDefine(constref APoint1,APoint2: TPointF); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     destructor Destroy; override;
@@ -962,7 +962,7 @@ begin
   FLightPosition := PointF(0,0);
 end;
 
-procedure TTextShape.QuickDefine(const APoint1, APoint2: TPointF);
+procedure TTextShape.QuickDefine(constref APoint1, APoint2: TPointF);
 var minSize: single;
   p2: TPointF;
 begin
