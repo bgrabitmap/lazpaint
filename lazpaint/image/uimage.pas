@@ -1746,6 +1746,7 @@ begin
     end else
     begin
       FRenderedImage.ClipRect := FRenderedImageInvalidated;
+      FRenderedImage.DiscardXorMask;
       if NbLayers = 1 then
       begin
         rLayer := RectWithSize(LayerOffset[0].X, LayerOffset[0].Y, LayerBitmap[0].Width, LayerBitmap[0].Height);
@@ -1766,7 +1767,6 @@ begin
       end else
       begin
         FRenderedImage.FillRect(FRenderedImageInvalidated,BGRAPixelTransparent,dmSet);
-        FRenderedImage.DiscardXorMask;
         FCurrentState.DrawLayers(FRenderedImage,0,0,False);
       end;
       FRenderedImage.NoClip;
