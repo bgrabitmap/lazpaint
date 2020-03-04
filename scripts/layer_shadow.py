@@ -45,9 +45,14 @@ if image.get_layer_index(shadow_layer_id) == None:
 if shadow_layer_id is not None:
     layer.select_id(shadow_layer_id)
     chosen_opacity = layer.get_opacity()
+    overlay_color = colors.str_to_RGBA(layer.get_registry("overlay-color"))
     layer.select_id(source_layer_id)
 else:
     chosen_opacity = layer.get_opacity()*2/3 
+    overlay_color = None
+
+if overlay_color is None:
+  overlay_color = colors.BLACK
 
 def create_shadow_layer():
     global shadow_layer_id
@@ -62,7 +67,8 @@ def create_shadow_layer():
     shadow_layer_id = layer.get_id()
     shadow_index = image.get_layer_index()
     image.move_layer_index(shadow_index, shadow_index-1)
-    colors.lightness(shift=-1)
+    filters.filter_function(red=overlay_color.red/255, green=overlay_color.green/255, blue=overlay_color.blue/255, gamma_correction=False)
+    layer.set_registry("overlay-color", overlay_color)
     layer.set_opacity(chosen_opacity)    
     image.do_end()
 
@@ -90,7 +96,7 @@ def apply_offset():
     image.do_begin()
     tools.choose(tools.MOVE_LAYER)
     tools.mouse([(0,0), chosen_offset])
-    layer.set_opacity(chosen_opacity)  
+    layer.set_opacity(chosen_opacity)
     offset_done = image.do_end()
 
 ######## interface
