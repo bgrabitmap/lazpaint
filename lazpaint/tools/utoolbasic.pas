@@ -302,6 +302,8 @@ function TToolPen.ContinueDrawing(toolDest: TBGRABitmap; originF, destF: TPointF
 var
   pts: ArrayOfTPointF;
   b: TUniversalBrush;
+  testPix: TBGRAPixel;
+  testContext: TUniBrushContext;
 begin
   b := GetUniversalBrush(rightBtn);
   if ((ssSnap in ShiftState) or Manager.ShapeOptionAliasing) and (Manager.PenWidth = 1) then
@@ -319,10 +321,17 @@ begin
     if Manager.ShapeOptionAliasing then
     begin
       pts := toolDest.Pen.ComputePolyline([PointF(destF.X,destF.Y),PointF(originF.X,originF.Y)],
-       Manager.PenWidth, BGRAPixelTransparent, False);
+       Manager.PenWidth, testPix, False);
       toolDest.FillPoly(pts, b);
     end else
-      toolDest.DrawLineAntialias(destF.X, destF.Y, originF.X, originF.Y, b, Manager.PenWidth, False);
+    begin
+      testPix := BGRAPixelTransparent;
+      b.MoveTo(@testContext, @testPix, round(originF.X), round(originF.Y));
+      b.PutNextPixels(@testContext, 65535, 1);
+      pts := toolDest.Pen.ComputePolyline([PointF(destF.X,destF.Y),PointF(originF.X,originF.Y)],
+       Manager.PenWidth, testPix, False);
+      toolDest.FillPolyAntialias(pts, b);
+    end;
     toolDest.NoClip;
   end;
   ReleaseUniversalBrushes;
