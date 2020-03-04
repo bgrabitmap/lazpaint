@@ -30,7 +30,7 @@ channels_id = []
 for ch in channels:
   layer.select_id(layer_id)
   layer.duplicate()
-  filters.filter_function(red = ch["red"], green = ch["green"], blue = ch["blue"], alpha = ch["alpha"], gamma_correction = True)
+  filters.filter_function(red = ch["red"], green = ch["green"], blue = ch["blue"], alpha = ch["alpha"], gamma_correction = False)
   layer.set_name(ch["name"] + " channel")
   layer.set_opacity(layer_opacity)
   if ch["channel"] == "A":
