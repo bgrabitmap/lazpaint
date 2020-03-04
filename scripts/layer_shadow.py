@@ -17,6 +17,7 @@ if layer.is_empty():
 
 MAX_RADIUS = 100
 MAX_OFFSET = 100
+MAX_OPACITY = 255
 
 source_layer_id = layer.get_registry("shadow-source-layer-id")
 if source_layer_id is not None:
@@ -41,13 +42,18 @@ shadow_layer_id = layer.get_registry("shadow-layer-id")
 if image.get_layer_index(shadow_layer_id) == None:
     shadow_layer_id = None
 
+if shadow_layer_id is not None:
+    layer.select_id(shadow_layer_id)
+    chosen_opacity = layer.get_opacity()
+    layer.select_id(source_layer_id)
+else:
+    chosen_opacity = layer.get_opacity()*2/3 
+
 def create_shadow_layer():
     global shadow_layer_id
     image.do_begin()
-    shadow_opacity = layer.get_opacity()*2/3 
     if shadow_layer_id != None:
         layer.select_id(shadow_layer_id)
-        shadow_opacity = layer.get_opacity()
         layer.remove()
     layer.select_id(source_layer_id)
     layer.duplicate()
@@ -57,7 +63,7 @@ def create_shadow_layer():
     shadow_index = image.get_layer_index()
     image.move_layer_index(shadow_index, shadow_index-1)
     colors.lightness(shift=-1)
-    layer.set_opacity(shadow_opacity)    
+    layer.set_opacity(chosen_opacity)    
     image.do_end()
 
 blur_done = False
@@ -84,6 +90,7 @@ def apply_offset():
     image.do_begin()
     tools.choose(tools.MOVE_LAYER)
     tools.mouse([(0,0), chosen_offset])
+    layer.set_opacity(chosen_opacity)  
     offset_done = image.do_end()
 
 ######## interface
@@ -137,6 +144,22 @@ def scale_offset_update(event):
         window.after_cancel(scale_offset_update_job)
     scale_offset_update_job = window.after(100, scale_offset_update_do)
 
+scale_opacity_update_job = None
+
+def scale_opacity_update_do():
+    global chosen_opacity 
+    new_opacity = scale_opacity.get()
+    if new_opacity != chosen_opacity:
+        chosen_opacity = new_opacity
+        apply_offset()
+    scale_opacity_update_job = None
+
+def scale_opacity_update(event):   
+    global window, scale_opacity_update_job
+    if scale_opacity_update_job:
+        window.after_cancel(scale_opacity_update_job)
+    scale_opacity_update_job = window.after(100, scale_opacity_update_do)
+
 window = Tk()
 window.title("Layer shadow")
 window.resizable(False, False)
@@ -159,11 +182,18 @@ scale_offset_y = Scale(frame, from_=-MAX_OFFSET, to=MAX_OFFSET, orient=HORIZONTA
 scale_offset_y.grid(column=2, row=1, sticky=W+E, padx=10)
 scale_offset_y.set(chosen_offset[1])
 
+label_opacity = Label(frame, text="Opacity:")
+label_opacity.grid(column=0, row=2)
+scale_opacity = Scale(frame, from_=0, to=MAX_OPACITY, orient=HORIZONTAL, command=scale_opacity_update)
+scale_opacity.grid(column=1, row=2, columnspan=2, sticky=W+E, padx=10)
+scale_opacity.set(chosen_opacity)
+
 frame.columnconfigure(0, pad=20)
 frame.columnconfigure(1, weight=1)
 frame.columnconfigure(2, weight=1)
 frame.rowconfigure(0, pad=20)
 frame.rowconfigure(1, pad=20)
+frame.rowconfigure(2, pad=20)
 
 button_ok = Button(window, text="Ok", command=button_ok_click)
 button_ok.pack(side=RIGHT, padx=10, pady=10)
