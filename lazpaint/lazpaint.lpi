@@ -349,7 +349,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="104">
+    <Units Count="105">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -962,6 +962,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UChooseColorInterface"/>
       </Unit103>
+      <Unit104>
+        <Filename Value="uimagebackup.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UImageBackup"/>
+      </Unit104>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

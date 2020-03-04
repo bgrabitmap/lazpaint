@@ -2204,8 +2204,11 @@ begin
 end;
 
 function TLazPaintImage.CurrentLayerEmpty: boolean;
+var
+  selLayer: TBGRABitmap;
 begin
-  result := GetSelectedImageLayer.Empty;
+  selLayer := GetSelectedImageLayer;
+  result := not Assigned(selLayer) or selLayer.Empty;
 end;
 
 function TLazPaintImage.CurrentLayerTransparent: boolean;
