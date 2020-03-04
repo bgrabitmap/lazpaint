@@ -42,7 +42,9 @@ def RGB(red: int, green: int, blue: int): #0..255
   return RGBA(red, green, blue, 255)
 
 def str_to_RGBA(s):
-  if isinstance(s, list):
+  if s is None:
+    return None
+  elif isinstance(s, list):
     return [str_to_RGBA(c) for c in s]
   else:
     if s[0:1] == "#":
