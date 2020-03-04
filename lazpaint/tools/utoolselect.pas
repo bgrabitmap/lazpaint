@@ -117,13 +117,14 @@ type
   TToolRotateSelection = class(TTransformSelectionTool)
   protected
     class var HintShowed: boolean;
-    handMoving: boolean;
-    handOrigin: TPointF;
-    snapRotate: boolean;
-    snapAngle: single;
+    FHandRotating, FHandTranslating: boolean;
+    FHandOrigin: TPointF;
+    FSnapMode: boolean;
+    FUnsnappedAngle: single;
     FOriginalTransform: TAffineMatrix;
     FCurrentAngle: single;
     FCurrentCenter: TPointF;
+    FOffsetBeforeMove, FFinalOffset: TPointF;
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
       rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect; override;
@@ -141,7 +142,7 @@ type
 implementation
 
 uses types, ugraph, LCLType, LazPaintType, Math, BGRATransform, BGRAPath,
-  BGRAPen, LCVectorRectShapes;
+  BGRAPen, LCVectorRectShapes, Controls;
 
 procedure AssignSelectShapeStyle(AShape: TVectorShape; ASwapColor: boolean);
 var
@@ -372,25 +373,28 @@ function TToolRotateSelection.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
 begin
   result := EmptyRect;
-  if not handMoving and not Manager.Image.SelectionMaskEmpty then
+  if not FHandRotating and not FHandTranslating and not Manager.Image.SelectionMaskEmpty then
   begin
     if rightBtn then
     begin
-      if FCurrentAngle <> 0 then
+      if FSnapMode then
       begin
-        FCurrentAngle := 0;
-        FCurrentCenter := ptF;
-        UpdateTransform;
-      end else
-      begin
-        FCurrentCenter := ptF;
-        UpdateTransform;
+        ptF.x := round(ptF.x*2)/2;
+        ptF.y := round(ptF.y*2)/2;
       end;
+      FCurrentAngle := 0;
+      FFinalOffset := PointF(0, 0);
+      FCurrentCenter := ptF;
+      UpdateTransform;
       result := OnlyRenderChange;
     end else
     begin
-      handMoving := true;
-      handOrigin := ptF;
+      if VectLen(ptF - (FCurrentCenter + FFinalOffset)) < SelectionMaxPointDistance then
+        FHandTranslating:= true
+      else
+        FHandRotating := true;
+      FHandOrigin := ptF;
+      FOffsetBeforeMove := FFinalOffset;
     end;
   end;
 end;
@@ -398,40 +402,65 @@ end;
 function TToolRotateSelection.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF): TRect;
 var angleDiff: single;
+  finalCenter, newOfs: TPointF;
 begin
   if not HintShowed then
   begin
     Manager.ToolPopup(tpmHoldKeyRestrictRotation, VK_CONTROL);
     HintShowed:= true;
   end;
-  if handMoving and ((handOrigin.X <> ptF.X) or (handOrigin.Y <> ptF.Y)) then
+  if FHandRotating and ((FHandOrigin.X <> ptF.X) or (FHandOrigin.Y <> ptF.Y)) then
   begin
-    angleDiff := ComputeAngle(ptF.X-FCurrentCenter.X,ptF.Y-FCurrentCenter.Y)-
-                 ComputeAngle(handOrigin.X-FCurrentCenter.X,handOrigin.Y-FCurrentCenter.Y);
-    if snapRotate then
+    finalCenter := FCurrentCenter + FFinalOffset;
+    angleDiff := ComputeAngle(ptF.X - finalCenter.X, ptF.Y - finalCenter.Y)-
+                 ComputeAngle(FHandOrigin.X - finalCenter.X, FHandOrigin.Y - finalCenter.Y);
+    if FSnapMode then
     begin
-      snapAngle += angleDiff;
-      FCurrentAngle := round(snapAngle/15)*15;
-    end
-     else
-       FCurrentAngle := FCurrentAngle + angleDiff;
+      FUnsnappedAngle += angleDiff;
+      FCurrentAngle := round(FUnsnappedAngle/15)*15;
+    end else
+      FCurrentAngle := FCurrentAngle + angleDiff;
     UpdateTransform;
-    handOrigin := ptF;
+    FHandOrigin := ptF;
     result := OnlyRenderChange;
   end else
+  if FHandTranslating and ((FHandOrigin.X <> ptF.X) or (FHandOrigin.Y <> ptF.Y)) then
+  begin
+    newOfs := FOffsetBeforeMove + ptF - FHandOrigin;
+    if FSnapMode then
+    begin
+      newOfs.X := round(newOfs.x*2)/2;
+      newOfs.Y := round(newOfs.y*2)/2;
+    end;
+    if newOfs <> FFinalOffset then
+    begin
+      FFinalOffset := newOfs;
+      UpdateTransform;
+      result := OnlyRenderChange;
+    end else
+      result := EmptyRect;
+  end else
+  begin
+    if VectLen(ptF - (FCurrentCenter + FFinalOffset)) < SelectionMaxPointDistance then
+      Cursor := crSizeAll else Cursor := crDefault;
     result := EmptyRect;
+  end;
 end;
 
 function TToolRotateSelection.GetStatusText: string;
 begin
-  Result:= 'α = '+FloatToStrF(FCurrentAngle,ffFixed,5,1);
+  Result:= 'α = '+FloatToStrF(FCurrentAngle,ffFixed,5,1) + '|' +
+           'Δx = '+FloatToStrF(FFinalOffset.X,ffFixed,6,1) + '|' +
+           'Δy = '+FloatToStrF(FFinalOffset.Y,ffFixed,6,1);
 end;
 
 procedure TToolRotateSelection.UpdateTransform;
 begin
-  Manager.Image.SelectionTransform := AffineMatrixTranslation(FCurrentCenter.X,FCurrentCenter.Y)*
-                                   AffineMatrixRotationDeg(FCurrentAngle)*
-                                   AffineMatrixTranslation(-FCurrentCenter.X,-FCurrentCenter.Y)*FOriginalTransform;
+  Manager.Image.SelectionTransform := AffineMatrixTranslation(FFinalOffset.X, FFinalOffset.Y) *
+                                   AffineMatrixTranslation(FCurrentCenter.X,FCurrentCenter.Y) *
+                                   AffineMatrixRotationDeg(FCurrentAngle) *
+                                   AffineMatrixTranslation(-FCurrentCenter.X,-FCurrentCenter.Y) *
+                                   FOriginalTransform;
 end;
 
 constructor TToolRotateSelection.Create(AManager: TToolManager);
@@ -440,6 +469,7 @@ begin
   FCurrentCenter := Manager.Image.SelectionTransform * Manager.Image.GetSelectionMaskCenter;
   FOriginalTransform := Manager.Image.SelectionTransform;
   FCurrentAngle := 0;
+  FFinalOffset := PointF(0, 0);
 end;
 
 function TToolRotateSelection.DoToolKeyDown(var key: Word): TRect;
@@ -447,14 +477,21 @@ begin
   result := EmptyRect;
   if key = VK_CONTROL then
   begin
-    if not snapRotate then
+    if not FSnapMode then
     begin
-      snapRotate := true;
-      snapAngle := FCurrentAngle;
+      FSnapMode := true;
+      FUnsnappedAngle := FCurrentAngle;
 
-      if handMoving then
+      if FHandRotating then
       begin
-        FCurrentAngle := round(snapAngle/15)*15;
+        FCurrentAngle := round(FUnsnappedAngle/15)*15;
+        UpdateTransform;
+        result := OnlyRenderChange;
+      end else
+      if FHandTranslating then
+      begin
+        FFinalOffset.x := round(FFinalOffset.x*2)/2;
+        FFinalOffset.y := round(FFinalOffset.y*2)/2;
         UpdateTransform;
         result := OnlyRenderChange;
       end;
@@ -466,6 +503,7 @@ begin
     if FCurrentAngle <> 0 then
     begin
       FCurrentAngle := 0;
+      FFinalOffset := PointF(0, 0);
       UpdateTransform;
       result := OnlyRenderChange;
     end;
@@ -477,7 +515,7 @@ function TToolRotateSelection.DoToolKeyUp(var key: Word): TRect;
 begin
   if key = VK_CONTROL then
   begin
-    snapRotate := false;
+    FSnapMode := false;
     Key := 0;
   end;
   result := EmptyRect;
@@ -485,7 +523,8 @@ end;
 
 function TToolRotateSelection.ToolUp: TRect;
 begin
-  handMoving:= false;
+  FHandRotating:= false;
+  FHandTranslating:= false;
   Result:= EmptyRect;
 end;
 
@@ -493,13 +532,14 @@ function TToolRotateSelection.Render(VirtualScreen: TBGRABitmap;
   VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
 var pictureRotateCenter: TPointF;
 begin
-  pictureRotateCenter := BitmapToVirtualScreen(FCurrentCenter);
+  pictureRotateCenter := BitmapToVirtualScreen(FCurrentCenter + FFinalOffset);
   result := NicePoint(VirtualScreen, pictureRotateCenter.X,pictureRotateCenter.Y);
 end;
 
 destructor TToolRotateSelection.Destroy;
 begin
-  if handMoving then handMoving := false;
+  if FHandRotating then FHandRotating := false;
+  if FHandTranslating then FHandTranslating := false;
   inherited Destroy;
 end;
 

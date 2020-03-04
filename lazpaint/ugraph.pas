@@ -8,8 +8,9 @@ uses
   Classes, SysUtils, bgrabitmap, bgrabitmaptypes, LazPaintType, Graphics, BGRALayers, LCLType,
   BCComboBox;
 
-const FrameDashLength = 4;
-  NicePointMaxRadius = 4;
+var
+  NicePointMaxRadius: integer = 4;
+  FrameDashLength: integer = 4;
 
 function ComputeRatio(ARatio: string): single;
 function RatioToStr(ARatio: single): string;

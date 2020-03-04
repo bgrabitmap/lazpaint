@@ -25,6 +25,7 @@ type
     DoingDeformation: boolean;
     deformationGrid: array of array of TPointF;
     deformationGridTexCoord: array of array of TPointF;
+    function GetPointAt(const ptF: TPointF; var x,y: integer): boolean;
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
       {%H-}rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): Trect;
@@ -115,7 +116,7 @@ type
 
 implementation
 
-uses LCLType, ugraph, LCScaleDPI, LazPaintType, BGRAFillInfo, BGRATransform;
+uses LCLType, ugraph, LCScaleDPI, LazPaintType, BGRAFillInfo, BGRATransform, Controls;
 
 { TToolLayerMapping }
 
@@ -932,31 +933,41 @@ begin
   end;
 end;
 
+function TToolDeformationGrid.GetPointAt(const ptF: TPointF; var x, y: integer): boolean;
+var
+  yb, xb: Integer;
+  curDist, minDist: single;
+begin
+  result := false;
+  minDist := sqr(SelectionMaxPointDistance);
+  for yb := 1 to deformationGridNbY-2 do
+    for xb := 1 to deformationGridNbX-2 do
+    begin
+      curDist := sqr(ptF.x-DeformationGrid[yb,xb].x) + sqr(ptF.y-DeformationGrid[yb,xb].y);
+      if curDist < minDist then
+      begin
+        minDist := curDist;
+        deformationGridX := xb;
+        deformationGridY := yb;
+        result := True;
+        deformationOrigin := ptF;
+      end;
+    end;
+end;
+
 function TToolDeformationGrid.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
-var
-  yb,xb: Integer;
-  curDist,minDist: single;
 begin
   result := EmptyRect;
-  minDist := sqr(SelectionMaxPointDistance);
   deformationGridX := 1;
   deformationGridY := 1;
   if DeformationGrid <> nil then
   begin
-    for yb := 1 to deformationGridNbY-2 do
-      for xb := 1 to deformationGridNbX-2 do
-      begin
-        curDist := sqr(ptF.x-DeformationGrid[yb,xb].x)+sqr(ptF.y-DeformationGrid[yb,xb].y);
-        if curDist < minDist then
-        begin
-          minDist := curDist;
-          deformationGridX := xb;
-          deformationGridY := yb;
-          deformationGridMoving := True;
-          deformationOrigin := ptF;
-        end;
-      end;
+    if GetPointAt(ptF, deformationGridX, deformationGridY) then
+    begin
+      deformationGridMoving := True;
+      deformationOrigin := ptF;
+    end;
   end;
 end;
 
@@ -967,7 +978,7 @@ var xb,yb,NbX,NbY: integer;
     layer,backupLayer : TBGRABitmap;
     PreviousClipRect: TRect;
     previousBounds: TRect;
-    gridMinX,gridMinY,gridMaxX,gridMaxY: integer;
+    gridMinX,gridMinY,gridMaxX,gridMaxY, dummyX, dummY: integer;
 
   procedure AddToDeformationArea(xi,yi: integer);
   var ptF: TPointF;
@@ -988,7 +999,13 @@ begin
   result := EmptyRect;
   Manager.HintReturnValidates;
 
-  if not deformationGridMoving then exit;
+  if not deformationGridMoving then
+  begin
+    if GetPointAt(ptF, dummyX, dummY) then
+      Cursor := crHandPoint
+      else Cursor := crDefault;
+    exit;
+  end;
   if Manager.DeformationGridMode = gmMovePointWithoutDeformation then
   begin
     ReleaseGrid;

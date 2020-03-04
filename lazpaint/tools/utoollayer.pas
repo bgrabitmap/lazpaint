@@ -514,6 +514,18 @@ begin
   end else
   if rightBtn then
   begin
+    if FSnapDown then
+    begin
+      if Manager.Image.ZoomFactor > 4 then
+      begin
+        ptF.X := round(ptF.X*2)/2;
+        ptF.Y := round(ptF.Y*2)/2;
+      end else
+      begin
+        ptF.X := round(ptF.X);
+        ptF.Y := round(ptF.Y);
+      end;
+    end;
     FTransformCenter := ptF;
     TransformCenterChanged;
     result := UpdateTransform;
