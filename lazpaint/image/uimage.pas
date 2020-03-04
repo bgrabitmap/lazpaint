@@ -1670,7 +1670,8 @@ var
 begin
   if (NbLayers = 1) and (LayerOpacity[CurrentLayerIndex] = 255) and
     (LayerOffset[CurrentLayerIndex].X = 0) and (LayerOffset[CurrentLayerIndex].Y = 0) and
-    (LayerBitmap[CurrentLayerIndex].Width = Width) and (LayerBitmap[CurrentLayerIndex].Height = Height) then
+    (LayerBitmap[CurrentLayerIndex].Width = Width) and (LayerBitmap[CurrentLayerIndex].Height = Height) and
+    LayerVisible[CurrentLayerIndex] and ((SelectionMask = nil) or (SelectionLayerReadonly = nil)) then
     exit(LayerBitmap[CurrentLayerIndex])
   else
   if (FRenderedImage = nil) or ((FRenderedImageInvalidated.Right > FRenderedImageInvalidated.Left) and
@@ -1747,23 +1748,27 @@ begin
     begin
       FRenderedImage.ClipRect := FRenderedImageInvalidated;
       FRenderedImage.DiscardXorMask;
-      if NbLayers = 1 then
+      if (NbLayers = 1) and (FCurrentState.LayeredBitmap.SelectionScanner = nil) then
       begin
-        rLayer := RectWithSize(LayerOffset[0].X, LayerOffset[0].Y, LayerBitmap[0].Width, LayerBitmap[0].Height);
-        if rLayer.Top > FRenderedImageInvalidated.Top then
-          FRenderedImage.EraseRect(FRenderedImageInvalidated.Left, FRenderedImageInvalidated.Top,
-            FRenderedImageInvalidated.Right, rLayer.Top, 255);
-        if rLayer.Left > FRenderedImageInvalidated.Left then
-          FRenderedImage.EraseRect(FRenderedImageInvalidated.Left, rLayer.Top,
-            rLayer.Left, rLayer.Bottom, 255);
-        FRenderedImage.PutImage(rLayer.Left, rLayer.Top, LayerBitmap[0], dmSet);
-        FRenderedImage.ApplyGlobalOpacity(rLayer, LayerOpacity[0]);
-        if rLayer.Right < FRenderedImageInvalidated.Right then
-          FRenderedImage.EraseRect(rLayer.Right, rLayer.Top,
-            FRenderedImageInvalidated.Right, rLayer.Bottom, 255);
-        if rLayer.Bottom < FRenderedImageInvalidated.Bottom then
-          FRenderedImage.EraseRect(FRenderedImageInvalidated.Left, rLayer.Bottom,
-            FRenderedImageInvalidated.Right, FRenderedImageInvalidated.Bottom, 255);
+        if (LayerOpacity[0] > 0) and LayerVisible[0] then
+        begin
+          rLayer := RectWithSize(LayerOffset[0].X, LayerOffset[0].Y, LayerBitmap[0].Width, LayerBitmap[0].Height);
+          if rLayer.Top > FRenderedImageInvalidated.Top then
+            FRenderedImage.EraseRect(FRenderedImageInvalidated.Left, FRenderedImageInvalidated.Top,
+              FRenderedImageInvalidated.Right, rLayer.Top, 255);
+          if rLayer.Left > FRenderedImageInvalidated.Left then
+            FRenderedImage.EraseRect(FRenderedImageInvalidated.Left, rLayer.Top,
+              rLayer.Left, rLayer.Bottom, 255);
+          FRenderedImage.PutImage(rLayer.Left, rLayer.Top, LayerBitmap[0], dmSet);
+          FRenderedImage.ApplyGlobalOpacity(rLayer, LayerOpacity[0]);
+          if rLayer.Right < FRenderedImageInvalidated.Right then
+            FRenderedImage.EraseRect(rLayer.Right, rLayer.Top,
+              FRenderedImageInvalidated.Right, rLayer.Bottom, 255);
+          if rLayer.Bottom < FRenderedImageInvalidated.Bottom then
+            FRenderedImage.EraseRect(FRenderedImageInvalidated.Left, rLayer.Bottom,
+              FRenderedImageInvalidated.Right, FRenderedImageInvalidated.Bottom, 255);
+        end else
+          FRenderedImage.EraseRect(FRenderedImageInvalidated, 255);
       end else
       begin
         FRenderedImage.FillRect(FRenderedImageInvalidated,BGRAPixelTransparent,dmSet);
