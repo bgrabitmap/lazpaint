@@ -18,6 +18,7 @@ type
     procedure AssignShapeStyle({%H-}AMatrix: TAffineMatrix; {%H-}AAlwaysFit: boolean); override;
     function RoundCoordinate(constref ptF: TPointF): TPointF; override;
     function UpdateShape(toolDest: TBGRABitmap): TRect; override;
+    procedure ShapeChange({%H-}ASender: TObject; ABounds: TRectF; ADiff: TVectorShapeDiff); override;
     procedure QuickDefineEnd; override;
     function BigImage: boolean;
   public
@@ -230,6 +231,13 @@ begin
     result := OnlyRenderChange
   else
     Result:= inherited UpdateShape(toolDest);
+end;
+
+procedure TVectorialSelectTool.ShapeChange(ASender: TObject; ABounds: TRectF;
+  ADiff: TVectorShapeDiff);
+begin
+  if BigImage and FQuickDefine then exit;
+  inherited ShapeChange(ASender, ABounds, ADiff);
 end;
 
 procedure TVectorialSelectTool.QuickDefineEnd;
