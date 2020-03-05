@@ -1247,7 +1247,7 @@ begin
 end;
 
 procedure TLazPaintImage.SelectionMaskMayChange(ARect: TRect);
-var temp: TRect;
+var transfRect: TRect;
   ab: TAffineBox;
 begin
   IntersectRect(ARect, ARect, rect(0,0,Width,Height));
@@ -1256,14 +1256,14 @@ begin
   DiscardSelectionLayerAfterMask;
 
   ab := SelectionTransform*TAffineBox.AffineBox(rectF(ARect.Left,ARect.Top,ARect.Right,ARect.Bottom));
-  temp := ab.RectBounds;
-  InflateRect(temp,1,1);
-  FRenderUpdateRectInPicCoord := RectUnion(FRenderUpdateRectInPicCoord,temp);
+  transfRect := ab.RectBounds;
+  InflateRect(transfRect,1,1);
+  FRenderUpdateRectInPicCoord := RectUnion(FRenderUpdateRectInPicCoord,transfRect);
 
   FCurrentState.DiscardSelectionMaskBounds(ARect);
   if Assigned(FOnSelectionMaskChanged) then FOnSelectionMaskChanged(self, ARect);
   if FCurrentState.SelectionLayer <> nil then
-    LayerMayChange(FCurrentState.SelectionLayer, ARect)
+    ImageMayChange(transfRect, False)
   else
     OnImageChanged.NotifyObservers;
 end;
