@@ -603,7 +603,7 @@ end;
 function TImageDiff.CreateNew(AWidth, AHeight: integer): TBGRABitmap;
 begin
   if FGrayscale then
-    result := TBGRABitmap.Create(AWidth, AHeight, BGRAWhite)
+    result := TBGRABitmap.Create(AWidth, AHeight, BGRABlack)
   else
     result := TBGRABitmap.Create(AWidth, AHeight);
 end;
