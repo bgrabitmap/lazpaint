@@ -100,7 +100,7 @@ procedure TImageView.SetShowSelection(AValue: boolean);
 begin
   if FShowSelection=AValue then Exit;
   FShowSelection:=AValue;
-  Image.ImageMayChangeCompletely;
+  Image.RenderMayChange(rect(0,0,Image.Width,Image.Height));
 end;
 
 function TImageView.GetPictureCoordsDefined: boolean;
