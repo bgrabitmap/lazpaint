@@ -1668,6 +1668,7 @@ var
   rectOutput, rLayer: TRect;
   actualTransformation: TAffineMatrix;
   selectionScanner: TBGRACustomScanner;
+  selFilter: TResampleFilter;
 begin
   if (NbLayers = 1) and (LayerOpacity[CurrentLayerIndex] = 255) and
     (LayerOffset[CurrentLayerIndex].X = 0) and (LayerOffset[CurrentLayerIndex].Y = 0) and
@@ -1701,8 +1702,10 @@ begin
            rectOutput.Intersect(rect(0,0,self.Width,self.Height));
            if not rectOutput.IsEmpty then
            begin
+             if rectOutput.Width*rectOutput.Height > 640*480 then
+               selFilter := rfBox else selFilter := rfCosine;
              selectionScanner := TBGRAAffineBitmapTransform.Create(
-                                            FSelectionLayerAfterMask, false, rfCosine);
+                                            FSelectionLayerAfterMask, false, selFilter);
              TBGRAAffineBitmapTransform(selectionScanner).ViewMatrix := actualTransformation;
              FCurrentState.LayeredBitmap.SelectionScanner := selectionScanner;
              FCurrentState.LayeredBitmap.SelectionRect:= rectOutput;
