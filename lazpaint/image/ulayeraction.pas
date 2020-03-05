@@ -247,7 +247,7 @@ begin
       FPrediff.Add(layerOfsDiff);
     end;
   end;
-  if AApplySelectionTransformBefore then
+  if AApplySelectionTransformBefore and not IsAffineMatrixIdentity(CurrentState.SelectionTransform) then
   begin
     selTransfDiff := CurrentState.ComputeSelectionTransformDifference;
     if selTransfDiff.IsIdentity then FreeAndNil(selTransfDiff)

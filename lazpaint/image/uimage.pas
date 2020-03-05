@@ -1230,6 +1230,7 @@ begin
   if ALayer = SelectionLayerReadonly then
   begin
     DiscardSelectionLayerAfterMask;
+    ARect.Intersect(SelectionMaskBounds);
     ab := SelectionTransform*TAffineBox.AffineBox(rectF(ARect.Left,ARect.Top,ARect.Right,ARect.Bottom));
     ARect := ab.RectBounds;
   end;
