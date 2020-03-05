@@ -122,9 +122,10 @@ var
   orig: TBGRALayerCustomOriginal;
   diff: TCustomImageDifference;
   rectShape: TRectShape;
+  homogeneous: Boolean;
 begin
-  if Manager.Image.SelectionMaskEmpty and
-     toolDest.Empty then
+  homogeneous := toolDest.Equals(toolDest.GetPixel(0,0));
+  if Manager.Image.SelectionMaskEmpty and homogeneous then
   begin
     CancelAction;
     if rightBtn then f := Manager.BackFill.Duplicate
@@ -155,7 +156,9 @@ begin
   begin
     if rightBtn then b := GetBackUniversalBrush
     else b := GetForeUniversalBrush;
-    toolDest.FloodFill(pt.X, pt.Y, b, ffProgressive in Manager.FloodFillOptions, Manager.Tolerance*$101);
+    if homogeneous then toolDest.Fill(b)
+      else toolDest.FloodFill(pt.X, pt.Y, b,
+                    ffProgressive in Manager.FloodFillOptions, Manager.Tolerance*$101);
     ReleaseUniversalBrushes;
     Action.NotifyChange(toolDest, rect(0,0,toolDest.Width,toolDest.Height));
     ValidateAction;
