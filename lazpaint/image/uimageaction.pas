@@ -335,9 +335,12 @@ begin
     ids := TryAddLayerFromFile(AVars.Strings['FileName']);
     if length(ids) = 0 then exit(srException) else
     begin
-      guidList := AVars.AddGuidList('Result');
-      for i := 0 to high(ids) do
-        AVars.AppendGuid(guidList, Image.LayerGuid[Image.GetLayerIndexById(ids[i])]);
+      if not AVars.IgnoreResult then
+      begin
+        guidList := AVars.AddGuidList('Result');
+        for i := 0 to high(ids) do
+          AVars.AppendGuid(guidList, Image.LayerGuid[Image.GetLayerIndexById(ids[i])]);
+      end;
       exit(srOk);
     end;
   end;
@@ -426,7 +429,8 @@ begin
   if not NewLayer then result := srException
   else
   begin
-    AVars.Guids['Result'] := Image.LayerGuid[Image.CurrentLayerIndex];
+    if not AVars.IgnoreResult then
+      AVars.Guids['Result'] := Image.LayerGuid[Image.CurrentLayerIndex];
     result := srOk;
   end;
 end;
@@ -458,7 +462,7 @@ var
   id, idx: Integer;
 begin
   id := PasteAsNewLayer;
-  if id >= 0 then
+  if (id >= 0) and not AVars.IgnoreResult then
   begin
     idx := Image.GetLayerIndexById(id);
     AVars.Guids['Result'] := Image.LayerGuid[idx];
@@ -471,7 +475,8 @@ function TImageActions.ScriptLayerDuplicate(AVars: TVariableSet): TScriptResult;
 begin
   if not DuplicateLayer then result := srException else
   begin
-    AVars.Guids['Result'] := Image.LayerGuid[Image.CurrentLayerIndex];
+    if not AVars.IgnoreResult then
+      AVars.Guids['Result'] := Image.LayerGuid[Image.CurrentLayerIndex];
     result := srOk;
   end;
 end;

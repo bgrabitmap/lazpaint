@@ -74,7 +74,7 @@ type
     function AddScalar(const AName: string; AType: TScriptVariableType): boolean;
     function AddScalarList(const AName: string; AType: TScriptVariableType): TScriptVariableReference;
   public
-    FunctionRedirected: boolean;
+    FunctionRedirected, IgnoreResult: boolean;
     constructor Create(AFunctionName: string);
     constructor Create(AFunctionName: string; AVariablesAsString: string);
     function LoadFromVariablesAsString(AVariablesAsString: string): TInterpretationErrors;
@@ -296,7 +296,10 @@ begin
       IsRecording := Recording and ((FCallScriptFunctionLevel = 0) or (Assigned(FRecordingFunctionParameters) and ARedirection));
       f := FScriptFunctions[i].handler;
       if Assigned(AParameters) then v := AParameters else
-         v := TVariableSet.Create(FScriptFunctions[i].name);
+      begin
+        v := TVariableSet.Create(FScriptFunctions[i].name);
+        v.IgnoreResult:= true;
+      end;
       previousFunctionParameters := FRecordingFunctionParameters;
       if IsRecording then
       begin
