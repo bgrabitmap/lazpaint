@@ -1897,7 +1897,7 @@ end;
 function TVectorialTool.PreferDraftUpdate: boolean;
 begin
   if Assigned(FShape) then
-    result := (FEditor.IsMovingPoint or FShape.IsFollowingMouse) and SlowShape
+    result := (FEditor.IsMovingPoint or FShape.IsFollowingMouse or FQuickDefine) and SlowShape
   else
     result := false;
 end;
