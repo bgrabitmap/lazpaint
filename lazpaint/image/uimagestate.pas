@@ -152,7 +152,7 @@ type
     function SetLayerVisible(Index: integer; AValue: boolean): TCustomImageDifference;
     function SetLayerOffset(Index: integer; AValue: TPoint): TCustomImageDifference;
     function SetBlendOp(Index: integer; AValue: TBlendOperation): TCustomImageDifference;
-    procedure DrawLayers(ADest: TBGRABitmap; X,Y: Integer; AIconCursor: boolean);
+    procedure DrawLayers(ADest: TBGRABitmap; X,Y: Integer; AIconCursor: boolean; ADestinationEmpty: boolean = false);
     property SelectedImageLayer: TBGRABitmap read GetSelectedImageLayer write SelectImageLayer;
     property SelectedImageLayerIndex: integer read GetCurrentLayerIndex write SelectImageLayerByIndex;
     property LayerOriginal[Index: integer]: TBGRALayerCustomOriginal read GetLayerOriginal;
@@ -1192,10 +1192,10 @@ begin
   result := LayeredBitmap.ComputeFlatImage(ARect,AFromLayer,AToLayer,ASeparateXorMask);
 end;
 
-procedure TImageState.DrawLayers(ADest: TBGRABitmap; X, Y: Integer; AIconCursor: boolean);
+procedure TImageState.DrawLayers(ADest: TBGRABitmap; X, Y: Integer; AIconCursor: boolean; ADestinationEmpty: boolean);
 begin
   if LayeredBitmap <> nil then
-    LayeredBitmap.Draw(ADest,X,Y, AIconCursor);
+    LayeredBitmap.Draw(ADest,X,Y, AIconCursor, ADestinationEmpty);
 end;
 
 constructor TImageState.Create;

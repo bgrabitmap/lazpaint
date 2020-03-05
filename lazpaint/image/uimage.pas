@@ -1775,8 +1775,8 @@ begin
           FRenderedImage.EraseRect(FRenderedImageInvalidated, 255);
       end else
       begin
-        FRenderedImage.FillRect(FRenderedImageInvalidated,BGRAPixelTransparent,dmSet);
-        FCurrentState.DrawLayers(FRenderedImage,0,0,False);
+        FRenderedImage.FillRect(FRenderedImageInvalidated, BGRAPixelTransparent, dmSet);
+        FCurrentState.DrawLayers(FRenderedImage, 0, 0, False, true);
       end;
       FRenderedImage.NoClip;
     end;
