@@ -236,7 +236,11 @@ end;
 procedure TVectorialSelectTool.ShapeChange(ASender: TObject; ABounds: TRectF;
   ADiff: TVectorShapeDiff);
 begin
-  if BigImage and FQuickDefine then exit;
+  if BigImage and FQuickDefine then
+  begin
+    ADiff.Free;
+    exit;
+  end;
   inherited ShapeChange(ASender, ABounds, ADiff);
 end;
 
