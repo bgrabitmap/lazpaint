@@ -580,13 +580,17 @@ begin
   begin
     if FBackupSelectionLayerDefined then
     begin
-      CurrentState.DiscardSelectionLayerBounds;
+      if ChangeBoundsNotified then
+        CurrentState.DiscardSelectionLayerBounds(FSelectionLayerChangedArea)
+        else CurrentState.DiscardSelectionLayerBoundsCompletely;
       if CurrentState.SelectionLayerEmpty then
         CurrentState.ReplaceSelectionLayer(nil,True);
     end;
     if FBackupSelectionMaskDefined then
     begin
-      CurrentState.DiscardSelectionMaskBounds;
+      if ChangeBoundsNotified then
+        CurrentState.DiscardSelectionMaskBounds(FSelectionMaskChangedArea)
+        else CurrentState.DiscardSelectionMaskBoundsCompletely;
       if CurrentState.SelectionMaskEmpty then
         CurrentState.RemoveSelection;
     end;

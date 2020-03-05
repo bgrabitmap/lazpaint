@@ -1492,6 +1492,7 @@ var
 begin
   if image.SelectionMaskEmpty then exit;
   layeraction := image.CreateAction(true, true);
+  layeraction.ChangeBoundsNotified:= true;
   layeraction.ReleaseSelection;
   layeraction.Validate;
   layeraction.Free;

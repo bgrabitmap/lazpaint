@@ -1208,7 +1208,7 @@ begin
   if ADiscardSelectionLayerAfterMask then DiscardSelectionLayerAfterMask;
   FRenderUpdateRectInPicCoord := RectUnion(FRenderUpdateRectInPicCoord,ARect);
   FRenderedImageInvalidated := RectUnion(FRenderedImageInvalidated, ARect);
-  FCurrentState.DiscardSelectionLayerBounds;
+  FCurrentState.DiscardSelectionLayerBounds(ARect);
   OnImageChanged.NotifyObservers;
 end;
 
@@ -1259,7 +1259,7 @@ begin
   InflateRect(temp,1,1);
   FRenderUpdateRectInPicCoord := RectUnion(FRenderUpdateRectInPicCoord,temp);
 
-  FCurrentState.DiscardSelectionMaskBounds;
+  FCurrentState.DiscardSelectionMaskBounds(ARect);
   if Assigned(FOnSelectionMaskChanged) then FOnSelectionMaskChanged(self, ARect);
   if FCurrentState.SelectionLayer <> nil then
     LayerMayChange(FCurrentState.SelectionLayer, ARect)
@@ -1271,7 +1271,7 @@ procedure TLazPaintImage.SelectionMaskMayChangeCompletely;
 begin
   DiscardSelectionLayerAfterMask;
   FRenderUpdateRectInPicCoord := rect(0,0,Width,Height);
-  FCurrentState.DiscardSelectionMaskBounds;
+  FCurrentState.DiscardSelectionMaskBoundsCompletely;
   if Assigned(FOnSelectionMaskChanged) then FOnSelectionMaskChanged(self, rect(0,0,Width,Height));
   if FCurrentState.SelectionLayer <> nil then
     LayerMayChange(FCurrentState.SelectionLayer, rect(0,0,Width,Height))

@@ -1228,8 +1228,8 @@ begin
       newBmp.Free;
     end;
     ImgState.SelectionTransform := AffineMatrixIdentity;
-    ImgState.DiscardSelectionMaskBounds;
-    ImgState.DiscardSelectionLayerBounds;
+    ImgState.DiscardSelectionMaskBoundsCompletely;
+    ImgState.DiscardSelectionLayerBoundsCompletely;
   end;
 end;
 
@@ -1244,8 +1244,8 @@ begin
     if Assigned(FPrevSelectionMask) then prevMask := FPrevSelectionMask.GetBitmap else prevMask := nil;
     if Assigned(FPrevSelectionLayer) then prevSelectionLayer := FPrevSelectionLayer.GetBitmap else prevSelectionLayer := nil;
     ImgState.ReplaceSelection(prevMask, prevSelectionLayer);
-    ImgState.DiscardSelectionMaskBounds;
-    ImgState.DiscardSelectionLayerBounds;
+    ImgState.DiscardSelectionMaskBoundsCompletely;
+    ImgState.DiscardSelectionLayerBoundsCompletely;
     ImgState.SelectionTransform := FPrevTransform;
   end;
   inherited UnapplyTo(AState);

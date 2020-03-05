@@ -9,6 +9,8 @@ uses
   UImageType, BGRAWriteLzp, BGRAReadLzp, FPimage, BGRALayerOriginal;
 
 type
+  TBoundsState = (bsUndefined, bsWithinCurrent, bsDefined);
+
   { TImageState }
 
   TImageState = class(TState)
@@ -20,7 +22,7 @@ type
     FOnOriginalEditingChange: TEmbeddedOriginalEditingChangeEvent;
     FSelectionMask: TBGRABitmap;
     FLastSelectionMaskBoundsIsDefined,
-    FLastSelectionLayerBoundsIsDefined: boolean;
+    FLastSelectionLayerBoundsIsDefined: TBoundsState;
     FLastSelectionMaskBounds, FLastSelectionLayerBounds: TRect;
     FSelectionTransform: TAffineMatrix;
     function GetBlendOp(Index: integer): TBlendOperation;
@@ -93,7 +95,8 @@ type
     procedure ReplaceSelection(ASelectionMask, ASelectionLayer: TBGRABitmap);
     procedure RemoveSelection;
 
-    procedure DiscardSelectionMaskBounds;
+    procedure DiscardSelectionMaskBounds(const AChangeRect: TRect);
+    procedure DiscardSelectionMaskBoundsCompletely;
     function GetSelectionMaskBounds: TRect;
     function SelectionMaskEmpty: boolean;
     function SelectionMaskEmptyComputed: boolean;
@@ -105,7 +108,8 @@ type
     procedure ReplaceSelectionLayer(bmp: TBGRABitmap; AOwned: boolean);
     procedure ComputeTransformedSelectionLayer(out ANewLayer: TBGRABitmap; out ALeft,ATop: integer);
 
-    procedure DiscardSelectionLayerBounds;
+    procedure DiscardSelectionLayerBounds(const AChangeRect: TRect);
+    procedure DiscardSelectionLayerBoundsCompletely;
     function GetSelectionLayerBounds: TRect;
     function SelectionLayerEmpty: boolean;
 
@@ -181,7 +185,7 @@ type
 implementation
 
 uses BGRAStreamLayers, UImageDiff, BGRALzpCommon, UFileSystem, BGRATransform,
-  UResourceStrings, LCVectorOriginal;
+  UResourceStrings, LCVectorOriginal, UGraph;
 
 { TImageState }
 
@@ -534,7 +538,7 @@ procedure TImageState.SetSelectionMask(AValue: TBGRABitmap);
 begin
   If AValue = FSelectionMask then exit;
   FSelectionMask := AValue;
-  DiscardSelectionMaskBounds;
+  DiscardSelectionMaskBoundsCompletely;
 end;
 
 procedure TImageState.SetLayerBitmap(layer: integer; ABitmap: TBGRABitmap;
@@ -553,7 +557,7 @@ begin
       begin
         SelectionLayer := TBGRABitmap.Create(Width,Height);
         FLastSelectionLayerBounds := EmptyRect;
-        FLastSelectionLayerBoundsIsDefined := true;
+        FLastSelectionLayerBoundsIsDefined := bsDefined;
       end;
       result := SelectionLayer;
     end;
@@ -600,26 +604,37 @@ begin
   end;
 end;
 
-procedure TImageState.DiscardSelectionLayerBounds;
+procedure TImageState.DiscardSelectionLayerBounds(const AChangeRect: TRect);
 begin
-  FLastSelectionLayerBoundsIsDefined := false;
+  if FLastSelectionLayerBoundsIsDefined in[bsDefined,bsWithinCurrent] then
+  begin
+    FLastSelectionLayerBounds := RectUnion(FLastSelectionLayerBounds, AChangeRect);
+    FLastSelectionLayerBoundsIsDefined := bsWithinCurrent;
+  end;
+end;
+
+procedure TImageState.DiscardSelectionLayerBoundsCompletely;
+begin
+  FLastSelectionLayerBoundsIsDefined := bsUndefined;
 end;
 
 function TImageState.GetSelectionLayerBounds: TRect;
 begin
-  if FLastSelectionLayerBoundsIsDefined then
+  if FLastSelectionLayerBoundsIsDefined = bsDefined then
     result := FLastSelectionLayerBounds
   else
   if SelectionLayer = nil then
   begin
     result := EmptyRect;
     FLastSelectionLayerBounds := result;
-    FLastSelectionLayerBoundsIsDefined := true;
+    FLastSelectionLayerBoundsIsDefined := bsDefined;
   end else
   begin
-    result := SelectionLayer.GetImageBounds;
+    if FLastSelectionLayerBoundsIsDefined = bsWithinCurrent then
+      result := SelectionLayer.GetImageBoundsWithin(FLastSelectionLayerBounds)
+      else result := SelectionLayer.GetImageBounds;
     FLastSelectionLayerBounds := result;
-    FLastSelectionLayerBoundsIsDefined := true;
+    FLastSelectionLayerBoundsIsDefined := bsDefined;
   end;
 end;
 
@@ -943,31 +958,42 @@ begin
   if SelectionMask = nil then
   begin
     SelectionMask := TBGRABitmap.Create(Width,Height, BGRABlack);
-    FLastSelectionMaskBoundsIsDefined := true;
+    FLastSelectionMaskBoundsIsDefined := bsDefined;
     FLastSelectionMaskBounds := EmptyRect;
   end;
 end;
 
-procedure TImageState.DiscardSelectionMaskBounds;
+procedure TImageState.DiscardSelectionMaskBounds(const AChangeRect: TRect);
 begin
-  FLastSelectionMaskBoundsIsDefined := false;
+  if FLastSelectionMaskBoundsIsDefined in[bsDefined,bsWithinCurrent] then
+  begin
+    FLastSelectionMaskBounds := RectUnion(FLastSelectionMaskBounds, AChangeRect);
+    FLastSelectionMaskBoundsIsDefined := bsWithinCurrent;
+  end;
+end;
+
+procedure TImageState.DiscardSelectionMaskBoundsCompletely;
+begin
+  FLastSelectionMaskBoundsIsDefined := bsUndefined;
 end;
 
 function TImageState.GetSelectionMaskBounds: TRect;
 begin
-  if FLastSelectionMaskBoundsIsDefined then
+  if FLastSelectionMaskBoundsIsDefined = bsDefined then
     result := FLastSelectionMaskBounds
   else
   if SelectionMask = nil then
   begin
     result := EmptyRect;
     FLastSelectionMaskBounds := result;
-    FLastSelectionMaskBoundsIsDefined := true;
+    FLastSelectionMaskBoundsIsDefined := bsDefined;
   end else
   begin
-    result := SelectionMask.GetImageBounds(cGreen);
+    if FLastSelectionMaskBoundsIsDefined = bsWithinCurrent then
+      result := SelectionMask.GetImageBoundsWithin(FLastSelectionMaskBounds, cGreen)
+      else result := SelectionMask.GetImageBounds(cGreen);
     FLastSelectionMaskBounds := result;
-    FLastSelectionMaskBoundsIsDefined := true;
+    FLastSelectionMaskBoundsIsDefined := bsDefined;
   end;
 end;
 
@@ -978,7 +1004,7 @@ end;
 
 function TImageState.SelectionMaskEmptyComputed: boolean;
 begin
-  result := FLastSelectionMaskBoundsIsDefined;
+  result := FLastSelectionMaskBoundsIsDefined = bsDefined;
 end;
 
 function TImageState.GetTransformedSelectionMaskBounds: TRect;
@@ -1178,8 +1204,8 @@ begin
   SelectionMask := nil;
   SelectionLayer := nil;
   selectedLayerId := -1;
-  FLastSelectionMaskBoundsIsDefined := false;
-  FLastSelectionLayerBoundsIsDefined := false;
+  FLastSelectionMaskBoundsIsDefined := bsUndefined;
+  FLastSelectionLayerBoundsIsDefined := bsUndefined;
   FSelectionTransform := AffineMatrixIdentity;
   DiscardOriginalDiff := true;
 end;
