@@ -90,6 +90,7 @@ type
     procedure HandleSelectLayer(i,x,y: integer);
     procedure HandleChangeLayerOpacity(X,{%H-}Y: integer);
     procedure UpdateLayerStackItem(AIndex: integer);
+    procedure NeedCheckers;
   public
     constructor Create(AContainer: TWinControl; AInstance: TLazPaintCustomInstance);
     destructor Destroy; override;
@@ -378,6 +379,7 @@ begin
   result.PreviewPts[1].y += 0.5;
   result.PreviewPts[2].y -= 0.5;
   result.PreviewPts[3].y -= 0.5;
+  NeedCheckers;
   if LazPaintInstance.Image.IsIconCursor then
     ABitmap.FillPolyAntialias(result.PreviewPts, FIconBackground)
   else
@@ -811,6 +813,27 @@ begin
   end;
 end;
 
+procedure TLayerStackInterface.NeedCheckers;
+var
+  checkerSize: Integer;
+begin
+  checkerSize := DoScaleX(2, OriginalDPI, DPI);
+  if Assigned(FRegularBackground) and (FRegularBackground.Width <> checkerSize*2) then
+  begin
+    FreeAndNil(FRegularBackground);
+    FreeAndNil(FIconBackground);
+  end;
+  if FRegularBackground = nil then
+  begin
+    FRegularBackground := TBGRABitmap.Create(checkerSize*2,checkerSize*2, ImageCheckersColor1);
+    FRegularBackground.FillRect(0,0, checkerSize,checkerSize, ImageCheckersColor2, dmDrawWithTransparency);
+    FRegularBackground.FillRect(checkerSize,checkerSize, checkerSize*2,checkerSize*2, ImageCheckersColor2, dmDrawWithTransparency);
+    FIconBackground := TBGRABitmap.Create(checkerSize*2,checkerSize*2, IconCheckersColor1);
+    FIconBackground.FillRect(0,0, checkerSize,checkerSize, IconCheckersColor2, dmDrawWithTransparency);
+    FIconBackground.FillRect(checkerSize,checkerSize, checkerSize*2,checkerSize*2, IconCheckersColor2, dmDrawWithTransparency);
+  end;
+end;
+
 procedure TLayerStackInterface.LazPaint_ImageChanged(
   AEvent: TLazPaintImageObservationEvent);
 begin
@@ -958,12 +981,6 @@ begin
   AddButton(rsZoomLayerStackIn, 6, @ToolZoomLayerStackIn_Click);
   AddButton(rsZoomLayerStackOut, 7, @ToolZoomLayerStackOut_Click);
 
-  FRegularBackground := TBGRABitmap.Create(4,4, ImageCheckersColor1);
-  FRegularBackground.FillRect(0,0,2,2, ImageCheckersColor2, dmDrawWithTransparency);
-  FRegularBackground.FillRect(2,2,4,4, ImageCheckersColor2, dmDrawWithTransparency);
-  FIconBackground := TBGRABitmap.Create(4,4, IconCheckersColor1);
-  FIconBackground.FillRect(0,0,2,2, IconCheckersColor2, dmDrawWithTransparency);
-  FIconBackground.FillRect(2,2,4,4, IconCheckersColor2, dmDrawWithTransparency);
   FRenaming := false;
   FMovingItemStart := false;
   FScrollPos := point(0,0);
