@@ -765,7 +765,7 @@ type
     procedure UpdatePenStyleToolbar;
     procedure UpdateJoinStyleToolbar;
     procedure UpdateShapeRatio;
-    procedure UpdateTextFontToolbar;
+    procedure UpdateTextFontToolbar(AForce: boolean);
     procedure UpdateTextAlign;
     procedure UpdateTextOutlineToolbar;
     procedure UpdateTextPhongToolbar;
@@ -4522,7 +4522,7 @@ end;
 
 procedure TFMain.ManagerTextFontChanged(Sender: TObject);
 begin
-  UpdateTextFontToolbar;
+  UpdateTextFontToolbar(False);
 end;
 
 procedure TFMain.ManagerTextOutlineChanged(Sender: TObject);

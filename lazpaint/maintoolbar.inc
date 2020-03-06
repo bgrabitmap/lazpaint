@@ -417,9 +417,9 @@ begin
   Combo_Ratio.Text := RatioToStr(ToolManager.ShapeRatio);
 end;
 
-procedure TFMain.UpdateTextFontToolbar;
+procedure TFMain.UpdateTextFontToolbar(AForce: boolean);
 begin
-  if FInTextFont then exit;
+  if FInTextFont and not AForce then exit;
   SpinEdit_TextSize.Value := round(ToolManager.TextFontSize);
   UpdateTextSizeIncrement;
 end;
@@ -510,7 +510,7 @@ begin
   UpdateCurveModeToolbar;
   UpdateTextOutlineToolbar;
   UpdateTextPhongToolbar;
-  UpdateTextFontToolbar;
+  UpdateTextFontToolbar(False);
   UpdateTextShadowToolbar;
   UpdatePhongToolbar;
   ComboBox_BrushSelect.Clear;
@@ -1754,6 +1754,7 @@ begin
   begin
     ToolManager.SetTextFont(FontDialog1.Font);
     ToolManager.ForeColor := ColorToBGRA(FontDialog1.Font.Color,ToolManager.ForeColor.alpha);
+    UpdateTextFontToolbar(true);
     UpdateEditPicture;
   end;
   LazPaintInstance.ShowTopmost(topmostInfo);
