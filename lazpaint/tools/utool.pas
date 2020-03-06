@@ -2844,7 +2844,7 @@ begin
   ShapeOptions:= opt;
   Tolerance := Config.DefaultToolTolerance;
 
-  TextShadow := Config.DefaultToolTextShadow;
+  //TextShadow := Config.DefaultToolTextShadow;
   SetTextOutline(Config.DefaultToolTextOutline, Config.DefaultToolTextOutlineWidth);
   TextPhong := Config.DefaultToolTextPhong;
   with Config.DefaultToolTextFont do
